@@ -47,10 +47,11 @@ ngApp.controller('ctrlConsole', ['$scope', '$uibModal', 'http2', 'templateShop',
         }
     };
     var searchMatters = function(append) {
+        var url;
         if ($scope.matterType === 'addressbook') {
-            var url = '/rest/pl/fe/matter/' + $scope.matterType + '/get?site=' + $scope.siteId + $scope.page.j();
+            url = '/rest/pl/fe/matter/' + $scope.matterType + '/get?site=' + $scope.siteId + $scope.page.j();
         } else {
-            var url = '/rest/pl/fe/matter/' + $scope.matterType + '/list?site=' + $scope.siteId + $scope.page.j();
+            url = '/rest/pl/fe/matter/' + $scope.matterType + '/list?site=' + $scope.siteId + $scope.page.j();
         }
         url += '&_=' + (new Date() * 1);
         switch ($scope.matterType) {
@@ -102,6 +103,10 @@ ngApp.controller('ctrlConsole', ['$scope', '$uibModal', 'http2', 'templateShop',
             http2.get('/rest/pl/fe/site/console/recent?site=' + $scope.siteId + '&_=' + (new Date() * 1), function(rsp) {
                 $scope.matters = rsp.data.matters;
             });
+        } else if ($scope.matterType === 'recycle') {
+            http2.get('/rest/pl/fe/site/console/recycle?site=' + $scope.siteId + '&_=' + (new Date() * 1), function(rsp) {
+                $scope.matters = rsp.data.matters;
+            });
         } else {
             $scope.page.at = 1;
             $scope.page.total = 0;
@@ -150,6 +155,12 @@ ngApp.controller('ctrlConsole', ['$scope', '$uibModal', 'http2', 'templateShop',
         }
         http2.get(url, function(rsp) {
             location.href = '/rest/pl/fe/matter/' + type + '?site=' + $scope.siteId + '&id=' + rsp.data.id;
+        });
+    };
+    $scope.restoreMatter = function(matter) {
+        var url = '/rest/pl/fe/matter/' + matter.matter_type + '/restore' + '?site=' + $scope.siteId + '&id=' + matter.matter_id;
+        http2.get(url, function(rsp) {
+            location.href = '/rest/pl/fe/matter/' + matter.matter_type + '?site=' + $scope.siteId + '&id=' + matter.matter_id;
         });
     };
     $scope.gotoText = function() {

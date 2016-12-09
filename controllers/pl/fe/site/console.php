@@ -37,4 +37,23 @@ class console extends \pl\fe\base {
 
 		return new \ResponseData($matters);
 	}
+	/**
+	 * 最近删除的素材
+	 */
+	public function recycle_action($site, $page = 1, $size = 30) {
+		$modelLog = $this->model('matter\log');
+
+		/*分页参数*/
+		$p = new \stdClass;
+		$p->at = $page;
+		$p->size = $size;
+
+		$options = array(
+			'page' => $p,
+		);
+
+		$matters = $modelLog->recycleMatters($site, $options);
+
+		return new \ResponseData($matters);
+	}
 }

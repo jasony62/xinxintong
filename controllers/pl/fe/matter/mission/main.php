@@ -123,18 +123,12 @@ class main extends \pl\fe\matter\base {
 		}
 
 		$modelMis = $this->model('matter\mission');
-		$mission = $modelMis->byId($id, 'id,title,summary,pic,creater');
+		$mission = $modelMis->byId($id, 'id,siteid,title,summary,pic,creater');
 
 		$modelAcl = $this->model('matter\mission\acl');
 		$acl = $modelAcl->byCoworker($mission->id, $user->id);
 
 		if (in_array($acl->coworker_role, array('O', 'A'))) {
-			/* 清空任务的ACL */
-			$modelAcl->removeMission($mission);
-			/* 记录操作日志 */
-			$mission->type = 'mission';
-			$this->model('log')->matterOp($site, $user, $mission, 'D');
-			/* 删除数据 */
 			$q = [
 				'count(*)',
 				'xxt_mission_matter',
@@ -144,11 +138,16 @@ class main extends \pl\fe\matter\base {
 
 			if ($cnt > 0) {
 				/* 如果已经素材，就只打标记 */
-				$rst = $modelMis->update('xxt_mission', ['state' => 2], ["id" => $id]);
+				$rst = $modelMis->update('xxt_mission', ['state' => 0], ["id" => $id]);
+				$this->model('log')->matterOp($mission->siteid, $user, $mission, 'Recycle');
 			} else {
+				/* 清空任务的ACL */
+				$modelAcl->removeMission($mission);
+				/* 删除数据 */
 				/* 清除数据 */
 				$modelMis->delete('xxt_mission_phase', ["mission_id" => $id]);
 				$rst = $modelMis->delete('xxt_mission', ["id" => $id]);
+				$this->model('log')->matterOp($mission->siteid, $user, $mission, 'D');
 			}
 		} else {
 			/* 从访问列表中移除当前用户 */
@@ -156,6 +155,31 @@ class main extends \pl\fe\matter\base {
 			$coworker->id = $user->id;
 			$modelAcl->removeCoworker($mission, $coworker);
 		}
+
+		return new \ResponseData($rst);
+	}
+	/**
+	 * 恢复被删除的项目
+	 */
+	public function restore_action($site, $id) {
+		if (false === ($user = $this->accountUser())) {
+			return new \ResponseTimeout();
+		}
+
+		$model = $this->model('matter\mission');
+		if (false === ($mission = $model->byId($id, 'id,title,summary,pic'))) {
+			return new \ResponseError('数据已经被彻底删除，无法恢复');
+		}
+
+		/* 恢复数据 */
+		$rst = $model->update(
+			'xxt_mission',
+			['state' => 1],
+			["id" => $mission->id]
+		);
+
+		/* 记录操作日志 */
+		$this->model('matter\log')->matterOp($site, $user, $mission, 'Restore');
 
 		return new \ResponseData($rst);
 	}

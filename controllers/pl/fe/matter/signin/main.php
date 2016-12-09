@@ -467,10 +467,14 @@ class main extends \pl\fe\matter\base {
 			return new \ResponseTimeout();
 		}
 		/*在删除数据前获得数据*/
-		$app = $this->model('matter\signin')->byId($app, ['fields' => 'id,title,summary,pic,mission_id', 'cascaded' => 'N']);
+		$modelSig = $this->model('matter\signin');
+		$app = $modelSig->byId($app, ['fields' => 'id,title,summary,pic,mission_id,creater', 'cascaded' => 'N']);
+		if ($app->creater !== $user->id) {
+			return new \ResponseError('没有删除数据的权限');
+		}
 		/*删除和任务的关联*/
 		if ($app->mission_id) {
-			$this->model('matter\mission')->removeMatter($site, $app->id, 'signin');
+			$this->model('matter\mission')->removeMatter($app->id, 'signin');
 		}
 		/*check*/
 		$q = [
@@ -478,38 +482,67 @@ class main extends \pl\fe\matter\base {
 			'xxt_signin_record',
 			["aid" => $app->id],
 		];
-		$model = $this->model();
-		if ((int) $model->query_val_ss($q) > 0) {
-			$rst = $model->update(
+		if ((int) $modelSig->query_val_ss($q) > 0) {
+			$rst = $modelSig->update(
 				'xxt_signin',
 				['state' => 0],
 				["id" => $app->id]
 			);
+			/*记录操作日志*/
+			$this->model('log')->matterOp($site, $user, $app, 'Recycle');
 		} else {
-			$model->delete(
+			$modelSig->delete(
 				'xxt_signin_log',
 				["aid" => $app->id]
 			);
-			$model->delete(
+			$modelSig->delete(
 				'xxt_signin_round',
 				["aid" => $app->id]
 			);
-			$model->delete(
+			$modelSig->delete(
 				'xxt_code_page',
-				"id in (select code_id from xxt_signin_page where aid='" . $model->escape($app->id) . "')"
+				"id in (select code_id from xxt_signin_page where aid='" . $modelSig->escape($app->id) . "')"
 			);
-			$model->delete(
+			$modelSig->delete(
 				'xxt_signin_page',
 				["aid" => $app->id]
 			);
-			$rst = $model->delete(
+			$rst = $modelSig->delete(
 				'xxt_signin',
 				["id" => $app->id]
 			);
+			/*记录操作日志*/
+			$this->model('log')->matterOp($site, $user, $app, 'D');
 		}
-		/*记录操作日志*/
-		$app->type = 'signin';
-		$this->model('log')->matterOp($site, $user, $app, 'D');
+
+		return new \ResponseData($rst);
+	}
+	/**
+	 * 恢复被删除的分组活动
+	 */
+	public function restore_action($site, $id) {
+		if (false === ($user = $this->accountUser())) {
+			return new \ResponseTimeout();
+		}
+
+		$model = $this->model('matter\signin');
+		if (false === ($app = $model->byId($id, 'id,title,summary,pic,mission_id'))) {
+			return new \ResponseError('数据已经被彻底删除，无法恢复');
+		}
+		if ($app->mission_id) {
+			$modelMis = $this->model('matter\mission');
+			$modelMis->addMatter($user, $site, $app->mission_id, $app);
+		}
+
+		/* 恢复数据 */
+		$rst = $model->update(
+			'xxt_signin',
+			['state' => 1],
+			["id" => $app->id]
+		);
+
+		/* 记录操作日志 */
+		$this->model('matter\log')->matterOp($site, $user, $app, 'Restore');
 
 		return new \ResponseData($rst);
 	}

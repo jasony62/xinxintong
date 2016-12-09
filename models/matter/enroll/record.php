@@ -31,33 +31,37 @@ class record_model extends \TMS_MODEL {
 			'referrer' => $referrer,
 		];
 		/* 记录所属轮次 */
-		$modelRun = \TMS_APP::M('matter\enroll\round');
+		$modelRun = $this->model('matter\enroll\round');
 		if ($activeRound = $modelRun->getActive($siteId, $app->id)) {
 			$record['rid'] = $activeRound->rid;
 		}
 
 		/* 登记用户昵称 */
 		$entryRule = $app->entry_rule;
-		if (isset($entryRule->scope) && $entryRule->scope === 'member') {
-			foreach ($entryRule->member as $schemaId => $rule) {
-				if (isset($user->members->{$schemaId})) {
-					$record['nickname'] = $user->members->{$schemaId}->name;
-					break;
-				}
-			}
-		} else if (isset($entryRule->scope) && $entryRule->scope === 'sns') {
-			foreach ($entryRule->sns as $snsName => $rule) {
-				if (isset($user->sns->{$snsName})) {
-					$record['nickname'] = $this->escape($user->sns->{$snsName}->nickname);
-					break;
-				}
-			}
-		} else if (empty($entryRule->scope) || $entryRule->scope === 'none') {
-			/* 不限制用户访问来源 */
-			$record['nickname'] = empty($user->nickname) ? '' : $this->escape($user->nickname);
-		} else {
-			/* 匿名访问 */
+		if (isset($entryRule->anonymous) && $entryRule->anonymous === 'Y') {
 			$record['nickname'] = '';
+		} else {
+			if (isset($entryRule->scope) && $entryRule->scope === 'member') {
+				foreach ($entryRule->member as $schemaId => $rule) {
+					if (isset($user->members->{$schemaId})) {
+						$record['nickname'] = $user->members->{$schemaId}->name;
+						break;
+					}
+				}
+			} else if (isset($entryRule->scope) && $entryRule->scope === 'sns') {
+				foreach ($entryRule->sns as $snsName => $rule) {
+					if (isset($user->sns->{$snsName})) {
+						$record['nickname'] = $this->escape($user->sns->{$snsName}->nickname);
+						break;
+					}
+				}
+			} else if (empty($entryRule->scope) || $entryRule->scope === 'none') {
+				/* 不限制用户访问来源 */
+				$record['nickname'] = empty($user->nickname) ? '' : $this->escape($user->nickname);
+			} else {
+				/* 匿名访问 */
+				$record['nickname'] = '';
+			}
 		}
 
 		$this->insert('xxt_enroll_record', $record, false);

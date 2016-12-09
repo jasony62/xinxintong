@@ -278,36 +278,71 @@ class main extends \pl\fe\matter\base {
 		if (false === ($user = $this->accountUser())) {
 			return new \ResponseTimeout();
 		}
-		$model = $this->model();
+		$modelGrp = $this->model('matter\group');
 		/*在删除数据前获得数据*/
-		$app = $this->model('matter\group')->byId($app, 'id,title,summary,pic');
+		$app = $modelGrp->byId($app, 'id,title,summary,pic,mission_id,creater');
+		if ($app->creater !== $user->id) {
+			return new \ResponseError('没有删除数据的权限');
+		}
 		/*删除和任务的关联*/
-		$this->model('matter\mission')->removeMatter($site, $app->id, 'group');
+		if ($app->mission_id) {
+			$this->model('matter\mission')->removeMatter($app->id, 'group');
+		}
 		/*check*/
-		$q = array(
+		$q = [
 			'count(*)',
 			'xxt_group_player',
 			["aid" => $app->id],
-		);
-		if ((int) $model->query_val_ss($q) > 0) {
-			$rst = $model->update(
+		];
+		if ((int) $modelGrp->query_val_ss($q) > 0) {
+			$rst = $modelGrp->update(
 				'xxt_group',
 				['state' => 0],
 				["id" => $app->id]
 			);
+			/*记录操作日志*/
+			$this->model('log')->matterOp($site, $user, $app, 'Recycle');
 		} else {
-			$model->delete(
+			$modelGrp->delete(
 				'xxt_group_round',
 				["aid" => $app->id]
 			);
-			$rst = $model->delete(
+			$rst = $modelGrp->delete(
 				'xxt_group',
 				["id" => $app->id]
 			);
+			/*记录操作日志*/
+			$this->model('log')->matterOp($site, $user, $app, 'D');
 		}
-		/*记录操作日志*/
-		$app->type = 'group';
-		$this->model('log')->matterOp($site, $user, $app, 'D');
+
+		return new \ResponseData($rst);
+	}
+	/**
+	 * 恢复被删除的分组活动
+	 */
+	public function restore_action($site, $id) {
+		if (false === ($user = $this->accountUser())) {
+			return new \ResponseTimeout();
+		}
+
+		$model = $this->model('matter\group');
+		if (false === ($app = $model->byId($id, 'id,title,summary,pic,mission_id'))) {
+			return new \ResponseError('数据已经被彻底删除，无法恢复');
+		}
+		if ($app->mission_id) {
+			$modelMis = $this->model('matter\mission');
+			$modelMis->addMatter($user, $site, $app->mission_id, $app);
+		}
+
+		/* 恢复数据 */
+		$rst = $model->update(
+			'xxt_group',
+			['state' => 1],
+			["id" => $app->id]
+		);
+
+		/* 记录操作日志 */
+		$this->model('matter\log')->matterOp($site, $user, $app, 'Restore');
 
 		return new \ResponseData($rst);
 	}

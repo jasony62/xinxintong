@@ -251,6 +251,9 @@ define(['require', 'page', 'schema'], function(require, pageLib, schemaLib) {
 				ms._schemas = schemas;
 			});
 		});
+		if (document.referrer.split('?')[0].indexOf('/pl/fe/site') !== -1) {
+			$scope.referrer = 'site';
+		}
 		http2.get('/rest/pl/fe/site/snsList?site=' + $scope.siteId, function(rsp) {
 			$scope.sns = rsp.data;
 		});

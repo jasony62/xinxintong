@@ -19,10 +19,9 @@ class setting extends \pl\fe\matter\base {
 		$mission = $modelMis->byId($id, 'id,siteid,title,summary,pic');
 		/*data*/
 		$nv = $this->getPostJson();
-		foreach ($nv as $n => $v) {
-			if (in_array($n, ['extattrs'])) {
-				$nv[$n] = $modelMis->escape($modelMis->toJson($v));
-			}
+
+		if (isset($nv->extattrs)) {
+			$nv->extattrs = $modelMis->escape($modelMis->toJson($nv->extattrs));
 		}
 		/*modifier*/
 		$nv->modifier = $user->id;
@@ -33,10 +32,8 @@ class setting extends \pl\fe\matter\base {
 		$rst = $modelMis->update('xxt_mission', $nv, ["id" => $id]);
 		if ($rst) {
 			/*记录操作日志*/
-			$mission->type = 'mission';
 			$this->model('log')->matterOp($mission->siteid, $user, $mission, 'U');
 			/*更新acl*/
-			$mission = $modelMis->escape($mission);
 			$mission = $this->model('matter\mission\acl')->updateMission($mission);
 		}
 

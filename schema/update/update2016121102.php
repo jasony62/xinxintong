@@ -5,7 +5,7 @@ $sqls = [];
 $sqls[] = "alter table xxt_log add user_agent text";
 $sqls[] = "alter table xxt_log add referer text";
 //
-$sqls[] = "alter table xxt_log change vote vote char(1) not null default ''";
+$sqls[] = "alter table xxt_discuss_thread_user change vote vote char(1) not null default ''";
 //
 foreach ($sqls as $sql) {
 	if (!$mysqli->query($sql)) {

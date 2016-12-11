@@ -112,7 +112,7 @@
 #ds-thread #ds-reset .ds-login-buttons:after{content:".";display:block;height:0;clear:both;visibility:hidden}
 #ds-thread #ds-reset a.ds-unread-comments-count{display:none;background-color:#d32;color:#fff!important;margin-right:6px;padding:1px 5px;font-weight:bold;-webkit-border-radius:5px;border-radius:5px;box-shadow:inset 0 1px 1px rgba(255,255,255,0.4),0 1px 1px rgba(0,0,0,0.3);text-shadow:0 1px 1px rgba(0,0,0,0.3)}
 #ds-thread #ds-reset a.ds-unread-comments-count:hover{background:#f00}
-#ds-thread #ds-reset .ds-replybox{width:auto;font-size:12px;z-index:3;margin:8px 0;padding:0 0 0 60px;position:relative;_zoom:1}
+#ds-thread #ds-reset .ds-replybox{width:auto;font-size:12px;z-index:3;margin:8px 0;padding:0 0 0 0;position:relative;_zoom:1}
 #ds-thread #ds-reset .ds-replybox:after{content:".";display:block;height:0;clear:both;visibility:hidden}
 #ds-thread #ds-reset .ds-replybox .ds-avatar{position:absolute;top:0;left:0}
 #ds-thread #ds-reset .ds-replybox .ds-avatar img{width:50px;height:50px;visibility:visible;margin:0}

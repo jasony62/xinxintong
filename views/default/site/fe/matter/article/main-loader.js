@@ -13,6 +13,7 @@ window.loading = {
 				"angular": "/static/js/angular.min",
 				"xxt-page": "/static/js/xxt.ui.page",
 				"xxt-share": "/static/js/xxt.share",
+				"tms-discuss": "/static/js/xxt.ui.discuss2",
 				"hammer": "/static/js/hammer.min",
 				"picviewer": "/views/default/picviewer",
 			},

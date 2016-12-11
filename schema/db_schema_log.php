@@ -15,6 +15,38 @@ if (!$mysqli->query($sql)) {
 	echo 'database error(xxt_log): ' . $mysqli->error;
 }
 /**
+ * 集中记录用户对指定的素材做了哪些动作，以便于进行统计分析
+ */
+$sql = "create table if not exists xxt_log_user_matter(";
+$sql .= "id int not null auto_increment";
+$sql .= ",siteid varchar(32) not null";
+$sql .= ",userid varchar(40) not null";
+$sql .= ",mpid varchar(32) not null default ''"; // should be removed
+$sql .= ",openid varchar(255) not null default ''"; // should be removed
+$sql .= ",nickname varchar(255) not null default ''";
+$sql .= ",matter_id varchar(40) not null";
+$sql .= ",matter_type varchar(20) not null";
+$sql .= ",matter_title varchar(70) not null";
+$sql .= ",last_action_at int not null"; // should be removed
+$sql .= ",read_num int not null default 0"; // should be removed
+$sql .= ",share_friend_num int not null default 0"; // should be removed
+$sql .= ",share_timeline_num int not null default 0"; // should be removed
+$sql .= ",operation varchar(255) not null";
+$sql .= ",operate_at int not null";
+$sql .= ",operate_data text";
+$sql .= ",matter_last_op char(1) not null default 'Y'"; // 是否为素材进行的最后一次指定类型的操作
+$sql .= ",matter_op_num int not null default 1"; // 素材进行指定类型的累积次数
+$sql .= ",user_last_op char(1) not null default 'Y'"; // 是否为用户对素材进行的最后一次指定类型的操作，用于检查用户对哪些素材进行过指定操作
+$sql .= ",user_op_num int not null default 1"; // 用户对素材进行指定操作的累积次数
+$sql .= ",user_agent text";
+$sql .= ",client_ip varchar(40) not null default ''";
+$sql .= ",referer text";
+$sql .= ",primary key(id)) ENGINE=MyISAM DEFAULT CHARSET=utf8";
+if (!$mysqli->query($sql)) {
+	header('HTTP/1.0 500 Internal Server Error');
+	echo 'database error: ' . $mysqli->error;
+}
+/**
  * 公众号汇总日志
  * 日增量和累积
  */
@@ -196,28 +228,7 @@ if (!$mysqli->query($sql)) {
 	header('HTTP/1.0 500 Internal Server Error');
 	echo 'database error: ' . $mysqli->error;
 }
-/**
- * 集中记录用户对指定的素材做了哪些动作，以便于进行统计分析
- */
-$sql = "create table if not exists xxt_log_user_matter(";
-$sql .= "id int not null auto_increment";
-$sql .= ",siteid varchar(32) not null";
-$sql .= ",userid varchar(40) not null";
-$sql .= ",mpid varchar(32) not null default ''";
-$sql .= ",openid varchar(255) not null default ''";
-$sql .= ",nickname varchar(255) not null default ''";
-$sql .= ",matter_id varchar(40) not null";
-$sql .= ",matter_type varchar(20) not null";
-$sql .= ",matter_title varchar(70) not null";
-$sql .= ",last_action_at int not null";
-$sql .= ",read_num int not null default 0";
-$sql .= ",share_friend_num int not null default 0";
-$sql .= ",share_timeline_num int not null default 0";
-$sql .= ",primary key(id)) ENGINE=MyISAM DEFAULT CHARSET=utf8";
-if (!$mysqli->query($sql)) {
-	header('HTTP/1.0 500 Internal Server Error');
-	echo 'database error: ' . $mysqli->error;
-}
+
 /**
  * 集中记录围绕素材产生的日志，以便于进行统计分析
  */

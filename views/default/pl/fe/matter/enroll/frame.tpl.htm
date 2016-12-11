@@ -65,6 +65,7 @@
             <ul class='nav navbar-nav navbar-right' ng-if="subView==='publish'">
                 <li><a href="/rest/pl/fe/matter/enroll/record?site={{siteId}}&id={{id}}">查看数据</a></li>
                 <li ng-if="app.scenario==='voting'"><a href="/rest/pl/fe/matter/enroll/stat?site={{siteId}}&id={{id}}">统计报告</a></li>
+                <li ng-if="app.can_discuss==='Y'"><a href="/rest/pl/fe/matter/enroll/discuss?site={{siteId}}&id={{id}}">用户评论</a></li>
             </ul>
             <ul class='nav navbar-nav navbar-right' ng-if="subView==='record'">
                 <li><a href="/rest/pl/fe/matter/enroll/publish?site={{siteId}}&id={{id}}">发布预览</a></li>
@@ -132,7 +133,7 @@
         <script src="/static/js/xxt.ui.tmplshop.js?_=1"></script>
         <script src="/views/default/pl/fe/_module/channel.js?_=1"></script>
         <script src="/views/default/pl/fe/_module/matter.service.js?_=1"></script>
-        <script src="/views/default/pl/fe/matter/enroll/lib/enroll.service.js?_=2"></script>
+        <script src="/views/default/pl/fe/matter/enroll/lib/enroll.service.js?_=3"></script>
         <script src="/views/default/pl/fe/matter/enroll/lib/enroll.tinymce.js?_=2"></script>
         <script src="/static/js/require.js" data-main="/views/default/pl/fe/matter/enroll/frame-loader.js?_=6"></script>
     </body>

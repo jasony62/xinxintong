@@ -2,8 +2,8 @@ define(['require', 'page', 'schema'], function(require, pageLib, schemaLib) {
 	'use strict';
 	var ngApp = angular.module('app', ['ngRoute', 'frapontillo.bootstrap-switch', 'ui.tms', 'tmplshop.ui.xxt', 'service.matter', 'service.enroll', 'tinymce.enroll', 'ui.xxt', 'channel.fe.pl']);
 	ngApp.config(['$controllerProvider', '$routeProvider', '$locationProvider', '$compileProvider', '$uibTooltipProvider', 'srvQuickEntryProvider', 'srvAppProvider', 'srvPageProvider', 'srvRecordProvider', function($controllerProvider, $routeProvider, $locationProvider, $compileProvider, $uibTooltipProvider, srvQuickEntryProvider, srvAppProvider, srvPageProvider, srvRecordProvider) {
-		var RouteParam = function(name) {
-			var baseURL = '/views/default/pl/fe/matter/enroll/';
+		var RouteParam = function(name, baseURL) {
+			!baseURL && (baseURL = '/views/default/pl/fe/matter/enroll/');
 			this.templateUrl = baseURL + name + '.html?_=' + (new Date() * 1);
 			this.controller = 'ctrl' + name[0].toUpperCase() + name.substr(1);
 			this.resolve = {
@@ -26,6 +26,8 @@ define(['require', 'page', 'schema'], function(require, pageLib, schemaLib) {
 			.when('/rest/pl/fe/matter/enroll/page', new RouteParam('page'))
 			.when('/rest/pl/fe/matter/enroll/record', new RouteParam('record'))
 			.when('/rest/pl/fe/matter/enroll/stat', new RouteParam('stat'))
+			.when('/rest/pl/fe/matter/enroll/discuss', new RouteParam('discuss', '/views/default/pl/fe/_module/'))
+			.when('/rest/pl/fe/matter/enroll/log', new RouteParam('log'))
 			.when('/rest/pl/fe/matter/enroll/coin', new RouteParam('coin'))
 			.otherwise(new RouteParam('publish'));
 
@@ -271,6 +273,14 @@ define(['require', 'page', 'schema'], function(require, pageLib, schemaLib) {
 			$scope.app = app;
 			app.__schemasOrderConsistent = 'Y'; //页面上登记项显示顺序与定义顺序一致
 			$scope.url = 'http://' + location.host + '/rest/site/fe/matter/enroll?site=' + $scope.siteId + '&app=' + $scope.id;
+			// 用户评论
+			if (app.can_discuss === 'Y') {
+				$scope.discussParams = {
+					title: app.title,
+					threadKey: 'enroll,' + app.id,
+					domain: app.siteid
+				};
+			}
 		});
 	}]);
 	/***/

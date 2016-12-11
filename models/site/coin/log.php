@@ -17,11 +17,11 @@ class log_model extends \TMS_MODEL {
 		$rules = $modelMat->rulesByMatter($act, $matter);
 		foreach ($rules as $rule) {
 			if ($rule->actor_delta) {
-				$this->award2User($matter->siteid, $actor, $act, (int) $rule->actor_delta);
+				$this->award2User($matter, $actor, $act, (int) $rule->actor_delta);
 			}
 			if ($rule->creator_delta) {
 				if ($creator = $modelMat->getCreator($matter)) {
-					$this->award2User($matter->siteid, $creator, $act, (int) $rule->creator_delta);
+					$this->award2User($matter, $creator, $act, (int) $rule->creator_delta);
 				}
 			}
 		}
@@ -43,7 +43,7 @@ class log_model extends \TMS_MODEL {
 	/**
 	 * 给用户增加积分
 	 */
-	private function award2User($siteId, $user, $act, $delta, $payer = 'system') {
+	private function award2User($matter, $user, $act, $delta, $payer = 'system') {
 		$current = time();
 		// 最后一条积分记录
 		if ($lastLog = $this->lastByUser($user->uid)) {
@@ -54,7 +54,10 @@ class log_model extends \TMS_MODEL {
 		}
 		/*记录日志*/
 		$log = new \stdClass;
-		$log->siteid = $siteId;
+		$log->siteid = $matter->siteid;
+		$log->matter_type = isset($matter->type) ? $matter->type : '';
+		$log->matter_id = isset($matter->id) ? $matter->id : '';
+		$log->matter_title = isset($matter->title) ? $matter->title : '';
 		$log->occur_at = $current;
 		$log->act = $act;
 		$log->payer = $payer;
@@ -110,7 +113,9 @@ class log_model extends \TMS_MODEL {
 	 *
 	 */
 	public function earn($act, $user, $coin) {
-		$this->award2User('platform', $user, $act, (int) $coin);
+		$matter = new \stdClass;
+		$matter->siteid = 'platform';
+		$this->award2User($matter, $user, $act, (int) $coin);
 	}
 	/**
 	 *
@@ -122,6 +127,64 @@ class log_model extends \TMS_MODEL {
 	 *
 	 */
 	public function pay($act, $payer, $coin) {
-		$this->award2User('platform', $payer, $act, -1 * (int) $coin);
+		$matter = new \stdClass;
+		$matter->siteid = 'platform';
+		$this->award2User($matter, $payer, $act, -1 * (int) $coin);
+	}
+	/**
+	 *
+	 */
+	public function bySite($siteId, $page, $size) {
+		$result = new \stdClass;
+		$q = [
+			'act,occur_at,userid,nickname,delta,total',
+			'xxt_coin_log',
+			"siteid='siteId'",
+		];
+		/**
+		 * 分页数据
+		 */
+		$q2 = [
+			'o' => 'occur_at desc',
+			'r' => [
+				'o' => (($page - 1) * $size),
+				'l' => $size,
+			],
+		];
+
+		$result->logs = $this->query_objs_ss($q, $q2);
+
+		$q[0] = 'count(*)';
+		$result->total = $this->query_val_ss($q);
+
+		return $result;
+	}
+	/**
+	 *
+	 */
+	public function byMatter($matter, $page, $size) {
+		$result = new \stdClass;
+		$q = [
+			'act,occur_at,userid,nickname,delta,total',
+			'xxt_coin_log',
+			"matter_type='{$matter->type}' and matter_id='{$matter->id}'",
+		];
+		/**
+		 * 分页数据
+		 */
+		$q2 = [
+			'o' => 'occur_at desc',
+			'r' => [
+				'o' => (($page - 1) * $size),
+				'l' => $size,
+			],
+		];
+
+		$result->logs = $this->query_objs_ss($q, $q2);
+
+		$q[0] = 'count(*)';
+		$result->total = $this->query_val_ss($q);
+
+		return $result;
 	}
 }

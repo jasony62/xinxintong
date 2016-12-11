@@ -10,8 +10,7 @@ class setting extends \pl\fe\matter\base {
 	 * 更新任务设置
 	 */
 	public function update_action($id) {
-		$user = $this->accountUser();
-		if (false === $user) {
+		if (false === ($user = $this->accountUser())) {
 			return new \ResponseTimeout();
 		}
 

@@ -2,17 +2,14 @@ define(['frame'], function(ngApp) {
 	'use strict';
 	ngApp.provider.controller('ctrlCoin', ['$scope', 'http2', '$uibModal', '$timeout', function($scope, http2, $uibModal, $timeout) {
 		var actions = [{
-			name: 'site.matter.enroll.read',
-			desc: '用户A打开登记活动页面'
+			name: 'site.matter.article.read',
+			desc: '用户A打开图文页面'
 		}, {
-			name: 'site.matter.enroll.submit',
-			desc: '用户A提交新登记记录',
+			name: 'site.matter.article.share.friend',
+			desc: '用户A分享图文给公众号好友',
 		}, {
-			name: 'site.matter.enroll.share.friend',
-			desc: '用户A分享活动给公众号好友',
-		}, {
-			name: 'site.matter.enroll.share.timeline',
-			desc: '用户A分享至朋友圈',
+			name: 'site.matter.article.share.timeline',
+			desc: '用户A分享图文至朋友圈',
 		}];
 		$scope.rules = {};
 		actions.forEach(function(act) {
@@ -36,14 +33,14 @@ define(['frame'], function(ngApp) {
 					data = {
 						act: rule.act,
 						actor_delta: rule.actor_delta,
-						matter_type: 'enroll',
+						matter_type: 'article',
 						matter_filter: filter
 					};
 					rule.id && (data.id = rule.id);
 					posted.push(data);
 				}
 			}
-			url = '/rest/pl/fe/matter/enroll/coin/saveRules?site=' + $scope.siteId;
+			url = '/rest/pl/fe/matter/article/coin/saveRules?site=' + $scope.siteId;
 			http2.post(url, posted, function(rsp) {
 				for (var k in rsp.data) {
 					$scope.rules[k].id = rsp.data[k];
@@ -52,7 +49,7 @@ define(['frame'], function(ngApp) {
 		};
 		$scope.fetchRules = function() {
 			var url;
-			url = '/rest/pl/fe/matter/enroll/coin/rules?site=' + $scope.siteId + '&app=' + $scope.id;
+			url = '/rest/pl/fe/matter/article/coin/rules?site=' + $scope.siteId + '&id=' + $scope.id;
 			http2.get(url, function(rsp) {
 				rsp.data.forEach(function(rule) {
 					var rule2 = $scope.rules[rule.act];
@@ -63,7 +60,7 @@ define(['frame'], function(ngApp) {
 		};
 		$scope.fetchLogs = function() {
 			var url;
-			url = '/rest/pl/fe/matter/enroll/coin/logs??site=' + $scope.siteId + '&app=' + $scope.id;
+			url = '/rest/pl/fe/matter/article/coin/logs??site=' + $scope.siteId + '&id=' + $scope.id;
 			http2.get(url, function(rsp) {
 				$scope.logs = rsp.data.logs;
 			});

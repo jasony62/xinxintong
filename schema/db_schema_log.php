@@ -9,6 +9,8 @@ $sql .= ",mpid varchar(32) not null";
 $sql .= ",create_at int(10) not null";
 $sql .= ",method varchar(255) not null";
 $sql .= ",data text";
+$sql .= ",user_agent text";
+$sql .= ",referer text";
 $sql .= ",primary key(id)) ENGINE=MyISAM DEFAULT CHARSET=utf8";
 if (!$mysqli->query($sql)) {
 	header('HTTP/1.0 500 Internal Server Error');

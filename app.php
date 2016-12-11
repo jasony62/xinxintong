@@ -21,22 +21,38 @@ ini_set('default_charset', 'utf-8');
  */
 function show_error($message) {
 	require_once 'tms/tms_app.php';
-	header("HTTP/1.1 500 Internal Server Error");
-	header('Content-Type: text/plain; charset=utf-8');
 	if ($message instanceof Exception) {
-		$msg = $message->getMessage() . "\n";
+		$excep = $message->getMessage() . "\n";
 		$trace = $message->getTrace();
 		foreach ($trace as $t) {
 			foreach ($t as $k => $v) {
-				$msg .= $k . ':' . json_encode($v) . "\n";
+				$excep .= $k . ':' . json_encode($v) . "\n";
 			}
+		}
+		if (defined('TMS_APP_EXCEPTION_TRACE') && TMS_APP_EXCEPTION_TRACE === 'Y') {
+			$msg = $excep;
+		} else {
+			$msg = '应用程序内部错误';
 		}
 	} else {
 		$msg = $message;
 	}
+
+	/* 返回信息 */
+	header("HTTP/1.1 500 Internal Server Error");
+	header('Content-Type: text/plain; charset=utf-8');
 	echo $msg;
+
+	/* 记录日志 */
 	$method = isset($_SERVER['REQUEST_URI']) ? $_SERVER['REQUEST_URI'] : 'unknown request';
-	TMS_APP::M('log')->log('error', $method, $msg);
+	$agent = isset($_SERVER['HTTP_USER_AGENT']) ? $_SERVER['HTTP_USER_AGENT'] : '';
+	$referer = isset($_SERVER['HTTP_REFERER']) ? $_SERVER['HTTP_REFERER'] : '';
+	if (isset($excep)) {
+		TMS_APP::M('log')->log('error', $method, $excep, $agent, $referer);
+	} else {
+		TMS_APP::M('log')->log('error', $method, $msg, $agent, $referer);
+	}
+
 	exit;
 }
 

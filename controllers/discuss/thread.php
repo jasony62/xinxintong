@@ -70,7 +70,7 @@ class thread extends \discuss\base {
 		return new \ResponseData($rsp);
 	}
 	/**
-	 *
+	 * 点赞
 	 */
 	public function vote_action($domain) {
 		$data = $this->getPostJson();
@@ -79,8 +79,15 @@ class thread extends \discuss\base {
 		}
 
 		$modelTrd = $this->model('discuss\thread');
-		$rsp = $modelTrd->vote($data->thread_id, $data->vote, $user);
+		if ($thread = $modelTrd->byId($data->thread_id)) {
 
-		return new \ResponseData($rsp);
+			$rst = $modelTrd->vote($data->thread_id, $data->vote, $user);
+
+			$this->model('matter\discuss')->vote($thread->thread_key, $user, $rst);
+
+			return new \ResponseData($rst);
+		}
+
+		return new \ResponseError('指定的数据不存在');
 	}
 }

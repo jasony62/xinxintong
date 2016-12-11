@@ -267,7 +267,7 @@ class log_model extends \TMS_MODEL {
 		$log['matter_type'] = $matter->type;
 		$log['matter_title'] = $this->escape($matter->title);
 		$log['user_agent'] = $client->agent;
-		$log['client_ip'] = $client->ip;
+		$log['client_ip'] = isset($client->ip) ? $client->ip : '';
 		$log['referer'] = $referer;
 		$log['operation'] = $operation->name;
 		$log['operate_at'] = isset($operation->data) ? $operation->at : time();

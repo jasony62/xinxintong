@@ -13,6 +13,12 @@ define(['frame'], function(ngApp) {
 		}, {
 			name: 'site.matter.enroll.share.timeline',
 			desc: '用户A分享至朋友圈',
+		}, {
+			name: 'site.matter.enroll.discuss.like',
+			desc: '用户A对活动点赞',
+		}, {
+			name: 'site.matter.enroll.discuss.comment',
+			desc: '用户A对活动评论',
 		}];
 		$scope.rules = {};
 		actions.forEach(function(act) {

@@ -118,7 +118,7 @@ class base extends \site\fe\matter\base {
 
 		foreach (array('wx', 'yx', 'qy') as $snsName) {
 			if ($snsName === 'yx') {
-				$reply .= '查看详情：\n' . $url;
+				$reply .= "查看详情：\n" . $url;
 			} else {
 				$reply .= "<a href='" . $url . "'>查看详情</a>";
 			}

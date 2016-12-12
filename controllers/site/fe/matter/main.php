@@ -14,6 +14,7 @@ class main extends \site\fe\matter\base {
 		return $rule_action;
 	}
 	/**
+	 *
 	 * @param string $id
 	 * @param string $type
 	 * @param string $shareby
@@ -91,12 +92,12 @@ class main extends \site\fe\matter\base {
 	 */
 	public function logAccess_action($site, $id, $type, $title = '', $shareby = '') {
 		/* support CORS */
-		header('Access-Control-Allow-Origin:*');
-		header('Access-Control-Allow-Methods:POST');
-		header('Access-Control-Allow-Headers:Content-Type');
-		if ($_SERVER['REQUEST_METHOD'] === 'OPTIONS') {
-			exit;
-		}
+		//header('Access-Control-Allow-Origin:*');
+		//header('Access-Control-Allow-Methods:POST');
+		//header('Access-Control-Allow-Headers:Content-Type');
+		//if ($_SERVER['REQUEST_METHOD'] === 'OPTIONS') {
+		//	exit;
+		//}
 
 		switch ($type) {
 		case 'article':
@@ -108,6 +109,8 @@ class main extends \site\fe\matter\base {
 		case 'news':
 			$this->model()->update("update xxt_news set read_num=read_num+1 where id='$id'");
 			break;
+		case 'enroll':
+			$this->model()->update("update xxt_enroll set read_num=read_num+1 where id='$id'");
 		}
 
 		$posted = $this->getPostJson();
@@ -137,7 +140,7 @@ class main extends \site\fe\matter\base {
 		$search = isset($_SERVER['QUERY_STRING']) ? $_SERVER['QUERY_STRING'] : '';
 		$referer = isset($_SERVER['HTTP_REFERER']) ? $_SERVER['HTTP_REFERER'] : '';
 
-		$logid = $this->model('matter\log')->writeMatterRead($siteId, $logUser, $logMatter, $logClient, $shareby, $search, $referer);
+		$logid = $this->model('matter\log')->addMatterRead($siteId, $logUser, $logMatter, $logClient, $shareby, $search, $referer);
 		/**
 		 * coin log
 		 */
@@ -145,6 +148,10 @@ class main extends \site\fe\matter\base {
 			$modelCoin = $this->model('site\coin\log');
 			$matter = $this->model('matter\article2')->byId($id);
 			$modelCoin->award($matter, $user, 'site.matter.article.read');
+		} else if ($type === 'enroll') {
+			$modelCoin = $this->model('site\coin\log');
+			$matter = $this->model('matter\enroll')->byId($id);
+			$modelCoin->award($matter, $user, 'site.matter.enroll.read');
 		}
 
 		return $logid;
@@ -161,7 +168,7 @@ class main extends \site\fe\matter\base {
 	 *
 	 */
 	public function logShare_action($shareid, $site, $id, $type, $title, $shareto, $shareby = '') {
-		header('Access-Control-Allow-Origin:*');
+		//header('Access-Control-Allow-Origin:*');
 		/* 检查请求是否由客户端发起 */
 		if ($type === 'lottery') {
 			if (!$this->_isAgentEnter($id)) {
@@ -185,57 +192,48 @@ class main extends \site\fe\matter\base {
 		case 'lottery':
 			$table = 'xxt_lottery';
 			break;
+		default:
+			return new \ResponseError('不支持的类型');
 		}
-		if (isset($table)) {
-			if ($shareto === 'F') {
-				$this->model()->update("update $table set share_friend_num=share_friend_num+1 where id='$id'");
-			} else if ($shareto === 'T') {
-				$this->model()->update("update $table set share_timeline_num=share_timeline_num+1 where id='$id'");
-			}
 
-			$user = $this->who;
-
-			$logUser = new \stdClass;
-			$logUser->userid = $user->uid;
-			$logUser->nickname = $user->nickname;
-
-			$logMatter = new \stdClass;
-			$logMatter->id = $id;
-			$logMatter->type = $type;
-			$logMatter->title = $this->model()->escape($title);
-
-			$logClient = new \stdClass;
-			$logClient->agent = $_SERVER['HTTP_USER_AGENT'];
-			$logClient->ip = $this->client_ip();
-
-			$this->model('log')->writeShareAction($site, $shareid, $shareto, $shareby, $logUser, $logMatter, $logClient);
-
-			return new \ResponseData('ok');
+		if ($shareto === 'F') {
+			$this->model()->update("update $table set share_friend_num=share_friend_num+1 where id='$id'");
+		} else if ($shareto === 'T') {
+			$this->model()->update("update $table set share_timeline_num=share_timeline_num+1 where id='$id'");
 		}
+
+		$user = $this->who;
+
+		$logUser = new \stdClass;
+		$logUser->userid = $user->uid;
+		$logUser->nickname = $user->nickname;
+
+		$logMatter = new \stdClass;
+		$logMatter->id = $id;
+		$logMatter->type = $type;
+		$logMatter->title = $this->model()->escape($title);
+
+		$logClient = new \stdClass;
+		$logClient->agent = $_SERVER['HTTP_USER_AGENT'];
+		$logClient->ip = $this->client_ip();
+
+		$referer = isset($_SERVER['HTTP_REFERER']) ? $_SERVER['HTTP_REFERER'] : '';
+
+		$this->model('matter\log')->addShareAction($site, $shareid, $shareto, $shareby, $logUser, $logMatter, $logClient, $referer);
+
 		/**
 		 * coin log
-		 * 投稿人分享不奖励积分
 		 */
-		/*$modelCoin = $this->model('coin\log');
-			if ($type === 'article') {
-				$contribution = $this->model('matter\article')->getContributionInfo($id);
-				if (!empty($contribution->openid) && $contribution->openid !== $logUser->openid) {
-					// for contributor
-					$action = 'app.' . $contribution->entry . '.article.share.' . $shareto;
-					$modelCoin->income($site, $action, $id, 'sys', $contribution->openid);
-				}
-				if (empty($contribution->openid) || $contribution->openid !== $logUser->openid) {
-					// for reader
-					$modelCoin->income($site, 'mp.matter.article.share.' . $shareto, $id, 'sys', $logUser->openid);
-				}
-			} else if ($type === 'enroll') {
-				$action = 'app.enroll,' . $id . '.share.' . $shareto;
-				$modelCoin->income($site, $action, $id, 'sys', $logUser->openid);
-			} else {
-				// for reader
-				$modelCoin->income($site, 'mp.matter.' . $type . '.share.' . $shareto, $id, 'sys', $logUser->openid);
-		*/
+		if ($type === 'article') {
+			$modelCoin = $this->model('site\coin\log');
+			$matter = $this->model('matter\article2')->byId($id);
+			$modelCoin->award($matter, $user, 'site.matter.article.share.' . ['F' => 'friend', 'T' => 'timeline'][$shareto]);
+		} else if ($type === 'enroll') {
+			$modelCoin = $this->model('site\coin\log');
+			$matter = $this->model('matter\enroll')->byId($id);
+			$modelCoin->award($matter, $user, 'site.matter.enroll.share.' . ['F' => 'friend', 'T' => 'timeline'][$shareto]);
+		}
 
-		return new \ResponseError('不支持的类型');
+		return new \ResponseData('ok');
 	}
 }

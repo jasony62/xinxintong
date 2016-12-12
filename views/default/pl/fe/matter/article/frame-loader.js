@@ -3,6 +3,6 @@ require.config({
 		"domReady": '/static/js/domReady',
 		"frame": '/views/default/pl/fe/matter/article/frame',
 	},
-	urlArgs: "bust=" + (new Date()).getTime()
+	urlArgs: "bust=" + (new Date() * 1)
 });
 require(['frame']);

@@ -24,16 +24,19 @@ class post extends \discuss\base {
 		}
 
 		$modelPost = $this->model('discuss\post');
-		$rsp = $modelPost->create($thread->id, $data, $user);
+		$rst = $modelPost->create($thread->id, $data, $user);
 
 		/* 增加主题的评论数 */
 		$thread->comments++;
 		$modelTrd->modify($thread->id, ['comments' => $thread->comments]);
 
-		return new \ResponseData($rsp);
+		/* 通知素材 */
+		$this->model('matter\discuss')->comment($thread->thread_key, $user, $thread);
+
+		return new \ResponseData($rst);
 	}
 	/**
-	 *
+	 * 点赞
 	 */
 	public function vote_action($domain) {
 		$data = $this->getPostJson();

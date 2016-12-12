@@ -164,26 +164,33 @@ class base extends \site\fe\matter\base {
 				$arr['yx']=$account->yx_openid;
 				$arr['qy']=$account->qy_openid;
 				$arr=array_filter($arr);
-				foreach ($arr as $k => $v) {
-					$account->openid=$v;
-					$msg = '投稿活动【' . $c->title . '】有一篇新稿件，';
-					if ($k === 'yx') {
-						$msg .= "请处理：\n" . $url;
-					} else {
-						$msg .= "<a href='" . $url . "'>请处理</a>";
+				if(empty($arr)){
+					return new \ResponseError("用户没有绑定易信、微信和企业号！");
+				}else{
+					foreach ($arr as $k => $v) {
+						$account->openid=$v;
+						$msg = '投稿活动【' . $c->title . '】有一篇新稿件，';
+						if ($k === 'yx') {
+							$msg .= "请处理：\n" . $url;
+						} else {
+							$msg .= "<a href='" . $url . "'>请处理</a>";
+						}
+						$message = array(
+							"msgtype" => "text",
+							"text" => array(
+								"content" => $msg,
+							),
+						);
+						$rst = $this->notify($site, $k, $account, $message);
 					}
-					$message = array(
-						"msgtype" => "text",
-						"text" => array(
-							"content" => $msg,
-						),
-					);
-					$rst = $this->notify($site, $k, $account, $message);
-				}			
+					return new \ResponseData('ok');
+				}
+			}else{
+				return new \ResponseError("找不到注册用户！");
 			}
+		}else{
+			return new \ResponseError("找不到认证用户！");
 		}
-
-		return new \ResponseData('ok');
 	}
 	/**
 	 * 文章的投稿链接

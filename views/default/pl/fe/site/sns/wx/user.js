@@ -45,15 +45,15 @@ define(['main'], function(ngApp) {
         $scope.keywordKeyup = function(evt) {
             if (evt.which === 13) $scope.doSearch();
         };
-        $scope.refresh = function() {
+        $scope.refreshAll = function() {
             var finish = 0;
             var doRefresh = function(step, nextOpenid) {
                 var url, params;
-                url = '/rest/mp/user/fans/refreshAll';
+                url = '/rest/pl/fe/site/sns/wx/user/refreshAll?site=' + $scope.siteId;
                 params = [];
                 step && params.push('step=' + step);
                 nextOpenid && params.push('nextOpenid=' + nextOpenid);
-                params.length && (url += '?' + params.join('&'));
+                params.length && (url += '&' + params.join('&'));
                 http2.get(url, function(rsp) {
                     if (angular.isObject(rsp) && rsp.err_code === 0) {
                         if (rsp.data.left > 0) {
@@ -64,13 +64,21 @@ define(['main'], function(ngApp) {
                             $scope.backRunning = false;
                         }
                         finish += rsp.data.finish;
-                        alert('更新数量：' + finish + '/' + rsp.data.total);
+                        noticebox.progress('更新数量：' + finish + '/' + rsp.data.total);
                     }
                 }, {
                     autoBreak: false
                 });
             };
             doRefresh(0);
+        };
+        $scope.refresh = function(fan) {
+            var url = '/rest/pl/fe/site/sns/wx/user/refreshOne?site=' + $scope.siteId + '&openid=' + fan.openid;
+            http2.get(url, function(rsp) {
+                fan.nickname = rsp.data.nickname;
+                fan.sex = rsp.data.sex;
+                fan.city = rsp.data.city;
+            });
         };
         $scope.doSearch();
     }]);

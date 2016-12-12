@@ -98,14 +98,14 @@ class user extends \pl\fe\base {
 	 * $nextOpenid
 	 *
 	 */
-	public function refreshAll_action($step = 0, $nextOpenid = '') {
+	public function refreshAll_action($site, $step = 0, $nextOpenid = '') {
 		if ($step === 0) {
-			$mpa = $this->getMpaccount();
 			$fansCount = 0;
 			/**
 			 * 获得所有粉丝的openid
 			 */
-			$proxy = $this->model("mpproxy/$mpa->mpsrc", $this->mpid);
+			$wxConfig = $this->model('sns\wx')->bySite($site);
+			$proxy = $this->model('sns\wx\proxy', $wxConfig);
 			$rst = $proxy->userGet($nextOpenid);
 			if (false === $rst[0]) {
 				return new \ResponseError($rst[1]);
@@ -119,11 +119,11 @@ class user extends \pl\fe\base {
 			$nextOpenid = $userSet->count == 10000 ? $userSet->next_openid : '';
 		} else {
 			$stack = $_SESSION['fans_refreshAll_stack'];
-			$mpa = $stack['mpa'];
+			$wxConfig = $stack['wxConfig'];
 			$total = $stack['total'];
 			$fansCount = $stack['fansCount'];
 			$openids = $stack['openids'];
-			$proxy = $this->model("mpproxy/$mpa->mpsrc", $this->mpid);
+			$proxy = $this->model('sns\wx\proxy', $wxConfig);
 		}
 		/**
 		 * 更新粉丝
@@ -131,16 +131,17 @@ class user extends \pl\fe\base {
 		if (!empty($openids)) {
 			$current = time();
 			$ins = array(
-				'mpid' => $this->mpid,
+				'siteid' => $site,
 				'subscribe_at' => $current,
 				'sync_at' => $current,
 			);
 			$finish = 0;
+			$modelWxFan = $this->model('sns\wx\fan');
 			foreach ($openids as $index => $openid) {
 				if ($index == 50 * ($step + 1)) {
 					$step++;
 					$stack = array(
-						'mpa' => $mpa,
+						'wxConfig' => $wxConfig,
 						'total' => $total,
 						'fansCount' => $fansCount,
 						'openids' => $openids,
@@ -152,7 +153,7 @@ class user extends \pl\fe\base {
 				$finish++;
 				unset($openids[$index]);
 
-				$lfan = $this->model('user/fans')->byOpenid($this->mpid, $openid);
+				$lfan = $modelWxFan->byOpenid($site, $openid);
 				if ($lfan && $lfan->sync_at + 43200 > $current) {
 					/* 一小时之内不同步 */
 					continue;
@@ -173,7 +174,7 @@ class user extends \pl\fe\base {
 						 * 更新关注状态粉丝信息
 						 */
 						$upd = array(
-							'nickname' => $this->model()->escape($rfan->nickname),
+							'nickname' => $modelWxFan->escape($rfan->nickname),
 							'sex' => $rfan->sex,
 							'city' => $rfan->city,
 							'groupid' => $rfan->groupid,
@@ -184,20 +185,19 @@ class user extends \pl\fe\base {
 						isset($rfan->province) && $upd['province'] = $rfan->province;
 						isset($rfan->country) && $upd['country'] = $rfan->country;
 						$this->model()->update(
-							'xxt_fans',
+							'xxt_site_wxfan',
 							$upd,
-							"mpid='$this->mpid' and openid='$openid'"
+							"siteid='$site' and openid='$openid'"
 						);
 						$fansCount++;
 					} else {
 						/**
 						 * 新粉丝
 						 */
-						$ins['fid'] = $this->model('user/fans')->calcId($this->mpid, $openid);
 						$ins['openid'] = $openid;
 						if ($info[0]) {
 							$ins['groupid'] = $rfan->groupid;
-							$ins['nickname'] = $this->model()->escape($rfan->nickname);
+							$ins['nickname'] = $modelWxFan->escape($rfan->nickname);
 							$ins['sex'] = $rfan->sex;
 							$ins['city'] = $rfan->city;
 							isset($rfan->subscribe_time) && $ins['subscribe_at'] = $rfan->subscribe_time;
@@ -205,7 +205,7 @@ class user extends \pl\fe\base {
 							isset($rfan->headimgurl) && $ins['headimgurl'] = $rfan->headimgurl;
 							isset($rfan->province) && $ins['province'] = $rfan->province;
 							isset($rfan->country) && $ins['country'] = $rfan->country;
-							$this->model()->insert('xxt_fans', $ins, false);
+							$modelWxFan->insert('xxt_site_wxfan', $ins, false);
 							$fansCount++;
 						}
 					}

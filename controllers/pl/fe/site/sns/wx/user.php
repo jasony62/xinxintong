@@ -108,7 +108,15 @@ class user extends \pl\fe\base {
 			$proxy = $this->model('sns\wx\proxy', $wxConfig);
 			$rst = $proxy->userGet($nextOpenid);
 			if (false === $rst[0]) {
-				return new \ResponseError($rst[1]);
+				if (false !== strpos($rst[1], '(40001)')) {
+					$proxy->accessToken(true);
+					$rst = $proxy->userGet($nextOpenid);
+					if (false === $rst[0]) {
+						return new \ResponseError($rst[1]);
+					}
+				} else {
+					return new \ResponseError($rst[1]);
+				}
 			}
 			if (!is_object($rst[1])) {
 				return new \ResponseError($rst[1]);
@@ -169,12 +177,15 @@ class user extends \pl\fe\base {
 				}
 				$rfan = $info[1];
 				if ($rfan->subscribe != 0) {
+					$nickname = json_encode($rfan->nickname);
+					$nickname = preg_replace('/\\\ud[0-9a-f]{3}/i', '', $nickname);
+					$nickname = json_decode($nickname);
 					if ($lfan) {
 						/**
 						 * 更新关注状态粉丝信息
 						 */
 						$upd = array(
-							'nickname' => $modelWxFan->escape($rfan->nickname),
+							'nickname' => $modelWxFan->escape($nickname),
 							'sex' => $rfan->sex,
 							'city' => $rfan->city,
 							'groupid' => $rfan->groupid,
@@ -197,7 +208,7 @@ class user extends \pl\fe\base {
 						$ins['openid'] = $openid;
 						if ($info[0]) {
 							$ins['groupid'] = $rfan->groupid;
-							$ins['nickname'] = $modelWxFan->escape($rfan->nickname);
+							$ins['nickname'] = $modelWxFan->escape($nickname);
 							$ins['sex'] = $rfan->sex;
 							$ins['city'] = $rfan->city;
 							isset($rfan->subscribe_time) && $ins['subscribe_at'] = $rfan->subscribe_time;
@@ -225,7 +236,15 @@ class user extends \pl\fe\base {
 		$wxProxy = $this->model('sns\wx\proxy', $wxConfig);
 		$info = $wxProxy->userInfo($openid, true);
 		if ($info[0] === false) {
-			return new \ResponseError($info[1]);
+			if (false !== strpos($info[1], '(40001)')) {
+				$proxy->accessToken(true);
+				$info = $proxy->userGet($nextOpenid);
+				if (false === $info[0]) {
+					return new \ResponseError($info[1]);
+				}
+			} else {
+				return new \ResponseError($info[1]);
+			}
 		}
 		if ($info[1]->subscribe != 1) {
 			return new \ResponseError('指定用户未关注公众号，无法获取用户信息');
@@ -234,7 +253,11 @@ class user extends \pl\fe\base {
 		 * 更新数据
 		 */
 		$model = $this->model();
-		$nickname = trim($model->escape($info[1]->nickname));
+		// 替换掉emoji字符？？？
+		$nickname = json_encode($info[1]->nickname);
+		$nickname = preg_replace('/\\\ud[0-9a-f]{3}/i', '', $nickname);
+		$nickname = json_decode($nickname);
+		$nickname = trim($model->escape($nickname));
 		$u = array(
 			'nickname' => empty($nickname) ? '未知' : $nickname,
 			'sex' => $info[1]->sex,
@@ -251,7 +274,7 @@ class user extends \pl\fe\base {
 			"siteid='$site' and openid='$openid'"
 		);
 
-		return new \ResponseData($info[1]);
+		return new \ResponseData($u);
 	}
 	/**
 	 * 删除一个关注用户

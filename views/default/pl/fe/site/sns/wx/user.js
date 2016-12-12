@@ -9,7 +9,7 @@ define(['main'], function(ngApp) {
             $scope.groups = rsp.data;
         });
     }]);
-    ngApp.provider.controller('ctrlFan', ['$scope', 'http2', function($scope, http2) {
+    ngApp.provider.controller('ctrlFan', ['$scope', 'http2', 'noticebox', function($scope, http2, noticebox) {
         $scope.SexMap = {
             '0': '未知',
             '1': '男',
@@ -62,6 +62,7 @@ define(['main'], function(ngApp) {
                             doRefresh(0, rsp.data.nextOpenid);
                         } else {
                             $scope.backRunning = false;
+                            noticebox.info('更新数量：' + finish + '/' + rsp.data.total);
                         }
                         finish += rsp.data.finish;
                         noticebox.progress('更新数量：' + finish + '/' + rsp.data.total);

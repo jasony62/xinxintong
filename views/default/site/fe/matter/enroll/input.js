@@ -323,7 +323,7 @@ define(["angular", "enroll-common", "angular-sanitize", "xxt-share", "xxt-image"
                             r.addFile(f);
                             $scope.data[fileFieldName] === undefined && ($scope.data[fileFieldName] = []);
                             $scope.data[fileFieldName].push({
-                                uniqueIdentifier: r.files[0].uniqueIdentifier,
+                                uniqueIdentifier: r.files[r.files.length - 1].uniqueIdentifier,
                                 name: f.name,
                                 size: f.size,
                                 type: f.type,

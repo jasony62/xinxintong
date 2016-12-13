@@ -102,7 +102,7 @@ class main extends \pl\fe\matter\base {
 	 * @param string $template template's name
 	 *
 	 */
-	public function create_action($site, $mission = null, $scenario = null, $template = null) {
+	public function create_action($site, $mission = null, $scenario = 'common', $template = 'simple') {
 		if (false === ($user = $this->accountUser())) {
 			return new \ResponseTimeout();
 		}
@@ -127,31 +127,28 @@ class main extends \pl\fe\matter\base {
 			$newapp['use_mission_footer'] = 'Y';
 		}
 		$appId = uniqid();
-		if (!empty($scenario) && !empty($template)) {
-			$config = $this->_getSysTemplate($scenario, $template);
-			/* 添加页面 */
-			$this->_addPageByTemplate($user, $site, $mission, $appId, $config, $customConfig);
-			/* 登记数量限制 */
-			if (isset($config->count_limit)) {
-				$newapp['count_limit'] = $config->count_limit;
-			}
-			/* 进入规则 */
-			$entryRule = $config->entryRule;
-			if (isset($config->enrolled_entry_page)) {
-				$newapp['enrolled_entry_page'] = $config->enrolled_entry_page;
-			}
-			/* 场景设置 */
-			if (isset($config->scenarioConfig)) {
-				$scenarioConfig = $config->scenarioConfig;
-				$newapp['scenario_config'] = json_encode($scenarioConfig);
-			}
-			$newapp['scenario'] = $scenario;
-		} else {
-			$entryRule = $this->_addBlankPage($user, $site->id, $appId);
-		}
+		/* 使用指定模版 */
+		$config = $this->_getSysTemplate($scenario, $template);
+		/* 进入规则 */
+		$entryRule = $config->entryRule;
 		if (empty($entryRule)) {
 			return new \ResponseError('没有获得页面进入规则');
 		}
+		/* 添加页面 */
+		$this->_addPageByTemplate($user, $site, $mission, $appId, $config, $customConfig);
+		/* 登记数量限制 */
+		if (isset($config->count_limit)) {
+			$newapp['count_limit'] = $config->count_limit;
+		}
+		if (isset($config->enrolled_entry_page)) {
+			$newapp['enrolled_entry_page'] = $config->enrolled_entry_page;
+		}
+		/* 场景设置 */
+		if (isset($config->scenarioConfig)) {
+			$scenarioConfig = $config->scenarioConfig;
+			$newapp['scenario_config'] = json_encode($scenarioConfig);
+		}
+		$newapp['scenario'] = $scenario;
 		/* create app */
 		$newapp['id'] = $appId;
 		$newapp['siteid'] = $site->id;
@@ -633,7 +630,7 @@ class main extends \pl\fe\matter\base {
 		$modelPage = $this->model('matter\enroll\page');
 		/* form page */
 		$page = [
-			'title' => '登记信息页',
+			'title' => '填写信息页',
 			'type' => 'I',
 			'name' => 'z' . $current,
 		];
@@ -837,12 +834,14 @@ class main extends \pl\fe\matter\base {
 		}
 		$model = $this->model('matter\enroll');
 		/* 在删除数据前获得数据 */
-		$app = $model->byId($app, 'id,title,summary,pic,creater');
+		$app = $model->byId($app, 'id,title,summary,pic,mission_id,creater');
 		if ($app->creater !== $user->id) {
 			return new \ResponseError('没有删除数据的权限');
 		}
 		/* 删除和任务的关联 */
-		$this->model('matter\mission')->removeMatter($site, $app->id, 'enroll');
+		if ($app->mission_id) {
+			$this->model('matter\mission')->removeMatter($app->id, 'enroll');
+		}
 		/*check*/
 		$q = [
 			'count(*)',
@@ -855,6 +854,8 @@ class main extends \pl\fe\matter\base {
 				['state' => 0],
 				["id" => $app->id]
 			);
+			/* 记录操作日志 */
+			$this->model('matter\log')->matterOp($site, $user, $app, 'Recycle');
 		} else {
 			$model->delete(
 				'xxt_enroll_receiver',
@@ -876,10 +877,38 @@ class main extends \pl\fe\matter\base {
 				'xxt_enroll',
 				["id" => $app->id]
 			);
+			/* 记录操作日志 */
+			$this->model('matter\log')->matterOp($site, $user, $app, 'D');
 		}
+
+		return new \ResponseData($rst);
+	}
+	/**
+	 * 恢复被删除的登记活动
+	 */
+	public function restore_action($site, $id) {
+		if (false === ($user = $this->accountUser())) {
+			return new \ResponseTimeout();
+		}
+
+		$model = $this->model('matter\enroll');
+		if (false === ($app = $model->byId($id, 'id,title,summary,pic,mission_id'))) {
+			return new \ResponseError('数据已经被彻底删除，无法恢复');
+		}
+		if ($app->mission_id) {
+			$modelMis = $this->model('matter\mission');
+			$modelMis->addMatter($user, $site, $app->mission_id, $app);
+		}
+
+		/* 恢复数据 */
+		$rst = $model->update(
+			'xxt_enroll',
+			['state' => 1],
+			["id" => $app->id]
+		);
+
 		/* 记录操作日志 */
-		$app->type = 'enroll';
-		$this->model('matter\log')->matterOp($site, $user, $app, 'D');
+		$this->model('matter\log')->matterOp($site, $user, $app, 'Restore');
 
 		return new \ResponseData($rst);
 	}

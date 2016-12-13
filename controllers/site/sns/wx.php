@@ -209,10 +209,9 @@ class wx extends \member_base {
 		$siteId = $call['siteid'];
 		$openid = $call['from_user'];
 		$wxConfig = $this->model('sns\wx')->bySite($siteId);
-		$snsSiteId = $siteId;
 		$modelFan = $this->model('sns\wx\fan');
 
-		if ($fan = $modelFan->byOpenid($snsSiteId, $openid, '*')) {
+		if ($fan = $modelFan->byOpenid($siteId, $openid, '*')) {
 			// 粉丝重新关注
 			$modelFan->update(
 				'xxt_site_wxfan',
@@ -221,16 +220,16 @@ class wx extends \member_base {
 					'unsubscribe_at' => 0,
 					'sync_at' => $current,
 				],
-				["siteid" => $snsSiteId, "openid" => $openid]
+				["siteid" => $siteId, "openid" => $openid]
 			);
 		} else {
 			// 新粉丝关注
-			$fan = $modelFan->blank($snsSiteId, $openid, true, [
+			$fan = $modelFan->blank($siteId, $openid, true, [
 				'subscribe_at' => $current,
 				'sync_at' => $current]
 			);
 			// log
-			$this->model('log')->writeSubscribe($siteId, $openid);
+			//$this->model('log')->writeSubscribe($siteId, $openid);
 		}
 		if ($wxConfig && $wxConfig->can_fans === 'Y') {
 			/**
@@ -239,8 +238,19 @@ class wx extends \member_base {
 			 */
 			$wxProxy = $this->model('sns\wx\proxy', $wxConfig);
 			$fanInfo = $wxProxy->userInfo($openid, false);
+			if ($fanInfo[0] === false) {
+				// accessToke expired
+				if (false !== strpos($fanInfo[1], '(40001)')) {
+					$wxProxy->accessToken(true);
+					$fanInfo = $wxProxy->userInfo($openid, false);
+				}
+			}
 			if ($fanInfo[0]) {
-				/*更新粉丝用户信息*/
+				/* 更新粉丝用户信息 */
+				// 替换掉emoji字符？？？
+				$nickname = json_encode($fanInfo[1]->nickname);
+				$nickname = preg_replace('/\\\ud[0-9a-f]{3}/i', '', $nickname);
+				$nickname = json_decode($nickname);
 				$nickname = trim($modelFan->escape($fanInfo[1]->nickname));
 				$u = [
 					'nickname' => empty($nickname) ? '未知' : $nickname,
@@ -259,6 +269,8 @@ class wx extends \member_base {
 						"uid='$fan->userid'"
 					);
 				}
+			} else {
+				$this->model('log')->log($siteId, 'subscribe', json_encode($fanInfo[0]));
 			}
 		}
 		if (!empty($scene_id)) {

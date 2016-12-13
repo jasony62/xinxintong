@@ -36,7 +36,7 @@ class acl_model extends \TMS_MODEL {
 		return $acls;
 	}
 	/**
-	 * 任务的访问控制列表
+	 * 用户邀请过的合作者
 	 *
 	 * @param int $missionId
 	 * @param object $user
@@ -49,7 +49,7 @@ class acl_model extends \TMS_MODEL {
 		$q = [
 			$fields,
 			'xxt_mission_acl',
-			"inviter='{$user->id}' and coworker_role='C' and mission_id<>{$missionId}",
+			"inviter='{$user->id}' and coworker_role='C' and mission_id<>{$missionId} and last_invite='Y'",
 		];
 		$q2 = ['o' => 'invite_at desc'];
 
@@ -58,7 +58,7 @@ class acl_model extends \TMS_MODEL {
 		return $acls;
 	}
 	/**
-	 *
+	 * 指定项目的对指定用户的记录
 	 */
 	public function &byCoworker($missionId, $coworkerId, $options = []) {
 		$fields = isset($options['fields']) ? $options['fields'] : '*';
@@ -81,6 +81,12 @@ class acl_model extends \TMS_MODEL {
 	 * @param string $role Coworker:合作者，Owner：项目创建人，Admin：站点管理员
 	 */
 	public function &add(&$inviter, &$mission, &$coworker, $role = 'C') {
+		/* 检查邀请人是否邀请过合作人 */
+		$q = ['id', 'xxt_mission_acl', ['inviter' => $inviter->id, 'coworker' => $coworker->id, 'last_invite' => 'Y']];
+		if ($log = $this->query_obj_ss($q)) {
+			$this->update('xxt_mission_acl', ['last_invite' => 'N'], ['id' => $log->id]);
+		}
+		/* 新建邀请记录 */
 		$current = time();
 		$acl = new \stdClass;
 		$acl->siteid = $mission->siteid;
@@ -97,6 +103,7 @@ class acl_model extends \TMS_MODEL {
 		$acl->coworker_label = $coworker->label;
 		$acl->coworker_role = $role;
 		$acl->join_at = $current;
+		$acl->last_invite = 'Y';
 		$acl->state = $mission->state;
 
 		$acl->id = $this->insert('xxt_mission_acl', $acl, true);

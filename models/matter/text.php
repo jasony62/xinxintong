@@ -27,10 +27,9 @@ class text_model extends base_model {
 		return $msg;
 	}
 	/*
-	 *
-	 */
-	public function getTypeName()
-	{
+		*
+	*/
+	public function getTypeName() {
 		return 'text';
 	}
 }

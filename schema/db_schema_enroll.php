@@ -61,7 +61,7 @@ $sql .= ",group_app_id varchar(40) not null default ''"; // 关联的分组活�
 $sql .= ",read_num int not null default 0"; // 阅读数
 $sql .= ",share_friend_num int not null default 0"; // 分享给好友数
 $sql .= ",share_timeline_num int not null default 0"; // 分享朋友圈数
-$sql .= ",data_schemas text"; // 登记项定义
+$sql .= ",data_schemas longtext"; // 登记项定义
 $sql .= ",use_site_header char(1) not null default 'Y'"; // 使用站点页眉
 $sql .= ",use_site_footer char(1) not null default 'Y'"; // 使用站点页脚
 $sql .= ",use_mission_header char(1) not null default 'Y'"; // 使用项目页眉
@@ -93,7 +93,7 @@ $sql .= ",share_summary varchar(240)"; // 分享时的摘要字段
 $sql .= ",autoenroll_onenter char(1) not null default 'N'"; // 进入时自动登记
 $sql .= ",autoenroll_onshare char(1) not null default 'N'"; // 分享时自动登记
 $sql .= ",seq int not null"; //页面序号
-$sql .= ",data_schemas text"; // 登记项定义
+$sql .= ",data_schemas longtext"; // 登记项定义
 $sql .= ",act_schemas text"; // 登记操作定义
 $sql .= ",user_schemas text"; // 登记用户信息定义（仅登记页有效）
 $sql .= ",primary key(id)) ENGINE=MyISAM DEFAULT CHARSET=utf8";

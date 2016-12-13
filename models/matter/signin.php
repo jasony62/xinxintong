@@ -42,15 +42,16 @@ class signin_model extends app_base {
 	 * $appId string
 	 * $cascaded array []
 	 */
-	public function &byId($appId, $options = array()) {
+	public function &byId($appId, $options = []) {
 		$fields = isset($options['fields']) ? $options['fields'] : '*';
 		$cascaded = isset($options['cascaded']) ? $options['cascaded'] : 'Y';
-		$q = array(
+		$q = [
 			$fields,
 			'xxt_signin',
 			"id='$appId'",
-		);
+		];
 		if ($app = $this->query_obj_ss($q)) {
+			$app->type = 'signin';
 			if (isset($app->entry_rule)) {
 				$app->entry_rule = json_decode($app->entry_rule);
 			}
@@ -70,7 +71,7 @@ class signin_model extends app_base {
 	public function &bySite($siteId, $page = null, $size = null) {
 		$result = new \stdClass;
 		$q = [
-			'*',
+			"*,'signin' type",
 			'xxt_signin',
 			"state<>0 and siteid='$siteId'",
 		];
@@ -96,7 +97,7 @@ class signin_model extends app_base {
 	public function &byMission($mission, $page = null, $size = null) {
 		$result = new \stdClass;
 		$q = [
-			'*',
+			"*,'signin' type",
 			'xxt_signin',
 			"state<>0 and mission_id='$mission'",
 		];

@@ -52,6 +52,7 @@ class thread_model extends \TMS_MODEL {
 	 *
 	 */
 	public function vote($threadId, $vote, &$user) {
+		$result = new \stdClass;
 		$thread = $this->byId($threadId);
 
 		$modelUsr = $this->model('discuss\user');
@@ -74,7 +75,12 @@ class thread_model extends \TMS_MODEL {
 			"id={$threadUser->id}"
 		);
 
-		return $rst;
+		$result->vote = $vote;
+		$result->first = empty($threadUser->vote);
+		$result->change = $threadUser->vote !== $vote;
+		$result->likes = $this->query_val_ss(['likes', 'xxt_discuss_thread', ['id' => $threadId]]);
+
+		return $result;
 	}
 	/**
 	 *

@@ -50,6 +50,7 @@ directive('tmsDiscuss', function() {
                             var html;
                             html = '<li class="ds-post" data-post-id="' + post.id + '">';
                             html += '<div class="ds-post-self">';
+                            html += '<div class="ds-avatar"><a rel="" target="_blank" href="#"><img src="/static/img/avatar.png" alt=""></a></div>';
                             html += '<div class="ds-comment-body">';
                             html += '<div class="ds-comment-header">';
                             html += '<a class="ds-user-name ds-highlight">' + post.author_name + '</a>';
@@ -185,7 +186,7 @@ directive('tmsDiscuss', function() {
                         }
 
                         function build(posts) {
-                            injectStylesheet('/static/css/discuss.css');
+                            injectStylesheet('/static/css/discuss.css?_=1');
                             /*评论的主题*/
                             eMeta = doc.createElement('div');
                             eMeta.classList.add('ds-meta');

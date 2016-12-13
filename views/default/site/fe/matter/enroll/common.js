@@ -86,11 +86,12 @@ define(["angular", "xxt-page", "tms-discuss", "enroll-directive"], function(angu
                     sharelink += '&page=' + params.page.name;
                     sharelink += '&ek=' + params.enrollKey;
                 }
-                //window.shareid = params.user.vid + (new Date()).getTime();
-                //sharelink += "&shareby=" + window.shareid;
+                window.shareid = params.user.uid + (new Date() * 1);
+                sharelink += "&shareby=" + window.shareid;
                 summary = params.app.summary;
-                if (params.page.share_summary && params.page.share_summary.length && params.record)
+                if (params.page.share_summary && params.page.share_summary.length && params.record) {
                     summary = params.record.data[params.page.share_summary];
+                }
                 scope.shareData = {
                     title: params.app.title,
                     link: sharelink,
@@ -100,23 +101,23 @@ define(["angular", "xxt-page", "tms-discuss", "enroll-directive"], function(angu
                 window.xxt.share.set(params.app.title, sharelink, summary, params.app.pic);
                 window.shareCounter = 0;
                 window.xxt.share.options.logger = function(shareto) {
-                    /*var app, url;
+                    var app, url;
                     app = scope.App;
-                    url = "/rest/mi/matter/logShare";
+                    url = "/rest/site/fe/matter/logShare";
                     url += "?shareid=" + window.shareid;
-                    url += "&mpid=" + LS.p.mpid;
+                    url += "&site=" + LS.p.site;
                     url += "&id=" + app.id;
                     url += "&type=enroll";
                     url += "&title=" + app.title;
                     url += "&shareby=" + scope.params.shareby;
                     url += "&shareto=" + shareto;
                     $http.get(url);
-                    window.shareCounter++;*/
+                    window.shareCounter++;
                     /* 是否需要自动登记 */
-                    /*if (app.can_autoenroll === 'Y' && scope.Page.autoenroll_onshare === 'Y') {
-                        $http.get(LS.j('emptyGet', 'mpid', 'aid') + '&once=Y');
-                    }
-                    window.onshare && window.onshare(window.shareCounter);*/
+                    //if (app.can_autoenroll === 'Y' && scope.Page.autoenroll_onshare === 'Y') {
+                    //    $http.get(LS.j('emptyGet', 'mpid', 'aid') + '&once=Y');
+                    //}
+                    window.onshare && window.onshare(window.shareCounter);
                 };
             } catch (e) {
                 alert(e.message);
@@ -253,6 +254,10 @@ define(["angular", "xxt-page", "tms-discuss", "enroll-directive"], function(angu
                     $scope.$broadcast('xxt.app.enroll.ready', params);
                 });
                 window.loading.finish();
+                $http.post('/rest/site/fe/matter/logAccess?site=' + site.id + '&id=' + app.id + '&type=enroll&title=' + app.title + '&shareby=', {
+                    search: location.search.replace('?', ''),
+                    referer: document.referrer
+                });
             } catch (e) {
                 alert(e.message);
             }
@@ -280,6 +285,7 @@ define(["angular", "xxt-page", "tms-discuss", "enroll-directive"], function(angu
                 $scope.errmsg = content;
             }
         });
+
     }]);
 
     return ngApp;

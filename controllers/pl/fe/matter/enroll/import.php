@@ -18,7 +18,7 @@ class import extends \pl\fe\matter\base {
 		$app = $this->model('matter\enroll')->byId($app, ['fields' => 'id,title,data_schemas,scenario', 'cascaded' => 'N']);
 		$schemas = json_decode($app->data_schemas);
 
-		require_once $_SERVER['DOCUMENT_ROOT'] . '/lib/PHPExcel.php';
+		require_once TMS_APP_DIR . '/lib/PHPExcel.php';
 
 		// Create new PHPExcel object
 		$objPHPExcel = new \PHPExcel();
@@ -105,7 +105,7 @@ class import extends \pl\fe\matter\base {
 	 * 从文件中提取数据
 	 */
 	private function &_extract($site, $app, $filename) {
-		require_once $_SERVER['DOCUMENT_ROOT'] . '/lib/PHPExcel.php';
+		require_once TMS_APP_DIR . '/lib/PHPExcel.php';
 
 		$app = $this->model('matter\enroll')->byId($app, ['cascaded' => 'N']);
 		$schemas = json_decode($app->data_schemas);

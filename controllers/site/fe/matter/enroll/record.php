@@ -146,9 +146,8 @@ class record extends base {
 			/* 处理自定义信息 */
 			$rst = $modelRec->setData($user, $site, $enrollApp, $ek, $enrolledData, $submitkey);
 			/* 登记提交的积分奖励 */
-			$modelCoin = $this->model('coin\log');
-			$action = 'app.enroll,' . $enrollApp->id . '.record.submit';
-			$modelCoin->income($site, $action, $enrollApp->id, 'sys', $user->uid);
+			$modelCoin = $this->model('site\coin\log');
+			$modelCoin->award($enrollApp, $user, 'site.matter.enroll.submit');
 		} else {
 			/* 重新插入新提交的数据 */
 			$rst = $modelRec->setData($user, $site, $enrollApp, $ek, $enrolledData, $submitkey);
@@ -168,11 +167,14 @@ class record extends base {
 			$updatedEnrollRec['group_enroll_key'] = $groupRecord->enroll_key;
 		}
 		if (count($updatedEnrollRec)) {
-			$modelRec->update('xxt_enroll_record',
+			$modelRec->update(
+				'xxt_enroll_record',
 				$updatedEnrollRec,
 				"enroll_key='$ek'"
 			);
 		}
+		/* 记录操作日志 */
+		$this->_logSubmit($site, $enrollApp);
 		/**
 		 * 通知登记活动事件接收人
 		 */
@@ -181,6 +183,29 @@ class record extends base {
 		}
 
 		return new \ResponseData($ek);
+	}
+	/**
+	 *
+	 */
+	private function _logSubmit($siteId, $app) {
+		$modelLog = $this->model('matter\log');
+
+		$logUser = new \stdClass;
+		$logUser->userid = $this->who->uid;
+		$logUser->nickname = $this->who->nickname;
+
+		$operation = new \stdClass;
+		$operation->name = 'submit';
+
+		$client = new \stdClass;
+		$client->agent = $_SERVER['HTTP_USER_AGENT'];
+		$client->ip = $this->client_ip();
+
+		$referer = isset($_SERVER['HTTP_REFERER']) ? $_SERVER['HTTP_REFERER'] : '';
+
+		$logid = $modelLog->addUserMatterOp($siteId, $logUser, $app, $operation, $client, $referer);
+
+		return $logid;
 	}
 	/**
 	 * 检查是否允许用户进行登记

@@ -1,18 +1,24 @@
 <?php
+/**
+ *
+ */
 class log_model extends TMS_MODEL {
 	/**
 	 *
 	 */
-	public function log($mpid, $method, $data) {
+	public function log($mpid, $method, $data, $agent = '', $referer = '') {
 		$current = time();
-		$i['mpid'] = $mpid;
-		$i['method'] = $method;
-		$i['create_at'] = $current;
-		$i['data'] = $this->escape($data);
+		$log = [];
+		$log['mpid'] = $mpid;
+		$log['method'] = $this->escape($method);
+		$log['create_at'] = $current;
+		$log['data'] = $this->escape($data);
+		$log['user_agent'] = $this->escape($agent);
+		$log['referer'] = $this->escape($referer);
 
-		$this->insert('xxt_log', $i, false);
+		$logid = $this->insert('xxt_log', $log, true);
 
-		return true;
+		return $logid;
 	}
 	/**
 	 * 接收消息日志

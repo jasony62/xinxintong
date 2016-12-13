@@ -5,6 +5,8 @@
             <th>日期</th>
             <th>操作</th>
             <th>数据</th>
+            <th>agent</th>
+            <th>referrer</th>
             <th>操作</th>
         </tr>
     </thead>
@@ -14,6 +16,8 @@
             <td ng-bind="l.create_at*1000|date:'yy-MM-dd HH:mm'"></td>
             <td ng-bind="l.method"></td>
             <td><span ng-bind="l.data" style="display:inline-block;width:1000px;"></span></td>
+            <td ng-bind="l.user_agent"></td>
+            <td ng-bind="l.referer"></td>
             <td><button class='btn btn-danger btn-xs' ng-click='remove(l,$index)'><span class='glyphicon glyphicon-remove'></span></button></td>
         </tr>
     </tbody>

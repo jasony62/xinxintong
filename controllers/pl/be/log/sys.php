@@ -20,7 +20,7 @@ class sys extends \pl\be\base {
 		$model = $this->model();
 
 		$q = [
-			'id,mpid,create_at,method,data',
+			'*',
 			'xxt_log',
 		];
 		$q2 = [

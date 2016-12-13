@@ -78,11 +78,11 @@ class wx extends \member_base {
 		/**
 		 * 消息已经收到，不处理
 		 */
-		var_dump(111);
+
 		if (!empty($msg['msgid']) && $modelLog->hasReceived($msg)) {
 			die('');
 		}
-var_dump(2222);
+
 		$this->model('log')->receive($msg);
 		/**
 		 * 消息分流处理

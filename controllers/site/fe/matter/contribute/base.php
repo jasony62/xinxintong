@@ -116,24 +116,48 @@ class base extends \site\fe\matter\base {
 		$reply .= $article->title;
 		$reply .= '】已退回。退回原因【' . $msg . '】，请修改后再次送审。';
 
-		foreach (array('wx', 'yx', 'qy') as $snsName) {
-			if ($snsName === 'yx') {
-				$reply .= '查看详情：\n' . $url;
-			} else {
-				$reply .= "<a href='" . $url . "'>查看详情</a>";
-			}
-			$message = array(
-				"msgtype" => "text",
-				"text" => array(
-					"content" => $reply,
-				),
-			);
-			if ($snsUser = $this->snsUserByMember($site, $mid, $snsName)) {
-				$this->notify($site, $snsName, $snsUser, $message);
-			}
-		}
+		if($member=$this->model("site\user\member")->byId($mid)){
+			$account=$this->model("site\user\account")->byId($member->userid);
+			if($account){
+				$arr=array();
 
-		return new \ResponseData('ok');
+				if(!empty($account->wx_openid)){
+					$arr['wx']=$account->wx_openid;
+				}
+				if(!empty($account->yx_openid)){
+					$arr['yx']=$account->yx_openid;
+				}
+				if(!empty($account->qy_openid)){				
+					$arr['qy']=$account->qy_openid;
+				}
+
+				if(empty($arr)){
+					return new \ResponseError("用户没有绑定易信、微信和企业号！");
+				}else{
+					$snsUser=new \stdClass;				
+					foreach ($arr as $snsName=>$openid) {
+						$snsUser->openid=$openid;
+						if ($snsName === 'yx') {
+							$reply .= "查看详情：\n" . $url;
+						} else {
+							$reply .= "<a href='" . $url . "'>查看详情</a>";
+						}
+						$message = array(
+							"msgtype" => "text",
+							"text" => array(
+								"content" => $reply,
+							),
+						);		
+						$this->notify($site, $snsName, $snsUser, $message);			
+					}
+					return new \ResponseData('ok');
+				}
+			}else{
+				return new \ResponseError("找不到注册用户！");
+			}
+		}else{
+			return new \ResponseError("找不到认证用户！");
+		}
 	}
 	/**
 	 * 转发给指定人进行处理
@@ -156,25 +180,50 @@ class base extends \site\fe\matter\base {
 		 * @todo 应该改为模版消息实现
 		 */
 		$url = $this->articleReviewUrl($site, $id);
-		$msg = '投稿活动【' . $c->title . '】有一篇新稿件，';
-		foreach (array('wx', 'yx', 'qy') as $snsName) {
-			if ($snsName === 'yx') {
-				$msg .= '请处理：\n' . $url;
-			} else {
-				$msg .= "<a href='" . $url . "'>请处理</a>";
+		//通过member的userid 找到account绑定的openid 再发送信息
+		if($member=$this->model('site\user\member')->byId($mid)){
+			$account=$this->model('site\user\account')->byId($member->userid);
+			if($account){
+				$arr=array();
+				
+				if(!empty($account->wx_openid)){
+					$arr['wx']=$account->wx_openid;
+				} 
+				if(!empty($account->yx_openid)){
+					$arr['yx']=$account->yx_openid;
+				}
+				if(!empty($account->qy_openid)){				
+					$arr['qy']=$account->qy_openid;
+				}
+			
+				if(empty($arr)){
+					return new \ResponseError("用户没有绑定易信、微信和企业号！");
+				}else{
+					$snsUser=new \stdClass;
+					foreach ($arr as $snsName => $openid) {
+						$snsUser->openid=$openid;
+						$msg = '投稿活动【' . $c->title . '】有一篇新稿件，';
+						if ($snsName === 'yx') {
+							$msg .= "请处理：\n" . $url;
+						} else {
+							$msg .= "<a href='" . $url . "'>请处理</a>";
+						}
+						$message = array(
+							"msgtype" => "text",
+							"text" => array(
+								"content" => $msg,
+							),
+						);
+						$rst = $this->notify($site, $snsName, $snsUser, $message);
+					}
+					return new \ResponseData('ok');
+				}
+			}else{
+				return new \ResponseError("找不到注册用户！");
 			}
-			$message = array(
-				"msgtype" => "text",
-				"text" => array(
-					"content" => $msg,
-				),
-			);
-			if ($snsUser = $this->snsUserByMember($site, $mid, $snsName)) {
-				$rst = $this->notify($site, $snsName, $snsUser, $message);
-			}
+		}else{
+			return new \ResponseError("找不到认证用户！");
 		}
-
-		return new \ResponseData('ok');
 	}
 	/**
 	 * 文章的投稿链接

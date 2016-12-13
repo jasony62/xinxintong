@@ -44,7 +44,7 @@ $sql .= "id bigint not null auto_increment";
 $sql .= ",thread_id int not null";
 $sql .= ",user_key varchar(255) not null";
 $sql .= ",user_name varchar(255) not null";
-$sql .= ",vote char(1) not null default 'N'";
+$sql .= ",vote char(1) not null default ''";
 $sql .= ",posts text"; // 用户发表的评论
 $sql .= ",like_posts text"; // 用户喜欢的评论
 $sql .= ",primary key(id)) ENGINE=MyISAM DEFAULT CHARSET=utf8";

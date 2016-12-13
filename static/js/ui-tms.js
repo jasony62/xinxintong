@@ -269,7 +269,7 @@ angular.module('ui.tms', ['ngSanitize']).service('noticebox', ['$timeout', funct
         link: function(scope, elem, attrs) {
             function whenBlur() {
                 delete scope.focus;
-                if (scope.obj[scope.prop].length == 0) {
+                if (scope.obj[scope.prop] && scope.obj[scope.prop].length == 0) {
                     scope.remove();
                 }
             };

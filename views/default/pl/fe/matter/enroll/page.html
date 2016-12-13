@@ -1,18 +1,23 @@
 <div id='page-view'>
 <!-- pages -->
-    <div class='col-md-12'>
-        <nav class='navbar navbar-default' style="margin:0 -15px 20px;padding-right:15px">
-            <ul class="nav navbar-nav">
+    <nav class='navbar navbar-default'>
+        <div class='container'>
+            <ul class="nav navbar-nav" ng-if="app.pages.length<=3">
                 <li ng-class="{'active':p===ep}" ng-repeat="p in app.pages">
-                    <a href="#" ng-click="choosePage(p)"><span><i class='fa fa-file-o'></i> {{p.title}}</span></a>
+                    <a href="" ng-click="choosePage(p)"><span><i class='fa fa-file-o'></i> {{p.title}}</span></a>
                 </li>
             </ul>
+            <form class="navbar-form navbar-left" ng-if="app.pages.length>3">
+                <div class='form-group'>
+                    <select class='form-control' ng-options="p as p.title for p in app.pages" ng-model="ep"></select>
+                </div>
+            </form>
             <ul class="navbar-form navbar-right">
                 <button class='btn btn-success' ng-click="save()">保存修改</button>
                 <button id='popoverPageSetting' uib-popover-template="'pageSetting.html'" popover-append-to-body='true' popover-placement="bottom" popover-trigger="show" class="btn btn-default" ng-click="popoverPageSetting()">高级设置 <span class="caret"></span></button>
             </ul>
-        </nav>
-    </div>
+        </div>
+    </nav>
     <!-- end pages -->
     <!-- one page-->
     <div class='col-md-12 page' ng-controller="ctrlPageEdit">

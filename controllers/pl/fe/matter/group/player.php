@@ -48,7 +48,7 @@ class player extends \pl\fe\matter\base {
 		}
 		$players = $result->players;
 
-		require_once $_SERVER['DOCUMENT_ROOT'] . '/lib/PHPExcel.php';
+		require_once TMS_APP_DIR . '/lib/PHPExcel.php';
 
 		// Create new PHPExcel object
 		$objPHPExcel = new \PHPExcel();

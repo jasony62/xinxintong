@@ -57,6 +57,7 @@ $sql .= ",coworker varchar(40) not null default ''"; // 合作者
 $sql .= ",coworker_label varchar(255) not null default ''";
 $sql .= ",coworker_role char(1) not null default 'C'"; // 合作者角色：Owner，Admin，Coworker
 $sql .= ",join_at int not null"; // 加入时间
+$sql .= ",last_invite char(1) not null default 'N'"; // 是否为最近一次邀请者对合作者发出的邀请，为了记录邀请关系
 $sql .= ",state tinyint not null default 1"; //0:stop,1:normal
 $sql .= ",primary key(id)) ENGINE=MyISAM DEFAULT CHARSET=utf8";
 if (!$mysqli->query($sql)) {

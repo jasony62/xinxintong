@@ -1,12 +1,12 @@
-define(["angular", "xxt-page"], function(angular, codeAssembler) {
+define(["angular", "xxt-page", "tms-discuss"], function(angular, codeAssembler) {
     'use strict';
-    var ngApp = angular.module('article', []);
+    var ngApp = angular.module('article', ['discuss.ui.xxt']);
     ngApp.config(['$controllerProvider', function($cp) {
         ngApp.provider = {
             controller: $cp.register
         };
     }]);
-    ngApp.controller('ctrl', ['$scope', '$http', '$timeout', '$q', function($scope, $http, $timeout, $q) {
+    ngApp.controller('ctrl', ['$scope', '$http', '$timeout', '$q', 'tmsDiscuss', function($scope, $http, $timeout, $q, tmsDiscuss) {
         var ls, siteId, id, shareby;
         ls = location.search;
         siteId = ls.match(/[\?&]site=([^&]*)/)[1];
@@ -19,15 +19,15 @@ define(["angular", "xxt-page"], function(angular, codeAssembler) {
             var shareid, sharelink;
             shareid = $scope.user.uid + (new Date() * 1);
             xxtShare.options.logger = function(shareto) {
-                /*var url = "/rest/mi/matter/logShare";
+                var url = "/rest/site/fe/matter/logShare";
                 url += "?shareid=" + shareid;
                 url += "&site=" + siteId;
                 url += "&id=" + id;
                 url += "&type=article";
                 url += "&title=" + $scope.article.title;
                 url += "&shareto=" + shareto;
-                //url += "&shareby=" + shareby;
-                $http.get(url);*/
+                url += "&shareby=" + shareby;
+                $http.get(url);
             };
             sharelink = 'http://' + location.hostname + '/rest/site/fe/matter';
             sharelink += '?site=' + siteId;
@@ -79,6 +79,9 @@ define(["angular", "xxt-page"], function(angular, codeAssembler) {
                     require(['xxt-share'], setMpShare);
                 }
                 article.can_picviewer === 'Y' && require(['picviewer']);
+                if (article.can_discuss === 'Y') {
+                    tmsDiscuss.showSwitch(site.id, 'article,' + article.id, article.title);
+                }
                 $http.post('/rest/site/fe/matter/logAccess?site=' + siteId + '&id=' + id + '&type=article&title=' + article.title + '&shareby=' + shareby, {
                     search: location.search.replace('?', ''),
                     referer: document.referrer
@@ -101,11 +104,11 @@ define(["angular", "xxt-page"], function(angular, codeAssembler) {
         };
         $scope.like = function() {
             if ($scope.mode === 'preview') return;
-            var url = "/rest/site/fe/matter/article/score?site=" + $scope.siteId + "&id=" + $scope.articleId;
-            $http.get(url).success(function(rsp) {
-                $scope.article.score = rsp.data[0];
-                $scope.article.praised = rsp.data[1];
-            });
+            // var url = "/rest/site/fe/matter/article/score?site=" + $scope.siteId + "&id=" + $scope.articleId;
+            // $http.get(url).success(function(rsp) {
+            //     $scope.article.score = rsp.data[0];
+            //     $scope.article.praised = rsp.data[1];
+            // });
         };
         $scope.followYixinMp = function() {
             location.href = 'yixin://opencard?pid=' + $scope.mpa.yx_cardid;
@@ -128,30 +131,6 @@ define(["angular", "xxt-page"], function(angular, codeAssembler) {
             }
         };
         loadArticle().then(articleLoaded);
-    }]);
-    ngApp.controller('ctrlRemark', ['$scope', '$http', function($scope, $http) {
-        $scope.newRemark = '';
-        $scope.remark = function() {
-            var url, param;
-            url = "/rest/site/fe/matter/article/remark?site=" + $scope.siteId + "&id=" + $scope.articleId;
-            param = {
-                remark: $scope.newRemark
-            };
-            $http.post(url, param).success(function(rsp) {
-                if (rsp.err_code != 0) {
-                    alert(rsp.err_msg);
-                    return;
-                };
-                $scope.newRemark = '';
-                $scope.article.remarks === false ? $scope.article.remarks = [rsp.data] : $scope.article.remarks.splice(0, 0, rsp.data);
-            });
-        };
-        $scope.reply = function(remark) {
-            $scope.newRemark += '@' + remark.nickname;
-            $timeout(function() {
-                document.querySelector('#gotoNewRemark').click();
-            });
-        };
     }]);
     ngApp.controller('ctrlAlert', ['$scope', function($scope) {
         $scope.close = function() {

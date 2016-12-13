@@ -64,8 +64,8 @@ class main extends base {
 		empty($oPage) && $this->outputError('没有可访问的页面');
 
 		/* 记录日志，完成前置活动再次进入的情况不算 */
-		$this->modelApp->update("update xxt_enroll set read_num=read_num+1 where id='$app->id'");
-		//$this->logRead($siteid, $user, $app->id, 'enroll', $app->title, $shareby);
+		//$this->modelApp->update("update xxt_enroll set read_num=read_num+1 where id='$app->id'");
+
 		/* 返回登记活动页面 */
 		\TPL::assign('title', $app->title);
 		if ($oPage->type === 'I') {

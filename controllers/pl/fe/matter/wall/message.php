@@ -70,7 +70,17 @@ class message extends \pl\fe\matter\base {
 				break;
 			}
 
-			$model->push_others($site, $openid, $msg, $wall, $wall->id, $this);
+			//获得此用户的来源和昵称用于推送消息
+			$q = array(
+				'ufrom,nickname',
+				'xxt_wall_enroll',
+				"wid = '{$wall->id}' and openid = '{$openid}'",
+				);
+			$user = $this->model()->query_obj_ss($q);
+			$msg['from_nickname'] = $user->nickname;
+			$msg['src'] = $user->ufrom;
+			
+			$model->push_others($site, $openid, $msg, $wall, $wall->id);
 		}
 
 		return new \ResponseData($v);
@@ -102,4 +112,5 @@ class message extends \pl\fe\matter\base {
 
 		return new \ResponseData($rst);
 	}
+	
 }

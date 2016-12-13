@@ -15,13 +15,15 @@
             <ul class='nav navbar-nav'>
                 <form class='navbar-form navbar-left'>
                     <div class="btn-group">
-                        <a href="/rest/pl/fe" target='_self' class="btn btn-default">个人工作台</a>
+                        <a href="/rest/pl/fe" target='_self' class="btn btn-default" ng-if="referrer!=='site'">个人工作台</a>
+                        <a href='/rest/pl/fe/site/console?site={{siteId}}' target='_self' class="btn btn-default" ng-if="referrer==='site'">团队工作台</a>
                         <button type="button" class="btn btn-default dropdown-toggle" data-toggle="dropdown">
                             <span class="caret"></span>
                             <span class="sr-only">Toggle Dropdown</span>
                         </button>
                         <ul class="dropdown-menu" role="menu">
-                            <li><a href='/rest/pl/fe/site/console?site={{siteId}}' target='_self'>团队工作台</a></li>
+                            <li ng-if="referrer==='site'"><a href="/rest/pl/fe" target='_self'>个人工作台</a></li>
+                            <li ng-if="referrer!=='site'"><a href='/rest/pl/fe/site/console?site={{siteId}}' target='_self'>团队工作台</a></li>
                             <li><a href='/rest/home' target='_self'>平台首页</a></li>
                         </ul>
                     </div>
@@ -61,19 +63,21 @@
                 </div>  
             </form>
             <ul class='nav navbar-nav navbar-right' ng-if="subView==='publish'">
-                <li><a href="/rest/pl/fe/matter/enroll/record?site={{siteId}}&id={{id}}" target='_self'>查看数据</a></li>
+                <li><a href="/rest/pl/fe/matter/enroll/record?site={{siteId}}&id={{id}}">查看数据</a></li>
+                <li ng-if="app.scenario==='voting'"><a href="/rest/pl/fe/matter/enroll/stat?site={{siteId}}&id={{id}}">统计报告</a></li>
+                <li ng-if="app.can_discuss==='Y'"><a href="/rest/pl/fe/matter/enroll/discuss?site={{siteId}}&id={{id}}">用户评论</a></li>
             </ul>
             <ul class='nav navbar-nav navbar-right' ng-if="subView==='record'">
-                <li><a href="/rest/pl/fe/matter/enroll/publish?site={{siteId}}&id={{id}}" target='_self'>发布预览</a></li>
+                <li><a href="/rest/pl/fe/matter/enroll/publish?site={{siteId}}&id={{id}}">发布预览</a></li>
                 <li ng-if="app.scenario==='voting'"><a href="/rest/pl/fe/matter/enroll/stat?site={{siteId}}&id={{id}}">统计报告</a></li>
             </ul>
             <ul class='nav navbar-nav navbar-right' ng-if="subView==='schema'">
-                <li><a href="/rest/pl/fe/matter/enroll/publish?site={{siteId}}&id={{id}}" target='_self'>发布预览</a></li>
-                <li><a href="/rest/pl/fe/matter/enroll/record?site={{siteId}}&id={{id}}" target='_self'>查看数据</a></li>
+                <li><a href="/rest/pl/fe/matter/enroll/publish?site={{siteId}}&id={{id}}">发布预览</a></li>
+                <li><a href="/rest/pl/fe/matter/enroll/record?site={{siteId}}&id={{id}}">查看数据</a></li>
             </ul>
             <ul class='nav navbar-nav navbar-right' ng-if="subView==='page'">
-                <li><a href="/rest/pl/fe/matter/enroll/publish?site={{siteId}}&id={{id}}" target='_self'>发布预览</a></li>
-                <li><a href="/rest/pl/fe/matter/enroll/record?site={{siteId}}&id={{id}}" target='_self'>查看数据</a></li>
+                <li><a href="/rest/pl/fe/matter/enroll/publish?site={{siteId}}&id={{id}}">发布预览</a></li>
+                <li><a href="/rest/pl/fe/matter/enroll/record?site={{siteId}}&id={{id}}">查看数据</a></li>
             </ul>
         </nav>
         <div class='container'>
@@ -129,7 +133,7 @@
         <script src="/static/js/xxt.ui.tmplshop.js?_=1"></script>
         <script src="/views/default/pl/fe/_module/channel.js?_=1"></script>
         <script src="/views/default/pl/fe/_module/matter.service.js?_=1"></script>
-        <script src="/views/default/pl/fe/matter/enroll/lib/enroll.service.js?_=2"></script>
+        <script src="/views/default/pl/fe/matter/enroll/lib/enroll.service.js?_=3"></script>
         <script src="/views/default/pl/fe/matter/enroll/lib/enroll.tinymce.js?_=2"></script>
         <script src="/static/js/require.js" data-main="/views/default/pl/fe/matter/enroll/frame-loader.js?_=6"></script>
     </body>

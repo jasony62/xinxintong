@@ -49,7 +49,7 @@
                         <span>阅读</span>
                         <span id='readNum' ng-bind='article.read_num'></span>
                     </span>
-                    <span class='like'>
+                    <span class='like' style='display:none'>
                         <em ng-class="{'praised':article.praised}" ng-click="like()"></em>
                         <span id='score' ng-bind='article.score'></span>
                     </span>
@@ -58,28 +58,12 @@
                     <span ng-repeat="c in article.channels" ng-click="openChannel(c)" ng-bind="c.title"></span>
                     <span ng-repeat="t in article.tags" ng-click="searchByTag(t)" ng-bind="t.title"></span>
                 </div>
-                <div id='remark' ng-show="mpa.can_article_remark==='Y'" ng-controller='ctrlRemark'>
-                    <h3>评论</h3>
-                    <div class='list-group' ng-hide="mode==='preview'">
-                        <div class='list-group-item' ng-repeat="r in article.remarks" ng-click='reply(r)'>
-                            <div class='content' ng-bind="r.remark"></div>
-                            <div class='attrs'>
-                                <div class='nickname' ng-bind="r.nickname"></div>
-                                <div class='datetime' ng-bind="r.create_at*1000|date:'yy-MM-dd HH:mm'"></div>
-                            </div>
-                        </div>
-                    </div>
-                    <div class='actions'>
-                        <textarea id='newRemark' rows='4' class='form-control' ng-disabled="mode==='preview'" ng-model="newRemark"></textarea>
-                        <button ng-disabled="!newRemark||newRemark.length===0" ng-click='remark()'>发表评论</button>
-                    </div>
-                </div>
             </div>
             <footer ng-if="article.use_mission_footer==='Y'" dynamic-html="mission.footer_page.html"></footer>
             <footer ng-if="article.use_site_footer==='Y'" dynamic-html="site.footer_page.html"></footer>
         </div>
         <div class="loading"><div class='loading-indicator'><i></i></div></div>
-        <script src="/static/js/require.js" defer async data-main="/views/default/site/fe/matter/article/main-loader.js?_=7"></script>
+        <script src="/static/js/require.js" defer async data-main="/views/default/site/fe/matter/article/main-loader.js?_=8"></script>
     </body>
 
 </html>

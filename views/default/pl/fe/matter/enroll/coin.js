@@ -1,63 +1,80 @@
-(function() {
+define(['frame'], function(ngApp) {
+	'use strict';
 	ngApp.provider.controller('ctrlCoin', ['$scope', 'http2', '$uibModal', '$timeout', function($scope, http2, $uibModal, $timeout) {
-		var prefix = 'app.enroll,' + $scope.id,
-			actions = [{
-				name: 'record.submit',
-				desc: '用户A成功提交登记记录'
-			}, {
-				name: 'share.F',
-				desc: '用户A转发好友',
-			}, {
-				name: 'share.T',
-				desc: '用户A分享至朋友圈',
-			}, {
-				name: 'invite.success',
-				desc: '用户A邀请用户B参与成功',
-			}];
-		$scope.$parent.subView = 'coin';
+		var actions = [{
+			name: 'site.matter.enroll.read',
+			desc: '用户A打开登记活动页面'
+		}, {
+			name: 'site.matter.enroll.submit',
+			desc: '用户A提交新登记记录',
+		}, {
+			name: 'site.matter.enroll.share.friend',
+			desc: '用户A分享活动给公众号好友',
+		}, {
+			name: 'site.matter.enroll.share.timeline',
+			desc: '用户A分享至朋友圈',
+		}, {
+			name: 'site.matter.enroll.discuss.like',
+			desc: '用户A对活动点赞',
+		}, {
+			name: 'site.matter.enroll.discuss.comment',
+			desc: '用户A对活动评论',
+		}];
 		$scope.rules = {};
-		angular.forEach(actions, function(act) {
+		actions.forEach(function(act) {
 			var name;
-			name = prefix + '.' + act.name;
+			name = act.name;
 			$scope.rules[name] = {
 				act: name,
 				desc: act.desc,
-				delta: 0
+				actor_delta: 0,
 			};
 		});
 		$scope.save = function() {
-			var posted, url;
-			posted = [];
-			angular.forEach($scope.rules, function(rule) {
-				if (rule.id || rule.delta != 0) {
+			var filter = 'ID:' + $scope.id,
+				posted = [],
+				url, rule;
+
+			for (var k in $scope.rules) {
+				rule = $scope.rules[k];
+				if (rule.id || rule.actor_delta != 0) {
 					var data;
 					data = {
 						act: rule.act,
-						delta: rule.delta,
-						objid: '*'
+						actor_delta: rule.actor_delta,
+						matter_type: 'enroll',
+						matter_filter: filter
 					};
 					rule.id && (data.id = rule.id);
 					posted.push(data);
 				}
-			});
-			url = '/rest/mp/app/enroll/coin/save';
+			}
+			url = '/rest/pl/fe/matter/enroll/coin/saveRules?site=' + $scope.siteId;
 			http2.post(url, posted, function(rsp) {
-				$scope.$root.infomsg = '保存成功';
-				angular.forEach(rsp.data, function(id, act) {
-					$scope.rules[act].id = id;
-				});
+				for (var k in rsp.data) {
+					$scope.rules[k].id = rsp.data[k];
+				}
 			});
 		};
-		$scope.fetch = function() {
+		$scope.fetchRules = function() {
 			var url;
-			url = '/rest/mp/app/enroll/coin/get?aid=' + $scope.aid;
+			url = '/rest/pl/fe/matter/enroll/coin/rules?site=' + $scope.siteId + '&app=' + $scope.id;
 			http2.get(url, function(rsp) {
-				angular.forEach(rsp.data, function(rule) {
-					$scope.rules[rule.act].id = rule.id;
-					$scope.rules[rule.act].delta = rule.delta;
+				rsp.data.forEach(function(rule) {
+					var rule2 = $scope.rules[rule.act];
+					rule2.id = rule.id;
+					rule2.actor_delta = rule.actor_delta;
 				});
 			});
 		};
-		$scope.fetch();
+		$scope.fetchLogs = function() {
+			var url;
+			url = '/rest/pl/fe/matter/enroll/coin/logs??site=' + $scope.siteId + '&app=' + $scope.id;
+			http2.get(url, function(rsp) {
+				$scope.logs = rsp.data.logs;
+			});
+		};
+		$scope.fetchRules();
+		$scope.fetchLogs();
 	}]);
-})();
+});

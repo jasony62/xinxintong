@@ -26,6 +26,9 @@ window.loading = {
 					exports: "angular"
 				},
 			},
+			urlArgs: function(id, url) {
+				return "?bust=" + (timestamp * 1);
+			}
 		});
 		require(['angular'], function(angular) {
 			require(['xxt-discuss'], function() {

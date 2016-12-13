@@ -39,12 +39,13 @@ class lottery_model extends app_base {
 	 * $lid string
 	 * $cascaded array [award|plate]
 	 */
-	public function &byId($lid, $options = array()) {
+	public function &byId($lid, $options = []) {
 		$fields = isset($options['fields']) ? $options['fields'] : '*';
 		$cascaded = isset($options['cascaded']) ? $options['cascaded'] : array();
 
 		$q = array($fields, 'xxt_lottery', "id='$lid'");
 		if ($lot = $this->query_obj_ss($q)) {
+			$lot->type = 'lottery';
 			if (in_array('award', $cascaded)) {
 				$lot->awards = $this->getAwards($lid);
 			}
@@ -62,6 +63,7 @@ class lottery_model extends app_base {
 				$lot->tasks = \TMS_APP::M('matter\lottery\task')->byApp($lid);
 			}
 		}
+
 		return $lot;
 	}
 	/**

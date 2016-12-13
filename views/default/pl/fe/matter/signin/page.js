@@ -259,7 +259,7 @@ define(['frame', 'schema', 'editor'], function(ngApp, schemaLib, editorProxy) {
                 } else {
                     // 加到页面的结尾
                     matters.forEach(function(matter) {
-                        fn = "openMatter(" + matter.id + "','" + type + "')";
+                        fn = "openMatter('" + matter.id + "','" + type + "')";
                         domMatter = dom.add(tinymceEditor.getBody(), 'div', {
                             'wrap': 'matter',
                             'class': 'form-group',

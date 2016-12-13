@@ -317,6 +317,7 @@ class wall_model extends app_base {
 		/**
 		 * 记录留言
 		 */
+		$wlog['data'] = $this->escape($wlog['data']);
 		$this->insert('xxt_wall_log', $wlog, false);
 		/**
 		 * 更新用户状态

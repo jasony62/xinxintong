@@ -33,13 +33,20 @@ class users extends \pl\fe\matter\base {
 	 * @param string $app
 	 */
 	public function import_action($id, $app, $site, $type) {
-		//先查询出讨论组中已有的openid
+		//查询出此讨论组中已有的openid
 		$q = array(
 			'openid',
 			'xxt_wall_enroll',
 			"siteid='$site' and wid = '$id'"
 			);
 		$wallOpenids = $this->model()->query_vals_ss($q);
+		//查询此站点中其它讨论组的openid
+		$q2 = array(
+			'openid',
+			'xxt_wall_enroll',
+			"siteid='$site' and wid != '$id'"
+			);
+		$otherWallOpenids = $this->model()->query_vals_ss($q2);
 		//查询出登记活动中的所有userid
 		$p = array(
 			"distinct userid",
@@ -81,6 +88,15 @@ class users extends \pl\fe\matter\base {
 			if(in_array($openid, $wallOpenids) || $openid=='' ){
 				continue;
 			}
+			//退出其它讨论组
+			if(in_array($openid, $otherWallOpenids)){
+				$this->model()->update(
+					'xxt_wall_enroll',
+					array('close_at' => time()),
+					"siteid='$site' and openid='$openid' and wid != '$id' "
+				);
+			}
+			
 			$sql['siteid'] = $site;
 			$sql['wid'] = $id;
 			$sql['join_at'] = $join_at;

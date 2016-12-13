@@ -180,7 +180,7 @@ class base extends \site\fe\matter\base {
 		 * @todo 应该改为模版消息实现
 		 */
 		$url = $this->articleReviewUrl($site, $id);
-
+		//通过member的userid 找到account绑定的openid 再发送信息
 		if($member=$this->model('site\user\member')->byId($mid)){
 			$account=$this->model('site\user\account')->byId($member->userid);
 			if($account){

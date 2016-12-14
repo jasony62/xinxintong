@@ -12,20 +12,20 @@ define(["angular", "xxt-page", "tms-discuss"], function(angular, codeAssembler) 
                 scrollTop = target.scrollTop;
 
             if (scrollTop === 0) {
-                if ($scope.uppermost && angular.isString($scope.uppermost) && $scope.$parent.uppermost) {
+                if ($scope.$parent.uppermost) {
                     $scope.$parent.uppermost(target);
                 }
             } else if (scrollTop === target.scrollHeight - target.clientHeight) {
-                if ($scope.downmost && angular.isString($scope.downmost) && $scope.$parent.downmost) {
+                if ($scope.$parent.downmost) {
                     $scope.$parent.downmost(target);
                 }
             } else {
                 if (target.__lastScrollTop === undefined || scrollTop > target.__lastScrollTop) {
-                    if ($scope.upward && angular.isString($scope.upward) && $scope.$parent.upward) {
+                    if ($scope.$parent.upward) {
                         $scope.$parent.upward(target);
                     }
                 } else {
-                    if ($scope.downward && angular.isString($scope.downward) && $scope.$parent.downward) {
+                    if ($scope.$parent.downward) {
                         $scope.$parent.downward(target);
                     }
                 }
@@ -66,9 +66,6 @@ define(["angular", "xxt-page", "tms-discuss"], function(angular, codeAssembler) 
                     });
                 }
                 for (var i = elems.length - 1; i >= 0; i--) {
-                    elems[i].onloadend = function(event) {
-                        console.log(event);
-                    };
                     elems[i].onscroll = function(event) {
                         var target = event.target;
                         if (target.__timer) {
@@ -229,8 +226,8 @@ define(["angular", "xxt-page", "tms-discuss"], function(angular, codeAssembler) 
     ngApp.controller('ctrlPay', ['$scope', function($scope) {
         $scope.open = function() {
             var url = 'http://' + location.host;
-            url += '/rest/coin/pay';
-            url += "?mpid=" + $scope.siteId;
+            url += '/rest/site/fe/coin/pay';
+            url += "?site=" + $scope.siteId;
             url += "&matter=article," + $scope.articleId;
             openPlugin(url);
         };

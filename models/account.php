@@ -13,13 +13,13 @@ class account_model extends TMS_MODEL {
 	 *
 	 * return
 	 */
-	public function byId($uid, $options = array()) {
+	public function byId($uid, $options = []) {
 		$fields = isset($options['fields']) ? $options['fields'] : 'uid,nickname,email,password,salt';
-		$q = array(
+		$q = [
 			$fields,
 			'account',
 			["uid" => $uid],
-		);
+		];
 		$act = $this->query_obj_ss($q);
 
 		return $act;

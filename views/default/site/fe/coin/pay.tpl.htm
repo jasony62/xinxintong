@@ -19,9 +19,9 @@
     <body>
         <div id='app' ng-app="app" ng-controller='ctrlPay'>
             <div id='errmsg' class='alert alert-danger' ng-class="{'active':errmsg}" ng-click="errmsg=''" ng-bind='errmsg'></div>
-            <div id="page" dynamic-html='Page.html'></div>
+            <div id="page" dynamic-html='page.html'></div>
         </div>
         <div class="loading"><div class='loading-indicator'><i></i></div></div>
-        <script src="/static/js/require.js" defer async data-main="/views/default/coin/pay-loader.js?_=2"></script>
+        <script src="/static/js/require.js" defer async data-main="/views/default/site/fe/coin/pay-loader.js?_=2"></script>
     </body>
 </html>

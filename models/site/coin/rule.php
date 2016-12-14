@@ -4,6 +4,7 @@ namespace site\coin;
  * 站点内积分规则
  */
 class rule_model extends \TMS_MODEL {
+
 	/**
 	 * 根据素材过滤器获得
 	 */

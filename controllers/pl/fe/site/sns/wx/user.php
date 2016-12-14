@@ -98,17 +98,25 @@ class user extends \pl\fe\base {
 	 * $nextOpenid
 	 *
 	 */
-	public function refreshAll_action($step = 0, $nextOpenid = '') {
+	public function refreshAll_action($site, $step = 0, $nextOpenid = '') {
 		if ($step === 0) {
-			$mpa = $this->getMpaccount();
 			$fansCount = 0;
 			/**
 			 * 获得所有粉丝的openid
 			 */
-			$proxy = $this->model("mpproxy/$mpa->mpsrc", $this->mpid);
+			$wxConfig = $this->model('sns\wx')->bySite($site);
+			$proxy = $this->model('sns\wx\proxy', $wxConfig);
 			$rst = $proxy->userGet($nextOpenid);
 			if (false === $rst[0]) {
-				return new \ResponseError($rst[1]);
+				if (false !== strpos($rst[1], '(40001)')) {
+					$proxy->accessToken(true);
+					$rst = $proxy->userGet($nextOpenid);
+					if (false === $rst[0]) {
+						return new \ResponseError($rst[1]);
+					}
+				} else {
+					return new \ResponseError($rst[1]);
+				}
 			}
 			if (!is_object($rst[1])) {
 				return new \ResponseError($rst[1]);
@@ -119,11 +127,11 @@ class user extends \pl\fe\base {
 			$nextOpenid = $userSet->count == 10000 ? $userSet->next_openid : '';
 		} else {
 			$stack = $_SESSION['fans_refreshAll_stack'];
-			$mpa = $stack['mpa'];
+			$wxConfig = $stack['wxConfig'];
 			$total = $stack['total'];
 			$fansCount = $stack['fansCount'];
 			$openids = $stack['openids'];
-			$proxy = $this->model("mpproxy/$mpa->mpsrc", $this->mpid);
+			$proxy = $this->model('sns\wx\proxy', $wxConfig);
 		}
 		/**
 		 * 更新粉丝
@@ -131,16 +139,17 @@ class user extends \pl\fe\base {
 		if (!empty($openids)) {
 			$current = time();
 			$ins = array(
-				'mpid' => $this->mpid,
+				'siteid' => $site,
 				'subscribe_at' => $current,
 				'sync_at' => $current,
 			);
 			$finish = 0;
+			$modelWxFan = $this->model('sns\wx\fan');
 			foreach ($openids as $index => $openid) {
 				if ($index == 50 * ($step + 1)) {
 					$step++;
 					$stack = array(
-						'mpa' => $mpa,
+						'wxConfig' => $wxConfig,
 						'total' => $total,
 						'fansCount' => $fansCount,
 						'openids' => $openids,
@@ -152,7 +161,7 @@ class user extends \pl\fe\base {
 				$finish++;
 				unset($openids[$index]);
 
-				$lfan = $this->model('user/fans')->byOpenid($this->mpid, $openid);
+				$lfan = $modelWxFan->byOpenid($site, $openid);
 				if ($lfan && $lfan->sync_at + 43200 > $current) {
 					/* 一小时之内不同步 */
 					continue;
@@ -168,12 +177,15 @@ class user extends \pl\fe\base {
 				}
 				$rfan = $info[1];
 				if ($rfan->subscribe != 0) {
+					$nickname = json_encode($rfan->nickname);
+					$nickname = preg_replace('/\\\ud[0-9a-f]{3}/i', '', $nickname);
+					$nickname = json_decode($nickname);
 					if ($lfan) {
 						/**
 						 * 更新关注状态粉丝信息
 						 */
 						$upd = array(
-							'nickname' => $this->model()->escape($rfan->nickname),
+							'nickname' => $modelWxFan->escape($nickname),
 							'sex' => $rfan->sex,
 							'city' => $rfan->city,
 							'groupid' => $rfan->groupid,
@@ -184,20 +196,19 @@ class user extends \pl\fe\base {
 						isset($rfan->province) && $upd['province'] = $rfan->province;
 						isset($rfan->country) && $upd['country'] = $rfan->country;
 						$this->model()->update(
-							'xxt_fans',
+							'xxt_site_wxfan',
 							$upd,
-							"mpid='$this->mpid' and openid='$openid'"
+							"siteid='$site' and openid='$openid'"
 						);
 						$fansCount++;
 					} else {
 						/**
 						 * 新粉丝
 						 */
-						$ins['fid'] = $this->model('user/fans')->calcId($this->mpid, $openid);
 						$ins['openid'] = $openid;
 						if ($info[0]) {
 							$ins['groupid'] = $rfan->groupid;
-							$ins['nickname'] = $this->model()->escape($rfan->nickname);
+							$ins['nickname'] = $modelWxFan->escape($nickname);
 							$ins['sex'] = $rfan->sex;
 							$ins['city'] = $rfan->city;
 							isset($rfan->subscribe_time) && $ins['subscribe_at'] = $rfan->subscribe_time;
@@ -205,7 +216,7 @@ class user extends \pl\fe\base {
 							isset($rfan->headimgurl) && $ins['headimgurl'] = $rfan->headimgurl;
 							isset($rfan->province) && $ins['province'] = $rfan->province;
 							isset($rfan->country) && $ins['country'] = $rfan->country;
-							$this->model()->insert('xxt_fans', $ins, false);
+							$modelWxFan->insert('xxt_site_wxfan', $ins, false);
 							$fansCount++;
 						}
 					}
@@ -220,57 +231,50 @@ class user extends \pl\fe\base {
 	 *
 	 * todo 从公众号获得粉丝的代码是否应该挪走？
 	 */
-	public function refreshOne_action($openid) {
-		$mpa = $this->model('mp\mpaccount')->byId($this->mpid);
-
-		if ($mpa->mpsrc === 'qy') {
-			$member = $this->model('user/member')->byOpenid($this->mpid, $openid);
-			if (count($member) !== 1) {
-				return new \ResponseError('数据错误', $member);
-			}
-
-			$member = $member[0];
-
-			$result = $this->getFanInfo($this->mpid, $openid, false);
-			if ($result[0] === false) {
-				return new \ResponseError($result[1]);
-			}
-
-			$user = $result[1];
-
-			$this->updateQyFan($this->mpid, $member->fid, $user, $member->authapi_id);
-
-			$fan = $this->model('user/fans')->byId($member->fid);
-
-			return new \ResponseData($fan);
-		} else {
-			$info = $this->getFanInfo($this->mpid, $openid, true);
-			if ($info[0] === false) {
+	public function refreshOne_action($site, $openid) {
+		$wxConfig = $this->model('sns\wx')->bySite($site);
+		$wxProxy = $this->model('sns\wx\proxy', $wxConfig);
+		$info = $wxProxy->userInfo($openid, true);
+		if ($info[0] === false) {
+			if (false !== strpos($info[1], '(40001)')) {
+				$proxy->accessToken(true);
+				$info = $proxy->userGet($nextOpenid);
+				if (false === $info[0]) {
+					return new \ResponseError($info[1]);
+				}
+			} else {
 				return new \ResponseError($info[1]);
 			}
-			if ($info[1]->subscribe != 1) {
-				return new \ResponseError('指定用户未关注公众号，无法获取用户信息');
-			}
-			/**更新数据 */
-			$model = $this->model();
-			$nickname = trim($model->escape($info[1]->nickname));
-			$u = array(
-				'nickname' => empty($nickname) ? '未知' : $nickname,
-				'sex' => $info[1]->sex,
-				'city' => $info[1]->city,
-				'groupid' => $info[1]->groupid,
-			);
-			isset($info[1]->headimgurl) && $u['headimgurl'] = $info[1]->headimgurl;
-			isset($info[1]->icon) && $u['headimgurl'] = $info[1]->icon;
-			isset($info[1]->province) && $u['province'] = $info[1]->province;
-			isset($info[1]->country) && $u['country'] = $info[1]->country;
-			$model->update(
-				'xxt_fans',
-				$u,
-				"mpid='$this->mpid' and openid='$openid'"
-			);
-			return new \ResponseData($info[1]);
 		}
+		if ($info[1]->subscribe != 1) {
+			return new \ResponseError('指定用户未关注公众号，无法获取用户信息');
+		}
+		/**
+		 * 更新数据
+		 */
+		$model = $this->model();
+		// 替换掉emoji字符？？？
+		$nickname = json_encode($info[1]->nickname);
+		$nickname = preg_replace('/\\\ud[0-9a-f]{3}/i', '', $nickname);
+		$nickname = json_decode($nickname);
+		$nickname = trim($model->escape($nickname));
+		$u = array(
+			'nickname' => empty($nickname) ? '未知' : $nickname,
+			'sex' => $info[1]->sex,
+			'city' => $info[1]->city,
+			'groupid' => $info[1]->groupid,
+		);
+		isset($info[1]->headimgurl) && $u['headimgurl'] = $info[1]->headimgurl;
+		isset($info[1]->icon) && $u['headimgurl'] = $info[1]->icon;
+		isset($info[1]->province) && $u['province'] = $info[1]->province;
+		isset($info[1]->country) && $u['country'] = $info[1]->country;
+		$model->update(
+			'xxt_site_wxfan',
+			$u,
+			"siteid='$site' and openid='$openid'"
+		);
+
+		return new \ResponseData($u);
 	}
 	/**
 	 * 删除一个关注用户

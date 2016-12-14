@@ -6,11 +6,12 @@ body{margin-bottom:50px;}
 .tms-panel-body:after{content:' ';display:table;clear:both;}
 
 /*mission/site*/
-.site,.mission,.matter{position:relative;height:180px;cursor:pointer;display:flex;flex-direction:column;padding:15px;}
+.mission,.matter{position:relative;height:180px;cursor:pointer;display:flex;flex-direction:column;padding:15px;}
+.site{position:relative;height:240px;display:flex;flex-direction:column;padding:15px;}
 .site .summary,.mission .summary,.matter .summary{flex:1;overflow:hidden;}
 .site .attr,.mission .attr,.matter .attr{display:flex;padding:8px 0;}
-.site .creater_name,.mission .creater_name,.matter .site_name{flex:1;}
-.site .actions,.mission .actions,.matter .actions{border-top:1px solid #ddd;padding-top:8px;}
+.site .creater_name,.mission .creater_name,.matter .creater_name{flex:1;}
+.site .actions{border-top:1px solid #ddd;padding-top:8px;}
 
 /*matter*/
 #viewRecent .article:after{content:'图文';position:absolute;top:-8px;left:-8px;background:green;padding:2px 4px;font-size:60%;color:#fff;border-radius:4px;}

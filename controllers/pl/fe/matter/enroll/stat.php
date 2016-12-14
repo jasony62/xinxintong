@@ -130,7 +130,7 @@ class stat extends \pl\fe\matter\base {
 	 * @param bool $isEraseLink 是否去掉HTML内容中的链接
 	 */
 	private function _MhtMake($content, &$images, $mimeType = 'image/png') {
-		require_once $_SERVER['DOCUMENT_ROOT'] . '/lib/Mhtmaker.class.php';
+		require_once TMS_APP_DIR . '/lib/Mhtmaker.class.php';
 
 		$mht = new \Mhtmaker();
 
@@ -150,10 +150,10 @@ class stat extends \pl\fe\matter\base {
 			return new \ResponseTimeout();
 		}
 
-		require_once $_SERVER['DOCUMENT_ROOT'] . '/lib/jpgraph/jpgraph.php';
-		require_once $_SERVER['DOCUMENT_ROOT'] . '/lib/jpgraph/jpgraph_bar.php';
-		require_once $_SERVER['DOCUMENT_ROOT'] . '/lib/jpgraph/jpgraph_pie.php';
-		require_once $_SERVER['DOCUMENT_ROOT'] . '/lib/jpgraph/jpgraph_line.php';
+		require_once TMS_APP_DIR . '/lib/jpgraph/jpgraph.php';
+		require_once TMS_APP_DIR . '/lib/jpgraph/jpgraph_bar.php';
+		require_once TMS_APP_DIR . '/lib/jpgraph/jpgraph_pie.php';
+		require_once TMS_APP_DIR . '/lib/jpgraph/jpgraph_line.php';
 
 		$app = $this->model('matter\enroll')->byId($app, ['cascaded' => 'N']);
 		$schemas = json_decode($app->data_schemas);

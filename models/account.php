@@ -216,7 +216,7 @@ class account_model extends TMS_MODEL {
 	 */
 	public function getAccount($page = 1, $size = 30) {
 		$q = array(
-			'a.uid,a.nickname,a.email,a.reg_time,a.last_login,a.forbidden,g.group_id,g.group_name',
+			'a.uid,a.nickname,a.email,a.reg_time,a.last_login,a.forbidden,a.coin,g.group_id,g.group_name',
 			'account a,account_group g,account_in_group i',
 			'a.uid=i.account_uid and i.group_id=g.group_id',
 		);

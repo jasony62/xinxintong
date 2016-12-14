@@ -18,11 +18,10 @@ class users extends \pl\fe\matter\base {
 	 */
 	public function list_action($id, $site) {
 		$q = array(
-			'e.openid,e.join_at,e.last_msg_at,f.nickname',
-			'xxt_wall_enroll e,xxt_fans f',
-			"e.siteid='$site' and e.wid='$id' and e.close_at=0 and e.siteid=f.mpid and e.openid=f.openid",
+			'openid,join_at,last_msg_at,ufrom,userid,nickname',
+			'xxt_wall_enroll',
+			"siteid='$site' and wid='$id' and close_at=0",
 		);
-
 		$users = $this->model()->query_objs_ss($q);
 
 		return new \ResponseData($users);
@@ -33,21 +32,84 @@ class users extends \pl\fe\matter\base {
 	 * @param string $wall
 	 * @param string $app
 	 */
-	public function import_action($id, $app, $site) {
-		$sql = 'insert into xxt_wall_enroll';
-		$sql .= '(siteid,wid,join_at,openid)';
-		$sql .= " select distinct";
-		$sql .= " '$site','$id'," . time();
-		$sql .= ',openid';
-		$sql .= " from xxt_enroll_record";
-		$sql .= " where aid='$app' and state=1";
+	public function import_action($id, $app, $site, $type) {
+		//查询出此讨论组中已有的openid
+		$q = array(
+			'openid',
+			'xxt_wall_enroll',
+			"siteid='$site' and wid = '$id'"
+			);
+		$wallOpenids = $this->model()->query_vals_ss($q);
+		//查询此站点中其它讨论组的openid
+		$q2 = array(
+			'openid',
+			'xxt_wall_enroll',
+			"siteid='$site' and wid != '$id'"
+			);
+		$otherWallOpenids = $this->model()->query_vals_ss($q2);
+		//查询出登记活动中的所有userid
+		$p = array(
+			"distinct userid",
+			'xxt_'.$type.'_record',
+			"siteid='$site' and state=1 and aid='$app' and userid != ''",
+		);
+		$userids = $this->model()->query_vals_ss($p);
+		//查询出用户所对应的openid并加入讨论组
+		$join_at = time();
+		$num = 0;
+		foreach ($userids as $key => $uid) {
+			$p2 = array(
+				'ufrom,yx_openid,wx_openid,qy_openid',
+				'xxt_site_account',
+				"siteid='$site' and uid = '$uid' and ufrom != ''",
+			);
+			
+			$account = $this->model()->query_obj_ss($p2);
+			if($account === false){
+				continue;
+			}
+			switch ($account->ufrom) {
+				case 'wx':
+					$openid = $account->wx_openid;
+					$dbUser = $this->model('sns\wx\fan')->byOpenid($site, $openid, 'headimgurl,nickname');
+					break;
+				case 'yx':
+					$openid = $account->yx_openid;
+					$dbUser = $this->model('sns\yx\fan')->byOpenid($site, $openid, 'headimgurl,nickname');
+					break;
+				case 'qy':
+					$openid = $account->qy_openid;
+					$dbUser = $this->model('sns\qy\fan')->byOpenid($site, $openid, 'headimgurl,nickname');
+					break;				
+			}
+			$headimgurl = $dbUser->headimgurl;
+			$nickname = $dbUser->nickname;
+			//如果用户已在讨论组中不插入
+			if(in_array($openid, $wallOpenids) || $openid=='' ){
+				continue;
+			}
+			//退出其它讨论组
+			if(in_array($openid, $otherWallOpenids)){
+				$this->model()->update(
+					'xxt_wall_enroll',
+					array('close_at' => time()),
+					"siteid='$site' and openid='$openid' and wid != '$id' "
+				);
+			}
+			
+			$sql['siteid'] = $site;
+			$sql['wid'] = $id;
+			$sql['join_at'] = $join_at;
+			$sql['openid'] = $openid;
+			$sql['ufrom'] = $account->ufrom;
+			$sql['nickname'] = $nickname;
+			$sql['userid'] = $uid;
+			$sql['headimgurl'] = $headimgurl;
+			$this->model()->insert('xxt_wall_enroll',$sql,false);
+			$num++;
+		}
 
-		$this->model()->insert($sql);
-
-		global $mysqli_w;
-		$rows = $mysqli_w->affected_rows;
-
-		return new \ResponseData($rows);
+		return new \ResponseData($num);
 	}
 	/**
 	 * 用户导出到登记活动
@@ -56,10 +118,11 @@ class users extends \pl\fe\matter\base {
 	 * @param string $app
 	 */
 	public function export_action($id, $app, $onlySpeaker = 'N',$site) {
+
 		$q = array(
-			'e.openid,f.nickname',
-			'xxt_wall_enroll e,xxt_fans f',
-			"e.siteid='$site' and e.wid='$id' and e.close_at=0 and e.siteid=f.mpid and e.openid=f.openid",
+			'ufrom,userid,openid,nickname',
+			'xxt_wall_enroll',
+			"siteid='$site' and wid='$id' and e.close_at=0 ",
 		);
 		if ($onlySpeaker === 'Y') {
 			$q[2] .= ' and e.last_msg_at<>0';
@@ -80,4 +143,5 @@ class users extends \pl\fe\matter\base {
 
 		return new \ResponseData($rst);
 	}
+
 }

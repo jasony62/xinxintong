@@ -1,32 +1,38 @@
 <?php
+/**
+ *
+ */
 class log_model extends TMS_MODEL {
 	/**
 	 *
 	 */
-	public function log($mpid, $method, $data) {
+	public function log($mpid, $method, $data, $agent = '', $referer = '') {
 		$current = time();
-		$i['mpid'] = $mpid;
-		$i['method'] = $method;
-		$i['create_at'] = $current;
-		$i['data'] = $this->escape($data);
+		$log = [];
+		$log['mpid'] = $mpid;
+		$log['method'] = $this->escape($method);
+		$log['create_at'] = $current;
+		$log['data'] = $this->escape($data);
+		$log['user_agent'] = $this->escape($agent);
+		$log['referer'] = $this->escape($referer);
 
-		$this->insert('xxt_log', $i, false);
+		$logid = $this->insert('xxt_log', $log, true);
 
-		return true;
+		return $logid;
 	}
 	/**
 	 * 接收消息日志
 	 */
 	public function receive($msg) {
 		$openid = $msg['from_user'];
-		if (isset($msg['mpid'])) {
+		if (isset($msg['siteid'])) {
 			// should remove
-			$mpid = $msg['mpid'];
-			$fan = TMS_APP::model('user/fans')->byOpenid($mpid, $openid, 'nickname');
-		} else {
 			$mpid = $msg['siteid'];
 			$src = $msg['src'];
-			$fan = TMS_APP::model("sns\\" . $src . "\\fans")->byOpenid($mpid, $openid, 'nickname');
+			$fan = TMS_APP::model("sns\\" . $src . "\\fan")->byOpenid($mpid, $openid, 'nickname');
+		} else {
+			$mpid = $msg['mpid'];
+			$fan = TMS_APP::model('user/fans')->byOpenid($mpid, $openid, 'nickname');
 		}
 
 		$createAt = $msg['create_at'];

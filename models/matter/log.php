@@ -5,7 +5,7 @@ class log_model extends \TMS_MODEL {
 	/**
 	 * 记录访问素材日志
 	 */
-	public function writeMatterRead($siteId, &$user, $matter, $client, $shareby, $search, $referer) {
+	public function addMatterRead($siteId, &$user, $matter, $client, $shareby, $search, $referer) {
 		$current = time();
 		$d = array();
 		$d['siteid'] = $siteId;
@@ -24,9 +24,12 @@ class log_model extends \TMS_MODEL {
 		$logid = $this->insert('xxt_log_matter_read', $d, true);
 
 		// 日志汇总
+		$operation = new \stdClass;
+		$operation->name = 'read';
+		$operation->at = $current;
+		$this->addUserMatterOp($siteId, $user, $matter, $operation, $client, $referer);
 		$this->writeUserAction($siteId, $user, $current, 'R', $logid);
 		$this->writeMatterAction($siteId, $matter, $current, 'R', $logid);
-		$this->writeUserMatterAction($siteId, $user, $matter, $current, 'R');
 
 		return $logid;
 	}
@@ -34,26 +37,30 @@ class log_model extends \TMS_MODEL {
 	 * 文章打开的次数
 	 * todo 应该用哪个openid，根据oauth是否开放来决定？
 	 */
-	public function getMatterRead($type, $id, $page, $size) {
-		$q = array(
+	public function &getMatterRead($type, $id, $page, $size) {
+		$result = new \stdClass;
+		$q = [
 			'l.userid,l.nickname,l.read_at',
 			'xxt_log_matter_read l',
 			"l.matter_type='$type' and l.matter_id='$id'",
-		);
+		];
 		/**
 		 * 分页数据
 		 */
-		$q2 = array(
+		$q2 = [
 			'o' => 'l.read_at desc',
-			'r' => array(
+			'r' => [
 				'o' => (($page - 1) * $size),
 				'l' => $size,
-			),
-		);
+			],
+		];
 
-		$log = $this->query_objs_ss($q, $q2);
+		$result->logs = $this->query_objs_ss($q, $q2);
 
-		return $log;
+		$q[0] = 'count(*)';
+		$result->total = $this->query_val_ss($q);
+
+		return $result;
 	}
 	/**
 	 * 记录分享动作
@@ -70,30 +77,34 @@ class log_model extends \TMS_MODEL {
 	 * $mshareid 素材的分享ID
 	 *
 	 */
-	public function writeShareAction($siteId, $shareid, $shareto, $shareby, &$user, $matter, $client) {
+	public function addShareAction($siteId, $shareid, $shareto, $shareby, &$user, &$matter, &$client, $referer = '') {
 		$mopenid = '';
 		$mshareid = '';
 		$current = time();
 
-		$d = array();
-		$d['siteid'] = $siteId;
-		$d['shareid'] = $shareid;
-		$d['share_at'] = $current;
-		$d['share_to'] = $shareto;
-		$d['userid'] = $user->userid;
-		$d['nickname'] = $this->escape($user->nickname);
-		$d['matter_id'] = $matter->id;
-		$d['matter_type'] = $matter->type;
-		$d['matter_title'] = $this->escape($matter->title);
-		$d['matter_shareby'] = $shareby;
-		$d['user_agent'] = $client->agent;
-		$d['client_ip'] = $client->ip;
+		$log = array();
+		$log['siteid'] = $siteId;
+		$log['shareid'] = $shareid;
+		$log['share_at'] = $current;
+		$log['share_to'] = $shareto;
+		$log['userid'] = $user->userid;
+		$log['nickname'] = $this->escape($user->nickname);
+		$log['matter_id'] = $matter->id;
+		$log['matter_type'] = $matter->type;
+		$log['matter_title'] = $this->escape($matter->title);
+		$log['matter_shareby'] = $shareby;
+		$log['user_agent'] = $client->agent;
+		$log['client_ip'] = $client->ip;
 
-		$logid = $this->insert('xxt_log_matter_share', $d, true);
+		$logid = $this->insert('xxt_log_matter_share', $log, true);
 
 		// 日志汇总
-		$this->writeUserAction($siteId, $user, $current, 'S' . $shareto, $logid);
+		$operation = new \stdClass;
+		$operation->name = 'share.' . ['F' => 'friend', 'T' => 'timeline'][$shareto];
+		$operation->at = $current;
+		$this->addUserMatterOp($siteId, $user, $matter, $operation, $client, $referer);
 
+		$this->writeUserAction($siteId, $user, $current, 'S' . $shareto, $logid);
 		$this->writeMatterAction($siteId, $matter, $current, 'S' . $shareto, $logid);
 
 		return $logid;
@@ -220,56 +231,83 @@ class log_model extends \TMS_MODEL {
 		return true;
 	}
 	/**
-	 * 用户行为汇总日志
-	 * 为了便于进行数据统计
+	 * 用户操作素材日志
 	 */
-	private function writeUserMatterAction($siteId, &$user, $matter, $action_at, $action_name) {
-		$q = array(
-			'id',
+	public function addUserMatterOp($siteId, &$user, &$matter, &$operation, &$client, $referer = '') {
+		// 素材累积执行指定操作的次数
+		$q = [
+			'id,matter_op_num',
 			'xxt_log_user_matter',
-			"siteid='$siteId' and userid='$user->userid' and matter_id='$matter->id' and matter_type='$matter->type'",
-		);
-		$lastid = $this->query_val_ss($q);
-		if ($lastid) {
-			switch ($action_name) {
-			case 'R':
-				$this->update("update xxt_log_user_matter set read_num=read_num+1 where id=$lastid");
-				break;
-			case 'SF':
-				$this->update("update xxt_log_user_matter set share_friend_num=share_friend_num+1 where id=$lastid");
-				break;
-			case 'ST':
-				$this->update("update xxt_log_user_matter set share_timeline_num=share_timeline_num+1 where id=$lastid");
-				break;
-			default:
-				die('invalid parameter!');
-			}
+			"matter_id='$matter->id' and matter_type='$matter->type' and operation='{$operation->name}' and matter_last_op='Y'",
+		];
+		if ($matterOpNum = $this->query_obj_ss($q)) {
+			$this->update('xxt_log_user_matter', ['matter_last_op' => 'N'], "id={$matterOpNum->id}");
+			$matterOpNum = (int) $matterOpNum->matter_op_num + 1;
 		} else {
-			$log = array();
-			$log['siteid'] = $siteId;
-			$log['userid'] = $user->userid;
-			$log['nickname'] = $this->escape($user->nickname);
-			$log['matter_id'] = $matter->id;
-			$log['matter_type'] = $matter->type;
-			$log['matter_title'] = $this->escape($matter->title);
-			$log['last_action_at'] = $action_at;
-			switch ($action_name) {
-			case 'R':
-				$log['read_num'] = 1;
-				break;
-			case 'SF':
-				$log['share_friend_num'] = 1;
-				break;
-			case 'ST':
-				$log['share_timeline_num'] = 1;
-				break;
-			default:
-				die('invalid parameter!');
-			}
-			$this->insert('xxt_log_user_matter', $log, false);
+			$matterOpNum = 1;
 		}
+		// 用户对指定素材累积执行指定操作的次数
+		$q = [
+			'id,user_op_num',
+			'xxt_log_user_matter',
+			"userid='{$user->userid}' and matter_id='$matter->id' and matter_type='$matter->type' and operation='{$operation->name}' and user_last_op='Y'",
+		];
+		if ($userOpNum = $this->query_obj_ss($q)) {
+			$this->update('xxt_log_user_matter', ['user_last_op' => 'N'], "id={$userOpNum->id}");
+			$userOpNum = (int) $userOpNum->user_op_num + 1;
+		} else {
+			$userOpNum = 1;
+		}
+		// 新建日志
+		$log = array();
+		$log['siteid'] = $siteId;
+		$log['userid'] = $user->userid;
+		$log['nickname'] = $this->escape($user->nickname);
+		$log['matter_id'] = $matter->id;
+		$log['matter_type'] = $matter->type;
+		$log['matter_title'] = $this->escape($matter->title);
+		$log['user_agent'] = $client->agent;
+		$log['client_ip'] = isset($client->ip) ? $client->ip : '';
+		$log['referer'] = $referer;
+		$log['operation'] = $operation->name;
+		$log['operate_at'] = isset($operation->data) ? $operation->at : time();
+		isset($operation->data) && $log['operate_data'] = $operation->data;
+		$log['matter_last_op'] = 'Y';
+		$log['matter_op_num'] = $matterOpNum;
+		$log['user_last_op'] = 'Y';
+		$log['user_op_num'] = $userOpNum;
 
-		return true;
+		$logid = $this->insert('xxt_log_user_matter', $log, true);
+
+		return $logid;
+	}
+	/**
+	 * 查询用户操作素材日志
+	 */
+	public function &listUserMatterOp($matterId, $matterType, $page, $size) {
+		$result = new \stdClass;
+		$q = [
+			'l.userid,l.nickname,l.operation,l.operate_at,l.user_op_num,l.matter_op_num',
+			'xxt_log_user_matter l',
+			"l.matter_type='$matterType' and l.matter_id='$matterId'",
+		];
+		/**
+		 * 分页数据
+		 */
+		$q2 = [
+			'o' => 'l.operate_at desc',
+			'r' => [
+				'o' => (($page - 1) * $size),
+				'l' => $size,
+			],
+		];
+
+		$result->logs = $this->query_objs_ss($q, $q2);
+
+		$q[0] = 'count(*)';
+		$result->total = $this->query_val_ss($q);
+
+		return $result;
 	}
 	/**
 	 * 记录操作日志
@@ -372,7 +410,7 @@ class log_model extends \TMS_MODEL {
 		return $logid;
 	}
 	/**
-	 * 最近操作的素材
+	 * 站点内最近操作的素材
 	 */
 	public function &recentMatters($siteId, $options = array()) {
 		$fields = empty($options['fields']) ? '*' : $options['fields'];
@@ -386,7 +424,40 @@ class log_model extends \TMS_MODEL {
 		$q = [
 			$fields,
 			'xxt_log_matter_op',
-			"siteid='$siteId' and last_op='Y' and operation<>'D'",
+			"siteid='$siteId' and last_op='Y' and operation<>'D' and operation<>'Recycle'",
+		];
+		$q2 = [
+			'r' => ['o' => ($page->at - 1) * $page->size, 'l' => $page->size],
+			'o' => ['operate_at desc'],
+		];
+
+		$matters = $this->query_objs_ss($q, $q2);
+		$result = ['matters' => $matters];
+		if (empty($matters)) {
+			$result['total'] = 0;
+		} else {
+			$q[0] = 'count(*)';
+			$result['total'] = $this->query_val_ss($q);
+		}
+
+		return $result;
+	}
+	/**
+	 * 站点内最近删除的素材
+	 */
+	public function &recycleMatters($siteId, $options = array()) {
+		$fields = empty($options['fields']) ? '*' : $options['fields'];
+		if (empty($options['page'])) {
+			$page = new \stdClass;
+			$page->at = 1;
+			$page->size = 30;
+		} else {
+			$page = $options['page'];
+		}
+		$q = [
+			$fields,
+			'xxt_log_matter_op',
+			"siteid='$siteId' and last_op='Y' and operation='Recycle'",
 		];
 		$q2 = [
 			'r' => ['o' => ($page->at - 1) * $page->size, 'l' => $page->size],
@@ -421,6 +492,12 @@ class log_model extends \TMS_MODEL {
 			'xxt_log_matter_op',
 			"operator='{$user->id}' and user_last_op='Y' and operation<>'D'",
 		];
+		if (isset($options['matterType'])) {
+			$q[2] .= " and matter_type='" . $options['matterType'] . "'";
+		}
+		if (isset($options['scenario'])) {
+			$q[2] .= " and matter_scenario='" . $options['scenario'] . "'";
+		}
 		$q2 = [
 			'r' => ['o' => ($page->at - 1) * $page->size, 'l' => $page->size],
 			'o' => ['operate_at desc'],

@@ -315,7 +315,7 @@ class proxy_model extends \sns\proxybase {
 		return $rst;
 	}
 	/**
-	 * 将图片上传到公众号平台
+	 * 将图片上传到易信公众号平台
 	 *
 	 * $imageUrl
 	 * $imageType

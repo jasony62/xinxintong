@@ -66,7 +66,7 @@ class matter extends \pl\fe\matter\base {
 		$matter = $this->getPostJson();
 
 		$modelMis = $this->model('matter\mission');
-		$rst = $modelMis->removeMatter($id, $matter->id, $matter->type);
+		$rst = $modelMis->removeMatter($matter->id, $matter->type);
 
 		return new \ResponseData($rst);
 	}

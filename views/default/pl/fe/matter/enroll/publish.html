@@ -5,9 +5,16 @@
             <iframe ng-src={{previewURL}}></iframe>
             <div id='simulatorActions'>
                 <a class='btn btn-default btn-block' style='color:#337ab7' href="/rest/pl/fe/matter/enroll/schema?site={{siteId}}&id={{id}}">修改登记项 <i class="glyphicon glyphicon-chevron-right"></i></a>
-                <button class='btn btn-default btn-block' ng-disabled="!params.hasPrev" ng-click="prevPage()">上一页</button>
-                <button class='btn btn-default btn-block' ng-disabled="!params.hasNext" ng-click="nextPage()">下一页</button>
-                <a class='btn btn-default btn-block' style='color:#337ab7' href="/rest/pl/fe/matter/enroll/page?site={{siteId}}&id={{id}}">编辑页面 <i class="glyphicon glyphicon-chevron-right"></i></a>
+                <div class="btn-group btn-block" ng-repeat="page in app.pages">
+                    <button type="button" class="btn btn-default" ng-class="params.page===page?'btn-primary':'btn-default'" style="width:125px" title="{{page.title}}" ng-click="showPage(page)">{{page.title}}</button>
+                    <button type="button" class="btn dropdown-toggle" ng-class="params.page===page?'btn-primary':'btn-default'" data-toggle="dropdown">
+                    <span class="caret"></span>
+                    <span class="sr-only">Toggle Dropdown</span>
+                    </button>
+                    <ul class="dropdown-menu" role="menu">
+                        <li><a href="#" ng-click="gotoPage(page)">编辑页面</a></li>
+                    </ul>
+                </div>
                 <button uib-popover-template="'pageSetting.html'" popover-placement="bottom" popover-append-to-body='true' popover-trigger="outsideClick" class='btn btn-default btn-block'>页面设置 <span class="caret"></span></button>
             </div>
         </div>
@@ -28,7 +35,7 @@
                     <i class="glyphicon glyphicon-link"></i> 访问入口
                 </uib-tab-heading>
                 <div class="panel panel-default">
-                    <div class="panel-heading">登记用户</div>
+                    <div class="panel-heading">填写链接</div>
                     <div class="panel-body">
                         <div class='form-group'>
                             <div class='input-group'>
@@ -58,7 +65,7 @@
                     </div>
                 </div>
                 <div class="panel panel-default" ng-controller="ctrlOpUrl">
-                    <div class="panel-heading">登记管理员</div>
+                    <div class="panel-heading">结果审核页面</div>
                     <div class="panel-body">
                         <div class='form-group'>
                             <div class='input-group'>
@@ -74,7 +81,7 @@
                     </div>
                 </div>
                 <div class="panel panel-default" ng-controller="ctrlReportUrl">
-                    <div class="panel-heading">统计报告链接</div>
+                    <div class="panel-heading">统计报告页面</div>
                     <div class="panel-body">
                         <div class='form-group'>
                             <div class='input-group'>
@@ -115,7 +122,7 @@
                         </td>
                         <td style='padding:0'>
                             <select class='form-control' ng-model='app.before_start_page' ng-options='page.name as page.title for page in app.pages' ng-change="update('before_start_page')">
-                                <option value=''>缺省提示</option>
+                                <option value=''>默认提示</option>
                             </select>
                         </td>
                     </tr>
@@ -126,7 +133,7 @@
                         </td>
                         <td style='padding:0'>
                             <select class='form-control' ng-model='app.before_end_page' ng-options='page.name as page.title for page in app.pages' ng-change="update('before_end_page')">
-                                <option value=''>缺省提示</option>
+                                <option value=''>默认提示</option>
                             </select>
                         </td>
                     </tr>
@@ -137,10 +144,7 @@
                 <!-- access rule -->
                 <div ng-controller="ctrlAccessRule">
                     <div class='radio'>
-                        <label><input type='radio' value='none' ng-model="rule.scope" ng-change="changeUserScope()">不限用户来源（记录昵称）</label>
-                    </div>
-                    <div class='radio'>
-                        <label><input type='radio' value='anonymous' ng-model="rule.scope" ng-change="changeUserScope()">不限用户来源（匿名）</label>
+                        <label><input type='radio' value='none' ng-model="rule.scope" ng-change="changeUserScope()">不限用户来源</label>
                     </div>
                     <div class='radio' ng-if="memberSchemas.length">
                         <label><input type='radio' value='member' ng-model="rule.scope" ng-change="changeUserScope()">限自定义用户访问</label>
@@ -151,7 +155,7 @@
                     <table class='table table-bordered' ng-if="rule.scope==='none'">
                         <tbody>
                             <tr>
-                                <td>缺省进入页面</td>
+                                <td>默认进入页面</td>
                                 <td style='padding:0'>
                                     <select style='border:0' class='form-control' ng-change="update('entry_rule')" ng-model='app.entry_rule.otherwise.entry' ng-options="p.name as p.title for p in app.pages"></select>
                                 </td>
@@ -210,6 +214,9 @@
                             </tr>
                         </tbody>
                     </table>
+                    <div class='checkbox'>
+                        <label><input type='checkbox' ng-true-value="'Y'" ng-false-value="'N'" ng-model="app.entry_rule.anonymous" ng-change="update('entry_rule')">隐藏用户昵称（匿名）</label>
+                    </div>
                     <button class='btn btn-block btn-success' ng-click="reset()">重置规则</button>
                     <hr>
                     <table class='table table-bordered'>

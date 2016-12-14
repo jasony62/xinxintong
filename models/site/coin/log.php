@@ -55,6 +55,9 @@ class log_model extends \TMS_MODEL {
 		/*记录日志*/
 		$log = new \stdClass;
 		$log->siteid = $matter->siteid;
+		$log->matter_type = isset($matter->type) ? $matter->type : '';
+		$log->matter_id = isset($matter->id) ? $matter->id : '';
+		$log->matter_title = isset($matter->title) ? $matter->title : '';
 		$log->occur_at = $current;
 		$log->act = $act;
 		$log->payer = $payer;
@@ -99,5 +102,89 @@ class log_model extends \TMS_MODEL {
 		$this->update($sql);
 
 		return $log;
+	}
+	/**
+	 *
+	 * 用户消费积分
+	 *
+	 * @param string $act
+	 * @param object $user 获得积分的用户
+	 * @param int $coin 获得的数额
+	 *
+	 */
+	public function earn($act, $user, $coin) {
+		$matter = new \stdClass;
+		$matter->siteid = 'platform';
+		$this->award2User($matter, $user, $act, (int) $coin);
+	}
+	/**
+	 *
+	 * 用户消费积分
+	 *
+	 * @param string $act
+	 * @param object $payer 付款人的平台账户
+	 * @param int $coin 转账的数额
+	 *
+	 */
+	public function pay($act, $payer, $coin) {
+		$matter = new \stdClass;
+		$matter->siteid = 'platform';
+		$this->award2User($matter, $payer, $act, -1 * (int) $coin);
+	}
+	/**
+	 *
+	 */
+	public function bySite($siteId, $page, $size) {
+		$result = new \stdClass;
+		$q = [
+			'act,occur_at,userid,nickname,delta,total',
+			'xxt_coin_log',
+			"siteid='siteId'",
+		];
+		/**
+		 * 分页数据
+		 */
+		$q2 = [
+			'o' => 'occur_at desc',
+			'r' => [
+				'o' => (($page - 1) * $size),
+				'l' => $size,
+			],
+		];
+
+		$result->logs = $this->query_objs_ss($q, $q2);
+
+		$q[0] = 'count(*)';
+		$result->total = $this->query_val_ss($q);
+
+		return $result;
+	}
+	/**
+	 *
+	 */
+	public function byMatter($matter, $page, $size) {
+		$result = new \stdClass;
+		$q = [
+			'act,occur_at,userid,nickname,delta,total',
+			'xxt_coin_log',
+			"matter_type='{$matter->type}' and matter_id='{$matter->id}'",
+		];
+		/**
+		 * 分页数据
+		 */
+		$q2 = [
+			'o' => 'occur_at desc',
+			'r' => [
+				'o' => (($page - 1) * $size),
+				'l' => $size,
+			],
+		];
+
+		$result->logs = $this->query_objs_ss($q, $q2);
+
+		$q[0] = 'count(*)';
+		$result->total = $this->query_val_ss($q);
+
+		return $result;
 	}
 }

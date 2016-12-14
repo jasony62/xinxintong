@@ -3,6 +3,7 @@ require_once '../../db.php';
 
 $sqls = [];
 $sqls[] = "alter table xxt_coin_log add trans_no varchar(32) not null default ''";
+$sqls[] = "alter table xxt_article add can_coinpay char(1) not null default 'N' after can_discuss";
 //
 foreach ($sqls as $sql) {
 	if (!$mysqli->query($sql)) {

@@ -13,6 +13,7 @@ window.loading = {
 				"xxt-page": "/static/js/xxt.ui.page",
 				"xxt-share": "/static/js/xxt.share",
 				"tms-discuss": "/static/js/xxt.ui.discuss2",
+				"tms-coinpay": "/static/js/xxt.ui.coinpay",
 				"hammer": "/static/js/hammer.min",
 				"picviewer": "/views/default/picviewer",
 			},

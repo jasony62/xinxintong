@@ -58,6 +58,10 @@ table th,table td,table.mce-item-table th,table.mce-item-table td{border-left:1p
 .tms-discuss-switch{position:fixed;bottom:64px;right:15px;width:48px;height:48px;background:rgba(192,192,192,0.5);border-radius:4px;color:#666;font-size:24px;line-height:48px;text-align:center;cursor:pointer;}
 .tms-discuss-switch:before{content:'留言';font-size:0.7em;}
 
+/*discuss switch*/
+.tms-coinpay-switch{position:fixed;bottom:120px;right:15px;width:48px;height:48px;background:rgba(192,192,192,0.5);border-radius:4px;color:#666;font-size:24px;line-height:48px;text-align:center;cursor:pointer;}
+.tms-coinpay-switch:before{content:'打赏';font-size:0.7em;}
+
 /*picviewer*/
 #picViewer{position:absolute;left:0px;right:0px;top:0px;bottom:0px;z-index:999;display:none;margin:0 auto;overflow:hidden;background:black}
 #picViewer>div{position:absolute;bottom:6px;left:8px;right:8px;z-index:1999;height:36px}

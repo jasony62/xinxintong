@@ -1,6 +1,6 @@
-define(["angular", "xxt-page", "tms-discuss"], function(angular, codeAssembler) {
+define(["angular", "xxt-page", "tms-discuss", "tms-coinpay"], function(angular, codeAssembler) {
     'use strict';
-    var ngApp = angular.module('article', ['discuss.ui.xxt']);
+    var ngApp = angular.module('article', ['discuss.ui.xxt', 'coinpay.ui.xxt']);
     ngApp.config(['$controllerProvider', function($cp) {
         ngApp.provider = {
             controller: $cp.register
@@ -79,7 +79,7 @@ define(["angular", "xxt-page", "tms-discuss"], function(angular, codeAssembler) 
             }
         };
     }]);
-    ngApp.controller('ctrl', ['$scope', '$http', '$timeout', '$q', 'tmsDiscuss', function($scope, $http, $timeout, $q, tmsDiscuss) {
+    ngApp.controller('ctrl', ['$scope', '$http', '$timeout', '$q', 'tmsDiscuss', 'tmsCoinPay', function($scope, $http, $timeout, $q, tmsDiscuss, tmsCoinPay) {
         function setMpShare(xxtShare) {
             var shareid, sharelink;
             shareid = $scope.user.uid + (new Date() * 1);
@@ -118,6 +118,7 @@ define(["angular", "xxt-page", "tms-discuss"], function(angular, codeAssembler) 
                     mission = rsp.data.mission,
                     article = rsp.data.article,
                     channels = article.channels;
+
                 if (article.use_site_header === 'Y' && site && site.header_page) {
                     codeAssembler.loadCode(ngApp, site.header_page);
                 }
@@ -210,6 +211,11 @@ define(["angular", "xxt-page", "tms-discuss"], function(angular, codeAssembler) 
                     tmsDiscuss.showSwitch(article.siteid, 'article,' + article.id, article.title);
                 }
             }
+            if (article.can_coinpay === 'Y') {
+                if (!document.querySelector('.tms-coinpay-switch')) {
+                    tmsCoinPay.showSwitch(article.siteid, 'article,' + article.id);
+                }
+            }
             document.querySelector('#gototop').style.display = 'block';
         };
         document.querySelector('#gototop').addEventListener('click', function() {
@@ -221,15 +227,6 @@ define(["angular", "xxt-page", "tms-discuss"], function(angular, codeAssembler) 
     ngApp.controller('ctrlAlert', ['$scope', function($scope) {
         $scope.close = function() {
             document.querySelector('.weui_dialog_alert').style.display = 'none';
-        };
-    }]);
-    ngApp.controller('ctrlPay', ['$scope', function($scope) {
-        $scope.open = function() {
-            var url = 'http://' + location.host;
-            url += '/rest/site/fe/coin/pay';
-            url += "?site=" + $scope.siteId;
-            url += "&matter=article," + $scope.articleId;
-            openPlugin(url);
         };
     }]);
     ngApp.controller('ctrlFavor', ['$scope', '$http', function($scope, $http) {

@@ -6,16 +6,84 @@ define(["angular", "xxt-page", "tms-discuss"], function(angular, codeAssembler) 
             controller: $cp.register
         };
     }]);
+    ngApp.directive('tmsScroll', [function() {
+        function _endScroll(event, $scope) {
+            var target = event.target,
+                scrollTop = target.scrollTop;
+
+            if (scrollTop === 0) {
+                if ($scope.uppermost && angular.isString($scope.uppermost) && $scope.$parent.uppermost) {
+                    $scope.$parent.uppermost(target);
+                }
+            } else if (scrollTop === target.scrollHeight - target.clientHeight) {
+                if ($scope.downmost && angular.isString($scope.downmost) && $scope.$parent.downmost) {
+                    $scope.$parent.downmost(target);
+                }
+            } else {
+                if (target.__lastScrollTop === undefined || scrollTop > target.__lastScrollTop) {
+                    if ($scope.upward && angular.isString($scope.upward) && $scope.$parent.upward) {
+                        $scope.$parent.upward(target);
+                    }
+                } else {
+                    if ($scope.downward && angular.isString($scope.downward) && $scope.$parent.downward) {
+                        $scope.$parent.downward(target);
+                    }
+                }
+            }
+            target.__lastScrollTop = scrollTop;
+        }
+
+        function _domReady($scope, elems) {
+            for (var i = elems.length - 1; i >= 0; i--) {
+                if (elems[i].scrollHeight === elems[i].clientHeight) {
+                    if ($scope.downmost && angular.isString($scope.downmost) && $scope.$parent.downmost) {
+                        $scope.$parent.downmost(elems[i]);
+                    }
+                }
+            }
+        }
+
+        return {
+            restrict: 'EA',
+            scope: {
+                upward: '@',
+                downward: '@',
+                uppermost: '@',
+                downmost: '@',
+                ready: '=',
+            },
+            link: function($scope, elems, attrs) {
+                if (attrs.ready) {
+                    $scope.$watch('ready', function(ready) {
+                        if (ready === 'Y') {
+                            _domReady($scope, elems);
+                        }
+                    });
+                } else {
+                    /* link发生在load之前 */
+                    window.addEventListener('load', function() {
+                        _domReady($scope, elems);
+                    });
+                }
+                for (var i = elems.length - 1; i >= 0; i--) {
+                    elems[i].onloadend = function(event) {
+                        console.log(event);
+                    };
+                    elems[i].onscroll = function(event) {
+                        var target = event.target;
+                        if (target.__timer) {
+                            clearTimeout(target.__timer);
+                        }
+                        target.__timer = setTimeout(function() {
+                            _endScroll(event, $scope);
+                        }, 35);
+                    };
+                }
+            }
+        };
+    }]);
     ngApp.controller('ctrl', ['$scope', '$http', '$timeout', '$q', 'tmsDiscuss', function($scope, $http, $timeout, $q, tmsDiscuss) {
-        var ls, siteId, id, shareby;
-        ls = location.search;
-        siteId = ls.match(/[\?&]site=([^&]*)/)[1];
-        id = ls.match(/(\?|&)id=([^&]*)/)[2];
-        shareby = ls.match(/shareby=([^&]*)/) ? ls.match(/shareby=([^&]*)/)[1] : '';
-        $scope.siteId = siteId;
-        $scope.articleId = id;
-        $scope.mode = ls.match(/mode=([^&]*)/) ? ls.match(/mode=([^&]*)/)[1] : '';
-        var setMpShare = function(xxtShare) {
+        function setMpShare(xxtShare) {
             var shareid, sharelink;
             shareid = $scope.user.uid + (new Date() * 1);
             xxtShare.options.logger = function(shareto) {
@@ -35,16 +103,18 @@ define(["angular", "xxt-page", "tms-discuss"], function(angular, codeAssembler) 
             sharelink += '&id=' + id;
             sharelink += "&shareby=" + shareid;
             xxtShare.set($scope.article.title, sharelink, $scope.article.summary, $scope.article.pic);
-        };
-        var articleLoaded = function() {
+        }
+
+        function articleLoaded() {
             window.loading.finish();
             $timeout(function() {
                 var audios;
                 audios = document.querySelectorAll('audio');
                 audios.length > 0 && audios[0].play();
             });
-        };
-        var loadArticle = function() {
+        }
+
+        function loadArticle() {
             var deferred = $q.defer();
             $http.get('/rest/site/fe/matter/article/get?site=' + siteId + '&id=' + id).success(function(rsp) {
                 var site = rsp.data.site,
@@ -79,13 +149,11 @@ define(["angular", "xxt-page", "tms-discuss"], function(angular, codeAssembler) 
                     require(['xxt-share'], setMpShare);
                 }
                 article.can_picviewer === 'Y' && require(['picviewer']);
-                if (article.can_discuss === 'Y') {
-                    tmsDiscuss.showSwitch(site.id, 'article,' + article.id, article.title);
-                }
                 $http.post('/rest/site/fe/matter/logAccess?site=' + siteId + '&id=' + id + '&type=article&title=' + article.title + '&shareby=' + shareby, {
                     search: location.search.replace('?', ''),
                     referer: document.referrer
                 });
+                $scope.dataReady = 'Y';
                 deferred.resolve();
             }).error(function(content, httpCode) {
                 if (httpCode === 401) {
@@ -98,6 +166,16 @@ define(["angular", "xxt-page", "tms-discuss"], function(angular, codeAssembler) 
             });
             return deferred.promise;
         };
+
+        var ls, siteId, id, shareby;
+
+        ls = location.search;
+        siteId = ls.match(/[\?&]site=([^&]*)/)[1];
+        id = ls.match(/(\?|&)id=([^&]*)/)[2];
+        shareby = ls.match(/shareby=([^&]*)/) ? ls.match(/shareby=([^&]*)/)[1] : '';
+        $scope.siteId = siteId;
+        $scope.articleId = id;
+        $scope.mode = ls.match(/mode=([^&]*)/) ? ls.match(/mode=([^&]*)/)[1] : '';
         $scope.AlterMsg = {
             title: '',
             msg: ''
@@ -111,7 +189,7 @@ define(["angular", "xxt-page", "tms-discuss"], function(angular, codeAssembler) 
             // });
         };
         $scope.followYixinMp = function() {
-            location.href = 'yixin://opencard?pid=' + $scope.mpa.yx_cardid;
+            //location.href = 'yixin://opencard?pid=' + $scope.mpa.yx_cardid;
         };
         $scope.openChannel = function(ch) {
             location.href = '/rest/site/fe/matter?site=' + $scope.siteId + '&type=channel&id=' + ch.id;
@@ -122,14 +200,25 @@ define(["angular", "xxt-page", "tms-discuss"], function(angular, codeAssembler) 
         $scope.openMatter = function(evt, id, type) {
             evt.preventDefault();
             evt.stopPropagation();
-            if (/article/.test(type)) {
-                location.href = '/rest/site/fe/matter?site=' + $scope.siteId + '&id=' + id + '&type=' + type + '&tpl=std';
-            } else if (/news|channel|link/.test(type)) {
+            if (/article|custom|news|channel|link/.test(type)) {
                 location.href = '/rest/site/fe/matter?site=' + $scope.siteId + '&id=' + id + '&type=' + type;
             } else {
                 location.href = '/rest/site/fe/matter/' + type + '?site=' + $scope.siteId + '&app=' + id;
             }
         };
+        $scope.downmost = function() {
+            var article = $scope.article;
+            if (article.can_discuss === 'Y') {
+                if (!document.querySelector('.tms-discuss-switch')) {
+                    tmsDiscuss.showSwitch(article.siteid, 'article,' + article.id, article.title);
+                }
+            }
+            document.querySelector('#gototop').style.display = 'block';
+        };
+        document.querySelector('#gototop').addEventListener('click', function() {
+            document.querySelector('.article').scrollTop = 0;
+            this.style.display = 'none';
+        });
         loadArticle().then(articleLoaded);
     }]);
     ngApp.controller('ctrlAlert', ['$scope', function($scope) {

@@ -3,11 +3,10 @@ window.loading = {
 		var eleLoading, eleStyle;
 		eleLoading = document.querySelector('.loading');
 		eleLoading.parentNode.removeChild(eleLoading);
-		eleStyle = document.querySelector('#loadingStyle');
-		eleStyle.parentNode.removeChild(eleStyle);
 	},
 	load: function() {
 		require.config({
+			waitSeconds: 0,
 			paths: {
 				"domReady": '/static/js/domReady',
 				"angular": "/static/js/angular.min",

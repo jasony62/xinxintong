@@ -25,14 +25,14 @@ class log_model extends TMS_MODEL {
 	 */
 	public function receive($msg) {
 		$openid = $msg['from_user'];
-		if (isset($msg['mpid'])) {
+		if (isset($msg['siteid'])) {
 			// should remove
-			$mpid = $msg['mpid'];
-			$fan = TMS_APP::model('user/fans')->byOpenid($mpid, $openid, 'nickname');
-		} else {
 			$mpid = $msg['siteid'];
 			$src = $msg['src'];
-			$fan = TMS_APP::model("sns\\" . $src . "\\fans")->byOpenid($mpid, $openid, 'nickname');
+			$fan = TMS_APP::model("sns\\" . $src . "\\fan")->byOpenid($mpid, $openid, 'nickname');
+		} else {
+			$mpid = $msg['mpid'];
+			$fan = TMS_APP::model('user/fans')->byOpenid($mpid, $openid, 'nickname');
 		}
 
 		$createAt = $msg['create_at'];

@@ -14,6 +14,7 @@ window.loading = {
 				"xxt-share": "/static/js/xxt.share",
 				"tms-discuss": "/static/js/xxt.ui.discuss2",
 				"tms-coinpay": "/static/js/xxt.ui.coinpay",
+				"tms-siteuser": "/static/js/xxt.ui.siteuser",
 				"hammer": "/static/js/hammer.min",
 				"picviewer": "/views/default/picviewer",
 			},

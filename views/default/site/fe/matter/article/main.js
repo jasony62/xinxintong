@@ -1,6 +1,6 @@
-define(["angular", "xxt-page", "tms-discuss", "tms-coinpay"], function(angular, codeAssembler) {
+define(["angular", "xxt-page", "tms-discuss", "tms-coinpay", "tms-siteuser"], function(angular, codeAssembler) {
     'use strict';
-    var ngApp = angular.module('article', ['discuss.ui.xxt', 'coinpay.ui.xxt']);
+    var ngApp = angular.module('article', ['discuss.ui.xxt', 'coinpay.ui.xxt', 'siteuser.ui.xxt']);
     ngApp.config(['$controllerProvider', function($cp) {
         ngApp.provider = {
             controller: $cp.register
@@ -79,7 +79,7 @@ define(["angular", "xxt-page", "tms-discuss", "tms-coinpay"], function(angular, 
             }
         };
     }]);
-    ngApp.controller('ctrl', ['$scope', '$http', '$timeout', '$q', 'tmsDiscuss', 'tmsCoinPay', function($scope, $http, $timeout, $q, tmsDiscuss, tmsCoinPay) {
+    ngApp.controller('ctrl', ['$scope', '$http', '$timeout', '$q', 'tmsDiscuss', 'tmsCoinPay', 'tmsSiteUser', function($scope, $http, $timeout, $q, tmsDiscuss, tmsCoinPay, tmsSiteUser) {
         function setMpShare(xxtShare) {
             var shareid, sharelink;
             shareid = $scope.user.uid + (new Date() * 1);
@@ -214,6 +214,11 @@ define(["angular", "xxt-page", "tms-discuss", "tms-coinpay"], function(angular, 
             if (article.can_coinpay === 'Y') {
                 if (!document.querySelector('.tms-coinpay-switch')) {
                     tmsCoinPay.showSwitch(article.siteid, 'article,' + article.id);
+                }
+            }
+            if (article.can_siteuser === 'Y') {
+                if (!document.querySelector('.tms-siteuser-switch')) {
+                    tmsSiteUser.showSwitch(article.siteid);
                 }
             }
             document.querySelector('#gototop').style.display = 'block';

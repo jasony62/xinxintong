@@ -25,6 +25,7 @@ define(['require', 'page', 'schema'], function(require, pageLib, schemaLib) {
 			.when('/rest/pl/fe/matter/enroll/schema', new RouteParam('schema'))
 			.when('/rest/pl/fe/matter/enroll/page', new RouteParam('page'))
 			.when('/rest/pl/fe/matter/enroll/record', new RouteParam('record'))
+			.when('/rest/pl/fe/matter/enroll/recycle', new RouteParam('recycle'))
 			.when('/rest/pl/fe/matter/enroll/stat', new RouteParam('stat'))
 			.when('/rest/pl/fe/matter/enroll/discuss', new RouteParam('discuss', '/views/default/pl/fe/_module/'))
 			.when('/rest/pl/fe/matter/enroll/log', new RouteParam('log'))

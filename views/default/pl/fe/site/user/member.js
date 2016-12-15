@@ -1,4 +1,5 @@
-(function() {
+define(['main'], function(ngApp) {
+	'use strict';
 	ngApp.provider.controller('ctrlMember', ['$scope', '$uibModal', '$location', 'http2', function($scope, $uibModal, $location, http2) {
 		$scope.$watch('memberSchemas', function(nv) {
 			if (!nv) return;
@@ -107,4 +108,4 @@
 			});
 		};
 	}]);
-})();
+});

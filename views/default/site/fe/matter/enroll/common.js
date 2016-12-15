@@ -248,13 +248,13 @@ define(["angular", "xxt-page", "tms-discuss", "enroll-directive"], function(angu
                     angular.forEach(tasksOfOnReady, PG.exec);
                 }
                 if (app.can_discuss === 'Y') {
-                    tmsDiscuss.showSwitch(site.id, 'enroll,' + app.id, app.title);
+                    tmsDiscuss.showSwitch(app.siteid, 'enroll,' + app.id, app.title);
                 }
                 $timeout(function() {
                     $scope.$broadcast('xxt.app.enroll.ready', params);
                 });
                 window.loading.finish();
-                $http.post('/rest/site/fe/matter/logAccess?site=' + site.id + '&id=' + app.id + '&type=enroll&title=' + app.title + '&shareby=', {
+                $http.post('/rest/site/fe/matter/logAccess?site=' + app.siteid + '&id=' + app.id + '&type=enroll&title=' + app.title + '&shareby=', {
                     search: location.search.replace('?', ''),
                     referer: document.referrer
                 });

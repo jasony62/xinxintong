@@ -3,17 +3,18 @@ window.loading = {
 		var eleLoading, eleStyle;
 		eleLoading = document.querySelector('.loading');
 		eleLoading.parentNode.removeChild(eleLoading);
-		eleStyle = document.querySelector('#loadingStyle');
-		eleStyle.parentNode.removeChild(eleStyle);
 	},
 	load: function() {
 		require.config({
+			waitSeconds: 0,
 			paths: {
 				"domReady": '/static/js/domReady',
 				"angular": "/static/js/angular.min",
 				"xxt-page": "/static/js/xxt.ui.page",
 				"xxt-share": "/static/js/xxt.share",
 				"tms-discuss": "/static/js/xxt.ui.discuss2",
+				"tms-coinpay": "/static/js/xxt.ui.coinpay",
+				"tms-siteuser": "/static/js/xxt.ui.siteuser",
 				"hammer": "/static/js/hammer.min",
 				"picviewer": "/views/default/picviewer",
 			},

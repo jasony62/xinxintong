@@ -44,6 +44,32 @@ class record extends \pl\fe\matter\base {
 		return new \ResponseData($result);
 	}
 	/**
+	 * 已删除的活动登记名单
+	 *
+	 */
+	public function recycle_action($site, $app, $page = 1, $size = 30, $rid = null) {
+		if (false === ($user = $this->accountUser())) {
+			return new \ResponseTimeout();
+		}
+
+		// 登记记录过滤条件
+		$options = array(
+			'page' => $page,
+			'size' => $size,
+			'rid' => $rid,
+		);
+
+		// 登记活动
+		$modelApp = $this->model('matter\enroll');
+		$enrollApp = $modelApp->byId($app);
+
+		// 查询结果
+		$mdoelRec = $this->model('matter\enroll\record');
+		$result = $mdoelRec->recycle($site, $enrollApp, $options);
+
+		return new \ResponseData($result);
+	}
+	/**
 	 * 返回指定登记项的活动登记名单
 	 *
 	 */
@@ -184,6 +210,23 @@ class record extends \pl\fe\matter\base {
 		$app = $this->model('matter\enroll')->byId($app, ['cascaded' => 'N']);
 		$app->type = 'enroll';
 		$this->model('matter\log')->matterOp($site, $user, $app, 'remove', $key);
+
+		return new \ResponseData($rst);
+	}
+	/**
+	 * 恢复一条登记信息
+	 */
+	public function restore_action($site, $app, $key) {
+		if (false === ($user = $this->accountUser())) {
+			return new \ResponseTimeout();
+		}
+
+		$rst = $this->model('matter\enroll\record')->restore($app, $key);
+
+		// 记录操作日志
+		$app = $this->model('matter\enroll')->byId($app, ['cascaded' => 'N']);
+		$app->type = 'enroll';
+		$this->model('matter\log')->matterOp($site, $user, $app, 'restore', $key);
 
 		return new \ResponseData($rst);
 	}

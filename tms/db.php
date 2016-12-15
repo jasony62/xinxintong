@@ -209,7 +209,9 @@ class TMS_DB {
 	public function escape($str) {
 		global $mysqli;
 
-		$str = empty($str) ? '' : $mysqli->real_escape_string($str);
+		if ($mysqli) {
+			$str = empty($str) ? '' : $mysqli->real_escape_string($str);
+		}
 
 		return $str;
 	}

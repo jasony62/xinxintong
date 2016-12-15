@@ -394,10 +394,20 @@ provider('srvApp', function() {
             }
             return val;
         };
+        var _mapOfRecordState = {
+            '0': '删除',
+            '1': '正常',
+            '100': '删除',
+            '101': '用户删除',
+        };
 
         function _convertRecord4Table(record) {
             var schema, round, signinAt, data = {},
                 signinLate = {};
+
+            if (record.state !== undefined) {
+                record._state = _mapOfRecordState[record.state];
+            }
             // enroll data
             for (var schemaId in _oApp._schemasById) {
                 schema = _oApp._schemasById[schemaId];
@@ -470,6 +480,34 @@ provider('srvApp', function() {
                 url += '&app=' + appId;
                 url += _oPage.joinParams();
                 http2.post(url, _oCriteria, function(rsp) {
+                    var records;
+                    if (rsp.data) {
+                        records = rsp.data.records ? rsp.data.records : [];
+                        rsp.data.total && (_oPage.total = rsp.data.total);
+                    } else {
+                        records = [];
+                    }
+                    records.forEach(function(record) {
+                        _convertRecord4Table(record);
+                        _aRecords.push(record);
+                    });
+                    defer.resolve(records);
+                });
+
+                return defer.promise;
+            },
+            searchRecycle: function(pageNumber) {
+                var _this = this,
+                    defer = $q.defer(),
+                    url;
+
+                _aRecords.splice(0, _aRecords.length);
+                pageNumber && (_oPage.at = pageNumber);
+                url = '/rest/pl/fe/matter/enroll/record/recycle';
+                url += '?site=' + siteId;
+                url += '&app=' + appId;
+                url += _oPage.joinParams();
+                http2.get(url, function(rsp) {
                     var records;
                     if (rsp.data) {
                         records = rsp.data.records ? rsp.data.records : [];
@@ -618,6 +656,15 @@ provider('srvApp', function() {
             remove: function(record) {
                 if (window.confirm('确认删除？')) {
                     http2.get('/rest/pl/fe/matter/enroll/record/remove?site=' + siteId + '&app=' + appId + '&key=' + record.enroll_key, function(rsp) {
+                        var i = _aRecords.indexOf(record);
+                        _aRecords.splice(i, 1);
+                        _oPage.total = _oPage.total - 1;
+                    });
+                }
+            },
+            restore: function(record) {
+                if (window.confirm('确认恢复？')) {
+                    http2.get('/rest/pl/fe/matter/enroll/record/restore?site=' + siteId + '&app=' + appId + '&key=' + record.enroll_key, function(rsp) {
                         var i = _aRecords.indexOf(record);
                         _aRecords.splice(i, 1);
                         _oPage.total = _oPage.total - 1;

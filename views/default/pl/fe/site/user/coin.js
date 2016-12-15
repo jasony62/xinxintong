@@ -28,7 +28,7 @@ define(['main'], function(ngApp) {
 						act: rule.act,
 						actor_delta: rule.actor_delta,
 						creator_delta: rule.creator_delta,
-						matter_type: 'article',
+						matter_type: 'site',
 						matter_filter: filter
 					};
 					rule.id && (data.id = rule.id);

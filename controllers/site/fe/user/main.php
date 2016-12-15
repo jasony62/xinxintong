@@ -17,6 +17,10 @@ class main extends \site\fe\base {
 	 *
 	 */
 	public function get_action() {
+		if ($account = $this->model('site\user\account')->byId($this->who->uid, ['fields' => 'coin'])) {
+			$this->who->coin = $account->coin;
+		}
+
 		return new \ResponseData($this->who);
 	}
 	/**

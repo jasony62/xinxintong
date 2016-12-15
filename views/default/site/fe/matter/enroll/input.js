@@ -321,18 +321,21 @@ define(["angular", "enroll-common", "angular-sanitize", "xxt-share", "xxt-image"
                         for (i = 0; i < cnt; i++) {
                             f = evt.target.files[i];
                             r.addFile(f);
-                            $scope.data[fileFieldName] === undefined && ($scope.data[fileFieldName] = []);
-                            $scope.data[fileFieldName].push({
-                                uniqueIdentifier: r.files[r.files.length - 1].uniqueIdentifier,
-                                name: f.name,
-                                size: f.size,
-                                type: f.type,
-                                url: ''
+                            $scope.$apply(function() {
+                                $scope.data[fileFieldName] === undefined && ($scope.data[fileFieldName] = []);
+                                $scope.data[fileFieldName].push({
+                                    uniqueIdentifier: r.files[r.files.length - 1].uniqueIdentifier,
+                                    name: f.name,
+                                    size: f.size,
+                                    type: f.type,
+                                    url: ''
+                                });
+                                $scope.$broadcast('xxt.enroll.file.choose.done', fileFieldName);
                             });
                         }
-                        $scope.$apply('data.' + fileFieldName);
-                        $scope.$broadcast('xxt.enroll.file.choose.done', fileFieldName);
-                    }, false);
+                        ele = null;
+                    }, true);
+                    console.log(ele);
                     ele.click();
                 };
             }

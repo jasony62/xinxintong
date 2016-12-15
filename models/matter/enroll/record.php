@@ -141,9 +141,12 @@ class record_model extends \TMS_MODEL {
 										return array(false, '创建文件上传目录失败');
 									}
 								}
-								$fileUploaded2 = $dirUploaded . '/' . $file->name;
-								if (false === rename($fileUploaded, $fileUploaded2)) {
-									return array(false, '移动上传文件失败');
+								if (file_exists($fileUploaded)) {
+									/* 如果同一次提交中包含相同的文件，文件只会上传一次，并且被改名 */
+									$fileUploaded2 = $dirUploaded . '/' . $file->name;
+									if (false === @rename($fileUploaded, $fileUploaded2)) {
+										return array(false, '移动上传文件失败');
+									}
 								}
 							}
 							unset($file->uniqueIdentifier);

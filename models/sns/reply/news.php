@@ -24,12 +24,18 @@ class news_model extends MultiArticleReply {
 	protected function loadMatters() {
 		$siteId = $this->call['siteid'];
 		$openid = $this->call['from_user'];
+		$ufrom = $this->call['src'];
 
 		$news = \TMS_APP::model('matter\news')->byId($this->set_id);
 		$matters = \TMS_APP::model('matter\news')->getMatters($this->set_id);
-		$modelAcl = \TMS_APP::model('acl');
-		$members = \TMS_APP::model('user/member')->byOpenid($siteId, $openid);
-
+		$modelAcl = \TMS_APP::model('matter\acl');
+		//获取用户的自定义信息
+		$user = \TMS_APP::model('site\user\account')->byOpenid($siteId, $ufrom, $openid, array('fields'=>'uid'));
+		if($user === false){
+			$members = array();
+		}else{
+			$members = \TMS_APP::model('site\user\member')->byUser($siteId, $user->uid);
+		}
 		$matters2 = array();
 		foreach ($matters as $m) {
 			if ($m->access_control === 'Y' && $news->filter_by_matter_acl === 'Y') {

@@ -338,7 +338,7 @@ class acl_model extends app_base {
 	public function canAccessMatter($siteId, $matter_type, $matter_id, $member, $authapis) {
 		$whichAcl = "matter_type='$matter_type' and matter_id='$matter_id'";
 
-		return $this->canAccess($siteId, 'xxt_matter_acl', $whichAcl, $member->schema_id, $authapis);
+		return $this->canAccess2($siteId, 'xxt_matter_acl', $whichAcl, $member->schema_id, $authapis);
 	}
 	/**
 	 * 通用的白名单检查机制
@@ -475,6 +475,7 @@ class acl_model extends app_base {
 	 */
 	private function _checkBySchema($siteId, &$aSchemaIds, $acls, $identity) {
 		$posted = json_encode($acls);
+		$aSchemaIds = explode(',',$aSchemaIds);
 		foreach ($aSchemaIds as $schemaId) {
 			$q = array(
 				'url',

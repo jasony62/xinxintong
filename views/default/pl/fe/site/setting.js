@@ -207,6 +207,7 @@ define(['require'], function(require) {
         $scope.updSchema = function(schema, field) {
             var pv = {};
             pv[field] = (/entry_statement|acl_statement|notpass_statement/.test(field)) ? encodeURIComponent(schema[field]) : schema[field];
+            console.log(pv);
             service.memberSchema.update(schema, pv).then(function() {
                 if (field === 'type') {
                     schema.url = rsp.data.url;

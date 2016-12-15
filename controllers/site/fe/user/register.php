@@ -58,6 +58,19 @@ class register extends \site\fe\base {
 		$cookieUser->loginExpire = time() + (86400 * TMS_COOKIE_SITE_LOGIN_EXPIRE);
 		$modelWay->setCookieUser($this->siteId, $cookieUser);
 
+		/**
+		 * coin log
+		 */
+		$user = $this->who;
+		$matter = new \stdClass;
+		$matter->id = $this->siteId;
+		$matter->type = 'site';
+		$matter->entry = '';
+		$matter->creater_src = '';
+		$matter->siteid = $this->siteId;
+		$modelCoin = $this->model('site\coin\log');
+		$modelCoin->award($matter, $user, 'site.user.register');
+
 		return new \ResponseData($cookieUser);
 	}
 }

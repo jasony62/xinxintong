@@ -19,6 +19,7 @@ $sql .= ",nickname varchar(255) not null"; // 用户昵称
 $sql .= ",delta int not null";
 $sql .= ",total int not null";
 $sql .= ",last_row char(1) not null default 'Y'";
+$sql .= ",trans_no varchar(32) not null default ''";
 $sql .= ",primary key(id)) ENGINE=MyISAM DEFAULT CHARSET=utf8";
 if (!$mysqli->query($sql)) {
 	header("HTTP/1.0 500 Internal Server Error");

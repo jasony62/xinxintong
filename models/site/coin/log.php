@@ -65,8 +65,12 @@ class log_model extends \TMS_MODEL {
 	}
 	/**
 	 * 给用户增加积分
+	 *
+	 * @param object $matter(siteid,id,type,title) 在哪个素材上执行的操作
+	 * @param object $user(uid,nickname) 获得积分的用户
+	 * @param string $act 执行的什么操作
 	 */
-	private function award2User($matter, $user, $act, $delta, $payer = 'system') {
+	private function award2User($matter, $user, $act, $delta, $payer = 'system', $transNo = '') {
 		$current = time();
 		// 最后一条积分记录
 		if ($lastLog = $this->lastByUser($user->uid)) {
@@ -89,6 +93,7 @@ class log_model extends \TMS_MODEL {
 		$log->delta = $delta;
 		$log->total = $total;
 		$log->last_row = 'Y';
+		$log->trans_no = $transNo;
 
 		$this->insert('xxt_coin_log', $log, false);
 
@@ -209,5 +214,24 @@ class log_model extends \TMS_MODEL {
 		$result->total = $this->query_val_ss($q);
 
 		return $result;
+	}
+	/**
+	 * 站点用户给平台用户支付积分
+	 *
+	 * @param object $matter(siteid,id,type,title) 在哪个素材上进行的操作
+	 * @param string $act 执行的什么操作
+	 * @param object $payer(uid,nickname) 支付积分的用户
+	 * @param object $payee(id,name) 获得积分的用户
+	 * @param int $coin 支付的积分
+	 *
+	 */
+	public function transfer2PlUser($matter, $act, $payer, $payee, $coin) {
+		$transNo = md5($payer->uid . time() . $payee->id . $matter->id . $coin);
+
+		$this->model('pl\coin\log')->award2User($matter->siteid, $payee, $act, (int) $coin, $payer->uid, $matter, $transNo);
+
+		$this->award2User($matter, $payer, $act, -1 * (int) $coin, $payee->id, $transNo);
+
+		return true;
 	}
 }

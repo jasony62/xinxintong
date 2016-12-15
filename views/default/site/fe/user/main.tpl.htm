@@ -21,6 +21,7 @@
         <div class="loading"><div class='loading-indicator'><i></i></div></div>
         <div class="container" ng-app="app" ng-controller='ctrlMain'>
             <p class='form-control-static'>你好：<span ng-bind="user.uname"></span></p>
+            <p class='form-control-static'>积分：<span ng-bind="user.coin"></span></p>
             <hr>
             <div class='form-group'>
                 <input type='text' class='form-control input-lg' name='nickname' ng-model="user.nickname" placeholder='用户昵称'>

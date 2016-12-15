@@ -1,6 +1,6 @@
-define(["angular", "xxt-page", "tms-discuss"], function(angular, codeAssembler) {
+define(["angular", "xxt-page", "tms-discuss", "tms-coinpay", "tms-siteuser"], function(angular, codeAssembler) {
     'use strict';
-    var ngApp = angular.module('article', ['discuss.ui.xxt']);
+    var ngApp = angular.module('article', ['discuss.ui.xxt', 'coinpay.ui.xxt', 'siteuser.ui.xxt']);
     ngApp.config(['$controllerProvider', function($cp) {
         ngApp.provider = {
             controller: $cp.register
@@ -12,20 +12,20 @@ define(["angular", "xxt-page", "tms-discuss"], function(angular, codeAssembler) 
                 scrollTop = target.scrollTop;
 
             if (scrollTop === 0) {
-                if ($scope.uppermost && angular.isString($scope.uppermost) && $scope.$parent.uppermost) {
+                if ($scope.$parent.uppermost) {
                     $scope.$parent.uppermost(target);
                 }
             } else if (scrollTop === target.scrollHeight - target.clientHeight) {
-                if ($scope.downmost && angular.isString($scope.downmost) && $scope.$parent.downmost) {
+                if ($scope.$parent.downmost) {
                     $scope.$parent.downmost(target);
                 }
             } else {
                 if (target.__lastScrollTop === undefined || scrollTop > target.__lastScrollTop) {
-                    if ($scope.upward && angular.isString($scope.upward) && $scope.$parent.upward) {
+                    if ($scope.$parent.upward) {
                         $scope.$parent.upward(target);
                     }
                 } else {
-                    if ($scope.downward && angular.isString($scope.downward) && $scope.$parent.downward) {
+                    if ($scope.$parent.downward) {
                         $scope.$parent.downward(target);
                     }
                 }
@@ -66,9 +66,6 @@ define(["angular", "xxt-page", "tms-discuss"], function(angular, codeAssembler) 
                     });
                 }
                 for (var i = elems.length - 1; i >= 0; i--) {
-                    elems[i].onloadend = function(event) {
-                        console.log(event);
-                    };
                     elems[i].onscroll = function(event) {
                         var target = event.target;
                         if (target.__timer) {
@@ -82,7 +79,7 @@ define(["angular", "xxt-page", "tms-discuss"], function(angular, codeAssembler) 
             }
         };
     }]);
-    ngApp.controller('ctrl', ['$scope', '$http', '$timeout', '$q', 'tmsDiscuss', function($scope, $http, $timeout, $q, tmsDiscuss) {
+    ngApp.controller('ctrl', ['$scope', '$http', '$timeout', '$q', 'tmsDiscuss', 'tmsCoinPay', 'tmsSiteUser', function($scope, $http, $timeout, $q, tmsDiscuss, tmsCoinPay, tmsSiteUser) {
         function setMpShare(xxtShare) {
             var shareid, sharelink;
             shareid = $scope.user.uid + (new Date() * 1);
@@ -121,6 +118,7 @@ define(["angular", "xxt-page", "tms-discuss"], function(angular, codeAssembler) 
                     mission = rsp.data.mission,
                     article = rsp.data.article,
                     channels = article.channels;
+
                 if (article.use_site_header === 'Y' && site && site.header_page) {
                     codeAssembler.loadCode(ngApp, site.header_page);
                 }
@@ -213,6 +211,16 @@ define(["angular", "xxt-page", "tms-discuss"], function(angular, codeAssembler) 
                     tmsDiscuss.showSwitch(article.siteid, 'article,' + article.id, article.title);
                 }
             }
+            if (article.can_coinpay === 'Y') {
+                if (!document.querySelector('.tms-coinpay-switch')) {
+                    tmsCoinPay.showSwitch(article.siteid, 'article,' + article.id);
+                }
+            }
+            if (article.can_siteuser === 'Y') {
+                if (!document.querySelector('.tms-siteuser-switch')) {
+                    tmsSiteUser.showSwitch(article.siteid);
+                }
+            }
             document.querySelector('#gototop').style.display = 'block';
         };
         document.querySelector('#gototop').addEventListener('click', function() {
@@ -224,15 +232,6 @@ define(["angular", "xxt-page", "tms-discuss"], function(angular, codeAssembler) 
     ngApp.controller('ctrlAlert', ['$scope', function($scope) {
         $scope.close = function() {
             document.querySelector('.weui_dialog_alert').style.display = 'none';
-        };
-    }]);
-    ngApp.controller('ctrlPay', ['$scope', function($scope) {
-        $scope.open = function() {
-            var url = 'http://' + location.host;
-            url += '/rest/coin/pay';
-            url += "?mpid=" + $scope.siteId;
-            url += "&matter=article," + $scope.articleId;
-            openPlugin(url);
         };
     }]);
     ngApp.controller('ctrlFavor', ['$scope', '$http', function($scope, $http) {

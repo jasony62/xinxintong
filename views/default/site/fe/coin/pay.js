@@ -1,22 +1,23 @@
 define(["require", "angular"], function(require, angular) {
     'use strict';
-    var app = angular.module('app', []),
+    var ngApp = angular.module('app', []),
         ls = location.search,
-        mpid = ls.match(/mpid/) ? ls.match(/(\?|&)mpid=([^&]*)/)[2] : '',
+        siteId = ls.match(/site/) ? ls.match(/(\?|&)site=([^&]*)/)[2] : '',
         matter = ls.match(/matter/) ? ls.match(/(\?|&)matter=([^&]*)/)[2] : '';
-    app.controller('ctrlPay', ['$scope', '$http', '$timeout', function($scope, $http, $timeout) {
+
+    ngApp.controller('ctrlPay', ['$scope', '$http', '$timeout', function($scope, $http, $timeout) {
         $scope.transfer = function() {
-            var url = '/rest/coin/pay/transfer';
-            url += '?mpid=' + mpid;
+            var url = '/rest/site/fe/coin/pay/payByMatter';
+            url += '?site=' + siteId;
             url += '&matter=' + matter;
             $http.post(url, {
                 coins: 1
             }).success(function(rsp) {});
         };
-        $http.get('/rest/coin/pay/pageGet?mpid=' + mpid + '&matter=' + matter).success(function(rsp) {
+        $http.get('/rest/site/fe/coin/pay/pageGet?site=' + siteId + '&matter=' + matter).success(function(rsp) {
             var page = rsp.data.page;
             var pageLoaded = function() {
-                $scope.Page = page;
+                $scope.page = page;
                 window.loading.finish();
             };
             var loadDynaCss = function(css) {
@@ -40,7 +41,7 @@ define(["require", "angular"], function(require, angular) {
             }
         });
     }]);
-    app.directive('dynamicHtml', function($compile) {
+    ngApp.directive('dynamicHtml', function($compile) {
         return {
             restrict: 'A',
             replace: true,

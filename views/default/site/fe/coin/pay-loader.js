@@ -16,17 +16,17 @@ window.loading = {
 					exports: "angular"
 				},
 			},
-			deps: ['/views/default/coin/pay.js?_=1'],
-			urlArgs: 'bust=' + (new Date()).getTime()
+			deps: ['/views/default/site/fe/coin/pay.js?_=1'],
+			urlArgs: 'bust=' + (new Date() * 1)
 		});
 	}
 };
 if (/MicroMessenger/i.test(navigator.userAgent)) {
-	var mpid = location.search.match(/[\?&]mpid=([^&]*)/)[1];
+	var siteId = location.search.match(/[\?&]site=([^&]*)/)[1];
 	requirejs(["http://res.wx.qq.com/open/js/jweixin-1.0.0.js"], function(wx) {
 		window.wx = wx;
 		var xhr = new XMLHttpRequest();
-		xhr.open('GET', "/rest/mi/matter/wxjssdksignpackage?mpid=" + mpid + "&url=" + encodeURIComponent(location.href.split('#')[0]), true);
+		xhr.open('GET', "/rest/site/fe/coin/pay/wxjssdksignpackage?site=" + siteId + "&url=" + encodeURIComponent(location.href.split('#')[0]), true);
 		xhr.onreadystatechange = function() {
 			if (xhr.readyState == 4) {
 				if (xhr.status >= 200 && xhr.status < 400) {

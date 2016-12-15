@@ -141,9 +141,12 @@ class record_model extends \TMS_MODEL {
 										return array(false, '创建文件上传目录失败');
 									}
 								}
-								$fileUploaded2 = $dirUploaded . '/' . $file->name;
-								if (false === rename($fileUploaded, $fileUploaded2)) {
-									return array(false, '移动上传文件失败');
+								if (file_exists($fileUploaded)) {
+									/* 如果同一次提交中包含相同的文件，文件只会上传一次，并且被改名 */
+									$fileUploaded2 = $dirUploaded . '/' . $file->name;
+									if (false === @rename($fileUploaded, $fileUploaded2)) {
+										return array(false, '移动上传文件失败');
+									}
 								}
 							}
 							unset($file->uniqueIdentifier);
@@ -476,6 +479,102 @@ class record_model extends \TMS_MODEL {
 		return $result;
 	}
 	/**
+	 * 已删除的登记清单
+	 *
+	 * 1、如果活动仅限会员报名，那么要叠加会员信息
+	 * 2、如果报名的表单中有扩展信息，那么要提取扩展信息
+	 *
+	 * $siteId
+	 * $aid
+	 * $options
+	 * --page
+	 * --size
+	 * --rid 轮次id
+	 *
+	 *
+	 * return
+	 * [0] 数据列表
+	 * [1] 数据总条数
+	 * [2] 数据项的定义
+	 */
+	public function recycle($siteId, &$app, $options = null) {
+		if ($options) {
+			is_array($options) && $options = (object) $options;
+			$page = isset($options->page) ? $options->page : null;
+			$size = isset($options->size) ? $options->size : null;
+			$rid = null;
+			if (!empty($options->rid)) {
+				if ($options->rid === 'ALL') {
+					$rid = null;
+				} else if (!empty($options->rid)) {
+					$rid = $options->rid;
+				}
+			} else if ($activeRound = $this->M('matter\enroll\round')->getActive($siteId, $app->id)) {
+				$rid = $activeRound->rid;
+			}
+		}
+		$result = new \stdClass; // 返回的结果
+		$result->total = 0;
+
+		// 指定登记活动下的登记记录
+		$w = "(e.state=100 or e.state=101 or e.state=0) and e.aid='{$app->id}'";
+
+		// 指定了轮次
+		!empty($rid) && $w .= " and e.rid='$rid'";
+
+		// 指定了登记记录过滤条件
+		if (!empty($criteria->record)) {
+			$whereByRecord = '';
+			if (!empty($criteria->record->verified)) {
+				$whereByRecord .= " and verified='{$criteria->record->verified}'";
+			}
+			$w .= $whereByRecord;
+		}
+
+		$q = [
+			'e.enroll_key,e.enroll_at,e.tags,e.userid,e.nickname,e.verified,e.comment,e.data,e.state',
+			"xxt_enroll_record e",
+			$w,
+		];
+
+		$q2 = [];
+		// 查询结果分页
+		if (!empty($page) && !empty($size)) {
+			$q2['r'] = ['o' => ($page - 1) * $size, 'l' => $size];
+		}
+		// 查询结果排序
+		$q2['o'] = 'e.enroll_at desc';
+		// 处理获得的数据
+		if ($records = $this->query_objs_ss($q, $q2)) {
+			foreach ($records as &$r) {
+				$data = str_replace("\n", ' ', $r->data);
+				$data = json_decode($data);
+				if ($data === null) {
+					$r->data = 'json error(' . json_last_error_msg() . '):' . $r->data;
+				} else {
+					$r->data = $data;
+				}
+				// 记录的分数
+				if ($app->scenario === 'voting') {
+					if (!isset($scoreSchemas)) {
+						$scoreSchemas = $this->_mapOfScoreSchema($app);
+						$countScoreSchemas = count(array_keys((array) $scoreSchemas));
+					}
+					$r->_score = $this->_calcScore($scoreSchemas, $data);
+					$r->_average = $countScoreSchemas === 0 ? 0 : $r->_score / $countScoreSchemas;
+				}
+			}
+			$result->records = $records;
+
+			// 符合条件的数据总数
+			$q[0] = 'count(*)';
+			$total = (int) $this->query_val_ss($q);
+			$result->total = $total;
+		}
+
+		return $result;
+	}
+	/**
 	 * 登记清单
 	 *
 	 * 1、如果活动仅限会员报名，那么要叠加会员信息
@@ -694,12 +793,12 @@ class record_model extends \TMS_MODEL {
 	public function removeByUser($site, $appId, $ek) {
 		$rst = $this->update(
 			'xxt_enroll_record_data',
-			['state' => 200],
+			['state' => 101],
 			"aid='$appId' and enroll_key='$ek'"
 		);
 		$rst = $this->update(
 			'xxt_enroll_record',
-			['state' => 200],
+			['state' => 101],
 			"aid='$appId' and enroll_key='$ek'"
 		);
 
@@ -724,15 +823,36 @@ class record_model extends \TMS_MODEL {
 		} else {
 			$rst = $this->update(
 				'xxt_enroll_record_data',
-				array('state' => 100),
+				['state' => 100],
 				"aid='$appId' and enroll_key='$ek'"
 			);
 			$rst = $this->update(
 				'xxt_enroll_record',
-				array('state' => 100),
+				['state' => 100],
 				"aid='$appId' and enroll_key='$ek'"
 			);
 		}
+
+		return $rst;
+	}
+	/**
+	 *  恢复一条登记记录
+	 *
+	 * @param string $aid
+	 * @param string $ek
+	 */
+	public function restore($appId, $ek) {
+
+		$rst = $this->update(
+			'xxt_enroll_record_data',
+			['state' => 1],
+			"aid='$appId' and enroll_key='$ek'"
+		);
+		$rst = $this->update(
+			'xxt_enroll_record',
+			['state' => 1],
+			"aid='$appId' and enroll_key='$ek'"
+		);
 
 		return $rst;
 	}
@@ -754,12 +874,12 @@ class record_model extends \TMS_MODEL {
 		} else {
 			$rst = $this->update(
 				'xxt_enroll_record_data',
-				array('state' => 0),
+				['state' => 0],
 				"aid='$appId'"
 			);
 			$rst = $this->update(
 				'xxt_enroll_record',
-				array('state' => 0),
+				['state' => 0],
 				"aid='$appId'"
 			);
 		}

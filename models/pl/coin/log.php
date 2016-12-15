@@ -4,7 +4,6 @@ namespace pl\coin;
  * 平台积分日志
  */
 class log_model extends \TMS_MODEL {
-	public $xyz = '123';
 	/**
 	 * 授予积分
 	 *
@@ -54,7 +53,7 @@ class log_model extends \TMS_MODEL {
 	/**
 	 * 给用户增加积分
 	 */
-	private function award2User($siteId, $user, $act, $delta, $payer = 'system') {
+	public function award2User($siteId, $user, $act, $delta, $payer = 'system', $matter = null, $transNo = '') {
 		$current = time();
 		// 最后一条积分记录
 		if ($lastLog = $this->lastByUser($user->id)) {
@@ -63,9 +62,12 @@ class log_model extends \TMS_MODEL {
 		} else {
 			$total = $delta;
 		}
-		/*记录日志*/
+		/* 记录日志 */
 		$log = new \stdClass;
 		$log->siteid = $siteId;
+		$log->matter_type = isset($matter->type) ? $matter->type : '';
+		$log->matter_id = isset($matter->id) ? $matter->id : '';
+		$log->matter_title = isset($matter->title) ? $matter->title : '';
 		$log->occur_at = $current;
 		$log->act = $act;
 		$log->payer = $payer;
@@ -74,6 +76,7 @@ class log_model extends \TMS_MODEL {
 		$log->delta = $delta;
 		$log->total = $total;
 		$log->last_row = 'Y';
+		$log->trans_no = $transNo;
 
 		$this->insert('xxt_coin_log', $log, false);
 

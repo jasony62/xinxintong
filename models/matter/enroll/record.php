@@ -697,12 +697,12 @@ class record_model extends \TMS_MODEL {
 	public function removeByUser($site, $appId, $ek) {
 		$rst = $this->update(
 			'xxt_enroll_record_data',
-			['state' => 200],
+			['state' => 101],
 			"aid='$appId' and enroll_key='$ek'"
 		);
 		$rst = $this->update(
 			'xxt_enroll_record',
-			['state' => 200],
+			['state' => 101],
 			"aid='$appId' and enroll_key='$ek'"
 		);
 
@@ -727,12 +727,12 @@ class record_model extends \TMS_MODEL {
 		} else {
 			$rst = $this->update(
 				'xxt_enroll_record_data',
-				array('state' => 100),
+				['state' => 100],
 				"aid='$appId' and enroll_key='$ek'"
 			);
 			$rst = $this->update(
 				'xxt_enroll_record',
-				array('state' => 100),
+				['state' => 100],
 				"aid='$appId' and enroll_key='$ek'"
 			);
 		}
@@ -757,12 +757,12 @@ class record_model extends \TMS_MODEL {
 		} else {
 			$rst = $this->update(
 				'xxt_enroll_record_data',
-				array('state' => 0),
+				['state' => 0],
 				"aid='$appId'"
 			);
 			$rst = $this->update(
 				'xxt_enroll_record',
-				array('state' => 0),
+				['state' => 0],
 				"aid='$appId'"
 			);
 		}

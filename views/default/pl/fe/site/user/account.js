@@ -1,4 +1,4 @@
-(function() {
+define(['main'], function(ngApp) {
 	ngApp.provider.controller('ctrlAccount', ['$scope', '$uibModal', 'http2', function($scope, $uibModal, http2) {
 		$scope.page = {
 			at: 1,
@@ -38,4 +38,4 @@
 		};
 		$scope.doSearch(1);
 	}]);
-})();
+});

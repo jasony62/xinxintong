@@ -26,7 +26,6 @@ define(['require'], function(require) {
             .when('/rest/pl/fe/site/setting/page', new RouteParam('page', true))
             .when('/rest/pl/fe/site/setting/mschema', new RouteParam('mschema'))
             .when('/rest/pl/fe/site/setting/admin', new RouteParam('admin', true))
-            .when('/rest/pl/fe/site/setting/coin', new RouteParam('coin'))
             .when('/rest/pl/fe/site/setting/notice', new RouteParam('notice', true))
             .otherwise(new RouteParam('basic'));
     }]);

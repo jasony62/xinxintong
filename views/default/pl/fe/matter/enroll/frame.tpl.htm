@@ -70,6 +70,7 @@
             <ul class='nav navbar-nav navbar-right' ng-if="subView==='record'">
                 <li><a href="/rest/pl/fe/matter/enroll/publish?site={{siteId}}&id={{id}}">发布预览</a></li>
                 <li ng-if="app.scenario==='voting'"><a href="/rest/pl/fe/matter/enroll/stat?site={{siteId}}&id={{id}}">统计报告</a></li>
+                <li><a href="/rest/pl/fe/matter/enroll/recycle?site={{siteId}}&id={{id}}">回收站</a></li>
             </ul>
             <ul class='nav navbar-nav navbar-right' ng-if="subView==='schema'">
                 <li><a href="/rest/pl/fe/matter/enroll/publish?site={{siteId}}&id={{id}}">发布预览</a></li>

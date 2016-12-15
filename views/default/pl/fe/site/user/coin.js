@@ -16,7 +16,7 @@ define(['main'], function(ngApp) {
 			};
 		});
 		$scope.save = function() {
-			var filter = 'ENTRY:contribute,' + $scope.id,
+			var filter = 'ID:' + $scope.siteId,
 				posted = [],
 				url, rule;
 
@@ -35,7 +35,7 @@ define(['main'], function(ngApp) {
 					posted.push(data);
 				}
 			}
-			//url = '/rest/pl/fe/matter/contribute/coin/save?site=' + $scope.siteId + '&app=' + $scope.id;
+			url = '/rest/pl/fe/site/user/coin/save?site=' + $scope.siteId ;
 			http2.post(url, posted, function(rsp) {
 				for (var k in rsp.data) {
 					$scope.rules[k].id = rsp.data[k];
@@ -44,7 +44,7 @@ define(['main'], function(ngApp) {
 		};
 		$scope.fetch = function() {
 			var url;
-			//url = '/rest/pl/fe/matter/contribute/coin/get?app=' + $scope.id;
+			url = '/rest/pl/fe/site/user/coin/get?site=' + $scope.siteId;
 			http2.get(url, function(rsp) {
 				rsp.data.forEach(function(rule) {
 					var rule2 = $scope.rules[rule.act];
@@ -54,6 +54,6 @@ define(['main'], function(ngApp) {
 				});
 			});
 		};
-		//$scope.fetch();
+		$scope.fetch();
 	}]);
 });

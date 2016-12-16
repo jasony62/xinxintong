@@ -117,7 +117,7 @@ class main extends \site\fe\matter\base {
 	 */
 	public function score_action($site, $id, $score = 1) {
 		$modelArt = $this->model('matter\article2');
-		$article = $modelArt->byId($id, 'title,score');
+		$article = $modelArt->byId($id);
 		$user = $this->who;
 		if ($modelArt->praised($user, $id)) {
 			/* 点了赞，再次点击，取消赞 */
@@ -144,6 +144,8 @@ class main extends \site\fe\matter\base {
 			 * coin log
 			 * 投稿人点赞不奖励积分
 			 */
+			$modelCoin = $this->model('site\coin\log');
+			$modelCoin->award($article, $user, 'site.matter.article.like');
 			/*$modelCoin = $this->model('coin\log');
 				$contribution = $modelArt->getContributionInfo($id);
 				if (!empty($contribution->openid) && $contribution->openid !== $user->openid) {

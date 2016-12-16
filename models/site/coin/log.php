@@ -28,6 +28,29 @@ class log_model extends \TMS_MODEL {
 		return true;
 	}
 	/**
+	 * 取消积分
+	 *
+	 * @param object $matter 操作的素材
+	 * @param object $actor 执行操作的人
+	 * @param string $act 操作
+	 *
+	 */
+	public function deduct(&$matter, &$actor, $act) {
+		$modelMat = $this->model('matter\\' . $matter->type . '\coin');
+		$rules = $modelMat->rulesByMatter($act, $matter);
+		foreach ($rules as $rule) {
+			if ($rule->actor_delta) {
+				$this->award2User($matter, $actor, $act, -1*(int) $rule->actor_delta);
+			}
+			if ($rule->creator_delta) {
+				if ($creator = $modelMat->getCreator($matter)) {
+					$this->award2User($matter, $creator, $act, -1*(int) $rule->creator_delta);
+				}
+			}
+		}
+		return true;
+	}
+	/**
 	 * 获得指定用户的最后一条日志
 	 */
 	private function &lastbyUser($userid) {

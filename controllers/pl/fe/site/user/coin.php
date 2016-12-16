@@ -32,6 +32,20 @@ class coin extends \pl\fe\base {
 	/**
 	 *
 	 */
+	public function logs_action($site, $page = 1, $size = 30) {
+		if (false === ($user = $this->accountUser())) {
+			return new \ResponseTimeout();
+		}
+
+		$modelLog = $this->model('site\coin\log');
+
+		$logs = $modelLog->bySite($site, $page, $size);
+
+		return new \ResponseData($logs);
+	}
+	/**
+	 *
+	 */
 	public function save_action($site) {
 		if (false === ($user = $this->accountUser())) {
 			return new \ResponseTimeout();

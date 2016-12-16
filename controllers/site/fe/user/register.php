@@ -62,11 +62,11 @@ class register extends \site\fe\base {
 		 * coin log
 		 */
 		$user = $this->who;
+		$siteConfig = $this->model('site')->byId($this->siteId);
 		$matter = new \stdClass;
 		$matter->id = $this->siteId;
 		$matter->type = 'site';
-		$matter->entry = '';
-		$matter->creater_src = '';
+		$matter->title = $siteConfig->name;
 		$matter->siteid = $this->siteId;
 		$modelCoin = $this->model('site\coin\log');
 		$modelCoin->award($matter, $user, 'site.user.register');

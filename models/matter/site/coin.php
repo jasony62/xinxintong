@@ -15,7 +15,7 @@ class coin_model extends \TMS_MODEL {
 		$w = "(";
 		$w .= "matter_filter='*'";
 		$w .= "or matter_filter='ID:{$article->id}'";
-		$w .= "or matter_filter='ENTRY:{$article->entry}'";
+		isset($article->entry) && $w .= "or matter_filter='ENTRY:{$article->entry}'";
 		$w .= ")";
 
 		$q[2] .= $w;
@@ -31,7 +31,7 @@ class coin_model extends \TMS_MODEL {
 	 */
 	public function getCreator($article) {
 		$creator = false;
-		if ($article->creater_src === 'M') {
+		if (isset($article->creater_src) && $article->creater_src === 'M') {
 			if ($member = $this->model('site\user\member')->byId($article->creater)) {
 				$creator = $this->model('site\user\account')->byId($member->userid);
 			}

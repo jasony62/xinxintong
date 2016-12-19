@@ -21,6 +21,7 @@ define(['require', 'page', 'schema'], function(require, pageLib, schemaLib) {
 			directive: $compileProvider.directive
 		};
 		$routeProvider
+			.when('/rest/pl/fe/matter/enroll/prepare', new RouteParam('prepare'))
 			.when('/rest/pl/fe/matter/enroll/publish', new RouteParam('publish'))
 			.when('/rest/pl/fe/matter/enroll/schema', new RouteParam('schema'))
 			.when('/rest/pl/fe/matter/enroll/page', new RouteParam('page'))

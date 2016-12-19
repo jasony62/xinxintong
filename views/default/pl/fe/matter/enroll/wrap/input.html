@@ -19,7 +19,7 @@
         <label class="radio-inline"><input type='radio' name='align' value='V' ng-model='activeWrap.config.align' ng-change="updWrap(config,'align')">垂直</label>
         <label class="radio-inline"><input type='radio' name='align' value='H' ng-model='activeWrap.config.align' ng-change="updWrap(config,'align')">水平</label>
     </div>
-    <div class="form-group">
+    <div class="form-group" ng-if="activeWrap.schema.type!=='html'">
         <input type='text' class='form-control' placeholder="标题" ng-model='activeWrap.schema.title' required ng-change="updWrap(schema,'title')">
     </div>
     <div class="form-group" ng-if="['single','multiple'].indexOf(activeWrap.schema.type)!==-1">

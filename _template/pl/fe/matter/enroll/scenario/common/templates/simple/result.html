@@ -3,7 +3,7 @@
 <?php foreach ($this->schema as $def) { 
 $schema = $def->schema;
 ?>
-<div id="<?php echo $def->config->id?>" class="form-group wrap-inline wrap-splitline" wrap="value" ng-controller="ctrlRecord" schema="<?php echo $schema->id;?>" schema-type="<?php echo $schema->type;?>"><label><?php echo $schema->title;?></label>
+<div id="<?php echo $def->config->id?>" class="form-group wrap-splitline" wrap="value" ng-controller="ctrlRecord" schema="<?php echo $schema->id;?>" schema-type="<?php echo $schema->type;?>"><label><?php echo $schema->title;?></label>
 <?php if (in_array($schema->type,['name','email','mobile','shorttext','longtext'])) { ?>
 <div>{{Record.current.data.<?php echo $schema->id?>}}</div>
 <?php } else if (in_array($schema->type,['_enrollAt'])) { ?>

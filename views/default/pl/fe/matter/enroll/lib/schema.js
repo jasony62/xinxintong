@@ -107,7 +107,7 @@ define([], function() {
 						v: 'v2',
 					}];
 				} else if (type === 'html') {
-					schema.content = '这是一段描述说明';
+					schema.content = '请点击下面“编辑”按钮，编辑本说明文字';
 				}
 			}
 

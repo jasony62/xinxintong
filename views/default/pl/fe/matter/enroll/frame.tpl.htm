@@ -16,14 +16,14 @@
             <div class='container-fluid'>
                 <form class='navbar-form navbar-left'>
                     <div class="btn-group">
-                        <a href="/rest/pl/fe" target='_self' class="btn btn-default" ng-if="referrer!=='site'">个人工作台</a>
+                        <a href="/rest/pl/fe" target='_self' class="btn btn-default" ng-if="referrer!=='site'">我的工作台</a>
                         <a href='/rest/pl/fe/site/console?site={{siteId}}' target='_self' class="btn btn-default" ng-if="referrer==='site'">团队工作台</a>
                         <button type="button" class="btn btn-default dropdown-toggle" data-toggle="dropdown">
                             <span class="caret"></span>
                             <span class="sr-only">Toggle Dropdown</span>
                         </button>
                         <ul class="dropdown-menu" role="menu">
-                            <li ng-if="referrer==='site'"><a href="/rest/pl/fe" target='_self'>个人工作台</a></li>
+                            <li ng-if="referrer==='site'"><a href="/rest/pl/fe" target='_self'>我的工作台</a></li>
                             <li ng-if="referrer!=='site'"><a href='/rest/pl/fe/site/console?site={{siteId}}' target='_self'>团队工作台</a></li>
                             <li><a href='/rest/home' target='_self'>平台首页</a></li>
                         </ul>

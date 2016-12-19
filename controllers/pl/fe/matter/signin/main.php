@@ -158,7 +158,7 @@ class main extends \pl\fe\matter\base {
 
 		/*记录操作日志*/
 		$app->type = 'signin';
-		$this->model('log')->matterOp($site->id, $user, $app, 'C');
+		$this->model('matter\log')->matterOp($site->id, $user, $app, 'C');
 
 		/*记录和任务的关系*/
 		if ($app->mission_id) {
@@ -248,7 +248,7 @@ class main extends \pl\fe\matter\base {
 
 		/* 记录操作日志 */
 		$app->type = 'signin';
-		$this->model('log')->matterOp($site, $user, $app, 'C');
+		$this->model('matter\log')->matterOp($site, $user, $app, 'C');
 
 		/* 记录和任务的关系 */
 		if (isset($mission)) {
@@ -289,7 +289,7 @@ class main extends \pl\fe\matter\base {
 		if ($rst = $modelApp->update('xxt_signin', $nv, ["id" => $app])) {
 			/*记录操作日志*/
 			$matter->type = 'signin';
-			$this->model('log')->matterOp($site, $user, $matter, 'U');
+			$this->model('matter\log')->matterOp($site, $user, $matter, 'U');
 		}
 
 		return new \ResponseData($rst);
@@ -489,7 +489,7 @@ class main extends \pl\fe\matter\base {
 				["id" => $app->id]
 			);
 			/*记录操作日志*/
-			$this->model('log')->matterOp($site, $user, $app, 'Recycle');
+			$this->model('matter\log')->matterOp($site, $user, $app, 'Recycle');
 		} else {
 			$modelSig->delete(
 				'xxt_signin_log',
@@ -512,7 +512,7 @@ class main extends \pl\fe\matter\base {
 				["id" => $app->id]
 			);
 			/*记录操作日志*/
-			$this->model('log')->matterOp($site, $user, $app, 'D');
+			$this->model('matter\log')->matterOp($site, $user, $app, 'D');
 		}
 
 		return new \ResponseData($rst);

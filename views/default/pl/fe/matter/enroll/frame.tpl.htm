@@ -9,11 +9,11 @@
         <link href="/static/css/bootstrap-switch.min.css" rel="stylesheet">
         <link href="/static/css/font-awesome.min.css" rel="stylesheet">
         <link href="/static/css/tms.css?_=2" rel="stylesheet">
-        <link href="/views/default/pl/fe/matter/enroll/frame.css?_=4" rel="stylesheet">
+        <link href="/views/default/pl/fe/matter/enroll/frame.css?_=5" rel="stylesheet">
     </head>
     <body ng-controller='ctrlFrame' ng-cloak class='ng-cloak'>
         <nav class='navbar navbar-default navbar-fixed-top'>
-            <ul class='nav navbar-nav'>
+            <div class='container-fluid'>
                 <form class='navbar-form navbar-left'>
                     <div class="btn-group">
                         <a href="/rest/pl/fe" target='_self' class="btn btn-default" ng-if="referrer!=='site'">个人工作台</a>
@@ -29,58 +29,61 @@
                         </ul>
                     </div>
                 </form>
-                <li ng-if="app.mission"><a href="/rest/pl/fe/matter/mission?site={{siteId}}&id={{app.mission.id}}" target='_self'>返回项目</a></li>
-            </ul>
-            <form class='navbar-form'>
-                <div ng-if="subView==='publish'">
-                    <div class='form-group'>
-                        <div class='input-group'>
-                            <input type='text' class='form-control' size='40' title='{{app.title}}' ng-model='app.title' tms-auto-update tms-wait=1000 tms-update="update('title')">
-                            <span class='input-group-btn'>
-                                <button uib-popover-template="'appSetting.html'" popover-append-to-body='true' popover-placement="bottom" popover-trigger="outsideClick" class='btn btn-default'><span class="glyphicon glyphicon-cog"></span></button>
-                            </span>
+                <ul class="nav navbar-nav navbar-left">
+                    <li ng-if="app.mission"><a href="/rest/pl/fe/matter/mission?site={{siteId}}&id={{app.mission.id}}" target='_self'>返回项目</a></li>
+                </ul>
+                <form class='navbar-form navbar-left'>
+                    <div ng-if="subView==='publish'">
+                        <div class='form-group'>
+                            <div class='input-group'>
+                                <input type='text' class='form-control' size='40' title='{{app.title}}' ng-model='app.title' tms-auto-update tms-wait=1000 tms-update="update('title')">
+                                <span class='input-group-btn'>
+                                    <button uib-popover-template="'appSetting.html'" popover-append-to-body='true' popover-placement="bottom" popover-trigger="outsideClick" class='btn btn-default'><span class="glyphicon glyphicon-cog"></span></button>
+                                </span>
+                            </div>
                         </div>
-                    </div>
-                    <div class='form-group' ng-if="app.mission">
-                        <label>所属项目</label>
-                        <div class="input-group">
-                            <input class='form-control' title="{{app.mission.title}}" value="{{app.mission.title}}" readonly="">
-                            <span class="input-group-btn">
-                                <button class="btn btn-default" type="button" ng-click="quitMission()">
-                                    <span class='glyphicon glyphicon-remove'></span>
-                                </button>
-                            </span>
+                        <div class='form-group' ng-if="app.mission">
+                            <label>所属项目</label>
+                            <div class="input-group">
+                                <input class='form-control' title="{{app.mission.title}}" value="{{app.mission.title}}" readonly="">
+                                <span class="input-group-btn">
+                                    <button class="btn btn-default" type="button" ng-click="quitMission()">
+                                        <span class='glyphicon glyphicon-remove'></span>
+                                    </button>
+                                </span>
+                            </div>
                         </div>
-                    </div>
-                    <div class='form-group' ng-if="app.mission.multi_phase==='Y'">
-                        <label>项目阶段</label>
-                        <select class='form-control' ng-model="app.mission_phase_id" ng-change="choosePhase()" ng-options="phase.phase_id as phase.title for phase in app.mission.phases">
-                            <option value=''>全部</option>
-                        </select>
-                    </div>
-                    <div class='form-group' ng-if="!app.mission">
-                        <button class='btn btn-success' ng-click="assignMission()">指定项目</button>
+                        <div class='form-group' ng-if="app.mission.multi_phase==='Y'">
+                            <label>项目阶段</label>
+                            <select class='form-control' ng-model="app.mission_phase_id" ng-change="choosePhase()" ng-options="phase.phase_id as phase.title for phase in app.mission.phases">
+                                <option value=''>全部</option>
+                            </select>
+                        </div>
+                        <div class='form-group' ng-if="!app.mission">
+                            <button class='btn btn-success' ng-click="assignMission()">指定项目</button>
+                        </div>  
                     </div>  
-                </div>  
-            </form>
-            <ul class='nav navbar-nav navbar-right' ng-if="subView==='publish'">
-                <li><a href="/rest/pl/fe/matter/enroll/record?site={{siteId}}&id={{id}}">查看数据</a></li>
-                <li ng-if="app.scenario==='voting'"><a href="/rest/pl/fe/matter/enroll/stat?site={{siteId}}&id={{id}}">统计报告</a></li>
-                <li ng-if="app.can_discuss==='Y'"><a href="/rest/pl/fe/matter/enroll/discuss?site={{siteId}}&id={{id}}">用户评论</a></li>
-            </ul>
-            <ul class='nav navbar-nav navbar-right' ng-if="subView==='record'">
-                <li><a href="/rest/pl/fe/matter/enroll/publish?site={{siteId}}&id={{id}}">发布预览</a></li>
-                <li ng-if="app.scenario==='voting'"><a href="/rest/pl/fe/matter/enroll/stat?site={{siteId}}&id={{id}}">统计报告</a></li>
-                <li><a href="/rest/pl/fe/matter/enroll/recycle?site={{siteId}}&id={{id}}">回收站</a></li>
-            </ul>
-            <ul class='nav navbar-nav navbar-right' ng-if="subView==='schema'">
-                <li><a href="/rest/pl/fe/matter/enroll/publish?site={{siteId}}&id={{id}}">发布预览</a></li>
-                <li><a href="/rest/pl/fe/matter/enroll/record?site={{siteId}}&id={{id}}">查看数据</a></li>
-            </ul>
-            <ul class='nav navbar-nav navbar-right' ng-if="subView==='page'">
-                <li><a href="/rest/pl/fe/matter/enroll/publish?site={{siteId}}&id={{id}}">发布预览</a></li>
-                <li><a href="/rest/pl/fe/matter/enroll/record?site={{siteId}}&id={{id}}">查看数据</a></li>
-            </ul>
+                </form>
+                <form class='navbar-form navbar-right'>
+                    <div class="btn-group">
+                        <a href="/rest/pl/fe/matter/enroll/publish?site={{siteId}}&id={{id}}" class="btn btn-default" ng-if="subView!=='publish'">发布预览</a>
+                        <a href="/rest/pl/fe/matter/enroll/record?site={{siteId}}&id={{id}}" class="btn btn-default" ng-if="subView==='publish'">查看数据</a>
+                        <button type="button" class="btn btn-default dropdown-toggle" data-toggle="dropdown">
+                            <span class="caret"></span>
+                            <span class="sr-only">Toggle Dropdown</span>
+                        </button>
+                        <ul class="dropdown-menu" role="menu">
+                            <li><a href="/rest/pl/fe/matter/enroll/publish?site={{siteId}}&id={{id}}">发布预览</a></li>
+                            <li><a href="/rest/pl/fe/matter/enroll/record?site={{siteId}}&id={{id}}">查看数据</a></li>
+                            <li ng-if="app.scenario==='voting'"><a href="/rest/pl/fe/matter/enroll/stat?site={{siteId}}&id={{id}}">统计报告</a></li>
+                            <li ng-if="app.can_discuss==='Y'"><a href="/rest/pl/fe/matter/enroll/discuss?site={{siteId}}&id={{id}}">用户评论</a></li>
+                            <li><a href="/rest/pl/fe/matter/enroll/recycle?site={{siteId}}&id={{id}}">回收站</a></li>
+                            <li><a href="/rest/pl/fe/matter/enroll/coin?site={{siteId}}&id={{id}}">积分规则</a></li>
+                            <li><a href="/rest/pl/fe/matter/enroll/log?site={{siteId}}&id={{id}}">运行日志</a></li>
+                        </ul>
+                    </div>
+                </form>
+            </div>
         </nav>
         <div class='container'>
             <div class='row' ng-view></div>

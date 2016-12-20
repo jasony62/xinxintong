@@ -466,12 +466,12 @@ class member extends \site\fe\base {
 	 *
 	 */
 	public function syncFromQy_action($site, $authid, $pdid = 1) {
-		$mp = $this->model('sns\qy')->bySite($site);
-		if (!$mp || $mp->joined === 'N') {
+		$qyConfig = $this->model('sns\qy')->bySite($site);
+		if (!$qyConfig || $qyConfig->joined === 'N') {
 			return new \ResponseError('未与企业号连接，无法同步通讯录');
 		}
 		$timestamp = time(); // 进行同步操作的时间戳
-		$qyproxy = $this->model('sns\qy\proxy', $site);
+		$qyproxy = $this->model('sns\qy\proxy', $qyConfig);
 		$model = $this->model();
 		$modelDept = $this->model('site\user\department');
 		/**

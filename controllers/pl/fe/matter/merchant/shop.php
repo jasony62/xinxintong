@@ -92,7 +92,7 @@ class shop extends \pl\fe\matter\base {
 		/*记录操作日志*/
 		$app = $this->model('matter\merchant\shop')->byId($shopId);
 		$app->type = 'merchant';
-		$this->model('log')->matterOp($site, $user, $app, 'C');
+		$this->model('matter\log')->matterOp($site, $user, $app, 'C');
 
 		return new \ResponseData($shopId);
 	}

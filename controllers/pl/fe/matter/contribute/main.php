@@ -106,7 +106,7 @@ class main extends \pl\fe\matter\base {
 		$c = $this->model('matter\contribute')->byId($appId);
 		/*记录操作日志*/
 		$c->type = 'contribute';
-		$this->model('log')->matterOp($site->id, $user, $c, 'C');
+		$this->model('matter\log')->matterOp($site->id, $user, $c, 'C');
 
 		return new \ResponseData($c);
 	}
@@ -134,7 +134,7 @@ class main extends \pl\fe\matter\base {
 		if ($rst) {
 			$app = $modelCtr->byId($app, 'id,title,summary,pic');
 			$app->type = 'contribute';
-			$this->model('log')->matterOp($site, $user, $app, 'U');
+			$this->model('mattter\log')->matterOp($site, $user, $app, 'U');
 		}
 
 		return new \ResponseData($rst);

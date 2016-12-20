@@ -12,8 +12,8 @@
         <nav class='navbar navbar-default'>
             <div class='container'>
                 <ul class='nav navbar-nav'>
-                    <li ng-if="!siteId"><a href='/rest/pl/fe' target='_self'><i class='glyphicon glyphicon-chevron-left'></i> 我的首页</a></li>
-                    <li ng-if="siteId"><a href='/rest/pl/fe/site/console?site={{siteId}}' target='_self'><i class='glyphicon glyphicon-chevron-left'></i> 我的站点</a></li>
+                    <li ng-if="!siteId"><a href='/rest/pl/fe' target='_self'><i class='glyphicon glyphicon-chevron-left'></i> 我的工作台</a></li>
+                    <li ng-if="siteId"><a href='/rest/pl/fe/site/console?site={{siteId}}' target='_self'><i class='glyphicon glyphicon-chevron-left'></i> 团队工作台</a></li>
                 </ul>
                 <ul class='nav navbar-nav'>
                     <li ng-class="{'active':subView==='main'}"><a href='/rest/pl/fe/matter/mission/main?site={{siteId}}&id={{id}}'>项目定义</a></li>

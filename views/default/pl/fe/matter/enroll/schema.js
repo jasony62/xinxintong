@@ -420,6 +420,7 @@ define(['frame', 'schema'], function(ngApp, schemaLib) {
 				size: 'lg',
 				backdrop: 'static'
 			}).result.then(function(result) {
+				schema.title = $(result.html).text();
 				schema.content = result.html;
 				$scope.updSchema(schema, 'content');
 			});

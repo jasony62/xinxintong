@@ -3,7 +3,7 @@ namespace pl\fe\site;
 
 require_once dirname(dirname(__FILE__)) . '/base.php';
 /**
- * 工作台
+ * 团队工作台
  */
 class console extends \pl\fe\base {
 	/**

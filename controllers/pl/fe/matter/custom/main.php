@@ -249,7 +249,7 @@ class main extends \pl\fe\matter\base {
 		$matter = (object) $article;
 		$matter->id = $id;
 		$matter->type = 'custom';
-		$this->model('log')->matterOp($site->id, $user, $matter, 'C');
+		$this->model('matter\log')->matterOp($site->id, $user, $matter, 'C');
 
 		/* 记录和任务的关系 */
 		if (isset($mission->id)) {
@@ -347,7 +347,7 @@ class main extends \pl\fe\matter\base {
 				}
 			}
 			/*记录操作日志*/
-			$this->model('log')->matterOp($site, $user, $matter, 'Recycle');
+			$this->model('matter\log')->matterOp($site, $user, $matter, 'Recycle');
 		}
 
 		return new \ResponseData($rst);
@@ -399,7 +399,7 @@ class main extends \pl\fe\matter\base {
 		/*记录操作日志*/
 		$article = $this->model('matter\article')->byId($id, 'id,title,summary,pic');
 		$article->type = 'custom';
-		$this->model('log')->matterOp($siteId, $user, $article, 'U');
+		$this->model('matter\log')->matterOp($siteId, $user, $article, 'U');
 
 		return $rst;
 	}

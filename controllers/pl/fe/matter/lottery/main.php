@@ -147,7 +147,7 @@ class main extends \pl\fe\matter\base {
 		$app = $this->model('matter\lottery')->byId($lid);
 		/*记录操作日志*/
 		$app->type = 'lottery';
-		$this->model('log')->matterOp($site->id, $user, $app, 'C');
+		$this->model('matter\log')->matterOp($site->id, $user, $app, 'C');
 
 		return new \ResponseData($lid);
 	}
@@ -221,7 +221,7 @@ class main extends \pl\fe\matter\base {
 		$app = $this->model('matter\lottery')->byId($lid);
 		/*记录操作日志*/
 		$app->type = 'lottery';
-		$this->model('log')->matterOp($site->id, $user, $app, 'C');
+		$this->model('matter\log')->matterOp($site->id, $user, $app, 'C');
 		/*记录和任务的关系*/
 		$modelMis->addMatter($user, $site, $id, $app);
 
@@ -254,7 +254,7 @@ class main extends \pl\fe\matter\base {
 		if ($rst) {
 			$app = $this->model('matter\lottery')->byId($app, 'id,title,summary,pic');
 			$app->type = 'lottery';
-			$this->model('log')->matterOp($site, $user, $app, 'U');
+			$this->model('matter\log')->matterOp($site, $user, $app, 'U');
 		}
 
 		return new \ResponseData($rst);

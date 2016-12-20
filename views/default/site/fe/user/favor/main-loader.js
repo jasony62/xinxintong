@@ -17,7 +17,7 @@ window.loading = {
 				},
 			},
 			deps: ['/views/default/site/fe/user/favor/main.js'],
-			urlArgs: "bust=" + (new Date()).getTime()
+			urlArgs: "bust=" + (new Date() * 1)
 		});
 	}
 };

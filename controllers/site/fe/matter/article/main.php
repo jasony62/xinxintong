@@ -123,8 +123,6 @@ class main extends \site\fe\matter\base {
 			/* 点了赞，再次点击，取消赞 */
 			$this->model()->delete('xxt_article_score', "article_id='$id' and userid='{$user->uid}'");
 			$this->model()->update("update xxt_article set score=score-$score where id='$id'");
-			$modelCoin = $this->model('site\coin\log');
-			$modelCoin->deduct($article, $user, 'site.matter.article.like');
 			$praised = false;
 			$article->score--;
 		} else {

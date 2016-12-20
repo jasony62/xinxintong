@@ -15,4 +15,13 @@ class coin_model extends \TMS_MODEL {
 
 		return $rules;
 	}
+	/**
+	 * 返回用于记录积分的文章创建人
+	 *
+	 * @param object $siteConfig
+	 */
+	public function getCreator($siteConfig) {
+		
+		return false;
+	}
 }

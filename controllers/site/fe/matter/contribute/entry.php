@@ -17,6 +17,25 @@ class entry extends \site\fe\base {
 		$user = $this->who;
 		$mine = array();
 		$members = $this->model('site\user\member')->byUser($site, $user->uid);
+		foreach ($members as $member) {
+			/**
+			 * 检查用户是否通过了验证
+			 */
+			$q = array(
+				'verified',
+				'xxt_site_member',
+				"siteid='$site' and id='$member->id'",
+			);
+			if ('Y' !== $this->model()->query_val_ss($q)) {
+				$r = $this->model('site\user\memberschema')->getNotpassStatement($member->schema_id, $site);
+				$protocol = isset($_SERVER['SERVER_PROTOCOL']) ? $_SERVER['SERVER_PROTOCOL'] : 'HTTP/1.0';
+				header($protocol . ' 401 Unauthorized');
+				\TPL::assign('title', '访问控制未通过');
+				\TPL::assign('body', $r);
+				\TPL::output('error');
+				exit;
+			}
+		}
 		if (!empty($members)) {
 			/**
 			 * 投稿活动

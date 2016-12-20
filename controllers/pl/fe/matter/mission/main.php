@@ -66,6 +66,8 @@ class main extends \pl\fe\matter\base {
 	}
 	/**
 	 * 新建任务
+	 *
+	 * @param string $site site'id
 	 */
 	public function create_action($site) {
 		if (false === ($user = $this->accountUser())) {
@@ -75,26 +77,25 @@ class main extends \pl\fe\matter\base {
 		$current = time();
 		$site = $this->model('site')->byId($site, ['fields' => 'id,heading_pic']);
 
-		$mission = array();
+		$mission = new \stdClass;
 		/*create empty mission*/
-		$mission['siteid'] = $site->id;
-		$mission['title'] = '新项目';
-		$mission['summary'] = '';
-		$mission['pic'] = $site->heading_pic;
-		$mission['creater'] = $user->id;
-		$mission['creater_src'] = $user->src;
-		$mission['creater_name'] = $user->name;
-		$mission['create_at'] = $current;
-		$mission['modifier'] = $user->id;
-		$mission['modifier_src'] = $user->src;
-		$mission['modifier_name'] = $user->name;
-		$mission['modify_at'] = $current;
-		$mission['state'] = 1;
-		$mission['id'] = $this->model()->insert('xxt_mission', $mission, true);
+		$mission->siteid = $site->id;
+		$mission->title = '新项目';
+		$mission->summary = '';
+		$mission->pic = $site->heading_pic;
+		$mission->creater = $user->id;
+		$mission->creater_src = $user->src;
+		$mission->creater_name = $user->name;
+		$mission->create_at = $current;
+		$mission->modifier = $user->id;
+		$mission->modifier_src = $user->src;
+		$mission->modifier_name = $user->name;
+		$mission->modify_at = $current;
+		$mission->state = 1;
+		$mission->id = $this->model()->insert('xxt_mission', $mission, true);
 		/*记录操作日志*/
-		$matter = (object) $mission;
-		$matter->type = 'mission';
-		$this->model('log')->matterOp($site->id, $user, $matter, 'C');
+		$mission->type = 'mission';
+		$this->model('matter\log')->matterOp($site->id, $user, $mission, 'C');
 		/**
 		 * 建立缺省的ACL
 		 * @todo 是否应该挪到消息队列中实现
@@ -104,18 +105,22 @@ class main extends \pl\fe\matter\base {
 		$coworker = new \stdClass;
 		$coworker->id = $user->id;
 		$coworker->label = $user->name;
-		$modelAcl->add($user, $matter, $coworker, 'O');
+		$modelAcl->add($user, $mission, $coworker, 'O');
 		/*站点的系统管理员加入ACL*/
-		$modelAcl->addSiteAdmin($site->id, $user, null, $matter);
+		$modelAcl->addSiteAdmin($site->id, $user, null, $mission);
 
 		/*返回结果*/
-		$mission = $this->model('matter\mission')->byId($mission['id']);
+		$mission = $this->model('matter\mission')->byId($mission->id);
 
-		return new \ResponseData($matter);
+		return new \ResponseData($mission);
 	}
 	/**
-	 * 删除任务
-	 * 只有任务的创建人才能删除任务，任务合作者删除任务时，只是将自己从acl列表中移除
+	 *
+	 * 删除项目
+	 * 只有任务的创建人和项目所在团队的管理员才能删除任务，任务合作者删除任务时，只是将自己从acl列表中移除
+	 *
+	 * @param string $site site'id
+	 * @param int $id mission'id
 	 */
 	public function remove_action($site, $id) {
 		if (false === ($user = $this->accountUser())) {
@@ -128,7 +133,8 @@ class main extends \pl\fe\matter\base {
 		$modelAcl = $this->model('matter\mission\acl');
 		$acl = $modelAcl->byCoworker($mission->id, $user->id);
 
-		if (in_array($acl->coworker_role, array('O', 'A'))) {
+		if (in_array($acl->coworker_role, ['O', 'A'])) {
+			/* 当前用户是项目的创建者或者团队管理员 */
 			$q = [
 				'count(*)',
 				'xxt_mission_matter',
@@ -139,24 +145,25 @@ class main extends \pl\fe\matter\base {
 			if ($cnt > 0) {
 				/* 如果已经素材，就只打标记 */
 				$rst = $modelMis->update('xxt_mission', ['state' => 0], ["id" => $id]);
-				$this->model('log')->matterOp($mission->siteid, $user, $mission, 'Recycle');
+				$this->model('matter\log')->matterOp($mission->siteid, $user, $mission, 'Recycle');
 			} else {
 				/* 清空任务的ACL */
 				$modelAcl->removeMission($mission);
 				/* 删除数据 */
-				/* 清除数据 */
 				$modelMis->delete('xxt_mission_phase', ["mission_id" => $id]);
 				$rst = $modelMis->delete('xxt_mission', ["id" => $id]);
-				$this->model('log')->matterOp($mission->siteid, $user, $mission, 'D');
+				$this->model('matter\log')->matterOp($mission->siteid, $user, $mission, 'D');
 			}
 		} else {
 			/* 从访问列表中移除当前用户 */
 			$coworker = new \stdClass;
 			$coworker->id = $user->id;
 			$modelAcl->removeCoworker($mission, $coworker);
+			/* 更新用户的操作日志 */
+			$this->model('matter\log')->matterOp($mission->siteid, $user, $mission, 'Quit');
 		}
 
-		return new \ResponseData($rst);
+		return new \ResponseData('ok');
 	}
 	/**
 	 * 恢复被删除的项目

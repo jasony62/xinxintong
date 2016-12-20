@@ -96,7 +96,7 @@ class main extends \pl\fe\matter\base {
 		$matter = (object) $channel;
 		$matter->id = $id;
 		$matter->type = 'channel';
-		$this->model('log')->matterOp($site, $user, $matter, 'C');
+		$this->model('matter\log')->matterOp($site, $user, $matter, 'C');
 
 		$channel = $this->model('matter\channel')->byId($id);
 
@@ -128,7 +128,7 @@ class main extends \pl\fe\matter\base {
 		if ($rst) {
 			$channel = $this->model('matter\\' . 'channel')->byId($id, 'id,title');
 			$channel->type = 'channel';
-			$this->model('log')->matterOp($site, $user, $channel, 'U');
+			$this->model('matter\log')->matterOp($site, $user, $channel, 'U');
 		}
 
 		return new \ResponseData($rst);

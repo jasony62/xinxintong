@@ -31,7 +31,7 @@ class main extends mp_controller {
 	 * 列出最近操作的素材
 	 */
 	public function recentMatters_action() {
-		$modelLog = $this->model('log');
+		$modelLog = $this->model('matter\log');
 		$matters = $modelLog->recentMatters($this->mpid);
 
 		return new \ResponseData($matters);

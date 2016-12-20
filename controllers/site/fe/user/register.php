@@ -26,6 +26,7 @@ class register extends \site\fe\base {
 	 * @param string $siteid
 	 */
 	public function do_action() {
+		$user = $this->who;
 		$data = $this->getPostJson();
 		if (empty($data->uname) || empty($data->password)) {
 			return new \ResponseError("登录信息不完整");
@@ -41,12 +42,13 @@ class register extends \site\fe\base {
 		$password = $data->password;
 		/*options*/
 		$options = array(
-			'uid' => $this->who->uid,
+			'uid' => $user->uid,
 			'from_ip' => $this->client_ip(),
 		);
 		/*nickname*/
 		if (isset($data->nickname)) {
 			$options['nickname'] = $data->nickname;
+			$user->nickname = $data->nickname;
 		}
 		/*create account*/
 		$modelAct->create($this->siteId, $uname, $password, $options);
@@ -61,15 +63,12 @@ class register extends \site\fe\base {
 		/**
 		 * coin log
 		 */
-		$user = $this->who;
 		$siteConfig = $this->model('site')->byId($this->siteId);
-		$matter = new \stdClass;
-		$matter->id = $this->siteId;
-		$matter->type = 'site';
-		$matter->title = $siteConfig->name;
-		$matter->siteid = $this->siteId;
+		$siteConfig->type = 'site';
+		$siteConfig->title = $siteConfig->name;
+		$siteConfig->siteid = $this->siteId;
 		$modelCoin = $this->model('site\coin\log');
-		$modelCoin->award($matter, $user, 'site.user.register');
+		$modelCoin->award($siteConfig, $user, 'site.user.register');
 
 		return new \ResponseData($cookieUser);
 	}

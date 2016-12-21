@@ -155,7 +155,7 @@ class main extends \pl\fe\matter\base {
 		/* 记录操作日志 */
 		$matter = $link;
 		$matter->type = 'link';
-		$this->model('log')->matterOp($site->id, $user, $matter, 'C');
+		$this->model('matter\log')->matterOp($site->id, $user, $matter, 'C');
 
 		return new \ResponseData($link);
 	}
@@ -181,7 +181,7 @@ class main extends \pl\fe\matter\base {
 		/*记录操作日志*/
 		$link = $this->model('matter\link')->byId($id, 'id,title,summary,pic');
 		$link->type = 'link';
-		$this->model('log')->matterOp($site, $user, $link, 'D');
+		$this->model('matter\log')->matterOp($site, $user, $link, 'D');
 
 		return new \ResponseData($rst);
 	}
@@ -207,7 +207,7 @@ class main extends \pl\fe\matter\base {
 		/*记录操作日志*/
 		$link = $this->model('matter\link')->byId($id, 'id,title,summary,pic');
 		$link->type = 'link';
-		$this->model('log')->matterOp($site, $user, $link, 'U');
+		$this->model('matter\log')->matterOp($site, $user, $link, 'U');
 
 		return new \ResponseData($ret);
 	}

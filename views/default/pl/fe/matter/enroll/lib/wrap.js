@@ -542,7 +542,7 @@ define([], function() {
             config: {
                 id: 'V' + (new Date() * 1),
                 pattern: 'record',
-                inline: 'Y',
+                inline: 'N',
                 splitLine: 'Y',
             },
             schema: schema

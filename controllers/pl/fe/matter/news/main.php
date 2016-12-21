@@ -100,7 +100,7 @@ class main extends \pl\fe\matter\base {
 		if ($rst) {
 			$news = $this->model('matter\\' . 'news')->byId($id, 'id,title');
 			$news->type = 'news';
-			$this->model('log')->matterOp($site, $user, $news, 'U');
+			$this->model('matter\log')->matterOp($site, $user, $news, 'U');
 		}
 
 		return new \ResponseData($rst);
@@ -166,7 +166,7 @@ class main extends \pl\fe\matter\base {
 		$matter = (object) $news;
 		$matter->id = $id;
 		$matter->type = 'news';
-		$this->model('log')->matterOp($site, $user, $matter, 'C');
+		$this->model('matter\log')->matterOp($site, $user, $matter, 'C');
 
 		$news = $this->model('matter\news')->byId($id);
 

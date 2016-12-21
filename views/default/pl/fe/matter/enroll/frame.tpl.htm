@@ -30,7 +30,7 @@
                     </div>
                 </form>
                 <ul class="nav navbar-nav navbar-left">
-                    <li ng-if="app.mission"><a href="/rest/pl/fe/matter/mission?site={{siteId}}&id={{app.mission.id}}" target='_self'>返回项目</a></li>
+                    <li ng-if="app.mission"><a href="/rest/pl/fe/matter/mission?site={{siteId}}&id={{app.mission.id}}" target='_self' title="{{app.mission.title}}">所属项目</a></li>
                 </ul>
                 <form class='navbar-form navbar-left'>
                     <div ng-if="subView==='publish'">

@@ -31,7 +31,6 @@ define(['require', 'angular'], function(require, angular) {
             });
         };
         $scope.list();
-        loadCss("https://res.wx.qq.com/open/libs/weui/0.3.0/weui.min.css");
         window.loading.finish();
     }]);
 });

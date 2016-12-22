@@ -7,6 +7,11 @@ body{background:#f8f8f8;padding-top:71px;}
 .help-block{margin-bottom:0;}
 .tile .form-group:last-child{margin-bottom:0;}
 
+/* coin */
+tbody > tr:nth-child(3) > td:nth-child(3) > input {
+  visibility: hidden;
+}
+
 /*tinymce*/
 div.mce-tinymce.mce-container.mce-panel{margin-top:0;border:1px solid #ccc;}
 div.mce-tinymce.mce-container.mce-panel.mce-fullscreen{margin-top:51px}

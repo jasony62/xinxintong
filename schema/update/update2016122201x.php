@@ -12,6 +12,11 @@ $sqls[] = "alter table xxt_group_player add yx_openid varchar(255) not null defa
 $sqls[] = "alter table xxt_group_player add qy_openid varchar(255) not null default '' after yx_openid ";
 $sqls[] = "alter table xxt_group_player add headimgurl varchar(255) not null default '' after qy_openid ";
 
+$sqls[] = "alter table xxt_signin_record add wx_openid varchar(255) not null default '' after nickname ";
+$sqls[] = "alter table xxt_signin_record add yx_openid varchar(255) not null default '' after wx_openid ";
+$sqls[] = "alter table xxt_signin_record add qy_openid varchar(255) not null default '' after yx_openid ";
+$sqls[] = "alter table xxt_signin_record add headimgurl varchar(255) not null default '' after qy_openid ";
+
 //
 foreach ($sqls as $sql) {
 	if (!$mysqli->query($sql)) {

@@ -102,7 +102,7 @@ define(["angular", "xxt-page", "tms-discuss", "enroll-directive"], function(angu
                 window.shareCounter = 0;
                 window.xxt.share.options.logger = function(shareto) {
                     var app, url;
-                    app = scope.App;
+                    app = scope.app;
                     url = "/rest/site/fe/matter/logShare";
                     url += "?shareid=" + window.shareid;
                     url += "&site=" + LS.p.site;

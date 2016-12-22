@@ -54,16 +54,21 @@ table th,table td,table.mce-item-table th,table.mce-item-table td{border-left:1p
 #gototop{position:fixed;bottom:8px;right:15px;width:48px;height:48px;background:rgba(192,192,192,0.5);border-radius:4px;color:#666;font-size:24px;line-height:48px;text-align:center;cursor:pointer;}
 #gototop:before{content:'顶部';font-size:0.7em;}
 
+/*favor switch*/
+.tms-favor-switch{position:fixed;bottom:64px;right:15px;width:48px;height:48px;background:rgba(192,192,192,0.5);border-radius:4px;color:#666;font-size:24px;line-height:48px;text-align:center;cursor:pointer;}
+.tms-favor-switch:before{content:'收藏';font-size:0.7em;}
+.tms-favor-switch.favored{background:rgba(132,255,192,0.5);}
+
 /*discuss switch*/
-.tms-discuss-switch{position:fixed;bottom:64px;right:15px;width:48px;height:48px;background:rgba(192,192,192,0.5);border-radius:4px;color:#666;font-size:24px;line-height:48px;text-align:center;cursor:pointer;}
+.tms-discuss-switch{position:fixed;bottom:120px;right:15px;width:48px;height:48px;background:rgba(192,192,192,0.5);border-radius:4px;color:#666;font-size:24px;line-height:48px;text-align:center;cursor:pointer;}
 .tms-discuss-switch:before{content:'留言';font-size:0.7em;}
 
 /*coinpay switch*/
-.tms-coinpay-switch{position:fixed;bottom:120px;right:15px;width:48px;height:48px;background:rgba(192,192,192,0.5);border-radius:4px;color:#666;font-size:24px;line-height:48px;text-align:center;cursor:pointer;}
+.tms-coinpay-switch{position:fixed;bottom:176px;right:15px;width:48px;height:48px;background:rgba(192,192,192,0.5);border-radius:4px;color:#666;font-size:24px;line-height:48px;text-align:center;cursor:pointer;}
 .tms-coinpay-switch:before{content:'打赏';font-size:0.7em;}
 
 /*siteusre switch*/
-.tms-siteuser-switch{position:fixed;bottom:176px;right:15px;width:48px;height:48px;background:rgba(192,192,192,0.5);border-radius:4px;color:#666;font-size:24px;line-height:48px;text-align:center;cursor:pointer;}
+.tms-siteuser-switch{position:fixed;bottom:236px;right:15px;width:48px;height:48px;background:rgba(192,192,192,0.5);border-radius:4px;color:#666;font-size:24px;line-height:48px;text-align:center;cursor:pointer;}
 .tms-siteuser-switch:before{content:'我';font-size:0.7em;}
 
 /*picviewer*/

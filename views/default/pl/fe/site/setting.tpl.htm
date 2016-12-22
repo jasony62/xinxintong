@@ -6,24 +6,21 @@
         <link href="/static/css/bootstrap.min.css" rel="stylesheet">
         <link href="/static/css/tms.css" rel="stylesheet">
         <link href="/views/default/pl/fe/site/setting.css" rel="stylesheet">
-        <title>我的站点</title>
+        <title>团队——设置</title>
     </head>
     <body ng-controller='ctrlSite'>
         <nav class='navbar navbar-default'>
             <div class='container'>
-                <ul class='nav navbar-nav'>
-                    <li><a href='/rest/pl/fe' target='_self'>我的首页</a></li>
-                </ul>
+                <div class='navbar-header'>
+                    <a class='navbar-brand' href='/rest/pl/fe' target='_self'><i class='glyphicon glyphicon-chevron-left'></i> 我的工作台</a>
+                </div>
                 <ul class='nav navbar-nav site'>
                     <li><a href='/rest/pl/fe/site/console?site={{siteId}}' target='_self'>工作台</a></li>
+                    <li><a href='/rest/pl/fe/site/coworker?site={{siteId}}' target='_self'>成员</a></li>
                     <li><a href='/rest/pl/fe/site/user?site={{siteId}}' target='_self'>用户</a></li>
                     <li><a href='/rest/pl/fe/template/site?site={{siteId}}' target='_self'>模板库</a></li>
                     <li><a href='/rest/pl/fe/file?site={{siteId}}' target='_self'>图片库</a></li>
-                    <li class='active'><a href='/rest/pl/fe/site/setting?site={{siteId}}'>站点设置</a></li>
-                </ul>
-                <ul class='nav navbar-nav navbar-right'>
-                    <li><a href='/page/pl/fe/user/settings' target='_self'>用户设置</a></li>
-                    <li><a href='/rest/pl/fe/user/logout' target='_self'>退出</a></li>
+                    <li class='active'><a href='/rest/pl/fe/site/setting?site={{siteId}}'>团队设置</a></li>
                 </ul>
             </div>
         </nav>

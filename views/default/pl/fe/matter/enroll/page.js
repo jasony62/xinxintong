@@ -302,7 +302,7 @@ define(['frame', 'schema', 'editor'], function(ngApp, schemaLib, editorProxy) {
 					}
 					// 加到当前选中元素的后面
 					matters.forEach(function(matter) {
-						fn = "openMatter(" + matter.id + ",'" + type + "')";
+						fn = "openMatter('" + matter.id + "','" + type + "')";
 						domMatter = dom.create('div', {
 							'wrap': 'matter',
 							'class': 'form-group',

@@ -15,23 +15,24 @@ class setting extends \pl\fe\matter\base {
 		}
 
 		$modelMis = $this->model('matter\mission');
-		$mission = $modelMis->byId($id, 'id,siteid,title,summary,pic');
-		/*data*/
+		/* data */
 		$nv = $this->getPostJson();
 
 		if (isset($nv->extattrs)) {
 			$nv->extattrs = $modelMis->escape($modelMis->toJson($nv->extattrs));
 		}
-		/*modifier*/
+		/* modifier */
 		$nv->modifier = $user->id;
 		$nv->modifier_src = $user->src;
 		$nv->modifier_name = $modelMis->escape($user->name);
 		$nv->modify_at = time();
-		/*update*/
+
+		/* update */
 		$rst = $modelMis->update('xxt_mission', $nv, ["id" => $id]);
 		if ($rst) {
+			$mission = $modelMis->byId($id, 'id,siteid,title,summary,pic');
 			/*记录操作日志*/
-			$this->model('log')->matterOp($mission->siteid, $user, $mission, 'U');
+			$this->model('matter\log')->matterOp($mission->siteid, $user, $mission, 'U');
 			/*更新acl*/
 			$mission = $this->model('matter\mission\acl')->updateMission($mission);
 		}

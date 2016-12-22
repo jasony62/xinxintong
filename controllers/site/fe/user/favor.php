@@ -46,23 +46,23 @@ class favor extends \site\fe\base {
 	public function add_action($id, $type, $title) {
 		$model = $this->model();
 		$userid = $this->who->uid;
-		$q = array(
+		$q = [
 			'id',
 			'xxt_site_favor',
 			"siteid='$this->siteId' and userid='$userid' and matter_id='$id' and matter_type='$type'",
-		);
+		];
 		if (false === $model->query_obj_ss($q)) {
-			$log = array(
-				'site_id' => $this->siteId,
+			$log = [
+				'siteid' => $this->siteId,
 				'userid' => $this->who->uid,
-				'nickname' => empty($this->who->nickname) ? '' : $this->who->nickname,
+				'nickname' => empty($this->who->nickname) ? '' : $model->escape($this->who->nickname),
 				'favor_at' => time(),
 				'matter_id' => $id,
 				'matter_type' => $type,
-				'matter_title' => $title,
-			);
+				'matter_title' => $model->escape($title),
+			];
 
-			$id = $this->model()->insert('xxt_site_favor', $log, false);
+			$id = $model->insert('xxt_site_favor', $log, true);
 
 			return new \ResponseData($id);
 		} else {
@@ -70,13 +70,29 @@ class favor extends \site\fe\base {
 		}
 	}
 	/**
+	 * 检查用户是否收藏了指定素材
+	 */
+	public function byUser_action($id, $type) {
+		$model = $this->model();
+		$userid = $this->who->uid;
+		$q = [
+			'id,favor_at',
+			'xxt_site_favor',
+			"siteid='$this->siteId' and userid='$userid' and matter_id='$id' and matter_type='$type'",
+		];
+		$log = $model->query_obj_ss($q);
+
+		return new \ResponseData($log);
+	}
+	/**
 	 * 取消收藏
 	 */
-	public function remove_action($id) {
+	public function remove_action($id, $type) {
 		$userid = $this->who->uid;
+
 		$rst = $this->model()->delete(
 			'xxt_site_favor',
-			"siteid='$this->siteId' and userid='$userid' and id=$id"
+			"siteid='$this->siteId' and userid='$userid' and matter_id='$id' and matter_type='$type'"
 		);
 
 		return new \ResponseData($rst);

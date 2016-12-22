@@ -92,7 +92,7 @@ if (!$mysqli->query($sql)) {
 	echo 'database error: ' . $mysqli->error;
 }
 /**
- * 文章评论
+ * 文章评论（should be removed）
  */
 $sql = "create table if not exists xxt_article_remark(";
 $sql .= "id int not null auto_increment";
@@ -112,7 +112,7 @@ if (!$mysqli->query($sql)) {
 	echo 'database error: ' . $mysqli->error;
 }
 /**
- * 文章评分
+ * 文章评分（should be removed）
  */
 $sql = "create table if not exists xxt_article_score(";
 $sql .= "id int not null auto_increment";

@@ -36,7 +36,7 @@ class main extends \pl\fe\matter\base {
 	/**
 	 *
 	 */
-	public function get_action($id = null, $src = null,$site) {
+	public function get_action($id = null, $src = null, $site) {
 		$w = $this->model('matter\wall')->byId($id, '*');
 		/**
 		 * acl
@@ -48,7 +48,7 @@ class main extends \pl\fe\matter\base {
 	/**
 	 *
 	 */
-	public function list_action($src = null,$site) {
+	public function list_action($src = null, $site) {
 		$q = array('*', 'xxt_wall');
 		$q[2] = "siteid='$site'";
 		$q2['o'] = 'create_at desc';
@@ -78,11 +78,11 @@ class main extends \pl\fe\matter\base {
 	/**
 	 * submit basic.
 	 */
-	public function update_action($site,$app) {
+	public function update_action($site, $app) {
 		if (false === ($user = $this->accountUser())) {
 			return new \ResponseTimeout();
 		}
-		
+
 		$nv = $this->getPostJson();
 		if (isset($nv->title)) {
 			$nv->title = $this->model()->escape($nv->title);
@@ -103,9 +103,9 @@ class main extends \pl\fe\matter\base {
 		if ($rst) {
 			$matter = $this->model('matter\wall')->byId($app, 'id,title,summary,pic');
 			$matter->type = 'wall';
-			$this->model('log')->matterOp($site, $user, $matter, 'U');
+			$this->model('matter\log')->matterOp($site, $user, $matter, 'U');
 		}
 
 		return new \ResponseData($rst);
-	}	
+	}
 }

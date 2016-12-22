@@ -377,7 +377,7 @@ class article extends matter_ctrl {
 		$matter = (object) $article;
 		$matter->id = $id;
 		$matter->type = 'article';
-		$this->model('log')->matterOp($this->mpid, $user, $matter, 'C');
+		$this->model('matter\log')->matterOp($this->mpid, $user, $matter, 'C');
 
 		return new \ResponseData($id);
 	}
@@ -413,7 +413,7 @@ class article extends matter_ctrl {
 		$matter = (object) $article;
 		$matter->id = $articleId;
 		$matter->type = 'article';
-		$this->model('log')->matterOp($this->mpid, $user, $matter, 'C');
+		$this->model('matter\log')->matterOp($this->mpid, $user, $matter, 'C');
 		/*记录和任务的关系*/
 		$modelMis->addMatter($user, $this->mpid, $id, $matter);
 
@@ -689,7 +689,7 @@ class article extends matter_ctrl {
 			$matter = (object) $article;
 			$matter->id = $id;
 			$matter->type = 'article';
-			$this->model('log')->matterOp($this->mpid, $user, $matter, 'C');
+			$this->model('matter\log')->matterOp($this->mpid, $user, $matter, 'C');
 
 			return new \ResponseData($id);
 		} else {
@@ -728,7 +728,7 @@ class article extends matter_ctrl {
 			$user = $this->accountUser();
 			$article = $this->model('matter\\' . 'article')->byId($id, 'id,title,summary,pic');
 			$article->type = 'article';
-			$this->model('log')->matterOp($this->mpid, $user, $article, 'D');
+			$this->model('matter\log')->matterOp($this->mpid, $user, $article, 'D');
 		}
 
 		return new \ResponseData($rst);
@@ -825,7 +825,7 @@ class article extends matter_ctrl {
 		/*记录操作日志*/
 		$article = $this->model('matter\\' . 'article')->byId($id, 'id,title,summary,pic');
 		$article->type = 'article';
-		$rst = $this->model('log')->matterOp($this->mpid, $user, $article, 'U');
+		$rst = $this->model('matter\log')->matterOp($this->mpid, $user, $article, 'U');
 
 		return $rst;
 	}

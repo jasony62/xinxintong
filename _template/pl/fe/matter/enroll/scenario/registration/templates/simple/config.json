@@ -69,7 +69,7 @@
 			"config": {
 				"id": "V1",
 				"pattern": "record",
-				"inline": "Y",
+				"inline": "N",
 				"splitLine": "Y"
 			},
 			"schema": {
@@ -81,7 +81,7 @@
 			"config": {
 				"id": "V2",
 				"pattern": "record",
-				"inline": "Y",
+				"inline": "N",
 				"splitLine": "Y"
 			},
 			"schema": {
@@ -93,7 +93,7 @@
 			"config": {
 				"id": "V3",
 				"pattern": "record",
-				"inline": "Y",
+				"inline": "N",
 				"splitLine": "Y"
 			},
 			"schema": {
@@ -105,7 +105,7 @@
 			"config": {
 				"id": "V4",
 				"pattern": "record",
-				"inline": "Y",
+				"inline": "N",
 				"splitLine": "Y"
 			},
 			"schema": {
@@ -117,7 +117,7 @@
 			"config": {
 				"id": "V5",
 				"pattern": "record",
-				"inline": "Y",
+				"inline": "N",
 				"splitLine": "Y"
 			},
 			"schema": {
@@ -129,7 +129,7 @@
 			"config": {
 				"id": "V6",
 				"pattern": "record",
-				"inline": "Y",
+				"inline": "N",
 				"splitLine": "Y"
 			},
 			"schema": {

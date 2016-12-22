@@ -143,7 +143,7 @@ class main extends \mp\app\app_base {
 		$app = $this->model('app\enroll')->byId($aid);
 		/*记录操作日志*/
 		$app->type = 'enroll';
-		$this->model('log')->matterOp($this->mpid, $user, $app, 'C');
+		$this->model('matter\log')->matterOp($this->mpid, $user, $app, 'C');
 
 		return new \ResponseData($app);
 	}
@@ -179,7 +179,7 @@ class main extends \mp\app\app_base {
 		$matter = $this->model('app\enroll')->byId($aid);
 		/*记录操作日志*/
 		$matter->type = 'enroll';
-		$this->model('log')->matterOp($this->mpid, $user, $matter, 'C');
+		$this->model('matter\log')->matterOp($this->mpid, $user, $matter, 'C');
 		/*记录和任务的关系*/
 		$modelMis->addMatter($user, $this->mpid, $id, $matter);
 
@@ -367,7 +367,7 @@ class main extends \mp\app\app_base {
 		$app = $modelApp->byId($newaid, array('cascaded' => 'N'));
 		/*记录操作日志*/
 		$app->type = 'enroll';
-		$this->model('log')->matterOp($this->mpid, $user, $app, 'C');
+		$this->model('matter\log')->matterOp($this->mpid, $user, $app, 'C');
 
 		return new \ResponseData($app);
 	}
@@ -484,7 +484,7 @@ class main extends \mp\app\app_base {
 		$app = $modelApp->byId($newaid, array('cascaded' => 'N'));
 		/*记录操作日志*/
 		$app->type = 'enroll';
-		$this->model('log')->matterOp($this->mpid, $user, $app, 'C');
+		$this->model('matter\log')->matterOp($this->mpid, $user, $app, 'C');
 
 		return new \ResponseData($app);
 	}
@@ -521,7 +521,7 @@ class main extends \mp\app\app_base {
 		if ($rst) {
 			$app = $this->model('matter\\' . 'enroll')->byId($aid, 'id,title,summary,pic');
 			$app->type = 'enroll';
-			$this->model('log')->matterOp($this->mpid, $user, $app, 'U');
+			$this->model('matter\log')->matterOp($this->mpid, $user, $app, 'U');
 		}
 
 		return new \ResponseData($rst);
@@ -584,7 +584,7 @@ class main extends \mp\app\app_base {
 		/*记录操作日志*/
 		$user = $this->accountUser();
 		$app->type = 'enroll';
-		$this->model('log')->matterOp($this->mpid, $user, $app, 'D');
+		$this->model('matter\log')->matterOp($this->mpid, $user, $app, 'D');
 
 		return new \ResponseData($rst);
 	}

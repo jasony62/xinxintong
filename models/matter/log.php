@@ -314,7 +314,7 @@ class log_model extends \TMS_MODEL {
 	 *
 	 * @param string $siteId
 	 * @param object $user
-	 * @param object $matter
+	 * @param object $matter(type,id,title,summary,pic,scenario)
 	 * @param string $op
 	 * @param object|string $data
 	 */
@@ -328,7 +328,7 @@ class log_model extends \TMS_MODEL {
 
 		// 更新已有记录状态
 		$current = time();
-		if ($op === 'D') {
+		if ($op === 'D' || $op === 'Recycle') {
 			/* 如果是删除操作，将所有进行过操作的人的最后一次操作都修改为不是最后一次，实现素材对所有人都不可见 */
 			$d = [
 				'last_op' => 'N',
@@ -339,7 +339,7 @@ class log_model extends \TMS_MODEL {
 				"matter_type='$matter->type' and matter_id='$matter->id' and last_op='Y'"
 			);
 		} else if ($op !== 'C') {
-			/* 更新操作，需要将之前的操作设置为非最后操作 */
+			/* 更新操作记录，需要将之前的操作设置为非最后操作 */
 			$this->update(
 				'xxt_log_matter_op',
 				[
@@ -347,15 +347,15 @@ class log_model extends \TMS_MODEL {
 				],
 				"siteid='$siteId' and matter_type='$matter->type' and matter_id='$matter->id' and last_op='Y'"
 			);
-			/*更新用户的最后一次操作*/
-			$this->update(
-				'xxt_log_matter_op',
-				[
-					'user_last_op' => 'N',
-				],
-				"siteid='$siteId' and operator='{$user->id}' and matter_type='$matter->type' and matter_id='$matter->id' and user_last_op='Y'"
-			);
 		}
+		/* 更新当前用户的最后一次操作记录 */
+		$this->update(
+			'xxt_log_matter_op',
+			[
+				'user_last_op' => 'N',
+			],
+			"siteid='$siteId' and operator='{$user->id}' and matter_type='$matter->type' and matter_id='$matter->id' and user_last_op='Y'"
+		);
 		// 记录新日志，或更新日志
 		if ($userLastLog === false || $current > $userLastLog->operate_at + 600) {
 			/* 两次更新操作的间隔超过10分钟，产生新日志 */
@@ -410,9 +410,12 @@ class log_model extends \TMS_MODEL {
 		return $logid;
 	}
 	/**
-	 * 站点内最近操作的素材
+	 * 团队内最近操作的素材
+	 * 是团队创建的素材，且素材的最后一次操作不是删除或放入回收站
+	 *
+	 * @param string $siteId
 	 */
-	public function &recentMatters($siteId, $options = array()) {
+	public function &recentMatters($siteId, $options = []) {
 		$fields = empty($options['fields']) ? '*' : $options['fields'];
 		if (empty($options['page'])) {
 			$page = new \stdClass;
@@ -426,6 +429,49 @@ class log_model extends \TMS_MODEL {
 			'xxt_log_matter_op',
 			"siteid='$siteId' and last_op='Y' and operation<>'D' and operation<>'Recycle'",
 		];
+		$q2 = [
+			'r' => ['o' => ($page->at - 1) * $page->size, 'l' => $page->size],
+			'o' => ['operate_at desc'],
+		];
+
+		$matters = $this->query_objs_ss($q, $q2);
+		$result = ['matters' => $matters];
+		if (empty($matters)) {
+			$result['total'] = 0;
+		} else {
+			$q[0] = 'count(*)';
+			$result['total'] = $this->query_val_ss($q);
+		}
+
+		return $result;
+	}
+	/**
+	 * 指定用户最近操作的素材
+	 * 用户做过操作，且最后一次操作不是删除操作
+	 *
+	 * @param object $user
+	 * @param array $options(fields,page)
+	 */
+	public function &recentMattersByUser(&$user, $options = []) {
+		$fields = empty($options['fields']) ? '*' : $options['fields'];
+		if (empty($options['page'])) {
+			$page = new \stdClass;
+			$page->at = 1;
+			$page->size = 30;
+		} else {
+			$page = $options['page'];
+		}
+		$q = [
+			$fields,
+			'xxt_log_matter_op',
+			"operator='{$user->id}' and user_last_op='Y' and (operation<>'D' and operation<>'Recycle' and operation<>'Quit')",
+		];
+		if (isset($options['matterType'])) {
+			$q[2] .= " and matter_type='" . $options['matterType'] . "'";
+		}
+		if (isset($options['scenario'])) {
+			$q[2] .= " and matter_scenario='" . $options['scenario'] . "'";
+		}
 		$q2 = [
 			'r' => ['o' => ($page->at - 1) * $page->size, 'l' => $page->size],
 			'o' => ['operate_at desc'],
@@ -459,45 +505,6 @@ class log_model extends \TMS_MODEL {
 			'xxt_log_matter_op',
 			"siteid='$siteId' and last_op='Y' and operation='Recycle'",
 		];
-		$q2 = [
-			'r' => ['o' => ($page->at - 1) * $page->size, 'l' => $page->size],
-			'o' => ['operate_at desc'],
-		];
-
-		$matters = $this->query_objs_ss($q, $q2);
-		$result = ['matters' => $matters];
-		if (empty($matters)) {
-			$result['total'] = 0;
-		} else {
-			$q[0] = 'count(*)';
-			$result['total'] = $this->query_val_ss($q);
-		}
-
-		return $result;
-	}
-	/**
-	 * 指定用户最近操作的素材
-	 */
-	public function &recentMattersByUser(&$user, $options = array()) {
-		$fields = empty($options['fields']) ? '*' : $options['fields'];
-		if (empty($options['page'])) {
-			$page = new \stdClass;
-			$page->at = 1;
-			$page->size = 30;
-		} else {
-			$page = $options['page'];
-		}
-		$q = [
-			$fields,
-			'xxt_log_matter_op',
-			"operator='{$user->id}' and user_last_op='Y' and operation<>'D'",
-		];
-		if (isset($options['matterType'])) {
-			$q[2] .= " and matter_type='" . $options['matterType'] . "'";
-		}
-		if (isset($options['scenario'])) {
-			$q[2] .= " and matter_scenario='" . $options['scenario'] . "'";
-		}
 		$q2 = [
 			'r' => ['o' => ($page->at - 1) * $page->size, 'l' => $page->size],
 			'o' => ['operate_at desc'],

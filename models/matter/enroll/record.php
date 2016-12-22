@@ -52,7 +52,7 @@ class record_model extends \TMS_MODEL {
 				foreach ($entryRule->sns as $snsName => $rule) {
 					if (isset($user->sns->{$snsName})) {
 						$record['nickname'] = $this->escape($user->sns->{$snsName}->nickname);
-						$record['headimgurl'] = $this->escape($user->sns->{$snsName}->headimgurl);
+						$record['headimgurl'] = $user->sns->{$snsName}->headimgurl;
 						break;
 					}
 				}

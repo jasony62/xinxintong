@@ -44,6 +44,7 @@ class record_model extends \TMS_MODEL {
 				$record['wx_openid'] = $userOpenids->wx_openid;
 				$record['yx_openid'] = $userOpenids->yx_openid;
 				$record['qy_openid'] = $userOpenids->qy_openid;
+				$record['headimgurl'] = $userOpenids->headimgurl;
 			}
 
 			$this->insert('xxt_signin_record', $record, false);

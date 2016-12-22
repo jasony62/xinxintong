@@ -142,7 +142,7 @@ class main extends \site\fe\matter\base {
 			$article->score++;
 			/**
 			 * coin log
-			 * 用户a阅读b的投稿两个人都奖励积分
+			 * 用户a点赞b的投稿两个人都奖励积分
 			 */
 			$modelCoin = $this->model('site\coin\log');
 			$modelCoin->award($article, $user, 'site.matter.article.like');

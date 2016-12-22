@@ -278,6 +278,11 @@ class main extends \pl\fe\matter\base {
 		$app->type = 'enroll';
 		$this->model('matter\log')->matterOp($site, $user, $app, 'C');
 
+		/* 记录和任务的关系 */
+		if (isset($mission->id)) {
+			$modelMis->addMatter($user, $site, $mission->id, $app);
+		}
+
 		/* 支付积分 */
 		if ($template->coin) {
 			$modelCoin = $this->model('pl\coin\log');

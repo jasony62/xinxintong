@@ -65,11 +65,13 @@ class record_model extends \TMS_MODEL {
 			}
 		}
 
-		$userOpenids = $this->model('site\user\account')->byId($user->uid,array('fields'=>'wx_openid,yx_openid,qy_openid'));
-		if($userOpenids){
-			$record['wx_openid'] = $userOpenids->wx_openid;
-			$record['yx_openid'] = $userOpenids->yx_openid;
-			$record['qy_openid'] = $userOpenids->qy_openid;
+		if(!empty($user)){
+			$userOpenids = $this->model('site\user\account')->byId($user->uid,array('fields'=>'wx_openid,yx_openid,qy_openid'));
+			if($userOpenids){
+				$record['wx_openid'] = $userOpenids->wx_openid;
+				$record['yx_openid'] = $userOpenids->yx_openid;
+				$record['qy_openid'] = $userOpenids->qy_openid;
+			}
 		}
 
 		$this->insert('xxt_enroll_record', $record, false);

@@ -39,7 +39,7 @@
 			"config": {
 				"id": "s1",
 				"pattern": "record",
-				"inline": "Y",
+				"inline": "N",
 				"splitLine": "Y"
 			},
 			"schema": {
@@ -51,7 +51,7 @@
 			"config": {
 				"id": "s2",
 				"pattern": "record",
-				"inline": "Y",
+				"inline": "N",
 				"splitLine": "Y"
 			},
 			"schema": {
@@ -74,7 +74,7 @@
 			"config": {
 				"id": "s1",
 				"pattern": "record",
-				"inline": "Y",
+				"inline": "N",
 				"splitLine": "Y"
 			},
 			"schema": {
@@ -86,7 +86,7 @@
 			"config": {
 				"id": "s2",
 				"pattern": "record",
-				"inline": "Y",
+				"inline": "N",
 				"splitLine": "Y"
 			},
 			"schema": {

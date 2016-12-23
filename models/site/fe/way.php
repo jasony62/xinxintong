@@ -57,7 +57,7 @@ class way_model extends \TMS_MODEL {
 				// 当前关注用户是否已经对应的站点用户？如果不存在就创建新的站点用户
 				$siteUser = $modelSiteUser->byOpenid($siteId, $snsName, $dbSnsUser->openid);
 				if ($siteUser === false) {
-					$siteUser = $modelSiteUser->blank($siteId, true, ['ufrom' => $snsName, $snsName . '_openid' => $dbSnsUser->openid]);
+					$siteUser = $modelSiteUser->blank($siteId, true, ['ufrom' => $snsName, $snsName . '_openid' => $dbSnsUser->openid, 'nickname' => $dbSnsUser->nickname, 'headimgurl' => $dbSnsUser->headimgurl]);
 				}
 				// 新的cookie用户
 				$cookieUser = new \stdClass;
@@ -68,7 +68,7 @@ class way_model extends \TMS_MODEL {
 					// 当前关注用户是否已经对应的站点用户？如果不存在就创建新的站点用户
 					$siteUser = $modelSiteUser->byOpenid($siteId, $snsName, $dbSnsUser->openid);
 					if ($siteUser === false) {
-						$siteUser = $modelSiteUser->blank($siteId, true, ['uid' => $cookieUser->uid, 'ufrom' => $snsName, $snsName . '_openid' => $dbSnsUser->openid]);
+						$siteUser = $modelSiteUser->blank($siteId, true, ['uid' => $cookieUser->uid, 'ufrom' => $snsName, $snsName . '_openid' => $dbSnsUser->openid, 'nickname' => $dbSnsUser->nickname, 'headimgurl' => $dbSnsUser->headimgurl]);
 					}
 				} else if ($dbSnsUser->openid !== $siteUser->{$snsName . '_openid'}) {
 					$siteUserBefore = $modelSiteUser->byOpenid($siteId, $snsName, $dbSnsUser->openid);
@@ -99,8 +99,15 @@ class way_model extends \TMS_MODEL {
 			isset($snsUser->country) && $options['country'] = $snsUser->country;
 			isset($snsUser->province) && $options['province'] = $snsUser->province;
 			isset($snsUser->city) && $options['city'] = $snsUser->city;
+
+			$optionsSite = array();
+			isset($snsUser->nickname) && $optionsSite['nickname'] = $snsUser->nickname;
+			isset($snsUser->headimgurl) && $optionsSite['headimgurl'] = $snsUser->headimgurl;
+			$optionsSite['ufrom'] = $snsName;
+			$optionsSite[$snsName . '_openid'] = $snsUser->openid;
+
 			if ($cookieUser === false) {
-				$siteUser = $modelSiteUser->blank($siteId, true, ['ufrom' => $snsName, $snsName . '_openid' => $snsUser->openid]);
+				$siteUser = $modelSiteUser->blank($siteId, true, $optionsSite);
 				if($snsName != 'qy'){
 					$dbSnsUser = $modelSnsUser->blank($snsSiteId, $snsUser->openid, true, $options);
 				}
@@ -110,7 +117,7 @@ class way_model extends \TMS_MODEL {
 				$siteUser = $modelSiteUser->byId($cookieUser->uid);
 				if ($siteUser === false) {
 					// 没有站点用户创建个新的
-					$siteUser = $modelSiteUser->blank($siteId, true, ['ufrom' => $snsName, $snsName . '_openid' => $snsUser->openid]);
+					$siteUser = $modelSiteUser->blank($siteId, true, $optionsSite);
 				}
 				if($snsName !== 'qy'){
 					// 保存社交账号信息

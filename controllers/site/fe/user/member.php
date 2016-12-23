@@ -128,7 +128,7 @@ class member extends \site\fe\base {
 	 *
 	 */
 	public function doAuth_action($schema) {
-		$schema = $this->model('site\user\memberschema')->byId($schema, 'id,attr_mobile,attr_email,attr_name,extattr');
+		$schema = $this->model('site\user\memberschema')->byId($schema, 'id,attr_mobile,attr_email,attr_name,extattr,auto_verified');
 
 		$member = $this->getPostJson();
 		$member->siteid = $this->siteId;
@@ -174,7 +174,7 @@ class member extends \site\fe\base {
 			//return new \ResponseError('无法获得身份标识信息');
 		}
 		/* 验证状态 */
-		$member->verified = 'Y';
+		$member->verified = $schema->auto_verified;
 		/* 创建新的自定义用户 */
 		$user = $this->who;
 		$rst = $this->model('site\user\member')->create($this->siteId, $user->uid, $schema, $member);
@@ -466,12 +466,12 @@ class member extends \site\fe\base {
 	 *
 	 */
 	public function syncFromQy_action($site, $authid, $pdid = 1) {
-		$mp = $this->model('sns\qy')->bySite($site);
-		if (!$mp || $mp->joined === 'N') {
+		$qyConfig = $this->model('sns\qy')->bySite($site);
+		if (!$qyConfig || $qyConfig->joined === 'N') {
 			return new \ResponseError('未与企业号连接，无法同步通讯录');
 		}
 		$timestamp = time(); // 进行同步操作的时间戳
-		$qyproxy = $this->model('sns\qy\proxy', $site);
+		$qyproxy = $this->model('sns\qy\proxy', $qyConfig);
 		$model = $this->model();
 		$modelDept = $this->model('site\user\department');
 		/**

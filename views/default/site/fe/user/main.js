@@ -47,9 +47,12 @@ define(['require', 'angular'], function(require, angular) {
                 alert('ok');
             });
         };
-        userService.get().then(function(user) {
-            $scope.user = user;
-            window.loading.finish();
+        $http.get('/rest/site/fe/main/get?site=' + site).success(function(rsp) {
+            $scope.site = rsp.data;
+            userService.get().then(function(user) {
+                $scope.user = user;
+                window.loading.finish();
+            });
         });
     }]);
 });

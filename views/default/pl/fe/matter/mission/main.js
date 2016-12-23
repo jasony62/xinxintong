@@ -169,8 +169,12 @@ define(['frame'], function(ngApp) {
 				$scope.update(data.obj, prop);
 			}
 		});
-		http2.get('/rest/pl/fe/matter/mission/phase/list?mission=' + $scope.id, function(rsp) {
-			$scope.phases = rsp.data;
+		$scope.$watch('mission', function(mission) {
+			if (mission) {
+				http2.get('/rest/pl/fe/matter/mission/phase/list?mission=' + $scope.id, function(rsp) {
+					$scope.phases = rsp.data;
+				});
+			}
 		});
 	}]);
 	ngApp.provider.controller('ctrlCoworker', ['$scope', 'http2', function($scope, http2) {
@@ -220,11 +224,15 @@ define(['frame'], function(ngApp) {
 			$scope.inviteURL = '';
 			$('#shareMission').trigger('hide');
 		};
-		http2.get('/rest/pl/fe/matter/mission/coworker/list?mission=' + $scope.id, function(rsp) {
-			$scope.coworkers = rsp.data;
-		});
-		http2.get('/rest/pl/fe/matter/mission/coworker/mine?mission=' + $scope.id, function(rsp) {
-			$scope.myCoworkers = rsp.data;
+		$scope.$watch('mission', function(mission) {
+			if (mission) {
+				http2.get('/rest/pl/fe/matter/mission/coworker/list?mission=' + $scope.id, function(rsp) {
+					$scope.coworkers = rsp.data;
+				});
+				http2.get('/rest/pl/fe/matter/mission/coworker/mine?mission=' + $scope.id, function(rsp) {
+					$scope.myCoworkers = rsp.data;
+				});
+			}
 		});
 	}]);
 });

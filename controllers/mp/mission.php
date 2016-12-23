@@ -67,7 +67,7 @@ class mission extends mp_controller {
 		/*记录操作日志*/
 		$matter = (object) $mission;
 		$matter->type = 'mission';
-		$this->model('log')->matterOp($this->mpid, $user, $matter, 'C');
+		$this->model('matter\log')->matterOp($this->mpid, $user, $matter, 'C');
 
 		return new \ResponseData($matter);
 	}
@@ -95,7 +95,7 @@ class mission extends mp_controller {
 		if ($rst) {
 			$mission = $this->model('mission')->byId($id, 'id,title,summary,pic');
 			$mission->type = 'mission';
-			$this->model('log')->matterOp($this->mpid, $user, $mission, 'U');
+			$this->model('matter\log')->matterOp($this->mpid, $user, $mission, 'U');
 		}
 
 		return new \ResponseData($rst);

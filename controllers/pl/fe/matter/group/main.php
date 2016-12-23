@@ -301,7 +301,7 @@ class main extends \pl\fe\matter\base {
 				["id" => $app->id]
 			);
 			/*记录操作日志*/
-			$this->model('log')->matterOp($site, $user, $app, 'Recycle');
+			$this->model('matter\log')->matterOp($site, $user, $app, 'Recycle');
 		} else {
 			$modelGrp->delete(
 				'xxt_group_round',
@@ -312,7 +312,7 @@ class main extends \pl\fe\matter\base {
 				["id" => $app->id]
 			);
 			/*记录操作日志*/
-			$this->model('log')->matterOp($site, $user, $app, 'D');
+			$this->model('matter\log')->matterOp($site, $user, $app, 'D');
 		}
 
 		return new \ResponseData($rst);

@@ -33,11 +33,14 @@ class page extends \pl\fe\matter\base {
 	/**
 	 * 更新活动的页面的属性信息
 	 *
-	 * $aid 活动的id
+	 * string $app 活动的id
 	 * $pid 页面的id，如果id==0，是固定页面
 	 * $cid 页面对应code page id
 	 */
 	public function update_action($site, $app, $pid, $cname) {
+		if (false === ($user = $this->accountUser())) {
+			return new \ResponseTimeout();
+		}
 		$nv = $this->getPostJson();
 
 		$rst = 0;

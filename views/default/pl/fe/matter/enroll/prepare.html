@@ -8,7 +8,7 @@
 		.schema.active{background:#66ccff;}
 		.option.active{background:#33ff99;}
 	</style>
-	<div class='col-md-6 schemas'>
+	<div class='col-md-4 schemas'>
 		<div class='' tms-editable>
 			<div class='schema' ng-class="{'active':schema===activeObject}" ng-repeat="schema in data_schemas">
 				<div class='title'><span ng-bind="schema.title" tms-editable-node></span></div>
@@ -20,7 +20,8 @@
 			</div>
 		</div>
 		<div class=''>
-			<button>添加新题目</button>
+			<button ng-click="insert(activeObject)">插入新题目</button>
+			<button ng-click="append(activeObject)">添加新题目</button>
 		</div>
 	</div>
 	<div class='col-md-6'>

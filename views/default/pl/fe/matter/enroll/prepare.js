@@ -4,12 +4,21 @@ define(['frame'], function(ngApp) {
 	ngApp.provider.directive('tmsEditable', [function() {
 		var isEditing, bar, activeNode, activeTarget, fixedContent;
 
-		function deactivate() {
+		function deactivate($scope) {
+			var phase;
 			if (activeNode) {
 				activeNode.classList.remove('tms-active');
 				activeNode.removeAttribute('contenteditable');
 				activeNode = null;
 				activeTarget = null;
+				phase = $scope.$root.$$phase;
+				if (phase === '$digest' || phase === '$apply') {
+					$scope.$emit('tms.editable.activate', null);
+				} else {
+					$scope.$apply(function() {
+						$scope.$emit('tms.editable.activate', null);
+					});
+				}
 			}
 		}
 
@@ -57,7 +66,6 @@ define(['frame'], function(ngApp) {
 					return activeNode;
 				};
 				this.activate = function(node, target) {
-					console.log('xxxx', target);
 					var phase;
 					if (activeNode) {
 						activeNode.classList.remove('tms-active');
@@ -194,10 +202,10 @@ define(['frame'], function(ngApp) {
 					}
 				});
 				$scope.$on('tms.editable.edit', function(event, target) {
-					var myTarget = ctrl.getTarget(attrs);
+					var myTarget = getTarget(attrs);
 					if (myTarget && target) {
 						if (myTarget.obj === target.obj && myTarget.prop === target.prop) {
-							ctrl.activate(elem[0], getTarget(attrs));
+							ctrl.activate(elem[0], myTarget);
 							ctrl.beginEdit();
 						}
 					}
@@ -206,7 +214,7 @@ define(['frame'], function(ngApp) {
 		};
 	}]);
 
-	ngApp.provider.controller('ctrlPrepare', ['$scope', 'http2', function($scope, http2) {
+	ngApp.provider.controller('ctrlPrepare', ['$scope', '$timeout', 'http2', function($scope, $timeout, http2) {
 		$scope.data_schemas = [{
 			"id": "c1",
 			"title": "信息1",
@@ -253,5 +261,43 @@ define(['frame'], function(ngApp) {
 				$scope.activeObject = null;
 			}
 		});
+		$scope.append = function(beforeSchema) {
+			var pos, newSchema;
+
+			pos = beforeSchema ? $scope.data_schemas.indexOf(beforeSchema) + 1 : null;
+			newSchema = {
+				"id": "c" + (new Date() * 1),
+				"title": "信息1",
+				"type": "shorttext"
+			};
+			if (pos === null) {
+				$scope.data_schemas.push(newSchema);
+			} else {
+				$scope.data_schemas.splice(pos, 0, newSchema);
+			}
+			$timeout(function() {
+				$scope.$broadcast('tms.editable.edit', {
+					obj: newSchema,
+					prop: 'title'
+				});
+			});
+		};
+		$scope.insert = function(afterSchema) {
+			var pos, newSchema;
+
+			pos = afterSchema ? $scope.data_schemas.indexOf(afterSchema) : 0;
+			newSchema = {
+				"id": "c" + (new Date() * 1),
+				"title": "信息1",
+				"type": "shorttext"
+			};
+			$scope.data_schemas.splice(pos, 0, newSchema);
+			$timeout(function() {
+				$scope.$broadcast('tms.editable.edit', {
+					obj: newSchema,
+					prop: 'title'
+				});
+			});
+		};
 	}]);
 });

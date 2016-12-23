@@ -52,6 +52,7 @@ class record_model extends \TMS_MODEL {
 				foreach ($entryRule->sns as $snsName => $rule) {
 					if (isset($user->sns->{$snsName})) {
 						$record['nickname'] = $this->escape($user->sns->{$snsName}->nickname);
+						$record['headimgurl'] = $user->sns->{$snsName}->headimgurl;
 						break;
 					}
 				}
@@ -61,6 +62,15 @@ class record_model extends \TMS_MODEL {
 			} else {
 				/* 匿名访问 */
 				$record['nickname'] = '';
+			}
+		}
+
+		if(!empty($user)){
+			$userOpenids = $this->model('site\user\account')->byId($user->uid,array('fields'=>'wx_openid,yx_openid,qy_openid'));
+			if($userOpenids){
+				$record['wx_openid'] = $userOpenids->wx_openid;
+				$record['yx_openid'] = $userOpenids->yx_openid;
+				$record['qy_openid'] = $userOpenids->qy_openid;
 			}
 		}
 
@@ -412,7 +422,7 @@ class record_model extends \TMS_MODEL {
 
 		// 查询参数
 		$q = [
-			'e.enroll_key,e.enroll_at,e.tags,e.userid,e.nickname,e.verified,e.comment,e.data',
+			'e.enroll_key,e.enroll_at,e.tags,e.userid,e.nickname,e.wx_openid,e.yx_openid,e.qy_openid,e.headimgurl,e.verified,e.comment,e.data',
 			"xxt_enroll_record e",
 			$w,
 		];
@@ -446,7 +456,7 @@ class record_model extends \TMS_MODEL {
 				// 获得邀请数据
 				if (isset($app->can_invite) && $app->can_invite === 'Y') {
 					$qf = array(
-						'id,enroll_key,enroll_at,openid,nickname',
+						'id,enroll_key,enroll_at,openid,nickname,wx_openid,yx_openid,qy_openid,headimgurl',
 						'xxt_enroll_record',
 						"aid='$aid' and referrer='ek:$r->enroll_key'",
 					);

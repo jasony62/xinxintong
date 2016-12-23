@@ -12,18 +12,18 @@ body{padding:71px 0;font-family:Microsoft Yahei,Arial;}
 #schema-view .flexrow button{flex:1;}
 #schema-view .schemas{index}
 #schema-view .schemas .schema{counter-increment:index;position:relative;padding-left:24px;padding-right:24px;}
-#schema-view .schemas .schema:before{content:counter(index);background:#999;color:#fff;position:absolute;top:-6px;left:-6px;width:18px;height:18px;line-height:18px;text-align:center;border-radius:4px;}
+#schema-view .schemas .schema:before{content:counter(index);background:#999;color:#fff;position:absolute;top:0px;left:0px;width:18px;height:18px;line-height:18px;text-align:center;border-radius:2px;}
 #schema-view .schema{background:#fff;margin-bottom:15px;padding:8px;border:1px solid #ddd;}
-#schema-view .schema.name:after{content:'姓名';position:absolute;top:-6px;right:-6px;background:#999;padding:2px 4px;font-size:60%;color:#fff;border-radius:4px;}
-#schema-view .schema.mobile:after{content:'手机';position:absolute;top:-6px;right:-6px;background:#999;padding:2px 4px;font-size:60%;color:#fff;border-radius:4px;}
-#schema-view .schema.email:after{content:'邮箱';position:absolute;top:-6px;right:-6px;background:#999;padding:2px 4px;font-size:60%;color:#fff;border-radius:4px;}
-#schema-view .schema.member:after{content:'自定义用户';position:absolute;top:-6px;right:-6px;background:#999;padding:2px 4px;font-size:60%;color:#fff;border-radius:4px;}
-#schema-view .schema.single:after{content:'单选题';position:absolute;top:-6px;right:-6px;background:#999;padding:2px 4px;font-size:60%;color:#fff;border-radius:4px;}
-#schema-view .schema.phase:after{content:'项目阶段';position:absolute;top:-6px;right:-6px;background:#999;padding:2px 4px;font-size:60%;color:#fff;border-radius:4px;}
-#schema-view .schema.score:after{content:'打分题';position:absolute;top:-6px;right:-6px;background:#999;padding:2px 4px;font-size:60%;color:#fff;border-radius:4px;}
-#schema-view .schema.multiple:after{content:'多选题';position:absolute;top:-6px;right:-6px;background:#999;padding:2px 4px;font-size:60%;color:#fff;border-radius:4px;}
-#schema-view .schema.image:after{content:'上传图片';position:absolute;top:-6px;right:-6px;background:#999;padding:2px 4px;font-size:60%;color:#fff;border-radius:4px;}
-#schema-view .schema.file:after{content:'上传文件';position:absolute;top:-6px;right:-6px;background:#999;padding:2px 4px;font-size:60%;color:#fff;border-radius:4px;}
+#schema-view .schema.name:after{content:'姓名';position:absolute;top:0;right:0;background:#999;padding:2px 4px;font-size:60%;color:#fff;border-radius:2px;}
+#schema-view .schema.mobile:after{content:'手机';position:absolute;top:0;right:0;background:#999;padding:2px 4px;font-size:60%;color:#fff;border-radius:2px;}
+#schema-view .schema.email:after{content:'邮箱';position:absolute;top:0;right:0;background:#999;padding:2px 4px;font-size:60%;color:#fff;border-radius:2px;}
+#schema-view .schema.member:after{content:'自定义用户';position:absolute;top:0;right:0;background:#999;padding:2px 4px;font-size:60%;color:#fff;border-radius:2px;}
+#schema-view .schema.single:after{content:'单选题';position:absolute;top:0;right:0;background:#999;padding:2px 4px;font-size:60%;color:#fff;border-radius:2px;}
+#schema-view .schema.phase:after{content:'项目阶段';position:absolute;top:0;right:0;background:#999;padding:2px 4px;font-size:60%;color:#fff;border-radius:2px;}
+#schema-view .schema.score:after{content:'打分题';position:absolute;top:0;right:0;background:#999;padding:2px 4px;font-size:60%;color:#fff;border-radius:2px;}
+#schema-view .schema.multiple:after{content:'多选题';position:absolute;top:0;right:0;background:#999;padding:2px 4px;font-size:60%;color:#fff;border-radius:2px;}
+#schema-view .schema.image:after{content:'上传图片';position:absolute;top:0;right:0;background:#999;padding:2px 4px;font-size:60%;color:#fff;border-radius:2px;}
+#schema-view .schema.file:after{content:'上传文件';position:absolute;top:0;right:0;background:#999;padding:2px 4px;font-size:60%;color:#fff;border-radius:2px;}
 #schema-view .schema .title{height:38px;line-height:38px;margin-bottom:5px;overflow:hidden;white-space:nowrap;cursor:move;}
 #schema-view .schema .title div[editable]{display:inline-block;width:320px;}
 #schema-view .schema-options .option{position:relative;cursor:move;height:38px;line-height:38px;overflow:hidden;white-space:nowrap;}

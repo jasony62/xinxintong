@@ -1,6 +1,6 @@
-define(["angular", "xxt-page", "tms-discuss", "tms-coinpay", "tms-siteuser"], function(angular, codeAssembler) {
+define(["angular", "xxt-page", "tms-discuss", "tms-coinpay", "tms-favor", "tms-siteuser"], function(angular, codeAssembler) {
     'use strict';
-    var ngApp = angular.module('article', ['discuss.ui.xxt', 'coinpay.ui.xxt', 'siteuser.ui.xxt']);
+    var ngApp = angular.module('article', ['discuss.ui.xxt', 'coinpay.ui.xxt', 'favor.ui.xxt', 'siteuser.ui.xxt']);
     ngApp.config(['$controllerProvider', function($cp) {
         ngApp.provider = {
             controller: $cp.register
@@ -79,7 +79,7 @@ define(["angular", "xxt-page", "tms-discuss", "tms-coinpay", "tms-siteuser"], fu
             }
         };
     }]);
-    ngApp.controller('ctrl', ['$scope', '$http', '$timeout', '$q', 'tmsDiscuss', 'tmsCoinPay', 'tmsSiteUser', function($scope, $http, $timeout, $q, tmsDiscuss, tmsCoinPay, tmsSiteUser) {
+    ngApp.controller('ctrl', ['$scope', '$http', '$timeout', '$q', 'tmsDiscuss', 'tmsCoinPay', 'tmsFavor', 'tmsSiteUser', function($scope, $http, $timeout, $q, tmsDiscuss, tmsCoinPay, tmsFavor, tmsSiteUser) {
         function setMpShare(xxtShare) {
             var shareid, sharelink;
             shareid = $scope.user.uid + (new Date() * 1);
@@ -174,10 +174,6 @@ define(["angular", "xxt-page", "tms-discuss", "tms-coinpay", "tms-siteuser"], fu
         $scope.siteId = siteId;
         $scope.articleId = id;
         $scope.mode = ls.match(/mode=([^&]*)/) ? ls.match(/mode=([^&]*)/)[1] : '';
-        $scope.AlterMsg = {
-            title: '',
-            msg: ''
-        };
         $scope.like = function() {
             if ($scope.mode === 'preview') return;
             // var url = "/rest/site/fe/matter/article/score?site=" + $scope.siteId + "&id=" + $scope.articleId;
@@ -221,6 +217,9 @@ define(["angular", "xxt-page", "tms-discuss", "tms-coinpay", "tms-siteuser"], fu
                     tmsSiteUser.showSwitch(article.siteid);
                 }
             }
+            if (!document.querySelector('.tms-favor-switch')) {
+                tmsFavor.showSwitch(article.siteid, article);
+            }
             document.querySelector('#gototop').style.display = 'block';
         };
         document.querySelector('#gototop').addEventListener('click', function() {
@@ -228,34 +227,6 @@ define(["angular", "xxt-page", "tms-discuss", "tms-coinpay", "tms-siteuser"], fu
             this.style.display = 'none';
         });
         loadArticle().then(articleLoaded);
-    }]);
-    ngApp.controller('ctrlAlert', ['$scope', function($scope) {
-        $scope.close = function() {
-            document.querySelector('.weui_dialog_alert').style.display = 'none';
-        };
-    }]);
-    ngApp.controller('ctrlFavor', ['$scope', '$http', function($scope, $http) {
-        var doFavor = function() {
-            var url = "/rest/site/fe/user/favor/add?site=" + $scope.siteId + "&id=" + $scope.article.id + '&type=article' + '&title=' + $scope.article.title;
-            $http.get(url).success(function(rsp) {
-                if (rsp.err_code !== 0) {
-                    $scope.AlterMsg.title = '操作失败';
-                    $scope.AlterMsg.msg = rsp.err_msg;
-                    document.querySelector('.weui_dialog_alert').style.display = 'block';
-                }
-            });
-        };
-        $scope.favor = function() {
-            if ($scope.mode === 'preview') return;
-            if (!codeAssembler.cookieLogin($scope.siteId)) {
-                var url = 'http://' + location.host;
-                url += '/rest/site/fe/user/login';
-                url += "?site=" + $scope.siteId;
-                openPlugin(url, doFavor);
-                return;
-            }
-            doFavor();
-        };
     }]);
     ngApp.filter('filesize', function() {
         return function(length) {

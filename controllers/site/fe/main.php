@@ -25,6 +25,14 @@ class main extends base {
 	/**
 	 *
 	 */
+	public function get_action() {
+		$site = $this->model('site')->byId($this->siteId, ['fields' => 'id,name,summary,heading_pic,creater,creater_name']);
+
+		return new \ResponseData($site);
+	}
+	/**
+	 * 站点首页页面定义
+	 */
 	public function pageGet_action() {
 		$site = $this->model('site')->byId($this->siteId);
 		$page = $this->model('code\page')->byId($site->home_page_id);

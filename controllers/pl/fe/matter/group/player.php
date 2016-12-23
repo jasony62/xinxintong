@@ -241,6 +241,10 @@ class player extends \pl\fe\matter\base {
 				$user = new \stdClass;
 				$user->uid = $record->userid;
 				$user->nickname = $record->nickname;
+				$user->wx_openid = $record->wx_openid;
+				$user->yx_openid = $record->yx_openid;
+				$user->qy_openid = $record->qy_openid;
+				$user->headimgurl = $record->headimgurl;
 				$modelPlayer->enroll($site, $objGrp, $user, ['enroll_key' => $ek, 'enroll_at' => $record->enroll_at]);
 				$modelPlayer->setData($user, $site, $objGrp, $ek, $record->data);
 			}
@@ -303,6 +307,10 @@ class player extends \pl\fe\matter\base {
 				$user = new \stdClass;
 				$user->uid = $record->userid;
 				$user->nickname = $record->nickname;
+				$user->wx_openid = $record->wx_openid;
+				$user->yx_openid = $record->yx_openid;
+				$user->qy_openid = $record->qy_openid;
+				$user->headimgurl = $record->headimgurl;
 				$modelPlayer->enroll($site, $objGrp, $user, ['enroll_key' => $ek, 'enroll_at' => $record->enroll_at]);
 				$modelPlayer->setData($user, $site, $objGrp, $ek, $record->data);
 			}

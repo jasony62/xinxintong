@@ -1,6 +1,6 @@
 <div class='form-horizontal'>
     <div class='form-group'>
-        <label class='col-md-2 control-label'>站点ID</label>
+        <label class='col-md-2 control-label'>团队ID</label>
         <div class='col-md-10'>
             <p class='form-control-static' ng-bind="site.id"></p>
         </div>
@@ -12,7 +12,7 @@
         </div>
     </div>
     <div class='form-group'>
-        <label class='col-md-2 control-label'>站点名称</label>
+        <label class='col-md-2 control-label'>团队名称</label>
         <div class='col-md-10'>
             <input type='text' class='form-control' ng-model='site.name' tms-auto-update tms-wait=1000 tms-update="update('name')">
         </div>
@@ -49,7 +49,7 @@
         </div>
     </div>
     <div class='form-group'>
-        <button class='btn btn-default' ng-click="remove()">删除站点</button>
+        <button class='btn btn-default' ng-click="remove()">删除团队</button>
         <button class='btn btn-default' ng-click="applyToHome()">申请发布到主页</button>
     </div>
 </div>

@@ -329,17 +329,13 @@ class player extends \pl\fe\matter\base {
 		$modelGrp = $this->model('matter\group');
 		$modelPlayer = $this->model('matter\group\player');
 		$modelWall = $this->model('matter\wall');
-		$modelEnl = $this->model('matter\enroll');
 
-		// $sourceApp = $modelWall->byId($byApp, 'matter_type,matter_id');
 		/* 导入活动定义 */
 		$modelGrp->update(
 			'xxt_group',
 			[
 				'last_sync_at' => time(),
 				'source_app' => '{"id":"' . $byApp . '","type":"wall"}',
-				// 'data_schemas' => $sourceApp->data_schemas,
-				'data_schemas' => '',
 			],
 			"id='$app'"
 		);
@@ -347,7 +343,7 @@ class player extends \pl\fe\matter\base {
 		$modelPlayer->clean($app, true);
 
 
-		//查询出每个成员来源
+		//查询出信息墙中每个成员来源
 		$u = array(
 				'userid,matter_type,matter_id',
 				'xxt_wall_enroll',
@@ -358,41 +354,72 @@ class player extends \pl\fe\matter\base {
 		}
 		$wallUser = $modelWall->query_objs_ss($u);
 		//查询各成员的对应的登记数据
+		$objGrp = $modelGrp->byId($app, ['cascaded' => 'N']);
+		$modelEnlRec = $this->model('matter\enroll\record');
+		$modelEnl = $this->model('matter\enroll');
 		foreach ($wallUser as $key => $user) {
 			if($user->matter_type === 'enroll'){
-
+				// $q = [
+				// 	'enroll_key',
+				// 	'xxt_enroll_record',
+				// 	"aid='{$user->matter_id}' and state=1 and userid='{$user->userid}'",
+				// ];
+				// $eks = $modelEnlRec->query_vals_ss($q);
+				/* 导入数据 */
+				// if (!empty($eks)) {
+				// 	$objGrp = $modelGrp->byId($app, ['cascaded' => 'N']);
+				// 	$options = ['cascaded' => 'Y'];
+				// 	foreach ($eks as $ek) {
+				// 		$record = $modelEnlRec->byId($ek, $options);
+				// 		$user = new \stdClass;
+				// 		$user->uid = $record->userid;
+				// 		$user->nickname = $record->nickname;
+				// 		$user->wx_openid = $record->wx_openid;
+				// 		$user->yx_openid = $record->yx_openid;
+				// 		$user->qy_openid = $record->qy_openid;
+				// 		$user->headimgurl = $record->headimgurl;
+				// 		$modelPlayer->enroll($site, $objGrp, $user, ['enroll_key' => $ek, 'enroll_at' => $record->enroll_at]);
+				// 		$modelPlayer->setData($user, $site, $objGrp, $ek, $record->data);
+				// 	}
+				// }
+				$sourceApp = $modelEnl->byId($user->matter_id, ['fields' => 'data_schemas', 'cascaded' => 'N']);
+				/* 导入data_schemas */
+				$modelGrp->update(
+					'xxt_group',
+					[
+						'data_schemas' => $sourceApp->data_schemas,
+					],
+					"id='$app'"
+				);
+				$q = [
+					'*',
+					'xxt_enroll_record',
+					"aid='{$user->matter_id}' and state=1 and userid='{$user->userid}'",
+				];
+				$records = $modelEnlRec->query_vals_ss($q);
+				/* 导入数据 */
+				if (!empty($records)) {
+					foreach ($records as $record) {
+						$user = new \stdClass;
+						$user->uid = $record->userid;
+						$user->nickname = $record->nickname;
+						$user->wx_openid = $record->wx_openid;
+						$user->yx_openid = $record->yx_openid;
+						$user->qy_openid = $record->qy_openid;
+						$user->headimgurl = $record->headimgurl;
+						$modelPlayer->enroll($site, $objGrp, $user, ['enroll_key' => $record->enroll_key, 'enroll_at' => $record->enroll_at]);
+						$modelPlayer->setData($user, $site, $objGrp, $record->enroll_key, $record->data);
+					}
+				}
 			}elseif ($user->matter_type === 'signin') {
+				
+			}elseif ($user->matter_type === '') {//从公众号中进来的
 				
 			}
 
 		}
 
-
-
-
-		/* 获取所有登记数据 */
-		$modelRec = $this->model('matter\enroll\record');
-		$q = [
-			'enroll_key',
-			'xxt_enroll_record',
-			"aid='$byApp' and state=1",//查询出某一个人的key，需要加上userid
-		];
-		$eks = $modelRec->query_vals_ss($q);
-		/* 导入数据 */
-		if (!empty($eks)) {
-			$objGrp = $modelGrp->byId($app, ['cascaded' => 'N']);
-			$options = ['cascaded' => 'Y'];
-			foreach ($eks as $ek) {
-				$record = $modelRec->byId($ek, $options);
-				$user = new \stdClass;
-				$user->uid = $record->userid;
-				$user->nickname = $record->nickname;
-				$modelPlayer->enroll($site, $objGrp, $user, ['enroll_key' => $ek, 'enroll_at' => $record->enroll_at]);
-				$modelPlayer->setData($user, $site, $objGrp, $ek, $record->data);
-			}
-		}
-
-		return $sourceApp;
+		return $sourceApp;//返回什么？？？？前端怎么运用返回值？？？返回$sourceApp的数组？？
 	}
 
 

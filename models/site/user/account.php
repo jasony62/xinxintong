@@ -91,6 +91,12 @@ class account_model extends \TMS_MODEL {
 		if (isset($options['qy_openid'])) {
 			$account->qy_openid = $options['qy_openid'];
 		}
+		if (isset($options['nickname'])) {
+			$account->nickname = $options['nickname'];
+		}
+		if (isset($options['headimgurl'])) {
+			$account->headimgurl = $options['headimgurl'];
+		}
 		if ($persisted === true) {
 			$this->insert('xxt_site_account', $account, false);
 		}

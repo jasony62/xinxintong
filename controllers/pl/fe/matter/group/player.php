@@ -148,14 +148,16 @@ class player extends \pl\fe\matter\base {
 	}
 	/**
 	 * 从其他活动导入数据
+	 * $onlySpeaker 导入信息墙时是否仅限发言用户
 	 */
-	public function importByApp_action($site, $app) {
+	public function importByApp_action($site, $app, $onlySpeaker = 'N') {
 		if (false === ($user = $this->accountUser())) {
 			return new \ResponseTimeout();
 		}
 
 		$sourceApp = null;
 		$params = $this->getPostJson();
+		var_dump($params);die;
 
 		if (!empty($params->app)) {
 			if ($params->appType === 'registration') {
@@ -163,7 +165,7 @@ class player extends \pl\fe\matter\base {
 			} else if ($params->appType === 'signin') {
 				$sourceApp = $this->_importBySignin($site, $app, $params);
 			} else if ($params->appType === 'wall') {
-				$sourceApp = $this->_importByWall($site, $app, $params->app);
+				$sourceApp = $this->_importByWall($site, $app, $params, $onlySpeaker);
 			}
 		}
 
@@ -173,8 +175,9 @@ class player extends \pl\fe\matter\base {
 	 * 从关联活动同步数据
 	 *
 	 * 同步在最后一次同步之后的数据或已经删除的数据
+	 * $onlySpeaker 同步信息墙时是否仅限发言用户
 	 */
-	public function syncByApp_action($site, $app) {
+	public function syncByApp_action($site, $app, $onlySpeaker = 'N') {
 		if (false === ($user = $this->accountUser())) {
 			return new \ResponseTimeout();
 		}
@@ -188,7 +191,7 @@ class player extends \pl\fe\matter\base {
 			} else if ($sourceApp->type === 'signin') {
 				$count = $this->_syncBySignin($site, $app, $sourceApp->id);
 			} else if ($sourceApp->type === 'wall') {
-				$count = $this->_syncByWall($site, $app, $sourceApp->id);
+				$count = $this->_syncByWall($site, $app, $sourceApp->id, $onlySpeaker);
 			}
 			// 更新同步时间
 			$modelGrp->update(
@@ -324,8 +327,10 @@ class player extends \pl\fe\matter\base {
 
 	/**
 	 * 从信息墙导入数据
+	 * $onlySpeaker 是否为发言的用户
 	 */
-	private function &_importByWall($site, $app, $byApp, $onlySpeaker = 'N') {
+	private function &_importByWall($site, $app, &$params, $onlySpeaker, $joinAt=null) {
+		$byApp = $params->app;
 		$modelGrp = $this->model('matter\group');
 		$modelPlayer = $this->model('matter\group\player');
 		$modelWall = $this->model('matter\wall');
@@ -352,37 +357,22 @@ class player extends \pl\fe\matter\base {
 		if($onlySpeaker === 'Y'){
 			$u[2] .= " and last_msg_at>0";
 		}
+		if(!empty($joinAt)){
+			$u[2] .= " and join_at > $joinAt";
+		}
 		$wallUser = $modelWall->query_objs_ss($u);
-		//查询各成员的对应的登记数据
-		$objGrp = $modelGrp->byId($app, ['cascaded' => 'N']);
-		$modelEnlRec = $this->model('matter\enroll\record');
+
 		$modelEnl = $this->model('matter\enroll');
+		$modelEnlRec = $this->model('matter\enroll\record');
+		$modelSignin = $this->model('matter\signin');
+		$modelSigRec = $this->model('matter\signin\record');
+		//用于返回
+		$sourceApps = array();
+		//查询各成员的对应的登记数据
 		foreach ($wallUser as $key => $user) {
 			if($user->matter_type === 'enroll'){
-				// $q = [
-				// 	'enroll_key',
-				// 	'xxt_enroll_record',
-				// 	"aid='{$user->matter_id}' and state=1 and userid='{$user->userid}'",
-				// ];
-				// $eks = $modelEnlRec->query_vals_ss($q);
-				/* 导入数据 */
-				// if (!empty($eks)) {
-				// 	$objGrp = $modelGrp->byId($app, ['cascaded' => 'N']);
-				// 	$options = ['cascaded' => 'Y'];
-				// 	foreach ($eks as $ek) {
-				// 		$record = $modelEnlRec->byId($ek, $options);
-				// 		$user = new \stdClass;
-				// 		$user->uid = $record->userid;
-				// 		$user->nickname = $record->nickname;
-				// 		$user->wx_openid = $record->wx_openid;
-				// 		$user->yx_openid = $record->yx_openid;
-				// 		$user->qy_openid = $record->qy_openid;
-				// 		$user->headimgurl = $record->headimgurl;
-				// 		$modelPlayer->enroll($site, $objGrp, $user, ['enroll_key' => $ek, 'enroll_at' => $record->enroll_at]);
-				// 		$modelPlayer->setData($user, $site, $objGrp, $ek, $record->data);
-				// 	}
-				// }
 				$sourceApp = $modelEnl->byId($user->matter_id, ['fields' => 'data_schemas', 'cascaded' => 'N']);
+				$sourceApps[] = $sourceApp;
 				/* 导入data_schemas */
 				$modelGrp->update(
 					'xxt_group',
@@ -391,35 +381,87 @@ class player extends \pl\fe\matter\base {
 					],
 					"id='$app'"
 				);
+				//获取登记信息
 				$q = [
-					'*',
+					'enroll_key',
 					'xxt_enroll_record',
 					"aid='{$user->matter_id}' and state=1 and userid='{$user->userid}'",
 				];
-				$records = $modelEnlRec->query_vals_ss($q);
+				$eks = $modelEnlRec->query_vals_ss($q);
 				/* 导入数据 */
-				if (!empty($records)) {
-					foreach ($records as $record) {
-						$user = new \stdClass;
-						$user->uid = $record->userid;
-						$user->nickname = $record->nickname;
-						$user->wx_openid = $record->wx_openid;
-						$user->yx_openid = $record->yx_openid;
-						$user->qy_openid = $record->qy_openid;
-						$user->headimgurl = $record->headimgurl;
-						$modelPlayer->enroll($site, $objGrp, $user, ['enroll_key' => $record->enroll_key, 'enroll_at' => $record->enroll_at]);
-						$modelPlayer->setData($user, $site, $objGrp, $record->enroll_key, $record->data);
+				if (!empty($eks)) {
+					$objGrp = $modelGrp->byId($app, ['cascaded' => 'N']);
+					$options = ['cascaded' => 'Y'];
+					foreach ($eks as $ek) {
+						$record = $modelEnlRec->byId($ek, $options);
+						$user2 = new \stdClass;
+						$user2->uid = $record->userid;
+						$user2->nickname = $record->nickname;
+						$user2->wx_openid = $record->wx_openid;
+						$user2->yx_openid = $record->yx_openid;
+						$user2->qy_openid = $record->qy_openid;
+						$user2->headimgurl = $record->headimgurl;
+						$modelPlayer->enroll($site, $objGrp, $user2, ['enroll_key' => $ek, 'enroll_at' => $record->enroll_at]);
+						$modelPlayer->setData($user2, $site, $objGrp, $ek, $record->data);
 					}
 				}
 			}elseif ($user->matter_type === 'signin') {
+				$sourceApp = $modelSignin->byId($user->matter_id, ['fields' => 'data_schemas,enroll_app_id', 'cascaded' => 'N']);
+				$sourceApps[] = $sourceApp;
+				$sourceDataSchemas = $sourceApp->data_schemas;
+				/**
+				 * 导入报名数据，需要合并签到和报名的登记项
+				 */
+				if (isset($params->includeEnroll) && $params->includeEnroll === 'Y') {
+					if (!empty($sourceApp->enroll_app_id)) {
+						$enrollApp = $modelEnl->byId($sourceApp->enroll_app_id, ['fields' => 'data_schemas', 'cascaded' => 'N']);
+						$enrollDataSchemas = json_decode($enrollApp->data_schemas);
+						$sourceDataSchemas = json_decode($sourceDataSchemas);
+						$diff = array_udiff($enrollDataSchemas, $sourceDataSchemas, create_function('$a,$b', 'return strcmp($a->id,$b->id);'));
+						$sourceDataSchemas = array_merge($sourceDataSchemas, $diff);
+						$sourceDataSchemas = $modelGrp->toJson($sourceDataSchemas);
+					}
+				}
+				/* 导入活动定义 */
+				$modelGrp->update(
+					'xxt_group',
+					[
+						'data_schemas' => $sourceDataSchemas,
+					],
+					"id='$app'"
+				);
+				/* 获取数据 */
+				$q = [
+					'enroll_key',
+					'xxt_signin_record',
+					"aid='{$user->matter_id}' and state=1 and userid='{$user->userid}'",
+				];
+				$eks = $modelSigRec->query_vals_ss($q);
+				/* 导入数据 */
+				if (!empty($eks)) {
+					$objGrp = $modelGrp->byId($app, ['cascaded' => 'N']);
+					$options = array('cascaded' => 'Y');
+					foreach ($eks as $ek) {
+						$record = $modelSigRec->byId($ek, $options);
+						$user2 = new \stdClass;
+						$user2->uid = $record->userid;
+						$user2->nickname = $record->nickname;
+						$user2->wx_openid = $record->wx_openid;
+						$user2->yx_openid = $record->yx_openid;
+						$user2->qy_openid = $record->qy_openid;
+						$user2->headimgurl = $record->headimgurl;
+						$modelPlayer->enroll($site, $objGrp, $user2, ['enroll_key' => $ek, 'enroll_at' => $record->enroll_at]);
+						$modelPlayer->setData($user2, $site, $objGrp, $ek, $record->data);
+					}
+				}
 				
-			}elseif ($user->matter_type === '') {//从公众号中进来的
-				
+			}else{//从公众号中进来的
+				continue;
 			}
 
 		}
 
-		return $sourceApp;//返回什么？？？？前端怎么运用返回值？？？返回$sourceApp的数组？？
+		return $sourceApps;//返回什么？？？？前端怎么运用返回值？？？返回$sourceApp的数组？？
 	}
 
 
@@ -476,29 +518,18 @@ class player extends \pl\fe\matter\base {
 
 
 
-
-
-
-
-
-
-
 	/**
-	 * 从信息墙导入数据
-	 *
 	 * 同步在最后一次同步之后的数据或已经删除的数据
-	 */
-	private function _syncByWall($siteId, &$objGrp, $byApp) {
-		/* 获取变化的登记数据 */
-		$modelRec = $this->model('matter\enroll\record');
-		$q = array(
-			'enroll_key,state',
-			'xxt_enroll_record',
-			"aid='$byApp' and (enroll_at>{$objGrp->last_sync_at} or state<>1)",
-		);
-		$records = $modelRec->query_objs_ss($q);
+	 * $onlySpeaker 是否为发言的用户
+	 */ 
+	private function _syncByWall($siteId, &$objGrp, $byApp, $onlySpeaker) {
+		$params = new \stdClass;
+		$params->app = $byApp;
+		$params->appType = 'wall';
+		$params->includeEnroll = 'Y';
+		$records = $this->_importByWall($siteId, $objGrp->id, $params, $onlySpeaker, $objGrp->last_sync_at);
 
-		return $this->_syncRecord($siteId, $objGrp, $records, $modelRec);
+		return count($records);
 	}
 
 

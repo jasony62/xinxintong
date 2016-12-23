@@ -105,6 +105,8 @@ class users extends \pl\fe\matter\base {
 			$sql['nickname'] = $nickname;
 			$sql['userid'] = $uid;
 			$sql['headimgurl'] = $headimgurl;
+			$sql['matter_type'] = $type;
+			$sql['matter_id'] = $app;
 			$this->model()->insert('xxt_wall_enroll',$sql,false);
 			$num++;
 		}

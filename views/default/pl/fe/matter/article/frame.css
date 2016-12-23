@@ -1,5 +1,7 @@
 body{font-family:"Microsoft Yahei","Helvetica Neue",Helvetica,Arial,sans-serif;background:#f8f8f8;padding:71px 0;}
 body>nav{display:flex;}
+body>nav>.container-fluid{width:100%;}
+body>nav>.container-fluid>.formGroups>div>.form-group{padding:0;}
 body>nav>ul:nth-child(2){flex-grow:1;text-align:center;}
 body>nav>ul:nth-child(2)>li{display:inline-block;float:none;}
 label{font-weight:400;color:#737373;}

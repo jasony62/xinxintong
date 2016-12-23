@@ -259,12 +259,16 @@ define(['frame', 'schema'], function(ngApp, schemaLib) {
 
 		$scope.popover = {};
 		$scope.schemaHtml = function(schema) {
-			var bust = (new Date()).getMinutes();
-			return '/views/default/pl/fe/matter/enroll/schema/' + schema.type + '.html?_=' + bust;
+			if (schema) {
+				var bust = (new Date()).getMinutes();
+				return '/views/default/pl/fe/matter/enroll/schema/' + schema.type + '.html?_=' + bust;
+			}
 		};
 		$scope.schemaPopoverHtml = function() {
-			var bust = (new Date()).getMinutes();
-			return '/views/default/pl/fe/matter/enroll/schema/main.html?_=' + bust;
+			if ($scope.activeSchema) {
+				var bust = (new Date()).getMinutes();
+				return '/views/default/pl/fe/matter/enroll/schema/main.html?_=' + bust;
+			}
 		};
 		$scope.assocAppName = function(appId) {
 			var assocApp;
@@ -311,16 +315,26 @@ define(['frame', 'schema'], function(ngApp, schemaLib) {
 					break;
 				}
 			}
-			if ($scope.popover.target !== target) {
-				if ($scope.popover.target) {
-					$($scope.popover.target).trigger('hide');
-				}
+			// if ($scope.popover.target !== target) {
+			// 	if ($scope.popover.target) {
+			// 		$($scope.popover.target).trigger('hide');
+			// 	}
+			// 	$(target).trigger('show');
+			// 	$scope.popover = {
+			// 		target: target,
+			// 		schema: schema,
+			// 		index: target.dataset.schemaIndex
+			// 	};
+			// }
+		};
+		$scope.showSchemaProto = function($event) {
+			var target = event.target;
+			if (target.dataset.isOpen === 'Y') {
+				delete target.dataset.isOpen;
+				$(target).trigger('hide');
+			} else {
+				target.dataset.isOpen = 'Y';
 				$(target).trigger('show');
-				$scope.popover = {
-					target: target,
-					schema: schema,
-					index: target.dataset.schemaIndex
-				};
 			}
 		};
 		$scope.addOption = function(schema, afterIndex) {

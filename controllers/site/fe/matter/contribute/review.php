@@ -107,6 +107,8 @@ class review extends base {
 		/**
 		 * 奖励投稿人
 		 */
+		$modelCoin = $this->model('site\coin\log');
+		$modelCoin->award($article, $user, 'site.matter.article.approved');
 		//$modelCoin = $this->model('coin\log');
 		//$action = 'app.' . $article->entry . '.article.approved';
 		//$modelCoin->income($siteid, $action, $id, 'sys', $contributor->openid);

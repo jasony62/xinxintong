@@ -1,41 +1,50 @@
 <div id='record-view'>
     <!-- actions -->
-    <div class='form-group form-inline top'>
-        <div class='form-group' ng-if='app.rounds'>
-            <select class='form-control' title='登记轮次' ng-model='page.byRound' ng-options='r.rid as r.title for r in app.rounds' ng-change='doSearch(1)'>
-                <option value=>全部</option>
-            </select>
+    <nav class='navbar navbar-default hidden-xs'>
+        <div class='container-fluid'>
+            <form class='navbar-form navbar-left'>
+                <div class='form-group' ng-if='app.rounds'>
+                    <select class='form-control' title='登记轮次' ng-model='page.byRound' ng-options='r.rid as r.title for r in app.rounds' ng-change='doSearch(1)'>
+                        <option value=>全部</option>
+                    </select>
+                </div>
+                <div class='form-group'>
+                    <label>标签</label>
+                    <combox evt-prefix='search-tag' readonly='true' existing='criteria.tags' options='app.tags'></combox>
+                </div>
+                
+                <div class='form-group hide'>
+                    <select class='form-control' title="排序条件" ng-model='page.orderBy' ng-options='o.v as o.n for o in orderBys' ng-change='doSearch(1)'></select>
+                </div>
+                <button class='btn btn-default' ng-click='filter()'>筛选</button>
+                <button class='btn btn-success' ng-click='verifyAll()'>全部通过审核</button>
+                <button class='btn btn-success' ng-disabled="!countSelected()" ng-click='batchVerify()'>选中记录通过审核</button>
+                <button class='btn btn-success' ng-disabled="!countSelected()" ng-click='batchTag()'>选中记录打标签</button>
+                <button class='btn btn-primary' ng-if="app.entry_rule.scope==='sns'" ng-click="notify()">全部发送信息</button>
+                <button class='btn btn-primary' ng-if="app.entry_rule.scope==='sns'" ng-disabled="!countSelected()" ng-click="notify(true)">选中记录发送信息</button>
+                <button class='btn btn-default' ng-click="export()">导出全部数据</button>
+                <button class='btn btn-default' ng-click="exportImage()">导出全部图片</button>
+                <button class='btn btn-danger' ng-click='empty()'>清空记录</button>
+                <button class='btn btn-default' ng-click='editRecord()'>手工添加</button>
+            </form>
+            <form class='navbar-form navbar-right'>
+                <div class='form-group'>
+                    <div class='input-group'>
+                        <span class="input-group-addon">每页条数</span>
+                        <input class='form-control' ng-model='page.size' style='width:64px'>
+                        <span class='input-group-btn'>
+                            <button class='btn btn-default' ng-click='doSearch(1)'>
+                                <span class='glyphicon glyphicon-refresh'></span>
+                            </button>
+                        </span>
+                    </div>
+                </div>
+            </form>
         </div>
-        <div class='form-group'>
-            <label>标签</label>
-            <combox evt-prefix='search-tag' readonly='true' existing='criteria.tags' options='app.tags'></combox>
-        </div>
-        <div class='form-group pull-right'>
-            <div class='input-group'>
-                <span class="input-group-addon">每页条数</span>
-                <input class='form-control' ng-model='page.size' style='width:64px'>
-                <span class='input-group-btn'>
-                    <button class='btn btn-default' ng-click='doSearch(1)'>
-                        <span class='glyphicon glyphicon-refresh'></span>
-                    </button>
-                </span>
-            </div>
-        </div>
-        <div class='form-group hide'>
-            <select class='form-control' title="排序条件" ng-model='page.orderBy' ng-options='o.v as o.n for o in orderBys' ng-change='doSearch(1)'></select>
-        </div>
-        <button class='btn btn-default' ng-click='filter()'>筛选</button>
-        <button class='btn btn-success' ng-click='verifyAll()'>全部通过审核</button>
-        <button class='btn btn-success' ng-disabled="!countSelected()" ng-click='batchVerify()'>选中记录通过审核</button>
-        <button class='btn btn-success' ng-disabled="!countSelected()" ng-click='batchTag()'>选中记录打标签</button>
-        <button class='btn btn-primary' ng-if="app.entry_rule.scope==='sns'" ng-click="notify()">全部发送信息</button>
-        <button class='btn btn-primary' ng-if="app.entry_rule.scope==='sns'" ng-disabled="!countSelected()" ng-click="notify(true)">选中记录发送信息</button>
-        <button class='btn btn-default' ng-click="export()">导出全部数据</button>
-        <button class='btn btn-default' ng-click="exportImage()">导出全部图片</button>
-    </div>
+    </nav>
     <!-- end actions -->
     <!-- records -->
-    <div class='middle'>
+    <div class=''>
         <div id='enrollRecords' class='form-group' tms-table-wrap ready='tmsTableWrapReady'>
             <table class='table table-bordered'>
                 <thead>
@@ -119,8 +128,6 @@
             </table>
         </div>
         <div class='form-group form-inline'>
-            <button class='btn btn-danger' ng-click='empty()'>清空记录</button>
-            <button class='btn btn-default' ng-click='editRecord()'>手工添加</button>
             <span>总数：{{page.total}}</span>
             <ul uib-pagination style="margin:0;vertical-align:bottom;cursor:pointer" ng-show="page.total>page.size" boundary-links="true" total-items="page.total" max-size="7" items-per-page="page.size" rotate="false" ng-model="page.at" previous-text="&lsaquo;" next-text="&rsaquo;" first-text="&laquo;" last-text="&raquo;" ng-change="doSearch()"></ul>
         </div>

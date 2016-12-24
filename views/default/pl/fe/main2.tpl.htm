@@ -11,23 +11,31 @@
     <body ng-app='app' ng-controller='ctrlMain'>
         <nav class='navbar navbar-default'>
             <div class='container'>
-                <div class='navbar-header'>
+                <div class="navbar-header">
                     <a class='navbar-brand' href='/rest/home' target='_self'><?php echo APP_TITLE;?></a>
+                    <button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target='#navbar-collapse-1'>
+                        <span class="sr-only">Toggle navigation</span>
+                        <span class="icon-bar"></span>
+                        <span class="icon-bar"></span>
+                        <span class="icon-bar"></span>
+                    </button>
                 </div>
-                <form class='navbar-form navbar-right'>
-                    <div class="btn-group">
-                        <a href='' target='_self' class="btn btn-default"><i class='glyphicon glyphicon-user'></i> {{loginUser.nickname}}</a>
-                        <button type="button" class="btn btn-default dropdown-toggle" data-toggle="dropdown">
-                            <span class="caret"></span>
-                            <span class="sr-only">Toggle Dropdown</span>
-                        </button>
-                        <ul class="dropdown-menu" role="menu">
-                            <li><a href='/rest/pl/fe/user/settings' target='_self'>用户设置</a></li>
-                            <li class="divider"></li>
-                            <li><a href='/rest/pl/fe/user/logout' target='_self'>退出</a></li>
-                        </ul>
-                    </div>
-                </form>
+                <div class='collapse navbar-collapse' id='navbar-collapse-1'>
+                    <form class='navbar-form navbar-right'>
+                        <div class="btn-group">
+                            <a href='' target='_self' class="btn btn-default"><i class='glyphicon glyphicon-user'></i> {{loginUser.nickname}}</a>
+                            <button type="button" class="btn btn-default dropdown-toggle" data-toggle="dropdown">
+                                <span class="caret"></span>
+                                <span class="sr-only">Toggle Dropdown</span>
+                            </button>
+                            <ul class="dropdown-menu" role="menu">
+                                <li><a href='/rest/pl/fe/user/settings' target='_self'>用户设置</a></li>
+                                <li class="divider"></li>
+                                <li><a href='/rest/pl/fe/user/logout' target='_self'>退出</a></li>
+                            </ul>
+                        </div>
+                    </form>
+                </div>
             </div>
         </nav>
         <div class='container ng-cloak' ng-cloak>
@@ -37,25 +45,29 @@
                         <div class='container-fluid'>
                             <p class="navbar-text">我进行的工作</p>
                             <form class='navbar-form navbar-right'>
-                                <select class='form-control' ng-model="matterType" ng-change="list(1)">
-                                    <option value=''>全部</option>
-                                    <option value='mission'>项目</option>
-                                    <option value='article'>单图文</option>
-                                    <option value='enroll'>登记活动</option>
-                                    <option value='signin'>签到活动</option>
-                                    <option value='group'>分组活动</option>
-                                    <option value='lottery'>抽奖活动</option>
-                                    <option value='news'>多图文</option>
-                                    <option value='channel'>频道</option>
-                                    <option value='contribute'>投稿活动</option>
-                                    <option value='text'>文本</option>
-                                    <option value='link'>链接</option>
-                                    <option value='merchant'>订购</option>
-                                    <option value='wall'>信息墙</option>
-                                    <option value='addressbook'>通讯录</option>
-                                    <option value='custom'>定制页</option>
-                                </select>
-                                <button uib-popover-template="'addMatter.html'" popover-placement="bottom" popover-append-to-body='true' popover-trigger="outsideClick" popover-title="添加素材" class='btn btn-default'><i class='glyphicon glyphicon-plus'></i> <i class='caret'></i></button>
+                                <div class='input-group'>
+                                    <select class='form-control' ng-model="matterType" ng-change="list(1)">
+                                        <option value=''>全部</option>
+                                        <option value='mission'>项目</option>
+                                        <option value='article'>单图文</option>
+                                        <option value='enroll'>登记活动</option>
+                                        <option value='signin'>签到活动</option>
+                                        <option value='group'>分组活动</option>
+                                        <option value='lottery'>抽奖活动</option>
+                                        <option value='news'>多图文</option>
+                                        <option value='channel'>频道</option>
+                                        <option value='contribute'>投稿活动</option>
+                                        <option value='text'>文本</option>
+                                        <option value='link'>链接</option>
+                                        <option value='merchant'>订购</option>
+                                        <option value='wall'>信息墙</option>
+                                        <option value='addressbook'>通讯录</option>
+                                        <option value='custom'>定制页</option>
+                                    </select>
+                                    <span class="input-group-btn">
+                                        <button id='popoverAddMatter' uib-popover-template="'addMatter.html'" popover-placement="bottom" popover-append-to-body='true' popover-trigger="show" popover-title="添加素材" class='btn btn-default' ng-click="popoverAddMatter()"><i class='glyphicon glyphicon-plus'></i></button>
+                                    </span>
+                                </div>
                             </form>
                         </div>
                     </nav>

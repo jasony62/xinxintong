@@ -1,5 +1,6 @@
 <?php
 if (file_exists(dirname(__FILE__) . '/cus/db.php')) {
+	//die('xxxxx');
 	/**
 	 * 加载本地化配置
 	 */
@@ -12,7 +13,11 @@ if (file_exists(dirname(__FILE__) . '/cus/db.php')) {
 	$user = TMS_MYSQL_USER;
 	$pwd = TMS_MYSQL_PASS;
 	$dbname = TMS_MYSQL_DB;
-	$mysqli = new mysqli($host, $user, $pwd, $dbname, $port);
+	try {
+		$mysqli = new mysqli($host, $user, $pwd, $dbname, $port);
+	} catch (Error $e) {
+		die('数据库连接异常：' . $e->getMessage());
+	}
 	if ($mysqli->connect_errno) {
 		header('Content-Type: text/plain; charset=utf-8');
 		die("数据库连接失败: (" . $mysqli->connect_errno . ") " . $mysqli->connect_error);
@@ -26,7 +31,11 @@ if (file_exists(dirname(__FILE__) . '/cus/db.php')) {
 	$user_w = defined('TMS_MYSQL_USER_W') ? TMS_MYSQL_USER_W : TMS_MYSQL_USER;
 	$pwd_w = defined('TMS_MYSQL_PASS_W') ? TMS_MYSQL_PASS_W : TMS_MYSQL_PASS;
 	$dbname_w = defined('TMS_MYSQL_DB_W') ? TMS_MYSQL_DB_W : TMS_MYSQL_DB;
-	$mysqli_w = new mysqli($host_w, $user_w, $pwd_w, $dbname_w, $port_w);
+	try {
+		$mysqli_w = new mysqli($host_w, $user_w, $pwd_w, $dbname_w, $port_w);
+	} catch (Error $e) {
+		die('数据库连接异常：' . $e->getMessage());
+	}
 	if ($mysqli_w->connect_errno) {
 		header('Content-Type: text/plain; charset=utf-8');
 		die("数据库连接失败: (" . $mysqli_w->connect_errno . ") " . $mysqli_w->connect_error);
@@ -41,9 +50,12 @@ if (file_exists(dirname(__FILE__) . '/cus/db.php')) {
 	$user = SAE_MYSQL_USER;
 	$pwd = SAE_MYSQL_PASS;
 	$dbname = SAE_MYSQL_DB;
-	/* 读连接 */
-	$mysqli = new mysqli($host, $user, $pwd, $dbname, $port);
-	if ($mysqli->connect_errno) {
+	try {
+		$mysqli = new mysqli($host, $user, $pwd, $dbname, $port);
+	} catch (Error $e) {
+		die('数据库连接异常：' . $e->getMessage());
+	}
+	if ($mysqli || $mysqli->connect_errno) {
 		header('Content-Type: text/plain; charset=utf-8');
 		die("数据库连接失败: (" . $mysqli->connect_errno . ") " . $mysqli->connect_error);
 	}

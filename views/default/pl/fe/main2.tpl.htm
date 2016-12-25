@@ -4,7 +4,6 @@
         <meta charset="UTF-8">
         <meta content="width=device-width,user-scalable=no,initial-scale=1.0" name="viewport">
         <link href="/static/css/bootstrap.min.css" rel="stylesheet">
-        <link href="/static/css/tms.css" rel="stylesheet">
         <link href="/views/default/pl/fe/main.css?_=2" rel="stylesheet">
         <title><?php echo APP_TITLE;?></title>
     </head>
@@ -43,32 +42,40 @@
                 <div class='col-md-12'>
                     <nav class='navbar navbar-default tms-panel-heading'>
                         <div class='container-fluid'>
-                            <p class="navbar-text">我进行的工作</p>
-                            <form class='navbar-form navbar-right'>
-                                <div class='input-group'>
-                                    <select class='form-control' ng-model="matterType" ng-change="list(1)">
-                                        <option value=''>全部</option>
-                                        <option value='mission'>项目</option>
-                                        <option value='article'>单图文</option>
-                                        <option value='enroll'>登记活动</option>
-                                        <option value='signin'>签到活动</option>
-                                        <option value='group'>分组活动</option>
-                                        <option value='lottery'>抽奖活动</option>
-                                        <option value='news'>多图文</option>
-                                        <option value='channel'>频道</option>
-                                        <option value='contribute'>投稿活动</option>
-                                        <option value='text'>文本</option>
-                                        <option value='link'>链接</option>
-                                        <option value='merchant'>订购</option>
-                                        <option value='wall'>信息墙</option>
-                                        <option value='addressbook'>通讯录</option>
-                                        <option value='custom'>定制页</option>
-                                    </select>
-                                    <span class="input-group-btn">
-                                        <button id='popoverAddMatter' uib-popover-template="'addMatter.html'" popover-placement="bottom" popover-append-to-body='true' popover-trigger="show" popover-title="添加素材" class='btn btn-default' ng-click="popoverAddMatter()"><i class='glyphicon glyphicon-plus'></i></button>
-                                    </span>
-                                </div>
-                            </form>
+                            <div class="navbar-header">
+                                <span class="navbar-brand">我进行的工作</span>
+                                <button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target='#navbar-collapse-2'>
+                                    <span class="sr-only">Toggle navigation</span>
+                                    <span class="icon-bar"></span>
+                                    <span class="icon-bar"></span>
+                                    <span class="icon-bar"></span>
+                                </button>
+                            </div>
+                            <div class='collapse navbar-collapse' id='navbar-collapse-2'>
+                                <form class='navbar-form navbar-right clearfix'>
+                                    <div class='form-group'>
+                                        <select class='form-control' ng-model="matterType" ng-change="list(1)">
+                                            <option value=''>全部</option>
+                                            <option value='mission'>项目</option>
+                                            <option value='article'>单图文</option>
+                                            <option value='enroll'>登记活动</option>
+                                            <option value='signin'>签到活动</option>
+                                            <option value='group'>分组活动</option>
+                                            <option value='lottery'>抽奖活动</option>
+                                            <option value='news'>多图文</option>
+                                            <option value='channel'>频道</option>
+                                            <option value='contribute'>投稿活动</option>
+                                            <option value='text'>文本</option>
+                                            <option value='link'>链接</option>
+                                            <option value='merchant'>订购</option>
+                                            <option value='wall'>信息墙</option>
+                                            <option value='addressbook'>通讯录</option>
+                                            <option value='custom'>定制页</option>
+                                        </select>
+                                    </div>
+                                    <button id='popoverAddMatter' uib-popover-template="'addMatter.html'" popover-placement="bottom-right" popover-append-to-body='true' popover-trigger="show" popover-title="新建素材" class='btn btn-default pull-right' ng-click="popoverAddMatter()"><i class='glyphicon glyphicon-plus'></i> <span>新建</span></button>
+                                </form>
+                            </div>
                         </div>
                     </nav>
                     <div class='tms-panel-body'>
@@ -93,7 +100,9 @@
                 <div class='col-md-12'>
                     <nav class='navbar navbar-default tms-panel-heading'>
                         <div class='container-fluid'>
-                            <p class="navbar-text">我参与的项目</p>
+                            <div class="navbar-header">
+                                <span class="navbar-brand">我参与的项目</span>
+                            </div>
                         </div>
                     </nav>
                     <div class='tms-panel-body'>
@@ -118,7 +127,7 @@
                 <div class='col-md-12'>
                     <nav class='navbar navbar-default tms-panel-heading'>
                         <div class='container-fluid'>
-                            <p class="navbar-text">我关注的团队</p>
+                            <span class="navbar-brand">我关注的团队</span>
                         </div>
                     </nav>
                     <div class='tms-panel-body'>
@@ -139,9 +148,11 @@
                 <div class='col-md-12' ng-controller="ctrlSite">
                     <nav class='navbar navbar-default tms-panel-heading'>
                         <div class='container-fluid'>
-                            <p class="navbar-text">我所属的团队</p>
+                            <div class="navbar-header">
+                                <span class="navbar-brand">我所属的团队</span>
+                            </div>
                             <form class='navbar-form navbar-right'>
-                                <button class='btn btn-success' ng-click='create()'><span class='glyphicon glyphicon-plus'></span>创建团队</button>
+                                <button class='btn btn-success' ng-click='create()'><span class='glyphicon glyphicon-plus'></span>新建团队</button>
                             </form>
                         </div>
                     </nav>

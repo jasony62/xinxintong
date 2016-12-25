@@ -55,7 +55,7 @@ if (file_exists(dirname(__FILE__) . '/cus/db.php')) {
 	} catch (Error $e) {
 		die('数据库连接异常：' . $e->getMessage());
 	}
-	if ($mysqli || $mysqli->connect_errno) {
+	if ($mysqli->connect_errno) {
 		header('Content-Type: text/plain; charset=utf-8');
 		die("数据库连接失败: (" . $mysqli->connect_errno . ") " . $mysqli->connect_error);
 	}

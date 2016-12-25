@@ -102,7 +102,7 @@ class main extends \pl\fe\matter\base {
 	 * @param string $template template's name
 	 *
 	 */
-	public function create_action($site, $mission = null, $scenario = 'common', $template = 'simple') {
+	public function create_action($site, $mission = null, $scenario = 'common', $template = 's) {
 		if (false === ($user = $this->accountUser())) {
 			return new \ResponseTimeout();
 		}

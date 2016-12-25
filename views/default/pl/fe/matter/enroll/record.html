@@ -12,20 +12,25 @@
                     <label>标签</label>
                     <combox evt-prefix='search-tag' readonly='true' existing='criteria.tags' options='app.tags'></combox>
                 </div>
-                
-                <div class='form-group hide'>
-                    <select class='form-control' title="排序条件" ng-model='page.orderBy' ng-options='o.v as o.n for o in orderBys' ng-change='doSearch(1)'></select>
-                </div>
                 <button class='btn btn-default' ng-click='filter()'>筛选</button>
-                <button class='btn btn-success' ng-click='verifyAll()'>全部通过审核</button>
-                <button class='btn btn-success' ng-disabled="!countSelected()" ng-click='batchVerify()'>选中记录通过审核</button>
-                <button class='btn btn-success' ng-disabled="!countSelected()" ng-click='batchTag()'>选中记录打标签</button>
-                <button class='btn btn-primary' ng-if="app.entry_rule.scope==='sns'" ng-click="notify()">全部发送信息</button>
-                <button class='btn btn-primary' ng-if="app.entry_rule.scope==='sns'" ng-disabled="!countSelected()" ng-click="notify(true)">选中记录发送信息</button>
-                <button class='btn btn-default' ng-click="export()">导出全部数据</button>
-                <button class='btn btn-default' ng-click="exportImage()">导出全部图片</button>
-                <button class='btn btn-danger' ng-click='empty()'>清空记录</button>
-                <button class='btn btn-default' ng-click='editRecord()'>手工添加</button>
+                <button class='btn btn-default' ng-disabled="!countSelected()" ng-click='batchVerify()'>选中记录通过审核</button>
+                <button class='btn btn-default' ng-disabled="!countSelected()" ng-click='batchTag()'>选中记录打标签</button>
+                <button class='btn btn-default' ng-if="app.entry_rule.scope==='sns'" ng-disabled="!countSelected()" ng-click="notify(true)">选中记录发送信息</button>
+                <button class='btn btn-default' ng-click='editRecord()'>添加记录</button>
+                <div class="btn-group">
+                    <button type="button" class="btn btn-default dropdown-toggle" data-toggle="dropdown">
+                        更多操作 <span class="caret"></span>
+                    </button>
+                    <ul class="dropdown-menu" role="menu">
+                        <li><a href="" ng-click="verifyAll()">全部通过审核</a></li>
+                        <li><a href="" ng-click="notify()">全部发送信息</a></li>
+                        <li class="divider"></li>
+                        <li><a href="" ng-click="export()">导出全部数据</a></li>
+                        <li><a href="" ng-click="exportImage()">导出全部图片</a></li>
+                        <li class="divider"></li>
+                        <li><a href="" ng-click="empty()">清空记录</a></li>
+                    </ul>
+                </div>
             </form>
             <form class='navbar-form navbar-right'>
                 <div class='form-group'>

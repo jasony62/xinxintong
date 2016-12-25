@@ -710,7 +710,9 @@ class record extends \pl\fe\matter\base {
 				case 'score':
 					$labels = [];
 					foreach ($schema->ops as $op) {
-						$labels[] = $op->l . ':' . $v->{$op->v};
+						if (isset($v->{$op->v})) {
+							$labels[] = $op->l . ':' . $v->{$op->v};
+						}
 					}
 					$objActiveSheet->setCellValueByColumnAndRow($i + 2, $rowIndex, implode(' / ', $labels));
 					break;

@@ -74,7 +74,7 @@ class message extends \pl\fe\matter\base {
 			$q = array(
 				'ufrom,nickname',
 				'xxt_wall_enroll',
-				"wid = '{$wall->id}' and openid = '{$openid}'",
+				"wid = '{$wall->id}' and {openid = '{$openid}' or wx_openid='{$openid}' or yx_openid='{$openid}' or qy_openid='{$openid}'}",
 				);
 			$user = $this->model()->query_obj_ss($q);
 			$msg['from_nickname'] = $user->nickname;

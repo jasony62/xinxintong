@@ -154,9 +154,10 @@ class qy extends \member_base {
 	private function currentForkActivity($msg) {
 		$siteId = $msg['siteid'];
 		$openid = $msg['from_user'];
+		$fromSrc = $msg['src'];
 		$wall = $this->model('matter\wall');
 
-		if ($wid = $wall->joined($siteId, $openid)) {
+		if ($wid = $wall->joined($siteId, $openid, $fromSrc)) {
 			return array($wid, $wall);
 		} else {
 			return false;

@@ -24,18 +24,20 @@ class joinwall_model extends Reply {
 		$wall = \TMS_APP::model('matter\wall');
 		$siteId = $this->call['siteid'];
 		$user = new \stdClass;
-		$user->openid = $this->call['from_user'];
-		if($user->openid !== 'mocker'){
+		if($this->call['from_user'] !== 'mocker'){
 			switch ($this->call['src']) {
 				case 'wx':
 					//获取nickname
-					$from_nickname = \TMS_APP::model('sns\wx\fan')->byOpenid($siteId, $user->openid, 'nickname,headimgurl');
+					$from_nickname = \TMS_APP::model('sns\wx\fan')->byOpenid($siteId, $this->call['from_user'], 'nickname,headimgurl');
+					$user->wx_openid = $this->call['from_user'];
 					break;
 				case 'yx':
-					$from_nickname = \TMS_APP::model('sns\yx\fan')->byOpenid($siteId, $user->openid, 'nickname,headimgurl');
+					$from_nickname = \TMS_APP::model('sns\yx\fan')->byOpenid($siteId, $this->call['from_user'], 'nickname,headimgurl');
+					$user->yx_openid = $this->call['from_user'];
 					break;
 				case 'qy':
-					$from_nickname = \TMS_APP::model('sns\qy\fan')->byOpenid($siteId, $user->openid, 'nickname,headimgurl');
+					$from_nickname = \TMS_APP::model('sns\qy\fan')->byOpenid($siteId, $this->call['from_user'], 'nickname,headimgurl');
+					$user->qy_openid = $this->call['from_user'];
 					break;
 			}
 			$user->nickname = $from_nickname->nickname;
@@ -43,7 +45,7 @@ class joinwall_model extends Reply {
 			$user->ufrom = $this->call['src'];
 			//获取userid
 			$options['fields'] = 'uid';
-			$user2 = \TMS_APP::model('site\user\account')->byOpenid($siteId, $user->ufrom, $user->openid, $options);
+			$user2 = \TMS_APP::model('site\user\account')->byOpenid($siteId, $user->ufrom, $this->call['from_user'], $options);
 			if($user2 === false){
 				$user->userid = '';
 			}else{

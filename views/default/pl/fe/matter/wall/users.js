@@ -24,44 +24,48 @@ define(['frame'], function(ngApp) {
                 windowClass: 'auto-height',
                 controller: ['$scope', '$uibModalInstance', function($scope2, $mi) {
                     $scope2.data = {
+                        app : '',
                         appType : 'enroll'
                     } ;
                     $scope2.$watch('data.appType',function(newValus){
                         var url ;
                         if(newValus === 'enroll'){
                             url = '/rest/pl/fe/matter/enroll/list?page=1&size=999&site=' + $scope.siteId;
+                            delete $scope2.data.includeEnroll;
 
                         }else if(newValus === 'signin'){
                             url = '/rest/pl/fe/matter/signin/list?page=1&size=999&site=' + $scope.siteId;
+                            $scope2.data.includeEnroll = 'Y';
                         }
                         http2.get(url , function(rsp) {
                             $scope2.apps = rsp.data.apps;
                         });
                     });
-                    $scope2.chooseApp = function(app) {
-                        !app.type && (app.type =  $scope2.data.appType);
-                        $scope2.selectedApp = app;
-                    };
                     $scope2.close = function() {
                         $mi.dismiss();
                     };
                     $scope2.ok = function() {
-                        if ($scope2.selectedApp) {
-                            $mi.close($scope2.selectedApp);
+                        if ($scope2.data) {
+                            $mi.close($scope2.data);
                         } else {
                             $mi.dismiss();
                         }
                     };
                 }]
-            }).result.then(function(app) {
-                    console.log( app);
-                    
-                    http2.get('/rest/pl/fe/matter/wall/users/import?id=' + $scope.id + '&app=' + app.id +'&site='+ app.siteid + '&type=' + app.type, function(rsp) {
-                        //$scope.$root.infomsg = '导入用户数：' + rsp.data;
-                        // 显示导入人数
-                        noticebox.success('导入用户数：' + rsp.data);
-                        $scope.doSearch();
-                    });
+            }).result.then(function(data) {
+                    var params;
+                    if(data.app){
+                        params = {
+                            app: data.app.id,
+                            appType: data.appType,
+                        };
+                        data.appType === 'signin' && (params.includeEnroll = data.includeEnroll);
+                        http2.post('/rest/pl/fe/matter/wall/users/import?site=' + $scope.siteId + '&app=' + $scope.id, params, function(rsp) {
+                            $scope.app.sourceApp = data.app;
+                            $scope.app.data_schemas = JSON.parse(rsp.data.data_schemas);
+                            $scope.open(null);
+                        });
+                    }
                 });
         };
         //导出用户

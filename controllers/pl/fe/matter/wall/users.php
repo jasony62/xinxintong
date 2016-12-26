@@ -40,11 +40,6 @@ class users extends \pl\fe\matter\base {
 		$sourceApp = null;
 		$params = $this->getPostJson();
 
-//$params = new \stdClass;
-//$params->app="58452ee459c25";
-//$params->appType="signin";
-//$params->includeEnroll="Y";
-
 		if (!empty($params->app)) {
 			if ($params->appType === 'enroll') {
 				$sourceApp = $this->_importByEnroll($site, $app, $params->app);
@@ -85,7 +80,7 @@ class users extends \pl\fe\matter\base {
 		];
 		$records = $modelRec->query_objs_ss($q);
 		/* 导入数据 */
-		if (!empty($eks)) {
+		if (!empty($records)) {
 			foreach ($records as $record) {
 				//退出其它讨论组
 				$this->model()->update(
@@ -93,7 +88,7 @@ class users extends \pl\fe\matter\base {
 					array('close_at' => $join_at),
 					"siteid='$site' and wid != '{$app}' and (wx_openid='{$record->wx_openid}' or yx_openid='{$record->yx_openid}' or qy_openid='{$record->qy_openid}') "
 				);
-				$options = new \stdClass;
+				$options = array();
 				$options['siteid'] = $site;
 				$options['wid'] = $app;
 				$options['join_at'] = $join_at;
@@ -110,7 +105,8 @@ class users extends \pl\fe\matter\base {
 			}
 		}
 
-		return count($records);
+		$num = count($records);
+		return $num;
 	}
 	/**
 	 * 从签到活动导入数据
@@ -154,7 +150,7 @@ class users extends \pl\fe\matter\base {
 		$modelRec = $this->model('matter\signin\record');
 		$q = [
 			'*,count(distinct userid)',
-			'xxt_enroll_record',
+			'xxt_signin_record',
 			"aid='$byApp' and state=1 and userid !='' group by userid",
 		];
 		$records = $modelRec->query_objs_ss($q);
@@ -167,7 +163,7 @@ class users extends \pl\fe\matter\base {
 					array('close_at' => $join_at),
 					"siteid='$site' and wid != '{$app}' and (wx_openid='{$record->wx_openid}' or yx_openid='{$record->yx_openid}' or qy_openid='{$record->qy_openid}') "
 				);
-				$options = new \stdClass;
+				$options = array();
 				$options['siteid'] = $site;
 				$options['wid'] = $app;
 				$options['join_at'] = $join_at;
@@ -183,8 +179,8 @@ class users extends \pl\fe\matter\base {
 				$this->model()->insert('xxt_wall_enroll',$options,false);
 			}
 		}
-
-		return count($records);
+		$num = count($records);
+		return $num;
 	}
 	/**
 	 * 用户导出到登记活动
@@ -236,6 +232,7 @@ class users extends \pl\fe\matter\base {
 				$count = $this->_syncByEnroll($site, $app, $sourceApp->id);
 			} else if ($sourceApp->type === 'signin') {
 				$count = $this->_syncBySignin($site, $app, $sourceApp->id);
+			}
 			// 更新同步时间
 			$modelWall->update(
 				'xxt_wall',
@@ -284,6 +281,7 @@ class users extends \pl\fe\matter\base {
 	 * 同步数据
 	 */
 	private function _syncRecord($siteId, &$objGrp, &$records, &$modelRec) {
+		$join_at = time();
 		if (!empty($records)) {
 			foreach ($records as $record) {
 				if ($record->state === '1') {
@@ -291,11 +289,11 @@ class users extends \pl\fe\matter\base {
 					$this->model()->update(
 						'xxt_wall_enroll',
 						array('close_at' => $join_at),
-						"siteid='$site' and wid != '{$app}' and (wx_openid='{$record->wx_openid}' or yx_openid='{$record->yx_openid}' or qy_openid='{$record->qy_openid}') "
+						"siteid='$siteId' and wid != '{$objGrp->id}' and (wx_openid='{$record->wx_openid}' or yx_openid='{$record->yx_openid}' or qy_openid='{$record->qy_openid}') "
 					);
-					$options = new \stdClass;
-					$options['siteid'] = $site;
-					$options['wid'] = $app;
+					$options = array();
+					$options['siteid'] = $siteId;
+					$options['wid'] = $objGrp->id;
 					$options['join_at'] = $join_at;
 					$options['userid'] = $record->userid;
 					$options['nickname'] = $record->nickname;
@@ -311,8 +309,8 @@ class users extends \pl\fe\matter\base {
 						'xxt_wall_enroll',
 						"wid='{$objGrp->id}' and enroll_key='{$record->enroll_key}'",
 					];
-					$record = $this->model()->query_obj_ss($q)
-					if ($record === fasle) {
+					$record = $this->model()->query_obj_ss($q);
+					if ($record === false) {
 						$this->model()->insert('xxt_wall_enroll',$options,false);
 					}
 				} else {

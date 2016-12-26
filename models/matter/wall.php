@@ -64,7 +64,7 @@ class wall_model extends app_base {
 		$this->update(
 			'xxt_wall_enroll',
 			array('close_at' => time()),
-			"siteid='$runningMpid'".$where,
+			"siteid='$runningMpid'".$where
 		);
 		/**
 		 * 加入一个组
@@ -72,7 +72,7 @@ class wall_model extends app_base {
 		$q = array(
 			'count(*)',
 			'xxt_wall_enroll',
-			"siteid='$runningMpid' and wid='$wid' ".$where,
+			"siteid='$runningMpid' and wid='$wid' ".$where
 		);
 		if (1 === (int) $this->query_val_ss($q)) {
 			/**

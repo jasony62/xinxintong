@@ -76,9 +76,11 @@ define(['frame'], function(ngApp) {
 							url = '/rest/pl/fe/matter/enroll/list?site=' + $scope.siteId + '&size=999';
 							url += '&scenario=registration';
 							delete $scope2.data.includeEnroll;
-						} else {
+						} else if(appType === 'signin') {
 							url = '/rest/pl/fe/matter/signin/list?site=' + $scope.siteId + '&size=999';
 							$scope2.data.includeEnroll = 'Y';
+						}else{
+							url = '/rest/pl/fe/matter/wall/list?site=' + $scope.siteId + '&size=999';
 						}
 						app.mission && (url += '&mission=' + app.mission.id);
 						http2.get(url, function(rsp) {

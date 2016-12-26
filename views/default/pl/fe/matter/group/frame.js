@@ -103,6 +103,21 @@ define(['require'], function() {
 				singleMatter: true
 			});
 		};
+		//从项目中移除
+		$scope.quitMission = function() {
+			//srvApp.quitMission().then(function() {});
+			var oApp = $scope.app ,
+				matter = {
+				id: oApp.id,
+				type: 'group',
+				title: oApp.title
+			};
+			http2.post('/rest/pl/fe/matter/mission/matter/remove?site=' + oApp.siteId + '&id=' + oApp.mission_id, matter, function(rsp) {
+				delete oApp.mission;
+				oApp.mission_id = null;
+				$scope.update(['mission_id']);
+			});
+		};
 		http2.get('/rest/pl/fe/matter/group/get?site=' + $scope.siteId + '&app=' + $scope.id, function(rsp) {
 			var app, url;
 			app = rsp.data;

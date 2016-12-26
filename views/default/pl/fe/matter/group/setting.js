@@ -48,30 +48,6 @@ define(['frame'], function(ngApp) {
 			}
 		};
 		$scope.activeRound = null;
-		$scope.assignMission = function() {
-			mattersgallery.open($scope.siteId, function(matters, type) {
-				var app;
-				if (matters.length === 1) {
-					app = {
-						id: $scope.id,
-						type: 'group'
-					};
-					http2.post('/rest/pl/fe/matter/mission/matter/add?site=' + $scope.siteId + '&id=' + matters[0].mission_id, app, function(rsp) {
-						$scope.app.mission = rsp.data;
-						$scope.app.mission_id = rsp.data.id;
-						$scope.update('mission_id');
-					});
-				}
-			}, {
-				matterTypes: [{
-					value: 'mission',
-					title: '项目',
-					url: '/rest/pl/fe/matter'
-				}],
-				hasParent: false,
-				singleMatter: true
-			});
-		};
 		$scope.importByApp = function() {
 			$uibModal.open({
 				templateUrl: 'importByApp.html',

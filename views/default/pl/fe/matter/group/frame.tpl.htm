@@ -9,20 +9,6 @@
     <link href="/views/default/pl/fe/matter/group/frame.css?_=2" rel="stylesheet">
 </head>
 <body ng-controller='ctrlApp' ng-cloak class='ng-cloak'>
-<!--<nav class='navbar navbar-default navbar-fixed-top'>-->
-<!--<ul class='nav navbar-nav'>-->
-<!--<li><a href='/rest/pl/fe' target='_self'>首页</a></li>-->
-<!--<li><a href='/rest/pl/fe/site/console?site={{siteId}}' target='_self'>工作台</a></li>-->
-<!--</ul>-->
-<!--<ul class='nav navbar-nav'>-->
-<!--<li ng-if="app.mission"><a href="/rest/pl/fe/matter/mission?site={{siteId}}&id={{app.mission.id}}" target='_self'>返回项目</a></li>-->
-<!--<li class='title'><a title="{{app.title}}" href='/rest/pl/fe/matter/group/setting?site={{siteId}}&id={{id}}'>{{app.title}}</a></li>-->
-<!--</ul>-->
-<!--<ul class='nav navbar-nav'>-->
-<!--<li><a href='/rest/pl/fe/user/settings' target='_self'>用户设置</a></li>-->
-<!--<li><a href='/rest/pl/fe/user/logout' target='_self'>退出</a></li>-->
-<!--</ul>-->
-<!--</nav>-->
 <nav class='navbar navbar-default navbar-fixed-top'>
     <div class='container-fluid'>
         <div class="navbar-header">
@@ -93,43 +79,14 @@
                         </span>
             </div>
         </div>
-        <div class='form-group' ng-if="app.mission.multi_phase==='Y'">
-            <label>项目阶段</label>
-            <select class='form-control' ng-model="app.mission_phase_id" ng-change="choosePhase()"
-                    ng-options="phase.phase_id as phase.title for phase in app.mission.phases">
-                <option value=''>全部</option>
-            </select>
-        </div>
-        <!--<div class='form-group'>-->
-            <!--<label>活动类型</label>-->
-            <!--<select class='form-control' ng-model="app.scenario" ng-change="update('scenario');">-->
-                <!--<option value=''></option>-->
-                <!--<option value='registration'>报名</option>-->
-                <!--<option value='voting'>评价</option>-->
-                <!--<option value='group_week_report'>周报</option>-->
+        <!--<div class='form-group' ng-if="app.mission.multi_phase==='Y'">-->
+            <!--<label>项目阶段</label>-->
+            <!--<select class='form-control' ng-model="app.mission_phase_id" ng-change="choosePhase()"-->
+                    <!--ng-options="phase.phase_id as phase.title for phase in app.mission.phases">-->
+                <!--<option value=''>全部</option>-->
             <!--</select>-->
         <!--</div>-->
-        <!--<hr>-->
-        <!--<div class='form-group'>-->
-            <!--<label>允许每用户填写条数（0不限制）</label>-->
-            <!--<input type='text' class='form-control' ng-model="app.count_limit" tms-auto-update tms-wait=1000-->
-                   <!--tms-update="update('count_limit')">-->
-        <!--</div>-->
-        <!--<div class='form-group'>-->
-            <!--<label>活动说明</label>-->
-            <!--<textarea type='text' class='form-control' ng-model="app.summary" tms-auto-update tms-wait=1000-->
-                      <!--tms-update="update('summary')"></textarea>-->
-        <!--</div>-->
-        <!--<div class='checkbox'>-->
-            <!--<label><input type='checkbox' ng-true-value="'Y'" ng-false-value="'N'" ng-model="app.can_discuss"-->
-                          <!--ng-change="update('can_discuss')">开放用户评论</label>-->
-        <!--</div>-->
-        <!--<hr>-->
-        <!--<button class='btn btn-default btn-block' ng-click="shareAsTemplate()">发布模版</button>-->
-        <!--<button class='btn btn-default btn-block' ng-click="applyToHome()">申请发布到主页</button>-->
-        <!--<button class='btn btn-default btn-block' ng-click="exportAsTemplate()">导出模版</button>-->
-        <!--<hr>-->
-        <!--<button class='btn btn-default btn-block' ng-click="remove()">删除活动</button>-->
+
     </div>
 </script>
 <script src="/static/js/jquery.min.js"></script>

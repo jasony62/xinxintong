@@ -78,7 +78,6 @@ define(['require'], function() {
 				});
 			}
 		};
-		//指定项目
 		$scope.assignMission = function() {
 			mattersgallery.open($scope.siteId, function(matters, type) {
 				var app;
@@ -103,9 +102,7 @@ define(['require'], function() {
 				singleMatter: true
 			});
 		};
-		//从项目中移除
 		$scope.quitMission = function() {
-			//srvApp.quitMission().then(function() {});
 			var oApp = $scope.app ,
 				matter = {
 				id: oApp.id,

@@ -204,7 +204,7 @@ class wall_model extends app_base {
 		$q = array(
 			'l.*,e.nickname,e.ufrom,e.userid',
 			'xxt_wall_log l,xxt_wall_enroll e',
-			"l.siteid = '$runningMpid' and l.wid = '$wid' and e.wid = l.wid and (e.openid = l.openid and e.wx_openid = l.openid or e.yx_openid = l.openid or e.qy_openid = l.openid) and approved=" . self::APPROVE_PENDING,
+			"l.siteid = '$runningMpid' and l.wid = '$wid' and e.wid = l.wid and (e.openid = l.openid or e.wx_openid = l.openid or e.yx_openid = l.openid or e.qy_openid = l.openid) and approved=" . self::APPROVE_PENDING,
 		);
 		$time > 0 && $q[2] .= " and publish_at>=$time";
 		$q2['o'] = 'publish_at desc';
@@ -400,19 +400,19 @@ class wall_model extends app_base {
 			 * 通过客服接口发送给墙内所有用户
 			 */
 			foreach ($users as $user) {
-				if ($openid === $user->openid || $openid === $user->wx_openid || $openid === $user->yx_openid || $openid === $user->qy_openid) {
+				if ($openid === $user->openid) {
 					continue;
 				}
-				if ($user->ufrom == 'qy' || !empty($user->qy_openid)) {
+				if ($user->ufrom === 'qy' || !empty($user->qy_openid)) {
 					$usersQy[] = $user;
 				}
-				if (!empty($user->yx_openid)){
+				if (!empty($user->yx_openid) && $user->yx_openid !== $openid){
 					$this->sendByOpenid($site, $user->yx_openid, $message, 'yx');
 				}
-				if (!empty($user->wx_openid)){
+				if (!empty($user->wx_openid) && $user->wx_openid !== $openid){
 					$this->sendByOpenid($site, $user->wx_openid, $message, 'wx');
 				}
-				if($user->ufrom !== 'qy' && empty($user->wx_openid) && empty($user->yx_openid) && empty($user->qy_openid) && !empty($user->openid)){
+				if($user->ufrom !== 'qy' && empty($user->wx_openid) && empty($user->yx_openid) && empty($user->qy_openid) && !empty($user->openid) && !empty($user->ufrom)){
 					$this->sendByOpenid($site, $user->openid, $message, $user->ufrom);
 				}
 			}
@@ -449,7 +449,7 @@ class wall_model extends app_base {
 			 * 通过客服接口发送给墙内所有用户
 			 */
 			foreach ($users as $user) {
-				if ($openid === $user->openid || $openid === $user->wx_openid || $openid === $user->yx_openid || $openid === $user->qy_openid) {
+				if ($openid === $user->openid) {
 					continue;
 				}
 				if ($user->ufrom == 'qy' || !empty($user->qy_openid)) {
@@ -481,13 +481,13 @@ class wall_model extends app_base {
 					);
 				}
 
-				if (!empty($user->yx_openid)){
+				if (!empty($user->yx_openid) && $user->yx_openid !== $openid){
 					$this->sendByOpenid($site, $user->yx_openid, $message, 'yx');
 				}
-				if (!empty($user->wx_openid)){
+				if (!empty($user->wx_openid) && $user->wx_openid !== $openid){
 					$this->sendByOpenid($site, $user->wx_openid, $message, 'wx');
 				}
-				if($user->ufrom !== 'qy' && empty($user->wx_openid) && empty($user->yx_openid) && empty($user->qy_openid) && !empty($user->openid)){
+				if($user->ufrom !== 'qy' && empty($user->wx_openid) && empty($user->yx_openid) && empty($user->qy_openid) && !empty($user->openid) && !empty($user->ufrom)){
 					$this->sendByOpenid($site, $user->openid, $message, $user->ufrom);
 				}
 			}
@@ -551,12 +551,12 @@ class wall_model extends app_base {
 				 * 通过客服接口发送给墙内所有用户
 				 */
 				foreach ($usersQy as $user) {
-					if ($openid === $user->openid || $openid === $user->wx_openid || $openid === $user->yx_openid || $openid === $user->qy_openid) {
-					continue;
-				}
+					if ($openid === $user->openid || $user->qy_openid === $openid) {
+						continue;
+					}
 					if(!empty($user->qy_openid)){
 						$this->sendByOpenid($site, $user->qy_openid, $message, 'qy');
-					}elseif ($user->ufrom == 'qy' && !empty($user->openid)) {
+					}elseif ($user->ufrom == 'qy' && !empty($user->openid) && empty($user->qy_openid)) {
 						$this->sendByOpenid($site, $user->openid, $message, $user->ufrom);
 					}
 

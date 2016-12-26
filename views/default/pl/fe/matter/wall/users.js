@@ -5,7 +5,7 @@ define(['frame'], function(ngApp) {
      */
     ngApp.provider.controller('ctrlUsers', ['$scope', 'http2', '$q','$uibModal','noticebox',function($scope,  http2, $q, $uibModal, noticebox) {
         $scope.$parent.subView = 'users';
-        //退出信息墙功能
+        //退出信息墙功能  删除所有用户
         $scope.quit = function() {
             var vcode;
             vcode = prompt('是否要退出所有在线用户？，若是，请输入讨论组名称。');
@@ -115,6 +115,23 @@ define(['frame'], function(ngApp) {
             });
         };
         $scope.doSearch();
+        //移除活动
+        //$scope.cancelSourceApp = function() {
+        //    $scope.app.source_app = '';
+        //    $scope.app.data_schemas = '';
+        //    delete $scope.app.sourceApp;
+        //    $scope.update(['source_app', 'data_schemas']);
+        //};
+        //同步用户
+        $scope.syncByApp = function() {
+            //if ($scope.app.sourceApp) {
+                http2.get('/rest/pl/fe/matter/group/player/syncByApp?site=' + $scope.siteId + '&app=' + $scope.id, function(rsp) {
+                    noticebox.success('同步' + rsp.data + '个用户');
+                    //刷新页面
+                    $scope.doSearch();
+                });
+            //}
+        };
     }]);
 });
 

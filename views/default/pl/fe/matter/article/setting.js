@@ -1,5 +1,5 @@
 define(['frame'], function(ngApp) {
-	ngApp.provider.controller('ctrlSetting', ['$scope', '$uibModal', 'http2', 'noticebox', 'mattersgallery', 'mediagallery', 'noticebox', function($scope, $uibModal, http2, noticebox, mattersgallery, mediagallery, noticebox) {
+	ngApp.provider.controller('ctrlSetting', ['$scope', '$uibModal', 'http2', 'noticebox', 'mattersgallery', 'mediagallery', 'noticebox', 'srvApp', function($scope, $uibModal, http2, noticebox, mattersgallery, mediagallery, noticebox, srvApp) {
 		(function() {
 			new ZeroClipboard(document.querySelectorAll('.text2Clipboard'));
 		})();
@@ -50,41 +50,6 @@ define(['frame'], function(ngApp) {
 				return message;
 			}
 		};
-		$scope.assignMission = function() {
-			mattersgallery.open($scope.editing.siteid, function(matters, type) {
-				var app;
-				if (matters.length === 1) {
-					app = {
-						id: $scope.id,
-						type: 'article'
-					};
-					http2.post('/rest/pl/fe/matter/mission/matter/add?site=' + $scope.editing.siteid + '&id=' + matters[0].id, app, function(rsp) {
-						var mission = rsp.data,
-							editing = $scope.editing,
-							updatedFields = ['mission_id'];
-
-						editing.mission = mission;
-						editing.mission_id = mission.id;
-						if (!editing.pic || editing.pic.length === 0) {
-							editing.pic = mission.pic;
-							updatedFields.push('pic');
-						}
-						if (!editing.summary || editing.summary.length === 0) {
-							editing.summary = mission.summary;
-							updatedFields.push('summary');
-						}
-						$scope.update(updatedFields);
-					});
-				}
-			}, {
-				matterTypes: [{
-					value: 'mission',
-					title: '项目',
-					url: '/rest/pl/fe/matter'
-				}],
-				singleMatter: true
-			});
-		};
 		$scope.submit = function() {
 			http2.post('/rest/pl/fe/matter/article/update?site=' + $scope.editing.siteid + '&id=' + $scope.id, modifiedData, function() {
 				modifiedData = {};
@@ -103,29 +68,18 @@ define(['frame'], function(ngApp) {
 				});
 			}
 		};
-		$scope.update = function(name) {
-			$scope.modified = true;
-			if (angular.isArray(name)) {
-				name.forEach(function(prop) {
-					modifiedData[prop] = prop === 'body' ? encodeURIComponent($scope.editing[prop]) : $scope.editing[prop];
-				});
-			} else {
-				modifiedData[name] = name === 'body' ? encodeURIComponent($scope.editing[name]) : $scope.editing[name];
-			}
-			$scope.submit();
-		};
 		$scope.setPic = function() {
 			var options = {
 				callback: function(url) {
 					$scope.editing.pic = url + '?_=' + (new Date()) * 1;
-					$scope.update('pic');
+					srvApp.update('pic');
 				}
 			};
 			mediagallery.open($scope.editing.siteid, options);
 		};
 		$scope.removePic = function() {
 			$scope.editing.pic = '';
-			$scope.update('pic');
+			srvApp.update('pic');
 		};
 		$scope.$on('tinymce.multipleimage.open', function(event, callback) {
 			var options = {

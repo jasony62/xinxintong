@@ -62,7 +62,7 @@ define(['frame'], function(ngApp) {
                 templateUrl: '/views/default/pl/fe/matter/enroll/component/recordEditor.html?_=5',
                 controller: 'ctrlEdit',
                 backdrop: 'static',
-                windowClass: 'auto-height',
+                //windowClass: 'auto-height',
                 resolve: {
                     app: function() {
                         return $scope.app;

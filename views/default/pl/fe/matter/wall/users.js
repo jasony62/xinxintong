@@ -55,6 +55,7 @@ define(['frame'], function(ngApp) {
                 }]
             }).result.then(function(app) {
                     console.log( app);
+                    
                     http2.get('/rest/pl/fe/matter/wall/users/import?id=' + $scope.id + '&app=' + app.id +'&site='+ app.siteid + '&type=' + app.type, function(rsp) {
                         //$scope.$root.infomsg = '导入用户数：' + rsp.data;
                         // 显示导入人数

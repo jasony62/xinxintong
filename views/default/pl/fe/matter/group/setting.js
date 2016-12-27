@@ -60,7 +60,8 @@ define(['frame'], function(ngApp) {
 					$scope2.app = app;
 					$scope2.data = {
 						app: '',
-						appType: 'registration'
+						appType: 'registration' ,
+						onlySpeaker : 'N'
 					};
 					app.mission && ($scope2.data.sameMission = 'Y');
 					$scope2.cancel = function() {
@@ -80,7 +81,7 @@ define(['frame'], function(ngApp) {
 							url = '/rest/pl/fe/matter/signin/list?site=' + $scope.siteId + '&size=999';
 							$scope2.data.includeEnroll = 'Y';
 						}else{
-							url = '/rest/pl/fe/matter/wall/list?site=' + $scope.siteId + '&size=999';
+							url = '/rest/pl/fe/matter/wall/list?site=' + $scope.siteId + '&size=999' ;
 						}
 						app.mission && (url += '&mission=' + app.mission.id);
 						http2.get(url, function(rsp) {
@@ -94,9 +95,10 @@ define(['frame'], function(ngApp) {
 				if (data.app) {
 					params = {
 						app: data.app.id,
-						appType: data.appType,
+						appType: data.appType
 					};
 					data.appType === 'signin' && (params.includeEnroll = data.includeEnroll);
+					data.onlySpeaker === 'Y' && (params.onlySpeaker = data.onlySpeaker);
 					http2.post('/rest/pl/fe/matter/group/player/importByApp?site=' + $scope.siteId + '&app=' + $scope.id, params, function(rsp) {
 						$scope.app.sourceApp = data.app;
 						$scope.app.data_schemas = JSON.parse(rsp.data.data_schemas);

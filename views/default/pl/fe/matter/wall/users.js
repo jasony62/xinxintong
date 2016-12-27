@@ -13,7 +13,7 @@ define(['frame'], function(ngApp) {
             if (vcode === $scope.wall.title) {
                 http2.get('/rest/pl/fe/matter/wall/users/quit?id=' + $scope.id + '&site=' + $scope.siteId , function(rsp) {
                     $scope.users = null;
-                    delete $scope.app.sourceApp;
+                    delete $scope.wall.sourceApp;
                     $scope.$root.infomsg = '操作完成';
                 });
             }
@@ -62,9 +62,8 @@ define(['frame'], function(ngApp) {
                         };
                         data.appType === 'signin' && (params.includeEnroll = data.includeEnroll);
                         http2.post('/rest/pl/fe/matter/wall/users/import?site=' + $scope.siteId + '&app=' + $scope.id, params, function(rsp) {
-                            $scope.app.sourceApp = data.app;
-                            $scope.app.data_schemas = JSON.parse(rsp.data.data_schemas);
-                            $scope.open(null);
+                            $scope.wall.sourceApp = data.app;
+                            $scope.doSearch();
                         });
                     }
                 });

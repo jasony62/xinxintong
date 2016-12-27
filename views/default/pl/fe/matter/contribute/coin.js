@@ -2,7 +2,19 @@
     ngApp.provider.controller('ctrlCoin', ['$scope', 'http2', function($scope, http2) {
         var actions = [{
             name: 'site.matter.article.read',
-            desc: '用户B的投稿被用户A阅读'
+            desc: '用户A阅读用户B的投稿'
+        },{
+            name: 'site.matter.article.like',
+            desc: '用户A点赞用户B的投稿'
+        },{
+            name: 'site.matter.article.approved',
+            desc: '用户B的投稿通过审核'
+        },{
+            name: 'site.matter.article.share.friend',
+            desc: '用户A分享用户B的投稿给好友'
+        },{
+            name: 'site.matter.article.share.timeline',
+            desc: '用户A分享用户B的投稿到朋友圈'
         }];
         $scope.$parent.subView = 'coin';
         $scope.rules = {};

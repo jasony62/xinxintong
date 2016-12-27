@@ -1,41 +1,41 @@
 <style>
-#platformBoard .options{position:relative;float:left;width:280px;margin-right:15px;}
-#platformBoard .pages{position:relative;float:left;width:301px;}
-#simulator,#schemaData{width:100%;height:535px;border:1px solid #efefef;}
-#schemaData{resize:none;}
+#simulator{width:100%;height:480px;border:1px solid #efefef;}
 #shareBoard .thumbnail{height:128px;}
 </style>
 <div class="modal-header">
 	<button class="close" type="button" ng-click="cancel()">×</button>
 	<h5 class="modal-title">选择模板</h5>
 </div>
-<div class="modal-body" style='padding-top:0'>
-	<ul class="nav nav-tabs">
+<div class="modal-body">
+	<ul class="nav nav-tabs" style="margin-bottom:15px;">
 		<li ng-class="{'active':source==='platform'}"><a ng-click="switchSource('platform')">系统模板</a></li>
 		<li ng-class="{'active':source==='share'}"><a ng-click="switchSource('share')">共享模板</a></li>
-		<li ng-class="{'active':source==='file'}"><a ng-click="switchSource('file')">模板文件</a></li>
+		<li class='hide' ng-class="{'active':source==='file'}"><a ng-click="switchSource('file')">模板文件</a></li>
 	</ul>
-	<div ng-switch on="source" style='margin-top:15px'>
+	<div ng-switch on="source">
 		<!-- platform -->
 		<div id='platformBoard' ng-switch-when="platform">
-			<div class='options'>
-		        <div class='form-group'>
-		            <label>场景</label>
-		            <select class='form-control' ng-disabled="fixedScenario" ng-model='result.scenario' ng-options='s as s.title for s in templates2' ng-change='chooseScenario()'></select>
-		        </div>
-		        <div class='form-group'>
-		            <label>模板</label>
-		            <select class='form-control' ng-model='result.template' ng-options='t.title for t in result.scenario.templates' ng-change='chooseTemplate()'></select>
-		        </div>
-		    </div>
-		    <div class='pages'>
-		        <div class='form-group'>
-		            <label>模版页面预览</label>
-		            <select id='selectedPage' class='form-control' ng-model='result.selectedPage' ng-options='p.title for p in pages' ng-change='choosePage()'></select>
-		        </div>
-		        <div class='form-group'>
-		            <iframe id='simulator' src=""></iframe>
-		        </div>
+			<div class='row'>
+				<div class='col-md-5 options'>
+			        <div class='form-group'>
+			            <label>场景</label>
+			            <select class='form-control' ng-disabled="fixedScenario" ng-model='result.scenario' ng-options='s as s.title for s in templates2' ng-change='chooseScenario()'></select>
+			        </div>
+			        <div class='form-group'>
+			            <label>模板</label>
+			            <select class='form-control' ng-model='result.template' ng-options='t.title for t in result.scenario.templates' ng-change='chooseTemplate()'></select>
+			        </div>
+			        <div class='form-group'>
+			            <label>模版页面预览</label>
+			            <select id='selectedPage' class='form-control' ng-model='result.selectedPage' ng-options='p.title for p in pages' ng-change='choosePage()'></select>
+			        </div>
+			    </div>
+			    <div class='col-md-7 pages'>
+			        
+			        <div class='form-group'>
+			            <iframe id='simulator' src=""></iframe>
+			        </div>
+			    </div>
 		    </div>
 		</div>
 		<!-- end platform -->
@@ -53,7 +53,7 @@
 				</div>
 			</div>
 			<div class='row'>
-				<div class='col-md-4' ng-repeat='t in templates'>
+				<div class='col-md-6' ng-repeat='t in templates'>
 					<div class='thumbnail'>
 						<label class='radio-inline'><input type='radio' name='template' value='{{$index}}' ng-model='data.choose' ng-change='choose(t)'><span ng-bind='t.title'></span></label>
 						<div ng-bind='t.summary'></div>

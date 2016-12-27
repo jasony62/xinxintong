@@ -52,6 +52,7 @@ $sql = "create table if not exists xxt_site_admin(";
 $sql .= "siteid varchar(32) not null";
 $sql .= ",uid varchar(40) not null"; // 用户的ID
 $sql .= ",ulabel varchar(255) not null"; // 用户的标识
+$sql .= ",urole char(1) not null default 'A'"; // 合作者角色：Owner，Admin
 $sql .= ",creater varchar(40) not null";
 $sql .= ",creater_name varchar(255) not null default ''";
 $sql .= ",create_at int not null";

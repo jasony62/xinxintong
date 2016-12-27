@@ -85,7 +85,7 @@ define(['frame'], function(ngApp) {
 						}
 						app.mission && (url += '&mission=' + app.mission.id);
 						http2.get(url, function(rsp) {
-							$scope2.apps = rsp.data.apps;
+							$scope2.apps =	$scope2.data.appType==='wall' ?  rsp.data: rsp.data.apps ;
 						});
 					});
 				}],
@@ -98,7 +98,7 @@ define(['frame'], function(ngApp) {
 						appType: data.appType
 					};
 					data.appType === 'signin' && (params.includeEnroll = data.includeEnroll);
-					data.onlySpeaker === 'Y' && (params.onlySpeaker = data.onlySpeaker);
+					data.appType  === 'wall' && (params.onlySpeaker = data.onlySpeaker);
 					http2.post('/rest/pl/fe/matter/group/player/importByApp?site=' + $scope.siteId + '&app=' + $scope.id, params, function(rsp) {
 						$scope.app.sourceApp = data.app;
 						$scope.app.data_schemas = JSON.parse(rsp.data.data_schemas);

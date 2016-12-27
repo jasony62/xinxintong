@@ -245,7 +245,7 @@ class main extends \pl\fe\matter\base {
 		$newapp['scenario'] = $copied->scenario;
 		$newapp['scenario_config'] = $copied->scenario_config;
 		$newapp['count_limit'] = $copied->count_limit;
-		$newapp['data_schemas'] = $copied->data_schemas;
+		$newapp['data_schemas'] = $modelApp->escape($copied->data_schemas);
 		$newapp['public_visible'] = $copied->public_visible;
 		$newapp['open_lastroll'] = $copied->open_lastroll;
 		$newapp['tags'] = $copied->tags;
@@ -262,15 +262,15 @@ class main extends \pl\fe\matter\base {
 				$newPage = $modelPage->add($user, $site, $newaid);
 				$rst = $modelPage->update(
 					'xxt_enroll_page',
-					['title' => $ep->title, 'name' => $ep->name, 'type' => $ep->type, 'data_schemas' => $ep->data_schemas, 'act_schemas' => $ep->act_schemas],
+					['title' => $ep->title, 'name' => $ep->name, 'type' => $ep->type, 'data_schemas' => $modelApp->escape($ep->data_schemas), 'act_schemas' => $modelApp->escape($ep->act_schemas)],
 					["aid" => $newaid, "id" => $newPage->id]
 				);
-				$data = array(
+				$data = [
 					'title' => $ep->title,
 					'html' => $ep->html,
 					'css' => $ep->css,
 					'js' => $ep->js,
-				);
+				];
 				$modelCode->modify($newPage->code_id, $data);
 			}
 		}

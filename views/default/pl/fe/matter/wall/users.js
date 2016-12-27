@@ -13,6 +13,7 @@ define(['frame'], function(ngApp) {
             if (vcode === $scope.wall.title) {
                 http2.get('/rest/pl/fe/matter/wall/users/quit?id=' + $scope.id + '&site=' + $scope.siteId , function(rsp) {
                     $scope.users = null;
+                    delete $scope.app.sourceApp;
                     $scope.$root.infomsg = '操作完成';
                 });
             }

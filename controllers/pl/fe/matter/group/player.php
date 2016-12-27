@@ -148,9 +148,8 @@ class player extends \pl\fe\matter\base {
 	}
 	/**
 	 * 从其他活动导入数据
-	 * $onlySpeaker 导入信息墙时是否仅限发言用户
 	 */
-	public function importByApp_action($site, $app, $onlySpeaker = 'N') {
+	public function importByApp_action($site, $app) {
 		if (false === ($user = $this->accountUser())) {
 			return new \ResponseTimeout();
 		}
@@ -164,7 +163,7 @@ class player extends \pl\fe\matter\base {
 			} else if ($params->appType === 'signin') {
 				$sourceApp = $this->_importBySignin($site, $app, $params);
 			} else if ($params->appType === 'wall') {
-				$sourceApp = $this->_importByWall($site, $app, $params->app, $onlySpeaker);
+				$sourceApp = $this->_importByWall($site, $app, $params->app, $params->onlySpeaker);
 			}
 		}
 
@@ -174,9 +173,8 @@ class player extends \pl\fe\matter\base {
 	 * 从关联活动同步数据
 	 *
 	 * 同步在最后一次同步之后的数据或已经删除的数据
-	 * $onlySpeaker 同步信息墙时是否仅限发言用户
 	 */
-	public function syncByApp_action($site, $app, $onlySpeaker = 'N') {
+	public function syncByApp_action($site, $app) {
 		if (false === ($user = $this->accountUser())) {
 			return new \ResponseTimeout();
 		}
@@ -190,7 +188,7 @@ class player extends \pl\fe\matter\base {
 			} else if ($sourceApp->type === 'signin') {
 				$count = $this->_syncBySignin($site, $app, $sourceApp->id);
 			} else if ($sourceApp->type === 'wall') {
-				$count = $this->_syncByWall($site, $app, $sourceApp->id, $onlySpeaker);
+				$count = $this->_syncByWall($site, $app, $sourceApp->id, $sourceApp->onlySpeaker);
 			}
 			// 更新同步时间
 			$modelGrp->update(

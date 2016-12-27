@@ -109,7 +109,7 @@ define(['require'], function() {
 				type: 'group',
 				title: oApp.title
 			};
-			http2.post('/rest/pl/fe/matter/mission/matter/remove?site=' + oApp.siteId + '&id=' + oApp.mission_id, matter, function(rsp) {
+			http2.post('/rest/pl/fe/matter/mission/matter/remove?site=' + oApp.siteid + '&id=' + oApp.mission_id, matter, function(rsp) {
 				delete oApp.mission;
 				oApp.mission_id = null;
 				$scope.update(['mission_id']);

@@ -14,7 +14,7 @@ define(['frame'], function(ngApp) {
         };
 
         $scope.messages = [];
-        //这是什么意思
+        //锟斤拷锟斤拷什么锟斤拷思
         $scope.$parent.worker = new Worker('/views/default/pl/fe/matter/wall/wallMessages.js?_=2');
         $scope.$parent.worker.onmessage = function(event) {
             for (var i in event.data) {

@@ -211,11 +211,11 @@ class users extends \pl\fe\matter\base {
 		 * 清除所有加入的人
 		 */
 		$rst = $this->model()->delete('xxt_wall_enroll', "wid='$id'");
+		
 		/**
 		*解除关联活动
 		*/
-
-		$modelWall->update(
+		$this->model()->update(
 				'xxt_wall',
 				array('data_schemas' => '','source_app' => ''),
 				"id='{$id}'"

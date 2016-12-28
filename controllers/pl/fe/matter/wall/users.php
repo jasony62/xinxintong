@@ -226,7 +226,7 @@ class users extends \pl\fe\matter\base {
 			);
 
 		//记录操作日志
-		$matter = $this->model()->byId($app, 'siteid,id,title,summary,pic');
+		$matter = $this->model('matter\wall')->byId($app, 'siteid,id,title,summary,pic');
 		$matter->type = 'wall';
 		$this->model('matter\log')->matterOp($matter->siteid, $user, $matter, 'quit');
 

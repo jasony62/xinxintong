@@ -42,7 +42,12 @@ class main extends \pl\fe\matter\base {
 		 * acl
 		 */
 		$w->acl = $this->model('acl')->byMatter($site, 'wall', $id);
-
+		if (!empty($w->source_app)) {
+			$sourceApp = json_decode($w->source_app);
+			$options = array('cascaded' => 'N', 'fields' => 'id,title');
+			$w->sourceApp = $this->model('matter\\' . $sourceApp->type)->byId($sourceApp->id, $options);
+		}
+		
 		return new \ResponseData($w);
 	}
 	/**

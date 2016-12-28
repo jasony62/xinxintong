@@ -119,7 +119,7 @@ define(['frame'], function(ngApp) {
         //同步用户
         $scope.syncByApp = function() {
             //if ($scope.app.sourceApp) {
-                http2.get('/rest/pl/fe/matter/group/player/syncByApp?site=' + $scope.siteId + '&app=' + $scope.id, function(rsp) {
+                http2.get('/rest/pl/fe/matter/wall/users/syncByApp?site=' + $scope.siteId + '&app=' + $scope.id, function(rsp) {
                     noticebox.success('同步' + rsp.data + '个用户');
                     //刷新页面
                     $scope.doSearch();

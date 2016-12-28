@@ -48,30 +48,6 @@ define(['frame'], function(ngApp) {
 			}
 		};
 		$scope.activeRound = null;
-		$scope.assignMission = function() {
-			mattersgallery.open($scope.siteId, function(matters, type) {
-				var app;
-				if (matters.length === 1) {
-					app = {
-						id: $scope.id,
-						type: 'group'
-					};
-					http2.post('/rest/pl/fe/matter/mission/matter/add?site=' + $scope.siteId + '&id=' + matters[0].mission_id, app, function(rsp) {
-						$scope.app.mission = rsp.data;
-						$scope.app.mission_id = rsp.data.id;
-						$scope.update('mission_id');
-					});
-				}
-			}, {
-				matterTypes: [{
-					value: 'mission',
-					title: '项目',
-					url: '/rest/pl/fe/matter'
-				}],
-				hasParent: false,
-				singleMatter: true
-			});
-		};
 		$scope.importByApp = function() {
 			$uibModal.open({
 				templateUrl: 'importByApp.html',
@@ -84,7 +60,8 @@ define(['frame'], function(ngApp) {
 					$scope2.app = app;
 					$scope2.data = {
 						app: '',
-						appType: 'registration'
+						appType: 'registration' ,
+						onlySpeaker : 'N'
 					};
 					app.mission && ($scope2.data.sameMission = 'Y');
 					$scope2.cancel = function() {
@@ -100,13 +77,15 @@ define(['frame'], function(ngApp) {
 							url = '/rest/pl/fe/matter/enroll/list?site=' + $scope.siteId + '&size=999';
 							url += '&scenario=registration';
 							delete $scope2.data.includeEnroll;
-						} else {
+						} else if(appType === 'signin') {
 							url = '/rest/pl/fe/matter/signin/list?site=' + $scope.siteId + '&size=999';
 							$scope2.data.includeEnroll = 'Y';
+						}else{
+							url = '/rest/pl/fe/matter/wall/list?site=' + $scope.siteId + '&size=999' ;
 						}
 						app.mission && (url += '&mission=' + app.mission.id);
 						http2.get(url, function(rsp) {
-							$scope2.apps = rsp.data.apps;
+							$scope2.apps =	$scope2.data.appType==='wall' ?  rsp.data: rsp.data.apps ;
 						});
 					});
 				}],
@@ -116,9 +95,10 @@ define(['frame'], function(ngApp) {
 				if (data.app) {
 					params = {
 						app: data.app.id,
-						appType: data.appType,
+						appType: data.appType
 					};
 					data.appType === 'signin' && (params.includeEnroll = data.includeEnroll);
+					data.appType  === 'wall' && (params.onlySpeaker = data.onlySpeaker);
 					http2.post('/rest/pl/fe/matter/group/player/importByApp?site=' + $scope.siteId + '&app=' + $scope.id, params, function(rsp) {
 						$scope.app.sourceApp = data.app;
 						$scope.app.data_schemas = JSON.parse(rsp.data.data_schemas);

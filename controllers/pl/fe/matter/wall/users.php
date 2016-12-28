@@ -47,6 +47,10 @@ class users extends \pl\fe\matter\base {
 				$sourceApp = $this->_importBySignin($site, $app, $params);
 			}
 		}
+		//记录操作日志
+		$matter = $this->model('matter\wall')->byId($app, 'id,title,summary,pic');
+		$matter->type = 'wall';
+		$this->model('matter\log')->matterOp($site, $user, $matter, 'import');
 
 		return new \ResponseData($sourceApp);
 	}
@@ -221,6 +225,11 @@ class users extends \pl\fe\matter\base {
 				"id='{$id}'"
 			);
 
+		//记录操作日志
+		$matter = $this->model()->byId($app, 'siteid,id,title,summary,pic');
+		$matter->type = 'wall';
+		$this->model('matter\log')->matterOp($matter->siteid, $user, $matter, 'quit');
+
 		return new \ResponseData($rst);
 	}
 	/**
@@ -248,6 +257,11 @@ class users extends \pl\fe\matter\base {
 				array('last_sync_at' => time()),
 				"id='{$app->id}'"
 			);
+
+			//记录操作日志
+			$matter = $modelWall->byId($app, 'id,title,summary,pic');
+			$matter->type = 'wall';
+			$this->model('matter\log')->matterOp($site, $user, $matter, 'syncByApp');
 		}
 
 		return new \ResponseData($count);

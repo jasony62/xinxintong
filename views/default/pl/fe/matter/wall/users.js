@@ -16,6 +16,10 @@ define(['frame'], function(ngApp) {
                     delete $scope.wall.sourceApp;
                     $scope.$root.infomsg = '操作完成';
                 });
+                $scope.wall.source_app = '';
+                $scope.wall.data_schemas = '';
+                delete $scope.wall.sourceApp;
+                $scope.update(['source_app', 'data_schemas']);
             }
         };
         //导入用户

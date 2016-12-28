@@ -14,7 +14,7 @@ class matter extends \pl\fe\matter\base {
 		exit;
 	}
 	/**
-	 * 活的任务下的素材
+	 * 获得任务下的素材
 	 *
 	 * @param int $id
 	 */

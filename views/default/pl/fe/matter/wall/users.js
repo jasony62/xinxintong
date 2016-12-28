@@ -16,10 +16,7 @@ define(['frame'], function(ngApp) {
                     delete $scope.wall.sourceApp;
                     $scope.$root.infomsg = '操作完成';
                 });
-                $scope.wall.source_app = '';
-                $scope.wall.data_schemas = '';
-                delete $scope.wall.sourceApp;
-                $scope.update(['source_app', 'data_schemas']);
+
             }
         };
         //导入用户
@@ -119,13 +116,6 @@ define(['frame'], function(ngApp) {
             });
         };
         $scope.doSearch();
-        //移除活动
-        //$scope.cancelSourceApp = function() {
-        //    $scope.app.source_app = '';
-        //    $scope.app.data_schemas = '';
-        //    delete $scope.app.sourceApp;
-        //    $scope.update(['source_app', 'data_schemas']);
-        //};
         //同步用户
         $scope.syncByApp = function() {
             //if ($scope.app.sourceApp) {

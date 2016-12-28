@@ -211,6 +211,9 @@ class users extends \pl\fe\matter\base {
 	 * 将所有用户退出信息墙
 	 */
 	public function quit_action($id) {
+		if (false === ($user = $this->accountUser())) {
+			return new \ResponseTimeout();
+		}
 		/**
 		 * 清除所有加入的人
 		 */
@@ -226,7 +229,7 @@ class users extends \pl\fe\matter\base {
 			);
 
 		//记录操作日志
-		$matter = $this->model('matter\wall')->byId($app, 'siteid,id,title,summary,pic');
+		$matter = $this->model('matter\wall')->byId($id, 'siteid,id,title,summary,pic');
 		$matter->type = 'wall';
 		$this->model('matter\log')->matterOp($matter->siteid, $user, $matter, 'quit');
 

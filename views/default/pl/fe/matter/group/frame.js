@@ -24,7 +24,7 @@ define(['require'], function() {
 
 		$locationProvider.html5Mode(true);
 	}]);
-	ngApp.controller('ctrlApp', ['$scope', '$location', '$q', 'http2', 'noticebox', function($scope, $location, $q, http2, noticebox) {
+	ngApp.controller('ctrlApp', ['$scope', '$location', '$q', 'http2', 'noticebox','mattersgallery', function($scope, $location, $q, http2, noticebox, mattersgallery) {
 		var ls = $location.search(),
 			modifiedData = {};
 
@@ -77,6 +77,43 @@ define(['require'], function() {
 					window.open('/rest/pl/fe/code?site=' + $scope.siteId + '&name=' + app.page_code_name, '_self');
 				});
 			}
+		};
+		$scope.assignMission = function() {
+			mattersgallery.open($scope.siteId, function(matters, type) {
+				var app;
+				if (matters.length === 1) {
+					app = {
+						id: $scope.id,
+						type: 'group'
+					};
+					http2.post('/rest/pl/fe/matter/mission/matter/add?site=' + $scope.siteId + '&id=' + matters[0].id, app, function(rsp) {
+						$scope.app.mission = rsp.data;
+						$scope.app.mission_id = rsp.data.id;
+						$scope.update('mission_id');
+					});
+				}
+			}, {
+				matterTypes: [{
+					value: 'mission',
+					title: '项目',
+					url: '/rest/pl/fe/matter'
+				}],
+				hasParent: false,
+				singleMatter: true
+			});
+		};
+		$scope.quitMission = function() {
+			var oApp = $scope.app ,
+				matter = {
+				id: oApp.id,
+				type: 'group',
+				title: oApp.title
+			};
+			http2.post('/rest/pl/fe/matter/mission/matter/remove?site=' + oApp.siteid + '&id=' + oApp.mission_id, matter, function(rsp) {
+				delete oApp.mission;
+				oApp.mission_id = null;
+				$scope.update(['mission_id']);
+			});
 		};
 		http2.get('/rest/pl/fe/matter/group/get?site=' + $scope.siteId + '&app=' + $scope.id, function(rsp) {
 			var app, url;

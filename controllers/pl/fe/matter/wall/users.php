@@ -262,7 +262,7 @@ class users extends \pl\fe\matter\base {
 			);
 
 			//记录操作日志
-			$matter = $modelWall->byId($app, 'id,title,summary,pic');
+			$matter = $modelWall->byId($app->id, 'id,title,summary,pic');
 			$matter->type = 'wall';
 			$this->model('matter\log')->matterOp($site, $user, $matter, 'syncByApp');
 		}

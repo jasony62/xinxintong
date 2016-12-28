@@ -34,6 +34,26 @@ class matter extends \pl\fe\matter\base {
 		return new \ResponseData($matters);
 	}
 	/**
+	 * 获得任务下素材的数量
+	 *
+	 * @param int $id mission'is
+	 */
+	public function count_action($id) {
+		if (false === ($user = $this->accountUser())) {
+			return new \ResponseTimeout();
+		}
+
+		/* 检查权限 */
+		$modelAcl = $this->model('matter\mission\acl');
+		if (false === ($acl = $modelAcl->byCoworker($id, $user->id))) {
+			return new \ResponseError('项目不存在或没有访问项目的权限');
+		}
+
+		$count = $this->model('matter\mission\matter')->count($id);
+
+		return new \ResponseData($count);
+	}
+	/**
 	 * 给项目添加素材
 	 *
 	 * @param string $site

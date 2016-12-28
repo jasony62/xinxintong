@@ -40,6 +40,10 @@ class message extends \pl\fe\matter\base {
 	 *
 	 */
 	public function approve_action($wall, $id, $site) {
+		if (false === ($user = $this->accountUser())) {
+			return new \ResponseTimeout();
+		}
+
 		$model = $this->model('matter\wall');
 		/**
 		 * 批准消息
@@ -76,12 +80,17 @@ class message extends \pl\fe\matter\base {
 				'xxt_wall_enroll',
 				"wid = '{$wall->id}' and (openid = '{$openid}' or wx_openid='{$openid}' or yx_openid='{$openid}' or qy_openid='{$openid}')",
 				);
-			$user = $this->model()->query_obj_ss($q);
-			$msg['from_nickname'] = $user->nickname;
-			$msg['src'] = $user->ufrom;
+			$user2 = $this->model()->query_obj_ss($q);
+			$msg['from_nickname'] = $user2->nickname;
+			$msg['src'] = $user2->ufrom;
 			
 			$model->push_others($site, $openid, $msg, $wall, $wall->id);
 		}
+
+		//记录操作日志
+		$matter = $this->model('matter\wall')->byId($wall, 'id,title,summary,pic');
+		$matter->type = 'wall';
+		$this->model('matter\log')->matterOp($site, $user, $matter, 'approve');
 
 		return new \ResponseData($v);
 	}
@@ -93,7 +102,16 @@ class message extends \pl\fe\matter\base {
 	 *
 	 */
 	public function reject_action($wall, $id) {
+		if (false === ($user = $this->accountUser())) {
+			return new \ResponseTimeout();
+		}
+
 		$v = $this->model('matter\wall')->reject($wall, $id);
+
+		//记录操作日志
+		$matter = $this->model('matter\wall')->byId($wall, 'siteid,id,title,summary,pic');
+		$matter->type = 'wall';
+		$this->model('matter\log')->matterOp($matter->siteid, $user, $matter, 'reject');
 
 		return new \ResponseData($v);
 	}
@@ -101,6 +119,17 @@ class message extends \pl\fe\matter\base {
 	 * 清空信息墙的所有数据
 	 */
 	public function reset_action($id) {
+		if (false === ($user = $this->accountUser())) {
+			return new \ResponseTimeout();
+		}
+		/**
+		*解除关联活动
+		*/
+		$this->model()->update(
+				'xxt_wall',
+				array('data_schemas' => '','source_app' => ''),
+				"id='{$id}'"
+			);
 		/**
 		 * 清除所有加入的人
 		 */
@@ -109,6 +138,11 @@ class message extends \pl\fe\matter\base {
 		 * 清除所有留言
 		 */
 		$rst = $this->model()->delete('xxt_wall_log', "wid='$id'");
+
+		//记录操作日志
+		$matter = $this->model('matter\wall')->byId($id, 'siteid,id,title,summary,pic');
+		$matter->type = 'wall';
+		$this->model('matter\log')->matterOp($matter->siteid, $user, $matter, 'reset');
 
 		return new \ResponseData($rst);
 	}

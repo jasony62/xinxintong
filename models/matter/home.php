@@ -1,7 +1,7 @@
 <?php
 namespace matter;
 /**
- * 发布在主页的素材
+ * 发布在平台主页的素材
  */
 class home_model extends \TMS_MODEL {
 	/**

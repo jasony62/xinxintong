@@ -61,10 +61,10 @@ define(['require'], function() {
 			var url;
 			$scope.editing = editing;
 			!editing.attachments && (editing.attachments = []);
-			url = 'http://' + location.host + '/rest/site/fe/matter?site=' + $scope.siteid + '&id=' + $scope.id + '&type=article';
+			url = 'http://' + location.host + '/rest/site/fe/matter?site=' + $scope.editing.siteid + '&id=' + $scope.editing.id + '&type=article';
 			$scope.entry = {
 				url: url,
-				qrcode: '/rest/site/fe/matter/article/qrcode?site=' + $scope.siteid + '&url=' + encodeURIComponent(url),
+				qrcode: '/rest/site/fe/matter/article/qrcode?site=' + $scope.editing.siteid + '&url=' + encodeURIComponent(url),
 			};
 			// 用户评论
 			if (editing.can_discuss === 'Y') {

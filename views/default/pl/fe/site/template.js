@@ -26,6 +26,9 @@ define(['require'], function() {
 	}]);
 	ngApp.controller('ctrlTemplate', ['$scope', '$location', 'http2', function($scope, $location, http2) {
 		$scope.siteId = $location.search().site;
+		http2.get('/rest/pl/fe/site/get?site=' + $scope.siteId, function(rsp) {
+            $scope.site = rsp.data;
+        });
 	}]);
 	/***/
 	require(['domReady!'], function(document) {

@@ -62,7 +62,6 @@ define(['frame'], function(ngApp) {
                 templateUrl: '/views/default/pl/fe/matter/enroll/component/recordEditor.html?_=5',
                 controller: 'ctrlEdit',
                 backdrop: 'static',
-                //windowClass: 'auto-height',
                 resolve: {
                     app: function() {
                         return $scope.app;
@@ -152,15 +151,23 @@ define(['frame'], function(ngApp) {
             $scope.doSearch();
         });
     }]);
-
     /**
      * 设置过滤条件
      */
     ngApp.provider.controller('ctrlFilter', ['$scope', '$uibModalInstance', 'app', 'criteria', function($scope, $mi, app, lastCriteria) {
         var canFilteredSchemas = [];
-        angular.forEach(app.data_schemas, function(schema) {
+        app.data_schemas.forEach(function(schema) {
             if (false === /image|file/.test(schema.type)) {
                 canFilteredSchemas.push(schema);
+            }
+            if (/multiple/.test(schema.type)) {
+                var options = {};
+                if (lastCriteria.data[schema.id]) {
+                    lastCriteria.data[schema.id].split(',').forEach(function(key) {
+                        options[key] = true;
+                    })
+                }
+                lastCriteria.data[schema.id] = options;
             }
         });
         $scope.schemas = canFilteredSchemas;
@@ -169,10 +176,15 @@ define(['frame'], function(ngApp) {
             var criteria = $scope.criteria,
                 optionCriteria;
             // 将单选题/多选题的结果拼成字符串
-            angular.forEach(app.data_schemas, function(schema) {
+            canFilteredSchemas.forEach(function(schema) {
+                var result;
                 if (/multiple/.test(schema.type)) {
                     if ((optionCriteria = criteria.data[schema.id])) {
-                        criteria.data[schema.id] = Object.keys(optionCriteria).join(',');
+                        result = [];
+                        Object.keys(optionCriteria).forEach(function(key) {
+                            optionCriteria[key] && result.push(key);
+                        });
+                        criteria.data[schema.id] = result.join(',');
                     }
                 }
             });

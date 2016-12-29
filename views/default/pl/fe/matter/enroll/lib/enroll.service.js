@@ -379,7 +379,9 @@ provider('srvApp', function() {
                 if (schema.type === 'score') {
                     var label = '';
                     schema.ops.forEach(function(op, index) {
-                        label += '<div>' + op.l + ':' + val[op.v] + '</div>';
+                        if (val[op.v] !== undefined) {
+                            label += '<div>' + op.l + ':' + val[op.v] + '</div>';
+                        }
                     });
                     label = label.replace(/\s\/\s$/, '');
                     return label;

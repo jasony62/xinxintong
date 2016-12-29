@@ -4,10 +4,8 @@ service('templateShop', ['$uibModal', 'http2', '$q', function($uibModal, http2, 
         var deferred;
         deferred = $q.defer();
         $uibModal.open({
-            templateUrl: '/static/template/templateShop.html?_=8',
+            templateUrl: '/static/template/templateShop.html?_=10',
             backdrop: 'static',
-            size: 'lg',
-            windowClass: 'auto-height',
             controller: ['$scope', '$uibModalInstance', function($scope, $mi) {
                 $scope.source = 'platform';
                 $scope.criteria = {

@@ -21,7 +21,7 @@ class admin_model extends \TMS_MODEL {
 		return $admins;
 	}
 	/**
-	 *
+	 * 检查用户是否为站点的管理员
 	 */
 	public function &byUid($siteId, $uid, $options = []) {
 		$admin = $this->_queryBy("siteid='$siteId' and uid='$uid'", $options);
@@ -40,5 +40,39 @@ class admin_model extends \TMS_MODEL {
 		$admins = $this->_queryBy($where, $options);
 
 		return $admins;
+	}
+	/**
+	 *
+	 * $siteId
+	 */
+	public function &byRole($siteId, $role, $options = []) {
+		$where = "siteid='$siteId' and urole='$role'";
+
+		$admins = $this->_queryBy($where, $options);
+
+		return $admins;
+	}
+	/**
+	 * 添加站点管理员
+	 */
+	public function add($user, $siteId, $admin) {
+		if ($this->byUid($siteId, $admin->uid)) {
+			return [false, '该账号已经是系统管理员，不能重复添加！'];
+		}
+		$this->insert(
+			'xxt_site_admin',
+			[
+				'siteid' => $siteId,
+				'uid' => $admin->uid,
+				'ulabel' => $admin->ulabel,
+				'urole' => isset($admin->urole) ? $this->escape($admin->urole) : 'A',
+				'creater' => $user->id,
+				'creater_name' => $user->name,
+				'create_at' => time(),
+			],
+			false
+		);
+
+		return [true];
 	}
 }

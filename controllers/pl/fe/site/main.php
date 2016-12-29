@@ -28,7 +28,15 @@ class main extends \pl\fe\base {
 
 		$siteid = $this->model('site')->create($site);
 
-		return new \ResponseData(array('id' => $siteid));
+		/* 添加到站点的访问控制列表 */
+		$modelAdm = $this->model('site\admin');
+		$admin = new \stdClass;
+		$admin->uid = $user->id;
+		$admin->ulabel = $user->name;
+		$admin->urole = 'O';
+		$rst = $modelAdm->add($user, $site, $admin);
+
+		return new \ResponseData(['id' => $siteid]);
 	}
 	/**
 	 * 删除站点
@@ -96,12 +104,13 @@ class main extends \pl\fe\base {
 		if (false === ($user = $this->accountUser())) {
 			return new \ResponseTimeout();
 		}
-		$q = array(
+
+		$q = [
 			'id,creater_name,create_at,name',
 			'xxt_site s',
-			"(creater='{$user->id}' or exists(select 1 from xxt_site_admin sa where sa.siteid=s.id and uid='{$user->id}')) and state=1",
-		);
-		$q2 = array('o' => 'create_at desc');
+			"state=1 and (creater='{$user->id}' or exists(select 1 from xxt_site_admin sa where sa.siteid=s.id and uid='{$user->id}'))",
+		];
+		$q2 = ['o' => 'create_at desc'];
 
 		$sites = $this->model()->query_objs_ss($q, $q2);
 

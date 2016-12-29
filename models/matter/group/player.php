@@ -29,6 +29,10 @@ class player_model extends \TMS_MODEL {
 			'enroll_key' => $ek,
 			'userid' => $user->uid,
 			'nickname' => $user->nickname,
+			'wx_openid' => $user->wx_openid,
+			'yx_openid' => $user->yx_openid,
+			'qy_openid' => $user->qy_openid,
+			'headimgurl' => $user->headimgurl,
 		];
 		$player['enroll_at'] = isset($options['enroll_at']) ? $options['enroll_at'] : time();
 		isset($options['round_id']) && $player['round_id'] = $options['round_id'];
@@ -266,7 +270,7 @@ class player_model extends \TMS_MODEL {
 			}
 		}
 		$q = [
-			'e.enroll_key,e.enroll_at,e.comment,e.tags,e.data,e.nickname,e.userid,e.round_id,e.round_title',
+			'e.enroll_key,e.enroll_at,e.comment,e.tags,e.data,e.nickname,e.wx_openid,e.yx_openid,e.qy_openid,e.headimgurl,e.userid,e.round_id,e.round_title',
 			"xxt_group_player e",
 			$w,
 		];
@@ -425,7 +429,7 @@ class player_model extends \TMS_MODEL {
 	public function &pendings($appId, $hasData = 'N') {
 		/* 没有抽中过的用户 */
 		$q = array(
-			'id,enroll_key,nickname,userid,enroll_at,tags',
+			'id,enroll_key,nickname,wx_openid,yx_openid,qy_openid,headimgurl,userid,enroll_at,tags',
 			'xxt_group_player',
 			"aid='$appId' and state=1 and round_id=0",
 		);

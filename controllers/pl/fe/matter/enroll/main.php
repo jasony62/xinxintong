@@ -102,7 +102,7 @@ class main extends \pl\fe\matter\base {
 	 * @param string $template template's name
 	 *
 	 */
-	public function create_action($site, $mission = null, $scenario = 'common', $template = 'simple') {
+	public function create_action($site, $mission = null, $scenario = null, $template = null) {
 		if (false === ($user = $this->accountUser())) {
 			return new \ResponseTimeout();
 		}
@@ -127,7 +127,7 @@ class main extends \pl\fe\matter\base {
 			$newapp['use_mission_footer'] = 'Y';
 		}
 		$appId = uniqid();
-		/* 使用指定模版 */
+		/* 使用指定模板 */
 		$config = $this->_getSysTemplate($scenario, $template);
 		/* 进入规则 */
 		$entryRule = $config->entryRule;
@@ -178,7 +178,7 @@ class main extends \pl\fe\matter\base {
 		return new \ResponseData($app);
 	}
 	/**
-	 * 从共享模版模版创建登记活动
+	 * 从共享模板模板创建登记活动
 	 *
 	 * @param string $site
 	 * @param int $template
@@ -199,19 +199,21 @@ class main extends \pl\fe\matter\base {
 		$modelCode = $this->model('code\page');
 
 		$template = $this->model('matter\template')->byId($template);
+		$aid = $template->matter_id;
+		if (false === ($copied = $modelApp->byId($aid))) {
+			return new \ResponseError('模板对应的活动已经不存在，无法创建活动');
+		}
 
 		/* 检查用户积分 */
 		if ($template->coin) {
 			$account = $this->model('account')->byId($user->id, ['fields' => 'uid,nickname,coin']);
 			if ((int) $account->coin < (int) $template->coin) {
-				return new \ResponseError('使用模版【' . $template->title . '】需要积分（' . $template->coin . '），你的积分（' . $account->coin . '）不足');
+				return new \ResponseError('使用模板【' . $template->title . '】需要积分（' . $template->coin . '），你的积分（' . $account->coin . '）不足');
 			}
 		}
 
 		/* 创建活动 */
 		$template = $modelApp->escape($template);
-		$aid = $template->matter_id;
-		$copied = $modelApp->byId($aid);
 
 		$newaid = uniqid();
 		$newapp = array();
@@ -243,15 +245,16 @@ class main extends \pl\fe\matter\base {
 		$newapp['scenario'] = $copied->scenario;
 		$newapp['scenario_config'] = $copied->scenario_config;
 		$newapp['count_limit'] = $copied->count_limit;
-		$newapp['data_schemas'] = $copied->data_schemas;
+		$newapp['data_schemas'] = $modelApp->escape($copied->data_schemas);
 		$newapp['public_visible'] = $copied->public_visible;
 		$newapp['open_lastroll'] = $copied->open_lastroll;
 		$newapp['tags'] = $copied->tags;
 		$newapp['enrolled_entry_page'] = $copied->enrolled_entry_page;
 		$newapp['entry_rule'] = json_encode($copied->entry_rule);
 		$newapp['receiver_page'] = $copied->receiver_page;
+		$newapp['template_id'] = $template->id;
 
-		$this->model()->insert('xxt_enroll', $newapp, false);
+		$modelApp->insert('xxt_enroll', $newapp, false);
 
 		/* 复制自定义页面 */
 		if ($copied->pages) {
@@ -259,15 +262,15 @@ class main extends \pl\fe\matter\base {
 				$newPage = $modelPage->add($user, $site, $newaid);
 				$rst = $modelPage->update(
 					'xxt_enroll_page',
-					['title' => $ep->title, 'name' => $ep->name, 'type' => $ep->type, 'data_schemas' => $ep->data_schemas, 'act_schemas' => $ep->act_schemas],
+					['title' => $ep->title, 'name' => $ep->name, 'type' => $ep->type, 'data_schemas' => $modelApp->escape($ep->data_schemas), 'act_schemas' => $modelApp->escape($ep->act_schemas)],
 					["aid" => $newaid, "id" => $newPage->id]
 				);
-				$data = array(
+				$data = [
 					'title' => $ep->title,
 					'html' => $ep->html,
 					'css' => $ep->css,
 					'js' => $ep->js,
-				);
+				];
 				$modelCode->modify($newPage->code_id, $data);
 			}
 		}
@@ -278,13 +281,18 @@ class main extends \pl\fe\matter\base {
 		$app->type = 'enroll';
 		$this->model('matter\log')->matterOp($site, $user, $app, 'C');
 
+		/* 记录和任务的关系 */
+		if (isset($mission->id)) {
+			$modelMis->addMatter($user, $site, $mission->id, $app);
+		}
+
 		/* 支付积分 */
 		if ($template->coin) {
 			$modelCoin = $this->model('pl\coin\log');
 			$creator = $this->model('account')->byId($template->creater, ['fields' => 'uid id,nickname name']);
 			$modelCoin->transfer('pl.template.use', $user, $creator, (int) $template->coin);
 		}
-		/* 更新模版使用情况数据 */
+		/* 更新模板使用情况数据 */
 
 		return new \ResponseData($app);
 	}
@@ -650,13 +658,18 @@ class main extends \pl\fe\matter\base {
 		return $entryRule;
 	}
 	/**
-	 * 获得系统内置登记活动模版
+	 * 获得系统内置登记活动模板
+	 * 如果没有指定场景或模板，那么就使用系统的缺省模板
 	 *
 	 * @param string $scenario scenario's name
 	 * @param string $template template's name
 	 *
 	 */
-	private function _getSysTemplate($scenario, $template) {
+	private function _getSysTemplate($scenario = null, $template = null) {
+		if (empty($scenario) || empty($template)) {
+			$scenario = 'common';
+			$template = 'simple';
+		}
 		$templateDir = TMS_APP_TEMPLATE . '/pl/fe/matter/enroll/scenario/' . $scenario . '/templates/' . $template;
 		$config = file_get_contents($templateDir . '/config.json');
 		$config = preg_replace('/\t|\r|\n/', '', $config);
@@ -913,7 +926,7 @@ class main extends \pl\fe\matter\base {
 		return new \ResponseData($rst);
 	}
 	/**
-	 * 将应用定义导出为模版
+	 * 将应用定义导出为模板
 	 */
 	public function exportAsTemplate_action($site, $app) {
 		if (false === ($user = $this->accountUser())) {

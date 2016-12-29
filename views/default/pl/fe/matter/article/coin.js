@@ -1,6 +1,6 @@
 define(['frame'], function(ngApp) {
 	'use strict';
-	ngApp.provider.controller('ctrlCoin', ['$scope', 'http2', '$uibModal', '$timeout', function($scope, http2, $uibModal, $timeout) {
+	ngApp.provider.controller('ctrlCoin', ['$scope', 'http2', '$uibModal', '$timeout', 'srvLog', function($scope, http2, $uibModal, $timeout, srvLog) {
 		var actions = [{
 			name: 'site.matter.article.read',
 			desc: '用户A打开图文页面'
@@ -64,14 +64,17 @@ define(['frame'], function(ngApp) {
 				});
 			});
 		};
-		$scope.fetchLogs = function() {
-			var url;
-			url = '/rest/pl/fe/matter/article/coin/logs?site=' + $scope.siteId + '&id=' + $scope.id;
-			http2.get(url, function(rsp) {
-				$scope.logs = rsp.data.logs;
-			});
+		var cLog;
+		$scope.cLog = cLog = {
+			page: {},
+			list: function() {
+				var _this = this;
+				srvLog.list($scope.id, this.page, $scope.siteId).then(function(logs) {
+					_this.logs = logs;
+				});
+			}
 		};
 		$scope.fetchRules();
-		$scope.fetchLogs();
+		cLog.list();
 	}]);
 });

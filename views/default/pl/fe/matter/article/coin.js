@@ -66,7 +66,7 @@ define(['frame'], function(ngApp) {
 		};
 		$scope.fetchLogs = function() {
 			var url;
-			url = '/rest/pl/fe/matter/article/coin/logs??site=' + $scope.siteId + '&id=' + $scope.id;
+			url = '/rest/pl/fe/matter/article/coin/logs?site=' + $scope.siteId + '&id=' + $scope.id;
 			http2.get(url, function(rsp) {
 				$scope.logs = rsp.data.logs;
 			});

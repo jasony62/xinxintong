@@ -175,8 +175,13 @@ class main extends \pl\fe\matter\base {
 	/**
 	 * 删除一个多图文素材
 	 */
-	public function delete_action($id) {
-		$rst = $this->model()->update('xxt_news', ['state' => 0], "mpid='$this->mpid' and id=$id");
+	public function delete_action($site,$id) {
+		/* 记录操作日志 */
+		$matter=$this->model("matter\\news")->byId($id);
+		$user = $this->accountUser();
+		$this->model('matter\log')->matterOp($site, $user, $matter, 'D');
+		
+		$rst = $this->model()->update('xxt_news', ['state' => 0], "siteid='$site' and id=$id");
 
 		return new \ResponseData($rst);
 	}

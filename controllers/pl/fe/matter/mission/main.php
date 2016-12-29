@@ -75,26 +75,30 @@ class main extends \pl\fe\matter\base {
 		}
 
 		$current = time();
-		$site = $this->model('site')->byId($site, ['fields' => 'id,heading_pic']);
+		$modelSite = $this->model('site');
+		$modelMis = $this->model('matter\mission');
+
+		$site = $modelSite->byId($site, ['fields' => 'id,heading_pic']);
 
 		$mission = new \stdClass;
 		/*create empty mission*/
 		$mission->siteid = $site->id;
-		$mission->title = '新项目';
+		$mission->title = $modelSite->escape($user->name) . '的项目';
 		$mission->summary = '';
 		$mission->pic = $site->heading_pic;
 		$mission->creater = $user->id;
 		$mission->creater_src = $user->src;
-		$mission->creater_name = $user->name;
+		$mission->creater_name = $modelSite->escape($user->name);
 		$mission->create_at = $current;
 		$mission->modifier = $user->id;
 		$mission->modifier_src = $user->src;
-		$mission->modifier_name = $user->name;
+		$mission->modifier_name = $modelSite->escape($user->name);
 		$mission->modify_at = $current;
 		$mission->state = 1;
-		$mission->id = $this->model()->insert('xxt_mission', $mission, true);
+		$mission->id = $modelMis->insert('xxt_mission', $mission, true);
+
 		/*记录操作日志*/
-		$mission->type = 'mission';
+		$mission = $modelMis->byId($mission->id);
 		$this->model('matter\log')->matterOp($site->id, $user, $mission, 'C');
 		/**
 		 * 建立缺省的ACL
@@ -110,7 +114,6 @@ class main extends \pl\fe\matter\base {
 		$modelAcl->addSiteAdmin($site->id, $user, null, $mission);
 
 		/*返回结果*/
-		$mission = $this->model('matter\mission')->byId($mission->id);
 
 		return new \ResponseData($mission);
 	}

@@ -73,6 +73,7 @@ $sql .= ",headimgurl varchar(255) not null default ''";
 $sql .= ",remark varchar(255) not null default ''";
 $sql .= ",join_at int not null"; // 加入时间
 $sql .= ",last_msg_at int not null default 0";
+$sql .= ",msg_num int not null default 0";
 $sql .= ",close_at int not null default 0";
 $sql .= ",enroll_key varchar(32) not null default ''";
 $sql .= ",data text"; // 登记的数据项

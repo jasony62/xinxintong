@@ -365,6 +365,7 @@ class player extends \pl\fe\matter\base {
 			}
 		}
 
+		$sourceApp->onlySpeaker = $onlySpeaker;
 		return $sourceApp;
 	}
 	/**

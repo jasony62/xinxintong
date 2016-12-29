@@ -57,8 +57,9 @@ class main extends \pl\fe\matter\base {
 	}
 	/**
 	 * 返回登记活动列表
+	 * @param string $onlySns 是否仅查询进入规则为仅限关注用户访问的活动列表
 	 */
-	public function list_action($site = null, $mission = null, $page = 1, $size = 30, $scenario = null) {
+	public function list_action($site = null, $mission = null, $page = 1, $size = 30, $scenario = null, $onlySns = 'N') {
 		if (false === ($user = $this->accountUser())) {
 			return new \ResponseTimeout();
 		}
@@ -77,6 +78,9 @@ class main extends \pl\fe\matter\base {
 		}
 		if ($scenario !== null) {
 			$q[2] .= " and scenario='" . $modelApp->escape($scenario) . "'";
+		}
+		if($onlySns==='Y'){
+			$q[2] .= " and entry_rule like '%\"scope\":\"sns\"%'";
 		}
 		$q2['o'] = 'a.modify_at desc';
 		$q2['r']['o'] = ($page - 1) * $size;

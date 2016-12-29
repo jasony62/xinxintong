@@ -335,11 +335,7 @@ class wall_model extends app_base {
 		/**
 		 * 更新用户状态
 		 */
-		$this->update(
-			'xxt_wall_enroll',
-			array('last_msg_at' => $current),
-			"siteid='$siteid' and (openid='$openid' or wx_openid='$openid' or yx_openid='$openid' or qy_openid='$openid')"
-		);
+		$this->update( "update xxt_wall_enroll set last_msg_at=$current,msg_num=msg_num+1 where siteid='$siteid' and (openid='$openid' or wx_openid='$openid' or yx_openid='$openid' or qy_openid='$openid') " );
 
 		return true;
 	}

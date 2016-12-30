@@ -83,7 +83,7 @@ class wx extends \member_base {
 			die('');
 		}
 
-		$this->model('log')->receive($msg);
+		$modelLog->receive($msg);
 		/**
 		 * 消息分流处理
 		 * 【信息墙】需要从现有信息处理流程中形成分支，分支中进行处理就可以了。

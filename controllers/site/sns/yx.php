@@ -74,6 +74,14 @@ class yx extends \member_base {
 		$modelLog = $this->model('log');
 		$msg = $call->to_array();
 		$msg['siteid'] = $site;
+		/**
+		 * 消息已经收到，不处理
+		 */
+
+		if (!empty($msg['msgid']) && $modelLog->hasReceived($msg)) {
+			die('');
+		}
+
 		$modelLog->receive($msg);
 		/**
 		 * 消息分流处理

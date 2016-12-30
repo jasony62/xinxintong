@@ -101,7 +101,7 @@ define(['frame'], function(ngApp) {
 					data.appType  === 'wall' && (params.onlySpeaker = data.onlySpeaker);
 					http2.post('/rest/pl/fe/matter/group/player/importByApp?site=' + $scope.siteId + '&app=' + $scope.id, params, function(rsp) {
 						$scope.app.sourceApp = data.app;
-						$scope.app.data_schemas = JSON.parse(rsp.data.data_schemas);
+						$scope.app.data_schemas = rsp.data.data_schemas ?JSON.parse(rsp.data.data_schemas) :'';
 						$scope.open(null);
 					});
 				}
@@ -118,7 +118,7 @@ define(['frame'], function(ngApp) {
 			if ($scope.app.sourceApp) {
 				var url = '/rest/pl/fe/matter/group/player/syncByApp?site=' + $scope.siteId + '&app=' + $scope.id
 				if($scope.app.sourceApp.type === 'wall'){
-					if(window.confirm('仅同步发言用户用，请按确认！同步所有用户，请按取消')){
+					if(window.confirm('仅同步发言用户用，请按确认！\n同步所有用户，请按取消!')){
 						url += '&onlySpeaker=Y';
 					}else{
 						url += '&onlySpeaker=N';

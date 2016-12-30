@@ -174,7 +174,7 @@ class player extends \pl\fe\matter\base {
 	 *
 	 * 同步在最后一次同步之后的数据或已经删除的数据
 	 */
-	public function syncByApp_action($site, $app) {
+	public function syncByApp_action($site, $app, $onlySpeaker='N') {
 		if (false === ($user = $this->accountUser())) {
 			return new \ResponseTimeout();
 		}
@@ -188,7 +188,7 @@ class player extends \pl\fe\matter\base {
 			} else if ($sourceApp->type === 'signin') {
 				$count = $this->_syncBySignin($site, $app, $sourceApp->id);
 			} else if ($sourceApp->type === 'wall') {
-				$count = $this->_syncByWall($site, $app, $sourceApp->id, $sourceApp->onlySpeaker);
+				$count = $this->_syncByWall($site, $app, $sourceApp->id, $onlySpeaker);
 			}
 			// 更新同步时间
 			$modelGrp->update(

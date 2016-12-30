@@ -251,7 +251,7 @@ class proxy_model extends \sns\proxybase {
 		$user = new \stdClass;
 		$user->openid = $openid;
 
-		return array(true, $openid);
+		return array(true, $user);
 	}
 	/**
 	 *

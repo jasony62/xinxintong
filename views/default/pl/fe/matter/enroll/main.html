@@ -1,0 +1,78 @@
+<div class='col-md-6'>
+    <div class='form-group'>
+        <label>活动名称</label>
+        <input type='text' class='form-control' size='40' title='{{app.title}}' ng-model='app.title' tms-auto-update tms-wait=1000 tms-update="update('title')">
+    </div>
+    <div class='form-group'>
+        <label>活动类型</label>
+        <select class='form-control' ng-model="app.scenario" ng-change="update('scenario');">
+            <option value=''></option>
+            <option value='registration'>报名</option>
+            <option value='voting'>评价</option>
+            <option value='group_week_report'>周报</option>
+        </select>
+    </div>
+    <div class='form-group'>
+        <label>活动说明</label>
+        <textarea type='text' class='form-control' ng-model="app.summary" tms-auto-update tms-wait=1000 tms-update="update('summary')"></textarea>
+    </div>
+    <div class='form-group' ng-if="!app.mission">
+        <button class='btn btn-success' ng-click="assignMission()">指定项目</button>
+    </div>
+    <div class='form-group' ng-if="app.mission">
+        <label>所属项目</label>
+        <div class="input-group">
+            <input class='form-control' title="{{app.mission.title}}" value="{{app.mission.title}}" readonly="">
+            <span class="input-group-btn">
+                                <button class="btn btn-default" type="button" ng-click="quitMission()">
+                                    <span class='glyphicon glyphicon-remove'></span>
+            </button>
+            </span>
+        </div>
+    </div>
+    <div class='form-group' ng-if="app.mission.multi_phase==='Y'">
+        <label>项目阶段</label>
+        <select class='form-control' ng-model="app.mission_phase_id" ng-change="choosePhase()" ng-options="phase.phase_id as phase.title for phase in app.mission.phases">
+            <option value=''>全部</option>
+        </select>
+    </div>
+    <hr>
+    <div class='form-group'>
+        <label>允许每用户填写条数（0不限制）</label>
+        <input type='text' class='form-control' ng-model="app.count_limit" tms-auto-update tms-wait=1000 tms-update="update('count_limit')">
+    </div>
+    <div class='checkbox'>
+        <label>
+            <input type='checkbox' ng-true-value="'Y'" ng-false-value="'N'" ng-model="app.can_discuss" ng-change="update('can_discuss')">开放用户评论</label>
+    </div>
+    <hr>
+    <button class='btn btn-default btn-block' ng-click="shareAsTemplate()">发布模版</button>
+    <button class='btn btn-default btn-block' ng-click="applyToHome()">申请发布到平台主页</button>
+    <button class='btn btn-default btn-block' ng-click="exportAsTemplate()">导出模版</button>
+    <hr>
+    <button class='btn btn-default btn-block' ng-click="remove()">删除活动</button>
+</div>
+<div class='col-md-6'>
+    <div ng-controller="ctrlReceiver">
+        <div class='form-group'>
+            <p class=''><i class="glyphicon glyphicon-bell"></i> 事件提醒</p>
+        </div>
+        <div class='checkbox'>
+            <label class='checkbox-inline'><input type='checkbox' ng-true-value="'Y'" ng-false-value="'N'" ng-model="app.notify_submit" ng-change="update('notify_submit')">提交填写内容</label>
+        </div>
+        <div class='form-group' ng-if="sns.wx.joined==='Y'&&sns.wx.can_qrcode==='Y'">
+            <button id='wxQrcode' uib-popover-template="'joinQrcode.html'" popover-trigger="show" popover-placement="bottom" class="btn btn-default" ng-click="qrcode('wx')">微信扫码作为接收人 <span class="caret"></span></button>
+        </div>
+        <div class='form-group'  ng-if="sns.yx.joined==='Y'&&sns.yx.can_qrcode==='Y'">
+            <button id='yxQrcode' uib-popover-template="'joinQrcode.html'" popover-trigger="show" popover-placement="bottom" class="btn btn-default" ng-click="qrcode('yx')">易信扫码作为接收人 <span class="caret"></span></button>
+        </div>
+        <div class='list-group'>
+            <div class='list-group-item' ng-repeat="r in receivers" ng-mouseenter="entered=true" ng-mouseleave="entered=false">
+                <span>{{r.nickname}}</span>
+                <button class='btn btn-default btn-xs pull-right' ng-show="entered" ng-click="remove(r)">
+                    <span class='glyphicon glyphicon-remove'></span>
+                </button>
+            </div>
+        </div>
+    </div>
+</div>

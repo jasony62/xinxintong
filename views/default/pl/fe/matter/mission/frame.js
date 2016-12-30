@@ -76,7 +76,7 @@ define([], function() {
             $scope.mission = mission;
             if (location.href.indexOf('/matter?') === -1) {
                 http2.get('/rest/pl/fe/matter/mission/matter/count?id=' + $scope.id, function(rsp) {
-                    if (rsp.data) {
+                    if (parseInt(rsp.data)) {
                         $location.path('/rest/pl/fe/matter/mission/matter').search({ id: ls.id });
                         $location.replace();
                     }

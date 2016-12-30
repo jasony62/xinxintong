@@ -34,7 +34,7 @@ class main extends \pl\fe\base {
 		$admin->uid = $user->id;
 		$admin->ulabel = $user->name;
 		$admin->urole = 'O';
-		$rst = $modelAdm->add($user, $site, $admin);
+		$rst = $modelAdm->add($user, $siteid, $admin);
 
 		return new \ResponseData(['id' => $siteid]);
 	}

@@ -119,9 +119,9 @@ define(['frame'], function(ngApp) {
 				var url = '/rest/pl/fe/matter/group/player/syncByApp?site=' + $scope.siteId + '&app=' + $scope.id
 				if($scope.app.sourceApp.type === 'wall'){
 					if(window.confirm('仅同步发言用户用，请按确认！同步所有用户，请按取消')){
-						url += 'onlySpeaker=Y';
+						url += '&onlySpeaker=Y';
 					}else{
-						url += 'onlySpeaker=N';
+						url += '&onlySpeaker=N';
 					}
 				}
 				http2.get(url, function(rsp) {

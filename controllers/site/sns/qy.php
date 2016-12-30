@@ -4,7 +4,9 @@ namespace site\sns;
 require_once TMS_APP_DIR . '/lib/wxqy/WXBizMsgCrypt.php';
 require_once dirname(__FILE__) . '/usercall.php';
 require_once dirname(dirname(dirname(__FILE__))) . '/member_base.php';
-
+/**
+ * 接收微信企业号消息
+ */
 class qy extends \member_base {
 
 	public function get_access_rule() {
@@ -28,16 +30,16 @@ class qy extends \member_base {
 		case 'GET':
 			/* 公众平台对接 */
 			$rst = $qyProxy->join($_GET);
+			$this->model('log')->log($site, 'join', json_encode($rst));
 			header('Content-Type: text/html; charset=utf-8');
 			die($rst[1]);
-			break;
 		case 'POST':
 			$data = file_get_contents("php://input");
 			/* 企业号需要对数据进行解密处理 */
-			 $rst = $qyProxy->DecryptMsg($_GET, $data);
-			 if ($rst[0] === false) {
-			 	exit;
-			 }
+			$rst = $qyProxy->DecryptMsg($_GET, $data);
+			if ($rst[0] === false) {
+				exit;
+			}
 			$data = $rst[1];
 			$call = new UserCall($data, $site, 'qy');
 			$this->handle($site, $call);
@@ -244,8 +246,7 @@ class qy extends \member_base {
 			// log
 			$this->model('log')->writeSubscribe($siteid, $openid);
 		}
-		
-		
+
 		if ($reply = $this->model('sns\qy\event')->otherCall($siteid, 'subscribe')) {
 			/**
 			 * subscribe reply.
@@ -269,7 +270,7 @@ class qy extends \member_base {
 
 		return $rst;
 	}
-	
+
 	/**
 	 * 卡卷事件
 	 */
@@ -336,6 +337,5 @@ class qy extends \member_base {
 			$r->exec();
 		}
 	}
-	
-	
+
 }

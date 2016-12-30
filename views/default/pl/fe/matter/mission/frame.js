@@ -36,7 +36,11 @@ define([], function() {
             modifiedData = {};
 
         $scope.id = ls.id;
-        $scope.siteId = ls.site;
+        $scope.viewNames = {
+            'main': '项目定义',
+            'matter': '资料和活动',
+            'user': '用户',
+        };
         $scope.subView = '';
         $scope.modified = false;
         window.onbeforeunload = function(e) {
@@ -82,6 +86,9 @@ define([], function() {
                     }
                 });
             }
+            http2.get('/rest/pl/fe/site/get?site=' + mission.siteid, function(rsp) {
+                $scope.site = rsp.data;
+            });
         });
     }]);
     /*bootstrap*/

@@ -82,7 +82,7 @@ class acl_model extends \TMS_MODEL {
 	 */
 	public function &add(&$inviter, &$mission, &$coworker, $role = 'C') {
 		/* 检查邀请人是否邀请过合作人 */
-		$q = ['id', 'xxt_mission_acl', ['inviter' => $inviter->id, 'coworker' => $coworker->id, 'last_invite' => 'Y']];
+		$q = ['id', 'xxt_mission_acl', ['mission_id' => $mission->id, 'coworker' => $coworker->id, 'last_invite' => 'Y']];
 		if ($log = $this->query_obj_ss($q)) {
 			$this->update('xxt_mission_acl', ['last_invite' => 'N'], ['id' => $log->id]);
 		}
@@ -91,16 +91,17 @@ class acl_model extends \TMS_MODEL {
 		$acl = new \stdClass;
 		$acl->siteid = $mission->siteid;
 		$acl->mission_id = $mission->id;
-		$acl->title = $mission->title;
-		$acl->summary = $mission->summary;
+		$acl->title = $this->escape($mission->title);
+		$acl->summary = $this->escape($mission->summary);
 		$acl->pic = $mission->pic;
 		$acl->creater = $mission->creater;
 		$acl->create_at = $mission->create_at;
+		$acl->creater_name = $this->escape($mission->creater_name);
 		$acl->inviter = $inviter->id;
-		$acl->inviter_label = $inviter->name;
+		$acl->inviter_label = $this->escape($inviter->name);
 		$acl->invite_at = $current;
 		$acl->coworker = $coworker->id;
-		$acl->coworker_label = $coworker->label;
+		$acl->coworker_label = $this->escape($coworker->label);
 		$acl->coworker_role = $role;
 		$acl->join_at = $current;
 		$acl->last_invite = 'Y';

@@ -3,9 +3,6 @@
     <div class='col-md-12 app'>
         <nav class="navbar navbar-default">
             <div class="container-fluid">
-                <div class="navbar-form navbar-left" ng-if="!app.mission">
-                    <button class='btn btn-success' ng-click="assignMission()">指定项目</button>
-                </div>
                 <div class="navbar-form navbar-left">
                     <div class='form-group'>
                         <label>标题</label>
@@ -256,6 +253,10 @@
                 <div class="col-md-9">
                     <label class='radio-inline'><input type='radio' name='appType' value='registration' ng-model="data.appType">报名</label>
                     <label class='radio-inline'><input type='radio' name='appType' value='signin' ng-model="data.appType">签到</label>
+                    <label class='radio-inline'><input type='radio' name='appType' value='wall' ng-model="data.appType">信息墙</label>
+                </div>
+                <div class="col-md-12 col-md-offset-3"  ng-if = "data.appType === 'wall'">
+                    <label class='radio-inline' style="padding-left:0px"><input type='checkbox' ng-model='data.onlySpeaker' ng-true-value="'Y'" ng-false-value="'N'">仅包含发言用户</label>
                 </div>
             </div>
             <div class='form-group'>

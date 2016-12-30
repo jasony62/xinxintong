@@ -36,7 +36,7 @@ class memberschema_model extends \TMS_MODEL {
 	 * 自定义用户信息
 	 */
 	public function &byId($id, $fields = '*') {
-		$api = $this->_queryBy("id=$id");
+		$api = $this->_queryBy("id='$id'");
 
 		$api = count($api) === 1 ? $api[0] : false;
 

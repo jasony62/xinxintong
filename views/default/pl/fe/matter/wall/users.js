@@ -69,46 +69,7 @@ define(['frame'], function(ngApp) {
                     }
                 });
         };
-        //导出用户
-        $scope.export = function() {
-            $uibModal.open({
-                templateUrl: 'exportUser.html',
-                windowClass: 'auto-height',
-                controller: ['$scope', '$uibModalInstance', function($scope2, $mi) {
-                    $scope2.options = {
-                        onlySpeaker: 'N'
-                    };
-                    $scope2.chooseApp = function(app) {
-                        $scope2.selectedApp = app;
-                    };
-                    $scope2.close = function() {
-                        $mi.dismiss();
-                    };
-                    $scope2.ok = function() {
-                        if ($scope2.selectedApp) {
-                            $mi.close({
-                                app: $scope2.selectedApp,
-                                options: $scope2.options
-                            });
-                        } else {
-                            $mi.dismiss();
-                        }
-                    };
-                    http2.get('/rest/pl/fe/matter/enroll/list?page=1&size=999&site=' + $scope.siteId, function(rsp) {
-                        $scope2.apps = rsp.data.apps;
-                    });
-                }]
-            }).result.then(function(params) {
-                    var url;
-                    url = '/rest/pl/fe/matter/wall/users/export?id=' + $scope.id + '&site=' +$scope.siteId;
-                    url += '&app=' + params.app.id;
-                    url += '&onlySpeaker=' + params.options.onlySpeaker;
-                    http2.get(url, function(rsp) {
-                        //$scope.$root.infomsg = '导出用户数：' + rsp.data;
-                        noticebox.success('导出用户数：' + rsp.data);
-                    });
-                });
-        };
+
         //刷新
         $scope.doSearch = function() {
             http2.get('/rest/pl/fe/matter/wall/users/list?id=' + $scope.id + '&site=' + $scope.siteId, function(rsp) {

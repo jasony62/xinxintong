@@ -116,7 +116,15 @@ define(['frame'], function(ngApp) {
 		$scope.syncByApp = function() {
 			var defer = $q.defer();
 			if ($scope.app.sourceApp) {
-				http2.get('/rest/pl/fe/matter/group/player/syncByApp?site=' + $scope.siteId + '&app=' + $scope.id, function(rsp) {
+				var url = '/rest/pl/fe/matter/group/player/syncByApp?site=' + $scope.siteId + '&app=' + $scope.id
+				if($scope.app.sourceApp.type === 'wall'){
+					if(window.confirm('仅同步发言用户用，请按确认！同步所有用户，请按取消')){
+						url += 'onlySpeaker=Y';
+					}else{
+						url += 'onlySpeaker=N';
+					}
+				}
+				http2.get(url, function(rsp) {
 					noticebox.success('同步' + rsp.data + '个用户');
 					defer.resolve(rsp.data);
 					$scope.$broadcast('xxt.matter.group.player.sync', rsp.data);

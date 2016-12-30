@@ -88,7 +88,7 @@ class message extends \pl\fe\matter\base {
 		}
 
 		//记录操作日志
-		$matter = $this->model('matter\wall')->byId($wall, 'id,title,summary,pic');
+		$matter = $this->model('matter\wall')->byId($wall->id, 'id,title,summary,pic');
 		$matter->type = 'wall';
 		$this->model('matter\log')->matterOp($site, $user, $matter, 'approve');
 

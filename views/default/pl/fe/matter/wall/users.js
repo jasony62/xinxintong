@@ -39,7 +39,7 @@ define(['frame'], function(ngApp) {
                             url = '/rest/pl/fe/matter/signin/list?page=1&size=999&site=' + $scope.siteId;
                             $scope2.data.includeEnroll = 'Y';
                         }
-                        url+='&onlySns=Y';
+                        //url+='&onlySns=Y';
                         http2.get(url , function(rsp) {
                             $scope2.apps = rsp.data.apps;
                         });
@@ -80,7 +80,7 @@ define(['frame'], function(ngApp) {
         $scope.doSearch();
         //同步用户
         $scope.syncByApp = function() {
-            if ($scope.app.sourceApp) {
+            if ($scope.wall.sourceApp) {
                 http2.get('/rest/pl/fe/matter/wall/users/syncByApp?site=' + $scope.siteId + '&app=' + $scope.id, function(rsp) {
                     noticebox.success('同步' + rsp.data + '个用户');
                     //刷新页面

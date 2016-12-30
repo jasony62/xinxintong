@@ -164,7 +164,7 @@ class wall_model extends app_base {
 		$q = array(
 			'l.*,e.nickname,e.userid',
 			'xxt_wall_log l,xxt_wall_enroll e',
-			"l.siteid = '$runningMpid' and l.wid = '$wid' and e.wid = l.wid and (e.openid = l.openid and e.wx_openid = l.openid or e.yx_openid = l.openid or e.qy_openid = l.openid)",
+			"l.siteid = '$runningMpid' and l.wid = '$wid' and e.wid = l.wid and (e.openid = l.openid or e.wx_openid = l.openid or e.yx_openid = l.openid or e.qy_openid = l.openid)",
 		);
 		$q2['o'] = 'approve_at desc';
 		$q2['r']['o'] = ($page - 1) * $size;
@@ -221,7 +221,7 @@ class wall_model extends app_base {
 		$q = array(
 			'l.*,e.nickname,e.ufrom,e.headimgurl',
 			'xxt_wall_log l,xxt_wall_enroll e',
-			"e.siteid = '{$runningMpid}' and e.wid= '$wid' and l.wid='$wid' and (e.openid = l.openid and e.wx_openid = l.openid or e.yx_openid = l.openid or e.qy_openid = l.openid) and approved=" . self::APPROVE_PASS,
+			"e.siteid = '{$runningMpid}' and e.wid= '$wid' and l.wid='$wid' and (e.openid = l.openid or e.wx_openid = l.openid or e.yx_openid = l.openid or e.qy_openid = l.openid) and approved=" . self::APPROVE_PASS,
 		);
 		$time > 0 && $q[2] .= " and approve_at>=$time";
 		$q2['o'] = 'approve_at desc';

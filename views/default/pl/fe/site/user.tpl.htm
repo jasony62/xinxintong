@@ -2,6 +2,7 @@
 <html>
 	<head>
 		<meta charset="UTF-8">
+		<meta content="width=device-width,user-scalable=no,initial-scale=1.0" name="viewport">
 		<base href='/'>
 		<link href="/static/css/bootstrap.min.css" rel="stylesheet">
 		<link href="/static/css/tms.css" rel="stylesheet">
@@ -12,15 +13,26 @@
 		<nav class='navbar navbar-default navbar-fixed-top'>
 			<div class='container'>
 				<div class='navbar-header'>
-                    <a class='navbar-brand' href='/rest/pl/fe' target='_self'><i class='glyphicon glyphicon-chevron-left'></i> 个人工作台</a>
+                    <a class='navbar-text' href='/rest/pl/fe' target='_self'><i class='glyphicon glyphicon-chevron-left'></i> 个人工作台</a>
                 </div>
-				<ul class='nav navbar-nav site'>
-					<li><a href='/rest/pl/fe/site/console?site={{siteId}}' target='_self'>工作台</a></li>
-					<li><a href='/rest/pl/fe/site/coworker?site={{siteId}}' target='_self'>成员</a></li>
+				<ul class='nav navbar-nav'>
+					<li><a href='/rest/pl/fe/site/console?site={{siteId}}' target='_self'>活动和资料</a></li>
 					<li class='active'><a href='/rest/pl/fe/site/user?site={{siteId}}'>用户</a></li>
-					<li><a href='/rest/pl/fe/template/site?site={{siteId}}' target='_self'>模板库</a></li>
-					<li><a href='/rest/pl/fe/file?site={{siteId}}' target='_self'>图片库</a></li>
-					<li><a href='/rest/pl/fe/site/setting?site={{siteId}}' target='_self'>团队设置</a></li>
+				</ul>
+				<ul class='nav navbar-nav navbar-right'>
+					<li class="dropdown">
+						<a href="#" class="dropdown-toggle" data-toggle="dropdown">{{site.name}} <span class="caret"></span></a>
+      					<ul class="dropdown-menu" role="menu">
+      						<li><a href='/rest/pl/fe/site/setting?site={{siteId}}' target='_self'>团队设置</a></li>
+							<li><a href='/rest/pl/fe/site/coworker?site={{siteId}}' target='_self'>团队成员</a></li>
+      						<li class="divider"></li>
+      						<li><a href='/rest/pl/fe/site/file?site={{siteId}}' target='_self'>图片库</a></li>
+      						<li class="divider"></li>
+							<li><a href='/rest/pl/fe/template/site?site={{siteId}}' target='_self'>模板库</a></li>
+							<li class="divider"></li>
+							<li><a href='/rest/pl/fe/site/analysis?site={{siteId}}' target='_self'>运行统计</a></li>
+        				</ul>
+                    </li>
 				</ul>
 			</div>
 		</nav>

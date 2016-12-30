@@ -85,11 +85,6 @@
         </div>
     </div>
     <div class='col-md-4'>
-        <div class='tile' ng-if="!editing.mission">
-            <div class='form-group'>
-                <button class='btn btn-block btn-success' ng-click="assignMission()">指定项目</button>
-            </div>
-        </div>
         <div class="panel panel-default">
             <div class="panel-heading">图文链接</div>
             <div class="panel-body">
@@ -187,7 +182,7 @@
     <div class="container-fluid" style='text-align:center'>
         <form class="navbar-form" style='display:inline-block'>
             <button class='btn btn-success' ng-click="submit()">保存</button>
-            <button class='btn btn-default' ng-click="applyToHome()">申请发布到主页</button>
+            <button class='btn btn-default' ng-click="applyToHome()">申请发布到平台主页</button>
         </form>
         <form class="navbar-form navbar-right" style='display:inline-block'>
             <button class='btn btn-default' ng-click="remove()">删除图文</button>

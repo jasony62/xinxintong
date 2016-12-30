@@ -70,7 +70,7 @@ define(['require'], function(require) {
         $scope.subView = '';
         $scope.$on('$locationChangeSuccess', function(event, currentRoute) {
             var subView = currentRoute.match(/([^\/]+?)\?/);
-            $scope.subView = subView ? subView[1] : '';
+            $scope.subView = subView ? (subView[1] === 'setting' ? 'basic' : subView[1]) : 'basic';
         });
         $scope.update = function(name) {
             var p = {};
@@ -149,7 +149,6 @@ define(['require'], function(require) {
         })();
         $scope.homeURL = 'http://' + location.host + '/rest/site/home?site=' + $scope.siteId;
     }]);
-    ngApp.controller('ctrlCoin', ['$scope', function($scope) {}]);
     ngApp.controller('ctrlMschema', ['$scope', 'http2', '$http', '$uibModal', 'MemberSchema', function($scope, http2, $http, $uibModal, MemberSchema) {
         var service = {
             memberSchema: new MemberSchema($scope.siteId)

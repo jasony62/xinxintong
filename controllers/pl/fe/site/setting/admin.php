@@ -23,7 +23,7 @@ class admin extends \pl\fe\base {
 
 		$modelAdm = $this->model('site\admin');
 
-		$admins = $modelAdm->bySite($site);
+		$admins = $modelAdm->byRole($site, 'A');
 
 		return new \ResponseData($admins);
 	}
@@ -41,7 +41,6 @@ class admin extends \pl\fe\base {
 
 		$model = $this->model('account');
 		$account = $model->getAccountByAuthedId($ulabel);
-
 		if (!$account) {
 			if ($autoreg !== 'Y') {
 				return new \ResponseError('指定的账号不是注册账号，请先注册！');
@@ -53,22 +52,13 @@ class admin extends \pl\fe\base {
 		 * exist?
 		 */
 		$modelAdm = $this->model('site\admin');
-		if ($admin = $modelAdm->byUid($site, $account->uid)) {
-			return new \ResponseError('该账号已经是系统管理员，不能重复添加！');
+		$admin = new \stdClass;
+		$admin->uid = $account->uid;
+		$admin->ulabel = $account->nickname;
+		$rst = $modelAdm->add($user, $site, $admin);
+		if ($rst[0] === false) {
+			return new \ResponseError($rst[1]);
 		}
-
-		$modelAdm->insert(
-			'xxt_site_admin',
-			[
-				'siteid' => $site,
-				'uid' => $account->uid,
-				'ulabel' => $ulabel,
-				'creater' => $user->id,
-				'creater_name' => $user->name,
-				'create_at' => time(),
-			],
-			false
-		);
 		/**
 		 * 对已经存在的资源进行授权。
 		 * @todo 这部分代码是否应该改为用队列实现？
@@ -78,7 +68,7 @@ class admin extends \pl\fe\base {
 		$coworker->label = $ulabel;
 		$this->model('matter\mission\acl')->addSiteAdmin($site, $user, $coworker);
 
-		return new \ResponseData(['uid' => $account->uid, 'ulabel' => $ulabel]);
+		return new \ResponseData($admin);
 	}
 	/**
 	 * 删除站点管理员

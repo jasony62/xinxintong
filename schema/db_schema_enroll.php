@@ -67,6 +67,7 @@ $sql .= ",use_site_footer char(1) not null default 'Y'"; // 使用站点页脚
 $sql .= ",use_mission_header char(1) not null default 'Y'"; // 使用项目页眉
 $sql .= ",use_mission_footer char(1) not null default 'Y'"; // 使用项目页脚
 $sql .= ",extattrs text"; //扩展属性
+$sql .= ",template_id int not null default 0"; // 通过哪个模板创建
 $sql .= ",primary key(id)) ENGINE=MyISAM DEFAULT CHARSET=utf8";
 if (!$mysqli->query($sql)) {
 	header('HTTP/1.0 500 Internal Server Error');

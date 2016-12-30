@@ -603,6 +603,8 @@ class wall_model extends app_base {
 					$mpproxy = \TMS_APP::M('sns\yx\proxy', $mpa);
 					$mpa->yx_p2p = $mpa->can_p2p;
 					$mpa->mpsrc = 'yx';
+				}else{
+					$mpa->mpsrc = null;
 				}
 				break;
 
@@ -612,6 +614,8 @@ class wall_model extends app_base {
 					$mpproxy = \TMS_APP::M('sns\qy\proxy', $mpa);
 					$mpa->qy_agentid = $mpa->agentid;
 					$mpa->mpsrc = 'qy';
+				}else{
+					$mpa->mpsrc = null;
 				}
 				break;
 
@@ -620,6 +624,8 @@ class wall_model extends app_base {
 				if($mpa && $mpa->joined === 'Y'){
 					$mpproxy = \TMS_APP::M('sns\wx\proxy', $mpa);
 					$mpa->mpsrc = 'wx';
+				}else{
+					$mpa->mpsrc = null;
 				}
 				break;
 			}

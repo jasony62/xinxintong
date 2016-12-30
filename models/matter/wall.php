@@ -631,6 +631,7 @@ class wall_model extends app_base {
 			}
 		}
 
+		$rst = false;
 		switch ($mpa->mpsrc) {
 		case 'yx':
 			if ($mpa->yx_p2p === 'Y') {

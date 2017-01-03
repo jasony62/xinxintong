@@ -1,10 +1,10 @@
 <!--<div  ng-include="'nav.html'"></div>-->
 <div class="tile">
-    <div class='form-group'>
+    <div class= 'navbar-form '>
         <button class='btn  btn-success' ng-click="import()" ng-if="!wall.sourceApp">导入用户</button>
-        <div ng-if="wall.sourceApp"  style = "display: inline-block">
-            <label >分组用户来源</label>
-            <span ng-bind = "wall.sourceApp.title" style="border: 1px solid #ccc; border-radius: 4px;padding: 8px 12px;font-size: 14px"></span>
+        <div ng-if="wall.sourceApp"  class="form-group">
+            <label >在线用户来源</label>
+            <div class="form-control"   ng-bind = "wall.sourceApp.title" ></div>
         </div>
         <button class='btn  btn-success' ng-click='syncByApp()' ng-if="wall.sourceApp"> 同步用户</button>
         <!--<div class='form-group' ng-if="!wall.sourceApp" style="display: inline-block">-->

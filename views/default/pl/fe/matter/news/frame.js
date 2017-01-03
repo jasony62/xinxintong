@@ -1,4 +1,4 @@
-ngApp = angular.module('app', ['ngRoute', 'ui.tms', 'ui.xxt']);
+ngApp = angular.module('app', ['ngRoute', 'ui.tms', 'ui.xxt','ui.bootstrap']);
 ngApp.config(['$routeProvider', '$locationProvider', function($routeProvider, $locationProvider) {
 	$routeProvider.when('/rest/pl/fe/matter/news', {
 		templateUrl: '/views/default/pl/fe/matter/news/setting.html?_=2',
@@ -9,6 +9,30 @@ ngApp.config(['$routeProvider', '$locationProvider', function($routeProvider, $l
 	});
 	$locationProvider.html5Mode(true);
 }]);
+ngApp.directive('sortable', function() {
+    return {
+        link: function(scope, el, attrs) {
+            el.sortable({
+                revert: 50
+            });
+            el.disableSelection();
+            el.on("sortdeactivate", function(event, ui) {
+                var from = angular.element(ui.item).scope().$index;
+                var to = el.children('li').index(ui.item);
+                if (to >= 0) {
+                    scope.$apply(function() {
+                        if (from >= 0) {
+                            scope.$emit('my-sorted', {
+                                from: from,
+                                to: to
+                            });
+                        }
+                    });
+                }
+            });
+        }
+    };
+});
 ngApp.controller('ctrlNews', ['$scope', '$location', 'http2', function($scope, $location, http2) {
 	var ls = $location.search();
 	$scope.id = ls.id;

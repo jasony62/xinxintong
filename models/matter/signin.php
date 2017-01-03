@@ -68,13 +68,16 @@ class signin_model extends app_base {
 	/**
 	 * 返回签到活动列表
 	 */
-	public function &bySite($siteId, $page = null, $size = null) {
+	public function &bySite($siteId, $page = null, $size = null, $onlySns='N') {
 		$result = new \stdClass;
 		$q = [
 			"*,'signin' type",
 			'xxt_signin',
 			"state<>0 and siteid='$siteId'",
 		];
+		if($onlySns==='Y'){
+			$q[2] .= " and entry_rule like '%\"scope\":\"sns\"%'";
+		}
 		$q2['o'] = 'modify_at desc';
 		if ($page && $size) {
 			$q2['r']['o'] = ($page - 1) * $size;

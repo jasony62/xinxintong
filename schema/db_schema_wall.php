@@ -24,6 +24,9 @@ $sql .= ",push_others char(1) not null default 'Y'";
 $sql .= ",entry_ele text";
 $sql .= ",entry_css text";
 $sql .= ",body_css text";
+$sql .= ",last_sync_at int not null default 0"; // 最后同步的时间
+$sql .= ",source_app varchar(255) not null default ''"; // 关联的登记或签到活动
+$sql .= ",data_schemas text";
 $sql .= ",primary key(id)) ENGINE=MyISAM DEFAULT CHARSET=utf8";
 if (!$mysqli->query($sql)) {
 	header('HTTP/1.0 500 Internal Server Error');
@@ -60,14 +63,18 @@ $sql .= ",mpid varchar(32) not null default ''";
 $sql .= ",siteid varchar(32) not null default ''";
 $sql .= ",wid varchar(32) not null";
 $sql .= ",userid varchar(40) not null default ''";
-$sql .= ",openid varchar(255) not null";
-$sql .= ",ufrom char(5) not null default ''";
 $sql .= ",nickname varchar(255) not null default ''";
+$sql .= ",wx_openid varchar(255) not null default ''";
+$sql .= ",yx_openid varchar(255) not null default ''";
+$sql .= ",qy_openid varchar(255) not null default ''";
 $sql .= ",headimgurl varchar(255) not null default ''";
 $sql .= ",remark varchar(255) not null default ''";
 $sql .= ",join_at int not null"; // 加入时间
 $sql .= ",last_msg_at int not null default 0";
+$sql .= ",msg_num int not null default 0";
 $sql .= ",close_at int not null default 0";
+$sql .= ",enroll_key varchar(32) not null default ''";
+$sql .= ",data text"; // 登记的数据项
 $sql .= ",primary key(id)) ENGINE=MyISAM DEFAULT CHARSET=utf8";
 if (!$mysqli->query($sql)) {
 	header('HTTP/1.0 500 Internal Server Error');

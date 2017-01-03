@@ -27,7 +27,7 @@ class users extends \pl\fe\matter\base {
 		return new \ResponseData($users);
 	}
 	/**
-	 * 从登记活动导入用户
+	 * 从登记活动和签到活动导入用户
 	 *
 	 * @param string $wall
 	 * @param string $app
@@ -55,10 +55,10 @@ class users extends \pl\fe\matter\base {
 		return new \ResponseData($sourceApp);
 	}
 	/**
-	 * 从报名活动导入数据
+	 * 从登记活动导入数据
 	 */
 	private function &_importByEnroll($site, $app, $byApp) {
-		$join_at = time();
+		$sync_at = time();
 		$modelWall = $this->model('matter\wall');
 		$modelEnl = $this->model('matter\enroll');
 
@@ -67,7 +67,7 @@ class users extends \pl\fe\matter\base {
 		$modelWall->update(
 			'xxt_wall',
 			[
-				'last_sync_at' => $join_at,
+				'last_sync_at' => $sync_at,
 				'source_app' => '{"id":"' . $byApp . '","type":"enroll"}',
 				'data_schemas' => $sourceApp->data_schemas,
 			],
@@ -80,7 +80,7 @@ class users extends \pl\fe\matter\base {
 		$q = [
 			'*,count(distinct userid)',
 			'xxt_enroll_record',
-			"aid='$byApp' and state=1 and userid !='' group by userid",
+			"aid='$byApp' and state=1 and (wx_openid != '' or yx_openid != '' or qy_openid != '') group by userid",
 		];
 		$records = $modelRec->query_objs_ss($q);
 		/* 导入数据 */
@@ -89,13 +89,13 @@ class users extends \pl\fe\matter\base {
 				//退出其它讨论组
 				$this->model()->update(
 					'xxt_wall_enroll',
-					array('close_at' => $join_at),
+					array('close_at' => $sync_at),
 					"siteid='$site' and wid != '{$app}' and (wx_openid='{$record->wx_openid}' or yx_openid='{$record->yx_openid}' or qy_openid='{$record->qy_openid}') "
 				);
 				$options = array();
 				$options['siteid'] = $site;
 				$options['wid'] = $app;
-				$options['join_at'] = $join_at;
+				$options['join_at'] = $sync_at;
 				$options['userid'] = $record->userid;
 				$options['nickname'] = $record->nickname;
 				$options['wx_openid'] = $record->wx_openid;
@@ -118,7 +118,7 @@ class users extends \pl\fe\matter\base {
 	 */
 	private function &_importBySignin($site, $app, &$params) {
 		$byApp = $params->app;
-		$join_at = time();
+		$sync_at = time();
 		$modelWall = $this->model('matter\wall');
 		$modelSignin = $this->model('matter\signin');
 
@@ -142,7 +142,7 @@ class users extends \pl\fe\matter\base {
 		$modelWall->update(
 			'xxt_wall',
 			[
-				'last_sync_at' => $join_at,
+				'last_sync_at' => $sync_at,
 				'source_app' => '{"id":"' . $byApp . '","type":"signin"}',
 				'data_schemas' => $sourceDataSchemas,
 			],
@@ -155,7 +155,7 @@ class users extends \pl\fe\matter\base {
 		$q = [
 			'*,count(distinct userid)',
 			'xxt_signin_record',
-			"aid='$byApp' and state=1 and userid !='' group by userid",
+			"aid='$byApp' and state=1 and (wx_openid != '' or yx_openid != '' or qy_openid != '') group by userid",
 		];
 		$records = $modelRec->query_objs_ss($q);
 		/* 导入数据 */
@@ -164,13 +164,13 @@ class users extends \pl\fe\matter\base {
 				//退出其它讨论组
 				$this->model()->update(
 					'xxt_wall_enroll',
-					array('close_at' => $join_at),
+					array('close_at' => $sync_at),
 					"siteid='$site' and wid != '{$app}' and (wx_openid='{$record->wx_openid}' or yx_openid='{$record->yx_openid}' or qy_openid='{$record->qy_openid}') "
 				);
 				$options = array();
 				$options['siteid'] = $site;
 				$options['wid'] = $app;
-				$options['join_at'] = $join_at;
+				$options['join_at'] = $sync_at;
 				$options['userid'] = $record->userid;
 				$options['nickname'] = $record->nickname;
 				$options['wx_openid'] = $record->wx_openid;
@@ -280,7 +280,7 @@ class users extends \pl\fe\matter\base {
 		$q = array(
 			'*,count(distinct userid)',
 			'xxt_enroll_record',
-			"aid='$byApp' and (enroll_at>{$objGrp->last_sync_at} or state<>1) and userid !='' group by userid",
+			"aid='$byApp' and (enroll_at>{$objGrp->last_sync_at} or state<>1) and (wx_openid != '' or yx_openid != '' or qy_openid != '') group by userid",
 		);
 		$records = $modelRec->query_objs_ss($q);
 
@@ -297,7 +297,7 @@ class users extends \pl\fe\matter\base {
 		$q = array(
 			'*,count(distinct userid)',
 			'xxt_signin_record',
-			"aid='$byApp' and (enroll_at>{$objGrp->last_sync_at} or state<>1) and userid !='' group by userid",
+			"aid='$byApp' and (enroll_at>{$objGrp->last_sync_at} or state<>1) and (wx_openid != '' or yx_openid != '' or qy_openid != '') group by userid",
 		);
 		$records = $modelRec->query_objs_ss($q);
 
@@ -307,20 +307,20 @@ class users extends \pl\fe\matter\base {
 	 * 同步数据
 	 */
 	private function _syncRecord($siteId, &$objGrp, &$records, &$modelRec) {
-		$join_at = time();
+		$sync_at = time();
 		if (!empty($records)) {
 			foreach ($records as $record) {
 				if ($record->state === '1') {
 					//退出其它讨论组
 					$this->model()->update(
 						'xxt_wall_enroll',
-						array('close_at' => $join_at),
+						array('close_at' => $sync_at),
 						"siteid='$siteId' and wid != '{$objGrp->id}' and (wx_openid='{$record->wx_openid}' or yx_openid='{$record->yx_openid}' or qy_openid='{$record->qy_openid}') "
 					);
 					$options = array();
 					$options['siteid'] = $siteId;
 					$options['wid'] = $objGrp->id;
-					$options['join_at'] = $join_at;
+					$options['join_at'] = $sync_at;
 					$options['userid'] = $record->userid;
 					$options['nickname'] = $record->nickname;
 					$options['wx_openid'] = $record->wx_openid;

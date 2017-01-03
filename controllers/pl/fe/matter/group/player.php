@@ -341,7 +341,7 @@ class player extends \pl\fe\matter\base {
 		$u = array(
 				'*',
 				'xxt_wall_enroll',
-				"wid = '{$byApp}' and siteid = '{$site}' and userid != ''",
+				"wid = '{$byApp}' and siteid = '{$site}'",
 			);
 		if($onlySpeaker === 'Y'){
 			$u[2] .= " and last_msg_at>0";
@@ -352,7 +352,7 @@ class player extends \pl\fe\matter\base {
 		if (!empty($wallUsers)) {
 			$objGrp = $modelGrp->byId($app, ['cascaded' => 'N']);
 			foreach ($wallUsers as $wallUser) {
-				$wallUser->data = empty($wallUser->data) ? new \stdClass : json_decode($wallUser->data);
+				$wallUser->data = empty($wallUser->data) ? '' : json_decode($wallUser->data);
 				$user = new \stdClass;
 				$user->uid = $wallUser->userid;
 				$user->nickname = $wallUser->nickname;
@@ -421,7 +421,7 @@ class player extends \pl\fe\matter\base {
 		$modelPlayer = $this->model('matter\group\player');
 		if (!empty($wallUsers)) {
 			foreach ($wallUsers as $wallUser) {
-				$wallUser->data = empty($wallUser->data) ? new \stdClass : json_decode($wallUser->data);
+				$wallUser->data = empty($wallUser->data) ? '' : json_decode($wallUser->data);
 				$user = new \stdClass;
 				$user->uid = $wallUser->userid;
 				$user->nickname = $wallUser->nickname;

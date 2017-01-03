@@ -408,7 +408,7 @@ class wall_model extends app_base {
 				if (!empty($user->wx_openid) && $user->wx_openid !== $openid){
 					$this->sendByOpenid($site, $user->wx_openid, $message, 'wx');
 				}
-				if($user->ufrom !== 'qy' && empty($user->wx_openid) && empty($user->yx_openid) && empty($user->qy_openid) && !empty($user->openid) && !empty($user->ufrom)){
+				if($user->ufrom !== 'qy' && empty($user->wx_openid) && empty($user->yx_openid) && empty($user->qy_openid) && !empty($user->openid) && !empty($user->ufrom) && $user->openid !== $openid){
 					$this->sendByOpenid($site, $user->openid, $message, $user->ufrom);
 				}
 			}
@@ -483,7 +483,7 @@ class wall_model extends app_base {
 				if (!empty($user->wx_openid) && $user->wx_openid !== $openid){
 					$this->sendByOpenid($site, $user->wx_openid, $message, 'wx');
 				}
-				if($user->ufrom !== 'qy' && empty($user->wx_openid) && empty($user->yx_openid) && empty($user->qy_openid) && !empty($user->openid) && !empty($user->ufrom)){
+				if($user->ufrom !== 'qy' && empty($user->wx_openid) && empty($user->yx_openid) && empty($user->qy_openid) && !empty($user->openid) && !empty($user->ufrom) && $user->openid !== $openid){
 					$this->sendByOpenid($site, $user->openid, $message, $user->ufrom);
 				}
 			}

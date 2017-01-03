@@ -22,6 +22,7 @@ class qy extends \member_base {
 	 *
 	 */
 	public function api_action($site) {
+		$modelLog = $this->model('log');
 		$qyConfig = $this->model('sns\qy')->bySite($site);
 		$qyProxy = $this->model('sns\qy\proxy', $qyConfig);
 
@@ -30,7 +31,7 @@ class qy extends \member_base {
 		case 'GET':
 			/* 公众平台对接 */
 			$rst = $qyProxy->join($_GET);
-			$this->model('log')->log($site, 'join', json_encode($rst));
+			$modelLog->log($site, 'join', json_encode($rst));
 			header('Content-Type: text/html; charset=utf-8');
 			die($rst[1]);
 		case 'POST':
@@ -38,6 +39,7 @@ class qy extends \member_base {
 			/* 企业号需要对数据进行解密处理 */
 			$rst = $qyProxy->DecryptMsg($_GET, $data);
 			if ($rst[0] === false) {
+				$modelLog->log($site, 'qy-post-err', json_encode($rst));
 				exit;
 			}
 			$data = $rst[1];

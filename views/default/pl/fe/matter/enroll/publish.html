@@ -132,7 +132,7 @@
                             <tms-datepicker class='tms-datepicker' tms-title='结束时间' tms-date='app.end_at' tms-state='end_at'></tms-datepicker>
                         </td>
                         <td style='padding:0'>
-                            <select class='form-control' ng-model='app.before_end_page' ng-options='page.name as page.title for page in app.pages' ng-change="update('before_end_page')">
+                            <select class='form-control' ng-model='app.after_end_page' ng-options='page.name as page.title for page in app.pages' ng-change="update('after_end_page')">
                                 <option value=''>默认提示</option>
                             </select>
                         </td>

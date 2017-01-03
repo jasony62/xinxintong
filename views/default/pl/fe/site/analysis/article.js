@@ -14,6 +14,7 @@ define(['main'], function(ngApp) {
             page && ($scope.page.at = page);
             url = '/rest/pl/fe/site/analysis/matterActions';
             url += '?site=' + $scope.siteId;
+            url += '&type=article';
             url += '&orderby=' + $scope.orderby;
             url += '&startAt=' + $scope.startAt;
             url += '&endAt=' + $scope.endAt;

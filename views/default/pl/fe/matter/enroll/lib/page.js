@@ -212,6 +212,8 @@ define(['wrap'], function(wrapLib) {
             }
 
             this.html = $html.html();
+
+            return true;
         },
         /**
          * 整理登记项，使得页面中的schema和应用中的schema是同一个对象
@@ -318,6 +320,8 @@ define(['wrap'], function(wrapLib) {
             }
 
             this.html = $html.html();
+
+            return true;
         },
         /**
          * 整理登记项，使得页面中的schema和应用中的schema是同一个对象
@@ -492,6 +496,8 @@ define(['wrap'], function(wrapLib) {
             $html.find("[schema='" + schema.id + "']").find('label').html(schema.title);
 
             this.html = $html.html();
+
+            return true;
         },
     };
     angular.extend(protoListPage, protoPage);

@@ -14,16 +14,16 @@ class main extends \pl\fe\base {
 		exit;
 	}
 	/**
-	 * 素材行为统计数据
+	 * 单图文素材行为统计数据
 	 */
-	public function matterActions_action($site,$orderby, $startAt, $endAt, $page = 1, $size = 30) {
+	public function matterActions_action($site,$type,$orderby, $startAt, $endAt, $page = 1, $size = 30) {
 		$s = 'l.matter_title,l.matter_type,l.matter_id';
 		$s .= ',sum(l.act_read) read_num';
 		$s .= ',sum(l.act_share_friend) share_friend_num';
 		$s .= ',sum(l.act_share_timeline) share_timeline_num';
 		$q[] = $s;
 		$q[] = 'xxt_log_matter_action l';
-		$w = "l.siteid='$site'";
+		$w = "l.siteid='$site' and l.matter_type='$type' ";
 		$w .= " and l.action_at>=$startAt and l.action_at<=$endAt";
 		$q[] = $w;
 		$q2 = array(
@@ -35,7 +35,7 @@ class main extends \pl\fe\base {
 			$q = array(
 				'count(distinct matter_type,matter_id)',
 				'xxt_log_matter_action',
-				"siteid='$site' and action_at>=$startAt and action_at<=$endAt",
+				"siteid='$site' and matter_type='$type' and action_at>=$startAt and action_at<=$endAt",
 			);
 			$cnt = $this->model()->query_val_ss($q);
 		} else {

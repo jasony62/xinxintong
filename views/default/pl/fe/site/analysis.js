@@ -26,13 +26,41 @@ define(['require'], function(require) {
     }]);
     ngApp.controller('ctrlAnalysis', ['$scope', '$location', 'http2', function($scope, $location, http2) {
         $scope.siteId = $location.search().site;
+        var current, startAt, endAt;
+        current = new Date();
+        startAt = {
+            year: current.getFullYear(),
+            month: current.getMonth() + 1,
+            mday: current.getDate(),
+            getTime: function() {
+                var d = new Date(this.year, this.month - 1, this.mday, 0, 0, 0, 0);
+                return d.getTime();
+            }
+        };
+        endAt = {
+            year: current.getFullYear(),
+            month: current.getMonth() + 1,
+            mday: current.getDate(),
+            getTime: function() {
+                var d = new Date(this.year, this.month - 1, this.mday, 23, 59, 59, 0);
+                return d.getTime();
+            }
+        };
+        $scope.startAt = startAt.getTime() / 1000;
+        $scope.endAt = endAt.getTime() / 1000;
+        $scope.open = function($event) {
+            $event.preventDefault();
+            $event.stopPropagation();
+            $scope.opened = true;
+        };
         $scope.$on('$locationChangeSuccess', function(event, currentRoute) {
             var subView = currentRoute.match(/([^\/]+?)\?/);
-            $scope.subView = subView ? (subView[1] === 'analysis' ? 'article' : subView[1]) : 'article';
+            $scope.subView = subView ? (subView[1] === 'analysis' ? 'user' : subView[1]) : 'article';
         });
         http2.get('/rest/pl/fe/site/get?site=' + $scope.siteId, function(rsp) {
             $scope.site = rsp.data;
         });
+
     }]);
     /***/
     require(['domReady!'], function(document) {

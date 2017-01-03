@@ -13,7 +13,8 @@ define(['main'], function(ngApp) {
             var url;
             page && ($scope.page.at = page);
             url = '/rest/pl/fe/site/analysis/matterActions';
-            url += '?orderby=' + $scope.orderby;
+            url += '?site=' + $scope.siteId;
+            url += '&orderby=' + $scope.orderby;
             url += '&startAt=' + $scope.startAt;
             url += '&endAt=' + $scope.endAt;
             url += '&' + $scope.page.param();

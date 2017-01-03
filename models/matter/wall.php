@@ -45,19 +45,26 @@ class wall_model extends app_base {
 	/**
 	 * 用户加入信息墙
 	 *
-	 * $runningMpid 用户所在的公众号，不一定是是信息墙所属的公众号
+	 * $runningSiteId 用户所在的公众号，不一定是是信息墙所属的公众号
 	 * $wid
 	 * $user 用户信息
 	 * $remark 加入信息墙时输入的事件数据
 	 */
-	public function join($runningMpid, $wid, $user, $remark = '') {
+	public function join($runningSiteId, $wid, $user, $remark = '') {
 		/**
 		 * 加入一个信息墙需要从其他的墙退出
 		 */
+		if(isset($user->wx_openid)){
+			$where = " and wx_openid='{$user->wx_openid}'";
+		}else if(isset($user->yx_openid)){
+			$where = " and yx_openid='{$user->yx_openid}'";
+		}else if(isset($user->qy_openid)){
+			$where = " and qy_openid='{$user->qy_openid}'";
+		}
 		$this->update(
 			'xxt_wall_enroll',
 			array('close_at' => time()),
-			"siteid='$runningMpid' and openid='$user->openid'"
+			"siteid='$runningSiteId'".$where
 		);
 		/**
 		 * 加入一个组
@@ -65,7 +72,7 @@ class wall_model extends app_base {
 		$q = array(
 			'count(*)',
 			'xxt_wall_enroll',
-			"siteid='$runningMpid' and wid='$wid' and openid='$user->openid'",
+			"siteid='$runningSiteId' and wid='$wid' ".$where
 		);
 		if (1 === (int) $this->query_val_ss($q)) {
 			/**
@@ -77,15 +84,20 @@ class wall_model extends app_base {
 				$q[2]
 			);
 		} else {
-			$i['siteid'] = $runningMpid;
+			$i['siteid'] = $runningSiteId;
 			$i['wid'] = $wid;
-			$i['openid'] = $user->openid;
 			$i['remark'] = $remark;
 			$i['join_at'] = time();
-			$i['ufrom'] = isset($user->ufrom) ? $user->ufrom : '';
 			$i['nickname'] = isset($user->nickname) ? $user->nickname : '';
 			$i['userid'] = isset($user->userid) ? $user->userid : '';
 			$i['headimgurl'] = isset($user->headimgurl) ? $user->headimgurl : '';
+			if(isset($user->wx_openid)){
+				$i['wx_openid'] = $user->wx_openid;
+			}else if(isset($user->yx_openid)){
+				$i['yx_openid'] = $user->yx_openid;
+			}else if(isset($user->qy_openid)){
+				$i['qy_openid'] = $user->qy_openid;
+			}
 
 			$this->insert('xxt_wall_enroll', $i, false);
 		}
@@ -108,11 +120,11 @@ class wall_model extends app_base {
 	 *
 	 * 返回当前用户所在的信息墙
 	 */
-	public function joined($runningMpid, $openid) {
+	public function joined($runningSiteId, $openid, $fromSrc) {
 		$q = array(
 			'wid',
 			'xxt_wall_enroll',
-			"siteid='$runningMpid' and openid='$openid' and close_at=0",
+			"siteid='$runningSiteId' and close_at=0 and ".$fromSrc."_openid='$openid'",
 		);
 		$wid = $this->query_val_ss($q);
 		return $wid;
@@ -120,11 +132,11 @@ class wall_model extends app_base {
 	/**
 	 * 判断当前用户是否已经参加了指定讨论组
 	 */
-	public function joinedWall($runningMpid, $wid, $openid) {
+	public function joinedWall($runningSiteId, $wid, $openid) {
 		$q = array(
 			'count(*)',
 			'xxt_wall_enroll',
-			"siteid='$runningMpid' and wid='$wid' and openid='$openid' and close_at=0",
+			"siteid='$runningSiteId' and wid='$wid' and (wx_openid='$openid' or yx_openid='$openid' or qy_openid='$openid') and close_at=0",
 		);
 		return 1 === (int) $this->query_val_ss($q);
 	}
@@ -147,11 +159,11 @@ class wall_model extends app_base {
 	 *
 	 * $contain array [totle]
 	 */
-	public function messages($runningMpid, $wid, $page = 1, $size = 30, $contain = null) {
+	public function messages($runningSiteId, $wid, $page = 1, $size = 30, $contain = null) {
 		$q = array(
 			'l.*,e.nickname,e.userid',
 			'xxt_wall_log l,xxt_wall_enroll e',
-			"l.siteid = '$runningMpid' and l.wid = '$wid' and e.wid = l.wid and e.openid = l.openid",
+			"l.siteid = '$runningSiteId' and l.wid = '$wid' and e.wid = l.wid and (e.wx_openid = l.openid or e.yx_openid = l.openid or e.qy_openid = l.openid)",
 		);
 		$q2['o'] = 'approve_at desc';
 		$q2['r']['o'] = ($page - 1) * $size;
@@ -171,11 +183,11 @@ class wall_model extends app_base {
 	/**
 	 * 获得墙内的所有用户
 	 */
-	public function joinedUsers($runningMpid, $wid, $fields = 'openid') {
+	public function joinedUsers($runningSiteId, $wid, $fields = 'openid') {
 		$q = array(
-			'openid,ufrom',
+			'wx_openid,yx_openid,qy_openid',
 			'xxt_wall_enroll',
-			"siteid='$runningMpid' and wid='$wid' and close_at=0",
+			"siteid='$runningSiteId' and wid='$wid' and close_at=0",
 		);
 
 		$users = $this->query_objs_ss($q);
@@ -187,11 +199,11 @@ class wall_model extends app_base {
 	 *
 	 * $time 指定时间点之后的数据
 	 */
-	public function pendingMessages($runningMpid, $wid, $time = 0) {
+	public function pendingMessages($runningSiteId, $wid, $time = 0) {
 		$q = array(
-			'l.*,e.nickname,e.ufrom,e.userid',
+			'l.*,e.nickname,e.userid',
 			'xxt_wall_log l,xxt_wall_enroll e',
-			"l.siteid = '$runningMpid' and l.wid = '$wid' and e.wid = l.wid and e.openid = l.openid and approved=" . self::APPROVE_PENDING,
+			"l.siteid = '$runningSiteId' and l.wid = '$wid' and e.wid = l.wid and (e.wx_openid = l.openid or e.yx_openid = l.openid or e.qy_openid = l.openid) and approved=" . self::APPROVE_PENDING,
 		);
 		$time > 0 && $q[2] .= " and publish_at>=$time";
 		$q2['o'] = 'publish_at desc';
@@ -202,13 +214,13 @@ class wall_model extends app_base {
 	 *
 	 * $time 指定时间点之后的数据
 	 */
-	public function approvedMessages($runningMpid, $wid, $time = 0) {
+	public function approvedMessages($runningSiteId, $wid, $time = 0) {
 		$current = time();
 
 		$q = array(
-			'l.*,e.nickname,e.ufrom,e.headimgurl',
+			'l.*,e.nickname,e.headimgurl',
 			'xxt_wall_log l,xxt_wall_enroll e',
-			"e.siteid = '{$runningMpid}' and e.wid= '$wid' and l.wid='$wid' and e.openid=l.openid and approved=" . self::APPROVE_PASS,
+			"e.siteid = '{$runningSiteId}' and e.wid= '$wid' and l.wid='$wid' and (e.wx_openid = l.openid or e.yx_openid = l.openid or e.qy_openid = l.openid) and approved=" . self::APPROVE_PASS,
 		);
 		$time > 0 && $q[2] .= " and approve_at>=$time";
 		$q2['o'] = 'approve_at desc';
@@ -218,11 +230,11 @@ class wall_model extends app_base {
 	/**
 	 * 批准消息
 	 *
-	 * $runningMpid
+	 * $runningSiteId
 	 * $wid
 	 * $mid 消息id
 	 */
-	public function approve($runningMpid, $wid, $mid, $ctrl) {
+	public function approve($runningSiteId, $wid, $mid, $ctrl) {
 		$u['approve_at'] = time();
 		$u['approved'] = self::APPROVE_PASS;
 		$this->update('xxt_wall_log', $u, "wid='$wid' and id=$mid");
@@ -244,13 +256,13 @@ class wall_model extends app_base {
 	/**
 	 * 退出信息墙
 	 */
-	public function unjoin($runningMpid, $wid, $openid) {
+	public function unjoin($runningSiteId, $wid, $openid) {
 		$wall = $this->byId($wid, 'quit_reply');
 
 		$this->update(
 			'xxt_wall_enroll',
 			array('close_at' => time()),
-			"siteid='$runningMpid' and wid= '$wid' and openid='$openid'"
+			"siteid='$runningSiteId' and wid= '$wid' and (wx_openid='$openid' or yx_openid='$openid' or qy_openid='$openid')"
 		);
 		$reply = empty($wall->quit_reply) ? '您已退出信息墙' : $wall->quit_reply;
 
@@ -300,7 +312,7 @@ class wall_model extends app_base {
 			$this->update(
 				'xxt_wall_enroll',
 				array('close_at' => time()),
-				"wid= '$wid' and openid='$openid'"
+				"wid= '$wid' and (wx_openid='$openid' or yx_openid='$openid' or qy_openid='$openid')"
 			);
 			$reply = empty($wall->quit_reply) ? '您已退出信息墙' : $wall->quit_reply;
 
@@ -322,11 +334,7 @@ class wall_model extends app_base {
 		/**
 		 * 更新用户状态
 		 */
-		$this->update(
-			'xxt_wall_enroll',
-			array('last_msg_at' => $current),
-			"siteid='$siteid' and openid='$openid'"
-		);
+		$this->update( "update xxt_wall_enroll set last_msg_at=$current,msg_num=msg_num+1 where siteid='$siteid' and (wx_openid='$openid' or yx_openid='$openid' or qy_openid='$openid') " );
 
 		return true;
 	}
@@ -387,14 +395,15 @@ class wall_model extends app_base {
 			 * 通过客服接口发送给墙内所有用户
 			 */
 			foreach ($users as $user) {
-				if ($openid === $user->openid) {
-					continue;
-				}
-				if ($user->ufrom == 'qy') {
+				if (!empty($user->qy_openid)) {
 					$usersQy[] = $user;
-					continue;
 				}
-				$this->sendByOpenid($site, $user->openid, $message, $user->ufrom);
+				if (!empty($user->yx_openid) && $user->yx_openid !== $openid){
+					$this->sendByOpenid($site, $user->yx_openid, $message, 'yx');
+				}
+				if (!empty($user->wx_openid) && $user->wx_openid !== $openid){
+					$this->sendByOpenid($site, $user->wx_openid, $message, 'wx');
+				}
 			}
 			break;
 		case 'image':
@@ -429,14 +438,10 @@ class wall_model extends app_base {
 			 * 通过客服接口发送给墙内所有用户
 			 */
 			foreach ($users as $user) {
-				if ($openid === $user->openid) {
-					continue;
-				}
-				if ($user->ufrom == 'qy') {
+				if (!empty($user->qy_openid)) {
 					$usersQy[] = $user;
-					continue;
 				}
-				if ($user->ufrom == 'yx') {
+				if (!empty($user->yx_openid)) {
 					if (!isset($mediaIdYx)) {
 						//站点绑定的易信公众号信息
 						$yxConfig = \TMS_APP::M('sns\yx')->bySite($site);
@@ -462,7 +467,12 @@ class wall_model extends app_base {
 					);
 				}
 
-				$this->sendByOpenid($site, $user->openid, $message, $user->ufrom);
+				if (!empty($user->yx_openid) && $user->yx_openid !== $openid){
+					$this->sendByOpenid($site, $user->yx_openid, $message, 'yx');
+				}
+				if (!empty($user->wx_openid) && $user->wx_openid !== $openid){
+					$this->sendByOpenid($site, $user->wx_openid, $message, 'wx');
+				}
 			}
 
 		}
@@ -524,11 +534,12 @@ class wall_model extends app_base {
 				 * 通过客服接口发送给墙内所有用户
 				 */
 				foreach ($usersQy as $user) {
-					if ($openid === $user->openid) {
+					if ($user->qy_openid === $openid) {
 						continue;
 					}
-
-					$this->sendByOpenid($site, $user->openid, $message, $user->ufrom);
+					if(!empty($user->qy_openid)){
+						$this->sendByOpenid($site, $user->qy_openid, $message, 'qy');
+					}
 				}
 			}
 
@@ -566,47 +577,60 @@ class wall_model extends app_base {
 	 */
 	private function sendByOpenid($mpid, $openid, $message, $openid_src = null) {
 		if (empty($openid_src)) {
-			$mpa = \TMS_APP::M('mp\mpaccount')->getApis($mpid);
-			$mpproxy = \TMS_APP::M('mpproxy/' . $mpa->mpsrc, $mpid);
+			$snsConfig = \TMS_APP::M('mp\mpaccount')->getApis($mpid);
+			$snsProxy = \TMS_APP::M('mpproxy/' . $snsConfig->mpsrc, $mpid);
 		} else {
 			switch ($openid_src) {
 			case 'yx':
-				$mpa = \TMS_APP::M('sns\yx')->bySite($mpid);
-				$mpproxy = \TMS_APP::M('sns\yx\proxy', $mpa);
-				$mpa->yx_p2p = $mpa->can_p2p;
-				$mpa->mpsrc = 'yx';
+				$snsConfig = \TMS_APP::M('sns\yx')->bySite($mpid);
+				if($snsConfig && $snsConfig->joined === 'Y'){
+					$snsProxy = \TMS_APP::M('sns\yx\proxy', $snsConfig);
+					$snsConfig->yx_p2p = $snsConfig->can_p2p;
+					$snsConfig->mpsrc = 'yx';
+				}else{
+					$snsConfig->mpsrc = null;
+				}
 				break;
 
 			case 'qy':
-				$mpa = \TMS_APP::M('sns\qy')->bySite($mpid);
-				$mpproxy = \TMS_APP::M('sns\qy\proxy', $mpa);
-				$mpa->qy_agentid = $mpa->agentid;
-				$mpa->mpsrc = 'qy';
+				$snsConfig = \TMS_APP::M('sns\qy')->bySite($mpid);
+				if($snsConfig && $snsConfig->joined === 'Y'){
+					$snsProxy = \TMS_APP::M('sns\qy\proxy', $snsConfig);
+					$snsConfig->qy_agentid = $snsConfig->agentid;
+					$snsConfig->mpsrc = 'qy';
+				}else{
+					$snsConfig->mpsrc = null;
+				}
 				break;
 
 			case 'wx':
-				$mpa = \TMS_APP::M('sns\wx')->bySite($mpid);
-				$mpproxy = \TMS_APP::M('sns\wx\proxy', $mpa);
-				$mpa->mpsrc = 'wx';
+				$snsConfig = \TMS_APP::M('sns\wx')->bySite($mpid);
+				if($snsConfig && $snsConfig->joined === 'Y'){
+					$snsProxy = \TMS_APP::M('sns\wx\proxy', $snsConfig);
+					$snsConfig->mpsrc = 'wx';
+				}else{
+					$snsConfig->mpsrc = null;
+				}
 				break;
 			}
 		}
 
-		switch ($mpa->mpsrc) {
+		$rst = false;
+		switch ($snsConfig->mpsrc) {
 		case 'yx':
-			if ($mpa->mpsrc === 'yx' && $mpa->yx_p2p === 'Y') {
-				$rst = $mpproxy->messageSend($message, array($openid));
+			if ($snsConfig->yx_p2p === 'Y') {
+				$rst = $snsProxy->messageSend($message, array($openid));
 			} else {
-				$rst = $mpproxy->messageCustomSend($message, $openid);
+				$rst = $snsProxy->messageCustomSend($message, $openid);
 			}
 			break;
 		case 'wx':
-			$rst = $mpproxy->messageCustomSend($message, $openid);
+			$rst = $snsProxy->messageCustomSend($message, $openid);
 			break;
 		case 'qy':
 			$message['touser'] = $openid;
-			$message['agentid'] = $mpa->qy_agentid;
-			$rst = $mpproxy->messageSend($message, $openid);
+			$message['agentid'] = $snsConfig->qy_agentid;
+			$rst = $snsProxy->messageSend($message, $openid);
 			break;
 		}
 		return $rst;

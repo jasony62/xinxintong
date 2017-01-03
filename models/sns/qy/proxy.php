@@ -549,7 +549,7 @@ class proxy_model extends \sns\proxybase {
 		$cmd = 'https://qyapi.weixin.qq.com/cgi-bin/message/send';
 		$message['agentid'] = $this->config->agentid;
 
-		$posted = TMS_MODEL::toJson($message);
+		$posted = \TMS_MODEL::toJson($message);
 
 		$rst = $this->httpPost($cmd, $posted);
 		

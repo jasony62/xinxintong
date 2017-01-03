@@ -82,7 +82,10 @@ class main extends \pl\fe\matter\base {
 	 * 更新数据
 	 */
 	public function update_action($site, $id) {
-		$user = $this->accountUser();
+		if (false === ($user = $this->accountUser())) {
+			return new \ResponseTimeout();
+		}
+
 		$nv = $this->getPostJson();
 		$current = time();
 
@@ -141,7 +144,10 @@ class main extends \pl\fe\matter\base {
 	 * 创建一个多图文素材
 	 */
 	public function create_action($site) {
-		$user = $this->accountUser();
+		if (false === ($user = $this->accountUser())) {
+			return new \ResponseTimeout();
+		}
+
 		$posted = $this->getPostJson();
 		$current = time();
 
@@ -175,8 +181,16 @@ class main extends \pl\fe\matter\base {
 	/**
 	 * 删除一个多图文素材
 	 */
-	public function delete_action($id) {
-		$rst = $this->model()->update('xxt_news', ['state' => 0], "mpid='$this->mpid' and id=$id");
+	public function delete_action($site,$id) {
+		if (false === ($user = $this->accountUser())) {
+			return new \ResponseTimeout();
+		}
+		
+		/* 记录操作日志 */
+		$matter=$this->model("matter\\news")->byId($id);
+		$this->model('matter\log')->matterOp($site, $user, $matter, 'D');
+		
+		$rst = $this->model()->update('xxt_news', ['state' => 0], "siteid='$site' and id=$id");
 
 		return new \ResponseData($rst);
 	}

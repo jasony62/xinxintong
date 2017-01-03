@@ -18,7 +18,7 @@ class users extends \pl\fe\matter\base {
 	 */
 	public function list_action($id, $site) {
 		$q = array(
-			'openid,wx_openid,yx_openid,qy_openid,join_at,last_msg_at,ufrom,userid,nickname',
+			'wx_openid,yx_openid,qy_openid,join_at,last_msg_at,msg_num,userid,nickname',
 			'xxt_wall_enroll',
 			"siteid='$site' and wid='$id' and close_at=0",
 		);
@@ -195,7 +195,7 @@ class users extends \pl\fe\matter\base {
 	public function export_action($id, $app, $onlySpeaker = 'N',$site) {
 
 		$q = array(
-			'ufrom,userid,openid,nickname',
+			'userid,wx_openid,yx_openid,qy_openid,nickname',
 			'xxt_wall_enroll',
 			"siteid='$site' and wid='$id' and e.close_at=0 ",
 		);

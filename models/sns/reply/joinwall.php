@@ -42,10 +42,9 @@ class joinwall_model extends Reply {
 			}
 			$user->nickname = $from_nickname->nickname;
 			$user->headimgurl = $from_nickname->headimgurl;
-			$user->ufrom = $this->call['src'];
 			//获取userid
 			$options['fields'] = 'uid';
-			$user2 = \TMS_APP::model('site\user\account')->byOpenid($siteId, $user->ufrom, $this->call['from_user'], $options);
+			$user2 = \TMS_APP::model('site\user\account')->byOpenid($siteId, $this->call['src'], $this->call['from_user'], $options);
 			if($user2 === false){
 				$user->userid = '';
 			}else{

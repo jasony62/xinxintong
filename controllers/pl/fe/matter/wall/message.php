@@ -76,13 +76,19 @@ class message extends \pl\fe\matter\base {
 
 			//获得此用户的来源和昵称用于推送消息
 			$q = array(
-				'ufrom,nickname',
+				'nickname,wx_openid,yx_openid,qy_openid',
 				'xxt_wall_enroll',
-				"wid = '{$wall->id}' and (openid = '{$openid}' or wx_openid='{$openid}' or yx_openid='{$openid}' or qy_openid='{$openid}')",
+				"wid = '{$wall->id}' and (wx_openid='{$openid}' or yx_openid='{$openid}' or qy_openid='{$openid}')",
 				);
 			$user2 = $this->model()->query_obj_ss($q);
 			$msg['from_nickname'] = $user2->nickname;
-			$msg['src'] = $user2->ufrom;
+			if($user2->wx_openid === $openid){
+				$msg['src'] = 'wx';
+			}elseif($user2->yx_openid === $openid){
+				$msg['src'] = 'yx';
+			}elseif($user2->qy_openid === $openid){
+				$msg['src'] = 'qy';
+			}
 			
 			$model->push_others($site, $openid, $msg, $wall, $wall->id);
 		}

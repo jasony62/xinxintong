@@ -6,25 +6,38 @@
         <title>项目</title>
         <link href="/static/css/bootstrap.min.css" rel="stylesheet">
         <link href="/static/css/tms.css?_=2" rel="stylesheet">
-        <link href="/views/default/pl/fe/matter/mission/frame.css?_=1" rel="stylesheet">
+        <link href="/views/default/pl/fe/matter/mission/frame.css?_=2" rel="stylesheet">
     </head>
     <body ng-controller='ctrlFrame' ng-cloak class='ng-cloak'>
         <nav class='navbar navbar-default'>
-            <div class='container'>
-                <ul class='nav navbar-nav'>
-                    <li ng-if="!siteId"><a href='/rest/pl/fe' target='_self'><i class='glyphicon glyphicon-chevron-left'></i> 个人工作台</a></li>
-                    <li ng-if="siteId"><a href='/rest/pl/fe/site/console?site={{siteId}}' target='_self'><i class='glyphicon glyphicon-chevron-left'></i> 团队工作台</a></li>
-                </ul>
-                <ul class='nav navbar-nav navbar-right'>
-                    <li class="dropdown">
-                        <a href="#" class="dropdown-toggle" data-toggle="dropdown">{{mission.title}} <span class="caret"></span></a>
-                        <ul class="dropdown-menu" role="menu">
-                            <li><a href='/rest/pl/fe/matter/mission/main?site={{siteId}}&id={{id}}'>项目定义</a></li>
-                            <li><a href='/rest/pl/fe/matter/mission/matter?site={{siteId}}&id={{id}}'>资料和活动</a></li>
-                            <li><a href='/rest/pl/fe/matter/mission/user?site={{siteId}}&id={{id}}'>用户</a></li>
-                        </ul>
-                    </li>
-                </ul>
+            <div class='container-fluid'>
+                <div class="navbar-header">
+                    <button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target='#navbar-collapse-1'>
+                        <span class="sr-only">Toggle navigation</span>
+                        <span class="icon-bar"></span>
+                        <span class="icon-bar"></span>
+                        <span class="icon-bar"></span>
+                    </button>
+                </div>
+                <div class='collapse navbar-collapse' id='navbar-collapse-1'>
+                    <nav class='nav navbar-nav tms-breadcrumb'>
+                        <li><a href='/rest/home' target='_self'><?php echo APP_TITLE;?></a></li>
+                        <li><a href="/rest/pl/fe" target='_self'>个人工作台</a></li>
+                        <li ng-if="site.yourRole"><a href="/rest/pl/fe/site/console?site={{mission.siteid}}" target='_self'>{{site.name}}</a></li>
+                        <li ng-if="!site.yourRole"><a href="javascript:void(0)" style='color:#777;cursor:default;'>{{site.name}}</a></li>
+                        <li><a href="/rest/pl/fe/matter/mission/main?id={{id}}" title="{{mission.title}}">{{mission.title}}</a></li>
+                    </nav>
+                    <ul class='nav navbar-nav navbar-right'>
+                        <li class="dropdown">
+                            <a href="#" class="dropdown-toggle" data-toggle="dropdown">{{viewNames[subView]}} <span class="caret"></span></a>
+                            <ul class="dropdown-menu" role="menu">
+                                <li><a href='/rest/pl/fe/matter/mission/main?id={{id}}'>项目定义</a></li>
+                                <li><a href='/rest/pl/fe/matter/mission/matter?id={{id}}'>资料和活动</a></li>
+                                <li><a href='/rest/pl/fe/matter/mission/user?id={{id}}'>用户</a></li>
+                            </ul>
+                        </li>
+                    </ul>
+                </div>
             </div>
         </nav>
         <div class='container'>

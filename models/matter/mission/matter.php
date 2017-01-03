@@ -13,7 +13,7 @@ class matter_model extends \TMS_MODEL {
 			'xxt_mission_matter',
 			"mission_id='$missionId'",
 		];
-		$count = $this->query_val_ss($q);
+		$count = (int) $this->query_val_ss($q);
 
 		return $count;
 	}

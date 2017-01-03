@@ -34,13 +34,13 @@ class main extends \pl\fe\base {
 		$admin->uid = $user->id;
 		$admin->ulabel = $user->name;
 		$admin->urole = 'O';
-		$rst = $modelAdm->add($user, $site, $admin);
+		$rst = $modelAdm->add($user, $siteid, $admin);
 
 		return new \ResponseData(['id' => $siteid]);
 	}
 	/**
-	 * 删除站点
-	 * 只允许站点的创建者删除站点
+	 * 删除团队
+	 * 只允许团队的创建者删除团队
 	 * 不实际删除站点，只是打标记
 	 */
 	public function remove_action($site) {
@@ -60,23 +60,42 @@ class main extends \pl\fe\base {
 		return new \ResponseData($rst);
 	}
 	/**
-	 *
+	 * 获取团队信息
 	 */
 	public function get_action($site) {
 		if (false === ($user = $this->accountUser())) {
 			return new \ResponseTimeout();
 		}
-		$site = $this->model('site')->byId($site);
-		if ($site) {
+
+		$modelSite = $this->model('site');
+		if (false === ($site = $modelSite->byId($site))) {
+			return new \ResponseError('指定的团队不存在');
+		}
+		/* 检查当前用户的角色 */
+		if ($user->id === $site->creater) {
+			$site->yourRole = 'O';
+		} else {
+			if ($admin = $this->model('site\admin')->byUid($site->id, $user->id)) {
+				$site->yourRole = $admin->urole;
+			}
+		}
+		if (isset($site->yourRole)) {
 			if (!empty($site->home_carousel)) {
 				$site->home_carousel = json_decode($site->home_carousel);
 			}
-		}
 
-		return new \ResponseData($site);
+			return new \ResponseData($site);
+		} else {
+			$basic = new \stdClass;
+			$basic->name = $site->name;
+			$basic->creater_name = $site->creater_name;
+			$basic->create_at = $site->create_at;
+
+			return new \ResponseData($basic);
+		}
 	}
 	/**
-	 * 关注指定站点
+	 * 关注指定团队
 	 */
 	public function subscribe_action($site, $subscriber) {
 		if (false === ($user = $this->accountUser())) {

@@ -36,7 +36,11 @@ define([], function() {
             modifiedData = {};
 
         $scope.id = ls.id;
-        $scope.siteId = ls.site;
+        $scope.viewNames = {
+            'main': '项目定义',
+            'matter': '资料和活动',
+            'user': '用户',
+        };
         $scope.subView = '';
         $scope.modified = false;
         window.onbeforeunload = function(e) {
@@ -76,12 +80,15 @@ define([], function() {
             $scope.mission = mission;
             if (location.href.indexOf('/matter?') === -1) {
                 http2.get('/rest/pl/fe/matter/mission/matter/count?id=' + $scope.id, function(rsp) {
-                    if (rsp.data) {
+                    if (parseInt(rsp.data)) {
                         $location.path('/rest/pl/fe/matter/mission/matter').search({ id: ls.id });
                         $location.replace();
                     }
                 });
             }
+            http2.get('/rest/pl/fe/site/get?site=' + mission.siteid, function(rsp) {
+                $scope.site = rsp.data;
+            });
         });
     }]);
     /*bootstrap*/

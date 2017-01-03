@@ -1,5 +1,5 @@
 define(['require'], function(require) {
-    var ngApp = angular.module('app', ['ngRoute', 'ui.tms']);
+    var ngApp = angular.module('app', ['ngRoute', 'ui.tms', 'ui.bootstrap']);
     ngApp.config(['$locationProvider', '$controllerProvider', '$routeProvider', function($lp, $cp, $rp) {
         var RouteParam = function(name, loadjs) {
             var baseURL = '/views/default/pl/fe/site/analysis/';

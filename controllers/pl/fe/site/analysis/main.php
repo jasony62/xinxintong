@@ -14,7 +14,7 @@ class main extends \pl\fe\base {
 		exit;
 	}
 	/**
-	 * 单图文素材行为统计数据
+	 * 素材行为统计数据
 	 */
 	public function matterActions_action($site,$type,$orderby, $startAt, $endAt, $page = 1, $size = 30) {
 		$s = 'l.matter_title,l.matter_type,l.matter_id';

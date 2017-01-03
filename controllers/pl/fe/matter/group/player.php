@@ -411,7 +411,7 @@ class player extends \pl\fe\matter\base {
 		$u = array(
 				'*',
 				'xxt_wall_enroll',
-				"wid = '{$byApp}' and siteid = '{$siteId}' and join_at > {$objGrp->last_sync_at} and userid != ''",
+				"wid = '{$byApp}' and siteid = '{$siteId}' and join_at > {$objGrp->last_sync_at} ",
 			);
 		if($onlySpeaker === 'Y'){
 			$u[2] .= " and last_msg_at>0";

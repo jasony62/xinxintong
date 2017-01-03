@@ -7,27 +7,6 @@
             <div class="form-control"   ng-bind = "wall.sourceApp.title" ></div>
         </div>
         <button class='btn  btn-success' ng-click='syncByApp()' ng-if="wall.sourceApp"> 同步用户</button>
-        <!--<div class='form-group' ng-if="!wall.sourceApp" style="display: inline-block">-->
-            <!--<button class='btn  btn-success' ng-click="import()" ng-if="!app.sourceApp">导入用户</button>-->
-        <!--</div>-->
-        <!--<div class='form-group compact' ng-if="wall.sourceApp" style="display: inline-table">-->
-            <!--<label>分组用户来源</label>-->
-            <!--<div class="input-group" style="display: inline-table;  vertical-align: middle;">-->
-                <!--<div class='form-control' ng-bind = "wall.sourceApp.title" style="border-radius: 4px"></div>-->
-                            <!--<span class="input-group-btn">-->
-                                <!--&lt;!&ndash;<button class="btn btn-default" type="button" ng-click="quit()">&ndash;&gt;-->
-                                    <!--&lt;!&ndash;<span class='glyphicon glyphicon-remove'></span>&ndash;&gt;-->
-                                <!--&lt;!&ndash;</button>&ndash;&gt;-->
-                            <!--</span>-->
-            <!--</div>-->
-        <!--</div>-->
-        <!--<div class='form-group' ng-if="wall.sourceApp" style="display: inline-block">-->
-            <!--<button class='btn btn-block btn-success' ng-click='syncByApp()'>同步用户</button>-->
-        <!--</div>-->
-        <!--<div class='form-group' ng-if="app.sourceApp" style="display: inline-block">-->
-            <!--<button class='btn btn-block btn-primary' ng-click='export()'>导出结果</button>-->
-        <!--</div>-->
-        <!--<button class='btn btn-primary' ng-click='export()'>导出用户</button>-->
         <button class='btn btn-danger' ng-click='quit()'>将所有用户退出信息墙</button>
         <button class='btn btn-default pull-right' ng-click='doSearch()'>
             <span class='glyphicon glyphicon-refresh'></span>
@@ -59,20 +38,6 @@
             <h5 class="modal-title">筛选条件</h5>
         </div>
         <div class="modal-body">
-            <!--<div class='form-group' style="margin-bottom: 40px">-->
-            <!--<label class="col-md-3 control-label">数据来源</label>-->
-            <!--<div class="col-md-9">-->
-            <!--<label class='radio-inline'><input type='radio' name='appType' value='enroll' ng-model="data.appType" >登记活动</label>-->
-            <!--<label class='radio-inline'><input type='radio' name='appType' value='signin' ng-model="data.appType">签到活动</label>-->
-            <!--</div>-->
-            <!--</div>-->
-            <!--<ul class='list-group'>-->
-            <!--<li class='list-group-item' ng-repeat='a in apps'>-->
-            <!--<div class='radio'>-->
-            <!--<label><input type='radio' name='act' ng-click='chooseApp(a)'>{{a.title}}</label>-->
-            <!--</div>-->
-            <!--</li>-->
-            <!--</ul>-->
             <form class="form-horizontal record-editor">
                 <div class='form-group'>
                     <label class="col-md-3 control-label">数据来源</label>

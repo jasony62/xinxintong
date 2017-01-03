@@ -1,6 +1,6 @@
 define(['frame'], function(ngApp) {
 	'use strict';
-	ngApp.provider.controller('ctrlCoin', ['$scope', 'http2', '$uibModal', '$timeout', 'srvLog', function($scope, http2, $uibModal, $timeout, srvLog) {
+	ngApp.provider.controller('ctrlCoin', ['$scope', 'http2', '$uibModal', '$timeout', 'srvCoin', function($scope, http2, $uibModal, $timeout, srvCoin) {
 		var actions = [{
 			name: 'site.matter.article.read',
 			desc: '用户A打开图文页面'
@@ -69,7 +69,7 @@ define(['frame'], function(ngApp) {
 			page: {},
 			list: function() {
 				var _this = this;
-				srvLog.list($scope.id, this.page, $scope.siteId).then(function(logs) {
+				srvCoin.list($scope.siteId, $scope.id, this.page).then(function(logs) {
 					_this.logs = logs;
 				});
 			}

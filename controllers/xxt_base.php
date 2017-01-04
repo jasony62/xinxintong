@@ -249,30 +249,30 @@ class xxt_base extends TMS_CONTROLLER {
 	 * $message
 	 */
 	public function sendByOpenid($mpid, $openid, $message, $openid_src = null) {
-		if(empty($openid_src)){
+		if (empty($openid_src)) {
 			$mpa = $this->model('mp\mpaccount')->getApis($mpid);
 			$mpproxy = $this->model('mpproxy/' . $mpa->mpsrc, $mpid);
-		}else{
+		} else {
 			switch ($openid_src) {
-				case 'yx':
-					$mpa = $this->model('sns\yx')->bySite($mpid);
-					$mpproxy = $this->model('sns\yx\proxy' , $mpa);
-					$mpa->yx_p2p = $mpa->can_p2p;
-					$mpa->mpsrc = 'yx';
-					break;
-				
-				case 'qy':
-					$mpa = $this->model('sns\qy')->bySite($mpid);
-					$mpproxy = $this->model('sns\qy\proxy' , $mpa);
-					$mpa->qy_agentid = $mpa->agentid;
-					$mpa->mpsrc = 'qy';
-					break;
-		
-				case 'wx':
-					$mpa = $this->model('sns\wx')->bySite($mpid);
-					$mpproxy = $this->model('sns\wx\proxy' , $mpa);
-					$mpa->mpsrc = 'wx';
-					break;
+			case 'yx':
+				$mpa = $this->model('sns\yx')->bySite($mpid);
+				$mpproxy = $this->model('sns\yx\proxy', $mpa);
+				$mpa->yx_p2p = $mpa->can_p2p;
+				$mpa->mpsrc = 'yx';
+				break;
+
+			case 'qy':
+				$mpa = $this->model('sns\qy')->bySite($mpid);
+				$mpproxy = $this->model('sns\qy\proxy', $mpa);
+				$mpa->qy_agentid = $mpa->agentid;
+				$mpa->mpsrc = 'qy';
+				break;
+
+			case 'wx':
+				$mpa = $this->model('sns\wx')->bySite($mpid);
+				$mpproxy = $this->model('sns\wx\proxy', $mpa);
+				$mpa->mpsrc = 'wx';
+				break;
 			}
 		}
 
@@ -736,22 +736,22 @@ class xxt_base extends TMS_CONTROLLER {
 		 * coin log
 		 * 如果是投稿人阅读没有奖励
 		 */
-		$modelCoin = $this->model('coin\log');
-		if ($type === 'article') {
-			$contribution = $this->model('matter\article')->getContributionInfo($id);
-			if (!empty($contribution->openid) && $contribution->openid !== $logUser->openid) {
-				// for contributor
-				$action = 'app.' . $contribution->entry . '.article.read';
-				$modelCoin->income($mpid, $action, $id, 'sys', $contribution->openid);
-			}
-			if (empty($contribution->openid) || $contribution->openid !== $logUser->openid) {
-				// for reader
-				$modelCoin->income($mpid, 'mp.matter.' . $type . '.read', $id, 'sys', $user->openid);
-			}
-		} else {
-			// for reader
-			$modelCoin->income($mpid, 'mp.matter.' . $type . '.read', $id, 'sys', $user->openid);
-		}
+		// $modelCoin = $this->model('coin\log');
+		// if ($type === 'article') {
+		// 	$contribution = $this->model('matter\article')->getContributionInfo($id);
+		// 	if (!empty($contribution->openid) && $contribution->openid !== $logUser->openid) {
+		// 		// for contributor
+		// 		$action = 'app.' . $contribution->entry . '.article.read';
+		// 		$modelCoin->income($mpid, $action, $id, 'sys', $contribution->openid);
+		// 	}
+		// 	if (empty($contribution->openid) || $contribution->openid !== $logUser->openid) {
+		// 		// for reader
+		// 		$modelCoin->income($mpid, 'mp.matter.' . $type . '.read', $id, 'sys', $user->openid);
+		// 	}
+		// } else {
+		// 	// for reader
+		// 	$modelCoin->income($mpid, 'mp.matter.' . $type . '.read', $id, 'sys', $user->openid);
+		// }
 
 		return true;
 	}

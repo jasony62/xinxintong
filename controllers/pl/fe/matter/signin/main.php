@@ -41,16 +41,17 @@ class main extends \pl\fe\matter\base {
 	}
 	/**
 	 * 返回签到活动列表
+	 * @param string $onlySns 是否仅查询进入规则为仅限关注用户访问的活动列表
 	 *
 	 */
-	public function list_action($site = null, $mission = null, $page = null, $size = null, $cascaded = '') {
+	public function list_action($site = null, $mission = null, $page = null, $size = null, $cascaded = '', $onlySns = 'N') {
 		if (false === ($user = $this->accountUser())) {
 			return new \ResponseTimeout();
 		}
 
 		$model = $this->model('matter\signin');
 		if (empty($mission)) {
-			$result = $model->bySite($site, $page, $size);
+			$result = $model->bySite($site, $page, $size, $onlySns);
 		} else {
 			$result = $model->byMission($mission, $page, $size);
 		}

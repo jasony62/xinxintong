@@ -69,7 +69,7 @@ class proxy_model extends \sns\proxybase {
 		$timestamp = $params['timestamp'];
 		$nonce = $params['nonce'];
 		$sMsg = "";
-		$wxcpt = new WXBizMsgCrypt($this->config->token, $this->config->encodingaeskey, $this->config->corpid);
+		$wxcpt = new \WXBizMsgCrypt($this->config->token, $this->config->encodingaeskey, $this->config->corpid);
 		$errCode = $wxcpt->DecryptMsg($msg_signature, $timestamp, $nonce, $data, $sMsg);
 
 		if ($errCode != 0) {
@@ -523,7 +523,7 @@ class proxy_model extends \sns\proxybase {
 	 * upload menu.
 	 */
 	public function menuCreate($menu) {
-		$cmd = "https://qyapi.weixin.qq.com/cgi-bin/menu/create?agentid=".$this->config->agentid;
+		$cmd = "https://qyapi.weixin.qq.com/cgi-bin/menu/create?agentid=" . $this->config->agentid;
 		$rst = $this->httpPost($cmd, $menu);
 
 		return $rst;
@@ -545,14 +545,14 @@ class proxy_model extends \sns\proxybase {
 	 * $message
 	 */
 	public function messageSend($message, $encoded = false) {
-		
+
 		$cmd = 'https://qyapi.weixin.qq.com/cgi-bin/message/send';
 		$message['agentid'] = $this->config->agentid;
 
-		$posted = TMS_MODEL::toJson($message);
+		$posted = \TMS_MODEL::toJson($message);
 
 		$rst = $this->httpPost($cmd, $posted);
-		
+
 		return $rst;
 	}
 	/**

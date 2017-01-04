@@ -166,9 +166,10 @@ class main extends \member_base {
 	private function currentForkActivity($msg) {
 		$mpid = $msg['mpid'];
 		$openid = $msg['from_user'];
+		$fromSrc = $msg['src'];
 		$wall = $this->model('app\wall');
 
-		if ($wid = $wall->joined($mpid, $openid)) {
+		if ($wid = $wall->joined($mpid, $openid, $fromSrc)) {
 			return array($wid, $wall);
 		} else {
 			return false;

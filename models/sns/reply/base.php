@@ -107,14 +107,15 @@ abstract class Reply {
 	 * 企业号信息加密处理
 	 */
 	protected function encrypt($msg) {
+		$siteId = $this->call['siteid'];
 		$sEncryptMsg = ""; //xml格式的密文
 		$timestamp = time();
 		$nonce = uniqid();
-		$app = \TMS_APP::model('mp\mpaccount')->byId($this->call['mpid']);
-		$wxcpt = new \WXBizMsgCrypt($app->token, $app->qy_encodingaeskey, $app->qy_corpid);
+		$qyConfig = \TMS_APP::model('sns\qy')->bySite($siteId);
+		$wxcpt = new \WXBizMsgCrypt($qyConfig->token, $qyConfig->encodingaeskey, $qyConfig->corpid);
 		$errCode = $wxcpt->EncryptMsg($msg, $timestamp, $nonce, $sEncryptMsg);
 		if ($errCode != 0) {
-			\TMS_APP::model('log')->log($this->call['mpid'], $this->content, $errCode);
+			\TMS_APP::model('log')->log($siteId, $this->content, $errCode);
 			exit;
 		}
 		return $sEncryptMsg;

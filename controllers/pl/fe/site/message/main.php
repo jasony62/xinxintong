@@ -1,5 +1,5 @@
 <?php
-namespace pl\fe\site\messages;
+namespace pl\fe\site\message;
 
 require_once dirname(dirname(dirname(__FILE__))) . '/base.php';
 /**
@@ -19,7 +19,8 @@ class main extends \pl\fe\base {
      */
     public function index_action()
     {
-        $this->view_action('/pl/fe/site/message/received');
+        \TPL::output('/pl/fe/site/message');
+        die();
     }
     /**
      * all messages.

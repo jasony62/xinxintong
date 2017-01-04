@@ -30,6 +30,9 @@ define(['require'], function(require) {
             var subView = currentRoute.match(/([^\/]+?)\?/);
             $scope.subView = subView ? (subView[1] === 'message' ? 'received' : subView[1]) : 'received';
         });
+        http2.get('/rest/pl/fe/site/get?site=' + $scope.siteId, function(rsp) {
+            $scope.site = rsp.data;
+        });
     }]);
     /***/
     require(['domReady!'], function(document) {

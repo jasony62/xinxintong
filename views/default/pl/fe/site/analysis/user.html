@@ -29,10 +29,10 @@
                 <tbody>
                     <tr ng-repeat='u in users'>
                         <td>{{$index+1}}</td>
-                        <td ng-if='u.openid'>
-                            <a href='javascript:void(0)' ng-click='viewUser(u.openid)'>{{u.nickname||u.openid}}</a>
+                        <td ng-if='u.userid'>
+                            <a href='javascript:void(0)' ng-click='viewUser(u.openid)'>{{u.nickname||u.userid}}</a>
                         </td>
-                        <td ng-if='!u.openid'>未知</td>
+                        <td ng-if='!u.userid'>未知</td>
                         <td>{{u.read_num}}</td>
                         <td>{{u.share_friend_num}}</td>
                         <td>{{u.share_timeline_num}}</td>

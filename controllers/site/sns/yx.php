@@ -74,6 +74,14 @@ class yx extends \member_base {
 		$modelLog = $this->model('log');
 		$msg = $call->to_array();
 		$msg['siteid'] = $site;
+		/**
+		 * 消息已经收到，不处理
+		 */
+
+		if (!empty($msg['msgid']) && $modelLog->hasReceived($msg)) {
+			die('');
+		}
+
 		$modelLog->receive($msg);
 		/**
 		 * 消息分流处理
@@ -145,9 +153,10 @@ class yx extends \member_base {
 	private function _currentForkActivity($msg) {
 		$siteId = $msg['siteid'];
 		$openid = $msg['from_user'];
+		$fromSrc = $msg['src'];
 		$wall = $this->model('matter\wall');
 
-		if ($wid = $wall->joined($siteId, $openid)) {
+		if ($wid = $wall->joined($siteId, $openid, $fromSrc)) {
 			return array($wid, $wall);
 		} else {
 			return false;

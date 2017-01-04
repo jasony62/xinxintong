@@ -37,7 +37,7 @@
             </div>
             <div class='list-group-item' ng-if="ep.type==='V'" ng-controller="ctrlAppSchemas4View">
                 <div class='list-group-item' ng-repeat="s in appSchemas">
-                    <span ng-bind="s.title"></span>
+                    <span ng-bind-html="s.title"></span>
                     <span class='schema-switch'>
                         <input type='checkbox' bs-switch switch-size="mini" data-on-text="显示" data-off-text="隐藏" ng-model="chooseState[s.id]" ng-change="choose(s)">
                     </span>
@@ -105,14 +105,14 @@
         <div class='form-group' ng-include="wrapEditorHtml()"></div>
         <div class='form-group'>
             <button class='btn btn-default' ng-if="activeWrap.schema" ng-click="refreshWrap(activeWrap)">刷新页面元素</button>
-            <button class='btn btn-default' ng-click="removeWrap()">删除</button>
+            <button class='btn btn-default' ng-click="removeWrap()">隐藏</button>
         </div>
         <div class='form-group'>
             <div class='btn-group'>
                 <button class='btn btn-default' ng-click="moveWrap('up')"><i class='fa fa-arrow-up'></i></button>
                 <button class='btn btn-default' ng-click="moveWrap('down')"><i class='fa fa-arrow-down'></i></button>
-                <button class='btn btn-default' title='上一级' ng-click="moveWrap('upLevel')"><i class='fa fa-level-up'></i></button>
-                <button class='btn btn-default' title='下一级' ng-click="moveWrap('downLevel')"><i class='fa fa-level-down'></i></button>
+                <button class='btn btn-default' title='上一级' ng-click="moveWrap('upLevel')" ng-if="activeWrap.schema.type!=='html'"><i class='fa fa-level-up'></i></button>
+                <button class='btn btn-default' title='下一级' ng-click="moveWrap('downLevel')" ng-if="activeWrap.schema.type!=='html'"><i class='fa fa-level-down'></i></button>
             </div>
         </div>
     <div>

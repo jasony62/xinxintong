@@ -5,6 +5,7 @@
 		<meta content="width=device-width,user-scalable=no,initial-scale=1.0" name="viewport">
 		<base href='/'>
 		<link href="/static/css/bootstrap.min.css" rel="stylesheet">
+    <link href="/static/css/tms.css" rel="stylesheet">
 		<link href="/views/default/pl/fe/site/user.css" rel="stylesheet">
 		<title>团队——运行分析</title>
 	</head>
@@ -23,11 +24,14 @@
                     <li class="dropdown">
                         <a href="#" class="dropdown-toggle" data-toggle="dropdown">{{site.name}} <span class="caret"></span></a>
                         <ul class="dropdown-menu" role="menu">
+                            <li><a href='/rest/pl/fe/site/setting?site={{siteId}}' target='_self'>团队设置</a></li>
                             <li><a href='/rest/pl/fe/site/coworker?site={{siteId}}' target='_self'>团队成员</a></li>
                             <li class="divider"></li>
                             <li><a href='/rest/pl/fe/site/file?site={{siteId}}' target='_self'>图片库</a></li>
                             <li class="divider"></li>
                             <li><a href='/rest/pl/fe/template/site?site={{siteId}}' target='_self'>模板库</a></li>
+                            <li class="divider"></li>
+                            <li><a href='/rest/pl/fe/site/message?site={{siteId}}' target='_self'>用户消息</a></li>
                         </ul>
                     </li>
                 </ul>

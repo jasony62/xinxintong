@@ -11,6 +11,7 @@ define(['frame'], function(ngApp) {
             vcode = prompt('是否要删除收到的所有信息？，若是，请输入信息墙名称。');
             if (vcode === $scope.wall.title) {
                 http2.get('/rest/pl/fe/matter/wall/message/reset?id=' + $scope.id , function(rsp) {
+                    delete $scope.wall.sourceApp;
                     $scope.messages = [];
                     $scope.page.total = 0;
                     $scope.page.at = 1;

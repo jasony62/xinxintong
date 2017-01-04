@@ -24,7 +24,7 @@ define(['main'], function(ngApp) {
             });
         };
         $scope.viewUser = function(openid) {
-            location.href = '/rest/pl/fe/site/user?site=' + $scope.siteId + '&openid=' + openid;
+            location.href = '/rest/mp/user?openid=' + openid;
         };
         $scope.$on('xxt.tms-datepicker.change', function(event, data) {
             $scope[data.state] = data.value;

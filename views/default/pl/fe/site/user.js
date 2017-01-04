@@ -31,7 +31,7 @@ define(['require'], function(require) {
         $scope.subView = '';
         $scope.$on('$locationChangeSuccess', function(event, currentRoute) {
             var subView = currentRoute.match(/([^\/]+?)\?/);
-            $scope.subView = subView ? subView[1] : 'account';
+            $scope.subView = subView[1] === 'user' ? 'account' : subView[1];
             if ($scope.subView === 'member') {
                 $scope.subView += '_' + $location.search().schema;
             }

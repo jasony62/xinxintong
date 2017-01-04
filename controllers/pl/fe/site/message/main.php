@@ -19,7 +19,7 @@ class main extends \pl\fe\base {
      */
     public function index_action()
     {
-        $this->view_action('/pl/fe/site/messages/received');
+        $this->view_action('/pl/fe/site/message/received');
     }
     /**
      * all messages.

@@ -13,7 +13,8 @@ define(['main'], function(ngApp) {
             var url;
             page && ($scope.page.at = page);
             url = '/rest/pl/fe/site/analysis/userActions';
-            url += '?orderby=' + $scope.orderby;
+            url += '?site=' + $scope.siteId;
+            url += '&orderby=' + $scope.orderby;
             url += '&startAt=' + $scope.startAt;
             url += '&endAt=' + $scope.endAt;
             url += '&' + $scope.page.param();
@@ -23,7 +24,7 @@ define(['main'], function(ngApp) {
             });
         };
         $scope.viewUser = function(openid) {
-            location.href = '/rest/pl/fe/site/user?openid=' + openid;
+            location.href = '/rest/pl/fe/site/user?site=' + $scope.siteId + '&openid=' + openid;
         };
         $scope.$on('xxt.tms-datepicker.change', function(event, data) {
             $scope[data.state] = data.value;

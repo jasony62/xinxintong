@@ -576,6 +576,7 @@ define([], function() {
             case 'shorttext':
             case 'longtext':
             case 'member':
+            case 'location':
                 html = '<div>{{Record.current.data.' + schema.id + '}}</div>';
                 break;
             case 'single':
@@ -586,7 +587,7 @@ define([], function() {
             case 'score':
                 html = '<div ng-bind-html="' + "score2Html('" + schema.id + "')" + '"></div>';
                 break;
-            case 'datetime':
+            case 'date':
                 html = "<div>{{Record.current.data." + schema.id + "|date:'yy-MM-dd HH:mm'}}</div>";
                 break;
             case 'image':

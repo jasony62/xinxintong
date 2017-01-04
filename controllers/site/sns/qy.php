@@ -22,6 +22,7 @@ class qy extends \member_base {
 	 *
 	 */
 	public function api_action($site) {
+		$modelLog = $this->model('log');
 		$qyConfig = $this->model('sns\qy')->bySite($site);
 		$qyProxy = $this->model('sns\qy\proxy', $qyConfig);
 
@@ -30,7 +31,7 @@ class qy extends \member_base {
 		case 'GET':
 			/* 公众平台对接 */
 			$rst = $qyProxy->join($_GET);
-			$this->model('log')->log($site, 'join', json_encode($rst));
+			$modelLog->log($site, 'join', json_encode($rst));
 			header('Content-Type: text/html; charset=utf-8');
 			die($rst[1]);
 		case 'POST':
@@ -38,6 +39,7 @@ class qy extends \member_base {
 			/* 企业号需要对数据进行解密处理 */
 			$rst = $qyProxy->DecryptMsg($_GET, $data);
 			if ($rst[0] === false) {
+				$modelLog->log($site, 'qy-post-err', json_encode($rst));
 				exit;
 			}
 			$data = $rst[1];
@@ -80,9 +82,18 @@ class qy extends \member_base {
 		/**
 		 * 记录消息日志
 		 */
+		$modelLog = $this->model('log');
 		$msg = $call->to_array();
 		$msg['siteid'] = $siteid;
-		$this->model('log')->receive($msg);
+		/**
+		 * 消息已经收到，不处理
+		 */
+
+		if (!empty($msg['msgid']) && $modelLog->hasReceived($msg)) {
+			die('');
+		}
+
+		$modelLog->receive($msg);
 		/**
 		 * 消息分流处理
 		 * 【信息墙】需要从现有信息处理流程中形成分支，分支中进行处理就可以了。
@@ -156,9 +167,10 @@ class qy extends \member_base {
 	private function currentForkActivity($msg) {
 		$siteId = $msg['siteid'];
 		$openid = $msg['from_user'];
+		$fromSrc = $msg['src'];
 		$wall = $this->model('matter\wall');
 
-		if ($wid = $wall->joined($siteId, $openid)) {
+		if ($wid = $wall->joined($siteId, $openid, $fromSrc)) {
 			return array($wid, $wall);
 		} else {
 			return false;

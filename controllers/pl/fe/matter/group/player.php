@@ -162,6 +162,8 @@ class player extends \pl\fe\matter\base {
 				$sourceApp = $this->_importByEnroll($site, $app, $params->app);
 			} else if ($params->appType === 'signin') {
 				$sourceApp = $this->_importBySignin($site, $app, $params);
+			} else if ($params->appType === 'wall') {
+				$sourceApp = $this->_importByWall($site, $app, $params->app, $params->onlySpeaker);
 			}
 		}
 
@@ -172,7 +174,7 @@ class player extends \pl\fe\matter\base {
 	 *
 	 * 同步在最后一次同步之后的数据或已经删除的数据
 	 */
-	public function syncByApp_action($site, $app) {
+	public function syncByApp_action($site, $app, $onlySpeaker='N') {
 		if (false === ($user = $this->accountUser())) {
 			return new \ResponseTimeout();
 		}
@@ -185,6 +187,8 @@ class player extends \pl\fe\matter\base {
 				$count = $this->_syncByEnroll($site, $app, $sourceApp->id);
 			} else if ($sourceApp->type === 'signin') {
 				$count = $this->_syncBySignin($site, $app, $sourceApp->id);
+			} else if ($sourceApp->type === 'wall') {
+				$count = $this->_syncByWall($site, $app, $sourceApp->id, $onlySpeaker);
 			}
 			// 更新同步时间
 			$modelGrp->update(
@@ -312,6 +316,59 @@ class player extends \pl\fe\matter\base {
 		return $sourceApp;
 	}
 	/**
+	 * 从信息墙导入数据
+	 * $onlySpeaker 是否为发言的用户
+	 */
+	private function &_importByWall($site, $app, $byApp, $onlySpeaker) {
+		$modelGrp = $this->model('matter\group');
+		$modelPlayer = $this->model('matter\group\player');
+		$modelWall = $this->model('matter\wall');
+
+		$sourceApp = $modelWall->byId($byApp, ['fields' => 'data_schemas']);
+		/* 导入活动定义 */
+		$modelGrp->update(
+			'xxt_group',
+			[
+				'last_sync_at' => time(),
+				'source_app' => '{"id":"' . $byApp . '","type":"wall"}',
+				'data_schemas' => $sourceApp->data_schemas,
+			],
+			"id='$app'"
+		);
+		/* 清空已有分组数据 */
+		$modelPlayer->clean($app, true);
+		//获取所有用户数据
+		$u = array(
+				'*',
+				'xxt_wall_enroll',
+				"wid = '{$byApp}' and siteid = '{$site}'",
+			);
+		if($onlySpeaker === 'Y'){
+			$u[2] .= " and last_msg_at>0";
+		}
+		$wallUsers = $this->model()->query_objs_ss($u);
+
+		/* 导入数据 */
+		if (!empty($wallUsers)) {
+			$objGrp = $modelGrp->byId($app, ['cascaded' => 'N']);
+			foreach ($wallUsers as $wallUser) {
+				$wallUser->data = empty($wallUser->data) ? '' : json_decode($wallUser->data);
+				$user = new \stdClass;
+				$user->uid = $wallUser->userid;
+				$user->nickname = $wallUser->nickname;
+				$user->wx_openid = $wallUser->wx_openid;
+				$user->yx_openid = $wallUser->yx_openid;
+				$user->qy_openid = $wallUser->qy_openid;
+				$user->headimgurl = $wallUser->headimgurl;
+				$modelPlayer->enroll($site, $objGrp, $user, ['enroll_key' => $wallUser->enroll_key, 'enroll_at' => $wallUser->join_at]);
+				$modelPlayer->setData($user, $site, $objGrp, $wallUser->enroll_key, $wallUser->data);
+			}
+		}
+
+		$sourceApp->onlySpeaker = $onlySpeaker;
+		return $sourceApp;
+	}
+	/**
 	 * 从登记活动导入数据
 	 *
 	 * 同步在最后一次同步之后的数据或已经删除的数据
@@ -346,6 +403,46 @@ class player extends \pl\fe\matter\base {
 		return $this->_syncRecord($siteId, $objGrp, $records, $modelRec);
 	}
 	/**
+	 * 同步在最后一次同步之后的数据
+	 * $onlySpeaker 是否为发言的用户
+	 */ 
+	private function _syncByWall($siteId, &$objGrp, $byApp, $onlySpeaker) {
+		//获取新增用户数据
+		$u = array(
+				'*',
+				'xxt_wall_enroll',
+				"wid = '{$byApp}' and siteid = '{$siteId}' and join_at > {$objGrp->last_sync_at} ",
+			);
+		if($onlySpeaker === 'Y'){
+			$u[2] .= " and last_msg_at>0";
+		}
+		$wallUsers = $this->model()->query_objs_ss($u);
+
+		$modelPlayer = $this->model('matter\group\player');
+		if (!empty($wallUsers)) {
+			foreach ($wallUsers as $wallUser) {
+				$wallUser->data = empty($wallUser->data) ? '' : json_decode($wallUser->data);
+				$user = new \stdClass;
+				$user->uid = $wallUser->userid;
+				$user->nickname = $wallUser->nickname;
+				$user->wx_openid = $wallUser->wx_openid;
+				$user->yx_openid = $wallUser->yx_openid;
+				$user->qy_openid = $wallUser->qy_openid;
+				$user->headimgurl = $wallUser->headimgurl;
+				if ($modelPlayer->byId($objGrp->id, $wallUser->enroll_key, ['cascaded' => 'N'])) {
+					// 已经同步过的用户
+					$modelPlayer->setData($user, $siteId, $objGrp, $wallUser->enroll_key, $wallUser->data);
+				} else {
+					// 新用户
+					$modelPlayer->enroll($siteId, $objGrp, $user, ['enroll_key' => $wallUser->enroll_key, 'enroll_at' => $wallUser->join_at]);
+					$modelPlayer->setData($user, $siteId, $objGrp, $wallUser->enroll_key, $wallUser->data);
+				}
+			}
+		}
+
+		return count($wallUsers);
+	}
+	/**
 	 * 同步数据
 	 */
 	private function _syncRecord($siteId, &$objGrp, &$records, &$modelRec) {
@@ -358,6 +455,10 @@ class player extends \pl\fe\matter\base {
 					$user = new \stdClass;
 					$user->uid = $record->userid;
 					$user->nickname = $record->nickname;
+					$user->wx_openid = $record->wx_openid;
+					$user->yx_openid = $record->yx_openid;
+					$user->qy_openid = $record->qy_openid;
+					$user->headimgurl = $record->headimgurl;
 					if ($modelPlayer->byId($objGrp->id, $record->enroll_key, ['cascaded' => 'N'])) {
 						// 已经同步过的用户
 						$modelPlayer->setData($user, $siteId, $objGrp, $record->enroll_key, $record->data);

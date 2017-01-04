@@ -14,7 +14,7 @@ define(['frame'], function(ngApp) {
         };
 
         $scope.messages = [];
-        //ÕâÊÇÊ²Ã´ÒâË¼
+        //jså¤šçº¿ç¨‹
         $scope.$parent.worker = new Worker('/views/default/pl/fe/matter/wall/wallMessages.js?_=2');
         $scope.$parent.worker.onmessage = function(event) {
             for (var i in event.data) {

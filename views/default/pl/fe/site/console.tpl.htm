@@ -16,7 +16,7 @@
                     <a class='navbar-text' href='/rest/pl/fe' target='_self'><i class='glyphicon glyphicon-chevron-left'></i> 个人工作台</a>
                 </div>
 				<ul class='nav navbar-nav'>
-					<li class='active'><a href='/rest/pl/fe/site/console?site={{siteId}}'>工作台</a></li>
+					<li class='active'><a href='/rest/pl/fe/site/console?site={{siteId}}'>活动和资料</a></li>
 					<li><a href='/rest/pl/fe/site/user?site={{siteId}}' target='_self'>用户</a></li>
 				</ul>
 				<ul class='nav navbar-nav navbar-right'>
@@ -29,6 +29,8 @@
       						<li><a href='/rest/pl/fe/site/file?site={{siteId}}' target='_self'>图片库</a></li>
       						<li class="divider"></li>
 							<li><a href='/rest/pl/fe/template/site?site={{siteId}}' target='_self'>模板库</a></li>
+							<li class="divider"></li>
+							<li><a href='/rest/pl/fe/site/analysis?site={{siteId}}' target='_self'>运行统计</a></li>
         				</ul>
                     </li>
 				</ul>
@@ -79,7 +81,7 @@
 							<div class='modify_at' title='修改时间' ng-bind="(m.operate_at||m.modify_at||m.join_at||m.create_at)*1000|date:'yy-MM-dd HH:mm'"></div>
 						</div>
 						<div class='actions' ng-if="entered">
-							<button class='btn btn-default' title='复制' ng-if="matterType!=='recycle'" ng-click="copyMatter($event,m)">复制</button>
+							<button class='btn btn-default' title='复制' ng-if="matterType!=='recycle'&& matterType!=='news'" ng-click="copyMatter($event,m)">复制</button>
 							<button class='btn btn-default' title='删除' ng-if="matterType!=='recycle'" ng-click="removeMatter($event,m)"><span class='glyphicon glyphicon-remove'></span></button>
 							<button class='btn btn-default' title='恢复' ng-if="matterType==='recycle'" ng-click="restoreMatter(m)">恢复</button>
 						</div>

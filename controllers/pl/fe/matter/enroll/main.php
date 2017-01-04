@@ -57,8 +57,9 @@ class main extends \pl\fe\matter\base {
 	}
 	/**
 	 * 返回登记活动列表
+	 * @param string $onlySns 是否仅查询进入规则为仅限关注用户访问的活动列表
 	 */
-	public function list_action($site = null, $mission = null, $page = 1, $size = 30, $scenario = null) {
+	public function list_action($site = null, $mission = null, $page = 1, $size = 30, $scenario = null, $onlySns = 'N') {
 		if (false === ($user = $this->accountUser())) {
 			return new \ResponseTimeout();
 		}
@@ -77,6 +78,9 @@ class main extends \pl\fe\matter\base {
 		}
 		if ($scenario !== null) {
 			$q[2] .= " and scenario='" . $modelApp->escape($scenario) . "'";
+		}
+		if($onlySns==='Y'){
+			$q[2] .= " and entry_rule like '%\"scope\":\"sns\"%'";
 		}
 		$q2['o'] = 'a.modify_at desc';
 		$q2['r']['o'] = ($page - 1) * $size;
@@ -386,7 +390,7 @@ class main extends \pl\fe\matter\base {
 	 *
 	 * 复制一个登记活动
 	 *
-	 * @param string $site
+	 * @param string $site 是否要支持跨团队进行活动的复制？
 	 * @param string $app
 	 * @param int $mission
 	 *
@@ -410,17 +414,17 @@ class main extends \pl\fe\matter\base {
 		$newapp['id'] = $newaid;
 		$newapp['creater'] = $user->id;
 		$newapp['creater_src'] = $user->src;
-		$newapp['creater_name'] = $user->name;
+		$newapp['creater_name'] = $modelApp->escape($user->name);
 		$newapp['create_at'] = $current;
 		$newapp['modifier'] = $user->id;
 		$newapp['modifier_src'] = $user->src;
-		$newapp['modifier_name'] = $user->name;
+		$newapp['modifier_name'] = $modelApp->escape($user->name);
 		$newapp['modify_at'] = $current;
-		$newapp['title'] = $copied->title . '（副本）';
+		$newapp['title'] = $modelApp->escape($copied->title) . '（副本）';
 		$newapp['pic'] = $copied->pic;
 		$newapp['summary'] = $modelApp->escape($copied->summary);
 		$newapp['scenario'] = $copied->scenario;
-		$newapp['scenario_config'] = json_encode($copied->scenario_config);
+		$newapp['scenario_config'] = $copied->scenario_config;
 		$newapp['count_limit'] = $copied->count_limit;
 		$newapp['multi_rounds'] = $copied->multi_rounds;
 		$newapp['data_schemas'] = $copied->data_schemas;
@@ -444,9 +448,9 @@ class main extends \pl\fe\matter\base {
 						'title' => $ep->title,
 						'name' => $ep->name,
 						'type' => $ep->type,
-						'data_schemas' => $ep->data_schemas,
-						'act_schemas' => $ep->act_schemas,
-						'user_schemas' => $ep->user_schemas,
+						'data_schemas' => $modelApp->escape($ep->data_schemas),
+						'act_schemas' => $modelApp->escape($ep->act_schemas),
+						'user_schemas' => $modelApp->escape($ep->user_schemas),
 					],
 					"aid='$newaid' and id=$newPage->id"
 				);
@@ -462,7 +466,6 @@ class main extends \pl\fe\matter\base {
 
 		$app = $modelApp->byId($newaid, ['cascaded' => 'N']);
 		/* 记录操作日志 */
-		$app->type = 'enroll';
 		$this->model('matter\log')->matterOp($site, $user, $app, 'C');
 
 		/* 记录和任务的关系 */

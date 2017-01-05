@@ -40,7 +40,7 @@ class main extends \site\fe\base {
 		$user2->userid = $user->uid;
 		
 		//加入讨论组
-		$desc = $this->model('matter\wall')->join($site, $app, $user2, 'link');
+		$desc = $this->model('matter\wall')->join($site, $app, $user2, 'click');
 
 		return $desc;
 

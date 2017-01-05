@@ -288,7 +288,8 @@
                 </span>
             </div>
         </div>
-        <div class='form-group' ng-if="app.entry_rule.scope!=='sns'">
+        <!--微信企业号暂时使用通用二维码-->
+        <div class='form-group' ng-if="(app.entry_rule.scope!=='sns')||(app.entry_rule.scope=='sns'&&sns.qy.joined==='Y')">
             <label>签到二维码：仅［{{popover.title}}］有效</label>
             <div>
                 <span><img style='width:135px;height:135px;' ng-src="{{popover.qrcode}}"></span>

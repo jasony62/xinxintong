@@ -88,7 +88,7 @@ class mission_model extends app_base {
 		$q = [
 			$fields,
 			'xxt_mission_acl',
-			"coworker='{$user->id}'",
+			"coworker='{$user->id}' and state=1 and last_invite='Y'",
 		];
 		$q2 = [
 			'o' => 'invite_at desc',

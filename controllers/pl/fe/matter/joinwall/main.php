@@ -26,11 +26,11 @@ class main extends \pl\fe\matter\base {
 		$walls = $this->model()->query_objs_ss($q,$q2);
 
 		$modelWall = $this->model('matter\wall');
-		foreach($walls as $k=>$wall){
+		foreach($walls as $wall){
 			/**
 			 * 获得每个讨论组的url
 			 */
-			$a->url = $modelWall->getEntryUrl($site, $wall->id);
+			$wall->url = $modelWall->getEntryUrl($site, $wall->id);
 		}
 
 		return new \ResponseData($walls);

@@ -6,9 +6,9 @@ include_once dirname(dirname(dirname(__FILE__))) . '/base.php';
  * 加入讨论组
  */
 class main extends \site\fe\base {
-	public function index_action($site, $wid){
+	public function index_action($site, $app){
 		empty($site) && $this->outputError('没有指定站点ID');
-		empty($wid) && $this->outputError('讨论组ID为空');
+		empty($app) && $this->outputError('讨论组ID为空');
 
 		if (!$this->afterSnsOAuth()) {
 			/* 检查是否需要第三方社交帐号OAuth */
@@ -40,7 +40,7 @@ class main extends \site\fe\base {
 		$user2->userid = $user->uid;
 		
 		//加入讨论组
-		$desc = $this->model('matter\wall')->join($site, $wid, $user2, 'link');
+		$desc = $this->model('matter\wall')->join($site, $app, $user2, 'link');
 
 		return $desc;
 

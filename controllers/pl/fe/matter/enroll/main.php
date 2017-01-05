@@ -79,7 +79,7 @@ class main extends \pl\fe\matter\base {
 		if ($scenario !== null) {
 			$q[2] .= " and scenario='" . $modelApp->escape($scenario) . "'";
 		}
-		if($onlySns==='Y'){
+		if ($onlySns === 'Y') {
 			$q[2] .= " and entry_rule like '%\"scope\":\"sns\"%'";
 		}
 		$q2['o'] = 'a.modify_at desc';
@@ -427,7 +427,7 @@ class main extends \pl\fe\matter\base {
 		$newapp['scenario_config'] = $copied->scenario_config;
 		$newapp['count_limit'] = $copied->count_limit;
 		$newapp['multi_rounds'] = $copied->multi_rounds;
-		$newapp['data_schemas'] = $copied->data_schemas;
+		$newapp['data_schemas'] = $modelApp->escape($copied->data_schemas);
 		$newapp['entry_rule'] = json_encode($copied->entry_rule);
 		$newapp['extattrs'] = $copied->extattrs;
 		if (!empty($mission)) {

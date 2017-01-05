@@ -147,6 +147,7 @@ class main extends \pl\fe\matter\base {
 
 			if ($cnt > 0) {
 				/* 如果已经素材，就只打标记 */
+				$rst = $modelMis->update('xxt_mission_acl', ['state' => 0], ["mission_id" => $id]);
 				$rst = $modelMis->update('xxt_mission', ['state' => 0], ["id" => $id]);
 				$this->model('matter\log')->matterOp($mission->siteid, $user, $mission, 'Recycle');
 			} else {
@@ -154,6 +155,7 @@ class main extends \pl\fe\matter\base {
 				$modelAcl->removeMission($mission);
 				/* 删除数据 */
 				$modelMis->delete('xxt_mission_phase', ["mission_id" => $id]);
+				$rst = $modelMis->delete('xxt_mission_acl', ["mission_id" => $id]);
 				$rst = $modelMis->delete('xxt_mission', ["id" => $id]);
 				$this->model('matter\log')->matterOp($mission->siteid, $user, $mission, 'D');
 			}
@@ -186,6 +188,11 @@ class main extends \pl\fe\matter\base {
 			'xxt_mission',
 			['state' => 1],
 			["id" => $mission->id]
+		);
+		$rst = $model->update(
+			'xxt_mission_acl',
+			['state' => 1],
+			["mission_id" => $mission->id]
 		);
 
 		/* 记录操作日志 */

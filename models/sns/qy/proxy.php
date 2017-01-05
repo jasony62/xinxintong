@@ -246,6 +246,9 @@ class proxy_model extends \sns\proxybase {
 			return $rst;
 		}
 
+		if(!isset($rst[1]->UserId)){
+			return array(false, $rst[1]);
+		}
 		$openid = $rst[1]->UserId;
 
 		$user = new \stdClass;

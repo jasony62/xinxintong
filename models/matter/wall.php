@@ -563,7 +563,7 @@ class wall_model extends app_base {
 	 */
 	public function getEntryUrl($runningSiteId, $id) {
 		$url = "http://" . $_SERVER['HTTP_HOST'];
-		$url .= "/rest/site/fe/matter/wall";
+		$url .= "/rest/site/fe/matter/joinwall";
 		$url .= "?site=$runningSiteId&wid=" . $id;
 
 		return $url;

@@ -1,5 +1,5 @@
 <?php
-namespace site\fe\matter\wall;
+namespace site\fe\matter\joinwall;
 
 include_once dirname(dirname(dirname(__FILE__))) . '/base.php';
 /**

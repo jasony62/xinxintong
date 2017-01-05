@@ -114,7 +114,7 @@ ngApp.controller('ctrlConsole', ['$scope', '$uibModal', 'http2', 'templateShop',
         }
     };
     $scope.removeMatter = function(evt, matter) {
-        var type = (matter.matter_type || $scope.matterType),
+        var type = (matter.matter_type || matter.type || $scope.matterType),
             id = (matter.matter_id || matter.id),
             title = (matter.title || matter.matter_title),
             url = '/rest/pl/fe/matter/';
@@ -140,7 +140,7 @@ ngApp.controller('ctrlConsole', ['$scope', '$uibModal', 'http2', 'templateShop',
         }
     };
     $scope.copyMatter = function(evt, matter) {
-        var type = (matter.matter_type || $scope.matterType),
+        var type = (matter.matter_type || matter.type || $scope.matterType),
             id = (matter.matter_id || matter.id),
             url = '/rest/pl/fe/matter/';
 
@@ -150,10 +150,15 @@ ngApp.controller('ctrlConsole', ['$scope', '$uibModal', 'http2', 'templateShop',
                 url += type + '/copy?id=' + id + '&site=' + $scope.siteId;
                 break;
             case 'enroll':
+                url += 'enroll/copy?app=' + id + '&site=' + $scope.siteId;
+                break;
             case 'signin':
             case 'group':
                 url += type + '/copy?app=' + id + '&site=' + $scope.siteId;
                 break;
+            default:
+                alert('程序错误');
+                return;
         }
         http2.get(url, function(rsp) {
             location.href = '/rest/pl/fe/matter/' + type + '?site=' + $scope.siteId + '&id=' + rsp.data.id;

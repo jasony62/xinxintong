@@ -561,10 +561,10 @@ class wall_model extends app_base {
 	/**
 	 *
 	 */
-	public function getEntryUrl($runningMpid, $id) {
+	public function getEntryUrl($runningSiteId, $id) {
 		$url = "http://" . $_SERVER['HTTP_HOST'];
-		$url .= "/rest/app/wall";
-		$url .= "?mpid=$runningMpid&wid=" . $id;
+		$url .= "/rest/site/fe/matter/wall";
+		$url .= "?site=$runningSiteId&wid=" . $id;
 
 		return $url;
 	}

@@ -49,7 +49,8 @@ class main extends \pl\fe\base {
 	 */
 	public function userActions_action($site, $orderby, $startAt, $endAt, $page = 1, $size = 30) {
 		$q = array();
-		$s = 'l.openid,l.nickname';
+
+		$s = 'l.openid,l.nickname,l.userid';
 		$s .= ',sum(l.act_read) read_num';
 		$s .= ',sum(l.act_share_friend) share_friend_num';
 		$s .= ',sum(l.act_share_timeline) share_timeline_num';
@@ -59,13 +60,13 @@ class main extends \pl\fe\base {
 		$w .= " and l.action_at>=$startAt and l.action_at<=$endAt";
 		$q[] = $w;
 		$q2 = array(
-			'g' => 'openid',
+			'g' => 'userid',
 			'o' => $orderby . '_num desc',
 			'r' => array('o' => ($page - 1) * $size, 'l' => $size),
 		);
 		if ($stat = $this->model()->query_objs_ss($q, $q2)) {
 			$q = array(
-				'count(distinct openid)',
+				'count(distinct userid)',
 				'xxt_log_user_action',
 				"siteid='$site' and action_at>=$startAt and action_at<=$endAt",
 			);

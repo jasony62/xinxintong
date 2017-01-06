@@ -35,18 +35,14 @@ class main extends \site\fe\base {
 			$user2->headimgurl = $snsUser->headimgurl;
 		}else{
 			$desc = '请从公众号进入！';
-			\TPL::assign('tips', $desc);
-			\TPL::output('/site/fe/matter/joinwall/index');
-			exit;
+			return $desc;
 		}
 		$user2->userid = $user->uid;
 		
 		//加入讨论组
 		$desc = $this->model('matter\wall')->join($site, $app, $user2, 'click');
 
-		\TPL::assign('tips', $desc);
-		\TPL::output('/site/fe/matter/joinwall/index');
-		exit;
+		return $desc;
 
 	}
 	/**

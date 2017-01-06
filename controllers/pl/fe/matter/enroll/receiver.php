@@ -60,4 +60,48 @@ class receiver extends \pl\fe\matter\base {
 
 		return new \ResponseData($rst);
 	}
+	/**
+	 * 添加自定义用户作为登记活动事件接收人
+	 *
+	 * @param string $site
+	 * @param string $id
+	 *
+	 */
+	public function add_action($site, $id) {
+		$modelApp = $this->model('matter\enroll');
+		$modelRev = $this->model('matter\enroll\receiver');
+
+		$app = $modelApp->byId($id, array('cascaded' => 'Y'));
+	
+		$data=$this->getPostJson();
+		$uid=$data->uid;
+		$nickname=$data->nickname;
+
+		$account=$this->model('site\user\account')->byId($uid);	
+		if(!empty($account->wx_openid)){
+			$arr['wx_openid']=$account->wx_openid;
+		} 
+		if(!empty($account->yx_openid)){
+			$arr['yx_openid']=$account->yx_openid;
+		}
+		if(!empty($account->qy_openid)){				
+			$arr['qy_openid']=$account->qy_openid;
+		}
+
+	
+		$rst=$modelRev->insert(
+			'xxt_enroll_receiver',
+			[
+				'siteid' => $site,
+				'aid' => $app->id,
+				'join_at' => time(),
+				'userid' => $uid,
+				'nickname' => empty($nickname) ? '未知姓名' : $modelRev->escape($nickname),
+				'sns_user'=>json_encode($arr),
+			],
+			false
+		);
+
+		return new \ResponseData($rst);
+	}
 }

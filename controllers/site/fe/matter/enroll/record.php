@@ -291,6 +291,9 @@ class record extends base {
 		if (count($receivers) === 0) {
 			return array(false);
 		}
+		//发送给指定的用户的自定义信息
+		$ext=json_decode($app->extattrs);
+		$msg=$ext->msg;
 
 		$noticeURL = 'http://' . $_SERVER['HTTP_HOST'];
 		$noticeURL .= "/rest/site/op/matter/enroll?site=$siteId&app=$app->id&ek=$ek";
@@ -300,8 +303,8 @@ class record extends base {
 				continue;
 			}
 			$snsUser = json_decode($receiver->sns_user);
-			switch ($snsUser->src) {
-			case 'yx':
+
+			if(isset($snsUser->yx_openid)) {
 				if ($yxProxy === null) {
 					$yxConfig = $this->model('sns\yx')->bySite($siteId);
 					if ($yxConfig->joined === 'Y' && $yxConfig->can_p2p === 'Y') {
@@ -315,7 +318,7 @@ class record extends base {
 							'articles' => [
 								[
 									'title' => $app->title,
-									'description' => '有新登记数据请处理',
+									'description' => $msg,
 									'url' => $noticeURL,
 									'picurl' => $app->pic,
 								],
@@ -324,10 +327,10 @@ class record extends base {
 					);
 				}
 				if ($yxProxy !== false && isset($message)) {
-					$rst = $yxProxy->messageSend($message, array($snsUser->openid));
+					$rst = $yxProxy->messageSend($message, array($snsUser->yx_openid));
 				}
-				break;
-			case 'wx':
+			}
+			if(isset($snsUser->wx_openid)){	
 				if ($wxProxy === null) {
 					$wxSiteId = $receiver->siteid;
 					$modelWx = $this->model('sns\wx');
@@ -369,7 +372,7 @@ class record extends base {
 				}
 				/* 发送模版消息 */
 				if ($wxProxy !== false && isset($message)) {
-					$message['touser'] = $snsUser->openid;
+					$message['touser'] = $snsUser->wx_openid;
 					$rst = $wxProxy->messageTemplateSend($message);
 					if ($rst[0] === false) {
 						return $rst;
@@ -380,7 +383,7 @@ class record extends base {
 					$log = array(
 						'siteid' => $wxSiteId,
 						'mpid' => $wxSiteId,
-						'openid' => $snsUser->openid,
+						'openid' => $snsUser->wx_openid,
 						'tmplmsg_id' => $tmplConfig->tmplmsg->id,
 						'template_id' => $message['template_id'],
 						'data' => $model->escape(json_encode($message)),
@@ -389,12 +392,20 @@ class record extends base {
 					);
 					$model->insert('xxt_log_tmplmsg', $log, false);
 				}
-				break;
-			case 'qy':
-				// $message['touser'] = $openid;
-				// $message['agentid'] = $mpa->qy_agentid;
-				// $rst = $mpproxy->messageSend($message, $openid);
-				// break;
+			}
+			if(isset($snsUser->qy_openid)){
+				$qyConfig = $this->model('sns\qy')->bySite($siteId);
+				if ($qyConfig->joined === 'Y') {
+					$qyproxy=$this->model('sns\qy\proxy',$qyConfig);
+
+					$message=array(
+				 		'touser'=>$snsUser->qy_openid,
+				 		'msgtype'=>'text',
+				 		'content'=>$msg,
+					);	
+
+					$rst = $qyproxy->messageSend($message, $snsUser->qy_openid);	
+				}															
 			}
 		}
 

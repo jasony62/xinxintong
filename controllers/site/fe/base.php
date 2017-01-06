@@ -458,27 +458,10 @@ class base extends \TMS_CONTROLLER {
 		/**
 		 * 为了兼容服务号和订阅号的操作，生成和成员用户对应的粉丝用户
 		 */
-		if ($old = $this->model('sns\qy\fan')->byOpenid($site, $user->userid)) {
-			isset($user->avatar) && $fan['headimgurl'] = $user->avatar;
-			if ($user->status == 1 && $old->subscribe_at == 0) {
-				$fan['subscribe_at'] = $timestamp;
-			} else if ($user->status == 1 && $old->unsubscribe_at != 0) {
-				$fan['unsubscribe_at'] = 0;
-			} else if ($user->status == 4 && $old->unsubscribe_at == 0) {
-				$fan['unsubscribe_at'] = $timestamp;
-			}
-			$model->update(
-				'xxt_site_qyfan',
-				$fan,
-				"siteid='$site' and openid='{$user->userid}'"
-			);
-			$sync_id = $old->id;
-		} else {
-			isset($user->avatar) && $fan['headimgurl'] = $user->avatar;
-			$user->status == 1 && $fan['subscribe_at'] = $timestamp;
-			$sync_id = $model->insert('xxt_site_qyfan', $fan, true);
-		}
-
+		isset($user->avatar) && $fan['headimgurl'] = $user->avatar;
+		$user->status == 1 && $fan['subscribe_at'] = $timestamp;
+		$sync_id = $model->insert('xxt_site_qyfan', $fan, true);
+		
 		return true;
 	}
 	/**
@@ -527,30 +510,21 @@ class base extends \TMS_CONTROLLER {
 		/**
 		 * 成员用户对应的粉丝用户
 		 */
-		if ($old = $this->model('sns\qy\fan')->byOpenid($site, $user->userid)) {
-			$fan['nickname'] = $user->name;
-			isset($user->avatar) && $fan['headimgurl'] = $user->avatar;
-			if ($user->status == 1 && $old->subscribe_at == 0) {
-				$fan['subscribe_at'] = $timestamp;
-			} else if ($user->status == 1 && $old->unsubscribe_at != 0) {
-				$fan['unsubscribe_at'] = 0;
-			} else if ($user->status == 4 && $old->unsubscribe_at == 0) {
-				$fan['unsubscribe_at'] = $timestamp;
-			}
-			$model->update(
-				'xxt_site_qyfan',
-				$fan,
-				"siteid='$site' and openid='{$user->userid}'"
-			);
-			$sync_id = $old->id;
-		} else {
-			$fan['siteid'] = $site;
-			$fan['openid'] = $user->userid;
-			$fan['nickname'] = $user->name;
-			isset($user->avatar) && $fan['headimgurl'] = $user->avatar;
-			$user->status == 1 && $fan['subscribe_at'] = $timestamp;
-			$sync_id = $model->insert('xxt_site_qyfan', $fan, true);
+		$fan['nickname'] = $user->name;
+		isset($user->avatar) && $fan['headimgurl'] = $user->avatar;
+		if ($user->status == 1 && $luser->subscribe_at == 0) {
+			$fan['subscribe_at'] = $timestamp;
+		} else if ($user->status == 1 && $luser->unsubscribe_at != 0) {
+			$fan['unsubscribe_at'] = 0;
+		} else if ($user->status == 4 && $luser->unsubscribe_at == 0) {
+			$fan['unsubscribe_at'] = $timestamp;
 		}
+		$model->update(
+			'xxt_site_qyfan',
+			$fan,
+			"siteid='$site' and openid='{$user->userid}'"
+		);
+		$sync_id = $luser->id;
 
 		return true;
 	}

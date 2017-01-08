@@ -13,26 +13,17 @@ class main extends \pl\fe\matter\base {
 	/**
 	 *
 	 */
-	public function list_action($site, $page=1, $size=50) {
+	public function list_action($site) {
 		if (false === ($user = $this->accountUser())) {
 			return new \ResponseTimeout();
 		}
-		$q = array(
+		$p = array(
 			'id,title',
 			'xxt_wall',
-			"siteid='$site'",
+			"siteid='$site' and active='Y'",
 		);
-		$q2['r'] = array('o' => ($page - 1) * $size, 'l' => $size);
-		$walls = $this->model()->query_objs_ss($q,$q2);
-
-		$modelWall = $this->model('matter\wall');
-		foreach($walls as $wall){
-			/**
-			 * 获得每个讨论组的url
-			 */
-			$wall->url = $modelWall->getEntryUrl($site, $wall->id);
-		}
-
+		$walls = $this->model()->query_objs_ss($p);
+		
 		return new \ResponseData($walls);
 	}
 }

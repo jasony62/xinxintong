@@ -55,12 +55,20 @@ class main extends \pl\fe\matter\base {
 	 */
 	public function list_action($src = null, $site) {
 		$q = array('*', 'xxt_wall');
-		$q[2] = "siteid='$site'";
+		$q[2] = "siteid='$site' and active='Y'";
 		$q2['o'] = 'create_at desc';
 
-		$w = $this->model()->query_objs_ss($q, $q2);
+		$walls = $this->model()->query_objs_ss($q, $q2);
+		/**
+		 * 获得每个讨论组的url
+		 */
+		if($walls){
+			foreach($walls as $wall){
+				$wall->url = $this->model('matter\wall')->getEntryUrl($site, $wall->id);
+			}
+		}
 
-		return new \ResponseData($w);
+		return new \ResponseData($walls);
 	}
 	/**
 	 * 创建一个讨论组
@@ -101,6 +109,9 @@ class main extends \pl\fe\matter\base {
 			$nv->entry_css = $this->model()->escape($nv->entry_css);
 		} else if (isset($nv->body_css)) {
 			$nv->body_css = $this->model()->escape($nv->body_css);
+		} else if (isset($nv->active) && $nv->active === 'N'){
+			//如果停用信息墙，退出所有用户
+			$this->model()->update('xxt_wall_enroll', array('close_at'=>time()), "wid='$app'");
 		}
 
 		$rst = $this->model()->update('xxt_wall', (array) $nv, "id='$app'");

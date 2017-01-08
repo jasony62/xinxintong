@@ -351,5 +351,142 @@ class users extends \pl\fe\matter\base {
 
 		return count($records);
 	}
+	/**
+	*手动导入用户
+	*/
+	public function importSns_action($site, $type, $page = 1, $size = 20){
+		$params = $this->getPostJson();
+		// $params = new \stdClass;
+		// $params->name = '游戏';
+		if(isset($params->name) && !empty($params->name) && $type === 'qy'){
+			/**
+			*筛选导入的用户
+			*/
+			$name = $this->model()->escape($params->name);
+			$users = array();
+			$q = array(
+				'fullpath',
+				'xxt_site_member_department',
+				"siteid = '$site' and name like '%".$name."%'"
+				);
+			
+			if($depts = $this->model()->query_objs_ss($q)){
+				foreach ($depts as $dept) {
+					$dept = explode(',',$dept->fullpath);
+					$fullpath = json_encode($dept);
+					$users2 = $this->userList($site, $type, $page, $size, array('choose'=>$fullpath));
+					if($users2){
+						foreach ($users2 as $user) {
+							$users['data'][] = $user;
+						}
+					}
+				}
+			}
+			$users['choose'] = $name;
+		}else{
+			$users['data'] = $this->userList($site, $type, $page, $size);
+		}
+
+		return new \ResponseData($users);
+	}
+	/**
+	*
+	*/
+	public function userList($site, $type, $page = 1, $size = 20, $options = []){
+		$q = array(
+			'openid,nickname,headimgurl',
+			'xxt_site_'.$type.'fan',
+			"siteid = '{$site}' and subscribe_at>0 and unsubscribe_at=0 and forbidden='N'"
+			);
+		$q2['o'] = 'subscribe_at';
+		$q2['r']['o'] = ($page - 1) * $size;
+		$q2['r']['l'] = $size;
+
+		if($type === 'qy'){
+			$q[0] .= ",depts";
+			$q2['o'] = 'depts';
+		}
+		//企业号部门筛选
+		$choose = isset($options['choose'])?$options['choose']:'';
+		if($type === 'qy' && !empty($choose)){
+			$q[2] .= " and depts like '%".$choose."%'";
+		}
+
+		if($users = $this->model()->query_objs_ss($q, $q2)){
+			if($type === 'qy'){
+				//加入部门信息
+				foreach ($users as $user) {
+					$depts=json_decode($user->depts);
+					if(!empty($depts)){
+						$deptNames = array();
+						foreach($depts as $dept){
+							$dept2=implode($dept,',');
+							$p = array(
+								'name',
+								'xxt_site_member_department',
+								"siteid = '{$site}' and fullpath = '{$dept2}'"
+								);
+							$deptName = $this->model()->query_obj_ss($p);
+							$deptNames[]=$deptName->name;
+						}
+						$user->deptNames = implode($deptNames,',');
+					}
+				}
+			}
+		}
+
+		return $users;
+	}
+
+	/**
+	*将选中用户加入信息墙
+	*/
+	public function userJoin_action($site, $app, $type){
+		$params = $this->getPostJson();
+		// $params2 = new \stdClass;
+		// $params2->openid = 'oI-pXwl099vXa2rJgxfTsfU67yj55';
+		// $params2->nickname = 'Bbbbly';
+		// $params2->headimgurl = '';
+		// $params3 = new \stdClass;
+		// $params3->openid = 'oI-pXwl099vXa2rJgxfTsfU67yj66';
+		// $params3->nickname = 'Ccccly';
+		// $params3->headimgurl = '';
+		// $params[] = $params2;
+		// $params[] = $params3;
+
+		$user2 = new \stdClass;
+		$modelSite = $this->model('site\user\account');
+		$modelWall = $this->model('matter\wall');
+		$joinReply = $modelWall->byId($app, 'join_reply');
+		$num = 0;
+		foreach ($params as $user) {
+			switch ($type) {
+				case 'wx':
+					$user2->wx_openid = $user->openid;
+					break;
+				case 'yx':
+					$user2->yx_openid = $user->openid;
+					break;
+				case 'qy':
+					$user2->qy_openid = $user->openid;
+					break;
+			}
+			$user2->nickname = $user->nickname;
+			$user2->headimgurl = $user->headimgurl;
+			if($uid = $modelSite->byOpenid($site, $type, $user->openid, array('fields'=>'uid'))){
+				$user2->userid = $uid->uid;
+			}else{
+				$user2->userid = '';
+			}
+
+			//加入讨论组
+			$reply = $this->model('matter\wall')->join($site, $app, $user2, 'import');
+			if($reply === $joinReply->join_reply){
+				$num++;
+			}
+		}
+
+		return new \ResponseData($num);
+	}
 
 }

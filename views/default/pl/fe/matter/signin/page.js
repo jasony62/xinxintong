@@ -551,6 +551,7 @@ define(['frame', 'schema', 'editor'], function(ngApp, schemaLib, editorProxy) {
                     schema.next = names[0];
                 }
             }
+            editorProxy.modifyButton($scope.activeWrap);
         };
         /*直接给带有导航功能的按钮创建页面*/
         $scope.newPage = function(prop) {

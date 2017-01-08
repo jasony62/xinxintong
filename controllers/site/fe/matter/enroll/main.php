@@ -357,7 +357,7 @@ class main extends base {
 		return new \ResponseData(array('rank' => $rank));
 	}
 	/**
-	 * 统计登记信息
+	 * 给登记用户看的统计登记信息
 	 *
 	 * 只统计radio/checkbox类型的数据项
 	 *
@@ -365,59 +365,59 @@ class main extends base {
 	 * name => array(l=>label,c=>count)
 	 *
 	 */
-	public function statGet_action($siteid, $appid, $fromCache = 'N', $interval = 600) {
+	public function statGet_action($site, $app, $fromCache = 'N', $interval = 600) {
+		$modelRec = $this->model('matter\enroll\record');
 		if ($fromCache === 'Y') {
 			$current = time();
-			$model = $this->model();
-			$q = array(
+			$q = [
 				'create_at,id,title,v,l,c',
 				'xxt_enroll_record_stat',
-				"aid='$appid'",
-			);
-			$cached = $model->query_objs_ss($q);
+				"aid='$app'",
+			];
+			$cached = $modelRec->query_objs_ss($q);
 			if (count($cached) && $cached[0]->create_at >= $current - $interval) {
 				/*从缓存中获取统计数据*/
-				$result = array();
+				$result = [];
 				foreach ($cached as $data) {
 					if (isset($result[$data->id])) {
 						$item = &$result[$data->id];
 					} else {
-						$item = array(
+						$item = [
 							'id' => $data->id,
 							'title' => $data->title,
-							'ops' => array(),
-						);
+							'ops' => [],
+						];
 						$result[$data->id] = &$item;
 					}
-					$op = array(
-						'v' => $data->v,
-						'l' => $data->l,
-						'c' => $data->c,
-					);
+					$op = new \stdClass;
+					$op->v = $data->v;
+					$op->l = $data->l;
+					$op->c = $data->c;
 					$item['ops'][] = $op;
 				}
 			} else {
-				$result = $this->modelApp->getStat($appid);
+				$result = $modelRec->getStat($app);
 				/*更新缓存的统计数据*/
-				$model->delete('xxt_enroll_record_stat', "aid='$appid'");
+				$modelRec->delete('xxt_enroll_record_stat', "aid='$app'");
 				foreach ($result as $id => $stat) {
 					foreach ($stat['ops'] as $op) {
-						$r = array(
-							'aid' => $appid,
+						$r = [
+							'siteid' => $site,
+							'aid' => $app,
 							'create_at' => $current,
 							'id' => $id,
 							'title' => $stat['title'],
-							'v' => $op['v'],
-							'l' => $op['l'],
-							'c' => $op['c'],
-						);
-						$model->insert('xxt_enroll_record_stat', $r);
+							'v' => $op->v,
+							'l' => $op->l,
+							'c' => $op->c,
+						];
+						$modelRec->insert('xxt_enroll_record_stat', $r);
 					}
 				}
 			}
 		} else {
 			/*直接获取统计数据*/
-			$result = $this->modelApp->getStat($appid);
+			$result = $modelRec->getStat($app);
 		}
 
 		return new \ResponseData($result);

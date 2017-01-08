@@ -16,6 +16,7 @@ define(['frame', 'schema', 'editor'], function(ngApp, schemaLib, editorProxy) {
             }
         };
         $scope.addPage = function() {
+            $('body').click();
             $scope.createPage().then(function(page) {
                 $scope.choosePage(page);
             });
@@ -32,6 +33,7 @@ define(['frame', 'schema', 'editor'], function(ngApp, schemaLib, editorProxy) {
         };
         $scope.delPage = function() {
             if (window.confirm('确定删除页面？')) {
+                $('body').click();
                 srvPage.remove($scope.ep).then(function() {
                     $scope.app.pages.splice($scope.app.pages.indexOf($scope.ep), 1);
                     if ($scope.app.pages.length) {

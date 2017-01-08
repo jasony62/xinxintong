@@ -1,7 +1,8 @@
 .ng-cloak{display:none;}
 body{padding-top:71px;}
-body>nav{display:flex;height:50px;}
-body>nav>.navbar-form{flex-grow:1;text-align:center;}
+.navbar-nav.tms-breadcrumb>li>a{padding-left:0;padding-right:0;color:#428bca;}
+.navbar-nav.tms-breadcrumb>li:last-child>a{color:#777;}
+.navbar-nav.tms-breadcrumb>li+li>a:before{content:'/\00a0';padding-left:5px;color:#ccc;}
 
 /*app-setting*/
 #appSetting{width:200px;}

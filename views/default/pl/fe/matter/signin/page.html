@@ -1,17 +1,17 @@
 <div id='page-view' class='row'>
     <!-- pages -->
     <div class='col-md-12'>
-            <nav class='navbar navbar-default' style="margin:0 -15px 20px;padding-right:15px">
-                <ul class="nav navbar-nav">
-                    <li ng-class="{'active':p===ep}" ng-repeat="p in app.pages">
-                        <a href="#" ng-click="choosePage(p)"><span><i class='fa fa-file-o'></i> {{p.title}}</span></a>
-                    </li>
-                </ul>
-                <ul class="navbar-form navbar-right">
-                    <button class='btn btn-success' ng-click="save()">保存修改</button>
-                    <button uib-popover-template="'pageSetting.html'" popover-placement="bottom" popover-title="页面设置" popover-trigger="outsideClick" class="btn btn-default">页面设置 <span class="caret"></span></button>
-                </ul>
-            </nav>
+        <nav class='navbar navbar-default' style="margin:0 -15px 20px;padding-right:15px">
+            <ul class="nav navbar-nav">
+                <li ng-class="{'active':p===ep}" ng-repeat="p in app.pages">
+                    <a href="#" ng-click="choosePage(p)"><span><i class='fa fa-file-o'></i> {{p.title}}</span></a>
+                </li>
+            </ul>
+            <ul class="navbar-form navbar-right">
+                <button class='btn btn-success' ng-click="save()">保存修改</button>
+                <button uib-popover-template="'pageSetting.html'" popover-placement="bottom" popover-title="页面设置" popover-trigger="outsideClick" class="btn btn-default">页面设置 <span class="caret"></span></button>
+            </ul>
+        </nav>
     </div>
     <!-- end pages -->
     <!-- one page -->

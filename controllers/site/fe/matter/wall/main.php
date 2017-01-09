@@ -33,7 +33,7 @@ class main extends \site\fe\base {
 				'xxt_wall',
 				"siteid = '{$site}' and id = '{$app}' and active='Y'"
 				);
-			$walls = $this->model()->query_obj_ss($q);
+			$walls = $this->model()->query_objs_ss($q);
 		}else{
 			$p = array(
 					'w.id,w.title,e.join_at,e.close_at',

@@ -45,17 +45,17 @@ class receiver extends \pl\fe\matter\base {
 	 * 删除接收消息的人
 	 *
 	 * @param string site
-	 * @param string $id
+	 * @param string $app
 	 * @param string $userid
 	 */
-	public function remove_action($site, $id, $userid) {
+	public function remove_action($site, $app, $receiver) {
 		if (false === ($user = $this->accountUser())) {
 			return new \ResponseTimeout();
 		}
 
 		$rst = $this->model()->delete(
 			'xxt_enroll_receiver',
-			"siteid='$site' and aid='$id' and userid='$userid'"
+			"siteid='$site' and aid='$app' and userid='$receiver'"
 		);
 
 		return new \ResponseData($rst);
@@ -64,17 +64,17 @@ class receiver extends \pl\fe\matter\base {
 	 * 添加自定义用户作为登记活动事件接收人
 	 *
 	 * @param string $site
-	 * @param string $id
+	 * @param string $app
 	 *
 	 */
-	public function add_action($site, $id) {
+	public function add_action($site, $app) {
 		if (false === ($this->accountUser())) {
 			return new \ResponseTimeout();
 		}
 
 		$modelApp = $this->model('matter\enroll');
 		$modelRev = $this->model('matter\enroll\receiver');
-		$app = $modelApp->byId($id, array('cascaded' => 'Y'));	
+		$app = $modelApp->byId($app, array('cascaded' => 'Y'));	
 
 		$users=$this->getPostJson();
 
@@ -82,7 +82,7 @@ class receiver extends \pl\fe\matter\base {
 			$uid=$user->uid;
 			$nickname=$user->nickname;
 
-			if(empty($modelRev->query_obj_ss(['*','xxt_enroll_receiver',"siteid='$site' and aid='$id' and userid='$uid'"]))){
+			if(empty($modelRev->query_obj_ss(['*','xxt_enroll_receiver',"siteid='$site' and aid='$app' and userid='$uid'"]))){
 				$account=$this->model('site\user\account')->byId($uid);	
 				if(!empty($account->wx_openid)){
 					$arr['wx_openid']=$account->wx_openid;

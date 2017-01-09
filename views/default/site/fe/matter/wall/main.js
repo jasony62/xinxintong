@@ -15,13 +15,13 @@ app.controller('wallCtrl',['$scope','$http','$location',function($scope,$http,$l
             YixinJSBridge.call('hideOptionMenu');
         }, false);
     }
-    $http.get('/rest/site/fe/matter/wall?site=' + $scope.siteId + '&app=' + $scope.id).success(function(rsp){
+    $http.get('/rest/site/fe/matter/wall/get?site=' + $scope.siteId + '&app=' + $scope.id).success(function(rsp){
         $scope.msg = rsp.data.data;
         $scope.uInfo = rsp.data.user;
         $scope.status = rsp.data.wallUser;
     })
     $scope.join = function() {
-        $http.get('/rest/site/fe/matter/wall/join?site='+ $scope.siteId + '&app=' + $scope.id ).success(function(rsp){
+        $http.get('/rest/site/fe/matter/wall/join?site='+ $scope.siteId + '&app=' + $scope.id ,function(rsp){
             if (angular.isString(rsp)) {
                 alert(rsp);
                 return;

@@ -46,7 +46,7 @@ class receiver extends \pl\fe\matter\base {
 	 *
 	 * @param string site
 	 * @param string $app
-	 * @param string $userid
+	 * @param string $receiver
 	 */
 	public function remove_action($site, $app, $receiver) {
 		if (false === ($user = $this->accountUser())) {

@@ -20,7 +20,7 @@ class main extends \pl\fe\matter\base {
 		$p = array(
 			'id,title',
 			'xxt_wall',
-			"siteid='$site'",
+			"siteid='$site' and active = 'Y'",
 		);
 		$walls = $this->model()->query_objs_ss($p);
 

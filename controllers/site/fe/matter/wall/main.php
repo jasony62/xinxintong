@@ -29,7 +29,7 @@ class main extends \site\fe\base {
 
 		if(!empty($app)){
 			$q = array(
-				'id,title,join_at,close_at',
+				'id,title',
 				'xxt_wall',
 				"siteid = '{$site}' and id = '{$app}' and active='Y'"
 				);

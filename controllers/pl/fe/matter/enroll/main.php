@@ -511,6 +511,9 @@ class main extends \pl\fe\matter\base {
 			$newSchema->range = ['1', '5'];
 			$newSchema->ops = [];
 			foreach ($records as $index => $record) {
+				if (empty($record->data->{$recordSchema->id})) {
+					continue;
+				}
 				$op = new \stdClass;
 				$op->v = 'v' . ($index + 1);
 				$op->l = $record->data->{$recordSchema->id};

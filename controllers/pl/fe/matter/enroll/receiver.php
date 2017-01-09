@@ -109,7 +109,7 @@ class receiver extends \pl\fe\matter\base {
 	 */
 	public function qyMem_action($site,$page,$size)
 	{
-		$rst=$this->model("sns\qy")->getMem($site,$page,$site);
+		$rst=$this->model("sns\\qy\\fan")->getMem($site,$page,$size);
 		return new \ResponseData($rst);
 	}
-}
+}\

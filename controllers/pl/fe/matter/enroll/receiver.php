@@ -70,37 +70,38 @@ class receiver extends \pl\fe\matter\base {
 	public function add_action($site, $id) {
 		$modelApp = $this->model('matter\enroll');
 		$modelRev = $this->model('matter\enroll\receiver');
+		$app = $modelApp->byId($id, array('cascaded' => 'Y'));	
 
-		$app = $modelApp->byId($id, array('cascaded' => 'Y'));
+		$users=$this->getPostJson();
+
+		foreach ($users as $user) {				
+			$uid=$user->uid;
+			$nickname=$user->nickname;
+
+			$account=$this->model('site\user\account')->byId($uid);	
+			if(!empty($account->wx_openid)){
+				$arr['wx_openid']=$account->wx_openid;
+			} 
+			if(!empty($account->yx_openid)){
+				$arr['yx_openid']=$account->yx_openid;
+			}
+			if(!empty($account->qy_openid)){				
+				$arr['qy_openid']=$account->qy_openid;
+			}
 	
-		$data=$this->getPostJson();
-		$uid=$data->uid;
-		$nickname=$data->nickname;
-
-		$account=$this->model('site\user\account')->byId($uid);	
-		if(!empty($account->wx_openid)){
-			$arr['wx_openid']=$account->wx_openid;
-		} 
-		if(!empty($account->yx_openid)){
-			$arr['yx_openid']=$account->yx_openid;
+			$rst[]=$modelRev->insert(
+				'xxt_enroll_receiver',
+				[
+					'siteid' => $site,
+					'aid' => $app->id,
+					'join_at' => time(),
+					'userid' => $uid,
+					'nickname' => empty($nickname) ? '未知姓名' : $modelRev->escape($nickname),
+					'sns_user'=>json_encode($arr),
+				],
+				false
+			);
 		}
-		if(!empty($account->qy_openid)){				
-			$arr['qy_openid']=$account->qy_openid;
-		}
-
-	
-		$rst=$modelRev->insert(
-			'xxt_enroll_receiver',
-			[
-				'siteid' => $site,
-				'aid' => $app->id,
-				'join_at' => time(),
-				'userid' => $uid,
-				'nickname' => empty($nickname) ? '未知姓名' : $modelRev->escape($nickname),
-				'sns_user'=>json_encode($arr),
-			],
-			false
-		);
 
 		return new \ResponseData($rst);
 	}
@@ -112,4 +113,4 @@ class receiver extends \pl\fe\matter\base {
 		$rst=$this->model("sns\\qy\\fan")->getMem($site,$page,$size);
 		return new \ResponseData($rst);
 	}
-}\
+}

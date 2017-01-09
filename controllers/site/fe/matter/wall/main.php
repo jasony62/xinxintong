@@ -16,16 +16,7 @@ class main extends \site\fe\base {
 		exit;
 
 	}
-	public function afterJoin_action($site, $app){
-		$user = $this->who;
-		$wall = $this->model('matter\wall')->byId($app, 'id,title,summary,join_reply,active');
-		if($wall->active === 'N'){
-			$this->outputError('信息墙已停用');
-		}
-
-		\TPL::assign('nickname', $user->nickname);
-		\TPL::assign('summary', $wall->summary);
-		\TPL::assign('title', $wall->title);
+	public function detail_action($site, $app){
 		\TPL::output('/site/fe/matter/wall/main');
 		exit;
 
@@ -130,10 +121,23 @@ class main extends \site\fe\base {
 	*/
 	public function get_action($site, $app){
 		$user = $this->who;
+		$p = array(
+			'id,title,summary,active',
+			'xxt_wall',
+			"id = '{$app}'"
+			);
+		$wall = $this->model()->query_obj_ss($p);
+		if($wall){
+			if($wall->active === 'N'){
+				$this->outputError('信息墙已停用');
+				exit;
+			}
+		}
+
 		$q = array(
-			'w.id,w.title,w.join_reply,w.active,e.join_at,e.close_at',
-			'xxt_wall_enroll e,xxt_wall w',
-			"w.id = '{$app}' and e.wid = '{$app}'"
+			'join_at,close_at',
+			'xxt_wall_enroll',
+			"wid = '{$app}'"
 			);
 		if(isset($user->sns->wx)){
 			$openid = $user->sns->wx->openid;
@@ -145,16 +149,24 @@ class main extends \site\fe\base {
 			$openid = $user->sns->qy->openid;
 			$q[2] .= " and qy_openid = '{$openid}'";
 		}
-		$wall = $this->model()->query_obj_ss($q);
-		if($wall){
-			if($wall->active === 'N'){
-				$wall->join_reply = "信息墙已停用";
+		$wallUser = $this->model()->query_obj_ss($q);
+		if($wallUser){
+			if($wallUser->close_at === '0'){
+				$wallUser->state = 'Y';
 			}else{
-				$wall->join_reply = empty($wall->join_reply) ? '欢迎进入，请输入您的发言' : $wall->join_reply;
+				$wallUser->state = 'N';
 			}
+		}else{
+			$wallUser = new \stdClass;
+			$wallUser->state = 'N';
 		}
 
-		return new \ResponseData($wall);
+		$data = array();
+		$data['data'] = $wall;
+		$data['wallUser'] = $wallUser;
+		$data['user'] = $user;
+		var_dump($data);
+		return new \ResponseData($data);
 
 	}
 	/**

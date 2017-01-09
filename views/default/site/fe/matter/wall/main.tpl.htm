@@ -10,19 +10,19 @@
     <link href="/views/default/site/fe/matter/wall/main.css" rel="stylesheet">
 </head>
 <body>
-    <div ng-controller='wallCtrl' ng-init="mpid='<?php TPL::pt('mpid');?>';wid='<?php TPL::pt('wid');?>';joined='<?php TPL::pt('joined');?>'">
+    <div ng-controller='wallCtrl'>
         <div id='nickname'>
-            <p><span ng-bind='w.nickname'></span>>：您好</p>
+            <p><span ng-bind='w.user.nickname'></span>：您好</p>
         </div>
         <div id='intro'>
-            <p ng-bind='w.entry_ele'></p>
+            <p ng-bind='w.data.entry_ele'></p>
         </div>
         <div id='actJoin'>
-            <?php $joined=TPL::val('joined'); if ($joined==='Y'){?>
+
             <button class='btn btn-primary btn-lg btn-block' ng-click='unjoin()'>退出讨论</button>
-            <?php } else {?>
+
             <button class='btn btn-primary btn-lg btn-block' ng-click='join()'>参加讨论</button>
-            <?php }?>
+
         </div>
     </div>
     <script src="/static/js/jquery.min.js"></script>

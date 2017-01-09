@@ -11,7 +11,7 @@ app.controller('wallCtrl',['$scope','$http','$location', function($scope,$http,$
     $scope.id = ls.app;
     $scope.siteId = ls.siteid;
   $scope.open = function(wall) {
-      location.href = '/rest/site/fe/matter/wall/main?site=' + $scope.siteId + '&app=' + wall.id;
+      location.href = '/rest/site/fe/matter/wall/detail?site=' + $scope.siteId + '&app=' + wall.id;
   };
   $http.get('/rest/site/fe/matter/wall/wallList?site=' + $scope.siteId + '&app=' + $scope.id).success(function(rsp){
       $scope.walls = rsp.data;

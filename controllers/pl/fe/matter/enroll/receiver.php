@@ -45,8 +45,8 @@ class receiver extends \pl\fe\matter\base {
 	 * 删除
 	 *
 	 * @param string site
-	 * @param string $app
-	 * @param string $receiver
+	 * @param string $id
+	 * @param string $userid
 	 */
 	public function remove_action($site, $id, $userid) {
 		if (false === ($user = $this->accountUser())) {
@@ -68,6 +68,10 @@ class receiver extends \pl\fe\matter\base {
 	 *
 	 */
 	public function add_action($site, $id) {
+		if (false === ($this->accountUser())) {
+			return new \ResponseTimeout();
+		}
+
 		$modelApp = $this->model('matter\enroll');
 		$modelRev = $this->model('matter\enroll\receiver');
 		$app = $modelApp->byId($id, array('cascaded' => 'Y'));	
@@ -110,6 +114,10 @@ class receiver extends \pl\fe\matter\base {
 	 */
 	public function qyMem_action($site,$page,$size)
 	{
+		if (false === ($user = $this->accountUser())) {
+			return new \ResponseTimeout();
+		}
+
 		$rst=$this->model("sns\\qy\\fan")->getMem($site,$page,$size);
 		return new \ResponseData($rst);
 	}

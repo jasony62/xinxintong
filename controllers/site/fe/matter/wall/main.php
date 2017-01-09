@@ -11,12 +11,17 @@ class main extends \site\fe\base {
 			/* 检查是否需要第三方社交帐号OAuth */
 			$this->_requireSnsOAuth($site);
 		}
+		$wall = $this->model('matter\wall')->byId($app, 'title');
 
+		\TPL::assign('title', $wall->title);
 		\TPL::output('/site/fe/matter/wall/index');
 		exit;
 
 	}
 	public function detail_action($site, $app){
+		$wall = $this->model('matter\wall')->byId($app, 'title');
+
+		\TPL::assign('title', $wall->title);
 		\TPL::output('/site/fe/matter/wall/main');
 		exit;
 
@@ -165,7 +170,6 @@ class main extends \site\fe\base {
 		$data['data'] = $wall;
 		$data['wallUser'] = $wallUser;
 		$data['user'] = $user;
-		var_dump($data);
 		return new \ResponseData($data);
 
 	}

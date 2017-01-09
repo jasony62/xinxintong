@@ -160,7 +160,7 @@ config(['$uibTooltipProvider', function($uibTooltipProvider) {
     $scope.open = function(matter) {
         location.href = location.href = '/rest/pl/fe/matter/' + matter.matter_type + '?id=' + matter.matter_id + '&site=' + matter.siteid;
     };
-    $scope.popoverAddMatter = function(){
+    $scope.popoverAddMatter = function() {
         var target = $('#popoverAddMatter');
         if (target.data('popover') === 'Y') {
             target.trigger('hide').data('popover', 'N');
@@ -227,7 +227,7 @@ config(['$uibTooltipProvider', function($uibTooltipProvider) {
     };
     $scope.list();
 }]).controller('ctrlMission', ['$scope', 'http2', function($scope, http2) {
-    var page, t = (new Date() * 1);
+    var page, filter, filter2, t = (new Date() * 1);
     $scope.page = page = {
         at: 1,
         size: 12,
@@ -235,17 +235,37 @@ config(['$uibTooltipProvider', function($uibTooltipProvider) {
             return 'page=' + this.at + '&size=' + this.size;
         }
     };
+    $scope.filter = filter = {};
+    $scope.filter2 = filter2 = {};
     $scope.open = function(mission) {
         location.href = '/rest/pl/fe/matter/mission?id=' + mission.mission_id;
     };
-    $scope.list = function() {
-        var url = '/rest/pl/fe/matter/mission/list?_=' + t + '&' + page.j();
+    $scope.listSite = function() {
+        var url = '/rest/pl/fe/matter/mission/listSite?_=' + t;
         http2.get(url, function(rsp) {
+            $scope.missionSites = rsp.data.sites;
+        });
+    };
+    $scope.list = function() {
+        var url = '/rest/pl/fe/matter/mission/listByUser?_=' + t + '&' + page.j();
+        http2.post(url, filter, function(rsp) {
             $scope.missions = rsp.data.missions;
             $scope.page.total = rsp.data.total;
         });
     };
-    $scope.list();
+    $scope.doFilter = function() {
+        angular.extend(filter, filter2);
+        $('body').click();
+    };
+    $scope.cleanFilter = function() {
+        filter.byTitle = '';
+        $('body').click();
+    };
+    $scope.$watch('filter', function(nv) {
+        if (!nv) return;
+        $scope.list();
+    }, true);
+    $scope.listSite();
 }]).controller('ctrlTrend', ['$scope', 'http2', function($scope, http2) {
     var t = (new Date() * 1);
     $scope.list = function() {

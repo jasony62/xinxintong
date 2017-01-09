@@ -20,47 +20,43 @@ define(['frame'], function(ngApp) {
 	}]);
 	ngApp.provider.controller('ctrlPreview', ['$scope', function($scope) {
 		var previewURL = '/rest/site/fe/matter/signin/preview?site=' + $scope.siteId + '&app=' + $scope.id + '&start=Y',
-			params = {
-				pageAt: -1,
-				hasPrev: false,
-				hasNext: false,
-				openAt: 'ontime'
-			};
-		$scope.nextPage = function() {
-			params.pageAt++;
-			params.hasPrev = true;
-			params.hasNext = params.pageAt < $scope.app.pages.length - 1;
-		};
-		$scope.prevPage = function() {
-			params.pageAt--;
-			params.hasNext = true;
-			params.hasPrev = params.pageAt > 0;
-		};
-		$scope.$watch('app.pages', function(pages) {
-			if (pages) {
-				params.pageAt = 0;
-				params.hasPrev = false;
-				params.hasNext = !!pages.length;
-				$scope.params = params;
-			}
-		});
-		$scope.$watch('app.use_site_header', function() {
-			$scope.app && ($scope.previewURL = previewURL + '&openAt=' + params.openAt + '&page=' + $scope.app.pages[params.pageAt].name + '&_=' + (new Date() * 1));
-		});
-		$scope.$watch('app.use_site_footer', function() {
-			$scope.app && ($scope.previewURL = previewURL + '&openAt=' + params.openAt + '&page=' + $scope.app.pages[params.pageAt].name + '&_=' + (new Date() * 1));
-		});
-		$scope.$watch('app.use_mission_header', function() {
-			$scope.app && ($scope.previewURL = previewURL + '&openAt=' + params.openAt + '&page=' + $scope.app.pages[params.pageAt].name + '&_=' + (new Date() * 1));
-		});
-		$scope.$watch('app.use_mission_header', function() {
-			$scope.app && ($scope.previewURL = previewURL + '&openAt=' + params.openAt + '&page=' + $scope.app.pages[params.pageAt].name + '&_=' + (new Date() * 1));
-		});
-		$scope.$watch('params', function(params) {
-			if (params) {
-				$scope.previewURL = previewURL + '&openAt=' + params.openAt + '&page=' + $scope.app.pages[params.pageAt].name;
-			}
-		}, true);
+            params = {
+                openAt: 'ontime'
+            };
+        $scope.showPage = function(page) {
+            params.page = page;
+        };
+        $scope.gotoPage = function(page) {
+            var url = "/rest/pl/fe/matter/signin/page";
+            url += "?site=" + $scope.siteId;
+            url += "&id=" + $scope.id;
+            url += "&page=" + page.name;
+            location.href = url;
+        };
+        $scope.$watch('app.pages', function(pages) {
+            if (pages) {
+                params.page = pages[0];
+                $scope.params = params;
+                $scope.previewURL = previewURL + '&openAt=' + params.openAt + '&page=' + $scope.app.pages[0].name;
+            }
+        });
+        $scope.$watch('app.use_site_header', function() {
+            $scope.app && ($scope.previewURL = previewURL + '&openAt=' + params.openAt + '&page=' + params.page.name + '&_=' + (new Date() * 1));
+        });
+        $scope.$watch('app.use_site_footer', function() {
+            $scope.app && ($scope.previewURL = previewURL + '&openAt=' + params.openAt + '&page=' + params.page.name + '&_=' + (new Date() * 1));
+        });
+        $scope.$watch('app.use_mission_header', function() {
+            $scope.app && ($scope.previewURL = previewURL + '&openAt=' + params.openAt + '&page=' + params.page.name + '&_=' + (new Date() * 1));
+        });
+        $scope.$watch('app.use_mission_header', function() {
+            $scope.app && ($scope.previewURL = previewURL + '&openAt=' + params.openAt + '&page=' + params.page.name + '&_=' + (new Date() * 1));
+        });
+        $scope.$watch('params', function(params) {
+            if (params) {
+                $scope.previewURL = previewURL + '&openAt=' + params.openAt + '&page=' + params.page.name;
+            }
+        }, true);
 	}]);
 	/**
 	 * 访问控制规则

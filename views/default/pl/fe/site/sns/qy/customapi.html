@@ -70,6 +70,7 @@
                             <th>tags</th>
                             <th>depts</th>
                             <th>属性</th>
+                            <th>状态</th>
                         </tr>
                         </thead>
                         <tbody>
@@ -82,6 +83,7 @@
                             <td ng-bind="r.tags"></td>
                             <td ng-bind="r.depts"></td>
                             <td ng-bind="r.extattr"></td>
+                            <td ng-bind="r.subscribe_at!== '0' ? '已关注':'未关注'"></td>
                         </tr>
                         </tbody>
                     </table>

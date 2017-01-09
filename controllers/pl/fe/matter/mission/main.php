@@ -43,24 +43,60 @@ class main extends \pl\fe\matter\base {
 		return new \ResponseData($mission);
 	}
 	/**
+	 * 指定团队下当前用户可访问任务列表
+	 *
+	 * @param int $page
+	 * @param int $size
+	 */
+	public function list_action($site, $page = 1, $size = 20) {
+		if (false === ($user = $this->accountUser())) {
+			return new \ResponseTimeout();
+		}
+
+		$modelMis = $this->model('matter\mission');
+		$options = [
+			'limit' => (object) ['page' => $page, 'size' => $size],
+		];
+		$result = $modelMis->bySite($site, $options);
+
+		return new \ResponseData($result);
+	}
+	/**
 	 * 当前用户可访问任务列表
 	 *
 	 * @param int $page
 	 * @param int $size
 	 */
-	public function list_action($site = null, $page = 1, $size = 20) {
+	public function listByUser_action($page = 1, $size = 20) {
 		if (false === ($user = $this->accountUser())) {
 			return new \ResponseTimeout();
 		}
+
+		$filter = $this->getPostJson();
 		$modelMis = $this->model('matter\mission');
 		$options = [
 			'limit' => (object) ['page' => $page, 'size' => $size],
 		];
-		if (empty($site)) {
-			$result = $modelMis->byAcl($user, $options);
-		} else {
-			$result = $modelMis->bySite($site, $options);
+		if (!empty($filter->bySite)) {
+			$options['bySite'] = $modelMis->escape($filter->bySite);
 		}
+		if (!empty($filter->byTitle)) {
+			$options['byTitle'] = $modelMis->escape($filter->byTitle);
+		}
+		$result = $modelMis->byAcl($user, $options);
+
+		return new \ResponseData($result);
+	}
+	/**
+	 * 当前用户参与的所有项目所属的团队列表
+	 */
+	public function listSite_action() {
+		if (false === ($user = $this->accountUser())) {
+			return new \ResponseTimeout();
+		}
+
+		$modelMis = $this->model('matter\mission');
+		$result = $modelMis->siteByAcl($user);
 
 		return new \ResponseData($result);
 	}

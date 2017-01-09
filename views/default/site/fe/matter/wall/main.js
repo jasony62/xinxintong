@@ -16,7 +16,9 @@ app.controller('wallCtrl',['$scope','$http','$location',function($scope,$http,$l
         }, false);
     }
     $http.get('/rest/site/fe/matter/wall?site=' + $scope.siteId + '&app=' + $scope.id).success(function(rsp){
-        $scope.w = rsp.data;
+        $scope.msg = rsp.data.data;
+        $scope.uInfo = rsp.data.user;
+        $scope.status = rsp.data.wallUser;
     })
     $scope.join = function() {
         $http.get('/rest/app/wall/join?site='+ $scope.siteId + '&app=' + $scope.id ).success(function(rsp){

@@ -376,7 +376,7 @@ class qy extends \member_base {
 	 * 同步的创建会员用户
 	 *
 	 * $user 企业号用户的详细信息
-	 * 因为企业号关注事件需要调用此方法，但此方法是在site/fe/base中，目前处理企业号关注信息类，并不继承
+	 * 因为企业号关注事件需要调用此方法，但此方法是在site/fe/base中。目前处理企业号关注信息类，并不继承
 	 * sit/fe/base，所以为了不影响老版本，临时将此方法加在此处
 	 */
 	private function createQyFan2($site, $user, $authid, $timestamp = null, $mapDeptR2L = null) {
@@ -459,10 +459,10 @@ class qy extends \member_base {
 	}
 	/**
 	 * 更新企业号用户信息
-	 * 因为企业号关注事件需要调用此方法，但此方法是在site/fe/base中，目前处理企业号关注信息类，并不继承
+	 * 因为企业号关注事件需要调用此方法，但此方法是在site/fe/base中。目前处理企业号关注信息类，并不继承
 	 * sit/fe/base，所以为了不影响老版本，临时将此方法加在此处
 	 */
-	protected function updateQyFan2($site, $luser, $user, $authid, $timestamp = null, $mapDeptR2L = null) {
+	private function updateQyFan2($site, $luser, $user, $authid, $timestamp = null, $mapDeptR2L = null) {
 		$model = $this->model();
 		empty($timestamp) && $timestamp = time();
 

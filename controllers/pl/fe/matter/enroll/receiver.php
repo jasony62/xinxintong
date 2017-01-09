@@ -42,7 +42,7 @@ class receiver extends \pl\fe\matter\base {
 		return new \ResponseData($receivers);
 	}
 	/**
-	 * 删除
+	 * 删除接收消息的人
 	 *
 	 * @param string site
 	 * @param string $id
@@ -119,6 +119,7 @@ class receiver extends \pl\fe\matter\base {
 		}
 
 		$rst=$this->model("sns\\qy\\fan")->getMem($site,$page,$size);
+		
 		return new \ResponseData($rst);
 	}
 }

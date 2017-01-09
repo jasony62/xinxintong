@@ -104,4 +104,12 @@ class receiver extends \pl\fe\matter\base {
 
 		return new \ResponseData($rst);
 	}
+	/**
+	 * 获取企业号关注用户
+	 */
+	public function qyMem_action($site,$page,$size)
+	{
+		$rst=$this->model("sns\qy")->getMem($site,$page,$site);
+		return new \ResponseData($rst);
+	}
 }

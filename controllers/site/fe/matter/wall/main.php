@@ -12,6 +12,10 @@ class main extends \site\fe\base {
 			$this->_requireSnsOAuth($site);
 		}
 		$wall = $this->model('matter\wall')->byId($app, 'title');
+		if(!$wall){
+			$this->outputError('信息墙不存在');
+			exit;
+		}
 
 		\TPL::assign('title', $wall->title);
 		\TPL::output('/site/fe/matter/wall/index');
@@ -20,6 +24,10 @@ class main extends \site\fe\base {
 	}
 	public function detail_action($site, $app){
 		$wall = $this->model('matter\wall')->byId($app, 'title');
+		if(!$wall){
+			$this->outputError('信息墙不存在');
+			exit;
+		}
 
 		\TPL::assign('title', $wall->title);
 		\TPL::output('/site/fe/matter/wall/main');

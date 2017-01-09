@@ -21,7 +21,7 @@ class wall_model extends app_base {
 		$q = array(
 			$fields,
 			'xxt_wall',
-			"id='$id' and active='Y'",
+			"id='$id'",
 		);
 		if ($w = $this->query_obj_ss($q)) {
 			$w->type = 'wall';

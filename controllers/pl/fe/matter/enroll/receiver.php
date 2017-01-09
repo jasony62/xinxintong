@@ -42,20 +42,20 @@ class receiver extends \pl\fe\matter\base {
 		return new \ResponseData($receivers);
 	}
 	/**
-	 * 删除轮次
+	 * 删除
 	 *
 	 * @param string site
 	 * @param string $app
 	 * @param string $receiver
 	 */
-	public function remove_action($site, $app, $receiver) {
+	public function remove_action($site, $id, $userid) {
 		if (false === ($user = $this->accountUser())) {
 			return new \ResponseTimeout();
 		}
 
 		$rst = $this->model()->delete(
 			'xxt_enroll_receiver',
-			"siteid='$site' and aid='$app' and userid='$receiver'"
+			"siteid='$site' and aid='$id' and userid='$userid'"
 		);
 
 		return new \ResponseData($rst);

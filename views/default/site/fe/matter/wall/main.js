@@ -21,7 +21,7 @@ app.controller('wallCtrl',['$scope','$http','$location',function($scope,$http,$l
         $scope.status = rsp.data.wallUser;
     })
     $scope.join = function() {
-        $http.get('/rest/app/wall/join?site='+ $scope.siteId + '&app=' + $scope.id ).success(function(rsp){
+        $http.get('/rest/site/fe/matter/wall/join?site='+ $scope.siteId + '&app=' + $scope.id ).success(function(rsp){
             if (angular.isString(rsp)) {
                 alert(rsp);
                 return;
@@ -40,7 +40,7 @@ app.controller('wallCtrl',['$scope','$http','$location',function($scope,$http,$l
         });
     };
     $scope.unjoin = function() {
-        $http.get('/rest/app/wall/quit?site='+ $scope.siteId + '&app=' + $scope.id).success(function(rsp){
+        $http.get('/rest/site/fe/matter/wall/quit?site='+ $scope.siteId + '&app=' + $scope.id).success(function(rsp){
             if (angular.isString(rsp)) {
                 alert(rsp);
                 return;

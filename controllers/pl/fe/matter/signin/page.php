@@ -37,6 +37,9 @@ class page extends \pl\fe\matter\base {
 	 * $cid 页面对应code page id
 	 */
 	public function update_action($site, $app, $pid, $cname) {
+		if (false === ($user = $this->accountUser())) {
+			return new \ResponseTimeout();
+		}
 		$nv = $this->getPostJson();
 
 		$rst = 0;
@@ -81,7 +84,7 @@ class page extends \pl\fe\matter\base {
 			return new \ResponseTimeout();
 		}
 
-		$page = $this->model('matter\signinl\page')->byId($app, $pid);
+		$page = $this->model('matter\signin\page')->byId($app, $pid);
 
 		$modelCode = $this->model('code\page');
 		$modelCode->removeByName($site, $cname);

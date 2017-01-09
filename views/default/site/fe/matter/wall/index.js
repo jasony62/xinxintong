@@ -9,11 +9,11 @@ app.config(['$locationProvider', function ($locationProvider) {
 app.controller('wallCtrl',['$scope','$http','$location', function($scope,$http,$location){
   var ls = $location.search();
     $scope.id = ls.app;
-    $scope.siteId = ls.siteid;
+    $scope.siteId = ls.site;
   $scope.open = function(wall) {
       location.href = '/rest/site/fe/matter/wall/detail?site=' + $scope.siteId + '&app=' + wall.id;
   };
-  $http.get('/rest/site/fe/matter/wall/wallList?site=' + $scope.siteId + '&app=' + $scope.id).success(function(rsp){
+  $http.get('/rest/site/fe/matter/wall/wallList?site=' + $scope.siteId).success(function(rsp){
       $scope.walls = rsp.data;
   })
 }]);

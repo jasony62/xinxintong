@@ -5,7 +5,7 @@ app.config(['$locationProvider', function ($locationProvider) {
 app.controller('wallCtrl',['$scope','$http','$location',function($scope,$http,$location){
       var ls = $location.search();
         $scope.id = ls.app;
-        $scope.siteId = ls.siteid;
+        $scope.siteId = ls.site;
     if (/MicroMessenger/.test(navigator.userAgent)) {
         document.addEventListener('WeixinJSBridgeReady', function(){
             WeixinJSBridge.call('hideOptionMenu');

@@ -17,6 +17,15 @@ class main extends \site\fe\base {
 
 	}
 	public function afterJoin_action($site, $app){
+		$user = $this->who;
+		$wall = $this->model('matter\wall')->byId($app, 'id,title,summary,join_reply,active');
+		if($wall->active === 'N'){
+			$this->outputError('信息墙已停用');
+		}
+
+		\TPL::assign('nickname', $user->nickname);
+		\TPL::assign('summary', $wall->summary);
+		\TPL::assign('title', $wall->title);
 		\TPL::output('/site/fe/matter/wall/main');
 		exit;
 

@@ -13,7 +13,13 @@ app.controller('wallCtrl',['$scope','$http','$location', function($scope,$http,$
   $scope.open = function(wall) {
       location.href = '/rest/site/fe/matter/wall/detail?site=' + $scope.siteId + '&app=' + wall.id;
   };
-  $http.get('/rest/site/fe/matter/wall/wallList?site=' + $scope.siteId).success(function(rsp){
+  var url;
+  if($scope.id){
+     url = '/rest/site/fe/matter/wall/wallList?site=' + $scope.siteId + '&app=' + $scope.id;
+  }else{
+    url = '/rest/site/fe/matter/wall/wallList?site=' + $scope.siteId;
+  }
+  $http.get(url).success(function(rsp){
       $scope.walls = rsp.data;
   })
 }]);

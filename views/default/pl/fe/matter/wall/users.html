@@ -2,7 +2,7 @@
 <div class="tile">
     <div class= 'navbar-form '>
         <button class='btn  btn-success' ng-click="import()" ng-if="!wall.sourceApp">导入用户</button>
-        <button class='btn  btn-success' ng-click="importPublic()" >导入企业/公众号用户</button>
+        <button class='btn  btn-success' ng-click="importPublic()" ng-if="!wall.publicApp">导入企业/公众号用户</button>
         <div ng-if="wall.sourceApp"  class="form-group">
             <label >在线用户来源</label>
             <div class="form-control"   ng-bind = "wall.sourceApp.title" ></div>
@@ -17,8 +17,8 @@
             <span class='glyphicon glyphicon-refresh'></span>
         </button>
     </div>
-    <div class="form-group ">
-        <table class='table table-bordered'>
+    <div class="form-group">
+        <table class='table table-bordered' ng-if='wall.sourceApp'>
             <thead>
             <tr>
                 <th style='width:48px'>序号</th>
@@ -31,6 +31,26 @@
             <tr ng-repeat='u in users'>
                 <td>{{$index+1}}</td>
                 <td>{{u.nickname}}</td>
+                <td>{{u.join_at*1000|date:'MM-dd HH:mm'}}</td>
+                <td>{{u.last_msg_at*1000|date:'MM-dd HH:mm'}}</td>
+            </tr>
+            </tbody>
+        </table>
+        <table class='table table-bordered' ng-if='wall.publicApp'>
+            <thead>
+            <tr>
+                <th style='width:48px'>序号</th>
+                <th>用户</th>
+                <th>部门</th>
+                <th>进入时间</th>
+                <th>留言时间</th>
+            </tr>
+            </thead>
+            <tbody>
+            <tr ng-repeat='u in users'>
+                <td>{{$index+1}}</td>
+                <td>{{u.nickname}}</td>
+                <td>{{u.depet}}</td>
                 <td>{{u.join_at*1000|date:'MM-dd HH:mm'}}</td>
                 <td>{{u.last_msg_at*1000|date:'MM-dd HH:mm'}}</td>
             </tr>
@@ -102,12 +122,10 @@
                                                            ng-model="data.appType">微信企业号</label>
                     </div>
                 </div>
-                <div class='form-group'>
+                <div class='form-group' ng-if="data.appType=='qy'">
                     <label class="col-md-3 control-label">所属部门</label>
-
-                    <div class="col-md-9">
-                        <select class="form-control" ng-model="data.app"
-                                ng-options="app.title for app in apps"></select>
+                    <div class="col-md-4">
+                        <input type='text' class='form-control' name='depet' placeholder='部门名称' ng-model='depet' ng-blur='updateInput($event,depet)'/>
                     </div>
                 </div>
                <table class='table table-bordered' >
@@ -120,13 +138,13 @@
                         </tr>
                     </thead>
                     <tbody>
-                        <tr ng-repeat="u in users">
+                        <tr ng-repeat="p in publicUsers">
                             <td>
-                                <input type="checkbox"  ng-checked="isSelected(u.id)" ng-click="updateSelection($event,u)">
+                                <input type="checkbox"  ng-checked="isSelected(p.id)" ng-click="updateSelection($event,p)">
                             </td>
-                            <td ng-bind="u.nickname"></td>
-                            <td ng-bind="u.openid"></td>
-                            <td ng-bind="u.depts"></td>
+                            <td ng-bind="p.nickname"></td>
+                            <td ng-bind="p.openid"></td>
+                            <td ng-bind="p.depts"></td>
                         </tr>
                     </tbody>
                </table>

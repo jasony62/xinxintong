@@ -60,6 +60,23 @@
         <div class='checkbox'>
             <label class='checkbox-inline'><input type='checkbox' ng-true-value="'Y'" ng-false-value="'N'" ng-model="app.notify_submit" ng-change="update('notify_submit')">提交填写内容</label>
         </div>
+        <div class="form-horizontal">
+            <div class="form-group">
+                <label class='col-md-3 control-label'>微信企业号接收人</label>
+                <div class='col-md-9'>
+                    <button class='btn btn-default' ng-click='choose()'>选择用户</button>
+                </div>
+            </div>
+            <div class='form-group'>
+                <label class='col-md-3 control-label'>接收登记通知页</label>
+                <div class='col-md-9'>
+                    <select class='form-control' ng-model='app.receiver_page' ng-options='page.name as page.title for page in app.pages'
+                    ng-change="update( 'receiver_page') ">
+                        <option value=''></option>
+                    </select>
+                </div>
+            </div>
+        </div>
         <div class='form-group' ng-if="sns.wx.joined==='Y'&&sns.wx.can_qrcode==='Y'">
             <button id='wxQrcode' uib-popover-template="'joinQrcode.html'" popover-trigger="show" popover-placement="bottom" class="btn btn-default" ng-click="qrcode('wx')">微信扫码作为接收人 <span class="caret"></span></button>
         </div>
@@ -76,3 +93,43 @@
         </div>
     </div>
 </div>
+<script type="text/ng-template" id="chooseUser.html">
+    <div class="modal-header">
+        <button class="close" type="button" ng-click="cancel()">×</button>
+        <span class="modal-title h5">选择管理员</span>
+    </div>
+    <div id="chooseUser" class="modal-body">
+        <table class='table table-bordered' >
+            <thead>
+                <tr>
+                    <th>操作</th>
+                    <th>成员名称</th>
+                    <th>userid</th>
+                    <th>openid</th>
+                    <th>电话</th>
+                    <th>邮箱</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr ng-repeat="u in users">
+                    <td>
+                        <input type="checkbox"  ng-checked="isSelected(u.id)" ng-click="updateSelection($event,u)">
+                    </td>
+                    <td ng-bind="u.nickname"></td>
+                    <td ng-bind="u.userid"></td>
+                    <td ng-bind="u.openid"></td>
+                    <td ng-bind="u.mobile"></td>
+                    <td ng-bind="u.email"></td>
+                </tr>
+            </tbody>
+        </table>
+        <div class='clearfix'>
+            <span style='height:34px;line-height:34px'>总数：{{page.total}}</span>
+            <ul uib-pagination style="margin:0;vertical-align:bottom;cursor:pointer" class="pull-right" ng-show="page.total>page.size" boundary-links="true" total-items="page.total" max-size="7" items-per-page="page.size" rotate="false" ng-model="page.at" previous-text="&lsaquo;" next-text="&rsaquo;" first-text="&laquo;" last-text="&raquo;" ng-change="doSearch()">
+            </ul>
+        </div>
+    </div>
+    <div class="modal-footer">
+        <button class="btn btn-primary" ng-click="ok()">确定</button>
+    </div>
+</script>

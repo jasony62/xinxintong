@@ -47,6 +47,9 @@ class base extends \site\fe\matter\base {
 				if (isset($user->members->{$schemaId})) {
 					$page = $rule->entry;
 					break;
+				}else{
+					$page = $entryRule->other->entry;
+					break;
 				}
 			}
 			!isset($page) && $page = '$memberschema';
@@ -70,6 +73,9 @@ class base extends \site\fe\matter\base {
 					$modelSnsUser = $this->model('sns\\' . $snsName . '\fan');
 					if ($modelSnsUser->isFollow($snsSiteId, $snsUser->openid)) {
 						$page = $rule->entry;
+						break;
+					}else{
+						$page = $entryRule->other->entry;
 						break;
 					}
 				}

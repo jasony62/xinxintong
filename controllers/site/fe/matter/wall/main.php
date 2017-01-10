@@ -42,25 +42,25 @@ class main extends \site\fe\base {
 
 		if(!empty($app)){
 			$q = array(
-				'id,title',
+				'id,title,active',
 				'xxt_wall',
-				"siteid = '{$site}' and id = '{$app}' and active='Y'"
+				"siteid = '{$site}' and id = '{$app}'"
 				);
 			$walls = $this->model()->query_objs_ss($q);
 		}else{
 			$p = array(
-					'w.id,w.title,e.join_at,e.close_at',
+					'w.id,w.title,e.join_at,e.close_at,w.active',
 					'xxt_wall_enroll e,xxt_wall w',
 				);
 			if(isset($user->sns->wx)){
 				$openid = $user->sns->wx->openid;
-				$p[2] = "e.siteid = '{$site}' and e.wx_openid = '{$openid}' and e.wid = w.id and active='Y'";
+				$p[2] = "e.siteid = '{$site}' and e.wx_openid = '{$openid}' and e.wid = w.id";
 			}elseif(isset($user->sns->yx)){
 				$openid = $user->sns->yx->openid;
-				$p[2] = "e.siteid = '{$site}' and e.yx_openid = '{$openid}' and e.wid = w.id and active='Y'";
+				$p[2] = "e.siteid = '{$site}' and e.yx_openid = '{$openid}' and e.wid = w.id";
 			}elseif(isset($user->sns->qy)){
 				$openid = $user->sns->qy->openid;
-				$p[2] = "e.siteid = '{$site}' and e.qy_openid = '{$openid}' and e.wid = w.id and active='Y'";
+				$p[2] = "e.siteid = '{$site}' and e.qy_openid = '{$openid}' and e.wid = w.id";
 			}else{
 				return new \ResponseData(false);
 			}

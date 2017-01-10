@@ -37,7 +37,12 @@ class main extends \pl\fe\matter\base {
 	 *
 	 */
 	public function get_action($id = null, $src = null, $site) {
-		$w = $this->model('matter\wall')->byId($id, '*');
+		$modelWall = $this->model('matter\wall');
+		$w = $modelWall->byId($id, '*');
+		/**
+		 * 获得讨论组的url
+		 */
+		$w->user_url = $modelWall->getEntryUrl($site, $id);
 		/**
 		 * acl
 		 */
@@ -55,7 +60,7 @@ class main extends \pl\fe\matter\base {
 	 */
 	public function list_action($src = null, $site) {
 		$q = array('*', 'xxt_wall');
-		$q[2] = "siteid='$site' and active='Y'";
+		$q[2] = "siteid='$site'";
 		$q2['o'] = 'create_at desc';
 
 		$walls = $this->model()->query_objs_ss($q, $q2);
@@ -64,7 +69,7 @@ class main extends \pl\fe\matter\base {
 		 */
 		if($walls){
 			foreach($walls as $wall){
-				$wall->url = $this->model('matter\wall')->getEntryUrl($site, $wall->id);
+				$wall->user_url = $this->model('matter\wall')->getEntryUrl($site, $wall->id);
 			}
 		}
 

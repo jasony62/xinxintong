@@ -52,12 +52,16 @@ class receiver extends \pl\fe\matter\base {
 		if (false === ($user = $this->accountUser())) {
 			return new \ResponseTimeout();
 		}
+		/* 记录操作日志 */
+		$enroll = $modelApp->byId($app, array('cascaded' => 'Y'));	
+		$enroll->type = 'enroll';
+		$this->model('matter\log')->matterOp($site, $user, $enroll, 'D');
 
 		$rst = $this->model()->delete(
 			'xxt_enroll_receiver',
 			"siteid='$site' and aid='$app' and userid='$receiver'"
 		);
-
+		
 		return new \ResponseData($rst);
 	}
 	/**
@@ -68,13 +72,13 @@ class receiver extends \pl\fe\matter\base {
 	 *
 	 */
 	public function add_action($site, $app) {
-		if (false === ($this->accountUser())) {
+		if (false === ($u=$this->accountUser())) {
 			return new \ResponseTimeout();
 		}
 
 		$modelApp = $this->model('matter\enroll');
 		$modelRev = $this->model('matter\enroll\receiver');
-		$app = $modelApp->byId($app, array('cascaded' => 'Y'));	
+		$enroll = $modelApp->byId($app, array('cascaded' => 'Y'));	
 
 		$users=$this->getPostJson();
 
@@ -99,7 +103,7 @@ class receiver extends \pl\fe\matter\base {
 					'xxt_enroll_receiver',
 					[
 						'siteid' => $site,
-						'aid' => $app->id,
+						'aid' => $enroll->id,
 						'join_at' => time(),
 						'userid' => $uid,
 						'nickname' => empty($nickname) ? '未知姓名' : $modelRev->escape($nickname),
@@ -111,6 +115,9 @@ class receiver extends \pl\fe\matter\base {
 				$rst[]=true;
 			}
 		}
+		/* 记录操作日志 */
+		$enroll->type = 'enroll';
+		$this->model('matter\log')->matterOp($site, $u, $enroll, 'C');
 
 		return new \ResponseData($rst);
 	}

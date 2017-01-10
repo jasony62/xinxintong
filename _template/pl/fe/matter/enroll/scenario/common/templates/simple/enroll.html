@@ -13,10 +13,24 @@ $schema = $def->schema;
 <ul>
 <?php foreach ($schema->ops as $op) {?>
 <li class="radio" wrap="radio"><label><input type="radio" name="<?php echo $schema->id;?>" value="<?php echo $op->v;?>" ng-model="data.<?php echo $schema->id;?>"><span><?php echo $op->l;?></span></label></li>
-<?php } ?>
+<?php } //end single's and phase's ops foreach ?>
 </ul>
 </div>
+<?php } else if ($schema->type==='score') {?>
+<div wrap="input" class="form-group form-group-lg" schema="<?php echo $schema->id;?>" schema-type="score"><label><?php echo $schema->title;?></label>
+<ul>
+<?php foreach ($schema->ops as $index => $op) {?>
+<li class="score" wrap="score" opvalue="<?php echo $op->v;?>">
+<div><label><?php echo $op->l;?></label></div>
+<div class="number">
+<?php for ($s = $schema->range[0]; $s <= $schema->range[1]; $s++) {?>
+<div ng-class="{'in':lessScore('<?php echo $schema->id;?>',<?php echo $index;?>,<?php echo $s;?>)}" ng-click="score('<?php echo $schema->id;?>',<?php echo $index;?>,<?php echo $s;?>)"><?php echo $s;?></div>
+<?php } //end score range ?>
+</div>
+</li>
+<?php } //end score's ops foreach ?>
+</ul>
 <?php } ?>
-<?php } ?>
+<?php } //end schemas foreach ?>
 <!-- end: generate by schema -->
 <div id="btnSubmit" class="form-group" wrap="button"><button class="btn btn-primary btn-block btn-lg" ng-click="submit($event,'result')"><span>提交信息</span></button></div>

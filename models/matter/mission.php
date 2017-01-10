@@ -60,6 +60,10 @@ class mission_model extends app_base {
 			'xxt_mission',
 			"siteid='$siteId' and state=1",
 		];
+		if (isset($options['byTitle'])) {
+			$q[2] .= " and title like '%{$options['byTitle']}%'";
+		}
+
 		$q2 = [
 			'o' => 'modify_at desc',
 		];

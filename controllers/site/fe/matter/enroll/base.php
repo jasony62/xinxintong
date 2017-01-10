@@ -61,6 +61,9 @@ class base extends \site\fe\matter\base {
 						$page = $entryRule->other->entry;
 						break;
 					}
+				}else{
+					$page = $entryRule->other->entry;
+					break;
 				}
 			}
 			!isset($page) && $page = '$mpfollow';

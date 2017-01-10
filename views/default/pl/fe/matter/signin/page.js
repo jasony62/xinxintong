@@ -3,7 +3,7 @@ define(['frame', 'schema', 'editor'], function(ngApp, schemaLib, editorProxy) {
     /**
      * app setting controller
      */
-    ngApp.provider.controller('ctrlPage', ['$scope', 'srvApp', 'srvPage', function($scope, srvApp, srvPage) {
+    ngApp.provider.controller('ctrlPage', ['$scope', '$location', 'srvApp', 'srvPage', function($scope, $location, srvApp, srvPage) {
         window.onbeforeunload = function(e) {
             var message;
             if ($scope.ep.$$modified) {
@@ -88,7 +88,18 @@ define(['frame', 'schema', 'editor'], function(ngApp, schemaLib, editorProxy) {
         };
         $scope.$watch('app', function(app) {
             if (!app) return;
-            $scope.choosePage(app.pages[0]);
+            if (!$scope.ep) {
+                var pageName;
+                if (pageName = $location.search().page) {
+                    for (var i = app.pages.length - 1; i >= 0; i--) {
+                        if (app.pages[i].name === pageName) {
+                            $scope.ep = app.pages[i];
+                            break;
+                        }
+                    }
+                }
+                if (!$scope.ep) $scope.ep = app.pages[0];
+            }
         });
     }]);
     /**

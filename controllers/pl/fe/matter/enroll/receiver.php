@@ -111,6 +111,12 @@ class receiver extends \pl\fe\matter\base {
 					],
 					false
 				);
+
+				$token=$this->model('q\urltoken');
+
+				if(empty($token->query_obj_ss(["*",'xxt_short_url_token',"code='enro'"]))){
+					$token->add('enro','',60*60*24*10);
+				}
 			}else{
 				$rst[]=true;
 			}

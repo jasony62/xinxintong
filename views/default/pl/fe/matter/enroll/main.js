@@ -62,9 +62,11 @@ define(['frame'], function(ngApp) {
                 var url;
                 url = '/rest/pl/fe/matter/enroll/receiver/add';
                 url += '?site=' + $scope.siteId;
-                url += '&id=' + $scope.id;
+                url += '&app=' + $scope.id;
                 http2.post(url, data, function(rsp){
-                    $scope.receivers = rsp.data;
+                    http2.get(baseURL + 'list?site=' + $scope.siteId + '&app=' + $scope.id, function(rsp) {
+                        $scope.receivers = rsp.data;
+                    });
                 });
             })
         };

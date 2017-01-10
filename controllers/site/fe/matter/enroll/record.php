@@ -179,7 +179,7 @@ class record extends base {
 		 * 通知登记活动事件接收人
 		 */
 		if ($enrollApp->notify_submit === 'Y') {
-			$this->_notifyReceivers($site, $enrollApp, $ek, $user);
+			$this->_notifyReceivers($site, $enrollApp, $ek);
 		}
 
 		return new \ResponseData($ek);
@@ -283,10 +283,9 @@ class record extends base {
 	 * @param string $siteId
 	 * @param object $app
 	 * @param string $ek
-	 * @param object $enroller
 	 *
 	 */
-	private function _notifyReceivers($siteId, &$app, $ek, &$enroller) {
+	private function _notifyReceivers($siteId, &$app, $ek) {
 		$receivers = $this->model('matter\enroll\receiver')->byApp($siteId, $app->id);
 		if (count($receivers) === 0) {
 			return array(false);

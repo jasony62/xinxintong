@@ -348,7 +348,7 @@ class record extends base {
 					),
 				);
 
-				/* 发送模版消息 */
+				/* 发送消息 */
 				if ($wxProxy !== false && isset($message)) {
 					$message['touser'] = $snsUser->wx_openid;
 					$rst = $wxProxy->messageCustomSend($message, $snsUser->wx_openid);

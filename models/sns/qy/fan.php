@@ -108,7 +108,7 @@ class fan_model extends \TMS_MODEL {
 	/**
 	 *获取企业号通讯录人员信息
 	 */
-	public function getMem($site, $page=1, $size){
+	public function &getMem($site, $page=1, $size){
 		$p = array('*','xxt_site_qyfan',"siteid = '$site' and subscribe_at > 0 and unsubscribe_at = 0 ");
 
 		$p2['r']['o'] = ($page - 1) * $size;

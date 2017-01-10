@@ -50,7 +50,7 @@
             <tr ng-repeat='u in users'>
                 <td>{{$index+1}}</td>
                 <td>{{u.nickname}}</td>
-                <td>{{u.depet}}</td>
+                <td>{{u.deptNames}}</td>
                 <td>{{u.join_at*1000|date:'MM-dd HH:mm'}}</td>
                 <td>{{u.last_msg_at*1000|date:'MM-dd HH:mm'}}</td>
             </tr>
@@ -144,7 +144,7 @@
                             </td>
                             <td ng-bind="p.nickname"></td>
                             <td ng-bind="p.openid"></td>
-                            <td ng-bind="p.depts"></td>
+                            <td ng-bind="p.deptNames"></td>
                         </tr>
                     </tbody>
                </table>

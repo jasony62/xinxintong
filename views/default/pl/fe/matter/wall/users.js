@@ -106,32 +106,29 @@ define(['frame'], function(ngApp) {
                             });
                         });
                     }
-                    if(!$scope2.depet){
-                        $scope2.doRequest(1);
-                    }else{
-                        $scope.updateInput = function($event,data){
-                            $scope2.doRequest = function(page){
-                                var url;
-                                url = '/rest/pl/fe/matter/wall/users/importSns?site=' + $scope.siteId;
-                                url += '&type=qy' + '&' + $scope2.page.param();
-                                http2.post(url,{dept:data},function(rsp){
-                                    $scope.publicUsers = rsp.data.data;
-                                    $scope.page.total = rsp.data.total;
-                                })
-                            }
-                            $scope2.doRequest(1);
+                    $scope2.doRequest(1);
+                    $scope2.updateInput = function($event,data){
+                        $scope2.doRequest = function(page){
+                            var url;
+                            url = '/rest/pl/fe/matter/wall/users/importSns?site=' + $scope.siteId;
+                            url += '&type=qy' + '&' + $scope2.page.param();
+                            http2.post(url,{dept:data},function(rsp){
+                                $scope.publicUsers = rsp.data.data;
+                                $scope.page.total = rsp.data.total;
+                            });
                         }
+                        $scope2.doRequest(1);
                     }
                     $scope2.isSelected = function(id){
-                        return $scope.selected.indexOf(id)>=0;
+                        return $scope2.selected.indexOf(id)>=0;
                     }
                     var updateSelected = function(action,option){
-                        if(action == 'add' && $scope.selected.indexOf(option) == -1){
-                            $scope.selected.push(option);
+                        if(action == 'add' && $scope2.selected.indexOf(option) == -1){
+                            $scope2.selected.push(option);
                         }
-                        if(action == 'remove' && $scope.selected.indexOf(option)!=-1){
-                            var idx = $scope.selected.indexOf(option);
-                            $scope.selected.splice(idx,1);
+                        if(action == 'remove' && $scope2.selected.indexOf(option)!=-1){
+                            var idx = $scope2.selected.indexOf(option);
+                            $scope2.selected.splice(idx,1);
                         }
                     }
                     $scope2.updateSelection = function($event, data){

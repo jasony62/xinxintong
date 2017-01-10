@@ -291,9 +291,10 @@ class record extends base {
 			return array(false);
 		}
 		//发送给指定的用户的自定义信息
+		$token=$this->model()->query_obj_ss(['*','xxt_short_url_token',"code='enro'"]);
 		$msg="您有一条登记信息，请处理:\n";
 		$noticeURL = 'http://' . $_SERVER['HTTP_HOST'];
-		$noticeURL .= "/rest/site/op/matter/enroll?site=$siteId&app=$app->id&ek=$ek";
+		$noticeURL .= "/rest/site/op/matter/enroll?site=$siteId&app=$app->id&ek=$ek&accessToken=$token->access_token";
 		$msg.=$noticeURL;
 		$yxProxy = $wxProxy = null;
 		

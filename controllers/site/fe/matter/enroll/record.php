@@ -347,7 +347,7 @@ class record extends base {
 						"content" => $msg,
 					),
 				);
-				
+
 				/* 发送模版消息 */
 				if ($wxProxy !== false && isset($message)) {
 					$message['touser'] = $snsUser->wx_openid;
@@ -357,15 +357,17 @@ class record extends base {
 			if(isset($snsUser->qy_openid)){
 				$qyConfig = $this->model('sns\qy')->bySite($siteId);
 				if ($qyConfig->joined === 'Y') {
-					$qyproxy=$this->model('sns\qy\proxy',$qyConfig);
+					$qyProxy=$this->model('sns\qy\proxy',$qyConfig);
 
 					$message=array(
 				 		'touser'=>$snsUser->qy_openid,
 				 		'msgtype'=>'text',
 				 		'content'=>$msg,
-					);	
+					);
 
-					$rst = $qyproxy->messageSend($message, $snsUser->qy_openid);	
+					if ($qyProxy !== false && isset($message)) {
+						$rst = $qyProxy->messageSend($message, $snsUser->qy_openid);
+					}	
 				}															
 			}
 		}

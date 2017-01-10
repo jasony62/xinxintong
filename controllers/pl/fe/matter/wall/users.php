@@ -374,7 +374,6 @@ class users extends \pl\fe\matter\base {
 			$q2['r']['l'] = $size;
 			$total = 0;
 			if($depts = $this->model()->query_objs_ss($q,$q2)){
-				var_dump($depts);die;
 				foreach ($depts as $dept) {
 					$dept = explode(',',$dept->fullpath);
 					$fullpath = json_encode($dept);

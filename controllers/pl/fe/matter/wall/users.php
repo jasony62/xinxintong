@@ -387,6 +387,7 @@ class users extends \pl\fe\matter\base {
 			$users['data'] = $this->userList($site, $type, $page, $size);
 		}
 
+		$users['total'] = count($users['data']);
 		return new \ResponseData($users);
 	}
 	/**

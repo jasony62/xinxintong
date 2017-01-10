@@ -108,7 +108,7 @@ class receiver extends \pl\fe\matter\base {
 					false
 				);
 			}else{
-				$rst[]=false;
+				$rst[]=true;
 			}
 		}
 

@@ -53,7 +53,7 @@ class receiver extends \pl\fe\matter\base {
 			return new \ResponseTimeout();
 		}
 		/* 记录操作日志 */
-		$enroll = $modelApp->byId($app, array('cascaded' => 'Y'));	
+		$enroll = $this->model('matter\enroll')->byId($app, array('cascaded' => 'Y'));	
 		$enroll->type = 'enroll';
 		$this->model('matter\log')->matterOp($site, $user, $enroll, 'D');
 

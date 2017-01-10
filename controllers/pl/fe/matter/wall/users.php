@@ -369,32 +369,35 @@ class users extends \pl\fe\matter\base {
 				'xxt_site_member_department',
 				"siteid = '$site' and name like '%".$name."%'"
 				);
-			
+			$total = 0;
 			if($depts = $this->model()->query_objs_ss($q)){
 				foreach ($depts as $dept) {
 					$dept = explode(',',$dept->fullpath);
 					$fullpath = json_encode($dept);
 					$users2 = $this->userList($site, $type, $page, $size, array('choose'=>$fullpath));
 					if($users2){
-						foreach ($users2 as $user) {
+						foreach ($users2->users as $user) {
 							$users['data'][] = $user;
 						}
+						$total += $users2->total;
 					}
 				}
 			}
 			$users['choose'] = $name;
+			$users['total'] = $total;
 		}else{
-			$users['data'] = $this->userList($site, $type, $page, $size);
+			$result = $this->userList($site, $type, $page, $size);
+			$users['data'] = $result->users;
+			$users['total'] = $result->total;
 		}
 
-		$total = $this->model('sns\\'.$type.'\fan')->bySite($site);
-		$users['total'] = $total->total;
 		return new \ResponseData($users);
 	}
 	/**
 	*
 	*/
 	public function userList($site, $type, $page = 1, $size = 20, $options = []){
+		$result = new \stdClass;
 		$q = array(
 			'openid,nickname,headimgurl',
 			'xxt_site_'.$type.'fan',
@@ -437,9 +440,13 @@ class users extends \pl\fe\matter\base {
 					}
 				}
 			}
+			$q[0] = 'count(*)';
+			$total = (int) $this->model()->query_val_ss($q);
+			$result->users = $users;
+			$result->total = $total;
 		}
 
-		return $users;
+		return $result;
 	}
 
 	/**

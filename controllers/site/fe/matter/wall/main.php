@@ -76,6 +76,9 @@ class main extends \site\fe\base {
 	 */
 	public function join_action($site, $app){
 		$user = $this->who;
+		if(!isset($user->sns)){
+			return new \ResponseData(false);
+		}
 		$user2 = new \stdClass;
 		if(isset($user->sns->wx)){
 			//获取nickname
@@ -83,18 +86,18 @@ class main extends \site\fe\base {
 			$user2->wx_openid = $user->sns->wx->openid;
 			$user2->nickname = $snsUser->nickname;
 			$user2->headimgurl = $snsUser->headimgurl;
-		}elseif(isset($user->sns->yx)){
+		}
+		if(isset($user->sns->yx)){
 			$snsUser = $this->model('sns\yx\fan')->byOpenid($site, $user->sns->yx->openid, 'nickname,headimgurl');
 			$user2->yx_openid = $user->sns->yx->openid;
 			$user2->nickname = $snsUser->nickname;
 			$user2->headimgurl = $snsUser->headimgurl;
-		}elseif(isset($user->sns->qy)){
+		}
+		if(isset($user->sns->qy)){
 			$snsUser = $this->model('sns\qy\fan')->byOpenid($site, $user->sns->qy->openid, 'nickname,headimgurl');
 			$user2->qy_openid = $user->sns->qy->openid;
 			$user2->nickname = $snsUser->nickname;
 			$user2->headimgurl = $snsUser->headimgurl;
-		}else{
-			return new \ResponseData(false);
 		}
 		$user2->userid = $user->uid;
 		

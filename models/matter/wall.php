@@ -102,9 +102,11 @@ class wall_model extends app_base {
 			$i['headimgurl'] = isset($user->headimgurl) ? $user->headimgurl : '';
 			if(isset($user->wx_openid)){
 				$i['wx_openid'] = $user->wx_openid;
-			}else if(isset($user->yx_openid)){
+			}
+			if(isset($user->yx_openid)){
 				$i['yx_openid'] = $user->yx_openid;
-			}else if(isset($user->qy_openid)){
+			}
+			if(isset($user->qy_openid)){
 				$i['qy_openid'] = $user->qy_openid;
 			}
 

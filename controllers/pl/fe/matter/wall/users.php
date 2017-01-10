@@ -427,7 +427,9 @@ class users extends \pl\fe\matter\base {
 								"siteid = '{$site}' and fullpath = '{$dept2}'"
 								);
 							$deptName = $this->model()->query_obj_ss($p);
-							$deptNames[]=$deptName->name;
+							if($deptName){
+								$deptNames[]=$deptName->name;
+							}
 						}
 						$user->deptNames = implode($deptNames,',');
 					}

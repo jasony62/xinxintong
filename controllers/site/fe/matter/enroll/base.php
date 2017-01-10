@@ -57,16 +57,10 @@ class base extends \site\fe\matter\base {
 					if ($modelSnsUser->isFollow($snsSiteId, $snsUser->openid)) {
 						$page = $rule->entry;
 						break;
-					}else{
-						$page = $entryRule->other->entry;
-						break;
 					}
-				}else{
-					$page = $entryRule->other->entry;
-					break;
 				}
 			}
-			!isset($page) && $page = '$mpfollow';
+			!isset($page) && $page = $entryRule->other->entry;
 		} else {
 			if (isset($entryRule->otherwise->entry)) {
 				$page = $entryRule->otherwise->entry;

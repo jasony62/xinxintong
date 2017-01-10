@@ -339,57 +339,19 @@ class record extends base {
 					} else {
 						$wxProxy = false;
 					}
-					/* 模版消息定义 */
-					$notice = $this->model('site\notice')->byName($siteId, 'site.enroll.submit');
-					if ($notice) {
-						$tmplConfig = $this->model('matter\tmplmsg\config')->byId($notice->tmplmsg_config_id, ['cascaded' => 'Y']);
-						/* 拼装模版消息 */
-						$data = [];
-						if (isset($tmplConfig->tmplmsg)) {
-							foreach ($tmplConfig->tmplmsg->params as $param) {
-								$mapping = $tmplConfig->mapping->{$param->pname};
-								if ($mapping->src === 'matter') {
-									if (isset($app->{$mapping->id})) {
-										$value = $app->{$mapping->id};
-									}
-								} else if ($mapping->src === 'text') {
-									$value = $mapping->name;
-								}
-								!isset($value) && $value = '';
-								$data[$param->pname] = [
-									'value' => $value,
-									'color' => '#173177',
-								];
-							}
-							$message = [
-								'template_id' => $tmplConfig->tmplmsg->templateid,
-								'data' => &$data,
-								'url' => $noticeURL,
-							];
-						}
-					}
 				}
+
+				$message = array(
+					"msgtype" => "text",
+					"text" => array(
+						"content" => $msg,
+					),
+				);
+				
 				/* 发送模版消息 */
 				if ($wxProxy !== false && isset($message)) {
 					$message['touser'] = $snsUser->wx_openid;
-					$rst = $wxProxy->messageTemplateSend($message);
-					if ($rst[0] === false) {
-						return $rst;
-					}
-					$msgid = $rst[1]->msgid;
-					$model = $this->model();
-					/*记录日志*/
-					$log = array(
-						'siteid' => $wxSiteId,
-						'mpid' => $wxSiteId,
-						'openid' => $snsUser->wx_openid,
-						'tmplmsg_id' => $tmplConfig->tmplmsg->id,
-						'template_id' => $message['template_id'],
-						'data' => $model->escape(json_encode($message)),
-						'create_at' => time(),
-						'msgid' => $msgid,
-					);
-					$model->insert('xxt_log_tmplmsg', $log, false);
+					$rst = $wxProxy->messageCustomSend($message, $snsUser->wx_openid);
 				}
 			}
 			if(isset($snsUser->qy_openid)){

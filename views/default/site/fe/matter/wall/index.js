@@ -11,6 +11,10 @@ app.controller('wallCtrl',['$scope','$http','$location', function($scope,$http,$
     $scope.id = ls.app;
     $scope.siteId = ls.site;
   $scope.open = function(wall) {
+      if(wall.active == 'N'){
+        alert('信息墙已停用');
+        return
+      };
       location.href = '/rest/site/fe/matter/wall/detail?site=' + $scope.siteId + '&app=' + wall.id;
   };
   var url;

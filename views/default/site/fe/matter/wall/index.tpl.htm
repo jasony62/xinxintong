@@ -17,6 +17,7 @@
                     <li class='list-group-item' ng-repeat='w in walls' ng-click='open(w)'>
                         {{w.title}}
                         <span ng-show="w.close_at=='0'"> (在线)</span>
+                        <span ng-show="w.active=='N'"> (已停用)</span>
                     </li>
                 </ul>
             </div>

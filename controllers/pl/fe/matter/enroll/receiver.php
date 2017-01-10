@@ -84,6 +84,7 @@ class receiver extends \pl\fe\matter\base {
 
 			if(empty($modelRev->query_obj_ss(['*','xxt_enroll_receiver',"siteid='$site' and aid='$app' and userid='$uid'"]))){
 				$account=$this->model('site\user\account')->byId($uid);	
+				$arr=array();
 				if(!empty($account->wx_openid)){
 					$arr['wx_openid']=$account->wx_openid;
 				} 

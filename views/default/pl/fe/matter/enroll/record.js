@@ -1,6 +1,6 @@
 define(['frame'], function(ngApp) {
     'use strict';
-    ngApp.provider.controller('ctrlRecord', ['$scope', '$uibModal', 'srvApp', 'srvRecord', function($scope, $uibModal, srvApp, srvRecord) {
+    ngApp.provider.controller('ctrlRecord', ['$scope', '$uibModal', 'srvApp', 'srvRecord', 'http2', function($scope, $uibModal, srvApp, srvRecord, http2) {
         $scope.notifyMatterTypes = [{
             value: 'tmplmsg',
             title: '模板消息',
@@ -59,7 +59,7 @@ define(['frame'], function(ngApp) {
         };
         $scope.editRecord = function(record) {
             $uibModal.open({
-                templateUrl: '/views/default/pl/fe/matter/enroll/component/recordEditor.html?_=5',
+                templateUrl: '/views/default/pl/fe/matter/enroll/component/recordEditor.html?_=6',
                 controller: 'ctrlEdit',
                 backdrop: 'static',
                 resolve: {
@@ -120,6 +120,65 @@ define(['frame'], function(ngApp) {
             }
             return count;
         };
+        $scope.createAppByRecords = function() {
+            $uibModal.open({
+                templateUrl: '/views/default/pl/fe/matter/enroll/component/createAppByRecords.html?_=2',
+                controller: ['$scope', '$uibModalInstance', 'app', function($scope2, $mi, app) {
+                    var canUseSchemas = {},
+                        config;
+                    app.data_schemas.forEach(function(schema) {
+                        if (/shorttext|longtext/.test(schema.type)) {
+                            canUseSchemas[schema.id] = schema;
+                        }
+                    });
+                    $scope2.schemas = canUseSchemas;
+                    $scope2.config = config = {};
+                    $scope2.ok = function() {
+                        var schemas = [];
+                        for (var id in config.schemas) {
+                            if (config.schemas[id]) {
+                                schemas.push(canUseSchemas[id]);
+                            }
+                        }
+                        $mi.close({ schemas: schemas });
+                    };
+                    $scope2.cancel = function() {
+                        $mi.dismiss('cancel');
+                    };
+                }],
+                windowClass: 'auto-height',
+                backdrop: 'static',
+                resolve: {
+                    app: function() {
+                        return $scope.app;
+                    }
+                }
+            }).result.then(function(config) {
+                var eks = [];
+                if (config.schemas.length) {
+                    for (var p in $scope.rows.selected) {
+                        if ($scope.rows.selected[p] === true) {
+                            eks.push($scope.records[p].enroll_key);
+                        }
+                    }
+                    if (eks.length) {
+                        var url = '/rest/pl/fe/matter/enroll/createByRecords?site=' + $scope.app.siteid + '&app=' + $scope.app.id;
+                        if ($scope.app.mission_id) {
+                            url += '&mission=' + $scope.app.mission_id;
+                        }
+                        http2.post(url, {
+                            proto: { scenario: 'voting' },
+                            record: {
+                                schemas: config.schemas,
+                                eks: eks
+                            }
+                        }, function(rsp) {
+                            location.href = '/rest/pl/fe/matter/enroll?site=' + rsp.data.siteid + '&id=' + rsp.data.id;
+                        });
+                    }
+                }
+            });
+        };
         // 选中的记录
         $scope.rows = {
             allSelected: 'N',
@@ -145,6 +204,13 @@ define(['frame'], function(ngApp) {
             srvRecord.init(app, $scope.page, $scope.criteria, $scope.records);
             // schemas
             srvApp.mapSchemas(app);
+            var recordSchemas = [];
+            app.data_schemas.forEach(function(schema) {
+                if (schema.type !== 'html') {
+                    recordSchemas.push(schema);
+                }
+            });
+            $scope.recordSchemas = recordSchemas;
             $scope.enrollDataSchemas = app._schemasFromEnrollApp;
             $scope.groupDataSchemas = app._schemasFromGroupApp;
             $scope.tmsTableWrapReady = 'Y';

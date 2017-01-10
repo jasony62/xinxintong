@@ -246,7 +246,7 @@ if (!$mysqli->query($sql)) {
 	echo 'database error: ' . $mysqli->error;
 }
 /**
- * 自定义登记数据（应该删除）
+ * 自定义登记数据
  */
 $sql = "create table if not exists xxt_enroll_record_data(";
 $sql .= "aid varchar(40) not null";

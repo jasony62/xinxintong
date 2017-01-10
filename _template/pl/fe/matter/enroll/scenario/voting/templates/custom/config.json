@@ -1,121 +1,120 @@
 {
-	"scenario": "voting",
-	"pages": [{
-		"name": "voting",
-		"title": "投票页",
-		"type": "I",
-		"data_schemas": [{
-			"schema": {
-				"id": "c1001",
-				"title": "投票项1",
-				"type": "single",
-				"ops": [{
-					"v": "v1",
-					"l": "选项1",
-					"score": 4
-				}, {
-					"v": "v2",
-					"l": "选项2",
-					"score": 3
-				}, {
-					"v": "v3",
-					"l": "选项3",
-					"score": 2
-				}, {
-					"v": "v4",
-					"l": "选项4",
-					"score": 1
-				}]
-			},
-			"config": {
-				"required": "Y",
-				"showname": "label",
-				"component": "R",
-				"align": "V"
-			}
-		}],
-		"act_schemas": [{
-			"id": "btnSubmit",
-			"name": "submit",
-			"label": "提交投票",
-			"next": "result"
-		}]
-	}, {
-		"name": "result",
-		"title": "投票结果页",
-		"type": "V",
-		"data_schemas": [{
-			"config": {
-				"id": "s1",
-				"pattern": "record",
-				"inline": "N",
-				"splitLine": "Y"
-			},
-			"schema": {
-				"id": "c1001",
-				"title": "投票项1",
-				"type": "single",
-				"ops": [{
-					"v": "v1",
-					"l": "非常同意",
-					"score": 5
-				}, {
-					"v": "v2",
-					"l": "同意",
-					"score": 4
-				}, {
-					"v": "v3",
-					"l": "一般",
-					"score": 3
-				}, {
-					"v": "v4",
-					"l": "有待提高",
-					"score": 2
-				}, {
-					"v": "v5",
-					"l": "不同意",
-					"score": 1
-				}]
-			}
-		}],
-		"act_schemas": [{
-			"id": "act2",
-			"name": "editRecord",
-			"label": "修改投票",
-			"next": "voting"
-		}]
-	}, {
-		"name": "schema",
-		"title": "数据页",
-		"type": "I"
-	}],
-	"schema": [{
-		"id": "c1001",
-		"title": "投票项1",
-		"type": "single",
-		"ops": [{
-			"v": "v1",
-			"l": "选项1",
-			"score": 4
-		}, {
-			"v": "v2",
-			"l": "选项2",
-			"score": 3
-		}, {
-			"v": "v3",
-			"l": "选项3",
-			"score": 2
-		}, {
-			"v": "v4",
-			"l": "选项4",
-			"score": 1
-		}]
-	}],
-	"entryRule": {
-		"otherwise": {
-			"entry": "voting"
-		}
-	},
-	"multi_rounds": "N",
-	"enrolled_entry_page": "result"
+    "scenario": "voting",
+    "pages": [{
+        "name": "voting",
+        "title": "投票页",
+        "type": "I",
+        "data_schemas": [{
+            "schema": {
+                "id": "c1001",
+                "title": "投票项1",
+                "type": "multiple",
+                "ops": [{
+                    "v": "v1",
+                    "l": "选项1",
+                    "score": 4
+                }, {
+                    "v": "v2",
+                    "l": "选项2",
+                    "score": 3
+                }, {
+                    "v": "v3",
+                    "l": "选项3",
+                    "score": 2
+                }, {
+                    "v": "v4",
+                    "l": "选项4",
+                    "score": 1
+                }]
+            },
+            "config": {
+                "required": "Y",
+                "showname": "label",
+                "component": "R",
+                "align": "V"
+            }
+        }],
+        "act_schemas": [{
+            "id": "btnSubmit",
+            "name": "submit",
+            "label": "提交投票",
+            "next": "result"
+        }]
+    }, {
+        "name": "result",
+        "title": "投票结果页",
+        "type": "V",
+        "data_schemas": [{
+            "config": {
+                "id": "s1",
+                "pattern": "record",
+                "inline": "N",
+                "splitLine": "Y"
+            },
+            "schema": {
+                "id": "c1001",
+                "title": "投票项1",
+                "type": "multiple",
+                "ops": [{
+                    "v": "v1",
+                    "l": "非常同意",
+                    "score": 5
+                }, {
+                    "v": "v2",
+                    "l": "同意",
+                    "score": 4
+                }, {
+                    "v": "v3",
+                    "l": "一般",
+                    "score": 3
+                }, {
+                    "v": "v4",
+                    "l": "有待提高",
+                    "score": 2
+                }, {
+                    "v": "v5",
+                    "l": "不同意",
+                    "score": 1
+                }]
+            }
+        }],
+        "act_schemas": [{
+            "id": "act2",
+            "name": "editRecord",
+            "label": "修改投票",
+            "next": "voting"
+        }]
+    }],
+    "schema": [{
+        "id": "c1001",
+        "title": "投票项1",
+        "type": "multiple",
+        "ops": [{
+            "v": "v1",
+            "l": "选项1",
+            "score": 4
+        }, {
+            "v": "v2",
+            "l": "选项2",
+            "score": 3
+        }, {
+            "v": "v3",
+            "l": "选项3",
+            "score": 2
+        }, {
+            "v": "v4",
+            "l": "选项4",
+            "score": 1
+        }]
+    }],
+    "scenarioConfig": {
+        "can_rounds": "D"
+    },
+    "entryRule": {
+        "otherwise": {
+            "entry": "voting"
+        }
+    },
+    "multi_rounds": "N",
+    "enrolled_entry_page": "result"
 }

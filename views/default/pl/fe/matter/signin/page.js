@@ -16,6 +16,7 @@ define(['frame', 'schema', 'editor'], function(ngApp, schemaLib, editorProxy) {
             }
         };
         $scope.addPage = function() {
+            $('body').click();
             $scope.createPage().then(function(page) {
                 $scope.choosePage(page);
             });
@@ -32,6 +33,7 @@ define(['frame', 'schema', 'editor'], function(ngApp, schemaLib, editorProxy) {
         };
         $scope.delPage = function() {
             if (window.confirm('确定删除页面？')) {
+                $('body').click();
                 srvPage.remove($scope.ep).then(function() {
                     $scope.app.pages.splice($scope.app.pages.indexOf($scope.ep), 1);
                     if ($scope.app.pages.length) {
@@ -361,13 +363,13 @@ define(['frame', 'schema', 'editor'], function(ngApp, schemaLib, editorProxy) {
                 editorProxy.load(tinymceEditor, newPage);
             }
             // page's buttons
-            var buttons = [],
+            var buttons = {},
                 button, btnName;
             for (btnName in schemaLib.buttons) {
                 if (btnName === 'addRecord') continue;
                 button = schemaLib.buttons[btnName];
                 if (button.scope && button.scope.indexOf(newPage.type) !== -1) {
-                    buttons.push(button);
+                    buttons[btnName] = button;
                 }
             }
             $scope.buttons = buttons;
@@ -551,6 +553,7 @@ define(['frame', 'schema', 'editor'], function(ngApp, schemaLib, editorProxy) {
                     schema.next = names[0];
                 }
             }
+            editorProxy.modifyButton($scope.activeWrap);
         };
         /*直接给带有导航功能的按钮创建页面*/
         $scope.newPage = function(prop) {

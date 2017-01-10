@@ -113,8 +113,8 @@ define(['frame'], function(ngApp) {
                             url = '/rest/pl/fe/matter/wall/users/importSns?site=' + $scope.siteId;
                             url += '&type=qy' + '&' + $scope2.page.param();
                             http2.post(url,{dept:data},function(rsp){
-                                $scope.publicUsers = rsp.data.data;
-                                $scope.page.total = rsp.data.total;
+                                $scope2.publicUsers = rsp.data.data;
+                                $scope2.page.total = rsp.data.total;
                             });
                         }
                         $scope2.doRequest(1);
@@ -161,7 +161,9 @@ define(['frame'], function(ngApp) {
         //刷新
         $scope.doSearch = function() {
             http2.get('/rest/pl/fe/matter/wall/users/list?id=' + $scope.id + '&site=' + $scope.siteId, function(rsp) {
-                $scope.users = rsp.data;
+                http2.get('/rest/pl/fe/matter/wall/users/list?id=' + $scope.id + '&site=' + $scope.siteId, function(rsp) {
+                    $scope.users = rsp.data;
+                });
             });
         };
         $scope.doSearch();

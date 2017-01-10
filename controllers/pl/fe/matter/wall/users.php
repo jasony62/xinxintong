@@ -357,12 +357,12 @@ class users extends \pl\fe\matter\base {
 	public function importSns_action($site, $type, $page = 1, $size = 20){
 		$params = $this->getPostJson();
 		// $params = new \stdClass;
-		// $params->name = '游戏';
-		if(isset($params->name) && !empty($params->name) && $type === 'qy'){
+		// $params->dept = '游戏';
+		if(isset($params->dept) && !empty($params->dept) && $type === 'qy'){
 			/**
 			*筛选导入的用户
 			*/
-			$name = $this->model()->escape($params->name);
+			$name = $this->model()->escape($params->dept);
 			$users = array();
 			$q = array(
 				'fullpath',
@@ -387,7 +387,8 @@ class users extends \pl\fe\matter\base {
 			$users['data'] = $this->userList($site, $type, $page, $size);
 		}
 
-		$users['total'] = count($users['data']);
+		$total = $this->model('sns\\'.$type.'\fan')->bySite($site);
+		$users['total'] = $total->total;
 		return new \ResponseData($users);
 	}
 	/**

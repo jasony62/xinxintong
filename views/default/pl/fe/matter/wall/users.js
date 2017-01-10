@@ -82,7 +82,7 @@ define(['frame'], function(ngApp) {
                     };
                     $scope2.page = {
                         at: 1,
-                        size: 2,
+                        size: 1,
                         total: 0,
                         param: function() {
                             return 'page=' + this.at + '&size=' + this.size;
@@ -153,7 +153,7 @@ define(['frame'], function(ngApp) {
                     };
                 }]
             }).result.then(function(data) {
-                http2.post('/rest/pl/fe/matter/wall/users/userJoin?site=' + $scope.siteId + '&app=' + $scope.id, data, function(rsp) {
+                http2.post('/rest/pl/fe/matter/wall/users/userJoin?site=' + $scope.siteId + '&app=' + $scope.id + '&type=qy', data, function(rsp) {
                     $scope.doSearch();
                 });
             });

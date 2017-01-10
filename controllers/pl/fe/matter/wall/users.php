@@ -356,6 +356,7 @@ class users extends \pl\fe\matter\base {
 	*/
 	public function importSns_action($site, $type, $page = 1, $size = 20){
 		$params = $this->getPostJson();
+		$users = array();
 		// $params = new \stdClass;
 		// $params->dept = '游戏';
 		if(isset($params->dept) && !empty($params->dept) && $type === 'qy'){
@@ -363,7 +364,6 @@ class users extends \pl\fe\matter\base {
 			*筛选导入的用户
 			*/
 			$name = $this->model()->escape($params->dept);
-			$users = array();
 			$q = array(
 				'fullpath',
 				'xxt_site_member_department',
@@ -374,12 +374,12 @@ class users extends \pl\fe\matter\base {
 				foreach ($depts as $dept) {
 					$dept = explode(',',$dept->fullpath);
 					$fullpath = json_encode($dept);
-					$users2 = $this->userList($site, $type, $page, $size, array('choose'=>$fullpath));
-					if($users2){
-						foreach ($users2->users as $user) {
+					$result = $this->userList($site, $type, $page, $size, array('choose'=>$fullpath));
+					if($result){
+						foreach ($result->users as $user) {
 							$users['data'][] = $user;
 						}
-						$total += $users2->total;
+						$total += $result->total;
 					}
 				}
 			}
@@ -387,8 +387,10 @@ class users extends \pl\fe\matter\base {
 			$users['total'] = $total;
 		}else{
 			$result = $this->userList($site, $type, $page, $size);
-			$users['data'] = $result->users;
-			$users['total'] = $result->total;
+			if($result){
+				$users['data'] = $result->users;
+				$users['total'] = $result->total;
+			}
 		}
 
 		return new \ResponseData($users);
@@ -444,6 +446,8 @@ class users extends \pl\fe\matter\base {
 			$total = (int) $this->model()->query_val_ss($q);
 			$result->users = $users;
 			$result->total = $total;
+		}else{
+			return $users;
 		}
 
 		return $result;

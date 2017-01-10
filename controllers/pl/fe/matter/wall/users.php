@@ -369,7 +369,6 @@ class users extends \pl\fe\matter\base {
 				'xxt_site_member_department',
 				"siteid = '$site' and name like '%".$name."%'"
 				);
-			$total = 0;
 			if($depts = $this->model()->query_objs_ss($q)){
 				foreach ($depts as $dept) {
 					$dept = explode(',',$dept->fullpath);
@@ -379,12 +378,11 @@ class users extends \pl\fe\matter\base {
 						foreach ($result->users as $user) {
 							$users['data'][] = $user;
 						}
-						$total += $result->total;
+						$users['total'] = $result->total;
 					}
 				}
 			}
 			$users['choose'] = $name;
-			$users['total'] = $total;
 		}else{
 			$result = $this->userList($site, $type, $page, $size);
 			if($result){

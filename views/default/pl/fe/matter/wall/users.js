@@ -70,7 +70,64 @@ define(['frame'], function(ngApp) {
                     }
                 });
         };
+        //导入公众号或企业号的用户
+        $scope.importPublic = function() {
+            $uibModal.open({
+                templateUrl: 'importPublicUser.html',
+                windowClass: 'auto-height',
+                controller: ['$scope', '$uibModalInstance', function($scope2, $mi) {
+                    $scope2.data = {
+                        app : '',
+                        appType : 'wx'
+                    } ;
+                    $scope2.$watch('data.appType',function(newValus){
+                        var url ;
+                        $scope.syncType = 'department';
+                        if(newValus === 'wx') {
+                            url = '/rest/pl/fe/site/sns/wx/user/list?page=1&size=999&site=' + $scope.siteId;
+                        }else if(newValus === 'yx') {
+                            url = '/rest/pl/fe/site/sns/yx/user/list?page=1&size=999&site=' + $scope.siteId;
+                        }else if(newValus === 'qy') {
+                            url = '/rest/site/fe/user/member/syncLog?site=' + $scope.siteId + '&type=syncFromQy' + '&page=1&size=999';
+                        }
+                        if(newValus == 'qy'){
+                            http2.post(url,{syncType:$scope.syncType},function(rsp){
+                                $scope2.apps = rsp.data.apps;
+                            })
+                        }else{
+                            http2.get(url , function(rsp) {
+                                $scope2.apps = rsp.data.data;
+                            });
+                        }
 
+                    });
+
+                    $scope2.close = function() {
+                        $mi.dismiss();
+                    };
+                    $scope2.ok = function() {
+                        if ($scope2.data) {
+                            $mi.close($scope2.data);
+                        } else {
+                            $mi.dismiss();
+                        }
+                    };
+                }]
+            }).result.then(function(data) {
+                    var params;
+                    if(data.app){
+                        params = {
+                            app: data.app.id,
+                            appType: data.appType,
+                        };
+                        data.appType === 'signin' && (params.includeEnroll = data.includeEnroll);
+                        http2.post('/rest/pl/fe/matter/wall/users/import?site=' + $scope.siteId + '&app=' + $scope.id, params, function(rsp) {
+                            $scope.wall.publicApp = data.app;
+                            $scope.doSearch();
+                        });
+                    }
+                });
+        };
         //刷新
         $scope.doSearch = function() {
             http2.get('/rest/pl/fe/matter/wall/users/list?id=' + $scope.id + '&site=' + $scope.siteId, function(rsp) {

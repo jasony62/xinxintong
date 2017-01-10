@@ -2,9 +2,14 @@
 <div class="tile">
     <div class= 'navbar-form '>
         <button class='btn  btn-success' ng-click="import()" ng-if="!wall.sourceApp">导入用户</button>
+        <button class='btn  btn-success' ng-click="importPublic()" >导入企业/公众号用户</button>
         <div ng-if="wall.sourceApp"  class="form-group">
             <label >在线用户来源</label>
             <div class="form-control"   ng-bind = "wall.sourceApp.title" ></div>
+        </div>
+        <div ng-if="wall.publicApp"  class="form-group">
+            <label >公众号用户来源</label>
+            <div class="form-control"   ng-bind = "wall.publicApp.title" ></div>
         </div>
         <button class='btn  btn-success' ng-click='syncByApp()' ng-if="wall.sourceApp"> 同步用户</button>
         <button class='btn btn-danger' ng-click='quit()'>将所有用户退出信息墙</button>
@@ -72,6 +77,64 @@
                         </div>
                     </div>
                 </div>
+            </form>
+        </div>
+        <div class="modal-footer">
+            <button class="btn btn-primary" ng-click="ok()">确定</button>
+        </div>
+    </script>
+    <script type="text/ng-template" id="importPublicUser.html">
+        <div class="modal-header">
+            <button class="close" ng-click="close()">×</button>
+            <h5 class="modal-title">筛选条件</h5>
+        </div>
+        <div class="modal-body">
+            <form class="form-horizontal record-editor">
+                <div class='form-group'>
+                    <label class="col-md-3 control-label">数据来源</label>
+
+                    <div class="col-md-9">
+                        <label class='radio-inline'><input type='radio' name='appType' value='wx'
+                                                           ng-model="data.appType">微信公众号</label>
+                        <label class='radio-inline'><input type='radio' name='appType' value='yx'
+                                                           ng-model="data.appType">易信公众号</label>
+                        <label class='radio-inline'><input type='radio' name='appType' value='qy'
+                                                           ng-model="data.appType">微信企业号</label>
+                    </div>
+                </div>
+                <div class='form-group'>
+                    <label class="col-md-3 control-label">所属部门</label>
+
+                    <div class="col-md-9">
+                        <select class="form-control" ng-model="data.app"
+                                ng-options="app.title for app in apps"></select>
+                    </div>
+                </div>
+               <table class='table table-bordered' >
+                    <thead>
+                        <tr>
+                            <th>操作</th>
+                            <th>成员名称</th>
+                            <th>openid</th>
+                            <th>部门</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr ng-repeat="u in users">
+                            <td>
+                                <input type="checkbox"  ng-checked="isSelected(u.id)" ng-click="updateSelection($event,u)">
+                            </td>
+                            <td ng-bind="u.nickname"></td>
+                            <td ng-bind="u.openid"></td>
+                            <td ng-bind="u.depts"></td>
+                        </tr>
+                    </tbody>
+               </table>
+               <div class='clearfix'>
+                    <span style='height:34px;line-height:34px'>总数：{{page.total}}</span>
+                    <ul uib-pagination style="margin:0;vertical-align:bottom;cursor:pointer" class="pull-right" ng-show="page.total>page.size" boundary-links="true" total-items="page.total" max-size="7" items-per-page="page.size" rotate="false" ng-model="page.at" previous-text="&lsaquo;" next-text="&rsaquo;" first-text="&laquo;" last-text="&raquo;" ng-change="doSearch()">
+                    </ul>
+               </div>
             </form>
         </div>
         <div class="modal-footer">

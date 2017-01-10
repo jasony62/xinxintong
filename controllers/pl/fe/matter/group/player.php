@@ -360,6 +360,10 @@ class player extends \pl\fe\matter\base {
 				$user->yx_openid = $wallUser->yx_openid;
 				$user->qy_openid = $wallUser->qy_openid;
 				$user->headimgurl = $wallUser->headimgurl;
+				if(empty($wallUser->enroll_key)){
+					$ek = $modelPlayer->genKey($site, $app);
+					$wallUser->enroll_key = $ek;
+				}
 				$modelPlayer->enroll($site, $objGrp, $user, ['enroll_key' => $wallUser->enroll_key, 'enroll_at' => $wallUser->join_at]);
 				$modelPlayer->setData($user, $site, $objGrp, $wallUser->enroll_key, $wallUser->data);
 			}
@@ -499,6 +503,10 @@ class player extends \pl\fe\matter\base {
 		$user = new \stdClass;
 		$user->uid = '';
 		$user->nickname = '';
+		$user->wx_openid = '';
+		$user->yx_openid = '';
+		$user->qy_openid = '';
+		$user->headimgurl = '';
 
 		$player = new \stdClass;
 		$player->enroll_key = $ek;

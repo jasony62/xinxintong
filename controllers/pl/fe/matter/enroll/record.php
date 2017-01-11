@@ -871,4 +871,21 @@ class record extends \pl\fe\matter\base {
 
 		exit;
 	}
+	/**
+	 * 从其他的登记活动导入登记数据
+	 *
+	 * 导入的数据项定义必须兼容，兼容规则如下
+	 * 从目标应用中导入和指定应用的数据定义中名称（title）和类型（type）一致的项
+	 * 如果是单选题、多选题、打分题选项必须一致
+	 * 如果是打分题，分值设置范围必须一致
+	 * 项目阶段不支持导入
+	 *
+	 * @param string $app app'id
+	 * @param string $fromApp 目标应用的id
+	 * @param string $append 追加记录，否则清空现有记录
+	 *
+	 */
+	public function importByOther_action($app, $fromApp, $append = 'Y') {
+
+	}
 }

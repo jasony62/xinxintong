@@ -323,4 +323,57 @@ class enroll_model extends app_base {
 
 		return $rank + 1;
 	}
+	/**
+	 * 获得schemasB中和schemasA兼容的登记项定义
+	 *
+	 * 从目标应用中导入和指定应用的数据定义中名称（title）和类型（type）一致的项
+	 * 如果是单选题、多选题、打分题选项必须一致
+	 * 如果是打分题，分值设置范围必须一致
+	 * name,email,mobile,shorttext,longtext认为是同一种类型
+	 * 忽略：项目阶段，说明描述
+	 */
+	public function compatibleSchemas($schemasA, $schemasB) {
+		if (empty($schemasB) || empty($schemasA)) {
+			return [];
+		}
+		$mapOfCompatibleType = [
+			'shorttext' => 'text',
+			'longtext' => 'text',
+			'name' => 'text',
+			'email' => 'text',
+			'mobile' => 'text',
+			'location' => 'text',
+			'date' => 'text',
+			'single' => 'single',
+			'multiple' => 'multiple',
+			'score' => 'score',
+			'file' => 'file',
+			'image' => 'image',
+		];
+		$mapAByType = [];
+		foreach ($schemasA as $schemaA) {
+			$compatibleType = $mapOfCompatibleType[$schemaA->type];
+			if (!isset($mapAByType[$compatibleType])) {
+				$mapAByType[$compatibleType] = [];
+			}
+			$mapAByType[$compatibleType] = $schemaA;
+		}
+		
+		$compatible = [];
+		foreach ($schemaB as $schemaB) {
+			$compatibleType = $mapOfCompatibleType[$schemaB->type];
+			if (!isset($mapAByType[$compatibleType])) {
+				continue;
+			}
+			foreach ($mapAByType[$compatibleType] as $schemaA) {
+				if ($schemaA->title !== $schemaB->title) {
+					continue;
+				}
+				
+			}
+			$compatible[] = $schemaB;
+		}
+
+		return $compatible[];
+	}
 }

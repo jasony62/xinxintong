@@ -84,7 +84,7 @@
                                 <h4 class='title' ng-bind="m.matter_title"></h4>
                                 <p class='summary' ng-bind="m.matter_summary"></p>
                                 <div class='attr'>
-                                    <div class='creater_name' ng-bind="m.operator_name"></div>
+                                    <div class='creater_name'></div>
                                     <div class='create_at' ng-bind="m.operate_at*1000|date:'yyyy-MM-dd'"></div>
                                 </div>
                             </div>
@@ -102,13 +102,29 @@
                         <div class='container-fluid'>
                             <div class="navbar-header">
                                 <span class="navbar-brand">我参与的项目</span>
+                                <button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target='#navbar-collapse-3'>
+                                    <span class="sr-only">Toggle navigation</span>
+                                    <span class="icon-bar"></span>
+                                    <span class="icon-bar"></span>
+                                    <span class="icon-bar"></span>
+                                </button>
+                            </div>
+                            <div class='collapse navbar-collapse' id='navbar-collapse-2'>
+                                <form class='navbar-form navbar-right clearfix'>
+                                    <div class='form-group'>
+                                        <select class='form-control' ng-model="filter.bySite" ng-options="site.id as site.name for site in missionSites">
+                                            <option value=''>全部</option>
+                                        </select>
+                                    </div>
+                                    <button uib-popover-template="'filterMission.html'" popover-placement="bottom-right" popover-append-to-body='true' popover-trigger="outsideClick" class='btn btn-default pull-right'><i class='glyphicon glyphicon-filter'></i> <span>筛选</span></button>
+                                </form>
                             </div>
                         </div>
                     </nav>
                     <div class='tms-panel-body'>
                         <div  class='col-md-4' ng-repeat='m in missions'>
                             <div class='thumbnail mission' ng-click='open(m)'>
-                                <h4 class='title' ng-bind="m.title"></h4>
+                                <h4 class='title'>{{m.site_name}}\{{m.title}}</h4>
                                 <p class='summary' ng-bind="m.summary"></p>
                                 <div class='attr'>
                                     <div class='creater_name' ng-bind="m.creater_name"></div>
@@ -202,6 +218,18 @@
                     <button class='btn btn-default' ng-click="addMatter('merchant')">订购活动</button>
                 </div>
             <div>
+        </script>
+        <script type="text/ng-template" id="filterMission.html">
+            <div id="filterMission">
+                <div class='form-group'>
+                    <label>名称</label>
+                    <input type='input' class='form-control' ng-model='filter2.byTitle'>
+                </div>
+                <div class='form-group'>
+                    <button class='btn btn-default btn-block' ng-click="doFilter()">执行筛选</button>
+                    <button class='btn btn-default btn-block' ng-click="cleanFilter()">取消筛选</button>
+                </div>
+            </div>
         </script>
         <script type="text/ng-template" id="addMatterSite.html">
             <div class="modal-header">

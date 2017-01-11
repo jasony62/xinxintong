@@ -1,21 +1,13 @@
 .ng-cloak{display:none;}
 body{padding-top:71px;}
-body>nav{display:flex;height:50px;}
-body>nav>.navbar-form{flex-grow:1;text-align:center;}
-
-/*app-setting*/
-#appSetting{width:200px;}
-#appSetting .checkbox{display:block;}
-#appSetting .checkbox input{margin-right:.5em;}
-#app-view .schema .checkbox{margin:0;padding:0;}
-#app-view .schema .checkbox label{margin-right:24px;}
-#app-view .schema .checkbox button{position:absolute;top:0;right:0;}
-#app-view .schema-switch{position:absolute;top:50%;margin-top:-10px;right:4px;}
+.navbar-nav.tms-breadcrumb>li>a{padding-left:0;padding-right:0;color:#428bca;max-width:12em;overflow:hidden;white-space:nowrap;text-overflow:ellipsis;}
+.navbar-nav.tms-breadcrumb>li:last-child>a{color:#777;}
+.navbar-nav.tms-breadcrumb>li+li>a:before{content:'/\00a0';padding-left:5px;color:#ccc;}
 
 /*publish-view*/
 #simulator{position:relative;width:360px;height:640px;box-shadow:0px 2px 5px 5px rgba(0,0,0,0.3);}
 #simulator iframe{width:100%;height:100%;border:0;}
-#simulatorActions{position:absolute;top:160px;left:350px;}
+#simulatorActions{position:absolute;top:80px;left:350px;width:150px;}
 
 /*schema-view*/
 #schema-view .flexrow{display:flex;margin-bottom:8px;}
@@ -44,7 +36,11 @@ body>nav>.navbar-form{flex-grow:1;text-align:center;}
 #schema-view [editable]{cursor:text;}
 #schema-view .actions{margin-top:10px;padding-top:10px;border-top:1px dotted #ddd;}
 
-/*page*/
+/*page-view*/
+#page-view .schema .checkbox{margin:0;padding:0;}
+#page-view .schema .checkbox label{margin-right:24px;}
+#page-view .schema .checkbox button{position:absolute;top:0;right:0;}
+#page-view .schema-switch{position:absolute;top:50%;margin-top:-10px;right:4px;}
 #pageArea{height:677px;position:relative;}
 
 /*page schemas*/

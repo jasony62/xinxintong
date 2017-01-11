@@ -100,14 +100,11 @@ class main extends base {
 			if ($this->userAgent() === 'wx') {
 				if (!empty($entryRule->sns->wx->entry)) {
 					if (!isset($this->who->sns->wx)) {
-						if ($wxConfig = $this->model('sns\wx')->bySite($siteid)) {
-							if ($wxConfig->joined === 'Y') {
-								$this->snsOAuth($wxConfig, 'wx');
-							}
-						} else if ($wxConfig = $this->model('sns\wx')->bySite('platform')) {
-							if ($wxConfig->joined === 'Y') {
-								$this->snsOAuth($wxConfig, 'wx');
-							}
+						$modelWx = $this->model('sns\wx');
+						if (($wxConfig = $modelWx->bySite($siteid)) && $wxConfig->joined === 'Y') {
+							$this->snsOAuth($wxConfig, 'wx');
+						} else if (($wxConfig = $modelWx->bySite('platform')) && $wxConfig->joined === 'Y') {
+							$this->snsOAuth($wxConfig, 'wx');
 						}
 					}
 				}
@@ -120,7 +117,7 @@ class main extends base {
 						}
 					}
 				}
-			} elseif (!empty($entryRule->sns->yx->entry) && $this->userAgent() === 'yx') {
+			} else if (!empty($entryRule->sns->yx->entry) && $this->userAgent() === 'yx') {
 				if (!isset($this->who->sns->yx)) {
 					if ($yxConfig = $this->model('sns\yx')->bySite($siteid)) {
 						if ($yxConfig->joined === 'Y') {

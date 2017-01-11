@@ -209,13 +209,13 @@ class main extends \pl\fe\matter\base {
 		$newapp['title'] = $copied->title . '（副本）';
 		$newapp['pic'] = $copied->pic;
 		$newapp['summary'] = $modelApp->escape($copied->summary);
-		$newapp['data_schemas'] = $copied->data_schemas;
+		$newapp['data_schemas'] = $modelApp->escape($copied->data_schemas);
 		$newapp['entry_rule'] = json_encode($copied->entry_rule);
 		if (!empty($mission)) {
 			$newapp['mission_id'] = $mission;
 		}
 
-		$this->model()->insert('xxt_signin', $newapp, false);
+		$modelApp->insert('xxt_signin', $newapp, false);
 		/**
 		 * 复制自定义页面
 		 */
@@ -229,9 +229,9 @@ class main extends \pl\fe\matter\base {
 						'title' => $ep->title,
 						'name' => $ep->name,
 						'type' => $ep->type,
-						'data_schemas' => $ep->data_schemas,
-						'act_schemas' => $ep->act_schemas,
-						'user_schemas' => $ep->user_schemas,
+						'data_schemas' => $modelApp->escape($ep->data_schemas),
+						'act_schemas' => $modelApp->escape($ep->act_schemas),
+						'user_schemas' => $modelApp->escape($ep->user_schemas),
 					],
 					"aid='$newaid' and id=$newPage->id"
 				);

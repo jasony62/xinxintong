@@ -8,69 +8,46 @@
         <link href="/static/css/bootstrap-switch.min.css" rel="stylesheet">
         <link href="/static/css/font-awesome.min.css" rel="stylesheet">
         <link href="/static/css/tms.css?_=2" rel="stylesheet">
-        <link href="/views/default/pl/fe/matter/signin/frame.css?_=2" rel="stylesheet">
+        <link href="/views/default/pl/fe/matter/signin/frame.css?_=3" rel="stylesheet">
     </head>
     <body ng-controller='ctrlFrame' ng-cloak class='ng-cloak'>
         <nav class='navbar navbar-default navbar-fixed-top'>
-            <ul class='nav navbar-nav'>
-                <li><a href='/rest/pl/fe/site/console?site={{siteId}}' target='_self'>工作台</a></li>
-                <li ng-if="app.mission"><a href="/rest/pl/fe/matter/mission?site={{siteId}}&id={{app.mission.id}}" target='_self'>返回项目</a></li>
-            </ul>
-            <form class='navbar-form'>
-                <div ng-if="subView==='publish'">
-                    <div class='form-group'>
-                        <div class='input-group'>
-                            <input type='text' class='form-control' size='40' title='{{app.title}}' ng-model='app.title' tms-auto-update tms-wait=1000 tms-update="update('title')">
-                            <span class='input-group-btn'>
-                                <button uib-popover-template="'appSetting.html'" popover-append-to-body='true' popover-placement="bottom" popover-trigger="outsideClick" class='btn btn-default'><span class="glyphicon glyphicon-cog"></span></button>
-                            </span>
-                        </div>
-                    </div>
-                    <div class='form-group' ng-if="app.mission">
-                        <label>所属项目</label>
-                        <div class="input-group">
-                            <input class='form-control' title="{{app.mission.title}}" value="{{app.mission.title}}" readonly="">
-                            <span class="input-group-btn">
-                                <button class="btn btn-default" type="button" ng-click="quitMission()">
-                                    <span class='glyphicon glyphicon-remove'></span>
-                                </button>
-                            </span>
-                        </div>
-                    </div>
-                    <div class='form-group' ng-if="app.mission.multi_phase==='Y'">
-                        <label>项目阶段</label>
-                        <select class='form-control' ng-model="app.mission_phase_id" ng-change="choosePhase()" ng-options="phase.phase_id as phase.title for phase in app.mission.phases">
-                            <option></option>
-                        </select>
-                    </div>
-                    <div class='form-group' ng-if="!app.mission">
-                        <button class='btn btn-success' ng-click="assignMission()">指定项目</button>
-                    </div>  
-                </div>  
-            </form>
-            <ul class='nav navbar-nav navbar-right' ng-if="subView==='publish'">
-                <li><a href="/rest/pl/fe/matter/signin/record?site={{siteId}}&id={{id}}" target='_self'>查看数据</a></li>
-            </ul>
-            <ul class='nav navbar-nav navbar-right' ng-if="subView==='record'">
-                <li><a href="/rest/pl/fe/matter/signin/publish?site={{siteId}}&id={{id}}" target='_self'>发布预览</a></li>
-            </ul>
-            <ul class='nav navbar-nav navbar-right' ng-if="subView==='schema'">
-                <li><a href="/rest/pl/fe/matter/signin/publish?site={{siteId}}&id={{id}}" target='_self'>发布预览</a></li>
-                <li><a href="/rest/pl/fe/matter/signin/record?site={{siteId}}&id={{id}}" target='_self'>查看数据</a></li>
-            </ul>
-            <ul class='nav navbar-nav navbar-right' ng-if="subView==='page'">
-                <li><a href="/rest/pl/fe/matter/signin/publish?site={{siteId}}&id={{id}}" target='_self'>发布预览</a></li>
-                <li><a href="/rest/pl/fe/matter/signin/record?site={{siteId}}&id={{id}}" target='_self'>查看数据</a></li>
-            </ul>
+            <div class='container-fluid'>
+                <div class="navbar-header">
+                    <button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target='#navbar-collapse-1'>
+                        <span class="sr-only">Toggle navigation</span>
+                        <span class="icon-bar"></span>
+                        <span class="icon-bar"></span>
+                        <span class="icon-bar"></span>
+                    </button>
+                </div>
+                <div class='collapse navbar-collapse' id='navbar-collapse-1'>
+                    <nav class='nav navbar-nav tms-breadcrumb'>
+                        <li><a href='/rest/home' target='_self'><?php echo APP_TITLE;?></a></li>
+                        <li><a href="/rest/pl/fe" target='_self'>个人工作台</a></li>
+                        <li ng-if="site.yourRole"><a href="/rest/pl/fe/site/console?site={{app.siteid}}" target='_self'>{{site.name}}</a></li>
+                        <li ng-if="!site.yourRole"><a href="javascript:void(0)" style='color:#777;cursor:default;'>{{site.name}}</a></li>
+                        <li ng-if="app.mission"><a href="/rest/pl/fe/matter/mission?id={{app.mission.id}}" target='_self' title="{{app.mission.title}}">{{app.mission.title}}</a></li>
+                        <li><a href="/rest/pl/fe/matter/signin/main?site={{app.siteid}}&id={{id}}" title='{{app.title}}'>{{app.title}}</a></li>
+                    </nav>
+                    <ul class='nav navbar-nav navbar-right'>
+                        <li class="dropdown">
+                            <a href="#" class="dropdown-toggle" data-toggle="dropdown">{{viewNames[subView]}} <span class="caret"></span></a>
+                            <ul class="dropdown-menu" role="menu">
+                                <li><a href="/rest/pl/fe/matter/signin/main?site={{siteId}}&id={{id}}">活动定义</a></li>
+                                <li><a href="/rest/pl/fe/matter/signin/schema?site={{siteId}}&id={{id}}">修改题目</a></li>
+                                <li><a href="/rest/pl/fe/matter/signin/page?site={{siteId}}&id={{id}}">修改页面</a></li>
+                                <li><a href="/rest/pl/fe/matter/signin/publish?site={{siteId}}&id={{id}}">发布预览</a></li>
+                                <li><a href="/rest/pl/fe/matter/signin/record?site={{siteId}}&id={{id}}">查看数据</a></li>
+                            </ul>
+                        </li>
+                    </ul>
+                </div>
+            </div>
         </nav>
         <div class='container'>
             <div class='row' ng-view></div>
         </div>
-        <script type="text/ng-template" id="appSetting.html">
-            <div id="appSetting">
-                <button class='btn btn-default btn-block' ng-click="remove()">删除活动</button>
-            <div>
-        </script>
         <script src="/static/js/jquery.min.js"></script>
         <script src="/static/js/jquery-ui.min.js"></script>
         <script src="/static/js/bootstrap.min.js"></script>

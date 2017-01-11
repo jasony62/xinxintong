@@ -543,8 +543,7 @@ class users extends \pl\fe\matter\base {
 						}
 					}
 					if($qyProxy !== false){
-						$message['touser'] = $snsUser->openid;
-						$message['agentid'] = $snsConfig->agentid;
+						$message['touser'] = $user->openid;
 						$rst = $qyProxy->messageSend($message, $user->openid);
 					}
 				}

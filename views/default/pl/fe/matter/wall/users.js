@@ -125,12 +125,15 @@ define(['frame'], function(ngApp) {
                         return $scope2.selected.indexOf(id)>=0;
                     }
                     var updateSelected = function(action,option){
-                        if(action == 'add' && $scope2.selected.indexOf(option) == -1){
+                        if(action == 'add'){
                             $scope2.selected.push(option);
                         }
-                        if(action == 'remove' && $scope2.selected.indexOf(option)!=-1){
-                            var idx = $scope2.selected.indexOf(option);
-                            $scope2.selected.splice(idx,1);
+                        if(action == 'remove'){
+                            angular.forEach($scope2.selected,function(item,index){
+                                if(item.openid == option.openid){
+                                    $scope2.selected.splice(index,1);
+                                }
+                            })
                         }
                     }
                     $scope2.updateSelection = function($event, data){

@@ -99,18 +99,13 @@ define(['frame'], function(ngApp) {
                     $scope2.doRequest = function(page){
                         page && ($scope2.page.at = page);
                         $scope2.$watch('data.appType',function(newValus){
-                            var url ;
-                            if(newValus === 'wx') {
-                                url = '/rest/pl/fe/site/sns/wx/user/list?site=' + $scope.siteId + '&' + $scope2.page.param();
-                            }else if(newValus === 'yx') {
-                                url = '/rest/pl/fe/site/sns/yx/user/list?site=' + $scope.siteId + '&' + $scope2.page.param();
-                            }else if(newValus === 'qy') {
-                                url = '/rest/pl/fe/matter/wall/users/importSns?site=' + $scope.siteId + '&type=qy' + '&' + $scope2.page.param();
-                            }
-                            http2.get(url , function(rsp) {
-                                $scope2.publicUsers = rsp.data.fans;
-                                $scope2.page.total = rsp.data.total;
-                            });
+                            var url = '/rest/pl/fe/matter/wall/users/importSns?site=' + $scope.siteId;
+                            url += '&type=' + newValus;
+                            url += '&' + $scope2.page.param();
+                        }
+                        http2.get(url , function(rsp) {
+                            $scope2.publicUsers = rsp.data.fans;
+                            $scope2.page.total = rsp.data.total;
                         });
                     }
                     $scope2.doRequest(1);

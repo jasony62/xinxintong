@@ -22,7 +22,7 @@ define(['frame'], function(ngApp) {
         //删除用户
         $scope.removeRecord = function(data) {
             http2.get('/rest/pl/fe/matter/wall/users/quit?id=' + $scope.id + '&eid=' + data.id , function(rsp){
-                $scope.users.splice($scope.users.indexOf(receiver), 1);
+                $scope.users.splice($scope.users.indexOf($scope.users), 1);
                 $scope.doSearch();
             })
         }
@@ -102,10 +102,10 @@ define(['frame'], function(ngApp) {
                             var url = '/rest/pl/fe/matter/wall/users/importSns?site=' + $scope.siteId;
                             url += '&type=' + newValus;
                             url += '&' + $scope2.page.param();
-                        }
-                        http2.get(url , function(rsp) {
-                            $scope2.publicUsers = rsp.data.fans;
-                            $scope2.page.total = rsp.data.total;
+                            http2.get(url , function(rsp) {
+                                $scope2.publicUsers = rsp.data.fans;
+                                $scope2.page.total = rsp.data.total;
+                            });
                         });
                     }
                     $scope2.doRequest(1);

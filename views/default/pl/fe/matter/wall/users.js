@@ -23,6 +23,7 @@ define(['frame'], function(ngApp) {
         $scope.removeRecord = function(data) {
             http2.get('/rest/pl/fe/matter/wall/users/quit?id=' + $scope.id + '&eid=' + data.id , function(rsp){
                 $scope.users.splice($scope.users.indexOf(receiver), 1);
+                $scope.doSearch();
             })
         }
         //导入用户
@@ -107,7 +108,7 @@ define(['frame'], function(ngApp) {
                                 url = '/rest/pl/fe/matter/wall/users/importSns?site=' + $scope.siteId + '&type=qy' + '&' + $scope2.page.param();
                             }
                             http2.get(url , function(rsp) {
-                                $scope2.publicUsers = rsp.data.data;
+                                $scope2.publicUsers = rsp.data.fans;
                                 $scope2.page.total = rsp.data.total;
                             });
                         });
@@ -119,7 +120,7 @@ define(['frame'], function(ngApp) {
                             url = '/rest/pl/fe/matter/wall/users/importSns?site=' + $scope.siteId;
                             url += '&type=qy' + '&' + $scope2.page.param();
                             http2.post(url,{dept:data},function(rsp){
-                                $scope2.publicUsers = rsp.data.data;
+                                $scope2.publicUsers = rsp.data.fans;
                                 $scope2.page.total = rsp.data.total;
                             });
                         }

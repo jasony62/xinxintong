@@ -1007,6 +1007,9 @@ class record_model extends \TMS_MODEL {
 		];
 		$mapAByType = [];
 		foreach ($schemasA as $schemaA) {
+			if (!isset($mapOfCompatibleType[$schemaA->type])) {
+				continue;
+			}
 			$compatibleType = $mapOfCompatibleType[$schemaA->type];
 			if (!isset($mapAByType[$compatibleType])) {
 				$mapAByType[$compatibleType] = [];
@@ -1016,6 +1019,9 @@ class record_model extends \TMS_MODEL {
 
 		$result = [];
 		foreach ($schemasB as $schemaB) {
+			if (!isset($mapOfCompatibleType[$schemaB->type])) {
+				continue;
+			}
 			$compatibleType = $mapOfCompatibleType[$schemaB->type];
 			if (!isset($mapAByType[$compatibleType])) {
 				continue;

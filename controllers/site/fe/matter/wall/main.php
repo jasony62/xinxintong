@@ -83,21 +83,27 @@ class main extends \site\fe\base {
 		if(isset($user->sns->wx)){
 			//获取nickname
 			$snsUser = $this->model('sns\wx\fan')->byOpenid($site, $user->sns->wx->openid, 'nickname,headimgurl');
-			$user2->wx_openid = $user->sns->wx->openid;
-			$user2->nickname = $snsUser->nickname;
-			$user2->headimgurl = $snsUser->headimgurl;
+			if($snsUser){
+				$user2->wx_openid = $user->sns->wx->openid;
+				$user2->nickname = $snsUser->nickname;
+				$user2->headimgurl = $snsUser->headimgurl;
+			}
 		}
 		if(isset($user->sns->yx)){
 			$snsUser = $this->model('sns\yx\fan')->byOpenid($site, $user->sns->yx->openid, 'nickname,headimgurl');
-			$user2->yx_openid = $user->sns->yx->openid;
-			$user2->nickname = $snsUser->nickname;
-			$user2->headimgurl = $snsUser->headimgurl;
+			if($snsUser){
+				$user2->yx_openid = $user->sns->yx->openid;
+				$user2->nickname = $snsUser->nickname;
+				$user2->headimgurl = $snsUser->headimgurl;
+			}
 		}
 		if(isset($user->sns->qy)){
 			$snsUser = $this->model('sns\qy\fan')->byOpenid($site, $user->sns->qy->openid, 'nickname,headimgurl');
-			$user2->qy_openid = $user->sns->qy->openid;
-			$user2->nickname = $snsUser->nickname;
-			$user2->headimgurl = $snsUser->headimgurl;
+			if($snsUser){
+				$user2->qy_openid = $user->sns->qy->openid;
+				$user2->nickname = $snsUser->nickname;
+				$user2->headimgurl = $snsUser->headimgurl;
+			}
 		}
 		$user2->userid = $user->uid;
 		

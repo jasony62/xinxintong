@@ -185,36 +185,39 @@ class main extends \site\fe\base {
 				exit;
 			}
 		}
-
-		$q = array(
-			'join_at,close_at',
-			'xxt_wall_enroll'
-			);
-		if(isset($user->sns->wx)){
-			$openid = $user->sns->wx->openid;
-			$q[2] .= "wid = '{$app}' and wx_openid = '{$openid}'";
-		}elseif(isset($user->sns->yx)){
-			$openid = $user->sns->yx->openid;
-			$q[2] .= "wid = '{$app}' and yx_openid = '{$openid}'";
-		}elseif(isset($user->sns->qy)){
-			$openid = $user->sns->qy->openid;
-			$q[2] .= "wid = '{$app}' and qy_openid = '{$openid}'";
-		}
-		$wallUser = $this->model()->query_obj_ss($q);
-		if($wallUser){
-			if($wallUser->close_at === '0'){
-				$wallUser->state = 'Y';
+		
+		$data = array();
+		if(isset($user->sns)){
+			$q = array(
+				'join_at,close_at',
+				'xxt_wall_enroll'
+				);
+			if(isset($user->sns->wx)){
+				$openid = $user->sns->wx->openid;
+				$q[2] = "wid = '{$app}' and wx_openid = '{$openid}'";
+			}elseif(isset($user->sns->yx)){
+				$openid = $user->sns->yx->openid;
+				$q[2] = "wid = '{$app}' and yx_openid = '{$openid}'";
+			}elseif(isset($user->sns->qy)){
+				$openid = $user->sns->qy->openid;
+				$q[2] = "wid = '{$app}' and qy_openid = '{$openid}'";
+			}
+			$wallUser = $this->model()->query_obj_ss($q);
+			if($wallUser){
+				if($wallUser->close_at === '0'){
+					$wallUser->state = 'Y';
+				}else{
+					$wallUser->state = 'N';
+				}
 			}else{
+				$wallUser = new \stdClass;
 				$wallUser->state = 'N';
 			}
-		}else{
-			$wallUser = new \stdClass;
-			$wallUser->state = 'N';
+
+			$data['wallUser'] = $wallUser;
 		}
 
-		$data = array();
 		$data['data'] = $wall;
-		$data['wallUser'] = $wallUser;
 		$data['user'] = $user;
 		return new \ResponseData($data);
 

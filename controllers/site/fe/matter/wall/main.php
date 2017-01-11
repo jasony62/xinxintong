@@ -188,18 +188,17 @@ class main extends \site\fe\base {
 
 		$q = array(
 			'join_at,close_at',
-			'xxt_wall_enroll',
-			"wid = '{$app}'"
+			'xxt_wall_enroll'
 			);
 		if(isset($user->sns->wx)){
 			$openid = $user->sns->wx->openid;
-			$q[2] .= " and wx_openid = '{$openid}'";
+			$q[2] .= "wid = '{$app}' and wx_openid = '{$openid}'";
 		}elseif(isset($user->sns->yx)){
 			$openid = $user->sns->yx->openid;
-			$q[2] .= " and yx_openid = '{$openid}'";
+			$q[2] .= "wid = '{$app}' and yx_openid = '{$openid}'";
 		}elseif(isset($user->sns->qy)){
 			$openid = $user->sns->qy->openid;
-			$q[2] .= " and qy_openid = '{$openid}'";
+			$q[2] .= "wid = '{$app}' and qy_openid = '{$openid}'";
 		}
 		$wallUser = $this->model()->query_obj_ss($q);
 		if($wallUser){

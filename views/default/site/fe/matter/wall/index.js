@@ -25,5 +25,5 @@ app.controller('wallCtrl',['$scope','$http','$location', function($scope,$http,$
   }
   $http.get(url).success(function(rsp){
       $scope.walls = rsp.data;
-  })
+  });
 }]);

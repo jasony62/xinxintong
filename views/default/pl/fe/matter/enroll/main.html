@@ -67,15 +67,6 @@
                     <button class='btn btn-default' ng-click='choose()'>选择用户</button>
                 </div>
             </div>
-            <div class='form-group'>
-                <label class='col-md-3 control-label'>接收登记通知页</label>
-                <div class='col-md-9'>
-                    <select class='form-control' ng-model='app.receiver_page' ng-options='page.name as page.title for page in app.pages'
-                    ng-change="update( 'receiver_page') ">
-                        <option value=''></option>
-                    </select>
-                </div>
-            </div>
         </div>
         <div class='form-group' ng-if="sns.wx.joined==='Y'&&sns.wx.can_qrcode==='Y'">
             <button id='wxQrcode' uib-popover-template="'joinQrcode.html'" popover-trigger="show" popover-placement="bottom" class="btn btn-default" ng-click="qrcode('wx')">微信扫码作为接收人 <span class="caret"></span></button>

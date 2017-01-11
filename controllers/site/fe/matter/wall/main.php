@@ -134,8 +134,7 @@ class main extends \site\fe\base {
 				$qyConfig = $this->model('sns\qy')->bySite($site);
 				if ($qyConfig && $qyConfig->joined === 'Y') {
 					$qyProxy = $this->model('sns\qy\proxy', $qyConfig);
-					$message['touser'] = $snsUser->openid;
-					$message['agentid'] = $snsConfig->agentid;
+					$message['touser'] = $user->sns->qy->openid;
 					$rst = $qyProxy->messageSend($message, $user->sns->qy->openid);
 				}
 			}

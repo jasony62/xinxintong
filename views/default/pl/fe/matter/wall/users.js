@@ -82,7 +82,7 @@ define(['frame'], function(ngApp) {
                     };
                     $scope2.page = {
                         at: 1,
-                        size: 1,
+                        size: 20,
                         total: 0,
                         param: function() {
                             return 'page=' + this.at + '&size=' + this.size;

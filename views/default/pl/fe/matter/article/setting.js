@@ -37,7 +37,7 @@ define(['frame'], function(ngApp) {
 			url: '/rest/pl/fe/matter'
 		},{
 			value: 'wall',
-			title: '签到',
+			title: '讨论组',
 			url: '/rest/pl/fe/matter'
 		}];
 		$scope.back = function() {

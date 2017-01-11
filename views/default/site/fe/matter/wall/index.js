@@ -17,12 +17,7 @@ app.controller('wallCtrl',['$scope','$http','$location', function($scope,$http,$
       };
       location.href = '/rest/site/fe/matter/wall/detail?site=' + $scope.siteId + '&app=' + wall.id;
   };
-  var url;
-  if($scope.id){
-     url = '/rest/site/fe/matter/wall/wallList?site=' + $scope.siteId + '&app=' + $scope.id;
-  }else{
-    url = '/rest/site/fe/matter/wall/wallList?site=' + $scope.siteId;
-  }
+  var url = '/rest/site/fe/matter/wall/wallList?site=' + $scope.siteId + '&app=' + $scope.id;
   $http.get(url).success(function(rsp){
       $scope.walls = rsp.data;
   });

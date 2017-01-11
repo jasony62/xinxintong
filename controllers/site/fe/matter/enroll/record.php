@@ -363,7 +363,9 @@ class record extends base {
 					$message=array(
 				 		'touser'=>$snsUser->qy_openid,
 				 		'msgtype'=>'text',
-				 		'content'=>$msg,
+				 		"text" => array(
+							"content" => $msg,
+						),
 					);
 
 					if ($qyProxy !== false && isset($message)) {

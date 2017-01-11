@@ -19,6 +19,12 @@ define(['frame'], function(ngApp) {
 
             }
         };
+        //删除用户
+        $scope.removeRecord = function(data) {
+            http2.get('/rest/pl/fe/matter/wall/users/quit?id=' + $scope.id + '&eid=' + data.id , function(rsp){
+                $scope.users.splice($scope.users.indexOf(receiver), 1);
+            })
+        }
         //导入用户
         $scope.import = function() {
             $uibModal.open({

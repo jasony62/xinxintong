@@ -2,7 +2,7 @@
 <div class="tile">
     <div class= 'navbar-form '>
         <button class='btn  btn-success' ng-click="import()" ng-if="!wall.sourceApp">导入用户</button>
-        <button class='btn  btn-success' ng-click="importPublic()">导入企业/公众号用户</button>
+        <button class='btn  btn-success' ng-click="importPublic()">导入公众号用户</button>
         <div ng-if="wall.sourceApp"  class="form-group">
             <label >在线用户来源</label>
             <div class="form-control"   ng-bind = "wall.sourceApp.title" ></div>
@@ -21,6 +21,7 @@
                 <th>用户</th>
                 <th>进入时间</th>
                 <th>留言时间</th>
+                <th>操作</th>
             </tr>
             </thead>
             <tbody>
@@ -29,6 +30,11 @@
                 <td>{{u.nickname}}</td>
                 <td>{{u.join_at*1000|date:'MM-dd HH:mm'}}</td>
                 <td>{{u.last_msg_at*1000|date:'MM-dd HH:mm'}}</td>
+                <td>
+                    <button class='btn btn-xs btn-danger' ng-click='removeRecord(u)'>
+                        <span class='glyphicon glyphicon-remove'></span>
+                    </button>
+                </td>
             </tr>
             </tbody>
         </table>

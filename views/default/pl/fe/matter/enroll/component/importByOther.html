@@ -6,9 +6,9 @@
     <div class='form-group'>
         <label>目标活动</label>
         <div class='input-group'>
-        	<input type='text' class='form-control' ng-model="filter.byTitle">
-        	<span class='input-group-addon'>
-        		<button></button>
+        	<input type='text' class='form-control' ng-model="filter.byTitle" placeholder="输入活动标题筛选">
+        	<span class='input-group-btn'>
+        		<button class='btn btn-default' ng-click="doFilter()"><i class='glyphicon glyphicon-refresh'></i></button>
         	</span>
         </div>
         <select class="form-control" ng-model="data.fromApp" ng-options="app.id as app.title for app in apps" size="10"></select>

@@ -124,7 +124,7 @@ define(['frame'], function(ngApp) {
             $uibModal.open({
                 templateUrl: '/views/default/pl/fe/matter/enroll/component/importByOther.html?_=1',
                 controller: ['$scope', '$uibModalInstance', 'app', function($scope2, $mi, app) {
-                    var page, data;
+                    var page, data, filter;
                     $scope2.page = page = {
                         at: 1,
                         size: 10,
@@ -133,15 +133,22 @@ define(['frame'], function(ngApp) {
                         }
                     };
                     $scope2.data = data = {};
+                    $scope2.filter = filter = {};
                     $scope2.ok = function() {
                         $mi.close(data);
                     };
                     $scope2.cancel = function() {
                         $mi.dismiss('cancel');
                     };
+                    $scope2.doFilter = function() {
+                        page.at = 1;
+                        $scope2.doSearch();
+                    };
                     $scope2.doSearch = function() {
                         var url = '/rest/pl/fe/matter/enroll/list?site=' + app.siteid + '&' + page.j();
-                        http2.get(url, function(rsp) {
+                        http2.post(url, {
+                            byTitle: filter.byTitle
+                        }, function(rsp) {
                             $scope2.apps = rsp.data.apps;
                             if ($scope2.apps.length) {
                                 data.fromApp = $scope2.apps[0].id;
@@ -158,10 +165,11 @@ define(['frame'], function(ngApp) {
                     }
                 }
             }).result.then(function(data) {
-                var url = '/rest/pl/fe/matter/enroll/importByOther?site=' + $scope.app.siteid + '&app=' + $scope.app.id;
+                var url = '/rest/pl/fe/matter/enroll/record/importByOther?site=' + $scope.app.siteid + '&app=' + $scope.app.id;
                 url += '&fromApp=' + data.fromApp;
                 http2.post(url, {}, function(rsp) {
                     noticebox.info('导入（' + rsp.data + '）条数据');
+                    $scope.doSearch(1);
                 });
             });
         };

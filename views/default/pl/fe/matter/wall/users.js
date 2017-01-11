@@ -163,10 +163,7 @@ define(['frame'], function(ngApp) {
         //刷新
         $scope.doSearch = function() {
             http2.get('/rest/pl/fe/matter/wall/users/list?id=' + $scope.id + '&site=' + $scope.siteId, function(rsp) {
-                http2.get('/rest/pl/fe/matter/wall/users/list?id=' + $scope.id + '&site=' + $scope.siteId, function(rsp) {
-                    $scope.users = rsp.data;
-                });
-            });
+                $scope.users = rsp.data;
         };
         $scope.doSearch();
         //同步用户

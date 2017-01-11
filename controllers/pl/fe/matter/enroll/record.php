@@ -885,7 +885,75 @@ class record extends \pl\fe\matter\base {
 	 * @param string $append 追加记录，否则清空现有记录
 	 *
 	 */
-	public function importByOther_action($app, $fromApp, $append = 'Y') {
+	public function importByOther_action($site, $app, $fromApp, $append = 'Y') {
+		if (false === ($user = $this->accountUser())) {
+			return new \ResponseTimeout();
+		}
 
+		$modelApp = $this->model('matter\enroll');
+		$modelRec = $this->model('matter\enroll\record');
+
+		if (false === ($app = $modelApp->byId($app))) {
+			return new \ResponseError('指定的活动不存在（1）');
+		}
+		if (false === ($fromApp = $modelApp->byId($fromApp))) {
+			return new \ResponseError('指定的活动不存在（2）');
+		}
+
+		$dataSchemas = json_decode($app->data_schemas);
+		$fromDataSchemas = json_decode($fromApp->data_schemas);
+
+		/* 获得兼容的登记项 */
+		$compatibleSchemas = $modelRec->compatibleSchemas($dataSchemas, $fromDataSchemas);
+		if (empty($compatibleSchemas)) {
+			return new \ResponseData('没有匹配的数据项');
+		}
+		/* 获得数据 */
+		$records = $mdoelRec->find($site, $fromApp);
+		$countOfImport = 0;
+		if ($records->total > 0) {
+			foreach ($records->records as $record) {
+				// 新登记
+				$user = new \stdClass;
+				$user->uid = $record->userid;
+				$user->nickname = $record->nickname;
+				$options = [];
+				$options['enrollAt'] = $record->enroll_at;
+				$options['nickname'] = $record->nickname;
+				$ek = $mdoelRec->enroll($site, $app, $user, $options);
+				// 登记数据
+				$data = new \stdClass;
+				foreach ($compatibleSchemas as $cs) {
+					$val = $record->data->{$cs[0]->id};
+					if ($cs[0]->type === 'single') {
+						foreach ($cs[0]->ops as $index => $op) {
+							if ($op->v === $val) {
+								$val = $cs[1]->ops[$index]->v;
+								break;
+							}
+						}
+					} else if ($cs[0]->type === 'multiple') {
+						$val3 = new \stdClass;
+						$val2 = explode(',', $val);
+						foreach ($val2 as $v) {
+							foreach ($cs[0]->ops as $index => $op) {
+								if ($op->v === $v) {
+									$val3->{$cs[1]->ops[$index]->v} = true;
+									break;
+								}
+							}
+						}
+						$val = $val3;
+					} else if ($cs[0]->type === 'score') {
+
+					}
+					$data->{$cs[1]->id} = $val;
+				}
+				$mdoelRec->setData($user, $site, $app, $ek, $data);
+				$countOfImport++;
+			}
+		}
+
+		return new \ResponseData($countOfImport);
 	}
 }

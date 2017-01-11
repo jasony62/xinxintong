@@ -1029,7 +1029,7 @@ class record_model extends \TMS_MODEL {
 						continue;
 					}
 					$isCompatible = true;
-					for ($i = 0, $ii = count($schemaA->ops); $i <= $ii; $i++) {
+					for ($i = 0, $ii = count($schemaA->ops); $i < $ii; $i++) {
 						if ($schemaA->ops[$i]->l !== $schemaB->ops[$i]->l) {
 							$isCompatible = false;
 							break;

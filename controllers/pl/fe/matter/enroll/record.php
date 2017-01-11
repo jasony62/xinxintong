@@ -909,7 +909,7 @@ class record extends \pl\fe\matter\base {
 			return new \ResponseData('没有匹配的数据项');
 		}
 		/* 获得数据 */
-		$records = $mdoelRec->find($site, $fromApp);
+		$records = $modelRec->find($site, $fromApp);
 		$countOfImport = 0;
 		if ($records->total > 0) {
 			foreach ($records->records as $record) {
@@ -920,10 +920,13 @@ class record extends \pl\fe\matter\base {
 				$options = [];
 				$options['enrollAt'] = $record->enroll_at;
 				$options['nickname'] = $record->nickname;
-				$ek = $mdoelRec->enroll($site, $app, $user, $options);
+				$ek = $modelRec->enroll($site, $app, $user, $options);
 				// 登记数据
 				$data = new \stdClass;
 				foreach ($compatibleSchemas as $cs) {
+					if (empty($record->data->{$cs[0]->id})) {
+						continue;
+					}
 					$val = $record->data->{$cs[0]->id};
 					if ($cs[0]->type === 'single') {
 						foreach ($cs[0]->ops as $index => $op) {
@@ -945,11 +948,20 @@ class record extends \pl\fe\matter\base {
 						}
 						$val = $val3;
 					} else if ($cs[0]->type === 'score') {
-
+						$val2 = new \stdClass;
+						foreach ($val as $opv => $score) {
+							foreach ($cs[0]->ops as $index => $op) {
+								if ($op->v === $opv) {
+									$val2->{$cs[1]->ops[$index]->v} = $score;
+									break;
+								}
+							}
+						}
+						$val = $val2;
 					}
 					$data->{$cs[1]->id} = $val;
 				}
-				$mdoelRec->setData($user, $site, $app, $ek, $data);
+				$modelRec->setData($user, $site, $app, $ek, $data);
 				$countOfImport++;
 			}
 		}

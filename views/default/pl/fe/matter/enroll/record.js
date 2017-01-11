@@ -1,6 +1,6 @@
 define(['frame'], function(ngApp) {
     'use strict';
-    ngApp.provider.controller('ctrlRecord', ['$scope', '$uibModal', 'srvApp', 'srvRecord', 'http2', function($scope, $uibModal, srvApp, srvRecord, http2) {
+    ngApp.provider.controller('ctrlRecord', ['$scope', '$uibModal', 'srvApp', 'srvRecord', 'http2', 'noticebox', function($scope, $uibModal, srvApp, srvRecord, http2, noticebox) {
         $scope.notifyMatterTypes = [{
             value: 'tmplmsg',
             title: '模板消息',
@@ -119,6 +119,51 @@ define(['frame'], function(ngApp) {
                 }
             }
             return count;
+        };
+        $scope.importByOther = function() {
+            $uibModal.open({
+                templateUrl: '/views/default/pl/fe/matter/enroll/component/importByOther.html?_=1',
+                controller: ['$scope', '$uibModalInstance', 'app', function($scope2, $mi, app) {
+                    var page, data;
+                    $scope2.page = page = {
+                        at: 1,
+                        size: 10,
+                        j: function() {
+                            return 'page=' + this.at + '&size=' + this.size;
+                        }
+                    };
+                    $scope2.data = data = {};
+                    $scope2.ok = function() {
+                        $mi.close(data);
+                    };
+                    $scope2.cancel = function() {
+                        $mi.dismiss('cancel');
+                    };
+                    $scope2.doSearch = function() {
+                        var url = '/rest/pl/fe/matter/enroll/list?site=' + app.siteid + '&' + page.j();
+                        http2.get(url, function(rsp) {
+                            $scope2.apps = rsp.data.apps;
+                            if ($scope2.apps.length) {
+                                data.fromApp = $scope2.apps[0].id;
+                            }
+                            page.total = rsp.data.total;
+                        });
+                    };
+                    $scope2.doSearch();
+                }],
+                backdrop: 'static',
+                resolve: {
+                    app: function() {
+                        return $scope.app;
+                    }
+                }
+            }).result.then(function(data) {
+                var url = '/rest/pl/fe/matter/enroll/importByOther?site=' + $scope.app.siteid + '&app=' + $scope.app.id;
+                url += '&fromApp=' + data.fromApp;
+                http2.post(url, {}, function(rsp) {
+                    noticebox.info('导入（' + rsp.data + '）条数据');
+                });
+            });
         };
         $scope.createAppByRecords = function() {
             $uibModal.open({

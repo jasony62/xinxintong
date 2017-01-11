@@ -18,7 +18,7 @@ class users extends \pl\fe\matter\base {
 	 */
 	public function list_action($id, $site) {
 		$q = array(
-			'wx_openid,yx_openid,qy_openid,join_at,last_msg_at,msg_num,userid,nickname',
+			'id,wx_openid,yx_openid,qy_openid,join_at,last_msg_at,msg_num,userid,nickname',
 			'xxt_wall_enroll',
 			"siteid='$site' and wid='$id' and close_at=0",
 		);
@@ -210,23 +210,30 @@ class users extends \pl\fe\matter\base {
 	/**
 	 * 将所有用户退出信息墙
 	 */
-	public function quit_action($id) {
+	public function quit_action($id,$eid = null) {
 		if (false === ($user = $this->accountUser())) {
 			return new \ResponseTimeout();
 		}
-		/**
-		 * 清除所有加入的人
-		 */
-		$rst = $this->model()->delete('xxt_wall_enroll', "wid='$id'");
-		
-		/**
-		*解除关联活动
-		*/
-		$this->model()->update(
-				'xxt_wall',
-				array('data_schemas' => '','source_app' => ''),
-				"id='{$id}'"
-			);
+		if(empty($eid)){
+			/**
+			 * 清除所有加入的人
+			 */
+			$rst = $this->model()->delete('xxt_wall_enroll', "wid='$id'");
+			
+			/**
+			*解除关联活动
+			*/
+			$this->model()->update(
+					'xxt_wall',
+					array('data_schemas' => '','source_app' => ''),
+					"id='{$id}'"
+				);
+		}else{
+			/**
+			 * 清除某一个用户
+			 */
+			$rst = $this->model()->delete('xxt_wall_enroll', "wid='$id' and id=$eid ");
+		}
 
 		//记录操作日志
 		$matter = $this->model('matter\wall')->byId($id, 'siteid,id,title,summary,pic');
@@ -357,8 +364,6 @@ class users extends \pl\fe\matter\base {
 	public function importSns_action($site, $type, $page = 1, $size = 20){
 		$params = $this->getPostJson();
 		$users = array();
-		// $params = new \stdClass;
-		// $params->dept = '游戏';
 		if(isset($params->dept) && !empty($params->dept) && $type === 'qy'){
 			/**
 			*筛选导入的用户
@@ -375,7 +380,7 @@ class users extends \pl\fe\matter\base {
 					$dept = explode(',',$dept->fullpath);
 					$fullpath = json_encode($dept);
 					// $result = $this->userList($site, $type, $page, $size, array('choose'=>$fullpath));
-					$result = $this->userList($site, $type, 1, 200, array('choose'=>$fullpath));
+					$result = $this->userList($site, $type, 1, 1000, array('choose'=>$fullpath));
 					if($result){
 						foreach ($result->users as $user) {
 							$users['data'][] = $user;
@@ -459,22 +464,13 @@ class users extends \pl\fe\matter\base {
 	*/
 	public function userJoin_action($site, $app, $type){
 		$params = $this->getPostJson();
-		// $params2 = new \stdClass;
-		// $params2->openid = 'oI-pXwl099vXa2rJgxfTsfU67yj55';
-		// $params2->nickname = 'Bbbbly';
-		// $params2->headimgurl = '';
-		// $params3 = new \stdClass;
-		// $params3->openid = 'oI-pXwl099vXa2rJgxfTsfU67yj66';
-		// $params3->nickname = 'Ccccly';
-		// $params3->headimgurl = '';
-		// $params[] = $params2;
-		// $params[] = $params3;
-
 		$user2 = new \stdClass;
 		$modelSite = $this->model('site\user\account');
 		$modelWall = $this->model('matter\wall');
 		$joinReply = $modelWall->byId($app, 'join_reply');
 		$num = 0;
+
+		$yxProxy = $wxProxy = $qyProxy = null;
 		foreach ($params as $user) {
 			switch ($type) {
 				case 'wx':
@@ -499,9 +495,61 @@ class users extends \pl\fe\matter\base {
 			$reply = $this->model('matter\wall')->join($site, $app, $user2, 'import');
 			if($reply === $joinReply->join_reply){
 				$num++;
+
+				/*发送消息通知*/
+				$message = array(
+					"msgtype" => "text",
+					"text" => array(
+						"content" => $reply,
+					),
+				);
+				if($type === 'yx') {
+					if ($yxProxy === null) {
+						$yxConfig = $this->model('sns\yx')->bySite($site);
+						if ($yxConfig && $yxConfig->joined === 'Y') {
+							$yxProxy = $this->model('sns\yx\proxy', $yxConfig);
+						}else{
+							$yxProxy = false;
+						}
+					}
+					if($yxProxy !== false){
+						if ($yxConfig->can_p2p === 'Y') {
+							$rst = $yxProxy->messageSend($message, array($user->openid));
+						} else {
+							$rst = $yxProxy->messageCustomSend($message, $user->openid);
+						}
+					}
+				}
+				if($type === 'wx'){	
+					if ($wxProxy === null) {
+						$wxConfig = $this->model('sns\wx')->bySite($site);
+						if ($wxConfig && $wxConfig->joined === 'Y') {
+							$wxProxy = $this->model('sns\wx\proxy', $wxConfig);
+						}else{
+							$wxProxy = false;
+						}
+					}
+					if($wxProxy !== false){
+						$rst = $wxProxy->messageCustomSend($message, $user->openid);
+					}
+				}
+				if($type === 'qy'){
+					if ($qyProxy === null) {
+						$qyConfig = $this->model('sns\qy')->bySite($site);
+						if ($qyConfig && $qyConfig->joined === 'Y') {
+							$qyProxy = $this->model('sns\qy\proxy', $qyConfig);
+						}else{
+							$qyProxy = false;
+						}
+					}
+					if($qyProxy !== false){
+						$message['touser'] = $snsUser->openid;
+						$message['agentid'] = $snsConfig->agentid;
+						$rst = $qyProxy->messageSend($message, $user->openid);
+					}
+				}
 			}
 		}
-
 		return new \ResponseData($num);
 	}
 

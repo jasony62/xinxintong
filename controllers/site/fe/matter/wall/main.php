@@ -103,6 +103,43 @@ class main extends \site\fe\base {
 		
 		//加入讨论组
 		$reply = $this->model('matter\wall')->join($site, $app, $user2, 'click');
+		$joinReply = $this->model('matter\wall')->byId($app, 'join_reply');
+		if($reply === $joinReply->join_reply){
+			/*发送消息通知*/
+			$message = array(
+				"msgtype" => "text",
+				"text" => array(
+					"content" => $reply,
+				),
+			);
+			if(isset($user->sns->yx)) {
+				$yxConfig = $this->model('sns\yx')->bySite($site);
+				if ($yxConfig && $yxConfig->joined === 'Y') {
+					$yxProxy = $this->model('sns\yx\proxy', $yxConfig);
+					if ($yxConfig->can_p2p === 'Y') {
+						$rst = $yxProxy->messageSend($message, array($user->sns->yx->openid));
+					} else {
+						$rst = $yxProxy->messageCustomSend($message, $user->sns->yx->openid);
+					}
+				}
+			}
+			if(isset($user->sns->wx)){	
+				$wxConfig = $this->model('sns\wx')->bySite($site);
+				if ($wxConfig && $wxConfig->joined === 'Y') {
+					$wxProxy = $this->model('sns\wx\proxy', $wxConfig);
+					$rst = $wxProxy->messageCustomSend($message, $user->sns->wx->openid);
+				}
+			}
+			if(isset($user->sns->qy)){
+				$qyConfig = $this->model('sns\qy')->bySite($site);
+				if ($qyConfig && $qyConfig->joined === 'Y') {
+					$qyProxy = $this->model('sns\qy\proxy', $qyConfig);
+					$message['touser'] = $snsUser->openid;
+					$message['agentid'] = $snsConfig->agentid;
+					$rst = $qyProxy->messageSend($message, $user->sns->qy->openid);
+				}
+			}
+		}
 
 		return new \ResponseData($reply);
 	}

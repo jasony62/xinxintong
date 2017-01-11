@@ -64,3 +64,7 @@ body{padding:71px 0;font-family:Microsoft Yahei,Arial;}
 #enrollRecords td span.signin_late{color:red;}
 #record-view #enrollRecords .matched.enroll{background:yellow;}
 #record-view #enrollRecords .matched.group{background:lightgreen;}
+
+/* main.html */
+#chooseUser th,#chooseUser td{text-align:center;}
+#chooseUser {overflow: auto;}

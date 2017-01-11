@@ -383,7 +383,7 @@ class users extends \pl\fe\matter\base {
 					$result = $this->userList($site, $type, 1, 1000, array('choose'=>$fullpath));
 					if($result){
 						foreach ($result->users as $user) {
-							$users['data'][] = $user;
+							$users['fans'][] = $user;
 						}
 						// $total += $result->total;
 					}
@@ -394,7 +394,7 @@ class users extends \pl\fe\matter\base {
 		}else{
 			$result = $this->userList($site, $type, $page, $size);
 			if($result){
-				$users['data'] = $result->users;
+				$users['fans'] = $result->users;
 				$users['total'] = $result->total;
 			}
 		}

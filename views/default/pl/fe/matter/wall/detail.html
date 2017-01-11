@@ -69,8 +69,13 @@
         <div class="tile">
             <div class="form-group compact">
                 <div class="help-block">用户进入URL</div>
-                <!--<div class='form-control' style='height:auto;word-break:break-all' ng-bind='entry.url'></div>-->
-                <div class='form-control' style='height:auto;word-break:break-all' ng-model='wall.user_url' tms-auto-update tms-wait=1000 tms-update="update('user_url')"></div>
+                <div class='input-group'>
+                    <input class='form-control' readonly value="{{wall.user_url}}">
+                    <span class='input-group-btn'>
+                        <button class='btn btn-default text2Clipboard' data-clipboard-text="{{wall.user_url}}">复制</button>
+                    </span>
+                </div>
+                <!-- <div class='form-control' style='height:auto;word-break:break-all' ng-model='wall.user_url' tms-auto-update tms-wait=1000 tms-update="update('user_url')"></div> -->
             </div>
             <div class='form-group compact'>
                 <div class='help-block'>用户进入二维码</div>

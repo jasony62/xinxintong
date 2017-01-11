@@ -35,6 +35,10 @@ define(['frame'], function(ngApp) {
 			value: 'signin',
 			title: '签到',
 			url: '/rest/pl/fe/matter'
+		},{
+			value: 'wall',
+			title: '签到',
+			url: '/rest/pl/fe/matter'
 		}];
 		$scope.back = function() {
 			history.back();

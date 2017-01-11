@@ -46,33 +46,31 @@ class main extends base {
 			/* 检查是否需要第三方社交帐号OAuth */
 			$this->_requireSnsOAuth($site, $app);
 		}
-		/* 判断活动的开始结束时间。允许指定参数绕过限制，应该改为更严格的检查 */
-		if (empty($page) && $ignoretime === 'N') {
-			$this->_isValid($app);
-		}
-		/* 计算打开哪个页面 */
+
 		if (empty($page)) {
-			$oPage = $this->_defaultPage($site, $app, true);
+			/* 计算打开哪个页面 */
+			$oOpenPage = $this->_defaultPage($site, $app, true, $ignoretime);
 		} else {
+			/* 打开指定页面 */
 			foreach ($app->pages as $p) {
 				if ($p->name === $page) {
-					$oPage = &$p;
+					$oOpenPage = &$p;
 					break;
 				}
 			}
 		}
-		empty($oPage) && $this->outputError('没有可访问的页面');
+		empty($oOpenPage) && $this->outputError('没有可访问的页面');
 
 		/* 记录日志，完成前置活动再次进入的情况不算 */
 		//$this->modelApp->update("update xxt_enroll set read_num=read_num+1 where id='$app->id'");
 
 		/* 返回登记活动页面 */
 		\TPL::assign('title', $app->title);
-		if ($oPage->type === 'I') {
+		if ($oOpenPage->type === 'I') {
 			\TPL::output('/site/fe/matter/enroll/input');
-		} else if ($oPage->type === 'V') {
+		} else if ($oOpenPage->type === 'V') {
 			\TPL::output('/site/fe/matter/enroll/view');
-		} else if ($oPage->type === 'L') {
+		} else if ($oOpenPage->type === 'L') {
 			\TPL::output('/site/fe/matter/enroll/list');
 		}
 		exit;
@@ -134,32 +132,26 @@ class main extends base {
 		$current = time();
 		if ($app->start_at != 0 && $current < $app->start_at) {
 			if (empty($app->before_start_page)) {
-				$this->outputError('【' . $app->title . '】没有开始', $app->title);
+				return [false, '【' . $app->title . '】没有开始'];
 			} else {
 				$tipPage = $app->before_start_page;
 			}
 		} else if ($app->end_at != 0 && $current > $app->end_at) {
 			if (empty($app->after_end_page)) {
-				$this->outputError('【' . $app->title . '】已经结束', $app->title);
+				return [false, '【' . $app->title . '】已经结束'];
 			} else {
 				$tipPage = $app->after_end_page;
 			}
 		}
 		if ($tipPage !== false) {
-			$mapPages = array();
-			foreach ($app->pages as &$p) {
-				$mapPages[$p->name] = $p;
+			foreach ($app->pages as $p) {
+				if ($p->name === $tipPage) {
+					return [false, $p];
+				}
 			}
-			$oPage = $mapPages[$tipPage];
-			$modelPage = $this->model('matter\enroll\page');
-			$oPage = $modelPage->byId($app->id, $oPage->id);
-			!empty($oPage->html) && \TPL::assign('body', $oPage->html);
-			!empty($oPage->css) && \TPL::assign('css', $oPage->css);
-			!empty($oPage->js) && \TPL::assign('js', $oPage->js);
-			\TPL::assign('title', $app->title);
-			\TPL::output('info');
-			exit;
 		}
+
+		return [true];
 	}
 	/**
 	 * 当前用户的缺省页面
@@ -168,9 +160,23 @@ class main extends base {
 	 * 2、如果已经登记过，且指定了登记过访问页面，进入指定的页面
 	 * 3、如果已经登记过，且没有指定登记过访问页面，进入第一个查看页
 	 */
-	private function _defaultPage($site, &$app, $redirect = false) {
+	private function _defaultPage($site, &$app, $redirect = false, $ignoretime = 'N') {
 		$user = $this->who;
-		$oPage = null;
+		$oOpenPage = null;
+
+		if ($ignoretime === 'N') {
+			$rst = $this->_isValid($app);
+			if ($rst[0] === false) {
+				if (is_string($rst[1])) {
+					if ($redirect === true) {
+						$this->outputError($rst[1], $app->title);
+					}
+					return null;
+				} else {
+					$oOpenPage = $rst[1];
+				}
+			}
+		}
 
 		$hasEnrolled = $this->modelApp->userEnrolled($site, $app, $user);
 
@@ -179,7 +185,7 @@ class main extends base {
 			if (empty($app->enrolled_entry_page)) {
 				foreach ($app->pages as $p) {
 					if ($p->type === 'V') {
-						$oPage = $p;
+						$oOpenPage = $p;
 						break;
 					}
 				}
@@ -188,7 +194,7 @@ class main extends base {
 			}
 		}
 
-		if ($oPage === null) {
+		if ($oOpenPage === null) {
 			if (!isset($page)) {
 				// 根据进入规则确定进入页面
 				$page = $this->checkEntryRule($site, $app, $user, $redirect);
@@ -196,20 +202,19 @@ class main extends base {
 
 			foreach ($app->pages as $p) {
 				if ($p->name === $page) {
-					$oPage = $p;
+					$oOpenPage = $p;
 					break;
 				}
 			}
 		}
 
-		if ($oPage === null) {
+		if ($oOpenPage === null) {
 			if ($redirect === true) {
 				$this->outputError('指定的页面[' . $page . ']不存在');
-				exit;
 			}
 		}
 
-		return $oPage;
+		return $oOpenPage;
 	}
 	/**
 	 * 返回登记记录
@@ -221,7 +226,7 @@ class main extends base {
 	 * @param string $ek record's enroll key
 	 * @param string $newRecord
 	 */
-	public function get_action($site, $app, $rid = null, $page = null, $ek = null, $newRecord = null) {
+	public function get_action($site, $app, $rid = null, $page = null, $ek = null, $newRecord = null, $ignoretime = 'N') {
 		$params = array();
 
 		/* 登记活动定义 */
@@ -255,25 +260,25 @@ class main extends base {
 		$params['user'] = $user;
 		/* 计算打开哪个页面 */
 		if (empty($page)) {
-			$oPage = $this->_defaultPage($site, $app, $user);
+			$oOpenPage = $this->_defaultPage($site, $app, false, $ignoretime);
 		} else {
 			foreach ($app->pages as $p) {
 				if ($p->name === $page) {
-					$oPage = &$p;
+					$oOpenPage = &$p;
 					break;
 				}
 			}
 		}
-		if (empty($oPage)) {
+		if (empty($oOpenPage)) {
 			return new \ResponseError('页面不存在');
 		}
 		$modelPage = $this->model('matter\enroll\page');
-		$oPage = $modelPage->byId($app->id, $oPage->id, 'Y');
-		$params['page'] = $oPage;
+		$oOpenPage = $modelPage->byId($app->id, $oOpenPage->id, 'Y');
+		$params['page'] = $oOpenPage;
 
 		/* 自动登记 */
 		$hasEnrolled = $this->modelApp->hasEnrolled($site, $app->id, $user);
-		if (!$hasEnrolled && $app->can_autoenroll === 'Y' && $oPage->autoenroll_onenter === 'Y') {
+		if (!$hasEnrolled && $app->can_autoenroll === 'Y' && $oOpenPage->autoenroll_onenter === 'Y') {
 			$modelRec = $this->model('matter\enroll\record');
 			$options = [
 				'fields' => 'enroll_key,enroll_at',
@@ -295,7 +300,7 @@ class main extends base {
 		}
 
 		/*登记记录*/
-		if ($oPage->type === 'I' && $newRecord !== 'Y' && !empty($ek)) {
+		if ($oOpenPage->type === 'I' && $newRecord !== 'Y' && !empty($ek)) {
 			$modelRec = $this->model('matter\enroll\record');
 			$record = $modelRec->byId($ek);
 			$params['record'] = $record;

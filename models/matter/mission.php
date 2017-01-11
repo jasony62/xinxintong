@@ -60,6 +60,10 @@ class mission_model extends app_base {
 			'xxt_mission',
 			"siteid='$siteId' and state=1",
 		];
+		if (isset($options['byTitle'])) {
+			$q[2] .= " and title like '%{$options['byTitle']}%'";
+		}
+
 		$q2 = [
 			'o' => 'modify_at desc',
 		];
@@ -83,15 +87,21 @@ class mission_model extends app_base {
 	 * @param object $user
 	 */
 	public function &byAcl(&$user, $options = array()) {
-		$fields = isset($options['fields']) ? $options['fields'] : '*';
+		$fields = 'mission.*,site.name site_name';
 		$limit = isset($options['limit']) ? $options['limit'] : (object) array('page' => 1, 'size' => 20);
 		$q = [
 			$fields,
-			'xxt_mission_acl',
-			"coworker='{$user->id}' and state=1",
+			'xxt_mission_acl mission,xxt_site site',
+			"mission.coworker='{$user->id}' and mission.state=1 and mission.last_invite='Y' and mission.siteid=site.id",
 		];
+		if (isset($options['bySite'])) {
+			$q[2] .= " and mission.siteid='{$options['bySite']}'";
+		}
+		if (isset($options['byTitle'])) {
+			$q[2] .= " and mission.title like '%{$options['byTitle']}%'";
+		}
 		$q2 = [
-			'o' => 'invite_at desc',
+			'o' => 'mission.invite_at desc',
 			'r' => ['o' => ($limit->page - 1) * $limit->size, 'l' => $limit->size],
 		];
 
@@ -101,6 +111,28 @@ class mission_model extends app_base {
 			$result = ['missions' => $missions, 'total' => $total];
 		} else {
 			$result = ['missions' => [], 'total' => 0];
+		}
+
+		return $result;
+	}
+	/**
+	 * 获得用户参与的项目所属的团队
+	 */
+	public function siteByAcl(&$user) {
+		$q = [
+			'id,name,creater,creater_name,create_at',
+			'xxt_site site',
+			"exists(select 1 from xxt_mission_acl mission where site.id=mission.siteid and mission.coworker='{$user->id}' and mission.state=1 and mission.last_invite='Y')",
+		];
+		$q2 = [
+			'o' => 'site.name',
+		];
+		if ($sites = $this->query_objs_ss($q, $q2)) {
+			$q[0] = 'count(*)';
+			$total = (int) $this->query_val_ss($q);
+			$result = ['sites' => $sites, 'total' => $total];
+		} else {
+			$result = ['sites' => [], 'total' => 0];
 		}
 
 		return $result;

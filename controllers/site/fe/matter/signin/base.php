@@ -47,6 +47,9 @@ class base extends \site\fe\matter\base {
 				if (isset($user->members->{$schemaId})) {
 					$page = $rule->entry;
 					break;
+				}else{
+					$page = $entryRule->other->entry;
+					break;
 				}
 			}
 			!isset($page) && $page = '$memberschema';
@@ -74,7 +77,7 @@ class base extends \site\fe\matter\base {
 					}
 				}
 			}
-			!isset($page) && $page = '$mpfollow';
+			!isset($page) && $page = $entryRule->other->entry;
 		}
 		/* 其它情况 */
 		if (empty($page)) {

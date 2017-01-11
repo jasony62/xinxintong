@@ -660,7 +660,7 @@ class member extends \site\fe\base {
 			}elseif($typePost->syncType == 'tag'){
 				$p = array('*','xxt_site_member_tag',"siteid = '$site'");
 			}else{
-				$p = array('*','xxt_site_qyfan',"siteid = '$site' and subscribe_at > 0 and unsubscribe_at = 0 ");
+				$p = array('*','xxt_site_qyfan',"siteid = '$site'");
 			} 
 		}else{
 			return new \ResponseData("暂无");

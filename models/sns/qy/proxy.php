@@ -247,8 +247,10 @@ class proxy_model extends \sns\proxybase {
 		}
 
 		if(!isset($rst[1]->UserId)){
-			return array(false, $rst[1]);
+			$err = '非企业授权用户';
+			return array(false, $err);
 		}
+
 		$openid = $rst[1]->UserId;
 
 		$user = new \stdClass;

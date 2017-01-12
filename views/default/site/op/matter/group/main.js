@@ -55,15 +55,6 @@ define(['angular', 'xxt-page'], function(angular, uiPage) {
         }
     });
     ngApp.controller('ctrl', ['$scope', '$http', '$q', 'ls', function($scope, $http, $q, LS) {
-        $scope.getUsers = function() {
-            var deferred = $q.defer();
-            $http.get(LS.j('usersGet', 'site', 'app', 'rid') + '&hasData=N').success(function(rsp) {
-                $scope.players = rsp.data.players;
-                $scope.winners = rsp.data.winners;
-                deferred.resolve(rsp.data);
-            });
-            return deferred.promise;
-        };
         $scope.matched = function(candidate, target) {
             var k, v;
             if (!candidate) return false;

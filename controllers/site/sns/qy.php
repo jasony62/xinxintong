@@ -439,7 +439,7 @@ class qy extends \member_base {
 		$uid=$this->model()->query_val_ss([
 			'uid',
 			'xxt_site_account',
-			" (qy_openid ='$openid' or wx_openid='$openid' or yx_openid='$openid')"
+			" qy_openid ='$openid' "
 		]);
 
 		if($uid){
@@ -536,7 +536,7 @@ class qy extends \member_base {
 		$uid=$this->model()->query_val_ss([
 			'uid',
 			'xxt_site_account',
-			" (qy_openid ='$openid' or wx_openid='$openid' or yx_openid='$openid')"
+			" qy_openid ='$openid' "
 		]);
 
 		if($uid){

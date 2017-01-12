@@ -86,6 +86,13 @@ define(['frame'], function(ngApp) {
                 return 'page=' + this.at + '&size=' + this.size;
            }
         };
+        $scope.search = function(name){
+            var url = '/rest/pl/fe/matter/enroll/receiver/qymem';
+            url += '?site=' + $scope.siteId;
+            http2.post(url,{keyword:name}).success(function(rsp){
+                $scope.users = rsp.data.data;
+            })
+        }
         $scope.doSearch = function(page){
             var url;
             page && ($scope.page.at = page);

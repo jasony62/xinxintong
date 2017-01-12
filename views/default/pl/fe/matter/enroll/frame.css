@@ -68,3 +68,4 @@ body{padding:71px 0;font-family:Microsoft Yahei,Arial;}
 /* main.html */
 #chooseUser th,#chooseUser td{text-align:center;}
 #chooseUser {overflow: auto;}
+#chooseUser > .form-inline {margin-bottom: 15px;}

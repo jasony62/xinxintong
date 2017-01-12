@@ -90,6 +90,12 @@
         <span class="modal-title h5">选择管理员</span>
     </div>
     <div id="chooseUser" class="modal-body">
+        <form class="form-inline">
+              <div class="form-group">
+                <input type="text" class="form-control" ng-model='nickname' placeholder="请输入昵称">
+                <button type="submit" class="btn btn-info" ng-click='search(nickname)'>搜索</button>
+              </div>
+        </form>
         <table class='table table-bordered' >
             <thead>
                 <tr>

@@ -15,7 +15,7 @@ class fan_model extends \TMS_MODEL {
 
 		$q[] = 'f.openid,f.subscribe_at,f.nickname,f.sex,f.city';
 		$q[] = 'xxt_site_wxfan f';
-		$w = "f.siteid='$siteId' and f.unsubscribe_at=0 and f.forbidden='N'";
+		$w = "f.siteid='$siteId' and f.subscribe_at>0  and f.unsubscribe_at=0 and f.forbidden='N'";
 		/**
 		 * search by keyword
 		 */

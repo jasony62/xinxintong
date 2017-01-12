@@ -104,7 +104,7 @@
             <tbody>
                 <tr ng-repeat="u in users">
                     <td>
-                        <input type="checkbox"  ng-checked="isSelected(u.id)" ng-click="updateSelection($event,u)">
+                        <input type="checkbox"  ng-click="updateSelection($event,u)">
                     </td>
                     <td ng-bind="u.nickname"></td>
                     <td ng-bind="u.userid"></td>

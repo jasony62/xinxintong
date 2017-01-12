@@ -493,60 +493,60 @@ class users extends \pl\fe\matter\base {
 
 			//加入讨论组
 			$reply = $this->model('matter\wall')->join($site, $app, $user2, 'import');
+
+			/*发送消息通知*/
+			$message = array(
+				"msgtype" => "text",
+				"text" => array(
+					"content" => $reply,
+				),
+			);
+			if($type === 'yx') {
+				if ($yxProxy === null) {
+					$yxConfig = $this->model('sns\yx')->bySite($site);
+					if ($yxConfig && $yxConfig->joined === 'Y') {
+						$yxProxy = $this->model('sns\yx\proxy', $yxConfig);
+					}else{
+						$yxProxy = false;
+					}
+				}
+				if($yxProxy !== false){
+					if ($yxConfig->can_p2p === 'Y') {
+						$rst = $yxProxy->messageSend($message, array($user->openid));
+					} else {
+						$rst = $yxProxy->messageCustomSend($message, $user->openid);
+					}
+				}
+			}
+			if($type === 'wx'){	
+				if ($wxProxy === null) {
+					$wxConfig = $this->model('sns\wx')->bySite($site);
+					if ($wxConfig && $wxConfig->joined === 'Y') {
+						$wxProxy = $this->model('sns\wx\proxy', $wxConfig);
+					}else{
+						$wxProxy = false;
+					}
+				}
+				if($wxProxy !== false){
+					$rst = $wxProxy->messageCustomSend($message, $user->openid);
+				}
+			}
+			if($type === 'qy'){
+				if ($qyProxy === null) {
+					$qyConfig = $this->model('sns\qy')->bySite($site);
+					if ($qyConfig && $qyConfig->joined === 'Y') {
+						$qyProxy = $this->model('sns\qy\proxy', $qyConfig);
+					}else{
+						$qyProxy = false;
+					}
+				}
+				if($qyProxy !== false){
+					$message['touser'] = $user->openid;
+					$rst = $qyProxy->messageSend($message, $user->openid);
+				}
+			}
 			if($reply === $joinReply->join_reply){
 				$num++;
-
-				/*发送消息通知*/
-				$message = array(
-					"msgtype" => "text",
-					"text" => array(
-						"content" => $reply,
-					),
-				);
-				if($type === 'yx') {
-					if ($yxProxy === null) {
-						$yxConfig = $this->model('sns\yx')->bySite($site);
-						if ($yxConfig && $yxConfig->joined === 'Y') {
-							$yxProxy = $this->model('sns\yx\proxy', $yxConfig);
-						}else{
-							$yxProxy = false;
-						}
-					}
-					if($yxProxy !== false){
-						if ($yxConfig->can_p2p === 'Y') {
-							$rst = $yxProxy->messageSend($message, array($user->openid));
-						} else {
-							$rst = $yxProxy->messageCustomSend($message, $user->openid);
-						}
-					}
-				}
-				if($type === 'wx'){	
-					if ($wxProxy === null) {
-						$wxConfig = $this->model('sns\wx')->bySite($site);
-						if ($wxConfig && $wxConfig->joined === 'Y') {
-							$wxProxy = $this->model('sns\wx\proxy', $wxConfig);
-						}else{
-							$wxProxy = false;
-						}
-					}
-					if($wxProxy !== false){
-						$rst = $wxProxy->messageCustomSend($message, $user->openid);
-					}
-				}
-				if($type === 'qy'){
-					if ($qyProxy === null) {
-						$qyConfig = $this->model('sns\qy')->bySite($site);
-						if ($qyConfig && $qyConfig->joined === 'Y') {
-							$qyProxy = $this->model('sns\qy\proxy', $qyConfig);
-						}else{
-							$qyProxy = false;
-						}
-					}
-					if($qyProxy !== false){
-						$message['touser'] = $user->openid;
-						$rst = $qyProxy->messageSend($message, $user->openid);
-					}
-				}
 			}
 		}
 		return new \ResponseData($num);

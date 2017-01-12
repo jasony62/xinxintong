@@ -109,40 +109,38 @@ class main extends \site\fe\base {
 		
 		//加入讨论组
 		$reply = $this->model('matter\wall')->join($site, $app, $user2, 'click');
-		$joinReply = $this->model('matter\wall')->byId($app, 'join_reply');
-		if($reply === $joinReply->join_reply){
-			/*发送消息通知*/
-			$message = array(
-				"msgtype" => "text",
-				"text" => array(
-					"content" => $reply,
-				),
-			);
-			if(isset($user->sns->yx)) {
-				$yxConfig = $this->model('sns\yx')->bySite($site);
-				if ($yxConfig && $yxConfig->joined === 'Y') {
-					$yxProxy = $this->model('sns\yx\proxy', $yxConfig);
-					if ($yxConfig->can_p2p === 'Y') {
-						$rst = $yxProxy->messageSend($message, array($user->sns->yx->openid));
-					} else {
-						$rst = $yxProxy->messageCustomSend($message, $user->sns->yx->openid);
-					}
+
+		/*发送消息通知*/
+		$message = array(
+			"msgtype" => "text",
+			"text" => array(
+				"content" => $reply,
+			),
+		);
+		if(isset($user2->yx_openid)) {
+			$yxConfig = $this->model('sns\yx')->bySite($site);
+			if ($yxConfig && $yxConfig->joined === 'Y') {
+				$yxProxy = $this->model('sns\yx\proxy', $yxConfig);
+				if ($yxConfig->can_p2p === 'Y') {
+					$rst = $yxProxy->messageSend($message, array($user2->yx_openid));
+				} else {
+					$rst = $yxProxy->messageCustomSend($message, $user2->yx_openid);
 				}
 			}
-			if(isset($user->sns->wx)){	
-				$wxConfig = $this->model('sns\wx')->bySite($site);
-				if ($wxConfig && $wxConfig->joined === 'Y') {
-					$wxProxy = $this->model('sns\wx\proxy', $wxConfig);
-					$rst = $wxProxy->messageCustomSend($message, $user->sns->wx->openid);
-				}
+		}
+		if(isset($user2->wx_openid)){	
+			$wxConfig = $this->model('sns\wx')->bySite($site);
+			if ($wxConfig && $wxConfig->joined === 'Y') {
+				$wxProxy = $this->model('sns\wx\proxy', $wxConfig);
+				$rst = $wxProxy->messageCustomSend($message, $user2->wx_openid);
 			}
-			if(isset($user->sns->qy)){
-				$qyConfig = $this->model('sns\qy')->bySite($site);
-				if ($qyConfig && $qyConfig->joined === 'Y') {
-					$qyProxy = $this->model('sns\qy\proxy', $qyConfig);
-					$message['touser'] = $user->sns->qy->openid;
-					$rst = $qyProxy->messageSend($message, $user->sns->qy->openid);
-				}
+		}
+		if(isset($user2->qy_openid)){
+			$qyConfig = $this->model('sns\qy')->bySite($site);
+			if ($qyConfig && $qyConfig->joined === 'Y') {
+				$qyProxy = $this->model('sns\qy\proxy', $qyConfig);
+				$message['touser'] = $user2->qy_openid;
+				$rst = $qyProxy->messageSend($message, $user2->qy_openid);
 			}
 		}
 
@@ -240,14 +238,11 @@ class main extends \site\fe\base {
 	private function _requireSnsOAuth($siteid) {
 		if ($this->userAgent() === 'wx') {
 			if (!isset($this->who->sns->wx)) {
-				if ($wxConfig = $this->model('sns\wx')->bySite($siteid)) {
-					if ($wxConfig->joined === 'Y') {
-						$this->snsOAuth($wxConfig, 'wx');
-					}
-				} else if ($wxConfig = $this->model('sns\wx')->bySite('platform')) {
-					if ($wxConfig->joined === 'Y') {
-						$this->snsOAuth($wxConfig, 'wx');
-					}
+				$modelWx = $this->model('sns\wx');
+				if (($wxConfig = $modelWx->bySite($siteid)) && $wxConfig->joined === 'Y') {
+					$this->snsOAuth($wxConfig, 'wx');
+				} else if (($wxConfig = $modelWx->bySite('platform')) && $wxConfig->joined === 'Y') {
+					$this->snsOAuth($wxConfig, 'wx');
 				}
 			}
 		

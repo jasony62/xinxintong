@@ -131,6 +131,15 @@
 				step++;
 			}, $scope.speed);
 		};
+    $scope.getUsers = function() {
+	    var deferred = $q.defer();
+	    $http.get(LS.j('usersGet', 'site', 'app', 'rid') + '&hasData=N').success(function(rsp) {
+	        $scope.players = rsp.data.players;
+	        $scope.winners = rsp.data.winners;
+	        deferred.resolve(rsp.data);
+	    });
+	    return deferred.promise;
+		};
 	}]);
 	ngApp.provider.controller('ctrlRounds', ['$scope', '$http', '$timeout', 'ls', function($scope, $http, $timeout, LS) {
 		$scope.round = '';

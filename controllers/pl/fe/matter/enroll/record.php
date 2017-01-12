@@ -871,4 +871,101 @@ class record extends \pl\fe\matter\base {
 
 		exit;
 	}
+	/**
+	 * 从其他的登记活动导入登记数据
+	 *
+	 * 导入的数据项定义必须兼容，兼容规则如下
+	 * 从目标应用中导入和指定应用的数据定义中名称（title）和类型（type）一致的项
+	 * 如果是单选题、多选题、打分题选项必须一致
+	 * 如果是打分题，分值设置范围必须一致
+	 * 项目阶段不支持导入
+	 *
+	 * @param string $app app'id
+	 * @param string $fromApp 目标应用的id
+	 * @param string $append 追加记录，否则清空现有记录
+	 *
+	 */
+	public function importByOther_action($site, $app, $fromApp, $append = 'Y') {
+		if (false === ($user = $this->accountUser())) {
+			return new \ResponseTimeout();
+		}
+
+		$modelApp = $this->model('matter\enroll');
+		$modelRec = $this->model('matter\enroll\record');
+
+		if (false === ($app = $modelApp->byId($app))) {
+			return new \ResponseError('指定的活动不存在（1）');
+		}
+		if (false === ($fromApp = $modelApp->byId($fromApp))) {
+			return new \ResponseError('指定的活动不存在（2）');
+		}
+
+		$dataSchemas = json_decode($app->data_schemas);
+		$fromDataSchemas = json_decode($fromApp->data_schemas);
+
+		/* 获得兼容的登记项 */
+		$compatibleSchemas = $modelRec->compatibleSchemas($dataSchemas, $fromDataSchemas);
+		if (empty($compatibleSchemas)) {
+			return new \ResponseData('没有匹配的数据项');
+		}
+		/* 获得数据 */
+		$records = $modelRec->find($site, $fromApp);
+		$countOfImport = 0;
+		if ($records->total > 0) {
+			foreach ($records->records as $record) {
+				// 新登记
+				$user = new \stdClass;
+				$user->uid = $record->userid;
+				$user->nickname = $record->nickname;
+				$options = [];
+				$options['enrollAt'] = $record->enroll_at;
+				$options['nickname'] = $record->nickname;
+				$ek = $modelRec->enroll($site, $app, $user, $options);
+				// 登记数据
+				$data = new \stdClass;
+				foreach ($compatibleSchemas as $cs) {
+					if (empty($record->data->{$cs[0]->id})) {
+						continue;
+					}
+					$val = $record->data->{$cs[0]->id};
+					if ($cs[0]->type === 'single') {
+						foreach ($cs[0]->ops as $index => $op) {
+							if ($op->v === $val) {
+								$val = $cs[1]->ops[$index]->v;
+								break;
+							}
+						}
+					} else if ($cs[0]->type === 'multiple') {
+						$val3 = new \stdClass;
+						$val2 = explode(',', $val);
+						foreach ($val2 as $v) {
+							foreach ($cs[0]->ops as $index => $op) {
+								if ($op->v === $v) {
+									$val3->{$cs[1]->ops[$index]->v} = true;
+									break;
+								}
+							}
+						}
+						$val = $val3;
+					} else if ($cs[0]->type === 'score') {
+						$val2 = new \stdClass;
+						foreach ($val as $opv => $score) {
+							foreach ($cs[0]->ops as $index => $op) {
+								if ($op->v === $opv) {
+									$val2->{$cs[1]->ops[$index]->v} = $score;
+									break;
+								}
+							}
+						}
+						$val = $val2;
+					}
+					$data->{$cs[1]->id} = $val;
+				}
+				$modelRec->setData($user, $site, $app, $ek, $data);
+				$countOfImport++;
+			}
+		}
+
+		return new \ResponseData($countOfImport);
+	}
 }

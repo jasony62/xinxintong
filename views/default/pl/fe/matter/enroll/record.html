@@ -12,7 +12,7 @@
                     <label>标签</label>
                     <combox evt-prefix='search-tag' readonly='true' existing='criteria.tags' options='app.tags'></combox>
                 </div>
-                <button class='btn btn-default' ng-click='filter()'>筛选</button>
+                <button class='btn btn-default' ng-click='filter()'><i class='glyphicon glyphicon-filter'></i> <span>筛选</span></button>
                 <button class='btn btn-default' ng-disabled="!countSelected()" ng-click='batchVerify()'>选中记录通过审核</button>
                 <button class='btn btn-default' ng-disabled="!countSelected()" ng-click='batchTag()'>选中记录打标签</button>
                 <button class='btn btn-default' ng-if="app.entry_rule.scope==='sns'" ng-disabled="!countSelected()" ng-click="notify(true)">选中记录发送信息</button>
@@ -29,6 +29,10 @@
                         <li><a href="" ng-click="exportImage()">导出全部图片</a></li>
                         <li class="divider"></li>
                         <li><a href="" ng-click="empty()">清空记录</a></li>
+                        <li class="divider"></li>
+                        <li><a href="" ng-click="importByOther()">从其他活动导入记录</a></li>
+                        <li class="divider"></li>
+                        <li><a href="" ng-click="createAppByRecords()" ng-show="countSelected()">根据选中记录创建活动</a></li>
                     </ul>
                 </div>
             </form>
@@ -60,7 +64,7 @@
                         </th>
                         <th style='width:40px'></th>
                         <th style='width:100px'>登记时间</th>
-                        <th class='custom-col row' ng-repeat="c in app.data_schemas">{{c.title}}</th>
+                        <th class='custom-col row' ng-repeat="c in recordSchemas">{{c.title}}</th>
                         <th class='custom-col matched enroll' ng-repeat="c in enrollDataSchemas">{{c.title}}</th>
                         <th class='custom-col matched group' ng-repeat="c in groupDataSchemas">{{c.title}}</th>
                         <th style='width:140px'>昵称</th>
@@ -86,7 +90,7 @@
                         <td><input type='checkbox' ng-model="rows.selected[$index]"></td>
                         <td>{{(page.at-1)*page.size+$index+1}}</td>
                         <td>{{(r.enroll_at*1000)|date:'MM-dd HH:mm'}}</td>
-                        <td ng-repeat="c in app.data_schemas">
+                        <td ng-repeat="c in recordSchemas">
                             <span ng-if="c.type!=='image'&&c.type!=='file'" ng-bind-html="r._data[c.id]"></span>
                             <span ng-if="c.type==='image'">
                                 <img ng-repeat="img in r._data[c.id]" ng-src='{{img}}' />

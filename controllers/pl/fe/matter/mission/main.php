@@ -53,10 +53,14 @@ class main extends \pl\fe\matter\base {
 			return new \ResponseTimeout();
 		}
 
+		$filter = $this->getPostJson();
 		$modelMis = $this->model('matter\mission');
 		$options = [
 			'limit' => (object) ['page' => $page, 'size' => $size],
 		];
+		if (!empty($filter->byTitle)) {
+			$options['byTitle'] = $modelMis->escape($filter->byTitle);
+		}
 		$result = $modelMis->bySite($site, $options);
 
 		return new \ResponseData($result);

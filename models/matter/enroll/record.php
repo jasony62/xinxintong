@@ -9,7 +9,7 @@ class record_model extends \TMS_MODEL {
 	 *
 	 * @param string $siteId
 	 * @param string $app
-	 * @param object $user
+	 * @param object $user [uid,nickname]
 	 * @param int $enrollAt
 	 * @param string $referrer
 	 */
@@ -37,37 +37,39 @@ class record_model extends \TMS_MODEL {
 		}
 
 		/* 登记用户昵称 */
-		$entryRule = $app->entry_rule;
-		if (isset($entryRule->anonymous) && $entryRule->anonymous === 'Y') {
-			$record['nickname'] = '';
+		if (isset($options['nickname'])) {
+			$record['nickname'] = $this->escape($options['nickname']);
 		} else {
-			if (isset($entryRule->scope) && $entryRule->scope === 'member') {
-				foreach ($entryRule->member as $schemaId => $rule) {
-					if (isset($user->members->{$schemaId})) {
-						$record['nickname'] = $user->members->{$schemaId}->name;
-						break;
-					}
-				}
-			} else if (isset($entryRule->scope) && $entryRule->scope === 'sns') {
-				foreach ($entryRule->sns as $snsName => $rule) {
-					if (isset($user->sns->{$snsName})) {
-						$record['nickname'] = $this->escape($user->sns->{$snsName}->nickname);
-						$record['headimgurl'] = $user->sns->{$snsName}->headimgurl;
-						break;
-					}
-				}
-			} else if (empty($entryRule->scope) || $entryRule->scope === 'none') {
-				/* 不限制用户访问来源 */
-				$record['nickname'] = empty($user->nickname) ? '' : $this->escape($user->nickname);
-			} else {
+			$entryRule = $app->entry_rule;
+			if (isset($entryRule->anonymous) && $entryRule->anonymous === 'Y') {
 				/* 匿名访问 */
 				$record['nickname'] = '';
+			} else {
+				if (isset($entryRule->scope) && $entryRule->scope === 'member') {
+					foreach ($entryRule->member as $schemaId => $rule) {
+						if (isset($user->members->{$schemaId})) {
+							$record['nickname'] = $user->members->{$schemaId}->name;
+							break;
+						}
+					}
+				} else if (isset($entryRule->scope) && $entryRule->scope === 'sns') {
+					foreach ($entryRule->sns as $snsName => $rule) {
+						if (isset($user->sns->{$snsName})) {
+							$record['nickname'] = $this->escape($user->sns->{$snsName}->nickname);
+							$record['headimgurl'] = $user->sns->{$snsName}->headimgurl;
+							break;
+						}
+					}
+				} else if (empty($entryRule->scope) || $entryRule->scope === 'none') {
+					/* 不限制用户访问来源 */
+					$record['nickname'] = empty($user->nickname) ? '' : $this->escape($user->nickname);
+				}
 			}
 		}
-
-		if(!empty($user)){
-			$userOpenids = $this->model('site\user\account')->byId($user->uid,array('fields'=>'wx_openid,yx_openid,qy_openid'));
-			if($userOpenids){
+		/* 登记用户的社交账号信息 */
+		if (!empty($user)) {
+			$userOpenids = $this->model('site\user\account')->byId($user->uid, ['fields' => 'wx_openid,yx_openid,qy_openid']);
+			if ($userOpenids) {
 				$record['wx_openid'] = $userOpenids->wx_openid;
 				$record['yx_openid'] = $userOpenids->yx_openid;
 				$record['qy_openid'] = $userOpenids->qy_openid;
@@ -80,6 +82,8 @@ class record_model extends \TMS_MODEL {
 	}
 	/**
 	 * 保存登记的数据
+	 *
+	 * @param object $user [uid]
 	 */
 	public function setData($user, $siteId, &$app, $ek, $data, $submitkey = '') {
 		if (empty($data)) {
@@ -969,6 +973,79 @@ class record_model extends \TMS_MODEL {
 				} else {
 					$op->c = 0;
 				}
+			}
+		}
+
+		return $result;
+	}
+	/**
+	 * 获得schemasB中和schemasA兼容的登记项定义及对应关系
+	 *
+	 * 从目标应用中导入和指定应用的数据定义中名称（title）和类型（type）一致的项
+	 * 如果是单选题、多选题、打分题选项必须一致
+	 * 如果是打分题，分值设置范围必须一致
+	 * name,email,mobile,shorttext,longtext认为是同一种类型
+	 * 忽略：项目阶段，说明描述
+	 */
+	public function compatibleSchemas($schemasA, $schemasB) {
+		if (empty($schemasB) || empty($schemasA)) {
+			return [];
+		}
+		$mapOfCompatibleType = [
+			'shorttext' => 'text',
+			'longtext' => 'text',
+			'name' => 'text',
+			'email' => 'text',
+			'mobile' => 'text',
+			'location' => 'text',
+			'date' => 'text',
+			'single' => 'single',
+			'multiple' => 'multiple',
+			'score' => 'score',
+			'file' => 'file',
+			'image' => 'image',
+		];
+		$mapAByType = [];
+		foreach ($schemasA as $schemaA) {
+			if (!isset($mapOfCompatibleType[$schemaA->type])) {
+				continue;
+			}
+			$compatibleType = $mapOfCompatibleType[$schemaA->type];
+			if (!isset($mapAByType[$compatibleType])) {
+				$mapAByType[$compatibleType] = [];
+			}
+			$mapAByType[$compatibleType][] = $schemaA;
+		}
+
+		$result = [];
+		foreach ($schemasB as $schemaB) {
+			if (!isset($mapOfCompatibleType[$schemaB->type])) {
+				continue;
+			}
+			$compatibleType = $mapOfCompatibleType[$schemaB->type];
+			if (!isset($mapAByType[$compatibleType])) {
+				continue;
+			}
+			foreach ($mapAByType[$compatibleType] as $schemaA) {
+				if ($schemaA->title !== $schemaB->title) {
+					continue;
+				}
+				if ($compatibleType === 'single' || $compatibleType === 'multiple' || $compatibleType === 'score') {
+					if (count($schemaA->ops) !== count($schemaB->ops)) {
+						continue;
+					}
+					$isCompatible = true;
+					for ($i = 0, $ii = count($schemaA->ops); $i < $ii; $i++) {
+						if ($schemaA->ops[$i]->l !== $schemaB->ops[$i]->l) {
+							$isCompatible = false;
+							break;
+						}
+					}
+					if ($isCompatible === false) {
+						continue;
+					}
+				}
+				$result[] = [$schemaB, $schemaA];
 			}
 		}
 

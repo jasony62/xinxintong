@@ -19,6 +19,13 @@ define(['frame'], function(ngApp) {
 
             }
         };
+        //删除用户
+        $scope.removeRecord = function(data) {
+            http2.get('/rest/pl/fe/matter/wall/users/quit?id=' + $scope.id + '&eid=' + data.id , function(rsp){
+                $scope.users.splice($scope.users.indexOf($scope.users), 1);
+                $scope.doSearch();
+            })
+        }
         //导入用户
         $scope.import = function() {
             $uibModal.open({
@@ -70,7 +77,92 @@ define(['frame'], function(ngApp) {
                     }
                 });
         };
-
+        //导入公众号或企业号的用户
+        $scope.importPublic = function() {
+            $uibModal.open({
+                templateUrl: 'importPublicUser.html',
+                windowClass: 'auto-height',
+                controller: ['$scope', '$uibModalInstance', function($scope2, $mi) {
+                    $scope2.data = {
+                        app : '',
+                        appType : 'qy'
+                    };
+                    $scope2.page = {
+                        at: 1,
+                        size: 20,
+                        total: 0,
+                        param: function() {
+                            return 'page=' + this.at + '&size=' + this.size;
+                       }
+                    };
+                    $scope2.selected = [];
+                    $scope2.doRequest = function(page){
+                        page && ($scope2.page.at = page);
+                        $scope2.$watch('data.appType',function(newValus){
+                            var url = '/rest/pl/fe/matter/wall/users/importSns?site=' + $scope.siteId;
+                            url += '&type=' + newValus;
+                            url += '&' + $scope2.page.param();
+                            http2.get(url , function(rsp) {
+                                $scope2.publicUsers = rsp.data.fans;
+                                $scope2.page.total = rsp.data.total;
+                            });
+                        });
+                    }
+                    $scope2.doRequest(1);
+                    $scope2.updateInput = function($event,data){
+                        $scope2.doRequest = function(page){
+                            var url;
+                            url = '/rest/pl/fe/matter/wall/users/importSns?site=' + $scope.siteId;
+                            url += '&type=qy' + '&' + $scope2.page.param();
+                            http2.post(url,{dept:data},function(rsp){
+                                $scope2.publicUsers = rsp.data.fans;
+                                $scope2.page.total = rsp.data.total;
+                            });
+                        }
+                        $scope2.doRequest(1);
+                    }
+                    $scope2.isSelected = function(id){
+                        return $scope2.selected.indexOf(id)>=0;
+                    }
+                    var updateSelected = function(action,option){
+                        if(action == 'add'){
+                            $scope2.selected.push(option);
+                        }
+                        if(action == 'remove'){
+                            angular.forEach($scope2.selected,function(item,index){
+                                if(item.openid == option.openid){
+                                    $scope2.selected.splice(index,1);
+                                }
+                            })
+                        }
+                    }
+                    $scope2.updateSelection = function($event, data){
+                        var checkbox = $event.target;
+                        var action = (checkbox.checked ? 'add':'remove');
+                        var option = {
+                            openid:data.openid,
+                            nickname:data.nickname,
+                            headimgurl:data.headimgurl
+                        };
+                        updateSelected(action,option);
+                    }
+                    $scope2.close = function() {
+                        $mi.dismiss();
+                    };
+                    $scope2.ok = function() {
+                        if ($scope2.data) {
+                            $mi.close($scope2.selected);
+                        } else {
+                            $mi.dismiss();
+                        }
+                    };
+                }]
+            }).result.then(function(data) {
+                http2.post('/rest/pl/fe/matter/wall/users/userJoin?site=' + $scope.siteId + '&app=' + $scope.id + '&type=qy', data, function(rsp) {
+                    $scope.doSearch();
+                });
+            });
+        };
         //刷新
         $scope.doSearch = function() {
             http2.get('/rest/pl/fe/matter/wall/users/list?id=' + $scope.id + '&site=' + $scope.siteId, function(rsp) {

@@ -14,7 +14,7 @@ class fan_model extends \TMS_MODEL {
 
 		$q[] = 'f.openid,f.subscribe_at,f.nickname,f.sex,f.city';
 		$q[] = 'xxt_site_qyfan f';
-		$w = "f.siteid='$siteId' and f.unsubscribe_at=0 and f.forbidden='N'";
+		$w = "f.siteid='$siteId' and f.subscribe_at>0 and f.unsubscribe_at=0 and f.forbidden='N'";
 		/**
 		 * search by keyword
 		 */
@@ -104,5 +104,27 @@ class fan_model extends \TMS_MODEL {
 	 */
 	public function modifyByOpenid($siteid, $openid, $updated) {
 		return $this->update('xxt_site_qyfan', $updated, "siteid='$siteid' and openid='$openid'");
+	}
+	/**
+	 *获取企业号通讯录人员信息
+	 */
+	public function &getMem($site, $page=1, $size){
+		$p = array('*','xxt_site_qyfan',"siteid = '$site' and subscribe_at > 0 and unsubscribe_at = 0 ");
+
+		$p2['r']['o'] = ($page - 1) * $size;
+		$p2['r']['l'] = $size;
+		$p2['o'] = 'id desc';
+		$result = array();
+		if ($data = $this->query_objs_ss($p,$p2)) {
+			$result['data'] = $data;
+			$p[0] = 'count(*)';
+			$total = (int) $this->query_val_ss($p);
+			$result['total'] = $total;
+		} else {
+			$result['data'] = array();
+			$result['total'] = 0;
+		}
+
+		return $result;
 	}
 }

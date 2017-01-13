@@ -58,6 +58,9 @@ ul.img-tiles li.img-picker button span{font-size:36px}
                         <img ng-if="file.type.indexOf('image')===0" ng-src='{{file.url}}' style="width:100%"/>
                     </span>
                 </span>
+                <div ng-switch-when='date'>
+                    <input type="text" class='form-control' ng-model='date2'>
+                </div>
                 <input type='text' class='form-control' ng-switch-default ng-model="record.data[schema.id]">
             </div>
         </div>

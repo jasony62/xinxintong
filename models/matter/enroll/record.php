@@ -423,7 +423,17 @@ class record_model extends \TMS_MODEL {
 			}
 			$w .= $whereByData;
 		}
-		
+		//添加日期判断
+ 		$d=$this->query_val_ss(['data_schemas','xxt_enroll',"siteid='$siteId' and id='$app->id'"]);
+ 		if($d){
+ 			$d=json_decode($d);
+
+ 			foreach ($d as $k => $v) {
+ 				if($v->type==='date'){
+ 					$c[]=$v->id;
+ 				}
+ 			}
+ 		}
 		// 查询参数
 		$q = [
 			'e.enroll_key,e.enroll_at,e.tags,e.userid,e.nickname,e.wx_openid,e.yx_openid,e.qy_openid,e.headimgurl,e.verified,e.comment,e.data',
@@ -445,7 +455,16 @@ class record_model extends \TMS_MODEL {
 				$data = json_decode($data);
 				if ($data === null) {
 					$r->data = 'json error(' . json_last_error_msg() . '):' . $r->data;
-				} else {					
+				} else {
+					//添加日期转换
+					if(isset($c)){						
+ 						foreach ($c as $k2 => $v2) {
+ 							if(isset($data->$v2)&&strlen($data->$v2)==13){
+ 								$data->$v2=$data->$v2/1000;
+ 							}
+ 						}
+					}	
+
 					$r->data = $data;
 				}
 				// 记录的分数

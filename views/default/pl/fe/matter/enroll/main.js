@@ -86,16 +86,32 @@ define(['frame'], function(ngApp) {
                 return 'page=' + this.at + '&size=' + this.size;
            }
         };
-        $scope.doSearch = function(page){
+        $scope.search = function(name){
+            var url = '/rest/pl/fe/matter/enroll/receiver/qymem';
+            url += '?site=' + $scope.siteId;
+            url += '&' + $scope.page.param();
+            http2.post(url,{keyword:name},function(rsp){
+                $scope.users = rsp.data.data;
+                $scope.page.total = rsp.data.total;
+            });
+        }
+         $scope.doSearch = function(page,name){
             var url;
             page && ($scope.page.at = page);
             url = '/rest/pl/fe/matter/enroll/receiver/qymem';
             url += '?site=' + $scope.siteId;
             url += '&' + $scope.page.param();
-            http2.get(url, function(rsp) {
-                $scope.users = rsp.data.data;
-                $scope.page.total = rsp.data.total;
-            });
+            if(name){
+                http2.post(url,{keyword:name},function(rsp){
+                    $scope.users = rsp.data.data;
+                    $scope.page.total = rsp.data.total;
+                })
+            }else{
+                http2.get(url, function(rsp) {
+                    $scope.users = rsp.data.data;
+                    $scope.page.total = rsp.data.total;
+                });
+            }
         }
         $scope.selected = [];
         var updateSelected = function(action,option){

@@ -90,6 +90,12 @@
         <span class="modal-title h5">选择管理员</span>
     </div>
     <div id="chooseUser" class="modal-body">
+        <form class="form-inline">
+              <div class="form-group">
+                <input type="text" class="form-control" ng-model='nickname' placeholder="请输入昵称">
+                <button type="submit" class="btn btn-info" ng-click='search(nickname)'>搜索</button>
+              </div>
+        </form>
         <table class='table table-bordered' >
             <thead>
                 <tr>
@@ -116,7 +122,7 @@
         </table>
         <div class='clearfix'>
             <span style='height:34px;line-height:34px'>总数：{{page.total}}</span>
-            <ul uib-pagination style="margin:0;vertical-align:bottom;cursor:pointer" class="pull-right" ng-show="page.total>page.size" boundary-links="true" total-items="page.total" max-size="7" items-per-page="page.size" rotate="false" ng-model="page.at" previous-text="&lsaquo;" next-text="&rsaquo;" first-text="&laquo;" last-text="&raquo;" ng-change="doSearch()">
+            <ul uib-pagination style="margin:0;vertical-align:bottom;cursor:pointer" class="pull-right" ng-show="page.total>page.size" boundary-links="true" total-items="page.total" max-size="7" items-per-page="page.size" rotate="false" ng-model="page.at" previous-text="&lsaquo;" next-text="&rsaquo;" first-text="&laquo;" last-text="&raquo;" ng-change="doSearch(page.at,nickname)">
             </ul>
         </div>
     </div>

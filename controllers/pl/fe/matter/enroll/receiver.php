@@ -130,13 +130,16 @@ class receiver extends \pl\fe\matter\base {
 	/**
 	 * 获取企业号关注用户
 	 */
-	public function qyMem_action($site,$page,$size)
+	public function qyMem_action($site, $page, $size)
 	{
 		if (false === ($user = $this->accountUser())) {
 			return new \ResponseTimeout();
 		}
+ 		
+ 		$data=$this->getPostJson();
+ 		$keyword=isset($data) ? $data->keyword : '';
 
-		$rst=$this->model("sns\\qy\\fan")->getMem($site,$page,$size);
+		$rst=$this->model("sns\\qy\\fan")->getMem($site,$keyword,$page,$size);
 
 		return new \ResponseData($rst);
 	}

@@ -340,7 +340,7 @@ class record extends base {
 						$wxProxy = false;
 					}
 				}
-				$msg="您有一条登记信息，<a href=".$noticeURL." >请处理</a> ";
+				$msg="您有一条登记信息，<a href='".$noticeURL."' >请处理</a> ";
 				$message = array(
 					"msgtype" => "text",
 					"text" => array(
@@ -358,7 +358,7 @@ class record extends base {
 				$qyConfig = $this->model('sns\qy')->bySite($siteId);
 				if ($qyConfig->joined === 'Y') {
 					$qyProxy=$this->model('sns\qy\proxy',$qyConfig);
-					$msg="您有一条登记信息，<a href=".$noticeURL." >请处理</a> ";
+					$msg="您有一条登记信息，<a href='".$noticeURL."' >请处理</a> ";
 					$message=array(
 				 		'touser'=>$snsUser->qy_openid,
 				 		'msgtype'=>'text',

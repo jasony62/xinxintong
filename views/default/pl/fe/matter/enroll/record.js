@@ -331,7 +331,6 @@ define(['frame'], function(ngApp) {
                 }
             });
         }
-        console.log(app.data_schemas);
         $scope.app = app;
         $scope.enrollDataSchemas = app._schemasByEnrollApp;
         $scope.groupDataSchemas = app._schemasByGroupApp;

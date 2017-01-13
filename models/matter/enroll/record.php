@@ -425,10 +425,12 @@ class record_model extends \TMS_MODEL {
 		}
 		//添加日期判断
 		$d=$this->query_val_ss(['data_schemas','xxt_enroll',"siteid='$siteId' and id='$app->id'"]);
-		$d=json_decode($d);
-		foreach ($d as $k => $v) {
-			if($v->type==='date'){
-				$c[]=$v->id;
+		if($d){
+			$d=json_decode($d);
+			foreach ($d as $k => $v) {
+				if($v->type==='date'){
+					$c[]=$v->id;
+				}
 			}
 		}
 		
@@ -455,7 +457,7 @@ class record_model extends \TMS_MODEL {
 					$r->data = 'json error(' . json_last_error_msg() . '):' . $r->data;
 				} else {
 					//添加日期转换
-					if($c){
+					if(isset($c)){
 						foreach ($c as $k2 => $v2) {
 							if(isset($data->$v2)){
 								$data->$v2=date("Y-m-d H:i:s",$data->$v2/1000);

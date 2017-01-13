@@ -457,7 +457,7 @@ class record_model extends \TMS_MODEL {
 					//添加日期转换
 					foreach ($c as $k2 => $v2) {
 						if(isset($data->$v2)){
-							$data->$v2=date("Y-m-d H:i:s",(int)$data->$v2/1000);
+							$data->$v2=date("Y-m-d H:i:s",$data->$v2/1000);
 						}
 					}
 					$r->data = $data;

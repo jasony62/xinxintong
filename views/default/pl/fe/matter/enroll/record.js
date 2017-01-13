@@ -313,12 +313,9 @@ define(['frame'], function(ngApp) {
             $mi.dismiss('cancel');
         };
     }]);
-    ngApp.provider.controller('ctrlEdit', ['$filter', '$scope', '$uibModalInstance', '$sce', 'app', 'record', 'srvRecord', function($filter, $scope, $uibModalInstance, $sce, app, record, srvRecord) {
+    ngApp.provider.controller('ctrlEdit', ['$scope', '$uibModalInstance', '$sce', 'app', 'record', 'srvRecord', function($scope, $uibModalInstance, $sce, app, record, srvRecord) {
         if (record.data) {
             app.data_schemas.forEach(function(col) {
-                if(col.type == 'date'){
-                    $scope.date2 = $filter("date")(record.data[col.id], "yyyy-MM-dd HH:mm:ss");
-                }
                 if (record.data[col.id]) {
                     srvRecord.convertRecord4Edit(col, record.data);
                 }

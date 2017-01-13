@@ -58,8 +58,9 @@ ul.img-tiles li.img-picker button span{font-size:36px}
                         <img ng-if="file.type.indexOf('image')===0" ng-src='{{file.url}}' style="width:100%"/>
                     </span>
                 </span>
+                <input type="text" class='form-control' ng-switch-when='mobile' ng-model="record.data[schema.id]">
                 <div ng-switch-when='date'>
-                    <input type="text" class='form-control' ng-model='date2'>
+                    <tms-datepicker class='tms-datepicker' tms-title='时间' tms-obj="rnd" tms-date="record.data[schema.id]" tms-state="signinAt"></tms-datepicker>
                 </div>
                 <input type='text' class='form-control' ng-switch-default ng-model="record.data[schema.id]">
             </div>

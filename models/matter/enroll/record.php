@@ -455,9 +455,11 @@ class record_model extends \TMS_MODEL {
 					$r->data = 'json error(' . json_last_error_msg() . '):' . $r->data;
 				} else {
 					//添加日期转换
-					foreach ($c as $k2 => $v2) {
-						if(isset($data->$v2)){
-							$data->$v2=date("Y-m-d H:i:s",$data->$v2/1000);
+					if($c){
+						foreach ($c as $k2 => $v2) {
+							if(isset($data->$v2)){
+								$data->$v2=date("Y-m-d H:i:s",$data->$v2/1000);
+							}
 						}
 					}
 					$r->data = $data;

@@ -86,29 +86,45 @@ define(['frame'], function(ngApp) {
                 return 'page=' + this.at + '&size=' + this.size;
            }
         };
-        $scope.doSearch = function(page){
+        $scope.search = function(name){
+            var url = '/rest/pl/fe/matter/enroll/receiver/qymem';
+            url += '?site=' + $scope.siteId;
+            url += '&' + $scope.page.param();
+            http2.post(url,{keyword:name},function(rsp){
+                $scope.users = rsp.data.data;
+                $scope.page.total = rsp.data.total;
+            });
+        }
+         $scope.doSearch = function(page,name){
             var url;
             page && ($scope.page.at = page);
             url = '/rest/pl/fe/matter/enroll/receiver/qymem';
             url += '?site=' + $scope.siteId;
             url += '&' + $scope.page.param();
-            http2.get(url, function(rsp) {
-                $scope.users = rsp.data.data;
-                $scope.page.total = rsp.data.total;
-            });
-        }
-        $scope.isSelected = function(id){
-            return $scope.selected.indexOf(id)>=0;
+            if(name){
+                http2.post(url,{keyword:name},function(rsp){
+                    $scope.users = rsp.data.data;
+                    $scope.page.total = rsp.data.total;
+                })
+            }else{
+                http2.get(url, function(rsp) {
+                    $scope.users = rsp.data.data;
+                    $scope.page.total = rsp.data.total;
+                });
+            }
         }
         $scope.selected = [];
         var updateSelected = function(action,option){
-            if(action == 'add' && $scope.selected.indexOf(option) == -1){
+            if(action == 'add'){
                 $scope.selected.push(option);
 
             }
-            if(action == 'remove' && $scope.selected.indexOf(option)!=-1){
-                var idx = $scope.selected.indexOf(option);
-                $scope.selected.splice(idx,1);
+            if(action == 'remove'){
+                angular.forEach($scope.selected,function(item,index){
+                    if(item.uid == option.uid){
+                        $scope.selected.splice(index,1);
+                    }
+                })
             }
         }
         $scope.updateSelection = function($event, data){

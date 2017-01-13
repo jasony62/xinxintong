@@ -45,6 +45,7 @@
                         <th style='width:40px'>
                             <input type='checkbox' ng-true-value="'Y'" ng-false-value="'N'" ng-model="rows.allSelected">
                         </th>
+                        <th style='width:100px'>昵称</th>
                         <th style='width:100px'>登记时间</th>
                         <th class='custom-col signin' ng-repeat="c in app.data_schemas">{{c.title}}</th>
                         <th class='custom-col enroll' ng-repeat="c in enrollDataSchemas">{{c.title}}</th>
@@ -72,6 +73,7 @@
                         </td>
                         <td>{{(page.at-1)*page.size+$index+1}}</td>
                         <td><input type='checkbox' ng-model="rows.selected[$index]"></td>
+                        <td>{{r.nickname}}</td>
                         <td>{{(r.enroll_at*1000)|date:'MM-dd HH:mm'}}</td>
                         <td class='signin' ng-repeat="c in app.data_schemas">
                             <span ng-if="c.type!=='image'&&c.type!=='file'">{{r._data[c.id]}}</span>

@@ -1,0 +1,37 @@
+<!DOCTYPE html>
+<html ng-app='xxt'>
+<head>
+    <meta charset="utf-8">
+    <meta content="width=device-width,user-scalable=no,initial-scale=1.0" name="viewport">
+    <base href="/" />
+    <title><?php TPL::pt('title');?></title>
+    <link href="/static/css/bootstrap.min.css" rel="stylesheet">
+    <link href="//cdn.bootcss.com/font-awesome/4.3.0/css/font-awesome.min.css" rel="stylesheet">
+    <link href="/views/default/site/fe/matter/wall/index.css" rel="stylesheet">
+</head>
+<body>
+    <div ng-controller='wallCtrl' >
+        <div class='container'>
+            <div class='row'>
+                <ul class='list-group'>
+                    <li class='list-group-item' ng-repeat='w in walls' ng-click='open(w)'>
+                        {{w.title}}
+                        <span ng-show="w.close_at=='0'"> (在线)</span>
+                        <span ng-show="w.active=='N'"> (已停用)</span>
+                    </li>
+                </ul>
+            </div>
+        </div>
+    </div>
+    <script type="text/javascript">
+        if (/MicroMessenger/i.test(navigator.userAgent)) {
+        var siteid = location.search.match(/site=([^&]*)/)[1];
+        document.write("<script src='http:\/\/res.wx.qq.com\/open\/js\/jweixin-1.0.0.js'><\/script>");
+        document.write("<script src='\/rest\/site\/fe\/base\/wxjssdksignpackage?site="+siteid+"&url="+encodeURIComponent(location.href.split('#')[0])+"'><\/script>");
+        }
+    </script>
+    <script src="/static/js/jquery.min.js"></script>
+    <script src="/static/js/angular.min.js"></script>
+    <script type="text/javascript" src="/views/default/site/fe/matter/wall/index.js?_=1"></script>
+</body>
+</html>

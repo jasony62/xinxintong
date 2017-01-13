@@ -95,7 +95,7 @@
                             <span ng-if="c.type==='image'">
                                 <img ng-repeat="img in r._data[c.id]" ng-src='{{img}}' />
                             </span>
-                            <span ng-if="c.type==='date'">{{r._data[c.id]|date:'yy-MM-dd HH:mm'}}</span>
+                            <span ng-if="c.type==='date'">{{(r._data[c.id]*1000)|date:'yy-MM-dd HH:mm'}}</span>
                             <span ng-if="c.type==='file'">
                                 <span ng-repeat='file in r._data[c.id]'><a href='{{file.url}}' target="_blank">{{file.name}}</a></span>
                             </span>

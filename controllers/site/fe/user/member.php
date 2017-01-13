@@ -465,7 +465,7 @@ class member extends \site\fe\base {
 	 * $pdid 父部门id
 	 *
 	 */
-	public function syncFromQy_action($site, $authid, $pdid = 1) {
+	public function syncFromQy_action($site, $authid = 0, $pdid = 1) {
 		$qyConfig = $this->model('sns\qy')->bySite($site);
 		if (!$qyConfig || $qyConfig->joined === 'N') {
 			return new \ResponseError('未与企业号连接，无法同步通讯录');
@@ -551,7 +551,7 @@ class member extends \site\fe\base {
 			$users = $result[1]->userlist;
 			foreach ($users as $user) {
 				$q = array(
-					'sync_at',
+					'*',
 					'xxt_site_qyfan',
 					"siteid='$site' and openid='$user->userid'",
 				);

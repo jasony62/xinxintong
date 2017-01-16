@@ -45,15 +45,15 @@ define(['angular'], function(angular) {
                     dtObject.setDate($scope.data.date);
                     dtObject.setHours($scope.data.hour);
                     dtObject.setMinutes($scope.data.minute);
-                    $scope.value = dtObject.getTime();
+                    $scope.value = parseInt(dtObject.getTime() / 1000);
                     $scope.close();
                 };
             },
             link: function(scope, elem, attrs) {
                 var fnOpenPicker, dtObject, dtMinute, htmlBody;
-                scope.value === undefined && (scope.value = new Date().getTime());
+                scope.value === undefined && (scope.value = (new Date() * 1) / 1000);
                 dtObject = new Date();
-                dtObject.setTime(scope.value);
+                dtObject.setTime(scope.value * 1000);
                 scope.options = {
                     years: [2014, 2015, 2016, 2017],
                     months: [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12],

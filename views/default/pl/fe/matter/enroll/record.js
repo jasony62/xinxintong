@@ -175,7 +175,7 @@ define(['frame'], function(ngApp) {
         };
         $scope.createAppByRecords = function() {
             $uibModal.open({
-                templateUrl: '/views/default/pl/fe/matter/enroll/component/createAppByRecords.html?_=4',
+                templateUrl: '/views/default/pl/fe/matter/enroll/component/createAppByRecords.html?_=5',
                 controller: ['$scope', '$uibModalInstance', 'app', function($scope2, $mi, app) {
                     var canUseSchemas = {},
                         config;
@@ -198,8 +198,20 @@ define(['frame'], function(ngApp) {
                     $scope2.cancel = function() {
                         $mi.dismiss('cancel');
                     };
+                    $scope2.changeSchemaType = function() {
+                        switch (config.protoSchema.type) {
+                            case 'score':
+                                config.protoSchema = { type: 'score', range: [1, 5] };
+                                break;
+                            case 'single':
+                                config.protoSchema = { type: 'single' };
+                                break;
+                            case 'multiple':
+                                config.protoSchema = { type: 'multiple' };
+                                break;
+                        }
+                    };
                 }],
-                windowClass: 'auto-height',
                 backdrop: 'static',
                 resolve: {
                     app: function() {

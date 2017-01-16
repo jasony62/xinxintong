@@ -720,7 +720,7 @@ class record extends \pl\fe\matter\base {
 				case 'file':
 					break;
 				default:
-					$objActiveSheet->setCellValueByColumnAndRow($i + 2, $rowIndex, $v);
+					$objActiveSheet->setCellValueExplicitByColumnAndRow($i + 2, $rowIndex, $v, \PHPExcel_Cell_DataType::TYPE_STRING);
 					break;
 				}
 			}

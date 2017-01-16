@@ -18,9 +18,6 @@ define(['main'], function(ngApp) {
 					delete $scope.editing.matter;
 					if (rsp.data.matter) {
 						var matter = rsp.data.matter;
-						if (/text/i.test(matter.type)) {
-							matter.title = matter.content;
-						}
 						$scope.editing.matter = matter;
 					}
 					if ($scope.editing.matter || $scope.editing.url) $scope.editing.hasReply = true;

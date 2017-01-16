@@ -423,7 +423,7 @@ class record_model extends \TMS_MODEL {
 			}
 			$w .= $whereByData;
 		}
-
+		
 		// 查询参数
 		$q = [
 			'e.enroll_key,e.enroll_at,e.tags,e.userid,e.nickname,e.wx_openid,e.yx_openid,e.qy_openid,e.headimgurl,e.verified,e.comment,e.data',
@@ -445,7 +445,7 @@ class record_model extends \TMS_MODEL {
 				$data = json_decode($data);
 				if ($data === null) {
 					$r->data = 'json error(' . json_last_error_msg() . '):' . $r->data;
-				} else {
+				} else {					
 					$r->data = $data;
 				}
 				// 记录的分数

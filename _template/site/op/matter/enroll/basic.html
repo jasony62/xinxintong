@@ -24,9 +24,10 @@
 							<span ng-switch-when="image" ng-init="imgs=r.data[schema.id].split(',')">
 								<img ng-repeat="img in imgs" ng-src='{{img}}' />
 							</span>
-							<span ng-switch-when="image" ng-init="files=json2Obj(r.data[schema.id])">
+							<span ng-switch-when="file" ng-init="files=json2Obj(r.data[schema.id])">
 								<span ng-repeat='file in files'><a href='{{file.url}}' target="_blank">{{file.name}}</a></span>
 							</span>
+							<span ng-switch-when="date">{{(r.data[schema.id]*1000)|date:'yy-MM-dd HH:mm'}}</span>
 							<span ng-switch-default>{{value2Html(r,schema.id)}}</span>
 						</td>
 						<td data-th='标签'><span>{{r.tags}}</span></td>
@@ -71,6 +72,7 @@
 	            <label>{{schema.title}}</label>
 	            <div ng-switch on="schema.type">
 	                <textarea class='form-control' disabled ng-switch-when="longtext" ng-model="editing.data[schema.id]"></textarea>
+	                <div ng-switch-when="date">{{editing.data[schema.id]*1000|date:'yy-MM-dd hh:mm'}}</div>
 	                <select class='form-control' disabled ng-switch-when="single" ng-model="editing.data[schema.id]" ng-options="op.v as op.l for op in schema.ops">
 	                    <option></option>
 	                </select>

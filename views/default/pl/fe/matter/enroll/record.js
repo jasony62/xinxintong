@@ -59,7 +59,7 @@ define(['frame'], function(ngApp) {
         };
         $scope.editRecord = function(record) {
             $uibModal.open({
-                templateUrl: '/views/default/pl/fe/matter/enroll/component/recordEditor.html?_=6',
+                templateUrl: '/views/default/pl/fe/matter/enroll/component/recordEditor.html?_=7',
                 controller: 'ctrlEdit',
                 backdrop: 'static',
                 resolve: {

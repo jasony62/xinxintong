@@ -175,7 +175,7 @@ define(['frame'], function(ngApp) {
         };
         $scope.createAppByRecords = function() {
             $uibModal.open({
-                templateUrl: '/views/default/pl/fe/matter/enroll/component/createAppByRecords.html?_=2',
+                templateUrl: '/views/default/pl/fe/matter/enroll/component/createAppByRecords.html?_=4',
                 controller: ['$scope', '$uibModalInstance', 'app', function($scope2, $mi, app) {
                     var canUseSchemas = {},
                         config;
@@ -185,7 +185,7 @@ define(['frame'], function(ngApp) {
                         }
                     });
                     $scope2.schemas = canUseSchemas;
-                    $scope2.config = config = {};
+                    $scope2.config = config = { protoSchema: { type: 'score', range: [1, 5] } };
                     $scope2.ok = function() {
                         var schemas = [];
                         for (var id in config.schemas) {
@@ -193,7 +193,7 @@ define(['frame'], function(ngApp) {
                                 schemas.push(canUseSchemas[id]);
                             }
                         }
-                        $mi.close({ schemas: schemas });
+                        $mi.close({ schemas: schemas, protoSchema: config.protoSchema });
                     };
                     $scope2.cancel = function() {
                         $mi.dismiss('cancel');
@@ -220,7 +220,15 @@ define(['frame'], function(ngApp) {
                             url += '&mission=' + $scope.app.mission_id;
                         }
                         http2.post(url, {
-                            proto: { scenario: 'voting' },
+                            proto: {
+                                scenario: 'voting',
+                                schema: {
+                                    type: config.protoSchema.type,
+                                    range: config.protoSchema.range,
+                                    unique: 'N',
+                                    _ver: 1
+                                }
+                            },
                             record: {
                                 schemas: config.schemas,
                                 eks: eks

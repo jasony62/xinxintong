@@ -6,7 +6,7 @@
     <div class='form-group'>
         <label>活动类型</label>
         <select class='form-control' ng-model="app.scenario" ng-change="update('scenario');">
-            <option value=''></option>
+            <option value='common'>通用登记</option>
             <option value='registration'>报名</option>
             <option value='voting'>评价</option>
             <option value='group_week_report'>周报</option>
@@ -60,7 +60,7 @@
         <div class='checkbox'>
             <label class='checkbox-inline'><input type='checkbox' ng-true-value="'Y'" ng-false-value="'N'" ng-model="app.notify_submit" ng-change="update('notify_submit')">提交填写内容</label>
         </div>
-        <div class="form-horizontal">
+        <div class="form-horizontal" ng-if="sns.qy.joined==='Y'">
             <div class="form-group">
                 <label class='col-md-3 control-label'>微信企业号接收人</label>
                 <div class='col-md-9'>

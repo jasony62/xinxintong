@@ -134,7 +134,7 @@ class main extends \pl\fe\matter\base {
 		if ($rst) {
 			$app = $modelCtr->byId($app, 'id,title,summary,pic');
 			$app->type = 'contribute';
-			$this->model('mattter\log')->matterOp($site, $user, $app, 'U');
+			$this->model('matter\log')->matterOp($site, $user, $app, 'U');
 		}
 
 		return new \ResponseData($rst);

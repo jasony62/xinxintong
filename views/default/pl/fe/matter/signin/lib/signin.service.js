@@ -786,9 +786,11 @@ provider('srvApp', function() {
             empty: function() {
                 var vcode;
                 vcode = prompt('是否要删除所有登记信息？，若是，请输入活动名称。');
-                if (vcode === $scope.app.title) {
+                if (vcode === _oApp.title) {
                     http2.get('/rest/pl/fe/matter/signin/record/empty?site=' + siteId + '&app=' + appId, function(rsp) {
-                        //$scope.doSearch(1);
+                        _aRecords.splice(0, _aRecords.length);
+                        _oPage.total = 0;
+                        _oPage.at = 1;
                     });
                 }
             },

@@ -53,9 +53,6 @@
         <label>限制数量（填0不限制）</label>
         <input type='text' class='form-control' ng-model='activeSchema.count' ng-change="updSchema(activeSchema,'count')">
     </div>
-    <div class="checkbox" ng-show="'single'===activeSchema.type">
-        <label><input type='checkbox' ng-true-value="'Y'" ng-false-value="'N'" ng-model='activeSchema.score' ng-change="updSchema(activeSchema,'score')">打分</label>
-    </div>
     <div class="form-group" ng-show="'Y'===activeSchema.requireCheck">
         <p class='help-block'>需要在【<span>{{assocAppName(activeSchema.fromApp)}}</span>】中检查</label>
     </div>

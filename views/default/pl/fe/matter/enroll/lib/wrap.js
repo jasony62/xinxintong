@@ -282,10 +282,10 @@ define([], function() {
             case 'phase':
             case 'single':
                 if (schema.ops && schema.ops.length > 0) {
-                    if (config.component === 'R') {
-                        html += this._htmlSingleRadio(oWrap, forEdit);
-                    } else if (schema.component === 'S') {
+                    if (schema.component === 'S') {
                         html += this._htmlSingleSelect(oWrap, forEdit);
+                    } else {
+                        html += this._htmlSingleRadio(oWrap, forEdit);
                     }
                 }
                 break;
@@ -669,7 +669,7 @@ define([], function() {
             $dom = $(domWrap);
 
         if (beforeSchema && schema.type !== beforeSchema.type) {
-            $dom.html(this.htmlValue(schema));
+            $dom.html(this.embed(oWrap).html);
         } else {
             if (schema.type === 'html') {
                 $dom.html(schema.content);

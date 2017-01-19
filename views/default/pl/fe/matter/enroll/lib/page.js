@@ -171,6 +171,9 @@ define(['wrap'], function(SchemaWrap) {
             $dom = $html.find("[schema='" + schema.id + "']");
             wrap = this.wrapBySchema(schema);
             wrap.type = $dom.attr('wrap');
+            if (beforeState && schema.type !== beforeState.type) {
+                wrap.config = SchemaWrap.input.newWrap(schema).config;
+            }
             SchemaWrap.input.modify($dom, wrap, beforeState);
 
             this.html = $html.html();

@@ -56,6 +56,33 @@ define(['frame', 'schema', 'wrap'], function(ngApp, schemaLib, wrapLib) {
                 });
             });
         };
+        $scope.importByOther = function() {
+            srvApp.importSchemaByOther().then(function(schemas) {
+                schemas.forEach(function(schema) {
+                    var newSchema;
+                    newSchema = schemaLib.newSchema(schema.type, $scope.app);
+                    newSchema.type === 'member' && (newSchema.schema_id = schema.schema_id);
+                    newSchema.title = schema.title;
+                    if (schema.ops) {
+                        newSchema.ops = schema.ops;
+                    }
+                    if (schema.range) {
+                        newSchema.range = schema.range;
+                    }
+                    if (schema.count) {
+                        newSchema.count = schema.count;
+                    }
+                    $scope.app.data_schemas.push(newSchema);
+                    srvApp.update('data_schemas').then(function() {
+                        $scope.app.pages.forEach(function(page) {
+                            if (page.appendSchema(newSchema)) {
+                                srvPage.update(page, ['data_schemas', 'html']);
+                            }
+                        });
+                    });
+                });
+            });
+        };
         $scope.newByOtherApp = function(schema, otherApp) {
             var newSchema;
 
@@ -101,6 +128,7 @@ define(['frame', 'schema', 'wrap'], function(ngApp, schemaLib, wrapLib) {
                 });
             });
         };
+
 
         function removeSchema(removedSchema) {
             var deferred = $q.defer();

@@ -31,6 +31,9 @@
                 <button class='btn btn-default' ng-click="newSchema('html')">描述说明</button>
             </div>
         </div>
+        <div class='form-group list-group-item'>
+            <button class='btn btn-default' ng-click="importByOther()">从其他活动中导入题目</button>
+        </div>
         <div class='form-group list-group-item' ng-if="app.scenario==='voting'">
             <button class='btn btn-default' ng-click="batchScore()">批量设置打分题分值</button>
         </div>

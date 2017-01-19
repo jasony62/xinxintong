@@ -7,7 +7,7 @@ provider('srvApp', function() {
     this.setAppId = function(id) {
         appId = id;
     };
-    this.$get = ['$q', 'http2', 'noticebox', 'mattersgallery', function($q, http2, noticebox, mattersgallery) {
+    this.$get = ['$q', '$uibModal', 'http2', 'noticebox', 'mattersgallery', function($q, $uibModal, http2, noticebox, mattersgallery) {
         return {
             get: function() {
                 var defer = $q.defer(),
@@ -291,6 +291,65 @@ provider('srvApp', function() {
                     groupData: groupDataSchemas,
                     canFilter: canFilteredSchemas
                 }
+            },
+            importSchemaByOther: function() {
+                var defer = $q.defer();
+                $uibModal.open({
+                    templateUrl: '/views/default/pl/fe/matter/enroll/component/importSchemaByOther.html?_=1',
+                    controller: ['$scope', '$uibModalInstance', function($scope2, $mi) {
+                        var page, data, filter;
+                        $scope2.page = page = {
+                            at: 1,
+                            size: 15,
+                            j: function() {
+                                return 'page=' + this.at + '&size=' + this.size;
+                            }
+                        };
+                        $scope2.data = data = {};
+                        $scope2.filter = filter = {};
+                        $scope2.selectApp = function() {
+                            if (angular.isString(data.fromApp.data_schemas) && data.fromApp.data_schemas) {
+                                data.fromApp.dataSchemas = JSON.parse(data.fromApp.data_schemas);
+                            }
+                            data.schemas = [];
+                        };
+                        $scope2.selectSchema = function(schema) {
+                            if (schema._selected) {
+                                data.schemas.push(schema);
+                            } else {
+                                data.schemas.splice(data.schemas.indexOf(schema), 1);
+                            }
+                        };
+                        $scope2.ok = function() {
+                            $mi.close(data);
+                        };
+                        $scope2.cancel = function() {
+                            $mi.dismiss('cancel');
+                        };
+                        $scope2.doFilter = function() {
+                            page.at = 1;
+                            $scope2.doSearch();
+                        };
+                        $scope2.doSearch = function() {
+                            var url = '/rest/pl/fe/matter/enroll/list?site=' + oApp.siteid + '&' + page.j();
+                            http2.post(url, {
+                                byTitle: filter.byTitle
+                            }, function(rsp) {
+                                $scope2.apps = rsp.data.apps;
+                                if ($scope2.apps.length) {
+                                    data.fromApp = $scope2.apps[0];
+                                    $scope2.selectApp();
+                                }
+                                page.total = rsp.data.total;
+                            });
+                        };
+                        $scope2.doSearch();
+                    }],
+                    backdrop: 'static',
+                }).result.then(function(data) {
+                    defer.resolve(data.schemas);
+                });
+                return defer.promise;
             }
         };
     }];

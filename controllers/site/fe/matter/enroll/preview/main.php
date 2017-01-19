@@ -83,41 +83,8 @@ class main extends \TMS_CONTROLLER {
 		$modelPage = $this->model('matter\enroll\page');
 		$oPage = $modelPage->byId($app->id, $oPage->id, 'Y');
 		$params['page'] = $oPage;
-		/* 自动登记 */
-		$hasEnrolled = $modelApp->hasEnrolled($site, $app->id, $user);
-		if (!$hasEnrolled && $app->can_autoenroll === 'Y' && $oPage->autoenroll_onenter === 'Y') {
-			$modelRec = $this->model('matter\enroll\record');
-			$options = array(
-				'fields' => 'enroll_key,enroll_at',
-			);
-			$lastRecord = $modelRec->getLast($site, $$app->id, $user, $options);
-			if (false === $lastRecord) {
-				$modelRec->add($site, $app, $user, (empty($posted->referrer) ? '' : $posted->referrer));
-			} else if ($lastRecord->enroll_at === '0') {
-				$updated = array(
-					'enroll_at' => time(),
-				);
-				!empty($posted->referrer) && $updated['referrer'] = $posted->referrer;
-				$modelRec->update('xxt_enroll_record', $updated, "enroll_key='$lastRecord->enroll_key'");
-			}
-		}
 		if ($app->multi_rounds === 'Y') {
 			$params['activeRound'] = $this->model('matter\enroll\round')->getLast($site, $app->id);
-		}
-		/*登记记录*/
-		$newForm = false;
-		if ($oPage->type === 'I' || $oPage->type === 'S') {
-			if ($newRecord === 'Y') {
-				$newForm = true;
-			} else if (empty($ek)) {
-				if ($app->open_lastroll === 'N') {
-					$newForm = true;
-				}
-			}
-			if ($newForm === false) {
-				/*获得最后一条登记数据。登记记录有可能未进行过登记*/
-				$params['record'] = false;
-			}
 		}
 
 		return new \ResponseData($params);

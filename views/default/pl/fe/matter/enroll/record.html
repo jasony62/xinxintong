@@ -30,6 +30,8 @@
                         <li class="divider"></li>
                         <li><a href="" ng-click="empty()">清空记录</a></li>
                         <li class="divider"></li>
+                        <li><a href="" ng-click="importByOther()">从其他活动导入记录</a></li>
+                        <li class="divider"></li>
                         <li><a href="" ng-click="createAppByRecords()" ng-show="countSelected()">根据选中记录创建活动</a></li>
                     </ul>
                 </div>
@@ -89,28 +91,31 @@
                         <td>{{(page.at-1)*page.size+$index+1}}</td>
                         <td>{{(r.enroll_at*1000)|date:'MM-dd HH:mm'}}</td>
                         <td ng-repeat="c in recordSchemas">
-                            <span ng-if="c.type!=='image'&&c.type!=='file'" ng-bind-html="r._data[c.id]"></span>
+                            <span ng-if="c.type!=='image'&&c.type!=='file'&&c.type!=='date'" ng-bind-html="r._data[c.id]"></span>
                             <span ng-if="c.type==='image'">
                                 <img ng-repeat="img in r._data[c.id]" ng-src='{{img}}' />
                             </span>
+                            <span ng-if="c.type==='date'">{{(r._data[c.id]*1000)|date:'yy-MM-dd HH:mm'}}</span>
                             <span ng-if="c.type==='file'">
                                 <span ng-repeat='file in r._data[c.id]'><a href='{{file.url}}' target="_blank">{{file.name}}</a></span>
                             </span>
                         </td>
                         <td class='matched enroll' ng-repeat="c in enrollDataSchemas">
-                            <span ng-if="c.type!=='image'&&c.type!=='file'" ng-bind-html="r._data[c.id]"></span>
+                            <span ng-if="c.type!=='image'&&c.type!=='file'&&c.type!=='date'" ng-bind-html="r._data[c.id]"></span>
                             <span ng-if="c.type==='image'">
                                 <img ng-repeat="img in r._data[c.id]" ng-src='{{img}}' />
                             </span>
+                            <span ng-if="c.type==='date'">{{(r._data[c.id]*1000)|date:'yy-MM-dd HH:mm'}}</span>
                             <span ng-if="c.type==='file'">
                                 <span ng-repeat='file in r._data[c.id]'><a href='{{file.url}}' target="_blank">{{file.name}}</a></span>
                             </span>
                         </td>
                         <td class='matched group' ng-repeat="c in groupDataSchemas">
-                            <span ng-if="c.type!=='image'&&c.type!=='file'" ng-bind-html="r._data[c.id]"></span>
+                            <span ng-if="c.type!=='image'&&c.type!=='file'&&c.type!=='date'" ng-bind-html="r._data[c.id]"></span>
                             <span ng-if="c.type==='image'">
                                 <img ng-repeat="img in r._data[c.id]" ng-src='{{img}}' />
                             </span>
+                            <span ng-if="c.type==='date'">{{(r._data[c.id]*1000)|date:'yy-MM-dd HH:mm'}}</span>
                             <span ng-if="c.type==='file'">
                                 <span ng-repeat='file in r._data[c.id]'><a href='{{file.url}}' target="_blank">{{file.name}}</a></span>
                             </span>

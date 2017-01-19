@@ -52,6 +52,15 @@ class wall_model extends app_base {
 	 */
 	public function join($runningSiteId, $wid, $user, $remark = '') {
 		/**
+		*检查是否启用信息墙
+		*/
+		$wall = $this->byId($wid, 'join_reply,active');
+		if($wall->active === 'N'){
+			$reply = '信息墙已停用';
+			return $reply;
+		}
+
+		/**
 		 * 加入一个信息墙需要从其他的墙退出
 		 */
 		if(isset($user->wx_openid)){
@@ -93,9 +102,11 @@ class wall_model extends app_base {
 			$i['headimgurl'] = isset($user->headimgurl) ? $user->headimgurl : '';
 			if(isset($user->wx_openid)){
 				$i['wx_openid'] = $user->wx_openid;
-			}else if(isset($user->yx_openid)){
+			}
+			if(isset($user->yx_openid)){
 				$i['yx_openid'] = $user->yx_openid;
-			}else if(isset($user->qy_openid)){
+			}
+			if(isset($user->qy_openid)){
 				$i['qy_openid'] = $user->qy_openid;
 			}
 
@@ -104,7 +115,6 @@ class wall_model extends app_base {
 		/**
 		 * 加入提示
 		 */
-		$wall = $this->byId($wid, 'join_reply');
 		if (empty($wall->join_reply)) {
 			$reply = '欢迎进入，请输入您的发言。';
 		} else {
@@ -561,10 +571,10 @@ class wall_model extends app_base {
 	/**
 	 *
 	 */
-	public function getEntryUrl($runningMpid, $id) {
+	public function getEntryUrl($runningSiteId, $id) {
 		$url = "http://" . $_SERVER['HTTP_HOST'];
-		$url .= "/rest/app/wall";
-		$url .= "?mpid=$runningMpid&wid=" . $id;
+		$url .= "/rest/site/fe/matter/wall";
+		$url .= "?site=$runningSiteId&app=" . $id;
 
 		return $url;
 	}

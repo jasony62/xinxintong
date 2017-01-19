@@ -265,7 +265,7 @@ define([], function() {
             case 'date':
                 inpAttrs['tms-date'] = 'Y';
                 inpAttrs['tms-date-value'] = 'data.' + schema.id;
-                html += '<div wrap="datet" ng-bind="data.' + schema.id + '|date:\'yy-MM-dd HH:mm\'"';
+                html += '<div wrap="date" ng-bind="data.' + schema.id + '*1000|date:\'yy-MM-dd HH:mm\'"';
                 html += ' title="' + schema.title + '"';
                 html += ' placeholder="' + schema.title + '"';
                 config.required === 'Y' && (html += 'required=""');
@@ -364,7 +364,7 @@ define([], function() {
             $label = $wrap.find('label');
             $label.html(schema.title);
 
-            if (/name|email|mobile|shorttext|longtext|member/.test(schema.type)) {
+            if (/name|email|mobile|shorttext|longtext|member|date/.test(schema.type)) {
                 $input = $wrap.find('input,select,textarea');
                 if (config.showname === 'label') {
                     $label.removeClass('sr-only');
@@ -588,7 +588,7 @@ define([], function() {
                 html = '<div ng-bind-html="' + "score2Html('" + schema.id + "')" + '"></div>';
                 break;
             case 'date':
-                html = "<div>{{Record.current.data." + schema.id + "|date:'yy-MM-dd HH:mm'}}</div>";
+                html = "<div>{{Record.current.data." + schema.id + "*1000|date:'yy-MM-dd HH:mm'}}</div>";
                 break;
             case 'image':
                 html = '<ul><li ng-repeat="img in Record.current.data.' + schema.id + '.split(\',\')"><img ng-src="{{img}}"></li></ul>';

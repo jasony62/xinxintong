@@ -1,6 +1,6 @@
 define(['frame'], function(ngApp) {
     'use strict';
-    ngApp.provider.controller('ctrlRecord', ['$scope', '$uibModal', 'srvApp', 'srvRecord', 'http2', function($scope, $uibModal, srvApp, srvRecord, http2) {
+    ngApp.provider.controller('ctrlRecord', ['$scope', '$uibModal', 'srvApp', 'srvRecord', 'http2', 'noticebox', function($scope, $uibModal, srvApp, srvRecord, http2, noticebox) {
         $scope.notifyMatterTypes = [{
             value: 'tmplmsg',
             title: '模板消息',
@@ -59,7 +59,7 @@ define(['frame'], function(ngApp) {
         };
         $scope.editRecord = function(record) {
             $uibModal.open({
-                templateUrl: '/views/default/pl/fe/matter/enroll/component/recordEditor.html?_=6',
+                templateUrl: '/views/default/pl/fe/matter/enroll/component/recordEditor.html?_=7',
                 controller: 'ctrlEdit',
                 backdrop: 'static',
                 resolve: {
@@ -120,9 +120,62 @@ define(['frame'], function(ngApp) {
             }
             return count;
         };
+        $scope.importByOther = function() {
+            $uibModal.open({
+                templateUrl: '/views/default/pl/fe/matter/enroll/component/importByOther.html?_=1',
+                controller: ['$scope', '$uibModalInstance', 'app', function($scope2, $mi, app) {
+                    var page, data, filter;
+                    $scope2.page = page = {
+                        at: 1,
+                        size: 10,
+                        j: function() {
+                            return 'page=' + this.at + '&size=' + this.size;
+                        }
+                    };
+                    $scope2.data = data = {};
+                    $scope2.filter = filter = {};
+                    $scope2.ok = function() {
+                        $mi.close(data);
+                    };
+                    $scope2.cancel = function() {
+                        $mi.dismiss('cancel');
+                    };
+                    $scope2.doFilter = function() {
+                        page.at = 1;
+                        $scope2.doSearch();
+                    };
+                    $scope2.doSearch = function() {
+                        var url = '/rest/pl/fe/matter/enroll/list?site=' + app.siteid + '&' + page.j();
+                        http2.post(url, {
+                            byTitle: filter.byTitle
+                        }, function(rsp) {
+                            $scope2.apps = rsp.data.apps;
+                            if ($scope2.apps.length) {
+                                data.fromApp = $scope2.apps[0].id;
+                            }
+                            page.total = rsp.data.total;
+                        });
+                    };
+                    $scope2.doSearch();
+                }],
+                backdrop: 'static',
+                resolve: {
+                    app: function() {
+                        return $scope.app;
+                    }
+                }
+            }).result.then(function(data) {
+                var url = '/rest/pl/fe/matter/enroll/record/importByOther?site=' + $scope.app.siteid + '&app=' + $scope.app.id;
+                url += '&fromApp=' + data.fromApp;
+                http2.post(url, {}, function(rsp) {
+                    noticebox.info('导入（' + rsp.data + '）条数据');
+                    $scope.doSearch(1);
+                });
+            });
+        };
         $scope.createAppByRecords = function() {
             $uibModal.open({
-                templateUrl: '/views/default/pl/fe/matter/enroll/component/createAppByRecords.html?_=2',
+                templateUrl: '/views/default/pl/fe/matter/enroll/component/createAppByRecords.html?_=5',
                 controller: ['$scope', '$uibModalInstance', 'app', function($scope2, $mi, app) {
                     var canUseSchemas = {},
                         config;
@@ -132,7 +185,7 @@ define(['frame'], function(ngApp) {
                         }
                     });
                     $scope2.schemas = canUseSchemas;
-                    $scope2.config = config = {};
+                    $scope2.config = config = { protoSchema: { type: 'score', range: [1, 5] } };
                     $scope2.ok = function() {
                         var schemas = [];
                         for (var id in config.schemas) {
@@ -140,13 +193,25 @@ define(['frame'], function(ngApp) {
                                 schemas.push(canUseSchemas[id]);
                             }
                         }
-                        $mi.close({ schemas: schemas });
+                        $mi.close({ schemas: schemas, protoSchema: config.protoSchema });
                     };
                     $scope2.cancel = function() {
                         $mi.dismiss('cancel');
                     };
+                    $scope2.changeSchemaType = function() {
+                        switch (config.protoSchema.type) {
+                            case 'score':
+                                config.protoSchema = { type: 'score', range: [1, 5] };
+                                break;
+                            case 'single':
+                                config.protoSchema = { type: 'single' };
+                                break;
+                            case 'multiple':
+                                config.protoSchema = { type: 'multiple' };
+                                break;
+                        }
+                    };
                 }],
-                windowClass: 'auto-height',
                 backdrop: 'static',
                 resolve: {
                     app: function() {
@@ -167,7 +232,15 @@ define(['frame'], function(ngApp) {
                             url += '&mission=' + $scope.app.mission_id;
                         }
                         http2.post(url, {
-                            proto: { scenario: 'voting' },
+                            proto: {
+                                scenario: 'voting',
+                                schema: {
+                                    type: config.protoSchema.type,
+                                    range: config.protoSchema.range,
+                                    unique: 'N',
+                                    _ver: 1
+                                }
+                            },
                             record: {
                                 schemas: config.schemas,
                                 eks: eks

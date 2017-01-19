@@ -64,6 +64,7 @@ class main extends \pl\fe\matter\base {
 			return new \ResponseTimeout();
 		}
 
+		$filter = $this->getPostJson();
 		$result = ['apps' => null, 'total' => 0];
 		$modelApp = $this->model('matter\enroll');
 		$q = [
@@ -82,6 +83,10 @@ class main extends \pl\fe\matter\base {
 		if ($onlySns === 'Y') {
 			$q[2] .= " and entry_rule like '%\"scope\":\"sns\"%'";
 		}
+		if (isset($filter->byTitle)) {
+			$q[2] .= " and title like '%" . $modelApp->escape($filter->byTitle) . "%'";
+		}
+
 		$q2['o'] = 'a.modify_at desc';
 		$q2['r']['o'] = ($page - 1) * $size;
 		$q2['r']['l'] = $size;
@@ -478,6 +483,9 @@ class main extends \pl\fe\matter\base {
 	}
 	/**
 	 * 根据登记记录创建登记活动
+	 * 选中的登记项的标题作为题目，选中的记录对应的内容作为选项
+	 * 目前支持生成单选题、多选题和打分题
+	 * 目前只支持通用登记模板页面
 	 *
 	 * @param string $site site's id
 	 * @param string $app app's id
@@ -499,16 +507,13 @@ class main extends \pl\fe\matter\base {
 		foreach ($eks as $index => $ek) {
 			$records[] = $modelRec->byId($ek);
 		}
-		/* 指定的记录schema */
+		/* 生成活动的schema */
+		$protoSchema = $customConfig->proto->schema;
 		$newSchemas = [];
 		foreach ($customConfig->record->schemas as $recordSchema) {
-			$newSchema = new \stdClass;
+			$newSchema = clone $protoSchema;
 			$newSchema->id = $recordSchema->id;
 			$newSchema->title = $recordSchema->title;
-			$newSchema->type = "score";
-			$newSchema->unique = "N";
-			$newSchema->_ver = 1;
-			$newSchema->range = ['1', '5'];
 			$newSchema->ops = [];
 			foreach ($records as $index => $record) {
 				if (empty($record->data->{$recordSchema->id})) {
@@ -521,7 +526,6 @@ class main extends \pl\fe\matter\base {
 			}
 			$newSchemas[] = $newSchema;
 		}
-
 		/* 使用缺省模板 */
 		$config = $this->_getSysTemplate('common', 'simple');
 		$config->schema_include_mission_phases = 'N';

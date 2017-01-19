@@ -291,11 +291,9 @@ class record extends base {
 			return array(false);
 		}
 		//发送给指定的用户的自定义信息
-		$token=$this->model()->query_obj_ss(['*','xxt_short_url_token',"code='enro'"]);
-		$msg="您有一条登记信息，请处理:\n";
+		$token=$this->model()->query_obj_ss(['*','xxt_short_url_token',"code='enro'"]);		
 		$noticeURL = 'http://' . $_SERVER['HTTP_HOST'];
 		$noticeURL .= "/rest/site/op/matter/enroll?site=$siteId&app=$app->id&ek=$ek&accessToken=$token->access_token";
-		$msg.=$noticeURL;
 		$yxProxy = $wxProxy = null;
 		
 		foreach ($receivers as $receiver) {
@@ -312,6 +310,7 @@ class record extends base {
 					} else {
 						$yxProxy = false;
 					}
+					$msg="您有一条登记信息，请处理\n ".$noticeURL;
 					$message = array(
 						'msgtype' => 'news',
 						'news' => array(
@@ -341,7 +340,7 @@ class record extends base {
 						$wxProxy = false;
 					}
 				}
-
+				$msg="您有一条登记信息，<a href='".$noticeURL."' >请处理</a> ";
 				$message = array(
 					"msgtype" => "text",
 					"text" => array(
@@ -359,11 +358,13 @@ class record extends base {
 				$qyConfig = $this->model('sns\qy')->bySite($siteId);
 				if ($qyConfig->joined === 'Y') {
 					$qyProxy=$this->model('sns\qy\proxy',$qyConfig);
-
+					$msg="您有一条登记信息，<a href='".$noticeURL."' >请处理</a> ";
 					$message=array(
 				 		'touser'=>$snsUser->qy_openid,
 				 		'msgtype'=>'text',
-				 		'content'=>$msg,
+				 		"text" => array(
+							"content" => $msg,
+						),
 					);
 
 					if ($qyProxy !== false && isset($message)) {

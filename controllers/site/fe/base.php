@@ -454,7 +454,31 @@ class base extends \TMS_CONTROLLER {
 
 		$fan['depts'] = json_encode($udepts);
 
-		$model = $this->model();
+		$model = $this->model();	
+		/*
+		 * 新增加的企业号通信录成员关联到信信通的账户
+		 */
+		$openid=$fan['openid'];
+		$uid=$this->model()->query_val_ss([
+			'uid',
+			'xxt_site_account',
+			" qy_openid ='$openid' "
+		]);
+
+		if($uid){
+			$fan['userid']=$uid;
+		}else{
+			$option=array(
+				'ufrom'=>'qy',
+				'qy_openid'=>$openid,
+				'nickname'=>$fan['nickname'],
+				'headimgurl'=>isset($user->avatar)?$user->avatar:'',
+			);
+
+			$account=$this->model("site\\user\\account")->blank($site,true,$option);
+
+			$fan['userid']=$account->uid;
+		}
 		/**
 		 * 为了兼容服务号和订阅号的操作，生成和成员用户对应的粉丝用户
 		 */
@@ -524,6 +548,30 @@ class base extends \TMS_CONTROLLER {
 			}
 		}
 		$fan['depts'] = json_encode($udepts);
+		/*
+		 * 建立企业号通信录成员关联到信信通的账户
+		 */
+		$openid=$user->userid;
+		$uid=$this->model()->query_val_ss([
+			'uid',
+			'xxt_site_account',
+			" qy_openid ='$openid' "
+		]);
+
+		if($uid){
+			$fan['userid']=$uid;
+		}else{
+			$option=array(
+				'ufrom'=>'qy',
+				'qy_openid'=>$openid,
+				'nickname'=>$user->name,
+				'headimgurl'=>isset($user->avatar)?$user->avatar:'',
+			);
+
+			$account=$this->model("site\\user\\account")->blank($site,true,$option);
+
+			$fan['userid']=$account->uid;
+		}
 		/**
 		 * 成员用户对应的粉丝用户
 		 */

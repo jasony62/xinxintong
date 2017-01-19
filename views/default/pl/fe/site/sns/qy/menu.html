@@ -78,7 +78,7 @@
                 <div class='col-md-10'>
                     <button class='btn btn-default btn-sm' ng-click='setReply()'>指定素材</button>
                     <div ng-if='editing.matter'>
-                        <a class='list-group-item' title={{editing.matter.type|typetitle}}>{{editing.matter.title||editing.matter.content}}</a>
+                        <a class='list-group-item' title={{editing.matter.type|typetitle}}>{{editing.matter.title}}</a>
                         <label class='checkbox-inline' ng-hide="editing.matter.type=='Text'"><input type='checkbox' ng-true-value="'Y'" ng-false-value="'N'" ng-model='editing.asview' ng-change="update('asview')">作为链接直接打开</label>
                     </div>
                 </div>

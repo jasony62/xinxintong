@@ -17,8 +17,9 @@ class main extends \site\fe\base {
 	 *
 	 */
 	public function get_action() {
-		if ($account = $this->model('site\user\account')->byId($this->who->uid, ['fields' => 'coin'])) {
+		if ($account = $this->model('site\user\account')->byId($this->who->uid, ['fields' => 'coin,headimgurl'])) {
 			$this->who->coin = $account->coin;
+			$this->who->headimgurl = $account->headimgurl;
 		}
 
 		return new \ResponseData($this->who);

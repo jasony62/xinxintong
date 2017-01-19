@@ -203,21 +203,21 @@ define(["angular", "xxt-page", "tms-discuss", "tms-coinpay", "tms-favor", "tms-s
         $scope.downmost = function() {
             var article = $scope.article;
             if (article.can_discuss === 'Y') {
-                if (!document.querySelector('.tms-discuss-switch')) {
+                if (!document.querySelector('.tms-switch-discuss')) {
                     tmsDiscuss.showSwitch(article.siteid, 'article,' + article.id, article.title);
                 }
             }
             if (article.can_coinpay === 'Y') {
-                if (!document.querySelector('.tms-coinpay-switch')) {
+                if (!document.querySelector('.tms-switch-coinpay')) {
                     tmsCoinPay.showSwitch(article.siteid, 'article,' + article.id);
                 }
             }
             if (article.can_siteuser === 'Y') {
-                if (!document.querySelector('.tms-siteuser-switch')) {
-                    tmsSiteUser.showSwitch(article.siteid);
+                if (!document.querySelector('.tms-switch-siteuser')) {
+                    tmsSiteUser.showSwitch(article.siteid, true);
                 }
             }
-            if (!document.querySelector('.tms-favor-switch')) {
+            if (!document.querySelector('.tms-switch-favor')) {
                 tmsFavor.showSwitch(article.siteid, article);
             }
             document.querySelector('#gototop').style.display = 'block';

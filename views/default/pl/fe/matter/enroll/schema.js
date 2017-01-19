@@ -264,10 +264,12 @@ define(['frame', 'schema'], function(ngApp, schemaLib) {
                 return '/views/default/pl/fe/matter/enroll/schema/' + schema.type + '.html?_=' + bust;
             }
         };
-        $scope.schemaPopoverHtml = function() {
+        $scope.schemaEditorHtml = function() {
             if ($scope.activeSchema) {
                 var bust = (new Date()).getMinutes();
                 return '/views/default/pl/fe/matter/enroll/schema/main.html?_=' + bust;
+            } else {
+                return '';
             }
         };
         $scope.assocAppName = function(appId) {
@@ -315,17 +317,6 @@ define(['frame', 'schema'], function(ngApp, schemaLib) {
                     break;
                 }
             }
-            // if ($scope.popover.target !== target) {
-            // 	if ($scope.popover.target) {
-            // 		$($scope.popover.target).trigger('hide');
-            // 	}
-            // 	$(target).trigger('show');
-            // 	$scope.popover = {
-            // 		target: target,
-            // 		schema: schema,
-            // 		index: target.dataset.schemaIndex
-            // 	};
-            // }
         };
         $scope.showSchemaProto = function($event) {
             var target = event.target;
@@ -367,7 +358,7 @@ define(['frame', 'schema'], function(ngApp, schemaLib) {
             $scope.updSchema(schema, 'ops');
         };
         var timerOfUpdate = null;
-        $scope.updSchema = function(schema, prop) {
+        $scope.updSchema = function(schema) {
             if (timerOfUpdate !== null) {
                 $timeout.cancel(timerOfUpdate);
             }
@@ -476,6 +467,11 @@ define(['frame', 'schema'], function(ngApp, schemaLib) {
      * 登记项编辑
      */
     ngApp.provider.controller('ctrlSchemaEdit', ['$scope', function($scope) {
+        var editing;
+
+        $scope.editing = editing = {};
+        editing.type = $scope.activeSchema.type;
+
         if ($scope.activeSchema.type === 'member') {
             if ($scope.activeSchema.schema_id) {
                 (function() {
@@ -500,6 +496,16 @@ define(['frame', 'schema'], function(ngApp, schemaLib) {
                 })();
             }
         }
+
+        $scope.changeSchemaType = function() {
+            var beforState = angular.copy($scope.activeSchema);
+            if (schemaLib.changeType($scope.activeSchema, editing.type)) {
+                $scope.app.pages.forEach(function(page) {
+                    page.updateSchema($scope.activeSchema, beforeState);
+                    $scope.updPage(page, ['data_schemas', 'html']);
+                });
+            }
+        };
     }]);
     /**
      * 导入导出记录

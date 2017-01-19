@@ -20,15 +20,16 @@ define(['frame', 'schema', 'editor'], function(ngApp, schemaLib, editorProxy) {
                 $scope.choosePage(page);
             });
         };
-        $scope.updPage = function(page, names) {
-            if (names.indexOf('html') !== -1) {
+        $scope.updPage = function(page, props) {
+            if (props.indexOf('html') !== -1) {
+                /* 如果是当前编辑页面 */
                 if (page === $scope.ep) {
                     page.html = editorProxy.getEditor().getContent();
                 }
                 editorProxy.purifyPage(page, true);
             }
 
-            return srvPage.update(page, names);
+            return srvPage.update(page, props);
         };
         $scope.delPage = function() {
             if (window.confirm('确定删除页面？')) {

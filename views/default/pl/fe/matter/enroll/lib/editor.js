@@ -1,5 +1,5 @@
 /**
- * base class of page
+ * tinymce
  */
 define(['wrap'], function(wrapLib) {
 	'use strict';
@@ -519,7 +519,7 @@ define(['wrap'], function(wrapLib) {
 					}
 				})();
 			}
-
+			/* 删除editor中的dom */
 			$domRemoved.remove();
 
 			this.html = _editor.getContent();

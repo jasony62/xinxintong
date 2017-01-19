@@ -354,58 +354,84 @@ define([], function() {
             html: html
         };
     };
-    InputWrap.prototype.modify = function(domWrap, dataWrap) {
-        var $wrap, $label, $input, config = dataWrap.config,
+    InputWrap.prototype.modify = function(domWrap, dataWrap, beforeSchema) {
+        var $dom, $label, $input, config = dataWrap.config,
             schema = dataWrap.schema;
 
-        $wrap = $(domWrap);
-
+        $dom = $(domWrap);
         if (dataWrap.type === 'input') {
-            $label = $wrap.find('label');
-            $label.html(schema.title);
+            if (beforeSchema && schema.type !== beforeSchema.type) {
+                $dom.html(this.embed(dataWrap).html);
+            } else {
+                $label = $dom.find('label');
+                $label.html(schema.title);
 
-            if (/name|email|mobile|shorttext|longtext|member|date/.test(schema.type)) {
-                $input = $wrap.find('input,select,textarea');
-                if (config.showname === 'label') {
-                    $label.removeClass('sr-only');
-                    $input.removeAttr('placeholder');
-                } else {
-                    $label.addClass('sr-only');
-                    $input.attr('placeholder', schema.title);
-                }
-                if (config.required === 'Y') {
-                    $input.attr('required', '');
-                } else {
-                    $input.removeAttr('required');
-                }
-            } else if (/single|phase/.test(schema.type)) {
-                (function(lib) {
-                    var html;
-                    if (schema.ops && schema.ops.length > 0) {
-                        $wrap.children('ul,select').remove();
-                        if (config.component === 'R') {
-                            html = lib._htmlSingleRadio(dataWrap);
-                            $wrap.append(html);
-                        } else if (config.component === 'S') {
-                            html = lib._htmlSingleSelect(dataWrap);
-                            $wrap.append(html);
+                if (/name|email|mobile|shorttext|longtext|member|date|location/.test(schema.type)) {
+                    $input = $dom.find('input,select,textarea');
+                    if (config.showname === 'label') {
+                        $label.removeClass('sr-only');
+                        $input.removeAttr('placeholder');
+                    } else {
+                        $label.addClass('sr-only');
+                        $input.attr('placeholder', schema.title);
+                    }
+                    if (config.required === 'Y') {
+                        $input.attr('required', '');
+                    } else {
+                        $input.removeAttr('required');
+                    }
+                } else if (/single|phase/.test(schema.type)) {
+                    (function(lib) {
+                        var html;
+                        if (schema.ops && schema.ops.length > 0) {
+                            $dom.children('ul,select').remove();
+                            if (config.component === 'R') {
+                                html = lib._htmlSingleRadio(dataWrap);
+                                $dom.append(html);
+                            } else if (config.component === 'S') {
+                                html = lib._htmlSingleSelect(dataWrap);
+                                $dom.append(html);
+                            }
                         }
-                    }
-                })(this);
-            } else if ('multiple' === schema.type) {
-                (function(lib) {
-                    var html;
-                    if (schema.ops && schema.ops.length > 0) {
-                        html = lib._htmlMultiple(dataWrap);
-                        $wrap.children('ul').remove();
-                        $wrap.append(html);
-                    }
-                })(this);
+                    })(this);
+                } else if ('multiple' === schema.type) {
+                    (function(lib) {
+                        var html;
+                        if (schema.ops && schema.ops.length > 0) {
+                            html = lib._htmlMultiple(dataWrap);
+                            $dom.children('ul').remove();
+                            $dom.append(html);
+                        }
+                    })(this);
+                } else if ('score' === schema.type) {
+                    (function(lib) {
+                        var html, wrapSchema;
+                        if (schema.ops && schema.ops.length > 0) {
+                            html = lib._htmlScoreItem(dataWrap);
+                            $dom.children('ul').remove();
+                            $dom.append(html);
+                        }
+                    })(this);
+                } else if (/image|file/.test(schema.type)) {
+                    (function(lib) {
+                        var $button = $dom.find('li.img-picker button'),
+                            sNgClick;
+
+                        sNgClick = 'chooseImage(' + "'" + schema.id + "'," + schema.count + ')';
+                        $button.attr('ng-click', sNgClick);
+                    })(this);
+                }
             }
         } else if (/radio|checkbox/.test(dataWrap.type)) {
             if (schema.ops && schema.ops.length === 1) {
-                $label = $wrap.find('label');
+                $label = $dom.find('label');
                 $label.find('span').html(schema.ops[0].l);
+            }
+        } else if ('html' === dataWrap.type) {
+            if (beforeSchema && schema.type !== beforeSchema.type) {
+                $dom.html(this.embed(dataWrap));
+            } else {
+                $dom.html(schema.content);
             }
         }
     };
@@ -637,14 +663,22 @@ define([], function() {
             }
         }
     };
-    ValueWrap.prototype.modify = function(domWrap, oWrap) {
+    ValueWrap.prototype.modify = function(domWrap, oWrap, beforeSchema) {
         var config = oWrap.config,
             schema = oWrap.schema,
-            $wrap = $(domWrap);
+            $dom = $(domWrap);
 
-        $wrap.find('label').html(schema.title);
-        config.inline === 'Y' ? $wrap.addClass('wrap-inline') : $wrap.removeClass('wrap-inline');
-        config.splitLine === 'Y' ? $wrap.addClass('wrap-splitline') : $wrap.removeClass('wrap-splitline');
+        if (beforeSchema && schema.type !== beforeSchema.type) {
+            $dom.html(this.htmlValue(schema));
+        } else {
+            if (schema.type === 'html') {
+                $dom.html(schema.content);
+            } else {
+                $dom.find('label').html(schema.title);
+            }
+            config.inline === 'Y' ? $dom.addClass('wrap-inline') : $dom.removeClass('wrap-inline');
+            config.splitLine === 'Y' ? $dom.addClass('wrap-splitline') : $dom.removeClass('wrap-splitline');
+        }
     };
     ValueWrap.prototype.dataByDom = function(domWrap, page) {
         var $wrap = $(domWrap),
@@ -706,8 +740,8 @@ define([], function() {
                 case 'member':
                     html += '<div>{{r.data.' + schema.id + '}}</div>';
                     break;
-                case 'datetime':
-                    html += '<div>{{r.data.' + schema.id + '|date:"yy-MM-dd HH:mm"}}</div>';
+                case 'date':
+                    html += '<div>{{r.data.' + schema.id + '*1000|date:"yy-MM-dd HH:mm"}}</div>';
                     break;
                 case 'single':
                 case 'phase':

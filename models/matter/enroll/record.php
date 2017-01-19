@@ -423,7 +423,7 @@ class record_model extends \TMS_MODEL {
 			}
 			$w .= $whereByData;
 		}
-		
+
 		// 查询参数
 		$q = [
 			'e.enroll_key,e.enroll_at,e.tags,e.userid,e.nickname,e.wx_openid,e.yx_openid,e.qy_openid,e.headimgurl,e.verified,e.comment,e.data',
@@ -445,7 +445,7 @@ class record_model extends \TMS_MODEL {
 				$data = json_decode($data);
 				if ($data === null) {
 					$r->data = 'json error(' . json_last_error_msg() . '):' . $r->data;
-				} else {					
+				} else {
 					$r->data = $data;
 				}
 				// 记录的分数
@@ -688,16 +688,16 @@ class record_model extends \TMS_MODEL {
 	 * 获得指定用户最后一次登记记录
 	 * 如果设置轮次，只返回当前轮次的情况
 	 */
-	public function getLast($siteId, $app, $user, $options = array()) {
+	public function getLast($app, $user, $options = array()) {
 		$fields = isset($options['fields']) ? $options['fields'] : '*';
 
 		$q = [
 			$fields,
 			'xxt_enroll_record',
-			"siteid='$siteId' and aid='{$app->id}' and state=1",
+			"siteid='{$app->siteid}' and aid='{$app->id}' and state=1",
 		];
 		$q[2] .= " and userid='{$user->uid}'";
-		if ($activeRound = \TMS_APP::M('matter\enroll\round')->getActive($siteId, $app->id)) {
+		if ($activeRound = \TMS_APP::M('matter\enroll\round')->getActive($app->siteid, $app->id)) {
 			$q[2] .= " and rid='$activeRound->rid'";
 		}
 		$q2 = [

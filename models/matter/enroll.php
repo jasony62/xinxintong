@@ -311,7 +311,7 @@ class enroll_model extends app_base {
 		$modelRec = \TMS_APP::M('matter\enroll\record');
 		$user = new \stdClass;
 		$user->openid = $openid;
-		$last = $modelRec->getLast($mpid, $aid, $user);
+		$last = $modelRec->getLast($aid, $user);
 
 		$q = array(
 			'count(*)',

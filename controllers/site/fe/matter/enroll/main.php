@@ -276,14 +276,14 @@ class main extends base {
 		$oOpenPage = $modelPage->byId($app->id, $oOpenPage->id, 'Y');
 		$params['page'] = $oOpenPage;
 
-		/* 自动登记 */
+		/* 自动登记???，解决之要打开了页面就登记？ */
 		$hasEnrolled = $this->modelApp->hasEnrolled($site, $app->id, $user);
 		if (!$hasEnrolled && $app->can_autoenroll === 'Y' && $oOpenPage->autoenroll_onenter === 'Y') {
 			$modelRec = $this->model('matter\enroll\record');
 			$options = [
 				'fields' => 'enroll_key,enroll_at',
 			];
-			$lastRecord = $modelRec->getLast($site, $$app->id, $user, $options);
+			$lastRecord = $modelRec->getLast($$app->id, $user, $options);
 			if (false === $lastRecord) {
 				$modelRec->add($site, $app, $user, (empty($posted->referrer) ? '' : $posted->referrer));
 			} else if ($lastRecord->enroll_at === '0') {
@@ -304,6 +304,25 @@ class main extends base {
 			$modelRec = $this->model('matter\enroll\record');
 			$record = $modelRec->byId($ek);
 			$params['record'] = $record;
+		}
+		/* 是否需要返回登记记录 */
+		if ($oOpenPage->type === 'I' && $newRecord !== 'Y') {
+			if (empty($ek)) {
+				if ($app->open_lastroll === 'Y') {
+					/* 获得最后一条登记数据。记录有可能未进行过数据填写 */
+					$options = [
+						'fields' => '*',
+					];
+					$modelRec = $this->model('matter\enroll\record');
+					$lastRecord = $modelRec->getLast($app, $user, $options);
+					$params['record'] = $lastRecord;
+				}
+			} else {
+				/* 打开指定记录 */
+				$modelRec = $this->model('matter\enroll\record');
+				$record = $modelRec->byId($ek);
+				$params['record'] = $record;
+			}
 		}
 
 		return new \ResponseData($params);

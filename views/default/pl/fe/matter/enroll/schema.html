@@ -3,7 +3,7 @@
     <div class='schema-proto col-md-3 hidden-xs' tms-flex-height top='72' bottom='0'>
         <!--create schema-->
         <div class='form-group list-group-item'>
-            <div class='help-block'>添加用户填写项</div>
+            <div class='help-block'>添加题目</div>
             <div class='flexrow'>
                 <button class='btn btn-default' ng-click="newSchema('name')">姓名</button>
                 <button class='btn btn-default' ng-click="newSchema('mobile')">手机</button>
@@ -17,7 +17,7 @@
             <div class='flexrow'>
                 <button class='btn btn-default' ng-click="newSchema('single')">单选题</button>
                 <button class='btn btn-default' ng-click="newSchema('multiple')">多选题</button>
-                <button class='btn btn-default' ng-click="newSchema('phase')">项目阶段</button>
+                <button class='btn btn-default' ng-click="newSchema('phase')" ng-if="app.mission_id">项目阶段</button>
             </div>
             <div class='flexrow'>
                 <button class='btn btn-default' ng-click="newSchema('image')">上传图片</button>
@@ -32,7 +32,7 @@
             </div>
         </div>
         <div class='form-group list-group-item' ng-if="app.scenario==='voting'">
-            <button class='btn btn-default' ng-click="batchSingleScore()">批量设置单选题分值</button>
+            <button class='btn btn-default' ng-click="batchScore()">批量设置打分题分值</button>
         </div>
         <div class='form-group list-group-item' ng-controller="ctrlApp">
             <div class='form-group' ng-if="!app.enroll_app_id">
@@ -51,7 +51,7 @@
             <div class='form-group' ng-if="app.enroll_app_id">
                 <button class='btn btn-default' ng-click="newByOtherApp(s,app.enrollApp)" ng-repeat="s in app.enrollApp.data_schemas">{{s.title}}</button>
             </div>
-            <div ng-if="app.enroll_app_id" class='help-block'>需要和［<span>{{app.enrollApp.title}}</span>］的登记内容匹配的登记项</div>
+            <div ng-if="app.enroll_app_id" class='help-block'>需要和［<span>{{app.enrollApp.title}}</span>］的登记内容匹配的题目</div>
         </div>
         <div class='form-group list-group-item' ng-controller="ctrlApp">
             <div class='form-group' ng-if="!app.group_app_id">
@@ -70,7 +70,7 @@
             <div class='form-group' ng-if="app.group_app_id">
                 <button class='btn btn-default' ng-click="newByOtherApp(s,app.groupApp)" ng-repeat="s in app.groupApp.data_schemas">{{s.title}}</button>
             </div>
-            <div ng-if="app.enroll_app_id" class='help-block'>需要和［<span>{{app.groupApp.title}}</span>］的分组内容匹配的登记项</div>
+            <div ng-if="app.enroll_app_id" class='help-block'>需要和［<span>{{app.groupApp.title}}</span>］的分组内容匹配的题目</div>
         </div>
         <div class='form-group list-group-item' ng-repeat="ms in memberSchemas">
             <div class='help-block'>{{ms.title}}</div>
@@ -100,7 +100,7 @@
                 <div class='actions hidden-xs'>
                     <button class='btn btn-sm btn-default' ng-if="'html'===schema.type" ng-click="makePagelet(schema)"><span class='glyphicon glyphicon-pencil'> 编辑</span></button>
                     <button class="btn btn-default btn-sm" ng-if="['single','phase','multiple','score'].indexOf(schema.type)!==-1" ng-click="addOption(schema)">添加选项</button>
-                    <button class="btn btn-default btn-sm" ng-click="copySchema(schema)">复制登记项</button>
+                    <button class="btn btn-default btn-sm" ng-click="copySchema(schema)">复制题目</button>
                     <button class='btn btn-sm btn-default' ng-click="upSchema(schema)"><span class='glyphicon glyphicon-arrow-up'></span></button>
                     <button class='btn btn-sm btn-default' ng-click="downSchema(schema)"><span class='glyphicon glyphicon-arrow-down'></span></button>
                     <button class='btn btn-sm btn-default' ng-click="removeSchema(schema)"><span class='glyphicon glyphicon-trash'></span></button>
@@ -112,7 +112,7 @@
         </div>
     </div>
     <div class='col-md-3 hidden-xs' tms-flex-height top='72' bottom='0'>
-        <div class='list-group-item' ng-include="schemaPopoverHtml()"></div>
+        <div class='list-group-item' ng-include="schemaEditorHtml()"></div>
     </div>
     <!-- end schema list -->
     <nav class='navbar navbar-default navbar-fixed-bottom visible-xs-block'>
@@ -130,6 +130,7 @@
     <div class='flexrow'>
         <button class='btn btn-default' ng-click="newSchema('shorttext')">单行文本</button>
         <button class='btn btn-default' ng-click="newSchema('longtext')">多行文本</button>
+        <button class='btn btn-default' ng-click="newSchema('date')">日期</button>
     </div>
     <div class='flexrow'>
         <button class='btn btn-default' ng-click="newSchema('single')">单选题</button>

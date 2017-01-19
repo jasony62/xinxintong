@@ -147,6 +147,25 @@ define(["angular", "xxt-page", "tms-discuss", "tms-coinpay", "tms-favor", "tms-s
                     require(['xxt-share'], setMpShare);
                 }
                 article.can_picviewer === 'Y' && require(['picviewer']);
+                var article = $scope.article;
+                if (!document.querySelector('.tms-switch-favor')) {
+                    tmsFavor.showSwitch(article.siteid, article);
+                }
+                if (article.can_discuss === 'Y') {
+                    if (!document.querySelector('.tms-switch-discuss')) {
+                        tmsDiscuss.showSwitch(article.siteid, 'article,' + article.id, article.title);
+                    }
+                }
+                if (article.can_coinpay === 'Y') {
+                    if (!document.querySelector('.tms-switch-coinpay')) {
+                        tmsCoinPay.showSwitch(article.siteid, 'article,' + article.id);
+                    }
+                }
+                if (article.can_siteuser === 'Y') {
+                    if (!document.querySelector('.tms-switch-siteuser')) {
+                        tmsSiteUser.showSwitch(article.siteid, true);
+                    }
+                }
                 $http.post('/rest/site/fe/matter/logAccess?site=' + siteId + '&id=' + id + '&type=article&title=' + article.title + '&shareby=' + shareby, {
                     search: location.search.replace('?', ''),
                     referer: document.referrer
@@ -174,14 +193,6 @@ define(["angular", "xxt-page", "tms-discuss", "tms-coinpay", "tms-favor", "tms-s
         $scope.siteId = siteId;
         $scope.articleId = id;
         $scope.mode = ls.match(/mode=([^&]*)/) ? ls.match(/mode=([^&]*)/)[1] : '';
-        $scope.like = function() {
-            if ($scope.mode === 'preview') return;
-            // var url = "/rest/site/fe/matter/article/score?site=" + $scope.siteId + "&id=" + $scope.articleId;
-            // $http.get(url).success(function(rsp) {
-            //     $scope.article.score = rsp.data[0];
-            //     $scope.article.praised = rsp.data[1];
-            // });
-        };
         $scope.followYixinMp = function() {
             //location.href = 'yixin://opencard?pid=' + $scope.mpa.yx_cardid;
         };
@@ -200,31 +211,8 @@ define(["angular", "xxt-page", "tms-discuss", "tms-coinpay", "tms-favor", "tms-s
                 location.href = '/rest/site/fe/matter/' + type + '?site=' + $scope.siteId + '&app=' + id;
             }
         };
-        $scope.downmost = function() {
-            var article = $scope.article;
-            if (article.can_discuss === 'Y') {
-                if (!document.querySelector('.tms-switch-discuss')) {
-                    tmsDiscuss.showSwitch(article.siteid, 'article,' + article.id, article.title);
-                }
-            }
-            if (article.can_coinpay === 'Y') {
-                if (!document.querySelector('.tms-switch-coinpay')) {
-                    tmsCoinPay.showSwitch(article.siteid, 'article,' + article.id);
-                }
-            }
-            if (article.can_siteuser === 'Y') {
-                if (!document.querySelector('.tms-switch-siteuser')) {
-                    tmsSiteUser.showSwitch(article.siteid, true);
-                }
-            }
-            if (!document.querySelector('.tms-switch-favor')) {
-                tmsFavor.showSwitch(article.siteid, article);
-            }
-            document.querySelector('#gototop').style.display = 'block';
-        };
         document.querySelector('#gototop').addEventListener('click', function() {
             document.querySelector('.article').scrollTop = 0;
-            this.style.display = 'none';
         });
         loadArticle().then(articleLoaded);
     }]);

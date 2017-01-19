@@ -13,6 +13,9 @@ define(['require', 'angular'], function(require, angular) {
                     if (!_user.headimgurl) {
                         _user.headimgurl = '/static/img/avatar.png';
                     }
+                    if (!_user.uname) {
+                        _user.uname = '未知昵称';
+                    }
                     deferred.resolve(_user);
                 });
                 return deferred.promise;

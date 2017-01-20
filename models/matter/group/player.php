@@ -478,28 +478,28 @@ class player_model extends \TMS_MODEL {
 	 * 指定分组内的用户
 	 */
 	public function &winnersByRound($appId, $rid = null) {
-		$q = array(
+		$q = [
 			'*',
 			'xxt_group_player',
-			"aid='$appId'",
-		);
+			"aid='$appId' and state=1",
+		];
 		if (!empty($rid)) {
 			$q[2] .= " and round_id='$rid'";
 		} else {
 			$q[2] .= " and round_id<>0";
 		}
-		$q2 = array('o' => 'round_id,draw_at');
+		$q2 = ['o' => 'round_id,draw_at'];
 		if ($players = $this->query_objs_ss($q, $q2)) {
 			/**
 			 * 获得自定义数据的值
 			 */
 			foreach ($players as &$p) {
 				$p->data = new \stdClass;
-				$qc = array(
+				$qc = [
 					'name,value',
 					'xxt_group_player_data',
 					"enroll_key='$p->enroll_key'",
-				);
+				];
 				$cds = $this->query_objs_ss($qc);
 				foreach ($cds as $cd) {
 					if ($cd->name === 'member') {

@@ -376,7 +376,7 @@ define(["angular", "enroll-common", "angular-sanitize", "xxt-share", "xxt-image"
                 }
             };
         })();
-        var facInput, tasksOfOnReady, tasksOfBeforeSubmit;
+        var facInput, tasksOfOnReady, tasksOfBeforeSubmit,subState;
         tasksOfBeforeSubmit = [];
         //在全局定义一个状态，传入工厂函数，留待审核不通过时用
         $scope.$watch('app',function(app){
@@ -461,12 +461,12 @@ define(["angular", "enroll-common", "angular-sanitize", "xxt-share", "xxt-image"
                     url += '&ek=' + rsp.data;
                     location.replace(url);
                 } else {
-                    $scope.app.subState = 1;
                     if (ek === undefined) {
                         $scope.record = {
                             enroll_key: rsp.data
                         }
                     }
+                    $scope.app.subState = 1;
                     $scope.$broadcast('xxt.app.enroll.submit.done', rsp.data);
                 }
             }, function(reason) {

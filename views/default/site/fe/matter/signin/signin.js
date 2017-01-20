@@ -76,6 +76,7 @@ define(["require", "angular", "angular-sanitize", "xxt-share", "xxt-image", "xxt
             var reason, dataSchemas, item, schema, value;
             reason = validate(data);
             if (true !== reason) {
+                app.subState = 1;
                 return reason;
             }
             if (page.data_schemas && page.data_schemas.length) {
@@ -90,12 +91,14 @@ define(["require", "angular", "angular-sanitize", "xxt-share", "xxt-image", "xxt
                             value = data[schema.id];
                         }
                         if (value === undefined || isEmpty(schema, value)) {
+                            app.subState = 1;
                             return '请填写必填项［' + schema.title + '］';
                         }
                     }
                     if (/image|file/.test(schema.type)) {
                         if (schema.count) {
                             if (data[schema.id] && data[schema.id].length > schema.count) {
+                                app.subState = 1;
                                 return '［' + schema.title + '］超出上传数量（' + schema.count + '）限制';
                             }
                         }
@@ -338,6 +341,11 @@ define(["require", "angular", "angular-sanitize", "xxt-share", "xxt-image", "xxt
     ngApp.controller('ctrlSignin', ['$scope', '$http', 'Input', function($scope, $http, Input) {
         var facInput, tasksOfOnReady, tasksOfBeforeSubmit;
         tasksOfBeforeSubmit = [];
+        $scope.$watch('app',function(app){
+            if(app ){
+                $scope.app.subState = 1;
+            }
+        });
         facInput = Input.ins();
         $scope.data = {
             member: {}
@@ -390,11 +398,6 @@ define(["require", "angular", "angular-sanitize", "xxt-share", "xxt-image", "xxt
         });
         var doSubmit = function(nextAction) {
             var ek, btnSubmit;
-            if (btnSubmit = document.querySelector('#btnSubmit button')) {
-                btnSubmit.classList.remove('btn-primary');
-                btnSubmit.classList.add('btn-default');
-                btnSubmit.setAttribute('disabled', true);
-            }
             ek = $scope.record ? $scope.record.enroll_key : undefined;
             facInput.submit($scope.data, ek).then(function(rsp) {
                 var url;
@@ -419,24 +422,16 @@ define(["require", "angular", "angular-sanitize", "xxt-share", "xxt-image", "xxt
                     $scope.$parent.errmsg = '完成提交（3）';
                 } else {
                     $scope.$parent.errmsg = '完成提交（4）';
-                    if (btnSubmit) {
-                        btnSubmit.classList.add('btn-primary');
-                        btnSubmit.classList.remove('btn-default');
-                        btnSubmit.removeAttribute('disabled');
-                    }
                     if (ek === undefined) {
                         $scope.record = {
                             enroll_key: rsp.data.ek
                         }
                     }
+                    $scope.app.subState = 1;
                     $scope.$broadcast('xxt.app.enroll.submit.done', rsp.data);
                 }
             }, function(reason) {
-                if (btnSubmit) {
-                    btnSubmit.classList.add('btn-primary');
-                    btnSubmit.classList.remove('btn-default');
-                    btnSubmit.removeAttribute('disabled');
-                }
+                $scope.app.subState = 1;
                 $scope.$parent.errmsg = reason;
             });
         };
@@ -449,10 +444,12 @@ define(["require", "angular", "angular-sanitize", "xxt-share", "xxt-image", "xxt
         };
         $scope.submit = function(event, nextAction) {
             var checkResult, task, seq;
-            if (true === (checkResult = facInput.check($scope.data, $scope.app, $scope.page))) {
-                tasksOfBeforeSubmit.length ? doTask(0, nextAction) : doSubmit(nextAction);
-            } else {
-                $scope.$parent.errmsg = checkResult;
+            if($scope.app.subState === 1){
+                if (true === (checkResult = facInput.check($scope.data, $scope.app, $scope.page))) {
+                    tasksOfBeforeSubmit.length ? doTask(0, nextAction) : doSubmit(nextAction);
+                } else {
+                    $scope.$parent.errmsg = checkResult;
+                }
             }
         };
         $scope.$watch('data.member.authid', function(nv) {

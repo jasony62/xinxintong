@@ -31,7 +31,7 @@ define(['angular'], function(angular) {
         this.showSwitch = function(siteId, matter) {
             var eSwitch;
             eSwitch = document.createElement('div');
-            eSwitch.classList.add('tms-coinpay-switch');
+            eSwitch.classList.add('tms-switch', 'tms-switch-coinpay');
             eSwitch.addEventListener('click', function(event) {
                 event.preventDefault();
                 event.stopPropagation();

@@ -50,26 +50,20 @@ table th,table td,table.mce-item-table th,table.mce-item-table td{border-left:1p
 #tag{font-size:14px;padding:1em 0;border-top:1px solid #eee}
 #tag>span{display:inline-block;margin-right:.3em;padding:.7em;color:#333;background:#ccc}
 
-/*gototop*/
-#gototop{position:fixed;bottom:8px;right:15px;width:48px;height:48px;background:rgba(192,192,192,0.5);border-radius:4px;color:#666;font-size:24px;line-height:48px;text-align:center;cursor:pointer;}
-#gototop:before{content:'顶部';font-size:0.7em;}
-
-/*favor switch*/
-.tms-favor-switch{position:fixed;bottom:64px;right:15px;width:48px;height:48px;background:rgba(192,192,192,0.5);border-radius:4px;color:#666;font-size:24px;line-height:48px;text-align:center;cursor:pointer;}
-.tms-favor-switch:before{content:'收藏';font-size:0.7em;}
-.tms-favor-switch.favored{background:rgba(132,255,192,0.5);}
-
-/*discuss switch*/
-.tms-discuss-switch{position:fixed;bottom:120px;right:15px;width:48px;height:48px;background:rgba(192,192,192,0.5);border-radius:4px;color:#666;font-size:24px;line-height:48px;text-align:center;cursor:pointer;}
-.tms-discuss-switch:before{content:'留言';font-size:0.7em;}
-
-/*coinpay switch*/
-.tms-coinpay-switch{position:fixed;bottom:176px;right:15px;width:48px;height:48px;background:rgba(192,192,192,0.5);border-radius:4px;color:#666;font-size:24px;line-height:48px;text-align:center;cursor:pointer;}
-.tms-coinpay-switch:before{content:'打赏';font-size:0.7em;}
-
-/*siteusre switch*/
-.tms-siteuser-switch{position:fixed;bottom:236px;right:15px;width:48px;height:48px;background:rgba(192,192,192,0.5);border-radius:4px;color:#666;font-size:24px;line-height:48px;text-align:center;cursor:pointer;}
-.tms-siteuser-switch:before{content:'我';font-size:0.7em;}
+/*switch*/
+.tms-switch{position:fixed;right:15px;width:48px;height:48px;background:rgba(192,192,192,0.5);border-radius:4px;color:#666;font-size:24px;line-height:48px;text-align:center;cursor:pointer;}
+.tms-switch:before{font-size:0.7em;}
+.tms-switch:nth-of-type(2){bottom:8px;}
+.tms-switch:nth-of-type(3){bottom:64px;}
+.tms-switch:nth-of-type(4){bottom:120px;}
+.tms-switch:nth-of-type(5){bottom:176px;}
+.tms-switch:nth-of-type(6){bottom:236px;}
+#gototop:before{content:'顶部';}
+.tms-switch-favor:before{content:'收藏';}
+.tms-switch-favor.favored{background:rgba(132,255,192,0.5);}
+.tms-switch-discuss:before{content:'留言';}
+.tms-switch-coinpay:before{content:'打赏';}
+.tms-switch-siteuser:before{content:'我';}
 
 /*picviewer*/
 #picViewer{position:absolute;left:0px;right:0px;top:0px;bottom:0px;z-index:999;display:none;margin:0 auto;overflow:hidden;background:black}

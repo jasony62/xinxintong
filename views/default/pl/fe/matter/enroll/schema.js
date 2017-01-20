@@ -1,4 +1,4 @@
-define(['frame', 'schema'], function(ngApp, schemaLib) {
+define(['frame', 'schema', 'wrap'], function(ngApp, schemaLib, wrapLib) {
     'use strict';
     /**
      * 登记项管理
@@ -56,6 +56,33 @@ define(['frame', 'schema'], function(ngApp, schemaLib) {
                 });
             });
         };
+        $scope.importByOther = function() {
+            srvApp.importSchemaByOther().then(function(schemas) {
+                schemas.forEach(function(schema) {
+                    var newSchema;
+                    newSchema = schemaLib.newSchema(schema.type, $scope.app);
+                    newSchema.type === 'member' && (newSchema.schema_id = schema.schema_id);
+                    newSchema.title = schema.title;
+                    if (schema.ops) {
+                        newSchema.ops = schema.ops;
+                    }
+                    if (schema.range) {
+                        newSchema.range = schema.range;
+                    }
+                    if (schema.count) {
+                        newSchema.count = schema.count;
+                    }
+                    $scope.app.data_schemas.push(newSchema);
+                    srvApp.update('data_schemas').then(function() {
+                        $scope.app.pages.forEach(function(page) {
+                            if (page.appendSchema(newSchema)) {
+                                srvPage.update(page, ['data_schemas', 'html']);
+                            }
+                        });
+                    });
+                });
+            });
+        };
         $scope.newByOtherApp = function(schema, otherApp) {
             var newSchema;
 
@@ -101,6 +128,7 @@ define(['frame', 'schema'], function(ngApp, schemaLib) {
                 });
             });
         };
+
 
         function removeSchema(removedSchema) {
             var deferred = $q.defer();
@@ -264,10 +292,12 @@ define(['frame', 'schema'], function(ngApp, schemaLib) {
                 return '/views/default/pl/fe/matter/enroll/schema/' + schema.type + '.html?_=' + bust;
             }
         };
-        $scope.schemaPopoverHtml = function() {
+        $scope.schemaEditorHtml = function() {
             if ($scope.activeSchema) {
                 var bust = (new Date()).getMinutes();
                 return '/views/default/pl/fe/matter/enroll/schema/main.html?_=' + bust;
+            } else {
+                return '';
             }
         };
         $scope.assocAppName = function(appId) {
@@ -315,17 +345,6 @@ define(['frame', 'schema'], function(ngApp, schemaLib) {
                     break;
                 }
             }
-            // if ($scope.popover.target !== target) {
-            // 	if ($scope.popover.target) {
-            // 		$($scope.popover.target).trigger('hide');
-            // 	}
-            // 	$(target).trigger('show');
-            // 	$scope.popover = {
-            // 		target: target,
-            // 		schema: schema,
-            // 		index: target.dataset.schemaIndex
-            // 	};
-            // }
         };
         $scope.showSchemaProto = function($event) {
             var target = event.target;
@@ -364,10 +383,10 @@ define(['frame', 'schema'], function(ngApp, schemaLib) {
             var i = schema.ops.indexOf(op);
 
             schema.ops.splice(i, 1);
-            $scope.updSchema(schema, 'ops');
+            $scope.updSchema(schema);
         };
         var timerOfUpdate = null;
-        $scope.updSchema = function(schema, prop) {
+        $scope.updSchema = function(schema, beforeState) {
             if (timerOfUpdate !== null) {
                 $timeout.cancel(timerOfUpdate);
             }
@@ -376,7 +395,7 @@ define(['frame', 'schema'], function(ngApp, schemaLib) {
                 srvApp.update('data_schemas').then(function() {
                     // 更新页面
                     $scope.app.pages.forEach(function(page) {
-                        page.updateSchema(schema);
+                        page.updateSchema(schema, beforeState);
                         srvPage.update(page, ['data_schemas', 'html']);
                     });
                 });
@@ -393,7 +412,7 @@ define(['frame', 'schema'], function(ngApp, schemaLib) {
             changeSchemaOrder(moved);
         });
         $scope.$on('title.xxt.editable.changed', function(e, schema) {
-            $scope.updSchema(schema, 'title');
+            $scope.updSchema(schema);
         });
         $scope.trustAsHtml = function(schema, prop) {
             return $sce.trustAsHtml(schema[prop]);
@@ -436,7 +455,7 @@ define(['frame', 'schema'], function(ngApp, schemaLib) {
             }).result.then(function(result) {
                 schema.title = $(result.html).text();
                 schema.content = result.html;
-                $scope.updSchema(schema, 'content');
+                $scope.updSchema(schema);
             });
         };
         // 回车添加选项
@@ -454,10 +473,10 @@ define(['frame', 'schema'], function(ngApp, schemaLib) {
             }
         });
         $scope.$on('options.orderChanged', function(e, moved, schemaId) {
-            $scope.updSchema(schemasById[schemaId], 'ops');
+            $scope.updSchema(schemasById[schemaId]);
         });
         $scope.$on('option.xxt.editable.changed', function(e, op, schemaId) {
-            $scope.updSchema(schemasById[schemaId], 'ops');
+            $scope.updSchema(schemasById[schemaId]);
         });
         $scope.$watch('app', function(app) {
             if (app) {
@@ -476,6 +495,11 @@ define(['frame', 'schema'], function(ngApp, schemaLib) {
      * 登记项编辑
      */
     ngApp.provider.controller('ctrlSchemaEdit', ['$scope', function($scope) {
+        var editing;
+
+        $scope.editing = editing = {};
+        editing.type = $scope.activeSchema.type;
+
         if ($scope.activeSchema.type === 'member') {
             if ($scope.activeSchema.schema_id) {
                 (function() {
@@ -500,6 +524,14 @@ define(['frame', 'schema'], function(ngApp, schemaLib) {
                 })();
             }
         }
+
+        $scope.changeSchemaType = function() {
+            var beforeState = angular.copy($scope.activeSchema);
+            if (schemaLib.changeType($scope.activeSchema, editing.type)) {
+                $scope.activeConfig = wrapLib.input.newWrap($scope.activeSchema).config;
+                $scope.updSchema($scope.activeSchema, beforeState);
+            }
+        };
     }]);
     /**
      * 导入导出记录

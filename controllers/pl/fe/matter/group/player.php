@@ -174,7 +174,7 @@ class player extends \pl\fe\matter\base {
 	 *
 	 * 同步在最后一次同步之后的数据或已经删除的数据
 	 */
-	public function syncByApp_action($site, $app, $onlySpeaker='N') {
+	public function syncByApp_action($site, $app, $onlySpeaker = 'N') {
 		if (false === ($user = $this->accountUser())) {
 			return new \ResponseTimeout();
 		}
@@ -339,11 +339,11 @@ class player extends \pl\fe\matter\base {
 		$modelPlayer->clean($app, true);
 		//获取所有用户数据
 		$u = array(
-				'*',
-				'xxt_wall_enroll',
-				"wid = '{$byApp}' and siteid = '{$site}'",
-			);
-		if($onlySpeaker === 'Y'){
+			'*',
+			'xxt_wall_enroll',
+			"wid = '{$byApp}' and siteid = '{$site}'",
+		);
+		if ($onlySpeaker === 'Y') {
 			$u[2] .= " and last_msg_at>0";
 		}
 		$wallUsers = $this->model()->query_objs_ss($u);
@@ -360,7 +360,7 @@ class player extends \pl\fe\matter\base {
 				$user->yx_openid = $wallUser->yx_openid;
 				$user->qy_openid = $wallUser->qy_openid;
 				$user->headimgurl = $wallUser->headimgurl;
-				if(empty($wallUser->enroll_key)){
+				if (empty($wallUser->enroll_key)) {
 					$ek = $modelPlayer->genKey($site, $app);
 					$wallUser->enroll_key = $ek;
 				}
@@ -409,15 +409,15 @@ class player extends \pl\fe\matter\base {
 	/**
 	 * 同步在最后一次同步之后的数据
 	 * $onlySpeaker 是否为发言的用户
-	 */ 
+	 */
 	private function _syncByWall($siteId, &$objGrp, $byApp, $onlySpeaker) {
 		//获取新增用户数据
 		$u = array(
-				'*',
-				'xxt_wall_enroll',
-				"wid = '{$byApp}' and siteid = '{$siteId}' and join_at > {$objGrp->last_sync_at} ",
-			);
-		if($onlySpeaker === 'Y'){
+			'*',
+			'xxt_wall_enroll',
+			"wid = '{$byApp}' and siteid = '{$siteId}' and join_at > {$objGrp->last_sync_at} ",
+		);
+		if ($onlySpeaker === 'Y') {
 			$u[2] .= " and last_msg_at>0";
 		}
 		$wallUsers = $this->model()->query_objs_ss($u);

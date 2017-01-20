@@ -76,7 +76,7 @@ define(['angular'], function(angular) {
         this.showSwitch = function(siteId, matter) {
             var eSwitch;
             eSwitch = document.createElement('div');
-            eSwitch.classList.add('tms-favor-switch');
+            eSwitch.classList.add('tms-switch', 'tms-switch-favor');
             eSwitch.addEventListener('click', function(event) {
                 event.preventDefault();
                 event.stopPropagation();
@@ -98,6 +98,6 @@ define(['angular'], function(angular) {
             });
         };
     });
-    
+
     return ngMod;
 });

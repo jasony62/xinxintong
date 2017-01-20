@@ -1,7 +1,26 @@
 <div ng-controller="ctrlSchemaEdit">
     <div class="form-group">
-        <label>登记项ID</label>
+        <label>题目ID</label>
         <input class='form-control' type='text' ng-model='activeSchema.id' ng-change="updSchema(activeSchema,'id')" readonly>
+    </div>
+    <div class="form-group">
+        <label>题目类型</label>
+        <select class='form-control' ng-model='editing.type' ng-change="changeSchemaType()">
+            <option value='shorttext'>单行文本</option>
+            <option value='longtext'>多行文本</option>
+            <option value='single'>单选题</option>
+            <option value='multiple'>多选题</option>
+            <option value='score'>打分题</option>
+            <option value='image'>上传图片</option>
+            <option value='file'>上传文件</option>
+            <option value='html'>描述说明</option>
+            <option value='name'>姓名</option>
+            <option value='mobile'>手机</option>
+            <option value='email'>邮箱</option>
+            <option value='date'>日期</option>
+            <option value='location'>上传位置</option>
+            <option value='phase'>项目阶段</option>
+        </select>
     </div>
     <div class="form-group" ng-if="activeSchema.type==='member'">
         <select class='form-control' disabled ng-model='selectedMemberSchema.schema' ng-options='ms.title for ms in memberSchemas'>
@@ -33,9 +52,6 @@
     <div class="form-group" ng-show="['image','file'].indexOf(activeSchema.type)!==-1">
         <label>限制数量（填0不限制）</label>
         <input type='text' class='form-control' ng-model='activeSchema.count' ng-change="updSchema(activeSchema,'count')">
-    </div>
-    <div class="checkbox" ng-show="'single'===activeSchema.type">
-        <label><input type='checkbox' ng-true-value="'Y'" ng-false-value="'N'" ng-model='activeSchema.score' ng-change="updSchema(activeSchema,'score')">打分</label>
     </div>
     <div class="form-group" ng-show="'Y'===activeSchema.requireCheck">
         <p class='help-block'>需要在【<span>{{assocAppName(activeSchema.fromApp)}}</span>】中检查</label>

@@ -56,14 +56,14 @@ define(['frame'], function(ngApp) {
         };
         $scope.choose = function() {
             $uibModal.open({
-                 templateUrl: 'chooseUser.html',
-                 controller: 'chooseUserCtrl',
-            }).result.then(function(data){
+                templateUrl: 'chooseUser.html',
+                controller: 'chooseUserCtrl',
+            }).result.then(function(data) {
                 var url;
                 url = '/rest/pl/fe/matter/enroll/receiver/add';
                 url += '?site=' + $scope.siteId;
                 url += '&app=' + $scope.id;
-                http2.post(url, data, function(rsp){
+                http2.post(url, data, function(rsp) {
                     http2.get(baseURL + 'list?site=' + $scope.siteId + '&app=' + $scope.id, function(rsp) {
                         $scope.receivers = rsp.data;
                     });
@@ -84,29 +84,29 @@ define(['frame'], function(ngApp) {
             total: 0,
             param: function() {
                 return 'page=' + this.at + '&size=' + this.size;
-           }
+            }
         };
-        $scope.search = function(name){
+        $scope.search = function(name) {
             var url = '/rest/pl/fe/matter/enroll/receiver/qymem';
             url += '?site=' + $scope.siteId;
             url += '&' + $scope.page.param();
-            http2.post(url,{keyword:name},function(rsp){
+            http2.post(url, { keyword: name }, function(rsp) {
                 $scope.users = rsp.data.data;
                 $scope.page.total = rsp.data.total;
             });
         }
-         $scope.doSearch = function(page,name){
+        $scope.doSearch = function(page, name) {
             var url;
             page && ($scope.page.at = page);
             url = '/rest/pl/fe/matter/enroll/receiver/qymem';
             url += '?site=' + $scope.siteId;
             url += '&' + $scope.page.param();
-            if(name){
-                http2.post(url,{keyword:name},function(rsp){
+            if (name) {
+                http2.post(url, { keyword: name }, function(rsp) {
                     $scope.users = rsp.data.data;
                     $scope.page.total = rsp.data.total;
                 })
-            }else{
+            } else {
                 http2.get(url, function(rsp) {
                     $scope.users = rsp.data.data;
                     $scope.page.total = rsp.data.total;
@@ -114,27 +114,27 @@ define(['frame'], function(ngApp) {
             }
         }
         $scope.selected = [];
-        var updateSelected = function(action,option){
-            if(action == 'add'){
+        var updateSelected = function(action, option) {
+            if (action == 'add') {
                 $scope.selected.push(option);
 
             }
-            if(action == 'remove'){
-                angular.forEach($scope.selected,function(item,index){
-                    if(item.uid == option.uid){
-                        $scope.selected.splice(index,1);
+            if (action == 'remove') {
+                angular.forEach($scope.selected, function(item, index) {
+                    if (item.uid == option.uid) {
+                        $scope.selected.splice(index, 1);
                     }
                 })
             }
         }
-        $scope.updateSelection = function($event, data){
+        $scope.updateSelection = function($event, data) {
             var checkbox = $event.target;
-            var action = (checkbox.checked ? 'add':'remove');
+            var action = (checkbox.checked ? 'add' : 'remove');
             var option = {
-                nickname:data.nickname,
-                uid:data.userid
+                nickname: data.nickname,
+                uid: data.userid
             };
-            updateSelected(action,option);
+            updateSelected(action, option);
         }
         $scope.ok = function() {
             $mi.close($scope.selected);

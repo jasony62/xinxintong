@@ -215,8 +215,8 @@ define(['frame', 'schema'], function(ngApp, schemaLib) {
                                 title: '分组名称',
                             },
                             ops = [];
-
-                        groupApp.data_schemas = JSON.parse(groupApp.data_schemas);
+                        //分组活动删除导入来源，groupApp.data_schemas为空字符串 , JSON.parse(''),splice()报错
+                        groupApp.data_schemas = groupApp.data_schemas ?  JSON.parse(groupApp.data_schemas):[];
                         groupApp.rounds.forEach(function(round) {
                             ops.push({
                                 v: round.round_id,

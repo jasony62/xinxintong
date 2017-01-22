@@ -11,15 +11,22 @@ window.loading = {
             paths: {
                 "domReady": '/static/js/domReady',
                 "angular": "/static/js/angular.min",
-                "util.site": "/views/default/site/util",
+                "angular-sanitize": "/static/js/angular-sanitize.min",
+                "xxt-page": "/static/js/xxt.ui.page",
             },
             shim: {
                 "angular": {
                     exports: "angular"
                 },
+                "angular-sanitize": {
+                    deps: ['angular'],
+                    exports: "angular-sanitize"
+                },
             },
-            deps: ['/views/default/site/op/matter/signin/console.js?_=1'],
             urlArgs: "bust=" + (new Date() * 1)
+        });
+        require(['xxt-page'], function(uiPage) {
+            uiPage.bootstrap('/views/default/site/op/matter/mission/main.js');
         });
     }
 };

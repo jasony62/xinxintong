@@ -260,8 +260,8 @@ ngApp.controller('ctrlConsole', ['$scope', '$uibModal', 'http2', 'templateShop',
         });
     };
     $scope.addGroup = function() {
-        http2.get('/rest/pl/fe/matter/group/create?site=' + $scope.siteId, function(rsp) {
-            location.href = '/rest/pl/fe/matter/group?site=' + $scope.siteId + '&id=' + rsp.data.id;
+        http2.get('/rest/pl/fe/matter/group/create?site=' + $scope.siteId + '&scenario=split', function(rsp) {
+            location.href = '/rest/pl/fe/matter/group/main?site=' + $scope.siteId + '&id=' + rsp.data.id;
         });
     };
     $scope.addLottery = function() {

@@ -35,7 +35,7 @@ class main extends \pl\fe\matter\base {
 		if (!empty($app->source_app)) {
 			$sourceApp = json_decode($app->source_app);
 			$options = array('cascaded' => 'N', 'fields' => 'id,title');
-			if($sourceApp->type === 'wall'){
+			if ($sourceApp->type === 'wall') {
 				$options = 'id,title';
 			}
 			$app->sourceApp = $this->model('matter\\' . $sourceApp->type)->byId($sourceApp->id, $options);
@@ -121,7 +121,6 @@ class main extends \pl\fe\matter\base {
 		$this->model()->insert('xxt_group', $newapp, false);
 		$app = $this->model('matter\group')->byId($appId);
 		/*记录操作日志*/
-		$app->type = 'group';
 		$this->model('matter\log')->matterOp($site->id, $user, $app, 'C');
 		/*记录和任务的关系*/
 		if (isset($mission)) {

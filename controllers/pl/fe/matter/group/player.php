@@ -243,7 +243,7 @@ class player extends \pl\fe\matter\base {
 				$user->qy_openid = $record->qy_openid;
 				$user->headimgurl = $record->headimgurl;
 				$modelPlayer->enroll($site, $objGrp, $user, ['enroll_key' => $ek, 'enroll_at' => $record->enroll_at]);
-				$modelPlayer->setData($user, $site, $objGrp, $ek, $record->data);
+				$modelPlayer->setData($site, $objGrp, $ek, $record->data);
 			}
 		}
 
@@ -309,7 +309,7 @@ class player extends \pl\fe\matter\base {
 				$user->qy_openid = $record->qy_openid;
 				$user->headimgurl = $record->headimgurl;
 				$modelPlayer->enroll($site, $objGrp, $user, ['enroll_key' => $ek, 'enroll_at' => $record->enroll_at]);
-				$modelPlayer->setData($user, $site, $objGrp, $ek, $record->data);
+				$modelPlayer->setData($site, $objGrp, $ek, $record->data);
 			}
 		}
 
@@ -365,7 +365,7 @@ class player extends \pl\fe\matter\base {
 					$wallUser->enroll_key = $ek;
 				}
 				$modelPlayer->enroll($site, $objGrp, $user, ['enroll_key' => $wallUser->enroll_key, 'enroll_at' => $wallUser->join_at]);
-				$modelPlayer->setData($user, $site, $objGrp, $wallUser->enroll_key, $wallUser->data);
+				$modelPlayer->setData($site, $objGrp, $wallUser->enroll_key, $wallUser->data);
 			}
 		}
 
@@ -435,11 +435,11 @@ class player extends \pl\fe\matter\base {
 				$user->headimgurl = $wallUser->headimgurl;
 				if ($modelPlayer->byId($objGrp->id, $wallUser->enroll_key, ['cascaded' => 'N'])) {
 					// 已经同步过的用户
-					$modelPlayer->setData($user, $siteId, $objGrp, $wallUser->enroll_key, $wallUser->data);
+					$modelPlayer->setData($siteId, $objGrp, $wallUser->enroll_key, $wallUser->data);
 				} else {
 					// 新用户
 					$modelPlayer->enroll($siteId, $objGrp, $user, ['enroll_key' => $wallUser->enroll_key, 'enroll_at' => $wallUser->join_at]);
-					$modelPlayer->setData($user, $siteId, $objGrp, $wallUser->enroll_key, $wallUser->data);
+					$modelPlayer->setData($siteId, $objGrp, $wallUser->enroll_key, $wallUser->data);
 				}
 			}
 		}
@@ -465,11 +465,11 @@ class player extends \pl\fe\matter\base {
 					$user->headimgurl = $record->headimgurl;
 					if ($modelPlayer->byId($objGrp->id, $record->enroll_key, ['cascaded' => 'N'])) {
 						// 已经同步过的用户
-						$modelPlayer->setData($user, $siteId, $objGrp, $record->enroll_key, $record->data);
+						$modelPlayer->setData($siteId, $objGrp, $record->enroll_key, $record->data);
 					} else {
 						// 新用户
 						$modelPlayer->enroll($siteId, $objGrp, $user, ['enroll_key' => $record->enroll_key, 'enroll_at' => $record->enroll_at]);
-						$modelPlayer->setData($user, $siteId, $objGrp, $record->enroll_key, $record->data);
+						$modelPlayer->setData($siteId, $objGrp, $record->enroll_key, $record->data);
 					}
 				} else {
 					// 删除用户
@@ -524,7 +524,7 @@ class player extends \pl\fe\matter\base {
 		}
 
 		$modelPlayer->enroll($site, $app, $user, $player);
-		$result = $modelPlayer->setData($user, $site, $app, $ek, $posted->data);
+		$result = $modelPlayer->setData($site, $app, $ek, $posted->data);
 		if (false === $result[0]) {
 			return new \ResponseError($result[1]);
 		}
@@ -550,10 +550,6 @@ class player extends \pl\fe\matter\base {
 
 		$app = $modelGrp->byId($app);
 
-		$user = new \stdClass;
-		$user->uid = '';
-		$user->nickname = '';
-
 		/* 更新记录数据 */
 		$record = new \stdClass;
 		if (isset($player->comment)) {
@@ -562,16 +558,14 @@ class player extends \pl\fe\matter\base {
 		if (isset($player->tags)) {
 			$record->tags = $player->tags;
 		}
-		if (isset($player->round_id)) {
-			if (empty($player->round_id)) {
-				$record->round_id = 0;
-				$record->round_title = '';
-			} else {
-				$modelRnd = $this->model('matter\group\round');
-				if ($round = $modelRnd->byId($player->round_id)) {
-					$record->round_id = $player->round_id;
-					$record->round_title = $round->title;
-				}
+		if (empty($player->round_id)) {
+			$record->round_id = 0;
+			$record->round_title = '';
+		} else {
+			$modelRnd = $this->model('matter\group\round');
+			if ($round = $modelRnd->byId($player->round_id)) {
+				$record->round_id = $player->round_id;
+				$record->round_title = $round->title;
 			}
 		}
 		$modelPlayer->update(
@@ -579,13 +573,15 @@ class player extends \pl\fe\matter\base {
 			$record,
 			["aid" => $app->id, "enroll_key" => $ek]
 		);
-
 		/* 更新登记数据 */
-		$result = $modelPlayer->setData($user, $site, $app, $ek, $player->data);
+		$result = $modelPlayer->setData($site, $app, $ek, $player->data);
 		if (false === $result[0]) {
 			return new \ResponseError($result[1]);
 		}
-		$player->data = json_decode($result[1]);
+		$player = $modelPlayer->byId($app->id, $ek);
+
+		/* 记录操作日志 */
+		$this->model('matter\log')->matterOp($site, $user, $app, 'update', $player);
 
 		return new \ResponseData($player);
 	}

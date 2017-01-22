@@ -1,0 +1,66 @@
+<div class='col-md-6'>
+    <div class='form-group'>
+        <label>活动名称</label>
+        <input type='text' class='form-control' ng-model='app.title' tms-auto-update tms-wait=1000 tms-update="update('title')">
+    </div>
+    <div class='form-group'>
+        <label>分组类型</label>
+        <select class='form-control' ng-model='app.scenario' ng-change="update('scenario');">
+            <option value='split'>拆分</option>
+            <option value='extract'>抽取</option>
+        </select>
+    </div>
+    <div class='form-group' ng-if="!app.mission">
+        <button class='btn btn-success' ng-click="assignMission()">指定项目</button>
+    </div>
+    <div class='form-group' ng-if="app.mission">
+        <label>所属项目</label>
+        <div class="input-group">
+            <input class='form-control' title="{{app.mission.title}}" value="{{app.mission.title}}" readonly="">
+            <span class="input-group-btn">
+                    <button class="btn btn-default" type="button" ng-click="quitMission()">
+                        <span class='glyphicon glyphicon-remove'></span>
+            </button>
+            </span>
+        </div>
+    </div>
+    <div class='form-group' ng-if="app.mission.multi_phase==='Y'">
+        <label>项目阶段</label>
+        <select class='form-control' ng-model="app.mission_phase_id" ng-change="choosePhase()" ng-options="phase.phase_id as phase.title for phase in app.mission.phases">
+            <option></option>
+        </select>
+    </div>
+    <div class='tile'>
+        <div class='form-group'>
+            <div>创建人：{{app.creater_name}}</div>
+            <div>创建时间：{{app.create_at*1000|date:'yy-MM-dd HH:mm'}}</div>
+            <div>修改人：{{app.modifier_name}}</div>
+            <div>最后一次修改时间：{{app.modify_at*1000|date:'yy-MM-dd HH:mm'}}</div>
+        </div>
+    </div>
+    <button class='btn btn-default' ng-click="remove()">删除活动</button>
+</div>
+<div class='col-md-6'>
+    <div class="panel panel-default" ng-controller="ctrlOpUrl">
+        <div class="panel-heading">结果展示页面</div>
+        <div class="panel-body">
+            <div class='form-group'>
+                <div class='input-group'>
+                    <input class='form-control' readonly value="{{opEntry.url}}">
+                    <span class='input-group-btn'>
+                        <button class='btn btn-default text2Clipboard' data-clipboard-text="{{opEntry.url}}">复制</button>
+                    </span>
+                </div>
+            </div>
+            <div class='form-group'>
+                <button class='btn btn-default' ng-if="!opEntry.url.length" ng-click="makeOpUrl()">生成</button>
+                <button class='btn btn-default' ng-if="opEntry.url.length" ng-click="closeOpUrl()">关闭</button>
+                <button uib-popover-template="'opUrlPasswd.html'" popover-append-to-body='true' popover-placement="bottom" popover-title="访问密码" popover-trigger="outsideClick" type="button" class="btn btn-default" class='btn btn-default' ng-if="opEntry.url.length">密码 <span class="caret"></span></button>
+            </div>
+            <div class='form-group' ng-if="opEntry.url.length">
+                <a href="javascript:void(0)" ng-click="gotoCode()">编辑页面</a>
+                <a href="javascript:void(0)" ng-click="resetCode()">重置页面</a>
+            </div>
+        </div>
+    </div>
+</div>

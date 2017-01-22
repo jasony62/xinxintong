@@ -218,6 +218,22 @@
                     
                 </div>
             </div>
+            <div class="panel panel-default" ng-controller="ctrlOpUrl">
+                <div class="panel-heading">结果审核页面</div>
+                <div class="panel-body">
+                    <div class='form-group'>
+                        <div class='input-group'>
+                            <input class='form-control' readonly value="{{opEntry.url}}">
+                            <span class='input-group-btn'>
+                                <button class='btn btn-default text2Clipboard' data-clipboard-text="{{opEntry.url}}">复制</button>
+                            </span>
+                        </div>
+                    </div>
+                    <button class='btn btn-default' ng-if="!opEntry.url.length" ng-click="makeOpUrl()">生成</button>
+                    <button class='btn btn-default' ng-if="opEntry.url.length" ng-click="closeOpUrl()">关闭</button>
+                    <button uib-popover-template="'opUrlPasswd.html'" popover-append-to-body='true' popover-placement="bottom" popover-title="访问密码" popover-trigger="outsideClick" type="button" class="btn btn-default" class='btn btn-default' ng-if="opEntry.url.length">密码 <span class="caret"></span></button>
+                </div>
+            </div>
         </uib-tab>
     </uib-tabset>
 </div>

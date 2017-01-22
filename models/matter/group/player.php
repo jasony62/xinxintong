@@ -48,12 +48,9 @@ class player_model extends \TMS_MODEL {
 	/**
 	 * 保存登记的数据
 	 */
-	public function setData($user, $siteId, &$app, $ek, $data, $submitkey = '') {
+	public function setData($siteId, &$app, $ek, $data) {
 		if (empty($data)) {
 			return array(true);
-		}
-		if (empty($submitkey)) {
-			$submitkey = $user->uid;
 		}
 		// 处理后的登记记录
 		$dbData = new \stdClass;
@@ -104,30 +101,6 @@ class player_model extends \TMS_MODEL {
 					$treatedValue[] = $rst[1];
 				}
 				$treatedValue = implode(',', $treatedValue);
-				$dbData->{$n} = $treatedValue;
-			} else if (is_array($v) && isset($v[0]->uniqueIdentifier)) {
-				/* 上传文件 */
-				$fsUser = \TMS_APP::M('fs/local', $siteId, '_user');
-				$fsResum = \TMS_APP::M('fs/local', $siteId, '_resumable');
-				$fsAli = \TMS_APP::M('fs/alioss', $siteId);
-				$treatedValue = array();
-				foreach ($v as $file) {
-					if (defined('SAE_TMP_PATH')) {
-						$dest = '/' . $app->id . '/' . $submitkey . '_' . $file->name;
-						$fileUploaded2 = $fsAli->getBaseURL() . $dest;
-					} else {
-						$fileUploaded = $fsResum->rootDir . '/' . $submitkey . '_' . $file->uniqueIdentifier;
-						!file_exists($fsUser->rootDir . '/' . $submitkey) && mkdir($fsUser->rootDir . '/' . $submitkey, 0777, true);
-						$fileUploaded2 = $fsUser->rootDir . '/' . $submitkey . '/' . $file->name;
-						if (false === rename($fileUploaded, $fileUploaded2)) {
-							return array(false, '移动上传文件失败');
-						}
-					}
-					unset($file->uniqueIdentifier);
-					$file->url = $fileUploaded2;
-					$treatedValue[] = $file;
-				}
-				$treatedValue = json_encode($treatedValue);
 				$dbData->{$n} = $treatedValue;
 			} else if ($schema->type === 'score') {
 				$dbData->{$n} = $v;

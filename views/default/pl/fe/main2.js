@@ -87,8 +87,8 @@ config(['$uibTooltipProvider', function($uibTooltipProvider) {
             });
         },
         addGroup: function(site) {
-            http2.get('/rest/pl/fe/matter/group/create?site=' + site.id, function(rsp) {
-                location.href = '/rest/pl/fe/matter/group?site=' + site.id + '&id=' + rsp.data.id;
+            http2.get('/rest/pl/fe/matter/group/create?site=' + site.id + '&scenario=split', function(rsp) {
+                location.href = '/rest/pl/fe/matter/group/main?site=' + site.id + '&id=' + rsp.data.id;
             });
         },
         addLottery: function(site) {

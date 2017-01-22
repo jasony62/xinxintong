@@ -1,5 +1,5 @@
-'use strict';
 define(["require", "angular", "util.site"], function(require, angular) {
+    'use strict';
     var ngApp = angular.module('app', ['util.site.tms']);
     ngApp.config(['$controllerProvider', function($cp) {
         ngApp.provider = {
@@ -19,7 +19,7 @@ define(["require", "angular", "util.site"], function(require, angular) {
             });
         };
         $scope.signinURL = 'http://' + location.host + '/rest/site/fe/matter/signin?site=' + PU.params.site + '&app=' + PU.params.app;
-        $scope.signinQrcode = '/rest/pl/fe/matter/signin/qrcode?url=' + encodeURIComponent($scope.signinURL);
+        $scope.signinQrcode = '/rest/site/op/matter/signin/qrcode?site=' + PU.params.site + '&url=' + encodeURIComponent($scope.signinURL);
         $scope.value2Label = function(val, key) {
             var i, j, s, aVal, aLab = [],
                 schemas = $scope.data_schemas;
@@ -48,7 +48,7 @@ define(["require", "angular", "util.site"], function(require, angular) {
             $scope.app = rsp.data.app;
             $scope.data_schemas = JSON.parse(rsp.data.app.data_schemas);
             PageLoader.render($scope, rsp.data.page).then(function() {
-                $scope.Page = rsp.data.page;
+                $scope.page = rsp.data.page;
             })
             $timeout(function() {
                 $scope.$broadcast('xxt.app.signin.ready');

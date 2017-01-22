@@ -1,7 +1,7 @@
 define(['require', 'page', 'schema'], function(require, pageLib, schemaLib) {
     'use strict';
-    var ngApp = angular.module('app', ['ngRoute', 'frapontillo.bootstrap-switch', 'ui.tms', 'service.signin', 'tinymce.enroll', 'ui.xxt']);
-    ngApp.config(['$controllerProvider', '$routeProvider', '$locationProvider', '$compileProvider', '$uibTooltipProvider', 'srvAppProvider', 'srvRoundProvider', 'srvPageProvider', 'srvRecordProvider', function($controllerProvider, $routeProvider, $locationProvider, $compileProvider, $uibTooltipProvider, srvAppProvider, srvRoundProvider, srvPageProvider, srvRecordProvider) {
+    var ngApp = angular.module('app', ['ngRoute', 'frapontillo.bootstrap-switch', 'ui.tms', , 'service.matter', 'service.signin', 'tinymce.enroll', 'ui.xxt']);
+    ngApp.config(['$controllerProvider', '$routeProvider', '$locationProvider', '$compileProvider', '$uibTooltipProvider', 'srvQuickEntryProvider', 'srvAppProvider', 'srvRoundProvider', 'srvPageProvider', 'srvRecordProvider', function($controllerProvider, $routeProvider, $locationProvider, $compileProvider, $uibTooltipProvider, srvQuickEntryProvider, srvAppProvider, srvRoundProvider, srvPageProvider, srvRecordProvider) {
         var RouteParam = function(name) {
             var baseURL = '/views/default/pl/fe/matter/signin/';
             this.templateUrl = baseURL + name + '.html?_=' + ((new Date()) * 1);
@@ -51,6 +51,8 @@ define(['require', 'page', 'schema'], function(require, pageLib, schemaLib) {
             //
             srvRecordProvider.setSiteId(siteId);
             srvRecordProvider.setAppId(appId);
+            //
+            srvQuickEntryProvider.setSiteId(siteId);
         })();
     }]);
     ngApp.controller('ctrlFrame', ['$scope', '$location', '$uibModal', '$q', 'http2', 'srvApp', function($scope, $location, $uibModal, $q, http2, srvApp) {

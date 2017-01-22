@@ -70,7 +70,7 @@ define(['frame'], function(ngApp) {
             });
         };
     }]);
-    ngApp.provider.controller('ctrlOpUrl', ['$scope', 'srvQuickEntry', function($scope, srvQuickEntry) {
+    ngApp.provider.controller('ctrlOpUrl', ['$scope', 'http2', 'srvQuickEntry', function($scope, http2, srvQuickEntry) {
         var targetUrl, persisted;
         $scope.opEntry = {};
         $scope.$watch('app', function(app) {
@@ -124,6 +124,5 @@ define(['frame'], function(ngApp) {
                 });
             }
         };
-
     }]);
 });

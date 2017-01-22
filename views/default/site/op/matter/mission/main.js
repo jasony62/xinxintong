@@ -42,7 +42,31 @@ define(['angular', 'xxt-page'], function(angular, uiPage) {
             };
         };
     });
-    ngApp.controller('ctrl', ['$scope', '$http', 'ls', function($scope, $http, LS) {
+    ngApp.controller('ctrl', ['$scope', '$http', '$q', 'ls', function($scope, $http, $q, LS) {
+        function getQuickEntry(taskUrl) {
+            var defer = $q.defer(),
+                url = '/rest/pl/fe/q/get?site=' + LS.p.site;
+
+            $http.post(url, {
+                url: encodeURI(taskUrl)
+            }).success(function(rsp) {
+                defer.resolve(rsp.data);
+            });
+
+            return defer.promise;
+        };
+        $scope.openMatter = function(matter) {
+            if (/article|custom|news|channel|link/.test(matter.type)) {
+                location.href = '/rest/site/fe/matter?site=' + LS.p.site + '&id=' + matter.id + '&type=' + matter.type;
+            } else if (/enroll|signin|group/.test(matter.type)) {
+                var appOpUrl = 'http://' + location.host + '/rest/site/op/matter/' + matter.type + '?site=' + LS.p.site + '&app=' + matter.id;
+                getQuickEntry(appOpUrl).then(function(entry) {
+                    if (entry && entry.code) {
+                        location.href = 'http://' + location.host + '/q/' + entry.code;
+                    }
+                });
+            }
+        };
         $http.get(LS.j('get', 'site', 'mission')).success(function(rsp) {
             if (rsp.err_code !== 0) {
                 $scope.errmsg = rsp.err_msg;

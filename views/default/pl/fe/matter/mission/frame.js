@@ -50,27 +50,13 @@ define([], function() {
             'user': '用户',
         };
         $scope.subView = '';
-        $scope.modified = false;
-        window.onbeforeunload = function(e) {
-            var message;
-            if ($scope.modified) {
-                message = '修改还没有保存，是否要离开当前页面？',
-                    e = e || window.event;
-                if (e) {
-                    e.returnValue = message;
-                }
-                return message;
-            }
-        };
         $scope.update = function(name) {
             modifiedData[name] = $scope.mission[name];
-            $scope.modified = true;
             return $scope.submit();
         };
         $scope.submit = function() {
             var defer = $q.defer();
             http2.post('/rest/pl/fe/matter/mission/setting/update?id=' + $scope.id, modifiedData, function(rsp) {
-                $scope.modified = false;
                 modifiedData = {};
                 noticebox.success('完成保存');
                 defer.resolve(rsp.data);

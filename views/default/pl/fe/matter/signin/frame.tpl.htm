@@ -27,7 +27,7 @@
                         <li><a href="/rest/pl/fe" target='_self'>个人工作台</a></li>
                         <li ng-if="site.yourRole"><a href="/rest/pl/fe/site/console?site={{app.siteid}}" target='_self'>{{site.name}}</a></li>
                         <li ng-if="!site.yourRole"><a href="javascript:void(0)" style='color:#777;cursor:default;'>{{site.name}}</a></li>
-                        <li ng-if="app.mission"><a href="/rest/pl/fe/matter/mission?id={{app.mission.id}}" target='_self' title="{{app.mission.title}}">{{app.mission.title}}</a></li>
+                        <li ng-if="app.mission"><a href="/rest/pl/fe/matter/mission?site={{app.siteid}}&id={{app.mission.id}}" target='_self' title="{{app.mission.title}}">{{app.mission.title}}</a></li>
                         <li><a href="/rest/pl/fe/matter/signin/main?site={{app.siteid}}&id={{id}}" title='{{app.title}}'>{{app.title}}</a></li>
                     </nav>
                     <ul class='nav navbar-nav navbar-right'>

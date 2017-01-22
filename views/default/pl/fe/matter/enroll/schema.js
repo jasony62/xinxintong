@@ -34,7 +34,7 @@ define(['frame', 'schema'], function(ngApp, schemaLib) {
             });
         };
         $scope.newMember = function(ms, schema) {
-            var newSchema = schemaLib.newSchema('member');
+            var newSchema = schemaLib.newSchema('member',$scope.app);
 
             newSchema.schema_id = ms.id;
             newSchema.id = schema.id;

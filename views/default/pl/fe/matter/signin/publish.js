@@ -110,7 +110,7 @@ define(['frame'], function(ngApp) {
         });
     }]);
     ngApp.provider.controller('ctrlOpUrl', ['$scope', 'srvQuickEntry', function($scope, srvQuickEntry) {
-        var targetUrl, persisted;
+        var targetUrl;
         $scope.opEntry = {};
         $scope.$watch('app', function(app) {
             if (!app) return;
@@ -119,7 +119,6 @@ define(['frame'], function(ngApp) {
                 if (entry) {
                     $scope.opEntry.url = 'http://' + location.host + '/q/' + entry.code;
                     $scope.opEntry.password = entry.password;
-                    persisted = entry;
                 }
             });
         });

@@ -1,18 +1,18 @@
 define(['frame'], function(ngApp) {
     'use strict';
-    ngApp.provider.controller('ctrlPublish', ['$scope', 'mediagallery', 'srvApp', function($scope, mediagallery, srvApp) {
+    ngApp.provider.controller('ctrlPublish', ['$scope', 'mediagallery', function($scope, mediagallery) {
         $scope.setPic = function() {
             var options = {
                 callback: function(url) {
                     $scope.app.pic = url + '?_=' + (new Date() * 1);
-                    srvApp.update('pic');
+                    $scope.update('pic');
                 }
             };
             mediagallery.open($scope.siteId, options);
         };
         $scope.removePic = function() {
             $scope.app.pic = '';
-            srvApp.update('pic');
+            $scope.update('pic');
         };
         $scope.summaryOfRecords().then(function(data) {
             $scope.summary = data;
@@ -124,12 +124,16 @@ define(['frame'], function(ngApp) {
         });
         $scope.makeOpUrl = function() {
             srvQuickEntry.add(targetUrl).then(function(task) {
+                $scope.app.op_short_url_code = task.code;
+                $scope.update('op_short_url_code');
                 $scope.opEntry.url = 'http://' + location.host + '/q/' + task.code;
             });
         };
         $scope.closeOpUrl = function() {
             srvQuickEntry.remove(targetUrl).then(function(task) {
                 $scope.opEntry.url = '';
+                $scope.app.op_short_url_code = '';
+                $scope.update('op_short_url_code');
             });
         };
         $scope.configOpUrl = function(event, prop) {

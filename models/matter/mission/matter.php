@@ -17,4 +17,34 @@ class matter_model extends \TMS_MODEL {
 
 		return $count;
 	}
+	/**
+	 * 获得项目下的所有素材
+	 */
+	public function &byMission($missionId, $matterType = null, $options = array()) {
+		$matters = [];
+		$fields = isset($options['fields']) ? $options['fields'] : '*';
+
+		$q = [
+			$fields,
+			'xxt_mission_matter',
+			["mission_id" => $missionId],
+		];
+		!empty($matterType) && $q[2]['matter_type'] = $matterType;
+
+		$q2 = ['o' => 'create_at desc'];
+		$mms = $this->query_objs_ss($q, $q2);
+
+		foreach ($mms as &$mm) {
+			if ($matter = \TMS_APP::M('matter\\' . $mm->matter_type)->byId($mm->matter_id)) {
+				/* 是否开放了运营者链接 */
+				if (isset($options['op_short_url_code']) && $options['op_short_url_code'] === true && empty($matter->op_short_url_code)) {
+					continue;
+				}
+				$matter->type = $mm->matter_type;
+				$matters[] = $matter;
+			}
+		}
+
+		return $matters;
+	}
 }

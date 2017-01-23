@@ -3,7 +3,7 @@ namespace site\op\matter\mission;
 
 require_once TMS_APP_DIR . '/controllers/site/op/base.php';
 /**
- * 项目主控制器
+ * 运营用户项目主控制器
  */
 class main extends \site\op\base {
 	/**
@@ -39,12 +39,13 @@ class main extends \site\op\base {
 	}
 	/**
 	 * 获得任务下的素材
+	 * 只有开放了运营管理者链接的活动才会列出
 	 *
-	 * @param int $id
+	 * @param int $mission 项目的ID
 	 */
 	public function matterList_action($mission, $matterType = null) {
-		$modelMis = $this->model('matter\mission');
-		$matters = $modelMis->mattersById($mission, $matterType);
+		$modelMis = $this->model('matter\mission\matter');
+		$matters = $modelMis->byMission($mission, $matterType, ['op_short_url_code' => true]);
 
 		return new \ResponseData($matters);
 	}

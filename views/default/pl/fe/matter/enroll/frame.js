@@ -96,7 +96,6 @@ define(['require', 'page', 'schema'], function(require, pageLib, schemaLib) {
                 });
             }
         };
-
         $scope.assignMission = function() {
             srvApp.assignMission().then(function(mission) {});
         };

@@ -29,7 +29,7 @@ class matter extends \pl\fe\matter\base {
 			return new \ResponseError('数据不存在');
 		}
 
-		$matters = $this->model('matter\mission')->mattersById($id, $matterType);
+		$matters = $this->model('matter\mission\matter')->byMission($id, $matterType);
 
 		return new \ResponseData($matters);
 	}

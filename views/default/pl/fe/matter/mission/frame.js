@@ -63,20 +63,27 @@ define([], function() {
             });
             return defer.promise;
         };
+        $scope.$on('$locationChangeStart', function(event, nextRoute, currentRoute) {
+            if (nextRoute.indexOf('/mission?') !== -1) {
+                event.preventDefault();
+            }
+        });
         $scope.$on('$locationChangeSuccess', function(event, currentRoute) {
             var subView = currentRoute.match(/([^\/]+?)\?/);
             $scope.subView = subView[1] === 'mission' ? 'main' : subView[1];
         });
         http2.get('/rest/pl/fe/matter/mission/get?id=' + $scope.id, function(rsp) {
             var mission = rsp.data;
-            mission.type = 'mission';
             mission.extattrs = (mission.extattrs && mission.extattrs.length) ? JSON.parse(mission.extattrs) : {};
             mission.opUrl = 'http://' + location.host + '/rest/site/op/matter/mission?site=' + mission.siteid + '&mission=' + $scope.id;
             $scope.mission = mission;
-            if (location.href.indexOf('/matter?') === -1) {
+            if (location.href.indexOf('/mission?') !== -1) {
                 http2.get('/rest/pl/fe/matter/mission/matter/count?id=' + $scope.id, function(rsp) {
                     if (parseInt(rsp.data)) {
                         $location.path('/rest/pl/fe/matter/mission/matter').search({ id: ls.id, site: ls.site });
+                        $location.replace();
+                    } else {
+                        $location.path('/rest/pl/fe/matter/mission/main').search({ id: ls.id, site: ls.site });
                         $location.replace();
                     }
                 });

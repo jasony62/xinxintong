@@ -238,7 +238,7 @@ config(['$uibTooltipProvider', function($uibTooltipProvider) {
     $scope.filter = filter = {};
     $scope.filter2 = filter2 = {};
     $scope.open = function(mission) {
-        location.href = '/rest/pl/fe/matter/mission?id=' + mission.mission_id;
+        location.href = '/rest/pl/fe/matter/mission?site=' + mission.siteid + '&id=' + mission.mission_id;
     };
     $scope.listSite = function() {
         var url = '/rest/pl/fe/matter/mission/listSite?_=' + t;

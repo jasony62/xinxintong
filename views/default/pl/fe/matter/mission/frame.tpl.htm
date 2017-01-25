@@ -25,7 +25,7 @@
                         <li><a href="/rest/pl/fe" target='_self'>个人工作台</a></li>
                         <li ng-if="site.yourRole"><a href="/rest/pl/fe/site/console?site={{mission.siteid}}" target='_self'>{{site.name}}</a></li>
                         <li ng-if="!site.yourRole"><a href="javascript:void(0)" style='color:#777;cursor:default;'>{{site.name}}</a></li>
-                        <li><a href="/rest/pl/fe/matter/mission/main?id={{id}}" title="{{mission.title}}">{{mission.title}}</a></li>
+                        <li><a href="/rest/pl/fe/matter/mission/main?site={{mission.siteid}}&id={{id}}" title="{{mission.title}}">{{mission.title}}</a></li>
                     </nav>
                     <ul class='nav navbar-nav navbar-right'>
                         <li class="dropdown">

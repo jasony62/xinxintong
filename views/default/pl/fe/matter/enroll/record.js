@@ -277,15 +277,27 @@ define(['frame'], function(ngApp) {
             srvRecord.init(app, $scope.page, $scope.criteria, $scope.records);
             // schemas
             srvApp.mapSchemas(app);
-            var recordSchemas = [];
+            var recordSchemas = [],
+                enrollDataSchemas = [],
+                groupDataSchemas = [];
             app.data_schemas.forEach(function(schema) {
                 if (schema.type !== 'html') {
                     recordSchemas.push(schema);
                 }
             });
             $scope.recordSchemas = recordSchemas;
-            $scope.enrollDataSchemas = app._schemasFromEnrollApp;
-            $scope.groupDataSchemas = app._schemasFromGroupApp;
+            app._schemasFromEnrollApp.forEach(function(schema) {
+                if (schema.type !== 'html') {
+                    enrollDataSchemas.push(schema);
+                }
+            });
+            $scope.enrollDataSchemas = enrollDataSchemas;
+            app._schemasFromGroupApp.forEach(function(schema) {
+                if (schema.type !== 'html') {
+                    groupDataSchemas.push(schema);
+                }
+            });
+            $scope.groupDataSchemas = groupDataSchemas;
             $scope.tmsTableWrapReady = 'Y';
             $scope.doSearch();
         });

@@ -40,7 +40,7 @@
                                 <li><a href="/rest/pl/fe/matter/enroll/page?site={{siteId}}&id={{id}}">修改页面</a></li>
                                 <li><a href="/rest/pl/fe/matter/enroll/publish?site={{siteId}}&id={{id}}">发布预览</a></li>
                                 <li><a href="/rest/pl/fe/matter/enroll/record?site={{siteId}}&id={{id}}">查看数据</a></li>
-                                <li ng-if="app.scenario==='voting'"><a href="/rest/pl/fe/matter/enroll/stat?site={{siteId}}&id={{id}}">统计报告</a></li>
+                                <li ng-if="app.scenario==='common'||app.scenario==='voting'"><a href="/rest/pl/fe/matter/enroll/stat?site={{siteId}}&id={{id}}">统计报告</a></li>
                                 <li ng-if="app.can_discuss==='Y'"><a href="/rest/pl/fe/matter/enroll/discuss?site={{siteId}}&id={{id}}">用户评论</a></li>
                                 <li class="divider"></li>
                                 <li><a href="/rest/pl/fe/matter/enroll/coin?site={{siteId}}&id={{id}}">积分规则</a></li>

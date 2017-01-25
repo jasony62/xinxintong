@@ -75,8 +75,9 @@ define(["angular", "enroll-common", "angular-sanitize", "xxt-share", "xxt-image"
         Input = function() {};
         Input.prototype.check = function(data, app, page) {
             var reason, dataSchemas, item, schema, value;
-
+            //验证手机号和姓名规则
             if (true !== (reason = validate(data))) {
+                app.subState = 1;
                 return reason;
             }
             if (page.data_schemas && page.data_schemas.length) {
@@ -91,12 +92,14 @@ define(["angular", "enroll-common", "angular-sanitize", "xxt-share", "xxt-image"
                             value = data[schema.id];
                         }
                         if (value === undefined || isEmpty(schema, value)) {
+                            app.subState = 1;
                             return '请填写必填项［' + schema.title + '］';
                         }
                     }
                     if (/image|file/.test(schema.type)) {
                         if (schema.count) {
                             if (data[schema.id] && data[schema.id].length > schema.count) {
+                                app.subState = 1;
                                 return '［' + schema.title + '］超出上传数量（' + schema.count + '）限制';
                             }
                         }
@@ -373,8 +376,14 @@ define(["angular", "enroll-common", "angular-sanitize", "xxt-share", "xxt-image"
                 }
             };
         })();
-        var facInput, tasksOfOnReady, tasksOfBeforeSubmit;
+        var facInput, tasksOfOnReady, tasksOfBeforeSubmit,subState;
         tasksOfBeforeSubmit = [];
+        //在全局定义一个状态，传入工厂函数，留待审核不通过时用
+        $scope.$watch('app',function(app){
+            if(app ){
+                $scope.app.subState = 1;
+            }
+        });
         facInput = Input.ins();
         $scope.data = {
             member: {}
@@ -437,8 +446,6 @@ define(["angular", "enroll-common", "angular-sanitize", "xxt-share", "xxt-image"
         });
         var doSubmit = function(nextAction) {
             var ek, btnSubmit;
-            btnSubmit = document.querySelector('#btnSubmit');
-            btnSubmit && btnSubmit.setAttribute('disabled', true);
             ek = $scope.record ? $scope.record.enroll_key : undefined;
             facInput.submit($scope.data, ek).then(function(rsp) {
                 var url;
@@ -454,16 +461,16 @@ define(["angular", "enroll-common", "angular-sanitize", "xxt-share", "xxt-image"
                     url += '&ek=' + rsp.data;
                     location.replace(url);
                 } else {
-                    btnSubmit && btnSubmit.removeAttribute('disabled');
                     if (ek === undefined) {
                         $scope.record = {
                             enroll_key: rsp.data
                         }
                     }
+                    $scope.app.subState = 1;
                     $scope.$broadcast('xxt.app.enroll.submit.done', rsp.data);
                 }
             }, function(reason) {
-                btnSubmit && btnSubmit.removeAttribute('disabled');
+                $scope.app.subState = 1;
                 $scope.$parent.errmsg = reason;
             });
         };
@@ -476,11 +483,15 @@ define(["angular", "enroll-common", "angular-sanitize", "xxt-share", "xxt-image"
         };
         $scope.submit = function(event, nextAction) {
             var checkResult, task, seq;
-            if (true === (checkResult = facInput.check($scope.data, $scope.app, $scope.page))) {
-                tasksOfBeforeSubmit.length ? doTask(0, nextAction) : doSubmit(nextAction);
-            } else {
-                $scope.$parent.errmsg = checkResult;
+            if($scope.app.subState === 1){
+                $scope.app.subState = 2;
+                if ( true === (checkResult = facInput.check($scope.data, $scope.app, $scope.page))) {
+                    tasksOfBeforeSubmit.length ? doTask(0, nextAction) : doSubmit(nextAction);
+                } else {
+                    $scope.$parent.errmsg = checkResult;
+                }
             }
+
         };
         $scope.getMyLocation = function(prop) {
             window.xxt.geo.getAddress($http, $q.defer(), LS.p.site).then(function(data) {

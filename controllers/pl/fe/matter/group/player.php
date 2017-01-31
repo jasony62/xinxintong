@@ -380,11 +380,11 @@ class player extends \pl\fe\matter\base {
 	private function _syncByEnroll($siteId, &$objGrp, $byApp) {
 		/* 获取变化的登记数据 */
 		$modelRec = $this->model('matter\enroll\record');
-		$q = array(
+		$q = [
 			'enroll_key,state',
 			'xxt_enroll_record',
 			"aid='$byApp' and (enroll_at>{$objGrp->last_sync_at} or state<>1)",
-		);
+		];
 		$records = $modelRec->query_objs_ss($q);
 
 		return $this->_syncRecord($siteId, $objGrp, $records, $modelRec);
@@ -450,6 +450,7 @@ class player extends \pl\fe\matter\base {
 	 * 同步数据
 	 */
 	private function _syncRecord($siteId, &$objGrp, &$records, &$modelRec) {
+		$cnt = 0;
 		$modelPlayer = $this->model('matter\group\player');
 		if (!empty($records)) {
 			$options = ['cascaded' => 'Y'];
@@ -471,14 +472,17 @@ class player extends \pl\fe\matter\base {
 						$modelPlayer->enroll($siteId, $objGrp, $user, ['enroll_key' => $record->enroll_key, 'enroll_at' => $record->enroll_at]);
 						$modelPlayer->setData($siteId, $objGrp, $record->enroll_key, $record->data);
 					}
+					$cnt++;
 				} else {
 					// 删除用户
-					$modelPlayer->remove($objGrp->id, $record->enroll_key, true);
+					if ($modelPlayer->remove($objGrp->id, $record->enroll_key, true)) {
+						$cnt++;
+					}
 				}
 			}
 		}
 
-		return count($records);
+		return $cnt;
 	}
 	/**
 	 * 手工添加分组用户信息
@@ -646,7 +650,6 @@ class player extends \pl\fe\matter\base {
 
 		// 记录操作日志
 		$app = $this->model('matter\group')->byId($app, ['cascaded' => 'N']);
-		$app->type = 'group';
 		$this->model('matter\log')->matterOp($site, $user, $app, 'quitGroup', $result);
 
 		return new \ResponseData($result);
@@ -671,7 +674,7 @@ class player extends \pl\fe\matter\base {
 		foreach ($eks as $ek) {
 			if ($player = $modelPly->byId($app, $ek)) {
 				if ($modelPly->joinGroup($app, $round, $ek)) {
-					$result->{$ek} = $player->round_id;
+					$result->{$ek} = $round->round_id;
 				} else {
 					$result->{$ek} = false;
 				}
@@ -682,7 +685,6 @@ class player extends \pl\fe\matter\base {
 
 		// 记录操作日志
 		$app = $this->model('matter\group')->byId($app, ['cascaded' => 'N']);
-		$app->type = 'group';
 		$this->model('matter\log')->matterOp($site, $user, $app, 'joinGroup', $result);
 
 		return new \ResponseData($result);

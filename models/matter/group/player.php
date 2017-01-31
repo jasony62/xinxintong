@@ -399,53 +399,22 @@ class player_model extends \TMS_MODEL {
 	/**
 	 * 有资格参加指定轮次分组的用户
 	 */
-	public function &pendings($appId, $hasData = 'N') {
+	public function &pendings($appId) {
 		/* 没有抽中过的用户 */
 		$q = array(
-			'id,enroll_key,nickname,wx_openid,yx_openid,qy_openid,headimgurl,userid,enroll_at,tags',
+			'id,enroll_key,nickname,wx_openid,yx_openid,qy_openid,headimgurl,userid,enroll_at,data,tags,comment',
 			'xxt_group_player',
 			"aid='$appId' and state=1 and round_id=0",
 		);
 		$q2['o'] = 'enroll_at desc';
 		/* 获得用户的登记数据 */
 		if (($players = $this->query_objs_ss($q, $q2)) && !empty($players)) {
-			/**
-			 * 获得自定义数据的值
-			 */
 			foreach ($players as &$player) {
-				$player->data = new \stdClass;
-				$qc = array(
-					'name,value',
-					'xxt_group_player_data',
-					"enroll_key='$player->enroll_key'",
-				);
-				$cds = $this->query_objs_ss($qc);
-				foreach ($cds as $cd) {
-					if ($cd->name === 'member') {
-						$player->data->{$cd->name} = json_decode($cd->value);
-					} else {
-						$player->data->{$cd->name} = $cd->value;
-					}
-				}
+				$player->data = json_decode($player->data);
 			}
-			/* 删除没有填写登记信息的数据 */
-			if ($hasData === 'Y') {
-				$players2 = array();
-				foreach ($players as $p2) {
-					if (empty($p2->data->name) && empty($p2->data->mobile)) {
-						continue;
-					}
-					$players2[] = $p2;
-				}
-				$result = $players2;
-			} else {
-				$result = $players;
-			}
-		} else {
-			$result = $players;
 		}
 
-		return $result;
+		return $players;
 	}
 	/**
 	 * 指定分组内的用户
@@ -463,24 +432,8 @@ class player_model extends \TMS_MODEL {
 		}
 		$q2 = ['o' => 'round_id,draw_at'];
 		if ($players = $this->query_objs_ss($q, $q2)) {
-			/**
-			 * 获得自定义数据的值
-			 */
-			foreach ($players as &$p) {
-				$p->data = new \stdClass;
-				$qc = [
-					'name,value',
-					'xxt_group_player_data',
-					"enroll_key='$p->enroll_key'",
-				];
-				$cds = $this->query_objs_ss($qc);
-				foreach ($cds as $cd) {
-					if ($cd->name === 'member') {
-						$p->data->{$cd->name} = json_decode($cd->value);
-					} else {
-						$p->data->{$cd->name} = $cd->value;
-					}
-				}
+			foreach ($players as &$player) {
+				$player->data = json_decode($player->data);
 			}
 		}
 

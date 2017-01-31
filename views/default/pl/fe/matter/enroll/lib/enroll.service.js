@@ -1,4 +1,4 @@
-angular.module('service.enroll', ['ui.bootstrap', 'ui.xxt']).
+angular.module('service.enroll', ['ui.bootstrap', 'ui.xxt', 'service.matter']).
 provider('srvApp', function() {
     var siteId, appId, oApp;
     this.setSiteId = function(id) {
@@ -414,84 +414,7 @@ provider('srvApp', function() {
     this.setAppId = function(id) {
         appId = id;
     };
-    this.$get = ['$q', '$sce', 'http2', 'noticebox', '$uibModal', 'pushnotify', function($q, $sce, http2, noticebox, $uibModal, pushnotify) {
-        function _memberAttr(val, schema) {
-            var keys;
-            if (val && val.member) {
-                keys = schema.id.split('.');
-                if (keys.length === 2) {
-                    return val.member[keys[1]];
-                } else if (val.member.extattr) {
-                    return val.member.extattr[keys[2]];
-                } else {
-                    return '';
-                }
-            } else {
-                return '';
-            }
-        };
-
-        function _value2Label(val, schema) {
-            var i, j, aVal, aLab = [];
-            if (val === undefined) return '';
-            if (schema.ops && schema.ops.length) {
-                if (schema.type === 'score') {
-                    var label = '';
-                    schema.ops.forEach(function(op, index) {
-                        if (val[op.v] !== undefined) {
-                            label += '<div>' + op.l + ':' + val[op.v] + '</div>';
-                        }
-                    });
-                    label = label.replace(/\s\/\s$/, '');
-                    return label;
-                } else {
-                    var aVal, aLab = [];
-                    aVal = val.split(',');
-                    schema.ops.forEach(function(op, i) {
-                        aVal.indexOf(op.v) !== -1 && aLab.push(op.l);
-                    });
-                    if (aLab.length) return aLab.join(',');
-                }
-            }
-            return val;
-        };
-        var _mapOfRecordState = {
-            '0': '删除',
-            '1': '正常',
-            '100': '删除',
-            '101': '用户删除',
-        };
-
-        function _convertRecord4Table(record) {
-            var schema, round, signinAt, data = {},
-                signinLate = {};
-
-            if (record.state !== undefined) {
-                record._state = _mapOfRecordState[record.state];
-            }
-            // enroll data
-            for (var schemaId in _oApp._schemasById) {
-                schema = _oApp._schemasById[schemaId];
-                switch (schema.type) {
-                    case 'image':
-                        var imgs = record.data[schema.id] ? record.data[schema.id].split(',') : [];
-                        data[schema.id] = imgs;
-                        break;
-                    case 'file':
-                        var files = record.data[schema.id] ? record.data[schema.id] : {};
-                        data[schema.id] = files;
-                        break;
-                    case 'member':
-                        data[schema.id] = _memberAttr(record.data[schema.id], schema);
-                        break;
-                    default:
-                        data[schema.id] = _value2Label(record.data[schema.id], schema);
-                }
-            };
-            record._data = data;
-
-            return record;
-        };
+    this.$get = ['$q', '$sce', 'http2', 'noticebox', '$uibModal', 'pushnotify', 'srvRecordConverter', function($q, $sce, http2, noticebox, $uibModal, pushnotify, srvRecordConverter) {
         var _oApp, _oPage, _oCriteria, _aRecords, _mapOfRoundsById = {};
         return {
             init: function(oApp, oPage, oCriteria, oRecords) {
@@ -549,7 +472,7 @@ provider('srvApp', function() {
                         records = [];
                     }
                     records.forEach(function(record) {
-                        _convertRecord4Table(record);
+                        srvRecordConverter.forTable(record, _oApp._schemasById);
                         _aRecords.push(record);
                     });
                     defer.resolve(records);
@@ -577,7 +500,7 @@ provider('srvApp', function() {
                         records = [];
                     }
                     records.forEach(function(record) {
-                        _convertRecord4Table(record);
+                        srvRecordConverter.forTable(record, _oApp._schemasById);
                         _aRecords.push(record);
                     });
                     defer.resolve(records);
@@ -588,49 +511,18 @@ provider('srvApp', function() {
             add: function(newRecord) {
                 http2.post('/rest/pl/fe/matter/enroll/record/add?site=' + siteId + '&app=' + appId, newRecord, function(rsp) {
                     var record = rsp.data;
-                    _convertRecord4Table(record);
+                    srvRecordConverter.forTable(record, _oApp._schemasById);
                     _aRecords.splice(0, 0, record);
                 });
             },
             update: function(record, updated) {
                 http2.post('/rest/pl/fe/matter/enroll/record/update?site=' + siteId + '&app=' + appId + '&ek=' + record.enroll_key, updated, function(rsp) {
                     angular.extend(record, rsp.data);
-                    _convertRecord4Table(record);
+                    srvRecordConverter.forTable(record, _oApp._schemasById);
                 });
             },
             convertRecord4Edit: function(col, data) {
-                if (col.type === 'file') {
-                    var files;
-                    if (data[col.id] && data[col.id].length) {
-                        files = data[col.id];
-                        files.forEach(function(file) {
-                            file.url = $sce.trustAsResourceUrl(file.url);
-                        });
-                    }
-                    data[col.id] = files;
-                } else if (col.type === 'multiple') {
-                    var obj = {},
-                        value;
-                    if (data[col.id] && data[col.id].length) {
-                        value = data[col.id].split(',')
-                        value.forEach(function(p) {
-                            obj[p] = true;
-                        });
-                    }
-                    data[col.id] = obj;
-                } else if (col.type === 'image') {
-                    var value = data[col.id],
-                        obj = [];
-                    if (value && value.length) {
-                        value = value.split(',');
-                        value.forEach(function(p) {
-                            obj.push({
-                                imgSrc: p
-                            });
-                        });
-                    }
-                    data[col.id] = obj;
-                }
+                srvRecordConverter.forEdit(col, data);
                 return data;
             },
             batchTag: function(rows) {

@@ -23,24 +23,24 @@ define(['frame'], function(ngApp) {
         };
         $scope.remove = function() {
             if (window.confirm('确定删除？')) {
-                http2.get('/rest/pl/fe/matter/group/remove?site=' + $scope.siteId + '&app=' + $scope.id, function(rsp) {
+                http2.get('/rest/pl/fe/matter/group/remove?site=' + $scope.app.siteid + '&app=' + $scope.app.id, function(rsp) {
                     if ($scope.app.mission) {
-                        location = "/rest/pl/fe/matter/mission?site=" + $scope.siteId + "&id=" + $scope.app.mission.id;
+                        location = "/rest/pl/fe/matter/mission?site=" + $scope.app.siteid + "&id=" + $scope.app.mission.id;
                     } else {
-                        location = '/rest/pl/fe/site/console?site=' + $scope.siteId;
+                        location = '/rest/pl/fe/site/console?site=' + $scope.app.siteid;
                     }
                 });
             }
         };
         $scope.assignMission = function() {
-            mattersgallery.open($scope.siteId, function(matters, type) {
+            mattersgallery.open($scope.app.siteid, function(matters, type) {
                 var app;
                 if (matters.length === 1) {
                     app = {
-                        id: $scope.id,
+                        id: $scope.app.id,
                         type: 'group'
                     };
-                    http2.post('/rest/pl/fe/matter/mission/matter/add?site=' + $scope.siteId + '&id=' + matters[0].id, app, function(rsp) {
+                    http2.post('/rest/pl/fe/matter/mission/matter/add?site=' + $scope.app.siteid + '&id=' + matters[0].id, app, function(rsp) {
                         $scope.app.mission = rsp.data;
                         $scope.app.mission_id = rsp.data.id;
                         srvApp.update('mission_id');
@@ -107,13 +107,13 @@ define(['frame'], function(ngApp) {
             var app, url;
             app = $scope.app;
             if (app.page_code_name && app.page_code_name.length) {
-                window.open('/rest/pl/fe/code?site=' + $scope.siteId + '&name=' + app.page_code_name, '_self');
+                window.open('/rest/pl/fe/code?site=' + app.siteid + '&name=' + app.page_code_name, '_self');
             } else {
-                url = '/rest/pl/fe/matter/group/page/create?site=' + $scope.siteId + '&app=' + app.id + '&scenario=' + app.scenario;
+                url = '/rest/pl/fe/matter/group/page/create?site=' + app.siteid + '&app=' + app.id + '&scenario=' + app.scenario;
                 http2.get(url, function(rsp) {
                     app.page_code_id = rsp.data.id;
                     app.page_code_name = rsp.data.name;
-                    window.open('/rest/pl/fe/code?site=' + $scope.siteId + '&name=' + app.page_code_name, '_self');
+                    window.open('/rest/pl/fe/code?site=' + app.siteid + '&name=' + app.page_code_name, '_self');
                 });
             }
         };
@@ -121,9 +121,9 @@ define(['frame'], function(ngApp) {
             var app, url;
             if (window.confirm('重置操作将丢失已做修改，确定？')) {
                 app = $scope.app;
-                url = '/rest/pl/fe/matter/group/page/reset?site=' + $scope.siteId + '&app=' + app.id + '&scenario=' + app.scenario;
+                url = '/rest/pl/fe/matter/group/page/reset?site=' + app.siteid + '&app=' + app.id + '&scenario=' + app.scenario;
                 http2.get(url, function(rsp) {
-                    window.open('/rest/pl/fe/code?site=' + $scope.siteId + '&name=' + app.page_code_name, '_self');
+                    window.open('/rest/pl/fe/code?site=' + app.siteid + '&name=' + app.page_code_name, '_self');
                 });
             }
         };

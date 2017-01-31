@@ -1,7 +1,7 @@
 define(['require'], function() {
     'use strict';
     var ngApp = angular.module('app', ['ngRoute', 'ui.tms', 'ui.xxt', 'service.matter', 'service.group']);
-    ngApp.config(['$controllerProvider', '$routeProvider', '$locationProvider', '$compileProvider', 'srvQuickEntryProvider', 'srvAppProvider', function($controllerProvider, $routeProvider, $locationProvider, $compileProvider, srvQuickEntryProvider, srvAppProvider) {
+    ngApp.config(['$controllerProvider', '$routeProvider', '$locationProvider', '$compileProvider', 'srvQuickEntryProvider', 'srvSiteProvider', 'srvAppProvider', 'srvRoundProvider', function($controllerProvider, $routeProvider, $locationProvider, $compileProvider, srvQuickEntryProvider, srvSiteProvider, srvAppProvider, srvRoundProvider) {
         var RouteParam = function(name) {
             var baseURL = '/views/default/pl/fe/matter/group/';
             this.templateUrl = baseURL + name + '.html?_=' + (new Date() * 1);
@@ -33,17 +33,13 @@ define(['require'], function() {
             siteId = ls.match(/[\?&]site=([^&]*)/)[1];
             appId = ls.match(/[\?&]id=([^&]*)/)[1];
             //
-            srvAppProvider.setSiteId(siteId);
-            srvAppProvider.setAppId(appId);
-            //
+            srvSiteProvider.config(siteId);
+            srvAppProvider.config(siteId, appId);
+            srvRoundProvider.config(siteId, appId);
             srvQuickEntryProvider.setSiteId(siteId);
         })();
     }]);
-    ngApp.controller('ctrlApp', ['$scope', '$location', 'http2', 'srvApp', function($scope, $location, http2, srvApp) {
-        var ls = $location.search();
-
-        $scope.id = ls.id;
-        $scope.siteId = ls.site;
+    ngApp.controller('ctrlApp', ['$scope', 'srvSite', 'srvApp', function($scope, srvSite, srvApp) {
         $scope.viewNames = {
             'main': '活动定义',
             'player': '分组数据',
@@ -51,11 +47,11 @@ define(['require'], function() {
         $scope.subView = '';
         $scope.$on('$locationChangeSuccess', function(event, currentRoute) {
             var subView = currentRoute.match(/([^\/]+?)\?/);
-            $scope.subView = subView[1] === 'group' ? 'record' : subView[1];
+            $scope.subView = subView[1] === 'group' ? 'player' : subView[1];
 
         });
-        http2.get('/rest/pl/fe/site/get?site=' + $scope.siteId, function(rsp) {
-            $scope.site = rsp.data;
+        srvSite.get().then(function(oSite) {
+            $scope.site = oSite;
         });
         srvApp.get().then(function(app) {
             $scope.app = app;

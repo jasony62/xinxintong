@@ -454,7 +454,7 @@ provider('srvApp', function() {
                             $('<a href="' + $scope2.qrcode.pic + '" download="' + app.title + '_' + round.title + '_签到二维码.jpeg"></a>')[0].click();
                         };
                         if (app.entry_rule.scope === 'sns' && sns.wx) {
-                            if(sns.wx.can_qrcode === 'Y'){
+                            if (sns.wx.can_qrcode === 'Y') {
                                 http2.get('/rest/pl/fe/matter/signin/wxQrcode?site=' + siteId + '&app=' + appId + '&round=' + round.rid, function(rsp) {
                                     var qrcodes = rsp.data;
                                     $scope2.qrcode = qrcodes.length ? qrcodes[0] : false;
@@ -536,36 +536,7 @@ provider('srvApp', function() {
     this.setAppId = function(id) {
         appId = id;
     };
-    this.$get = ['$q', '$uibModal', '$sce', 'http2', 'noticebox', 'pushnotify', function($q, $uibModal, $sce, http2, noticebox, pushnotify) {
-        function _memberAttr(val, schema) {
-            var keys;
-            if (val && val.member) {
-                keys = schema.id.split('.');
-                if (keys.length === 2) {
-                    return val.member[keys[1]];
-                } else if (val.member.extattr) {
-                    return val.member.extattr[keys[2]];
-                } else {
-                    return '';
-                }
-            } else {
-                return '';
-            }
-        };
-
-        function _value2Label(val, schema) {
-            var i, j, aVal, aLab = [];
-            if (val === undefined) return '';
-            if (schema.ops && schema.ops.length) {
-                aVal = val.split(',');
-                schema.ops.forEach(function(op) {
-                    aVal.indexOf(op.v) !== -1 && aLab.push(op.l);
-                });
-                if (aLab.length) return aLab.join(',');
-            }
-            return val;
-        };
-
+    this.$get = ['$q', '$uibModal', '$sce', 'http2', 'noticebox', 'pushnotify', 'srvRecordConverter', function($q, $uibModal, $sce, http2, noticebox, pushnotify, srvRecordConverter) {
         function isSigninLate(record, roundId) {
             var round = _mapOfRoundsById[roundId],
                 signinAt;
@@ -580,28 +551,10 @@ provider('srvApp', function() {
         };
 
         function _convertRecord4Table(record) {
-            var schema, round, signinAt, data = {},
+            var round, signinAt,
                 signinLate = {};
-            // enroll data
-            for (var schemaId in _oApp._schemasById) {
-                schema = _oApp._schemasById[schemaId];
-                switch (schema.type) {
-                    case 'image':
-                        var imgs = record.data[schema.id] ? record.data[schema.id].split(',') : [];
-                        data[schema.id] = imgs;
-                        break;
-                    case 'file':
-                        var files = record.data[schema.id] ? JSON.parse(record.data[schema.id]) : {};
-                        data[schema.id] = files;
-                        break;
-                    case 'member':
-                        data[schema.id] = _memberAttr(record.data[schema.id], schema);
-                        break;
-                    default:
-                        data[schema.id] = _value2Label(record.data[schema.id], schema);
-                }
-            };
-            record._data = data;
+
+            srvRecordConverter.forTable(record, _oApp._schemasById);
             // signin log
             for (var roundId in _mapOfRoundsById) {
                 round = _mapOfRoundsById[roundId];
@@ -827,33 +780,7 @@ provider('srvApp', function() {
                 return defer.promise;
             },
             convertRecord4Edit: function(col, data) {
-                var files;
-                if (col.type === 'file') {
-                    files = JSON.parse(data[col.id]);
-                    files.forEach(function(file) {
-                        file.url = $sce.trustAsResourceUrl(file.url);
-                    });
-                    data[col.id] = files;
-                } else if (col.type === 'multiple') {
-                    var value = data[col.id].split(','),
-                        obj = {};
-                    value.forEach(function(p) {
-                        obj[p] = true;
-                    });
-                    data[col.id] = obj;
-                } else if (col.type === 'image') {
-                    var value = data[col.id],
-                        obj = [];
-                    if (value && value.length) {
-                        value = value.split(',');
-                        value.forEach(function(p) {
-                            obj.push({
-                                imgSrc: p
-                            });
-                        });
-                    }
-                    data[col.id] = obj;
-                }
+                srvRecordConverter.forEdit(col, data);
                 return data;
             },
             syncByEnroll: function(record) {

@@ -86,6 +86,7 @@ class main extends \pl\fe\matter\base {
 			return new \ResponseTimeout();
 		}
 
+		$modelApp = $this->model('matter\group');
 		$customConfig = $this->getPostJson();
 		$current = time();
 		$newapp = array();
@@ -99,7 +100,7 @@ class main extends \pl\fe\matter\base {
 		} else {
 			$modelMis = $this->model('matter\mission');
 			$mission = $modelMis->byId($mission);
-			$newapp['summary'] = $mission->summary;
+			$newapp['summary'] = $modelApp->escapse($mission->summary);
 			$newapp['pic'] = $mission->pic;
 			$newapp['mission_id'] = $mission->id;
 			$newapp['use_mission_header'] = 'Y';
@@ -112,16 +113,18 @@ class main extends \pl\fe\matter\base {
 		$newapp['scenario'] = $scenario;
 		$newapp['creater'] = $user->id;
 		$newapp['creater_src'] = $user->src;
-		$newapp['creater_name'] = $user->name;
+		$newapp['creater_name'] = $modelApp->escapse($user->name);
 		$newapp['create_at'] = $current;
 		$newapp['modifier'] = $user->id;
 		$newapp['modifier_src'] = $user->src;
-		$newapp['modifier_name'] = $user->name;
+		$newapp['modifier_name'] = $modelApp->escapse($user->name);
 		$newapp['modify_at'] = $current;
-		$this->model()->insert('xxt_group', $newapp, false);
-		$app = $this->model('matter\group')->byId($appId);
+		$modelApp->insert('xxt_group', $newapp, false);
+		$app = $modelApp->byId($appId);
+
 		/*记录操作日志*/
 		$this->model('matter\log')->matterOp($site->id, $user, $app, 'C');
+
 		/*记录和任务的关系*/
 		if (isset($mission)) {
 			$modelMis->addMatter($user, $site->id, $mission->id, $app);
@@ -157,18 +160,18 @@ class main extends \pl\fe\matter\base {
 		$newapp['id'] = $newaid;
 		$newapp['creater'] = $user->id;
 		$newapp['creater_src'] = $user->src;
-		$newapp['creater_name'] = $user->name;
+		$newapp['creater_name'] = $modelApp->escapse($user->name);
 		$newapp['create_at'] = $current;
 		$newapp['modifier'] = $user->id;
 		$newapp['modifier_src'] = $user->src;
-		$newapp['modifier_name'] = $user->name;
+		$newapp['modifier_name'] = $modelApp->escapse($user->name);
 		$newapp['modify_at'] = $current;
-		$newapp['title'] = $copied->title . '（副本）';
+		$newapp['title'] = $modelApp->escapse($copied->title) . '（副本）';
 		$newapp['pic'] = $copied->pic;
-		$newapp['summary'] = $copied->summary;
+		$newapp['summary'] = $modelApp->escapse($copied->summary);
 		$newapp['scenario'] = $copied->scenario;
-		$newapp['data_schemas'] = $copied->data_schemas;
-		$newapp['group_rule'] = $copied->group_rule;
+		$newapp['data_schemas'] = $modelApp->escapse($copied->data_schemas);
+		$newapp['group_rule'] = $modelApp->escapse($copied->group_rule);
 		if (!empty($mission)) {
 			$newapp['mission_id'] = $mission;
 		}
@@ -178,7 +181,6 @@ class main extends \pl\fe\matter\base {
 		$app = $modelApp->byId($newaid, ['cascaded' => 'N']);
 
 		/* 记录操作日志 */
-		$app->type = 'group';
 		$this->model('matter\log')->matterOp($site, $user, $app, 'C');
 
 		/* 记录和任务的关系 */
@@ -199,21 +201,20 @@ class main extends \pl\fe\matter\base {
 		if (false === ($user = $this->accountUser())) {
 			return new \ResponseTimeout();
 		}
-		$model = $this->model();
+		$modelApp = $this->model('matter\group');
 		/**
 		 * 处理数据
 		 */
-		$nv = (array) $this->getPostJson();
-		$nv['modifier'] = $user->id;
-		$nv['modifier_src'] = $user->src;
-		$nv['modifier_name'] = $user->name;
-		$nv['modify_at'] = time();
+		$nv = $this->getPostJson();
+		$nv->modifier = $user->id;
+		$nv->modifier_src = $user->src;
+		$nv->modifier_name = $user->name;
+		$nv->modify_at = time();
 
-		$rst = $model->update('xxt_group', $nv, ["id" => $app]);
+		$rst = $modelApp->update('xxt_group', $nv, ["id" => $app]);
 		/*记录操作日志*/
 		if ($rst) {
-			$app = $this->model('matter\group')->byId($app, 'id,title,summary,pic');
-			$app->type = 'group';
+			$app = $modelApp->byId($app, 'id,title,summary,pic');
 			$this->model('matter\log')->matterOp($site, $user, $app, 'U');
 		}
 

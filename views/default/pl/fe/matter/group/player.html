@@ -12,13 +12,12 @@
                     <span class="input-group-btn">
                         <button class="btn btn-default" type="button" ng-click="cancelSourceApp()">
                             <span class='glyphicon glyphicon-remove'></span>
-                        </button>
+                    </button>
                     </span>
                 </div>
             </div>
             <div class='form-group' ng-if="app.sourceApp">
                 <button class='btn btn-success' ng-click='syncByApp()'>同步用户</button>
-                
             </div>
         </div>
         <!-- groups -->
@@ -29,9 +28,9 @@
                 <button class='btn btn-success' ng-click="addRound()">添加分组</button>
             </div>
             <div class='list-group'>
-                <a class='list-group-item' ng-class="{'active':null===activeRound}" ng-click="open(null)">全部</a>
-                <a class='list-group-item' ng-class="{'active':false===activeRound}" ng-click="open(false)">未分组</a>
-                <a class='list-group-item' ng-class="{'active':r===activeRound}" ng-repeat='r in rounds' ng-click="open(r)" style='min-height:41px'>
+                <a class='list-group-item' ng-class="{'active':null===activeRound}" ng-click="openRound(null)">全部</a>
+                <a class='list-group-item' ng-class="{'active':false===activeRound}" ng-click="openRound(false)">未分组</a>
+                <a class='list-group-item' ng-class="{'active':r===activeRound}" ng-repeat='r in rounds' ng-click="openRound(r)" style='min-height:41px'>
                     <span>{{r.title}}</span>
                     <button class='btn btn-xs btn-default pull-right' ng-if="r===activeRound" ng-click="removeRound()"><span class='glyphicon glyphicon-remove'></span></button>
                 </a>
@@ -45,17 +44,15 @@
     <div class='col-md-8' ng-if="!activeRound&&app.sourceApp">
         <!-- result -->
         <div class='tile' ng-controller='ctrlPlayers'>
-            <div class='form-group' tms-table-wrap ready='tableReady' ng-include="'/views/default/pl/fe/matter/group/component/players.html?_=4'">
+            <div class='form-group' tms-table-wrap ready='tableReady' ng-include="'/views/default/pl/fe/matter/group/component/players.html?_=6'">
             </div>
             <div class='form-group'>
                 <div class='form-inline'>
                     <button class="btn btn-default" ng-click='addPlayer()'>添加用户</button>
                     <div class='input-group' style='width:200px'>
-                        <select class='form-control' ng-model="targetRound" ng-options="rnd.title for rnd in rounds">
-                            <option value></option>
-                        </select>
+                        <select class='form-control' ng-model="targetRound" ng-options="rnd.title for rnd in rounds"></select>
                         <span class='input-group-btn'>
-                            <button class='btn btn-default' ng-disabled="selectedPlayers.length===0" ng-click="joinGroup(targetRound,selectedPlayers)">移入分组</button>
+                            <button class='btn btn-default' ng-disabled="rows.players.length===0" ng-click="joinGroup(targetRound,rows.players)">移入分组</button>
                         </span>
                     </div>
                     <button class='btn btn-danger pull-right' ng-click='empty()'>清空用户</button>
@@ -66,7 +63,7 @@
     </div>
     <!-- end all rounds -->
     <!-- one round -->
-    <div class='col-md-8' ng-if="activeRound&&app.sourceApp">
+    <div class='col-md-8' ng-if="activeRound&&app.sourceApp" ng-controller="ctrlRound">
         <uib-tabset active="activeTabIndex">
             <uib-tab index="0" heading="分组说明">
                 <div class='tile' ng-controller="ctrlRule">
@@ -87,10 +84,10 @@
             <uib-tab index="1" heading="分组结果">
                 <!-- result -->
                 <div class='tile' ng-controller='ctrlPlayers'>
-                    <div class='form-group' tms-table-wrap ready='tableReady' ng-include="'/views/default/pl/fe/matter/group/component/players.html?_=4'">
+                    <div class='form-group' tms-table-wrap ready='tableReady' ng-include="'/views/default/pl/fe/matter/group/component/players.html?_=6'">
                     </div>
                     <div class='form-group'>
-                        <button class="btn btn-default" ng-disabled="selectedPlayers.length===0" ng-click='quitGroup(selectedPlayers)'>移出分组</button>
+                        <button class="btn btn-default" ng-disabled="rows.players.length===0" ng-click='quitGroup(rows.players)'>移出分组</button>
                     </div>
                 </div>
                 <!-- end result -->
@@ -102,7 +99,8 @@
                         <input type='text' class='form-control' ng-model='activeRound.times' tms-auto-update tms-wait=1000 tms-update="updateRound('times')">
                     </div>
                     <div class='checkbox'>
-                        <label><input type='checkbox' ng-model='activeRound.autoplay' ng-true-value="'Y'" ng-false-value="'N'" ng-change="updateRound('autoplay')">自动抽取</label>
+                        <label>
+                            <input type='checkbox' ng-model='activeRound.autoplay' ng-true-value="'Y'" ng-false-value="'N'" ng-change="updateRound('autoplay')">自动抽取</label>
                     </div>
                     <table class='table table-bordered'>
                         <thead>
@@ -118,7 +116,7 @@
                                 <td>{{labelTarget(t)}}</td>
                                 <td>
                                     <button class='btn btn-default btn-sm' ng-click="removeTarget($index)">
-                                    <span class='glyphicon glyphicon-remove'></span>
+                                        <span class='glyphicon glyphicon-remove'></span>
                                     </button>
                                 </td>
                             </tr>
@@ -189,12 +187,16 @@
             <div class='form-group'>
                 <label class="col-md-3 control-label">数据来源</label>
                 <div class="col-md-9">
-                    <label class='radio-inline'><input type='radio' name='appType' value='registration' ng-model="data.appType">报名</label>
-                    <label class='radio-inline'><input type='radio' name='appType' value='signin' ng-model="data.appType">签到</label>
-                    <label class='radio-inline'><input type='radio' name='appType' value='wall' ng-model="data.appType">信息墙</label>
+                    <label class='radio-inline'>
+                        <input type='radio' name='appType' value='registration' ng-model="data.appType">报名</label>
+                    <label class='radio-inline'>
+                        <input type='radio' name='appType' value='signin' ng-model="data.appType">签到</label>
+                    <label class='radio-inline'>
+                        <input type='radio' name='appType' value='wall' ng-model="data.appType">信息墙</label>
                 </div>
                 <div class="col-md-9 col-md-offset-3" ng-if="data.appType==='wall'">
-                    <label class='checkbox-inline'><input type='checkbox' ng-model='data.onlySpeaker' ng-true-value="'Y'" ng-false-value="'N'">仅包含发言用户</label>
+                    <label class='checkbox-inline'>
+                        <input type='checkbox' ng-model='data.onlySpeaker' ng-true-value="'Y'" ng-false-value="'N'">仅包含发言用户</label>
                 </div>
             </div>
             <div class='form-group'>
@@ -202,7 +204,8 @@
                 <div class="col-md-9">
                     <select class="form-control" ng-model="data.app" ng-options="app.title for app in apps"></select>
                     <div class='checkbox' ng-if="app.mission">
-                        <label><input disabled type='checkbox' ng-model="data.sameMission" ng-true-value="'Y'" ng-false-value="'N'">选择同一个项目中的活动</label>
+                        <label>
+                            <input disabled type='checkbox' ng-model="data.sameMission" ng-true-value="'Y'" ng-false-value="'N'">选择同一个项目中的活动</label>
                     </div>
                 </div>
             </div>

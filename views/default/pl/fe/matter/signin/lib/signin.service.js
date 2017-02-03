@@ -10,7 +10,8 @@ define(['require', 'schema', 'page'], function(require, schemaLib, pageLib) {
     provider('srvApp', function() {
         var siteId, appId, app, defaultInputPage,
             pages4NonMember = [],
-            pages4Nonfan = [];
+            pages4Nonfan = [],
+            _getAppDeferred = false;;
 
         this.app = function() {
             return app;
@@ -24,9 +25,12 @@ define(['require', 'schema', 'page'], function(require, schemaLib, pageLib) {
         this.$get = ['$q', 'http2', 'noticebox', 'mattersgallery', '$uibModal', function($q, http2, noticebox, mattersgallery, $uibModal) {
             return {
                 get: function() {
-                    var defer = $q.defer(),
-                        url;
+                    var url;
 
+                    if (_getAppDeferred) {
+                        return _getAppDeferred.promise;
+                    }
+                    _getAppDeferred = $q.defer();
                     url = '/rest/pl/fe/matter/signin/get?site=' + siteId + '&id=' + appId;
                     http2.get(url, function(rsp) {
                         app = rsp.data;
@@ -48,10 +52,10 @@ define(['require', 'schema', 'page'], function(require, schemaLib, pageLib) {
                                 app.enrollApp.data_schemas = [];
                             }
                         }
-                        defer.resolve(app);
+                        _getAppDeferred.resolve(app);
                     });
 
-                    return defer.promise;
+                    return _getAppDeferred.promise;
                 },
                 update: function(names) {
                     var defer = $q.defer(),

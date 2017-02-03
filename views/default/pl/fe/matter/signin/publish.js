@@ -1,6 +1,6 @@
 define(['frame'], function(ngApp) {
     'use strict';
-    ngApp.provider.controller('ctrlPublish', ['$scope', '$q', 'http2', 'mediagallery', function($scope, $q, http2, mediagallery) {
+    ngApp.provider.controller('ctrlPublish', ['$scope', 'http2', 'mediagallery', 'srvApp', function($scope, http2, mediagallery, srvApp) {
         $scope.setPic = function() {
             var options = {
                 callback: function(url) {
@@ -14,59 +14,55 @@ define(['frame'], function(ngApp) {
             $scope.app.pic = '';
             $scope.update('pic');
         };
-        $scope.summaryOfRecords = function() {
-            var deferred = $q.defer(),
-                url = '/rest/pl/fe/matter/signin/record/summary';
-            url += '?site=' + $scope.app.siteid;
-            url += '&app=' + $scope.app.id;
+        srvApp.get().then(function(app) {
+            var url = '/rest/pl/fe/matter/signin/record/summary';
+            url += '?site=' + app.siteid;
+            url += '&app=' + app.id;
             http2.get(url, function(rsp) {
-                deferred.resolve(rsp.data);
+                $scope.summary = rsp.data;
             });
-            return deferred.promise;
-        };
-        $scope.summaryOfRecords().then(function(data) {
-            $scope.summary = data;
         });
     }]);
-    ngApp.provider.controller('ctrlPreview', ['$scope', function($scope) {
-        var previewURL = '/rest/site/fe/matter/signin/preview?site=' + $scope.app.siteid + '&app=' + $scope.app.id + '&start=Y',
-            params = {
-                openAt: 'ontime'
-            };
+    ngApp.provider.controller('ctrlPreview', ['$scope', 'srvApp', function($scope, srvApp) {
+        function refresh() {
+            $scope.previewURL = previewURL + '&openAt=' + params.openAt + '&page=' + params.page.name + '&_=' + (new Date() * 1);
+        }
+
+        var previewURL, params;
+        $scope.params = params = {
+            openAt: 'ontime'
+        };
         $scope.showPage = function(page) {
             params.page = page;
         };
-        $scope.gotoPage = function(page) {
-            var url = "/rest/pl/fe/matter/signin/page";
-            url += "?site=" + $scope.app.siteid;
-            url += "&id=" + $scope.app.id;
-            url += "&page=" + page.name;
-            location.href = url;
-        };
-        $scope.$watch('app.pages', function(pages) {
-            if (pages) {
-                params.page = pages[0];
-                $scope.params = params;
-                $scope.previewURL = previewURL + '&openAt=' + params.openAt + '&page=' + $scope.app.pages[0].name;
+        srvApp.get().then(function(app) {
+            if (app.pages && app.pages.length) {
+                $scope.gotoPage = function(page) {
+                    var url = "/rest/pl/fe/matter/signin/page";
+                    url += "?site=" + app.siteid;
+                    url += "&id=" + app.id;
+                    url += "&page=" + page.name;
+                    location.href = url;
+                };
+                previewURL = '/rest/site/fe/matter/signin/preview?site=' + app.siteid + '&app=' + app.id + '&start=Y';
+                params.page = app.pages[0];
+                $scope.$watch('params', function() {
+                    refresh();
+                }, true);
+                $scope.$watch('app.use_site_header', function(nv, ov) {
+                    nv !== ov && refresh();
+                });
+                $scope.$watch('app.use_site_footer', function(nv, ov) {
+                    nv !== ov && refresh();
+                });
+                $scope.$watch('app.use_mission_header', function(nv, ov) {
+                    nv !== ov && refresh();
+                });
+                $scope.$watch('app.use_mission_header', function(nv, ov) {
+                    nv !== ov && refresh();
+                });
             }
         });
-        $scope.$watch('app.use_site_header', function() {
-            $scope.app && ($scope.previewURL = previewURL + '&openAt=' + params.openAt + '&page=' + params.page.name + '&_=' + (new Date() * 1));
-        });
-        $scope.$watch('app.use_site_footer', function() {
-            $scope.app && ($scope.previewURL = previewURL + '&openAt=' + params.openAt + '&page=' + params.page.name + '&_=' + (new Date() * 1));
-        });
-        $scope.$watch('app.use_mission_header', function() {
-            $scope.app && ($scope.previewURL = previewURL + '&openAt=' + params.openAt + '&page=' + params.page.name + '&_=' + (new Date() * 1));
-        });
-        $scope.$watch('app.use_mission_header', function() {
-            $scope.app && ($scope.previewURL = previewURL + '&openAt=' + params.openAt + '&page=' + params.page.name + '&_=' + (new Date() * 1));
-        });
-        $scope.$watch('params', function(params) {
-            if (params) {
-                $scope.previewURL = previewURL + '&openAt=' + params.openAt + '&page=' + params.page.name;
-            }
-        }, true);
     }]);
     /**
      * 访问控制规则
@@ -82,8 +78,7 @@ define(['frame'], function(ngApp) {
         $scope.changeUserScope = function() {
             srvApp.changeUserScope($scope.rule.scope, $scope.sns, $scope.memberSchemas, $scope.jumpPages.defaultInput);
         };
-        $scope.$watch('app', function(app) {
-            if (!app) return;
+        srvApp.get().then(function(app) {
             $scope.jumpPages = srvApp.jumpPages();
             $scope.rule.scope = app.entry_rule.scope || 'none';
         }, true);
@@ -91,7 +86,7 @@ define(['frame'], function(ngApp) {
     /**
      * 签到轮次
      */
-    ngApp.provider.controller('ctrlRound', ['$scope', 'srvRound', function($scope, srvRound) {
+    ngApp.provider.controller('ctrlRound', ['$scope', 'srvApp', 'srvRound', function($scope, srvApp, srvRound) {
         $scope.batch = function() {
             srvRound.batch($scope.app).then(function(rounds) {
                 $scope.rounds = rounds;
@@ -113,18 +108,15 @@ define(['frame'], function(ngApp) {
         $scope.qrcode = function(round) {
             srvRound.qrcode($scope.app, $scope.sns, round, $scope.app.entryUrl);
         };
-        $scope.$watch('app', function(app) {
-            if (app) {
-                $scope.rounds = app.rounds;
-            }
+        srvApp.get().then(function(app) {
+            $scope.rounds = app.rounds;
         });
     }]);
-    ngApp.provider.controller('ctrlOpUrl', ['$scope', 'srvQuickEntry', function($scope, srvQuickEntry) {
+    ngApp.provider.controller('ctrlOpUrl', ['$scope', 'srvQuickEntry', 'srvApp', function($scope, srvQuickEntry, srvApp) {
         var targetUrl;
         $scope.opEntry = {};
-        $scope.$watch('app', function(app) {
-            if (!app) return;
-            targetUrl = 'http://' + location.host + '/rest/site/op/matter/signin?site=' + $scope.app.siteid + '&app=' + $scope.app.id;
+        srvApp.get().then(function(app) {
+            targetUrl = 'http://' + location.host + '/rest/site/op/matter/signin?site=' + app.siteid + '&app=' + app.id;
             srvQuickEntry.get(targetUrl).then(function(entry) {
                 if (entry) {
                     $scope.opEntry.url = 'http://' + location.host + '/q/' + entry.code;

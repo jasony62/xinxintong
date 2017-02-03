@@ -5,7 +5,7 @@
             <iframe ng-src={{previewURL}}></iframe>
             <div id='simulatorActions'>
                 <a class='btn btn-default btn-block' style='color:#337ab7' href="/rest/pl/fe/matter/enroll/schema?site={{app.siteid}}&id={{app.id}}">修改题目 <i class="glyphicon glyphicon-chevron-right"></i></a>
-                <div class="btn-group btn-block" ng-repeat="page in pages">
+                <div class="btn-group btn-block" ng-repeat="page in app.pages">
                     <button type="button" class="btn btn-default" ng-class="params.page===page?'btn-primary':'btn-default'" style="width:125px" title="{{page.title}}" ng-click="showPage(page)">{{page.title}}</button>
                     <button type="button" class="btn dropdown-toggle" ng-class="params.page===page?'btn-primary':'btn-default'" data-toggle="dropdown">
                         <span class="caret"></span>

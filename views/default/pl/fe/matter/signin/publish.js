@@ -1,6 +1,6 @@
 define(['frame'], function(ngApp) {
     'use strict';
-    ngApp.provider.controller('ctrlPublish', ['$scope', 'mediagallery', function($scope, mediagallery) {
+    ngApp.provider.controller('ctrlPublish', ['$scope', '$q', 'http2', 'mediagallery', function($scope, $q, http2, mediagallery) {
         $scope.setPic = function() {
             var options = {
                 callback: function(url) {
@@ -8,18 +8,28 @@ define(['frame'], function(ngApp) {
                     $scope.update('pic');
                 }
             };
-            mediagallery.open($scope.siteId, options);
+            mediagallery.open($scope.app.siteid, options);
         };
         $scope.removePic = function() {
             $scope.app.pic = '';
             $scope.update('pic');
+        };
+        $scope.summaryOfRecords = function() {
+            var deferred = $q.defer(),
+                url = '/rest/pl/fe/matter/signin/record/summary';
+            url += '?site=' + $scope.app.siteid;
+            url += '&app=' + $scope.app.id;
+            http2.get(url, function(rsp) {
+                deferred.resolve(rsp.data);
+            });
+            return deferred.promise;
         };
         $scope.summaryOfRecords().then(function(data) {
             $scope.summary = data;
         });
     }]);
     ngApp.provider.controller('ctrlPreview', ['$scope', function($scope) {
-        var previewURL = '/rest/site/fe/matter/signin/preview?site=' + $scope.siteId + '&app=' + $scope.id + '&start=Y',
+        var previewURL = '/rest/site/fe/matter/signin/preview?site=' + $scope.app.siteid + '&app=' + $scope.app.id + '&start=Y',
             params = {
                 openAt: 'ontime'
             };
@@ -28,8 +38,8 @@ define(['frame'], function(ngApp) {
         };
         $scope.gotoPage = function(page) {
             var url = "/rest/pl/fe/matter/signin/page";
-            url += "?site=" + $scope.siteId;
-            url += "&id=" + $scope.id;
+            url += "?site=" + $scope.app.siteid;
+            url += "&id=" + $scope.app.id;
             url += "&page=" + page.name;
             location.href = url;
         };
@@ -101,7 +111,7 @@ define(['frame'], function(ngApp) {
             srvRound.remove(round, $scope.rounds);
         };
         $scope.qrcode = function(round) {
-            srvRound.qrcode($scope.app, $scope.sns, round, $scope.url);
+            srvRound.qrcode($scope.app, $scope.sns, round, $scope.app.entryUrl);
         };
         $scope.$watch('app', function(app) {
             if (app) {
@@ -114,7 +124,7 @@ define(['frame'], function(ngApp) {
         $scope.opEntry = {};
         $scope.$watch('app', function(app) {
             if (!app) return;
-            targetUrl = 'http://' + location.host + '/rest/site/op/matter/signin?site=' + $scope.siteId + '&app=' + $scope.id;
+            targetUrl = 'http://' + location.host + '/rest/site/op/matter/signin?site=' + $scope.app.siteid + '&app=' + $scope.app.id;
             srvQuickEntry.get(targetUrl).then(function(entry) {
                 if (entry) {
                     $scope.opEntry.url = 'http://' + location.host + '/q/' + entry.code;

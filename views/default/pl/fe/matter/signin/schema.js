@@ -262,7 +262,7 @@ define(['frame', 'schema'], function(ngApp, schemaLib) {
 							multiple: true,
 							setshowname: true
 						};
-						mediagallery.open($scope.siteId, options);
+						mediagallery.open($scope.app.siteid, options);
 					});
 					$scope2.$on('tinymce.instance.init', function(event, editor) {
 						var page;

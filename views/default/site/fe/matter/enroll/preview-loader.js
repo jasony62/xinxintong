@@ -13,6 +13,7 @@ window.loading = {
         timestamp.setSeconds(0);
 
         require.config({
+            waitSeconds: 0,
             paths: {
                 "domReady": '/static/js/domReady',
                 "angular": "/static/js/angular.min",

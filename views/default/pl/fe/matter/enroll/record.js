@@ -89,8 +89,7 @@ define(['frame'], function(ngApp) {
         $scope.criteria = {}; // 过滤条件
         $scope.records = []; // 登记记录
         $scope.tmsTableWrapReady = 'N';
-        $scope.$watch('app', function(app) {
-            if (!app) return;
+        srvApp.get().then(function(app) {
             srvRecord.init(app, $scope.page, $scope.criteria, $scope.records);
             // schemas
             var recordSchemas = [],

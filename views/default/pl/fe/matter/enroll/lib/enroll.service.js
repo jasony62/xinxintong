@@ -708,16 +708,10 @@ define(['require', 'schema', 'page'], function(require, schemaLib, pageLib) {
             _appId = appId;
         };
         this.$get = ['$q', '$sce', 'http2', 'noticebox', '$uibModal', 'pushnotify', 'cstApp', 'srvRecordConverter', function($q, $sce, http2, noticebox, $uibModal, pushnotify, cstApp, srvRecordConverter) {
-            var _oApp, _oPage, _oCriteria, _aRecords, _mapOfRoundsById = {};
+            var _oApp, _oPage, _oCriteria, _aRecords;
             return {
                 init: function(oApp, oPage, oCriteria, oRecords) {
                     _oApp = oApp;
-                    // rounds
-                    if (oApp.rounds && oApp.rounds.length) {
-                        oApp.rounds.forEach(function(round) {
-                            _mapOfRoundsById[round.rid] = round;
-                        });
-                    }
                     // pagination
                     _oPage = oPage;
                     angular.extend(_oPage, {
@@ -846,12 +840,12 @@ define(['require', 'schema', 'page'], function(require, schemaLib, pageLib) {
                             record: function() {
                                 if (record === undefined) {
                                     return {
-                                        aid: _oApp.id,
+                                        aid: _appId,
                                         tags: '',
                                         data: {}
                                     };
                                 } else {
-                                    record.aid = _oApp.id;
+                                    record.aid = _appId;
                                     return angular.copy(record);
                                 }
                             },
@@ -867,8 +861,8 @@ define(['require', 'schema', 'page'], function(require, schemaLib, pageLib) {
                 batchTag: function(rows) {
                     $uibModal.open({
                         templateUrl: '/views/default/pl/fe/matter/enroll/component/batchTag.html?_=1',
-                        controller: ['$scope', '$uibModalInstance', 'app', function($scope2, $mi, app) {
-                            $scope2.appTags = angular.copy(app.tags);
+                        controller: ['$scope', '$uibModalInstance', function($scope2, $mi) {
+                            $scope2.appTags = angular.copy(_oApp.tags);
                             $scope2.data = {
                                 tags: []
                             };
@@ -903,11 +897,6 @@ define(['require', 'schema', 'page'], function(require, schemaLib, pageLib) {
                             });
                         }],
                         backdrop: 'static',
-                        resolve: {
-                            app: function() {
-                                return _oApp;
-                            },
-                        }
                     }).result.then(function(result) {
                         var record, selectedRecords = [],
                             eks = [],

@@ -33,7 +33,12 @@ window.loading = {
                     exports: "angular-sanitize"
                 },
             },
-            urlArgs: "bust=" + (timestamp * 1)
+            urlArgs: function(id, url) {
+                if (/domReady|angular|angular-sanitize/.test(id)) {
+                    return '';
+                }
+                return "?bust=" + (timestamp * 1);
+            }
         });
         require(['xxt-page'], function(assembler) {
             assembler.bootstrap('/views/default/site/fe/matter/enroll/preview.js?_=' + (timestamp * 1));

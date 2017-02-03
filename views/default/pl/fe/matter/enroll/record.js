@@ -1,6 +1,6 @@
 define(['frame'], function(ngApp) {
     'use strict';
-    ngApp.provider.controller('ctrlRecord', ['$scope', '$uibModal', 'srvApp', 'srvRecord', 'http2', 'noticebox', function($scope, $uibModal, srvApp, srvRecord, http2, noticebox) {
+    ngApp.provider.controller('ctrlRecord', ['$scope', 'srvApp', 'srvRecord', function($scope, srvApp, srvRecord) {
         $scope.doSearch = function(pageNumber) {
             $scope.rows.reset();
             srvRecord.search(pageNumber);

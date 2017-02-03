@@ -22,7 +22,7 @@
                         <th style='width:40px'></th>
                         <th style='width:100px'>状态</th>
                         <th style='width:100px'>登记时间</th>
-                        <th class='custom-col row' ng-repeat="c in app.data_schemas">{{c.title}}</th>
+                        <th class='custom-col row' ng-repeat="c in recordSchemas">{{c.title}}</th>
                         <th class='custom-col matched enroll' ng-repeat="c in enrollDataSchemas">{{c.title}}</th>
                         <th class='custom-col matched group' ng-repeat="c in groupDataSchemas">{{c.title}}</th>
                         <th style='width:140px'>昵称</th>
@@ -43,7 +43,7 @@
                         <td>{{(page.at-1)*page.size+$index+1}}</td>
                         <td>{{r._state}}</td>
                         <td>{{(r.enroll_at*1000)|date:'MM-dd HH:mm'}}</td>
-                        <td ng-repeat="c in app.data_schemas">
+                        <td ng-repeat="c in recordSchemas">
                             <span ng-if="c.type!=='image'&&c.type!=='file'" ng-bind-html="r._data[c.id]"></span>
                             <span ng-if="c.type==='image'">
                                 <img ng-repeat="img in r._data[c.id]" ng-src='{{img}}' />

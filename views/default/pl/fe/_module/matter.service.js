@@ -1,6 +1,6 @@
 angular.module('service.matter', ['ui.bootstrap', 'ui.xxt']).
 provider('srvSite', function() {
-    var _siteId, _oSite;
+    var _siteId, _oSite, _aSns, _aMemberSchemas;
     this.config = function(siteId) {
         _siteId = siteId;
     };
@@ -14,6 +14,64 @@ provider('srvSite', function() {
                     http2.get('/rest/pl/fe/site/get?site=' + _siteId, function(rsp) {
                         _oSite = rsp.data;
                         defer.resolve(_oSite);
+                    });
+                }
+                return defer.promise;
+            },
+            snsList: function() {
+                var defer = $q.defer();
+                if (_aSns) {
+                    defer.resolve(_aSns);
+                } else {
+                    http2.get('/rest/pl/fe/site/snsList?site=' + _siteId, function(rsp) {
+                        _aSns = rsp.data;
+                        defer.resolve(_aSns);
+                    });
+                }
+                return defer.promise;
+            },
+            memberSchemaList: function() {
+                var defer = $q.defer();
+                if (_aMemberSchemas) {
+                    defer.resolve(_aMemberSchemas);
+                } else {
+                    http2.get('/rest/pl/fe/site/member/schema/list?valid=Y&site=' + _siteId, function(rsp) {
+                        _aMemberSchemas = rsp.data;
+                        _aMemberSchemas.forEach(function(ms) {
+                            var schemas = [];
+                            if (ms.attr_name[0] === '0') {
+                                schemas.push({
+                                    id: 'member.name',
+                                    title: '姓名',
+                                });
+                            }
+                            if (ms.attr_mobile[0] === '0') {
+                                schemas.push({
+                                    id: 'member.mobile',
+                                    title: '手机',
+                                });
+                            }
+                            if (ms.attr_email[0] === '0') {
+                                schemas.push({
+                                    id: 'member.email',
+                                    title: '邮箱',
+                                });
+                            }
+                            (function() {
+                                var i, ea;
+                                if (ms.extattr) {
+                                    for (i = ms.extattr.length - 1; i >= 0; i--) {
+                                        ea = ms.extattr[i];
+                                        schemas.push({
+                                            id: 'member.extattr.' + ea.id,
+                                            title: ea.label,
+                                        });
+                                    };
+                                }
+                            })();
+                            ms._schemas = schemas;
+                        });
+                        defer.resolve(_aMemberSchemas);
                     });
                 }
                 return defer.promise;

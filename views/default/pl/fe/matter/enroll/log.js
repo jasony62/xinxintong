@@ -6,7 +6,7 @@ define(['frame'], function(ngApp) {
 			page: {},
 			list: function() {
 				var _this = this;
-				srvLog.list($scope.id, this.page).then(function(logs) {
+				srvLog.list($scope.app.id, this.page).then(function(logs) {
 					_this.logs = logs;
 				});
 			}

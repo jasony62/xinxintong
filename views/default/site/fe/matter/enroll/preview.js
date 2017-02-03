@@ -250,6 +250,9 @@ define(["angular", "xxt-page", "enroll-directive", "angular-sanitize"], function
             return $sce.trustAsHtml(label);
         };
     }]);
+    ngApp.controller('ctrlRecords', ['$scope', '$http', 'ls', function($scope, $http, LS) {}]);
+    ngApp.controller('ctrlRounds', ['$scope', '$http', 'ls', function($scope, $http, LS) {}]);
+    ngApp.controller('ctrlOwnerOptions', ['$scope', '$http', 'ls', function($scope, $http, LS) {}]);
     ngApp.controller('ctrlStatistic', ['$scope', '$http', 'ls', function($scope, $http, LS) {}]);
     ngApp.controller('ctrlPreview', ['$scope', 'ls', 'srvStorage', function($scope, LS, srvStorage) {
         $scope.data = {};

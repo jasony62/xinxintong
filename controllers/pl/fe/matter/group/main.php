@@ -34,9 +34,9 @@ class main extends \pl\fe\matter\base {
 		/*关联应用*/
 		if (!empty($app->source_app)) {
 			$sourceApp = json_decode($app->source_app);
-			$options = array('cascaded' => 'N', 'fields' => 'id,title');
+			$options = array('cascaded' => 'N', 'fields' => 'siteid,id,title');
 			if ($sourceApp->type === 'wall') {
-				$options = 'id,title';
+				$options = 'siteid,id,title';
 			}
 			$app->sourceApp = $this->model('matter\\' . $sourceApp->type)->byId($sourceApp->id, $options);
 		}

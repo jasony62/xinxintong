@@ -1,6 +1,46 @@
 define(['require', 'enrollService'], function(require) {
     'use strict';
     var ngApp = angular.module('app', ['ngRoute', 'frapontillo.bootstrap-switch', 'ui.tms', 'tmplshop.ui.xxt', 'service.matter', 'service.enroll', 'tinymce.enroll', 'ui.xxt', 'channel.fe.pl']);
+    ngApp.constant('cstApp', {
+        notifyMatter: [{
+            value: 'tmplmsg',
+            title: '模板消息',
+            url: '/rest/pl/fe/matter'
+        }, {
+            value: 'article',
+            title: '单图文',
+            url: '/rest/pl/fe/matter'
+        }, {
+            value: 'news',
+            title: '多图文',
+            url: '/rest/pl/fe/matter'
+        }, {
+            value: 'channel',
+            title: '频道',
+            url: '/rest/pl/fe/matter'
+        }, {
+            value: 'enroll',
+            title: '登记活动',
+            url: '/rest/pl/fe/matter'
+        }],
+        innerlink: [{
+            value: 'article',
+            title: '单图文',
+            url: '/rest/pl/fe/matter'
+        }, {
+            value: 'news',
+            title: '多图文',
+            url: '/rest/pl/fe/matter'
+        }, {
+            value: 'channel',
+            title: '频道',
+            url: '/rest/pl/fe/matter'
+        }],
+        alertMsg: {
+            'schema.duplicated': '不允许重复添加登记项',
+            'require.mission.phase': '请先指定项目的阶段'
+        }
+    });
     ngApp.config(['$controllerProvider', '$routeProvider', '$locationProvider', '$compileProvider', '$uibTooltipProvider', 'srvSiteProvider', 'srvQuickEntryProvider', 'srvAppProvider', 'srvRoundProvider', 'srvPageProvider', 'srvRecordProvider', function($controllerProvider, $routeProvider, $locationProvider, $compileProvider, $uibTooltipProvider, srvSiteProvider, srvQuickEntryProvider, srvAppProvider, srvRoundProvider, srvPageProvider, srvRecordProvider) {
         var RouteParam = function(name, baseURL) {
             !baseURL && (baseURL = '/views/default/pl/fe/matter/enroll/');

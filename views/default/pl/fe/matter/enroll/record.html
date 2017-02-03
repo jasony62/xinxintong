@@ -23,7 +23,7 @@
                     </button>
                     <ul class="dropdown-menu" role="menu">
                         <li><a href="" ng-click="verifyAll()">全部通过审核</a></li>
-                        <li><a href="" ng-click="notify()">全部发送信息</a></li>
+                        <li><a href="" ng-if="app.entry_rule.scope==='sns'" ng-click="notify()">全部发送信息</a></li>
                         <li class="divider"></li>
                         <li><a href="" ng-click="export()">导出全部数据</a></li>
                         <li><a href="" ng-click="exportImage()">导出全部图片</a></li>

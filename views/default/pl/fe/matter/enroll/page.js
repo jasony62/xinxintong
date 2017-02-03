@@ -96,7 +96,7 @@ define(['frame', 'schema', 'page', 'editor'], function(ngApp, schemaLib, pageLib
     /**
      * page editor
      */
-    ngApp.provider.controller('ctrlPageEdit', ['$scope', '$q', '$timeout', 'mediagallery', 'mattersgallery', function($scope, $q, $timeout, mediagallery, mattersgallery) {
+    ngApp.provider.controller('ctrlPageEdit', ['$scope', '$q', '$timeout', 'cstApp', 'mediagallery', 'mattersgallery', function($scope, $q, $timeout, cstApp, mediagallery, mattersgallery) {
         function addInputSchema(addedSchema) {
             var deferred = $q.defer(),
                 domNewWrap;
@@ -129,19 +129,6 @@ define(['frame', 'schema', 'page', 'editor'], function(ngApp, schemaLib, pageLib
 
         var tinymceEditor;
         $scope.activeWrap = false;
-        $scope.innerlinkTypes = [{
-            value: 'article',
-            title: '单图文',
-            url: '/rest/pl/fe/matter'
-        }, {
-            value: 'news',
-            title: '多图文',
-            url: '/rest/pl/fe/matter'
-        }, {
-            value: 'channel',
-            title: '频道',
-            url: '/rest/pl/fe/matter'
-        }];
         $scope.setActiveWrap = function(domWrap) {
             var activeWrap;
             $scope.activeWrap = editorProxy.setActiveWrap(domWrap);
@@ -253,7 +240,7 @@ define(['frame', 'schema', 'page', 'editor'], function(ngApp, schemaLib, pageLib
         };
         $scope.embedMatter = function(page) {
             var options = {
-                matterTypes: $scope.innerlinkTypes,
+                matterTypes: cstApp.innerlink,
                 singleMatter: true
             };
             if ($scope.app.mission) {
@@ -470,8 +457,7 @@ define(['frame', 'schema', 'page', 'editor'], function(ngApp, schemaLib, pageLib
     /**
      * 登记项编辑
      */
-    ngApp.provider.controller('ctrlInputWrap', ['$scope', '$timeout', function($scope, $timeout
-) {
+    ngApp.provider.controller('ctrlInputWrap', ['$scope', '$timeout', function($scope, $timeout) {
         $scope.addOption = function() {
             var newOp;
             newOp = schemaLib.addOption($scope.activeWrap.schema);

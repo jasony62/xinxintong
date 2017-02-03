@@ -1,5 +1,4 @@
 <div id='schema-view' ng-controller="ctrlList">
-    <!-- end app -->
     <div class='schema-proto col-md-3 hidden-xs' tms-flex-height top='72' bottom='0'>
         <!--create schema-->
         <div class='form-group list-group-item'>
@@ -34,9 +33,6 @@
         <div class='form-group list-group-item'>
             <button class='btn btn-default btn-block' ng-click="importByOther()">从其他活动中导入题目</button>
         </div>
-        <div class='form-group list-group-item' ng-if="app.scenario==='voting'">
-            <button class='btn btn-default btn-block' ng-click="batchScore()">批量设置打分题分值</button>
-        </div>
         <div class='form-group list-group-item'>
             <div class='form-group' ng-if="!app.enroll_app_id">
                 <button class='btn btn-success btn-block' ng-click="assignEnrollApp()">指定登记匹配名单</button>
@@ -47,7 +43,7 @@
                     <span class="input-group-btn">
                         <button class="btn btn-default" type="button" ng-click="cancelEnrollApp()">
                             <span class='glyphicon glyphicon-remove'></span>
-                        </button>
+                    </button>
                     </span>
                 </div>
             </div>
@@ -66,7 +62,7 @@
                     <span class="input-group-btn">
                         <button class="btn btn-default" type="button" ng-click="cancelGroupApp()">
                             <span class='glyphicon glyphicon-remove'></span>
-                        </button>
+                    </button>
                     </span>
                 </div>
             </div>
@@ -87,7 +83,8 @@
             </div>
             <div class='form-group'>
                 <button id='btnImportRecords' class='btn btn-default'>导入记录</button>
-                <label class='checkbox-inline'><input type='checkbox' ng-true-value="'Y'" ng-false-value="'N'" ng-model="options.overwrite">覆盖现有数据</label>
+                <label class='checkbox-inline'>
+                    <input type='checkbox' ng-true-value="'Y'" ng-false-value="'N'" ng-model="options.overwrite">覆盖现有数据</label>
             </div>
         </div>
         <!-- end actions -->
@@ -111,7 +108,8 @@
             </div>
         </div>
         <div class='checkbox'>
-            <label class='checkbox-inline'><input type='checkbox' ng-true-value="'Y'" ng-false-value="'N'" ng-model="app.__schemasOrderConsistent">页面显示顺序保持一致</label>
+            <label class='checkbox-inline'>
+                <input type='checkbox' ng-true-value="'Y'" ng-false-value="'N'" ng-model="app.__schemasOrderConsistent">页面显示顺序保持一致</label>
         </div>
     </div>
     <div class='col-md-3 hidden-xs' tms-flex-height top='72' bottom='0'>
@@ -164,7 +162,8 @@
                 <div class="col-md-9">
                     <select class="form-control" ng-model="data.source" ng-options="app.id as app.title for app in apps"></select>
                     <div class='checkbox' ng-if="app.mission">
-                        <label><input disabled type='checkbox' ng-model="data.sameMission" ng-true-value="'Y'" ng-false-value="'N'">选择同一个项目中的活动</label>
+                        <label>
+                            <input disabled type='checkbox' ng-model="data.sameMission" ng-true-value="'Y'" ng-false-value="'N'">选择同一个项目中的活动</label>
                     </div>
                 </div>
             </div>
@@ -186,7 +185,8 @@
                 <div class="col-md-9">
                     <select class="form-control" ng-model="data.source" ng-options="app.id as app.title for app in apps"></select>
                     <div class='checkbox' ng-if="app.mission">
-                        <label><input disabled type='checkbox' ng-model="data.sameMission" ng-true-value="'Y'" ng-false-value="'N'">选择同一个项目中的活动</label>
+                        <label>
+                            <input disabled type='checkbox' ng-model="data.sameMission" ng-true-value="'Y'" ng-false-value="'N'">选择同一个项目中的活动</label>
                     </div>
                 </div>
             </div>

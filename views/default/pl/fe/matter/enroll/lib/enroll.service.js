@@ -707,7 +707,7 @@ define(['require', 'schema', 'page'], function(require, schemaLib, pageLib) {
             _siteId = siteId;
             _appId = appId;
         };
-        this.$get = ['$q', '$sce', 'http2', 'noticebox', '$uibModal', 'pushnotify', 'srvRecordConverter', function($q, $sce, http2, noticebox, $uibModal, pushnotify, srvRecordConverter) {
+        this.$get = ['$q', '$sce', 'http2', 'noticebox', '$uibModal', 'pushnotify', 'cstApp', 'srvRecordConverter', function($q, $sce, http2, noticebox, $uibModal, pushnotify, cstApp, srvRecordConverter) {
             var _oApp, _oPage, _oCriteria, _aRecords, _mapOfRoundsById = {};
             return {
                 init: function(oApp, oPage, oCriteria, oRecords) {
@@ -1005,9 +1005,9 @@ define(['require', 'schema', 'page'], function(require, schemaLib, pageLib) {
                         });
                     }
                 },
-                notify: function(notifyMatterTypes, rows) {
+                notify: function(rows) {
                     var options = {
-                        matterTypes: notifyMatterTypes
+                        matterTypes: cstApp.notifyMatter
                     };
                     _oApp.mission && (options.missionId = _oApp.mission.id);
                     pushnotify.open(_siteId, function(notify) {

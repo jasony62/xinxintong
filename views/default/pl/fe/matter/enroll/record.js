@@ -1,27 +1,6 @@
 define(['frame'], function(ngApp) {
     'use strict';
     ngApp.provider.controller('ctrlRecord', ['$scope', '$uibModal', 'srvApp', 'srvRecord', 'http2', 'noticebox', function($scope, $uibModal, srvApp, srvRecord, http2, noticebox) {
-        $scope.notifyMatterTypes = [{
-            value: 'tmplmsg',
-            title: '模板消息',
-            url: '/rest/pl/fe/matter'
-        }, {
-            value: 'article',
-            title: '单图文',
-            url: '/rest/pl/fe/matter'
-        }, {
-            value: 'news',
-            title: '多图文',
-            url: '/rest/pl/fe/matter'
-        }, {
-            value: 'channel',
-            title: '频道',
-            url: '/rest/pl/fe/matter'
-        }, {
-            value: 'enroll',
-            title: '登记活动',
-            url: '/rest/pl/fe/matter'
-        }];
         $scope.doSearch = function(pageNumber) {
             $scope.rows.reset();
             srvRecord.search(pageNumber);
@@ -59,7 +38,7 @@ define(['frame'], function(ngApp) {
             srvRecord.batchVerify($scope.rows);
         };
         $scope.notify = function(isBatch) {
-            srvRecord.notify($scope.notifyMatterTypes, isBatch ? $scope.rows : undefined);
+            srvRecord.notify(isBatch ? $scope.rows : undefined);
         };
         $scope.export = function() {
             srvRecord.export();

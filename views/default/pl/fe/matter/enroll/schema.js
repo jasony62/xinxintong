@@ -3,10 +3,10 @@ define(['frame', 'schema', 'wrap'], function(ngApp, schemaLib, wrapLib) {
     /**
      * 登记项管理
      */
-    ngApp.provider.controller('ctrlSchema', ['$scope', 'srvPage', 'srvApp', function($scope, srvPage, srvApp) {
+    ngApp.provider.controller('ctrlSchema', ['$scope', 'cstApp', 'srvPage', 'srvApp', function($scope, cstApp, srvPage, srvApp) {
         function _appendSchema(newSchema, afterIndex) {
             if ($scope.app._schemasById[newSchema.id]) {
-                alert('不允许重复添加登记项');
+                alert(cstApp.alertMsg['schema.duplicated']);
                 return;
             }
             if (afterIndex === undefined) {
@@ -57,7 +57,7 @@ define(['frame', 'schema', 'wrap'], function(ngApp, schemaLib, wrapLib) {
             if (type === 'phase') {
                 mission = $scope.app.mission;
                 if (!mission || !mission.phases || mission.phases.length === 0) {
-                    alert('请先指定项目的阶段');
+                    alert(cstApp.alertMsg['require.mission.phase']);
                     return;
                 }
             }

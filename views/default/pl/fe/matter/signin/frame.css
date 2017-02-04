@@ -14,18 +14,18 @@ body{padding-top:71px;}
 #schema-view .flexrow button{flex:1;}
 #schema-view .schemas{index}
 #schema-view .schemas .schema{counter-increment:index;position:relative;padding-left:24px;padding-right:24px;}
-#schema-view .schemas .schema:before{content:counter(index);background:#999;color:#fff;position:absolute;top:-6px;left:-6px;width:18px;height:18px;line-height:18px;text-align:center;border-radius:4px;}
+#schema-view .schemas .schema:before{content:counter(index);background:#999;color:#fff;position:absolute;top:0;left:0;width:18px;height:18px;line-height:18px;text-align:center;border-top-left-radius:2px;}
 #schema-view .schema{background:#fff;margin-bottom:15px;padding:8px;border:1px solid #ddd;}
-#schema-view .schema.name:after{content:'姓名';position:absolute;top:-6px;right:-6px;background:#999;padding:2px 4px;font-size:60%;color:#fff;border-radius:4px;}
-#schema-view .schema.mobile:after{content:'手机';position:absolute;top:-6px;right:-6px;background:#999;padding:2px 4px;font-size:60%;color:#fff;border-radius:4px;}
-#schema-view .schema.email:after{content:'邮箱';position:absolute;top:-6px;right:-6px;background:#999;padding:2px 4px;font-size:60%;color:#fff;border-radius:4px;}
-#schema-view .schema.member:after{content:'自定义用户';position:absolute;top:-6px;right:-6px;background:#999;padding:2px 4px;font-size:60%;color:#fff;border-radius:4px;}
-#schema-view .schema.single:after{content:'单选题';position:absolute;top:-6px;right:-6px;background:#999;padding:2px 4px;font-size:60%;color:#fff;border-radius:4px;}
-#schema-view .schema.phase:after{content:'项目阶段';position:absolute;top:-6px;right:-6px;background:#999;padding:2px 4px;font-size:60%;color:#fff;border-radius:4px;}
-#schema-view .schema.score:after{content:'打分题';position:absolute;top:-6px;right:-6px;background:#999;padding:2px 4px;font-size:60%;color:#fff;border-radius:4px;}
-#schema-view .schema.multiple:after{content:'多选题';position:absolute;top:-6px;right:-6px;background:#999;padding:2px 4px;font-size:60%;color:#fff;border-radius:4px;}
-#schema-view .schema.image:after{content:'上传图片';position:absolute;top:-6px;right:-6px;background:#999;padding:2px 4px;font-size:60%;color:#fff;border-radius:4px;}
-#schema-view .schema.file:after{content:'上传文件';position:absolute;top:-6px;right:-6px;background:#999;padding:2px 4px;font-size:60%;color:#fff;border-radius:4px;}
+#schema-view .schema.name:after{content:'姓名';position:absolute;top:0;right:0;background:#999;padding:2px 4px;font-size:60%;color:#fff;border-top-right-radius:2px;}
+#schema-view .schema.mobile:after{content:'手机';position:absolute;top:0;right:0;background:#999;padding:2px 4px;font-size:60%;color:#fff;border-top-right-radius:2px;}
+#schema-view .schema.email:after{content:'邮箱';position:absolute;top:0;right:0;background:#999;padding:2px 4px;font-size:60%;color:#fff;border-top-right-radius:2px;}
+#schema-view .schema.member:after{content:'自定义用户';position:absolute;top:0;right:0;background:#999;padding:2px 4px;font-size:60%;color:#fff;border-top-right-radius:2px;}
+#schema-view .schema.single:after{content:'单选题';position:absolute;top:0;right:0;background:#999;padding:2px 4px;font-size:60%;color:#fff;border-top-right-radius:2px;}
+#schema-view .schema.phase:after{content:'项目阶段';position:absolute;top:0;right:0;background:#999;padding:2px 4px;font-size:60%;color:#fff;border-top-right-radius:2px;}
+#schema-view .schema.score:after{content:'打分题';position:absolute;top:0;right:0;background:#999;padding:2px 4px;font-size:60%;color:#fff;border-top-right-radius:2px;}
+#schema-view .schema.multiple:after{content:'多选题';position:absolute;top:0;right:0;background:#999;padding:2px 4px;font-size:60%;color:#fff;border-top-right-radius:2px;}
+#schema-view .schema.image:after{content:'上传图片';position:absolute;top:0;right:0;background:#999;padding:2px 4px;font-size:60%;color:#fff;border-top-right-radius:2px;}
+#schema-view .schema.file:after{content:'上传文件';position:absolute;top:0;right:0;background:#999;padding:2px 4px;font-size:60%;color:#fff;border-top-right-radius:2px;}
 #schema-view .schema .title{height:38px;line-height:38px;margin-bottom:5px;overflow:hidden;white-space:nowrap;cursor:move;}
 #schema-view .schema .title div[editable]{display:inline-block;width:320px;}
 #schema-view .schema-options .option{position:relative;cursor:move;height:38px;line-height:38px;overflow:hidden;white-space:nowrap;}
@@ -36,36 +36,16 @@ body{padding-top:71px;}
 #schema-view [editable]{cursor:text;}
 #schema-view .actions{margin-top:10px;padding-top:10px;border-top:1px dotted #ddd;}
 
-/*page-view*/
-#page-view .schema .checkbox{margin:0;padding:0;}
-#page-view .schema .checkbox label{margin-right:24px;}
-#page-view .schema .checkbox button{position:absolute;top:0;right:0;}
+/*page view*/
 #page-view .schema-switch{position:absolute;top:50%;margin-top:-10px;right:4px;}
-#pageArea{height:677px;position:relative;}
-
-/*page schemas*/
-#pageArea .page-schemas{position:absolute;top:0;bottom:0;left:0;width:290px;overflow-y:auto;}
-#pageArea .page-schemas .schema .checkbox{margin:0;padding:0;}
-#pageArea .page-schemas .schema .checkbox label{margin-right:24px;}
-#pageArea .page-schemas .schema .checkbox button{position:absolute;top:0;right:0;}
-#pageArea .page-schemas .schema.dndable.ui-sortable-helper{min-height:41px;}
-#pageArea .page .page-schemas{position:absolute;top:0;bottom:0;left:0;width:290px;overflow-y:auto;}
 
 /*page editor*/
-#pageArea .page-editor{position:absolute;top:0;bottom:0;left:305px;width:540px;overflow-y:auto;}
-.page-editor .mce-tinymce{margin-right:44px!important}
 .page-editor .mce-tinymce.mce-container.mce-panel{border:1px solid #ccc;height:100%;box-sizing:border-box;}
 .page-editor .mce-tinymce.mce-container.mce-panel .mce-container-body{height:100%;}
 .page-editor .mce-tinymce .mce-edit-area{position:absolute;top:34px;left:0;right:0;bottom:0;border:0!important;border-top:1px solid #ccc!important;}
 .page-editor .mce-tinymce .mce-edit-area iframe{width:100%;height:100%!important;}
 .page-editor .mce-tinymce.mce-container.mce-panel.mce-fullscreen{margin-top:51px}
 .page-editor .mce-tinymce .mce-menubtn.mce-fixed-width span{width:auto;}
-.page-editor .sidebar{width:44px;background:transparent;position:absolute;top:0;right:0;margin-top:35px;}
-.page-editor .sidebar button{height:36px;color:black;border-radius:0;margin-left:-1px;margin-bottom:-1px}
-.page-editor .sidebar button:disabled{color:gray}
-
-/*wrap-editor*/
-#pageArea .page-wrap{position:absolute;top:0;bottom:0;left:860px;width:250px;overflow-y:auto;}
 
 /*record-view*/
 #record-view{position:absolute;top:71px;bottom:0;left:30px;right:30px;display:flex;flex-direction:column;}

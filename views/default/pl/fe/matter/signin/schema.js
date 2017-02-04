@@ -120,9 +120,12 @@ define(['frame', 'schema'], function(ngApp, schemaLib) {
             var bust = (new Date()).getMinutes();
             return '/views/default/pl/fe/matter/enroll/schema/' + schema.type + '.html?_=' + bust;
         };
-        $scope.schemaPopoverHtml = function() {
-            var bust = (new Date()).getMinutes();
-            return '/views/default/pl/fe/matter/enroll/schema/main.html?_=' + bust;
+        $scope.schemaEditorHtml = function() {
+            if ($scope.activeSchema) {
+                var bust = (new Date()).getMinutes();
+                return '/views/default/pl/fe/matter/enroll/schema/main.html?_=' + bust;
+            }
+            return '';
         };
         $scope.closePopover = function() {
             $($scope.popover.target).trigger('hide');
@@ -158,17 +161,6 @@ define(['frame', 'schema'], function(ngApp, schemaLib) {
                     $scope.activeConfig = wrap.config;
                     break;
                 }
-            }
-            if ($scope.popover.target !== target) {
-                if ($scope.popover.target) {
-                    $($scope.popover.target).trigger('hide');
-                }
-                $(target).trigger('show');
-                $scope.popover = {
-                    target: target,
-                    schema: schema,
-                    index: target.dataset.schemaIndex
-                };
             }
         };
         $scope.addOption = function(schema, afterIndex) {
@@ -305,29 +297,35 @@ define(['frame', 'schema'], function(ngApp, schemaLib) {
      * 登记项编辑
      */
     ngApp.provider.controller('ctrlSchemaEdit', ['$scope', function($scope) {
-        if ($scope.activeSchema.type === 'member') {
-            if ($scope.activeSchema.schema_id) {
-                (function() {
-                    var i, j, memberSchema, schema;
-                    /*自定义用户*/
-                    for (i = $scope.memberSchemas.length - 1; i >= 0; i--) {
-                        memberSchema = $scope.memberSchemas[i];
-                        if ($scope.activeSchema.schema_id === memberSchema.id) {
-                            for (j = memberSchema._schemas.length - 1; j >= 0; j--) {
-                                schema = memberSchema._schemas[j];
-                                if ($scope.activeSchema.id === schema.id) {
-                                    break;
+        var editing;
+
+        $scope.editing = editing = {};
+        $scope.$watch('activeSchema', function(activeSchema) {
+            editing.type = $scope.activeSchema.type;
+            if (activeSchema && activeSchema.type === 'member') {
+                if (activeSchema.schema_id) {
+                    (function() {
+                        var i, j, memberSchema, schema;
+                        /*自定义用户*/
+                        for (i = $scope.memberSchemas.length - 1; i >= 0; i--) {
+                            memberSchema = $scope.memberSchemas[i];
+                            if (activeSchema.schema_id === memberSchema.id) {
+                                for (j = memberSchema._schemas.length - 1; j >= 0; j--) {
+                                    schema = memberSchema._schemas[j];
+                                    if (activeSchema.id === schema.id) {
+                                        break;
+                                    }
                                 }
+                                $scope.selectedMemberSchema = {
+                                    schema: memberSchema,
+                                    attr: schema
+                                };
+                                break;
                             }
-                            $scope.selectedMemberSchema = {
-                                schema: memberSchema,
-                                attr: schema
-                            };
-                            break;
                         }
-                    }
-                })();
+                    })();
+                }
             }
-        }
+        });
     }]);
 });

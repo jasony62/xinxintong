@@ -278,6 +278,7 @@ define(['require', 'schema', 'page'], function(require, schemaLib, pageLib) {
                 cancelEnrollApp: function() {
                     var _this = this;
                     app.enroll_app_id = '';
+                    delete app.enrollApp;
                     this.update('enroll_app_id').then(function() {
                         app.data_schemas.forEach(function(dataSchema) {
                             delete dataSchema.requireCheck;

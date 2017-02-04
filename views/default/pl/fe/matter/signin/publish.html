@@ -39,7 +39,7 @@
             </tbody>
         </table>
     </div>
-    <uib-tabset active="0">
+    <uib-tabset active="0" justified="true">
         <uib-tab index="0">
             <uib-tab-heading><i class="glyphicon glyphicon-list"></i> 签到轮次</uib-tab-heading>
             <table class='table table-bordered rounds' ng-controller='ctrlRound'>
@@ -73,38 +73,6 @@
         <uib-tab index="1">
             <uib-tab-heading><i class="glyphicon glyphicon-ban-circle"></i> 进入规则</uib-tab-heading>
             <div ng-controller="ctrlAccessRule">
-                <table class='table table-bordered'>
-                    <tbody>
-                        <tr>
-                            <td>签到成功时进入</td>
-                            <td style='padding:0'>
-                                <div class='form-inline'>
-                                    <div class='form-group'>
-                                        <select style='border:0' class='form-control' ng-model="app.entry_rule.success.entry" ng-options='p.name as p.title for p in app.pages' ng-change="update()">
-                                            <option value=></option>
-                                        </select>
-                                    </div>
-                                    <button class="btn btn-default" type="button" ng-click="gotoPage(app.entry_rule.success.entry)">&gt;</button>
-                                    <button class="btn btn-default" type="button" ng-click="newPage('success.entry')">+</button>
-                                </div>
-                            </td>
-                        </tr>
-                        <tr>
-                            <td>签到失败时进入</td>
-                            <td style='padding:0'>
-                                <div class='form-inline'>
-                                    <div class='form-group'>
-                                        <select style='border:0' class='form-control' ng-model="app.entry_rule.fail.entry" ng-options='p.name as p.title for p in app.pages' ng-change="update()" >
-                                            <option value=></option>
-                                        </select>
-                                    </div>
-                                    <button class="btn btn-default" type="button" ng-click="gotoPage(app.entry_rule.fail.entry)">&gt;</button>
-                                    <button class="btn btn-default" type="button" ng-click="newPage('fail.entry')">+</button>
-                                </div>
-                            </td>
-                        </tr>
-                    </tbody>
-                </table>
                 <div class="panel panel-default">
                     <div class="panel-heading">用户进入规则</div>
                     <div class="panel-body">
@@ -183,6 +151,54 @@
                             <button class='btn btn-block btn-success' ng-click="reset()">重置进入规则</button>
                         </div>
                     </div>
+                </div>
+            </div>
+            <div class="panel panel-default">
+                <div class="panel-heading">用户签到后进入</div>
+                <div class="panel-body">
+                    <table class='table table-bordered'>
+                        <tbody>
+                            <tr ng-if="app.enrollApp">
+                                <td>签到成功时进入</td>
+                                <td style='padding:0'>
+                                    <div class='form-inline'>
+                                        <div class='form-group'>
+                                            <select style='border:0' class='form-control' ng-model="app.entry_rule.success.entry" ng-options='p.name as p.title for p in app.pages' ng-change="update()">
+                                                <option value=></option>
+                                            </select>
+                                        </div>
+                                        <button class="btn btn-default" type="button" ng-click="newPage('success.entry')">+</button>
+                                    </div>
+                                </td>
+                            </tr>
+                            <tr ng-if="app.enrollApp">
+                                <td>签到失败时进入</td>
+                                <td style='padding:0'>
+                                    <div class='form-inline'>
+                                        <div class='form-group'>
+                                            <select style='border:0' class='form-control' ng-model="app.entry_rule.fail.entry" ng-options='p.name as p.title for p in app.pages' ng-change="update()" >
+                                                <option value=></option>
+                                            </select>
+                                        </div>
+                                        <button class="btn btn-default" type="button" ng-click="newPage('fail.entry')">+</button>
+                                    </div>
+                                </td>
+                            </tr>
+                            <tr ng-if="!app.enrollApp">
+                                <td>签到后进入</td>
+                                <td style='padding:0'>
+                                    <div class='form-inline'>
+                                        <div class='form-group'>
+                                            <select style='border:0' class='form-control' ng-model="app.entry_rule.success.entry" ng-options='p.name as p.title for p in app.pages' ng-change="update()">
+                                                <option value=></option>
+                                            </select>
+                                        </div>
+                                        <button class="btn btn-default" type="button" ng-click="newPage('success.entry')">+</button>
+                                    </div>
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
                 </div>
             </div>
         </uib-tab>

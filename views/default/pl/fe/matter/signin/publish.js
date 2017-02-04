@@ -44,7 +44,7 @@ define(['frame'], function(ngApp) {
                     url += "&page=" + page.name;
                     location.href = url;
                 };
-                previewURL = '/rest/site/fe/matter/signin/preview?site=' + app.siteid + '&app=' + app.id + '&start=Y';
+                previewURL = '/rest/site/fe/matter/signin/preview?site=' + app.siteid + '&app=' + app.id;
                 params.page = app.pages[0];
                 $scope.$watch('params', function() {
                     refresh();

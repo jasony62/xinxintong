@@ -39,8 +39,8 @@ class signin_model extends app_base {
 	}
 	/**
 	 *
-	 * $appId string
-	 * $cascaded array []
+	 * @param string $appId
+	 * @param $options array []
 	 */
 	public function &byId($appId, $options = []) {
 		$fields = isset($options['fields']) ? $options['fields'] : '*';

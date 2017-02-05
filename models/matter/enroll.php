@@ -364,4 +364,42 @@ class enroll_model extends app_base {
 
 		return $summary;
 	}
+	/**
+	 * 登记活动运行情况摘要
+	 */
+	public function &opData(&$app) {
+		$modelRnd = \TMS_APP::M('matter\enroll\round');
+		$page = (object) ['num' => 1, 'size' => 5];
+		$rounds = $modelRnd->byApp($app->siteid, $app->id, ['fields' => 'rid,title', 'page' => $page]);
+
+		if (empty($rounds)) {
+			$summary = new \stdClass;
+			/* total */
+			$q = [
+				'count(*)',
+				'xxt_enroll_record',
+				['aid' => $app->id, 'state' => 1],
+			];
+			$summary->total = $this->query_val_ss($q);
+		} else {
+			$summary = [];
+			$activeRound = $modelRnd->getActive($app->siteid, $app->id);
+			foreach ($rounds as $round) {
+				/* total */
+				$q = [
+					'count(*)',
+					'xxt_enroll_record',
+					['aid' => $appId, 'state' => 1, 'rid' => $round->rid],
+				];
+				$round->total = $this->query_val_ss($q);
+				if ($activeRound && $round->rid === $activeRound->rid) {
+					$round->active = 'Y';
+				}
+
+				$summary[] = $round;
+			}
+		}
+
+		return $summary;
+	}
 }

@@ -199,7 +199,7 @@ provider('srvApp', function() {
                     defer.resolve(_rounds);
                 } else {
                     _rounds = [];
-                    url = '/rest/pl/fe/matter/group/round/list?site=' + _siteId + '&app=' + _appId;
+                    url = '/rest/pl/fe/matter/group/round/list?site=' + _siteId + '&app=' + _appId + '&cascade=playerCount';
                     http2.get(url, function(rsp) {
                         var rounds = rsp.data;
                         rounds.forEach(function(round) {

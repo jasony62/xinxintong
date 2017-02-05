@@ -50,6 +50,9 @@ define(['angular', 'xxt-page'], function(angular, uiPage) {
                 location.href = 'http://' + location.host + '/q/' + matter.op_short_url_code;
             }
         };
+        $http.get('/rest/site/fe/main/get?site=' + LS.p.site).success(function(rsp) {
+            $scope.site = rsp.data;
+        });
         $http.get(LS.j('get', 'site', 'mission')).success(function(rsp) {
             if (rsp.err_code !== 0) {
                 $scope.errmsg = rsp.err_msg;

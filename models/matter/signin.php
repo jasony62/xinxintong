@@ -249,4 +249,13 @@ class signin_model extends app_base {
 
 		return $participants;
 	}
+	/**
+	 *
+	 */
+	public function &opData(&$app) {
+		$mdoelRec = $this->model('matter\signin\record');
+		$summary = $mdoelRec->summary($app->siteid, $app->id);
+
+		return $summary;
+	}
 }

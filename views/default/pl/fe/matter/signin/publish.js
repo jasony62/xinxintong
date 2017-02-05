@@ -15,7 +15,7 @@ define(['frame'], function(ngApp) {
             $scope.update('pic');
         };
         srvApp.get().then(function(app) {
-            var url = '/rest/pl/fe/matter/signin/record/summary';
+            var url = '/rest/pl/fe/matter/signin/opData';
             url += '?site=' + app.siteid;
             url += '&app=' + app.id;
             http2.get(url, function(rsp) {

@@ -419,7 +419,7 @@ class player_model extends \TMS_MODEL {
 	/**
 	 * 指定分组内的用户
 	 */
-	public function &winnersByRound($appId, $rid = null) {
+	public function &byRound($appId, $rid = null) {
 		$q = [
 			'*',
 			'xxt_group_player',
@@ -438,5 +438,18 @@ class player_model extends \TMS_MODEL {
 		}
 
 		return $players;
+	}
+	/**
+	 * 获得分组内用户的数量
+	 */
+	public function &countByRound($appId, $rid) {
+		$q = [
+			'count(*)',
+			'xxt_group_player',
+			['aid' => $appId, 'round_id' => $rid, 'state' => 1],
+		];
+		$cnt = $this->query_val_ss($q);
+
+		return $cnt;
 	}
 }

@@ -552,4 +552,20 @@ class main extends \pl\fe\matter\base {
 
 		return new \ResponseData($rst);
 	}
+	/**
+	 * 登记情况汇总信息
+	 */
+	public function opData_action($site, $app) {
+		if (false === ($user = $this->accountUser())) {
+			return new \ResponseTimeout();
+		}
+
+		$mdoelApp = $this->model('matter\signin');
+		$oApp = new \stdClass;
+		$oApp->siteid = $site;
+		$oApp->id = $app;
+		$opData = $mdoelApp->opData($oApp);
+
+		return new \ResponseData($opData);
+	}
 }

@@ -1,9 +1,53 @@
 <div class='container' ng-controller="ctrlBasic">
-	<div class='row'>
-		<div class='col-md-12'>
-		    <div class='list-group matters'>
-		    	<div class='list-group-item matter' ng-repeat="matter in matters" ng-click="openMatter(matter)">{{matter.title}}</div>
-		    </div>
-	    </div>
+    <div class='row'>
+        <div class='col-md-12'>
+            <h3>{{mission.title}}</h3>
+        </div>
+    </div>
+    <div class='row'>
+        <div class='matter col-md-12' ng-repeat="matter in matters" ng-click="openMatter(matter)">
+            <div class='thumbnail' ng-switch on="matter.type">
+                <h4>{{matter.title}}</h4>
+                <div ng-switch-when="enroll">
+                    <div class='form-group'>
+                        登记数量：{{matter.opData.total}}
+                    </div>
+                </div>
+                <div ng-switch-when="signin">
+                    <table class='table table-bordered'>
+                        <thead>
+                            <tr>
+                                <th>轮次</th>
+                                <th>全部</th>
+                                <th>迟到</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr ng-repeat="round in matter.opData" ng-class="{'info':round.active==='Y'}">
+                                <td ng-bind="round.title"></td>
+                                <td ng-bind="round.total"></td>
+                                <td ng-bind="round.late"></td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+                <div ng-switch-when="group">
+                    <table class='table table-bordered'>
+                        <thead>
+                            <tr>
+                                <th>分组</th>
+                                <th>用户数量</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr ng-repeat="round in matter.opData">
+                                <td ng-bind="round.title"></td>
+                                <td ng-bind="round.playerCount"></td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
     </div>
 </div>

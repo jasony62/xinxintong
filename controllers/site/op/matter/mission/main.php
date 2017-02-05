@@ -46,6 +46,14 @@ class main extends \site\op\base {
 	public function matterList_action($mission, $matterType = null) {
 		$modelMis = $this->model('matter\mission\matter');
 		$matters = $modelMis->byMission($mission, $matterType, ['op_short_url_code' => true]);
+		if (count($matters)) {
+			foreach ($matters as &$matter) {
+				if (in_array($matter->type, ['enroll', 'signin', 'group'])) {
+					$modelMat = $this->model('matter\\' . $matter->type);
+					$matter->opData = $modelMat->opData($matter);
+				}
+			}
+		}
 
 		return new \ResponseData($matters);
 	}

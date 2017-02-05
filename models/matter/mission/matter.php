@@ -35,7 +35,7 @@ class matter_model extends \TMS_MODEL {
 		$mms = $this->query_objs_ss($q, $q2);
 
 		foreach ($mms as &$mm) {
-			if ($matter = \TMS_APP::M('matter\\' . $mm->matter_type)->byId($mm->matter_id)) {
+			if ($matter = \TMS_APP::M('matter\\' . $mm->matter_type)->byId($mm->matter_id, ['cascaded' => 'N'])) {
 				/* 是否开放了运营者链接 */
 				if (isset($options['op_short_url_code']) && $options['op_short_url_code'] === true && empty($matter->op_short_url_code)) {
 					continue;

@@ -48,7 +48,7 @@ define(["require", "angular", "util.site"], function(require, angular) {
             $scope.app = rsp.data.app;
             $scope.data_schemas = JSON.parse(rsp.data.app.data_schemas);
             PageLoader.render($scope, rsp.data.page).then(function() {
-                $scope.page = rsp.data.page;
+                $scope.doc = rsp.data.page;
             })
             $timeout(function() {
                 $scope.$broadcast('xxt.app.signin.ready');

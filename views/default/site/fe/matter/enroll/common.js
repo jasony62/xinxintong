@@ -1,4 +1,4 @@
-define(["angular", "xxt-page", "tms-discuss", "enroll-directive"], function(angular, codeAssembler) {
+define(["angular", "xxt-page", "tms-discuss", "tms-siteuser", "tms-favor", "enroll-directive"], function(angular, codeAssembler) {
     'use strict';
 
     if (/MicroMessenger/i.test(navigator.userAgent) && window.signPackage && window.wx) {
@@ -11,7 +11,7 @@ define(["angular", "xxt-page", "tms-discuss", "enroll-directive"], function(angu
         }, false);
     }
 
-    var ngApp = angular.module('enroll', ['ngSanitize', 'discuss.ui.xxt', 'directive.enroll']);
+    var ngApp = angular.module('enroll', ['ngSanitize', 'discuss.ui.xxt', 'siteuser.ui.xxt', 'favor.ui.xxt', 'directive.enroll']);
     ngApp.config(['$controllerProvider', 'lsProvider', function($cp, lsProvider) {
         ngApp.provider = {
             controller: $cp.register
@@ -53,7 +53,7 @@ define(["angular", "xxt-page", "tms-discuss", "enroll-directive"], function(angu
             };
         };
     });
-    ngApp.controller('ctrl', ['$scope', '$http', '$timeout', 'ls', 'tmsDiscuss', function($scope, $http, $timeout, LS, tmsDiscuss) {
+    ngApp.controller('ctrl', ['$scope', '$http', '$timeout', 'ls', 'tmsDiscuss', 'tmsSiteUser', 'tmsFavor', function($scope, $http, $timeout, LS, tmsDiscuss, tmsSiteUser, tmsFavor) {
         var tasksOfOnReady = [];
         $scope.errmsg = '';
         $scope.closePreviewTip = function() {
@@ -247,8 +247,12 @@ define(["angular", "xxt-page", "tms-discuss", "enroll-directive"], function(angu
                 if (tasksOfOnReady.length) {
                     angular.forEach(tasksOfOnReady, PG.exec);
                 }
+                tmsFavor.showSwitch(app.siteid, app);
                 if (app.can_discuss === 'Y') {
                     tmsDiscuss.showSwitch(app.siteid, 'enroll,' + app.id, app.title);
+                }
+                if (app.can_siteuser === 'Y') {
+                    tmsSiteUser.showSwitch(app.siteid, true);
                 }
                 $timeout(function() {
                     $scope.$broadcast('xxt.app.enroll.ready', params);

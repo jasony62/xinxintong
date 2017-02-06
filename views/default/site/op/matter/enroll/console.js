@@ -149,7 +149,7 @@ define(["require", "angular", "util.site"], function(require, angular) {
             }
             $scope.app = rsp.data.app;
             PageLoader.render($scope, rsp.data.page, ngApp).then(function() {
-                $scope.Page = rsp.data.page;
+                $scope.doc = rsp.data.page;
             });
             if ($scope.app.data_schemas && $scope.app.data_schemas.length) {
                 $scope.app.dataSchemas = JSON.parse($scope.app.data_schemas);

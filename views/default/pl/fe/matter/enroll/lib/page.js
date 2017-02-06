@@ -1,13 +1,13 @@
 /**
  * base class of page
  */
-define(['wrap'], function(wrapLib) {
+define(['wrap'], function(SchemaWrap) {
     'use strict';
     /**
      * 页面处理逻辑基类
      */
     var protoPage = {
-        _arrangeSchemas: function() {
+        _parseSchemas: function() {
             var dataSchemas = this.data_schemas,
                 actSchemas = this.act_schemas,
                 userSchemas = this.user_schemas;
@@ -15,39 +15,35 @@ define(['wrap'], function(wrapLib) {
             try {
                 this.data_schemas = dataSchemas && dataSchemas.length ? JSON.parse(dataSchemas) : [];
             } catch (e) {
+                alert('应用程序错误！');
                 console.error(e);
-                this.data_schemas = [];
+                return;
             }
             try {
                 this.act_schemas = actSchemas && actSchemas.length ? JSON.parse(actSchemas) : [];
             } catch (e) {
+                alert('应用程序错误！');
                 console.error(e);
-                this.act_schemas = [];
+                return;
             }
             try {
                 this.user_schemas = userSchemas && userSchemas.length ? JSON.parse(userSchemas) : [];
             } catch (e) {
+                alert('应用程序错误！');
                 console.error(e);
-                this.user_schemas = [];
+                return;
             }
         },
-        /**
-         * 从页面中删除登记项
-         */
-        removeSchema: function(schema) {
-            // 清除页面内容
-            var $html = $('<div>' + this.html + '</div>');
-
-            $html.find("[schema='" + schema.id + "']").remove();
-            this.html = $html.html();
-            // 清除数据定义中的项
-            for (var i = this.data_schemas.length - 1; i >= 0; i--) {
-                if (this.data_schemas[i].schema.id === schema.id) {
-                    this.data_schemas.splice(i, 1);
-                    break;
+        wrapBySchema: function(schema) {
+            var dataWrap, i;
+            for (i = this.data_schemas.length - 1; i >= 0; i--) {
+                dataWrap = this.data_schemas[i];
+                if (schema.id === dataWrap.schema.id) {
+                    return dataWrap;
                 }
             }
-            return true;
+
+            return false;
         },
         removeButton: function(schema) {
             for (var i = this.act_schemas.length - 1; i >= 0; i--) {
@@ -58,7 +54,7 @@ define(['wrap'], function(wrapLib) {
             return false;
         },
         /**
-         * 调整登记项在页面中的位置
+         * 调整题目在页面中的位置
          */
         moveSchema: function(moved, prev) {
             var movedWrap = this.wrapBySchema(moved),
@@ -96,7 +92,7 @@ define(['wrap'], function(wrapLib) {
      */
     var protoInputPage = {
         /**
-         * 添加登记项的html
+         * 添加题目的html
          */
         _appendWrap: function(tag, attrs, html, afterWrap) {
             var newDomWrap, $html, $lastInputWrap;
@@ -110,7 +106,7 @@ define(['wrap'], function(wrapLib) {
             }
 
             if ($lastInputWrap.length) {
-                // 加到最后一个登记项后面
+                // 加到最后一个题目后面
                 $lastInputWrap.after(newDomWrap);
             } else {
                 // 加在文档的最后
@@ -122,12 +118,12 @@ define(['wrap'], function(wrapLib) {
             return newDomWrap;
         },
         /**
-         * 页面中添加登记项
+         * 页面中添加题目
          */
         appendSchema: function(schema, afterSchema) {
             var newWrap, wrapParam, domNewWrap, afterWrap;
 
-            newWrap = wrapLib.input.newWrap(schema);
+            newWrap = SchemaWrap.input.newWrap(schema);
 
             if (afterSchema === undefined) {
                 this.data_schemas.push(newWrap);
@@ -141,85 +137,37 @@ define(['wrap'], function(wrapLib) {
                 }
             }
 
-            wrapParam = wrapLib.input.embed(newWrap);
+            wrapParam = SchemaWrap.input.embed(newWrap);
 
             domNewWrap = this._appendWrap(wrapParam.tag, wrapParam.attrs, wrapParam.html, afterWrap);
 
             return domNewWrap;
         },
         /**
-         * 更新登记项
+         * 更新题目
          */
-        updateSchema: function(schema) {
-            var $html, $wrap, $label, $input, oPage = this;
+        updateSchema: function(schema, beforeState) {
+            var $html, $dom, wrap;
 
             $html = $('<div>' + this.html + '</div>');
-            $wrap = $html.find("[schema='" + schema.id + "']");
-            $label = $wrap.find('label').html(schema.title);
-            if (/name|email|mobile|shorttext|longtext|member/.test(schema.type)) {
-                $input = $wrap.find('input,select,textarea');
-                $input.attr('title', schema.title);
-                if ($input.attr('placeholder')) {
-                    $input.attr('placeholder', schema.title);
+            if ($dom = $html.find("[schema='" + schema.id + "']")) {
+                if (wrap = this.wrapBySchema(schema)) {
+                    wrap.type = $dom.attr('wrap');
+                    if (beforeState && schema.type !== beforeState.type) {
+                        wrap.config = SchemaWrap.input.newWrap(schema).config;
+                    }
+                    SchemaWrap.input.modify($dom, wrap, beforeState);
+                    this.html = $html.html();
+                    return true;
                 }
-            } else if (/single|phase/.test(schema.type)) {
-                (function(lib) {
-                    var html, wrapSchema;
-                    if (schema.ops && schema.ops.length > 0) {
-                        wrapSchema = oPage.wrapBySchema(schema);
-                        $wrap.children('ul,select').remove();
-                        if (wrapSchema.config) {
-                            if (wrapSchema.config.component === 'R') {
-                                html = lib.input._htmlSingleRadio(wrapSchema);
-                                $wrap.append(html);
-                            } else if (wrapSchema.config.component === 'S') {
-                                html = lib.input._htmlSingleSelect(wrapSchema);
-                                $wrap.append(html);
-                            }
-                        }
-                    }
-                })(wrapLib);
-            } else if ('multiple' === schema.type) {
-                (function(lib) {
-                    var html, wrapSchema;
-                    if (schema.ops && schema.ops.length > 0) {
-                        wrapSchema = oPage.wrapBySchema(schema);
-                        html = lib.input._htmlMultiple(wrapSchema);
-                        $wrap.children('ul').remove();
-                        $wrap.append(html);
-                    }
-                })(wrapLib);
-            } else if ('score' === schema.type) {
-                (function(lib) {
-                    var html, wrapSchema;
-                    if (schema.ops && schema.ops.length > 0) {
-                        wrapSchema = oPage.wrapBySchema(schema);
-                        html = lib.input._htmlScoreItem(wrapSchema);
-                        $wrap.children('ul').remove();
-                        $wrap.append(html);
-                    }
-                })(wrapLib);
-            } else if (/image|file/.test(schema.type)) {
-                (function(lib) {
-                    var $button = $wrap.find('li.img-picker button'),
-                        sNgClick;
-
-                    sNgClick = 'chooseImage(' + "'" + schema.id + "'," + schema.count + ')';
-                    $button.attr('ng-click', sNgClick);
-                })(wrapLib);
-            } else if ('html' === schema.type) {
-                $wrap.html(schema.content);
             }
-
-            this.html = $html.html();
-
-            return true;
+            return false;
         },
         /**
-         * 整理登记项，使得页面中的schema和应用中的schema是同一个对象
+         * 整理题目，使得页面中的schema和应用中的schema是同一个对象
          */
-        arrange: function(mapOfAppSchemas) {
-            this._arrangeSchemas();
+        _arrange: function(mapOfAppSchemas) {
+            var _this = this;
 
             if (this.data_schemas.length) {
                 var dataSchemas = [];
@@ -232,26 +180,28 @@ define(['wrap'], function(wrapLib) {
                             matched = true;
                         }
                     }
-                    if (!matched) console.error('data invalid', item);
+                    if (!matched) console.error("page[" + _this.name + "]'schema is invalid:", item);
                 });
                 this.data_schemas = dataSchemas;
-            } else if (angular.isObject(this.data_schemas)) {
-                this.data_schemas = [];
             }
         },
         /**
-         * 根据登记项获得登记项的包裹对象
+         * 从页面中删除题目
          */
-        wrapBySchema: function(schema) {
-            var dataWrap, i;
-            for (i = this.data_schemas.length - 1; i >= 0; i--) {
-                dataWrap = this.data_schemas[i];
-                if (schema.id === dataWrap.schema.id) {
-                    return dataWrap;
+        removeSchema: function(schema) {
+            var found = false,
+                $html = $('<div>' + this.html + '</div>');
+
+            $html.find("[schema='" + schema.id + "']").remove();
+            this.html = $html.html();
+            for (var i = this.data_schemas.length - 1; i >= 0; i--) {
+                if (this.data_schemas[i].schema.id === schema.id) {
+                    this.data_schemas.splice(i, 1);
+                    found = true;
+                    break;
                 }
             }
-
-            return false;
+            return found;
         },
     };
     angular.extend(protoInputPage, protoPage);
@@ -260,7 +210,7 @@ define(['wrap'], function(wrapLib) {
      */
     var protoViewPage = {
         /**
-         * 添加登记项的html
+         * 添加题目的html
          */
         _appendWrap: function(tag, attrs, html, afterWrap) {
             var $html, domNewWrap, $lastInputWrap;
@@ -284,12 +234,12 @@ define(['wrap'], function(wrapLib) {
             return domNewWrap;
         },
         /**
-         * 页面中添加登记项
+         * 页面中添加题目
          */
         appendSchema: function(schema, afterSchema) {
             var oNewWrap, domNewWrap, wrapParam, afterWrap;
 
-            oNewWrap = wrapLib.value.newWrap(schema);
+            oNewWrap = SchemaWrap.value.newWrap(schema);
 
             if (afterSchema === undefined) {
                 this.data_schemas.push(oNewWrap);
@@ -303,31 +253,31 @@ define(['wrap'], function(wrapLib) {
                 }
             }
 
-            wrapParam = wrapLib.value.embed(oNewWrap);
+            wrapParam = SchemaWrap.value.embed(oNewWrap);
 
             domNewWrap = this._appendWrap(wrapParam.tag, wrapParam.attrs, wrapParam.html, afterWrap);
 
             return domNewWrap;
         },
-        updateSchema: function(schema) {
-            var $html;
+        updateSchema: function(schema, beforeState) {
+            var $html, $dom, wrap;
 
             $html = $('<div>' + this.html + '</div>');
-            if (schema.type === 'html') {
-                $html.find("[schema='" + schema.id + "']").html(schema.content);
-            } else {
-                $html.find("[schema='" + schema.id + "']").find('label').html(schema.title);
+            if ($dom = $html.find("[schema='" + schema.id + "']")) {
+                if (wrap = this.wrapBySchema(schema)) {
+                    SchemaWrap.value.modify($dom, wrap, beforeState);
+                    this.html = $html.html();
+                    return true;
+                }
             }
 
-            this.html = $html.html();
-
-            return true;
+            return false;
         },
         /**
-         * 整理登记项，使得页面中的schema和应用中的schema是同一个对象
+         * 整理题目，使得页面中的schema和应用中的schema是同一个对象
          */
-        arrange: function(mapOfAppSchemas) {
-            this._arrangeSchemas();
+        _arrange: function(mapOfAppSchemas) {
+            var _this = this;
 
             if (this.data_schemas.length) {
                 var dataSchemas = [];
@@ -347,26 +297,10 @@ define(['wrap'], function(wrapLib) {
                             }
                         }
                     }
-                    if (!matched) console.error('data invalid', item);
+                    if (!matched) console.error("page[" + _this.name + "]'schema is invalid:", item);
                 });
                 this.data_schemas = dataSchemas;
-            } else if (angular.isObject(this.data_schemas)) {
-                this.data_schemas = [];
             }
-        },
-        /**
-         * 根据登记项获得登记项的包裹对象
-         */
-        wrapBySchema: function(schema) {
-            var dataWrap, i;
-            for (i = this.data_schemas.length - 1; i >= 0; i--) {
-                dataWrap = this.data_schemas[i];
-                if (schema.id === dataWrap.schema.id) {
-                    return dataWrap;
-                }
-            }
-
-            return false;
         },
         wrapById: function(wrapId) {
             for (var i = this.data_schemas.length - 1; i >= 0; i--) {
@@ -377,7 +311,7 @@ define(['wrap'], function(wrapLib) {
             return false;
         },
         removeValue: function(config) {
-            // 从查看页中删除登记项
+            // 从查看页中删除题目
             for (var i = this.data_schemas.length - 1; i >= 0; i--) {
                 if (this.data_schemas[i].id === config.id) {
                     return this.data_schemas.splice(i, 1);
@@ -385,16 +319,32 @@ define(['wrap'], function(wrapLib) {
             }
 
             return false;
-        }
+        },
+        /**
+         * 从页面中删除题目
+         */
+        removeSchema: function(schema) {
+            var found = false,
+                $html = $('<div>' + this.html + '</div>');
+
+            $html.find("[schema='" + schema.id + "']").remove();
+            this.html = $html.html();
+            for (var i = this.data_schemas.length - 1; i >= 0; i--) {
+                if (this.data_schemas[i].schema.id === schema.id) {
+                    this.data_schemas.splice(i, 1);
+                    found = true;
+                    break;
+                }
+            }
+            return found;
+        },
     };
     angular.extend(protoViewPage, protoPage);
     /**
      * 列表页处理逻辑基类
      */
     var protoListPage = {
-        arrange: function(mapOfAppSchemas) {
-            this._arrangeSchemas();
-
+        _arrange: function(mapOfAppSchemas) {
             if (this.data_schemas.length) {
                 angular.forEach(this.data_schemas, function(item) {
                     if (item.config && item.config.pattern === 'records') {
@@ -431,7 +381,7 @@ define(['wrap'], function(wrapLib) {
 
             this.data_schemas.push(dataWrap);
 
-            return wrapLib.records.embed(dataWrap);
+            return SchemaWrap.records.embed(dataWrap);
         },
         appendRoundList: function(app) {
             var dataWrap = {
@@ -443,7 +393,7 @@ define(['wrap'], function(wrapLib) {
             };
             this.data_schemas.push(dataWrap);
 
-            return wrapLib.rounds.embed(dataWrap);
+            return SchemaWrap.rounds.embed(dataWrap);
         },
         wrapByList: function(config) {
             for (var i = this.data_schemas.length - 1; i >= 0; i--) {
@@ -455,7 +405,7 @@ define(['wrap'], function(wrapLib) {
             return false;
         },
         /**
-         * 根据登记项获得登记项的包裹对象
+         * 根据题目获得题目的包裹对象
          */
         wrapBySchema: function(schema) {
             var listWrap, schemaInList, i;
@@ -474,7 +424,7 @@ define(['wrap'], function(wrapLib) {
             return false;
         },
         removeValue: function(config, schema) {
-            // 从列表中删除登记项
+            // 从列表中删除题目
             var i, j, list;
             for (i = this.data_schemas.length - 1; i >= 0; i--) {
                 list = this.data_schemas[i];
@@ -489,7 +439,25 @@ define(['wrap'], function(wrapLib) {
 
             return false;
         },
-        updateSchema: function(schema) {
+        /**
+         * 从页面中删除题目
+         */
+        removeSchema: function(schema) {
+            // 清除页面内容
+            var $html = $('<div>' + this.html + '</div>');
+
+            $html.find("[schema='" + schema.id + "']").remove();
+            this.html = $html.html();
+            // 清除数据定义中的项
+            for (var i = this.data_schemas.length - 1; i >= 0; i--) {
+                if (this.data_schemas[i].schema.id === schema.id) {
+                    this.data_schemas.splice(i, 1);
+                    break;
+                }
+            }
+            return true;
+        },
+        updateSchema: function(schema, beforeState) {
             var $html;
 
             $html = $('<div>' + this.html + '</div>');
@@ -503,7 +471,7 @@ define(['wrap'], function(wrapLib) {
     angular.extend(protoListPage, protoPage);
 
     return {
-        enhance: function(page) {
+        enhance: function(page, mapOfAppSchemas) {
             switch (page.type) {
                 case 'I':
                     angular.merge(page, protoInputPage);
@@ -517,7 +485,10 @@ define(['wrap'], function(wrapLib) {
                 default:
                     console.error('unknown page', page);
             }
-        },
-
+            page._parseSchemas();
+            if (mapOfAppSchemas) {
+                page._arrange(mapOfAppSchemas);
+            }
+        }
     };
 });

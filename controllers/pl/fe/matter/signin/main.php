@@ -88,25 +88,18 @@ class main extends \pl\fe\matter\base {
 	 *
 	 * @param string $site site's id
 	 * @param string $mission mission's id
-	 * @param string $enrollApp 关联的签到活动
 	 *
 	 */
-	public function create_action($site, $mission = null, $enrollApp = null, $template = 'basic') {
+	public function create_action($site, $mission = null, $template = 'basic') {
 		if (false === ($user = $this->accountUser())) {
 			return new \ResponseTimeout();
 		}
 		$newapp = [];
 		$current = time();
 		$appId = uniqid();
-		/*从关联的签到活动中获取登记项定义*/
-		if (!empty($enrollApp)) {
-			$enrollApp = $this->model('matter\enroll')->byId(
-				$enrollApp,
-				['fields' => 'data_schemas', 'cascaded' => 'N']
-			);
-			$newapp['enroll_app_id'] = $enrollApp->id;
-		}
-		/*从站点和项目中获得pic定义*/
+		$modelApp = $this->model('matter\signin');
+
+		/* 从站点和项目中获得pic定义 */
 		$site = $this->model('site')->byId($site, ['fields' => 'id,heading_pic']);
 		if (!empty($mission)) {
 			$modelMis = $this->model('matter\mission');
@@ -122,23 +115,22 @@ class main extends \pl\fe\matter\base {
 			$newapp['use_mission_header'] = 'N';
 			$newapp['use_mission_footer'] = 'N';
 		}
-		/*用户指定的*/
+		/* 用户指定的属性 */
 		$customConfig = $this->getPostJson();
 		$title = empty($customConfig->proto->title) ? '新签到活动' : $customConfig->proto->title;
-		/*模版信息*/
+		/* 模板信息 */
 		$templateDir = TMS_APP_TEMPLATE . '/pl/fe/matter/signin/' . $template;
 		$templateConfig = file_get_contents($templateDir . '/config.json');
 		$templateConfig = preg_replace('/\t|\r|\n/', '', $templateConfig);
 		$templateConfig = json_decode($templateConfig);
 		if (JSON_ERROR_NONE !== json_last_error()) {
-			return new \ResponseError('解析模版数据错误：' . json_last_error_msg());
+			return new \ResponseError('解析模板数据错误：' . json_last_error_msg());
 		}
-		/*登记数据*/{
-			if (!empty($templateConfig->schema)) {
-				$newapp['data_schemas'] = \TMS_MODEL::toJson($templateConfig->schema);
-			}
+		/* 登记数据 */
+		if (!empty($templateConfig->schema)) {
+			$newapp['data_schemas'] = \TMS_MODEL::toJson($templateConfig->schema);
 		}
-		/*进入规则*/
+		/* 进入规则 */
 		if (isset($templateConfig->entryRule)) {
 			$newapp['entry_rule'] = \TMS_MODEL::toJson($templateConfig->entryRule);
 		}
@@ -148,26 +140,25 @@ class main extends \pl\fe\matter\base {
 		$newapp['title'] = $title;
 		$newapp['creater'] = $user->id;
 		$newapp['creater_src'] = $user->src;
-		$newapp['creater_name'] = $user->name;
+		$newapp['creater_name'] = $modelApp->escape($user->name);
 		$newapp['create_at'] = $current;
 		$newapp['modifier'] = $user->id;
 		$newapp['modifier_src'] = $user->src;
-		$newapp['modifier_name'] = $user->name;
+		$newapp['modifier_name'] = $modelApp->escape($user->name);
 		$newapp['modify_at'] = $current;
-		$this->model()->insert('xxt_signin', $newapp, false);
-		$app = $this->model('matter\signin')->byId($appId, ['cascaded' => 'N']);
+		$modelApp->insert('xxt_signin', $newapp, false);
+		$app = $modelApp->byId($appId, ['cascaded' => 'N']);
 
-		/*记录操作日志*/
-		$app->type = 'signin';
+		/* 记录操作日志 */
 		$this->model('matter\log')->matterOp($site->id, $user, $app, 'C');
 
-		/*记录和任务的关系*/
+		/* 记录和任务的关系 */
 		if ($app->mission_id) {
 			$modelMis->addMatter($user, $site->id, $mission->id, $app);
 		}
-		/*创建缺省页面*/
+		/* 创建缺省页面 */
 		$this->_addPageByTemplate($user, $site->id, $app, $templateConfig);
-		/*创建缺省轮次*/
+		/* 创建缺省轮次 */
 		$this->_addFirstRound($user, $site->id, $app);
 
 		return new \ResponseData($app);
@@ -427,7 +418,6 @@ class main extends \pl\fe\matter\base {
 		//记录操作日志
 		if ($rst) {
 			$matter = $this->model('matter\signin')->byId($app, 'id,title,summary,pic');
-			$matter->type = 'signin';
 			$this->model('matter\log')->matterOp($site, $user, $matter, 'U');
 		}
 
@@ -437,20 +427,35 @@ class main extends \pl\fe\matter\base {
 	 * 缺省进入规则
 	 */
 	private function &_defaultEntryRule($site, $appid) {
-		// 第一个登记页
-		$modelPage = $this->model('matter\signin\page');
-		$pages = $modelPage->byApp($appid, ['cascaded' => 'N']);
-		foreach ($pages as $page) {
-			if ($page->type === 'I') {
-				$firstInputPage = $page;
-				break;
-			}
-		}
 		// 设置规则
 		$entryRule = new \stdClass;
 		$entryRule->scope = 'none';
 		$entryRule->otherwise = new \stdClass;
-		$entryRule->otherwise->entry = isset($firstInputPage) ? $firstInputPage->name : '';
+		$entryRule->otherwise->entry = '';
+		$entryRule->success = new \stdClass;
+		$entryRule->success->entry = '';
+		$entryRule->fail = new \stdClass;
+		$entryRule->fail->entry = '';
+
+		// 设置页面
+		$cnt = 0;
+		$modelPage = $this->model('matter\signin\page');
+		$pages = $modelPage->byApp($appid, ['cascaded' => 'N']);
+		foreach ($pages as $page) {
+			if (empty($entryRule->otherwise->entry) && $page->type === 'I') {
+				$entryRule->otherwise->entry = $page->name;
+				$cnt++;
+			} else if (empty($entryRule->success->entry) && $page->name === 'success') {
+				$entryRule->success->entry = $page->name;
+				$cnt++;
+			} else if (empty($entryRule->fail->entry) && $page->name === 'failure') {
+				$entryRule->fail->entry = $page->name;
+				$cnt++;
+			}
+			if ($cnt === 3) {
+				break;
+			}
+		}
 
 		return $entryRule;
 	}
@@ -546,5 +551,21 @@ class main extends \pl\fe\matter\base {
 		$this->model('matter\log')->matterOp($site, $user, $app, 'Restore');
 
 		return new \ResponseData($rst);
+	}
+	/**
+	 * 登记情况汇总信息
+	 */
+	public function opData_action($site, $app) {
+		if (false === ($user = $this->accountUser())) {
+			return new \ResponseTimeout();
+		}
+
+		$mdoelApp = $this->model('matter\signin');
+		$oApp = new \stdClass;
+		$oApp->siteid = $site;
+		$oApp->id = $app;
+		$opData = $mdoelApp->opData($oApp);
+
+		return new \ResponseData($opData);
 	}
 }

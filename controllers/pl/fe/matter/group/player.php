@@ -174,7 +174,7 @@ class player extends \pl\fe\matter\base {
 	 *
 	 * 同步在最后一次同步之后的数据或已经删除的数据
 	 */
-	public function syncByApp_action($site, $app, $onlySpeaker='N') {
+	public function syncByApp_action($site, $app, $onlySpeaker = 'N') {
 		if (false === ($user = $this->accountUser())) {
 			return new \ResponseTimeout();
 		}
@@ -243,7 +243,7 @@ class player extends \pl\fe\matter\base {
 				$user->qy_openid = $record->qy_openid;
 				$user->headimgurl = $record->headimgurl;
 				$modelPlayer->enroll($site, $objGrp, $user, ['enroll_key' => $ek, 'enroll_at' => $record->enroll_at]);
-				$modelPlayer->setData($user, $site, $objGrp, $ek, $record->data);
+				$modelPlayer->setData($site, $objGrp, $ek, $record->data);
 			}
 		}
 
@@ -309,7 +309,7 @@ class player extends \pl\fe\matter\base {
 				$user->qy_openid = $record->qy_openid;
 				$user->headimgurl = $record->headimgurl;
 				$modelPlayer->enroll($site, $objGrp, $user, ['enroll_key' => $ek, 'enroll_at' => $record->enroll_at]);
-				$modelPlayer->setData($user, $site, $objGrp, $ek, $record->data);
+				$modelPlayer->setData($site, $objGrp, $ek, $record->data);
 			}
 		}
 
@@ -339,11 +339,11 @@ class player extends \pl\fe\matter\base {
 		$modelPlayer->clean($app, true);
 		//获取所有用户数据
 		$u = array(
-				'*',
-				'xxt_wall_enroll',
-				"wid = '{$byApp}' and siteid = '{$site}'",
-			);
-		if($onlySpeaker === 'Y'){
+			'*',
+			'xxt_wall_enroll',
+			"wid = '{$byApp}' and siteid = '{$site}'",
+		);
+		if ($onlySpeaker === 'Y') {
 			$u[2] .= " and last_msg_at>0";
 		}
 		$wallUsers = $this->model()->query_objs_ss($u);
@@ -360,12 +360,12 @@ class player extends \pl\fe\matter\base {
 				$user->yx_openid = $wallUser->yx_openid;
 				$user->qy_openid = $wallUser->qy_openid;
 				$user->headimgurl = $wallUser->headimgurl;
-				if(empty($wallUser->enroll_key)){
+				if (empty($wallUser->enroll_key)) {
 					$ek = $modelPlayer->genKey($site, $app);
 					$wallUser->enroll_key = $ek;
 				}
 				$modelPlayer->enroll($site, $objGrp, $user, ['enroll_key' => $wallUser->enroll_key, 'enroll_at' => $wallUser->join_at]);
-				$modelPlayer->setData($user, $site, $objGrp, $wallUser->enroll_key, $wallUser->data);
+				$modelPlayer->setData($site, $objGrp, $wallUser->enroll_key, $wallUser->data);
 			}
 		}
 
@@ -380,11 +380,11 @@ class player extends \pl\fe\matter\base {
 	private function _syncByEnroll($siteId, &$objGrp, $byApp) {
 		/* 获取变化的登记数据 */
 		$modelRec = $this->model('matter\enroll\record');
-		$q = array(
+		$q = [
 			'enroll_key,state',
 			'xxt_enroll_record',
 			"aid='$byApp' and (enroll_at>{$objGrp->last_sync_at} or state<>1)",
-		);
+		];
 		$records = $modelRec->query_objs_ss($q);
 
 		return $this->_syncRecord($siteId, $objGrp, $records, $modelRec);
@@ -409,15 +409,15 @@ class player extends \pl\fe\matter\base {
 	/**
 	 * 同步在最后一次同步之后的数据
 	 * $onlySpeaker 是否为发言的用户
-	 */ 
+	 */
 	private function _syncByWall($siteId, &$objGrp, $byApp, $onlySpeaker) {
 		//获取新增用户数据
 		$u = array(
-				'*',
-				'xxt_wall_enroll',
-				"wid = '{$byApp}' and siteid = '{$siteId}' and join_at > {$objGrp->last_sync_at} ",
-			);
-		if($onlySpeaker === 'Y'){
+			'*',
+			'xxt_wall_enroll',
+			"wid = '{$byApp}' and siteid = '{$siteId}' and join_at > {$objGrp->last_sync_at} ",
+		);
+		if ($onlySpeaker === 'Y') {
 			$u[2] .= " and last_msg_at>0";
 		}
 		$wallUsers = $this->model()->query_objs_ss($u);
@@ -435,11 +435,11 @@ class player extends \pl\fe\matter\base {
 				$user->headimgurl = $wallUser->headimgurl;
 				if ($modelPlayer->byId($objGrp->id, $wallUser->enroll_key, ['cascaded' => 'N'])) {
 					// 已经同步过的用户
-					$modelPlayer->setData($user, $siteId, $objGrp, $wallUser->enroll_key, $wallUser->data);
+					$modelPlayer->setData($siteId, $objGrp, $wallUser->enroll_key, $wallUser->data);
 				} else {
 					// 新用户
 					$modelPlayer->enroll($siteId, $objGrp, $user, ['enroll_key' => $wallUser->enroll_key, 'enroll_at' => $wallUser->join_at]);
-					$modelPlayer->setData($user, $siteId, $objGrp, $wallUser->enroll_key, $wallUser->data);
+					$modelPlayer->setData($siteId, $objGrp, $wallUser->enroll_key, $wallUser->data);
 				}
 			}
 		}
@@ -450,6 +450,7 @@ class player extends \pl\fe\matter\base {
 	 * 同步数据
 	 */
 	private function _syncRecord($siteId, &$objGrp, &$records, &$modelRec) {
+		$cnt = 0;
 		$modelPlayer = $this->model('matter\group\player');
 		if (!empty($records)) {
 			$options = ['cascaded' => 'Y'];
@@ -465,20 +466,23 @@ class player extends \pl\fe\matter\base {
 					$user->headimgurl = $record->headimgurl;
 					if ($modelPlayer->byId($objGrp->id, $record->enroll_key, ['cascaded' => 'N'])) {
 						// 已经同步过的用户
-						$modelPlayer->setData($user, $siteId, $objGrp, $record->enroll_key, $record->data);
+						$modelPlayer->setData($siteId, $objGrp, $record->enroll_key, $record->data);
 					} else {
 						// 新用户
 						$modelPlayer->enroll($siteId, $objGrp, $user, ['enroll_key' => $record->enroll_key, 'enroll_at' => $record->enroll_at]);
-						$modelPlayer->setData($user, $siteId, $objGrp, $record->enroll_key, $record->data);
+						$modelPlayer->setData($siteId, $objGrp, $record->enroll_key, $record->data);
 					}
+					$cnt++;
 				} else {
 					// 删除用户
-					$modelPlayer->remove($objGrp->id, $record->enroll_key, true);
+					if ($modelPlayer->remove($objGrp->id, $record->enroll_key, true)) {
+						$cnt++;
+					}
 				}
 			}
 		}
 
-		return count($records);
+		return $cnt;
 	}
 	/**
 	 * 手工添加分组用户信息
@@ -524,7 +528,7 @@ class player extends \pl\fe\matter\base {
 		}
 
 		$modelPlayer->enroll($site, $app, $user, $player);
-		$result = $modelPlayer->setData($user, $site, $app, $ek, $posted->data);
+		$result = $modelPlayer->setData($site, $app, $ek, $posted->data);
 		if (false === $result[0]) {
 			return new \ResponseError($result[1]);
 		}
@@ -550,10 +554,6 @@ class player extends \pl\fe\matter\base {
 
 		$app = $modelGrp->byId($app);
 
-		$user = new \stdClass;
-		$user->uid = '';
-		$user->nickname = '';
-
 		/* 更新记录数据 */
 		$record = new \stdClass;
 		if (isset($player->comment)) {
@@ -562,16 +562,14 @@ class player extends \pl\fe\matter\base {
 		if (isset($player->tags)) {
 			$record->tags = $player->tags;
 		}
-		if (isset($player->round_id)) {
-			if (empty($player->round_id)) {
-				$record->round_id = 0;
-				$record->round_title = '';
-			} else {
-				$modelRnd = $this->model('matter\group\round');
-				if ($round = $modelRnd->byId($player->round_id)) {
-					$record->round_id = $player->round_id;
-					$record->round_title = $round->title;
-				}
+		if (empty($player->round_id)) {
+			$record->round_id = 0;
+			$record->round_title = '';
+		} else {
+			$modelRnd = $this->model('matter\group\round');
+			if ($round = $modelRnd->byId($player->round_id)) {
+				$record->round_id = $player->round_id;
+				$record->round_title = $round->title;
 			}
 		}
 		$modelPlayer->update(
@@ -579,13 +577,15 @@ class player extends \pl\fe\matter\base {
 			$record,
 			["aid" => $app->id, "enroll_key" => $ek]
 		);
-
 		/* 更新登记数据 */
-		$result = $modelPlayer->setData($user, $site, $app, $ek, $player->data);
+		$result = $modelPlayer->setData($site, $app, $ek, $player->data);
 		if (false === $result[0]) {
 			return new \ResponseError($result[1]);
 		}
-		$player->data = json_decode($result[1]);
+		$player = $modelPlayer->byId($app->id, $ek);
+
+		/* 记录操作日志 */
+		$this->model('matter\log')->matterOp($site, $user, $app, 'update', $player);
 
 		return new \ResponseData($player);
 	}
@@ -650,7 +650,6 @@ class player extends \pl\fe\matter\base {
 
 		// 记录操作日志
 		$app = $this->model('matter\group')->byId($app, ['cascaded' => 'N']);
-		$app->type = 'group';
 		$this->model('matter\log')->matterOp($site, $user, $app, 'quitGroup', $result);
 
 		return new \ResponseData($result);
@@ -675,7 +674,7 @@ class player extends \pl\fe\matter\base {
 		foreach ($eks as $ek) {
 			if ($player = $modelPly->byId($app, $ek)) {
 				if ($modelPly->joinGroup($app, $round, $ek)) {
-					$result->{$ek} = $player->round_id;
+					$result->{$ek} = $round->round_id;
 				} else {
 					$result->{$ek} = false;
 				}
@@ -686,7 +685,6 @@ class player extends \pl\fe\matter\base {
 
 		// 记录操作日志
 		$app = $this->model('matter\group')->byId($app, ['cascaded' => 'N']);
-		$app->type = 'group';
 		$this->model('matter\log')->matterOp($site, $user, $app, 'joinGroup', $result);
 
 		return new \ResponseData($result);

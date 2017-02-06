@@ -7,10 +7,19 @@ require_once dirname(dirname(__FILE__)) . '/base.php';
  */
 class round extends \pl\fe\matter\base {
 	/**
+	 * 获得分组活动下的轮次（分组）
+	 *
+	 * @param string $site
+	 * @param string $app
+	 * @param string $cascade 返回的结果中包含哪些级联。逗号分隔的字符串。支持：playerCount
 	 *
 	 */
-	public function list_action($site, $app) {
-		$rounds = $this->model('matter\group\round')->byApp($app);
+	public function list_action($site, $app, $cascade = '') {
+		if (false === ($user = $this->accountUser())) {
+			return new \ResponseTimeout();
+		}
+		$options = ['cascade' => $cascade];
+		$rounds = $this->model('matter\group\round')->byApp($app, $options);
 
 		return new \ResponseData($rounds);
 	}
@@ -100,7 +109,7 @@ class round extends \pl\fe\matter\base {
 		if (false === ($user = $this->accountUser())) {
 			return new \ResponseTimeout();
 		}
-		$result = $this->model('matter\group\player')->winnersByRound($app, $rid);
+		$result = $this->model('matter\group\player')->byRound($app, $rid);
 
 		return new \ResponseData($result);
 	}

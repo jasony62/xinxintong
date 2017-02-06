@@ -1,28 +1,6 @@
 define(['frame'], function(ngApp) {
     'use strict';
-    ngApp.provider.controller('ctrlRecord', ['$scope', '$uibModal', 'srvApp', 'srvRecord', function($scope, $uibModal, srvApp, srvRecord) {
-        $scope.notifyMatterTypes = [{
-            value: 'tmplmsg',
-            title: '模板消息',
-            url: '/rest/pl/fe/matter'
-        }, {
-            value: 'article',
-            title: '单图文',
-            url: '/rest/pl/fe/matter'
-        }, {
-            value: 'news',
-            title: '多图文',
-            url: '/rest/pl/fe/matter'
-        }, {
-            value: 'channel',
-            title: '频道',
-            url: '/rest/pl/fe/matter'
-        }, {
-            value: 'enroll',
-            title: '登记活动',
-            url: '/rest/pl/fe/matter'
-        }];
-
+    ngApp.provider.controller('ctrlRecord', ['$scope', '$uibModal', 'srvApp', 'srvRecord', 'cstApp', function($scope, $uibModal, srvApp, srvRecord, cstApp) {
         $scope.doSearch = function(pageNumber) {
             $scope.rows = {
                 allSelected: 'N',
@@ -71,12 +49,12 @@ define(['frame'], function(ngApp) {
                     record: function() {
                         if (record === undefined) {
                             return {
-                                aid: $scope.id,
+                                aid: $scope.app.id,
                                 tags: '',
                                 data: {}
                             };
                         } else {
-                            record.aid = $scope.id;
+                            record.aid = $scope.app.id;
                             return angular.copy(record);
                         }
                     },
@@ -99,7 +77,7 @@ define(['frame'], function(ngApp) {
             srvRecord.empty();
         };
         $scope.notify = function(isBatch) {
-            srvRecord.notify($scope.notifyMatterTypes, $scope.rows, isBatch);
+            srvRecord.notify(cstApp.notifyMatter, $scope.rows, isBatch);
         };
         $scope.export = function() {
             srvRecord.export($scope.page);
@@ -174,114 +152,4 @@ define(['frame'], function(ngApp) {
             $mi.dismiss();
         };
     }]);
-    ngApp.provider.controller('ctrlEdit', ['$scope', '$uibModalInstance', 'app', 'record', 'srvRecord', function($scope, $mi, app, record, srvRecord) {
-        if (record.data) {
-            app.data_schemas.forEach(function(col) {
-                if (record.data[col.id]) {
-                    srvRecord.convertRecord4Edit(col, record.data);
-                }
-            });
-            app._schemasFromEnrollApp.forEach(function(col) {
-                if (record.data[col.id]) {
-                    srvRecord.convertRecord4Edit(col, record.data);
-                }
-            });
-        }
-        $scope.app = app;
-        $scope.enrollDataSchemas = app._schemasFromEnrollApp;
-        $scope.record = record;
-        $scope.record.aTags = (!record.tags || record.tags.length === 0) ? [] : record.tags.split(',');
-        $scope.aTags = app.tags;
-        $scope.ok = function() {
-            var record = $scope.record,
-                p = {};
-
-            p.data = record.data;
-            p.verified = record.verified;
-            p.tags = record.tags = record.aTags.join(',');
-            p.comment = record.comment;
-            p.signin_log = record.signin_log;
-
-            $mi.close([p, $scope.aTags]);
-        };
-        $scope.cancel = function() {
-            $mi.dismiss();
-        };
-        $scope.chooseImage = function(fieldName) {
-            var data = $scope.record.data;
-            srvRecord.chooseImage(fieldName).then(function(img) {
-                !data[fieldName] && (data[fieldName] = []);
-                data[fieldName].push(img);
-            });
-        };
-        $scope.removeImage = function(imgField, index) {
-            imgField.splice(index, 1);
-        };
-        $scope.$on('tag.xxt.combox.done', function(event, aSelected) {
-            var aNewTags = [];
-            for (var i in aSelected) {
-                var existing = false;
-                for (var j in $scope.record.aTags) {
-                    if (aSelected[i] === $scope.record.aTags[j]) {
-                        existing = true;
-                        break;
-                    }
-                }!existing && aNewTags.push(aSelected[i]);
-            }
-            $scope.record.aTags = $scope.record.aTags.concat(aNewTags);
-        });
-        $scope.$on('tag.xxt.combox.add', function(event, newTag) {
-            if (-1 === $scope.record.aTags.indexOf(newTag)) {
-                $scope.record.aTags.push(newTag);
-                if (-1 === $scope.aTags.indexOf(newTag)) {
-                    $scope.aTags.push(newTag);
-                }
-            }
-        });
-        $scope.$on('tag.xxt.combox.del', function(event, removed) {
-            $scope.record.aTags.splice($scope.record.aTags.indexOf(removed), 1);
-        });
-        $scope.$on('xxt.tms-datepicker.change', function(event, data) {
-            if (data.state === 'signinAt') {
-                !record.signin_log && (record.signin_log = {});
-                record.signin_log[data.obj.rid] = data.value;
-            }
-        });
-        $scope.syncByEnroll = function() {
-            srvRecord.syncByEnroll($scope.record);
-        };
-    }]);
-    ngApp.provider.directive('flexImg', function() {
-        return {
-            restrict: 'A',
-            replace: true,
-            template: "<img src='{{img.imgSrc}}'>",
-            link: function(scope, elem, attrs) {
-                angular.element(elem).on('load', function() {
-                    var w = this.clientWidth,
-                        h = this.clientHeight,
-                        sw, sh;
-                    if (w > h) {
-                        sw = w / h * 80;
-                        angular.element(this).css({
-                            'height': '100%',
-                            'width': sw + 'px',
-                            'top': '0',
-                            'left': '50%',
-                            'margin-left': (-1 * sw / 2) + 'px'
-                        });
-                    } else {
-                        sh = h / w * 80;
-                        angular.element(this).css({
-                            'width': '100%',
-                            'height': sh + 'px',
-                            'left': '0',
-                            'top': '50%',
-                            'margin-top': (-1 * sh / 2) + 'px'
-                        });
-                    }
-                })
-            }
-        }
-    });
 });

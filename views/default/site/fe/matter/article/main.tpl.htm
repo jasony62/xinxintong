@@ -6,11 +6,11 @@
         <meta content="width=device-width,user-scalable=no,initial-scale=1.0" name="viewport">
         <base href="/" />
         <title><?php TPL::pt('title');?></title>
-        <link href="/views/default/site/fe/matter/article/main.css" rel="stylesheet">
+        <link href="/views/default/site/fe/matter/article/main.css?_=1" rel="stylesheet">
     </head>
     
     <body>
-        <div class="article ng-cloak" ng-cloak tms-scroll downmost="downmost" ready="dataReady">
+        <div class="article ng-cloak" ng-cloak>
             <header ng-if="article.use_site_header==='Y'" dynamic-html="site.header_page.html"></header>
             <header ng-if="article.use_mission_header==='Y'" dynamic-html="mission.header_page.html"></header>
             <div class="wrap">
@@ -59,7 +59,7 @@
             <footer ng-if="article.use_mission_footer==='Y'" dynamic-html="mission.footer_page.html"></footer>
             <footer ng-if="article.use_site_footer==='Y'" dynamic-html="site.footer_page.html"></footer>
         </div>
-        <div id='gototop' style='display:none'></div>
+        <div id='gototop' class='tms-switch'></div>
         <div class="loading"><div class='loading-indicator'><i></i></div></div>
         <script src="/static/js/require.js" defer async data-main="/views/default/site/fe/matter/article/main-loader.js?_=11"></script>
     </body>

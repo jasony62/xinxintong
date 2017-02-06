@@ -87,8 +87,8 @@ config(['$uibTooltipProvider', function($uibTooltipProvider) {
             });
         },
         addGroup: function(site) {
-            http2.get('/rest/pl/fe/matter/group/create?site=' + site.id, function(rsp) {
-                location.href = '/rest/pl/fe/matter/group?site=' + site.id + '&id=' + rsp.data.id;
+            http2.get('/rest/pl/fe/matter/group/create?site=' + site.id + '&scenario=split', function(rsp) {
+                location.href = '/rest/pl/fe/matter/group/main?site=' + site.id + '&id=' + rsp.data.id;
             });
         },
         addLottery: function(site) {
@@ -238,7 +238,7 @@ config(['$uibTooltipProvider', function($uibTooltipProvider) {
     $scope.filter = filter = {};
     $scope.filter2 = filter2 = {};
     $scope.open = function(mission) {
-        location.href = '/rest/pl/fe/matter/mission?id=' + mission.mission_id;
+        location.href = '/rest/pl/fe/matter/mission?site=' + mission.siteid + '&id=' + mission.mission_id;
     };
     $scope.listSite = function() {
         var url = '/rest/pl/fe/matter/mission/listSite?_=' + t;

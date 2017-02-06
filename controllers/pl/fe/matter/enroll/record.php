@@ -97,19 +97,6 @@ class record extends \pl\fe\matter\base {
 		return new \ResponseData($result);
 	}
 	/**
-	 * 登记情况汇总信息
-	 */
-	public function summary_action($site, $app) {
-		if (false === ($user = $this->accountUser())) {
-			return new \ResponseTimeout();
-		}
-
-		$mdoelRec = $this->model('matter\enroll\record');
-		$summary = $mdoelRec->summary($site, $app);
-
-		return new \ResponseData($summary);
-	}
-	/**
 	 * 手工添加登记信息
 	 *
 	 * @param string $app

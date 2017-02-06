@@ -1,7 +1,43 @@
-define(['require', 'page', 'schema'], function(require, pageLib, schemaLib) {
+define(['require', 'page', 'schema', 'signinService'], function(require, pageLib, schemaLib) {
     'use strict';
-    var ngApp = angular.module('app', ['ngRoute', 'frapontillo.bootstrap-switch', 'ui.tms', 'service.signin', 'tinymce.enroll', 'ui.xxt']);
-    ngApp.config(['$controllerProvider', '$routeProvider', '$locationProvider', '$compileProvider', '$uibTooltipProvider', 'srvAppProvider', 'srvRoundProvider', 'srvPageProvider', 'srvRecordProvider', function($controllerProvider, $routeProvider, $locationProvider, $compileProvider, $uibTooltipProvider, srvAppProvider, srvRoundProvider, srvPageProvider, srvRecordProvider) {
+    var ngApp = angular.module('app', ['ngRoute', 'frapontillo.bootstrap-switch', 'ui.tms', , 'service.matter', 'service.signin', 'tinymce.enroll', 'ui.xxt']);
+    ngApp.constant('cstApp', {
+        notifyMatter: [{
+            value: 'tmplmsg',
+            title: '模板消息',
+            url: '/rest/pl/fe/matter'
+        }, {
+            value: 'article',
+            title: '单图文',
+            url: '/rest/pl/fe/matter'
+        }, {
+            value: 'news',
+            title: '多图文',
+            url: '/rest/pl/fe/matter'
+        }, {
+            value: 'channel',
+            title: '频道',
+            url: '/rest/pl/fe/matter'
+        }, {
+            value: 'enroll',
+            title: '登记活动',
+            url: '/rest/pl/fe/matter'
+        }],
+        innerlink: [{
+            value: 'article',
+            title: '单图文',
+            url: '/rest/pl/fe/matter'
+        }, {
+            value: 'news',
+            title: '多图文',
+            url: '/rest/pl/fe/matter'
+        }, {
+            value: 'channel',
+            title: '频道',
+            url: '/rest/pl/fe/matter'
+        }]
+    });
+    ngApp.config(['$controllerProvider', '$routeProvider', '$locationProvider', '$compileProvider', '$uibTooltipProvider', 'srvSiteProvider', 'srvQuickEntryProvider', 'srvAppProvider', 'srvRoundProvider', 'srvPageProvider', 'srvRecordProvider', function($controllerProvider, $routeProvider, $locationProvider, $compileProvider, $uibTooltipProvider, srvSiteProvider, srvQuickEntryProvider, srvAppProvider, srvRoundProvider, srvPageProvider, srvRecordProvider) {
         var RouteParam = function(name) {
             var baseURL = '/views/default/pl/fe/matter/signin/';
             this.templateUrl = baseURL + name + '.html?_=' + ((new Date()) * 1);
@@ -39,6 +75,7 @@ define(['require', 'page', 'schema'], function(require, pageLib, schemaLib) {
             ls = location.search;
             siteId = ls.match(/[\?&]site=([^&]*)/)[1];
             appId = ls.match(/[\?&]id=([^&]*)/)[1];
+            srvSiteProvider.config(siteId);
             //
             srvAppProvider.setSiteId(siteId);
             srvAppProvider.setAppId(appId);
@@ -51,13 +88,11 @@ define(['require', 'page', 'schema'], function(require, pageLib, schemaLib) {
             //
             srvRecordProvider.setSiteId(siteId);
             srvRecordProvider.setAppId(appId);
+            //
+            srvQuickEntryProvider.setSiteId(siteId);
         })();
     }]);
-    ngApp.controller('ctrlFrame', ['$scope', '$location', '$uibModal', '$q', 'http2', 'srvApp', function($scope, $location, $uibModal, $q, http2, srvApp) {
-        var ls = $location.search();
-
-        $scope.id = ls.id;
-        $scope.siteId = ls.site;
+    ngApp.controller('ctrlFrame', ['$scope', 'srvSite', 'srvApp', function($scope, srvSite, srvApp) {
         $scope.viewNames = {
             'main': '活动定义',
             'publish': '发布预览',
@@ -73,104 +108,14 @@ define(['require', 'page', 'schema'], function(require, pageLib, schemaLib) {
         $scope.update = function(props) {
             srvApp.update(props);
         };
-        $scope.assignMission = function() {
-            srvApp.assignMission();
-        };
-        $scope.quitMission = function() {
-            srvApp.quitMission();
-        };
-        $scope.choosePhase = function() {
-            srvApp.choosePhase();
-        };
-        $scope.remove = function() {
-            if (window.confirm('确定删除？')) {
-                http2.get('/rest/pl/fe/matter/signin/remove?site=' + $scope.siteId + '&app=' + $scope.id, function(rsp) {
-                    if ($scope.app.mission) {
-                        location = "/rest/pl/fe/matter/mission?site=" + $scope.siteId + "&id=" + $scope.app.mission.id;
-                    } else {
-                        location = '/rest/pl/fe/site/console?site=' + $scope.siteId;
-                    }
-                });
-            }
-        };
-        $scope.createPage = function() {
-            var deferred = $q.defer();
-            $uibModal.open({
-                templateUrl: '/views/default/pl/fe/matter/signin/component/createPage.html?_=3',
-                backdrop: 'static',
-                controller: ['$scope', '$uibModalInstance', function($scope, $mi) {
-                    $scope.options = {};
-                    $scope.ok = function() {
-                        $mi.close($scope.options);
-                    };
-                    $scope.cancel = function() {
-                        $mi.dismiss();
-                    };
-                }],
-            }).result.then(function(options) {
-                http2.post('/rest/pl/fe/matter/signin/page/add?site=' + $scope.siteId + '&app=' + $scope.id, options, function(rsp) {
-                    var page = rsp.data;
-                    pageLib.enhance(page);
-                    page.arrange($scope.mapOfAppSchemas);
-                    $scope.app.pages.push(page);
-                    deferred.resolve(page);
-                });
-            });
-
-            return deferred.promise;
-        };
-        $scope.summaryOfRecords = function() {
-            var deferred = $q.defer(),
-                url = '/rest/pl/fe/matter/signin/record/summary';
-            url += '?site=' + $scope.siteId;
-            url += '&app=' + $scope.id;
-            http2.get(url, function(rsp) {
-                deferred.resolve(rsp.data);
-            });
-            return deferred.promise;
-        };
-        http2.get('/rest/pl/fe/site/get?site=' + $scope.siteId, function(rsp) {
-            $scope.site = rsp.data;
+        srvSite.get().then(function(oSite) {
+            $scope.site = oSite;
         });
-        http2.get('/rest/pl/fe/site/snsList?site=' + $scope.siteId, function(rsp) {
-            $scope.sns = rsp.data;
+        srvSite.snsList().then(function(aSns) {
+            $scope.sns = aSns;
         });
-        http2.get('/rest/pl/fe/site/member/schema/list?valid=Y&site=' + $scope.siteId, function(rsp) {
-            $scope.memberSchemas = rsp.data;
-            rsp.data.forEach(function(ms) {
-                var schemas = [];
-                if (ms.attr_name[0] === '0') {
-                    schemas.push({
-                        id: 'member.name',
-                        title: '姓名',
-                    });
-                }
-                if (ms.attr_mobile[0] === '0') {
-                    schemas.push({
-                        id: 'member.mobile',
-                        title: '手机',
-                    });
-                }
-                if (ms.attr_email[0] === '0') {
-                    schemas.push({
-                        id: 'member.email',
-                        title: '邮箱',
-                    });
-                }
-                (function() {
-                    var i, ea;
-                    if (ms.extattr) {
-                        for (i = ms.extattr.length - 1; i >= 0; i--) {
-                            ea = ms.extattr[i];
-                            schemas.push({
-                                id: 'member.extattr.' + ea.id,
-                                title: ea.label,
-                            });
-                        };
-                    }
-                })();
-                ms._schemas = schemas;
-            });
+        srvSite.memberSchemaList().then(function(aMemberSchemas) {
+            $scope.memberSchemas = aMemberSchemas;
         });
         $scope.mapOfAppSchemas = {};
         srvApp.get().then(function(app) {
@@ -180,12 +125,10 @@ define(['require', 'page', 'schema'], function(require, pageLib, schemaLib) {
                 $scope.mapOfAppSchemas[schema.id] = schema;
             });
             app.pages.forEach(function(page) {
-                pageLib.enhance(page);
-                page.arrange($scope.mapOfAppSchemas);
+                pageLib.enhance(page, $scope.mapOfAppSchemas);
             });
             $scope.app = app;
             app.__schemasOrderConsistent = 'Y'; //页面上登记项显示顺序与定义顺序一致
-            $scope.url = 'http://' + location.host + '/rest/site/fe/matter/signin?site=' + $scope.siteId + '&app=' + $scope.id;
         });
     }]);
     /***/

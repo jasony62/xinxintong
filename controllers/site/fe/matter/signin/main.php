@@ -20,36 +20,23 @@ class main extends base {
 	/**
 	 * 返回活动页
 	 *
-	 * 活动是否只向会员开放，如果是要求先成为会员，否则允许直接
-	 * 如果已经报过名如何判断？
-	 * 如果已经是会员，则可以查看和会员的关联
-	 * 如果不是会员，临时分配一个key，保存在cookie中，允许重新报名
-	 *
-	 * $siteid 因为活动有可能来源于父账号，因此需要指明活动是在哪个公众号中进行的
-	 * $appid
-	 * $page 要进入活动的哪一页
-	 * $ek 登记记录的id
-	 * $shareid 谁进行的分享
-	 * $mocker 用于测试，模拟访问用户
-	 * $code OAuth返回的code
+	 * @param string $site 因为活动有可能来源于父账号，因此需要指明活动是在哪个公众号中进行的
+	 * @param string $app
+	 * @param string $round 指定签到轮次
+	 * @param $page 要进入活动的哪一页面
 	 *
 	 */
-	public function index_action($site, $app, $round = null, $shareby = '', $page = '', $ek = '', $ignoretime = 'N') {
+	public function index_action($site, $app, $round = null, $page = '', $ignoretime = 'N') {
 		empty($site) && $this->outputError('没有指定站点ID');
 		empty($app) && $this->outputError('签到活动ID为空');
 
-		$app = $this->modelApp->byId($app, ['cascade' => 'Y']);
+		$app = $this->modelApp->byId($app, ['cascade' => 'N']);
 		if ($app === false) {
 			$this->outputError('指定的签到活动不存在，请检查参数是否正确');
 		}
-
 		if (!$this->afterSnsOAuth()) {
 			/* 检查是否需要第三方社交帐号OAuth */
 			$this->_requireSnsOAuth($site, $app);
-		}
-		/* 判断活动是否可用 */
-		if ($app->state === '3') {
-			$this->outputError('签到已经结束', $app->title);
 		}
 		if ($ignoretime === 'N') {
 			$activeRound = $this->model('matter\signin\round')->getActive($site, $app->id);
@@ -62,18 +49,12 @@ class main extends base {
 		/* 计算打开哪个页面 */
 		if (empty($page)) {
 			/*没有指定页面*/
-			$oPage = $this->_defaultPage($this->who, $site, $app, true);
+			$oPage = $this->_defaultPage($this->who, $site, $app, true, isset($activeRound) ? $activeRound : null);
 		} else {
-			foreach ($app->pages as $p) {
-				if ($p->name === $page) {
-					$oPage = &$p;
-					break;
-				}
-			}
+			$oPage = $this->model('matter\signin\page')->byName($app->id, $page);
 		}
 		empty($oPage) && $this->outputError('没有可访问的页面');
-		/* 记录日志 */
-		//$this->logRead($siteid, $user, $app->id, 'signin', $app->title, '');
+
 		/* 返回签到活动页面 */
 		\TPL::assign('title', $app->title);
 		if ($oPage->type === 'V') {
@@ -131,17 +112,11 @@ class main extends base {
 		return false;
 	}
 	/**
-	 * 当前用户的缺省页面
+	 * 当前用户进入的缺省页面
 	 */
-	private function &_defaultPage(&$user, $siteId, &$app, $redirect = false) {
-		$page = $this->checkEntryRule($user, $siteId, $app, $redirect);
-		$oPage = null;
-		foreach ($app->pages as $p) {
-			if ($p->name === $page) {
-				$oPage = $p;
-				break;
-			}
-		}
+	private function &_defaultPage(&$user, $siteId, &$app, $redirect = false, $round = null) {
+		$page = $this->checkEntryRule($user, $siteId, $app, $redirect, $round);
+		$oPage = $this->model('matter\signin\page')->byName($app->id, $page);
 		if (empty($oPage)) {
 			if ($redirect === true) {
 				$this->outputError('指定的页面[' . $page . ']不存在');
@@ -152,18 +127,38 @@ class main extends base {
 		return $oPage;
 	}
 	/**
-	 * 返回签到登记记录
+	 * 返回签到活动定义
 	 *
-	 * @param string $siteid
-	 * @param string $appid
+	 * @param string $site
+	 * @param string $app
 	 * @param string $page page's name
+	 *
 	 */
 	public function get_action($site, $app, $page = null) {
 		$params = [];
 
 		// 签到活动定义
-		$signinApp = $this->modelApp->byId($app);
+		$signinApp = $this->modelApp->byId($app, ['cascaded' => 'N']);
 		$params['app'] = &$signinApp;
+
+		// 当前访问用户的基本信息
+		$user = $this->who;
+		$params['user'] = $user;
+
+		// 当前轮次
+		$activeRound = $this->model('matter\signin\round')->getActive($site, $signinApp->id);
+		$params['activeRound'] = $activeRound;
+
+		// 打开哪个页面？
+		if (empty($page)) {
+			$oPage = $this->_defaultPage($user, $site, $signinApp, false, $activeRound);
+		} else {
+			$oPage = $this->model('matter\signin\page')->byName($signinApp->id, $page);
+		}
+		if (empty($oPage)) {
+			return new \ResponseError('页面不存在');
+		}
+		$params['page'] = $oPage;
 
 		// 站点页面设置
 		if ($signinApp->use_site_header === 'Y' || $signinApp->use_site_footer === 'Y') {
@@ -181,32 +176,6 @@ class main extends base {
 				);
 			}
 		}
-
-		// 当前访问用户的基本信息
-		$user = $this->who;
-		$params['user'] = $user;
-
-		// 打开哪个页面？
-		if (empty($page)) {
-			$oPage = $this->_defaultPage($user, $site, $signinApp);
-		} else {
-			foreach ($signinApp->pages as $p) {
-				if ($p->name === $page) {
-					$oPage = &$p;
-					break;
-				}
-			}
-		}
-		if (empty($oPage)) {
-			return new \ResponseError('页面不存在');
-		}
-
-		// 页面定义
-		$modelPage = $this->model('matter\signin\page');
-		$oPage = $modelPage->byId($signinApp->id, $oPage->id, 'Y');
-		$params['page'] = $oPage;
-
-		$params['activeRound'] = $this->model('matter\signin\round')->getActive($site, $signinApp->id);
 
 		// 签到记录
 		$newForm = false;
@@ -235,7 +204,6 @@ class main extends base {
 
 		$records = $modelEnlRec->byUser($signinApp->enroll_app_id, $user);
 		if (count($records)) {
-
 			$signinRecord = new \stdClass;
 			foreach ($records as $record) {
 				if ($record->verified === 'Y') {

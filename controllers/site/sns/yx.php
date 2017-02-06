@@ -75,13 +75,13 @@ class yx extends \member_base {
 		$msg = $call->to_array();
 		$msg['siteid'] = $site;
 		/**
-		 * 消息已经收到，不处理
-		 */
-
+		 * 对于易信来说，由于msgid可能重复造成不能回复 先暂时把去重检查注释掉同时先记录日志，以后再完善
+		 *
+		 *
 		if (!empty($msg['msgid']) && $modelLog->hasReceived($msg)) {
 			die('');
 		}
-
+		 */
 		$modelLog->receive($msg);
 		/**
 		 * 消息分流处理

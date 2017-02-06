@@ -47,6 +47,8 @@ $sql .= ",open_lastroll char(1) not null default 'Y'"; // 打开最后一条登�
 $sql .= ",multi_rounds char(1) not null default 'N'"; // 支持轮次
 $sql .= ",notify_submit char(1) not null default 'N'"; // 是否发送提交事件通知
 $sql .= ",can_discuss char(1) not null default 'N'"; // 支持对登记活动进行评论
+$sql .= ",can_coinpay char(1) not null default 'N'"; // 是否可以进行打赏
+$sql .= ",can_siteuser char(1) not null default 'N'"; // 是否可以进入用户主页
 $sql .= ",can_like_record char(1) not null default 'N'"; // 支持对登记记录点赞 should remove
 $sql .= ",can_remark_record char(1) not null default 'N'"; // 支持对登记记录评论 should remove
 $sql .= ",can_autoenroll char(1) not null default 'N'"; // 是否支持自动登记
@@ -68,6 +70,7 @@ $sql .= ",use_mission_header char(1) not null default 'Y'"; // 使用项目页�
 $sql .= ",use_mission_footer char(1) not null default 'Y'"; // 使用项目页脚
 $sql .= ",extattrs text"; //扩展属性
 $sql .= ",template_id int not null default 0"; // 通过哪个模板创建
+$sql .= ",op_short_url_code char(4) not null default ''"; // 运营管理页面的短链接编码
 $sql .= ",primary key(id)) ENGINE=MyISAM DEFAULT CHARSET=utf8";
 if (!$mysqli->query($sql)) {
 	header('HTTP/1.0 500 Internal Server Error');
@@ -340,6 +343,7 @@ $sql .= ",use_mission_header char(1) not null default 'Y'"; // 使用项目页�
 $sql .= ",use_mission_footer char(1) not null default 'Y'"; // 使用项目页脚
 $sql .= ",extattrs text"; //扩展属性
 $sql .= ",tags text";
+$sql .= ",op_short_url_code char(4) not null default ''"; // 运营管理页面的短链接编码
 $sql .= ",primary key(id)) ENGINE=MyISAM DEFAULT CHARSET=utf8";
 if (!$mysqli->query($sql)) {
 	header('HTTP/1.0 500 Internal Server Error');
@@ -489,6 +493,7 @@ $sql .= ",use_site_footer char(1) not null default 'Y'"; // 使用站点页脚
 $sql .= ",use_mission_header char(1) not null default 'Y'"; // 使用项目页眉
 $sql .= ",use_mission_footer char(1) not null default 'Y'"; // 使用项目页脚
 $sql .= ",extattrs text"; //扩展属性
+$sql .= ",op_short_url_code char(4) not null default ''"; // 运营管理页面的短链接编码
 $sql .= ",primary key(id)) ENGINE=MyISAM DEFAULT CHARSET=utf8";
 if (!$mysqli->query($sql)) {
 	header('HTTP/1.0 500 Internal Server Error');

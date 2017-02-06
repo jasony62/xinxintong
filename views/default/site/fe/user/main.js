@@ -10,6 +10,12 @@ define(['require', 'angular'], function(require, angular) {
                 var deferred = $q.defer();
                 $http.get(_baseUrl + '/get?site=' + site).then(function(rsp) {
                     _user = rsp.data.data;
+                    if (!_user.headimgurl) {
+                        _user.headimgurl = '/static/img/avatar.png';
+                    }
+                    if (!_user.uname) {
+                        _user.uname = '未知昵称';
+                    }
                     deferred.resolve(_user);
                 });
                 return deferred.promise;

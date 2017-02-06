@@ -1,9 +1,10 @@
-define(['frame', 'schema', 'editor'], function(ngApp, schemaLib, editorProxy) {
+define(['frame', 'schema', 'page', 'editor'], function(ngApp, schemaLib, pageLib, editorProxy) {
     'use strict';
     /**
      * app setting controller
      */
-    ngApp.provider.controller('ctrlPage', ['$scope', '$location', 'srvPage', function($scope, $location, srvPage) {
+    ngApp.provider.controller('ctrlPage', ['$scope', '$location', 'srvApp', 'srvPage', function($scope, $location, srvApp, srvPage) {
+        $scope.ep = null;
         window.onbeforeunload = function(e) {
             var message;
             if ($scope.ep.$$modified) {
@@ -16,7 +17,8 @@ define(['frame', 'schema', 'editor'], function(ngApp, schemaLib, editorProxy) {
             }
         };
         $scope.addPage = function() {
-            $scope.createPage().then(function(page) {
+            $('body').click();
+            srvPage.create().then(function(page) {
                 $scope.choosePage(page);
             });
         };
@@ -32,43 +34,34 @@ define(['frame', 'schema', 'editor'], function(ngApp, schemaLib, editorProxy) {
             return srvPage.update(page, props);
         };
         $scope.delPage = function() {
-            if (window.confirm('确定删除页面？')) {
-                srvPage.remove($scope.ep).then(function() {
-                    $scope.app.pages.splice($scope.app.pages.indexOf($scope.ep), 1);
-                    if ($scope.app.pages.length) {
-                        $scope.choosePage($scope.app.pages[0]);
-                    } else {
-                        $scope.ep = null;
-                    }
+            $('body').click();
+            if (window.confirm('确定删除页面【' + $scope.ep.title + '】？')) {
+                srvPage.remove($scope.ep).then(function(pages) {
+                    $scope.choosePage(pages.length ? pages[0] : null);
+                });
+            }
+        };
+        $scope.cleanPage = function() {
+            $('body').click();
+            if (window.confirm('确定清除页面【' + $scope.ep.title + '】的所有内容？')) {
+                srvPage.clean($scope.ep).then(function() {
+                    editorProxy.getEditor().setContent('');
                 });
             }
         };
         $scope.choosePage = function(page) {
+            var pages = $scope.app.pages;
             if (angular.isString(page)) {
-                for (var i = $scope.app.pages.length - 1; i >= 0; i--) {
-                    if ($scope.app.pages[i].name === page) {
-                        page = $scope.app.pages[i];
+                for (var i = pages.length - 1; i >= 0; i--) {
+                    if (pages[i].name === page) {
+                        page = pages[i];
                         break;
                     }
                 }
-                if (i === -1) return;
+                if (i === -1) return false;
             }
-            $scope.ep = page;
+            return $scope.ep = page;
         };
-        $scope.cleanPage = function() {
-            $scope.ep.html = '';
-            $scope.ep.data_schemas = [];
-            $scope.ep.act_schemas = [];
-            srvPage.update($scope.ep, ['data_schemas', 'act_schemas', 'html']).then(function() {
-                editorProxy.getEditor().setContent('');
-            });
-        };
-        $scope.gotoCode = function() {
-            window.open('/rest/pl/fe/code?site=' + $scope.siteId + '&name=' + $scope.ep.code_name, '_self');
-        };
-        /**
-         * 修改schema
-         */
         $scope.$on('xxt.matter.enroll.app.data_schemas.modified', function(event, state) {
             var originator = state.originator,
                 modifiedSchema = state.schema;
@@ -79,47 +72,31 @@ define(['frame', 'schema', 'editor'], function(ngApp, schemaLib, editorProxy) {
                 }
             });
         });
+        //??? 提交前如何检查数据的一致性？
         $scope.save = function() {
             // 更新应用
-            $scope.update('data_schemas').then(function() {
+            srvApp.update('data_schemas').then(function() {
                 // 更新页面
                 $scope.app.pages.forEach(function(page) {
                     $scope.updPage(page, ['data_schemas', 'act_schemas', 'html']);
                 });
             });
         };
-        var _showPopoverPageSetting = false;
-        $scope.popoverPageSetting = function() {
-            if (_showPopoverPageSetting) {
-                $('#popoverPageSetting').trigger('hide');
-            } else {
-                $('#popoverPageSetting').trigger('show');
-                setTimeout(function() {
-                    new ZeroClipboard(document.querySelectorAll('.text2Clipboard'));
-                });
-            }
-            _showPopoverPageSetting = !_showPopoverPageSetting;
+        $scope.gotoCode = function() {
+            window.open('/rest/pl/fe/code?site=' + $scope.app.siteid + '&name=' + $scope.ep.code_name, '_self');
         };
-        $scope.$watch('app', function(app) {
-            if (!app) return;
-            if (!$scope.ep) {
-                var pageName;
-                if (pageName = $location.search().page) {
-                    for (var i = app.pages.length - 1; i >= 0; i--) {
-                        if (app.pages[i].name === pageName) {
-                            $scope.ep = app.pages[i];
-                            break;
-                        }
-                    }
-                }
-                if (!$scope.ep) $scope.ep = app.pages[0];
+        srvApp.get().then(function(app) {
+            var pageName;
+            if (pageName = $location.search().page) {
+                $scope.choosePage(pageName);
             }
+            if (!$scope.ep) $scope.ep = app.pages[0];
         });
     }]);
     /**
      * page editor
      */
-    ngApp.provider.controller('ctrlPageEdit', ['$scope', '$q', '$timeout', 'mediagallery', 'mattersgallery', function($scope, $q, $timeout, mediagallery, mattersgallery) {
+    ngApp.provider.controller('ctrlPageEdit', ['$scope', '$q', '$timeout', 'cstApp', 'mediagallery', 'mattersgallery', function($scope, $q, $timeout, cstApp, mediagallery, mattersgallery) {
         function addInputSchema(addedSchema) {
             var deferred = $q.defer(),
                 domNewWrap;
@@ -133,7 +110,7 @@ define(['frame', 'schema', 'editor'], function(ngApp, schemaLib, editorProxy) {
             deferred.resolve();
 
             return deferred.promise;
-        };
+        }
 
         function removeSchema(removedSchema) {
             var deferred = $q.defer();
@@ -148,39 +125,19 @@ define(['frame', 'schema', 'editor'], function(ngApp, schemaLib, editorProxy) {
             }
 
             return deferred.promise;
-        };
+        }
 
         var tinymceEditor;
         $scope.activeWrap = false;
-        $scope.innerlinkTypes = [{
-            value: 'article',
-            title: '单图文',
-            url: '/rest/pl/fe/matter'
-        }, {
-            value: 'news',
-            title: '多图文',
-            url: '/rest/pl/fe/matter'
-        }, {
-            value: 'channel',
-            title: '频道',
-            url: '/rest/pl/fe/matter'
-        }];
         $scope.setActiveWrap = function(domWrap) {
             var activeWrap;
             $scope.activeWrap = editorProxy.setActiveWrap(domWrap);
             activeWrap = $scope.activeWrap;
-            if (activeWrap) {
-                $('#pageEdit').trigger('show');
-            } else {
-                $('#pageEdit').trigger('hide');
-            }
         };
         $scope.wrapEditorHtml = function() {
-            var url;
+            var url = null;
             if ($scope.activeWrap.type) {
                 url = '/views/default/pl/fe/matter/enroll/wrap/' + $scope.activeWrap.type + '.html?_=' + (new Date()).getMinutes();
-            } else {
-                url = null;
             }
             return url;
         };
@@ -208,7 +165,6 @@ define(['frame', 'schema', 'editor'], function(ngApp, schemaLib, editorProxy) {
             if ('phase' === wrap.schema.type) {
                 // 更新项目阶段
                 var ops = [];
-
                 $scope.app.mission.phases.forEach(function(phase) {
                     ops.push({
                         l: phase.title,
@@ -217,7 +173,6 @@ define(['frame', 'schema', 'editor'], function(ngApp, schemaLib, editorProxy) {
                 });
                 wrap.schema.ops = ops;
             }
-
             editorProxy.modifySchema(wrap);
         };
         $scope.removeSchema = function(removedSchema) {
@@ -285,13 +240,13 @@ define(['frame', 'schema', 'editor'], function(ngApp, schemaLib, editorProxy) {
         };
         $scope.embedMatter = function(page) {
             var options = {
-                matterTypes: $scope.innerlinkTypes,
+                matterTypes: cstApp.innerlink,
                 singleMatter: true
             };
             if ($scope.app.mission) {
                 options.mission = $scope.app.mission;
             }
-            mattersgallery.open($scope.siteId, function(matters, type) {
+            mattersgallery.open($scope.app.siteid, function(matters, type) {
                 var dom = tinymceEditor.dom,
                     style = "cursor:pointer",
                     fn, domMatter, sibling;
@@ -396,7 +351,7 @@ define(['frame', 'schema', 'editor'], function(ngApp, schemaLib, editorProxy) {
                 multiple: true,
                 setshowname: true
             };
-            mediagallery.open($scope.siteId, options);
+            mediagallery.open($scope.app.siteid, options);
         });
         // 切换编辑的页面
         $scope.$watch('ep', function(newPage) {
@@ -568,7 +523,7 @@ define(['frame', 'schema', 'editor'], function(ngApp, schemaLib, editorProxy) {
      * value wrap controller
      */
     ngApp.provider.controller('ctrlValueWrap', ['$scope', function($scope) {
-        $scope.updWrap = function(obj, prop) {
+        $scope.updWrap = function() {
             editorProxy.modifySchema($scope.activeWrap);
         };
     }]);
@@ -602,8 +557,7 @@ define(['frame', 'schema', 'editor'], function(ngApp, schemaLib, editorProxy) {
             }
             $scope.updWrap('config', 'schemas');
         };
-        /*通过编辑窗口更新定义*/
-        $scope.updWrap = function(obj, prop) {
+        $scope.updWrap = function() {
             editorProxy.modifySchema($scope.activeWrap);
         };
     }]);
@@ -611,66 +565,36 @@ define(['frame', 'schema', 'editor'], function(ngApp, schemaLib, editorProxy) {
      * round list wrap
      */
     ngApp.provider.controller('ctrlRoundListWrap', ['$scope', function($scope) {
-        /*通过编辑窗口更新定义*/
-        $scope.updWrap = function(nv, ov) {
+        $scope.updWrap = function() {
             editorProxy.modifySchema($scope.activeWrap);
         };
     }]);
     /**
      * button wrap controller
      */
-    ngApp.provider.controller('ctrlButtonWrap', ['$scope', '$timeout', function($scope, $timeout) {
-        var targetPages = {},
-            inputPages = {},
-            schema = $scope.activeWrap.schema;
+    ngApp.provider.controller('ctrlButtonWrap', ['$scope', 'srvPage', function($scope, srvPage) {
+        var schema = $scope.activeWrap.schema;
 
-        $scope.$watch('app', function(app) {
-            if (!app) return;
-            app.pages.forEach(function(page) {
-                targetPages[page.name] = {
-                    l: page.title
-                };
-                if (page.type === 'I') {
-                    inputPages[page.name] = {
-                        l: page.title
-                    };
-                }
-            });
-        });
-        targetPages.closeWindow = {
-            l: '关闭页面'
-        };
-        $scope.pages = targetPages;
-        $scope.inputPages = inputPages;
-        $scope.choose = function() {
-            var names;
+        $scope.chooseType = function() {
             schema.label = $scope.buttons[schema.name].l;
             schema.next = '';
             if (['addRecord', 'editRecord', 'removeRecord'].indexOf(schema.name) !== -1) {
-                names = Object.keys(inputPages);
-                if (names.length === 0) {
-                    alert('没有类型为“填写页”的页面');
-                } else {
-                    schema.next = names[0];
+                for (var i = 0, ii = $scope.app.pages.length; i < ii; i++) {
+                    if ($scope.app.pages[i].type === 'I') {
+                        schema.next = $scope.app.pages[i].name;
+                        break;
+                    }
                 }
+                if (i === ii) alert('没有类型为“填写页”的页面');
             }
             editorProxy.modifyButton($scope.activeWrap);
         };
-        /*直接给带有导航功能的按钮创建页面*/
+        /* 直接给带有导航功能的按钮创建页面 */
         $scope.newPage = function(prop) {
-            $scope.createPage().then(function(page) {
-                targetPages[page.name] = {
-                    l: page.title
-                };
-                if (page.type === 'I') {
-                    inputPages[page.name] = {
-                        l: page.title
-                    };
-                }
+            srvPage.create().then(function(page) {
                 schema[prop] = page.name;
             });
         };
-        /*更新按钮定义*/
         $scope.updWrap = function(obj, prop) {
             editorProxy.modifyButton($scope.activeWrap);
         };

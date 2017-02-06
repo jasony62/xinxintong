@@ -1,5 +1,27 @@
 define([], function() {
     'use strict';
+
+    function protoOps(type) {
+        if (type === 'score') {
+            return [{
+                l: '打分项1',
+                v: 'v1',
+            }, {
+                l: '打分项2',
+                v: 'v2',
+            }];
+        } else if (/single|multiple/.test(type)) {
+            return [{
+                l: '选项1',
+                v: 'v1'
+            }, {
+                l: '选项2',
+                v: 'v2'
+            }];
+        } else {
+            return [];
+        }
+    }
     var base = {
             title: '',
             type: '',
@@ -88,24 +110,12 @@ define([], function() {
             } else {
                 schema.title = (proto && proto.title) ? proto.title : ('登记项' + (app.data_schemas.length + 1));
                 if (type === 'single' || type === 'multiple') {
-                    schema.ops = [{
-                        l: '选项1',
-                        v: 'v1'
-                    }, {
-                        l: '选项2',
-                        v: 'v2'
-                    }];
+                    schema.ops = protoOps(type);
                 } else if (type === 'image' || type === 'file') {
                     schema.count = 1;
                 } else if (type === 'score') {
                     schema.range = [1, 5];
-                    schema.ops = [{
-                        l: '打分项1',
-                        v: 'v1',
-                    }, {
-                        l: '打分项2',
-                        v: 'v2',
-                    }];
+                    schema.ops = protoOps(type);
                 } else if (type === 'html') {
                     schema.content = '请点击下面“编辑”按钮，编辑本说明文字';
                 }
@@ -114,7 +124,30 @@ define([], function() {
             return schema;
         },
         changeType: function(schema, newType) {
-            return false;
+            if (/phase/.test(newType) || schema.type === newType) {
+                return false;
+            }
+            if (/single|multiple|score/.test(schema.type) && !/single|multiple|score/.test(newType)) {
+                delete schema.ops;
+            }
+            if (schema.type === 'score' && newType !== 'score') {
+                delete schema.range;
+            }
+            if (/image|file/.test(schema.type) && !/image|file/.test(newType)) {
+                delete schema.count;
+            }
+            if (!/single|multiple|score/.test(schema.type) && /single|multiple|score/.test(newType)) {
+                schema.ops = protoOps(newType);
+            }
+            if (schema.type !== 'score' && newType === 'score') {
+                schema.range = [1, 5];
+            }
+            if (!/image|file/.test(schema.type) && /image|file/.test(newType)) {
+                schema.count = 1;
+            }
+            schema.type = newType;
+
+            return true;
         },
         /**
          * @schemaOptionsId 后指定的选项后面添加选项

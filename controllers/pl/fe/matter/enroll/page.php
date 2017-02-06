@@ -34,16 +34,22 @@ class page extends \pl\fe\matter\base {
 	 * 更新活动的页面的属性信息
 	 *
 	 * string $app 活动的id
-	 * $pid 页面的id，如果id==0，是固定页面
-	 * $cid 页面对应code page id
+	 * $page 页面的id
+	 * $cname 页面对应code page id
 	 */
-	public function update_action($site, $app, $pid, $cname) {
+	public function update_action($site, $app, $page, $cname) {
 		if (false === ($user = $this->accountUser())) {
 			return new \ResponseTimeout();
 		}
+
 		$nv = $this->getPostJson();
 
-		$rst = 0;
+		$modelPage = $this->model('matter\enroll\page');
+		$page = $modelPage->byId($app, $page);
+		if ($page === false) {
+			return new \ResponseError('指定的页面不存在');
+		}
+		/* 更新页面内容 */
 		if (isset($nv->html)) {
 			$data = [
 				'html' => urldecode($nv->html),
@@ -53,21 +59,21 @@ class page extends \pl\fe\matter\base {
 			$rst = $modelCode->modify($code->id, $data);
 			unset($nv->html);
 		}
-		if ($pid != 0 && count(array_keys(get_object_vars($nv)))) {
-			$model = $this->model();
+		/* 更新了除内容外，页面的其他属性 */
+		if (count(array_keys(get_object_vars($nv)))) {
 			if (isset($nv->data_schemas)) {
-				$nv->data_schemas = $model->escape($model->toJson($nv->data_schemas));
+				$nv->data_schemas = $modelPage->escape($modelPage->toJson($nv->data_schemas));
 			}
 			if (isset($nv->act_schemas)) {
-				$nv->act_schemas = $model->escape($model->toJson($nv->act_schemas));
+				$nv->act_schemas = $modelPage->escape($modelPage->toJson($nv->act_schemas));
 			}
 			if (isset($nv->user_schemas)) {
-				$nv->user_schemas = $model->escape($model->toJson($nv->user_schemas));
+				$nv->user_schemas = $modelPage->escape($modelPage->toJson($nv->user_schemas));
 			}
-			$rst = $model->update(
+			$rst = $modelPage->update(
 				'xxt_enroll_page',
 				$nv,
-				["aid" => $app, "id" => $pid]
+				["id" => $page->id]
 			);
 		}
 

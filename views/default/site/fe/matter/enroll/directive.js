@@ -228,18 +228,18 @@ define(['angular'], function(angular) {
                     }
                 }
                 scope.click = fnSelectItem;
-                $switch = $(ele).find('[tms-filter-switch]').click(function() {
+                $switch = ele[0].querySelector('[tms-filter-switch]').addEventListener('click', function() {
                     scope.$apply(function() {
                         scope.tmsFilter.opened = !scope.tmsFilter.opened;
                     });
                 });
-                $ok = $(ele).find('[tms-filter-ok]').click(function() {
+                $ok = ele[0].querySelector('[tms-filter-ok]').addEventListener('click', function() {
                     scope.$apply(function() {
                         scope.tmsFilter.opened = false;
                         scope.$emit(attrs.tmsFilterEvent, scope.tmsFilter.selected);
                     });
                 });
-                $cancel = $(ele).find('[tms-filter-cancel]').click(function() {
+                $cancel = ele[0].querySelector('[tms-filter-cancel]').addEventListener('click', function() {
                     scope.$apply(function() {
                         scope.tmsFilter.opened = false;
                     });
@@ -252,7 +252,7 @@ define(['angular'], function(angular) {
             restrict: 'A',
             replace: 'false',
             link: function(scope, ele, attrs) {
-                if (attrs.enrollRecordsOwner && attrs.enrollRecordsOwner.length) {
+                if (scope.options && attrs.enrollRecordsOwner && attrs.enrollRecordsOwner.length) {
                     scope.options.owner = attrs.enrollRecordsOwner;
                 }
             }

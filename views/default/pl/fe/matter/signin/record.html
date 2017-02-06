@@ -14,15 +14,14 @@
             </div>
             <div class='form-group'>
                 <button class='btn btn-default' ng-click='filter()'>筛选</button>
-                <button class='btn btn-primary hide' ng-click="notify()">发送信息</button>
                 <button class='btn btn-default' ng-click="export()">导出全部数据</button>
                 <button class='btn btn-default' ng-click="exportImage()">导出全部图片</button>
-                <button class='btn btn-success' ng-disabled="!countSelected()" ng-click='batchTag()'>批量打标签</button>
-                <button class='btn btn-primary' ng-if="app.entry_rule.scope==='sns'" ng-click="notify()">全部发送信息</button>
-                <button class='btn btn-primary' ng-if="app.entry_rule.scope==='sns'" ng-disabled="!countSelected()" ng-click="notify(true)">选中记录发送信息</button>
+                <button class='btn btn-default' ng-disabled="!countSelected()" ng-click='batchTag()'>选中记录打标签</button>
+                <button class='btn btn-default' ng-if="app.entry_rule.scope==='sns'" ng-click="notify()">全部发送信息</button>
+                <button class='btn btn-default' ng-if="app.entry_rule.scope==='sns'" ng-disabled="!countSelected()" ng-click="notify(true)">选中记录发送信息</button>
             </div>
             <div class='form-group' ng-if="app.enroll_app_id">
-                <button class='btn btn-default' ng-click="importByEnrollApp()">导入【<span>{{app.enrollApp.title}}</span>】数据</button>
+                <button class='btn btn-default ellipsis' ng-click="importByEnrollApp()" title="导入{{app.enrollApp.title}}】数据">导入【{{app.enrollApp.title}}】数据</button>
             </div>
             <div class='form-group pull-right'>
                 <div class='input-group'>
@@ -31,7 +30,7 @@
                     <span class='input-group-btn'>
                         <button class='btn btn-default' ng-click='doSearch(1)'>
                             <span class='glyphicon glyphicon-refresh'></span>
-                        </button>
+                    </button>
                     </span>
                 </div>
             </div>
@@ -72,7 +71,9 @@
                             </button>
                         </td>
                         <td>{{(page.at-1)*page.size+$index+1}}</td>
-                        <td><input type='checkbox' ng-model="rows.selected[$index]"></td>
+                        <td>
+                            <input type='checkbox' ng-model="rows.selected[$index]">
+                        </td>
                         <td>{{r.nickname}}</td>
                         <td>{{(r.enroll_at*1000)|date:'MM-dd HH:mm'}}</td>
                         <td class='signin' ng-repeat="c in app.data_schemas">

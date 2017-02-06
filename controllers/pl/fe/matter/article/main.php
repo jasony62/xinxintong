@@ -293,6 +293,7 @@ class main extends \pl\fe\matter\base {
 		$article['hide_pic'] = 'N';
 		$article['url'] = '';
 		$article['body'] = '';
+		$article['can_siteuser'] = 'Y';
 		$id = $this->model()->insert('xxt_article', $article, true);
 
 		/* 记录操作日志 */
@@ -326,18 +327,19 @@ class main extends \pl\fe\matter\base {
 		$article->mpid = $site;
 		$article->creater = $user->id;
 		$article->creater_src = 'A';
-		$article->creater_name = $user->name;
+		$article->creater_name = $modelArt->escape($user->name);
 		$article->create_at = $current;
 		$article->modifier = $user->id;
 		$article->modifier_src = 'A';
-		$article->modifier_name = $user->name;
+		$article->modifier_name = $modelArt->escape($user->name);
 		$article->modify_at = $current;
-		$article->author = $user->name;
+		$article->author = $modelArt->escape($user->name);
 		$article->hide_pic = $copied->hide_pic;
-		$article->title = $copied->title . '（副本）';
-		$article->summary = $copied->summary;
+		$article->title = $modelArt->escape($copied->title . '（副本）');
+		$article->summary = $modelArt->escape($copied->summary);
 		$article->body = $modelArt->escape($copied->body);
 		$article->url = $copied->url;
+		$article->can_siteuser = $copied->can_siteuser;
 		if (!empty($mission)) {
 			$article->mission_id = $mission;
 		}
@@ -578,6 +580,7 @@ class main extends \pl\fe\matter\base {
 			$article['pic'] = '';
 			$article['summary'] = '';
 			$article['body'] = '';
+			$article['can_siteuser'] = 'Y';
 			$id = $this->model()->insert('xxt_article', $article, true);
 			/**保存附件*/
 			$att = array();

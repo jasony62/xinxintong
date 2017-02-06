@@ -28,17 +28,21 @@ define(['angular'], function(angular) {
 
     var ngMod = angular.module('siteuser.ui.xxt', []);
     ngMod.service('tmsSiteUser', function() {
-        this.showSwitch = function(siteId) {
+        this.showSwitch = function(siteId, redirect) {
             var eSwitch;
             eSwitch = document.createElement('div');
-            eSwitch.classList.add('tms-siteuser-switch');
+            eSwitch.classList.add('tms-switch', 'tms-switch-siteuser');
             eSwitch.addEventListener('click', function(event) {
                 event.preventDefault();
                 event.stopPropagation();
                 var url = 'http://' + location.host;
                 url += '/rest/site/fe/user';
                 url += "?site=" + siteId;
-                openPlugin(url);
+                if (redirect) {
+                    location.href = url;
+                } else {
+                    openPlugin(url);
+                }
             }, true);
             document.body.appendChild(eSwitch);
         }

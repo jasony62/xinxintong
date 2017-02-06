@@ -49,7 +49,7 @@ class main extends \site\op\base {
 	public function usersGet_action($app, $rid, $hasData = 'Y') {
 		$model = $this->model('matter\group\player');
 		$pendings = $model->pendings($app, $hasData);
-		$winners = $model->winnersByRound($app, $rid);
+		$winners = $model->byRound($app, $rid);
 
 		$result = array(
 			'players' => &$pendings,

@@ -278,7 +278,7 @@ class record extends base {
 		return $rst;
 	}
 	/**
-	 * 通知登记活动时间接收人
+	 * 通知登记活动事件接收人
 	 *
 	 * @param string $siteId
 	 * @param object $app
@@ -288,12 +288,19 @@ class record extends base {
 	private function _notifyReceivers($siteId, &$app, $ek) {
 		$receivers = $this->model('matter\enroll\receiver')->byApp($siteId, $app->id);
 		if (count($receivers) === 0) {
-			return array(false);
+			return [false];
 		}
-		//发送给指定的用户的自定义信息
-		$token = $this->model()->query_obj_ss(['*', 'xxt_short_url_token', "code='enro'"]);
+		/* 获得活动的管理员链接 */
+		$appURL = 'http://' . $_SERVER['HTTP_HOST'];
+		$appURL .= "/rest/site/op/matter/enroll?site={$siteId}&app={$app->id}";
+		$modelQurl = $this->model('q\url');
+		$user = new \stdClass;
+		$task = $modelQurl->byUrl($user, $siteId, $appURL);
+		if (false === $task) {
+			return [false];
+		}
 		$noticeURL = 'http://' . $_SERVER['HTTP_HOST'];
-		$noticeURL .= "/rest/site/op/matter/enroll?site=$siteId&app=$app->id&ek=$ek&accessToken=$token->access_token";
+		$noticeURL .= "/q/{$task->code}";
 		$yxProxy = $wxProxy = null;
 
 		foreach ($receivers as $receiver) {
@@ -302,7 +309,7 @@ class record extends base {
 			}
 			$snsUser = json_decode($receiver->sns_user);
 
-			if (isset($snsUser->yx_openid)) {
+			if ($snsUser->src === 'yx' && isset($snsUser->openid)) {
 				if ($yxProxy === null) {
 					$yxConfig = $this->model('sns\yx')->bySite($siteId);
 					if ($yxConfig->joined === 'Y' && $yxConfig->can_p2p === 'Y') {
@@ -310,10 +317,10 @@ class record extends base {
 					} else {
 						$yxProxy = false;
 					}
-					$msg = "您有一条登记信息，请处理\n " . $noticeURL;
-					$message = array(
+					$msg = '【' . $app->title . "】有新信息，请处理";
+					$message = [
 						'msgtype' => 'news',
-						'news' => array(
+						'news' => [
 							'articles' => [
 								[
 									'title' => $app->title,
@@ -322,14 +329,15 @@ class record extends base {
 									'picurl' => $app->pic,
 								],
 							],
-						),
-					);
+						],
+					];
 				}
 				if ($yxProxy !== false && isset($message)) {
-					$rst = $yxProxy->messageSend($message, array($snsUser->yx_openid));
+					$rst = $yxProxy->messageSend($message, array($snsUser->openid));
 				}
 			}
-			if (isset($snsUser->wx_openid)) {
+			/* 微信号要通过模板消息发 */
+			if ($snsUser->src === 'wx' && isset($snsUser->openid)) {
 				if ($wxProxy === null) {
 					$wxSiteId = $receiver->siteid;
 					$modelWx = $this->model('sns\wx');
@@ -339,34 +347,72 @@ class record extends base {
 					} else {
 						$wxProxy = false;
 					}
+					/* 模版消息定义 */
+					$notice = $this->model('site\notice')->byName($wxSiteId, 'site.enroll.submit');
+					if ($notice) {
+						$tmplConfig = $this->model('matter\tmplmsg\config')->byId($notice->tmplmsg_config_id, ['cascaded' => 'Y']);
+						/* 拼装模版消息 */
+						$data = [];
+						if (isset($tmplConfig->tmplmsg)) {
+							foreach ($tmplConfig->tmplmsg->params as $param) {
+								$mapping = $tmplConfig->mapping->{$param->pname};
+								if ($mapping->src === 'matter') {
+									if (isset($app->{$mapping->id})) {
+										$value = $app->{$mapping->id};
+									}
+								} else if ($mapping->src === 'text') {
+									$value = $mapping->name;
+								}
+								!isset($value) && $value = '';
+								$data[$param->pname] = [
+									'value' => $value,
+									'color' => '#173177',
+								];
+							}
+							$message = [
+								'template_id' => $tmplConfig->tmplmsg->templateid,
+								'data' => &$data,
+								'url' => $noticeURL,
+							];
+						}
+					}
 				}
-				$msg = "您有一条登记信息，<a href='" . $noticeURL . "' >请处理</a> ";
-				$message = array(
-					"msgtype" => "text",
-					"text" => array(
-						"content" => $msg,
-					),
-				);
-
-				/* 发送消息 */
+				/* 发送模版消息 */
 				if ($wxProxy !== false && isset($message)) {
-					$message['touser'] = $snsUser->wx_openid;
-					$rst = $wxProxy->messageCustomSend($message, $snsUser->wx_openid);
+					$message['touser'] = $snsUser->openid;
+					$rst = $wxProxy->messageTemplateSend($message);
+					if ($rst[0] === false) {
+						return $rst;
+					}
+					$msgid = $rst[1]->msgid;
+					$model = $this->model();
+					/*记录日志*/
+					$log = [
+						'siteid' => $wxSiteId,
+						'mpid' => $wxSiteId,
+						'openid' => $snsUser->openid,
+						'tmplmsg_id' => $tmplConfig->tmplmsg->id,
+						'template_id' => $message['template_id'],
+						'data' => $model->escape(json_encode($message)),
+						'create_at' => time(),
+						'msgid' => $msgid,
+					];
+					$model->insert('xxt_log_tmplmsg', $log, false);
 				}
 			}
+			/* 企业号直接发文本 */
 			if (isset($snsUser->qy_openid)) {
 				$qyConfig = $this->model('sns\qy')->bySite($siteId);
 				if ($qyConfig->joined === 'Y') {
 					$qyProxy = $this->model('sns\qy\proxy', $qyConfig);
-					$msg = "您有一条登记信息，<a href='" . $noticeURL . "' >请处理</a> ";
-					$message = array(
+					$msg = '【' . $app->title . "】有新登记，<a href='" . $noticeURL . "' >请处理</a> ";
+					$message = [
 						'touser' => $snsUser->qy_openid,
 						'msgtype' => 'text',
-						"text" => array(
+						"text" => [
 							"content" => $msg,
-						),
-					);
-
+						],
+					];
 					if ($qyProxy !== false && isset($message)) {
 						$rst = $qyProxy->messageSend($message, $snsUser->qy_openid);
 					}

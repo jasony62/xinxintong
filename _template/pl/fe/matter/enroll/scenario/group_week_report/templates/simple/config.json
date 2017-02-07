@@ -7,17 +7,20 @@
 	}, {
 		"name": "list",
 		"title": "登记清单页",
-		"type": "V"
+		"type": "L"
 	}],
 	"schema": [{
 		"id": "c1",
-		"title": "任务名称"
+		"title": "任务名称",
+		"type": "shorttext"
 	}, {
 		"id": "c2",
-		"title": "本周情况"
+		"title": "本周情况",
+		"type": "longtext"
 	}, {
 		"id": "c3",
-		"title": "下周计划"
+		"title": "下周计划",
+		"type": "longtext"
 	}],
 	"scenarioConfig": {
 		"can_period": "D",

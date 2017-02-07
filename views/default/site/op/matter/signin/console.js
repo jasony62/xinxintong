@@ -1,44 +1,171 @@
 define(["require", "angular", "util.site"], function(require, angular) {
     'use strict';
-    var ngApp = angular.module('app', ['util.site.tms']);
+    var ngApp = angular.module('app', ['ui.bootstrap', 'util.site.tms']);
     ngApp.config(['$controllerProvider', function($cp) {
         ngApp.provider = {
             controller: $cp.register
         };
     }]);
-    ngApp.controller('ctrl', ['$scope', '$http', '$timeout', 'PageLoader', 'PageUrl', function($scope, $http, $timeout, PageLoader, PageUrl) {
-        var PU, signinURL;
+    ngApp.controller('ctrl', ['$scope', '$http', '$timeout', '$uibModal', 'PageLoader', 'PageUrl', function($scope, $http, $timeout, $uibModal, PageLoader, PageUrl) {
+        var PU, criteria, page, schemasById = {},
+            filterSchemas = [];
+
         PU = PageUrl.ins('/rest/site/op/matter/signin', ['site', 'app']);
+        // 数据筛选条件
+        $scope.criteria = criteria = {
+            join: function() {
+                var params = '';
+                if (this.verified && this.verified.length) {
+                    params += '&verified=' + this.verified;
+                }
+                return params;
+            }
+        };
+        // 数据分页条件
+        $scope.page = page = {
+            at: 1,
+            size: 30,
+            numbers: [],
+            orderBy: 'time',
+            byRound: '',
+            join: function() {
+                var p;
+                p = '&page=' + (this.at || 1) + '&size=' + this.size;
+                this.byRound && (p += '&rid=' + this.byRound);
+                p += '&orderby=' + this.orderBy;
+                return p;
+            },
+            setTotal: function(total) {
+                var lastNumber;
+                this.total = total;
+                this.numbers = [];
+                lastNumber = this.total > 0 ? Math.ceil(this.total / this.size) : 1;
+                for (var i = 1; i <= lastNumber; i++) {
+                    this.numbers.push(i);
+                }
+            }
+        };
+        $scope.rows = {
+            allSelected: 'N',
+            selected: {}
+        };
         $scope.getRecords = function() {
-            $http.get(PU.j('record/list', 'site', 'app')).success(function(rsp) {
+            var url = PU.j('record/list', 'site', 'app', 'accessToken');
+
+            url += criteria.join();
+            url += page.join();
+            $http.post(url, $scope.criteria).success(function(rsp) {
                 if (rsp.err_code !== 0) {
                     $scope.errmsg = rsp.err_msg;
                     return;
                 }
                 $scope.records = rsp.data.records;
+                $scope.page.setTotal(rsp.data.total);
             });
         };
-        $scope.signinURL = 'http://' + location.host + '/rest/site/fe/matter/signin?site=' + PU.params.site + '&app=' + PU.params.app;
-        $scope.signinQrcode = '/rest/site/op/matter/signin/qrcode?site=' + PU.params.site + '&url=' + encodeURIComponent($scope.signinURL);
-        $scope.value2Label = function(val, key) {
-            var i, j, s, aVal, aLab = [],
-                schemas = $scope.data_schemas;
-            if (val === undefined) return '';
-            for (i = 0, j = schemas.length; i < j; i++) {
-                s = schemas[i];
-                if (schemas[i].id === key) {
-                    s = schemas[i];
-                    break;
+        // 选中的记录
+        $scope.$watch('rows.allSelected', function(checked) {
+            var index = 0;
+            if (checked === 'Y') {
+                while (index < $scope.records.length) {
+                    $scope.rows.selected[index++] = true;
+                }
+            } else if (checked === 'N') {
+                $scope.rows.selected = {};
+            }
+        });
+        $scope.countSelected = function() {
+            var count = 0;
+            for (var p in $scope.rows.selected) {
+                if ($scope.rows.selected[p] === true) {
+                    count++;
                 }
             }
-            if (s && s.ops && s.ops.length) {
-                aVal = val.split(',');
-                for (i = 0, j = s.ops.length; i < j; i++) {
-                    aVal.indexOf(s.ops[i].v) !== -1 && aLab.push(s.ops[i].label);
+            return count;
+        };
+        $scope.value2Html = function(record, schemaId) {
+            var schema, val;
+            if (undefined !== (schema = schemasById[schemaId])) {
+                if (schema.type === 'member' && record.data.member) {
+                    val = record.data.member[schema.id.substr(7)] || '';
+                } else {
+                    val = record.data[schema.id] || '';
+                    if (schema.ops && schema.ops.length) {
+                        if (schema.type === 'score' && angular.isObject(val)) {
+                            var label = '';
+                            schema.ops.forEach(function(op, index) {
+                                label += op.l + ':' + (val[op.v] ? val[op.v] : 0) + ' / ';
+                            });
+                            val = label.replace(/\s\/\s$/, '');
+                        } else if (val.length) {
+                            var aVal, aLab = [];
+                            aVal = val.split(',');
+                            schema.ops.forEach(function(op) {
+                                aVal.indexOf(op.v) !== -1 && aLab.push(op.l);
+                            });
+                            if (aLab.length) val = aLab.join(',');
+                        }
+                    }
                 }
-                if (aLab.length) return aLab.join(',');
             }
+
             return val;
+        };
+        $scope.filter = function() {
+            $uibModal.open({
+                templateUrl: 'recordFilter.html',
+                controller: ['$scope', '$uibModalInstance', 'criteria', function($scope, $mi, criteria) {
+                    $scope.criteria = criteria;
+                    $scope.filterSchemas = filterSchemas;
+                    $scope.clean = function() {
+                        if (criteria.record) {
+                            if (criteria.record.verified) {
+                                criteria.record.verified = '';
+                            }
+                        }
+                        if (criteria.data) {
+                            angular.forEach(criteria.data, function(val, key) {
+                                criteria.data[key] = '';
+                            });
+                        }
+                    };
+                    $scope.cancel = function() {
+                        $mi.dismiss();
+                    };
+                    $scope.ok = function() {
+                        $mi.close(criteria);
+                    };
+                }],
+                backdrop: 'static',
+                resolve: {
+                    criteria: function() {
+                        return angular.copy($scope.criteria);
+                    }
+                }
+            }).result.then(function(criteria) {
+                angular.extend($scope.criteria, criteria);
+                $scope.getRecords();
+            });
+        };
+        $scope.batchVerify = function() {
+            var eks = [];
+            for (var p in $scope.rows.selected) {
+                if ($scope.rows.selected[p] === true) {
+                    eks.push($scope.records[p].enroll_key);
+                }
+            }
+            if (eks.length) {
+                var url = PU.j('record/batchVerify', 'site', 'app', 'accessToken');
+                $http.post(url, {
+                    eks: eks
+                }).success(function(rsp) {
+                    for (var p in $scope.rows.selected) {
+                        if ($scope.rows.selected[p] === true) {
+                            $scope.records[p].verified = 'Y';
+                        }
+                    }
+                });
+            }
         };
         $http.get(PU.j('get', 'site', 'app')).success(function(rsp) {
             if (rsp.err_code !== 0) {
@@ -46,10 +173,19 @@ define(["require", "angular", "util.site"], function(require, angular) {
                 return;
             }
             $scope.app = rsp.data.app;
-            $scope.data_schemas = JSON.parse(rsp.data.app.data_schemas);
+            $scope.data_schemas = JSON.parse($scope.app.data_schemas);
             PageLoader.render($scope, rsp.data.page).then(function() {
                 $scope.doc = rsp.data.page;
             })
+            if ($scope.app.data_schemas && $scope.app.data_schemas.length) {
+                $scope.app.dataSchemas = JSON.parse($scope.app.data_schemas);
+                $scope.app.dataSchemas.forEach(function(schema) {
+                    schemasById[schema.id] = schema;
+                    if (/single|phase|multiple/.test(schema.type)) {
+                        filterSchemas.push(schema);
+                    }
+                });
+            }
             $timeout(function() {
                 $scope.$broadcast('xxt.app.signin.ready');
             });
@@ -59,20 +195,6 @@ define(["require", "angular", "util.site"], function(require, angular) {
             $scope.errmsg = content;
         });
     }]);
-    ngApp.directive('dynamicHtml', function($compile) {
-        return {
-            restrict: 'EA',
-            replace: true,
-            link: function(scope, ele, attrs) {
-                scope.$watch(attrs.dynamicHtml, function(html) {
-                    if (html && html.length) {
-                        ele.html(html);
-                        $compile(ele.contents())(scope);
-                    }
-                });
-            }
-        };
-    });
     require(['domReady!'], function(document) {
         angular.bootstrap(document, ["app"]);
     });

@@ -10,6 +10,9 @@ class record extends \site\op\base {
 	 *
 	 */
 	public function list_action($site, $app, $page = 1, $size = 30, $signinStartAt = null, $signinEndAt = null, $tags = null, $rid = null, $kw = null, $by = null, $orderby = null, $contain = null) {
+		// 登记数据过滤条件
+		$criteria = $this->getPostJson();
+
 		$options = array(
 			'page' => $page,
 			'size' => $size,
@@ -24,8 +27,31 @@ class record extends \site\op\base {
 		);
 		$mdoelRec = $this->model('matter\signin\record');
 		$app = $this->model('matter\signin')->byId($app);
-		$result = $mdoelRec->find($site, $app, $options);
+		$result = $mdoelRec->find($site, $app, $options, $criteria);
 
 		return new \ResponseData($result);
+	}
+	/**
+	 * 指定记录通过审核
+	 */
+	public function batchVerify_action($site, $app) {
+		$posted = $this->getPostJson();
+		$eks = $posted->eks;
+
+		$modelApp = $this->model('matter\signin');
+		$app = $modelApp->byId($app, ['cascaded' => 'N']);
+
+		foreach ($eks as $ek) {
+			$rst = $modelApp->update(
+				'xxt_signin_record',
+				['verified' => 'Y'],
+				"enroll_key='$ek'"
+			);
+		}
+
+		// 记录操作日志
+		//$this->model('matter\log')->matterOp($site, $user, $app, 'verify.batch', $eks);
+
+		return new \ResponseData('ok');
 	}
 }

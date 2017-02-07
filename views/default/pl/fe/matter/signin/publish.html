@@ -3,7 +3,7 @@
     <div id='simulator'>
         <iframe ng-src={{previewURL}}></iframe>
         <div id='simulatorActions'>
-            <a class='btn btn-default btn-block' style='color:#337ab7' href="/rest/pl/fe/matter/signin/schema?site={{siteId}}&id={{id}}">修改题目 <i class="glyphicon glyphicon-chevron-right"></i></a>
+            <a class='btn btn-default btn-block' style='color:#337ab7' href="/rest/pl/fe/matter/signin/schema?site={{app.siteid}}&id={{app.id}}">修改题目 <i class="glyphicon glyphicon-chevron-right"></i></a>
             <div class="btn-group btn-block" ng-repeat="page in app.pages">
                 <button type="button" class="btn btn-default" ng-class="params.page===page?'btn-primary':'btn-default'" style="width:125px" title="{{page.title}}" ng-click="showPage(page)">{{page.title}}</button>
                 <button type="button" class="btn dropdown-toggle" ng-class="params.page===page?'btn-primary':'btn-default'" data-toggle="dropdown">
@@ -39,7 +39,7 @@
             </tbody>
         </table>
     </div>
-    <uib-tabset active="0">
+    <uib-tabset active="0" justified="true">
         <uib-tab index="0">
             <uib-tab-heading><i class="glyphicon glyphicon-list"></i> 签到轮次</uib-tab-heading>
             <table class='table table-bordered rounds' ng-controller='ctrlRound'>
@@ -73,38 +73,6 @@
         <uib-tab index="1">
             <uib-tab-heading><i class="glyphicon glyphicon-ban-circle"></i> 进入规则</uib-tab-heading>
             <div ng-controller="ctrlAccessRule">
-                <table class='table table-bordered'>
-                    <tbody>
-                        <tr>
-                            <td>签到成功时进入</td>
-                            <td style='padding:0'>
-                                <div class='form-inline'>
-                                    <div class='form-group'>
-                                        <select style='border:0' class='form-control' ng-model="app.entry_rule.success.entry" ng-options='p.name as p.title for p in app.pages' ng-change="update()">
-                                            <option value=></option>
-                                        </select>
-                                    </div>
-                                    <button class="btn btn-default" type="button" ng-click="gotoPage(app.entry_rule.success.entry)">&gt;</button>
-                                    <button class="btn btn-default" type="button" ng-click="newPage('success.entry')">+</button>
-                                </div>
-                            </td>
-                        </tr>
-                        <tr>
-                            <td>签到失败时进入</td>
-                            <td style='padding:0'>
-                                <div class='form-inline'>
-                                    <div class='form-group'>
-                                        <select style='border:0' class='form-control' ng-model="app.entry_rule.fail.entry" ng-options='p.name as p.title for p in app.pages' ng-change="update()" >
-                                            <option value=></option>
-                                        </select>
-                                    </div>
-                                    <button class="btn btn-default" type="button" ng-click="gotoPage(app.entry_rule.fail.entry)">&gt;</button>
-                                    <button class="btn btn-default" type="button" ng-click="newPage('fail.entry')">+</button>
-                                </div>
-                            </td>
-                        </tr>
-                    </tbody>
-                </table>
                 <div class="panel panel-default">
                     <div class="panel-heading">用户进入规则</div>
                     <div class="panel-body">
@@ -185,6 +153,54 @@
                     </div>
                 </div>
             </div>
+            <div class="panel panel-default">
+                <div class="panel-heading">用户签到后进入</div>
+                <div class="panel-body">
+                    <table class='table table-bordered'>
+                        <tbody>
+                            <tr ng-if="app.enrollApp">
+                                <td>签到成功时进入</td>
+                                <td style='padding:0'>
+                                    <div class='form-inline'>
+                                        <div class='form-group'>
+                                            <select style='border:0' class='form-control' ng-model="app.entry_rule.success.entry" ng-options='p.name as p.title for p in app.pages' ng-change="update()">
+                                                <option value=></option>
+                                            </select>
+                                        </div>
+                                        <button class="btn btn-default" type="button" ng-click="newPage('success.entry')">+</button>
+                                    </div>
+                                </td>
+                            </tr>
+                            <tr ng-if="app.enrollApp">
+                                <td>签到失败时进入</td>
+                                <td style='padding:0'>
+                                    <div class='form-inline'>
+                                        <div class='form-group'>
+                                            <select style='border:0' class='form-control' ng-model="app.entry_rule.fail.entry" ng-options='p.name as p.title for p in app.pages' ng-change="update()" >
+                                                <option value=></option>
+                                            </select>
+                                        </div>
+                                        <button class="btn btn-default" type="button" ng-click="newPage('fail.entry')">+</button>
+                                    </div>
+                                </td>
+                            </tr>
+                            <tr ng-if="!app.enrollApp">
+                                <td>签到后进入</td>
+                                <td style='padding:0'>
+                                    <div class='form-inline'>
+                                        <div class='form-group'>
+                                            <select style='border:0' class='form-control' ng-model="app.entry_rule.success.entry" ng-options='p.name as p.title for p in app.pages' ng-change="update()">
+                                                <option value=></option>
+                                            </select>
+                                        </div>
+                                        <button class="btn btn-default" type="button" ng-click="newPage('success.entry')">+</button>
+                                    </div>
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
         </uib-tab>
         <uib-tab index="2">
             <uib-tab-heading><i class="glyphicon glyphicon-share-alt"></i> 分享设置</uib-tab-heading>
@@ -216,6 +232,22 @@
                         <textarea class='form-control' ng-model='app.summary' tms-auto-update tms-wait=1000 tms-update="update('summary')"></textarea>
                     </div>
                     
+                </div>
+            </div>
+            <div class="panel panel-default" ng-controller="ctrlOpUrl">
+                <div class="panel-heading">结果审核页面</div>
+                <div class="panel-body">
+                    <div class='form-group'>
+                        <div class='input-group'>
+                            <input class='form-control' readonly value="{{opEntry.url}}">
+                            <span class='input-group-btn'>
+                                <button class='btn btn-default text2Clipboard' data-clipboard-text="{{opEntry.url}}">复制</button>
+                            </span>
+                        </div>
+                    </div>
+                    <button class='btn btn-default' ng-if="!opEntry.url.length" ng-click="makeOpUrl()">生成</button>
+                    <button class='btn btn-default' ng-if="opEntry.url.length" ng-click="closeOpUrl()">关闭</button>
+                    <button uib-popover-template="'opUrlPasswd.html'" popover-append-to-body='true' popover-placement="bottom" popover-title="访问密码" popover-trigger="outsideClick" type="button" class="btn btn-default" class='btn btn-default' ng-if="opEntry.url.length">密码 <span class="caret"></span></button>
                 </div>
             </div>
         </uib-tab>

@@ -28,6 +28,12 @@ ul.img-tiles li.img-picker button span{font-size:36px}
                         <label><input type="checkbox" name="{{schema.id}}" ng-model="player.data[schema.id][op.v]"/><span>{{op.l}}</span></label>
                     </li>
                 </ul>
+                <div ng-switch-when="score">
+                    <div ng-repeat="op in schema.ops">
+                        <div>{{op.l}}</div>
+                        <select class='form-control' ng-model="player.data[schema.id][op.v]" ng-options="number as number for number in scoreRangeArray(schema)"><option></option></select>
+                    </div>
+                </div>
                 <ul ng-switch-when="image" class="img-tiles clearfix">
                     <li wrap="img" ng-repeat="img in player.data[schema.id]" class="img-thumbnail" title="图片">
                         <img flex-img="" />

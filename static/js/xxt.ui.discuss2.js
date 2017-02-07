@@ -5,7 +5,7 @@ define(['angular'], function(angular) {
         this.showSwitch = function(siteId, threadKey, title, url) {
             var eSwitch;
             eSwitch = document.createElement('div');
-            eSwitch.classList.add('tms-discuss-switch');
+            eSwitch.classList.add('tms-switch', 'tms-switch-discuss');
             eSwitch.addEventListener('click', function(event) {
                 event.preventDefault();
                 event.stopPropagation();

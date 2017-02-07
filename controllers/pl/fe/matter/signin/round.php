@@ -147,7 +147,8 @@ class round extends \pl\fe\matter\base {
 		return new \ResponseData($newRnd);
 	}
 	/**
-	 * 删除轮次
+	 * 删除签到轮次
+	 * 如果轮次下已经有签到数据，不允许删除
 	 *
 	 * @param string $app
 	 * @param string $rid
@@ -157,11 +158,22 @@ class round extends \pl\fe\matter\base {
 			return new \ResponseTimeout();
 		}
 
+		$app = $this->model('matter\signin')->byId($app);
+		if ($app === false) {
+			return new \ResponseError('指定的签到活动不存在');
+		}
 		$modelRnd = $this->model('matter\signin\round');
-		/**
-		 * 删除轮次
-		 * ??? 如果轮次已经启用？如果已经有数据呢？
-		 */
+		if (false === ($modelRnd->byId($rid))) {
+			return new \ResponseError('指定的签到轮次不存在');
+		}
+
+		$modelRec = $this->model('matter\signin\record');
+		$records = $modelRec->find($site, $app, ['rid' => $rid]);
+		if (!empty($records)) {
+			return new \ResponseError('已经有签到数据，不允许删除');
+		}
+
+		/* 删除轮次 */
 		$rst = $modelRnd->delete(
 			'xxt_signin_round',
 			["aid" => $app, "rid" => $rid]

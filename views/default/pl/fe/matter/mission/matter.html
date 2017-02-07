@@ -1,5 +1,5 @@
 <div id='viewMatter'>
-    <nav class="navbar navbar-default">
+    <nav class="navbar navbar-default tms-panel-heading">
         <div class='container-fluid'>
             <ul class="nav navbar-nav">
                 <li ng-class="{'active':matterType===''}"><a href='#' ng-click="list()">全部</a></li>
@@ -15,7 +15,7 @@
             </form>
         </div>
     </nav>
-    <div class='row matters'>
+    <div class='tms-panel-body'>
         <div class='col-md-4' ng-repeat='m in matters'>
             <div class='thumbnail' ng-click="open(m)" ng-class="m.scenario||m.type" ng-mouseenter="entered=true" ng-mouseleave="entered=false">
                 <h4 class='title' ng-bind='m.title'></h4>

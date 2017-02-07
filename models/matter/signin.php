@@ -39,8 +39,8 @@ class signin_model extends app_base {
 	}
 	/**
 	 *
-	 * $appId string
-	 * $cascaded array []
+	 * @param string $appId
+	 * @param $options array []
 	 */
 	public function &byId($appId, $options = []) {
 		$fields = isset($options['fields']) ? $options['fields'] : '*';
@@ -52,6 +52,9 @@ class signin_model extends app_base {
 		];
 		if ($app = $this->query_obj_ss($q)) {
 			$app->type = 'signin';
+			if (isset($app->siteid) && isset($app->id)) {
+				$app->entryUrl = $this->getEntryUrl($app->siteid, $app->id);
+			}
 			if (isset($app->entry_rule)) {
 				$app->entry_rule = json_decode($app->entry_rule);
 			}
@@ -68,14 +71,14 @@ class signin_model extends app_base {
 	/**
 	 * 返回签到活动列表
 	 */
-	public function &bySite($siteId, $page = null, $size = null, $onlySns='N') {
+	public function &bySite($siteId, $page = null, $size = null, $onlySns = 'N') {
 		$result = new \stdClass;
 		$q = [
 			"*,'signin' type",
 			'xxt_signin',
 			"state<>0 and siteid='$siteId'",
 		];
-		if($onlySns==='Y'){
+		if ($onlySns === 'Y') {
 			$q[2] .= " and entry_rule like '%\"scope\":\"sns\"%'";
 		}
 		$q2['o'] = 'modify_at desc';
@@ -245,5 +248,14 @@ class signin_model extends app_base {
 		$participants = $this->query_vals_ss($q);
 
 		return $participants;
+	}
+	/**
+	 *
+	 */
+	public function &opData(&$app) {
+		$mdoelRec = $this->model('matter\signin\record');
+		$summary = $mdoelRec->summary($app->siteid, $app->id);
+
+		return $summary;
 	}
 }

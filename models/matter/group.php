@@ -210,4 +210,13 @@ class group_model extends app_base {
 
 		return false;
 	}
+	/**
+	 *
+	 */
+	public function &opData($app) {
+		$options = ['cascade' => 'playerCount'];
+		$rounds = $this->model('matter\group\round')->byApp($app->id, $options);
+
+		return $rounds;
+	}
 }

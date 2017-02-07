@@ -55,6 +55,9 @@ class enroll_model extends app_base {
 		];
 		if ($app = $this->query_obj_ss($q)) {
 			$app->type = 'enroll';
+			if (isset($app->siteid) && isset($app->id)) {
+				$app->entryUrl = $this->getEntryUrl($app->siteid, $app->id);
+			}
 			if (isset($app->entry_rule)) {
 				$app->entry_rule = json_decode($app->entry_rule);
 			}
@@ -311,7 +314,7 @@ class enroll_model extends app_base {
 		$modelRec = \TMS_APP::M('matter\enroll\record');
 		$user = new \stdClass;
 		$user->openid = $openid;
-		$last = $modelRec->getLast($mpid, $aid, $user);
+		$last = $modelRec->getLast($aid, $user);
 
 		$q = array(
 			'count(*)',
@@ -322,5 +325,81 @@ class enroll_model extends app_base {
 		$rank = (int) $this->query_val_ss($q);
 
 		return $rank + 1;
+	}
+	/**
+	 * 登记情况摘要
+	 */
+	public function &summary($siteId, $appId) {
+		$modelRnd = \TMS_APP::M('matter\enroll\round');
+		$page = (object) ['num' => 1, 'size' => 5];
+		$rounds = $modelRnd->byApp($siteId, $appId, ['fields' => 'rid,title', 'page' => $page]);
+
+		if (empty($rounds)) {
+			$summary = new \stdClass;
+			/* total */
+			$q = [
+				'count(*)',
+				'xxt_enroll_record',
+				['aid' => $appId, 'state' => 1],
+			];
+			$summary->total = $this->query_val_ss($q);
+		} else {
+			$summary = [];
+			$activeRound = $modelRnd->getActive($siteId, $appId);
+			foreach ($rounds as $round) {
+				/* total */
+				$q = [
+					'count(*)',
+					'xxt_enroll_record',
+					['aid' => $appId, 'state' => 1, 'rid' => $round->rid],
+				];
+				$round->total = $this->query_val_ss($q);
+				if ($activeRound && $round->rid === $activeRound->rid) {
+					$round->active = 'Y';
+				}
+
+				$summary[] = $round;
+			}
+		}
+
+		return $summary;
+	}
+	/**
+	 * 登记活动运行情况摘要
+	 */
+	public function &opData(&$app) {
+		$modelRnd = \TMS_APP::M('matter\enroll\round');
+		$page = (object) ['num' => 1, 'size' => 5];
+		$rounds = $modelRnd->byApp($app->siteid, $app->id, ['fields' => 'rid,title', 'page' => $page]);
+
+		if (empty($rounds)) {
+			$summary = new \stdClass;
+			/* total */
+			$q = [
+				'count(*)',
+				'xxt_enroll_record',
+				['aid' => $app->id, 'state' => 1],
+			];
+			$summary->total = $this->query_val_ss($q);
+		} else {
+			$summary = [];
+			$activeRound = $modelRnd->getActive($app->siteid, $app->id);
+			foreach ($rounds as $round) {
+				/* total */
+				$q = [
+					'count(*)',
+					'xxt_enroll_record',
+					['aid' => $appId, 'state' => 1, 'rid' => $round->rid],
+				];
+				$round->total = $this->query_val_ss($q);
+				if ($activeRound && $round->rid === $activeRound->rid) {
+					$round->active = 'Y';
+				}
+
+				$summary[] = $round;
+			}
+		}
+
+		return $summary;
 	}
 }

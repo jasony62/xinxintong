@@ -1,18 +1,6 @@
 <div class='container-fluid'>
 	<div class='row'>
-		<div id='actions' class='col-md-2'>
-			<div class='form-group'>
-				<label>签到URL</label>
-				<div class='form-control' ng-bind='signinURL' style='height:auto;word-break:break-all;'></div>
-			</div>
-			<div class='form-group'>
-				<label>签到二维码</label>
-				<div class='form-control' style='height:auto;'>
-					<img ng-src="{{signinQrcode}}">
-				</div>
-			</div>
-		</div>
-		<div id='records' class='col-md-10'>
+		<div id='records' class='col-md-12'>
 			<table class='table table-bordered'>
 				<thead>
 					<tr>
@@ -20,31 +8,76 @@
 							<input type='checkbox' ng-model="selectAll">
 						</th>
 						<th style='width:100px'>登记时间</th>
+						<th>审核通过</th>
 						<th class='custom-col' ng-repeat="c in data_schemas" title="{{c.ops}}">{{c.title}}</th>
 						<th style='width:140px'>标签</th>
+						<th>备注</th>
 					</tr>
 				</thead>
 				<tbody>
 					<tr ng-repeat='r in records' class='record'>
-						<td>
-							<input type='checkbox' ng-model='selected[$index]'>
-						</td>
-						<td>{{(r.enroll_at*1000)|date:'MM-dd HH:mm'}}</td>
-						<td ng-repeat="c in data_schemas">
-							<span ng-if="c.id.indexOf('member')===0">{{memberAttr(r.data, c.id)}}</span>
-							<span ng-if="c.type!=='img'&&c.type!=='file'">{{value2Label(r.data[c.id], c.id)}}</span>
-							<span ng-if="c.type==='img'" ng-init="imgs=r.data[c.id].split(',')">
+						<td data-th='选择'><span><input type='checkbox' ng-model="rows.selected[$index]"></span></td>
+						<td data-th='登记时间'><span>{{(r.enroll_at*1000)|date:'MM-dd HH:mm'}}</span></td>
+						<td data-th='审核通过'><span ng-class="{'notice':r.verified==='N'}">{{r.verified}}</span></td>
+						<td data-th="{{schema.title}}" ng-repeat="schema in app.dataSchemas" ng-switch on="schema.type">
+                            <span ng-switch-when="image" ng-init="imgs=r.data[schema.id].split(',')">
 								<img ng-repeat="img in imgs" ng-src='{{img}}' />
 							</span>
-							<span ng-if="c.type==='file'" ng-init="files=json2Obj(r.data[c.id])">
+                            <span ng-switch-when="file" ng-init="files=json2Obj(r.data[schema.id])">
 								<span ng-repeat='file in files'><a href='{{file.url}}' target="_blank">{{file.name}}</a></span>
-							</span>
-						</td>
-						<td>{{r.tags}}</td>
+                            </span>
+                            <span ng-switch-when="date">{{(r.data[schema.id]*1000)|date:'yy-MM-dd HH:mm'}}</span>
+                            <span ng-switch-default>{{value2Html(r,schema.id)}}</span>
+                        </td>
+						<td data-th='标签'><span>{{r.tags}}</span></td>
+						<td data-th='备注'><span>{{r.comment}}</span></td>
 					</tr>
 				</tbody>
 			</table>
-			<button class='btn btn-success' ng-click="getRecords()">刷新</button>
+			<nav class="navbar navbar-default navbar-fixed-bottom">
+                <div class="container-fluid">
+                    <form class="navbar-form navbar-left">
+                    	<div class="btn-group dropup">
+						    <button type="button" ng-disabled="!countSelected()" class="btn btn-default dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+						        选中记录 <span class="caret"></span>
+						    </button>
+						    <ul class="dropdown-menu">
+						        <li><a href="" ng-click="batchVerify()">通过审核</a></li>
+						    </ul>
+						</div>
+                        <button class='btn btn-default' ng-click="filter()">筛选</button>
+                    </form>
+                    <form class="navbar-form navbar-right">
+                        <span>共{{page.total}}条</span>
+                        <span>，第 <select class='form-control' ng-model="page.at" ng-options="number as number for number in page.numbers" ng-change="getRecords()"></select>
+            			<span>页</span>
+                        <button class='btn btn-default' ng-click="getRecords()">刷新</button>
+                    </form>
+                </div>
+            </nav>
 		</div>
 	</div>
 </div>
+<script type="text/ng-template" id="recordFilter.html">
+	<div class="modal-body">
+		<div class='form-group'>
+			<label>审核状态</label>
+			<select class='form-control' ng-model="criteria.record.verified">
+	            <option value=''>全部</option>
+	            <option value='Y'>审核通过</option>
+	            <option value='N'>审核未通过</option>
+	        </select>
+	    </div>
+	    <div class='form-group' ng-repeat="schema in filterSchemas">
+	    	<label>{{schema.title}}</label>
+	        <select class='form-control' ng-model="criteria.data[schema.id]" ng-options="op.v as op.l for op in schema.ops">
+	            <option value=>全部</option>
+	        </select>
+        </div>
+    </div>
+    <div class="modal-footer">
+    	<button class="btn btn-default" ng-click="clean()">清除条件</button>
+    	<button class="btn btn-primary" ng-click="ok()">确定</button>
+    	<button class="btn btn-default" ng-click="cancel()">关闭</button>
+	</div>
+</script>

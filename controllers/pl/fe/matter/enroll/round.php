@@ -12,13 +12,17 @@ class round extends \pl\fe\matter\base {
 	 * $app
 	 */
 	public function add_action($site, $app) {
+		if (false === ($user = $this->accountUser())) {
+			return new \ResponseTimeout();
+		}
+
 		$modelRnd = $this->model('matter\enroll\round');
 		if ($lastRound = $modelRnd->getLast($site, $app)) {
 			/**
 			 * 检查或更新上一轮状态
 			 */
 			if ((int) $lastRound->state === 0) {
-				return new \ResponseError("最近一个轮次（$lastRound->title）是新建状态，不允许创建新轮次");
+				return new \ResponseError('最近一个轮次【' . $lastRound->title . '】是新建状态，不允许创建新轮次');
 			}
 
 			if ((int) $lastRound->state === 1) {

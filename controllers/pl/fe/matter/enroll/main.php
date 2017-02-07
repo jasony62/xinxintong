@@ -171,6 +171,7 @@ class main extends \pl\fe\matter\base {
 		$newapp['modifier_name'] = $user->name;
 		$newapp['modify_at'] = $current;
 		$newapp['entry_rule'] = json_encode($entryRule);
+		$newapp['can_siteuser'] = 'Y';
 		isset($config) && $newapp['data_schemas'] = \TMS_MODEL::toJson($config->schema);
 
 		$this->model()->insert('xxt_enroll', $newapp, false);
@@ -262,6 +263,7 @@ class main extends \pl\fe\matter\base {
 		$newapp['entry_rule'] = json_encode($copied->entry_rule);
 		$newapp['receiver_page'] = $copied->receiver_page;
 		$newapp['template_id'] = $template->id;
+		$newapp['can_siteuser'] = 'Y';
 
 		$modelApp->insert('xxt_enroll', $newapp, false);
 
@@ -376,6 +378,7 @@ class main extends \pl\fe\matter\base {
 		$newapp['modifier_name'] = $user->name;
 		$newapp['modify_at'] = $current;
 		$newapp['entry_rule'] = json_encode($entryRule);
+		$newapp['can_siteuser'] = 'Y';
 		isset($config) && $newapp['data_schemas'] = \TMS_MODEL::toJson($config->schema);
 
 		$this->model()->insert('xxt_enroll', $newapp, false);
@@ -435,6 +438,7 @@ class main extends \pl\fe\matter\base {
 		$newapp['data_schemas'] = $modelApp->escape($copied->data_schemas);
 		$newapp['entry_rule'] = json_encode($copied->entry_rule);
 		$newapp['extattrs'] = $copied->extattrs;
+		$newapp['can_siteuser'] = 'Y';
 		if (!empty($mission)) {
 			$newapp['mission_id'] = $mission;
 		}
@@ -620,7 +624,7 @@ class main extends \pl\fe\matter\base {
 		$newapp['modifier_name'] = $modelApp->escape($user->name);
 		$newapp['modify_at'] = $current;
 		$newapp['entry_rule'] = json_encode($entryRule);
-
+		$newapp['can_siteuser'] = 'Y';
 		$newapp['data_schemas'] = \TMS_MODEL::toJson($config->schema);
 
 		$modelApp->insert('xxt_enroll', $newapp, false);
@@ -1111,5 +1115,18 @@ class main extends \pl\fe\matter\base {
 		header("Content-Type: text/plain");
 		header('Content-Length: ' . strlen($template));
 		die($template);
+	}
+	/**
+	 * 登记情况汇总信息
+	 */
+	public function summary_action($site, $app) {
+		if (false === ($user = $this->accountUser())) {
+			return new \ResponseTimeout();
+		}
+
+		$modelApp = $this->model('matter\enroll');
+		$summary = $modelApp->summary($site, $app);
+
+		return new \ResponseData($summary);
 	}
 }

@@ -42,12 +42,24 @@ class round_model extends \TMS_MODEL {
 	 */
 	public function &byApp($appId, $options = array()) {
 		$fields = isset($options['fields']) ? $options['fields'] : '*';
-		$q = array(
+		$cascade = isset($options['cascade']) ? $options['cascade'] : '';
+		$cascade = explode(',', $cascade);
+
+		$q = [
 			$fields,
 			'xxt_group_round',
 			"aid='$appId'",
-		);
+		];
 		$rounds = $this->query_objs_ss($q);
+		/* 获得指定的级联数据 */
+		if (count($rounds) && count($cascade)) {
+			$modelUsr = $this->model('matter\group\player');
+			foreach ($rounds as &$round) {
+				if (in_array('playerCount', $cascade)) {
+					$round->playerCount = $modelUsr->countByRound($appId, $round->round_id);
+				}
+			}
+		}
 
 		return $rounds;
 	}

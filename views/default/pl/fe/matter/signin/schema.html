@@ -1,5 +1,5 @@
 <div id='schema-view' ng-controller="ctrlList">
-    <div tms-flex-height top='72' bottom='71' style='width:290px;position:fixed;top:72px'>
+    <div class='col-md-3' tms-flex-height top='72' bottom='0'>
         <!--create schema-->
         <div class='form-group list-group-item'>
             <div class='help-block'>添加用户填写项</div>
@@ -30,7 +30,7 @@
             <div class='help-block'>{{ms.title}}</div>
             <button class='btn btn-default' ng-click="newMember(ms,s)" ng-repeat="s in ms._schemas">{{s.title}}</button>
         </div>
-        <div class='form-group list-group-item' ng-controller="ctrlApp">
+        <div class='form-group list-group-item'>
             <div class='form-group' ng-if="!app.enroll_app_id">
                 <button class='btn btn-success' ng-click="assignEnrollApp()">指定签到名单</button>
             </div>
@@ -40,7 +40,7 @@
                     <span class="input-group-btn">
                         <button class="btn btn-default" type="button" ng-click="cancelEnrollApp()">
                             <span class='glyphicon glyphicon-remove'></span>
-                        </button>
+                    </button>
                     </span>
                 </div>
             </div>
@@ -52,10 +52,10 @@
         <!-- end create schema -->
     </div>
     <!-- schema list -->
-    <div class='col-md-6 col-md-offset-3'>
+    <div class='col-md-6' tms-flex-height top='72' bottom='0'>
         <div dnd-list dataset='appSchemas' evt-prefix="schemas" class='schemas'>
             <div data-schema-index="{{$index}}" class='dndable schema' ng-class="schema.type" ng-repeat="schema in appSchemas">
-                <div class='title' uib-popover-template="schemaPopoverHtml()" popover-append-to-body='true' popover-placement="right" popover-trigger="show" popover-title="{{schema.title}}" ng-click="chooseSchema($event,schema)">
+                <div class='title' ng-if="schema.type!=='html'" ng-click="chooseSchema($event,schema)">
                     <div editable prop='title' obj='schema' evt-prefix='title' no-remove="Y" style="min-height:34px;"></div>
                 </div>
                 <div ng-include="schemaHtml(schema)"></div>
@@ -70,10 +70,14 @@
             </div>
         </div>
         <div class='checkbox'>
-            <label class='checkbox-inline'><input type='checkbox' ng-true-value="'Y'" ng-false-value="'N'" ng-model="app.__schemasOrderConsistent">页面显示顺序保持一致</label>
+            <label class='checkbox-inline'>
+                <input type='checkbox' ng-true-value="'Y'" ng-false-value="'N'" ng-model="app.__schemasOrderConsistent">页面显示顺序保持一致</label>
         </div>
     </div>
     <!-- end schema list -->
+    <div class='col-md-3' tms-flex-height top='72' bottom='0'>
+        <div class='list-group-item' ng-include="schemaEditorHtml()"></div>
+    </div>
 </div>
 <script type="text/ng-template" id="assignEnrollApp.html">
     <div class="modal-header">
@@ -87,7 +91,8 @@
                 <div class="col-md-9">
                     <select class="form-control" ng-model="data.source" ng-options="app.id as app.title for app in apps"></select>
                     <div class='checkbox' ng-if="app.mission">
-                        <label><input disabled type='checkbox' ng-model="data.sameMission" ng-true-value="'Y'" ng-false-value="'N'">选择同一个项目中的活动</label>
+                        <label>
+                            <input disabled type='checkbox' ng-model="data.sameMission" ng-true-value="'Y'" ng-false-value="'N'">选择同一个项目中的活动</label>
                     </div>
                 </div>
             </div>

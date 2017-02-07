@@ -90,7 +90,7 @@ define(['frame'], function(ngApp) {
                     }
                 };
             http2.post(url, config, function(rsp) {
-                location.href = '/rest/pl/fe/matter/group?site=' + $scope.mission.siteid + '&id=' + rsp.data.id;
+                location.href = '/rest/pl/fe/matter/group/main?site=' + $scope.mission.siteid + '&id=' + rsp.data.id;
             });
         };
         $scope.addMatter = function(matterType) {

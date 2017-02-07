@@ -1,42 +1,66 @@
 <div id='record-view'>
     <!-- signin -->
-    <div class='middle'>
-        <div class='form-group form-inline'>
-            <div class='form-group' ng-if='app.rounds'>
-                <label>轮次</label>
-                <select class='form-control' ng-model='page.byRound' ng-options='r.rid as r.title for r in app.rounds' ng-change='doSearch(1)'>
-                    <option value=>全部</option>
-                </select>
-            </div>
-            <div class='form-group'>
-                <label>标签</label>
-                <combox evt-prefix='search-tag' readonly='true' existing='criteria.tags' options='app.tags'></combox>
-            </div>
-            <div class='form-group'>
-                <button class='btn btn-default' ng-click='filter()'>筛选</button>
-                <button class='btn btn-primary hide' ng-click="notify()">发送信息</button>
-                <button class='btn btn-default' ng-click="export()">导出全部数据</button>
-                <button class='btn btn-default' ng-click="exportImage()">导出全部图片</button>
-                <button class='btn btn-success' ng-disabled="!countSelected()" ng-click='batchTag()'>批量打标签</button>
-                <button class='btn btn-primary' ng-if="app.entry_rule.scope==='sns'" ng-click="notify()">全部发送信息</button>
-                <button class='btn btn-primary' ng-if="app.entry_rule.scope==='sns'" ng-disabled="!countSelected()" ng-click="notify(true)">选中记录发送信息</button>
-            </div>
-            <div class='form-group' ng-if="app.enroll_app_id">
-                <button class='btn btn-default' ng-click="importByEnrollApp()">导入【<span>{{app.enrollApp.title}}</span>】数据</button>
-            </div>
-            <div class='form-group pull-right'>
-                <div class='input-group'>
-                    <span class="input-group-addon">每页条数</span>
-                    <input class='form-control' ng-model='page.size' style='width:48px'>
-                    <span class='input-group-btn'>
-                        <button class='btn btn-default' ng-click='doSearch(1)'>
-                            <span class='glyphicon glyphicon-refresh'></span>
-                        </button>
-                    </span>
+    <nav class='navbar navbar-default hidden-xs'>
+        <div class='container-fluid'>
+            <form class='navbar-form navbar-left'>
+                <div class='form-group' ng-if='app.rounds'>
+                    <label>轮次</label>
+                    <select class='form-control' ng-model='page.byRound' ng-options='r.rid as r.title for r in app.rounds' ng-change='doSearch(1)'>
+                        <option value=>全部</option>
+                    </select>
                 </div>
-            </div>
+                <div class='form-group'>
+                    <label>标签</label>
+                    <combox evt-prefix='search-tag' readonly='true' existing='criteria.tags' options='app.tags'></combox>
+                </div>
+                <button class='btn btn-default' ng-click='filter()'>筛选</button>
+                <div class="btn-group">
+                    <button type="button" ng-disabled="!countSelected()" class="btn btn-default dropdown-toggle" data-toggle="dropdown">选中记录 <i class="caret"></i></button>
+                    <ul class="dropdown-menu">
+                        <li><a href="" ng-click="batchTag()">打标签</a></li>
+                        <li><a href="" ng-if="app.entry_rule.scope==='sns'" ng-click="notify(true)">发送信息</a></li>
+                        <li class="divider"></li>
+                        <li><a href="" ng-click="createAppByRecords()" ng-show="countSelected()">根据选中记录创建活动</a></li>
+                    </ul>
+                </div>
+                <div class="btn-group">
+                    <button type="button" class="btn btn-default dropdown-toggle" data-toggle="dropdown">全部记录 <i class="caret"></i></button>
+                    <ul class="dropdown-menu" role="menu">
+                        <li><a href="" ng-if="app.entry_rule.scope==='sns'" ng-click="notify()">发送信息</a></li>
+                        <li class="divider" ng-if="app.entry_rule.scope==='sns'"></li>
+                        <li><a href="" ng-click="export()">导出数据</a></li>
+                        <li><a href="" ng-click="exportImage()">导出图片</a></li>
+                        <li class="divider"></li>
+                        <li><a href="" ng-click="empty()">清空记录</a></li>
+                    </ul>
+                </div>
+                <div class="btn-group">
+                    <button type="button" class="btn btn-default dropdown-toggle" data-toggle="dropdown">
+                        更多操作 <span class="caret"></span>
+                    </button>
+                    <ul class="dropdown-menu" role="menu">
+                        <li><a href="" ng-click="editRecord()">添加记录</a></li>
+                        <li class="divider" ng-if="app.enroll_app_id"></li>
+                        <li ng-if="app.enroll_app_id"><a href="" ng-click="importByEnrollApp()">导入【{{app.enrollApp.title}}】数据</a></li>
+                    </ul>
+                </div>
+            </form>
+            <form class='navbar-form navbar-right'>
+                <div class='form-group pull-right'>
+                    <div class='input-group'>
+                        <span class="input-group-addon">每页条数</span>
+                        <input class='form-control' ng-model='page.size' style='width:48px'>
+                        <span class='input-group-btn'>
+                            <button class='btn btn-default' ng-click='doSearch(1)'><i class='glyphicon glyphicon-refresh'></i></button>
+                        </span>
+                    </div>
+                </div>
+            </form>
         </div>
-        <div id='signinRecords' class='form-group' tms-table-wrap ready='tmsTableWrapReady'>
+    </nav>
+    <!-- records -->
+    <div class='form-group' tms-flex-height top='72' bottom='135'>
+        <div id='signinRecords' tms-table-wrap ready='tmsTableWrapReady'>
             <table class='table table-bordered'>
                 <thead>
                     <tr>
@@ -72,7 +96,9 @@
                             </button>
                         </td>
                         <td>{{(page.at-1)*page.size+$index+1}}</td>
-                        <td><input type='checkbox' ng-model="rows.selected[$index]"></td>
+                        <td>
+                            <input type='checkbox' ng-model="rows.selected[$index]">
+                        </td>
                         <td>{{r.nickname}}</td>
                         <td>{{(r.enroll_at*1000)|date:'MM-dd HH:mm'}}</td>
                         <td class='signin' ng-repeat="c in app.data_schemas">
@@ -114,12 +140,10 @@
                 </tbody>
             </table>
         </div>
-        <div class='form-group form-inline'>
-            <button class='btn btn-danger' ng-click='empty()'>清空记录</button>
-            <button type="button" class="btn btn-default" ng-click="editRecord()">添加签到记录</button>
-            <span>总数：{{page.total}}</span>
-            <ul uib-pagination style="margin:0;vertical-align:bottom;cursor:pointer" ng-show="page.total>page.size" boundary-links="true" total-items="page.total" max-size="7" items-per-page="page.size" rotate="false" ng-model="page.at" previous-text="&lsaquo;" next-text="&rsaquo;" first-text="&laquo;" last-text="&raquo;" ng-change="doSearch()"></ul>
-        </div>
     </div>
-    <!-- end signin -->
+    <!-- end records -->
+    <div class='form-group' style='text-align:right;'>
+        <span style='line-height:34px'>总数：{{page.total}}</span>
+        <ul uib-pagination style="margin:0;vertical-align:bottom;cursor:pointer" ng-show="page.total>page.size" boundary-links="true" total-items="page.total" max-size="7" items-per-page="page.size" rotate="false" ng-model="page.at" previous-text="&lsaquo;" next-text="&rsaquo;" first-text="&laquo;" last-text="&raquo;" ng-change="doSearch()"></ul>
+    </div>
 </div>

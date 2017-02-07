@@ -3,7 +3,7 @@ define(['frame', 'schema', 'editor'], function(ngApp, schemaLib, editorProxy) {
     /**
      * app setting controller
      */
-    ngApp.provider.controller('ctrlPage', ['$scope', '$location', 'srvApp', 'srvPage', function($scope, $location, srvApp, srvPage) {
+    ngApp.provider.controller('ctrlPage', ['$scope', '$location', '$q', '$uibModal', 'srvApp', 'srvPage', function($scope, $location, $q, $uibModal, srvApp, srvPage) {
         window.onbeforeunload = function(e) {
             var message;
             if ($scope.ep.$$modified) {
@@ -14,6 +14,32 @@ define(['frame', 'schema', 'editor'], function(ngApp, schemaLib, editorProxy) {
                 }
                 return message;
             }
+        };
+        $scope.createPage = function() {
+            var deferred = $q.defer();
+            $uibModal.open({
+                templateUrl: '/views/default/pl/fe/matter/signin/component/createPage.html?_=3',
+                backdrop: 'static',
+                controller: ['$scope', '$uibModalInstance', function($scope, $mi) {
+                    $scope.options = {};
+                    $scope.ok = function() {
+                        $mi.close($scope.options);
+                    };
+                    $scope.cancel = function() {
+                        $mi.dismiss();
+                    };
+                }],
+            }).result.then(function(options) {
+                http2.post('/rest/pl/fe/matter/signin/page/add?site=' + $scope.app.siteid + '&app=' + $scope.app.id, options, function(rsp) {
+                    var page = rsp.data;
+                    pageLib.enhance(page);
+                    page.arrange($scope.mapOfAppSchemas);
+                    $scope.app.pages.push(page);
+                    deferred.resolve(page);
+                });
+            });
+
+            return deferred.promise;
         };
         $scope.addPage = function() {
             $('body').click();
@@ -105,7 +131,7 @@ define(['frame', 'schema', 'editor'], function(ngApp, schemaLib, editorProxy) {
     /**
      * page editor
      */
-    ngApp.provider.controller('ctrlPageEdit', ['$scope', '$timeout', '$q', 'mediagallery', 'mattersgallery', function($scope, $timeout, $q, mediagallery, mattersgallery) {
+    ngApp.provider.controller('ctrlPageEdit', ['$scope', '$timeout', '$q', 'mediagallery', 'mattersgallery', 'cstApp', function($scope, $timeout, $q, mediagallery, mattersgallery, cstApp) {
         function removeSchema(removedSchema) {
             var deferred = $q.defer();
 
@@ -138,20 +164,6 @@ define(['frame', 'schema', 'editor'], function(ngApp, schemaLib, editorProxy) {
 
         var tinymceEditor;
         $scope.activeWrap = false;
-        $scope.innerlinkTypes = [{
-            value: 'article',
-            title: '单图文',
-            url: '/rest/pl/fe/matter'
-        }, {
-            value: 'news',
-            title: '多图文',
-            url: '/rest/pl/fe/matter'
-        }, {
-            value: 'channel',
-            title: '频道',
-            url: '/rest/pl/fe/matter'
-        }];
-
         $scope.setActiveWrap = function(domWrap) {
             $scope.activeWrap = editorProxy.setActiveWrap(domWrap);
         };
@@ -241,13 +253,13 @@ define(['frame', 'schema', 'editor'], function(ngApp, schemaLib, editorProxy) {
         };
         $scope.embedMatter = function(page) {
             var options = {
-                matterTypes: $scope.innerlinkTypes,
+                matterTypes: cstApp.innerlink,
                 singleMatter: true
             };
             if ($scope.app.mission) {
                 options.mission = $scope.app.mission;
             }
-            mattersgallery.open($scope.siteId, function(matters, type) {
+            mattersgallery.open($scope.app.siteid, function(matters, type) {
                 var dom = tinymceEditor.dom,
                     style = "cursor:pointer",
                     fn, domMatter, sibling;
@@ -285,7 +297,7 @@ define(['frame', 'schema', 'editor'], function(ngApp, schemaLib, editorProxy) {
             }, options);
         };
         $scope.gotoCode = function() {
-            window.open('/rest/pl/fe/code?site=' + $scope.siteId + '&name=' + $scope.ep.code_name, '_self');
+            window.open('/rest/pl/fe/code?site=' + $scope.app.siteid + '&name=' + $scope.ep.code_name, '_self');
         };
         $scope.$on('tinymce.content.change', function(event, changedNode) {
             var status, html;
@@ -356,7 +368,7 @@ define(['frame', 'schema', 'editor'], function(ngApp, schemaLib, editorProxy) {
                 multiple: true,
                 setshowname: true
             };
-            mediagallery.open($scope.siteId, options);
+            mediagallery.open($scope.app.siteid, options);
         });
         // 切换编辑的页面
         $scope.$watch('ep', function(newPage) {

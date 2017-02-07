@@ -1116,4 +1116,17 @@ class main extends \pl\fe\matter\base {
 		header('Content-Length: ' . strlen($template));
 		die($template);
 	}
+	/**
+	 * 登记情况汇总信息
+	 */
+	public function summary_action($site, $app) {
+		if (false === ($user = $this->accountUser())) {
+			return new \ResponseTimeout();
+		}
+
+		$modelApp = $this->model('matter\enroll');
+		$summary = $modelApp->summary($site, $app);
+
+		return new \ResponseData($summary);
+	}
 }

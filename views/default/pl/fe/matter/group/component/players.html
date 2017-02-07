@@ -3,13 +3,15 @@
         <tr>
             <th style='width:72px'>操作</th>
             <th style='width:48px'>序号</th>
-            <th style='width:48px'><input type='checkbox' ng-true-value="'Y'" ng-false-value="'N'" ng-model="rows.allSelected" ng-change="selectAllRows(rows.allSelected)"></th>
+            <th style='width:48px'>
+                <input type='checkbox' ng-true-value="'Y'" ng-false-value="'N'" ng-model="rows.allSelected" ng-change="selectAllRows(rows.allSelected)">
+            </th>
             <th style='width:120px' ng-if="null===activeRound">分组</th>
-            <th class='custom-col {{c.type}}' ng-repeat="c in app.data_schemas" title="{{c.ops}}">{{c.title}}</th>
+            <th class='custom-col {{schema.type}}' ng-repeat="schema in app._schemasById" title="{{schema.ops}}">{{schema.title}}</th>
             <th style='width:140px' ng-if="app.tags.length">标签</th>
             <th style='width:140px'>备注</th>
             <!--待删除-->
-            <th style='width:72px'>nickname</th>
+            <th style='width:72px'>用户昵称</th>
             <th style='width:72px'>操作</th>
         </tr>
     </thead>
@@ -24,16 +26,18 @@
                 </button>
             </td>
             <td>{{$index+1}}</td>
-            <td><input type='checkbox' ng-model="rows.selected[$index]" ng-change="selectPlayer(p)"></td>
+            <td>
+                <input type='checkbox' ng-model="rows.selected[$index]" ng-change="selectPlayer(p)">
+            </td>
             <td ng-if="null===activeRound">{{p.round_title}}</td>
-            <td ng-repeat="c in app.data_schemas">
-                <span ng-if="c.id.indexOf('member')===0">{{memberAttr(p.data, c.id)}}</span>
-                <span ng-if="c.type!=='image'&&c.type!=='file'">{{value2Label(p.data[c.id], c.id)}}</span>
-                <span ng-if="c.type==='image'" ng-init="imgs=p.data[c.id].split(',')">
-                    <img ng-repeat="img in imgs" ng-src='{{img}}' />
+            <td ng-repeat="schema in app._schemasById">
+                <span ng-if="schema.type!=='image'&&schema.type!=='file'&&schema.type!=='date'" ng-bind-html="p._data[schema.id]"></span>
+                <span ng-if="schema.type==='image'">
+                    <img ng-repeat="img in p._data[schema.id]" ng-src='{{img}}' />
                 </span>
-                <span ng-if="c.type==='file'" ng-init="files=json2Obj(p.data[c.id])">
-                    <span ng-repeat='file in files'><a href='{{file.url}}' target="_blank">{{file.name}}</a></span>
+                <span ng-if="schema.type==='date'">{{(p._data[schema.id]*1000)|date:'yy-MM-dd HH:mm'}}</span>
+                <span ng-if="schema.type==='file'">
+                    <span ng-repeat='file in p._data[schema.id]'><a href='{{file.url}}' target="_blank">{{file.name}}</a></span>
                 </span>
             </td>
             <td ng-if="app.tags.length">{{p.tags}}</td>

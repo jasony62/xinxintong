@@ -76,35 +76,37 @@ class log_model extends \TMS_MODEL {
 
 		/* 更新用户的积分汇总记录 */
 		$userCoins = $this->model('site\user\account')->byId($user->uid, ['fields' => 'coin,coin_last_at,coin_day,coin_week,coin_month,coin_year']);
-		// 增量累计值
-		$last = explode(',', date('Y,n,W,j', $userCoins->coin_last_at));
-		$today = explode(',', date('Y,n,W,j', $current));
-		if ($today[0] !== $last[0]) {
-			$year = $month = $week = $day = $delta;
-		} else {
-			$year = (int) $userCoins->coin_year + $delta;
-			if ($today[1] !== $last[1]) {
-				$month = $week = $day = $delta;
+		if ($userCoins) {
+			// 增量累计值
+			$last = explode(',', date('Y,n,W,j', $userCoins->coin_last_at));
+			$today = explode(',', date('Y,n,W,j', $current));
+			if ($today[0] !== $last[0]) {
+				$year = $month = $week = $day = $delta;
 			} else {
-				$month = (int) $userCoins->coin_month + $delta;
-				if ($today[2] !== $last[2]) {
-					$week = $day = $delta;
+				$year = (int) $userCoins->coin_year + $delta;
+				if ($today[1] !== $last[1]) {
+					$month = $week = $day = $delta;
 				} else {
-					$week = (int) $userCoins->coin_week + $delta;
-					if ($today[3] !== $last[3]) {
-						$day = $delta;
+					$month = (int) $userCoins->coin_month + $delta;
+					if ($today[2] !== $last[2]) {
+						$week = $day = $delta;
 					} else {
-						$day = (int) $userCoins->coin_day + $delta;
+						$week = (int) $userCoins->coin_week + $delta;
+						if ($today[3] !== $last[3]) {
+							$day = $delta;
+						} else {
+							$day = (int) $userCoins->coin_day + $delta;
+						}
 					}
 				}
 			}
+			// 更新汇总数据
+			$sql = "update xxt_site_account set";
+			$sql .= " coin={$total},coin_last_at={$current}";
+			$sql .= ",coin_day={$day},coin_week={$week},coin_month={$month},coin_year={$year}";
+			$sql .= " where uid='{$user->uid}'";
+			$this->update($sql);
 		}
-		// 更新汇总数据
-		$sql = "update xxt_site_account set";
-		$sql .= " coin={$total},coin_last_at={$current}";
-		$sql .= ",coin_day={$day},coin_week={$week},coin_month={$month},coin_year={$year}";
-		$sql .= " where uid='{$user->uid}'";
-		$this->update($sql);
 
 		return $log;
 	}

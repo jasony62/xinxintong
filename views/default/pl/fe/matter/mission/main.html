@@ -162,6 +162,33 @@
     <div class='row'>
         <nav class='navbar navbar-default tms-panel-heading'>
             <div class='container-fluid'>
+                <p class="navbar-text">分享设置</p>
+            </div>
+        </nav>
+        <div class='tms-panel-body'>
+            <div class='col-md-6'>
+                <form ng-controller="ctrlOpUrl">
+                    <div class='form-group'>
+                        <label>结果展示页面</label>
+                        <div class='input-group'>
+                            <input class='form-control' readonly value="{{opEntry.url}}">
+                            <span class='input-group-btn'>
+                                <button class='btn btn-default text2Clipboard' data-clipboard-text="{{opEntry.url}}">复制</button>
+                            </span>
+                        </div>
+                    </div>
+                    <div class='form-group'>
+                        <button class='btn btn-default' ng-if="!opEntry.url.length" ng-click="makeOpUrl()">生成</button>
+                        <button class='btn btn-default' ng-if="opEntry.url.length" ng-click="closeOpUrl()">关闭</button>
+                        <button uib-popover-template="'opUrlPasswd.html'" popover-append-to-body='true' popover-placement="bottom" popover-title="访问密码" popover-trigger="outsideClick" type="button" class="btn btn-default" class='btn btn-default' ng-if="opEntry.url.length">密码 <span class="caret"></span></button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+    <div class='row'>
+        <nav class='navbar navbar-default tms-panel-heading'>
+            <div class='container-fluid'>
                 <p class="navbar-text">其它设置</p>
             </div>
         </nav>

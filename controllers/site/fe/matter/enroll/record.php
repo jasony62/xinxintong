@@ -290,13 +290,17 @@ class record extends base {
 		if (count($receivers) === 0) {
 			return [false];
 		}
-		//发送给指定的用户的自定义信息
-		$token = $this->model()->query_obj_ss(['*', 'xxt_short_url_token', "code='enro'"]);
-		if ($token === false) {
+		/* 获得活动的管理员链接 */
+		$appURL = 'http://' . $_SERVER['HTTP_HOST'];
+		$appURL .= "/rest/site/op/matter/enroll?site={$siteId}&app={$app->id}";
+		$modelQurl = $this->model('q\url');
+		$user = new \stdClass;
+		$task = $modelQurl->byUrl($user, $siteId, $appURL);
+		if (false === $task) {
 			return [false];
 		}
 		$noticeURL = 'http://' . $_SERVER['HTTP_HOST'];
-		$noticeURL .= "/rest/site/op/matter/enroll?site=$siteId&app=$app->id&ek=$ek&accessToken=$token->access_token";
+		$noticeURL .= "/q/{$task->code}";
 		$yxProxy = $wxProxy = null;
 
 		foreach ($receivers as $receiver) {

@@ -20,25 +20,37 @@ class base extends \site\fe\matter\base {
 		return $this->model('acl')->canAccessMatter($site, 'signin', $app, $member, $memberSchemas);
 	}
 	/**
-	 * 检查登记活动进入规则
+	 * 检查签到活动进入规则
 	 *
 	 * 1、用户是否已经签到
-	 * 2、用户为签到已登记
+	 * 2、用户未签到已登记
 	 * 3、需确认用户身份
+	 *
+	 * @param object $user
+	 * @param string $siteId
+	 * @param object $app
+	 * @param boolean $redirect
 	 */
-	protected function checkEntryRule(&$user, $siteId, &$app, $redirect = false) {
+	protected function checkEntryRule(&$user, $siteId, &$app, $redirect = false, &$round = null) {
 		$entryRule = $app->entry_rule;
 		$modelRec = $this->model('matter\signin\record');
-		if ($signinLog = $modelRec->userSigned($user, $siteId, $app)) {
+		if ($signinLog = $modelRec->userSigned($user, $siteId, $app, $round)) {
 			/* 用户是否已经签到 */
 			$signinRec = $modelRec->byId($signinLog->enroll_key, ['cascaded' => 'N']);
-			if ($signinRec->verified === 'Y') {
-				if (isset($entryRule->success->entry)) {
-					$page = $entryRule->success->entry;
+			if (!empty($app->enroll_app_id)) {
+				/* 需要验证登记信息 */
+				if ($signinRec->verified === 'Y') {
+					if (isset($entryRule->success->entry)) {
+						$page = $entryRule->success->entry;
+					}
+				} else {
+					if (isset($entryRule->fail->entry)) {
+						$page = $entryRule->fail->entry;
+					}
 				}
 			} else {
-				if (isset($entryRule->fail->entry)) {
-					$page = $entryRule->fail->entry;
+				if (isset($entryRule->success->entry)) {
+					$page = $entryRule->success->entry;
 				}
 			}
 		} elseif (isset($entryRule->scope) && $entryRule->scope === 'member') {
@@ -47,7 +59,7 @@ class base extends \site\fe\matter\base {
 				if (isset($user->members->{$schemaId})) {
 					$page = $rule->entry;
 					break;
-				}else{
+				} else {
 					$page = $entryRule->other->entry;
 					break;
 				}
@@ -78,14 +90,16 @@ class base extends \site\fe\matter\base {
 				}
 			}
 			!isset($page) && $page = $entryRule->other->entry;
-		}
-		/* 其它情况 */
-		if (empty($page)) {
+		} else {
+			/* 不限用户来源，默认进入页面 */
 			if (isset($entryRule->otherwise->entry)) {
 				$page = $entryRule->otherwise->entry;
 			}
 		}
-		/*内置页面*/
+		/* 如果没有设置对应的页面 */
+		if (empty($page)) {}
+
+		/* 内置页面 */
 		switch ($page) {
 		case '$memberschema':
 			$aMemberSchemas = [];
@@ -93,10 +107,10 @@ class base extends \site\fe\matter\base {
 				$aMemberSchemas[] = $schemaId;
 			}
 			if ($redirect) {
-				/*页面跳转*/
+				/* 页面跳转 */
 				$this->gotoMember($siteId, $aMemberSchemas, $user->uid);
 			} else {
-				/*返回地址*/
+				/* 返回地址 */
 				$this->gotoMember($siteId, $aMemberSchemas, $user->uid, false);
 			}
 			break;

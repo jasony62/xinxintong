@@ -7,7 +7,7 @@
 	}, {
 		"name": "list",
 		"title": "登记清单页",
-		"type": "V"
+		"type": "L"
 	}],
 	"schema": [{
 		"id": "c1",

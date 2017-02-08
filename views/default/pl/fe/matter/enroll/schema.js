@@ -230,7 +230,7 @@ define(['frame', 'schema', 'wrap'], function(ngApp, schemaLib, wrapLib) {
             $scope.updSchema(schema);
         });
         $scope.removeOption = function(schema, op) {
-            schema.ops.splice(i, schema.ops.indexOf(op));
+            schema.ops.splice(schema.ops.indexOf(op), 1);
             $scope.updSchema(schema);
         };
         // 回车添加选项

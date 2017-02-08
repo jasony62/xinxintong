@@ -14,15 +14,15 @@ class way_model extends \TMS_MODEL {
 		if (!empty($auth)) {
 			/* 有身份用户首次访问，若已经有绑定的站点用户，获取站点用户；否则，创建持久化的站点用户，并绑定关系 */
 			foreach ($auth['sns'] as $snsName => $snsUser) {
-				$modelSns = \TMS_App::M('sns\\' . $snsName);
+				$modelSns = $this->M('sns\\' . $snsName);
 				$siteSns = $modelSns->bySite($siteId);
 				$cookieUser = $this->_bindSiteSnsUser($siteId, $snsName, $snsUser, $cookieUser);
 			}
 			$modified = true;
 		} elseif ($cookieUser === false) {
 			/* 无身份用户首次访问，创建非持久化的站点用户 */
-			$modelAct = \TMS_APP::M('site\user\account');
-			$account = $modelAct->blank($siteId, false);
+			$modelAct = $this->M('site\user\account');
+			$account = $modelAct->blank($siteId, false, ['nickname' => '新用户']);
 			$cookieUser = new \stdClass;
 			$cookieUser->uid = $account->uid;
 			$cookieUser->nickname = '新用户';
@@ -279,10 +279,118 @@ class way_model extends \TMS_MODEL {
 		return $cookieUser;
 	}
 	/**
+	 * 站点注册用户信息
+	 */
+	public function getCookieRegUser() {
+		$cookiekey = $this->getCookieKey('platform');
+		$encoded = $this->myGetCookie("_site_user_login");
+		if (empty($encoded)) {
+			return false;
+		}
+		$cookieUser = $this->encrypt($encoded, 'DECODE', $cookiekey);
+		$cookieUser = json_decode($cookieUser);
+
+		return $cookieUser;
+	}
+	/**
+	 * 站点注册用户信息
+	 */
+	public function setCookieRegUser($user) {
+		$cookiekey = $this->getCookieKey('platform');
+		$cookieUser = $user;
+		$cookieUser = json_encode($cookieUser);
+		$encoded = $this->encrypt($cookieUser, 'ENCODE', $cookiekey);
+		$expireAt = time() + (86400 * TMS_COOKIE_SITE_USER_EXPIRE);
+		$this->mySetCookie("_site_user_login", $encoded, $expireAt);
+
+		return true;
+	}
+	/**
 	 * 清除用户登录信息
 	 */
 	public function cleanCookieUser($siteId) {
 		$this->mySetcookie("_site_{$siteId}_fe_user", '', time() - 3600);
 		return true;
+	}
+	/**
+	 * 更新cookie记录的所有用户的信息
+	 */
+	public function resetAllCookieUser() {
+		if (!$this->getCookieRegUser()) {
+			$unbounds = [];
+			$unionid = false;
+			$modelAct = $this->model('site\user\account');
+			$sites = $this->siteList();
+			foreach ($sites as $siteId) {
+				$cookieUser = $this->getCookieUser($siteId);
+				$account = $modelAct->byId($cookieUser->uid);
+				if (empty($account->unionid)) {
+					$unbounds[$siteId] = $cookieUser;
+				} else {
+					if ($unionid === false) {
+						$unionid = $account->unionid;
+					} else {
+						// 清除不是同一注册用户下的数据
+						$this->cleanCookieUser($siteId);
+					}
+				}
+			}
+			if ($unionid) {
+				if (count($unbounds)) {
+					// 补充站点访客信息
+					foreach ($unbounds as $siteId => $cookieUser) {
+						$modelReg->update('xxt_site_account', ['unionid' => $unionid], ['uid' => $cookieUser->uid]);
+						$modelWay->setCookieUser($siteId, $cookieUser);
+					}
+				}
+				// 补充注册账号信息
+				$modelReg = $this->model('site\user\registration');
+				$registration = $modelReg->byId($unionid);
+				$cookieRegUser = new \stdClass;
+				$cookieRegUser->unionid = $registration->unionid;
+				$cookieRegUser->uname = $registration->uname;
+				$cookieRegUser->nickname = $registration->nickname;
+				$this->setCookieRegUser($cookieRegUser);
+			}
+		}
+	}
+	/**
+	 * 切换当前客户端的注册用户
+	 */
+	public function changeRegUser($registration) {
+		/* cookie中保留注册信息 */
+		$cookieRegUser = new \stdClass;
+		$cookieRegUser->unionid = $registration->unionid;
+		$cookieRegUser->uname = $registration->uname;
+		$cookieRegUser->nickname = $registration->nickname;
+		$this->setCookieRegUser($cookieRegUser);
+
+		/* 更新cookie中已有的用户信息 */
+		$sites = $this->model('site\fe\way')->siteList();
+		$modelAct = $this->model('site\user\account');
+		foreach ($sites as $siteId) {
+			$cookieUser = $this->getCookieUser($siteId);
+			$account = $modelAct->byId($cookieUser->uid);
+			if ($account) {
+				$modelAct->update('xxt_site_account', ['unionid' => $unionid], ['uid' => $cookieUser->uid]);
+			} else {
+				$account = $modelAct->create($siteId, '', '', ['uid' => $cookieUser->uid, 'unionid' => $registration->unionid, 'from_ip' => $this->client_ip()]);
+			}
+		}
+
+		return $cookieRegUser;
+	}
+	/**
+	 * 获得当前用户在平台对应的所有站点和站点访客用户信息
+	 */
+	public function &siteList() {
+		$sites = [];
+		foreach ($_COOKIE as $key => $val) {
+			if (preg_match('/xxt_site_(.*?)_fe_user/', $key, $matches)) {
+				$sites[] = $matches[1];
+			}
+		}
+
+		return $sites;
 	}
 }

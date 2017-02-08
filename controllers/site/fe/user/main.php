@@ -70,12 +70,8 @@ class main extends \site\fe\base {
 	 * 用户访问过的所有站点
 	 */
 	public function siteList_action() {
-		$sites = [];
-		foreach ($_COOKIE as $key => $val) {
-			if (preg_match('/xxt_site_(.*?)_fe_user/', $key, $matches)) {
-				$sites[] = $matches[1];
-			}
-		}
+		$modelWay = $this->model('site\fe\way');
+		$sites = $modelWay->siteList();
 
 		return new \ResponseData($sites);
 	}

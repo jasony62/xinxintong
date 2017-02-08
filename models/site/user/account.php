@@ -16,11 +16,11 @@ class account_model extends \TMS_MODEL {
 	 * @return object
 	 */
 	public function &byId($uid, $options = array()) {
-		$fields = isset($options['fields']) ? $options['fields'] : 'uid,uname,nickname,email,password,salt,wx_openid,yx_openid,qy_openid';
+		$fields = isset($options['fields']) ? $options['fields'] : 'uid,nickname,wx_openid,yx_openid,qy_openid,unionid';
 		$q = array(
 			$fields,
 			'xxt_site_account',
-			"uid='$uid'",
+			["uid" => $uid],
 		);
 		$act = $this->query_obj_ss($q);
 
@@ -52,8 +52,8 @@ class account_model extends \TMS_MODEL {
 	 *
 	 * return object
 	 */
-	public function &byUname($siteId, $uname) {
-		$fields = isset($options['fields']) ? $options['fields'] : 'uid,nickname,password,salt,wx_openid,yx_openid,qy_openid';
+	public function &byUname($siteId, $uname, $options = []) {
+		$fields = isset($options['fields']) ? $options['fields'] : 'siteid,uid,nickname,password,salt,wx_openid,yx_openid,qy_openid';
 		$q = array(
 			$fields,
 			'xxt_site_account',
@@ -62,6 +62,24 @@ class account_model extends \TMS_MODEL {
 		$act = $this->query_obj_ss($q);
 
 		return $act;
+	}
+	/**
+	 * get account objects by it's unionid
+	 *
+	 * @param string $unionid
+	 *
+	 * @return object
+	 */
+	public function &byUnionid($unionid, $options = []) {
+		$fields = isset($options['fields']) ? $options['fields'] : 'uid,nickname,wx_openid,yx_openid,qy_openid';
+		$q = [
+			$fields,
+			'xxt_site_account',
+			["unionid" => $unionid],
+		];
+		$acts = $this->query_objs_ss($q);
+
+		return $acts;
 	}
 	/**
 	 * 创建空帐号
@@ -77,6 +95,7 @@ class account_model extends \TMS_MODEL {
 		$account = new \stdClass;
 		$account->siteid = $siteid;
 		$account->uid = $uid;
+		$account->nickname = isset($options['nickname']) ? $options['nickname'] : uniqid();
 		$account->level_id = self::DEFAULT_LEVEL;
 		$account->reg_time = $current;
 		if (isset($options['ufrom'])) {
@@ -109,20 +128,22 @@ class account_model extends \TMS_MODEL {
 	public function &create($siteId, $uname, $password, $options = array()) {
 		$current = time();
 		/*password*/
-		$pw_salt = $this->gen_salt();
-		$pw_hash = $this->compile_password($uname, $password, $pw_salt);
+		//$pw_salt = $this->gen_salt();
+		//$pw_hash = $this->compile_password($uname, $password, $pw_salt);
 		/*ip*/
 		$from_ip = empty($options['from_ip']) ? '' : $options['from_ip'];
 		$nickname = empty($options['nickname']) ? '' : $options['nickname'];
+		$unionid = empty($options['unionid']) ? '' : $options['unionid'];
 		if (isset($options['uid'])) {
 			/* 指定了用户ID */
 			$uid = $options['uid'];
 			if ($existed = $this->byId($uid)) {
 				$account = array(
-					'uname' => $uname,
+					'unionid' => $unionid,
 					'nickname' => $nickname,
-					'password' => $pw_hash,
-					'salt' => $pw_salt,
+					//'uname' => $uname,
+					//'password' => $pw_hash,
+					//'salt' => $pw_salt,
 					'reg_time' => $current,
 					'reg_ip' => $from_ip,
 					'last_login' => $current,
@@ -138,10 +159,11 @@ class account_model extends \TMS_MODEL {
 				$account = array(
 					'siteid' => $siteId,
 					'uid' => $uid,
-					'uname' => $uname,
+					'unionid' => $unionid,
 					'nickname' => $nickname,
-					'password' => $pw_hash,
-					'salt' => $pw_salt,
+					//'uname' => $uname,
+					//'password' => $pw_hash,
+					//'salt' => $pw_salt,
 					'reg_time' => $current,
 					'reg_ip' => $from_ip,
 					'last_login' => $current,
@@ -157,10 +179,11 @@ class account_model extends \TMS_MODEL {
 			$account = array(
 				'siteid' => $siteId,
 				'uid' => $uid,
-				'uname' => $uname,
+				'unionid' => $unionid,
 				'nickname' => $nickname,
-				'password' => $pw_hash,
-				'salt' => $pw_salt,
+				//'uname' => $uname,
+				//'password' => $pw_hash,
+				//'salt' => $pw_salt,
 				'reg_time' => $current,
 				'reg_ip' => $from_ip,
 				'last_login' => $current,

@@ -3,15 +3,14 @@ namespace site\fe\user;
 
 require_once dirname(dirname(__FILE__)) . '/base.php';
 /**
- * 自定义用户信息
+ * 站点自定义用户信息
  */
 class member extends \site\fe\base {
 	/**
-	 * 打开认证页面
+	 * 打开填写站点自定义用户页面
 	 *
-	 * $site
-	 * $authid
-	 * $openid
+	 * @param string $site
+	 * @param int $schema 自定义信息的id
 	 *
 	 * 打开认证页，完成认证不一定意味着通过认证，可能还需要发送验证邮件或短信验证码
 	 *
@@ -26,7 +25,7 @@ class member extends \site\fe\base {
 	public function index_action($site, $schema) {
 		if (!$this->afterSnsOAuth()) {
 			/* 检查是否需要第三方社交帐号OAuth */
-			$this->_requireSnsOAuth($site);
+			$this->requireSnsOAuth($site);
 		}
 		\TPL::output('/site/fe/user/member');
 		exit;
@@ -52,45 +51,7 @@ class member extends \site\fe\base {
 		exit;
 	}
 	/**
-	 * 检查是否需要第三方社交帐号认证
-	 * 检查条件：
-	 * 0、应用是否设置了需要认证
-	 * 1、站点是否绑定了第三方社交帐号认证
-	 * 2、平台是否绑定了第三方社交帐号认证
-	 * 3、用户客户端是否可以发起认证
-	 *
-	 * @param string $site
-	 */
-	private function _requireSnsOAuth($siteid) {
-		if ($this->userAgent() === 'wx') {
-			if (!isset($this->who->sns->wx)) {
-				if ($wxConfig = $this->model('sns\wx')->bySite($siteid)) {
-					if ($wxConfig->joined === 'Y') {
-						$this->snsOAuth($wxConfig, 'wx');
-					}
-				}
-			}
-			if (!isset($this->who->sns->qy)) {
-				if ($qyConfig = $this->model('sns\qy')->bySite($siteid)) {
-					if ($qyConfig->joined === 'Y') {
-						$this->snsOAuth($qyConfig, 'qy');
-					}
-				}
-			}
-		} else if ($this->userAgent() === 'yx') {
-			if (!isset($this->who->sns->yx)) {
-				if ($yxConfig = $this->model('sns\yx')->bySite($siteid)) {
-					if ($yxConfig->joined === 'Y') {
-						$this->snsOAuth($yxConfig, 'yx');
-					}
-				}
-			}
-		}
-
-		return false;
-	}
-	/**
-	 *
+	 * 获得页面定义
 	 */
 	public function pageGet_action($site, $schema) {
 		$params = array();
@@ -108,9 +69,6 @@ class member extends \site\fe\base {
 
 		/* 已填写的用户信息 */
 		$params['user'] = $this->who;
-		//if (isset($this->who->members) && isset($this->who->members->{$schema->id})) {
-		//	$params['member'] = $this->who->members->{$schema->id};
-		//}
 
 		return new \ResponseData($params);
 	}
@@ -128,6 +86,7 @@ class member extends \site\fe\base {
 	 *
 	 */
 	public function doAuth_action($schema) {
+		$modelMem = $this->model('site\user\member');
 		$schema = $this->model('site\user\memberschema')->byId($schema, 'id,attr_mobile,attr_email,attr_name,extattr,auto_verified');
 
 		$member = $this->getPostJson();
@@ -136,7 +95,7 @@ class member extends \site\fe\base {
 		/**
 		 * check auth data.
 		 */
-		if ($errMsg = $this->model('site\user\member')->rejectAuth($member, $schema)) {
+		if ($errMsg = $modelMem->rejectAuth($member, $schema)) {
 			return new \ParameterError($errMsg);
 		}
 		/**
@@ -177,7 +136,7 @@ class member extends \site\fe\base {
 		$member->verified = $schema->auto_verified;
 		/* 创建新的自定义用户 */
 		$user = $this->who;
-		$rst = $this->model('site\user\member')->create($this->siteId, $user->uid, $schema, $member);
+		$rst = $modelMem->create($this->siteId, $user->uid, $schema, $member);
 		if ($rst[0] === false) {
 			return new \ResponseError($rst[1]);
 		}
@@ -191,10 +150,6 @@ class member extends \site\fe\base {
 		 * 验证邮箱真实性
 		 */
 		//$attrs->attr_email[4] === '1' && $this->_sendVerifyEmail($site, $member->email);
-		/**
-		 * 在cookie中记录认证用户的身份信息
-		 */
-		//$this->setCookie4Member($site, $authid, $mid);
 
 		return new \ResponseData($member);
 	}
@@ -510,22 +465,22 @@ class member extends \site\fe\base {
 			 */
 			if ($pid == 0) {
 				$parentfullpath = "$ldept->id";
-			}else{
+			} else {
 				$qp = array(
 					'fullpath',
 					'xxt_site_member_department',
-					"siteid='$site' and id=$pid",//获得pid的fullpatj，组合成新的fullpath
+					"siteid='$site' and id=$pid", //获得pid的fullpatj，组合成新的fullpath
 				);
 				$parentfullpath = $model->query_val_ss($qp);
-				$parentfullpath .= ",$ldept->id";//本地的id
+				$parentfullpath .= ",$ldept->id"; //本地的id
 			}
 			$i = array(
-					'pid' => $pid,
-					'sync_at' => $timestamp,
-					'name' => $rdeptName,
-					'fullpath' => $parentfullpath,
-					'extattr' => json_encode($rdept),
-				);
+				'pid' => $pid,
+				'sync_at' => $timestamp,
+				'name' => $rdeptName,
+				'fullpath' => $parentfullpath,
+				'extattr' => json_encode($rdept),
+			);
 			$model->update(
 				'xxt_site_member_department',
 				$i,
@@ -609,7 +564,7 @@ class member extends \site\fe\base {
 			 * 建立标签和成员、部门的关联
 			 */
 			$result = $qyproxy->tagUserList($tag->tagid);
-			if ($result[0] === false) {				
+			if ($result[0] === false) {
 				return new \ResponseError($result[1]);
 			}
 			$tagUsers = $result[1]->userlist;
@@ -652,17 +607,17 @@ class member extends \site\fe\base {
 	}
 
 	//获取同步日志
-	public function syncLog_action($site,$type = '',$page,$size){
-		if($type == '' || $type == 'syncFromQy'){
+	public function syncLog_action($site, $type = '', $page, $size) {
+		if ($type == '' || $type == 'syncFromQy') {
 			$typePost = $this->getPostJson();
-			if($typePost->syncType == 'department'){
-				$p = array('*','xxt_site_member_department',"siteid = '$site'");
-			}elseif($typePost->syncType == 'tag'){
-				$p = array('*','xxt_site_member_tag',"siteid = '$site'");
-			}else{
-				$p = array('*','xxt_site_qyfan',"siteid = '$site'");
-			} 
-		}else{
+			if ($typePost->syncType == 'department') {
+				$p = array('*', 'xxt_site_member_department', "siteid = '$site'");
+			} elseif ($typePost->syncType == 'tag') {
+				$p = array('*', 'xxt_site_member_tag', "siteid = '$site'");
+			} else {
+				$p = array('*', 'xxt_site_qyfan', "siteid = '$site'");
+			}
+		} else {
 			return new \ResponseData("暂无");
 		}
 
@@ -670,7 +625,7 @@ class member extends \site\fe\base {
 		$p2['r']['l'] = $size;
 		$p2['o'] = 'id desc';
 		$result = array();
-		if ($sync = $this->model()->query_objs_ss($p,$p2)) {
+		if ($sync = $this->model()->query_objs_ss($p, $p2)) {
 			$result['data'] = $sync;
 			$p[0] = 'count(*)';
 			$total = (int) $this->model()->query_val_ss($p);

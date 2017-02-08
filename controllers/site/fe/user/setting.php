@@ -3,7 +3,7 @@ namespace site\fe\user;
 
 require_once dirname(dirname(__FILE__)) . '/base.php';
 /**
- * 站点用户
+ * 站点用户修改信息 还需要？？？
  */
 class setting extends \site\fe\base {
 

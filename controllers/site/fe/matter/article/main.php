@@ -293,7 +293,7 @@ class main extends \site\fe\matter\base {
 		$modelArticle = $this->model('matter\article2');
 		$article = $modelArticle->byId($articleid);
 		if (isset($article->access_control) && $article->access_control === 'Y') {
-			$this->accessControl($site, $articleid, $article->authapis, $user->uid, $article, false);
+			$this->accessControl($site, $articleid, $article->authapis, $user->uid, $article);
 		}
 		/**
 		 * 记录日志

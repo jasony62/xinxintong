@@ -25,7 +25,8 @@ class main extends \site\fe\base {
 		return new \ResponseData($this->who);
 	}
 	/**
-	 *
+	 * 修改用户昵称
+	 * 只有注册过用户才能修改？？？
 	 */
 	public function changeNickname_action() {
 		$data = $this->getPostJson();
@@ -34,7 +35,7 @@ class main extends \site\fe\base {
 		$modelUsr = $this->model('site\user\account');
 		$user = $modelUsr->byId($user->uid);
 		if (empty($user->salt)) {
-			return new \ResponseError('用户没有设置过口令，不允许重置口令');
+			return new \ResponseError('你不是注册用户，无法修改昵称');
 		}
 
 		$rst = $modelUsr->changeNickname($this->siteId, $user->uname, $data->nickname);
@@ -48,7 +49,8 @@ class main extends \site\fe\base {
 		return new \ResponseData($rst);
 	}
 	/**
-	 *
+	 * 修改用户口令
+	 * 只有注册用户才能修改
 	 */
 	public function changePwd_action() {
 		$data = $this->getPostJson();
@@ -57,11 +59,24 @@ class main extends \site\fe\base {
 		$modelUsr = $this->model('site\user\account');
 		$user = $modelUsr->byId($user->uid);
 		if (empty($user->salt)) {
-			return new \ResponseError('用户没有设置过口令，不允许重置口令');
+			return new \ResponseError('你不是注册用户，无法修改口令');
 		}
 
 		$rst = $modelUsr->changePwd($this->siteId, $user->uname, $data->password, $user->salt);
 
 		return new \ResponseData($rst);
+	}
+	/**
+	 * 用户访问过的所有站点
+	 */
+	public function siteList_action() {
+		$sites = [];
+		foreach ($_COOKIE as $key => $val) {
+			if (preg_match('/xxt_site_(.*?)_fe_user/', $key, $matches)) {
+				$sites[] = $matches[1];
+			}
+		}
+
+		return new \ResponseData($sites);
 	}
 }

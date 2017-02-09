@@ -1,9 +1,9 @@
-define(['frame', 'schema', 'editor'], function(ngApp, schemaLib, editorProxy) {
+define(['frame', 'schema', 'editor', 'page'], function(ngApp, schemaLib, editorProxy, pageLib) {
     'use strict';
     /**
      * app setting controller
      */
-    ngApp.provider.controller('ctrlPage', ['$scope', '$location', '$q', '$uibModal', 'srvApp', 'srvPage', function($scope, $location, $q, $uibModal, srvApp, srvPage) {
+    ngApp.provider.controller('ctrlPage', ['$scope', '$location', '$q', '$uibModal', 'srvApp', 'srvPage','http2', function($scope, $location, $q, $uibModal, srvApp, srvPage, http2) {
         window.onbeforeunload = function(e) {
             var message;
             if ($scope.ep.$$modified) {
@@ -33,7 +33,7 @@ define(['frame', 'schema', 'editor'], function(ngApp, schemaLib, editorProxy) {
                 http2.post('/rest/pl/fe/matter/signin/page/add?site=' + $scope.app.siteid + '&app=' + $scope.app.id, options, function(rsp) {
                     var page = rsp.data;
                     pageLib.enhance(page);
-                    page.arrange($scope.mapOfAppSchemas);
+                    page._arrange($scope.mapOfAppSchemas);
                     $scope.app.pages.push(page);
                     deferred.resolve(page);
                 });
@@ -89,6 +89,9 @@ define(['frame', 'schema', 'editor'], function(ngApp, schemaLib, editorProxy) {
             srvPage.update($scope.ep, ['data_schemas', 'act_schemas', 'html']).then(function() {
                 editorProxy.getEditor().setContent('');
             });
+        };
+        $scope.gotoCode = function() {
+            window.open('/rest/pl/fe/code?site=' + $scope.app.siteid + '&name=' + $scope.ep.code_name, '_self');
         };
         /**
          * 修改schema
@@ -295,9 +298,6 @@ define(['frame', 'schema', 'editor'], function(ngApp, schemaLib, editorProxy) {
                     });
                 }
             }, options);
-        };
-        $scope.gotoCode = function() {
-            window.open('/rest/pl/fe/code?site=' + $scope.app.siteid + '&name=' + $scope.ep.code_name, '_self');
         };
         $scope.$on('tinymce.content.change', function(event, changedNode) {
             var status, html;

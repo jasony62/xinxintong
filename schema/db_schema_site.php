@@ -153,6 +153,7 @@ $sql .= ",wx_openid varchar(255) not null default ''"; // 绑定的社交账号�
 $sql .= ",yx_openid varchar(255) not null default ''"; // 绑定的社交账号信息
 $sql .= ",qy_openid varchar(255) not null default ''"; // 绑定的社交账号信息
 $sql .= ",unionid varchar(32) not null default '' comment '用户的注册id'";
+$sql .= ",is_reg_primary char(1) not null default 'N' comment '是否为和注册账号绑定的主访客账号'";
 $sql .= ",PRIMARY KEY (uid)";
 $sql .= ") ENGINE=MyISAM DEFAULT CHARSET=utf8";
 if (!$mysqli->query($sql)) {

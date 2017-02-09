@@ -39,7 +39,7 @@ class login extends \site\fe\base {
 		$modelReg = $this->model('site\user\registration');
 		$modelAct = $this->model('site\user\account');
 
-		$cookieRegUser = $modelWay = $this->getCookieRegUser();
+		$cookieRegUser = $modelWay->getCookieRegUser();
 		if ($cookieRegUser) {
 			return new \ResponseError("请退出当前账号再登录");
 		}

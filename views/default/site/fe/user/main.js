@@ -39,6 +39,7 @@ define(['require', 'angular'], function(require, angular) {
         }
     }]);
     ngApp.controller('ctrlMain', ['$scope', '$http', 'userService', function($scope, $http, userService) {
+        $scope.errmsg = null;
         $scope.changeNickname = function() {
             var data = {};
             data.nickname = $scope.user.nickname;
@@ -52,6 +53,21 @@ define(['require', 'angular'], function(require, angular) {
             userService.changePwd(data).then(function() {
                 alert('ok');
             });
+        };
+        $scope.logout = function() {
+            $http.get('/rest/site/fe/user/logout/do?site=' + site).success(function(rsp) {
+                if (rsp.err_code != 0) {
+                    $scope.errmsg = rsp.err_msg;
+                    return;
+                }
+                location.replace('/rest/site/fe/user?site=' + site);
+            });
+        };
+        $scope.gotoRegister = function() {
+            location.href = '/rest/site/fe/user/register?site=' + site;
+        };
+        $scope.gotoLogin = function() {
+            location.href = '/rest/site/fe/user/login?site=' + site;
         };
         $http.get('/rest/site/fe/main/get?site=' + site).success(function(rsp) {
             $scope.site = rsp.data;

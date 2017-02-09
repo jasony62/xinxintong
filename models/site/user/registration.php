@@ -12,7 +12,7 @@ class registration_model extends \TMS_MODEL {
 	 * @return object
 	 */
 	public function &byId($uid, $options = []) {
-		$fields = isset($options['fields']) ? $options['fields'] : 'uname,nickname,password,salt';
+		$fields = isset($options['fields']) ? $options['fields'] : 'unionid,uname,nickname,password,salt,from_siteid';
 		$q = [
 			$fields,
 			'xxt_site_registration',
@@ -30,7 +30,7 @@ class registration_model extends \TMS_MODEL {
 	 * return object
 	 */
 	public function &byUname($uname) {
-		$fields = isset($options['fields']) ? $options['fields'] : 'unionid,nickname,password,salt';
+		$fields = isset($options['fields']) ? $options['fields'] : 'unionid,uname,nickname,password,salt,from_siteid';
 		$q = [
 			$fields,
 			'xxt_site_registration',
@@ -41,49 +41,12 @@ class registration_model extends \TMS_MODEL {
 		return $reg;
 	}
 	/**
-	 * 创建空帐号
-	 *
-	 * @param bool $persisted 是否在数据库中创建
-	 * @param array $options
-	 */
-	public function &blank($siteid, $persisted = false, $options = array()) {
-		/*new accouont key*/
-		$uid = isset($options['uid']) ? $options['uid'] : uniqid();
-		/*new account*/
-		$current = time();
-		$account = new \stdClass;
-		$account->siteid = $siteid;
-		$account->uid = $uid;
-		$account->level_id = self::DEFAULT_LEVEL;
-		$account->reg_time = $current;
-		if (isset($options['ufrom'])) {
-			$account->ufrom = $options['ufrom'];
-		}
-		if (isset($options['wx_openid'])) {
-			$account->wx_openid = $options['wx_openid'];
-		}
-		if (isset($options['yx_openid'])) {
-			$account->yx_openid = $options['yx_openid'];
-		}
-		if (isset($options['qy_openid'])) {
-			$account->qy_openid = $options['qy_openid'];
-		}
-		if (isset($options['nickname'])) {
-			$account->nickname = $options['nickname'];
-		}
-		if (isset($options['headimgurl'])) {
-			$account->headimgurl = $options['headimgurl'];
-		}
-		if ($persisted === true) {
-			$this->insert('xxt_site_account', $account, false);
-		}
-
-		return $account;
-	}
-	/**
 	 * 注册用户帐号
 	 */
-	public function &create($siteId, $uname, $password, $options = array()) {
+	public function create($siteId, $uname, $password, $options = array()) {
+		if ($this->checkUname($uname)) {
+			return [false, '注册账号已经存在，不能重复注册'];
+		}
 		$current = time();
 		/*password*/
 		$pw_salt = $this->gen_salt();
@@ -93,10 +56,11 @@ class registration_model extends \TMS_MODEL {
 		$from_ip = empty($options['from_ip']) ? '' : $options['from_ip'];
 		$nickname = empty($options['nickname']) ? '' : $options['nickname'];
 
-		$unionid = md5($siteid . uniqid());
+		$unionid = md5($uname . $siteId);
 
-		$account = new \stdClass;
+		$registration = new \stdClass;
 		$registration->unionid = $unionid;
+		$registration->from_siteid = $siteId;
 		$registration->uname = $uname;
 		$registration->nickname = $nickname;
 		$registration->password = $pw_hash;
@@ -109,7 +73,7 @@ class registration_model extends \TMS_MODEL {
 
 		$this->insert('xxt_site_registration', $registration, false);
 
-		return $registration;
+		return [true, $registration];
 	}
 	/**
 	 * uname valid and existed?
@@ -141,11 +105,11 @@ class registration_model extends \TMS_MODEL {
 	/**
 	 * 修改昵称
 	 */
-	public function changeNickname($siteId, $uname, $nickname) {
+	public function changeNickname($uname, $nickname) {
 		$rst = $this->update(
-			'xxt_site_account',
-			array('nickname' => $nickname),
-			"siteid='$siteId' and uname='$uname'"
+			'xxt_site_registration',
+			['nickname' => $nickname],
+			["uname" => $uname]
 		);
 
 		return $rst;
@@ -153,28 +117,16 @@ class registration_model extends \TMS_MODEL {
 	/**
 	 * 修改口令
 	 */
-	public function changePwd($siteId, $uname, $password, $pw_salt) {
+	public function changePwd($uname, $password, $pw_salt) {
 		$pw_hash = $this->compile_password($uname, $password, $pw_salt);
 		$update_data['password'] = $pw_hash;
 		$rst = $this->update(
-			'xxt_site_account',
+			'xxt_site_registration',
 			$update_data,
-			"siteid='$siteId' and uname='$uname'"
+			["uname" => $uname]
 		);
 
 		return $rst;
-	}
-	/**
-	 * 检查邮箱是否已被注册
-	 */
-	public function isUnameUsed($siteId, $uname) {
-		$rst = $this->query_val_ss(
-			'1',
-			'xxt_site_account',
-			"siteid='$siteId' and uname='$uname'"
-		);
-
-		return $rst === '1';
 	}
 	/**
 	 * validate login information.
@@ -186,37 +138,13 @@ class registration_model extends \TMS_MODEL {
 	 */
 	public function validate($uname, $password) {
 		if (!$registration = $this->byUname($uname)) {
-			return '用户名不存在';
+			return '指定的登录用户名不存在';
 		}
 		$pw_hash = $this->compile_password($uname, $password, $registration->salt);
 		if ($pw_hash != $registration->password) {
-			return '用户名或密码不正确';
+			return '提供的登录用户名或密码不正确';
 		}
 
 		return $registration;
-	}
-	/**
-	 * 删除一个注册用户
-	 *
-	 * 如果一个用户从来没有登录过，就可以直接删除
-	 *
-	 */
-	public function remove($uid) {
-		$q = array(
-			'count(*)',
-			'xxt_site_account',
-			"uid='$uid' and reg_time=last_login",
-		);
-		/**
-		 * 从来没有登录过，直接删除数据
-		 */
-		if ('1' === $this->query_val_ss($q)) {
-			$this->delete(
-				'xxt_site_account',
-				"uid='$uid'"
-			);
-			return true;
-		}
-		return false;
 	}
 }

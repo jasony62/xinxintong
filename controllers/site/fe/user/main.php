@@ -33,20 +33,21 @@ class main extends \site\fe\base {
 		$user = $this->who;
 
 		$modelUsr = $this->model('site\user\account');
-		$user = $modelUsr->byId($user->uid);
-		if (empty($user->salt)) {
-			return new \ResponseError('你不是注册用户，无法修改昵称');
+		if ($account = $modelUsr->byId($user->uid)) {
+			$modelUsr->changeNickname($this->siteId, $account->uid, $data->nickname);
+			if (!empty($account->unionid)) {
+				$modelReg = $this->model('site\user\registration');
+				$registration = $modelReg->byId($account->unionid);
+				$modelReg->changeNickname($registration->uname, $data->nickname);
+			}
 		}
-
-		$rst = $modelUsr->changeNickname($this->siteId, $user->uname, $data->nickname);
-
-		/*缓存用户信息*/
+		/* 缓存用户信息 */
 		$modelWay = $this->model('site\fe\way');
 		$cookieUser = $modelWay->getCookieUser($this->siteId);
 		$cookieUser->nickname = $data->nickname;
 		$modelWay->setCookieUser($this->siteId, $cookieUser);
 
-		return new \ResponseData($rst);
+		return new \ResponseData('ok');
 	}
 	/**
 	 * 修改用户口令
@@ -57,14 +58,15 @@ class main extends \site\fe\base {
 		$user = $this->who;
 
 		$modelUsr = $this->model('site\user\account');
-		$user = $modelUsr->byId($user->uid);
-		if (empty($user->salt)) {
-			return new \ResponseError('你不是注册用户，无法修改口令');
+		if ($account = $modelUsr->byId($user->uid)) {
+			$modelReg = $this->model('site\user\registration');
+			if ($registration = $modelReg->byId($account->unionid)) {
+				$rst = $modelReg->changePwd($registration->uname, $data->password, $registration->salt);
+				return new \ResponseData($rst);
+			}
 		}
 
-		$rst = $modelUsr->changePwd($this->siteId, $user->uname, $data->password, $user->salt);
-
-		return new \ResponseData($rst);
+		return new \ResponseError('你不是注册用户，无法修改口令');
 	}
 	/**
 	 * 用户访问过的所有站点

@@ -28,13 +28,14 @@ class register extends \site\fe\base {
 	 * 执行注册
 	 */
 	public function do_action() {
+		$user = $this->who;
 		$data = $this->getPostJson();
 		if (empty($data->uname) || empty($data->password)) {
 			return new \ResponseError("注册信息不完整");
 		}
 
 		$modelWay = $this->model('site\fe\way');
-		$cookieRegUser = $modelWay = $this->getCookieRegUser();
+		$cookieRegUser = $modelWay->getCookieRegUser();
 		if ($cookieRegUser) {
 			return new \ResponseError("请退出当前账号再注册");
 		}
@@ -42,24 +43,28 @@ class register extends \site\fe\base {
 		$modelReg = $this->model('site\user\registration');
 		/* uname */
 		$uname = $data->uname;
-		if ($modelReg->checkUname($uname)) {
-			return new \DataExistedError('注册账号已经存在，不能重复注册');
-		}
 		/* password */
 		$password = $data->password;
-		/* options */
-		$options = [
-			'from_ip' => $this->client_ip(),
-		];
+
+		$options = [];
 		/* nickname */
 		if (isset($data->nickname)) {
 			$options['nickname'] = $data->nickname;
-			$user->nickname = $data->nickname;
+		} else if (isset($user->nickname)) {
+			$options['nickname'] = $user->nickname;
 		}
+		/* other options */
+		$options['from_ip'] = $this->client_ip();
+
 		/* create registration */
 		$registration = $modelReg->create($this->siteId, $uname, $password, $options);
+		if ($registration[0] === false) {
+			return new \ResponseError($registration[1]);
+		}
+		$registration = $registration[1];
+
 		/* cookie中保留注册信息 */
-		$cookieRegUser = $modelWay->shiftRegUser($registration);
+		$cookieRegUser = $modelWay->shiftRegUser($registration, false);
 
 		return new \ResponseData($cookieRegUser);
 	}

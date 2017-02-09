@@ -20,12 +20,15 @@ $sql .= ",last_ip varchar(128) default null comment '最后登录ip'";
 $sql .= ",last_active int default null comment '最后活跃时间'";
 $sql .= ",forbidden tinyint(3) default '0' comment '是否禁止用户'";
 $sql .= ",is_first_login char(1) default 'Y' comment '首次登录标记'";
-$sql .= ",PRIMARY KEY (uid)";
+$sql .= ",PRIMARY KEY (unionid)";
 $sql .= ") ENGINE=MyISAM DEFAULT CHARSET=utf8";
 $sqls[] = $sql;
 //
 $sqls[] = "alter table xxt_site_account add unionid varchar(32) not null default '' comment '用户的注册id'";
-
+$sqls[] = "alter table xxt_site_account add is_reg_primary char(1) not null default 'N' comment '是否为和注册账号绑定的主访客账号'";
+$sqls[] = "update xxt_site_account set unionid=md5(concat(uname,siteid)),is_reg_primary='Y' where uname<>''";
+$sqls[] = "insert into xxt_site_registration(unionid,from_siteid,uname,password,salt,nickname,headimgurl,reg_time,reg_ip,last_login,last_ip,last_active,forbidden)select unionid,siteid,uname,password,salt,nickname,headimgurl,reg_time,reg_ip,last_login,last_ip,last_active,forbidden from xxt_site_account where unionid<>''";
+//
 foreach ($sqls as $sql) {
 	if (!$mysqli->query($sql)) {
 		header('HTTP/1.0 500 Internal Server Error');

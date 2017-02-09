@@ -1,7 +1,7 @@
 <?php
 namespace site\user;
 /**
- * 站点注册用户
+ * 站点访客用户
  */
 class account_model extends \TMS_MODEL {
 	/**
@@ -115,6 +115,7 @@ class account_model extends \TMS_MODEL {
 		$from_ip = empty($options['from_ip']) ? '' : $options['from_ip'];
 		$nickname = empty($options['nickname']) ? '' : $options['nickname'];
 		if (isset($options['uid'])) {
+			/* 指定了用户ID */
 			$uid = $options['uid'];
 			if ($existed = $this->byId($uid)) {
 				$account = array(

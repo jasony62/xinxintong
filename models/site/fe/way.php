@@ -8,17 +8,17 @@ class way_model extends \TMS_MODEL {
 	 * 返回当前访问用户的信息
 	 */
 	public function who($siteId, $auth = []) {
+		$modified = false;
 		/* cookie中缓存的用户信息 */
 		$cookieUser = $this->getCookieUser($siteId);
 		if (!empty($auth)) {
 			/* 有身份用户首次访问，若已经有绑定的站点用户，获取站点用户；否则，创建持久化的站点用户，并绑定关系 */
 			foreach ($auth['sns'] as $snsName => $snsUser) {
-			
 				$modelSns = \TMS_App::M('sns\\' . $snsName);
 				$siteSns = $modelSns->bySite($siteId);
 				$cookieUser = $this->_bindSiteSnsUser($siteId, $snsName, $snsUser, $cookieUser);
-				
 			}
+			$modified = true;
 		} elseif ($cookieUser === false) {
 			/* 无身份用户首次访问，创建非持久化的站点用户 */
 			$modelAct = \TMS_APP::M('site\user\account');
@@ -27,9 +27,12 @@ class way_model extends \TMS_MODEL {
 			$cookieUser->uid = $account->uid;
 			$cookieUser->nickname = '新用户';
 			$cookieUser->expire = time() + (86400 * TMS_COOKIE_SITE_USER_EXPIRE);
+			$modified = true;
 		}
 		/* 将用户信息保存在cookie中 */
-		$this->setCookieUser($siteId, $cookieUser);
+		if ($modified) {
+			$this->setCookieUser($siteId, $cookieUser);
+		}
 
 		return $cookieUser;
 	}
@@ -108,7 +111,7 @@ class way_model extends \TMS_MODEL {
 
 			if ($cookieUser === false) {
 				$siteUser = $modelSiteUser->blank($siteId, true, $optionsSite);
-				if($snsName != 'qy'){
+				if ($snsName != 'qy') {
 					$dbSnsUser = $modelSnsUser->blank($snsSiteId, $snsUser->openid, true, $options);
 				}
 				// 新的cookie用户
@@ -119,12 +122,12 @@ class way_model extends \TMS_MODEL {
 					// 没有站点用户创建个新的
 					$siteUser = $modelSiteUser->blank($siteId, true, $optionsSite);
 				}
-				if($snsName !== 'qy'){
+				if ($snsName !== 'qy') {
 					// 保存社交账号信息
 					$dbSnsUser = $modelSnsUser->blank($snsSiteId, $snsUser->openid, true, $options);
 				}
 				// 清空不必要的数据，减小cookie尺寸
-				if($dbSnsUser){
+				if ($dbSnsUser) {
 					unset($dbSnsUser->siteid);
 					unset($dbSnsUser->subscribe_at);
 					unset($dbSnsUser->sync_at);
@@ -137,12 +140,12 @@ class way_model extends \TMS_MODEL {
 		$cookieUser->uid = $siteUser->uid;
 		$cookieUser->expire = time() + (86400 * TMS_COOKIE_SITE_USER_EXPIRE);
 		!isset($cookieUser->sns) && $cookieUser->sns = new \stdClass;
-		if($dbSnsUser === false){
-			$cookieUser->nickname = isset($snsUser->nickname)?$snsUser->nickname:'';
+		if ($dbSnsUser === false) {
+			$cookieUser->nickname = isset($snsUser->nickname) ? $snsUser->nickname : '';
 			$cookieUser->sns->{$snsName} = $snsUser;
-		}else{
-		    $cookieUser->nickname = $dbSnsUser->nickname;
-		    $cookieUser->sns->{$snsName} = $dbSnsUser;
+		} else {
+			$cookieUser->nickname = $dbSnsUser->nickname;
+			$cookieUser->sns->{$snsName} = $dbSnsUser;
 		}
 
 		return $cookieUser;

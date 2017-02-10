@@ -24,10 +24,16 @@ $sql .= ",PRIMARY KEY (unionid)";
 $sql .= ") ENGINE=MyISAM DEFAULT CHARSET=utf8";
 $sqls[] = $sql;
 //
-$sqls[] = "alter table xxt_site_account add unionid varchar(32) not null default '' comment '用户的注册id'";
-$sqls[] = "alter table xxt_site_account add is_reg_primary char(1) not null default 'N' comment '是否为和注册账号绑定的主访客账号'";
+$sqls[] = "alter table xxt_site_account add is_wx_primary char(1) not null default 'N'";
+$sqls[] = "alter table xxt_site_account add is_yx_primary char(1) not null default 'N'";
+$sqls[] = "alter table xxt_site_account add is_qy_primary char(1) not null default 'N'";
+$sqls[] = "alter table xxt_site_account add unionid varchar(32) not null default ''";
+$sqls[] = "alter table xxt_site_account add is_reg_primary char(1) not null default 'N'";
 $sqls[] = "update xxt_site_account set unionid=md5(concat(uname,siteid)),is_reg_primary='Y' where uname<>''";
 $sqls[] = "insert into xxt_site_registration(unionid,from_siteid,uname,password,salt,nickname,headimgurl,reg_time,reg_ip,last_login,last_ip,last_active,forbidden)select unionid,siteid,uname,password,salt,nickname,headimgurl,reg_time,reg_ip,last_login,last_ip,last_active,forbidden from xxt_site_account where unionid<>''";
+$sqls[] = "update xxt_site_account set is_wx_primary='Y' where wx_openid<>''";
+$sqls[] = "update xxt_site_account set is_yx_primary='Y' where yx_openid<>''";
+$sqls[] = "update xxt_site_account set is_qy_primary='Y' where qy_openid<>''";
 //
 foreach ($sqls as $sql) {
 	if (!$mysqli->query($sql)) {

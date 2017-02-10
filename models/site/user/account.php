@@ -16,7 +16,7 @@ class account_model extends \TMS_MODEL {
 	 * @return object
 	 */
 	public function &byId($uid, $options = array()) {
-		$fields = isset($options['fields']) ? $options['fields'] : 'uid,nickname,wx_openid,yx_openid,qy_openid,unionid';
+		$fields = isset($options['fields']) ? $options['fields'] : 'uid,nickname,wx_openid,yx_openid,qy_openid,unionid,is_reg_primary';
 		$q = array(
 			$fields,
 			'xxt_site_account',
@@ -27,7 +27,9 @@ class account_model extends \TMS_MODEL {
 		return $act;
 	}
 	/**
-	 * get account object by it's email
+	 * 根据公众号openid获得指定站点下的访客用户账号
+	 *
+	 * 一个站点下，同一个openid，可能对应多个访客用户账号，每个访客账号对应不同注册账号
 	 *
 	 * @param string $siteId
 	 * @param string $snsName
@@ -36,34 +38,19 @@ class account_model extends \TMS_MODEL {
 	 * @return object
 	 */
 	public function &byOpenid($siteId, $snsName, $openid, $options = []) {
-		$fields = isset($options['fields']) ? $options['fields'] : 'uid,nickname,wx_openid,yx_openid,qy_openid,unionid';
+		$fields = isset($options['fields']) ? $options['fields'] : 'uid,nickname,wx_openid,yx_openid,qy_openid,unionid,is_reg_primary';
 
 		$q = [
 			$fields,
 			'xxt_site_account',
 			["siteid" => $siteId, $snsName . '_openid' => $openid],
 		];
-		$act = $this->query_obj_ss($q);
+		if (isset($options['is_primary'])) {
+			$q[2]['is_' . $snsName . '_primary'] = $options['is_primary'];
+		}
+		$acts = $this->query_objs_ss($q);
 
-		return $act;
-	}
-	/**
-	 * get account object by it's email
-	 *
-	 * $param string $email
-	 *
-	 * return object
-	 */
-	public function &byUname($siteId, $uname, $options = []) {
-		$fields = isset($options['fields']) ? $options['fields'] : 'siteid,uid,nickname,password,salt,wx_openid,yx_openid,qy_openid';
-		$q = array(
-			$fields,
-			'xxt_site_account',
-			"siteid='$siteId' and uname='$uname'",
-		);
-		$act = $this->query_obj_ss($q);
-
-		return $act;
+		return $acts;
 	}
 	/**
 	 * get account objects by it's unionid
@@ -82,6 +69,9 @@ class account_model extends \TMS_MODEL {
 		if (isset($options['is_reg_primary'])) {
 			$q[2]['is_reg_primary'] = $options['is_reg_primary'];
 		}
+		if (isset($options['siteid'])) {
+			$q[2]['siteid'] = $options['siteid'];
+		}
 		$acts = $this->query_objs_ss($q);
 
 		return $acts;
@@ -91,7 +81,7 @@ class account_model extends \TMS_MODEL {
 	 *
 	 * 数据合格性检查
 	 * 1，一个站点下，对应一个注册账号，只能有一个主访客账号
-	 *
+	 * 2，一个站点下，一个注册账号或非注册账号，一个openid，只能对应一个访客账号
 	 *
 	 * @param string $siteId
 	 * @param bool $persisted 是否在数据库中创建

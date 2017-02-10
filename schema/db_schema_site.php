@@ -150,10 +150,13 @@ $sql .= ",coin_week int not null default 0"; // 虚拟货币周增量
 $sql .= ",coin_month int not null default 0"; // 虚拟货币月增量
 $sql .= ",coin_year int not null default 0"; // 虚拟货币年增量
 $sql .= ",wx_openid varchar(255) not null default ''"; // 绑定的社交账号信息
+$sql .= ",is_wx_primary char(1) not null default 'N' comment '是否为站点下第一个和openid绑定的访客账号'";
 $sql .= ",yx_openid varchar(255) not null default ''"; // 绑定的社交账号信息
+$sql .= ",is_yx_primary char(1) not null default 'N' comment '是否为站点下第一个和openid绑定的访客账号'";
 $sql .= ",qy_openid varchar(255) not null default ''"; // 绑定的社交账号信息
+$sql .= ",is_qy_primary char(1) not null default 'N' comment '是否为站点下第一个和openid绑定的访客账号'";
 $sql .= ",unionid varchar(32) not null default '' comment '用户的注册id'";
-$sql .= ",is_reg_primary char(1) not null default 'N' comment '是否为和注册账号绑定的主访客账号'";
+$sql .= ",is_reg_primary char(1) not null default 'N' comment '是否为和注册账号绑定的主访客账号，每一个注册账号每一个站点下只有一个主访客账号'";
 $sql .= ",PRIMARY KEY (uid)";
 $sql .= ") ENGINE=MyISAM DEFAULT CHARSET=utf8";
 if (!$mysqli->query($sql)) {

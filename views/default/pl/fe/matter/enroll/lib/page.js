@@ -204,7 +204,7 @@ define(['wrap'], function(SchemaWrap) {
             return found;
         },
     };
-    angular.extend(protoInputPage, protoPage);
+    protoInputPage = angular.extend({}, protoPage, protoInputPage);
     /**
      * 查看页处理逻辑基类
      */
@@ -339,7 +339,7 @@ define(['wrap'], function(SchemaWrap) {
             return found;
         },
     };
-    angular.extend(protoViewPage, protoPage);
+    protoViewPage = angular.extend({}, protoPage, protoViewPage);
     /**
      * 列表页处理逻辑基类
      */
@@ -474,7 +474,7 @@ define(['wrap'], function(SchemaWrap) {
             return true;
         },
     };
-    angular.extend(protoListPage, protoPage);
+    protoListPage = angular.extend({}, protoPage, protoListPage);
 
     return {
         enhance: function(page, mapOfAppSchemas) {

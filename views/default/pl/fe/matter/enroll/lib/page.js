@@ -444,15 +444,21 @@ define(['wrap'], function(SchemaWrap) {
          */
         removeSchema: function(schema) {
             // 清除页面内容
-            var $html = $('<div>' + this.html + '</div>');
+            var $html = $('<div>' + this.html + '</div>'),
+                list;
 
             $html.find("[schema='" + schema.id + "']").remove();
             this.html = $html.html();
             // 清除数据定义中的项
             for (var i = this.data_schemas.length - 1; i >= 0; i--) {
-                if (this.data_schemas[i].schema.id === schema.id) {
-                    this.data_schemas.splice(i, 1);
-                    break;
+                list = this.data_schemas[i];
+                if (list.schemas) {
+                    for (var j = list.schemas.length - 1; j >= 0; j--) {
+                        if (list.schemas[j].id === schema.id) {
+                            list.schemas.splice(j, 1);
+                            break;
+                        }
+                    }
                 }
             }
             return true;

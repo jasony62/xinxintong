@@ -267,4 +267,21 @@ class record extends \site\op\base {
 
 		return new \ResponseData($result);
 	}
+	/**
+	 * 删除一条登记信息
+	 */
+	public function remove_action($site, $app, $ek) {
+		if (!$this->checkAccessToken()) {
+			return new \InvalidAccessToken();
+		}
+
+		$rst = $this->model('matter\enroll\record')->remove($app, $key);
+
+		// 记录操作日志
+		// $app = $this->model('matter\enroll')->byId($app, ['cascaded' => 'N']);
+		// $app->type = 'enroll';
+		// $this->model('matter\log')->matterOp($site, $user, $app, 'remove', $key);
+
+		return new \ResponseData($rst);
+	}
 }

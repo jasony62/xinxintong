@@ -121,11 +121,13 @@ class enroll_model extends app_base {
 		if ($page) {
 			$q2['r'] = ['o' => ($page - 1) * $size, 'l' => $size];
 		}
-		if ($apps = $this->query_objs_ss($q, $q2)) {
-			$result->apps = $apps;
+		$result->apps = $this->query_objs_ss($q, $q2);
+		if ($page && $size) {
 			$q[0] = 'count(*)';
 			$total = (int) $this->query_val_ss($q);
 			$result->total = $total;
+		} else {
+			$result->total = count($result->apps);
 		}
 
 		return $result;

@@ -3,7 +3,7 @@ namespace site\fe\user;
 
 require_once dirname(dirname(__FILE__)) . '/base.php';
 /**
- * 站点用户
+ * 站点用户注册
  */
 class register extends \site\fe\base {
 

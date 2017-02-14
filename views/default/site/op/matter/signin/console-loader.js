@@ -17,8 +17,11 @@ window.loading = {
         require.config({
             waitSeconds: 0,
             paths: {
+                "jquery": '/static/js/jquery.min',
+                "bootstrap": '/static/js/bootstrap.min',
                 "domReady": '/static/js/domReady',
                 "angular": "/static/js/angular.min",
+                "ui-bootstrap": '/static/js/ui-bootstrap-tpls.min',
                 "util.site": "/views/default/site/util",
             },
             shim: {
@@ -26,13 +29,21 @@ window.loading = {
                     exports: "angular"
                 },
             },
-            deps: ['/views/default/site/op/matter/signin/console.js'],
             urlArgs: function(id, url) {
-                if (/domReady|angular/.test(id)) {
+                if (/jquery|bootstrap|domReady|angular/.test(id)) {
                     return '';
                 }
                 return "?bust=" + (timestamp * 1);
             }
+        });
+        require(['jquery'], function() {
+            require(['bootstrap'], function() {
+                require(['angular'], function() {
+                    require(['ui-bootstrap'], function() {
+                        requirejs(['/views/default/site/op/matter/signin/console.js']);
+                    });
+                });
+            });
         });
     }
 };

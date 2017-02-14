@@ -54,8 +54,7 @@ body{padding:71px 0;font-family:Microsoft Yahei,Arial;}
 #pageEdit .mce-tinymce .mce-menubtn.mce-fixed-width span{width:auto;}
 
 /*record-view*/
-#record-view{position:absolute;top:71px;bottom:0;left:30px;right:30px;display:flex;flex-direction:column;}
-#record-view #enrollRecords{flex-shrink:1;flex-grow:1;overflow:auto}
+#record-view{position:absolute;top:71px;bottom:0;left:30px;right:30px;}
 #record-view table img{max-width:96px;}
 #enrollRecords th{text-align:center;}
 #enrollRecords td span.signin_late{color:red;}

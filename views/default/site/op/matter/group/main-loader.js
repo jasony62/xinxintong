@@ -8,6 +8,7 @@ timestamp.setSeconds(0);
 require.config({
     waitSeconds: 0,
     paths: {
+        "jquery": "/static/js/jquery.min",
         "domReady": '/static/js/domReady',
         "angular": "/static/js/angular.min",
         "angular-sanitize": "/static/js/angular-sanitize.min",
@@ -23,12 +24,14 @@ require.config({
         },
     },
     urlArgs: function(id, url) {
-        if (/domReady|angular|angular-sanitize/.test(id)) {
+        if (/jquery|domReady|angular|angular-sanitize/.test(id)) {
             return '';
         }
         return "?bust=" + (timestamp * 1);
     }
 });
-require(['xxt-page'], function(uiPage) {
-    uiPage.bootstrap('/views/default/site/op/matter/group/main.js');
+require(['jquery'], function() {
+    require(['xxt-page'], function(uiPage) {
+        uiPage.bootstrap('/views/default/site/op/matter/group/main.js');
+    });
 });

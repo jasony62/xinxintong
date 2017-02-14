@@ -275,7 +275,7 @@ class record extends \site\op\base {
 			return new \InvalidAccessToken();
 		}
 
-		$rst = $this->model('matter\enroll\record')->remove($app, $key);
+		$rst = $this->model('matter\enroll\record')->remove($app, $ek);
 
 		// 记录操作日志
 		// $app = $this->model('matter\enroll')->byId($app, ['cascaded' => 'N']);

@@ -462,10 +462,10 @@ class member extends \site\fe\base {
 	 * 从企业号通讯录同步用户数据
 	 *
 	 * $authid
-	 * $pdid 父部门id
+	 * $pdid 父部门id,如果不指定，就返回当前用户有权限获得的部门列表。
 	 *
 	 */
-	public function syncFromQy_action($site, $authid, $pdid = 1) {
+	public function syncFromQy_action($site, $authid, $pdid = null) {
 		$qyConfig = $this->model('sns\qy')->bySite($site);
 		if (!$qyConfig || $qyConfig->joined === 'N') {
 			return new \ResponseError('未与企业号连接，无法同步通讯录');

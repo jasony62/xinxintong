@@ -48,6 +48,7 @@
             <div>
                 <button type='button' class="btn btn-default btn-block" ng-click='gotoLogin()'>去登录</button>
                 <button type='button' class="btn btn-default btn-block" ng-click='gotoRegister()'>去注册</button>
+                <button type='button' class="btn btn-default btn-block" ng-click='gotoMember(ms)' ng-repeat="ms in memberSchemas">补充【{{ms.title}}】信息</button>
                 <button type='button' class="btn btn-default btn-block" ng-click='logout()'>退出登录</button>
             </div>
             <div ng-if="userSetting">

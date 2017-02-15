@@ -57,6 +57,9 @@ class member extends \site\fe\base {
 		$params = array();
 
 		$schema = $this->model('site\user\memberschema')->byId($schema);
+		if ($schema === false) {
+			return new \ResponseError('指定的自定义用户定义不存在');
+		}
 		$params['schema'] = $schema;
 		/* 属性定义 */
 		$attrs = array(
@@ -73,10 +76,10 @@ class member extends \site\fe\base {
 		return new \ResponseData($params);
 	}
 	/**
-	 * 提交用户身份认证信息
+	 * 提交站点自定义用户信息
+	 * 站点自定义用户信息只能绑定到注册主访客账号
 	 *
-	 * $site running mpid.
-	 * $authid
+	 * @param int $schema 自定义用户信息定义的id
 	 *
 	 * 支持记录的内容
 	 * 姓名，手机号，邮箱
@@ -86,10 +89,21 @@ class member extends \site\fe\base {
 	 *
 	 */
 	public function doAuth_action($schema) {
-		$modelMem = $this->model('site\user\member');
-		$schema = $this->model('site\user\memberschema')->byId($schema, 'id,attr_mobile,attr_email,attr_name,extattr,auto_verified');
-
 		$member = $this->getPostJson();
+		if (!empty($member->id)) {
+			return new \ResponseError('自定义用户信息已经存在，不能重复创建');
+		}
+
+		$modelSiteUser = $this->model('site\user\account');
+		$cookieUser = $this->who;
+		$siteUser = $modelSiteUser->byId($cookieUser->uid);
+		if ($siteUser === false || $siteUser->is_reg_primary !== 'Y') {
+			return new \ResponseError('请登录后再指定用户信息');
+		}
+
+		$modelMem = $this->model('site\user\member');
+
+		$schema = $this->model('site\user\memberschema')->byId($schema, 'id,attr_mobile,attr_email,attr_name,extattr,auto_verified');
 		$member->siteid = $this->siteId;
 		$member->schema_id = $schema->id;
 		/**
@@ -135,8 +149,7 @@ class member extends \site\fe\base {
 		/* 验证状态 */
 		$member->verified = $schema->auto_verified;
 		/* 创建新的自定义用户 */
-		$user = $this->who;
-		$rst = $modelMem->create($this->siteId, $user->uid, $schema, $member);
+		$rst = $modelMem->create($this->siteId, $siteUser->uid, $schema, $member);
 		if ($rst[0] === false) {
 			return new \ResponseError($rst[1]);
 		}
@@ -145,7 +158,7 @@ class member extends \site\fe\base {
 		$modelWay = $this->model('site\fe\way');
 		$modelWay->bindMember($this->siteId, $member);
 		// log
-		//$this->model('log')->writeMemberAuth($site, $user->openid, $mid);
+		//$this->model('log')->writeMemberAuth($site, $siteUser->openid, $mid);
 		/**
 		 * 验证邮箱真实性
 		 */
@@ -155,8 +168,17 @@ class member extends \site\fe\base {
 	}
 	/**
 	 * 重新进行用户身份验证
+	 *
+	 * @param int $schema 自定义用户信息定义的id
 	 */
 	public function doReauth_action($schema) {
+		$modelSiteUser = $this->model('site\user\account');
+		$cookieUser = $this->who;
+		$siteUser = $modelSiteUser->byId($cookieUser->uid);
+		if ($siteUser === false || $siteUser->is_reg_primary !== 'Y') {
+			return new \ResponseError('请登录后再指定用户信息');
+		}
+
 		$schema = $this->model('site\user\memberschema')->byId($schema, 'id,attr_mobile,attr_email,attr_name,extattr');
 
 		$member = $this->getPostJson();
@@ -165,8 +187,13 @@ class member extends \site\fe\base {
 		if (false === ($found = $modelMem->findMember($member, $schema, false))) {
 			return new \ParameterError('找不到匹配的认证用户');
 		}
+		if ($found->userid !== $siteUser->uid) {
+			return new \ResponseError('指定的用户信息错误，和当前登录用户不一致');
+		}
+
 		/* 更新用户信息 */
 		$modelMem->modify($this->siteId, $schema, $found->id, $member);
+		$found = $modelMem->byId($found->id);
 		/* 绑定当前站点用户 */
 		$modelWay = $this->model('site\fe\way');
 		$modelWay->bindMember($this->siteId, $found);

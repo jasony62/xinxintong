@@ -54,10 +54,10 @@ class memberschema_model extends \TMS_MODEL {
 	}
 	/**
 	 *
-	 * $siteId
-	 * $valid [null|Y|N]
+	 * @param string $siteId
+	 * @param string $valid [null|Y|N]
 	 */
-	public function &bySite($siteId, $valid = null) {
+	public function &bySite($siteId, $valid = null, $options = []) {
 		$where = "siteid='$siteId'";
 		!empty($valid) && $where .= " and valid='$valid'";
 

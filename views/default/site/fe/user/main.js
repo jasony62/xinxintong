@@ -69,11 +69,17 @@ define(['require', 'angular'], function(require, angular) {
         $scope.gotoLogin = function() {
             location.href = '/rest/site/fe/user/login?site=' + site;
         };
-        $http.get('/rest/site/fe/main/get?site=' + site).success(function(rsp) {
+        $scope.gotoMember = function(memberSchema) {
+            location.href = '/rest/site/fe/user/member?site=' + site + '&schema=' + memberSchema.id;
+        };
+        $http.get('/rest/site/fe/get?site=' + site).success(function(rsp) {
             $scope.site = rsp.data;
             userService.get().then(function(user) {
                 $scope.user = user;
                 window.loading.finish();
+            });
+            $http.get('/rest/site/fe/memberSchemaList?site=' + site).success(function(rsp) {
+                $scope.memberSchemas = rsp.data;
             });
         });
     }]);

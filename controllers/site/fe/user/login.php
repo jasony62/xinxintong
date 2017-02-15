@@ -55,6 +55,8 @@ class login extends \site\fe\base {
 		/* cookie中保留注册信息 */
 		$cookieRegUser = $modelWay->shiftRegUser($registration);
 
-		return new \ResponseData($cookieRegUser);
+		$cookieUser = $modelWay->getCookieUser($this->siteId);
+
+		return new \ResponseData($cookieUser);
 	}
 }

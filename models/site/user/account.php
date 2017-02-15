@@ -9,6 +9,10 @@ class account_model extends \TMS_MODEL {
 	 */
 	const DEFAULT_LEVEL = 1;
 	/**
+	 * 缺省属性列表
+	 */
+	const DEFAULT_FIELDS = 'siteid,uid,nickname,wx_openid,yx_openid,qy_openid,unionid,is_reg_primary';
+	/**
 	 *
 	 *
 	 * @param string $uid
@@ -16,12 +20,12 @@ class account_model extends \TMS_MODEL {
 	 * @return object
 	 */
 	public function &byId($uid, $options = array()) {
-		$fields = isset($options['fields']) ? $options['fields'] : 'uid,nickname,wx_openid,yx_openid,qy_openid,unionid,is_reg_primary';
-		$q = array(
+		$fields = isset($options['fields']) ? $options['fields'] : self::DEFAULT_FIELDS;
+		$q = [
 			$fields,
 			'xxt_site_account',
 			["uid" => $uid],
-		);
+		];
 		$act = $this->query_obj_ss($q);
 
 		return $act;
@@ -38,7 +42,7 @@ class account_model extends \TMS_MODEL {
 	 * @return object
 	 */
 	public function &byOpenid($siteId, $snsName, $openid, $options = []) {
-		$fields = isset($options['fields']) ? $options['fields'] : 'uid,nickname,wx_openid,yx_openid,qy_openid,unionid,is_reg_primary';
+		$fields = isset($options['fields']) ? $options['fields'] : self::DEFAULT_FIELDS;
 
 		$q = [
 			$fields,
@@ -53,6 +57,20 @@ class account_model extends \TMS_MODEL {
 		return $acts;
 	}
 	/**
+	 * 获得指定站点下公众号用户的主访客账号
+	 */
+	public function byPrimaryOpenid($siteId, $snsName, $openid) {
+		$options['is_primary'] = 'Y';
+		$siteUsers = $this->byOpenid($siteId, $snsName, $openid, $options);
+		if (count($siteUsers) > 1) {
+			throw new \Exception('数据错误，获得了多个公众号用户主访客账号');
+		} else if (count($siteUsers) === 0) {
+			return false;
+		} else {
+			return $siteUsers[0];
+		}
+	}
+	/**
 	 * get account objects by it's unionid
 	 *
 	 * @param string $unionid
@@ -60,7 +78,7 @@ class account_model extends \TMS_MODEL {
 	 * @return object
 	 */
 	public function &byUnionid($unionid, $options = []) {
-		$fields = isset($options['fields']) ? $options['fields'] : 'siteid,uid,nickname,wx_openid,yx_openid,qy_openid,is_reg_primary';
+		$fields = isset($options['fields']) ? $options['fields'] : self::DEFAULT_FIELDS;
 		$q = [
 			$fields,
 			'xxt_site_account',
@@ -75,6 +93,52 @@ class account_model extends \TMS_MODEL {
 		$acts = $this->query_objs_ss($q);
 
 		return $acts;
+	}
+	/**
+	 * 获得站定下，关联注册账号的主访客账号
+	 * 每个站点下，每个注册账号，只有一个主访客账号
+	 *
+	 */
+	public function byPrimaryUnionid($siteId, $unionid, $options = []) {
+		$options['siteid'] = $siteId;
+		$options['is_reg_primary'] = 'Y';
+		$acts = $this->byUnionid($unionid, $options);
+		if (count($acts) > 1) {
+			// 正常情况下一定会存在，且只有一个
+			throw new \Exception('数据错误，注册账号的主访客账号不存在');
+		} else if (count($acts) === 1) {
+			return $acts[0];
+		} else {
+			return false;
+		}
+	}
+	/**
+	 * 绑定公众号账号信息
+	 */
+	public function bindSns($account, $snsName, $snsUser) {
+		// 公众号用户信息
+		$propsAccount = [
+			'ufrom' => $snsName,
+			$snsName . '_openid' => $snsUser->openid,
+			'nickname' => isset($snsUser->nickname) ? $this->escape($snsUser->nickname) : '',
+			'headimgurl' => isset($snsUser->headimgurl) ? $snsUser->headimgurl : '',
+		];
+		/* 判断是否为首次绑定 */
+		$q = [
+			'uid',
+			'xxt_site_account',
+			['siteid' => $account->siteid, $snsName . '_openid' => $snsUser->openid, 'is_' . $snsName . '_primary' => 'Y'],
+		];
+		$uid = $this->query_objs_ss($q);
+		if (count($uid) > 1) {
+			throw new \Exception('公众号用户对应了多个首次绑定访客账号');
+		} else if (count($uid) === 0) {
+			$propsAccount['is_' . $snsName . '_primary'] = 'Y';
+		}
+
+		$ret = $this->update('xxt_site_account', $propsAccount, ["uid" => $account->uid]);
+
+		return $ret;
 	}
 	/**
 	 * 创建空站点访客帐号
@@ -107,20 +171,29 @@ class account_model extends \TMS_MODEL {
 		} else {
 			$account->nickname = $props['nickname'];
 		}
+		if (isset($props['headimgurl'])) {
+			$account->headimgurl = $props['headimgurl'];
+		}
 		if (isset($props['ufrom'])) {
 			$account->ufrom = $props['ufrom'];
 		}
 		if (isset($props['wx_openid'])) {
 			$account->wx_openid = $props['wx_openid'];
 		}
+		if (isset($props['is_wx_primary'])) {
+			$account->is_wx_primary = $props['is_wx_primary'];
+		}
 		if (isset($props['yx_openid'])) {
 			$account->yx_openid = $props['yx_openid'];
+		}
+		if (isset($props['is_yx_primary'])) {
+			$account->is_yx_primary = $props['is_yx_primary'];
 		}
 		if (isset($props['qy_openid'])) {
 			$account->qy_openid = $props['qy_openid'];
 		}
-		if (isset($props['headimgurl'])) {
-			$account->headimgurl = $props['headimgurl'];
+		if (isset($props['is_qy_primary'])) {
+			$account->is_qy_primary = $props['is_qy_primary'];
 		}
 		if ($persisted === true) {
 			$this->insert('xxt_site_account', $account, false);
@@ -135,7 +208,7 @@ class account_model extends \TMS_MODEL {
 	 *
 	 * @param string $siteId
 	 */
-	public function &create($siteId, $uname, $password, $props = array()) {
+	public function &create($siteId, $uname, $password, $props = []) {
 		$current = time();
 		/*password*/
 		//$pw_salt = $this->gen_salt();

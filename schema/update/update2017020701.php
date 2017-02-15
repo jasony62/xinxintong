@@ -24,9 +24,9 @@ $sql .= ",PRIMARY KEY (unionid)";
 $sql .= ") ENGINE=MyISAM DEFAULT CHARSET=utf8";
 $sqls[] = $sql;
 //
-$sqls[] = "alter table xxt_site_account add is_wx_primary char(1) not null default 'N'";
-$sqls[] = "alter table xxt_site_account add is_yx_primary char(1) not null default 'N'";
-$sqls[] = "alter table xxt_site_account add is_qy_primary char(1) not null default 'N'";
+$sqls[] = "alter table xxt_site_account add is_wx_primary char(1) not null default 'N' after wx_openid";
+$sqls[] = "alter table xxt_site_account add is_yx_primary char(1) not null default 'N' after yx_openid";
+$sqls[] = "alter table xxt_site_account add is_qy_primary char(1) not null default 'N' after qy_openid";
 $sqls[] = "alter table xxt_site_account add unionid varchar(32) not null default ''";
 $sqls[] = "alter table xxt_site_account add is_reg_primary char(1) not null default 'N'";
 $sqls[] = "update xxt_site_account set unionid=md5(concat(uname,siteid)),is_reg_primary='Y' where uname<>''";

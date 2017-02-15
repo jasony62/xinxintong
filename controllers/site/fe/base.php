@@ -102,6 +102,7 @@ class base extends \TMS_CONTROLLER {
 					if (count($snsName) === 2) {
 						$snsName = $snsName[1];
 						if ($snsUser = $this->snsOAuthUserByCode($snsSiteId, $code, $snsName)) {
+							/* 企业用户仅包含openid */
 							$auth['sns'][$snsName] = $snsUser;
 						}
 					}
@@ -207,12 +208,12 @@ class base extends \TMS_CONTROLLER {
 		$rst = $snsProxy->getOAuthUser($code);
 		if ($rst[0] === false) {
 			$this->model('log')->log($site, 'snsOAuthUserByCode', 'xxt oauth2 failed: ' . $rst[1]);
-			$user = false;
+			$snsUser = false;
 		} else {
-			$user = $rst[1];
+			$snsUser = $rst[1];
 		}
 
-		return $user;
+		return $snsUser;
 	}
 	/**
 	 *

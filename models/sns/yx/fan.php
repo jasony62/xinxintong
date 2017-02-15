@@ -100,10 +100,15 @@ class fan_model extends \TMS_MODEL {
 		$fan = new \stdClass;
 		$fan->siteid = $siteid;
 		$fan->openid = $openid;
-		$fan->nickname = '';
-		!empty($options['userid']) && $fan->userid = $options['userid'];
+		//!empty($options['userid']) && $fan->userid = $options['userid'];
 		$fan->subscribe_at = isset($options['subscribe_at']) ? $options['subscribe_at'] : 0;
 		$fan->sync_at = isset($options['sync_at']) ? $options['sync_at'] : 0;
+
+		$fan->nickname = isset($options['nickname']) ? $this->escape($options['nickname']) : '';
+		isset($options['sex']) && $fan->sex = $options['sex'];
+		isset($options['headimgurl']) && $fan->headimgurl = $options['headimgurl'];
+		isset($options['country']) && $fan->country = $this->escape($options['country']);
+		isset($options['city']) && $fan->city = $this->escape($options['city']);
 
 		$fan->id = $this->insert('xxt_site_yxfan', $fan, true);
 

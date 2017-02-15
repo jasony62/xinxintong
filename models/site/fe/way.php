@@ -5,7 +5,7 @@ namespace site\fe;
  */
 class way_model extends \TMS_MODEL {
 	/**
-	 * 返回当前访问用户的信息
+	 * 返回当前用户的访客账号信息
 	 */
 	public function who($siteId, $auth = []) {
 		$modified = false;
@@ -15,32 +15,41 @@ class way_model extends \TMS_MODEL {
 			$cookieRegUser = $this->getCookieRegUser();
 			/* 有身份用户首次访问，若已经有绑定的站点用户，获取站点用户；否则，创建持久化的站点用户，并绑定关系 */
 			foreach ($auth['sns'] as $snsName => $snsUser) {
-				$modelSns = $this->M('sns\\' . $snsName);
-				$siteSns = $modelSns->bySite($siteId);
+				if ($cookieUser) {
+					if (isset($cookieUser->sns->{$snsName}) && $cookieSnsUser = $cookieUser->sns->{$snsName}) {
+						if ($cookieSnsUser->openid === $snsUser->openid) {
+							continue;
+						}
+					}
+				}
 				$cookieUser = $this->_bindSiteSnsUser($siteId, $snsName, $snsUser, $cookieUser, $cookieRegUser);
 			}
 			$modified = true;
 		} else if ($cookieUser === false) {
 			/* 无访客身份用户首次访问站点 */
-			$modelAct = $this->M('site\user\account');
+			$modelSiteUser = \TMS_App::M('site\user\account');
 			$cookieRegUser = $this->getCookieRegUser();
 			if ($cookieRegUser) {
-				/* 当前为登录状态，创建持久化用户，且作为绑定的主访客账号 */
-				$props = [
-					'unionid' => $cookieRegUser->unionid,
-					'is_reg_primary' => 'Y',
-				];
-				if (!empty($cookieRegUser->nickname)) {
-					$props['nickname'] = $cookieRegUser->nickname;
+				/* 注册主站点访客账号，有，使用，没有，创建 */
+				$siteUser = $modelSiteUser->byPrimaryUnionid($siteId, $cookieRegUser->unionid);
+				if ($siteUser === false) {
+					/* 当前为登录状态，创建持久化用户，且作为绑定的主访客账号 */
+					$props = [
+						'unionid' => $cookieRegUser->unionid,
+						'is_reg_primary' => 'Y',
+					];
+					if (!empty($cookieRegUser->nickname)) {
+						$props['nickname'] = $cookieRegUser->nickname;
+					}
+					$siteUser = $modelSiteUser->blank($siteId, true, $props);
 				}
-				$account = $modelAct->blank($siteId, true, $props);
 			} else {
-				/* 当前为未登录状态，创建非持久化的站点用户 */
-				$account = $modelAct->blank($siteId, false);
+				/* 未登录状态，创建非持久化的站点访客账号 */
+				$siteUser = $modelSiteUser->blank($siteId, false);
 			}
 			$cookieUser = new \stdClass;
-			$cookieUser->uid = $account->uid;
-			$cookieUser->nickname = $account->nickname;
+			$cookieUser->uid = $siteUser->uid;
+			$cookieUser->nickname = $siteUser->nickname;
 			$cookieUser->expire = time() + (86400 * TMS_COOKIE_SITE_USER_EXPIRE);
 			$modified = true;
 		}
@@ -58,303 +67,174 @@ class way_model extends \TMS_MODEL {
 	 * 如果不是注册状态，查找当前站点下的访客账号中是否有已经和公众号关联的主账号
 	 */
 	private function _bindSiteSnsUser($siteId, $snsName, $snsUser, $cookieUser, $cookieRegUser = false) {
+		$modelSiteUser = \TMS_App::M('site\user\account');
+
+		if ($cookieRegUser) {
+			/* 已登录状态，切换到注册账号的主访客账号 */
+			$siteUser = $modelSiteUser->byPrimaryUnionid($siteId, $cookieRegUser->unionid);
+			if ($cookieUser) {
+				if ($siteUser->uid !== $cookieUser->uid) {
+					throw new \Exception('数据错误，注册主访客账号与当前访客账号不一致');
+				}
+			}
+			if (empty($siteUser->{$snsName . '_openid'})) {
+				$dbSnsUser = $this->_getDbSnsUser($siteId, $snsName, $snsUser);
+				$modelSiteUser->bindSns($siteUser, $snsName, $dbSnsUser);
+			} else if ($siteUser->{$snsName . '_openid'} !== $snsUser->openid) {
+				throw new \Exception('数据错误，注册主访客账号已经绑定其他公众号用户');
+			}
+		} else {
+			if ($cookieUser === false) {
+				/* 不存在访客账号，查找公众号用户的主访客账号 */
+				$siteUser = $modelSiteUser->byPrimaryOpenid($siteId, $snsName, $snsUser->openid);
+				if ($siteUser === false) {
+					/* 公众号用户主访客账号不存在，创建 */
+					$dbSnsUser = $this->_getDbSnsUser($siteId, $snsName, $snsUser);
+					$propsAccount = [
+						'ufrom' => $snsName,
+						$snsName . '_openid' => $dbSnsUser->openid,
+						'nickname' => $dbSnsUser->nickname,
+						'headimgurl' => $dbSnsUser->headimgurl,
+						'is_' . $snsName . '_primary' => 'Y',
+					];
+					$siteUser = $modelSiteUser->blank($siteId, true, $propsAccount);
+				} else {
+					// 切换到公众号用户主访客账号，不需要其他处理
+				}
+			} else {
+				/* 存在访客账号 */
+				if (!isset($cookieUser->sns->{$snsName})) {
+					/* 当前帐号，没有绑定过公众号用户 */
+					/* 查找公众号用户的主访客账号 */
+					$siteUser = $modelSiteUser->byPrimaryOpenid($siteId, $snsName, $snsUser->openid);
+					if ($siteUser === false) {
+						/* 不存在公众号用户主访客账号，将当前帐号更新为公众号用户主访客账号 */
+						$dbSnsUser = $this->_getDbSnsUser($siteId, $snsName, $snsUser);
+						$siteUser = $modelSiteUser->byId($cookieUser->uid);
+						if ($siteUser === false) {
+							/* 创建新账号 */
+							$propsAccount = [
+								'uid' => $cookieUser->uid,
+								'ufrom' => $snsName,
+								$snsName . '_openid' => $dbSnsUser->openid,
+								'nickname' => $dbSnsUser->nickname,
+								'headimgurl' => $dbSnsUser->headimgurl,
+								'is_' . $snsName . '_primary' => 'Y',
+							];
+							$siteUser = $modelSiteUser->blank($siteId, true, $propsAccount);
+						} else {
+							/* 在现有账号上绑定公众号用户 */
+							$modelSiteUser->bindSns($siteUser, $snsName, $dbSnsUser);
+						}
+					} else {
+						/* 存在公众号用户主访客账号，更新现账号，切换到公众号用户主访客账号 */
+						$dbSnsUser = $this->_getDbSnsUser($siteId, $snsName, $snsUser);
+						$siteCurrentUser = $modelSiteUser->byId($cookieUser->uid);
+						if ($siteCurrentUser === false) {
+							/* 创建新账号，保留数据，绑定公众号用户 */
+							$propsAccount = [
+								'uid' => $cookieUser->uid,
+								'ufrom' => $snsName,
+								$snsName . '_openid' => $dbSnsUser->openid,
+								'nickname' => $dbSnsUser->nickname,
+								'headimgurl' => $dbSnsUser->headimgurl,
+							];
+							$modelSiteUser->blank($siteId, true, $propsAccount);
+						} else {
+							/* 在现有账号上绑定公众号用户 */
+							$modelSiteUser->bindSns($siteCurrentUser, $snsName, $dbSnsUser);
+						}
+					}
+				} else {
+					/* 当前帐号已经绑定过公众号用户 */
+					$cookieSnsUser = $cookieUser->sns->{$snsName};
+					if ($cookieSnsUser->openid !== $snsUser->openid) {
+						/* 切换到公众号用户主访客账号 */
+						$siteUser = $modelSiteUser->byPrimaryOpenid($siteId, $snsName, $snsUser->openid);
+						if ($siteUser === false) {
+							$dbSnsUser = $this->_getDbSnsUser($siteId, $snsName, $snsUser);
+							$propsAccount = [
+								'ufrom' => $snsName,
+								$snsName . '_openid' => $dbSnsUser->openid,
+								'nickname' => $dbSnsUser->nickname,
+								'headimgurl' => $dbSnsUser->headimgurl,
+								'is_' . $snsName . '_primary' => 'Y',
+							];
+							$siteUser = $modelSiteUser->blank($siteId, true, $propsAccount);
+						}
+					} else {
+						/* 检查是否一致，不一致就更新 */
+					}
+				}
+			}
+		}
+
+		/* 更新cookie信息 */
+		$cookieUser === false && $cookieUser = new \stdClass;
+		$cookieUser->uid = $siteUser->uid;
+		$cookieUser->expire = time() + (86400 * TMS_COOKIE_SITE_USER_EXPIRE);
+		!isset($cookieUser->sns) && $cookieUser->sns = new \stdClass;
+		$cookieUser->nickname = isset($snsUser->nickname) ? $snsUser->nickname : '';
+		$cookieUser->sns->{$snsName} = $snsUser;
+
+		return $cookieUser;
+	}
+	/**
+	 * 获取或者新建公众号用户信息
+	 */
+	private function &_getDbSnsUser($siteId, $snsName, &$snsUser) {
+		$modelSnsUser = \TMS_App::M('sns\\' . $snsName . '\fan');
 		$modelSns = \TMS_APP::M('sns\\' . $snsName);
+
 		$snsConfig = $modelSns->bySite($siteId);
 		if ($snsConfig === false || $snsConfig->joined !== 'Y') {
 			$snsSiteId = 'platform';
 		} else {
 			$snsSiteId = $siteId;
 		}
-		//
-		$modelSiteUser = \TMS_App::M('site\user\account');
-		$modelSnsUser = \TMS_App::M('sns\\' . $snsName . '\fan');
 
-		/* 获取或者保存公众号账号信息 */
 		$dbSnsUser = $modelSnsUser->byOpenid($snsSiteId, $snsUser->openid, 'openid,nickname,headimgurl');
 		if ($dbSnsUser === false) {
 			$propsSns = [];
-			isset($snsUser->nickname) && $propsSns['nickname'] = $snsUser->nickname;
-			isset($snsUser->sex) && $propsSns['sex'] = $snsUser->sex;
-			isset($snsUser->headimgurl) && $propsSns['headimgurl'] = $snsUser->headimgurl;
+			$propsSns['nickname'] = isset($snsUser->nickname) ? $snsUser->nickname : '';
+			$propsSns['headimgurl'] = isset($snsUser->headimgurl) ? $snsUser->headimgurl : '';
+			$propsSns['sex'] = isset($snsUser->sex) ? $snsUser->sex : '';
+			$propsSns['city'] = isset($snsUser->city) ? $snsUser->city : '';
 			isset($snsUser->country) && $propsSns['country'] = $snsUser->country;
 			isset($snsUser->province) && $propsSns['province'] = $snsUser->province;
-			isset($snsUser->city) && $propsSns['city'] = $snsUser->city;
 			if ($snsName != 'qy') {
 				$dbSnsUser = $modelSnsUser->blank($snsSiteId, $snsUser->openid, true, $propsSns);
 			} else {
 				$dbSnsUser = (object) $snsUser;
 				$dbSnsUser->openid = $snsUser->openid;
 			}
-		}
-		if ($cookieRegUser) {
-			/* 登录状态下获得和注册账号绑定的主访客账号 */
-			// 查找关联了注册账号的访客账号
-			$options['siteid'] = $siteId;
-			$options['is_reg_primary'] = 'Y';
-			$siteUsers = $modelSiteUser->byUnionid($cookieRegUser->unionid, $options);
-			if (count($siteUsers) !== 1) {
-				// 正常情况下一定会存在
-				throw new \Exception('数据错误，注册账号的主访客账号不存在');
-			}
-			$siteUser = $siteUsers[0];
-			if (empty($siteUser->{$snsName . '_openid'})) {
-				// 在访客账号上关联公众号信息
-				$modelSiteUser->update(
-					'xxt_site_account',
-					[$snsName . '_openid' => $dbSnsUser->openid],
-					["uid" => $siteUser->uid]
-				);
-			} else if ($siteUser->{$snsName . '_openid'} !== $snsUser->openid) {
-				// 主账号的openid不一致怎么办？不允许，需要退出登录
-				throw new \Exception('数据错误，主访客账号已经绑定openid');
-			}
 		} else {
-			/* 查找关联过公众号账号的访客账号 */
-			$options['is_primary'];
-			$siteUsers = $modelSiteUser->byOpenid($siteId, $snsName, $snsUser->openid, $options);
-			if (count($siteUsers) === 0) {
-				// 保存现有的账号
-				$propsAccount = [
-					'ufrom' => $snsName,
-					$snsName . '_openid' => $dbSnsUser->openid,
-					'nickname' => $dbSnsUser->nickname,
-					'headimgurl' => $dbSnsUser->headimgurl,
-					'uid' => $cookieUser->uid,
-					'is_' . $snsName . '_primary' => 'Y',
-				];
-				$modelSiteUser->blank($siteId, true, $propsAccount);
-			} else if (count($siteUsers) === 1) {
-				$siteUser = $siteUsers[0];
-				/* 如果账号已经绑定了注册账号怎么办 */
-			} else {
-				throw new \Exception();
-			}
+			$snsUser->nickname = isset($dbSnsUser->nickname) ? $dbSnsUser->nickname : '';
 		}
 
-		if ($dbSnsUser) {
-			if ($cookieUser === false) {
-				$siteUser = $this->_getSiteUserByOpenid($siteId, $snsName, $dbSnsUser, $cookieRegUser);
-				// 新的cookie用户
-				$cookieUser = new \stdClass;
-			} else {
-				/* 将当前访客账号和公众号openid关联 */
-				$siteUser = $modelSiteUser->byId($cookieUser->uid);
-				if ($siteUser === false) {
-					//$siteUser = $this->_getSiteUserByOpenid($siteId, $snsName, $dbSnsUser, $cookieRegUser, $cookieUser);
-					//if ($siteUser->uid !== $cookieUser->uid) {
-					$propsAccount = [
-						'ufrom' => $snsName,
-						$snsName . '_openid' => $dbSnsUser->openid,
-						'nickname' => $dbSnsUser->nickname,
-						'headimgurl' => $dbSnsUser->headimgurl,
-						'uid' => $cookieUser->uid,
-					];
-					$modelSiteUser->blank($siteId, true, $propsAccount);
-					//}
-				} else {
-					/* 当前访客账号的信息已经在数据库中 */
-					if (empty($siteUser->{$snsName . '_openid'})) {
-						// 不用切换访客账号，更新访客账号
-						$modelSiteUser->update(
-							'xxt_site_account',
-							[$snsName . '_openid' => $dbSnsUser->openid],
-							["uid" => $siteUser->uid]
-						);
-					} else {
-						if ($dbSnsUser->openid !== $siteUser->{$snsName . '_openid'}) {
-							/* 需要切换访客账号 */
-							$siteUser = $this->_getSiteUserByOpenid($siteId, $snsName, $dbSnsUser, $cookieRegUser);
-						}
-					}
-				}
-			}
-			if ($cookieRegUser) {
-				/* 已经是登录状态，检查是否需要绑定 */
-				if (empty($siteUser->unionid)) {
-					/* 设置为和注册账号绑定的主访客账号 */
-					$modelSiteUser->update(
-						'xxt_site_account',
-						['unionid' => $cookieRegUser->unionid, 'is_reg_primary' => 'Y'],
-						"uid='{$siteUser->uid}'"
-					);
-				} else {
-					if ($siteUser->unionid !== $cookieRegUser->unionid) {
-						/* 同一个公众号用户对应多个注册账号怎么办？创建新访客账号 */
-						$propsAccount = [
-							'ufrom' => $snsName,
-							$snsName . '_openid' => $dbSnsUser->openid,
-							'nickname' => $dbSnsUser->nickname,
-							'headimgurl' => $dbSnsUser->headimgurl,
-							'unionid' => $cookieRegUser->unionid,
-							'is_reg_primary' => 'Y',
-						];
-						$siteUser = $modelSiteUser->blank($siteId, true, $propsAccount);
-					} else {
-						// 同一个注册账号下的访客账号，不需要额外处理
-					}
-				}
-			} else {
-
-			}
-		} else {
-			/* 数据库中没有公众号用户信息，建一个空的公众号用户账号 */
-			$propsSns = [];
-			isset($snsUser->nickname) && $propsSns['nickname'] = $snsUser->nickname;
-			isset($snsUser->sex) && $propsSns['sex'] = $snsUser->sex;
-			isset($snsUser->headimgurl) && $propsSns['headimgurl'] = $snsUser->headimgurl;
-			isset($snsUser->country) && $propsSns['country'] = $snsUser->country;
-			isset($snsUser->province) && $propsSns['province'] = $snsUser->province;
-			isset($snsUser->city) && $propsSns['city'] = $snsUser->city;
-
-			$propsAccount = [];
-			isset($snsUser->nickname) && $propsAccount['nickname'] = $snsUser->nickname;
-			isset($snsUser->headimgurl) && $propsAccount['headimgurl'] = $snsUser->headimgurl;
-			$propsAccount['ufrom'] = $snsName;
-			$propsAccount[$snsName . '_openid'] = $snsUser->openid;
-
-			if ($cookieUser === false) {
-				if ($cookieRegUser) {
-					/* 设置为和注册账号绑定的主访客账号 */
-					$propsAccount['unionid'] = $cookieRegUser->unionid;
-					$propsAccount['is_reg_primary'] = 'Y';
-				}
-				$siteUser = $modelSiteUser->blank($siteId, true, $propsAccount);
-				if ($snsName != 'qy') {
-					/* 为什么不给企业号创建空的账号？会有什么问题？ */
-					$dbSnsUser = $modelSnsUser->blank($snsSiteId, $snsUser->openid, true, $propsSns);
-				}
-				// 新的cookie用户
-				$cookieUser = new \stdClass;
-			} else {
-				$siteUser = $modelSiteUser->byId($cookieUser->uid);
-				if ($siteUser === false) {
-					// 没有站点访客用户账号创建个新的
-					if ($cookieRegUser) {
-						/* 设置为和注册账号绑定的主访客账号 */
-						$propsAccount['unionid'] = $cookieRegUser->unionid;
-						$propsAccount['is_reg_primary'] = 'Y';
-					}
-					$siteUser = $modelSiteUser->blank($siteId, true, $propsAccount);
-				} else {
-					if (empty($siteUser->{$snsName . '_openid'})) {
-						// 站点访客账号关联公众号账号信息
-						$modelSiteUser->update(
-							'xxt_site_account',
-							[$snsName . '_openid' => $snsUser->openid],
-							["uid" => $siteUser->uid]
-						);
-						$siteUser->{$snsName . '_openid'} = $snsUser->openid;
-					} else {
-						if ($snsUser->openid !== $siteUser->{$snsName . '_openid'}) {
-							// 切换站点访客账号，没有站点访客用户账号创建新的
-							if ($cookieRegUser) {
-								/* 设置为和注册账号绑定的主访客账号 */
-								$propsAccount['unionid'] = $cookieRegUser->unionid;
-								$propsAccount['is_reg_primary'] = 'Y';
-							}
-							$siteUser = $modelSiteUser->blank($siteId, true, $propsAccount);
-						}
-					}
-				}
-				if ($snsName !== 'qy') {
-					// 保存社交账号信息
-					/* 为什么不给企业号创建空的账号？会有什么问题？ */
-					$dbSnsUser = $modelSnsUser->blank($snsSiteId, $snsUser->openid, true, $propsSns);
-				}
-				// 清空不必要的数据，减小cookie尺寸
-				if ($dbSnsUser) {
-					unset($dbSnsUser->siteid);
-					unset($dbSnsUser->subscribe_at);
-					unset($dbSnsUser->sync_at);
-				}
-			}
-		}
-
-		// 更新cookie信息
-		$cookieUser->uid = $siteUser->uid;
-		$cookieUser->expire = time() + (86400 * TMS_COOKIE_SITE_USER_EXPIRE);
-		!isset($cookieUser->sns) && $cookieUser->sns = new \stdClass;
-		if ($dbSnsUser === false) {
-			$cookieUser->nickname = isset($snsUser->nickname) ? $snsUser->nickname : '';
-			$cookieUser->sns->{$snsName} = $snsUser;
-		} else {
-			$cookieUser->nickname = $dbSnsUser->nickname;
-			$cookieUser->sns->{$snsName} = $dbSnsUser;
-		}
-
-		return $cookieUser;
-	}
-	/**
-	 * 根据openid返回对应的站点访客账号
-	 *
-	 * 1.如果是在登录状态，应该返回站点的主访客账号
-	 *
-	 */
-	private function _getSiteUserByOpenid($siteId, $snsName, $snsUser, $cookieRegUser, $cookieUser = false) {
-		$modelSiteUser = \TMS_App::M('site\user\account');
-		$options = [];
-		if ($cookieRegUser) {
-			// 查找关联了注册账号的访客账号
-			$options['siteid'] = $siteId;
-			$options['is_reg_primary'] = 'Y';
-			$siteUsers = $modelSiteUser->byUnionid($cookieRegUser->unionid, $options);
-			if (count($siteUsers) === 0) {
-				// 正常情况下一定会存在
-				throw new \Exception();
-			}
-			$siteUser = $siteUsers[0];
-			if ($siteUser->{$snsName . '_openid'} !== $snsUser->openid) {
-				// 主账号的openid不一致怎么办？不允许，需要退出登录
-				throw new \Exception();
-			}
-		} else {
-			// 没有关联注册账号的访客账号
-			$siteUsers = $modelSiteUser->byOpenid($siteId, $snsName, $snsUser->openid);
-			if (count($siteUsers)) {
-				$siteUser = $siteUsers[0];
-				// 如果访客账号已经关联注册账号，是否要自动设置注册信息？
-				// 是否应该优先找到关联了注册账号的访客账号
-			} else {
-				/* 数据库保存当前访客信息 */
-				$propsAccount = [
-					'ufrom' => $snsName,
-					$snsName . '_openid' => $snsUser->openid,
-					'nickname' => $snsUser->nickname,
-					'headimgurl' => $snsUser->headimgurl,
-				];
-				if ($cookieUser) {
-					$propsAccount['uid'] = $cookieUser->uid;
-				}
-				if ($cookieRegUser) {
-					/* 设置为和注册账号绑定的主访客账号 */
-					$propsAccount['unionid'] = $cookieRegUser->unionid;
-				}
-				$siteUser = $modelSiteUser->blank($siteId, true, $propsAccount);
-			}
-		}
-
-		return $siteUser;
+		return $dbSnsUser;
 	}
 	/**
 	 * 绑定自定义用户
 	 */
 	public function &bindMember($siteId, $member) {
 		$modelSiteUser = \TMS_App::M('site\user\account');
+
 		/* cookie中缓存的用户信息 */
 		$cookieUser = $this->getCookieUser($siteId);
 		if ($cookieUser === false) {
-			$siteUser = $modelSiteUser->blank($siteId, true, array('ufrom' => 'member'));
+			$siteUser = $modelSiteUser->blank($siteId, true, ['ufrom' => 'member']);
 			/* 新的cookie用户 */
 			$cookieUser = new \stdClass;
 		} else {
 			$siteUser = $modelSiteUser->byId($cookieUser->uid);
 			if ($siteUser === false) {
-				$siteUser = $modelSiteUser->blank($siteId, true, array('uid' => $cookieUser->uid, 'ufrom' => 'member'));
+				$siteUser = $modelSiteUser->blank($siteId, true, ['uid' => $cookieUser->uid, 'ufrom' => 'member']);
 			}
 		}
 		/* 更新认证用户信息 */
 		if ($siteUser->uid !== $member->userid) {
-			$this->update('xxt_site_member', array('userid' => $siteUser->uid), "siteid='$siteId' and id=$member->id");
+			$this->update('xxt_site_member', ['userid' => $siteUser->uid], "siteid='$siteId' and id=$member->id");
 		}
 		/* 更新cookie信息 */
 		$cookieUser->uid = $siteUser->uid;
@@ -362,13 +242,14 @@ class way_model extends \TMS_MODEL {
 			$cookieUser->nickname = isset($member->name) ? $member->name : (isset($member->mobile) ? $member->mobile : (isset($member->email) ? $member->email : ''));
 			$modelSiteUser->update(
 				'xxt_site_account',
-				array('nickname' => $cookieUser->nickname),
-				"uid='{$cookieUser->uid}'"
+				['nickname' => $cookieUser->nickname],
+				["uid" => $cookieUser->uid]
 			);
 		}
 		$cookieUser->expire = time() + (86400 * TMS_COOKIE_SITE_USER_EXPIRE);
 		!isset($cookieUser->members) && $cookieUser->members = new \stdClass;
 		$cookieUser->members->{$member->schema_id} = $member;
+
 		/* 是否存在可关联的sns */
 		if (!empty($member->userid)) {
 			if (empty($cookieUser->sns->wx)) {
@@ -415,6 +296,7 @@ class way_model extends \TMS_MODEL {
 		if (!$domain and G_COOKIE_DOMAIN) {
 			$domain = G_COOKIE_DOMAIN;
 		}
+		$_COOKIE[G_COOKIE_PREFIX . $name] = $value;
 
 		return setcookie(G_COOKIE_PREFIX . $name, $value, $expire, $path, $domain, $secure);
 	}
@@ -522,6 +404,8 @@ class way_model extends \TMS_MODEL {
 	 */
 	public function resetAllCookieUser() {
 		if (!$this->getCookieRegUser()) {
+			/* 设置注册账号 */
+			/* 更新访客账号和注册账号的关联 */
 			$unbounds = [];
 			$unionid = false;
 			$modelAct = $this->model('site\user\account');
@@ -535,8 +419,10 @@ class way_model extends \TMS_MODEL {
 					if ($unionid === false) {
 						$unionid = $account->unionid;
 					} else {
-						// 清除不是同一注册用户下的数据
-						$this->cleanCookieUser($siteId);
+						if ($account->unionid !== $unionid) {
+							// 清除不是同一注册用户下的数据
+							$this->cleanCookieUser($siteId);
+						}
 					}
 				}
 			}
@@ -560,15 +446,66 @@ class way_model extends \TMS_MODEL {
 		}
 	}
 	/**
+	 * 获得完整的访客用户信息，包括：公众号用户信息，自定义用户信息
+	 *
+	 * @param string $uid
+	 *
+	 * @return object
+	 */
+	public function &buildFullUser($uid) {
+		$modelAct = $this->model('site\user\account');
+		$siteUser = $modelAct->byId($uid);
+		if ($siteUser === false) {
+			throw new \Exception('指定的站点访客账户不存在');
+		}
+
+		$fullUser = new \stdClass;
+		$fullUser->uid = $siteUser->uid;
+		$fullUser->nickname = $siteUser->nickname;
+
+		/* 站点自定义用户信息 */
+		$modelMem = $this->model('site\user\member');
+		$members = $modelMem->byUser($siteUser->siteid, $siteUser->uid);
+		!empty($members) && $fullUser->members = new \stdClass;
+		foreach ($members as $member) {
+			$fullUser->members->{$member->schema_id} = $member;
+		}
+		$fullUser->sns = new \stdClass;
+		/* wx用户 */
+		if (!empty($siteUser->wx_openid)) {
+			$modelWxFan = \TMS_App::M('sns\wx\fan');
+			$fullUser->sns->wx = $modelWxFan->byOpenid($siteUser->siteid, $siteUser->wx_openid);
+		}
+		/* yx用户 */
+		if (!empty($siteUser->yx_openid)) {
+			$modelYxFan = \TMS_App::M('sns\yx\fan');
+			$fullUser->sns->yx = $modelYxFan->byOpenid($siteUser->siteid, $siteUser->yx_openid);
+		}
+		/* qy用户 */
+		if (!empty($siteUser->qy_openid)) {
+			$modelQyFan = \TMS_App::M('sns\qy\fan');
+			$fullUser->sns->qy = $modelQyFan->byOpenid($account->siteid, $siteUser->qy_openid);
+		}
+
+		return $fullUser;
+	}
+	/**
 	 * 切换当前客户端的注册用户
+	 *
+	 * @param object $registration
+	 * @param boolean $loadFromDb 是否从数据库中加载访客账号
 	 */
 	public function shiftRegUser($registration, $loadFromDb = true) {
+		$modelAct = $this->model('site\user\account');
+		$current = time();
+		$loginExpire = $current + (86400 * TMS_COOKIE_SITE_LOGIN_EXPIRE);
+
 		/* cookie中保留注册信息 */
 		$cookieRegUser = new \stdClass;
 		$cookieRegUser->unionid = $registration->unionid;
 		$cookieRegUser->uname = $registration->uname;
 		$cookieRegUser->nickname = $registration->nickname;
-		$cookieRegUser->loginExpire = time() + (86400 * TMS_COOKIE_SITE_LOGIN_EXPIRE);
+		$cookieRegUser->loginExpire = $loginExpire;
 		$this->setCookieRegUser($cookieRegUser);
 
 		/* 处理cookie中已经存在的访客用户信息 */
@@ -589,6 +526,7 @@ class way_model extends \TMS_MODEL {
 					$cookieUser = new \stdClass;
 					$cookieUser->uid = $account->uid;
 					$cookieUser->nickname = $account->nickname;
+					$cookieUser->loginExpire = $loginExpire;
 					/* 站点自定义用户信息 */
 					$members = $modelMem->byUser($account->siteid, $account->uid);
 					!empty($members) && $cookieUser->members = new \stdClass;
@@ -596,16 +534,27 @@ class way_model extends \TMS_MODEL {
 						$cookieUser->members->{$member->schema_id} = $member;
 					}
 					$cookieUser->sns = new \stdClass;
-					/*wx用户*/
-					if (!isset($modelWxFan)) {
-						$modelWxFan = \TMS_App::M('sns\wx\fan');
+					/* wx用户 */
+					if (!empty($account->wx_openid)) {
+						if (!isset($modelWxFan)) {
+							$modelWxFan = \TMS_App::M('sns\wx\fan');
+						}
+						$cookieUser->sns->wx = $modelWxFan->byOpenid($account->siteid, $account->wx_openid);
 					}
-					$cookieUser->sns->wx = $modelWxFan->byUser($account->siteid, $account->uid);
-					/*yx用户*/
-					if (!isset($modelYxFan)) {
-						$modelYxFan = \TMS_App::M('sns\yx\fan');
+					/* yx用户 */
+					if (!empty($account->yx_openid)) {
+						if (!isset($modelYxFan)) {
+							$modelYxFan = \TMS_App::M('sns\yx\fan');
+						}
+						$cookieUser->sns->yx = $modelYxFan->byOpenid($account->siteid, $account->yx_openid);
 					}
-					$cookieUser->sns->yx = $modelYxFan->byUser($account->siteid, $account->uid);
+					/* qy用户 */
+					if (!empty($account->qy_openid)) {
+						if (!isset($modelQyFan)) {
+							$modelQyFan = \TMS_App::M('sns\qy\fan');
+						}
+						$cookieUser->sns->qy = $modelQyFan->byOpenid($account->siteid, $account->qy_openid);
+					}
 					/* 在cookie中保留访客用户信息 */
 					$this->setCookieUser($account->siteid, $cookieUser);
 					/* 缓存数据，方便进行后续判断 */
@@ -615,22 +564,20 @@ class way_model extends \TMS_MODEL {
 		}
 
 		/* 是否保留之前存在cookieuser */
-		$modelAct = $this->model('site\user\account');
 		foreach ($beforeCookieusers as $siteId => $beforeCookieuser) {
 			$account = $modelAct->byId($beforeCookieuser->uid);
-			if (isset($primaryAccounts[$account->siteid])) {
+			if (isset($primaryAccounts[$siteId])) {
 				/* 指定站点下，已经存在主访客账号 */
 				if ($account) {
 					if (empty($account->unionid)) {
 						/* 作为关联访客账号绑定到注册账号 */
-						$modelAct->update('xxt_site_account', ['unionid' => $unionid, 'assoc_id' => $primaryAccounts[$account->siteid]->uid], ['uid' => $beforeCookieuser->uid]);
+						$modelAct->update('xxt_site_account', ['unionid' => $unionid], ['uid' => $beforeCookieuser->uid]);
 					} else {
 						if ($account->unionid !== $registration->unionid) {
 							/* 同一个站点，绑定了不同注册账号，从cookie中清除 */
 							// cookie中对应的数据已经被数据库中的主访客账号覆盖
 						} else {
 							/* 同一个站点，绑定了相同注册账号，作为关联账号，从cookie中清除*/
-							$modelAct->update('xxt_site_account', ['assoc_id' => $primaryAccounts[$account->siteid]->uid], ['uid' => $beforeCookieuser->uid]);
 						}
 					}
 				} else {
@@ -638,17 +585,16 @@ class way_model extends \TMS_MODEL {
 					$props = [
 						'uid' => $beforeCookieuser->uid,
 						'unionid' => $registration->unionid,
-						'assoc_id' => $primaryAccounts[$account->siteid]->uid,
 						'nickname' => $registration->nickname,
 					];
-					$modelAct->create($siteId, '', '', $props);
+					$modelAct->blank($siteId, true, $props);
 				}
 			} else {
 				/* 指定站点下，不存在主访客账号 */
 				if ($account) {
 					if (empty($account->unionid)) {
 						// 站点下，新的主访客账号
-						$modelAct->update('xxt_site_account', ['unionid' => $unionid, 'is_reg_primary' => 'Y'], ['uid' => $beforeCookieuser->uid]);
+						$modelAct->update('xxt_site_account', ['unionid' => $registration->unionid, 'is_reg_primary' => 'Y'], ['uid' => $beforeCookieuser->uid]);
 					} else {
 						if ($account->unionid !== $registration->unionid) {
 							/* 其他注册账号下的站点，当前注册账号没有访问过，从cookie中清除 */
@@ -663,10 +609,10 @@ class way_model extends \TMS_MODEL {
 					$props = [
 						'uid' => $beforeCookieuser->uid,
 						'unionid' => $registration->unionid,
-						'is_reg_primary' => 'Y',
 						'nickname' => $registration->nickname,
+						'is_reg_primary' => 'Y',
 					];
-					$modelAct->create($siteId, '', '', $props);
+					$modelAct->blank($siteId, true, $props);
 				}
 			}
 		}

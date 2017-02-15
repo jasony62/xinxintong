@@ -216,6 +216,11 @@ class way_model extends \TMS_MODEL {
 	}
 	/**
 	 * 绑定自定义用户
+	 *
+	 * @param string $siteId
+	 * @param object $member
+	 *
+	 * @return object cookieUser
 	 */
 	public function &bindMember($siteId, $member) {
 		$modelSiteUser = \TMS_App::M('site\user\account');
@@ -226,6 +231,7 @@ class way_model extends \TMS_MODEL {
 			$siteUser = $modelSiteUser->blank($siteId, true, ['ufrom' => 'member']);
 			/* 新的cookie用户 */
 			$cookieUser = new \stdClass;
+			$cookieUser->uid = $siteUser->uid;
 		} else {
 			$siteUser = $modelSiteUser->byId($cookieUser->uid);
 			if ($siteUser === false) {
@@ -237,7 +243,6 @@ class way_model extends \TMS_MODEL {
 			$this->update('xxt_site_member', ['userid' => $siteUser->uid], "siteid='$siteId' and id=$member->id");
 		}
 		/* 更新cookie信息 */
-		$cookieUser->uid = $siteUser->uid;
 		if (empty($cookieUser->nickname)) {
 			$cookieUser->nickname = isset($member->name) ? $member->name : (isset($member->mobile) ? $member->mobile : (isset($member->email) ? $member->email : ''));
 			$modelSiteUser->update(
@@ -250,19 +255,6 @@ class way_model extends \TMS_MODEL {
 		!isset($cookieUser->members) && $cookieUser->members = new \stdClass;
 		$cookieUser->members->{$member->schema_id} = $member;
 
-		/* 是否存在可关联的sns */
-		if (!empty($member->userid)) {
-			if (empty($cookieUser->sns->wx)) {
-				if ($wxFan = $modelWxFan = \TMS_App::M('sns\wx\fan')->byUser($siteId, $member->userid)) {
-					$cookieUser->sns->wx = $wxFan;
-				}
-			}
-			if (empty($cookieUser->sns->yx)) {
-				if ($yxFan = $modelYxFan = \TMS_App::M('sns\yx\fan')->byUser($siteId, $member->userid)) {
-					$cookieUser->sns->yx = $yxFan;
-				}
-			}
-		}
 		/* 将用户信息保存在cookie中 */
 		$this->setCookieUser($siteId, $cookieUser);
 

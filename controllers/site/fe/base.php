@@ -216,26 +216,6 @@ class base extends \TMS_CONTROLLER {
 		return $snsUser;
 	}
 	/**
-	 *
-	 */
-	protected function &snsUserByMember($siteId, $memberId, $snsName, $fields = '*', $followed = 'Y') {
-		$snsUser = false;
-		$member = $this->model('site\user\member')->byId($memberId);
-		switch ($snsName) {
-		case 'wx':
-			$snsUser = $this->model('sns\wx\fan')->byUser($siteId, $member->userid, $fields, $followed);
-			break;
-		case 'qy':
-			//$snsUser = $this->model('sns\qy\fan')->byUser($siteId, $member->userid, $fields, $followed);
-			$snsUser = false;
-			break;
-		case 'yx':
-			$snsUser = $this->model('sns\yx\fan')->byUser($siteId, $member->userid, $fields, $followed);
-			break;
-		}
-		return $snsUser;
-	}
-	/**
 	 * 尽最大可能向用户发送消息
 	 *
 	 * $site

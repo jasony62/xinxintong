@@ -399,7 +399,7 @@ angular.module('ui.tms', ['ngSanitize']).service('noticebox', ['$timeout', funct
         replace: true
     };
 }]).directive('tmsDatepicker', function() {
-    _version = 7;
+    var _version = 7;
     return {
         restrict: 'EA',
         scope: {

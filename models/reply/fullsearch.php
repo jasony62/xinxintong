@@ -29,11 +29,15 @@ class fullsearch_model extends MultiArticleReply {
         return $matters;
     }  
     /**
-     * 生成回复消息
+     * 生成回复消息，找不到文章的时候回复文本提示
      */
     public function exec() {
 		$matters = $this->loadMatters();
-		$r = $this->cardResponse($matters);
+		if($matters){
+			$r = $this->cardResponse($matters);
+		}else{
+			$r = $this->textResponse('找不到包含【'.$_SESSION['keyword'].'】的文章，请更换关键词继续搜索。');
+		}
 		die($r);
      }
     

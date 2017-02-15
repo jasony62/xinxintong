@@ -169,14 +169,14 @@ class round extends \pl\fe\matter\base {
 
 		$modelRec = $this->model('matter\signin\record');
 		$records = $modelRec->find($site, $app, ['rid' => $rid]);
-		if (!empty($records)) {
+		if ($records->total > 0) {
 			return new \ResponseError('已经有签到数据，不允许删除');
 		}
 
 		/* 删除轮次 */
 		$rst = $modelRnd->delete(
 			'xxt_signin_round',
-			["aid" => $app, "rid" => $rid]
+			["aid" => $app->id, "rid" => $rid]
 		);
 
 		return new \ResponseData($rst);

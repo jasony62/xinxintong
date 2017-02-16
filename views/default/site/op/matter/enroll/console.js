@@ -63,6 +63,15 @@ define(["require", "angular", "util.site"], function(require, angular) {
                 $scope.page.setTotal(rsp.data.total);
             });
         };
+        $scope.removeRecord = function(record) {
+            if (window.confirm('确认删除？')) {
+                $http.get(PU.j('record/remove', 'site', 'app', 'accessToken') + '&ek=' + record.enroll_key).success(function(rsp){
+                    var i = $scope.records.indexOf(record);
+                    $scope.records.splice(i, 1);
+                    $scope.page.total = $scope.page.total - 1 ;
+                });
+            }
+        }
         // 选中的记录
         $scope.$watch('rows.allSelected', function(checked) {
             var index = 0;

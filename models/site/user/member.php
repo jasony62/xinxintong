@@ -9,12 +9,15 @@ class member_model extends \TMS_MODEL {
 	 */
 	public function &byId($id, $options = array()) {
 		$fields = isset($options['fields']) ? $options['fields'] : '*';
-		$q = array(
+		$q = [
 			$fields,
 			'xxt_site_member',
 			"id='$id' and forbidden='N'",
-		);
-		$member = $this->query_obj_ss($q);
+		];
+		if ($member = $this->query_obj_ss($q)) {
+			if (!empty($member->extattr)) {
+			}
+		}
 
 		return $member;
 	}
@@ -262,13 +265,13 @@ class member_model extends \TMS_MODEL {
 			 * 检查手机号的唯一性
 			 */
 			$mobile = $member->mobile;
-			$q = array(
+			$q = [
 				'1',
 				'xxt_site_member',
 				"schema_id={$member->schema_id} and forbidden='N' and mobile='$mobile'",
-			);
+			];
 			/* 不是当前用户自己 */
-			!empty($member->id) && $q[2] .= " and id!='{$member->id}'";
+			!empty($member->id) && $q[2] .= " and id<>'{$member->id}'";
 			if ('1' === $this->query_val_ss($q)) {
 				return '手机号已经存在，不允许重复登记！';
 			}
@@ -278,13 +281,13 @@ class member_model extends \TMS_MODEL {
 			 * 检查邮箱的唯一性
 			 */
 			$email = $member->email;
-			$q = array(
+			$q = [
 				'1',
 				'xxt_site_member',
 				"schema_id={$member->schema_id} and forbidden='N' and email='$email'",
-			);
+			];
 			/* 不是当前用户自己 */
-			!empty($member->id) && $q[2] .= " and id!='{$member->id}'";
+			!empty($member->id) && $q[2] .= " and id<>'{$member->id}'";
 			if ('1' === $this->query_val_ss($q)) {
 				return '邮箱已经存在，不允许重复登记！';
 			}
@@ -295,7 +298,9 @@ class member_model extends \TMS_MODEL {
 	/**
 	 * 根据提交的认证信息，查找已经存在认证用户
 	 *
-	 * $member
+	 * @param object $member
+	 * @param object $schema
+	 *
 	 * $items array 用户认证信息定义
 	 * 0:hidden,1:mandatory,2:unique,3:immuatable,4:verification,5:identity
 	 */
@@ -313,11 +318,11 @@ class member_model extends \TMS_MODEL {
 		}
 		if (isset($identity)) {
 			$fields = isset($options['fields']) ? $options['fields'] : '*';
-			$q = array(
+			$q = [
 				$fields,
 				'xxt_site_member',
 				"schema_id={$schema->id} and forbidden='N' and identity='$identity'",
-			);
+			];
 			$found = $this->query_obj_ss($q);
 		}
 

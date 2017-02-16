@@ -310,7 +310,7 @@ class main extends \pl\fe\matter\base {
 		return new \ResponseData($id);
 	}
 	/**
-	 * 创建新图文
+	 * 复制单图文
 	 */
 	public function copy_action($site, $id, $mission = null) {
 		if (false === ($user = $this->accountUser())) {

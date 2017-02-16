@@ -21,8 +21,15 @@ class base extends \site\fe\matter\base {
 	}
 	/**
 	 * 检查登记活动进入规则
+	 *
+	 * @param string $siteId
+	 * @param object $app
+	 * @param boolean $redirect
+	 *
+	 * @return string page 页面名称
 	 */
-	protected function checkEntryRule($siteId, $app, $user, $redirect = false) {
+	protected function checkEntryRule($siteId, $app, $redirect = false) {
+		$user = $this->who;
 		$entryRule = $app->entry_rule;
 		if (isset($entryRule->scope) && $entryRule->scope === 'member') {
 			foreach ($entryRule->member as $schemaId => $rule) {
@@ -30,7 +37,7 @@ class base extends \site\fe\matter\base {
 					if (isset($user->members->{$schemaId})) {
 						$page = $rule->entry;
 						break;
-					}else{
+					} else {
 						$page = $entryRule->other->entry;
 						break;
 					}

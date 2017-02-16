@@ -246,7 +246,7 @@ class proxy_model extends \sns\proxybase {
 			return $rst;
 		}
 
-		if(!isset($rst[1]->UserId)){
+		if (!isset($rst[1]->UserId)) {
 			$err = '非企业授权用户';
 			return array(false, $err);
 		}

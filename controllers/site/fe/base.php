@@ -33,6 +33,45 @@ class base extends \TMS_CONTROLLER {
 		return $rule_action;
 	}
 	/**
+	 * 检查是否需要第三方社交帐号认证
+	 * 检查条件：
+	 * 0、应用是否设置了需要认证
+	 * 1、站点是否绑定了第三方社交帐号认证
+	 * 2、平台是否绑定了第三方社交帐号认证
+	 * 3、用户客户端是否可以发起认证
+	 *
+	 * @param string $site
+	 */
+	protected function requireSnsOAuth($siteid) {
+		if ($this->userAgent() === 'wx') {
+			if (!isset($this->who->sns->wx)) {
+				$modelWx = $this->model('sns\wx');
+				if (($wxConfig = $modelWx->bySite($siteid)) && $wxConfig->joined === 'Y') {
+					$this->snsOAuth($wxConfig, 'wx');
+				} else if (($wxConfig = $modelWx->bySite('platform')) && $wxConfig->joined === 'Y') {
+					$this->snsOAuth($wxConfig, 'wx');
+				}
+			}
+			if (!isset($this->who->sns->qy)) {
+				if ($qyConfig = $this->model('sns\qy')->bySite($siteid)) {
+					if ($qyConfig->joined === 'Y') {
+						$this->snsOAuth($qyConfig, 'qy');
+					}
+				}
+			}
+		} else if ($this->userAgent() === 'yx') {
+			if (!isset($this->who->sns->yx)) {
+				if ($yxConfig = $this->model('sns\yx')->bySite($siteid)) {
+					if ($yxConfig->joined === 'Y') {
+						$this->snsOAuth($yxConfig, 'yx');
+					}
+				}
+			}
+		}
+
+		return false;
+	}
+	/**
 	 * 检查是否当前的请求是OAuth后返回的请求
 	 */
 	public function afterSnsOAuth() {
@@ -63,6 +102,7 @@ class base extends \TMS_CONTROLLER {
 					if (count($snsName) === 2) {
 						$snsName = $snsName[1];
 						if ($snsUser = $this->snsOAuthUserByCode($snsSiteId, $code, $snsName)) {
+							/* 企业用户仅包含openid */
 							$auth['sns'][$snsName] = $snsUser;
 						}
 					}
@@ -80,6 +120,7 @@ class base extends \TMS_CONTROLLER {
 	}
 	/**
 	 * 获得社交帐号用户信息
+	 * ？？？不需要考虑直接使用平台公众号的情况吗
 	 */
 	protected function &getSnsUser($siteId) {
 		if ($this->userAgent() === 'wx') {
@@ -167,31 +208,11 @@ class base extends \TMS_CONTROLLER {
 		$rst = $snsProxy->getOAuthUser($code);
 		if ($rst[0] === false) {
 			$this->model('log')->log($site, 'snsOAuthUserByCode', 'xxt oauth2 failed: ' . $rst[1]);
-			$user = false;
+			$snsUser = false;
 		} else {
-			$user = $rst[1];
+			$snsUser = $rst[1];
 		}
 
-		return $user;
-	}
-	/**
-	 *
-	 */
-	protected function &snsUserByMember($siteId, $memberId, $snsName, $fields = '*', $followed = 'Y') {
-		$snsUser = false;
-		$member = $this->model('site\user\member')->byId($memberId);
-		switch ($snsName) {
-		case 'wx':
-			$snsUser = $this->model('sns\wx\fan')->byUser($siteId, $member->userid, $fields, $followed);
-			break;
-		case 'qy':
-			//$snsUser = $this->model('sns\qy\fan')->byUser($siteId, $member->userid, $fields, $followed);
-			$snsUser = false;
-			break;
-		case 'yx':
-			$snsUser = $this->model('sns\yx\fan')->byUser($siteId, $member->userid, $fields, $followed);
-			break;
-		}
 		return $snsUser;
 	}
 	/**
@@ -454,30 +475,30 @@ class base extends \TMS_CONTROLLER {
 
 		$fan['depts'] = json_encode($udepts);
 
-		$model = $this->model();	
+		$model = $this->model();
 		/*
-		 * 新增加的企业号通信录成员关联到信信通的账户
-		 */
-		$openid=$fan['openid'];
-		$uid=$this->model()->query_val_ss([
+			 * 新增加的企业号通信录成员关联到信信通的账户
+		*/
+		$openid = $fan['openid'];
+		$uid = $this->model()->query_val_ss([
 			'uid',
 			'xxt_site_account',
-			" qy_openid ='$openid' "
+			" qy_openid ='$openid' ",
 		]);
 
-		if($uid){
-			$fan['userid']=$uid;
-		}else{
-			$option=array(
-				'ufrom'=>'qy',
-				'qy_openid'=>$openid,
-				'nickname'=>$fan['nickname'],
-				'headimgurl'=>isset($user->avatar)?$user->avatar:'',
+		if ($uid) {
+			$fan['userid'] = $uid;
+		} else {
+			$option = array(
+				'ufrom' => 'qy',
+				'qy_openid' => $openid,
+				'nickname' => $fan['nickname'],
+				'headimgurl' => isset($user->avatar) ? $user->avatar : '',
 			);
 
-			$account=$this->model("site\\user\\account")->blank($site,true,$option);
+			$account = $this->model("site\\user\\account")->blank($site, true, $option);
 
-			$fan['userid']=$account->uid;
+			$fan['userid'] = $account->uid;
 		}
 		/**
 		 * 为了兼容服务号和订阅号的操作，生成和成员用户对应的粉丝用户
@@ -549,28 +570,28 @@ class base extends \TMS_CONTROLLER {
 		}
 		$fan['depts'] = json_encode($udepts);
 		/*
-		 * 建立企业号通信录成员关联到信信通的账户
-		 */
-		$openid=$user->userid;
-		$uid=$this->model()->query_val_ss([
+			 * 建立企业号通信录成员关联到信信通的账户
+		*/
+		$openid = $user->userid;
+		$uid = $this->model()->query_val_ss([
 			'uid',
 			'xxt_site_account',
-			" qy_openid ='$openid' "
+			" qy_openid ='$openid' ",
 		]);
 
-		if($uid){
-			$fan['userid']=$uid;
-		}else{
-			$option=array(
-				'ufrom'=>'qy',
-				'qy_openid'=>$openid,
-				'nickname'=>$user->name,
-				'headimgurl'=>isset($user->avatar)?$user->avatar:'',
+		if ($uid) {
+			$fan['userid'] = $uid;
+		} else {
+			$option = array(
+				'ufrom' => 'qy',
+				'qy_openid' => $openid,
+				'nickname' => $user->name,
+				'headimgurl' => isset($user->avatar) ? $user->avatar : '',
 			);
 
-			$account=$this->model("site\\user\\account")->blank($site,true,$option);
+			$account = $this->model("site\\user\\account")->blank($site, true, $option);
 
-			$fan['userid']=$account->uid;
+			$fan['userid'] = $account->uid;
 		}
 		/**
 		 * 成员用户对应的粉丝用户

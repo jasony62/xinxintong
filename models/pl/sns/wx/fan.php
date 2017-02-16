@@ -66,12 +66,12 @@ class fan_model extends \TMS_MODEL {
 		!empty($options['subscribe_at']) && $fan->subscribe_at = $options['subscribe_at'];
 		!empty($options['sync_at']) && $fan->sync_at = $options['sync_at'];
 
-		$fan->nickname = isset($options['nickname']) ? $options['nickname'] : '';
+		$fan->nickname = isset($options['nickname']) ? $this->escape($options['nickname']) : '';
 		isset($options['sex']) && $fan->sex = $options['sex'];
 		isset($options['headimgurl']) && $fan->headimgurl = $options['headimgurl'];
-		isset($options['country']) && $fan->country = $options['country'];
-		isset($options['province']) && $fan->province = $options['province'];
-		isset($options['city']) && $fan->city = $options['city'];
+		isset($options['country']) && $fan->country = $this->escape($options['country']);
+		isset($options['province']) && $fan->province = $this->escape($options['province']);
+		isset($options['city']) && $fan->city = $this->escape($options['city']);
 
 		$fan->id = $this->insert('xxt_pl_wxfan', $fan, true);
 

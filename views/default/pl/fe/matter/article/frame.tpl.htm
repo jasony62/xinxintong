@@ -11,80 +11,44 @@
     <body ng-controller='ctrlArticle' ng-cloak class='ng-cloak'>
         <nav class='navbar navbar-default navbar-fixed-top'>
             <div class='container-fluid'>
-                <form class='navbar-form navbar-left'>
-                    <div class="btn-group">
-                        <a href="/rest/pl/fe" target='_self' class="btn btn-default" ng-if="referrer!=='site'">我的工作台</a>
-                        <a href='/rest/pl/fe/site/console?site={{siteId}}' target='_self' class="btn btn-default" ng-if="referrer==='site'">团队工作台</a>
-                        <button type="button" class="btn btn-default dropdown-toggle" data-toggle="dropdown">
-                            <span class="caret"></span>
-                            <span class="sr-only">Toggle Dropdown</span>
-                        </button>
-                        <ul class="dropdown-menu" role="menu">
-                            <li ng-if="referrer==='site'"><a href="/rest/pl/fe" target='_self'>我的工作台</a></li>
-                            <li ng-if="referrer!=='site'"><a href='/rest/pl/fe/site/console?site={{siteId}}' target='_self'>团队工作台</a></li>
-                            <li><a href='/rest/home' target='_self'>平台首页</a></li>
-                        </ul>
-                    </div>
-                </form>
-                <ul class="nav navbar-nav navbar-left">
-                    <li ng-if="editing.mission"><a href="/rest/pl/fe/matter/mission?site={{siteId}}&id={{editing.mission.id}}" target='_self' title="{{editing.mission.title}}">所属项目</a></li>
-                </ul>
-                <form class='navbar-form navbar-left'>
-                    <div ng-if="subView==='setting'">
-                        <div class='form-group'>
-                            <div class='input-group'>
-                                <input type='text' class='form-control' size='40' title='{{editing.title}}' ng-model='editing.title' tms-auto-update tms-wait=1000 tms-update="update('title')">
-                                <span class='input-group-btn' ng-if="editing.mission">
-                                        <button uib-popover-template="'editingSetting.html'" popover-append-to-body='true' popover-placement="bottom" popover-trigger="outsideClick" class='btn btn-default'><span class="caret"></span></button>
-                                </span>
-                            </div>
-                        </div>
-                        <div class='form-group' ng-if="!editing.mission">
-                            <button class='btn btn-success' ng-click="assignMission()">指定项目</button>
-                        </div>
-                    </div>
-                </form>
-                <form class='navbar-form navbar-right'>
-                    <div class="btn-group">
-                        <a href="/rest/pl/fe/matter/article/coin?site={{siteId}}&id={{id}}" class="btn btn-default" ng-if="subView!=='setting'">积分规则</a>
-                        <a href="/rest/pl/fe/matter/article/coin?site={{siteId}}&id={{id}}" class="btn btn-default" ng-if="subView==='setting'">发布预览</a>
-                        <button type="button" class="btn btn-default dropdown-toggle" data-toggle="dropdown">
-                            <span class="caret"></span>
-                            <span class="sr-only">Toggle Dropdown</span>
-                        </button>
-                        <ul class="dropdown-menu" role="menu">
-                            <li><a href="/rest/pl/fe/matter/article/setting?site={{siteId}}&id={{id}}">发布预览</a></li>
-                            <li><a href="/rest/pl/fe/matter/article/coin?site={{siteId}}&id={{id}}">积分规则</a></li>
-                            <li><a href="/rest/pl/fe/matter/article/log?site={{siteId}}&id={{id}}">运行日志</a></li>
-                        </ul>
-                    </div>
-                </form>
+                <div class="navbar-header">
+                    <button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target='#navbar-collapse-1'>
+                        <span class="sr-only">Toggle navigation</span>
+                        <span class="icon-bar"></span>
+                        <span class="icon-bar"></span>
+                        <span class="icon-bar"></span>
+                    </button>
+                </div>
+                <div class='collapse navbar-collapse' id='navbar-collapse-1'>
+                    <nav class='nav navbar-nav tms-breadcrumb'>
+                        <li>
+                            <a href='/rest/home' target='_self'>
+                                <?php echo APP_TITLE;?>
+                            </a>
+                        </li>
+                        <li><a href="/rest/pl/fe" target='_self'>个人工作台</a></li>
+                        <li ng-if="site.yourRole"><a href="/rest/pl/fe/site/console?site={{editing.siteid}}" target='_self'>{{site.name}}</a></li>
+                        <li ng-if="!site.yourRole"><a href="javascript:void(0)" style='color:#777;cursor:default;'>{{site.name}}</a></li>
+                        <li ng-if="editing.mission"><a href="/rest/pl/fe/matter/mission?site={{editing.siteid}}&id={{editing.mission.id}}" target='_self' title="{{editing.mission.title}}">{{editing.mission.title}}</a></li>
+                        <li ng-if="editing.mission"><a href="/rest/pl/fe/matter/mission/matter?site={{editing.siteid}}&id={{editing.mission.id}}#article" target='_self'>单图文</a></li>
+                        <li><a href="/rest/pl/fe/matter/article/setting?site={{editing.siteid}}&id={{editing.id}}" title='{{editing.title}}'>{{editing.title}}</a></li>
+                    </nav>
+                    <ul class='nav navbar-nav navbar-right'>
+                        <li class="dropdown">
+                            <a href="#" class="dropdown-toggle" data-toggle="dropdown">{{viewNames[subView]}} <span class="caret"></span></a>
+                            <ul class="dropdown-menu" role="menu">
+                                <li><a href="/rest/pl/fe/matter/article/setting?site={{editing.siteid}}&id={{editing.id}}">发布预览</a></li>
+                                <li><a href="/rest/pl/fe/matter/article/coin?site={{editing.siteid}}&id={{editing.id}}">积分规则</a></li>
+                                <li><a href="/rest/pl/fe/matter/article/log?site={{editing.siteid}}&id={{editing.id}}">运行日志</a></li>
+                            </ul>
+                        </li>
+                    </ul>
+                </div>
             </div>
         </nav>
         <div class='container'>
             <div class='row' ng-view></div>
         </div>
-        <script type="text/ng-template" id="editingSetting.html">
-            <div id="editingSetting" style='width:244px'>
-                <div class='form-group' ng-if="editing.mission">
-                    <label>所属项目</label>
-                    <div class="input-group">
-                        <input class='form-control' title="{{editing.mission.title}}" value="{{editing.mission.title}}" readonly="">
-                        <span class="input-group-btn">
-                                <button class="btn btn-default" type="button" ng-click="quitMission()">
-                                    <span class='glyphicon glyphicon-remove'></span>
-                        </button>
-                        </span>
-                    </div>
-                </div>
-                <div class='form-group' ng-if="editing.mission.multi_phase==='Y'">
-                    <label>项目阶段</label>
-                    <select class='form-control' ng-model="editing.mission_phase_id" ng-change="choosePhase()" ng-options="phase.phase_id as phase.title for phase in editing.mission.phases">
-                        <option value=''>全部</option>
-                    </select>
-                </div>
-            <div>
-        </script>
         <script src="/static/js/jquery.min.js"></script>
         <script src="/static/js/jquery-ui.min.js"></script>
         <script src="/static/js/bootstrap.min.js"></script>
@@ -97,9 +61,9 @@
         <script src="/static/js/ui-tms.js?_=1"></script>
         <script src="/static/js/xxt.ui.js?_=4"></script>
         <script src="/static/js/xxt.ui.tinymce.js"></script>
-        <script src="/views/default/pl/fe/_module/channel.js?_=1"></script>
         <script src="/views/default/pl/fe/_module/member.js?_=1"></script>
         <script src="/static/js/ZeroClipboard.min.js"></script>
+        <script src="/views/default/pl/fe/_module/matter.service.js?_=1"></script>
         <script src="/views/default/pl/fe/matter/article/article.service.js?_=1"></script>
         <script src="/static/js/require.js" data-main="/views/default/pl/fe/matter/article/frame-loader.js?_=1"></script>
     </body>

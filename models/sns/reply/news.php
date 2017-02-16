@@ -29,12 +29,14 @@ class news_model extends MultiArticleReply {
 		$news = \TMS_APP::model('matter\news')->byId($this->set_id);
 		$matters = \TMS_APP::model('matter\news')->getMatters($this->set_id);
 		$modelAcl = \TMS_APP::model('matter\acl');
-		//获取用户的自定义信息
-		$user = \TMS_APP::model('site\user\account')->byOpenid($siteId, $ufrom, $openid, array('fields'=>'uid'));
-		if($user === false){
+
+		// 获取用户的自定义信息
+		// added by yangyue: 一个openid可能对应多个userid
+		$users = \TMS_APP::model('site\user\account')->byOpenid($siteId, $ufrom, $openid, array('fields' => 'uid'));
+		if (empty($users) === false) {
 			$members = array();
-		}else{
-			$members = \TMS_APP::model('site\user\member')->byUser($siteId, $user->uid);
+		} else {
+			$members = \TMS_APP::model('site\user\member')->byUser($siteId, $users[0]->uid);
 		}
 		$matters2 = array();
 		foreach ($matters as $m) {

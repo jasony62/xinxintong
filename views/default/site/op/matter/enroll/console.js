@@ -177,6 +177,7 @@ define(["require", "angular", "util.site"], function(require, angular) {
             });
         };
         $http.get(PU.j('get', 'site', 'app', 'accessToken')).success(function(rsp) {
+            var recordSchemas = [];
             if (rsp.err_code !== 0) {
                 $scope.errmsg = rsp.err_msg;
                 return;
@@ -189,11 +190,15 @@ define(["require", "angular", "util.site"], function(require, angular) {
                 $scope.app.dataSchemas = JSON.parse($scope.app.data_schemas);
                 $scope.app.dataSchemas.forEach(function(schema) {
                     schemasById[schema.id] = schema;
+                    if (schema.type !== 'html') {
+                        recordSchemas.push(schema);
+                    }
                     if (/single|phase|multiple/.test(schema.type)) {
                         filterSchemas.push(schema);
                     }
                 });
             }
+            $scope.recordSchemas = recordSchemas;
             $timeout(function() {
                 $scope.$broadcast('xxt.app.enroll.ready');
             });

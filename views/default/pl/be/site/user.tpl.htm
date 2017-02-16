@@ -15,14 +15,14 @@
         </ul>
     </nav>
     <div class='container'>
-        <div class='row'>
-            <div class='navbar navbar-default'>
+        <nav class='navbar navbar-default'>
+            <div class='container-fluid'>
                 <ul class='nav navbar-nav'>
-                    <li ng-class="{'active':subView==='registration'}"><a href='/rest/pl/be/site/user/registration'>用户</a></li>
+                    <li ng-class="{'active':subView==='registrant'}"><a href='/rest/pl/be/site/user/registration'>注册用户</a></li>
                 </ul>
             </div>
-            <div ng-view></div>
-        </div>
+        </nav>
+        <div ng-view></div>
     </div>
     <script src="/static/js/jquery.min.js"></script>
     <script src="/static/js/jquery-ui.min.js"></script>

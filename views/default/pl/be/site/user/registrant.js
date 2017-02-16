@@ -1,17 +1,26 @@
 define(['main'], function(ngApp) {
     ngApp.provider.controller('ctrlRegistrant', ['$scope', '$uibModal', 'http2', function($scope, $uibModal, http2) {
-        $scope.page = {
+        var filter, page;
+        $scope.filter = filter = {};
+        $scope.page = page = {
             at: 1,
             size: 30,
+            j: function() {
+                return 'page=' + this.at + '&size=' + this.size;
+            }
         };
-        $scope.doSearch = function(page) {
+        $scope.doSearch = function(pageNo) {
             var url = '/rest/pl/be/site/registrant/list';
-            page && ($scope.page.at = page);
-            url += '?page=' + $scope.page.at + '&size=' + $scope.page.size;
-            http2.get(url, function(rsp) {
+            pageNo && (page.at = pageNo);
+            url += '?' + page.j();
+            http2.post(url, filter, function(rsp) {
                 $scope.users = rsp.data.users;
-                $scope.page.total = rsp.data.total;
+                page.total = rsp.data.total;
             });
+        };
+        $scope.resetFilter = function() {
+            filter.uname = '';
+            $scope.doSearch(1);
         };
         $scope.resetPassword = function(user) {
             $uibModal.open({
@@ -31,7 +40,7 @@ define(['main'], function(ngApp) {
             }).result.then(function(data) {
                 data.unionid = user.unionid;
                 http2.post('/rest/pl/be/site/registrant/resetPwd', data, function(rsp) {
-                    $scope.$root.infomsg = '完成修改';
+                    alert('ok');
                 });
             });
         };

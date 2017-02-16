@@ -16,17 +16,22 @@ class registrant extends \pl\be\base {
 	/**
 	 *
 	 */
-	public function list_action($site, $page = 1, $size = 30) {
+	public function list_action($page = 1, $size = 30) {
 		if (false === ($user = $this->accountUser())) {
 			return new \ResponseTimeout();
 		}
-		$model = $this->model();
 
+		$filter = $this->getPostJson();
+
+		$model = $this->model();
 		$result = [];
 		$q = [
 			'unionid,uname,nickname,reg_time',
 			'xxt_site_registration',
 		];
+		if (!empty($filter->uname)) {
+			$q[2] = "uname like '%{$filter->uname}%'";
+		}
 		$q2['o'] = 'reg_time desc';
 		$q2['r']['o'] = ($page - 1) * $size;
 		$q2['r']['l'] = $size;

@@ -189,12 +189,14 @@ class main extends \pl\fe\matter\base {
 			return new \ResponseTimeout();
 		}
 
-		$q = [
-			"a.*,'{$user->id}' uid",
-			'xxt_article a',
-			["a.state" => 1, "a.id" => $id],
-		];
-		if (($article = $this->model()->query_obj_ss($q)) && $cascade === 'Y') {
+		$modelAct = $this->model('matter\article2');
+		$article = $modelAct->byId($id);
+		if ($article === false) {
+			return new \ResponseError('查找的对象不存在');
+		}
+
+		$article->uid = $user->id;
+		if ($cascade === 'Y') {
 			/* channels */
 			$article->channels = $this->model('matter\channel')->byMatter($id, 'article');
 			/* tags */
@@ -205,11 +207,11 @@ class main extends \pl\fe\matter\base {
 			$article->acl = $this->model('acl')->byMatter($article->siteid, 'article', $id);
 			/* attachments */
 			if ($article->has_attachment === 'Y') {
-				$article->attachments = $this->model()->query_objs_ss(array('*', 'xxt_article_attachment', "article_id='$id'"));
+				$article->attachments = $modelAct->query_objs_ss(array('*', 'xxt_article_attachment', "article_id='$id'"));
 			}
 			/* 所属项目 */
 			if ($article->mission_id) {
-				$article->mission = $this->model('matter\mission')->byId($article->mission_id);
+				$article->mission = $modelAct->byId($article->mission_id);
 			}
 		}
 

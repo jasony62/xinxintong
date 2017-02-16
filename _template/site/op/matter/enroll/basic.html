@@ -72,7 +72,10 @@
                 <label>{{schema.title}}</label>
                 <div ng-switch on="schema.type">
                     <textarea class='form-control'  ng-switch-when="longtext" ng-model="editing.data[schema.id]"></textarea>
-                    <div ng-switch-when="date">{{editing.data[schema.id]*1000|date:'yy-MM-dd hh:mm'}}</div>
+                    <div ng-switch-when="date">
+                        <tms-datepicker class='tms-datepicker' tms-title='时间' tms-obj="rnd" tms-date="editing.data[schema.id]" tms-state="signinAt"></tms-datepicker>
+                        <!-- {{editing.data[schema.id]*1000|date:'yy-MM-dd hh:mm'}} -->
+                    </div>
                     <select class='form-control'  ng-switch-when="single" ng-model="editing.data[schema.id]" ng-options="op.v as op.l for op in schema.ops">
                         <option></option>
                     </select>

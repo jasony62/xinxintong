@@ -1,6 +1,6 @@
 'use strict';
 define(["require", "angular", "util.site"], function(require, angular) {
-    var ngApp = angular.module('app', ['ui.bootstrap', 'util.site.tms']);
+    var ngApp = angular.module('app', ['ui.tms', 'ui.bootstrap', 'util.site.tms']);
     ngApp.config(['$controllerProvider', function($cp) {
         ngApp.provider = {
             controller: $cp.register

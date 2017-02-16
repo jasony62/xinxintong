@@ -21,7 +21,9 @@ window.loading = {
                 "bootstrap": '/static/js/bootstrap.min',
                 "domReady": '/static/js/domReady',
                 "angular": "/static/js/angular.min",
+                "angular-sanitize":'/static/js/angular-sanitize.min',
                 "ui-bootstrap": '/static/js/ui-bootstrap-tpls.min',
+                "ui-tms": '/static/js/ui-tms',
                 "util.site": "/views/default/site/util",
             },
             shim: {
@@ -33,14 +35,21 @@ window.loading = {
                 if (/jquery|bootstrap|domReady|angular/.test(id)) {
                     return '';
                 }
+                if(/tms/.test(id)){
+                    return "?_=4";
+                }
                 return "?bust=" + (timestamp * 1);
             },
         });
         require(['jquery'], function() {
             require(['bootstrap'], function() {
                 require(['angular'], function() {
-                    require(['ui-bootstrap'], function() {
-                        requirejs(['/views/default/site/op/matter/enroll/console.js']);
+                    require(['angular-sanitize'], function() {
+                        require(['ui-bootstrap'], function() {
+                            require(['ui-tms'], function() {
+                                requirejs(['/views/default/site/op/matter/enroll/console.js']);
+                            });
+                        });
                     });
                 });
             });

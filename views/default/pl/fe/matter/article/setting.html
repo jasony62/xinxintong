@@ -1,5 +1,5 @@
 <div class='row'>
-    <div class='col-md-8'>
+    <div class='col-md-7'>
         <div class='tile'>
             <div class='form-group compact'>
                 <label>标题：最多35个汉字，70个英文字符</label>
@@ -40,6 +40,26 @@
             <div class='form-group compact'>
                 <label>原文链接(可选)</label>
                 <textarea class='form-control' ng-model='editing.url' tms-auto-update tms-wait=1000 tms-update="update('url')"></textarea>
+            </div>
+            <div class='form-group' ng-if="editing.mission">
+                <label>所属项目</label>
+                <div class="input-group">
+                    <input class='form-control' title="{{editing.mission.title}}" value="{{editing.mission.title}}" readonly="">
+                    <span class="input-group-btn">
+                        <button class="btn btn-default" type="button" ng-click="quitMission()">
+                            <span class='glyphicon glyphicon-remove'></span>
+                        </button>
+                    </span>
+                </div>
+            </div>
+            <div class='form-group' ng-if="editing.mission.multi_phase==='Y'">
+                <label>项目阶段</label>
+                <select class='form-control' ng-model="editing.mission_phase_id" ng-change="choosePhase()" ng-options="phase.phase_id as phase.title for phase in editing.mission.phases">
+                    <option value=''>全部</option>
+                </select>
+            </div>
+            <div class='form-group' ng-if="!editing.mission">
+                <button class='btn btn-success' ng-click="assignMission()">指定项目</button>
             </div>
         </div>
         <div class='tile'>
@@ -84,7 +104,7 @@
             </div>
         </div>
     </div>
-    <div class='col-md-4'>
+    <div class='col-md-5'>
         <div class="panel panel-default">
             <div class="panel-heading">图文链接</div>
             <div class="panel-body">
@@ -130,7 +150,7 @@
         </div>
         <div class='tile'>
             <div class='form-group'>
-                <memberacl site-id='{{siteId}}' obj='editing' prop-access='access_control' update-access-control="update('access_control')" prop-member-schemas='authapis' update-member-schemas="update('authapis')" prop-acl='acl' change-acl-url='/rest/pl/fe/matter/article/setAcl?site={{siteId}}&id={{editing.id}}' remove-acl-url='/rest/pl/fe/matter/article/removeAcl?site={{siteId}}'></memberacl>
+                <memberacl site-id='{{editing.siteid}}' obj='editing' prop-access='access_control' update-access-control="update('access_control')" prop-member-schemas='authapis' update-member-schemas="update('authapis')" prop-acl='acl' change-acl-url='/rest/pl/fe/matter/article/setAcl?site={{editing.siteid}}&id={{editing.id}}' remove-acl-url='/rest/pl/fe/matter/article/removeAcl?site={{editing.siteid}}'></memberacl>
             </div>
         </div>
         <div class='tile' ng-if="editing.entry">

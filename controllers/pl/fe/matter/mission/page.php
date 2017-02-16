@@ -30,7 +30,7 @@ class page extends \pl\fe\matter\base {
 		return new \ResponseData($code);
 	}
 	/**
-	 * 创建项目定制页面
+	 * 修改项目定制页面
 	 */
 	public function update_action($id, $page) {
 		if (false === ($user = $this->accountUser())) {

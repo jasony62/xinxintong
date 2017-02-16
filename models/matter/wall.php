@@ -52,10 +52,10 @@ class wall_model extends app_base {
 	 */
 	public function join($runningSiteId, $wid, $user, $remark = '') {
 		/**
-		*检查是否启用信息墙
-		*/
+		 *检查是否启用信息墙
+		 */
 		$wall = $this->byId($wid, 'join_reply,active');
-		if($wall->active === 'N'){
+		if ($wall->active === 'N') {
 			$reply = '信息墙已停用';
 			return $reply;
 		}
@@ -63,17 +63,17 @@ class wall_model extends app_base {
 		/**
 		 * 加入一个信息墙需要从其他的墙退出
 		 */
-		if(isset($user->wx_openid)){
+		if (isset($user->wx_openid)) {
 			$where = " and wx_openid='{$user->wx_openid}'";
-		}else if(isset($user->yx_openid)){
+		} else if (isset($user->yx_openid)) {
 			$where = " and yx_openid='{$user->yx_openid}'";
-		}else if(isset($user->qy_openid)){
+		} else if (isset($user->qy_openid)) {
 			$where = " and qy_openid='{$user->qy_openid}'";
 		}
 		$this->update(
 			'xxt_wall_enroll',
 			array('close_at' => time()),
-			"siteid='$runningSiteId'".$where
+			"siteid='$runningSiteId'" . $where
 		);
 		/**
 		 * 加入一个组
@@ -81,7 +81,7 @@ class wall_model extends app_base {
 		$q = array(
 			'count(*)',
 			'xxt_wall_enroll',
-			"siteid='$runningSiteId' and wid='$wid' ".$where
+			"siteid='$runningSiteId' and wid='$wid' " . $where,
 		);
 		if (1 === (int) $this->query_val_ss($q)) {
 			/**
@@ -100,13 +100,13 @@ class wall_model extends app_base {
 			$i['nickname'] = isset($user->nickname) ? $user->nickname : '';
 			$i['userid'] = isset($user->userid) ? $user->userid : '';
 			$i['headimgurl'] = isset($user->headimgurl) ? $user->headimgurl : '';
-			if(isset($user->wx_openid)){
+			if (isset($user->wx_openid)) {
 				$i['wx_openid'] = $user->wx_openid;
 			}
-			if(isset($user->yx_openid)){
+			if (isset($user->yx_openid)) {
 				$i['yx_openid'] = $user->yx_openid;
 			}
-			if(isset($user->qy_openid)){
+			if (isset($user->qy_openid)) {
 				$i['qy_openid'] = $user->qy_openid;
 			}
 
@@ -134,7 +134,7 @@ class wall_model extends app_base {
 		$q = array(
 			'wid',
 			'xxt_wall_enroll',
-			"siteid='$runningSiteId' and close_at=0 and ".$fromSrc."_openid='$openid'",
+			"siteid='$runningSiteId' and close_at=0 and " . $fromSrc . "_openid='$openid'",
 		);
 		$wid = $this->query_val_ss($q);
 		return $wid;
@@ -344,7 +344,7 @@ class wall_model extends app_base {
 		/**
 		 * 更新用户状态
 		 */
-		$this->update( "update xxt_wall_enroll set last_msg_at=$current,msg_num=msg_num+1 where siteid='$siteid' and (wx_openid='$openid' or yx_openid='$openid' or qy_openid='$openid') " );
+		$this->update("update xxt_wall_enroll set last_msg_at=$current,msg_num=msg_num+1 where siteid='$siteid' and (wx_openid='$openid' or yx_openid='$openid' or qy_openid='$openid') ");
 
 		return true;
 	}
@@ -408,10 +408,10 @@ class wall_model extends app_base {
 				if (!empty($user->qy_openid)) {
 					$usersQy[] = $user;
 				}
-				if (!empty($user->yx_openid) && $user->yx_openid !== $openid){
+				if (!empty($user->yx_openid) && $user->yx_openid !== $openid) {
 					$this->sendByOpenid($site, $user->yx_openid, $message, 'yx');
 				}
-				if (!empty($user->wx_openid) && $user->wx_openid !== $openid){
+				if (!empty($user->wx_openid) && $user->wx_openid !== $openid) {
 					$this->sendByOpenid($site, $user->wx_openid, $message, 'wx');
 				}
 			}
@@ -477,10 +477,10 @@ class wall_model extends app_base {
 					);
 				}
 
-				if (!empty($user->yx_openid) && $user->yx_openid !== $openid){
+				if (!empty($user->yx_openid) && $user->yx_openid !== $openid) {
 					$this->sendByOpenid($site, $user->yx_openid, $message, 'yx');
 				}
-				if (!empty($user->wx_openid) && $user->wx_openid !== $openid){
+				if (!empty($user->wx_openid) && $user->wx_openid !== $openid) {
 					$this->sendByOpenid($site, $user->wx_openid, $message, 'wx');
 				}
 			}
@@ -547,7 +547,7 @@ class wall_model extends app_base {
 					if ($user->qy_openid === $openid) {
 						continue;
 					}
-					if(!empty($user->qy_openid)){
+					if (!empty($user->qy_openid)) {
 						$this->sendByOpenid($site, $user->qy_openid, $message, 'qy');
 					}
 				}
@@ -593,32 +593,32 @@ class wall_model extends app_base {
 			switch ($openid_src) {
 			case 'yx':
 				$snsConfig = \TMS_APP::M('sns\yx')->bySite($mpid);
-				if($snsConfig && $snsConfig->joined === 'Y'){
+				if ($snsConfig && $snsConfig->joined === 'Y') {
 					$snsProxy = \TMS_APP::M('sns\yx\proxy', $snsConfig);
 					$snsConfig->yx_p2p = $snsConfig->can_p2p;
 					$snsConfig->mpsrc = 'yx';
-				}else{
+				} else {
 					$snsConfig->mpsrc = null;
 				}
 				break;
 
 			case 'qy':
 				$snsConfig = \TMS_APP::M('sns\qy')->bySite($mpid);
-				if($snsConfig && $snsConfig->joined === 'Y'){
+				if ($snsConfig && $snsConfig->joined === 'Y') {
 					$snsProxy = \TMS_APP::M('sns\qy\proxy', $snsConfig);
 					$snsConfig->qy_agentid = $snsConfig->agentid;
 					$snsConfig->mpsrc = 'qy';
-				}else{
+				} else {
 					$snsConfig->mpsrc = null;
 				}
 				break;
 
 			case 'wx':
 				$snsConfig = \TMS_APP::M('sns\wx')->bySite($mpid);
-				if($snsConfig && $snsConfig->joined === 'Y'){
+				if ($snsConfig && $snsConfig->joined === 'Y') {
 					$snsProxy = \TMS_APP::M('sns\wx\proxy', $snsConfig);
 					$snsConfig->mpsrc = 'wx';
-				}else{
+				} else {
 					$snsConfig->mpsrc = null;
 				}
 				break;

@@ -163,7 +163,7 @@ class user extends \pl\fe\matter\base {
 		}
 	}
 	/**
-	 * 从登记活动中提取
+	 * 从签到活动中提取
 	 */
 	private function _extractFromSignin(&$mission) {
 		$modelSig = $this->model('matter\signin');

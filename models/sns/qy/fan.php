@@ -22,7 +22,7 @@ class fan_model extends \TMS_MODEL {
 			$w .= " and (f.nickname like '%$keyword%'";
 			$w .= ")";
 		}
-		
+
 		$q[] = $w;
 
 		/**
@@ -54,7 +54,7 @@ class fan_model extends \TMS_MODEL {
 
 		return $fan;
 	}
-	
+
 	/**
 	 * 是否关注了公众号
 	 *
@@ -108,14 +108,14 @@ class fan_model extends \TMS_MODEL {
 	/**
 	 *获取企业号通讯录人员信息
 	 */
-	public function &getMem($site, $keyword='', $page=1, $size){
-		$p = array('*','xxt_site_qyfan',"siteid = '$site' and subscribe_at > 0 and unsubscribe_at = 0 and nickname like '%$keyword%'");
+	public function &getMem($site, $keyword = '', $page = 1, $size) {
+		$p = array('*', 'xxt_site_qyfan', "siteid = '$site' and subscribe_at > 0 and unsubscribe_at = 0 and nickname like '%$keyword%'");
 
 		$p2['r']['o'] = ($page - 1) * $size;
 		$p2['r']['l'] = $size;
 		$p2['o'] = 'id desc';
 		$result = array();
-		if ($data = $this->query_objs_ss($p,$p2)) {
+		if ($data = $this->query_objs_ss($p, $p2)) {
 			$result['data'] = $data;
 			$p[0] = 'count(*)';
 			$total = (int) $this->query_val_ss($p);

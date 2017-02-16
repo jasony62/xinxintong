@@ -35,6 +35,7 @@
                     <li ng-if="site.yourRole"><a href="/rest/pl/fe/site/console?site={{app.siteid}}" target='_self'>{{site.name}}</a></li>
                     <li ng-if="!site.yourRole"><a href="javascript:void(0)" style='color:#777;cursor:default;'>{{site.name}}</a></li>
                     <li ng-if="app.mission"><a href="/rest/pl/fe/matter/mission?site={{app.siteid}}&id={{app.mission.id}}" target='_self' title="{{app.mission.title}}">{{app.mission.title}}</a></li>
+                    <li ng-if="app.mission"><a href="/rest/pl/fe/matter/mission/matter?site={{app.siteid}}&id={{app.mission.id}}#{{app.scenario||'enroll'}}" target='_self'>{{scenarioNames[app.scenario]||'登记'}}</a></li>
                     <li><a href="/rest/pl/fe/matter/enroll/main?site={{app.siteid}}&id={{app.id}}" title='{{app.title}}'>{{app.title}}</a></li>
                 </nav>
                 <ul class='nav navbar-nav navbar-right'>
@@ -80,7 +81,6 @@
     <script src="/static/js/ui-tms.js?_=4"></script>
     <script src="/static/js/xxt.ui.js?_=4"></script>
     <script src="/static/js/xxt.ui.tmplshop.js?_=1"></script>
-    <script src="/views/default/pl/fe/_module/channel.js?_=1"></script>
     <script src="/views/default/pl/fe/_module/matter.service.js?_=1"></script>
     <script src="/views/default/pl/fe/matter/enroll/lib/enroll.tinymce.js?_=2"></script>
     <script src="/static/js/require.js" data-main="/views/default/pl/fe/matter/enroll/frame-loader.js?_=8"></script>

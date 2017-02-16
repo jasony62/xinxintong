@@ -14,7 +14,6 @@ define(['require', 'angular'], function(require, angular) {
     ngApp.controller('ctrlFav', ['$scope', '$http', function($scope, $http) {
         var page;
         //判断客户端 区分手机 和pc
-        var userAgent = navigator.userAgent
         if(/iphone/i.test(navigator.userAgent)||/android/i.test(navigator.userAgent)){
             $scope.state = 1 ;//手机端
         }else{
@@ -29,13 +28,14 @@ define(['require', 'angular'], function(require, angular) {
         };
         $scope.list = function() {
             var url = '/rest/site/fe/user/favor/list?site=' + siteId;
-            url += '&' + page.join()
+            url += '&' + page.join();
             $http.get(url).success(function(rsp) {
                 if (rsp.err_code != 0) {
                     $scope.$root.errmsg = rsp.err_msg;
                     return;
                 }
                 $scope.matters = rsp.data.matters;
+                $scope.page.total = rsp.data.total ;
             });
         };
         $scope.openMatter = function(id, type) {
@@ -46,10 +46,16 @@ define(['require', 'angular'], function(require, angular) {
             }
         };
         //移除收藏
-        $scope.removeFavor = function(rid ,rtype){
+        $scope.removeFavor = function(rid ,rtype, i){
             var url ='/rest/site/fe/user/favor/remove?site=' + siteId + '&id=' + rid + '&type=' + rtype;
             $http.get(url).success(function(rsp){
-                $scope.list();
+                //$scope.list();
+                if (rsp.err_code != 0) {
+                    $scope.$root.errmsg = rsp.err_msg;
+                    return;
+                }
+                $scope.matters.splice(i,1);
+                $scope.page.total--;
             })
         }
         $scope.list();

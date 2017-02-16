@@ -14,6 +14,7 @@
             html,body,.container{height:100%;width:100%}
             body{font-family:"Microsoft YaHei","HSimHei";}
             .row-my{
+                margin-top: 1em;
                 padding: 0 6em;
             }
             .row-my .mission{
@@ -31,16 +32,13 @@
             }
             /*app*/
             .media-my{
-                margin-bottom: 2em;
+                margin-top: 2em;
                 background: #FFFFFF;
                 padding: 1em;
                 cursor: pointer;
             }
             .media-my .mission{
                 margin-top: 1em;
-            }
-            .media-my .mission button{
-                margin-top: -.5em;
             }
 
         </style>
@@ -49,114 +47,39 @@
     <body>
         <div class="loading"><div class='loading-indicator'><i></i></div></div>
         <div class="container" ng-app="app" ng-controller='ctrlFav'>
-            <ul class='list-group'>
-                <li class='list-group-item' ng-repeat="m in matters" ng-click="openMatter(m.matter_id,m.matter_type)"><span ng-bind="m.matter_title"></span></li>
-            </ul>
-            <!--自定义-->
             <!--pc端-->
-            <!--样式模板-->
-            <div class="row row-my" ng-if="state===0">
-                <div class="col-md-4 col-xs-6 ">
-                    <div class="thumbnail">
-                        <!--<img src="..." alt="...">-->
-                        <div class="caption">
-                            <h4>Thumbnail label</h4>
-                            <p class="text-justify">详情: justo odio, dapibus ac facilisis in, egestas eget quam. Donec id elit non mi porta gravida at eget metus. Nullam id dolor id nibh ultricies </p>
-                            <h5 class="mission">
-                                <span>项目名称</span>
-                                <span class="pull-right">创建日期</span>
-                            </h5>
-                            <p>
-                                <a href="#" class="btn btn-default" role="button" ng-click="openMatter(m.matter_id,m.matter_type)">详情</a>
-                                <!--收藏+取消收藏参看单图文-->
-                                <a href="#" class="btn btn-default" role="button" ng-click="">取消收藏</a>
-                            </p>
+            <div class="row-my" ng-if="state===0">
+                <h3>我的收藏</h3>
+                <div class="row">
+                    <div class="col-md-4 col-xs-6 " ng-repeat="m in matters">
+                        <div class="thumbnail">
+                            <!--<img src="..." alt="...">-->
+                            <div class="caption">
+                                <h4 ng-bind="m.matter_title"></h4>
+                                <p class="text-justify text-summary">详情: justo odio, dapibus ac facilisis in, egestas eget quam. Donec id elit non mi porta gravida at eget metus. Nullam id dolor id nibn mi porta gravida at eget metus. Nullam id dolor id nibh ultricies </p>
+                                <h5 class="mission">
+                                    <span>项目名称</span>
+                                    <!--<span class="pull-right">创建日期</span>-->
+                                    <span class="pull-right" ng-bind="m.favor_at|date:'yy-MM-dd'"></span>
+                                </h5>
+                                <p>
+                                    <button type="button" class="btn btn-default" role="button" ng-click="openMatter(m.matter_id,m.matter_type)">详情</button>
+                                    <!--收藏+取消收藏参看单图文-->
+                                    <button type="button" class="btn btn-default" role="button" ng-click="removeFavor(m.matter_id,m.matter_type,$index)">取消收藏</button>
+                                </p>
+                            </div>
                         </div>
                     </div>
                 </div>
-                <div class="col-md-4 col-xs-6 ">
-                    <div class="thumbnail">
-                        <!--<img src="..." alt="...">-->
-                        <div class="caption">
-                            <h4>Thumbnail label</h4>
-                            <p class="text-justify">详情: justo odio, dapibus ac facilisis in, egestas eget quam. Donec id elit non mi porta gravida at eget metus. Nullam id dolor id nibh ultricies </p>
-                            <h5 class="mission">
-                                <span>项目名称</span>
-                                <span class="pull-right">创建日期</span>
-                            </h5>
-                            <p>
-                                <a href="#" class="btn btn-default" role="button" ng-click="openMatter(m.matter_id,m.matter_type)">详情</a>
-                                <!--收藏+取消收藏参看单图文-->
-                                <a href="#" class="btn btn-default" role="button" ng-click="">取消收藏</a>
-                            </p>
-                        </div>
-                    </div>
-                </div>
-                <div class="col-md-4 col-xs-6">
-                    <div class="thumbnail">
-                        <!--<img src="..." alt="...">-->
-                        <div class="caption">
-                            <h4>Thumbnail label</h4>
-                            <p class="text-justify">详情: justo odio, dapibus ac facilisis in, egestas eget quam. Donec id elit non mi porta gravida at eget metus. Nullam id dolor id nibh ultricies </p>
-                            <h5 class="mission">
-                                <span>项目名称</span>
-                                <span class="pull-right">创建日期</span>
-                            </h5>
-                            <p>
-                                <a href="#" class="btn btn-default" role="button" ng-click="openMatter(m.matter_id,m.matter_type)">详情</a>
-                                <!--收藏+取消收藏参看单图文-->
-                                <a href="#" class="btn btn-default" role="button" ng-click="">取消收藏</a>
-                            </p>
-                        </div>
-                    </div>
-                </div>
-            </div>
-            <!--绑定信息-->
-            <div class="row row-my" ng-if="state===0">
-                <div class="col-md-4 col-xs-6 " ng-repeat="m in matters">
-                    <div class="thumbnail">
-                        <!--<img src="..." alt="...">-->
-                        <div class="caption">
-                            <h4 ng-bind="m.matter_title"></h4>
-                            <p class="text-justify text-summary">详情: justo odio, dapibus ac facilisis in, egestas eget quam. Donec id elit non mi porta gravida at eget metus. Nullam id dolor id nibn mi porta gravida at eget metus. Nullam id dolor id nibh ultricies </p>
-                            <h5 class="mission">
-                                <span>项目名称</span>
-                                <!--<span class="pull-right">创建日期</span>-->
-                                <span class="pull-right" ng-bind="m.favor_at|date:'yy-MM-dd'"></span>
-                            </h5>
-                            <p>
-                                <button type="button" class="btn btn-default" role="button" ng-click="openMatter(m.matter_id,m.matter_type)">详情</button>
-                                <!--收藏+取消收藏参看单图文-->
-                                <button type="button" class="btn btn-default" role="button" ng-click="removeFavor(m.matter_id,m.matter_type)">取消收藏</button>
-                            </p>
-                        </div>
-                    </div>
+                <div class='col-md-12'>
+                    <span style='height:34px;line-height:34px'>总数：{{page.total}}</span>
+                    <ul uib-pagination style="margin:0;vertical-align:bottom;cursor:pointer" class='pull-right' ng-show="page.total>page.size" boundary-links="true" total-items="page.total" max-size="7" items-per-page="page.size" rotate="false" ng-model="page.at" previous-text="&lsaquo;" next-text="&rsaquo;" first-text="&laquo;" last-text="&raquo;" ng-change="list()"></ul>
                 </div>
             </div>
             <!--手机端-->
             <div ng-if="state===1">
-                <!--样式模板-->
-                <div class="media-my">
-
-                    <div class="media" ng-click="">
-                        <div class="media-left media-left-my">
-                            <!--<a href="#">-->
-                            <img class="media-object img-responsive"  src="http://xinxintong.oss-cn-hangzhou.aliyuncs.com/61b2674ecda5e81157bad5e29dc04c5d/%E5%9B%BE%E7%89%87/1DECD80DDF9828C466DC6F631028F7EC.jpg" alt="...">
-                            <!--</a>-->
-                        </div>
-                        <div class="media-body">
-                            <h4 class="media-heading">Media heading</h4>
-                            <p class="text-justify text-summary">详情: juvida at eget metus. Nullam id dolor id n</p>
-                        </div>
-                    </div>
-                    <p class="mission">
-                        <span >创建日期</span>
-                        <!--收藏+取消收藏参看单图文-->
-                        <button  type="button" class="btn btn-default pull-right" role="button" ng-click="removeFovor(m)">取消收藏</button>
-                    </p>
-                </div>
-                <!--绑定信息-->
-                <div class=" media-my" ng-repeat="m in matters">
+                <h3>我的收藏</h3>
+                <div class="media-my" ng-repeat="m in matters">
                     <div class="media"  ng-click="openMatter(m.matter_id,m.matter_type)">
                         <div class="media-left media-left-my" ng-if="m.matter_pic">
                             <!--<a href="#">-->
@@ -171,8 +94,12 @@
                     <p class="mission">
                         <span ng-bind="m.favor_at|date:'yy-MM-dd'"></span>
                         <!--收藏+取消收藏参看单图文-->
-                        <button  type="button" class="btn btn-default pull-right" role="button" ng-click="removeFavor(m.matter_id,m.matter_type)">取消收藏</button>
+                        <button  type="button" class="btn btn-xs btn-default  pull-right" role="button" ng-click="removeFavor(m.matter_id,m.matter_type,$index)">取消收藏</button>
                     </p>
+                </div>
+                <div class='col-md-12'>
+                    <span style='height:34px;line-height:34px'>总数：{{page.total}}</span>
+                    <ul uib-pagination style="margin:0;vertical-align:bottom;cursor:pointer" class='pull-right' ng-show="page.total>page.size" boundary-links="true" total-items="page.total" max-size="3" items-per-page="page.size" rotate="false" ng-model="page.at" previous-text="&lsaquo;" next-text="&rsaquo;" first-text="&laquo;" last-text="&raquo;" ng-change="list()"></ul>
                 </div>
             </div>
         </div>

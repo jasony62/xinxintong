@@ -33,11 +33,14 @@ ngApp.provider.controller('ctrlBasic', ['$scope', '$http', 'PageUrl', function($
         posted.verified = pass;
         submit(ek, posted);
     };
-    $scope.update = function(prop) {
+    $scope.update = function() {
         var ek = $scope.editing.enroll_key,
             posted = {};
-
-        posted[prop] = $scope.editing[prop];
+        posted = {
+            comment:$scope.editing.comment,
+            data:$scope.editing.data,
+            tags:$scope.editing.tags
+        }
         submit(ek, posted);
     };
 }]);

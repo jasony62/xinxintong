@@ -1,4 +1,5 @@
 #records{margin-bottom:60px;}
+ul{padding-left:0;}
 @media screen and (max-width:768px){
 	table thead{display:none;}
 	.table-bordered{background:#ddd;border:0;border-collapse:separate;-webkit-border-vertical-spacing:10px;}

@@ -74,7 +74,6 @@
                     <textarea class='form-control'  ng-switch-when="longtext" ng-model="editing.data[schema.id]"></textarea>
                     <div ng-switch-when="date">
                         <tms-datepicker class='tms-datepicker' tms-title='时间' tms-obj="rnd" tms-date="editing.data[schema.id]" tms-state="signinAt"></tms-datepicker>
-                        <!-- {{editing.data[schema.id]*1000|date:'yy-MM-dd hh:mm'}} -->
                     </div>
                     <select class='form-control'  ng-switch-when="single" ng-model="editing.data[schema.id]" ng-options="op.v as op.l for op in schema.ops">
                         <option></option>
@@ -85,7 +84,8 @@
                     <ul ng-switch-when="multiple">
                         <li class='checkbox' ng-repeat="op in schema.ops">
                             <label>
-                                <input type="checkbox" name="{{schema.id}}"  ng-model="editing.data[schema.id][op.v]" /><span>{{op.l}}</span></label>
+                                <input type="checkbox" name="{{schema.id}}"  ng-model="editing.data[schema.id][op.v]" /><span>{{op.l}}</span>
+                            </label>
                         </li>
                     </ul>
                     <div ng-switch-when="score">
@@ -131,15 +131,19 @@
             </div>
             <div class="form-group">
                 <label>备注</label>
-                <div class='input-group'>
+                <div>
                     <textarea class='form-control' ng-model="editing.comment" style="border-radius:4px"></textarea>
-                    <div class='input-group-btn' style='padding-left:8px'>
-                        <button class='btn btn-success' ng-click="update('comment')" style="border-radius:4px">保存</button>
-                    </div>
                 </div>
             </div>
+            <!-- <div class="form-group">
+                <label>标签</label>
+                <div>
+                    <combox evt-prefix='tag' existing='editing.tags' options='tags'></combox>
+                </div>
+            </div> -->
             <hr>
             <div class="form-group">
+                <button class='btn btn-success' ng-click="update()">保存</button>
                 <button class='btn btn-success' ng-click="back()">返回</button>
             </div>
         </div>

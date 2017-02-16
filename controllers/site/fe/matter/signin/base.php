@@ -31,7 +31,8 @@ class base extends \site\fe\matter\base {
 	 * @param object $app
 	 * @param boolean $redirect
 	 */
-	protected function checkEntryRule(&$user, $siteId, &$app, $redirect = false, &$round = null) {
+	protected function checkEntryRule($siteId, &$app, $redirect = false, &$round = null) {
+		$user = $this->who;
 		$entryRule = $app->entry_rule;
 		$modelRec = $this->model('matter\signin\record');
 		if ($signinLog = $modelRec->userSigned($user, $siteId, $app, $round)) {

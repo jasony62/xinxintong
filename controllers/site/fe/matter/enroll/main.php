@@ -178,7 +178,7 @@ class main extends base {
 
 		if ($oOpenPage === null) {
 			// 根据进入规则确定进入页面
-			$page = $this->checkEntryRule($site, $app, $user, $redirect);
+			$page = $this->checkEntryRule($site, $app, $redirect);
 			$oOpenPage = $modelPage->byName($app->id, $page);
 		}
 

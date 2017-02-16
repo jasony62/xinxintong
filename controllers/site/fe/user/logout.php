@@ -3,7 +3,7 @@ namespace site\fe\user;
 
 require_once dirname(dirname(__FILE__)) . '/base.php';
 /**
- * 站点用户退出
+ * 站点注册用户退出登录状态
  */
 class logout extends \site\fe\base {
 
@@ -15,12 +15,12 @@ class logout extends \site\fe\base {
 		return $rule_action;
 	}
 	/**
-	 * 执行帐号注册
+	 * 执行退出登录状态
 	 */
 	public function do_action($redirect = 'N') {
 		/*更新cookie状态*/
 		$modelWay = $this->model('site\fe\way');
-		$modelWay->cleanCookieUser($this->siteId);
+		$modelWay->quitRegUser($this->siteId);
 		if ($redirect === 'Y') {
 			$referer = $_SERVER['HTTP_REFERER'];
 			$this->redirect($referer);

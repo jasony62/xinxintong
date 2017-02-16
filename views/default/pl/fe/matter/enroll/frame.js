@@ -1,5 +1,4 @@
-define(['require', 'enrollService'
-], function(require) {
+define(['require', 'enrollService'], function(require) {
     'use strict';
     var ngApp = angular.module('app', ['ngRoute', 'frapontillo.bootstrap-switch', 'ui.tms', 'tmplshop.ui.xxt', 'service.matter', 'service.enroll', 'tinymce.enroll', 'ui.xxt', 'channel.fe.pl']);
     ngApp.constant('cstApp', {

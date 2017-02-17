@@ -2,7 +2,7 @@
     <label class='col-md-{{labelSpan}} control-label' ng-if='labelSpan'>{{title||'访问控制'}}</label>
     <div ng-class="{'col-md-{{controlSpan}}':controlSpan}">
         <div class='checkbox'>
-            <label><input type='checkbox' ng-disabled="disabled&&disabled==='Y'" ng-true-value="'Y'" ng-false-value="'N'" ng-model="obj[propAccess]" ng-change="setAccessControl()">{{label||'仅限认证用户访问'}}</label>
+            <label><input type='checkbox' ng-disabled="disabled&&disabled==='Y'" ng-true-value="'Y'" ng-false-value="'N'" ng-model="obj[propAccess]" ng-change="setAccessControl()">{{label||'仅限通过自定义认证用户访问'}}</label>
         </div>
     </div>
 </div>

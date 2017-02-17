@@ -12,17 +12,16 @@ class round_model extends \TMS_MODEL {
 		$state = isset($options['state']) ? $options['state'] : false;
 		$page = isset($options['page']) ? $options['page'] : null;
 
-		$q = array(
+		$q = [
 			$fields,
 			'xxt_enroll_round',
 			"siteid='$siteId' and aid='$aid'",
-		);
+		];
 		$state && $q[2] .= " and state in($state)";
 
 		$q2 = ['o' => 'create_at desc'];
 
-		!empty($page) && $q2['r'] = ['o' => $page->num, 'l' => $page->size];
-
+		!empty($page) && $q2['r'] = ['o' => ($page->num - 1) * $page->size, 'l' => $page->size];
 		$rounds = $this->query_objs_ss($q, $q2);
 
 		return $rounds;

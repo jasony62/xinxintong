@@ -30,7 +30,7 @@ var LS = (function(fields) {
         j: j
     };
 })(['site', 'schema', 'debug']);
-ngApp = angular.module('app', []);
+var ngApp = angular.module('app', []);
 ngApp.config(['$controllerProvider', function($cp) {
     ngApp.provider = {
         controller: $cp.register
@@ -221,6 +221,9 @@ ngApp.controller('ctrlMember', ['$scope', '$http', '$timeout', '$q', function($s
             $scope.errmsg = text;
         });
         return deferred.promise;
+    };
+    $scope.gotoHome = function() {
+        location.href = '/rest/site/fe/user?site=' + siteId;
     };
     $scope.repeatPwd = (function() {
         return {

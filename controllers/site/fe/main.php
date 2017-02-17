@@ -43,4 +43,15 @@ class main extends base {
 
 		return new \ResponseData($param);
 	}
+	/**
+	 * 获得站点自定义用户定义
+	 *
+	 */
+	public function memberSchemalist_action() {
+		$modelSchema = $this->model('site\user\memberschema');
+
+		$schemas = $modelSchema->bySite($this->siteId, 'Y');
+
+		return new \ResponseData($schemas);
+	}
 }

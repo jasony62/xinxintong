@@ -6,24 +6,18 @@ th{text-align:center;}
         <table class='table table-bordered'>
             <thead>
                 <tr>
-                    <th>登录账号</th>
                     <th>昵称</th>
                     <th>来源</th>
-                    <th style='width:120px'>注册日期</th>
+                    <th style='width:120px'>创建日期</th>
                     <th style='width:60px'>积分</th>
-                    <th style='width:120px'>操作</th>
                 </tr>
             </thead>
             <tbody>
                 <tr ng-repeat='u in users'>
-                    <td ng-click="openProfile(u.uid)">{{u.uname}}</td>
-                    <td>{{u.nickname}}</td>
+                    <td><a href='' ng-click="openProfile(u.uid)">{{u.nickname}}</a></td>
                     <td>{{u.ufrom}}</td>
                     <td>{{u.reg_time*1000|date:'yy-MM-dd HH:mm'}}</td>
                     <td>{{u.coin}}</td>
-                    <td>
-                        <a href='javascript:void(0)' ng-click='resetPassword(u)'>重置口令</a>
-                    </td>
                 </tr>
             </tbody>
         </table>
@@ -33,22 +27,3 @@ th{text-align:center;}
         </div>
     </div>
 </div>
-<script type="text/ng-template" id="resetPassword.html">
-    <div class="modal-header">
-        <button class="close" type="button" ng-click="close()">×</button>
-        <h5 class="modal-title">重置口令</h5>
-    </div>
-    <div class="modal-body">
-        <form class="form-horizontal">
-            <div class="form-group">
-                <label class="col-md-2 control-label">新口令</label>
-                <div class="col-md-10">
-                    <input class="form-control" ng-model="data.password" readonly>
-                </div>
-            </div>
-        </form>
-    </div>
-    <div class="modal-footer">
-        <button class="btn btn-success" ng-click="ok()">重置</button>
-    </div>
-</script>

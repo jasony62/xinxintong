@@ -16,13 +16,10 @@ class favor extends \site\fe\base {
 	/**
 	 * 返回当前用户收藏的素材,增加了素材的标题、头图、摘要
 	 */
-	public function list_action($page = 1, $size = 10) {
-		if (false === ($userid = $this->who->uid)) {
-			return new \ResponseTimeout();
-		}
+	public function list_action($page = 1, $size = 10) {		
 
 		$model = $this->model();
-		
+		$userid = $this->who->uid;
 		$q = array(
 			'id,favor_at,matter_id,matter_type,matter_title',
 			'xxt_site_favor',
@@ -44,7 +41,7 @@ class favor extends \site\fe\base {
 			$v->data=$d;
 			$b[$k]=$v;
 		}
-		if($b){
+		if(isset($b)){
 			$matters=(object)$b;
 		}
 		$result = new \stdClass;

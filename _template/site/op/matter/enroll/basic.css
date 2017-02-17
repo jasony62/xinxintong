@@ -1,4 +1,5 @@
 #records{margin-bottom:60px;}
+ul{padding-left:0;}
 @media screen and (max-width:768px){
 	table thead{display:none;}
 	.table-bordered{background:#ddd;border:0;border-collapse:separate;-webkit-border-vertical-spacing:10px;}
@@ -12,3 +13,10 @@
 }
 .notice{color:red;}
 .navbar-form .form-control{display:inline-block;width:auto;}
+/* img tiles */
+ul{padding-left:0}
+ul.img-tiles li{position:relative;display:inline-block;overflow:hidden;width:80px;height:80px;margin:0px;padding:0px;float:left}
+ul.img-tiles li.img-thumbnail img{display:inline-block;position:absolute}
+ul.img-tiles li.img-thumbnail button{position:absolute;top:0;right:0}
+ul.img-tiles li.img-picker button{position:auto;width:100%;height:100%}
+ul.img-tiles li.img-picker button span{font-size:36px}

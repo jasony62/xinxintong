@@ -15,7 +15,7 @@ class favor extends \site\fe\base {
 	}
 	/**
 	 * 返回当前用户收藏的素材,增加了素材的标题、头图、摘要
-	 * 有mission_id的素材类型article，enroll
+	 * 
 	 */
 	public function list_action($page = 1, $size = 10) {		
 

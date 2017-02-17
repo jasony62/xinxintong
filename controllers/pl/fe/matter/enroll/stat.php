@@ -106,8 +106,7 @@ class stat extends \pl\fe\matter\base {
 	 *
 	 * 只统计single/multiple类型的数据项
 	 *
-	 * return
-	 * name => array(l=>label,c=>count)
+	 * @return array name => array(l=>label,c=>count)
 	 *
 	 */
 	public function get_action($site, $app, $renewCache = 'Y') {

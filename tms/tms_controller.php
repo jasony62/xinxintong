@@ -80,6 +80,9 @@ class TMS_CONTROLLER {
 		if (!$domain and G_COOKIE_DOMAIN) {
 			$domain = G_COOKIE_DOMAIN;
 		}
+
+		$_COOKIE[G_COOKIE_PREFIX . $name] = $value;
+
 		return setcookie(G_COOKIE_PREFIX . $name, $value, $expire, $path, $domain, $secure);
 	}
 	/**

@@ -105,7 +105,7 @@ class users extends \pl\fe\matter\base {
 				$options['enroll_key'] = $record->enroll_key;
 				$options['data'] = $record->data;
 
-				$this->model()->insert('xxt_wall_enroll',$options,false);
+				$this->model()->insert('xxt_wall_enroll', $options, false);
 			}
 		}
 
@@ -180,7 +180,7 @@ class users extends \pl\fe\matter\base {
 				$options['enroll_key'] = $record->enroll_key;
 				$options['data'] = $record->data;
 
-				$this->model()->insert('xxt_wall_enroll',$options,false);
+				$this->model()->insert('xxt_wall_enroll', $options, false);
 			}
 		}
 		$num = count($records);
@@ -192,7 +192,7 @@ class users extends \pl\fe\matter\base {
 	 * @param string $wall
 	 * @param string $app
 	 */
-	public function export_action($id, $app, $onlySpeaker = 'N',$site) {
+	public function export_action($id, $app, $onlySpeaker = 'N', $site) {
 
 		$q = array(
 			'userid,wx_openid,yx_openid,qy_openid,nickname',
@@ -210,25 +210,25 @@ class users extends \pl\fe\matter\base {
 	/**
 	 * 将所有用户退出信息墙
 	 */
-	public function quit_action($id,$eid = null) {
+	public function quit_action($id, $eid = null) {
 		if (false === ($user = $this->accountUser())) {
 			return new \ResponseTimeout();
 		}
-		if(empty($eid)){
+		if (empty($eid)) {
 			/**
 			 * 清除所有加入的人
 			 */
 			$rst = $this->model()->delete('xxt_wall_enroll', "wid='$id'");
-			
+
 			/**
-			*解除关联活动
-			*/
+			 *解除关联活动
+			 */
 			$this->model()->update(
-					'xxt_wall',
-					array('data_schemas' => '','source_app' => ''),
-					"id='{$id}'"
-				);
-		}else{
+				'xxt_wall',
+				array('data_schemas' => '', 'source_app' => ''),
+				"id='{$id}'"
+			);
+		} else {
 			/**
 			 * 清除某一个用户
 			 */
@@ -344,7 +344,7 @@ class users extends \pl\fe\matter\base {
 					];
 					$record = $this->model()->query_obj_ss($q);
 					if ($record === false) {
-						$this->model()->insert('xxt_wall_enroll',$options,false);
+						$this->model()->insert('xxt_wall_enroll', $options, false);
 					}
 				} else {
 					// 删除用户
@@ -359,29 +359,29 @@ class users extends \pl\fe\matter\base {
 		return count($records);
 	}
 	/**
-	*手动导入用户
-	*/
-	public function importSns_action($site, $type, $page = 1, $size = 20){
+	 *手动导入用户
+	 */
+	public function importSns_action($site, $type, $page = 1, $size = 20) {
 		$params = $this->getPostJson();
 		$users = array();
-		if(isset($params->dept) && !empty($params->dept) && $type === 'qy'){
+		if (isset($params->dept) && !empty($params->dept) && $type === 'qy') {
 			/**
-			*筛选导入的用户
-			*/
+			 *筛选导入的用户
+			 */
 			$name = $this->model()->escape($params->dept);
 			$q = array(
 				'fullpath',
 				'xxt_site_member_department',
-				"siteid = '$site' and name like '%".$name."%'"
-				);
+				"siteid = '$site' and name like '%" . $name . "%'",
+			);
 			// $total = 0;
-			if($depts = $this->model()->query_objs_ss($q)){
+			if ($depts = $this->model()->query_objs_ss($q)) {
 				foreach ($depts as $dept) {
-					$dept = explode(',',$dept->fullpath);
+					$dept = explode(',', $dept->fullpath);
 					$fullpath = json_encode($dept);
 					// $result = $this->userList($site, $type, $page, $size, array('choose'=>$fullpath));
-					$result = $this->userList($site, $type, 1, 1000, array('choose'=>$fullpath));
-					if($result){
+					$result = $this->userList($site, $type, 1, 1000, array('choose' => $fullpath));
+					if ($result) {
 						foreach ($result->users as $user) {
 							$users['fans'][] = $user;
 						}
@@ -391,9 +391,9 @@ class users extends \pl\fe\matter\base {
 			}
 			$users['choose'] = $name;
 			// $users['total'] = $total;
-		}else{
+		} else {
 			$result = $this->userList($site, $type, $page, $size);
-			if($result){
+			if ($result) {
 				$users['fans'] = $result->users;
 				$users['total'] = $result->total;
 			}
@@ -402,49 +402,49 @@ class users extends \pl\fe\matter\base {
 		return new \ResponseData($users);
 	}
 	/**
-	*
-	*/
-	public function userList($site, $type, $page = 1, $size = 20, $options = []){
+	 *
+	 */
+	public function userList($site, $type, $page = 1, $size = 20, $options = []) {
 		$result = new \stdClass;
 		$q = array(
 			'openid,nickname,headimgurl',
-			'xxt_site_'.$type.'fan',
-			"siteid = '{$site}' and subscribe_at>0 and unsubscribe_at=0 and forbidden='N'"
-			);
+			'xxt_site_' . $type . 'fan',
+			"siteid = '{$site}' and subscribe_at>0 and unsubscribe_at=0 and forbidden='N'",
+		);
 		$q2['o'] = 'subscribe_at';
 		$q2['r']['o'] = ($page - 1) * $size;
 		$q2['r']['l'] = $size;
 
-		if($type === 'qy'){
+		if ($type === 'qy') {
 			$q[0] .= ",depts";
 			$q2['o'] = 'depts';
 		}
 		//企业号部门筛选
-		$choose = isset($options['choose'])?$options['choose']:'';
-		if($type === 'qy' && !empty($choose)){
-			$q[2] .= " and depts like '%".$choose."%'";
+		$choose = isset($options['choose']) ? $options['choose'] : '';
+		if ($type === 'qy' && !empty($choose)) {
+			$q[2] .= " and depts like '%" . $choose . "%'";
 		}
 
-		if($users = $this->model()->query_objs_ss($q, $q2)){
-			if($type === 'qy'){
+		if ($users = $this->model()->query_objs_ss($q, $q2)) {
+			if ($type === 'qy') {
 				//加入部门信息
 				foreach ($users as $user) {
-					$depts=json_decode($user->depts);
-					if(!empty($depts)){
+					$depts = json_decode($user->depts);
+					if (!empty($depts)) {
 						$deptNames = array();
-						foreach($depts as $dept){
-							$dept2=implode($dept,',');
+						foreach ($depts as $dept) {
+							$dept2 = implode($dept, ',');
 							$p = array(
 								'name',
 								'xxt_site_member_department',
-								"siteid = '{$site}' and fullpath = '{$dept2}'"
-								);
+								"siteid = '{$site}' and fullpath = '{$dept2}'",
+							);
 							$deptName = $this->model()->query_obj_ss($p);
-							if($deptName){
-								$deptNames[]=$deptName->name;
+							if ($deptName) {
+								$deptNames[] = $deptName->name;
 							}
 						}
-						$user->deptNames = implode($deptNames,',');
+						$user->deptNames = implode($deptNames, ',');
 					}
 				}
 			}
@@ -452,17 +452,16 @@ class users extends \pl\fe\matter\base {
 			$total = (int) $this->model()->query_val_ss($q);
 			$result->users = $users;
 			$result->total = $total;
-		}else{
+		} else {
 			return $users;
 		}
 
 		return $result;
 	}
-
 	/**
-	*将选中用户加入信息墙
-	*/
-	public function userJoin_action($site, $app, $type){
+	 * 将选中用户加入信息墙
+	 */
+	public function userJoin_action($site, $app, $type) {
 		$params = $this->getPostJson();
 		$user2 = new \stdClass;
 		$modelSite = $this->model('site\user\account');
@@ -473,27 +472,30 @@ class users extends \pl\fe\matter\base {
 		$yxProxy = $wxProxy = $qyProxy = null;
 		foreach ($params as $user) {
 			switch ($type) {
-				case 'wx':
-					$user2->wx_openid = $user->openid;
-					break;
-				case 'yx':
-					$user2->yx_openid = $user->openid;
-					break;
-				case 'qy':
-					$user2->qy_openid = $user->openid;
-					break;
+			case 'wx':
+				$user2->wx_openid = $user->openid;
+				break;
+			case 'yx':
+				$user2->yx_openid = $user->openid;
+				break;
+			case 'qy':
+				$user2->qy_openid = $user->openid;
+				break;
 			}
 			$user2->nickname = $user->nickname;
 			$user2->headimgurl = $user->headimgurl;
-			if($uid = $modelSite->byOpenid($site, $type, $user->openid, array('fields'=>'uid'))){
-				$user2->userid = $uid->uid;
-			}else{
-				$user2->userid = '';
-			}
 
+			// if ($uid = $modelSite->byOpenid($site, $type, $user->openid, array('fields' => 'uid'))) {
+			// 	$user2->userid = $uid->uid;
+			// } else {
+			// 	$user2->userid = '';
+			// }
+			// added by yangyue: 一个openid可能对应多个userid
+
+			$user2->userid = '';
 			//加入讨论组
 			$reply = $this->model('matter\wall')->join($site, $app, $user2, 'import');
-			if($reply === $joinReply->join_reply){
+			if ($reply === $joinReply->join_reply) {
 				$num++;
 
 				/*发送消息通知*/
@@ -503,16 +505,16 @@ class users extends \pl\fe\matter\base {
 						"content" => $reply,
 					),
 				);
-				if($type === 'yx') {
+				if ($type === 'yx') {
 					if ($yxProxy === null) {
 						$yxConfig = $this->model('sns\yx')->bySite($site);
 						if ($yxConfig && $yxConfig->joined === 'Y') {
 							$yxProxy = $this->model('sns\yx\proxy', $yxConfig);
-						}else{
+						} else {
 							$yxProxy = false;
 						}
 					}
-					if($yxProxy !== false){
+					if ($yxProxy !== false) {
 						if ($yxConfig->can_p2p === 'Y') {
 							$rst = $yxProxy->messageSend($message, array($user->openid));
 						} else {
@@ -520,29 +522,29 @@ class users extends \pl\fe\matter\base {
 						}
 					}
 				}
-				if($type === 'wx'){	
+				if ($type === 'wx') {
 					if ($wxProxy === null) {
 						$wxConfig = $this->model('sns\wx')->bySite($site);
 						if ($wxConfig && $wxConfig->joined === 'Y') {
 							$wxProxy = $this->model('sns\wx\proxy', $wxConfig);
-						}else{
+						} else {
 							$wxProxy = false;
 						}
 					}
-					if($wxProxy !== false){
+					if ($wxProxy !== false) {
 						$rst = $wxProxy->messageCustomSend($message, $user->openid);
 					}
 				}
-				if($type === 'qy'){
+				if ($type === 'qy') {
 					if ($qyProxy === null) {
 						$qyConfig = $this->model('sns\qy')->bySite($site);
 						if ($qyConfig && $qyConfig->joined === 'Y') {
 							$qyProxy = $this->model('sns\qy\proxy', $qyConfig);
-						}else{
+						} else {
 							$qyProxy = false;
 						}
 					}
-					if($qyProxy !== false){
+					if ($qyProxy !== false) {
 						$message['touser'] = $user->openid;
 						$rst = $qyProxy->messageSend($message, $user->openid);
 					}

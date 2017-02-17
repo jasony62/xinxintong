@@ -21,9 +21,9 @@ class account extends \pl\fe\base {
 
 		$result = array();
 		$q = array(
-			'uid,uname,nickname,reg_time,ufrom,coin',
+			'uid,nickname,headimgurl,reg_time,ufrom,coin',
 			'xxt_site_account',
-			"siteid='{$site}' and uname<>''",
+			['siteid' => $site],
 		);
 		$q2['o'] = 'reg_time desc';
 		$q2['r']['o'] = ($page - 1) * $size;
@@ -39,26 +39,5 @@ class account extends \pl\fe\base {
 		}
 
 		return new \ResponseData($result);
-	}
-	/**
-	 * 重置用户口令
-	 */
-	public function resetPwd_action($site) {
-		if (false === ($user = $this->accountUser())) {
-			return new \ResponseTimeout();
-		}
-
-		$data = $this->getPostJson();
-
-		$modelMem = $this->model('site\user\account');
-
-		$user = $modelMem->byId($data->userid);
-		if (empty($user->salt)) {
-			return new \ResponseError('用户没有设置过口令，不允许重置口令');
-		}
-
-		$rst = $modelMem->changePwd($site, $user->uname, $data->password, $user->salt);
-
-		return new \ResponseData($rst);
 	}
 }

@@ -100,7 +100,7 @@ class main extends \pl\fe\matter\base {
 		} else {
 			$modelMis = $this->model('matter\mission');
 			$mission = $modelMis->byId($mission);
-			$newapp['summary'] = $modelApp->escapse($mission->summary);
+			$newapp['summary'] = $modelApp->escape($mission->summary);
 			$newapp['pic'] = $mission->pic;
 			$newapp['mission_id'] = $mission->id;
 			$newapp['use_mission_header'] = 'Y';
@@ -113,11 +113,11 @@ class main extends \pl\fe\matter\base {
 		$newapp['scenario'] = $scenario;
 		$newapp['creater'] = $user->id;
 		$newapp['creater_src'] = $user->src;
-		$newapp['creater_name'] = $modelApp->escapse($user->name);
+		$newapp['creater_name'] = $modelApp->escape($user->name);
 		$newapp['create_at'] = $current;
 		$newapp['modifier'] = $user->id;
 		$newapp['modifier_src'] = $user->src;
-		$newapp['modifier_name'] = $modelApp->escapse($user->name);
+		$newapp['modifier_name'] = $modelApp->escape($user->name);
 		$newapp['modify_at'] = $current;
 		$modelApp->insert('xxt_group', $newapp, false);
 		$app = $modelApp->byId($appId);
@@ -160,18 +160,18 @@ class main extends \pl\fe\matter\base {
 		$newapp['id'] = $newaid;
 		$newapp['creater'] = $user->id;
 		$newapp['creater_src'] = $user->src;
-		$newapp['creater_name'] = $modelApp->escapse($user->name);
+		$newapp['creater_name'] = $modelApp->escape($user->name);
 		$newapp['create_at'] = $current;
 		$newapp['modifier'] = $user->id;
 		$newapp['modifier_src'] = $user->src;
-		$newapp['modifier_name'] = $modelApp->escapse($user->name);
+		$newapp['modifier_name'] = $modelApp->escape($user->name);
 		$newapp['modify_at'] = $current;
-		$newapp['title'] = $modelApp->escapse($copied->title) . '（副本）';
+		$newapp['title'] = $modelApp->escape($copied->title) . '（副本）';
 		$newapp['pic'] = $copied->pic;
-		$newapp['summary'] = $modelApp->escapse($copied->summary);
+		$newapp['summary'] = $modelApp->escape($copied->summary);
 		$newapp['scenario'] = $copied->scenario;
-		$newapp['data_schemas'] = $modelApp->escapse($copied->data_schemas);
-		$newapp['group_rule'] = $modelApp->escapse($copied->group_rule);
+		$newapp['data_schemas'] = $modelApp->escape($copied->data_schemas);
+		$newapp['group_rule'] = $modelApp->escape($copied->group_rule);
 		if (!empty($mission)) {
 			$newapp['mission_id'] = $mission;
 		}

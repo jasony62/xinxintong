@@ -1,7 +1,6 @@
-define(['require', 'enrollService'
-], function(require) {
+define(['require', 'enrollService'], function(require) {
     'use strict';
-    var ngApp = angular.module('app', ['ngRoute', 'frapontillo.bootstrap-switch', 'ui.tms', 'tmplshop.ui.xxt', 'service.matter', 'service.enroll', 'tinymce.enroll', 'ui.xxt', 'channel.fe.pl']);
+    var ngApp = angular.module('app', ['ngRoute', 'frapontillo.bootstrap-switch', 'ui.tms', 'tmplshop.ui.xxt', 'service.matter', 'service.enroll', 'tinymce.enroll', 'ui.xxt']);
     ngApp.constant('cstApp', {
         notifyMatter: [{
             value: 'tmplmsg',
@@ -96,6 +95,12 @@ define(['require', 'enrollService'
         })();
     }]);
     ngApp.controller('ctrlFrame', ['$scope', 'srvSite', 'srvApp', 'templateShop', function($scope, srvSite, srvApp, templateShop) {
+        $scope.scenarioNames = {
+            'common': '通用登记',
+            'registration': '报名',
+            'voting': '投票',
+            'group_week_report': '周报'
+        };
         $scope.viewNames = {
             'main': '活动定义',
             'publish': '发布预览',

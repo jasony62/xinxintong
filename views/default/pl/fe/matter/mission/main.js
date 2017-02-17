@@ -235,9 +235,12 @@ define(['frame'], function(ngApp) {
             }
         });
     }]);
-    ngApp.provider.controller('ctrlOpUrl', ['$scope', 'http2', 'srvQuickEntry', function($scope, http2, srvQuickEntry) {
+    ngApp.provider.controller('ctrlOpUrl', ['$scope', 'http2', 'srvQuickEntry', '$timeout', function($scope, http2, srvQuickEntry, timeout) {
         var targetUrl;
         $scope.opEntry = {};
+        timeout(function() {
+            new ZeroClipboard(document.querySelectorAll('.text2Clipboard'));
+        });
         $scope.$watch('mission', function(mission) {
             if (!mission) return;
             targetUrl = mission.opUrl;

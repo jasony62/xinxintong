@@ -26,6 +26,47 @@ ngApp.provider.controller('ctrlBasic', ['$scope', '$http', 'PageUrl', 'srvRecord
         record.aTags = (!record.tags || record.tags.length === 0) ? [] : record.tags.split(',');
         $scope.editing = record;
     };
+    function _chooseImage(imgFieldName) {
+        var defer = $q.defer();
+        if (imgFieldName !== null) {
+            var ele = document.createElement('input');
+            ele.setAttribute('type', 'file');
+            ele.addEventListener('change', function(evt) {
+                var i, cnt, f, type;
+                cnt = evt.target.files.length;
+                for (i = 0; i < cnt; i++) {
+                    f = evt.target.files[i];
+                    type = {
+                        ".jp": "image/jpeg",
+                        ".pn": "image/png",
+                        ".gi": "image/gif"
+                    }[f.name.match(/\.(\w){2}/g)[0] || ".jp"];
+                    f.type2 = f.type || type;
+                    var reader = new FileReader();
+                    reader.onload = (function(theFile) {
+                        return function(e) {
+                            var img = {};
+                            img.imgSrc = e.target.result.replace(/^.+(,)/, "data:" + theFile.type2 + ";base64,");
+                            defer.resolve(img);
+                        };
+                    })(f);
+                    reader.readAsDataURL(f);
+                }
+            }, false);
+            ele.click();
+        }
+        return defer.promise;
+    }
+    $scope.chooseImage = function(fieldName) {
+        var data = $scope.editing.data;
+        _chooseImage(fieldName).then(function(img) {
+            !data[fieldName] && (data[fieldName] = []);
+            data[fieldName].push(img);
+        });
+    };
+    $scope.removeImage = function(field, index) {
+        field.splice(index, 1);
+    };
     $scope.back = function() {
         location.href = '/rest/site/op/matter/enroll?site=' + params;
     };

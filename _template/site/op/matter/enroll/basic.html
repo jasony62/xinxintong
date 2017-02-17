@@ -24,7 +24,7 @@
                             <span ng-switch-when="image" ng-init="imgs=r.data[schema.id].split(',')">
 								<img ng-repeat="img in imgs" ng-src='{{img}}' />
 							</span>
-                            <span ng-switch-when="file" ng-init="files=json2Obj(r.data[schema.id])">
+                            <span ng-switch-when="file" ng-init="files=r.data[schema.id]">
 								<span ng-repeat='file in files'><a href='{{file.url}}' target="_blank">{{file.name}}</a></span>
                             </span>
                             <span ng-switch-when="date">{{(r.data[schema.id]*1000)|date:'yy-MM-dd HH:mm'}}</span>

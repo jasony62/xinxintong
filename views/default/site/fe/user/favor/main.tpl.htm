@@ -58,13 +58,20 @@
         .col-my {
             padding: 0.5em;
         }
-
         .row-my .mission {
             margin-bottom: 1em;
             border-top: 1px solid #ddd;
             border-bottom: 1px solid #ddd;
             padding: .5em .5em;
             height: 2.5em;
+        }
+        .favor{
+            border-bottom: 1px solid transparent;
+            display: inline-block;
+            padding-bottom: .5em;
+        }
+        .unfavor{
+            border-color:  #9e0f0f;
         }
     </style>
 </head>
@@ -82,13 +89,12 @@
                     <div class="thumbnail" style="margin-bottom:0">
                         <!--<img src="..." alt="...">-->
                         <div class="caption">
-                            <h4 ng-bind="m.matter_title"></h4>
+                            <h4 class="favor" ng-bind="m.matter_title" ng-class="{'unfavor':m.favorOrUnfavo}"></h4>
                             <p class="text-justify text-summary" >{{m.data.summary}}</p>
                             <h5 class="mission">
                                 <span >项目名称</span>
                                 <span class="pull-right" ng-bind="m.favor_at|date:'yy-MM-dd'"></span>
                             </h5>
-
                             <p>
                                 <button type="button" class="btn btn-default" role="button"
                                         ng-click="openMatter(m.matter_id,m.matter_type)">详情
@@ -124,7 +130,7 @@
                     <!--</a>-->
                 </div>
                 <div class="media-body">
-                    <h4 class="media-heading" ng-bind="m.matter_title"></h4>
+                    <h4 class="media-heading favor"  ng-bind="m.matter_title" ng-class="{'unfavor':m.favorOrUnfavo}"></h4>
                     <p class="text-justify " ng-if="m.data.summary" >{{m.data.summary}}</p>
                 </div>
             </div>

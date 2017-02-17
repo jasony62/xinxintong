@@ -24,7 +24,9 @@ window.loading = {
                 "angular-sanitize":'/static/js/angular-sanitize.min',
                 "ui-bootstrap": '/static/js/ui-bootstrap-tpls.min',
                 "ui-tms": '/static/js/ui-tms',
+                "ui-xxt": '/static/js/xxt.ui',
                 "util.site": "/views/default/site/util",
+                "service.matter":'/views/default/pl/fe/_module/matter.service'
             },
             shim: {
                 "angular": {
@@ -35,8 +37,8 @@ window.loading = {
                 if (/jquery|bootstrap|domReady|angular/.test(id)) {
                     return '';
                 }
-                if(/tms/.test(id)){
-                    return "?_=4";
+                if(/xxt|tms|service/.test(id)){
+                    return "?_=1";
                 }
                 return "?bust=" + (timestamp * 1);
             },
@@ -47,7 +49,9 @@ window.loading = {
                     require(['angular-sanitize'], function() {
                         require(['ui-bootstrap'], function() {
                             require(['ui-tms'], function() {
-                                requirejs(['/views/default/site/op/matter/enroll/console.js']);
+                                require(['ui-xxt'], function() {
+                                    requirejs(['/views/default/site/op/matter/enroll/console.js']);
+                                });
                             });
                         });
                     });

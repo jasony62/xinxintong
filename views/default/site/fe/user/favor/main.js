@@ -46,16 +46,28 @@ define(['require', 'angular'], function(require, angular) {
             }
         };
         //移除收藏
-        $scope.removeFavor = function(rid ,rtype, i){
-            var url ='/rest/site/fe/user/favor/remove?site=' + siteId + '&id=' + rid + '&type=' + rtype;
+        $scope.unfavor = function(m,i){
+            var url ='/rest/site/fe/user/favor/remove?site=' + siteId + '&id=' + m.matter_id + '&type=' + m.matter_type;
             $http.get(url).success(function(rsp){
                 //$scope.list();
                 if (rsp.err_code != 0) {
                     $scope.$root.errmsg = rsp.err_msg;
                     return;
                 }
-                $scope.matters.splice(i,1);
-                $scope.page.total--;
+                m.favorOrUnfavo = true;
+                //$scope.matters.splice(i,1);
+                //$scope.page.total--;
+            })
+        };
+        $scope.favor = function(m){
+            var url ='/rest/site/fe/user/favor/add?site=' + siteId + '&id=' + m.matter_id + '&type=' + m.matter_type +'&title='+ m.matter_title;
+            $http.get(url).success(function(rsp){
+                //$scope.list();
+                if (rsp.err_code != 0) {
+                    $scope.$root.errmsg = rsp.err_msg;
+                    return;
+                }
+                m.favorOrUnfavo = false;
             })
         }
         $scope.list();

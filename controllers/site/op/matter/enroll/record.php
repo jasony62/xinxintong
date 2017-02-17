@@ -102,8 +102,6 @@ class record extends \site\op\base {
 						/*多选题*/
 						$cv = implode(',', array_keys(array_filter((array) $cv, function ($i) {return $i;})));
 						$dbData->{$cn} = $cv;
-					} else {
-						$dbData->{$cn} = $cv;
 					}
 					/*检查数据项是否存在，如果不存在就先创建一条*/
 					$q = array(

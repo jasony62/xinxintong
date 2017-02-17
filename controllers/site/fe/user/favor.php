@@ -15,6 +15,7 @@ class favor extends \site\fe\base {
 	}
 	/**
 	 * 返回当前用户收藏的素材,增加了素材的标题、头图、摘要
+	 * 有mission_id的素材类型article，enroll
 	 */
 	public function list_action($page = 1, $size = 10) {		
 
@@ -36,7 +37,6 @@ class favor extends \site\fe\base {
 			}else{
 				$type=$v->matter_type;
 			}
-			
 			$d=$this->model()->query_obj_ss(['id,title,summary,pic','xxt_'.$type,"siteid='$this->siteId' and id='$v->matter_id'"]);
 			$v->data=$d;
 			$b[$k]=$v;

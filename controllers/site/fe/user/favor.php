@@ -14,9 +14,11 @@ class favor extends \site\fe\base {
 		exit;
 	}
 	/**
-	 * 返回当前用户收藏的素材
+	 * 返回当前用户收藏的素材,增加了素材的标题、头图、摘要
+	 * 
 	 */
-	public function list_action($page = 1, $size = 10) {
+	public function list_action($page = 1, $size = 10) {		
+
 		$model = $this->model();
 		$userid = $this->who->uid;
 		$q = array(
@@ -29,6 +31,19 @@ class favor extends \site\fe\base {
 			'r' => array('o' => ($page - 1) * $size, $size, 'l' => $size),
 		);
 		$matters = $model->query_objs_ss($q, $q2);
+		foreach ($matters as $k => $v) {
+			if($v->matter_type=='custom'){
+				$type='article';	
+			}else{
+				$type=$v->matter_type;
+			}
+			$d=$this->model()->query_obj_ss(['id,title,summary,pic','xxt_'.$type,"siteid='$this->siteId' and id='$v->matter_id'"]);
+			$v->data=$d;
+			$b[$k]=$v;
+		}
+		if(isset($b)){
+			$matters=(object)$b;
+		}
 		$result = new \stdClass;
 		$result->matters = $matters;
 		if (empty($matters)) {

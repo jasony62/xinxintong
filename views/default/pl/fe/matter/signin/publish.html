@@ -248,6 +248,7 @@
                     <button class='btn btn-default' ng-if="!opEntry.url.length" ng-click="makeOpUrl()">生成</button>
                     <button class='btn btn-default' ng-if="opEntry.url.length" ng-click="closeOpUrl()">关闭</button>
                     <button uib-popover-template="'opUrlPasswd.html'" popover-append-to-body='true' popover-placement="bottom" popover-title="访问密码" popover-trigger="outsideClick" type="button" class="btn btn-default" class='btn btn-default' ng-if="opEntry.url.length">密码 <span class="caret"></span></button>
+                    <p ng-if="app.mission_id" class='help-block'>生成链接，本活动将出现在项目的结果展示页面中</p>
                 </div>
             </div>
         </uib-tab>

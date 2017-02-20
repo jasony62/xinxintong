@@ -22,6 +22,10 @@ define(['require', 'angular'], function(require, angular) {
         }
     }]);
     ngApp.controller('ctrlHistory', ['$scope', '$http', 'hisService', function($scope, $http, hisService) {
+        $scope.openApp = function(app) {
+            location.href = '/rest/site/fe/matter/' + app.matter_type + '?site=' + site + '&app=' + app.matter_id;
+        };
+        $scope.openMission = function(mission) {};
         $http.get('/rest/site/fe/get?site=' + site).success(function(rsp) {
             $scope.site = rsp.data;
             window.loading.finish();

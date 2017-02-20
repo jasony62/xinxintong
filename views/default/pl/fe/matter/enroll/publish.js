@@ -83,12 +83,16 @@ define(['frame'], function(ngApp) {
         });
         $scope.makeUrl = function() {
             srvQuickEntry.add(targetUrl).then(function(task) {
+                $scope.app.rp_short_url_code = task.code;
+                srvApp.update('rp_short_url_code');
                 $scope.reportEntry.url = 'http://' + location.host + '/q/' + task.code;
             });
         };
         $scope.closeUrl = function() {
             srvQuickEntry.remove(targetUrl).then(function(task) {
                 $scope.reportEntry.url = '';
+                $scope.app.rp_short_url_code = '';
+                srvApp.update('rp_short_url_code');
             });
         };
         $scope.configUrl = function(event, prop) {

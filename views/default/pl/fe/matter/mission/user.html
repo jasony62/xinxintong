@@ -22,11 +22,12 @@
     <div class='col-md-6' tms-flex-height top='72' bottom='135'>
         <div id='userRecords' tms-table-wrap ready='tmsTableWrapReady'>
             <table class='table table-bordered'>
+                <caption style='text-align:center'>用户名单</caption>
                 <thead>
                     <tr>
                         <th style='width:3em'></th>
                         <th style='width:100px'>登记时间</th>
-                        <th class='custom-col row' ng-repeat="c in userApp.data_schemas">{{c.title}}</th>
+                        <th class='custom-col row' ng-repeat="c in mission.userApp.data_schemas">{{c.title}}</th>
                         <th style='width:140px'>昵称</th>
                         <th style='width:80px'>审核通过</th>
                         <th style='width:140px' ng-if="app.tags.length">标签</th>
@@ -37,7 +38,7 @@
                     <tr ng-repeat='user in users' class='user' ng-class="{'active':user===activeUser}" ng-click="chooseUser(user)">
                         <td>{{(oUserPage.at-1)*oUserPage.size+$index+1}}</td>
                         <td>{{(user.enroll_at*1000)|date:'MM-dd HH:mm'}}</td>
-                        <td ng-repeat="c in userApp.data_schemas">
+                        <td ng-repeat="c in mission.userApp.data_schemas">
                             <span ng-if="c.type!=='image'&&c.type!=='file'&&c.type!=='date'" ng-bind-html="user._data[c.id]"></span>
                             <span ng-if="c.type==='image'">
                                 <img ng-repeat="img in user._data[c.id]" ng-src='{{img}}' />

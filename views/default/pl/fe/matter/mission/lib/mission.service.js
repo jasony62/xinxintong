@@ -18,7 +18,7 @@ define(['require'], function(require) {
                     http2.get(url, function(rsp) {
                         _oMission = rsp.data;
                         _oMission.extattrs = (_oMission.extattrs && _oMission.extattrs.length) ? JSON.parse(_oMission.extattrs) : {};
-                        _oMission.opUrl = 'http://' + location.host + '/rest/site/op/matter/mission?site=' + _oMission.siteid + '&_oMission=' + _oMission.id;
+                        _oMission.opUrl = 'http://' + location.host + '/rest/site/op/matter/mission?site=' + _oMission.siteid + '&mission=' + _oMission.id;
                         _getMissionDeferred.resolve(_oMission);
                     });
 

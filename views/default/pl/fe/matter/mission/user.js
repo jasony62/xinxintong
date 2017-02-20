@@ -130,7 +130,6 @@ define(['frame', 'enrollService'], function(ngApp) {
             if (userApp.data_schemas && angular.isString(userApp.data_schemas)) {
                 userApp.data_schemas = JSON.parse(userApp.data_schemas);
             }
-            $scope.userApp = userApp;
             srvRecord.init(userApp, _oUserPage, {}, _users);
             srvRecord.search(1).then(function(data) {});
         });

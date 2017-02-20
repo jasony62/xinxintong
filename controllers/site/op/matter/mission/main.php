@@ -11,7 +11,9 @@ class main extends \site\op\base {
 	 */
 	public function index_action($mission) {
 		$mission = $this->model('matter\mission')->byId($mission);
-		\TPL::assign('title', $mission->title);
+		if ($mission) {
+			\TPL::assign('title', $mission->title);
+		}
 		\TPL::output('site/op/matter/mission/main');
 		exit;
 	}
@@ -23,6 +25,9 @@ class main extends \site\op\base {
 		/* 项目定义 */
 		$modelMis = $this->model('matter\mission');
 		$mission = $modelMis->byId($mission);
+		if ($mission === false) {
+			return new \ResponseError('指定的对象不存在');
+		}
 		$params['mission'] = &$mission;
 		/* 页面定义 */
 		$templateDir = TMS_APP_TEMPLATE . '/site/op/matter/mission';

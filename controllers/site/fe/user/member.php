@@ -31,26 +31,6 @@ class member extends \site\fe\base {
 		exit;
 	}
 	/**
-	 * 进入选择认证接口页
-	 *
-	 * 如果被访问的页面支持多个认证接口，要求用户选择一种认证接口
-	 */
-	public function schemaOptions_action($site, $schema, $userid = null) {
-		$params = "siteid=$site";
-
-		$modelSch = $this->model('site\user\memberschema');
-		$aMemberSchemas = array();
-		$aSchemaIds = explode(',', $schema);
-		foreach ($aSchemaIds as $schemaId) {
-			$schema = $modelSch->byId($schemaId, 'id,name,url');
-			$schema->url .= "?siteid={$site}&schema={$schemaId}";
-			$aMemberSchemas[] = $schema;
-		}
-		\TPL::assign('schemas', $aMemberSchemas);
-		\TPL::output('/site/fe/user/schemaoptions');
-		exit;
-	}
-	/**
 	 * 获得页面定义
 	 */
 	public function pageGet_action($site, $schema) {

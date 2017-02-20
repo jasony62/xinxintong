@@ -376,7 +376,7 @@ class way_model extends \TMS_MODEL {
 	 */
 	public function quitRegUser() {
 		/*清除站点*/
-		$sites = $this->siteList();
+		$sites = $this->siteList(true);
 		$modelAct = $this->model('site\user\account');
 		foreach ($sites as $siteId) {
 			$cookieUser = $this->getCookieUser($siteId);
@@ -401,7 +401,7 @@ class way_model extends \TMS_MODEL {
 			$unbounds = [];
 			$unionid = false;
 			$modelAct = $this->model('site\user\account');
-			$sites = $this->siteList();
+			$sites = $this->siteList(true);
 			foreach ($sites as $siteId) {
 				$cookieUser = $this->getCookieUser($siteId);
 				$account = $modelAct->byId($cookieUser->uid);
@@ -502,7 +502,7 @@ class way_model extends \TMS_MODEL {
 
 		/* 处理cookie中已经存在的访客用户信息 */
 		$beforeCookieusers = [];
-		$sites = $this->siteList();
+		$sites = $this->siteList(true);
 		foreach ($sites as $siteId) {
 			$beforeCookieusers[$siteId] = $this->getCookieUser($siteId);
 		}
@@ -563,7 +563,7 @@ class way_model extends \TMS_MODEL {
 				if ($account) {
 					if (empty($account->unionid)) {
 						/* 作为关联访客账号绑定到注册账号 */
-						$modelAct->update('xxt_site_account', ['unionid' => $unionid], ['uid' => $beforeCookieuser->uid]);
+						$modelAct->update('xxt_site_account', ['unionid' => $registration->unionid], ['uid' => $beforeCookieuser->uid]);
 					} else {
 						if ($account->unionid !== $registration->unionid) {
 							/* 同一个站点，绑定了不同注册账号，从cookie中清除 */
@@ -614,11 +614,21 @@ class way_model extends \TMS_MODEL {
 	/**
 	 * 获得当前用户在平台对应的所有站点和站点访客用户信息
 	 */
-	public function &siteList() {
+	public function &siteList($onlyId = false) {
 		$sites = [];
 		foreach ($_COOKIE as $key => $val) {
 			if (preg_match('/xxt_site_(.*?)_fe_user/', $key, $matches)) {
-				$sites[] = $matches[1];
+				$siteId = $matches[1];
+				if ($onlyId === true) {
+					$sites[] = $siteId;
+				} else {
+					if (!isset($modelSite)) {
+						$modelSite = $this->model('site');
+					}
+					if ($site = $modelSite->byId($siteId, ['fields' => 'id,name'])) {
+						$sites[] = $site;
+					}
+				}
 			}
 		}
 

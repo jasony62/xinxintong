@@ -712,6 +712,13 @@ define(['require', 'schema', 'page'], function(require, schemaLib, pageLib) {
             return {
                 init: function(oApp, oPage, oCriteria, oRecords) {
                     _oApp = oApp;
+                    // schemas
+                    if (_oApp._schemasById === undefined) {
+                        _oApp._schemasById = {};
+                        _oApp.data_schemas.forEach(function(schema) {
+                            _oApp._schemasById[schema.id] = schema;
+                        });
+                    }
                     // pagination
                     _oPage = oPage;
                     angular.extend(_oPage, {
@@ -747,8 +754,8 @@ define(['require', 'schema', 'page'], function(require, schemaLib, pageLib) {
                     _aRecords.splice(0, _aRecords.length);
                     pageNumber && (_oPage.at = pageNumber);
                     url = '/rest/pl/fe/matter/enroll/record/list';
-                    url += '?site=' + _siteId;
-                    url += '&app=' + _appId;
+                    url += '?site=' + _oApp.siteid;
+                    url += '&app=' + _oApp.id;
                     url += _oPage.joinParams();
                     http2.post(url, _oCriteria, function(rsp) {
                         var records;

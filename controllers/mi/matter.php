@@ -227,25 +227,25 @@ class matter extends \member_base {
 		 * coin log
 		 * 投稿人分享不奖励积分
 		 */
-		$modelCoin = $this->model('coin\log');
-		if ($type === 'article') {
-			$contribution = $this->model('matter\article')->getContributionInfo($id);
-			if (!empty($contribution->openid) && $contribution->openid !== $logUser->openid) {
-				// for contributor
-				$action = 'app.' . $contribution->entry . '.article.share.' . $shareto;
-				$modelCoin->income($mpid, $action, $id, 'sys', $contribution->openid);
-			}
-			if (empty($contribution->openid) || $contribution->openid !== $logUser->openid) {
-				// for reader
-				$modelCoin->income($mpid, 'mp.matter.article.share.' . $shareto, $id, 'sys', $logUser->openid);
-			}
-		} else if ($type === 'enroll') {
-			$action = 'app.enroll,' . $id . '.share.' . $shareto;
-			$modelCoin->income($mpid, $action, $id, 'sys', $logUser->openid);
-		} else {
-			// for reader
-			$modelCoin->income($mpid, 'mp.matter.' . $type . '.share.' . $shareto, $id, 'sys', $logUser->openid);
-		}
+		// $modelCoin = $this->model('coin\log');
+		// if ($type === 'article') {
+		// 	$contribution = $this->model('matter\article')->getContributionInfo($id);
+		// 	if (!empty($contribution->openid) && $contribution->openid !== $logUser->openid) {
+		// 		// for contributor
+		// 		$action = 'app.' . $contribution->entry . '.article.share.' . $shareto;
+		// 		$modelCoin->income($mpid, $action, $id, 'sys', $contribution->openid);
+		// 	}
+		// 	if (empty($contribution->openid) || $contribution->openid !== $logUser->openid) {
+		// 		// for reader
+		// 		$modelCoin->income($mpid, 'mp.matter.article.share.' . $shareto, $id, 'sys', $logUser->openid);
+		// 	}
+		// } else if ($type === 'enroll') {
+		// 	$action = 'app.enroll,' . $id . '.share.' . $shareto;
+		// 	$modelCoin->income($mpid, $action, $id, 'sys', $logUser->openid);
+		// } else {
+		// 	// for reader
+		// 	$modelCoin->income($mpid, 'mp.matter.' . $type . '.share.' . $shareto, $id, 'sys', $logUser->openid);
+		// }
 
 		return new \ResponseData('ok');
 	}

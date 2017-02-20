@@ -37,15 +37,13 @@ class base extends \site\fe\base {
 			strpos($schema->url, 'http') === false && $authUrl = 'http://' . $_SERVER['HTTP_HOST'];
 			$authUrl .= $schema->url;
 			$authUrl .= "?site=$siteId";
-			!empty($userid) && $authUrl .= "&userid=$userid";
 			$authUrl .= "&schema=" . $aMemberSchemas[0];
 		} else {
 			/**
 			 * 让用户选择通过那个认证接口进行认证
 			 */
-			$authUrl = 'http://' . $_SERVER['HTTP_HOST'] . '/rest/site/fe/user/member/schemaOptions';
+			$authUrl = 'http://' . $_SERVER['HTTP_HOST'] . '/rest/site/fe/user/memberschema';
 			$authUrl .= "?site=$siteId";
-			!empty($userid) && $authUrl .= "&userid=$userid";
 			$authUrl .= "&schema=" . implode(',', $aMemberSchemas);
 		}
 		/**
@@ -172,15 +170,15 @@ class base extends \site\fe\base {
 			//根据openid查询粉丝表
 			$openid = $this->who->sns->qy->openid;
 			$p = array(
-						'siteid,openid,nickname,mobile,email,sync_at',
-						'xxt_site_qyfan',
-						"siteid='$siteId' and openid='$openid' and subscribe_at > 0 and unsubscribe_at = 0 ",
-					); 
+				'siteid,openid,nickname,mobile,email,sync_at',
+				'xxt_site_qyfan',
+				"siteid='$siteId' and openid='$openid' and subscribe_at > 0 and unsubscribe_at = 0 ",
+			);
 			$qySnsUser = $this->model()->query_obj_ss($p);
-			if($qySnsUser){
+			if ($qySnsUser) {
 				$members['qy'] = $qySnsUser;
 			}
-			
+
 		}
 		if (empty($members)) {
 			/* 处理版本迁移数据 */
@@ -211,9 +209,9 @@ class base extends \site\fe\base {
 			$model = $this->model();
 			$passed = false;
 			//如果时从企业号进入的用户不需要认证
-			if(isset($members['qy'])){
+			if (isset($members['qy'])) {
 				$passed = true;
-			}else{
+			} else {
 				foreach ($members as $member) {
 					if ($this->canAccessObj($siteId, $objId, $member, $memberSchemas, $obj)) {
 						/**

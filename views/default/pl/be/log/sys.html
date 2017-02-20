@@ -5,6 +5,7 @@ td{word-break:break-all;}
 <table class="table table-bordered table-striped">
     <thead>
         <tr>
+            <th style='width:4em'>序号</th>
             <th>站点ID</th>
             <th style='width:8em'>日期</th>
             <th>操作</th>
@@ -16,6 +17,7 @@ td{word-break:break-all;}
     </thead>
     <tbody>
         <tr ng-repeat="l in logs">
+            <td>{{$index+1}}</td>
             <td ng-bind="l.mpid"></td>
             <td ng-bind="l.create_at*1000|date:'yy-MM-dd HH:mm'"></td>
             <td ng-bind="l.method"></td>

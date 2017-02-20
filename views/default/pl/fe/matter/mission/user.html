@@ -1,12 +1,9 @@
 <style>
-.enroll{background:#fdd;}
-.signin{background:#dfd;}
-.signin-late{color:red;}
-.group{background:#ddf;}
+.signin_late{color:red;}
+.signin_late:after{content:'（迟到）';}
 </style>
 <nav class='navbar navbar-default'>
 	<div class='container-fluid'>
-		<button class='btn btn-default navbar-btn' ng-click="extract()">抓取用户数据</button>
 		<form class='navbar-form navbar-right'>
 			<label>用户名单</label>
             <div class="input-group">
@@ -21,33 +18,101 @@
 		</form>
 	</div>
 </nav>
-<div class='row'>
-	<div class='col-md-12' ng-controller="ctrlUserAction">
-		<table class='table table-bordered'>
-            <thead>
-                <tr>
-                    <th style='width:40px'></th>
-                    <th style='width:140px'>昵称</th>
-                    <th class='enroll' ng-repeat="app in missionApps.enroll" ng-bind="app.title"></th>
-                    <th class='signin' ng-repeat="app in missionApps.signin" ng-bind="app.title"></th>
-                    <th class='group' ng-repeat="app in missionApps.group" ng-bind="app.title"></th>
-                    <th></th>
-                </tr>
-            </thead>
-            <tbody>
-                <tr ng-repeat="u in users">
-                    <td>{{(page.at-1)*page.size+$index+1}}</td>
-                    <td>{{u.nickname}}</td>
-                    <td ng-repeat="app in missionApps.enroll" ng-bind-html="u.enrollAct[app.id]"></td>
-                    <td ng-repeat="app in missionApps.signin" ng-bind-html="u.signinAct[app.id]"></td>
-                    <td ng-repeat="app in missionApps.group" ng-bind-html="u.groupAct[app.id]"></td>
-                    <td></td>
-                </tr>
-            </tbody>
-        </table>
-        <div class='form-group form-inline'>
-            <span>总数：{{page.total}}</span>
-            <ul uib-pagination style="margin:0;vertical-align:bottom;cursor:pointer" ng-show="page.total>page.size" boundary-links="true" total-items="page.total" max-size="7" items-per-page="page.size" rotate="false" ng-model="page.at" previous-text="&lsaquo;" next-text="&rsaquo;" first-text="&laquo;" last-text="&raquo;" ng-change="doSearch()"></ul>
+<div class='row' ng-controller="ctrlUserAction">
+    <div class='col-md-6' tms-flex-height top='72' bottom='135'>
+        <div id='userRecords' tms-table-wrap ready='tmsTableWrapReady'>
+            <table class='table table-bordered'>
+                <thead>
+                    <tr>
+                        <th style='width:3em'></th>
+                        <th style='width:100px'>登记时间</th>
+                        <th class='custom-col row' ng-repeat="c in userApp.data_schemas">{{c.title}}</th>
+                        <th style='width:140px'>昵称</th>
+                        <th style='width:80px'>审核通过</th>
+                        <th style='width:140px' ng-if="app.tags.length">标签</th>
+                        <th style='width:140px'>备注</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr ng-repeat='user in users' class='user' ng-class="{'active':user===activeUser}" ng-click="chooseUser(user)">
+                        <td>{{(oUserPage.at-1)*oUserPage.size+$index+1}}</td>
+                        <td>{{(user.enroll_at*1000)|date:'MM-dd HH:mm'}}</td>
+                        <td ng-repeat="c in userApp.data_schemas">
+                            <span ng-if="c.type!=='image'&&c.type!=='file'&&c.type!=='date'" ng-bind-html="user._data[c.id]"></span>
+                            <span ng-if="c.type==='image'">
+                                <img ng-repeat="img in user._data[c.id]" ng-src='{{img}}' />
+                            </span>
+                            <span ng-if="c.type==='date'">{{(user._data[c.id]*1000)|date:'yy-MM-dd HH:mm'}}</span>
+                            <span ng-if="c.type==='file'">
+                                <span ng-repeat='file in user._data[c.id]'><a href='{{file.url}}' target="_blank">{{file.name}}</a></span>
+                            </span>
+                        </td>
+                        <td>{{user.nickname}}</td>
+                        <td>{{user.verified}}</td>
+                        <td ng-if="app.tags.length">{{user.tags}}</td>
+                        <td>{{user.comment}}</td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+	<div class='col-md-6' tms-flex-height top='72' bottom='135'>
+        <div class='list-group'>
+            <a href='javascript:void(0)' class='list-group-item app enroll' ng-repeat="app in missionApps.enroll">
+                <div class='form-group'>
+                    <div class='title' ng-bind="app.title"></div>
+                </div>
+                <div class='list-group'>
+                    <div class='list-group-item' ng-repeat="rec in recordsByApp.enroll[app.id]">
+                        <div><label>登记时间：</label>{{rec.enroll_at*1000|date:'yy-MM-dd HH:mm'}}</div>
+                        <div><label>审核通过：</label>{{rec.verified}}</div>
+                        <div><label>备注：</label>{{rec.comment}}</div>
+                        <div ng-repeat="schema in enrollAppSchemas[app.id]">
+                            <label>{{schema.title}}：</label>
+                            <span ng-if="schema.type!=='image'&&schema.type!=='file'&&schema.type!=='date'" ng-bind-html="rec._data[schema.id]"></span>
+                            <span ng-if="schema.type==='image'">
+                                <img ng-repeat="img in rec._data[schema.id]" ng-src='{{img}}' />
+                            </span>
+                            <span ng-if="schema.type==='date'">{{(rec._data[schema.id]*1000)|date:'yy-MM-dd HH:mm'}}</span>
+                            <span ng-if="schema.type==='file'">
+                                <span ng-repeat='file in rec._data[schema.id]'>{{file.name}}</span>
+                            </span>
+                        </div>
+                    </div>
+                </div>
+                <button class='btn btn-default btn-sm' ng-click="gotoDetail(app)"> 查看活动全部数据</button>
+            </a>
+        </div>
+        <div class='list-group'>
+            <a href='javascript:void(0)' class='list-group-item app signin' ng-repeat="app in missionApps.signin">
+                <div class='form-group'>
+                    <div class='title' ng-bind="app.title"></div>
+                </div>
+                <div class='list-group'>
+                    <div class='list-group-item' ng-repeat="rec in recordsByApp.signin[app.id]">
+                        <div><label>审核通过：</label>{{rec.verified}}</div>
+                        <div><label>备注：</label>{{rec.comment}}</div>
+                        <div><label>签到次数：</label>{{rec.signin_num}}</div>
+                        <div ng-repeat="rnd in app.rounds">
+                            <div><label>{{rnd.title}}：</label><span ng-class="{'signin_late':rnd.late_at!==0&&(rec.signin_log[rnd.rid]+60)>rnd.late_at}">{{rec.signin_log[rnd.rid]*1000|date:'yy-MM-dd HH:mm'}}</span></div>
+                        </div>
+                    </div>
+                </div>
+                <button class='btn btn-default btn-sm' ng-click="gotoDetail(app)"> 查看活动全部数据</button>
+            </a>
+        </div>
+        <div class='list-group'>
+            <a href='javascript:void(0)' class='list-group-item app group' ng-repeat="app in missionApps.group">
+                <div class='form-group'>
+                    <div class='title' ng-bind="app.title"></div>
+                </div>
+                <div class='list-group'>
+                    <div class='list-group-item' ng-repeat="rec in recordsByApp.group[app.id]">
+                        <div><label>所属分组：</label>{{rec.round_title}}</div>
+                    </div>
+                </div>
+                <button class='btn btn-default btn-sm' ng-click="gotoDetail(app)"> 查看活动全部数据</button>
+            </a>
         </div>
 	</div>
 </div>

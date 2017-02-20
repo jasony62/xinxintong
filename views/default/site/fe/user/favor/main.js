@@ -1,23 +1,15 @@
 define(['require', 'angular'], function(require, angular) {
     'use strict';
 
-    function loadCss(url) {
-        var link, head;
-        link = document.createElement('link');
-        link.href = url + '?_=3';
-        link.rel = 'stylesheet';
-        head = document.querySelector('head');
-        head.appendChild(link);
-    };
     var siteId = location.search.match('site=(.*)')[1];
     var ngApp = angular.module('app', []);
     ngApp.controller('ctrlFav', ['$scope', '$http', function($scope, $http) {
         var page;
         //判断客户端 区分手机 和pc
-        if(/iphone/i.test(navigator.userAgent)||/android/i.test(navigator.userAgent)){
-            $scope.state = 1 ;//手机端
-        }else{
-            $scope.state = 0 ;//其他
+        if (/iphone/i.test(navigator.userAgent) || /android/i.test(navigator.userAgent)) {
+            $scope.state = 1; //手机端
+        } else {
+            $scope.state = 0; //其他
         }
         $scope.page = page = {
             at: 1,
@@ -35,7 +27,7 @@ define(['require', 'angular'], function(require, angular) {
                     return;
                 }
                 $scope.matters = rsp.data.matters;
-                $scope.page.total = rsp.data.total ;
+                $scope.page.total = rsp.data.total;
             });
         };
         $scope.openMatter = function(id, type) {
@@ -46,9 +38,9 @@ define(['require', 'angular'], function(require, angular) {
             }
         };
         //移除收藏
-        $scope.unfavor = function(m,i){
-            var url ='/rest/site/fe/user/favor/remove?site=' + siteId + '&id=' + m.matter_id + '&type=' + m.matter_type;
-            $http.get(url).success(function(rsp){
+        $scope.unfavor = function(m, i) {
+            var url = '/rest/site/fe/user/favor/remove?site=' + siteId + '&id=' + m.matter_id + '&type=' + m.matter_type;
+            $http.get(url).success(function(rsp) {
                 //$scope.list();
                 if (rsp.err_code != 0) {
                     $scope.$root.errmsg = rsp.err_msg;
@@ -59,9 +51,9 @@ define(['require', 'angular'], function(require, angular) {
                 //$scope.page.total--;
             })
         };
-        $scope.favor = function(m){
-            var url ='/rest/site/fe/user/favor/add?site=' + siteId + '&id=' + m.matter_id + '&type=' + m.matter_type +'&title='+ m.matter_title;
-            $http.get(url).success(function(rsp){
+        $scope.favor = function(m) {
+            var url = '/rest/site/fe/user/favor/add?site=' + siteId + '&id=' + m.matter_id + '&type=' + m.matter_type + '&title=' + m.matter_title;
+            $http.get(url).success(function(rsp) {
                 //$scope.list();
                 if (rsp.err_code != 0) {
                     $scope.$root.errmsg = rsp.err_msg;

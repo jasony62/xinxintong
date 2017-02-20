@@ -109,7 +109,7 @@ class wx extends \member_base {
 				$this->_eventCall($msg);
 				break;
 			case 'location':
-				if ($reply = $this->model('sns\event')->otherCall($site, 'location')) {
+				if ($reply = $this->model('sns\wx\event')->otherCall($site, 'location')) {
 					$r = $this->model('sns\reply\\' . $reply->matter_type, $msg, $reply->matter_id);
 					$r->exec();
 				}

@@ -42,14 +42,17 @@
                     <a href="/rest/site/fe/user/favor?site={{site.id}}">我的收藏</a>
                 </div>
                 <div class='list-group-item'>
+                    <a href="/rest/site/fe/user/history?site={{site.id}}">历史轨迹</a>
+                </div>
+                <div class='list-group-item'>
                     <a href="" ng-click="userSetting=!userSetting">个人设置</a>
                 </div>
             </div>
             <div>
-                <button type='button' class="btn btn-default btn-block" ng-click='gotoLogin()'>去登录</button>
-                <button type='button' class="btn btn-default btn-block" ng-click='gotoRegister()'>去注册</button>
-                <button type='button' class="btn btn-default btn-block" ng-click='gotoMember(ms)' ng-repeat="ms in memberSchemas">补充【{{ms.title}}】信息</button>
-                <button type='button' class="btn btn-default btn-block" ng-click='logout()'>退出登录</button>
+                <button class="btn btn-default btn-block" ng-click='gotoLogin()' ng-if="!user.loginExpire">去登录</button>
+                <button class="btn btn-default btn-block" ng-click='gotoRegister()'>去注册</button>
+                <button class="btn btn-default btn-block" ng-click='gotoMember(ms)' ng-repeat="ms in memberSchemas">补充【{{ms.title}}】信息</button>
+                <button class="btn btn-default btn-block" ng-click='logout()' ng-if="user.loginExpire">退出登录</button>
             </div>
             <div ng-if="userSetting">
                 <hr>

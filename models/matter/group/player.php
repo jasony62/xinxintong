@@ -163,6 +163,36 @@ class player_model extends \TMS_MODEL {
 		return $record;
 	}
 	/**
+	 * 获得指定项目下的登记记录
+	 *
+	 * @param int $missionId
+	 */
+	public function &byMission($missionId, $options) {
+		$fields = isset($options['fields']) ? $options['fields'] : '*';
+		$q = [
+			$fields,
+			'xxt_group_player r',
+		];
+		$missionId = $this->escape($missionId);
+		$where = "state=1 and exists(select 1 from xxt_group g where r.aid=g.id and g.mission_id={$missionId})";
+
+		if (isset($options['userid'])) {
+			$where .= " and userid='" . $this->escape($options['userid']) . "'";
+		}
+		$q[2] = $where;
+
+		$list = $this->query_objs_ss($q);
+		if (count($list)) {
+			if ($fields === '*' || strpos($fields, 'data') !== false) {
+				foreach ($list as &$record) {
+					$record->data = json_decode($record->data);
+				}
+			}
+		}
+
+		return $list;
+	}
+	/**
 	 * 根据指定的数据查找匹配的记录
 	 */
 	public function &byData($siteId, &$app, &$data, $options = []) {

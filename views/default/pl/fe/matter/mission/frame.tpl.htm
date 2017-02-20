@@ -25,15 +25,15 @@
                         <li><a href="/rest/pl/fe" target='_self'>个人工作台</a></li>
                         <li ng-if="site.yourRole"><a href="/rest/pl/fe/site/console?site={{mission.siteid}}" target='_self'>{{site.name}}</a></li>
                         <li ng-if="!site.yourRole"><a href="javascript:void(0)" style='color:#777;cursor:default;'>{{site.name}}</a></li>
-                        <li><a href="/rest/pl/fe/matter/mission/main?site={{mission.siteid}}&id={{id}}" title="{{mission.title}}">{{mission.title}}</a></li>
+                        <li><a href="/rest/pl/fe/matter/mission/main?site={{mission.siteid}}&id={{mission.id}}" title="{{mission.title}}">{{mission.title}}</a></li>
                     </nav>
                     <ul class='nav navbar-nav navbar-right'>
                         <li class="dropdown">
                             <a href="#" class="dropdown-toggle" data-toggle="dropdown">{{viewNames[subView]}} <span class="caret"></span></a>
                             <ul class="dropdown-menu" role="menu">
-                                <li><a href='/rest/pl/fe/matter/mission/main?site={{mission.siteid}}&id={{id}}'>项目定义</a></li>
-                                <li><a href='/rest/pl/fe/matter/mission/matter?site={{mission.siteid}}&id={{id}}'>资料和活动</a></li>
-                                <li><a href='/rest/pl/fe/matter/mission/user?site={{mission.siteid}}&id={{id}}'>用户</a></li>
+                                <li><a href='/rest/pl/fe/matter/mission/main?site={{mission.siteid}}&id={{mission.id}}'>项目定义</a></li>
+                                <li><a href='/rest/pl/fe/matter/mission/matter?site={{mission.siteid}}&id={{mission.id}}'>资料和活动</a></li>
+                                <li><a href='/rest/pl/fe/matter/mission/user?site={{mission.siteid}}&id={{mission.id}}'>数据汇总</a></li>
                             </ul>
                         </li>
                     </ul>

@@ -1118,6 +1118,10 @@ class main extends \pl\fe\matter\base {
 	}
 	/**
 	 * 登记情况汇总信息
+	 *
+	 * @param string $site site'id
+	 * @param string $app app'id
+	 *
 	 */
 	public function summary_action($site, $app) {
 		if (false === ($user = $this->accountUser())) {
@@ -1125,7 +1129,8 @@ class main extends \pl\fe\matter\base {
 		}
 
 		$modelApp = $this->model('matter\enroll');
-		$summary = $modelApp->summary($site, $app);
+		$app = $modelApp->byId($app);
+		$summary = $modelApp->opData($app);
 
 		return new \ResponseData($summary);
 	}

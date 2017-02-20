@@ -1,6 +1,6 @@
 'use strict';
-define(["require", "angular", "util.site"], function(require, angular) {
-    var ngApp = angular.module('app', ['ui.bootstrap', 'util.site.tms']);
+define(["require", "angular", "util.site","service.matter"], function(require, angular) {
+    var ngApp = angular.module('app', ['ui.bootstrap', 'util.site.tms', 'ui.tms', 'ui.xxt', 'service.matter']);
     ngApp.config(['$controllerProvider', function($cp) {
         ngApp.provider = {
             controller: $cp.register
@@ -63,6 +63,15 @@ define(["require", "angular", "util.site"], function(require, angular) {
                 $scope.page.setTotal(rsp.data.total);
             });
         };
+        $scope.removeRecord = function(record) {
+            if (window.confirm('确认删除？')) {
+                $http.get(PU.j('record/remove', 'site', 'app', 'accessToken') + '&ek=' + record.enroll_key).success(function(rsp){
+                    var i = $scope.records.indexOf(record);
+                    $scope.records.splice(i, 1);
+                    $scope.page.total = $scope.page.total - 1 ;
+                });
+            }
+        }
         // 选中的记录
         $scope.$watch('rows.allSelected', function(checked) {
             var index = 0;
@@ -177,6 +186,7 @@ define(["require", "angular", "util.site"], function(require, angular) {
             });
         };
         $http.get(PU.j('get', 'site', 'app', 'accessToken')).success(function(rsp) {
+            var recordSchemas = [];
             if (rsp.err_code !== 0) {
                 $scope.errmsg = rsp.err_msg;
                 return;
@@ -189,11 +199,15 @@ define(["require", "angular", "util.site"], function(require, angular) {
                 $scope.app.dataSchemas = JSON.parse($scope.app.data_schemas);
                 $scope.app.dataSchemas.forEach(function(schema) {
                     schemasById[schema.id] = schema;
+                    if (schema.type !== 'html') {
+                        recordSchemas.push(schema);
+                    }
                     if (/single|phase|multiple/.test(schema.type)) {
                         filterSchemas.push(schema);
                     }
                 });
             }
+            $scope.recordSchemas = recordSchemas;
             $timeout(function() {
                 $scope.$broadcast('xxt.app.enroll.ready');
             });

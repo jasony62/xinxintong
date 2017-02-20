@@ -157,12 +157,10 @@ define(['frame'], function(ngApp) {
                 location.href = '/rest/pl/fe/matter/' + type + '?site=' + $scope.mission.siteid + '&id=' + rsp.data.id;
             });
         };
-        $scope.matterType = '';
         $scope.list = function(matterType) {
             var url;
 
             matterType === undefined && (matterType = '');
-            $scope.matterType = matterType;
 
             if (matterType === '') {
                 url = '/rest/pl/fe/matter/mission/matter/list?id=' + $scope.id;
@@ -221,6 +219,9 @@ define(['frame'], function(ngApp) {
                 });
             }
         };
-        $scope.list();
+        $scope.$watch('matterType', function(matterType) {
+            $scope.list(matterType);
+        });
+        $scope.matterType = location.hash ? location.hash.substr(1) : '';
     }]);
 });

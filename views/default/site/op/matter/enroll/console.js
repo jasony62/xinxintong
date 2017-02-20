@@ -1,12 +1,52 @@
 'use strict';
-define(["require", "angular", "util.site","service.matter"], function(require, angular) {
-    var ngApp = angular.module('app', ['ui.bootstrap', 'util.site.tms', 'ui.tms', 'ui.xxt', 'service.matter']);
+define(["require", "angular", "util.site","enrollService"], function(require, angular) {
+    var ngApp = angular.module('app', ['ui.bootstrap', 'util.site.tms', 'ui.tms', 'ui.xxt', 'service.matter', 'service.enroll']);
+    ngApp.constant('cstApp', {
+        notifyMatter: [{
+            value: 'tmplmsg',
+            title: '模板消息',
+            url: '/rest/pl/fe/matter'
+        }, {
+            value: 'article',
+            title: '单图文',
+            url: '/rest/pl/fe/matter'
+        }, {
+            value: 'news',
+            title: '多图文',
+            url: '/rest/pl/fe/matter'
+        }, {
+            value: 'channel',
+            title: '频道',
+            url: '/rest/pl/fe/matter'
+        }, {
+            value: 'enroll',
+            title: '登记活动',
+            url: '/rest/pl/fe/matter'
+        }],
+        innerlink: [{
+            value: 'article',
+            title: '单图文',
+            url: '/rest/pl/fe/matter'
+        }, {
+            value: 'news',
+            title: '多图文',
+            url: '/rest/pl/fe/matter'
+        }, {
+            value: 'channel',
+            title: '频道',
+            url: '/rest/pl/fe/matter'
+        }],
+        alertMsg: {
+            'schema.duplicated': '不允许重复添加登记项',
+            'require.mission.phase': '请先指定项目的阶段'
+        }
+    });
     ngApp.config(['$controllerProvider', function($cp) {
         ngApp.provider = {
             controller: $cp.register
         };
     }]);
-    ngApp.controller('ctrl', ['$scope', '$http', '$timeout', '$uibModal', 'PageLoader', 'PageUrl', function($scope, $http, $timeout, $uibModal, PageLoader, PageUrl) {
+    ngApp.controller('ctrl', ['$scope', '$http', '$timeout', '$uibModal', 'PageLoader', 'PageUrl', 'srvRecord', function($scope, $http, $timeout, $uibModal, PageLoader, PageUrl, srvRecord) {
         var PU, criteria, page, schemasById = {},
             filterSchemas = [];
 

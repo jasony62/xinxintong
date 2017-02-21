@@ -6,7 +6,9 @@ require_once dirname(__FILE__) . '/tms_controller.php';
 require_once dirname(__FILE__) . '/db.php';
 require_once dirname(__FILE__) . '/template.php';
 require_once dirname(__FILE__) . '/client.php';
-
+/**
+ * 除理request
+ */
 class TMS_APP {
 	//
 	private static $models = array();
@@ -130,7 +132,7 @@ class TMS_APP {
 		 * create controller.
 		 */
 		if (!$obj_controller = self::create_controller($__controller)) {
-			throw new Exception("控制器($__controller)不存在！");
+			throw new UrlNotMatchException("控制器($__controller)不存在！");
 		}
 		/**
 		 * check controller's action.
@@ -143,11 +145,11 @@ class TMS_APP {
 				 */
 				$default_method = self::$default_action . '_action';
 				if (!method_exists($obj_controller, $default_method)) {
-					throw new Exception("操作($__controller->$action_method)不存在！");
+					throw new UrlNotMatchException("操作($__controller->$action_method)不存在！");
 				}
 				$action_method = $default_method;
 			} else {
-				throw new Exception("操作($__controller->$action_method)不存在！");
+				throw new UrlNotMatchException("操作($__controller->$action_method)不存在！");
 			}
 		}
 		/**
@@ -223,7 +225,7 @@ class TMS_APP {
 		 */
 		if ($__controller) {
 			if (!$obj_controller = self::create_controller($__controller, true)) {
-				throw new Exception("控制器($__controller)不存在！");
+				throw new UrlNotMatchException("控制器($__controller)不存在！");
 			}
 
 		} else {
@@ -233,7 +235,7 @@ class TMS_APP {
 		// check controller's action.
 		$action_method = 'view_action';
 		if (!method_exists($obj_controller, $action_method)) {
-			throw new Exception("操作($__controller->$action_method)不存在！");
+			throw new UrlNotMatchException("操作($__controller->$action_method)不存在！");
 		}
 
 		/**

@@ -52,6 +52,14 @@ class way_model extends \TMS_MODEL {
 			$cookieUser->nickname = $siteUser->nickname;
 			$cookieUser->expire = time() + (86400 * TMS_COOKIE_SITE_USER_EXPIRE);
 			$modified = true;
+		} else {
+			if (empty($cookieUser->loginExpire)) {
+				$cookieRegUser = $this->getCookieRegUser();
+				if ($cookieRegUser) {
+					$cookieUser->loginExpire = $cookieRegUser->loginExpire;
+					$modified = true;
+				}
+			}
 		}
 		/* 将用户信息保存在cookie中 */
 		if ($modified) {

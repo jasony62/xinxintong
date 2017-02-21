@@ -870,7 +870,6 @@ define(['require', 'schema', 'page'], function(require, schemaLib, pageLib) {
                     var _self = this,
                         defer = $q.defer();
                     $uibModal.open({
-                        /*templateUrl: '/views/default/pl/fe/matter/enroll/component/recordFilter.html?_=3',*/
                         templateUrl: 'recordFilter.html',
                         controller: 'ctrlOpFilter',
                         windowClass: 'auto-height',
@@ -888,6 +887,33 @@ define(['require', 'schema', 'page'], function(require, schemaLib, pageLib) {
                         });
                     });
                     return defer.promise;
+                },
+                opEdit: function(record) {
+                    var _self = this;
+                    $uibModal.open({
+                        templateUrl: '/_template/site/op/matter/enroll/basic.html',
+                        controller: 'ctrlOpEdit',
+                        resolve: {
+                            record: function() {
+                                if (record === undefined) {
+                                    return {
+                                        aid: _appId,
+                                        tags: '',
+                                        data: {}
+                                    };
+                                } else {
+                                    record.aid = _appId;
+                                    return angular.copy(record);
+                                }
+                            },
+                        }
+                    }).result.then(function(updated) {
+                        if (record) {
+                            _self.update(record, updated[0]);
+                        } else {
+                            _self.add(updated[0]);
+                        }
+                    });
                 },
                 opRemove: function(record) {
                     if (window.confirm('确认删除？')) {
@@ -1614,6 +1640,98 @@ define(['require', 'schema', 'page'], function(require, schemaLib, pageLib) {
         };
         $scope.cancel = function() {
             $mi.dismiss('cancel');
+        };
+    }]).controller('ctrlOpEdit', ['$scope', '$uibModalInstance', 'record', 'srvApp', 'srvRecord', 'srvRecordConverter', function($scope, $uibModalInstance, record, srvApp, srvRecord, srvRecordConverter) {
+        srvApp.opGet().then(function(data) {
+            var app = data.app;
+            if (record.data) {
+                app.data_schemas.forEach(function(col) {
+                    if (record.data[col.id]) {
+                        srvRecordConverter.forEdit(col, record.data);
+                    }
+                });
+                app._schemasFromEnrollApp.forEach(function(col) {
+                    if (record.data[col.id]) {
+                        srvRecordConverter.forEdit(col, record.data);
+                    }
+                });
+                app._schemasFromGroupApp.forEach(function(col) {
+                    if (record.data[col.id]) {
+                        srvRecordConverter.forEdit(col, record.data);
+                    }
+                });
+            }
+            $scope.app = app;
+            $scope.enrollDataSchemas = app._schemasByEnrollApp;
+            $scope.groupDataSchemas = app._schemasByGroupApp;
+            $scope.record = record;
+            $scope.record.aTags = (!record.tags || record.tags.length === 0) ? [] : record.tags.split(',');
+            $scope.aTags = app.tags;
+        });
+        $scope.ok = function() {
+            var record = $scope.record,
+                p = {
+                    tags: record.aTags.join(','),
+                    data: {}
+                };
+
+            record.tags = p.tags;
+            record.comment && (p.comment = record.comment);
+            p.verified = record.verified;
+            p.data = $scope.record.data;
+            $uibModalInstance.close([p, $scope.aTags]);
+        };
+        $scope.cancel = function() {
+            $uibModalInstance.dismiss('cancel');
+        };
+        $scope.scoreRangeArray = function(schema) {
+            var arr = [];
+            if (schema.range && schema.range.length === 2) {
+                for (var i = schema.range[0]; i <= schema.range[1]; i++) {
+                    arr.push('' + i);
+                }
+            }
+            return arr;
+        };
+        $scope.chooseImage = function(fieldName) {
+            var data = $scope.record.data;
+            srvRecord.chooseImage(fieldName).then(function(img) {
+                !data[fieldName] && (data[fieldName] = []);
+                data[fieldName].push(img);
+            });
+        };
+        $scope.removeImage = function(field, index) {
+            field.splice(index, 1);
+        };
+        $scope.$on('tag.xxt.combox.done', function(event, aSelected) {
+            var aNewTags = [];
+            for (var i in aSelected) {
+                var existing = false;
+                for (var j in $scope.record.aTags) {
+                    if (aSelected[i] === $scope.record.aTags[j]) {
+                        existing = true;
+                        break;
+                    }
+                }!existing && aNewTags.push(aSelected[i]);
+            }
+            $scope.record.aTags = $scope.record.aTags.concat(aNewTags);
+        });
+        $scope.$on('tag.xxt.combox.add', function(event, newTag) {
+            if (-1 === $scope.record.aTags.indexOf(newTag)) {
+                $scope.record.aTags.push(newTag);
+                if (-1 === $scope.aTags.indexOf(newTag)) {
+                    $scope.aTags.push(newTag);
+                }
+            }
+        });
+        $scope.$on('tag.xxt.combox.del', function(event, removed) {
+            $scope.record.aTags.splice($scope.record.aTags.indexOf(removed), 1);
+        });
+        $scope.syncByEnroll = function() {
+            srvRecord.syncByEnroll($scope.record);
+        };
+        $scope.syncByGroup = function() {
+            srvRecord.syncByGroup($scope.record);
         };
     }]);
 });

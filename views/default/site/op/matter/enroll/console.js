@@ -57,21 +57,13 @@ define(["require", "angular", "util.site","enrollService"], function(require, an
         })();
     }]);
     ngApp.controller('ctrl', ['$scope', '$http', '$timeout', '$uibModal', 'PageLoader', 'PageUrl', 'srvApp', 'srvRecord', function($scope, $http, $timeout, $uibModal, PageLoader, PageUrl, srvApp, srvRecord) {
-        /*
-
-        $scope.scoreRangeArray = function(schema) {
-            var arr = [];
-            if (schema.range && schema.range.length === 2) {
-                for (var i = schema.range[0]; i <= schema.range[1]; i++) {
-                    arr.push('' + i);
-                }
-            }
-            return arr;
-        };
-        */
         $scope.getRecords = function(pageNumber) {
             $scope.rows.reset();
             srvRecord.opSearch(pageNumber);
+        };
+        $scope.editRecord = function(record) {
+            $scope.subView = 'editing';
+            srvRecord.opEdit(record);
         };
         $scope.removeRecord = function(record) {
             srvRecord.opRemove(record);
@@ -116,6 +108,7 @@ define(["require", "angular", "util.site","enrollService"], function(require, an
         $scope.page = {}; // 分页条件
         $scope.criteria = {}; // 过滤条件
         $scope.records = []; // 登记记录
+        $scope.subView = 'list'; // 规定初始化展示页面
         $scope.tmsTableWrapReady = 'N';
         srvApp.opGet().then(function(data) {
             var app = data.app, pages = data.page;

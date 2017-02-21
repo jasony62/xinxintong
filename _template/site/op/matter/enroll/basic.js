@@ -1,5 +1,5 @@
-ngApp.provider.controller('ctrlBasic', ['$scope', '$http', 'PageUrl', 'srvRecordConverter', function($scope, $http, PageUrl, srvRecordConverter) {
-    function submit(ek, posted) {
+ngApp.provider.controller('ctrlBasic', ['$scope', '$http', function($scope, $http) {
+    /*function submit(ek, posted) {
         $http.post(PU.j('record/update', 'site', 'app', 'accessToken') + '&ek=' + ek, posted).success(function(rsp) {
             if (rsp.err_code !== 0) {
                 $scope.errmsg = rsp.err_msg;
@@ -11,10 +11,10 @@ ngApp.provider.controller('ctrlBasic', ['$scope', '$http', 'PageUrl', 'srvRecord
     };
     var PU, params;
     params = location.search.match('site=(.*)')[1];
-    PU = PageUrl.ins('/rest/site/op/matter/enroll', ['site', 'app', 'accessToken']);
-    $scope.subView = 'list';
-    $scope.editing = null;
-    $scope.editRecord = function(record) {
+    PU = PageUrl.ins('/rest/site/op/matter/enroll', ['site', 'app', 'accessToken']);*/
+
+
+    /*$scope.editRecord = function(record) {
         $scope.subView = 'record';
         if (record.data) {
             $scope.app.dataSchemas.forEach(function(col) {
@@ -112,5 +112,5 @@ ngApp.provider.controller('ctrlBasic', ['$scope', '$http', 'PageUrl', 'srvRecord
     });
     $scope.$on('tag.xxt.combox.del', function(event, removed) {
         $scope.editing.aTags.splice($scope.editing.aTags.indexOf(removed), 1);
-    });
+    });*/
 }]);

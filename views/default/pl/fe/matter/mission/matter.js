@@ -50,6 +50,10 @@ define(['frame'], function(ngApp) {
                     config.proto.title = $scope.mission.title + '-报名';
                 } else if (assignedScenario === 'voting') {
                     config.proto.title = $scope.mission.title + '-评价';
+                } else if (assignedScenario === 'group_week_report') {
+                    config.proto.title = $scope.mission.title + '-周报';
+                } else if (assignedScenario === 'common') {
+                    config.proto.title = $scope.mission.title + '-登记';
                 }
                 if (choice) {
                     var data = choice.data;
@@ -95,7 +99,7 @@ define(['frame'], function(ngApp) {
         };
         $scope.addMatter = function(matterType) {
             $('body').click();
-            if (/voting|registration/.test(matterType)) {
+            if (/voting|registration|group_week_report/.test(matterType)) {
                 $scope.addEnroll(matterType);
             } else {
                 $scope['add' + matterType[0].toUpperCase() + matterType.substr(1)]();
@@ -192,7 +196,7 @@ define(['frame'], function(ngApp) {
                 if ('enroll' === matterType) {
                     url += 'enroll';
                     scenario = '';
-                } else if (/registration|voting/.test(matterType)) {
+                } else if (/registration|voting|group_week_report/.test(matterType)) {
                     url += 'enroll'
                     scenario = $scope.matterType;
                 } else {
@@ -208,7 +212,7 @@ define(['frame'], function(ngApp) {
                         if (rsp.data.total == 0) {
                             indicators.article && $scope.indicators.push(indicators.article);
                         }
-                    } else if (/enroll|voting|registration|signin|group/.test(matterType)) {
+                    } else if (/enroll|voting|registration|group_week_report|signin|group/.test(matterType)) {
                         $scope.matters = rsp.data.apps;
                         if (rsp.data.total == 0) {
                             indicators[matterType] && $scope.indicators.push(indicators[matterType]);

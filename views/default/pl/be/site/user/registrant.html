@@ -1,7 +1,6 @@
 <style>
-th {
-    text-align: center;
-}
+th{text-align:center;}
+.forbidden{color:red;}
 </style>
 <div class='form-group'>
     <div class='form-inline'>
@@ -22,17 +21,25 @@ th {
         <tr>
             <th>登录账号</th>
             <th>昵称</th>
+            <th>注册发起团队</th>
             <th style='width:120px'>注册日期</th>
-            <th style='width:120px'>操作</th>
+            <th style='width:120px'>最后登录</th>
+            <th style='width:4em'>关闭</th>
+            <th style='width:140px'>操作</th>
         </tr>
     </thead>
     <tbody>
         <tr ng-repeat='u in users'>
             <td ng-click="openProfile(u.uid)">{{u.uname}}</td>
             <td>{{u.nickname}}</td>
+            <td>{{u.site_name}}</td>
             <td>{{u.reg_time*1000|date:'yy-MM-dd HH:mm'}}</td>
+            <td>{{u.last_login*1000|date:'yy-MM-dd HH:mm'}}</td>
+            <td ng-class="{forbidden:u.forbidden==='1'}">{{u.forbidden==='1'?'是':'否'}}</td>
             <td>
-                <a href='javascript:void(0)' ng-click='resetPassword(u)'>重置口令</a>
+                <a href='' ng-click='resetPassword(u)'>重置口令</a>
+                <a href='' ng-click='forbideUser(u)' ng-if="u.forbidden==='0'">关闭帐号</a>
+                <a href='' ng-click='activeUser(u)' ng-if="u.forbidden==='1'">恢复帐号</a>
             </td>
         </tr>
     </tbody>

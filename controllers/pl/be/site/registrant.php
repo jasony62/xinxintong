@@ -26,13 +26,14 @@ class registrant extends \pl\be\base {
 		$model = $this->model();
 		$result = [];
 		$q = [
-			'unionid,uname,nickname,reg_time',
-			'xxt_site_registration',
+			'r.unionid,r.uname,r.nickname,r.reg_time,r.last_login,r.forbidden,s.name "site_name"',
+			'xxt_site_registration r,xxt_site s',
+			"r.from_siteid=s.id",
 		];
 		if (!empty($filter->uname)) {
-			$q[2] = "uname like '%{$filter->uname}%'";
+			$q[2] = " and r.uname like '%{$filter->uname}%'";
 		}
-		$q2['o'] = 'reg_time desc';
+		$q2['o'] = 'r.reg_time desc';
 		$q2['r']['o'] = ($page - 1) * $size;
 		$q2['r']['l'] = $size;
 		if ($users = $model->query_objs_ss($q, $q2)) {
@@ -67,5 +68,33 @@ class registrant extends \pl\be\base {
 		$rst = $modelReg->changePwd($user->uname, $data->password, $user->salt);
 
 		return new \ResponseData($rst);
+	}
+	/**
+	 * 禁用站点用户注册帐号
+	 */
+	public function forbide_action() {
+		if (false === ($user = $this->accountUser())) {
+			return new \ResponseTimeout();
+		}
+
+		$user = $this->getPostJson();
+
+		$this->model()->update('xxt_site_registration', ['forbidden' => '1'], ['unionid' => $user->unionid]);
+
+		return new \ResponseData('ok');
+	}
+	/**
+	 * 激活被禁用的站点用户注册帐号
+	 */
+	public function active_action() {
+		if (false === ($user = $this->accountUser())) {
+			return new \ResponseTimeout();
+		}
+
+		$user = $this->getPostJson();
+
+		$this->model()->update('xxt_site_registration', ['forbidden' => '0'], ['unionid' => $user->unionid]);
+
+		return new \ResponseData('ok');
 	}
 }

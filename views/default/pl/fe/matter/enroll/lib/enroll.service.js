@@ -42,10 +42,11 @@ define(['require', 'schema', 'page'], function(require, schemaLib, pageLib) {
             app._schemasFromGroupApp = groupDataSchemas;
         }
 
-        var _siteId, _appId, _oApp, _getAppDeferred = false;
-        this.config = function(siteId, appId) {
+        var _siteId, _appId, _accessId, _oApp, _opApps, _opApp, _getAppDeferred = false;
+        this.config = function(siteId, appId, accessId) {
             _siteId = siteId;
             _appId = appId;
+            _accessId = accessId;
         };
         this.$get = ['$q', '$uibModal', 'http2', 'noticebox', 'mattersgallery', function($q, $uibModal, http2, noticebox, mattersgallery) {
             var _self = {
@@ -109,6 +110,70 @@ define(['require', 'schema', 'page'], function(require, schemaLib, pageLib) {
                             pageLib.enhance(page, _oApp._schemasById);
                         });
                         _getAppDeferred.resolve(_oApp);
+                    });
+
+                    return _getAppDeferred.promise;
+                },
+                opGet: function() {
+                    var url;
+
+                    if (_getAppDeferred) {
+                        return _getAppDeferred.promise;
+                    }
+                    _getAppDeferred = $q.defer();
+                    url = '/rest/site/op/matter/enroll/get?site=' + _siteId + '&app=' + _appId + '&accessToken=' + _accessId;
+                    http2.get(url, function(rsp) {
+                        _opApps = rsp.data, _opApp = rsp.data.app, _opPage = rsp.data.page;
+                        _opApp.tags = (!_opApp.tags || _opApp.tags.length === 0) ? [] : _opApp.tags.split(',');
+                        _opApp.entry_rule === null && (_opApp.entry_rule = {});
+                        _opApp.entry_rule.scope === undefined && (_opApp.entry_rule.scope = 'none');
+                        try {
+                            _opApp.data_schemas = _opApp.data_schemas && _opApp.data_schemas.length ? JSON.parse(_opApp.data_schemas) : [];
+                        } catch (e) {
+                            console.log('data invalid', e, _opApp.data_schemas);
+                            _opApp.data_schemas = [];
+                        }
+                        if (_opApp.enrollApp && _opApp.enrollApp.data_schemas) {
+                            try {
+                                _opApp.enrollApp.data_schemas = _opApp.enrollApp.data_schemas && _opApp.enrollApp.data_schemas.length ? JSON.parse(_opApp.enrollApp.data_schemas) : [];
+                            } catch (e) {
+                                console.log('data invalid', e, _opApp.enrollApp.data_schemas);
+                                _opApp.enrollApp.data_schemas = [];
+                            }
+                        }
+                        if (_opApp.groupApp && _opApp.groupApp.data_schemas) {
+                            var groupAppDS = _opApp.groupApp.data_schemas;
+                            try {
+                                _opApp.groupApp.data_schemas = groupAppDS && groupAppDS.length ? JSON.parse(groupAppDS) : [];
+                            } catch (e) {
+                                console.log('data invalid', e, groupAppDS);
+                                _opApp.groupApp.data_schemas = [];
+                            }
+                            if (_opApp.groupApp.rounds && _opApp.groupApp.rounds.length) {
+                                var roundDS = {
+                                        id: '_round_id',
+                                        type: 'single',
+                                        title: '分组名称',
+                                    },
+                                    ops = [];
+                                _opApp.groupApp.rounds.forEach(function(round) {
+                                    ops.push({
+                                        v: round.round_id,
+                                        l: round.title
+                                    });
+                                });
+                                roundDS.ops = ops;
+                                _opApp.groupApp.data_schemas.splice(0, 0, roundDS);
+                            }
+                        }
+                        _mapSchemas(_opApp);
+                        _opApp.data_schemas.forEach(function(schema) {
+                            schemaLib._upgrade(schema);
+                        });
+                        _opApp.pages.forEach(function(page) {
+                            pageLib.enhance(page, _opApp._schemasById);
+                        });
+                        _getAppDeferred.resolve(_opApps);
                     });
 
                     return _getAppDeferred.promise;
@@ -702,10 +767,11 @@ define(['require', 'schema', 'page'], function(require, schemaLib, pageLib) {
             return _self;
         }];
     }).provider('srvRecord', function() {
-        var _siteId, _appId;
-        this.config = function(siteId, appId) {
+        var _siteId, _appId, _accessId;
+        this.config = function(siteId, appId, accessId) {
             _siteId = siteId;
             _appId = appId;
+            _accessId = accessId;
         };
         this.$get = ['$q', '$sce', 'http2', 'noticebox', '$uibModal', 'pushnotify', 'cstApp', 'srvRecordConverter', function($q, $sce, http2, noticebox, $uibModal, pushnotify, cstApp, srvRecordConverter) {
             var _oApp, _oPage, _oCriteria, _aRecords;
@@ -738,6 +804,99 @@ define(['require', 'schema', 'page'], function(require, schemaLib, pageLib) {
                     });
                     // records
                     _aRecords = oRecords;
+                },
+                opSearch: function(pageNumber) {
+                    var _this = this,
+                        defer = $q.defer(),
+                        url;
+
+                    _aRecords.splice(0, _aRecords.length);
+                    pageNumber && (_oPage.at = pageNumber);
+                    angular.extend(_oPage,{
+                        setTotal: function(total) {
+                            var lastNumber;
+                            this.total = total;
+                            this.numbers = [];
+                            lastNumber = this.total > 0 ? Math.ceil(this.total / this.size) : 1;
+                            for (var i = 1; i <= lastNumber; i++) {
+                                this.numbers.push(i);
+                            }
+                        }
+                    });
+                    url = '/rest/site/op/matter/enroll/record/list';
+                    url += '?site=' + _siteId;
+                    url += '&app=' + _appId;
+                    url += '&accessToken=' + _accessId;
+                    url += _oPage.joinParams();
+                    http2.post(url, _oCriteria, function(rsp) {
+                        var records;
+                        if (rsp.data) {
+                            records = rsp.data.records ? rsp.data.records : [];
+                            rsp.data.total && (_oPage.total = rsp.data.total);
+                            _oPage.setTotal(rsp.data.total);
+                        } else {
+                            records = [];
+                        }
+                        records.forEach(function(record) {
+                            srvRecordConverter.forTable(record, _oApp._schemasById);
+                            _aRecords.push(record);
+                        });
+                        defer.resolve(records);
+                    });
+
+                    return defer.promise;
+                },
+                opBatchVerify: function(rows) {
+                    var eks = [],
+                        selectedRecords = [];
+                    for (var p in rows.selected) {
+                        if (rows.selected[p] === true) {
+                            eks.push(_aRecords[p].enroll_key);
+                            selectedRecords.push(_aRecords[p]);
+                        }
+                    }
+                    if (eks.length) {
+                        http2.post('/rest/site/op/matter/enroll/record/batchVerify?site=' + _siteId + '&app=' + _appId + '&accessToken=' + _accessId, {
+                            eks: eks
+                        }, function(rsp) {
+                            selectedRecords.forEach(function(record) {
+                                record.verified = 'Y';
+                            });
+                            noticebox.success('完成操作');
+                        });
+                    }
+                },
+                opFilter: function() {
+                    var _self = this,
+                        defer = $q.defer();
+                    $uibModal.open({
+                        /*templateUrl: '/views/default/pl/fe/matter/enroll/component/recordFilter.html?_=3',*/
+                        templateUrl: 'recordFilter.html',
+                        controller: 'ctrlOpFilter',
+                        windowClass: 'auto-height',
+                        backdrop: 'static',
+                        resolve: {
+                            criteria: function() {
+                                return angular.copy(_oCriteria);
+                            }
+                        }
+                    }).result.then(function(criteria) {
+                        defer.resolve();
+                        angular.extend(_oCriteria, criteria);
+                        _self.opSearch(1).then(function() {
+                            defer.resolve();
+                        });
+                    });
+                    return defer.promise;
+                },
+                opRemove: function(record) {
+                    if (window.confirm('确认删除？')) {
+                        http2.get('/rest/site/op/matter/enroll/record/remove?site=' + _siteId + '&app=' + _appId + '&accessToken=' + _accessId + '&key=' + record.enroll_key, function(rsp) {
+                            var i = _aRecords.indexOf(record);
+                            _aRecords.splice(i, 1);
+                            _oPage.total = _oPage.total - 1;
+                        });
+                    }
                 },
                 search: function(pageNumber) {
                     var _this = this,
@@ -1380,6 +1539,61 @@ define(['require', 'schema', 'page'], function(require, schemaLib, pageLib) {
             $scope.schemas = canFilteredSchemas;
             $scope.criteria = lastCriteria;
         });
+        $scope.ok = function() {
+            var criteria = $scope.criteria,
+                optionCriteria;
+            // 将单选题/多选题的结果拼成字符串
+            canFilteredSchemas.forEach(function(schema) {
+                var result;
+                if (/multiple/.test(schema.type)) {
+                    if ((optionCriteria = criteria.data[schema.id])) {
+                        result = [];
+                        Object.keys(optionCriteria).forEach(function(key) {
+                            optionCriteria[key] && result.push(key);
+                        });
+                        criteria.data[schema.id] = result.join(',');
+                    }
+                }
+            });
+            $mi.close(criteria);
+        };
+        $scope.cancel = function() {
+            $mi.dismiss('cancel');
+        };
+    }]).controller('ctrlOpFilter', ['$scope', '$uibModalInstance', 'srvApp', 'criteria', function($scope, $mi, srvApp, lastCriteria) {
+        var canFilteredSchemas = [];
+        srvApp.opGet().then(function(data) {
+            var app = data.app;
+            app.data_schemas.forEach(function(schema) {
+                if (false === /image|file/.test(schema.type)) {
+                    canFilteredSchemas.push(schema);
+                }
+                if (/multiple/.test(schema.type)) {
+                    var options = {};
+                    if (lastCriteria.data[schema.id]) {
+                        lastCriteria.data[schema.id].split(',').forEach(function(key) {
+                            options[key] = true;
+                        })
+                    }
+                    lastCriteria.data[schema.id] = options;
+                }
+            });
+            $scope.schemas = canFilteredSchemas;
+            $scope.criteria = lastCriteria;
+        });
+        $scope.clean = function() {
+            var criteria = $scope.criteria;
+            if (criteria.record) {
+                if (criteria.record.verified) {
+                    criteria.record.verified = '';
+                }
+            }
+            if (criteria.data) {
+                angular.forEach(criteria.data, function(val, key) {
+                    criteria.data[key] = '';
+                });
+            }
+        };
         $scope.ok = function() {
             var criteria = $scope.criteria,
                 optionCriteria;

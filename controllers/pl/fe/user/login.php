@@ -40,6 +40,24 @@ class login extends \TMS_CONTROLLER {
 			return $result;
 		}
 		$act = $result->data;
+		/**
+		 * 支持自动登录
+		 */
+		if (isset($data->autologin) && $data->autologin === 'Y') {
+			$expire = time() + (86400 * 365 * 10);
+			$ua = $_SERVER['HTTP_USER_AGENT'];
+			$token = [
+				'uid' => $act->uid,
+				'email' => $data->email,
+				'password' => $data->password,
+			];
+			$cookiekey = md5($ua);
+			$cookieToken = json_encode($token);
+			$encoded = $modelAct->encrypt($cookieToken, 'ENCODE', $cookiekey);
+
+			$this->mySetCookie('_login_auto', 'Y', $expire);
+			$this->mySetCookie('_login_token', $encoded, $expire);
+		}
 
 		return new \ResponseData($act->uid);
 	}

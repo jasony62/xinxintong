@@ -76,7 +76,7 @@ class TMS_CONTROLLER {
 	 * @param string $domain
 	 * @param string $secure
 	 */
-	protected function mySetCookie($name, $value = '', $expire = null, $path = '/', $domain = null, $secure = false) {
+	public static function mySetCookie($name, $value = '', $expire = null, $path = '/', $domain = null, $secure = false) {
 		if (!$domain and G_COOKIE_DOMAIN) {
 			$domain = G_COOKIE_DOMAIN;
 		}
@@ -88,7 +88,7 @@ class TMS_CONTROLLER {
 	/**
 	 * 获取cookie的值
 	 */
-	protected function myGetCookie($name) {
+	public static function myGetCookie($name) {
 		$cookiename = G_COOKIE_PREFIX . $name;
 		if (isset($_COOKIE[$cookiename])) {
 			return $_COOKIE[$cookiename];

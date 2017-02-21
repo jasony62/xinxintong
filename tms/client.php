@@ -1,5 +1,7 @@
 <?php
-
+/**
+ *
+ */
 class TMS_CLIENT {
 	/**
 	 * 获得当前用户的ID
@@ -12,7 +14,7 @@ class TMS_CLIENT {
 			return $_SESSION['account_info']->uid;
 		} else {
 			if (isset($_COOKIE[G_COOKIE_PREFIX . "_user_login"])) {
-				$sso = TMS_CLIENT::decode_hash($_COOKIE[G_COOKIE_PREFIX . "_user_login"]);
+				$sso = TMS_CLIENT::_decodeHash($_COOKIE[G_COOKIE_PREFIX . "_user_login"]);
 				if ($sso['uid'] && $_SERVER['HTTP_USER_AGENT'] == $sso['UA']) {
 					return $sso['uid'];
 				}
@@ -22,15 +24,19 @@ class TMS_CLIENT {
 	}
 	/**
 	 * 当前访问者是否已登录,uid为空则未登录
+	 *
+	 * @return boolean 当前访问客户端是否已经登录
 	 */
 	public static function is_authenticated() {
 		$uid = self::get_client_uid();
+
 		return !empty($uid);
 	}
 	/**
 	 * get/set 当前用户信息
 	 *
-	 * $param object $account
+	 * @param object $account
+	 *
 	 */
 	public static function account($account = null) {
 		if ($account == null) {
@@ -43,7 +49,7 @@ class TMS_CLIENT {
 			/**
 			 * store account information in cookie.
 			 */
-			self::setcookie_login(
+			self::_setCookieLogin(
 				$account->uid,
 				$account->nickname
 			);
@@ -60,8 +66,8 @@ class TMS_CLIENT {
 		/**
 		 * clean cookie
 		 */
-		self::set_cookie('_user_login', '');
-		self::set_cookie('_nickname', '');
+		self::_setCookie('_user_login', '');
+		self::_setCookie('_nickname', '');
 		/**
 		 * clean session
 		 */
@@ -69,15 +75,18 @@ class TMS_CLIENT {
 	}
 	/**
 	 * 设置登录时候的COOKIE信息
+	 *
 	 */
-	private static function setcookie_login($uid, $nickname, $expire = null) {
+	private static function _setCookieLogin($uid, $nickname, $expire = null) {
 		if (empty($uid)) {
 			return false;
 		}
-		$hash = self::get_login_cookie_hash($uid);
 
-		self::set_cookie('_user_login', $hash, $expire);
-		self::set_cookie('_nickname', $nickname, $expire);
+		// 登录用户信息的加密串
+		$hash = self::_getLoginCookieHash($uid);
+
+		self::_setCookie('_user_login', $hash, $expire);
+		self::_setCookie('_nickname', $nickname, $expire);
 
 		return true;
 	}
@@ -90,21 +99,23 @@ class TMS_CLIENT {
 	 * @param string $domain
 	 * @param string $secure
 	 */
-	private static function set_cookie($name, $value = '', $expire = null, $path = '/', $domain = null, $secure = false) {
+	private static function _setCookie($name, $value = '', $expire = null, $path = '/', $domain = null, $secure = false) {
 		if (!$domain and G_COOKIE_DOMAIN) {
 			$domain = G_COOKIE_DOMAIN;
 		}
+
 		return setcookie(G_COOKIE_PREFIX . $name, $value, $expire, $path, $domain, $secure);
 	}
 	/**
 	 * 将用户信息编码为加密串
 	 *
-	 * 加密串中包含:uid,UA
+	 * @return string 加密串中包含:uid,UA
 	 */
-	private static function get_login_cookie_hash($uid) {
-		return self::encode_hash(array(
+	private static function _getLoginCookieHash($uid) {
+		return self::_encodeHash(array(
 			'uid' => $uid,
-			'UA' => $_SERVER['HTTP_USER_AGENT']));
+			'UA' => $_SERVER['HTTP_USER_AGENT'])
+		);
 	}
 	/**
 	 * 加密hash，生成发送给用户的hash字符串
@@ -112,15 +123,15 @@ class TMS_CLIENT {
 	 * @param array $hash_arr
 	 * @return string
 	 */
-	private static function encode_hash($hash_arr, $hash_key = false) {
+	private static function _encodeHash($hash_arr, $hash_key = false) {
 		if (empty($hash_arr)) {
 			return false;
 		}
 
-		$hash_str = "";
+		$hash_str = '';
 
 		foreach ($hash_arr as $key => $value) {
-			$hash_str .= $key . "^]+" . $value . "!;-";
+			$hash_str .= $key . '^]+' . $value . '!;-';
 		}
 
 		$hash_str = substr($hash_str, 0, -3);
@@ -151,9 +162,10 @@ class TMS_CLIENT {
 	 *
 	 * @param string $hash_str
 	 * @param boolean $b_urldecode	当$hash_str不是通过浏览器传递的时候就需要urldecode,否则会解密失败，反之也一样
+	 *
 	 * @return array
 	 */
-	public static function decode_hash($hash_str, $b_urldecode = false, $hash_key = false) {
+	public static function _decodeHash($hash_str, $b_urldecode = false, $hash_key = false) {
 		if (empty($hash_str)) {
 			return array();
 		}

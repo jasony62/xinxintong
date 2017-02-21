@@ -43,7 +43,12 @@ class auth extends \pl\fe\base {
 		}
 	}
 	/**
+	 *
 	 * 验证通过后的回调页面
+	 * 有安全漏洞，只要知道了uid就可以直接登录？？？
+	 *
+	 * @param string $uid
+	 *
 	 */
 	public function passed_action($uid = null) {
 		if ($uid === null) {

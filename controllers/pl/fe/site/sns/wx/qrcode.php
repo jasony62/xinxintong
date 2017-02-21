@@ -64,6 +64,10 @@ class qrcode extends \pl\fe\base {
 			$wxConfig = $modelWx->bySite($snsSiteId);
 		}
 
+		if ($wxConfig === false) {
+			return new \ResponseError('公众号还没有开通');
+		}
+
 		if ($wxConfig->can_qrcode === 'N') {
 			return new \ResponseError('公众号还没有开通场景二维码接口');
 		}

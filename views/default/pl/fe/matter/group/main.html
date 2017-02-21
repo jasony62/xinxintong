@@ -42,7 +42,7 @@
 </div>
 <div class='col-md-6'>
     <div class="panel panel-default" ng-controller="ctrlOpUrl">
-        <div class="panel-heading">结果展示页面</div>
+        <div class="panel-heading">汇总结果分享链接</div>
         <div class="panel-body">
             <form>
                 <div class='form-group'>
@@ -62,6 +62,7 @@
                     <a href="javascript:void(0)" ng-click="gotoCode()">编辑页面</a>
                     <a href="javascript:void(0)" ng-click="resetCode()">重置页面</a>
                 </div>
+                <p ng-if="app.mission_id" class='help-block'>生成链接，本活动将出现在项目的结果展示页面中</p>
             </form>
         </div>
     </div>

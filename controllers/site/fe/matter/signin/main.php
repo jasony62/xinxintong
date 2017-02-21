@@ -49,7 +49,7 @@ class main extends base {
 		/* 计算打开哪个页面 */
 		if (empty($page)) {
 			/*没有指定页面*/
-			$oPage = $this->_defaultPage($this->who, $site, $app, true, isset($activeRound) ? $activeRound : null);
+			$oPage = $this->_defaultPage($site, $app, true, isset($activeRound) ? $activeRound : null);
 		} else {
 			$oPage = $this->model('matter\signin\page')->byName($app->id, $page);
 		}
@@ -114,8 +114,8 @@ class main extends base {
 	/**
 	 * 当前用户进入的缺省页面
 	 */
-	private function &_defaultPage(&$user, $siteId, &$app, $redirect = false, $round = null) {
-		$page = $this->checkEntryRule($user, $siteId, $app, $redirect, $round);
+	private function &_defaultPage($siteId, &$app, $redirect = false, $round = null) {
+		$page = $this->checkEntryRule($siteId, $app, $redirect, $round);
 		$oPage = $this->model('matter\signin\page')->byName($app->id, $page);
 		if (empty($oPage)) {
 			if ($redirect === true) {
@@ -151,7 +151,7 @@ class main extends base {
 
 		// 打开哪个页面？
 		if (empty($page)) {
-			$oPage = $this->_defaultPage($user, $site, $signinApp, false, $activeRound);
+			$oPage = $this->_defaultPage($site, $signinApp, false, $activeRound);
 		} else {
 			$oPage = $this->model('matter\signin\page')->byName($signinApp->id, $page);
 		}

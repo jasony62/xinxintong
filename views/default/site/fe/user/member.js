@@ -30,7 +30,7 @@ var LS = (function(fields) {
         j: j
     };
 })(['site', 'schema', 'debug']);
-ngApp = angular.module('app', []);
+var ngApp = angular.module('app', []);
 ngApp.config(['$controllerProvider', function($cp) {
     ngApp.provider = {
         controller: $cp.register
@@ -222,6 +222,9 @@ ngApp.controller('ctrlMember', ['$scope', '$http', '$timeout', '$q', function($s
         });
         return deferred.promise;
     };
+    $scope.gotoHome = function() {
+        location.href = '/rest/site/fe/user?site=' + siteId;
+    };
     $scope.repeatPwd = (function() {
         return {
             test: function(value) {
@@ -273,6 +276,9 @@ ngApp.controller('ctrlMember', ['$scope', '$http', '$timeout', '$q', function($s
         sendRequest(LS.j('doReauth', 'site', 'schema'), deferred);
         return deferred.promise;
     };
+    $http.get('/rest/site/fe/get?site=' + LS.p.site).success(function(rsp) {
+        $scope.site = rsp.data;
+    });
     $http.get(LS.j('pageGet', 'site', 'schema')).success(function(rsp) {
         if (rsp.err_code !== 0) {
             $scope.errmsg = rsp.err_msg;

@@ -13,7 +13,7 @@ class discuss_model extends \TMS_MODEL {
 		list($matterType, $matterId) = explode(',', $threadKey);
 		switch ($matterType) {
 		case 'article':
-			$matter = $this->model('matter\article2')->byId($matterId, ['fields' => 'siteid,id,title,entry,creater']);
+			$matter = $this->model('matter\article2')->byId($matterId, ['fields' => 'siteid,mission_id,id,title,entry,creater']);
 			$this->_logVote($matter, $user);
 			// 行为积分
 			if ($result->first) {
@@ -25,7 +25,7 @@ class discuss_model extends \TMS_MODEL {
 			}
 			break;
 		case 'enroll':
-			$matter = $this->model('matter\enroll')->byId($matterId, ['cascaded' => 'N', 'fields' => 'siteid,id,title']);
+			$matter = $this->model('matter\enroll')->byId($matterId, ['cascaded' => 'N', 'fields' => 'siteid,mission_id,id,title']);
 			$this->_logVote($matter, $user);
 			// 行为积分
 			if ($result->first) {
@@ -39,6 +39,10 @@ class discuss_model extends \TMS_MODEL {
 		}
 	}
 	/**
+	 * 记录用户的操作日志
+	 *
+	 * @param object $matter
+	 * @param object $user
 	 *
 	 */
 	private function _logVote($matter, $user) {

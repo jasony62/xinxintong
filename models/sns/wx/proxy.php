@@ -108,13 +108,16 @@ class proxy_model extends \sns\proxybase {
 		}
 		curl_close($ch);
 		$token = json_decode($response);
+		if (!is_object($token)) {
+			return array(false, $response);
+		}
 		if (isset($token->errcode)) {
 			return array(false, $token->errmsg);
 		}
-
 		/**
 		 * 保存获得的token
 		 */
+		$u = [];
 		$u["access_token"] = $token->access_token;
 		$u["access_token_expire_at"] = (int) $token->expires_in + time();
 

@@ -117,27 +117,27 @@ if (!$mysqli->query($sql)) {
 	echo 'database error(xxt_contribute): ' . $mysqli->error;
 }
 /**
- * 站点的用户
+ * 站点访客用户
  */
 $sql = "create table if not exists xxt_site_account (";
 $sql .= "siteid varchar(32) not null comment '站点id'";
 $sql .= ",uid varchar(40) not null comment '用户的id'";
-$sql .= ",assoc_id varchar(40) not null default '' comment '用户的关联id'";
+$sql .= ",assoc_id varchar(40) not null default '' comment '用户的关联id'"; // should be removed
 $sql .= ",ufrom varchar(20) not null default '' comment '用户来源'";
-$sql .= ",uname varchar(50) default null comment '登录用户名'";
-$sql .= ",password varchar(64) default null comment '用户密码'";
-$sql .= ",salt varchar(32) default null comment '用户附加混淆码'";
+$sql .= ",uname varchar(50) default null comment '登录用户名'"; // should be removed
+$sql .= ",password varchar(64) default null comment '用户密码'"; // should be removed
+$sql .= ",salt varchar(32) default null comment '用户附加混淆码'"; // should be removed
 $sql .= ",nickname varchar(50) default null comment '用户昵称'";
 $sql .= ",headimgurl varchar(255) not null default ''";
-$sql .= ",email varchar(255) default null comment 'email'";
-$sql .= ",mobile varchar(255) default null comment 'mobile'";
-$sql .= ",reg_time int default null comment '注册时间'";
-$sql .= ",reg_ip varchar(128) default null comment '注册ip'";
-$sql .= ",last_login int default '0' comment '最后登录时间'";
-$sql .= ",last_ip varchar(128) default null comment '最后登录 ip'";
-$sql .= ",last_active int default null comment '最后活跃时间'";
-$sql .= ",forbidden tinyint(3) default '0' comment '是否禁止用户'";
-$sql .= ",is_first_login tinyint(1) default '1' comment '首次登录标记'";
+$sql .= ",email varchar(255) default null comment 'email'"; // should be removed
+$sql .= ",mobile varchar(255) default null comment 'mobile'"; // should be removed
+$sql .= ",reg_time int default null comment '注册时间'"; // should be removed
+$sql .= ",reg_ip varchar(128) default null comment '注册ip'"; // should be removed
+$sql .= ",last_login int default '0' comment '最后登录时间'"; // should be removed
+$sql .= ",last_ip varchar(128) default null comment '最后登录 ip'"; // should be removed
+$sql .= ",last_active int default null comment '最后活跃时间'"; // should be removed
+$sql .= ",forbidden tinyint(3) default '0' comment '是否禁止用户'"; // should be removed
+$sql .= ",is_first_login tinyint(1) default '1' comment '首次登录标记'"; // should be removed
 $sql .= ",level_id int default null comment '用户级别'";
 $sql .= ",read_num int not null default 0"; // 累积阅读数
 $sql .= ",share_friend_num int not null default 0"; // 累积分享给好友数
@@ -149,9 +149,41 @@ $sql .= ",coin_day int not null default 0"; // 虚拟货币日增量
 $sql .= ",coin_week int not null default 0"; // 虚拟货币周增量
 $sql .= ",coin_month int not null default 0"; // 虚拟货币月增量
 $sql .= ",coin_year int not null default 0"; // 虚拟货币年增量
-$sql .= ",wx_openid varchar(255) not null default ''";
-$sql .= ",yx_openid varchar(255) not null default ''";
-$sql .= ",qy_openid varchar(255) not null default ''";
+$sql .= ",wx_openid varchar(255) not null default ''"; // 绑定的社交账号信息
+$sql .= ",is_wx_primary char(1) not null default 'N' comment '是否为站点下第一个和openid绑定的访客账号'";
+$sql .= ",yx_openid varchar(255) not null default ''"; // 绑定的社交账号信息
+$sql .= ",is_yx_primary char(1) not null default 'N' comment '是否为站点下第一个和openid绑定的访客账号'";
+$sql .= ",qy_openid varchar(255) not null default ''"; // 绑定的社交账号信息
+$sql .= ",is_qy_primary char(1) not null default 'N' comment '是否为站点下第一个和openid绑定的访客账号'";
+$sql .= ",unionid varchar(32) not null default '' comment '用户的注册id'";
+$sql .= ",is_reg_primary char(1) not null default 'N' comment '是否为和注册账号绑定的主访客账号，每一个注册账号每一个站点下只有一个主访客账号'";
+$sql .= ",PRIMARY KEY (uid)";
+$sql .= ") ENGINE=MyISAM DEFAULT CHARSET=utf8";
+if (!$mysqli->query($sql)) {
+	header('HTTP/1.0 500 Internal Server Error');
+	echo 'database error(xxt_site_account): ' . $mysqli->error;
+}
+/**
+ * 站点注册用户
+ * 注册用户跨站点，一个注册用户可以对应多个访客用户
+ */
+$sql = "create table if not exists xxt_site_registration (";
+$sql .= "unionid varchar(32) not null comment '用户的注册id'";
+$sql .= ",from_siteid varchar(32) not null comment '从哪个站点发起的注册id'";
+$sql .= ",uname varchar(50) default null comment '登录用户名'";
+$sql .= ",password varchar(64) default null comment '用户密码'";
+$sql .= ",salt varchar(32) default null comment '用户附加混淆码'";
+$sql .= ",nickname varchar(50) default null comment '用户昵称'";
+$sql .= ",headimgurl varchar(255) not null default ''";
+$sql .= ",email varchar(255) default null comment 'email'";
+$sql .= ",mobile varchar(255) default null comment 'mobile'";
+$sql .= ",reg_time int default null comment '注册时间'";
+$sql .= ",reg_ip varchar(128) default null comment '注册ip'";
+$sql .= ",last_login int default '0' comment '最后登录时间'";
+$sql .= ",last_ip varchar(128) default null comment '最后登录ip'";
+$sql .= ",last_active int default null comment '最后活跃时间'";
+$sql .= ",forbidden tinyint(3) default '0' comment '是否禁止用户'"; // 0不禁止，1禁止
+$sql .= ",is_first_login char(1) default 'Y' comment '首次登录标记'";
 $sql .= ",PRIMARY KEY (uid)";
 $sql .= ") ENGINE=MyISAM DEFAULT CHARSET=utf8";
 if (!$mysqli->query($sql)) {

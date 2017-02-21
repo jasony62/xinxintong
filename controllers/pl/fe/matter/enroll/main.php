@@ -1014,6 +1014,9 @@ class main extends \pl\fe\matter\base {
 		$model = $this->model('matter\enroll');
 		/* 在删除数据前获得数据 */
 		$app = $model->byId($app, 'id,title,summary,pic,mission_id,creater');
+		if ($app === false) {
+			return new \ResponseError('指定对象不存在');
+		}
 		if ($app->creater !== $user->id) {
 			return new \ResponseError('没有删除数据的权限');
 		}
@@ -1118,6 +1121,10 @@ class main extends \pl\fe\matter\base {
 	}
 	/**
 	 * 登记情况汇总信息
+	 *
+	 * @param string $site site'id
+	 * @param string $app app'id
+	 *
 	 */
 	public function summary_action($site, $app) {
 		if (false === ($user = $this->accountUser())) {
@@ -1125,7 +1132,8 @@ class main extends \pl\fe\matter\base {
 		}
 
 		$modelApp = $this->model('matter\enroll');
-		$summary = $modelApp->summary($site, $app);
+		$app = $modelApp->byId($app);
+		$summary = $modelApp->opData($app);
 
 		return new \ResponseData($summary);
 	}

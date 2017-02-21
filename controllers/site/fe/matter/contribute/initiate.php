@@ -296,6 +296,9 @@ class initiate extends base {
 		$current = time();
 		$user = $this->who;
 		$member = $this->_initiatorMember($app);
+		if ($member === false) {
+			return new \ResponseError('没有获得投稿人身份信息');
+		}
 
 		$article = array();
 		$article['siteid'] = $site->id;

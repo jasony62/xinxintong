@@ -61,22 +61,6 @@ class fan_model extends \TMS_MODEL {
 		return $fan;
 	}
 	/**
-	 *
-	 */
-	public function &byUser($siteid, $userid, $fields = '*', $followed = null) {
-		$q = [
-			$fields,
-			'xxt_site_wxfan',
-			"siteid='$siteid' and userid='$userid'",
-		];
-		if ($followed === 'Y') {
-			$q[2] .= " and unsubscribe_at=0";
-		}
-		$fan = $this->query_obj_ss($q);
-
-		return $fan;
-	}
-	/**
 	 * 是否关注了公众号
 	 *
 	 * todo 企业号的用户如何判断？
@@ -107,16 +91,14 @@ class fan_model extends \TMS_MODEL {
 		$fan->subscribe_at = isset($options['subscribe_at']) ? $options['subscribe_at'] : 0;
 		$fan->sync_at = isset($options['sync_at']) ? $options['sync_at'] : 0;
 
-		$fan->nickname = isset($options['nickname']) ? $options['nickname'] : '';
+		$fan->nickname = isset($options['nickname']) ? $this->escape($options['nickname']) : '';
 		isset($options['sex']) && $fan->sex = $options['sex'];
 		isset($options['headimgurl']) && $fan->headimgurl = $options['headimgurl'];
-		isset($options['country']) && $fan->country = $options['country'];
-		isset($options['province']) && $fan->province = $options['province'];
-		isset($options['city']) && $fan->city = $options['city'];
+		isset($options['country']) && $fan->country = $this->escape($options['country']);
+		isset($options['province']) && $fan->province = $this->escape($options['province']);
+		isset($options['city']) && $fan->city = $this->escape($options['city']);
 
 		$fan->id = $this->insert('xxt_site_wxfan', $fan, true);
-
-		//$fan = $this->byOpenid($siteId, $openid);
 
 		return $fan;
 	}

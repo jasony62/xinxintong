@@ -178,7 +178,7 @@ class main extends base {
 
 		if ($oOpenPage === null) {
 			// 根据进入规则确定进入页面
-			$page = $this->checkEntryRule($site, $app, $user, $redirect);
+			$page = $this->checkEntryRule($site, $app, $redirect);
 			$oOpenPage = $modelPage->byName($app->id, $page);
 		}
 
@@ -204,7 +204,11 @@ class main extends base {
 		$params = array();
 
 		/* 登记活动定义 */
-		$app = $this->modelApp->byId($app, array('cascaded' => 'N'));
+		$app = $this->modelApp->byId($app, ['cascaded' => 'N']);
+		if ($app === false) {
+			return new \ResponseError('指定的登记活动不存在，请检查参数是否正确');
+		}
+
 		$params['app'] = &$app;
 
 		/* 当前访问用户的基本信息 */

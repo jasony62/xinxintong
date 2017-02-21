@@ -41,9 +41,9 @@ class round extends \pl\fe\matter\base {
 			'siteid' => $site,
 			'aid' => $app,
 			'rid' => $roundId,
-			'creater' => \TMS_CLIENT::get_client_uid(),
+			'creater' => $user->id,
 			'create_at' => time(),
-			'title' => $posted->title,
+			'title' => $modelRnd->escape($posted->title),
 			'state' => $posted->state,
 		);
 

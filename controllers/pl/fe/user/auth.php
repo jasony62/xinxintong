@@ -45,13 +45,21 @@ class auth extends \pl\fe\base {
 	/**
 	 * 验证通过后的回调页面
 	 */
-	public function passed_action($uid) {
+	public function passed_action($uid = null) {
+		if ($uid === null) {
+			return new \ResponseError('参数错误');
+		}
+
 		$modelAct = $this->model('account');
+		$act = $modelAct->byId($uid);
+		if ($act === false) {
+			return new \ResponseError('指定的对象不存在');
+		}
+
 		$fromip = $this->client_ip();
 		$modelAct->update_last_login($uid, $fromip);
 
 		// 记录客户端登录状态
-		$act = $modelAct->byId($uid);
 		\TMS_CLIENT::account($act);
 
 		// 页面跳转

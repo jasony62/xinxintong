@@ -266,12 +266,27 @@ class log_model extends \TMS_MODEL {
 		$log['matter_id'] = $matter->id;
 		$log['matter_type'] = $matter->type;
 		$log['matter_title'] = $this->escape($matter->title);
+		if (!empty($matter->mission_id)) {
+			$log['mission_id'] = $matter->mission_id;
+			if (!empty($matter->mission_title)) {
+				$log['mission_title'] = $this->escape($matter->mission_title);
+			} else {
+				$mission = $this->M('matter\mission')->byId($matter->mission_id, ['fields' => 'title']);
+				$log['mission_title'] = $this->escape($mission->title);
+			}
+		}
 		$log['user_agent'] = $client->agent;
 		$log['client_ip'] = isset($client->ip) ? $client->ip : '';
 		$log['referer'] = $referer;
 		$log['operation'] = $operation->name;
-		$log['operate_at'] = isset($operation->data) ? $operation->at : time();
-		isset($operation->data) && $log['operate_data'] = $operation->data;
+		$log['operate_at'] = isset($operation->at) ? $operation->at : time();
+		if (isset($operation->data)) {
+			if (is_string($operation->data)) {
+				$log['operate_data'] = $this->escape($operation->data);
+			} else {
+				$log['operate_data'] = $this->escape($this->toJson($operation->data));
+			}
+		}
 		$log['matter_last_op'] = 'Y';
 		$log['matter_op_num'] = $matterOpNum;
 		$log['user_last_op'] = 'Y';

@@ -336,6 +336,6 @@ class fan_model extends \TMS_MODEL {
 	 */
 	public function getAuthid($site){
 		$id=$this->query_val_ss(['qy_ab','xxt_site_member_schema'," siteid='$site'"]);
-		return $id ;
+		return empty($id) ? 0 : $id ;
 	}
 }

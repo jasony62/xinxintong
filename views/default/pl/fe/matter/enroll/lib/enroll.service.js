@@ -890,7 +890,7 @@ define(['require', 'schema', 'page'], function(require, schemaLib, pageLib) {
                 },
                 opRemove: function(record) {
                     if (window.confirm('确认删除？')) {
-                        http2.get('/rest/site/op/matter/enroll/record/remove?site=' + _siteId + '&app=' + _appId + '&accessToken=' + _accessId + '&key=' + record.enroll_key, function(rsp) {
+                        http2.get('/rest/site/op/matter/enroll/record/remove?site=' + _siteId + '&app=' + _appId + '&accessToken=' + _accessId + '&ek=' + record.enroll_key, function(rsp) {
                             var i = _aRecords.indexOf(record);
                             _aRecords.splice(i, 1);
                             _oPage.total = _oPage.total - 1;

@@ -1,4 +1,5 @@
 #records{margin-bottom:60px;}
+#records table img{max-width:96px;}
 ul{padding-left:0;}
 @media screen and (max-width:768px){
 	table thead{display:none;}

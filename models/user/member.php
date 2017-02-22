@@ -476,5 +476,4 @@ class member_model extends TMS_MODEL {
 
 		return $this->update($sql);
 	}
-	
 }

@@ -29,13 +29,17 @@ class registration_model extends \TMS_MODEL {
 	 *
 	 * return object
 	 */
-	public function &byUname($uname) {
+	public function &byUname($uname, $options = []) {
 		$fields = isset($options['fields']) ? $options['fields'] : 'unionid,uname,nickname,password,salt,from_siteid';
 		$q = [
 			$fields,
 			'xxt_site_registration',
 			["uname" => $uname],
 		];
+		if (isset($options['forbidden'])) {
+			/* 帐号是否已关闭 */
+			$q[2]['forbidden'] = $options['forbidden'];
+		}
 		$reg = $this->query_obj_ss($q);
 
 		return $reg;
@@ -137,9 +141,10 @@ class registration_model extends \TMS_MODEL {
 	 * @return object|string
 	 */
 	public function validate($uname, $password) {
-		if (!$registration = $this->byUname($uname)) {
+		if (!$registration = $this->byUname($uname, ['forbidden' => 0])) {
 			return '指定的登录用户名不存在';
 		}
+
 		$pw_hash = $this->compile_password($uname, $password, $registration->salt);
 		if ($pw_hash != $registration->password) {
 			return '提供的登录用户名或密码不正确';

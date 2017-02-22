@@ -1,4 +1,6 @@
-app.controller('ctrlLogin', ['$scope', 'http2', function($scope, http2) {
+'use strict';
+var ngApp = angular.module('app', ['ui.tms']);
+ngApp.controller('ctrlLogin', ['$scope', 'http2', function($scope, http2) {
     $scope.data = {};
     if (window.localStorage) {
         $scope.supportLocalStorage = 'Y';
@@ -13,7 +15,7 @@ app.controller('ctrlLogin', ['$scope', 'http2', function($scope, http2) {
         $scope.supportLocalStorage = 'N';
         document.querySelector('[ng-model="data.email"]').focus();
     }
-    $scope.$root.keypress = function(event) {
+    $scope.keypress = function(event) {
         var code = event.keyCode || event.which;
         if (code === 13 && $scope.data.email && $scope.data.password) {
             event.preventDefault();

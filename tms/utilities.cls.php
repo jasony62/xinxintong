@@ -59,3 +59,9 @@ class DatabaseError extends ResponseData {
 		parent::__construct(null, 900, $msg);
 	}
 }
+/**
+ * url找不到匹配的处理接口
+ */
+class UrlNotMatchException extends Exception {
+
+}

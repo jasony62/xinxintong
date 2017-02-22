@@ -1014,6 +1014,9 @@ class main extends \pl\fe\matter\base {
 		$model = $this->model('matter\enroll');
 		/* 在删除数据前获得数据 */
 		$app = $model->byId($app, 'id,title,summary,pic,mission_id,creater');
+		if ($app === false) {
+			return new \ResponseError('指定对象不存在');
+		}
 		if ($app->creater !== $user->id) {
 			return new \ResponseError('没有删除数据的权限');
 		}

@@ -6,7 +6,9 @@ require_once dirname(__FILE__) . '/tms_controller.php';
 require_once dirname(__FILE__) . '/db.php';
 require_once dirname(__FILE__) . '/template.php';
 require_once dirname(__FILE__) . '/client.php';
-
+/**
+ * 除理request
+ */
 class TMS_APP {
 	//
 	private static $models = array();
@@ -80,10 +82,17 @@ class TMS_APP {
 	 */
 	public static function run($config) {
 		global $__controller, $__action;
+
+		/* 如果不是登录状态，尝试自动登录 */
+		if (!TMS_CLIENT::is_authenticated()) {
+			self::_autoLogin();
+		}
+
+		/* 获得指定的controller或view */
 		$url = parse_url($_SERVER['REQUEST_URI']);
 		$path = $url['path'];
 		if (0 === strpos($path, '/site/')) {
-			/*快速进入站点*/
+			/* 快速进入站点，如果urlrewrite没有配置，这一部分的代码不执行？？？ */
 			$short = substr($path, 6);
 			$full = '/rest/site/fe?site=' . $short;
 			header("Location: $full");
@@ -97,12 +106,12 @@ class TMS_APP {
 		} else {
 			if (defined('TMS_APP_HOME') && !empty(TMS_APP_HOME)) {
 				/**
-				 * 跳转到指定首页
+				 * 跳转到指定的平台首页
 				 */
 				header("Location: " . TMS_APP_HOME);
 			} else {
 				/**
-				 * 跳转到管理端首页
+				 * 跳转到平台管理端首页
 				 */
 				if (self::_authenticate()) {
 					$path = TMS_APP_AUTHED;
@@ -123,7 +132,7 @@ class TMS_APP {
 		 * create controller.
 		 */
 		if (!$obj_controller = self::create_controller($__controller)) {
-			throw new Exception("控制器($__controller)不存在！");
+			throw new UrlNotMatchException("控制器($__controller)不存在！");
 		}
 		/**
 		 * check controller's action.
@@ -136,11 +145,11 @@ class TMS_APP {
 				 */
 				$default_method = self::$default_action . '_action';
 				if (!method_exists($obj_controller, $default_method)) {
-					throw new Exception("操作($__controller->$action_method)不存在！");
+					throw new UrlNotMatchException("操作($__controller->$action_method)不存在！");
 				}
 				$action_method = $default_method;
 			} else {
-				throw new Exception("操作($__controller->$action_method)不存在！");
+				throw new UrlNotMatchException("操作($__controller->$action_method)不存在！");
 			}
 		}
 		/**
@@ -216,7 +225,7 @@ class TMS_APP {
 		 */
 		if ($__controller) {
 			if (!$obj_controller = self::create_controller($__controller, true)) {
-				throw new Exception("控制器($__controller)不存在！");
+				throw new UrlNotMatchException("控制器($__controller)不存在！");
 			}
 
 		} else {
@@ -226,7 +235,7 @@ class TMS_APP {
 		// check controller's action.
 		$action_method = 'view_action';
 		if (!method_exists($obj_controller, $action_method)) {
-			throw new Exception("操作($__controller->$action_method)不存在！");
+			throw new UrlNotMatchException("操作($__controller->$action_method)不存在！");
 		}
 
 		/**
@@ -371,80 +380,58 @@ class TMS_APP {
 	 * 检查用户是否已经通过认证
 	 * 如果指定了controller对象，且controller对象提供认证接口，用controller的认证接口进行认证
 	 *
-	 * @param object $objController
+	 * @param object $oController 要调用的controller
+	 *
 	 */
-	private static function _authenticate($objController = null) {
-		if ($objController === null) {
-			if (!TMS_CLIENT::is_authenticated()) {
-				if (!self::_login()) {
-					/**
-					 * 如果当前用户没有登录过，跳转到指定的登录页面
-					 */
-					$_SERVER['HTTP_REFERER'] = $_SERVER['REQUEST_URI'];
-					self::_request_api(str_replace(TMS_APP_API_PREFIX, '', TMS_APP_UNAUTH));
-				}
-			}
-			return true;
-		} else {
-			// access control
-			if (method_exists($objController, 'authenticated') && method_exists($objController, 'authenticateURL')) {
-				if (true === $objController->authenticated()) {
+	private static function _authenticate($oController = null) {
+		/**
+		 * 如果指定了controller，优先使用controller定义的认证方法
+		 */
+		if (isset($oController)) {
+			if (method_exists($oController, 'authenticated') && method_exists($oController, 'authenticateURL')) {
+				if (true === $oController->authenticated()) {
 					return true;
 				}
-				self::_request_api($objController->authenticateURL());
-			} else if (!TMS_CLIENT::is_authenticated()) {
-				self::_request_api(str_replace(TMS_APP_API_PREFIX, '', TMS_APP_UNAUTH));
+				self::_request_api($oController->authenticateURL());
 			}
+		}
+		/**
+		 * 使用平台定义的认证方法
+		 */
+		if (!TMS_CLIENT::is_authenticated()) {
+			/**
+			 * 如果当前用户没有登录过，跳转到指定的登录页面，记录页面的跳转关系
+			 */
+			$_SERVER['HTTP_REFERER'] = $_SERVER['REQUEST_URI'];
+			self::_request_api(str_replace(TMS_APP_API_PREFIX, '', TMS_APP_UNAUTH));
+		}
+
+		return true;
+	}
+	/**
+	 * 尝试自动登录
+	 *
+	 * @see pl\fe\user\login.php
+	 */
+	private static function _autoLogin() {
+		if ('Y' === TMS_CONTROLLER::myGetCookie('_login_auto')) {
+			$modelAct = self::M('account');
+			$token = TMS_CONTROLLER::myGetCookie('_login_token');
+			$cookiekey = md5($_SERVER['HTTP_USER_AGENT']);
+			$token = TMS_MODEL::encrypt($token, 'DECODE', $cookiekey);
+			$token = json_decode($token);
+
+			/* check */
+			$result = $modelAct->validate($token->email, $token->password);
+			if ($result->err_code != 0) {
+				return false;
+			}
+			$act = $result->data;
+			TMS_CLIENT::account($act);
 			return true;
 		}
-	}
-	/**
-	 * 是否已经登录？
-	 *
-	 * 允许通过http_auth登录
-	 *
-	 */
-	private static function _login() {
-		// directly visit, no login process.
-		// analyze the PHP_AUTH_DIGEST variable
-		// user exist?
-		if (isset($_SERVER['PHP_AUTH_DIGEST'])) {
-			if ($data = self::http_digest_parse($_SERVER['PHP_AUTH_DIGEST'])) {
-				$email = $data['username'];
-				$account = self::model('account')->get_account_by_email($email);
-				if (!$account) {
-					return false;
-				}
-				session_destroy();
-				TMS_CLIENT::account($account);
-				return true;
-			}
-		}
-		return false;
-	}
 
-	/**
-	 * function to parse the http auth header
-	 */
-	private static function http_digest_parse($txt) {
-		// protect against missing data
-		$needed_parts = array(
-			'nonce' => 1,
-			'nc' => 1,
-			'cnonce' => 1,
-			'qop' => 1,
-			'username' => 1,
-			'uri' => 1,
-			'response' => 1);
-		$data = array();
-		$keys = implode('|', array_keys($needed_parts));
-		preg_match_all('@(' . $keys . ')=(?:([\'"])([^\2]+?)\2|([^\s,]+))@', $txt, $matches,
-			PREG_SET_ORDER);
-		foreach ($matches as $m) {
-			$data[$m[1]] = $m[3] ? $m[3] : $m[4];
-			unset($needed_parts[$m[1]]);
-		}
-		return count($needed_parts) != 0 ? false : $data;
+		return false;
 	}
 	/**
 	 * 获得session中保存的数据

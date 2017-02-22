@@ -150,9 +150,9 @@ class record extends base {
 			/*处理自定义信息*/
 			$rst = \TMS_APP::M('app\enroll\record')->setData($user, $mpid, $aid, $ek, $posted, $submitkey);
 			/*登记提交的积分奖励*/
-			$modelCoin = $this->model('coin\log');
-			$action = 'app.enroll,' . $aid . '.record.submit';
-			$modelCoin->income($mpid, $action, $aid, 'sys', $user->openid);
+			// $modelCoin = $this->model('coin\log');
+			// $action = 'app.enroll,' . $aid . '.record.submit';
+			// $modelCoin->income($mpid, $action, $aid, 'sys', $user->openid);
 		} else {
 			/* 已经登记，更新原先提交的数据 */
 			$this->model()->update('xxt_enroll_record',

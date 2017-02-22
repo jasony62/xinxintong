@@ -182,7 +182,7 @@ $sql .= ",reg_ip varchar(128) default null comment '注册ip'";
 $sql .= ",last_login int default '0' comment '最后登录时间'";
 $sql .= ",last_ip varchar(128) default null comment '最后登录ip'";
 $sql .= ",last_active int default null comment '最后活跃时间'";
-$sql .= ",forbidden tinyint(3) default '0' comment '是否禁止用户'";
+$sql .= ",forbidden tinyint(3) default '0' comment '是否禁止用户'"; // 0不禁止，1禁止
 $sql .= ",is_first_login char(1) default 'Y' comment '首次登录标记'";
 $sql .= ",PRIMARY KEY (uid)";
 $sql .= ") ENGINE=MyISAM DEFAULT CHARSET=utf8";

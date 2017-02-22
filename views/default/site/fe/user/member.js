@@ -276,6 +276,9 @@ ngApp.controller('ctrlMember', ['$scope', '$http', '$timeout', '$q', function($s
         sendRequest(LS.j('doReauth', 'site', 'schema'), deferred);
         return deferred.promise;
     };
+    $http.get('/rest/site/fe/get?site=' + LS.p.site).success(function(rsp) {
+        $scope.site = rsp.data;
+    });
     $http.get(LS.j('pageGet', 'site', 'schema')).success(function(rsp) {
         if (rsp.err_code !== 0) {
             $scope.errmsg = rsp.err_msg;

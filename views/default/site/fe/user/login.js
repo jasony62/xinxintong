@@ -33,6 +33,15 @@ define(['require', 'angular'], function(require, angular) {
         $scope.gotoRegister = function() {
             location.href = '/rest/site/fe/user/register?site=' + site;
         };
-        window.loading.finish();
+        $scope.gotoHome = function() {
+            location.href = '/rest/site/fe/user?site=' + site;
+        };
+        $http.get('/rest/site/fe/get?site=' + site).success(function(rsp) {
+            $scope.site = rsp.data;
+            $http.get('/rest/site/fe/user/get?site=' + site).success(function(rsp) {
+                $scope.user = rsp.data;
+                window.loading.finish();
+            });
+        });
     }]);
 });

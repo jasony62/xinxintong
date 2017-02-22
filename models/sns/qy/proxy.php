@@ -29,6 +29,9 @@ class proxy_model extends \sns\proxybase {
 	 * 对接企业号
 	 */
 	public function join($params) {
+		if (empty($data['msg_signature']) || empty($data['timestamp']) || empty($data['nonce']) || empty($data['echostr'])) {
+			return array(false, 'failed');
+		}
 		$msg_signature = $params['msg_signature'];
 		$timestamp = $params['timestamp'];
 		$nonce = $params['nonce'];

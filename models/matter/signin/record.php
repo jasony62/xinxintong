@@ -39,9 +39,9 @@ class record_model extends \TMS_MODEL {
 			$record['verified'] = isset($data['verified']) ? $data['verified'] : 'N';
 			isset($data['verified_enroll_key']) && $record['verified_enroll_key'] = $data['verified_enroll_key'];
 
-			if(!empty($user)){
-				$userOpenids = $this->model('site\user\account')->byId($user->uid,array('fields'=>'wx_openid,yx_openid,qy_openid,headimgurl'));
-				if($userOpenids){
+			if (!empty($user)) {
+				$userOpenids = $this->model('site\user\account')->byId($user->uid, array('fields' => 'wx_openid,yx_openid,qy_openid,headimgurl'));
+				if ($userOpenids) {
 					$record['wx_openid'] = $userOpenids->wx_openid;
 					$record['yx_openid'] = $userOpenids->yx_openid;
 					$record['qy_openid'] = $userOpenids->qy_openid;
@@ -295,6 +295,39 @@ class record_model extends \TMS_MODEL {
 		}
 
 		return $userRecord;
+	}
+	/**
+	 * 获得指定项目下的登记记录
+	 *
+	 * @param int $missionId
+	 */
+	public function &byMission($missionId, $options) {
+		$fields = isset($options['fields']) ? $options['fields'] : '*';
+		$q = [
+			$fields,
+			'xxt_signin_record r',
+		];
+		$missionId = $this->escape($missionId);
+		$where = "state=1 and exists(select 1 from xxt_signin s where r.aid=s.id and s.mission_id={$missionId})";
+
+		if (isset($options['userid'])) {
+			$where .= " and userid='" . $this->escape($options['userid']) . "'";
+		}
+		$q[2] = $where;
+
+		$list = $this->query_objs_ss($q);
+		if (count($list)) {
+			foreach ($list as &$record) {
+				if ($fields === '*' || strpos($fields, 'data') !== false) {
+					$record->data = json_decode($record->data);
+				}
+				if ($fields === '*' || strpos($fields, 'signin_log') !== false) {
+					$record->signin_log = json_decode($record->signin_log);
+				}
+			}
+		}
+
+		return $list;
 	}
 	/**
 	 * 根据指定的数据查找匹配的记录

@@ -44,6 +44,20 @@ define(['main'], function(ngApp) {
                 });
             });
         };
+        $scope.forbideUser = function(user) {
+            if (window.confirm('确定关闭帐号【' + user.uname + '】？')) {
+                http2.post('/rest/pl/be/site/registrant/forbide', { unionid: user.unionid }, function(rsp) {
+                    user.forbidden = '1';
+                });
+            }
+        };
+        $scope.activeUser = function(user) {
+            if (window.confirm('确定关闭帐号【' + user.uname + '】？')) {
+                http2.post('/rest/pl/be/site/registrant/active', { unionid: user.unionid }, function(rsp) {
+                    user.forbidden = '0';
+                });
+            }
+        };
         $scope.doSearch(1);
     }]);
 });

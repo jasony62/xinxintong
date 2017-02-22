@@ -476,9 +476,5 @@ class member_model extends TMS_MODEL {
 
 		return $this->update($sql);
 	}
-	public function getAuthid($site)
-	{
-		$authid=$this->query_val_ss(['qy_ab','xxt_site_member_schema',"siteid='$site'"]);
-		return $authid;
-	}
+	
 }

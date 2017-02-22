@@ -157,8 +157,13 @@ config(['$uibTooltipProvider', function($uibTooltipProvider) {
             $scope.page.total = rsp.data.total;
         });
     };
-    $scope.open = function(matter) {
-        location.href = location.href = '/rest/pl/fe/matter/' + matter.matter_type + '?id=' + matter.matter_id + '&site=' + matter.siteid;
+    $scope.open = function(matter, subView) {
+        var url = '/rest/pl/fe/matter/' + matter.matter_type;
+        if (subView) {
+            url += '/' + subView;
+        }
+        url += '?id=' + matter.matter_id + '&site=' + matter.siteid;
+        location.href = url;
     };
     $scope.popoverAddMatter = function() {
         var target = $('#popoverAddMatter');
@@ -237,8 +242,8 @@ config(['$uibTooltipProvider', function($uibTooltipProvider) {
     };
     $scope.filter = filter = {};
     $scope.filter2 = filter2 = {};
-    $scope.open = function(mission) {
-        location.href = '/rest/pl/fe/matter/mission?site=' + mission.siteid + '&id=' + mission.mission_id;
+    $scope.open = function(mission, subView) {
+        location.href = '/rest/pl/fe/matter/mission/' + subView + '?site=' + mission.siteid + '&id=' + mission.mission_id;
     };
     $scope.listSite = function() {
         var url = '/rest/pl/fe/matter/mission/listSite?_=' + t;

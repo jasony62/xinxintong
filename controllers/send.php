@@ -23,7 +23,9 @@ class send extends xxt_base {
 	 */
 	public function tmplmsg_action($mpid, $templateid, $url = '') {
 		$posted = $this->getPostJson();
-
+		if (empty($posted) || empty($posted->data) || empty($posted->openids)) {
+			return new \ResponseError('post is empty');
+		}
 		$data = $posted->data;
 		$openids = $posted->openids;
 

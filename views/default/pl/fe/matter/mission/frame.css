@@ -17,11 +17,12 @@ form .form-group:last-child{margin-bottom:0;}
 .phases .phase .action{position:absolute;top:-9px;right:9px;}
 
 /*matter*/
-#viewMatter .thumbnail{position:relative;cursor:pointer;height:180px;display:flex;flex-direction:column;padding:8px;}
+#viewMatter .thumbnail{position:relative;height:180px;display:flex;flex-direction:column;padding:.5em 1em;}
 #viewMatter .thumbnail .summary{flex:1;overflow:hidden;}
-#viewMatter .thumbnail .attrs{display:flex;}
+#viewMatter .thumbnail .attrs{display:flex;padding:1em .5em;}
 #viewMatter .thumbnail .operator{flex:1;}
-#viewMatter .thumbnail .actions{position:absolute;top:8px;right:8px;}
+.thumbnail .actions{border-top:1px solid #ddd;padding-top:.5em;}
+#viewMatter .thumbnail .actions-top{position:absolute;top:.5em;right:.5em;}
 
 /*indicator*/
 #viewMatter .thumbnail.indicator{flex-direction:row;align-items:center;background:#f8f8f8;}
@@ -33,6 +34,7 @@ form .form-group:last-child{margin-bottom:0;}
 #viewMatter .common:after{content:'通用登记';position:absolute;top:-8px;left:-8px;background:#0000ff;padding:2px 4px;font-size:60%;color:#fff;border-radius:4px;}
 #viewMatter .registration:after{content:'报名';position:absolute;top:-8px;left:-8px;background:#0000ff;padding:2px 4px;font-size:60%;color:#fff;border-radius:4px;}
 #viewMatter .voting:after{content:'投票';position:absolute;top:-8px;left:-8px;background:#0000ff;padding:2px 4px;font-size:60%;color:#fff;border-radius:4px;}
+#viewMatter .group_week_report:after{content:'投票';position:absolute;top:-8px;left:-8px;background:#0000ff;padding:2px 4px;font-size:60%;color:#fff;border-radius:4px;}
 #viewMatter .signin:after{content:'签到';position:absolute;top:-8px;left:-8px;background:#0000cc;padding:2px 4px;font-size:60%;color:#fff;border-radius:4px;}
 #viewMatter .group:after{content:'分组';position:absolute;top:-8px;left:-8px;background:#000099;padding:2px 4px;font-size:60%;color:#fff;border-radius:4px;}
 #viewMatter .split:after{content:'分组';position:absolute;top:-8px;left:-8px;background:#000099;padding:2px 4px;font-size:60%;color:#fff;border-radius:4px;}

@@ -50,9 +50,14 @@ class fan_model extends \TMS_MODEL {
 		if ($followed === 'Y') {
 			$q[2] .= " and unsubscribe_at=0";
 		}
-		$fan = $this->query_obj_ss($q);
+		$fans = $this->query_objs_ss($q);
+		if (count($fans) === 0) {
+			return false;
+		} else if (count($fans) > 1) {
+			throw new \Exception('数据库数据错误');
+		}
 
-		return $fan;
+		return $fans[0];
 	}
 
 	/**

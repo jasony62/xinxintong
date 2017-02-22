@@ -30,11 +30,15 @@ class main extends \site\fe\matter\base {
 		case 'custom':
 			$modelArticle = $this->model('matter\article2');
 			$article = $modelArticle->byId($id, 'title');
-			\TPL::assign('title', $article->title);
-			if ($type === 'article') {
-				\TPL::output('site/fe/matter/article/main');
+			if ($article) {
+				\TPL::assign('title', $article->title);
+				if ($type === 'article') {
+					\TPL::output('site/fe/matter/article/main');
+				} else {
+					\TPL::output('site/fe/matter/custom/main');
+				}
 			} else {
-				\TPL::output('site/fe/matter/custom/main');
+				$this->outputInfo('指定的对象不存在');
 			}
 			break;
 		case 'news':
@@ -43,8 +47,12 @@ class main extends \site\fe\matter\base {
 		case 'channel':
 			$modelChn = $this->model('matter\channel');
 			$channel = $modelChn->byId($id, 'title');
-			\TPL::assign('title', $channel->title);
-			\TPL::output('site/fe/matter/channel/main');
+			if ($channel) {
+				\TPL::assign('title', $channel->title);
+				\TPL::output('site/fe/matter/channel/main');
+			} else {
+				$this->outputInfo('指定的对象不存在');
+			}
 			break;
 		}
 		exit;

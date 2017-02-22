@@ -1,9 +1,11 @@
 <?php
 namespace site\fe;
+
+require_once dirname(dirname(__FILE__)) . '/base.php';
 /**
  * 站点前端访问控制器基类
  */
-class base extends \TMS_CONTROLLER {
+class base extends \site\base {
 	/**
 	 * 当前访问的站点ID
 	 */
@@ -260,43 +262,7 @@ class base extends \TMS_CONTROLLER {
 
 		return $rst;
 	}
-	/**
-	 * 客户端应用名称
-	 */
-	protected function &userAgent() {
-		if (isset($_SERVER['HTTP_USER_AGENT'])) {
-			$user_agent = $_SERVER['HTTP_USER_AGENT'];
-			if (preg_match('/yixin/i', $user_agent)) {
-				$ca = 'yx';
-			} elseif (preg_match('/MicroMessenger/i', $user_agent)) {
-				$ca = 'wx';
-			} else {
-				$ca = false;
-			}
-		} else {
-			$ca = false;
-		}
 
-		return $ca;
-	}
-	/**
-	 *
-	 */
-	protected function outputError($err, $title = '程序错误') {
-		\TPL::assign('title', $title);
-		\TPL::assign('body', $err);
-		\TPL::output('error');
-		exit;
-	}
-	/**
-	 *
-	 */
-	protected function outputInfo($info, $title = '提示') {
-		\TPL::assign('title', $title);
-		\TPL::assign('body', $info);
-		\TPL::output('info');
-		exit;
-	}
 	/**
 	 *
 	 * 要求关注

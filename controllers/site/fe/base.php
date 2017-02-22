@@ -217,7 +217,7 @@ class base extends \TMS_CONTROLLER {
 					$openid=$snsUser->$openid;
 					$user=$snsProxy->userGet($openid);
 					$fan=\TMS_APP::M('sns\qy\fan');
-					$authid=\TMS_APP::M('user\member')->getAuthid($site);
+					$authid=$fan->getAuthid($site);
 
 					if($luser=$fan->query_obj_ss(["userid,nickname","xxt_site_qyfan","siteid='$site' and openid='$openid'"])){
 						$fan->updateQyFan($site,$luser,$user,$authid);

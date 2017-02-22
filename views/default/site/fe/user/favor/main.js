@@ -5,12 +5,6 @@ define(['require', 'angular'], function(require, angular) {
     var ngApp = angular.module('app', []);
     ngApp.controller('ctrlFav', ['$scope', '$http', function($scope, $http) {
         var page;
-        //判断客户端 区分手机 和pc
-        if (/iphone/i.test(navigator.userAgent) || /android/i.test(navigator.userAgent)) {
-            $scope.state = 1; //手机端
-        } else {
-            $scope.state = 0; //其他
-        }
         $scope.page = page = {
             at: 1,
             size: 10,

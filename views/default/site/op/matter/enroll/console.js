@@ -61,10 +61,6 @@ define(["require", "angular", "util.site","enrollService"], function(require, an
             $scope.rows.reset();
             srvRecord.opSearch(pageNumber);
         };
-        $scope.editRecord = function(record) {
-            $scope.subView = 'editing';
-            srvRecord.opEdit(record);
-        };
         $scope.removeRecord = function(record) {
             srvRecord.opRemove(record);
         };
@@ -75,6 +71,15 @@ define(["require", "angular", "util.site","enrollService"], function(require, an
             srvRecord.opFilter().then(function() {
                 $scope.rows.reset();
             });
+        };
+        $scope.scoreRangeArray = function(schema) {
+            var arr = [];
+            if (schema.range && schema.range.length === 2) {
+                for (var i = schema.range[0]; i <= schema.range[1]; i++) {
+                    arr.push('' + i);
+                }
+            }
+            return arr;
         };
         $scope.countSelected = function() {
             var count = 0;

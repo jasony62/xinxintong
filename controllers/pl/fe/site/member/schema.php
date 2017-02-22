@@ -205,7 +205,7 @@ class schema extends \pl\fe\base {
 	 * 从企业号通讯录同步用户数据
 	 *
 	 * $authid
-	 * $pdid 父部门id
+	 * $pdid 父部门id,若pdid不指定，默认获取有权限的部门
 	 *
 	 */
 	public function syncFromQy_action($site, $authid, $pdid = null) {

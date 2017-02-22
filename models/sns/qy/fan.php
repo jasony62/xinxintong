@@ -331,11 +331,5 @@ class fan_model extends \TMS_MODEL {
 
 		return true;
 	}
-	/**
-	 * 获取authid(schema_id)
-	 */
-	public function getAuthid($site){
-		$id=$this->query_val_ss(['id','xxt_site_member_schema'," siteid='$site'"]);
-		return $id ;
-	}
+	
 }

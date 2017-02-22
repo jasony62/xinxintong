@@ -286,7 +286,7 @@ class schema extends \pl\fe\base {
 		/**
 		 * 同步部门下的用户
 		 */
-		$fan=\TMS_APP::M("sns\qy\fan");
+		$fan=\TMS_APP::M('sns\qy\fan');
 		foreach ($rootDepts as $rootDept) {
 			$result = $qyproxy->userList($rootDept->id, 1);
 			if ($result[0] === false) {

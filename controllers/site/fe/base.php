@@ -211,22 +211,6 @@ class base extends \TMS_CONTROLLER {
 			$snsUser = false;
 		} else {
 			$snsUser = $rst[1];
-			switch ($snsName) {
-				case 'qy':
-					//同步企业号本地粉丝信息
-					$openid=$snsUser->$openid;
-					$user=$snsProxy->userGet($openid);
-					$fan=\TMS_APP::M('sns\qy\fan');
-					$authid=$fan->getAuthid($site);
-
-					if($luser=$fan->query_obj_ss(["userid,nickname","xxt_site_qyfan","siteid='$site' and openid='$openid'"])){
-						$fan->updateQyFan($site,$luser,$user,$authid);
-					}else{
-						$fan->createQyFan($site,$user,$authid);
-					}
-
-					break;
-			}
 		}
 
 		return $snsUser;

@@ -17,7 +17,8 @@ class login extends \TMS_CONTROLLER {
 	 * 进入平台管理页面用户身份验证页面
 	 */
 	public function index_action() {
-		$this->view_action('/pl/fe/user/login');
+		\TPL::output('/pl/fe/user/login');
+		exit;
 	}
 	/**
 	 * 只是进行用户身份的检查，并不解决页面跳转
@@ -39,6 +40,24 @@ class login extends \TMS_CONTROLLER {
 			return $result;
 		}
 		$act = $result->data;
+		/**
+		 * 支持自动登录
+		 */
+		if (isset($data->autologin) && $data->autologin === 'Y') {
+			$expire = time() + (86400 * 365 * 10);
+			$ua = $_SERVER['HTTP_USER_AGENT'];
+			$token = [
+				'uid' => $act->uid,
+				'email' => $data->email,
+				'password' => $data->password,
+			];
+			$cookiekey = md5($ua);
+			$cookieToken = json_encode($token);
+			$encoded = $modelAct->encrypt($cookieToken, 'ENCODE', $cookiekey);
+
+			$this->mySetCookie('_login_auto', 'Y', $expire);
+			$this->mySetCookie('_login_token', $encoded, $expire);
+		}
 
 		return new \ResponseData($act->uid);
 	}

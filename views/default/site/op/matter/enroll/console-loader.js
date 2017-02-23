@@ -26,18 +26,26 @@ window.loading = {
                 "ui-tms": '/static/js/ui-tms',
                 "ui-xxt": '/static/js/xxt.ui',
                 "util.site": "/views/default/site/util",
-                "service.matter":'/views/default/pl/fe/_module/matter.service'
+                "service.matter":'/views/default/pl/fe/_module/matter.service',
+                "enrollService": '/views/default/pl/fe/matter/enroll/lib/enroll.service',
+                "page": '/views/default/pl/fe/matter/enroll/lib/page',
+                "schema": '/views/default/pl/fe/matter/enroll/lib/schema',
+                "wrap": '/views/default/pl/fe/matter/enroll/lib/wrap',
             },
             shim: {
                 "angular": {
                     exports: "angular"
                 },
+                "enrollService": {
+                    exprots: "service.enroll",
+                    deps: ['service.matter']
+                }
             },
             urlArgs: function(id, url) {
                 if (/jquery|bootstrap|domReady|angular/.test(id)) {
                     return '';
                 }
-                if(/xxt|tms|service/.test(id)){
+                if(/xxt|tms/.test(id)){
                     return "?_=1";
                 }
                 return "?bust=" + (timestamp * 1);

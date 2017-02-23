@@ -130,17 +130,17 @@ class article extends \member_base {
 			 * coin log
 			 * 投稿人点赞不奖励积分
 			 */
-			$modelCoin = $this->model('coin\log');
-			$contribution = $this->model('matter\article')->getContributionInfo($id);
-			if (!empty($contribution->openid) && $contribution->openid !== $user->openid) {
-				// for contributor
-				$action = 'app.' . $contribution->entry . '.article.appraise';
-				$modelCoin->income($mpid, $action, $id, 'sys', $contribution->openid);
-			}
-			if (empty($contribution->openid) || $contribution->openid !== $user->openid) {
-				// for reader
-				$modelCoin->income($mpid, 'mp.matter.article.appraise', $id, 'sys', $user->openid);
-			}
+			// $modelCoin = $this->model('coin\log');
+			// $contribution = $this->model('matter\article')->getContributionInfo($id);
+			// if (!empty($contribution->openid) && $contribution->openid !== $user->openid) {
+			// 	// for contributor
+			// 	$action = 'app.' . $contribution->entry . '.article.appraise';
+			// 	$modelCoin->income($mpid, $action, $id, 'sys', $contribution->openid);
+			// }
+			// if (empty($contribution->openid) || $contribution->openid !== $user->openid) {
+			// 	// for reader
+			// 	$modelCoin->income($mpid, 'mp.matter.article.appraise', $id, 'sys', $user->openid);
+			// }
 		}
 
 		return new \ResponseData(array($article->score, $praised));

@@ -39,6 +39,11 @@ class ParameterError extends ResponseData {
 		parent::__construct(null, 100, $msg);
 	}
 }
+class ObjectNotFoundError extends ResponseData {
+	public function __construct($msg = '指定的对象不存在。') {
+		parent::__construct(null, 100, $msg);
+	}
+}
 class ResultEmptyError extends ResponseData {
 	public function __construct($msg = '获得的结果为空。') {
 		parent::__construct(null, 101, $msg);
@@ -58,4 +63,10 @@ class DatabaseError extends ResponseData {
 	public function __construct($msg = '数据库错误。') {
 		parent::__construct(null, 900, $msg);
 	}
+}
+/**
+ * url找不到匹配的处理接口
+ */
+class UrlNotMatchException extends Exception {
+
 }

@@ -44,7 +44,7 @@ class record extends base {
 		}
 
 		$modelApp = $this->model('matter\signin');
-		if (false === ($signinApp = $modelApp->byId($app))) {
+		if (false === ($signinApp = $modelApp->byId($app, ['cascaded' => 'N']))) {
 			header('HTTP/1.0 500 parameter error:app dosen\'t exist.');
 			die('签到活动不存在');
 		}
@@ -137,7 +137,38 @@ class record extends base {
 			}
 		}
 
+		/* 记录操作日志 */
+		$this->_logSubmit($site, $signinApp, $signState->ek);
+
 		return new \ResponseData($signState);
+	}
+	/**
+	 * 记录用户提交日志
+	 *
+	 * @param string $siteId
+	 * @param object $app
+	 *
+	 */
+	private function _logSubmit($siteId, $app, $ek) {
+		$modelLog = $this->model('matter\log');
+
+		$logUser = new \stdClass;
+		$logUser->userid = $this->who->uid;
+		$logUser->nickname = $this->who->nickname;
+
+		$operation = new \stdClass;
+		$operation->name = 'submit';
+		$operation->data = $this->model('matter\signin\record')->byId($ek, ['fields' => 'enroll_key,signin_log,data']);
+
+		$client = new \stdClass;
+		$client->agent = $_SERVER['HTTP_USER_AGENT'];
+		$client->ip = $this->client_ip();
+
+		$referer = isset($_SERVER['HTTP_REFERER']) ? $_SERVER['HTTP_REFERER'] : '';
+
+		$logid = $modelLog->addUserMatterOp($siteId, $logUser, $app, $operation, $client, $referer);
+
+		return $logid;
 	}
 	/**
 	 * 提交信息中包含的自定义用户信息

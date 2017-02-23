@@ -106,6 +106,7 @@ if (!$mysqli->query($sql)) {
 /**
  * 参与任务的用户
  * 用户清单来源于“xxt_mission.user_app_id”指定的登记活动
+ * should be removed
  */
 $sql = "create table if not exists xxt_mission_user(";
 $sql .= "id int not null auto_increment";

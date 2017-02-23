@@ -1,19 +1,11 @@
 <?php
 namespace site;
+
+require_once dirname(__FILE__) . '/base.php';
 /**
  * 站点首页访问控制器
  */
-class home extends \TMS_CONTROLLER {
-	/**
-	 *
-	 */
-	public function get_access_rule() {
-		$ruleAction = [
-			'rule_type' => 'black',
-		];
-
-		return $ruleAction;
-	}
+class home extends base {
 	/**
 	 *
 	 */
@@ -23,9 +15,13 @@ class home extends \TMS_CONTROLLER {
 			$site,
 			['fields' => 'name']
 		);
-		\TPL::assign('title', $site->name);
-		\TPL::output('/site/home');
-		exit;
+		if ($site) {
+			\TPL::assign('title', $site->name);
+			\TPL::output('/site/home');
+			exit;
+		} else {
+			$this->outputInfo('指定的对象不存在');
+		}
 	}
 	/**
 	 * 获得页面定义
@@ -85,7 +81,6 @@ class home extends \TMS_CONTROLLER {
 			$user->id = $account->uid;
 			$user->name = $account->nickname;
 			$user->src = 'A';
-
 		} else {
 			$user = false;
 		}

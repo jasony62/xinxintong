@@ -200,11 +200,15 @@ class main extends base {
 	 * @param string $ek record's enroll key
 	 * @param string $newRecord
 	 */
-	public function get_action($site, $app, $rid = null, $page = null, $ek = null, $newRecord = null, $ignoretime = 'N') {
+	public function get_action($site, $app, $rid = null, $page = null, $ek = null, $newRecord = null, $ignoretime = 'N', $cascaded = 'N') {
 		$params = array();
 
 		/* 登记活动定义 */
-		$app = $this->modelApp->byId($app, array('cascaded' => 'N'));
+		$app = $this->modelApp->byId($app, ['cascaded' => $cascaded]);
+		if ($app === false) {
+			return new \ResponseError('指定的登记活动不存在，请检查参数是否正确');
+		}
+
 		$params['app'] = &$app;
 
 		/* 当前访问用户的基本信息 */

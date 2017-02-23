@@ -79,6 +79,8 @@ class schema extends \pl\fe\base {
 				$nv->extattr = urldecode(json_encode($nv->extattr));
 			} else if (isset($nv->type) && $nv->type === 'inner') {
 				$nv->url = TMS_APP_API_PREFIX . "/site/fe/user/member";
+			} else if(isset($nv->qy_ab)){
+				$this->model()->update('xxt_site_member_schema',['qy_ab'=>'N'],"siteid='$this->siteId' and id!='$id'");
 			}
 			$rst = $this->model()->update(
 				'xxt_site_member_schema',

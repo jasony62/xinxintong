@@ -8,11 +8,13 @@ define(['require', 'angular'], function(require, angular) {
         $scope.page = page = {
             at: 1,
             size: 10,
+            times:1,
             join: function() {
-                return 'page=' + this.at + '&size=' + this.size;
+                return 'page=' + this.at + '&size=' + this.size*this.times;
             }
         };
-        $scope.list = function() {
+        $scope.list = function(more) {
+            more && $scope.page.times++;
             var url = '/rest/site/fe/user/favor/list?site=' + siteId;
             url += '&' + page.join();
             $http.get(url).success(function(rsp) {
@@ -57,6 +59,10 @@ define(['require', 'angular'], function(require, angular) {
             })
         }
         $scope.list();
-        window.loading.finish();
+        $http.get('/rest/site/fe/get?site=' + siteId).success(function(rsp) {
+            $scope.site = rsp.data;
+            window.loading.finish();
+        });
+        //window.loading.finish();
     }]);
 });

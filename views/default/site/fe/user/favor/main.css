@@ -2,10 +2,16 @@
     .hide-app{
         display: none;
     }
+    .navbar-my{
+        margin:1em 6em;
+    }
 }
 @media screen and (max-width:768px)  {
     .hide-pc{
         display: none;
+    }
+    .navbar-my{
+        margin:1em 0em;
     }
 }
 html, body, .container {
@@ -38,7 +44,7 @@ body {
     overflow: hidden;
 }
 .media-my {
-    margin-top: 2em;
+    margin-top: 1em;
     background: #FFFFFF;
     padding: 1em;
     cursor: pointer;
@@ -63,7 +69,6 @@ body {
 .row-my {
     margin: 0;
 }
-
 .col-my {
     padding: 0.5em;
 }
@@ -82,3 +87,8 @@ body {
 .unfavor{
     border-color:  #9e0f0f;
 }
+.more{
+
+    margin-top: 1em;
+
+

@@ -18,7 +18,15 @@
 <div class="loading">
     <div class='loading-indicator'><i></i></div>
 </div>
-<div class="container" ng-app="app" ng-controller='ctrlFav'  ng-cloak>
+<div class="container"  ng-controller='ctrlFav' >
+    <!--导航条-->
+    <nav class='navbar navbar-default navbar-my'>
+        <div class='container-fluid'>
+            <div class="navbar-header">
+                <a ng-cloak class='navbar-brand ng-cloak' href='/rest/site/home?site={{site.id}}' target='_self'>{{site.name}}</a>
+            </div>
+        </div>
+    </nav>
     <!--pc绑定信息-->
     <!--<div class="container-my" ng-if="state===0">-->
     <div class="container-my hide-pc" >
@@ -50,17 +58,18 @@
                     </div>
                 </div>
             </div>
+            <div class="row">
+                <div class="col-sm-12">
+                    <button type="button" class="btn btn-block more" ng-show="page.total>1&&page.total>page.size*page.times" ng-click="list('more')">查看更多</button>
+                    <button type="button" class="btn  btn-block more"  ng-show="page.total<=page.size*page.times" disabled>没有更多</button>
+                </div>
+            </div>
         </div>
-        <div class="">
-            <span style='height:34px;line-height:34px'>总数：{{page.total}}</span>
-            <ul uib-pagination style="margin:0;vertical-align:bottom;cursor:pointer" class='pull-right'
-                ng-show="page.total>page.size" boundary-links="true" total-items="page.total" max-size="3"
-                items-per-page="page.size" rotate="false" ng-model="page.at" previous-text="&lsaquo;"
-                next-text="&rsaquo;" first-text="&laquo;" last-text="&raquo;" ng-change="list()"></ul>
+
+
         </div>
-    </div>
+
     <!--手机端-->
-    <!--<div ng-if="state===1">-->
     <div class="hide-app">
         <div class="media-my" ng-repeat="m in matters">
             <div class="media" ng-click="openMatter(m.matter_id,m.matter_type)">
@@ -85,12 +94,9 @@
                 </button>
             </p>
         </div>
-        <div class=''>
-            <span style='height:34px;line-height:34px'>总数：{{page.total}}</span>
-            <ul uib-pagination style="margin:0;vertical-align:bottom;cursor:pointer" class='pull-right'
-                ng-show="page.total>page.size" boundary-links="true" total-items="page.total" max-size="3"
-                items-per-page="page.size" rotate="false" ng-model="page.at" previous-text="&lsaquo;"
-                next-text="&rsaquo;" first-text="&laquo;" last-text="&raquo;" ng-change="list()"></ul>
+        <div class="more">
+            <button type="button" class="btn  btn-xs btn-block" ng-show="page.total>1&&page.total>page.size*page.times" ng-click="list('more')">查看更多</button>
+            <button type="button" class="btn  btn-xs btn-block"  ng-show="page.total<=page.size*page.times" disabled>没有更多</button>
         </div>
     </div>
 </div>

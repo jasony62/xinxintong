@@ -32,7 +32,9 @@ window.loading = {
                 return "?bust=" + (timestamp * 1);
             }
         });
-        require(['main'], function() {});
+        require(['main'], function() {
+            angular.bootstrap(document,['app']);
+        });
     }
 };
 window.loading.load();

@@ -11,14 +11,12 @@ ul{padding-left:0;}
 	td:after{content:attr(data-th);display:inline-block;width:8em;background:#eee;padding:.5em;position:absolute;top:0;bottom:0;left:0;}
 	.navbar-form{width:auto;border:0;margin-left:0;margin-right:0;padding-top:0;padding-bottom:0;-webkit-box-shadow:none;box-shadow:none;text-align:right;}
 	#records{margin-bottom:110px;}
-  .modal.auto-height .modal-dialog, .modal.auto-height.middle-width .modal-dialog.modal-lg{
-    width:100%;
-    margin-left:0;
-    left:0;
-  }
+	.modal.auto-height .modal-dialog,
+	.modal.auto-height.middle-width .modal-dialog.modal-lg{width:100%;margin-left:0;left:0;}
 }
 .notice{color:red;}
 .navbar-form .form-control{display:inline-block;width:auto;}
+
 /* img tiles */
 ul{padding-left:0}
 ul.img-tiles li{position:relative;display:inline-block;overflow:hidden;width:80px;height:80px;margin:0px;padding:0px;float:left}

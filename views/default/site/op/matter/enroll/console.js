@@ -1,47 +1,8 @@
 'use strict';
-define(["require", "angular", "util.site","enrollService"], function(require, angular) {
+define(["require", "angular", "util.site", "enrollService"], function(require, angular) {
     var ngApp = angular.module('app', ['ui.bootstrap', 'util.site.tms', 'ui.tms', 'ui.xxt', 'service.matter', 'service.enroll']);
-    ngApp.constant('cstApp', {
-        notifyMatter: [{
-            value: 'tmplmsg',
-            title: '模板消息',
-            url: '/rest/pl/fe/matter'
-        }, {
-            value: 'article',
-            title: '单图文',
-            url: '/rest/pl/fe/matter'
-        }, {
-            value: 'news',
-            title: '多图文',
-            url: '/rest/pl/fe/matter'
-        }, {
-            value: 'channel',
-            title: '频道',
-            url: '/rest/pl/fe/matter'
-        }, {
-            value: 'enroll',
-            title: '登记活动',
-            url: '/rest/pl/fe/matter'
-        }],
-        innerlink: [{
-            value: 'article',
-            title: '单图文',
-            url: '/rest/pl/fe/matter'
-        }, {
-            value: 'news',
-            title: '多图文',
-            url: '/rest/pl/fe/matter'
-        }, {
-            value: 'channel',
-            title: '频道',
-            url: '/rest/pl/fe/matter'
-        }],
-        alertMsg: {
-            'schema.duplicated': '不允许重复添加登记项',
-            'require.mission.phase': '请先指定项目的阶段'
-        }
-    });
-    ngApp.config(['$controllerProvider', 'srvAppProvider', 'srvRecordProvider', function($cp, srvAppProvider,  srvRecordProvider) {
+    ngApp.constant('cstApp', {});
+    ngApp.config(['$controllerProvider', 'srvAppProvider', 'srvOpRecordProvider', function($cp, srvAppProvider, srvRecordProvider) {
         ngApp.provider = {
             controller: $cp.register
         };
@@ -56,19 +17,19 @@ define(["require", "angular", "util.site","enrollService"], function(require, an
             srvRecordProvider.config(siteId, appId, accessId);
         })();
     }]);
-    ngApp.controller('ctrl', ['$scope', '$http', '$timeout', '$uibModal', 'PageLoader', 'PageUrl', 'srvApp', 'srvRecord', function($scope, $http, $timeout, $uibModal, PageLoader, PageUrl, srvApp, srvRecord) {
+    ngApp.controller('ctrl', ['$scope', '$http', '$timeout', '$uibModal', 'PageLoader', 'PageUrl', 'srvApp', 'srvOpRecord', function($scope, $http, $timeout, $uibModal, PageLoader, PageUrl, srvApp, srvRecord) {
         $scope.getRecords = function(pageNumber) {
             $scope.rows.reset();
-            srvRecord.opSearch(pageNumber);
+            srvRecord.search(pageNumber);
         };
         $scope.removeRecord = function(record) {
-            srvRecord.opRemove(record);
+            srvRecord.remove(record);
         };
         $scope.batchVerify = function() {
-            srvRecord.opBatchVerify($scope.rows);
+            srvRecord.batchVerify($scope.rows);
         };
         $scope.filter = function() {
-            srvRecord.opFilter().then(function() {
+            srvRecord.filter().then(function() {
                 $scope.rows.reset();
             });
         };
@@ -116,7 +77,8 @@ define(["require", "angular", "util.site","enrollService"], function(require, an
         $scope.subView = 'list'; // 规定初始化展示页面
         $scope.tmsTableWrapReady = 'N';
         srvApp.opGet().then(function(data) {
-            var app = data.app, pages = data.page;
+            var app = data.app,
+                pages = data.page;
             srvRecord.init(app, $scope.page, $scope.criteria, $scope.records);
             PageLoader.render($scope, pages, ngApp).then(function() {
                 $scope.doc = pages;

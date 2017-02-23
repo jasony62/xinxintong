@@ -1,6 +1,7 @@
 ngApp.provider.controller('ctrlBasic', ['$scope', '$http', 'PageUrl', 'srvApp', 'srvRecord', 'srvRecordConverter', function($scope, $http, PageUrl, srvApp, srvRecord, srvRecordConverter) {
     var PU, params = location.search.match('site=(.*)')[1];
     PU = PageUrl.ins('/rest/site/op/matter/enroll', ['site', 'app', 'accessToken']);
+
     function submit(ek, posted) {
         $http.post(PU.j('record/update', 'site', 'app', 'accessToken') + '&ek=' + ek, posted).success(function(rsp) {
             if (rsp.err_code !== 0) {

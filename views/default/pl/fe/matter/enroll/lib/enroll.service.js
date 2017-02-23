@@ -1,5 +1,5 @@
 define(['require', 'schema', 'page'], function(require, schemaLib, pageLib) {
-    var BaseSrvRecord = function() {
+    var BaseSrvRecord = function(q, httpServer, srcServer,noticeServer) {
         this._oApp = null;
         this._oPage = null;
         this._oCriteria = null;
@@ -26,6 +26,15 @@ define(['require', 'schema', 'page'], function(require, schemaLib, pageLib) {
                     p += '&orderby=' + this.orderBy;
                     p += '&rid=' + (this.byRound ? this.byRound : 'ALL');
                     return p;
+                },
+                setTotal: function(total) {
+                    var lastNumber;
+                    this.total = total;
+                    this.numbers = [];
+                    lastNumber = this.total > 0 ? Math.ceil(this.total / this.size) : 1;
+                    for (var i = 1; i <= lastNumber; i++) {
+                        this.numbers.push(i);
+                    }
                 }
             });
             // criteria
@@ -39,6 +48,47 @@ define(['require', 'schema', 'page'], function(require, schemaLib, pageLib) {
             });
             // records
             this._aRecords = oRecords;
+        };
+        this._oSearch = function(url){
+            var that = this,
+                defer = q.defer();
+            httpServer.post(url, that._oCriteria, function(rsp) {
+                var records;
+                if (rsp.data) {
+                    records = rsp.data.records ? rsp.data.records : [];
+                    rsp.data.total && (that._oPage.total = rsp.data.total);
+                    that._oPage.setTotal(rsp.data.total);
+                } else {
+                    records = [];
+                }
+                records.forEach(function(record) {
+                    srcServer.forTable(record, that._oApp._schemasById);
+                    that._aRecords.push(record);
+                });
+                defer.resolve(records);
+            });
+            return defer.promise;
+        }
+        this._oBatchVerify = function(rows, url) {
+            var eks = [],
+                selectedRecords = [],
+                that = this;
+            for (var p in rows.selected) {
+                if (rows.selected[p] === true) {
+                    eks.push(that._aRecords[p].enroll_key);
+                    selectedRecords.push(that._aRecords[p]);
+                }
+            }
+            if (eks.length) {
+                httpServer.post(url, {
+                    eks: eks
+                }, function(rsp) {
+                    selectedRecords.forEach(function(record) {
+                        record.verified = 'Y';
+                    });
+                    noticeServer.success('完成操作');
+                });
+            }
         };
     };
     angular.module('service.enroll', ['ui.bootstrap', 'ui.xxt', 'service.matter']).
@@ -815,7 +865,7 @@ define(['require', 'schema', 'page'], function(require, schemaLib, pageLib) {
             _appId = appId;
         };
         this.$get = ['$q', '$sce', 'http2', 'noticebox', '$uibModal', 'pushnotify', 'cstApp', 'srvRecordConverter', function($q, $sce, http2, noticebox, $uibModal, pushnotify, cstApp, srvRecordConverter) {
-            var _ins = new BaseSrvRecord();
+            var _ins = new BaseSrvRecord($q, http2, srvRecordConverter, noticebox);
             _ins.search = function(pageNumber) {
                 var defer = $q.defer(),
                     url;
@@ -826,22 +876,8 @@ define(['require', 'schema', 'page'], function(require, schemaLib, pageLib) {
                 url += '?site=' + this._oApp.siteid;
                 url += '&app=' + this._oApp.id;
                 url += this._oPage.joinParams();
-                http2.post(url, this._oCriteria, function(rsp) {
-                    var records;
-                    if (rsp.data) {
-                        records = rsp.data.records ? rsp.data.records : [];
-                        rsp.data.total && (_ins._oPage.total = rsp.data.total);
-                    } else {
-                        records = [];
-                    }
-                    records.forEach(function(record) {
-                        srvRecordConverter.forTable(record, _ins._oApp._schemasById);
-                        _ins._aRecords.push(record);
-                    });
-                    defer.resolve(records);
-                });
 
-                return defer.promise;
+                return _ins._oSearch(url);
             };
             _ins.searchRecycle = function(pageNumber) {
                 var defer = $q.defer(),
@@ -1048,24 +1084,13 @@ define(['require', 'schema', 'page'], function(require, schemaLib, pageLib) {
                 }
             };
             _ins.batchVerify = function(rows) {
-                var eks = [],
-                    selectedRecords = [];
-                for (var p in rows.selected) {
-                    if (rows.selected[p] === true) {
-                        eks.push(_ins._aRecords[p].enroll_key);
-                        selectedRecords.push(_ins._aRecords[p]);
-                    }
-                }
-                if (eks.length) {
-                    http2.post('/rest/pl/fe/matter/enroll/record/batchVerify?site=' + _siteId + '&app=' + _appId, {
-                        eks: eks
-                    }, function(rsp) {
-                        selectedRecords.forEach(function(record) {
-                            record.verified = 'Y';
-                        });
-                        noticebox.success('完成操作');
-                    });
-                }
+                var url;
+
+                url = '/rest/pl/fe/matter/enroll/record/batchVerify';
+                url += '?site=' + _siteId;
+                url += '&app=' + _appId;
+
+                return _ins._oBatchVerify(rows,url);
             };
             _ins.notify = function(rows) {
                 var options = {
@@ -1149,39 +1174,39 @@ define(['require', 'schema', 'page'], function(require, schemaLib, pageLib) {
                 return defer.promise;
             };
             _ins.syncByEnroll = function(record) {
-                    var url;
+                var url;
 
-                    url = '/rest/pl/fe/matter/enroll/record/matchEnroll';
-                    url += '?site=' + _siteId;
-                    url += '&app=' + _appId;
+                url = '/rest/pl/fe/matter/enroll/record/matchEnroll';
+                url += '?site=' + _siteId;
+                url += '&app=' + _appId;
 
-                    http2.post(url, record.data, function(rsp) {
-                        var matched;
-                        if (rsp.data && rsp.data.length === 1) {
-                            matched = rsp.data[0];
-                            angular.extend(record.data, matched);
-                        } else {
-                            alert('没有找到匹配的记录，请检查数据是否一致');
-                        }
-                    });
-                },
-                _ins.syncByGroup = function(record) {
-                    var url;
+                http2.post(url, record.data, function(rsp) {
+                    var matched;
+                    if (rsp.data && rsp.data.length === 1) {
+                        matched = rsp.data[0];
+                        angular.extend(record.data, matched);
+                    } else {
+                        alert('没有找到匹配的记录，请检查数据是否一致');
+                    }
+                });
+            },
+            _ins.syncByGroup = function(record) {
+                var url;
 
-                    url = '/rest/pl/fe/matter/enroll/record/matchGroup';
-                    url += '?site=' + _siteId;
-                    url += '&app=' + _appId;
+                url = '/rest/pl/fe/matter/enroll/record/matchGroup';
+                url += '?site=' + _siteId;
+                url += '&app=' + _appId;
 
-                    http2.post(url, record.data, function(rsp) {
-                        var matched;
-                        if (rsp.data && rsp.data.length === 1) {
-                            matched = rsp.data[0];
-                            angular.extend(record.data, matched);
-                        } else {
-                            alert('没有找到匹配的记录，请检查数据是否一致');
-                        }
-                    });
-                };
+                http2.post(url, record.data, function(rsp) {
+                    var matched;
+                    if (rsp.data && rsp.data.length === 1) {
+                        matched = rsp.data[0];
+                        angular.extend(record.data, matched);
+                    } else {
+                        alert('没有找到匹配的记录，请检查数据是否一致');
+                    }
+                });
+            };
             _ins.importByOther = function() {
                 var defer = $q.defer();
                 $uibModal.open({
@@ -1321,67 +1346,30 @@ define(['require', 'schema', 'page'], function(require, schemaLib, pageLib) {
             _accessId = accessId;
         };
         this.$get = ['$q', 'http2', 'noticebox', '$uibModal', 'srvRecordConverter', function($q, http2, noticebox, $uibModal, srvRecordConverter) {
-            var _ins = new BaseSrvRecord();
+            var _ins = new BaseSrvRecord($q, http2, srvRecordConverter,noticebox);
             _ins.search = function(pageNumber) {
                 var _this = this,
-                    defer = $q.defer(),
                     url;
 
                 this._aRecords.splice(0, this._aRecords.length);
                 pageNumber && (this._oPage.at = pageNumber);
-                angular.extend(this._oPage, {
-                    setTotal: function(total) {
-                        var lastNumber;
-                        this.total = total;
-                        this.numbers = [];
-                        lastNumber = this.total > 0 ? Math.ceil(this.total / this.size) : 1;
-                        for (var i = 1; i <= lastNumber; i++) {
-                            this.numbers.push(i);
-                        }
-                    }
-                });
                 url = '/rest/site/op/matter/enroll/record/list';
                 url += '?site=' + _siteId;
                 url += '&app=' + _appId;
                 url += '&accessToken=' + _accessId;
                 url += this._oPage.joinParams();
-                http2.post(url, this._oCriteria, function(rsp) {
-                    var records;
-                    if (rsp.data) {
-                        records = rsp.data.records ? rsp.data.records : [];
-                        rsp.data.total && (_ins._oPage.total = rsp.data.total);
-                        _ins._oPage.setTotal(rsp.data.total);
-                    } else {
-                        records = [];
-                    }
-                    records.forEach(function(record) {
-                        srvRecordConverter.forTable(record, _ins._oApp._schemasById);
-                        _ins._aRecords.push(record);
-                    });
-                    defer.resolve(records);
-                });
 
-                return defer.promise;
+                return _ins._oSearch(url);
             };
             _ins.batchVerify = function(rows) {
-                var eks = [],
-                    selectedRecords = [];
-                for (var p in rows.selected) {
-                    if (rows.selected[p] === true) {
-                        eks.push(this._aRecords[p].enroll_key);
-                        selectedRecords.push(this._aRecords[p]);
-                    }
-                }
-                if (eks.length) {
-                    http2.post('/rest/site/op/matter/enroll/record/batchVerify?site=' + _siteId + '&app=' + _appId + '&accessToken=' + _accessId, {
-                        eks: eks
-                    }, function(rsp) {
-                        selectedRecords.forEach(function(record) {
-                            record.verified = 'Y';
-                        });
-                        noticebox.success('完成操作');
-                    });
-                }
+                var url;
+
+                url = '/rest/site/op/matter/enroll/record/batchVerify';
+                url += '?site=' + _siteId;
+                url += '&app=' + _appId;
+                url += '&accessToken=' + _accessId;
+
+                return _ins._oBatchVerify(rows,url);
             };
             _ins.filter = function() {
                 var defer = $q.defer();
@@ -1556,6 +1544,19 @@ define(['require', 'schema', 'page'], function(require, schemaLib, pageLib) {
             $scope.schemas = canFilteredSchemas;
             $scope.criteria = lastCriteria;
         });
+        $scope.clean = function() {
+            var criteria = $scope.criteria;
+            if (criteria.record) {
+                if (criteria.record.verified) {
+                    criteria.record.verified = '';
+                }
+            }
+            if (criteria.data) {
+                angular.forEach(criteria.data, function(val, key) {
+                    criteria.data[key] = '';
+                });
+            }
+        };
         $scope.ok = function() {
             var criteria = $scope.criteria,
                 optionCriteria;

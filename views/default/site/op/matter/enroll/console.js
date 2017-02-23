@@ -76,7 +76,8 @@ define(["require", "angular", "util.site", "enrollService"], function(require, a
         $scope.records = []; // 登记记录
         $scope.subView = 'list'; // 规定初始化展示页面
         $scope.tmsTableWrapReady = 'N';
-        srvApp.opGet().then(function(data) {
+        /*srvApp.opGet().then(function(data) {*/
+        srvRecord.get().then(function(data) {
             var app = data.app,
                 pages = data.page;
             srvRecord.init(app, $scope.page, $scope.criteria, $scope.records);

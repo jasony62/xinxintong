@@ -68,6 +68,7 @@ window.loading = {
 if (/MicroMessenger/i.test(navigator.userAgent)) {
 	var site = location.search.match(/[\?&]site=([^&]*)/)[1];
 	requirejs(["http://res.wx.qq.com/open/js/jweixin-1.0.0.js"], function(wx) {
+		window.wx = wx ;
 		var xhr = new XMLHttpRequest();
 		xhr.open('GET', "/rest/site/fe/matter/signin/wxjssdksignpackage?site=" + site + "&url=" + encodeURIComponent(location.href.split('#')[0]), true);
 		xhr.onreadystatechange = function() {

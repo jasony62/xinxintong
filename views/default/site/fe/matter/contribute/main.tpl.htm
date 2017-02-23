@@ -11,10 +11,10 @@
     </head>
     <body>
         <notice-box err='errmsg' info='infomsg' prog='progmsg' delay='2000'></notice-box>
-        <div class='ng-cloak' ng-cloak ng-app='xxtApp' ng-controller='ctrlContribute'>
-            <div class='container'>
-                <div class='row'>
-                    <div class="col-md-4" ng-repeat='e in entries'>
+                        <div class='ng-cloak' ng-cloak ng-app='xxtApp' ng-controller='ctrlContribute'>
+                            <div class='container'>
+                                <div class='row'>
+                                    <div class="col-md-4" ng-repeat='e in entries'>
                         <div class="thumbnail">
                             <p class='title' ng-bind='e.title'></p>
                             <p class='summary' ng-bind='e.summary'></p>
@@ -27,6 +27,7 @@
                 </div>
             </div>
         </div>
+        <script src="/static/js/xxt.share.js"></script>
         <script src="/static/js/angular.min.js"></script>
         <script src="/static/js/angular-route.min.js"></script>
         <script src="/static/js/angular-sanitize.min.js"></script>

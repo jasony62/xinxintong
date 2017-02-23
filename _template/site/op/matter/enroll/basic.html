@@ -20,17 +20,16 @@
                         <td data-th='选择'><span><input type='checkbox' ng-model="rows.selected[$index]"></span></td>
                         <td data-th='登记时间'><span>{{(r.enroll_at*1000)|date:'MM-dd HH:mm'}}</span></td>
                         <td data-th='审核通过'><span ng-class="{'notice':r.verified==='N'}">{{r.verified}}</span></td>
-                        <td ng-repeat="c in recordSchemas">
-                            <span ng-if="c.type!=='image'&&c.type!=='file'&&c.type!=='date'" ng-bind-html="r._data[c.id]"></span>
-                            <span ng-if="c.type==='image'">
-                                <img ng-repeat="img in r._data[c.id]" ng-src='{{img}}' />
+                        <td data-th='{{schema.title}}' ng-repeat="schema in recordSchemas" ng-switch on="schema.type">
+                            <span ng-switch-when="image">
+                                <img ng-repeat="img in r._data[schema.id]" ng-src='{{img}}' />
                             </span>
-                            <span ng-if="c.type==='date'">{{(r._data[c.id]*1000)|date:'yy-MM-dd HH:mm'}}</span>
-                            <span ng-if="c.type==='file'">
-                                <span ng-repeat='file in r._data[c.id]'><a href='{{file.url}}' target="_blank">{{file.name}}</a></span>
+                            <span ng-switch-when="file">
+                                <span ng-repeat='file in r._data[schema.id]'><a href='{{file.url}}' target="_blank">{{file.name}}</a></span>
                             </span>
+                            <span ng-switch-when="date">{{(r._data[schema.id]*1000)|date:'yy-MM-dd HH:mm'}}</span>
+                            <span ng-switch-default ng-bind-html="r._data[schema.id]"></span>
                         </td>
-
                         <td data-th='标签'><span>{{r.tags}}</span></td>
                         <td data-th='备注'><span>{{r.comment}}</span></td>
                         <td data-th='操作'>

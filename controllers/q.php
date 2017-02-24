@@ -13,9 +13,10 @@ class q extends TMS_CONTROLLER {
 		return $rule_action;
 	}
 	/**
-	 *
+	 * @param string $code 链接的编
+	 * @param string $favor 是否从收藏的链接访问
 	 */
-	public function index_action($code = null) {
+	public function index_action($code = null, $favor = null) {
 		if (empty($code)) {
 			TPL::output('site/op/q/entry');
 			exit;
@@ -35,6 +36,15 @@ class q extends TMS_CONTROLLER {
 				TPL::output('site/op/q/passwd');
 				exit;
 			}
+		}
+		/**
+		 * 是否支持收藏
+		 */
+		if (isset($item->can_favor) && $item->can_favor === 'Y') {
+			$url = $this->getRequestUrl();
+			$url .= '?favor=Y';
+			$this->redirect($url);
+			exit;
 		}
 		/**
 		 * 设置访问控制

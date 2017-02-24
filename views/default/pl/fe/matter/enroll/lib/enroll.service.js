@@ -204,7 +204,7 @@ define(['require', 'schema', 'page'], function(require, schemaLib, pageLib) {
                     url = '/rest/pl/fe/matter/enroll/get?site=' + _siteId + '&id=' + _appId;
                     http2.get(url, function(rsp) {
                         _oApp = rsp.data;
-                        _ins._oGet(_oApp, _self.mapSchemas);
+                        _ins._oGet(_oApp, _mapSchemas);
                         _getAppDeferred.resolve(_oApp);
                     });
 

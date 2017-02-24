@@ -260,7 +260,13 @@ class proxy_model extends \sns\proxybase {
 		$user1=$this->userGet($openid);
 		$schema=\TMS_MODEL::M('site\user\memberschema');
 		$fan=\TMS_MODEL::M('sns\qy\fan');
-		$authid=$schema->qyabSchemaBySite($site);
+		$obj=$schema->qyabSchemaBySite($site);
+		if(isset($obj->id)){
+			$authid=$obj->id;
+		}else{
+			$err = '没有设置企业号同步使用的自定义用户!';
+			return array(false, $err);
+		}
 
 		if($luser=$fan->query_obj_ss(["userid,nickname","xxt_site_qyfan",["siteid"=>$site ,"openid"=>$openid]])){
 			$fan->updateQyFan($site,$luser,$user1,$authid);

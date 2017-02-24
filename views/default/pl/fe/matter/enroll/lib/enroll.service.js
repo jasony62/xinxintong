@@ -1,5 +1,5 @@
 define(['require', 'schema', 'page'], function(require, schemaLib, pageLib) {
-    var BaseSrvRecord = function() {
+    var BaseSrvRecord = function(q, httpServer, srcServer, noticeServer) {
         this._oApp = null;
         this._oPage = null;
         this._oCriteria = null;
@@ -8,10 +8,11 @@ define(['require', 'schema', 'page'], function(require, schemaLib, pageLib) {
             this._oApp = oApp;
             // schemas
             if (this._oApp._schemasById === undefined) {
-                this._oApp._schemasById = {};
+                var schemasById = {};
                 this._oApp.data_schemas.forEach(function(schema) {
-                    this._oApp._schemasById[schema.id] = schema;
+                    schemasById[schema.id] = schema;
                 });
+                this._oApp._schemasById = schemasById;
             }
             // pagination
             this._oPage = oPage;
@@ -26,6 +27,15 @@ define(['require', 'schema', 'page'], function(require, schemaLib, pageLib) {
                     p += '&orderby=' + this.orderBy;
                     p += '&rid=' + (this.byRound ? this.byRound : 'ALL');
                     return p;
+                },
+                setTotal: function(total) {
+                    var lastNumber;
+                    this.total = total;
+                    this.numbers = [];
+                    lastNumber = this.total > 0 ? Math.ceil(this.total / this.size) : 1;
+                    for (var i = 1; i <= lastNumber; i++) {
+                        this.numbers.push(i);
+                    }
                 }
             });
             // criteria
@@ -39,6 +49,98 @@ define(['require', 'schema', 'page'], function(require, schemaLib, pageLib) {
             });
             // records
             this._aRecords = oRecords;
+        };
+        this._oSearch = function(url) {
+            var that = this,
+                defer = q.defer();
+            httpServer.post(url, that._oCriteria, function(rsp) {
+                var records;
+                if (rsp.data) {
+                    records = rsp.data.records ? rsp.data.records : [];
+                    rsp.data.total && (that._oPage.total = rsp.data.total);
+                    that._oPage.setTotal(rsp.data.total);
+                } else {
+                    records = [];
+                }
+                records.forEach(function(record) {
+                    srcServer.forTable(record, that._oApp._schemasById);
+                    that._aRecords.push(record);
+                });
+                defer.resolve(records);
+            });
+            return defer.promise;
+        }
+        this._oBatchVerify = function(rows, url) {
+            var eks = [],
+                selectedRecords = [],
+                that = this;
+            for (var p in rows.selected) {
+                if (rows.selected[p] === true) {
+                    eks.push(that._aRecords[p].enroll_key);
+                    selectedRecords.push(that._aRecords[p]);
+                }
+            }
+            if (eks.length) {
+                httpServer.post(url, {
+                    eks: eks
+                }, function(rsp) {
+                    selectedRecords.forEach(function(record) {
+                        record.verified = 'Y';
+                    });
+                    noticeServer.success('完成操作');
+                });
+            }
+        };
+        this._oGet = function(data, method) {
+            data.tags = (!data.tags || data.tags.length === 0) ? [] : data.tags.split(',');
+            data.entry_rule === null && (data.entry_rule = {});
+            data.entry_rule.scope === undefined && (data.entry_rule.scope = 'none');
+            try {
+                data.data_schemas = data.data_schemas && data.data_schemas.length ? JSON.parse(data.data_schemas) : [];
+            } catch (e) {
+                console.log('data invalid', e, data.data_schemas);
+                data.data_schemas = [];
+            }
+            if (data.enrollApp && data.enrollApp.data_schemas) {
+                try {
+                    data.enrollApp.data_schemas = data.enrollApp.data_schemas && data.enrollApp.data_schemas.length ? JSON.parse(data.enrollApp.data_schemas) : [];
+                } catch (e) {
+                    console.log('data invalid', e, data.enrollApp.data_schemas);
+                    data.enrollApp.data_schemas = [];
+                }
+            }
+            if (data.groupApp && data.groupApp.data_schemas) {
+                var groupAppDS = data.groupApp.data_schemas;
+                try {
+                    data.groupApp.data_schemas = groupAppDS && groupAppDS.length ? JSON.parse(groupAppDS) : [];
+                } catch (e) {
+                    console.log('data invalid', e, groupAppDS);
+                    data.groupApp.data_schemas = [];
+                }
+                if (data.groupApp.rounds && data.groupApp.rounds.length) {
+                    var roundDS = {
+                            id: '_round_id',
+                            type: 'single',
+                            title: '分组名称',
+                        },
+                        ops = [];
+                    data.groupApp.rounds.forEach(function(round) {
+                        ops.push({
+                            v: round.round_id,
+                            l: round.title
+                        });
+                    });
+                    roundDS.ops = ops;
+                    data.groupApp.data_schemas.splice(0, 0, roundDS);
+                }
+            }
+            method(data);
+            data.data_schemas.forEach(function(schema) {
+                schemaLib._upgrade(schema);
+            });
+            data.pages.forEach(function(page) {
+                pageLib.enhance(page, data._schemasById);
+            });
         };
     };
     angular.module('service.enroll', ['ui.bootstrap', 'ui.xxt', 'service.matter']).
@@ -84,13 +186,14 @@ define(['require', 'schema', 'page'], function(require, schemaLib, pageLib) {
             app._schemasFromGroupApp = groupDataSchemas;
         }
 
-        var _siteId, _appId, _accessId, _oApp, _opApps, _opApp, _getAppDeferred = false;
+        var _siteId, _appId, _accessId, _oApp, _getAppDeferred = false;
         this.config = function(siteId, appId, accessId) {
             _siteId = siteId;
             _appId = appId;
             _accessId = accessId;
         };
         this.$get = ['$q', '$uibModal', 'http2', 'noticebox', 'mattersgallery', function($q, $uibModal, http2, noticebox, mattersgallery) {
+            var _ins = new BaseSrvRecord();
             var _self = {
                 get: function() {
                     var url;
@@ -102,62 +205,14 @@ define(['require', 'schema', 'page'], function(require, schemaLib, pageLib) {
                     url = '/rest/pl/fe/matter/enroll/get?site=' + _siteId + '&id=' + _appId;
                     http2.get(url, function(rsp) {
                         _oApp = rsp.data;
-                        _oApp.tags = (!_oApp.tags || _oApp.tags.length === 0) ? [] : _oApp.tags.split(',');
-                        _oApp.entry_rule === null && (_oApp.entry_rule = {});
-                        _oApp.entry_rule.scope === undefined && (_oApp.entry_rule.scope = 'none');
-                        try {
-                            _oApp.data_schemas = _oApp.data_schemas && _oApp.data_schemas.length ? JSON.parse(_oApp.data_schemas) : [];
-                        } catch (e) {
-                            console.log('data invalid', e, _oApp.data_schemas);
-                            _oApp.data_schemas = [];
-                        }
-                        if (_oApp.enrollApp && _oApp.enrollApp.data_schemas) {
-                            try {
-                                _oApp.enrollApp.data_schemas = _oApp.enrollApp.data_schemas && _oApp.enrollApp.data_schemas.length ? JSON.parse(_oApp.enrollApp.data_schemas) : [];
-                            } catch (e) {
-                                console.log('data invalid', e, _oApp.enrollApp.data_schemas);
-                                _oApp.enrollApp.data_schemas = [];
-                            }
-                        }
-                        if (_oApp.groupApp && _oApp.groupApp.data_schemas) {
-                            var groupAppDS = _oApp.groupApp.data_schemas;
-                            try {
-                                _oApp.groupApp.data_schemas = groupAppDS && groupAppDS.length ? JSON.parse(groupAppDS) : [];
-                            } catch (e) {
-                                console.log('data invalid', e, groupAppDS);
-                                _oApp.groupApp.data_schemas = [];
-                            }
-                            if (_oApp.groupApp.rounds && _oApp.groupApp.rounds.length) {
-                                var roundDS = {
-                                        id: '_round_id',
-                                        type: 'single',
-                                        title: '分组名称',
-                                    },
-                                    ops = [];
-                                _oApp.groupApp.rounds.forEach(function(round) {
-                                    ops.push({
-                                        v: round.round_id,
-                                        l: round.title
-                                    });
-                                });
-                                roundDS.ops = ops;
-                                _oApp.groupApp.data_schemas.splice(0, 0, roundDS);
-                            }
-                        }
-                        _mapSchemas(_oApp);
-                        _oApp.data_schemas.forEach(function(schema) {
-                            schemaLib._upgrade(schema);
-                        });
-                        _oApp.pages.forEach(function(page) {
-                            pageLib.enhance(page, _oApp._schemasById);
-                        });
+                        _ins._oGet(_oApp, _mapSchemas);
                         _getAppDeferred.resolve(_oApp);
                     });
 
                     return _getAppDeferred.promise;
                 },
                 opGet: function() {
-                    var url;
+                    var url, _getAppDeferred = false;
 
                     if (_getAppDeferred) {
                         return _getAppDeferred.promise;
@@ -166,55 +221,7 @@ define(['require', 'schema', 'page'], function(require, schemaLib, pageLib) {
                     url = '/rest/site/op/matter/enroll/get?site=' + _siteId + '&app=' + _appId + '&accessToken=' + _accessId;
                     http2.get(url, function(rsp) {
                         _opApps = rsp.data, _opApp = rsp.data.app, _opPage = rsp.data.page;
-                        _opApp.tags = (!_opApp.tags || _opApp.tags.length === 0) ? [] : _opApp.tags.split(',');
-                        _opApp.entry_rule === null && (_opApp.entry_rule = {});
-                        _opApp.entry_rule.scope === undefined && (_opApp.entry_rule.scope = 'none');
-                        try {
-                            _opApp.data_schemas = _opApp.data_schemas && _opApp.data_schemas.length ? JSON.parse(_opApp.data_schemas) : [];
-                        } catch (e) {
-                            console.log('data invalid', e, _opApp.data_schemas);
-                            _opApp.data_schemas = [];
-                        }
-                        if (_opApp.enrollApp && _opApp.enrollApp.data_schemas) {
-                            try {
-                                _opApp.enrollApp.data_schemas = _opApp.enrollApp.data_schemas && _opApp.enrollApp.data_schemas.length ? JSON.parse(_opApp.enrollApp.data_schemas) : [];
-                            } catch (e) {
-                                console.log('data invalid', e, _opApp.enrollApp.data_schemas);
-                                _opApp.enrollApp.data_schemas = [];
-                            }
-                        }
-                        if (_opApp.groupApp && _opApp.groupApp.data_schemas) {
-                            var groupAppDS = _opApp.groupApp.data_schemas;
-                            try {
-                                _opApp.groupApp.data_schemas = groupAppDS && groupAppDS.length ? JSON.parse(groupAppDS) : [];
-                            } catch (e) {
-                                console.log('data invalid', e, groupAppDS);
-                                _opApp.groupApp.data_schemas = [];
-                            }
-                            if (_opApp.groupApp.rounds && _opApp.groupApp.rounds.length) {
-                                var roundDS = {
-                                        id: '_round_id',
-                                        type: 'single',
-                                        title: '分组名称',
-                                    },
-                                    ops = [];
-                                _opApp.groupApp.rounds.forEach(function(round) {
-                                    ops.push({
-                                        v: round.round_id,
-                                        l: round.title
-                                    });
-                                });
-                                roundDS.ops = ops;
-                                _opApp.groupApp.data_schemas.splice(0, 0, roundDS);
-                            }
-                        }
-                        _mapSchemas(_opApp);
-                        _opApp.data_schemas.forEach(function(schema) {
-                            schemaLib._upgrade(schema);
-                        });
-                        _opApp.pages.forEach(function(page) {
-                            pageLib.enhance(page, _opApp._schemasById);
-                        });
+                        _ins._oGet(_opApp, _mapSchemas);
                         _getAppDeferred.resolve(_opApps);
                     });
 
@@ -815,10 +822,9 @@ define(['require', 'schema', 'page'], function(require, schemaLib, pageLib) {
             _appId = appId;
         };
         this.$get = ['$q', '$sce', 'http2', 'noticebox', '$uibModal', 'pushnotify', 'cstApp', 'srvRecordConverter', function($q, $sce, http2, noticebox, $uibModal, pushnotify, cstApp, srvRecordConverter) {
-            var _ins = new BaseSrvRecord();
+            var _ins = new BaseSrvRecord($q, http2, srvRecordConverter, noticebox);
             _ins.search = function(pageNumber) {
-                var defer = $q.defer(),
-                    url;
+                var url;
 
                 this._aRecords.splice(0, this._aRecords.length);
                 pageNumber && (this._oPage.at = pageNumber);
@@ -826,22 +832,8 @@ define(['require', 'schema', 'page'], function(require, schemaLib, pageLib) {
                 url += '?site=' + this._oApp.siteid;
                 url += '&app=' + this._oApp.id;
                 url += this._oPage.joinParams();
-                http2.post(url, this._oCriteria, function(rsp) {
-                    var records;
-                    if (rsp.data) {
-                        records = rsp.data.records ? rsp.data.records : [];
-                        rsp.data.total && (_ins._oPage.total = rsp.data.total);
-                    } else {
-                        records = [];
-                    }
-                    records.forEach(function(record) {
-                        srvRecordConverter.forTable(record, _ins._oApp._schemasById);
-                        _ins._aRecords.push(record);
-                    });
-                    defer.resolve(records);
-                });
 
-                return defer.promise;
+                return _ins._oSearch(url);
             };
             _ins.searchRecycle = function(pageNumber) {
                 var defer = $q.defer(),
@@ -878,6 +870,9 @@ define(['require', 'schema', 'page'], function(require, schemaLib, pageLib) {
                     windowClass: 'auto-height',
                     backdrop: 'static',
                     resolve: {
+                        dataSchemas: function() {
+                            return _ins._oApp.data_schemas;
+                        },
                         criteria: function() {
                             return angular.copy(_ins._oCriteria);
                         }
@@ -1048,24 +1043,13 @@ define(['require', 'schema', 'page'], function(require, schemaLib, pageLib) {
                 }
             };
             _ins.batchVerify = function(rows) {
-                var eks = [],
-                    selectedRecords = [];
-                for (var p in rows.selected) {
-                    if (rows.selected[p] === true) {
-                        eks.push(_ins._aRecords[p].enroll_key);
-                        selectedRecords.push(_ins._aRecords[p]);
-                    }
-                }
-                if (eks.length) {
-                    http2.post('/rest/pl/fe/matter/enroll/record/batchVerify?site=' + _siteId + '&app=' + _appId, {
-                        eks: eks
-                    }, function(rsp) {
-                        selectedRecords.forEach(function(record) {
-                            record.verified = 'Y';
-                        });
-                        noticebox.success('完成操作');
-                    });
-                }
+                var url;
+
+                url = '/rest/pl/fe/matter/enroll/record/batchVerify';
+                url += '?site=' + _siteId;
+                url += '&app=' + _appId;
+
+                return _ins._oBatchVerify(rows, url);
             };
             _ins.notify = function(rows) {
                 var options = {
@@ -1321,76 +1305,41 @@ define(['require', 'schema', 'page'], function(require, schemaLib, pageLib) {
             _accessId = accessId;
         };
         this.$get = ['$q', 'http2', 'noticebox', '$uibModal', 'srvRecordConverter', function($q, http2, noticebox, $uibModal, srvRecordConverter) {
-            var _ins = new BaseSrvRecord();
+            var _ins = new BaseSrvRecord($q, http2, srvRecordConverter, noticebox);
             _ins.search = function(pageNumber) {
-                var _this = this,
-                    defer = $q.defer(),
-                    url;
+                var url;
 
                 this._aRecords.splice(0, this._aRecords.length);
                 pageNumber && (this._oPage.at = pageNumber);
-                angular.extend(this._oPage, {
-                    setTotal: function(total) {
-                        var lastNumber;
-                        this.total = total;
-                        this.numbers = [];
-                        lastNumber = this.total > 0 ? Math.ceil(this.total / this.size) : 1;
-                        for (var i = 1; i <= lastNumber; i++) {
-                            this.numbers.push(i);
-                        }
-                    }
-                });
                 url = '/rest/site/op/matter/enroll/record/list';
                 url += '?site=' + _siteId;
                 url += '&app=' + _appId;
                 url += '&accessToken=' + _accessId;
                 url += this._oPage.joinParams();
-                http2.post(url, this._oCriteria, function(rsp) {
-                    var records;
-                    if (rsp.data) {
-                        records = rsp.data.records ? rsp.data.records : [];
-                        rsp.data.total && (_ins._oPage.total = rsp.data.total);
-                        _ins._oPage.setTotal(rsp.data.total);
-                    } else {
-                        records = [];
-                    }
-                    records.forEach(function(record) {
-                        srvRecordConverter.forTable(record, _ins._oApp._schemasById);
-                        _ins._aRecords.push(record);
-                    });
-                    defer.resolve(records);
-                });
 
-                return defer.promise;
+                return _ins._oSearch(url);
             };
             _ins.batchVerify = function(rows) {
-                var eks = [],
-                    selectedRecords = [];
-                for (var p in rows.selected) {
-                    if (rows.selected[p] === true) {
-                        eks.push(this._aRecords[p].enroll_key);
-                        selectedRecords.push(this._aRecords[p]);
-                    }
-                }
-                if (eks.length) {
-                    http2.post('/rest/site/op/matter/enroll/record/batchVerify?site=' + _siteId + '&app=' + _appId + '&accessToken=' + _accessId, {
-                        eks: eks
-                    }, function(rsp) {
-                        selectedRecords.forEach(function(record) {
-                            record.verified = 'Y';
-                        });
-                        noticebox.success('完成操作');
-                    });
-                }
+                var url;
+
+                url = '/rest/site/op/matter/enroll/record/batchVerify';
+                url += '?site=' + _siteId;
+                url += '&app=' + _appId;
+                url += '&accessToken=' + _accessId;
+
+                return _ins._oBatchVerify(rows, url);
             };
             _ins.filter = function() {
                 var defer = $q.defer();
                 $uibModal.open({
-                    templateUrl: 'recordFilter.html',
-                    controller: 'ctrlOpFilter',
+                    templateUrl: '/views/default/pl/fe/matter/enroll/component/recordFilter.html?_=3',
+                    controller: 'ctrlFilter',
                     windowClass: 'auto-height',
                     backdrop: 'static',
                     resolve: {
+                        dataSchemas: function() {
+                            return _ins._oApp.data_schemas;
+                        },
                         criteria: function() {
                             return angular.copy(_ins._oCriteria);
                         }
@@ -1536,65 +1485,21 @@ define(['require', 'schema', 'page'], function(require, schemaLib, pageLib) {
         $scope.syncByGroup = function() {
             srvRecord.syncByGroup($scope.record);
         };
-    }]).controller('ctrlFilter', ['$scope', '$uibModalInstance', 'srvApp', 'criteria', function($scope, $mi, srvApp, lastCriteria) {
+    }]).controller('ctrlFilter', ['$scope', '$uibModalInstance', 'dataSchemas', 'criteria', function($scope, $mi, dataSchemas, lastCriteria) {
         var canFilteredSchemas = [];
-        srvApp.get().then(function(app) {
-            app.data_schemas.forEach(function(schema) {
-                if (false === /image|file/.test(schema.type)) {
-                    canFilteredSchemas.push(schema);
+        dataSchemas.forEach(function(schema) {
+            if (false === /image|file/.test(schema.type)) {
+                canFilteredSchemas.push(schema);
+            }
+            if (/multiple/.test(schema.type)) {
+                var options = {};
+                if (lastCriteria.data[schema.id]) {
+                    lastCriteria.data[schema.id].split(',').forEach(function(key) {
+                        options[key] = true;
+                    })
                 }
-                if (/multiple/.test(schema.type)) {
-                    var options = {};
-                    if (lastCriteria.data[schema.id]) {
-                        lastCriteria.data[schema.id].split(',').forEach(function(key) {
-                            options[key] = true;
-                        })
-                    }
-                    lastCriteria.data[schema.id] = options;
-                }
-            });
-            $scope.schemas = canFilteredSchemas;
-            $scope.criteria = lastCriteria;
-        });
-        $scope.ok = function() {
-            var criteria = $scope.criteria,
-                optionCriteria;
-            // 将单选题/多选题的结果拼成字符串
-            canFilteredSchemas.forEach(function(schema) {
-                var result;
-                if (/multiple/.test(schema.type)) {
-                    if ((optionCriteria = criteria.data[schema.id])) {
-                        result = [];
-                        Object.keys(optionCriteria).forEach(function(key) {
-                            optionCriteria[key] && result.push(key);
-                        });
-                        criteria.data[schema.id] = result.join(',');
-                    }
-                }
-            });
-            $mi.close(criteria);
-        };
-        $scope.cancel = function() {
-            $mi.dismiss('cancel');
-        };
-    }]).controller('ctrlOpFilter', ['$scope', '$uibModalInstance', 'srvApp', 'criteria', function($scope, $mi, srvApp, lastCriteria) {
-        var canFilteredSchemas = [];
-        srvApp.opGet().then(function(data) {
-            var app = data.app;
-            app.data_schemas.forEach(function(schema) {
-                if (false === /image|file/.test(schema.type)) {
-                    canFilteredSchemas.push(schema);
-                }
-                if (/multiple/.test(schema.type)) {
-                    var options = {};
-                    if (lastCriteria.data[schema.id]) {
-                        lastCriteria.data[schema.id].split(',').forEach(function(key) {
-                            options[key] = true;
-                        })
-                    }
-                    lastCriteria.data[schema.id] = options;
-                }
-            });
+                lastCriteria.data[schema.id] = options;
+            }
             $scope.schemas = canFilteredSchemas;
             $scope.criteria = lastCriteria;
         });

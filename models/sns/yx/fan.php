@@ -44,7 +44,7 @@ class fan_model extends \TMS_MODEL {
 	/**
 	 *
 	 */
-	public function &byOpenid($siteid, $openid, $fields = '*', $followed = null) {
+	public function byOpenid($siteid, $openid, $fields = '*', $followed = null) {
 		$q = [
 			$fields,
 			'xxt_site_yxfan',

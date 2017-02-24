@@ -30,6 +30,26 @@
                             <span ng-switch-when="date">{{(r._data[schema.id]*1000)|date:'yy-MM-dd HH:mm'}}</span>
                             <span ng-switch-default ng-bind-html="r._data[schema.id]"></span>
                         </td>
+                        <td data-th='{{schema.title}}' ng-repeat="schema in enrollDataSchemas" ng-switch on="schema.type">
+                            <span ng-switch-when="image">
+                                <img ng-repeat="img in r._data[schema.id]" ng-src='{{img}}' />
+                            </span>
+                            <span ng-switch-when="file">
+                                <span ng-repeat='file in r._data[schema.id]'><a href='{{file.url}}' target="_blank">{{file.name}}</a></span>
+                            </span>
+                            <span ng-switch-when="date">{{(r._data[schema.id]*1000)|date:'yy-MM-dd HH:mm'}}</span>
+                            <span ng-switch-default ng-bind-html="r._data[schema.id]"></span>
+                        </td>
+                        <td data-th='{{schema.title}}' ng-repeat="schema in groupDataSchemas" ng-switch on="schema.type">
+                            <span ng-switch-when="image">
+                                <img ng-repeat="img in r._data[schema.id]" ng-src='{{img}}' />
+                            </span>
+                            <span ng-switch-when="file">
+                                <span ng-repeat='file in r._data[schema.id]'><a href='{{file.url}}' target="_blank">{{file.name}}</a></span>
+                            </span>
+                            <span ng-switch-when="date">{{(r._data[schema.id]*1000)|date:'yy-MM-dd HH:mm'}}</span>
+                            <span ng-switch-default ng-bind-html="r._data[schema.id]"></span>
+                        </td>
                         <td data-th='标签'><span>{{r.tags}}</span></td>
                         <td data-th='备注'><span>{{r.comment}}</span></td>
                         <td data-th='操作'>
@@ -145,37 +165,3 @@
         </div>
     </div>
 </div>
-<script type="text/ng-template" id="recordFilter.html">
-	<div class="modal-body">
-        <form class='form-horizontal'>
-            <div class='form-group'>
-                <label class="col-md-3 control-label">审核状态</label>
-                <div class="col-md-7">
-                    <label class='radio-inline'><input type='radio' name='verified' value='Y' ng-model="criteria.record.verified">是</label>
-                    <label class='radio-inline'><input type='radio' name='verified' value='N' ng-model="criteria.record.verified">否</label>
-                    <label class='radio-inline'><input type='radio' name='verified' value='' ng-model="criteria.record.verified">全部</label>
-                </div>
-            </div>
-            <div class="form-group" ng-repeat="schema in schemas" ng-if="schema.id.indexOf('member')!==0">
-                <label class="col-md-3 control-label">{{schema.title}}</label>
-                <div class="col-md-7">
-                    <input type='text' class='form-control' ng-if="['name','email','mobile','shorttext','location'].indexOf(schema.type)!==-1" ng-model="criteria.data[schema.id]">
-                    <textarea class='form-control' ng-if="'longtext'===schema.type" ng-model="criteria.data[schema.id]"></textarea>
-                    <select class='form-control' ng-if="['single','phase'].indexOf(schema.type)!==-1" ng-model="criteria.data[schema.id]" ng-options="op.v as op.l for op in schema.ops">
-                        <option></option>
-                    </select>
-                    <ul ng-if="schema.type==='multiple'">
-                        <li class='checkbox' ng-repeat="op in schema.ops">
-                            <label><input type="checkbox" name="{{schema.id}}" ng-model="criteria.data[schema.id][op.v]"/><span>{{op.l}}</span></label>
-                        </li>
-                    </ul>
-                </div>
-            </div>
-        </form>
-    </div>
-    <div class="modal-footer">
-    	<button class="btn btn-default" ng-click="clean()">清除条件</button>
-    	<button class="btn btn-primary" ng-click="ok()">确定</button>
-    	<button class="btn btn-default" ng-click="cancel()">关闭</button>
-	</div>
-</script>

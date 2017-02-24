@@ -19,7 +19,7 @@
     <div class="loading">
         <div class='loading-indicator'><i></i></div>
     </div>
-    <div class="container" ng-app="app" ng-controller='ctrlHistory'>
+    <div class="container" ng-controller="ctrlMain">
         <nav class='navbar navbar-default'>
             <div class='container-fluid'>
                 <div class="navbar-header">
@@ -29,7 +29,7 @@
         </nav>
         <div class='row'>
         	<div class='col-md-12'>
-        		<h4>我最近参与的活动</h4>
+        		<h4>我参与的活动</h4>
         	</div>
         	<div class='col-md-4' ng-repeat="app in myApps">
         		<div class='thumbnail app' ng-click="openApp(app)">

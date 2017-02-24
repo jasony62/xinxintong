@@ -131,7 +131,9 @@ define(['frame', 'enrollService'], function(ngApp) {
                 userApp.data_schemas = JSON.parse(userApp.data_schemas);
             }
             srvRecord.init(userApp, _oUserPage, {}, _users);
-            srvRecord.search(1).then(function(data) {});
+            srvRecord.search(1).then(function(data) {
+                $scope.tmsTableWrapReady = 'Y';
+            });
         });
     }]);
 });

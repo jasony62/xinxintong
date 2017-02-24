@@ -127,4 +127,11 @@ class memberschema_model extends \TMS_MODEL {
 
 		return $r;
 	}
+	/**
+	 * 获取authid(schema_id)
+	 */
+	public function getAuthid($site){
+		$id=$this->query_val_ss(['id','xxt_site_member_schema'," siteid='$site' and qy_ab='Y'"]);
+		return $id ;
+	}
 }

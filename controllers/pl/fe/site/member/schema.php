@@ -191,7 +191,7 @@ class schema extends \pl\fe\base {
 	 * $site
 	 * $authid
 	 */
-	public function import2Qy_action($site, $authid) {
+	public function import2Qy_action($site) {
 		return new \ResponseError('not support');
 	}
 	/**
@@ -200,7 +200,7 @@ class schema extends \pl\fe\base {
 	 * $site
 	 * $authid
 	 */
-	public function sync2Qy_action($site, $authid) {
+	public function sync2Qy_action($site) {
 		return new \ResponseError('not support');
 	}
 	/**
@@ -210,7 +210,7 @@ class schema extends \pl\fe\base {
 	 * $pdid 父部门id,若pdid不指定，默认获取有权限的部门
 	 *
 	 */
-	public function syncFromQy_action($site, $authid, $pdid = null) {
+	public function syncFromQy_action($site, $pdid = null) {
 		$qyConfig = $this->model('sns\qy')->bySite($site);
 		if (!$qyConfig || $qyConfig->joined === 'N') {
 			return new \ResponseError('未与企业号连接，无法同步通讯录');
@@ -219,6 +219,11 @@ class schema extends \pl\fe\base {
 		$qyproxy = $this->model('sns\qy\proxy', $qyConfig);
 		$model = $this->model();
 		$modelDept = $this->model('site\user\department');
+		$authid=$this->model('site\user\memberschema')->getAuthid($site);
+
+		if(empty($authid)){
+			return new \ResponseError('没有设置企业号同步使用的schema_id,请先设置再同步！');
+		}
 		/**
 		 * 同步部门数据
 		 */

@@ -1,0 +1,81 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <meta charset="utf-8">
+    <meta content="width=device-width,user-scalable=no,initial-scale=1.0" name="viewport">
+    <base href="/" />
+    <title>我参与的项目</title>
+    <link href="/static/css/bootstrap.min.css" rel="stylesheet">
+    <link href="/views/default/site/fe/matter/mission/main.css?_=1" rel="stylesheet">
+</head>
+
+<body>
+    <div class="loading">
+        <div class='loading-indicator'><i></i></div>
+    </div>
+    <div class='container' ng-controller="ctrlMain" class="ng-cloak" ng-cloak>
+        <div class='row'>
+            <div class='col-md-12'>
+                <h3>{{mission.title}}</h3>
+            </div>
+        </div>
+        <div class='row'>
+            <div class='col-md-12'>
+                <h4>登记活动</h4>
+            </div>
+            <div class='col-md-4' ng-repeat="app in myRecords.enroll.apps">
+                <div class='thumbnail'>
+                    <div class='title h5' ng-bind="app.title"></div>
+                    <div class='list-group'>
+                        <div class='list-group-item' ng-repeat="rec in recordsByApp.enroll[app.id]">
+                            <div><label>登记时间：</label>{{rec.enroll_at*1000|date:'yy-MM-dd HH:mm'}}</div>
+                            <div><label>审核通过：</label>{{rec.verified}}</div>
+                            <div><label>备注：</label>{{rec.comment}}</div>
+                        </div>
+                    </div>
+                    <button class='btn btn-default btn-sm' ng-click="gotoApp(app)">进入活动</button>
+                </div>
+            </div>
+        </div>
+        <div class='row'>
+            <div class='col-md-12'>
+                <h4>签到活动</h4>
+            </div>
+            <div class='col-md-4' ng-repeat="app in myRecords.signin.apps">
+                <div class='thumbnail'>
+                    <div class='title h5' ng-bind="app.title"></div>
+                    <div class='list-group'>
+                        <div class='list-group-item' ng-repeat="rec in recordsByApp.signin[app.id]">
+                            <div><label>审核通过：</label>{{rec.verified}}</div>
+                            <div><label>备注：</label>{{rec.comment}}</div>
+                            <div><label>签到次数：</label>{{rec.signin_num}}</div>
+                            <div ng-repeat="rnd in app.rounds">
+                                <div><label>{{rnd.title}}：</label><span ng-class="{'signin_late':rnd.late_at!==0&&(rec.signin_log[rnd.rid]+60)>rnd.late_at}">{{rec.signin_log[rnd.rid]*1000|date:'yy-MM-dd HH:mm'}}</span></div>
+                            </div>
+                        </div>
+                    </div>
+                    <button class='btn btn-default btn-sm' ng-click="gotoApp(app)">进入活动</button>
+                </div>
+            </div>
+        </div>
+        <div class='row'>
+            <div class='col-md-12'>
+                <h4>分组活动</h4>
+            </div>
+            <div class='col-md-4' ng-repeat="app in myRecords.group.apps">
+                <div class='thumbnail'>
+                    <div class='title h5' ng-bind="app.title"></div>
+                    <div class='list-group'>
+                        <div class='list-group-item' ng-repeat="rec in recordsByApp.group[app.id]">
+                            <div><label>所属分组：</label>{{rec.round_title}}</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <script src="/static/js/require.js" defer async data-main="/views/default/site/fe/matter/mission/main-loader.js?_=11"></script>
+</body>
+
+</html>

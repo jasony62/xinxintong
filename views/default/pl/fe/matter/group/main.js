@@ -70,38 +70,47 @@ define(['frame'], function(ngApp) {
             });
         };
     }]);
-    ngApp.provider.controller('ctrlOpUrl', ['$scope', 'http2', 'srvQuickEntry', function($scope, http2, srvQuickEntry) {
-        var targetUrl;
-        $scope.opEntry = {};
+    ngApp.provider.controller('ctrlOpUrl', ['$scope', 'http2', 'srvApp', 'srvQuickEntry', function($scope, http2, srvApp, srvQuickEntry) {
+        var targetUrl, opEntry;
+        $scope.opEntry = opEntry = {};
         $scope.$watch('app', function(app) {
             if (!app) return;
             targetUrl = app.opUrl;
             srvQuickEntry.get(targetUrl).then(function(entry) {
                 if (entry) {
-                    $scope.opEntry.url = 'http://' + location.host + '/q/' + entry.code;
-                    $scope.opEntry.password = entry.password;
+                    opEntry.url = 'http://' + location.host + '/q/' + entry.code;
+                    opEntry.password = entry.password;
+                    opEntry.code = entry.code;
+                    opEntry.can_favor = entry.can_favor;
                 }
             });
         });
         $scope.makeOpUrl = function() {
-            srvQuickEntry.add(targetUrl).then(function(task) {
+            srvQuickEntry.add(targetUrl, $scope.app.title).then(function(task) {
                 $scope.app.op_short_url_code = task.code;
-                $scope.update('op_short_url_code');
-                $scope.opEntry.url = 'http://' + location.host + '/q/' + task.code;
+                srvApp.update('op_short_url_code');
+                opEntry.url = 'http://' + location.host + '/q/' + task.code;
+                opEntry.code = task.code;
             });
         };
         $scope.closeOpUrl = function() {
             srvQuickEntry.remove(targetUrl).then(function(task) {
-                $scope.opEntry.url = '';
+                opEntry.url = '';
+                opEntry.code = '';
+                opEntry.can_favor = 'N';
+                opEntry.password = '';
                 $scope.app.op_short_url_code = '';
-                $scope.update('op_short_url_code');
+                srvApp.update('op_short_url_code');
             });
         };
         $scope.configOpUrl = function(event, prop) {
             event.preventDefault();
             srvQuickEntry.config(targetUrl, {
-                password: $scope.opEntry.password
+                password: opEntry.password
             });
+        };
+        $scope.updCanFavor = function() {
+            srvQuickEntry.update(opEntry.code, { can_favor: opEntry.can_favor });
         };
         $scope.gotoCode = function() {
             var app, url;

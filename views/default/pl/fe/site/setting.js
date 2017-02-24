@@ -203,6 +203,20 @@ define(['require'], function(require) {
                 $scope.schemas.splice(i, 1);
             });
         };
+        $scope.updQy = function(schema, field){
+            if(schema.qy_ab==='Y'){
+                angular.forEach($scope.schemas,function(s){
+                    if(s!==schema&& s.qy_ab==='Y') {
+                        schema.qy_ab = 'N';
+                        alert('您已经定义了"企业号同步通信录使用",请先取消');
+                        return;
+                    }
+                })
+                schema.qy_ab==='Y' &&($scope.updSchema(schema, field));
+            }else{
+                $scope.updSchema(schema, field);
+            }
+        }
         $scope.updSchema = function(schema, field) {
             var pv = {};
             pv[field] = (/entry_statement|acl_statement|notpass_statement/.test(field)) ? encodeURIComponent(schema[field]) : schema[field];

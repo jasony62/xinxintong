@@ -60,6 +60,9 @@ class TMS_CONTROLLER {
 		if ('POST' === $_SERVER['REQUEST_METHOD']) {
 			$json = file_get_contents("php://input");
 			$obj = json_decode($json);
+			if (JSON_ERROR_NONE !== json_last_error()) {
+				throw new \Exception('参数解析错误：' . json_last_error_msg());
+			}
 		} else {
 			$obj = null;
 		}

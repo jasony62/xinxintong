@@ -1,4 +1,5 @@
 body{margin-bottom:50px;}
+.ng-cloak{display:none;}
 .navbar-nav .active:after{content:' ';position:absolute;left:0;right:0;bottom:-1px;height:3px;background:red;}
 .tms-panel-heading{margin-bottom:-1px;}
 .tms-panel-body{border:1px solid #eee;border-radius:4px;background:#fff;padding:30px 0;margin-bottom:30px;}
@@ -7,12 +8,13 @@ body{margin-bottom:50px;}
 
 /*matters*/
 .category{border-top-right-radius:0}
-.thumbnail{position:relative;height:180px;cursor:pointer;display:flex;flex-direction:column;padding:8px;}
+.thumbnail{position:relative;height:180px;display:flex;flex-direction:column;padding:.5em 1em;}
 .recycle .thumbnail{cursor:auto;}
 .thumbnail .summary{flex:1;overflow:hidden;}
-.thumbnail .attr{display:flex;}
+.thumbnail .attr{display:flex;padding:.5em 0;}
 .thumbnail .operator_name{flex:1;}
-.thumbnail .actions{position:absolute;top:8px;right:8px;}
+.thumbnail .actions{border-top:1px solid #ddd;padding-top:.5em;}
+.thumbnail .actions-top{position:absolute;top:.5em;right:.5em;}
 .mission:after{content:'项目';position:absolute;top:-8px;left:-8px;background:red;padding:2px 4px;font-size:60%;color:#fff;border-radius:4px;}
 .article:after{content:'图文';position:absolute;top:-8px;left:-8px;background:green;padding:2px 4px;font-size:60%;color:#fff;border-radius:4px;}
 .channel:after{content:'频道';position:absolute;top:-8px;left:-8px;background:green;padding:2px 4px;font-size:60%;color:#fff;border-radius:4px;}

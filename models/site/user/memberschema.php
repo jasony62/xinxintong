@@ -128,10 +128,19 @@ class memberschema_model extends \TMS_MODEL {
 		return $r;
 	}
 	/**
-	 * 获取authid(schema_id)
+	 * 获得企业号通讯录同步数据用的自定义用户定义
+	 *
+	 * @param string $siteId;
 	 */
-	public function getAuthid($site){
-		$id=$this->query_val_ss(['id','xxt_site_member_schema'," siteid='$site' and qy_ab='Y'"]);
-		return $id ;
+	public function qyabSchemaBySite($siteId, $optons = []) {
+		$fields = isset($options['fields']) ? $options['fields'] : '*';
+		$q = [
+			$fields,
+			'xxt_site_member_schema',
+			["siteid" => $siteId, "qy_ab" => 'Y'],
+		];
+		$schema = $this->query_obj_ss($q);
+
+		return $schema;
 	}
 }

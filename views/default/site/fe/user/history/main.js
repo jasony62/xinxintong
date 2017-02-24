@@ -21,13 +21,14 @@ define(['require', 'angular'], function(require, angular) {
             },
         }
     }]);
-    ngApp.controller('ctrlHistory', ['$scope', '$http', 'hisService', function($scope, $http, hisService) {
+    ngApp.controller('ctrlMain', ['$scope', '$http', 'hisService', function($scope, $http, hisService) {
         $scope.openApp = function(app) {
             location.href = '/rest/site/fe/matter/' + app.matter_type + '?site=' + site + '&app=' + app.matter_id;
         };
-        $scope.openMission = function(mission) {};
+        $scope.openMission = function(mission) {
+            location.href = '/rest/site/fe/matter/mission?site=' + site + '&mission=' + mission.mission_id;
+        };
         $http.get('/rest/site/fe/get?site=' + site).success(function(rsp) {
-            $scope.site = rsp.data;
             window.loading.finish();
             hisService.myApps().then(function(apps) {
                 $scope.myApps = apps;
@@ -36,6 +37,12 @@ define(['require', 'angular'], function(require, angular) {
                 $scope.myMissions = missions;
             });
             $http.get('/rest/site/fe/user/siteList?site=' + site).success(function(rsp) {});
+            /* end app loading */
+            $scope.site = rsp.data;
         });
     }]);
+    /* bootstrap angular app */
+    require(['domReady!'], function(document) {
+        angular.bootstrap(document, ["app"]);
+    });
 });

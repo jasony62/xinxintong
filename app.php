@@ -101,7 +101,9 @@ if (defined('SAE_TMP_PATH')) {
  ***************************/
 function show_error($message) {
 	require_once 'tms/tms_app.php';
-	if ($message instanceof Exception) {
+	if ($message instanceof UrlNotMatchException) {
+		$msg = $message->getMessage();
+	} else if ($message instanceof Exception) {
 		$excep = $message->getMessage() . "\n";
 		$trace = $message->getTrace();
 		foreach ($trace as $t) {
@@ -117,7 +119,6 @@ function show_error($message) {
 	} else {
 		$msg = $message;
 	}
-
 	/* 返回信息 */
 	header("HTTP/1.1 500 Internal Server Error");
 	header('Content-Type: text/plain; charset=utf-8');

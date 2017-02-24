@@ -225,7 +225,7 @@ class log_model extends TMS_MODEL {
 		$d['shareid'] = $shareid;
 		$d['share_at'] = $current;
 		$d['share_to'] = $shareto;
-		$d['userid'] = $user->userid;
+		$d['userid'] = isset($user->userid) ? $user->userid : '';
 		$d['nickname'] = $this->escape($user->nickname);
 		$d['matter_id'] = $matter->id;
 		$d['matter_type'] = $matter->type;

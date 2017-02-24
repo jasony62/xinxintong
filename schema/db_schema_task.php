@@ -59,6 +59,7 @@ $sql .= "id int not null auto_increment";
 $sql .= ",code char(4) not null";
 $sql .= ",state int not null default 1";
 $sql .= ",siteid varchar(32) not null";
+$sql .= ",target_title varchar(70) not null default ''";
 $sql .= ",target_url text not null";
 $sql .= ",creater varchar(40) not null";
 $sql .= ",creater_name varchar(255) not null default ''";
@@ -67,6 +68,7 @@ $sql .= ",expire_at int not null default 0";
 $sql .= ",password varchar(40) not null default ''";
 $sql .= ",count_limit int not null default 0"; // 可访问的次数
 $sql .= ",count_left int not null default 1"; // 剩余访问的次数
+$sql .= ",can_favor char(1) not null default 'N'"; // 是否支持被收藏
 $sql .= ",primary key(id)) ENGINE=MyISAM DEFAULT CHARSET=utf8";
 if (!$mysqli->query($sql)) {
 	header("HTTP/1.0 500 Internal Server Error");

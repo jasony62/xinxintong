@@ -1,10 +1,10 @@
 define(['frame'], function(ngApp) {
     'use strict';
     ngApp.provider.controller('ctrlMain', ['$scope', function($scope) {}]);
-    ngApp.provider.controller('ctrlSetting', ['$scope', 'http2', '$uibModal', 'mediagallery', 'noticebox', function($scope, http2, $uibModal, mediagallery, noticebox) {
+    ngApp.provider.controller('ctrlSetting', ['$scope', 'http2', '$uibModal', 'mediagallery', function($scope, http2, $uibModal, mediagallery) {
         $scope.remove = function() {
             if (window.confirm('确定删除项目？')) {
-                http2.get('/rest/pl/fe/matter/mission/remove?id=' + $scope.id, function(rsp) {
+                http2.get('/rest/pl/fe/matter/mission/remove?id=' + $scope.mission.id, function(rsp) {
                     location.href = '/rest/pl/fe';
                 });
             }
@@ -22,7 +22,7 @@ define(['frame'], function(ngApp) {
             var nv = {
                 pic: ''
             };
-            http2.post('/rest/pl/fe/matter/mission/setting/update?id=' + $scope.id, nv, function() {
+            http2.post('/rest/pl/fe/matter/mission/setting/update?id=' + $scope.mission.id, nv, function() {
                 $scope.mission.pic = '';
             });
         };
@@ -74,7 +74,7 @@ define(['frame'], function(ngApp) {
                         if (page) {
                             editor.setContent(page.html);
                         } else {
-                            http2.get('/rest/pl/fe/matter/mission/page/create?id=' + $scope.id + '&page=' + type, function(rsp) {
+                            http2.get('/rest/pl/fe/matter/mission/page/create?id=' + $scope.mission.id + '&page=' + type, function(rsp) {
                                 mission[type + '_page_name'] = rsp.data.name;
                                 page = rsp.data;
                                 editor.setContent(page.html);
@@ -85,7 +85,7 @@ define(['frame'], function(ngApp) {
                 size: 'lg',
                 backdrop: 'static'
             }).result.then(function(result) {
-                http2.post('/rest/pl/fe/matter/mission/page/update?id=' + $scope.id + '&page=' + type, result, function(rsp) {
+                http2.post('/rest/pl/fe/matter/mission/page/update?id=' + $scope.mission.id + '&page=' + type, result, function(rsp) {
                     $scope.mission[type + '_page'] = rsp.data;
                 });
             });
@@ -98,7 +98,7 @@ define(['frame'], function(ngApp) {
             if (codeName && codeName.length) {
                 location.href = '/rest/pl/fe/code?site=' + $scope.mission.siteid + '&name=' + codeName;
             } else {
-                http2.get('/rest/pl/fe/matter/mission/page/create?id=' + $scope.id + '&page=' + page, function(rsp) {
+                http2.get('/rest/pl/fe/matter/mission/page/create?id=' + $scope.mission.id + '&page=' + page, function(rsp) {
                     $scope.mission[prop] = rsp.data.name;
                     location.href = '/rest/pl/fe/code?site=' + $scope.mission.siteid + '&name=' + rsp.data.name;
                 });
@@ -138,7 +138,7 @@ define(['frame'], function(ngApp) {
             var phase;
             if ($scope.numberOfNewPhases > 0) {
                 phase = newPhase();
-                http2.post('/rest/pl/fe/matter/mission/phase/create?mission=' + $scope.id, phase, function(rsp) {
+                http2.post('/rest/pl/fe/matter/mission/phase/create?mission=' + $scope.mission.id, phase, function(rsp) {
                     $scope.phases.push(rsp.data);
                     $scope.numberOfNewPhases--;
                     if ($scope.numberOfNewPhases > 0) {
@@ -150,13 +150,13 @@ define(['frame'], function(ngApp) {
         $scope.update = function(phase, name) {
             var modifiedData = {};
             modifiedData[name] = phase[name];
-            http2.post('/rest/pl/fe/matter/mission/phase/update?mission=' + $scope.id + '&id=' + phase.phase_id, modifiedData, function(rsp) {
+            http2.post('/rest/pl/fe/matter/mission/phase/update?mission=' + $scope.mission.id + '&id=' + phase.phase_id, modifiedData, function(rsp) {
                 noticebox.success('完成保存');
             });
         };
         $scope.remove = function(phase) {
             if (window.confirm('确定删除项目阶段？')) {
-                http2.get('/rest/pl/fe/matter/mission/phase/remove?mission=' + $scope.id + '&id=' + phase.phase_id, function(rsp) {
+                http2.get('/rest/pl/fe/matter/mission/phase/remove?mission=' + $scope.mission.id + '&id=' + phase.phase_id, function(rsp) {
                     $scope.phases.splice($scope.phases.indexOf(phase), 1);
                 });
             }
@@ -171,7 +171,7 @@ define(['frame'], function(ngApp) {
         });
         $scope.$watch('mission', function(mission) {
             if (mission) {
-                http2.get('/rest/pl/fe/matter/mission/phase/list?mission=' + $scope.id, function(rsp) {
+                http2.get('/rest/pl/fe/matter/mission/phase/list?mission=' + $scope.mission.id, function(rsp) {
                     $scope.phases = rsp.data;
                 });
             }
@@ -192,7 +192,7 @@ define(['frame'], function(ngApp) {
             $('#popoverMyCoworker').trigger('hide');
         };
         $scope.add = function() {
-            var url = '/rest/pl/fe/matter/mission/coworker/add?mission=' + $scope.id;
+            var url = '/rest/pl/fe/matter/mission/coworker/add?mission=' + $scope.mission.id;
             url += '&label=' + $scope.label;
             http2.get(url, function(rsp) {
                 $scope.coworkers.splice(0, 0, rsp.data);
@@ -208,13 +208,13 @@ define(['frame'], function(ngApp) {
             });
         };
         $scope.remove = function(acl) {
-            http2.get('/rest/pl/fe/matter/mission/coworker/remove?mission=' + $scope.id + '&coworker=' + acl.coworker, function(rsp) {
+            http2.get('/rest/pl/fe/matter/mission/coworker/remove?mission=' + $scope.mission.id + '&coworker=' + acl.coworker, function(rsp) {
                 var index = $scope.coworkers.indexOf(acl);
                 $scope.coworkers.splice(index, 1);
             });
         };
         $scope.makeInvite = function() {
-            http2.get('/rest/pl/fe/matter/mission/coworker/makeInvite?mission=' + $scope.id, function(rsp) {
+            http2.get('/rest/pl/fe/matter/mission/coworker/makeInvite?mission=' + $scope.mission.id, function(rsp) {
                 var url = 'http://' + location.host + rsp.data;
                 $scope.inviteURL = url;
                 $('#shareMission').trigger('show');
@@ -226,18 +226,18 @@ define(['frame'], function(ngApp) {
         };
         $scope.$watch('mission', function(mission) {
             if (mission) {
-                http2.get('/rest/pl/fe/matter/mission/coworker/list?mission=' + $scope.id, function(rsp) {
+                http2.get('/rest/pl/fe/matter/mission/coworker/list?mission=' + $scope.mission.id, function(rsp) {
                     $scope.coworkers = rsp.data;
                 });
-                http2.get('/rest/pl/fe/matter/mission/coworker/mine?mission=' + $scope.id, function(rsp) {
+                http2.get('/rest/pl/fe/matter/mission/coworker/mine?mission=' + $scope.mission.id, function(rsp) {
                     $scope.myCoworkers = rsp.data;
                 });
             }
         });
     }]);
     ngApp.provider.controller('ctrlOpUrl', ['$scope', 'http2', 'srvQuickEntry', '$timeout', function($scope, http2, srvQuickEntry, timeout) {
-        var targetUrl;
-        $scope.opEntry = {};
+        var targetUrl, opEntry;
+        $scope.opEntry = opEntry = {};
         timeout(function() {
             new ZeroClipboard(document.querySelectorAll('.text2Clipboard'));
         });
@@ -246,26 +246,35 @@ define(['frame'], function(ngApp) {
             targetUrl = mission.opUrl;
             srvQuickEntry.get(targetUrl).then(function(entry) {
                 if (entry) {
-                    $scope.opEntry.url = 'http://' + location.host + '/q/' + entry.code;
-                    $scope.opEntry.password = entry.password;
+                    opEntry.url = 'http://' + location.host + '/q/' + entry.code;
+                    opEntry.password = entry.password;
+                    opEntry.code = entry.code;
+                    opEntry.can_favor = entry.can_favor;
                 }
             });
         });
         $scope.makeOpUrl = function() {
-            srvQuickEntry.add(targetUrl).then(function(task) {
-                $scope.opEntry.url = 'http://' + location.host + '/q/' + task.code;
+            srvQuickEntry.add(targetUrl, $scope.mission.title).then(function(task) {
+                opEntry.url = 'http://' + location.host + '/q/' + task.code;
+                opEntry.code = task.code;
             });
         };
         $scope.closeOpUrl = function() {
             srvQuickEntry.remove(targetUrl).then(function(task) {
-                $scope.opEntry.url = '';
+                opEntry.url = '';
+                opEntry.code = '';
+                opEntry.can_favor = 'N';
+                opEntry.password = '';
             });
         };
         $scope.configOpUrl = function(event, prop) {
             event.preventDefault();
             srvQuickEntry.config(targetUrl, {
-                password: $scope.opEntry.password
+                password: opEntry.password
             });
+        };
+        $scope.updCanFavor = function() {
+            srvQuickEntry.update(opEntry.code, { can_favor: opEntry.can_favor });
         };
     }]);
 });

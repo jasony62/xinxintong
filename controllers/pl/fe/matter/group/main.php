@@ -54,7 +54,7 @@ class main extends \pl\fe\matter\base {
 		$result = ['apps' => null, 'total' => 0];
 		$model = $this->model();
 		$q = [
-			'*',
+			"*,'group' type",
 			'xxt_group',
 			"state<>0",
 		];

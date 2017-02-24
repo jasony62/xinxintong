@@ -19,7 +19,13 @@ class main extends \pl\fe\base {
 	 * 结束登录状态
 	 */
 	public function logout_action() {
+		/* 清除登录状态 */
 		\TMS_CLIENT::logout();
+
+		/* 清除自动登录状态 */
+		$this->mySetCookie('_login_auto', '');
+		$this->mySetCookie('_login_token', '');
+
 		$this->redirect('');
 	}
 	/**
@@ -45,7 +51,6 @@ class main extends \pl\fe\base {
 		$data = $this->getPostJson();
 		$modelAcnt = $this->model('account');
 		$account = $modelAcnt->byId($loginUser->id);
-
 		/**
 		 * check old password
 		 */

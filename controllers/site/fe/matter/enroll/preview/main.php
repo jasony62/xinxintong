@@ -43,7 +43,10 @@ class main extends \TMS_CONTROLLER {
 		$modelApp = $this->model('matter\enroll');
 
 		/* 登记活动定义 */
-		$app = $modelApp->byId($app, array('cascaded' => 'N'));
+		$app = $modelApp->byId($app, ['cascaded' => 'N']);
+		if ($app === false) {
+			return new \ResponseError('指定的登记活动不存在，请检查参数是否正确');
+		}
 		$params['app'] = &$app;
 
 		/* 当前访问用户的基本信息 */

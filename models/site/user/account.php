@@ -169,7 +169,7 @@ class account_model extends \TMS_MODEL {
 		if (empty($props['nickname'])) {
 			$account->nickname = '用户' . $uid;
 		} else {
-			$account->nickname = $props['nickname'];
+			$account->nickname = $this->escape($props['nickname']);
 		}
 		if (isset($props['headimgurl'])) {
 			$account->headimgurl = $props['headimgurl'];

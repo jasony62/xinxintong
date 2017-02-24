@@ -106,7 +106,7 @@
     </div>
     <div class='col-md-5'>
         <div class="panel panel-default">
-            <div class="panel-heading">图文链接</div>
+            <div class="panel-heading">用户访问链接</div>
             <div class="panel-body">
                 <div class='input-group'>
                     <input class='form-control' readonly value="{{entry.url}}">
@@ -114,22 +114,19 @@
                         <button class='btn btn-default text2Clipboard' data-clipboard-text="{{entry.url}}">复制</button>
                     </span>
                 </div>
-            </div>
-        </div>
-        <div class="panel panel-default">
-            <div class="panel-heading">图文二维码</div>
-            <div class="panel-body">
-                <span><img id='entryQrcode' ng-src="{{entry.qrcode}}"></span>
-                <button class='btn btn-default' ng-click="downloadQrcode(entry.qrcode)">下载</button>
+                <div>
+                    <span><img id='entryQrcode' ng-src="{{entry.qrcode}}"></span>
+                    <button class='btn btn-default' ng-click="downloadQrcode(entry.qrcode)">下载</button>
+                </div>
             </div>
         </div>
         <div class='tile'>
             <div class='form-group'>
                 <div>阅读：{{editing.read_num}}</div>
-                <div>评论：{{editing.remark_num}}</div>
-                <div>点赞：{{editing.score}}</div>
                 <div>分享好友：{{editing.share_friend_num}}</div>
                 <div>分享朋友圈：{{editing.share_timeline_num}}</div>
+                <div ng-show="editing.can_discuss==='Y'">评论：{{editing.remark_num}}</div>
+                <div ng-show="editing.can_discuss==='Y'">点赞：{{editing.score}}</div>
             </div>
         </div>
         <div class='tile'>
@@ -201,7 +198,7 @@
 <nav class="navbar navbar-default navbar-fixed-bottom">
     <div class="container-fluid" style='text-align:center'>
         <form class="navbar-form" style='display:inline-block'>
-            <button class='btn btn-success' ng-click="submit()">保存</button>
+            <button class='btn' ng-class="{'btn-success':modified,'btn-default':!modified}" ng-click="submit()" ng-disabled="!modified">保存正文</button>
             <button class='btn btn-default' ng-click="applyToHome()">申请发布到平台主页</button>
         </form>
         <form class="navbar-form navbar-right" style='display:inline-block'>

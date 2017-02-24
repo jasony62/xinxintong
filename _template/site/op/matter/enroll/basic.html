@@ -9,7 +9,7 @@
                         </th>
                         <th>登记时间</th>
                         <th>审核通过</th>
-                        <th ng-repeat="schema in app.dataSchemas">{{schema.title}}</th>
+                        <th ng-repeat="schema in recordSchemas">{{schema.title}}</th>
                         <th>标签</th>
                         <th>备注</th>
                         <th style='width:72px'>操作</th>
@@ -20,15 +20,35 @@
                         <td data-th='选择'><span><input type='checkbox' ng-model="rows.selected[$index]"></span></td>
                         <td data-th='登记时间'><span>{{(r.enroll_at*1000)|date:'MM-dd HH:mm'}}</span></td>
                         <td data-th='审核通过'><span ng-class="{'notice':r.verified==='N'}">{{r.verified}}</span></td>
-                        <td data-th="{{schema.title}}" ng-repeat="schema in app.dataSchemas" ng-switch on="schema.type">
-                            <span ng-switch-when="image" ng-init="imgs=r.data[schema.id].split(',')">
-								<img ng-repeat="img in imgs" ng-src='{{img}}' />
-							</span>
-                            <span ng-switch-when="file" ng-init="files=json2Obj(r.data[schema.id])">
-								<span ng-repeat='file in files'><a href='{{file.url}}' target="_blank">{{file.name}}</a></span>
+                        <td data-th='{{schema.title}}' ng-repeat="schema in recordSchemas" ng-switch on="schema.type">
+                            <span ng-switch-when="image">
+                                <img ng-repeat="img in r._data[schema.id]" ng-src='{{img}}' />
                             </span>
-                            <span ng-switch-when="date">{{(r.data[schema.id]*1000)|date:'yy-MM-dd HH:mm'}}</span>
-                            <span ng-switch-default>{{value2Html(r,schema.id)}}</span>
+                            <span ng-switch-when="file">
+                                <span ng-repeat='file in r._data[schema.id]'><a href='{{file.url}}' target="_blank">{{file.name}}</a></span>
+                            </span>
+                            <span ng-switch-when="date">{{(r._data[schema.id]*1000)|date:'yy-MM-dd HH:mm'}}</span>
+                            <span ng-switch-default ng-bind-html="r._data[schema.id]"></span>
+                        </td>
+                        <td data-th='{{schema.title}}' ng-repeat="schema in enrollDataSchemas" ng-switch on="schema.type">
+                            <span ng-switch-when="image">
+                                <img ng-repeat="img in r._data[schema.id]" ng-src='{{img}}' />
+                            </span>
+                            <span ng-switch-when="file">
+                                <span ng-repeat='file in r._data[schema.id]'><a href='{{file.url}}' target="_blank">{{file.name}}</a></span>
+                            </span>
+                            <span ng-switch-when="date">{{(r._data[schema.id]*1000)|date:'yy-MM-dd HH:mm'}}</span>
+                            <span ng-switch-default ng-bind-html="r._data[schema.id]"></span>
+                        </td>
+                        <td data-th='{{schema.title}}' ng-repeat="schema in groupDataSchemas" ng-switch on="schema.type">
+                            <span ng-switch-when="image">
+                                <img ng-repeat="img in r._data[schema.id]" ng-src='{{img}}' />
+                            </span>
+                            <span ng-switch-when="file">
+                                <span ng-repeat='file in r._data[schema.id]'><a href='{{file.url}}' target="_blank">{{file.name}}</a></span>
+                            </span>
+                            <span ng-switch-when="date">{{(r._data[schema.id]*1000)|date:'yy-MM-dd HH:mm'}}</span>
+                            <span ng-switch-default ng-bind-html="r._data[schema.id]"></span>
                         </td>
                         <td data-th='标签'><span>{{r.tags}}</span></td>
                         <td data-th='备注'><span>{{r.comment}}</span></td>
@@ -59,109 +79,89 @@
                         <button class='btn btn-default' ng-click="filter()">筛选</button>
                     </form>
                     <form class="navbar-form navbar-right">
-                        <span>共{{page.total}}条</span>
-                        <span>，第 <select class='form-control' ng-model="page.at" ng-options="number as number for number in page.numbers" ng-change="getRecords()"></select>
+                        <span>共{{page.total}}条，</span>
+                        <span>第 <select class='form-control' ng-model="page.at" ng-options="number as number for number in page.numbers" ng-change="getRecords()"></select>
             			<span>页</span>
                         <button class='btn btn-default' ng-click="getRecords()">刷新</button>
                     </form>
                 </div>
             </nav>
         </div>
-        <div id='edit' class='col-md-12' ng-if="subView==='record'">
-            <div class="form-group" ng-repeat="schema in app.dataSchemas">
+        <div id='edit' class='col-md-12' ng-if="subView==='editing'">
+            <div class="form-group" ng-repeat="schema in app.data_schemas" ng-if="schema.type!=='html'" >
                 <label>{{schema.title}}</label>
                 <div ng-switch on="schema.type">
-                    <textarea class='form-control' disabled ng-switch-when="longtext" ng-model="editing.data[schema.id]"></textarea>
-                    <div ng-switch-when="date">{{editing.data[schema.id]*1000|date:'yy-MM-dd hh:mm'}}</div>
-                    <select class='form-control' disabled ng-switch-when="single" ng-model="editing.data[schema.id]" ng-options="op.v as op.l for op in schema.ops">
+                    <textarea class='form-control' ng-switch-when="longtext" ng-model="record.data[schema.id]"></textarea>
+                    <select class='form-control' ng-switch-when="single" ng-model="record.data[schema.id]" ng-options="op.v as op.l for op in schema.ops">
                         <option></option>
                     </select>
-                    <select class='form-control' disabled ng-switch-when="phase" ng-model="editing.data[schema.id]" ng-options="op.v as op.l for op in schema.ops">
+                    <select class='form-control' ng-switch-when="phase" ng-model="record.data[schema.id]" ng-options="op.v as op.l for op in schema.ops">
                         <option></option>
                     </select>
                     <ul ng-switch-when="multiple">
                         <li class='checkbox' ng-repeat="op in schema.ops">
-                            <label>
-                                <input type="checkbox" name="{{schema.id}}" disabled ng-model="editing.data[schema.id][op.v]" /><span>{{op.l}}</span></label>
+                            <label><input type="checkbox" name="{{schema.id}}" ng-model="record.data[schema.id][op.v]"/><span>{{op.l}}</span></label>
                         </li>
                     </ul>
                     <div ng-switch-when="score">
                         <div ng-repeat="op in schema.ops">
                             <div>{{op.l}}</div>
-                            <select class='form-control' disabled ng-model="editing.data[schema.id][op.v]" ng-options="number as number for number in scoreRangeArray(schema)">
-                                <option></option>
-                            </select>
+                            <select class='form-control' ng-model="record.data[schema.id][op.v]" ng-options="number as number for number in scoreRangeArray(schema)"><option></option></select>
                         </div>
                     </div>
                     <ul ng-switch-when="image" class="img-tiles clearfix">
-                        <li wrap="img" ng-repeat="img in editing.data[schema.id]" class="img-thumbnail" title="图片">
+                        <li wrap="img" ng-repeat="img in record.data[schema.id]" class="img-thumbnail" title="图片">
                             <img flex-img="" />
-                            <button class="btn btn-default btn-xs" disabled ng-click="removeImage(editing.data[schema.id],$index)"><span class="glyphicon glyphicon-remove"></span></button>
+                            <button class="btn btn-default btn-xs" ng-click="removeImage(record.data[schema.id],$index)"><span class="glyphicon glyphicon-remove"></span></button>
                         </li>
                         <li class="img-picker">
-                            <button class="btn btn-default" disabled ng-click="chooseImage(schema.id,1)"><span class="glyphicon glyphicon-picture"></span>
-                                <br />上传图片</button>
+                            <button class="btn btn-default" ng-click="chooseImage(schema.id)"><span class="glyphicon glyphicon-picture"></span><br />上传图片</button>
                         </li>
                     </ul>
                     <span ng-switch-when="file">
-	                    <span ng-repeat="file in editing.data[schema.id]">
-	                        <span ng-bind="file.url"></span>
-		                    <video ng-if="file.type.indexOf('video')===0" style="width:100%;" controls="controls">
-		                        <source src="{{file.url}}" type="{{file.type}}" />
-		                    </video>
-                    		<img ng-if="file.type.indexOf('image')===0" ng-src='{{file.url}}' style="width:100%" />
-                    	</span>
+                        <span ng-repeat="file in record.data[schema.id]">
+                            <span ng-bind="file.url"></span>
+                            <video ng-if="file.type.indexOf('video')===0" style="width:100%;" controls="controls">
+                                <source src="{{file.url}}" type="{{file.type}}"/>
+                            </video>
+                            <img ng-if="file.type.indexOf('image')===0" ng-src='{{file.url}}' style="width:100%"/>
+                        </span>
                     </span>
-                    <input type='text' class='form-control' disabled ng-switch-when="member" ng-model="editing.data.member[schema.id.substr(7)]">
-                    <input type='text' class='form-control' disabled ng-switch-default ng-model="editing.data[schema.id]">
+                    <input type="text" class='form-control' ng-switch-when='mobile' ng-model="record.data[schema.id]">
+                    <div ng-switch-when='date'>
+                        <tms-datepicker class='tms-datepicker' tms-title='时间' tms-obj="rnd" tms-date="record.data[schema.id]" tms-state="signinAt"></tms-datepicker>
+                    </div>
+                    <input type='text' class='form-control' ng-switch-default ng-model="record.data[schema.id]">
                 </div>
             </div>
             <hr>
-            <div class="form-group" ng-if='editing.enroll_at'>
+            <div class="form-group" ng-if='record.enroll_at'>
                 <label>登记时间</label>
-                <p class="form-control-static">{{editing.enroll_at*1000|date:'yy-MM-dd hh:mm'}}</p>
+                <p class="form-control-static">{{record.enroll_at*1000|date:'yy-MM-dd hh:mm'}}</p>
             </div>
             <div class="form-group">
-                <label>审核通过：<span ng-if="editing.verified==='Y'">是</span><span ng-if="editing.verified==='N'" style='color:red'>否</span></label>
-                <button class='btn btn-success' ng-if="editing.verified==='N'" ng-click="verify('Y')">审核通过</button>
-                <button class='btn btn-default' ng-if="editing.verified==='Y'" ng-click="verify('N')">审核不通过</button>
+                <label>审核通过</label>
+                <div>
+                    <label class='checkbox-inline'><input type='checkbox' ng-true-value="'Y'" ng-false-value="'N'" ng-model="record.verified">是</label>
+                </div>
             </div>
             <div class="form-group">
                 <label>备注</label>
-                <div class='input-group'>
-                    <textarea class='form-control' ng-model="editing.comment" style="border-radius:4px"></textarea>
-                    <div class='input-group-btn' style='padding-left:8px'>
-                        <button class='btn btn-success' ng-click="update('comment')" style="border-radius:4px">保存</button>
-                    </div>
+                <div>
+                    <textarea class='form-control' ng-model="record.comment" style="border-radius:4px"></textarea>
+                </div>
+            </div>
+            <div class="form-group">
+                <label>标签</label>
+                <div>
+                    <combox evt-prefix='tag' existing='record.aTags' options='aTags'></combox>
                 </div>
             </div>
             <hr>
             <div class="form-group">
+                <button class='btn btn-success' ng-click="update()">保存</button>
                 <button class='btn btn-success' ng-click="back()">返回</button>
             </div>
         </div>
     </div>
 </div>
-<script type="text/ng-template" id="recordFilter.html">
-	<div class="modal-body">
-		<div class='form-group'>
-			<label>审核状态</label>
-			<select class='form-control' ng-model="criteria.record.verified">
-	            <option value=''>全部</option>
-	            <option value='Y'>审核通过</option>
-	            <option value='N'>审核未通过</option>
-	        </select>
-	    </div>
-	    <div class='form-group' ng-repeat="schema in filterSchemas">
-	    	<label>{{schema.title}}</label>
-	        <select class='form-control' ng-model="criteria.data[schema.id]" ng-options="op.v as op.l for op in schema.ops">
-	            <option value=>全部</option>
-	        </select>
-        </div>
-    </div>
-    <div class="modal-footer">
-    	<button class="btn btn-default" ng-click="clean()">清除条件</button>
-    	<button class="btn btn-primary" ng-click="ok()">确定</button>
-    	<button class="btn btn-default" ng-click="cancel()">关闭</button>
-	</div>
-</script>

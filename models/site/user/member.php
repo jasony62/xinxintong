@@ -47,7 +47,10 @@ class member_model extends \TMS_MODEL {
 	 */
 	public function create($siteId, $userid, &$schema, &$data) {
 		if (empty($userid)) {
-			return array(false, '仅支持对站点用户进行认证');
+			return [false, '仅支持对站点用户进行认证'];
+		}
+		if (isset($data->id)) {
+			return [false, '参数中包含了无法处理的信息'];
 		}
 
 		is_array($data) && $data = (object) $data;

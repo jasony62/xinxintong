@@ -102,13 +102,14 @@ provider('srvQuickEntry', function() {
 
                 return defer.promise;
             },
-            add: function(taskUrl) {
+            add: function(taskUrl, title) {
                 var defer = $q.defer(),
                     url;
 
                 url = '/rest/pl/fe/q/create?site=' + siteId;
                 http2.post(url, {
-                    url: encodeURI(taskUrl)
+                    url: encodeURI(taskUrl),
+                    title: title
                 }, function(rsp) {
                     defer.resolve(rsp.data);
                 });
@@ -137,6 +138,17 @@ provider('srvQuickEntry', function() {
                     url: encodeURI(taskUrl),
                     config: config
                 }, function(rsp) {
+                    defer.resolve(rsp.data);
+                });
+
+                return defer.promise;
+            },
+            update: function(code, data) {
+                var defer = $q.defer(),
+                    url;
+
+                url = '/rest/pl/fe/q/update?site=' + siteId + '&code=' + code;
+                http2.post(url, data, function(rsp) {
                     defer.resolve(rsp.data);
                 });
 

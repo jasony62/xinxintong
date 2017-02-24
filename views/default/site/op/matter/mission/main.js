@@ -50,6 +50,11 @@ define(['angular', 'xxt-page'], function(angular, uiPage) {
                 location.href = 'http://' + location.host + '/q/' + matter.op_short_url_code;
             }
         };
+        $scope.openReport = function(matter) {
+            if (/enroll/.test(matter.type) && matter.rp_short_url_code) {
+                location.href = 'http://' + location.host + '/q/' + matter.rp_short_url_code;
+            }
+        };
         $http.get('/rest/site/fe/main/get?site=' + LS.p.site).success(function(rsp) {
             $scope.site = rsp.data;
         });

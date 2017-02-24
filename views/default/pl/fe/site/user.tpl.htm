@@ -43,7 +43,7 @@
 				<nav class='navbar navbar-default'>
 					<div class='container-fluid'>
 					    <ul class='nav navbar-nav'>
-					        <li ng-class="{'active':subView==='account'}"><a href='/rest/pl/fe/site/user/account?site={{siteId}}'>注册用户</a></li>
+					        <li ng-class="{'active':subView==='account'}"><a href='/rest/pl/fe/site/user/account?site={{siteId}}'>站点用户</a></li>
 					        <li ng-class="{'active':subView==='member_'+ms.id}" ng-repeat="ms in memberSchemas"><a href='/rest/pl/fe/site/user/member?site={{siteId}}&schema={{ms.id}}'>{{ms.title}}</a></li>
 					        <li ng-class="{'active':subView==='coin'}"><a href='/rest/pl/fe/site/user/coin?site={{siteId}}'>积分规则</a></li>
 					    </ul>

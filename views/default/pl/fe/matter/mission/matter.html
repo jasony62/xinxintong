@@ -8,6 +8,7 @@
                 <li ng-class="{'active':matterType==='signin'}"><a href='#signin' ng-click="matterType='signin'">签到</a></li>
                 <li ng-class="{'active':matterType==='group'}"><a href='#group' ng-click="matterType='group'">分组</a></li>
                 <li ng-class="{'active':matterType==='voting'}"><a href='#voting' ng-click="matterType='voting'">投票</a></li>
+                <li ng-class="{'active':matterType==='group_week_report'}"><a href='#group_week_report' ng-click="matterType='group_week_report'">团队周报</a></li>
                 <li ng-class="{'active':matterType==='enroll'}"><a href='#enroll' ng-click="matterType='enroll'">通用登记</a></li>
             </ul>
             <form class="navbar-form navbar-right">
@@ -17,16 +18,33 @@
     </nav>
     <div class='tms-panel-body'>
         <div class='col-md-4' ng-repeat='m in matters'>
-            <div class='thumbnail' ng-click="open(m)" ng-class="m.scenario||m.type" ng-mouseenter="entered=true" ng-mouseleave="entered=false">
+            <div class='thumbnail' ng-class="m.scenario||m.type" ng-mouseenter="entered=true" ng-mouseleave="entered=false" ng-switch on="m.type">
                 <h4 class='title' ng-bind='m.title'></h4>
                 <p class='summary' ng-bind='m.summary'></p>
                 <div class='attrs'>
                     <div class='operator' ng-bind='m._operator||m.modifier_name'></div>
                     <div class='operateAt' ng-bind="(m._operateAt||m.modify_at)*1000|date:'yy-MM-dd'"></div>
                 </div>
-                <div class='actions' ng-if="entered">
-                    <button class='btn btn-default' ng-click="copyMatter($event,m)">复制</button>
-                    <button class='btn btn-default' title='删除' ng-click="removeMatter($event,m)"><span class='glyphicon glyphicon-remove'></span></button>
+                <div class='actions' ng-switch-when="enroll">
+                    <button class='btn btn-sm btn-default' ng-click="open(m,'main')">定义</button>
+                    <button class='btn btn-sm btn-default' ng-click="open(m,'publish')">发布</button>
+                    <button class='btn btn-sm btn-default' ng-click="open(m,'record')">数据</button>
+                </div>
+                <div class='actions' ng-switch-when="signin">
+                    <button class='btn btn-sm btn-default' ng-click="open(m,'main')">定义</button>
+                    <button class='btn btn-sm btn-default' ng-click="open(m,'publish')">发布</button>
+                    <button class='btn btn-sm btn-default' ng-click="open(m,'record')">数据</button>
+                </div>
+                <div class='actions' ng-switch-when="group">
+                    <button class='btn btn-sm btn-default' ng-click="open(m,'main')">定义</button>
+                    <button class='btn btn-sm btn-default' ng-click="open(m,'player')">数据</button>
+                </div>
+                <div class='actions' ng-switch-default>
+                    <button class='btn btn-sm btn-default' ng-click="open(m,'main')">进入</button>
+                </div>
+                <div class='actions-top' ng-if="entered">
+                    <button class='btn btn-sm btn-default' ng-click="copyMatter($event,m)">复制</button>
+                    <button class='btn btn-sm btn-default' title='删除' ng-click="removeMatter($event,m)"><span class='glyphicon glyphicon-remove'></span></button>
                 </div>
             </div>
         </div>
@@ -45,6 +63,8 @@
         <div class='form-group'>
             <button class='btn btn-default' ng-click="addMatter('registration')">报名活动</button>
             <button class='btn btn-default' ng-click="addMatter('voting')">问卷活动</button>
+            <button class='btn btn-default' ng-click="addEnroll('group_week_report')">团队周报</button>
+            <button class='btn btn-default' ng-click="addEnroll('common')">通用登记</button>
             <button class='btn btn-default' ng-click="addMatter('signin')">签到活动</button>
             <button class='btn btn-default' ng-click="addMatter('group')">分组活动</button>
         </div>

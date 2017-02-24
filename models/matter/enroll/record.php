@@ -55,8 +55,9 @@ class record_model extends \TMS_MODEL {
 				} else if (isset($entryRule->scope) && $entryRule->scope === 'sns') {
 					foreach ($entryRule->sns as $snsName => $rule) {
 						if (isset($user->sns->{$snsName})) {
-							$record['nickname'] = $this->escape($user->sns->{$snsName}->nickname);
-							$record['headimgurl'] = $user->sns->{$snsName}->headimgurl;
+							$snsUser = $user->sns->{$snsName};
+							$record['nickname'] = isset($snsUser->nickname) ? $this->escape($snsUser->nickname) : '';
+							$record['headimgurl'] = isset($snsUser->headimgurl) ? $snsUser->headimgurl : '';
 							break;
 						}
 					}
@@ -244,6 +245,36 @@ class record_model extends \TMS_MODEL {
 		$q2 = ['o' => 'enroll_at desc'];
 
 		$list = $this->query_objs_ss($q, $q2);
+
+		return $list;
+	}
+	/**
+	 * 获得指定项目下的登记记录
+	 *
+	 * @param int $missionId
+	 */
+	public function &byMission($missionId, $options) {
+		$fields = isset($options['fields']) ? $options['fields'] : '*';
+		$q = [
+			$fields,
+			'xxt_enroll_record r',
+		];
+		$missionId = $this->escape($missionId);
+		$where = "state=1 and exists(select 1 from xxt_enroll e where r.aid=e.id and e.mission_id={$missionId})";
+
+		if (isset($options['userid'])) {
+			$where .= " and userid='" . $this->escape($options['userid']) . "'";
+		}
+		$q[2] = $where;
+
+		$list = $this->query_objs_ss($q);
+		if (count($list)) {
+			if ($fields === '*' || strpos($fields, 'data') !== false) {
+				foreach ($list as &$record) {
+					$record->data = json_decode($record->data);
+				}
+			}
+		}
 
 		return $list;
 	}

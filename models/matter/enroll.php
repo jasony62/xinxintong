@@ -61,10 +61,12 @@ class enroll_model extends app_base {
 			if (isset($app->entry_rule)) {
 				$app->entry_rule = json_decode($app->entry_rule);
 			}
-			if (!empty($app->scenario_config)) {
-				$app->scenarioConfig = json_decode($app->scenario_config);
-			} else {
-				$app->scenarioConfig = new \stdClass;
+			if (isset($app->scenario_config)) {
+				if (!empty($app->scenario_config)) {
+					$app->scenarioConfig = json_decode($app->scenario_config);
+				} else {
+					$app->scenarioConfig = new \stdClass;
+				}
 			}
 			if ($cascaded === 'Y') {
 				$modelPage = \TMS_APP::M('matter\enroll\page');
@@ -329,45 +331,12 @@ class enroll_model extends app_base {
 		return $rank + 1;
 	}
 	/**
-	 * 登记情况摘要
-	 */
-	public function &summary($siteId, $appId) {
-		$modelRnd = \TMS_APP::M('matter\enroll\round');
-		$page = (object) ['num' => 1, 'size' => 5];
-		$rounds = $modelRnd->byApp($siteId, $appId, ['fields' => 'rid,title', 'page' => $page]);
-
-		if (empty($rounds)) {
-			$summary = new \stdClass;
-			/* total */
-			$q = [
-				'count(*)',
-				'xxt_enroll_record',
-				['aid' => $appId, 'state' => 1],
-			];
-			$summary->total = $this->query_val_ss($q);
-		} else {
-			$summary = [];
-			$activeRound = $modelRnd->getActive($siteId, $appId);
-			foreach ($rounds as $round) {
-				/* total */
-				$q = [
-					'count(*)',
-					'xxt_enroll_record',
-					['aid' => $appId, 'state' => 1, 'rid' => $round->rid],
-				];
-				$round->total = $this->query_val_ss($q);
-				if ($activeRound && $round->rid === $activeRound->rid) {
-					$round->active = 'Y';
-				}
-
-				$summary[] = $round;
-			}
-		}
-
-		return $summary;
-	}
-	/**
 	 * 登记活动运行情况摘要
+	 *
+	 * @param string $siteId
+	 * @param string $appId
+	 *
+	 * @return
 	 */
 	public function &opData(&$app) {
 		$modelRnd = \TMS_APP::M('matter\enroll\round');
@@ -391,7 +360,7 @@ class enroll_model extends app_base {
 				$q = [
 					'count(*)',
 					'xxt_enroll_record',
-					['aid' => $appId, 'state' => 1, 'rid' => $round->rid],
+					['aid' => $app->id, 'state' => 1, 'rid' => $round->rid],
 				];
 				$round->total = $this->query_val_ss($q);
 				if ($activeRound && $round->rid === $activeRound->rid) {

@@ -174,7 +174,7 @@ class record extends base {
 			);
 		}
 		/* 记录操作日志 */
-		$this->_logSubmit($site, $enrollApp);
+		$this->_logSubmit($site, $enrollApp, $ek);
 		/**
 		 * 通知登记活动事件接收人
 		 */
@@ -185,9 +185,13 @@ class record extends base {
 		return new \ResponseData($ek);
 	}
 	/**
+	 * 记录用户提交日志
+	 *
+	 * @param string $siteId
+	 * @param object $app
 	 *
 	 */
-	private function _logSubmit($siteId, $app) {
+	private function _logSubmit($siteId, $app, $ek) {
 		$modelLog = $this->model('matter\log');
 
 		$logUser = new \stdClass;
@@ -196,6 +200,7 @@ class record extends base {
 
 		$operation = new \stdClass;
 		$operation->name = 'submit';
+		$operation->data = $this->model('matter\enroll\record')->byId($ek, ['fields' => 'enroll_key,data']);
 
 		$client = new \stdClass;
 		$client->agent = $_SERVER['HTTP_USER_AGENT'];
@@ -444,7 +449,7 @@ class record extends base {
 		if (defined('SAE_TMP_PATH')) {
 			$dest = '/' . $app . '/' . $submitkey . '_' . $_POST['resumableFilename'];
 			$resumable = \TMS_APP::M('fs/resumableAliOss', $site, $dest, 'xinxintong');
-			$resumable->handleRequest();
+			$resumable->handleRequest($_POST);
 		} else {
 			$modelFs = \TMS_APP::M('fs/local', $site, '_resumable');
 			$dest = $submitkey . '_' . $_POST['resumableIdentifier'];

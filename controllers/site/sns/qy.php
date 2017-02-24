@@ -31,7 +31,6 @@ class qy extends \member_base {
 		case 'GET':
 			/* 公众平台对接 */
 			$rst = $qyProxy->join($_GET);
-			$modelLog->log($site, 'join', json_encode($rst));
 			header('Content-Type: text/html; charset=utf-8');
 			die($rst[1]);
 		case 'POST':
@@ -371,7 +370,7 @@ class qy extends \member_base {
 			$r->exec();
 		}
 	}
-		/**
+	/**
 	 * 创建一个企业号的粉丝用户
 	 * 同步的创建会员用户
 	 *
@@ -433,30 +432,30 @@ class qy extends \member_base {
 		$model = $this->model();
 
 		/*
-		 * 新增加的企业号通信录成员关联到信信通的账户
-		 */
-		$openid=$fan['openid'];
-		$uid=$this->model()->query_val_ss([
+			 * 新增加的企业号通信录成员关联到信信通的账户
+		*/
+		$openid = $fan['openid'];
+		$uid = $this->model()->query_val_ss([
 			'uid',
 			'xxt_site_account',
-			" qy_openid ='$openid' "
+			" qy_openid ='$openid' ",
 		]);
 
-		if($uid){
-			$fan['userid']=$uid;
-		}else{
-			$option=array(
-				'ufrom'=>'qy',
-				'qy_openid'=>$openid,
-				'nickname'=>$fan['nickname'],
-				'headimgurl'=>isset($user->avatar)?$user->avatar:'',
+		if ($uid) {
+			$fan['userid'] = $uid;
+		} else {
+			$option = array(
+				'ufrom' => 'qy',
+				'qy_openid' => $openid,
+				'nickname' => $fan['nickname'],
+				'headimgurl' => isset($user->avatar) ? $user->avatar : '',
 			);
 
-			$account=$this->model("site\\user\\account")->blank($site,true,$option);
+			$account = $this->model("site\\user\\account")->blank($site, true, $option);
 
-			$fan['userid']=$account->uid;
+			$fan['userid'] = $account->uid;
 		}
-		
+
 		/**
 		 * 为了兼容服务号和订阅号的操作，生成和成员用户对应的粉丝用户
 		 */
@@ -530,28 +529,28 @@ class qy extends \member_base {
 		$fan['depts'] = json_encode($udepts);
 
 		/*
-		 * 建立企业号通信录成员关联到信信通的账户
-		 */
-		$openid=$user->userid;
-		$uid=$this->model()->query_val_ss([
+			 * 建立企业号通信录成员关联到信信通的账户
+		*/
+		$openid = $user->userid;
+		$uid = $this->model()->query_val_ss([
 			'uid',
 			'xxt_site_account',
-			" qy_openid ='$openid' "
+			" qy_openid ='$openid' ",
 		]);
 
-		if($uid){
-			$fan['userid']=$uid;
-		}else{
-			$option=array(
-				'ufrom'=>'qy',
-				'qy_openid'=>$openid,
-				'nickname'=>$user->name,
-				'headimgurl'=>isset($user->avatar)?$user->avatar:'',
+		if ($uid) {
+			$fan['userid'] = $uid;
+		} else {
+			$option = array(
+				'ufrom' => 'qy',
+				'qy_openid' => $openid,
+				'nickname' => $user->name,
+				'headimgurl' => isset($user->avatar) ? $user->avatar : '',
 			);
 
-			$account=$this->model("site\\user\\account")->blank($site,true,$option);
+			$account = $this->model("site\\user\\account")->blank($site, true, $option);
 
-			$fan['userid']=$account->uid;
+			$fan['userid'] = $account->uid;
 		}
 		/**
 		 * 成员用户对应的粉丝用户
@@ -577,7 +576,7 @@ class qy extends \member_base {
 			$fan['openid'] = $user->userid;
 			$fan['nickname'] = $user->name;
 			isset($user->avatar) && $fan['headimgurl'] = $user->avatar;
-			$user->status == 1 && $fan['subscribe_at'] = $timestamp;		
+			$user->status == 1 && $fan['subscribe_at'] = $timestamp;
 			$sync_id = $model->insert('xxt_site_qyfan', $fan, true);
 		}
 

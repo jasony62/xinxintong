@@ -73,9 +73,15 @@ ngApp.controller('ctrlConsole', ['$scope', '$uibModal', 'http2', 'templateShop',
             return '&page=' + this.at + '&size=' + this.size;
         }
     };
-    $scope.open = function(matter) {
-        var type = $scope.matterType === 'recent' ? matter.matter_type : $scope.matterType,
+    $scope.open = function(matter, subView) {
+        var url = '/rest/pl/fe/matter/',
+            type = $scope.matterType === 'recent' ? matter.matter_type : $scope.matterType,
             id = (matter.matter_id || matter.id);
+
+        url += type;
+        if (subView) {
+            url += '/' + subView;
+        }
         switch (type) {
             case 'text':
             case 'article':
@@ -91,10 +97,10 @@ ngApp.controller('ctrlConsole', ['$scope', '$uibModal', 'http2', 'templateShop',
             case 'addressbook':
             case 'merchant':
             case 'wall':
-                location.href = '/rest/pl/fe/matter/' + type + '?id=' + id + '&site=' + $scope.siteId;
+                location.href = url + '?id=' + id + '&site=' + $scope.siteId;
                 break;
             case 'mission':
-                location.href = '/rest/pl/fe/matter/' + type + '?id=' + (matter.mission_id || id) + '&site=' + matter.siteid;
+                location.href = url + '?id=' + (matter.mission_id || id) + '&site=' + matter.siteid;
                 break;
         }
     };

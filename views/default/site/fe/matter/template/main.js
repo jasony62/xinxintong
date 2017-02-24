@@ -119,12 +119,12 @@ define(["angular", "xxt-page"], function(angular, codeAssembler) {
             if (!previewURL) {
                 $scope.previewURL = previewURL = '/rest/site/fe/matter/enroll/preview?site=' + template.siteid + '&app=' + template.matter_id + '&start=Y';
             }
-            http2.get('/rest/site/fe/matter/enroll/get?app=' + template.matter_id + '&site=' + template.siteid, function(rsp) {
+            http2.get('/rest/site/fe/matter/enroll/get?app=' + template.matter_id + '&site=' + template.siteid + '&cascaded=Y', function(rsp) {
                 $scope.app = rsp.data.app;
                 params.pageAt = 0;
                 params.hasPrev = false;
-                params.hasNext = !!$scope.app.pages.length;
                 $scope.params = params;
+                params.hasNext = !!$scope.app.pages.length;
             });
         });
         $scope.$watch('params', function(params) {

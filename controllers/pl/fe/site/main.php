@@ -69,7 +69,7 @@ class main extends \pl\fe\base {
 
 		$modelSite = $this->model('site');
 		if (false === ($site = $modelSite->byId($site))) {
-			return new \ResponseError('指定的团队不存在');
+			return new \ObjectNotFoundError();
 		}
 		/* 检查当前用户的角色 */
 		if ($user->id === $site->creater) {
@@ -231,6 +231,9 @@ class main extends \pl\fe\base {
 
 		$modelHome = $this->model('site\home');
 		$site = $this->model('site')->byId($site);
+		if ($site === false) {
+			return new \ObjectNotFoundError();
+		}
 
 		$reply = $modelHome->putSite($site, $user);
 

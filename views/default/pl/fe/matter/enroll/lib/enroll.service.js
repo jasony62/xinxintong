@@ -143,7 +143,7 @@ define(['require', 'schema', 'page'], function(require, schemaLib, pageLib) {
             });
         };
         this._bFilter = function (dataSchemas,dataCriteria){
-            var defer = $q.defer();
+            var defer = $q.defer(), that = this;
             $uibModal.open({
                 templateUrl: '/views/default/pl/fe/matter/enroll/component/recordFilter.html?_=3',
                 controller: 'ctrlFilter',
@@ -160,7 +160,7 @@ define(['require', 'schema', 'page'], function(require, schemaLib, pageLib) {
             }).result.then(function(criteria) {
                 defer.resolve();
                 angular.extend(dataCriteria, criteria);
-                _ins.search(1).then(function() {
+                that.search(1).then(function() {
                     defer.resolve();
                 });
             });
@@ -846,7 +846,7 @@ define(['require', 'schema', 'page'], function(require, schemaLib, pageLib) {
             _appId = appId;
         };
         this.$get = ['$q', '$sce', 'http2', 'noticebox', '$uibModal', 'pushnotify', 'cstApp', 'srvRecordConverter', function($q, $sce, http2, noticebox, $uibModal, pushnotify, cstApp, srvRecordConverter) {
-            var _ins = new BaseSrvRecord($q, http2, srvRecordConverter, noticebox);
+            var _ins = new BaseSrvRecord($q, http2, srvRecordConverter, noticebox, $uibModal);
             _ins.search = function(pageNumber) {
                 var url;
 

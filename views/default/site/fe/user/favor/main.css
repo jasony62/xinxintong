@@ -78,8 +78,7 @@ body {
 .favor{
     border-bottom: 1px solid transparent;
     display: inline-block;
-    padding-bottom: .5em;
-    height: 1.5em;
+    height: 1em;
     overflow: hidden;
 }
 .unfavor{

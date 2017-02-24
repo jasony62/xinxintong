@@ -79,8 +79,8 @@ class schema extends \pl\fe\base {
 				$nv->extattr = urldecode(json_encode($nv->extattr));
 			} else if (isset($nv->type) && $nv->type === 'inner') {
 				$nv->url = TMS_APP_API_PREFIX . "/site/fe/user/member";
-			} else if(isset($nv->qy_ab)){
-				$this->model()->update('xxt_site_member_schema',['qy_ab'=>'N'],"siteid='$this->siteId' and id!='$id'");
+			} else if (isset($nv->qy_ab)) {
+				$this->model()->update('xxt_site_member_schema', ['qy_ab' => 'N'], "siteid='$this->siteId' and id!='$id'");
 			}
 			$rst = $this->model()->update(
 				'xxt_site_member_schema',
@@ -206,8 +206,8 @@ class schema extends \pl\fe\base {
 	/**
 	 * 从企业号通讯录同步用户数据
 	 *
-	 * $authid
-	 * $pdid 父部门id,若pdid不指定，默认获取有权限的部门
+	 * @param $string $site
+	 * @param int $pdid 父部门id,若pdid不指定，默认获取有权限的部门
 	 *
 	 */
 	public function syncFromQy_action($site, $pdid = null) {
@@ -215,15 +215,17 @@ class schema extends \pl\fe\base {
 		if (!$qyConfig || $qyConfig->joined === 'N') {
 			return new \ResponseError('未与企业号连接，无法同步通讯录');
 		}
+
+		$schema = $this->model('site\user\memberschema')->qyabSchemaBySite($site, ['fields' => 'id']);
+		if ($schema === false) {
+			return new \ResponseError('没有设置企业号同步使用的自定义用户，请设置后再同步！');
+		}
+		$authid = $schema->id;
+
 		$timestamp = time(); // 进行同步操作的时间戳
 		$qyproxy = $this->model('sns\qy\proxy', $qyConfig);
 		$model = $this->model();
 		$modelDept = $this->model('site\user\department');
-		$authid=$this->model('site\user\memberschema')->getAuthid($site);
-
-		if(empty($authid)){
-			return new \ResponseError('没有设置企业号同步使用的schema_id,请先设置再同步！');
-		}
 		/**
 		 * 同步部门数据
 		 */
@@ -293,7 +295,7 @@ class schema extends \pl\fe\base {
 		/**
 		 * 同步部门下的用户
 		 */
-		$fan=\TMS_APP::M('sns\qy\fan');
+		$fan = \TMS_APP::M('sns\qy\fan');
 		foreach ($rootDepts as $rootDept) {
 			$result = $qyproxy->userList($rootDept->id, 1);
 			if ($result[0] === false) {

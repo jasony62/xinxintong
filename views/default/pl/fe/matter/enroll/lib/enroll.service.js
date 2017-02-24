@@ -1,5 +1,5 @@
 define(['require', 'schema', 'page'], function(require, schemaLib, pageLib) {
-    var BaseSrvRecord = function(q, httpServer, srcServer, noticeServer) {
+    var BaseSrvRecord = function($q, $http, srvRecordConverter, noticebox, $uibModal) {
         this._oApp = null;
         this._oPage = null;
         this._oCriteria = null;
@@ -50,10 +50,10 @@ define(['require', 'schema', 'page'], function(require, schemaLib, pageLib) {
             // records
             this._aRecords = oRecords;
         };
-        this._oSearch = function(url) {
+        this._bSearch = function(url) {
             var that = this,
-                defer = q.defer();
-            httpServer.post(url, that._oCriteria, function(rsp) {
+                defer = $q.defer();
+            $http.post(url, that._oCriteria, function(rsp) {
                 var records;
                 if (rsp.data) {
                     records = rsp.data.records ? rsp.data.records : [];
@@ -63,14 +63,14 @@ define(['require', 'schema', 'page'], function(require, schemaLib, pageLib) {
                     records = [];
                 }
                 records.forEach(function(record) {
-                    srcServer.forTable(record, that._oApp._schemasById);
+                    srvRecordConverter.forTable(record, that._oApp._schemasById);
                     that._aRecords.push(record);
                 });
                 defer.resolve(records);
             });
             return defer.promise;
         }
-        this._oBatchVerify = function(rows, url) {
+        this._bBatchVerify = function(rows, url) {
             var eks = [],
                 selectedRecords = [],
                 that = this;
@@ -81,17 +81,17 @@ define(['require', 'schema', 'page'], function(require, schemaLib, pageLib) {
                 }
             }
             if (eks.length) {
-                httpServer.post(url, {
+                $http.post(url, {
                     eks: eks
                 }, function(rsp) {
                     selectedRecords.forEach(function(record) {
                         record.verified = 'Y';
                     });
-                    noticeServer.success('完成操作');
+                    noticebox.success('完成操作');
                 });
             }
         };
-        this._oGet = function(data, method) {
+        this._bGet = function(data, method) {
             data.tags = (!data.tags || data.tags.length === 0) ? [] : data.tags.split(',');
             data.entry_rule === null && (data.entry_rule = {});
             data.entry_rule.scope === undefined && (data.entry_rule.scope = 'none');
@@ -142,6 +142,30 @@ define(['require', 'schema', 'page'], function(require, schemaLib, pageLib) {
                 pageLib.enhance(page, data._schemasById);
             });
         };
+        this._bFilter = function (){
+            var defer = $q.defer(), that = this;
+            $uibModal.open({
+                templateUrl: '/views/default/pl/fe/matter/enroll/component/recordFilter.html?_=3',
+                controller: 'ctrlFilter',
+                windowClass: 'auto-height',
+                backdrop: 'static',
+                resolve: {
+                    dataSchemas: function() {
+                        return that._oApp.data_schemas;
+                    },
+                    criteria: function() {
+                        return angular.copy(that._oCriteria);
+                    }
+                }
+            }).result.then(function(criteria) {
+                defer.resolve();
+                angular.extend(that._oCriteria, criteria);
+                that.search(1).then(function() {
+                    defer.resolve();
+                });
+            });
+            return defer.promise;
+        }
     };
     angular.module('service.enroll', ['ui.bootstrap', 'ui.xxt', 'service.matter']).
     provider('srvApp', function() {
@@ -205,7 +229,7 @@ define(['require', 'schema', 'page'], function(require, schemaLib, pageLib) {
                     url = '/rest/pl/fe/matter/enroll/get?site=' + _siteId + '&id=' + _appId;
                     http2.get(url, function(rsp) {
                         _oApp = rsp.data;
-                        _ins._oGet(_oApp, _mapSchemas);
+                        _ins._bGet(_oApp, _mapSchemas);
                         _getAppDeferred.resolve(_oApp);
                     });
 
@@ -221,7 +245,7 @@ define(['require', 'schema', 'page'], function(require, schemaLib, pageLib) {
                     url = '/rest/site/op/matter/enroll/get?site=' + _siteId + '&app=' + _appId + '&accessToken=' + _accessId;
                     http2.get(url, function(rsp) {
                         _opApps = rsp.data, _opApp = rsp.data.app, _opPage = rsp.data.page;
-                        _ins._oGet(_opApp, _mapSchemas);
+                        _ins._bGet(_opApp, _mapSchemas);
                         _getAppDeferred.resolve(_opApps);
                     });
 
@@ -822,7 +846,7 @@ define(['require', 'schema', 'page'], function(require, schemaLib, pageLib) {
             _appId = appId;
         };
         this.$get = ['$q', '$sce', 'http2', 'noticebox', '$uibModal', 'pushnotify', 'cstApp', 'srvRecordConverter', function($q, $sce, http2, noticebox, $uibModal, pushnotify, cstApp, srvRecordConverter) {
-            var _ins = new BaseSrvRecord($q, http2, srvRecordConverter, noticebox);
+            var _ins = new BaseSrvRecord($q, http2, srvRecordConverter, noticebox, $uibModal);
             _ins.search = function(pageNumber) {
                 var url;
 
@@ -833,7 +857,7 @@ define(['require', 'schema', 'page'], function(require, schemaLib, pageLib) {
                 url += '&app=' + this._oApp.id;
                 url += this._oPage.joinParams();
 
-                return _ins._oSearch(url);
+                return _ins._bSearch(url);
             };
             _ins.searchRecycle = function(pageNumber) {
                 var defer = $q.defer(),
@@ -863,28 +887,7 @@ define(['require', 'schema', 'page'], function(require, schemaLib, pageLib) {
                 return defer.promise;
             };
             _ins.filter = function() {
-                var defer = $q.defer();
-                $uibModal.open({
-                    templateUrl: '/views/default/pl/fe/matter/enroll/component/recordFilter.html?_=3',
-                    controller: 'ctrlFilter',
-                    windowClass: 'auto-height',
-                    backdrop: 'static',
-                    resolve: {
-                        dataSchemas: function() {
-                            return _ins._oApp.data_schemas;
-                        },
-                        criteria: function() {
-                            return angular.copy(_ins._oCriteria);
-                        }
-                    }
-                }).result.then(function(criteria) {
-                    defer.resolve();
-                    angular.extend(_ins._oCriteria, criteria);
-                    _ins.search(1).then(function() {
-                        defer.resolve();
-                    });
-                });
-                return defer.promise;
+                return _ins._bFilter();
             };
             _ins.add = function(newRecord) {
                 http2.post('/rest/pl/fe/matter/enroll/record/add?site=' + _siteId + '&app=' + _appId, newRecord, function(rsp) {
@@ -1049,7 +1052,7 @@ define(['require', 'schema', 'page'], function(require, schemaLib, pageLib) {
                 url += '?site=' + _siteId;
                 url += '&app=' + _appId;
 
-                return _ins._oBatchVerify(rows, url);
+                return _ins._bBatchVerify(rows, url);
             };
             _ins.notify = function(rows) {
                 var options = {
@@ -1305,7 +1308,7 @@ define(['require', 'schema', 'page'], function(require, schemaLib, pageLib) {
             _accessId = accessId;
         };
         this.$get = ['$q', 'http2', 'noticebox', '$uibModal', 'srvRecordConverter', function($q, http2, noticebox, $uibModal, srvRecordConverter) {
-            var _ins = new BaseSrvRecord($q, http2, srvRecordConverter, noticebox);
+            var _ins = new BaseSrvRecord($q, http2, srvRecordConverter, noticebox, $uibModal);
             _ins.search = function(pageNumber) {
                 var url;
 
@@ -1317,7 +1320,7 @@ define(['require', 'schema', 'page'], function(require, schemaLib, pageLib) {
                 url += '&accessToken=' + _accessId;
                 url += this._oPage.joinParams();
 
-                return _ins._oSearch(url);
+                return _ins._bSearch(url);
             };
             _ins.batchVerify = function(rows) {
                 var url;
@@ -1327,31 +1330,10 @@ define(['require', 'schema', 'page'], function(require, schemaLib, pageLib) {
                 url += '&app=' + _appId;
                 url += '&accessToken=' + _accessId;
 
-                return _ins._oBatchVerify(rows, url);
+                return _ins._bBatchVerify(rows, url);
             };
             _ins.filter = function() {
-                var defer = $q.defer();
-                $uibModal.open({
-                    templateUrl: '/views/default/pl/fe/matter/enroll/component/recordFilter.html?_=3',
-                    controller: 'ctrlFilter',
-                    windowClass: 'auto-height',
-                    backdrop: 'static',
-                    resolve: {
-                        dataSchemas: function() {
-                            return _ins._oApp.data_schemas;
-                        },
-                        criteria: function() {
-                            return angular.copy(_ins._oCriteria);
-                        }
-                    }
-                }).result.then(function(criteria) {
-                    defer.resolve();
-                    angular.extend(_ins._oCriteria, criteria);
-                    _ins.search(1).then(function() {
-                        defer.resolve();
-                    });
-                });
-                return defer.promise;
+                return _ins._bFilter();
             };
             _ins.remove = function(record) {
                 if (window.confirm('确认删除？')) {

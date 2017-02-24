@@ -186,11 +186,13 @@ define(['require', 'schema', 'page'], function(require, schemaLib, pageLib) {
         }
 
         var _siteId, _appId, _accessId, _oApp, _getAppDeferred = false;
-        this.config = function(siteId, appId) {
+        this.config = function(siteId, appId, accessId) {
             _siteId = siteId;
             _appId = appId;
+            _accessId = accessId;
         };
         this.$get = ['$q', '$uibModal', 'http2', 'noticebox', 'mattersgallery', function($q, $uibModal, http2, noticebox, mattersgallery) {
+            var _ins = new BaseSrvRecord();
             var _self = {
                 get: function() {
                     var url;
@@ -202,99 +204,27 @@ define(['require', 'schema', 'page'], function(require, schemaLib, pageLib) {
                     url = '/rest/pl/fe/matter/enroll/get?site=' + _siteId + '&id=' + _appId;
                     http2.get(url, function(rsp) {
                         _oApp = rsp.data;
-                        _oApp.tags = (!_oApp.tags || _oApp.tags.length === 0) ? [] : _oApp.tags.split(',');
-                        _oApp.entry_rule === null && (_oApp.entry_rule = {});
-                        _oApp.entry_rule.scope === undefined && (_oApp.entry_rule.scope = 'none');
-                        try {
-                            _oApp.data_schemas = _oApp.data_schemas && _oApp.data_schemas.length ? JSON.parse(_oApp.data_schemas) : [];
-                        } catch (e) {
-                            console.log('data invalid', e, _oApp.data_schemas);
-                            _oApp.data_schemas = [];
-                        }
-                        if (_oApp.enrollApp && _oApp.enrollApp.data_schemas) {
-                            try {
-                                _oApp.enrollApp.data_schemas = _oApp.enrollApp.data_schemas && _oApp.enrollApp.data_schemas.length ? JSON.parse(_oApp.enrollApp.data_schemas) : [];
-                            } catch (e) {
-                                console.log('data invalid', e, _oApp.enrollApp.data_schemas);
-                                _oApp.enrollApp.data_schemas = [];
-                            }
-                        }
-                        if (_oApp.groupApp && _oApp.groupApp.data_schemas) {
-                            var groupAppDS = _oApp.groupApp.data_schemas;
-                            try {
-                                _oApp.groupApp.data_schemas = groupAppDS && groupAppDS.length ? JSON.parse(groupAppDS) : [];
-                            } catch (e) {
-                                console.log('data invalid', e, groupAppDS);
-                                _oApp.groupApp.data_schemas = [];
-                            }
-                            if (_oApp.groupApp.rounds && _oApp.groupApp.rounds.length) {
-                                var roundDS = {
-                                        id: '_round_id',
-                                        type: 'single',
-                                        title: '分组名称',
-                                    },
-                                    ops = [];
-                                _oApp.groupApp.rounds.forEach(function(round) {
-                                    ops.push({
-                                        v: round.round_id,
-                                        l: round.title
-                                    });
-                                });
-                                roundDS.ops = ops;
-                                _oApp.groupApp.data_schemas.splice(0, 0, roundDS);
-                            }
-                        }
-                        _mapSchemas(_oApp);
-                        _oApp.data_schemas.forEach(function(schema) {
-                            schemaLib._upgrade(schema);
-                        });
-                        _oApp.pages.forEach(function(page) {
-                            pageLib.enhance(page, _oApp._schemasById);
-                        });
+                        _ins._oGet(_oApp, _self.mapSchemas);
                         _getAppDeferred.resolve(_oApp);
                     });
 
                     return _getAppDeferred.promise;
                 },
-                mapSchemas: function(app) {
-                    var mapOfSchemaByType = {},
-                        mapOfSchemaById = {},
-                        enrollDataSchemas = [],
-                        groupDataSchemas = [],
-                        canFilteredSchemas = [];
+                opGet: function() {
+                    var url, _getAppDeferred = false;
 
-                    app.data_schemas.forEach(function(schema) {
-                        mapOfSchemaByType[schema.type] === undefined && (mapOfSchemaByType[schema.type] = []);
-                        mapOfSchemaByType[schema.type].push(schema.id);
-                        mapOfSchemaById[schema.id] = schema;
-                        if (false === /image|file/.test(schema.type)) {
-                            canFilteredSchemas.push(schema);
-                        }
+                    if (_getAppDeferred) {
+                        return _getAppDeferred.promise;
+                    }
+                    _getAppDeferred = $q.defer();
+                    url = '/rest/site/op/matter/enroll/get?site=' + _siteId + '&app=' + _appId + '&accessToken=' + _accessId;
+                    http2.get(url, function(rsp) {
+                        _opApps = rsp.data, _opApp = rsp.data.app, _opPage = rsp.data.page;
+                        _ins._oGet(_opApp, _mapSchemas);
+                        _getAppDeferred.resolve(_opApps);
                     });
-                    // 关联的报名登记项
-                    if (app.enrollApp && app.enrollApp.data_schemas) {
-                        app.enrollApp.data_schemas.forEach(function(item) {
-                            if (mapOfSchemaById[item.id] === undefined) {
-                                mapOfSchemaById[item.id] = item;
-                                enrollDataSchemas.push(item);
-                            }
-                        });
-                    }
-                    // 关联的分组活动的登记项
-                    if (app.groupApp && app.groupApp.data_schemas) {
-                        app.groupApp.data_schemas.forEach(function(item) {
-                            if (mapOfSchemaById[item.id] === undefined) {
-                                mapOfSchemaById[item.id] = item;
-                                groupDataSchemas.push(item);
-                            }
-                        });
-                    }
 
-                    app._schemasByType = mapOfSchemaByType;
-                    app._schemasById = mapOfSchemaById;
-                    app._schemasCanFilter = canFilteredSchemas;
-                    app._schemasFromEnrollApp = enrollDataSchemas;
-                    app._schemasFromGroupApp = groupDataSchemas;
+                    return _getAppDeferred.promise;
                 },
                 update: function(names) {
                     var defer = $q.defer(),
@@ -893,8 +823,7 @@ define(['require', 'schema', 'page'], function(require, schemaLib, pageLib) {
         this.$get = ['$q', '$sce', 'http2', 'noticebox', '$uibModal', 'pushnotify', 'cstApp', 'srvRecordConverter', function($q, $sce, http2, noticebox, $uibModal, pushnotify, cstApp, srvRecordConverter) {
             var _ins = new BaseSrvRecord($q, http2, srvRecordConverter, noticebox);
             _ins.search = function(pageNumber) {
-                var defer = $q.defer(),
-                    url;
+                var url;
 
                 this._aRecords.splice(0, this._aRecords.length);
                 pageNumber && (this._oPage.at = pageNumber);
@@ -1371,27 +1300,10 @@ define(['require', 'schema', 'page'], function(require, schemaLib, pageLib) {
             _appId = appId;
             _accessId = accessId;
         };
-        this.$get = ['$q', 'http2', 'noticebox', '$uibModal', 'srvRecordConverter', 'srvApp', function($q, http2, noticebox, $uibModal, srvRecordConverter, srvApp) {
+        this.$get = ['$q', 'http2', 'noticebox', '$uibModal', 'srvRecordConverter', function($q, http2, noticebox, $uibModal, srvRecordConverter) {
             var _ins = new BaseSrvRecord($q, http2, srvRecordConverter,noticebox);
-            _ins.get = function() {
-                var url, _getAppDeferred = false;
-
-                if (_getAppDeferred) {
-                    return _getAppDeferred.promise;
-                }
-                _getAppDeferred = $q.defer();
-                url = '/rest/site/op/matter/enroll/get?site=' + _siteId + '&app=' + _appId + '&accessToken=' + _accessId;
-                http2.get(url, function(rsp) {
-                    _opApps = rsp.data, _opApp = rsp.data.app, _opPage = rsp.data.page;
-                    _ins._oGet(_opApp, srvApp.mapSchemas);
-                    _getAppDeferred.resolve(_opApps);
-                });
-
-                return _getAppDeferred.promise;
-            },
             _ins.search = function(pageNumber) {
-                var _this = this,
-                    url;
+                var url;
 
                 this._aRecords.splice(0, this._aRecords.length);
                 pageNumber && (this._oPage.at = pageNumber);

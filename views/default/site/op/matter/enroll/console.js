@@ -17,19 +17,19 @@ define(["require", "angular", "util.site", "enrollService"], function(require, a
             srvRecordProvider.config(siteId, appId, accessId);
         })();
     }]);
-    ngApp.controller('ctrl', ['$scope', '$http', '$timeout', '$uibModal', 'PageLoader', 'PageUrl', 'srvApp', 'srvOpRecord', function($scope, $http, $timeout, $uibModal, PageLoader, PageUrl, srvApp, srvRecord) {
+    ngApp.controller('ctrl', ['$scope', '$http', '$timeout', '$uibModal', 'PageLoader', 'PageUrl',  'srvOpRecord', 'srvApp', function($scope, $http, $timeout, $uibModal, PageLoader, PageUrl, srvOpRecord, srvApp) {
         $scope.getRecords = function(pageNumber) {
             $scope.rows.reset();
-            srvRecord.search(pageNumber);
+            srvOpRecord.search(pageNumber);
         };
         $scope.removeRecord = function(record) {
-            srvRecord.remove(record);
+            srvOpRecord.remove(record);
         };
         $scope.batchVerify = function() {
-            srvRecord.batchVerify($scope.rows);
+            srvOpRecord.batchVerify($scope.rows);
         };
         $scope.filter = function() {
-            srvRecord.filter().then(function() {
+            srvOpRecord.filter().then(function() {
                 $scope.rows.reset();
             });
         };
@@ -76,11 +76,10 @@ define(["require", "angular", "util.site", "enrollService"], function(require, a
         $scope.records = []; // 登记记录
         $scope.subView = 'list'; // 规定初始化展示页面
         $scope.tmsTableWrapReady = 'N';
-        /*srvApp.opGet().then(function(data) {*/
-        srvRecord.get().then(function(data) {
+        srvApp.opGet().then(function(data) {
             var app = data.app,
                 pages = data.page;
-            srvRecord.init(app, $scope.page, $scope.criteria, $scope.records);
+            srvOpRecord.init(app, $scope.page, $scope.criteria, $scope.records);
             PageLoader.render($scope, pages, ngApp).then(function() {
                 $scope.doc = pages;
             });

@@ -65,8 +65,6 @@
                 </div>
             </div>
         </div>
-
-
         </div>
 
     <!--手机端-->
@@ -74,9 +72,6 @@
         <div class="media-my" ng-repeat="m in matters">
             <div class="media" ng-click="openMatter(m.matter_id,m.matter_type)">
                 <div class="media-left media-left-my" ng-if="m.data.pic" style="{{'background-image:url('+m.data.pic+')'}}">
-                    <!--<a href="#">-->
-                    <!--<img class="media-object img-responsive" ng-src="{{m.data.pic}}" alt="">-->
-                    <!--</a>-->
                 </div>
                 <div class="media-body media-left-right">
                     <h4 class="media-heading favor"  ng-bind="m.matter_title" ng-class="{'unfavor':m.favorOrUnfavo}"></h4>

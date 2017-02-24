@@ -37,14 +37,11 @@ define(['require', 'angular'], function(require, angular) {
         $scope.unfavor = function(m, i) {
             var url = '/rest/site/fe/user/favor/remove?site=' + siteId + '&id=' + m.matter_id + '&type=' + m.matter_type;
             $http.get(url).success(function(rsp) {
-                //$scope.list();
                 if (rsp.err_code != 0) {
                     $scope.$root.errmsg = rsp.err_msg;
                     return;
                 }
                 m.favorOrUnfavo = true;
-                //$scope.matters.splice(i,1);
-                //$scope.page.total--;
             })
         };
         $scope.favor = function(m) {
@@ -63,6 +60,5 @@ define(['require', 'angular'], function(require, angular) {
             $scope.site = rsp.data;
             window.loading.finish();
         });
-        //window.loading.finish();
     }]);
 });

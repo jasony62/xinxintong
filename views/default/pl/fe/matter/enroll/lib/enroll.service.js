@@ -142,7 +142,7 @@ define(['require', 'schema', 'page'], function(require, schemaLib, pageLib) {
                 pageLib.enhance(page, data._schemasById);
             });
         };
-        this._bFilter = function (dataSchemas,dataCriteria){
+        this._bFilter = function (){
             var defer = $q.defer(), that = this;
             $uibModal.open({
                 templateUrl: '/views/default/pl/fe/matter/enroll/component/recordFilter.html?_=3',
@@ -151,15 +151,15 @@ define(['require', 'schema', 'page'], function(require, schemaLib, pageLib) {
                 backdrop: 'static',
                 resolve: {
                     dataSchemas: function() {
-                        return dataSchemas;
+                        return that._oApp.data_schemas;
                     },
                     criteria: function() {
-                        return angular.copy(dataCriteria);
+                        return angular.copy(that._oCriteria);
                     }
                 }
             }).result.then(function(criteria) {
                 defer.resolve();
-                angular.extend(dataCriteria, criteria);
+                angular.extend(that._oCriteria, criteria);
                 that.search(1).then(function() {
                     defer.resolve();
                 });
@@ -887,7 +887,7 @@ define(['require', 'schema', 'page'], function(require, schemaLib, pageLib) {
                 return defer.promise;
             };
             _ins.filter = function() {
-                return _ins._bFilter(_ins._oApp.data_schemas,_ins._oCriteria);
+                return _ins._bFilter();
             };
             _ins.add = function(newRecord) {
                 http2.post('/rest/pl/fe/matter/enroll/record/add?site=' + _siteId + '&app=' + _appId, newRecord, function(rsp) {
@@ -1333,7 +1333,7 @@ define(['require', 'schema', 'page'], function(require, schemaLib, pageLib) {
                 return _ins._bBatchVerify(rows, url);
             };
             _ins.filter = function() {
-                return _ins._bFilter(_ins._oApp.data_schemas,_ins._oCriteria);
+                return _ins._bFilter();
             };
             _ins.remove = function(record) {
                 if (window.confirm('确认删除？')) {

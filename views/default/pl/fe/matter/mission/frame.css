@@ -34,7 +34,7 @@ form .form-group:last-child{margin-bottom:0;}
 #viewMatter .common:after{content:'通用登记';position:absolute;top:-8px;left:-8px;background:#0000ff;padding:2px 4px;font-size:60%;color:#fff;border-radius:4px;}
 #viewMatter .registration:after{content:'报名';position:absolute;top:-8px;left:-8px;background:#0000ff;padding:2px 4px;font-size:60%;color:#fff;border-radius:4px;}
 #viewMatter .voting:after{content:'投票';position:absolute;top:-8px;left:-8px;background:#0000ff;padding:2px 4px;font-size:60%;color:#fff;border-radius:4px;}
-#viewMatter .group_week_report:after{content:'投票';position:absolute;top:-8px;left:-8px;background:#0000ff;padding:2px 4px;font-size:60%;color:#fff;border-radius:4px;}
+#viewMatter .group_week_report:after{content:'周报';position:absolute;top:-8px;left:-8px;background:#0000ff;padding:2px 4px;font-size:60%;color:#fff;border-radius:4px;}
 #viewMatter .signin:after{content:'签到';position:absolute;top:-8px;left:-8px;background:#0000cc;padding:2px 4px;font-size:60%;color:#fff;border-radius:4px;}
 #viewMatter .group:after{content:'分组';position:absolute;top:-8px;left:-8px;background:#000099;padding:2px 4px;font-size:60%;color:#fff;border-radius:4px;}
 #viewMatter .split:after{content:'分组';position:absolute;top:-8px;left:-8px;background:#000099;padding:2px 4px;font-size:60%;color:#fff;border-radius:4px;}

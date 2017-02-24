@@ -8,10 +8,11 @@ define(['require', 'schema', 'page'], function(require, schemaLib, pageLib) {
             this._oApp = oApp;
             // schemas
             if (this._oApp._schemasById === undefined) {
-                this._oApp._schemasById = {};
+                var schemasById = {};
                 this._oApp.data_schemas.forEach(function(schema) {
-                    this._oApp._schemasById[schema.id] = schema;
+                    schemasById[schema.id] = schema;
                 });
+                this._oApp._schemasById = schemasById;
             }
             // pagination
             this._oPage = oPage;

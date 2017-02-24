@@ -3,8 +3,6 @@ window.loading = {
         var eleLoading, eleStyle;
         eleLoading = document.querySelector('.loading');
         eleLoading.parentNode.removeChild(eleLoading);
-        eleStyle = document.querySelector('#loadingStyle');
-        eleStyle.parentNode.removeChild(eleStyle);
     },
     load: function() {
         var timestamp, minutes;
@@ -19,7 +17,8 @@ window.loading = {
             paths: {
                 "domReady": '/static/js/domReady',
                 "angular": "/static/js/angular.min",
-                "main": "/views/default/site/fe/user/history/main",
+                "tms-siteuser": "/static/js/xxt.ui.siteuser",
+                "main": "/views/default/site/fe/matter/mission/main",
             },
             shim: {
                 "angular": {
@@ -33,7 +32,7 @@ window.loading = {
                 return "?bust=" + (timestamp * 1);
             }
         });
-        require(['main'], function() {});
+        require(['main']);
     }
 };
 window.loading.load();

@@ -13,7 +13,7 @@ define(['main'], function(ngApp) {
             $scope.doSearch(1);
         };
         $scope.doSearch = function (page, syncType) {
-            var url = '/rest/site/fe/user/member/syncLog';
+            var url = '/rest/pl/fe/site/member/syncLog';
             page && ($scope.page.at = page );
             if (syncType && syncType !== $scope.syncType) {
                 $scope.syncType = syncType;
@@ -29,7 +29,7 @@ define(['main'], function(ngApp) {
         };
 
         $scope.syn = function () {
-            var url = '/rest/site/fe/user/member/';
+            var url = '/rest/pl/fe/site/member/';
             url += $scope.type;
             url += '?site=' + $scope.siteId;
             url += '&authid=' + 0;

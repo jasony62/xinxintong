@@ -209,6 +209,12 @@ define(['require'], function(require) {
             service.memberSchema.update(schema, pv).then(function() {
                 if (field === 'type') {
                     schema.url = rsp.data.url;
+                }else if(field === 'qy_ab'&&schema.qy_ab==='Y'){
+                    angular.forEach($scope.schemas,function(s){
+                        if(s!==schema&& s.qy_ab==='Y'){
+                            s.qy_ab = 'N';
+                        }
+                    })
                 }
             });
         };

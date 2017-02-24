@@ -258,7 +258,7 @@ class proxy_model extends \sns\proxybase {
 		//同步企业号本地粉丝信息
 		$site=$this->config->siteid;
 		$user1=$this->userGet($openid);
-		$fan=\TMS_MODEL::M('sns\qy\fan');
+		$fan=\TMS_MODEL::M('site\user\memberschema');
 		$authid=$fan->getAuthid($site);
 
 		if($luser=$fan->query_obj_ss(["userid,nickname","xxt_site_qyfan","siteid='$site' and openid='$openid'"])){

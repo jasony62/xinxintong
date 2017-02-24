@@ -32,7 +32,6 @@ define(['main'], function(ngApp) {
             var url = '/rest/pl/fe/site/member/schema/';
             url += $scope.type;
             url += '?site=' + $scope.siteId;
-            url += '&authid=' + 0;
             http2.get(url, function (rsp) {
                 if (rsp.err_code == 0) {
                     alert("同步" + rsp.data[0] + "个部门，" + rsp.data[1] + "个用户，" + rsp.data[2] + "个标签");

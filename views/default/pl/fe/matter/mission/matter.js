@@ -105,15 +105,20 @@ define(['frame'], function(ngApp) {
                 $scope['add' + matterType[0].toUpperCase() + matterType.substr(1)]();
             }
         };
-        $scope.open = function(matter) {
-            var type = matter.type || $scope.matterType,
+        $scope.open = function(matter, subView) {
+            var url = '/rest/pl/fe/matter/',
+                type = matter.type || $scope.matterType,
                 id = matter.id;
+            url += type;
+            if (subView) {
+                url += '/' + subView;
+            }
             switch (type) {
                 case 'article':
                 case 'enroll':
                 case 'group':
                 case 'signin':
-                    location.href = '/rest/pl/fe/matter/' + type + '?id=' + id + '&site=' + $scope.mission.siteid;
+                    location.href = url + '?id=' + id + '&site=' + $scope.mission.siteid;
                     break;
             }
         };

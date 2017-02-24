@@ -1,5 +1,5 @@
 define(['require', 'schema', 'page'], function(require, schemaLib, pageLib) {
-    var BaseSrvRecord = function(q, httpServer, srcServer,noticeServer) {
+    var BaseSrvRecord = function(q, httpServer, srcServer, noticeServer) {
         this._oApp = null;
         this._oPage = null;
         this._oCriteria = null;
@@ -50,7 +50,7 @@ define(['require', 'schema', 'page'], function(require, schemaLib, pageLib) {
             // records
             this._aRecords = oRecords;
         };
-        this._oSearch = function(url){
+        this._oSearch = function(url) {
             var that = this,
                 defer = q.defer();
             httpServer.post(url, that._oCriteria, function(rsp) {
@@ -91,7 +91,7 @@ define(['require', 'schema', 'page'], function(require, schemaLib, pageLib) {
                 });
             }
         };
-        this._oGet = function(data, method){
+        this._oGet = function(data, method) {
             data.tags = (!data.tags || data.tags.length === 0) ? [] : data.tags.split(',');
             data.entry_rule === null && (data.entry_rule = {});
             data.entry_rule.scope === undefined && (data.entry_rule.scope = 'none');
@@ -141,7 +141,7 @@ define(['require', 'schema', 'page'], function(require, schemaLib, pageLib) {
             data.pages.forEach(function(page) {
                 pageLib.enhance(page, data._schemasById);
             });
-        }
+        };
     };
     angular.module('service.enroll', ['ui.bootstrap', 'ui.xxt', 'service.matter']).
     provider('srvApp', function() {
@@ -870,6 +870,9 @@ define(['require', 'schema', 'page'], function(require, schemaLib, pageLib) {
                     windowClass: 'auto-height',
                     backdrop: 'static',
                     resolve: {
+                        dataSchemas: function() {
+                            return _ins._oApp.data_schemas;
+                        },
                         criteria: function() {
                             return angular.copy(_ins._oCriteria);
                         }
@@ -1046,7 +1049,7 @@ define(['require', 'schema', 'page'], function(require, schemaLib, pageLib) {
                 url += '?site=' + _siteId;
                 url += '&app=' + _appId;
 
-                return _ins._oBatchVerify(rows,url);
+                return _ins._oBatchVerify(rows, url);
             };
             _ins.notify = function(rows) {
                 var options = {
@@ -1130,39 +1133,39 @@ define(['require', 'schema', 'page'], function(require, schemaLib, pageLib) {
                 return defer.promise;
             };
             _ins.syncByEnroll = function(record) {
-                var url;
+                    var url;
 
-                url = '/rest/pl/fe/matter/enroll/record/matchEnroll';
-                url += '?site=' + _siteId;
-                url += '&app=' + _appId;
+                    url = '/rest/pl/fe/matter/enroll/record/matchEnroll';
+                    url += '?site=' + _siteId;
+                    url += '&app=' + _appId;
 
-                http2.post(url, record.data, function(rsp) {
-                    var matched;
-                    if (rsp.data && rsp.data.length === 1) {
-                        matched = rsp.data[0];
-                        angular.extend(record.data, matched);
-                    } else {
-                        alert('没有找到匹配的记录，请检查数据是否一致');
-                    }
-                });
-            },
-            _ins.syncByGroup = function(record) {
-                var url;
+                    http2.post(url, record.data, function(rsp) {
+                        var matched;
+                        if (rsp.data && rsp.data.length === 1) {
+                            matched = rsp.data[0];
+                            angular.extend(record.data, matched);
+                        } else {
+                            alert('没有找到匹配的记录，请检查数据是否一致');
+                        }
+                    });
+                },
+                _ins.syncByGroup = function(record) {
+                    var url;
 
-                url = '/rest/pl/fe/matter/enroll/record/matchGroup';
-                url += '?site=' + _siteId;
-                url += '&app=' + _appId;
+                    url = '/rest/pl/fe/matter/enroll/record/matchGroup';
+                    url += '?site=' + _siteId;
+                    url += '&app=' + _appId;
 
-                http2.post(url, record.data, function(rsp) {
-                    var matched;
-                    if (rsp.data && rsp.data.length === 1) {
-                        matched = rsp.data[0];
-                        angular.extend(record.data, matched);
-                    } else {
-                        alert('没有找到匹配的记录，请检查数据是否一致');
-                    }
-                });
-            };
+                    http2.post(url, record.data, function(rsp) {
+                        var matched;
+                        if (rsp.data && rsp.data.length === 1) {
+                            matched = rsp.data[0];
+                            angular.extend(record.data, matched);
+                        } else {
+                            alert('没有找到匹配的记录，请检查数据是否一致');
+                        }
+                    });
+                };
             _ins.importByOther = function() {
                 var defer = $q.defer();
                 $uibModal.open({
@@ -1302,7 +1305,7 @@ define(['require', 'schema', 'page'], function(require, schemaLib, pageLib) {
             _accessId = accessId;
         };
         this.$get = ['$q', 'http2', 'noticebox', '$uibModal', 'srvRecordConverter', function($q, http2, noticebox, $uibModal, srvRecordConverter) {
-            var _ins = new BaseSrvRecord($q, http2, srvRecordConverter,noticebox);
+            var _ins = new BaseSrvRecord($q, http2, srvRecordConverter, noticebox);
             _ins.search = function(pageNumber) {
                 var url;
 
@@ -1324,16 +1327,19 @@ define(['require', 'schema', 'page'], function(require, schemaLib, pageLib) {
                 url += '&app=' + _appId;
                 url += '&accessToken=' + _accessId;
 
-                return _ins._oBatchVerify(rows,url);
+                return _ins._oBatchVerify(rows, url);
             };
             _ins.filter = function() {
                 var defer = $q.defer();
                 $uibModal.open({
-                    templateUrl: 'recordFilter.html',
-                    controller: 'ctrlOpFilter',
+                    templateUrl: '/views/default/pl/fe/matter/enroll/component/recordFilter.html?_=3',
+                    controller: 'ctrlFilter',
                     windowClass: 'auto-height',
                     backdrop: 'static',
                     resolve: {
+                        dataSchemas: function() {
+                            return _ins._oApp.data_schemas;
+                        },
                         criteria: function() {
                             return angular.copy(_ins._oCriteria);
                         }
@@ -1479,78 +1485,21 @@ define(['require', 'schema', 'page'], function(require, schemaLib, pageLib) {
         $scope.syncByGroup = function() {
             srvRecord.syncByGroup($scope.record);
         };
-    }]).controller('ctrlFilter', ['$scope', '$uibModalInstance', 'srvApp', 'criteria', function($scope, $mi, srvApp, lastCriteria) {
+    }]).controller('ctrlFilter', ['$scope', '$uibModalInstance', 'dataSchemas', 'criteria', function($scope, $mi, dataSchemas, lastCriteria) {
         var canFilteredSchemas = [];
-        srvApp.get().then(function(app) {
-            app.data_schemas.forEach(function(schema) {
-                if (false === /image|file/.test(schema.type)) {
-                    canFilteredSchemas.push(schema);
-                }
-                if (/multiple/.test(schema.type)) {
-                    var options = {};
-                    if (lastCriteria.data[schema.id]) {
-                        lastCriteria.data[schema.id].split(',').forEach(function(key) {
-                            options[key] = true;
-                        })
-                    }
-                    lastCriteria.data[schema.id] = options;
-                }
-            });
-            $scope.schemas = canFilteredSchemas;
-            $scope.criteria = lastCriteria;
-        });
-        $scope.clean = function() {
-            var criteria = $scope.criteria;
-            if (criteria.record) {
-                if (criteria.record.verified) {
-                    criteria.record.verified = '';
-                }
+        dataSchemas.forEach(function(schema) {
+            if (false === /image|file/.test(schema.type)) {
+                canFilteredSchemas.push(schema);
             }
-            if (criteria.data) {
-                angular.forEach(criteria.data, function(val, key) {
-                    criteria.data[key] = '';
-                });
+            if (/multiple/.test(schema.type)) {
+                var options = {};
+                if (lastCriteria.data[schema.id]) {
+                    lastCriteria.data[schema.id].split(',').forEach(function(key) {
+                        options[key] = true;
+                    })
+                }
+                lastCriteria.data[schema.id] = options;
             }
-        };
-        $scope.ok = function() {
-            var criteria = $scope.criteria,
-                optionCriteria;
-            // 将单选题/多选题的结果拼成字符串
-            canFilteredSchemas.forEach(function(schema) {
-                var result;
-                if (/multiple/.test(schema.type)) {
-                    if ((optionCriteria = criteria.data[schema.id])) {
-                        result = [];
-                        Object.keys(optionCriteria).forEach(function(key) {
-                            optionCriteria[key] && result.push(key);
-                        });
-                        criteria.data[schema.id] = result.join(',');
-                    }
-                }
-            });
-            $mi.close(criteria);
-        };
-        $scope.cancel = function() {
-            $mi.dismiss('cancel');
-        };
-    }]).controller('ctrlOpFilter', ['$scope', '$uibModalInstance', 'srvApp', 'criteria', function($scope, $mi, srvApp, lastCriteria) {
-        var canFilteredSchemas = [];
-        srvApp.opGet().then(function(data) {
-            var app = data.app;
-            app.data_schemas.forEach(function(schema) {
-                if (false === /image|file/.test(schema.type)) {
-                    canFilteredSchemas.push(schema);
-                }
-                if (/multiple/.test(schema.type)) {
-                    var options = {};
-                    if (lastCriteria.data[schema.id]) {
-                        lastCriteria.data[schema.id].split(',').forEach(function(key) {
-                            options[key] = true;
-                        })
-                    }
-                    lastCriteria.data[schema.id] = options;
-                }
-            });
             $scope.schemas = canFilteredSchemas;
             $scope.criteria = lastCriteria;
         });

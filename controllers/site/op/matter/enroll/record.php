@@ -62,7 +62,7 @@ class record extends \site\op\base {
 		$modelEnl->update('xxt_enroll_record', $updated, "enroll_key='$ek'");
 
 		/* 记录登记数据 */
-		$result = $modelRec->setData(null, $site, $app, $ek, $record->data);
+		$result = $modelRec->setData(null, $app, $ek, $record->data);
 
 		if (isset($updated->verified) && $updated->verified === 'Y') {
 			$this->_whenVerifyRecord($app, $ek);

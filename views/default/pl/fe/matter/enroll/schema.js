@@ -301,8 +301,11 @@ define(['frame', 'schema', 'wrap'], function(ngApp, schemaLib, wrapLib) {
             }
         };
         $scope.updConfig = function(prop) {
-            $scope.inputPage.updateSchema($scope.activeSchema);
-            srvPage.update($scope.inputPage, ['data_schemas', 'html']);
+            var inputPage;
+            if (inputPage = $scope.inputPage) {
+                inputPage.updateSchema($scope.activeSchema);
+                srvPage.update(inputPage, ['data_schemas', 'html']);
+            }
         };
         $scope.changeSchemaType = function() {
             var beforeState = angular.copy($scope.activeSchema);
@@ -343,9 +346,11 @@ define(['frame', 'schema', 'wrap'], function(ngApp, schemaLib, wrapLib) {
             $scope.inputPage = false;
             for (var i = $scope.app.pages.length - 1; i >= 0; i--) {
                 page = $scope.app.pages[i];
-                if (page.type === 'I' && (wrap = page.wrapBySchema($scope.activeSchema))) {
+                if (page.type === 'I') {
                     $scope.inputPage = page;
-                    $scope.activeConfig = wrap.config;
+                    if (wrap = page.wrapBySchema($scope.activeSchema)) {
+                        $scope.activeConfig = wrap.config;
+                    }
                     break;
                 }
             }

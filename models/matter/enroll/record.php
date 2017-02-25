@@ -85,18 +85,22 @@ class record_model extends \TMS_MODEL {
 	 * 保存登记的数据
 	 *
 	 * @param object $user [uid]
+	 * @param object $app
+	 * @param array $data
 	 */
-	public function setData($user, $siteId, &$app, $ek, $data, $submitkey = '') {
+	public function setData($user, &$app, $ek, $data, $submitkey = '') {
 		if (empty($data)) {
-			return array(true);
+			return [true];
 		}
 		if (empty($submitkey)) {
 			$submitkey = empty($user) ? '' : $user->uid;
 		}
-		// 处理后的登记记录
-		$dbData = new \stdClass;
+		$siteId = $app->siteid;
+
 		// 清除已有的登记数据
-		$this->delete('xxt_enroll_record_data', "aid='{$app->id}' and enroll_key='$ek'");
+		$this->delete('xxt_enroll_record_data', ['aid' => $app->id, 'enroll_key' => $ek]);
+
+		$dbData = new \stdClass; // 处理后的保存到数据库中的登记记录
 
 		$schemas = json_decode($app->data_schemas);
 		$schemasById = [];
@@ -121,83 +125,92 @@ class record_model extends \TMS_MODEL {
 					}
 					$treatedValue->extattr = $extattr;
 				}
-				$treatedValue = $this->toJson($treatedValue);
 			} else if (isset($schemasById[$n])) {
+				/* 活动中定义的登记项 */
 				$schema = $schemasById[$n];
-				if (is_array($v) && (isset($v[0]->serverId) || isset($v[0]->imgSrc))) {
-					/* 上传图片 */
-					$treatedValue = [];
-					$fsuser = \TMS_APP::model('fs/user', $siteId);
-					foreach ($v as $img) {
-						$rst = $fsuser->storeImg($img);
-						if (false === $rst[0]) {
-							return $rst;
-						}
-						$treatedValue[] = $rst[1];
-					}
-					$treatedValue = implode(',', $treatedValue);
-					$dbData->{$n} = $treatedValue;
-				} else if ($schema->type === 'file' && is_array($v)) {
-					if (isset($v[0]->uniqueIdentifier)) {
-						/* 新上传的文件 */
+				if (empty($schema->type)) {
+					return [false, '登记项【' . $schema->id . '】定义不完整'];
+				}
+				switch ($schema->type) {
+				case 'image':
+					if (is_array($v) && (isset($v[0]->serverId) || isset($v[0]->imgSrc))) {
+						/* 上传图片 */
 						$treatedValue = [];
-						foreach ($v as $file) {
-							if (defined('SAE_TMP_PATH')) {
-								$fsAli = \TMS_APP::M('fs/alioss', $siteId);
-								$dest = '/' . $app->id . '/' . $submitkey . '_' . $file->name;
-								$fileUploaded2 = $fsAli->getBaseURL() . $dest;
-							} else {
-								$fsUser = \TMS_APP::M('fs/local', $siteId, '_user');
-								$fsResum = \TMS_APP::M('fs/local', $siteId, '_resumable');
-								$fileUploaded = $fsResum->rootDir . '/' . $submitkey . '_' . $file->uniqueIdentifier;
-								$dirUploaded = $fsUser->rootDir . '/' . $submitkey;
-								if (!file_exists($dirUploaded)) {
-									if (false === mkdir($dirUploaded, 0777, true)) {
-										return array(false, '创建文件上传目录失败');
-									}
-								}
-								if (file_exists($fileUploaded)) {
-									/* 如果同一次提交中包含相同的文件，文件只会上传一次，并且被改名 */
-									$fileUploaded2 = $dirUploaded . '/' . $file->name;
-									if (false === @rename($fileUploaded, $fileUploaded2)) {
-										return array(false, '移动上传文件失败');
-									}
-								}
+						$fsuser = \TMS_APP::model('fs/user', $siteId);
+						foreach ($v as $img) {
+							$rst = $fsuser->storeImg($img);
+							if (false === $rst[0]) {
+								return $rst;
 							}
-							unset($file->uniqueIdentifier);
-							$file->url = $fileUploaded2;
-							$treatedValue[] = $file;
+							$treatedValue[] = $rst[1];
 						}
+						$treatedValue = implode(',', $treatedValue);
+						// image url
+						$dbData->{$n} = $treatedValue;
 					} else {
-						/* 已经上传过的文件 */
-						$treatedValue = $v;
+						throw new \Exception('登记的数据类型和登记项【image】需要的类型不匹配');
 					}
-					$dbData->{$n} = $treatedValue;
-				} else if ($schema->type === 'score') {
-					$dbData->{$n} = $v;
-					$treatedValue = json_encode($v);
-				} else {
-					if (is_string($v)) {
-						//
-						$treatedValue = $this->escape($v);
-					} else if (is_object($v) || is_array($v)) {
-						if ($schema->type === 'multiple') {
-							// 多选题，将选项合并为逗号分隔的字符串
-							$treatedValue = implode(',', array_keys(array_filter((array) $v, function ($i) {return $i;})));
+					break;
+				case 'file':
+					if (is_array($v)) {
+						if (isset($v[0]->uniqueIdentifier)) {
+							/* 新上传的文件 */
+							$treatedValue = [];
+							foreach ($v as $file) {
+								if (defined('SAE_TMP_PATH')) {
+									$fsAli = \TMS_APP::M('fs/alioss', $siteId);
+									$dest = '/' . $app->id . '/' . $submitkey . '_' . $file->name;
+									$fileUploaded2 = $fsAli->getBaseURL() . $dest;
+								} else {
+									$fsUser = \TMS_APP::M('fs/local', $siteId, '_user');
+									$fsResum = \TMS_APP::M('fs/local', $siteId, '_resumable');
+									$fileUploaded = $fsResum->rootDir . '/' . $submitkey . '_' . $file->uniqueIdentifier;
+									$dirUploaded = $fsUser->rootDir . '/' . $submitkey;
+									if (!file_exists($dirUploaded)) {
+										if (false === mkdir($dirUploaded, 0777, true)) {
+											return array(false, '创建文件上传目录失败');
+										}
+									}
+									if (file_exists($fileUploaded)) {
+										/* 如果同一次提交中包含相同的文件，文件只会上传一次，并且被改名 */
+										$fileUploaded2 = $dirUploaded . '/' . $file->name;
+										if (false === @rename($fileUploaded, $fileUploaded2)) {
+											return array(false, '移动上传文件失败');
+										}
+									}
+								}
+								unset($file->uniqueIdentifier);
+								$file->url = $fileUploaded2;
+								$treatedValue[] = $file;
+							}
 						} else {
-							$treatedValue = implode(',', $v);
+							/* 已经上传过的文件 */
+							$treatedValue = $v;
 						}
+						$dbData->{$n} = $treatedValue;
 					} else {
-						$treatedValue = $v;
+						throw new \Exception('登记的数据类型和登记项【file】需要的类型不匹配');
 					}
-					$dbData->{$n} = $treatedValue;
+					break;
+				case 'multiple':
+					if (is_object($v)) {
+						// 多选题，将选项合并为逗号分隔的字符串
+						$treatedValue = implode(',', array_keys(array_filter((array) $v, function ($i) {return $i;})));
+						$dbData->{$n} = $treatedValue;
+					} else {
+						throw new \Exception('登记的数据类型和登记项【multiple】需要的类型不匹配');
+					}
+					break;
+				default:
+					// string & score
+					$dbData->{$n} = $treatedValue = $v;
 				}
 			} else {
 				/* 如果登记活动指定匹配清单，那么提交数据会包含匹配登记记录的数据，但是这些数据不在登记项定义中 */
 				$treatedValue = $v;
 				$dbData->{$n} = $treatedValue;
 			}
-			// 记录数据
+			/* 按登记项记录数据 */
 			if (is_object($treatedValue) || is_array($treatedValue)) {
 				$treatedValue = $this->toJson($treatedValue);
 			}
@@ -205,13 +218,14 @@ class record_model extends \TMS_MODEL {
 				'aid' => $app->id,
 				'enroll_key' => $ek,
 				'name' => $n,
-				'value' => $treatedValue,
+				'value' => $this->escape($treatedValue),
 			];
 			$this->insert('xxt_enroll_record_data', $ic, false);
 		}
-		/* 保留冗余数据 */
-		$dbData = $this->toJson($dbData);
-		$this->update('xxt_enroll_record', ['data' => $dbData], "enroll_key='$ek'");
+
+		/* 直接在登记记录上记录数据 */
+		$dbData = $this->escape($this->toJson($dbData));
+		$this->update('xxt_enroll_record', ['data' => $dbData], ['enroll_key' => $ek]);
 
 		return [true, $dbData];
 	}

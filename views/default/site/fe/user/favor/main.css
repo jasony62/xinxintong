@@ -17,9 +17,6 @@ body {
     font-family: "Microsoft YaHei", "HSimHei";
 }
 .ng-cloak{display:none}
-.navbar-my{
-    margin:1em 0em;
-}
 /*app*/
 .text-summary {
     height: 4.5em;

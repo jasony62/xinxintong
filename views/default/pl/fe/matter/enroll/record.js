@@ -4,7 +4,6 @@ define(['frame'], function(ngApp) {
         $scope.doSearch = function(pageNumber) {
             $scope.rows.reset();
             srvRecord.search(pageNumber);
-            console.log($scope.records);
         };
         $scope.$on('search-tag.xxt.combox.done', function(event, aSelected) {
             $scope.criteria.tags = $scope.criteria.tags.concat(aSelected);

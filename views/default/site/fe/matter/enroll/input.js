@@ -525,13 +525,13 @@ define(["angular", "enroll-common", "angular-sanitize", "xxt-share", "xxt-image"
                     }
                 }
                 $scope.record = params.record;
-                /* 恢复用户未提交的数据 */
-                if (window.localStorage) {
-                    var cached = submitState.fromCache();
-                    if (cached) {
-                        angular.extend($scope.data, cached);
-                        submitState.modified = true;
-                    }
+            }
+            /* 恢复用户未提交的数据 */
+            if (window.localStorage) {
+                var cached = submitState.fromCache();
+                if (cached) {
+                    angular.extend($scope.data, cached);
+                    submitState.modified = true;
                 }
             }
             // 无论是否有登记记录都自动填写自定义用户信息

@@ -238,7 +238,7 @@ define(['frame'], function(ngApp) {
     ngApp.provider.controller('ctrlOpUrl', ['$scope', 'http2', 'srvQuickEntry', '$timeout', function($scope, http2, srvQuickEntry, timeout) {
         var targetUrl, opEntry;
         $scope.opEntry = opEntry = {};
-        timeout(function() {
+        $timeout(function() {
             new ZeroClipboard(document.querySelectorAll('.text2Clipboard'));
         });
         $scope.$watch('mission', function(mission) {

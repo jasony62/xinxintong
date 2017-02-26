@@ -104,30 +104,30 @@
                             <span ng-switch-when="image">
                                 <img ng-repeat="img in r._data[schema.id]" ng-src='{{img}}' />
                             </span>
-                            <span ng-switch-when="date">{{(r._data[schema.id]*1000)|date:'yy-MM-dd HH:mm'}}</span>
                             <span ng-switch-when="file">
                                 <span ng-repeat='file in r._data[schema.id]'><a href='{{file.url}}' target="_blank">{{file.name}}</a></span>
                             </span>
+                            <span ng-switch-when="date">{{(r._data[schema.id]*1000)|date:'yy-MM-dd HH:mm'}}</span>
                             <span ng-switch-default ng-bind-html="r._data[schema.id]"></span>
                         </td>
                         <td class='matched enroll' ng-repeat="schema in enrollDataSchemas" ng-switch on="schema.type">
                             <span ng-switch-when="image">
                                 <img ng-repeat="img in r._data[schema.id]" ng-src='{{img}}' />
                             </span>
-                            <span ng-switch-when="date">{{(r._data[schema.id]*1000)|date:'yy-MM-dd HH:mm'}}</span>
                             <span ng-switch-when="file">
                                 <span ng-repeat='file in r._data[schema.id]'><a href='{{file.url}}' target="_blank">{{file.name}}</a></span>
                             </span>
+                            <span ng-switch-when="date">{{(r._data[schema.id]*1000)|date:'yy-MM-dd HH:mm'}}</span>
                             <span ng-switch-default ng-bind-html="r._data[schema.id]"></span>
                         </td>
                         <td class='matched group' ng-repeat="schema in groupDataSchemas" ng-switch on="schema.type">
                             <span ng-switch-when="image">
                                 <img ng-repeat="img in r._data[schema.id]" ng-src='{{img}}' />
                             </span>
-                            <span ng-switch-when="date">{{(r._data[schema.id]*1000)|date:'yy-MM-dd HH:mm'}}</span>
                             <span ng-switch-when="file">
                                 <span ng-repeat='file in r._data[schema.id]'><a href='{{file.url}}' target="_blank">{{file.name}}</a></span>
                             </span>
+                            <span ng-switch-when="date">{{(r._data[schema.id]*1000)|date:'yy-MM-dd HH:mm'}}</span>
                             <span ng-switch-default ng-bind-html="r._data[schema.id]"></span>
                         </td>
                         <td>{{r.nickname}}</td>

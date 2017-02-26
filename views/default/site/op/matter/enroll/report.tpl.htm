@@ -7,12 +7,12 @@
     <title><?php TPL::pt('title');?>--统计报告</title>
     <link href="/static/css/bootstrap.min.css" rel="stylesheet">
     <link href="/static/css/tms.css?_=1" rel="stylesheet">
-    <style>.ng-cloak{display:none;}</style>
+    <style>#stat-result img{max-height:48px}</style>
 </head>
 
 <body ng-app='app' ng-controller='ctrlApp' ng-cloak class='ng-cloak'>
     <div class='container'>
-        <div class='row'>
+        <div id='stat-result' class='row'>
             <h3>{{app.title}}</h3>
             <hr>
             <!--schemas-->
@@ -53,14 +53,23 @@
                     </table>
                 </div>
                 <div ng-if="['single','phase','multiple','score'].indexOf(schema.type)===-1" ng-init="page={at:1,size:10}">
-                    <table class='table table-bordered'>
+                    <table class='table table-bordered' ng-switch on="schema.type">
                         <thead>
                             <tr>
                                 <th>登记内容</th>
                             </tr>
                         </thead>
                         <tbody>
-                            <tr ng-repeat="record in getRecords(schema,page)">
+                            <tr ng-repeat="record in getRecords(schema,page)" ng-switch-when="image">
+                                <td><img ng-repeat="img in record.value" ng-src='{{img}}' /></td>
+                            </tr>
+                            <tr ng-repeat="record in getRecords(schema,page)" ng-switch-when="file">
+                                <td><span ng-repeat='file in record.value'><a href='{{file.url}}' target="_blank">{{file.name}}</a></span></td>
+                            </tr>
+                            <tr ng-repeat="record in getRecords(schema,page)" ng-switch-when="date">
+                                <td>{{record.value*1000|date:'yyMMdd HH:mm'}}</td>
+                            </tr>
+                            <tr ng-repeat="record in getRecords(schema,page)" ng-switch-default>
                                 <td>{{record.value}}</td>
                             </tr>
                         </tbody>

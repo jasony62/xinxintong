@@ -1,4 +1,4 @@
-var ngApp = angular.module('app', ['ngRoute', 'ui.tms']);
+var ngApp = angular.module('app', ['ngRoute', 'ui.tms','ui.bootstrap']);
 ngApp.config(['$locationProvider', function($lp) {
 	$lp.html5Mode(true);
 }]);
@@ -18,6 +18,18 @@ ngApp.controller('ctrlCoworker', ['$scope', '$location', 'http2', function($scop
 			var index = $scope.admins.indexOf(admin);
 			$scope.admins.splice(index, 1);
 		});
+	};
+	//获取邀请动态链接
+	$scope.makeInvite = function() {
+		http2.get('/rest/pl/fe/matter/mission/coworker/makeInvite?mission=9', function(rsp) {
+			var url = 'http://' + location.host + rsp.data;
+			$scope.inviteURL = url;
+			$('#shareMission').trigger('show');
+		});
+	};
+	$scope.closeInvite = function() {
+		$scope.inviteURL = '';
+		$('#shareMission').trigger('hide');
 	};
 	http2.get('/rest/pl/fe/site/setting/admin/list?site=' + $scope.siteId, function(rsp) {
 		$scope.admins = rsp.data;

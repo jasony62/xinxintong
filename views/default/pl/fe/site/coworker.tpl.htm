@@ -57,9 +57,24 @@
 				            <button class='close' ng-if="entered" ng-click='remove(a)'>&times;</button>
 				        </div>
 				    </div>
+					<div class='form-group'>
+						<label>或者发送邀请链接</label>
+						<button id='shareMission' uib-popover-template="'shareMission.html'" popover-trigger="show" popover-placement="bottom" popover-title="应用设置" class='btn btn-block btn-success' ng-click="makeInvite()">获取链接</button>
+					</div>
 			    </div>
 			</div>
 		</div>
+		<script type="text/ng-template" id="shareMission.html">
+			<div id="shareMission">
+				<div class='form-group'>
+					<div class='help-block'>链接有效期30分钟</div>
+					<div class='form-control' style='height:auto;word-break:break-all'>{{inviteURL}}</div>
+				</div>
+				<div class='form-group'>
+					<button class='btn btn-default' ng-click="closeInvite()">关闭</button>
+				</div>
+			<div>
+		</script>
 		<script src="/static/js/jquery.min.js"></script>
 		<script src="/static/js/bootstrap.min.js"></script>
 		<script src="/static/js/angular.min.js"></script>

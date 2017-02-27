@@ -744,7 +744,7 @@ define(['require', 'schema', 'page'], function(require, schemaLib, pageLib) {
                         record: function() {
                             if (record === undefined) {
                                 return {
-                                    aid: $scope.app.id,
+                                    aid: appId,
                                     tags: '',
                                     data: {}
                                 };
@@ -1027,7 +1027,7 @@ define(['require', 'schema', 'page'], function(require, schemaLib, pageLib) {
             _ins.batchVerify = function(rows) {
                 var url;
 
-                url = '/rest/site/op/matter/enroll/record/batchVerify';
+                url = '/rest/site/op/matter/signin/record/batchVerify';
                 url += '?site=' + _siteId;
                 url += '&app=' + _appId;
                 url += '&accessToken=' + _accessId;

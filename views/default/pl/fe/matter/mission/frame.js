@@ -1,6 +1,6 @@
-define(['missionService', 'enrollService'], function() {
+define(['missionService', 'enrollService', 'signinService'], function() {
     'use strict';
-    var ngApp = angular.module('app', ['ngRoute', 'ui.tms', 'ui.xxt', 'tmplshop.ui.xxt', 'tinymce.ui.xxt', 'service.matter', 'service.mission', 'service.enroll']);
+    var ngApp = angular.module('app', ['ngRoute', 'ui.tms', 'ui.xxt', 'tmplshop.ui.xxt', 'tinymce.ui.xxt', 'service.matter', 'service.mission', 'service.enroll', 'service.signin']);
     ngApp.constant('cstApp', {
         notifyMatter: [],
         innerlink: [],

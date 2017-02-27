@@ -1,4 +1,4 @@
-define(['frame', 'enrollService'], function(ngApp) {
+define(['frame', 'enrollService', 'signinService'], function(ngApp) {
     'use strict';
     ngApp.provider.controller('ctrlUser', ['$scope', '$uibModal', 'http2', function($scope, $uibModal, http2) {
         var _missionApps, _enrollAppSchemas;
@@ -75,7 +75,7 @@ define(['frame', 'enrollService'], function(ngApp) {
             });
         });
     }]);
-    ngApp.provider.controller('ctrlUserAction', ['$scope', 'srvMission', 'srvRecord', 'srvRecordConverter', function($scope, srvMission, srvRecord, srvRecordConverter) {
+    ngApp.provider.controller('ctrlUserAction', ['$scope', 'srvMission', 'srvRecord', 'srvSigninRecord', 'srvRecordConverter', function($scope, srvMission, srvRecord, srvSigninRecord, srvRecordConverter) {
         var _oUserPage, _users;
         $scope.oUserPage = _oUserPage = {};
         $scope.users = _users = [];
@@ -136,15 +136,20 @@ define(['frame', 'enrollService'], function(ngApp) {
             if (!userApp) {
                 _users.splice(0, _users.length);
             } else {
+                if (userApp.data_schemas && angular.isString(userApp.data_schemas)) {
+                    userApp.data_schemas = JSON.parse(userApp.data_schemas);
+                }
                 if (userApp.type === 'enroll') {
-                    if (userApp.data_schemas && angular.isString(userApp.data_schemas)) {
-                        userApp.data_schemas = JSON.parse(userApp.data_schemas);
-                    }
                     srvRecord.init(userApp, _oUserPage, {}, _users);
                     srvRecord.search(1).then(function(data) {
                         $scope.tmsTableWrapReady = 'Y';
                     });
-                } else if (userApp.type === 'signin') {}
+                } else if (userApp.type === 'signin') {
+                    srvSigninRecord.init(userApp, _oUserPage, {}, _users);
+                    srvSigninRecord.search(1).then(function(data) {
+                        $scope.tmsTableWrapReady = 'Y';
+                    });
+                }
             }
         });
     }]);

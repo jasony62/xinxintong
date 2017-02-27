@@ -714,8 +714,8 @@ define(['require', 'schema', 'page'], function(require, schemaLib, pageLib) {
                 this._aRecords.splice(0, this._aRecords.length);
                 pageNumber && (this._oPage.at = pageNumber);
                 url = '/rest/pl/fe/matter/signin/record/list';
-                url += '?site=' + siteId;
-                url += '&app=' + appId;
+                url += '?site=' + this._oApp.siteid;
+                url += '&app=' + this._oApp.id;
                 url += this._oPage.joinParams();
 
                 return _ins._bSearch(url);
@@ -1019,8 +1019,8 @@ define(['require', 'schema', 'page'], function(require, schemaLib, pageLib) {
                 this._aRecords.splice(0, this._aRecords.length);
                 pageNumber && (this._oPage.at = pageNumber);
                 url = '/rest/site/op/matter/signin/record/list';
-                url += '?site=' + _siteId;
-                url += '&app=' + _appId;
+                url += '?site=' + this._oApp.siteid;
+                url += '&app=' + this._oApp.id;
                 url += '&accessToken=' + _accessId;
                 url += this._oPage.joinParams();
 

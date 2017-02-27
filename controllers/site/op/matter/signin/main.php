@@ -29,6 +29,7 @@ class main extends \site\op\base {
 		if (!$this->checkAccessToken()) {
 			return new \InvalidAccessToken();
 		}
+
 		$params = array();
 
 		/* 登记活动定义 */
@@ -55,6 +56,7 @@ class main extends \site\op\base {
 		if (!$this->checkAccessToken()) {
 			return new \InvalidAccessToken();
 		}
+		
 		$templateDir = TMS_APP_TEMPLATE . '/site/op/matter/signin';
 		$templateName = $templateDir . '/basic';
 

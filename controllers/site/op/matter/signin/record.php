@@ -155,7 +155,7 @@ class record extends \site\op\base {
 		);
 
 		// 更新登记数据
-		$modelRec->setData($site, $signinApp, $ek, $record->data, $user->id);
+		$modelRec->setData($site, $signinApp, $ek, $record->data);
 
 		// 记录操作日志
 		// $signinApp->type = 'signin';
@@ -206,17 +206,17 @@ class record extends \site\op\base {
 	/**
 	 * 清空一条登记信息
 	 */
-	public function remove_action($site, $app, $key, $keepData = 'Y') {
+	public function remove_action($site, $app, $ek, $keepData = 'Y') {
 		if (!$this->checkAccessToken()) {
 			return new \InvalidAccessToken();
 		}
 
-		$rst = $this->model('matter\signin\record')->remove($app, $key, $keepData !== 'Y');
+		$rst = $this->model('matter\signin\record')->remove($app, $ek, $keepData !== 'Y');
 
 		// 记录操作日志
 		// $app = $this->model('matter\signin')->byId($app, ['cascaded' => 'N']);
 		// $app->type = 'signin';
-		// $this->model('matter\log')->matterOp($site, $user, $app, 'remove', $key);
+		// $this->model('matter\log')->matterOp($site, $user, $app, 'remove', $ek);
 
 		return new \ResponseData($rst);
 	}

@@ -157,7 +157,7 @@ class record_model extends \TMS_MODEL {
 	/**
 	 * 保存登记的数据
 	 */
-	public function setData($siteId, &$app, $ek, $data, $submitkey) {
+	public function setData($siteId, &$app, $ek, $data, $submitkey = '') {
 		if (empty($data)) {
 			return [true];
 		}

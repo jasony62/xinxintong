@@ -465,7 +465,7 @@ class way_model extends \TMS_MODEL {
 
 		/* 站点自定义用户信息 */
 		$modelMem = $this->model('site\user\member');
-		$members = $modelMem->byUser($siteUser->siteid, $siteUser->uid);
+		$members = $modelMem->byUser($siteUser->uid);
 		!empty($members) && $fullUser->members = new \stdClass;
 		foreach ($members as $member) {
 			$fullUser->members->{$member->schema_id} = $member;
@@ -528,7 +528,7 @@ class way_model extends \TMS_MODEL {
 					$cookieUser->nickname = $account->nickname;
 					$cookieUser->loginExpire = $loginExpire;
 					/* 站点自定义用户信息 */
-					$members = $modelMem->byUser($account->siteid, $account->uid);
+					$members = $modelMem->byUser($account->uid);
 					!empty($members) && $cookieUser->members = new \stdClass;
 					foreach ($members as $member) {
 						$cookieUser->members->{$member->schema_id} = $member;

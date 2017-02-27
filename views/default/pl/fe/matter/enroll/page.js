@@ -302,7 +302,7 @@ define(['frame', 'schema', 'page', 'editor'], function(ngApp, schemaLib, pageLib
                 // 更新其他页面
                 $scope.$emit('xxt.matter.enroll.app.data_schemas.modified', {
                     originator: $scope.ep,
-                    schema: $scope.activeWrap.schema
+                    schema: $scope.activeWrap.schema || status.schema
                 });
             }
         });

@@ -15,3 +15,7 @@ body{font-family:Microsoft Yahei,Arial;background:#efefef;}
 .tms-switch:before{font-size:0.7em;}
 .tms-switch:nth-of-type(2){bottom:8px;}
 .tms-switch-siteuser:before{content:'我';}
+
+/*record*/
+.record label{display:inline-block;width:5em;}
+.record .image img{max-width:100%}

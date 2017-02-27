@@ -56,7 +56,13 @@ define(['missionService', 'enrollService'], function() {
         $scope.subView = '';
         $scope.update = function(name) {
             var modifiedData = {};
-            modifiedData[name] = $scope.mission[name];
+            if (angular.isObject(name)) {
+                name.forEach(function(prop) {
+                    modifiedData[prop] = $scope.mission[prop];
+                });
+            } else {
+                modifiedData[name] = $scope.mission[name];
+            }
             return srvMission.submit(modifiedData);
         };
         $scope.$on('$locationChangeStart', function(event, nextRoute, currentRoute) {

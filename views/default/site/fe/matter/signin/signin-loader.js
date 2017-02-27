@@ -19,7 +19,7 @@ window.loading = {
 				"domReady": '/static/js/domReady',
 				"angular": "/static/js/angular.min",
 				"angular-sanitize": "/static/js/angular-sanitize.min",
-				"resumable": "/static/js/resumable.min",
+				"resumable": "/static/js/resumable",
 				"xxt-share": "/static/js/xxt.share",
 				"xxt-image": "/static/js/xxt.image",
 				"xxt-geo": "/static/js/xxt.geo",

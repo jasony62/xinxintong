@@ -267,10 +267,12 @@ define(["require", "angular", "angular-sanitize", "jquery", "xxt-share", "xxt-im
     });
     ngApp.directive('tmsFileInput', function($q) {
         var r, onSubmit;
-        r = new Resumable({
-            target: '/rest/site/fe/matter/signin/record/uploadFile?site=' + LS.p.site + '&aid=' + LS.p.aid,
-            testChunks: false,
-            chunkSize: 512 * 1024
+        require(['resumable'], function(Resumable) {
+            r = new Resumable({
+                target: '/rest/site/fe/matter/signin/record/uploadFile?site=' + LS.p.site + '&aid=' + LS.p.app,
+                testChunks: false,
+                chunkSize: 512 * 1024
+            });
         });
         onSubmit = function($scope) {
             var defer;

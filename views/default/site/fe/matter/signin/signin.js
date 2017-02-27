@@ -1,4 +1,4 @@
-define(["require", "angular", "angular-sanitize", "xxt-share", "xxt-image", "xxt-geo", "enroll-directive", "enroll-common"], function(require, angular) {
+define(["require", "angular", "angular-sanitize", "jquery", "xxt-share", "xxt-image", "xxt-geo", "enroll-directive", "enroll-common"], function(require, angular) {
     'use strict';
     ngApp.config(['$compileProvider', function($compileProvider) {
         $compileProvider.aHrefSanitizationWhitelist(/^\s*(https?|ftp|mailto|tel|file|sms|wxLocalResource):/);

@@ -1,4 +1,7 @@
 <style>
+.record>div{padding:.5em 0;border-bottom:1px dotted #ccc;}
+.record label{width:6em;overflow:hidden;vertical-align:bottom;white-space:nowrap;text-overflow:ellipsis;margin-right:1em;margin-bottom:0;}
+.record img{max-width:100%}
 .signin_late{color:red;}
 .signin_late:after{content:'（迟到）';}
 </style>
@@ -64,10 +67,10 @@
                     <div class='title' ng-bind="app.title"></div>
                 </div>
                 <div class='list-group'>
-                    <div class='list-group-item' ng-repeat="rec in recordsByApp.enroll[app.id]">
-                        <div><label>登记时间：</label>{{rec.enroll_at*1000|date:'yy-MM-dd HH:mm'}}</div>
-                        <div><label>审核通过：</label>{{rec.verified}}</div>
-                        <div><label>备注：</label>{{rec.comment}}</div>
+                    <div class='list-group-item record' ng-repeat="rec in recordsByApp.enroll[app.id]">
+                        <div><label>登记时间：</label><span>{{rec.enroll_at*1000|date:'yy-MM-dd HH:mm'}}</span></div>
+                        <div><label>审核通过：</label><span>{{rec.verified}}</span></div>
+                        <div><label>备注：</label><span>{{rec.comment}}</span></div>
                         <div ng-repeat="schema in enrollAppSchemas[app.id]" ng-switch on="schema.type">
                             <label>{{schema.title}}：</label>
                             <span ng-switch-when="image">
@@ -90,10 +93,10 @@
                     <div class='title' ng-bind="app.title"></div>
                 </div>
                 <div class='list-group'>
-                    <div class='list-group-item' ng-repeat="rec in recordsByApp.signin[app.id]">
-                        <div><label>审核通过：</label>{{rec.verified}}</div>
-                        <div><label>备注：</label>{{rec.comment}}</div>
-                        <div><label>签到次数：</label>{{rec.signin_num}}</div>
+                    <div class='list-group-item record' ng-repeat="rec in recordsByApp.signin[app.id]">
+                        <div><label>审核通过：</label><span>{{rec.verified}}</span></div>
+                        <div><label>备注：</label><span>{{rec.comment}}</span></div>
+                        <div><label>签到次数：</label><span>{{rec.signin_num}}</span></div>
                         <div ng-repeat="rnd in app.rounds">
                             <div><label>{{rnd.title}}：</label><span ng-class="{'signin_late':rnd.late_at!==0&&(rec.signin_log[rnd.rid]+60)>rnd.late_at}">{{rec.signin_log[rnd.rid]*1000|date:'yy-MM-dd HH:mm'}}</span></div>
                         </div>
@@ -108,8 +111,8 @@
                     <div class='title' ng-bind="app.title"></div>
                 </div>
                 <div class='list-group'>
-                    <div class='list-group-item' ng-repeat="rec in recordsByApp.group[app.id]">
-                        <div><label>所属分组：</label>{{rec.round_title}}</div>
+                    <div class='list-group-item record' ng-repeat="rec in recordsByApp.group[app.id]">
+                        <div><label>所属分组：</label><span>{{rec.round_title}}</span></div>
                     </div>
                 </div>
                 <button class='btn btn-default btn-sm' ng-click="gotoDetail(app)"> 查看活动全部数据</button>

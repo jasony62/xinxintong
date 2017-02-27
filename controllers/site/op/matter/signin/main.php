@@ -34,17 +34,21 @@ class main extends \site\op\base {
 
 		/* 登记活动定义 */
 		$modelApp = $this->model('matter\signin');
-		$app = $modelApp->byId($app, array('cascaded' => 'Y'), 'Y');
+		$app = $modelApp->byId($app, ['cascaded' => 'Y']);
 		$params['app'] = &$app;
+		/*关联登记活动*/
+		if ($app->enroll_app_id) {
+			$app->enrollApp = $this->model('matter\enroll')->byId($app->enroll_app_id);
+		}
 		/* 页面定义 */
 		$templateDir = TMS_APP_TEMPLATE . '/site/op/matter/signin';
 		$templateName = $templateDir . '/basic';
 
-		$page = array(
+		$page = [
 			'html' => file_get_contents($templateName . '.html'),
 			'css' => file_get_contents($templateName . '.css'),
 			'js' => file_get_contents($templateName . '.js'),
-		);
+		];
 		$params['page'] = &$page;
 
 		return new \ResponseData($params);
@@ -56,7 +60,7 @@ class main extends \site\op\base {
 		if (!$this->checkAccessToken()) {
 			return new \InvalidAccessToken();
 		}
-		
+
 		$templateDir = TMS_APP_TEMPLATE . '/site/op/matter/signin';
 		$templateName = $templateDir . '/basic';
 

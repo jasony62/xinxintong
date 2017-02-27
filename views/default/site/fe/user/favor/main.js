@@ -5,20 +5,16 @@ define(['require', 'angular'], function(require, angular) {
     var ngApp = angular.module('app', []);
     ngApp.controller('ctrlFav', ['$scope', '$http', function($scope, $http) {
         var page;
-        //判断客户端 区分手机 和pc
-        if (/iphone/i.test(navigator.userAgent) || /android/i.test(navigator.userAgent)) {
-            $scope.state = 1; //手机端
-        } else {
-            $scope.state = 0; //其他
-        }
         $scope.page = page = {
             at: 1,
             size: 10,
+            times: 1,
             join: function() {
-                return 'page=' + this.at + '&size=' + this.size;
+                return 'page=' + this.at + '&size=' + this.size * this.times;
             }
         };
-        $scope.list = function() {
+        $scope.list = function(more) {
+            more && $scope.page.times++;
             var url = '/rest/site/fe/user/favor/list?site=' + siteId;
             url += '&' + page.join();
             $http.get(url).success(function(rsp) {
@@ -41,14 +37,11 @@ define(['require', 'angular'], function(require, angular) {
         $scope.unfavor = function(m, i) {
             var url = '/rest/site/fe/user/favor/remove?site=' + siteId + '&id=' + m.matter_id + '&type=' + m.matter_type;
             $http.get(url).success(function(rsp) {
-                //$scope.list();
                 if (rsp.err_code != 0) {
                     $scope.$root.errmsg = rsp.err_msg;
                     return;
                 }
                 m.favorOrUnfavo = true;
-                //$scope.matters.splice(i,1);
-                //$scope.page.total--;
             })
         };
         $scope.favor = function(m) {
@@ -63,6 +56,9 @@ define(['require', 'angular'], function(require, angular) {
             })
         }
         $scope.list();
-        window.loading.finish();
+        $http.get('/rest/site/fe/get?site=' + siteId).success(function(rsp) {
+            $scope.site = rsp.data;
+            window.loading.finish();
+        });
     }]);
 });

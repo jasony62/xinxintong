@@ -13,7 +13,7 @@ class url_model extends \TMS_MODEL {
 	 *
 	 * @return string code
 	 */
-	public function add(&$user, $siteId, $url) {
+	public function add(&$user, $siteId, $url, $title = '') {
 		$code = $this->genCode();
 
 		$q = ['1', 'xxt_short_url', ['code' => $code, 'state' => 1]];
@@ -28,6 +28,7 @@ class url_model extends \TMS_MODEL {
 			'siteid' => $siteId,
 			'creater' => $user->id,
 			'creater_name' => $user->name,
+			'target_title' => $title,
 			'target_url' => $url,
 			'create_at' => time(),
 		];
@@ -65,7 +66,7 @@ class url_model extends \TMS_MODEL {
 	 */
 	public function byUrl(&$user, $siteId, $url) {
 		$q = [
-			'code,create_at,password,expire_at',
+			'code,create_at,password,expire_at,can_favor,target_title',
 			'xxt_short_url',
 			["target_url" => $url],
 		];
@@ -81,7 +82,7 @@ class url_model extends \TMS_MODEL {
 	 */
 	public function byCode($code) {
 		$q = [
-			'target_url,create_at,password',
+			'target_title,target_url,create_at,password,can_favor',
 			'xxt_short_url',
 			["code" => $code],
 		];

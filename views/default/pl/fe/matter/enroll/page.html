@@ -22,7 +22,7 @@
     <!-- one page-->
     <div class='row' ng-controller="ctrlPageEdit">
         <!--page schemas-->
-        <div class='col-md-3 page-schemas' tms-flex-height top='72' bottom='15'>
+        <div class='col-md-3 page-schemas' tms-flex-height top='145' bottom='72'>
             <!-- toggle schema in pages -->
             <div class='list-group-item' ng-if="ep.type==='I'" ng-controller="ctrlAppSchemas4Input">
                 <div class='list-group'>
@@ -69,11 +69,11 @@
         </div>
         <!--page schemas-->
         <!--tinymce editor-->
-        <div id='pageEdit' class='col-md-6' tms-flex-height top='72' bottom='15'>
+        <div id='pageEdit' class='col-md-6' tms-flex-height top='145' bottom='72'>
             <tinymce id='tinymce-page' toolbar='code'></tinymce>
         </div>
         <!-- end tinymce editor -->
-        <div id="wrapEdit" class='col-md-3' tms-flex-height top='72' bottom='15'>
+        <div id="wrapEdit" class='col-md-3' tms-flex-height top='145' bottom='72'>
             <div class='list-group-item' ng-if="activeWrap">
                 <div class='form-group' ng-include="wrapEditorHtml()"></div>
                 <div class='form-group'>

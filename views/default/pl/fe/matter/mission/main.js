@@ -236,9 +236,9 @@ define(['frame'], function(ngApp) {
         });
     }]);
     ngApp.provider.controller('ctrlOpUrl', ['$scope', 'http2', 'srvQuickEntry', '$timeout', function($scope, http2, srvQuickEntry, timeout) {
-        var targetUrl;
-        $scope.opEntry = {};
-        timeout(function() {
+        var targetUrl, opEntry;
+        $scope.opEntry = opEntry = {};
+        $timeout(function() {
             new ZeroClipboard(document.querySelectorAll('.text2Clipboard'));
         });
         $scope.$watch('mission', function(mission) {
@@ -246,26 +246,35 @@ define(['frame'], function(ngApp) {
             targetUrl = mission.opUrl;
             srvQuickEntry.get(targetUrl).then(function(entry) {
                 if (entry) {
-                    $scope.opEntry.url = 'http://' + location.host + '/q/' + entry.code;
-                    $scope.opEntry.password = entry.password;
+                    opEntry.url = 'http://' + location.host + '/q/' + entry.code;
+                    opEntry.password = entry.password;
+                    opEntry.code = entry.code;
+                    opEntry.can_favor = entry.can_favor;
                 }
             });
         });
         $scope.makeOpUrl = function() {
-            srvQuickEntry.add(targetUrl).then(function(task) {
-                $scope.opEntry.url = 'http://' + location.host + '/q/' + task.code;
+            srvQuickEntry.add(targetUrl, $scope.mission.title).then(function(task) {
+                opEntry.url = 'http://' + location.host + '/q/' + task.code;
+                opEntry.code = task.code;
             });
         };
         $scope.closeOpUrl = function() {
             srvQuickEntry.remove(targetUrl).then(function(task) {
-                $scope.opEntry.url = '';
+                opEntry.url = '';
+                opEntry.code = '';
+                opEntry.can_favor = 'N';
+                opEntry.password = '';
             });
         };
         $scope.configOpUrl = function(event, prop) {
             event.preventDefault();
             srvQuickEntry.config(targetUrl, {
-                password: $scope.opEntry.password
+                password: opEntry.password
             });
+        };
+        $scope.updCanFavor = function() {
+            srvQuickEntry.update(opEntry.code, { can_favor: opEntry.can_favor });
         };
     }]);
 });

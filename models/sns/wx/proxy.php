@@ -33,6 +33,9 @@ class proxy_model extends \sns\proxybase {
 	 * 若确认此次GET请求来自易信服务器，请原样返回echostr参数内容，则接入生效，否则接入失败。
 	 */
 	public function join($data) {
+		if (empty($data['signature']) || empty($data['timestamp']) || empty($data['nonce']) || empty($data['echostr'])) {
+			return array(false, 'failed-0');
+		}
 		$signature = $data['signature'];
 		$timestamp = $data['timestamp'];
 		$nonce = $data['nonce'];
@@ -62,7 +65,7 @@ class proxy_model extends \sns\proxybase {
 
 			return array(true, $echostr);
 		} else {
-			return array(false, 'failed.');
+			return array(false, 'failed-1');
 		}
 	}
 	/**

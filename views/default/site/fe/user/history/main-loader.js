@@ -17,6 +17,7 @@ window.loading = {
         require.config({
             waitSeconds: 0,
             paths: {
+                "domReady": '/static/js/domReady',
                 "angular": "/static/js/angular.min",
                 "main": "/views/default/site/fe/user/history/main",
             },
@@ -26,7 +27,7 @@ window.loading = {
                 },
             },
             urlArgs: function(id, url) {
-                if (/angular/.test(id)) {
+                if (/domReady|angular/.test(id)) {
                     return '';
                 }
                 return "?bust=" + (timestamp * 1);

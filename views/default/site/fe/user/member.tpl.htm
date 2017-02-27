@@ -18,14 +18,14 @@
     <div id='errmsg' class='alert alert-danger' ng-class="{'active':errmsg}" ng-click="errmsg=''" ng-bind="errmsg" ng-show="errmsg"></div>
     <div id='infomsg' class='alert alert-success' ng-class="{'active':infomsg}" ng-click="infomsg=''" ng-bind="infomsg" ng-show="infomsg"></div>
     <div class="app">
-        <div class='container'>
-            <nav class='navbar navbar-default'>
-                <div class='container-fluid'>
-                    <div class="navbar-header">
-                        <a class='navbar-brand' href='/rest/site/home?site={{site.id}}' target='_self'>{{site.name}}</a>
-                    </div>
+        <nav class='navbar navbar-default'>
+            <div class='container-fluid'>
+                <div class="navbar-header">
+                    <a class='navbar-brand' href='/rest/site/home?site={{site.id}}' target='_self'>{{site.name}}</a>
                 </div>
-            </nav>
+            </div>
+        </nav>
+        <div class='container'>
             <div class='row'>
                 <div dynamic-html="page.html">
                 </div>

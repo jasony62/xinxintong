@@ -289,7 +289,6 @@ define(["angular", "xxt-page", "tms-discuss", "tms-siteuser", "tms-favor", "enro
                 $scope.errmsg = content;
             }
         });
-
     }]);
 
     return ngApp;

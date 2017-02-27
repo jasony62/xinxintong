@@ -1,3 +1,6 @@
+<style>
+    #stat-result img{max-height:48px}
+</style>
 <div id='stat-view'>
     <button class='btn btn-default' ng-click="export()">导出报告</button>
     <div id='stat-result'>
@@ -39,14 +42,23 @@
                 </table>
             </div>
             <div ng-if="['single','phase','multiple','score'].indexOf(schema.type)===-1" ng-init="page={at:1,size:10}">
-                <table class='table table-bordered'>
+                <table class='table table-bordered' ng-switch on="schema.type">
                     <thead>
                         <tr>
                             <th>登记内容</th>
                         </tr>
                     </thead>
                     <tbody>
-                        <tr ng-repeat="record in getRecords(schema,page)">
+                        <tr ng-repeat="record in getRecords(schema,page)" ng-switch-when="image">
+                            <td><img ng-repeat="img in record.value" ng-src='{{img}}' /></td>
+                        </tr>
+                        <tr ng-repeat="record in getRecords(schema,page)" ng-switch-when="file">
+                            <td><span ng-repeat='file in record.value'><a href='{{file.url}}' target="_blank">{{file.name}}</a></span></td>
+                        </tr>
+                        <tr ng-repeat="record in getRecords(schema,page)" ng-switch-when="date">
+                            <td>{{record.value*1000|date:'yy-MM-dd HH:mm'}}</td>
+                        </tr>
+                        <tr ng-repeat="record in getRecords(schema,page)" ng-switch-default>
                             <td>{{record.value}}</td>
                         </tr>
                     </tbody>

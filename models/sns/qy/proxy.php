@@ -29,6 +29,9 @@ class proxy_model extends \sns\proxybase {
 	 * 对接企业号
 	 */
 	public function join($params) {
+		if (empty($data['msg_signature']) || empty($data['timestamp']) || empty($data['nonce']) || empty($data['echostr'])) {
+			return array(false, 'failed');
+		}
 		$msg_signature = $params['msg_signature'];
 		$timestamp = $params['timestamp'];
 		$nonce = $params['nonce'];
@@ -252,6 +255,17 @@ class proxy_model extends \sns\proxybase {
 		}
 
 		$openid = $rst[1]->UserId;
+		//同步企业号本地粉丝信息
+		$site=$this->config->siteid;
+		$user1=$this->userGet($openid);
+		$fan=\TMS_MODEL::M('site\user\memberschema');
+		$authid=$fan->getAuthid($site);
+
+		if($luser=$fan->query_obj_ss(["userid,nickname","xxt_site_qyfan","siteid='$site' and openid='$openid'"])){
+			$fan->updateQyFan($site,$luser,$user1,$authid);
+		}else{
+			$fan->createQyFan($site,$user1,$authid);
+		}
 
 		$user = new \stdClass;
 		$user->openid = $openid;

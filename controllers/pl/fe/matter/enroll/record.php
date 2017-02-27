@@ -124,7 +124,7 @@ class record extends \pl\fe\matter\base {
 		$modelRec->update('xxt_enroll_record', $record, "enroll_key='$ek'");
 
 		/* 记录登记数据 */
-		$result = $modelRec->setData(null, $site, $app, $ek, $posted->data);
+		$result = $modelRec->setData(null, $app, $ek, $posted->data);
 
 		/* 记录操作日志 */
 		$app->type = 'enroll';
@@ -168,7 +168,7 @@ class record extends \pl\fe\matter\base {
 		$modelEnl->update('xxt_enroll_record', $updated, "enroll_key='$ek'");
 
 		/* 记录登记数据 */
-		$result = $modelRec->setData(null, $site, $app, $ek, $record->data);
+		$result = $modelRec->setData(null, $app, $ek, $record->data);
 
 		if ($updated->verified === 'Y') {
 			$this->_whenVerifyRecord($app, $ek);
@@ -948,7 +948,7 @@ class record extends \pl\fe\matter\base {
 					}
 					$data->{$cs[1]->id} = $val;
 				}
-				$modelRec->setData($user, $site, $app, $ek, $data);
+				$modelRec->setData($user, $app, $ek, $data);
 				$countOfImport++;
 			}
 		}

@@ -1,4 +1,4 @@
-angular.module('service.matter', ['ui.bootstrap', 'ui.xxt']).
+angular.module('service.matter', ['ngSanitize', 'ui.bootstrap', 'ui.xxt']).
 provider('srvSite', function() {
     var _siteId, _oSite, _aSns, _aMemberSchemas;
     this.config = function(siteId) {
@@ -102,13 +102,14 @@ provider('srvQuickEntry', function() {
 
                 return defer.promise;
             },
-            add: function(taskUrl) {
+            add: function(taskUrl, title) {
                 var defer = $q.defer(),
                     url;
 
                 url = '/rest/pl/fe/q/create?site=' + siteId;
                 http2.post(url, {
-                    url: encodeURI(taskUrl)
+                    url: encodeURI(taskUrl),
+                    title: title
                 }, function(rsp) {
                     defer.resolve(rsp.data);
                 });
@@ -141,20 +142,31 @@ provider('srvQuickEntry', function() {
                 });
 
                 return defer.promise;
+            },
+            update: function(code, data) {
+                var defer = $q.defer(),
+                    url;
+
+                url = '/rest/pl/fe/q/update?site=' + siteId + '&code=' + code;
+                http2.post(url, data, function(rsp) {
+                    defer.resolve(rsp.data);
+                });
+
+                return defer.promise;
             }
         };
     }];
 }).
 provider('srvRecordConverter', function() {
     this.$get = ['$sce', function($sce) {
-        function _memberAttr(val, schema) {
+        function _memberAttr(member, schema) {
             var keys;
-            if (val && val.member) {
+            if (member) {
                 keys = schema.id.split('.');
                 if (keys.length === 2) {
-                    return val.member[keys[1]];
-                } else if (val.member.extattr) {
-                    return val.member.extattr[keys[2]];
+                    return member[keys[1]];
+                } else if (member.extattr) {
+                    return member.extattr[keys[2]];
                 } else {
                     return '';
                 }
@@ -208,7 +220,7 @@ provider('srvRecordConverter', function() {
                             data[schema.id] = files;
                             break;
                         case 'member':
-                            data[schema.id] = _memberAttr(record.data[schema.id], schema);
+                            data[schema.id] = _memberAttr(record.data.member, schema);
                             break;
                         default:
                             data[schema.id] = _value2Html(record.data[schema.id], schema);

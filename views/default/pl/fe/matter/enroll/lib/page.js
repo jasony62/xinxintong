@@ -261,7 +261,6 @@ define(['wrap'], function(SchemaWrap) {
         },
         updateSchema: function(schema, beforeState) {
             var $html, $dom, wrap;
-
             $html = $('<div>' + this.html + '</div>');
             if ($dom = $html.find("[schema='" + schema.id + "']")) {
                 if (wrap = this.wrapBySchema(schema)) {

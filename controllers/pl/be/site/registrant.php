@@ -31,7 +31,7 @@ class registrant extends \pl\be\base {
 			"r.from_siteid=s.id",
 		];
 		if (!empty($filter->uname)) {
-			$q[2] = " and r.uname like '%{$filter->uname}%'";
+			$q[2] .= " and r.uname like '%{$filter->uname}%'";
 		}
 		$q2['o'] = 'r.reg_time desc';
 		$q2['r']['o'] = ($page - 1) * $size;

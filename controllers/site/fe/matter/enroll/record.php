@@ -263,7 +263,7 @@ class record extends base {
 		$schema = $this->model('site\user\memberschema')->byId($schemaId, 'attr_mobile,attr_email,attr_name,extattr');
 		$modelMem = $this->model('site\user\member');
 
-		$existentMember = $modelMem->byUser($siteId, $user->uid, array('schemas' => $schemaId));
+		$existentMember = $modelMem->byUser($user->uid, ['schemas' => $schemaId]);
 		if (count($existentMember)) {
 			$memberId = $existentMember[0]->id;
 			$member->id = $memberId;

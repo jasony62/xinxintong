@@ -74,6 +74,11 @@ class member extends \site\fe\base {
 			return new \ResponseError('自定义用户信息已经存在，不能重复创建');
 		}
 
+		$schema = $this->model('site\user\memberschema')->byId($schema, 'id,attr_mobile,attr_email,attr_name,extattr,auto_verified');
+		if ($schema === false) {
+			return new \ObjectNotFoundError();
+		}
+
 		$modelSiteUser = $this->model('site\user\account');
 		$cookieUser = $this->who;
 		$siteUser = $modelSiteUser->byId($cookieUser->uid);
@@ -81,9 +86,17 @@ class member extends \site\fe\base {
 			return new \ResponseError('请登录后再指定用户信息');
 		}
 
+		$modelWay = $this->model('site\fe\way');
 		$modelMem = $this->model('site\user\member');
+		$bindMembers = $modelMem->byUser($cookieUser->uid, ['schema' => $schema]);
+		if (count($bindMembers) > 1) {
+			throw new \Exception('数据错误，一个用户绑定了多个自定义用户信息');
+		} else if (count($bindMembers) === 1) {
+			$modelWay->bindMember($this->siteId, $member);
+			return new \ResponseError('自定义用户信息已经存在，不能重复创建');
+		}
 
-		$schema = $this->model('site\user\memberschema')->byId($schema, 'id,attr_mobile,attr_email,attr_name,extattr,auto_verified');
+		/* 给当前用户创建自定义用户信息 */
 		$member->siteid = $this->siteId;
 		$member->schema_id = $schema->id;
 		/**
@@ -91,40 +104,6 @@ class member extends \site\fe\base {
 		 */
 		if ($errMsg = $modelMem->rejectAuth($member, $schema)) {
 			return new \ParameterError($errMsg);
-		}
-		/**
-		 * 用户的邮箱需要验证，将状态设置为等待验证的状态
-		 */
-		//$member->email_verified = ($schema->attr_email[4] === '1') ? 'N' : 'Y';
-		/**
-		 * todo 应该支持使用扩展属性作为唯一标识
-		 */
-		if ($schema->attr_mobile[5] === '1' && isset($member->mobile)) {
-			/**
-			 * 手机号作为唯一标识
-			 */
-			if ($schema->attr_mobile[4] === '1') {
-				$mobile = $member->mobile;
-				$mpa = $this->model('mp\mpaccount')->getApis($site);
-				if ('yx' !== $mpa->mpsrc || 'yx' !== $this->getClientSrc()) {
-					return new \ResponseError('目前仅支持在易信客户端中验证手机号');
-				}
-
-				if ('N' == $mpa->yx_checkmobile) {
-					return new \ResponseError('仅支持在开通了手机验证接口的公众号中验证手机号');
-				}
-				$rst = $this->model('mpproxy/yx', $site)->mobile2Openid($mobile);
-				if ($rst[0] === false) {
-					//return new \ResponseError("验证手机号失败【{$rst[1]}】");
-					return new \ResponseError("请输入注册易信时使用的手机号码");
-				}
-				if ($fan->openid !== $rst[1]->openid) {
-					return new \ResponseError("您输入的手机号与注册易信用户时的提供手机号不一致");
-				}
-			}
-			//$member->authed_identity = $member->mobile;
-		} else {
-			//return new \ResponseError('无法获得身份标识信息');
 		}
 		/* 验证状态 */
 		$member->verified = $schema->auto_verified;
@@ -135,14 +114,9 @@ class member extends \site\fe\base {
 		}
 		$member = $rst[1];
 		/* 绑定当前站点用户 */
-		$modelWay = $this->model('site\fe\way');
 		$modelWay->bindMember($this->siteId, $member);
 		// log
 		//$this->model('log')->writeMemberAuth($site, $siteUser->openid, $mid);
-		/**
-		 * 验证邮箱真实性
-		 */
-		//$attrs->attr_email[4] === '1' && $this->_sendVerifyEmail($site, $member->email);
 
 		return new \ResponseData($member);
 	}
@@ -150,6 +124,7 @@ class member extends \site\fe\base {
 	 * 重新进行用户身份验证
 	 *
 	 * @param int $schema 自定义用户信息定义的id
+	 *
 	 */
 	public function doReauth_action($schema) {
 		$modelSiteUser = $this->model('site\user\account');
@@ -160,9 +135,12 @@ class member extends \site\fe\base {
 		}
 
 		$schema = $this->model('site\user\memberschema')->byId($schema, 'id,attr_mobile,attr_email,attr_name,extattr');
+		if ($schema === false) {
+			return new \ObjectNotFoundError();
+		}
 
 		$member = $this->getPostJson();
-		/* 检查数据合法性 */
+		/* 检查数据合法性。根据用户填写的自定义信息，找回数据。 */
 		$modelMem = $this->model('site\user\member');
 		if (false === ($found = $modelMem->findMember($member, $schema, false))) {
 			return new \ParameterError('找不到匹配的认证用户');
@@ -174,6 +152,7 @@ class member extends \site\fe\base {
 		/* 更新用户信息 */
 		$modelMem->modify($this->siteId, $schema, $found->id, $member);
 		$found = $modelMem->byId($found->id);
+
 		/* 绑定当前站点用户 */
 		$modelWay = $this->model('site\fe\way');
 		$modelWay->bindMember($this->siteId, $found);
@@ -402,5 +381,5 @@ class member extends \site\fe\base {
 
 		return new \ResponseError('no matched');
 	}
-	
+
 }

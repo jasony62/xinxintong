@@ -96,7 +96,7 @@ class article2_model extends article_base {
 	 * $phase
 	 */
 	public function &byReviewer($siteId, $userid, $entry, $phase, $fields = '*', $cascade = false) {
-		$members = \TMS_APP::M('site\user\member')->byUser($siteId, $userid, array('fields' => 'id'));
+		$members = \TMS_APP::M('site\user\member')->byUser($userid, array('fields' => 'id'));
 		if (!empty($members)) {
 			$mids = array();
 			foreach ($members as $member) {

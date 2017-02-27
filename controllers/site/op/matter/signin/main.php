@@ -10,6 +10,10 @@ class main extends \site\op\base {
 	 *
 	 */
 	public function index_action($app) {
+		if (!$this->checkAccessToken()) {
+			header('HTTP/1.0 500 parameter error:accessToken is invalid.');
+			die('没有获得有效访问令牌！');
+		}
 		$app = $this->model('matter\signin')->byId($app);
 		\TPL::assign('title', $app->title);
 		\TPL::output('site/op/matter/signin/console');
@@ -22,6 +26,9 @@ class main extends \site\op\base {
 	 * @param string $appid
 	 */
 	public function get_action($site, $app) {
+		if (!$this->checkAccessToken()) {
+			return new \InvalidAccessToken();
+		}
 		$params = array();
 
 		/* 登记活动定义 */
@@ -45,6 +52,9 @@ class main extends \site\op\base {
 	 * 获得页面定义
 	 */
 	public function pageGet_action() {
+		if (!$this->checkAccessToken()) {
+			return new \InvalidAccessToken();
+		}
 		$templateDir = TMS_APP_TEMPLATE . '/site/op/matter/signin';
 		$templateName = $templateDir . '/basic';
 

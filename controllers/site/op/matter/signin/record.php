@@ -10,21 +10,25 @@ class record extends \site\op\base {
 	 *
 	 */
 	public function list_action($site, $app, $page = 1, $size = 30, $signinStartAt = null, $signinEndAt = null, $tags = null, $rid = null, $kw = null, $by = null, $orderby = null, $contain = null) {
+
+		if (!$this->checkAccessToken()) {
+			return new \InvalidAccessToken();
+		}
 		// 登记数据过滤条件
 		$criteria = $this->getPostJson();
-
+		
 		$options = array(
 			'page' => $page,
 			'size' => $size,
 			'tags' => $tags,
 			'signinStartAt' => $signinStartAt,
 			'signinEndAt' => $signinEndAt,
-			'rid' => $rid,
 			'kw' => $kw,
 			'by' => $by,
 			'orderby' => $orderby,
 			'contain' => $contain,
 		);
+		!empty($rid) && $rid !== 'ALL' && $options['rid'] = $rid;
 		$mdoelRec = $this->model('matter\signin\record');
 		$app = $this->model('matter\signin')->byId($app);
 		$result = $mdoelRec->find($site, $app, $options, $criteria);
@@ -35,6 +39,10 @@ class record extends \site\op\base {
 	 * 指定记录通过审核
 	 */
 	public function batchVerify_action($site, $app) {
+		if (!$this->checkAccessToken()) {
+			return new \InvalidAccessToken();
+		}
+		
 		$posted = $this->getPostJson();
 		$eks = $posted->eks;
 

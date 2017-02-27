@@ -66,6 +66,7 @@ define(['require', 'schema', 'page'], function(require, schemaLib, pageLib) {
                 if (rsp.data) {
                     records = rsp.data.records ? rsp.data.records : [];
                     rsp.data.total && (that._oPage.total = rsp.data.total);
+                    that._oPage.setTotal(rsp.data.total);
                 } else {
                     records = [];
                 }

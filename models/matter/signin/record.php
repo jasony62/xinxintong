@@ -173,17 +173,16 @@ class record_model extends \TMS_MODEL {
 				$dbData->{$n} = $v;
 				/* 自定义用户信息 */
 				$treatedValue = new \stdClass;
-				isset($v->name) && $treatedValue->name = urlencode($v->name);
-				isset($v->email) && $treatedValue->email = urlencode($v->email);
-				isset($v->mobile) && $treatedValue->mobile = urlencode($v->mobile);
+				isset($v->name) && $treatedValue->name = $v->name;
+				isset($v->email) && $treatedValue->email = $v->email;
+				isset($v->mobile) && $treatedValue->mobile = $v->mobile;
 				if (!empty($v->extattr)) {
 					$extattr = new \stdClass;
 					foreach ($v->extattr as $mek => $mev) {
-						$extattr->{$mek} = urlencode($mev);
+						$extattr->{$mek} = $mev;
 					}
 					$treatedValue->extattr = $extattr;
 				}
-				$treatedValue = urldecode(json_encode($treatedValue));
 			} elseif (is_array($v) && (isset($v[0]->serverId) || isset($v[0]->imgSrc))) {
 				/* 上传图片 */
 				$treatedValue = [];
@@ -219,12 +218,11 @@ class record_model extends \TMS_MODEL {
 					$file->url = $fileUploaded2;
 					$treatedValue[] = $file;
 				}
-				$treatedValue = json_encode($treatedValue);
 				//
 				$dbData->{$n} = $treatedValue;
 			} else {
 				if (is_string($v)) {
-					$treatedValue = $this->escape($v);
+					$treatedValue = $v;
 				} elseif (is_object($v) || is_array($v)) {
 					$treatedValue = implode(',', array_keys(array_filter((array) $v, function ($i) {return $i;})));
 				} else {
@@ -235,18 +233,18 @@ class record_model extends \TMS_MODEL {
 			}
 			// 记录数据
 			if (is_object($treatedValue) || is_array($treatedValue)) {
-				$treatedValue = json_encode($treatedValue);
+				$treatedValue =  $this->toJson($treatedValue);
 			}
 			$ic = [
 				'aid' => $app->id,
 				'enroll_key' => $ek,
 				'name' => $n,
-				'value' => $treatedValue,
+				'value' => $this->escape($treatedValue),
 			];
 			$this->insert('xxt_signin_record_data', $ic, false);
 		}
 		// 记录数据
-		$dbData = $this->toJson($dbData);
+		$dbData = $this->escape($this->toJson($dbData));
 		$this->update(
 			'xxt_signin_record',
 			['enroll_at' => time(), 'data' => $dbData],

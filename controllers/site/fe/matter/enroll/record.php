@@ -144,13 +144,13 @@ class record extends base {
 			/* 插入登记数据 */
 			$ek = $modelRec->enroll($site, $enrollApp, $user);
 			/* 处理自定义信息 */
-			$rst = $modelRec->setData($user, $site, $enrollApp, $ek, $enrolledData, $submitkey);
+			$rst = $modelRec->setData($user, $enrollApp, $ek, $enrolledData, $submitkey);
 			/* 登记提交的积分奖励 */
 			$modelCoin = $this->model('site\coin\log');
 			$modelCoin->award($enrollApp, $user, 'site.matter.enroll.submit');
 		} else {
 			/* 重新插入新提交的数据 */
-			$rst = $modelRec->setData($user, $site, $enrollApp, $ek, $enrolledData, $submitkey);
+			$rst = $modelRec->setData($user, $enrollApp, $ek, $enrolledData, $submitkey);
 			if ($rst[0] === true) {
 				/* 已经登记，更新原先提交的数据，只要进行更新操作就设置为未审核通过的状态 */
 				$updatedEnrollRec['enroll_at'] = time();
@@ -263,7 +263,7 @@ class record extends base {
 		$schema = $this->model('site\user\memberschema')->byId($schemaId, 'attr_mobile,attr_email,attr_name,extattr');
 		$modelMem = $this->model('site\user\member');
 
-		$existentMember = $modelMem->byUser($siteId, $user->uid, array('schemas' => $schemaId));
+		$existentMember = $modelMem->byUser($user->uid, ['schemas' => $schemaId]);
 		if (count($existentMember)) {
 			$memberId = $existentMember[0]->id;
 			$member->id = $memberId;
@@ -498,7 +498,7 @@ class record extends base {
 			unset($data['app']);
 			if (!empty($data)) {
 				$data = (object) $data;
-				$rst = $modelRec->setData($user, $site, $app, $ek, $data);
+				$rst = $modelRec->setData($user, $app, $ek, $data);
 				if (false === $rst[0]) {
 					return new ResponseError($rst[1]);
 				}
@@ -590,7 +590,7 @@ class record extends base {
 			unset($data['app']);
 			if (!empty($data)) {
 				$data = (object) $data;
-				$rst = $modelRec->setData($user, $site, $app, $ek, $data);
+				$rst = $modelRec->setData($user, $app, $ek, $data);
 				if (false === $rst[0]) {
 					return new ResponseError($rst[1]);
 				}

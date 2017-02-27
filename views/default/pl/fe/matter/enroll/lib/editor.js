@@ -222,6 +222,7 @@ define(['wrap'], function(wrapLib) {
                                 if (oWrap.schema.title !== pageWrap.schema.title) {
                                     pageWrap.schema.title = oWrap.schema.title;
                                     status.schemaChanged = true;
+                                    status.schema = oWrap.schema;
                                 }
                             }
                         })();
@@ -256,6 +257,7 @@ define(['wrap'], function(wrapLib) {
                                             if (oOptionWrap.schema.ops[0].v === editingSchema.ops[j].v) {
                                                 editingSchema.ops[j].l = oOptionWrap.schema.ops[0].l;
                                                 status.schemaChanged = true;
+                                                status.schema = editingSchema;
                                                 break;
                                             }
                                         }
@@ -287,6 +289,7 @@ define(['wrap'], function(wrapLib) {
                                 if (oWrap.schema.title !== pageWrap.schema.title) {
                                     pageWrap.schema.title = oWrap.schema.title;
                                     status.schemaChanged = true;
+                                    status.schema = oWrap.schema;
                                 }
                             }
                         })();
@@ -324,6 +327,7 @@ define(['wrap'], function(wrapLib) {
                                 if (oWrap.schema.title !== pageWrap.schema.title) {
                                     pageWrap.schema.title = oWrap.schema.title;
                                     status.schemaChanged = true;
+                                    status.schema = oWrap.schema;
                                 }
                             }
                         })();

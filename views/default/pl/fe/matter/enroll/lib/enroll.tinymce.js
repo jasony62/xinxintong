@@ -1,3 +1,4 @@
+'use strict';
 angular.module('tinymce.enroll', ['ui.bootstrap']).
 directive('tinymce', function($timeout) {
     return {
@@ -97,12 +98,11 @@ directive('tinymce', function($timeout) {
                     var _lastNodeContent;
                     editor.on('keydown', function(evt) {
                         var selection = editor.selection,
-                            node = selection.getNode(),
-                            _lastNodeContent = node.innerHTML;
+                            node = selection.getNode();
+
+                        _lastNodeContent = node.innerHTML;
                         if (evt.keyCode == 13) {
-                            /**
-                             * 检查组件元素，如果是，在结尾回车时不进行元素的复制，而是添加空行
-                             */
+                            /* 检查组件元素，如果是，在结尾回车时不进行元素的复制，而是添加空行 */
                             var dom, wrap;
                             dom = editor.dom;
                             if (selection && selection.getNode()) {
@@ -149,50 +149,64 @@ directive('tinymce', function($timeout) {
                             }
                         } else {
                             if (node.hasAttribute('wrap') && node.getAttribute('wrap') !== 'text') {
-                                /*
-                                 * wrap不允许直接被编辑
-                                 */
+                                /* wrap不允许直接被编辑 */
                                 evt.preventDefault();
                                 evt.stopPropagation();
                             }
                         }
                     });
                     editor.on('keyup', function(evt) {
-                        var node = editor.selection.getNode(),
-                            nodeContent = node.innerHTML,
-                            phase;
+                        var node, nodeContent, phase;
 
-                        if (_lastNodeContent !== nodeContent) {
+                        /* 粘贴操作后，selection会发生改变 */
+                        if (evt.keyCode === 17 || evt.keyCode === 91) {
+                            return;
+                        }
+
+                        node = editor.selection.getNode();
+                        nodeContent = node.innerHTML;
+                        if (_lastNodeContent && _lastNodeContent !== nodeContent) {
                             // 通知发生变化
                             phase = scope.$root.$$phase;
                             if (phase === '$digest' || phase === '$apply') {
                                 scope.$emit('tinymce.content.change', {
-                                    node: node,
-                                    content: nodeContent
+                                    node: node
                                 });
                             } else {
                                 scope.$apply(function() {
                                     scope.$emit('tinymce.content.change', {
-                                        node: node,
-                                        content: nodeContent
+                                        node: node
                                     });
                                 });
                             }
                         }
                     });
                 })();
-                editor.on('BeforeSetContent', function(e) {
-                    var c;
-                    if (e.content && e.content.length) {
-                        c = e.content;
-                        c = c.replace(/\n|\r/g, '').replace(/\s*/, ''); // trim
-                        if (/^<table.*<\/table>$/i.test(c)) {
-                            c = $('<div>' + c + '</div>');
-                            c.find('td').html('&nbsp;');
-                            e.content = '<p>&nbsp;</p><div wrap="table">' + c.html() + '</div><p>&nbsp;</p>';
+                (function() {
+                    var _lastPasteNode, _lastPasteContent;
+                    editor.on('PastePreProcess', function(e) {
+                        /* 将粘贴的内容转换为纯文本 */
+                        e.content = _lastPasteContent = e.content.replace(/<[^>]*>/g, '').replace(/\n|\r/g, '');
+                        _lastPasteNode = editor.selection.getNode();
+                    });
+                    editor.on('PastePostProcess', function(e) {
+                        /* 此时还没有把粘贴的内容写到node中，手动写入并阻止后续处理 */
+                        var phase = scope.$root.$$phase;
+                        _lastPasteNode.innerHTML = _lastPasteContent;
+                        if (phase === '$digest' || phase === '$apply') {
+                            scope.$emit('tinymce.content.change', {
+                                node: _lastPasteNode
+                            });
+                        } else {
+                            scope.$apply(function() {
+                                scope.$emit('tinymce.content.change', {
+                                    node: _lastPasteNode
+                                });
+                            });
                         }
-                    }
-                });
+                        e.preventDefault();
+                    });
+                })();
                 editor.on('ExecCommand', function(e) {
                     switch (e.command) {
                         case 'mceTableDelete':
@@ -219,7 +233,7 @@ directive('tinymce', function($timeout) {
                         }
                         scope.$emit('tinymce.multipleimage.open', function(urls, isShowName) {
                             var i, t, url, data, dom, pElm;
-                            t = (new Date()).getTime();
+                            t = (new Date() * 1);
                             dom = editor.dom;
                             for (i in urls) {
                                 url = urls[i] + '?_=' + t,

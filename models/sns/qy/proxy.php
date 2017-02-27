@@ -255,16 +255,24 @@ class proxy_model extends \sns\proxybase {
 		}
 
 		$openid = $rst[1]->UserId;
-		//同步企业号本地粉丝信息
-		$site=$this->config->siteid;
-		$user1=$this->userGet($openid);
-		$fan=\TMS_MODEL::M('site\user\memberschema');
-		$authid=$fan->getAuthid($site);
 
-		if($luser=$fan->query_obj_ss(["userid,nickname","xxt_site_qyfan","siteid='$site' and openid='$openid'"])){
-			$fan->updateQyFan($site,$luser,$user1,$authid);
-		}else{
-			$fan->createQyFan($site,$user1,$authid);
+		// 同步企业号本地粉丝信息
+		$site = $this->config->siteid;
+		$ruser = $this->userGet($openid);
+		if ($ruser[0] === false) {
+			return array(false, $ruser[1]);
+		}
+		$ruser = $ruser[1];
+
+		$modelSch = \TMS_APP::M('site\user\memberschema');
+		$memberSchema = $modelSch->qyabSchemaBySite($site, ['fields' => 'id']);
+		if ($memberSchema) {
+			$modelFan = \TMS_APP::M('sns\qy\fan');
+			if ($luser = $modelFan->query_obj_ss(["userid,nickname", "xxt_site_qyfan", ["siteid" => $site, "openid" => $openid]])) {
+				$modelFan->updateQyFan($site, $luser, $ruser, $memberSchema->id);
+			} else {
+				$modelFan->createQyFan($site, $ruser, $memberSchema->id);
+			}
 		}
 
 		$user = new \stdClass;

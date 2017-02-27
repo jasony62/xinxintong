@@ -297,7 +297,7 @@ define([], function() {
             case 'image':
                 inpAttrs['tms-image-input'] = 'Y';
                 html += '<ul class="img-tiles clearfix" name="' + schema.id + '">';
-                html += '<li wrap="img" ng-repeat="img in data.' + schema.id + '" class="img-thumbnail" title="' + schema.title + '">';
+                html += '<li wrap="img" ng-repeat="img in data.' + schema.id + '" class="img-thumbnail">';
                 html += '<img flex-img>';
                 html += '<button class="btn btn-default btn-xs" ng-click="removeImage(data.' + schema.id + ',$index)"><span class="glyphicon glyphicon-remove"></span></button>';
                 html += '</li>';
@@ -310,7 +310,7 @@ define([], function() {
                 inpAttrs['tms-file-input'] = 'Y';
                 html += '<ul class="list-group file" name="' + schema.id + '">';
                 html += '<li class="list-group-item" ng-show="progressOfUploadFile"><div class="progressOfUploadFile" ng-bind="progressOfUploadFile"></li>';
-                html += '<li wrap="file" ng-repeat="file in data.' + schema.id + '" class="list-group-item" title="' + schema.title + '">';
+                html += '<li wrap="file" ng-repeat="file in data.' + schema.id + '" class="list-group-item">';
                 html += '<span class="file-name" ng-bind="file.name"></span>';
                 html += '</li>';
                 html += '<li class="list-group-item file-picker">';
@@ -412,13 +412,21 @@ define([], function() {
                             $dom.append(html);
                         }
                     })(this);
-                } else if (/image|file/.test(schema.type)) {
+                } else if (/image/.test(schema.type)) {
                     (function(lib) {
                         var $button = $dom.find('li.img-picker button'),
                             sNgClick;
 
                         sNgClick = 'chooseImage(' + "'" + schema.id + "'," + schema.count + ')';
                         $button.attr('ng-click', sNgClick);
+                    })(this);
+                } else if (/file/.test(schema.type)) {
+                    (function(lib) {
+                        var $button = $dom.find('li.file-picker button'),
+                            sNgClick;
+
+                        sNgClick = 'chooseFile(' + "'" + schema.id + "'," + schema.count + ')';
+                        $button.attr('ng-click', sNgClick).html(schema.title);
                     })(this);
                 }
             }

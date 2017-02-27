@@ -35,7 +35,6 @@ class history extends \site\fe\base {
 		}
 
 		$logs = $modelLog->query_objs_ss($q);
-
 		$result->apps = $logs;
 
 		return new \ResponseData($result);

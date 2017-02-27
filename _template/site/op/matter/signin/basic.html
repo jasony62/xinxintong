@@ -21,14 +21,6 @@
 						<td data-th='登记时间'><span>{{(r.enroll_at*1000)|date:'MM-dd HH:mm'}}</span></td>
 						<td data-th='审核通过'><span ng-class="{'notice':r.verified==='N'}">{{r.verified}}</span></td>
 						<td data-th="{{schema.title}}" ng-repeat="schema in recordSchemas" ng-switch on="schema.type">
-                            <!-- <span ng-switch-when="image" ng-init="imgs=r.data[schema.id].split(',')">
-                                                            <img ng-repeat="img in imgs" ng-src='{{img}}' />
-                                                        </span>
-                            <span ng-switch-when="file" ng-init="files=json2Obj(r.data[schema.id])">
-                                                            <span ng-repeat='file in files'><a href='{{file.url}}' target="_blank">{{file.name}}</a></span>
-                            </span>
-                            <span ng-switch-when="date">{{(r.data[schema.id]*1000)|date:'yy-MM-dd HH:mm'}}</span>
-                            <span ng-switch-default>{{value2Html(r,schema.id)}}</span> -->
                             <span ng-switch-when="image">
                                 <img ng-repeat="img in r._data[schema.id]" ng-src='{{img}}' />
                             </span>

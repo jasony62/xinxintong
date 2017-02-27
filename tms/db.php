@@ -131,7 +131,9 @@ class TMS_DB {
 
 		($db_result = $mysqli->query($sql)) || $this->show_error("database error:" . $sql . ';' . $mysqli->error);
 
-		if ($db_result->num_rows === 1) {
+		if ($db_result->num_rows > 1) {
+			$this->show_error("database error:数据不唯一，无法返回唯一的记录");
+		} else if ($db_result->num_rows === 1) {
 			$row = $db_result->fetch_object();
 		} else {
 			$row = false;

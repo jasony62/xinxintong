@@ -8,9 +8,9 @@ define(['require', 'angular'], function(require, angular) {
         $scope.page = page = {
             at: 1,
             size: 10,
-            times:1,
+            times: 1,
             join: function() {
-                return 'page=' + this.at + '&size=' + this.size*this.times;
+                return 'page=' + this.at + '&size=' + this.size * this.times;
             }
         };
         $scope.list = function(more) {

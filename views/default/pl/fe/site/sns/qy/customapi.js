@@ -13,7 +13,7 @@ define(['main'], function(ngApp) {
             $scope.doSearch(1);
         };
         $scope.doSearch = function (page, syncType) {
-            var url = '/rest/site/fe/user/member/syncLog';
+            var url = '/rest/pl/fe/site/member/schema/syncLog';
             page && ($scope.page.at = page );
             if (syncType && syncType !== $scope.syncType) {
                 $scope.syncType = syncType;
@@ -29,10 +29,9 @@ define(['main'], function(ngApp) {
         };
 
         $scope.syn = function () {
-            var url = '/rest/site/fe/user/member/';
+            var url = '/rest/pl/fe/site/member/schema/';
             url += $scope.type;
             url += '?site=' + $scope.siteId;
-            url += '&authid=' + 0;
             http2.get(url, function (rsp) {
                 if (rsp.err_code == 0) {
                     alert("同步" + rsp.data[0] + "个部门，" + rsp.data[1] + "个用户，" + rsp.data[2] + "个标签");

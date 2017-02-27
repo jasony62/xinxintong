@@ -79,6 +79,8 @@ class schema extends \pl\fe\base {
 				$nv->extattr = urldecode(json_encode($nv->extattr));
 			} else if (isset($nv->type) && $nv->type === 'inner') {
 				$nv->url = TMS_APP_API_PREFIX . "/site/fe/user/member";
+			} else if (isset($nv->qy_ab)) {
+				$this->model()->update('xxt_site_member_schema', ['qy_ab' => 'N'], "siteid='$this->siteId' and id!='$id'");
 			}
 			$rst = $this->model()->update(
 				'xxt_site_member_schema',
@@ -182,5 +184,255 @@ class schema extends \pl\fe\base {
 	public function picker_action() {
 		\TPL::output('/pl/fe/site/user/picker');
 		exit;
+	}
+	/**
+	 * 将内部组织结构数据全量导入到企业号通讯录
+	 *
+	 * $site
+	 * $authid
+	 */
+	public function import2Qy_action($site) {
+		return new \ResponseError('not support');
+	}
+	/**
+	 * 将内部组织结构数据增量导入到企业号通讯录
+	 *
+	 * $site
+	 * $authid
+	 */
+	public function sync2Qy_action($site) {
+		return new \ResponseError('not support');
+	}
+	/**
+	 * 从企业号通讯录同步用户数据
+	 *
+	 * @param $string $site
+	 * @param int $pdid 父部门id,若pdid不指定，默认获取有权限的部门
+	 *
+	 */
+	public function syncFromQy_action($site, $pdid = null) {
+		$qyConfig = $this->model('sns\qy')->bySite($site);
+		if (!$qyConfig || $qyConfig->joined === 'N') {
+			return new \ResponseError('未与企业号连接，无法同步通讯录');
+		}
+
+		$schema = $this->model('site\user\memberschema')->qyabSchemaBySite($site, ['fields' => 'id']);
+		if ($schema === false) {
+			return new \ResponseError('没有设置企业号同步使用的自定义用户，请设置后再同步！');
+		}
+		$authid = $schema->id;
+
+		$timestamp = time(); // 进行同步操作的时间戳
+		$qyproxy = $this->model('sns\qy\proxy', $qyConfig);
+		$model = $this->model();
+		$modelDept = $this->model('site\user\department');
+		/**
+		 * 同步部门数据
+		 */
+		$mapDeptR2L = array(); // 部门的远程ID和本地ID的映射
+		$result = $qyproxy->departmentList($pdid);
+		if ($result[0] === false) {
+			return new \ResponseError($result[1]);
+		}
+
+		$rootDepts = array(); // 根部门
+		$rdepts = $result[1]->department;
+		foreach ($rdepts as $rdept) {
+			$pid = $rdept->parentid == 0 ? 0 : isset($mapDeptR2L[$rdept->parentid]['id']) ? $mapDeptR2L[$rdept->parentid]['id'] : 0;
+			if ($pid === 0) {
+				$rootDepts[] = $rdept;
+			}
+			$rdeptName = $rdept->name;
+			unset($rdept->name);
+			/**
+			 * 如果已经同步过，更新数据和时间戳；否则创建新本地数据
+			 */
+			$q = array(
+				'id,fullpath,sync_at',
+				'xxt_site_member_department',
+				"siteid='$site' and extattr like '%\"id\":$rdept->id,%'",
+			);
+			if (!($ldept = $model->query_obj_ss($q))) {
+				$ldept = $modelDept->create($site, $authid, $pid, null);
+			}
+
+			/**
+			 * 更新fullpath
+			 * fullpath包含节点自身的id
+			 */
+			if ($pid == 0) {
+				$parentfullpath = "$ldept->id";
+			} else {
+				$qp = array(
+					'fullpath',
+					'xxt_site_member_department',
+					"siteid='$site' and id=$pid", //获得pid的fullpatj，组合成新的fullpath
+				);
+				$parentfullpath = $model->query_val_ss($qp);
+				$parentfullpath .= ",$ldept->id"; //本地的id
+			}
+			$i = array(
+				'pid' => $pid,
+				'sync_at' => $timestamp,
+				'name' => $rdeptName,
+				'fullpath' => $parentfullpath,
+				'extattr' => json_encode($rdept),
+			);
+			$model->update(
+				'xxt_site_member_department',
+				$i,
+				"siteid='$site' and id=$ldept->id"
+			);
+			$mapDeptR2L[$rdept->id] = array('id' => $ldept->id, 'path' => $parentfullpath);
+		}
+		/**
+		 * 清空同步不存在的部门
+		 */
+		$this->model()->delete(
+			'xxt_site_member_department',
+			"siteid='$site' and sync_at<" . $timestamp
+		);
+		/**
+		 * 同步部门下的用户
+		 */
+		$fan = \TMS_APP::M('sns\qy\fan');
+		foreach ($rootDepts as $rootDept) {
+			$result = $qyproxy->userList($rootDept->id, 1);
+			if ($result[0] === false) {
+				return new \ResponseError($result[1]);
+			}
+			$users = $result[1]->userlist;
+			foreach ($users as $user) {
+				$q = array(
+					'sync_at',
+					'xxt_site_qyfan',
+					"siteid='$site' and openid='$user->userid'",
+				);
+				if (!($luser = $model->query_obj_ss($q))) {
+					$fan->createQyFan($site, $user, $authid, $timestamp, $mapDeptR2L);
+				} else if ($luser->sync_at < $timestamp) {
+					$fan->updateQyFan($site, $luser, $user, $authid, $timestamp, $mapDeptR2L);
+				}
+			}
+		}
+		/**
+		 * 清空没有同步的粉丝数据
+		 */
+		$model->delete(
+			'xxt_site_qyfan',
+			"siteid='$site' and sync_at<" . $timestamp
+		);
+		/**
+		 * 同步标签
+		 */
+		$result = $qyproxy->tagList();
+		if ($result[0] === false) {
+			return new \ResponseError($result[1]);
+		}
+		$tags = $result[1]->taglist;
+		foreach ($tags as $tag) {
+			$q = array(
+				'id,sync_at',
+				'xxt_site_member_tag',
+				"siteid='$site' and extattr like '{\"tagid\":$tag->tagid}%'",
+			);
+			if (!($ltag = $model->query_obj_ss($q))) {
+				$t = array(
+					'siteid' => $site,
+					'sync_at' => $timestamp,
+					'name' => $tag->tagname,
+					'schema_id' => $authid,
+					'extattr' => json_encode(array('tagid' => $tag->tagid)),
+				);
+				$memberTagId = $model->insert('xxt_site_member_tag', $t, true);
+			} else {
+				$memberTagId = $ltag->id;
+				$t = array(
+					'sync_at' => $timestamp,
+					'name' => $tag->tagname,
+				);
+				$this->model()->update(
+					'xxt_site_member_tag',
+					$t,
+					"siteid='$site' and id=$ltag->id"
+				);
+			}
+
+			/**
+			 * 建立标签和成员、部门的关联
+			 */
+			$result = $qyproxy->tagUserList($tag->tagid);
+			if ($result[0] === false) {
+				return new \ResponseError($result[1]);
+			}
+			$tagUsers = $result[1]->userlist;
+			foreach ($tagUsers as $user) {
+				$q = array(
+					'sync_at,tags',
+					'xxt_site_qyfan',
+					"siteid='$site' and openid='$user->userid'",
+				);
+				if ($fans = $model->query_obj_ss($q)) {
+					if (empty($fans->tags)) {
+						$fans->tags = $memberTagId;
+					} else {
+						$fans->tags .= ',' . $memberTagId;
+					}
+					$model->update(
+						'xxt_site_qyfan',
+						array('tags' => $fans->tags),
+						"siteid='$site' and openid='$user->userid'"
+					);
+				}
+			}
+		}
+		/**
+		 * 清空已有标签
+		 */
+		$model->delete(
+			'xxt_site_member_tag',
+			"siteid='$site' and sync_at<" . $timestamp
+		);
+
+		$rst = array(
+			isset($rdepts) ? count($rdepts) : 0,
+			isset($users) ? count($users) : 0,
+			isset($tags) ? count($tags) : 0,
+			$timestamp,
+		);
+
+		return new \ResponseData($rst);
+	}
+
+	//获取同步日志
+	public function syncLog_action($site, $type = '', $page, $size) {
+		if ($type == '' || $type == 'syncFromQy') {
+			$typePost = $this->getPostJson();
+			if ($typePost->syncType == 'department') {
+				$p = array('*', 'xxt_site_member_department', "siteid = '$site'");
+			} elseif ($typePost->syncType == 'tag') {
+				$p = array('*', 'xxt_site_member_tag', "siteid = '$site'");
+			} else {
+				$p = array('*', 'xxt_site_qyfan', "siteid = '$site'");
+			}
+		} else {
+			return new \ResponseData("暂无");
+		}
+
+		$p2['r']['o'] = ($page - 1) * $size;
+		$p2['r']['l'] = $size;
+		$p2['o'] = 'id desc';
+		$result = array();
+		if ($sync = $this->model()->query_objs_ss($p, $p2)) {
+			$result['data'] = $sync;
+			$p[0] = 'count(*)';
+			$total = (int) $this->model()->query_val_ss($p);
+			$result['total'] = $total;
+		} else {
+			$result['data'] = array();
+			$result['total'] = 0;
+		}
+
+		return new \ResponseData($result);
 	}
 }

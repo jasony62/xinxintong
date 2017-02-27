@@ -126,14 +126,17 @@ define(['frame', 'enrollService'], function(ngApp) {
             location.href = url;
         };
         $scope.$watch('mission.userApp', function(userApp) {
-            if (!userApp) return;
-            if (userApp.data_schemas && angular.isString(userApp.data_schemas)) {
-                userApp.data_schemas = JSON.parse(userApp.data_schemas);
+            if (!userApp) {
+                _users.splice(0, _users.length);
+            } else {
+                if (userApp.data_schemas && angular.isString(userApp.data_schemas)) {
+                    userApp.data_schemas = JSON.parse(userApp.data_schemas);
+                }
+                srvRecord.init(userApp, _oUserPage, {}, _users);
+                srvRecord.search(1).then(function(data) {
+                    $scope.tmsTableWrapReady = 'Y';
+                });
             }
-            srvRecord.init(userApp, _oUserPage, {}, _users);
-            srvRecord.search(1).then(function(data) {
-                $scope.tmsTableWrapReady = 'Y';
-            });
         });
     }]);
 });

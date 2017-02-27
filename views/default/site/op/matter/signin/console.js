@@ -1,67 +1,54 @@
-define(["require", "angular", "util.site"], function(require, angular) {
+define(["require", "angular", "util.site", "signinService"], function(require, angular) {
     'use strict';
-    var ngApp = angular.module('app', ['ui.bootstrap', 'util.site.tms']);
-    ngApp.config(['$controllerProvider', function($cp) {
+    var ngApp = angular.module('app', ['ui.bootstrap', 'util.site.tms', 'ui.tms', 'ui.xxt', 'service.matter', 'service.signin']);
+    ngApp.constant('cstApp', {});
+    ngApp.config(['$controllerProvider', 'srvAppProvider', 'srvOpRecordProvider', function($cp, srvAppProvider, srvOpRecordProvider) {
         ngApp.provider = {
             controller: $cp.register
         };
+        (function() {
+            var ls, siteId, appId, accessId;
+            ls = location.search;
+            siteId = ls.match(/[\?&]site=([^&]*)/)[1];
+            appId = ls.match(/[\?&]app=([^&]*)/)[1];
+            accessId = ls.match(/[\?&]accessToken=([^&]*)/)[1];
+            //
+            srvAppProvider.config(siteId, appId, accessId);
+            srvOpRecordProvider.config(siteId, appId, accessId);
+        })();
     }]);
-    ngApp.controller('ctrl', ['$scope', '$http', '$timeout', '$uibModal', 'PageLoader', 'PageUrl', function($scope, $http, $timeout, $uibModal, PageLoader, PageUrl) {
-        var PU, criteria, page, schemasById = {},
-            filterSchemas = [];
-
-        PU = PageUrl.ins('/rest/site/op/matter/signin', ['site', 'app']);
-        // 数据筛选条件
-        $scope.criteria = criteria = {
-            join: function() {
-                var params = '';
-                if (this.verified && this.verified.length) {
-                    params += '&verified=' + this.verified;
-                }
-                return params;
-            }
+    ngApp.controller('ctrl', ['$scope', '$http', '$timeout', '$uibModal', 'PageLoader', 'PageUrl', 'srvApp', 'srvOpRecord', function($scope, $http, $timeout, $uibModal, PageLoader, PageUrl, srvApp, srvOpRecord) {
+        $scope.getRecords = function(pageNumber) {
+            $scope.rows.reset();
+            srvOpRecord.search(pageNumber);
         };
-        // 数据分页条件
-        $scope.page = page = {
-            at: 1,
-            size: 30,
-            numbers: [],
-            orderBy: 'time',
-            byRound: '',
-            join: function() {
-                var p;
-                p = '&page=' + (this.at || 1) + '&size=' + this.size;
-                this.byRound && (p += '&rid=' + this.byRound);
-                p += '&orderby=' + this.orderBy;
-                return p;
-            },
-            setTotal: function(total) {
-                var lastNumber;
-                this.total = total;
-                this.numbers = [];
-                lastNumber = this.total > 0 ? Math.ceil(this.total / this.size) : 1;
-                for (var i = 1; i <= lastNumber; i++) {
-                    this.numbers.push(i);
+        $scope.removeRecord = function(record) {
+            srvOpRecord.remove(record);
+        };
+        $scope.batchVerify = function() {
+            srvOpRecord.batchVerify($scope.rows);
+        };
+        $scope.filter = function() {
+            srvOpRecord.filter().then(function() {
+                $scope.rows.reset();
+            });
+        };
+        $scope.countSelected = function() {
+            var count = 0;
+            for (var p in $scope.rows.selected) {
+                if ($scope.rows.selected[p] === true) {
+                    count++;
                 }
             }
+            return count;
         };
         $scope.rows = {
             allSelected: 'N',
-            selected: {}
-        };
-        $scope.getRecords = function() {
-            var url = PU.j('record/list', 'site', 'app', 'accessToken');
-
-            url += criteria.join();
-            url += page.join();
-            $http.post(url, $scope.criteria).success(function(rsp) {
-                if (rsp.err_code !== 0) {
-                    $scope.errmsg = rsp.err_msg;
-                    return;
-                }
-                $scope.records = rsp.data.records;
-                $scope.page.setTotal(rsp.data.total);
-            });
+            selected: {},
+            reset: function() {
+                this.allSelected = 'N';
+                this.selected = {};
+            }
         };
         // 选中的记录
         $scope.$watch('rows.allSelected', function(checked) {
@@ -74,125 +61,40 @@ define(["require", "angular", "util.site"], function(require, angular) {
                 $scope.rows.selected = {};
             }
         });
-        $scope.countSelected = function() {
-            var count = 0;
-            for (var p in $scope.rows.selected) {
-                if ($scope.rows.selected[p] === true) {
-                    count++;
-                }
-            }
-            return count;
-        };
-        $scope.value2Html = function(record, schemaId) {
-            var schema, val;
-            if (undefined !== (schema = schemasById[schemaId])) {
-                if (schema.type === 'member' && record.data.member) {
-                    val = record.data.member[schema.id.substr(7)] || '';
-                } else {
-                    val = record.data[schema.id] || '';
-                    if (schema.ops && schema.ops.length) {
-                        if (schema.type === 'score' && angular.isObject(val)) {
-                            var label = '';
-                            schema.ops.forEach(function(op, index) {
-                                label += op.l + ':' + (val[op.v] ? val[op.v] : 0) + ' / ';
-                            });
-                            val = label.replace(/\s\/\s$/, '');
-                        } else if (val.length) {
-                            var aVal, aLab = [];
-                            aVal = val.split(',');
-                            schema.ops.forEach(function(op) {
-                                aVal.indexOf(op.v) !== -1 && aLab.push(op.l);
-                            });
-                            if (aLab.length) val = aLab.join(',');
-                        }
-                    }
-                }
-            }
-
-            return val;
-        };
-        $scope.filter = function() {
-            $uibModal.open({
-                templateUrl: 'recordFilter.html',
-                controller: ['$scope', '$uibModalInstance', 'criteria', function($scope, $mi, criteria) {
-                    $scope.criteria = criteria;
-                    $scope.filterSchemas = filterSchemas;
-                    $scope.clean = function() {
-                        if (criteria.record) {
-                            if (criteria.record.verified) {
-                                criteria.record.verified = '';
-                            }
-                        }
-                        if (criteria.data) {
-                            angular.forEach(criteria.data, function(val, key) {
-                                criteria.data[key] = '';
-                            });
-                        }
-                    };
-                    $scope.cancel = function() {
-                        $mi.dismiss();
-                    };
-                    $scope.ok = function() {
-                        $mi.close(criteria);
-                    };
-                }],
-                backdrop: 'static',
-                resolve: {
-                    criteria: function() {
-                        return angular.copy($scope.criteria);
-                    }
-                }
-            }).result.then(function(criteria) {
-                angular.extend($scope.criteria, criteria);
-                $scope.getRecords();
+        $scope.page = {}; // 分页条件
+        $scope.criteria = {}; // 过滤条件
+        $scope.records = []; // 登记记录
+        $scope.subView = 'list'; // 规定初始化展示页面
+        $scope.tmsTableWrapReady = 'N';
+        srvApp.opGet().then(function(data) {
+            var app = data.app,
+                pages = data.page;
+            srvOpRecord.init(app, $scope.page, $scope.criteria, $scope.records);
+            PageLoader.render($scope, pages, ngApp).then(function() {
+                $scope.doc = pages;
             });
-        };
-        $scope.batchVerify = function() {
-            var eks = [];
-            for (var p in $scope.rows.selected) {
-                if ($scope.rows.selected[p] === true) {
-                    eks.push($scope.records[p].enroll_key);
+            // schemas
+            var recordSchemas = [],
+                enrollDataSchemas = [],
+                groupDataSchemas = [];
+            app.data_schemas.forEach(function(schema) {
+                if (schema.type !== 'html') {
+                    recordSchemas.push(schema);
                 }
-            }
-            if (eks.length) {
-                var url = PU.j('record/batchVerify', 'site', 'app', 'accessToken');
-                $http.post(url, {
-                    eks: eks
-                }).success(function(rsp) {
-                    for (var p in $scope.rows.selected) {
-                        if ($scope.rows.selected[p] === true) {
-                            $scope.records[p].verified = 'Y';
-                        }
-                    }
-                });
-            }
-        };
-        $http.get(PU.j('get', 'site', 'app')).success(function(rsp) {
-            if (rsp.err_code !== 0) {
-                $scope.errmsg = rsp.err_msg;
-                return;
-            }
-            $scope.app = rsp.data.app;
-            $scope.data_schemas = JSON.parse($scope.app.data_schemas);
-            PageLoader.render($scope, rsp.data.page).then(function() {
-                $scope.doc = rsp.data.page;
-            })
-            if ($scope.app.data_schemas && $scope.app.data_schemas.length) {
-                $scope.app.dataSchemas = JSON.parse($scope.app.data_schemas);
-                $scope.app.dataSchemas.forEach(function(schema) {
-                    schemasById[schema.id] = schema;
-                    if (/single|phase|multiple/.test(schema.type)) {
-                        filterSchemas.push(schema);
-                    }
-                });
-            }
+            });
+            $scope.recordSchemas = recordSchemas;
+            app._schemasFromEnrollApp.forEach(function(schema) {
+                if (schema.type !== 'html') {
+                    enrollDataSchemas.push(schema);
+                }
+            });
+            $scope.enrollDataSchemas = enrollDataSchemas;
+            $scope.tmsTableWrapReady = 'Y';
             $timeout(function() {
-                $scope.$broadcast('xxt.app.signin.ready');
+                $scope.$broadcast('xxt.app.enroll.ready');
             });
             $scope.getRecords();
             window.loading.finish();
-        }).error(function(content, httpCode) {
-            $scope.errmsg = content;
         });
     }]);
     require(['domReady!'], function(document) {

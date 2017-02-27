@@ -77,8 +77,7 @@ define(['require', 'page', 'schema', 'signinService'], function(require, pageLib
             appId = ls.match(/[\?&]id=([^&]*)/)[1];
             srvSiteProvider.config(siteId);
             //
-            srvAppProvider.setSiteId(siteId);
-            srvAppProvider.setAppId(appId);
+            srvAppProvider.config(siteId, appId);
             //
             srvRoundProvider.setSiteId(siteId);
             srvRoundProvider.setAppId(appId);
@@ -86,8 +85,7 @@ define(['require', 'page', 'schema', 'signinService'], function(require, pageLib
             srvPageProvider.setSiteId(siteId);
             srvPageProvider.setAppId(appId);
             //
-            srvRecordProvider.setSiteId(siteId);
-            srvRecordProvider.setAppId(appId);
+            srvRecordProvider.config(siteId, appId);
             //
             srvQuickEntryProvider.setSiteId(siteId);
         })();
@@ -119,14 +117,6 @@ define(['require', 'page', 'schema', 'signinService'], function(require, pageLib
         });
         $scope.mapOfAppSchemas = {};
         srvApp.get().then(function(app) {
-            // 将页面的schema指向应用的schema
-            app.data_schemas.forEach(function(schema) {
-                schemaLib._upgrade(schema);
-                $scope.mapOfAppSchemas[schema.id] = schema;
-            });
-            app.pages.forEach(function(page) {
-                pageLib.enhance(page, $scope.mapOfAppSchemas);
-            });
             $scope.app = app;
             app.__schemasOrderConsistent = 'Y'; //页面上登记项显示顺序与定义顺序一致
         });

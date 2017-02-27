@@ -177,6 +177,19 @@ ngApp.controller('ctrlApp', ['$scope', '$location', '$timeout', '$q', 'http2', f
                         at: page.at,
                         size: page.size
                     };
+                    if (schema.type === 'image') {
+                        rsp.data.records.forEach(function(rec) {
+                            if (rec.value) {
+                                rec.value = rec.value.split(',');
+                            }
+                        });
+                    } else if (schema.type === 'file') {
+                        rsp.data.records.forEach(function(rec) {
+                            if (rec.value) {
+                                rec.value = JSON.parse(rec.value)
+                            }
+                        });
+                    }
                     cached.records = rsp.data.records;
                     page.total = rsp.data.total;
                     deferred.resolve(rsp.data);

@@ -338,7 +338,6 @@ define(["angular", "enroll-common", "angular-sanitize", "xxt-share", "xxt-image"
                         }
                         ele = null;
                     }, true);
-                    console.log(ele);
                     ele.click();
                 };
             }
@@ -376,21 +375,107 @@ define(["angular", "enroll-common", "angular-sanitize", "xxt-share", "xxt-image"
                 }
             };
         })();
-        var facInput, tasksOfOnReady, tasksOfBeforeSubmit,subState;
-        tasksOfBeforeSubmit = [];
-        //在全局定义一个状态，传入工厂函数，留待审核不通过时用
-        $scope.$watch('app',function(app){
-            if(app ){
-                $scope.app.subState = 1;
-            }
-        });
-        facInput = Input.ins();
-        $scope.data = {
-            member: {}
-        };
         $scope.beforeSubmit = function(fn) {
             if (tasksOfBeforeSubmit.indexOf(fn) === -1) {
                 tasksOfBeforeSubmit.push(fn);
+            }
+        };
+        window.onbeforeunload = function() {
+            // 保存未提交数据
+            submitState.modified && submitState.cache();
+        };
+
+        function doTask(seq, nextAction) {
+            var task = tasksOfBeforeSubmit[seq];
+            task().then(function(rsp) {
+                seq++;
+                seq < tasksOfBeforeSubmit.length ? doTask(seq, nextAction) : doSubmit(nextAction);
+            });
+        };
+
+        function doSubmit(nextAction) {
+            var ek, submitData;
+            ek = $scope.record ? $scope.record.enroll_key : undefined;
+            facInput.submit($scope.data, ek).then(function(rsp) {
+                var url;
+                submitState.finish();
+                if (nextAction === 'closeWindow') {
+                    $scope.closeWindow();
+                } else if (nextAction === '_autoForward') {
+                    // 根据指定的进入规则自动跳转到对应页面
+                    url = LS.j('', 'site', 'app');
+                    location.replace(url);
+                } else if (nextAction && nextAction.length) {
+                    url = LS.j('', 'site', 'app');
+                    url += '&page=' + nextAction;
+                    url += '&ek=' + rsp.data;
+                    location.replace(url);
+                } else {
+                    if (ek === undefined) {
+                        $scope.record = {
+                            enroll_key: rsp.data
+                        }
+                    }
+                    $scope.$broadcast('xxt.app.enroll.submit.done', rsp.data);
+                }
+            }, function(reason) {
+                submitState.finish();
+                $scope.$parent.errmsg = reason;
+            });
+        };
+        var facInput, tasksOfBeforeSubmit, submitState;
+        tasksOfBeforeSubmit = [];
+        facInput = Input.ins();
+        $scope.data = {
+            member: {},
+        };
+        $scope.submitState = submitState = {
+            modified: false,
+            state: 'waiting',
+            start: function() {
+                this.state = 'running';
+            },
+            finish: function() {
+                var cacheKey;
+                this.state = 'waiting';
+                this.modified = false;
+                if (window.localStorage) {
+                    cacheKey = this._cacheKey();
+                    window.localStorage.removeItem(cacheKey);
+                }
+            },
+            isRunning: function() {
+                return this.state === 'running';
+            },
+            _cacheKey: function() {
+                var app = $scope.app;
+                return '/site/' + app.siteid + '/app/' + app.id + '/record/' + ($scope.record ? $scope.record.enroll_key : '') + '/unsubmit';
+            },
+            cache: function() {
+                if (window.localStorage) {
+                    var key, val;
+                    key = this._cacheKey();
+                    val = angular.copy($scope.data);
+                    val._cacheAt = (new Date() * 1);
+                    val = JSON.stringify(val);
+                    window.localStorage.setItem(key, val);
+                }
+            },
+            fromCache: function(keep) {
+                if (window.localStorage) {
+                    var key, val;
+                    key = this._cacheKey();
+                    val = window.localStorage.getItem(key);
+                    if (!keep) window.localStorage.removeItem(key);
+                    if (val) {
+                        val = JSON.parse(val);
+                        if (val._cacheAt && (val._cacheAt + 1800000) < (new Date() * 1)) {
+                            val = false;
+                        }
+                        delete val._cacheAt;
+                    }
+                }
+                return val;
             }
         };
         $scope.$on('xxt.app.enroll.ready', function(event, params) {
@@ -403,7 +488,7 @@ define(["angular", "enroll-common", "angular-sanitize", "xxt-share", "xxt-image"
                 schemasById[schema.id] = schema;
             });
             $scope.schemasById = schemasById;
-
+            /* 用户已经登记过，恢复之前的数据 */
             if (params.record) {
                 dataOfRecord = params.record.data;
                 for (p in dataOfRecord) {
@@ -441,57 +526,34 @@ define(["angular", "enroll-common", "angular-sanitize", "xxt-share", "xxt-image"
                 }
                 $scope.record = params.record;
             }
-            // 无论是否有登记记录都自动填写用户认证信息
-            !hasSetMember && PG.setMember(params.user, $scope.data.member);
-        });
-        var doSubmit = function(nextAction) {
-            var ek, btnSubmit;
-            ek = $scope.record ? $scope.record.enroll_key : undefined;
-            facInput.submit($scope.data, ek).then(function(rsp) {
-                var url;
-                if (nextAction === 'closeWindow') {
-                    $scope.closeWindow();
-                } else if (nextAction === '_autoForward') {
-                    // 根据指定的进入规则自动跳转到对应页面
-                    url = LS.j('', 'site', 'app');
-                    location.replace(url);
-                } else if (nextAction && nextAction.length) {
-                    url = LS.j('', 'site', 'app');
-                    url += '&page=' + nextAction;
-                    url += '&ek=' + rsp.data;
-                    location.replace(url);
-                } else {
-                    if (ek === undefined) {
-                        $scope.record = {
-                            enroll_key: rsp.data
-                        }
-                    }
-                    $scope.app.subState = 1;
-                    $scope.$broadcast('xxt.app.enroll.submit.done', rsp.data);
+            /* 恢复用户未提交的数据 */
+            if (window.localStorage) {
+                var cached = submitState.fromCache();
+                if (cached) {
+                    angular.extend($scope.data, cached);
+                    submitState.modified = true;
                 }
-            }, function(reason) {
-                $scope.app.subState = 1;
-                $scope.$parent.errmsg = reason;
-            });
-        };
-        var doTask = function(seq, nextAction) {
-            var task = tasksOfBeforeSubmit[seq];
-            task().then(function(rsp) {
-                seq++;
-                seq < tasksOfBeforeSubmit.length ? doTask(seq, nextAction) : doSubmit(nextAction);
-            });
-        };
+            }
+            // 无论是否有登记记录都自动填写自定义用户信息
+            !hasSetMember && PG.setMember(params.user, $scope.data.member);
+            // 跟踪数据变化
+            $scope.$watch('data', function(nv, ov) {
+                if (nv !== ov) {
+                    submitState.modified = true;
+                }
+            }, true);
+        });
         $scope.submit = function(event, nextAction) {
-            var checkResult, task, seq;
-            if($scope.app.subState === 1){
-                $scope.app.subState = 2;
-                if ( true === (checkResult = facInput.check($scope.data, $scope.app, $scope.page))) {
+            var checkResult;
+            if (!submitState.isRunning()) {
+                submitState.start();
+                if (true === (checkResult = facInput.check($scope.data, $scope.app, $scope.page))) {
                     tasksOfBeforeSubmit.length ? doTask(0, nextAction) : doSubmit(nextAction);
                 } else {
+                    submitState.finish();
                     $scope.$parent.errmsg = checkResult;
                 }
             }
-
         };
         $scope.getMyLocation = function(prop) {
             window.xxt.geo.getAddress($http, $q.defer(), LS.p.site).then(function(data) {

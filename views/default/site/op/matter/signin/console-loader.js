@@ -26,7 +26,7 @@ window.loading = {
                 "util.site": "/views/default/site/util",
                 "ui-tms": '/static/js/ui-tms',
                 "ui-xxt": '/static/js/xxt.ui',
-                "service.matter":'/views/default/pl/fe/_module/matter.service',
+                "service.matter": '/views/default/pl/fe/_module/matter.service',
                 "signinService": '/views/default/pl/fe/matter/signin/lib/signin.service',
                 "page": '/views/default/pl/fe/matter/enroll/lib/page',
                 "schema": '/views/default/pl/fe/matter/enroll/lib/schema',
@@ -45,7 +45,7 @@ window.loading = {
                 if (/jquery|bootstrap|domReady|angular/.test(id)) {
                     return '';
                 }
-                if(/xxt|tms/.test(id)){
+                if (/xxt|tms/.test(id)) {
                     return "?_=1";
                 }
                 return "?bust=" + (timestamp * 1);

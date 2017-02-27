@@ -1,4 +1,4 @@
-ngApp.provider.controller('ctrlBasic', ['$scope', '$http', 'PageUrl', 'srvApp', 'srvRecord', 'srvRecordConverter', function($scope, $http, PageUrl, srvApp, srvRecord, srvRecordConverter) {
+ngApp.provider.controller('ctrlBasic', ['$scope', '$http', 'PageUrl', 'srvSigninApp', 'srvSigninRecord', 'srvRecordConverter', function($scope, $http, PageUrl, srvSigninApp, srvSigninRecord, srvRecordConverter) {
     var PU, params = location.search.match('site=(.*)')[1];
     PU = PageUrl.ins('/rest/site/op/matter/signin', ['site', 'app', 'accessToken']);
 
@@ -14,7 +14,7 @@ ngApp.provider.controller('ctrlBasic', ['$scope', '$http', 'PageUrl', 'srvApp', 
     };
     $scope.editRecord = function(record) {
         $scope.subView = 'editing';
-        srvApp.opGet().then(function(data) {
+        srvSigninApp.opGet().then(function(data) {
             var app = data.app;
             if (record.data) {
                 app.data_schemas.forEach(function(col) {
@@ -54,7 +54,7 @@ ngApp.provider.controller('ctrlBasic', ['$scope', '$http', 'PageUrl', 'srvApp', 
     };
     $scope.chooseImage = function(fieldName) {
         var data = $scope.record.data;
-        srvRecord.chooseImage(fieldName).then(function(img) {
+        srvSigninRecord.chooseImage(fieldName).then(function(img) {
             !data[fieldName] && (data[fieldName] = []);
             data[fieldName].push(img);
         });

@@ -1,9 +1,9 @@
 define(['frame'], function(ngApp) {
     'use strict';
-    ngApp.provider.controller('ctrlRecord', ['$scope', '$uibModal', 'srvApp', 'srvRecord', function($scope, $uibModal, srvApp, srvRecord) {
+    ngApp.provider.controller('ctrlRecord', ['$scope', '$uibModal', 'srvSigninApp', 'srvSigninRecord', function($scope, $uibModal, srvSigninApp, srvSigninRecord) {
         $scope.doSearch = function(pageNumber) {
             $scope.rows.reset();
-            srvRecord.search(pageNumber);
+            srvSigninRecord.search(pageNumber);
         };
         $scope.$on('search-tag.xxt.combox.done', function(event, aSelected) {
             $scope.criteria.tags = $scope.criteria.tags.concat(aSelected);
@@ -15,39 +15,39 @@ define(['frame'], function(ngApp) {
             $scope.doSearch();
         });
         $scope.filter = function() {
-            srvRecord.filter().then(function() {
+            srvSigninRecord.filter().then(function() {
                 $scope.rows.reset();
             });
         };
         $scope.editRecord = function(record) {
-            srvRecord.editRecord(record);
+            srvSigninRecord.editRecord(record);
         };
         $scope.batchTag = function() {
-            srvRecord.batchTag($scope.rows);
+            srvSigninRecord.batchTag($scope.rows);
         };
         $scope.removeRecord = function(record) {
-            srvRecord.remove(record);
+            srvSigninRecord.remove(record);
         };
         $scope.empty = function() {
-            srvRecord.empty();
+            srvSigninRecord.empty();
         };
         $scope.batchVerify = function() {
-            srvRecord.batchVerify($scope.rows);
+            srvSigninRecord.batchVerify($scope.rows);
         };
         $scope.verifyAll = function() {
-            srvRecord.verifyAll();
+            srvSigninRecord.verifyAll();
         };
         $scope.notify = function(isBatch) {
-            srvRecord.notify(isBatch ? $scope.rows : undefined);
+            srvSigninRecord.notify(isBatch ? $scope.rows : undefined);
         };
         $scope.export = function() {
-            srvRecord.export();
+            srvSigninRecord.export();
         };
         $scope.exportImage = function() {
-            srvRecord.exportImage();
+            srvSigninRecord.exportImage();
         };
         $scope.importByEnrollApp = function() {
-            srvRecord.importByEnrollApp().then(function(data) {
+            srvSigninRecord.importByEnrollApp().then(function(data) {
                 if (data && data.length) {
                     $scope.doSearch(1);
                 }
@@ -84,8 +84,8 @@ define(['frame'], function(ngApp) {
         $scope.criteria = {}; // 过滤条件
         $scope.records = []; // 登记记录
         $scope.tmsTableWrapReady = 'N';
-        srvApp.get().then(function(app) {
-            srvRecord.init(app, $scope.page, $scope.criteria, $scope.records);
+        srvSigninApp.get().then(function(app) {
+            srvSigninRecord.init(app, $scope.page, $scope.criteria, $scope.records);
             // schemas
             var recordSchemas = [],
                 enrollDataSchemas = [],

@@ -1,6 +1,6 @@
 define(['require', 'page', 'schema', 'signinService'], function(require, pageLib, schemaLib) {
     'use strict';
-    var ngApp = angular.module('app', ['ngRoute', 'frapontillo.bootstrap-switch', 'ui.tms', , 'service.matter', 'service.signin', 'tinymce.enroll', 'ui.xxt']);
+    var ngApp = angular.module('app', ['ngRoute', 'frapontillo.bootstrap-switch', 'ui.tms', 'service.matter', 'service.signin', 'tinymce.enroll', 'ui.xxt']);
     ngApp.constant('cstApp', {
         notifyMatter: [{
             value: 'tmplmsg',
@@ -37,7 +37,7 @@ define(['require', 'page', 'schema', 'signinService'], function(require, pageLib
             url: '/rest/pl/fe/matter'
         }]
     });
-    ngApp.config(['$controllerProvider', '$routeProvider', '$locationProvider', '$compileProvider', '$uibTooltipProvider', 'srvSiteProvider', 'srvQuickEntryProvider', 'srvAppProvider', 'srvRoundProvider', 'srvPageProvider', 'srvRecordProvider', function($controllerProvider, $routeProvider, $locationProvider, $compileProvider, $uibTooltipProvider, srvSiteProvider, srvQuickEntryProvider, srvAppProvider, srvRoundProvider, srvPageProvider, srvRecordProvider) {
+    ngApp.config(['$controllerProvider', '$routeProvider', '$locationProvider', '$compileProvider', '$uibTooltipProvider', 'srvSiteProvider', 'srvQuickEntryProvider', 'srvSigninAppProvider', 'srvSigninRoundProvider', 'srvSigninPageProvider', 'srvSigninRecordProvider', function($controllerProvider, $routeProvider, $locationProvider, $compileProvider, $uibTooltipProvider, srvSiteProvider, srvQuickEntryProvider, srvSigninAppProvider, srvSigninRoundProvider, srvSigninPageProvider, srvSigninRecordProvider) {
         var RouteParam = function(name) {
             var baseURL = '/views/default/pl/fe/matter/signin/';
             this.templateUrl = baseURL + name + '.html?_=' + ((new Date()) * 1);
@@ -77,20 +77,20 @@ define(['require', 'page', 'schema', 'signinService'], function(require, pageLib
             appId = ls.match(/[\?&]id=([^&]*)/)[1];
             srvSiteProvider.config(siteId);
             //
-            srvAppProvider.config(siteId, appId);
+            srvSigninAppProvider.config(siteId, appId);
             //
-            srvRoundProvider.setSiteId(siteId);
-            srvRoundProvider.setAppId(appId);
+            srvSigninRoundProvider.setSiteId(siteId);
+            srvSigninRoundProvider.setAppId(appId);
             //
-            srvPageProvider.setSiteId(siteId);
-            srvPageProvider.setAppId(appId);
+            srvSigninPageProvider.setSiteId(siteId);
+            srvSigninPageProvider.setAppId(appId);
             //
-            srvRecordProvider.config(siteId, appId);
+            srvSigninRecordProvider.config(siteId, appId);
             //
             srvQuickEntryProvider.setSiteId(siteId);
         })();
     }]);
-    ngApp.controller('ctrlFrame', ['$scope', 'srvSite', 'srvApp', function($scope, srvSite, srvApp) {
+    ngApp.controller('ctrlFrame', ['$scope', 'srvSite', 'srvSigninApp', function($scope, srvSite, srvSigninApp) {
         $scope.viewNames = {
             'main': '活动定义',
             'publish': '发布预览',
@@ -104,7 +104,7 @@ define(['require', 'page', 'schema', 'signinService'], function(require, pageLib
             $scope.subView = subView[1] === 'signin' ? 'publish' : subView[1];
         });
         $scope.update = function(props) {
-            srvApp.update(props);
+            srvSigninApp.update(props);
         };
         srvSite.get().then(function(oSite) {
             $scope.site = oSite;
@@ -116,7 +116,7 @@ define(['require', 'page', 'schema', 'signinService'], function(require, pageLib
             $scope.memberSchemas = aMemberSchemas;
         });
         $scope.mapOfAppSchemas = {};
-        srvApp.get().then(function(app) {
+        srvSigninApp.get().then(function(app) {
             $scope.app = app;
             app.__schemasOrderConsistent = 'Y'; //页面上登记项显示顺序与定义顺序一致
         });

@@ -1,4 +1,16 @@
 {
+	"common": {
+		"title": "通用登记",
+		"name": "common",
+		"description": "向多人收集数据",
+		"templates": {
+			"simple": {
+				"title": "简单",
+				"name": "simple",
+				"description": "简单快速"
+			}
+		}
+	},
 	"group_week_report": {
 		"title": "团队周报",
 		"name": "group_week_report",

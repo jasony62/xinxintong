@@ -71,6 +71,7 @@ class main extends \pl\fe\base {
 		if (false === ($site = $modelSite->byId($site))) {
 			return new \ObjectNotFoundError();
 		}
+		$site->uid=$user->id;
 		/* 检查当前用户的角色 */
 		if ($user->id === $site->creater) {
 			$site->yourRole = 'O';

@@ -1,4 +1,4 @@
-define(["require", "angular", "angular-sanitize", "xxt-share", "xxt-image", "xxt-geo", "enroll-directive", "enroll-common"], function(require, angular) {
+define(["require", "angular", "angular-sanitize", "jquery", "xxt-share", "xxt-image", "xxt-geo", "enroll-directive", "enroll-common"], function(require, angular) {
     'use strict';
     ngApp.config(['$compileProvider', function($compileProvider) {
         $compileProvider.aHrefSanitizationWhitelist(/^\s*(https?|ftp|mailto|tel|file|sms|wxLocalResource):/);
@@ -267,10 +267,12 @@ define(["require", "angular", "angular-sanitize", "xxt-share", "xxt-image", "xxt
     });
     ngApp.directive('tmsFileInput', function($q) {
         var r, onSubmit;
-        r = new Resumable({
-            target: '/rest/site/fe/matter/signin/record/uploadFile?site=' + LS.p.site + '&aid=' + LS.p.aid,
-            testChunks: false,
-            chunkSize: 512 * 1024
+        require(['resumable'], function(Resumable) {
+            r = new Resumable({
+                target: '/rest/site/fe/matter/signin/record/uploadFile?site=' + LS.p.site + '&aid=' + LS.p.app,
+                testChunks: false,
+                chunkSize: 512 * 1024
+            });
         });
         onSubmit = function($scope) {
             var defer;

@@ -19,6 +19,7 @@ class site extends \pl\fe\base {
 	 * @param string $matterType
 	 * @param int $page
 	 * @param int $size
+	 *
 	 */
 	public function list_action($site, $matterType, $scenario = null, $scope = 'S', $page = 1, $size = 20) {
 		if (false === ($loginUser = $this->accountUser())) {
@@ -32,7 +33,7 @@ class site extends \pl\fe\base {
 			$q = [
 				'*',
 				"xxt_template",
-				"visible_scope='{$scope}'",
+				["visible_scope" => $scope],
 			];
 		} else if (in_array($scope, ['favor', 'purchase'])) {
 			$q = [
@@ -40,17 +41,17 @@ class site extends \pl\fe\base {
 				"xxt_template_order",
 			];
 			if ($scope === 'favor') {
-				$q[2] = "favor='Y'";
+				$q[2] = ["favor" => 'Y'];
 			} else {
-				$q[2] = "purchase='Y'";
+				$q[2] = ["purchase" => 'Y'];
 			}
 		}
-		$q[2] .= " and matter_type='{$matterType}'";
+		$q[2]['matter_type'] = $matterType;
 		if (!empty($scenario)) {
-			$q[2] .= " and scenario='{$scenario}'";
+			$q[2]['scenario'] = $scenario;
 		}
 		if ($scope === 'S') {
-			$q[2] .= " and siteid='{$site}'";
+			$q[2]['siteid'] = $site;
 		}
 
 		$q2 = [

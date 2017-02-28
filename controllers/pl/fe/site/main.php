@@ -67,6 +67,46 @@ class main extends \pl\fe\base {
 		return new \ResponseData($rst);
 	}
 	/**
+	 * 已删除的团队列表
+	 *
+	 */
+	public function wasteList_action()
+	{
+		if (false === ($user = $this->accountUser())) {
+			return new \ResponseTimeout();
+		}
+
+		$rst=$this->model()->query_objs_ss(["*","xxt_site",['creater'=>$user->id , 'state'=>'0']],['o'=>'create_at desc']);
+
+		return new \ResponseData($rst);
+	}
+	/*
+	 * 恢复
+	 */
+	public function recover_action($site)
+	{
+		if (false === ($user = $this->accountUser())) {
+			return new \ResponseTimeout();
+		}
+
+		$log=\TMS_APP::M('matter\log');
+		//恢复团队
+		$rst = $log->update(
+			'xxt_site',
+			['state' => 1],
+			['id'=>$site , 'creater'=>$user->id]
+		);
+		//恢复素材
+		if($rst){
+			//工作台恢复
+			$log->update('xxt_log_matter_op',['user_last_op'=>'Y','operation'=>'Restore'],['siteid'=>$site]);
+			//项目恢复
+			$log->update('xxt_mission_acl',['state'=>1],['siteid'=>$site]);
+		}
+		
+		return new \ResponseData($rst);
+	}
+	/**
 	 * 获取团队信息
 	 */
 	public function get_action($site) {

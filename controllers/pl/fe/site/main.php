@@ -56,6 +56,13 @@ class main extends \pl\fe\base {
 			['state' => 0],
 			"id='$site' and creater='{$user->id}'"
 		);
+		
+		if($rst){
+			//工作台
+			$log->update('xxt_log_matter_op',['user_last_op'=>'N','operation'=>'Recycle'],['siteid'=>$site]);
+			//项目
+			$log->update('xxt_mission_acl',['state'=>0],['siteid'=>$site]);
+		}
 
 		return new \ResponseData($rst);
 	}

@@ -36,7 +36,7 @@ class news_model extends MultiArticleReply {
 		if (empty($users) === false) {
 			$members = array();
 		} else {
-			$members = \TMS_APP::model('site\user\member')->byUser($siteId, $users[0]->uid);
+			$members = \TMS_APP::model('site\user\member')->byUser($users[0]->uid);
 		}
 		$matters2 = array();
 		foreach ($matters as $m) {

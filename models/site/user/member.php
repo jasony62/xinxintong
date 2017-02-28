@@ -23,15 +23,19 @@ class member_model extends \TMS_MODEL {
 	}
 	/**
 	 * 获取自定义用户信息
+	 *
+	 * @param string $userid
+	 *
 	 */
-	public function &byUser($siteId, $userid, $options = array()) {
+	public function &byUser($userid, $options = []) {
 		$fields = isset($options['fields']) ? $options['fields'] : '*';
-		$q = array(
+		$q = [
 			$fields,
 			'xxt_site_member',
 			"userid='$userid' and forbidden='N'",
-		);
+		];
 		isset($options['schemas']) && $q[2] .= " and schema_id in (" . $options['schemas'] . ")";
+
 		$members = $this->query_objs_ss($q);
 
 		return $members;
@@ -254,7 +258,9 @@ class member_model extends \TMS_MODEL {
 	/**
 	 * 判断当前用户信息是否有效
 	 *
-	 * $member
+	 * @param object $member
+	 * @param object $schema
+	 *
 	 * $attrs array 用户认证信息定义
 	 *  0:hidden,1:mandatory,2:unique,3:immuatable,4:verification,5:identity
 	 *
@@ -269,13 +275,15 @@ class member_model extends \TMS_MODEL {
 			 */
 			$mobile = $member->mobile;
 			$q = [
-				'1',
+				'id',
 				'xxt_site_member',
 				"schema_id={$member->schema_id} and forbidden='N' and mobile='$mobile'",
 			];
 			/* 不是当前用户自己 */
 			!empty($member->id) && $q[2] .= " and id<>'{$member->id}'";
-			if ('1' === $this->query_val_ss($q)) {
+
+			$members = $this->query_objs_ss($q);
+			if (count($members) > 0) {
 				return '手机号已经存在，不允许重复登记！';
 			}
 		}
@@ -285,13 +293,15 @@ class member_model extends \TMS_MODEL {
 			 */
 			$email = $member->email;
 			$q = [
-				'1',
+				'id',
 				'xxt_site_member',
 				"schema_id={$member->schema_id} and forbidden='N' and email='$email'",
 			];
 			/* 不是当前用户自己 */
 			!empty($member->id) && $q[2] .= " and id<>'{$member->id}'";
-			if ('1' === $this->query_val_ss($q)) {
+
+			$members = $this->query_objs_ss($q);
+			if (count($members) > 1) {
 				return '邮箱已经存在，不允许重复登记！';
 			}
 		}

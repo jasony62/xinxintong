@@ -3,7 +3,7 @@ define(['frame', 'schema', 'editor', 'page'], function(ngApp, schemaLib, editorP
     /**
      * app setting controller
      */
-    ngApp.provider.controller('ctrlPage', ['$scope', '$location', '$q', '$uibModal', 'srvApp', 'srvPage','http2', function($scope, $location, $q, $uibModal, srvApp, srvPage, http2) {
+    ngApp.provider.controller('ctrlPage', ['$scope', '$location', '$q', '$uibModal', 'srvSigninApp', 'srvSigninPage', 'http2', function($scope, $location, $q, $uibModal, srvSigninApp, srvSigninPage, http2) {
         window.onbeforeunload = function(e) {
             var message;
             if ($scope.ep.$$modified) {
@@ -55,12 +55,12 @@ define(['frame', 'schema', 'editor', 'page'], function(ngApp, schemaLib, editorP
                 editorProxy.purifyPage(page, true);
             }
 
-            return srvPage.update(page, names);
+            return srvSigninPage.update(page, names);
         };
         $scope.delPage = function() {
             if (window.confirm('确定删除页面？')) {
                 $('body').click();
-                srvPage.remove($scope.ep).then(function() {
+                srvSigninPage.remove($scope.ep).then(function() {
                     $scope.app.pages.splice($scope.app.pages.indexOf($scope.ep), 1);
                     if ($scope.app.pages.length) {
                         $scope.choosePage($scope.app.pages[0]);
@@ -86,7 +86,7 @@ define(['frame', 'schema', 'editor', 'page'], function(ngApp, schemaLib, editorP
             $scope.ep.html = '';
             $scope.ep.data_schemas = [];
             $scope.ep.act_schemas = [];
-            srvPage.update($scope.ep, ['data_schemas', 'act_schemas', 'html']).then(function() {
+            srvSigninPage.update($scope.ep, ['data_schemas', 'act_schemas', 'html']).then(function() {
                 editorProxy.getEditor().setContent('');
             });
         };
@@ -108,7 +108,7 @@ define(['frame', 'schema', 'editor', 'page'], function(ngApp, schemaLib, editorP
         });
         $scope.save = function() {
             // 更新应用
-            srvApp.update('data_schemas').then(function() {
+            srvSigninApp.update('data_schemas').then(function() {
                 // 更新页面
                 $scope.app.pages.forEach(function(page) {
                     $scope.updPage(page, ['data_schemas', 'act_schemas', 'html']);

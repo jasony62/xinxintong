@@ -28,7 +28,7 @@ class profile extends \pl\fe\base {
 		if ($user = $model->query_obj_ss($q)) {
 			$result['user'] = $user;
 			/* members */
-			$members = $this->model('site\user\member')->byUser($site, $userid);
+			$members = $this->model('site\user\member')->byUser($userid);
 			$result['members'] = $members;
 		}
 

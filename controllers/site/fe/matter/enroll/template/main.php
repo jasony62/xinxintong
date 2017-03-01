@@ -33,7 +33,7 @@ class main extends base {
 		$params['page'] = $this->getPage($templateDir, $initialConfig, $page);
 		if ($initialConfig->multi_rounds === 'Y') {
 			$data = $this->getData($templateDir);
-			$params['activeRound'] = $data->activeRound;
+			isset($data->activeRound) && $params['activeRound'] = $data->activeRound;
 		}
 
 		return new \ResponseData($params);

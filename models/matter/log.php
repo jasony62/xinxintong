@@ -178,55 +178,55 @@ class log_model extends \TMS_MODEL {
 		}
 		$this->insert('xxt_log_matter_action', $d, false);
 
-		if (!empty($siteId)) {
-			list($year, $month, $day) = explode('-', date('Y-n-j'));
-			$logid = $this->query_val_ss(array('id', 'xxt_log_mpa', "mpid='$siteId' and year='$year' and month='$month' and day='$day'"));
-			if (false === $logid) {
-				if ($last = $this->query_obj_ss(array('*', 'xxt_log_mpa', "mpid='$siteId' and islast='Y'"))) {
-					$this->update('xxt_log_mpa', array('islast' => 'N'), "mpid='$siteId' and islast='Y'");
-				}
+		// if (!empty($siteId)) {
+		// 	list($year, $month, $day) = explode('-', date('Y-n-j'));
+		// 	$logid = $this->query_val_ss(array('id', 'xxt_log_mpa', "mpid='$siteId' and year='$year' and month='$month' and day='$day'"));
+		// 	if (false === $logid) {
+		// 		if ($last = $this->query_obj_ss(array('*', 'xxt_log_mpa', "mpid='$siteId' and islast='Y'"))) {
+		// 			$this->update('xxt_log_mpa', array('islast' => 'N'), "mpid='$siteId' and islast='Y'");
+		// 		}
 
-				$today = array(
-					'mpid' => $siteId,
-					'year' => $year,
-					'month' => $month,
-					'day' => $day,
-					'islast' => 'Y',
-					'read_sum' => $last ? $last->read_sum : 0,
-					'sf_sum' => $last ? $last->sf_sum : 0,
-					'st_sum' => $last ? $last->st_sum : 0,
-					'fans_sum' => $last ? $last->fans_sum : 0,
-					'member_sum' => $last ? $last->member_sum : 0,
-				);
-				switch ($action_name) {
-				case 'R':
-					$today['read_inc'] = 1;
-					$today['read_sum'] = (int) $today['read_sum'] + 1;
-					break;
-				case 'SF':
-					$today['sf_inc'] = 1;
-					$today['sf_sum'] = (int) $today['sf_sum'] + 1;
-					break;
-				case 'ST':
-					$today['st_inc'] = 1;
-					$today['st_sum'] = (int) $today['st_sum'] + 1;
-					break;
-				}
-				$this->insert('xxt_log_mpa', $today, false);
-			} else {
-				switch ($action_name) {
-				case 'R':
-					$this->update("update xxt_log_mpa set read_inc=read_inc+1,read_sum=read_sum+1 where id='$logid'");
-					break;
-				case 'SF':
-					$this->update("update xxt_log_mpa set sf_inc=sf_inc+1,sf_sum=sf_sum+1 where id='$logid'");
-					break;
-				case 'ST':
-					$this->update("update xxt_log_mpa set st_inc=st_inc+1,st_sum=st_sum+1 where id='$logid'");
-					break;
-				}
-			}
-		}
+		// 		$today = array(
+		// 			'mpid' => $siteId,
+		// 			'year' => $year,
+		// 			'month' => $month,
+		// 			'day' => $day,
+		// 			'islast' => 'Y',
+		// 			'read_sum' => $last ? $last->read_sum : 0,
+		// 			'sf_sum' => $last ? $last->sf_sum : 0,
+		// 			'st_sum' => $last ? $last->st_sum : 0,
+		// 			'fans_sum' => $last ? $last->fans_sum : 0,
+		// 			'member_sum' => $last ? $last->member_sum : 0,
+		// 		);
+		// 		switch ($action_name) {
+		// 		case 'R':
+		// 			$today['read_inc'] = 1;
+		// 			$today['read_sum'] = (int) $today['read_sum'] + 1;
+		// 			break;
+		// 		case 'SF':
+		// 			$today['sf_inc'] = 1;
+		// 			$today['sf_sum'] = (int) $today['sf_sum'] + 1;
+		// 			break;
+		// 		case 'ST':
+		// 			$today['st_inc'] = 1;
+		// 			$today['st_sum'] = (int) $today['st_sum'] + 1;
+		// 			break;
+		// 		}
+		// 		$this->insert('xxt_log_mpa', $today, false);
+		// 	} else {
+		// 		switch ($action_name) {
+		// 		case 'R':
+		// 			$this->update("update xxt_log_mpa set read_inc=read_inc+1,read_sum=read_sum+1 where id='$logid'");
+		// 			break;
+		// 		case 'SF':
+		// 			$this->update("update xxt_log_mpa set sf_inc=sf_inc+1,sf_sum=sf_sum+1 where id='$logid'");
+		// 			break;
+		// 		case 'ST':
+		// 			$this->update("update xxt_log_mpa set st_inc=st_inc+1,st_sum=st_sum+1 where id='$logid'");
+		// 			break;
+		// 		}
+		// 	}
+		// }
 
 		return true;
 	}

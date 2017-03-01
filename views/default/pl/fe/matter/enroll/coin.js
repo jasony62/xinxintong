@@ -1,6 +1,6 @@
 define(['frame'], function(ngApp) {
     'use strict';
-    ngApp.provider.controller('ctrlCoin', ['$scope', 'http2', 'srvApp', function($scope, http2, srvApp) {
+    ngApp.provider.controller('ctrlCoin', ['$scope', 'http2', 'srvEnrollApp', function($scope, http2, srvEnrollApp) {
         var actions = [{
             name: 'site.matter.enroll.read',
             desc: '用户A打开登记活动页面'
@@ -74,7 +74,7 @@ define(['frame'], function(ngApp) {
                 $scope.logs = rsp.data.logs;
             });
         };
-        srvApp.get().then(function(app) {
+        srvEnrollApp.get().then(function(app) {
             $scope.fetchRules();
             $scope.fetchLogs();
         });

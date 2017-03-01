@@ -20,7 +20,7 @@ ul.img-tiles li.img-picker button span{font-size:36px}
                 <p class="form-control-static">{{record.enroll_at*1000|date:'yy-MM-dd hh:mm'}}</p>
             </div>
         </div>
-        <div class="form-group" ng-repeat="schema in app.data_schemas">
+        <div class="form-group" ng-repeat="schema in app.data_schemas" ng-if="schema.type!=='html'">
             <label class="col-md-3 control-label">{{schema.title}}</label>
             <div class="col-md-9" ng-switch on="schema.type">
                 <textarea class='form-control' ng-switch-when="longtext" ng-model="record.data[schema.id]"></textarea>
@@ -53,6 +53,10 @@ ul.img-tiles li.img-picker button span{font-size:36px}
                         <img ng-if="file.type.indexOf('image')===0" ng-src='{{file.url}}' style="width:100%"/>
                     </span>
                 </span>
+                <input type="text" class='form-control' ng-switch-when='mobile' ng-model="record.data[schema.id]">
+                <div ng-switch-when='date'>
+                    <tms-datepicker class='tms-datepicker' tms-title='时间' tms-obj="rnd" tms-date="record.data[schema.id]" tms-state="signinAt"></tms-datepicker>
+                </div>
                 <input type='text' class='form-control' ng-switch-default ng-model="record.data[schema.id]">
             </div>
         </div>

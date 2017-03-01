@@ -1,4 +1,4 @@
-ngApp.provider.controller('ctrlBasic', ['$scope', '$http', 'PageUrl', 'srvApp', 'srvRecord', 'srvRecordConverter', function($scope, $http, PageUrl, srvApp, srvRecord, srvRecordConverter) {
+ngApp.provider.controller('ctrlBasic', ['$scope', '$http', 'PageUrl', 'srvEnrollApp', 'srvEnrollRecord', 'srvRecordConverter', function($scope, $http, PageUrl, srvEnrollApp, srvEnrollRecord, srvRecordConverter) {
     var PU, params = location.search.match('site=(.*)')[1];
     PU = PageUrl.ins('/rest/site/op/matter/enroll', ['site', 'app', 'accessToken']);
 
@@ -14,7 +14,7 @@ ngApp.provider.controller('ctrlBasic', ['$scope', '$http', 'PageUrl', 'srvApp', 
     };
     $scope.editRecord = function(record) {
         $scope.subView = 'editing';
-        srvApp.opGet().then(function(data) {
+        srvEnrollApp.opGet().then(function(data) {
             var app = data.app;
             if (record.data) {
                 app.data_schemas.forEach(function(col) {
@@ -60,7 +60,7 @@ ngApp.provider.controller('ctrlBasic', ['$scope', '$http', 'PageUrl', 'srvApp', 
     };
     $scope.chooseImage = function(fieldName) {
         var data = $scope.record.data;
-        srvRecord.chooseImage(fieldName).then(function(img) {
+        srvEnrollRecord.chooseImage(fieldName).then(function(img) {
             !data[fieldName] && (data[fieldName] = []);
             data[fieldName].push(img);
         });
@@ -93,9 +93,9 @@ ngApp.provider.controller('ctrlBasic', ['$scope', '$http', 'PageUrl', 'srvApp', 
         $scope.record.aTags.splice($scope.record.aTags.indexOf(removed), 1);
     });
     $scope.syncByEnroll = function() {
-        srvRecord.syncByEnroll($scope.record);
+        srvEnrollRecord.syncByEnroll($scope.record);
     };
     $scope.syncByGroup = function() {
-        srvRecord.syncByGroup($scope.record);
+        srvEnrollRecord.syncByGroup($scope.record);
     };
 }]);

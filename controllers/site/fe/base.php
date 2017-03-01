@@ -384,5 +384,5 @@ class base extends \site\base {
 		//@ob_clean();
 		\QRcode::png($url);
 	}
-	
+
 }

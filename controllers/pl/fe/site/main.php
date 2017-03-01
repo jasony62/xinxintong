@@ -48,22 +48,22 @@ class main extends \pl\fe\base {
 		if (false === $user) {
 			return new \ResponseTimeout();
 		}
+
+		$log=\TMS_APP::M('matter\log');
 		/**
 		 * 做标记
 		 */
-		$rst = $this->model()->update(
+		$rst = $log->update(
 			'xxt_site',
 			['state' => 0],
-			"id='$site' and creater='{$user->id}'"
+			['id'=>$site , 'creater'=>$user->id]
 		);
-		
 		if($rst){
 			//工作台
 			$log->update('xxt_log_matter_op',['user_last_op'=>'N','operation'=>'Recycle'],['siteid'=>$site]);
 			//项目
 			$log->update('xxt_mission_acl',['state'=>0],['siteid'=>$site]);
 		}
-
 		return new \ResponseData($rst);
 	}
 	/**

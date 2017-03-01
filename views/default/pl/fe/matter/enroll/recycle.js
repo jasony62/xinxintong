@@ -1,22 +1,22 @@
 define(['frame'], function(ngApp) {
     'use strict';
-    ngApp.provider.controller('ctrlRecycle', ['$scope', 'srvApp', 'srvRecord', function($scope, srvApp, srvRecord) {
+    ngApp.provider.controller('ctrlRecycle', ['$scope', 'srvEnrollApp', 'srvEnrollRecord', function($scope, srvEnrollApp, srvEnrollRecord) {
         $scope.doSearch = function(pageNumber) {
             $scope.rows = {
                 allSelected: 'N',
                 selected: {}
             };
-            srvRecord.searchRecycle(pageNumber);
+            srvEnrollRecord.searchRecycle(pageNumber);
         };
         $scope.restore = function(record) {
-            srvRecord.restore(record);
+            srvEnrollRecord.restore(record);
         };
 
         $scope.page = {}; // 分页条件
         $scope.records = []; // 登记记录
         $scope.tmsTableWrapReady = 'N';
-        srvApp.get().then(function(app) {
-            srvRecord.init(app, $scope.page, {}, $scope.records);
+        srvEnrollApp.get().then(function(app) {
+            srvEnrollRecord.init(app, $scope.page, {}, $scope.records);
             // schemas
             var recordSchemas = [],
                 enrollDataSchemas = [],

@@ -214,24 +214,29 @@ class account_model extends TMS_MODEL {
 	/**
 	 *
 	 */
-	public function getAccount($page = 1, $size = 30) {
-		$q = array(
+	public function getAccount($page = 1, $size = 30, $filter = null) {
+		$q = [
 			'a.uid,a.nickname,a.email,a.reg_time,a.last_login,a.forbidden,a.coin,g.group_id,g.group_name',
 			'account a,account_group g,account_in_group i',
 			'a.uid=i.account_uid and i.group_id=g.group_id',
-		);
+		];
+		if (isset($filter->email)) {
+			$q[2] .= " and a.email like '%" . $this->escape($filter->email) . "%'";
+		}
+
 		$q2['o'] = 'reg_time desc';
 		$q2['r']['o'] = ($page - 1) * $size;
 		$q2['r']['l'] = $size;
+
 		$accounts = $this->query_objs_ss($q, $q2);
 
-		$q = array(
+		$q = [
 			'count(*)',
 			'account',
-		);
+		];
 		$amount = (int) $this->query_val_ss($q);
 
-		return array($accounts, $amount);
+		return [$accounts, $amount];
 	}
 	/**
 	 *

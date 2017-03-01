@@ -41,7 +41,7 @@ define(['require', 'enrollService'], function(require) {
             'require.mission.phase': '请先指定项目的阶段'
         }
     });
-    ngApp.config(['$controllerProvider', '$routeProvider', '$locationProvider', '$compileProvider', '$uibTooltipProvider', 'srvSiteProvider', 'srvQuickEntryProvider', 'srvAppProvider', 'srvRoundProvider', 'srvPageProvider', 'srvRecordProvider', function($controllerProvider, $routeProvider, $locationProvider, $compileProvider, $uibTooltipProvider, srvSiteProvider, srvQuickEntryProvider, srvAppProvider, srvRoundProvider, srvPageProvider, srvRecordProvider) {
+    ngApp.config(['$controllerProvider', '$routeProvider', '$locationProvider', '$compileProvider', '$uibTooltipProvider', 'srvSiteProvider', 'srvQuickEntryProvider', 'srvEnrollAppProvider', 'srvEnrollRoundProvider', 'srvEnrollPageProvider', 'srvEnrollRecordProvider', function($controllerProvider, $routeProvider, $locationProvider, $compileProvider, $uibTooltipProvider, srvSiteProvider, srvQuickEntryProvider, srvEnrollAppProvider, srvEnrollRoundProvider, srvEnrollPageProvider, srvEnrollRecordProvider) {
         var RouteParam = function(name, baseURL) {
             !baseURL && (baseURL = '/views/default/pl/fe/matter/enroll/');
             this.templateUrl = baseURL + name + '.html?_=' + (new Date() * 1);
@@ -88,14 +88,14 @@ define(['require', 'enrollService'], function(require) {
             appId = ls.match(/[\?&]id=([^&]*)/)[1];
             //
             srvSiteProvider.config(siteId);
-            srvAppProvider.config(siteId, appId);
-            srvRoundProvider.config(siteId, appId);
-            srvPageProvider.config(siteId, appId);
-            srvRecordProvider.config(siteId, appId);
+            srvEnrollAppProvider.config(siteId, appId);
+            srvEnrollRoundProvider.config(siteId, appId);
+            srvEnrollPageProvider.config(siteId, appId);
+            srvEnrollRecordProvider.config(siteId, appId);
             srvQuickEntryProvider.setSiteId(siteId);
         })();
     }]);
-    ngApp.controller('ctrlFrame', ['$scope', 'srvSite', 'srvApp', 'templateShop', function($scope, srvSite, srvApp, templateShop) {
+    ngApp.controller('ctrlFrame', ['$scope', 'srvSite', 'srvEnrollApp', 'templateShop', function($scope, srvSite, srvEnrollApp, templateShop) {
         $scope.scenarioNames = {
             'common': '通用登记',
             'registration': '报名',
@@ -121,7 +121,7 @@ define(['require', 'enrollService'], function(require) {
             $scope.subView = subView[1] === 'enroll' ? 'publish' : subView[1];
         });
         $scope.update = function(name) {
-            srvApp.update(name);
+            srvEnrollApp.update(name);
         };
         $scope.shareAsTemplate = function() {
             templateShop.share($scope.app.siteid, $scope.app);
@@ -135,7 +135,7 @@ define(['require', 'enrollService'], function(require) {
         srvSite.memberSchemaList().then(function(aMemberSchemas) {
             $scope.memberSchemas = aMemberSchemas;
         });
-        srvApp.get().then(function(app) {
+        srvEnrollApp.get().then(function(app) {
             $scope.app = app;
             app.__schemasOrderConsistent = 'Y'; //页面上登记项显示顺序与定义顺序一致
             // 用户评论

@@ -31,6 +31,7 @@ class main extends \pl\fe\base {
 		$params = new \stdClass;
 		$params->site = $site;
 		$params->creater = $rst->creater;
+		$params->invitor=$user->name;
 		$params->name=$rst->name;
 		$params->_version = 1;
 
@@ -62,7 +63,6 @@ class main extends \pl\fe\base {
 
 		if (!empty($task->params->site)) {
 			$data = $this->model('site')->byId($task->params->site);
-			$data->invitor=$user;
 			$task->data = $data;
 		}
 

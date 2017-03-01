@@ -142,8 +142,9 @@ define(['require', 'schema', 'page'], function(require, schemaLib, pageLib) {
                 pageLib.enhance(page, data._schemasById);
             });
         };
-        this._bFilter = function (){
-            var defer = $q.defer(), that = this;
+        this._bFilter = function() {
+            var defer = $q.defer(),
+                that = this;
             $uibModal.open({
                 templateUrl: '/views/default/pl/fe/matter/enroll/component/recordFilter.html?_=3',
                 controller: 'ctrlEnrollFilter',
@@ -1070,7 +1071,7 @@ define(['require', 'schema', 'page'], function(require, schemaLib, pageLib) {
                                 }
                             });
                         } else {
-                            targetAndMsg.criteria = _oCriteria;
+                            targetAndMsg.criteria = _ins._oCriteria;
                         }
                         targetAndMsg.message = notify.message;
 
@@ -1081,7 +1082,7 @@ define(['require', 'schema', 'page'], function(require, schemaLib, pageLib) {
                         url += _ins._oPage.joinParams();
 
                         http2.post(url, targetAndMsg, function(data) {
-                            noticebox.success('发送成功');
+                            noticebox.success('发送完成');
                         });
                     }
                 }, options);

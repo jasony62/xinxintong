@@ -2,7 +2,7 @@
 define(["require", "angular", "util.site", "enrollService"], function(require, angular) {
     var ngApp = angular.module('app', ['ui.bootstrap', 'util.site.tms', 'ui.tms', 'ui.xxt', 'service.matter', 'service.enroll']);
     ngApp.constant('cstApp', {});
-    ngApp.config(['$controllerProvider', 'srvAppProvider', 'srvOpRecordProvider', function($cp, srvAppProvider, srvRecordProvider) {
+    ngApp.config(['$controllerProvider', 'srvEnrollAppProvider', 'srvOpEnrollRecordProvider', function($cp, srvEnrollAppProvider, srvOpEnrollRecordProvider) {
         ngApp.provider = {
             controller: $cp.register
         };
@@ -13,23 +13,23 @@ define(["require", "angular", "util.site", "enrollService"], function(require, a
             appId = ls.match(/[\?&]app=([^&]*)/)[1];
             accessId = ls.match(/[\?&]accessToken=([^&]*)/)[1];
             //
-            srvAppProvider.config(siteId, appId, accessId);
-            srvRecordProvider.config(siteId, appId, accessId);
+            srvEnrollAppProvider.config(siteId, appId, accessId);
+            srvOpEnrollRecordProvider.config(siteId, appId, accessId);
         })();
     }]);
-    ngApp.controller('ctrl', ['$scope', '$http', '$timeout', '$uibModal', 'PageLoader', 'PageUrl',  'srvOpRecord', 'srvApp', function($scope, $http, $timeout, $uibModal, PageLoader, PageUrl, srvOpRecord, srvApp) {
+    ngApp.controller('ctrl', ['$scope', '$http', '$timeout', '$uibModal', 'PageLoader', 'PageUrl',  'srvOpEnrollRecord', 'srvEnrollApp', function($scope, $http, $timeout, $uibModal, PageLoader, PageUrl, srvOpEnrollRecord, srvEnrollApp) {
         $scope.getRecords = function(pageNumber) {
             $scope.rows.reset();
-            srvOpRecord.search(pageNumber);
+            srvOpEnrollRecord.search(pageNumber);
         };
         $scope.removeRecord = function(record) {
-            srvOpRecord.remove(record);
+            srvOpEnrollRecord.remove(record);
         };
         $scope.batchVerify = function() {
-            srvOpRecord.batchVerify($scope.rows);
+            srvOpEnrollRecord.batchVerify($scope.rows);
         };
         $scope.filter = function() {
-            srvOpRecord.filter().then(function() {
+            srvOpEnrollRecord.filter().then(function() {
                 $scope.rows.reset();
             });
         };
@@ -76,10 +76,10 @@ define(["require", "angular", "util.site", "enrollService"], function(require, a
         $scope.records = []; // 登记记录
         $scope.subView = 'list'; // 规定初始化展示页面
         $scope.tmsTableWrapReady = 'N';
-        srvApp.opGet().then(function(data) {
+        srvEnrollApp.opGet().then(function(data) {
             var app = data.app,
                 pages = data.page;
-            srvOpRecord.init(app, $scope.page, $scope.criteria, $scope.records);
+            srvOpEnrollRecord.init(app, $scope.page, $scope.criteria, $scope.records);
             PageLoader.render($scope, pages, ngApp).then(function() {
                 $scope.doc = pages;
             });

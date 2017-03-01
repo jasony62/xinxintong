@@ -540,7 +540,6 @@ class menu extends \pl\fe\base {
 				if (0 !== strpos($button->url, 'http://')) {
 					throw new MenuInvalidException("菜单【{$button->menu_name}】的链接必须以【http://】开头。");
 				}
-
 			} else if (!empty($button->matter_id)) {
 				/**
 				 * matter as link.

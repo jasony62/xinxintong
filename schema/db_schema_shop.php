@@ -56,18 +56,44 @@ $sql .= ",site_name varchar(50) not null"; // 提供模板的站点
 $sql .= ",creater varchar(40) not null"; // 生成模板的账号
 $sql .= ",creater_name varchar(255) not null default ''";
 $sql .= ",put_at int not null";
-$sql .= ",matter_id varchar(40) not null";
-$sql .= ",matter_type varchar(20) not null";
+$sql .= ",matter_id varchar(40) not null default ''";
+$sql .= ",matter_type varchar(20) not null default ''";
 $sql .= ",scenario varchar(255) not null default ''"; // 登记活动场景
 $sql .= ",title varchar(70) not null default ''";
 $sql .= ",pic text";
 $sql .= ",summary varchar(240) not null";
+$sql .= ",pub_version varchar(10) not null default ''";//发布的版本号
+$sql .= ",last_version varchar(10) not null default ''";//最新的版本号
 $sql .= ",visible_scope char(1) not null default 'S'"; //P:platform,S:site
 $sql .= ",push_home char(1) not null default 'N'"; // 是否推送到主页，只有在平台范围内公开的模板，才能由平台管理员发布到市场
 $sql .= ",weight int not null default 0"; // 权重
 $sql .= ",score int not null default 0";
 $sql .= ",copied_num int not null default 0";
+$sql .= ",favor_num int not null default 0";//收藏数
 $sql .= ",coin int not null default 0"; // 使用时需要的积分
+$sql .= ",state tinyint not null default 1"; 
+$sql .= ",primary key(id)) ENGINE=MyISAM DEFAULT CHARSET=utf8";
+if (!$mysqli->query($sql)) {
+	header('HTTP/1.0 500 Internal Server Error');
+	echo 'database error(xxt_template): ' . $mysqli->error;
+}
+/**
+ * 模板（登记活动）
+ */
+$sql = "create table if not exists xxt_template_enroll (";
+$sql .= "id int not null auto_increment";
+$sql .= ",version varchar(10) not null";//模板版本号
+$sql .= ",siteid varchar(32) not null"; // 提供模板的站点
+$sql .= ",create_at int not null";
+$sql .= ",template_id int not null"; 
+$sql .= ",scenario_config text"; // 登记活动场景的配置参数
+$sql .= ",multi_rounds char(1) not null default 'N'"; // 支持轮次
+$sql .= ",enrolled_entry_page varchar(20) not null default ''";//已填写时进入
+$sql .= ",open_lastroll char(1) not null default 'Y'"; // 打开最后一条登记记录，还是编辑新的
+$sql .= ",data_schemas longtext"; // 登记项定义
+$sql .= ",up_said text"; // 版本更新说明
+$sql .= ",release char(1) not null default 'N'"; //发布状态
+$sql .= ",state tinyint not null default 1"; 
 $sql .= ",primary key(id)) ENGINE=MyISAM DEFAULT CHARSET=utf8";
 if (!$mysqli->query($sql)) {
 	header('HTTP/1.0 500 Internal Server Error');
@@ -79,8 +105,8 @@ if (!$mysqli->query($sql)) {
 $sql = "create table if not exists xxt_template_acl (";
 $sql .= "id int not null auto_increment";
 $sql .= ",template_id int not null";
-$sql .= ",matter_id varchar(40) not null";
-$sql .= ",matter_type varchar(20) not null";
+$sql .= ",matter_id varchar(40) not null default ''";
+$sql .= ",matter_type varchar(20) not null default ''";
 $sql .= ",scenario varchar(255) not null default ''"; // 登记活动场景
 $sql .= ",creater varchar(40) not null default ''"; // 分享的创建者
 $sql .= ",creater_name varchar(255) not null default ''";
@@ -101,14 +127,15 @@ $sql .= ",siteid varchar(32) not null"; // 使用模板的站点
 $sql .= ',buyer varchar(40) not null'; // 购买模板的账号
 $sql .= ",buyer_name varchar(255) not null default ''";
 $sql .= ",template_id int not null"; // 模板ID
+$sql .= ",template_version varchar(10) not null";//模板版本号
 $sql .= ",from_siteid varchar(32) not null"; // 提供模板的站点
 $sql .= ",from_site_name varchar(50) not null"; // 提供模板的站点
-$sql .= ",matter_id varchar(40) not null";
-$sql .= ",matter_type varchar(20) not null";
+$sql .= ",matter_id varchar(40) not null default ''";
+$sql .= ",matter_type varchar(20) not null default ''";
 $sql .= ",scenario varchar(255) not null default ''"; // 登记活动场景
 $sql .= ",title varchar(70) not null default ''";
 $sql .= ',pic text';
-$sql .= ',summary varchar(240) not null';
+$sql .= ",summary varchar(240) not null default ''";
 $sql .= ",share char(1) not null default 'N'"; // 共享
 $sql .= ',share_at int not null'; // 获得模板的时间
 $sql .= ",favor char(1) not null default 'N'"; // 收藏

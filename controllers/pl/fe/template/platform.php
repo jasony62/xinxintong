@@ -46,7 +46,7 @@ class platform extends \pl\fe\base {
 		return new \ResponseData(['templates' => $templates, 'total' => $total]);
 	}
 	/**
-	 * 获得模板列表
+	 * 获得共享模板列表
 	 *
 	 * @param string $matterType
 	 * @param string $scenario

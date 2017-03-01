@@ -62,6 +62,7 @@ class main extends \pl\fe\base {
 
 		if (!empty($task->params->site)) {
 			$data = $this->model('site')->byId($task->params->site);
+			$data->invitor=$user;
 			$task->data = $data;
 		}
 
@@ -99,6 +100,7 @@ class main extends \pl\fe\base {
 		$admin = new \stdClass;
 		$admin->uid = $account->uid;
 		$admin->ulabel = $account->nickname;
+		$admin->siteid=$site;
 		$rst = $modelAdm->add($user, $site, $admin); 
 		if ($rst[0] === false) {
 			return new \ResponseError($rst[1]);

@@ -236,12 +236,10 @@ config(['$uibTooltipProvider', function($uibTooltipProvider) {
     };
     $scope.recycle = function(){
         //获取回收站信息 接口等后台
-        //var url = '/rest/pl/fe/site/list_=' + t ;
-        //http2.get(url,function(rsp){
-        //    $scope.sites0 = rsp.data;
-        //})
-        //测试代码
-        $scope.sites0 = [];
+        var url = '/rest/pl/fe/site/wasteList?_=' + t ;
+        http2.get(url,function(rsp){
+            $scope.sites0 = rsp.data;
+        });
     };
     $scope.restoreSite = function(site){
         //后台给接口

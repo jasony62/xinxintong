@@ -314,4 +314,11 @@ class main extends \pl\fe\base {
 
 		return $html;
 	}
+	/**
+	 *
+	 */
+	public function invite_action($code){
+		\TPL::output('/pl/fe/site/invite');
+		exit;
+	}
 }

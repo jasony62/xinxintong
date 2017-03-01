@@ -1,5 +1,5 @@
 define(['require', 'schema', 'page'], function(require, schemaLib, pageLib) {
-    var BaseSrvRecord = function($q, $http, srvRecordConverter, noticebox, $uibModal) {
+    var BaseSrvEnrollRecord = function($q, $http, srvRecordConverter, noticebox, $uibModal) {
         this._oApp = null;
         this._oPage = null;
         this._oCriteria = null;
@@ -146,7 +146,7 @@ define(['require', 'schema', 'page'], function(require, schemaLib, pageLib) {
             var defer = $q.defer(), that = this;
             $uibModal.open({
                 templateUrl: '/views/default/pl/fe/matter/enroll/component/recordFilter.html?_=3',
-                controller: 'ctrlFilter',
+                controller: 'ctrlEnrollFilter',
                 windowClass: 'auto-height',
                 backdrop: 'static',
                 resolve: {
@@ -168,7 +168,7 @@ define(['require', 'schema', 'page'], function(require, schemaLib, pageLib) {
         }
     };
     angular.module('service.enroll', ['ui.bootstrap', 'ui.xxt', 'service.matter']).
-    provider('srvApp', function() {
+    provider('srvEnrollApp', function() {
         function _mapSchemas(app) {
             var mapOfSchemaByType = {},
                 mapOfSchemaById = {},
@@ -217,7 +217,7 @@ define(['require', 'schema', 'page'], function(require, schemaLib, pageLib) {
             _accessId = accessId;
         };
         this.$get = ['$q', '$uibModal', 'http2', 'noticebox', 'mattersgallery', function($q, $uibModal, http2, noticebox, mattersgallery) {
-            var _ins = new BaseSrvRecord();
+            var _ins = new BaseSrvEnrollRecord();
             var _self = {
                 get: function() {
                     var url;
@@ -584,7 +584,7 @@ define(['require', 'schema', 'page'], function(require, schemaLib, pageLib) {
             };
             return _self;
         }];
-    }).provider('srvSchema', function() {
+    }).provider('srvEnrollSchema', function() {
         var _siteId, _appId;
 
         this.config = function(siteId, appId) {
@@ -639,7 +639,7 @@ define(['require', 'schema', 'page'], function(require, schemaLib, pageLib) {
             };
             return _self;
         }];
-    }).provider('srvRound', function() {
+    }).provider('srvEnrollRound', function() {
         var _siteId, _appId, _rounds,
             _RestURL = '/rest/pl/fe/matter/enroll/round/',
             RoundState = ['新建', '启用', '停止'];
@@ -648,7 +648,7 @@ define(['require', 'schema', 'page'], function(require, schemaLib, pageLib) {
             _siteId = siteId;
             _appId = appId;
         };
-        this.$get = ['$q', 'http2', '$uibModal', 'srvApp', function($q, http2, $uibModal, srvApp) {
+        this.$get = ['$q', 'http2', '$uibModal', 'srvEnrollApp', function($q, http2, $uibModal, srvEnrollApp) {
             return {
                 RoundState: RoundState,
                 list: function() {
@@ -656,7 +656,7 @@ define(['require', 'schema', 'page'], function(require, schemaLib, pageLib) {
                     if (_rounds) {
                         defer.resolve(_rounds);
                     } else {
-                        srvApp.get().then(function(oApp) {
+                        srvEnrollApp.get().then(function(oApp) {
                             _rounds = oApp.rounds;
                             defer.resolve(_rounds);
                         });
@@ -752,18 +752,18 @@ define(['require', 'schema', 'page'], function(require, schemaLib, pageLib) {
                 }
             };
         }];
-    }).provider('srvPage', function() {
+    }).provider('srvEnrollPage', function() {
         var _siteId, _appId;
         this.config = function(siteId, appId) {
             _siteId = siteId;
             _appId = appId;
         };
-        this.$get = ['$uibModal', '$q', 'http2', 'noticebox', 'srvApp', function($uibModal, $q, http2, noticebox, srvApp) {
+        this.$get = ['$uibModal', '$q', 'http2', 'noticebox', 'srvEnrollApp', function($uibModal, $q, http2, noticebox, srvEnrollApp) {
             var _self;
             _self = {
                 create: function() {
                     var deferred = $q.defer();
-                    srvApp.get().then(function(app) {
+                    srvEnrollApp.get().then(function(app) {
                         $uibModal.open({
                             templateUrl: '/views/default/pl/fe/matter/enroll/component/createPage.html?_=3',
                             backdrop: 'static',
@@ -822,7 +822,7 @@ define(['require', 'schema', 'page'], function(require, schemaLib, pageLib) {
                 },
                 remove: function(page) {
                     var defer = $q.defer();
-                    srvApp.get().then(function(app) {
+                    srvEnrollApp.get().then(function(app) {
                         var url = '/rest/pl/fe/matter/enroll/page/remove';
                         url += '?site=' + _siteId;
                         url += '&app=' + _appId;
@@ -839,14 +839,14 @@ define(['require', 'schema', 'page'], function(require, schemaLib, pageLib) {
             };
             return _self;
         }];
-    }).provider('srvRecord', function() {
+    }).provider('srvEnrollRecord', function() {
         var _siteId, _appId;
         this.config = function(siteId, appId) {
             _siteId = siteId;
             _appId = appId;
         };
         this.$get = ['$q', '$sce', 'http2', 'noticebox', '$uibModal', 'pushnotify', 'cstApp', 'srvRecordConverter', function($q, $sce, http2, noticebox, $uibModal, pushnotify, cstApp, srvRecordConverter) {
-            var _ins = new BaseSrvRecord($q, http2, srvRecordConverter, noticebox, $uibModal);
+            var _ins = new BaseSrvEnrollRecord($q, http2, srvRecordConverter, noticebox, $uibModal);
             _ins.search = function(pageNumber) {
                 var url;
 
@@ -905,7 +905,7 @@ define(['require', 'schema', 'page'], function(require, schemaLib, pageLib) {
             _ins.edit = function(record) {
                 $uibModal.open({
                     templateUrl: '/views/default/pl/fe/matter/enroll/component/recordEditor.html?_=7',
-                    controller: 'ctrlEdit',
+                    controller: 'ctrlEnrollEdit',
                     backdrop: 'static',
                     resolve: {
                         record: function() {
@@ -1300,7 +1300,7 @@ define(['require', 'schema', 'page'], function(require, schemaLib, pageLib) {
 
             return _ins;
         }];
-    }).provider('srvOpRecord', function() {
+    }).provider('srvOpEnrollRecord', function() {
         var _siteId, _appId, _accessId;
         this.config = function(siteId, appId, accessId) {
             _siteId = siteId;
@@ -1308,7 +1308,7 @@ define(['require', 'schema', 'page'], function(require, schemaLib, pageLib) {
             _accessId = accessId;
         };
         this.$get = ['$q', 'http2', 'noticebox', '$uibModal', 'srvRecordConverter', function($q, http2, noticebox, $uibModal, srvRecordConverter) {
-            var _ins = new BaseSrvRecord($q, http2, srvRecordConverter, noticebox, $uibModal);
+            var _ins = new BaseSrvEnrollRecord($q, http2, srvRecordConverter, noticebox, $uibModal);
             _ins.search = function(pageNumber) {
                 var url;
 
@@ -1347,7 +1347,7 @@ define(['require', 'schema', 'page'], function(require, schemaLib, pageLib) {
 
             return _ins;
         }];
-    }).provider('srvLog', function() {
+    }).provider('srvEnrollLog', function() {
         this.$get = ['$q', 'http2', function($q, http2) {
             return {
                 list: function(_appId, page) {
@@ -1376,8 +1376,8 @@ define(['require', 'schema', 'page'], function(require, schemaLib, pageLib) {
                 }
             };
         }];
-    }).controller('ctrlEdit', ['$scope', '$uibModalInstance', 'record', 'srvApp', 'srvRecord', 'srvRecordConverter', function($scope, $uibModalInstance, record, srvApp, srvRecord, srvRecordConverter) {
-        srvApp.get().then(function(app) {
+    }).controller('ctrlEnrollEdit', ['$scope', '$uibModalInstance', 'record', 'srvEnrollApp', 'srvEnrollRecord', 'srvRecordConverter', function($scope, $uibModalInstance, record, srvEnrollApp, srvEnrollRecord, srvRecordConverter) {
+        srvEnrollApp.get().then(function(app) {
             if (record.data) {
                 app.data_schemas.forEach(function(col) {
                     if (record.data[col.id]) {
@@ -1429,7 +1429,7 @@ define(['require', 'schema', 'page'], function(require, schemaLib, pageLib) {
         };
         $scope.chooseImage = function(fieldName) {
             var data = $scope.record.data;
-            srvRecord.chooseImage(fieldName).then(function(img) {
+            srvEnrollRecord.chooseImage(fieldName).then(function(img) {
                 !data[fieldName] && (data[fieldName] = []);
                 data[fieldName].push(img);
             });
@@ -1462,12 +1462,12 @@ define(['require', 'schema', 'page'], function(require, schemaLib, pageLib) {
             $scope.record.aTags.splice($scope.record.aTags.indexOf(removed), 1);
         });
         $scope.syncByEnroll = function() {
-            srvRecord.syncByEnroll($scope.record);
+            srvEnrollRecord.syncByEnroll($scope.record);
         };
         $scope.syncByGroup = function() {
-            srvRecord.syncByGroup($scope.record);
+            srvEnrollRecord.syncByGroup($scope.record);
         };
-    }]).controller('ctrlFilter', ['$scope', '$uibModalInstance', 'dataSchemas', 'criteria', function($scope, $mi, dataSchemas, lastCriteria) {
+    }]).controller('ctrlEnrollFilter', ['$scope', '$uibModalInstance', 'dataSchemas', 'criteria', function($scope, $mi, dataSchemas, lastCriteria) {
         var canFilteredSchemas = [];
         dataSchemas.forEach(function(schema) {
             if (false === /image|file/.test(schema.type)) {

@@ -6,7 +6,7 @@
         <title>团队——邀请</title>
         <link href="//cdn.bootcss.com/bootstrap/3.3.6/css/bootstrap.min.css" rel="stylesheet">
         <link href="/static/css/tms.css?_=2" rel="stylesheet">
-        <link href="/views/default/pl/fe/matter/mission/invite.css?_=1" rel="stylesheet">
+        <link href="/views/default/pl/fe/site/invite.css?_=1" rel="stylesheet">
     </head>
     <body ng-controller='ctrlApp' ng-cloak class='ng-cloak'>
         <nav class='navbar navbar-default'>
@@ -21,7 +21,7 @@
         <div class='container'>
             <div ng-if="task">
                 <div class='form-group message'>
-                    <p class='h3 bg-info'><span ng-bind="task.creater_name"></span>邀请你参与团队：<span ng-bind="task.mission.title"></span></p>
+                    <p class='h3 bg-info'><span ng-bind="task.creater_name"></span>邀请你参与团队：<span ng-bind="task.params.name"></span></p>
                 </div>
                 <button class='btn btn-lg btn-success' ng-click="accept()">接受邀请</button>
             </div>
@@ -31,6 +31,6 @@
         </div>
         <script src="/static/js/angular.min.js"></script>
         <script src="/static/js/angular-route.min.js"></script>
-        <script src="/static/js/require.js" data-main="/views/default/pl/fe/matter/mission/invite-loader.js?_=1"></script>
+        <script src="/static/js/require.js" data-main="/views/default/pl/fe/site/invite-loader.js?_=1"></script>
     </body>
 </html>

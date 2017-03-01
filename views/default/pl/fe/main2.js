@@ -24,7 +24,6 @@ config(['$uibTooltipProvider', function($uibTooltipProvider) {
                 location.href = '/rest/pl/fe/matter/link?site=' + site.id + '&id=' + rsp.data.id;
             });
         },
-        //研究项目-单图文
         addArticle: function(site) {
             http2.get('/rest/pl/fe/matter/article/create?site=' + site.id, function(rsp) {
                 location.href = '/rest/pl/fe/matter/article?site=' + site.id + '&id=' + rsp.data;
@@ -40,7 +39,6 @@ config(['$uibTooltipProvider', function($uibTooltipProvider) {
                 location.href = '/rest/pl/fe/matter/channel?site=' + site.id + '&id=' + rsp.data.id;
             });
         },
-        //研究项目-登记活动
         addEnroll: function(site, scenario) {
             $('body').trigger('click');
             templateShop.choose(site.id, 'enroll', scenario).then(function(choice) {
@@ -116,7 +114,6 @@ config(['$uibTooltipProvider', function($uibTooltipProvider) {
                 location.href = '/rest/pl/fe/matter/merchant/shop?site=' + site.id + '&id=' + rsp.data;
             });
         },
-        //信息墙
         addWall: function(site) {
             http2.get('/rest/pl/fe/matter/wall/create?site=' + site.id, function(rsp) {
                 location.href = '/rest/pl/fe/matter/wall?site=' + site.id + '&id=' + rsp.data;
@@ -218,7 +215,7 @@ config(['$uibTooltipProvider', function($uibTooltipProvider) {
             location.href = '/rest/pl/fe/site/setting?site=' + rsp.data.id;
         });
     };
-     //区分我的团队和回收站团队属性state ：0 是删除的；1是正常的
+     //区分我的团队和回收站团队属性state ：0 是回收站信息；1是我的团队
     $scope.list = function() {
         $scope.siteType = 1 ;
         var url = '/rest/pl/fe/site/list?_=' + t;
@@ -235,14 +232,14 @@ config(['$uibTooltipProvider', function($uibTooltipProvider) {
         location.href = '/rest/pl/fe/site?site=' + site.id;
     };
     $scope.recycle = function(){
-        //获取回收站信息 接口等后台
+        //获取回收站信息
         var url = '/rest/pl/fe/site/wasteList?_=' + t ;
         http2.get(url,function(rsp){
             $scope.sites0 = rsp.data;
         });
     };
     $scope.restoreSite = function(site){
-        //后台给接口
+        //恢复删除站点
         var url = '/rest/pl/fe/site/recover?site=' + site.id;
         http2.get(url, function(rsp){
             location.href = '/rest/pl/fe/site?site=' + site.id;

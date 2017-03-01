@@ -11,6 +11,8 @@ body{margin-bottom:50px;}
 .site .attr,.mission .attr,.matter .attr{display:flex;padding:8px 0;}
 .site .creater_name,.mission .creater_name,.matter .creater_name{flex:1;}
 .site .actions,.mission .actions,.matter .actions{border-top:1px solid #ddd;padding-top:8px;}
+.site .actions-top{position:absolute;top:.5em;right:.5em;display: none}
+.site:hover .actions-top{display: block}
 
 /*matter*/
 #viewRecent .article:after{content:'图文';position:absolute;top:-8px;left:-8px;background:green;padding:2px 4px;font-size:60%;color:#fff;border-radius:4px;}

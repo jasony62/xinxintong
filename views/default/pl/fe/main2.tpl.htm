@@ -127,7 +127,7 @@
                                     <span class="icon-bar"></span>
                                 </button>
                             </div>
-                            <div class='collapse navbar-collapse' id='navbar-collapse-2'>
+                            <div class='collapse navbar-collapse' id='navbar-collapse-3'>
                                 <form class='navbar-form navbar-right clearfix'>
                                     <div class='form-group'>
                                         <select class='form-control' ng-model="filter.bySite" ng-options="site.id as site.name for site in missionSites">
@@ -189,24 +189,51 @@
                         <div class='container-fluid'>
                             <div class="navbar-header">
                                 <span class="navbar-brand">我所属的团队</span>
+                                <button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target="#navbar-collapse-4">
+                                    <span class="sr-only">Toggle navigation</span>
+                                    <span class="icon-bar"></span>
+                                    <span class="icon-bar"></span>
+                                    <span class="icon-bar"></span>
+                                </button>
                             </div>
-                            <form class='navbar-form navbar-right'>
-                                <button class='btn btn-success' ng-click='create()'><span class='glyphicon glyphicon-plus'></span>新建团队</button>
-                            </form>
+                            <!--按钮方式-->
+                            <!--<form class='navbar-form navbar-right'>-->
+                                <!--<button class='btn btn-success' ng-click='list()'><span class='glyphicon glyphicon-user'></span>我的团队</button>-->
+                                <!--<button class='btn btn-success' ng-click='create()'><span class='glyphicon glyphicon-plus'></span>新建团队</button>-->
+                                <!--<button class='btn btn-success' ng-click='recycle()'><span class='glyphicon glyphicon-trash'></span>回收站<span class="badge">4</span></button>-->
+                            <!--</form>-->
+                            <div class="collapse navbar-collapse" id="navbar-collapse-4">
+                                <ul class="nav navbar-nav navbar-right">
+                                    <li ng-class="{'active':siteType===1}"><a href="javaScript:void(0)" ng-click="siteType=1;sites=site1"><span class='glyphicon glyphicon-user'></span>&nbsp&nbsp我的团队</a></li>
+                                    <li><a href="javaScript:void(0)"  ng-click='create()'><span class='glyphicon glyphicon-plus'></span>&nbsp&nbsp新建团队</a></li>
+                                    <li ng-class="{'active':siteType===0}">
+                                        <a href="javaScript:void(0)" ng-click="siteType=0;sites=sites0"><span class='glyphicon glyphicon-trash'></span>&nbsp&nbsp回收站
+                                       <span class="badge" ng-switch on="sites0.length">
+                                            <span ng-switch-when="!0" ng-bind="sites0.length"></span>
+                                            <span ng-switch-when="0">空</span>
+                                        </span>
+                                        </a>
+                                    </li>
+
+                                </ul>
+                            </div>
                         </div>
                     </nav>
                     <div class='tms-panel-body'>
                         <div  class='col-md-4' ng-repeat='site in sites'>
-                            <div class='thumbnail site'>
+                            <div class='thumbnail site' ng-switch on="siteType">
                                 <h4 class='title' ng-bind="site.name"></h4>
                                 <p class='summary' ng-bind="site.summary"></p>
                                 <div class='attr'>
                                     <div class='creater_name' ng-bind="site.creater_name"></div>
                                     <div class='create_at' ng-bind="site.create_at*1000|date:'yyyy-MM-dd'"></div>
                                 </div>
-                                <div class='actions'>
+                                <div class='actions' ng-switch-when="1">
                                     <a class='btn btn-sm btn-default' ng-click="openHome(site)">主页</a>
                                     <a class='btn btn-sm btn-default' ng-click="openConsole(site)">工作台</a>
+                                </div>
+                                <div class='actions-top' ng-switch-when="0">
+                                    <button class='btn btn-default' title='恢复'  ng-click="restoreSite(site)">恢复</button>
                                 </div>
                             </div>
                         </div>

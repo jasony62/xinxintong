@@ -213,24 +213,45 @@ config(['$uibTooltipProvider', function($uibTooltipProvider) {
 }]).controller('ctrlSite', ['$scope', 'http2', function($scope, http2) {
     var t = (new Date() * 1);
     $scope.create = function() {
-        var url = '/rest/pl/fe/site/create?_=' + t;;
+        var url = '/rest/pl/fe/site/create?_=' + t;
         http2.get(url, function(rsp) {
             location.href = '/rest/pl/fe/site/setting?site=' + rsp.data.id;
         });
     };
+     //区分我的团队和回收站团队属性state ：0 是删除的；1是正常的
     $scope.list = function() {
+        $scope.siteType = 1 ;
         var url = '/rest/pl/fe/site/list?_=' + t;
         http2.get(url, function(rsp) {
+            $scope.site1 = rsp.data;
             $scope.sites = rsp.data;
         });
     };
+
     $scope.openHome = function(site) {
         location.href = '/rest/site/home?site=' + site.id;
     };
     $scope.openConsole = function(site) {
         location.href = '/rest/pl/fe/site?site=' + site.id;
     };
+    $scope.recycle = function(){
+        //获取回收站信息 接口等后台
+        //var url = '/rest/pl/fe/site/list_=' + t ;
+        //http2.get(url,function(rsp){
+        //    $scope.sites0 = rsp.data;
+        //})
+        //测试代码
+        $scope.sites0 = [];
+    };
+    $scope.restoreSite = function(site){
+        //后台给接口
+        var url = '';
+        http2.get(url, function(rsp){
+            location.href = '/rest/pl/fe/site?site=' + site.id;
+        })
+    };
     $scope.list();
+    $scope.recycle();
 }]).controller('ctrlMission', ['$scope', 'http2', function($scope, http2) {
     var page, filter, filter2, t = (new Date() * 1);
     $scope.page = page = {

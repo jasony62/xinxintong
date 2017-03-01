@@ -8,14 +8,14 @@ define(['require', 'ngSanitize', 'tmsUI'], function(require) {
 		var inviteCode = $location.search().code;
 		//受邀请成为团队管理员，之后跳转到设置页面
 		$scope.accept = function() {
-			//var url = '/rest/pl/fe/matter/mission/coworker/acceptInvite?code=' + inviteCode;
+			var url = '/rest/pl/fe/site/coworker/acceptInvite?code=' + inviteCode;
 			http2.get(url, function(rsp) {
 				var acl = rsp.data;
 				location.href = '/rest/pl/fe/site/setting?site=' + acl.siteid
 			});
 		};
 		//获取邀请信息
-		http2.get('/rest/pl/fe/matter/mission/coworker/invite?code=' + inviteCode, function(rsp) {
+		http2.get('/rest/pl/fe/site/coworker/invite?code=' + inviteCode, function(rsp) {
 			if (rsp.err_code != '0') {
 				$scope.errmsg = rsp.err_msg;
 			} else {

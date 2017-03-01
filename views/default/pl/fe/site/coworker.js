@@ -21,7 +21,7 @@ ngApp.controller('ctrlCoworker', ['$scope', '$location', 'http2',  function ($sc
     };
     //获取邀请动态链接
     $scope.makeInvite = function () {
-        http2.get('/rest/pl/fe/matter/mission/coworker/makeInvite?mission=9', function (rsp) {
+        http2.get('/rest/pl/fe/site/coworker/makeInvite?site=' + $scope.siteId, function (rsp) {
             var url = 'http://' + location.host + rsp.data;
             $scope.inviteURL = url;
             $('#shareMission').trigger('show');

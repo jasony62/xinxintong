@@ -41,9 +41,9 @@ config(['$uibTooltipProvider', function($uibTooltipProvider) {
             });
         },
         //研究项目-登记活动
-        addEnroll: function(site) {
+        addEnroll: function(site, scenario) {
             $('body').trigger('click');
-            templateShop.choose(site.id, 'enroll').then(function(choice) {
+            templateShop.choose(site.id, 'enroll', scenario).then(function(choice) {
                 if (choice) {
                     if (choice.source === 'share') {
                         var url, data = choice.data;
@@ -130,9 +130,9 @@ config(['$uibTooltipProvider', function($uibTooltipProvider) {
         }
     };
 
-    function addMatter(site, matterType) {
+    function addMatter(site, matterType, scenario) {
         var fnName = 'add' + matterType[0].toUpperCase() + matterType.substr(1);
-        _fns[fnName].call(_fns, site);
+        _fns[fnName].call(_fns, site, scenario);
     }
 
     var url, page;
@@ -173,7 +173,7 @@ config(['$uibTooltipProvider', function($uibTooltipProvider) {
             target.trigger('show').data('popover', 'Y');
         }
     };
-    $scope.addMatter = function(matterType) {
+    $scope.addMatter = function(matterType, scenario) {
         var url = '/rest/pl/fe/site/list?_=' + (new Date() * 1);
         $('#popoverAddMatter').trigger('hide');
         http2.get(url, function(rsp) {
@@ -182,7 +182,7 @@ config(['$uibTooltipProvider', function($uibTooltipProvider) {
                 addMatter(sites[0], matterType);
             } else if (sites.length === 0) {
                 createSite().then(function(site) {
-                    addMatter(site, matterType);
+                    addMatter(site, matterType, scenario);
                 });
             } else {
                 $uibModal.open({
@@ -204,7 +204,7 @@ config(['$uibTooltipProvider', function($uibTooltipProvider) {
                         };
                     }]
                 }).result.then(function(site) {
-                    addMatter(site, matterType);
+                    addMatter(site, matterType, scenario);
                 });
             }
         });
@@ -243,7 +243,7 @@ config(['$uibTooltipProvider', function($uibTooltipProvider) {
     };
     $scope.restoreSite = function(site){
         //后台给接口
-        var url = '';
+        var url = '/rest/pl/fe/site/recover?site=' + site.id;
         http2.get(url, function(rsp){
             location.href = '/rest/pl/fe/site?site=' + site.id;
         })

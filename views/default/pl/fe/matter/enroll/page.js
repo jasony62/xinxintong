@@ -3,7 +3,7 @@ define(['frame', 'schema', 'page', 'editor'], function(ngApp, schemaLib, pageLib
     /**
      * app setting controller
      */
-    ngApp.provider.controller('ctrlPage', ['$scope', '$location', 'srvApp', 'srvPage', function($scope, $location, srvApp, srvPage) {
+    ngApp.provider.controller('ctrlPage', ['$scope', '$location', 'srvEnrollApp', 'srvEnrollPage', function($scope, $location, srvEnrollApp, srvEnrollPage) {
         $scope.ep = null;
         window.onbeforeunload = function(e) {
             var message;
@@ -18,7 +18,7 @@ define(['frame', 'schema', 'page', 'editor'], function(ngApp, schemaLib, pageLib
         };
         $scope.addPage = function() {
             $('body').click();
-            srvPage.create().then(function(page) {
+            srvEnrollPage.create().then(function(page) {
                 $scope.choosePage(page);
             });
         };
@@ -31,12 +31,12 @@ define(['frame', 'schema', 'page', 'editor'], function(ngApp, schemaLib, pageLib
                 editorProxy.purifyPage(page, true);
             }
 
-            return srvPage.update(page, props);
+            return srvEnrollPage.update(page, props);
         };
         $scope.delPage = function() {
             $('body').click();
             if (window.confirm('确定删除页面【' + $scope.ep.title + '】？')) {
-                srvPage.remove($scope.ep).then(function(pages) {
+                srvEnrollPage.remove($scope.ep).then(function(pages) {
                     $scope.choosePage(pages.length ? pages[0] : null);
                 });
             }
@@ -44,7 +44,7 @@ define(['frame', 'schema', 'page', 'editor'], function(ngApp, schemaLib, pageLib
         $scope.cleanPage = function() {
             $('body').click();
             if (window.confirm('确定清除页面【' + $scope.ep.title + '】的所有内容？')) {
-                srvPage.clean($scope.ep).then(function() {
+                srvEnrollPage.clean($scope.ep).then(function() {
                     editorProxy.getEditor().setContent('');
                 });
             }
@@ -75,7 +75,7 @@ define(['frame', 'schema', 'page', 'editor'], function(ngApp, schemaLib, pageLib
         //??? 提交前如何检查数据的一致性？
         $scope.save = function() {
             // 更新应用
-            srvApp.update('data_schemas').then(function() {
+            srvEnrollApp.update('data_schemas').then(function() {
                 // 更新页面
                 $scope.app.pages.forEach(function(page) {
                     $scope.updPage(page, ['data_schemas', 'act_schemas', 'html']);
@@ -85,7 +85,7 @@ define(['frame', 'schema', 'page', 'editor'], function(ngApp, schemaLib, pageLib
         $scope.gotoCode = function() {
             window.open('/rest/pl/fe/code?site=' + $scope.app.siteid + '&name=' + $scope.ep.code_name, '_self');
         };
-        srvApp.get().then(function(app) {
+        srvEnrollApp.get().then(function(app) {
             var pageName;
             if (pageName = $location.search().page) {
                 $scope.choosePage(pageName);
@@ -572,7 +572,7 @@ define(['frame', 'schema', 'page', 'editor'], function(ngApp, schemaLib, pageLib
     /**
      * button wrap controller
      */
-    ngApp.provider.controller('ctrlButtonWrap', ['$scope', 'srvPage', function($scope, srvPage) {
+    ngApp.provider.controller('ctrlButtonWrap', ['$scope', 'srvEnrollPage', function($scope, srvEnrollPage) {
         var schema = $scope.activeWrap.schema;
 
         $scope.chooseType = function() {
@@ -591,7 +591,7 @@ define(['frame', 'schema', 'page', 'editor'], function(ngApp, schemaLib, pageLib
         };
         /* 直接给带有导航功能的按钮创建页面 */
         $scope.newPage = function(prop) {
-            srvPage.create().then(function(page) {
+            srvEnrollPage.create().then(function(page) {
                 schema[prop] = page.name;
             });
         };

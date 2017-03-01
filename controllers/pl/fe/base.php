@@ -36,7 +36,7 @@ class base extends \TMS_CONTROLLER {
 	 * $tmplmsgId
 	 * $openid
 	 */
-	protected function tmplmsgSendByOpenid($tmplmsgId, $openid, $data, $url = null) {
+	protected function tmplmsgSendByOpenid($tmplmsgId, $openid, $data, $url = null, $snsConfig = null) {
 		/*模板定义*/
 		is_object($data) && $data = (array) $data;
 		if (empty($url) && isset($data['url'])) {
@@ -44,7 +44,8 @@ class base extends \TMS_CONTROLLER {
 			unset($data['url']);
 		}
 
-		$tmpl = $this->model('matter\tmplmsg')->byId($tmplmsgId, array('cascaded' => 'Y'));
+		$modelTmpl = $this->model('matter\tmplmsg');
+		$tmpl = $modelTmpl->byId($tmplmsgId, array('cascaded' => 'Y'));
 		$siteId = $tmpl->siteid;
 		/*发送消息*/
 		if (!empty($tmpl->templateid)) {
@@ -60,8 +61,10 @@ class base extends \TMS_CONTROLLER {
 					$msg['data'][$p->pname] = array('value' => $value, 'color' => '#173177');
 				}
 			}
-			$wxConfig = $this->model('sns\wx')->bySite($siteId);
-			$proxy = $this->model('sns\wx\proxy', $wxConfig);
+			if ($snsConfig === null) {
+				$snsConfig = $this->model('sns\wx')->bySite($siteId);
+			}
+			$proxy = $this->model('sns\wx\proxy', $snsConfig);
 			$rst = $proxy->messageTemplateSend($msg);
 			if ($rst[0] === false) {
 				return $rst;
@@ -97,16 +100,16 @@ class base extends \TMS_CONTROLLER {
 			$msgid = 0;
 		}
 		/*记录日志*/
-		$log = array(
+		$log = [
 			'siteid' => $siteId,
 			'openid' => $openid,
 			'tmplmsg_id' => $tmplmsgId,
 			'template_id' => $msg['template_id'],
-			'data' => $this->model()->escape(json_encode($msg)),
+			'data' => $modelTmpl->escape(json_encode($msg)),
 			'create_at' => time(),
 			'msgid' => $msgid,
-		);
-		$this->model()->insert('xxt_log_tmplmsg', $log, false);
+		];
+		$modelTmpl->insert('xxt_log_tmplmsg', $log, false);
 
 		return array(true);
 	}

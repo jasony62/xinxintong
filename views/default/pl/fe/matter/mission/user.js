@@ -1,4 +1,4 @@
-define(['frame', 'enrollService'], function(ngApp) {
+define(['frame', 'enrollService', 'signinService'], function(ngApp) {
     'use strict';
     ngApp.provider.controller('ctrlUser', ['$scope', '$uibModal', 'http2', function($scope, $uibModal, http2) {
         var _missionApps, _enrollAppSchemas;
@@ -10,7 +10,8 @@ define(['frame', 'enrollService'], function(ngApp) {
                 templateUrl: 'assignUserApp.html',
                 controller: ['$scope', '$uibModalInstance', function($scope2, $mi) {
                     $scope2.data = {
-                        appId: ''
+                        appId: '',
+                        appType: 'enroll'
                     };
                     $scope2.cancel = function() {
                         $mi.dismiss();
@@ -18,16 +19,21 @@ define(['frame', 'enrollService'], function(ngApp) {
                     $scope2.ok = function() {
                         $mi.close($scope2.data);
                     };
-                    var url = '/rest/pl/fe/matter/enroll/list?mission=' + mission.id;
-                    http2.get(url, function(rsp) {
-                        $scope2.apps = rsp.data.apps;
+                    $scope2.$watch('data.appType', function(appType) {
+                        if (appType) {
+                            var url = '/rest/pl/fe/matter/' + appType + '/list?mission=' + mission.id;
+                            http2.get(url, function(rsp) {
+                                $scope2.apps = rsp.data.apps;
+                            });
+                        }
                     });
                 }],
                 backdrop: 'static'
             }).result.then(function(data) {
                 mission.user_app_id = data.appId;
-                $scope.update('user_app_id').then(function(rsp) {
-                    var url = '/rest/pl/fe/matter/enroll/get?site=' + mission.siteid + '&id=' + data.appId;
+                mission.user_app_type = data.appType;
+                $scope.update(['user_app_id', 'user_app_type']).then(function(rsp) {
+                    var url = '/rest/pl/fe/matter/' + data.appType + '/get?site=' + mission.siteid + '&id=' + data.appId;
                     http2.get(url, function(rsp) {
                         mission.userApp = rsp.data;
                     });
@@ -37,7 +43,8 @@ define(['frame', 'enrollService'], function(ngApp) {
         $scope.cancelUserApp = function() {
             var mission = $scope.mission;
             mission.user_app_id = '';
-            $scope.update('user_app_id').then(function() {
+            mission.user_app_type = '';
+            $scope.update(['user_app_id', 'user_app_type']).then(function() {
                 delete mission.userApp;
             });
         };
@@ -68,7 +75,7 @@ define(['frame', 'enrollService'], function(ngApp) {
             });
         });
     }]);
-    ngApp.provider.controller('ctrlUserAction', ['$scope', 'srvMission', 'srvRecord', 'srvRecordConverter', function($scope, srvMission, srvRecord, srvRecordConverter) {
+    ngApp.provider.controller('ctrlUserAction', ['$scope', 'srvMission', 'srvRecord', 'srvSigninRecord', 'srvRecordConverter', function($scope, srvMission, srvRecord, srvSigninRecord, srvRecordConverter) {
         var _oUserPage, _users;
         $scope.oUserPage = _oUserPage = {};
         $scope.users = _users = [];
@@ -126,14 +133,24 @@ define(['frame', 'enrollService'], function(ngApp) {
             location.href = url;
         };
         $scope.$watch('mission.userApp', function(userApp) {
-            if (!userApp) return;
-            if (userApp.data_schemas && angular.isString(userApp.data_schemas)) {
-                userApp.data_schemas = JSON.parse(userApp.data_schemas);
+            if (!userApp) {
+                _users.splice(0, _users.length);
+            } else {
+                if (userApp.data_schemas && angular.isString(userApp.data_schemas)) {
+                    userApp.data_schemas = JSON.parse(userApp.data_schemas);
+                }
+                if (userApp.type === 'enroll') {
+                    srvRecord.init(userApp, _oUserPage, {}, _users);
+                    srvRecord.search(1).then(function(data) {
+                        $scope.tmsTableWrapReady = 'Y';
+                    });
+                } else if (userApp.type === 'signin') {
+                    srvSigninRecord.init(userApp, _oUserPage, {}, _users);
+                    srvSigninRecord.search(1).then(function(data) {
+                        $scope.tmsTableWrapReady = 'Y';
+                    });
+                }
             }
-            srvRecord.init(userApp, _oUserPage, {}, _users);
-            srvRecord.search(1).then(function(data) {
-                $scope.tmsTableWrapReady = 'Y';
-            });
         });
     }]);
 });

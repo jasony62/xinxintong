@@ -86,7 +86,7 @@ class review extends base {
 		 * 更新日志状态
 		 */
 		$user = $this->who;
-		$members = $this->model('site\user\member')->byUser($site, $user->uid);
+		$members = $this->model('site\user\member')->byUser($user->uid);
 		$member = $members[0];
 		$disposer = $article->disposer;
 		if ($disposer && $disposer->mid === $member->id && $disposer->phase === 'R' && $disposer->state === 'D') {

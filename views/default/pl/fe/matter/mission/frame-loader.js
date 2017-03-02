@@ -11,6 +11,7 @@ require.config({
         "domReady": '/static/js/domReady',
         "missionService": '/views/default/pl/fe/matter/mission/lib/mission.service',
         "enrollService": '/views/default/pl/fe/matter/enroll/lib/enroll.service',
+        "signinService": '/views/default/pl/fe/matter/signin/lib/signin.service',
         "page": '/views/default/pl/fe/matter/enroll/lib/page',
         "schema": '/views/default/pl/fe/matter/enroll/lib/schema',
         "wrap": '/views/default/pl/fe/matter/enroll/lib/wrap',

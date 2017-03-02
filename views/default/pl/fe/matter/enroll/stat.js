@@ -1,6 +1,6 @@
 define(['frame'], function(ngApp) {
     'use strict';
-    ngApp.provider.controller('ctrlStat', ['$scope', 'http2', '$timeout', '$q', 'srvApp', function($scope, http2, $timeout, $q, srvApp) {
+    ngApp.provider.controller('ctrlStat', ['$scope', 'http2', '$timeout', '$q', 'srvEnrollApp', function($scope, http2, $timeout, $q, srvEnrollApp) {
         function drawBarChart(item) {
             var categories = [],
                 series = [];
@@ -216,7 +216,7 @@ define(['frame'], function(ngApp) {
             _cacheOfRecordsBySchema.recordsBySchema(schema, page);
             return false;
         };
-        srvApp.get().then(function(app) {
+        srvEnrollApp.get().then(function(app) {
             var url = '/rest/pl/fe/matter/enroll/stat/get';
             url += '?site=' + $scope.app.siteid;
             url += '&app=' + app.id;

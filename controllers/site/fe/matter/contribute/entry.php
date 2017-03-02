@@ -16,7 +16,7 @@ class entry extends \site\fe\base {
 		/* 身份信息*/
 		$user = $this->who;
 		$mine = array();
-		$members = $this->model('site\user\member')->byUser($site, $user->uid);
+		$members = $this->model('site\user\member')->byUser($user->uid);
 		foreach ($members as $member) {
 			/**
 			 * 检查用户是否通过了验证

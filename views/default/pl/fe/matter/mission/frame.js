@@ -1,6 +1,6 @@
-define(['missionService', 'enrollService'], function() {
+define(['missionService', 'enrollService', 'signinService'], function() {
     'use strict';
-    var ngApp = angular.module('app', ['ngRoute', 'ui.tms', 'ui.xxt', 'tmplshop.ui.xxt', 'tinymce.ui.xxt', 'service.matter', 'service.mission', 'service.enroll']);
+    var ngApp = angular.module('app', ['ngRoute', 'ui.tms', 'ui.xxt', 'tmplshop.ui.xxt', 'tinymce.ui.xxt', 'service.matter', 'service.mission', 'service.enroll', 'service.signin']);
     ngApp.constant('cstApp', {
         notifyMatter: [],
         innerlink: [],
@@ -56,7 +56,13 @@ define(['missionService', 'enrollService'], function() {
         $scope.subView = '';
         $scope.update = function(name) {
             var modifiedData = {};
-            modifiedData[name] = $scope.mission[name];
+            if (angular.isObject(name)) {
+                name.forEach(function(prop) {
+                    modifiedData[prop] = $scope.mission[prop];
+                });
+            } else {
+                modifiedData[name] = $scope.mission[name];
+            }
             return srvMission.submit(modifiedData);
         };
         $scope.$on('$locationChangeStart', function(event, nextRoute, currentRoute) {

@@ -1,14 +1,14 @@
 define(['frame'], function(ngApp) {
     'use strict';
-    ngApp.provider.controller('ctrlMain', ['$scope', 'http2', 'srvApp', function($scope, http2, srvApp) {
+    ngApp.provider.controller('ctrlMain', ['$scope', 'http2', 'srvSigninApp', function($scope, http2, srvSigninApp) {
         $scope.assignMission = function() {
-            srvApp.assignMission();
+            srvSigninApp.assignMission();
         };
         $scope.quitMission = function() {
-            srvApp.quitMission();
+            srvSigninApp.quitMission();
         };
         $scope.choosePhase = function() {
-            srvApp.choosePhase();
+            srvSigninApp.choosePhase();
         };
         $scope.remove = function() {
             if (window.confirm('确定删除？')) {

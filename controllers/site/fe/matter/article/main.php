@@ -16,7 +16,7 @@ class main extends \site\fe\matter\base {
 	 *
 	 */
 	public function index_action($siteId) {
-		\TPL::output('/matter/article-list');
+		\TPL::output('/site/fe/matter/article/list');
 		exit;
 	}
 	/**

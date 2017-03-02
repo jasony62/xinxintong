@@ -237,8 +237,8 @@ class user extends \pl\fe\base {
 		$info = $wxProxy->userInfo($openid, true);
 		if ($info[0] === false) {
 			if (false !== strpos($info[1], '(40001)')) {
-				$proxy->accessToken(true);
-				$info = $proxy->userGet($nextOpenid);
+				$wxProxy->accessToken(true);
+				$info = $wxProxy->userGet($nextOpenid);
 				if (false === $info[0]) {
 					return new \ResponseError($info[1]);
 				}
@@ -258,12 +258,12 @@ class user extends \pl\fe\base {
 		$nickname = preg_replace('/\\\ud[0-9a-f]{3}/i', '', $nickname);
 		$nickname = json_decode($nickname);
 		$nickname = trim($model->escape($nickname));
-		$u = array(
+		$u = [
 			'nickname' => empty($nickname) ? '未知' : $nickname,
 			'sex' => $info[1]->sex,
 			'city' => $info[1]->city,
 			'groupid' => $info[1]->groupid,
-		);
+		];
 		isset($info[1]->headimgurl) && $u['headimgurl'] = $info[1]->headimgurl;
 		isset($info[1]->icon) && $u['headimgurl'] = $info[1]->icon;
 		isset($info[1]->province) && $u['province'] = $info[1]->province;
@@ -271,7 +271,7 @@ class user extends \pl\fe\base {
 		$model->update(
 			'xxt_site_wxfan',
 			$u,
-			"siteid='$site' and openid='$openid'"
+			["siteid" => $site, "openid" => $openid]
 		);
 
 		return new \ResponseData($u);

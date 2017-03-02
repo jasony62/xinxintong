@@ -10,6 +10,10 @@ class main extends \site\op\base {
 	 *
 	 */
 	public function index_action($app) {
+		if (!$this->checkAccessToken()) {
+			header('HTTP/1.0 500 parameter error:accessToken is invalid.');
+			die('没有获得有效访问令牌！');
+		}
 		$app = $this->model('matter\signin')->byId($app);
 		\TPL::assign('title', $app->title);
 		\TPL::output('site/op/matter/signin/console');
@@ -22,21 +26,29 @@ class main extends \site\op\base {
 	 * @param string $appid
 	 */
 	public function get_action($site, $app) {
+		if (!$this->checkAccessToken()) {
+			return new \InvalidAccessToken();
+		}
+
 		$params = array();
 
 		/* 登记活动定义 */
 		$modelApp = $this->model('matter\signin');
-		$app = $modelApp->byId($app, array('cascaded' => 'Y'), 'Y');
+		$app = $modelApp->byId($app, ['cascaded' => 'Y']);
 		$params['app'] = &$app;
+		/*关联登记活动*/
+		if ($app->enroll_app_id) {
+			$app->enrollApp = $this->model('matter\enroll')->byId($app->enroll_app_id);
+		}
 		/* 页面定义 */
 		$templateDir = TMS_APP_TEMPLATE . '/site/op/matter/signin';
 		$templateName = $templateDir . '/basic';
 
-		$page = array(
+		$page = [
 			'html' => file_get_contents($templateName . '.html'),
 			'css' => file_get_contents($templateName . '.css'),
 			'js' => file_get_contents($templateName . '.js'),
-		);
+		];
 		$params['page'] = &$page;
 
 		return new \ResponseData($params);
@@ -45,6 +57,10 @@ class main extends \site\op\base {
 	 * 获得页面定义
 	 */
 	public function pageGet_action() {
+		if (!$this->checkAccessToken()) {
+			return new \InvalidAccessToken();
+		}
+
 		$templateDir = TMS_APP_TEMPLATE . '/site/op/matter/signin';
 		$templateName = $templateDir . '/basic';
 

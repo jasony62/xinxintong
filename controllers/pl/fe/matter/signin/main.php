@@ -28,7 +28,7 @@ class main extends \pl\fe\matter\base {
 		}
 
 		$app = $this->model('matter\signin')->byId($id);
-		/*关联签到活动*/
+		/*关联登记活动*/
 		if ($app->enroll_app_id) {
 			$app->enrollApp = $this->model('matter\enroll')->byId($app->enroll_app_id);
 		}

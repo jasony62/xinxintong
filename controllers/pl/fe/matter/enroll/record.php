@@ -168,7 +168,7 @@ class record extends \pl\fe\matter\base {
 		$modelEnl->update('xxt_enroll_record', $updated, "enroll_key='$ek'");
 
 		/* 记录登记数据 */
-		$result = $modelRec->setData(null, $app, $ek, $record->data);
+		$result = $modelRec->setData(null, $app, $ek, isset($record->data) ? $record->data : new \stdClass);
 
 		if ($updated->verified === 'Y') {
 			$this->_whenVerifyRecord($app, $ek);
@@ -392,9 +392,9 @@ class record extends \pl\fe\matter\base {
 	/**
 	 * 给登记活动的参与人发消息
 	 *
-	 * @param string $site
-	 * @param string $app
-	 * @param string $tmplmsg
+	 * @param string $site site'id
+	 * @param string $app app'id
+	 * @param string $tmplmsg 模板消息id
 	 *
 	 */
 	public function notify_action($site, $app, $tmplmsg, $rid = null) {
@@ -460,7 +460,7 @@ class record extends \pl\fe\matter\base {
 							$modelWxfan = $this->model('sns\wx\fan');
 						}
 						if ($modelWxfan->isFollow($wxSiteId, $user->wx_openid)) {
-							$rst = $this->tmplmsgSendByOpenid($tmplmsgId, $user->wx_openid, $message);
+							$rst = $this->tmplmsgSendByOpenid($tmplmsgId, $user->wx_openid, $message, null, $wxConfig);
 							if ($rst[0] === false) {
 								return $rst;
 							}

@@ -821,4 +821,32 @@ class record extends \pl\fe\matter\base {
 
 		exit;
 	}
+	/**
+	 * 指定记录通过审核
+	 */
+	public function batchVerify_action($site, $app) {
+		if (false === ($user = $this->accountUser())) {
+			return new \ResponseTimeout();
+		}
+
+		$posted = $this->getPostJson();
+		$eks = $posted->eks;
+
+		$modelApp = $this->model('matter\signin');
+		$app = $modelApp->byId($app, ['cascaded' => 'N']);
+
+		foreach ($eks as $ek) {
+			$rst = $modelApp->update(
+				'xxt_signin_record',
+				['verified' => 'Y'],
+				"enroll_key='$ek'"
+			);
+		}
+
+		// 记录操作日志
+		$app->type = 'signin';
+		$this->model('matter\log')->matterOp($site, $user, $app, 'verify.batch', $eks);
+
+		return new \ResponseData('ok');
+	}
 }

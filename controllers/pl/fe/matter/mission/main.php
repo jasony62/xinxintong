@@ -37,7 +37,11 @@ class main extends \pl\fe\matter\base {
 		$mission = $this->model('matter\mission')->byId($id, ['cascaded' => 'header_page_name,footer_page_name']);
 		/* 关联登记活动 */
 		if ($mission->user_app_id) {
-			$mission->userApp = $this->model('matter\enroll')->byId($mission->user_app_id);
+			if ($mission->user_app_type === 'enroll') {
+				$mission->userApp = $this->model('matter\enroll')->byId($mission->user_app_id, ['cascaded' => 'N']);
+			} else if ($mission->user_app_type === 'signin') {
+				$mission->userApp = $this->model('matter\signin')->byId($mission->user_app_id, ['cascaded' => 'N']);
+			}
 		}
 
 		return new \ResponseData($mission);

@@ -85,6 +85,14 @@ define(['require'], function(require) {
                 });
             }
         };
+        $scope.quit = function() {
+            if (window.confirm('确定退出站点？')) {
+                var url = '/rest/pl/fe/site/setting/admin/remove?site=' + $scope.siteId + '&uid=' + $scope.site.uid;
+                http2.get(url, function(rsp) {
+                    location.href = '/rest/pl/fe';
+                });
+            }
+        };
         $scope.setPic = function() {
             var options = {
                 callback: function(url) {

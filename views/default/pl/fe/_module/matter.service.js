@@ -282,6 +282,55 @@ provider('srvRecordConverter', function() {
             }
         };
     }];
+}).provider('srvTmplmsgNotice', function() {
+    this.$get = ['$q', 'http2', function($q, http2) {
+        return {
+            init: function(sender, oPage, aBatches) {
+                this._sender = sender;
+                // pagination
+                this._oPage = oPage;
+                angular.extend(this._oPage, {
+                    at: 1,
+                    size: 30,
+                    j: function() {
+                        var p;
+                        p = '&page=' + this.at + '&size=' + this.size;
+                        return p;
+                    }
+                });
+                // records
+                this._aBatches = aBatches;
+            },
+            list: function(_appId, page) {
+                var that = this,
+                    defer = $q.defer(),
+                    url;
+
+                this._aBatches.splice(0, this._aBatches.length);
+                url = '/rest/pl/fe/matter/tmplmsg/notice/list?sender=' + this._sender + this._oPage.j();
+                http2.get(url, function(rsp) {
+                    that._oPage.total = rsp.data.total;
+                    rsp.data.batches.forEach(function(batch) {
+                        that._aBatches.push(batch);
+                    });
+                    defer.resolve(that._aBatches);
+                });
+
+                return defer.promise;
+            },
+            detail: function(batch) {
+                var defer = $q.defer(),
+                    url;
+
+                url = '/rest/pl/fe/matter/tmplmsg/notice/detail?batch=' + batch.id;
+                http2.get(url, function(rsp) {
+                    defer.resolve(rsp.data.logs);
+                });
+
+                return defer.promise;
+            }
+        };
+    }];
 }).controller('ctrlSetChannel', ['$scope', 'http2', 'srvSite', function($scope, http2, srvSite) {
     $scope.$on('channel.xxt.combox.done', function(event, aSelected) {
         var i, j, existing, aNewChannels = [],

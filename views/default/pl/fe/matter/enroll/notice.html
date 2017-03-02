@@ -1,0 +1,17 @@
+<div id='notice-view'>
+	<div class='col-md-6'>
+		<div class='list-group'>
+			<div class='list-group-item' ng-class="{'active':batch===activeBatch}" ng-repeat="batch in batches" ng-click="detail(batch)">
+				<div>{{batch.create_at*1000|date:'yy-MM-dd HH:mm'}}</div>
+				<div>{{batch.remark}}</div>
+			</div>
+		</div>
+	</div>
+	<div class='col-md-6'>
+		<div class='list-group'>
+			<div class='list-group-item' ng-repeat="log in logs">
+				<div>{{log.status}}</div>
+			</div>
+		</div>
+	</div>
+</div>

@@ -110,6 +110,9 @@ class proxy_model extends \sns\proxybase {
 			return array(false, $err);
 		}
 		curl_close($ch);
+		if (empty($response)) {
+			return array(false, 'response for getting accessToken is empty');
+		}
 		$token = json_decode($response);
 		if (!is_object($token)) {
 			return array(false, $response);

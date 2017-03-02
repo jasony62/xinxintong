@@ -71,6 +71,7 @@ define(['require', 'enrollService'], function(require) {
             .when('/rest/pl/fe/matter/enroll/log', new RouteParam('log'))
             .when('/rest/pl/fe/matter/enroll/coin', new RouteParam('coin'))
             .when('/rest/pl/fe/matter/enroll/prepare', new RouteParam('prepare'))
+            .when('/rest/pl/fe/matter/enroll/notice', new RouteParam('notice'))
             .when('/rest/pl/fe/matter/enroll/discuss', new RouteParam('discuss', '/views/default/pl/fe/_module/'))
             .otherwise(new RouteParam('publish'));
 
@@ -110,6 +111,7 @@ define(['require', 'enrollService'], function(require) {
             'stat': '统计报告',
             'discuss': '用户评论',
             'coin': '积分规则',
+            'notice': '通知发送记录',
             'log': '运行日志',
             'recycle': '回收站',
         };

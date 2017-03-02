@@ -352,9 +352,9 @@ class wx extends \member_base {
 		 * 更新数据状态
 		 */
 		$rst = $this->model()->update(
-			'xxt_log_tmplmsg',
-			array('status' => $status),
-			"siteid='$siteId' and openid='$openid' and msgid='$msgid'"
+			'xxt_log_tmplmsg_detail',
+			['status' => $status],
+			['siteid' => $siteId, 'openid' => $openid, 'msgid' => $msgid]
 		);
 		/**
 		 * 处理事件响应，选择消息转发事件，通知模板消息处理结果

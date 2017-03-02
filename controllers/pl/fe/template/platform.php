@@ -22,15 +22,18 @@ class platform extends \pl\fe\base {
 	 * @param int $size
 	 *
 	 */
-	public function list_action($matterType, $scenario = null, $page = 1, $size = 20) {
+	public function list_action($matterType = null, $scenario = null, $page = 1, $size = 20) {
 		$modelTmpl = $this->model('matter\template');
 		$matterType = $modelTmpl->escape($matterType);
 
 		$q = [
 			'*',
 			"xxt_template",
-			"visible_scope='P' and matter_type='$matterType'",
+			['visible_scope' => 'P']
 		];
+		if(!empty($matterType)){
+			$q[2]['matter_type'] = $matterType;
+		}
 		if (!empty($scenario)) {
 			$q[2] .= " and scenario='$scenario'";
 		}
@@ -55,19 +58,22 @@ class platform extends \pl\fe\base {
 	 * @param int $size
 	 *
 	 */
-	public function share2Me_action($matterType, $scenario = null, $site = null, $page = 1, $size = 20) {
+	public function share2Me_action($matterType = null, $scenario = null, $site = null, $page = 1, $size = 20) {
 		if (false === ($user = $this->accountUser())) {
 			return new \ResponseTimeout();
 		}
 
 		$modelTmpl = $this->model('matter\template');
-		$matterType = $modelTmpl->escape($matterType);
+		$matterType = empty($matterType)? null : $modelTmpl->escape($matterType);
 
 		$q = [
 			'*',
 			"xxt_template t",
-			"matter_type='$matterType' and exists(select 1 from xxt_template_acl a where a.receiver='{$user->id}' and t.id=a.template_id)",
+			"exists(select 1 from xxt_template_acl a where a.receiver='{$user->id}' and t.id=a.template_id)",
 		];
+		if(!empty($matterType)){
+			$q[2] .= " and ".$matterType;
+		}
 		if (!empty($scenario)) {
 			$q[2] .= " and scenario='$scenario'";
 		}

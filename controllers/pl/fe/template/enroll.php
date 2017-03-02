@@ -3,13 +3,13 @@ namespace pl\fe\template;
 
 require_once dirname(dirname(__FILE__)) . '/base.php';
 /**
- * 站点模板库管理控制器
+ * 登记活动模板管理控制器
  */
-class site extends \pl\fe\base {
+class enroll extends \pl\fe\base {
 	/**
-	 *
+	 * 
 	 */
-	public function index_action() {
+	public function index_action(){
 		\TPL::output('/pl/fe/site/template');
 		exit;
 	}
@@ -34,16 +34,6 @@ class site extends \pl\fe\base {
 				"xxt_template",
 				["visible_scope" => $scope],
 			];
-		} else if (in_array($scope, ['favor', 'purchase'])) {
-			$q = [
-				'*',
-				"xxt_template_order",
-			];
-			if ($scope === 'favor') {
-				$q[2] = ["favor" => 'Y'];
-			} else {
-				$q[2] = ["purchase" => 'Y'];
-			}
 		}
 		if(!empty($matterType)){
 			$q[2]['matter_type'] = $matterType;
@@ -60,10 +50,6 @@ class site extends \pl\fe\base {
 		];
 		if (in_array($scope, ['P', 'S'])) {
 			$q2['o'] = 'put_at desc';
-		} else if ($scope === 'favor') {
-			$q2['o'] = 'favor_at desc';
-		} else if ($scope === 'purchase') {
-			$q2['o'] = 'purchase_at desc';
 		}
 
 		$orders = $model->query_objs_ss($q, $q2);
@@ -71,5 +57,17 @@ class site extends \pl\fe\base {
 		$total = $model->query_val_ss($q);
 
 		return new \ResponseData(['templates' => $orders, 'total' => $total]);
+	}
+	/**
+	 * 返回一个模板
+	 */
+	public function get_action($site, $tid){
+		if (false === ($loginUser = $this->accountUser())) {
+			return new \ResponseTimeout();
+		}
+
+		$template = $this->model('matter\template')->byId($site, $tid);
+		print_r($template);
+		return new \ResponseData($template);
 	}
 }

@@ -7,8 +7,9 @@ class template_model extends \TMS_MODEL {
 	/**
 	 *
 	 */
-	public function &byId($id, $options = []) {
+	public function &byId($site, $id, $options = []) {
 		$fields = isset($options['fields']) ? $options['fields'] : '*';
+		$cascaded = isset($options['cascaded']) ? $options['cascaded'] : 'Y';
 
 		$q = [
 			$fields,
@@ -18,9 +19,46 @@ class template_model extends \TMS_MODEL {
 
 		if ($template = $this->query_obj_ss($q)) {
 			$template->type = 'template';
+			//获取版本
+			$p = [
+				'*',
+				'xxt_template_enroll',
+				['siteid' => $site, 'template_id'=>$id, 'state' => 1]
+			];
+			$p2['o'] = "order by create_at desc";
+			$template->versions = $this->query_objs_ss($p, $p2);
+			if (isset($template->scenario_config)) {
+				if (!empty($template->scenario_config)) {
+					$template->scenarioConfig = json_decode($template->scenario_config);
+				} else {
+					$template->scenarioConfig = new \stdClass;
+				}
+			}
+			if ($cascaded === 'Y') {
+				$modelPage = $this->model('matter\enroll\page');
+				$template->pages = $modelPage->byApp($id);
+			}
 		}
 
 		return $template;
+	}
+	public function &bySite($site, $page = 1, $size = 30){
+		$q = [
+			'*',
+			'xxt_template',
+			['siteid'=>$site,'state'=>1]
+		];
+		$q2['o'] = 'put_at desc';
+		$q2['r']['o'] = ($page - 1) * $size;
+		$q2['r']['l'] = $size;
+		if ($a = $this->query_objs_ss($q, $q2)) {
+			$result['apps'] = $a;
+			$q[0] = 'count(*)';
+			$total = (int) $this->query_val_ss($q);
+			$result['total'] = $total;
+		}
+
+		return $result;
 	}
 	/**
 	 * 获得素材对应的模版
@@ -77,8 +115,13 @@ class template_model extends \TMS_MODEL {
 				'visible_scope' => $matter->visible_scope,
 				'push_home' => isset($matter->push_home) ? $matter->push_home : 'N',
 			];
-			$id = $this->insert('xxt_template', $template, true);
-			$template = $this->byId($id);
+			$tid = $this->insert('xxt_template', $template, true);
+			/*创建版本*/
+			if($matter->matter_type === 'enroll'){
+				$this->putMatterEnroll($site->id, $tid, $matter->matter_id, $account, $current);
+			}
+
+			$template = $this->byId($site->id, $tid);
 		} else {
 			/* 更新模板 */
 			$updated = [
@@ -89,13 +132,19 @@ class template_model extends \TMS_MODEL {
 				'coin' => $matter->coin,
 				'visible_scope' => $matter->visible_scope,
 				'push_home' => isset($matter->push_home) ? $matter->push_home : 'N',
+				'scenario' => empty($matter->scenario) ? '' : $matter->scenario,
 			];
 			$this->update(
 				'xxt_template',
 				$updated,
 				["id" => $template->id]
 			);
-			$template = $template = $this->byId($template->id);
+			/*创建新的版本*/
+			if($matter->matter_type === 'enroll'){
+				$this->putMatterEnroll($site->id, $template->id, $matter->matter_id, $account, $current);
+			}
+
+			$template = $this->byId($site->id, $template->id);
 		}
 		// 添加模板接收人
 		// if (!empty($matter->acls)) {
@@ -107,6 +156,67 @@ class template_model extends \TMS_MODEL {
 
 		return $template;
 	}
+	/**
+	 * 创建登记活动模板
+	 * @param int $tid template_id
+	 * @param string $eid enroll_id
+	 */
+	private function putMatterEnroll($site, $tid ,$eid, $user, $time = ''){
+		$current = empty($time)? time() : $time;
+		//创建模板版本号
+		$version = $this->getVersion($site, $tid);
+		$modelApp = $this->model('matter\enroll');
+
+		$matter = $modelApp->byId($eid);
+		$options = [
+			'version' => $version,
+			'create_at' => $current,
+			'siteid' => $site,
+			'template_id' => $tid,
+			'scenario_config' => empty($matter->scenario_config) ? '' : $matter->scenario_config,
+			'multi_rounds' => $matter->multi_rounds,
+			'enrolled_entry_page' => $matter->enrolled_entry_page,
+			'open_lastroll' => $matter->open_lastroll,
+			'data_schemas' => $matter->data_schemas,
+			'pub_status' => 'Y',
+		];
+		//版本id
+		$vid = $this->insert('xxt_template_enroll', $options, true);
+		$this->update(
+				'xxt_template',
+				['pub_version' => $version, 'last_version' => $version],
+				['siteid' => $site, 'id' => $tid]
+			);
+
+		/*复制页面*/
+		if (count($matter->pages)) {
+			$modelPage = $this->model('matter\enroll\page');
+			$modelCode = $this->model('code\page');
+			foreach ($matter->pages as $ep) {
+				$newPage = $modelPage->add($user, $site, 'template:'.$vid);
+				$rst = $this->update(
+					'xxt_enroll_page',
+					[
+						'title' => $ep->title,
+						'name' => $ep->name,
+						'type' => $ep->type,
+						'data_schemas' => $this->escape($ep->data_schemas),
+						'act_schemas' => $this->escape($ep->act_schemas),
+						'user_schemas' => $this->escape($ep->user_schemas),
+					],
+					['aid' => 'template:'.$vid, 'id' => $newPage->id]
+				);
+				$data = [
+					'title' => $ep->title,
+					'html' => $ep->html,
+					'css' => $ep->css,
+					'js' => $ep->js,
+				];
+				$modelCode->modify($newPage->code_id, $data);
+			}
+		}
+	}
+
 	/**
 	 * 推送到主页
 	 */
@@ -140,7 +250,7 @@ class template_model extends \TMS_MODEL {
 		$q = [
 			$fields,
 			'xxt_template',
-			["visible_scope" => 'P', "push_home" => 'Y'],
+			["visible_scope" => 'P', "push_home" => 'Y','state' => 1],
 		];
 
 		$items = $this->query_objs_ss($q);
@@ -155,7 +265,7 @@ class template_model extends \TMS_MODEL {
 		$q = [
 			$fields,
 			'xxt_template',
-			["siteid" => $siteId, 'push_home' => 'Y'],
+			["siteid" => $siteId, 'push_home' => 'Y','state' => 1],
 		];
 
 		$templates = $this->query_objs_ss($q);
@@ -216,10 +326,15 @@ class template_model extends \TMS_MODEL {
 	 * 是否站点已经收藏模版
 	 */
 	public function isPurchaseBySite(&$template, $siteId) {
+		$options = array(
+				'siteid' => $siteId,
+				'template_id' => $template->id,
+				'purchase' => 'Y'
+			);
 		$q = [
 			'count(*)',
 			'xxt_template_order',
-			"siteid='{$siteId}' and template_id='{$template->id}' and purchase='Y'",
+			$options
 		];
 		return 0 < (int) $this->query_val_ss($q);
 	}
@@ -250,5 +365,23 @@ class template_model extends \TMS_MODEL {
 		$order->id = $this->insert('xxt_template_order', $order, true);
 
 		return $order;
+	}
+	/**
+	 * 创建模板版本号
+	 */
+	public function getVersion($site, $tid){
+		$options = array(
+				'siteid' => $site,
+				'template_id' => $tid,
+			);
+		$q = [
+			'max(version)',
+			'xxt_template_enroll',
+			$options
+		];
+		$max = $this->query_val_ss($q);
+		$seq = empty($max) ? 1 : (int)$max + 1 ;
+
+		return $seq;
 	}
 }

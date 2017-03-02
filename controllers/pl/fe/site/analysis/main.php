@@ -28,16 +28,45 @@ class main extends \pl\fe\base {
 		$q[] = $w;
 		$q2 = array(
 			'g' => 'matter_type,matter_id',
-			'o' => $orderby . '_num desc',
 			'r' => array('o' => ($page - 1) * $size, 'l' => $size),
 		);
-		if ($stat = $this->model()->query_objs_ss($q, $q2)) {
+		//按照阅读数、分享数逆序排列
+		if(in_array($orderby, array('read','share_friend','share_timeline'))){
+			$q2['o']=$orderby . '_num desc';
+		}
+
+		$model=$this->model();
+		if ($stat = $model->query_objs_ss($q, $q2)) {
+			$b=new \stdClass;
+			foreach ($stat as $k => $v) {
+				$v->fav_num=$model->query_val_ss([
+					'count(*)',
+					'xxt_site_favor',
+					"siteid='$site' and matter_type='$v->matter_type' and matter_id='$v->matter_id'"
+					]);
+				$c[$k]=$v->fav_num;
+				$b->$k=$v;
+			}
+			//按照收藏数量逆序排列
+			if($orderby=='fav'){
+				arsort($c);
+				foreach ($c as $k2 => $v2) {
+					foreach ($b as $k3 => $v3) {
+						if($k2==$k3 && $v2==$v3->fav_num){
+							$e[]=$v3;
+						}
+					}
+				}
+				$b=(object)$e;
+			}
+
+			$stat=$b;
 			$q = array(
 				'count(distinct matter_type,matter_id)',
 				'xxt_log_matter_action',
 				"siteid='$site' and matter_type='$type' and action_at>=$startAt and action_at<=$endAt",
 			);
-			$cnt = $this->model()->query_val_ss($q);
+			$cnt = $model->query_val_ss($q);
 		} else {
 			$cnt = 0;
 		}

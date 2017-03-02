@@ -1,18 +1,18 @@
 define(['frame'], function(ngApp) {
     'use strict';
-    ngApp.provider.controller('ctrlMain', ['$scope', 'http2', 'noticebox', 'srvApp', function($scope, http2, noticebox, srvApp) {
+    ngApp.provider.controller('ctrlMain', ['$scope', 'http2', 'noticebox', 'srvEnrollApp', function($scope, http2, noticebox, srvEnrollApp) {
         $scope.assignMission = function() {
-            srvApp.assignMission().then(function(mission) {});
+            srvEnrollApp.assignMission().then(function(mission) {});
         };
         $scope.quitMission = function() {
-            srvApp.quitMission().then(function() {});
+            srvEnrollApp.quitMission().then(function() {});
         };
         $scope.choosePhase = function() {
-            srvApp.choosePhase();
+            srvEnrollApp.choosePhase();
         };
         $scope.remove = function() {
             if (window.confirm('确定删除活动？')) {
-                srvApp.remove().then(function() {
+                srvEnrollApp.remove().then(function() {
                     if ($scope.app.mission) {
                         location = "/rest/pl/fe/matter/mission?site=" + $scope.app.siteid + "&id=" + $scope.app.mission.id;
                     } else {
@@ -33,7 +33,7 @@ define(['frame'], function(ngApp) {
             });
         };
     }]);
-    ngApp.provider.controller('ctrlReceiver', ['$scope', 'http2', '$interval', '$uibModal', 'srvApp', function($scope, http2, $interval, $uibModal, srvApp) {
+    ngApp.provider.controller('ctrlReceiver', ['$scope', 'http2', '$interval', '$uibModal', 'srvEnrollApp', function($scope, http2, $interval, $uibModal, srvEnrollApp) {
         var baseURL = '/rest/pl/fe/matter/enroll/receiver/';
         $scope.qrcodeShown = false;
         $scope.qrcode = function(snsName) {
@@ -102,13 +102,13 @@ define(['frame'], function(ngApp) {
                 });
             })
         };
-        srvApp.get().then(function(app) {
+        srvEnrollApp.get().then(function(app) {
             http2.get(baseURL + 'list?site=' + app.siteid + '&app=' + app.id, function(rsp) {
                 $scope.receivers = rsp.data;
             });
         });
     }]);
-    ngApp.provider.controller('ctrlChooseUser', ['$scope', '$uibModalInstance', 'http2', 'srvApp', function($scope, $mi, http2, srvApp) {
+    ngApp.provider.controller('ctrlChooseUser', ['$scope', '$uibModalInstance', 'http2', 'srvEnrollApp', function($scope, $mi, http2, srvEnrollApp) {
         $scope.page = {
             at: 1,
             size: 15,
@@ -173,7 +173,7 @@ define(['frame'], function(ngApp) {
         $scope.cancel = function() {
             $mi.dismiss();
         };
-        srvApp.get().then(function(app) {
+        srvEnrollApp.get().then(function(app) {
             $scope.app = app;
             $scope.doSearch(1);
         });

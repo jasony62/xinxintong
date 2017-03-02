@@ -34,9 +34,31 @@ class template_model extends \TMS_MODEL {
 					$template->scenarioConfig = new \stdClass;
 				}
 			}
+			//获取页面
 			if ($cascaded === 'Y') {
-				$modelPage = $this->model('matter\enroll\page');
-				$template->pages = $modelPage->byApp($id);
+				//获取当前发布版本的id
+				$vid = null;
+				if(empty($template->pub_version)){
+					if(!empty($template->last_version)){
+						foreach($template->versions as $v){
+							if($v->version === $template->last_version){
+								$vid = $v->id;
+							}
+						}
+					}
+				}else{
+					foreach($template->versions as $v){
+						if($v->version === $template->pub_version){
+							$vid = $v->id;
+						}
+					}
+				}
+				if(!empty($vid)){
+					$modelPage = $this->model('matter\enroll\page');
+					$template->pages = $modelPage->byApp('template:'.$vid);
+				}else{
+					$template->pages = [];
+				}
 			}
 		}
 

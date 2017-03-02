@@ -1,10 +1,10 @@
 define(['frame'], function(ngApp) {
     'use strict';
-    ngApp.provider.controller('ctrlPublish', ['$scope', 'mediagallery', '$timeout', 'srvApp', function($scope, mediagallery, $timeout, srvApp) {
+    ngApp.provider.controller('ctrlPublish', ['$scope', 'mediagallery', '$timeout', 'srvEnrollApp', function($scope, mediagallery, $timeout, srvEnrollApp) {
         $timeout(function() {
             new ZeroClipboard(document.querySelectorAll('.text2Clipboard'));
         });
-        srvApp.get().then(function(app) {
+        srvEnrollApp.get().then(function(app) {
             var entry;
             entry = {
                 url: app.entryUrl,
@@ -16,30 +16,30 @@ define(['frame'], function(ngApp) {
             var options = {
                 callback: function(url) {
                     $scope.app.pic = url + '?_=' + (new Date() * 1);
-                    srvApp.update('pic');
+                    srvEnrollApp.update('pic');
                 }
             };
             mediagallery.open($scope.app.siteid, options);
         };
         $scope.removePic = function() {
             $scope.app.pic = '';
-            srvApp.update('pic');
+            srvEnrollApp.update('pic');
         };
         $scope.downloadQrcode = function(url) {
             $('<a href="' + url + '" download="登记二维码.png"></a>')[0].click();
         };
-        srvApp.summary().then(function(data) {
+        srvEnrollApp.summary().then(function(data) {
             $scope.summary = data;
         });
         $scope.$on('xxt.tms-datepicker.change', function(event, data) {
             $scope.app[data.state] = data.value;
-            srvApp.update(data.state);
+            srvEnrollApp.update(data.state);
         });
     }]);
-    ngApp.provider.controller('ctrlOpUrl', ['$scope', 'srvQuickEntry', 'srvApp', function($scope, srvQuickEntry, srvApp) {
+    ngApp.provider.controller('ctrlOpUrl', ['$scope', 'srvQuickEntry', 'srvEnrollApp', function($scope, srvQuickEntry, srvEnrollApp) {
         var targetUrl, opEntry;
         $scope.opEntry = opEntry = {};
-        srvApp.get().then(function(app) {
+        srvEnrollApp.get().then(function(app) {
             targetUrl = 'http://' + location.host + '/rest/site/op/matter/enroll?site=' + $scope.app.siteid + '&app=' + $scope.app.id;
             srvQuickEntry.get(targetUrl).then(function(entry) {
                 if (entry) {
@@ -53,7 +53,7 @@ define(['frame'], function(ngApp) {
         $scope.makeOpUrl = function() {
             srvQuickEntry.add(targetUrl, $scope.app.title).then(function(task) {
                 $scope.app.op_short_url_code = task.code;
-                srvApp.update('op_short_url_code');
+                srvEnrollApp.update('op_short_url_code');
                 opEntry.url = 'http://' + location.host + '/q/' + task.code;
                 opEntry.code = task.code;
             });
@@ -65,7 +65,7 @@ define(['frame'], function(ngApp) {
                 opEntry.can_favor = 'N';
                 opEntry.password = '';
                 $scope.app.op_short_url_code = '';
-                srvApp.update('op_short_url_code');
+                srvEnrollApp.update('op_short_url_code');
             });
         };
         $scope.configOpUrl = function(event, prop) {
@@ -78,10 +78,10 @@ define(['frame'], function(ngApp) {
             srvQuickEntry.update(opEntry.code, { can_favor: opEntry.can_favor });
         };
     }]);
-    ngApp.provider.controller('ctrlReportUrl', ['$scope', 'srvQuickEntry', 'srvApp', function($scope, srvQuickEntry, srvApp) {
+    ngApp.provider.controller('ctrlReportUrl', ['$scope', 'srvQuickEntry', 'srvEnrollApp', function($scope, srvQuickEntry, srvEnrollApp) {
         var targetUrl;
         $scope.reportEntry = {};
-        srvApp.get().then(function(app) {
+        srvEnrollApp.get().then(function(app) {
             targetUrl = 'http://' + location.host + '/rest/site/op/matter/enroll/report?site=' + $scope.app.siteid + '&app=' + $scope.app.id;
             srvQuickEntry.get(targetUrl).then(function(entry) {
                 if (entry) {
@@ -93,7 +93,7 @@ define(['frame'], function(ngApp) {
         $scope.makeUrl = function() {
             srvQuickEntry.add(targetUrl).then(function(task) {
                 $scope.app.rp_short_url_code = task.code;
-                srvApp.update('rp_short_url_code');
+                srvEnrollApp.update('rp_short_url_code');
                 $scope.reportEntry.url = 'http://' + location.host + '/q/' + task.code;
             });
         };
@@ -101,7 +101,7 @@ define(['frame'], function(ngApp) {
             srvQuickEntry.remove(targetUrl).then(function(task) {
                 $scope.reportEntry.url = '';
                 $scope.app.rp_short_url_code = '';
-                srvApp.update('rp_short_url_code');
+                srvEnrollApp.update('rp_short_url_code');
             });
         };
         $scope.configUrl = function(event, prop) {
@@ -135,7 +135,7 @@ define(['frame'], function(ngApp) {
     /**
      * 访问控制规则
      */
-    ngApp.provider.controller('ctrlAccessRule', ['$scope', 'http2', 'srvApp', function($scope, http2, srvApp) {
+    ngApp.provider.controller('ctrlAccessRule', ['$scope', 'http2', 'srvEnrollApp', function($scope, http2, srvEnrollApp) {
         $scope.rule = {};
         $scope.isInputPage = function(pageName) {
             if (!$scope.app) {
@@ -149,17 +149,17 @@ define(['frame'], function(ngApp) {
             return false;
         };
         $scope.reset = function() {
-            srvApp.resetEntryRule();
+            srvEnrollApp.resetEntryRule();
         };
         $scope.changeUserScope = function() {
-            srvApp.changeUserScope($scope.rule.scope, $scope.sns, $scope.memberSchemas, $scope.jumpPages.defaultInput);
+            srvEnrollApp.changeUserScope($scope.rule.scope, $scope.sns, $scope.memberSchemas, $scope.jumpPages.defaultInput);
         };
-        srvApp.get().then(function(app) {
-            $scope.jumpPages = srvApp.jumpPages();
+        srvEnrollApp.get().then(function(app) {
+            $scope.jumpPages = srvEnrollApp.jumpPages();
             $scope.rule.scope = app.entry_rule.scope || 'none';
         }, true);
     }]);
-    ngApp.provider.controller('ctrlPreview', ['$scope', 'srvApp', function($scope, srvApp) {
+    ngApp.provider.controller('ctrlPreview', ['$scope', 'srvEnrollApp', function($scope, srvEnrollApp) {
         function refresh() {
             $scope.previewURL = previewURL + '&openAt=' + params.openAt + '&page=' + params.page.name + '&_=' + (new Date() * 1);
         }
@@ -170,7 +170,7 @@ define(['frame'], function(ngApp) {
         $scope.showPage = function(page) {
             params.page = page;
         };
-        srvApp.get().then(function(app) {
+        srvEnrollApp.get().then(function(app) {
             if (app.pages && app.pages.length) {
                 $scope.gotoPage = function(page) {
                     var url = "/rest/pl/fe/matter/enroll/page";
@@ -199,16 +199,16 @@ define(['frame'], function(ngApp) {
             }
         });
     }]);
-    ngApp.provider.controller('ctrlRound', ['$scope', 'srvRound', function($scope, srvRound) {
-        $scope.roundState = srvRound.RoundState;
-        srvRound.list().then(function(rounds) {
+    ngApp.provider.controller('ctrlRound', ['$scope', 'srvEnrollRound', function($scope, srvEnrollRound) {
+        $scope.roundState = srvEnrollRound.RoundState;
+        srvEnrollRound.list().then(function(rounds) {
             $scope.rounds = rounds;
         });
         $scope.add = function() {
-            srvRound.add();
+            srvEnrollRound.add();
         };
         $scope.edit = function(round) {
-            srvRound.edit(round);
+            srvEnrollRound.edit(round);
         };
     }]);
 });

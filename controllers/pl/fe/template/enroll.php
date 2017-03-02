@@ -67,7 +67,7 @@ class enroll extends \pl\fe\base {
 		}
 
 		$template = $this->model('matter\template')->byId($site, $tid);
-		print_r($template);
+		
 		return new \ResponseData($template);
 	}
 }

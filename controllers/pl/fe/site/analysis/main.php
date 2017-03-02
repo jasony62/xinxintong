@@ -31,13 +31,25 @@ class main extends \pl\fe\base {
 			'o' => $orderby . '_num desc',
 			'r' => array('o' => ($page - 1) * $size, 'l' => $size),
 		);
-		if ($stat = $this->model()->query_objs_ss($q, $q2)) {
+
+		$model=$this->model();
+		if ($stat = $model->query_objs_ss($q, $q2)) {
+			//$b=new \stdClass;
+			foreach ($stat as $k => $v) {
+				$v->fav_num=$model->query_val_ss([
+					'count(*)',
+					'xxt_site_favor',
+					"siteid='$site' and matter_type='$v->matter_type' and matter_id='$v->matter_id'"
+					]);
+				$b->$k=$v;
+			}
+			$stat=$b;
 			$q = array(
 				'count(distinct matter_type,matter_id)',
 				'xxt_log_matter_action',
 				"siteid='$site' and matter_type='$type' and action_at>=$startAt and action_at<=$endAt",
 			);
-			$cnt = $this->model()->query_val_ss($q);
+			$cnt = $model->query_val_ss($q);
 		} else {
 			$cnt = 0;
 		}

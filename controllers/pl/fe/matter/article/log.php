@@ -23,5 +23,5 @@ class log extends \pl\fe\matter\base {
 		$reads = $modelLog->listUserMatterOp($id, 'article', $page, $size);
 
 		return new \ResponseData($reads);
-	}
+	}	
 }

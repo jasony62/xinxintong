@@ -616,11 +616,11 @@ class record_model extends \TMS_MODEL {
 
 		// 获得填写的登记数据
 		$q = [
-			'userid',
+			'enroll_key,userid',
 			"xxt_enroll_record e",
 			$w,
 		];
-		$participants = $this->query_vals_ss($q);
+		$participants = $this->query_objs_ss($q);
 
 		return $participants;
 	}

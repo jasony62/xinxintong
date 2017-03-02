@@ -1068,7 +1068,8 @@ define(['require', 'schema', 'page'], function(require, schemaLib, pageLib) {
                             targetAndMsg.users = [];
                             Object.keys(rows.selected).forEach(function(key) {
                                 if (rows.selected[key] === true) {
-                                    targetAndMsg.users.push(_ins._aRecords[key].userid);
+                                    var rec = _ins._aRecords[key];
+                                    targetAndMsg.users.push({ userid: rec.userid, enroll_key: rec.enroll_key });
                                 }
                             });
                         } else {

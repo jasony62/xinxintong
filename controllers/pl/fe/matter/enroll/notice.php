@@ -56,15 +56,22 @@ class notice extends \pl\fe\matter\base {
 	/**
 	 * 给用户发送素材
 	 */
-	protected function notifyWithMatter($siteId, $appId, &$userIds, $tmplmsgId, &$params) {
-		if (count($userIds)) {
+	protected function notifyWithMatter($siteId, $appId, &$users, $tmplmsgId, &$params) {
+		if (count($users)) {
+			$receivers = [];
+			foreach ($users as $user) {
+				$receiver = new \stdClass;
+				$receiver->assoc_with = $user->enroll_key;
+				$receiver->userid = $user->userid;
+				$receivers[] = $receiver;
+			}
 			$user = $this->accountUser();
 			$modelTmplBat = $this->model('matter\tmplmsg\batch');
 			$creater = new \stdClass;
 			$creater->uid = $user->id;
 			$creater->name = $user->name;
 			$creater->src = 'pl';
-			$modelTmplBat->send($siteId, $tmplmsgId, $creater, $userIds, $params, ['send_from' => 'enroll:' . $appId]);
+			$modelTmplBat->send($siteId, $tmplmsgId, $creater, $receivers, $params, ['send_from' => 'enroll:' . $appId]);
 		}
 
 		return array(true);

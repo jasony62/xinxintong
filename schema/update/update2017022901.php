@@ -23,6 +23,7 @@ $sqls[] = $sql;
 $sql = "create table if not exists xxt_log_tmplmsg_detail(";
 $sql .= "id bigint not null auto_increment";
 $sql .= ",batch_id int not null"; // 消息批次id
+$sql .= ",assoc_with varchar(255) not null default ''"; // 对应的发送对象标志，例如：一条登记记录
 $sql .= ",siteid varchar(32) not null"; // 通过哪个站点发送
 $sql .= ",tmplmsg_id int not null"; // 系统模板ID
 $sql .= ",msgid varchar(50) not null default ''"; // 消息ID

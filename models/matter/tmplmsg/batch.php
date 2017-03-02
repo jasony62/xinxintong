@@ -13,17 +13,18 @@ class batch_model extends \TMS_MODEL {
 	 * @param array $userids
 	 *
 	 */
-	public function send($siteId, $tmplmsgId, $creater, $userIds, $params, $options = []) {
-		if (count($userIds) === 0) {
+	public function send($siteId, $tmplmsgId, $creater, $receivers, $params, $options = []) {
+		if (count($receivers) === 0) {
 			return true;
 		}
 
 		$modelAcnt = $this->model('site\user\account');
 		$mapOfUsers = [];
-		foreach ($userIds as $userid) {
-			$user = $modelAcnt->byId($userid, ['fields' => 'nickname,wx_openid,yx_openid,qy_openid']);
+		foreach ($receivers as $receiver) {
+			$user = $modelAcnt->byId($receiver->userid, ['fields' => 'nickname,wx_openid,yx_openid,qy_openid']);
 			if ($user) {
-				$mapOfUsers[$userid] = $user;
+				isset($receiver->assoc_with) && $user->assoc_with = $receiver->assoc_with;
+				$mapOfUsers[$receiver->userid] = $user;
 			}
 		}
 
@@ -62,6 +63,7 @@ class batch_model extends \TMS_MODEL {
 
 		foreach ($mapOfUsers as $userid => $user) {
 			$log['userid'] = $userid;
+			isset($user->assoc_with) && $log['assoc_with'] = $user->assoc_with;
 			if (empty($user->wx_openid) && empty($user->qy_openid) && empty($user->yx_openid)) {
 				$log['status'] = 'failed:无法获得用户的公众号身份';
 				$modelTmpl->insert('xxt_log_tmplmsg_detail', $log, false);

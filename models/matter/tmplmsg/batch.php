@@ -30,10 +30,8 @@ class batch_model extends \TMS_MODEL {
 		$modelTmpl = $this->model('matter\tmplmsg');
 		$tmpl = $modelTmpl->byId($tmplmsgId, ['cascaded' => 'Y']);
 
-		// 创建发送批次
-		$batch = $this->_create($siteId, $tmpl, $creater, $params, count($mapOfUsers), $options);
-
-		$url = isset($options['url']) ? $options['url'] : '';
+		/* 拼装通知消息 */
+		$url = isset($params->url) ? $params->url : '';
 		// 微信模板消息
 		$wxTmplMsg = [
 			'template_id' => $tmpl->templateid,
@@ -50,6 +48,10 @@ class batch_model extends \TMS_MODEL {
 				$txtTmplMsg[] = $tp->plabel . '：' . $value;
 			}
 		}
+
+		// 创建发送批次
+		empty($options['remark']) && $options['remark'] = implode("\n", $txtTmplMsg);
+		$batch = $this->_create($siteId, $tmpl, $creater, $params, count($mapOfUsers), $options);
 
 		// 消息发送日志
 		$log = [
@@ -76,7 +78,7 @@ class batch_model extends \TMS_MODEL {
 					} else {
 						$log['msgid'] = $rst[1]->msgid;
 					}
-					$modelTmpl->insert('xxt_log_tmplmsg_receiver', $log, false);
+					$modelTmpl->insert('xxt_log_tmplmsg_detail', $log, false);
 				} else {
 					$log['openid'] = $user->wx_openid;
 					if (!empty($url)) {
@@ -123,6 +125,7 @@ class batch_model extends \TMS_MODEL {
 		$batch->create_at = time();
 		$batch->params = $this->escape($this->toJson($params));
 		!empty($options['send_from']) && $batch->send_from = $options['send_from'];
+		!empty($options['remark']) && $batch->remark = $options['remark'];
 
 		$batch->id = $this->insert('xxt_log_tmplmsg_batch', $batch, true);
 
@@ -171,7 +174,7 @@ class batch_model extends \TMS_MODEL {
 		} else {
 			$log['status'] = 'success';
 		}
-		$this->insert('xxt_log_tmplmsg_receiver', $log, false);
+		$this->insert('xxt_log_tmplmsg_detail', $log, false);
 
 		return $rst;
 	}

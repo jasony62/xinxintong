@@ -214,7 +214,7 @@ if (!$mysqli->query($sql)) {
 /**
  * 记录模板消息接收人
  */
-$sql = "create table if not exists xxt_log_tmplmsg_receiver(";
+$sql = "create table if not exists xxt_log_tmplmsg_detail(";
 $sql .= "id bigint not null auto_increment";
 $sql .= ",batch_id int not null"; // 消息批次id
 $sql .= ",siteid varchar(32) not null"; // 通过哪个站点发送

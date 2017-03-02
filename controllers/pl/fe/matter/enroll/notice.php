@@ -21,7 +21,7 @@ class notice extends \pl\fe\matter\base {
 	 * @param string $tmplmsg 模板消息id
 	 *
 	 */
-	public function notify_action($site, $app, $tmplmsg, $rid = null) {
+	public function send_action($site, $app, $tmplmsg, $rid = null) {
 		if (false === ($user = $this->accountUser())) {
 			return new \ResponseTimeout();
 		}

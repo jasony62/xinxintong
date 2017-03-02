@@ -10,7 +10,7 @@ class enroll extends \pl\fe\base {
 	 * 
 	 */
 	public function index_action(){
-		\TPL::output('/pl/fe/site/template');
+		\TPL::output('/pl/fe/site/template/enroll/frame');
 		exit;
 	}
 	/**

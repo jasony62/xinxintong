@@ -1,7 +1,7 @@
 angular.module('service.article', ['ui.bootstrap', 'ui.xxt']).provider('srvLog', function() {
     this.$get = ['$q', 'http2', function($q, http2) {
         return {
-            list: function(articleId, page) {
+            list: function(articleId, page, type) {
                 var defer = $q.defer(),
                     url;
                 if (!page || !page._j) {
@@ -17,7 +17,9 @@ angular.module('service.article', ['ui.bootstrap', 'ui.xxt']).provider('srvLog',
                         }
                     });
                 }
-                url = '/rest/pl/fe/matter/article/log/list?id=' + articleId + page._j();
+                //收藏接口
+                url = type ==='log' ?  '/rest/pl/fe/matter/article/log/list' :  '/rest/pl/fe/matter/article/favor/list';
+                url += '?id=' + articleId + page._j();
                 http2.get(url, function(rsp) {
                     rsp.data.total && (page.total = rsp.data.total);
                     defer.resolve(rsp.data.logs);

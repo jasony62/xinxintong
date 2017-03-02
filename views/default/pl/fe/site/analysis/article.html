@@ -2,8 +2,9 @@
     <div class='col-md-12'>
         <div class='form-group form-inline'>
             <div class='form-group'>
-                <select class='form-control' title='排序' ng-model='orderby' ng-change='getData(1)'>
+                <select class='form-control' title='排序' ng-model='orderby' ng-change='fetch(1)'>
                     <option value='read'>阅读</option>
+                    <option value='favor'>收藏</option>
                     <option value='share_friend'>发送给朋友</option>
                     <option value='share_timeline'>分享到朋友圈</option>
                 </select>
@@ -22,6 +23,7 @@
                         <th style="width:40px"></th>
                         <th>名称</th>
                         <th style="width:120px">阅读</th>
+                        <th style="width:120px">收藏</th>
                         <th style="width:120px">发送给朋友</th>
                         <th style="width:120px">分享到朋友圈</th>
                     </tr>
@@ -31,6 +33,7 @@
                         <td>{{$index+1}}</td>
                         <td>{{m.matter_title}}</td>
                         <td>{{m.read_num}}</td>
+                        <td>{{m.favor_num}}</td>
                         <td>{{m.share_friend_num}}</td>
                         <td>{{m.share_timeline_num}}</td>
                     </tr>

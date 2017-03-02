@@ -6,8 +6,8 @@ define(['frame'], function(ngApp) {
             page: {},
             list: function() {
                 var _this = this;
-                srvLog.list($scope.editing.id, this.page, 'log').then(function(logs) {
-                    _this.logs = logs;
+                srvLog.list($scope.editing, this.page, 'log').then(function(data) {
+                    _this.logs = data.logs;
                 });
             }
         };
@@ -15,8 +15,8 @@ define(['frame'], function(ngApp) {
             page: {},
             list: function() {
                 var _this = this;
-                srvLog.list($scope.editing.id, this.page, 'favor').then(function(favorers) {
-                    _this.favorers = favorers;
+                srvLog.list($scope.editing, this.page, 'favor').then(function(favorers) {
+                    _this.favorers = favorers.data;
                 });
             }
         };

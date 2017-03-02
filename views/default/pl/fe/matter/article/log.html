@@ -37,16 +37,12 @@
             <tr>
                 <th>收藏时间</th>
                 <th>用户</th>
-                <!--<th>操作</th>-->
-                <!--<th>累计操作次数</th>-->
             </tr>
             </thead>
             <tbody>
             <tr ng-repeat='favorer in favor.favorers'>
-                <td>{{favorer.operate_at*1000|date:'yy-MM-dd HH:mm'}}</td>
+                <td>{{favorer.favor_at*1000|date:'yy-MM-dd HH:mm'}}</td>
                 <td>{{favorer.nickname||'未知'}}</td>
-                <!--<td>{{log.operation}}</td>-->
-                <!--<td>{{log.user_op_num}}</td>-->
             </tr>
             </tbody>
         </table>

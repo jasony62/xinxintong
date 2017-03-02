@@ -49,10 +49,10 @@
         <div class='form-group form-inline'>
             <span style='height:34px;line-height:34px'>总数：{{favor.page.total}}</span>
             <ul uib-pagination style="margin:0;vertical-align:bottom;cursor:pointer;float:right"
-                ng-show="read.page.total>read.page.size" boundary-links="true" total-items="read.page.total"
-                max-size="7" items-per-page="read.page.size" rotate="false" ng-model="read.page.at"
+                ng-show="favor.page.total>favor.page.size" boundary-links="true" total-items="favor.page.total"
+                max-size="7" items-per-page="favor.page.size" rotate="false" ng-model="favor.page.at"
                 previous-text="&lsaquo;" next-text="&rsaquo;" first-text="&laquo;" last-text="&raquo;"
-                ng-change="read.list()"></ul>
+                ng-change="favor.list()"></ul>
         </div>
     </div>
 </div>

@@ -163,7 +163,7 @@ class base extends \site\fe\base {
 			}
 		}
 		if (empty($members)) {
-			$members = $this->model('site\user\member')->byUser($siteId, $userid, array('schemas' => $memberSchemas));
+			$members = $this->model('site\user\member')->byUser($userid, ['schemas' => $memberSchemas]);
 		}
 		//如果是企业号的用户访问
 		if (isset($this->who->sns->qy) && empty($members)) {

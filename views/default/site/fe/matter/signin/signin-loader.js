@@ -15,10 +15,11 @@ window.loading = {
 		require.config({
 			waitSeconds: 0,
 			paths: {
+				"jquery": '/static/js/jquery.min',
 				"domReady": '/static/js/domReady',
 				"angular": "/static/js/angular.min",
 				"angular-sanitize": "/static/js/angular-sanitize.min",
-				"resumable": "/static/js/resumable.min",
+				"resumable": "/static/js/resumable",
 				"xxt-share": "/static/js/xxt.share",
 				"xxt-image": "/static/js/xxt.image",
 				"xxt-geo": "/static/js/xxt.geo",
@@ -29,6 +30,9 @@ window.loading = {
 			shim: {
 				"angular": {
 					exports: "angular"
+				},
+				"jquery": {
+					exports: "jquery"
 				},
 				"angular-sanitize": {
 					deps: ['angular'],

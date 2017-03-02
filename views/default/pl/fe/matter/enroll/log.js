@@ -1,12 +1,12 @@
 define(['frame'], function(ngApp) {
 	'use strict';
-	ngApp.provider.controller('ctrlLog', ['$scope', 'http2', 'srvLog', function($scope, http2, srvLog) {
+	ngApp.provider.controller('ctrlLog', ['$scope', 'http2', 'srvEnrollLog', function($scope, http2, srvEnrollLog) {
 		var read;
 		$scope.read = read = {
 			page: {},
 			list: function() {
 				var _this = this;
-				srvLog.list($scope.app.id, this.page).then(function(logs) {
+				srvEnrollLog.list($scope.app.id, this.page).then(function(logs) {
 					_this.logs = logs;
 				});
 			}

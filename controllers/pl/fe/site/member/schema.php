@@ -216,6 +216,7 @@ class schema extends \pl\fe\base {
 			return new \ResponseError('未与企业号连接，无法同步通讯录');
 		}
 
+
 		$schema = $this->model('site\user\memberschema')->qyabSchemaBySite($site, ['fields' => 'id']);
 		if ($schema === false) {
 			return new \ResponseError('没有设置企业号同步使用的自定义用户，请设置后再同步！');
@@ -224,8 +225,8 @@ class schema extends \pl\fe\base {
 
 		$timestamp = time(); // 进行同步操作的时间戳
 		$qyproxy = $this->model('sns\qy\proxy', $qyConfig);
-		$model = $this->model();
 		$modelDept = $this->model('site\user\department');
+
 		/**
 		 * 同步部门数据
 		 */
@@ -252,7 +253,7 @@ class schema extends \pl\fe\base {
 				'xxt_site_member_department',
 				"siteid='$site' and extattr like '%\"id\":$rdept->id,%'",
 			);
-			if (!($ldept = $model->query_obj_ss($q))) {
+			if (!($ldept = $modelDept->query_obj_ss($q))) {
 				$ldept = $modelDept->create($site, $authid, $pid, null);
 			}
 
@@ -268,7 +269,7 @@ class schema extends \pl\fe\base {
 					'xxt_site_member_department',
 					"siteid='$site' and id=$pid", //获得pid的fullpatj，组合成新的fullpath
 				);
-				$parentfullpath = $model->query_val_ss($qp);
+				$parentfullpath = $modelDept->query_val_ss($qp);
 				$parentfullpath .= ",$ldept->id"; //本地的id
 			}
 			$i = array(
@@ -278,7 +279,7 @@ class schema extends \pl\fe\base {
 				'fullpath' => $parentfullpath,
 				'extattr' => json_encode($rdept),
 			);
-			$model->update(
+			$modelDept->update(
 				'xxt_site_member_department',
 				$i,
 				"siteid='$site' and id=$ldept->id"
@@ -288,7 +289,7 @@ class schema extends \pl\fe\base {
 		/**
 		 * 清空同步不存在的部门
 		 */
-		$this->model()->delete(
+		$modelDept->delete(
 			'xxt_site_member_department',
 			"siteid='$site' and sync_at<" . $timestamp
 		);
@@ -308,7 +309,7 @@ class schema extends \pl\fe\base {
 					'xxt_site_qyfan',
 					"siteid='$site' and openid='$user->userid'",
 				);
-				if (!($luser = $model->query_obj_ss($q))) {
+				if (!($luser = $modelDept->query_obj_ss($q))) {
 					$fan->createQyFan($site, $user, $authid, $timestamp, $mapDeptR2L);
 				} else if ($luser->sync_at < $timestamp) {
 					$fan->updateQyFan($site, $luser, $user, $authid, $timestamp, $mapDeptR2L);
@@ -318,7 +319,7 @@ class schema extends \pl\fe\base {
 		/**
 		 * 清空没有同步的粉丝数据
 		 */
-		$model->delete(
+		$modelDept->delete(
 			'xxt_site_qyfan',
 			"siteid='$site' and sync_at<" . $timestamp
 		);
@@ -336,7 +337,7 @@ class schema extends \pl\fe\base {
 				'xxt_site_member_tag',
 				"siteid='$site' and extattr like '{\"tagid\":$tag->tagid}%'",
 			);
-			if (!($ltag = $model->query_obj_ss($q))) {
+			if (!($ltag = $modelDept->query_obj_ss($q))) {
 				$t = array(
 					'siteid' => $site,
 					'sync_at' => $timestamp,
@@ -344,14 +345,14 @@ class schema extends \pl\fe\base {
 					'schema_id' => $authid,
 					'extattr' => json_encode(array('tagid' => $tag->tagid)),
 				);
-				$memberTagId = $model->insert('xxt_site_member_tag', $t, true);
+				$memberTagId = $modelDept->insert('xxt_site_member_tag', $t, true);
 			} else {
 				$memberTagId = $ltag->id;
 				$t = array(
 					'sync_at' => $timestamp,
 					'name' => $tag->tagname,
 				);
-				$this->model()->update(
+				$modelDept->update(
 					'xxt_site_member_tag',
 					$t,
 					"siteid='$site' and id=$ltag->id"
@@ -372,13 +373,13 @@ class schema extends \pl\fe\base {
 					'xxt_site_qyfan',
 					"siteid='$site' and openid='$user->userid'",
 				);
-				if ($fans = $model->query_obj_ss($q)) {
+				if ($fans = $modelDept->query_obj_ss($q)) {
 					if (empty($fans->tags)) {
 						$fans->tags = $memberTagId;
 					} else {
 						$fans->tags .= ',' . $memberTagId;
 					}
-					$model->update(
+					$modelDept->update(
 						'xxt_site_qyfan',
 						array('tags' => $fans->tags),
 						"siteid='$site' and openid='$user->userid'"
@@ -389,7 +390,7 @@ class schema extends \pl\fe\base {
 		/**
 		 * 清空已有标签
 		 */
-		$model->delete(
+		$modelDept->delete(
 			'xxt_site_member_tag',
 			"siteid='$site' and sync_at<" . $timestamp
 		);

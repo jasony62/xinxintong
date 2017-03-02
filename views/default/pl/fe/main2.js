@@ -24,7 +24,6 @@ config(['$uibTooltipProvider', function($uibTooltipProvider) {
                 location.href = '/rest/pl/fe/matter/link?site=' + site.id + '&id=' + rsp.data.id;
             });
         },
-        //研究项目-单图文
         addArticle: function(site) {
             http2.get('/rest/pl/fe/matter/article/create?site=' + site.id, function(rsp) {
                 location.href = '/rest/pl/fe/matter/article?site=' + site.id + '&id=' + rsp.data;
@@ -40,10 +39,9 @@ config(['$uibTooltipProvider', function($uibTooltipProvider) {
                 location.href = '/rest/pl/fe/matter/channel?site=' + site.id + '&id=' + rsp.data.id;
             });
         },
-        //研究项目-登记活动
-        addEnroll: function(site) {
+        addEnroll: function(site, scenario) {
             $('body').trigger('click');
-            templateShop.choose(site.id, 'enroll').then(function(choice) {
+            templateShop.choose(site.id, 'enroll', scenario).then(function(choice) {
                 if (choice) {
                     if (choice.source === 'share') {
                         var url, data = choice.data;
@@ -116,7 +114,6 @@ config(['$uibTooltipProvider', function($uibTooltipProvider) {
                 location.href = '/rest/pl/fe/matter/merchant/shop?site=' + site.id + '&id=' + rsp.data;
             });
         },
-        //信息墙
         addWall: function(site) {
             http2.get('/rest/pl/fe/matter/wall/create?site=' + site.id, function(rsp) {
                 location.href = '/rest/pl/fe/matter/wall?site=' + site.id + '&id=' + rsp.data;
@@ -130,9 +127,9 @@ config(['$uibTooltipProvider', function($uibTooltipProvider) {
         }
     };
 
-    function addMatter(site, matterType) {
+    function addMatter(site, matterType, scenario) {
         var fnName = 'add' + matterType[0].toUpperCase() + matterType.substr(1);
-        _fns[fnName].call(_fns, site);
+        _fns[fnName].call(_fns, site, scenario);
     }
 
     var url, page;
@@ -173,7 +170,7 @@ config(['$uibTooltipProvider', function($uibTooltipProvider) {
             target.trigger('show').data('popover', 'Y');
         }
     };
-    $scope.addMatter = function(matterType) {
+    $scope.addMatter = function(matterType, scenario) {
         var url = '/rest/pl/fe/site/list?_=' + (new Date() * 1);
         $('#popoverAddMatter').trigger('hide');
         http2.get(url, function(rsp) {
@@ -182,7 +179,7 @@ config(['$uibTooltipProvider', function($uibTooltipProvider) {
                 addMatter(sites[0], matterType);
             } else if (sites.length === 0) {
                 createSite().then(function(site) {
-                    addMatter(site, matterType);
+                    addMatter(site, matterType, scenario);
                 });
             } else {
                 $uibModal.open({
@@ -204,7 +201,7 @@ config(['$uibTooltipProvider', function($uibTooltipProvider) {
                         };
                     }]
                 }).result.then(function(site) {
-                    addMatter(site, matterType);
+                    addMatter(site, matterType, scenario);
                 });
             }
         });
@@ -213,24 +210,43 @@ config(['$uibTooltipProvider', function($uibTooltipProvider) {
 }]).controller('ctrlSite', ['$scope', 'http2', function($scope, http2) {
     var t = (new Date() * 1);
     $scope.create = function() {
-        var url = '/rest/pl/fe/site/create?_=' + t;;
+        var url = '/rest/pl/fe/site/create?_=' + t;
         http2.get(url, function(rsp) {
             location.href = '/rest/pl/fe/site/setting?site=' + rsp.data.id;
         });
     };
+     //区分我的团队和回收站团队属性state ：0 是回收站信息；1是我的团队
     $scope.list = function() {
+        $scope.siteType = 1 ;
         var url = '/rest/pl/fe/site/list?_=' + t;
         http2.get(url, function(rsp) {
+            $scope.site1 = rsp.data;
             $scope.sites = rsp.data;
         });
     };
+
     $scope.openHome = function(site) {
         location.href = '/rest/site/home?site=' + site.id;
     };
     $scope.openConsole = function(site) {
         location.href = '/rest/pl/fe/site?site=' + site.id;
     };
+    $scope.recycle = function(){
+        //获取回收站信息
+        var url = '/rest/pl/fe/site/wasteList?_=' + t ;
+        http2.get(url,function(rsp){
+            $scope.sites0 = rsp.data;
+        });
+    };
+    $scope.restoreSite = function(site){
+        //恢复删除站点
+        var url = '/rest/pl/fe/site/recover?site=' + site.id;
+        http2.get(url, function(rsp){
+            location.href = '/rest/pl/fe/site?site=' + site.id;
+        })
+    };
     $scope.list();
+    $scope.recycle();
 }]).controller('ctrlMission', ['$scope', 'http2', function($scope, http2) {
     var page, filter, filter2, t = (new Date() * 1);
     $scope.page = page = {

@@ -3,7 +3,7 @@ define(['frame', 'schema'], function(ngApp, schemaLib) {
     /**
      * 登记项管理
      */
-    ngApp.provider.controller('ctrlSchema', ['$scope', '$q', 'srvApp', 'srvPage', '$uibModal', function($scope, $q, srvApp, srvPage, $uibModal) {
+    ngApp.provider.controller('ctrlSchema', ['$scope', '$q', 'srvSigninApp', 'srvSigninPage', '$uibModal', function($scope, $q, srvSigninApp, srvSigninPage, $uibModal) {
         function _addSchema(newSchema) {
             for (var i = $scope.app.data_schemas.length - 1; i >= 0; i--) {
                 if (newSchema.id === $scope.app.data_schemas[i].id) {
@@ -12,10 +12,10 @@ define(['frame', 'schema'], function(ngApp, schemaLib) {
                 }
             }
             $scope.app.data_schemas.push(newSchema);
-            srvApp.update('data_schemas').then(function() {
+            srvSigninApp.update('data_schemas').then(function() {
                 $scope.app.pages.forEach(function(page) {
                     page.appendSchema(newSchema);
-                    srvPage.update(page, ['data_schemas', 'html']);
+                    srvSigninPage.update(page, ['data_schemas', 'html']);
                 });
             });
         };
@@ -54,10 +54,10 @@ define(['frame', 'schema'], function(ngApp, schemaLib) {
             afterIndex = $scope.app.data_schemas.indexOf(schema);
             $scope.app.data_schemas.splice(afterIndex + 1, 0, newSchema);
 
-            srvApp.update('data_schemas').then(function() {
+            srvSigninApp.update('data_schemas').then(function() {
                 $scope.app.pages.forEach(function(page) {
                     page.appendSchema(newSchema, schema);
-                    srvPage.update(page, ['data_schemas', 'html']);
+                    srvSigninPage.update(page, ['data_schemas', 'html']);
                 });
             });
         };
@@ -67,10 +67,10 @@ define(['frame', 'schema'], function(ngApp, schemaLib) {
 
             //从应用的定义中删除
             $scope.app.data_schemas.splice($scope.app.data_schemas.indexOf(removedSchema), 1);
-            srvApp.update('data_schemas').then(function() {
+            srvSigninApp.update('data_schemas').then(function() {
                 $scope.app.pages.forEach(function(page) {
                     if (page.removeSchema(removedSchema)) {
-                        srvPage.update(page, ['data_schemas', 'html']);
+                        srvSigninPage.update(page, ['data_schemas', 'html']);
                     }
                 });
                 deferred.resolve(removedSchema);
@@ -88,18 +88,18 @@ define(['frame', 'schema'], function(ngApp, schemaLib) {
             return deferred.promise;
         };
         $scope.assignEnrollApp = function() {
-            srvApp.assignEnrollApp();
+            srvSigninApp.assignEnrollApp();
         };
         $scope.cancelEnrollApp = function() {
-            srvApp.cancelEnrollApp();
+            srvSigninApp.cancelEnrollApp();
         };
     }]);
     /**
      * 应用的所有登记项
      */
-    ngApp.provider.controller('ctrlList', ['$scope', '$timeout', '$sce', '$uibModal', 'srvApp', 'srvPage', function($scope, $timeout, $sce, $uibModal, srvApp, srvPage) {
+    ngApp.provider.controller('ctrlList', ['$scope', '$timeout', '$sce', '$uibModal', 'srvSigninApp', 'srvSigninPage', function($scope, $timeout, $sce, $uibModal, srvSigninApp, srvSigninPage) {
         function changeSchemaOrder(moved) {
-            srvApp.update('data_schemas').then(function() {
+            srvSigninApp.update('data_schemas').then(function() {
                 var app = $scope.app;
                 if (app.__schemasOrderConsistent === 'Y') {
                     var i = app.data_schemas.indexOf(moved),
@@ -107,7 +107,7 @@ define(['frame', 'schema'], function(ngApp, schemaLib) {
                     if (i > 0) prevSchema = app.data_schemas[i - 1];
                     app.pages.forEach(function(page) {
                         page.moveSchema(moved, prevSchema);
-                        srvPage.update(page, ['data_schemas', 'html']);
+                        srvSigninPage.update(page, ['data_schemas', 'html']);
                     });
                 }
             });
@@ -199,11 +199,11 @@ define(['frame', 'schema'], function(ngApp, schemaLib) {
             }
             timerOfUpdate = $timeout(function() {
                 // 更新应用的定义
-                srvApp.update('data_schemas').then(function() {
+                srvSigninApp.update('data_schemas').then(function() {
                     // 更新页面
                     $scope.app.pages.forEach(function(page) {
                         page.updateSchema(schema);
-                        srvPage.update(page, ['data_schemas', 'html']);
+                        srvSigninPage.update(page, ['data_schemas', 'html']);
                     });
                 });
             }, 1000);
@@ -213,7 +213,7 @@ define(['frame', 'schema'], function(ngApp, schemaLib) {
         };
         $scope.updConfig = function(prop) {
             $scope.inputPage.updateSchema($scope.activeSchema);
-            srvPage.update($scope.inputPage, ['data_schemas', 'html']);
+            srvSigninPage.update($scope.inputPage, ['data_schemas', 'html']);
         };
         $scope.$on('schemas.orderChanged', function(e, moved) {
             changeSchemaOrder(moved);

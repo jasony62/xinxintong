@@ -5,7 +5,7 @@ namespace matter;
  */
 class template_model extends \TMS_MODEL {
 	/**
-	 *
+	 *返回一个模板
 	 */
 	public function &byId($site, $id, $options = []) {
 		$fields = isset($options['fields']) ? $options['fields'] : '*';
@@ -64,6 +64,13 @@ class template_model extends \TMS_MODEL {
 
 		return $template;
 	}
+	/**
+	 * [获取模板列表]
+	 * @param  [type]  $site [description]
+	 * @param  integer $page [description]
+	 * @param  integer $size [description]
+	 * @return [type]        [description]
+	 */
 	public function &bySite($site, $page = 1, $size = 30){
 		$q = [
 			'*',
@@ -128,7 +135,7 @@ class template_model extends \TMS_MODEL {
 				'siteid' => $site->id,
 				'site_name' => $site->name,
 				'matter_type' => $matter->matter_type,
-				'matter_id' => $matter->matter_id,
+				'matter_id' => isset($matter->matter_id) ? $matter->matter_id : '',
 				'scenario' => empty($matter->scenario) ? '' : $matter->scenario,
 				'title' => $matter->title,
 				'pic' => $matter->pic,

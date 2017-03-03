@@ -548,7 +548,7 @@ class menu extends \pl\fe\base {
 				if ($button->matter_type === 'article') {
 					$url = $this->model('matter\article2')->getEntryUrl($site, $button->matter_id);
 				} else if (in_array($button->matter_type, ['text','group'])) {
-					throw new MenuInvalidException("选择【{$button->matter_type}】的素材类型不支持。");
+					throw new MenuInvalidException("选择的素材类型不支持。");
 				} else {
 					$url = $this->model('matter\\' . $button->matter_type)->getEntryUrl($site, $button->matter_id);
 				}

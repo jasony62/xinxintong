@@ -196,6 +196,8 @@ class template_model extends \TMS_MODEL {
 		$matter = $modelApp->byId($eid);
 		$options = [
 			'version' => $version,
+			'modifier' => $user->id,
+			'modifier_name' => $user->name,
 			'create_at' => $current,
 			'siteid' => $site,
 			'template_id' => $tid,

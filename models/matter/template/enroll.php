@@ -31,6 +31,8 @@ class enroll_model extends \TMS_MODEL {
 		$versionNum = $this->model('matter\template')->getVersion($site->id, $template['id']);
 		$options = [
 			'version' => $versionNum,
+			'modifier' => $user->id,
+			'modifier_name' => $user->name,
 			'create_at' => $current,
 			'siteid' => $site->id,
 			'template_id' => $template['id'],
@@ -51,5 +53,27 @@ class enroll_model extends \TMS_MODEL {
 		$app->last_version = $versionNum;
 		$app->version = (object)$options;
 		return $app;
-	} 
+	}
+	/**
+	 * 检查版本是否已经发布
+	 * @param  [type] $site [description]
+	 * @param  [type] $vid  [description]
+	 * @return [type]       [description]
+	 */
+	public function checkVersion($site, $vid){
+		$q = [
+			'pub_status',
+			'xxt_template_enroll',
+			['siteid' => $site, 'id' => $vid]
+		];
+		if($version = $this->query_obj_ss($q)){
+			if($version->pub_status === "Y"){
+				return array(true);
+			}else{
+				return array(false,'未发布');
+			}
+		}else{
+			die('版本不存在');
+		}
+	}
 }

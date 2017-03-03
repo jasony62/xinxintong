@@ -100,6 +100,123 @@ class enroll extends \pl\fe\base {
 		return new \ResponseData($template);
 	}
 	/**
+	 * [保存]
+	 * @param  [type] $site [description]
+	 * @param  [type] $tid  [description]
+	 * @param  [type] $vid  [版本id]
+	 * @return [type]       [description]
+	 */
+	public function update_action($site, $tid, $vid){
+		if (false === ($loginUser = $this->accountUser())) {
+			return new \ResponseTimeout();
+		}
+		$version = $this->model('matter\template\enroll')->checkVersion($site, $vid)；
+		if($version[0]){
+			return new \ResponseError('当前版本已发布，不可更改');
+		}
+
+		$modelTmp = $this->model('matter\template');
+		/**
+		 * 处理数据
+		 */
+		$current = time();
+		$nv = $this->getPostJson();
+		foreach ($nv as $n => $v) {
+			if ($n === 'data_schemas') {
+				$nv->$n = $modelTmp->escape($modelTmp->toJson($v));
+			}
+		}
+		$nv->modifier = $loginUser->id;
+		$nv->modifier_name = $loginUser->name;
+		$nv->create_at = $current;
+		$dateTmp = array();
+		isset($nv->scenario) && $dataTmp['scenario'] = $nv->scenario;
+		isset($nv->title) && $dataTmp['title'] = $nv->title;
+		isset($nv->pic) && $dataTmp['pic'] = $nv->pic;
+		isset($nv->summary) && $dataTmp['summary'] = $nv->summary;
+		isset($nv->visible_scope) && $dataTmp['visible_scope'] = $nv->visible_scope;
+		isset($nv->coin) && $dataTmp['coin'] = $nv->coin;
+		$rst = $modelTmp->update('xxt_template', $dateTmp, ["id" => $tid]);
+
+		$dateE = array();
+		isset($nv->multi_rounds) && $dataE['multi_rounds'] = $nv->multi_rounds;
+		isset($nv->data_schemas) && $dataE['data_schemas'] = $nv->data_schemas;
+		isset($nv->enrolled_entry_page) && $dataE['enrolled_entry_page'] = $nv->enrolled_entry_page;
+		isset($nv->open_lastroll) && $dataE['open_lastroll'] = $nv->open_lastroll;
+		isset($nv->up_said) && $dataE['up_said'] = $nv->up_said;
+		if(isset($nv->scenario)){
+			$pageConfig = $this->_getSysTemplate($nv->scenario, 'simple');
+			/* 场景设置 */
+			if (isset($pageConfig->scenarioConfig)) {
+				$scenarioConfig = $pageConfig->scenarioConfig;
+				$dateE->scenario_config = json_encode($scenarioConfig);
+			}
+		}
+		$rst = $modelTmp->update('xxt_template_enroll', $dateE, ["id" => $vid]);
+		
+		if ($rst) {
+			// 记录操作日志
+			$matter = $modelTmp->byId($site, $tid, $vid, ['fields'=>'id,title,summary,pic']);
+			$matter->type = 'template';
+			$this->model('matter\log')->matterOp($site, $loginUser, $matter, 'U');
+		}
+
+		return new \ResponseData($rst);
+	}
+	/**
+	 * 更新活动的页面的属性信息
+	 *
+	 * string $app 版本的id
+	 * $page 页面的id
+	 * $cname 页面对应code page id
+	 */
+	public function updatePage_action($site, $vid, $pageId, $cname) {
+		if (false === ($loginUser = $this->accountUser())) {
+			return new \ResponseTimeout();
+		}
+		$version = $this->model('matter\template\enroll')->checkVersion($site, $vid)；
+		if($version[0]){
+			return new \ResponseError('当前版本已发布，不可更改');
+		}
+
+		$nv = $this->getPostJson();
+		$vid = 'template:'.$vid;
+		$modelPage = $this->model('matter\enroll\page');
+		$page = $modelPage->byId($vid, $pageId);
+		if ($page === false) {
+			return new \ResponseError('指定的页面不存在');
+		}
+		/* 更新页面内容 */
+		if (isset($nv->html)) {
+			$data = [
+				'html' => urldecode($nv->html),
+			];
+			$modelCode = $this->model('code\page');
+			$code = $modelCode->lastByName($site, $cname);
+			$rst = $modelCode->modify($code->id, $data);
+			unset($nv->html);
+		}
+		/* 更新了除内容外，页面的其他属性 */
+		if (count(array_keys(get_object_vars($nv)))) {
+			if (isset($nv->data_schemas)) {
+				$nv->data_schemas = $modelPage->escape($modelPage->toJson($nv->data_schemas));
+			}
+			if (isset($nv->act_schemas)) {
+				$nv->act_schemas = $modelPage->escape($modelPage->toJson($nv->act_schemas));
+			}
+			if (isset($nv->user_schemas)) {
+				$nv->user_schemas = $modelPage->escape($modelPage->toJson($nv->user_schemas));
+			}
+			$rst = $modelPage->update(
+				'xxt_enroll_page',
+				$nv,
+				["id" => $page->id]
+			);
+		}
+
+		return new \ResponseData($rst);
+	}
+	/**
 	 * 创建默认的模板页面
 	 * 如果没有指定场景或模板，那么就使用系统的缺省模板
 	 *

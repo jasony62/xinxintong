@@ -7,12 +7,13 @@ var app = angular.module('xxt', ['infinite-scroll']).config(['$locationProvider'
     $locationProvider.html5Mode(true);
 }]);
 app.controller('ctrl', ['$scope', '$location', '$http', '$q', function($scope, $location, $http, $q) {
-    var siteId, channelId, shareby, keyWord;
+    var siteId, channelId, shareby, keyWord, tagid;
     /*关键词*/
     keyWord = $location.search().keyword;
     siteId = $location.search().site;
     channelId = $location.search().id;
     shareby = $location.search().shareby ? $location.search().shareby : '';
+    $scope.tagid = tagid = $location.search().tagid;
     var setShare = function() {
         var shareid, sharelink;
         shareid = $scope.user.vid + (new Date()).getTime();
@@ -37,9 +38,16 @@ app.controller('ctrl', ['$scope', '$location', '$http', '$q', function($scope, $
     /*输入框需要绑定的内容*/
     $scope.searchKeyword = keyWord;
     /*发送请求*/
-    $http.get('/rest/site/fe/matter/article/search/list?site=' + siteId + '&keyword=' + keyWord).success(function(rsp) {
-        $scope.matters = rsp.data;
-    });
+    if(tagid){
+        $http.get('/rest/site/fe/matter/article/list?site=' + siteId + '&tagid=' + tagid ).success(function(rsp) {
+            $scope.matters = rsp.data.articles;
+        });
+    }else{
+        $http.get('/rest/site/fe/matter/article/search/list?site=' + siteId + '&keyword=' + keyWord).success(function(rsp) {
+            $scope.matters = rsp.data;
+        });
+    }
+
     $scope.keypress = function(event) {
         if (event.keyCode == 13) {
             $scope.search();

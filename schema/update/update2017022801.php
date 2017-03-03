@@ -25,10 +25,12 @@ $sqls[] = $sql;
 $sqls[] = "alter table xxt_template change matter_id matter_id varchar(40) not null default ''";
 $sqls[] = "alter table xxt_template change matter_type matter_type varchar(20) not null default ''";
 $sqls[] = "alter table xxt_template change summary summary varchar(240) not null default ''";
+$sqls[] = "alter table xxt_template change put_at put_at int not null default 0";
 $sqls[] = "alter table xxt_template add pub_version varchar(10) not null default '' after summary";
 $sqls[] = "alter table xxt_template add last_version varchar(10) not null default '' after pub_version";
 $sqls[] = "alter table xxt_template add favor_num int not null default 0 after copied_num";
 $sqls[] = "alter table xxt_template add state tinyint not null default 1";
+$sqls[] = "alter table xxt_template add create_at int not null after creater_name";
 //
 $sqls[] = "alter table xxt_template_acl change matter_id matter_id varchar(40) not null default ''";
 $sqls[] = "alter table xxt_template_acl change matter_type matter_type varchar(20) not null default ''";

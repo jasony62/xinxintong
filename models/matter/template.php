@@ -39,18 +39,25 @@ class template_model extends \TMS_MODEL {
 				//获取当前需要展示页面的版本的id
 				if(empty($vid)){
 					if(empty($template->pub_version)){
-						if(!empty($template->last_version)){
-							foreach($template->versions as $v){
-								if($v->version === $template->last_version){
-									$vid = $v->id;
-								}
+						foreach($template->versions as $v){
+							if($v->version === $template->last_version){
+								$vid = $v->id;
+								$template->version = $v;
 							}
 						}
 					}else{
 						foreach($template->versions as $v){
 							if($v->version === $template->pub_version){
 								$vid = $v->id;
+								$template->version = $v;
 							}
+						}
+					}
+				}else{
+					//返回当前预览版本的数据
+					foreach($template->versions as $v){
+						if($v->id === $vid){
+							$template->version = $v;
 						}
 					}
 				}
@@ -128,6 +135,7 @@ class template_model extends \TMS_MODEL {
 			$template = [
 				'creater' => $account->id,
 				'creater_name' => $account->name,
+				'create_at' => $current,
 				'put_at' => $current,
 				'siteid' => $site->id,
 				'site_name' => $site->name,

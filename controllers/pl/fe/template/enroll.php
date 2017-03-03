@@ -128,17 +128,16 @@ class enroll extends \pl\fe\base {
 		}
 		$nv->modifier = $loginUser->id;
 		$nv->modifier_name = $loginUser->name;
-		$nv->create_at = $current;
-		$dateTmp = array();
+		$dataTmp = array();
 		isset($nv->scenario) && $dataTmp['scenario'] = $nv->scenario;
 		isset($nv->title) && $dataTmp['title'] = $nv->title;
 		isset($nv->pic) && $dataTmp['pic'] = $nv->pic;
 		isset($nv->summary) && $dataTmp['summary'] = $nv->summary;
 		isset($nv->visible_scope) && $dataTmp['visible_scope'] = $nv->visible_scope;
 		isset($nv->coin) && $dataTmp['coin'] = $nv->coin;
-		$rst = $modelTmp->update('xxt_template', $dateTmp, ["id" => $tid]);
+		$rst = $modelTmp->update('xxt_template', $dataTmp, ["id" => $tid]);
 
-		$dateE = array();
+		$dataE = array();
 		isset($nv->multi_rounds) && $dataE['multi_rounds'] = $nv->multi_rounds;
 		isset($nv->data_schemas) && $dataE['data_schemas'] = $nv->data_schemas;
 		isset($nv->enrolled_entry_page) && $dataE['enrolled_entry_page'] = $nv->enrolled_entry_page;
@@ -149,14 +148,14 @@ class enroll extends \pl\fe\base {
 			/* 场景设置 */
 			if (isset($pageConfig->scenarioConfig)) {
 				$scenarioConfig = $pageConfig->scenarioConfig;
-				$dateE->scenario_config = json_encode($scenarioConfig);
+				$dataE->scenario_config = json_encode($scenarioConfig);
 			}
 		}
-		$rst = $modelTmp->update('xxt_template_enroll', $dateE, ["id" => $vid]);
+		$rst = $modelTmp->update('xxt_template_enroll', $dataE, ["id" => $vid]);
 		
 		if ($rst) {
 			// 记录操作日志
-			$matter = $modelTmp->byId($site, $tid, $vid, ['fields'=>'id,title,summary,pic']);
+			$matter = $modelTmp->byId($site, $tid, $vid, ['fields'=>'id,title,summary,pic','cascaded'=>'N']);
 			$matter->type = 'template';
 			$this->model('matter\log')->matterOp($site, $loginUser, $matter, 'U');
 		}
@@ -214,6 +213,61 @@ class enroll extends \pl\fe\base {
 			);
 		}
 
+		// 记录操作日志
+		$matter = $this->model('matter\template')->byId($site, $tid, $vid, ['fields'=>'id,title,summary,pic','cascaded'=>'N']);
+		$matter->type = 'template';
+		$this->model('matter\log')->matterOp($site, $loginUser, $matter, 'U');
+		return new \ResponseData($rst);
+	}
+	/**
+	 * 发布模版
+	 *
+	 * @param string $site
+	 * @param string $scope [Platform|Site]
+	 */
+	public function put_action($site, $tid, $vid) {
+		if (false === ($loginUser = $this->accountUser())) {
+			return new \ResponseTimeout();
+		}
+		/* 发布模版 */
+		$modelTmp = $this->model('matter\template');
+		$template = $modelTmp->byId($site, $tid, $vid, ['cascaded'=>'N']);
+		if(!$template){
+			return new \ResponseError('模板获取失败');
+		}
+		$version = null;
+		foreach($template->versions as $v){
+			if($v->id === $vid){
+				$version = $v;
+			}
+		}
+		if(empty($version)){
+			return new \ResponseError('版本获取失败');
+		}
+
+		//发布模板
+		$current = time();
+		$rst = $modelTmp->update(
+				'xxt_template',
+				['put_at' => $current, 'pub_version' => $version->version],
+				['id' => $tid]
+			);
+		if($rst){
+			$modelTmp->update(
+				'xxt_template_enroll',
+				['pub_status' => 'Y'],
+				['id' => $vid]
+			);
+		}
+
+		if($template->put_at === 0){
+			/* 首次发布模版获得积分 */
+			$modelCoin = $this->model('pl\coin\log');
+			$modelCoin->award($loginUser, 'pl.matter.template.put.' . $template->visible_scope, $template);
+		}
+
+		// 记录操作日志
+		$this->model('matter\log')->matterOp($site, $loginUser, $template, 'put');
 		return new \ResponseData($rst);
 	}
 	/**

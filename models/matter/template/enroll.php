@@ -13,7 +13,7 @@ class enroll_model extends \TMS_MODEL {
 		$template = [
 			'creater' => $user->id,
 			'creater_name' => $user->name,
-			'put_at' => $current,
+			'create_at' => $current,
 			'siteid' => $site->id,
 			'site_name' => $site->name,
 			'matter_type' => $data->matter_type,

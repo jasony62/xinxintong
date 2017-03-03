@@ -31,15 +31,15 @@
                         <li ng-if="!site.yourRole"><a href="javascript:void(0)" style='color:#777;cursor:default;'>{{site.name}}</a></li>
                         <li ng-if="editing.mission"><a href="/rest/pl/fe/matter/mission?site={{editing.siteid}}&id={{editing.mission.id}}" target='_self' title="{{editing.mission.title}}">{{editing.mission.title}}</a></li>
                         <li ng-if="editing.mission"><a href="/rest/pl/fe/matter/mission/matter?site={{editing.siteid}}&id={{editing.mission.id}}#article" target='_self'>单图文</a></li>
-                        <li><a href="/rest/pl/fe/matter/article/setting?site={{editing.siteid}}&id={{editing.id}}" title='{{editing.title}}'>{{editing.title}}</a></li>
+                        <li><a href="/rest/pl/fe/matter/article/main?site={{editing.siteid}}&id={{editing.id}}" title='{{editing.title}}'>{{editing.title}}</a></li>
                     </nav>
                     <ul class='nav navbar-nav navbar-right'>
                         <li class="dropdown">
                             <a href="#" class="dropdown-toggle" data-toggle="dropdown">{{viewNames[subView]}} <span class="caret"></span></a>
                             <ul class="dropdown-menu" role="menu">
-                                <li><a href="/rest/pl/fe/matter/article/setting?site={{editing.siteid}}&id={{editing.id}}">发布预览</a></li>
+                                <li><a href="/rest/pl/fe/matter/article/main?site={{editing.siteid}}&id={{editing.id}}">发布预览</a></li>
                                 <li><a href="/rest/pl/fe/matter/article/coin?site={{editing.siteid}}&id={{editing.id}}">积分规则</a></li>
-                                <li><a href="/rest/pl/fe/matter/article/log?site={{editing.siteid}}&id={{editing.id}}">运行日志</a></li>
+                                <li><a href="/rest/pl/fe/matter/article/log?site={{editing.siteid}}&id={{editing.id}}">运行日志与收藏</a></li>
                             </ul>
                         </li>
                     </ul>

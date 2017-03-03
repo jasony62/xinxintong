@@ -92,6 +92,7 @@ class member extends \site\fe\base {
 		if (count($bindMembers) > 1) {
 			throw new \Exception('数据错误，一个用户绑定了多个自定义用户信息');
 		} else if (count($bindMembers) === 1) {
+			$member = $bindMembers[0];
 			$modelWay->bindMember($this->siteId, $member);
 			return new \ResponseError('自定义用户信息已经存在，不能重复创建');
 		}

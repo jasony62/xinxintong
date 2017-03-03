@@ -1,5 +1,5 @@
 define(['frame'], function(ngApp) {
-    ngApp.provider.controller('ctrlSetting', ['$scope', '$uibModal', 'http2', 'noticebox', 'mattersgallery', 'mediagallery', 'noticebox', 'srvApp', 'cstApp', function($scope, $uibModal, http2, noticebox, mattersgallery, mediagallery, noticebox, srvApp, cstApp) {
+    ngApp.provider.controller('ctrlMain', ['$scope', '$uibModal', 'http2', 'noticebox', 'mattersgallery', 'mediagallery', 'noticebox', 'srvApp', 'cstApp', function($scope, $uibModal, http2, noticebox, mattersgallery, mediagallery, noticebox, srvApp, cstApp) {
         (function() {
             new ZeroClipboard(document.querySelectorAll('.text2Clipboard'));
         })();

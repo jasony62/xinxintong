@@ -1,10 +1,11 @@
 var ngApp = angular.module('app', ['ngRoute', 'ui.tms', 'ui.bootstrap']);
-ngApp.config(['$locationProvider', function ($lp) {
+ngApp.config(['$locationProvider', '$uibTooltipProvider', function ($lp, $uibTooltipProvider) {
     $lp.html5Mode(true);
+    $uibTooltipProvider.setTriggers({
+        'show': 'hide'
+    });
 }]);
 ngApp.controller('ctrlCoworker', ['$scope', '$location', 'http2',  function ($scope, $location, http2) {
-    var i;
-    i = 0;
     $scope.siteId = $location.search().site;
     $scope.ulabel = '';
     $scope.add = function () {
@@ -26,15 +27,12 @@ ngApp.controller('ctrlCoworker', ['$scope', '$location', 'http2',  function ($sc
         http2.get('/rest/pl/fe/site/coworker/makeInvite?site=' + $scope.siteId, function (rsp) {
             var url = 'http://' + location.host + rsp.data;
             $scope.inviteURL = url;
-            if(i) return;
-            i++;
             $('#shareSite').trigger('show');
         });
     };
     $scope.closeInvite = function () {
         $scope.inviteURL = '';
-        $('#shareSite').trigger('show');
-        i = 0;
+        $('#shareSite').trigger('hide');
     };
     http2.get('/rest/pl/fe/site/setting/admin/list?site=' + $scope.siteId, function (rsp) {
         $scope.admins = rsp.data;

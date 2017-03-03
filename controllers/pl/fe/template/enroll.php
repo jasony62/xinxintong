@@ -110,7 +110,7 @@ class enroll extends \pl\fe\base {
 		if (false === ($loginUser = $this->accountUser())) {
 			return new \ResponseTimeout();
 		}
-		$version = $this->model('matter\template\enroll')->checkVersion($site, $vid)；
+		$version = $this->model('matter\template\enroll')->checkVersion($site, $vid);
 		if($version[0]){
 			return new \ResponseError('当前版本已发布，不可更改');
 		}
@@ -174,7 +174,7 @@ class enroll extends \pl\fe\base {
 		if (false === ($loginUser = $this->accountUser())) {
 			return new \ResponseTimeout();
 		}
-		$version = $this->model('matter\template\enroll')->checkVersion($site, $vid)；
+		$version = $this->model('matter\template\enroll')->checkVersion($site, $vid);
 		if($version[0]){
 			return new \ResponseError('当前版本已发布，不可更改');
 		}

@@ -540,13 +540,14 @@ class menu extends \pl\fe\base {
 				if (0 !== strpos($button->url, 'http://')) {
 					throw new MenuInvalidException("菜单【{$button->menu_name}】的链接必须以【http://】开头。");
 				}
-
 			} else if (!empty($button->matter_id)) {
 				/**
 				 * matter as link.
 				 */
 				if ($button->matter_type === 'article') {
 					$url = $this->model('matter\article2')->getEntryUrl($site, $button->matter_id);
+				} else if (in_array($button->matter_type, ['text','group'])) {
+					throw new MenuInvalidException("选择的素材类型不支持。");
 				} else {
 					$url = $this->model('matter\\' . $button->matter_type)->getEntryUrl($site, $button->matter_id);
 				}

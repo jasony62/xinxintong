@@ -75,7 +75,7 @@ define(['frame', 'enrollService', 'signinService'], function(ngApp) {
             });
         });
     }]);
-    ngApp.provider.controller('ctrlUserAction', ['$scope', 'srvMission', 'srvRecord', 'srvSigninRecord', 'srvRecordConverter', function($scope, srvMission, srvRecord, srvSigninRecord, srvRecordConverter) {
+    ngApp.provider.controller('ctrlUserAction', ['$scope', 'srvMission', 'srvEnrollRecord', 'srvSigninRecord', 'srvRecordConverter', function($scope, srvMission, srvEnrollRecord, srvSigninRecord, srvRecordConverter) {
         var _oUserPage, _users;
         $scope.oUserPage = _oUserPage = {};
         $scope.users = _users = [];
@@ -140,8 +140,8 @@ define(['frame', 'enrollService', 'signinService'], function(ngApp) {
                     userApp.data_schemas = JSON.parse(userApp.data_schemas);
                 }
                 if (userApp.type === 'enroll') {
-                    srvRecord.init(userApp, _oUserPage, {}, _users);
-                    srvRecord.search(1).then(function(data) {
+                    srvEnrollRecord.init(userApp, _oUserPage, {}, _users);
+                    srvEnrollRecord.search(1).then(function(data) {
                         $scope.tmsTableWrapReady = 'Y';
                     });
                 } else if (userApp.type === 'signin') {

@@ -32,9 +32,9 @@ class news_model extends MultiArticleReply {
 
 		// 获取用户的自定义信息
 		// added by yangyue: 一个openid可能对应多个userid
-		$users = \TMS_APP::model('site\user\account')->byOpenid($siteId, $ufrom, $openid, array('fields' => 'uid'));
-		if (empty($users) === false) {
-			$members = array();
+		$users = \TMS_APP::model('site\user\account')->byOpenid($siteId, $ufrom, $openid, ['fields' => 'uid']);
+		if (empty($users)) {
+			$members = [];
 		} else {
 			$members = \TMS_APP::model('site\user\member')->byUser($users[0]->uid);
 		}

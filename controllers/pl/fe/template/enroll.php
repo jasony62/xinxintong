@@ -59,18 +59,6 @@ class enroll extends \pl\fe\base {
 		return new \ResponseData(['templates' => $orders, 'total' => $total]);
 	}
 	/**
-	 * 返回一个模板
-	 */
-	public function get_action($site, $tid){
-		if (false === ($loginUser = $this->accountUser())) {
-			return new \ResponseTimeout();
-		}
-
-		$template = $this->model('matter\template')->byId($site, $tid);
-		
-		return new \ResponseData($template);
-	}
-	/**
 	 * 创建模板
 	 */
 	public function create_action($site){
@@ -80,9 +68,11 @@ class enroll extends \pl\fe\base {
 
 		$modelTmp = $this->model('matter\template\enroll');
 
-		$post = $this->getPostJson();
+		$post = new \stdClass;
+		$post->title = '新模板（登记活动）';
+		$post->matter_type = 'enroll';
 		$site = $this->model('site')->byid($site, ['fields' => 'id,name']);
-		$pageConfig = $this->_getSysTemplate($post->scenario, 'simple');
+		$pageConfig = $this->_getSysTemplate();
 		/* 场景设置 */
 		if (isset($pageConfig->scenarioConfig)) {
 			$scenarioConfig = $pageConfig->scenarioConfig;

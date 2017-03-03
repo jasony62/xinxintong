@@ -17,17 +17,17 @@ class enroll_model extends \TMS_MODEL {
 			'siteid' => $site->id,
 			'site_name' => $site->name,
 			'matter_type' => $data->matter_type,
-			'scenario' => empty($data->scenario) ? '' : $data->scenario,
-			'title' => $data->title,
-			'pic' => $data->pic,
-			'summary' => $data->summary,
-			'coin' => $data->coin,
-			'visible_scope' => $data->visible_scope,
+			'scenario' => isset($data->scenario) ? $data->scenario : '',
+			'title' => isset($data->title)? $data->title : '新模板',
+			'pic' => isset($data->pic)? $data->pic : '',
+			'summary' => isset($data->summary)? $data->summary : '',
+			'coin' => isset($data->coin)? $data->coin : 0,
+			'visible_scope' => isset($data->visible_scope)? $data->visible_scope : 'S',
 			'push_home' => isset($data->push_home) ? $data->push_home : 'N',
 		];
 		$template['id'] = $this->insert('xxt_template', $template, true);
 
-		//创建版本
+		//新建版本
 		$versionNum = $this->model('matter\template')->getVersion($site->id, $template['id']);
 		$options = [
 			'version' => $versionNum,
@@ -37,7 +37,7 @@ class enroll_model extends \TMS_MODEL {
 			'scenario_config' => isset($data->scenario_config)? $data->scenario_config : '',
 			'enrolled_entry_page' => isset($data->enrolled_entry_page)? $data->enrolled_entry_page : '',
 			'open_lastroll' => isset($data->open_lastroll)? $data->open_lastroll : 'Y',
-			'data_schemas' => $data->data_schemas,
+			'data_schemas' => isset($data->data_schemas)? $data->data_schemas : '',
 		];
 		$options['id'] = $this->insert('xxt_template_enroll', $options, true);
 

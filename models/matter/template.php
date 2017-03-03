@@ -7,14 +7,14 @@ class template_model extends \TMS_MODEL {
 	/**
 	 *返回一个模板
 	 */
-	public function &byId($site, $id, $options = []) {
+	public function &byId($site, $tid, $vid = null, $options = []) {
 		$fields = isset($options['fields']) ? $options['fields'] : '*';
 		$cascaded = isset($options['cascaded']) ? $options['cascaded'] : 'Y';
 
 		$q = [
 			$fields,
 			'xxt_template',
-			["id" => $id],
+			["id" => $tid],
 		];
 
 		if ($template = $this->query_obj_ss($q)) {
@@ -23,7 +23,7 @@ class template_model extends \TMS_MODEL {
 			$p = [
 				'*',
 				'xxt_template_enroll',
-				['siteid' => $site, 'template_id'=>$id, 'state' => 1]
+				['siteid' => $site, 'template_id'=>$tid, 'state' => 1]
 			];
 			$p2['o'] = "order by create_at desc";
 			$template->versions = $this->query_objs_ss($p, $p2);
@@ -36,29 +36,26 @@ class template_model extends \TMS_MODEL {
 			}
 			//获取页面
 			if ($cascaded === 'Y') {
-				//获取当前发布版本的id
-				$vid = null;
-				if(empty($template->pub_version)){
-					if(!empty($template->last_version)){
+				//获取当前需要展示页面的版本的id
+				if(empty($vid)){
+					if(empty($template->pub_version)){
+						if(!empty($template->last_version)){
+							foreach($template->versions as $v){
+								if($v->version === $template->last_version){
+									$vid = $v->id;
+								}
+							}
+						}
+					}else{
 						foreach($template->versions as $v){
-							if($v->version === $template->last_version){
+							if($v->version === $template->pub_version){
 								$vid = $v->id;
 							}
 						}
 					}
-				}else{
-					foreach($template->versions as $v){
-						if($v->version === $template->pub_version){
-							$vid = $v->id;
-						}
-					}
 				}
-				if(!empty($vid)){
-					$modelPage = $this->model('matter\enroll\page');
-					$template->pages = $modelPage->byApp('template:'.$vid);
-				}else{
-					$template->pages = [];
-				}
+				$modelPage = $this->model('matter\enroll\page');
+				$template->pages = $modelPage->byApp('template:'.$vid);
 			}
 		}
 

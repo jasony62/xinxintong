@@ -7,15 +7,19 @@ require_once dirname(dirname(__FILE__)) . '/base.php';
  */
 class main extends \pl\fe\base {
 	/**
-	 *
+	 * 返回一个模板
+	 * @param  [type] $site [description]
+	 * @param  [type] $tid  [模板ID]
+	 * @param  [type] $vid  [版本id]
+	 * @return [type]       [description]
 	 */
-	public function get_action($template) {
+	public function get_action($site, $tid, $vid = null){
 		if (false === ($loginUser = $this->accountUser())) {
 			return new \ResponseTimeout();
 		}
 
-		$template = $this->model('matter\template')->byId($template);
-
+		$template = $this->model('matter\template')->byId($site, $tid, $vid);
+		
 		return new \ResponseData($template);
 	}
 	/**

@@ -38,7 +38,7 @@ $sqls[] = "alter table xxt_template_order change matter_type matter_type varchar
 $sqls[] = "alter table xxt_template_order change summary summary varchar(240) not null default ''";
 $sqls[] = "alter table xxt_template_order add template_version varchar(10) not null after template_id";
 //
-$sqls[] = "alter table xxt_enroll add template_version varchar(10) not null after template_id";
+$sqls[] = "alter table xxt_enroll add template_version varchar(10) not null default '' after template_id";
 
 
 foreach ($sqls as $sql) {

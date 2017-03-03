@@ -56,7 +56,7 @@ define(['require'], function() {
         $routeProvider.when('/rest/pl/fe/matter/article/log', new RouteParam('log'))
             .when('/rest/pl/fe/matter/article/coin', new RouteParam('coin'))
             .when('/rest/pl/fe/matter/article/discuss', new RouteParam('discuss', '/views/default/pl/fe/_module/'))
-            .otherwise(new RouteParam('setting'));
+            .otherwise(new RouteParam('main'));
 
         $locationProvider.html5Mode(true);
         //设置服务参数
@@ -73,14 +73,14 @@ define(['require'], function() {
     }]);
     ngApp.controller('ctrlArticle', ['$scope', 'srvSite', 'srvApp', function($scope, srvSite, srvApp) {
         $scope.viewNames = {
-            'setting': '发布预览',
+            'main': '发布预览',
             'coin': '积分规则',
             'log': '运行日志',
         };
         $scope.subView = '';
         $scope.$on('$locationChangeSuccess', function(event, currentRoute) {
             var subView = currentRoute.match(/([^\/]+?)\?/);
-            $scope.subView = subView[1] === 'article' ? 'setting' : subView[1];
+            $scope.subView = subView[1] === 'article' ? 'main' : subView[1];
         });
         $scope.update = function(names) {
             return srvApp.update(names);

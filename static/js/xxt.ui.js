@@ -460,6 +460,7 @@ directive('userpopover', ['http2', function(http2) {
     };
 }]).
 controller('SendmeController', ['$scope', 'http2', function($scope, http2) {
+    /*不需要了*/
     $scope.qrcodeShown = false;
     $scope.qrcode = function(matter, event) {
         if (!$scope.qrcodeShown) {
@@ -590,7 +591,14 @@ factory('pushnotify', ['$uibModal', function($uibModal) {
         open: function(siteId, callback, options) {
             $uibModal.open({
                 templateUrl: '/static/template/pushnotify.html?_=7',
-                controller: ['http2', '$scope', '$uibModalInstance', function(http2, $scope, $mi) {
+                controller: ['http2', '$scope', '$uibModalInstance', '$q', function(http2, $scope, $mi, $q) {
+                    function getLastNotice(sender) {
+                        var deferred = $q.defer();
+                        http2.get('/rest/pl/fe/matter/tmplmsg/notice/last?sender=' + sender, function(rsp) {
+                            deferred.resolve(rsp.data);
+                        });
+                        return deferred.promise;
+                    }
                     var url = '/rest/pl/fe/site/setting/notice/get?site=' + siteId + '&name=site.matter.push&cascaded=Y',
                         msgMatter = {},
                         urlMatterTypes = [],
@@ -660,6 +668,23 @@ factory('pushnotify', ['$uibModal', function($uibModal) {
                             } else {
                                 $scope.matters = rsp.data;
                                 $scope.page.total = $scope.matters.length;
+                            }
+                            if (options.sender) {
+                                getLastNotice(options.sender).then(function(lastNotice) {
+                                    var i, matter;
+                                    for (i = $scope.matters.length - 1; i >= 0; i--) {
+                                        matter = $scope.matters[i];
+                                        if (lastNotice.tmplmsg_id === matter.id) {
+                                            $scope.doCheck(matter);
+                                            break;
+                                        }
+                                    }
+                                    if (i >= 0 && lastNotice.params) {
+                                        for (var p in lastNotice.params) {
+                                            $scope.message[p] = lastNotice.params[p];
+                                        }
+                                    }
+                                });
                             }
                         }, {
                             headers: {

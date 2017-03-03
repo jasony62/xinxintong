@@ -538,6 +538,93 @@ class record_model extends \TMS_MODEL {
 		return $result;
 	}
 	/**
+	 * 活动报名名单
+	 *
+	 * 1、如果活动仅限会员报名，那么要叠加会员信息
+	 * 2、如果报名的表单中有扩展信息，那么要提取扩展信息
+	 *
+	 * $mpid
+	 * $aid
+	 * $options
+	 * --creater openid
+	 * --visitor openid
+	 * --page
+	 * --size
+	 * --rid 轮次id
+	 * --kw 检索关键词
+	 * --by 检索字段
+	 *
+	 *
+	 * return
+	 * [0] 数据列表
+	 * [1] 数据总条数
+	 * [2] 数据项的定义
+	 */
+	public function participants($siteId, $appId, $options = null, $criteria = null) {
+		if ($options) {
+			is_array($options) && $options = (object) $options;
+			$rid = null;
+			if (!empty($options->rid)) {
+				if ($options->rid === 'ALL') {
+					$rid = null;
+				} else if (!empty($options->rid)) {
+					$rid = $options->rid;
+				}
+			} else if ($activeRound = \TMS_APP::M('matter\enroll\round')->getActive($siteId, $appId)) {
+				$rid = $activeRound->rid;
+			}
+		}
+
+		$w = "state=1 and aid='$appId' and userid<>''";
+
+		// 按轮次过滤
+		!empty($rid) && $w .= " and e.rid='$rid'";
+
+		// 指定了登记记录过滤条件
+		if (!empty($criteria->record)) {
+			$whereByRecord = '';
+			if (!empty($criteria->record->verified)) {
+				$whereByRecord .= " and verified='{$criteria->record->verified}'";
+			}
+			$w .= $whereByRecord;
+		}
+
+		// 指定了记录标签
+		if (!empty($criteria->tags)) {
+			$whereByTag = '';
+			foreach ($criteria->tags as $tag) {
+				$whereByTag .= " and concat(',',e.tags,',') like '%,$tag,%'";
+			}
+			$w .= $whereByTag;
+		}
+
+		// 指定了登记数据过滤条件
+		if (isset($criteria->data)) {
+			$whereByData = '';
+			foreach ($criteria->data as $k => $v) {
+				if (!empty($v)) {
+					$whereByData .= ' and (';
+					$whereByData .= 'data like \'%"' . $k . '":"' . $v . '"%\'';
+					$whereByData .= ' or data like \'%"' . $k . '":"%,' . $v . '"%\'';
+					$whereByData .= ' or data like \'%"' . $k . '":"%,' . $v . ',%"%\'';
+					$whereByData .= ' or data like \'%"' . $k . '":"' . $v . ',%"%\'';
+					$whereByData .= ')';
+				}
+			}
+			$w .= $whereByData;
+		}
+
+		// 获得填写的登记数据
+		$q = [
+			'enroll_key,userid',
+			"xxt_enroll_record e",
+			$w,
+		];
+		$participants = $this->query_objs_ss($q);
+
+		return $participants;
+	}
+	/**
 	 * 已删除的登记清单
 	 *
 	 * 1、如果活动仅限会员报名，那么要叠加会员信息

@@ -215,9 +215,9 @@ config(['$uibTooltipProvider', function($uibTooltipProvider) {
             location.href = '/rest/pl/fe/site/setting?site=' + rsp.data.id;
         });
     };
-     //区分我的团队和回收站团队属性state ：0 是回收站信息；1是我的团队
+    //区分我的团队和回收站团队属性state ：0 是回收站信息；1是我的团队
     $scope.list = function() {
-        $scope.siteType = 1 ;
+        $scope.siteType = 1;
         var url = '/rest/pl/fe/site/list?_=' + t;
         http2.get(url, function(rsp) {
             $scope.site1 = rsp.data;
@@ -231,17 +231,17 @@ config(['$uibTooltipProvider', function($uibTooltipProvider) {
     $scope.openConsole = function(site) {
         location.href = '/rest/pl/fe/site?site=' + site.id;
     };
-    $scope.recycle = function(){
+    $scope.recycle = function() {
         //获取回收站信息
-        var url = '/rest/pl/fe/site/wasteList?_=' + t ;
-        http2.get(url,function(rsp){
+        var url = '/rest/pl/fe/site/wasteList?_=' + t;
+        http2.get(url, function(rsp) {
             $scope.sites0 = rsp.data;
         });
     };
-    $scope.restoreSite = function(site){
+    $scope.restoreSite = function(site) {
         //恢复删除站点
         var url = '/rest/pl/fe/site/recover?site=' + site.id;
-        http2.get(url, function(rsp){
+        http2.get(url, function(rsp) {
             location.href = '/rest/pl/fe/site?site=' + site.id;
         })
     };

@@ -92,6 +92,7 @@ class member extends \site\fe\base {
 		if (count($bindMembers) > 1) {
 			throw new \Exception('数据错误，一个用户绑定了多个自定义用户信息');
 		} else if (count($bindMembers) === 1) {
+			$member = $bindMembers[0];
 			$modelWay->bindMember($this->siteId, $member);
 			return new \ResponseError('自定义用户信息已经存在，不能重复创建');
 		}
@@ -112,9 +113,12 @@ class member extends \site\fe\base {
 		if ($rst[0] === false) {
 			return new \ResponseError($rst[1]);
 		}
-		$member = $rst[1];
-		/* 绑定当前站点用户 */
-		$modelWay->bindMember($this->siteId, $member);
+		if ($member = $rst[1]) {
+			/* 绑定当前站点用户 */
+			$modelWay->bindMember($this->siteId, $member);
+		} else {
+			throw new \Exception('程序异常：无法创建自定义用户');
+		}
 		// log
 		//$this->model('log')->writeMemberAuth($site, $siteUser->openid, $mid);
 

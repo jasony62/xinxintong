@@ -104,7 +104,7 @@ class batch_model extends \TMS_MODEL {
 					}
 					$log['data'] = $modelTmpl->escape($modelTmpl->toJson($txtTmplMsg));
 
-					$rst = $this->_sendTxtByOpenid($siteId, $user->wx_openid, 'qy', $txtTmplMsg, $log);
+					$rst = $this->_sendTxtByOpenid($siteId, $user->qy_openid, 'qy', $txtTmplMsg, $log);
 				}
 				if (!empty($user->yx_openid)) {
 					$log['openid'] = $user->yx_openid;

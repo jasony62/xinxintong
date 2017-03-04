@@ -14,3 +14,5 @@ body{font-family:Microsoft Yahei,Arial;background:#efefef;}
 .record>div{padding:.5em 0;border-bottom:1px dotted #ccc;}
 .record label{width:6em;overflow:hidden;vertical-align:bottom;white-space:nowrap;text-overflow:ellipsis;margin-right:1em;margin-bottom:0;}
 .record .image img{max-width:100%}
+.record .signin_late{color:red;}
+.record .signin_late:after{content:'（迟到）';}

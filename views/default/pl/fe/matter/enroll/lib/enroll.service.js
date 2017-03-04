@@ -45,7 +45,8 @@ define(['require', 'schema', 'page'], function(require, schemaLib, pageLib) {
                     verified: ''
                 },
                 tags: [],
-                data: {}
+                data: {},
+                keyword: ''
             });
             // records
             this._aRecords = oRecords;

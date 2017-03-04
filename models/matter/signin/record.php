@@ -233,7 +233,7 @@ class record_model extends \TMS_MODEL {
 			}
 			// 记录数据
 			if (is_object($treatedValue) || is_array($treatedValue)) {
-				$treatedValue =  $this->toJson($treatedValue);
+				$treatedValue = $this->toJson($treatedValue);
 			}
 			$ic = [
 				'aid' => $app->id,
@@ -547,6 +547,13 @@ class record_model extends \TMS_MODEL {
 					$whereByData .= ')';
 				}
 			}
+			$w .= $whereByData;
+		}
+
+		// 指定了按关键字过滤
+		if (!empty($criteria->keyword)) {
+			$whereByData = '';
+			$whereByData .= ' and (data like \'%"' . $criteria->keyword . '"%\')';
 			$w .= $whereByData;
 		}
 

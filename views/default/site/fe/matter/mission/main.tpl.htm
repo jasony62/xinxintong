@@ -30,7 +30,7 @@
                             <div><label>审核通过：</label>{{rec.verified}}</div>
                             <div><label>备注：</label>{{rec.comment}}</div>
                             <div ng-repeat="schema in matter.dataSchemas" ng-switch on="schema.type">
-                                <label>{{schema.title}}：</label>
+                                <label title="{{schema.title}}">{{schema.title}}：</label>
                                 <span ng-switch-when="image" class='image'>
                                     <img ng-repeat="img in rec._data[schema.id]" ng-src='{{img}}' />
                                 </span>
@@ -48,7 +48,7 @@
                             <div><label>备注：</label>{{matter.record.comment}}</div>
                             <div><label>签到次数：</label>{{matter.record.signin_num}}</div>
                             <div ng-repeat="rnd in matter.rounds">
-                                <div><label>{{rnd.title}}：</label><span ng-if="matter.record.signin_log[rnd.rid]" ng-class="{'signin_late':matter.record._signinLate[rnd.rid]}">{{matter.record.signin_log[rnd.rid]*1000|date:'yy-MM-dd HH:mm'}}</span></div>
+                                <div><label title="{{rnd.title}}">{{rnd.title}}：</label><span ng-if="matter.record.signin_log[rnd.rid]" ng-class="{'signin_late':matter.record._signinLate[rnd.rid]}">{{matter.record.signin_log[rnd.rid]*1000|date:'yy-MM-dd HH:mm'}}</span></div>
                             </div>
                         </div>
                     </div>

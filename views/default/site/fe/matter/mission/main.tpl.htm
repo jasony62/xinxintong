@@ -48,7 +48,7 @@
                             <div><label>备注：</label>{{matter.record.comment}}</div>
                             <div><label>签到次数：</label>{{matter.record.signin_num}}</div>
                             <div ng-repeat="rnd in matter.rounds">
-                                <div><label>{{rnd.title}}：</label><span ng-class="{'signin_late':matter.record._signinLate[rnd.rid]}">{{matter.record.signin_log[rnd.rid]*1000|date:'yy-MM-dd HH:mm'}}</span></div>
+                                <div><label>{{rnd.title}}：</label><span ng-if="matter.record.signin_log[rnd.rid]" ng-class="{'signin_late':matter.record._signinLate[rnd.rid]}">{{matter.record.signin_log[rnd.rid]*1000|date:'yy-MM-dd HH:mm'}}</span></div>
                             </div>
                         </div>
                     </div>

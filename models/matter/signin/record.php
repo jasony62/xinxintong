@@ -553,7 +553,7 @@ class record_model extends \TMS_MODEL {
 		// 指定了按关键字过滤
 		if (!empty($criteria->keyword)) {
 			$whereByData = '';
-			$whereByData .= ' and (data like \'%"' . $criteria->keyword . '"%\')';
+			$whereByData .= ' and (data like \'%' . $criteria->keyword . '%\')';
 			$w .= $whereByData;
 		}
 

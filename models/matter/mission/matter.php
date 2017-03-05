@@ -44,6 +44,9 @@ class matter_model extends \TMS_MODEL {
 				}
 				if (in_array($mm->matter_type, ['enroll', 'signin', 'group'])) {
 					$fields = 'siteid,id,title,summary,pic,data_schemas';
+					if (in_array($mm->matter_type, ['enroll', 'group'])) {
+						$fields .= ',scenario';
+					}
 				} else {
 					$fields = 'siteid,id,title,summary,pic';
 				}

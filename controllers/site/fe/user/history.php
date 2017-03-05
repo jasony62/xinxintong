@@ -26,7 +26,7 @@ class history extends \site\fe\base {
 		$q = [
 			'matter_id,matter_type,matter_title,operate_at',
 			'xxt_log_user_matter',
-			"siteid='" . $modelLog->escape($site) . "' and userid='" . $this->who->uid . "' and user_last_op='Y'",
+			"siteid='" . $modelLog->escape($site) . "' and userid='" . $this->who->uid . "' and user_last_op='Y' and operation='submit'",
 		];
 		if (!empty($matterType)) {
 			$matterType = explode(',', $matterType);

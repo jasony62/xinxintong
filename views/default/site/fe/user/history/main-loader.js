@@ -18,7 +18,10 @@ window.loading = {
             waitSeconds: 0,
             paths: {
                 "domReady": '/static/js/domReady',
+                "jQuery": "/static/js/jquery.min",
+                "bootstrap": "/static/js/bootstrap.min",
                 "angular": "/static/js/angular.min",
+                "ui-bootstrap": "/static/js/ui-bootstrap-tpls.min",
                 "main": "/views/default/site/fe/user/history/main",
             },
             shim: {
@@ -27,13 +30,21 @@ window.loading = {
                 },
             },
             urlArgs: function(id, url) {
-                if (/domReady|angular/.test(id)) {
+                if (/domReady|jQuery|bootstrap|angular|ui-bootstrap/.test(id)) {
                     return '';
                 }
                 return "?bust=" + (timestamp * 1);
             }
         });
-        require(['main'], function() {});
+        require(['jQuery'], function() {
+            require(['bootstrap'], function() {
+                require(['angular'], function() {
+                    require(['ui-bootstrap'], function() {
+                        require(['main'], function() {});
+                    });
+                });
+            });
+        });
     }
 };
 window.loading.load();

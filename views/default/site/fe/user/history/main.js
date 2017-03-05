@@ -1,7 +1,7 @@
 define(['require', 'angular'], function(require, angular) {
     'use strict';
     var site = location.search.match('site=(.*)')[1];
-    var ngApp = angular.module('app', []);
+    var ngApp = angular.module('app', ['ui.bootstrap']);
     ngApp.service('hisService', ['$http', '$q', function($http, $q) {
         var _baseUrl = '/rest/site/fe/user/history';
         return {

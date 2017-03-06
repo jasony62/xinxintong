@@ -45,7 +45,8 @@ define(['require', 'schema', 'page'], function(require, schemaLib, pageLib) {
                     verified: ''
                 },
                 tags: [],
-                data: {}
+                data: {},
+                keyword: ''
             });
             // records
             this._aRecords = oRecords;
@@ -1373,6 +1374,21 @@ define(['require', 'schema', 'page'], function(require, schemaLib, pageLib) {
                     http2.get(url, function(rsp) {
                         rsp.data.total && (page.total = rsp.data.total);
                         defer.resolve(rsp.data.logs);
+                    });
+
+                    return defer.promise;
+                }
+            };
+        }];
+    }).provider('srvEnrollNotice', function() {
+        this.$get = ['$q', 'http2', function($q, http2) {
+            return {
+                detail: function(batch) {
+                    var defer = $q.defer(),
+                        url;
+                    url = '/rest/pl/fe/matter/enroll/notice/logList?batch=' + batch.id;
+                    http2.get(url, function(rsp) {
+                        defer.resolve(rsp.data);
                     });
 
                     return defer.promise;

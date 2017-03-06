@@ -422,7 +422,10 @@ class record_model extends \TMS_MODEL {
 
 		// 指定登记活动下的登记记录
 		$w = "e.state=1 and e.aid='{$app->id}'";
+		// 指定了轮次
+		!empty($rid) && $w .= " and e.rid='$rid'";
 
+		// @TODO 还需要吗？
 		if (!empty($creater)) {
 			$w .= " and e.userid='$creater'";
 		} else if (!empty($inviter)) {
@@ -432,10 +435,7 @@ class record_model extends \TMS_MODEL {
 			$w .= " and e.referrer='ek:$inviterek'";
 		}
 
-		// 指定了轮次
-		!empty($rid) && $w .= " and e.rid='$rid'";
-
-		// 指定了登记记录过滤条件
+		// 指定了登记记录属性过滤条件
 		if (!empty($criteria->record)) {
 			$whereByRecord = '';
 			if (!empty($criteria->record->verified)) {
@@ -469,6 +469,13 @@ class record_model extends \TMS_MODEL {
 			$w .= $whereByData;
 		}
 
+		// 指定了按关键字过滤
+		if (!empty($criteria->keyword)) {
+			$whereByData = '';
+			$whereByData .= ' and (data like \'%' . $criteria->keyword . '%\')';
+			$w .= $whereByData;
+		}
+
 		// 查询参数
 		$q = [
 			'e.enroll_key,e.enroll_at,e.tags,e.userid,e.nickname,e.wx_openid,e.yx_openid,e.qy_openid,e.headimgurl,e.verified,e.comment,e.data',
@@ -483,7 +490,7 @@ class record_model extends \TMS_MODEL {
 		}
 		// 查询结果排序
 		$q2['o'] = 'e.enroll_at desc';
-		// 处理获得的数据
+		/* 处理获得的数据 */
 		if ($records = $this->query_objs_ss($q, $q2)) {
 			foreach ($records as &$r) {
 				$data = str_replace("\n", ' ', $r->data);
@@ -504,27 +511,13 @@ class record_model extends \TMS_MODEL {
 				}
 				// 获得邀请数据
 				if (isset($app->can_invite) && $app->can_invite === 'Y') {
-					$qf = array(
+					$qf = [
 						'id,enroll_key,enroll_at,openid,nickname,wx_openid,yx_openid,qy_openid,headimgurl',
 						'xxt_enroll_record',
 						"aid='$aid' and referrer='ek:$r->enroll_key'",
-					);
-					$qf2 = array('o' => 'enroll_at');
+					];
+					$qf2 = ['o' => 'enroll_at'];
 					$r->followers = $this->query_objs_ss($qf, $qf2);
-				}
-				//获得关联抽奖活动记录
-				$ql = array(
-					'award_title',
-					'xxt_lottery_log',
-					"enroll_key='$r->enroll_key'",
-				);
-				$lotteryResult = $this->query_objs_ss($ql);
-				if (!empty($lotteryResult)) {
-					$lrs = array();
-					foreach ($lotteryResult as $lr) {
-						$lrs[] = $lr->award_title;
-					}
-					$r->data->lotteryResult = implode(',', $lrs);
 				}
 			}
 			$result->records = $records;

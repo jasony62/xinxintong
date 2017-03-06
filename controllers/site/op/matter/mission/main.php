@@ -44,13 +44,12 @@ class main extends \site\op\base {
 	}
 	/**
 	 * 获得任务下的素材
-	 * 只有开放了运营管理者链接的活动才会列出
 	 *
 	 * @param int $mission 项目的ID
 	 */
 	public function matterList_action($mission, $matterType = null) {
 		$modelMis = $this->model('matter\mission\matter');
-		$matters = $modelMis->byMission($mission, $matterType, ['op_short_url_code' => true]);
+		$matters = $modelMis->byMission($mission, $matterType, ['is_public' => 'Y']);
 		if (count($matters)) {
 			foreach ($matters as &$matter) {
 				if (in_array($matter->type, ['enroll', 'signin', 'group'])) {

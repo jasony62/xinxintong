@@ -1,8 +1,21 @@
 define(['frame', 'enrollService', 'signinService'], function(ngApp) {
     'use strict';
-    ngApp.provider.controller('ctrlUser', ['$scope', '$uibModal', 'http2', function($scope, $uibModal, http2) {
-        var _missionApps, _enrollAppSchemas;
-        $scope.missionApps = _missionApps = {};
+    ngApp.provider.controller('ctrlUser', ['$scope', '$uibModal', '$q', 'http2', function($scope, $uibModal, $q, http2) {
+        function submitMatterSeqs() {
+            var deferred = $q.defer(),
+                matterSeqs = [];
+            _showMatters.forEach(function(matter) {
+                matterSeqs.push(matter._pk);
+            });
+            http2.post('/rest/pl/fe/matter/mission/matter/updateSeq?id=' + $scope.mission.id, matterSeqs, function(rsp) {
+                deferred.resolve(rsp.data);
+            });
+            return deferred.promise;
+        }
+
+        var _showMatters, _hideMatters, _enrollAppSchemas;
+        $scope.showMatters = _showMatters = [];
+        $scope.hideMatters = _hideMatters = [];
         $scope.enrollAppSchemas = _enrollAppSchemas = {};
         $scope.assignUserApp = function() {
             var mission = $scope.mission;
@@ -48,38 +61,103 @@ define(['frame', 'enrollService', 'signinService'], function(ngApp) {
                 delete mission.userApp;
             });
         };
+        $scope.hide = function(matter) {
+            var url = '/rest/pl/fe/matter/mission/matter/update?id=' + $scope.mission.id + '&matterType=' + matter.type + '&matterId=' + matter.id;
+            http2.post(url, { is_public: 'N' }, function(rsp) {
+                matter.is_public = 'N';
+                _showMatters.splice(_showMatters.indexOf(matter), 1);
+                _hideMatters.push(matter);
+            });
+        };
+        $scope.show = function(matter) {
+            var url = '/rest/pl/fe/matter/mission/matter/update?id=' + $scope.mission.id + '&matterType=' + matter.type + '&matterId=' + matter.id;
+            http2.post(url, { is_public: 'Y' }, function(rsp) {
+                matter.is_public = 'Y';
+                _hideMatters.splice(_hideMatters.indexOf(matter), 1);
+                _showMatters.push(matter);
+            });
+        };
+        $scope.moveUp = function(matter, index) {
+            if (index === 0) return;
+            _showMatters.splice(index, 1);
+            _showMatters.splice(index - 1, 0, matter);
+            matter.seq--;
+            _showMatters[index].seq++;
+            submitMatterSeqs().then(function() {});
+        };
+        $scope.moveDown = function(matter, index) {
+            if (index === _showMatters.length - 1) return;
+            _showMatters.splice(index, 1);
+            _showMatters.splice(index + 1, 0, matter);
+            matter.seq++;
+            _showMatters[index].seq--;
+            submitMatterSeqs().then(function() {});
+        };
+        $scope.$on('matters.orderChanged', function(e, moved) {
+            var oldSeq = moved.seq,
+                newSeq = _showMatters.indexOf(moved);
+            if (newSeq < oldSeq) {
+                moved.seq = newSeq;
+                for (var i = newSeq + 1; i <= oldSeq; i++) {
+                    _showMatters[i].seq++;
+                }
+                submitMatterSeqs().then(function() {});
+            } else if (newSeq > oldSeq) {
+                for (var i = oldSeq; i < newSeq; i++) {
+                    _showMatters[i].seq--;
+                }
+                moved.seq = newSeq;
+                submitMatterSeqs().then(function() {});
+            }
+        });
         $scope.$watch('mission', function(mission) {
             if (!mission) return;
-            http2.get('/rest/pl/fe/matter/enroll/list?mission=' + mission.id, function(rsp) {
-                _missionApps.enroll = rsp.data.apps;
-                _missionApps.enroll.forEach(function(app) {
-                    var schemas, schemasById;
-                    if (app.data_schemas) {
-                        schemas = JSON.parse(app.data_schemas);
-                        schemasById = {};
-                        schemas.forEach(function(schema) {
-                            schemasById[schema.id] = schema;
-                        });
-                        _enrollAppSchemas[app.id] = schemasById;
+            http2.get('/rest/pl/fe/matter/mission/matter/list?id=' + mission.id, function(rsp) {
+                rsp.data.forEach(function(matter) {
+                    if (matter.type === 'enroll') {
+                        var schemas, schemasById;
+                        if (matter.data_schemas) {
+                            schemas = JSON.parse(matter.data_schemas);
+                            schemasById = {};
+                            schemas.forEach(function(schema) {
+                                schemasById[schema.id] = schema;
+                            });
+                            _enrollAppSchemas[matter.id] = schemasById;
+                        }
+                    }
+                    if (matter.is_public === 'Y') {
+                        matter.seq = _showMatters.length;
+                        _showMatters.push(matter);
+                    } else {
+                        _hideMatters.push(matter);
                     }
                 });
-            });
-            http2.get('/rest/pl/fe/matter/signin/list?mission=' + mission.id + '&cascaded=round', function(rsp) {
-                _missionApps.signin = {};
-                rsp.data.apps.forEach(function(app) {
-                    _missionApps.signin[app.id] = app;
-                });
-            });
-            http2.get('/rest/pl/fe/matter/group/list?mission=' + mission.id, function(rsp) {
-                _missionApps.group = rsp.data.apps;
             });
         });
     }]);
     ngApp.provider.controller('ctrlUserAction', ['$scope', 'srvMission', 'srvEnrollRecord', 'srvSigninRecord', 'srvRecordConverter', function($scope, srvMission, srvEnrollRecord, srvSigninRecord, srvRecordConverter) {
-        var _oUserPage, _users;
+        var _oUserPage, _oUserCriteria, _users;
         $scope.oUserPage = _oUserPage = {};
+        $scope.oUserCriteria = _oUserCriteria = {};
         $scope.users = _users = [];
         $scope.tmsTableWrapReady = 'N';
+        $scope.doUserSearch = function() {
+            var userApp = $scope.mission.userApp;
+            if (userApp.type === 'enroll') {
+                srvEnrollRecord.search().then(function(data) {
+                    $scope.tmsTableWrapReady = 'Y';
+                });
+            } else if (userApp.type === 'signin') {
+                srvSigninRecord.search().then(function(data) {
+                    $scope.tmsTableWrapReady = 'Y';
+                });
+            }
+        };
+        $scope.doUserFilter = function(isCacnel) {
+            _oUserPage.at = 1;
+            isCacnel === true && (_oUserCriteria.keyword = '');
+            $scope.doUserSearch();
+        };
         $scope.chooseUser = function(user) {
             $scope.recordsByApp = {};
             $scope.activeUser = user;
@@ -139,17 +217,13 @@ define(['frame', 'enrollService', 'signinService'], function(ngApp) {
                 if (userApp.data_schemas && angular.isString(userApp.data_schemas)) {
                     userApp.data_schemas = JSON.parse(userApp.data_schemas);
                 }
+                var userApp = $scope.mission.userApp;
                 if (userApp.type === 'enroll') {
-                    srvEnrollRecord.init(userApp, _oUserPage, {}, _users);
-                    srvEnrollRecord.search(1).then(function(data) {
-                        $scope.tmsTableWrapReady = 'Y';
-                    });
+                    srvEnrollRecord.init(userApp, _oUserPage, _oUserCriteria, _users);
                 } else if (userApp.type === 'signin') {
-                    srvSigninRecord.init(userApp, _oUserPage, {}, _users);
-                    srvSigninRecord.search(1).then(function(data) {
-                        $scope.tmsTableWrapReady = 'Y';
-                    });
+                    srvSigninRecord.init(userApp, _oUserPage, _oUserCriteria, _users);
                 }
+                $scope.doUserSearch();
             }
         });
     }]);

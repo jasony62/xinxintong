@@ -28,27 +28,23 @@ class enroll extends \pl\fe\base {
 
 		$model = $this->model();
 
-		if (in_array($scope, ['P', 'S'])) {
-			$q = [
-				'*',
-				"xxt_template",
-				["visible_scope" => $scope],
-			];
-		}
+		$q = [
+			'*',
+			"xxt_template",
+			['siteid' => $site],
+		];
 		if(!empty($matterType)){
 			$q[2]['matter_type'] = $matterType;
 		}
 		if (!empty($scenario)) {
 			$q[2]['scenario'] = $scenario;
 		}
-		if ($scope === 'S') {
-			$q[2]['siteid'] = $site;
-		}
 
 		$q2 = [
 			'r' => ['o' => ($page - 1) * $size, 'l' => $size],
 		];
 		if (in_array($scope, ['P', 'S'])) {
+			$q[2]['visible_scope'] = $scope;
 			$q2['o'] = 'put_at desc';
 		}
 
@@ -229,12 +225,15 @@ class enroll extends \pl\fe\base {
 		if (false === ($loginUser = $this->accountUser())) {
 			return new \ResponseTimeout();
 		}
+		$version = $this->model('matter\template\enroll')->checkVersion($site, $vid);
+		if($version[0]){
+			return new \ResponseError('当前版本已发布');
+		}
+
 		/* 发布模版 */
 		$modelTmp = $this->model('matter\template');
 		$template = $modelTmp->byId($site, $tid, $vid, ['cascaded'=>'N']);
-		if(!$template){
-			return new \ResponseError('模板获取失败');
-		}
+		
 		$version = null;
 		foreach($template->versions as $v){
 			if($v->id === $vid){
@@ -268,6 +267,33 @@ class enroll extends \pl\fe\base {
 
 		// 记录操作日志
 		$this->model('matter\log')->matterOp($site, $loginUser, $template, 'put');
+		return new \ResponseData($rst);
+	}
+	/**
+	 * 取消发布模版
+	 *
+	 * @param string $site
+	 * @param string $scope [Platform|Site]
+	 */
+	public function unPut_action($site, $tid, $vid) {
+		if (false === ($loginUser = $this->accountUser())) {
+			return new \ResponseTimeout();
+		}
+		$version = $this->model('matter\template\enroll')->checkVersion($site, $vid);
+		if(!$version[0]){
+			return new \ResponseError('当前版本未发布');
+		}
+
+		//取消发布模板
+		$current = time();
+		$rst = $modelTmp->update(
+				'xxt_template',
+				['pub_version' => ''],
+				['id' => $tid]
+			);
+
+		// 记录操作日志
+		$this->model('matter\log')->matterOp($site, $loginUser, $template, 'unPut');
 		return new \ResponseData($rst);
 	}
 	/**

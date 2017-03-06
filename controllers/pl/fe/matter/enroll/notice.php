@@ -76,4 +76,43 @@ class notice extends \pl\fe\matter\base {
 
 		return array(true);
 	}
+	/**
+	 * 查看通知发送日志
+	 *
+	 * @param int $batch 通知批次id
+	 */
+	public function logList_action($batch) {
+		if (false === ($user = $this->accountUser())) {
+			return new \ResponseTimeout();
+		}
+
+		$modelTmplBat = $this->model('matter\tmplmsg\batch');
+		$q = [
+			'*',
+			'xxt_log_tmplmsg_detail',
+			["batch_id" => $batch],
+		];
+
+		$logs = $modelTmplBat->query_objs_ss($q);
+		$result = new \stdClass;
+		$result->logs = $logs;
+
+		/* 和登记记录进行关联 */
+		if (count($logs)) {
+			$modelRec = $this->model('matter\enroll\record');
+			$records = [];
+			foreach ($logs as $log) {
+				if (empty($log->assoc_with)) {
+					continue;
+				}
+				if ($record = $modelRec->byId($log->assoc_with)) {
+					$record->noticeStatus = $log->status;
+					$records[] = $record;
+				}
+			}
+			$result->records = $records;
+		}
+
+		return new \ResponseData($result);
+	}
 }

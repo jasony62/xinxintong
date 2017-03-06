@@ -23,8 +23,8 @@ class main extends \TMS_CONTROLLER {
 	/**
 	 *
 	 */
-	public function get_action($template) {
-		$template = $this->model('matter\template')->byId($template);
+	public function get_action($template, $vid=null) {
+		$template = $this->model('matter\template')->byId($template, $vid);
 
 		return new \ResponseData($template);
 	}

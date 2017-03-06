@@ -122,8 +122,6 @@ class enroll extends \pl\fe\base {
 				$nv->$n = $modelTmp->escape($modelTmp->toJson($v));
 			}
 		}
-		$nv->modifier = $loginUser->id;
-		$nv->modifier_name = $loginUser->name;
 		$dataTmp = array();
 		isset($nv->scenario) && $dataTmp['scenario'] = $nv->scenario;
 		isset($nv->title) && $dataTmp['title'] = $nv->title;
@@ -131,7 +129,9 @@ class enroll extends \pl\fe\base {
 		isset($nv->summary) && $dataTmp['summary'] = $nv->summary;
 		isset($nv->visible_scope) && $dataTmp['visible_scope'] = $nv->visible_scope;
 		isset($nv->coin) && $dataTmp['coin'] = $nv->coin;
-		$rst = $modelTmp->update('xxt_template', $dataTmp, ["id" => $tid]);
+		if(!empty($dataTmp)){
+			$rst = $modelTmp->update('xxt_template', $dataTmp, ["id" => $tid]);
+		}
 
 		$dataE = array();
 		isset($nv->multi_rounds) && $dataE['multi_rounds'] = $nv->multi_rounds;
@@ -139,6 +139,7 @@ class enroll extends \pl\fe\base {
 		isset($nv->enrolled_entry_page) && $dataE['enrolled_entry_page'] = $nv->enrolled_entry_page;
 		isset($nv->open_lastroll) && $dataE['open_lastroll'] = $nv->open_lastroll;
 		isset($nv->up_said) && $dataE['up_said'] = $nv->up_said;
+		
 		if(isset($nv->scenario)){
 			$pageConfig = $this->_getSysTemplate($nv->scenario, 'simple');
 			/* 场景设置 */
@@ -147,7 +148,9 @@ class enroll extends \pl\fe\base {
 				$dataE->scenario_config = json_encode($scenarioConfig);
 			}
 		}
-		$rst = $modelTmp->update('xxt_template_enroll', $dataE, ["id" => $vid]);
+		if(!empty($dataE)){
+			$rst = $modelTmp->update('xxt_template_enroll', $dataE, ["id" => $vid]);
+		}
 		
 		if ($rst) {
 			// 记录操作日志
@@ -169,6 +172,7 @@ class enroll extends \pl\fe\base {
 		if (false === ($loginUser = $this->accountUser())) {
 			return new \ResponseTimeout();
 		}
+
 		$version = $this->model('matter\template\enroll')->checkVersion($site, $vid);
 		if($version[0]){
 			return new \ResponseError('当前版本已发布，不可更改');

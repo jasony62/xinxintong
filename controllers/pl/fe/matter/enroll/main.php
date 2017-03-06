@@ -209,7 +209,6 @@ class main extends \pl\fe\matter\base {
 		$modelCode = $this->model('code\page');
 
 		$template = $this->model('matter\template')->byId($template, $vid);
-		$copied = $template->version;
 
 		/* 检查用户积分 */
 		if ($template->coin) {
@@ -249,25 +248,20 @@ class main extends \pl\fe\matter\base {
 		$newapp['modifier_src'] = $user->src;
 		$newapp['modifier_name'] = $user->name;
 		$newapp['modify_at'] = $current;
-		$newapp['scenario'] = $copied->scenario;
-		$newapp['scenario_config'] = $copied->scenario_config;
-		$newapp['count_limit'] = $copied->count_limit;
-		$newapp['data_schemas'] = $modelApp->escape($copied->data_schemas);
-		$newapp['public_visible'] = $copied->public_visible;
-		$newapp['open_lastroll'] = $copied->open_lastroll;
-		$newapp['tags'] = $copied->tags;
-		$newapp['enrolled_entry_page'] = $copied->enrolled_entry_page;
-		$newapp['entry_rule'] = json_encode($copied->entry_rule);
-		$newapp['receiver_page'] = $copied->receiver_page;
+		$newapp['scenario'] = $template->scenario;
+		$newapp['scenario_config'] = $template->scenario_config;
+		$newapp['data_schemas'] = $modelApp->escape($template->data_schemas);
+		$newapp['open_lastroll'] = $template->open_lastroll;
+		$newapp['enrolled_entry_page'] = $template->enrolled_entry_page;
 		$newapp['template_id'] = $template->id;
-		$newapp['template_version'] = $template->id;
+		$newapp['template_version'] = $template->version;
 		$newapp['can_siteuser'] = 'Y';
 
 		$modelApp->insert('xxt_enroll', $newapp, false);
 
 		/* 复制自定义页面 */
-		if ($copied->pages) {
-			foreach ($copied->pages as $ep) {
+		if ($template->pages) {
+			foreach ($template->pages as $ep) {
 				$newPage = $modelPage->add($user, $site, $newaid);
 				$rst = $modelPage->update(
 					'xxt_enroll_page',

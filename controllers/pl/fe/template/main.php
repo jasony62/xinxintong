@@ -18,7 +18,7 @@ class main extends \pl\fe\base {
 			return new \ResponseTimeout();
 		}
 
-		$template = $this->model('matter\template')->byId($site, $tid, $vid);
+		$template = $this->model('matter\template')->byId($tid, $vid);
 		
 		return new \ResponseData($template);
 	}

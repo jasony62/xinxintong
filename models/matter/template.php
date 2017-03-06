@@ -62,7 +62,7 @@ class template_model extends \TMS_MODEL {
 					}
 				}
 				$modelPage = $this->model('matter\enroll\page');
-				$template->pages = $modelPage->byApp('template:'.$vid);
+				$template->version->pages = $modelPage->byApp('template:'.$vid);
 			}
 		}
 
@@ -359,7 +359,7 @@ class template_model extends \TMS_MODEL {
 		return $rst;
 	}
 	/**
-	 * 是否站点已经收藏模版
+	 * 是否站点已经使用模版
 	 */
 	public function isPurchaseBySite(&$template, $siteId) {
 		$options = array(
@@ -375,7 +375,7 @@ class template_model extends \TMS_MODEL {
 		return 0 < (int) $this->query_val_ss($q);
 	}
 	/**
-	 * 站点收藏模版
+	 * 站点使用模版
 	 */
 	public function purchaseBySite(&$user, &$template, $siteId) {
 		if ($this->isPurchaseBySite($template, $siteId)) {

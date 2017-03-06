@@ -197,7 +197,7 @@ class main extends \pl\fe\matter\base {
 	 * @return object ResponseData
 	 *
 	 */
-	public function createByOther_action($site, $template, $mission = null) {
+	public function createByOther_action($site, $template, $vid = null, $mission = null) {
 		if (false === ($user = $this->accountUser())) {
 			return new \ResponseTimeout();
 		}
@@ -209,10 +209,7 @@ class main extends \pl\fe\matter\base {
 		$modelCode = $this->model('code\page');
 
 		$template = $this->model('matter\template')->byId($template);
-		$aid = $template->matter_id;
-		if (false === ($copied = $modelApp->byId($aid))) {
-			return new \ResponseError('模板对应的活动已经不存在，无法创建活动');
-		}
+		$aid = $template->pub_version;
 
 		/* 检查用户积分 */
 		if ($template->coin) {

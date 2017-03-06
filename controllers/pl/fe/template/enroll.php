@@ -88,7 +88,7 @@ class enroll extends \pl\fe\base {
 		/* 添加页面 */
 		$this->_addPageByTemplate($loginUser, $site, $vid, $pageConfig, $post);
 
-		$template = $this->model('matter\template')->byId($site->id, $template->id);
+		$template = $this->model('matter\template')->byId($template->id);
 		/* 记录操作日志 */
 		$template->type = 'template';
 		$this->model('matter\log')->matterOp($site->id, $loginUser, $template, 'C');
@@ -151,7 +151,7 @@ class enroll extends \pl\fe\base {
 		
 		if ($rst) {
 			// 记录操作日志
-			$matter = $modelTmp->byId($site, $tid, $vid, ['fields'=>'id,title,summary,pic','cascaded'=>'N']);
+			$matter = $modelTmp->byId($tid, $vid, ['fields'=>'id,title,summary,pic','cascaded'=>'N']);
 			$matter->type = 'template';
 			$this->model('matter\log')->matterOp($site, $loginUser, $matter, 'U');
 		}
@@ -210,7 +210,7 @@ class enroll extends \pl\fe\base {
 		}
 
 		// 记录操作日志
-		$matter = $this->model('matter\template')->byId($site, $tid, $vid, ['fields'=>'id,title,summary,pic','cascaded'=>'N']);
+		$matter = $this->model('matter\template')->byId($tid, $vid, ['fields'=>'id,title,summary,pic','cascaded'=>'N']);
 		$matter->type = 'template';
 		$this->model('matter\log')->matterOp($site, $loginUser, $matter, 'U');
 		return new \ResponseData($rst);
@@ -232,7 +232,7 @@ class enroll extends \pl\fe\base {
 
 		/* 发布模版 */
 		$modelTmp = $this->model('matter\template');
-		$template = $modelTmp->byId($site, $tid, $vid, ['cascaded'=>'N']);
+		$template = $modelTmp->byId($tid, $vid, ['cascaded'=>'N']);
 		
 		$version = null;
 		foreach($template->versions as $v){

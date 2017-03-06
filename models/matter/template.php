@@ -7,14 +7,14 @@ class template_model extends \TMS_MODEL {
 	/**
 	 *返回一个模板
 	 */
-	public function &byId($site, $tid, $vid = null, $options = []) {
+	public function &byId($tid, $vid = null, $options = []) {
 		$fields = isset($options['fields']) ? $options['fields'] : '*';
 		$cascaded = isset($options['cascaded']) ? $options['cascaded'] : 'Y';
 
 		$q = [
 			$fields,
 			'xxt_template',
-			["id" => $tid],
+			["id" => $tid, 'state' => 1],
 		];
 
 		if ($template = $this->query_obj_ss($q)) {
@@ -23,7 +23,7 @@ class template_model extends \TMS_MODEL {
 			$p = [
 				'*',
 				'xxt_template_enroll',
-				['siteid' => $site, 'template_id'=>$tid, 'state' => 1]
+				['template_id'=>$tid, 'state' => 1]
 			];
 			$p2['o'] = "order by create_at desc";
 			$template->versions = $this->query_objs_ss($p, $p2);

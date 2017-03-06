@@ -208,8 +208,8 @@ class main extends \pl\fe\matter\base {
 		$modelPage = $this->model('matter\enroll\page');
 		$modelCode = $this->model('code\page');
 
-		$template = $this->model('matter\template')->byId($template);
-		$aid = $template->pub_version;
+		$template = $this->model('matter\template')->byId($template, $vid);
+		$copied = $template->version;
 
 		/* 检查用户积分 */
 		if ($template->coin) {
@@ -260,6 +260,7 @@ class main extends \pl\fe\matter\base {
 		$newapp['entry_rule'] = json_encode($copied->entry_rule);
 		$newapp['receiver_page'] = $copied->receiver_page;
 		$newapp['template_id'] = $template->id;
+		$newapp['template_version'] = $template->id;
 		$newapp['can_siteuser'] = 'Y';
 
 		$modelApp->insert('xxt_enroll', $newapp, false);

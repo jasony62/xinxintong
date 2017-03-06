@@ -34,7 +34,7 @@ class template_model extends \TMS_MODEL {
 					$template->scenarioConfig = new \stdClass;
 				}
 			}
-			//获取页面
+			//获取指定版本信息，如果未指定就用默认版本
 			if ($cascaded === 'Y') {
 				//获取当前需要展示页面的版本的id
 				if(empty($vid)){
@@ -42,14 +42,14 @@ class template_model extends \TMS_MODEL {
 						foreach($template->versions as $v){
 							if($v->version === $template->last_version){
 								$vid = $v->id;
-								$template->version = $v;
+								$version = $v;
 							}
 						}
 					}else{
 						foreach($template->versions as $v){
 							if($v->version === $template->pub_version){
 								$vid = $v->id;
-								$template->version = $v;
+								$version = $v;
 							}
 						}
 					}
@@ -57,12 +57,21 @@ class template_model extends \TMS_MODEL {
 					//返回当前预览版本的数据
 					foreach($template->versions as $v){
 						if($v->id === $vid){
-							$template->version = $v;
+							$version = $v;
 						}
 					}
 				}
+				foreach($version as $k=>$v2){
+					if($k === 'id'){
+						$template->vid = $v2;
+					}elseif($k === 'create_at'){
+						$template->vcreate_at = $v2;
+					}else{
+						$template->$k = $v2;
+					}
+				}
 				$modelPage = $this->model('matter\enroll\page');
-				$template->version->pages = $modelPage->byApp('template:'.$vid);
+				$template->pages = $modelPage->byApp('template:'.$vid);
 			}
 		}
 

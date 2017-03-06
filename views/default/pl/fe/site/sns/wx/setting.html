@@ -96,7 +96,7 @@
                             <td>粉丝分组</td>
                             <td><input type='checkbox' ng-model='wx.can_fansgroup' ng-true-value="'Y'" ng-false-value="'N'" ng-change="update('can_fansgroup')"></td>
                         </tr>
-                        <tr ng-show="wx.fansgroup==='Y'">
+                        <tr ng-show="wx.can_fansgroup==='Y'">
                             <td colspan='2'>
                                 <button running-button class='btn' is-running="backRunning" ng-click="refreshFansGroup('wx')">更新粉丝分组</button>
                             </td>
@@ -105,7 +105,7 @@
                             <td>粉丝信息</td>
                             <td><input type='checkbox' ng-model='wx.can_fans' ng-true-value="'Y'" ng-false-value="'N'" ng-change="update('can_fans')"></td>
                         </tr>
-                        <tr ng-show="wx.fans==='Y'">
+                        <tr ng-show="wx.can_fans==='Y'">
                             <td colspan='2'>
                                 <button running-button class='btn' is-running="backRunning" ng-click="refreshFans()">更新粉丝信息</button>
                             </td>

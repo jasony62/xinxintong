@@ -213,6 +213,7 @@ class base extends \site\base {
 			$snsUser = false;
 		} else {
 			$snsUser = $rst[1];
+
 		}
 
 		return $snsUser;
@@ -306,19 +307,22 @@ class base extends \site\base {
 	 * 要求关注
 	 *
 	 * @param string $siteId
-	 * @param string $openid
+	 * @param string $snsName
 	 *
 	 */
-	protected function snsFollow($siteId, $snsName) {
+	protected function snsFollow($siteId, $snsName, $matter = null) {
 		$modelSns = $this->model('sns\\' . $snsName);
 		$sns = $modelSns->bySite($siteId, 'joined,follow_page_id');
 		if ($sns === false || $sns->joined === 'N') {
+			$siteId = 'platform';
 			$sns = $modelSns->bySite('platform', 'joined,follow_page_id');
 		}
 
 		if ($sns->follow_page_id === '0') {
-			$site = $this->model('site')->byId($siteId);
-			$html = '请关注公众号：' . $site->name;
+			if ($siteId !== 'platform') {
+				$site = $this->model('site')->byId($siteId);
+				$html = '请关注公众号：' . $site->name;
+			}
 		} else {
 			$page = $this->model('code\page')->lastPublishedByName($siteId, $sns->follow_page_name);
 			$html = $page->html;
@@ -332,7 +336,7 @@ class base extends \site\base {
 		header("Expires:-1");
 		\TPL::assign('follow_ele', empty($html) ? '请关注公众号' : $html);
 		\TPL::assign('follow_css', empty($css) ? '' : $css);
-		\TPL::output('follow');
+		\TPL::output('site/fe/follow');
 		exit;
 	}
 	/**

@@ -71,9 +71,11 @@ class user_model extends \TMS_MODEL {
 						if (count($groupRecords)) {
 							$record->groupRecords = [];
 							foreach ($groupRecords as $groupRecord) {
-								$groupRecord->app = $mapOfGroupApps[$groupRecord->aid]->title;
-								unset($groupRecord->aid);
-								$record->groupRecords[] = $groupRecord;
+								if (!empty($mapOfGroupApps[$groupRecord->aid]->title)) {
+									$groupRecord->app = $mapOfGroupApps[$groupRecord->aid]->title;
+									unset($groupRecord->aid);
+									$record->groupRecords[] = $groupRecord;
+								}
 							}
 						}
 					}
@@ -97,9 +99,11 @@ class user_model extends \TMS_MODEL {
 						if (count($groupRecords)) {
 							$record->groupRecords = [];
 							foreach ($groupRecords as $groupRecord) {
-								$groupRecord->app = $mapOfGroupApps[$groupRecord->aid]->title;
-								unset($groupRecord->aid);
-								$record->groupRecords[] = $groupRecord;
+								if (!empty($mapOfGroupApps[$groupRecord->aid]->title)) {
+									$groupRecord->app = $mapOfGroupApps[$groupRecord->aid]->title;
+									unset($groupRecord->aid);
+									$record->groupRecords[] = $groupRecord;
+								}
 							}
 						}
 					}

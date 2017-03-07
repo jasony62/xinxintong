@@ -3,7 +3,7 @@ namespace pl\fe\site\sns\wx;
 
 require_once dirname(dirname(dirname(dirname(__FILE__)))) . '/base.php';
 /**
- * 微信公众号
+ * 微信公众号自定义页面控制器
  */
 class page extends \pl\fe\base {
 	/**
@@ -24,25 +24,26 @@ class page extends \pl\fe\base {
 
 		$data = $this->_makePage($site, $template);
 
-		$code = \TMS_APP::model('code\page')->create($site, $user->id, $data);
+		$modelPage = $this->model('code\page');
+		$code = $modelPage->create($site->id, $user->id, $data);
 
-		$rst = $this->model()->update(
+		$rst = $modelPage->update(
 			'xxt_site_wx',
-			array(
+			[
 				'follow_page_id' => $code->id,
 				'follow_page_name' => $code->name,
-			),
-			"siteid='{$site->id}'"
+			],
+			["siteid" => $site->id]
 		);
 
-		return new \ResponseData($code->id);
+		return new \ResponseData($code);
 	}
 	/**
 	 * 根据模版重置引导关注页面
 	 *
-	 * @param int $codeId
+	 * @param string name
 	 */
-	public function reset_action($site, $codeId, $template = 'basic') {
+	public function reset_action($site, $name, $template = 'basic') {
 		if (false === ($user = $this->accountUser())) {
 			return new \ResponseTimeout();
 		}
@@ -84,9 +85,9 @@ class page extends \pl\fe\base {
 		fwrite($handle, $template);
 		fclose($handle);
 		$s = new \Savant3(array('template' => $tmpfname, 'exceptions' => true));
-		$yx = $this->model('sns\wx')->bySite($site->id);
+		$wxConfig = $this->model('sns\wx')->bySite($site->id);
 		$s->assign('site', $site);
-		$s->assign('wx', $wx);
+		$s->assign('wx', $wxConfig);
 		$html = $s->getOutput();
 		unlink($tmpfname);
 

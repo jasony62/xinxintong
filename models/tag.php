@@ -129,7 +129,7 @@ class tag_model extends TMS_MODEL {
 					$q = array(
 						'id',
 						'xxt_tag',
-						"mpid='$mpid' and title='$added->title'",
+						"(mpid='$mpid' or siteid='$mpid') and title='$added->title'",
 					);
 					if (!($tag_id = $this->query_val_ss($q))) {
 						/**
@@ -137,6 +137,7 @@ class tag_model extends TMS_MODEL {
 						 */
 						$tag_id = $this->insert('xxt_tag',
 							array(
+								'siteid'=>$mpid,
 								'mpid' => $mpid,
 								'title' => $added->title,
 							),
@@ -146,7 +147,7 @@ class tag_model extends TMS_MODEL {
 					$added->id = $tag_id;
 				}
 				if ('1' === parent::query_value('1', 'xxt_article_tag'
-					, "mpid='$mpid' and res_id=$res_id and tag_id=$added->id")
+					, "(mpid='$mpid' or siteid='$mpid') and res_id=$res_id and tag_id=$added->id")
 				) {
 					// 关联已经存在
 					continue;
@@ -155,6 +156,7 @@ class tag_model extends TMS_MODEL {
 				 * 建立资源与标签之间的关联
 				 */
 				$tag2res = array(
+					'siteid'=>$mpid,
 					'mpid' => $mpid,
 					'res_id' => $res_id,
 					'tag_id' => $added->id,
@@ -176,7 +178,7 @@ class tag_model extends TMS_MODEL {
 					$q = array(
 						'id',
 						'xxt_tag',
-						"mpid='$mpid' and title='$removed->title'",
+						"(mpid='$mpid' or siteid='$mpid') and title='$removed->title'",
 					);
 					if (!($removed->id = $this->query_val_ss($q))) {
 						continue;
@@ -185,7 +187,7 @@ class tag_model extends TMS_MODEL {
 				/**
 				 * 删除资源与标签之间的关联
 				 */
-				$this->delete('xxt_article_tag', "mpid='$mpid' and res_id=$res_id and tag_id=$removed->id");
+				$this->delete('xxt_article_tag', "(mpid='$mpid' or siteid='$mpid') and res_id=$res_id and tag_id=$removed->id");
 			}
 		}
 

@@ -16,11 +16,9 @@ window.loading = {
             waitSeconds: 0,
             paths: {
                 "domReady": '/static/js/domReady',
-                "jQuery": "/static/js/jquery.min",
-                "bootstrap": "/static/js/bootstrap.min",
                 "angular": "/static/js/angular.min",
-                "ui-bootstrap": "/static/js/ui-bootstrap-tpls.min",
-                "main": "/views/default/site/fe/user/history/main",
+                "xxt-page": "/static/js/xxt.ui.page",
+                "main": "/views/default/site/fe/user/follow",
             },
             shim: {
                 "angular": {
@@ -28,20 +26,14 @@ window.loading = {
                 },
             },
             urlArgs: function(id, url) {
-                if (/domReady|jQuery|bootstrap|angular|ui-bootstrap/.test(id)) {
+                if (/domReady|angular/.test(id)) {
                     return '';
                 }
                 return "?bust=" + (timestamp * 1);
             }
         });
-        require(['jQuery'], function() {
-            require(['bootstrap'], function() {
-                require(['angular'], function() {
-                    require(['ui-bootstrap'], function() {
-                        require(['main'], function() {});
-                    });
-                });
-            });
+        require(['xxt-page'], function(uiPage) {
+            uiPage.bootstrap('/views/default/site/fe/user/follow.js');
         });
     }
 };

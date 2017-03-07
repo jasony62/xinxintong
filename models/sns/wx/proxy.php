@@ -230,7 +230,7 @@ class proxy_model extends \sns\proxybase {
 		return $oauth;
 	}
 	/**
-	 *
+	 * 获得公众号关注用户
 	 */
 	public function getOAuthUser($code) {
 		/* 获得用户的openid */
@@ -239,7 +239,6 @@ class proxy_model extends \sns\proxybase {
 		$params["secret"] = $this->config->appsecret;
 		$params["code"] = $code;
 		$params["grant_type"] = "authorization_code";
-		//\TMS_APP::M('log')->log('yangyue', 'debug', json_encode($params));
 		$rst = $this->httpGet($cmd, $params, false, false);
 		if ($rst[0] === false) {
 			return $rst;

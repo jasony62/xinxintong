@@ -38,15 +38,15 @@ class user_model extends \TMS_MODEL {
 									unset($signinRecord->aid);
 									$signinRecord->signinLogs = [];
 									foreach ($signinApp->rounds as $round) {
-										$signinLog = new \stdClass;
 										if (isset($signinRecord->signin_log->{$round->rid})) {
+											$signinLog = new \stdClass;
 											$signinLog->roundTitle = $round->title;
 											$signinLog->signinAt = $signinRecord->signin_log->{$round->rid};
 											if (!empty($round->late_at)) {
 												$signinLog->isLate = (int) $signinLog->signinAt > ((int) $round->late_at + 60);
 											}
+											$signinRecord->signinLogs[] = $signinLog;
 										}
-										$signinRecord->signinLogs[] = $signinLog;
 									}
 									unset($signinRecord->signin_log);
 								}

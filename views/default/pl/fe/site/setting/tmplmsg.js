@@ -7,21 +7,19 @@ define(['main'], function(ngApp) {
 		this.setSiteId = function(siteId) {
 			_siteId = siteId;
 		};
-		this.setType = function(type) {
-			_type = type;
-		};
-		this.list = function() {
+		this.list = function(type) {
 			var defer = $q.defer();
-			http2.get(_baseURL + '/list?site=' + _siteId + '&cascaded=Y', function(rsp) {
+			var _url = _baseURL ;
+			_url += '/list?site=' + _siteId ;
+			_url += '&cascaded=Y' ;
+			type && (_url += '&type=' + type);
+			http2.get(_url, function(rsp) {
 				defer.resolve(rsp.data);
 			});
 			return defer.promise;
 		};
 		this.create = function() {
 			var defer = $q.defer();
-			var _url = _baseURL;
-			_url += '/create?site=' + _siteId;
-			type && (_url += '&type=' + _type);
 			http2.get(_baseURL + '/create?site=' + _siteId + '', function(rsp) {
 				_type = '';
 				defer.resolve(rsp.data);
@@ -75,8 +73,7 @@ define(['main'], function(ngApp) {
 			$scope.editing = tmplmsg;
 		};
 		$scope.doSearch = function(type) {
-			type &&( serTmplmsg.setType(type));
-			serTmplmsg.list().then(function(data) {
+			serTmplmsg.list(type).then(function(data) {
 				$scope.tmplmsgs = data;
 			});
 		};

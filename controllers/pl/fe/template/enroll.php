@@ -21,7 +21,7 @@ class enroll extends \pl\fe\base {
 	 * @param int $size
 	 *
 	 */
-	public function list_action($site, $matterType = null, $scenario = null, $scope = 'S', $page = 1, $size = 20) {
+	public function list_action($site, $pub, $matterType = null, $scenario = null, $scope = null, $page = 1, $size = 20) {
 		if (false === ($loginUser = $this->accountUser())) {
 			return new \ResponseTimeout();
 		}
@@ -31,20 +31,28 @@ class enroll extends \pl\fe\base {
 		$q = [
 			'*',
 			"xxt_template",
-			['siteid' => $site],
+			"siteid = '".$model->escape($site)."'",
 		];
+		if($pub === 'N'){
+			$q[2] .=" and pub_version = ''";
+		}else{
+			$q[2] .=" and pub_version <> ''";
+		}
 		if(!empty($matterType)){
-			$q[2]['matter_type'] = $matterType;
+			$matterType = $model->escape($matterType);
+			$q[2] .=" and matter_type = '{$matterType}'";
 		}
 		if (!empty($scenario)) {
-			$q[2]['scenario'] = $scenario;
+			$scenario = $model->escape($scenario);
+			$q[2] .=" and scenario = '{$scenario}'";
 		}
 
 		$q2 = [
 			'r' => ['o' => ($page - 1) * $size, 'l' => $size],
 		];
 		if (in_array($scope, ['P', 'S'])) {
-			$q[2]['visible_scope'] = $scope;
+			$scope = $model->escape($scope);
+			$q[2] .=" and visible_scope = '{$scope}'";
 			$q2['o'] = 'put_at desc';
 		}
 

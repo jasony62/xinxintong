@@ -25,7 +25,7 @@ class record extends \site\op\base {
 
 		$app = $this->model('matter\enroll')->byId($app);
 		$mdoelRec = $this->model('matter\enroll\record');
-		$result = $mdoelRec->find($site, $app, $options, $criteria);
+		$result = $mdoelRec->find($app, $options, $criteria);
 
 		return new \ResponseData($result);
 	}

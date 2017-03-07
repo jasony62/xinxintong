@@ -6,7 +6,7 @@ define(['require'], function(require) {
             _siteId = siteId;
             _missionId = missionId;
         };
-        this.$get = ['$q', '$uibModal', 'http2', 'noticebox', function($q, $uibModal, http2, noticebox) {
+        this.$get = ['$q', '$uibModal', 'http2', 'noticebox', 'srvRecordConverter', function($q, $uibModal, http2, noticebox, srvRecordConverter) {
             var _self = {
                 get: function() {
                     var url;
@@ -16,9 +16,15 @@ define(['require'], function(require) {
                     _getMissionDeferred = $q.defer();
                     url = '/rest/pl/fe/matter/mission/get?id=' + _missionId;
                     http2.get(url, function(rsp) {
+                        var userApp;
                         _oMission = rsp.data;
                         _oMission.extattrs = (_oMission.extattrs && _oMission.extattrs.length) ? JSON.parse(_oMission.extattrs) : {};
                         _oMission.opUrl = 'http://' + location.host + '/rest/site/op/matter/mission?site=' + _oMission.siteid + '&mission=' + _oMission.id;
+                        if (userApp = _oMission.userApp) {
+                            if (userApp.data_schemas && angular.isString(userApp.data_schemas)) {
+                                userApp.data_schemas = JSON.parse(userApp.data_schemas);
+                            }
+                        }
                         _getMissionDeferred.resolve(_oMission);
                     });
 
@@ -28,6 +34,47 @@ define(['require'], function(require) {
                     var deferred = $q.defer();
                     http2.get('/rest/pl/fe/matter/mission/matter/count?id=' + _missionId, function(rsp) {
                         deferred.resolve(parseInt(rsp.data));
+                    });
+                    return deferred.promise;
+                },
+                userList: function(oResultSet) {
+                    var deferred = $q.defer(),
+                        url;
+
+                    if (Object.keys(oResultSet).length === 0) {
+                        angular.extend(oResultSet, {
+                            page: {
+                                at: 1,
+                                size: 30,
+                                j: function() {
+                                    return 'page=' + this.at + '&size=' + this.size;
+                                },
+                                offset: function() {
+                                    return (this.at - 1) * this.size;
+                                }
+                            },
+                            criteria: {},
+                            users: []
+                        });
+                    }
+
+                    _self.get().then(function(mission) {
+                        srvRecordConverter.config(mission.userApp.data_schemas);
+                    });
+
+                    url = '/rest/pl/fe/matter/mission/user/list?mission=' + _missionId;
+                    url += '&' + oResultSet.page.j();
+                    http2.post(url, oResultSet.criteria, function(rsp) {
+                        var records = rsp.data.records;
+                        oResultSet.users.splice(0, oResultSet.users.length);
+                        if (records && records.length) {
+                            records.forEach(function(record) {
+                                srvRecordConverter.forTable(record);
+                                oResultSet.users.push(record);
+                            });
+                        }
+                        oResultSet.page.total = rsp.data.total;
+                        deferred.resolve(rsp.data);
                     });
                     return deferred.promise;
                 },

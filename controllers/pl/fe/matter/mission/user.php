@@ -21,6 +21,35 @@ class user extends \pl\fe\matter\base {
 		exit;
 	}
 	/**
+	 * 获得项目的用户列表
+	 *
+	 * @param int $mission mission's id
+	 */
+	public function list_action($mission, $page = 1, $size = 30) {
+		if (false === ($user = $this->accountUser())) {
+			return new \ResponseTimeout();
+		}
+
+		$mission = $this->model('matter\mission')->byId($mission, ['fields' => 'user_app_id,user_app_type']);
+		if ($mission === false) {
+			return new \ObjectNotFoundError();
+		}
+
+		$criteria = $this->getPostJson();
+		$options = [
+			'page' => $page,
+			'size' => $size,
+		];
+
+		$modelUsr = $this->model('matter\mission\user');
+		$result = $modelUsr->byMission($mission, $criteria, $options);
+		if ($result[0] === false) {
+			return new \ResponseError($result[1]);
+		}
+
+		return new \ResponseData($result[1]);
+	}
+	/**
 	 * 获得指定用户在项目中的行为记录
 	 */
 	public function recordByUser_action($mission, $user) {

@@ -16,7 +16,7 @@ class record extends \site\op\base {
 		}
 		// 登记数据过滤条件
 		$criteria = $this->getPostJson();
-		
+
 		$options = array(
 			'page' => $page,
 			'size' => $size,
@@ -29,9 +29,9 @@ class record extends \site\op\base {
 			'contain' => $contain,
 		);
 		!empty($rid) && $rid !== 'ALL' && $options['rid'] = $rid;
+
 		$mdoelRec = $this->model('matter\signin\record');
-		$app = $this->model('matter\signin')->byId($app);
-		$result = $mdoelRec->find($site, $app, $options, $criteria);
+		$result = $mdoelRec->find($app, $options, $criteria);
 
 		return new \ResponseData($result);
 	}

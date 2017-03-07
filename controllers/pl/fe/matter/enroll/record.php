@@ -39,7 +39,7 @@ class record extends \pl\fe\matter\base {
 
 		// 查询结果
 		$mdoelRec = $this->model('matter\enroll\record');
-		$result = $mdoelRec->find($site, $enrollApp, $options, $criteria);
+		$result = $mdoelRec->find($enrollApp, $options, $criteria);
 
 		return new \ResponseData($result);
 	}
@@ -491,7 +491,7 @@ class record extends \pl\fe\matter\base {
 		}
 
 		// 登记活动
-		$app = $this->model('matter\enroll')->byId($app, ['fields' => 'id,title,data_schemas,scenario,enroll_app_id,group_app_id', 'cascaded' => 'N']);
+		$app = $this->model('matter\enroll')->byId($app, ['fields' => 'siteid,id,title,data_schemas,scenario,enroll_app_id,group_app_id', 'cascaded' => 'N']);
 		$schemas = json_decode($app->data_schemas);
 
 		// 关联的登记活动
@@ -524,7 +524,7 @@ class record extends \pl\fe\matter\base {
 		}
 
 		// 获得所有有效的登记记录
-		$records = $this->model('matter\enroll\record')->find($site, $app);
+		$records = $this->model('matter\enroll\record')->find($app);
 		if ($records->total === 0) {
 			die('record empty');
 		}
@@ -702,7 +702,7 @@ class record extends \pl\fe\matter\base {
 		}
 
 		// 获得所有有效的登记记录
-		$records = $this->model('matter\enroll\record')->find($site, $enrollApp);
+		$records = $this->model('matter\enroll\record')->find($enrollApp);
 		if ($records->total === 0) {
 			die('record empty');
 		}
@@ -806,7 +806,7 @@ class record extends \pl\fe\matter\base {
 			return new \ResponseData('没有匹配的数据项');
 		}
 		/* 获得数据 */
-		$records = $modelRec->find($site, $fromApp);
+		$records = $modelRec->find($fromApp);
 		$countOfImport = 0;
 		if ($records->total > 0) {
 			foreach ($records->records as $record) {

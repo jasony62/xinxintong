@@ -163,6 +163,43 @@ class player_model extends \TMS_MODEL {
 		return $record;
 	}
 	/**
+	 * 根据ID返回登记记录
+	 *
+	 * @param string $ek 因为分组活动的用户有可能是从其他活动导入的，使用的是导入记录的ek，因为有可能一个ek导入到多个分组活动中
+	 * @param string $aid 分组活动的id。如果指定只返回单条记录，如果不指定返回数据
+	 *
+	 */
+	public function byEnrollKey($ek, $aid = null, $options = []) {
+		$fields = isset($options['fields']) ? $options['fields'] : '*';
+		$cascaded = isset($options['cascaded']) ? $options['cascaded'] : 'Y';
+
+		$q = [
+			$fields,
+			'xxt_group_player',
+			["enroll_key" => $ek, "state" => 1],
+		];
+		if (empty($aid)) {
+			$records = $this->query_objs_ss($q);
+			if (count($records) && $cascaded === 'Y' && ($fields === '*' || false !== strpos($fields, 'data'))) {
+				foreach ($records as &$record) {
+					if (!empty($record->data)) {
+						$record->data = json_decode($record->data);
+					}
+				}
+			}
+			return $records;
+		} else {
+			$q[2]['aid'] = $aid;
+			if (($record = $this->query_obj_ss($q)) && $cascaded === 'Y' && ($fields === '*' || false !== strpos($fields, 'data'))) {
+				if (!empty($record->data)) {
+					$record->data = json_decode($record->data);
+				}
+			}
+			return $record;
+		}
+
+	}
+	/**
 	 * 获得指定项目下的登记记录
 	 *
 	 * @param int $missionId

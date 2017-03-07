@@ -17,13 +17,13 @@
                 </div>
                 <button uib-popover-template="'pageSetting.html'" popover-placement="bottom" popover-append-to-body='true' popover-trigger="outsideClick" class='btn btn-default btn-block'>页面设置 <span class="caret"></span></button>
             </div>
-            <!-- <div id='simulator'>
+            <div id='simulator' ng-if="">
                 <iframe ng-src="{{previewURL}}"></iframe>
                 <div id='simulatorActions'>
                     <button class='btn btn-default btn-block' ng-disabled="!params.hasPrev" ng-click="prevPage()"><i class='glyphicon glyphicon-arrow-up'>上一页</i></button>
                     <button class='btn btn-default btn-block' ng-disabled="!params.hasNext" ng-click="nextPage()"><i class='glyphicon glyphicon-arrow-down'>下一页</i></button>
                 </div>
-            </div> -->
+            </div>
         </div>
     </div>
     <!-- end preview -->
@@ -136,6 +136,21 @@
     <div class='checkbox' ng-if="app.mission_id>0">
         <label>
             <input type='checkbox' ng-true-value="'Y'" ng-false-value="'N'" ng-model='app.use_mission_footer' ng-change="update('use_mission_footer');">使用项目页脚</label>
+    </div>
+</script>
+<script type="text/ng-template" id="templateShare.html">
+    <div class="modal-header">
+        <button class="close" type="button" ng-click="cancel()">×</button>
+        <h5 class="modal-title">发布模板</h5>
+    </div>
+    <div class="modal-body">
+        <div class="form-group">
+            <label class="radio-inline"><input type="radio" name="scope" ng-model="data.visible_scope" value="S">发布到团队</label>
+            <label class="radio-inline"><input type="radio" name="scope" ng-model="data.visible_scope" value="P">发布到平台</label>
+        </div>
+    </div>
+    <div class="modal-footer">
+        <button class="btn btn-default" ng-click="ok()">确定</button>
     </div>
 </script>
 

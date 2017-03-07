@@ -42,7 +42,7 @@ window.loading = {
             }
         });
         require(['xxt-page'], function(assembler) {
-            assembler.bootstrap('/views/default/site/fe/matter/enroll/preview.js?_=' + (timestamp * 1));
+            assembler.bootstrap('/views/default/site/fe/matter/template/enroll/preview.js?_=' + (timestamp * 1));
         });
     }
 };

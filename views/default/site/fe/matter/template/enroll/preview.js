@@ -41,7 +41,7 @@ define(["angular", "xxt-page", "enroll-directive", "angular-sanitize"], function
         ngApp.provider = {
             controller: $cp.register
         };
-        lsProvider.params(['start', 'site', 'app', 'rid', 'page', 'ek', 'newRecord', 'openAt']);
+        lsProvider.params(['start', 'site', 'tid', 'rid', 'page', 'ek', 'newRecord', 'openAt']);
     }]);
     ngApp.controller('ctrl', ['$scope', '$http', '$timeout', 'ls', function($scope, $http, $timeout, LS) {
         function gotoPage() {

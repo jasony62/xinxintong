@@ -1,6 +1,6 @@
 define(['frame'], function(ngApp) {
     'use strict';
-    ngApp.provider.controller('ctrlPublish', ['$scope', 'mediagallery', '$timeout', 'srvEnrollApp', 'srvTempApp', function($scope, mediagallery, $timeout, srvEnrollApp, srvTempApp) {
+    ngApp.provider.controller('ctrlPublish', ['$scope', 'http2', 'mediagallery', '$timeout', '$uibModal', 'srvEnrollApp', 'srvTempApp', function($scope, http2, mediagallery, $timeout, $uibModal, srvEnrollApp, srvTempApp) {
         $scope.setPic = function() {
             var options = {
                 callback: function(url) {
@@ -29,22 +29,39 @@ define(['frame'], function(ngApp) {
             return false;
         };
         $scope.shareAsTemplate = function() {
-            templateShop.share($scope.app.siteid, $scope.app);
-        };
-        $scope.applyToHome = function() {
-            var url = '/rest/pl/fe/matter/home/apply?site=' + $scope.app.siteid + '&type=enroll&id=' + $scope.app.id;
-            http2.get(url, function(rsp) {
-                noticebox.success('完成申请！');
+            $uibModal.open({
+                templateUrl: 'templateShare.html',
+                controller: ['$scope', '$uibModalInstance', function($scope, $mi) {
+                    $scope.data = {};
+                    $scope.params = {};
+                    $scope.cancel = function() {
+                        $mi.dismiss();
+                    };
+                    $scope.ok = function() {
+                        $mi.close($scope.data);
+                    };
+                }],
+                backdrop: 'static'
+            }).result.then(function(data) {
+                http2.post('/rest/pl/fe/template/put?site=' + $scope.app.siteid + '&tid=' + $scope.app.id + '&vid=' + $scope.app.vid, data, function(rsp) {
+                    deferred.resolve(rsp.data);
+                });
             });
         };
+        $scope.applyToHome = function() {
+            /*var url = '/rest/pl/fe/matter/home/apply?site=' + $scope.app.siteid + '&type=enroll&id=' + $scope.app.id;
+            http2.get(url, function(rsp) {
+                noticebox.success('完成申请！');
+            });*/
+        };
         $scope.cancelAsTemplate = function() {
-            var url = '/rest/pl/fe/matter/home/apply?site=' + $scope.app.siteid + '&type=enroll&id=' + $scope.app.id;
+            var url = '/rest/pl/fe/template/unPut?site=' + $scope.app.siteid + '&tid=' + $scope.app.id + '&vid=' + $scope.app.vid;
             http2.get(url, function(rsp) {
                 noticebox.success('完成撤销！');
             });
         };
         $scope.remove = function() {
-            if (window.confirm('确定删除活动？')) {
+            /*if (window.confirm('确定删除活动？')) {
                 srvEnrollApp.remove().then(function() {
                     if ($scope.app.mission) {
                         location = "/rest/pl/fe/matter/mission?site=" + $scope.app.siteid + "&id=" + $scope.app.mission.id;
@@ -52,7 +69,7 @@ define(['frame'], function(ngApp) {
                         location = '/rest/pl/fe/site/console?site=' + $scope.app.siteid;
                     }
                 });
-            }
+            }*/
         };
     }]);
     ngApp.provider.controller('ctrlTempVersion', ['$scope',function($scope) {
@@ -65,6 +82,9 @@ define(['frame'], function(ngApp) {
         $scope.shareUser = function() {
             console.log(3);
         }
+        srvTempApp.tempEnrollGet().then(function(app) {
+
+        });
     }]);
     ngApp.provider.controller('ctrlPreview', ['$scope', 'srvEnrollApp', 'srvTempApp', function($scope, srvEnrollApp, srvTempApp) {
         function refresh() {
@@ -80,7 +100,7 @@ define(['frame'], function(ngApp) {
         srvTempApp.tempEnrollGet().then(function(app) {
             if (app.pages && app.pages.length) {
                 $scope.gotoPage = function(page) {
-                    var url = "/rest/pl/fe/matter/enroll/page";
+                    var url = "/rest/pl/fe/template/enroll/page";
                     url += "?site=" + app.siteid;
                     url += "&id=" + app.id;
                     url += "&page=" + page.name;

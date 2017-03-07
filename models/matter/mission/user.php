@@ -34,8 +34,6 @@ class user_model extends \TMS_MODEL {
 							foreach ($signinRecords as $signinRecord) {
 								if (isset($signinRecord->signin_log)) {
 									$signinApp = $mapOfSigninApps[$signinRecord->aid];
-									$signinRecord->app = $signinApp->title;
-									unset($signinRecord->aid);
 									$signinRecord->signinLogs = [];
 									foreach ($signinApp->rounds as $round) {
 										if (isset($signinRecord->signin_log->{$round->rid})) {
@@ -48,9 +46,13 @@ class user_model extends \TMS_MODEL {
 											$signinRecord->signinLogs[] = $signinLog;
 										}
 									}
-									unset($signinRecord->signin_log);
+									if (count($signinRecord->signinLogs)) {
+										unset($signinRecord->signin_log);
+										unset($signinRecord->aid);
+										$signinRecord->app = $signinApp->title;
+										$record->signinRecords[] = $signinRecord;
+									}
 								}
-								$record->signinRecords[] = $signinRecord;
 							}
 						}
 					}

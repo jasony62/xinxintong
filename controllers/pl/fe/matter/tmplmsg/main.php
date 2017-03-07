@@ -157,4 +157,27 @@ class main extends \pl\fe\matter\base {
 
 		return new \ResponseData($rst);
 	}
+	/**
+	 * 获取微信公众号的模板列表并更新到本地数据库
+	 *
+	 */
+	public function getTemplateList_action($site) {
+		if (false === ($user = $this->accountUser())) {
+			return new \ResponseTimeout();
+		}
+
+		$proxy=\TMS_APP::M('pl\sns\wx\proxy');
+
+		$rst=$proxy->templateList();
+
+		if($rst[0]===false){
+			return new \ResponseError($rst[1]);
+		}
+
+		$templates=json_decode($rst[1]);
+		$d['siteid']=$site;
+		$d['mpid']=$site;
+		$d['creater']=$user->uid;
+		$d['create_at']=time();
+	}
 }

@@ -9,7 +9,7 @@ define(['frame'], function(ngApp) {
 			at: 1,
 			total: 0,
 			j: function() {
-          return 'page=' + this.at + '&size=' + this.size;
+          return '&page=' + this.at + '&size=' + this.size;
        }
 		};
 		$scope.changeScope = function(scope) {
@@ -94,10 +94,10 @@ define(['frame'], function(ngApp) {
 			});
 		};
 		$scope.edit = function(template) {
-			location.href = '/rest/pl/fe/template/enroll?site=' + $scope.siteId + '&tid=' + template.id;
+			location.href = '/rest/pl/fe/template/enroll?site=' + $scope.siteId + '&id=' + template.id;
 		}
 		$scope.message = function(template) {
-			location.href = '/rest/pl/fe/template/enroll?site=' + $scope.siteId + '&tid=' + template.id;
+			location.href = '/rest/pl/fe/template/enroll?site=' + $scope.siteId + '&id=' + template.id;
 		}
 		$scope.filter = function() {
 

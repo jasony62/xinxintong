@@ -65,7 +65,7 @@ define(['frame'], function(ngApp) {
         $scope.shareUser = function() {
             console.log(3);
         }
-    }])
+    }]);
     ngApp.provider.controller('ctrlPreview', ['$scope', 'srvEnrollApp', 'srvTempApp', function($scope, srvEnrollApp, srvTempApp) {
         function refresh() {
             $scope.previewURL = previewURL + '&openAt=' + params.openAt + '&page=' + params.page.name + '&_=' + (new Date() * 1);
@@ -77,7 +77,7 @@ define(['frame'], function(ngApp) {
         $scope.showPage = function(page) {
             params.page = page;
         };
-        /*srvTempApp.tempEnrollGet().then(function(app) {
+        srvTempApp.tempEnrollGet().then(function(app) {
             if (app.pages && app.pages.length) {
                 $scope.gotoPage = function(page) {
                     var url = "/rest/pl/fe/matter/enroll/page";
@@ -104,6 +104,6 @@ define(['frame'], function(ngApp) {
                     nv !== ov && refresh();
                 });
             }
-        });*/
+        });
     }]);
 });

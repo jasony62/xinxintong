@@ -19,59 +19,61 @@ class template_model extends \TMS_MODEL {
 
 		if ($template = $this->query_obj_ss($q)) {
 			$template->type = 'template';
-			//获取版本
-			$p = [
-				'*',
-				'xxt_template_enroll',
-				['template_id'=>$tid, 'state' => 1]
-			];
-			$p2['o'] = "order by create_at desc";
-			$template->versions = $this->query_objs_ss($p, $p2);
-			if (isset($template->scenario_config)) {
-				if (!empty($template->scenario_config)) {
-					$template->scenarioConfig = json_decode($template->scenario_config);
-				} else {
-					$template->scenarioConfig = new \stdClass;
+			if($template->matter_type === 'enroll'){
+				//获取版本
+				$p = [
+					'*',
+					'xxt_template_enroll',
+					['template_id'=>$tid, 'state' => 1]
+				];
+				$p2['o'] = "order by create_at desc";
+				$template->versions = $this->query_objs_ss($p, $p2);
+				if (isset($template->scenario_config)) {
+					if (!empty($template->scenario_config)) {
+						$template->scenarioConfig = json_decode($template->scenario_config);
+					} else {
+						$template->scenarioConfig = new \stdClass;
+					}
 				}
-			}
-			//获取指定版本信息，如果未指定就用默认版本
-			if ($cascaded === 'Y') {
-				//获取当前需要展示页面的版本的id
-				if(empty($vid)){
-					if(empty($template->pub_version)){
-						foreach($template->versions as $v){
-							if($v->version === $template->last_version){
-								$vid = $v->id;
-								$version = $v;
+				//获取指定版本信息，如果未指定就用默认版本
+				if ($cascaded === 'Y') {
+					//获取当前需要展示页面的版本的id
+					if(empty($vid)){
+						if(empty($template->pub_version)){
+							foreach($template->versions as $v){
+								if($v->version === $template->last_version){
+									$vid = $v->id;
+									$version = $v;
+								}
+							}
+						}else{
+							foreach($template->versions as $v){
+								if($v->version === $template->pub_version){
+									$vid = $v->id;
+									$version = $v;
+								}
 							}
 						}
 					}else{
+						//返回当前预览版本的数据
 						foreach($template->versions as $v){
-							if($v->version === $template->pub_version){
-								$vid = $v->id;
+							if($v->id === $vid){
 								$version = $v;
 							}
 						}
 					}
-				}else{
-					//返回当前预览版本的数据
-					foreach($template->versions as $v){
-						if($v->id === $vid){
-							$version = $v;
+					foreach($version as $k=>$v2){
+						if($k === 'id'){
+							$template->vid = $v2;
+						}elseif($k === 'create_at'){
+							$template->vcreate_at = $v2;
+						}else{
+							$template->$k = $v2;
 						}
 					}
+					$modelPage = $this->model('matter\enroll\page');
+					$template->pages = $modelPage->byApp('template:'.$vid);
 				}
-				foreach($version as $k=>$v2){
-					if($k === 'id'){
-						$template->vid = $v2;
-					}elseif($k === 'create_at'){
-						$template->vcreate_at = $v2;
-					}else{
-						$template->$k = $v2;
-					}
-				}
-				$modelPage = $this->model('matter\enroll\page');
-				$template->pages = $modelPage->byApp('template:'.$vid);
 			}
 		}
 

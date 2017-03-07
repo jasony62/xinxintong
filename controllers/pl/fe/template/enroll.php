@@ -301,41 +301,6 @@ class enroll extends \pl\fe\base {
 		return new \ResponseData($rst);
 	}
 	/**
-	 * [remove_action 删除模板]
-	 * @param  [type] $site [description]
-	 * @param  [type] $tid  [description]
-	 * @return [type]       [description]
-	 */
-	public function remove_action($site, $tid){
-		// if (false === ($loginUser = $this->accountUser())) {
-		// 	return new \ResponseTimeout();
-		// }
-
-		// $modelTmp = $this->model('matter\template');
-		// if(false === ($template = $modelTmp->byId($tid, null, ['cascaded'=>'N'])) ){
-		// 	return new \ResponseError('模板获取失败，请检查参数');
-		// }
-		// //删除模板
-		// $rst = $modelTmp->update(
-		// 		'xxt_template',
-		// 		['state' => 0],
-		// 		['id' => $tid]
-		// 	);
-		// if($rst){
-		// 	 $modelTmp->update(
-		// 		'xxt_template_enroll',
-		// 		['state' => 0],
-		// 		['template_id' => $tid]
-		// 	);
-		// }
-		// //删除日志
-
-		// // 记录操作日志
-		// $this->model('matter\log')->matterOp($site, $loginUser, $template, 'remove');
-		// return new \ResponseData($rst);
-		return false;
-	}
-	/**
 	 * 创建默认的模板页面
 	 * 如果没有指定场景或模板，那么就使用系统的缺省模板
 	 *

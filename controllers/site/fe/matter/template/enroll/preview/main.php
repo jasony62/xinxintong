@@ -34,7 +34,7 @@ class main extends \TMS_CONTROLLER {
 		$modelTmp = $this->model('matter\template');
 
 		/* 登记活动定义 */
-		if (false === ($template = $modelTmp->byId($tid, $vid, ['cascaded' => 'N']))) {
+		if (false === ($template = $modelTmp->byId($tid, $vid))) {
 			return new \ResponseError('指定的模板不存在，请检查参数是否正确');
 		}
 		$params['app'] = &$template;

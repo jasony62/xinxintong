@@ -32,7 +32,7 @@ class site extends \pl\fe\base {
 			$q = [
 				'*',
 				"xxt_template",
-				["visible_scope" => $scope],
+				["visible_scope" => $scope, 'state' => 1],
 			];
 		} else if (in_array($scope, ['favor', 'purchase'])) {
 			$q = [

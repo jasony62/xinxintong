@@ -235,11 +235,12 @@ class user extends \pl\be\base {
 							'groupid' => $rfan->groupid,
 							'sync_at' => $current,
 						];
+						isset($rfan->subscribe_time) && $ins['subscribe_at'] = $rfan->subscribe_time;
 						isset($rfan->headimgurl) && $upd['headimgurl'] = $rfan->headimgurl;
 						isset($rfan->province) && $upd['province'] = $modelSnsUser->escape($rfan->province);
 						isset($rfan->country) && $upd['country'] = $modelSnsUser->escape($rfan->country);
 						$modelSnsUser->update(
-							'xxt_site_wxfans',
+							'xxt_site_wxfan',
 							$upd,
 							["siteid" => $site, "openid" => $openid]
 						);
@@ -262,7 +263,7 @@ class user extends \pl\be\base {
 							isset($rfan->headimgurl) && $ins['headimgurl'] = $rfan->headimgurl;
 							isset($rfan->province) && $ins['province'] = $modelSnsUser->escape($rfan->province);
 							isset($rfan->country) && $ins['country'] = $modelSnsUser->escape($rfan->country);
-							$modelSnsUser->insert('xxt_site_wxfans', $ins, false);
+							$modelSnsUser->insert('xxt_site_wxfan', $ins, false);
 							$usersCount++;
 						}
 					}
@@ -349,10 +350,11 @@ class user extends \pl\be\base {
 
 		$groups = $rst[1]->groups;
 
-		$snsProxy->delete('xxt_site_wxfangroup', ["siteid" => $site]);
+		$model = $this->model();
+		$model->delete('xxt_site_wxfangroup', ["siteid" => $site]);
 		foreach ($groups as $g) {
-			$i = ['id' => $g->id, 'siteid' => $this->mpid, 'name' => $g->name];
-			$snsProxy->insert('xxt_site_wxfangroup', $i, false);
+			$i = ['id' => $g->id, 'siteid' => $site, 'name' => $g->name];
+			$model->insert('xxt_site_wxfangroup', $i, false);
 		}
 
 		return new \ResponseData(count($groups));

@@ -4,7 +4,7 @@
         <div id='simulator'>
             <iframe ng-src={{previewURL}}></iframe>
             <div id='simulatorActions'>
-                <a class='btn btn-default btn-block' style='color:#337ab7' href="/rest/pl/fe/template/enroll/schema?site={{app.siteid}}&id={{app.vid}}">修改题目 <i class="glyphicon glyphicon-chevron-right"></i></a>
+                <a class='btn btn-default btn-block' style='color:#337ab7' href="/rest/pl/fe/template/enroll/schema?site={{app.siteid}}&tid={{app.id}}&vid={{app.vid}}">修改题目 <i class="glyphicon glyphicon-chevron-right"></i></a>
                 <div class="btn-group btn-block" ng-repeat="page in app.pages">
                     <button type="button" class="btn btn-default" ng-class="params.page===page?'btn-primary':'btn-default'" style="width:125px" title="{{page.title}}" ng-click="showPage(page)">{{page.title}}</button>
                     <button type="button" class="btn dropdown-toggle" ng-class="params.page===page?'btn-primary':'btn-default'" data-toggle="dropdown">
@@ -17,13 +17,13 @@
                 </div>
                 <button uib-popover-template="'pageSetting.html'" popover-placement="bottom" popover-append-to-body='true' popover-trigger="outsideClick" class='btn btn-default btn-block'>页面设置 <span class="caret"></span></button>
             </div>
-            <div id='simulator'>
+            <!-- <div id='simulator'>
                 <iframe ng-src="{{previewURL}}"></iframe>
                 <div id='simulatorActions'>
                     <button class='btn btn-default btn-block' ng-disabled="!params.hasPrev" ng-click="prevPage()"><i class='glyphicon glyphicon-arrow-up'>上一页</i></button>
                     <button class='btn btn-default btn-block' ng-disabled="!params.hasNext" ng-click="nextPage()"><i class='glyphicon glyphicon-arrow-down'>下一页</i></button>
                 </div>
-            </div>
+            </div> -->
         </div>
     </div>
     <!-- end preview -->
@@ -103,7 +103,7 @@
                 </div>
             </uib-tab>
             <!-- end setting -->
-            <uib-tab index="1" ng-if='app.versions.length>1' ng-controller='ctrlTempVersion'>
+            <uib-tab index="1" ng-controller='ctrlTempVersion'>
                 <uib-tab-heading><i class="glyphicon glyphicon-th-large"></i> 模板版本</uib-tab-heading>
                 <div class="row">
                     <div class="col-md-4" ng-repeat="t in templates">

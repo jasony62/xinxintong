@@ -15,7 +15,10 @@ window.loading = {
         require.config({
             waitSeconds: 0,
             paths: {
+                "domReady": '/static/js/domReady',
                 "angular": "/static/js/angular.min",
+                "xxt-page": "/static/js/xxt.ui.page",
+                "main": "/views/default/site/fe/user/follow",
             },
             shim: {
                 "angular": {
@@ -23,13 +26,15 @@ window.loading = {
                 },
             },
             urlArgs: function(id, url) {
-                if (/angular/.test(id)) {
+                if (/domReady|angular/.test(id)) {
                     return '';
                 }
                 return "?bust=" + (timestamp * 1);
             }
         });
-        require(['main'], function() {});
+        require(['xxt-page'], function(uiPage) {
+            uiPage.bootstrap('/views/default/site/fe/user/follow.js');
+        });
     }
 };
 window.loading.load();

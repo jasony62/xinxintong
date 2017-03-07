@@ -311,7 +311,7 @@ class base extends \site\base {
 	 *
 	 */
 	protected function snsFollow($siteId, $snsName, $matter = null) {
-		$followUrl = '/rest/site/fe/follow?site=' . $siteId . '&sns=' . $snsName;
+		$followUrl = '/rest/site/fe/user/follow?site=' . $siteId . '&sns=' . $snsName;
 		if (!empty($matter)) {
 			$followUrl .= '&matter=' . $matter->type . ',' . $matter->id;
 		}

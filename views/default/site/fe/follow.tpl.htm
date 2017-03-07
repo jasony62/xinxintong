@@ -1,0 +1,25 @@
+<!DOCTYPE html>
+<html ng-controller='ctrlMain'>
+
+<head>
+    <meta charset="utf-8">
+    <meta content="width=device-width,user-scalable=no,initial-scale=1.0" name="viewport">
+    <base href="/" />
+    <title>邀请关注</title>
+    <link href='/static/css/site.fe.css?_=1' rel="stylesheet">
+    <style>
+        *{margin:0;padding:0}
+        *,:before,:after{box-sizing:border-box}
+        body{height:100%;font-family:Microsoft Yahei,Arial;background-color: white}
+    </style>
+</head>
+
+<body>
+    <div class="loading">
+        <div class='loading-indicator'><i></i></div>
+    </div>
+    <div dynamic-html="page.html"></div>
+    <script src="/static/js/require.js?_=1" defer async data-main="/views/default/site/fe/follow-loader.js?_=1"></script>
+</body>
+
+</html>

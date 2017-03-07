@@ -28,6 +28,46 @@ class main extends \site\fe\matter\base {
 	 * 获得用户在项目中的行为记录
 	 */
 	public function recordList_action($mission) {
+		$modelMis = $this->model('matter\mission\matter');
+		$matters = $modelMis->byMission($mission, null, ['is_public' => 'Y']);
+		if (count($matters)) {
+			foreach ($matters as &$matter) {
+				if ($matter->type === 'enroll') {
+					if (!isset($modelEnlRec)) {
+						$modelEnlRec = $this->model('matter\enroll\record');
+					}
+					$matter->records = [];
+					$records = $modelEnlRec->byUser($matter->id, $this->who);
+					foreach ($records as $record) {
+						!empty($record->data) && $record->data = json_decode($record->data);
+						$matter->records[] = $record;
+					}
+				} else if ($matter->type === 'signin') {
+					if (!isset($modelSigRec)) {
+						$modelSigRec = $this->model('matter\signin\record');
+					}
+					$matter->record = $modelSigRec->byUser($this->who, $matter->siteid, $matter);
+				} else if ($matter->type === 'group') {
+					if (!isset($modelGrpRec)) {
+						$modelGrpRec = $this->model('matter\group\player');
+					}
+					$matter->records = [];
+					$records = $modelGrpRec->byPlayer($matter->siteid, $matter->id, $this->who->uid);
+					foreach ($records as $record) {
+						!empty($record->data) && $record->data = json_decode($record->data);
+						$matter->records[] = $record;
+					}
+				}
+			}
+		}
+
+		return new \ResponseData($matters);
+	}
+
+	/**
+	 * 获得用户在项目中的行为记录
+	 */
+	public function recordList2_action($mission) {
 		$result = new \stdClass;
 
 		$appIds = [];

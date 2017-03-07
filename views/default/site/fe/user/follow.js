@@ -3,7 +3,7 @@ define(["angular", "xxt-page"], function(angular, uiPage) {
     var siteId, sns, matter, ngApp;
     siteId = location.search.match(/site=([^&]*)/)[1];
     sns = location.search.match(/sns=([^&]*)/)[1];
-    matter = location.search.match(/matter=([^&]*)/)[1];
+    matter = location.search.match(/matter=([^&]*)/) ? location.search.match(/matter=([^&]*)/)[1] : '';
     ngApp = angular.module('follow', []);
     ngApp.config(['$controllerProvider', function($cp) {
         ngApp.provider = {
@@ -12,7 +12,7 @@ define(["angular", "xxt-page"], function(angular, uiPage) {
     }]);
     ngApp.controller('ctrlMain', ['$scope', '$http', function($scope, $http) {
         $scope.errmsg = '';
-        $http.get('/rest/site/fe/followPageGet?site=' + siteId + '&sns=' + sns + '&matter=' + matter).success(function(rsp) {
+        $http.get('/rest/site/fe/user/follow/pageGet?site=' + siteId + '&sns=' + sns + '&matter=' + matter).success(function(rsp) {
             if (rsp.err_code !== 0) {
                 $scope.errmsg = rsp.err_msg;
                 return;

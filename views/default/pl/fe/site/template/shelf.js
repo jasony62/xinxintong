@@ -4,7 +4,7 @@ define(['frame'], function(ngApp) {
 		$scope.criteria = criteria = {
 			scope: 'S'
 		};
-		$scope.page = {
+		$scope.page = page = {
 			size: 21,
 			at: 1,
 			total: 0,
@@ -16,6 +16,9 @@ define(['frame'], function(ngApp) {
 			criteria.scope = scope;
 			if (scope === 'share2Me') {
 				$scope.searchShare2Me()
+			} else if(scope === 'M') {
+				$scope.listLatest();
+				$scope.listPublish();
 			} else {
 				$scope.searchTemplate();
 			}
@@ -64,21 +67,7 @@ define(['frame'], function(ngApp) {
 				$scope.page.total = rsp.data.total;
 			});
 		};
-		$scope.createEnrollTemplate = function() {
-
-		}
-		$scope.searchTemplate();
-	}]);
-	ngApp.provider.controller('ctrlLatest', ['$scope', 'http2', function($scope, http2) {
-		$scope.page = page = {
-			size: 21,
-			at: 1,
-			total: 0,
-			j: function() {
-          return 'page=' + this.at + '&size=' + this.size;
-       }
-		};
-		$scope.list = function(pageAt) {
+		$scope.listLatest = function(pageAt) {
 			var url = '/rest/pl/fe/template/enroll/list?matterType=enroll';
 			url += '&site=' + $scope.siteId;
 			url += '&pub=N';
@@ -91,20 +80,7 @@ define(['frame'], function(ngApp) {
 				$scope.page.total = rsp.data.total;
 			});
 		};
-		$scope.edit = function(template) {
-			location.href = '/rest/pl/fe/template?site=' + $scope.siteId + '&tid=' + template.id;
-		}
-	}]);
-	ngApp.provider.controller('ctrlLatest', ['$scope', 'http2', function($scope, http2) {
-		$scope.page = page = {
-			size: 21,
-			at: 1,
-			total: 0,
-			j: function() {
-          return 'page=' + this.at + '&size=' + this.size;
-       }
-		};
-		$scope.list = function(pageAt) {
+		$scope.listPublish = function(pageAt) {
 			var url = '/rest/pl/fe/template/enroll/list?matterType=enroll';
 			url += '&site=' + $scope.siteId;
 			url += '&pub=Y';
@@ -117,11 +93,18 @@ define(['frame'], function(ngApp) {
 				$scope.page.total = rsp.data.total;
 			});
 		};
+		$scope.edit = function(template) {
+			location.href = '/rest/pl/fe/template?site=' + $scope.siteId + '&tid=' + template.id;
+		}
 		$scope.message = function(template) {
 			location.href = '/rest/pl/fe/template?site=' + $scope.siteId + '&tid=' + template.id;
 		}
 		$scope.filter = function() {
 
 		}
-	}])
+		$scope.createEnrollTemplate = function() {
+
+		}
+		$scope.searchTemplate();
+	}]);
 });

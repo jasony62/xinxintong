@@ -94,8 +94,9 @@ class main extends \pl\fe\base {
 	 *
 	 * @param id $templte
 	 * @param string $site 收藏模版的站点ID逗号分隔的字符串
+	 * @param string $version 收藏模版的具体版本号
 	 */
-	public function favor_action($template, $site) {
+	public function favor_action($template, $site, $version = null) {
 		if (false === ($user = $this->accountUser())) {
 			return new \ResponseTimeout();
 		}
@@ -109,7 +110,7 @@ class main extends \pl\fe\base {
 		$modelSite = $this->model('site');
 		$siteIds = explode(',', $site);
 		foreach ($siteIds as $siteId) {
-			$modelTmpl->favorBySite($user, $template, $siteId);
+			$modelTmpl->favorBySite($user, $template, $siteId, $version);
 		}
 
 		return new \ResponseData('ok');
@@ -139,9 +140,10 @@ class main extends \pl\fe\base {
 	 * 在指定站点中使用模版
 	 *
 	 * @param id $templte
-	 * @param string $site 收藏模版的站点ID逗号分隔的字符串
+	 * @param string $site 模版的站点ID逗号分隔的字符串
+	 * @param string $version 使用模版的版本
 	 */
-	public function purchase_action($template, $site) {
+	public function purchase_action($template, $site, $version = null) {
 		if (false === ($user = $this->accountUser())) {
 			return new \ResponseTimeout();
 		}
@@ -155,7 +157,7 @@ class main extends \pl\fe\base {
 		$modelSite = $this->model('site');
 		$siteIds = explode(',', $site);
 		foreach ($siteIds as $siteId) {
-			$modelTmpl->purchaseBySite($user, $template, $siteId);
+			$modelTmpl->purchaseBySite($user, $template, $siteId, $version);
 		}
 
 		return new \ResponseData('ok');

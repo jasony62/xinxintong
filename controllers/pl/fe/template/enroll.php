@@ -31,7 +31,7 @@ class enroll extends \pl\fe\base {
 		$q = [
 			'*',
 			"xxt_template",
-			"siteid = '".$model->escape($site)."'",
+			"siteid = '".$model->escape($site)."' and state = 1",
 		];
 		if($pub === 'N'){
 			$q[2] .=" and pub_version = ''";
@@ -46,15 +46,19 @@ class enroll extends \pl\fe\base {
 			$scenario = $model->escape($scenario);
 			$q[2] .=" and scenario = '{$scenario}'";
 		}
+		if(!empty($scope)){
+			if($scope === 'P'){
+				$q[2] .=" and visible_scope = 'P'";
+				$q2['o'] = 'put_at desc';
+			}else{
+				$q[2] .=" and visible_scope = 'S'";
+				$q2['o'] = 'put_at desc';
+			}
+		}
 
 		$q2 = [
 			'r' => ['o' => ($page - 1) * $size, 'l' => $size],
 		];
-		if (in_array($scope, ['P', 'S'])) {
-			$scope = $model->escape($scope);
-			$q[2] .=" and visible_scope = '{$scope}'";
-			$q2['o'] = 'put_at desc';
-		}
 
 		$orders = $model->query_objs_ss($q, $q2);
 		$q[0] = "count(*)";
@@ -98,7 +102,6 @@ class enroll extends \pl\fe\base {
 
 		$template = $this->model('matter\template')->byId($template->id);
 		/* 记录操作日志 */
-		$template->type = 'template';
 		$this->model('matter\log')->matterOp($site->id, $loginUser, $template, 'C');
 
 		return new \ResponseData($template);
@@ -114,6 +117,7 @@ class enroll extends \pl\fe\base {
 		if (false === ($loginUser = $this->accountUser())) {
 			return new \ResponseTimeout();
 		}
+
 		$version = $this->model('matter\template\enroll')->checkVersion($site, $vid);
 		if($version[0]){
 			return new \ResponseError('当前版本已发布，不可更改');
@@ -163,7 +167,6 @@ class enroll extends \pl\fe\base {
 		if ($rst) {
 			// 记录操作日志
 			$matter = $modelTmp->byId($tid, $vid, ['fields'=>'id,title,summary,pic','cascaded'=>'N']);
-			$matter->type = 'template';
 			$this->model('matter\log')->matterOp($site, $loginUser, $matter, 'U');
 		}
 
@@ -223,51 +226,40 @@ class enroll extends \pl\fe\base {
 
 		// 记录操作日志
 		$matter = $this->model('matter\template')->byId($tid, $vid, ['fields'=>'id,title,summary,pic','cascaded'=>'N']);
-		$matter->type = 'template';
 		$this->model('matter\log')->matterOp($site, $loginUser, $matter, 'U');
 		return new \ResponseData($rst);
 	}
 	/**
-	 * 发布模版
+	 * 发布模版,发布最新编辑的版本
 	 *
 	 * @param string $site
 	 * @param string $scope [Platform|Site]
 	 */
-	public function put_action($site, $tid, $vid) {
+	public function put_action($site, $tid) {
 		if (false === ($loginUser = $this->accountUser())) {
 			return new \ResponseTimeout();
 		}
-		$version = $this->model('matter\template\enroll')->checkVersion($site, $vid);
-		if($version[0]){
+
+		$modelTmp = $this->model('matter\template');
+		if(false === ($template = $modelTmp->byId($tid, null, ['cascaded'=>'N'])) ){
+			return new \ResponseError('模板获取失败，请检查参数');
+		}
+
+		if($template->pub_version === $template->last_version){
 			return new \ResponseError('当前版本已发布');
 		}
-
 		/* 发布模版 */
-		$modelTmp = $this->model('matter\template');
-		$template = $modelTmp->byId($tid, $vid, ['cascaded'=>'N']);
-		
-		$version = null;
-		foreach($template->versions as $v){
-			if($v->id === $vid){
-				$version = $v;
-			}
-		}
-		if(empty($version)){
-			return new \ResponseError('版本获取失败');
-		}
-
-		//发布模板
 		$current = time();
 		$rst = $modelTmp->update(
 				'xxt_template',
-				['put_at' => $current, 'pub_version' => $version->version],
+				['put_at' => $current, 'pub_version' => $template->last_version],
 				['id' => $tid]
 			);
 		if($rst){
 			$modelTmp->update(
 				'xxt_template_enroll',
 				['pub_status' => 'Y'],
-				['id' => $vid]
+				['version' => $template->last_version, 'template_id' => $tid]
 			);
 		}
 
@@ -287,15 +279,15 @@ class enroll extends \pl\fe\base {
 	 * @param string $site
 	 * @param string $scope [Platform|Site]
 	 */
-	public function unPut_action($site, $tid, $vid) {
+	public function unPut_action($site, $tid) {
 		if (false === ($loginUser = $this->accountUser())) {
 			return new \ResponseTimeout();
 		}
-		$version = $this->model('matter\template\enroll')->checkVersion($site, $vid);
-		if(!$version[0]){
-			return new \ResponseError('当前版本未发布');
-		}
 
+		$modelTmp = $this->model('matter\template');
+		if(false === ($template = $modelTmp->byId($tid, null, ['cascaded'=>'N'])) ){
+			return new \ResponseError('模板获取失败，请检查参数');
+		}
 		//取消发布模板
 		$current = time();
 		$rst = $modelTmp->update(
@@ -307,6 +299,41 @@ class enroll extends \pl\fe\base {
 		// 记录操作日志
 		$this->model('matter\log')->matterOp($site, $loginUser, $template, 'unPut');
 		return new \ResponseData($rst);
+	}
+	/**
+	 * [remove_action 删除模板]
+	 * @param  [type] $site [description]
+	 * @param  [type] $tid  [description]
+	 * @return [type]       [description]
+	 */
+	public function remove_action($site, $tid){
+		// if (false === ($loginUser = $this->accountUser())) {
+		// 	return new \ResponseTimeout();
+		// }
+
+		// $modelTmp = $this->model('matter\template');
+		// if(false === ($template = $modelTmp->byId($tid, null, ['cascaded'=>'N'])) ){
+		// 	return new \ResponseError('模板获取失败，请检查参数');
+		// }
+		// //删除模板
+		// $rst = $modelTmp->update(
+		// 		'xxt_template',
+		// 		['state' => 0],
+		// 		['id' => $tid]
+		// 	);
+		// if($rst){
+		// 	 $modelTmp->update(
+		// 		'xxt_template_enroll',
+		// 		['state' => 0],
+		// 		['template_id' => $tid]
+		// 	);
+		// }
+		// //删除日志
+
+		// // 记录操作日志
+		// $this->model('matter\log')->matterOp($site, $loginUser, $template, 'remove');
+		// return new \ResponseData($rst);
+		return false;
 	}
 	/**
 	 * 创建默认的模板页面

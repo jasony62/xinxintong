@@ -321,17 +321,22 @@ class template_model extends \TMS_MODEL {
 	 * 是否站点已经收藏模版
 	 */
 	public function isFavorBySite(&$template, $siteId) {
+		$options = array(
+				'siteid' => $siteId,
+				'template_id' => $template->id,
+				'favor' => 'Y'
+			);
 		$q = [
 			'count(*)',
 			'xxt_template_order',
-			"siteid='{$siteId}' and template_id='{$template->id}' and favor='Y'",
+			$options
 		];
 		return 0 < (int) $this->query_val_ss($q);
 	}
 	/**
 	 * 站点收藏模版
 	 */
-	public function favorBySite(&$user, &$template, $siteId) {
+	public function favorBySite(&$user, &$template, $siteId, $version) {
 		if ($this->isFavorBySite($template, $siteId)) {
 			return true;
 		}
@@ -341,6 +346,7 @@ class template_model extends \TMS_MODEL {
 		$order->buyer = $user->id;
 		$order->buyer_name = $user->name;
 		$order->template_id = $template->id;
+		$order->template_version = empty($version)? $template->pub_version : $this->escape($version);
 		$order->from_siteid = $template->siteid;
 		$order->from_site_name = $template->site_name;
 		$order->matter_id = $template->matter_id;
@@ -386,7 +392,7 @@ class template_model extends \TMS_MODEL {
 	/**
 	 * 站点使用模版
 	 */
-	public function purchaseBySite(&$user, &$template, $siteId) {
+	public function purchaseBySite(&$user, &$template, $siteId, $version) {
 		if ($this->isPurchaseBySite($template, $siteId)) {
 			return true;
 		}
@@ -396,6 +402,7 @@ class template_model extends \TMS_MODEL {
 		$order->buyer = $user->id;
 		$order->buyer_name = $user->name;
 		$order->template_id = $template->id;
+		$order->template_version = empty($version)? $template->pub_version : $this->escape($version);
 		$order->from_siteid = $template->siteid;
 		$order->from_site_name = $template->site_name;
 		$order->matter_id = $template->matter_id;

@@ -1,0 +1,67 @@
+<?php
+namespace site\fe\matter\enroll\preview;
+/**
+ * 登记活动预览
+ */
+class main extends \TMS_CONTROLLER {
+	/**
+	 *
+	 */
+	public function get_access_rule() {
+		$ruleAction = [
+			'rule_type' => 'black',
+		];
+
+		return $ruleAction;
+	}
+	/**
+	 *
+	 */
+	public function index_action() {
+		\TPL::output('/site/fe/matter/enroll/preview');
+		exit;
+	}
+	/**
+	 * 返回登记模板
+	 *
+	 * @param string $site
+	 * @param string $template
+	 * @param string $page page's name
+	 */
+	public function get_action($site, $tid, $vid, $page) {
+		$params = array();
+
+		$modelTmp = $this->model('matter\template');
+
+		/* 登记活动定义 */
+		$template = $modelTmp->byId($tid, $vid, ['cascaded' => 'N']);
+		if ($template === false) {
+			return new \ResponseError('指定的登记活动不存在，请检查参数是否正确');
+		}
+		$params['app'] = &$template;
+
+		/* 当前访问用户的基本信息 */
+		$user = new \stdClass;
+		$params['user'] = $user;
+
+		/* 计算打开哪个页面 */
+		$modelPage = $this->model('matter\enroll\page');
+		$aid = 'template:'.$template->version;
+		$oOpenPage = $modelPage->byName($aid, $page);
+		if (empty($oOpenPage)) {
+			return new \ResponseError('页面不存在');
+		}
+		$params['page'] = $oOpenPage;
+
+		return new \ResponseData($params);
+	}
+	/**
+	 *
+	 */
+	protected function outputError($err, $title = '程序错误') {
+		\TPL::assign('title', $title);
+		\TPL::assign('body', $err);
+		\TPL::output('error');
+		exit;
+	}
+}

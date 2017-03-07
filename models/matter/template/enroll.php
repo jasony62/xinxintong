@@ -5,7 +5,7 @@ namespace matter\template;
  */
 class enroll_model extends \TMS_MODEL {
 	/**
-	 * 创建版本
+	 * 创建模板
 	 */
 	public function create(&$site, $user, &$data){
 		$current = time();

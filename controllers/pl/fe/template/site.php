@@ -51,8 +51,11 @@ class site extends \pl\fe\base {
 		if (!empty($scenario)) {
 			$q[2]['scenario'] = $scenario;
 		}
-		if ($scope === 'S') {
+		if ($scope === 'S' || $scope === 'favor') {
 			$q[2]['siteid'] = $site;
+		}
+		if($scope === 'purchase'){
+			$q[2]['buyer'] = $loginUser->id;
 		}
 
 		$q2 = [

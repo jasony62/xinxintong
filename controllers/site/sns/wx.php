@@ -261,7 +261,7 @@ class wx extends \member_base {
 				$nickname = json_encode($fanInfo[1]->nickname);
 				$nickname = preg_replace('/\\\ud[0-9a-f]{3}/i', '', $nickname);
 				$nickname = json_decode($nickname);
-				$nickname = trim($modelFan->escape($fanInfo[1]->nickname));
+				$nickname = $modelFan->escape(trim($nickname));
 				$u = [
 					'nickname' => empty($nickname) ? '未知' : $nickname,
 					'sex' => $fanInfo[1]->sex,
@@ -270,13 +270,13 @@ class wx extends \member_base {
 				isset($fanInfo[1]->headimgurl) && $u['headimgurl'] = $fanInfo[1]->headimgurl;
 				isset($fanInfo[1]->province) && $u['province'] = $fanInfo[1]->province;
 				isset($fanInfo[1]->country) && $u['country'] = $fanInfo[1]->country;
-				$modelFan->update('xxt_site_wxfan', $u, "siteid='$siteId' and openid='$openid'");
+				$modelFan->update('xxt_site_wxfan', $u, ["siteid" => $siteId, "openid" => $openid]);
 				/*更新站点用户信息 @todo 总是要更新吗？*/
 				if (!empty($fan->userid)) {
 					$modelFan->update(
 						'xxt_site_account',
 						['nickname' => $u['nickname'], 'headimgurl' => $u['headimgurl']],
-						"uid='$fan->userid'"
+						["uid" => $fan->userid]
 					);
 				}
 			} else {
@@ -309,8 +309,8 @@ class wx extends \member_base {
 		$unsubscribeAt = time();
 		$rst = $this->model()->update(
 			'xxt_site_wxfan',
-			array('unsubscribe_at' => $unsubscribeAt),
-			"siteid='$siteId' and openid='$openid'"
+			['unsubscribe_at' => $unsubscribeAt],
+			["siteid" => $siteId, "openid" => $openid]
 		);
 
 		return $rst;

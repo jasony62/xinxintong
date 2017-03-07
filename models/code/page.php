@@ -165,7 +165,7 @@ class page_model extends \TMS_MODEL {
 	 */
 	public function create($siteId, $creater, $data = array()) {
 		$current = time();
-		$page = array(
+		$page = [
 			'siteid' => $siteId,
 			'name' => uniqid(),
 			'creater' => $creater,
@@ -180,7 +180,7 @@ class page_model extends \TMS_MODEL {
 			'html' => isset($data['html']) ? $this->escape($data['html']) : '',
 			'css' => isset($data['css']) ? $this->escape($data['css']) : '',
 			'js' => isset($data['js']) ? $this->escape($data['js']) : '',
-		);
+		];
 
 		$page['id'] = $this->insert('xxt_code_page', $page, true);
 

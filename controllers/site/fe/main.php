@@ -44,6 +44,59 @@ class main extends base {
 		return new \ResponseData($param);
 	}
 	/**
+	 * 进入引导关注页
+	 */
+	public function follow_action() {
+		\TPL::output('/site/fe/follow');
+		exit;
+	}
+	/**
+	 *
+	 * 要求关注页面定义
+	 *
+	 * @param string $siteId
+	 * @param string $snsName
+	 * @param string $matter
+	 *
+	 */
+	public function followPageGet_action($site, $sns, $matter = null) {
+		$siteId = $site;
+		$modelSns = $this->model('sns\\' . $sns);
+		/* 公众号配置信息 */
+		$snsConfig = $modelSns->bySite($siteId, ['fields' => 'joined,qrcode,follow_page_id,follow_page_name']);
+		if ($snsConfig === false || $snsConfig->joined === 'N') {
+			$siteId = 'platform';
+			$snsConfig = $modelSns->bySite('platform', ['fields' => 'joined,qrcode,follow_page_id,follow_page_name']);
+		}
+		if (empty($snsConfig->follow_page_name)) {
+			$page = new \stdClass;
+			if ($siteId !== 'platform') {
+				$site = $this->model('site')->byId($siteId);
+				$page->html = '请关注公众号：' . $site->name;
+			}
+		} else {
+			$page = $this->model('code\page')->lastPublishedByName($siteId, $snsConfig->follow_page_name);
+		}
+		$param = [
+			'page' => $page,
+			'snsConfig' => $snsConfig,
+		];
+
+		/* 访问素材信息 */
+		if (!empty($matter)) {
+			$matter = explode(',', $matter);
+			if (count($matter) === 2) {
+				$modelQrcode = $this->model('sns\\' . $sns . '\\call\qrcode');
+				$qrcodes = $modelQrcode->byMatter($matter[0], $matter[1]);
+				if (count($qrcodes) === 1) {
+					$param['matterQrcode'] = $qrcodes[0];
+				}
+			}
+		}
+
+		return new \ResponseData($param);
+	}
+	/**
 	 * 获得站点自定义用户定义
 	 *
 	 */

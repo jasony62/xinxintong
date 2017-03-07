@@ -24,15 +24,16 @@ class page extends \pl\fe\base {
 
 		$data = $this->_makePage($site, $template);
 
-		$code = \TMS_APP::model('code\page')->create($site, $user->id, $data);
+		$modelPage = $this->model('code\page');
+		$code = $modelPage->create($site, $user->id, $data);
 
-		$rst = $this->model()->update(
+		$rst = $modelPage->update(
 			'xxt_site_yx',
-			array(
+			[
 				'follow_page_id' => $code->id,
 				'follow_page_name' => $code->name,
-			),
-			"siteid='{$site->id}'"
+			],
+			["siteid" => $site->id]
 		);
 
 		return new \ResponseData($code);

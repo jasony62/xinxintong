@@ -1,5 +1,5 @@
 <?php
-namespace site\fe\matter\enroll\preview;
+namespace site\fe\matter\template\enroll\preview;
 /**
  * 登记活动预览
  */
@@ -28,15 +28,14 @@ class main extends \TMS_CONTROLLER {
 	 * @param string $template
 	 * @param string $page page's name
 	 */
-	public function get_action($site, $tid, $vid, $page) {
+	public function get_action($site, $tid, $vid = null, $page) {
 		$params = array();
 
 		$modelTmp = $this->model('matter\template');
 
 		/* 登记活动定义 */
-		$template = $modelTmp->byId($tid, $vid, ['cascaded' => 'N']);
-		if ($template === false) {
-			return new \ResponseError('指定的登记活动不存在，请检查参数是否正确');
+		if (false === ($template = $modelTmp->byId($tid, $vid, ['cascaded' => 'N']))) {
+			return new \ResponseError('指定的模板不存在，请检查参数是否正确');
 		}
 		$params['app'] = &$template;
 

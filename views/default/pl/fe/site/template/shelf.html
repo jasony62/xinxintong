@@ -81,7 +81,7 @@
             </div>
         </div>
         <div class='col-md-12' ng-if="criteria.scope =='M'">
-            <div class='latest' ng-controller='ctrlLatest'>
+            <div class='latest'>
                 <nav class='navbar navbar-default tms-panel-heading'>
                     <div class="navbar-header">
                         <span class="navbar-brand">未发布的模板</span>
@@ -90,8 +90,8 @@
                 <div class='tms-panel-body'>
                     <div class='col-md-4' ng-repeat='l in latests'>
                         <div class='thumbnail template'>
-                            <h4 class='title' ng-bind="l.matter_title"></h4>
-                            <p class='summary' ng-bind="l.matter_summary"></p>
+                            <h4 class='title' ng-bind="l.title"></h4>
+                            <p class='summary' ng-bind="l.summary"></p>
                             <div class='heading-pic' heading-pic ng-if="l.pic">
                                 <img ng-src='{{l.pic}}'>
                             </div>
@@ -106,7 +106,7 @@
                     </div>
                 </div>
             </div>
-            <div class='publish' ng-controller='ctrlPublish'>
+            <div class='publish'>
                 <nav class='navbar navbar-default tms-panel-heading'>
                     <div class="navbar-header">
                         <span class="navbar-brand">模板列表</span>
@@ -121,8 +121,8 @@
                 <div class='tms-panel-body'>
                     <div class='col-md-4' ng-repeat='p in publishs'>
                         <div class='thumbnail template'>
-                            <h4 class='title' ng-bind="p.matter_title"></h4>
-                            <p class='summary' ng-bind="p.matter_summary"></p>
+                            <h4 class='title' ng-bind="p.title"></h4>
+                            <p class='summary' ng-bind="p.summary"></p>
                             <div class='heading-pic' heading-pic ng-if="p.pic">
                                 <img ng-src='{{p.pic}}'>
                             </div>

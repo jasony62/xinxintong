@@ -103,7 +103,9 @@ define(['frame'], function(ngApp) {
 
 		}
 		$scope.createEnrollTemplate = function() {
-
+			http2.get('/rest/pl/fe/template/enroll/create?site=' + $scope.siteId, function(rsp) {
+          location.href = '/rest/pl/fe/template/enroll?site=' + $scope.siteId + '&id=' + rsp.data.id;
+      });
 		}
 		$scope.searchTemplate();
 	}]);

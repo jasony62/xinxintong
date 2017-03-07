@@ -1,11 +1,11 @@
 <?php
-namespace pl\fe\matter\tmplmsg;
+namespace pl\fe\site;
 
 require_once dirname(dirname(__FILE__)) . '/base.php';
 /**
  * 通知消息
  */
-class main extends \pl\fe\matter\base {
+class tmplmsg extends \pl\fe\base {
 	/**
 	 * @param int $id
 	 */
@@ -166,8 +166,12 @@ class main extends \pl\fe\matter\base {
 			return new \ResponseTimeout();
 		}
 
-		$proxy=\TMS_APP::M('pl\sns\wx\proxy');
+		$config = $this->model('sns\wx')->bySite($site);
+		if (!$config || $config->joined === 'N') {
+			return new \ResponseError('未与微信公众号连接，无法同步微信模板消息!');
+		}
 
+		$proxy=$this->model('sns\wx\proxy',$config);
 		$rst=$proxy->templateList();
 
 		if($rst[0]===false){
@@ -183,6 +187,7 @@ class main extends \pl\fe\matter\base {
 
 		foreach ($templates as $k => $v) {
 			$d['templateid']=$v->template_id;
+			$tmp[]=$v->template_id;
 			$d['title']=$v->title;
 			$d['example']=$v->example;
 			//同步模板
@@ -194,7 +199,28 @@ class main extends \pl\fe\matter\base {
 			//同步参数
 			$content=$v->content;
 			$p['tmplmsg_id']=$id;
+			$c=$v->content;
+			//按行获取字符串
+			preg_match_all("/.+[\r\n]/", $c, $r1);
+			//去掉空行的字符串
+			$r1[0]=array_filter($r1[0]);
 			
+			foreach ($r1[0] as $k1 => $v1) {
+				$arr=explode(':', $v1);
+				if(isset($arr[1])){
+					$p['pname']=substr(trim($arr[1]),2,-7);
+					$p['plabel']=$arr[0];
+				}else{
+					$p['pname']=substr(trim($v1),2,-7);
+					$p['plabel']='';
+				}
+
+				if($pid=$proxy->query_val_ss(['id','xxt_tmplmsg_param',['siteid'=>$site,'tmplmsg_id'=>$p['tmplmsg_id'],'pname'=>$p['pname']]])){
+					$proxy->update('xxt_tmplmsg_param',$p,"id='$pid'");
+				}else{
+					$proxy->insert('xxt_tmplmsg_param',$p);
+				}
+			}
 		}
 	}
 }

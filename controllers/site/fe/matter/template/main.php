@@ -1,5 +1,5 @@
 <?php
-namespace site\fe\matter\template\enroll;
+namespace site\fe\matter\template;
 
 /**
  * 模版

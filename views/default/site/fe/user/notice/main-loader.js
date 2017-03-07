@@ -19,6 +19,7 @@ window.loading = {
                 "jQuery": "/static/js/jquery.min",
                 "bootstrap": "/static/js/bootstrap.min",
                 "angular": "/static/js/angular.min",
+                "angular-sanitize": "/static/js/angular-sanitize.min",
                 "ui-bootstrap": "/static/js/ui-bootstrap-tpls.min",
                 "main": "/views/default/site/fe/user/notice/main",
             },
@@ -28,7 +29,7 @@ window.loading = {
                 },
             },
             urlArgs: function(id, url) {
-                if (/domReady|jQuery|bootstrap|angular|ui-bootstrap/.test(id)) {
+                if (/domReady|jQuery|bootstrap|angular|angular-sanitize|ui-bootstrap/.test(id)) {
                     return '';
                 }
                 return "?bust=" + (timestamp * 1);
@@ -37,8 +38,10 @@ window.loading = {
         require(['jQuery'], function() {
             require(['bootstrap'], function() {
                 require(['angular'], function() {
-                    require(['ui-bootstrap'], function() {
-                        require(['main'], function() {});
+                    require(['angular-sanitize'], function() {
+                        require(['ui-bootstrap'], function() {
+                            require(['main'], function() {});
+                        });
                     });
                 });
             });

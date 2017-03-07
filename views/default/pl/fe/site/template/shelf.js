@@ -7,7 +7,10 @@ define(['frame'], function(ngApp) {
 		$scope.page = {
 			size: 21,
 			at: 1,
-			total: 0
+			total: 0,
+			j: function() {
+          return 'page=' + this.at + '&size=' + this.size;
+       }
 		};
 		$scope.changeScope = function(scope) {
 			criteria.scope = scope;
@@ -61,6 +64,64 @@ define(['frame'], function(ngApp) {
 				$scope.page.total = rsp.data.total;
 			});
 		};
+		$scope.createEnrollTemplate = function() {
+
+		}
 		$scope.searchTemplate();
 	}]);
+	ngApp.provider.controller('ctrlLatest', ['$scope', 'http2', function($scope, http2) {
+		$scope.page = page = {
+			size: 21,
+			at: 1,
+			total: 0,
+			j: function() {
+          return 'page=' + this.at + '&size=' + this.size;
+       }
+		};
+		$scope.list = function(pageAt) {
+			var url = '/rest/pl/fe/template/enroll/list?matterType=enroll';
+			url += '&site=' + $scope.siteId;
+			url += '&pub=N';
+			url += page.j();
+			if (pageAt) {
+        page.at = pageAt;
+      }
+			http2.get(url, function(rsp) {
+				$scope.latests = rsp.data.templates;
+				$scope.page.total = rsp.data.total;
+			});
+		};
+		$scope.edit = function(template) {
+			location.href = '/rest/pl/fe/template?site=' + $scope.siteId + '&tid=' + template.id;
+		}
+	}]);
+	ngApp.provider.controller('ctrlLatest', ['$scope', 'http2', function($scope, http2) {
+		$scope.page = page = {
+			size: 21,
+			at: 1,
+			total: 0,
+			j: function() {
+          return 'page=' + this.at + '&size=' + this.size;
+       }
+		};
+		$scope.list = function(pageAt) {
+			var url = '/rest/pl/fe/template/enroll/list?matterType=enroll';
+			url += '&site=' + $scope.siteId;
+			url += '&pub=Y';
+			url += page.j();
+			if (pageAt) {
+        page.at = pageAt;
+      }
+			http2.get(url, function(rsp) {
+				$scope.publishs = rsp.data.templates;
+				$scope.page.total = rsp.data.total;
+			});
+		};
+		$scope.message = function(template) {
+			location.href = '/rest/pl/fe/template?site=' + $scope.siteId + '&tid=' + template.id;
+		}
+		$scope.filter = function() {
+
+		}
+	}])
 });

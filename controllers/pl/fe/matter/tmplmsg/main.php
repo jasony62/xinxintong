@@ -179,5 +179,22 @@ class main extends \pl\fe\matter\base {
 		$d['mpid']=$site;
 		$d['creater']=$user->uid;
 		$d['create_at']=time();
+		$p['siteid']=$site;
+
+		foreach ($templates as $k => $v) {
+			$d['templateid']=$v->template_id;
+			$d['title']=$v->title;
+			$d['example']=$v->example;
+			//同步模板
+			if($id=$proxy->query_val_ss(['id','xxt_tmplmsg',['siteid'=>$site,'templateid'=>$v->template_id]])){
+				$proxy->update('xxt_tmplmsg',$d,"id='$id'");
+			}else{
+				$id=$proxy->insert('xxt_tmplmsg',$d);
+			}
+			//同步参数
+			$content=$v->content;
+			$p['tmplmsg_id']=$id;
+			
+		}
 	}
 }

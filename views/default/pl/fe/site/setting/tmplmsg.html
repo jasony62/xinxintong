@@ -1,9 +1,24 @@
 <div class='col-md-12'>
-    <div class='form-inline form-group'>
-        <button class='btn btn-success' ng-click='create()'>新建</button>
-        <button class='btn btn-success' ng-click='SynWx()'>同步微信模板</button>
-        <!--筛选出自定义模板或是微信模板-->
-
+    <!--<div class='form-inline form-group'>-->
+        <!--<button class='btn btn-success' ng-click='create()'>新建</button>-->
+        <!--<button class='btn btn-success' ng-click='SynWx()'>同步微信模板</button>-->
+        <!--&lt;!&ndash;筛选出自定义模板或是微信模板&ndash;&gt;-->
+    <!--</div>-->
+    <div class="form-group clearfix margin-top">
+        <div class="btn-group pull-right " >
+            <button type="button" class="btn btn-default" ng-click='create()'>新建</button>
+            <button type="button" class="btn btn-default"  ng-click='SynWx()'>同步微信模板</button>
+            <div class="btn-group" >
+                <button type="button" class="btn btn-default dropdown-toggle" data-toggle="dropdown" >
+                    筛选
+                    <span class="caret"></span>
+                </button>
+                <ul class="dropdown-menu">
+                    <li><a href="" ng-click="doSearch('creat_temp')">自定义模板</a></li>
+                    <li><a href="" ng-click="doSearch('wx_temp')">微信模板</a></li>
+                </ul>
+            </div>
+        </div>
     </div>
     <div class='row'>
         <div class='col-md-4' ng-repeat='t in tmplmsgs'>
@@ -31,10 +46,11 @@
         </div>
     </div>
     <div class='form-horizontal' ng-if="editing" ng-controller="ctrlSetting">
+        <!--模板id没必要显示出来-->
         <div class='form-group'>
             <label class='col-md-2 control-label' for='title'>模板ID</label>
             <div class='col-md-10'>
-                <input type='text' class='form-control' ng-model='editing.templateid' tms-auto-update tms-wait=1000 tms-update="update('templateid')">
+                <input type='text' class='form-control'  ng-model='editing.templateid' tms-auto-update tms-wait=1000 tms-update="update('templateid')">
             </div>
         </div>
         <div class='form-group'>

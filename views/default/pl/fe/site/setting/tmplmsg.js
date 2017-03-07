@@ -2,9 +2,13 @@ define(['main'], function(ngApp) {
 	'use strict';
 	ngApp.provider.service('serTmplmsg', ['$q', 'http2', function($q, http2) {
 		var _baseURL = '/rest/pl/fe/matter/tmplmsg',
-			_siteId;
+			_siteId,
+			_type;
 		this.setSiteId = function(siteId) {
 			_siteId = siteId;
+		};
+		this.setType = function(type) {
+			_type = type;
 		};
 		this.list = function() {
 			var defer = $q.defer();
@@ -15,7 +19,11 @@ define(['main'], function(ngApp) {
 		};
 		this.create = function() {
 			var defer = $q.defer();
+			var _url = _baseURL;
+			_url += '/create?site=' + _siteId;
+			type && (_url += '&type=' + _type);
 			http2.get(_baseURL + '/create?site=' + _siteId + '', function(rsp) {
+				_type = '';
 				defer.resolve(rsp.data);
 			});
 			return defer.promise;
@@ -66,7 +74,8 @@ define(['main'], function(ngApp) {
 		$scope.edit = function(tmplmsg) {
 			$scope.editing = tmplmsg;
 		};
-		$scope.doSearch = function() {
+		$scope.doSearch = function(type) {
+			type &&( serTmplmsg.setType(type));
 			serTmplmsg.list().then(function(data) {
 				$scope.tmplmsgs = data;
 			});

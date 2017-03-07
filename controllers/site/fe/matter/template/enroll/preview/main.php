@@ -18,7 +18,7 @@ class main extends \TMS_CONTROLLER {
 	 *
 	 */
 	public function index_action() {
-		\TPL::output('/site/fe/matter/enroll/preview');
+		\TPL::output('/site/fe/matter/template/enroll/preview');
 		exit;
 	}
 	/**

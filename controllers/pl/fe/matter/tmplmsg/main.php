@@ -158,10 +158,10 @@ class main extends \pl\fe\matter\base {
 		return new \ResponseData($rst);
 	}
 	/**
-	 * 获取微信公众号的模板列表并更新到本地数据库
+	 * 获取微信公众号的模板列表并同步更新到本地数据库
 	 *
 	 */
-	public function getTemplateList_action($site) {
+	public function synTemplateList_action($site) {
 		if (false === ($user = $this->accountUser())) {
 			return new \ResponseTimeout();
 		}

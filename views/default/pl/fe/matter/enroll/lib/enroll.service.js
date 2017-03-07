@@ -1379,6 +1379,111 @@ define(['require', 'schema', 'page'], function(require, schemaLib, pageLib) {
                 }
             };
         }];
+    }).provider('srvTempApp', function(){
+        function _mapSchemas(app) {
+            var mapOfSchemaByType = {},
+                mapOfSchemaById = {},
+                enrollDataSchemas = [],
+                groupDataSchemas = [],
+                canFilteredSchemas = [];
+
+            app.data_schemas.forEach(function(schema) {
+                mapOfSchemaByType[schema.type] === undefined && (mapOfSchemaByType[schema.type] = []);
+                mapOfSchemaByType[schema.type].push(schema.id);
+                mapOfSchemaById[schema.id] = schema;
+                if (false === /image|file/.test(schema.type)) {
+                    canFilteredSchemas.push(schema);
+                }
+            });
+            // 关联的报名登记项
+            if (app.enrollApp && app.enrollApp.data_schemas) {
+                app.enrollApp.data_schemas.forEach(function(item) {
+                    if (mapOfSchemaById[item.id] === undefined) {
+                        mapOfSchemaById[item.id] = item;
+                        enrollDataSchemas.push(item);
+                    }
+                });
+            }
+            // 关联的分组活动的登记项
+            if (app.groupApp && app.groupApp.data_schemas) {
+                app.groupApp.data_schemas.forEach(function(item) {
+                    if (mapOfSchemaById[item.id] === undefined) {
+                        mapOfSchemaById[item.id] = item;
+                        groupDataSchemas.push(item);
+                    }
+                });
+            }
+
+            app._schemasByType = mapOfSchemaByType;
+            app._schemasById = mapOfSchemaById;
+            app._schemasCanFilter = canFilteredSchemas;
+            app._schemasFromEnrollApp = enrollDataSchemas;
+            app._schemasFromGroupApp = groupDataSchemas;
+        }
+        var _siteId, _appId, _oApp, _getAppDeferred = false;
+        this.config = function(siteId, appId) {
+            _siteId = siteId;
+            _appId = appId;
+        };
+        this.$get = ['$q', 'http2', function($q, http2) {
+            var _self = {
+                tempEnrollGet: function() {
+                    var url, _getAppDeferred = false;
+
+                    if (_getAppDeferred) {
+                        return _getAppDeferred.promise;
+                    }
+                    _getAppDeferred = $q.defer();
+                    url = '/rest/pl/fe/template/get?site=' + _siteId + '&tid=' + _appId;
+                    http2.get(url, function(rsp) {
+                        _oApp = rsp.data;
+                        function _tGet(data,method) {
+                            try {
+                                data.data_schemas = data.data_schemas && data.data_schemas.length ? JSON.parse(data.data_schemas) : [];
+                            } catch (e) {
+                                console.log('data invalid', e, data.data_schemas);
+                                data.data_schemas = [];
+                            }
+                            method(data);
+                            data.data_schemas.forEach(function(schema) {
+                                schemaLib._upgrade(schema);
+                            });
+                            data.pages.forEach(function(page) {
+                                pageLib.enhance(page, data._schemasById);
+                            });
+                        }
+                        _tGet(_oApp, _mapSchemas);
+                        _getAppDeferred.resolve(_oApp);
+                    });
+
+                    return _getAppDeferred.promise;
+                },
+                update: function(names) {
+                    var defer = $q.defer(),
+                        modifiedData = {},
+                        url;
+
+                    angular.isString(names) && (names = [names]);
+                    names.forEach(function(name) {
+                        if (name === 'tags') {
+                            modifiedData.tags = _oApp.tags.join(',');
+                        } else {
+                            modifiedData[name] = _oApp[name];
+                        }
+                    });
+
+                    url = '/rest/pl/fe/template/enroll/update?site=' + _siteId;
+                    url += '&tid=' + _appId;
+                    url += '&vid=' + _oApp.vid;
+                    http2.post(url, modifiedData, function(rsp) {
+                        //noticebox.success('完成保存');
+                        defer.resolve(rsp.data);
+                    });
+                    return defer.promise;
+                },
+            }
+            return _self;
+        }];
     }).controller('ctrlEnrollEdit', ['$scope', '$uibModalInstance', 'record', 'srvEnrollApp', 'srvEnrollRecord', 'srvRecordConverter', function($scope, $uibModalInstance, record, srvEnrollApp, srvEnrollRecord, srvRecordConverter) {
         srvEnrollApp.get().then(function(app) {
             if (record.data) {

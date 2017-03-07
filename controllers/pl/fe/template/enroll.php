@@ -145,7 +145,7 @@ class enroll extends \pl\fe\base {
 			/* 场景设置 */
 			if (isset($pageConfig->scenarioConfig)) {
 				$scenarioConfig = $pageConfig->scenarioConfig;
-				$dataE->scenario_config = json_encode($scenarioConfig);
+				$dataE['scenario_config'] = json_encode($scenarioConfig);
 			}
 		}
 		if(!empty($dataE)){

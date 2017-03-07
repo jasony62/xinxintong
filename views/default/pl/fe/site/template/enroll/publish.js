@@ -68,7 +68,7 @@ define(['frame'], function(ngApp) {
     }]);
     ngApp.provider.controller('ctrlPreview', ['$scope', 'srvEnrollApp', 'srvTempApp', function($scope, srvEnrollApp, srvTempApp) {
         function refresh() {
-            $scope.previewURL = previewURL + '&openAt=' + params.openAt + '&page=' + params.page.name + '&_=' + (new Date() * 1);
+            $scope.previewURL = previewURL + '&page=' + params.page.name + '&_=' + (new Date() * 1);
         }
         var previewURL, params;
         $scope.params = params = {
@@ -86,7 +86,7 @@ define(['frame'], function(ngApp) {
                     url += "&page=" + page.name;
                     location.href = url;
                 };
-                previewURL = '/rest/site/fe/matter/enroll/preview?site=' + app.siteid + '&app=' + app.id + '&start=Y';
+                previewURL = '/rest/site/fe/matter/template/enroll/preview?site=' + app.siteid + '&tid=' + app.id;
                 params.page = app.pages[0];
                 $scope.$watch('params', function() {
                     refresh();

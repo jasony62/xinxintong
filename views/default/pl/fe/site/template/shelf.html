@@ -96,7 +96,7 @@
                                 <img ng-src='{{l.pic}}'>
                             </div>
                             <div class='actions'>
-                                <button class='btn btn-sm btn-success' ng-click='edit(l)'>编辑</button>
+                                <button class='btn btn-sm btn-danger' ng-click='edit(l)'>编辑</button>
                             </div>
                         </div>
                     </div>
@@ -127,7 +127,7 @@
                                 <img ng-src='{{p.pic}}'>
                             </div>
                             <div class='actions'>
-                                <button class='btn btn-sm btn-success' ng-click='message(p)'>管理</button>
+                                <button ng-class="{'btn btn-sm btn-danger':p.last_version == p.pub_version'}" class='btn btn-sm btn-success' ng-click='message(p)'>管理</button>
                             </div>
                         </div>
                     </div>

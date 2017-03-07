@@ -115,11 +115,7 @@ define(['require', 'enrollService'], function(require) {
         });
         $scope.update = function(name) {
             /*srvEnrollApp.update(name);*/
-            console.log($scope.app);
             srvTempApp.update(name);
-        };
-        $scope.shareAsTemplate = function() {
-            templateShop.share($scope.app.siteid, $scope.app);
         };
         srvSite.get().then(function(oSite) {
             $scope.site = oSite;

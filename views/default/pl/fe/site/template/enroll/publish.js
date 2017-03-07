@@ -28,6 +28,9 @@ define(['frame'], function(ngApp) {
             }
             return false;
         };
+        $scope.shareAsTemplate = function() {
+            templateShop.share($scope.app.siteid, $scope.app);
+        };
         $scope.applyToHome = function() {
             var url = '/rest/pl/fe/matter/home/apply?site=' + $scope.app.siteid + '&type=enroll&id=' + $scope.app.id;
             http2.get(url, function(rsp) {
@@ -52,7 +55,17 @@ define(['frame'], function(ngApp) {
             }
         };
     }]);
-
+    ngApp.provider.controller('ctrlTempVersion', ['$scope',function($scope) {
+        $scope.lookTemp = function() {
+            console.log(1);
+        }
+        $scope.createTemp = function() {
+            console.log(2);
+        }
+        $scope.shareUser = function() {
+            console.log(3);
+        }
+    }])
     ngApp.provider.controller('ctrlPreview', ['$scope', 'srvEnrollApp', 'srvTempApp', function($scope, srvEnrollApp, srvTempApp) {
         function refresh() {
             $scope.previewURL = previewURL + '&openAt=' + params.openAt + '&page=' + params.page.name + '&_=' + (new Date() * 1);

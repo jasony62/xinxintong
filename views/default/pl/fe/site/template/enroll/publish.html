@@ -17,6 +17,13 @@
                 </div>
                 <button uib-popover-template="'pageSetting.html'" popover-placement="bottom" popover-append-to-body='true' popover-trigger="outsideClick" class='btn btn-default btn-block'>页面设置 <span class="caret"></span></button>
             </div>
+            <div id='simulator'>
+                <iframe ng-src="{{previewURL}}"></iframe>
+                <div id='simulatorActions'>
+                    <button class='btn btn-default btn-block' ng-disabled="!params.hasPrev" ng-click="prevPage()"><i class='glyphicon glyphicon-arrow-up'>上一页</i></button>
+                    <button class='btn btn-default btn-block' ng-disabled="!params.hasNext" ng-click="nextPage()"><i class='glyphicon glyphicon-arrow-down'>下一页</i></button>
+                </div>
+            </div>
         </div>
     </div>
     <!-- end preview -->
@@ -96,17 +103,18 @@
                 </div>
             </uib-tab>
             <!-- end setting -->
-            <uib-tab index="1">
+            <uib-tab index="1" ng-if='app.versions.length>1' ng-controller='ctrlTempVersion'>
                 <uib-tab-heading><i class="glyphicon glyphicon-th-large"></i> 模板版本</uib-tab-heading>
                 <div class="row">
                     <div class="col-md-4" ng-repeat="t in templates">
                         <input type='checkbox' ng-true-value="'Y'" ng-false-value="'N'" ng-model="rows.allSelected">
                         <span>t.title</span>
-                        <button class='btn btn-xs btn-danger' ng-click='lookTemp(t)'>
+                        <button class='btn btn-xs btn-sucess' ng-click='lookTemp(t)'>
                             查看详情
                         </button>
                     </div>
-                    <button class='btn btn-default btn-block' ng-click="create()">创建新版本</button>
+                    <button class='btn btn-default btn-block' ng-click="createTemp()">创建新版本</button>
+                    <button class='btn btn-default btn-block' ng-click="shareUser()">添加分享人</button>
                 </div>
             </uib-tab>
         </uib-tabset>
@@ -130,3 +138,4 @@
             <input type='checkbox' ng-true-value="'Y'" ng-false-value="'N'" ng-model='app.use_mission_footer' ng-change="update('use_mission_footer');">使用项目页脚</label>
     </div>
 </script>
+

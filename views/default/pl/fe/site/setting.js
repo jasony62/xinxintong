@@ -27,6 +27,7 @@ define(['require'], function(require) {
             .when('/rest/pl/fe/site/setting/mschema', new RouteParam('mschema'))
             .when('/rest/pl/fe/site/setting/admin', new RouteParam('admin', true))
             .when('/rest/pl/fe/site/setting/notice', new RouteParam('notice', true))
+            .when('/rest/pl/fe/site/setting/tmplmsg', new RouteParam('tmplmsg', true))
             .otherwise(new RouteParam('basic'));
     }]);
     ngApp.factory('MemberSchema', function($q, http2) {

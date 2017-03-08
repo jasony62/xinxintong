@@ -240,7 +240,7 @@ class main extends \pl\fe\base {
 		}
 
 		$modelTmp = $this->model('matter\template');
-		$template = $modelTmp->byId($tid, $vid, ['fields'=>'id,title,summary,pic','cascaded'=>'N']);
+		$template = $modelTmp->byId($tid, $vid, ['cascaded'=>'N']);
 
 		$version = $this->model('matter\template\enroll')->checkVersion($site, $vid);
 		if($version[0]){

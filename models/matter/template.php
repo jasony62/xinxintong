@@ -22,7 +22,7 @@ class template_model extends \TMS_MODEL {
 		}
 		$template->type = 'template';
 		//登记活动
-		if($template->matter_type === 'enroll'){
+		if(isset($template->matter_type) && $template->matter_type === 'enroll'){
 			//获取版本
 			$p = [
 				'*',
@@ -174,7 +174,7 @@ class template_model extends \TMS_MODEL {
 				);
 			}
 
-			$template = $this->byId($site->id, $tid);
+			$template = $this->byId($tid);
 		} else {
 			/* 更新模板 */
 			$updated = [
@@ -203,7 +203,7 @@ class template_model extends \TMS_MODEL {
 				);
 			}
 
-			$template = $this->byId($site->id, $template->id);
+			$template = $this->byId($template->id);
 		}
 		// 添加模板接收人
 		// if (!empty($matter->acls)) {

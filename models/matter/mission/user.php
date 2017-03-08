@@ -32,7 +32,7 @@ class user_model extends \TMS_MODEL {
 						if (count($signinRecords)) {
 							$record->signinRecords = [];
 							foreach ($signinRecords as $signinRecord) {
-								if (isset($signinRecord->signin_log)) {
+								if (isset($signinRecord->signin_log) && isset($mapOfSigninApps[$signinRecord->aid])) {
 									$signinApp = $mapOfSigninApps[$signinRecord->aid];
 									$signinRecord->signinLogs = [];
 									foreach ($signinApp->rounds as $round) {

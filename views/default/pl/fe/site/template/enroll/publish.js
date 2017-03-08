@@ -1,6 +1,7 @@
 define(['frame'], function(ngApp) {
     'use strict';
-    ngApp.provider.controller('ctrlPublish', ['$scope', 'http2', 'mediagallery', '$timeout', '$uibModal', 'srvEnrollApp', 'srvTempApp', function($scope, http2, mediagallery, $timeout, $uibModal, srvEnrollApp, srvTempApp) {
+    ngApp.provider.controller('ctrlPublish', ['$scope', 'noticebox', '$q', 'http2', 'mediagallery', '$timeout', '$uibModal', 'srvEnrollApp', 'srvTempApp', function($scope, noticebox, $q, http2, mediagallery, $timeout, $uibModal, srvEnrollApp, srvTempApp) {
+        $scope.subView = false;
         $scope.setPic = function() {
             var options = {
                 callback: function(url) {
@@ -29,6 +30,8 @@ define(['frame'], function(ngApp) {
             return false;
         };
         $scope.shareAsTemplate = function() {
+            var deferred;
+            deferred = $q.defer();
             $uibModal.open({
                 templateUrl: 'templateShare.html',
                 controller: ['$scope', '$uibModalInstance', function($scope, $mi) {
@@ -43,7 +46,7 @@ define(['frame'], function(ngApp) {
                 }],
                 backdrop: 'static'
             }).result.then(function(data) {
-                http2.post('/rest/pl/fe/template/put?site=' + $scope.app.siteid + '&tid=' + $scope.app.id + '&vid=' + $scope.app.vid, data, function(rsp) {
+                http2.post('/rest/pl/fe/template/enroll/put?site=' + $scope.app.siteid + '&tid=' + $scope.app.id, data, function(rsp) {
                     deferred.resolve(rsp.data);
                 });
             });
@@ -55,7 +58,7 @@ define(['frame'], function(ngApp) {
             });*/
         };
         $scope.cancelAsTemplate = function() {
-            var url = '/rest/pl/fe/template/unPut?site=' + $scope.app.siteid + '&tid=' + $scope.app.id + '&vid=' + $scope.app.vid;
+            var url = '/rest/pl/fe/template/enroll/unPut?site=' + $scope.app.siteid + '&tid=' + $scope.app.id;
             http2.get(url, function(rsp) {
                 noticebox.success('完成撤销！');
             });
@@ -72,7 +75,7 @@ define(['frame'], function(ngApp) {
             }*/
         };
     }]);
-    ngApp.provider.controller('ctrlTempVersion', ['$scope',function($scope) {
+    ngApp.provider.controller('ctrlTempVersion', ['$scope', 'srvTempApp', function($scope, srvTempApp) {
         $scope.lookTemp = function() {
             console.log(1);
         }
@@ -83,7 +86,7 @@ define(['frame'], function(ngApp) {
             console.log(3);
         }
         srvTempApp.tempEnrollGet().then(function(app) {
-
+            $scope.templates = app.versions;
         });
     }]);
     ngApp.provider.controller('ctrlPreview', ['$scope', 'srvEnrollApp', 'srvTempApp', function($scope, srvEnrollApp, srvTempApp) {

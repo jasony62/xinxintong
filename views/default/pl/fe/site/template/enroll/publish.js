@@ -32,16 +32,13 @@ define(['frame'], function(ngApp) {
         $scope.shareAsTemplate = function() {
             srvTempApp.shareAsTemplate();
         };
-        $scope.applyToHome = function() {
-            /*var url = '/rest/pl/fe/matter/home/apply?site=' + $scope.app.siteid + '&type=enroll&id=' + $scope.app.id;
-            http2.get(url, function(rsp) {
-                noticebox.success('完成申请！');
-            });*/
+        $scope.applyToHome = function(matter) {
+            srvTempApp.applyTome(matter);
         };
         $scope.cancelAsTemplate = function() {
             srvTempApp.cancelAsTemplate();
         };
-        $scope.remove = function() {
+        $scope.removeAsTemplate = function() {
             /*if (window.confirm('确定删除活动？')) {
                 srvEnrollApp.remove().then(function() {
                     if ($scope.app.mission) {
@@ -54,18 +51,16 @@ define(['frame'], function(ngApp) {
         };
     }]);
     ngApp.provider.controller('ctrlTempVersion', ['$scope', 'srvTempApp', function($scope, srvTempApp) {
-        $scope.lookTemp = function() {
-            console.log(1);
+        var templates;
+        $scope.lookTemp = function(version) {
+            location.href = '/rest/pl/fe/template/detail?site=' + version.siteid + '&vid=' + vid;
         }
-        $scope.createTemp = function() {
-            console.log(2);
+        $scope.createVersion = function() {
+           srvTempApp.createVersion();
         }
         $scope.shareUser = function() {
             console.log(3);
         }
-        srvTempApp.tempEnrollGet().then(function(app) {
-            $scope.templates = app.versions;
-        });
     }]);
     ngApp.provider.controller('ctrlPreview', ['$scope', 'srvEnrollApp', 'srvTempApp', function($scope, srvEnrollApp, srvTempApp) {
         function refresh() {

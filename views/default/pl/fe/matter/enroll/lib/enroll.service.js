@@ -1481,6 +1481,14 @@ define(['require', 'schema', 'page'], function(require, schemaLib, pageLib) {
                     });
                     return defer.promise;
                 },
+                createVersion: function() {
+                    var url = '/rest/pl/fe/template/createVersion?site=' + _siteId;
+                        url += '&tid=' + _appId;
+                        url += '&matterType=' + _oApp.matter_type;
+                    http2.get(url, function(rsp) {
+                        location.href = '/rest/pl/fe/template/enroll?site=' + _siteId + '&id=' + _appId;
+                    });
+                },
                 shareAsTemplate: function() {
                     var deferred;
                     deferred = $q.defer();
@@ -1498,15 +1506,22 @@ define(['require', 'schema', 'page'], function(require, schemaLib, pageLib) {
                         }],
                         backdrop: 'static'
                     }).result.then(function(data) {
-                        http2.post('/rest/pl/fe/template/putCreate?site=' + _oApp.siteid + '&tid=' + _oApp.id, data, function(rsp) {
+                        http2.post('/rest/pl/fe/template/putCreate?site=' + _siteId + '&tid=' + _appId, data, function(rsp) {
                             deferred.resolve(rsp.data);
                         });
                     });
                 },
                 cancelAsTemplate: function() {
-                    var url = '/rest/pl/fe/template/unPut?site=' + $scope.app.siteid + '&tid=' + $scope.app.id;
+                    var url = '/rest/pl/fe/template/unPut?site=' + _siteId + '&tid=' + _appId;
                     http2.get(url, function(rsp) {
                         noticebox.success('完成撤销！');
+                    });
+                },
+                applyHome: function() {
+                    var url = '/rest/pl/fe/template/pushHome?site=' + _siteId;
+                        url += '&tid=' + _appId;
+                    http2.get(url, function(rsp) {
+                        noticebox.success('完成申请！');
                     });
                 },
             }

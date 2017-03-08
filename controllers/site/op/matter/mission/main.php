@@ -28,6 +28,15 @@ class main extends \site\op\base {
 		if ($mission === false) {
 			return new \ResponseError('指定的对象不存在');
 		}
+		/* 关联的用户名单活动 */
+		if ($mission->user_app_id) {
+			if ($mission->user_app_type === 'enroll') {
+				$mission->userApp = $this->model('matter\enroll')->byId($mission->user_app_id, ['cascaded' => 'N']);
+			} else if ($mission->user_app_type === 'signin') {
+				$mission->userApp = $this->model('matter\signin')->byId($mission->user_app_id, ['cascaded' => 'N']);
+			}
+		}
+
 		$params['mission'] = &$mission;
 		/* 页面定义 */
 		$templateDir = TMS_APP_TEMPLATE . '/site/op/matter/mission';

@@ -74,7 +74,7 @@
                         <th style='width:80px'>审核通过</th>
                         <th ng-if="mission.userApp.type==='enroll'">签到记录</th>
                         <th>所属分组</th>
-                        <th style='width:140px' ng-if="app.tags.length">标签</th>
+                        <th style='width:140px' ng-if="mission.userApp.tags.length">标签</th>
                         <th style='width:140px'>备注</th>
                     </tr>
                 </thead>
@@ -103,7 +103,7 @@
                             </div>
                         </td>
                         <td class='group'><div ng-repeat="gr in user.groupRecords">{{gr.app}}：{{gr.round_title}}</div></td>
-                        <td ng-if="app.tags.length">{{user.tags}}</td>
+                        <td ng-if="mission.userApp.tags.length">{{user.tags}}</td>
                         <td>{{user.comment}}</td>
                     </tr>
                 </tbody>

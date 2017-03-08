@@ -6,13 +6,6 @@ require_once dirname(dirname(__FILE__)) . '/base.php';
  * 项目控制器
  */
 class user extends \pl\fe\matter\base {
-	private $_modelUsr;
-	/**
-	 *
-	 */
-	public function __construct() {
-		$this->_modelMis = $this->model('matter\mission');
-	}
 	/**
 	 * 返回视图
 	 */

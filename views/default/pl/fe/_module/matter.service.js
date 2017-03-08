@@ -1,4 +1,4 @@
-angular.module('service.matter', ['ngSanitize', 'ui.bootstrap', 'ui.xxt']).
+angular.module('service.matter', ['ngSanitize', 'ui.xxt']).
 provider('srvSite', function() {
     var _siteId, _oSite, _aSns, _aMemberSchemas;
     this.config = function(siteId) {
@@ -223,7 +223,7 @@ provider('srvRecordConverter', function() {
                             data[schema.id] = _memberAttr(record.data.member, schema);
                             break;
                         default:
-                            data[schema.id] = _value2Html(record.data[schema.id], schema);
+                            data[schema.id] = $sce.trustAsHtml(_value2Html(record.data[schema.id], schema));
                     }
                 };
                 record._data = data;

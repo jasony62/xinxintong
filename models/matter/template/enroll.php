@@ -18,7 +18,7 @@ class enroll_model extends \TMS_MODEL {
 			'site_name' => $site->name,
 			'matter_type' => $data->matter_type,
 			'scenario' => isset($data->scenario) ? $data->scenario : '',
-			'title' => isset($data->title)? $data->title : '新模板',
+			'title' => isset($data->title)? $data->title : '新模板('.$data->matter_type.')',
 			'pic' => isset($data->pic)? $data->pic : '',
 			'summary' => isset($data->summary)? $data->summary : '',
 			'coin' => isset($data->coin)? $data->coin : 0,
@@ -28,7 +28,7 @@ class enroll_model extends \TMS_MODEL {
 		$template['id'] = $this->insert('xxt_template', $template, true);
 
 		//新建版本
-		$versionNum = $this->model('matter\template')->getVersion($site->id, $template['id']);
+		$versionNum = $this->model('matter\template')->getVersion($site->id, $template['id'], $data->matter_type);
 		$options = [
 			'version' => $versionNum,
 			'modifier' => $user->id,
@@ -42,7 +42,6 @@ class enroll_model extends \TMS_MODEL {
 			'data_schemas' => isset($data->data_schemas)? $data->data_schemas : '',
 		];
 		$options['id'] = $this->insert('xxt_template_enroll', $options, true);
-
 		$this->update(
 				'xxt_template',
 				['last_version'=>$versionNum],

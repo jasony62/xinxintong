@@ -209,7 +209,7 @@ class template_model extends \TMS_MODEL {
 	private function putMatterEnroll($site, $tid ,$eid, $user, $time = ''){
 		$current = empty($time)? time() : $time;
 		//创建模板版本号
-		$version = $this->getVersion($site, $tid);
+		$version = $this->getVersion($site, $tid, 'enroll');
 		$modelApp = $this->model('matter\enroll');
 
 		$matter = $modelApp->byId($eid);
@@ -423,16 +423,21 @@ class template_model extends \TMS_MODEL {
 	/**
 	 * 创建模板版本号
 	 */
-	public function getVersion($site, $tid){
+	public function getVersion($site, $tid, $matterType){
 		$options = array(
 				'siteid' => $site,
 				'template_id' => $tid,
 			);
 		$q = [
 			'max(version)',
-			'xxt_template_enroll',
+			'',
 			$options
 		];
+		switch ($matterType) {
+			case 'enroll':
+				$q[1] = 'xxt_template_enroll';
+				break;
+		}
 		$max = $this->query_val_ss($q);
 		$seq = empty($max) ? 1 : (int)$max + 1 ;
 

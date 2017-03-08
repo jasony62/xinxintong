@@ -1425,7 +1425,7 @@ define(['require', 'schema', 'page'], function(require, schemaLib, pageLib) {
             _siteId = siteId;
             _appId = appId;
         };
-        this.$get = ['$q', 'http2', function($q, http2) {
+        this.$get = ['$scope', '$q', 'http2', 'noticebox', '$q', '$uibModal',function($scope, $q, http2, noticebox, $q, $uibModal) {
             var _self = {
                 tempEnrollGet: function() {
                     var url, _getAppDeferred = false;
@@ -1472,7 +1472,7 @@ define(['require', 'schema', 'page'], function(require, schemaLib, pageLib) {
                         }
                     });
 
-                    url = '/rest/pl/fe/template/enroll/update?site=' + _siteId;
+                    url = '/rest/pl/fe/template/update?site=' + _siteId;
                     url += '&tid=' + _appId;
                     url += '&vid=' + _oApp.vid;
                     http2.post(url, modifiedData, function(rsp) {
@@ -1480,6 +1480,34 @@ define(['require', 'schema', 'page'], function(require, schemaLib, pageLib) {
                         defer.resolve(rsp.data);
                     });
                     return defer.promise;
+                },
+                shareAsTemplate: function() {
+                    var deferred;
+                    deferred = $q.defer();
+                    $uibModal.open({
+                        templateUrl: 'templateShare.html',
+                        controller: ['$scope', '$uibModalInstance', function($scope, $mi) {
+                            $scope.data = {};
+                            $scope.params = {};
+                            $scope.cancel = function() {
+                                $mi.dismiss();
+                            };
+                            $scope.ok = function() {
+                                $mi.close($scope.data);
+                            };
+                        }],
+                        backdrop: 'static'
+                    }).result.then(function(data) {
+                        http2.post('/rest/pl/fe/template/putCreate?site=' + _oApp.siteid + '&tid=' + _oApp.id, data, function(rsp) {
+                            deferred.resolve(rsp.data);
+                        });
+                    });
+                },
+                cancelAsTemplate: function() {
+                    var url = '/rest/pl/fe/template/unPut?site=' + $scope.app.siteid + '&tid=' + $scope.app.id;
+                    http2.get(url, function(rsp) {
+                        noticebox.success('完成撤销！');
+                    });
                 },
             }
             return _self;

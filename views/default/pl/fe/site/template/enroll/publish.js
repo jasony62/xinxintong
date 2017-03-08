@@ -30,26 +30,7 @@ define(['frame'], function(ngApp) {
             return false;
         };
         $scope.shareAsTemplate = function() {
-            var deferred;
-            deferred = $q.defer();
-            $uibModal.open({
-                templateUrl: 'templateShare.html',
-                controller: ['$scope', '$uibModalInstance', function($scope, $mi) {
-                    $scope.data = {};
-                    $scope.params = {};
-                    $scope.cancel = function() {
-                        $mi.dismiss();
-                    };
-                    $scope.ok = function() {
-                        $mi.close($scope.data);
-                    };
-                }],
-                backdrop: 'static'
-            }).result.then(function(data) {
-                http2.post('/rest/pl/fe/template/enroll/put?site=' + $scope.app.siteid + '&tid=' + $scope.app.id, data, function(rsp) {
-                    deferred.resolve(rsp.data);
-                });
-            });
+            srvTempApp.shareAsTemplate();
         };
         $scope.applyToHome = function() {
             /*var url = '/rest/pl/fe/matter/home/apply?site=' + $scope.app.siteid + '&type=enroll&id=' + $scope.app.id;
@@ -58,10 +39,7 @@ define(['frame'], function(ngApp) {
             });*/
         };
         $scope.cancelAsTemplate = function() {
-            var url = '/rest/pl/fe/template/enroll/unPut?site=' + $scope.app.siteid + '&tid=' + $scope.app.id;
-            http2.get(url, function(rsp) {
-                noticebox.success('完成撤销！');
-            });
+            srvTempApp.cancelAsTemplate();
         };
         $scope.remove = function() {
             /*if (window.confirm('确定删除活动？')) {

@@ -102,8 +102,8 @@ define(['frame'], function(ngApp) {
 		$scope.filter = function() {
 
 		}
-		$scope.createEnrollTemplate = function() {
-			http2.get('/rest/pl/fe/template/enroll/create?site=' + $scope.siteId, function(rsp) {
+		$scope.createEnrollTemplate = function(matter) {
+			http2.get('/rest/pl/fe/template/create?site=' + $scope.siteId + '&matterType=' + matter, function(rsp) {
           location.href = '/rest/pl/fe/template/enroll?site=' + $scope.siteId + '&id=' + rsp.data.id;
       });
 		}

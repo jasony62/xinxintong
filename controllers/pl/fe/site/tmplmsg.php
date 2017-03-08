@@ -166,7 +166,8 @@ class tmplmsg extends \pl\fe\base {
 			return new \ResponseTimeout();
 		}
 
-		$config = $this->model('sns\wx')->bySite($site);
+		$wx=$this->model('sns\wx');
+		$config = $wx->bySite($site);
 		if (!$config || $config->joined === 'N') {
 			return new \ResponseError('未与微信公众号连接，无法同步微信模板消息!');
 		}
@@ -177,11 +178,11 @@ class tmplmsg extends \pl\fe\base {
 		if($rst[0]===false){
 			return new \ResponseError($rst[1]);
 		}
-
-		$templates=json_decode($rst[1]);
+		
+		$templates=$rst[1]->template_list;
 		$d['siteid']=$site;
 		$d['mpid']=$site;
-		$d['creater']=$user->uid;
+		$d['creater']=$user->id;
 		$d['create_at']=time();
 		$p['siteid']=$site;
 
@@ -191,36 +192,95 @@ class tmplmsg extends \pl\fe\base {
 			$d['title']=$v->title;
 			$d['example']=$v->example;
 			//同步模板
-			if($id=$proxy->query_val_ss(['id','xxt_tmplmsg',['siteid'=>$site,'templateid'=>$v->template_id]])){
-				$proxy->update('xxt_tmplmsg',$d,"id='$id'");
+			if($id=$wx->query_val_ss(['id','xxt_tmplmsg',['siteid'=>$site,'templateid'=>$v->template_id]])){
+				$wx->update('xxt_tmplmsg',$d,"id='$id'");
 			}else{
-				$id=$proxy->insert('xxt_tmplmsg',$d);
+				$id=$wx->insert('xxt_tmplmsg',$d);
 			}
 			//同步参数
-			$content=$v->content;
 			$p['tmplmsg_id']=$id;
-			$c=$v->content;
-			//按行获取字符串
-			preg_match_all("/.+[\r\n]/", $c, $r1);
-			//去掉空行的字符串
-			$r1[0]=array_filter($r1[0]);
+			$e=array();
+			$content=preg_replace(["/：{/","/\s*/"], [":{"], trim($v->content));
+
+			if(!preg_match('/{{.+?}:{.+?}}/', $content,$m)){
+				$r1=explode("}}", $content);
+				//去掉空行的字符串
+				array_pop($r1);
 			
-			foreach ($r1[0] as $k1 => $v1) {
-				$arr=explode(':', $v1);
-				if(isset($arr[1])){
-					$p['pname']=substr(trim($arr[1]),2,-7);
-					$p['plabel']=$arr[0];
-				}else{
-					$p['pname']=substr(trim($v1),2,-7);
-					$p['plabel']='';
+				foreach ($r1 as $k1 => $v1) {
+					$arr=explode(':', $v1);
+					if(isset($arr[1])){
+						$p['pname']=substr(trim($arr[1]),2,-5);
+						$p['plabel']=$arr[0];
+					}else{
+						$p['pname']=substr(trim($v1),2,-5);
+						$p['plabel']='';
+					}
+
+					$pid=$wx->query_val_ss([
+						'id',
+						'xxt_tmplmsg_param',
+						['siteid'=>$site,'tmplmsg_id'=>$p['tmplmsg_id'],'pname'=>$p['pname']]
+						]);
+
+					if($pid){
+						$wx->update('xxt_tmplmsg_param',$p,"id='$pid'");
+					}else{
+						$wx->insert('xxt_tmplmsg_param',$p);
+					}
+				}
+			}else{
+				$word=$m[0];
+				$str=strstr($content,$word);
+				$param1=explode(':', $word);
+
+				$e[substr($param1[0], 2,-7)]=$l1=substr($param1[1], 2,-7);
+				$e[$l1]='';
+
+				$content=substr($str, strlen($word));
+				$arr2=explode("}}", $content);
+				array_pop($arr2);
+
+				foreach ($arr2 as $k2 => $v2) {	
+					$crr=explode(":", $v2);
+			
+					if(isset($crr[1])){
+						$e[substr($crr[1],2,-5)]=$crr[0];
+					}else{
+						$e[substr($crr[0],2,-5)]='';
+					}
 				}
 
-				if($pid=$proxy->query_val_ss(['id','xxt_tmplmsg_param',['siteid'=>$site,'tmplmsg_id'=>$p['tmplmsg_id'],'pname'=>$p['pname']]])){
-					$proxy->update('xxt_tmplmsg_param',$p,"id='$pid'");
-				}else{
-					$proxy->insert('xxt_tmplmsg_param',$p);
-				}
+				foreach ($e as $k3 => $v3) {
+					$p['pname']=$k3;
+					$p['plabel']=$v3;
+
+					$pid=$wx->query_val_ss([
+						'id',
+						'xxt_tmplmsg_param',
+						['siteid'=>$site,'tmplmsg_id'=>$p['tmplmsg_id'],'pname'=>$p['pname']]
+						]);
+
+					if($pid){
+						$wx->update('xxt_tmplmsg_param',$p,"id='$pid'");
+					}else{
+						$wx->insert('xxt_tmplmsg_param',$p);
+					}	
+				}		
 			}
 		}
+		$one=$wx->query_objs_ss(['templateid','xxt_tmplmsg',"siteid='$site' and templateid!=''"]);
+
+		foreach ($one as $v0) {
+			$two[]=$v0->templateid;
+		}
+		
+		if($rest=array_diff($two,$tmp)){
+			foreach ($rest as $k4 => $v4) {
+				$wx->update('xxt_tmplmsg',['templateid'=>''],['siteid'=>$site,'templateid'=>$v4]);
+			}
+		}
+
+		return new \ResponseData('ok');
 	}
 }

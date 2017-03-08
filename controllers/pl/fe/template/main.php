@@ -506,9 +506,13 @@ class main extends \pl\fe\base {
 
 		$modelTmp = $this->model('matter\template');
 		//获取最新版本
-		$q = array('*', '', ['siteid' => $site, 'template_id' => $tid, 'version' => $lastVersion] );
+		$q = array(
+			'*',
+			'',
+			['siteid' => $site, 'template_id' => $tid, 'version' => $lastVersion]
+		);
 		if($matterType === 'enroll'){
-			$q[2] = 'xxt_template_enroll';
+			$q[1] = 'xxt_template_enroll';
 		}
 		$version = $modelTmp->query_obj_ss($q);
 		//获取此版本的数据以及页面

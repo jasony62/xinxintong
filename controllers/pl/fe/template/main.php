@@ -426,6 +426,7 @@ class main extends \pl\fe\base {
 			return new \ResponseError('模板获取失败，请检查参数');
 		}
 
+		$current = time();
 		$options = [
 			'put_at' => $current,
 			'pub_version' => $template->last_version
@@ -434,7 +435,6 @@ class main extends \pl\fe\base {
 		isset($post->visible_scope) && $options['visible_scope'] = $post->visible_scope;
 
 		/* 发布模版 */
-		$current = time();
 		$rst = $modelTmp->update(
 				'xxt_template',
 				$options,
@@ -455,7 +455,7 @@ class main extends \pl\fe\base {
 		}
 
 		// 记录操作日志
-		$this->model('matter\log')->matterOp($site, $loginUser, $template, 'put');
+		$this->model('matter\log')->matterOp($site, $loginUser, $template, 'putCreate');
 		return new \ResponseData($rst);
 	}
 	/**

@@ -135,7 +135,7 @@
                                 <div ng-bind="p.put_at*1000|date:'yyyy-MM-dd'"></div>
                             </div>
                             <div class='actions'>
-                                <button ng-class="{'btn btn-sm btn-danger':p.last_version == p.pub_version'}" class='btn btn-sm btn-success' ng-click='message(p)'>管理</button>
+                                <button ng-class="{'btn btn-sm btn-success':p.last_version == p.pub_version, 'btn btn-sm btn-danger':p.last_version != p.pub_version}"  ng-click='message(p)'>管理</button>
                             </div>
                         </div>
                     </div>

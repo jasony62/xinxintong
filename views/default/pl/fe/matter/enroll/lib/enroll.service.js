@@ -1425,7 +1425,7 @@ define(['require', 'schema', 'page'], function(require, schemaLib, pageLib) {
             _siteId = siteId;
             _appId = appId;
         };
-        this.$get = ['$scope', '$q', 'http2', 'noticebox', '$q', '$uibModal',function($scope, $q, http2, noticebox, $q, $uibModal) {
+        this.$get = ['$q', 'http2', 'noticebox', '$q', '$uibModal',function( $q, http2, noticebox, $q, $uibModal) {
             var _self = {
                 tempEnrollGet: function() {
                     var url, _getAppDeferred = false;

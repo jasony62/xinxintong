@@ -29,9 +29,11 @@ class qy extends \member_base {
 		$method = $_SERVER['REQUEST_METHOD'];
 		switch ($method) {
 		case 'GET':
+			$modelLog->log($site, 'qy-join-0', 'step-0');
 			/* 公众平台对接 */
 			$rst = $qyProxy->join($_GET);
 			header('Content-Type: text/html; charset=utf-8');
+			$modelLog->log($site, 'qy-join-9', $rst[1]);
 			die($rst[1]);
 		case 'POST':
 			$data = file_get_contents("php://input");

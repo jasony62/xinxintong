@@ -18,7 +18,7 @@ class template_model extends \TMS_MODEL {
 		];
 
 		if (false === ($template = $this->query_obj_ss($q)) ) {
-			return false;
+			return $template;
 		}
 		$template->type = 'template';
 		//登记活动

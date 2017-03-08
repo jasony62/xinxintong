@@ -64,16 +64,23 @@ class main extends \pl\fe\base {
 	/**
 	 * 声请放到平台首页
 	 */
-	public function pushHome_action($template) {
+	public function pushHome_action($site, $tid) {
 		if (false === ($user = $this->accountUser())) {
 			return new \ResponseTimeout();
 		}
 
 		$modelTmpl = $this->model('matter\template');
 
-		$rst = $modelTmpl->pushHome($template);
+		if($matter = $modelTmpl->byId($tid, null, ['cascaded' => 'N'])){
+			$reply = $this->model('matter\home')->putMatter($site, $user, $matter);
+			if($reply){
+				$rst = $modelTmpl->pushHome($matter->id);
 
-		return new \ResponseData($rst);
+				return new \ResponseData($rst);
+			}
+		}
+
+		return new \ResponseData(false);
 	}
 	/**
 	 * 在指定站点中收藏模版

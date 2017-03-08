@@ -3,16 +3,6 @@
         <div class="btn-group pull-right " >
             <button type="button" class="btn btn-default" ng-click='create()'>新建</button>
             <button type="button" class="btn btn-default"  ng-click='SynWx()'>同步微信模板</button>
-            <div class="btn-group" >
-                <button type="button" class="btn btn-default dropdown-toggle" data-toggle="dropdown" >
-                    筛选
-                    <span class="caret"></span>
-                </button>
-                <ul class="dropdown-menu">
-                    <li><a href="" ng-click="doSearch('creat_temp')">自定义模板</a></li>
-                    <li><a href="" ng-click="doSearch('wx_temp')">微信模板</a></li>
-                </ul>
-            </div>
         </div>
     </div>
     <div class='row'>
@@ -34,10 +24,6 @@
                     <button class='btn btn-sm btn-default' ng-click="edit(t)">查看</button>
                 </div>
             </div>
-                <!--<div>-->
-                    <!--<span class='creater_name'>{{t.creater_name}}</span>-->
-                    <!--<span class='create_at'>{{t.create_at*1000|date:'yyyy-MM-dd'}}</span>-->
-                <!--</div>-->
         </div>
     </div>
     <div class='form-horizontal' ng-if="editing" ng-controller="ctrlSetting">

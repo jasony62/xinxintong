@@ -50,6 +50,9 @@ define(['frame', 'enrollService', 'signinService'], function(ngApp) {
                     var url = '/rest/pl/fe/matter/' + data.appType + '/get?site=' + mission.siteid + '&id=' + data.appId;
                     http2.get(url, function(rsp) {
                         mission.userApp = rsp.data;
+                        if (mission.userApp.data_schemas && angular.isString(mission.userApp.data_schemas)) {
+                            mission.userApp.data_schemas = JSON.parse(mission.userApp.data_schemas);
+                        }
                     });
                 });
             });

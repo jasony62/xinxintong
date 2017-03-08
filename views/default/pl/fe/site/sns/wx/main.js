@@ -1,6 +1,6 @@
 define(['require'], function(require) {
     'use strict';
-    var ngApp = angular.module('app', ['ngRoute', 'ui.tms', 'ui.xxt']);
+    var ngApp = angular.module('app', ['ngRoute', 'ui.bootstrap', 'ui.tms', 'ui.xxt']);
     ngApp.config(['$locationProvider', '$controllerProvider', '$routeProvider', '$provide', function($lp, $cp, $rp, $provide) {
         var RouteParam = function(name) {
             var baseURL = '/views/default/pl/fe/site/sns/wx/';

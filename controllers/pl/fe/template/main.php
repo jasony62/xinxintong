@@ -62,7 +62,7 @@ class main extends \pl\fe\base {
 		return new \ResponseData($template);
 	}
 	/**
-	 * 声请放到平台首页
+	 * 申请放到平台首页
 	 */
 	public function pushHome_action($site, $tid) {
 		if (false === ($user = $this->accountUser())) {

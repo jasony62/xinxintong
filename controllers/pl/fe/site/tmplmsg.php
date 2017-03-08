@@ -274,10 +274,10 @@ class tmplmsg extends \pl\fe\base {
 		foreach ($one as $v0) {
 			$two[]=$v0->templateid;
 		}
-		
+		//将本地原来有实际上微信管理端已经删除的模板ID 设置为‘’ 表示本地删除
 		if($rest=array_diff($two,$tmp)){
 			foreach ($rest as $k4 => $v4) {
-				$wx->update('xxt_tmplmsg',['templateid'=>''],['siteid'=>$site,'templateid'=>$v4]);
+				$wx->update('xxt_tmplmsg',['templateid'=>'','state'=>0],['siteid'=>$site,'templateid'=>$v4]);
 			}
 		}
 

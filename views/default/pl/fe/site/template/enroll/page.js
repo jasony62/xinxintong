@@ -3,7 +3,7 @@ define(['frame', 'schema', 'page', 'editor'], function(ngApp, schemaLib, pageLib
     /**
      * app setting controller
      */
-    ngApp.provider.controller('ctrlPage', ['$scope', '$location', 'srvEnrollApp', 'srvEnrollPage', function($scope, $location, srvEnrollApp, srvEnrollPage) {
+    ngApp.provider.controller('ctrlPage', ['$scope', '$location', 'srvEnrollApp', 'srvTempApp', 'srvEnrollPage', function($scope, $location, srvEnrollApp, srvTempApp, srvEnrollPage) {
         $scope.ep = null;
         window.onbeforeunload = function(e) {
             var message;
@@ -75,7 +75,8 @@ define(['frame', 'schema', 'page', 'editor'], function(ngApp, schemaLib, pageLib
         //??? 提交前如何检查数据的一致性？
         $scope.save = function() {
             // 更新应用
-            srvEnrollApp.update('data_schemas').then(function() {
+            /*srvEnrollApp.update('data_schemas').then(function() {*/
+            srvTempApp.update('data_schemas').then(function() {
                 // 更新页面
                 $scope.app.pages.forEach(function(page) {
                     $scope.updPage(page, ['data_schemas', 'act_schemas', 'html']);
@@ -85,7 +86,8 @@ define(['frame', 'schema', 'page', 'editor'], function(ngApp, schemaLib, pageLib
         $scope.gotoCode = function() {
             window.open('/rest/pl/fe/code?site=' + $scope.app.siteid + '&name=' + $scope.ep.code_name, '_self');
         };
-        srvEnrollApp.get().then(function(app) {
+        /*srvEnrollApp.get().then(function(app) {*/
+        srvTempApp.tempEnrollGet().then(function(app) {
             var pageName;
             if (pageName = $location.search().page) {
                 $scope.choosePage(pageName);

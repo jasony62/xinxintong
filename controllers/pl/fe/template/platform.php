@@ -29,13 +29,15 @@ class platform extends \pl\fe\base {
 		$q = [
 			'*',
 			"xxt_template",
-			['visible_scope' => 'P', 'state' => 1]
+			"visible_scope = 'P' and state = 1 and pub_version <> ''"
 		];
 		if(!empty($matterType)){
-			$q[2]['matter_type'] = $matterType;
+			$matterType = $model->escape($matterType);
+			$q[2] .= " and matter_type = '$matterType'";
 		}
 		if (!empty($scenario)) {
-			$q[2]['scenario'] = $scenario;
+			$scenario = $model->escape($scenario);
+			$q[2] .= " and scenario = '$scenario'";
 		}
 		$q2 = [
 			'o' => 'put_at desc',

@@ -32,7 +32,7 @@ class site extends \pl\fe\base {
 			$q = [
 				'*',
 				"xxt_template",
-				["visible_scope" => $scope, 'state' => 1],
+				"visible_scope = '$scope' and state = 1 and pub_version <> ''"
 			];
 		} else if (in_array($scope, ['favor', 'purchase'])) {
 			$q = [
@@ -40,22 +40,25 @@ class site extends \pl\fe\base {
 				"xxt_template_order",
 			];
 			if ($scope === 'favor') {
-				$q[2] = ["favor" => 'Y'];
+				$q[2] = "favor = 'Y'";
 			} else {
-				$q[2] = ["purchase" => 'Y'];
+				$q[2] = "purchase = 'Y'";
 			}
 		}
 		if(!empty($matterType)){
-			$q[2]['matter_type'] = $matterType;
+			$matterType = $model->escape($matterType);
+			$q[2] .= " and matter_type = '$matterType'";
 		}
 		if (!empty($scenario)) {
-			$q[2]['scenario'] = $scenario;
+			$scenario = $model->escape($scenario);
+			$q[2] .= " and scenario = '$scenario'";
 		}
 		if ($scope === 'S' || $scope === 'favor') {
-			$q[2]['siteid'] = $site;
+			$site = $model->escape($site);
+			$q[2] .= " and siteid = '$site'";
 		}
 		if($scope === 'purchase'){
-			$q[2]['buyer'] = $loginUser->id;
+			$q[2] .= " and buyer = '".$loginUser->id."'";
 		}
 
 		$q2 = [

@@ -485,4 +485,45 @@ class main extends \pl\fe\base {
 		$this->model('matter\log')->matterOp($site, $loginUser, $template, 'unPut');
 		return new \ResponseData($rst);
 	}
+	/**
+	 * [createVersion_action 创建新版本]
+	 * @param  [type] $site [description]
+	 * @param  [type] $tid  [description]
+	 * @param  [type] $lastVersion  [最新版本号]
+	 * @return [type]       [description]
+	 */
+	public function createVersion_action($site, $tid, $lastVersion, $matterType){
+		if (false === ($loginUser = $this->accountUser())) {
+			return new \ResponseTimeout();
+		}
+
+		$modelTmp = $this->model('matter\template');
+		//获取最新版本
+		$q = array('*', '', ['siteid' => $site, 'template_id' => $tid, 'version' => $lastVersion] );
+		if($matterType === 'enroll'){
+			$q[2] = 'xxt_template_enroll';
+		}
+		$version = $modelTmp->query_obj_ss($q);
+		//获取此版本的数据以及页面
+		if(false === ($template = $modelTmp->byId($tid, $version->id)) ){
+			return new \ResponseError('模板获取失败，请检查参数');
+		}
+
+		//创建新版本
+		$current = time();
+		if($matterType === 'enroll'){
+			$versionNew = $this->model('matter\template\enroll')->createMatterEnroll($site, $tid, $template, $loginUser, $current, 'N');
+		}
+		$rst = $this->update(
+			'xxt_template',
+			['last_version' => $versionNew->version],
+			['siteid' => $site, 'id' => $tid]
+		);
+
+		$template = $modelTmp->byId($tid, $versionNew->id);
+		// 记录操作日志
+		$this->model('matter\log')->matterOp($site, $loginUser, $template, 'createVersion');
+
+		return new \ResponseData($rst);
+	}
 }

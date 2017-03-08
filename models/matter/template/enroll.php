@@ -75,4 +75,65 @@ class enroll_model extends \TMS_MODEL {
 			die('版本不存在');
 		}
 	}
+	/**
+	 * [createMatterEnroll 创建新版本]
+	 * @param  [type] $site      [description]
+	 * @param  [type] $tid       [description]
+	 * @param  [type] &$matter   [description]
+	 * @param  [type] $user      [description]
+	 * @param  string $time      [description]
+	 * @param  string $pubStatus [是否为发布状态]
+	 * @return [type]            [description]
+	 */
+	private function createMatterEnroll($site, $tid ,&$matter, $user, $time = '', $pubStatus = 'N'){
+		$current = empty($time)? time() : $time;
+		//创建模板版本号
+		$version = $this->getVersion($site, $tid, 'enroll');
+		$options = [
+			'version' => $version,
+			'modifier' => $user->id,
+			'modifier_name' => $user->name,
+			'create_at' => $current,
+			'siteid' => $site,
+			'template_id' => $tid,
+			'scenario_config' => empty($matter->scenario_config) ? '' : $matter->scenario_config,
+			'multi_rounds' => $matter->multi_rounds,
+			'enrolled_entry_page' => $matter->enrolled_entry_page,
+			'open_lastroll' => $matter->open_lastroll,
+			'data_schemas' => $matter->data_schemas,
+			'pub_status' => $pubStatus,
+		];
+		//版本id
+		$vid = $this->insert('xxt_template_enroll', $options, true);
+
+		/*复制页面*/
+		if (count($matter->pages)) {
+			$modelPage = $this->model('matter\enroll\page');
+			$modelCode = $this->model('code\page');
+			foreach ($matter->pages as $ep) {
+				$newPage = $modelPage->add($user, $site, 'template:'.$vid);
+				$rst = $this->update(
+					'xxt_enroll_page',
+					[
+						'title' => $ep->title,
+						'name' => $ep->name,
+						'type' => $ep->type,
+						'data_schemas' => $this->escape($ep->data_schemas),
+						'act_schemas' => $this->escape($ep->act_schemas),
+						'user_schemas' => $this->escape($ep->user_schemas),
+					],
+					['aid' => 'template:'.$vid, 'id' => $newPage->id]
+				);
+				$data = [
+					'title' => $ep->title,
+					'html' => $ep->html,
+					'css' => $ep->css,
+					'js' => $ep->js,
+				];
+				$modelCode->modify($newPage->code_id, $data);
+			}
+		}
+		$options['id'] = $vid;
+		return (object)$options;
+	}
 }

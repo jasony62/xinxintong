@@ -12,12 +12,12 @@ class acl extends \pl\fe\base {
 	 * @param string $id 素材的ID
 	 * @param string $type 素材的类型
 	 */
-	public function byMatter_action($id, $type) {
+	public function byMatter_action($id) {
 		if (false === ($loginUser = $this->accountUser())) {
 			return new \ResponseTimeout();
 		}
 
-		$acls = $this->model('template\acl')->byMatter($id, $type);
+		$acls = $this->model('matter\template\acl')->byMatter($id);
 
 		if (!empty($acls)) {
 			$modelAcnt = $this->model('account');
@@ -35,7 +35,7 @@ class acl extends \pl\fe\base {
 	 * @param string $site
 	 * @param int $mission mission's id
 	 */
-	public function add_action($label, $matter) {
+	public function add_action($label, $tid) {
 		if (false === ($loginUser = $this->accountUser())) {
 			return new \ResponseTimeout();
 		}
@@ -45,13 +45,11 @@ class acl extends \pl\fe\base {
 		if (!$account) {
 			return new \ResponseError('指定的账号不是注册账号，请先注册！');
 		}
-
-		list($matterId, $matterType) = explode(',', $matter);
 		/**
 		 * has joined?
 		 */
 		$modelAcl = $this->model('matter\template\acl');
-		$acl = $modelAcl->byReceiver($loginUser->id, $matterId, $matterType);
+		$acl = $modelAcl->byReceiver($loginUser->id, $tid);
 		if ($acl) {
 			return new \ResponseError('【' . $label . '】已经在分享列表中！');
 		}
@@ -62,7 +60,7 @@ class acl extends \pl\fe\base {
 		$acl->receiver_label = $account->email;
 
 		$modelTmpl = $this->model('matter\template');
-		if ($template = $modelTmpl->getMatter($matterId, $matterType)) {
+		if ($template = $modelTmpl->byid($tid, null, ['cascaded' => 'N'])) {
 			$acl = $modelAcl->add($loginUser, $template, $acl);
 		}
 

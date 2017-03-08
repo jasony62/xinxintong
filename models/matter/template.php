@@ -17,63 +17,65 @@ class template_model extends \TMS_MODEL {
 			["id" => $tid, 'state' => 1],
 		];
 
-		if ($template = $this->query_obj_ss($q)) {
-			$template->type = 'template';
-			if($template->matter_type === 'enroll'){
-				//获取版本
-				$p = [
-					'*',
-					'xxt_template_enroll',
-					['template_id'=>$tid, 'state' => 1]
-				];
-				$p2['o'] = "order by create_at desc";
-				$template->versions = $this->query_objs_ss($p, $p2);
-				if (isset($template->scenario_config)) {
-					if (!empty($template->scenario_config)) {
-						$template->scenarioConfig = json_decode($template->scenario_config);
-					} else {
-						$template->scenarioConfig = new \stdClass;
-					}
+		if (false === ($template = $this->query_obj_ss($q)) ) {
+			return false;
+		}
+		$template->type = 'template';
+		//登记活动
+		if($template->matter_type === 'enroll'){
+			//获取版本
+			$p = [
+				'*',
+				'xxt_template_enroll',
+				['template_id'=>$tid, 'state' => 1]
+			];
+			$p2['o'] = "order by create_at desc";
+			$template->versions = $this->query_objs_ss($p, $p2);
+			if (isset($template->scenario_config)) {
+				if (!empty($template->scenario_config)) {
+					$template->scenarioConfig = json_decode($template->scenario_config);
+				} else {
+					$template->scenarioConfig = new \stdClass;
 				}
-				//获取指定版本信息，如果未指定就用默认版本
-				if ($cascaded === 'Y') {
-					//获取当前需要展示页面的版本的id
-					if(empty($vid)){
-						if(empty($template->pub_version)){
-							foreach($template->versions as $v){
-								if($v->version === $template->last_version){
-									$vid = $v->id;
-									$version = $v;
-								}
-							}
-						}else{
-							foreach($template->versions as $v){
-								if($v->version === $template->pub_version){
-									$vid = $v->id;
-									$version = $v;
-								}
+			}
+			//获取指定版本信息，如果未指定就用默认版本
+			if ($cascaded === 'Y') {
+				//获取当前需要展示页面的版本的id
+				if(empty($vid)){
+					if(empty($template->pub_version)){
+						foreach($template->versions as $v){
+							if($v->version === $template->last_version){
+								$vid = $v->id;
+								$version = $v;
 							}
 						}
 					}else{
-						//返回当前预览版本的数据
 						foreach($template->versions as $v){
-							if($v->id === $vid){
+							if($v->version === $template->pub_version){
+								$vid = $v->id;
 								$version = $v;
 							}
 						}
 					}
-					foreach($version as $k=>$v2){
-						if($k === 'id'){
-							$template->vid = $v2;
-						}elseif($k === 'create_at'){
-							$template->vcreate_at = $v2;
-						}else{
-							$template->$k = $v2;
+				}else{
+					//返回当前预览版本的数据
+					foreach($template->versions as $v){
+						if($v->id === $vid){
+							$version = $v;
 						}
 					}
-					$modelPage = $this->model('matter\enroll\page');
-					$template->pages = $modelPage->byApp('template:'.$vid);
 				}
+				foreach($version as $k=>$v2){
+					if($k === 'id'){
+						$template->vid = $v2;
+					}elseif($k === 'create_at'){
+						$template->vcreate_at = $v2;
+					}else{
+						$template->$k = $v2;
+					}
+				}
+				$modelPage = $this->model('matter\enroll\page');
+				$template->pages = $modelPage->byApp('template:'.$vid);
 			}
 		}
 
@@ -163,7 +165,13 @@ class template_model extends \TMS_MODEL {
 			$tid = $this->insert('xxt_template', $template, true);
 			/*创建版本*/
 			if($matter->matter_type === 'enroll'){
-				$this->putMatterEnroll($site->id, $tid, $matter->matter_id, $account, $current);
+				$matter = $this->model('matter\enroll')->byId($matter->matter_id);
+				$version = $this->model('matter\template\enroll')->createMatterEnroll($site->id, $tid, $matter, $account, $current, 'Y');
+				$this->update(
+					'xxt_template',
+					['pub_version' => $version->version, 'last_version' => $version->version],
+					['siteid' => $site, 'id' => $tid]
+				);
 			}
 
 			$template = $this->byId($site->id, $tid);
@@ -186,7 +194,13 @@ class template_model extends \TMS_MODEL {
 			);
 			/*创建新的版本*/
 			if($matter->matter_type === 'enroll'){
-				$this->putMatterEnroll($site->id, $template->id, $matter->matter_id, $account, $current);
+				$matter = $this->model('matter\enroll')->byId($matter->matter_id);
+				$version = $this->model('matter\template\enroll')->createMatterEnroll($site->id, $template->id, $matter, $account, $current, 'Y');
+				$this->update(
+					'xxt_template',
+					['pub_version' => $version->version, 'last_version' => $version->version],
+					['siteid' => $site, 'id' => $tid]
+				);
 			}
 
 			$template = $this->byId($site->id, $template->id);
@@ -200,68 +214,6 @@ class template_model extends \TMS_MODEL {
 		// }
 
 		return $template;
-	}
-	/**
-	 * 创建登记活动模板
-	 * @param int $tid template_id
-	 * @param string $eid enroll_id
-	 */
-	private function putMatterEnroll($site, $tid ,$eid, $user, $time = ''){
-		$current = empty($time)? time() : $time;
-		//创建模板版本号
-		$version = $this->getVersion($site, $tid, 'enroll');
-		$modelApp = $this->model('matter\enroll');
-
-		$matter = $modelApp->byId($eid);
-		$options = [
-			'version' => $version,
-			'modifier' => $user->id,
-			'modifier_name' => $user->name,
-			'create_at' => $current,
-			'siteid' => $site,
-			'template_id' => $tid,
-			'scenario_config' => empty($matter->scenario_config) ? '' : $matter->scenario_config,
-			'multi_rounds' => $matter->multi_rounds,
-			'enrolled_entry_page' => $matter->enrolled_entry_page,
-			'open_lastroll' => $matter->open_lastroll,
-			'data_schemas' => $matter->data_schemas,
-			'pub_status' => 'Y',
-		];
-		//版本id
-		$vid = $this->insert('xxt_template_enroll', $options, true);
-		$this->update(
-				'xxt_template',
-				['pub_version' => $version, 'last_version' => $version],
-				['siteid' => $site, 'id' => $tid]
-			);
-
-		/*复制页面*/
-		if (count($matter->pages)) {
-			$modelPage = $this->model('matter\enroll\page');
-			$modelCode = $this->model('code\page');
-			foreach ($matter->pages as $ep) {
-				$newPage = $modelPage->add($user, $site, 'template:'.$vid);
-				$rst = $this->update(
-					'xxt_enroll_page',
-					[
-						'title' => $ep->title,
-						'name' => $ep->name,
-						'type' => $ep->type,
-						'data_schemas' => $this->escape($ep->data_schemas),
-						'act_schemas' => $this->escape($ep->act_schemas),
-						'user_schemas' => $this->escape($ep->user_schemas),
-					],
-					['aid' => 'template:'.$vid, 'id' => $newPage->id]
-				);
-				$data = [
-					'title' => $ep->title,
-					'html' => $ep->html,
-					'css' => $ep->css,
-					'js' => $ep->js,
-				];
-				$modelCode->modify($newPage->code_id, $data);
-			}
-		}
 	}
 
 	/**

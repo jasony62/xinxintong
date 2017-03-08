@@ -136,21 +136,24 @@ class main extends \pl\fe\base {
 	 * @param string $site 模版的站点ID逗号分隔的字符串
 	 * @param string $version 使用模版的版本
 	 */
-	public function purchase_action($template, $site, $version = null) {
+	public function purchase_action($template, $site, $vid = null) {
 		if (false === ($user = $this->accountUser())) {
 			return new \ResponseTimeout();
 		}
 
 		$modelTmpl = $this->model('matter\template');
 
-		if (false === ($template = $modelTmpl->byId($template))) {
+		if (false === ($template = $modelTmpl->byId($template, $vid))) {
 			return new \ResponseError('数据不存在');
+		}
+		if($template->pub_status === 'N'){
+			return new \ResponseError('当前版本未发布，无法使用');
 		}
 
 		$modelSite = $this->model('site');
 		$siteIds = explode(',', $site);
 		foreach ($siteIds as $siteId) {
-			$modelTmpl->purchaseBySite($user, $template, $siteId, $version);
+			$modelTmpl->purchaseBySite($user, $template, $siteId);
 		}
 
 		return new \ResponseData('ok');
@@ -536,5 +539,43 @@ class main extends \pl\fe\base {
 		$this->model('matter\log')->matterOp($site, $loginUser, $template, 'createVersion');
 
 		return new \ResponseData($rst);
+	}
+	/**
+	 * [getVersion_action 获取某个版本的详情]
+	 * @param  [type] $site [description]
+	 * @param  [type] $tid  [template ID]
+	 * @param  [type] $vid  [version id]
+	 * @return [type]       [description]
+	 */
+	public function getVersion_action($site, $tid, $vid){
+		if (false === ($loginUser = $this->accountUser())) {
+			return new \ResponseTimeout();
+		}
+
+		$modelTmp = $this->model('matter\template');
+		if(false === ($template = $modelTmp->byId($tid, $vid)) ){
+			return new \ResponseError('模板获取失败，请检查参数');
+		}
+
+		$options = [
+			'from_siteid' => $site,
+			'template_id' => $tid,
+			'template_version' => $template->version,
+			'purchase' => 'Y'
+		];
+		$q = [
+			'*',
+			'xxt_template_order',
+			$options
+		];
+		$q2['o'] = "order by purchase_at desc";
+
+		if($users = $modelTmp->query_objs_ss($q, $q2) ){
+			$template->purchases = $users;
+		}else{
+			$template->purchases = new \stdClass;
+		}
+
+		return new \ResponseData($template);
 	}
 }

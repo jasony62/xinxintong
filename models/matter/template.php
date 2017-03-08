@@ -346,7 +346,7 @@ class template_model extends \TMS_MODEL {
 	/**
 	 * 站点使用模版
 	 */
-	public function purchaseBySite(&$user, &$template, $siteId, $version) {
+	public function purchaseBySite(&$user, &$template, $siteId) {
 		if ($this->isPurchaseBySite($template, $siteId)) {
 			return true;
 		}
@@ -356,7 +356,7 @@ class template_model extends \TMS_MODEL {
 		$order->buyer = $user->id;
 		$order->buyer_name = $user->name;
 		$order->template_id = $template->id;
-		$order->template_version = empty($version)? $template->pub_version : $this->escape($version);
+		$order->template_version = $template->version;
 		$order->from_siteid = $template->siteid;
 		$order->from_site_name = $template->site_name;
 		$order->matter_id = $template->matter_id;

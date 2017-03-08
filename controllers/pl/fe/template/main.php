@@ -525,7 +525,7 @@ class main extends \pl\fe\base {
 		if($matterType === 'enroll'){
 			$versionNew = $this->model('matter\template\enroll')->createMatterEnroll($site, $tid, $template, $loginUser, $current, 'N');
 		}
-		$rst = $this->update(
+		$rst = $modelTmp->update(
 			'xxt_template',
 			['last_version' => $versionNew->version],
 			['siteid' => $site, 'id' => $tid]

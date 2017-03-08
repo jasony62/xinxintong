@@ -44,14 +44,14 @@ class template_model extends \TMS_MODEL {
 				if(empty($vid)){
 					if(empty($template->pub_version)){
 						foreach($template->versions as $v){
-							if($v->version === $template->last_version){
+							if($v->version == $template->last_version){
 								$vid = $v->id;
 								$version = $v;
 							}
 						}
 					}else{
 						foreach($template->versions as $v){
-							if($v->version === $template->pub_version){
+							if($v->version == $template->pub_version){
 								$vid = $v->id;
 								$version = $v;
 							}
@@ -60,7 +60,7 @@ class template_model extends \TMS_MODEL {
 				}else{
 					//返回当前预览版本的数据
 					foreach($template->versions as $v){
-						if($v->id === $vid){
+						if($v->id == $vid){
 							$version = $v;
 						}
 					}

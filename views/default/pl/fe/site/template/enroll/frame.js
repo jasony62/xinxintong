@@ -41,7 +41,7 @@ define(['require', 'enrollService'], function(require) {
             'require.mission.phase': '请先指定项目的阶段'
         }
     });
-    ngApp.config(['$controllerProvider', '$routeProvider', '$locationProvider', '$compileProvider', '$uibTooltipProvider', 'srvSiteProvider', 'srvQuickEntryProvider', 'srvEnrollAppProvider', 'srvEnrollRoundProvider', 'srvEnrollPageProvider', 'srvEnrollRecordProvider', 'srvTempAppProvider', function($controllerProvider, $routeProvider, $locationProvider, $compileProvider, $uibTooltipProvider, srvSiteProvider, srvQuickEntryProvider, srvEnrollAppProvider, srvEnrollRoundProvider, srvEnrollPageProvider, srvEnrollRecordProvider, srvTempAppProvider) {
+    ngApp.config(['$controllerProvider', '$routeProvider', '$locationProvider', '$compileProvider', '$uibTooltipProvider', 'srvSiteProvider', 'srvQuickEntryProvider', 'srvEnrollAppProvider', 'srvEnrollRoundProvider', 'srvEnrollPageProvider', 'srvEnrollRecordProvider', 'srvTempAppProvider',  'srvTempPageProvider', function($controllerProvider, $routeProvider, $locationProvider, $compileProvider, $uibTooltipProvider, srvSiteProvider, srvQuickEntryProvider, srvEnrollAppProvider, srvEnrollRoundProvider, srvEnrollPageProvider, srvEnrollRecordProvider, srvTempAppProvider, srvTempPageProvider) {
         var RouteParam = function(name, baseURL) {
             !baseURL && (baseURL = '/views/default/pl/fe/site/template/enroll/');
             this.templateUrl = baseURL + name + '.html?_=' + (new Date() * 1);
@@ -73,10 +73,14 @@ define(['require', 'enrollService'], function(require) {
         });
 
         (function() {
-            var ls, siteId, appId;
+            var ls, siteId, appId, vId;
             ls = location.search;
             siteId = ls.match(/[\?&]site=([^&]*)/)[1];
             appId = ls.match(/[\?&]id=([^&]*)/)[1];
+            if(ls.match(/[\?&]vid=([^&]*)/)){
+                vId = ls.match(/[\?&]vid=([^&]*)/)[1];
+            }
+
             //
             srvSiteProvider.config(siteId);
             srvEnrollAppProvider.config(siteId, appId);
@@ -85,7 +89,8 @@ define(['require', 'enrollService'], function(require) {
             srvEnrollRecordProvider.config(siteId, appId);
             srvQuickEntryProvider.setSiteId(siteId);
 
-            srvTempAppProvider.config(siteId, appId);
+            srvTempAppProvider.config(siteId, appId, vId);
+            srvTempPageProvider.config(siteId, appId, vId);
         })();
     }]);
     ngApp.controller('ctrlFrame', ['$scope', 'srvSite', 'srvEnrollApp', 'templateShop', 'srvTempApp', function($scope, srvSite, srvEnrollApp, templateShop, srvTempApp) {

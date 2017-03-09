@@ -33,7 +33,7 @@ define(['frame'], function(ngApp) {
             srvTempApp.shareAsTemplate();
         };
         $scope.applyToHome = function(matter) {
-            srvTempApp.applyTome(matter);
+            srvTempApp.applyToHome(matter);
         };
         $scope.cancelAsTemplate = function() {
             srvTempApp.cancelAsTemplate();
@@ -49,11 +49,12 @@ define(['frame'], function(ngApp) {
                 });
             }*/
         };
-    }]);
-    ngApp.provider.controller('ctrlTempVersion', ['$scope', 'srvTempApp', function($scope, srvTempApp) {
-        var templates;
-        $scope.lookTemp = function(version) {
-            location.href = '/rest/pl/fe/template/detail?site=' + version.siteid + '&vid=' + vid;
+        $scope.lookView = function(num) {
+            $scope.subView = true;
+            console.log(1);
+        }
+        $scope.lookDetail = function(id) {
+            srvTempApp.lookDetail(id);
         }
         $scope.createVersion = function() {
            srvTempApp.createVersion();
@@ -79,6 +80,7 @@ define(['frame'], function(ngApp) {
                     var url = "/rest/pl/fe/template/enroll/page";
                     url += "?site=" + app.siteid;
                     url += "&id=" + app.id;
+                    url += "&vid=" + app.vid;
                     url += "&page=" + page.name;
                     location.href = url;
                 };

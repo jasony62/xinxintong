@@ -1,10 +1,10 @@
 <div id='publish-view' class='row'>
     <!-- preview -->
     <div class='col-md-6 hidden-xs' ng-controller="ctrlPreview">
-        <div id='simulator'>
+        <div id='simulator' >
             <iframe ng-src={{previewURL}}></iframe>
-            <div id='simulatorActions'>
-                <a class='btn btn-default btn-block' style='color:#337ab7' href="/rest/pl/fe/template/enroll/schema?site={{app.siteid}}&tid={{app.id}}&vid={{app.vid}}">修改题目 <i class="glyphicon glyphicon-chevron-right"></i></a>
+            <div id='simulatorActions' ng-hide='subView'>
+                <a class='btn btn-default btn-block' style='color:#337ab7' href="/rest/pl/fe/template/enroll/schema?site={{app.siteid}}&id={{app.id}}&vid={{app.vid}}">修改题目 <i class="glyphicon glyphicon-chevron-right"></i></a>
                 <div class="btn-group btn-block" ng-repeat="page in app.pages">
                     <button type="button" class="btn btn-default" ng-class="params.page===page?'btn-primary':'btn-default'" style="width:125px" title="{{page.title}}" ng-click="showPage(page)">{{page.title}}</button>
                     <button type="button" class="btn dropdown-toggle" ng-class="params.page===page?'btn-primary':'btn-default'" data-toggle="dropdown">
@@ -16,10 +16,7 @@
                     </ul>
                 </div>
             </div>
-        </div>
-        <div id='simulator' ng-if='subView'>
-            <iframe ng-src="{{previewURL}}"></iframe>
-            <div id='simulatorActions'>
+            <div id='viewActions' ng-show='subView'>
                 <button class='btn btn-default btn-block' ng-disabled="!params.hasPrev" ng-click="prevPage()"><i class='glyphicon glyphicon-arrow-up'>上一页</i></button>
                 <button class='btn btn-default btn-block' ng-disabled="!params.hasNext" ng-click="nextPage()"><i class='glyphicon glyphicon-arrow-down'>下一页</i></button>
             </div>
@@ -36,8 +33,8 @@
                 <div class="form-group">
                     <div class='form-group'>
                         <div class='input-group'>
-                            <label>模板名称</label>
-                            <input type='text' class='form-control' size='40' title='{{app.title}}' ng-model='app.title' tms-auto-update tms-wait=1000 tms-update="update('title')">
+                            <label>版本号</label>
+                            <input type='text' class='form-control' ng-model="app.version" disabled/>
                         </div>
                     </div>
                     <div class='form-group'>
@@ -70,8 +67,12 @@
                         </select>
                     </div>
                     <div class='form-group'>
-                        <label>模板说明</label>
+                        <label>模板描述</label>
                         <textarea type='text' class='form-control' ng-model="app.summary" tms-auto-update tms-wait=1000 tms-update="update('summary')"></textarea>
+                    </div>
+                    <div class='form-group'>
+                        <label>版本说明</label>
+                        <textarea type='text' class='form-control' ng-model="app.up_said" tms-auto-update tms-wait=1000 tms-update="update('up_said')"></textarea>
                     </div>
                     <!-- access rule -->
                     <div>
@@ -104,17 +105,15 @@
             <!-- end setting -->
             <uib-tab index="1" >
                 <uib-tab-heading><i class="glyphicon glyphicon-th-large"></i> 模板版本</uib-tab-heading>
-                <div class="form-group" ng-controller='ctrlTempVersion'>
-                    <ul class='list-group'>
-                        <li class='list-group-item' ng-repeat="v in app.versions" ng-mouseenter='hover=true'
-                        ng-mouseleave='hover=false'>
-                            <input type='radio' ng-true-value="'Y'" ng-false-value="'N'" ng-model="rows.allSelected">
-                            <span>{{v.version}}</span>
-                            <button class='btn btn-default btn-xs pull-right' ng-click='lookTemp(v)' ng-if="hover">
+                <div class="form-group">
+                    <div class="list-group">
+                        <a class='list-group-item' ng-class="{'active':hover==true}" ng-repeat='v in app.versions' ng-mouseenter='hover=true' ng-mouseleave='hover=false' ng-click='lookView(v.id)'>
+                            {{v.version}}
+                            <button class='btn btn-default btn-xs pull-right' ng-click='lookDetail(v.id)' ng-if="hover">
                                 <span>查看详情</span>
                             </button>
-                        </li>
-                    </ul>
+                        </a>
+                    </div>
                     <button class='btn btn-default btn-block' ng-click="createVersion()">创建新版本</button>
                     <button class='btn btn-default btn-block' ng-click="shareUser()">添加分享人</button>
                 </div>
@@ -122,24 +121,6 @@
         </uib-tabset>
     </div>
 </div>
-<script type="text/ng-template" id="pageSetting.html">
-    <div class='checkbox'>
-        <label>
-            <input type='checkbox' ng-true-value="'Y'" ng-false-value="'N'" ng-model='app.use_site_header' ng-change="update('use_site_header');">使用站点页眉</label>
-    </div>
-    <div class='checkbox'>
-        <label>
-            <input type='checkbox' ng-true-value="'Y'" ng-false-value="'N'" ng-model='app.use_site_footer' ng-change="update('use_site_footer');">使用站点页脚</label>
-    </div>
-    <div class='checkbox' ng-if="app.mission_id>0">
-        <label>
-            <input type='checkbox' ng-true-value="'Y'" ng-false-value="'N'" ng-model='app.use_mission_header' ng-change="update('use_mission_header');">使用项目页眉</label>
-    </div>
-    <div class='checkbox' ng-if="app.mission_id>0">
-        <label>
-            <input type='checkbox' ng-true-value="'Y'" ng-false-value="'N'" ng-model='app.use_mission_footer' ng-change="update('use_mission_footer');">使用项目页脚</label>
-    </div>
-</script>
 <script type="text/ng-template" id="templateShare.html">
     <div class="modal-header">
         <button class="close" type="button" ng-click="cancel()">×</button>
@@ -155,4 +136,26 @@
         <button class="btn btn-default" ng-click="ok()">确定</button>
     </div>
 </script>
-
+<script type="text/ng-template" id="templateDetail.html">
+    <div class="modal-header">
+        <button class="close" type="button" ng-click="cancel()">×</button>
+        <h5 class="modal-title">版本详情</h5>
+    </div>
+    <div class="modal-body">
+        <div class='form-group'>
+            <p class='form-control-static'>版本号：<span>{{version.title}}{{version.version}}</span></p>
+        </div>
+        <div class='form-group'>
+            <p class='form-control-static'>发布站点：<span ng-bind="version.site_name"></span></p>
+        </div>
+        <div class='form-group'>
+            <p class='form-control-static'>创建时间：<span ng-bind="version.create_at*1000|date:'yy-MM-dd'"></span></p>
+        </div>
+        <div class='form-group'>
+            <p class='form-control-static'>更新说明：<span ng-bind="version.up_said"></span></p>
+        </div>
+        <div class='form-group'>
+            <p class='form-control-static'>版本使用者：<span ng-bind="version."></span></p>
+        </div>
+    </div>
+</script>

@@ -93,9 +93,6 @@ define(['frame'], function(ngApp) {
 				$scope.page.total = rsp.data.total;
 			});
 		};
-		$scope.edit = function(template) {
-			location.href = '/rest/pl/fe/template/enroll?site=' + $scope.siteId + '&id=' + template.id;
-		}
 		$scope.message = function(template) {
 			location.href = '/rest/pl/fe/template/enroll?site=' + $scope.siteId + '&id=' + template.id;
 		}

@@ -79,7 +79,6 @@ define(['main'], function(ngApp) {
 			});
 		};
 		$scope.synWx = function(){
-			noticebox.success('完成同步');
 			serTmplmsg.synWx().then(function(data){
 				//建议后台将数据放到返回数据中。减少请求次数
 				//$scope.tmplmsgs = data;

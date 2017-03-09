@@ -30,43 +30,6 @@ class base extends \TMS_CONTROLLER {
 		return $user;
 	}
 	/**
-	 * 尽最大可能向用户发送消息
-	 *
-	 * $site
-	 * $openid
-	 * $message
-	 */
-	public function sendByOpenid($site, $openid, $message, $openid_src = null) {
-		$model=$this->model();
-		if (empty($openid_src)) {
-			$openid_src = $model->query_val_ss([
-				'ufrom',
-				'xxt_site_account',
-				"siteid='$siteId' and (wx_openid='$openid' or qy_openid='$openid' or yx_openid='$openid')"
-			]);
-		}
-
-		switch ($openid_src) {
-		case 'yx':
-			$config=$model->query_obj_ss(['joined,can_p2p','xxt_site_yx',['siteid'=>$site]]);
-			if ($config->joined === 'Y' && $config->can_p2p === 'Y') {
-				$rst = $this->model('sns\yx\proxy')->messageSend($message, array($openid));
-			} else {
-				$rst = $this->model('sns\yx\proxy')->messageCustomSend($message, $openid);
-			}
-			break;
-		case 'wx':
-			$rst = $this->model('sns\wx\proxy')->messageCustomSend($message, $openid);
-			break;
-		case 'qy':
-			$message['touser'] = $openid;
-			$message['agentid'] = $mpa->qy_agentid;
-			$rst = $this->model('sns\qy\proxy')->messageSend($message, $openid);
-			break;
-		}
-		return $rst;
-	}
-	/**
 	 * 发送模板消息
 	 *
 	 * $mpid
@@ -84,13 +47,8 @@ class base extends \TMS_CONTROLLER {
 		$modelTmpl = $this->model('matter\tmplmsg');
 		$tmpl = $modelTmpl->byId($tmplmsgId, array('cascaded' => 'Y'));
 		$siteId = $tmpl->siteid;
-		$ufrom = $modelTmpl->query_val_ss([
-			'ufrom',
-			'xxt_site_account',
-			"siteid='$siteId' and (wx_openid='$openid' or qy_openid='$openid' or yx_openid='$openid')"
-		]);
 		/*发送消息*/
-		if (!empty($tmpl->templateid) && $ufrom==='wx') {
+		if (!empty($tmpl->templateid)) {
 			/*只有微信号才有模板消息ID*/
 			$msg = array(
 				'touser' => $openid,
@@ -114,6 +72,7 @@ class base extends \TMS_CONTROLLER {
 			$msgid = $rst[1]->msgid;
 		} else {
 			/*如果不是微信号，将模板消息转换文本消息*/
+			$mpa = $this->model('mp\mpaccount')->byId($siteId, 'mpsrc');
 			$txt = array();
 			$txt[] = $tmpl->title;
 			if ($tmpl->params) {
@@ -123,7 +82,7 @@ class base extends \TMS_CONTROLLER {
 				}
 			}
 			if (!empty($url)) {
-				if ($ufrom === 'yx') {
+				if ($mpa->mpsrc === 'yx') {
 					$txt[] = '查看详情：\n' . $url;
 				} else {
 					$txt[] = " <a href='" . $url . "'>查看详情</a>";
@@ -136,7 +95,7 @@ class base extends \TMS_CONTROLLER {
 					"content" => $txt,
 				),
 			);
-			$this->sendByOpenid($siteId, $openid, $msg, $ufrom);
+			$this->sendByOpenid($siteId, $openid, $msg);
 			$msg['template_id'] = 0;
 			$msgid = 0;
 		}

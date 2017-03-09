@@ -47,8 +47,13 @@ class base extends \TMS_CONTROLLER {
 		$modelTmpl = $this->model('matter\tmplmsg');
 		$tmpl = $modelTmpl->byId($tmplmsgId, array('cascaded' => 'Y'));
 		$siteId = $tmpl->siteid;
+		$ufrom = $modelTmpl->query_val_ss([
+			'ufrom',
+			'xxt_site_account',
+			"siteid='$siteId' and (wx_openid='$openid' or qy_openid='$openid' or yx_openid='$openid')"
+		]);
 		/*发送消息*/
-		if (!empty($tmpl->templateid)) {
+		if (!empty($tmpl->templateid) && $ufrom==='wx') {
 			/*只有微信号才有模板消息ID*/
 			$msg = array(
 				'touser' => $openid,
@@ -72,7 +77,6 @@ class base extends \TMS_CONTROLLER {
 			$msgid = $rst[1]->msgid;
 		} else {
 			/*如果不是微信号，将模板消息转换文本消息*/
-			$mpa = $this->model('mp\mpaccount')->byId($siteId, 'mpsrc');
 			$txt = array();
 			$txt[] = $tmpl->title;
 			if ($tmpl->params) {
@@ -82,7 +86,7 @@ class base extends \TMS_CONTROLLER {
 				}
 			}
 			if (!empty($url)) {
-				if ($mpa->mpsrc === 'yx') {
+				if ($ufrom === 'yx') {
 					$txt[] = '查看详情：\n' . $url;
 				} else {
 					$txt[] = " <a href='" . $url . "'>查看详情</a>";

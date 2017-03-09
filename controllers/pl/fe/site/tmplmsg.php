@@ -290,13 +290,13 @@ class tmplmsg extends \pl\fe\base {
 	 * $openid
 	 * $message
 	 */
-	public function sendByOpenid($site, $openid, $message, $openid_src = null) {
+	protected function sendByOpenid($site, $openid, $message, $openid_src = null) {
 		$model=$this->model();
 		if (empty($openid_src)) {
 			$openid_src = $model->query_val_ss([
 				'ufrom',
 				'xxt_site_account',
-				"siteid='$siteId' and (wx_openid='$openid' or qy_openid='$openid' or yx_openid='$openid')"
+				"siteid='$site' and (wx_openid='$openid' or qy_openid='$openid' or yx_openid='$openid')"
 			]);
 		}
 
@@ -327,7 +327,7 @@ class tmplmsg extends \pl\fe\base {
 	 * $tmplmsgId
 	 * $openid
 	 */
-	protected function tmplmsgSendByOpenid($tmplmsgId, $openid, $data, $url = null, $snsConfig = null) {
+	protected function tmplmsgSendByOpenid($site,$tmplmsgId, $openid, $data, $url = null, $snsConfig = null) {
 		/*模板定义*/
 		is_object($data) && $data = (array) $data;
 		if (empty($url) && isset($data['url'])) {
@@ -337,11 +337,10 @@ class tmplmsg extends \pl\fe\base {
 
 		$modelTmpl = $this->model('matter\tmplmsg');
 		$tmpl = $modelTmpl->byId($tmplmsgId, array('cascaded' => 'Y'));
-		$siteId = $tmpl->siteid;
 		$ufrom = $modelTmpl->query_val_ss([
 			'ufrom',
 			'xxt_site_account',
-			"siteid='$siteId' and (wx_openid='$openid' or qy_openid='$openid' or yx_openid='$openid')"
+			"siteid='$site' and (wx_openid='$openid' or qy_openid='$openid' or yx_openid='$openid')"
 		]);
 		/*发送消息*/
 		if (!empty($tmpl->templateid) && $ufrom==='wx') {
@@ -358,7 +357,7 @@ class tmplmsg extends \pl\fe\base {
 				}
 			}
 			if ($snsConfig === null) {
-				$snsConfig = $this->model('sns\wx')->bySite($siteId);
+				$snsConfig = $this->model('sns\wx')->bySite($site);
 			}
 			$proxy = $this->model('sns\wx\proxy', $snsConfig);
 			$rst = $proxy->messageTemplateSend($msg);
@@ -390,13 +389,13 @@ class tmplmsg extends \pl\fe\base {
 					"content" => $txt,
 				),
 			);
-			$this->sendByOpenid($siteId, $openid, $msg, $ufrom);
+			$this->sendByOpenid($site, $openid, $msg, $ufrom);
 			$msg['template_id'] = 0;
 			$msgid = 0;
 		}
 		/*记录日志*/
 		$log = [
-			'siteid' => $siteId,
+			'siteid' => $site,
 			'openid' => $openid,
 			'tmplmsg_id' => $tmplmsgId,
 			'template_id' => $msg['template_id'],
@@ -407,5 +406,14 @@ class tmplmsg extends \pl\fe\base {
 		$modelTmpl->insert('xxt_log_tmplmsg', $log, false);
 
 		return array(true);
+	}
+	/**
+	 * 按模板消息给用户通过openID发送消息
+	 *
+	 */
+	public function send_action($site, $tmplmsgid, $openid, $data, $url=null){
+		$this->tmplmsgSendByOpenid($site,$tmplmsgid, $openid, $data, $url);
+
+		return new \ResponseData('ok');
 	}
 }

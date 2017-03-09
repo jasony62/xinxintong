@@ -375,8 +375,7 @@ class template_model extends \TMS_MODEL {
 		$order->favor_at = time();
 
 		$order->id = $this->insert('xxt_template_order', $order, true);
-
-		$this->update("update xxt_template set favor_num=favor_num + 1 where siteid = '$siteId' and id = ".$template->id);
+		$q = $this->update("update xxt_template set favor_num = favor_num+1 where id = ".$template->id);
 
 		return $order;
 	}

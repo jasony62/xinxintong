@@ -55,6 +55,13 @@ define(['main'], function(ngApp) {
 			});
 			return defer.promise;
 		};
+		this.synWx = function(){
+			var defer = $q.defer();
+			http2.get(_baseURL + '/synTemplateList?site=' + _siteId, function(rsp){
+				defer.resolve(rsp.data);
+			});
+			return defer.promise;
+		}
 	}]);
 	ngApp.provider.controller('ctrlTmplmsg', ['$scope', 'serTmplmsg', function($scope, serTmplmsg) {
 		serTmplmsg.setSiteId($scope.siteId);
@@ -70,6 +77,13 @@ define(['main'], function(ngApp) {
 			serTmplmsg.list().then(function(data) {
 				$scope.tmplmsgs = data;
 			});
+		};
+		$scope.synWx = function(){
+			serTmplmsg.synWx().then(function(data){
+				//建议后台将数据放到返回数据中。减少请求次数
+				//$scope.tmplmsgs = data;
+				$scope.doSearch();
+			})
 		};
 		$scope.doSearch();
 	}]);

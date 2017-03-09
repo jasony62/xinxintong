@@ -39,15 +39,7 @@ define(['frame'], function(ngApp) {
             srvTempApp.cancelAsTemplate();
         };
         $scope.removeAsTemplate = function() {
-            /*if (window.confirm('确定删除活动？')) {
-                srvEnrollApp.remove().then(function() {
-                    if ($scope.app.mission) {
-                        location = "/rest/pl/fe/matter/mission?site=" + $scope.app.siteid + "&id=" + $scope.app.mission.id;
-                    } else {
-                        location = '/rest/pl/fe/site/console?site=' + $scope.app.siteid;
-                    }
-                });
-            }*/
+            console.log(1);
         };
         $scope.lookView = function(num) {
             $scope.subView = true;

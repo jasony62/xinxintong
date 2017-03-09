@@ -73,8 +73,8 @@ define(['frame'], function(ngApp) {
 			url += '&pub=N';
 			url += page.j();
 			if (pageAt) {
-        page.at = pageAt;
-      }
+        		page.at = pageAt;
+      		}
 			http2.get(url, function(rsp) {
 				$scope.latests = rsp.data.templates;
 				$scope.page.total = rsp.data.total;
@@ -86,8 +86,8 @@ define(['frame'], function(ngApp) {
 			url += '&pub=Y';
 			url += page.j();
 			if (pageAt) {
-        page.at = pageAt;
-      }
+		        page.at = pageAt;
+		    }
 			http2.get(url, function(rsp) {
 				$scope.publishs = rsp.data.templates;
 				$scope.page.total = rsp.data.total;
@@ -101,8 +101,8 @@ define(['frame'], function(ngApp) {
 		}
 		$scope.createEnrollTemplate = function(matter) {
 			http2.get('/rest/pl/fe/template/create?site=' + $scope.siteId + '&matterType=' + matter, function(rsp) {
-          location.href = '/rest/pl/fe/template/enroll?site=' + $scope.siteId + '&id=' + rsp.data.id;
-      });
+          		location.href = '/rest/pl/fe/template/enroll?site=' + $scope.siteId + '&id=' + rsp.data.id;
+      		});
 		}
 		$scope.searchTemplate();
 	}]);

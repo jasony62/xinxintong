@@ -1534,16 +1534,16 @@ define(['require', 'schema', 'page'], function(require, schemaLib, pageLib) {
                     $uibModal.open({
                         templateUrl: '/views/default/pl/fe/site/template/component/templateDetail.html',
                         backdrop: 'static',
-                        controller: 'ctrlTempDetail',
-                        resolve: {
-                            version: function() {
-                                if (id === undefined) return false;
-                                http2.get('/rest/pl/fe/template/getVersion?site=' + _siteId + '&tid=' + _appId + '&vid=' + id, function(rsp) {
-                                     return angular.copy(rsp);
-                                });
-                            }
-                        }
-                    })
+                        controller: ['$scope', '$uibModalInstance', function($scope, $mi) {
+                            if (id === undefined) return false;
+                            http2.get('/rest/pl/fe/template/getVersion?site=' + _siteId + '&tid=' + _appId + '&vid=' + id, function(rsp) {
+                                 $scope.version = rsp.data;
+                            });
+                            $scope.cancel = function() {
+                                $mi.dismiss();
+                            };
+                        }]
+                    });
                 },
             }
             return _self;
@@ -1781,10 +1781,5 @@ define(['require', 'schema', 'page'], function(require, schemaLib, pageLib) {
         $scope.cancel = function() {
             $mi.dismiss('cancel');
         };
-    }]).controller('ctrlTempDetail',['$scope', '$uibModalInstance', 'version', function($scope, $uibModalInstance, version) {
-        $scope.version = version;
-        $scope.cancel = function() {
-            $uibModalInstance.dismiss('cancel');
-        };
-    }]);
+    }])
 });

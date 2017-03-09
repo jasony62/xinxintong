@@ -4,7 +4,7 @@
 </div>
 <div class="modal-body">
     <div class='form-group'>
-        <p class='form-control-static'>版本号：<span>{{version.title}}{{version.version}}</span></p>
+        <p class='form-control-static'>版本号：<span ng-bind="version.version"></span></p>
     </div>
     <div class='form-group'>
         <p class='form-control-static'>发布站点：<span ng-bind="version.site_name"></span></p>
@@ -16,6 +16,6 @@
         <p class='form-control-static'>更新说明：<span ng-bind="version.up_said"></span></p>
     </div>
     <div class='form-group'>
-        <p class='form-control-static'>版本使用者：<!-- <span ng-bind="version."></span> --></p>
+        <p class='form-control-static'>版本使用者：<span ng-bind="version.purchases"></span></p>
     </div>
 </div>

@@ -3,7 +3,7 @@ define(['frame', 'schema', 'wrap'], function(ngApp, schemaLib, wrapLib) {
     /**
      * 登记项管理
      */
-    ngApp.provider.controller('ctrlSchema', ['$scope', 'cstApp', 'srvEnrollPage', 'srvEnrollApp', function($scope, cstApp, srvEnrollPage, srvEnrollApp) {
+    ngApp.provider.controller('ctrlSchema', ['$scope', 'cstApp', 'srvEnrollPage', 'srvEnrollApp',  'srvTempApp', 'srvTempPage', function($scope, cstApp, srvEnrollPage, srvEnrollApp, srvTempApp, srvTempPage) {
         function _appendSchema(newSchema, afterIndex) {
             if ($scope.app._schemasById[newSchema.id]) {
                 alert(cstApp.alertMsg['schema.duplicated']);
@@ -137,7 +137,7 @@ define(['frame', 'schema', 'wrap'], function(ngApp, schemaLib, wrapLib) {
     /**
      * 应用的所有登记项
      */
-    ngApp.provider.controller('ctrlList', ['$scope', '$timeout', '$sce', 'srvEnrollPage', 'srvEnrollApp', 'srvEnrollSchema', function($scope, $timeout, $sce, srvEnrollPage, srvEnrollApp, srvEnrollSchema) {
+    ngApp.provider.controller('ctrlList', ['$scope', '$timeout', '$sce', 'srvEnrollPage', 'srvEnrollApp', 'srvEnrollSchema', 'srvTempApp', 'srvTempPage',function($scope, $timeout, $sce, srvEnrollPage, srvEnrollApp, srvEnrollSchema, srvTempApp, srvTempPage) {
         function _changeSchemaOrder(moved) {
             srvEnrollApp.update('data_schemas').then(function() {
                 var app = $scope.app;
@@ -286,7 +286,7 @@ define(['frame', 'schema', 'wrap'], function(ngApp, schemaLib, wrapLib) {
     /**
      * 登记项编辑
      */
-    ngApp.provider.controller('ctrlSchemaEdit', ['$scope', 'srvEnrollPage', function($scope, srvEnrollPage) {
+    ngApp.provider.controller('ctrlSchemaEdit', ['$scope', 'srvEnrollPage', 'srvTempPage',function($scope, srvEnrollPage, srvTempPage) {
         var editing;
 
         $scope.editing = editing = {};
@@ -359,7 +359,7 @@ define(['frame', 'schema', 'wrap'], function(ngApp, schemaLib, wrapLib) {
     /**
      * 导入导出记录
      */
-    ngApp.provider.controller('ctrlImport', ['$scope', 'http2', 'noticebox', 'srvEnrollApp', function($scope, http2, noticebox, srvEnrollApp) {
+    ngApp.provider.controller('ctrlImport', ['$scope', 'http2', 'noticebox', 'srvEnrollApp', 'srvTempApp', function($scope, http2, noticebox, srvEnrollApp, srvTempApp) {
         srvEnrollApp.get().then(function(app) {
             var r = new Resumable({
                 target: '/rest/pl/fe/matter/enroll/import/upload?site=' + app.siteid + '&app=' + app.id,

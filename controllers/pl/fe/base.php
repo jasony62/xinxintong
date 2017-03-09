@@ -30,6 +30,43 @@ class base extends \TMS_CONTROLLER {
 		return $user;
 	}
 	/**
+	 * 尽最大可能向用户发送消息
+	 *
+	 * $site
+	 * $openid
+	 * $message
+	 */
+	public function sendByOpenid($site, $openid, $message, $openid_src = null) {
+		$model=$this->model();
+		if (empty($openid_src)) {
+			$openid_src = $model->query_val_ss([
+				'ufrom',
+				'xxt_site_account',
+				"siteid='$siteId' and (wx_openid='$openid' or qy_openid='$openid' or yx_openid='$openid')"
+			]);
+		}
+
+		switch ($openid_src) {
+		case 'yx':
+			$config=$model->query_obj_ss(['joined,can_p2p','xxt_site_yx',['siteid'=>$site]]);
+			if ($config->joined === 'Y' && $config->can_p2p === 'Y') {
+				$rst = $this->model('sns\yx\proxy')->messageSend($message, array($openid));
+			} else {
+				$rst = $this->model('sns\yx\proxy')->messageCustomSend($message, $openid);
+			}
+			break;
+		case 'wx':
+			$rst = $this->model('sns\wx\proxy')->messageCustomSend($message, $openid);
+			break;
+		case 'qy':
+			$message['touser'] = $openid;
+			$message['agentid'] = $mpa->qy_agentid;
+			$rst = $this->model('sns\qy\proxy')->messageSend($message, $openid);
+			break;
+		}
+		return $rst;
+	}
+	/**
 	 * 发送模板消息
 	 *
 	 * $mpid
@@ -99,7 +136,7 @@ class base extends \TMS_CONTROLLER {
 					"content" => $txt,
 				),
 			);
-			$this->sendByOpenid($siteId, $openid, $msg);
+			$this->sendByOpenid($siteId, $openid, $msg, $ufrom);
 			$msg['template_id'] = 0;
 			$msgid = 0;
 		}

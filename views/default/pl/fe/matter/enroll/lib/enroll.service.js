@@ -1549,10 +1549,11 @@ define(['require', 'schema', 'page'], function(require, schemaLib, pageLib) {
             return _self;
         }];
     }).provider('srvTempPage', function() {
-        var _siteId, _appId;
-        this.config = function(siteId, appId) {
+        var _siteId, _appId, _vId;
+        this.config = function(siteId, appId, vId) {
             _siteId = siteId;
             _appId = appId;
+            _vId = vId;
         };
         this.$get = ['$uibModal', '$q', 'http2', 'noticebox', 'srvEnrollApp', 'srvTempApp', function($uibModal, $q, http2, noticebox, srvEnrollApp, srvTempApp) {
             var _self;
@@ -1573,7 +1574,7 @@ define(['require', 'schema', 'page'], function(require, schemaLib, pageLib) {
                                 };
                             }],
                         }).result.then(function(options) {
-                            http2.post('/rest/pl/fe/matter/enroll/page/add?site=' + _siteId + '&app=' + _appId, options, function(rsp) {
+                            http2.post('/rest/pl/fe/template/enroll/add?site=' + _siteId + '&tid=' + _appId + '&vid=' + _vId, options, function(rsp) {
                                 var page = rsp.data;
                                 pageLib.enhance(page);
                                 app.pages.push(page);
@@ -1596,10 +1597,11 @@ define(['require', 'schema', 'page'], function(require, schemaLib, pageLib) {
                             updated[name] = page[name];
                         }
                     });
-                    url = '/rest/pl/fe/matter/enroll/page/update';
+                    url = '/rest/pl/fe/template/enroll/updatePage';
                     url += '?site=' + _siteId;
-                    url += '&app=' + _appId;
-                    url += '&page=' + page.id;
+                    url += '&tid=' + _appId;
+                    url += '&vid=' + _vId;
+                    url += '&pageId=' + page.id;
                     url += '&cname=' + page.code_name;
                     http2.post(url, updated, function(rsp) {
                         page.$$modified = false;
@@ -1619,10 +1621,11 @@ define(['require', 'schema', 'page'], function(require, schemaLib, pageLib) {
                 remove: function(page) {
                     var defer = $q.defer();
                     srvEnrollApp.get().then(function(app) {
-                        var url = '/rest/pl/fe/matter/enroll/page/remove';
+                        var url = '/rest/pl/fe/template/enroll/remove';
                         url += '?site=' + _siteId;
-                        url += '&app=' + _appId;
-                        url += '&pid=' + page.id;
+                        url += '&tid=' + _appId;
+                        url += '&vid=' + _vId;
+                        url += '&pageId=' + page.id;
                         url += '&cname=' + page.code_name;
                         http2.get(url, function(rsp) {
                             app.pages.splice(app.pages.indexOf(page), 1);

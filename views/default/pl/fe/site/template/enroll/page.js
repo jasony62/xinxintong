@@ -18,7 +18,7 @@ define(['frame', 'schema', 'page', 'editor'], function(ngApp, schemaLib, pageLib
         };
         $scope.addPage = function() {
             $('body').click();
-            srvEnrollPage.create().then(function(page) {
+            srvTempPage.create().then(function(page) {
                 $scope.choosePage(page);
             });
         };
@@ -31,12 +31,12 @@ define(['frame', 'schema', 'page', 'editor'], function(ngApp, schemaLib, pageLib
                 editorProxy.purifyPage(page, true);
             }
 
-            return srvEnrollPage.update(page, props);
+            return srvTempPage.update(page, props);
         };
         $scope.delPage = function() {
             $('body').click();
             if (window.confirm('确定删除页面【' + $scope.ep.title + '】？')) {
-                srvEnrollPage.remove($scope.ep).then(function(pages) {
+                srvTempPage.remove($scope.ep).then(function(pages) {
                     $scope.choosePage(pages.length ? pages[0] : null);
                 });
             }
@@ -44,7 +44,7 @@ define(['frame', 'schema', 'page', 'editor'], function(ngApp, schemaLib, pageLib
         $scope.cleanPage = function() {
             $('body').click();
             if (window.confirm('确定清除页面【' + $scope.ep.title + '】的所有内容？')) {
-                srvEnrollPage.clean($scope.ep).then(function() {
+                srvTempPage.clean($scope.ep).then(function() {
                     editorProxy.getEditor().setContent('');
                 });
             }

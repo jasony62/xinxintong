@@ -34,7 +34,7 @@ class proxy_model extends \sns\proxybase {
 	 */
 	public function join($data) {
 		if (empty($data['signature']) || empty($data['timestamp']) || empty($data['nonce']) || empty($data['echostr'])) {
-			return array(false, 'failed-0');
+			return array(false, 'wx proxy failed-0');
 		}
 		$signature = $data['signature'];
 		$timestamp = $data['timestamp'];
@@ -65,7 +65,7 @@ class proxy_model extends \sns\proxybase {
 
 			return array(true, $echostr);
 		} else {
-			return array(false, 'failed-1');
+			return array(false, 'wx proxy failed-1');
 		}
 	}
 	/**
@@ -110,6 +110,9 @@ class proxy_model extends \sns\proxybase {
 			return array(false, $err);
 		}
 		curl_close($ch);
+		if (empty($response)) {
+			return array(false, 'response for getting accessToken is empty');
+		}
 		$token = json_decode($response);
 		if (!is_object($token)) {
 			return array(false, $response);
@@ -227,7 +230,7 @@ class proxy_model extends \sns\proxybase {
 		return $oauth;
 	}
 	/**
-	 *
+	 * 获得公众号关注用户
 	 */
 	public function getOAuthUser($code) {
 		/* 获得用户的openid */
@@ -236,7 +239,6 @@ class proxy_model extends \sns\proxybase {
 		$params["secret"] = $this->config->appsecret;
 		$params["code"] = $code;
 		$params["grant_type"] = "authorization_code";
-		//\TMS_APP::M('log')->log('yangyue', 'debug', json_encode($params));
 		$rst = $this->httpGet($cmd, $params, false, false);
 		if ($rst[0] === false) {
 			return $rst;

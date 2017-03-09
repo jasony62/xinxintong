@@ -79,7 +79,7 @@ class main extends \pl\fe\matter\base {
 		}
 
 		$model = $this->model('matter\signin');
-		$result = $model->byEnroll($enroll);
+		$result = $model->byEnrollApp($enroll);
 
 		return new \ResponseData($result);
 	}

@@ -36,7 +36,7 @@
             </div>
             <div class='form-group' ng-if="app.enroll_app_id">
                 <div class="input-group">
-                    <div class='form-control' ng-bind="app.enrollApp.title"></div>
+                    <input class='form-control' value="{{app.enrollApp.title}}" title="{{app.enrollApp.title}}" readonly>
                     <span class="input-group-btn">
                         <button class="btn btn-default" type="button" ng-click="cancelEnrollApp()">
                             <span class='glyphicon glyphicon-remove'></span>

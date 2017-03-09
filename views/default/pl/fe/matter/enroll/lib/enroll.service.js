@@ -45,7 +45,8 @@ define(['require', 'schema', 'page'], function(require, schemaLib, pageLib) {
                     verified: ''
                 },
                 tags: [],
-                data: {}
+                data: {},
+                keyword: ''
             });
             // records
             this._aRecords = oRecords;
@@ -1057,7 +1058,8 @@ define(['require', 'schema', 'page'], function(require, schemaLib, pageLib) {
             };
             _ins.notify = function(rows) {
                 var options = {
-                    matterTypes: cstApp.notifyMatter
+                    matterTypes: cstApp.notifyMatter,
+                    sender: 'enroll:' + _appId
                 };
                 _ins._oApp.mission && (options.missionId = _ins._oApp.mission.id);
                 pushnotify.open(_siteId, function(notify) {
@@ -1067,7 +1069,8 @@ define(['require', 'schema', 'page'], function(require, schemaLib, pageLib) {
                             targetAndMsg.users = [];
                             Object.keys(rows.selected).forEach(function(key) {
                                 if (rows.selected[key] === true) {
-                                    targetAndMsg.users.push(_ins._aRecords[key].userid);
+                                    var rec = _ins._aRecords[key];
+                                    targetAndMsg.users.push({ userid: rec.userid, enroll_key: rec.enroll_key });
                                 }
                             });
                         } else {
@@ -1075,7 +1078,7 @@ define(['require', 'schema', 'page'], function(require, schemaLib, pageLib) {
                         }
                         targetAndMsg.message = notify.message;
 
-                        url = '/rest/pl/fe/matter/enroll/record/notify';
+                        url = '/rest/pl/fe/matter/enroll/notice/send';
                         url += '?site=' + _siteId;
                         url += '&app=' + _appId;
                         url += '&tmplmsg=' + notify.tmplmsg.id;
@@ -1371,6 +1374,21 @@ define(['require', 'schema', 'page'], function(require, schemaLib, pageLib) {
                     http2.get(url, function(rsp) {
                         rsp.data.total && (page.total = rsp.data.total);
                         defer.resolve(rsp.data.logs);
+                    });
+
+                    return defer.promise;
+                }
+            };
+        }];
+    }).provider('srvEnrollNotice', function() {
+        this.$get = ['$q', 'http2', function($q, http2) {
+            return {
+                detail: function(batch) {
+                    var defer = $q.defer(),
+                        url;
+                    url = '/rest/pl/fe/matter/enroll/notice/logList?batch=' + batch.id;
+                    http2.get(url, function(rsp) {
+                        defer.resolve(rsp.data);
                     });
 
                     return defer.promise;

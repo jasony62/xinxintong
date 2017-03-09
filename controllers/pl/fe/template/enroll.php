@@ -146,20 +146,20 @@ class enroll extends \pl\fe\base {
 	 *
 	 * @param string $site
 	 * @param string $vid
-	 * @param string $pid
+	 * @param string $pageId
 	 */
-	public function remove_action($site, $tid, $vid, $pid, $cname) {
+	public function remove_action($site, $tid, $vid, $pageId, $cname) {
 		if (false === ($user = $this->accountUser())) {
 			return new \ResponseTimeout();
 		}
 
 		$vid = 'template:'.$vid;
-		$page = $this->model('matter\enroll\page')->byId($vid, $pid);
+		$page = $this->model('matter\enroll\page')->byId($vid, $pageId);
 
 		$modelCode = $this->model('code\page');
 		$modelCode->removeByName($site, $cname);
 
-		$rst = $modelCode->delete('xxt_enroll_page', "aid='$vid' and id=$pid");
+		$rst = $modelCode->delete('xxt_enroll_page', "aid='$vid' and id=$pageId");
 
 		return new \ResponseData($rst);
 	}

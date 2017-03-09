@@ -26,12 +26,12 @@ class enroll extends \pl\fe\base {
 			return new \ResponseTimeout();
 		}
 
-		$model = $this->model();
+		$modelTmp = $this->model('matter\template');
 
 		$q = [
 			'*',
 			"xxt_template",
-			"siteid = '".$model->escape($site)."' and state = 1",
+			"siteid = '".$modelTmp->escape($site)."' and state = 1",
 		];
 		if($pub === 'N'){
 			$q[2] .=" and pub_version = ''";
@@ -39,11 +39,11 @@ class enroll extends \pl\fe\base {
 			$q[2] .=" and pub_version <> ''";
 		}
 		if(!empty($matterType)){
-			$matterType = $model->escape($matterType);
+			$matterType = $modelTmp->escape($matterType);
 			$q[2] .=" and matter_type = '{$matterType}'";
 		}
 		if (!empty($scenario)) {
-			$scenario = $model->escape($scenario);
+			$scenario = $modelTmp->escape($scenario);
 			$q[2] .=" and scenario = '{$scenario}'";
 		}
 		if(!empty($scope)){
@@ -60,9 +60,15 @@ class enroll extends \pl\fe\base {
 			'r' => ['o' => ($page - 1) * $size, 'l' => $size],
 		];
 
-		$orders = $model->query_objs_ss($q, $q2);
+		if($orders = $modelTmp->query_objs_ss($q, $q2) ){
+			foreach ($orders as $v) {
+				//获取最新版本的信息
+				$v->lastVersion = $modelTmp->byVersion($site, $v->matter_type, $v->id, null, $v->last_version, ['cascaded' => 'N']);
+			}
+		}
+
 		$q[0] = "count(*)";
-		$total = $model->query_val_ss($q);
+		$total = $modelTmp->query_val_ss($q);
 
 		return new \ResponseData(['templates' => $orders, 'total' => $total]);
 	}

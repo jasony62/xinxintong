@@ -114,9 +114,12 @@ class template_model extends \TMS_MODEL {
 	 * @param  [type] $version [版本号]
 	 * @return [type]          [description]
 	 */
-	public function byVersion($site, $matterType, $tid = null, $vid = null, $version = null){
-		$q = [];
-		$q[0] = '*';
+	public function byVersion($site, $matterType, $tid = null, $vid = null, $version = null, $options = []){
+		$fields = isset($options['fields'])? $options['fields'] : '*' ;
+		$cascaded = isset($options['cascaded'])? $options['cascaded'] : 'Y' ;
+
+		$q = array();
+		$q[0] = $fields;
 		switch ($matterType) {
 			case 'enroll':
 				$q[1] = 'xxt_template_enroll';
@@ -140,24 +143,26 @@ class template_model extends \TMS_MODEL {
 		}
 
 		if($version = $this->query_obj_ss($q) ){
-			//获得所有使用者
-			$options = [
-				'from_siteid' => $site,
-				'template_id' => $version->template_id,
-				'template_version' => $version->version,
-				'purchase' => 'Y'
-			];
-			$q = [
-				'*',
-				'xxt_template_order',
-				$options
-			];
-			$q2['o'] = "order by purchase_at desc";
+			if($cascaded === 'Y'){
+				//获得版本所有使用者
+				$options = [
+					'from_siteid' => $site,
+					'template_id' => $version->template_id,
+					'template_version' => $version->version,
+					'purchase' => 'Y'
+				];
+				$q = [
+					'*',
+					'xxt_template_order',
+					$options
+				];
+				$q2['o'] = "order by purchase_at desc";
 
-			if($users = $this->query_objs_ss($q, $q2) ){
-				$version->purchases = $users;
-			}else{
-				$version->purchases = new \stdClass;
+				if($users = $this->query_objs_ss($q, $q2) ){
+					$version->purchases = $users;
+				}else{
+					$version->purchases = new \stdClass;
+				}
 			}
 		}
 
@@ -227,7 +232,7 @@ class template_model extends \TMS_MODEL {
 				$this->update(
 					'xxt_template',
 					['pub_version' => $version->version, 'last_version' => $version->version],
-					['siteid' => $site->id, 'id' => $tid]
+					['siteid' => $site, 'id' => $tid]
 				);
 			}
 
@@ -256,7 +261,7 @@ class template_model extends \TMS_MODEL {
 				$this->update(
 					'xxt_template',
 					['pub_version' => $version->version, 'last_version' => $version->version],
-					['siteid' => $site->id, 'id' => $template->id]
+					['siteid' => $site, 'id' => $tid]
 				);
 			}
 

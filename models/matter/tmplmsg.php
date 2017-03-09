@@ -53,7 +53,7 @@ class tmplmsg_model extends \TMS_MODEL {
 			$q3=[
 				'nickname',
 				'account'
-			]
+			];
 			foreach ($tmplmsgs as &$tmpl) {
 				$q[2] = "tmplmsg_id=$tmpl->id";
 				$tmpl->params = $this->query_objs_ss($q);

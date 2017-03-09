@@ -327,7 +327,7 @@ class tmplmsg extends \pl\fe\base {
 	 * $tmplmsgId
 	 * $openid
 	 */
-	protected function tmplmsgSendByOpenid($site,$tmplmsgId, $openid, $data, $url = null, $snsConfig = null) {
+	protected function tmplSendByOpenid($site,$tmplmsgId, $openid, $data, $url = null, $snsConfig = null) {
 		/*模板定义*/
 		is_object($data) && $data = (array) $data;
 		if (empty($url) && isset($data['url'])) {
@@ -406,14 +406,5 @@ class tmplmsg extends \pl\fe\base {
 		$modelTmpl->insert('xxt_log_tmplmsg', $log, false);
 
 		return array(true);
-	}
-	/**
-	 * 按模板消息给用户通过openID发送消息
-	 *
-	 */
-	public function send_action($site, $tmplmsgid, $openid, $data, $url=null){
-		$this->tmplmsgSendByOpenid($site,$tmplmsgid, $openid, $data, $url);
-
-		return new \ResponseData('ok');
 	}
 }

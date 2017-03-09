@@ -314,6 +314,8 @@ class template_model extends \TMS_MODEL {
 
 		$order->id = $this->insert('xxt_template_order', $order, true);
 
+		$this->update("update xxt_template set favor_num=favor_num + 1 where siteid = '$siteId' and id = ".$template->id);
+
 		return $order;
 	}
 	/**
@@ -324,6 +326,8 @@ class template_model extends \TMS_MODEL {
 			'xxt_template_order',
 			"siteid='{$siteId}' and template_id='{$template->id}'"
 		);
+
+		$this->update("update xxt_template set favor_num=favor_num - 1 where siteid = '$siteId' and id = ".$template->id." and favor_num > 0");
 
 		return $rst;
 	}
@@ -369,6 +373,8 @@ class template_model extends \TMS_MODEL {
 		$order->purchase_at = time();
 
 		$order->id = $this->insert('xxt_template_order', $order, true);
+
+		$this->update("update xxt_template set copied_num=copied_num+1 where siteid = '$siteId' and id = ".$template->id);
 
 		return $order;
 	}

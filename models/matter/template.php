@@ -38,7 +38,7 @@ class template_model extends \TMS_MODEL {
 					$template->scenarioConfig = new \stdClass;
 				}
 			}
-			//获取指定版本信息，如果未指定就用默认版本
+			//获取指定版本信息及页面，如果未指定就用默认版本
 			if ($cascaded === 'Y') {
 				//获取当前需要展示页面的版本的id
 				if(empty($vid)){
@@ -105,6 +105,63 @@ class template_model extends \TMS_MODEL {
 		}
 
 		return $result;
+	}
+	/**
+	 * [byVersion description]
+	 * @param  [type] $site    [description]
+	 * @param  [type] $tid     [description]
+	 * @param  [type] $vid     [版本id]
+	 * @param  [type] $version [版本号]
+	 * @return [type]          [description]
+	 */
+	public function byVersion($site, $matterType, $tid = null, $vid = null, $version = null){
+		$q = [];
+		$q[0] = '*';
+		switch ($matterType) {
+			case 'enroll':
+				$q[1] = 'xxt_template_enroll';
+				break;
+		}
+		if(empty($vid) ){//根据版本号和template_id获取版本信息
+			if(empty($tid) || empty($version) ){
+				return false;
+			}
+			$q[2] = [
+				'siteid' => $site,
+				'template_id' => $tid,
+				'version' => $version,
+				'state' => 1,
+			];
+		}else{
+			$q[2] = [
+				'siteid' => $site,
+				'id' => $vid,
+			];
+		}
+
+		if($version = $this->query_obj_ss($q) ){
+			//获得所有使用者
+			$options = [
+				'from_siteid' => $site,
+				'template_id' => $version->template_id,
+				'template_version' => $version->version,
+				'purchase' => 'Y'
+			];
+			$q = [
+				'*',
+				'xxt_template_order',
+				$options
+			];
+			$q2['o'] = "order by purchase_at desc";
+
+			if($users = $this->query_objs_ss($q, $q2) ){
+				$version->purchases = $users;
+			}else{
+				$version->purchases = new \stdClass;
+			}
+		}
+
+		return $version;
 	}
 	/**
 	 * 获得素材对应的模版

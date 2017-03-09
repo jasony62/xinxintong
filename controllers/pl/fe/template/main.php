@@ -198,7 +198,7 @@ class main extends \pl\fe\base {
 		$post = new \stdClass;
 		$post->title = '新模板（'.$matterType.'）';
 		$post->matter_type = $matterType;
-		$site = $this->model('site')->byid($site, ['fields' => 'id,name']);
+		$site = $this->model('site')->byId($site, ['fields' => 'id,name']);
 
 		if($matterType === 'enroll'){
 			$modelTmp = $this->model('matter\template\enroll');
@@ -557,29 +557,22 @@ class main extends \pl\fe\base {
 		}
 
 		$modelTmp = $this->model('matter\template');
-		if(false === ($template = $modelTmp->byId($tid, $vid)) ){
+
+		$template = $modelTmp->byId($tid, null, ['fields' => 'site_name,title,pic,summary,matter_type', 'cascaded' => 'N']);
+		if(!$template){
 			return new \ResponseError('模板获取失败，请检查参数');
 		}
-
-		$options = [
-			'from_siteid' => $site,
-			'template_id' => $tid,
-			'template_version' => $template->version,
-			'purchase' => 'Y'
-		];
-		$q = [
-			'*',
-			'xxt_template_order',
-			$options
-		];
-		$q2['o'] = "order by purchase_at desc";
-
-		if($users = $modelTmp->query_objs_ss($q, $q2) ){
-			$template->purchases = $users;
-		}else{
-			$template->purchases = new \stdClass;
+		//获取版本信息
+		$version = $modelTmp->byVersion($site, $template->matter_type, $tid, $vid);
+		if(!$version){
+			return new \ResponseError('版本获取失败，请检查参数');
 		}
 
-		return new \ResponseData($template);
+		$version->site_name = $template->site_name;
+		$version->title = $template->title;
+		$version->pic = $template->pic;
+		$version->summary = $template->summary;
+		$version->matter_type = $template->matter_type;
+		return new \ResponseData($version);
 	}
 }

@@ -60,7 +60,7 @@ class acl extends \pl\fe\base {
 		$acl->receiver_label = $account->email;
 
 		$modelTmpl = $this->model('matter\template');
-		if ($template = $modelTmpl->byid($tid, null, ['cascaded' => 'N'])) {
+		if ($template = $modelTmpl->byId($tid, null, ['cascaded' => 'N'])) {
 			$acl = $modelAcl->add($loginUser, $template, $acl);
 		}
 

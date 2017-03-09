@@ -249,6 +249,7 @@ class main extends \pl\fe\matter\base {
 		$newapp['modify_at'] = $current;
 		$newapp['scenario'] = $template->scenario;
 		$newapp['scenario_config'] = $template->scenario_config;
+		$newapp['multi_rounds'] = $template->multi_rounds;
 		$newapp['data_schemas'] = $modelApp->escape($template->data_schemas);
 		$newapp['open_lastroll'] = $template->open_lastroll;
 		$newapp['enrolled_entry_page'] = $template->enrolled_entry_page;

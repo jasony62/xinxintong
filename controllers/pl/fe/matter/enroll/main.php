@@ -219,7 +219,6 @@ class main extends \pl\fe\matter\base {
 		}
 
 		/* 创建活动 */
-		$template = $modelApp->escape($template);
 
 		$newaid = uniqid();
 		$newapp = array();

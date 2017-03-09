@@ -5,76 +5,113 @@
             <button type="button" class="btn btn-default"  ng-click='synWx()'>同步微信模板</button>
         </div>
     </div>
-    <div class='row'>
-        <div class='col-md-4' ng-repeat='t in tmplmsgs'>
-            <span ng-init="t.type= t.templateid?'wx_temp':'creat_temp'"></span>
-            <div class='thumbnail' ng-switch  ng-class="t.type" on="t.type">
-                <h4 class="title" ng-bind="t.title"></h4>
-                <p class="summary" ng-bind="t.example"></p>
-                <div class='attr'>
-                    <div class='creater_name' ng-bind='t.creater_name'></div>
-                    <div class=''  ng-bind="t.create_at*1000|date:'yy-MM-dd HH:mm'"></div>
-                </div>
-                <div class='actions' ng-switch-when="creat_temp">
-                    <button class='btn btn-sm btn-default' ng-click="edit(t)">查看</button>
-                    <button class='btn btn-sm btn-default' ng-click="edit(t)">修改</button>
-                </div>
-                <div class='actions' ng-switch-when="wx_temp">
-                    <button class='btn btn-sm btn-default' ng-click="edit(t)">查看</button>
+    <div class="row">
+        <div class="col-md-4">
+            <div class='row'>
+                <div class='col-md-12' ng-repeat='t in tmplmsgs' ng-click="edit(t)">
+                    <span ng-init="t.type= t.templateid?'wx_temp':'creat_temp'"></span>
+                    <div class='thumbnail' ng-switch  ng-class="t.type" on="t.type">
+                        <h4 class="title" ng-bind="t.title"></h4>
+                        <p class="summary" ng-bind="t.example"></p>
+                        <div class='attr'>
+                            <div class='creater_name' ng-bind='t.creater_name'></div>
+                            <div class=''  ng-bind="t.create_at*1000|date:'yy-MM-dd HH:mm'"></div>
+                        </div>
+                    </div>
                 </div>
             </div>
         </div>
-    </div>
-    <div class='form-horizontal'  ng-controller="ctrlSetting">
-        <div ng-if="editing">
-            <div class='form-group'>
-                <label class='col-md-2 control-label' for='title'>模板ID</label>
-                <div class='col-md-10'>
-                    <input type='text' class='form-control'  ng-model='editing.templateid' tms-auto-update tms-wait=1000 tms-update="update('templateid')">
-                </div>
-            </div>
-            <div class='form-group'>
-                <label class='col-md-2 control-label' for='title'>标题</label>
-                <div class='col-md-10'>
-                    <input type='text' class='form-control' ng-model='editing.title' tms-auto-update tms-wait=1000 tms-update="update('title')">
-                </div>
-            </div>
-            <div class='form-group'>
-                <label class='col-md-2 control-label'>创建日期</label>
-                <div class='col-md-10'>
-                    <p class='form-control-static'>{{editing.create_at*1000|date:'yyyy-MM-dd'}}</p>
-                </div>
-            </div>
-            <div class='form-group'>
-                <label class='col-md-2 control-label'>参数（可选）</label>
-                <div class='col-md-10'>
-                    <button class='btn btn-default btn-sm' ng-click='addParam();'>添加</button>
-                    <ul class='list-group' name='params' style='margin-bottom:0'>
-                        <li class='list-group-item clearfix' ng-repeat='p in editing.params'>
-                            <div class='col-md-6' style='padding:0'>
-                                <div class ='input-group'>
-                                    <input type='text' placeholder='参数名称' class='form-control' ng-model='p.pname' tms-auto-update tms-wait=1000 tms-update='updateParam(p);'>
+        <div class="col-md-7 col-md-offset-1">
+            <div class='form-horizontal'  ng-controller="ctrlSetting"  ng-if="editing">
+                <div ng-switch on="editing.type" >
+                        <div ng-switch-when="wx_temp">
+                            <div class='form-group'>
+                                <label class='col-md-3 control-label' for='title'>模板ID</label>
+                                <div class='col-md-9'>
+                                    <input type='text' readonly  class='form-control'  ng-model='editing.templateid' >
+                                </div>
+                            </div>
+                            <div class='form-group'>
+                                <label class='col-md-3 control-label' for='title'>标题</label>
+                                <div class='col-md-9'>
+                                    <input type='text'  class='form-control' ng-model='editing.title' tms-auto-update tms-wait=1000 tms-update="update('title')">
+                                </div>
+                            </div>
+                            <div class='form-group'>
+                                <label class='col-md-3 control-label'>创建日期</label>
+                                <div class='col-md-9'>
+                                    <p class='form-control-static' ng-bind="editing.create_at*1000|date:'yyyy-MM-dd'"></p>
+                                </div>
+                            </div>
+                            <div class='form-group'>
+                                <label class='col-md-3 control-label'>参数</label>
+                                <div class='col-md-9'>
+                                    <ul class='list-group' name='params' style='margin-bottom:0'>
+                                        <li class='list-group-item clearfix' ng-repeat='p in editing.params'>
+                                            <div class='col-md-5' style='padding:0'>
+                                                <input type='text' readonly placeholder='参数名称' class='form-control' ng-model='p.pname' >
+                                            </div>
+                                            <div class='col-md-6 col-md-offset-1' style='padding:0'>
+                                                <input type='text' readonly placeholder='参数标题' class='form-control' ng-model='p.plabel' >
+                                            </div>
+                                        </li>
+                                    </ul>
+                                </div>
+                            </div>
+                            <div class='form-group'>
+                                <label class='col-md-3 control-label'>内容示例</label>
+                                <div class='col-md-9'>
+                                    <textarea class='form-control' readonly ng-model='editing.example'  rows='5'></textarea>
+                                </div>
+                            </div>
+                        </div>
+                        <div ng-switch-when="creat_temp">
+                            <div class='form-group'>
+                                <label class='col-md-3 control-label' for='title'>标题</label>
+                                <div class='col-md-9'>
+                                    <input type='text' class='form-control' ng-model='editing.title' tms-auto-update tms-wait=1000 tms-update="update('title')">
+                                </div>
+                            </div>
+                            <div class='form-group'>
+                                <label class='col-md-3 control-label'>创建日期</label>
+                                <div class='col-md-9'>
+                                    <p class='form-control-static'>{{editing.create_at*1000|date:'yyyy-MM-dd'}}</p>
+                                </div>
+                            </div>
+                            <div class='form-group'>
+                                <label class='col-md-3 control-label'>参数（可选）</label>
+                                <div class='col-md-9'>
+                                    <button class='btn btn-default btn-sm' ng-click='addParam();'>添加</button>
+                                    <ul class='list-group' name='params' style='margin-bottom:0'>
+                                        <li class='list-group-item clearfix' ng-repeat='p in editing.params'>
+                                            <div class='col-md-6' style='padding:0'>
+                                                <div class ='input-group'>
+                                                    <input type='text' placeholder='参数名称' class='form-control' ng-model='p.pname' tms-auto-update tms-wait=1000 tms-update='updateParam(p);'>
                                 <span class='input-group-btn'>
                                     <button class='btn btn-default' ng-click='removeParam(p);'>
                                         <span class='glyphicon glyphicon-remove'></span>
                                     </button>
                                 </span>
+                                                </div>
+                                            </div>
+                                            <div class='col-md-6' style='padding:0'>
+                                                <input type='text' placeholder='参数标题' class='form-control' ng-model='p.plabel' tms-auto-update tms-wait=1000 tms-update='updateParam(p);'>
+                                            </div>
+                                        </li>
+                                    </ul>
                                 </div>
                             </div>
-                            <div class='col-md-6' style='padding:0'>
-                                <input type='text' placeholder='参数标题' class='form-control' ng-model='p.plabel' tms-auto-update tms-wait=1000 tms-update='updateParam(p);'>
+                            <div class='form-group'>
+                                <label class='col-md-3 control-label'>内容示例</label>
+                                <div class='col-md-9'>
+                                    <textarea class='form-control' ng-model='editing.example' tms-auto-update tms-wait=1000 tms-update="update('example');" rows='5'></textarea>
+                                </div>
                             </div>
-                        </li>
-                    </ul>
-                </div>
+                            <button class='btn btn-default pull-right' ng-click='remove()'>删除</button>
+                        </div>
+                    </div>
             </div>
-            <div class='form-group'>
-                <label class='col-md-2 control-label'>内容示例</label>
-                <div class='col-md-10'>
-                    <textarea class='form-control' ng-model='editing.example' tms-auto-update tms-wait=1000 tms-update="update('example');" rows='5'></textarea>
-                </div>
-            </div>
-            <button class='btn btn-default pull-right' ng-click='remove()' ng-if="editing.type==='creat_temp'">删除</button>
         </div>
     </div>
+
 </div>

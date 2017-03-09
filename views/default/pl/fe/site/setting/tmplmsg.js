@@ -85,6 +85,13 @@ define(['main'], function(ngApp) {
 				$scope.doSearch();
 			})
 		};
+		$scope.remove = function() {
+			serTmplmsg.remove($scope.editing.id).then(function() {
+				var i = $scope.tmplmsgs.indexOf($scope.editing);
+				$scope.tmplmsgs.splice(i, 1);
+				$scope.editing = null;
+			});
+		};
 		$scope.doSearch();
 	}]);
 	ngApp.provider.controller('ctrlSetting', ['$scope', 'serTmplmsg', function($scope, serTmplmsg) {
@@ -98,13 +105,7 @@ define(['main'], function(ngApp) {
 				});
 			}
 		};
-		$scope.remove = function() {
-			serTmplmsg.remove($scope.editing.id).then(function() {
-				var i = $scope.tmplmsgs.indexOf($scope.editing);
-				$scope.tmplmsgs.splice(i, 1);
-				$scope.editing = null;
-			});
-		};
+
 		$scope.addParam = function() {
 			serTmplmsg.addParam($scope.editing.id).then(function(data) {
 				var oNewParam = {

@@ -2,7 +2,7 @@ body{margin-bottom:50px;}
 .navbar-nav .active:after{content:' ';position:absolute;left:0;right:0;bottom:-1px;height:3px;background:red;}
 /*tmplmsg*/
 .margin-top{margin-top: 15px}
-.thumbnail{position:relative;height:180px;display:flex;flex-direction:column;padding:.5em 1em;}
+.thumbnail{position:relative;height:115px;display:flex;flex-direction:column;padding:.5em 1em;}
 .wx_temp:after{content:'微信';position:absolute;top:-8px;left:-8px;background:red;padding:2px 4px;font-size:60%;color:#fff;border-radius:4px;}
 .creat_temp:after{content:'自创';position:absolute;top:-8px;left:-8px;background:blue;padding:2px 4px;font-size:60%;color:#fff;border-radius:4px;}
 .recycle .thumbnail{cursor:auto;}

@@ -512,7 +512,7 @@ class main extends \pl\fe\base {
 		$q = array(
 			'*',
 			'',
-			['siteid' => $site, 'template_id' => $tid, 'version' => $lastVersion]
+			['siteid' => $site, 'template_id' => $tid, 'version' => $lastVersion, 'state' => 1]
 		);
 		if($matterType === 'enroll'){
 			$q[1] = 'xxt_template_enroll';
@@ -521,6 +521,10 @@ class main extends \pl\fe\base {
 		//获取此版本的数据以及页面
 		if(false === ($template = $modelTmp->byId($tid, $version->id)) ){
 			return new \ResponseError('模板获取失败，请检查参数');
+		}
+		//如果最新的版本处于未发布状态即返回当前最新的版本而不创建新版本
+		if($version->pub_status === 'N'){
+			return new \ResponseData($template);
 		}
 
 		//创建新版本
@@ -538,7 +542,7 @@ class main extends \pl\fe\base {
 		// 记录操作日志
 		$this->model('matter\log')->matterOp($site, $loginUser, $template, 'createVersion');
 
-		return new \ResponseData($rst);
+		return new \ResponseData($template);
 	}
 	/**
 	 * [getVersion_action 获取某个版本的详情]

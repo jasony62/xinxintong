@@ -1490,7 +1490,7 @@ define(['require', 'schema', 'page'], function(require, schemaLib, pageLib) {
                     var deferred;
                     deferred = $q.defer();
                     $uibModal.open({
-                        templateUrl: 'templateShare.html',
+                        templateUrl: '/views/default/pl/fe/site/template/component/templateShare.html',
                         controller: ['$scope', '$uibModalInstance', function($scope, $mi) {
                             $scope.data = {};
                             $scope.params = {};
@@ -1532,7 +1532,7 @@ define(['require', 'schema', 'page'], function(require, schemaLib, pageLib) {
                 },
                 lookDetail: function(id) {
                     $uibModal.open({
-                        templateUrl: 'templateDetail.html',
+                        templateUrl: '/views/default/pl/fe/site/template/component/templateDetail.html',
                         backdrop: 'static',
                         controller: 'ctrlTempDetail',
                         resolve: {

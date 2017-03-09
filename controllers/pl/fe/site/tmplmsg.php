@@ -91,14 +91,13 @@ class tmplmsg extends \pl\fe\base {
 		return new \ResponseData($rst);
 	}
 	/**
-	 * 更新模板消息属性,原则上不允许修改模板ID
+	 * 更新模板消息属性
 	 */
 	public function update_action($site, $id) {
 		if (false === ($user = $this->accountUser())) {
 			return new \ResponseTimeout();
 		}
 		$nv = $this->getPostJson();
-		$nv->templateid='';
 
 		$rst = $this->model()->update(
 			'xxt_tmplmsg',

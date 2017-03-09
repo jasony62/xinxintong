@@ -73,7 +73,7 @@ class enroll extends \pl\fe\base {
 	 * $page 页面的id
 	 * $cname 页面对应code page id
 	 */
-	public function updatePage_action($site, $vid, $pageId, $cname) {
+	public function updatePage_action($site, $tid, $vid, $pageId, $cname) {
 		if (false === ($loginUser = $this->accountUser())) {
 			return new \ResponseTimeout();
 		}
@@ -120,7 +120,47 @@ class enroll extends \pl\fe\base {
 
 		// 记录操作日志
 		$matter = $this->model('matter\template')->byId($tid, $vid, ['fields'=>'id,title,summary,pic','cascaded'=>'N']);
-		$this->model('matter\log')->matterOp($site, $loginUser, $matter, 'U');
+		$this->model('matter\log')->matterOp($site, $loginUser, $matter, 'updatePage');
+		return new \ResponseData($rst);
+	}
+	/**
+	 * 添加活动页面
+	 *
+	 * @param string $site
+	 * @param string $vid
+	 */
+	public function add_action($site, $tid, $vid) {
+		if (false === ($user = $this->accountUser())) {
+			return new \ResponseTimeout();
+		}
+
+		$options = $this->getPostJson();
+
+		$vid = 'template:'.$vid;
+		$newPage = $this->model('matter\enroll\page')->add($user, $site, $vid, $options);
+
+		return new \ResponseData($newPage);
+	}
+	/**
+	 * 删除活动的页面
+	 *
+	 * @param string $site
+	 * @param string $vid
+	 * @param string $pid
+	 */
+	public function remove_action($site, $tid, $vid, $pid, $cname) {
+		if (false === ($user = $this->accountUser())) {
+			return new \ResponseTimeout();
+		}
+
+		$vid = 'template:'.$vid;
+		$page = $this->model('matter\enroll\page')->byId($vid, $pid);
+
+		$modelCode = $this->model('code\page');
+		$modelCode->removeByName($site, $cname);
+
+		$rst = $modelCode->delete('xxt_enroll_page', "aid='$vid' and id=$pid");
+
 		return new \ResponseData($rst);
 	}
 }

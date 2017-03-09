@@ -243,10 +243,9 @@ class main extends \pl\fe\base {
 		}
 
 		$modelTmp = $this->model('matter\template');
-		$template = $modelTmp->byId($tid, $vid, ['cascaded'=>'N']);
+		$template = $modelTmp->byId($tid, $vid);
 
-		$version = $this->model('matter\template\enroll')->checkVersion($site, $vid);
-		if($version[0]){
+		if($template->pub_status === 'Y'){
 			return new \ResponseError('当前版本已发布，不可更改');
 		}
 
@@ -530,7 +529,7 @@ class main extends \pl\fe\base {
 		//创建新版本
 		$current = time();
 		if($matterType === 'enroll'){
-			$versionNew = $this->model('matter\template\enroll')->createMatterEnroll($site, $tid, $template, $loginUser, $current, 'N');
+			$versionNew = $this->model('matter\template\enroll')->createNewVersion($site, $tid, $template, $loginUser, $current, 'N');
 		}
 		$rst = $modelTmp->update(
 			'xxt_template',

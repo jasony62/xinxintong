@@ -223,7 +223,7 @@ class template_model extends \TMS_MODEL {
 			/*创建版本*/
 			if($matter->matter_type === 'enroll'){
 				$matter = $this->model('matter\enroll')->byId($matter->matter_id);
-				$version = $this->model('matter\template\enroll')->createMatterEnroll($site->id, $tid, $matter, $account, $current, 'Y');
+				$version = $this->model('matter\template\enroll')->createNewVersion($site->id, $tid, $matter, $account, $current, 'Y');
 				$this->update(
 					'xxt_template',
 					['pub_version' => $version->version, 'last_version' => $version->version],
@@ -252,7 +252,7 @@ class template_model extends \TMS_MODEL {
 			/*创建新的版本*/
 			if($matter->matter_type === 'enroll'){
 				$matter = $this->model('matter\enroll')->byId($matter->matter_id);
-				$version = $this->model('matter\template\enroll')->createMatterEnroll($site->id, $template->id, $matter, $account, $current, 'Y');
+				$version = $this->model('matter\template\enroll')->createNewVersion($site->id, $template->id, $matter, $account, $current, 'Y');
 				$this->update(
 					'xxt_template',
 					['pub_version' => $version->version, 'last_version' => $version->version],

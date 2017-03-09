@@ -76,7 +76,7 @@ class enroll_model extends \TMS_MODEL {
 		}
 	}
 	/**
-	 * [createMatterEnroll 创建新版本]
+	 * [createNewVersion 创建新版本]
 	 * @param  [type] $site      [description]
 	 * @param  [type] $tid       [description]
 	 * @param  [type] &$matter   [description]
@@ -85,7 +85,7 @@ class enroll_model extends \TMS_MODEL {
 	 * @param  string $pubStatus [是否为发布状态]
 	 * @return [type]            [description]
 	 */
-	public function createMatterEnroll($site, $tid ,&$matter, $user, $time = '', $pubStatus = 'N'){
+	public function createNewVersion($site, $tid ,&$matter, $user, $time = '', $pubStatus = 'N'){
 		$current = empty($time)? time() : $time;
 		//创建模板版本号
 		$version = $this->model('matter\template')->getVersion($site, $tid, 'enroll');

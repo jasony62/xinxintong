@@ -407,4 +407,29 @@ class tmplmsg extends \pl\fe\base {
 
 		return array(true);
 	}
+	public function send_action($site,$name,$openid,$cascaded = 'Y'){
+		if (false === ($user = $this->accountUser())) {
+			return new \ResponseTimeout();
+		}
+
+		$modelNot = $this->model('site\notice');
+		if (false === ($notice = $modelNot->byName($site, $name))) {
+			/**
+			 * 如果不存在就创建
+			 */
+			$data = [
+				'creater' => $user->id,
+				'creater_name' => $user->name,
+				'create_at' => time(),
+			];
+			$notice = $modelNot->add($site, $name, $data);
+		} else {
+			if ($cascaded === 'Y' && $notice->tmplmsg_config_id) {
+				$modelMap = $this->model('matter\tmplmsg\config');
+				$notice->tmplmsgConfig = $modelMap->byId($notice->tmplmsg_config_id, ['cascaded' => 'Y']);
+			}
+		}
+
+		var_dump($notice);
+	}
 }

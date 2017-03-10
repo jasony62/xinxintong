@@ -54,4 +54,25 @@ class acl_model extends \TMS_MODEL {
 
 		return $acl;
 	}
+	/**
+	 * [aclers description]
+	 * @param  [type] $tid     [description]
+	 * @param  array  $options [description]
+	 * @return [type]          [description]
+	 */
+	public function aclers($tid, $options = []){
+		$fields = isset($options['fields'])? $options['fields'] : '*';
+
+		$q = [
+			$fields,
+			'xxt_template_acl',
+			['template_id' => $tid]
+		];
+		$q2['o'] = "order by create_at desc";
+		$users = $this->query_objs_ss($q, $q2);
+		$q[0] = "count(*)";
+		$total = $this->query_val_ss($q);
+
+		return new \ResponseData(['aclers' => $users, 'total' => $total]);
+	}
 }

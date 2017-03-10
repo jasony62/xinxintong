@@ -96,4 +96,19 @@ class acl extends \pl\fe\base {
 
 		return new \ResponseData($rst);
 	}
+	/**
+	 * [listAcler_action 获取分享者列表]
+	 * @param  [type] $tid [description]
+	 * @return [type]      [description]
+	 */
+	public function listAcler_action($tid){
+		if (false === ($loginUser = $this->accountUser())) {
+			return new \ResponseTimeout();
+		}
+
+		$modelAcl = $this->model('matter\template\acl');
+		$acls = $modelAcl->aclers($tid);
+
+		return $acls;
+	}
 }

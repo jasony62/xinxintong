@@ -35,12 +35,13 @@ class acl extends \pl\fe\base {
 	 * @param string $site
 	 * @param int $mission mission's id
 	 */
-	public function add_action($label, $tid) {
+	public function add_action($label, $tid = null, $matter = null) {
 		if (false === ($loginUser = $this->accountUser())) {
 			return new \ResponseTimeout();
 		}
 
 		$modelAcnt = $this->model('account');
+		$modelTmpl = $this->model('matter\template');
 		$account = $modelAcnt->getAccountByAuthedId($label);
 		if (!$account) {
 			return new \ResponseError('指定的账号不是注册账号，请先注册！');
@@ -48,8 +49,22 @@ class acl extends \pl\fe\base {
 		/**
 		 * has joined?
 		 */
+		if(empty($tid) && !empty($matter)){
+			list($matterId,$matterType) = explode(',', $matter);
+
+			if (false === ($template = $modelTmpl->byMatter($matterId, $matterType)) ) {
+				return new \ResponseError('指定的模板不存在');
+			}
+		}else if(!empty($tid)) {
+			if (false === ($template = $modelTmpl->byId($tid, null, ['cascaded' => 'N'])) ) {
+				return new \ResponseError('指定的模板不存在');
+			}
+		}else{
+			return new \ResponseError('请检查参数');
+		}
+
 		$modelAcl = $this->model('matter\template\acl');
-		$acl = $modelAcl->byReceiver($loginUser->id, $tid);
+		$acl = $modelAcl->byReceiver($account->uid, $template->id);
 		if ($acl) {
 			return new \ResponseError('【' . $label . '】已经在分享列表中！');
 		}
@@ -58,11 +73,7 @@ class acl extends \pl\fe\base {
 		$acl = new \stdClass;
 		$acl->receiver = $account->uid;
 		$acl->receiver_label = $account->email;
-
-		$modelTmpl = $this->model('matter\template');
-		if ($template = $modelTmpl->byId($tid, null, ['cascaded' => 'N'])) {
-			$acl = $modelAcl->add($loginUser, $template, $acl);
-		}
+		$acl = $modelAcl->add($loginUser, $template, $acl);
 
 		$acl->account = (object) ['nickname' => $account->nickname];
 

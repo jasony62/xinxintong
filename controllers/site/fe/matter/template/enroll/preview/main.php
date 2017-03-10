@@ -48,7 +48,7 @@ class main extends \TMS_CONTROLLER {
 		$aid = 'template:'.$template->vid;
 		$oOpenPage = $modelPage->byName($aid, $page);
 		if (empty($oOpenPage)) {
-			return new \ResponseError('页面不存在');
+			return new \ResponseError('模板页面不存在');
 		}
 		$params['page'] = $oOpenPage;
 

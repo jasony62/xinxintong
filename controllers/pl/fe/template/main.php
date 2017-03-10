@@ -646,4 +646,47 @@ class main extends \pl\fe\base {
 		$version->matter_type = $template->matter_type;
 		return new \ResponseData($version);
 	}
+	/**
+	 * [remove_action 删除模板]
+	 * @param  [type] $site [description]
+	 * @param  [type] $tid  [description]
+	 * @return [type]       [description]
+	 */
+	public function remove_action($site, $tid){
+		if (false === ($loginUser = $this->accountUser())) {
+			return new \ResponseTimeout();
+		}
+
+		$modelTmp = $this->model('matter\template');
+		if(false === ($template = $modelTmp->byId($tid)) ){
+			return new \ResponseError('模板获取失败，请检查参数');
+		}
+
+		if(!empty($template->pub_version) ){
+			return new \ResponseError('模板已经发布,不能删除');
+		}
+
+		$modelTmp->update(
+				'xxt_template',
+				['state' => 0],
+				['id' => $tid]
+			);
+		$modelTmp->update(
+				'xxt_template_enroll',
+				['state' => 0],
+				['siteid' => $site, 'template_id' => $tid]
+			);
+		$modelTmp->delete(
+				'xxt_template_acl',
+				['template_id' => $tid]
+			);
+		$modelTmp->delete(
+				'xxt_template_order',
+				['template_id' => $tid]
+			);
+
+		return new \ResponseData(true);
+	}
+
+
 }

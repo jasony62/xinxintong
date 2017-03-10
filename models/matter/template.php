@@ -468,4 +468,25 @@ class template_model extends \TMS_MODEL {
 
 		return $seq;
 	}
+	/**
+	 * 
+	 */
+	public function getEntryUrl($site, $tid, $vid = null) {
+		$url = "http://" . $_SERVER['HTTP_HOST'];
+
+		if ($site === 'platform') {
+			$app = $this->byId($tid, ['cascaded' => 'N']);
+			$url .= "/rest/site/fe/matter/template";
+			$url .= "?site={$app->siteid}&tid=" . $tid;
+		} else {
+			$url .= "/rest/site/fe/matter/enroll";
+			$url .= "?site={$site}&tid=" . $tid;
+		}
+
+		if(!empty($vid) ){
+			$url .= "&vid=".$vid;
+		}
+		return $url;
+	}
+
 }

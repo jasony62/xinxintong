@@ -34,11 +34,13 @@ $sqls[] = "alter table xxt_template add create_at int not null after creater_nam
 //
 $sqls[] = "alter table xxt_template_acl change matter_id matter_id varchar(40) not null default ''";
 $sqls[] = "alter table xxt_template_acl change matter_type matter_type varchar(20) not null default ''";
+// $sqls[] = "alter table xxt_template_acl add state tinyint not null default 1";
 //
 $sqls[] = "alter table xxt_template_order change matter_id matter_id varchar(40) not null default ''";
 $sqls[] = "alter table xxt_template_order change matter_type matter_type varchar(20) not null default ''";
 $sqls[] = "alter table xxt_template_order change summary summary varchar(240) not null default ''";
 $sqls[] = "alter table xxt_template_order add template_version varchar(10) not null after template_id";
+// $sqls[] = "alter table xxt_template_order add state tinyint not null default 1";
 //
 $sqls[] = "alter table xxt_enroll add template_version varchar(10) not null default '' after template_id";
 

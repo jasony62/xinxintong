@@ -305,20 +305,22 @@ class tmplmsg extends \pl\fe\base {
 
 		switch ($openid_src) {
 		case 'yx':
-			$config=$model->query_obj_ss(['joined,can_p2p','xxt_site_yx',['siteid'=>$site]]);
+			$config=$this->model('sns\yx')->bySite($site);
 			if ($config->joined === 'Y' && $config->can_p2p === 'Y') {
-				$rst = $this->model('sns\yx\proxy')->messageSend($message, array($openid));
+				$rst = $this->model('sns\yx\proxy',$config)->messageSend($message, array($openid));
 			} else {
-				$rst = $this->model('sns\yx\proxy')->messageCustomSend($message, $openid);
+				$rst = $this->model('sns\yx\proxy',$config)->messageCustomSend($message, $openid);
 			}
 			break;
 		case 'wx':
-			$rst = $this->model('sns\wx\proxy')->messageCustomSend($message, $openid);
+			$config=$this->model('sns\wx')->bySite($site);
+			$rst = $this->model('sns\wx\proxy',$config)->messageCustomSend($message, $openid);
 			break;
 		case 'qy':
+			$config=$this->model('sns\qy')->bySite($site);
 			$message['touser'] = $openid;
-			$message['agentid'] = $mpa->qy_agentid;
-			$rst = $this->model('sns\qy\proxy')->messageSend($message, $openid);
+			$message['agentid'] = $config->agentid;		
+			$rst = $this->model('sns\qy\proxy',$config)->messageSend($message, $openid);
 			break;
 		default:
 			$rst=array(false);

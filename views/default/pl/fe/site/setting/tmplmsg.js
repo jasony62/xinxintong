@@ -70,9 +70,8 @@ define(['main'], function(ngApp) {
 				$scope.tmplmsgs.push(data);
 			});
 		};
-		$scope.edit = function(tmplmsg, i) {
+		$scope.edit = function(tmplmsg) {
 			$scope.editing = tmplmsg;
-			$scope.editing.index = i;
 		};
 		$scope.doSearch = function() {
 			serTmplmsg.list().then(function(data) {

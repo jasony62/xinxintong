@@ -94,7 +94,7 @@ define(['frame'], function(ngApp) {
 			});
 		};
 		$scope.message = function(template) {
-			location.href = '/rest/pl/fe/template/enroll?site=' + $scope.siteId + '&id=' + template.id;
+			location.href = '/rest/pl/fe/template/enroll?site=' + $scope.siteId + '&id=' + template.id + '&vid=' + template.lastVersion.id;
 		}
 		$scope.filter = function() {
 

@@ -1527,7 +1527,7 @@ define(['require', 'schema', 'page'], function(require, schemaLib, pageLib) {
                         url += '&lastVersion=' + _oApp.last_version;
                         url += '&matterType=' + _oApp.matter_type;
                     http2.get(url, function(rsp) {
-                        location.href = '/rest/pl/fe/template/enroll?site=' + _siteId + '&id=' + _appId + '&vid=' + rsp.version;
+                        location.href = '/rest/pl/fe/template/enroll?site=' + _siteId + '&id=' + _appId + '&vid=' + rsp.data.vid;
                     });
                 },
                 lookDetail: function(id) {

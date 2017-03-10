@@ -8,9 +8,9 @@
     <div class="row">
         <div class="col-md-4">
             <div class='row'>
-                <div class='col-md-12' ng-repeat='t in tmplmsgs' ng-click="edit(t)">
+                <div class='col-md-12' ng-repeat='t in tmplmsgs' ng-click="edit(t,$index)">
                     <span ng-init="t.type= t.templateid?'wx_temp':'creat_temp'"></span>
-                    <div class='thumbnail' ng-switch  ng-class="t.type" on="t.type">
+                    <div class='thumbnail' ng-switch  ng-class="[t.type,$index===editing.index&&'thumbnailActive']" on="t.type">
                         <h4 class="title" ng-bind="t.title"></h4>
                         <p class="summary" ng-bind="t.example"></p>
                         <div class='attr'>
@@ -22,7 +22,7 @@
             </div>
         </div>
         <div class="col-md-7 col-md-offset-1">
-            <div class='form-horizontal'  ng-controller="ctrlSetting"  ng-if="editing">
+            <div class='form-horizontal' ng-controller="ctrlSetting" ng-if="editing" ng-style="{margin:(editing.index*135+'px')+' 0 0 0'}">
                 <div ng-switch on="editing.type" >
                         <div ng-switch-when="wx_temp">
                             <div class='form-group'>

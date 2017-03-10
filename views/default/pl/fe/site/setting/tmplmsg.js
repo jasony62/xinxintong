@@ -70,8 +70,9 @@ define(['main'], function(ngApp) {
 				$scope.tmplmsgs.push(data);
 			});
 		};
-		$scope.edit = function(tmplmsg) {
+		$scope.edit = function(tmplmsg, i) {
 			$scope.editing = tmplmsg;
+			$scope.editing.index = i;
 		};
 		$scope.doSearch = function() {
 			serTmplmsg.list().then(function(data) {
@@ -80,7 +81,7 @@ define(['main'], function(ngApp) {
 		};
 		$scope.synWx = function(){
 			serTmplmsg.synWx().then(function(data){
-				//建议后台将数据放到返回数据中。减少请求次数
+				//建议后台将数据放到返回数据中。减少一次请求
 				//$scope.tmplmsgs = data;
 				$scope.doSearch();
 				noticebox.success('完成同步');

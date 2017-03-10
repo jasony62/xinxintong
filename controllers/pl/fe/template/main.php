@@ -51,6 +51,19 @@ class main extends \pl\fe\base {
 
 		$modelTmpl = $this->model('matter\template');
 		if ($template = $modelTmpl->byMatter($matter->matter_id, $matter->matter_type)) {
+			//检查是否已有未发布的版本
+			if($matter->matter_type === 'enroll'){
+				$table = 'xxt_template_enroll';
+			}
+			$p = [
+				'id,version',
+				$table,
+				['siteid' => $site->id, 'template_id' => $template->id, 'pub_status' => 'N', 'state' => 1]
+			];
+			if($version = $modelTmpl->query_obj_ss($p) ){
+				return new \ResponseError('此模板已存在尚未发布的版本');
+			}
+
 			$template = $modelTmpl->putMatter($site, $loginUser, $matter, $template);
 		} else {
 			$template = $modelTmpl->putMatter($site, $loginUser, $matter);
@@ -245,15 +258,12 @@ class main extends \pl\fe\base {
 		$modelTmp = $this->model('matter\template');
 		$template = $modelTmp->byId($tid, $vid);
 
-		if($template->pub_status === 'Y'){
-			return new \ResponseError('当前版本已发布，不可更改');
-		}
-
 		/**
 		 * 处理数据
 		 */
 		$current = time();
 		$nv = $this->getPostJson();
+		$rst = false;
 		if($template->matter_type === 'enroll'){
 			foreach ($nv as $n => $v) {
 				if ($n === 'data_schemas') {
@@ -304,6 +314,10 @@ class main extends \pl\fe\base {
 			// }
 			
 			if(!empty($dataE)){
+				if($template->pub_status === 'Y'){
+					return new \ResponseError('当前版本已发布，不可更改');
+				}
+
 				$rst = $modelTmp->update('xxt_template_enroll', $dataE, ["id" => $vid]);
 			}
 		}
@@ -437,7 +451,7 @@ class main extends \pl\fe\base {
 		return $config;
 	}
 	/**
-	 * 发布模版,发布最新编辑的版本
+	 * 发布模版,发布未发布的版本
 	 *
 	 * @param string $site
 	 * @param string $scope [Platform|Site]
@@ -447,17 +461,39 @@ class main extends \pl\fe\base {
 			return new \ResponseTimeout();
 		}
 
+		$post = $this->getPostJson();
 		$modelTmp = $this->model('matter\template');
-		if(false === ($template = $modelTmp->byId($tid, null, ['cascaded'=>'N'])) ){
+		//获取未发布的版本
+		$p = [
+			'id,version',
+			'xxt_template_enroll',
+			['siteid' => $site, 'template_id' => $tid, 'pub_status' => 'N', 'state' => 1]
+		];
+		$version = $modelTmp->query_obj_ss($p);
+		//如果没有可发布的版本
+		if(!$version){
+			if(isset($post->visible_scope) ){
+				/* 修改发布的平台 */
+				$rst = $modelTmp->update(
+					'xxt_template',
+					['visible_scope' => $post->visible_scope],
+					['id' => $tid]
+				);
+				return new \ResponseData($rst);
+			}
+			
+			return new \ResponseError('没有可发布的版本');
+		}
+
+		if(false === ($template = $modelTmp->byId($tid, $version->id, ['cascaded'=>'N'])) ){
 			return new \ResponseError('模板获取失败，请检查参数');
 		}
 
 		$current = time();
 		$options = [
 			'put_at' => $current,
-			'pub_version' => $template->last_version
+			'pub_version' => $version->version
 		];
-		$post = $this->getPostJson();
 		isset($post->visible_scope) && $options['visible_scope'] = $post->visible_scope;
 
 		/* 发布模版 */
@@ -470,7 +506,7 @@ class main extends \pl\fe\base {
 			$modelTmp->update(
 				'xxt_template_enroll',
 				['pub_status' => 'Y'],
-				['version' => $template->last_version, 'template_id' => $tid]
+				['id' => $version->id]
 			);
 		}
 
@@ -523,24 +559,34 @@ class main extends \pl\fe\base {
 			return new \ResponseTimeout();
 		}
 
+		if($matterType === 'enroll'){
+			$table = 'xxt_template_enroll';
+		}
 		$modelTmp = $this->model('matter\template');
+		//如果有未发布版本即返回当前未发布版本而不创建新版本
+		$p = [
+			'id',
+			$table,
+			['siteid' => $site, 'template_id' => $tid, 'pub_status' => 'N', 'state' => 1]
+		];
+		if($ver = $modelTmp->query_obj_ss($p) ){
+			$vid = $ver->id;
+			$template = $modelTmp->byId($tid, $vid);
+
+			return new \ResponseData($template);
+		}
+
 		//获取最新版本
 		$q = array(
-			'*',
-			'',
+			'id',
+			$table,
 			['siteid' => $site, 'template_id' => $tid, 'version' => $lastVersion, 'state' => 1]
 		);
-		if($matterType === 'enroll'){
-			$q[1] = 'xxt_template_enroll';
-		}
 		$version = $modelTmp->query_obj_ss($q);
+
 		//获取此版本的数据以及页面
 		if(false === ($template = $modelTmp->byId($tid, $version->id)) ){
 			return new \ResponseError('模板获取失败，请检查参数');
-		}
-		//如果最新的版本处于未发布状态即返回当前最新的版本而不创建新版本
-		if($version->pub_status === 'N'){
-			return new \ResponseData($template);
 		}
 
 		//创建新版本
@@ -551,7 +597,7 @@ class main extends \pl\fe\base {
 		$rst = $modelTmp->update(
 			'xxt_template',
 			['last_version' => $versionNew->version],
-			['siteid' => $site, 'id' => $tid]
+			['id' => $tid]
 		);
 
 		$template = $modelTmp->byId($tid, $versionNew->id);

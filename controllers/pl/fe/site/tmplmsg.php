@@ -359,7 +359,7 @@ class tmplmsg extends \pl\fe\base {
 			);
 			if ($tmpl->params) {
 				foreach ($tmpl->params as $p) {
-					$value = isset($data[$p->pname]) ? $data[$p->pname] : (isset($data[$p->id]) ? $data[$p->id] : '');
+					$value = isset($data[$p->pname]) ? $data[$p->pname]->name : (isset($data[$p->id]) ? $data[$p->id]->name : '');
 					$msg['data'][$p->pname] = array('value' => $value, 'color' => '#173177');
 				}
 			}

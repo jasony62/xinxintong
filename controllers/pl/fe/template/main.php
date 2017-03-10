@@ -470,19 +470,28 @@ class main extends \pl\fe\base {
 			['siteid' => $site, 'template_id' => $tid, 'pub_status' => 'N', 'state' => 1]
 		];
 		$version = $modelTmp->query_obj_ss($p);
-		//如果没有可发布的版本
+		//如果没有未发布的版本
 		if(!$version){
-			if(isset($post->visible_scope) ){
-				/* 修改发布的平台 */
-				$rst = $modelTmp->update(
-					'xxt_template',
-					['visible_scope' => $post->visible_scope],
-					['id' => $tid]
-				);
-				return new \ResponseData($rst);
-			}
+			// if(isset($post->visible_scope) ){
+			// 	/* 修改发布的平台 */
+			// 	$rst = $modelTmp->update(
+			// 		'xxt_template',
+			// 		['visible_scope' => $post->visible_scope],
+			// 		['id' => $tid]
+			// 	);
+			// 	return new \ResponseData($rst);
+			// }
 			
-			return new \ResponseError('没有可发布的版本');
+			// return new \ResponseError('没有未发布的版本');
+			//获取最新的版本
+			$site = $modelTmp->escape($site);
+			$tid = $modelTmp->escape($tid);
+			$p = [
+				'id,version',
+				'xxt_template_enroll',
+				"siteid = '$site' and template_id = $tid and state = 1 and version in (select max(version) from xxt_template_enroll where siteid = '$site' and template_id = $tid and state = 1) "
+			];
+			$version = $modelTmp->query_obj_ss($p);
 		}
 
 		if(false === ($template = $modelTmp->byId($tid, $version->id, ['cascaded'=>'N'])) ){

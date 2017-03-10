@@ -320,6 +320,8 @@ class tmplmsg extends \pl\fe\base {
 			$message['agentid'] = $mpa->qy_agentid;
 			$rst = $this->model('sns\qy\proxy')->messageSend($message, $openid);
 			break;
+		default:
+			$rst=array(false);
 		}
 		return $rst;
 	}
@@ -374,7 +376,7 @@ class tmplmsg extends \pl\fe\base {
 			$txt[] = $tmpl->title;
 			if ($tmpl->params) {
 				foreach ($tmpl->params as $p) {
-					$value = isset($data[$p->pname]) ? $data[$p->pname] : (isset($data[$p->id]) ? $data[$p->id] : '');
+					$value = isset($data[$p->pname]) ? $data[$p->pname]->name : (isset($data[$p->id]) ? $data[$p->id]->name : '');
 					$txt[] = $p->plabel . '：' . $value;
 				}
 			}
@@ -392,7 +394,10 @@ class tmplmsg extends \pl\fe\base {
 					"content" => $txt,
 				),
 			);
-			$this->sendByOpenid($site, $openid, $msg, $ufrom);
+			$rst =$this->sendByOpenid($site, $openid, $msg, $ufrom);
+			if ($rst[0]=== false) {
+				return $rst;
+			}
 			$msg['template_id'] = 0;
 			$msgid = 0;
 		}
@@ -410,29 +415,30 @@ class tmplmsg extends \pl\fe\base {
 
 		return array(true);
 	}
-	public function send_action($site,$name,$openid,$cascaded = 'Y'){
+	/**
+	 * 发送模板消息
+	 * @param $name string eg:site.matter.push、site.enroll.submit and so on
+	 */
+	public function send_action($site,$name,$openid){
 		if (false === ($user = $this->accountUser())) {
 			return new \ResponseTimeout();
 		}
 
 		$modelNot = $this->model('site\notice');
-		if (false === ($notice = $modelNot->byName($site, $name))) {
-			/**
-			 * 如果不存在就创建
-			 */
-			$data = [
-				'creater' => $user->id,
-				'creater_name' => $user->name,
-				'create_at' => time(),
-			];
-			$notice = $modelNot->add($site, $name, $data);
-		} else {
-			if ($cascaded === 'Y' && $notice->tmplmsg_config_id) {
-				$modelMap = $this->model('matter\tmplmsg\config');
-				$notice->tmplmsgConfig = $modelMap->byId($notice->tmplmsg_config_id, ['cascaded' => 'Y']);
-			}
+
+		if($notice = $modelNot->byName($site, $name)){
+			$modelMap = $this->model('matter\tmplmsg\config');
+			$notice->tmplmsg_config_id && $notice->tmplmsgConfig = $modelMap->byId($notice->tmplmsg_config_id, ['cascaded' => 'Y']);
+		}else{
+			return new \ResponseError("没有设置模板消息或发送类型不支持。");
 		}
 
-		var_dump($notice);
+		$rst=$this->tmplSendByOpenid($site,$notice->tmplmsgConfig->tmplmsg->id,$openid,$notice->tmplmsgConfig->mapping);
+
+		if($rst[0]===true){
+			return new \ResponseData('ok');
+		}else{
+			return new \ResponseError($rst);
+		}
 	}
 }

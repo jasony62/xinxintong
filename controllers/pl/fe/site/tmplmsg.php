@@ -281,7 +281,10 @@ class tmplmsg extends \pl\fe\base {
 			}
 		}
 
-		return new \ResponseData('ok');
+		$modelTmpl = $this->model('matter\tmplmsg');
+		$tmplmsgs = $modelTmpl->bySite($site, ['cascaded' => 'Y']);
+
+		return new \ResponseData($tmplmsgs);
 	}
 	/**
 	 * 尽最大可能向用户发送消息

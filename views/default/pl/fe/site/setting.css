@@ -1,2 +1,6 @@
 body{margin-bottom:50px;}
 .navbar-nav .active:after{content:' ';position:absolute;left:0;right:0;bottom:-1px;height:3px;background:red;}
+/*tmplmsg*/
+.wx_temp:before{content:'微信-';font-size:60%;color:red;}
+.creat_temp:before{content:'自创-';font-size:60%;color:blue;}
+.btn-group-vertical>.text{text-align: left}

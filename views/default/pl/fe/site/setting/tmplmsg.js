@@ -1,7 +1,7 @@
 define(['main'], function(ngApp) {
 	'use strict';
 	ngApp.provider.service('serTmplmsg', ['$q', 'http2', function($q, http2) {
-		var _baseURL = '/rest/pl/fe/matter/tmplmsg',
+		var _baseURL = '/rest/pl/fe/site/tmplmsg',
 			_siteId;
 		this.setSiteId = function(siteId) {
 			_siteId = siteId;
@@ -55,8 +55,15 @@ define(['main'], function(ngApp) {
 			});
 			return defer.promise;
 		};
+		this.synWx = function(){
+			var defer = $q.defer();
+			http2.get(_baseURL + '/synTemplateList?site=' + _siteId, function(rsp){
+				defer.resolve(rsp.data);
+			});
+			return defer.promise;
+		}
 	}]);
-	ngApp.provider.controller('ctrlTmplmsg', ['$scope', 'serTmplmsg', function($scope, serTmplmsg) {
+	ngApp.provider.controller('ctrlTmplmsg', ['$scope', 'serTmplmsg', 'noticebox', function($scope, serTmplmsg, noticebox) {
 		serTmplmsg.setSiteId($scope.siteId);
 		$scope.create = function() {
 			serTmplmsg.create().then(function(data) {
@@ -69,6 +76,19 @@ define(['main'], function(ngApp) {
 		$scope.doSearch = function() {
 			serTmplmsg.list().then(function(data) {
 				$scope.tmplmsgs = data;
+			});
+		};
+		$scope.synWx = function(){
+			serTmplmsg.synWx().then(function(data){
+				$scope.tmplmsgs = data;
+				noticebox.success('完成同步');
+			})
+		};
+		$scope.remove = function() {
+			serTmplmsg.remove($scope.editing.id).then(function() {
+				var i = $scope.tmplmsgs.indexOf($scope.editing);
+				$scope.tmplmsgs.splice(i, 1);
+				$scope.editing = null;
 			});
 		};
 		$scope.doSearch();
@@ -84,13 +104,7 @@ define(['main'], function(ngApp) {
 				});
 			}
 		};
-		$scope.remove = function() {
-			serTmplmsg.remove($scope.editing.id).then(function() {
-				var i = $scope.tmplmsgs.indexOf($scope.editing);
-				$scope.tmplmsgs.splice(i, 1);
-				$scope.editing = null;
-			});
-		};
+
 		$scope.addParam = function() {
 			serTmplmsg.addParam($scope.editing.id).then(function(data) {
 				var oNewParam = {

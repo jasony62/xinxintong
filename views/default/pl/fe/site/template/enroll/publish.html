@@ -39,9 +39,17 @@
                     </div>
                     <div class='form-group'>
                         <div class='input-group'>
-                            <label>当前版本号</label>
+                            <label>版本号</label>
+                            <span ng-if="app.pub_status=='N'" class='text-danger'>(※ 未发布)</span>
+                            <span ng-if="app.pub_status=='Y'" class='text-success'>(※ 已发布)</span>
                             <input type='text' class='form-control' ng-model="app.version" disabled/>
                         </div>
+                    </div>
+                    <div class='form-group'>
+                        <label class="checkbox-inline">
+                            <input type="checkbox" ng-true-value="'Y'" ng-false-value="'N'" ng-model="app.multi_rounds" ng-change="update('multi_rounds');" >
+                            <strong >是否支持轮次</strong>
+                        </label>
                     </div>
                     <div class='form-group'>
                         <label>模板头图（可选，建议尺寸360*200）</label>
@@ -80,6 +88,7 @@
                         <label>版本说明</label>
                         <textarea type='text' class='form-control' ng-model="app.up_said" tms-auto-update tms-wait=1000 tms-update="update('up_said')"></textarea>
                     </div>
+
                     <!-- access rule -->
                     <div>
                         <table class='table table-bordered'>

@@ -6,7 +6,7 @@ define(['main'], function(ngApp) {
 		this.setSiteId = function(siteId) {
 			_siteId = siteId;
 		};
-		this.list = function(type) {
+		this.list = function() {
 			var defer = $q.defer();
 			http2.get(_baseURL + '/list?site=' + _siteId + '&cascaded=Y', function(rsp) {
 				defer.resolve(rsp.data);

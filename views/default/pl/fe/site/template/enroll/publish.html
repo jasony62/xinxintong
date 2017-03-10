@@ -3,7 +3,7 @@
     <div class='col-md-6 hidden-xs' ng-controller="ctrlPreview">
         <div id='simulator' >
             <iframe ng-src={{previewURL}}></iframe>
-            <div id='simulatorActions' ng-hide='subView'>
+            <div id='simulatorActions' ng-show="app.pub_status=='N'">
                 <a class='btn btn-default btn-block' style='color:#337ab7' href="/rest/pl/fe/template/enroll/schema?site={{app.siteid}}&id={{app.id}}&vid={{app.vid}}">修改题目 <i class="glyphicon glyphicon-chevron-right"></i></a>
                 <div class="btn-group btn-block" ng-repeat="page in app.pages">
                     <button type="button" class="btn btn-default" ng-class="params.page===page?'btn-primary':'btn-default'" style="width:125px" title="{{page.title}}" ng-click="showPage(page)">{{page.title}}</button>
@@ -16,9 +16,9 @@
                     </ul>
                 </div>
             </div>
-            <div id='viewActions' ng-show='subView'>
-                <button class='btn btn-default btn-block' ng-disabled="!params.hasPrev" ng-click="prevPage()"><i class='glyphicon glyphicon-arrow-up'>上一页</i></button>
-                <button class='btn btn-default btn-block' ng-disabled="!params.hasNext" ng-click="nextPage()"><i class='glyphicon glyphicon-arrow-down'>下一页</i></button>
+            <div id='viewActions' ng-hide="app.pub_status=='N'">
+                <button class='btn btn-default btn-block' ng-disabled="!param.hasPrev" ng-click="prevPage()"><i class='glyphicon glyphicon-arrow-up'>上一页</i></button>
+                <button class='btn btn-default btn-block' ng-disabled="!param.hasNext" ng-click="nextPage()"><i class='glyphicon glyphicon-arrow-down'>下一页</i></button>
             </div>
         </div>
     </div>
@@ -118,11 +118,11 @@
                 </div>
             </uib-tab>
             <!-- end setting -->
-            <uib-tab index="1" >
+            <uib-tab index="1" id="e">
                 <uib-tab-heading><i class="glyphicon glyphicon-th-large"></i> 模板版本</uib-tab-heading>
                 <div class="form-group">
                     <div class="list-group">
-                        <a class='list-group-item' ng-class="{'active':false}" ng-repeat='v in app.versions' ng-mouseenter='hover=true' ng-mouseleave='hover=false' ng-click='lookView(v.id)'>
+                        <a class='list-group-item' ng-repeat='v in app.versions' ng-mouseenter='hover=true' ng-mouseleave='hover=false' ng-click='lookView(v.id)'>
                             <span class='glyphicon glyphicon-edit' ng-if="v.pub_status== 'N'"></span>
                             {{v.version}}
                             <button class='btn btn-default btn-xs pull-right' ng-click='lookDetail(v.id)' ng-if="hover">

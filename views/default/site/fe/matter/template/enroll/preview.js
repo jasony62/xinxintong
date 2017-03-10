@@ -41,11 +41,11 @@ define(["angular", "xxt-page", "enroll-directive", "angular-sanitize"], function
         ngApp.provider = {
             controller: $cp.register
         };
-        lsProvider.params(['start', 'site', 'tid', 'rid', 'page', 'ek', 'newRecord', 'openAt']);
+        lsProvider.params(['start', 'site', 'tid', 'vid', 'page', 'ek', 'newRecord', 'openAt']);
     }]);
     ngApp.controller('ctrl', ['$scope', '$http', '$timeout', 'ls', function($scope, $http, $timeout, LS) {
         function gotoPage() {
-            var url = LS.j('get', 'site', 'tid', 'page');
+            var url = LS.j('get', 'site', 'tid', 'vid', 'page');
             $http.get(url).success(function(rsp) {
                 if (rsp.err_code !== 0) {
                     $scope.errmsg = rsp.err_msg;

@@ -1522,13 +1522,24 @@ define(['require', 'schema', 'page'], function(require, schemaLib, pageLib) {
                     });
                 },
                 createVersion: function() {
-                    var url = '/rest/pl/fe/template/createVersion?site=' + _siteId;
-                        url += '&tid=' + _appId;
-                        url += '&lastVersion=' + _oApp.last_version;
-                        url += '&matterType=' + _oApp.matter_type;
+                    var url;
+                    url = '/rest/pl/fe/template/createVersion?site=' + _siteId;
+                    url += '&tid=' + _appId;
+                    url += '&lastVersion=' + _oApp.last_version;
+                    url += '&matterType=' + _oApp.matter_type;
                     http2.get(url, function(rsp) {
-                        location.href = '/rest/pl/fe/template/enroll?site=' + _siteId + '&id=' + _appId + '&vid=' + rsp.data.vid;
+                        location.href = '/rest/pl/fe/template/'+ _oApp.matter_type +'?site=' + _siteId + '&id=' + _appId + '&vid=' + rsp.data.vid;
                     });
+                },
+                lookView: function(num) {
+                    var url, defer = $q.defer();
+                    url = '/rest/pl/fe/template/get?site=' + _siteId;
+                    url += '&tid=' + _appId;
+                    url += '&vid=' + num;
+                    http2.get(url,function(rsp) {
+                       defer.resolve(rsp.data);
+                    });
+                    return defer.promise;
                 },
                 lookDetail: function(id) {
                     $uibModal.open({

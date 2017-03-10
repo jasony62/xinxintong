@@ -238,7 +238,7 @@ class template_model extends \TMS_MODEL {
 				$this->update(
 					'xxt_template',
 					['pub_version' => $version->version, 'last_version' => $version->version],
-					['siteid' => $site, 'id' => $tid]
+					['id' => $tid]
 				);
 			}
 
@@ -267,7 +267,7 @@ class template_model extends \TMS_MODEL {
 				$this->update(
 					'xxt_template',
 					['pub_version' => $version->version, 'last_version' => $version->version],
-					['siteid' => $site, 'id' => $tid]
+					["id" => $template->id]
 				);
 			}
 

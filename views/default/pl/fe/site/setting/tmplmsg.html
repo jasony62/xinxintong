@@ -8,7 +8,7 @@
     <div class="row">
         <div class="col-md-2">
             <div class="btn-group-vertical">
-                <button type="button" class="btn btn-default text" ng-repeat='t in tmplmsgs' ng-click="edit(t)" ng-movseover="edit(t)">
+                <button type="button" class="btn btn-default text" ng-repeat='t in tmplmsgs' ng-click="edit(t)" ng-mouseover="edit(t)">
                     <span ng-init="t.type= t.templateid?'wx_temp':'creat_temp'"></span>
                     <span ng-bind="t.title" ng-class="t.type"></span>
                 </button>

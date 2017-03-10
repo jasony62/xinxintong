@@ -105,6 +105,7 @@ class enroll_model extends \TMS_MODEL {
 		];
 		//版本id
 		$vid = $this->insert('xxt_template_enroll', $options, true);
+		$options['id'] = $vid;
 
 		/*复制页面*/
 		if (count($matter->pages)) {
@@ -133,7 +134,7 @@ class enroll_model extends \TMS_MODEL {
 				$modelCode->modify($newPage->code_id, $data);
 			}
 		}
-		$options['id'] = $vid;
+		
 		return (object)$options;
 	}
 }

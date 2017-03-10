@@ -47,6 +47,8 @@ class template_model extends \TMS_MODEL {
 							if($v->version == $template->last_version){
 								$vid = $v->id;
 								$version = $v;
+
+								break;
 							}
 						}
 					}else{
@@ -54,6 +56,8 @@ class template_model extends \TMS_MODEL {
 							if($v->version == $template->pub_version){
 								$vid = $v->id;
 								$version = $v;
+
+								break;
 							}
 						}
 					}
@@ -62,6 +66,8 @@ class template_model extends \TMS_MODEL {
 					foreach($template->versions as $v){
 						if($v->id == $vid){
 							$version = $v;
+
+							break;
 						}
 					}
 				}
@@ -236,7 +242,7 @@ class template_model extends \TMS_MODEL {
 				);
 			}
 
-			$template = $this->byId($tid);
+			$template = $this->byId($tid, $version->id);
 		} else {
 			/* 更新模板 */
 			$updated = [
@@ -265,7 +271,7 @@ class template_model extends \TMS_MODEL {
 				);
 			}
 
-			$template = $this->byId($template->id);
+			$template = $this->byId($template->id, $version->id);
 		}
 		// 添加模板接收人
 		// if (!empty($matter->acls)) {

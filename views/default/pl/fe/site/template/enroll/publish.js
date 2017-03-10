@@ -65,9 +65,24 @@ define(['frame'], function(ngApp) {
         $scope.createVersion = function() {
            srvTempApp.createVersion();
         }
-        $scope.shareUser = function() {
-            console.log(3);
-        }
+        $scope.addReceiver = function() {
+            http2.get('/rest/pl/fe/template/acl/add?label=' + $scope.params.label + '&tid=' + $scope.id, function(rsp) {
+                if ($scope.data.acls === undefined) {
+                    $scope.data.acls = [];
+                }
+                $scope.data.acls.push(rsp.data);
+                $scope.params.label = '';
+            });
+        };
+        $scope.removeReceiver = function(acl) {
+            if (acl.id) {
+                http2.get('/rest/pl/fe/template/remove?site=' + $scope.siteId + '&tid=' + $scope.appId, function(rsp) {
+                    $scope.data.acls.splice($scope.data.acls.indexOf(acl));
+                });
+            } else {
+                $scope.data.acls.splice($scope.data.acls.indexOf(acl));
+            }
+        };
     }]);
     ngApp.provider.controller('ctrlPreview', ['$scope', 'srvEnrollApp', 'srvTempApp', function($scope, srvEnrollApp, srvTempApp) {
         function refresh() {

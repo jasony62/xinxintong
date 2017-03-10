@@ -46,12 +46,6 @@
                         </div>
                     </div>
                     <div class='form-group'>
-                        <label class="checkbox-inline">
-                            <input type="checkbox" ng-true-value="'Y'" ng-false-value="'N'" ng-model="app.multi_rounds" ng-change="update('multi_rounds');" >
-                            <strong >是否支持轮次</strong>
-                        </label>
-                    </div>
-                    <div class='form-group'>
                         <label>模板头图（可选，建议尺寸360*200）</label>
                         <div style='position:relative'>
                             <div style="width:182px;border:1px solid #CCC">
@@ -88,18 +82,16 @@
                         <label>版本说明</label>
                         <textarea type='text' class='form-control' ng-model="app.up_said" tms-auto-update tms-wait=1000 tms-update="update('up_said')"></textarea>
                     </div>
-
-                    <!-- access rule -->
                     <div>
                         <table class='table table-bordered'>
                             <tbody>
                                 <tr>
                                     <td rowspan="2">已填写时进入</td>
                                     <td style='padding:0'>
-                                    <select style='border:0' class='form-control' ng-model='app.enrolled_entry_page' ng-options='page.name as page.title for page in app.pages' ng-change="update('enrolled_entry_page')">
-                                        <option value=''></option>
-                                    </select>
-                                </td>
+                                        <select style='border:0' class='form-control' ng-model='app.enrolled_entry_page' ng-options='page.name as page.title for page in app.pages' ng-change="update('enrolled_entry_page')">
+                                            <option value=''></option>
+                                        </select>
+                                    </td>
                                 </tr>
                                 <tr ng-show='isInputPage(app.enrolled_entry_page)'>
                                     <td>
@@ -110,7 +102,34 @@
                             </tbody>
                         </table>
                     </div>
-                    <!-- end access rule -->
+                    <div>
+                        <table class='table table-bordered'>
+                            <tbody>
+                                <tr>
+                                    <td rowspan="2">是否支持轮次</td>
+                                    <td >
+                                        <input type="checkbox" ng-true-value="'Y'" ng-false-value="'N'" ng-model="app.multi_rounds" ng-change="update('multi_rounds');" >
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                    <div class="form-group">
+                        <label>添加共享用户</label>
+                        <div class='input-group'>
+                            <input type="text" class="form-control" ng-model='params.label' placeholder="请输入作为用户账号的邮箱">
+                            <span class='input-group-btn'>
+                                <button class='btn btn-primary' ng-click='addReceiver()' ng-disabled="!params.label||!params.label.length"><span class='glyphicon glyphicon-plus'></span></button>
+                            </span>
+                        </div>
+                        <div class='list-group'>
+                            <a href='javascript:void(0)' class='list-group-item' ng-repeat="acl in data.acls" ng-mouseenter="entered=true" ng-mouseleave="entered=false">
+                                <span>{{acl.account.nickname}}</span>
+                                <span>（{{acl.receiver_label}}）</span>
+                                <button class='close' ng-if="entered" ng-click="removeReceiver(acl)">&times;</button>
+                            </a>
+                        </div>
+                    </div>
                     <button class='btn btn-default btn-block' ng-click="shareAsTemplate()">发布模版</button>
                     <button class='btn btn-default btn-block' ng-click="applyToHome()">申请发布到平台主页</button>
                     <button class='btn btn-default btn-block' ng-click="cancelAsTemplate()">撤销模版</button>

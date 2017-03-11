@@ -31,7 +31,6 @@ define(['require'], function(require) {
             .when('/rest/pl/fe/site/sns/wx/other', new RouteParam('other'))
             .when('/rest/pl/fe/site/sns/wx/relay', new RouteParam('relay'))
             .when('/rest/pl/fe/site/sns/wx/page', new RouteParam('page'))
-            .when('/rest/pl/fe/site/sns/wx/tmplmsg', new RouteParam('tmplmsg'))
             .otherwise(new RouteParam('setting'));
     }]);
     ngApp.controller('ctrlWx', ['$scope', '$location', 'http2', function($scope, $location, http2) {

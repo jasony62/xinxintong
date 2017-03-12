@@ -729,6 +729,16 @@ class proxy_model extends \sns\proxybase {
 		return $rst;
 	}
 	/**
+	 * 获取微信公众号下所有模板列表
+	 */
+	public function templateList() {
+		$cmd='https://api.weixin.qq.com/cgi-bin/template/get_all_private_template';
+
+		$rst=$this->httpGet($cmd);
+
+		return $rst;
+	}
+	/**
 	 * 发送模板消息
 	 */
 	public function messageTemplateSend($message) {

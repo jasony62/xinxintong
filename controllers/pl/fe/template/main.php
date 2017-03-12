@@ -134,11 +134,7 @@ class main extends \pl\fe\base {
 
 		$modelTmpl = $this->model('matter\template');
 
-		if (false === ($template = $modelTmpl->byId($template))) {
-			return new \ResponseError('数据不存在');
-		}
-
-		$rst = $modelTmpl->unfavorBySite($user, $template, $site);
+		$rst = $modelTmpl->unfavorBySite($template, $site);
 
 		return new \ResponseData($rst);
 	}
@@ -158,6 +154,9 @@ class main extends \pl\fe\base {
 
 		if (false === ($template = $modelTmpl->byId($template, $vid))) {
 			return new \ResponseError('数据不存在');
+		}
+		if(empty($template->pub_version)){
+			return new \ResponseError('模板已下架');
 		}
 		if($template->pub_status === 'N'){
 			return new \ResponseError('当前版本未发布，无法使用');
@@ -239,7 +238,7 @@ class main extends \pl\fe\base {
 
 		$template = $this->model('matter\template')->byId($template->id);
 		/* 记录操作日志 */
-		$this->model('matter\log')->matterOp($site->id, $loginUser, $template, 'C');
+		// $this->model('matter\log')->matterOp($site->id, $loginUser, $template, 'C');
 
 		return new \ResponseData($template);
 	}
@@ -680,11 +679,7 @@ class main extends \pl\fe\base {
 				'xxt_template_acl',
 				['template_id' => $tid]
 			);
-		$modelTmp->delete(
-				'xxt_template_order',
-				['template_id' => $tid]
-			);
-
+		
 		return new \ResponseData(true);
 	}
 

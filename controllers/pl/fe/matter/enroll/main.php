@@ -209,6 +209,9 @@ class main extends \pl\fe\matter\base {
 		$modelCode = $this->model('code\page');
 
 		$template = $this->model('matter\template')->byId($template, $vid);
+		if(empty($template->pub_version)){
+			return new \ResponseError('模板已下架');
+		}
 
 		/* 检查用户积分 */
 		if ($template->coin) {

@@ -17,7 +17,11 @@ class main extends \TMS_CONTROLLER {
 	/**
 	 *
 	 */
-	public function index_action() {
+	public function index_action($site, $tid) {
+		if (false === ($template = $this->model('matter\template')->byId($tid, null, ['cascaded'=>'N'])) ) {
+			die('指定的模板不存在，请检查参数是否正确');
+		}
+
 		\TPL::output('/site/fe/matter/template/enroll/preview');
 		exit;
 	}

@@ -139,6 +139,12 @@ class enroll extends \pl\fe\base {
 		if (false === ($user = $this->accountUser())) {
 			return new \ResponseTimeout();
 		}
+		if (false === ($template = $this->model('matter\template')->byId($tid, $vid))) {
+			return new \ResponseError('指定的模板不存在，请检查参数是否正确');
+		}
+		if($template->pub_status === 'Y'){
+			return new \ResponseError('当前模板已发布');
+		}
 
 		$options = $this->getPostJson();
 
@@ -157,6 +163,12 @@ class enroll extends \pl\fe\base {
 	public function remove_action($site, $tid, $vid, $pageId, $cname) {
 		if (false === ($user = $this->accountUser())) {
 			return new \ResponseTimeout();
+		}
+		if (false === ($template = $this->model('matter\template')->byId($tid, $vid))) {
+			return new \ResponseError('指定的模板不存在，请检查参数是否正确');
+		}
+		if($template->pub_status === 'Y'){
+			return new \ResponseError('当前模板已发布');
 		}
 
 		$vid = 'template:'.$vid;

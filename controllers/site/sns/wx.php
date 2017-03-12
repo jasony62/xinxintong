@@ -327,18 +327,22 @@ class wx extends \member_base {
 		/**
 		 * 更新数据状态
 		 */
+		$where = ['openid' => $openid, 'msgid' => $msgid];
+		if ($siteId !== 'platform') {
+			$where['siteid'] = $siteId;
+		}
 		$rst = $this->model()->update(
 			'xxt_log_tmplmsg_detail',
 			['status' => $status],
-			['siteid' => $siteId, 'openid' => $openid, 'msgid' => $msgid]
+			$where
 		);
 		/**
 		 * 处理事件响应，选择消息转发事件，通知模板消息处理结果
 		 */
-		if ($reply = $this->model('sns\wx\event')->otherCall($siteId, 'templatemsg')) {
-			$r = $this->model('sns\reply\\' . $reply->matter_type, $call, $reply->matter_id);
-			$r->exec();
-		}
+		// if ($reply = $this->model('sns\wx\event')->otherCall($siteId, 'templatemsg')) {
+		// 	$r = $this->model('sns\reply\\' . $reply->matter_type, $call, $reply->matter_id);
+		// 	$r->exec();
+		// }
 	}
 	/**
 	 * 卡卷事件

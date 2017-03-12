@@ -55,8 +55,8 @@ class way_model extends \TMS_MODEL {
 		} else {
 			if (empty($cookieUser->loginExpire)) {
 				$cookieRegUser = $this->getCookieRegUser();
-				if ($cookieRegUser) {
-					$cookieUser->loginExpire = $cookieRegUser->loginExpire;
+				if ($cookieRegUser && isset($cookieUser->loginExpire)) {
+					$cookieUser->loginExpire = $cookieRegUser->expire;
 					$modified = true;
 				}
 			}
@@ -565,6 +565,9 @@ class way_model extends \TMS_MODEL {
 
 		/* 是否保留之前存在cookieuser */
 		foreach ($beforeCookieusers as $siteId => $beforeCookieuser) {
+			if (!$beforeCookieuser) {
+				continue;
+			}
 			$account = $modelAct->byId($beforeCookieuser->uid);
 			if (isset($primaryAccounts[$siteId])) {
 				/* 指定站点下，已经存在主访客账号 */

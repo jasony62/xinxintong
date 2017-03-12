@@ -21,6 +21,27 @@ provider('srvSite', function() {
                 }
                 return defer.promise;
             },
+            matterList: function() {
+                var defer = $q.defer();
+                http2.get('/rest/pl/fe/site/matterList', function(rsp) {
+                    defer.resolve(rsp.data);
+                });
+                return defer.promise;
+            },
+            publicList: function() {
+                var defer = $q.defer();
+                http2.get('/rest/pl/fe/site/publicList', function(rsp) {
+                    defer.resolve(rsp.data);
+                });
+                return defer.promise;
+            },
+            friendList: function() {
+                var defer = $q.defer();
+                http2.get('/rest/pl/fe/site/friendList', function(rsp) {
+                    defer.resolve(rsp.data);
+                });
+                return defer.promise;
+            },
             snsList: function() {
                 var defer = $q.defer();
                 if (_aSns) {

@@ -48,7 +48,7 @@ define(["angular", "xxt-page"], function(angular, codeAssembler) {
             }
         };
         $scope.favorTemplate = function(template) {
-            if ($scope.loginUser === false) {
+            if ($scope.siteAdminUser === false) {
                 if (window.sessionStorage) {
                     var method = JSON.stringify({
                         name: 'favorTemplate',
@@ -95,7 +95,7 @@ define(["angular", "xxt-page"], function(angular, codeAssembler) {
             }
         };
         $scope.useTemplate = function(template) {
-            if ($scope.loginUser === false) {
+            if ($scope.siteAdminUser === false) {
                 if (window.sessionStorage) {
                     var method = JSON.stringify({
                         name: 'useTemplate',
@@ -144,7 +144,7 @@ define(["angular", "xxt-page"], function(angular, codeAssembler) {
             location.href = '/rest/site/home?site=' + site.siteid;
         };
         $scope.subscribeSite = function(site) {
-            if ($scope.loginUser === false) {
+            if ($scope.siteUser === false) {
                 if (window.sessionStorage) {
                     var method = JSON.stringify({
                         name: 'subscribeSite',
@@ -152,49 +152,25 @@ define(["angular", "xxt-page"], function(angular, codeAssembler) {
                     });
                     window.sessionStorage.setItem('xxt.home.auth.pending', method);
                 }
-                location.href = '/rest/pl/fe/user/auth';
+                location.href = '/rest/site/fe/user/login?site=platform';
             } else {
-                var url = '/rest/pl/fe/site/siteCanSubscribe?site=' + site.siteid + '&_=' + (new Date() * 1);
+                var url = '/rest/site/fe/user/site/subscribe?site=platform&target=' + site.siteid;
                 http2.get(url, function(rsp) {
-                    var sites = rsp.data;
-                    if (sites.length === 1) {
-
-                    } else if (sites.length === 0) {
-
-                    } else {
-                        $uibModal.open({
-                            templateUrl: 'subscribeSite.html',
-                            dropback: 'static',
-                            controller: ['$scope', '$uibModalInstance', function($scope2, $mi) {
-                                $scope2.mySites = sites;
-                                $scope2.ok = function() {
-                                    var selected = [];
-                                    sites.forEach(function(site) {
-                                        site._selected === 'Y' && selected.push(site);
-                                    });
-                                    if (selected.length) {
-                                        $mi.close(selected);
-                                    } else {
-                                        $mi.dismiss();
-                                    }
-                                };
-                                $scope2.cancel = function() {
-                                    $mi.dismiss();
-                                };
-                            }]
-                        }).result.then(function(selected) {
-                            var url = '/rest/pl/fe/site/subscribe?site=' + site.siteid;
-                            sites = [];
-
-                            selected.forEach(function(mySite) {
-                                sites.push(mySite.id);
-                            });
-                            url += '&subscriber=' + sites.join(',');
-                            http2.get(url, function(rsp) {});
-                        });
-                    }
+                    site._subscribed = 'Y';
                 });
             }
+        };
+        $scope.unsubscribeSite = function(site) {
+            var url = '/rest/site/fe/user/site/unsubscribe?site=platform&target=' + site.siteid;
+            http2.get(url, function(rsp) {
+                site._subscribed = 'N';
+            });
+        };
+        $scope.listTrends = function() {
+            var url = '/rest/site/fe/user/site/trends?site=platform&_=' + (new Date() * 1);
+            http2.get(url, function(rsp) {
+                $scope.trends = rsp.data.trends;
+            });
         };
         http2.get('/rest/home/get', function(rsp) {
             platform = rsp.data.platform;
@@ -202,7 +178,7 @@ define(["angular", "xxt-page"], function(angular, codeAssembler) {
                 location.href = '/rest/pl/fe';
             } else {
                 http2.get('/rest/pl/fe/user/get', function(rsp) {
-                    $scope.loginUser = rsp.data;
+                    $scope.siteAdminUser = rsp.data;
                     if (window.sessionStorage) {
                         var pendingMethod;
                         if (pendingMethod = window.sessionStorage.getItem('xxt.home.auth.pending')) {
@@ -210,6 +186,20 @@ define(["angular", "xxt-page"], function(angular, codeAssembler) {
                             pendingMethod = JSON.parse(pendingMethod);
                             $scope[pendingMethod.name].apply($scope, pendingMethod.args);
                         }
+                    }
+                });
+                http2.get('/rest/site/fe/user/get?site=platform', function(rsp) {
+                    $scope.siteUser = rsp.data;
+                    if (window.sessionStorage) {
+                        var pendingMethod;
+                        if (pendingMethod = window.sessionStorage.getItem('xxt.home.auth.pending')) {
+                            window.sessionStorage.removeItem('xxt.home.auth.pending');
+                            pendingMethod = JSON.parse(pendingMethod);
+                            $scope[pendingMethod.name].apply($scope, pendingMethod.args);
+                        }
+                    }
+                    if ($scope.siteUser.loginExpire) {
+                        $scope.listTrends();
                     }
                 });
                 $scope.platform = platform;

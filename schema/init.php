@@ -36,6 +36,8 @@ $sql[] = "delete from xxt_inner";
 $sql[] = "INSERT INTO xxt_inner(id,title,name) VALUES(1,'通讯录','addressbook')";
 $sql[] = "INSERT INTO xxt_inner(id,title,name) VALUES(3, '翻译', 'translate')";
 $sql[] = "INSERT INTO xxt_inner(id,title,name) VALUES(4, '按关键字搜索文章', 'fullsearch')";
+//
+$sql[] = "insert into xxt_site(id,name) values('platform','信信通')";
 /*执行*/
 foreach ($sql as $s) {
 	if (!$mysqli->query($s)) {

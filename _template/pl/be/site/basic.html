@@ -1,5 +1,13 @@
 <div class='container' ng-controller="ctrlSite">
     <div class='row'>
+        <div class='col-md-12'>
+            <div class='alert alert-info'>
+                <strong>管理团队：</strong>
+                <span ng-if="siteAdminUser===false">已有团队账号去<a class='alert-link' href="/rest/pl/fe/user/login">登录</a></span>
+                <span ng-if="siteAdminUser===false">新建团队去<a class='alert-link' href="/rest/pl/fe/user/register" target='_blank'>注册</a></span>
+                <span ng-if="siteAdminUser"><a class='alert-link' href="/rest/pl/fe" target='_blank'>进入</a>我参与的团队</span>
+            </div>
+        </div>
         <div class='col-md-4' ng-repeat="s in sites">
             <div class='thumbnail site'>
                 <h4 class='title' ng-bind="s.title"></h4>

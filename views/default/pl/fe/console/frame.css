@@ -1,0 +1,29 @@
+body{margin-bottom:50px;}
+.ng-cloak{display:none;}
+.tms-panel-heading{margin-bottom:-1px;}
+.tms-panel-body{border:1px solid #eee;border-radius:4px;background:#fff;padding:30px 0;margin-bottom:30px;}
+.tms-panel-body:before{content:' ';display:table;}
+.tms-panel-body:after{content:' ';display:table;clear:both;}
+
+/*mission/site*/
+.site,.mission,.matter{position:relative;height:180px;display:flex;flex-direction:column;padding:.5em 1em;}
+.site .summary,.mission .summary,.matter .summary{flex:1;overflow:hidden;}
+.site .attr,.mission .attr,.matter .attr{display:flex;padding:8px 0;}
+.site .creater_name,.mission .creater_name,.matter .creater_name{flex:1;}
+.site .actions,.mission .actions,.matter .actions{border-top:1px solid #ddd;padding-top:8px;}
+.site .actions-top{position:absolute;top:.5em;right:.5em;display: none}
+.site:hover .actions-top{display: block}
+
+/*matter*/
+#viewRecent .article:after{content:'图文';position:absolute;top:-8px;left:-8px;background:green;padding:2px 4px;font-size:60%;color:#fff;border-radius:4px;}
+#viewRecent .enroll:after{content:'登记';position:absolute;top:-8px;left:-8px;background:#0000ff;padding:2px 4px;font-size:60%;color:#fff;border-radius:4px;}
+#viewRecent .registration:after{content:'报名';position:absolute;top:-8px;left:-8px;background:#0000ff;padding:2px 4px;font-size:60%;color:#fff;border-radius:4px;}
+#viewRecent .voting:after{content:'评价';position:absolute;top:-8px;left:-8px;background:#0000ff;padding:2px 4px;font-size:60%;color:#fff;border-radius:4px;}
+#viewRecent .signin:after{content:'签到';position:absolute;top:-8px;left:-8px;background:#0000cc;padding:2px 4px;font-size:60%;color:#fff;border-radius:4px;}
+#viewRecent .group:after{content:'分组';position:absolute;top:-8px;left:-8px;background:#000099;padding:2px 4px;font-size:60%;color:#fff;border-radius:4px;}
+#viewRecent .split:after{content:'分组';position:absolute;top:-8px;left:-8px;background:#000099;padding:2px 4px;font-size:60%;color:#fff;border-radius:4px;}
+#viewRecent .mission:after{content:'项目';position:absolute;top:-8px;left:-8px;background:#000066;padding:2px 4px;font-size:60%;color:#fff;border-radius:4px;}
+
+.media-object{width:96px;height:96px;}
+.actions{border-top:1px solid #ddd;margin-top:8px;padding-top:8px;}
+.friend-matter{cursor:pointer;}

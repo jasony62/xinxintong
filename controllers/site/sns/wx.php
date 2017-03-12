@@ -39,30 +39,6 @@ class wx extends \member_base {
 		}
 	}
 	/**
-	 * 执行定时任务
-	 */
-	public function timer_action() {
-		/**
-		 * 查找匹配的定时任务
-		 */
-		$tasks = $this->model('mp\timer')->tasksByTime();
-		/**
-		 * 记录日志
-		 */
-		foreach ($tasks as $task) {
-			$rsp = $task->exec();
-			$log = array(
-				'mpid' => $task->mpid,
-				'task_id' => $task->id,
-				'occur_at' => time(),
-				'result' => json_encode($rsp),
-			);
-			$this->model()->insert('xxt_log_timer', $log, true);
-		}
-
-		return new \ResponseData(count($tasks));
-	}
-	/**
 	 * 处理收到的消息
 	 *
 	 * 当普通易信用户向公众帐号发消息时，易信服务器将POST该消息到填写的URL上。

@@ -17,9 +17,18 @@ class main extends \site\fe\base {
 	 *
 	 */
 	public function get_action() {
+		/* 站点用户信息 */
 		if ($account = $this->model('site\user\account')->byId($this->who->uid, ['fields' => 'coin,headimgurl'])) {
 			$this->who->coin = $account->coin;
 			$this->who->headimgurl = $account->headimgurl;
+		}
+		/* 站点注册信息 */
+		$modelWay = $this->model('site\fe\way');
+		$cookieRegUser = $modelWay->getCookieRegUser();
+		if ($cookieRegUser) {
+			if (isset($cookieRegUser->loginExpire)) {
+				$this->who->loginExpire = $cookieRegUser->loginExpire;
+			}
 		}
 
 		return new \ResponseData($this->who);

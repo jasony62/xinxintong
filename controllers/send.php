@@ -1,7 +1,7 @@
 <?php
 require_once dirname(__FILE__) . '/xxt_base.php';
 /**
- *
+ * 对外服务的模板消息调用接口
  */
 class send extends xxt_base {
 	public function get_access_rule() {

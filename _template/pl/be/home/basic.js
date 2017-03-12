@@ -22,6 +22,13 @@ ngApp.provider.controller('ctrlHome', ['$scope', '$http', function($scope, $http
             $scope.articles = rsp.data.matters;
         });
     };
+    $scope.openTrend = function(trend) {
+        if (/article|custom|news|channel|link/.test(trend.matter_type)) {
+            location.href = '/rest/site/fe/matter?site=' + trend.siteid + '&id=' + id + '&type=' + trend.matter_type;
+        } else {
+            location.href = '/rest/site/fe/matter/' + trend.matter_type + '?site=' + trend.siteid + '&app=' + id;
+        }
+    };
     $scope.openMatter = function(matter) {
         location.href = matter.url;
     };

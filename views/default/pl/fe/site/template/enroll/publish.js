@@ -1,7 +1,6 @@
 define(['frame'], function(ngApp) {
     'use strict';
     ngApp.provider.controller('ctrlPublish', ['$scope', 'http2', 'mediagallery', '$timeout',  'srvEnrollApp', 'srvTempApp', '$controller', function($scope,  http2, mediagallery, $timeout,  srvEnrollApp, srvTempApp, controller) {
-        $scope.subView = false;
         $scope.setPic = function() {
             var options = {
                 callback: function(url) {
@@ -73,35 +72,31 @@ define(['frame'], function(ngApp) {
         };
     }]);
     ngApp.provider.controller('ctrlPreview', ['$scope', 'srvEnrollApp', 'srvTempApp', function($scope, srvEnrollApp, srvTempApp) {
-        function refresh() {
-            $scope.previewURL = previewURL + '&page=' + params.page.name + '&_=' + (new Date() * 1);
-        }
-        $scope.$on('to-child',function(event,data)  {
-            $scope.app.pub_status = data[1].pub_status;
-            $scope.param = data[2];
-            $scope.nextPage = function() {
-                param.pageAt++;
-                param.hasPrev = true;
-                param.hasNext = param.pageAt < data[1].pages.length - 1;
-            };
-            $scope.prevPage = function() {
-                param.pageAt--;
-                param.hasNext = true;
-                param.hasPrev = param.pageAt > 0;
-            };
-            $scope.$watch('param', function(param) {
-                if (param) {
-                    $scope.previewURL = data[0]  + '&page=' + data[1].pages[param.pageAt].name;
-                }
-            }, true);
-        })
-        var previewURL, params, param;
+        var previewURL, params, args, param;
         $scope.params = params = {
             openAt: 'ontime',
+        };
+        $scope.args = args = {
+            pageAt: -1,
+            hasPrev: false,
+            hasNext: false,
+        }
+        $scope.nextPage = function() {
+            args.pageAt++;
+            args.hasPrev = true;
+            args.hasNext = args.pageAt < $scope.app.pages.length - 1;
+        };
+        $scope.prevPage = function() {
+            args.pageAt--;
+            args.hasNext = true;
+            args.hasPrev = args.pageAt > 0;
         };
         $scope.showPage = function(page) {
             params.page = page;
         };
+        function refresh() {
+            $scope.previewURL = previewURL + '&page=' + params.page.name + '&_=' + (new Date() * 1);
+        }
         srvTempApp.tempEnrollGet().then(function(app) {
             if (app.pages && app.pages.length) {
                 $scope.gotoPage = function(page) {
@@ -112,10 +107,20 @@ define(['frame'], function(ngApp) {
                     url += "&page=" + page.name;
                     location.href = url;
                 };
+                args.pageAt = 0;
+                args.hasPrev = false;
+                $scope.args = args;
+                args.hasNext = !!app.pages.length;
+
                 previewURL = '/rest/site/fe/matter/template/enroll/preview?site=' + app.siteid + '&tid=' + app.id + '&vid=' + app.vid;
                 params.page = app.pages[0];
                 $scope.$watch('params', function() {
                     refresh();
+                }, true);
+                $scope.$watch('args', function(args) {
+                    if (args) {
+                        $scope.previewURL = previewURL + '&page=' + app.pages[args.pageAt].name;
+                    }
                 }, true);
                 $scope.$watch('app.use_site_header', function(nv, ov) {
                     nv !== ov && refresh();
@@ -130,6 +135,25 @@ define(['frame'], function(ngApp) {
                     nv !== ov && refresh();
                 });
             }
+        });
+        $scope.$on('to-child',function(event,data)  {
+            $scope.app.pub_status = data[1].pub_status;
+            $scope.args = args = data[2];
+            $scope.nextPage = function() {
+                args.pageAt++;
+                args.hasPrev = true;
+                args.hasNext = args.pageAt < data[1].pages.length - 1;
+            };
+            $scope.prevPage = function() {
+                args.pageAt--;
+                args.hasNext = true;
+                args.hasPrev = args.pageAt > 0;
+            };
+            $scope.$watch('args', function(param) {
+                if (param) {
+                    $scope.previewURL = data[0]  + '&page=' + data[1].pages[args.pageAt].name;
+                }
+            }, true);
         });
     }]);
 });

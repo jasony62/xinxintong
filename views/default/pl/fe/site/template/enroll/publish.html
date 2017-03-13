@@ -17,8 +17,8 @@
                 </div>
             </div>
             <div id='viewActions' ng-hide="app.pub_status=='N'">
-                <button class='btn btn-default btn-block' ng-disabled="!param.hasPrev" ng-click="prevPage()"><i class='glyphicon glyphicon-arrow-up'>上一页</i></button>
-                <button class='btn btn-default btn-block' ng-disabled="!param.hasNext" ng-click="nextPage()"><i class='glyphicon glyphicon-arrow-down'>下一页</i></button>
+                <button class='btn btn-default btn-block' ng-disabled="!args.hasPrev" ng-click="prevPage()"><i class='glyphicon glyphicon-arrow-up'>上一页</i></button>
+                <button class='btn btn-default btn-block' ng-disabled="!args.hasNext" ng-click="nextPage()"><i class='glyphicon glyphicon-arrow-down'>下一页</i></button>
             </div>
         </div>
     </div>
@@ -147,6 +147,7 @@
                         </a>
                     </div>
                     <button class='btn btn-default btn-block' ng-click="createVersion()">创建新版本</button>
+                    <hr>
                     <button class='btn btn-default btn-block' ng-click="shareAsTemplate()">发布模版</button>
                     <button class='btn btn-default btn-block' ng-click="applyToHome()">申请发布到平台主页</button>
                     <button class='btn btn-default btn-block' ng-click="cancelAsTemplate()">撤销模版</button>

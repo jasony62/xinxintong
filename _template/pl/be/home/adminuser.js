@@ -3,13 +3,13 @@ ngApp.provider.controller('ctrlHome', ['$scope', '$http', '$uibModal', 'srvUser'
         $http.get('/rest/home/listSite?userType=admin').success(function(rsp) {
             $scope.sites = rsp.data.sites;
         });
-    };
+    }
 
     function listTemplates() {
         $http.get('/rest/home/listTemplate').success(function(rsp) {
             $scope.templates = rsp.data;
         });
-    };
+    }
 
     function createSite() {
         var defer = $q.defer(),

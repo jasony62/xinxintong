@@ -1,0 +1,44 @@
+<div class='col-md-12'>
+    <table class='table table-bordered'>
+        <tbody>
+            <tr>
+                <td>团队主页</td>
+                <td>团队主页</td>
+                <td>
+                    <a href='' ng-click="editPage('home')">编辑页面</a>
+                    <a href='' ng-click="resetPage('home')" ng-show="site.home_page_name.length">重置页面</a>
+                    <a ng-href="/rest/site/home?site={{site.id}}" target='_blank' ng-show="site.home_page_name.length">打开</a>
+                </td>
+            </tr>
+        </tbody>
+    </table>
+    <div ng-controller="ctrlHomeCarousel">
+        <table class='table table-bordered'>
+            <tbody>
+                <tr ng-repeat='s in slides'>
+                    <td>{{$index+1}}</td>
+                    <td><img ng-src="{{s.picUrl}}" style='width:200px'></td>
+                    <td>
+                        <button class='btn btn-xs btn-danger' ng-click="remove(c,$index)"><i class='glyphicon glyphicon-remove'></i></button>
+                    </td>
+                </tr>
+            </tbody>
+        </table>
+        <button class='btn btn-default' ng-click="add()">添加主页轮播</button>
+    </div>
+    <div ng-controller="ctrlHomeChannel">
+        <table class='table table-bordered'>
+            <tbody>
+                <tr ng-repeat='c in channels'>
+                    <td>{{$index+1}}</td>
+                    <td>{{c.title}}</td>
+                    <td>{{c.summary}}</td>
+                    <td>
+                        <button class='btn btn-xs btn-danger' ng-click="remove(c,$index)"><i class='glyphicon glyphicon-remove'></i></button>
+                    </td>
+                </tr>
+            </tbody>
+        </table>
+        <button class='btn btn-default' ng-click="add()">添加主页频道</button>
+    </div>
+</div>

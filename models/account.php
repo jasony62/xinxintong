@@ -289,14 +289,19 @@ class account_model extends TMS_MODEL {
 	/**
 	 * 检查用户所在组的权限
 	 */
-	public function getAcl($uid){
+	public function checkAcl($uid){
 		$q=[
 			"g.group_id,g.group_name,g.asdefault,g.platform_manage",
 			"account_group g,account_in_group i",
 			"i.group_id=g.group_id and i.account_uid='$uid'",
 		];
+
 		$acl=$this->query_obj_ss($q);
 
-		return $acl;
+		if(isset($acl->platform_manage) && $acl->platform_manage==1){
+			return true;
+		}else{
+			return false;	
+		}		
 	}
 }

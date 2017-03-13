@@ -10,8 +10,9 @@ class base extends \TMS_CONTROLLER {
 	public function __construct(){
 		if($account = \TMS_CLIENT::account()){
 			$model=\TMS_APP::M('account');
-			$acl=$model->getacl($account->uid);
-			if($acl->platform_manage==0){
+			$rst=$model->checkacl($account->uid);
+			
+			if(!$rst){
 				die("管理员没有访问权限！");
 			}
 		}else{

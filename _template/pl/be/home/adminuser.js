@@ -1,4 +1,4 @@
-ngApp.provider.controller('ctrlSiteAdminUser', ['$scope', '$http', '$uibModal', 'srvUser', function($scope, $http, $uibModal, srvUser) {
+ngApp.provider.controller('ctrlHome', ['$scope', '$http', '$uibModal', 'srvUser', function($scope, $http, $uibModal, srvUser) {
     function listSites() {
         $http.get('/rest/home/listSite?userType=admin').success(function(rsp) {
             $scope.sites = rsp.data.sites;

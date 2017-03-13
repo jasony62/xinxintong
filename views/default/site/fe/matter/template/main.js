@@ -117,7 +117,7 @@ define(["angular", "xxt-page"], function(angular, codeAssembler) {
         $scope.$watch('template', function(template) {
             if (template === undefined) return;
             if (!previewURL) {
-                $scope.previewURL = previewURL = '/rest/site/fe/matter/enroll/preview?site=' + template.siteid + '&app=' + template.matter_id + '&start=Y';
+                $scope.previewURL = previewURL = '/rest/site/fe/matter/template/enroll/preview?site=' + template.siteid + '&tid=' + template.id + '&vid=' + template.vid;
             }
             http2.get('/rest/site/fe/matter/enroll/get?app=' + template.matter_id + '&site=' + template.siteid + '&cascaded=Y', function(rsp) {
                 $scope.app = rsp.data.app;

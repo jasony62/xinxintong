@@ -16,7 +16,7 @@ class main extends \pl\be\base {
 	/**
 	 * 创建站点首页页面
 	 */
-	public function pageCreate_action($name, $template = 'siteuser') {
+	public function pageCreate_action($name, $template = 'basic') {
 		if (false === ($user = $this->accountUser())) {
 			return new \ResponseTimeout();
 		}
@@ -44,7 +44,7 @@ class main extends \pl\be\base {
 	 *
 	 * @param int $codeId
 	 */
-	public function pageReset_action($name, $template = 'siteuser') {
+	public function pageReset_action($name, $template = 'basic') {
 		if (false === ($user = $this->accountUser())) {
 			return new \ResponseTimeout();
 		}

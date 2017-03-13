@@ -1,17 +1,22 @@
-ngApp.provider.controller('ctrlHome', ['$scope', '$http', 'srvUser', function($scope, $http, srvUser) {
-    function listSites() {
-        $http.get('/rest/home/listSite').success(function(rsp) {
+ngApp.provider.controller('ctrlSite', ['$scope', '$http', 'srvUser', function($scope, $http, srvUser) {
+    $scope.criteria = {
+        scope: 'A'
+    };
+    $scope.page = {
+        size: 21,
+        at: 1,
+        total: 0
+    };
+    $scope.changeScope = function(scope) {
+        $scope.criteria.scope = scope;
+        $scope.searchTemplate();
+    };
+    $scope.searchSite = function() {
+        var url = '/rest/home/listSite';
+        $http.get(url).success(function(rsp) {
             $scope.sites = rsp.data.sites;
         });
     };
-
-    function listTrends() {
-        var url = '/rest/site/fe/user/site/trends?site=platform&_=' + (new Date() * 1);
-        $http.get(url).success(function(rsp) {
-            $scope.trends = rsp.data.trends;
-        });
-    };
-
     $scope.subscribeSite = function(site) {
         if ($scope.siteUser === false) {
             if (window.sessionStorage) {
@@ -35,19 +40,6 @@ ngApp.provider.controller('ctrlHome', ['$scope', '$http', 'srvUser', function($s
             site._subscribed = 'N';
         });
     };
-    $scope.openTrend = function(trend) {
-        if (/article|custom|news|channel|link/.test(trend.matter_type)) {
-            location.href = '/rest/site/fe/matter?site=' + trend.siteid + '&id=' + trend.matter_id + '&type=' + trend.matter_type;
-        } else {
-            location.href = '/rest/site/fe/matter/' + trend.matter_type + '?site=' + trend.siteid + '&app=' + trend.matter_id;
-        }
-    };
-    $scope.openMatter = function(matter) {
-        location.href = matter.url;
-    };
-    listSites();
-    $scope.listApps();
-    $scope.listArticles();
     $scope.$watch('platform', function(platform) {
         if (!platform) return;
         srvUser.getSiteUser().then(function(user) {
@@ -60,19 +52,10 @@ ngApp.provider.controller('ctrlHome', ['$scope', '$http', 'srvUser', function($s
                     $scope[pendingMethod.name].apply($scope, pendingMethod.args);
                 }
             }
-            listTrends();
+            $scope.searchSite();
+        });
+        srvUser.getSiteAdminUser().then(function(user) {
+            $scope.siteAdminUser = user;
         });
     });
 }]);
-ngApp.provider.controller('ctrlCarousel', function($scope) {
-    $scope.myInterval = 5000;
-    $scope.noWrapSlides = false;
-    $scope.active = 0;
-
-    $scope.$watch('platform', function(platform) {
-        if (platform === undefined) return;
-        if (platform.home_carousel.length) {
-            $scope.slides = platform.home_carousel;
-        }
-    });
-});

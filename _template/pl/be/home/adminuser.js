@@ -1,6 +1,6 @@
-ngApp.provider.controller('ctrlSiteAdminUser', ['$scope', '$http', '$uibModal', function($scope, $http, $uibModal) {
+ngApp.provider.controller('ctrlSiteAdminUser', ['$scope', '$http', '$uibModal', 'srvUser', function($scope, $http, $uibModal, srvUser) {
     function listSites() {
-        $http.get('/rest/home/listSite').success(function(rsp) {
+        $http.get('/rest/home/listSite?userType=admin').success(function(rsp) {
             $scope.sites = rsp.data.sites;
         });
     };
@@ -15,7 +15,7 @@ ngApp.provider.controller('ctrlSiteAdminUser', ['$scope', '$http', '$uibModal', 
         var defer = $q.defer(),
             url = '/rest/pl/fe/site/create?_=' + (new Date() * 1);
 
-        http2.get(url, function(rsp) {
+        $http.get(url).success(function(rsp) {
             defer.resolve(rsp.data);
         });
         return defer.promise;
@@ -25,8 +25,8 @@ ngApp.provider.controller('ctrlSiteAdminUser', ['$scope', '$http', '$uibModal', 
         var url = '/rest/pl/fe/template/purchase?template=' + template.id;
         url += '&site=' + site.id;
 
-        http2.get(url, function(rsp) {
-            http2.get('/rest/pl/fe/matter/enroll/createByOther?site=' + site.id + '&template=' + template.id, function(rsp) {
+        $http.get(url).success(function(rsp) {
+            $http.get('/rest/pl/fe/matter/enroll/createByOther?site=' + site.id + '&template=' + template.id).success(function(rsp) {
                 location.href = '/rest/pl/fe/matter/enroll?id=' + rsp.data.id + '&site=' + site.id;
             });
         });
@@ -46,7 +46,7 @@ ngApp.provider.controller('ctrlSiteAdminUser', ['$scope', '$http', '$uibModal', 
             location.href = '/rest/pl/fe/user/auth';
         } else {
             var url = '/rest/pl/fe/template/siteCanFavor?template=' + template.id + '&_=' + (new Date() * 1);
-            http2.get(url, function(rsp) {
+            $http.get(url).success(function(rsp) {
                 var sites = rsp.data;
                 $uibModal.open({
                     templateUrl: 'favorTemplateSite.html',
@@ -76,7 +76,7 @@ ngApp.provider.controller('ctrlSiteAdminUser', ['$scope', '$http', '$uibModal', 
                         sites.push(site.id);
                     });
                     url += '&site=' + sites.join(',');
-                    http2.get(url, function(rsp) {});
+                    $http.get(url).success(function(rsp) {});
                 });
             });
         }
@@ -93,7 +93,7 @@ ngApp.provider.controller('ctrlSiteAdminUser', ['$scope', '$http', '$uibModal', 
             location.href = '/rest/pl/fe/user/auth';
         } else {
             var url = '/rest/pl/fe/site/list?_=' + (new Date() * 1);
-            http2.get(url, function(rsp) {
+            $http.get(url).success(function(rsp) {
                 var sites = rsp.data;
                 if (sites.length === 1) {
                     useTemplate(sites[0], template);
@@ -131,8 +131,8 @@ ngApp.provider.controller('ctrlSiteAdminUser', ['$scope', '$http', '$uibModal', 
     $scope.listArticles();
     $scope.$watch('platform', function(platform) {
         if (!platform) return;
-        $http.get('/rest/pl/fe/user/get').success(function(rsp) {
-            $scope.siteAdminUser = rsp.data;
+        srvUser.getSiteAdminUser().then(function(user) {
+            $scope.siteAdminUser = user;
             if (window.sessionStorage) {
                 var pendingMethod;
                 if (pendingMethod = window.sessionStorage.getItem('xxt.home.auth.pending')) {

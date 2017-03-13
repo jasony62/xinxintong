@@ -1,9 +1,8 @@
 define(['main'], function(ngApp) {
     'use strict';
-    ngApp.provider.controller('ctrlAnalysis', ['$scope', 'http2', function($scope, http2) {
+    ngApp.provider.controller('ctrlAnalysis', ['$scope', function($scope) {
         var catelogs = $scope.$root.catelogs;
         catelogs.splice(0, catelogs.length, { l: '单图文', v: 'article' }, { l: '用户', v: 'user' });
-        $scope.$root.catelog = catelogs[0];
     }]);
     ngApp.provider.controller('ctrlArticle', ['$scope', 'http2', function($scope, http2) {
         var current, startAt, endAt;
@@ -56,9 +55,12 @@ define(['main'], function(ngApp) {
             $scope[data.state] = data.value;
             $scope.fetch(1);
         });
-        $scope.fetch(1);
+        $scope.$watch('site', function(site) {
+            if (site === undefined) return;
+            $scope.fetch(1);
+        });
     }]);
-    ngApp.provider.controller('ctrlUser', ['$scope', 'http2', function($scope, http2) {
+    ngApp.provider.controller('ctrlUserAction', ['$scope', 'http2', function($scope, http2) {
         var current, startAt, endAt;
         current = new Date();
         startAt = {
@@ -111,6 +113,9 @@ define(['main'], function(ngApp) {
             $scope[data.state] = data.value;
             $scope.fetch(1);
         });
-        $scope.fetch(1);
+        $scope.$watch('site', function(site) {
+            if (site === undefined) return;
+            $scope.fetch(1);
+        });
     }]);
 });

@@ -3,6 +3,7 @@ define(['main'], function(ngApp) {
     ngApp.provider.controller('ctrlPage', ['$scope', function($scope) {
         var catelogs = $scope.$root.catelogs;
         catelogs.splice(0, catelogs.length);
+        $scope.$root.catelog = null;
         $scope.editPage = function(page) {
             var prop = page + '_page_name',
                 name = $scope.site[prop];
@@ -86,8 +87,11 @@ define(['main'], function(ngApp) {
                 $scope.channels.splice(index, 1);
             });
         };
-        http2.get('/rest/pl/fe/site/setting/page/listHomeChannel?site=' + $scope.site.id, function(rsp) {
-            $scope.channels = rsp.data;
+        $scope.$watch('site', function(site) {
+            if (site === undefined) return;
+            http2.get('/rest/pl/fe/site/setting/page/listHomeChannel?site=' + site.id, function(rsp) {
+                $scope.channels = rsp.data;
+            });
         });
     }]);
 });

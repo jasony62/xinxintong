@@ -2,11 +2,13 @@ define(['main'], function(ngApp) {
     'use strict';
     ngApp.provider.controller('ctrlUser', ['$scope', 'http2', function($scope, http2) {
         var catelogs = $scope.$root.catelogs;
-        catelogs.splice(0, catelogs.length, { l: '站点用户', v: 'account' });
-        $scope.$root.catelog = catelogs[0];
-        http2.get('/rest/pl/fe/site/member/schema/list?site=' + $scope.site.id, function(rsp) {
-            rsp.data.forEach(function(memberSchema) {
-                catelogs.push({ l: memberSchema.title, v: 'member', obj: memberSchema })
+        $scope.$watch('site', function(site) {
+            if (site === undefined) return;
+            http2.get('/rest/pl/fe/site/member/schema/list?site=' + site.id, function(rsp) {
+                catelogs.splice(0, catelogs.length, { l: '站点用户', v: 'account' });
+                rsp.data.forEach(function(memberSchema) {
+                    catelogs.push({ l: memberSchema.title, v: 'member', obj: memberSchema })
+                });
             });
         });
     }]);
@@ -25,7 +27,10 @@ define(['main'], function(ngApp) {
                 $scope.page.total = rsp.data.total;
             });
         };
-        $scope.doSearch(1);
+        $scope.$watch('site', function(site) {
+            if (site === undefined) return;
+            $scope.doSearch(1);
+        });
     }]);
     ngApp.provider.controller('ctrlMember', ['$scope', '$uibModal', '$location', 'http2', function($scope, $uibModal, $location, http2) {
         $scope.$watch('catelog', function(nv) {
@@ -190,6 +195,9 @@ define(['main'], function(ngApp) {
                 });
             });
         };
-        $scope.fetch();
+        $scope.$watch('site', function(site) {
+            if (site === undefined) return;
+            $scope.fetch();
+        });
     }]);
 });

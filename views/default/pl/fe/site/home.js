@@ -31,10 +31,15 @@ define(['require'], function(require) {
     ngApp.controller('ctrlHome', ['$scope', 'srvSite', function($scope, srvSite) {
         $scope.subView = '';
         $scope.$root.catelogs = [];
-        $scope.$root.catelog = '';
+        $scope.catelog = null;
         $scope.$on('$locationChangeSuccess', function(event, currentRoute) {
             var subView = currentRoute.match(/([^\/]+?)\?/);
             $scope.subView = subView[1] === 'home' ? 'page' : subView[1];
+        });
+        $scope.$root.$watchCollection('catelogs', function(catelogs) {
+            if (catelogs && catelogs.length) {
+                $scope.catelog = catelogs[0];
+            }
         });
         srvSite.get().then(function(site) {
             $scope.site = site;

@@ -11,11 +11,11 @@ $sql .= ",heading_pic text"; // 缺省头图
 $sql .= ",creater varchar(40) not null";
 $sql .= ",creater_name varchar(255) not null default ''";
 $sql .= ",create_at int not null";
-$sql .= ",asparent char(1) not null default 'N'"; // 是否作为父站点
-$sql .= ",site_id varchar(32) not null default ''"; // 父站点ID
+$sql .= ",asparent char(1) not null default 'N'"; // 是否作为父团队
+$sql .= ",site_id varchar(32) not null default ''"; // 父团队ID
 $sql .= ",state tinyint not null default 1"; // 1:正常, 0:停用
-$sql .= ",home_page_id int not null default 0"; // 站点主页
-$sql .= ",home_page_name varchar(13) not null default ''"; // 站点主页
+$sql .= ",home_page_id int not null default 0"; // 团队主页
+$sql .= ",home_page_name varchar(13) not null default ''"; // 团队主页
 $sql .= ",home_carousel text"; // 首页轮播
 $sql .= ",header_page_id int not null default 0"; // 通用页头
 $sql .= ",header_page_name varchar(13) not null default ''"; // 通用页头
@@ -29,7 +29,7 @@ if (!$mysqli->query($sql)) {
 	echo 'database error(xxt_site): ' . $mysqli->error;
 }
 /*
- * 站点配置的通知消息
+ * 团队配置的通知消息
  */
 $sql = "create table if not exists xxt_site_notice(";
 $sql .= "id int not null auto_increment";
@@ -46,7 +46,7 @@ if (!$mysqli->query($sql)) {
 	echo 'database error: ' . $mysqli->error;
 }
 /**
- * 站点授权管理员
+ * 团队授权管理员
  */
 $sql = "create table if not exists xxt_site_admin(";
 $sql .= "siteid varchar(32) not null";
@@ -62,7 +62,7 @@ if (!$mysqli->query($sql)) {
 	echo 'database error(xxt_site_admin): ' . $mysqli->error;
 }
 /**
- * 站点主页频道
+ * 团队主页频道
  */
 $sql = 'create table if not exists xxt_site_home_channel (';
 $sql .= 'id int not null auto_increment';
@@ -81,31 +81,37 @@ if (!$mysqli->query($sql)) {
 	echo 'database error(xxt_contribute): ' . $mysqli->error;
 }
 /**
- * 关注了站点的站点
+ * 关注了团队的站点用户
  */
 $sql = 'create table if not exists xxt_site_subscriber (';
 $sql .= 'id int not null auto_increment';
-$sql .= ",siteid varchar(32) not null"; // 被关注的站点
+$sql .= ",siteid varchar(32) not null"; // 被关注的团队
 $sql .= ",site_name varchar(50) not null";
-$sql .= ",from_siteid varchar(32) not null"; // 那个站点订阅的
-$sql .= ",from_site_name varchar(50) not null";
+$sql .= ",from_siteid varchar(32) not null"; // 那个团队订阅的（should be removed）
+$sql .= ",from_site_name varchar(50) not null"; // 那个团队订阅的（should be removed）
 $sql .= ",creater varchar(40) not null";
 $sql .= ",creater_name varchar(255) not null default ''";
+$sql .= ",userid varchar(40) not null";
+$sql .= ",nickname varchar(255) not null default ''";
 $sql .= ',subscribe_at int not null'; // 关注时间
+$sql .= ',unsubscribe_at int not null default 0'; // 关注时间
 $sql .= ",primary key(id)) ENGINE=MyISAM DEFAULT CHARSET=utf8";
 if (!$mysqli->query($sql)) {
 	header('HTTP/1.0 500 Internal Server Error');
 	echo 'database error(xxt_contribute): ' . $mysqli->error;
 }
 /**
- * 通过关注站点获得的素材
+ * 站点用户通过关注团队获得的素材
  */
 $sql = "create table if not exists xxt_site_subscription (";
 $sql .= "id int not null auto_increment";
 $sql .= ",siteid varchar(32) not null";
-$sql .= ",put_at int not null"; // 站点获得素材的时间
-$sql .= ",from_siteid varchar(32) not null"; // 从哪个站点获得的素材
-$sql .= ",from_site_name varchar(50) not null";
+$sql .= ",site_name varchar(50) not null";
+$sql .= ",put_at int not null"; // 团队获得素材的时间
+$sql .= ",from_siteid varchar(32) not null"; // 从哪个团队获得的素材（should be removed）
+$sql .= ",from_site_name varchar(50) not null"; //（should be removed）
+$sql .= ",userid varchar(40) not null";
+$sql .= ",nickname varchar(255) not null default ''";
 $sql .= ",matter_id varchar(40) not null";
 $sql .= ",matter_type varchar(20)"; //
 $sql .= ",matter_title varchar(70) not null";
@@ -117,10 +123,48 @@ if (!$mysqli->query($sql)) {
 	echo 'database error(xxt_contribute): ' . $mysqli->error;
 }
 /**
- * 站点访客用户
+ * 关注了团队的团队
+ */
+$sql = 'create table if not exists xxt_site_friend (';
+$sql .= 'id int not null auto_increment';
+$sql .= ",siteid varchar(32) not null"; // 被关注的团队
+$sql .= ",site_name varchar(50) not null";
+$sql .= ",from_siteid varchar(32) not null"; // 发起关注的团队
+$sql .= ",from_site_name varchar(50) not null"; // 发起关注的团队
+$sql .= ",creater varchar(40) not null";
+$sql .= ",creater_name varchar(255) not null default ''";
+$sql .= ',subscribe_at int not null'; // 关注时间
+$sql .= ',unsubscribe_at int not null default 0'; // 关注时间
+$sql .= ",primary key(id)) ENGINE=MyISAM DEFAULT CHARSET=utf8";
+if (!$mysqli->query($sql)) {
+	header('HTTP/1.0 500 Internal Server Error');
+	echo 'database error(xxt_contribute): ' . $mysqli->error;
+}
+/**
+ * 关注了团队的团队获得的订阅内容
+ */
+$sql = 'create table if not exists xxt_site_friend_subscription (';
+$sql .= "id int not null auto_increment";
+$sql .= ",siteid varchar(32) not null";
+$sql .= ",site_name varchar(50) not null";
+$sql .= ",put_at int not null"; // 获得素材的时间
+$sql .= ",from_siteid varchar(32) not null"; // 发起关注的团队
+$sql .= ",from_site_name varchar(50) not null"; // 发起关注的团队
+$sql .= ",matter_id varchar(40) not null";
+$sql .= ",matter_type varchar(20)"; //
+$sql .= ",matter_title varchar(70) not null";
+$sql .= ",matter_pic text";
+$sql .= ",matter_summary varchar(240) not null default ''";
+$sql .= ",primary key(id)) ENGINE=MyISAM DEFAULT CHARSET=utf8";
+if (!$mysqli->query($sql)) {
+	header('HTTP/1.0 500 Internal Server Error');
+	echo 'database error(xxt_contribute): ' . $mysqli->error;
+}
+/**
+ * 团队访客用户
  */
 $sql = "create table if not exists xxt_site_account (";
-$sql .= "siteid varchar(32) not null comment '站点id'";
+$sql .= "siteid varchar(32) not null comment '团队id'";
 $sql .= ",uid varchar(40) not null comment '用户的id'";
 $sql .= ",assoc_id varchar(40) not null default '' comment '用户的关联id'"; // should be removed
 $sql .= ",ufrom varchar(20) not null default '' comment '用户来源'";
@@ -150,13 +194,13 @@ $sql .= ",coin_week int not null default 0"; // 虚拟货币周增量
 $sql .= ",coin_month int not null default 0"; // 虚拟货币月增量
 $sql .= ",coin_year int not null default 0"; // 虚拟货币年增量
 $sql .= ",wx_openid varchar(255) not null default ''"; // 绑定的社交账号信息
-$sql .= ",is_wx_primary char(1) not null default 'N' comment '是否为站点下第一个和openid绑定的访客账号'";
+$sql .= ",is_wx_primary char(1) not null default 'N' comment '是否为团队下第一个和openid绑定的访客账号'";
 $sql .= ",yx_openid varchar(255) not null default ''"; // 绑定的社交账号信息
-$sql .= ",is_yx_primary char(1) not null default 'N' comment '是否为站点下第一个和openid绑定的访客账号'";
+$sql .= ",is_yx_primary char(1) not null default 'N' comment '是否为团队下第一个和openid绑定的访客账号'";
 $sql .= ",qy_openid varchar(255) not null default ''"; // 绑定的社交账号信息
-$sql .= ",is_qy_primary char(1) not null default 'N' comment '是否为站点下第一个和openid绑定的访客账号'";
+$sql .= ",is_qy_primary char(1) not null default 'N' comment '是否为团队下第一个和openid绑定的访客账号'";
 $sql .= ",unionid varchar(32) not null default '' comment '用户的注册id'";
-$sql .= ",is_reg_primary char(1) not null default 'N' comment '是否为和注册账号绑定的主访客账号，每一个注册账号每一个站点下只有一个主访客账号'";
+$sql .= ",is_reg_primary char(1) not null default 'N' comment '是否为和注册账号绑定的主访客账号，每一个注册账号每一个团队下只有一个主访客账号'";
 $sql .= ",PRIMARY KEY (siteid,uid)";
 $sql .= ") ENGINE=MyISAM DEFAULT CHARSET=utf8";
 if (!$mysqli->query($sql)) {
@@ -164,12 +208,12 @@ if (!$mysqli->query($sql)) {
 	echo 'database error(xxt_site_account): ' . $mysqli->error;
 }
 /**
- * 站点注册用户
- * 注册用户跨站点，一个注册用户可以对应多个访客用户
+ * 团队注册用户
+ * 注册用户跨团队，一个注册用户可以对应多个访客用户
  */
 $sql = "create table if not exists xxt_site_registration (";
 $sql .= "unionid varchar(32) not null comment '用户的注册id'";
-$sql .= ",from_siteid varchar(32) not null comment '从哪个站点发起的注册id'";
+$sql .= ",from_siteid varchar(32) not null comment '从哪个团队发起的注册id'";
 $sql .= ",uname varchar(50) default null comment '登录用户名'";
 $sql .= ",password varchar(64) default null comment '用户密码'";
 $sql .= ",salt varchar(32) default null comment '用户附加混淆码'";
@@ -191,7 +235,7 @@ if (!$mysqli->query($sql)) {
 	echo 'database error(xxt_site_account): ' . $mysqli->error;
 }
 /**
- * 站点用户收藏记录
+ * 团队用户收藏记录
  */
 $sql = "create table if not exists xxt_site_favor(";
 $sql .= "id int not null auto_increment";

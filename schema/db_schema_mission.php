@@ -69,7 +69,8 @@ if (!$mysqli->query($sql)) {
  * 组成任务的素材
  */
 $sql = "create table if not exists xxt_mission_matter(";
-$sql .= "mpid varchar(32) not null default ''";
+$sql .= ",id int not null auto_increment";
+$sql .= ",mpid varchar(32) not null default ''";
 $sql .= ",siteid varchar(32) not null";
 $sql .= ",mission_id int not null";
 $sql .= ",phase_id varchar(13) not null default ''";
@@ -79,8 +80,9 @@ $sql .= ",creater_src char(1)";
 $sql .= ",create_at int not null";
 $sql .= ",matter_id varchar(40) not null";
 $sql .= ",matter_type varchar(20)";
-$sql .= ",seq int not null default 0";
-$sql .= ",primary key(mission_id,matter_id,matter_type)) ENGINE=MyISAM DEFAULT CHARSET=utf8";
+$sql .= ",is_public char(1) not null default 'Y'"; // 是否为公开素材
+$sql .= ",seq int not null default 65535"; // 素材在项目中的排列顺序
+$sql .= ",primary key(id)) ENGINE=MyISAM DEFAULT CHARSET=utf8";
 if (!$mysqli->query($sql)) {
 	header('HTTP/1.0 500 Internal Server Error');
 	echo 'database error(xxt_mission_matter): ' . $mysqli->error;

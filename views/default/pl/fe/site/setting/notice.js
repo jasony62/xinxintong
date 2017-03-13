@@ -50,10 +50,10 @@ define(['main'], function(ngApp) {
 			});
 		};
 		serNotice.setSiteId($scope.siteId);
-		http2.get('/rest/pl/fe/matter/tmplmsg/list?site=' + $scope.siteId + '&cascaded=Y', function(rsp) {
+		http2.get('/rest/pl/fe/site/tmplmsg/list?site=' + $scope.siteId + '&cascaded=Y', function(rsp) {
 			$scope.tmplmsgs = rsp.data;
 		});
-		http2.get('/rest/pl/fe/matter/tmplmsg/list?site=platform&cascaded=Y', function(rsp) {
+		http2.get('/rest/pl/fe/site/tmplmsg/list?site=platform&cascaded=Y', function(rsp) {
 			$scope.plTmplmsgs = rsp.data;
 		});
 		$scope.choose = function(name) {

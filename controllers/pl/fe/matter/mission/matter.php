@@ -74,6 +74,59 @@ class matter extends \pl\fe\matter\base {
 		return new \ResponseData($mission);
 	}
 	/**
+	 * 更新素材设置
+	 *
+	 * @param int $id mission'id
+	 */
+	public function update_action($id, $matterType, $matterId) {
+		if (false === ($user = $this->accountUser())) {
+			return new \ResponseTimeout();
+		}
+
+		$posted = $this->getPostJson();
+
+		$updated = [];
+		foreach ($posted as $k => $v) {
+			if ($k === 'is_public') {
+				$updated['is_public'] = $v === 'Y' ? 'Y' : 'N';
+			}
+		}
+
+		$model = $this->model();
+		$rst = $model->update(
+			'xxt_mission_matter',
+			$updated,
+			['mission_id' => $id, 'matter_type' => $matterType, 'matter_id' => $matterId]
+		);
+
+		return new \ResponseData($rst);
+	}
+	/**
+	 * 更新素材设置
+	 *
+	 * @param int $id mission'id
+	 */
+	public function updateSeq_action($id) {
+		if (false === ($user = $this->accountUser())) {
+			return new \ResponseTimeout();
+		}
+
+		$posted = $this->getPostJson();
+
+		if (count($posted)) {
+			$model = $this->model();
+			foreach ($posted as $index => $id) {
+				$rst = $model->update(
+					'xxt_mission_matter',
+					['seq' => $index],
+					['id' => $id]
+				);
+			}
+		}
+
+		return new \ResponseData($rst);
+	}
+	/**
 	 * 给项目添加素材
 	 *
 	 * @param int $id

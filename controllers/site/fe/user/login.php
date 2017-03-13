@@ -41,7 +41,10 @@ class login extends \site\fe\base {
 
 		$cookieRegUser = $modelWay->getCookieRegUser();
 		if ($cookieRegUser) {
-			return new \ResponseError("请退出当前账号再登录");
+			if (isset($cookieRegUser->loginExpire)) {
+				return new \ResponseError("请退出当前账号再登录");
+			}
+			$modelWay->quitRegUser();
 		}
 
 		$registration = $modelReg->validate($data->uname, $data->password);

@@ -42,6 +42,7 @@
                                 <input class='form-control' readonly value="{{entry.url}}">
                                 <span class='input-group-btn'>
                                     <button class='btn btn-default text2Clipboard' data-clipboard-text="{{entry.url}}">复制</button>
+                                    <a class='btn btn-default' ng-href="{{entry.url}}" target='_blank' title='打开'><i class='glyphicon glyphicon-open'></i></a>
                                 </span>
                             </div>
                         </div>
@@ -72,9 +73,9 @@
                                 <input class='form-control' readonly value="{{opEntry.url}}">
                                 <span class='input-group-btn'>
                                     <button class='btn btn-default text2Clipboard' data-clipboard-text="{{opEntry.url}}">复制</button>
+                                    <a class='btn btn-default' ng-href="{{opEntry.url}}" target='_blank' title='打开'><i class='glyphicon glyphicon-open'></i></a>
                                 </span>
                             </div>
-                            <p ng-if="app.mission_id" class='help-block'>生成链接，本活动将出现在项目的结果展示页面中</p>
                         </div>
                         <div class='form-group'>
                             <button class='btn btn-default' ng-if="!opEntry.url" ng-click="makeOpUrl()">生成</button>
@@ -95,6 +96,7 @@
                                 <input class='form-control' readonly value="{{reportEntry.url}}">
                                 <span class='input-group-btn'>
                                     <button class='btn btn-default text2Clipboard' data-clipboard-text="{{reportEntry.url}}">复制</button>
+                                    <a class='btn btn-default' ng-href="{{reportEntry.url}}" target='_blank' title='打开'><i class='glyphicon glyphicon-open'></i></a>
                                 </span>
                             </div>
                         </div>

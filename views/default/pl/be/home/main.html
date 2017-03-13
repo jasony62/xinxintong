@@ -19,8 +19,8 @@
 					</td>
 				</tr>
 				<tr>
-					<td>平台站点库页面</td>
-					<td>平台站点库页面</td>
+					<td>平台团队库页面</td>
+					<td>平台团队库页面</td>
 					<td>
 						<a href='' ng-click="editPage('site')">编辑页面</a>
 						<a href='' ng-click="resetPage('site')" ng-show="platform.site_page_name">重置页面</a>
@@ -44,3 +44,20 @@
 		</div>
 	</div>
 </div>
+<script type="text/ng-template" id="homePageTemplate.html">
+    <div class="modal-header">
+        <button class="close" type="button" ng-click="cancel()">×</button>
+        <h5 class="modal-title ">指定平台主页页面模板</h5>
+    </div>
+    <div class="modal-body ">
+     	<div class='form-group'>
+        	<select class='form-control' ng-model="data.template">
+				<option value='siteuser'>站点用户</option>        		
+				<option value='adminuser'>团队管理员用户</option>        		
+        	</select>
+        </div>
+    </div>
+    <div class="modal-footer">
+        <button class="btn btn-success" ng-click="ok() ">确定</button>
+    </div>
+</script>

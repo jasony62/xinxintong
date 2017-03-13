@@ -72,6 +72,34 @@ class group_model extends app_base {
 		return $result;
 	}
 	/**
+	 * 和登记活动关联的分组活动
+	 */
+	public function byEnrollApp($enrollAppId, $options = []) {
+		$fields = isset($options['fields']) ? $options['fields'] : '*';
+		$q = [
+			$fields,
+			'xxt_group',
+			['source_app' => '{"id":"' . $enrollAppId . '","type":"enroll"}'],
+		];
+		$apps = $this->query_objs_ss($q);
+
+		return $apps;
+	}
+	/**
+	 * 和登记活动关联的分组活动
+	 */
+	public function bySigninApp($signinAppId, $options = []) {
+		$fields = isset($options['fields']) ? $options['fields'] : '*';
+		$q = [
+			$fields,
+			'xxt_group',
+			['source_app' => '{"id":"' . $signinAppId . '","type":"signin"}'],
+		];
+		$apps = $this->query_objs_ss($q);
+
+		return $apps;
+	}
+	/**
 	 * 更新登记活动标签
 	 */
 	public function updateTags($aid, $tags) {
@@ -203,7 +231,7 @@ class group_model extends app_base {
 		}
 
 		foreach ($target as $k => $v) {
-			if ($candidate->data->{$k} === $v) {
+			if (isset($candidate->data->{$k}) && $candidate->data->{$k} === $v) {
 				return true;
 			}
 		}

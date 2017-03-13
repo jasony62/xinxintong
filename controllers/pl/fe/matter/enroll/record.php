@@ -39,7 +39,7 @@ class record extends \pl\fe\matter\base {
 
 		// 查询结果
 		$mdoelRec = $this->model('matter\enroll\record');
-		$result = $mdoelRec->find($site, $enrollApp, $options, $criteria);
+		$result = $mdoelRec->find($enrollApp, $options, $criteria);
 
 		return new \ResponseData($result);
 	}
@@ -390,96 +390,6 @@ class record extends \pl\fe\matter\base {
 		return new \ResponseData('ok');
 	}
 	/**
-	 * 给登记活动的参与人发消息
-	 *
-	 * @param string $site site'id
-	 * @param string $app app'id
-	 * @param string $tmplmsg 模板消息id
-	 *
-	 */
-	public function notify_action($site, $app, $tmplmsg, $rid = null) {
-		if (false === ($user = $this->accountUser())) {
-			return new \ResponseTimeout();
-		}
-
-		$site = \TMS_MODEL::escape($site);
-		$app = \TMS_MODEL::escape($app);
-		$posted = $this->getPostJson();
-		$message = $posted->message;
-
-		if (isset($posted->criteria)) {
-			// 筛选条件
-			$criteria = $posted->criteria;
-			$options = [
-				'rid' => $rid,
-			];
-			$participants = $this->model('matter\enroll')->participants($site, $app, $options, $criteria);
-		} else if (isset($posted->users)) {
-			// 直接指定
-			$participants = $posted->users;
-		}
-
-		if (count($participants)) {
-			$rst = $this->notifyWithMatter($site, $participants, $tmplmsg, $message);
-			if ($rst[0] === false) {
-				return new \ResponseError($rst[1]);
-			}
-		}
-
-		return new \ResponseData($participants);
-	}
-	/**
-	 * 给用户发送素材
-	 */
-	protected function notifyWithMatter($siteId, &$userIds, $tmplmsgId, &$message) {
-		if (count($userIds)) {
-			$mapOfUsers = new \stdClass;
-			$modelAcnt = $this->model('site\user\account');
-			$modelWxfan = $modelYxfan = $modelQyfan = false;
-
-			// 微信可以使用平台的公众号
-			$wxSiteId = false;
-
-			foreach ($userIds as $userid) {
-				$user = $modelAcnt->byId($userid, ['fields' => 'ufrom,wx_openid,yx_openid,qy_openid']);
-				if ($user && !isset($mapOfUsers->{$userid})) {
-					$mapOfUsers->{$userid} = $user;
-					switch ($user->ufrom) {
-					case 'wx':
-						if ($wxSiteId === false) {
-							$modelSns = $this->model('sns\wx');
-							$wxConfig = $modelSns->bySite($siteId);
-							if ($wxConfig === false || $wxConfig->joined !== 'Y') {
-								$wxSiteId = 'platform';
-							} else {
-								$wxSiteId = $siteId;
-							}
-						}
-						// 用模板消息发送。需要考虑用户没有关注情况
-						if ($modelWxfan === false) {
-							$modelWxfan = $this->model('sns\wx\fan');
-						}
-						if ($modelWxfan->isFollow($wxSiteId, $user->wx_openid)) {
-							$rst = $this->tmplmsgSendByOpenid($tmplmsgId, $user->wx_openid, $message, null, $wxConfig);
-							if ($rst[0] === false) {
-								return $rst;
-							}
-						}
-						break;
-					case 'yx':
-						// 如果开放了点对点消息，用点对点消息发送
-						break;
-					case 'qy':
-						// 点对点发送
-						break;
-					}
-				}
-			}
-		}
-
-		return array(true);
-	}
-	/**
 	 * 从关联的登记活动中查找匹配的记录
 	 */
 	public function matchEnroll_action($site, $app) {
@@ -581,7 +491,7 @@ class record extends \pl\fe\matter\base {
 		}
 
 		// 登记活动
-		$app = $this->model('matter\enroll')->byId($app, ['fields' => 'id,title,data_schemas,scenario,enroll_app_id,group_app_id', 'cascaded' => 'N']);
+		$app = $this->model('matter\enroll')->byId($app, ['fields' => 'siteid,id,title,data_schemas,scenario,enroll_app_id,group_app_id', 'cascaded' => 'N']);
 		$schemas = json_decode($app->data_schemas);
 
 		// 关联的登记活动
@@ -614,7 +524,7 @@ class record extends \pl\fe\matter\base {
 		}
 
 		// 获得所有有效的登记记录
-		$records = $this->model('matter\enroll\record')->find($site, $app);
+		$records = $this->model('matter\enroll\record')->find($app);
 		if ($records->total === 0) {
 			die('record empty');
 		}
@@ -792,7 +702,7 @@ class record extends \pl\fe\matter\base {
 		}
 
 		// 获得所有有效的登记记录
-		$records = $this->model('matter\enroll\record')->find($site, $enrollApp);
+		$records = $this->model('matter\enroll\record')->find($enrollApp);
 		if ($records->total === 0) {
 			die('record empty');
 		}
@@ -896,7 +806,7 @@ class record extends \pl\fe\matter\base {
 			return new \ResponseData('没有匹配的数据项');
 		}
 		/* 获得数据 */
-		$records = $modelRec->find($site, $fromApp);
+		$records = $modelRec->find($fromApp);
 		$countOfImport = 0;
 		if ($records->total > 0) {
 			foreach ($records->records as $record) {

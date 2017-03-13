@@ -419,30 +419,30 @@ class log_model extends TMS_MODEL {
 	 *
 	 */
 	public function writeSubscribe($mpid, $openid) {
-		list($year, $month, $day) = explode('-', date('Y-n-j'));
-		$logid = $this->query_val_ss(array('id', 'xxt_log_mpa', "mpid='$mpid' and year='$year' and month='$month' and day='$day'"));
-		if (false === $logid) {
-			if ($last = $this->query_obj_ss(array('*', 'xxt_log_mpa', "mpid='$mpid' and islast='Y'"))) {
-				$this->update('xxt_log_mpa', array('islast' => 'N'), "mpid='$mpid' and islast='Y'");
-			}
+		// list($year, $month, $day) = explode('-', date('Y-n-j'));
+		// $logid = $this->query_val_ss(array('id', 'xxt_log_mpa', "mpid='$mpid' and year='$year' and month='$month' and day='$day'"));
+		// if (false === $logid) {
+		// 	if ($last = $this->query_obj_ss(array('*', 'xxt_log_mpa', "mpid='$mpid' and islast='Y'"))) {
+		// 		$this->update('xxt_log_mpa', array('islast' => 'N'), "mpid='$mpid' and islast='Y'");
+		// 	}
 
-			$today = array(
-				'mpid' => $mpid,
-				'year' => $year,
-				'month' => $month,
-				'day' => $day,
-				'islast' => 'Y',
-				'read_sum' => $last ? $last->read_sum : 0,
-				'sf_sum' => $last ? $last->sf_sum : 0,
-				'st_sum' => $last ? $last->st_sum : 0,
-				'fans_inc' => 1,
-				'fans_sum' => $last ? ($last->fans_sum + 1) : 1,
-				'member_sum' => $last ? $last->member_sum : 0,
-			);
-			$this->insert('xxt_log_mpa', $today, false);
-		} else {
-			$this->update("update xxt_log_mpa set fans_inc=fans_inc+1,fans_sum=fans_sum+1 where id='$logid'");
-		}
+		// 	$today = array(
+		// 		'mpid' => $mpid,
+		// 		'year' => $year,
+		// 		'month' => $month,
+		// 		'day' => $day,
+		// 		'islast' => 'Y',
+		// 		'read_sum' => $last ? $last->read_sum : 0,
+		// 		'sf_sum' => $last ? $last->sf_sum : 0,
+		// 		'st_sum' => $last ? $last->st_sum : 0,
+		// 		'fans_inc' => 1,
+		// 		'fans_sum' => $last ? ($last->fans_sum + 1) : 1,
+		// 		'member_sum' => $last ? $last->member_sum : 0,
+		// 	);
+		// 	$this->insert('xxt_log_mpa', $today, false);
+		// } else {
+		// 	$this->update("update xxt_log_mpa set fans_inc=fans_inc+1,fans_sum=fans_sum+1 where id='$logid'");
+		// }
 	}
 	/**
 	 *

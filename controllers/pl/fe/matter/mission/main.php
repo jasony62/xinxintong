@@ -35,7 +35,7 @@ class main extends \pl\fe\matter\base {
 			return new \ResponseError('项目不存在');
 		}
 		$mission = $this->model('matter\mission')->byId($id, ['cascaded' => 'header_page_name,footer_page_name']);
-		/* 关联登记活动 */
+		/* 关联的用户名单活动 */
 		if ($mission->user_app_id) {
 			if ($mission->user_app_type === 'enroll') {
 				$mission->userApp = $this->model('matter\enroll')->byId($mission->user_app_id, ['cascaded' => 'N']);

@@ -12,6 +12,36 @@ define(["angular", "xxt-page"], function(angular, codeAssembler) {
             url = '/rest/pl/fe/template/pushHome?template=' + templateId;
             http2.get(url, function(rsp) {});
         };
+        $scope.chooseVersion = function(v) {
+            var previewURL,
+            version,
+                params = {
+                    pageAt: -1,
+                    hasPrev: false,
+                    hasNext: false,
+                };
+            $scope.nextPage = function() {
+                params.pageAt++;
+                params.hasPrev = true;
+                params.hasNext = params.pageAt < $scope.version.pages.length - 1;
+            };
+            $scope.prevPage = function() {
+                params.pageAt--;
+                params.hasNext = true;
+                params.hasPrev = params.pageAt > 0;
+            };
+            http2.get('/rest/site/fe/matter/template/get?site=' + template.siteid + '&template=' + template.template_id + '&vid=' + v, function(rsp) {
+                $scope.version = version = rsp.data;
+                if (!previewURL) {
+                    $scope.previewURL = previewURL = '/rest/site/fe/matter/template/enroll/preview?site=' + version.siteid + '&tid=' + version.id + '&vid=' + version.vid;
+                }
+            });
+            $scope.$watch('params', function(params) {
+                if (params) {
+                    $scope.previewURL = previewURL + '&page=' + $scope.version.pages[params.pageAt].name;
+                }
+            }, true);
+        }
         $scope.favorTemplate = function() {
             if ($scope.isLogin === 'N') {
                 location.href = '/rest/pl/fe/user/login';
@@ -120,7 +150,7 @@ define(["angular", "xxt-page"], function(angular, codeAssembler) {
                 $scope.previewURL = previewURL = '/rest/site/fe/matter/template/enroll/preview?site=' + template.siteid + '&tid=' + template.id + '&vid=' + template.vid;
             }
             http2.get('/rest/site/fe/matter/enroll/get?app=' + template.matter_id + '&site=' + template.siteid + '&cascaded=Y', function(rsp) {
-                $scope.app = rsp.data.app;
+                $scope.app = rsp.app;
                 params.pageAt = 0;
                 params.hasPrev = false;
                 $scope.params = params;
@@ -129,7 +159,7 @@ define(["angular", "xxt-page"], function(angular, codeAssembler) {
         });
         $scope.$watch('params', function(params) {
             if (params) {
-                $scope.previewURL = previewURL + '&openAt=' + params.openAt + '&page=' + $scope.app.pages[params.pageAt].name;
+                $scope.previewURL = previewURL + '&page=' + $scope.app.pages[params.pageAt].name;
             }
         }, true);
     }]);

@@ -29,6 +29,7 @@ class round_model extends \TMS_MODEL {
 	public function &byApp($appId, $options = []) {
 		$fields = isset($options['fields']) ? $options['fields'] : '*';
 		$state = isset($options['state']) ? $options['state'] : false;
+		$mapRounds = isset($options['mapRounds']) ? $options['mapRounds'] : 'N';
 
 		$q = [
 			$fields,
@@ -40,6 +41,13 @@ class round_model extends \TMS_MODEL {
 		$q2 = ['o' => 'start_at'];
 
 		$rounds = $this->query_objs_ss($q, $q2);
+		if (count($rounds) && $mapRounds === 'Y') {
+			$mapOfRounds = [];
+			foreach ($rounds as $round) {
+				$mapOfRounds[$round->rid] = $round;
+			}
+			$rounds = $mapOfRounds;
+		}
 
 		return $rounds;
 	}

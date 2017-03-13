@@ -213,6 +213,7 @@ class base extends \site\base {
 			$snsUser = false;
 		} else {
 			$snsUser = $rst[1];
+
 		}
 
 		return $snsUser;
@@ -306,40 +307,22 @@ class base extends \site\base {
 	 * 要求关注
 	 *
 	 * @param string $siteId
-	 * @param string $openid
+	 * @param string $snsName
 	 *
 	 */
-	protected function snsFollow($siteId, $snsName) {
-		$modelSns = $this->model('sns\\' . $snsName);
-		$sns = $modelSns->bySite($siteId, 'joined,follow_page_id');
-		if ($sns === false || $sns->joined === 'N') {
-			$sns = $modelSns->bySite('platform', 'joined,follow_page_id');
+	protected function snsFollow($siteId, $snsName, $matter = null) {
+		$followUrl = '/rest/site/fe/user/follow?site=' . $siteId . '&sns=' . $snsName;
+		if (!empty($matter)) {
+			$followUrl .= '&matter=' . $matter->type . ',' . $matter->id;
 		}
 
-		if ($sns->follow_page_id === '0') {
-			$site = $this->model('site')->byId($siteId);
-			$html = '请关注公众号：' . $site->name;
-		} else {
-			$page = $this->model('code\page')->lastPublishedByName($siteId, $sns->follow_page_name);
-			$html = $page->html;
-			$css = $page->css;
-			//$js = $page->js;
-		}
-		$protocol = isset($_SERVER['SERVER_PROTOCOL']) ? $_SERVER['SERVER_PROTOCOL'] : 'HTTP/1.0';
-		header($protocol . ' 401 Unauthorized');
-		header('Cache-Control:no-cache,must-revalidate,no-store');
-		header('Pragma:no-cache');
-		header("Expires:-1");
-		\TPL::assign('follow_ele', empty($html) ? '请关注公众号' : $html);
-		\TPL::assign('follow_css', empty($css) ? '' : $css);
-		\TPL::output('follow');
-		exit;
+		$this->redirect($followUrl);
 	}
 	/**
 	 * 返回全局的邀请关注页面
 	 */
-	public function askFollow_action($site) {
-		$this->askFollow($site);
+	public function askFollow_action($site, $snsName) {
+		$this->askFollow($site, $snsName);
 	}
 	/**
 	 * 微信jssdk包

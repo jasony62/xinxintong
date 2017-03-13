@@ -1,6 +1,6 @@
 define(['require'], function(require) {
     'use strict';
-    var ngApp = angular.module('app', ['ngRoute', 'ui.tms', 'ui.xxt']);
+    var ngApp = angular.module('app', ['ngRoute', 'ui.bootstrap', 'ui.tms', 'ui.xxt']);
     ngApp.config(['$locationProvider', '$controllerProvider', '$routeProvider', '$provide', function($lp, $cp, $rp, $provide) {
         var RouteParam = function(name) {
             var baseURL = '/views/default/pl/fe/site/sns/wx/';
@@ -31,7 +31,6 @@ define(['require'], function(require) {
             .when('/rest/pl/fe/site/sns/wx/other', new RouteParam('other'))
             .when('/rest/pl/fe/site/sns/wx/relay', new RouteParam('relay'))
             .when('/rest/pl/fe/site/sns/wx/page', new RouteParam('page'))
-            .when('/rest/pl/fe/site/sns/wx/tmplmsg', new RouteParam('tmplmsg'))
             .otherwise(new RouteParam('setting'));
     }]);
     ngApp.controller('ctrlWx', ['$scope', '$location', 'http2', function($scope, $location, http2) {

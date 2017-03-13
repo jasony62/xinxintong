@@ -48,7 +48,7 @@ class signin_model extends app_base {
 		$q = [
 			$fields,
 			'xxt_signin',
-			"id='$appId'",
+			["id" => $appId],
 		];
 		if ($app = $this->query_obj_ss($q)) {
 			$app->type = 'signin';
@@ -126,18 +126,26 @@ class signin_model extends app_base {
 	/**
 	 * 返回和登记活动关联的签到活动
 	 */
-	public function &byEnroll($enrollAppId) {
+	public function &byEnrollApp($enrollAppId, $options = []) {
+		$fields = isset($options['fields']) ? $options['fields'] : '*';
+		$cascaded = isset($options['cascaded']) ? $options['cascaded'] : 'Y';
+		$mapRounds = isset($options['mapRounds']) ? $options['mapRounds'] : 'N';
+
 		$q = [
-			'*',
+			$fields,
 			'xxt_signin',
-			"state<>0 and enroll_app_id='$enrollAppId'",
+			"state<>0 and enroll_app_id='" . $this->escape($enrollAppId) . "'",
 		];
 		$q2['o'] = 'create_at asc';
 
 		$apps = $this->query_objs_ss($q, $q2);
-		$modelRnd = \TMS_APP::M('matter\signin\round');
-		foreach ($apps as &$app) {
-			$app->rounds = $modelRnd->byApp($app->id);
+		if (count($apps) && $cascaded === 'Y') {
+			$modelRnd = \TMS_APP::M('matter\signin\round');
+			foreach ($apps as &$app) {
+				$options = $mapRounds === 'Y' ? ['mapRounds' => 'Y'] : [];
+				$rounds = $modelRnd->byApp($app->id, $options);
+				$app->rounds = $rounds;
+			}
 		}
 
 		return $apps;

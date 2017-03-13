@@ -34,7 +34,7 @@ class proxy_model extends \sns\proxybase {
 	 */
 	public function join($params) {
 		if (empty($data['signature']) || empty($data['timestamp']) || empty($data['nonce']) || empty($data['echostr'])) {
-			return array(false, 'failed-0');
+			return array(false, 'yx proxy failed-0');
 		}
 		$signature = $params['signature'];
 		$timestamp = $params['timestamp'];
@@ -65,7 +65,7 @@ class proxy_model extends \sns\proxybase {
 
 			return array(true, $echostr);
 		} else {
-			return array(false, 'failed-1');
+			return array(false, 'yx proxy failed-1');
 		}
 	}
 	/**

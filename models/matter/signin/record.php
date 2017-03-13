@@ -233,7 +233,7 @@ class record_model extends \TMS_MODEL {
 			}
 			// 记录数据
 			if (is_object($treatedValue) || is_array($treatedValue)) {
-				$treatedValue =  $this->toJson($treatedValue);
+				$treatedValue = $this->toJson($treatedValue);
 			}
 			$ic = [
 				'aid' => $app->id,
@@ -280,7 +280,6 @@ class record_model extends \TMS_MODEL {
 	 */
 	public function &byUser(&$user, $siteId, &$app, $options = []) {
 		$fields = isset($options['fields']) ? $options['fields'] : '*';
-		$cascaded = isset($options['cascaded']) ? $options['cascaded'] : 'Y';
 
 		$q = [
 			$fields,
@@ -326,6 +325,53 @@ class record_model extends \TMS_MODEL {
 		}
 
 		return $list;
+	}
+	/**
+	 * 根据验证记录获得用户的登记记录
+	 */
+	public function &byVerifiedEnrollKey($verifiedEnrollKey, $aid = null, $options = []) {
+		$fields = isset($options['fields']) ? $options['fields'] : '*';
+
+		$q = [
+			$fields,
+			'xxt_signin_record',
+			["state" => 1, "verified_enroll_key" => $verifiedEnrollKey],
+		];
+		if (empty($aid)) {
+			$records = $this->query_objs_ss($q);
+			if (count($records)) {
+				if ($fields === '*' || (false !== strpos($fields, 'data') && false !== strpos($fields, 'signin_log'))) {
+					$fnHandler = function (&$record) {
+						$record->data = empty($record->data) ? new \stdClass : json_decode($record->data);
+						$record->signin_log = empty($record->signin_log) ? new \stdClass : json_decode($record->signin_log);
+					};
+				} else if (false !== strpos($fields, 'data')) {
+					$fnHandler = function (&$record) {
+						$record->data = empty($record->data) ? new \stdClass : json_decode($record->data);
+					};
+				} else if (false !== strpos($fields, 'signin_log')) {
+					$fnHandler = function (&$record) {
+						$record->signin_log = empty($record->signin_log) ? new \stdClass : json_decode($record->signin_log);
+					};
+				}
+				if (isset($fnHandler)) {
+					foreach ($records as &$record) {
+						$fnHandler($record);
+					}
+				}
+			}
+			return $records;
+		} else {
+			if ($record = $this->query_obj_ss($q)) {
+				if ($fields === '*' || false !== strpos($fields, 'data')) {
+					$record->data = empty($record->data) ? new \stdClass : json_decode($record->data);
+				}
+				if ($fields === '*' || false !== strpos($fields, 'signin_log')) {
+					$record->signin_log = empty($record->signin_log) ? new \stdClass : json_decode($record->signin_log);
+				}
+			}
+			return $record;
+		}
 	}
 	/**
 	 * 根据指定的数据查找匹配的记录
@@ -483,7 +529,13 @@ class record_model extends \TMS_MODEL {
 	 * [1] 数据总条数
 	 * [2] 数据项的定义
 	 */
-	public function find($siteId, &$app, $options = null, $criteria = null) {
+	public function find($app, $options = null, $criteria = null) {
+		if (is_string($app)) {
+			$app = $this->model('matter\signin')->byId($app, ['cascaded' => 'Y']);
+		}
+		if ($app === false) {
+			return false;
+		}
 		if ($options) {
 			is_array($options) && $options = (object) $options;
 			$creater = isset($options->creater) ? $options->creater : null;
@@ -547,6 +599,13 @@ class record_model extends \TMS_MODEL {
 					$whereByData .= ')';
 				}
 			}
+			$w .= $whereByData;
+		}
+
+		// 指定了按关键字过滤
+		if (!empty($criteria->keyword)) {
+			$whereByData = '';
+			$whereByData .= ' and (data like \'%' . $criteria->keyword . '%\')';
 			$w .= $whereByData;
 		}
 

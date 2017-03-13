@@ -117,11 +117,11 @@ class base extends \site\fe\matter\base {
 			break;
 		case '$mpfollow':
 			if (isset($entryRule->sns->wx)) {
-				$this->snsFollow($siteId, 'wx');
+				$this->snsFollow($siteId, 'wx', $app);
 			} elseif (isset($entryRule->sns->qy)) {
-				$this->snsFollow($siteId, 'qy');
+				$this->snsFollow($siteId, 'qy', $app);
 			} elseif (isset($entryRule->sns->yx)) {
-				$this->snsFollow($siteId, 'yx');
+				$this->snsFollow($siteId, 'yx', $app);
 			}
 			break;
 		}

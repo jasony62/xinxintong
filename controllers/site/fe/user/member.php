@@ -113,9 +113,12 @@ class member extends \site\fe\base {
 		if ($rst[0] === false) {
 			return new \ResponseError($rst[1]);
 		}
-		$member = $rst[1];
-		/* 绑定当前站点用户 */
-		$modelWay->bindMember($this->siteId, $member);
+		if ($member = $rst[1]) {
+			/* 绑定当前站点用户 */
+			$modelWay->bindMember($this->siteId, $member);
+		} else {
+			throw new \Exception('程序异常：无法创建自定义用户');
+		}
 		// log
 		//$this->model('log')->writeMemberAuth($site, $siteUser->openid, $mid);
 

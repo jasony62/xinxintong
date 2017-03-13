@@ -27,9 +27,7 @@
         <uib-tabset active="0" justified="true">
             <!-- setting -->
             <uib-tab index="0" >
-                <uib-tab-heading>
-                    <i class="glyphicon glyphicon-edit"></i> 模板定义
-                </uib-tab-heading>
+                <uib-tab-heading><i class="glyphicon glyphicon-edit"></i> 模板定义</uib-tab-heading>
                 <div class="form-group">
                     <div class='form-group'>
                         <div class='input-group'>
@@ -82,9 +80,21 @@
                         <label>版本说明</label>
                         <textarea type='text' class='form-control' ng-model="app.up_said" tms-auto-update tms-wait=1000 tms-update="update('up_said')"></textarea>
                     </div>
+                </div>
+            </uib-tab>
+            <!-- end setting -->
+            <uib-tab index="1" >
+                <uib-tab-heading><i class="glyphicon glyphicon-cog"></i> 模板设置</uib-tab-heading>
+                <div class="form-group">
                     <div>
                         <table class='table table-bordered'>
                             <tbody>
+                                <tr>
+                                    <td >是否支持轮次</td>
+                                    <td >
+                                        <input type="checkbox" ng-true-value="'Y'" ng-false-value="'N'" ng-model="app.multi_rounds" ng-change="update('multi_rounds');" >
+                                    </td>
+                                </tr>
                                 <tr>
                                     <td rowspan="2">已填写时进入</td>
                                     <td style='padding:0'>
@@ -102,42 +112,29 @@
                             </tbody>
                         </table>
                     </div>
-                    <div>
-                        <table class='table table-bordered'>
-                            <tbody>
-                                <tr>
-                                    <td rowspan="2">是否支持轮次</td>
-                                    <td >
-                                        <input type="checkbox" ng-true-value="'Y'" ng-false-value="'N'" ng-model="app.multi_rounds" ng-change="update('multi_rounds');" >
-                                    </td>
-                                </tr>
-                            </tbody>
-                        </table>
+                    <div class='form-group'>
+                        <label>下载该模板所需的积分</label>
+                        <input type='text' class='form-control' size='40' ng-model='app.coin' tms-auto-update tms-wait=1000 tms-update="update('coin')">
                     </div>
                     <div class="form-group">
-                        <label>添加共享用户</label>
+                        <label>添加模板共享用户</label>
                         <div class='input-group'>
-                            <input type="text" class="form-control" ng-model='params.label' placeholder="请输入作为用户账号的邮箱">
+                            <input type="text" class="form-control" ng-model='app.label' placeholder="请输入作为用户账号的邮箱">
                             <span class='input-group-btn'>
-                                <button class='btn btn-primary' ng-click='addReceiver()' ng-disabled="!params.label||!params.label.length"><span class='glyphicon glyphicon-plus'></span></button>
+                                <button class='btn btn-primary' ng-click='addReceiver(app.label)' ng-disabled="!params.label||!params.label.length"><span class='glyphicon glyphicon-plus'></span></button>
                             </span>
                         </div>
                         <div class='list-group'>
-                            <a href='javascript:void(0)' class='list-group-item' ng-repeat="acl in data.acls" ng-mouseenter="entered=true" ng-mouseleave="entered=false">
+                            <a href='javascript:void(0)' class='list-group-item' ng-repeat="acl in app.acls" ng-mouseenter="entered=true" ng-mouseleave="entered=false">
                                 <span>{{acl.account.nickname}}</span>
                                 <span>（{{acl.receiver_label}}）</span>
                                 <button class='close' ng-if="entered" ng-click="removeReceiver(acl)">&times;</button>
                             </a>
                         </div>
                     </div>
-                    <button class='btn btn-default btn-block' ng-click="shareAsTemplate()">发布模版</button>
-                    <button class='btn btn-default btn-block' ng-click="applyToHome()">申请发布到平台主页</button>
-                    <button class='btn btn-default btn-block' ng-click="cancelAsTemplate()">撤销模版</button>
-                    <button class='btn btn-default btn-block' ng-click="removeAsTemplate()">删除模板</button>
                 </div>
             </uib-tab>
-            <!-- end setting -->
-            <uib-tab index="1" id="e">
+            <uib-tab index="2" >
                 <uib-tab-heading><i class="glyphicon glyphicon-th-large"></i> 模板版本</uib-tab-heading>
                 <div class="form-group">
                     <div class="list-group">
@@ -150,7 +147,10 @@
                         </a>
                     </div>
                     <button class='btn btn-default btn-block' ng-click="createVersion()">创建新版本</button>
-                    <button class='btn btn-default btn-block' ng-click="shareUser()">添加分享人</button>
+                    <button class='btn btn-default btn-block' ng-click="shareAsTemplate()">发布模版</button>
+                    <button class='btn btn-default btn-block' ng-click="applyToHome()">申请发布到平台主页</button>
+                    <button class='btn btn-default btn-block' ng-click="cancelAsTemplate()">撤销模版</button>
+                    <button class='btn btn-default btn-block' ng-click="removeAsTemplate()">删除模板</button>
                 </div>
             </uib-tab>
         </uib-tabset>

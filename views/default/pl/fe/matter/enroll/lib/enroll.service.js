@@ -1556,6 +1556,36 @@ define(['require', 'schema', 'page'], function(require, schemaLib, pageLib) {
                         }]
                     });
                 },
+                addReceiver: function(user) {
+                    var defer = $q.defer(),
+                        url;
+                    url = '/rest/pl/fe/template/acl/add?label=' + user;
+                    url += '&site=' + _siteId;
+                    url += '&tid=' + _appId;
+                    http2.get(url, function(rsp) {
+                        if (_oApp.acls === undefined) {
+                            _oApp.acls = [];
+                        }
+                        _oApp.acls.push(rsp.data);
+                        _oApp.label = '';
+                    });
+                    return defer.promise;
+                },
+                removeReceiver: function(acl) {
+                    var defer = $q.defer(),
+                        url;
+                    url = '/rest/pl/fe/template/remove';
+                    url += '&site=' + _siteId;
+                    url += '&tid=' + _appId;
+                    if (acl.id) {
+                         http2.get(url, function(rsp) {
+                            _oApp.acls.splice(_oApp.acls.indexOf(acl));
+                        });
+                    } else {
+                        _oApp.acls.splice(_oApp.acls.indexOf(acl));
+                    }
+                    return defer.promise;
+                }
             }
             return _self;
         }];

@@ -65,23 +65,11 @@ define(['frame'], function(ngApp) {
         $scope.createVersion = function() {
            srvTempApp.createVersion();
         }
-        $scope.addReceiver = function() {
-            http2.get('/rest/pl/fe/template/acl/add?label=' + $scope.params.label + '&tid=' + $scope.id, function(rsp) {
-                if ($scope.data.acls === undefined) {
-                    $scope.data.acls = [];
-                }
-                $scope.data.acls.push(rsp.data);
-                $scope.params.label = '';
-            });
+        $scope.addReceiver = function(user) {
+            srvTempApp.addReceiver(user);
         };
         $scope.removeReceiver = function(acl) {
-            if (acl.id) {
-                http2.get('/rest/pl/fe/template/remove?site=' + $scope.siteId + '&tid=' + $scope.appId, function(rsp) {
-                    $scope.data.acls.splice($scope.data.acls.indexOf(acl));
-                });
-            } else {
-                $scope.data.acls.splice($scope.data.acls.indexOf(acl));
-            }
+            srvTempApp.removeReceiver(acl);
         };
     }]);
     ngApp.provider.controller('ctrlPreview', ['$scope', 'srvEnrollApp', 'srvTempApp', function($scope, srvEnrollApp, srvTempApp) {
@@ -92,14 +80,14 @@ define(['frame'], function(ngApp) {
             $scope.app.pub_status = data[1].pub_status;
             $scope.param = data[2];
             $scope.nextPage = function() {
-                $scope.param.pageAt++;
-                $scope.param.hasPrev = true;
-                $scope.param.hasNext = $scope.param.pageAt < data[1].pages.length - 1;
+                param.pageAt++;
+                param.hasPrev = true;
+                param.hasNext = param.pageAt < data[1].pages.length - 1;
             };
             $scope.prevPage = function() {
-                $scope.param.pageAt--;
-                $scope.param.hasNext = true;
-                $scope.param.hasPrev = $scope.param.pageAt > 0;
+                param.pageAt--;
+                param.hasNext = true;
+                param.hasPrev = param.pageAt > 0;
             };
             $scope.$watch('param', function(param) {
                 if (param) {
@@ -107,7 +95,7 @@ define(['frame'], function(ngApp) {
                 }
             }, true);
         })
-        var previewURL, params;
+        var previewURL, params, param;
         $scope.params = params = {
             openAt: 'ontime',
         };

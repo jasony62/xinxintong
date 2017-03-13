@@ -21,6 +21,14 @@ class template_model extends \TMS_MODEL {
 			return $template;
 		}
 		$template->type = 'template';
+		//查询分享人
+		$v = [
+			'*',
+			'xxt_template_acl',
+			["template_id" => $tid],
+		];
+		$template->acl = $this->query_objs_ss($v);
+
 		//登记活动
 		if(isset($template->matter_type) && $template->matter_type === 'enroll'){
 			//获取版本

@@ -30,7 +30,8 @@ include_once dirname(__FILE__) . '/db_schema_discuss.php';
 $sql = array();
 /*用户组*/
 $sql[] = "delete from account_group";
-$sql[] = "INSERT INTO account_group(group_id,group_name,asdefault,p_mpgroup_create,p_mp_create,p_mp_permission) VALUES(1, '初级用户', 1, 0, 1, 0),(3, '开发用户', 0, 1, 1, 1)";
+$sql[] = "ALTER TABLE  `account_group` ADD  `platform_manage` TINYINT( 4 ) NOT NULL DEFAULT  '0' COMMENT  '平台管理'";
+$sql[] = "INSERT INTO account_group(group_id,group_name,asdefault,p_mpgroup_create,p_mp_create,p_mp_permission) VALUES(1, '初级用户', 1, 0, 1, 0,0),(3, '开发用户', 0, 1, 1, 1, 1)";
 /*内置应用（xxt_inner）*/
 $sql[] = "delete from xxt_inner";
 $sql[] = "INSERT INTO xxt_inner(id,title,name) VALUES(1,'通讯录','addressbook')";

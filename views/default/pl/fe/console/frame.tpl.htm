@@ -1,0 +1,59 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <meta charset="UTF-8">
+        <meta content="width=device-width,user-scalable=no,initial-scale=1.0" name="viewport">
+        <base  href="/">
+        <link href="/static/css/bootstrap.min.css" rel="stylesheet">
+        <link href="/static/css/tms.css?_=1" rel="stylesheet">
+        <link href="/views/default/pl/fe/console/frame.css?_=1" rel="stylesheet">
+        <title><?php echo APP_TITLE;?></title>
+    </head>
+    <body ng-controller='ctrlFrame'>
+        <nav class='navbar navbar-default'>
+            <div class='container'>
+                <div class="navbar-header">
+                    <a class='navbar-brand' href='/rest/home' target='_self'><?php echo APP_TITLE;?></a>
+                    <button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target='#navbar-collapse-1'>
+                        <span class="sr-only">Toggle navigation</span>
+                        <span class="icon-bar"></span>
+                        <span class="icon-bar"></span>
+                        <span class="icon-bar"></span>
+                    </button>
+                </div>
+                <ul class='nav navbar-nav'>
+                    <li ng-class="{'active':subView==='main'}"><a href='/rest/pl/fe'>个人工作台</a></li>
+                    <li ng-class="{'active':subView==='friend'}"><a href='/rest/pl/fe/friend'>其他团队</a></li>
+                </ul>
+                <div class='collapse navbar-collapse' id='navbar-collapse-1'>
+                    <form class='navbar-form navbar-right'>
+                        <div class="btn-group">
+                            <a href='' target='_self' class="btn btn-default"><i class='glyphicon glyphicon-user'></i> {{loginUser.nickname}}</a>
+                            <button type="button" class="btn btn-default dropdown-toggle" data-toggle="dropdown">
+                                <span class="caret"></span>
+                                <span class="sr-only">Toggle Dropdown</span>
+                            </button>
+                            <ul class="dropdown-menu" role="menu">
+                                <li><a href='/rest/pl/fe/user/settings' target='_self'>用户设置</a></li>
+                                <li class="divider"></li>
+                                <li><a href='/rest/pl/fe/user/logout' target='_self'>退出</a></li>
+                            </ul>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </nav>
+        <div class='container ng-cloak' ng-cloak ng-view></div>
+        <script src="/static/js/jquery.min.js"></script>
+        <script src="/static/js/bootstrap.min.js"></script>
+        <script src="/static/js/angular.min.js"></script>
+        <script src="/static/js/angular-sanitize.min.js"></script>
+        <script src="/static/js/angular-route.min.js"></script>
+        <script src="/static/js/ui-bootstrap-tpls.min.js"></script>
+        <script src="/static/js/ui-tms.js"></script>
+        <script src="/static/js/xxt.ui.js"></script>
+        <script src="/static/js/xxt.ui.tmplshop.js?_=2"></script>
+        <script src="/views/default/pl/fe/_module/matter.service.js?_=1"></script>
+        <script src="/static/js/require.js" data-main="/views/default/pl/fe/console/frame-loader.js?_=1"></script>
+    </body>
+</html>

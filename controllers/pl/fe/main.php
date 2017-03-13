@@ -10,7 +10,10 @@ class main extends \pl\fe\base {
 	 * 用户登录后的首页
 	 */
 	public function index_action($ver = null) {
-		if ($ver === '1') {
+		if ($ver === '2') {
+			\TPL::output('/pl/fe/console/frame');
+			exit;
+		} else if ($ver === '1') {
 			$this->view_action('/pl/fe/main');
 		} else {
 			\TPL::output('/pl/fe/main2');
@@ -43,41 +46,6 @@ class main extends \pl\fe\base {
 		$matters = $modelLog->recentMattersByUser($user, $options);
 
 		return new \ResponseData($matters);
-	}
-	/**
-	 * 获得当前用户的关注动态
-	 */
-	public function trends_action() {
-		if (false === ($user = $this->accountUser())) {
-			return new \ResponseTimeout();
-		}
-
-		$result = new \stdClass;
-		$modelSite = $this->model('site');
-		if (($mySites = $modelSite->byUser($user->id)) && count($mySites)) {
-			$mySiteIds = [];
-			foreach ($mySites as $mySite) {
-				$mySiteIds[] = "'{$mySite->id}'";
-			}
-			$mySiteIds = implode(',', $mySiteIds);
-
-			$q = [
-				'*',
-				'xxt_site_subscription',
-				"siteid in($mySiteIds)",
-			];
-			$q2 = ['o' => 'put_at desc'];
-
-			$matters = $modelSite->query_objs_ss($q, $q2);
-
-			$result->trends = $matters;
-			$result->total = count($matters);
-		} else {
-			$result->trends = [];
-			$result->total = 0;
-		}
-
-		return new \ResponseData($result);
 	}
 	/**
 	 * 当前用户可见的所有公众号

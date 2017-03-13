@@ -14,6 +14,7 @@ define(['frame', 'enrollService', 'signinService'], function(ngApp) {
         }
 
         var _showMatters, _hideMatters, _enrollAppSchemas;
+        $scope.closeMatters = true;
         $scope.showMatters = _showMatters = [];
         $scope.hideMatters = _hideMatters = [];
         $scope.enrollAppSchemas = _enrollAppSchemas = {};
@@ -49,6 +50,9 @@ define(['frame', 'enrollService', 'signinService'], function(ngApp) {
                     var url = '/rest/pl/fe/matter/' + data.appType + '/get?site=' + mission.siteid + '&id=' + data.appId;
                     http2.get(url, function(rsp) {
                         mission.userApp = rsp.data;
+                        if (mission.userApp.data_schemas && angular.isString(mission.userApp.data_schemas)) {
+                            mission.userApp.data_schemas = JSON.parse(mission.userApp.data_schemas);
+                        }
                     });
                 });
             });
@@ -74,6 +78,7 @@ define(['frame', 'enrollService', 'signinService'], function(ngApp) {
             http2.post(url, { is_public: 'Y' }, function(rsp) {
                 matter.is_public = 'Y';
                 _hideMatters.splice(_hideMatters.indexOf(matter), 1);
+                matter.seq = _showMatters.length;
                 _showMatters.push(matter);
             });
         };
@@ -135,27 +140,18 @@ define(['frame', 'enrollService', 'signinService'], function(ngApp) {
             });
         });
     }]);
-    ngApp.provider.controller('ctrlUserAction', ['$scope', 'srvMission', 'srvEnrollRecord', 'srvSigninRecord', 'srvRecordConverter', function($scope, srvMission, srvEnrollRecord, srvSigninRecord, srvRecordConverter) {
-        var _oUserPage, _oUserCriteria, _users;
-        $scope.oUserPage = _oUserPage = {};
-        $scope.oUserCriteria = _oUserCriteria = {};
-        $scope.users = _users = [];
+    ngApp.provider.controller('ctrlUserAction', ['$scope', 'srvMission', 'srvRecordConverter', function($scope, srvMission, srvRecordConverter) {
+        var _oResultSet;
+        $scope.resultSet = _oResultSet = {};
         $scope.tmsTableWrapReady = 'N';
         $scope.doUserSearch = function() {
-            var userApp = $scope.mission.userApp;
-            if (userApp.type === 'enroll') {
-                srvEnrollRecord.search().then(function(data) {
-                    $scope.tmsTableWrapReady = 'Y';
-                });
-            } else if (userApp.type === 'signin') {
-                srvSigninRecord.search().then(function(data) {
-                    $scope.tmsTableWrapReady = 'Y';
-                });
-            }
+            srvMission.userList(_oResultSet).then(function(result) {
+                $scope.tmsTableWrapReady = 'Y';
+            });
         };
         $scope.doUserFilter = function(isCacnel) {
-            _oUserPage.at = 1;
-            isCacnel === true && (_oUserCriteria.keyword = '');
+            _oResultSet.page.at = 1;
+            isCacnel === true && (_oResultSet.criteria.keyword = '');
             $scope.doUserSearch();
         };
         $scope.chooseUser = function(user) {
@@ -212,17 +208,8 @@ define(['frame', 'enrollService', 'signinService'], function(ngApp) {
         };
         $scope.$watch('mission.userApp', function(userApp) {
             if (!userApp) {
-                _users.splice(0, _users.length);
+                _oResultSet.users && _oResultSet.users.splice(0, _oResultSet.users.length);
             } else {
-                if (userApp.data_schemas && angular.isString(userApp.data_schemas)) {
-                    userApp.data_schemas = JSON.parse(userApp.data_schemas);
-                }
-                var userApp = $scope.mission.userApp;
-                if (userApp.type === 'enroll') {
-                    srvEnrollRecord.init(userApp, _oUserPage, _oUserCriteria, _users);
-                } else if (userApp.type === 'signin') {
-                    srvSigninRecord.init(userApp, _oUserPage, _oUserCriteria, _users);
-                }
                 $scope.doUserSearch();
             }
         });

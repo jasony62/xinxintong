@@ -168,7 +168,7 @@ class round extends \pl\fe\matter\base {
 		}
 
 		$modelRec = $this->model('matter\signin\record');
-		$records = $modelRec->find($site, $app, ['rid' => $rid]);
+		$records = $modelRec->find($app, ['rid' => $rid]);
 		if ($records->total > 0) {
 			return new \ResponseError('已经有签到数据，不允许删除');
 		}

@@ -698,7 +698,7 @@ class record extends base {
 		$app = $this->model('matter\enroll')->byId($app);
 		$modelRec = $this->model('matter\enroll\record');
 
-		$rst = $modelRec->find($site, $app, $options);
+		$rst = $modelRec->find($app, $options);
 
 		return new \ResponseData($rst);
 	}

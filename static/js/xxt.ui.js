@@ -1,4 +1,4 @@
-angular.module('ui.xxt', ['ui.bootstrap']).
+angular.module('ui.xxt', []).
 constant('matterTypes', [{
     value: 'text',
     title: '文本',

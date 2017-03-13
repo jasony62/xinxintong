@@ -36,21 +36,20 @@ class home extends TMS_CONTROLLER {
 		return new \ResponseData($param);
 	}
 	/**
-	 *
+	 * 首页推荐团队列表
 	 */
 	public function listSite_action() {
 		$modelHome = $this->model('site\home');
 		$result = $modelHome->atHome();
 		if ($result->total) {
-			if ($user = $this->_accountUser()) {
+			$modelWay = $this->model('site\fe\way');
+			$siteUser = $modelWay->who('platform');
+			/* 团队是否已经被当前用户关注 */
+			if (isset($siteUser->loginExpire)) {
 				$modelSite = $this->model('site');
-				$mySites = $modelSite->byUser($user->id);
 				foreach ($result->sites as &$site) {
-					foreach ($mySites as $mySite) {
-						if ($modelSite->isSubscribedBySite($site->siteid, $mySite->id)) {
-							$site->_subscribed = 'Y';
-							break;
-						}
+					if ($rel = $modelSite->isSubscribed($siteUser->uid, $site->siteid)) {
+						$site->_subscribed = $rel->subscribe_at ? 'Y' : 'N';
 					}
 				}
 			}
@@ -97,21 +96,5 @@ class home extends TMS_CONTROLLER {
 		}
 
 		return new \ResponseData($result);
-	}
-	/**
-	 * 获得当前登录账号的用户信息
-	 */
-	private function &_accountUser() {
-		$account = \TMS_CLIENT::account();
-		if ($account) {
-			$user = new \stdClass;
-			$user->id = $account->uid;
-			$user->name = $account->nickname;
-			$user->src = 'A';
-
-		} else {
-			$user = false;
-		}
-		return $user;
 	}
 }

@@ -31,9 +31,9 @@
     </div>
 </nav>
 <div class='row' ng-controller="ctrlUserAction">
-    <div class='col-md-6' tms-flex-height top='144' bottom='50'>
-        <div id='userRecords' tms-table-wrap ready='tmsTableWrapReady'>
-            <form class='form'>
+    <div ng-class="{'col-md-12':closeMatters,'col-md-7':!closeMatters}" tms-flex-height top='144' bottom='50' style='display:flex;flex-direction:column;'>
+        <div class='form-group'>
+            <div class='form-inline'>
                 <div class='form-group'>
                     <label>用户名单</label>
                     <div class="input-group">
@@ -48,7 +48,7 @@
                 </div>
                 <div class='form-group'>
                     <div class="input-group">
-                        <input class='form-control' placeholder="输入关键字搜索" ng-model="oUserCriteria.keyword">
+                        <input class='form-control' placeholder="输入关键字搜索" ng-model="resultSet.criteria.keyword">
                         <span class="input-group-btn">
                             <button class="btn btn-default" ng-click="doUserFilter()" ng-if="mission.userApp">
                                 <span class='glyphicon glyphicon-search'></span>
@@ -57,24 +57,32 @@
                         </span>
                     </div>
                 </div>
-            </form>
+                <div class='form-group pull-right'>
+                    <button class='btn btn-default' ng-show="!closeMatters" ng-click="closeMatters=true"><i class='glyphicon glyphicon-step-forward'></i></button>
+                    <button class='btn btn-default' ng-show="closeMatters" uib-popover="列出项目中所有活动和资料，并设置包含在项目展示页中的内容" popover-trigger="mouseenter" popover-placement="bottom" ng-click="closeMatters=false"><i class='glyphicon glyphicon-step-backward'></i> <span>显示所有活动</span></button>
+                </div>
+            </div>
+        </div>
+        <div class='form-group' tms-table-wrap ready='tmsTableWrapReady'>
             <table class='table table-bordered'>
                 <thead>
                     <tr>
                         <th style='width:3em'></th>
                         <th style='width:100px'>登记时间</th>
-                        <th class='custom-col row' ng-repeat="schema in mission.userApp.data_schemas">{{schema.title}}</th>
+                        <th class='custom-col row' ng-repeat="schema in mission.userApp.data_schemas" ng-if="schema.type!=='html'">{{schema.title}}</th>
                         <th style='width:140px'>昵称</th>
                         <th style='width:80px'>审核通过</th>
-                        <th style='width:140px' ng-if="app.tags.length">标签</th>
+                        <th ng-if="mission.userApp.type==='enroll'">签到记录</th>
+                        <th>所属分组</th>
+                        <th style='width:140px' ng-if="mission.userApp.tags.length">标签</th>
                         <th style='width:140px'>备注</th>
                     </tr>
                 </thead>
                 <tbody>
-                    <tr ng-repeat='user in users' class='user' ng-class="{'active':user===activeUser}" ng-click="chooseUser(user)">
-                        <td>{{(oUserPage.at-1)*oUserPage.size+$index+1}}</td>
+                    <tr ng-repeat='user in resultSet.users' class='user' ng-class="{'active':user===activeUser}" ng-click="chooseUser(user)">
+                        <td>{{resultSet.page.offset()+$index+1}}</td>
                         <td>{{(user.enroll_at*1000)|date:'MM-dd HH:mm'}}</td>
-                        <td ng-repeat="schema in mission.userApp.data_schemas" ng-switch on="schema.type">
+                        <td ng-repeat="schema in mission.userApp.data_schemas" ng-switch on="schema.type" ng-if="schema.type!=='html'">
                             <span ng-switch-when="image">
                                 <img ng-repeat="img in user._data[schema.id]" ng-src='{{img}}' />
                             </span>
@@ -86,18 +94,27 @@
                         </td>
                         <td>{{user.nickname}}</td>
                         <td>{{user.verified}}</td>
-                        <td ng-if="app.tags.length">{{user.tags}}</td>
+                        <td class='signin' ng-if="mission.userApp.type==='enroll'">
+                            <div ng-repeat="sr in user.signinRecords">
+                                <div>{{sr.app}}</div>
+                                <div ng-repeat="log in sr.signinLogs">
+                                    <span ng-class="{'signin_late':log.isLate}">{{log.roundTitle}}：{{log.signinAt*1000|date:'yy-MM-dd HH:mm'}}</span>
+                                </div>
+                            </div>
+                        </td>
+                        <td class='group'><div ng-repeat="gr in user.groupRecords">{{gr.app}}：{{gr.round_title}}</div></td>
+                        <td ng-if="mission.userApp.tags.length">{{user.tags}}</td>
                         <td>{{user.comment}}</td>
                     </tr>
                 </tbody>
             </table>
-            <div class='form-group' style='text-align:right;'>
-                <span style='line-height:34px'>总数：{{oUserPage.total}}</span>
-                <ul uib-pagination style="margin:0;vertical-align:bottom;cursor:pointer" ng-show="oUserPage.total>oUserPage.size" boundary-links="true" total-items="oUserPage.total" max-size="5" items-per-page="oUserPage.size" rotate="false" ng-model="oUserPage.at" previous-text="&lsaquo;" next-text="&rsaquo;" first-text="&laquo;" last-text="&raquo;" ng-change="doUserSearch()"></ul>
-            </div>
+        </div>
+        <div>
+            <span style='line-height:34px'>总数：{{resultSet.page.total}}</span>
+            <ul uib-pagination style="margin:0;vertical-align:bottom;cursor:pointer" ng-show="resultSet.page.total>resultSet.page.size" boundary-links="true" total-items="resultSet.page.total" max-size="5" items-per-page="resultSet.page.size" rotate="false" ng-model="resultSet.page.at" previous-text="&lsaquo;" next-text="&rsaquo;" first-text="&laquo;" last-text="&raquo;" ng-change="doUserSearch()"></ul>
         </div>
     </div>
-    <div class='col-md-6' tms-flex-height top='144' bottom='50'>
+    <div class='col-md-5' tms-flex-height top='144' bottom='50' ng-if="!closeMatters">
         <uib-tabset active="0">
             <uib-tab index="0">
                 <uib-tab-heading>展示（{{showMatters.length}}）</uib-tab-heading>

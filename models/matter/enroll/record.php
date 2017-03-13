@@ -398,7 +398,13 @@ class record_model extends \TMS_MODEL {
 	 * [1] 数据总条数
 	 * [2] 数据项的定义
 	 */
-	public function find($siteId, &$app, $options = null, $criteria = null) {
+	public function find($app, $options = null, $criteria = null) {
+		if (is_string($app)) {
+			$app = $this->model('matter\enroll')->byId($app, ['cascaded' => 'N']);
+		}
+		if ($app === false) {
+			return false;
+		}
 		if ($options) {
 			is_array($options) && $options = (object) $options;
 			$creater = isset($options->creater) ? $options->creater : null;
@@ -413,7 +419,7 @@ class record_model extends \TMS_MODEL {
 				} else if (!empty($options->rid)) {
 					$rid = $options->rid;
 				}
-			} else if ($activeRound = $this->M('matter\enroll\round')->getActive($siteId, $app->id)) {
+			} else if ($activeRound = $this->M('matter\enroll\round')->getActive($app->siteid, $app->id)) {
 				$rid = $activeRound->rid;
 			}
 		}
@@ -431,7 +437,7 @@ class record_model extends \TMS_MODEL {
 		} else if (!empty($inviter)) {
 			$user = new \stdClass;
 			$user->openid = $inviter;
-			$inviterek = $this->getLastKey($siteId, $aid, $user);
+			$inviterek = $this->getLastKey($app->siteid, $aid, $user);
 			$w .= " and e.referrer='ek:$inviterek'";
 		}
 

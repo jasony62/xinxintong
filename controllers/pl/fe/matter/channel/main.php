@@ -27,9 +27,10 @@ class main extends \pl\fe\matter\base {
 		}
 
 		$modelChn = $this->model('matter\channel');
-		$channel = $modelChn->byId($id);
-		$channel->matters = $modelChn->getMatters($id, $channel, $site);
-		$channel->acl = $this->model('acl')->byMatter($site, 'channel', $id);
+		if ($channel = $modelChn->byId($id)) {
+			$channel->matters = $modelChn->getMatters($id, $channel, $site);
+			$channel->acl = $this->model('acl')->byMatter($site, 'channel', $id);
+		}
 
 		return new \ResponseData($channel);
 	}

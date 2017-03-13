@@ -136,7 +136,7 @@ factory('mattersgallery', function($uibModal) {
     var gallery = {};
     gallery.open = function(galleryId, callback, options) {
         $uibModal.open({
-            templateUrl: '/static/template/mattersgallery2.html?_=7',
+            templateUrl: '/static/template/mattersgallery2.html?_=8',
             controller: ['$scope', '$http', '$uibModalInstance', function($scope, $http, $mi) {
                 var fields = ['id', 'title'];
                 $scope.matterTypes = options.matterTypes;
@@ -204,6 +204,15 @@ factory('mattersgallery', function($uibModal) {
                 };
                 $scope.cancel = function() {
                     $mi.dismiss('cancel');
+                };
+                $scope.createMatter = function() {
+                    if ($scope.p.matterType.value === 'channel') {
+                        $http.get('/rest/pl/fe/matter/channel/create?site=' + galleryId).success(function(rsp) {
+                            $mi.close([
+                                [rsp.data], 'channel'
+                            ]);
+                        });
+                    }
                 };
                 $scope.$watch('p.matterType', function(nv) {
                     $scope.doSearch();

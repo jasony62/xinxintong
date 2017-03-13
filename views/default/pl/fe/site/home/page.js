@@ -83,9 +83,11 @@ define(['main'], function(ngApp) {
             }, options);
         };
         $scope.remove = function(homeChannel, index) {
-            http2.get('/rest/pl/fe/site/setting/page/removeHomeChannel?site=' + $scope.site.id + '&id=' + homeChannel.id, function(rsp) {
-                $scope.channels.splice(index, 1);
-            });
+            if (window.confirm('确定删除主页上的频道？')) {
+                http2.get('/rest/pl/fe/site/setting/page/removeHomeChannel?site=' + $scope.site.id + '&id=' + homeChannel.id, function(rsp) {
+                    $scope.channels.splice(index, 1);
+                });
+            }
         };
         $scope.$watch('site', function(site) {
             if (site === undefined) return;

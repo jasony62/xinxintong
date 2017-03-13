@@ -114,11 +114,16 @@ class channel_model extends article_base {
 	 * return 频道包含的文章，小于等于频道的容量
 	 */
 	public function &getMatters($channel_id, $channel = null, $runningMpid = null) {
+		$matters = array(); // 返回结果
 		/**
 		 * load channel.
 		 */
 		if (empty($channel)) {
 			$channel = $this->byId($channel_id, 'id,mpid,matter_type,orderby,volume,top_type,top_id,bottom_type,bottom_id');
+		}
+
+		if ($channel === false) {
+			return $matters;
 		}
 
 		if (empty($channel->matter_type)) {
@@ -136,7 +141,6 @@ class channel_model extends article_base {
 			$matterTypes = array($channel->matter_type => 'xxt_' . $channel->matter_type);
 		}
 
-		$matters = array(); // 返回结果
 		$fixed_num = 0;
 		/**
 		 * top matter

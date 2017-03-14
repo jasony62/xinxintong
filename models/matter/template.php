@@ -153,6 +153,7 @@ class template_model extends \TMS_MODEL {
 			$q[2] = [
 				'siteid' => $site,
 				'id' => $vid,
+				'state' => 1,
 			];
 		}
 
@@ -432,6 +433,17 @@ class template_model extends \TMS_MODEL {
 	 */
 	public function purchaseBySite(&$user, &$template, $siteId) {
 		if ($this->isPurchaseBySite($template, $siteId)) {
+			$options = array(
+				'siteid' => $siteId,
+				'template_id' => $template->id,
+				'purchase' => 'Y'
+			);
+			$this->update(
+					'xxt_template_order',
+					['template_version' => $template->version],
+					$options
+				);
+			
 			return true;
 		}
 		$template = $this->escape($template);

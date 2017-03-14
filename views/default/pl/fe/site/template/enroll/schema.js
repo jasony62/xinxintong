@@ -262,30 +262,6 @@ define(['frame', 'schema', 'wrap'], function(ngApp, schemaLib, wrapLib) {
             var page, wrap;
 
             editing.type = $scope.activeSchema.type;
-            if (editing.type === 'member') {
-                if ($scope.activeSchema.schema_id) {
-                    (function() {
-                        var i, j, memberSchema, schema;
-                        /*自定义用户*/
-                        for (i = $scope.memberSchemas.length - 1; i >= 0; i--) {
-                            memberSchema = $scope.memberSchemas[i];
-                            if ($scope.activeSchema.schema_id === memberSchema.id) {
-                                for (j = memberSchema._schemas.length - 1; j >= 0; j--) {
-                                    schema = memberSchema._schemas[j];
-                                    if ($scope.activeSchema.id === schema.id) {
-                                        break;
-                                    }
-                                }
-                                $scope.selectedMemberSchema = {
-                                    schema: memberSchema,
-                                    attr: schema
-                                };
-                                break;
-                            }
-                        }
-                    })();
-                }
-            }
             $scope.activeConfig = false;
             $scope.inputPage = false;
             for (var i = $scope.app.pages.length - 1; i >= 0; i--) {

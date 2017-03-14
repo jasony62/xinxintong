@@ -572,7 +572,7 @@ define(['frame', 'schema', 'page', 'editor'], function(ngApp, schemaLib, pageLib
     /**
      * button wrap controller
      */
-    ngApp.provider.controller('ctrlButtonWrap', ['$scope', 'srvEnrollPage', function($scope, srvEnrollPage) {
+    ngApp.provider.controller('ctrlButtonWrap', ['$scope', 'srvEnrollPage', 'srvTempPage', function($scope, srvEnrollPage, srvTempPage) {
         var schema = $scope.activeWrap.schema;
 
         $scope.chooseType = function() {
@@ -591,7 +591,7 @@ define(['frame', 'schema', 'page', 'editor'], function(ngApp, schemaLib, pageLib
         };
         /* 直接给带有导航功能的按钮创建页面 */
         $scope.newPage = function(prop) {
-            srvEnrollPage.create().then(function(page) {
+            srvTempPage.create().then(function(page) {
                 schema[prop] = page.name;
             });
         };

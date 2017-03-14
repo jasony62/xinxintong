@@ -1,6 +1,7 @@
 define(['frame'], function(ngApp) {
     'use strict';
     ngApp.provider.controller('ctrlPublish', ['$scope', 'http2', 'mediagallery', '$timeout',  'srvEnrollApp', 'srvTempApp', '$controller', function($scope,  http2, mediagallery, $timeout,  srvEnrollApp, srvTempApp, controller) {
+        $scope.shareUser = {};
         $scope.setPic = function() {
             var options = {
                 callback: function(url) {
@@ -38,7 +39,11 @@ define(['frame'], function(ngApp) {
             srvTempApp.cancelAsTemplate();
         };
         $scope.removeAsTemplate = function() {
-            console.log(1);
+            if (window.confirm('确定删除模板？')) {
+                srvTempApp.removeAsTemplate().then(function() {
+                    location = '/rest/pl/fe/template/site?site=' + $scope.app.siteid;
+                });
+            }
         };
         $scope.lookView = function(num) {
             var previewURL,
@@ -65,7 +70,9 @@ define(['frame'], function(ngApp) {
            srvTempApp.createVersion();
         }
         $scope.addReceiver = function(user) {
-            srvTempApp.addReceiver(user);
+            srvTempApp.addReceiver($scope.shareUser).then(function(){
+                $scope.shareUser.label = '';
+            });
         };
         $scope.removeReceiver = function(acl) {
             srvTempApp.removeReceiver(acl);

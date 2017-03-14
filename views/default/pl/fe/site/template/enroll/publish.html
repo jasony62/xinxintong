@@ -119,14 +119,13 @@
                     <div class="form-group">
                         <label>添加模板共享用户</label>
                         <div class='input-group'>
-                            <input type="text" class="form-control" ng-model='app.label' placeholder="请输入作为用户账号的邮箱">
+                            <input type="text" class="form-control" ng-model='shareUser.label' placeholder="请输入作为用户账号的邮箱">
                             <span class='input-group-btn'>
-                                <button class='btn btn-primary' ng-click='addReceiver(app.label)' ng-disabled="!params.label||!params.label.length"><span class='glyphicon glyphicon-plus'></span></button>
+                                <button class='btn btn-primary' ng-click='addReceiver()' ng-disabled="!shareUser.label||!shareUser.label.length"><span class='glyphicon glyphicon-plus'></span></button>
                             </span>
                         </div>
                         <div class='list-group'>
-                            <a href='javascript:void(0)' class='list-group-item' ng-repeat="acl in app.acls" ng-mouseenter="entered=true" ng-mouseleave="entered=false">
-                                <span>{{acl.account.nickname}}</span>
+                            <a href='javascript:void(0)' class='list-group-item' ng-repeat="acl in app.acl" ng-mouseenter="entered=true" ng-mouseleave="entered=false">
                                 <span>（{{acl.receiver_label}}）</span>
                                 <button class='close' ng-if="entered" ng-click="removeReceiver(acl)">&times;</button>
                             </a>

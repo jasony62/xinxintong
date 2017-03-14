@@ -1556,10 +1556,10 @@ define(['require', 'schema', 'page'], function(require, schemaLib, pageLib) {
                         }]
                     });
                 },
-                addReceiver: function(user) {
+                addReceiver: function(shareUser) {
                     var defer = $q.defer(),
                         url;
-                    url = '/rest/pl/fe/template/acl/add?label=' + user;
+                    url = '/rest/pl/fe/template/acl/add?label=' + shareUser.label;
                     url += '&site=' + _siteId;
                     url += '&tid=' + _appId;
                     http2.get(url, function(rsp) {
@@ -1567,25 +1567,34 @@ define(['require', 'schema', 'page'], function(require, schemaLib, pageLib) {
                             _oApp.acls = [];
                         }
                         _oApp.acls.push(rsp.data);
-                        _oApp.label = '';
+                        defer.resolve(_oApp);
                     });
                     return defer.promise;
                 },
                 removeReceiver: function(acl) {
                     var defer = $q.defer(),
                         url;
-                    url = '/rest/pl/fe/template/remove';
-                    url += '&site=' + _siteId;
-                    url += '&tid=' + _appId;
-                    if (acl.id) {
-                         http2.get(url, function(rsp) {
-                            _oApp.acls.splice(_oApp.acls.indexOf(acl));
-                        });
-                    } else {
-                        _oApp.acls.splice(_oApp.acls.indexOf(acl));
-                    }
+                    url = '/rest/pl/fe/template/acl/remove';
+                    url += '?acl=' + acl.id;
+                    http2.get(url, function(rsp) {
+                        angular.forEach(_oApp.acl,function(item, index){
+                            if (item.id == acl.id) {
+                                _oApp.acl.splice(index, 1);
+                            }
+                        })
+                        defer.resolve();
+                    });
                     return defer.promise;
-                }
+                },
+                removeAsTemplate: function() {
+                    var defer = $q.defer(),
+                        url;
+                    url = '/rest/pl/fe/template/remove?site=' + _siteId + '&app=' + _appId;
+                    http2.get(url, function(rsp) {
+                        defer.resolve();
+                    });
+                    return defer.promise;
+                },
             }
             return _self;
         }];

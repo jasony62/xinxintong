@@ -17,7 +17,7 @@ class enroll_model extends \TMS_MODEL {
 			'siteid' => $site->id,
 			'site_name' => $site->name,
 			'matter_type' => $data->matter_type,
-			'scenario' => isset($data->scenario) ? $data->scenario : '',
+			'scenario' => isset($data->scenario) ? $data->scenario : 'common',
 			'title' => isset($data->title)? $data->title : '新模板('.$data->matter_type.')',
 			'pic' => isset($data->pic)? $data->pic : '',
 			'summary' => isset($data->summary)? $data->summary : '',
@@ -28,7 +28,7 @@ class enroll_model extends \TMS_MODEL {
 		$template['id'] = $this->insert('xxt_template', $template, true);
 
 		//新建版本
-		$versionNum = $this->model('matter\template')->getVersion($site->id, $template['id'], $data->matter_type);
+		$versionNum = $this->model('matter\template')->getVersionNum($site->id, $template['id'], $data->matter_type);
 		$options = [
 			'version' => $versionNum,
 			'modifier' => $user->id,
@@ -88,7 +88,7 @@ class enroll_model extends \TMS_MODEL {
 	public function createNewVersion($site, $tid ,&$matter, $user, $time = '', $pubStatus = 'N'){
 		$current = empty($time)? time() : $time;
 		//创建模板版本号
-		$version = $this->model('matter\template')->getVersion($site, $tid, 'enroll');
+		$version = $this->model('matter\template')->getVersionNum($site, $tid, 'enroll');
 		$options = [
 			'version' => $version,
 			'modifier' => $user->id,

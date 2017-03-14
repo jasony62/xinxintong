@@ -36,7 +36,7 @@ class main extends \pl\fe\base {
 		return new \ResponseData($template);
 	}
 	/**
-	 * 发布模版
+	 * 生成模版
 	 *
 	 * @param string $site
 	 * @param string $scope [Platform|Site]
@@ -50,27 +50,7 @@ class main extends \pl\fe\base {
 		$site = $this->model('site')->byId($site, ['fields' => 'id,name']);
 
 		$modelTmpl = $this->model('matter\template');
-		if ($template = $modelTmpl->byMatter($matter->matter_id, $matter->matter_type)) {
-			//检查是否已有未发布的版本
-			if($matter->matter_type === 'enroll'){
-				$table = 'xxt_template_enroll';
-			}
-			$p = [
-				'id,version',
-				$table,
-				['siteid' => $site->id, 'template_id' => $template->id, 'pub_status' => 'N', 'state' => 1]
-			];
-			if($version = $modelTmpl->query_obj_ss($p) ){
-				return new \ResponseError('此模板已存在尚未发布的版本');
-			}
-
-			$template = $modelTmpl->putMatter($site, $loginUser, $matter, $template);
-		} else {
-			$template = $modelTmpl->putMatter($site, $loginUser, $matter);
-			/* 首次发布模版获得积分 */
-			$modelCoin = $this->model('pl\coin\log');
-			$modelCoin->award($loginUser, 'pl.matter.template.put.' . $template->visible_scope, $template);
-		}
+		$template = $modelTmpl->putMatter($site, $loginUser, $matter);
 
 		return new \ResponseData($template);
 	}

@@ -63,7 +63,7 @@ class enroll extends \pl\fe\base {
 		if($orders = $modelTmp->query_objs_ss($q, $q2) ){
 			foreach ($orders as $v) {
 				//获取最新版本的信息
-				$v->lastVersion = $modelTmp->byVersion($site, $v->matter_type, $v->id, null, $v->last_version, ['cascaded' => 'N']);
+				$v->lastVersion = $modelTmp->byVersion($site, $v->matter_type, $v->id, null, $v->last_version);
 			}
 		}
 

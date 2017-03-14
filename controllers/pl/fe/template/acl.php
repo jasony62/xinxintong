@@ -107,7 +107,7 @@ class acl extends \pl\fe\base {
 		}
 
 		$modelAcl = $this->model('matter\template\acl');
-		$acls = $modelAcl->aclers($tid);
+		$acls = $modelAcl->listAcler($tid);
 
 		return $acls;
 	}

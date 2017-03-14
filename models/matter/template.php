@@ -130,7 +130,6 @@ class template_model extends \TMS_MODEL {
 	 */
 	public function byVersion($site, $matterType, $tid = null, $vid = null, $version = null, $options = []){
 		$fields = isset($options['fields'])? $options['fields'] : '*' ;
-		$cascaded = isset($options['cascaded'])? $options['cascaded'] : 'Y' ;
 
 		$q = array();
 		$q[0] = $fields;
@@ -139,7 +138,8 @@ class template_model extends \TMS_MODEL {
 				$q[1] = 'xxt_template_enroll';
 				break;
 		}
-		if(empty($vid) ){//根据版本号和template_id获取版本信息
+		//如果vid为空根据版本号和template_id获取版本信息
+		if(empty($vid) ){
 			if(empty($tid) || empty($version) ){
 				return false;
 			}
@@ -157,29 +157,7 @@ class template_model extends \TMS_MODEL {
 			];
 		}
 
-		if($version = $this->query_obj_ss($q) ){
-			if($cascaded === 'Y'){
-				//获得版本所有使用者
-				$options = [
-					'from_siteid' => $site,
-					'template_id' => $version->template_id,
-					'template_version' => $version->version,
-					'purchase' => 'Y'
-				];
-				$q = [
-					'*',
-					'xxt_template_order',
-					$options
-				];
-				$q2['o'] = "order by purchase_at desc";
-
-				if($users = $this->query_objs_ss($q, $q2) ){
-					$version->purchases = $users;
-				}else{
-					$version->purchases = new \stdClass;
-				}
-			}
-		}
+		$version = $this->query_obj_ss($q);
 
 		return $version;
 	}
@@ -196,7 +174,7 @@ class template_model extends \TMS_MODEL {
 		$q = [
 			$fields,
 			'xxt_template',
-			["matter_id" => $matterId, "matter_type" => $matterType],
+			["matter_id" => $matterId, "matter_type" => $matterType, 'state' => 1],
 		];
 
 		$templates = $this->query_objs_ss($q);
@@ -243,10 +221,10 @@ class template_model extends \TMS_MODEL {
 			/*创建版本*/
 			if($matter->matter_type === 'enroll'){
 				$matter = $this->model('matter\enroll')->byId($matter->matter_id);
-				$version = $this->model('matter\template\enroll')->createNewVersion($site->id, $tid, $matter, $account, $current, 'Y');
+				$version = $this->model('matter\template\enroll')->createNewVersion($site->id, $tid, $matter, $account, $current, 'N');
 				$this->update(
 					'xxt_template',
-					['pub_version' => $version->version, 'last_version' => $version->version],
+					['last_version' => $version->version],
 					['id' => $tid]
 				);
 			}
@@ -433,17 +411,6 @@ class template_model extends \TMS_MODEL {
 	 */
 	public function purchaseBySite(&$user, &$template, $siteId) {
 		if ($this->isPurchaseBySite($template, $siteId)) {
-			$options = array(
-				'siteid' => $siteId,
-				'template_id' => $template->id,
-				'purchase' => 'Y'
-			);
-			$this->update(
-					'xxt_template_order',
-					['template_version' => $template->version],
-					$options
-				);
-			
 			return true;
 		}
 		$template = $this->escape($template);
@@ -473,7 +440,7 @@ class template_model extends \TMS_MODEL {
 	/**
 	 * 创建模板版本号
 	 */
-	public function getVersion($site, $tid, $matterType){
+	public function getVersionNum($site, $tid, $matterType){
 		$options = array(
 				'siteid' => $site,
 				'template_id' => $tid,

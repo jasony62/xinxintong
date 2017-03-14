@@ -60,7 +60,7 @@ class acl_model extends \TMS_MODEL {
 	 * @param  array  $options [description]
 	 * @return [type]          [description]
 	 */
-	public function aclers($tid, $options = []){
+	public function listAcler($tid, $options = []){
 		$fields = isset($options['fields'])? $options['fields'] : '*';
 
 		$q = [

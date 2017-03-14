@@ -99,7 +99,16 @@
                 <div class='tms-panel-body'>
                     <div class='col-md-4' ng-repeat='l in latests'>
                         <div class='thumbnail template'>
-                            <h4 class='title' ng-bind="l.title"></h4>
+                            <div class="head">
+                                <h4 class='title pull-left' ng-bind="l.title"></h4>
+                                <div class="note pull-right">
+                                        <div class="favor text-justify">
+                                            <i class='glyphicon glyphicon-heart text-danger' title="点赞数"></i> {{l.score}}
+                                            &nbsp;&nbsp;
+                                            <i class='glyphicon glyphicon-fire text-info' title="使用数"></i> {{l.copied_num}}
+                                        </div>
+                                    </div>
+                            </div>
                             <p class='summary' ng-bind="l.summary"></p>
                             <div class='heading-pic' heading-pic ng-if="l.pic">
                                 <img ng-src='{{l.pic}}'>
@@ -134,7 +143,16 @@
                 <div class='tms-panel-body'>
                     <div class='col-md-4' ng-repeat='p in publishs'>
                         <div class='thumbnail template'>
-                            <h4 class='title' ng-bind="p.title"></h4>
+                            <div class="head">
+                                <h4 class='title pull-left' ng-bind="p.title"></h4>
+                                <div class="note pull-right">
+                                        <div class="favor text-justify">
+                                            <i class='glyphicon glyphicon-heart text-danger' title="点赞数"></i> {{p.score}}
+                                            &nbsp;&nbsp;
+                                            <i class='glyphicon glyphicon-fire text-info' title="使用数"></i> {{p.copied_num}}
+                                        </div>
+                                    </div>
+                            </div>
                             <p class='summary' ng-bind="p.summary"></p>
                             <div class='heading-pic' heading-pic ng-if="p.pic">
                                 <img ng-src='{{p.pic}}'>

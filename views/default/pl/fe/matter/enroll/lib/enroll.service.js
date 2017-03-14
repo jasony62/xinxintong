@@ -1563,10 +1563,10 @@ define(['require', 'schema', 'page'], function(require, schemaLib, pageLib) {
                     url += '&site=' + _siteId;
                     url += '&tid=' + _appId;
                     http2.get(url, function(rsp) {
-                        if (_oApp.acls === undefined) {
-                            _oApp.acls = [];
+                        if (_oApp.acl === undefined) {
+                            _oApp.acl = [];
                         }
-                        _oApp.acls.push(rsp.data);
+                        _oApp.acl.push(rsp.data);
                         defer.resolve(_oApp);
                     });
                     return defer.promise;
@@ -1589,7 +1589,7 @@ define(['require', 'schema', 'page'], function(require, schemaLib, pageLib) {
                 removeAsTemplate: function() {
                     var defer = $q.defer(),
                         url;
-                    url = '/rest/pl/fe/template/remove?site=' + _siteId + '&app=' + _appId;
+                    url = '/rest/pl/fe/template/remove?site=' + _siteId + '&tid=' + _appId;
                     http2.get(url, function(rsp) {
                         defer.resolve();
                     });
@@ -1670,7 +1670,7 @@ define(['require', 'schema', 'page'], function(require, schemaLib, pageLib) {
                 },
                 remove: function(page) {
                     var defer = $q.defer();
-                    srvEnrollApp.get().then(function(app) {
+                    srvTempApp.tempEnrollGet().then(function(app) {
                         var url = '/rest/pl/fe/template/enroll/remove';
                         url += '?site=' + _siteId;
                         url += '&tid=' + _appId;

@@ -30,8 +30,9 @@ class main extends \pl\fe\base {
 			return new \ResponseTimeout();
 		}
 
-		$modelTmpl = $this->model('matter\template');
-		$template = $modelTmpl->byMatter($id, $type);
+		// $modelTmpl = $this->model('matter\template');
+		// $template = $modelTmpl->byMatter($id, $type);
+		$template = false;
 
 		return new \ResponseData($template);
 	}

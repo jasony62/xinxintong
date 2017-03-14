@@ -6,7 +6,8 @@
 .channel:before{content:attr(data-title);position:absolute;top:-15px;left:-15px;background:#f00;padding:2px 4px;font-size:100%;color:#fff;border-radius:4px;}
 
 /*template/matter*/
-.template,.matter{position:relative;height:200px;cursor:pointer;display:flex;flex-direction:column;padding:15px;}
+.template,.matter{position:relative;min-height:200px;cursor:pointer;display:flex;flex-direction:column;padding:15px;}
+.template img,.matter img{width:100%;}
 .template .summary,.matter .summary{flex:1;overflow:hidden;}
 .template .attr,.matter .attr{display:flex;padding:8px 0;}
 .template .creater_name,.matter .creater_name{flex:1;}

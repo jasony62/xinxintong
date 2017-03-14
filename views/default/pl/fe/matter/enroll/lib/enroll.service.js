@@ -45,7 +45,8 @@ define(['require', 'schema', 'page'], function(require, schemaLib, pageLib) {
                     verified: ''
                 },
                 tags: [],
-                data: {}
+                data: {},
+                keyword: ''
             });
             // records
             this._aRecords = oRecords;
@@ -1687,6 +1688,21 @@ define(['require', 'schema', 'page'], function(require, schemaLib, pageLib) {
                 }
             };
             return _self;
+        }];
+    }).provider('srvEnrollNotice', function() {
+        this.$get = ['$q', 'http2', function($q, http2) {
+            return {
+                detail: function(batch) {
+                    var defer = $q.defer(),
+                        url;
+                    url = '/rest/pl/fe/matter/enroll/notice/logList?batch=' + batch.id;
+                    http2.get(url, function(rsp) {
+                        defer.resolve(rsp.data);
+                    });
+
+                    return defer.promise;
+                }
+            };
         }];
     }).controller('ctrlEnrollEdit', ['$scope', '$uibModalInstance', 'record', 'srvEnrollApp', 'srvEnrollRecord', 'srvRecordConverter', function($scope, $uibModalInstance, record, srvEnrollApp, srvEnrollRecord, srvRecordConverter) {
         srvEnrollApp.get().then(function(app) {

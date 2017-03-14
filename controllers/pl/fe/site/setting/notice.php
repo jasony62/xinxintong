@@ -70,7 +70,7 @@ class notice extends \pl\fe\base {
 		$model = $this->model();
 
 		foreach ($posted->mapping as &$prop) {
-			if ($prop->src === 'text') {
+			if (isset($prop->src) && $prop->src === 'text') {
 				$prop->id = $model->escape($prop->id);
 			}
 		}

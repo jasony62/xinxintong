@@ -17,7 +17,7 @@
                 </div>
                 <ul class='nav navbar-nav'>
                     <li><a href='/rest/pl/fe/site/console?site={{siteId}}' target='_self'>活动和资料</a></li>
-                    <li><a href='/rest/pl/fe/site/user?site={{siteId}}' target='_self'>用户</a></li>
+                    <li><a href='/rest/pl/fe/site/home?site={{siteId}}' target='_self'>团队门户</a></li>
                     <li class='active'><a href='/rest/pl/fe/site/setting?site={{siteId}}'>团队设置</a></li>
                 </ul>
                 <ul class='nav navbar-nav navbar-right'>
@@ -29,8 +29,6 @@
                             <li><a href='/rest/pl/fe/site/file?site={{siteId}}' target='_self'>图片库</a></li>
                             <li class="divider"></li>
                             <li><a href='/rest/pl/fe/template/site?site={{siteId}}' target='_self'>模板库</a></li>
-                            <li class="divider"></li>
-                            <li><a href='/rest/pl/fe/site/analysis?site={{siteId}}' target='_self'>运行统计</a></li>
                             <li class="divider"></li>
                             <li><a href='/rest/pl/fe/site/message?site={{siteId}}' target='_self'>用户消息</a></li>
                         </ul>
@@ -45,6 +43,7 @@
                         <a class='list-group-item' ng-class="{'active':subView==='basic'}" href="/rest/pl/fe/site/setting/basic?site={{siteId}}">基本信息</a>
                         <a class='list-group-item' ng-class="{'active':subView==='page'}" href="/rest/pl/fe/site/setting/page?site={{siteId}}">自定义页面</a>
                         <a class='list-group-item' ng-class="{'active':subView==='mschema'}" href="/rest/pl/fe/site/setting/mschema?site={{siteId}}">自定义用户信息</a>
+                        <a class='list-group-item' ng-class="{'active':subView==='tmplmsg'}" href="/rest/pl/fe/site/setting/tmplmsg?site={{siteId}}">模板消息</a>
                         <a class='list-group-item' ng-class="{'active':subView==='notice'}" href="/rest/pl/fe/site/setting/notice?site={{siteId}}">消息通知</a>
                     </div>
                     <div class='list-group'>

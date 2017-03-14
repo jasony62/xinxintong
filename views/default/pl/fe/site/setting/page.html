@@ -1,66 +1,20 @@
 <table class='table table-bordered'>
-	<tbody>
-		<tr>
-			<td>团队主页</td>
-			<td>团队主页</td>
-			<td>
-				<a href='' ng-click="editPage($event,'home')">编辑页面</a>
-				<a href='' ng-click="resetPage($event,'home')" ng-show="site.home_page_name.length">重置页面</a>
-				<a href='' ng-click="openPage('home')" ng-show="site.home_page_name.length">打开</a>
-			</td>
-		</tr>
-		<tr>
-			<td>通用页眉</td>
-			<td>通用页眉</td>
-			<td>
-				<a href='' ng-click="editPage($event,'header')">编辑页面</a>
-				<a href='' ng-click="resetPage($event,'header')" ng-show="site.header_page_name.length">重置页面</a>
-			</td>
-		</tr>
-		<tr>
-			<td>通用页脚</td>
-			<td>通用页脚</td>
-			<td>
-				<a href='' ng-click="editPage($event,'footer')">编辑页面</a>
-				<a href='' ng-click="resetPage($event,'footer')" ng-show="site.footer_page_name.length">重置页面</a>
-			</td>
-		</tr>
-		<tr class='hide'>
-			<td>提示在PC端完成</td>
-			<td>某些与用户互动的页面适合在PC端展现，可以在此处设置提示的内容。</td>
-			<td>
-				<a href='' ng-click="editPage($event,'shift2pc')">编辑页面</a>
-				<a href='' ng-click="resetPage($event,'shift2pc')" ng-show="site.shift2pc_page_name.length">重置页面</a>
-			</td>
-		</tr>
-	</tbody>
+    <tbody>
+        <tr>
+            <td>通用页眉</td>
+            <td>通用页眉</td>
+            <td>
+                <a href='' ng-click="editPage($event,'header')">编辑页面</a>
+                <a href='' ng-click="resetPage($event,'header')" ng-show="site.header_page_name.length">重置页面</a>
+            </td>
+        </tr>
+        <tr>
+            <td>通用页脚</td>
+            <td>通用页脚</td>
+            <td>
+                <a href='' ng-click="editPage($event,'footer')">编辑页面</a>
+                <a href='' ng-click="resetPage($event,'footer')" ng-show="site.footer_page_name.length">重置页面</a>
+            </td>
+        </tr>
+    </tbody>
 </table>
-<div ng-controller="ctrlHomeCarousel">
-	<table class='table table-bordered'>
-		<tbody>
-			<tr ng-repeat='s in slides'>
-				<td>{{$index+1}}</td>
-				<td><img ng-src="{{s.picUrl}}"/ style='width:200px'></td>
-				<td>
-					<button class='btn btn-xs btn-danger' ng-click="remove(c,$index)"><i class='glyphicon glyphicon-remove'></i></button>
-				</td>
-			</tr>
-		</tbody>
-	</table>
-	<button class='btn btn-default' ng-click="add()">添加主页轮播</button>
-</div>
-<div ng-controller="ctrlHomeChannel">
-	<table class='table table-bordered'>
-		<tbody>
-			<tr ng-repeat='c in channels'>
-				<td>{{$index+1}}</td>
-				<td>{{c.title}}</td>
-				<td>{{c.summary}}</td>
-				<td>
-					<button class='btn btn-xs btn-danger' ng-click="remove(c,$index)"><i class='glyphicon glyphicon-remove'></i></button>
-				</td>
-			</tr>
-		</tbody>
-	</table>
-	<button class='btn btn-default' ng-click="add()">添加主页频道</button>
-</div>

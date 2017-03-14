@@ -280,10 +280,9 @@ class record extends base {
 		$options['size'] = $size;
 		$options['orderby'] = $orderby;
 
-		$app = $this->model('matter\signin')->byId($app);
 		$modelRec = $this->model('matter\signin\record');
 
-		$rst = $modelRec->find($site, $app, $options);
+		$rst = $modelRec->find($app, $options);
 
 		return new \ResponseData($rst);
 	}

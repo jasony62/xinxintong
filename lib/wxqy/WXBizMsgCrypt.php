@@ -41,7 +41,7 @@ class WXBizMsgCrypt {
 		    *@param sReplyEchoStr: 解密之后的echostr，当return返回0时有效
 		    *@return：成功0，失败返回对应的错误码
 	*/
-	public function VerifyURL($sMsgSignature, $sTimeStamp, $sNonce, $sEchoStr, &$sReplyEchoStr, $logger = null) {
+	public function VerifyURL($sMsgSignature, $sTimeStamp, $sNonce, $sEchoStr, &$sReplyEchoStr) {
 		if (strlen($this->m_sEncodingAesKey) != 43) {
 			return ErrorCode::$IllegalAesKey;
 		}
@@ -61,7 +61,7 @@ class WXBizMsgCrypt {
 			return ErrorCode::$ValidateSignatureError;
 		}
 
-		$result = $pc->decrypt($sEchoStr, $this->m_sCorpid, $logger);
+		$result = $pc->decrypt($sEchoStr, $this->m_sCorpid);
 		if ($result[0] != 0) {
 			return $result[0];
 		}

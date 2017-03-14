@@ -39,30 +39,6 @@ class wx extends \member_base {
 		}
 	}
 	/**
-	 * 执行定时任务
-	 */
-	public function timer_action() {
-		/**
-		 * 查找匹配的定时任务
-		 */
-		$tasks = $this->model('mp\timer')->tasksByTime();
-		/**
-		 * 记录日志
-		 */
-		foreach ($tasks as $task) {
-			$rsp = $task->exec();
-			$log = array(
-				'mpid' => $task->mpid,
-				'task_id' => $task->id,
-				'occur_at' => time(),
-				'result' => json_encode($rsp),
-			);
-			$this->model()->insert('xxt_log_timer', $log, true);
-		}
-
-		return new \ResponseData(count($tasks));
-	}
-	/**
 	 * 处理收到的消息
 	 *
 	 * 当普通易信用户向公众帐号发消息时，易信服务器将POST该消息到填写的URL上。
@@ -261,7 +237,7 @@ class wx extends \member_base {
 				$nickname = json_encode($fanInfo[1]->nickname);
 				$nickname = preg_replace('/\\\ud[0-9a-f]{3}/i', '', $nickname);
 				$nickname = json_decode($nickname);
-				$nickname = trim($modelFan->escape($fanInfo[1]->nickname));
+				$nickname = $modelFan->escape(trim($nickname));
 				$u = [
 					'nickname' => empty($nickname) ? '未知' : $nickname,
 					'sex' => $fanInfo[1]->sex,
@@ -270,13 +246,13 @@ class wx extends \member_base {
 				isset($fanInfo[1]->headimgurl) && $u['headimgurl'] = $fanInfo[1]->headimgurl;
 				isset($fanInfo[1]->province) && $u['province'] = $fanInfo[1]->province;
 				isset($fanInfo[1]->country) && $u['country'] = $fanInfo[1]->country;
-				$modelFan->update('xxt_site_wxfan', $u, "siteid='$siteId' and openid='$openid'");
+				$modelFan->update('xxt_site_wxfan', $u, ["siteid" => $siteId, "openid" => $openid]);
 				/*更新站点用户信息 @todo 总是要更新吗？*/
 				if (!empty($fan->userid)) {
 					$modelFan->update(
 						'xxt_site_account',
 						['nickname' => $u['nickname'], 'headimgurl' => $u['headimgurl']],
-						"uid='$fan->userid'"
+						["uid" => $fan->userid]
 					);
 				}
 			} else {
@@ -309,8 +285,8 @@ class wx extends \member_base {
 		$unsubscribeAt = time();
 		$rst = $this->model()->update(
 			'xxt_site_wxfan',
-			array('unsubscribe_at' => $unsubscribeAt),
-			"siteid='$siteId' and openid='$openid'"
+			['unsubscribe_at' => $unsubscribeAt],
+			["siteid" => $siteId, "openid" => $openid]
 		);
 
 		return $rst;
@@ -351,18 +327,22 @@ class wx extends \member_base {
 		/**
 		 * 更新数据状态
 		 */
+		$where = ['openid' => $openid, 'msgid' => $msgid];
+		if ($siteId !== 'platform') {
+			$where['siteid'] = $siteId;
+		}
 		$rst = $this->model()->update(
 			'xxt_log_tmplmsg_detail',
 			['status' => $status],
-			['siteid' => $siteId, 'openid' => $openid, 'msgid' => $msgid]
+			$where
 		);
 		/**
 		 * 处理事件响应，选择消息转发事件，通知模板消息处理结果
 		 */
-		if ($reply = $this->model('sns\wx\event')->otherCall($siteId, 'templatemsg')) {
-			$r = $this->model('sns\reply\\' . $reply->matter_type, $call, $reply->matter_id);
-			$r->exec();
-		}
+		// if ($reply = $this->model('sns\wx\event')->otherCall($siteId, 'templatemsg')) {
+		// 	$r = $this->model('sns\reply\\' . $reply->matter_type, $call, $reply->matter_id);
+		// 	$r->exec();
+		// }
 	}
 	/**
 	 * 卡卷事件

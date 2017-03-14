@@ -12,7 +12,7 @@
 
 <body ng-cloak class='ng-cloak' ng-class="{'forbidden':!matters.length}">
     <div class='matters'>
-        <div class='form-group'>
+        <div class='form-group' ng-show="!tagid">
             <div class='input-group'>
                 <span class='glyphicon glyphicon-search'></span>
                 <input type='text' class='form-control' ng-model='searchKeyword' ng-keypress='keypress($event)' required />
@@ -33,7 +33,7 @@
                                 </div>
                                 <div class='col-xs-6'>
                                     <span class='glyphicon glyphicon-time'></span>
-                                    <span class="create_at" ng-bind="m.create_at*1000|date:'yyyy-MM-dd'"></span>
+                                    <span class="create_at" ng-bind="(m.create_at||m.modify_at)*1000|date:'yyyy-MM-dd'"></span>
                                 </div>
                             </div>
                         </div>

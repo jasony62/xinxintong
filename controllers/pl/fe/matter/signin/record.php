@@ -38,7 +38,7 @@ class record extends \pl\fe\matter\base {
 		!empty($rid) && $rid !== 'ALL' && $options['rid'] = $rid;
 
 		$mdoelRec = $this->model('matter\signin\record');
-		$result = $mdoelRec->find($site, $app, $options, $criteria);
+		$result = $mdoelRec->find($app, $options, $criteria);
 		if ($result->total > 0 && !empty($app->enroll_app_id)) {
 			foreach ($result->records as &$record) {
 				$q = [
@@ -84,7 +84,7 @@ class record extends \pl\fe\matter\base {
 		$enrollApp = $this->model('matter\enroll')->byId($signinApp->enroll_app_id);
 		$mdoelRec = $this->model('matter\enroll\record');
 
-		$result = $mdoelRec->find($site, $enrollApp, $options, $criteria);
+		$result = $mdoelRec->find($enrollApp, $options, $criteria);
 		$countOfNew = 0;
 		if ($result->total > 0) {
 			$current = time();

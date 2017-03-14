@@ -6,9 +6,9 @@ define(['angular'], function(angular) {
         missionId = location.search.match('mission=([^&]*)')[1];
         ngApp = angular.module('app', ['siteuser.ui.xxt', 'service.matter']);
         ngApp.controller('ctrlMain', ['$scope', '$http', 'tmsSiteUser', 'srvRecordConverter', function($scope, $http, tmsSiteUser, srvRecordConverter) {
-            $scope.gotoApp = function(app) {
-                if (app.entryUrl) {
-                    location.href = app.entryUrl;
+            $scope.gotoMatter = function(matter) {
+                if (matter.entryUrl) {
+                    location.href = matter.entryUrl;
                 }
             };
             $http.get('/rest/site/fe/matter/mission/get?site=' + siteId + '&mission=' + missionId).success(function(rsp) {
@@ -18,46 +18,33 @@ define(['angular'], function(angular) {
                 }
             });
             $http.get('/rest/site/fe/matter/mission/recordList?site=' + siteId + '&mission=' + missionId).success(function(rsp) {
-                var recordsByApp = {},
-                    schemasByApp = {};
-
-                if (rsp.data.enroll) {
-                    if (rsp.data.enroll.apps && rsp.data.enroll.apps.length) {
-                        schemasByApp.enroll = {};
-                        rsp.data.enroll.apps.forEach(function(app) {
-                            schemasByApp.enroll[app.id] === undefined && (schemasByApp.enroll[app.id] = {});
-                            app.data_schemas.forEach(function(schema) {
-                                schemasByApp.enroll[app.id][schema.id] = schema;
+                rsp.data.forEach(function(matter) {
+                    if (matter.type === 'enroll') {
+                        matter.dataSchemas = {};
+                        JSON.parse(matter.data_schemas).forEach(function(schema) {
+                            if (schema.type !== 'html') {
+                                matter.dataSchemas[schema.id] = schema;
+                            }
+                        });
+                        if (matter.records && matter.records.length) {
+                            matter.records.forEach(function(record) {
+                                srvRecordConverter.forTable(record, matter.dataSchemas);
                             });
-                        });
+                        }
+                    } else if (matter.type === 'signin') {
+                        if (matter.record.signin_log) {
+                            matter.rounds.forEach(function(round) {
+                                var record = matter.record,
+                                    signinLog = record.signin_log;
+                                record._signinLate = {};
+                                if (signinLog && signinLog[round.rid]) {
+                                    record._signinLate[round.rid] = round.late_at && round.late_at < signinLog[round.rid] - 60;
+                                }
+                            });
+                        }
                     }
-                    if (rsp.data.enroll.records && rsp.data.enroll.records.length) {
-                        recordsByApp.enroll = {};
-                        rsp.data.enroll.records.forEach(function(record) {
-                            srvRecordConverter.forTable(record, schemasByApp.enroll[record.aid]);
-                            recordsByApp.enroll[record.aid] === undefined && (recordsByApp.enroll[record.aid] = []);
-                            recordsByApp.enroll[record.aid].push(record);
-                        });
-                    }
-                }
-                if (rsp.data.signin && rsp.data.signin.records && rsp.data.signin.records.length) {
-                    recordsByApp.signin = {};
-                    rsp.data.signin.records.forEach(function(record) {
-                        recordsByApp.signin[record.aid] === undefined && (recordsByApp.signin[record.aid] = []);
-                        recordsByApp.signin[record.aid].push(record);
-                    });
-                }
-                if (rsp.data.group && rsp.data.group.records && rsp.data.group.records.length) {
-                    recordsByApp.group = {};
-                    rsp.data.group.records.forEach(function(record) {
-                        recordsByApp.group[record.aid] === undefined && (recordsByApp.group[record.aid] = []);
-                        recordsByApp.group[record.aid].push(record);
-                    });
-                }
-
-                $scope.myRecords = rsp.data;
-                $scope.schemasByApp = schemasByApp;
-                $scope.recordsByApp = recordsByApp;
+                });
+                $scope.matters = rsp.data;
             });
             /* end app loading */
             window.loading.finish();

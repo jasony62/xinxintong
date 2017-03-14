@@ -24,6 +24,11 @@
     </div>
     <!-- end preview -->
     <div class='col-md-6'>
+        <div class='form-group hidden-xs'>
+            <div class='list-group-item'>
+                <div><span>点赞数：{{app.score}}</span>，<span>使用数：{{app.copied_num}}</span>，<span>收藏数：{{app.favor_num}}</span></div>
+            </div>
+        </div>
         <uib-tabset active="0" justified="true">
             <!-- setting -->
             <uib-tab index="0" >
@@ -64,7 +69,7 @@
                         </div>
                     </div>
                     <div class='form-group'>
-                        <label>模板类型</label>
+                        <label>活动类型</label>
                         <select class='form-control' ng-model="app.scenario" ng-change="update('scenario');">
                             <option value='common'>通用登记</option>
                             <option value='registration'>报名</option>

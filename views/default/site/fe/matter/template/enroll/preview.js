@@ -314,7 +314,7 @@ define(["angular", "xxt-page", "enroll-directive", "angular-sanitize"], function
             ek = srvStorage.addRecord($scope.data);
 
             if (nextAction !== undefined && nextAction.length) {
-                url = LS.j('', 'site', 'app');
+                url = LS.j('', 'site', 'tid', 'vid');
                 url += '&page=' + nextAction;
                 url += '&ek=' + ek;
                 location.replace(url);
@@ -324,7 +324,7 @@ define(["angular", "xxt-page", "enroll-directive", "angular-sanitize"], function
             var url;
 
             if (nextAction !== undefined && nextAction.length) {
-                url = LS.j('', 'site', 'app');
+                url = LS.j('', 'site', 'tid', 'vid');
                 url += '&page=' + nextAction;
                 url += '&ek=' + LS.p['ek'];
                 location.replace(url);

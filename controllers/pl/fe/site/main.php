@@ -28,7 +28,7 @@ class main extends \pl\fe\base {
 
 		$siteid = $this->model('site')->create($site);
 
-		/* 添加到站点的访问控制列表 */
+		/* 添加到团队的访问控制列表 */
 		$modelAdm = $this->model('site\admin');
 		$admin = new \stdClass;
 		$admin->uid = $user->id;
@@ -41,7 +41,7 @@ class main extends \pl\fe\base {
 	/**
 	 * 删除团队
 	 * 只允许团队的创建者删除团队
-	 * 不实际删除站点，只是打标记
+	 * 不实际删除团队，只是打标记
 	 */
 	public function remove_action($site) {
 		$user = $this->accountUser();
@@ -49,20 +49,20 @@ class main extends \pl\fe\base {
 			return new \ResponseTimeout();
 		}
 
-		$log=\TMS_APP::M('matter\log');
+		$log = \TMS_APP::M('matter\log');
 		/**
 		 * 做标记
 		 */
 		$rst = $log->update(
 			'xxt_site',
 			['state' => 0],
-			['id'=>$site , 'creater'=>$user->id]
+			['id' => $site, 'creater' => $user->id]
 		);
-		if($rst){
+		if ($rst) {
 			//工作台
-			$log->update('xxt_log_matter_op',['user_last_op'=>'N','operation'=>'Recycle'],['siteid'=>$site]);
+			$log->update('xxt_log_matter_op', ['user_last_op' => 'N', 'operation' => 'Recycle'], ['siteid' => $site]);
 			//项目
-			$log->update('xxt_mission_acl',['state'=>0],['siteid'=>$site]);
+			$log->update('xxt_mission_acl', ['state' => 0], ['siteid' => $site]);
 		}
 		return new \ResponseData($rst);
 	}
@@ -70,40 +70,38 @@ class main extends \pl\fe\base {
 	 * 已删除的团队列表
 	 *
 	 */
-	public function wasteList_action()
-	{
+	public function wasteList_action() {
 		if (false === ($user = $this->accountUser())) {
 			return new \ResponseTimeout();
 		}
 
-		$rst=$this->model()->query_objs_ss(["*","xxt_site",['creater'=>$user->id , 'state'=>'0']],['o'=>'create_at desc']);
+		$rst = $this->model()->query_objs_ss(["*", "xxt_site", ['creater' => $user->id, 'state' => '0']], ['o' => 'create_at desc']);
 
 		return new \ResponseData($rst);
 	}
-	/*
+	/**
 	 * 恢复
 	 */
-	public function recover_action($site)
-	{
+	public function recover_action($site) {
 		if (false === ($user = $this->accountUser())) {
 			return new \ResponseTimeout();
 		}
 
-		$log=\TMS_APP::M('matter\log');
+		$log = \TMS_APP::M('matter\log');
 		//恢复团队
 		$rst = $log->update(
 			'xxt_site',
 			['state' => 1],
-			['id'=>$site , 'creater'=>$user->id]
+			['id' => $site, 'creater' => $user->id]
 		);
 		//恢复素材
-		if($rst){
+		if ($rst) {
 			//工作台恢复
-			$log->update('xxt_log_matter_op',['user_last_op'=>'Y','operation'=>'Restore'],['siteid'=>$site]);
+			$log->update('xxt_log_matter_op', ['user_last_op' => 'Y', 'operation' => 'Restore'], ['siteid' => $site]);
 			//项目恢复
-			$log->update('xxt_mission_acl',['state'=>1],['siteid'=>$site]);
+			$log->update('xxt_mission_acl', ['state' => 1], ['siteid' => $site]);
 		}
-		
+
 		return new \ResponseData($rst);
 	}
 	/**
@@ -118,7 +116,7 @@ class main extends \pl\fe\base {
 		if (false === ($site = $modelSite->byId($site))) {
 			return new \ObjectNotFoundError();
 		}
-		$site->uid=$user->id;
+		$site->uid = $user->id;
 		/* 检查当前用户的角色 */
 		if ($user->id === $site->creater) {
 			$site->yourRole = 'O';
@@ -143,29 +141,7 @@ class main extends \pl\fe\base {
 		}
 	}
 	/**
-	 * 关注指定团队
-	 */
-	public function subscribe_action($site, $subscriber) {
-		if (false === ($user = $this->accountUser())) {
-			return new \ResponseTimeout();
-		}
-
-		$modelSite = $this->model('site');
-
-		if (false === ($target = $modelSite->byId($site))) {
-			return new \ResponseError('数据不存在');
-		}
-
-		$siteIds = explode(',', $subscriber);
-		foreach ($siteIds as $siteId) {
-			$subscriber = $modelSite->byId($siteId);
-			$modelSite->subscribe($user, $target, $subscriber);
-		}
-
-		return new \ResponseData('ok');
-	}
-	/**
-	 * 有权管理的站点
+	 * 有权管理的团队
 	 */
 	public function list_action() {
 		if (false === ($user = $this->accountUser())) {
@@ -184,11 +160,120 @@ class main extends \pl\fe\base {
 		return new \ResponseData($sites);
 	}
 	/**
-	 * 当前用户没有收藏过指定模板的站点
-	 *
-	 * @param int $template
+	 * 允许公开访问的团队
 	 */
-	public function siteCanSubscribe_action($site) {
+	public function publicList_action($page = 1, $size = 8) {
+		if (false === ($user = $this->accountUser())) {
+			return new \ResponseTimeout();
+		}
+
+		$modelHome = $this->model('site\home');
+		$result = $modelHome->atHome(['page' => ['at' => $page, 'size' => $size]]);
+		if ($result->total) {
+			$modelSite = $this->model('site');
+			$mySites = $modelSite->byUser($user->id);
+			foreach ($result->sites as &$site) {
+				foreach ($mySites as $mySite) {
+					$rel = $modelSite->isFriend($site->siteid, $mySite->id);
+					$site->_subscribed = !empty($rel->subscribe_at) ? 'Y' : 'N';
+				}
+			}
+		}
+
+		return new \ResponseData($result);
+	}
+	/**
+	 * 已经关注过的团队
+	 */
+	public function friendList_action() {
+		if (false === ($user = $this->accountUser())) {
+			return new \ResponseTimeout();
+		}
+
+		$modelSite = $this->model('site');
+		$mySites = $modelSite->byUser($user->id);
+		$mySiteIds = [];
+		foreach ($mySites as $mySite) {
+			$mySiteIds[] = $mySite->id;
+		}
+		$friendSites = [];
+		$friends = $modelSite->byFriend($mySiteIds);
+		foreach ($friends as $friend) {
+			$friendSite = $modelSite->byId($friend->siteid, ['fields' => 'id,name,summary,heading_pic']);
+			$friendSite->friend = $friend;
+			$friendSites[] = $friendSite;
+		}
+
+		return new \ResponseData($friendSites);
+	}
+	/**
+	 * 已经关注过的团队发布的消息
+	 */
+	public function matterList_action($page = 1, $size = 30) {
+		if (false === ($user = $this->accountUser())) {
+			return new \ResponseTimeout();
+		}
+		$result = new \stdClass;
+
+		$modelSite = $this->model('site');
+		$mySites = $modelSite->byUser($user->id);
+		$mySiteIds = [];
+		foreach ($mySites as $mySite) {
+			$mySiteIds[] = $mySite->id;
+		}
+		$result->matters = $modelSite->matterByFriend($mySiteIds, ['page' => ['at' => $page, 'size' => $size]]);
+
+		return new \ResponseData($result);
+	}
+	/**
+	 * 关注指定团队
+	 */
+	public function subscribe_action($site, $subscriber) {
+		if (false === ($user = $this->accountUser())) {
+			return new \ResponseTimeout();
+		}
+
+		$modelSite = $this->model('site');
+
+		if (false === ($target = $modelSite->byId($site))) {
+			return new \ResponseError('数据不存在');
+		}
+
+		$siteIds = explode(',', $subscriber);
+		foreach ($siteIds as $siteId) {
+			$subscriber = $modelSite->byId($siteId);
+			$modelSite->subscribeBySite($user, $target, $subscriber);
+		}
+
+		return new \ResponseData('ok');
+	}
+	/**
+	 * 取消关注指定团队
+	 */
+	public function unsubscribe_action($site, $friend) {
+		if (false === ($user = $this->accountUser())) {
+			return new \ResponseTimeout();
+		}
+
+		$modelSite = $this->model('site');
+
+		if (false === ($target = $modelSite->byId($site))) {
+			return new \ObjectNotFoundError();
+		}
+		if (false === ($target = $modelSite->byId($friend))) {
+			return new \ObjectNotFoundError();
+		}
+
+		$rst = $modelSite->unsubscribeBySite($site, $friend);
+
+		return new \ResponseData($rst);
+	}
+	/**
+	 * 返回当前用户可以关注指定团队的团队
+	 *
+	 * @param string $site site'id
+	 */
+	public function canSubscribe_action($site) {
 		if (false === ($user = $this->accountUser())) {
 			return new \ResponseTimeout();
 		}
@@ -197,23 +282,22 @@ class main extends \pl\fe\base {
 		if (false === ($site = $modelSite->byId($site))) {
 			return new \ResponseError('数据不存在');
 		}
-		/* 当前用户管理的站点 */
+		/* 当前用户管理的团队 */
 		$mySites = $modelSite->byUser($user->id);
-		$targets = []; // 符合条件的站点
+		$targets = []; // 符合条件的团队
 		foreach ($mySites as &$mySite) {
 			if ($mySite->id === $site->id) {
 				continue;
 			}
-			if ($modelSite->isSubscribedBySite($site->id, $mySite->id)) {
-				$mySite->_subscribed = 'Y';
-			}
+			$rel = $modelSite->isFriend($site->id, $mySite->id);
+			$mySite->_subscribed = !empty($rel->subscribe_at) ? 'Y' : 'N';
 			$targets[] = $mySite;
 		}
 
 		return new \ResponseData($targets);
 	}
 	/**
-	 * 获得站点绑定的第三方公众号
+	 * 获得团队绑定的第三方公众号
 	 */
 	public function snsList_action($site) {
 		$sns = array();
@@ -288,7 +372,7 @@ class main extends \pl\fe\base {
 		return new \ResponseData($reply);
 	}
 	/**
-	 * 创建站点首页页面
+	 * 创建团队首页页面
 	 */
 	public function pageCreate_action($site, $page, $template = 'basic') {
 		if (false === ($user = $this->accountUser())) {
@@ -365,7 +449,7 @@ class main extends \pl\fe\base {
 	/**
 	 *
 	 */
-	public function invite_action($code){
+	public function invite_action($code) {
 		\TPL::output('/pl/fe/site/invite');
 		exit;
 	}

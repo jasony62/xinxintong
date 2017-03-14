@@ -1,5 +1,5 @@
 define(['require'], function(require) {
-    var ngApp = angular.module('app', ['ngRoute', 'ui.tms', 'ui.xxt']);
+    var ngApp = angular.module('app', ['ngRoute', 'ui.bootstrap', 'ui.tms', 'ui.xxt']);
     ngApp.config(['$locationProvider', '$controllerProvider', '$routeProvider', '$provide', function($lp, $cp, $rp, $provide) {
         var RouteParam = function(name) {
             var baseURL = '/views/default/pl/fe/site/sns/yx/';
@@ -20,8 +20,7 @@ define(['require'], function(require) {
             service: $provide.service
         };
         $lp.html5Mode(true);
-        $rp
-            .when('/rest/pl/fe/site/sns/yx/setting', new RouteParam('setting'))
+        $rp.when('/rest/pl/fe/site/sns/yx/setting', new RouteParam('setting'))
             .when('/rest/pl/fe/site/sns/yx/massmsg', new RouteParam('massmsg'))
             .when('/rest/pl/fe/site/sns/yx/user', new RouteParam('user'))
             .when('/rest/pl/fe/site/sns/yx/text', new RouteParam('text'))

@@ -53,7 +53,8 @@ define(['require', 'schema', 'page'], function(require, schemaLib, pageLib) {
                     verified: ''
                 },
                 tags: [],
-                data: {}
+                data: {},
+                keyword: ''
             });
             // records
             this._aRecords = oRecords;
@@ -72,6 +73,14 @@ define(['require', 'schema', 'page'], function(require, schemaLib, pageLib) {
                 }
                 records.forEach(function(record) {
                     that._bConvertRecord4Table(record);
+                    record._signinLate = {};
+                    if (that._oApp.rounds) {
+                        that._oApp.rounds.forEach(function(round) {
+                            if (record.signin_log && record.signin_log[round.rid]) {
+                                record._signinLate[round.rid] = round.late_at && round.late_at < record.signin_log[round.rid] - 60;
+                            }
+                        });
+                    }
                     that._aRecords.push(record);
                 });
                 defer.resolve(records);

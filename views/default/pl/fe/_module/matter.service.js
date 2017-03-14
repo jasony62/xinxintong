@@ -1,4 +1,4 @@
-angular.module('service.matter', ['ngSanitize', 'ui.bootstrap', 'ui.xxt']).
+angular.module('service.matter', ['ngSanitize', 'ui.xxt']).
 provider('srvSite', function() {
     var _siteId, _oSite, _aSns, _aMemberSchemas;
     this.config = function(siteId) {
@@ -19,6 +19,27 @@ provider('srvSite', function() {
                         defer.resolve(_oSite);
                     });
                 }
+                return defer.promise;
+            },
+            matterList: function() {
+                var defer = $q.defer();
+                http2.get('/rest/pl/fe/site/matterList', function(rsp) {
+                    defer.resolve(rsp.data);
+                });
+                return defer.promise;
+            },
+            publicList: function() {
+                var defer = $q.defer();
+                http2.get('/rest/pl/fe/site/publicList', function(rsp) {
+                    defer.resolve(rsp.data);
+                });
+                return defer.promise;
+            },
+            friendList: function() {
+                var defer = $q.defer();
+                http2.get('/rest/pl/fe/site/friendList', function(rsp) {
+                    defer.resolve(rsp.data);
+                });
                 return defer.promise;
             },
             snsList: function() {
@@ -177,7 +198,7 @@ provider('srvRecordConverter', function() {
 
         function _value2Html(val, schema) {
             var i, j, aVal, aLab = [];
-            if (val === undefined) return '';
+            if (val === undefined || schema === undefined) return '';
             if (schema.ops && schema.ops.length) {
                 if (schema.type === 'score') {
                     var label = '';
@@ -207,7 +228,7 @@ provider('srvRecordConverter', function() {
                 record._state = _mapOfRecordState[record.state];
             }
             // enroll data
-            if (record.data) {
+            if (record.data && mapOfSchemas) {
                 for (var schemaId in mapOfSchemas) {
                     schema = mapOfSchemas[schemaId];
                     switch (schema.type) {
@@ -223,7 +244,7 @@ provider('srvRecordConverter', function() {
                             data[schema.id] = _memberAttr(record.data.member, schema);
                             break;
                         default:
-                            data[schema.id] = _value2Html(record.data[schema.id], schema);
+                            data[schema.id] = $sce.trustAsHtml(_value2Html(record.data[schema.id], schema));
                     }
                 };
                 record._data = data;
@@ -232,14 +253,28 @@ provider('srvRecordConverter', function() {
         }
 
         var _mapOfRecordState = {
-            '0': '删除',
-            '1': '正常',
-            '100': '删除',
-            '101': '用户删除',
-        };
+                '0': '删除',
+                '1': '正常',
+                '100': '删除',
+                '101': '用户删除',
+            },
+            _mapOfSchemas;
         return {
+            config: function(schemas) {
+                if (angular.isString(schemas)) {
+                    schemas = JSON.parse(schemas);
+                }
+                if (angular.isArray(schemas)) {
+                    _mapOfSchemas = {};
+                    schemas.forEach(function(schema) {
+                        _mapOfSchemas[schema.id] = schema;
+                    });
+                } else {
+                    _mapOfSchemas = schemas;
+                }
+            },
             forTable: function(record, mapOfSchemas) {
-                _forTable(record, mapOfSchemas);
+                _forTable(record, mapOfSchemas ? mapOfSchemas : _mapOfSchemas);
             },
             forEdit: function(schema, data) {
                 if (schema.type === 'file') {

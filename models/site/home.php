@@ -1,7 +1,7 @@
 <?php
 namespace site;
 /**
- * 发布在主页的站点
+ * 发布在平台主页上的团队
  */
 class home_model extends \TMS_MODEL {
 	/**

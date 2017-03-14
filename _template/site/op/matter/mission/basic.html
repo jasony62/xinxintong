@@ -3,55 +3,121 @@
         <div class='col-md-12'>
             <h3>{{mission.title}}</h3>
         </div>
-    </div>
-    <div class='row'>
-        <div class='matter col-md-12' ng-repeat="matter in matters">
-            <div class='thumbnail' ng-switch on="matter.type">
-                <h4>{{matter.title}}</h4>
-                <div ng-switch-when="enroll">
-                    <div class='form-group'>
-                        登记数量：{{matter.opData.total}}
+        <div class='col-md-12'>
+            <uib-tabset active="0">
+                <uib-tab index="0">
+                    <uib-tab-heading>用户名单（{{userSet.page.total}}）</uib-tab-heading>
+                    <div tms-flex-height top='172' bottom='20' style='display:flex;flex-direction:column;'>
+                        <div tms-table-wrap ready='tmsTableWrapReady'>
+                            <table class='table table-bordered' style='margin-bottom:0'>
+                                <thead>
+                                    <tr>
+                                        <th style='width:3em'></th>
+                                        <th style='width:100px'>登记时间</th>
+                                        <th class='custom-col row' ng-repeat="schema in mission.userApp.data_schemas" ng-if="schema.type!=='html'">{{schema.title}}</th>
+                                        <th style='width:140px'>昵称</th>
+                                        <th style='width:80px'>审核通过</th>
+                                        <th ng-if="mission.userApp.type==='enroll'">签到记录</th>
+                                        <th>所属分组</th>
+                                        <th style='width:140px' ng-if="mission.userApp.tags.length">标签</th>
+                                        <th style='width:140px'>备注</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <tr ng-repeat='user in userSet.users' class='user'>
+                                        <td>{{userSet.page.offset()+$index+1}}</td>
+                                        <td>{{(user.enroll_at*1000)|date:'MM-dd HH:mm'}}</td>
+                                        <td ng-repeat="schema in mission.userApp.data_schemas" ng-switch on="schema.type" ng-if="schema.type!=='html'">
+                                            <span ng-switch-when="image">
+                                                <img ng-repeat="img in user._data[schema.id]" ng-src='{{img}}' />
+                                            </span>
+                                            <span ng-switch-when="file">
+                                                <span ng-repeat='file in user._data[schema.id]'><a href='{{file.url}}' target="_blank">{{file.name}}</a></span>
+                                            </span>
+                                            <span ng-switch-when="date">{{(user._data[schema.id]*1000)|date:'yy-MM-dd HH:mm'}}</span>
+                                            <span ng-switch-default ng-bind-html="user._data[schema.id]"></span>
+                                        </td>
+                                        <td>{{user.nickname}}</td>
+                                        <td>{{user.verified}}</td>
+                                        <td class='signin' ng-if="mission.userApp.type==='enroll'">
+                                            <div ng-repeat="sr in user.signinRecords">
+                                                <div>{{sr.app}}</div>
+                                                <div ng-repeat="log in sr.signinLogs">
+                                                    <span ng-class="{'signin_late':log.isLate}">{{log.roundTitle}}：{{log.signinAt*1000|date:'yy-MM-dd HH:mm'}}</span>
+                                                </div>
+                                            </div>
+                                        </td>
+                                        <td class='group'>
+                                            <div ng-repeat="gr in user.groupRecords">{{gr.app}}：{{gr.round_title}}</div>
+                                        </td>
+                                        <td ng-if="mission.userApp.tags.length">{{user.tags}}</td>
+                                        <td>{{user.comment}}</td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                        <div>
+                            <ul uib-pagination style="margin:0;vertical-align:bottom;cursor:pointer" ng-show="userSet.page.total>userSet.page.size" boundary-links="true" total-items="userSet.page.total" max-size="5" items-per-page="userSet.page.size" rotate="false" ng-model="userSet.page.at" previous-text="&lsaquo;" next-text="&rsaquo;" first-text="&laquo;" last-text="&raquo;" ng-change="doUserSearch()"></ul>
+                        </div>
                     </div>
-                    <button class='btn btn-default' ng-click="openMatter(matter)">查看数据</button>
-                    <button class='btn btn-default' ng-click="openReport(matter)" ng-if="matter.rp_short_url_code">查看统计报告</button>
-                </div>
-                <div ng-switch-when="signin">
-                    <table class='table table-bordered'>
-                        <thead>
-                            <tr>
-                                <th>轮次</th>
-                                <th>全部</th>
-                                <th>迟到</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            <tr ng-repeat="round in matter.opData" ng-class="{'info':round.active==='Y'}">
-                                <td ng-bind="round.title"></td>
-                                <td ng-bind="round.total"></td>
-                                <td ng-bind="round.late"></td>
-                            </tr>
-                        </tbody>
-                    </table>
-                    <button class='btn btn-default' ng-click="openMatter(matter)">查看数据</button>
-                </div>
-                <div ng-switch-when="group">
-                    <table class='table table-bordered'>
-                        <thead>
-                            <tr>
-                                <th>分组</th>
-                                <th>用户数量</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            <tr ng-repeat="round in matter.opData">
-                                <td ng-bind="round.title"></td>
-                                <td ng-bind="round.playerCount"></td>
-                            </tr>
-                        </tbody>
-                    </table>
-                    <button class='btn btn-default' ng-click="openMatter(matter)">查看数据</button>
-                </div>
-            </div>
+                </uib-tab>
+                <uib-tab index="1">
+                    <uib-tab-heading>资料和活动（{{matters.length}}）</uib-tab-heading>
+                    <div tms-flex-height top='172' bottom='20'>
+                        <div class='matter' ng-repeat="matter in matters">
+                            <div class='thumbnail' ng-switch on="matter.type" style='margin-top:20px;'>
+                                <h4>{{matter.title}}</h4>
+                                <div ng-switch-when="enroll">
+                                    <div class='form-group'>
+                                        登记数量：{{matter.opData.total}}
+                                    </div>
+                                    <button class='btn btn-default' ng-click="openMatter(matter)" ng-if="matter.op_short_url_code">查看数据</button>
+                                    <button class='btn btn-default' ng-click="openReport(matter)" ng-if="matter.rp_short_url_code">查看统计报告</button>
+                                </div>
+                                <div ng-switch-when="signin">
+                                    <table class='table table-bordered'>
+                                        <thead>
+                                            <tr>
+                                                <th>轮次</th>
+                                                <th>全部</th>
+                                                <th>迟到</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                            <tr ng-repeat="round in matter.opData" ng-class="{'info':round.active==='Y'}">
+                                                <td ng-bind="round.title"></td>
+                                                <td ng-bind="round.total"></td>
+                                                <td ng-bind="round.late"></td>
+                                            </tr>
+                                        </tbody>
+                                    </table>
+                                    <button class='btn btn-default' ng-click="openMatter(matter)" ng-if="matter.op_short_url_code">查看数据</button>
+                                </div>
+                                <div ng-switch-when="group">
+                                    <table class='table table-bordered'>
+                                        <thead>
+                                            <tr>
+                                                <th>分组</th>
+                                                <th>用户数量</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                            <tr ng-repeat="round in matter.opData">
+                                                <td ng-bind="round.title"></td>
+                                                <td ng-bind="round.playerCount"></td>
+                                            </tr>
+                                        </tbody>
+                                    </table>
+                                    <button class='btn btn-default' ng-click="openMatter(matter)" ng-if="matter.op_short_url_code">查看数据</button>
+                                </div>
+                                <div ng-switch-default>
+                                    <button class='btn btn-default' ng-click="openMatter(matter)">打开</button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </uib-tab>
+            </uib-tabset>
         </div>
     </div>
 </div>

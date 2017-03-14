@@ -29,9 +29,11 @@ class qy extends \member_base {
 		$method = $_SERVER['REQUEST_METHOD'];
 		switch ($method) {
 		case 'GET':
+			$modelLog->log($site, 'qy-join-0', 'step-0');
 			/* 公众平台对接 */
 			$rst = $qyProxy->join($_GET);
 			header('Content-Type: text/html; charset=utf-8');
+			$modelLog->log($site, 'qy-join-9', $rst[1]);
 			die($rst[1]);
 		case 'POST':
 			$data = file_get_contents("php://input");
@@ -46,30 +48,6 @@ class qy extends \member_base {
 			$this->handle($site, $call);
 			break;
 		}
-	}
-	/**
-	 * 执行定时任务
-	 */
-	public function timer_action() {
-		/**
-		 * 查找匹配的定时任务
-		 */
-		$tasks = $this->model('mp\timer')->tasksByTime();
-		/**
-		 * 记录日志
-		 */
-		foreach ($tasks as $task) {
-			$rsp = $task->exec();
-			$log = array(
-				'mpid' => $task->mpid,
-				'task_id' => $task->id,
-				'occur_at' => time(),
-				'result' => json_encode($rsp),
-			);
-			$this->model()->insert('xxt_log_timer', $log, true);
-		}
-
-		return new \ResponseData(count($tasks));
 	}
 	/**
 	 * 处理收到的消息

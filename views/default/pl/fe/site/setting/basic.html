@@ -18,6 +18,12 @@
         </div>
     </div>
     <div class='form-group'>
+        <label class='col-md-2 control-label'>团队介绍</label>
+        <div class='col-md-10'>
+            <textarea class='form-control' ng-model='site.summary' tms-auto-update tms-wait=1000 tms-update="update('summary')"></textarea>
+        </div>
+    </div>
+    <div class='form-group'>
         <label class='col-md-2 control-label'>缺省头图</label>
         <div class='col-md-10' style='position:relative'>
             <div style="width:182px;border:1px solid #CCC">
@@ -54,7 +60,7 @@
                 <button ng-switch-when="O" class='btn btn-default' ng-click="remove()">删除团队</button>
                 <button ng-switch-when="A" class='btn btn-default' ng-click="quit()">退出团队</button>
             </span>
-            <button class='btn btn-default' ng-click="applyToHome()">申请发布到平台主页</button>
+            <button class='btn btn-default' ng-click="applyToHome()">公开访问团队主页</button>
         </div>
     </div>
 </div>

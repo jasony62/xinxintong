@@ -29,35 +29,36 @@ class proxy_model extends \sns\proxybase {
 	 * 对接企业号
 	 */
 	public function join($params) {
-		if (empty($data['msg_signature']) || empty($data['timestamp']) || empty($data['nonce']) || empty($data['echostr'])) {
-			return array(false, 'failed');
+		if (empty($params['msg_signature']) || empty($params['timestamp']) || empty($params['nonce']) || empty($params['echostr'])) {
+			return array(false, 'parameter is empty.');
 		}
 		$msg_signature = $params['msg_signature'];
 		$timestamp = $params['timestamp'];
 		$nonce = $params['nonce'];
 		$echostr = $params['echostr'];
 
-		$logger = \TMS_APP::M('log');
-
 		$sEchoStr = '';
 		$wxcpt = new \WXBizMsgCrypt($this->config->token, $this->config->encodingaeskey, $this->config->corpid);
-		$errCode = $wxcpt->VerifyURL($msg_signature, $timestamp, $nonce, $echostr, $sEchoStr, $logger);
+		$errCode = $wxcpt->VerifyURL($msg_signature, $timestamp, $nonce, $echostr, $sEchoStr);
 
 		if ($errCode == 0) {
+			$model = \TMS_APP::model();
 			/**
-			 * 如果存在，断开公众号原有连接
+			 * 防止之前存在应用，如果存在，断开公众号原有连接
 			 */
-			\TMS_APP::model()->update(
+			$model->update(
 				'xxt_site_qy',
-				array('joined' => 'N'),
-				"corpid='{$this->config->corpid}' and secret='{$this->config->secret}'");
+				['joined' => 'N'],
+				["corpid" => $this->config->corpid, "secret" => $this->config->secret]
+			);
 			/**
 			 * 确认建立连接
 			 */
-			\TMS_APP::model()->update(
+			$model->update(
 				'xxt_site_qy',
-				array('joined' => 'Y'),
-				"siteid='{$this->config->siteid}'");
+				['joined' => 'Y'],
+				["siteid" => $this->config->siteid]
+			);
 
 			return array(true, $sEchoStr);
 		} else {
@@ -68,6 +69,9 @@ class proxy_model extends \sns\proxybase {
 	 *
 	 */
 	public function DecryptMsg($params, $data) {
+		if (empty($params['msg_signature']) || empty($params['timestamp']) || empty($params['nonce'])) {
+			return array(false, 'parameter is empty.');
+		}
 		$msg_signature = $params['msg_signature'];
 		$timestamp = $params['timestamp'];
 		$nonce = $params['nonce'];

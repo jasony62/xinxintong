@@ -114,11 +114,16 @@ class channel_model extends article_base {
 	 * return 频道包含的文章，小于等于频道的容量
 	 */
 	public function &getMatters($channel_id, $channel = null, $runningMpid = null) {
+		$matters = array(); // 返回结果
 		/**
 		 * load channel.
 		 */
 		if (empty($channel)) {
 			$channel = $this->byId($channel_id, 'id,mpid,matter_type,orderby,volume,top_type,top_id,bottom_type,bottom_id');
+		}
+
+		if ($channel === false) {
+			return $matters;
 		}
 
 		if (empty($channel->matter_type)) {
@@ -136,7 +141,6 @@ class channel_model extends article_base {
 			$matterTypes = array($channel->matter_type => 'xxt_' . $channel->matter_type);
 		}
 
-		$matters = array(); // 返回结果
 		$fixed_num = 0;
 		/**
 		 * top matter
@@ -378,8 +382,19 @@ class channel_model extends article_base {
 
 		$this->insert('xxt_channel_matter', $newc, false);
 
-		/* 推送给关注站点 */
-		$this->_pushToSubscriber($channel, $matter, $creater, $createrName);
+		/* 如果频道已经发布到团队主页上，频道增加素材时，推送给关注者 */
+		if ($this->_isAtHome($channel->id)) {
+			$modelSite = \TMS_APP::M('site');
+			$site = $modelSite->byId($matter->siteid);
+			/**
+			 * 推送给关注团队的站点用户
+			 */
+			$modelSite->pushToSubscriber($site, $matter);
+			/**
+			 * 推送给关注团队的站点用户
+			 */
+			$modelSite->pushToFriend($site, $matter);
+		}
 
 		return true;
 	}
@@ -396,29 +411,13 @@ class channel_model extends article_base {
 		return $rst;
 	}
 	/**
-	 * 推送给关注站点
-	 * 如果频道已经发布到主页上，那么频道中增加素材时，将素材推送给站点的关注站点
-	 */
-	private function _pushToSubscriber(&$channel, &$matter, $creater, $createrName) {
-		if (false === $this->_isAtHome($channel->id)) {
-			return false;
-		}
-
-		$user = new \stdClass;
-		$user->id = $creater;
-		$user->name = $createrName;
-
-		$modelSite = \TMS_APP::M('site');
-		return $modelSite->pushToSubscriber($matter, $user);
-	}
-	/**
-	 * 站点是否已发布到站点首页
+	 * 频道是否已发布到团队站点首页
 	 */
 	private function _isAtHome($id) {
 		$q = [
 			'count(*)',
 			'xxt_site_home_channel',
-			"channel_id=$id",
+			["channel_id" => $id],
 		];
 		$cnt = (int) $this->query_val_ss($q);
 

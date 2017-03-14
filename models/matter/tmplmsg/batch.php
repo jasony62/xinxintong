@@ -5,6 +5,18 @@ namespace matter\tmplmsg;
  */
 class batch_model extends \TMS_MODEL {
 	/**
+	 *
+	 */
+	public function byId($id, $options = []) {
+		$fields = isset($options['fields']) ? $options['fields'] : '*';
+
+		$q = [$fields, 'xxt_log_tmplmsg_batch', ['id' => $id]];
+
+		$batch = $this->query_obj_ss($q);
+
+		return $batch;
+	}
+	/**
 	 * 批量发送模板消息
 	 *
 	 * @param string $siteId

@@ -28,6 +28,15 @@ class main extends \site\op\base {
 		if ($mission === false) {
 			return new \ResponseError('指定的对象不存在');
 		}
+		/* 关联的用户名单活动 */
+		if ($mission->user_app_id) {
+			if ($mission->user_app_type === 'enroll') {
+				$mission->userApp = $this->model('matter\enroll')->byId($mission->user_app_id, ['cascaded' => 'N']);
+			} else if ($mission->user_app_type === 'signin') {
+				$mission->userApp = $this->model('matter\signin')->byId($mission->user_app_id, ['cascaded' => 'N']);
+			}
+		}
+
 		$params['mission'] = &$mission;
 		/* 页面定义 */
 		$templateDir = TMS_APP_TEMPLATE . '/site/op/matter/mission';
@@ -44,13 +53,12 @@ class main extends \site\op\base {
 	}
 	/**
 	 * 获得任务下的素材
-	 * 只有开放了运营管理者链接的活动才会列出
 	 *
 	 * @param int $mission 项目的ID
 	 */
 	public function matterList_action($mission, $matterType = null) {
 		$modelMis = $this->model('matter\mission\matter');
-		$matters = $modelMis->byMission($mission, $matterType, ['op_short_url_code' => true]);
+		$matters = $modelMis->byMission($mission, $matterType, ['is_public' => 'Y']);
 		if (count($matters)) {
 			foreach ($matters as &$matter) {
 				if (in_array($matter->type, ['enroll', 'signin', 'group'])) {

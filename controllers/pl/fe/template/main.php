@@ -256,6 +256,9 @@ class main extends \pl\fe\base {
 
 		$modelTmp = $this->model('matter\template');
 		$template = $modelTmp->byId($tid, $vid);
+		if($template->pub_status === 'Y'){
+			return new \ResponseError('当前版本已发布，不可更改');
+		}
 
 		/**
 		 * 处理数据
@@ -313,10 +316,6 @@ class main extends \pl\fe\base {
 			// }
 			
 			if(!empty($dataE)){
-				if($template->pub_status === 'Y'){
-					return new \ResponseError('当前版本已发布，不可更改');
-				}
-
 				$rst = $modelTmp->update('xxt_template_enroll', $dataE, ["id" => $vid]);
 			}
 		}

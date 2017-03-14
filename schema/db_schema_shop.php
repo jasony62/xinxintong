@@ -140,11 +140,11 @@ $sql .= ",title varchar(70) not null default ''";
 $sql .= ',pic text';
 $sql .= ",summary varchar(240) not null default ''";
 $sql .= ",share char(1) not null default 'N'"; // 共享
-$sql .= ',share_at int not null'; // 获得模板的时间
+$sql .= ',share_at int not null default 0'; // 获得模板的时间
 $sql .= ",favor char(1) not null default 'N'"; // 收藏
-$sql .= ',favor_at int not null'; // 收藏模板的时间
+$sql .= ',favor_at int not null default 0'; // 收藏模板的时间
 $sql .= ",purchase char(1) not null default 'N'"; // 购买
-$sql .= ',purchase_at int not null'; // 购买模板的时间
+$sql .= ',purchase_at int not null default 0'; // 购买模板的时间
 $sql .= ",primary key(id)) ENGINE=MyISAM DEFAULT CHARSET=utf8";
 if (!$mysqli->query($sql)) {
 	header('HTTP/1.0 500 Internal Server Error');

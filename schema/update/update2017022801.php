@@ -38,6 +38,9 @@ $sqls[] = "alter table xxt_template_acl change matter_type matter_type varchar(2
 $sqls[] = "alter table xxt_template_order change matter_id matter_id varchar(40) not null default ''";
 $sqls[] = "alter table xxt_template_order change matter_type matter_type varchar(20) not null default ''";
 $sqls[] = "alter table xxt_template_order change summary summary varchar(240) not null default ''";
+$sqls[] = "alter table xxt_template_order change share_at share_at int not null default 0";
+$sqls[] = "alter table xxt_template_order change favor_at favor_at int not null default 0";
+$sqls[] = "alter table xxt_template_order change purchase_at purchase_at int not null default 0";
 $sqls[] = "alter table xxt_template_order add template_version varchar(10) not null after template_id";
 //
 $sqls[] = "alter table xxt_enroll add template_version varchar(10) not null default '' after template_id";

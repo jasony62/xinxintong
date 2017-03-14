@@ -49,21 +49,18 @@ define(['frame'], function(ngApp) {
             if (name && name.length) {
                 location.href = '/rest/pl/fe/code?site=platform&name=' + name;
             } else {
-                if (pageType === 'home') {
+                if (/home|site/.test(pageType)) {
                     chooseTemplate().then(function(selected) {
                         createPage(pageType, selected.template);
                     });
                 } else {
-                    http2.get('/rest/pl/be/home/pageCreate?name=' + pageType, function(rsp) {
-                        $scope.platform[pageType + '_page_name'] = rsp.data.name;
-                        location.href = '/rest/pl/fe/code?site=platform&name=' + rsp.data.name;
-                    });
+                    createPage(pageType);
                 }
             }
         };
         $scope.resetPage = function(pageType) {
             if (window.confirm('重置操作将覆盖已经做出的修改，确定重置？')) {
-                if (pageType === 'home') {
+                if (/home|site/.test(pageType)) {
                     chooseTemplate().then(function(selected) {
                         resetPage(pageType, selected.template);
                     });

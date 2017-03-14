@@ -1,14 +1,18 @@
 .tms-panel{border:1px solid #e7e7e7;border-radius:4px;background:#fff;padding:30px 0;margin-bottom:30px;}
 .carousel-control.left{background-image:none;}
 .carousel-control.right{background-image:none;}
-.templates,.channel{position:relative;}
+.templates,
+.channel{position:relative;}
 .templates:before{content:'精选模版';position:absolute;top:-15px;left:-15px;background:#00f;padding:2px 4px;font-size:100%;color:#fff;border-radius:4px;}
 .channel:before{content:attr(data-title);position:absolute;top:-15px;left:-15px;background:#f00;padding:2px 4px;font-size:100%;color:#fff;border-radius:4px;}
 
 /*template/matter*/
-.template,.matter{position:relative;min-height:200px;cursor:pointer;display:flex;flex-direction:column;padding:15px;}
-.template img,.matter img{width:100%;}
-.template .summary,.matter .summary{flex:1;overflow:hidden;}
-.template .attr,.matter .attr{display:flex;padding:8px 0;}
-.template .creater_name,.matter .creater_name{flex:1;}
-.template .actions,.matter .actions{border-top:1px solid #ddd;padding-top:8px;}
+.template{position:relative;min-height:200px;cursor:pointer;display:flex;flex-direction:column;padding:15px;}
+.template img{width:100%;}
+.template .summary{flex:1;overflow:hidden;}
+.template .attr{display:flex;padding:8px 0;}
+.template .creater_name{flex:1;}
+.template .actions{border-top:1px solid #ddd;padding-top:8px;}
+
+/*channel*/
+.media-object{width:96px;height:96px;}

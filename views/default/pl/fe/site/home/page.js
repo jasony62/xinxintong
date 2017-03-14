@@ -1,6 +1,6 @@
 define(['main'], function(ngApp) {
     'use strict';
-    ngApp.provider.controller('ctrlPage', ['$scope', function($scope) {
+    ngApp.provider.controller('ctrlPage', ['$scope', 'http2', function($scope, http2) {
         var catelogs = $scope.$root.catelogs;
         catelogs.splice(0, catelogs.length);
         $scope.$root.catelog = null;

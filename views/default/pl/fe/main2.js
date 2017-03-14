@@ -225,11 +225,11 @@ config(['$uibTooltipProvider', function($uibTooltipProvider) {
         });
     };
 
-    $scope.openHome = function(site) {
-        location.href = '/rest/site/home?site=' + site.id;
+    $scope.setHome = function(site) {
+        location.href = '/rest/pl/fe/site/home?site=' + site.id;
     };
     $scope.openConsole = function(site) {
-        location.href = '/rest/pl/fe/site?site=' + site.id;
+        location.href = '/rest/pl/fe/site/console?site=' + site.id;
     };
     $scope.recycle = function() {
         //获取回收站信息

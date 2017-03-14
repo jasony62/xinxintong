@@ -18,7 +18,16 @@
         <div ng-if="criteria.scope!='M'">
             <div class='col-md-4' ng-repeat="t in templates" >
                 <div class='thumbnail template'>
-                    <h4 class='title' ng-bind="t.title"></h4>
+                    <div class="head">
+                        <h4 class='title pull-left' ng-bind="t.title"></h4>
+                        <div class="note pull-right">
+                                <div class="favor text-justify">
+                                    <i class='glyphicon glyphicon-heart text-danger' title="点赞数"></i> {{t.score}}
+                                    &nbsp;&nbsp;
+                                    <i class='glyphicon glyphicon-fire text-info' title="使用数"></i> {{t.copied_num}}
+                                </div>
+                            </div>
+                    </div>
                     <p class='summary' ng-bind="t.summary"></p>
                     <div class='heading-pic' heading-pic ng-if="t.pic">
                         <img ng-src='{{m.pic}}'>

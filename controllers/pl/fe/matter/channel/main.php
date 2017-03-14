@@ -14,13 +14,6 @@ class main extends \pl\fe\matter\base {
 	/**
 	 *
 	 */
-	public function setting_action() {
-		\TPL::output('/pl/fe/matter/channel/frame');
-		exit;
-	}
-	/**
-	 *
-	 */
 	public function get_action($site, $id) {
 		if (false === ($user = $this->accountUser())) {
 			return new \ResponseTimeout();
@@ -173,24 +166,39 @@ class main extends \pl\fe\matter\base {
 		return new \ResponseData($matters);
 	}
 	/**
+	 * 建立频道和素材的关联
+	 *
+	 * @param string $site site's id
+	 * @param int $channel channel's id
 	 *
 	 */
-	public function addMatter_action($site) {
+	public function addMatter_action($site, $channel = null) {
 		if (false === ($user = $this->accountUser())) {
 			return new \ResponseTimeout();
 		}
 
 		$relations = $this->getPostJson();
+		$modelCh = $this->model('matter\channel');
 
-		$channels = $relations->channels;
-		$matter = $relations->matter;
+		$matters = is_array($relations->matter) ? $relations->matter : [$relations->matter];
+		if (empty($channel)) {
+			$channels = $relations->channels;
+			foreach ($channels as $channel) {
+				foreach ($matters as $matter) {
+					$modelCh->addMatter($channel->id, $matter, $user->id, $user->name);
+				}
+			}
 
-		$model = $this->model('matter\channel');
-		foreach ($channels as $channel) {
-			$model->addMatter($channel->id, $matter, $user->id, $user->name);
+			return new \ResponseData('ok');
+		} else {
+			foreach ($matters as $matter) {
+				$modelCh->addMatter($channel, $matter, $user->id, $user->name);
+			}
+			$matters = $modelCh->getMatters($channel);
+
+			return new \ResponseData($matters);
 		}
 
-		return new \ResponseData('ok');
 	}
 	/**
 	 *

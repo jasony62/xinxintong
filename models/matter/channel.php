@@ -371,7 +371,7 @@ class channel_model extends article_base {
 		$q = [
 			'count(*)',
 			'xxt_channel_matter',
-			"channel_id=$id and matter_id='$matter->id' and matter_type='matter->type'",
+			["channel_id" => $id, "matter_id" => $matter->id, "matter_type" => $matter->type],
 		];
 		if (1 === (int) $this->query_val_ss($q)) {
 			return false;
@@ -406,7 +406,8 @@ class channel_model extends article_base {
 
 		$rst = $this->delete(
 			'xxt_channel_matter',
-			"matter_id='$matter->id' and matter_type='$matter->type' and channel_id=$id");
+			["matter_id" => $matter->id, "matter_type" => $matter->type, "channel_id" => $id]
+		);
 
 		return $rst;
 	}

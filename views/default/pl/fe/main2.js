@@ -26,7 +26,7 @@ config(['$uibTooltipProvider', function($uibTooltipProvider) {
         },
         addArticle: function(site) {
             http2.get('/rest/pl/fe/matter/article/create?site=' + site.id, function(rsp) {
-                location.href = '/rest/pl/fe/matter/article?site=' + site.id + '&id=' + rsp.data;
+                location.href = '/rest/pl/fe/matter/article?site=' + site.id + '&id=' + rsp.data.id;
             });
         },
         addNews: function(site) {

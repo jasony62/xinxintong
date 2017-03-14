@@ -13,34 +13,12 @@ define(["angular", "xxt-page"], function(angular, codeAssembler) {
             http2.get(url, function(rsp) {});
         };
         $scope.chooseVersion = function(v) {
-            var previewURL,
-            version,
-                params = {
-                    pageAt: -1,
-                    hasPrev: false,
-                    hasNext: false,
-                };
-            $scope.nextPage = function() {
-                params.pageAt++;
-                params.hasPrev = true;
-                params.hasNext = params.pageAt < $scope.version.pages.length - 1;
-            };
-            $scope.prevPage = function() {
-                params.pageAt--;
-                params.hasNext = true;
-                params.hasPrev = params.pageAt > 0;
-            };
+            var previewURL;
             http2.get('/rest/site/fe/matter/template/get?site=' + template.siteid + '&template=' + template.template_id + '&vid=' + v, function(rsp) {
-                $scope.version = version = rsp.data;
-                if (!previewURL) {
-                    $scope.previewURL = previewURL = '/rest/site/fe/matter/template/enroll/preview?site=' + version.siteid + '&tid=' + version.id + '&vid=' + version.vid;
-                }
+                $scope.template = template = rsp.data;
+                previewURL = '/rest/site/fe/matter/template/enroll/preview?site=' + template.siteid + '&tid=' + template.id + '&vid=' + v;
+                $scope.$broadcast('toChild', {0:previewURL,1:template});
             });
-            $scope.$watch('params', function(params) {
-                if (params) {
-                    $scope.previewURL = previewURL + '&page=' + $scope.version.pages[params.pageAt].name;
-                }
-            }, true);
         }
         $scope.favorTemplate = function() {
             if ($scope.isLogin === 'N') {
@@ -149,14 +127,33 @@ define(["angular", "xxt-page"], function(angular, codeAssembler) {
             if (!previewURL) {
                 $scope.previewURL = previewURL = '/rest/site/fe/matter/template/enroll/preview?site=' + template.siteid + '&tid=' + template.id + '&vid=' + template.vid;
             }
-            http2.get('/rest/site/fe/matter/enroll/get?app=' + template.matter_id + '&site=' + template.siteid + '&cascaded=Y', function(rsp) {
-                $scope.app = rsp.app;
+            http2.get('/rest/site/fe/matter/template/get?template=' + template.id + '&site=' + template.siteid, function(rsp) {
+                $scope.app = rsp.data;
                 params.pageAt = 0;
                 params.hasPrev = false;
                 $scope.params = params;
                 params.hasNext = !!$scope.app.pages.length;
             });
         });
+        $scope.$on('toChild', function(event, data){
+            var verData = data[1];
+            $scope.previewURL = previewURL = data[0];
+            $scope.nextPage = function() {
+               params.pageAt++;
+                params.hasPrev = true;
+                params.hasNext = params.pageAt < verData.pages.length - 1;
+            };
+            $scope.prevPage = function() {
+                params.pageAt--;
+                params.hasNext = true;
+                params.hasPrev = params.pageAt > 0;
+            };
+            $scope.$watch('params', function(params) {
+                if (params) {
+                    $scope.previewURL = previewURL + '&page=' + verData.pages[params.pageAt].name;
+                }
+            }, true);
+        })
         $scope.$watch('params', function(params) {
             if (params) {
                 $scope.previewURL = previewURL + '&page=' + $scope.app.pages[params.pageAt].name;

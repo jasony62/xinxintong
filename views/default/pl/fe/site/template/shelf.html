@@ -51,7 +51,7 @@
                                 <div ng-bind="t.favor_at*1000|date:'yyyy-MM-dd'"></div>
                             </div>
                             <div class='actions'>
-                                <a class='btn btn-sm btn-default' href='/rest/site/fe/matter/template?template={{t.id}}' target='_self'>预览</a>
+                                <a class='btn btn-sm btn-default' href='/rest/site/fe/matter/template?template={{t.template_id}}' target='_self'>预览</a>
                                 <button class='btn btn-sm btn-success' ng-click='use(t)'>使用</button>
                                 <button class='btn btn-sm btn-success' ng-click='unfavor(t,$index)'>取消收藏</button>
                             </div>
@@ -62,7 +62,7 @@
                                 <div ng-bind="t.purchase_at*1000|date:'yyyy-MM-dd'"></div>
                             </div>
                             <div class='actions'>
-                                <a class='btn btn-sm btn-default' href='/rest/site/fe/matter/template?template={{t.id}}' target='_self'>预览</a>
+                                <a class='btn btn-sm btn-default' href='/rest/site/fe/matter/template?template={{t.template_id}}' target='_self'>预览</a>
                                 <button class='btn btn-sm btn-success' ng-click='use(t)'>使用</button>
                             </div>
                         </div>

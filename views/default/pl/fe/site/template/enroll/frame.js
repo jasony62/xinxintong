@@ -64,6 +64,7 @@ define(['require', 'enrollService'], function(require) {
             .when('/rest/pl/fe/template/enroll/publish', new RouteParam('publish'))
             .when('/rest/pl/fe/template/enroll/schema', new RouteParam('schema'))
             .when('/rest/pl/fe/template/enroll/page', new RouteParam('page'))
+            .when('/rest/pl/fe/template/enroll/record', new RouteParam('record'))
             .otherwise(new RouteParam('publish'));
 
         $locationProvider.html5Mode(true);

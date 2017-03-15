@@ -88,7 +88,15 @@ define(['main'], function(ngApp) {
             });
             http2.post('/rest/pl/fe/site/setting/page/seqHomeChannel?site=' + $scope.site.id, updated, function(rsp) {});
         }
-
+        $scope.create = function() {
+            http2.get('/rest/pl/fe/matter/channel/create?site=' + $scope.site.id, function(rsp) {
+                var channel = rsp.data;
+                http2.post('/rest/pl/fe/site/setting/page/addHomeChannel?site=' + $scope.site.id, channel, function(rsp) {
+                    $scope.channels.push(rsp.data);
+                    location.href = '/rest/pl/fe/matter/channel?site=' + $scope.site.id + '&id=' + channel.id;
+                });
+            });
+        };
         $scope.add = function() {
             var options = {
                 matterTypes: [{

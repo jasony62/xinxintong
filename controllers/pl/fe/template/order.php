@@ -12,7 +12,7 @@ class order extends \pl\fe\base {
 	 * @param  [type] $tid  [description]
 	 * @return [type]       [description]
 	 */
-	public function listPurchaser_action($site, $tid){
+	public function listPurchaser_action($site, $tid, $page = 1, $size = 30){
 		if (false === ($loginUser = $this->accountUser())) {
 			return new \ResponseTimeout();
 		}
@@ -32,6 +32,8 @@ class order extends \pl\fe\base {
 			'xxt_template_order',
 			$options
 		];
+		$q2['r']['o'] = ($page - 1) * $size;
+		$q2['r']['l'] = $size;
 		$q2['o'] = "order by purchase_at desc";
 		$modelSite = $this->model('site');
 		if($users = $modelSite->query_objs_ss($q, $q2) ){

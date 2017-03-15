@@ -8,7 +8,8 @@
             <th>使用者ID</th>
             <th>购买时间</th>
             <th>购买版本</th>
-            <th>购买站点</th>
+            <th>购买站点名称</th>
+            <th>购买站点ID</th>
         </tr>
         </thead>
         <tbody>
@@ -19,6 +20,7 @@
             <td>{{order.buyer}}</td>
             <td>{{order.purchase_at*1000|date:'yy-MM-dd HH:mm'}}</td>
             <td>{{order.template_version}}</td>
+            <td>{{order.site_name}}</td>
             <td>{{order.siteid}}</td>
         </tr>
         </tbody>

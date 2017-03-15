@@ -50,7 +50,8 @@
                     </div>
                     <div class="form-group">
                         <p class='form-control-static'>版本号：
-                            <select  ng-model="v.id"  ng-change="chooseVersion(v.id)" ng-options="v.id as v.version for v in template.versions"></select>
+                            <select  ng-model="template.vid" ng-change="chooseVersion(template.vid)" ng-options="v.id as v.version for v in template.versions">
+                            </select>
                         </p>
                     </div>
                     <div class='form-group'>

@@ -1599,11 +1599,10 @@ define(['require', 'schema', 'page'], function(require, schemaLib, pageLib) {
             return _self;
         }];
     }).provider('srvTempPage', function() {
-        var _siteId, _appId, _vId;
-        this.config = function(siteId, appId, vId) {
+        var _siteId, _appId;
+        this.config = function(siteId, appId) {
             _siteId = siteId;
             _appId = appId;
-            _vId = vId;
         };
         this.$get = ['$uibModal', '$q', 'http2', 'noticebox', 'srvEnrollApp', 'srvTempApp', function($uibModal, $q, http2, noticebox, srvEnrollApp, srvTempApp) {
             var _self;
@@ -1624,7 +1623,7 @@ define(['require', 'schema', 'page'], function(require, schemaLib, pageLib) {
                                 };
                             }],
                         }).result.then(function(options) {
-                            http2.post('/rest/pl/fe/template/enroll/add?site=' + _siteId + '&tid=' + _appId + '&vid=' + _vId, options, function(rsp) {
+                            http2.post('/rest/pl/fe/template/enroll/add?site=' + _siteId + '&tid=' + _appId + '&vid=' + app.vid, options, function(rsp) {
                                 var page = rsp.data;
                                 pageLib.enhance(page);
                                 app.pages.push(page);
@@ -1647,18 +1646,19 @@ define(['require', 'schema', 'page'], function(require, schemaLib, pageLib) {
                             updated[name] = page[name];
                         }
                     });
-                    url = '/rest/pl/fe/template/enroll/updatePage';
-                    url += '?site=' + _siteId;
-                    url += '&tid=' + _appId;
-                    url += '&vid=' + _vId;
-                    url += '&pageId=' + page.id;
-                    url += '&cname=' + page.code_name;
-                    http2.post(url, updated, function(rsp) {
-                        page.$$modified = false;
-                        defer.resolve();
-                        noticebox.success('完成保存');
+                    srvTempApp.tempEnrollGet().then(function(app) {
+                        url = '/rest/pl/fe/template/enroll/updatePage';
+                        url += '?site=' + _siteId;
+                        url += '&tid=' + _appId;
+                        url += '&vid=' + app.vid;
+                        url += '&pageId=' + page.id;
+                        url += '&cname=' + page.code_name;
+                        http2.post(url, updated, function(rsp) {
+                            page.$$modified = false;
+                            defer.resolve();
+                            noticebox.success('完成保存');
+                        });
                     });
-
                     return defer.promise;
                 },
                 clean: function(page) {
@@ -1674,7 +1674,7 @@ define(['require', 'schema', 'page'], function(require, schemaLib, pageLib) {
                         var url = '/rest/pl/fe/template/enroll/remove';
                         url += '?site=' + _siteId;
                         url += '&tid=' + _appId;
-                        url += '&vid=' + _vId;
+                        url += '&vid=' + app.vid;
                         url += '&pageId=' + page.id;
                         url += '&cname=' + page.code_name;
                         http2.get(url, function(rsp) {

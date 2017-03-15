@@ -91,7 +91,7 @@ define(['require', 'enrollService'], function(require) {
             srvQuickEntryProvider.setSiteId(siteId);
 
             srvTempAppProvider.config(siteId, appId, vId);
-            srvTempPageProvider.config(siteId, appId, vId);
+            srvTempPageProvider.config(siteId, appId);
             srvTempRecordProvider.config(siteId, appId);
         })();
     }]);

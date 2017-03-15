@@ -7,17 +7,11 @@ require_once dirname(dirname(__FILE__)) . '/base.php';
  */
 class order extends \pl\fe\base {
 	/**
-	 * 
+	 * [listPurchaser_action 模板使用者列表]
+	 * @param  [type] $site [description]
+	 * @param  [type] $tid  [description]
+	 * @return [type]       [description]
 	 */
-	public function index_action($site){
-		if (false === ($loginUser = $this->accountUser())) {
-			return new \ResponseTimeout();
-		}
-		
-		\TPL::output('/pl/fe/site/template/enroll/frame');
-		exit;
-	}
-
 	public function listPurchaser_action($site, $tid){
 		if (false === ($loginUser = $this->accountUser())) {
 			return new \ResponseTimeout();
@@ -39,10 +33,19 @@ class order extends \pl\fe\base {
 			$options
 		];
 		$q2['o'] = "order by purchase_at desc";
+		$modelSite = $this->model('site');
+		if($users = $modelSite->query_objs_ss($q, $q2) ){
+			foreach ($users as $user) {
+				$site = $modelSite->byId($user->siteid, ['fields' => 'name']);
+				$user->site_name = $site->name;
+			}
+		}
+		$q[0] = "count(*)";
+		$total = (int) $modelSite->query_val_ss($q);
 
-		$template->users = $modelTmp->query_objs_ss($q, $q2);
-
-
-		return new \ResponseData($template);
+		$purchases = new \stdClass;
+		$purchases->users = $users;
+		$purchases->total = $total;
+		return new \ResponseData($purchases);
 	}
 }

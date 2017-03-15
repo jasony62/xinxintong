@@ -46,7 +46,13 @@
                 </div>
                 <div class='col-md-5 tms-box'>
                     <div class='form-group'>
-                        <p class='form-control-static' ng-bind="template.title"></p>
+                        <p class='form-control-static'>模板名称：<span ng-bind="template.title"></span></p>
+                    </div>
+                    <div class="form-group">
+                        <p class='form-control-static'>版本号：
+                            <select  ng-model="template.vid" ng-change="chooseVersion(template.vid)" ng-options="v.id as v.version for v in template.versions">
+                            </select>
+                        </p>
                     </div>
                     <div class='form-group'>
                         <p class='form-control-static'>发布站点：<span ng-bind="template.site_name"></span></p>
@@ -55,7 +61,10 @@
                         <p class='form-control-static'>发布时间：<span ng-bind="template.put_at*1000|date:'yy-MM-dd'"></span></p>
                     </div>
                     <div class='form-group'>
-                        <p class='form-control-static'>说明：<span ng-bind="template.summary"></span></p>
+                        <p class='form-control-static'>模板说明：<span ng-bind="template.summary"></span></p>
+                    </div>
+                    <div class='form-group'>
+                        <p class='form-control-static'>更新说明：<span ng-show="version" >{{version.up_said}}</span><span ng-hide="version">{{template.up_said}}</span></p>
                     </div>
                     <hr>
                     <div tms-discuss="platform" tms-discuss-ready="template?'Y':'N'" class="ds-thread" data-thread-key="template,{{template.id}}" data-title="{{template.title}}" data-url=""></div>

@@ -172,6 +172,7 @@ class channel_model extends article_base {
 			case 'article':
 				$qaw .= " and m.state<>0 and m.approved='Y'";
 				break;
+			case 'enroll':
 			case 'signin':
 			case 'lottery':
 				$qaw .= " and m.state<>0";
@@ -343,6 +344,7 @@ class channel_model extends article_base {
 						$valid = false;
 					}
 					break;
+				case 'enroll':
 				case 'signin':
 				case 'lottery':
 					if ($fullMatter->state !== '1' && $fullMatter->state !== '2') {

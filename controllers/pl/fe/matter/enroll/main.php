@@ -212,6 +212,9 @@ class main extends \pl\fe\matter\base {
 		if(empty($template->pub_version)){
 			return new \ResponseError('模板已下架');
 		}
+		if($template->pub_status === 'N'){
+			return new \ResponseError('当前版本未发布，无法使用');
+		}
 
 		/* 检查用户积分 */
 		if ($template->coin) {

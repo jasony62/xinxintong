@@ -55,9 +55,15 @@ class acl extends \pl\fe\base {
 			if (false === ($template = $modelTmpl->byMatter($matterId, $matterType)) ) {
 				return new \ResponseError('指定的模板不存在');
 			}
+			if(empty($template->pub_version)){
+				return new \ResponseError('模板尚未发布');
+			}
 		}else if(!empty($tid)) {
 			if (false === ($template = $modelTmpl->byId($tid, null, ['cascaded' => 'N'])) ) {
 				return new \ResponseError('指定的模板不存在');
+			}
+			if(empty($template->pub_version)){
+				return new \ResponseError('模板尚未发布');
 			}
 		}else{
 			return new \ResponseError('请检查参数');

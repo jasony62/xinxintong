@@ -23,9 +23,13 @@ class order extends \pl\fe\base {
 			return new \ResponseTimeout();
 		}
 
+		$modelTmp = $this->model('matter\template');
+		if (false === ($template = $modelTmp->byId($tid, null, ['cascaded'=>'N'])) ) {
+			return new \ResponseError('指定的模板不存在，请检查参数是否正确');
+		}
+
 		//获得版本所有使用者
 		$options = [
-			'from_siteid' => $site,
 			'template_id' => $tid,
 			'purchase' => 'Y'
 		];
@@ -36,8 +40,9 @@ class order extends \pl\fe\base {
 		];
 		$q2['o'] = "order by purchase_at desc";
 
-		$users = $this->model()->query_objs_ss($q, $q2);
+		$template->users = $modelTmp->query_objs_ss($q, $q2);
 
-		return new \ResponseData($users);
+
+		return new \ResponseData($template);
 	}
 }

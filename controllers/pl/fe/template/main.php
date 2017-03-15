@@ -91,7 +91,7 @@ class main extends \pl\fe\base {
 		$modelTmpl = $this->model('matter\template');
 
 		if (false === ($template = $modelTmpl->byId($template))) {
-			return new \ResponseError('数据不存在');
+			return new \ResponseError('指定模板不存在或已删除');
 		}
 
 		$modelSite = $this->model('site');
@@ -134,7 +134,7 @@ class main extends \pl\fe\base {
 		$modelTmpl = $this->model('matter\template');
 
 		if (false === ($template = $modelTmpl->byId($template, $vid))) {
-			return new \ResponseError('数据不存在');
+			return new \ResponseError('指定模板不存在或已删除');
 		}
 		if(empty($template->pub_version)){
 			return new \ResponseError('模板已下架');
@@ -163,7 +163,7 @@ class main extends \pl\fe\base {
 
 		$modelTmpl = $this->model('matter\template');
 		if (false === ($template = $modelTmpl->byId($template))) {
-			return new \ResponseError('数据不存在');
+			return new \ResponseError('指定模板不存在或已删除');
 		}
 
 		$targets = []; // 符合条件的站点

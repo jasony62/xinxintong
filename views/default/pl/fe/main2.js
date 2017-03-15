@@ -224,7 +224,6 @@ config(['$uibTooltipProvider', function($uibTooltipProvider) {
             $scope.sites = rsp.data;
         });
     };
-
     $scope.setHome = function(site) {
         location.href = '/rest/pl/fe/site/home?site=' + site.id;
     };

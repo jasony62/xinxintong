@@ -244,6 +244,8 @@ class TMS_DB {
 							$clause .= implode("','", $v);
 							$clause .= "')";
 							$clauses[] = $clause;
+						} else {
+							$clauses[] = $k . "=" . $v;
 						}
 					}
 				} else {

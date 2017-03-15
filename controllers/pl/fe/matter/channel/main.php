@@ -69,6 +69,8 @@ class main extends \pl\fe\matter\base {
 		if (false === ($user = $this->accountUser())) {
 			return new \ResponseTimeout();
 		}
+
+		$modelCh = $this->model('matter\channel');
 		$posted = $this->getPostJson();
 		$current = time();
 
@@ -83,8 +85,9 @@ class main extends \pl\fe\matter\base {
 		$channel['modifier_name'] = $user->name;
 		$channel['modify_at'] = $current;
 		$channel['title'] = isset($posted->title) ? $posted->title : '新频道';
+		$channel['matter_type'] = '';
 
-		$id = $this->model()->insert('xxt_channel', $channel, true);
+		$id = $modelCh->insert('xxt_channel', $channel, true);
 
 		/* 记录操作日志 */
 		$matter = (object) $channel;
@@ -92,7 +95,7 @@ class main extends \pl\fe\matter\base {
 		$matter->type = 'channel';
 		$this->model('matter\log')->matterOp($site, $user, $matter, 'C');
 
-		$channel = $this->model('matter\channel')->byId($id);
+		$channel = $modelCh->byId($id);
 
 		return new \ResponseData($channel);
 	}

@@ -3,9 +3,9 @@
         <thead>
         <tr>
             <th>模板名称</th>
-            <th>模板类型</th>
-            <th>模板发布时间</th>
+            <th>活动类型</th>
             <th>使用者</th>
+            <th>使用者ID</th>
             <th>购买时间</th>
             <th>购买版本</th>
             <th>购买站点</th>
@@ -14,12 +14,12 @@
         <tbody>
         <tr ng-repeat='order in record.orders'>
             <td>{{order.title}}</td>
-            <td>{{order.scenario}}</td>
-            <td>{{order.put_at*1000|date:'yy-MM-dd HH:mm'}}</td>
+            <td>{{scenarioNames[order.scenario]}}</td>
             <td>{{order.buyer_name}}</td>
-            <td>{{order.purchase_at}}</td>
-            <td>{{log.user_op_num}}</td>
-            <td>{{log.user_op_num}}</td>
+            <td>{{order.buyer}}</td>
+            <td>{{order.purchase_at*1000|date:'yy-MM-dd HH:mm'}}</td>
+            <td>{{order.template_version}}</td>
+            <td>{{order.siteid}}</td>
         </tr>
         </tbody>
     </table>

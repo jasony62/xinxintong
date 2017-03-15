@@ -7,7 +7,7 @@ define(['frame'], function(ngApp) {
             list: function() {
                 var _this = this;
                 srvTempRecord.list($scope.app, this.page).then(function(data) {
-                    _this.orders = data;
+                    _this.orders = data.users;
                 });
             }
         };

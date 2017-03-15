@@ -96,9 +96,6 @@ define(['frame'], function(ngApp) {
 		$scope.message = function(template) {
 			location.href = '/rest/pl/fe/template/enroll?site=' + $scope.siteId + '&id=' + template.id + '&vid=' + template.lastVersion.id;
 		}
-		$scope.filter = function() {
-
-		}
 		$scope.createEnrollTemplate = function(matter) {
 			http2.get('/rest/pl/fe/template/create?site=' + $scope.siteId + '&matterType=' + matter, function(rsp) {
           		location.href = '/rest/pl/fe/template/enroll?site=' + $scope.siteId + '&id=' + rsp.data.id;

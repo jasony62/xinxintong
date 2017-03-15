@@ -15,9 +15,9 @@ define(["angular", "xxt-page"], function(angular, codeAssembler) {
         $scope.chooseVersion = function(v) {
             var previewURL;
             http2.get('/rest/site/fe/matter/template/get?site=' + template.siteid + '&template=' + template.template_id + '&vid=' + v, function(rsp) {
-                $scope.version = version = rsp.data;
+                $scope.version = rsp.data;
                 previewURL = '/rest/site/fe/matter/template/enroll/preview?site=' + template.siteid + '&tid=' + template.id + '&vid=' + v;
-                $scope.$broadcast('toChild', {0:previewURL,1:version});
+                $scope.$broadcast('toChild', {0:previewURL,1:$scope.version});
             });
         }
         $scope.favorTemplate = function() {
@@ -102,7 +102,7 @@ define(["angular", "xxt-page"], function(angular, codeAssembler) {
             $scope.isLogin = rsp.data;
         });
         http2.get('/rest/site/fe/matter/template/get?template=' + $scope.templateId, function(rsp) {
-            angualr.forEach(rsp.data.versions, function(item,index) {
+            angular.forEach(rsp.data.versions, function(item,index) {
                 if(item.pub_status == 'N') {
                     rsp.data.versions.splice(index,1);
                 }

@@ -1650,7 +1650,7 @@ define(['require', 'schema', 'page'], function(require, schemaLib, pageLib) {
                     url = '/rest/pl/fe/template/enroll/updatePage';
                     url += '?site=' + _siteId;
                     url += '&tid=' + _appId;
-                    url += '&vid=' + _oApp.vid;
+                    url += '&vid=' + _vId;
                     url += '&pageId=' + page.id;
                     url += '&cname=' + page.code_name;
                     http2.post(url, updated, function(rsp) {

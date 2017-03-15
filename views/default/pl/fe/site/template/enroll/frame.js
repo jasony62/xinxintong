@@ -41,7 +41,7 @@ define(['require', 'enrollService'], function(require) {
             'require.mission.phase': '请先指定项目的阶段'
         }
     });
-    ngApp.config(['$controllerProvider', '$routeProvider', '$locationProvider', '$compileProvider', '$uibTooltipProvider', 'srvSiteProvider', 'srvQuickEntryProvider', 'srvEnrollAppProvider', 'srvEnrollRoundProvider', 'srvEnrollPageProvider', 'srvEnrollRecordProvider', 'srvTempAppProvider',  'srvTempPageProvider', function($controllerProvider, $routeProvider, $locationProvider, $compileProvider, $uibTooltipProvider, srvSiteProvider, srvQuickEntryProvider, srvEnrollAppProvider, srvEnrollRoundProvider, srvEnrollPageProvider, srvEnrollRecordProvider, srvTempAppProvider, srvTempPageProvider) {
+    ngApp.config(['$controllerProvider', '$routeProvider', '$locationProvider', '$compileProvider', '$uibTooltipProvider', 'srvSiteProvider', 'srvQuickEntryProvider', 'srvEnrollAppProvider', 'srvEnrollRoundProvider', 'srvEnrollPageProvider', 'srvEnrollRecordProvider', 'srvTempAppProvider',  'srvTempPageProvider', 'srvTempRecordProvider', function($controllerProvider, $routeProvider, $locationProvider, $compileProvider, $uibTooltipProvider, srvSiteProvider, srvQuickEntryProvider, srvEnrollAppProvider, srvEnrollRoundProvider, srvEnrollPageProvider, srvEnrollRecordProvider, srvTempAppProvider, srvTempPageProvider, srvTempRecordProvider) {
         var RouteParam = function(name, baseURL) {
             !baseURL && (baseURL = '/views/default/pl/fe/site/template/enroll/');
             this.templateUrl = baseURL + name + '.html?_=' + (new Date() * 1);
@@ -103,17 +103,10 @@ define(['require', 'enrollService'], function(require) {
             'group_week_report': '周报'
         };
         $scope.viewNames = {
-            'main': '活动定义',
             'publish': '发布预览',
             'schema': '修改题目',
             'page': '修改页面',
-            'record': '查看数据',
-            'stat': '统计报告',
-            'discuss': '用户评论',
-            'coin': '积分规则',
-            'notice': '通知发送记录',
-            'log': '运行日志',
-            'recycle': '回收站',
+            'order': '查看数据',
         };
         $scope.subView = '';
         $scope.$on('$locationChangeSuccess', function(event, currentRoute) {

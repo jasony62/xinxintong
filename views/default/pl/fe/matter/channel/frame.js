@@ -34,6 +34,10 @@ ngApp.controller('ctrlSetting', ['$scope', 'http2', 'mattersgallery', function($
         title: '单图文',
         url: '/rest/pl/fe/matter'
     }, {
+        value: 'enroll',
+        title: '登记活动',
+        url: '/rest/pl/fe/matter'
+    }, {
         value: 'link',
         title: '链接',
         url: '/rest/mp/matter'
@@ -127,6 +131,26 @@ ngApp.controller('ctrlSetting', ['$scope', 'http2', 'mattersgallery', function($
             postFixed(pos, params);
         }
     };
+    $scope.addMatter = function() {
+        mattersgallery.open($scope.siteId, function(matters, type) {
+            var relations = { matter: matters };
+            http2.post('/rest/pl/fe/matter/channel/addMatter?site=' + $scope.siteId + '&channel=' + $scope.editing.id, relations, function(rsp) {
+                $scope.editing.matters = rsp.data;
+                arrangeMatters();
+            });
+        }, {
+            matterTypes: $scope.matterTypes,
+        });
+    };
+    $scope.createArticle = function() {
+        http2.get('/rest/pl/fe/matter/article/create?site=' + $scope.siteId, function(rsp) {
+            var article = rsp.data,
+                relations = { matter: [article] };
+            http2.post('/rest/pl/fe/matter/channel/addMatter?site=' + $scope.siteId + '&channel=' + $scope.editing.id, relations, function(rsp) {
+                location.href = '/rest/pl/fe/matter/article?site=' + $scope.siteId + '&id=' + article.id;
+            });
+        });
+    };
     $scope.removeMatter = function(matter) {
         var removed = {
             id: matter.id,
@@ -136,6 +160,9 @@ ngApp.controller('ctrlSetting', ['$scope', 'http2', 'mattersgallery', function($
             $scope.editing.matters = rsp.data;
             arrangeMatters();
         });
+    };
+    $scope.gotoMatter = function(matter) {
+        location.href = '/rest/pl/fe/matter/' + matter.type + '?site=' + $scope.siteId + '&id=' + matter.id;
     };
     $scope.editPage = function(event, page) {
         event.preventDefault();

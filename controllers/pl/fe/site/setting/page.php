@@ -43,6 +43,19 @@ class page extends \pl\fe\base {
 		return new \ResponseData($hc);
 	}
 	/**
+	 * 更新主页频道
+	 */
+	public function refreshHomeChannel_action($site, $id) {
+		if (false === ($user = $this->accountUser())) {
+			return new \ResponseTimeout();
+		}
+
+		$modelSp = $this->model('site\page');
+		$refreshed = $modelSp->refreshHomeChannel($site, $id);
+
+		return new \ResponseData($refreshed);
+	}
+	/**
 	 * 删除主页频道
 	 */
 	public function removeHomeChannel_action($site, $id) {
@@ -54,5 +67,21 @@ class page extends \pl\fe\base {
 		$removed = $modelSp->removeHomeChannel($site, $id);
 
 		return new \ResponseData($removed);
+	}
+	/**
+	 * 更新主页频道排序
+	 */
+	public function seqHomeChannel_action($site) {
+		if (false === ($user = $this->accountUser())) {
+			return new \ResponseTimeout();
+		}
+
+		$channelSeqs = $this->getPostJson();
+		$model = $this->model();
+		foreach ($channelSeqs as $hcId => $seq) {
+			$model->update('xxt_site_home_channel', ['seq' => $seq], ['id' => $hcId]);
+		}
+
+		return new \ResponseData('ok');
 	}
 }

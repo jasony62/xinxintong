@@ -206,7 +206,7 @@ ngApp.controller('ctrlConsole', ['$scope', '$uibModal', 'http2', 'templateShop',
     //研究项目-单图文
     $scope.addArticle = function() {
         http2.get('/rest/pl/fe/matter/article/create?site=' + $scope.siteId, function(rsp) {
-            location.href = '/rest/pl/fe/matter/article?site=' + $scope.siteId + '&id=' + rsp.data;
+            location.href = '/rest/pl/fe/matter/article?site=' + $scope.siteId + '&id=' + rsp.data.id;
         });
     };
     $scope.addNews = function() {

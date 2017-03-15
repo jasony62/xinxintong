@@ -1,3 +1,4 @@
+<style>th{text-align:center;}</style>
 <div class='col-md-12'>
     <table class='table table-bordered'>
         <tbody>
@@ -18,13 +19,15 @@
                 <tr>
                     <th style='width:4em'>序号</th>
                     <th>图片</th>
-                    <th style='width:4em'>操作</th>
+                    <th style='width:7em'>操作</th>
                 </tr>
                 <tr ng-repeat='s in slides'>
                     <td>{{$index+1}}</td>
                     <td><img ng-src="{{s.picUrl}}" style='width:200px'></td>
                     <td>
-                        <button class='btn btn-xs btn-danger' ng-click="remove(c,$index)"><i class='glyphicon glyphicon-remove'></i></button>
+                        <button class='btn btn-xs btn-danger' ng-click="remove(s,$index)"><i class='glyphicon glyphicon-remove'></i></button>
+                        <button class='btn btn-xs btn-default' ng-click="up(s,$index)"><i class='glyphicon glyphicon-chevron-up'></i></button>
+                        <button class='btn btn-xs btn-default' ng-click="down(s,$index)"><i class='glyphicon glyphicon-chevron-down'></i></button>
                     </td>
                 </tr>
             </tbody>
@@ -44,15 +47,17 @@
                     <th style='width:4em'>序号</th>
                     <th>频道名称</th>
                     <th>频道说明</th>
-                    <th style='width:7em'>操作</th>
+                    <th style='width:9em'>操作</th>
                 </tr>
                 <tr ng-repeat='c in channels'>
                     <td>{{$index+1}}</td>
-                    <td>{{c.title}}</td>
+                    <td><a href='/rest/pl/fe/matter/channel?site={{site.id}}&id={{c.channel_id}}' target='_self'>{{c.title}}</a></td>
                     <td>{{c.summary}}</td>
                     <td>
                         <button class='btn btn-xs btn-danger' ng-click="remove(c,$index)"><i class='glyphicon glyphicon-remove'></i></button>
-                        <a href='/rest/pl/fe/matter/channel?site={{site.id}}&id={{c.channel_id}}' target='_self'>打开</a>
+                        <button class='btn btn-xs btn-default' ng-click="fresh(c)"><i class='glyphicon glyphicon-refresh'></i></button>
+                        <button class='btn btn-xs btn-default' ng-click="up(c,$index)"><i class='glyphicon glyphicon-chevron-up'></i></button>
+                        <button class='btn btn-xs btn-default' ng-click="down(c,$index)"><i class='glyphicon glyphicon-chevron-down'></i></button>
                     </td>
                 </tr>
             </tbody>
@@ -60,6 +65,7 @@
                 <tr>
                     <td colspan="4">
                         <button class='btn btn-default' ng-click="add()">添加主页频道</button>
+                        <button class='btn btn-default' ng-click="create()">新建主页频道</button>
                     </td>
                 </tr>
             </tfoot>

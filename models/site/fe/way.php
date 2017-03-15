@@ -55,8 +55,8 @@ class way_model extends \TMS_MODEL {
 		} else {
 			if (empty($cookieUser->loginExpire)) {
 				$cookieRegUser = $this->getCookieRegUser();
-				if ($cookieRegUser && isset($cookieUser->loginExpire)) {
-					$cookieUser->loginExpire = $cookieRegUser->expire;
+				if ($cookieRegUser && isset($cookieRegUser->loginExpire)) {
+					$cookieUser->loginExpire = $cookieRegUser->loginExpire;
 					$modified = true;
 				}
 			}

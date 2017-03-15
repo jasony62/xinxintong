@@ -223,11 +223,11 @@
                                     <div class='create_at' ng-bind="site.create_at*1000|date:'yyyy-MM-dd'"></div>
                                 </div>
                                 <div class='actions' ng-switch-when="1">
-                                    <a class='btn btn-sm btn-default' ng-click="openHome(site)">主页</a>
                                     <a class='btn btn-sm btn-default' ng-click="openConsole(site)">工作台</a>
+                                    <a class='btn btn-sm btn-default' ng-click="setHome(site)">设置主页</a>
                                 </div>
                                 <div class='actions-top' ng-switch-when="0">
-                                    <button class='btn btn-default' title='恢复'  ng-click="restoreSite(site)">恢复</button>
+                                    <button class='btn btn-default' title='恢复' ng-click="restoreSite(site)">恢复</button>
                                 </div>
                             </div>
                         </div>

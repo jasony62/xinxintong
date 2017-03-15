@@ -206,7 +206,13 @@ factory('mattersgallery', function($uibModal) {
                     $mi.dismiss('cancel');
                 };
                 $scope.createMatter = function() {
-                    if ($scope.p.matterType.value === 'channel') {
+                    if ($scope.p.matterType.value === 'article') {
+                        $http.get('/rest/pl/fe/matter/article/create?site=' + galleryId).success(function(rsp) {
+                            $mi.close([
+                                [rsp.data], 'article'
+                            ]);
+                        });
+                    } else if ($scope.p.matterType.value === 'channel') {
                         $http.get('/rest/pl/fe/matter/channel/create?site=' + galleryId).success(function(rsp) {
                             $mi.close([
                                 [rsp.data], 'channel'

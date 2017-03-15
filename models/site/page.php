@@ -20,13 +20,13 @@ class page_model extends \TMS_MODEL {
 		return $homeChannels;
 	}
 	/**
-	 *
+	 * 在主页中添加频道
 	 */
 	public function &addHomeChannel(&$user, &$site, &$channel) {
 		$q = [
 			'max(seq)',
 			'xxt_site_home_channel',
-			"siteid='{$site->id}'",
+			["siteid" => $site->id],
 		];
 		$maxSeq = (int) $this->query_val_ss($q);
 
@@ -48,11 +48,34 @@ class page_model extends \TMS_MODEL {
 	/**
 	 *
 	 */
+	public function &refreshHomeChannel($siteId, $homeChannelId) {
+		$q = [
+			'*',
+			'xxt_site_home_channel',
+			["siteid" => $siteId, "id" => $homeChannelId],
+		];
+		if ($hc = $this->query_obj_ss($q)) {
+			$modelCh = $this->model('matter\channel');
+			$channel = $modelCh->byId($hc->channel_id);
+			$updated = [
+				'title' => $this->escape($channel->title),
+				'summary' => $this->escape($channel->summary),
+				'pic' => $channel->pic,
+			];
+			$this->update('xxt_site_home_channel', $updated, ["id" => $homeChannelId]);
+			$hc = $this->query_obj_ss($q);
+		}
+
+		return $hc;
+	}
+	/**
+	 *
+	 */
 	public function &removeHomeChannel($siteId, $homeChannelId) {
 		$q = [
 			'*',
 			'xxt_site_home_channel',
-			"siteid='$siteId' and id=$homeChannelId",
+			["siteid" => $siteId, "id" => $homeChannelId],
 		];
 		if ($hc = $this->query_obj_ss($q)) {
 			$this->delete('xxt_site_home_channel', "id=$homeChannelId");

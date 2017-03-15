@@ -1,6 +1,6 @@
 define(['main'], function(ngApp) {
     'use strict';
-    ngApp.provider.controller('ctrlPage', ['$scope', function($scope) {
+    ngApp.provider.controller('ctrlPage', ['$scope', 'http2', function($scope, http2) {
         var catelogs = $scope.$root.catelogs;
         catelogs.splice(0, catelogs.length);
         $scope.$root.catelog = null;
@@ -39,6 +39,12 @@ define(['main'], function(ngApp) {
         };
     }]);
     ngApp.provider.controller('ctrlHomeCarousel', ['$scope', 'http2', 'mediagallery', function($scope, http2, mediagallery) {
+        function update(name) {
+            var p = {},
+                site = $scope.site;
+            p[name] = site[name];
+            http2.post('/rest/pl/fe/site/update?site=' + site.id, p, function(rsp) {});
+        }
         var slides;
         $scope.add = function() {
             var options = {
@@ -46,14 +52,26 @@ define(['main'], function(ngApp) {
                     slides.push({
                         picUrl: url + '?_=' + (new Date() * 1)
                     });
-                    $scope.update('home_carousel');
+                    update('home_carousel');
                 }
             };
             mediagallery.open($scope.site.id, options);
         };
-        $scope.remove = function(homeChannel, index) {
+        $scope.remove = function(slide, index) {
             slides.splice(index, 1);
-            $scope.update('home_carousel');
+            update('home_carousel');
+        };
+        $scope.up = function(slide, index) {
+            if (index === 0) return;
+            slides.splice(index, 1);
+            slides.splice(--index, 0, slide);
+            update('home_carousel');
+        };
+        $scope.down = function(slide, index) {
+            if (index === slides.length - 1) return;
+            slides.splice(index, 1);
+            slides.splice(++index, 0, slide);
+            update('home_carousel');
         };
         $scope.$watch('site', function(site) {
             if (site === undefined) return;
@@ -63,6 +81,22 @@ define(['main'], function(ngApp) {
         });
     }]);
     ngApp.provider.controller('ctrlHomeChannel', ['$scope', 'http2', 'mattersgallery', function($scope, http2, mattersgallery) {
+        function updateSeq() {
+            var updated = {};
+            $scope.channels.forEach(function(channel, index) {
+                updated[channel.id] = index;
+            });
+            http2.post('/rest/pl/fe/site/setting/page/seqHomeChannel?site=' + $scope.site.id, updated, function(rsp) {});
+        }
+        $scope.create = function() {
+            http2.get('/rest/pl/fe/matter/channel/create?site=' + $scope.site.id, function(rsp) {
+                var channel = rsp.data;
+                http2.post('/rest/pl/fe/site/setting/page/addHomeChannel?site=' + $scope.site.id, channel, function(rsp) {
+                    $scope.channels.push(rsp.data);
+                    location.href = '/rest/pl/fe/matter/channel?site=' + $scope.site.id + '&id=' + channel.id;
+                });
+            });
+        };
         $scope.add = function() {
             var options = {
                 matterTypes: [{
@@ -88,6 +122,23 @@ define(['main'], function(ngApp) {
                     $scope.channels.splice(index, 1);
                 });
             }
+        };
+        $scope.fresh = function(homeChannel) {
+            http2.get('/rest/pl/fe/site/setting/page/refreshHomeChannel?site=' + $scope.site.id + '&id=' + homeChannel.id, function(rsp) {
+                angular.extend(homeChannel, rsp.data);
+            });
+        };
+        $scope.up = function(homeChannel, index) {
+            if (index === 0) return;
+            $scope.channels.splice(index, 1);
+            $scope.channels.splice(--index, 0, homeChannel);
+            updateSeq();
+        };
+        $scope.down = function(homeChannel, index) {
+            if (index === $scope.channels.length - 1) return;
+            $scope.channels.splice(index, 1);
+            $scope.channels.splice(++index, 0, homeChannel);
+            updateSeq();
         };
         $scope.$watch('site', function(site) {
             if (site === undefined) return;

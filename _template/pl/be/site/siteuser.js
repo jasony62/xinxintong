@@ -18,7 +18,7 @@ ngApp.provider.controller('ctrlSite', ['$scope', '$http', 'srvUser', function($s
         });
     };
     $scope.subscribeSite = function(site) {
-        if ($scope.siteUser === false) {
+        if (!$scope.siteUser || !$scope.siteUser.loginExpire) {
             if (window.sessionStorage) {
                 var method = JSON.stringify({
                     name: 'subscribeSite',

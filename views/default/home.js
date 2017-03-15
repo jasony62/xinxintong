@@ -7,6 +7,33 @@ define(["angular", "xxt-page"], function(angular, codeAssembler) {
             controller: $cp.register
         };
     }]);
+    ngApp.provider('srvUser', function() {
+        var _getSiteAdminUserDeferred, _getSiteUserDeferred;
+        this.$get = ['$q', 'http2', function($q, http2) {
+            return {
+                getSiteAdminUser: function() {
+                    if (_getSiteAdminUserDeferred) {
+                        return _getSiteAdminUserDeferred.promise;
+                    }
+                    _getSiteAdminUserDeferred = $q.defer();
+                    http2.get('/rest/pl/fe/user/get', function(rsp) {
+                        _getSiteAdminUserDeferred.resolve(rsp.data);
+                    });
+                    return _getSiteAdminUserDeferred.promise;
+                },
+                getSiteUser: function() {
+                    if (_getSiteUserDeferred) {
+                        return _getSiteUserDeferred.promise;
+                    }
+                    _getSiteUserDeferred = $q.defer();
+                    http2.get('/rest/site/fe/user/get?site=platform', function(rsp) {
+                        _getSiteUserDeferred.resolve(rsp.data);
+                    });
+                    return _getSiteUserDeferred.promise;
+                }
+            };
+        }];
+    });
     ngApp.controller('ctrlMain', ['$scope', 'http2', function($scope, http2) {
         var platform, pages = {};
         $scope.subView = '';

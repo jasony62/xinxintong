@@ -12,6 +12,8 @@ define(['require', 'angular'], function(require, angular) {
                 }
                 if (window.parent && window.parent.onClosePlugin) {
                     window.parent.onClosePlugin(rsp.data);
+                } else if (rsp.data._loginReferer) {
+                    location.replace(rsp.data._loginReferer);
                 } else {
                     location.replace('/rest/site/fe/user?site=' + site);
                 }

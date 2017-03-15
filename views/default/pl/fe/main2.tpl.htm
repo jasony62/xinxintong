@@ -21,7 +21,7 @@
                 </div>
                 <div class='collapse navbar-collapse' id='navbar-collapse-1'>
                     <form class='navbar-form navbar-right'>
-                        <div class="btn-group">
+                        <div class="btn-group ng-cloak" ng-cloak>
                             <a href='' target='_self' class="btn btn-default"><i class='glyphicon glyphicon-user'></i> {{loginUser.nickname}}</a>
                             <button type="button" class="btn btn-default dropdown-toggle" data-toggle="dropdown">
                                 <span class="caret"></span>
@@ -223,11 +223,11 @@
                                     <div class='create_at' ng-bind="site.create_at*1000|date:'yyyy-MM-dd'"></div>
                                 </div>
                                 <div class='actions' ng-switch-when="1">
-                                    <a class='btn btn-sm btn-default' ng-click="openHome(site)">主页</a>
                                     <a class='btn btn-sm btn-default' ng-click="openConsole(site)">工作台</a>
+                                    <a class='btn btn-sm btn-default' ng-click="setHome(site)">设置主页</a>
                                 </div>
                                 <div class='actions-top' ng-switch-when="0">
-                                    <button class='btn btn-default' title='恢复'  ng-click="restoreSite(site)">恢复</button>
+                                    <button class='btn btn-default' title='恢复' ng-click="restoreSite(site)">恢复</button>
                                 </div>
                             </div>
                         </div>

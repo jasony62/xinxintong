@@ -389,6 +389,9 @@ provider('srvRecordConverter', function() {
             matter.channels = matter.channels.concat(aNewChannels);
         });
     });
+    $scope.$on('channel.xxt.combox.link', function(event, clicked) {
+        location.href = '/rest/pl/fe/matter/channel?site=' + $scope.editing.siteid + '&id=' + clicked.id;
+    });
     $scope.$on('channel.xxt.combox.del', function(event, removed) {
         var matter = $scope.$parent[$scope.matterObj],
             param = {

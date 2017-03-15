@@ -242,6 +242,9 @@ angular.module('ui.tms', ['ngSanitize']).service('noticebox', ['$timeout', funct
             $scope.$emit($scope.evt + 'add', val, $scope.state);
         }
     };
+    $scope.gotoOne = function(e) {
+        $scope.$emit($scope.evt + 'link', e, $scope.state);
+    };
     $scope.removeOne = function(e) {
         $scope.$emit($scope.evt + 'del', e, $scope.state);
     };
@@ -251,6 +254,7 @@ angular.module('ui.tms', ['ngSanitize']).service('noticebox', ['$timeout', funct
         scope: {
             disabled: '@',
             readonly: '@',
+            link: '@',
             retainState: '@',
             evtPrefix: '@',
             prop: '@',

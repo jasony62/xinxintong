@@ -1,5 +1,29 @@
-<div class='row' style='background:#fff;'>
-    <div class='col-md-12' style='padding-top:15px;'>
+<div class='col-md-12' ng-switch on="catelog.v">
+    <div ng-controller='ctrlAccount' ng-switch-when="account">
+        <table class='table table-bordered'>
+            <thead>
+                <tr>
+                    <th>昵称</th>
+                    <th>来源</th>
+                    <th style='width:120px'>创建日期</th>
+                    <th style='width:60px'>积分</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr ng-repeat='u in users'>
+                    <td><a href='' ng-click="openProfile(u.uid)">{{u.nickname}}</a></td>
+                    <td>{{u.ufrom}}</td>
+                    <td>{{u.reg_time*1000|date:'yy-MM-dd HH:mm'}}</td>
+                    <td>{{u.coin}}</td>
+                </tr>
+            </tbody>
+        </table>
+        <div class='form-group form-inline'>
+            <span style='height:34px;line-height:34px'>总数：{{page.total}}</span>
+            <ul uib-pagination style='margin:0;cursor:pointer' class='pull-right' ng-if='page.total>page.size' boundary-links="true" total-items="page.total" max-size="7" items-per-page="page.size" rotate="false" ng-model="page.at" previous-text="&lsaquo;" next-text="&rsaquo;" first-text="&laquo;" last-text="&raquo;" ng-change="doSearch()"></ul>
+        </div>
+    </div>
+    <div ng-controller='ctrlMember' ng-switch-when="member">
         <div class='form-group form-inline'>
             <div class='form-group'>
                 <select class='form-control' ng-model='page.searchBy' ng-options='s.v as s.n for s in searchBys'></select>
@@ -49,6 +73,27 @@
                 <ul uib-pagination style='margin:0;cursor:pointer' class='pull-right' ng-if='page.total>page.size' boundary-links="true" total-items="page.total" max-size="7" items-per-page="page.size" rotate="false" ng-model="page.at" previous-text="&lsaquo;" next-text="&rsaquo;" first-text="&laquo;" last-text="&raquo;" ng-change="doSearch()"></ul>
             </div>
         </div>
+    </div>
+    <div ng-controller='ctrlCoin' ng-switch-when="coin">
+        <table class="table table-bordered table-striped">
+            <thead>
+            <tr>
+                <th>ID</th>
+                <th>说明</th>
+                <th style='width:90px'>用户A积分</th>
+                <!--<th style='width:90px'>用户B积分</th>-->
+            </tr>
+            </thead>
+            <tbody>
+            <tr ng-repeat="r in rules">
+                <td ng-bind="r.act"></td>
+                <td ng-bind="r.desc"></td>
+                <td><input type='text' ng-model="r.actor_delta"></td>
+                <!--<td><input type='text' ng-model="r.creator_delta"></td>-->
+            </tr>
+            </tbody>
+        </table>
+        <button class='btn btn-success' ng-click="save()">保存</button>
     </div>
 </div>
 <script type="text/ng-template" id="memberEditor.html">

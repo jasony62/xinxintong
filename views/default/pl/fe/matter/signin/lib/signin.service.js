@@ -1060,6 +1060,21 @@ define(['require', 'schema', 'page'], function(require, schemaLib, pageLib) {
 
             return _ins;
         }];
+    }).provider('srvSignNotice', function(){
+        this.$get = ['$q', 'http2', function($q, http2){
+            return {
+                detail: function(batch) {
+                    var defer = $q.defer(),
+                        url;
+                    url = '/rest/pl/fe/matter/signin/notice/logList?batch=' + batch.id;
+                    http2.get(url, function(rsp) {
+                        defer.resolve(rsp.data);
+                    });
+
+                    return defer.promise;
+                }
+            }
+        }]
     }).controller('ctrlSigninEdit', ['$scope', '$uibModalInstance', 'record', 'srvSigninApp', 'srvSigninRecord', function($scope, $mi, record, srvSigninApp, srvSigninRecord) {
         srvSigninApp.get().then(function(app) {
             if (record.data) {

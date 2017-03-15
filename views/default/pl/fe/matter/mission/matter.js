@@ -38,7 +38,7 @@ define(['frame'], function(ngApp) {
                     }
                 };
             http2.post(url, config, function(rsp) {
-                location.href = '/rest/pl/fe/matter/article?id=' + rsp.data + '&site=' + $scope.mission.siteid;
+                location.href = '/rest/pl/fe/matter/article?id=' + rsp.data.id + '&site=' + $scope.mission.siteid;
             });
         };
         $scope.addEnroll = function(assignedScenario) {

@@ -1,120 +1,122 @@
-<nav class='navbar navbar-default'>
+<div ng-controller="ctrlHome">
+    <nav class='navbar navbar-default'>
+        <div class='container'>
+            <div class="navbar-header">
+                <button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target='#navbar-collapse-1'>
+                    <span class="sr-only">Toggle navigation</span>
+                    <span class="icon-bar"></span>
+                    <span class="icon-bar"></span>
+                    <span class="icon-bar"></span>
+                </button>
+            </div>
+            <div class='collapse navbar-collapse' id='navbar-collapse-1'>
+                <ul class='nav navbar-nav'>
+                    <li ng-class="{'active':subView==='home'}"><a href='' ng-click="shiftPage('home')">平台首页</a></li>
+                    <li ng-class="{'active':subView==='site'}"><a href='' ng-click="shiftPage('site')">服务团队</a></li>
+                </ul>
+                <ul class='nav navbar-nav navbar-right ng-cloak' ng-if="!siteUser.loginExpire" ng-cloak>
+                    <li><a href='/rest/site/fe/user/login?site=platform' target='_self'>登录</a></li>
+                    <li><a href='/rest/site/fe/user/register?site=platform' target='_self'>注册</a></li>
+                </ul>
+                <form class='navbar-form navbar-right ng-cloak' ng-if="siteUser.loginExpire" ng-cloak>
+                    <div class="btn-group">
+                        <a href='/rest/site/fe/user?site=platform' target='_self' class="btn btn-default"><i class='glyphicon glyphicon-user'></i> <span ng-bind="siteUser.nickname"></span></a>
+                        <button type="button" class="btn btn-default dropdown-toggle" data-toggle="dropdown">
+                            <span class="caret"></span>
+                            <span class="sr-only">Toggle Dropdown</span>
+                        </button>
+                        <ul class="dropdown-menu" role="menu">
+                            <li><a href='/rest/site/fe/user?site=platform' target='_self'>用户设置</a></li>
+                            <li class="divider"></li>
+                            <li><a href='/rest/site/fe/user/logout/do?site=platform&redirect=Y' target='_self'>退出</a></li>
+                        </ul>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </nav>
     <div class='container'>
-        <div class="navbar-header">
-            <button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target='#navbar-collapse-1'>
-                <span class="sr-only">Toggle navigation</span>
-                <span class="icon-bar"></span>
-                <span class="icon-bar"></span>
-                <span class="icon-bar"></span>
-            </button>
-        </div>
-        <div class='collapse navbar-collapse' id='navbar-collapse-1'>
-            <ul class='nav navbar-nav'>
-                <li ng-class="{'active':subView==='home'}"><a href='' ng-click="shiftPage('home')">平台首页</a></li>
-                <li ng-class="{'active':subView==='site'}"><a href='' ng-click="shiftPage('site')">服务团队</a></li>
-            </ul>
-            <ul class='nav navbar-nav navbar-right ng-cloak' ng-if="!siteUser.loginExpire" ng-cloak>
-                <li><a href='/rest/site/fe/user/login?site=platform' target='_self'>登录</a></li>
-                <li><a href='/rest/site/fe/user/register?site=platform' target='_self'>注册</a></li>
-            </ul>
-            <form class='navbar-form navbar-right ng-cloak' ng-if="siteUser.loginExpire" ng-cloak>
-                <div class="btn-group">
-                    <a href='/rest/site/fe/user?site=platform' target='_self' class="btn btn-default"><i class='glyphicon glyphicon-user'></i> <span ng-bind="siteUser.nickname"></span></a>
-                    <button type="button" class="btn btn-default dropdown-toggle" data-toggle="dropdown">
-                        <span class="caret"></span>
-                        <span class="sr-only">Toggle Dropdown</span>
-                    </button>
-                    <ul class="dropdown-menu" role="menu">
-                        <li><a href='/rest/site/fe/user?site=platform' target='_self'>用户设置</a></li>
-                        <li class="divider"></li>
-                        <li><a href='/rest/site/fe/user/logout/do?site=platform&redirect=Y' target='_self'>退出</a></li>
-                    </ul>
-                </div>
-            </form>
-        </div>
-    </div>
-</nav>
-<div class='container' ng-controller="ctrlSiteUser">
-    <div class='row tms-panel' ng-if="platform.home_carousel">
-        <div style="height: 360px" ng-controller="ctrlCarousel">
-            <div uib-carousel active="active" interval="myInterval" no-wrap="noWrapSlides">
-                <div uib-slide ng-repeat="slide in slides" index="$index">
-                    <img ng-src="{{slide.picUrl}}" style="height:360px;margin:auto;">
-                    <div class="carousel-caption"></div>
+        <div class='row tms-panel' ng-if="platform.home_carousel">
+            <div style="height: 360px" ng-controller="ctrlCarousel">
+                <div uib-carousel active="active" interval="myInterval" no-wrap="noWrapSlides">
+                    <div uib-slide ng-repeat="slide in slides" index="$index">
+                        <img ng-src="{{slide.picUrl}}" style="height:360px;margin:auto;">
+                        <div class="carousel-caption"></div>
+                    </div>
                 </div>
             </div>
         </div>
-    </div>
-    <div id='trends' class='row tms-panel'>
-        <div class='col-md-4' ng-repeat="t in trends">
-            <div class='thumbnail trend'>
-                <h4 class='title' ng-bind="t.matter_title"></h4>
-                <p class='summary' ng-bind="t.matter_summary"></p>
-                <div class='heading-pic' heading-pic ng-if="t.matter_pic">
-                    <img ng-src='{{t.matter_pic}}'>
-                </div>
-                <div class='attr'>
-                    <div class='site_name'><a href="/rest/site/home?site={{t.siteid}}">{{t.site_name}}</a></div>
-                    <div class='put_at' ng-bind="t.put_at*1000|date:'yyyy-MM-dd'"></div>
-                </div>
-                <div class='actions'>
-                    <button class='btn btn-sm btn-default' ng-click="openTrend(t)">打开</button>
-                </div>
-            </div>
-        </div>
-    </div>
-    <div id='articles' class='row tms-panel'>
-        <div class='col-md-4' ng-repeat="a in articles">
-            <div class='thumbnail matter'>
-                <h4 class='title' ng-bind="a.title"></h4>
-                <p class='summary' ng-bind="a.summary"></p>
-                <div class='heading-pic' heading-pic ng-if="a.pic">
-                    <img ng-src='{{a.pic}}'>
-                </div>
-                <div class='attr'>
-                    <div class='creater_name' ng-bind="a.creater_name"></div>
-                    <div class='put_at' ng-bind="a.put_at*1000|date:'yyyy-MM-dd'"></div>
-                </div>
-                <div class='actions'>
-                    <button class='btn btn-sm btn-default' ng-click="openMatter(a)">打开</button>
+        <div id='trends' class='row tms-panel'>
+            <div class='col-md-4' ng-repeat="t in trends">
+                <div class='thumbnail trend'>
+                    <h4 class='title' ng-bind="t.matter_title"></h4>
+                    <p class='summary' ng-bind="t.matter_summary"></p>
+                    <div class='heading-pic' heading-pic ng-if="t.matter_pic">
+                        <img ng-src='{{t.matter_pic}}'>
+                    </div>
+                    <div class='attr'>
+                        <div class='site_name'><a href="/rest/site/home?site={{t.siteid}}">{{t.site_name}}</a></div>
+                        <div class='put_at' ng-bind="t.put_at*1000|date:'yyyy-MM-dd'"></div>
+                    </div>
+                    <div class='actions'>
+                        <button class='btn btn-sm btn-default' ng-click="openTrend(t)">打开</button>
+                    </div>
                 </div>
             </div>
         </div>
-    </div>
-    <div id='apps' class='row tms-panel'>
-        <div class='col-md-4' ng-repeat="a in apps">
-            <div class='thumbnail matter'>
-                <h4 class='title' ng-bind="a.title"></h4>
-                <p class='summary' ng-bind="a.summary"></p>
-                <div class='heading-pic' heading-pic ng-if="a.pic">
-                    <img ng-src='{{a.pic}}'>
-                </div>
-                <div class='attr'>
-                    <div class='creater_name' ng-bind="a.creater_name"></div>
-                    <div class='put_at' ng-bind="a.put_at*1000|date:'yyyy-MM-dd'"></div>
-                </div>
-                <div class='actions'>
-                    <button class='btn btn-sm btn-default' ng-click="openMatter(a)">打开</button>
+        <div id='articles' class='row tms-panel'>
+            <div class='col-md-4' ng-repeat="a in articles">
+                <div class='thumbnail matter'>
+                    <h4 class='title' ng-bind="a.title"></h4>
+                    <p class='summary' ng-bind="a.summary"></p>
+                    <div class='heading-pic' heading-pic ng-if="a.pic">
+                        <img ng-src='{{a.pic}}'>
+                    </div>
+                    <div class='attr'>
+                        <div class='creater_name' ng-bind="a.creater_name"></div>
+                        <div class='put_at' ng-bind="a.put_at*1000|date:'yyyy-MM-dd'"></div>
+                    </div>
+                    <div class='actions'>
+                        <button class='btn btn-sm btn-default' ng-click="openMatter(a)">打开</button>
+                    </div>
                 </div>
             </div>
         </div>
-    </div>
-    <div id='sites' class='row tms-panel'>
-        <div class='col-md-4' ng-repeat="s in sites">
-            <div class='thumbnail site'>
-                <h4 class='title' ng-bind="s.title"></h4>
-                <p class='summary' ng-bind="s.summary"></p>
-                <div class='heading-pic' heading-pic ng-if="s.pic">
-                    <img ng-src='{{s.pic}}'>
+        <div id='apps' class='row tms-panel'>
+            <div class='col-md-4' ng-repeat="a in apps">
+                <div class='thumbnail matter'>
+                    <h4 class='title' ng-bind="a.title"></h4>
+                    <p class='summary' ng-bind="a.summary"></p>
+                    <div class='heading-pic' heading-pic ng-if="a.pic">
+                        <img ng-src='{{a.pic}}'>
+                    </div>
+                    <div class='attr'>
+                        <div class='creater_name' ng-bind="a.creater_name"></div>
+                        <div class='put_at' ng-bind="a.put_at*1000|date:'yyyy-MM-dd'"></div>
+                    </div>
+                    <div class='actions'>
+                        <button class='btn btn-sm btn-default' ng-click="openMatter(a)">打开</button>
+                    </div>
                 </div>
-                <div class='attr'>
-                    <div class='creater_name' ng-bind="s.creater_name"></div>
-                    <div class='put_at' ng-bind="s.put_at*1000|date:'yyyy-MM-dd'"></div>
-                </div>
-                <div class='actions'>
-                    <a class='btn btn-sm btn-default' ng-click="openSite(s)">主页</a>
-                    <button class='btn btn-sm btn-success' ng-click="subscribeSite(s)" ng-if="s._subscribed==='N'">关注</button>
-                    <button class='btn btn-sm btn-default' ng-click="unsubscribeSite(s)" ng-if="s._subscribed==='Y'">取消关注</button>
+            </div>
+        </div>
+        <div id='sites' class='row tms-panel'>
+            <div class='col-md-4' ng-repeat="s in sites">
+                <div class='thumbnail site'>
+                    <h4 class='title' ng-bind="s.title"></h4>
+                    <p class='summary' ng-bind="s.summary"></p>
+                    <div class='heading-pic' heading-pic ng-if="s.pic">
+                        <img ng-src='{{s.pic}}'>
+                    </div>
+                    <div class='attr'>
+                        <div class='creater_name' ng-bind="s.creater_name"></div>
+                        <div class='put_at' ng-bind="s.put_at*1000|date:'yyyy-MM-dd'"></div>
+                    </div>
+                    <div class='actions'>
+                        <a class='btn btn-sm btn-default' ng-click="openSite(s)">主页</a>
+                        <button class='btn btn-sm btn-success' ng-click="subscribeSite(s)" ng-if="s._subscribed!=='Y'">关注</button>
+                        <button class='btn btn-sm btn-default' ng-click="unsubscribeSite(s)" ng-if="s._subscribed==='Y'">取消关注</button>
+                    </div>
                 </div>
             </div>
         </div>

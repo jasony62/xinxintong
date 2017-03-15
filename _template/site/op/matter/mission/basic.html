@@ -47,7 +47,9 @@
                                                 </div>
                                             </div>
                                         </td>
-                                        <td class='group'><div ng-repeat="gr in user.groupRecords">{{gr.app}}：{{gr.round_title}}</div></td>
+                                        <td class='group'>
+                                            <div ng-repeat="gr in user.groupRecords">{{gr.app}}：{{gr.round_title}}</div>
+                                        </td>
                                         <td ng-if="mission.userApp.tags.length">{{user.tags}}</td>
                                         <td>{{user.comment}}</td>
                                     </tr>
@@ -69,7 +71,7 @@
                                     <div class='form-group'>
                                         登记数量：{{matter.opData.total}}
                                     </div>
-                                    <button class='btn btn-default' ng-click="openMatter(matter)">查看数据</button>
+                                    <button class='btn btn-default' ng-click="openMatter(matter)" ng-if="matter.op_short_url_code">查看数据</button>
                                     <button class='btn btn-default' ng-click="openReport(matter)" ng-if="matter.rp_short_url_code">查看统计报告</button>
                                 </div>
                                 <div ng-switch-when="signin">
@@ -89,7 +91,7 @@
                                             </tr>
                                         </tbody>
                                     </table>
-                                    <button class='btn btn-default' ng-click="openMatter(matter)">查看数据</button>
+                                    <button class='btn btn-default' ng-click="openMatter(matter)" ng-if="matter.op_short_url_code">查看数据</button>
                                 </div>
                                 <div ng-switch-when="group">
                                     <table class='table table-bordered'>
@@ -106,10 +108,10 @@
                                             </tr>
                                         </tbody>
                                     </table>
-                                    <button class='btn btn-default' ng-click="openMatter(matter)">查看数据</button>
+                                    <button class='btn btn-default' ng-click="openMatter(matter)" ng-if="matter.op_short_url_code">查看数据</button>
                                 </div>
                                 <div ng-switch-default>
-                                    <button class='btn btn-default' ng-click="openMatter(matter)">da</button>
+                                    <button class='btn btn-default' ng-click="openMatter(matter)">打开</button>
                                 </div>
                             </div>
                         </div>

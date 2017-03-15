@@ -4,6 +4,10 @@
             <label>标题：最多35个汉字，70个英文字符</label>
             <input type='text' class='form-control' ng-model="editing.title" tms-auto-update tms-wait=1000 tms-update="update('title')">
         </div>
+        <div class='form-group'>
+            <label>说明：最多120个汉字，240个英文字符</label>
+            <textarea class='form-control' ng-model="editing.summary" tms-auto-update tms-wait=1000 tms-update="update('summary')"></textarea>
+        </div>
     </div>
     <div class='tile'>
         <div class='form-group'>
@@ -23,7 +27,7 @@
             <button class='btn btn-default btn-sm' ng-click="setFixed('top')">选择图文</button>
             <ul class='list-group' style='margin-bottom:0;'>
                 <li class='list-group-item' ng-if='topMatter' ng-mouseenter="hover=true" ng-mouseleave="hover=false" stuff="topMatter" title='{{topMatter.type|typetitle}}'>
-                    <span>{{topMatter.title}}</span>
+                    <a href='' ng-click="gotoMatter(topMatter)">{{topMatter.title}}</a>
                     <button class='btn btn-xs btn-default pull-right' ng-if="hover" ng-click="setFixed('top',true)">
                         <span class='glyphicon glyphicon-remove'></span>
                     </button>
@@ -32,9 +36,11 @@
         </div>
         <div class='form-group'>
             <label>已有图文</label>
+            <button class='btn btn-default btn-sm' ng-click="addMatter()">添加素材</button>
+            <button class='btn btn-default btn-sm' ng-click="createArticle()">新建图文</button>
             <ul class='list-group' style='margin-bottom:0'>
                 <li class='list-group-item' ng-repeat="m in matters" ng-mouseenter='hover=true' ng-mouseleave='hover=false' title='{{m.type|typetitle}}'>
-                    <span>{{m.title}}</span>
+                    <a href='' ng-click="gotoMatter(m)">{{m.title}}</a>
                     <button class='btn btn-xs btn-default pull-right' ng-if="hover" ng-click="removeMatter(m)">
                         <span class='glyphicon glyphicon-remove'></span>
                     </button>
@@ -45,9 +51,8 @@
             <label>置底（可选）</label>
             <button class='btn btn-default btn-sm' ng-click="setFixed('bottom',false)">选择图文</button>
             <ul class='list-group' style='margin-bottom:0;'>
-                <li class='list-group-item' ng-if='bottomMatter' ng-mouseenter="hover=true" ng-mouseleave="hover=false" stuff="bottomMatter"
-                title='{{bottomMatter.type|typetitle}}'>
-                    <span>{{bottomMatter.title}}</span>
+                <li class='list-group-item' ng-if='bottomMatter' ng-mouseenter="hover=true" ng-mouseleave="hover=false" stuff="bottomMatter" title='{{bottomMatter.type|typetitle}}'>
+                    <a href='' ng-click="gotoMatter(bottomMatter)">{{bottomMatter.title}}</a>
                     <button class='btn btn-xs btn-default pull-right' ng-if="hover" ng-click="setFixed('bottom',true)">
                         <span class='glyphicon glyphicon-remove'></span>
                     </button>
@@ -105,7 +110,7 @@
         <div class="panel-body">
             <div class='input-group'>
                 <input class='form-control' readonly value="{{entryUrl}}">
-                    <span class='input-group-btn'>
+                <span class='input-group-btn'>
                         <button class='btn btn-default text2Clipboard' data-clipboard-text="{{entryUrl}}">复制</button>
                         <a class='btn btn-default' ng-href="{{entryUrl}}" target='_blank' title='打开'><i class='glyphicon glyphicon-open'></i></a>
                     </span>

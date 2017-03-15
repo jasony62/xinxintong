@@ -43,7 +43,7 @@ class main extends \pl\fe\matter\base {
 		/**
 		 * select fields
 		 */
-		$s = "a.id,a.siteid,a.title,a.summary,a.approved,a.mission_id";
+		$s = "'article' type,a.id,a.siteid,a.title,a.summary,a.approved,a.mission_id";
 		$s .= ",a.create_at,a.modify_at,a.creater,a.creater_name,a.creater_src";
 		$s .= ",a.read_num,a.score,a.remark_num,a.share_friend_num,a.share_timeline_num,a.download_num";
 		/**
@@ -183,6 +183,7 @@ class main extends \pl\fe\matter\base {
 	 * 获得指定的图文
 	 *
 	 * @param int $id article's id
+	 *
 	 */
 	public function get_action($id, $cascade = 'Y') {
 		if (false === ($user = $this->accountUser())) {
@@ -192,7 +193,7 @@ class main extends \pl\fe\matter\base {
 		$modelAct = $this->model('matter\article2');
 		$article = $modelAct->byId($id);
 		if ($article === false) {
-			return new \ResponseError('查找的对象不存在');
+			return new \ObjectNotFoundError();
 		}
 
 		$article->uid = $user->id;
@@ -309,7 +310,7 @@ class main extends \pl\fe\matter\base {
 			$modelMis->addMatter($user, $matter->siteid, $mission->id, $matter);
 		}
 
-		return new \ResponseData($id);
+		return new \ResponseData($matter);
 	}
 	/**
 	 * 复制单图文

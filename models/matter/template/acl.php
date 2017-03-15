@@ -11,12 +11,13 @@ class acl_model extends \TMS_MODEL {
 	 * @param string $type
 	 *
 	 */
-	public function byMatter($id, $type) {
+	public function byMatter($id) {
 		$q = [
 			'*',
 			'xxt_template_acl',
-			"matter_id='$matterId' and matter_type='$matterType'",
+			['template_id' => $id]
 		];
+
 		$acls = $this->query_objs_ss($q);
 
 		return $acls;
@@ -24,15 +25,15 @@ class acl_model extends \TMS_MODEL {
 	/**
 	 *
 	 */
-	public function byReceiver($userId, $matterId, $matterType) {
+	public function byReceiver($userId, $tid) {
 		$q = [
 			'*',
 			'xxt_template_acl',
-			"receiver='$userId' and matter_id='$matterId' and matter_type='$matterType'",
+			"receiver='$userId' and template_id='$tid'",
 		];
-		$acls = $this->query_objs_ss($q);
+		$acl = $this->query_obj_ss($q);
 
-		return $acls;
+		return $acl;
 	}
 	/**
 	 *
@@ -52,5 +53,26 @@ class acl_model extends \TMS_MODEL {
 		$acl->id = $this->insert('xxt_template_acl', $acl, true);
 
 		return $acl;
+	}
+	/**
+	 * [aclers description]
+	 * @param  [type] $tid     [description]
+	 * @param  array  $options [description]
+	 * @return [type]          [description]
+	 */
+	public function listAcler($tid, $options = []){
+		$fields = isset($options['fields'])? $options['fields'] : '*';
+
+		$q = [
+			$fields,
+			'xxt_template_acl',
+			['template_id' => $tid]
+		];
+		$q2['o'] = "order by create_at desc";
+		$users = $this->query_objs_ss($q, $q2);
+		$q[0] = "count(*)";
+		$total = $this->query_val_ss($q);
+
+		return new \ResponseData(['aclers' => $users, 'total' => $total]);
 	}
 }

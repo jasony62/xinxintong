@@ -91,9 +91,7 @@ service('templateShop', ['$uibModal', 'http2', '$q', function($uibModal, http2, 
                 };
                 $scope.searchTemplate = function() {
                     var url = '/rest/pl/fe/template/site/list?matterType=' + type + '&scope=P' + '&site=' + siteId;
-                    if (assignedScenario && assignedScenario.length) {
-                        url += '&scenario=' + assignedScenario;
-                    }
+
                     http2.get(url, function(rsp) {
                         $scope.templates = rsp.data.templates;
                         $scope.page.total = rsp.data.total;
@@ -101,9 +99,7 @@ service('templateShop', ['$uibModal', 'http2', '$q', function($uibModal, http2, 
                 };
                 $scope.searchShare2Me = function() {
                     var url = '/rest/pl/fe/template/platform/share2Me?matterType=' + type;
-                    if (assignedScenario && assignedScenario.length) {
-                        url += '&scenario=' + assignedScenario;
-                    }
+
                     http2.get(url, function(rsp) {
                         $scope.templates = rsp.data.templates;
                         $scope.page.total = rsp.data.total;
@@ -111,9 +107,7 @@ service('templateShop', ['$uibModal', 'http2', '$q', function($uibModal, http2, 
                 };
                 $scope.searchBySite = function() {
                     var url = '/rest/pl/fe/template/site/list?site=' + siteId + '&matterType=' + type + '&scope=S';
-                    if (assignedScenario && assignedScenario.length) {
-                        url += '&scenario=' + assignedScenario;
-                    }
+
                     http2.get(url, function(rsp) {
                         $scope.templates = rsp.data.templates;
                         $scope.page.total = rsp.data.total;

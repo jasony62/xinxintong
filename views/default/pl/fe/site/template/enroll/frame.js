@@ -64,7 +64,7 @@ define(['require', 'enrollService'], function(require) {
             .when('/rest/pl/fe/template/enroll/publish', new RouteParam('publish'))
             .when('/rest/pl/fe/template/enroll/schema', new RouteParam('schema'))
             .when('/rest/pl/fe/template/enroll/page', new RouteParam('page'))
-            .when('/rest/pl/fe/template/enroll/record', new RouteParam('record'))
+            .when('/rest/pl/fe/template/enroll/order', new RouteParam('order'))
             .otherwise(new RouteParam('publish'));
 
         $locationProvider.html5Mode(true);
@@ -92,6 +92,7 @@ define(['require', 'enrollService'], function(require) {
 
             srvTempAppProvider.config(siteId, appId, vId);
             srvTempPageProvider.config(siteId, appId, vId);
+            srvTempRecordProvider.config(siteId, appId);
         })();
     }]);
     ngApp.controller('ctrlFrame', ['$scope', 'srvSite', 'srvEnrollApp', 'templateShop', 'srvTempApp', function($scope, srvSite, srvEnrollApp, templateShop, srvTempApp) {

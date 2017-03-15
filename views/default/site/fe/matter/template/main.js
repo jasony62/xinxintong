@@ -15,9 +15,9 @@ define(["angular", "xxt-page"], function(angular, codeAssembler) {
         $scope.chooseVersion = function(v) {
             var previewURL;
             http2.get('/rest/site/fe/matter/template/get?site=' + template.siteid + '&template=' + template.template_id + '&vid=' + v, function(rsp) {
-                $scope.template = template = rsp.data;
+                $scope.version = version = rsp.data;
                 previewURL = '/rest/site/fe/matter/template/enroll/preview?site=' + template.siteid + '&tid=' + template.id + '&vid=' + v;
-                $scope.$broadcast('toChild', {0:previewURL,1:template});
+                $scope.$broadcast('toChild', {0:previewURL,1:version});
             });
         }
         $scope.favorTemplate = function() {
@@ -86,11 +86,12 @@ define(["angular", "xxt-page"], function(angular, codeAssembler) {
                             };
                         }]
                     }).result.then(function(site) {
-                        var url = '/rest/pl/fe/template/purchase?template=' + template.id;
-                        url += '&site=' + site.id;
+                        var url = '/rest/pl/fe/template/purchase?site=' + site.id;
+                        url += '&template=' + template.id;
+                        url += '&vid=' + template.vid;
                         http2.get(url, function(rsp) {
-                            http2.get('/rest/pl/fe/matter/enroll/createByOther?site=' + site.id + '&template=' + template.id, function(rsp) {
-                                location.href = '/rest/pl/fe/matter/enroll?id=' + rsp.data.id + '&site=' + site.id;
+                            http2.get('/rest/pl/fe/matter/enroll/createByOther?site=' + site.id + '&template=' + template.id + '&vid=' + template.vid, function(rsp) {
+                                location.href = '/rest/pl/fe/matter/enroll?site=' + site.id + '&id=' + rsp.data.id;
                             });
                         });
                     });
@@ -101,6 +102,11 @@ define(["angular", "xxt-page"], function(angular, codeAssembler) {
             $scope.isLogin = rsp.data;
         });
         http2.get('/rest/site/fe/matter/template/get?template=' + $scope.templateId, function(rsp) {
+            angualr.forEach(rsp.data.versions, function(item,index) {
+                if(item.pub_status == 'N') {
+                    rsp.data.versions.splice(index,1);
+                }
+            })
             $scope.template = template = rsp.data;
         });
     }]);

@@ -42,7 +42,7 @@ define(['frame'], function(ngApp) {
 			});
 		};
 		$scope.unfavor = function(template, index) {
-			var url = '/rest/pl/fe/template/unfavor?template=' + template.template_id;
+			var url = '/rest/pl/fe/template/unfavor?template=' + template.id;
 			url += '&site=' + $scope.siteId;
 			http2.get(url, function(rsp) {
 				$scope.templates.splice(index, 1);

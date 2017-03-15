@@ -1427,7 +1427,7 @@ define(['require', 'schema', 'page'], function(require, schemaLib, pageLib) {
             _appId = appId;
             _vId = vId;
         };
-        this.$get = ['$q', 'http2', 'noticebox', '$q', '$uibModal', function( $q, http2, noticebox, $q, $uibModal) {
+        this.$get = ['$q', 'http2', 'noticebox', '$uibModal', function( $q, http2, noticebox, $uibModal) {
             var _self = {
                 tempEnrollGet: function() {
                     var url;
@@ -1488,8 +1488,6 @@ define(['require', 'schema', 'page'], function(require, schemaLib, pageLib) {
                     return defer.promise;
                 },
                 shareAsTemplate: function() {
-                    var deferred;
-                    deferred = $q.defer();
                     $uibModal.open({
                         templateUrl: '/views/default/pl/fe/site/template/component/templateShare.html',
                         controller: ['$scope', '$uibModalInstance', function($scope, $mi) {
@@ -1505,14 +1503,14 @@ define(['require', 'schema', 'page'], function(require, schemaLib, pageLib) {
                         backdrop: 'static'
                     }).result.then(function(data) {
                         http2.post('/rest/pl/fe/template/putCreate?site=' + _siteId + '&tid=' + _appId, data, function(rsp) {
-                            deferred.resolve(rsp.data);
+                            location.href = '/rest/pl/fe/template/site?site=' + _siteId;
                         });
                     });
                 },
                 cancelAsTemplate: function() {
                     var url = '/rest/pl/fe/template/unPut?site=' + _siteId + '&tid=' + _appId;
                     http2.get(url, function(rsp) {
-                        noticebox.success('完成撤销！');
+                        location.href = '/rest/pl/fe/template/site?site=' + _siteId;
                     });
                 },
                 applyToHome: function() {
@@ -1556,6 +1554,7 @@ define(['require', 'schema', 'page'], function(require, schemaLib, pageLib) {
                             };
                         }]
                     });
+
                 },
                 addReceiver: function(shareUser) {
                     var defer = $q.defer(),
@@ -1687,6 +1686,40 @@ define(['require', 'schema', 'page'], function(require, schemaLib, pageLib) {
                     return defer.promise;
                 }
             };
+            return _self;
+        }];
+    }).provider('srvTempRecord', function() {
+        var _siteId, _appId;
+        this.config = function(siteId, appId) {
+            _siteId = siteId;
+            _appId = appId;
+        };
+        this.$get = ['$q', 'http2', function( $q, http2) {
+            var _self = {
+                list: function(article, page) {
+                    var defer = $q.defer(),
+                        url;
+                    if (!page || !page._j) {
+                        angular.extend(page, {
+                            at: 1,
+                            size: 30,
+                            orderBy: 'time',
+                            _j: function() {
+                                var p;
+                                p = '&page=' + this.at + '&size=' + this.size;
+                                return p;
+                            }
+                        });
+                    }
+                    url = '/rest/pl/fe/template/order/listPurchaser?site=' + _siteId + '&tid=' + _appId;
+                    url += page._j();
+                    http2.get(url, function(rsp) {
+                        rsp.data.total && (page.total = rsp.data.total);
+                        defer.resolve(rsp.data);
+                    });
+                    return defer.promise;
+                }
+            }
             return _self;
         }];
     }).provider('srvEnrollNotice', function() {

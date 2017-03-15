@@ -63,7 +63,7 @@
                         <p class='form-control-static'>模板说明：<span ng-bind="template.summary"></span></p>
                     </div>
                     <div class='form-group'>
-                        <p class='form-control-static'>更新说明：<span ng-bind="template.up_said"></span></p>
+                        <p class='form-control-static'>更新说明：<span ng-bind="template.up_said||version.up_said"></span></p>
                     </div>
                     <hr>
                     <div tms-discuss="platform" tms-discuss-ready="template?'Y':'N'" class="ds-thread" data-thread-key="template,{{template.id}}" data-title="{{template.title}}" data-url=""></div>

@@ -13,7 +13,7 @@ class base extends \TMS_CONTROLLER {
 			$rst=$model->checkAcl($account->uid);
 			
 			if(!$rst){
-				die("管理员没有访问权限！");
+				die("<script>alert('管理员没有访问权限！');window.history.back();</script>");
 			}
 		}else{
 			return new \ResponseTimeout();

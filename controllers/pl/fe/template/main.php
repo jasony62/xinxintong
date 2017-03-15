@@ -303,7 +303,7 @@ class main extends \pl\fe\base {
 		
 		if ($rst) {
 			// 记录操作日志
-			$this->model('matter\log')->matterOp($site, $loginUser, $template, 'U');
+			// $this->model('matter\log')->matterOp($site, $loginUser, $template, 'U');
 		}
 
 		return new \ResponseData($rst);
@@ -451,17 +451,6 @@ class main extends \pl\fe\base {
 		$version = $modelTmp->query_obj_ss($p);
 		//如果没有未发布的版本
 		if(!$version){
-			// if(isset($post->visible_scope) ){
-			// 	/* 修改发布的平台 */
-			// 	$rst = $modelTmp->update(
-			// 		'xxt_template',
-			// 		['visible_scope' => $post->visible_scope],
-			// 		['id' => $tid]
-			// 	);
-			// 	return new \ResponseData($rst);
-			// }
-			
-			// return new \ResponseError('没有未发布的版本');
 			//获取最新的版本
 			$site = $modelTmp->escape($site);
 			$tid = $modelTmp->escape($tid);
@@ -505,7 +494,7 @@ class main extends \pl\fe\base {
 		}
 
 		// 记录操作日志
-		$this->model('matter\log')->matterOp($site, $loginUser, $template, 'putCreate');
+		// $this->model('matter\log')->matterOp($site, $loginUser, $template, 'putCreate');
 		return new \ResponseData($rst);
 	}
 	/**
@@ -532,7 +521,7 @@ class main extends \pl\fe\base {
 			);
 
 		// 记录操作日志
-		$this->model('matter\log')->matterOp($site, $loginUser, $template, 'unPut');
+		// $this->model('matter\log')->matterOp($site, $loginUser, $template, 'unPut');
 		return new \ResponseData($rst);
 	}
 	/**
@@ -590,7 +579,7 @@ class main extends \pl\fe\base {
 
 		$template = $modelTmp->byId($tid, $versionNew->id);
 		// 记录操作日志
-		$this->model('matter\log')->matterOp($site, $loginUser, $template, 'createVersion');
+		// $this->model('matter\log')->matterOp($site, $loginUser, $template, 'createVersion');
 
 		return new \ResponseData($template);
 	}

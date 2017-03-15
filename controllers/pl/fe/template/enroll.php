@@ -97,6 +97,7 @@ class enroll extends \pl\fe\base {
 			return new \ResponseError('指定的页面不存在');
 		}
 		/* 更新页面内容 */
+		$rst = false;
 		if (isset($nv->html)) {
 			$data = [
 				'html' => urldecode($nv->html),
@@ -125,8 +126,8 @@ class enroll extends \pl\fe\base {
 		}
 
 		// 记录操作日志
-		$matter = $this->model('matter\template')->byId($tid, $vid, ['fields'=>'id,title,summary,pic','cascaded'=>'N']);
-		$this->model('matter\log')->matterOp($site, $loginUser, $matter, 'updatePage');
+		// $matter = $this->model('matter\template')->byId($tid, $vid, ['fields'=>'id,title,summary,pic','cascaded'=>'N']);
+		// $this->model('matter\log')->matterOp($site, $loginUser, $matter, 'updatePage');
 		return new \ResponseData($rst);
 	}
 	/**

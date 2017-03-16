@@ -54,28 +54,4 @@ class main extends base {
 
 		return new \ResponseData($schemas);
 	}
-	/**
-	 * 执行定时任务
-	 */
-	public function timer_action() {
-		/**
-		 * 查找匹配的定时任务
-		 */
-		$tasks = $this->model('site\timer')->tasksByTime();
-		/**
-		 * 记录日志
-		 */
-		foreach ($tasks as $task) {
-			$rsp = $task->exec();
-			$log = array(
-				'siteid' => $task->siteid,
-				'task_id' => $task->id,
-				'occur_at' => time(),
-				'result' => json_encode($rsp),
-			);
-			$this->model()->insert('xxt_log_timer', $log, true);
-		}
-
-		return new \ResponseData(count($tasks));
-	}
 }

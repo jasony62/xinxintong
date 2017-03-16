@@ -1,5 +1,7 @@
 <?php
-namespace site;
+namespace matter;
+
+require_once dirname(__FILE__) . '/base.php';
 /**
  * 推送素材任务
  */
@@ -36,7 +38,19 @@ class TaskPush {
 /**
  * 定时推送事件
  */
-class timer_model extends \TMS_MODEL {
+class timer_model extends base_model {
+	/**
+	 *
+	 */
+	protected function table() {
+		return 'xxt_timer_push';
+	}
+	/*
+		*
+	*/
+	public function getTypeName() {
+		return 'timer';
+	}
 	/**
 	 * 获得定义的转发接口
 	 */
@@ -44,26 +58,13 @@ class timer_model extends \TMS_MODEL {
 		$q = array(
 			'*',
 			'xxt_timer_push',
-			"siteid='$site'",
+			['siteid' => $site]
 		);
-		$enabled !== null && $q[2] .= " and enabled='$enabled'";
+		$enabled !== null && $q[2]['enabled'] = $enabled;
 
 		!($timers = $this->query_objs_ss($q)) && $timers = array();
 
 		return $timers;
-	}
-	/**
-	 * 获得定义的转发接口
-	 */
-	public function &byId($id) {
-		$q = array(
-			'*',
-			'xxt_timer_push',
-			"id='$id'",
-		);
-		$timer = $this->query_obj_ss($q);
-
-		return $timer;
 	}
 	/**
 	 * 获得当前时间段要执行的任务
@@ -76,7 +77,7 @@ class timer_model extends \TMS_MODEL {
 		$q = array(
 			'*',
 			'xxt_timer_push',
-			"enabled='Y'",
+			"enabled = 'Y'"
 		);
 		$q[2] .= " and (hour=-1 or hour=$hour)";
 		$q[2] .= " and (mday=-1 or mday=$mday)";

@@ -1,8 +1,10 @@
 <?php
-namespace pl\fe\site;
+namespace pl\fe\matter;
 
 require_once dirname(dirname(__FILE__)) . '/base.php';
-
+/**
+ * 定时任务
+ */
 class timer extends \pl\fe\base {
 
 	private $meterial; // 素材
@@ -23,17 +25,18 @@ class timer extends \pl\fe\base {
 	 * get all text call.
 	 */
 	public function index_action() {
-		$this->view_action('/mp/reply/timer');
+		\TPL::output('/mp/reply/timer');
+		exit;
 	}
 	/**
 	 * get all text call.
 	 */
 	public function get_action($site) {
-		$timers = $this->model('site\timer')->bySite($site);
+		$modelTimer = $this->model('matter\timer');
+		$timers = $modelTimer->bySite($site);
 
-		$model = $this->model('matter\base');
 		foreach ($timers as &$timer) {
-			$timer->matter = $model->getMatterInfoById($timer->matter_type, $timer->matter_id);
+			$timer->matter = $modelTimer->getMatterInfoById($timer->matter_type, $timer->matter_id);
 		}
 
 		return new \ResponseData($timers);
@@ -49,11 +52,12 @@ class timer extends \pl\fe\base {
 		$timer->matter_id = $matter->id;
 		$timer->siteid = $site;
 
-		$id = $this->model()->insert('xxt_timer_push', $timer, true);
+		$modelTimer = $this->model('matter\timer');
+		$id = $modelTimer->insert('xxt_timer_push', $timer, true);
 
-		$timer = $this->model('site\timer')->byId($id);
+		$timer = $modelTimer->byId($id);
 
-		$timer->matter = $this->model('matter\base')->getMatterInfoById($matter->type, $matter->id);
+		$timer->matter = $modelTimer->getMatterInfoById($matter->type, $matter->id);
 
 		return new \ResponseData($timer);
 	}
@@ -61,7 +65,7 @@ class timer extends \pl\fe\base {
 	 * 删除文本命令
 	 */
 	public function delete_action($id) {
-		$rsp = $this->model()->delete('xxt_timer_push', "id=$id");
+		$rsp = $this->model()->delete('xxt_timer_push', ['id' => $id]);
 
 		return new \ResponseData($rsp);
 	}
@@ -83,7 +87,7 @@ class timer extends \pl\fe\base {
 		$rst = $this->model()->update(
 			'xxt_timer_push',
 			(array) $nv,
-			"siteid='$site' and id=$id"
+			['siteid' => $site, 'id' => $id]
 		);
 
 		return new \ResponseData($rst);
@@ -100,7 +104,7 @@ class timer extends \pl\fe\base {
 				'matter_type' => $reply->rt,
 				'matter_id' => $reply->rid,
 			),
-			"siteid='$site' and id=$id"
+			['siteid' => $site, 'id' => $id]
 		);
 
 		return new \ResponseData($rst);
@@ -112,7 +116,7 @@ class timer extends \pl\fe\base {
 		$q = array(
 			'*',
 			'xxt_log_timer',
-			"task_id=$taskid",
+			['task_id' => $taskid]
 		);
 		$q2 = array('o' => 'occur_at desc');
 

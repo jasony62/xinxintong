@@ -500,8 +500,33 @@ provider('srvApp', function() {
                     matterTypes: cstApp.notifyMatter,
                     sender: 'group:' + _appId
                 };
+                _oApp.mission && (options.missionId = _oApp.mission.id);
                 pushnotify.open(_siteId, function(notify) {
+                    var url, targetAndMsg = {};
+                    if(notify.matters.length) {
+                        if(rows) {
+                            targetAndMsg.users = [];
+                            Object.keys(rows.selected).forEach(function(key) {
+                                if(rows.selected[key] === true) {
+                                    var rec = _ins._aRecords[key];
+                                    targetAndMsg.users.push({ userid: rec.userid, enroll_key: rec.enroll_key });
+                                }
+                            });
+                        } else {
+                            targetAndMsg.criteria = _ins._oCriteria;
+                        }
+                        targetAndMsg.message = notify.message;
 
+                        url = '/rest/pl/fe/matter/enroll/notice/send';
+                        url += '?site=' + _siteId;
+                        url += '&app=' + _appId;
+                        url += '&tmplmsg=' + notify.tmplmsg.id;
+                        url += _ins._oPage.joinParams();
+
+                        http2.post(url, targetAndMsg, function(data) {
+                            noticebox.success('发送完成');
+                        });
+                    }
                 }, options);
             },
         }

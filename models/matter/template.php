@@ -17,7 +17,7 @@ class template_model extends \TMS_MODEL {
 			["id" => $tid, 'state' => 1],
 		];
 
-		if (false === ($template = $this->query_obj_ss($q)) ) {
+		if (false === ($template = $this->query_obj_ss($q))) {
 			return $template;
 		}
 		$template->type = 'template';
@@ -30,12 +30,12 @@ class template_model extends \TMS_MODEL {
 		$template->acl = $this->query_objs_ss($v);
 
 		//登记活动
-		if(isset($template->matter_type) && $template->matter_type === 'enroll'){
+		if (isset($template->matter_type) && $template->matter_type === 'enroll') {
 			//获取版本
 			$p = [
 				'*',
 				'xxt_template_enroll',
-				['template_id'=>$tid, 'state' => 1]
+				['template_id' => $tid, 'state' => 1],
 			];
 			$p2['o'] = "order by create_at desc";
 			$template->versions = $this->query_objs_ss($p, $p2);
@@ -49,19 +49,19 @@ class template_model extends \TMS_MODEL {
 			//获取指定版本信息及页面，如果未指定就用默认版本
 			if ($cascaded === 'Y') {
 				//获取当前需要展示页面的版本的id
-				if(empty($vid)){
-					if(empty($template->pub_version)){
-						foreach($template->versions as $v){
-							if($v->version == $template->last_version){
+				if (empty($vid)) {
+					if (empty($template->pub_version)) {
+						foreach ($template->versions as $v) {
+							if ($v->version == $template->last_version) {
 								$vid = $v->id;
 								$version = $v;
 
 								break;
 							}
 						}
-					}else{
-						foreach($template->versions as $v){
-							if($v->version == $template->pub_version){
+					} else {
+						foreach ($template->versions as $v) {
+							if ($v->version == $template->pub_version) {
 								$vid = $v->id;
 								$version = $v;
 
@@ -69,27 +69,27 @@ class template_model extends \TMS_MODEL {
 							}
 						}
 					}
-				}else{
+				} else {
 					//返回当前预览版本的数据
-					foreach($template->versions as $v){
-						if($v->id == $vid){
+					foreach ($template->versions as $v) {
+						if ($v->id == $vid) {
 							$version = $v;
 
 							break;
 						}
 					}
 				}
-				foreach($version as $k=>$v2){
-					if($k === 'id'){
+				foreach ($version as $k => $v2) {
+					if ($k === 'id') {
 						$template->vid = $v2;
-					}elseif($k === 'create_at'){
+					} elseif ($k === 'create_at') {
 						$template->vcreate_at = $v2;
-					}else{
+					} else {
 						$template->$k = $v2;
 					}
 				}
 				$modelPage = $this->model('matter\enroll\page');
-				$template->pages = $modelPage->byApp('template:'.$vid);
+				$template->pages = $modelPage->byApp('template:' . $vid);
 			}
 		}
 
@@ -102,11 +102,11 @@ class template_model extends \TMS_MODEL {
 	 * @param  integer $size [description]
 	 * @return [type]        [description]
 	 */
-	public function &bySite($site, $page = 1, $size = 30){
+	public function &bySite($site, $page = 1, $size = 30) {
 		$q = [
 			'*',
 			'xxt_template',
-			['siteid'=>$site,'state'=>1]
+			['siteid' => $site, 'state' => 1],
 		];
 		$q2['o'] = 'put_at desc';
 		$q2['r']['o'] = ($page - 1) * $size;
@@ -128,19 +128,19 @@ class template_model extends \TMS_MODEL {
 	 * @param  [type] $version [版本号]
 	 * @return [type]          [description]
 	 */
-	public function byVersion($site, $matterType, $tid = null, $vid = null, $version = null, $options = []){
-		$fields = isset($options['fields'])? $options['fields'] : '*' ;
+	public function byVersion($site, $matterType, $tid = null, $vid = null, $version = null, $options = []) {
+		$fields = isset($options['fields']) ? $options['fields'] : '*';
 
 		$q = array();
 		$q[0] = $fields;
 		switch ($matterType) {
-			case 'enroll':
-				$q[1] = 'xxt_template_enroll';
-				break;
+		case 'enroll':
+			$q[1] = 'xxt_template_enroll';
+			break;
 		}
 		//如果vid为空根据版本号和template_id获取版本信息
-		if(empty($vid) ){
-			if(empty($tid) || empty($version) ){
+		if (empty($vid)) {
+			if (empty($tid) || empty($version)) {
 				return false;
 			}
 			$q[2] = [
@@ -149,7 +149,7 @@ class template_model extends \TMS_MODEL {
 				'version' => $version,
 				'state' => 1,
 			];
-		}else{
+		} else {
 			$q[2] = [
 				'siteid' => $site,
 				'id' => $vid,
@@ -213,13 +213,13 @@ class template_model extends \TMS_MODEL {
 				'title' => $matter->title,
 				'pic' => $matter->pic,
 				'summary' => $matter->summary,
-				'coin' => $matter->coin,
-				'visible_scope' => $matter->visible_scope,
+				'coin' => isset($matter->coin) ? $matter->coin : 0,
+				'visible_scope' => isset($matter->visible_scope) ? $matter->visible_scope : 'S',
 				'push_home' => isset($matter->push_home) ? $matter->push_home : 'N',
 			];
 			$tid = $this->insert('xxt_template', $template, true);
 			/*创建版本*/
-			if($matter->matter_type === 'enroll'){
+			if ($matter->matter_type === 'enroll') {
 				$matter = $this->model('matter\enroll')->byId($matter->matter_id);
 				$version = $this->model('matter\template\enroll')->createNewVersion($site->id, $tid, $matter, $account, $current, 'N');
 				$this->update(
@@ -237,8 +237,8 @@ class template_model extends \TMS_MODEL {
 				'pic' => $matter->pic,
 				'put_at' => $current,
 				'summary' => $matter->summary,
-				'coin' => $matter->coin,
-				'visible_scope' => $matter->visible_scope,
+				'coin' => isset($matter->coin) ? $matter->coin : 0,
+				'visible_scope' => isset($matter->visible_scope) ? $matter->visible_scope : 'S',
 				'push_home' => isset($matter->push_home) ? $matter->push_home : 'N',
 				'scenario' => empty($matter->scenario) ? '' : $matter->scenario,
 			];
@@ -248,7 +248,7 @@ class template_model extends \TMS_MODEL {
 				["id" => $template->id]
 			);
 			/*创建新的版本*/
-			if($matter->matter_type === 'enroll'){
+			if ($matter->matter_type === 'enroll') {
 				$matter = $this->model('matter\enroll')->byId($matter->matter_id);
 				$version = $this->model('matter\template\enroll')->createNewVersion($site->id, $template->id, $matter, $account, $current, 'Y');
 				$this->update(
@@ -260,13 +260,6 @@ class template_model extends \TMS_MODEL {
 
 			$template = $this->byId($template->id, $version->id);
 		}
-		// 添加模板接收人
-		// if (!empty($matter->acls)) {
-		// 	$modelAcl = \TMS_APP::M('template\acl');
-		// 	foreach ($matter->acls as $acl) {
-		// 		$acl = $modelAcl->add($account, $template, $acl);
-		// 	}
-		// }
 
 		return $template;
 	}
@@ -304,7 +297,7 @@ class template_model extends \TMS_MODEL {
 		$q = [
 			$fields,
 			'xxt_template',
-			["visible_scope" => 'P', "push_home" => 'Y','state' => 1],
+			["visible_scope" => 'P', "push_home" => 'Y', 'state' => 1],
 		];
 
 		$items = $this->query_objs_ss($q);
@@ -319,7 +312,7 @@ class template_model extends \TMS_MODEL {
 		$q = [
 			$fields,
 			'xxt_template',
-			["siteid" => $siteId, 'push_home' => 'Y','state' => 1],
+			["siteid" => $siteId, 'push_home' => 'Y', 'state' => 1],
 		];
 
 		$templates = $this->query_objs_ss($q);
@@ -331,14 +324,14 @@ class template_model extends \TMS_MODEL {
 	 */
 	public function isFavorBySite(&$template, $siteId) {
 		$options = array(
-				'siteid' => $siteId,
-				'template_id' => $template->id,
-				'favor' => 'Y'
-			);
+			'siteid' => $siteId,
+			'template_id' => $template->id,
+			'favor' => 'Y',
+		);
 		$q = [
 			'count(*)',
 			'xxt_template_order',
-			$options
+			$options,
 		];
 		return 0 < (int) $this->query_val_ss($q);
 	}
@@ -355,7 +348,7 @@ class template_model extends \TMS_MODEL {
 		$order->buyer = $user->id;
 		$order->buyer_name = $user->name;
 		$order->template_id = $template->id;
-		$order->template_version = empty($version)? $template->pub_version : $this->escape($version);
+		$order->template_version = empty($version) ? $template->pub_version : $this->escape($version);
 		$order->from_siteid = $template->siteid;
 		$order->from_site_name = $template->site_name;
 		$order->matter_id = $template->matter_id;
@@ -368,7 +361,7 @@ class template_model extends \TMS_MODEL {
 		$order->favor_at = time();
 
 		$order->id = $this->insert('xxt_template_order', $order, true);
-		$q = $this->update("update xxt_template set favor_num = favor_num+1 where id = ".$template->id);
+		$q = $this->update("update xxt_template set favor_num = favor_num+1 where id = " . $template->id);
 
 		return $order;
 	}
@@ -377,16 +370,16 @@ class template_model extends \TMS_MODEL {
 	 */
 	public function unfavorBySite($tid, $siteId) {
 		$options = array(
-				'siteid' => $siteId,
-				'template_id' => $tid,
-				'favor' => 'Y'
-			);
+			'siteid' => $siteId,
+			'template_id' => $tid,
+			'favor' => 'Y',
+		);
 		$rst = $this->delete(
 			'xxt_template_order',
 			$options
 		);
 
-		$this->update("update xxt_template set favor_num = favor_num - 1 where id = ".$tid." and favor_num > 0");
+		$this->update("update xxt_template set favor_num = favor_num - 1 where id = " . $tid . " and favor_num > 0");
 
 		return $rst;
 	}
@@ -395,14 +388,14 @@ class template_model extends \TMS_MODEL {
 	 */
 	public function isPurchaseBySite(&$template, $siteId) {
 		$options = array(
-				'siteid' => $siteId,
-				'template_id' => $template->id,
-				'purchase' => 'Y'
-			);
+			'siteid' => $siteId,
+			'template_id' => $template->id,
+			'purchase' => 'Y',
+		);
 		$q = [
 			'count(*)',
 			'xxt_template_order',
-			$options
+			$options,
 		];
 		return 0 < (int) $this->query_val_ss($q);
 	}
@@ -433,35 +426,35 @@ class template_model extends \TMS_MODEL {
 
 		$order->id = $this->insert('xxt_template_order', $order, true);
 
-		$this->update("update xxt_template set copied_num=copied_num+1 where id = ".$template->id);
+		$this->update("update xxt_template set copied_num=copied_num+1 where id = " . $template->id);
 
 		return $order;
 	}
 	/**
 	 * 创建模板版本号
 	 */
-	public function getVersionNum($site, $tid, $matterType){
+	public function getVersionNum($site, $tid, $matterType) {
 		$options = array(
-				'siteid' => $site,
-				'template_id' => $tid,
-			);
+			'siteid' => $site,
+			'template_id' => $tid,
+		);
 		$q = [
 			'max(version)',
 			'',
-			$options
+			$options,
 		];
 		switch ($matterType) {
-			case 'enroll':
-				$q[1] = 'xxt_template_enroll';
-				break;
+		case 'enroll':
+			$q[1] = 'xxt_template_enroll';
+			break;
 		}
 		$max = $this->query_val_ss($q);
-		$seq = empty($max) ? 1 : (int)$max + 1 ;
+		$seq = empty($max) ? 1 : (int) $max + 1;
 
 		return $seq;
 	}
 	/**
-	 * 
+	 *
 	 */
 	public function getEntryUrl($site, $tid, $vid = null) {
 		$url = "http://" . $_SERVER['HTTP_HOST'];
@@ -475,8 +468,8 @@ class template_model extends \TMS_MODEL {
 			$url .= "?site={$site}&tid=" . $tid;
 		}
 
-		if(!empty($vid) ){
-			$url .= "&vid=".$vid;
+		if (!empty($vid)) {
+			$url .= "&vid=" . $vid;
 		}
 		return $url;
 	}

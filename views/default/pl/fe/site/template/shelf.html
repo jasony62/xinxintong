@@ -16,17 +16,16 @@
     </nav>
     <div class='row'>
         <div ng-if="criteria.scope!='M'">
-            <div class='col-md-4' ng-repeat="t in templates" >
+            <div class='col-md-4' ng-repeat="t in templates">
                 <div class='thumbnail template'>
                     <div class="head">
                         <h4 class='title pull-left' ng-bind="t.title"></h4>
                         <div class="note pull-right">
-                                <div class="favor text-justify">
-                                    <i class='glyphicon glyphicon-heart text-danger' title="点赞数"></i> {{t.score}}
-                                    &nbsp;&nbsp;
-                                    <i class='glyphicon glyphicon-fire text-info' title="使用数"></i> {{t.copied_num}}
-                                </div>
+                            <div class="favor text-justify">
+                                <i class='glyphicon glyphicon-heart text-danger' title="点赞数"></i> {{t.score}} &nbsp;&nbsp;
+                                <i class='glyphicon glyphicon-fire text-info' title="使用数"></i> {{t.copied_num}}
                             </div>
+                        </div>
                     </div>
                     <p class='summary' ng-bind="t.summary"></p>
                     <div class='heading-pic' heading-pic ng-if="t.pic">
@@ -102,12 +101,11 @@
                             <div class="head">
                                 <h4 class='title pull-left' ng-bind="l.title"></h4>
                                 <div class="note pull-right">
-                                        <div class="favor text-justify">
-                                            <i class='glyphicon glyphicon-heart text-danger' title="点赞数"></i> {{l.score}}
-                                            &nbsp;&nbsp;
-                                            <i class='glyphicon glyphicon-fire text-info' title="使用数"></i> {{l.copied_num}}
-                                        </div>
+                                    <div class="favor text-justify">
+                                        <i class='glyphicon glyphicon-heart text-danger' title="点赞数"></i> {{l.score}} &nbsp;&nbsp;
+                                        <i class='glyphicon glyphicon-fire text-info' title="使用数"></i> {{l.copied_num}}
                                     </div>
+                                </div>
                             </div>
                             <p class='summary' ng-bind="l.summary"></p>
                             <div class='heading-pic' heading-pic ng-if="l.pic">
@@ -136,12 +134,11 @@
                             <div class="head">
                                 <h4 class='title pull-left' ng-bind="p.title"></h4>
                                 <div class="note pull-right">
-                                        <div class="favor text-justify">
-                                            <i class='glyphicon glyphicon-heart text-danger' title="点赞数"></i> {{p.score}}
-                                            &nbsp;&nbsp;
-                                            <i class='glyphicon glyphicon-fire text-info' title="使用数"></i> {{p.copied_num}}
-                                        </div>
+                                    <div class="favor text-justify">
+                                        <i class='glyphicon glyphicon-heart text-danger' title="点赞数"></i> {{p.score}} &nbsp;&nbsp;
+                                        <i class='glyphicon glyphicon-fire text-info' title="使用数"></i> {{p.copied_num}}
                                     </div>
+                                </div>
                             </div>
                             <p class='summary' ng-bind="p.summary"></p>
                             <div class='heading-pic' heading-pic ng-if="p.pic">
@@ -152,7 +149,7 @@
                                 <div ng-bind="p.put_at*1000|date:'yyyy-MM-dd'"></div>
                             </div>
                             <div class='actions'>
-                                <button ng-class="{'btn btn-sm btn-success':p.last_version == p.pub_version, 'btn btn-sm btn-danger':p.last_version != p.pub_version}"  ng-click='message(p)'>管理</button>
+                                <button ng-class="{'btn btn-sm btn-success':p.last_version == p.pub_version, 'btn btn-sm btn-danger':p.last_version != p.pub_version}" ng-click='message(p)'>管理</button>
                             </div>
                         </div>
                     </div>

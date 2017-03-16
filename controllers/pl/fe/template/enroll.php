@@ -7,9 +7,9 @@ require_once dirname(dirname(__FILE__)) . '/base.php';
  */
 class enroll extends \pl\fe\base {
 	/**
-	 * 
+	 *
 	 */
-	public function index_action($site){
+	public function index_action($site) {
 		\TPL::output('/pl/fe/site/template/enroll/frame');
 		exit;
 	}
@@ -31,27 +31,27 @@ class enroll extends \pl\fe\base {
 		$q = [
 			'*',
 			"xxt_template",
-			"siteid = '".$modelTmp->escape($site)."' and state = 1",
+			"siteid = '" . $modelTmp->escape($site) . "' and state = 1",
 		];
-		if($pub === 'N'){
-			$q[2] .=" and pub_version = ''";
-		}else{
-			$q[2] .=" and pub_version <> ''";
+		if ($pub === 'N') {
+			$q[2] .= " and pub_version = ''";
+		} else {
+			$q[2] .= " and pub_version <> ''";
 		}
-		if(!empty($matterType)){
+		if (!empty($matterType)) {
 			$matterType = $modelTmp->escape($matterType);
-			$q[2] .=" and matter_type = '{$matterType}'";
+			$q[2] .= " and matter_type = '{$matterType}'";
 		}
 		if (!empty($scenario)) {
 			$scenario = $modelTmp->escape($scenario);
-			$q[2] .=" and scenario = '{$scenario}'";
+			$q[2] .= " and scenario = '{$scenario}'";
 		}
-		if(!empty($scope)){
-			if($scope === 'P'){
-				$q[2] .=" and visible_scope = 'P'";
+		if (!empty($scope)) {
+			if ($scope === 'P') {
+				$q[2] .= " and visible_scope = 'P'";
 				$q2['o'] = 'put_at desc';
-			}else{
-				$q[2] .=" and visible_scope = 'S'";
+			} else {
+				$q[2] .= " and visible_scope = 'S'";
 				$q2['o'] = 'put_at desc';
 			}
 		}
@@ -60,7 +60,7 @@ class enroll extends \pl\fe\base {
 			'r' => ['o' => ($page - 1) * $size, 'l' => $size],
 		];
 
-		if($orders = $modelTmp->query_objs_ss($q, $q2) ){
+		if ($orders = $modelTmp->query_objs_ss($q, $q2)) {
 			foreach ($orders as $v) {
 				//获取最新版本的信息
 				$v->lastVersion = $modelTmp->byVersion($site, $v->matter_type, $v->id, null, $v->last_version);
@@ -85,12 +85,12 @@ class enroll extends \pl\fe\base {
 		}
 
 		$version = $this->model('matter\template\enroll')->checkVersion($site, $vid);
-		if($version[0]){
+		if ($version[0]) {
 			return new \ResponseError('当前版本已发布，不可更改');
 		}
 
 		$nv = $this->getPostJson();
-		$vid = 'template:'.$vid;
+		$vid = 'template:' . $vid;
 		$modelPage = $this->model('matter\enroll\page');
 		$page = $modelPage->byId($vid, $pageId);
 		if ($page === false) {
@@ -143,13 +143,13 @@ class enroll extends \pl\fe\base {
 		if (false === ($template = $this->model('matter\template')->byId($tid, $vid))) {
 			return new \ResponseError('指定的模板不存在，请检查参数是否正确');
 		}
-		if($template->pub_status === 'Y'){
+		if ($template->pub_status === 'Y') {
 			return new \ResponseError('当前模板已发布');
 		}
 
 		$options = $this->getPostJson();
 
-		$vid = 'template:'.$vid;
+		$vid = 'template:' . $vid;
 		$newPage = $this->model('matter\enroll\page')->add($user, $site, $vid, $options);
 
 		return new \ResponseData($newPage);
@@ -168,11 +168,11 @@ class enroll extends \pl\fe\base {
 		if (false === ($template = $this->model('matter\template')->byId($tid, $vid))) {
 			return new \ResponseError('指定的模板不存在，请检查参数是否正确');
 		}
-		if($template->pub_status === 'Y'){
+		if ($template->pub_status === 'Y') {
 			return new \ResponseError('当前模板已发布');
 		}
 
-		$vid = 'template:'.$vid;
+		$vid = 'template:' . $vid;
 		$page = $this->model('matter\enroll\page')->byId($vid, $pageId);
 
 		$modelCode = $this->model('code\page');

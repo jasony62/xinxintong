@@ -157,7 +157,7 @@ service('templateShop', ['$uibModal', 'http2', '$q', function($uibModal, http2, 
         var deferred;
         deferred = $q.defer();
         $uibModal.open({
-            templateUrl: '/static/template/templateShare.html?_=10',
+            templateUrl: '/static/template/templateShare.html?_=11',
             controller: ['$scope', '$uibModalInstance', function($scope, $mi) {
                 $scope.data = {};
                 $scope.params = {};
@@ -166,24 +166,6 @@ service('templateShop', ['$uibModal', 'http2', '$q', function($uibModal, http2, 
                 };
                 $scope.ok = function() {
                     $mi.close($scope.data);
-                };
-                $scope.addReceiver = function() {
-                    http2.get('/rest/pl/fe/template/acl/add?label=' + $scope.params.label + '&matter=' + matter.id + ',' + matter.type, function(rsp) {
-                        if ($scope.data.acls === undefined) {
-                            $scope.data.acls = [];
-                        }
-                        $scope.data.acls.push(rsp.data);
-                        $scope.params.label = '';
-                    });
-                };
-                $scope.removeReceiver = function(acl) {
-                    if (acl.id) {
-                        http2.get('/rest/pl/fe/template/acl/remove?acl=' + acl.id, function(rsp) {
-                            $scope.data.acls.splice($scope.data.acls.indexOf(acl));
-                        });
-                    } else {
-                        $scope.data.acls.splice($scope.data.acls.indexOf(acl));
-                    }
                 };
                 http2.get('/rest/pl/fe/template/byMatter?type=' + matter.type + '&id=' + matter.id, function(rsp) {
                     if (rsp.data) {
@@ -195,8 +177,6 @@ service('templateShop', ['$uibModal', 'http2', '$q', function($uibModal, http2, 
                         $scope.data.title = matter.title;
                         $scope.data.summary = matter.summary;
                         $scope.data.pic = matter.pic;
-                        $scope.data.visible_scope = 'S';
-                        $scope.data.coin = 0;
                     }
                 });
             }],

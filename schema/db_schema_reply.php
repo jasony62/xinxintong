@@ -294,7 +294,8 @@ echo 'finish reply.' . PHP_EOL;
  */
 $sql = "create table if not exists xxt_timer_push(";
 $sql .= 'id int not null auto_increment';
-$sql .= ",mpid varchar(32) not null";
+$sql .= ",mpid varchar(32) not null default ''";
+$sql .= ",siteid varchar(32) not null default ''";
 $sql .= ",enabled char(1) not null default 'Y'";
 $sql .= ',matter_type varchar(20) not null';
 $sql .= ",matter_id varchar(40) not null";

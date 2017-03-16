@@ -21,7 +21,7 @@ class notice extends \pl\fe\matter\base {
 	 * @param string $tmplmsg 模板消息id
 	 *
 	 */
-	public function send_action($site, $app, $tmplmsg, $rid = null) {
+	public function send_action($site, $app, $tmplmsg) {
 		if (false === ($user = $this->accountUser())) {
 			return new \ResponseTimeout();
 		}
@@ -35,9 +35,6 @@ class notice extends \pl\fe\matter\base {
 		if (isset($posted->criteria)) {
 			// 筛选条件
 			$criteria = $posted->criteria;
-			$options = [
-				'rid' => $rid,
-			];
 			$participants = $modelRec->participants($site, $app, $options, $criteria);
 		} else if (isset($posted->users)) {
 			// 直接指定
@@ -71,7 +68,7 @@ class notice extends \pl\fe\matter\base {
 			$creater->uid = $user->id;
 			$creater->name = $user->name;
 			$creater->src = 'pl';
-			$modelTmplBat->send($siteId, $tmplmsgId, $creater, $receivers, $params, ['send_from' => 'enroll:' . $appId]);
+			$modelTmplBat->send($siteId, $tmplmsgId, $creater, $receivers, $params, ['send_from' => 'signin:' . $appId]);
 		}
 
 		return array(true);

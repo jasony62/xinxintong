@@ -21,24 +21,24 @@ class notice extends \pl\fe\matter\base {
 	 * @param string $tmplmsg 模板消息id
 	 *
 	 */
-	public function send_action($site, $app, $tmplmsg, $rid = null) {
+	public function send_action($site, $app, $tmplmsg) {
 		if (false === ($user = $this->accountUser())) {
 			return new \ResponseTimeout();
 		}
 
-		$modelRec = $this->model('matter\signin');
+		// $modelRec = $this->model('matter\signin');
+		$modelRec = $this->model('matter\group\player');
 		$site = $modelRec->escape($site);
 		$app = $modelRec->escape($app);
 		$posted = $this->getPostJson();
 		$params = $posted->message;
 
-		if (isset($posted->criteria)) {
+		if (isset($posted->tags)) {
 			// 筛选条件
-			$criteria = $posted->criteria;
-			$options = [
-				'rid' => $rid,
-			];
-			$participants = $modelRec->participants($site, $app, $options, $criteria);
+			$app = $this->model('matter\group')->byId($app);
+			$options = new \stdClass;
+			$options->tags = $posted->tags;
+			$participants = $modelRec->find($site, $app, $options);
 		} else if (isset($posted->users)) {
 			// 直接指定
 			$participants = $posted->users;
@@ -71,7 +71,7 @@ class notice extends \pl\fe\matter\base {
 			$creater->uid = $user->id;
 			$creater->name = $user->name;
 			$creater->src = 'pl';
-			$modelTmplBat->send($siteId, $tmplmsgId, $creater, $receivers, $params, ['send_from' => 'enroll:' . $appId]);
+			$modelTmplBat->send($siteId, $tmplmsgId, $creater, $receivers, $params, ['send_from' => 'group:' . $appId]);
 		}
 
 		return array(true);
@@ -80,8 +80,9 @@ class notice extends \pl\fe\matter\base {
 	 * 查看通知发送日志
 	 *
 	 * @param int $batch 通知批次id
+	 * @param string $aid 分组活动的id
 	 */
-	public function logList_action($batch) {
+	public function logList_action($aid, $batch) {
 		if (false === ($user = $this->accountUser())) {
 			return new \ResponseTimeout();
 		}
@@ -99,13 +100,13 @@ class notice extends \pl\fe\matter\base {
 
 		/* 和登记记录进行关联 */
 		if (count($logs)) {
-			$modelRec = $this->model('matter\signin\record');
+			$modelRec = $this->model('matter\group\player');
 			$records = [];
 			foreach ($logs as $log) {
 				if (empty($log->assoc_with)) {
 					continue;
 				}
-				if ($record = $modelRec->byId($log->assoc_with)) {
+				if ($record = $modelRec->byId($aid, $log->assoc_with)) {
 					$record->noticeStatus = $log->status;
 					$records[] = $record;
 				}

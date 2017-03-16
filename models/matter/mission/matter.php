@@ -43,7 +43,10 @@ class matter_model extends \TMS_MODEL {
 					$modelMat = $this->model('matter\\' . $mm->matter_type);
 				}
 				if (in_array($mm->matter_type, ['enroll', 'signin', 'group'])) {
-					$fields = 'siteid,id,title,summary,pic,data_schemas';
+					$fields = 'siteid,id,title,summary,pic,data_schemas,op_short_url_code';
+					if (in_array($mm->matter_type, ['enroll'])) {
+						$fields .= ',rp_short_url_code';
+					}
 					if (in_array($mm->matter_type, ['enroll', 'group'])) {
 						$fields .= ',scenario';
 					}

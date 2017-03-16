@@ -180,6 +180,11 @@ class main extends \pl\fe\matter\base {
 		}
 
 		$templates = $rst[1]->template_list;
+
+		if(empty($templates)){
+			return new \ResponseError('微信公众号没有设置模板消息！');
+		}
+
 		$d['siteid'] = $site;
 		$d['mpid'] = $site;
 		$d['creater'] = $user->id;
@@ -275,7 +280,7 @@ class main extends \pl\fe\matter\base {
 			$two[] = $v0->templateid;
 		}
 		//将本地原来有实际上微信管理端已经删除的模板ID 设置为‘’ 表示本地删除
-		if ($rest = array_diff($two, $tmp)) {
+		if (isset($two) && isset($tmp) && $rest = array_diff($two, $tmp)) {
 			foreach ($rest as $v4) {
 				$wx->update('xxt_tmplmsg', ['templateid' => ''], ['siteid' => $site, 'templateid' => $v4]);
 			}

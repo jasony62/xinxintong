@@ -7,6 +7,7 @@
     <base href='/'>
     <link href="/static/css/bootstrap.min.css" rel="stylesheet">
     <link href="/static/css/tms.css" rel="stylesheet">
+    <link href="/views/default/pl/fe/site/setting.css" rel="stylesheet">
     <title>平台——设置</title>
 </head>
 
@@ -23,10 +24,11 @@
         <div id='viewSetting'>
             <div class='col-md-3'>
                 <div class='list-group'>
-                    <a class='list-group-item active' href="javascript:void(0)">消息通知</a>
+                    <a class='list-group-item' ng-class="{'active':subView==='tmplmsg'}" href="/rest/pl/be/setting/tmplmsg">模板消息</a>
+                    <a class='list-group-item' ng-class="{'active':subView==='notice'}" href="/rest/pl/be/setting/notice">消息通知</a>
                 </div>
             </div>
-            <div class='col-md-9' style='background:#fff'>
+            <div class='col-md-9' style='background:#fff ;padding:15px 0'>
                 <div ng-view></div>
             </div>
         </div>

@@ -21,6 +21,16 @@ class register extends \site\fe\base {
 		$modelWay = $this->model('site\fe\way');
 		$modelWay->resetAllCookieUser();
 
+		/* 保存页面来源 */
+		if (isset($_SERVER['HTTP_REFERER'])) {
+			$referer = $_SERVER['HTTP_REFERER'];
+			if (!empty($referer) && !in_array($referer, array('/'))) {
+				if (false === strpos($referer, '/fe/user')) {
+					$this->mySetCookie('_auth_referer', $referer);
+				}
+			}
+		}
+
 		\TPL::output('/site/fe/user/register');
 		exit;
 	}
@@ -65,6 +75,11 @@ class register extends \site\fe\base {
 
 		/* cookie中保留注册信息 */
 		$cookieRegUser = $modelWay->shiftRegUser($registration, false);
+
+		if ($referer = $this->myGetCookie('_auth_referer')) {
+			$cookieRegUser->_loginReferer = $referer;
+			$this->mySetCookie('_auth_referer', null);
+		}
 
 		return new \ResponseData($cookieRegUser);
 	}

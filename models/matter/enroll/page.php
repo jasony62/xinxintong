@@ -63,7 +63,7 @@ class page_model extends \TMS_MODEL {
 		$q = array(
 			$fields,
 			'xxt_enroll_page',
-			"aid='$appId'",
+			['aid' => $appId]
 		);
 		$q2 = array('o' => 'seq,create_at');
 		$eps = $this->query_objs_ss($q, $q2);
@@ -277,7 +277,7 @@ class page_model extends \TMS_MODEL {
 			$q = array(
 				'max(seq)',
 				'xxt_enroll_page',
-				"aid='$appId'",
+				['aid' => $appId],
 			);
 			$seq = $this->query_val_ss($q);
 			$seq = empty($seq) ? 1 : $seq + 1;

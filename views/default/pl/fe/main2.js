@@ -26,7 +26,7 @@ config(['$uibTooltipProvider', function($uibTooltipProvider) {
         },
         addArticle: function(site) {
             http2.get('/rest/pl/fe/matter/article/create?site=' + site.id, function(rsp) {
-                location.href = '/rest/pl/fe/matter/article?site=' + site.id + '&id=' + rsp.data;
+                location.href = '/rest/pl/fe/matter/article?site=' + site.id + '&id=' + rsp.data.id;
             });
         },
         addNews: function(site) {
@@ -224,12 +224,11 @@ config(['$uibTooltipProvider', function($uibTooltipProvider) {
             $scope.sites = rsp.data;
         });
     };
-
-    $scope.openHome = function(site) {
-        location.href = '/rest/site/home?site=' + site.id;
+    $scope.setHome = function(site) {
+        location.href = '/rest/pl/fe/site/home?site=' + site.id;
     };
     $scope.openConsole = function(site) {
-        location.href = '/rest/pl/fe/site?site=' + site.id;
+        location.href = '/rest/pl/fe/site/console?site=' + site.id;
     };
     $scope.recycle = function() {
         //获取回收站信息

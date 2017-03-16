@@ -1,7 +1,7 @@
 define(['main'], function(ngApp) {
     'use strict';
     ngApp.provider.service('serTmplmsg', ['$q', 'http2', function($q, http2) {
-        var _baseURL = '/rest/pl/fe/site/tmplmsg',
+        var _baseURL = '/rest/pl/fe/matter/tmplmsg',
             _siteId;
         this.setSiteId = function(siteId) {
             _siteId = siteId;

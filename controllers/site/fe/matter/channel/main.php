@@ -46,7 +46,7 @@ class main extends \site\fe\matter\base {
 			$params->size = $size;
 		}
 
-		$matters = \TMS_APP::M('matter\channel')->getMattersNoLimit($id, $user->uid, $params);
+		$matters = $this->model('matter\channel')->getMattersNoLimit($id, $user->uid, $params);
 		$tagModel = $this->model('tag');
 		foreach ($matters as &$m) {
 			$matterModel = \TMS_APP::M('matter\\' . $m->type);

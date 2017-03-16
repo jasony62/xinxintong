@@ -11,21 +11,21 @@
                     <div style="width:182px;border:1px solid #CCC">
                         <div style="height:100px;text-align:center;padding-top:32px" ng-if="!editing.pic">
                             <button class='btn btn-default' ng-click='setPic();'>
-                            <span class='glyphicon glyphicon-picture'></span>选择图片</button>
+                                <span class='glyphicon glyphicon-picture'></span> 选择图片</button>
                         </div>
                         <div style='position:relative' ng-if="editing.pic!=''" ng-mouseenter='hover=true' ng-mouseleave='hover=false'>
                             <img name='pic' ng-src="{{editing.pic}}" width='180px' />
                             <button class='btn btn-default btn-sm' style='position:absolute;top:2px;left:2px' ng-if='hover' ng-click='setPic();'>
-                            <span class='glyphicon glyphicon-picture'></span>
+                                <span class='glyphicon glyphicon-picture'></span>
                             </button>
                             <button class='btn btn-default btn-sm' style='position:absolute;top:2px;right:2px' ng-if='hover' ng-click='removePic();'>
-                            <span class='glyphicon glyphicon-trash'></span>
+                                <span class='glyphicon glyphicon-trash'></span>
                             </button>
                         </div>
                     </div>
                     <div style='position:absolute;top:30px;left:210px'>
                         <label class='checkbox-inline'>
-                        <input type='checkbox' ng-true-value="'Y'" ng-false-value="'N'" ng-model='editing.hide_pic' ng-change="update('hide_pic');">正文中不显示头图</label>
+                            <input type='checkbox' ng-true-value="'Y'" ng-false-value="'N'" ng-model='editing.hide_pic' ng-change="update('hide_pic');">正文中不显示头图</label>
                     </div>
                 </div>
             </div>
@@ -48,7 +48,7 @@
                     <span class="input-group-btn">
                         <button class="btn btn-default" type="button" ng-click="quitMission()">
                             <span class='glyphicon glyphicon-remove'></span>
-                        </button>
+                    </button>
                     </span>
                 </div>
             </div>
@@ -66,7 +66,7 @@
             <div>
                 <div class="btn-group">
                     <button type="button" class="btn btn-default dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">添加素材
-                    <span class="caret"></span>
+                        <span class="caret"></span>
                     </button>
                     <ul class="dropdown-menu">
                         <li>
@@ -80,7 +80,8 @@
                         </li>
                     </ul>
                 </div>
-                <label class='checkbox-inline'><input type='checkbox' ng-true-value="'Y'" ng-false-value="'N'" ng-model='editing.can_picviewer' ng-change="update('can_picviewer');">支持图片缩放浏览</label>
+                <label class='checkbox-inline'>
+                    <input type='checkbox' ng-true-value="'Y'" ng-false-value="'N'" ng-model='editing.can_picviewer' ng-change="update('can_picviewer');">支持图片缩放浏览</label>
             </div>
             <tinymce id='body1' contenteditable='bodyEditable' toolbar="fullscreen code" height='700'></tinymce>
             <div class='help-block'>正文：少于2万字符</div>
@@ -133,7 +134,7 @@
         <div class='tile'>
             <div class='form-group' ng-controller='ctrlSetChannel' ng-init="matterType='article';matterObj='editing'">
                 <label>频道（可选）</label>
-                <combox evt-prefix='channel' readonly=true prop='title' existing='editing.channels' options='channels'></combox>
+                <combox evt-prefix='channel' readonly=true link='Y' prop='title' existing='editing.channels' options='channels'></combox>
             </div>
         </div>
         <div class='tile'>

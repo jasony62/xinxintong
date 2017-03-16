@@ -150,7 +150,7 @@ class home_model extends \TMS_MODEL {
 		return $rst;
 	}
 	/**
-	 * 推送到主页
+	 * 取消推送到主页
 	 */
 	public function pullHome($applicationId) {
 		$rst = $this->update(

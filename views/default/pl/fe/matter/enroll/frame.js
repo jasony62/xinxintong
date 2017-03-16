@@ -124,7 +124,9 @@ define(['require', 'enrollService'], function(require) {
             srvEnrollApp.update(name);
         };
         $scope.shareAsTemplate = function() {
-            templateShop.share($scope.app.siteid, $scope.app);
+            templateShop.share($scope.app.siteid, $scope.app).then(function(template) {
+                location.href = '/rest/pl/fe/template/enroll?site=' + template.siteid + '&id=' + template.id;
+            });
         };
         srvSite.get().then(function(oSite) {
             $scope.site = oSite;

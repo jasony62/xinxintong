@@ -55,8 +55,8 @@ class way_model extends \TMS_MODEL {
 		} else {
 			if (empty($cookieUser->loginExpire)) {
 				$cookieRegUser = $this->getCookieRegUser();
-				if ($cookieRegUser && isset($cookieUser->loginExpire)) {
-					$cookieUser->loginExpire = $cookieRegUser->expire;
+				if ($cookieRegUser && isset($cookieRegUser->loginExpire)) {
+					$cookieUser->loginExpire = $cookieRegUser->loginExpire;
 					$modified = true;
 				}
 			}
@@ -210,12 +210,7 @@ class way_model extends \TMS_MODEL {
 			$propsSns['city'] = isset($snsUser->city) ? $snsUser->city : '';
 			isset($snsUser->country) && $propsSns['country'] = $snsUser->country;
 			isset($snsUser->province) && $propsSns['province'] = $snsUser->province;
-			if ($snsName != 'qy') {
-				$dbSnsUser = $modelSnsUser->blank($snsSiteId, $snsUser->openid, true, $propsSns);
-			} else {
-				$dbSnsUser = (object) $snsUser;
-				$dbSnsUser->openid = $snsUser->openid;
-			}
+			$dbSnsUser = $modelSnsUser->blank($snsSiteId, $snsUser->openid, true, $propsSns);
 		} else {
 			$snsUser->nickname = isset($dbSnsUser->nickname) ? $dbSnsUser->nickname : '';
 		}

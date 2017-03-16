@@ -22,7 +22,7 @@ define(['angular', 'xxt-page'], function(angular, uiPage) {
         };
         $scope.openMatter = function(matter) {
             if (/article|custom|news|channel|link/.test(matter.type)) {
-                location.href = '/rest/site/fe/matter?site=' + LS.p.site + '&id=' + matter.id + '&type=' + matter.type;
+                location.href = '/rest/site/fe/matter?site=' + _siteId + '&id=' + matter.id + '&type=' + matter.type;
             } else if (/enroll|signin|group/.test(matter.type) && matter.op_short_url_code) {
                 location.href = 'http://' + location.host + '/q/' + matter.op_short_url_code;
             }

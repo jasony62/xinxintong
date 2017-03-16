@@ -39,6 +39,9 @@ class main extends \pl\fe\matter\base {
 	 * @param string $lottery ID
 	 */
 	public function get_action($site, $app) {
+		if (false === ($user = $this->accountUser())) {
+			return new \ResponseTimeout();
+		}
 		$options = array(
 			'fields' => '*',
 			'cascaded' => array('award', 'task'),
@@ -53,11 +56,14 @@ class main extends \pl\fe\matter\base {
 	 * 抽奖活动
 	 */
 	public function list_action($site) {
-		$q = array(
-			'*',
+		if (false === ($user = $this->accountUser())) {
+			return new \ResponseTimeout();
+		}
+		$q = [
+			"*,'lottery' type",
 			'xxt_lottery',
-			"siteid='$site'",
-		);
+			['siteid' => $site, 'state' => [1, 2]],
+		];
 		$q2['o'] = 'create_at desc';
 
 		$apps = $this->model()->query_objs_ss($q, $q2);

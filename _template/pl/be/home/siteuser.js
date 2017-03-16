@@ -1,4 +1,4 @@
-ngApp.provider.controller('ctrlSiteUser', ['$scope', '$http', function($scope, $http) {
+ngApp.provider.controller('ctrlHome', ['$scope', '$http', 'srvUser', function($scope, $http, srvUser) {
     function listSites() {
         $http.get('/rest/home/listSite').success(function(rsp) {
             $scope.sites = rsp.data.sites;
@@ -13,7 +13,7 @@ ngApp.provider.controller('ctrlSiteUser', ['$scope', '$http', function($scope, $
     };
 
     $scope.subscribeSite = function(site) {
-        if ($scope.siteUser === false) {
+        if (!$scope.siteUser || !$scope.siteUser.loginExpire) {
             if (window.sessionStorage) {
                 var method = JSON.stringify({
                     name: 'subscribeSite',
@@ -37,9 +37,9 @@ ngApp.provider.controller('ctrlSiteUser', ['$scope', '$http', function($scope, $
     };
     $scope.openTrend = function(trend) {
         if (/article|custom|news|channel|link/.test(trend.matter_type)) {
-            location.href = '/rest/site/fe/matter?site=' + trend.siteid + '&id=' + id + '&type=' + trend.matter_type;
+            location.href = '/rest/site/fe/matter?site=' + trend.siteid + '&id=' + trend.matter_id + '&type=' + trend.matter_type;
         } else {
-            location.href = '/rest/site/fe/matter/' + trend.matter_type + '?site=' + trend.siteid + '&app=' + id;
+            location.href = '/rest/site/fe/matter/' + trend.matter_type + '?site=' + trend.siteid + '&app=' + trend.matter_id;
         }
     };
     $scope.openMatter = function(matter) {
@@ -50,8 +50,8 @@ ngApp.provider.controller('ctrlSiteUser', ['$scope', '$http', function($scope, $
     $scope.listArticles();
     $scope.$watch('platform', function(platform) {
         if (!platform) return;
-        $http.get('/rest/site/fe/user/get?site=platform').success(function(rsp) {
-            $scope.siteUser = rsp.data;
+        srvUser.getSiteUser().then(function(user) {
+            $scope.siteUser = user;
             if (window.sessionStorage) {
                 var pendingMethod;
                 if (pendingMethod = window.sessionStorage.getItem('xxt.home.auth.pending')) {

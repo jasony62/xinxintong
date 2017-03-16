@@ -1,6 +1,46 @@
 define(['require'], function() {
     'use strict';
     var ngApp = angular.module('app', ['ngRoute', 'ui.tms', 'ui.xxt', 'service.matter', 'service.group']);
+    ngApp.constant('cstApp', {
+        notifyMatter: [{
+            value: 'tmplmsg',
+            title: '模板消息',
+            url: '/rest/pl/fe/matter'
+        }, {
+            value: 'article',
+            title: '单图文',
+            url: '/rest/pl/fe/matter'
+        }, {
+            value: 'news',
+            title: '多图文',
+            url: '/rest/pl/fe/matter'
+        }, {
+            value: 'channel',
+            title: '频道',
+            url: '/rest/pl/fe/matter'
+        }, {
+            value: 'enroll',
+            title: '登记活动',
+            url: '/rest/pl/fe/matter'
+        }],
+        innerlink: [{
+            value: 'article',
+            title: '单图文',
+            url: '/rest/pl/fe/matter'
+        }, {
+            value: 'news',
+            title: '多图文',
+            url: '/rest/pl/fe/matter'
+        }, {
+            value: 'channel',
+            title: '频道',
+            url: '/rest/pl/fe/matter'
+        }],
+        alertMsg: {
+            'schema.duplicated': '不允许重复添加登记项',
+            'require.mission.phase': '请先指定项目的阶段'
+        }
+    });
     ngApp.config(['$controllerProvider', '$routeProvider', '$locationProvider', '$compileProvider', 'srvQuickEntryProvider', 'srvSiteProvider', 'srvAppProvider', 'srvRoundProvider', function($controllerProvider, $routeProvider, $locationProvider, $compileProvider, srvQuickEntryProvider, srvSiteProvider, srvAppProvider, srvRoundProvider) {
         var RouteParam = function(name) {
             var baseURL = '/views/default/pl/fe/matter/group/';
@@ -23,6 +63,7 @@ define(['require'], function() {
         $routeProvider
             .when('/rest/pl/fe/matter/group/main', new RouteParam('main'))
             .when('/rest/pl/fe/matter/group/player', new RouteParam('player'))
+            .when('/rest/pl/fe/matter/group/notice', new RouteParam('notice'))
             .otherwise(new RouteParam('player'));
 
         $locationProvider.html5Mode(true);
@@ -43,6 +84,7 @@ define(['require'], function() {
         $scope.viewNames = {
             'main': '活动定义',
             'player': '分组数据',
+            'notice': '通知发送记录',
         };
         $scope.subView = '';
         $scope.$on('$locationChangeSuccess', function(event, currentRoute) {

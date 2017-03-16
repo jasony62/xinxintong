@@ -305,7 +305,7 @@ provider('srvApp', function() {
     }];
 }).provider('srvPlayer', function() {
     var _oApp, _siteId, _appId, _aPlayers, _activeRound;
-    this.$get = ['$q', '$uibModal', 'http2', 'srvRecordConverter', 'srvApp', function($q, $uibModal, http2, srvRecordConverter, srvApp) {
+    this.$get = ['$q', '$uibModal', 'http2', 'cstApp', 'pushnotify', 'srvRecordConverter', 'srvApp', function($q, $uibModal, http2, cstApp, pushnotify, srvRecordConverter, srvApp) {
         return {
             init: function(aPlayers) {
                 var defer = $q.defer();
@@ -494,9 +494,33 @@ provider('srvApp', function() {
                         }
                     }
                 }).result;
-            }
+            },
+            notify: function(rows) {
+                var options = {
+                    matterTypes: cstApp.notifyMatter,
+                    sender: 'group:' + _appId
+                };
+                pushnotify.open(_siteId, function(notify) {
+
+                }, options);
+            },
         }
     }];
+}).provider('srvGroupNotice', function() {
+    this.$get = ['$q', 'http2', function($q, http2){
+        return {
+            detail: function(batch) {
+                var defer = $q.defer(),
+                    url;
+                url = '/rest/pl/fe/matter/group/notice/logList?batch=' + batch.id;
+                http2.get(url, function(rsp) {
+                    defer.resolve(rsp.data);
+                });
+
+                return defer.promise;
+            }
+        }
+    }]
 }).controller('ctrlEditor', ['$scope', '$uibModalInstance', '$sce', 'player', 'srvRecordConverter', 'srvApp', 'srvRound', 'srvPlayer', function($scope, $mi, $sce, player, srvRecordConverter, srvApp, srvRound, srvPlayer) {
     srvApp.get().then(function(oApp) {
         $scope.app = oApp;

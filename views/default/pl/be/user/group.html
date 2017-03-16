@@ -14,6 +14,7 @@
             <th>可以创建公众号群</th>
             <th>可以创建公众号</th>
             <th>可以设置公众号权限</th>
+            <th>平台管理</th>
             <th>用户数</th>
             <th>操作</th>
         </tr>
@@ -25,6 +26,8 @@
             <td><input type='checkbox' ng-true-value="'1'" ng-false-value="'0'" ng-model='g.p_mpgroup_create' ng-change="update(g,'p_mpgroup_create')"></td>
             <td><input type='checkbox' ng-true-value="'1'" ng-false-value="'0'" ng-model='g.p_mp_create' ng-change="update(g,'p_mp_create')"></td>
             <td><input type='checkbox' ng-true-value="'1'" ng-false-value="'0'" ng-model='g.p_mp_permission' ng-change="update(g,'p_mp_permission')"></td>
+            <td><input type='checkbox' ng-true-value="'1'" ng-false-value="'0'" ng-model='g.platform_manage' ng-change="update(g,'platform_manage')"></td>
+
             <td>{{g.account_count}}</td>
             <td><a href='#' ng-click='remove(g)' ng-if="g.account_count==0">删除</a></td>
         </tr>

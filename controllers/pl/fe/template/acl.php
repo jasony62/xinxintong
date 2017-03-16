@@ -12,12 +12,12 @@ class acl extends \pl\fe\base {
 	 * @param string $id 素材的ID
 	 * @param string $type 素材的类型
 	 */
-	public function byMatter_action($id, $type) {
+	public function byMatter_action($id) {
 		if (false === ($loginUser = $this->accountUser())) {
 			return new \ResponseTimeout();
 		}
 
-		$acls = $this->model('template\acl')->byMatter($id, $type);
+		$acls = $this->model('matter\template\acl')->byMatter($id);
 
 		if (!empty($acls)) {
 			$modelAcnt = $this->model('account');
@@ -35,23 +35,42 @@ class acl extends \pl\fe\base {
 	 * @param string $site
 	 * @param int $mission mission's id
 	 */
-	public function add_action($label, $matter) {
+	public function add_action($label, $tid = null, $matter = null) {
 		if (false === ($loginUser = $this->accountUser())) {
 			return new \ResponseTimeout();
 		}
 
 		$modelAcnt = $this->model('account');
+		$modelTmpl = $this->model('matter\template');
 		$account = $modelAcnt->getAccountByAuthedId($label);
 		if (!$account) {
 			return new \ResponseError('指定的账号不是注册账号，请先注册！');
 		}
-
-		list($matterId, $matterType) = explode(',', $matter);
 		/**
 		 * has joined?
 		 */
+		if(empty($tid) && !empty($matter)){
+			list($matterId,$matterType) = explode(',', $matter);
+
+			if (false === ($template = $modelTmpl->byMatter($matterId, $matterType)) ) {
+				return new \ResponseError('指定的模板不存在');
+			}
+			if(empty($template->pub_version)){
+				return new \ResponseError('模板尚未发布');
+			}
+		}else if(!empty($tid)) {
+			if (false === ($template = $modelTmpl->byId($tid, null, ['cascaded' => 'N'])) ) {
+				return new \ResponseError('指定的模板不存在');
+			}
+			if(empty($template->pub_version)){
+				return new \ResponseError('模板尚未发布');
+			}
+		}else{
+			return new \ResponseError('请检查参数');
+		}
+
 		$modelAcl = $this->model('matter\template\acl');
-		$acl = $modelAcl->byReceiver($loginUser->id, $matterId, $matterType);
+		$acl = $modelAcl->byReceiver($account->uid, $template->id);
 		if ($acl) {
 			return new \ResponseError('【' . $label . '】已经在分享列表中！');
 		}
@@ -60,11 +79,7 @@ class acl extends \pl\fe\base {
 		$acl = new \stdClass;
 		$acl->receiver = $account->uid;
 		$acl->receiver_label = $account->email;
-
-		$modelTmpl = $this->model('matter\template');
-		if ($template = $modelTmpl->getMatter($matterId, $matterType)) {
-			$acl = $modelAcl->add($loginUser, $template, $acl);
-		}
+		$acl = $modelAcl->add($loginUser, $template, $acl);
 
 		$acl->account = (object) ['nickname' => $account->nickname];
 
@@ -86,5 +101,20 @@ class acl extends \pl\fe\base {
 		);
 
 		return new \ResponseData($rst);
+	}
+	/**
+	 * [listAcler_action 获取分享者列表]
+	 * @param  [type] $tid [description]
+	 * @return [type]      [description]
+	 */
+	public function listAcler_action($tid){
+		if (false === ($loginUser = $this->accountUser())) {
+			return new \ResponseTimeout();
+		}
+
+		$modelAcl = $this->model('matter\template\acl');
+		$acls = $modelAcl->listAcler($tid);
+
+		return $acls;
 	}
 }

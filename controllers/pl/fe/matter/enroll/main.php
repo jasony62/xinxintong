@@ -209,10 +209,10 @@ class main extends \pl\fe\matter\base {
 		$modelCode = $this->model('code\page');
 
 		$template = $this->model('matter\template')->byId($template, $vid);
-		if(empty($template->pub_version)){
+		if (empty($template->pub_version)) {
 			return new \ResponseError('模板已下架');
 		}
-		if($template->pub_status === 'N'){
+		if ($template->pub_status === 'N') {
 			return new \ResponseError('当前版本未发布，无法使用');
 		}
 
@@ -649,25 +649,32 @@ class main extends \pl\fe\matter\base {
 			return new \ResponseTimeout();
 		}
 
+		$posted = $this->getPostJson();
 		$modelApp = $this->model('matter\enroll');
-		/**
-		 * 处理数据
-		 */
-		$nv = $this->getPostJson();
-		foreach ($nv as $n => $v) {
-			if (in_array($n, ['entry_rule', 'data_schemas'])) {
-				$nv->$n = $modelApp->escape($modelApp->toJson($v));
+
+		/* 处理数据 */
+		$updated = new \stdClass;
+		foreach ($posted as $n => $v) {
+			if (in_array($n, ['title', 'summary'])) {
+				$updated->{$n} = $modelApp->escape($v);
+			} else if (in_array($n, ['entry_rule', 'data_schemas'])) {
+				$updated->{$n} = $modelApp->escape($modelApp->toJson($v));
+			} else if ($n === 'scenarioConfig') {
+				$updated->scenario_config = $modelApp->escape($modelApp->toJson($v));
+			} else {
+				$updated->{$n} = $v;
 			}
 		}
-		$nv->modifier = $user->id;
-		$nv->modifier_src = $user->src;
-		$nv->modifier_name = $user->name;
-		$nv->modify_at = time();
-		$rst = $modelApp->update('xxt_enroll', $nv, ["id" => $app]);
+
+		$updated->modifier = $user->id;
+		$updated->modifier_src = $user->src;
+		$updated->modifier_name = $user->name;
+		$updated->modify_at = time();
+
+		$rst = $modelApp->update('xxt_enroll', $updated, ["id" => $app]);
 		if ($rst) {
 			// 记录操作日志
 			$matter = $modelApp->byId($app, 'id,title,summary,pic');
-			$matter->type = 'enroll';
 			$this->model('matter\log')->matterOp($site, $user, $matter, 'U');
 		}
 

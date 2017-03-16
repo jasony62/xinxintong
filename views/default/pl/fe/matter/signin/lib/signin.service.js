@@ -890,7 +890,8 @@ define(['require', 'schema', 'page'], function(require, schemaLib, pageLib) {
             };
             _ins.notify = function(rows) {
                 var options = {
-                    matterTypes: cstApp.notifyMatter
+                    matterTypes: cstApp.notifyMatter,
+                    sender: 'signin:' + appId
                 };
                 _ins._oApp.mission && (options.missionId = _ins._oApp.mission.id);
                 pushnotify.open(siteId, function(notify) {
@@ -900,7 +901,8 @@ define(['require', 'schema', 'page'], function(require, schemaLib, pageLib) {
                             targetAndMsg.users = [];
                             Object.keys(rows.selected).forEach(function(key) {
                                 if (rows.selected[key] === true) {
-                                    targetAndMsg.users.push(_ins._aRecords[key].userid);
+                                    var rec = _ins._aRecords[key];
+                                    targetAndMsg.users.push({ userid: rec.userid, enroll_key: rec.enroll_key });
                                 }
                             });
                         } else {

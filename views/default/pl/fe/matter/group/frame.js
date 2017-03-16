@@ -41,7 +41,7 @@ define(['require'], function() {
             'require.mission.phase': '请先指定项目的阶段'
         }
     });
-    ngApp.config(['$controllerProvider', '$routeProvider', '$locationProvider', '$compileProvider', 'srvQuickEntryProvider', 'srvSiteProvider', 'srvAppProvider', 'srvRoundProvider', function($controllerProvider, $routeProvider, $locationProvider, $compileProvider, srvQuickEntryProvider, srvSiteProvider, srvAppProvider, srvRoundProvider) {
+    ngApp.config(['$controllerProvider', '$routeProvider', '$locationProvider', '$compileProvider', 'srvQuickEntryProvider', 'srvSiteProvider', 'srvGroupAppProvider', 'srvGroupRoundProvider', function($controllerProvider, $routeProvider, $locationProvider, $compileProvider, srvQuickEntryProvider, srvSiteProvider, srvGroupAppProvider, srvGroupRoundProvider) {
         var RouteParam = function(name) {
             var baseURL = '/views/default/pl/fe/matter/group/';
             this.templateUrl = baseURL + name + '.html?_=' + (new Date() * 1);
@@ -75,12 +75,12 @@ define(['require'], function() {
             appId = ls.match(/[\?&]id=([^&]*)/)[1];
             //
             srvSiteProvider.config(siteId);
-            srvAppProvider.config(siteId, appId);
-            srvRoundProvider.config(siteId, appId);
+            srvGroupAppProvider.config(siteId, appId);
+            srvGroupRoundProvider.config(siteId, appId);
             srvQuickEntryProvider.setSiteId(siteId);
         })();
     }]);
-    ngApp.controller('ctrlApp', ['$scope', 'srvSite', 'srvApp', function($scope, srvSite, srvApp) {
+    ngApp.controller('ctrlApp', ['$scope', 'srvSite', 'srvGroupApp', function($scope, srvSite, srvGroupApp) {
         $scope.viewNames = {
             'main': '活动定义',
             'player': '分组数据',
@@ -95,7 +95,7 @@ define(['require'], function() {
         srvSite.get().then(function(oSite) {
             $scope.site = oSite;
         });
-        srvApp.get().then(function(app) {
+        srvGroupApp.get().then(function(app) {
             $scope.app = app;
         });
     }]);

@@ -1,33 +1,33 @@
 define(['frame'], function(ngApp) {
-    ngApp.provider.controller('ctrlPlayer', ['$scope', 'srvApp', 'srvRound', 'srvPlayer', function($scope, srvApp, srvRound, srvPlayer) {
+    ngApp.provider.controller('ctrlPlayer', ['$scope', 'srvGroupApp', 'srvGroupRound', 'srvGroupPlayer', function($scope, srvGroupApp, srvGroupRound, srvGroupPlayer) {
         $scope.activeRound = null;
-        srvRound.list().then(function(rounds) {
+        srvGroupRound.list().then(function(rounds) {
             $scope.rounds = rounds;
         });
         $scope.importByApp = function() {
-            srvApp.importByApp().then(function() {
+            srvGroupApp.importByApp().then(function() {
                 $scope.openRound(null);
             });
         };
         $scope.cancelSourceApp = function() {
-            srvApp.cancelSourceApp();
+            srvGroupApp.cancelSourceApp();
         };
         $scope.syncByApp = function(data) {
-            srvApp.syncByApp().then(function(count) {
+            srvGroupApp.syncByApp().then(function(count) {
                 if (count > 0) {
-                    srvPlayer.list();
+                    srvGroupPlayer.list();
                 }
             });
         };
         $scope.configRule = function() {
-            srvRound.config();
+            srvGroupRound.config();
         };
         $scope.emptyRule = function() {
-            srvRound.empty().then(function() {
+            srvGroupRound.empty().then(function() {
                 if ($scope.activeRound !== null) {
                     $scope.openRound(null);
                 } else {
-                    srvPlayer.list(null);
+                    srvGroupPlayer.list(null);
                 }
             });
         };
@@ -35,27 +35,27 @@ define(['frame'], function(ngApp) {
             $scope.activeRound = round;
         };
         $scope.addRound = function() {
-            srvRound.add();
+            srvGroupRound.add();
         };
         $scope.removeRound = function() {
-            srvRound.remove($scope.activeRound).then(function() {
+            srvGroupRound.remove($scope.activeRound).then(function() {
                 $scope.activeRound = null;
             });
         };
         $scope.export = function() {
-            srvApp.export();
+            srvGroupApp.export();
         };
         $scope.execute = function() {
-            srvPlayer.execute();
+            srvGroupPlayer.execute();
         };
     }]);
-    ngApp.provider.controller('ctrlRound', ['$scope', 'srvRound', function($scope, srvRound) {
+    ngApp.provider.controller('ctrlRound', ['$scope', 'srvGroupRound', function($scope, srvGroupRound) {
         $scope.activeTabIndex = 0;
         $scope.activeTab = function(index) {
             $scope.activeTabIndex = index;
         };
         $scope.updateRound = function(name) {
-            srvRound.update($scope.activeRound, name);
+            srvGroupRound.update($scope.activeRound, name);
         };
     }]);
     ngApp.provider.controller('ctrlRule', ['$scope', '$uibModal', 'http2', 'noticebox', 'srvRecordConverter', function($scope, $uibModal, http2, noticebox, srvRecordConverter) {
@@ -105,10 +105,10 @@ define(['frame'], function(ngApp) {
             $scope.updateRound('targets');
         };
     }]);
-    ngApp.provider.controller('ctrlPlayers', ['$scope', 'srvPlayer', function($scope, srvPlayer) {
+    ngApp.provider.controller('ctrlPlayers', ['$scope', 'srvGroupPlayer', function($scope, srvGroupPlayer) {
         var players;
         $scope.players = players = [];
-        srvPlayer.init(players).then(function() {
+        srvGroupPlayer.init(players).then(function() {
             $scope.$watch('activeRound', function(round) {
                 if (round !== undefined) {
                     $scope.list();
@@ -117,29 +117,29 @@ define(['frame'], function(ngApp) {
             });
         });
         $scope.list = function() {
-            srvPlayer.list($scope.activeRound).then(function() {
+            srvGroupPlayer.list($scope.activeRound).then(function() {
                 if ($scope.activeRound) {
                     $scope.activeTab(players.length ? 1 : 0);
                 }
             });
         };
         $scope.editPlayer = function(player) {
-            srvPlayer.edit(player).then(function(updated) {
-                srvPlayer.update(player, updated.player);
+            srvGroupPlayer.edit(player).then(function(updated) {
+                srvGroupPlayer.update(player, updated.player);
             });
         };
         $scope.addPlayer = function() {
-            srvPlayer.edit({ tags: '' }).then(function(updated) {
-                srvPlayer.add(updated.player);
+            srvGroupPlayer.edit({ tags: '' }).then(function(updated) {
+                srvGroupPlayer.add(updated.player);
             });
         };
         $scope.removePlayer = function(player) {
             if (window.confirm('确认删除？')) {
-                srvPlayer.remove(player);
+                srvGroupPlayer.remove(player);
             }
         };
         $scope.empty = function() {
-            srvPlayer.empty();
+            srvGroupPlayer.empty();
         };
         // 当前选中的行
         $scope.rows = {
@@ -172,14 +172,14 @@ define(['frame'], function(ngApp) {
         };
         $scope.quitGroup = function(players) {
             if ($scope.activeRound && players.length) {
-                srvPlayer.quitGroup($scope.activeRound, players).then(function() {
+                srvGroupPlayer.quitGroup($scope.activeRound, players).then(function() {
                     $scope.rows.reset();
                 });
             }
         };
         $scope.joinGroup = function(round, players) {
             if (round && players.length) {
-                srvPlayer.joinGroup(round, players).then(function() {
+                srvGroupPlayer.joinGroup(round, players).then(function() {
                     $scope.rows.reset();
                 });
             }

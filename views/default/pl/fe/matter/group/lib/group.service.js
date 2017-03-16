@@ -1,5 +1,5 @@
 angular.module('service.group', ['ui.bootstrap', 'ui.xxt']).
-provider('srvApp', function() {
+provider('srvGroupApp', function() {
     var _siteId, _appId, _oApp;
     this.config = function(siteId, appId) {
         _siteId = siteId;
@@ -180,13 +180,13 @@ provider('srvApp', function() {
             },
         };
     }];
-}).provider('srvRound', function() {
+}).provider('srvGroupRound', function() {
     var _rounds, _siteId, _appId;
     this.config = function(siteId, appId) {
         _siteId = siteId;
         _appId = appId;
     };
-    this.$get = ['$q', '$uibModal', 'http2', 'noticebox', 'srvApp', function($q, $uibModal, http2, noticebox, srvApp) {
+    this.$get = ['$q', '$uibModal', 'http2', 'noticebox', 'srvGroupApp', function($q, $uibModal, http2, noticebox, srvGroupApp) {
         return {
             cached: function() {
                 return _rounds;
@@ -214,7 +214,7 @@ provider('srvApp', function() {
             },
             config: function() {
                 var defer = $q.defer();
-                srvApp.get().then(function(oApp) {
+                srvGroupApp.get().then(function(oApp) {
                     $uibModal.open({
                         templateUrl: 'configRule.html',
                         controller: ['$uibModalInstance', '$scope', 'http2', function($mi, $scope, http2) {
@@ -303,13 +303,13 @@ provider('srvApp', function() {
             },
         }
     }];
-}).provider('srvPlayer', function() {
+}).provider('srvGroupPlayer', function() {
     var _oApp, _siteId, _appId, _aPlayers, _activeRound;
-    this.$get = ['$q', '$uibModal', 'http2', 'cstApp', 'pushnotify', 'srvRecordConverter', 'srvApp', function($q, $uibModal, http2, cstApp, pushnotify, srvRecordConverter, srvApp) {
+    this.$get = ['$q', '$uibModal', 'http2', 'cstApp', 'pushnotify', 'srvRecordConverter', 'srvGroupApp', function($q, $uibModal, http2, cstApp, pushnotify, srvRecordConverter, srvGroupApp) {
         return {
             init: function(aPlayers) {
                 var defer = $q.defer();
-                srvApp.get().then(function(oApp) {
+                srvGroupApp.get().then(function(oApp) {
                     _oApp = oApp;
                     _siteId = oApp.siteid;
                     _appId = oApp.id;
@@ -486,7 +486,7 @@ provider('srvApp', function() {
             edit: function(player) {
                 return $uibModal.open({
                     templateUrl: '/views/default/pl/fe/matter/group/component/playerEditor.html?_=4',
-                    controller: 'ctrlEditor',
+                    controller: 'ctrlGroupEditor',
                     windowClass: 'auto-height',
                     resolve: {
                         player: function() {
@@ -546,10 +546,10 @@ provider('srvApp', function() {
             }
         }
     }]
-}).controller('ctrlEditor', ['$scope', '$uibModalInstance', '$sce', 'player', 'srvRecordConverter', 'srvApp', 'srvRound', 'srvPlayer', function($scope, $mi, $sce, player, srvRecordConverter, srvApp, srvRound, srvPlayer) {
-    srvApp.get().then(function(oApp) {
+}).controller('ctrlGroupEditor', ['$scope', '$uibModalInstance', '$sce', 'player', 'srvRecordConverter', 'srvGroupApp', 'srvGroupRound', 'srvGroupPlayer', function($scope, $mi, $sce, player, srvRecordConverter, srvGroupApp, srvGroupRound, srvGroupPlayer) {
+    srvGroupApp.get().then(function(oApp) {
         $scope.app = oApp;
-        srvRound.list().then(function(rounds) {
+        srvGroupRound.list().then(function(rounds) {
             $scope.rounds = rounds;
         });
         if (player.data) {

@@ -900,7 +900,7 @@ define(['require', 'schema', 'page'], function(require, schemaLib, pageLib) {
                             targetAndMsg.users = [];
                             Object.keys(rows.selected).forEach(function(key) {
                                 if (rows.selected[key] === true) {
-                                    targetAndMsg.users.push(_aRecords[key].userid);
+                                    targetAndMsg.users.push(_ins._aRecords[key].userid);
                                 }
                             });
                         } else {
@@ -1060,7 +1060,7 @@ define(['require', 'schema', 'page'], function(require, schemaLib, pageLib) {
 
             return _ins;
         }];
-    }).provider('srvSignNotice', function(){
+    }).provider('srvSigninNotice', function(){
         this.$get = ['$q', 'http2', function($q, http2){
             return {
                 detail: function(batch) {

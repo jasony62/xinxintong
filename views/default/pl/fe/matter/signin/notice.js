@@ -5,7 +5,7 @@ define(['frame'], function(ngApp) {
         $scope.oBatchPage = oBatchPage = {};
         $scope.batches = aBatches = [];
         $scope.detail = function(batch) {
-            srvEnrollNotice.detail(batch).then(function(result) {
+            srvSigninNotice.detail(batch).then(function(result) {
                 var records, noticeStatus;
                 $scope.logs = result.logs;
                 if (result.records && result.records.length) {
@@ -32,7 +32,7 @@ define(['frame'], function(ngApp) {
                     recordSchemas.push(schema);
                 }
             });
-            srvTmplmsgNotice.init('enroll:' + app.id, oBatchPage, aBatches);
+            srvTmplmsgNotice.init('signin:' + app.id, oBatchPage, aBatches);
             srvTmplmsgNotice.list();
             $scope.recordSchemas = recordSchemas;
         });

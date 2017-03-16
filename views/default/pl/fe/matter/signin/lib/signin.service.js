@@ -908,7 +908,7 @@ define(['require', 'schema', 'page'], function(require, schemaLib, pageLib) {
                         }
                         targetAndMsg.message = notify.message;
 
-                        url = '/rest/pl/fe/matter/signin/record/notify';
+                        url = '/rest/pl/fe/matter/signin/notice/send';
                         url += '?site=' + siteId;
                         url += '&app=' + appId;
                         url += '&tmplmsg=' + notify.tmplmsg.id;

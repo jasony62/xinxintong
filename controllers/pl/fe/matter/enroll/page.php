@@ -96,7 +96,7 @@ class page extends \pl\fe\matter\base {
 		$modelCode = $this->model('code\page');
 		$modelCode->removeByName($site, $cname);
 
-		$rst = $this->model()->delete('xxt_enroll_page', "aid='$app' and id=$pid");
+		$rst = $modelCode->delete('xxt_enroll_page', "aid='$app' and id=$pid");
 
 		return new \ResponseData($rst);
 	}

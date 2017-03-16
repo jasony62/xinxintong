@@ -107,36 +107,38 @@ class channel_model extends article_base {
 	 *
 	 * $channel_id int 频道的id
 	 * $channel 频道
-	 * $runningMpid
 	 *
 	 * 置顶+动态+置底
 	 *
 	 * return 频道包含的文章，小于等于频道的容量
 	 */
-	public function &getMatters($channel_id, $channel = null, $runningMpid = null) {
+	public function &getMatters($channel_id, $channel = null) {
+		$matters = []; // 返回结果
 		/**
 		 * load channel.
 		 */
 		if (empty($channel)) {
-			$channel = $this->byId($channel_id, 'id,mpid,matter_type,orderby,volume,top_type,top_id,bottom_type,bottom_id');
+			$channel = $this->byId($channel_id, 'id,siteid,matter_type,orderby,volume,top_type,top_id,bottom_type,bottom_id');
 		}
-
+		if ($channel === false) {
+			return $matters;
+		}
 		if (empty($channel->matter_type)) {
-			$matterTypes = array(
+			$matterTypes = [
 				'article' => 'xxt_article',
+				'enroll' => 'xxt_enroll',
+				'signin' => 'xxt_signin',
+				'lottery' => 'xxt_lottery',
 				//'channel' => 'xxt_channel',
 				//'news' => 'xxt_news',
 				'link' => 'xxt_link',
-				'enroll' => 'xxt_enroll',
 				'contribute' => 'xxt_contribute',
 				//'wall'=>'xxt_wall',
-				//'lottery'=>'xxt_lottery'
-			);
+			];
 		} else {
-			$matterTypes = array($channel->matter_type => 'xxt_' . $channel->matter_type);
+			$matterTypes = [$channel->matter_type => 'xxt_' . $channel->matter_type];
 		}
 
-		$matters = array(); // 返回结果
 		$fixed_num = 0;
 		/**
 		 * top matter
@@ -158,28 +160,33 @@ class channel_model extends article_base {
 			$bottom = $this->query_obj_ss($qb);
 			$fixed_num++;
 		}
-		if ($runningMpid !== null && $runningMpid !== $channel->mpid) {
-			$pmpid = $channel->mpid;
-		}
-
 		/**
 		 * in channel
 		 */
 		foreach ($matterTypes as $type => $table) {
-			$q1 = array();
+			$q1 = [];
 			$q1[] = $this->matterColumns($type) . ",cm.create_at add_at";
 			$q1[] = "$table m,xxt_channel_matter cm";
-			$qaw = "m.state=1 and cm.channel_id=$channel_id and m.id=cm.matter_id and cm.matter_type='$type'";
-			if ($type === 'article') {
-				/*审核通过的单图文*/
-				$qaw .= " and m.approved='Y'";
+			$qaw = "cm.channel_id=$channel_id and m.id=cm.matter_id and cm.matter_type='$type'";
+			switch ($type) {
+			case 'article':
+				$qaw .= " and m.state<>0 and m.approved='Y'";
+				break;
+			case 'enroll':
+			case 'signin':
+			case 'lottery':
+				$qaw .= " and m.state<>0";
+				break;
+			default:
+				$qaw .= " and m.state=1";
 			}
+
 			!empty($top) && $top->type === $type && $qaw .= " and m.id<>$top->id";
 
 			!empty($bottom) && $bottom->type === $type && $qaw .= " and m.id<>$bottom->id";
 
 			$q1[] = $qaw;
-			$q2 = array();
+			$q2 = [];
 			/**
 			 * order by
 			 */
@@ -277,10 +284,9 @@ class channel_model extends article_base {
 	/**
 	 * 直接打开频道的情况下（不是返回信息卡片），忽略置顶和置底，返回频道中的所有条目
 	 *
-	 * $channel_id int 频道的id
-	 * $channel 频道
+	 * @param int $channel_id 频道的id
 	 *
-	 * return 频道包含的所有条目
+	 * @return 频道包含的所有条目
 	 */
 	public function &getMattersNoLimit($channel_id, $userid, $params) {
 		/**
@@ -309,13 +315,11 @@ class channel_model extends article_base {
 
 			$matters = $this->query_objs_ss($q1, $q2);
 		} else {
-			$matters = array();
-
-			$q1 = array();
-			$q1[] = 'cm.create_at,cm.matter_type,cm.matter_id';
-			$q1[] = 'xxt_channel_matter cm';
-			$q1[] = "cm.channel_id='$channel_id'";
-
+			$q1 = [
+				'cm.create_at,cm.matter_type,cm.matter_id',
+				'xxt_channel_matter cm',
+				["cm.channel_id" => $channel_id],
+			];
 			$q2['o'] = 'cm.create_at desc';
 
 			// 分页获取，如果素材已经删除，或者素材尚未批准的情况下，分页会导致返回的数量不正确
@@ -325,18 +329,40 @@ class channel_model extends article_base {
 			// 		'l' => $params->size,
 			// 	);
 			// }
-
+			$matters = []; // 可用的素材
 			$simpleMatters = $this->query_objs_ss($q1, $q2);
 			foreach ($simpleMatters as $sm) {
 				$fullMatter = \TMS_APP::M('matter\\' . $sm->matter_type)->byId($sm->matter_id);
-				if ($fullMatter && $fullMatter->state === '1') {
-					if ($sm->matter_type === 'article' && $fullMatter->approved !== 'Y') {
-						continue;
-					}
-					$fullMatter->type = $sm->matter_type;
-					$fullMatter->add_at = $sm->create_at;
-					$matters[] = $fullMatter;
+				if (false === $fullMatter) {
+					continue;
 				}
+				/* 检查素材是否可用 */
+				$valid = true;
+				switch ($sm->matter_type) {
+				case 'article':
+					if ($fullMatter->state !== '1' || $fullMatter->approved !== 'Y') {
+						$valid = false;
+					}
+					break;
+				case 'enroll':
+				case 'signin':
+				case 'lottery':
+					if ($fullMatter->state !== '1' && $fullMatter->state !== '2') {
+						$valid = false;
+					}
+					break;
+				default:
+					if ($fullMatter->state !== '1') {
+						$valid = false;
+					}
+				}
+				if (!$valid) {
+					continue;
+				}
+
+				$fullMatter->type = $sm->matter_type;
+				$fullMatter->add_at = $sm->create_at;
+				$matters[] = $fullMatter;
 			}
 		}
 
@@ -367,7 +393,7 @@ class channel_model extends article_base {
 		$q = [
 			'count(*)',
 			'xxt_channel_matter',
-			"channel_id=$id and matter_id='$matter->id' and matter_type='matter->type'",
+			["channel_id" => $id, "matter_id" => $matter->id, "matter_type" => $matter->type],
 		];
 		if (1 === (int) $this->query_val_ss($q)) {
 			return false;
@@ -379,7 +405,7 @@ class channel_model extends article_base {
 		$this->insert('xxt_channel_matter', $newc, false);
 
 		/* 如果频道已经发布到团队主页上，频道增加素材时，推送给关注者 */
-		if ($this->_isAtHome($channel->id)) {
+		if ($this->isAtHome($channel->id)) {
 			$modelSite = \TMS_APP::M('site');
 			$site = $modelSite->byId($matter->siteid);
 			/**
@@ -402,14 +428,18 @@ class channel_model extends article_base {
 
 		$rst = $this->delete(
 			'xxt_channel_matter',
-			"matter_id='$matter->id' and matter_type='$matter->type' and channel_id=$id");
+			["matter_id" => $matter->id, "matter_type" => $matter->type, "channel_id" => $id]
+		);
 
 		return $rst;
 	}
 	/**
 	 * 频道是否已发布到团队站点首页
+	 *
+	 * @param int @id channel'is
+	 *
 	 */
-	private function _isAtHome($id) {
+	public function isAtHome($id) {
 		$q = [
 			'count(*)',
 			'xxt_site_home_channel',

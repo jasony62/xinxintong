@@ -14,20 +14,19 @@
                   <th style="width:3em"></th>
                     <th style="width:4em">发送结果</th>
                     <th>失败原因</th>
-                    <th>用户昵称</th>
-                    <th style='width:100px'>分组</th>
-                    <th class='custom-col row' ng-repeat="c in recordSchemas">{{c.title}}</th>
+                    <th style='width:120px' ng-if="null===activeRound">分组</th>
+                    <th class='custom-col {{schema.type}}' ng-repeat="c in recordSchemas">{{c.title}}</th>
                     <th style='width:4em'>用户昵称</th>
+                    <th style='width:140px' ng-if="app.tags.length">标签</th>
                     <th style='width:140px'>备注</th>
                 </tr>
             </thead>
             <tbody>
                 <tr ng-repeat='r in records' class='record'>
-                  <td>{{$index+1}}</td>
+                    <td>{{$index+1}}</td>
                     <td>{{r._noticeStatus[0]}}</td>
                     <td style='color:red'>{{r._noticeStatus[1]}}</td>
-                    <td>{{r.nickname}}</td>
-                    <td>{{(r.enroll_at*1000)|date:'MM-dd HH:mm'}}</td>
+                    <td ng-if="null===activeRound">{{r.round_title}}</td>
                     <td ng-repeat="schema in recordSchemas" ng-switch on="schema.type">
                         <span ng-switch-when="image">
                             <img ng-repeat="img in r._data[schema.id]" ng-src='{{img}}' />
@@ -38,7 +37,7 @@
                         <span ng-switch-when="date">{{(r._data[schema.id]*1000)|date:'yy-MM-dd HH:mm'}}</span>
                         <span ng-switch-default ng-bind-html="r._data[schema.id]"></span>
                     </td>
-                    <td>{{r.verified}}</td>
+                    <td>{{r.nickname}}</td>
                     <td ng-if="app.tags.length">{{r.tags}}</td>
                     <td>{{r.comment}}</td>
                 </tr>

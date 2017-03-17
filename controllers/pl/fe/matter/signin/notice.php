@@ -21,12 +21,12 @@ class notice extends \pl\fe\matter\base {
 	 * @param string $tmplmsg 模板消息id
 	 *
 	 */
-	public function send_action($site, $app, $tmplmsg) {
+	public function send_action($site, $app, $tmplmsg, $rid = null) {
 		if (false === ($user = $this->accountUser())) {
 			return new \ResponseTimeout();
 		}
 
-		$modelRec = $this->model('matter\signin');
+		$modelRec = $this->model('matter\signin\record');
 		$site = $modelRec->escape($site);
 		$app = $modelRec->escape($app);
 		$posted = $this->getPostJson();
@@ -35,7 +35,10 @@ class notice extends \pl\fe\matter\base {
 		if (isset($posted->criteria)) {
 			// 筛选条件
 			$criteria = $posted->criteria;
-			$participants = $modelRec->participants($site, $app, $options, $criteria);
+			$options = [
+				'rid' => $rid,
+			];
+			$participants = $modelRec->find($app, $options, $criteria);
 		} else if (isset($posted->users)) {
 			// 直接指定
 			$participants = $posted->users;

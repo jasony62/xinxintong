@@ -197,7 +197,7 @@ class main extends \pl\fe\matter\base {
 	 * @return object ResponseData
 	 *
 	 */
-	public function createByOther_action($site, $template, $mission = null) {
+	public function createByOther_action($site, $template, $vid = null, $mission = null) {
 		if (false === ($user = $this->accountUser())) {
 			return new \ResponseTimeout();
 		}
@@ -208,10 +208,12 @@ class main extends \pl\fe\matter\base {
 		$modelPage = $this->model('matter\enroll\page');
 		$modelCode = $this->model('code\page');
 
-		$template = $this->model('matter\template')->byId($template);
-		$aid = $template->matter_id;
-		if (false === ($copied = $modelApp->byId($aid))) {
-			return new \ResponseError('模板对应的活动已经不存在，无法创建活动');
+		$template = $this->model('matter\template')->byId($template, $vid);
+		if (empty($template->pub_version)) {
+			return new \ResponseError('模板已下架');
+		}
+		if ($template->pub_status === 'N') {
+			return new \ResponseError('当前版本未发布，无法使用');
 		}
 
 		/* 检查用户积分 */
@@ -223,7 +225,6 @@ class main extends \pl\fe\matter\base {
 		}
 
 		/* 创建活动 */
-		$template = $modelApp->escape($template);
 
 		$newaid = uniqid();
 		$newapp = array();
@@ -252,24 +253,21 @@ class main extends \pl\fe\matter\base {
 		$newapp['modifier_src'] = $user->src;
 		$newapp['modifier_name'] = $user->name;
 		$newapp['modify_at'] = $current;
-		$newapp['scenario'] = $copied->scenario;
-		$newapp['scenario_config'] = $copied->scenario_config;
-		$newapp['count_limit'] = $copied->count_limit;
-		$newapp['data_schemas'] = $modelApp->escape($copied->data_schemas);
-		$newapp['public_visible'] = $copied->public_visible;
-		$newapp['open_lastroll'] = $copied->open_lastroll;
-		$newapp['tags'] = $copied->tags;
-		$newapp['enrolled_entry_page'] = $copied->enrolled_entry_page;
-		$newapp['entry_rule'] = json_encode($copied->entry_rule);
-		$newapp['receiver_page'] = $copied->receiver_page;
+		$newapp['scenario'] = $template->scenario;
+		$newapp['scenario_config'] = $template->scenario_config;
+		$newapp['multi_rounds'] = $template->multi_rounds;
+		$newapp['data_schemas'] = $modelApp->escape($template->data_schemas);
+		$newapp['open_lastroll'] = $template->open_lastroll;
+		$newapp['enrolled_entry_page'] = $template->enrolled_entry_page;
 		$newapp['template_id'] = $template->id;
+		$newapp['template_version'] = $template->version;
 		$newapp['can_siteuser'] = 'Y';
 
 		$modelApp->insert('xxt_enroll', $newapp, false);
 
 		/* 复制自定义页面 */
-		if ($copied->pages) {
-			foreach ($copied->pages as $ep) {
+		if ($template->pages) {
+			foreach ($template->pages as $ep) {
 				$newPage = $modelPage->add($user, $site, $newaid);
 				$rst = $modelPage->update(
 					'xxt_enroll_page',
@@ -651,25 +649,32 @@ class main extends \pl\fe\matter\base {
 			return new \ResponseTimeout();
 		}
 
+		$posted = $this->getPostJson();
 		$modelApp = $this->model('matter\enroll');
-		/**
-		 * 处理数据
-		 */
-		$nv = $this->getPostJson();
-		foreach ($nv as $n => $v) {
-			if (in_array($n, ['entry_rule', 'data_schemas'])) {
-				$nv->$n = $modelApp->escape($modelApp->toJson($v));
+
+		/* 处理数据 */
+		$updated = new \stdClass;
+		foreach ($posted as $n => $v) {
+			if (in_array($n, ['title', 'summary'])) {
+				$updated->{$n} = $modelApp->escape($v);
+			} else if (in_array($n, ['entry_rule', 'data_schemas'])) {
+				$updated->{$n} = $modelApp->escape($modelApp->toJson($v));
+			} else if ($n === 'scenarioConfig') {
+				$updated->scenario_config = $modelApp->escape($modelApp->toJson($v));
+			} else {
+				$updated->{$n} = $v;
 			}
 		}
-		$nv->modifier = $user->id;
-		$nv->modifier_src = $user->src;
-		$nv->modifier_name = $user->name;
-		$nv->modify_at = time();
-		$rst = $modelApp->update('xxt_enroll', $nv, ["id" => $app]);
+
+		$updated->modifier = $user->id;
+		$updated->modifier_src = $user->src;
+		$updated->modifier_name = $user->name;
+		$updated->modify_at = time();
+
+		$rst = $modelApp->update('xxt_enroll', $updated, ["id" => $app]);
 		if ($rst) {
 			// 记录操作日志
 			$matter = $modelApp->byId($app, 'id,title,summary,pic');
-			$matter->type = 'enroll';
 			$this->model('matter\log')->matterOp($site, $user, $matter, 'U');
 		}
 

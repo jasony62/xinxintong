@@ -38,6 +38,14 @@ ngApp.controller('ctrlSetting', ['$scope', 'http2', 'mattersgallery', function($
         title: '登记活动',
         url: '/rest/pl/fe/matter'
     }, {
+        value: 'signin',
+        title: '签到活动',
+        url: '/rest/pl/fe/matter'
+    }, {
+        value: 'lottery',
+        title: '抽奖活动',
+        url: '/rest/pl/fe/matter'
+    }, {
         value: 'link',
         title: '链接',
         url: '/rest/mp/matter'
@@ -48,18 +56,6 @@ ngApp.controller('ctrlSetting', ['$scope', 'http2', 'mattersgallery', function($
     }, {
         name: 'article',
         title: '单图文'
-    }, {
-        name: 'link',
-        title: '链接'
-    }, {
-        name: 'enroll',
-        title: '登记活动'
-    }, {
-        name: 'lottery',
-        title: '抽奖活动'
-    }, {
-        name: 'wall',
-        title: '信息墙'
     }, {
         name: 'contribute',
         title: '投稿活动'

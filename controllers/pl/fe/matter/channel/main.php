@@ -69,6 +69,8 @@ class main extends \pl\fe\matter\base {
 		if (false === ($user = $this->accountUser())) {
 			return new \ResponseTimeout();
 		}
+
+		$modelCh = $this->model('matter\channel');
 		$posted = $this->getPostJson();
 		$current = time();
 
@@ -83,8 +85,9 @@ class main extends \pl\fe\matter\base {
 		$channel['modifier_name'] = $user->name;
 		$channel['modify_at'] = $current;
 		$channel['title'] = isset($posted->title) ? $posted->title : '新频道';
+		$channel['matter_type'] = '';
 
-		$id = $this->model()->insert('xxt_channel', $channel, true);
+		$id = $modelCh->insert('xxt_channel', $channel, true);
 
 		/* 记录操作日志 */
 		$matter = (object) $channel;
@@ -92,36 +95,54 @@ class main extends \pl\fe\matter\base {
 		$matter->type = 'channel';
 		$this->model('matter\log')->matterOp($site, $user, $matter, 'C');
 
-		$channel = $this->model('matter\channel')->byId($id);
+		$channel = $modelCh->byId($id);
 
 		return new \ResponseData($channel);
 	}
 	/**
 	 * 更新频道的属性信息
 	 *
-	 * $id channel's id
-	 * $nv pair of name and value
+	 * @param string $site site's id
+	 * @param int $id channel's id
+	 *
 	 */
 	public function update_action($site, $id) {
 		if (false === ($user = $this->accountUser())) {
 			return new \ResponseTimeout();
 		}
-		$nv = $this->getPostJson();
+
+		$modelCh = $this->model('matter\channel');
+		$channel = $modelCh->byId($id, 'id,title');
+
+		$updatedHomeCh = []; // 更新站点频道
+		$updated = new \stdClass;
+		$posted = $this->getPostJson();
+		foreach ($posted as $k => $v) {
+			if (in_array($k, ['title', 'summary'])) {
+				$updatedHomeCh[$k] = $updated->{$k} = $modelCh->escape($v);
+			}if ($k === 'pic') {
+				$updatedHomeCh[$k] = $updated->{$k} = $v;
+			} else {
+				$updated->{$k} = $v;
+			}
+		}
+
 		$current = time();
+		$updated->modifier = $user->id;
+		$updated->modifier_src = 'A';
+		$updated->modifier_name = $user->name;
+		$updated->modify_at = $current;
 
-		$nv->modifier = $user->id;
-		$nv->modifier_src = 'A';
-		$nv->modifier_name = $user->name;
-		$nv->modify_at = $current;
-
-		$rst = $this->model()->update('xxt_channel',
-			$nv,
-			"siteid='$site' and id=$id"
+		$rst = $modelCh->update('xxt_channel',
+			$updated,
+			["siteid" => $site, "id" => $id]
 		);
-		/* 记录操作日志 */
 		if ($rst) {
-			$channel = $this->model('matter\\' . 'channel')->byId($id, 'id,title');
-			$channel->type = 'channel';
+			/* 更新站点频道中的信息 */
+			if (count($updatedHomeCh)) {
+				$modelCh->update('xxt_site_home_channel', $updatedHomeCh, ['channel_id' => $id]);
+			}
+			/* 记录操作日志 */
 			$this->model('matter\log')->matterOp($site, $user, $channel, 'U');
 		}
 

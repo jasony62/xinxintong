@@ -70,6 +70,7 @@ $sql .= ",use_mission_header char(1) not null default 'Y'"; // 使用项目页�
 $sql .= ",use_mission_footer char(1) not null default 'Y'"; // 使用项目页脚
 $sql .= ",extattrs text"; //扩展属性
 $sql .= ",template_id int not null default 0"; // 通过哪个模板创建
+$sql .= ",template_version varchar(10) not null default ''";//模板版本号
 $sql .= ",op_short_url_code char(4) not null default ''"; // 运营管理页面的短链接编码
 $sql .= ",rp_short_url_code char(4) not null default ''"; // 统计报告页面的短链接编码
 $sql .= ",primary key(id)) ENGINE=MyISAM DEFAULT CHARSET=utf8";

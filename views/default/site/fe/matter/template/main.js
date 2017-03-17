@@ -12,6 +12,14 @@ define(["angular", "xxt-page"], function(angular, codeAssembler) {
             url = '/rest/pl/fe/template/pushHome?template=' + templateId;
             http2.get(url, function(rsp) {});
         };
+        $scope.chooseVersion = function(v) {
+            var previewURL;
+            http2.get('/rest/site/fe/matter/template/get?site=' + template.siteid + '&template=' + template.template_id + '&vid=' + v, function(rsp) {
+                $scope.version = rsp.data;
+                previewURL = '/rest/site/fe/matter/template/enroll/preview?site=' + template.siteid + '&tid=' + template.id + '&vid=' + v;
+                $scope.$broadcast('toChild', {0:previewURL,1:$scope.version});
+            });
+        }
         $scope.favorTemplate = function() {
             if ($scope.isLogin === 'N') {
                 location.href = '/rest/pl/fe/user/login';
@@ -78,11 +86,12 @@ define(["angular", "xxt-page"], function(angular, codeAssembler) {
                             };
                         }]
                     }).result.then(function(site) {
-                        var url = '/rest/pl/fe/template/purchase?template=' + template.id;
-                        url += '&site=' + site.id;
+                        var url = '/rest/pl/fe/template/purchase?site=' + site.id;
+                        url += '&template=' + template.id;
+                        url += '&vid=' + template.vid;
                         http2.get(url, function(rsp) {
-                            http2.get('/rest/pl/fe/matter/enroll/createByOther?site=' + site.id + '&template=' + template.id, function(rsp) {
-                                location.href = '/rest/pl/fe/matter/enroll?id=' + rsp.data.id + '&site=' + site.id;
+                            http2.get('/rest/pl/fe/matter/enroll/createByOther?site=' + site.id + '&template=' + template.id + '&vid=' + template.vid, function(rsp) {
+                                location.href = '/rest/pl/fe/matter/enroll?site=' + site.id + '&id=' + rsp.data.id;
                             });
                         });
                     });
@@ -93,6 +102,11 @@ define(["angular", "xxt-page"], function(angular, codeAssembler) {
             $scope.isLogin = rsp.data;
         });
         http2.get('/rest/site/fe/matter/template/get?template=' + $scope.templateId, function(rsp) {
+            angular.forEach(rsp.data.versions, function(item,index) {
+                if(item.pub_status == 'N') {
+                    rsp.data.versions.splice(index,1);
+                }
+            })
             $scope.template = template = rsp.data;
         });
     }]);
@@ -117,19 +131,38 @@ define(["angular", "xxt-page"], function(angular, codeAssembler) {
         $scope.$watch('template', function(template) {
             if (template === undefined) return;
             if (!previewURL) {
-                $scope.previewURL = previewURL = '/rest/site/fe/matter/enroll/preview?site=' + template.siteid + '&app=' + template.matter_id + '&start=Y';
+                $scope.previewURL = previewURL = '/rest/site/fe/matter/template/enroll/preview?site=' + template.siteid + '&tid=' + template.id + '&vid=' + template.vid;
             }
-            http2.get('/rest/site/fe/matter/enroll/get?app=' + template.matter_id + '&site=' + template.siteid + '&cascaded=Y', function(rsp) {
-                $scope.app = rsp.data.app;
+            http2.get('/rest/site/fe/matter/template/get?template=' + template.id + '&site=' + template.siteid, function(rsp) {
+                $scope.app = rsp.data;
                 params.pageAt = 0;
                 params.hasPrev = false;
                 $scope.params = params;
                 params.hasNext = !!$scope.app.pages.length;
             });
         });
+        $scope.$on('toChild', function(event, data){
+            var verData = data[1];
+            $scope.previewURL = previewURL = data[0];
+            $scope.nextPage = function() {
+               params.pageAt++;
+                params.hasPrev = true;
+                params.hasNext = params.pageAt < verData.pages.length - 1;
+            };
+            $scope.prevPage = function() {
+                params.pageAt--;
+                params.hasNext = true;
+                params.hasPrev = params.pageAt > 0;
+            };
+            $scope.$watch('params', function(params) {
+                if (params) {
+                    $scope.previewURL = previewURL + '&page=' + verData.pages[params.pageAt].name;
+                }
+            }, true);
+        })
         $scope.$watch('params', function(params) {
             if (params) {
-                $scope.previewURL = previewURL + '&openAt=' + params.openAt + '&page=' + $scope.app.pages[params.pageAt].name;
+                $scope.previewURL = previewURL + '&page=' + $scope.app.pages[params.pageAt].name;
             }
         }, true);
     }]);

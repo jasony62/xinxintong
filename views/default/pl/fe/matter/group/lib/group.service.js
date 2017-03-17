@@ -517,7 +517,7 @@ provider('srvGroupApp', function() {
                         }
                         targetAndMsg.message = notify.message;
 
-                        url = '/rest/pl/fe/matter/signin/notice/send';
+                        url = '/rest/pl/fe/matter/group/notice/send';
                         url += '?site=' + _siteId;
                         url += '&app=' + _appId;
                         url += '&tmplmsg=' + notify.tmplmsg.id;
@@ -533,10 +533,10 @@ provider('srvGroupApp', function() {
 }).provider('srvGroupNotice', function() {
     this.$get = ['$q', 'http2', function($q, http2){
         return {
-            detail: function(batch) {
+            detail: function(batch, app) {
                 var defer = $q.defer(),
                     url;
-                url = '/rest/pl/fe/matter/group/notice/logList?batch=' + batch.id;
+                url = '/rest/pl/fe/matter/group/notice/logList?batch=' + batch.id + '&aid=' + batch.aid;
                 http2.get(url, function(rsp) {
                     defer.resolve(rsp.data);
                 });

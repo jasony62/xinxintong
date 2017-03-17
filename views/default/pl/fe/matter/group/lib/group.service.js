@@ -305,7 +305,7 @@ provider('srvGroupApp', function() {
     }];
 }).provider('srvGroupPlayer', function() {
     var _oApp, _siteId, _appId, _aPlayers, _activeRound;
-    this.$get = ['$q', '$uibModal', 'http2', 'cstApp', 'pushnotify', 'srvRecordConverter', 'srvGroupApp', function($q, $uibModal, http2, cstApp, pushnotify, srvRecordConverter, srvGroupApp) {
+    this.$get = ['$q', '$uibModal', 'noticebox', 'http2', 'cstApp', 'pushnotify', 'srvRecordConverter', 'srvGroupApp', function($q, $uibModal, noticebox, http2, cstApp, pushnotify, srvRecordConverter, srvGroupApp) {
         return {
             init: function(aPlayers) {
                 var defer = $q.defer();
@@ -508,7 +508,7 @@ provider('srvGroupApp', function() {
                             targetAndMsg.users = [];
                             Object.keys(rows.selected).forEach(function(key) {
                                 if(rows.selected[key] === true) {
-                                    var rec = _ins._aRecords[key];
+                                    var rec = _aPlayers[key];
                                     targetAndMsg.users.push({ userid: rec.userid, enroll_key: rec.enroll_key });
                                 }
                             });
@@ -521,7 +521,7 @@ provider('srvGroupApp', function() {
                         url += '?site=' + _siteId;
                         url += '&app=' + _appId;
                         url += '&tmplmsg=' + notify.tmplmsg.id;
-                        url += _ins._oPage.joinParams();
+
 
                         http2.post(url, targetAndMsg, function(data) {
                             noticebox.success('发送完成');

@@ -185,7 +185,7 @@ define(['frame'], function(ngApp) {
             }
         };
         $scope.notify = function(isBatch) {
-            srvGroupPlayer.notify(isBatch ? $scope.rows.players : undefined);
+            srvGroupPlayer.notify(isBatch ? $scope.rows : undefined);
         };
         // 表格定义是否准备完毕
         $scope.tableReady = 'N';

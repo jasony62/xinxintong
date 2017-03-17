@@ -19,7 +19,6 @@
                     <th class='custom-col row' ng-repeat="c in recordSchemas">{{c.title}}</th>
                     <th style='width:4em'>审核通过</th>
                     <th>签到次数</th>
-                    <th>迟到次数</th>
                     <th style='width:100px' ng-repeat="r in app.rounds"><span>{{r.title}}</span></th>
                     <th style='width:100px' ng-if="app.tags.length">标签</th>
                     <th style='width:150px'>备注</th>
@@ -44,7 +43,6 @@
                     </td>
                     <td>{{r.verified}}</td>
                     <td>{{r.signin_num}}</td>
-                    <td>{{r.lateCount}}</td>
                     <td ng-repeat="rnd in app.rounds">
                         <span ng-class="{'signin_late':r._signinLate[rnd.rid]}" ng-if="r.signin_log[rnd.rid]">{{r.signin_log[rnd.rid]*1000|date:'MM-dd HH:mm'}}</span>
                     </td>

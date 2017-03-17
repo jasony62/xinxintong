@@ -517,11 +517,10 @@ provider('srvGroupApp', function() {
                         }
                         targetAndMsg.message = notify.message;
 
-                        url = '/rest/pl/fe/matter/enroll/notice/send';
+                        url = '/rest/pl/fe/matter/signin/notice/send';
                         url += '?site=' + _siteId;
                         url += '&app=' + _appId;
                         url += '&tmplmsg=' + notify.tmplmsg.id;
-
 
                         http2.post(url, targetAndMsg, function(data) {
                             noticebox.success('发送完成');

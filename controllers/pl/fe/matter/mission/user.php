@@ -83,7 +83,7 @@ class user extends \pl\fe\matter\base {
 			return new \ResponseError($result[1]);
 		}
 
-		$records = $result[1];
+		$records = $result[1]->records;
 
 		//需要获取登记或者签到活动的登记项名称
 		if($mission->user_app_type === 'enroll'){
@@ -118,26 +118,13 @@ class user extends \pl\fe\matter\base {
 
 		$colNumber = 0;
 		$objActiveSheet->setCellValueByColumnAndRow($colNumber++, 1, '登记时间');
-
-		if (!empty($round)) {
-			$objActiveSheet->setCellValueByColumnAndRow($colNumber++, 1, '签到时间');
-		} else {
-			$objActiveSheet->setCellValueByColumnAndRow($colNumber++, 1, '签到次数');
-			foreach ($app->rounds as $rnd) {
-				$objActiveSheet->setCellValueByColumnAndRow($colNumber++, 1, $rnd->title);
-			}
-			$objActiveSheet->setCellValueByColumnAndRow($colNumber++, 1, '迟到次数');
-		}
-		$objActiveSheet->setCellValueByColumnAndRow($colNumber++, 1, '审核通过');
 		foreach ($schemas as $schema) {
 			$objActiveSheet->setCellValueByColumnAndRow($colNumber++, 1, $schema->title);
 		}
-		if (!empty($app->tags)) {
-			$objActiveSheet->setCellValueByColumnAndRow($colNumber++, 1, '签到标签');
-		}
-		$objActiveSheet->setCellValueByColumnAndRow($colNumber++, 1, '签到备注');
-		$objActiveSheet->setCellValueByColumnAndRow($colNumber++, 1, '报名标签');
-		$objActiveSheet->setCellValueByColumnAndRow($colNumber++, 1, '报名备注');
+		$objActiveSheet->setCellValueByColumnAndRow($colNumber++, 1, '昵称');
+		$objActiveSheet->setCellValueByColumnAndRow($colNumber++, 1, '审核通过');
+		$objActiveSheet->setCellValueByColumnAndRow($colNumber++, 1, '所属分组');
+		$objActiveSheet->setCellValueByColumnAndRow($colNumber++, 1, '备注');
 
 		// 转换数据
 		$rowNumber = 2;
@@ -145,43 +132,8 @@ class user extends \pl\fe\matter\base {
 			$colNumber = 0;
 			// 基本信息
 			$objActiveSheet->setCellValueByColumnAndRow($colNumber++, $rowNumber, date('y-m-j H:i', $record->enroll_at));
-			// 处理签到日志
-			$signinLog = empty($record->signin_log) ? new \stdClass : json_decode($record->signin_log);
-			if (!empty($round)) {
-				if (isset($signinLog->{$round->rid})) {
-					$signinAt = $signinLog->{$round->rid};
-					if (!empty($round->late_at) && $signinAt > $round->late_at + 59) {
-						$objActiveSheet->setCellValueByColumnAndRow($colNumber, $rowNumber, date('y-m-j H:i', $signinAt));
-						$objActiveSheet->getStyleByColumnAndRow($colNumber++, $rowNumber)->getFont()->getColor()->setRGB('FF0000');
-					} else {
-						$objActiveSheet->setCellValueByColumnAndRow($colNumber++, $rowNumber, date('y-m-j H:i', $signinAt));
-					}
-				} else {
-					$objActiveSheet->setCellValueByColumnAndRow($colNumber++, $rowNumber, '');
-				}
-			} else {
-				$objActiveSheet->setCellValueByColumnAndRow($colNumber++, $rowNumber, $record->signin_num);
-				$lateCount = 0;
-				foreach ($app->rounds as $rnd) {
-					if (isset($signinLog->{$rnd->rid})) {
-						$signinAt = $signinLog->{$rnd->rid};
-						if (!empty($rnd->late_at) && $signinAt > $rnd->late_at + 59) {
-							$objActiveSheet->setCellValueByColumnAndRow($colNumber, $rowNumber, date('y-m-j H:i', $signinAt));
-							$objActiveSheet->getStyleByColumnAndRow($colNumber++, $rowNumber)->getFont()->getColor()->setRGB('FF0000');
-							$lateCount++;
-						} else {
-							$objActiveSheet->setCellValueByColumnAndRow($colNumber++, $rowNumber, date('y-m-j H:i', $signinAt));
-						}
-					} else {
-						$objActiveSheet->setCellValueByColumnAndRow($colNumber++, $rowNumber, '');
-					}
-				}
-				$objActiveSheet->setCellValueByColumnAndRow($colNumber++, $rowNumber, $lateCount);
-			}
-			$objActiveSheet->setCellValueByColumnAndRow($colNumber++, $rowNumber, $record->verified);
 			// 处理登记项
-			//$data = str_replace("\n", ' ', $record->data);
-			$data = json_decode($record->data);
+			$data = $record->data;
 			foreach ($schemas as $schema) {
 				$v = isset($data->{$schema->id}) ? $data->{$schema->id} : '';
 				switch ($schema->type) {
@@ -214,29 +166,21 @@ class user extends \pl\fe\matter\base {
 					break;
 				}
 			}
-			// 基本信息
-			if (!empty($app->tags)) {
-				$objActiveSheet->setCellValueByColumnAndRow($colNumber++, $rowNumber, isset($record->tags) ? $record->tags : '');
-			}
-			$objActiveSheet->setCellValueByColumnAndRow($colNumber++, $rowNumber, isset($record->comment) ? $record->comment : '');
-			// 关联的报名记录
-			if (!empty($record->verified_enroll_key)) {
-				$q = [
-					'enroll_at,tags,comment',
-					'xxt_enroll_record',
-					"state=1 and aid='{$app->enroll_app_id}' and enroll_key='{$record->verified_enroll_key}'",
-				];
-				if ($enrollRecord = $modelApp->query_obj_ss($q)) {
-					$objActiveSheet->setCellValueByColumnAndRow($colNumber++, $rowNumber, isset($enrollRecord->tags) ? $enrollRecord->tags : '');
-					$objActiveSheet->setCellValueByColumnAndRow($colNumber++, $rowNumber, isset($enrollRecord->comment) ? $enrollRecord->comment : '');
-				} else {
-					$objActiveSheet->setCellValueByColumnAndRow($colNumber++, $rowNumber, '');
-					$objActiveSheet->setCellValueByColumnAndRow($colNumber++, $rowNumber, '');
+			//昵称
+			$objActiveSheet->setCellValueByColumnAndRow($colNumber++, $rowNumber, $record->nickname);
+			//审核通过
+			$objActiveSheet->setCellValueByColumnAndRow($colNumber++, $rowNumber, $record->verified);
+			// 所属分组
+			if(!empty($record->groupRecords)){
+				$groups = [];
+				foreach ($record->groupRecords as $group) {
+					$groups[] = $group->app.':'.$group->round_title;
 				}
-			} else {
-				$objActiveSheet->setCellValueByColumnAndRow($colNumber++, $rowNumber, '');
-				$objActiveSheet->setCellValueByColumnAndRow($colNumber++, $rowNumber, '');
+				$group = implode(',',$groups);
 			}
+			$objActiveSheet->setCellValueByColumnAndRow($colNumber++, $rowNumber, isset($group) ? $group : '');
+			//备注
+			$objActiveSheet->setCellValueByColumnAndRow($colNumber++, $rowNumber, isset($record->comment) ? $record->comment : '');
 			// next row
 			$rowNumber++;
 		}

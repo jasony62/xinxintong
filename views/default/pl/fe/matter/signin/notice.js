@@ -18,7 +18,6 @@ define(['frame'], function(ngApp) {
                         }
                     });
                     $scope.records = records;
-                    console.log(records);
                 }
                 $scope.activeBatch = batch;
             })

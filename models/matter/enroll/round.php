@@ -27,9 +27,11 @@ class round_model extends \TMS_MODEL {
 		return $rounds;
 	}
 	/**
+	 * 获得指定登记活动的当前轮次
 	 *
-	 * $siteId
-	 * $aid
+	 * @param $siteId
+	 * @param $aid
+	 *
 	 */
 	public function getLast($siteId, $aid) {
 		$q = array(
@@ -49,23 +51,29 @@ class round_model extends \TMS_MODEL {
 		} else {
 			return false;
 		}
-
 	}
 	/**
-	 * 获得启用状态的轮次
-	 * 一个登记活动只能有一个启用状态的轮次
+	 * 获得指定登记活动中启用状态的轮次
 	 *
-	 * $siteId
-	 * $aid
+	 * 登记活动只能有一个启用状态的轮次
+	 * 如果登记活动设置了轮次定时生成规则，需要检查是否需要自动生成轮次
+	 *
+	 * @param object $app
+	 *
 	 */
-	public function getActive($siteId, $aid) {
-		$q = array(
-			'*',
-			'xxt_enroll_round',
-			"siteid='$siteId' and aid='$aid' and state=1",
-		);
+	public function getActive($app, $options = []) {
+		$fields = isset($options['fields']) ? $options['fields'] : '*';
 
-		$round = $this->query_obj_ss($q);
+		if (isset($app->roundCron->enabled) && $app->roundCron->enabled === 'Y') {
+			$round = false;
+		} else {
+			$q = [
+				$fields,
+				'xxt_enroll_round',
+				["siteid" => $app->siteid, "aid" => $app->id, "state" => 1],
+			];
+			$round = $this->query_obj_ss($q);
+		}
 
 		return $round;
 	}

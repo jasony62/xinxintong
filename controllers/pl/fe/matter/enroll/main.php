@@ -661,6 +661,8 @@ class main extends \pl\fe\matter\base {
 				$updated->{$n} = $modelApp->escape($modelApp->toJson($v));
 			} else if ($n === 'scenarioConfig') {
 				$updated->scenario_config = $modelApp->escape($modelApp->toJson($v));
+			} else if ($n === 'roundCron') {
+				$updated->round_cron = $modelApp->escape($modelApp->toJson($v));
 			} else {
 				$updated->{$n} = $v;
 			}

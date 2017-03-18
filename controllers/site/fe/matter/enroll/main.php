@@ -160,8 +160,8 @@ class main extends base {
 
 		if ($oOpenPage === null) {
 			// 根据登记状态确定进入页面
-			$hasEnrolled = $this->modelApp->userEnrolled($site, $app, $user);
-			if ($hasEnrolled) {
+			$userEnrolled = $this->modelApp->userEnrolled($app, $user);
+			if ($userEnrolled) {
 				if (empty($app->enrolled_entry_page)) {
 					$pages = $modelPage->byApp($app->id);
 					foreach ($pages as $p) {
@@ -201,14 +201,13 @@ class main extends base {
 	 * @param string $newRecord
 	 */
 	public function get_action($site, $app, $rid = null, $page = null, $ek = null, $newRecord = null, $ignoretime = 'N', $cascaded = 'N') {
-		$params = array();
+		$params = [];
 
 		/* 登记活动定义 */
 		$app = $this->modelApp->byId($app, ['cascaded' => $cascaded]);
 		if ($app === false) {
 			return new \ResponseError('指定的登记活动不存在，请检查参数是否正确');
 		}
-
 		$params['app'] = &$app;
 
 		/* 当前访问用户的基本信息 */
@@ -251,9 +250,10 @@ class main extends base {
 			}
 		}
 
+		$userEnrolled = $this->modelApp->userEnrolled($app, $user);
+
 		/* 自动登记???，解决之要打开了页面就登记？ */
-		$hasEnrolled = $this->modelApp->hasEnrolled($site, $app->id, $user);
-		if (!$hasEnrolled && $app->can_autoenroll === 'Y' && $oOpenPage->autoenroll_onenter === 'Y') {
+		if (!$userEnrolled && $app->can_autoenroll === 'Y' && $oOpenPage->autoenroll_onenter === 'Y') {
 			$modelRec = $this->model('matter\enroll\record');
 			$options = [
 				'fields' => 'enroll_key,enroll_at',

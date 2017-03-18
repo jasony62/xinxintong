@@ -32,7 +32,7 @@ class record_model extends \TMS_MODEL {
 		];
 		/* 记录所属轮次 */
 		$modelRun = $this->model('matter\enroll\round');
-		if ($activeRound = $modelRun->getActive($siteId, $app->id)) {
+		if ($activeRound = $modelRun->getActive($app)) {
 			$record['rid'] = $activeRound->rid;
 		}
 
@@ -419,7 +419,7 @@ class record_model extends \TMS_MODEL {
 				} else if (!empty($options->rid)) {
 					$rid = $options->rid;
 				}
-			} else if ($activeRound = $this->M('matter\enroll\round')->getActive($app->siteid, $app->id)) {
+			} else if ($activeRound = $this->M('matter\enroll\round')->getActive($app)) {
 				$rid = $activeRound->rid;
 			}
 		}
@@ -560,6 +560,9 @@ class record_model extends \TMS_MODEL {
 	 * [2] 数据项的定义
 	 */
 	public function participants($siteId, $appId, $options = null, $criteria = null) {
+		$app = new \stdClass;
+		$app->siteid = $siteId;
+		$app->id = $appId;
 		if ($options) {
 			is_array($options) && $options = (object) $options;
 			$rid = null;
@@ -569,7 +572,7 @@ class record_model extends \TMS_MODEL {
 				} else if (!empty($options->rid)) {
 					$rid = $options->rid;
 				}
-			} else if ($activeRound = \TMS_APP::M('matter\enroll\round')->getActive($siteId, $appId)) {
+			} else if ($activeRound = \TMS_APP::M('matter\enroll\round')->getActive($app)) {
 				$rid = $activeRound->rid;
 			}
 		}
@@ -654,7 +657,7 @@ class record_model extends \TMS_MODEL {
 				} else if (!empty($options->rid)) {
 					$rid = $options->rid;
 				}
-			} else if ($activeRound = $this->M('matter\enroll\round')->getActive($siteId, $app->id)) {
+			} else if ($activeRound = $this->M('matter\enroll\round')->getActive($app)) {
 				$rid = $activeRound->rid;
 			}
 		}
@@ -791,7 +794,7 @@ class record_model extends \TMS_MODEL {
 			"siteid='{$app->siteid}' and aid='{$app->id}' and state=1",
 		];
 		$q[2] .= " and userid='{$user->uid}'";
-		if ($activeRound = \TMS_APP::M('matter\enroll\round')->getActive($app->siteid, $app->id)) {
+		if ($activeRound = \TMS_APP::M('matter\enroll\round')->getActive($app)) {
 			$q[2] .= " and rid='$activeRound->rid'";
 		}
 		$q2 = [

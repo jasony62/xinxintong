@@ -122,6 +122,10 @@ class user extends \pl\fe\matter\base {
 			$objActiveSheet->setCellValueByColumnAndRow($colNumber++, 1, $schema->title);
 		}
 		$objActiveSheet->setCellValueByColumnAndRow($colNumber++, 1, '昵称');
+		if($mission->user_app_type === 'signin'){
+			$objActiveSheet->setCellValueByColumnAndRow($colNumber++, 1, '签到次数');
+			$objActiveSheet->setCellValueByColumnAndRow($colNumber++, 1, '迟到次数');
+		}
 		$objActiveSheet->setCellValueByColumnAndRow($colNumber++, 1, '审核通过');
 		$objActiveSheet->setCellValueByColumnAndRow($colNumber++, 1, '所属分组');
 		$objActiveSheet->setCellValueByColumnAndRow($colNumber++, 1, '备注');
@@ -168,6 +172,10 @@ class user extends \pl\fe\matter\base {
 			}
 			//昵称
 			$objActiveSheet->setCellValueByColumnAndRow($colNumber++, $rowNumber, $record->nickname);
+			if($mission->user_app_type === 'signin'){
+				$objActiveSheet->setCellValueByColumnAndRow($colNumber++, $rowNumber, $record->signin_num);
+				$objActiveSheet->setCellValueByColumnAndRow($colNumber++, $rowNumber, $record->lateCount);
+			}
 			//审核通过
 			$objActiveSheet->setCellValueByColumnAndRow($colNumber++, $rowNumber, $record->verified);
 			// 所属分组

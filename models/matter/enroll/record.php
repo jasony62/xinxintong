@@ -783,7 +783,7 @@ class record_model extends \TMS_MODEL {
 	/**
 	 * 计算指定登记项所有记录的合计
 	 */
-	public function sum4Schema($oApp) {
+	public function sum4Schema($oApp, $rid = null) {
 		if (empty($oApp->data_schemas)) {
 			return false;
 		}
@@ -797,6 +797,7 @@ class record_model extends \TMS_MODEL {
 					'xxt_enroll_record_data',
 					['aid' => $oApp->id, 'name' => $schema->id, 'state' => 1],
 				];
+				!empty($rid) && $q[2]['rid'] = $rid;
 				$sum = (int) $this->query_val_ss($q);
 				$result->{$schema->id} = $sum;
 			}

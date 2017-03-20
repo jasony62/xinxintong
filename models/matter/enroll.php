@@ -68,6 +68,13 @@ class enroll_model extends app_base {
 					$app->scenarioConfig = new \stdClass;
 				}
 			}
+			if (isset($app->round_cron)) {
+				if (!empty($app->round_cron)) {
+					$app->roundCron = json_decode($app->round_cron);
+				} else {
+					$app->roundCron = [];
+				}
+			}
 			if ($cascaded === 'Y') {
 				$modelPage = \TMS_APP::M('matter\enroll\page');
 				$app->pages = $modelPage->byApp($aid);
@@ -168,53 +175,27 @@ class enroll_model extends app_base {
 		return true;
 	}
 	/**
-	 * @todo 应该删除
 	 * 检查用户是否已经登记
 	 *
-	 * 如果设置轮次，只坚持当前轮次是否已经登记
-	 */
-	public function hasEnrolled($mpid, $aid, $user) {
-		if (empty($mpid) || empty($aid) || (empty($user->openid) && empty($user->vid))) {
-			return false;
-		}
-		$q = array(
-			'count(*)',
-			'xxt_enroll_record',
-			"state=1 and enroll_at>0 and mpid='$mpid' and aid='$aid'",
-		);
-		if (!empty($user->openid)) {
-			$q[2] .= " and openid='$user->openid'";
-		} else if (!empty($user->vid)) {
-			$q[2] .= " and vid='$user->vid'";
-		} else {
-			return false;
-		}
-		$modelRun = \TMS_APP::M('matter\enroll\round');
-		if ($activeRound = $modelRun->getActive($mpid, $aid)) {
-			$q[2] .= " and rid='$activeRound->rid'";
-		}
-		$rst = (int) $this->query_val_ss($q);
-
-		return $rst > 0;
-	}
-	/**
-	 * 检查用户是否已经登记
+	 * 如果设置轮次，只检查当前轮次是否已经登记
 	 *
-	 * 如果设置轮次，只坚持当前轮次是否已经登记
+	 * @param object $app
+	 * @param object $user
+	 *
 	 */
-	public function userEnrolled($siteId, &$app, &$user) {
-		if (empty($siteId) || empty($app) || empty($user->uid)) {
+	public function userEnrolled(&$app, &$user) {
+		if (empty($app) || empty($user->uid)) {
 			return false;
 		}
-		$q = array(
+		$q = [
 			'count(*)',
 			'xxt_enroll_record',
 			"state=1 and enroll_at>0 and aid='{$app->id}' and userid='{$user->uid}'",
-		);
+		];
 		/* 当前轮次 */
-		if ($app->multi_rounds === 'Y') {
-			$modelRun = \TMS_APP::M('matter\enroll\round');
-			if ($activeRound = $modelRun->getActive($siteId, $app->id)) {
+		if ($app->multi_rounds === 'Y' || (isset($app->roundCron) && isset($app->roundCron->enabled) && $app->roundCron->enabled === 'Y')) {
+			$modelRun = $this->model('matter\enroll\round');
+			if ($activeRound = $modelRun->getActive($app)) {
 				$q[2] .= " and rid='$activeRound->rid'";
 			}
 		}
@@ -250,29 +231,29 @@ class enroll_model extends app_base {
 	 *
 	 * @return
 	 */
-	public function &opData(&$app) {
-		$modelRnd = \TMS_APP::M('matter\enroll\round');
+	public function &opData(&$oApp) {
+		$modelRnd = $this->model('matter\enroll\round');
 		$page = (object) ['num' => 1, 'size' => 5];
-		$rounds = $modelRnd->byApp($app->siteid, $app->id, ['fields' => 'rid,title', 'page' => $page]);
-
+		$result = $modelRnd->byApp($oApp, ['fields' => 'rid,title', 'page' => $page]);
+		$rounds = $result->rounds;
 		if (empty($rounds)) {
 			$summary = new \stdClass;
 			/* total */
 			$q = [
 				'count(*)',
 				'xxt_enroll_record',
-				['aid' => $app->id, 'state' => 1],
+				['aid' => $oApp->id, 'state' => 1],
 			];
 			$summary->total = $this->query_val_ss($q);
 		} else {
 			$summary = [];
-			$activeRound = $modelRnd->getActive($app->siteid, $app->id);
+			$activeRound = $modelRnd->getActive($oApp);
 			foreach ($rounds as $round) {
 				/* total */
 				$q = [
 					'count(*)',
 					'xxt_enroll_record',
-					['aid' => $app->id, 'state' => 1, 'rid' => $round->rid],
+					['aid' => $oApp->id, 'state' => 1, 'rid' => $round->rid],
 				];
 				$round->total = $this->query_val_ss($q);
 				if ($activeRound && $round->rid === $activeRound->rid) {

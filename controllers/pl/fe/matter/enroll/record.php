@@ -44,6 +44,29 @@ class record extends \pl\fe\matter\base {
 		return new \ResponseData($result);
 	}
 	/**
+	 * 计算指定登记项所有记录的合计
+	 * 若不指定登记项，则返回活动中所有数值型登记项的合集
+	 * 若指定的登记项不是数值型，返回0
+	 */
+	public function sum4Schema_action($site, $app) {
+		if (false === ($user = $this->accountUser())) {
+			return new \ResponseTimeout();
+		}
+
+		// 登记活动
+		$modelApp = $this->model('matter\enroll');
+		$enrollApp = $modelApp->byId($app, ['cascaded' => 'N']);
+		if (false === $enrollApp) {
+			return new \ObjectNotFountError();
+		}
+
+		// 查询结果
+		$mdoelRec = $this->model('matter\enroll\record');
+		$result = $mdoelRec->sum4Schema($enrollApp);
+
+		return new \ResponseData($result);
+	}
+	/**
 	 * 已删除的活动登记名单
 	 *
 	 */

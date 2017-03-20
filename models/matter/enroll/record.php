@@ -220,6 +220,11 @@ class record_model extends \TMS_MODEL {
 				'name' => $n,
 				'value' => $this->escape($treatedValue),
 			];
+			/* 记录所属轮次 */
+			$modelRun = $this->model('matter\enroll\round');
+			if ($activeRound = $modelRun->getActive($app)) {
+				$ic['rid'] = $activeRound->rid;
+			}
 			$this->insert('xxt_enroll_record_data', $ic, false);
 		}
 

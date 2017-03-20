@@ -85,18 +85,18 @@ class user extends \pl\fe\matter\base {
 		$records = $result[1]->records;
 
 		//需要获取登记或者签到活动的登记项名称
-		if($mission->user_app_type === 'enroll'){
+		if ($mission->user_app_type === 'enroll') {
 			// 登记活动
 			$app = $this->model('matter\enroll')->byId(
 				$mission->user_app_id,
 				['fields' => 'id,title,data_schemas,scenario,enroll_app_id,group_app_id', 'cascaded' => 'N']
 			);
-		}elseif($mission->user_app_type === 'signin'){
+		} elseif ($mission->user_app_type === 'signin') {
 			$app = $this->model('matter\signin')->byId(
 				$mission->user_app_id,
 				['fields' => 'id,title,data_schemas,enroll_app_id,tags', 'cascaded' => 'Y']
 			);
-		}else{
+		} else {
 			return [false, '不支持的项目的用户清单活动类型'];
 		}
 
@@ -125,7 +125,7 @@ class user extends \pl\fe\matter\base {
 			$objActiveSheet->setCellValueByColumnAndRow($colNumber++, 1, $schema->title);
 		}
 		$objActiveSheet->setCellValueByColumnAndRow($colNumber++, 1, '昵称');
-		if($mission->user_app_type === 'signin'){
+		if ($mission->user_app_type === 'signin') {
 			$objActiveSheet->setCellValueByColumnAndRow($colNumber++, 1, '签到次数');
 			$objActiveSheet->setCellValueByColumnAndRow($colNumber++, 1, '迟到次数');
 		}
@@ -169,6 +169,15 @@ class user extends \pl\fe\matter\base {
 					}
 					$objActiveSheet->setCellValueByColumnAndRow($colNumber++, $rowNumber, implode(',', $labels));
 					break;
+				case 'score':
+					$labels = [];
+					foreach ($schema->ops as $op) {
+						if (isset($v->{$op->v})) {
+							$labels[] = $op->l . ':' . $v->{$op->v};
+						}
+					}
+					$objActiveSheet->setCellValueByColumnAndRow($i + 2, $rowIndex, implode(' / ', $labels));
+					break;
 				case 'image':
 				case 'file':
 					break;
@@ -179,19 +188,19 @@ class user extends \pl\fe\matter\base {
 			}
 			//昵称
 			$objActiveSheet->setCellValueByColumnAndRow($colNumber++, $rowNumber, $record->nickname);
-			if($mission->user_app_type === 'signin'){
+			if ($mission->user_app_type === 'signin') {
 				$objActiveSheet->setCellValueByColumnAndRow($colNumber++, $rowNumber, $record->signin_num);
 				$objActiveSheet->setCellValueByColumnAndRow($colNumber++, $rowNumber, $record->lateCount);
 			}
 			//审核通过
 			$objActiveSheet->setCellValueByColumnAndRow($colNumber++, $rowNumber, $record->verified);
 			// 所属分组
-			if(!empty($record->groupRecords)){
+			if (!empty($record->groupRecords)) {
 				$groups = [];
 				foreach ($record->groupRecords as $group) {
-					$groups[] = $group->app.':'.$group->round_title;
+					$groups[] = $group->app . ':' . $group->round_title;
 				}
-				$group = implode(',',$groups);
+				$group = implode(',', $groups);
 			}
 			$objActiveSheet->setCellValueByColumnAndRow($colNumber++, $rowNumber, isset($group) ? $group : '');
 			//备注

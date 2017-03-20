@@ -176,7 +176,7 @@ class user extends \pl\fe\matter\base {
 							$labels[] = $op->l . ':' . $v->{$op->v};
 						}
 					}
-					$objActiveSheet->setCellValueByColumnAndRow($i + 2, $rowIndex, implode(' / ', $labels));
+					$objActiveSheet->setCellValueByColumnAndRow($colNumber++, $rowNumber, implode(' / ', $labels));
 					break;
 				case 'image':
 				case 'file':

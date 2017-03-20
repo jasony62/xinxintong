@@ -1367,12 +1367,13 @@ define(['require', 'schema', 'page'], function(require, schemaLib, pageLib) {
                 });
                 return defer.promise;
             };
-            _ins.sum4Schema = function() {
+            _ins.sum4Schema = function(rid) {
                 var url, defer = $q.defer();
 
                 url = '/rest/pl/fe/matter/enroll/record/sum4Schema';
                 url += '?site=' + _siteId;
                 url += '&app=' + _appId;
+                url += '&rid=' + (rid ? rid : 'ALL');
 
                 http2.get(url, function(rsp) {
                     defer.resolve(rsp.data);

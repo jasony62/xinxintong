@@ -84,6 +84,11 @@ define(['frame'], function(ngApp) {
                 $scope.rows.selected = {};
             }
         });
+        $scope.$watch('page.byRound', function(rid) {
+            srvEnrollRecord.sum4Schema(rid).then(function(result) {
+                $scope.sum4Schema = result;
+            });
+        })
 
         $scope.page = {}; // 分页条件
         $scope.criteria = {}; // 过滤条件
@@ -119,9 +124,6 @@ define(['frame'], function(ngApp) {
             $scope.groupDataSchemas = groupDataSchemas;
             $scope.tmsTableWrapReady = 'Y';
             $scope.doSearch();
-            srvEnrollRecord.sum4Schema().then(function(result) {
-                $scope.sum4Schema = result;
-            });
         });
         srvEnlRnd.list().then(function(rounds) { $scope.rounds = rounds; })
     }]);

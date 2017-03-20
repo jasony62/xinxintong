@@ -787,7 +787,7 @@ define(['require', 'schema', 'page'], function(require, schemaLib, pageLib) {
                                 while ($scope.mdays.length < 28) {
                                     $scope.mdays.push('' + ($scope.mdays.length + 1));
                                 }
-                                $scope.cron = cron = angular.copy(oApp.roundCron);
+                                $scope.cron = cron = oApp.roundCron ? angular.copy(oApp.roundCron) : [];
                                 $scope.cancel = function() {
                                     $mi.dismiss();
                                 };

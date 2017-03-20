@@ -22,6 +22,9 @@ define(["require", "angular", "util.site", "enrollService"], function(require, a
         $scope.getRecords = function(pageNumber) {
             $scope.rows.reset();
             srvOpEnrollRecord.search(pageNumber);
+            srvOpEnrollRecord.sum4Schema($scope.page.byRound).then(function(result) {
+                $scope.sum4Schema = result;
+            });
         };
         $scope.removeRecord = function(record) {
             srvOpEnrollRecord.remove(record);
@@ -71,11 +74,6 @@ define(["require", "angular", "util.site", "enrollService"], function(require, a
                 $scope.rows.selected = {};
             }
         });
-        $scope.$watch('page.byRound', function(rid) {
-            srvOpEnrollRecord.sum4Schema().then(function(result) {
-                $scope.sum4Schema = result;
-            });
-        })
         $scope.page = {}; // 分页条件
         $scope.criteria = {}; // 过滤条件
         $scope.records = []; // 登记记录

@@ -4,6 +4,9 @@ define(['frame'], function(ngApp) {
         $scope.doSearch = function(pageNumber) {
             $scope.rows.reset();
             srvEnrollRecord.search(pageNumber);
+            srvEnrollRecord.sum4Schema($scope.page.byRound).then(function(result) {
+                $scope.sum4Schema = result;
+            });
         };
         $scope.$on('search-tag.xxt.combox.done', function(event, aSelected) {
             $scope.criteria.tags = $scope.criteria.tags.concat(aSelected);
@@ -84,11 +87,6 @@ define(['frame'], function(ngApp) {
                 $scope.rows.selected = {};
             }
         });
-        $scope.$watch('page.byRound', function(rid) {
-            srvEnrollRecord.sum4Schema(rid).then(function(result) {
-                $scope.sum4Schema = result;
-            });
-        })
 
         $scope.page = {}; // 分页条件
         $scope.criteria = {}; // 过滤条件

@@ -9,7 +9,7 @@ class record extends \site\op\base {
 	/**
 	 *
 	 */
-	public function list_action($site, $app, $page = 1, $size = 30, $tags = null, $orderby = null) {
+	public function list_action($site, $app, $rid = null, $page = 1, $size = 30, $tags = null, $orderby = null) {
 		if (!$this->checkAccessToken()) {
 			return new \InvalidAccessToken();
 		}
@@ -21,6 +21,7 @@ class record extends \site\op\base {
 			'page' => $page,
 			'size' => $size,
 			'orderby' => $orderby,
+			'rid' => $rid,
 		);
 
 		$app = $this->model('matter\enroll')->byId($app);

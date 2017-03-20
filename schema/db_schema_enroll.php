@@ -256,6 +256,7 @@ if (!$mysqli->query($sql)) {
  */
 $sql = "create table if not exists xxt_enroll_record_data(";
 $sql .= "aid varchar(40) not null";
+$sql .= ",rid varchar(13) not null default ''";
 $sql .= ",enroll_key varchar(32) not null";
 $sql .= ",name varchar(40) not null";
 $sql .= ",value text";

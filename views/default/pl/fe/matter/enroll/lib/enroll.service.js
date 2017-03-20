@@ -1433,6 +1433,7 @@ define(['require', 'schema', 'page'], function(require, schemaLib, pageLib) {
                 url = '/rest/site/op/matter/enroll/record/sum4Schema';
                 url += '?site=' + _siteId;
                 url += '&app=' + _appId;
+                url += '&accessToken=' + _accessId;
                 url += '&rid=' + (rid ? rid : 'ALL');
 
                 http2.get(url, function(rsp) {

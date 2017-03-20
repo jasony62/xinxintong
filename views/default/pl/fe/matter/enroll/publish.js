@@ -199,42 +199,24 @@ define(['frame'], function(ngApp) {
             }
         });
     }]);
-    ngApp.provider.controller('ctrlRound', ['$scope', 'srvEnrollRound', function($scope, srvEnlRound) {
+    ngApp.provider.controller('ctrlRound', ['$scope', 'srvEnrollRound', function($scope, srvEnlRnd) {
         var rounds, page;
         $scope.pageOfRound = page = {};
         $scope.rounds = rounds = [];
-        srvEnlRound.init(rounds, page)
-        $scope.roundState = srvEnlRound.RoundState;
-        srvEnlRound.list();
+        srvEnlRnd.init(rounds, page)
+        $scope.roundState = srvEnlRnd.RoundState;
+        $scope.openCron = function() {
+            srvEnlRnd.cron();
+        };
+        $scope.doSearchRound = function() {
+            srvEnlRnd.list();
+        };
         $scope.add = function() {
-            srvEnlRound.add();
+            srvEnlRnd.add();
         };
         $scope.edit = function(round) {
-            srvEnlRound.edit(round);
+            srvEnlRnd.edit(round);
         };
-    }]);
-    ngApp.provider.controller('ctrlCron', ['$scope', 'http2', function($scope, http2) {
-        $scope.mdays = [];
-        while ($scope.mdays.length < 28) {
-            $scope.mdays.push('' + ($scope.mdays.length + 1));
-        }
-        $scope.$watch('app.roundCron', function(cron) {
-            if (cron) {
-                $scope.cron = cron;
-                if (!cron.period) {
-                    cron.period = 'D';
-                }
-            }
-        });
-        $scope.$watch('app.roundCron.period', function(newPeriod, oldPeriod) {
-            if (oldPeriod && oldPeriod !== newPeriod) {
-                if (oldPeriod === 'W') {
-                    $scope.cron.wday = '';
-                } else if (oldPeriod === 'M') {
-                    $scope.cron.mday = '';
-                }
-            }
-            $scope.update('roundCron');
-        });
+        $scope.doSearchRound();
     }]);
 });

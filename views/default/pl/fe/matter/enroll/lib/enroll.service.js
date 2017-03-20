@@ -650,7 +650,7 @@ define(['require', 'schema', 'page'], function(require, schemaLib, pageLib) {
             _siteId = siteId;
             _appId = appId;
         };
-        this.$get = ['$q', 'http2', '$uibModal', function($q, http2, $uibModal) {
+        this.$get = ['$q', 'http2', '$uibModal', 'srvEnrollApp', function($q, http2, $uibModal, srvEnrollApp) {
             return {
                 RoundState: RoundState,
                 init: function(rounds, page) {
@@ -667,7 +667,18 @@ define(['require', 'schema', 'page'], function(require, schemaLib, pageLib) {
                 list: function() {
                     var defer = $q.defer(),
                         url;
-
+                    if (_rounds === undefined) {
+                        _rounds = [];
+                    }
+                    if (_oPage === undefined) {
+                        _oPage = {
+                            at: 1,
+                            size: 10,
+                            j: function() {
+                                return 'page=' + this.at + '&size=' + this.size;
+                            }
+                        };
+                    }
                     url = _RestURL + 'list?site=' + _siteId + '&app=' + _appId + '&' + _oPage.j();
                     http2.get(url, function(rsp) {
                         _rounds.splice(0, _rounds.length);
@@ -763,6 +774,48 @@ define(['require', 'schema', 'page'], function(require, schemaLib, pageLib) {
                                 _oPage.total--;
                             });
                         }
+                    });
+                },
+                cron: function() {
+                    srvEnrollApp.get().then(function(oApp) {
+                        $uibModal.open({
+                            templateUrl: '/views/default/pl/fe/matter/enroll/component/roundCron.html?_=1',
+                            backdrop: 'static',
+                            controller: ['$scope', '$uibModalInstance', function($scope, $mi) {
+                                var cron;
+                                $scope.mdays = [];
+                                while ($scope.mdays.length < 28) {
+                                    $scope.mdays.push('' + ($scope.mdays.length + 1));
+                                }
+                                $scope.cron = cron = angular.copy(oApp.roundCron);
+                                $scope.cancel = function() {
+                                    $mi.dismiss();
+                                };
+                                $scope.changePeriod = function(rule) {
+                                    if (rule.period !== 'W') {
+                                        rule.wday = '';
+                                    }
+                                    if (rule.period !== 'M') {
+                                        rule.mday = '';
+                                    }
+                                };
+                                $scope.add = function() {
+                                    cron.push({
+                                        period: 'D',
+                                        hour: 8
+                                    });
+                                };
+                                $scope.remove = function(rule) {
+                                    cron.splice(cron.indexOf(rule), 1);
+                                };
+                                $scope.ok = function() {
+                                    $mi.close(cron);
+                                };
+                            }]
+                        }).result.then(function(cron) {
+                            oApp.roundCron = cron;
+                            srvEnrollApp.update('roundCron');
+                        });
                     });
                 }
             };

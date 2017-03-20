@@ -3,8 +3,8 @@
     <nav class='navbar navbar-default hidden-xs'>
         <div class='container-fluid'>
             <form class='navbar-form navbar-left'>
-                <div class='form-group' ng-if='app.rounds'>
-                    <select class='form-control' title='登记轮次' ng-model='page.byRound' ng-options='r.rid as r.title for r in app.rounds' ng-change='doSearch(1)'>
+                <div class='form-group' ng-if='rounds.length'>
+                    <select class='form-control' title='登记轮次' ng-model='page.byRound' ng-options='r.rid as r.title for r in rounds' ng-change='doSearch(1)'>
                         <option value=>全部</option>
                     </select>
                 </div>

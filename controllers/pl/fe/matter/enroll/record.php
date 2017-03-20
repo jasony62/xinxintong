@@ -610,6 +610,7 @@ class record extends \pl\fe\matter\base {
 				switch ($schema->type) {
 				case 'single':
 				case 'phase':
+					$disposed = null;
 					foreach ($schema->ops as $op) {
 						if ($op->v === $v) {
 							$objActiveSheet->setCellValueByColumnAndRow($i + 2, $rowIndex, $op->l);

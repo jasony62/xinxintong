@@ -194,7 +194,7 @@ class enroll_model extends app_base {
 		];
 		/* 当前轮次 */
 		if ($app->multi_rounds === 'Y' || (isset($app->roundCron) && isset($app->roundCron->enabled) && $app->roundCron->enabled === 'Y')) {
-			$modelRun = \TMS_APP::M('matter\enroll\round');
+			$modelRun = $this->model('matter\enroll\round');
 			if ($activeRound = $modelRun->getActive($app)) {
 				$q[2] .= " and rid='$activeRound->rid'";
 			}
@@ -231,29 +231,29 @@ class enroll_model extends app_base {
 	 *
 	 * @return
 	 */
-	public function &opData(&$app) {
-		$modelRnd = \TMS_APP::M('matter\enroll\round');
+	public function &opData(&$oApp) {
+		$modelRnd = $this->model('matter\enroll\round');
 		$page = (object) ['num' => 1, 'size' => 5];
-		$rounds = $modelRnd->byApp($app->siteid, $app->id, ['fields' => 'rid,title', 'page' => $page]);
-
+		$result = $modelRnd->byApp($oApp, ['fields' => 'rid,title', 'page' => $page]);
+		$rounds = $result->rounds;
 		if (empty($rounds)) {
 			$summary = new \stdClass;
 			/* total */
 			$q = [
 				'count(*)',
 				'xxt_enroll_record',
-				['aid' => $app->id, 'state' => 1],
+				['aid' => $oApp->id, 'state' => 1],
 			];
 			$summary->total = $this->query_val_ss($q);
 		} else {
 			$summary = [];
-			$activeRound = $modelRnd->getActive($app);
+			$activeRound = $modelRnd->getActive($oApp);
 			foreach ($rounds as $round) {
 				/* total */
 				$q = [
 					'count(*)',
 					'xxt_enroll_record',
-					['aid' => $app->id, 'state' => 1, 'rid' => $round->rid],
+					['aid' => $oApp->id, 'state' => 1, 'rid' => $round->rid],
 				];
 				$round->total = $this->query_val_ss($q);
 				if ($activeRound && $round->rid === $activeRound->rid) {

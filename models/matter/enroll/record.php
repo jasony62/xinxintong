@@ -780,7 +780,30 @@ class record_model extends \TMS_MODEL {
 
 		return $result;
 	}
+	/**
+	 * 计算指定登记项所有记录的合计
+	 */
+	public function sum4Schema($oApp) {
+		if (empty($oApp->data_schemas)) {
+			return false;
+		}
 
+		$result = new \stdClass;
+		$dataSchemas = json_decode($oApp->data_schemas);
+		foreach ($dataSchemas as $schema) {
+			if (isset($schema->number) && $schema->number === 'Y') {
+				$q = [
+					'sum(value)',
+					'xxt_enroll_record_data',
+					['aid' => $oApp->id, 'state' => 1],
+				];
+				$sum = (int) $this->query_val_ss($q);
+				$result->{$schema->id} = $sum;
+			}
+		}
+
+		return $result;
+	}
 	/**
 	 * 获得指定用户最后一次登记记录
 	 * 如果设置轮次，只返回当前轮次的情况

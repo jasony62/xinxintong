@@ -212,67 +212,27 @@ define(['frame'], function(ngApp) {
         };
     }]);
     ngApp.provider.controller('ctrlCron', ['$scope', 'http2', function($scope, http2) {
-        $scope.mdays = ['忽略'];
-        while ($scope.mdays.length < 32) {
-            $scope.mdays.push('' + $scope.mdays.length);
+        $scope.mdays = [];
+        while ($scope.mdays.length < 28) {
+            $scope.mdays.push('' + ($scope.mdays.length + 1));
         }
-        $scope.create = function() {
-            $scope.$broadcast('mattersgallery.open', function(aSelected, matterType) {
-                if (aSelected.length === 1) {
-                    aSelected[0].type = matterType;
-                    http2.post('/rest/mp/call/timer/create', aSelected[0], function(rsp) {
-                        var timer;
-                        timer = rsp.data;
-                        timer.schedule = getSchedule(timer);
-                        $scope.timers.splice(0, 0, timer);
-                        $scope.edit(timer);
-                    });
+        $scope.$watch('app.roundCron', function(cron) {
+            if (cron) {
+                $scope.cron = cron;
+                if (!cron.period) {
+                    cron.period = 'D';
                 }
-            });
-        };
-        $scope.remove = function(index) {
-            // http2.get('/rest/mp/call/timer/delete?id=' + $scope.editing.id, function(rsp) {
-            //     $scope.timers.splice(index, 1);
-            //     if ($scope.timers.length === 0)
-            //         $scope.editing = null;
-            //     else if (index === $scope.timers.length)
-            //         $scope.edit($scope.timers[--index]);
-            //     else
-            //         $scope.edit($scope.timers[index]);
-            // });
-        };
-        $scope.edit = function(timer) {
-            $scope.editing = timer;
-        };
-        // $scope.update = function(name) {
-        //     var p = {};
-        //     p[name] = $scope.editing[name];
-        //     http2.post('/rest/mp/call/timer/update?id=' + $scope.editing.id, p, function() {
-        //         $scope.editing.schedule = getSchedule($scope.editing);
-        //     });
-        // };
-        var getSchedule = function(timer) {
-            var schedule = [];
-            //timer.min == -1 && (timer.min = '*');
-            //schedule.push(timer.min);
-            timer.hour == -1 && (timer.hour = '忽略');
-            schedule.push(timer.hour);
-            timer.mday == -1 && (timer.mday = '忽略');
-            schedule.push(timer.mday);
-            //timer.mon == -1 && (timer.mon = '*');
-            //schedule.push(timer.mon);
-            timer.wday == -1 && (timer.wday = '忽略');
-            schedule.push(timer.wday);
-            return schedule.join(',');
-        };
-        // http2.get('/rest/mp/call/timer/get', function(rsp) {
-        //     var i, j, timer;
-        //     $scope.timers = rsp.data;
-        //     for (i = 0, j = $scope.timers.length; i < j; i++) {
-        //         timer = $scope.timers[i];
-        //         timer.schedule = getSchedule(timer);
-        //     }
-        //     j > 0 && $scope.edit(timer);
-        // });
+            }
+        });
+        $scope.$watch('app.roundCron.period', function(newPeriod, oldPeriod) {
+            if (oldPeriod && oldPeriod !== newPeriod) {
+                if (oldPeriod === 'W') {
+                    $scope.cron.wday = '';
+                } else if (oldPeriod === 'M') {
+                    $scope.cron.mday = '';
+                }
+            }
+            $scope.update('roundCron');
+        });
     }]);
 });

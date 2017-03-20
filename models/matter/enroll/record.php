@@ -795,7 +795,7 @@ class record_model extends \TMS_MODEL {
 				$q = [
 					'sum(value)',
 					'xxt_enroll_record_data',
-					['aid' => $oApp->id, 'state' => 1],
+					['aid' => $oApp->id, 'name' => $schema->id, 'state' => 1],
 				];
 				$sum = (int) $this->query_val_ss($q);
 				$result->{$schema->id} = $sum;

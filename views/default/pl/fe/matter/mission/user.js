@@ -154,6 +154,12 @@ define(['frame', 'enrollService', 'signinService'], function(ngApp) {
             isCacnel === true && (_oResultSet.criteria.keyword = '');
             $scope.doUserSearch();
         };
+        $scope.doUserExport = function() {
+            var url;
+            url = '/rest/pl/fe/matter/mission/user/export';
+            url += '?site=' + $scope.mission.siteid + '&mission=' + $scope.mission.id;
+            window.open(url);
+        }
         $scope.chooseUser = function(user) {
             $scope.recordsByApp = {};
             $scope.activeUser = user;

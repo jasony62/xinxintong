@@ -1,6 +1,6 @@
 define(['frame'], function(ngApp) {
     'use strict';
-    ngApp.provider.controller('ctrlRecord', ['$scope', 'srvEnrollApp', 'srvEnrollRecord', function($scope, srvEnrollApp, srvEnrollRecord) {
+    ngApp.provider.controller('ctrlRecord', ['$scope', 'srvEnrollApp', 'srvEnrollRound', 'srvEnrollRecord', function($scope, srvEnrollApp, srvEnlRnd, srvEnrollRecord) {
         $scope.doSearch = function(pageNumber) {
             $scope.rows.reset();
             srvEnrollRecord.search(pageNumber);
@@ -123,5 +123,6 @@ define(['frame'], function(ngApp) {
                 $scope.sum4Schema = result;
             });
         });
+        srvEnlRnd.list().then(function(rounds) { $scope.rounds = rounds; })
     }]);
 });

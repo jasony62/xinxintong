@@ -1426,6 +1426,18 @@ define(['require', 'schema', 'page'], function(require, schemaLib, pageLib) {
                     });
                 }
             };
+            _ins.sum4Schema = function() {
+                var url, defer = $q.defer();
+
+                url = '/rest/site/op/matter/enroll/record/sum4Schema';
+                url += '?site=' + _siteId;
+                url += '&app=' + _appId;
+
+                http2.get(url, function(rsp) {
+                    defer.resolve(rsp.data);
+                })
+                return defer.promise;
+            };
 
             return _ins;
         }];

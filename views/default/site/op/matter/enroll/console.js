@@ -17,7 +17,7 @@ define(["require", "angular", "util.site", "enrollService"], function(require, a
             srvOpEnrollRecordProvider.config(siteId, appId, accessId);
         })();
     }]);
-    ngApp.controller('ctrl', ['$scope', '$http', '$timeout', '$uibModal', 'PageLoader', 'PageUrl',  'srvOpEnrollRecord', 'srvEnrollApp', function($scope, $http, $timeout, $uibModal, PageLoader, PageUrl, srvOpEnrollRecord, srvEnrollApp) {
+    ngApp.controller('ctrl', ['$scope', '$http', '$timeout', '$uibModal', 'PageLoader', 'PageUrl',  'srvOpEnrollRecord', 'srvEnrollApp', 'srvEnrollRound', function($scope, $http, $timeout, $uibModal, PageLoader, PageUrl, srvOpEnrollRecord, srvEnrollApp, srvEnrollRound) {
         $scope.getRecords = function(pageNumber) {
             $scope.rows.reset();
             srvOpEnrollRecord.search(pageNumber);
@@ -74,6 +74,7 @@ define(["require", "angular", "util.site", "enrollService"], function(require, a
         $scope.page = {}; // 分页条件
         $scope.criteria = {}; // 过滤条件
         $scope.records = []; // 登记记录
+        $scope.numberSchemas = []; // 数值型登记项
         $scope.subView = 'list'; // 规定初始化展示页面
         $scope.tmsTableWrapReady = 'N';
         srvEnrollApp.opGet().then(function(data) {
@@ -90,6 +91,9 @@ define(["require", "angular", "util.site", "enrollService"], function(require, a
             app.data_schemas.forEach(function(schema) {
                 if (schema.type !== 'html') {
                     recordSchemas.push(schema);
+                }
+                if (schema.number && schema.number === 'Y') {
+                    $scope.numberSchemas.push(schema);
                 }
             });
             $scope.recordSchemas = recordSchemas;
@@ -110,6 +114,9 @@ define(["require", "angular", "util.site", "enrollService"], function(require, a
                 $scope.$broadcast('xxt.app.enroll.ready');
             });
             $scope.getRecords();
+            srvOpEnrollRecord.sum4Schema().then(function(result) {
+                $scope.sum4Schema = result;
+            });
             window.loading.finish();
         });
     }]);

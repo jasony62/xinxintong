@@ -36,10 +36,6 @@ class main extends \pl\fe\matter\base {
 		$app->acl = $this->model('matter\acl')->byMatter($site, 'enroll', $id);
 		/* 登记通知接收人 */
 		$app->receiver = $this->model('matter\acl')->enrollReceiver($site, $id);
-		/* 获得的轮次 */
-		if ($rounds = $this->model('matter\enroll\round')->byApp($site, $id)) {
-			!empty($rounds) && $app->rounds = $rounds;
-		}
 		/* 所属项目 */
 		if ($app->mission_id) {
 			$app->mission = $this->model('matter\mission')->byId($app->mission_id, ['cascaded' => 'phase']);
@@ -661,6 +657,8 @@ class main extends \pl\fe\matter\base {
 				$updated->{$n} = $modelApp->escape($modelApp->toJson($v));
 			} else if ($n === 'scenarioConfig') {
 				$updated->scenario_config = $modelApp->escape($modelApp->toJson($v));
+			} else if ($n === 'roundCron') {
+				$updated->round_cron = $modelApp->escape($modelApp->toJson($v));
 			} else {
 				$updated->{$n} = $v;
 			}

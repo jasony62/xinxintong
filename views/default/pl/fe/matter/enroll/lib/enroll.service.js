@@ -655,13 +655,13 @@ define(['require', 'schema', 'page'], function(require, schemaLib, pageLib) {
                 RoundState: RoundState,
                 list: function() {
                     var defer = $q.defer();
-                    if (_rounds) {
-                        defer.resolve(_rounds);
-                    } else {
-                        srvEnrollApp.get().then(function(oApp) {
-                            _rounds = oApp.rounds;
+                    if (_rounds === undefined) {
+                        http2.get(_RestURL + 'list?site=' + _siteId + '&app=' + _appId, function(rsp) {
+                            _rounds = rsp.data.rounds;
                             defer.resolve(_rounds);
                         });
+                    } else {
+                        defer.resolve(_rounds);
                     }
                     return defer.promise;
                 },
@@ -688,7 +688,9 @@ define(['require', 'schema', 'page'], function(require, schemaLib, pageLib) {
                             }]
                         }).result.then(function(newRound) {
                             http2.post(_RestURL + 'add?site=' + _siteId + '&app=' + _appId, newRound, function(rsp) {
-                                if (_rounds.length > 0 && rsp.data.state == 1) {
+                                if (_rounds === undefined) {
+                                    _rounds = [];
+                                } else if (_rounds.length > 0 && rsp.data.state == 1) {
                                     _rounds[0].state = 2;
                                 }
                                 _rounds.splice(0, 0, rsp.data);
@@ -1301,6 +1303,18 @@ define(['require', 'schema', 'page'], function(require, schemaLib, pageLib) {
                 });
                 return defer.promise;
             };
+            _ins.sum4Schema = function() {
+                var url, defer = $q.defer();
+
+                url = '/rest/pl/fe/matter/enroll/record/sum4Schema';
+                url += '?site=' + _siteId;
+                url += '&app=' + _appId;
+
+                http2.get(url, function(rsp) {
+                    defer.resolve(rsp.data);
+                })
+                return defer.promise;
+            };
 
             return _ins;
         }];
@@ -1380,7 +1394,7 @@ define(['require', 'schema', 'page'], function(require, schemaLib, pageLib) {
                 }
             };
         }];
-    }).provider('srvTempApp', function(){
+    }).provider('srvTempApp', function() {
         function _mapSchemas(app) {
             var mapOfSchemaByType = {},
                 mapOfSchemaById = {},
@@ -1427,7 +1441,7 @@ define(['require', 'schema', 'page'], function(require, schemaLib, pageLib) {
             _appId = appId;
             _vId = vId;
         };
-        this.$get = ['$q', 'http2', 'noticebox', '$uibModal', function( $q, http2, noticebox, $uibModal) {
+        this.$get = ['$q', 'http2', 'noticebox', '$uibModal', function($q, http2, noticebox, $uibModal) {
             var _self = {
                 tempEnrollGet: function() {
                     var url;
@@ -1443,7 +1457,8 @@ define(['require', 'schema', 'page'], function(require, schemaLib, pageLib) {
                     }
                     http2.get(url, function(rsp) {
                         _oApp = rsp.data;
-                        function _tGet(data,method) {
+
+                        function _tGet(data, method) {
                             try {
                                 data.data_schemas = data.data_schemas && data.data_schemas.length ? JSON.parse(data.data_schemas) : [];
                             } catch (e) {
@@ -1515,7 +1530,7 @@ define(['require', 'schema', 'page'], function(require, schemaLib, pageLib) {
                 },
                 applyToHome: function() {
                     var url = '/rest/pl/fe/template/pushHome?site=' + _siteId;
-                        url += '&tid=' + _appId;
+                    url += '&tid=' + _appId;
                     http2.get(url, function(rsp) {
                         noticebox.success('完成申请！');
                     });
@@ -1527,7 +1542,7 @@ define(['require', 'schema', 'page'], function(require, schemaLib, pageLib) {
                     url += '&lastVersion=' + _oApp.last_version;
                     url += '&matterType=' + _oApp.matter_type;
                     http2.get(url, function(rsp) {
-                        location.href = '/rest/pl/fe/template/'+ _oApp.matter_type +'?site=' + _siteId + '&id=' + _appId + '&vid=' + rsp.data.vid;
+                        location.href = '/rest/pl/fe/template/' + _oApp.matter_type + '?site=' + _siteId + '&id=' + _appId + '&vid=' + rsp.data.vid;
                     });
                 },
                 lookView: function(num) {
@@ -1535,8 +1550,8 @@ define(['require', 'schema', 'page'], function(require, schemaLib, pageLib) {
                     url = '/rest/pl/fe/template/get?site=' + _siteId;
                     url += '&tid=' + _appId;
                     url += '&vid=' + num;
-                    http2.get(url,function(rsp) {
-                       defer.resolve(rsp.data);
+                    http2.get(url, function(rsp) {
+                        defer.resolve(rsp.data);
                     });
                     return defer.promise;
                 },
@@ -1547,7 +1562,7 @@ define(['require', 'schema', 'page'], function(require, schemaLib, pageLib) {
                         controller: ['$scope', '$uibModalInstance', function($scope, $mi) {
                             if (id === undefined) return false;
                             http2.get('/rest/pl/fe/template/getVersion?site=' + _siteId + '&tid=' + _appId + '&vid=' + id, function(rsp) {
-                                 $scope.version = rsp.data;
+                                $scope.version = rsp.data;
                             });
                             $scope.cancel = function() {
                                 $mi.dismiss();
@@ -1577,7 +1592,7 @@ define(['require', 'schema', 'page'], function(require, schemaLib, pageLib) {
                     url = '/rest/pl/fe/template/acl/remove';
                     url += '?acl=' + acl.id;
                     http2.get(url, function(rsp) {
-                        angular.forEach(_oApp.acl,function(item, index){
+                        angular.forEach(_oApp.acl, function(item, index) {
                             if (item.id == acl.id) {
                                 _oApp.acl.splice(index, 1);
                             }
@@ -1694,7 +1709,7 @@ define(['require', 'schema', 'page'], function(require, schemaLib, pageLib) {
             _siteId = siteId;
             _appId = appId;
         };
-        this.$get = ['$q', 'http2', function( $q, http2) {
+        this.$get = ['$q', 'http2', function($q, http2) {
             var _self = {
                 list: function(article, page) {
                     var defer = $q.defer(),

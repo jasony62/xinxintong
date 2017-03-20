@@ -80,7 +80,7 @@ class main extends \TMS_CONTROLLER {
 		}
 
 		if ($app->multi_rounds === 'Y') {
-			$params['activeRound'] = $this->model('matter\enroll\round')->getLast($site, $app->id);
+			$params['activeRound'] = $this->model('matter\enroll\round')->getLast($app);
 		}
 
 		return new \ResponseData($params);

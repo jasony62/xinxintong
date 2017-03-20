@@ -220,4 +220,27 @@ class record extends \site\op\base {
 
 		return new \ResponseData($rst);
 	}
+	/**
+	 * 计算指定登记项所有记录的合计
+	 * 若不指定登记项，则返回活动中所有数值型登记项的合集
+	 * 若指定的登记项不是数值型，返回0
+	 */
+	public function sum4Schema_action($site, $app, $rid = 'ALL') {
+		if (false === ($user = $this->accountUser())) {
+			return new \ResponseTimeout();
+		}
+
+		// 登记活动
+		$modelApp = $this->model('matter\enroll');
+		$enrollApp = $modelApp->byId($app, ['cascaded' => 'N']);
+		if (false === $enrollApp) {
+			return new \ObjectNotFountError();
+		}
+
+		// 查询结果
+		$mdoelRec = $this->model('matter\enroll\record');
+		$result = $mdoelRec->sum4Schema($enrollApp, $rid);
+
+		return new \ResponseData($result);
+	}
 }

@@ -226,8 +226,8 @@ class record extends \site\op\base {
 	 * 若指定的登记项不是数值型，返回0
 	 */
 	public function sum4Schema_action($site, $app, $rid = 'ALL') {
-		if (false === ($user = $this->accountUser())) {
-			return new \ResponseTimeout();
+		if (!$this->checkAccessToken()) {
+			return new \InvalidAccessToken();
 		}
 
 		// 登记活动

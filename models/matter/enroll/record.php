@@ -220,6 +220,11 @@ class record_model extends \TMS_MODEL {
 				'name' => $n,
 				'value' => $this->escape($treatedValue),
 			];
+			/* 记录所属轮次 */
+			$modelRun = $this->model('matter\enroll\round');
+			if ($activeRound = $modelRun->getActive($app)) {
+				$ic['rid'] = $activeRound->rid;
+			}
 			$this->insert('xxt_enroll_record_data', $ic, false);
 		}
 
@@ -783,7 +788,7 @@ class record_model extends \TMS_MODEL {
 	/**
 	 * 计算指定登记项所有记录的合计
 	 */
-	public function sum4Schema($oApp) {
+	public function sum4Schema($oApp, $rid = 'ALL') {
 		if (empty($oApp->data_schemas)) {
 			return false;
 		}
@@ -795,8 +800,9 @@ class record_model extends \TMS_MODEL {
 				$q = [
 					'sum(value)',
 					'xxt_enroll_record_data',
-					['aid' => $oApp->id, 'state' => 1],
+					['aid' => $oApp->id, 'name' => $schema->id, 'state' => 1],
 				];
+				$rid !== 'ALL' && $q[2]['rid'] = $rid;
 				$sum = (int) $this->query_val_ss($q);
 				$result->{$schema->id} = $sum;
 			}

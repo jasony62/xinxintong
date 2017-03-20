@@ -2,7 +2,7 @@
 define(["require", "angular", "util.site", "enrollService"], function(require, angular) {
     var ngApp = angular.module('app', ['ui.bootstrap', 'util.site.tms', 'ui.tms', 'ui.xxt', 'service.matter', 'service.enroll']);
     ngApp.constant('cstApp', {});
-    ngApp.config(['$controllerProvider', 'srvEnrollAppProvider', 'srvOpEnrollRecordProvider', function($cp, srvEnrollAppProvider, srvOpEnrollRecordProvider) {
+    ngApp.config(['$controllerProvider', 'srvEnrollAppProvider', 'srvOpEnrollRecordProvider', 'srvOpEnrollRoundProvider', function($cp, srvEnrollAppProvider, srvOpEnrollRecordProvider, srvOpEnrollRoundProvider) {
         ngApp.provider = {
             controller: $cp.register
         };
@@ -15,9 +15,10 @@ define(["require", "angular", "util.site", "enrollService"], function(require, a
             //
             srvEnrollAppProvider.config(siteId, appId, accessId);
             srvOpEnrollRecordProvider.config(siteId, appId, accessId);
+            srvOpEnrollRoundProvider.config(siteId, appId, accessId);
         })();
     }]);
-    ngApp.controller('ctrl', ['$scope', '$http', '$timeout', '$uibModal', 'PageLoader', 'PageUrl',  'srvOpEnrollRecord', 'srvEnrollApp', 'srvEnrollRound', function($scope, $http, $timeout, $uibModal, PageLoader, PageUrl, srvOpEnrollRecord, srvEnrollApp, srvEnrollRound) {
+    ngApp.controller('ctrl', ['$scope', '$http', '$timeout', '$uibModal', 'PageLoader', 'PageUrl',  'srvOpEnrollRecord', 'srvEnrollApp', 'srvOpEnrollRound', function($scope, $http, $timeout, $uibModal, PageLoader, PageUrl, srvOpEnrollRecord, srvEnrollApp, srvOpEnrollRound) {
         $scope.getRecords = function(pageNumber) {
             $scope.rows.reset();
             srvOpEnrollRecord.search(pageNumber);
@@ -70,7 +71,11 @@ define(["require", "angular", "util.site", "enrollService"], function(require, a
                 $scope.rows.selected = {};
             }
         });
-
+        $scope.$watch('page.byRound', function(rid) {
+            srvOpEnrollRecord.sum4Schema().then(function(result) {
+                $scope.sum4Schema = result;
+            });
+        })
         $scope.page = {}; // 分页条件
         $scope.criteria = {}; // 过滤条件
         $scope.records = []; // 登记记录
@@ -114,11 +119,9 @@ define(["require", "angular", "util.site", "enrollService"], function(require, a
                 $scope.$broadcast('xxt.app.enroll.ready');
             });
             $scope.getRecords();
-            srvOpEnrollRecord.sum4Schema().then(function(result) {
-                $scope.sum4Schema = result;
-            });
             window.loading.finish();
         });
+        srvOpEnrollRound.list().then(function(rounds) { $scope.rounds = rounds; })
     }]);
     require(['domReady!'], function(document) {
         angular.bootstrap(document, ["app"]);

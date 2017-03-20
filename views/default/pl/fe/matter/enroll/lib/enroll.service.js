@@ -1427,12 +1427,13 @@ define(['require', 'schema', 'page'], function(require, schemaLib, pageLib) {
                     });
                 }
             };
-            _ins.sum4Schema = function() {
+            _ins.sum4Schema = function(rid) {
                 var url, defer = $q.defer();
 
                 url = '/rest/site/op/matter/enroll/record/sum4Schema';
                 url += '?site=' + _siteId;
                 url += '&app=' + _appId;
+                url += '&rid=' + (rid ? rid : 'ALL');
 
                 http2.get(url, function(rsp) {
                     defer.resolve(rsp.data);
@@ -1441,6 +1442,59 @@ define(['require', 'schema', 'page'], function(require, schemaLib, pageLib) {
             };
 
             return _ins;
+        }];
+    }).provider('srvOpEnrollRound', function() {
+        var _siteId, _appId, _accessId, _rounds, _oPage,
+            _RestURL = '/rest/site/op/matter/enroll/round/',
+            RoundState = ['新建', '启用', '停止'];
+
+        this.config = function(siteId, appId, accessId) {
+            _siteId = siteId;
+            _appId = appId;
+            _accessId = accessId;
+        };
+        this.$get = ['$q', 'http2', '$uibModal', 'srvEnrollApp', function($q, http2, $uibModal, srvEnrollApp) {
+            return {
+                RoundState: RoundState,
+                init: function(rounds, page) {
+                    _rounds = rounds;
+                    _oPage = page;
+                    if (page.j === undefined) {
+                        page.at = 1;
+                        page.size = 10;
+                        page.j = function() {
+                            return 'page=' + this.at + '&size=' + this.size;
+                        }
+                    }
+                },
+                list: function() {
+                    var defer = $q.defer(),
+                        url;
+                    if (_rounds === undefined) {
+                        _rounds = [];
+                    }
+                    if (_oPage === undefined) {
+                        _oPage = {
+                            at: 1,
+                            size: 10,
+                            j: function() {
+                                return 'page=' + this.at + '&size=' + this.size;
+                            }
+                        };
+                    }
+                    url = _RestURL + 'list?site=' + _siteId + '&app=' + _appId + '&accessToken=' + _accessId + '&' + _oPage.j();
+                    http2.get(url, function(rsp) {
+                        _rounds.splice(0, _rounds.length);
+                        rsp.data.rounds.forEach(function(rnd) {
+                            _rounds.push(rnd);
+                        });
+                        _oPage.total = rsp.data.total;
+                        defer.resolve(_rounds);
+                    });
+
+                    return defer.promise;
+                },
+            };
         }];
     }).provider('srvEnrollLog', function() {
         this.$get = ['$q', 'http2', function($q, http2) {

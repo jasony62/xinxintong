@@ -118,6 +118,10 @@ class user extends \pl\fe\matter\base {
 		$colNumber = 0;
 		$objActiveSheet->setCellValueByColumnAndRow($colNumber++, 1, '登记时间');
 		foreach ($schemas as $schema) {
+			/* 跳过图片和文件 */
+			if (in_array($schema->type, ['image', 'file'])) {
+				continue;
+			}
 			$objActiveSheet->setCellValueByColumnAndRow($colNumber++, 1, $schema->title);
 		}
 		$objActiveSheet->setCellValueByColumnAndRow($colNumber++, 1, '昵称');
@@ -142,6 +146,7 @@ class user extends \pl\fe\matter\base {
 				switch ($schema->type) {
 				case 'single':
 				case 'phase':
+					$disposed = null;
 					foreach ($schema->ops as $op) {
 						if ($op->v === $v) {
 							$objActiveSheet->setCellValueByColumnAndRow($colNumber++, $rowNumber, $op->l);
@@ -163,6 +168,9 @@ class user extends \pl\fe\matter\base {
 						}
 					}
 					$objActiveSheet->setCellValueByColumnAndRow($colNumber++, $rowNumber, implode(',', $labels));
+					break;
+				case 'image':
+				case 'file':
 					break;
 				default:
 					$objActiveSheet->setCellValueByColumnAndRow($colNumber++, $rowNumber, $v);

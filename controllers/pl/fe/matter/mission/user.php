@@ -65,7 +65,6 @@ class user extends \pl\fe\matter\base {
 	/**
 	 * 登记数据导出
 	 *
-	 * 如果活动关联了报名活动，需要将关联的数据导出
 	 */
 	public function export_action($site, $mission) {
 		if (false === ($user = $this->accountUser())) {

@@ -17,9 +17,10 @@ class round_model extends \TMS_MODEL {
 		return $round;
 	}
 	/**
+	 * 返回登记活动下的轮次
 	 *
-	 * @param string $siteId
-	 * @param string $aid
+	 * @param object $oApp
+	 *
 	 */
 	public function &byApp($oApp, $options = []) {
 		$fields = isset($options['fields']) ? $options['fields'] : '*';

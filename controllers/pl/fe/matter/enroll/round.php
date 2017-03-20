@@ -7,9 +7,12 @@ require_once dirname(dirname(__FILE__)) . '/base.php';
  */
 class round extends \pl\fe\matter\base {
 	/**
+	 * 返回指定登记活动下的轮次
+	 *
+	 * @param string $app app's id
 	 *
 	 */
-	public function list_action($app) {
+	public function list_action($app, $page = 1, $size = 10) {
 		if (false === ($user = $this->accountUser())) {
 			return new \ResponseTimeout();
 		}
@@ -24,7 +27,11 @@ class round extends \pl\fe\matter\base {
 		/* 先检查是否要根据定时规则生成轮次 */
 		$modelRnd->getActive($oApp);
 
-		$result = $modelRnd->byApp($oApp);
+		$oPage = new \stdClass;
+		$oPage->num = $page;
+		$oPage->size = $size;
+
+		$result = $modelRnd->byApp($oApp, ['page' => $oPage]);
 
 		return new \ResponseData($result);
 	}
@@ -32,6 +39,7 @@ class round extends \pl\fe\matter\base {
 	 * 添加轮次
 	 *
 	 * @param string $app
+	 *
 	 */
 	public function add_action($app) {
 		if (false === ($user = $this->accountUser())) {

@@ -199,16 +199,18 @@ define(['frame'], function(ngApp) {
             }
         });
     }]);
-    ngApp.provider.controller('ctrlRound', ['$scope', 'srvEnrollRound', function($scope, srvEnrollRound) {
-        $scope.roundState = srvEnrollRound.RoundState;
-        srvEnrollRound.list().then(function(rounds) {
-            $scope.rounds = rounds;
-        });
+    ngApp.provider.controller('ctrlRound', ['$scope', 'srvEnrollRound', function($scope, srvEnlRound) {
+        var rounds, page;
+        $scope.pageOfRound = page = {};
+        $scope.rounds = rounds = [];
+        srvEnlRound.init(rounds, page)
+        $scope.roundState = srvEnlRound.RoundState;
+        srvEnlRound.list();
         $scope.add = function() {
-            srvEnrollRound.add();
+            srvEnlRound.add();
         };
         $scope.edit = function(round) {
-            srvEnrollRound.edit(round);
+            srvEnlRound.edit(round);
         };
     }]);
     ngApp.provider.controller('ctrlCron', ['$scope', 'http2', function($scope, http2) {

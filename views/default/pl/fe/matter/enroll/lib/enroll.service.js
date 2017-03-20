@@ -642,7 +642,7 @@ define(['require', 'schema', 'page'], function(require, schemaLib, pageLib) {
             return _self;
         }];
     }).provider('srvEnrollRound', function() {
-        var _siteId, _appId, _rounds,
+        var _siteId, _appId, _rounds, _oPage,
             _RestURL = '/rest/pl/fe/matter/enroll/round/',
             RoundState = ['新建', '启用', '停止'];
 
@@ -650,108 +650,119 @@ define(['require', 'schema', 'page'], function(require, schemaLib, pageLib) {
             _siteId = siteId;
             _appId = appId;
         };
-        this.$get = ['$q', 'http2', '$uibModal', 'srvEnrollApp', function($q, http2, $uibModal, srvEnrollApp) {
+        this.$get = ['$q', 'http2', '$uibModal', function($q, http2, $uibModal) {
             return {
                 RoundState: RoundState,
-                list: function() {
-                    var defer = $q.defer();
-                    if (_rounds === undefined) {
-                        http2.get(_RestURL + 'list?site=' + _siteId + '&app=' + _appId, function(rsp) {
-                            _rounds = rsp.data.rounds;
-                            defer.resolve(_rounds);
-                        });
-                    } else {
-                        defer.resolve(_rounds);
+                init: function(rounds, page) {
+                    _rounds = rounds;
+                    _oPage = page;
+                    if (page.j === undefined) {
+                        page.at = 1;
+                        page.size = 10;
+                        page.j = function() {
+                            return 'page=' + this.at + '&size=' + this.size;
+                        }
                     }
+                },
+                list: function() {
+                    var defer = $q.defer(),
+                        url;
+
+                    url = _RestURL + 'list?site=' + _siteId + '&app=' + _appId + '&' + _oPage.j();
+                    http2.get(url, function(rsp) {
+                        _rounds.splice(0, _rounds.length);
+                        rsp.data.rounds.forEach(function(rnd) {
+                            _rounds.push(rnd);
+                        });
+                        _oPage.total = rsp.data.total;
+                        defer.resolve(_rounds);
+                    });
+
                     return defer.promise;
                 },
                 add: function() {
-                    this.list().then(function() {
-                        $uibModal.open({
-                            templateUrl: 'roundEditor.html',
-                            backdrop: 'static',
-                            controller: ['$scope', '$uibModalInstance', function($scope, $mi) {
-                                $scope.round = {
-                                    state: 0
-                                };
-                                $scope.roundState = RoundState;
-                                $scope.close = function() {
-                                    $mi.dismiss();
-                                };
-                                $scope.ok = function() {
-                                    $mi.close($scope.round);
-                                };
-                                $scope.start = function() {
-                                    $scope.round.state = 1;
-                                    $mi.close($scope.round);
-                                };
-                            }]
-                        }).result.then(function(newRound) {
-                            http2.post(_RestURL + 'add?site=' + _siteId + '&app=' + _appId, newRound, function(rsp) {
-                                if (_rounds === undefined) {
-                                    _rounds = [];
-                                } else if (_rounds.length > 0 && rsp.data.state == 1) {
-                                    _rounds[0].state = 2;
-                                }
-                                _rounds.splice(0, 0, rsp.data);
-                            });
+                    $uibModal.open({
+                        templateUrl: 'roundEditor.html',
+                        backdrop: 'static',
+                        controller: ['$scope', '$uibModalInstance', function($scope, $mi) {
+                            $scope.round = {
+                                state: 0
+                            };
+                            $scope.roundState = RoundState;
+                            $scope.close = function() {
+                                $mi.dismiss();
+                            };
+                            $scope.ok = function() {
+                                $mi.close($scope.round);
+                            };
+                            $scope.start = function() {
+                                $scope.round.state = 1;
+                                $mi.close($scope.round);
+                            };
+                        }]
+                    }).result.then(function(newRound) {
+                        http2.post(_RestURL + 'add?site=' + _siteId + '&app=' + _appId, newRound, function(rsp) {
+                            if (_rounds.length > 0 && rsp.data.state == 1) {
+                                _rounds[0].state = 2;
+                            }
+                            _rounds.splice(0, 0, rsp.data);
+                            _oPage.total++;
                         });
                     });
                 },
                 edit: function(round) {
-                    this.list().then(function() {
-                        $uibModal.open({
-                            templateUrl: 'roundEditor.html',
-                            backdrop: 'static',
-                            controller: ['$scope', '$uibModalInstance', function($scope, $mi) {
-                                $scope.round = angular.copy(round);
-                                $scope.roundState = RoundState;
-                                $scope.close = function() {
-                                    $mi.dismiss();
-                                };
-                                $scope.ok = function() {
-                                    $mi.close({
-                                        action: 'update',
-                                        data: $scope.round
-                                    });
-                                };
-                                $scope.remove = function() {
-                                    $mi.close({
-                                        action: 'remove'
-                                    });
-                                };
-                                $scope.stop = function() {
-                                    $scope.round.state = 2;
-                                    $mi.close({
-                                        action: 'update',
-                                        data: $scope.round
-                                    });
-                                };
-                                $scope.start = function() {
-                                    $scope.round.state = 1;
-                                    $mi.close({
-                                        action: 'update',
-                                        data: $scope.round
-                                    });
-                                };
-                            }]
-                        }).result.then(function(rst) {
-                            var url = _RestURL;
-                            if (rst.action === 'update') {
-                                url += 'update?site=' + _siteId + '&app=' + _appId + '&rid=' + round.rid;
-                                http2.post(url, rst.data, function(rsp) {
-                                    if (_rounds.length > 1 && rst.data.state == 1) {
-                                        _rounds[1].state = 2;
-                                    }
-                                    angular.extend(round, rst.data);
+                    $uibModal.open({
+                        templateUrl: 'roundEditor.html',
+                        backdrop: 'static',
+                        controller: ['$scope', '$uibModalInstance', function($scope, $mi) {
+                            $scope.round = angular.copy(round);
+                            $scope.roundState = RoundState;
+                            $scope.close = function() {
+                                $mi.dismiss();
+                            };
+                            $scope.ok = function() {
+                                $mi.close({
+                                    action: 'update',
+                                    data: $scope.round
                                 });
-                            } else if (rst.action === 'remove') {
-                                url += 'remove?site=' + _siteId + '&app=' + _appId + '&rid=' + round.rid;
-                                http2.get(url, function(rsp) {
-                                    _rounds.splice(_rounds.indexOf(round), 1);
+                            };
+                            $scope.remove = function() {
+                                $mi.close({
+                                    action: 'remove'
                                 });
-                            }
-                        });
+                            };
+                            $scope.stop = function() {
+                                $scope.round.state = 2;
+                                $mi.close({
+                                    action: 'update',
+                                    data: $scope.round
+                                });
+                            };
+                            $scope.start = function() {
+                                $scope.round.state = 1;
+                                $mi.close({
+                                    action: 'update',
+                                    data: $scope.round
+                                });
+                            };
+                        }]
+                    }).result.then(function(rst) {
+                        var url = _RestURL;
+                        if (rst.action === 'update') {
+                            url += 'update?site=' + _siteId + '&app=' + _appId + '&rid=' + round.rid;
+                            http2.post(url, rst.data, function(rsp) {
+                                if (_rounds.length > 1 && rst.data.state == 1) {
+                                    _rounds[1].state = 2;
+                                }
+                                angular.extend(round, rst.data);
+                            });
+                        } else if (rst.action === 'remove') {
+                            url += 'remove?site=' + _siteId + '&app=' + _appId + '&rid=' + round.rid;
+                            http2.get(url, function(rsp) {
+                                _rounds.splice(_rounds.indexOf(round), 1);
+                                _oPage.total--;
+                            });
+                        }
                     });
                 }
             };

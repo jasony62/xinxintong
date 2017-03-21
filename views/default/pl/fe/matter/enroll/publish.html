@@ -117,7 +117,7 @@
                     <div class='list-group' style='max-height:290px;overflow-y:auto;'>
                         <li class='list-group-item' ng-repeat='r in rounds'>
                             <span>{{r.title}}</span>（<span>{{roundState[r.state]}}</span>）
-                            <span>{{r.start_at*1000|date:'yy-MM-dd HH:mm'}}</span>
+                            <span ng-if="r.start_at>0">{{r.start_at*1000|date:'yy-MM-dd HH:mm'}}</span>
                             <button class="close" ng-click='edit(r)'>
                                 <span class='glyphicon glyphicon-edit'></span>
                             </button>
@@ -360,7 +360,7 @@
 <script type="text/ng-template" id="joinQrcode.html">
     <div style="width:200px">
         <img ng-src="{{qrcodeURL}}" style="width:100%">
-        <div>
+    </div>
 </script>
 <script type="text/ng-template" id="opUrlPasswd.html">
     <div id="opUrlPasswd">
@@ -372,7 +372,7 @@
                 </span>
             </div>
         </div>
-        <div>
+    </div>
 </script>
 <script type="text/ng-template" id="reportUrlPwd.html">
     <div id="opUrlPasswd">
@@ -384,5 +384,5 @@
                 </span>
             </div>
         </div>
-        <div>
+    </div>
 </script>

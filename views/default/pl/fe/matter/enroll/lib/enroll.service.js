@@ -146,7 +146,7 @@ define(['require', 'schema', 'page'], function(require, schemaLib, pageLib) {
             var defer = $q.defer(),
                 that = this;
             $uibModal.open({
-                templateUrl: '/views/default/pl/fe/matter/enroll/component/recordFilter.html?_=3',
+                templateUrl: '/views/default/pl/fe/matter/enroll/component/recordFilter.html?_=4',
                 controller: 'ctrlEnrollFilter',
                 windowClass: 'auto-height',
                 backdrop: 'static',
@@ -1981,7 +1981,7 @@ define(['require', 'schema', 'page'], function(require, schemaLib, pageLib) {
         var canFilteredSchemas = [];
 
         dataSchemas.forEach(function(schema) {
-            if (false === /image|file|score/.test(schema.type) && schema.id.indexOf('member') !== 0) {
+            if (false === /image|file|score|html/.test(schema.type) && schema.id.indexOf('member') !== 0) {
                 canFilteredSchemas.push(schema);
             }
             if (/multiple/.test(schema.type)) {

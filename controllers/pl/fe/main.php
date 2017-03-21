@@ -134,4 +134,33 @@ class main extends \pl\fe\base {
 
 		return new \ResponseData($rst);
 	}
+	/**
+	 * 个人工作台素材置顶
+	 *
+	 */
+	public function top_action($site,$id){
+		if (false === ($user = $this->accountUser())) {
+			return new \ResponseTimeout();
+		}
+
+		//检查管理员的权限
+		$model=$this->model();
+		$data=$model->query_val_ss([
+			'urole',
+			'xxt_site_admin',
+			['siteid'=>$site,'uid'=>$user->id]
+		]);
+
+		if(empty($data)){
+			return new \ResponseError('当前管理员没有该素材的操作权限！');
+		}
+
+		$rst=$model->update(
+			'xxt_log_matter_op',
+			['top'=>'1','operate_at'=>time(),'operator'=>$user->id,'operator_name'=>$user->name,'operation'=>'Top'],
+			['siteid'=>$site,'id'=>$id]
+		);
+
+		return new \ResponseData($rst);
+	}
 }

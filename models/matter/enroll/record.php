@@ -751,7 +751,7 @@ class record_model extends \TMS_MODEL {
 	 * [1] 数据总条数
 	 * [2] 数据项的定义
 	 */
-	public function list4Schema($siteId, &$app, $schemaId, $options = null) {
+	public function list4Schema($siteId, &$app, $schemaId, $options = null, $rid = 'ALL', $schemaName = null) {
 		if ($options) {
 			is_array($options) && $options = (object) $options;
 			$page = isset($options->page) ? $options->page : null;
@@ -760,12 +760,16 @@ class record_model extends \TMS_MODEL {
 		$result = new \stdClass; // 返回的结果
 		$result->total = 0;
 
+		$schemaId = $this->escape($schemaId);
 		// 查询参数
 		$q = [
-			'value',
-			"xxt_enroll_record_data",
-			"state=1 and aid='{$app->id}' and name='{$schemaId}' and value<>''",
+			'd.value,r.nickname,d.enroll_key',
+			"xxt_enroll_record_data d , xxt_enroll_record r",
+			"d.state=1 and d.aid='{$app->id}' and d.name='{$schemaId}' and d.value<>'' and d.enroll_key = r.enroll_key",
 		];
+		if($rid !== 'ALL' && !empty($rid)){
+			$q[2] .= " and d.rid = '".$rid."'";
+		}
 
 		$q2 = [];
 		// 查询结果分页
@@ -775,12 +779,46 @@ class record_model extends \TMS_MODEL {
 
 		// 处理获得的数据
 		if ($records = $this->query_objs_ss($q, $q2)) {
+			//如果是数值型计算合计值
+			$data_schemas = json_decode($app->data_schemas);
+			foreach ($data_schemas as $data_schema) {
+				if($data_schema->id === $schemaId && isset($data_schema->number) && $data_schema->number === 'Y'){
+					$q = [
+						'sum(value)',
+						'xxt_enroll_record_data',
+						['aid' => $app->id, 'name' => $schemaId, 'state' => 1],
+					];
+					$rid !== 'ALL' && !empty($rid) && $q[2]['rid'] = $rid;
+					$sum = (int) $this->query_val_ss($q);
+					$result->sum = $sum;
+
+					break;
+				}
+			}
+			
+			if(!empty($schemaName)){
+				foreach ($records as $record) {
+					$p = [
+						'value',
+						"xxt_enroll_record_data d",
+						"d.state=1 and d.aid='{$app->id}' and d.name='{$schemaName}' and d.enroll_key = '{$record->enroll_key}'",
+					];
+					$records2 = $this->query_vals_ss($p);
+					$record2 = implode($records2);
+					$record->logo = $record2;
+				}
+			}else{
+				foreach ($records as $record) {
+					$record->logo = $record->nickname;
+				}
+			}
 			$result->records = $records;
 
 			// 符合条件的数据总数
 			$q[0] = 'count(*)';
 			$total = (int) $this->query_val_ss($q);
 			$result->total = $total;
+
 		}
 
 		return $result;
@@ -802,7 +840,7 @@ class record_model extends \TMS_MODEL {
 					'xxt_enroll_record_data',
 					['aid' => $oApp->id, 'name' => $schema->id, 'state' => 1],
 				];
-				$rid !== 'ALL' && $q[2]['rid'] = $rid;
+				$rid !== 'ALL' && !empty($rid) && $q[2]['rid'] = $rid;
 				$sum = (int) $this->query_val_ss($q);
 				$result->{$schema->id} = $sum;
 			}

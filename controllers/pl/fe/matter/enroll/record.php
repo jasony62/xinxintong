@@ -96,7 +96,7 @@ class record extends \pl\fe\matter\base {
 	 * 返回指定登记项的活动登记名单
 	 *
 	 */
-	public function list4Schema_action($site, $app, $schema, $page = 1, $size = 10) {
+	public function list4Schema_action($site, $rid = 'ALL', $schemaName = null, $app, $schema, $page = 1, $size = 10) {
 		if (false === ($user = $this->accountUser())) {
 			return new \ResponseTimeout();
 		}
@@ -115,9 +115,28 @@ class record extends \pl\fe\matter\base {
 
 		// 查询结果
 		$mdoelRec = $this->model('matter\enroll\record');
-		$result = $mdoelRec->list4Schema($site, $enrollApp, $schema, $options);
+		$result = $mdoelRec->list4Schema($site, $enrollApp, $schema, $options, $rid, $schemaName);
 
 		return new \ResponseData($result);
+	}
+	/**
+	 * [setCookieCriteria 设置用户选择的标识和轮次到cookie中]
+	 * @param [type] $site [description]
+	 * @param [type] $app  [description]
+	 */
+	public function setCookieCriteria($site, $app){
+		if (false === ($user = $this->accountUser())) {
+			return new \ResponseTimeout();
+		}
+
+		$criteria = $this->getPostJson();
+
+		$cookieCriteria = new \stdClass;
+		$cookieCriteria->schemaName = isset($criteria->schemaName)? $criteria->schemaName : '';
+		$cookieCriteria->rid = isset($criteria->rid)? $criteria->rid : 'ALL';
+		$cookieCriteria->userid = $user->id;
+
+		
 	}
 	/**
 	 * 手工添加登记信息

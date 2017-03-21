@@ -3,7 +3,7 @@ require_once '../../db.php';
 
 $sqls = array();
 //
-$sqls[] = "ALTER TABLE  `xxt_article` ADD  `thumbnail` TEXT NULL COMMENT  '将图片保存为字符串'";
+$sqls[] = "ALTER TABLE  `xxt_article` ADD  `thumbnail` LONGTEXT NULL COMMENT  '将图片保存为字符串'";
 //
 foreach ($sqls as $sql) {
 	if (!$mysqli->query($sql)) {

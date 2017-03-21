@@ -85,7 +85,7 @@ class round_model extends \TMS_MODEL {
 		];
 		$this->insert('xxt_enroll_round', $round, false);
 
-		if (empty($oApp->multi_rounds)) {
+		if (empty($oApp->multi_rounds) || $oApp->multi_rounds !== 'Y') {
 			$this->update(
 				'xxt_enroll',
 				['multi_rounds' => 'Y'],

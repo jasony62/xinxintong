@@ -85,7 +85,7 @@ class round_model extends \TMS_MODEL {
 		];
 		$this->insert('xxt_enroll_round', $round, false);
 
-		if (empty($oApp->multi_rounds)) {
+		if (empty($oApp->multi_rounds) || $oApp->multi_rounds !== 'Y') {
 			$this->update(
 				'xxt_enroll',
 				['multi_rounds' => 'Y'],
@@ -203,7 +203,6 @@ class round_model extends \TMS_MODEL {
 			/* 根据定时计划计算轮次的开始时间 */
 			$hour = (int) date("G"); // 0-23
 			$month = (int) date("n"); // 1-12
-			$yday = (int) date("z") + 1; // 0-365
 			$mday = (int) date("j"); // 1-31
 			$year = (int) date("Y"); // yyyy
 			$wday = (int) date('w'); //0 (for Sunday) through 6 (for Saturday)
@@ -266,7 +265,7 @@ class round_model extends \TMS_MODEL {
 				/* 每天指定时间 */
 				if ($hour < (int) $rule->hour) {
 					/* 在上个月的指定时间 */
-					$yday--;
+					$mday--;
 				}
 				$hour = (int) $rule->hour;
 			}

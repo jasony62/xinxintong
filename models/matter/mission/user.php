@@ -93,6 +93,9 @@ class user_model extends \TMS_MODEL {
 					foreach ($groupApps as $groupApp) {
 						$mapOfGroupApps[$groupApp->id] = $groupApp;
 					}
+					//取出$mapOfGroupApps的所有健名
+					$mapOfGroupAppsKeys = array_keys($mapOfGroupApps);
+					
 					$modelGrpPly = $this->model('matter\group\player');
 					foreach ($result->records as &$record) {
 						$groupRecords = $modelGrpPly->byEnrollKey($record->enroll_key, null, ['fields' => 'aid,round_title']);
@@ -100,6 +103,10 @@ class user_model extends \TMS_MODEL {
 							$record->groupRecords = [];
 							foreach ($groupRecords as $groupRecord) {
 								if (!empty($groupRecord->round_title)) {
+									//因为分组活动在导入某个活动后撤销导入的活动时不会删除xxt_group_player中的数据，所以会存在有对应的数据但是没有对应的app的情况
+									if(!in_array($groupRecord->aid, $mapOfGroupAppsKeys) ){
+										continue;
+									}
 									$groupRecord->app = $mapOfGroupApps[$groupRecord->aid]->title;
 									unset($groupRecord->aid);
 									$record->groupRecords[] = $groupRecord;

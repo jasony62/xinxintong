@@ -27,7 +27,6 @@ define(['require'], function(require) {
             .when('/rest/pl/be/sns/wx/qrcode', new RouteParam('qrcode'))
             .when('/rest/pl/be/sns/wx/other', new RouteParam('other'))
             .when('/rest/pl/be/sns/wx/relay', new RouteParam('relay'))
-            .when('/rest/pl/be/sns/wx/tmplmsg', new RouteParam('tmplmsg'))
             .when('/rest/pl/be/sns/wx/page', new RouteParam('page'))
             .otherwise(new RouteParam('setting'));
     }]);

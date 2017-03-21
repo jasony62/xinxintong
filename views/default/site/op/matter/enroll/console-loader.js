@@ -3,8 +3,6 @@ window.loading = {
         var eleLoading, eleStyle;
         eleLoading = document.querySelector('.loading');
         eleLoading.parentNode.removeChild(eleLoading);
-        eleStyle = document.querySelector('#loadingStyle');
-        eleStyle.parentNode.removeChild(eleStyle);
     },
     load: function() {
         var timestamp, minutes;
@@ -21,12 +19,12 @@ window.loading = {
                 "bootstrap": '/static/js/bootstrap.min',
                 "domReady": '/static/js/domReady',
                 "angular": "/static/js/angular.min",
-                "angular-sanitize":'/static/js/angular-sanitize.min',
+                "angular-sanitize": '/static/js/angular-sanitize.min',
                 "ui-bootstrap": '/static/js/ui-bootstrap-tpls.min',
                 "ui-tms": '/static/js/ui-tms',
                 "ui-xxt": '/static/js/xxt.ui',
                 "util.site": "/views/default/site/util",
-                "service.matter":'/views/default/pl/fe/_module/matter.service',
+                "service.matter": '/views/default/pl/fe/_module/matter.service',
                 "enrollService": '/views/default/pl/fe/matter/enroll/lib/enroll.service',
                 "page": '/views/default/pl/fe/matter/enroll/lib/page',
                 "schema": '/views/default/pl/fe/matter/enroll/lib/schema',
@@ -45,7 +43,7 @@ window.loading = {
                 if (/jquery|bootstrap|domReady|angular/.test(id)) {
                     return '';
                 }
-                if(/xxt|tms/.test(id)){
+                if (/xxt|tms/.test(id)) {
                     return "?_=1";
                 }
                 return "?bust=" + (timestamp * 1);

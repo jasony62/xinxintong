@@ -4,6 +4,9 @@ define(['frame'], function(ngApp) {
         $scope.doSearch = function(pageNumber) {
             $scope.rows.reset();
             srvEnrollRecord.search(pageNumber);
+            srvEnrollRecord.sum4Schema($scope.page.byRound).then(function(result) {
+                $scope.sum4Schema = result;
+            });
         };
         $scope.$on('search-tag.xxt.combox.done', function(event, aSelected) {
             $scope.criteria.tags = $scope.criteria.tags.concat(aSelected);
@@ -119,10 +122,6 @@ define(['frame'], function(ngApp) {
             $scope.groupDataSchemas = groupDataSchemas;
             $scope.tmsTableWrapReady = 'Y';
             $scope.doSearch();
-            srvEnrollRecord.sum4Schema().then(function(result) {
-                $scope.sum4Schema = result;
-            });
         });
-        srvEnlRnd.list().then(function(rounds) { $scope.rounds = rounds; })
     }]);
 });

@@ -615,10 +615,11 @@ class record_model extends \TMS_MODEL {
 			'xxt_signin_record e',
 			$w,
 		];
-		$q2 = [
-			'r' => ['o' => ($page - 1) * $size, 'l' => $size],
-			'o' => 'e.signin_at desc',
-		];
+		$q2 = [];
+		if (!empty($page) && !empty($size)) {
+			$q2['r'] = ['o' => ($page - 1) * $size, 'l' => $size];
+		}
+		$q2['o'] = 'e.signin_at desc';
 
 		// 处理查询结果
 		if ($records = $this->query_objs_ss($q, $q2)) {

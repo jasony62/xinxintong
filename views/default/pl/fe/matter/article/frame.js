@@ -105,7 +105,9 @@ define(['require'], function() {
             }
         });
         window.onbeforeunload = function(e) {
-            tmsThumbnail.thumbnail($scope.editing);
+            if( !editing.pic && !editing.thumbnail){
+                tmsThumbnail.thumbnail($scope.editing);
+            }
         };
     }]);
     /***/

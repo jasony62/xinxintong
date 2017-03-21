@@ -6,7 +6,7 @@
     ngMod.service('tmsThumbnail', [ '$http', function(http) {
 
         this.thumbnail = function(editing) {
-            if( !editing.pic && !editing.thumbnail){
+            //if( !editing.pic && !editing.thumbnail){
                 var canvas, context, img, url,
                     H = 96,
                     W = 96;
@@ -45,10 +45,10 @@
                 //获取字符串第一个字
                 context.fillText(editing.title.slice(0,1),W/2,(H+30)/2);
                 //提交数据
-                editing.pic = canvas.toDataURL('img/png');
+                editing.thumbnail = canvas.toDataURL('img/png');
                 url = '/rest/pl/fe/matter/article/update?site=' + editing.siteid + '&id=' + editing.id;
-                http.post(url,{'pic':editing.pic});
-            }
+                http.post(url,{'thumbnail':editing.thumbnail});
+            //}
         };
     }]);
 })()

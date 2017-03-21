@@ -23,7 +23,9 @@ define(['frame'], function(ngApp) {
                 }
                 return message;
             }
-            tmsThumbnail.thumbnail($scope.editing);
+            if( !editing.pic && !editing.thumbnail){
+                tmsThumbnail.thumbnail($scope.editing);
+            }
 
         };
         $scope.submit = function() {
@@ -305,6 +307,11 @@ define(['frame'], function(ngApp) {
                     $scope.editing.attachments.push(rsp.data);
                 });
             });
+        });
+        $scope.$watch('editing.title', function(title, oldTitle){
+            if(!$scope.editing.pic && title.slice(0,1)!=oldTitle.slice(0,1)){
+                tmsThumbnail.thumbnail($scope.editing);
+            }
         });
         $scope.$on('tinymce.instance.init', function(event, editor) {
             tinymceEditor = editor;

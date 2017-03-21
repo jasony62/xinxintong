@@ -779,6 +779,7 @@ define(['require', 'schema', 'page'], function(require, schemaLib, pageLib) {
                     });
                 },
                 cron: function() {
+                    var defer = $q.defer();
                     srvEnrollApp.get().then(function(oApp) {
                         $uibModal.open({
                             templateUrl: '/views/default/pl/fe/matter/enroll/component/roundCron.html?_=1',
@@ -816,9 +817,12 @@ define(['require', 'schema', 'page'], function(require, schemaLib, pageLib) {
                             }]
                         }).result.then(function(cron) {
                             oApp.roundCron = cron;
-                            srvEnrollApp.update('roundCron');
+                            srvEnrollApp.update('roundCron').then(function() {
+                                defer.resolve(cron);
+                            });
                         });
                     });
+                    return defer.promise;
                 }
             };
         }];

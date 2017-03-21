@@ -206,7 +206,9 @@ define(['frame'], function(ngApp) {
         srvEnlRnd.init(rounds, page)
         $scope.roundState = srvEnlRnd.RoundState;
         $scope.openCron = function() {
-            srvEnlRnd.cron();
+            srvEnlRnd.cron().then(function() {
+                $scope.doSearchRound();
+            });
         };
         $scope.doSearchRound = function() {
             srvEnlRnd.list();

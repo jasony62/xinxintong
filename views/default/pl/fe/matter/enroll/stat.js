@@ -88,6 +88,54 @@ define(['frame'], function(ngApp) {
             });
         }
 
+        function drawNumPie(item,schema) {
+            var categories = [],
+                series = [];
+            item.forEach(function(op) {
+                series.push({
+                    name: op.value,
+                    y: (op.value/6)
+                });
+            });
+            new Highcharts.Chart({
+                chart: {
+                    type: 'pie',
+                    renderTo: schema.id
+                },
+                title: {
+                    text: schema.title
+                },
+                tooltip: {
+                    pointFormat: '{series.name}: <b>{point.percentage:.1f}</b>'
+                },
+                plotOptions: {
+                    pie: {
+                        allowPointSelect: true,
+                        cursor: 'pointer',
+                        dataLabels: {
+                            enabled: true,
+                            format:'<b>{series.name}</b>: {point.percentage:.1f} %',
+                            style: {
+                                color: (Highcharts.theme && Highcharts.theme.contrastTextColor) || 'black'
+                            }
+                        }
+                    }
+                },
+                series: [{
+                    name: '所占百分比',
+                    data: series
+                }],
+                lang: {
+                    downloadJPEG: "下载JPEG 图片",
+                    downloadPDF: "下载PDF文档",
+                    downloadPNG: "下载PNG 图片",
+                    downloadSVG: "下载SVG 矢量图",
+                    printChart: "打印图片",
+                    exportButtonTitle: "导出图片"
+                }
+            });
+        }
+
         function drawLineChart(item) {
             var categories = [],
                 data = [];
@@ -179,6 +227,9 @@ define(['frame'], function(ngApp) {
                                     rec.value = JSON.parse(rec.value)
                                 }
                             });
+                        } else if(schema.number && schema.number == 'Y') {
+                            $scope.itemNum = rsp.data.records;
+                            drawNumPie($scope.itemNum,schema);
                         }
                         cached.records = rsp.data.records;
                         page.total = rsp.data.total;

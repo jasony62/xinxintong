@@ -42,30 +42,49 @@
                 </table>
             </div>
             <div ng-if="['single','phase','multiple','score'].indexOf(schema.type)===-1" ng-init="page={at:1,size:10}">
-                <table class='table table-bordered' ng-switch on="schema.type">
-                    <thead>
-                        <tr>
-                            <th>登记内容</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        <tr ng-repeat="record in getRecords(schema,page)" ng-switch-when="image">
-                            <td><img ng-repeat="img in record.value" ng-src='{{img}}' /></td>
-                        </tr>
-                        <tr ng-repeat="record in getRecords(schema,page)" ng-switch-when="file">
-                            <td><span ng-repeat='file in record.value'><a href='{{file.url}}' target="_blank">{{file.name}}</a></span></td>
-                        </tr>
-                        <tr ng-repeat="record in getRecords(schema,page)" ng-switch-when="date">
-                            <td>{{record.value*1000|date:'yy-MM-dd HH:mm'}}</td>
-                        </tr>
-                        <tr ng-repeat="record in getRecords(schema,page)" ng-switch-default>
-                            <td>{{record.value}}</td>
-                        </tr>
-                    </tbody>
-                </table>
-                <div class='form-inline'>
-                    <span>总数：{{page.total}}</span>
-                    <ul uib-pagination style="margin:0;vertical-align:bottom;cursor:pointer" ng-show="page.total>page.size" boundary-links="true" total-items="page.total" max-size="7" items-per-page="page.size" rotate="false" ng-model="page.at" previous-text="&lsaquo;" next-text="&rsaquo;" first-text="&laquo;" last-text="&raquo;" ng-change="getRecords(schema,page)"></ul>
+                <div ng-if="schema.number&&schema.number=='Y'">
+                    <div id="{{schema.id}}" style='height:300px'></div>
+                    <table class='table table-bordered'>
+                        <thead>
+                            <tr>
+                                <th>标识</th>
+                                <th>登记内容</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr ng-repeat="record in getRecords(schema,page)">
+                                <td>1号人物</td>
+                                <td>{{record.value}}</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+                <div ng-if="!schema.number||schema.number=='N'">
+                    <table class='table table-bordered' ng-switch on="schema.type">
+                        <thead>
+                            <tr>
+                                <th>登记内容</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr ng-repeat="record in getRecords(schema,page)" ng-switch-when="image">
+                                <td><img ng-repeat="img in record.value" ng-src='{{img}}' /></td>
+                            </tr>
+                            <tr ng-repeat="record in getRecords(schema,page)" ng-switch-when="file">
+                                <td><span ng-repeat='file in record.value'><a href='{{file.url}}' target="_blank">{{file.name}}</a></span></td>
+                            </tr>
+                            <tr ng-repeat="record in getRecords(schema,page)" ng-switch-when="date">
+                                <td>{{record.value*1000|date:'yy-MM-dd HH:mm'}}</td>
+                            </tr>
+                            <tr ng-repeat="record in getRecords(schema,page)" ng-switch-default>
+                                <td>{{record.value}}</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                    <div class='form-inline'>
+                        <span>总数：{{page.total}}</span>
+                        <ul uib-pagination style="margin:0;vertical-align:bottom;cursor:pointer" ng-show="page.total>page.size" boundary-links="true" total-items="page.total" max-size="7" items-per-page="page.size" rotate="false" ng-model="page.at" previous-text="&lsaquo;" next-text="&rsaquo;" first-text="&laquo;" last-text="&raquo;" ng-change="getRecords(schema,page)"></ul>
+                    </div>
                 </div>
             </div>
         </div>

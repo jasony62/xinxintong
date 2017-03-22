@@ -1,9 +1,12 @@
 define(['frame'], function(ngApp) {
     'use strict';
-    ngApp.provider.controller('ctrlRecord', ['$scope', 'srvEnrollApp', 'srvEnrollRecord', function($scope, srvEnrollApp, srvEnrollRecord) {
+    ngApp.provider.controller('ctrlRecord', ['$scope', 'srvEnrollApp', 'srvEnrollRound', 'srvEnrollRecord', function($scope, srvEnrollApp, srvEnlRnd, srvEnrollRecord) {
         $scope.doSearch = function(pageNumber) {
             $scope.rows.reset();
             srvEnrollRecord.search(pageNumber);
+            srvEnrollRecord.sum4Schema($scope.page.byRound).then(function(result) {
+                $scope.sum4Schema = result;
+            });
         };
         $scope.$on('search-tag.xxt.combox.done', function(event, aSelected) {
             $scope.criteria.tags = $scope.criteria.tags.concat(aSelected);
@@ -89,6 +92,7 @@ define(['frame'], function(ngApp) {
         $scope.criteria = {}; // 过滤条件
         $scope.records = []; // 登记记录
         $scope.tmsTableWrapReady = 'N';
+        $scope.numberSchemas = []; // 数值型登记项
         srvEnrollApp.get().then(function(app) {
             srvEnrollRecord.init(app, $scope.page, $scope.criteria, $scope.records);
             // schemas
@@ -98,6 +102,9 @@ define(['frame'], function(ngApp) {
             app.data_schemas.forEach(function(schema) {
                 if (schema.type !== 'html') {
                     recordSchemas.push(schema);
+                }
+                if (schema.number && schema.number === 'Y') {
+                    $scope.numberSchemas.push(schema);
                 }
             });
             $scope.recordSchemas = recordSchemas;

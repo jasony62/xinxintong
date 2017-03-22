@@ -160,8 +160,8 @@ class main extends base {
 
 		if ($oOpenPage === null) {
 			// 根据登记状态确定进入页面
-			$hasEnrolled = $this->modelApp->userEnrolled($site, $app, $user);
-			if ($hasEnrolled) {
+			$userEnrolled = $this->modelApp->userEnrolled($app, $user);
+			if ($userEnrolled) {
 				if (empty($app->enrolled_entry_page)) {
 					$pages = $modelPage->byApp($app->id);
 					foreach ($pages as $p) {
@@ -201,15 +201,14 @@ class main extends base {
 	 * @param string $newRecord
 	 */
 	public function get_action($site, $app, $rid = null, $page = null, $ek = null, $newRecord = null, $ignoretime = 'N', $cascaded = 'N') {
-		$params = array();
+		$params = [];
 
 		/* 登记活动定义 */
-		$app = $this->modelApp->byId($app, ['cascaded' => $cascaded]);
-		if ($app === false) {
+		$oApp = $this->modelApp->byId($app, ['cascaded' => $cascaded]);
+		if ($oApp === false) {
 			return new \ResponseError('指定的登记活动不存在，请检查参数是否正确');
 		}
-
-		$params['app'] = &$app;
+		$params['app'] = &$oApp;
 
 		/* 当前访问用户的基本信息 */
 		$user = $this->who;
@@ -224,10 +223,10 @@ class main extends base {
 
 		/* 计算打开哪个页面 */
 		if (empty($page)) {
-			$oOpenPage = $this->_defaultPage($site, $app, false, $ignoretime);
+			$oOpenPage = $this->_defaultPage($site, $oApp, false, $ignoretime);
 		} else {
 			$modelPage = $this->model('matter\enroll\page');
-			$oOpenPage = $modelPage->byName($app->id, $page);
+			$oOpenPage = $modelPage->byName($oApp->id, $page);
 		}
 		if (empty($oOpenPage)) {
 			return new \ResponseError('页面不存在');
@@ -235,32 +234,33 @@ class main extends base {
 		$params['page'] = $oOpenPage;
 
 		/* 站点页面设置 */
-		if ($app->use_site_header === 'Y' || $app->use_site_footer === 'Y') {
+		if ($oApp->use_site_header === 'Y' || $oApp->use_site_footer === 'Y') {
 			$params['site'] = $this->model('site')->byId(
 				$site,
 				['cascaded' => 'header_page_name,footer_page_name']
 			);
 		}
 		/* 项目页面设置 */
-		if ($app->use_mission_header === 'Y' || $app->use_mission_footer === 'Y') {
-			if ($app->mission_id) {
+		if ($oApp->use_mission_header === 'Y' || $oApp->use_mission_footer === 'Y') {
+			if ($oApp->mission_id) {
 				$params['mission'] = $this->model('matter\mission')->byId(
-					$app->mission_id,
+					$oApp->mission_id,
 					['cascaded' => 'header_page_name,footer_page_name']
 				);
 			}
 		}
 
+		$userEnrolled = $this->modelApp->userEnrolled($oApp, $user);
+
 		/* 自动登记???，解决之要打开了页面就登记？ */
-		$hasEnrolled = $this->modelApp->hasEnrolled($site, $app->id, $user);
-		if (!$hasEnrolled && $app->can_autoenroll === 'Y' && $oOpenPage->autoenroll_onenter === 'Y') {
+		if (!$userEnrolled && $oApp->can_autoenroll === 'Y' && $oOpenPage->autoenroll_onenter === 'Y') {
 			$modelRec = $this->model('matter\enroll\record');
 			$options = [
 				'fields' => 'enroll_key,enroll_at',
 			];
-			$lastRecord = $modelRec->getLast($$app->id, $user, $options);
+			$lastRecord = $modelRec->getLast($$oApp->id, $user, $options);
 			if (false === $lastRecord) {
-				$modelRec->add($site, $app, $user, (empty($posted->referrer) ? '' : $posted->referrer));
+				$modelRec->add($site, $oApp, $user, (empty($posted->referrer) ? '' : $posted->referrer));
 			} else if ($lastRecord->enroll_at === '0') {
 				$updated = array(
 					'enroll_at' => time(),
@@ -270,20 +270,20 @@ class main extends base {
 			}
 		}
 
-		if ($app->multi_rounds === 'Y') {
-			$params['activeRound'] = $this->model('matter\enroll\round')->getLast($site, $app->id);
+		if ($oApp->multi_rounds === 'Y') {
+			$params['activeRound'] = $this->model('matter\enroll\round')->getLast($oApp);
 		}
 
 		/* 是否需要返回登记记录 */
 		if ($oOpenPage->type === 'I' && $newRecord !== 'Y') {
 			$modelRec = $this->model('matter\enroll\record');
 			if (empty($ek)) {
-				if ($app->open_lastroll === 'Y') {
+				if ($oApp->open_lastroll === 'Y') {
 					/* 获得最后一条登记数据。记录有可能未进行过数据填写 */
 					$options = [
 						'fields' => '*',
 					];
-					$lastRecord = $modelRec->getLast($app, $user, $options);
+					$lastRecord = $modelRec->getLast($oApp, $user, $options);
 					$params['record'] = $lastRecord;
 				}
 			} else {

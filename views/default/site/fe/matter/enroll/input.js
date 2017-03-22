@@ -28,11 +28,11 @@ define(["angular", "enroll-common", "angular-sanitize", "xxt-share", "xxt-image"
     ngApp.factory('Input', ['$http', '$q', '$timeout', 'ls', function($http, $q, $timeout, LS) {
         function required(value, len) {
             return (value == null || value == "" || value.length < len) ? false : true;
-        };
+        }
 
         function validateMobile(value) {
             return (false === /^1[3|4|5|7|8][0-9]\d{8}$/.test(value)) ? false : true;
-        };
+        }
 
         function validate(data) {
             var reason;
@@ -51,7 +51,7 @@ define(["angular", "enroll-common", "angular-sanitize", "xxt-share", "xxt-image"
                 }
             }
             return true;
-        };
+        }
 
         function isEmpty(schema, value) {
             if (value === undefined) {
@@ -69,7 +69,7 @@ define(["angular", "enroll-common", "angular-sanitize", "xxt-share", "xxt-image"
                 default:
                     return value.length === 0;
             }
-        };
+        }
 
         var Input, _ins;
         Input = function() {};
@@ -77,7 +77,6 @@ define(["angular", "enroll-common", "angular-sanitize", "xxt-share", "xxt-image"
             var reason, dataSchemas, item, schema, value;
             //验证手机号和姓名规则
             if (true !== (reason = validate(data))) {
-                app.subState = 1;
                 return reason;
             }
             if (page.data_schemas && page.data_schemas.length) {
@@ -92,14 +91,18 @@ define(["angular", "enroll-common", "angular-sanitize", "xxt-share", "xxt-image"
                             value = data[schema.id];
                         }
                         if (value === undefined || isEmpty(schema, value)) {
-                            app.subState = 1;
                             return '请填写必填项［' + schema.title + '］';
+                        }
+                    }
+                    if (schema.number && schema.number === 'Y') {
+                        value = data[schema.id];
+                        if (!/^-{0,1}[0-9]+(.[0-9]+){0,1}$/.test(value)) {
+                            return '填写项［' + schema.title + '］只能填写数值';
                         }
                     }
                     if (/image|file/.test(schema.type)) {
                         if (schema.count) {
                             if (data[schema.id] && data[schema.id].length > schema.count) {
-                                app.subState = 1;
                                 return '［' + schema.title + '］超出上传数量（' + schema.count + '）限制';
                             }
                         }
@@ -391,7 +394,7 @@ define(["angular", "enroll-common", "angular-sanitize", "xxt-share", "xxt-image"
                 seq++;
                 seq < tasksOfBeforeSubmit.length ? doTask(seq, nextAction) : doSubmit(nextAction);
             });
-        };
+        }
 
         function doSubmit(nextAction) {
             var ek, submitData;
@@ -422,7 +425,7 @@ define(["angular", "enroll-common", "angular-sanitize", "xxt-share", "xxt-image"
                 submitState.finish();
                 $scope.$parent.errmsg = reason;
             });
-        };
+        }
         var facInput, tasksOfBeforeSubmit, submitState;
         tasksOfBeforeSubmit = [];
         facInput = Input.ins();

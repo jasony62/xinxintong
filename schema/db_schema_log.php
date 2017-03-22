@@ -300,7 +300,8 @@ if (!$mysqli->query($sql)) {
  */
 $sql = "create table if not exists xxt_log_timer(";
 $sql .= "id int not null auto_increment";
-$sql .= ",mpid varchar(32) not null";
+$sql .= ",mpid varchar(32) not null default ''";
+$sql .= ",siteid varchar(32) not null default ''";
 $sql .= ",task_id int not null";
 $sql .= ",occur_at int not null";
 $sql .= ",result text";

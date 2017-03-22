@@ -43,7 +43,7 @@ class matter_model extends \TMS_MODEL {
 					$modelMat = $this->model('matter\\' . $mm->matter_type);
 				}
 				if (in_array($mm->matter_type, ['enroll', 'signin', 'group'])) {
-					$fields = 'siteid,id,title,summary,pic,data_schemas,op_short_url_code';
+					$fields = 'siteid,id,title,summary,pic,create_at,creater_name,data_schemas,op_short_url_code';
 					if (in_array($mm->matter_type, ['enroll'])) {
 						$fields .= ',rp_short_url_code';
 					}
@@ -51,7 +51,7 @@ class matter_model extends \TMS_MODEL {
 						$fields .= ',scenario';
 					}
 				} else {
-					$fields = 'siteid,id,title,summary,pic';
+					$fields = 'siteid,id,title,summary,pic,create_at,creater_name';
 				}
 				if ($matter = $modelMat->byId($mm->matter_id, ['fields' => $fields, 'cascaded' => 'N'])) {
 					/* 是否开放了运营者链接 */

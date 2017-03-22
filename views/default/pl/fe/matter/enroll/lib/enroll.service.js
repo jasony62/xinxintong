@@ -20,12 +20,10 @@ define(['require', 'schema', 'page'], function(require, schemaLib, pageLib) {
                 at: 1,
                 size: 30,
                 orderBy: 'time',
-                byRound: '',
                 joinParams: function() {
                     var p;
                     p = '&page=' + this.at + '&size=' + this.size;
                     p += '&orderby=' + this.orderBy;
-                    p += '&rid=' + (this.byRound ? this.byRound : 'ALL');
                     return p;
                 },
                 setTotal: function(total) {
@@ -42,6 +40,7 @@ define(['require', 'schema', 'page'], function(require, schemaLib, pageLib) {
             this._oCriteria = oCriteria;
             angular.extend(this._oCriteria, {
                 record: {
+                    rid: '',
                     verified: ''
                 },
                 tags: [],
@@ -143,11 +142,11 @@ define(['require', 'schema', 'page'], function(require, schemaLib, pageLib) {
                 pageLib.enhance(page, data._schemasById);
             });
         };
-        this._bFilter = function() {
+        this._bFilter = function(srvEnlRnd) {
             var defer = $q.defer(),
                 that = this;
             $uibModal.open({
-                templateUrl: '/views/default/pl/fe/matter/enroll/component/recordFilter.html?_=3',
+                templateUrl: '/views/default/pl/fe/matter/enroll/component/recordFilter.html?_=4',
                 controller: 'ctrlEnrollFilter',
                 windowClass: 'auto-height',
                 backdrop: 'static',
@@ -157,6 +156,9 @@ define(['require', 'schema', 'page'], function(require, schemaLib, pageLib) {
                     },
                     criteria: function() {
                         return angular.copy(that._oCriteria);
+                    },
+                    srvEnlRnd: function() {
+                        return srvEnlRnd;
                     }
                 }
             }).result.then(function(criteria) {
@@ -642,7 +644,7 @@ define(['require', 'schema', 'page'], function(require, schemaLib, pageLib) {
             return _self;
         }];
     }).provider('srvEnrollRound', function() {
-        var _siteId, _appId, _rounds,
+        var _siteId, _appId, _rounds, _oPage,
             _RestURL = '/rest/pl/fe/matter/enroll/round/',
             RoundState = ['新建', '启用', '停止'];
 
@@ -653,104 +655,174 @@ define(['require', 'schema', 'page'], function(require, schemaLib, pageLib) {
         this.$get = ['$q', 'http2', '$uibModal', 'srvEnrollApp', function($q, http2, $uibModal, srvEnrollApp) {
             return {
                 RoundState: RoundState,
-                list: function() {
-                    var defer = $q.defer();
-                    if (_rounds) {
-                        defer.resolve(_rounds);
-                    } else {
-                        srvEnrollApp.get().then(function(oApp) {
-                            _rounds = oApp.rounds;
-                            defer.resolve(_rounds);
-                        });
+                init: function(rounds, page) {
+                    _rounds = rounds;
+                    _oPage = page;
+                    if (page.j === undefined) {
+                        page.at = 1;
+                        page.size = 10;
+                        page.j = function() {
+                            return 'page=' + this.at + '&size=' + this.size;
+                        }
                     }
+                },
+                list: function() {
+                    var defer = $q.defer(),
+                        url;
+                    if (_rounds === undefined) {
+                        _rounds = [];
+                    }
+                    if (_oPage === undefined) {
+                        _oPage = {
+                            at: 1,
+                            size: 10,
+                            j: function() {
+                                return 'page=' + this.at + '&size=' + this.size;
+                            }
+                        };
+                    }
+                    url = _RestURL + 'list?site=' + _siteId + '&app=' + _appId + '&' + _oPage.j();
+                    http2.get(url, function(rsp) {
+                        _rounds.splice(0, _rounds.length);
+                        rsp.data.rounds.forEach(function(rnd) {
+                            _rounds.push(rnd);
+                        });
+                        _oPage.total = parseInt(rsp.data.total);
+                        defer.resolve({ rounds: _rounds, page: _oPage });
+                    });
+
                     return defer.promise;
                 },
                 add: function() {
-                    this.list().then(function() {
-                        $uibModal.open({
-                            templateUrl: 'roundEditor.html',
-                            backdrop: 'static',
-                            controller: ['$scope', '$uibModalInstance', function($scope, $mi) {
-                                $scope.round = {
-                                    state: 0
-                                };
-                                $scope.roundState = RoundState;
-                                $scope.close = function() {
-                                    $mi.dismiss();
-                                };
-                                $scope.ok = function() {
-                                    $mi.close($scope.round);
-                                };
-                                $scope.start = function() {
-                                    $scope.round.state = 1;
-                                    $mi.close($scope.round);
-                                };
-                            }]
-                        }).result.then(function(newRound) {
-                            http2.post(_RestURL + 'add?site=' + _siteId + '&app=' + _appId, newRound, function(rsp) {
-                                if (_rounds.length > 0 && rsp.data.state == 1) {
-                                    _rounds[0].state = 2;
-                                }
-                                _rounds.splice(0, 0, rsp.data);
-                            });
+                    $uibModal.open({
+                        templateUrl: 'roundEditor.html',
+                        backdrop: 'static',
+                        controller: ['$scope', '$uibModalInstance', function($scope, $mi) {
+                            $scope.round = {
+                                state: 0
+                            };
+                            $scope.roundState = RoundState;
+                            $scope.close = function() {
+                                $mi.dismiss();
+                            };
+                            $scope.ok = function() {
+                                $mi.close($scope.round);
+                            };
+                            $scope.start = function() {
+                                $scope.round.state = 1;
+                                $mi.close($scope.round);
+                            };
+                        }]
+                    }).result.then(function(newRound) {
+                        http2.post(_RestURL + 'add?site=' + _siteId + '&app=' + _appId, newRound, function(rsp) {
+                            if (_rounds.length > 0 && rsp.data.state == 1) {
+                                _rounds[0].state = 2;
+                            }
+                            _rounds.splice(0, 0, rsp.data);
+                            _oPage.total++;
                         });
                     });
                 },
                 edit: function(round) {
-                    this.list().then(function() {
+                    $uibModal.open({
+                        templateUrl: 'roundEditor.html',
+                        backdrop: 'static',
+                        controller: ['$scope', '$uibModalInstance', function($scope, $mi) {
+                            $scope.round = angular.copy(round);
+                            $scope.roundState = RoundState;
+                            $scope.close = function() {
+                                $mi.dismiss();
+                            };
+                            $scope.ok = function() {
+                                $mi.close({
+                                    action: 'update',
+                                    data: $scope.round
+                                });
+                            };
+                            $scope.remove = function() {
+                                $mi.close({
+                                    action: 'remove'
+                                });
+                            };
+                            $scope.stop = function() {
+                                $scope.round.state = 2;
+                                $mi.close({
+                                    action: 'update',
+                                    data: $scope.round
+                                });
+                            };
+                            $scope.start = function() {
+                                $scope.round.state = 1;
+                                $mi.close({
+                                    action: 'update',
+                                    data: $scope.round
+                                });
+                            };
+                        }]
+                    }).result.then(function(rst) {
+                        var url = _RestURL;
+                        if (rst.action === 'update') {
+                            url += 'update?site=' + _siteId + '&app=' + _appId + '&rid=' + round.rid;
+                            http2.post(url, rst.data, function(rsp) {
+                                if (_rounds.length > 1 && rst.data.state == 1) {
+                                    _rounds[1].state = 2;
+                                }
+                                angular.extend(round, rst.data);
+                            });
+                        } else if (rst.action === 'remove') {
+                            url += 'remove?site=' + _siteId + '&app=' + _appId + '&rid=' + round.rid;
+                            http2.get(url, function(rsp) {
+                                _rounds.splice(_rounds.indexOf(round), 1);
+                                _oPage.total--;
+                            });
+                        }
+                    });
+                },
+                cron: function() {
+                    var defer = $q.defer();
+                    srvEnrollApp.get().then(function(oApp) {
                         $uibModal.open({
-                            templateUrl: 'roundEditor.html',
+                            templateUrl: '/views/default/pl/fe/matter/enroll/component/roundCron.html?_=1',
                             backdrop: 'static',
                             controller: ['$scope', '$uibModalInstance', function($scope, $mi) {
-                                $scope.round = angular.copy(round);
-                                $scope.roundState = RoundState;
-                                $scope.close = function() {
+                                var cron;
+                                $scope.mdays = [];
+                                while ($scope.mdays.length < 28) {
+                                    $scope.mdays.push('' + ($scope.mdays.length + 1));
+                                }
+                                $scope.cron = cron = oApp.roundCron ? angular.copy(oApp.roundCron) : [];
+                                $scope.cancel = function() {
                                     $mi.dismiss();
                                 };
+                                $scope.changePeriod = function(rule) {
+                                    if (rule.period !== 'W') {
+                                        rule.wday = '';
+                                    }
+                                    if (rule.period !== 'M') {
+                                        rule.mday = '';
+                                    }
+                                };
+                                $scope.add = function() {
+                                    cron.push({
+                                        period: 'D',
+                                        hour: 8
+                                    });
+                                };
+                                $scope.remove = function(rule) {
+                                    cron.splice(cron.indexOf(rule), 1);
+                                };
                                 $scope.ok = function() {
-                                    $mi.close({
-                                        action: 'update',
-                                        data: $scope.round
-                                    });
-                                };
-                                $scope.remove = function() {
-                                    $mi.close({
-                                        action: 'remove'
-                                    });
-                                };
-                                $scope.stop = function() {
-                                    $scope.round.state = 2;
-                                    $mi.close({
-                                        action: 'update',
-                                        data: $scope.round
-                                    });
-                                };
-                                $scope.start = function() {
-                                    $scope.round.state = 1;
-                                    $mi.close({
-                                        action: 'update',
-                                        data: $scope.round
-                                    });
+                                    $mi.close(cron);
                                 };
                             }]
-                        }).result.then(function(rst) {
-                            var url = _RestURL;
-                            if (rst.action === 'update') {
-                                url += 'update?site=' + _siteId + '&app=' + _appId + '&rid=' + round.rid;
-                                http2.post(url, rst.data, function(rsp) {
-                                    if (_rounds.length > 1 && rst.data.state == 1) {
-                                        _rounds[1].state = 2;
-                                    }
-                                    angular.extend(round, rst.data);
-                                });
-                            } else if (rst.action === 'remove') {
-                                url += 'remove?site=' + _siteId + '&app=' + _appId + '&rid=' + round.rid;
-                                http2.get(url, function(rsp) {
-                                    _rounds.splice(_rounds.indexOf(round), 1);
-                                });
-                            }
+                        }).result.then(function(cron) {
+                            oApp.roundCron = cron;
+                            srvEnrollApp.update('roundCron').then(function() {
+                                defer.resolve(cron);
+                            });
                         });
                     });
+                    return defer.promise;
                 }
             };
         }];
@@ -847,7 +919,7 @@ define(['require', 'schema', 'page'], function(require, schemaLib, pageLib) {
             _siteId = siteId;
             _appId = appId;
         };
-        this.$get = ['$q', '$sce', 'http2', 'noticebox', '$uibModal', 'pushnotify', 'cstApp', 'srvRecordConverter', function($q, $sce, http2, noticebox, $uibModal, pushnotify, cstApp, srvRecordConverter) {
+        this.$get = ['$q', '$sce', 'http2', 'noticebox', '$uibModal', 'pushnotify', 'cstApp', 'srvRecordConverter', 'srvEnrollRound', function($q, $sce, http2, noticebox, $uibModal, pushnotify, cstApp, srvRecordConverter, srvEnlRnd) {
             var _ins = new BaseSrvEnrollRecord($q, http2, srvRecordConverter, noticebox, $uibModal);
             _ins.search = function(pageNumber) {
                 var url;
@@ -889,7 +961,7 @@ define(['require', 'schema', 'page'], function(require, schemaLib, pageLib) {
                 return defer.promise;
             };
             _ins.filter = function() {
-                return _ins._bFilter();
+                return _ins._bFilter(srvEnlRnd);
             };
             _ins.add = function(newRecord) {
                 http2.post('/rest/pl/fe/matter/enroll/record/add?site=' + _siteId + '&app=' + _appId, newRecord, function(rsp) {
@@ -1301,6 +1373,19 @@ define(['require', 'schema', 'page'], function(require, schemaLib, pageLib) {
                 });
                 return defer.promise;
             };
+            _ins.sum4Schema = function(rid) {
+                var url, defer = $q.defer();
+
+                url = '/rest/pl/fe/matter/enroll/record/sum4Schema';
+                url += '?site=' + _siteId;
+                url += '&app=' + _appId;
+                url += '&rid=' + (rid ? rid : 'ALL');
+
+                http2.get(url, function(rsp) {
+                    defer.resolve(rsp.data);
+                })
+                return defer.promise;
+            };
 
             return _ins;
         }];
@@ -1311,7 +1396,7 @@ define(['require', 'schema', 'page'], function(require, schemaLib, pageLib) {
             _appId = appId;
             _accessId = accessId;
         };
-        this.$get = ['$q', 'http2', 'noticebox', '$uibModal', 'srvRecordConverter', function($q, http2, noticebox, $uibModal, srvRecordConverter) {
+        this.$get = ['$q', 'http2', 'noticebox', '$uibModal', 'srvRecordConverter', 'srvOpEnrollRound', function($q, http2, noticebox, $uibModal, srvRecordConverter, srvEnlRnd) {
             var _ins = new BaseSrvEnrollRecord($q, http2, srvRecordConverter, noticebox, $uibModal);
             _ins.search = function(pageNumber) {
                 var url;
@@ -1337,7 +1422,7 @@ define(['require', 'schema', 'page'], function(require, schemaLib, pageLib) {
                 return _ins._bBatchVerify(rows, url);
             };
             _ins.filter = function() {
-                return _ins._bFilter();
+                return _ins._bFilter(srvEnlRnd);
             };
             _ins.remove = function(record) {
                 if (window.confirm('确认删除？')) {
@@ -1348,8 +1433,75 @@ define(['require', 'schema', 'page'], function(require, schemaLib, pageLib) {
                     });
                 }
             };
+            _ins.sum4Schema = function(rid) {
+                var url, defer = $q.defer();
+
+                url = '/rest/site/op/matter/enroll/record/sum4Schema';
+                url += '?site=' + _siteId;
+                url += '&app=' + _appId;
+                url += '&accessToken=' + _accessId;
+                url += '&rid=' + (rid ? rid : 'ALL');
+
+                http2.get(url, function(rsp) {
+                    defer.resolve(rsp.data);
+                })
+                return defer.promise;
+            };
 
             return _ins;
+        }];
+    }).provider('srvOpEnrollRound', function() {
+        var _siteId, _appId, _accessId, _rounds, _oPage,
+            _RestURL = '/rest/site/op/matter/enroll/round/',
+            RoundState = ['新建', '启用', '停止'];
+
+        this.config = function(siteId, appId, accessId) {
+            _siteId = siteId;
+            _appId = appId;
+            _accessId = accessId;
+        };
+        this.$get = ['$q', 'http2', '$uibModal', 'srvEnrollApp', function($q, http2, $uibModal, srvEnrollApp) {
+            return {
+                RoundState: RoundState,
+                init: function(rounds, page) {
+                    _rounds = rounds;
+                    _oPage = page;
+                    if (page.j === undefined) {
+                        page.at = 1;
+                        page.size = 10;
+                        page.j = function() {
+                            return 'page=' + this.at + '&size=' + this.size;
+                        }
+                    }
+                },
+                list: function() {
+                    var defer = $q.defer(),
+                        url;
+                    if (_rounds === undefined) {
+                        _rounds = [];
+                    }
+                    if (_oPage === undefined) {
+                        _oPage = {
+                            at: 1,
+                            size: 10,
+                            j: function() {
+                                return 'page=' + this.at + '&size=' + this.size;
+                            }
+                        };
+                    }
+                    url = _RestURL + 'list?site=' + _siteId + '&app=' + _appId + '&accessToken=' + _accessId + '&' + _oPage.j();
+                    http2.get(url, function(rsp) {
+                        _rounds.splice(0, _rounds.length);
+                        rsp.data.rounds.forEach(function(rnd) {
+                            _rounds.push(rnd);
+                        });
+                        _oPage.total = parseInt(rsp.data.total);
+                        defer.resolve({ rounds: _rounds, page: _oPage });
+                    });
+
+                    return defer.promise;
+                },
+            };
         }];
     }).provider('srvEnrollLog', function() {
         this.$get = ['$q', 'http2', function($q, http2) {
@@ -1380,7 +1532,7 @@ define(['require', 'schema', 'page'], function(require, schemaLib, pageLib) {
                 }
             };
         }];
-    }).provider('srvTempApp', function(){
+    }).provider('srvTempApp', function() {
         function _mapSchemas(app) {
             var mapOfSchemaByType = {},
                 mapOfSchemaById = {},
@@ -1427,7 +1579,7 @@ define(['require', 'schema', 'page'], function(require, schemaLib, pageLib) {
             _appId = appId;
             _vId = vId;
         };
-        this.$get = ['$q', 'http2', 'noticebox', '$uibModal', function( $q, http2, noticebox, $uibModal) {
+        this.$get = ['$q', 'http2', 'noticebox', '$uibModal', function($q, http2, noticebox, $uibModal) {
             var _self = {
                 tempEnrollGet: function() {
                     var url;
@@ -1443,7 +1595,8 @@ define(['require', 'schema', 'page'], function(require, schemaLib, pageLib) {
                     }
                     http2.get(url, function(rsp) {
                         _oApp = rsp.data;
-                        function _tGet(data,method) {
+
+                        function _tGet(data, method) {
                             try {
                                 data.data_schemas = data.data_schemas && data.data_schemas.length ? JSON.parse(data.data_schemas) : [];
                             } catch (e) {
@@ -1515,7 +1668,7 @@ define(['require', 'schema', 'page'], function(require, schemaLib, pageLib) {
                 },
                 applyToHome: function() {
                     var url = '/rest/pl/fe/template/pushHome?site=' + _siteId;
-                        url += '&tid=' + _appId;
+                    url += '&tid=' + _appId;
                     http2.get(url, function(rsp) {
                         noticebox.success('完成申请！');
                     });
@@ -1527,7 +1680,7 @@ define(['require', 'schema', 'page'], function(require, schemaLib, pageLib) {
                     url += '&lastVersion=' + _oApp.last_version;
                     url += '&matterType=' + _oApp.matter_type;
                     http2.get(url, function(rsp) {
-                        location.href = '/rest/pl/fe/template/'+ _oApp.matter_type +'?site=' + _siteId + '&id=' + _appId + '&vid=' + rsp.data.vid;
+                        location.href = '/rest/pl/fe/template/' + _oApp.matter_type + '?site=' + _siteId + '&id=' + _appId + '&vid=' + rsp.data.vid;
                     });
                 },
                 lookView: function(num) {
@@ -1535,8 +1688,8 @@ define(['require', 'schema', 'page'], function(require, schemaLib, pageLib) {
                     url = '/rest/pl/fe/template/get?site=' + _siteId;
                     url += '&tid=' + _appId;
                     url += '&vid=' + num;
-                    http2.get(url,function(rsp) {
-                       defer.resolve(rsp.data);
+                    http2.get(url, function(rsp) {
+                        defer.resolve(rsp.data);
                     });
                     return defer.promise;
                 },
@@ -1547,7 +1700,7 @@ define(['require', 'schema', 'page'], function(require, schemaLib, pageLib) {
                         controller: ['$scope', '$uibModalInstance', function($scope, $mi) {
                             if (id === undefined) return false;
                             http2.get('/rest/pl/fe/template/getVersion?site=' + _siteId + '&tid=' + _appId + '&vid=' + id, function(rsp) {
-                                 $scope.version = rsp.data;
+                                $scope.version = rsp.data;
                             });
                             $scope.cancel = function() {
                                 $mi.dismiss();
@@ -1577,7 +1730,7 @@ define(['require', 'schema', 'page'], function(require, schemaLib, pageLib) {
                     url = '/rest/pl/fe/template/acl/remove';
                     url += '?acl=' + acl.id;
                     http2.get(url, function(rsp) {
-                        angular.forEach(_oApp.acl,function(item, index){
+                        angular.forEach(_oApp.acl, function(item, index) {
                             if (item.id == acl.id) {
                                 _oApp.acl.splice(index, 1);
                             }
@@ -1694,7 +1847,7 @@ define(['require', 'schema', 'page'], function(require, schemaLib, pageLib) {
             _siteId = siteId;
             _appId = appId;
         };
-        this.$get = ['$q', 'http2', function( $q, http2) {
+        this.$get = ['$q', 'http2', function($q, http2) {
             var _self = {
                 list: function(article, page) {
                     var defer = $q.defer(),
@@ -1828,10 +1981,11 @@ define(['require', 'schema', 'page'], function(require, schemaLib, pageLib) {
         $scope.syncByGroup = function() {
             srvEnrollRecord.syncByGroup($scope.record);
         };
-    }]).controller('ctrlEnrollFilter', ['$scope', '$uibModalInstance', 'dataSchemas', 'criteria', function($scope, $mi, dataSchemas, lastCriteria) {
+    }]).controller('ctrlEnrollFilter', ['$scope', '$uibModalInstance', 'dataSchemas', 'criteria', 'srvEnlRnd', function($scope, $mi, dataSchemas, lastCriteria, srvEnlRnd) {
         var canFilteredSchemas = [];
+
         dataSchemas.forEach(function(schema) {
-            if (false === /image|file/.test(schema.type)) {
+            if (false === /image|file|score|html/.test(schema.type) && schema.id.indexOf('member') !== 0) {
                 canFilteredSchemas.push(schema);
             }
             if (/multiple/.test(schema.type)) {
@@ -1880,5 +2034,12 @@ define(['require', 'schema', 'page'], function(require, schemaLib, pageLib) {
         $scope.cancel = function() {
             $mi.dismiss('cancel');
         };
+        $scope.doSearchRound = function() {
+            srvEnlRnd.list().then(function(result) {
+                $scope.rounds = result.rounds;
+                $scope.pageOfRound = result.page;
+            });
+        };
+        $scope.doSearchRound();
     }])
 });

@@ -14,7 +14,6 @@ class record_model extends \TMS_MODEL {
 	 * @param string $referrer
 	 */
 	public function enroll($siteId, &$app, $user = null, $options = []) {
-
 		$referrer = isset($options['referrer']) ? $options['referrer'] : '';
 		$enrollAt = isset($options['enrollAt']) ? $options['enrollAt'] : time();
 
@@ -32,7 +31,7 @@ class record_model extends \TMS_MODEL {
 		];
 		/* 记录所属轮次 */
 		$modelRun = $this->model('matter\enroll\round');
-		if ($activeRound = $modelRun->getActive($siteId, $app->id)) {
+		if ($activeRound = $modelRun->getActive($app)) {
 			$record['rid'] = $activeRound->rid;
 		}
 
@@ -220,6 +219,11 @@ class record_model extends \TMS_MODEL {
 				'name' => $n,
 				'value' => $this->escape($treatedValue),
 			];
+			/* 记录所属轮次 */
+			$modelRun = $this->model('matter\enroll\round');
+			if ($activeRound = $modelRun->getActive($app)) {
+				$ic['rid'] = $activeRound->rid;
+			}
 			$this->insert('xxt_enroll_record_data', $ic, false);
 		}
 
@@ -387,7 +391,6 @@ class record_model extends \TMS_MODEL {
 	 * --visitor openid
 	 * --page
 	 * --size
-	 * --rid 轮次id
 	 * --kw 检索关键词
 	 * --by 检索字段
 	 * $criteria 登记数据过滤条件
@@ -412,23 +415,22 @@ class record_model extends \TMS_MODEL {
 			$orderby = isset($options->orderby) ? $options->orderby : '';
 			$page = isset($options->page) ? $options->page : null;
 			$size = isset($options->size) ? $options->size : null;
-			$rid = null;
-			if (!empty($options->rid)) {
-				if ($options->rid === 'ALL') {
-					$rid = null;
-				} else if (!empty($options->rid)) {
-					$rid = $options->rid;
-				}
-			} else if ($activeRound = $this->M('matter\enroll\round')->getActive($app->siteid, $app->id)) {
-				$rid = $activeRound->rid;
-			}
 		}
 		$result = new \stdClass; // 返回的结果
 		$result->total = 0;
 
 		// 指定登记活动下的登记记录
 		$w = "e.state=1 and e.aid='{$app->id}'";
+
 		// 指定了轮次
+		if (!empty($criteria->record->rid)) {
+			if ('all' !== $criteria->record->rid) {
+				$rid = $criteria->record->rid;
+			}
+		} else if ($activeRound = $this->model('matter\enroll\round')->getActive($app)) {
+			/* 如果未指定就显示当前轮次 */
+			$rid = $activeRound->rid;
+		}
 		!empty($rid) && $w .= " and e.rid='$rid'";
 
 		// @TODO 还需要吗？
@@ -484,7 +486,7 @@ class record_model extends \TMS_MODEL {
 
 		// 查询参数
 		$q = [
-			'e.enroll_key,e.enroll_at,e.tags,e.userid,e.nickname,e.wx_openid,e.yx_openid,e.qy_openid,e.headimgurl,e.verified,e.comment,e.data',
+			'e.enroll_key,e.rid,e.enroll_at,e.tags,e.userid,e.nickname,e.wx_openid,e.yx_openid,e.qy_openid,e.headimgurl,e.verified,e.comment,e.data',
 			"xxt_enroll_record e",
 			$w,
 		];
@@ -507,23 +509,13 @@ class record_model extends \TMS_MODEL {
 					$r->data = $data;
 				}
 				// 记录的分数
-				if ($app->scenario === 'voting') {
+				if ($app->scenario === 'voting' || $app->scenario === 'common') {
 					if (!isset($scoreSchemas)) {
 						$scoreSchemas = $this->_mapOfScoreSchema($app);
 						$countScoreSchemas = count(array_keys((array) $scoreSchemas));
 					}
 					$r->_score = $this->_calcScore($scoreSchemas, $data);
 					$r->_average = $countScoreSchemas === 0 ? 0 : $r->_score / $countScoreSchemas;
-				}
-				// 获得邀请数据
-				if (isset($app->can_invite) && $app->can_invite === 'Y') {
-					$qf = [
-						'id,enroll_key,enroll_at,openid,nickname,wx_openid,yx_openid,qy_openid,headimgurl',
-						'xxt_enroll_record',
-						"aid='$aid' and referrer='ek:$r->enroll_key'",
-					];
-					$qf2 = ['o' => 'enroll_at'];
-					$r->followers = $this->query_objs_ss($qf, $qf2);
 				}
 			}
 			$result->records = $records;
@@ -560,6 +552,9 @@ class record_model extends \TMS_MODEL {
 	 * [2] 数据项的定义
 	 */
 	public function participants($siteId, $appId, $options = null, $criteria = null) {
+		$app = new \stdClass;
+		$app->siteid = $siteId;
+		$app->id = $appId;
 		if ($options) {
 			is_array($options) && $options = (object) $options;
 			$rid = null;
@@ -569,7 +564,7 @@ class record_model extends \TMS_MODEL {
 				} else if (!empty($options->rid)) {
 					$rid = $options->rid;
 				}
-			} else if ($activeRound = \TMS_APP::M('matter\enroll\round')->getActive($siteId, $appId)) {
+			} else if ($activeRound = \TMS_APP::M('matter\enroll\round')->getActive($app)) {
 				$rid = $activeRound->rid;
 			}
 		}
@@ -654,7 +649,7 @@ class record_model extends \TMS_MODEL {
 				} else if (!empty($options->rid)) {
 					$rid = $options->rid;
 				}
-			} else if ($activeRound = $this->M('matter\enroll\round')->getActive($siteId, $app->id)) {
+			} else if ($activeRound = $this->M('matter\enroll\round')->getActive($app)) {
 				$rid = $activeRound->rid;
 			}
 		}
@@ -777,7 +772,31 @@ class record_model extends \TMS_MODEL {
 
 		return $result;
 	}
+	/**
+	 * 计算指定登记项所有记录的合计
+	 */
+	public function sum4Schema($oApp, $rid = 'ALL') {
+		if (empty($oApp->data_schemas)) {
+			return false;
+		}
 
+		$result = new \stdClass;
+		$dataSchemas = json_decode($oApp->data_schemas);
+		foreach ($dataSchemas as $schema) {
+			if (isset($schema->number) && $schema->number === 'Y') {
+				$q = [
+					'sum(value)',
+					'xxt_enroll_record_data',
+					['aid' => $oApp->id, 'name' => $schema->id, 'state' => 1],
+				];
+				$rid !== 'ALL' && $q[2]['rid'] = $rid;
+				$sum = (int) $this->query_val_ss($q);
+				$result->{$schema->id} = $sum;
+			}
+		}
+
+		return $result;
+	}
 	/**
 	 * 获得指定用户最后一次登记记录
 	 * 如果设置轮次，只返回当前轮次的情况
@@ -791,7 +810,7 @@ class record_model extends \TMS_MODEL {
 			"siteid='{$app->siteid}' and aid='{$app->id}' and state=1",
 		];
 		$q[2] .= " and userid='{$user->uid}'";
-		if ($activeRound = \TMS_APP::M('matter\enroll\round')->getActive($app->siteid, $app->id)) {
+		if ($activeRound = \TMS_APP::M('matter\enroll\round')->getActive($app)) {
 			$q[2] .= " and rid='$activeRound->rid'";
 		}
 		$q2 = [

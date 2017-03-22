@@ -1,5 +1,5 @@
 define(['frame'], function(ngApp) {
-    ngApp.provider.controller('ctrlMain', ['$scope', '$uibModal', 'http2', 'noticebox', 'mattersgallery', 'mediagallery', 'noticebox', 'srvApp', 'cstApp', function($scope, $uibModal, http2, noticebox, mattersgallery, mediagallery, noticebox, srvApp, cstApp) {
+    ngApp.provider.controller('ctrlMain', ['$scope', '$uibModal', 'http2', 'noticebox', 'mattersgallery', 'mediagallery', 'noticebox', 'srvApp', 'cstApp', 'tmsThumbnail', function($scope, $uibModal, http2, noticebox, mattersgallery, mediagallery, noticebox, srvApp, cstApp, tmsThumbnail) {
         (function() {
             new ZeroClipboard(document.querySelectorAll('.text2Clipboard'));
         })();
@@ -23,6 +23,10 @@ define(['frame'], function(ngApp) {
                 }
                 return message;
             }
+            if( !editing.pic && !editing.thumbnail){
+                tmsThumbnail.thumbnail($scope.editing);
+            }
+
         };
         $scope.submit = function() {
             http2.post('/rest/pl/fe/matter/article/update?site=' + $scope.editing.siteid + '&id=' + $scope.editing.id, modifiedData, function() {
@@ -304,6 +308,11 @@ define(['frame'], function(ngApp) {
                 });
             });
         });
+        $scope.$watch('editing.title', function(title, oldTitle){
+            if(!$scope.editing.pic && title.slice(0,1)!=oldTitle.slice(0,1)){
+                tmsThumbnail.thumbnail($scope.editing);
+            }
+        });
         $scope.$on('tinymce.instance.init', function(event, editor) {
             tinymceEditor = editor;
             if ($scope.editing) {
@@ -325,5 +334,6 @@ define(['frame'], function(ngApp) {
                 noticebox.success('完成申请！');
             });
         };
+
     }]);
 });

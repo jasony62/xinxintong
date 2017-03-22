@@ -751,11 +751,12 @@ class record_model extends \TMS_MODEL {
 	 * [1] 数据总条数
 	 * [2] 数据项的定义
 	 */
-	public function list4Schema($siteId, &$app, $schemaId, $options = null, $rid = 'ALL', $schemaName = null) {
+	public function list4Schema($siteId, &$app, $schemaId, $options = null, $marks = null) {
 		if ($options) {
 			is_array($options) && $options = (object) $options;
 			$page = isset($options->page) ? $options->page : null;
 			$size = isset($options->size) ? $options->size : null;
+			$rid = isset($options->rid) ? $options->rid : null;
 		}
 		$result = new \stdClass; // 返回的结果
 		$result->total = 0;
@@ -769,6 +770,10 @@ class record_model extends \TMS_MODEL {
 		];
 		if($rid !== 'ALL' && !empty($rid)){
 			$q[2] .= " and d.rid = '".$rid."'";
+		}else{
+			if ($activeRound = $this->model('matter\enroll\round')->getActive($app)) {
+				$q[2] .= " and d.rid = '{$activeRound->rid}'";
+			}
 		}
 
 		$q2 = [];
@@ -795,21 +800,28 @@ class record_model extends \TMS_MODEL {
 					break;
 				}
 			}
-			
-			if(!empty($schemaName)){
+			//标识
+			if(!empty($marks)){
 				foreach ($records as $record) {
-					$p = [
-						'value',
-						"xxt_enroll_record_data d",
-						"d.state=1 and d.aid='{$app->id}' and d.name='{$schemaName}' and d.enroll_key = '{$record->enroll_key}'",
-					];
-					$records2 = $this->query_vals_ss($p);
-					$record2 = implode($records2);
-					$record->logo = $record2;
+					$recordsMarks = [];
+					foreach ($marks as $mark) {
+						$p = [
+							'value',
+							"xxt_enroll_record_data d",
+							"d.state=1 and d.aid='{$app->id}' and d.name='{$mark->id}' and d.enroll_key = '{$record->enroll_key}'",
+						];
+						$recordsMark = $this->query_obj_ss($p);
+						if($recordsMark){
+							$recordsMarks[$mark->name] = $recordsMark->value;
+						}else if($recordsMark === false){
+							$recordsMarks[$mark->name] = '';
+						}
+					}
+					$record->marks = $recordsMarks;
 				}
 			}else{
 				foreach ($records as $record) {
-					$record->logo = $record->nickname;
+					$record->marks = array('昵称' => $record->nickname);
 				}
 			}
 			$result->records = $records;

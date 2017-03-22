@@ -93,50 +93,64 @@ class record extends \pl\fe\matter\base {
 		return new \ResponseData($result);
 	}
 	/**
-	 * 返回指定登记项的活动登记名单
-	 *
+	 * [setRpmark 设置统计页标识]
+	 * @param [type] $site [description]
+	 * @param [type] $app  [description]
 	 */
-	public function list4Schema_action($site, $rid = 'ALL', $schemaName = null, $app, $schema, $page = 1, $size = 10) {
+	public function setMark_action($site, $app){
 		if (false === ($user = $this->accountUser())) {
 			return new \ResponseTimeout();
 		}
+
+		$posted = $this->getPostJson();
+		$modelApp = $this->model('matter\enroll');
+
+		/* 处理数据 */
+		$updated = new \stdClass;
+		if(isset($posted->mark) && !empty($posted->mark)){
+			$marks = (object)$posted->mark;
+			$updated->rp_mark = $modelApp->toJson($marks);
+		}
+
+		$rst = $modelApp->update('xxt_enroll', $updated, ["id" => $app]);
+
+		return new \ResponseData($rst);
+	}
+	/**
+	 * 返回指定登记项的活动登记名单
+	 *
+	 */
+	public function list4Schema_action($site, $app, $schema, $page = 1, $size = 10) {
+		if (false === ($user = $this->accountUser())) {
+			return new \ResponseTimeout();
+		}
+
 		// 登记数据过滤条件
 		$criteria = $this->getPostJson();
-
 		// 登记记录过滤条件
 		$options = [
 			'page' => $page,
 			'size' => $size,
 		];
+		if(isset($criteria->rid)){
+			$options['rid'] = $criteria->rid;
+		}
 
 		// 登记活动
 		$modelApp = $this->model('matter\enroll');
 		$enrollApp = $modelApp->byId($app);
+		//获取标识
+		if(!empty($enrollApp->rp_mark)){
+			$marks = json_decode($enrollApp->rp_mark);
+		}else{
+			$marks = null;
+		}
 
 		// 查询结果
 		$mdoelRec = $this->model('matter\enroll\record');
-		$result = $mdoelRec->list4Schema($site, $enrollApp, $schema, $options, $rid, $schemaName);
+		$result = $mdoelRec->list4Schema($site, $enrollApp, $schema, $options, $marks);
 
 		return new \ResponseData($result);
-	}
-	/**
-	 * [setCookieCriteria 设置用户选择的标识和轮次到cookie中]
-	 * @param [type] $site [description]
-	 * @param [type] $app  [description]
-	 */
-	public function setCookieCriteria($site, $app){
-		if (false === ($user = $this->accountUser())) {
-			return new \ResponseTimeout();
-		}
-
-		$criteria = $this->getPostJson();
-
-		$cookieCriteria = new \stdClass;
-		$cookieCriteria->schemaName = isset($criteria->schemaName)? $criteria->schemaName : '';
-		$cookieCriteria->rid = isset($criteria->rid)? $criteria->rid : 'ALL';
-		$cookieCriteria->userid = $user->id;
-
-		
 	}
 	/**
 	 * 手工添加登记信息

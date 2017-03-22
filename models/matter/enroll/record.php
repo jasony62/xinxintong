@@ -768,8 +768,10 @@ class record_model extends \TMS_MODEL {
 			"xxt_enroll_record_data d , xxt_enroll_record r",
 			"d.state=1 and d.aid='{$app->id}' and d.name='{$schemaId}' and d.value<>'' and d.enroll_key = r.enroll_key",
 		];
-		if($rid !== 'ALL' && !empty($rid)){
-			$q[2] .= " and d.rid = '".$rid."'";
+		if(!empty($rid)){
+			if($rid !== 'ALL'){
+				$q[2] .= " and d.rid = '".$rid."'";
+			}
 		}else{
 			if ($activeRound = $this->model('matter\enroll\round')->getActive($app)) {
 				$q[2] .= " and d.rid = '{$activeRound->rid}'";

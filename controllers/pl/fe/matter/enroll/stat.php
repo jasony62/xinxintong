@@ -155,6 +155,13 @@ class stat extends \pl\fe\matter\base {
 		require_once TMS_APP_DIR . '/lib/jpgraph/jpgraph_line.php';
 
 		$app = $this->model('matter\enroll')->byId($app, ['cascaded' => 'N']);
+		//获取标识
+		if(!empty($app->rp_mark)){
+			$marks = json_decode($app->rp_mark);
+		}else{
+			$marks = null;
+		}
+
 		$schemas = json_decode($app->data_schemas);
 
 		$statResult = $this->_getResult($site, $app->id);
@@ -174,14 +181,37 @@ class stat extends \pl\fe\matter\base {
 		foreach ($schemas as $index => $schema) {
 			$html .= "<h3><span>第" . ($index + 1) . "项：</span><span>{$schema->title}</span></h3>";
 			if (in_array($schema->type, ['name', 'email', 'mobile', 'date', 'location', 'shorttext', 'longtext'])) {
-				$textResult = $modelRec->list4Schema($site, $app, $schema->id);
+				$textResult = $modelRec->list4Schema($site, $app, $schema->id, ['rid' => 'ALL'], $marks);
 				if (!empty($textResult->records)) {
 					$records = $textResult->records;
-					$html .= "<table><thead><tr><th>序号</th><th>登记内容</th></tr></thead>";
+					$html .= "<table><thead><tr>";
+					if(!empty($marks)){
+						foreach ($marks as $mark) {
+							$html .= "<th>".$mark->name."</th>";
+						}
+					}
+					$html .= "<th>序号</th><th>登记内容</th></tr></thead>";
 					$html .= "<tbody>";
 					for ($i = 0, $l = count($records); $i < $l; $i++) {
+						$html .= "<tr>";
+						foreach ($marks as $mark) {
+							$p = [
+								'value',
+								"xxt_enroll_record_data",
+								"state=1 and aid='{$app->id}' and name='{$mark->id}' and enroll_key = ".{$records[$i]->enroll_key}
+							];
+							$recordsMark = $this->query_obj_ss($p);
+							if($recordsMark){
+								$html .= "<td>" . $recordsMark->value . "</td>";
+							}else if($recordsMark === false){
+								$html .= "<td></td>";
+							}
+						}
 						$record = $records[$i];
-						$html .= "<tr>" . ($i + 1) . "<td></td><td>{$record->value}</td></tr>";
+						$html .= "<td>" . ($i + 1) . "</td><td>{$record->value}</td></tr>";
+					}
+					if(isset($textResult->sum) ){
+						$html .= "<tr><td>总数</td><td>".$textResult->sum."</td></tr>";
 					}
 					$html .= "</tbody></table>";
 				}

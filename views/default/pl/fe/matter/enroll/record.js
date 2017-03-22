@@ -123,6 +123,5 @@ define(['frame'], function(ngApp) {
             $scope.tmsTableWrapReady = 'Y';
             $scope.doSearch();
         });
-        srvEnlRnd.list().then(function(rounds) { $scope.rounds = rounds; })
     }]);
 });

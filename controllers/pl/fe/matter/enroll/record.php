@@ -17,7 +17,7 @@ class record extends \pl\fe\matter\base {
 	 * 活动登记名单
 	 *
 	 */
-	public function list_action($site, $app, $page = 1, $size = 30, $rid = null, $orderby = null, $contain = null, $includeSignin = null) {
+	public function list_action($site, $app, $page = 1, $size = 30, $orderby = null, $contain = null, $includeSignin = null) {
 		if (false === ($user = $this->accountUser())) {
 			return new \ResponseTimeout();
 		}
@@ -28,7 +28,6 @@ class record extends \pl\fe\matter\base {
 		$options = array(
 			'page' => $page,
 			'size' => $size,
-			'rid' => $rid,
 			'orderby' => $orderby,
 			'contain' => $contain,
 		);
@@ -108,8 +107,7 @@ class record extends \pl\fe\matter\base {
 		/* 处理数据 */
 		$updated = new \stdClass;
 		if(isset($posted->mark) && !empty($posted->mark)){
-			$marks = (object)$posted->mark;
-			$updated->rp_mark = $modelApp->toJson($marks);
+			$updated->rp_mark = $modelApp->toJson($posted->mark);
 		}
 
 		$rst = $modelApp->update('xxt_enroll', $updated, ["id" => $app]);
@@ -604,14 +602,14 @@ class record extends \pl\fe\matter\base {
 		$objActiveSheet->setCellValueByColumnAndRow(1, 1, '审核通过');
 
 		// 转换标题
-		$isTotal = [];//是否需要合计
+		$isTotal = []; //是否需要合计
 		for ($i = 0, $ii = count($schemas); $i < $ii; $i++) {
 			$schema = $schemas[$i];
 			/* 跳过图片和文件 */
 			if (in_array($schema->type, ['image', 'file'])) {
 				continue;
 			}
-			if(isset($schema->number) && $schema->number === 'Y'){
+			if (isset($schema->number) && $schema->number === 'Y') {
 				$isTotal[$i + 2] = $schema->id;
 			}
 			$objActiveSheet->setCellValueByColumnAndRow($i + 2, 1, $schema->title);
@@ -695,12 +693,12 @@ class record extends \pl\fe\matter\base {
 				$objActiveSheet->setCellValueByColumnAndRow($i + 6, $rowIndex, sprintf('%.2f', $record->_average));
 			}
 		}
-		if(!empty($isTotal) ){
+		if (!empty($isTotal)) {
 			//合计
 			$total2 = $modelRec2->sum4Schema($app);
-			$rowIndex = count($records) + 2 ;
+			$rowIndex = count($records) + 2;
 			$objActiveSheet->setCellValueByColumnAndRow(0, $rowIndex, '合计');
-			foreach ($isTotal as $key=>$val) {
+			foreach ($isTotal as $key => $val) {
 				$objActiveSheet->setCellValueByColumnAndRow($key, $rowIndex, $total2->$val);
 			}
 		}

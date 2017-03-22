@@ -198,7 +198,7 @@ class stat extends \pl\fe\matter\base {
 							$p = [
 								'value',
 								"xxt_enroll_record_data",
-								"state=1 and aid='{$app->id}' and name='{$mark->id}' and enroll_key = ".{$records[$i]->enroll_key}
+								"state=1 and aid='{$app->id}' and name='{$mark->id}' and enroll_key = ".$records[$i]->enroll_key
 							];
 							$recordsMark = $this->query_obj_ss($p);
 							if($recordsMark){

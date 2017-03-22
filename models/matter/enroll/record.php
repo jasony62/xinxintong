@@ -14,7 +14,6 @@ class record_model extends \TMS_MODEL {
 	 * @param string $referrer
 	 */
 	public function enroll($siteId, &$app, $user = null, $options = []) {
-
 		$referrer = isset($options['referrer']) ? $options['referrer'] : '';
 		$enrollAt = isset($options['enrollAt']) ? $options['enrollAt'] : time();
 
@@ -392,7 +391,6 @@ class record_model extends \TMS_MODEL {
 	 * --visitor openid
 	 * --page
 	 * --size
-	 * --rid 轮次id
 	 * --kw 检索关键词
 	 * --by 检索字段
 	 * $criteria 登记数据过滤条件
@@ -417,23 +415,22 @@ class record_model extends \TMS_MODEL {
 			$orderby = isset($options->orderby) ? $options->orderby : '';
 			$page = isset($options->page) ? $options->page : null;
 			$size = isset($options->size) ? $options->size : null;
-			$rid = null;
-			if (!empty($options->rid)) {
-				if ($options->rid === 'ALL') {
-					$rid = null;
-				} else if (!empty($options->rid)) {
-					$rid = $options->rid;
-				}
-			} else if ($activeRound = $this->M('matter\enroll\round')->getActive($app)) {
-				$rid = $activeRound->rid;
-			}
 		}
 		$result = new \stdClass; // 返回的结果
 		$result->total = 0;
 
 		// 指定登记活动下的登记记录
 		$w = "e.state=1 and e.aid='{$app->id}'";
+
 		// 指定了轮次
+		if (!empty($criteria->record->rid)) {
+			if ('all' !== $criteria->record->rid) {
+				$rid = $criteria->record->rid;
+			}
+		} else if ($activeRound = $this->model('matter\enroll\round')->getActive($app)) {
+			/* 如果未指定就显示当前轮次 */
+			$rid = $activeRound->rid;
+		}
 		!empty($rid) && $w .= " and e.rid='$rid'";
 
 		// @TODO 还需要吗？
@@ -489,7 +486,7 @@ class record_model extends \TMS_MODEL {
 
 		// 查询参数
 		$q = [
-			'e.enroll_key,e.enroll_at,e.tags,e.userid,e.nickname,e.wx_openid,e.yx_openid,e.qy_openid,e.headimgurl,e.verified,e.comment,e.data',
+			'e.enroll_key,e.rid,e.enroll_at,e.tags,e.userid,e.nickname,e.wx_openid,e.yx_openid,e.qy_openid,e.headimgurl,e.verified,e.comment,e.data',
 			"xxt_enroll_record e",
 			$w,
 		];
@@ -512,23 +509,13 @@ class record_model extends \TMS_MODEL {
 					$r->data = $data;
 				}
 				// 记录的分数
-				if ($app->scenario === 'voting') {
+				if ($app->scenario === 'voting' || $app->scenario === 'common') {
 					if (!isset($scoreSchemas)) {
 						$scoreSchemas = $this->_mapOfScoreSchema($app);
 						$countScoreSchemas = count(array_keys((array) $scoreSchemas));
 					}
 					$r->_score = $this->_calcScore($scoreSchemas, $data);
 					$r->_average = $countScoreSchemas === 0 ? 0 : $r->_score / $countScoreSchemas;
-				}
-				// 获得邀请数据
-				if (isset($app->can_invite) && $app->can_invite === 'Y') {
-					$qf = [
-						'id,enroll_key,enroll_at,openid,nickname,wx_openid,yx_openid,qy_openid,headimgurl',
-						'xxt_enroll_record',
-						"aid='$aid' and referrer='ek:$r->enroll_key'",
-					];
-					$qf2 = ['o' => 'enroll_at'];
-					$r->followers = $this->query_objs_ss($qf, $qf2);
 				}
 			}
 			$result->records = $records;
@@ -803,27 +790,38 @@ class record_model extends \TMS_MODEL {
 				}
 			}
 			//标识
-			if(!empty($marks)){
+			if(!empty($marks) ){
 				foreach ($records as $record) {
 					$recordsMarks = [];
+					$keyNum = 0;
 					foreach ($marks as $mark) {
-						$p = [
-							'value',
-							"xxt_enroll_record_data d",
-							"d.state=1 and d.aid='{$app->id}' and d.name='{$mark->id}' and d.enroll_key = '{$record->enroll_key}'",
-						];
-						$recordsMark = $this->query_obj_ss($p);
-						if($recordsMark){
-							$recordsMarks[$mark->name] = $recordsMark->value;
-						}else if($recordsMark === false){
-							$recordsMarks[$mark->name] = '';
+						if($mark->id === 'nickname'){
+							$recordsMarks[$keyNum]['name'] = '昵称';
+							$recordsMarks[$keyNum]['value'] = $record->nickname;
+						}else{
+							$p = [
+								'value',
+								"xxt_enroll_record_data d",
+								"d.state=1 and d.aid='{$app->id}' and d.name='{$mark->id}' and d.enroll_key = '{$record->enroll_key}'",
+							];
+							$recordsMark = $this->query_obj_ss($p);
+							if($recordsMark){
+								$recordsMarks[$keyNum]['name'] = $mark->name;
+								$recordsMarks[$keyNum]['value'] = $recordsMark->value;
+							}else{
+								$recordsMarks[$keyNum]['name'] = $mark->name;
+								$recordsMarks[$keyNum]['value'] = '';
+							}
 						}
+						$keyNum++;
 					}
 					$record->marks = $recordsMarks;
 				}
 			}else{
 				foreach ($records as $record) {
-					$record->marks = array('昵称' => $record->nickname);
+					$recordsMarks[0]['name'] = '昵称';
+					$recordsMarks[0]['value'] = $record->nickname;
+					$record->marks = $recordsMarks;
 				}
 			}
 			$result->records = $records;

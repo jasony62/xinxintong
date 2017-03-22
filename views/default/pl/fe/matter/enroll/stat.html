@@ -3,6 +3,13 @@
 </style>
 <div id='stat-view'>
     <button class='btn btn-default' ng-click="export()">导出报告</button>
+    <!-- <div class='form-group' ng-if='rounds.length'> -->
+    <div class='btn-group' >
+        <select class='form-control' title='登记轮次' ng-model='page.byRound' ng-options='r.rid as r.title for r in rounds' ng-change='doSearch(1)'>
+            <option value=''>当前轮次</option>
+            <option value='all'>全部</option>
+        </select>
+    </div>
     <button class='btn btn-default' ng-click="show()">展示条件</button>
     <div id='stat-result'>
         <!--schemas-->
@@ -110,3 +117,31 @@
         </div>
     </div>
 </div>
+<script type="text/ng-template" id="showCondition.html">
+    <div class="modal-header">
+        <button class="close" type="button" ng-click="cancel()">×</button>
+        <h5 class="modal-title">展示条件</h5>
+    </div>
+    <div class="modal-body">
+        <table class='table table-bordered' style='margin-bottom:0;'>
+            <thead>
+                <tr>
+                    <th style='width:50px'>操作</th>
+                    <th>标识登记项</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr ng-repeat='m in appMarkSchemas' class='record'>
+                    <td>
+                        <input type='checkbox' ng-model="rows.selected[$index]">
+                    </td>
+                    <td>{{m.title}}</td>
+                </tr>
+            </tbody>
+        </table>
+    </div>
+    <div class="modal-footer">
+        <button class="btn btn-default" ng-click="cancel()">关闭</button>
+        <button class="btn btn-primary" ng-click="ok()">确定</button>
+    </div>
+</script>

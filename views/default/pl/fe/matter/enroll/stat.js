@@ -1,6 +1,6 @@
 define(['frame'], function(ngApp) {
     'use strict';
-    ngApp.provider.controller('ctrlStat', ['$scope', 'http2', '$timeout', '$q', 'srvEnrollApp', function($scope, http2, $timeout, $q, srvEnrollApp) {
+    ngApp.provider.controller('ctrlStat', ['$scope', 'http2', '$timeout', '$q', '$uibModal', 'srvEnrollApp', function($scope, http2, $timeout, $q, $uibModal, srvEnrollApp) {
         function drawBarChart(item) {
             var categories = [],
                 series = [];
@@ -267,8 +267,53 @@ define(['frame'], function(ngApp) {
             _cacheOfRecordsBySchema.recordsBySchema(schema, page);
             return false;
         };
+        $scope.show = function() {
+            $uibModal.open({
+                templateUrl: 'showCondition.html',
+                controller: ['$scope', '$uibModalInstance', function($scope2, $mi) {
+                    $scope2.appMarkSchemas = angular.copy($scope.markSchemas);
+                    $scope2.rows = {
+                        selected: {},
+                        reset: function() {
+                            this.selected = {};
+                        }
+                    };
+                    $scope2.ok = function() {
+                        $mi.close($scope2.rows);
+                    };
+                    $scope2.cancel = function() {
+                        $mi.dismiss();
+                    };
+                }],
+                backdrop: 'static'
+            }).result.then(function(result) {
+                var url, selectedSchemas = [];
+
+                url = '/rest/pl/fe/matter/enroll/record/setMark';
+                url += '?site=' + $scope.app.siteid + '&app=' + $scope.app.id;
+
+                for (var p in result.selected) {
+                    if (result.selected[p] === true) {
+                        selectedSchemas.push({
+                           id: $scope.markSchemas[p].id,
+                           name: $scope.markSchemas[p].title
+                        });
+                    }
+                }
+                http2.post(url, selectedSchemas, function(rsp) {
+                    location.refesh();
+                });
+            });
+        }
         srvEnrollApp.get().then(function(app) {
-            var url = '/rest/pl/fe/matter/enroll/stat/get';
+            var url;
+            $scope.markSchemas = [];
+            app.data_schemas.forEach(function(schema) {
+                if(['single','phase','multiple','score','image','location','file'].indexOf(schema.type)===-1) {
+                    $scope.markSchemas.push(schema);
+                }
+            })
+            url = '/rest/pl/fe/matter/enroll/stat/get';
             url += '?site=' + $scope.app.siteid;
             url += '&app=' + app.id;
             http2.get(url, function(rsp) {

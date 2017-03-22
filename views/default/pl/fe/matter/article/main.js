@@ -10,9 +10,6 @@ define(['frame'], function(ngApp) {
 
         $scope.modified = false;
         $scope.innerlinkTypes = cstApp.innerlink;
-        $scope.back = function() {
-            history.back();
-        };
         window.onbeforeunload = function(e) {
             var message;
             if ($scope.modified) {

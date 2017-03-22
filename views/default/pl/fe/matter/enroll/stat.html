@@ -5,12 +5,13 @@
     <button class='btn btn-default' ng-click="export()">导出报告</button>
     <!-- <div class='form-group' ng-if='rounds.length'> -->
     <div class='btn-group' >
-        <select class='form-control' title='登记轮次' ng-model='page.byRound' ng-options='r.rid as r.title for r in rounds' ng-change='doSearch(1)'>
+        <select class='form-control' title='登记轮次' ng-model='criteria.rid' ng-change="doRound(criteria.rid)">
             <option value=''>当前轮次</option>
-            <option value='all'>全部</option>
+            <option value='ALL'>全部</option>
+            <option value="{{rnd.rid}}" ng-repeat="rnd in rounds">{{rnd.title}}</option>
         </select>
     </div>
-    <button class='btn btn-default' ng-click="show()">展示条件</button>
+    <button class='btn btn-default' ng-click="show()">选择标识项</button>
     <div id='stat-result'>
         <!--schemas-->
         <div ng-repeat="schema in app.data_schemas" ng-if="schema.type!=='html'">

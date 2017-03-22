@@ -1,6 +1,6 @@
 define(['frame'], function(ngApp) {
     'use strict';
-    ngApp.provider.controller('ctrlStat', ['$scope', 'http2', '$timeout', '$q', '$uibModal', 'srvEnrollApp', function($scope, http2, $timeout, $q, $uibModal, srvEnrollApp) {
+    ngApp.provider.controller('ctrlStat', ['$scope', 'http2', '$timeout', '$q', '$uibModal', 'srvEnrollApp', 'srvEnrollRound', function($scope, http2, $timeout, $q, $uibModal, srvEnrollApp, srvEnrollRound) {
         function drawBarChart(item) {
             var categories = [],
                 series = [];
@@ -240,6 +240,9 @@ define(['frame'], function(ngApp) {
                 return deferred.promise;
             }
         };
+        $scope.criteria = {
+            rid: ''
+        };
         $scope.export = function() {
             var url, params = {};
 
@@ -300,14 +303,17 @@ define(['frame'], function(ngApp) {
                         });
                     }
                 }
-                http2.post(url, selectedSchemas, function(rsp) {
-                    location.refesh();
+                http2.post(url, {mark:selectedSchemas}, function(rsp) {
+                    location.reload();
                 });
             });
         }
+        $scope.doRound = function(i) {
+            console.log(i);
+        };
         srvEnrollApp.get().then(function(app) {
             var url;
-            $scope.markSchemas = [];
+            $scope.markSchemas = [{title:"昵称",id:"nickname"}];
             app.data_schemas.forEach(function(schema) {
                 if(['single','phase','multiple','score','image','location','file'].indexOf(schema.type)===-1) {
                     $scope.markSchemas.push(schema);
@@ -372,6 +378,9 @@ define(['frame'], function(ngApp) {
                     }
                 });
             });
+        });
+        srvEnrollRound.list().then(function(result) {
+            $scope.rounds = result.rounds;
         });
     }]);
 });

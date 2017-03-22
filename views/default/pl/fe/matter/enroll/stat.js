@@ -91,10 +91,10 @@ define(['frame'], function(ngApp) {
         function drawNumPie(item,schema) {
             var categories = [],
                 series = [];
-            item.forEach(function(op) {
+            item.records.forEach(function(op) {
                 series.push({
                     name: op.value,
-                    y: (op.value/6)
+                    y: (op.value/item.sum)
                 });
             });
             new Highcharts.Chart({
@@ -114,7 +114,7 @@ define(['frame'], function(ngApp) {
                         cursor: 'pointer',
                         dataLabels: {
                             enabled: true,
-                            format:'<b>{series.name}</b>: {point.percentage:.1f} %',
+                            format:'<b>{point.name}</b>: {point.percentage:.1f} %',
                             style: {
                                 color: (Highcharts.theme && Highcharts.theme.contrastTextColor) || 'black'
                             }
@@ -228,7 +228,7 @@ define(['frame'], function(ngApp) {
                                 }
                             });
                         } else if(schema.number && schema.number == 'Y') {
-                            $scope.itemNum = rsp.data.records;
+                            $scope.itemNum = rsp.data;
                             drawNumPie($scope.itemNum,schema);
                         }
                         cached.records = rsp.data.records;

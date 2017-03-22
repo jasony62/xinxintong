@@ -3,6 +3,7 @@
 </style>
 <div id='stat-view'>
     <button class='btn btn-default' ng-click="export()">导出报告</button>
+    <button class='btn btn-default' ng-click="show()">展示条件</button>
     <div id='stat-result'>
         <!--schemas-->
         <div ng-repeat="schema in app.data_schemas" ng-if="schema.type!=='html'">

@@ -1,0 +1,26 @@
+<div class="modal-header">
+    <button class="close" type="button" ng-click="cancel()">×</button>
+    <h5 class="modal-title">展示条件</h5>
+</div>
+<div class="modal-body">
+    <div class="form-group" ng-if="rounds.length">
+      <label class="col-md-3 control-label">轮次</label>
+      <div class="col-md-7">
+          <select class='form-control' ng-model="criteria.record.rid" size=5>
+              <option value=''>当前轮次</option>
+              <option value='all'>全部</option>
+              <option value="{{rnd.rid}}" ng-repeat="rnd in rounds">{{rnd.title}}</option>
+          </select>
+          <div ng-show="pageOfRound.total>pageOfRound.size">
+              <span style='line-height:34px'>总数：{{pageOfRound.total}}</span>
+              <ul uib-pagination style="margin:0;vertical-align:bottom;cursor:pointer" boundary-links="true" total-items="pageOfRound.total" max-size="5" items-per-page="pageOfRound.size" rotate="false" ng-model="pageOfRound.at" previous-text="&lsaquo;" next-text="&rsaquo;" first-text="&laquo;" last-text="&raquo;" ng-change="doSearchRound()"></ul>
+          </div>
+      </div>
+    </div>
+
+</div>
+<div class="modal-footer">
+    <button class="btn btn-default" ng-click="cancel()">关闭</button>
+    <button class="btn btn-primary" ng-click="ok()">确定</button>
+</div>
+

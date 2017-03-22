@@ -62,6 +62,7 @@ define(['require', 'page', 'schema', 'signinService'], function(require, pageLib
             .when('/rest/pl/fe/matter/signin/schema', new RouteParam('schema'))
             .when('/rest/pl/fe/matter/signin/record', new RouteParam('record'))
             .when('/rest/pl/fe/matter/signin/publish', new RouteParam('publish'))
+            .when('/rest/pl/fe/matter/signin/notice', new RouteParam('notice'))
             .otherwise(new RouteParam('publish'));
 
         $locationProvider.html5Mode(true);
@@ -97,6 +98,7 @@ define(['require', 'page', 'schema', 'signinService'], function(require, pageLib
             'schema': '修改题目',
             'page': '修改页面',
             'record': '查看数据',
+            'notice': '通知发送记录'
         };
         $scope.subView = '';
         $scope.$on('$locationChangeSuccess', function(event, currentRoute) {

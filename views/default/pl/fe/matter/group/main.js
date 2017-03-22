@@ -1,8 +1,8 @@
 define(['frame'], function(ngApp) {
     'use strict';
-    ngApp.provider.controller('ctrlMain', ['$scope', 'http2', '$q', 'mattersgallery', 'noticebox', 'srvApp', function($scope, http2, $q, mattersgallery, noticebox, srvApp) {
+    ngApp.provider.controller('ctrlMain', ['$scope', 'http2', '$q', 'mattersgallery', 'noticebox', 'srvGroupApp', function($scope, http2, $q, mattersgallery, noticebox, srvGroupApp) {
         $scope.update = function(names) {
-            srvApp.update(names).then(function(rsp) {
+            srvGroupApp.update(names).then(function(rsp) {
                 noticebox.success('完成保存');
             });
         };
@@ -43,7 +43,7 @@ define(['frame'], function(ngApp) {
                     http2.post('/rest/pl/fe/matter/mission/matter/add?site=' + $scope.app.siteid + '&id=' + matters[0].id, app, function(rsp) {
                         $scope.app.mission = rsp.data;
                         $scope.app.mission_id = rsp.data.id;
-                        srvApp.update('mission_id');
+                        srvGroupApp.update('mission_id');
                     });
                 }
             }, {
@@ -66,11 +66,11 @@ define(['frame'], function(ngApp) {
             http2.post('/rest/pl/fe/matter/mission/matter/remove?site=' + oApp.siteid + '&id=' + oApp.mission_id, matter, function(rsp) {
                 delete oApp.mission;
                 oApp.mission_id = null;
-                srvApp.update(['mission_id']);
+                srvGroupApp.update(['mission_id']);
             });
         };
     }]);
-    ngApp.provider.controller('ctrlOpUrl', ['$scope', 'http2', 'srvApp', 'srvQuickEntry', function($scope, http2, srvApp, srvQuickEntry) {
+    ngApp.provider.controller('ctrlOpUrl', ['$scope', 'http2', 'srvGroupApp', 'srvQuickEntry', function($scope, http2, srvGroupApp, srvQuickEntry) {
         var targetUrl, opEntry;
         $scope.opEntry = opEntry = {};
         $scope.$watch('app', function(app) {
@@ -88,7 +88,7 @@ define(['frame'], function(ngApp) {
         $scope.makeOpUrl = function() {
             srvQuickEntry.add(targetUrl, $scope.app.title).then(function(task) {
                 $scope.app.op_short_url_code = task.code;
-                srvApp.update('op_short_url_code');
+                srvGroupApp.update('op_short_url_code');
                 opEntry.url = 'http://' + location.host + '/q/' + task.code;
                 opEntry.code = task.code;
             });
@@ -100,7 +100,7 @@ define(['frame'], function(ngApp) {
                 opEntry.can_favor = 'N';
                 opEntry.password = '';
                 $scope.app.op_short_url_code = '';
-                srvApp.update('op_short_url_code');
+                srvGroupApp.update('op_short_url_code');
             });
         };
         $scope.configOpUrl = function(event, prop) {

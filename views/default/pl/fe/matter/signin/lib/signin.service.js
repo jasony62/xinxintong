@@ -890,7 +890,8 @@ define(['require', 'schema', 'page'], function(require, schemaLib, pageLib) {
             };
             _ins.notify = function(rows) {
                 var options = {
-                    matterTypes: cstApp.notifyMatter
+                    matterTypes: cstApp.notifyMatter,
+                    sender: 'signin:' + appId
                 };
                 _ins._oApp.mission && (options.missionId = _ins._oApp.mission.id);
                 pushnotify.open(siteId, function(notify) {
@@ -900,7 +901,8 @@ define(['require', 'schema', 'page'], function(require, schemaLib, pageLib) {
                             targetAndMsg.users = [];
                             Object.keys(rows.selected).forEach(function(key) {
                                 if (rows.selected[key] === true) {
-                                    targetAndMsg.users.push(_aRecords[key].userid);
+                                    var rec = _ins._aRecords[key];
+                                    targetAndMsg.users.push({ userid: rec.userid, enroll_key: rec.enroll_key });
                                 }
                             });
                         } else {
@@ -908,7 +910,7 @@ define(['require', 'schema', 'page'], function(require, schemaLib, pageLib) {
                         }
                         targetAndMsg.message = notify.message;
 
-                        url = '/rest/pl/fe/matter/signin/record/notify';
+                        url = '/rest/pl/fe/matter/signin/notice/send';
                         url += '?site=' + siteId;
                         url += '&app=' + appId;
                         url += '&tmplmsg=' + notify.tmplmsg.id;
@@ -1060,6 +1062,21 @@ define(['require', 'schema', 'page'], function(require, schemaLib, pageLib) {
 
             return _ins;
         }];
+    }).provider('srvSigninNotice', function(){
+        this.$get = ['$q', 'http2', function($q, http2){
+            return {
+                detail: function(batch) {
+                    var defer = $q.defer(),
+                        url;
+                    url = '/rest/pl/fe/matter/signin/notice/logList?batch=' + batch.id;
+                    http2.get(url, function(rsp) {
+                        defer.resolve(rsp.data);
+                    });
+
+                    return defer.promise;
+                }
+            }
+        }]
     }).controller('ctrlSigninEdit', ['$scope', '$uibModalInstance', 'record', 'srvSigninApp', 'srvSigninRecord', function($scope, $mi, record, srvSigninApp, srvSigninRecord) {
         srvSigninApp.get().then(function(app) {
             if (record.data) {

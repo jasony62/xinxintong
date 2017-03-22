@@ -1,6 +1,6 @@
 define(['require'], function() {
     'use strict';
-    var ngApp = angular.module('app', ['ngRoute', 'ui.tms', 'tinymce.ui.xxt', 'ui.xxt', 'member.xxt', 'service.matter', 'service.article']);
+    var ngApp = angular.module('app', ['ngRoute', 'ui.tms', 'tinymce.ui.xxt', 'ui.xxt', 'member.xxt', 'service.matter', 'service.article', 'thumbnail.ui.xxt']);
     ngApp.constant('cstApp', {
         innerlink: [{
             value: 'article',
@@ -71,7 +71,7 @@ define(['require'], function() {
             srvAppProvider.setAppId(articleId);
         })();
     }]);
-    ngApp.controller('ctrlArticle', ['$scope', 'srvSite', 'srvApp', function($scope, srvSite, srvApp) {
+    ngApp.controller('ctrlArticle', ['$scope', 'srvSite', 'srvApp', 'tmsThumbnail', function($scope, srvSite, srvApp, tmsThumbnail) {
         $scope.viewNames = {
             'main': '发布预览',
             'coin': '积分规则',
@@ -104,6 +104,11 @@ define(['require'], function() {
                 };
             }
         });
+        window.onbeforeunload = function(e) {
+            if( !editing.pic && !editing.thumbnail){
+                tmsThumbnail.thumbnail($scope.editing);
+            }
+        };
     }]);
     /***/
     require(['domReady!'], function(document) {

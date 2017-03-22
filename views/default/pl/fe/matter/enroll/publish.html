@@ -24,8 +24,8 @@
     <div class='col-md-6'>
         <div class='form-group hidden-xs'>
             <div class='list-group-item'>
-                <div ng-if="app.rounds.length">当前轮次：{{summary[0].title}}</div>
-                <div><span>打开次数：{{app.read_num}}</span>，<span ng-if="!app.rounds"><a href="/rest/pl/fe/matter/enroll/record?site={{app.siteid}}&id={{app.id}}">填写数量：{{summary.total}}</a></span><span ng-if="app.rounds.length"><a href="/rest/pl/fe/matter/enroll/record?site={{app.siteid}}&id={{app.id}}">填写数量：{{summary[0].total}}</a></span></div>
+                <div ng-if="app.multi_rounds==='Y'">当前轮次：{{summary[0].title}}</div>
+                <div><span>打开次数：{{app.read_num}}</span>，<span ng-if="app.multi_rounds!=='Y'"><a href="/rest/pl/fe/matter/enroll/record?site={{app.siteid}}&id={{app.id}}">填写数量：{{summary.total}}</a></span><span ng-if="app.multi_rounds==='Y'"><a href="/rest/pl/fe/matter/enroll/record?site={{app.siteid}}&id={{app.id}}">填写数量：{{summary[0].total}}</a></span></div>
                 <div><span>分享好友：{{app.share_friend_num}}</span>，<span>分享朋友圈：{{app.share_timeline_num}}</span></div>
             </div>
         </div>
@@ -123,9 +123,9 @@
                             </button>
                         </li>
                     </div>
-                    <div class='form-group'>
+                    <div class='form-group' ng-show="pageOfRound.total>pageOfRound.size">
                         <span style='line-height:34px'>总数：{{pageOfRound.total}}</span>
-                        <ul uib-pagination style="margin:0;vertical-align:bottom;cursor:pointer" ng-show="pageOfRound.total>pageOfRound.size" boundary-links="true" total-items="pageOfRound.total" max-size="7" items-per-page="pageOfRound.size" rotate="false" ng-model="pageOfRound.at" previous-text="&lsaquo;" next-text="&rsaquo;" first-text="&laquo;" last-text="&raquo;" ng-change="doSearchRound()"></ul>
+                        <ul uib-pagination style="margin:0;vertical-align:bottom;cursor:pointer" boundary-links="true" total-items="pageOfRound.total" max-size="7" items-per-page="pageOfRound.size" rotate="false" ng-model="pageOfRound.at" previous-text="&lsaquo;" next-text="&rsaquo;" first-text="&laquo;" last-text="&raquo;" ng-change="doSearchRound()"></ul>
                     </div>
                 </div>
             </uib-tab>

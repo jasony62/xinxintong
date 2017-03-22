@@ -20,12 +20,10 @@ define(['require', 'schema', 'page'], function(require, schemaLib, pageLib) {
                 at: 1,
                 size: 30,
                 orderBy: 'time',
-                byRound: '',
                 joinParams: function() {
                     var p;
                     p = '&page=' + this.at + '&size=' + this.size;
                     p += '&orderby=' + this.orderBy;
-                    p += '&rid=' + (this.byRound ? this.byRound : 'ALL');
                     return p;
                 },
                 setTotal: function(total) {
@@ -42,6 +40,7 @@ define(['require', 'schema', 'page'], function(require, schemaLib, pageLib) {
             this._oCriteria = oCriteria;
             angular.extend(this._oCriteria, {
                 record: {
+                    rid: '',
                     verified: ''
                 },
                 tags: [],
@@ -143,11 +142,11 @@ define(['require', 'schema', 'page'], function(require, schemaLib, pageLib) {
                 pageLib.enhance(page, data._schemasById);
             });
         };
-        this._bFilter = function() {
+        this._bFilter = function(srvEnlRnd) {
             var defer = $q.defer(),
                 that = this;
             $uibModal.open({
-                templateUrl: '/views/default/pl/fe/matter/enroll/component/recordFilter.html?_=3',
+                templateUrl: '/views/default/pl/fe/matter/enroll/component/recordFilter.html?_=4',
                 controller: 'ctrlEnrollFilter',
                 windowClass: 'auto-height',
                 backdrop: 'static',
@@ -157,6 +156,9 @@ define(['require', 'schema', 'page'], function(require, schemaLib, pageLib) {
                     },
                     criteria: function() {
                         return angular.copy(that._oCriteria);
+                    },
+                    srvEnlRnd: function() {
+                        return srvEnlRnd;
                     }
                 }
             }).result.then(function(criteria) {
@@ -685,8 +687,8 @@ define(['require', 'schema', 'page'], function(require, schemaLib, pageLib) {
                         rsp.data.rounds.forEach(function(rnd) {
                             _rounds.push(rnd);
                         });
-                        _oPage.total = rsp.data.total;
-                        defer.resolve(_rounds);
+                        _oPage.total = parseInt(rsp.data.total);
+                        defer.resolve({ rounds: _rounds, page: _oPage });
                     });
 
                     return defer.promise;
@@ -777,6 +779,7 @@ define(['require', 'schema', 'page'], function(require, schemaLib, pageLib) {
                     });
                 },
                 cron: function() {
+                    var defer = $q.defer();
                     srvEnrollApp.get().then(function(oApp) {
                         $uibModal.open({
                             templateUrl: '/views/default/pl/fe/matter/enroll/component/roundCron.html?_=1',
@@ -814,9 +817,12 @@ define(['require', 'schema', 'page'], function(require, schemaLib, pageLib) {
                             }]
                         }).result.then(function(cron) {
                             oApp.roundCron = cron;
-                            srvEnrollApp.update('roundCron');
+                            srvEnrollApp.update('roundCron').then(function() {
+                                defer.resolve(cron);
+                            });
                         });
                     });
+                    return defer.promise;
                 }
             };
         }];
@@ -913,7 +919,7 @@ define(['require', 'schema', 'page'], function(require, schemaLib, pageLib) {
             _siteId = siteId;
             _appId = appId;
         };
-        this.$get = ['$q', '$sce', 'http2', 'noticebox', '$uibModal', 'pushnotify', 'cstApp', 'srvRecordConverter', function($q, $sce, http2, noticebox, $uibModal, pushnotify, cstApp, srvRecordConverter) {
+        this.$get = ['$q', '$sce', 'http2', 'noticebox', '$uibModal', 'pushnotify', 'cstApp', 'srvRecordConverter', 'srvEnrollRound', function($q, $sce, http2, noticebox, $uibModal, pushnotify, cstApp, srvRecordConverter, srvEnlRnd) {
             var _ins = new BaseSrvEnrollRecord($q, http2, srvRecordConverter, noticebox, $uibModal);
             _ins.search = function(pageNumber) {
                 var url;
@@ -955,7 +961,7 @@ define(['require', 'schema', 'page'], function(require, schemaLib, pageLib) {
                 return defer.promise;
             };
             _ins.filter = function() {
-                return _ins._bFilter();
+                return _ins._bFilter(srvEnlRnd);
             };
             _ins.add = function(newRecord) {
                 http2.post('/rest/pl/fe/matter/enroll/record/add?site=' + _siteId + '&app=' + _appId, newRecord, function(rsp) {
@@ -1390,7 +1396,7 @@ define(['require', 'schema', 'page'], function(require, schemaLib, pageLib) {
             _appId = appId;
             _accessId = accessId;
         };
-        this.$get = ['$q', 'http2', 'noticebox', '$uibModal', 'srvRecordConverter', function($q, http2, noticebox, $uibModal, srvRecordConverter) {
+        this.$get = ['$q', 'http2', 'noticebox', '$uibModal', 'srvRecordConverter', 'srvOpEnrollRound', function($q, http2, noticebox, $uibModal, srvRecordConverter, srvEnlRnd) {
             var _ins = new BaseSrvEnrollRecord($q, http2, srvRecordConverter, noticebox, $uibModal);
             _ins.search = function(pageNumber) {
                 var url;
@@ -1416,7 +1422,7 @@ define(['require', 'schema', 'page'], function(require, schemaLib, pageLib) {
                 return _ins._bBatchVerify(rows, url);
             };
             _ins.filter = function() {
-                return _ins._bFilter();
+                return _ins._bFilter(srvEnlRnd);
             };
             _ins.remove = function(record) {
                 if (window.confirm('确认删除？')) {
@@ -1489,8 +1495,8 @@ define(['require', 'schema', 'page'], function(require, schemaLib, pageLib) {
                         rsp.data.rounds.forEach(function(rnd) {
                             _rounds.push(rnd);
                         });
-                        _oPage.total = rsp.data.total;
-                        defer.resolve(_rounds);
+                        _oPage.total = parseInt(rsp.data.total);
+                        defer.resolve({ rounds: _rounds, page: _oPage });
                     });
 
                     return defer.promise;
@@ -1975,10 +1981,11 @@ define(['require', 'schema', 'page'], function(require, schemaLib, pageLib) {
         $scope.syncByGroup = function() {
             srvEnrollRecord.syncByGroup($scope.record);
         };
-    }]).controller('ctrlEnrollFilter', ['$scope', '$uibModalInstance', 'dataSchemas', 'criteria', function($scope, $mi, dataSchemas, lastCriteria) {
+    }]).controller('ctrlEnrollFilter', ['$scope', '$uibModalInstance', 'dataSchemas', 'criteria', 'srvEnlRnd', function($scope, $mi, dataSchemas, lastCriteria, srvEnlRnd) {
         var canFilteredSchemas = [];
+
         dataSchemas.forEach(function(schema) {
-            if (false === /image|file/.test(schema.type)) {
+            if (false === /image|file|score|html/.test(schema.type) && schema.id.indexOf('member') !== 0) {
                 canFilteredSchemas.push(schema);
             }
             if (/multiple/.test(schema.type)) {
@@ -2027,5 +2034,12 @@ define(['require', 'schema', 'page'], function(require, schemaLib, pageLib) {
         $scope.cancel = function() {
             $mi.dismiss('cancel');
         };
+        $scope.doSearchRound = function() {
+            srvEnlRnd.list().then(function(result) {
+                $scope.rounds = result.rounds;
+                $scope.pageOfRound = result.page;
+            });
+        };
+        $scope.doSearchRound();
     }])
 });

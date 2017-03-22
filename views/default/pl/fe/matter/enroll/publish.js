@@ -199,40 +199,26 @@ define(['frame'], function(ngApp) {
             }
         });
     }]);
-    ngApp.provider.controller('ctrlRound', ['$scope', 'srvEnrollRound', function($scope, srvEnrollRound) {
-        $scope.roundState = srvEnrollRound.RoundState;
-        srvEnrollRound.list().then(function(rounds) {
-            $scope.rounds = rounds;
-        });
+    ngApp.provider.controller('ctrlRound', ['$scope', 'srvEnrollRound', function($scope, srvEnlRnd) {
+        var rounds, page;
+        $scope.pageOfRound = page = {};
+        $scope.rounds = rounds = [];
+        srvEnlRnd.init(rounds, page)
+        $scope.roundState = srvEnlRnd.RoundState;
+        $scope.openCron = function() {
+            srvEnlRnd.cron().then(function() {
+                $scope.doSearchRound();
+            });
+        };
+        $scope.doSearchRound = function() {
+            srvEnlRnd.list();
+        };
         $scope.add = function() {
-            srvEnrollRound.add();
+            srvEnlRnd.add();
         };
         $scope.edit = function(round) {
-            srvEnrollRound.edit(round);
+            srvEnlRnd.edit(round);
         };
-    }]);
-    ngApp.provider.controller('ctrlCron', ['$scope', 'http2', function($scope, http2) {
-        $scope.mdays = [];
-        while ($scope.mdays.length < 28) {
-            $scope.mdays.push('' + ($scope.mdays.length + 1));
-        }
-        $scope.$watch('app.roundCron', function(cron) {
-            if (cron) {
-                $scope.cron = cron;
-                if (!cron.period) {
-                    cron.period = 'D';
-                }
-            }
-        });
-        $scope.$watch('app.roundCron.period', function(newPeriod, oldPeriod) {
-            if (oldPeriod && oldPeriod !== newPeriod) {
-                if (oldPeriod === 'W') {
-                    $scope.cron.wday = '';
-                } else if (oldPeriod === 'M') {
-                    $scope.cron.mday = '';
-                }
-            }
-            $scope.update('roundCron');
-        });
+        $scope.doSearchRound();
     }]);
 });

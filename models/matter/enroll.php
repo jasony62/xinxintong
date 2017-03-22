@@ -72,7 +72,7 @@ class enroll_model extends app_base {
 				if (!empty($app->round_cron)) {
 					$app->roundCron = json_decode($app->round_cron);
 				} else {
-					$app->roundCron = new \stdClass;
+					$app->roundCron = [];
 				}
 			}
 			if ($cascaded === 'Y') {

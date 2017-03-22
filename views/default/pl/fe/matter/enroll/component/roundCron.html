@@ -1,0 +1,69 @@
+<style>
+    th{text-align:center;}
+</style>
+<div class="modal-header">
+    <button class="close" type="button" ng-click="cancel()">×</button>
+    <h5 class="modal-title ">轮次定时生成规则</h5>
+</div>
+<div class="modal-body ">
+    <table class='table table-bordered'>
+        <thead>
+            <tr>
+                <th style='width:4em'>周期</th>
+                <th style='width:5em'>星期几</th>
+                <th style='width:5em'>日期 (1 - 28)</th>
+                <th style='width:5em'>小时 (0 - 23)</th>
+                <th style='width:4em'>启用</th>
+                <th style='width:4em'>操作</th>
+            </tr>
+        </thead>
+        <tbody>
+            <tr ng-repeat="rule in cron">
+                <td>
+                    <div class='radio'>
+                        <label>
+                            <input type='radio' name='period{{$index}}' value='W' ng-model="rule.period" ng-change="changePeriod(rule)">每周</label>
+                    </div>
+                    <div class='radio'>
+                        <label>
+                            <input type='radio' name='period{{$index}}' value='M' ng-model="rule.period" ng-change="changePeriod(rule)">每月</label>
+                    </div>
+                    <div class='radio'>
+                        <label>
+                            <input type='radio' name='period{{$index}}' value='D' ng-model="rule.period" ng-change="changePeriod(rule)">每日</label>
+                    </div>
+                </td>
+                <td>
+                    <select class='form-control' ng-model="rule.wday" ng-disabled="rule.period!=='W'">
+                        <option value=''>忽略</option>
+                        <option value='1'>周一</option>
+                        <option value='2'>周二</option>
+                        <option value='3'>周三</option>
+                        <option value='4'>周四</option>
+                        <option value='5'>周五</option>
+                        <option value='6'>周六</option>
+                        <option value='0'>周日</option>
+                    </select>
+                </td>
+                <td>
+                    <select class='form-control' ng-model='rule.mday' ng-options="m for m in mdays" ng-disabled="rule.period!=='M'">
+                        <option value=''>忽略</option>
+                    </select>
+                </td>
+                <td>
+                    <input type='text' class='form-control' ng-model="rule.hour">
+                </td>
+                <td>
+                    <input type='checkbox' ng-true-value="'Y'" ng-false-value="'N'" ng-model="rule.enabled">
+                </td>
+                <td>
+                    <button class='btn btn-danger btn-xs' ng-click="remove(rule)">删除</button>
+                </td>
+            </tr>
+        </tbody>
+    </table>
+</div>
+<div class="modal-footer">
+    <button class="btn btn-default" ng-click="add() ">添加</button>
+    <button class="btn btn-success" ng-click="ok() ">保存</button>
+</div>

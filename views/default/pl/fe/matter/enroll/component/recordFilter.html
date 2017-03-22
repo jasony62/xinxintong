@@ -16,7 +16,21 @@ ul{margin:0;padding:0}
                 <label class='radio-inline'><input type='radio' name='verified' value='' ng-model="criteria.record.verified">全部</label>
             </div>
         </div>
-        <div class="form-group" ng-repeat="schema in schemas" ng-if="schema.id.indexOf('member')!==0">
+        <div class="form-group" ng-if="rounds.length">
+            <label class="col-md-3 control-label">轮次</label>
+            <div class="col-md-7">
+                <select class='form-control' ng-model="criteria.record.rid" size=5>
+                    <option value=''>当前轮次</option>
+                    <option value='all'>全部</option>
+                    <option value="{{rnd.rid}}" ng-repeat="rnd in rounds">{{rnd.title}}</option>
+                </select>
+                <div ng-show="pageOfRound.total>pageOfRound.size">
+                    <span style='line-height:34px'>总数：{{pageOfRound.total}}</span>
+                    <ul uib-pagination style="margin:0;vertical-align:bottom;cursor:pointer" boundary-links="true" total-items="pageOfRound.total" max-size="5" items-per-page="pageOfRound.size" rotate="false" ng-model="pageOfRound.at" previous-text="&lsaquo;" next-text="&rsaquo;" first-text="&laquo;" last-text="&raquo;" ng-change="doSearchRound()"></ul>
+                </div>
+            </div>
+        </div>
+        <div class="form-group" ng-repeat="schema in schemas">
             <label class="col-md-3 control-label">{{schema.title}}</label>
             <div class="col-md-7">
                 <input type='text' class='form-control' ng-if="['name','email','mobile','shorttext','location'].indexOf(schema.type)!==-1" ng-model="criteria.data[schema.id]">

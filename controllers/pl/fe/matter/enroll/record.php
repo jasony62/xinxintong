@@ -17,7 +17,7 @@ class record extends \pl\fe\matter\base {
 	 * 活动登记名单
 	 *
 	 */
-	public function list_action($site, $app, $page = 1, $size = 30, $rid = null, $orderby = null, $contain = null, $includeSignin = null) {
+	public function list_action($site, $app, $page = 1, $size = 30, $orderby = null, $contain = null, $includeSignin = null) {
 		if (false === ($user = $this->accountUser())) {
 			return new \ResponseTimeout();
 		}
@@ -28,7 +28,6 @@ class record extends \pl\fe\matter\base {
 		$options = array(
 			'page' => $page,
 			'size' => $size,
-			'rid' => $rid,
 			'orderby' => $orderby,
 			'contain' => $contain,
 		);
@@ -48,7 +47,7 @@ class record extends \pl\fe\matter\base {
 	 * 若不指定登记项，则返回活动中所有数值型登记项的合集
 	 * 若指定的登记项不是数值型，返回0
 	 */
-	public function sum4Schema_action($site, $app) {
+	public function sum4Schema_action($site, $app, $rid = 'ALL') {
 		if (false === ($user = $this->accountUser())) {
 			return new \ResponseTimeout();
 		}
@@ -62,7 +61,7 @@ class record extends \pl\fe\matter\base {
 
 		// 查询结果
 		$mdoelRec = $this->model('matter\enroll\record');
-		$result = $mdoelRec->sum4Schema($enrollApp);
+		$result = $mdoelRec->sum4Schema($enrollApp, $rid);
 
 		return new \ResponseData($result);
 	}
@@ -547,7 +546,8 @@ class record extends \pl\fe\matter\base {
 		}
 
 		// 获得所有有效的登记记录
-		$records = $this->model('matter\enroll\record')->find($app);
+		$modelRec2 = $this->model('matter\enroll\record');
+		$records = $modelRec2->find($app);
 		if ($records->total === 0) {
 			die('record empty');
 		}
@@ -570,11 +570,15 @@ class record extends \pl\fe\matter\base {
 		$objActiveSheet->setCellValueByColumnAndRow(1, 1, '审核通过');
 
 		// 转换标题
+		$isTotal = []; //是否需要合计
 		for ($i = 0, $ii = count($schemas); $i < $ii; $i++) {
 			$schema = $schemas[$i];
 			/* 跳过图片和文件 */
 			if (in_array($schema->type, ['image', 'file'])) {
 				continue;
+			}
+			if (isset($schema->number) && $schema->number === 'Y') {
+				$isTotal[$i + 2] = $schema->id;
 			}
 			$objActiveSheet->setCellValueByColumnAndRow($i + 2, 1, $schema->title);
 		}
@@ -605,6 +609,7 @@ class record extends \pl\fe\matter\base {
 				switch ($schema->type) {
 				case 'single':
 				case 'phase':
+					$disposed = null;
 					foreach ($schema->ops as $op) {
 						if ($op->v === $v) {
 							$objActiveSheet->setCellValueByColumnAndRow($i + 2, $rowIndex, $op->l);
@@ -654,6 +659,15 @@ class record extends \pl\fe\matter\base {
 			if ($app->scenario === 'voting') {
 				$objActiveSheet->setCellValueByColumnAndRow($i + 5, $rowIndex, $record->_score);
 				$objActiveSheet->setCellValueByColumnAndRow($i + 6, $rowIndex, sprintf('%.2f', $record->_average));
+			}
+		}
+		if (!empty($isTotal)) {
+			//合计
+			$total2 = $modelRec2->sum4Schema($app);
+			$rowIndex = count($records) + 2;
+			$objActiveSheet->setCellValueByColumnAndRow(0, $rowIndex, '合计');
+			foreach ($isTotal as $key => $val) {
+				$objActiveSheet->setCellValueByColumnAndRow($key, $rowIndex, $total2->$val);
 			}
 		}
 

@@ -294,13 +294,4 @@ config(['$uibTooltipProvider', function($uibTooltipProvider) {
         $scope.list();
     }, true);
     $scope.listSite();
-}]).controller('ctrlTrend', ['$scope', 'http2', function($scope, http2) {
-    var t = (new Date() * 1);
-    $scope.list = function() {
-        var url = '/rest/pl/fe/trends?_=' + t;
-        http2.get(url, function(rsp) {
-            $scope.trends = rsp.data.trends;
-        });
-    };
-    $scope.list();
 }]);

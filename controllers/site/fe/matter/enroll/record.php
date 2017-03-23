@@ -327,9 +327,9 @@ class record extends base {
 		foreach ($receivers as &$receiver) {
 			if (!empty($receiver->sns_user)) {
 				$snsUser = json_decode($receiver->sns_user);
-				!empty($snsUser->wx) && $receiver->wx_openid = $snsUser->wx;
-				!empty($snsUser->yx) && $receiver->yx_openid = $snsUser->yx;
-				!empty($snsUser->qy) && $receiver->qy_openid = $snsUser->qy;
+				if (isset($snsUser->src) && isset($snsUser->openid)) {
+					$receiver->{$snsUser->src . '_openid'} = $snsUser->openid;
+				}
 			}
 		}
 

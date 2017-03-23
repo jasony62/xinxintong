@@ -28,7 +28,7 @@ body{margin-bottom:50px;}
 .popover.user-notice{max-width:376px;}
 .popover.user-notice .log{display:flex;flex-direction:row;}
 .popover.user-notice .log>div:nth-child(1){margin-right:1em;}
-.popover.user-notice .log>div:nth-child(2){width:9em;text-align:right;}
+.popover.user-notice .log>div:nth-child(2){width:10em;text-align:right;color:#999;}
 
 /*matter*/
 #viewRecent .article:after{content:'图文';position:absolute;top:-8px;left:-8px;background:green;padding:2px 4px;font-size:60%;color:#fff;border-radius:4px;}

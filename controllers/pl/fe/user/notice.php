@@ -48,9 +48,9 @@ class notice extends \pl\fe\base {
 	/**
 	 * 查看未读通知发送日志
 	 *
-	 * @param int $batch 通知批次id
+	 * @param string $sendTo 发送渠道
 	 */
-	public function uncloseList_action($page = 1, $size = 10) {
+	public function uncloseList_action($page = 1, $size = 10, $sendTo = 'pl') {
 		if (false === ($user = $this->accountUser())) {
 			return new \ResponseTimeout();
 		}
@@ -60,7 +60,7 @@ class notice extends \pl\fe\base {
 		$q = [
 			'*',
 			'xxt_log_tmplmsg_pldetail',
-			['userid' => $user->id, 'close_at' => 0],
+			['userid' => $user->id, 'close_at' => 0, 'send_to' => $sendTo],
 		];
 		$q2 = ['o' => 'id desc'];
 

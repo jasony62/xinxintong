@@ -15,4 +15,5 @@
 .template .actions{border-top:1px solid #ddd;padding-top:8px;}
 
 /*channel*/
+.channel .matter{cursor:pointer;}
 .media-object{width:96px;height:96px;}

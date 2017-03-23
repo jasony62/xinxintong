@@ -19,6 +19,48 @@ class fans extends \pl\fe\base {
 		die();
 	}
 	/**
+	 * 根据uid（userid）获取公众号用户信息
+	 */
+	public function getInfo_action($site,$uid){
+		$model=$this->model();
+
+		$user=$model->query_obj_ss([
+			'ufrom,yx_openid,wx_openid,qy_openid',
+			'xxt_site_account',
+			"siteid='$site' and uid='$uid'"
+		]);
+		
+		if(empty($user)){
+			return new \ResponseError('暂无该用户公众号信息！');
+		}
+
+		if(!empty($user->yx_openid)){
+			$user->yx=$model->query_obj_ss([
+				'f.*,g.name',
+				'xxt_site_yxfan f,xxt_site_yxfangroup g',
+				"f.siteid='$site' and f.openid='$user->yx_openid' and f.groupid=g.id"
+			]);
+		}
+
+		if(!empty($user->wx_openid)){
+			$user->wx=$model->query_obj_ss([
+				'f.*,g.name',
+				'xxt_site_wxfan f,xxt_site_wxfangroup g',
+				"f.siteid='$site' and f.openid='$user->wx_openid' and f.groupid=g.id"
+			]);
+		}
+
+		if(!empty($user->qy_openid)){
+			$user->qy=$model->query_obj_ss([
+				'*',
+				'xxt_site_qyfan',
+				"siteid='$site' and openid='$user->qy_openid'"
+			]);
+		}
+
+		return new \ResponseData($user);
+	}
+	/**
 	 * all fans.
 	 *
 	 * $keyword
@@ -107,16 +149,16 @@ class fans extends \pl\fe\base {
 	/**
 	 * get groups
 	 */
-	public function group_action() {
-		$groups = $this->model('user/fans')->getGroups($this->mpid);
+	public function group_action($site) {
+		$groups = $this->model('user/fans')->getGroups($site);
 
 		return new \ResponseData($groups);
 	}
 	/**
 	 * 用户的交互足迹
 	 */
-	public function track_action($openid, $page = 1, $size = 30) {
-		$track = $this->model('log')->track($this->mpid, $openid, $page, $size);
+	public function track_action($site,$openid, $page = 1, $size = 30) {
+		$track = $this->model('log')->track($site, $openid, $page, $size);
 
 		return new \ResponseData($track);
 	}

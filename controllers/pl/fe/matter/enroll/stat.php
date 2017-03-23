@@ -183,6 +183,40 @@ class stat extends \pl\fe\matter\base {
 			if (in_array($schema->type, ['name', 'email', 'mobile', 'date', 'location', 'shorttext', 'longtext'])) {
 				$textResult = $modelRec->list4Schema($site, $app, $schema->id, ['rid' => 'ALL'], $marks);
 				if (!empty($textResult->records)) {
+					//数值型的饼图
+					if($schema->type === 'shorttext' && isset($schema->number) && $schema->number === 'Y'){
+						$data = [];
+						foreach ($textResult->records as $record) {
+							$data[] = $record->value;
+						}
+						$graph = new \PieGraph(550, 300);
+						$graph->SetShadow();
+						$pie = new \PiePlot($data);
+						$labels = [];
+						for ($i = 0, $l = count($data); $i < $l; $i++) {
+							$labels[] = $op = $data[$i] . '：%.1f%%';
+						}
+						$pie->value->SetFont(FF_CHINESE, FS_NORMAL);
+						$graph->Add($pie);
+						$pie->ShowBorder();
+						$pie->setSliceColors(['#F7A35C', '#8085E9', '#90ED7D', '#7CB5EC', '#434348']);
+						$pie->SetColor(array(255, 255, 255));
+						$pie->SetLabels($labels, 1);
+
+						$graph->title->Set($schema->title);
+						$graph->title->SetFont(FF_CHINESE, FS_NORMAL);
+
+						$graph->Stroke(_IMG_HANDLER);
+						ob_start(); // start buffering
+						$graph->img->Stream(); // print data to buffer
+						$image_data = ob_get_contents(); // retrieve buffer contents
+						ob_end_clean(); // stop buffer
+						$imageBase64 = chunk_split(base64_encode($image_data));
+						//
+						$mappingOfImages[$schema->id . '.base64'] = $imageBase64;
+						//
+						$html .= '<img src="' . $schema->id . '.base64" />';
+					}
 					$records = $textResult->records;
 					$html .= "<table><thead><tr>";
 					$html .= "<th>序号</th>";
@@ -209,7 +243,7 @@ class stat extends \pl\fe\matter\base {
 						$html .= "<td>{$record->value}</td></tr>";
 					}
 					if(isset($textResult->sum) ){
-						$html .= "<tr><td>总数</td>";
+						$html .= "<tr><td>合计</td>";
 						if($sumNumber > 0){
 							for($i = 0, $j = $sumNumber; $i < $j; $i++) {
 								$html .= "<td> </td>";

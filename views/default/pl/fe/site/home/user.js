@@ -11,9 +11,6 @@ define(['main'], function(ngApp) {
                 });
             });
         });
-        $scope.openProfile = (uid){
-            location.href = '/rest/pl/fe/site/user/login?site=' + $scope.siteId + '&uid=' + uid;
-        };
     }]);
     ngApp.provider.controller('ctrlAccount', ['$scope', '$uibModal', 'http2', function($scope, $uibModal, http2) {
         $scope.page = {
@@ -29,6 +26,9 @@ define(['main'], function(ngApp) {
                 $scope.users = rsp.data.users;
                 $scope.page.total = rsp.data.total;
             });
+        };
+        $scope.openProfile = function(uid){
+            location.href = '/rest/pl/fe/site/user/login?site=' + $scope.site.id + '&uid=' + uid;
         };
         $scope.$watch('site', function(site) {
             if (site === undefined) return;

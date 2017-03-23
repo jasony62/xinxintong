@@ -323,6 +323,7 @@ define(['frame'], function(ngApp) {
             url = '/rest/pl/fe/matter/enroll/stat/get';
             url += '?site=' + $scope.app.siteid;
             url += '&app=' + app.id;
+            url += '&rid=' + (rid ? rid : '');
             http2.get(url, function(rsp) {
                 var stat = {};
                 app.data_schemas.forEach(function(schema) {

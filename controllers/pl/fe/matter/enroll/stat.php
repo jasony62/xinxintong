@@ -184,7 +184,7 @@ class stat extends \pl\fe\matter\base {
 				$textResult = $modelRec->list4Schema($site, $app, $schema->id, ['rid' => 'ALL'], $marks);
 				if (!empty($textResult->records)) {
 					//数值型的饼图
-					if($schema->type === 'shorttext' && isset($schema->number) && $schema->number === 'Y'){
+					if(isset($schema->number) && $schema->number === 'Y'){
 						$data = [];
 						foreach ($textResult->records as $record) {
 							$data[] = $record->value;

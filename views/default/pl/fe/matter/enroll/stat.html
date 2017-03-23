@@ -49,7 +49,7 @@
                     </tbody>
                 </table>
             </div>
-            <div ng-if="['single','phase','multiple','score'].indexOf(schema.type)===-1" ng-init="page={at:1,size:10}">
+            <div ng-if="['single','phase','multiple','score'].indexOf(schema.type)===-1" ng-init="page={at:1,size:10}" >
                 <div ng-if="schema.number&&schema.number=='Y'">
                     <div id="{{schema.id}}" style='height:300px'></div>
                     <table class='table table-bordered'>
@@ -71,6 +71,8 @@
                     <table class='table table-bordered' ng-switch on="schema.type">
                         <thead>
                             <tr>
+                                <th  ng-repeat="record in getRecords(schema,page)" ng-switch-default><span ng-repeat="m in record.marks">{{m.name}}</span></th>
+
                                 <th>登记内容</th>
                             </tr>
                         </thead>
@@ -85,6 +87,7 @@
                                 <td>{{record.value*1000|date:'yy-MM-dd HH:mm'}}</td>
                             </tr>
                             <tr ng-repeat="record in getRecords(schema,page)" ng-switch-default>
+                                <td ng-repeat='m in record.marks'>{{m.value}}</td>
                                 <td>{{record.value}}</td>
                             </tr>
                         </tbody>

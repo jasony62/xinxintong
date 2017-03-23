@@ -3,9 +3,8 @@
 </style>
 <div id='stat-view'>
     <button class='btn btn-default' ng-click="export()">导出报告</button>
-    <!-- <div class='form-group' ng-if='rounds.length'> -->
-    <div class='btn-group' >
-        <select class='form-control' title='登记轮次' ng-model='criteria.rid' ng-change="doRound(criteria.rid)">
+    <div class='form-group' ng-if='rounds.length'>
+        <select class='form-control' title='登记轮次'  ng-model='criteria.rid' ng-change="doRound(criteria.rid)">
             <option value=''>当前轮次</option>
             <option value='ALL'>全部</option>
             <option value="{{rnd.rid}}" ng-repeat="rnd in rounds">{{rnd.title}}</option>

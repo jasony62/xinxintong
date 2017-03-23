@@ -1,6 +1,7 @@
 define(['frame'], function(ngApp) {
     'use strict';
-    ngApp.provider.controller('ctrlStat', ['$scope', 'http2', '$timeout', '$q', '$uibModal', 'srvEnrollApp', 'srvEnrollRound', function($scope, http2, $timeout, $q, $uibModal, srvEnrollApp, srvEnrollRound) {
+    ngApp.provider.controller('ctrlStat', ['$scope', '$location', 'http2', '$timeout', '$q', '$uibModal', 'srvEnrollApp', 'srvEnrollRound', function($scope, $location, http2, $timeout, $q, $uibModal, srvEnrollApp, srvEnrollRound) {
+        var rid = $location.search().rid;
         function drawBarChart(item) {
             var categories = [],
                 series = [];
@@ -207,7 +208,7 @@ define(['frame'], function(ngApp) {
                 if (requireGet) {
                     url = '/rest/pl/fe/matter/enroll/record/list4Schema';
                     url += '?site=' + $scope.app.siteid + '&app=' + $scope.app.id;
-                    url += '&schema=' + schema.id + '&page=' + page.at + '&size=' + page.size;
+                    url += '&schema=' + schema.id + '&page=' + page.at + '&size=' + page.size + '&rid=' + (rid ? rid : '');
                     cached._running = true;
                     http2.get(url, function(rsp) {
                         cached._running = false;
@@ -308,8 +309,8 @@ define(['frame'], function(ngApp) {
                 });
             });
         }
-        $scope.doRound = function(i) {
-            console.log(i);
+        $scope.doRound = function(rid) {
+            location.href = '/rest/pl/fe/matter/enroll/stat?site=' + $scope.app.siteid + '&id=' + $scope.app.id + '&rid=' + rid;
         };
         srvEnrollApp.get().then(function(app) {
             var url;
@@ -381,6 +382,13 @@ define(['frame'], function(ngApp) {
         });
         srvEnrollRound.list().then(function(result) {
             $scope.rounds = result.rounds;
+            if(rid) {
+                $scope.rounds.forEach(function(round) {
+                    if(round.rid == rid) {
+                        $scope.criteria.rid = rid;
+                    }
+                });
+            }
         });
     }]);
 });

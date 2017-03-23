@@ -185,6 +185,7 @@ define(['frame'], function(ngApp) {
             recordsBySchema: function(schema, page) {
                 var deferred = $q.defer(),
                     cached,
+                    markNames,
                     requireGet = false,
                     url;
 
@@ -233,6 +234,7 @@ define(['frame'], function(ngApp) {
                             drawNumPie($scope.itemNum,schema);
                         }
                         cached.records = rsp.data.records;
+                        $scope.markNames = rsp.data.markNames;
                         page.total = rsp.data.total;
                         deferred.resolve(rsp.data);
                     });

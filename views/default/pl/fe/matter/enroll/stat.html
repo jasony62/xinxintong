@@ -71,8 +71,10 @@
                     <table class='table table-bordered' ng-switch on="schema.type">
                         <thead>
                             <tr>
-                                <th  ng-repeat="record in getRecords(schema,page)" ng-switch-default><span ng-repeat="m in record.marks">{{m.name}}</span></th>
-
+                                <th ng-repeat='m in markNames' ng-if="m.name!= schema.title">
+                                <span  ng-bind="m.name" >{{m.name}}</span>
+                                </th>
+                                <!-- <th>{{schema}}</th> -->
                                 <th>登记内容</th>
                             </tr>
                         </thead>

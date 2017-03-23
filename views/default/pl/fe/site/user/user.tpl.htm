@@ -7,11 +7,11 @@
     <base href='/'>
     <link href="/static/css/bootstrap.min.css" rel="stylesheet">
     <link href="/static/css/tms.css" rel="stylesheet">
-    <link href="/views/default/pl/fe/site/.css" rel="stylesheet">
-    <tituserle>团队——用户详情</tituserle>
+    <link href="/views/default/pl/fe/site/user/user.css" rel="stylesheet">
+    <title>团队——用户详情</title>
 </head>
 
-<body ng-controller='ctrlHome'>
+<body ng-controller='ctrlUser'>
     <nav class='navbar navbar-default navbar-fixed-top'>
         <div class='container'>
             <div class='navbar-header'>
@@ -19,8 +19,8 @@
             </div>
             <ul class='nav navbar-nav'>
                 <li><a href='/rest/pl/fe/site/console?site={{site.id}}' target='_self'>活动和资料</a></li>
-                <li class=''><a href='/rest/pl/fe/site/home?site={{site.id}}'>团队门户</a></li>
-                <li class='active'><a href=''>用户详情</a></li>
+                <li><a href='/rest/pl/fe/site/home?site={{site.id}}'>团队门户</a></li>
+                <li class='active'><a href='/rest/pl/fe/site/user/user?site={{site.id}}'>用户详情</a></li>
                 <li><a href='/rest/pl/fe/template/site?site={{site.id}}' target='_self'>模板库</a></li>
             </ul>
             <ul class='nav navbar-nav navbar-right'>
@@ -42,20 +42,21 @@
 	    <nav class='navbar navbar-default'>
 	        <div class='container-fluid'>
 	            <ul class='nav navbar-nav'>
-	            	<li ng-class="{'active':subView==='page'}"><a href=''>详情</a></li>
-				    <li ng-class="{'active':subView==='user'}"><a href=''>历史信息</a></li>
-				    <li ng-class="{'active':subView==='analysis'}"><a href=''>发消息</a></li>
+	            	<li ng-class="{'active':subView==='details'}"><a href='/rest/pl/fe/site/user/details?site={{site.id}}'>详情</a></li>
+				    <li ng-class="{'active':subView==='history'}"><a href=''>历史记录</a></li>
+				    <li ng-class="{'active':subView==='message'}"><a href=''>发消息</a></li>
 	            </ul>
-                <!--<form class="navbar-form navbar-right" ng-show="catelogs.length">-->
-                    <!--<div class='form-group'>-->
-                        <!--<select class='form-control' ng-model="catelog" ng-options="cat.l for cat in catelogs"></select>-->
-                    <!--</div>-->
-                <!--</form>-->
+                <!--？-->
+                <form class="navbar-form navbar-right" ng-show="catelogs.length">
+                    <div class='form-group'>
+                        <select class='form-control' ng-model="catelog" ng-options="cat.l for cat in catelogs"></select>
+                    </div>
+                </form>
 	        </div>
 	    </nav>
-        <div class='row'>
-        	<div ng-view></div>
-        </div>
+        <!--<div class='row'>-->
+        	<div ng-view style="background: #fff;padding:1em"></div>
+        <!--</div>-->
     </div>
     <script src="/static/js/jquery.min.js"></script>
     <script src="/static/js/bootstrap.min.js"></script>
@@ -63,9 +64,11 @@
     <script src="/static/js/angular-route.min.js"></script>
     <script src="/static/js/angular-sanitize.min.js"></script>
     <script src="/static/js/ui-bootstrap-tpls.min.js"></script>
-    <!--<script src="/static/js/ui-tms.js?_=1"></script>-->
-    <!--<script src="/static/js/xxt.ui.js?_=1"></script>-->
-    <!--<script src="/views/default/pl/fe/_module/matter.service.js?_=1"></script>-->
+
+    <script src="/static/js/ui-tms.js?_=1"></script>
+    <script src="/static/js/xxt.ui.js?_=1"></script>
+
+    <script src="/views/default/pl/fe/_module/matter.service.js?_=1"></script>
     <script src="/static/js/require.js" data-main="/views/default/pl/fe/site/user/user-loader.js?_=1"></script>
 </body>
 

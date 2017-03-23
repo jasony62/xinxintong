@@ -156,8 +156,8 @@ class stat extends \pl\fe\matter\base {
 
 		$app = $this->model('matter\enroll')->byId($app, ['cascaded' => 'N']);
 		//获取标识
-		if(!empty($app->rp_mark)){
-			$marks = json_decode($app->rp_mark);
+		if(!empty($enrollApp->rp_mark)){
+			$marks = json_decode($enrollApp->rp_mark);
 		}else{
 			$marks = null;
 		}
@@ -185,30 +185,26 @@ class stat extends \pl\fe\matter\base {
 				if (!empty($textResult->records)) {
 					$records = $textResult->records;
 					$html .= "<table><thead><tr>";
-					if(!empty($marks)){
-						foreach ($marks as $mark) {
-							$html .= "<th>".$mark->name."</th>";
+					$html .= "<th>序号</th>";
+					for ($i = 0, $l = 1; $i < $l; $i++) {
+						if(isset($records[$i]->marks)) {
+							foreach ($records[$i]->marks as $mark) {
+								$html .= "<th>" . $mark['name'] . "</th>";
+							}
 						}
 					}
-					$html .= "<th>序号</th><th>登记内容</th></tr></thead>";
+					$html .= "<th>登记内容</th></tr></thead>";
 					$html .= "<tbody>";
 					for ($i = 0, $l = count($records); $i < $l; $i++) {
 						$html .= "<tr>";
-						foreach ($marks as $mark) {
-							$p = [
-								'value',
-								"xxt_enroll_record_data",
-								"state=1 and aid='{$app->id}' and name='{$mark->id}' and enroll_key = ".$records[$i]->enroll_key
-							];
-							$recordsMark = $this->query_obj_ss($p);
-							if($recordsMark){
-								$html .= "<td>" . $recordsMark->value . "</td>";
-							}else if($recordsMark === false){
-								$html .= "<td></td>";
+						$record = $records[$i];
+						$html .= "<td>" . ($i + 1) . "</td>";
+						if(isset($records[$i]->marks)) {
+							foreach ($records[$i]->marks as $mark) {
+								$html .= "<td>" . $mark['value'] . "</td>";
 							}
 						}
-						$record = $records[$i];
-						$html .= "<td>" . ($i + 1) . "</td><td>{$record->value}</td></tr>";
+						$html .= "<td>{$record->value}</td></tr>";
 					}
 					if(isset($textResult->sum) ){
 						$html .= "<tr><td>总数</td><td>".$textResult->sum."</td></tr>";

@@ -11,6 +11,9 @@ define(['main'], function(ngApp) {
                 });
             });
         });
+        $scope.openProfile = (uid){
+            location.href = '/rest/pl/fe/site/user/login?site=' + $scope.siteId + '&uid=' + uid;
+        };
     }]);
     ngApp.provider.controller('ctrlAccount', ['$scope', '$uibModal', 'http2', function($scope, $uibModal, http2) {
         $scope.page = {

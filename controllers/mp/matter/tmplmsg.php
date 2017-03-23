@@ -54,7 +54,7 @@ class tmplmsg extends matter_ctrl {
 	 *
 	 */
 	public function mappingGet_action($id) {
-		$mapping = $this->model('matter\tmplmsg')->mappingById($id);
+		$mapping = $this->model('matter\tmplmsg\config')->byId($id);
 
 		return new \ResponseData($mapping);
 	}

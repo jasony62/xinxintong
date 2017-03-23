@@ -65,21 +65,4 @@ class tmplmsg_model extends \TMS_MODEL {
 
 		return $tmplmsgs;
 	}
-	/**
-	 * 获得模板消息参数定义
-	 */
-	public function &mappingById($id) {
-		$q = [
-			'msgid,mapping',
-			'xxt_tmplmsg_mapping',
-			['id' => $id],
-		];
-		if ($mapping = $this->query_obj_ss($q)) {
-			if (!empty($mapping->mapping)) {
-				$mapping->mapping = json_decode($mapping->mapping);
-			}
-		}
-
-		return $mapping;
-	}
 }

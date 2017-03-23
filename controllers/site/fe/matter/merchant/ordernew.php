@@ -165,7 +165,7 @@ class ordernew extends \site\fe\matter\base {
 		}
 		/*每个产品独立发通知*/
 		$modelProd = $this->model('matter\merchant\product');
-		$modelTmpl = $this->model('matter\tmplmsg');
+		$modelTmpl = $this->model('matter\tmplmsg\config');
 		$modelFan = $this->model('user/fans');
 		$products = json_decode($order->products);
 		$pendings = array();
@@ -175,7 +175,7 @@ class ordernew extends \site\fe\matter\base {
 			if (isset($pendings[$product->catelog->submit_order_tmplmsg]['mapping'])) {
 				$mapping = $pendings[$product->catelog->submit_order_tmplmsg]['mapping'];
 			} else {
-				$mapping = $modelTmpl->mappingById($product->catelog->submit_order_tmplmsg);
+				$mapping = $modelTmpl->byId($product->catelog->submit_order_tmplmsg);
 				if (false === $mapping) {
 					continue;
 				}

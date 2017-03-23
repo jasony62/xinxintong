@@ -131,11 +131,11 @@ class payok extends \xxt_base {
 		}
 		/**/
 		$modelProd = $this->model('matter\merchant\product');
-		$modelTmpl = $this->model('matter\tmplmsg');
+		$modelTmpl = $this->model('matter\tmplmsg\config');
 		$products = json_decode($order->products);
 		foreach ($products as $product) {
 			$product = $modelProd->byId($product->id, array('cascaded' => 'Y'));
-			$mapping = $modelTmpl->mappingById($product->catelog->pay_order_tmplmsg);
+			$mapping = $modelTmpl->byId($product->catelog->pay_order_tmplmsg);
 			if (false === $mapping) {
 				return false;
 			}

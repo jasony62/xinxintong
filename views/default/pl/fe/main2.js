@@ -1,12 +1,20 @@
-angular.module('app', ['ui.tms', 'ui.bootstrap', 'tmplshop.ui.xxt']).
+angular.module('app', ['ui.bootstrap', 'ui.tms', 'tmplshop.ui.xxt', 'service.matter']).
 config(['$uibTooltipProvider', function($uibTooltipProvider) {
     $uibTooltipProvider.setTriggers({
         'show': 'hide'
     });
-}]).controller('ctrlMain', ['$scope', 'http2', function($scope, http2) {
+}]).controller('ctrlMain', ['$scope', 'http2', 'srvUserNotice', function($scope, http2, srvUserNotice) {
     var url = '/rest/pl/fe/user/get?_=' + (new Date() * 1);
     http2.get(url, function(rsp) {
         $scope.loginUser = rsp.data;
+    });
+    $scope.closeNotice = function(log) {
+        srvUserNotice.closeNotice(log).then(function(rsp) {
+            $scope.notice.logs.splice($scope.notice.logs.indexOf(log), 1);
+        });
+    };
+    srvUserNotice.uncloseList().then(function(result) {
+        $scope.notice = result;
     });
 }]).controller('ctrlRecent', ['$scope', '$uibModal', 'http2', 'templateShop', function($scope, $uibModal, http2, templateShop) {
     var _fns = {

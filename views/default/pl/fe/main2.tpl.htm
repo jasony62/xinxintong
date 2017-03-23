@@ -19,9 +19,12 @@
                         <span class="icon-bar"></span>
                     </button>
                 </div>
-                <div class='collapse navbar-collapse' id='navbar-collapse-1'>
+                <div class='collapse navbar-collapse ng-cloak' ng-cloak id='navbar-collapse-1'>
                     <form class='navbar-form navbar-right'>
-                        <div class="btn-group ng-cloak" ng-cloak>
+                        <button class="btn btn-primary" ng-if="notice.page.total>0" uib-popover-template="'userNotice.html'" popover-title="未读消息" popover-placement="bottom" popover-append-to-body='true' popover-trigger="outsideClick" popover-class='user-notice'>
+                            <span class='glyphicon glyphicon-bell'></span>&nbsp;&nbsp;<span class="badge">{{notice.page.total}}</span>
+                        </button>
+                        <div class="btn-group">
                             <a href='' target='_self' class="btn btn-default"><i class='glyphicon glyphicon-user'></i> {{loginUser.nickname}}</a>
                             <button type="button" class="btn btn-default dropdown-toggle" data-toggle="dropdown">
                                 <span class="caret"></span>
@@ -235,6 +238,17 @@
                 </div>
             </div>
         </div>
+        <script type="text/ng-template" id="userNotice.html">
+            <div id="userNotice">
+                <div class='list-group'>
+                    <div class='list-group-item log' ng-repeat="log in notice.logs" ng-mouseenter="entered=true" ng-mouseleave="entered=false">
+                        <div>{{log._message}}</div>
+                        <div ng-if="!entered">{{log.batch.create_at*1000|date:'M月d日'}}</div>
+                        <div ng-if="entered"><button class='btn btn-default btn-sm' ng-click="closeNotice(log)"><span class='glyphicon glyphicon-ok'></span></button></div>
+                    </div>
+                </div>
+            </div>
+        </script>
         <script type="text/ng-template" id="addMatter.html">
             <div id="addMatter">
                 <div class='form-group'>
@@ -296,7 +310,9 @@
         <script src="/static/js/angular-sanitize.min.js"></script>
         <script src="/static/js/ui-bootstrap-tpls.min.js"></script>
         <script src="/static/js/ui-tms.js"></script>
-        <script src="/static/js/xxt.ui.tmplshop.js?_=2"></script>
+        <script src="/static/js/xxt.ui.js?_=1"></script>
+        <script src="/static/js/xxt.ui.tmplshop.js?_=1"></script>
+        <script src="/views/default/pl/fe/_module/matter.service.js"></script>
         <script src="/views/default/pl/fe/main2.js"></script>
     </body>
 </html>

@@ -3,7 +3,7 @@ namespace pl\fe\matter\enroll;
 
 require_once dirname(dirname(__FILE__)) . '/base.php';
 /*
- *
+ * 给登记用户发送通知
  */
 class notice extends \pl\fe\matter\base {
 	/**

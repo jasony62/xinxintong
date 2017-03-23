@@ -28,11 +28,11 @@ class receiver_model extends \TMS_MODEL {
 	public function &byApp($siteId, $aid, $options = array()) {
 		$fields = isset($options['fields']) ? $options['fields'] : '*';
 
-		$q = array(
+		$q = [
 			$fields,
 			'xxt_enroll_receiver',
-			"aid='$aid'",
-		);
+			['aid' => $aid],
+		];
 
 		$receivers = $this->query_objs_ss($q);
 

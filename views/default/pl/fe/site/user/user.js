@@ -28,25 +28,24 @@ define(['require'], function(require) {
             .otherwise(new RouteParam('details', true));
         $lp.html5Mode(true);
     }]);
-    ngApp.controller('ctrlUser', ['$scope', 'srvSite', function($scope, srvSite) {
+    ngApp.controller('ctrlUser', ['$scope', 'srvSite', 'http2', function($scope, srvSite, http2) {
+        var params = {
+            siteId :  location.search.match(/site=([^&]*)/)[1],
+            userId :  location.search.match(/user=([^&]*)/)[1]
+        };
+        $scope.siteId = params.siteId;
+        $scope.userId = params.userId;
         $scope.subView = '';
-        $scope.$root.catelogs = [];
-        $scope.catelog = null;
         $scope.$on('$locationChangeSuccess', function(event, currentRoute) {
             var subView = currentRoute.match(/([^\/]+?)\?/);
-            $scope.subView = subView[1] === 'user' ? 'details' : subView[1];
-        });
-        //?
-        $scope.$root.$watchCollection('catelogs', function(catelogs) {
-            if (catelogs && catelogs.length) {
-                $scope.catelog = catelogs[0];
-            }
+            $scope.subView = subView[1] === 'user.tpl.htm' ? 'details' : subView[1];
         });
         srvSite.get().then(function(site) {
             $scope.site = site;
         });
-        $scope.siteid = '79feceb6363510a25c13bb56416c15c9';
-        $scope.userid = '58d21dd709099';
+        http2.get('/rest/pl/fe/site/member/schema/list?site=' + params.siteId, function(rsp) {
+            $scope.memberSchemas = rsp.data;
+        });
     }]);
     /***/
     require(['domReady!'], function(document) {

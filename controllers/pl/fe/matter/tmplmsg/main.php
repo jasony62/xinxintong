@@ -41,7 +41,7 @@ class main extends \pl\fe\matter\base {
 		if (false === ($user = $this->accountUser())) {
 			return new \ResponseTimeout();
 		}
-		$mapping = $this->model('matter\tmplmsg')->mappingById($id);
+		$mapping = $this->model('matter\tmplmsg\config')->byId($id);
 
 		return new \ResponseData($mapping);
 	}

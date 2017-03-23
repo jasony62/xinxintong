@@ -104,12 +104,12 @@ class order extends \mp\app\app_base {
 	 */
 	private function _notify($mpid, $order) {
 		$modelProd = $this->model('app\merchant\product');
-		$modelTmpl = $this->model('matter\tmplmsg');
+		$modelTmpl = $this->model('matter\tmplmsg\config');
 		$products = json_decode($order->products);
 		foreach ($products as $product) {
 			/**/
 			$product = $modelProd->byId($product->id, array('cascaded' => 'Y'));
-			$mapping = $modelTmpl->mappingById($product->catelog->feedback_order_tmplmsg);
+			$mapping = $modelTmpl->byId($product->catelog->feedback_order_tmplmsg);
 			if (false === $mapping) {
 				return false;
 			}

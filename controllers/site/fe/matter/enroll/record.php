@@ -179,7 +179,7 @@ class record extends base {
 		 * 通知登记活动事件接收人
 		 */
 		if ($enrollApp->notify_submit === 'Y') {
-			$this->_notifyReceivers($site, $enrollApp, $ek);
+			$this->_notifyReceivers($enrollApp, $ek);
 		}
 
 		return new \ResponseData($ek);
@@ -290,142 +290,53 @@ class record extends base {
 	 * @param string $ek
 	 *
 	 */
-	private function _notifyReceivers($siteId, &$app, $ek) {
-		$receivers = $this->model('matter\enroll\receiver')->byApp($siteId, $app->id);
+	private function _notifyReceivers(&$oApp, $ek) {
+		$receivers = $this->model('matter\enroll\receiver')->byApp($oApp->siteid, $oApp->id);
 		if (count($receivers) === 0) {
-			return [false];
+			return false;
 		}
 		/* 获得活动的管理员链接 */
-		$appURL = 'http://' . $_SERVER['HTTP_HOST'];
-		$appURL .= "/rest/site/op/matter/enroll?site={$siteId}&app={$app->id}";
+		$appURL = $this->model('matter\enroll')->getOpUrl($oApp->siteid, $oApp->id);
 		$modelQurl = $this->model('q\url');
-		$user = new \stdClass;
-		$task = $modelQurl->byUrl($user, $siteId, $appURL);
-		if (false === $task) {
-			return [false];
+		$noticeURL = $modelQurl->urlByUrl($oApp->siteid, $appURL);
+		/* 模板消息参数 */
+		$params = new \stdClass;
+		$notice = $this->model('site\notice')->byName($oApp->siteid, 'site.enroll.submit');
+		if ($notice === false) {
+			return false;
 		}
-		$noticeURL = 'http://' . $_SERVER['HTTP_HOST'];
-		$noticeURL .= "/q/{$task->code}";
-		$yxProxy = $wxProxy = null;
+		$tmplConfig = $this->model('matter\tmplmsg\config')->byId($notice->tmplmsg_config_id, ['cascaded' => 'Y']);
+		if (!isset($tmplConfig->tmplmsg)) {
+			return false;
+		}
+		foreach ($tmplConfig->tmplmsg->params as $param) {
+			$mapping = $tmplConfig->mapping->{$param->pname};
+			if ($mapping->src === 'matter') {
+				if (isset($oApp->{$mapping->id})) {
+					$value = $oApp->{$mapping->id};
+				}
+			} else if ($mapping->src === 'text') {
+				$value = $mapping->name;
+			}
+			!isset($value) && $value = '';
+			$params->{$param->pname} = $value;
+		}
+		$noticeURL && $params->url = $noticeURL;
 
-		foreach ($receivers as $receiver) {
-			if (empty($receiver->sns_user)) {
-				continue;
-			}
-			$snsUser = json_decode($receiver->sns_user);
-
-			if ($snsUser->src === 'yx' && isset($snsUser->openid)) {
-				if ($yxProxy === null) {
-					$yxConfig = $this->model('sns\yx')->bySite($siteId);
-					if ($yxConfig->joined === 'Y' && $yxConfig->can_p2p === 'Y') {
-						$yxProxy = $this->model('sns\yx\proxy', $yxConfig);
-					} else {
-						$yxProxy = false;
-					}
-					$msg = '【' . $app->title . "】有新信息，请处理";
-					$message = [
-						'msgtype' => 'news',
-						'news' => [
-							'articles' => [
-								[
-									'title' => $app->title,
-									'description' => $msg,
-									'url' => $noticeURL,
-									'picurl' => $app->pic,
-								],
-							],
-						],
-					];
-				}
-				if ($yxProxy !== false && isset($message)) {
-					$rst = $yxProxy->messageSend($message, array($snsUser->openid));
-				}
-			}
-			/* 微信号要通过模板消息发 */
-			if ($snsUser->src === 'wx' && isset($snsUser->openid)) {
-				if ($wxProxy === null) {
-					$wxSiteId = $receiver->siteid;
-					$modelWx = $this->model('sns\wx');
-					$wxConfig = $modelWx->bySite($wxSiteId);
-					if ($wxConfig->joined === 'Y') {
-						$wxProxy = $this->model('sns\wx\proxy', $wxConfig);
-					} else {
-						$wxProxy = false;
-					}
-					/* 模版消息定义 */
-					$notice = $this->model('site\notice')->byName($wxSiteId, 'site.enroll.submit');
-					if ($notice) {
-						$tmplConfig = $this->model('matter\tmplmsg\config')->byId($notice->tmplmsg_config_id, ['cascaded' => 'Y']);
-						/* 拼装模版消息 */
-						$data = [];
-						if (isset($tmplConfig->tmplmsg)) {
-							foreach ($tmplConfig->tmplmsg->params as $param) {
-								$mapping = $tmplConfig->mapping->{$param->pname};
-								if ($mapping->src === 'matter') {
-									if (isset($app->{$mapping->id})) {
-										$value = $app->{$mapping->id};
-									}
-								} else if ($mapping->src === 'text') {
-									$value = $mapping->name;
-								}
-								!isset($value) && $value = '';
-								$data[$param->pname] = [
-									'value' => $value,
-									'color' => '#173177',
-								];
-							}
-							$message = [
-								'template_id' => $tmplConfig->tmplmsg->templateid,
-								'data' => &$data,
-								'url' => $noticeURL,
-							];
-						}
-					}
-				}
-				/* 发送模版消息 */
-				if ($wxProxy !== false && isset($message)) {
-					$message['touser'] = $snsUser->openid;
-					$rst = $wxProxy->messageTemplateSend($message);
-					if ($rst[0] === false) {
-						return $rst;
-					}
-					$msgid = $rst[1]->msgid;
-					$model = $this->model();
-					/*记录日志*/
-					$log = [
-						'siteid' => $wxSiteId,
-						'mpid' => $wxSiteId,
-						'openid' => $snsUser->openid,
-						'tmplmsg_id' => $tmplConfig->tmplmsg->id,
-						'template_id' => $message['template_id'],
-						'data' => $model->escape(json_encode($message)),
-						'create_at' => time(),
-						'msgid' => $msgid,
-					];
-					$model->insert('xxt_log_tmplmsg', $log, false);
-				}
-			}
-			/* 企业号直接发文本 */
-			if (isset($snsUser->qy_openid)) {
-				$qyConfig = $this->model('sns\qy')->bySite($siteId);
-				if ($qyConfig->joined === 'Y') {
-					$qyProxy = $this->model('sns\qy\proxy', $qyConfig);
-					$msg = '【' . $app->title . "】有新登记，<a href='" . $noticeURL . "' >请处理</a> ";
-					$message = [
-						'touser' => $snsUser->qy_openid,
-						'msgtype' => 'text',
-						"text" => [
-							"content" => $msg,
-						],
-					];
-					if ($qyProxy !== false && isset($message)) {
-						$rst = $qyProxy->messageSend($message, $snsUser->qy_openid);
-					}
-				}
+		/* 发送消息 */
+		foreach ($receivers as &$receiver) {
+			if (!empty($receiver->sns_user)) {
+				$snsUser = json_decode($receiver->sns_user);
+				!empty($snsUser->wx) && $receiver->wx_openid = $snsUser->wx;
+				!empty($snsUser->yx) && $receiver->yx_openid = $snsUser->yx;
+				!empty($snsUser->qy) && $receiver->qy_openid = $snsUser->qy;
 			}
 		}
 
-		return array(true);
+		$modelTmplBat = $this->model('matter\tmplmsg\plbatch');
+		$modelTmplBat->send($oApp->siteid, $tmplConfig->msgid, $receivers, $params, ['event_name' => 'site.enroll.submit', 'send_from' => 'enroll:' . $oApp->id . ':' . $ek]);
+
+		return true;
 	}
 	/**
 	 * 分段上传文件
@@ -433,6 +344,7 @@ class record extends base {
 	 * @param string $site
 	 * @param string $app
 	 * @param string $submitKey
+	 *
 	 */
 	public function uploadFile_action($site, $app, $submitkey = '') {
 		/* support CORS */

@@ -187,9 +187,11 @@ class stat extends \pl\fe\matter\base {
 					$html .= "<table><thead><tr>";
 					$html .= "<th>序号</th>";
 					for ($i = 0, $l = 1; $i < $l; $i++) {
+						$sumNumber = 0;//数值型合计的列号
 						if(isset($records[$i]->marks)) {
 							foreach ($records[$i]->marks as $mark) {
 								$html .= "<th>" . $mark['name'] . "</th>";
+								$sumNumber++;
 							}
 						}
 					}
@@ -207,7 +209,13 @@ class stat extends \pl\fe\matter\base {
 						$html .= "<td>{$record->value}</td></tr>";
 					}
 					if(isset($textResult->sum) ){
-						$html .= "<tr><td>总数</td><td>".$textResult->sum."</td></tr>";
+						$html .= "<tr><td>总数</td>";
+						if($sumNumber > 0){
+							for($i = 0, $j = $sumNumber; $i < $j; $i++) {
+								$html .= "<td> </td>";
+							}
+						}
+						$html .= "<td>".$textResult->sum."</td></tr>";
 					}
 					$html .= "</tbody></table>";
 				}

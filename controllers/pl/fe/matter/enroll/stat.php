@@ -183,6 +183,7 @@ class stat extends \pl\fe\matter\base {
 			if (in_array($schema->type, ['name', 'email', 'mobile', 'date', 'location', 'shorttext', 'longtext'])) {
 				$textResult = $modelRec->list4Schema($site, $app, $schema->id, ['rid' => 'ALL'], $marks);
 				if (!empty($textResult->records)) {
+					
 					//数值型的饼图
 					if(isset($schema->number) && $schema->number === 'Y'){
 						$data = [];
@@ -217,10 +218,13 @@ class stat extends \pl\fe\matter\base {
 						//
 						$html .= '<img src="' . $schema->id . '.base64" />';
 					}
+					
+					//拼装表格
 					$records = $textResult->records;
 					$html .= "<table><thead><tr>";
 					$html .= "<th>序号</th>";
 					$sumNumber = 0;//数值型合计的列号
+					//标识
 					foreach ($textResult->markNames as $markName) {
 						$html .= "<th>" . $markName['name'] . "</th>";
 						$sumNumber++;
@@ -231,12 +235,13 @@ class stat extends \pl\fe\matter\base {
 						$html .= "<tr>";
 						$record = $records[$i];
 						$html .= "<td>" . ($i + 1) . "</td>";
+						//标识
 						foreach ($records[$i]->marks as $mark) {
 							$html .= "<td>" . $mark['value'] . "</td>";
 						}
 						$html .= "<td>{$record->value}</td></tr>";
 					}
-					if(isset($textResult->sum) ){
+					if(isset($textResult->sum) ){//数值型显示合计
 						$html .= "<tr><td>合计</td>";
 						if($sumNumber > 0){
 							for($i = 0, $j = $sumNumber; $i < $j; $i++) {

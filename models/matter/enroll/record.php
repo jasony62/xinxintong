@@ -776,6 +776,7 @@ class record_model extends \TMS_MODEL {
 			//如果是数值型计算合计值
 			$data_schemas = json_decode($app->data_schemas);
 			foreach ($data_schemas as $data_schema) {
+				//判断是否是数值型
 				if($data_schema->id === $schemaId && isset($data_schema->number) && $data_schema->number === 'Y'){
 					$q = [
 						'sum(value)',
@@ -792,9 +793,9 @@ class record_model extends \TMS_MODEL {
 			//标识
 			if(!empty($marks) ){
 				foreach ($records as $record) {
-					$recordsMarkName = [];
-					$recordsMarks = [];
-					$keyNum = 0;
+					$recordsMarkName = [];//标识题目名称
+					$recordsMarks = [];//标识的值
+					$keyNum = 0;//$i
 					foreach ($marks as $mark) {
 						if($mark->id === $schemaId){
 							continue;

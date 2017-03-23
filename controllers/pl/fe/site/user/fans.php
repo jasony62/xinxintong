@@ -36,7 +36,7 @@ class fans extends \pl\fe\base {
 
 		if(!empty($user->yx_openid)){
 			$user->yx=$model->query_obj_ss([
-				'f.*,g.name',
+				'f.*,g.name as group_name',
 				'xxt_site_yxfan f,xxt_site_yxfangroup g',
 				"f.siteid='$site' and f.openid='$user->yx_openid' and f.groupid=g.id"
 			]);
@@ -44,7 +44,7 @@ class fans extends \pl\fe\base {
 
 		if(!empty($user->wx_openid)){
 			$user->wx=$model->query_obj_ss([
-				'f.*,g.name',
+				'f.*,g.name as group_name',
 				'xxt_site_wxfan f,xxt_site_wxfangroup g',
 				"f.siteid='$site' and f.openid='$user->wx_openid' and f.groupid=g.id"
 			]);

@@ -156,8 +156,8 @@ class stat extends \pl\fe\matter\base {
 
 		$app = $this->model('matter\enroll')->byId($app, ['cascaded' => 'N']);
 		//获取标识
-		if(!empty($enrollApp->rp_mark)){
-			$marks = json_decode($enrollApp->rp_mark);
+		if(!empty($app->rp_mark)){
+			$marks = json_decode($app->rp_mark);
 		}else{
 			$marks = null;
 		}
@@ -220,14 +220,10 @@ class stat extends \pl\fe\matter\base {
 					$records = $textResult->records;
 					$html .= "<table><thead><tr>";
 					$html .= "<th>序号</th>";
-					for ($i = 0, $l = 1; $i < $l; $i++) {
-						$sumNumber = 0;//数值型合计的列号
-						if(isset($records[$i]->marks)) {
-							foreach ($records[$i]->marks as $mark) {
-								$html .= "<th>" . $mark['name'] . "</th>";
-								$sumNumber++;
-							}
-						}
+					$sumNumber = 0;//数值型合计的列号
+					foreach ($textResult->markNames as $markName) {
+						$html .= "<th>" . $markName['name'] . "</th>";
+						$sumNumber++;
 					}
 					$html .= "<th>登记内容</th></tr></thead>";
 					$html .= "<tbody>";
@@ -235,10 +231,8 @@ class stat extends \pl\fe\matter\base {
 						$html .= "<tr>";
 						$record = $records[$i];
 						$html .= "<td>" . ($i + 1) . "</td>";
-						if(isset($records[$i]->marks)) {
-							foreach ($records[$i]->marks as $mark) {
-								$html .= "<td>" . $mark['value'] . "</td>";
-							}
+						foreach ($records[$i]->marks as $mark) {
+							$html .= "<td>" . $mark['value'] . "</td>";
 						}
 						$html .= "<td>{$record->value}</td></tr>";
 					}

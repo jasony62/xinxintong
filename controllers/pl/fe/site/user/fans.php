@@ -15,13 +15,13 @@ class fans extends \pl\fe\base {
 	 *
 	 */
 	public function index_action() {
-		\TPL::output('/pl/fe/site/user/');
+		\TPL::output('/pl/fe/site/user/user');
 		die();
 	}
 	/**
 	 * 根据uid（userid）获取公众号用户信息
 	 */
-	public function getInfo_action($site,$uid){
+	public function getSnsInfo_action($site,$uid){
 		$model=$this->model();
 
 		$user=$model->query_obj_ss([
@@ -51,11 +51,41 @@ class fans extends \pl\fe\base {
 		}
 
 		if(!empty($user->qy_openid)){
-			$user->qy=$model->query_obj_ss([
+			$one=$model->query_obj_ss([
 				'*',
 				'xxt_site_qyfan',
 				"siteid='$site' and openid='$user->qy_openid'"
 			]);
+			//获取所属部门
+			if(!empty($one->depts)){
+				$depts=json_decode($one->depts);
+
+				foreach ($depts as $v1) {
+					$arr=array();
+					foreach ($v1 as $v2) {
+						$arr[]=$model->query_val_ss([
+							'name',
+							'xxt_site_member_department',
+							"siteid='$site' and id='$v2'"
+						]);
+					}
+					$brr[]=(object)$arr;
+				}
+
+				$one->depts_name=(object) $brr;
+			}
+			//获取成员标签
+			if(!empty($one->tags)){
+				$arr=explode(',',$one->tags);
+
+				foreach ($arr as $v) {
+					$tag[$v]=$model->query_val_ss(['name','xxt_site_member_tag',"siteid='$site' and id='$v'"]);
+				}
+
+				isset($tag) && $one->tag_name=(object) $tag;
+			}
+
+			$user->qy=$one;
 		}
 
 		return new \ResponseData($user);
@@ -165,8 +195,13 @@ class fans extends \pl\fe\base {
 	/**
 	 * 更新粉丝信息
 	 */
-	public function update_action($openid) {
-		$mpa = $this->model('mp\mpaccount')->byId($this->mpid);
+	public function update_action($site,$openid) {
+		$model=$this->model();
+		$src = $model->query_val_ss([
+			'ufrom',
+			'xxt_site_account',
+			"siteid='$site' and (yx_openid='$openid' or wx_openid='$openid' or qy_openid='$openid')"
+		]);
 
 		$nv = $this->getPostJson();
 		/**
@@ -176,20 +211,21 @@ class fans extends \pl\fe\base {
 			/**
 			 * 更新公众平台上的数据
 			 */
-			$mpproxy = $this->model('mpproxy/' . $mpa->mpsrc, $this->mpid);
-			$rst = $mpproxy->groupsMembersUpdate($openid, $nv->groupid);
+			$config=$model->query_obj_ss(['*','xxt_site_'.$src,"siteid='$site'"]);
+			$proxy = $this->model('sns/' . $src.'/proxy', $config);
+			$rst = $proxy->groupsMembersUpdate($openid, $nv->groupid);
+
 			if ($rst[0] === false) {
 				return new \ResponseError($rst[1]);
 			}
-
 		}
 		/**
 		 * 更新本地数据
 		 */
-		$rst = $this->model()->update(
-			'xxt_fans',
+		$rst = $model->update(
+			'xxt_site_'.$src.'fan',
 			(array) $nv,
-			"mpid='$this->mpid' and openid='$openid'"
+			"siteid='$site' and openid='$openid'"
 		);
 
 		return new \ResponseData($rst);

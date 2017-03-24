@@ -247,14 +247,21 @@ class fans extends \pl\fe\base {
 	 * $nextOpenid
 	 *
 	 */
-	public function refreshAll_action($step = 0, $nextOpenid = '') {
+	public function refreshAll_action($site,$src='wx',$step = 0, $nextOpenid = '') {
+		$model=$this->model();
+
+		if(in_array($src, ['wx','yx'])){
+			$config=$model->query_obj_ss(['*','xxt_site_'.$src,"siteid='$site'"]);
+			$proxy=$this->model('sns\\'.$src.'\\proxy',$config);
+		}else{
+			return new \ResponseError('公众号类型不支持！');
+		}
+
 		if ($step === 0) {
-			$mpa = $this->getMpaccount();
 			$fansCount = 0;
 			/**
 			 * 获得所有粉丝的openid
 			 */
-			$proxy = $this->model("mpproxy/$mpa->mpsrc", $this->mpid);
 			$rst = $proxy->userGet($nextOpenid);
 			if (false === $rst[0]) {
 				return new \ResponseError($rst[1]);
@@ -272,7 +279,6 @@ class fans extends \pl\fe\base {
 			$total = $stack['total'];
 			$fansCount = $stack['fansCount'];
 			$openids = $stack['openids'];
-			$proxy = $this->model("mpproxy/$mpa->mpsrc", $this->mpid);
 		}
 		/**
 		 * 更新粉丝
@@ -280,7 +286,7 @@ class fans extends \pl\fe\base {
 		if (!empty($openids)) {
 			$current = time();
 			$ins = array(
-				'mpid' => $this->mpid,
+				'siteid' => $site,
 				'subscribe_at' => $current,
 				'sync_at' => $current,
 			);
@@ -301,7 +307,7 @@ class fans extends \pl\fe\base {
 				$finish++;
 				unset($openids[$index]);
 
-				$lfan = $this->model('user/fans')->byOpenid($this->mpid, $openid);
+				$lfan = $model->query_obj_ss(['*','xxt_site_'.$src.'fan',"siteid='$site' and openid='$openid'"]);
 				if ($lfan && $lfan->sync_at + 43200 > $current) {
 					/* 一小时之内不同步 */
 					continue;
@@ -322,7 +328,7 @@ class fans extends \pl\fe\base {
 						 * 更新关注状态粉丝信息
 						 */
 						$upd = array(
-							'nickname' => $this->model()->escape($rfan->nickname),
+							'nickname' => $model->escape($rfan->nickname),
 							'sex' => $rfan->sex,
 							'city' => $rfan->city,
 							'groupid' => $rfan->groupid,
@@ -332,21 +338,20 @@ class fans extends \pl\fe\base {
 						isset($rfan->headimgurl) && $upd['headimgurl'] = $rfan->headimgurl;
 						isset($rfan->province) && $upd['province'] = $rfan->province;
 						isset($rfan->country) && $upd['country'] = $rfan->country;
-						$this->model()->update(
-							'xxt_fans',
+						$model->update(
+							'xxt_site_'.$src.'fan',
 							$upd,
-							"mpid='$this->mpid' and openid='$openid'"
+							"siteid='$site' and openid='$openid'"
 						);
 						$fansCount++;
 					} else {
 						/**
 						 * 新粉丝
 						 */
-						$ins['fid'] = $this->model('user/fans')->calcId($this->mpid, $openid);
 						$ins['openid'] = $openid;
 						if ($info[0]) {
 							$ins['groupid'] = $rfan->groupid;
-							$ins['nickname'] = $this->model()->escape($rfan->nickname);
+							$ins['nickname'] = $model->escape($rfan->nickname);
 							$ins['sex'] = $rfan->sex;
 							$ins['city'] = $rfan->city;
 							isset($rfan->subscribe_time) && $ins['subscribe_at'] = $rfan->subscribe_time;
@@ -354,7 +359,7 @@ class fans extends \pl\fe\base {
 							isset($rfan->headimgurl) && $ins['headimgurl'] = $rfan->headimgurl;
 							isset($rfan->province) && $ins['province'] = $rfan->province;
 							isset($rfan->country) && $ins['country'] = $rfan->country;
-							$this->model()->insert('xxt_fans', $ins, false);
+							$model->insert('xxt_site_'.$src.'fan', $ins, false);
 							$fansCount++;
 						}
 					}

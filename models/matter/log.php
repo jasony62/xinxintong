@@ -489,7 +489,7 @@ class log_model extends \TMS_MODEL {
 		}
 		$q2 = [
 			'r' => ['o' => ($page->at - 1) * $page->size, 'l' => $page->size],
-			'o' => ['operate_at desc'],
+			'o' => ['top desc','operate_at desc'],
 		];
 
 		$matters = $this->query_objs_ss($q, $q2);

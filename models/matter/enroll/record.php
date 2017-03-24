@@ -793,7 +793,7 @@ class record_model extends \TMS_MODEL {
 						}
 					}
 
-					$sum = (int) $this->query_val_ss($p,$q2);
+					$sum = (int) $this->query_val_ss($p);
 					$result->sum = $sum;
 
 					break;

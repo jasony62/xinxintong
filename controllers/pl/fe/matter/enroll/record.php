@@ -106,11 +106,11 @@ class record extends \pl\fe\matter\base {
 
 		/* 处理数据 */
 		$updated = new \stdClass;
+		$rst = false;
 		if(isset($posted->mark) && !empty($posted->mark)){
 			$updated->rp_mark = $modelApp->toJson($posted->mark);
+			$rst = $modelApp->update('xxt_enroll', $updated, ["id" => $app]);
 		}
-
-		$rst = $modelApp->update('xxt_enroll', $updated, ["id" => $app]);
 
 		return new \ResponseData($rst);
 	}

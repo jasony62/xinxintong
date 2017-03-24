@@ -795,15 +795,14 @@ class record_model extends \TMS_MODEL {
 				foreach ($records as $record) {
 					$recordsMarkName = [];//标识题目名称
 					$recordsMarks = [];//标识的值
-					$keyNum = 0;//$i
-					foreach ($marks as $mark) {
+					foreach ($marks as $key => $mark) {
 						// if($mark->id === $schemaId){
 						// 	continue;
 						// }
 						if($mark->id === 'nickname'){
-							$recordsMarkName[$keyNum]['name'] = '昵称';
-							$recordsMarks[$keyNum]['name'] = '昵称';
-							$recordsMarks[$keyNum]['value'] = $record->nickname;
+							$recordsMarkName[$key]['name'] = '昵称';
+							$recordsMarks[$key]['name'] = '昵称';
+							$recordsMarks[$key]['value'] = $record->nickname;
 						}else{
 							$p = [
 								'value',
@@ -812,20 +811,18 @@ class record_model extends \TMS_MODEL {
 							];
 							$recordsMark = $this->query_obj_ss($p);
 							if($recordsMark){
-								$recordsMarkName[$keyNum]['name'] = $mark->name;
-								$recordsMarks[$keyNum]['name'] = $mark->name;
-								$recordsMarks[$keyNum]['value'] = $recordsMark->value;
+								$recordsMarkName[$key]['name'] = $mark->name;
+								$recordsMarks[$key]['name'] = $mark->name;
+								$recordsMarks[$key]['value'] = $recordsMark->value;
 							}else{
-								$recordsMarkName[$keyNum]['name'] = $mark->name;
-								$recordsMarks[$keyNum]['name'] = $mark->name;
-								$recordsMarks[$keyNum]['value'] = '';
+								$recordsMarkName[$key]['name'] = $mark->name;
+								$recordsMarks[$key]['name'] = $mark->name;
+								$recordsMarks[$key]['value'] = '';
 							}
 						}
-						$keyNum++;
 					}
 					$record->marks = $recordsMarks;
 				}
-				$result->markNames = $recordsMarkName;
 			}else{
 				foreach ($records as $record) {
 					$recordsMarkName[0]['name'] = '昵称';
@@ -833,15 +830,27 @@ class record_model extends \TMS_MODEL {
 					$recordsMarks[0]['value'] = $record->nickname;
 					$record->marks = $recordsMarks;
 				}
-				$result->markNames = $recordsMarkName;
 			}
 			$result->records = $records;
+			//作为标识的题目的名称
+			$result->markNames = $recordsMarkName;
 
 			// 符合条件的数据总数
 			$q[0] = 'count(*)';
 			$total = (int) $this->query_val_ss($q);
 			$result->total = $total;
 
+		}else{//因为markname无论查询是否成功都必须返回前端
+			$recordsMarkName = [];
+			if(!empty($app->rp_mark)){
+				$marks = json_decode($app->rp_mark);
+				foreach ($marks as $key => $mark) {
+					$recordsMarkName[$key]['name'] = $mark->name;
+				}
+			}else{
+				$recordsMarkName[0]['name'] = '昵称';
+			}
+			$result->markNames = $recordsMarkName;
 		}
 
 		return $result;

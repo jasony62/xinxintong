@@ -64,9 +64,9 @@
                                 <td ng-repeat='m in record.marks' ng-if="m.value!=record.value">{{m.value}}</td>
                                 <td>{{record.value}}</td>
                             </tr>
-                            <tr>
-                                <td>合计</td>
-                                <td>{{sum}}</td>
+                            <tr class='text-center'>
+                                <td>登记总和</td>
+                                <td  colspan={{markNames.length}}>{{sum}}</td>
                             </tr>
                         </tbody>
                     </table>
@@ -93,7 +93,10 @@
                                 <td>{{record.value*1000|date:'yy-MM-dd HH:mm'}}</td>
                             </tr>
                             <tr ng-repeat="record in getRecords(schema,page)" ng-switch-default>
-                                <td ng-repeat='m in record.marks' ng-if="m.value!=record.value">{{m.value}}</td>
+                                <td ng-repeat='m in record.marks' ng-if="m.value!=record.value">
+                                    <span ng-if="m.name!='日期'">{{m.value}}</span>
+                                    <span ng-if="m.name=='日期'">{{m.value*1000|date:'yy-MM-dd HH:mm'}}</span>
+                                </td>
                                 <td>{{record.value}}</td>
                             </tr>
                         </tbody>

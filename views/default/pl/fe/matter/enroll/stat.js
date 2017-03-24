@@ -232,7 +232,6 @@ define(['frame'], function(ngApp) {
                         } else if(schema.number && schema.number == 'Y') {
                             $scope.itemNum = rsp.data;
                             $scope.sum = rsp.data.sum;
-                            $scope.recordsLen = rsp.data.records.length;
                             drawNumPie($scope.itemNum,schema);
                         }
                         cached.records = rsp.data.records;

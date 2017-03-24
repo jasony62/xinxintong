@@ -377,7 +377,7 @@ class fans extends \pl\fe\base {
 
 		if(empty($src)){
 			$result=array(false,'找不到用户的注册信息');
-			
+
 			return $result;
 		}
 
@@ -424,9 +424,38 @@ class fans extends \pl\fe\base {
 				$qy->updateQyFan($site,$luser, $user, $authid, $time);
 			}
 			
-			$fan = $qy->query_obj_ss(['*','xxt_site_qyfan',"siteid='$site' and openid='$openid'"]);
+			$one = $qy->query_obj_ss(['*','xxt_site_qyfan',"siteid='$site' and openid='$openid'"]);
 
-			return new \ResponseData($fan);
+			//获取所属部门
+			if(!empty($one->depts)){
+				$depts=json_decode($one->depts);
+
+				foreach ($depts as $v1) {
+					$arr=array();
+					foreach ($v1 as $v2) {
+						$arr[]=$model->query_val_ss([
+							'name',
+							'xxt_site_member_department',
+							"siteid='$site' and id='$v2'"
+						]);
+					}
+					$brr[]=(object)$arr;
+				}
+
+				$one->depts_name=(object) $brr;
+			}
+			//获取成员标签
+			if(!empty($one->tags)){
+				$arr=explode(',',$one->tags);
+				
+				foreach ($arr as $v) {
+					$tag[$v]=$model->query_val_ss(['name','xxt_site_member_tag',"siteid='$site' and id='$v'"]);
+				}
+
+				isset($tag) && $one->tag_name=(object) $tag;
+			}
+
+			return new \ResponseData($one);
 		} else {
 			$info = $this->getFanInfo($site, $openid, true);
 			if ($info[0] === false) {

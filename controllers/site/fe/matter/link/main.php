@@ -28,7 +28,7 @@ class main extends \site\fe\matter\base {
 					$url .= (strpos($url, '?') === false) ? '?' : '&';
 					$url .= $this->_spliceParams($this->siteId, $link->params);
 				}
-				header("Location: $url");
+				$this->redirect($url);
 			} elseif ($link->method == 'POST') {
 				if (isset($link->params)) {
 					$posted = $this->_spliceParams($this->siteId, $link->params);

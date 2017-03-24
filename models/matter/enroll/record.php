@@ -738,7 +738,7 @@ class record_model extends \TMS_MODEL {
 	 * [1] 数据总条数
 	 * [2] 数据项的定义
 	 */
-	public function list4Schema($siteId, &$app, $schemaId, $options = null, $marks = null) {
+	public function list4Schema($siteId, &$app, $schemaId, $options = null) {
 		if ($options) {
 			is_array($options) && $options = (object) $options;
 			$page = isset($options->page) ? $options->page : null;
@@ -791,10 +791,11 @@ class record_model extends \TMS_MODEL {
 				}
 			}
 			//标识
-			if(!empty($marks) ){
+			if(!empty($app->rp_mark) ){
+				$marks = json_decode($app->rp_mark);
 				foreach ($records as $record) {
 					$recordsMarkName = [];//标识题目名称
-					$recordsMarks = [];//标识的值
+					$recordsMarks = [];//标识
 					foreach ($marks as $key => $mark) {
 						// if($mark->id === $schemaId){
 						// 	continue;

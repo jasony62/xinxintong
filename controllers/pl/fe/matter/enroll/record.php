@@ -137,16 +137,10 @@ class record extends \pl\fe\matter\base {
 		// 登记活动
 		$modelApp = $this->model('matter\enroll');
 		$enrollApp = $modelApp->byId($app);
-		//获取标识
-		if(!empty($enrollApp->rp_mark)){
-			$marks = json_decode($enrollApp->rp_mark);
-		}else{
-			$marks = null;
-		}
 
 		// 查询结果
 		$mdoelRec = $this->model('matter\enroll\record');
-		$result = $mdoelRec->list4Schema($site, $enrollApp, $schema, $options, $marks);
+		$result = $mdoelRec->list4Schema($site, $enrollApp, $schema, $options);
 
 		return new \ResponseData($result);
 	}

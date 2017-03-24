@@ -115,10 +115,10 @@ define(['main'], function(ngApp) {
 				}
 			});
 		};
-		$scope.syns = function(openId){
+		$scope.sync = function(openId){
 			//普通用户的标识，对当前公众号唯一 openid
 			var url  = '/rest/mp/user/fans/refreshOne?site='+ $scope.siteId + '&openid=' + openId;
-			http.get(url, function(rsp){
+			http2.get(url, function(rsp){
 				noticebox('完成同步');
 			})
 		}

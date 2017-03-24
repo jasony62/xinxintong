@@ -231,7 +231,7 @@ define(['frame'], function(ngApp) {
                             });
                         } else if(schema.number && schema.number == 'Y') {
                             $scope.itemNum = rsp.data;
-                            $scope.sum = rsp.data.sum;
+                            cached.sum = rsp.data.sum;
                             drawNumPie($scope.itemNum,schema);
                         }
                         cached.records = rsp.data.records;
@@ -268,6 +268,7 @@ define(['frame'], function(ngApp) {
 
             if (cached = _cacheOfRecordsBySchema[schema.id]) {
                 if (cached.page && cached.page.at === page.at) {
+                    $scope.sum = cached.sum;
                     return cached.records;
                 }
             }
@@ -393,7 +394,7 @@ define(['frame'], function(ngApp) {
             });
         });
         srvEnrollRound.list().then(function(result) {
-            result.rounds.splice(0,0,{id:'ALL',title:'全部'});
+            result.rounds.splice(0,0,{rid:'ALL',title:'全部'});
             $scope.rounds = result.rounds;
             if(rid) {
                 $scope.rounds.forEach(function(round) {

@@ -372,7 +372,7 @@ class fans extends \pl\fe\base {
 		$src = $model->query_val_ss([
 			'ufrom',
 			'xxt_site_account',
-			"yx_openid='$openid' or wx_openid='$openid' or qy_openid='$openid'"
+			"siteid='$site' and yx_openid='$openid' or wx_openid='$openid' or qy_openid='$openid'"
 		]);
 
 		$config=$model->query_objs_ss(['*','xxt_site_'.$src,"siteid='$site'"]);
@@ -392,7 +392,7 @@ class fans extends \pl\fe\base {
 	 * todo 从公众号获得粉丝的代码是否应该挪走？
 	 */
 	public function refreshOne_action($site,$openid) {
-		$qy=\TMS_APP::M('sns/qy/fan');
+		$qy=\TMS_APP::M('sns\qy\fan');
 		$src = $qy->query_val_ss([
 			'ufrom',
 			'xxt_site_account',

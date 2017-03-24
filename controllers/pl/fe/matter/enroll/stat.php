@@ -223,11 +223,13 @@ class stat extends \pl\fe\matter\base {
 					$records = $textResult->records;
 					$html .= "<table><thead><tr>";
 					$html .= "<th>序号</th>";
-					$sumNumber = 0;//数值型合计的列号
+					$sumNumber = 0;//数值型最后合计的列号
 					//标识
 					foreach ($textResult->markNames as $markName) {
-						$html .= "<th>" . $markName['name'] . "</th>";
-						$sumNumber++;
+						if($schema->title !== $markName['name']){
+							$html .= "<th>" . $markName['name'] . "</th>";
+							$sumNumber++;
+						}
 					}
 					$html .= "<th>登记内容</th></tr></thead>";
 					$html .= "<tbody>";
@@ -237,11 +239,14 @@ class stat extends \pl\fe\matter\base {
 						$html .= "<td>" . ($i + 1) . "</td>";
 						//标识
 						foreach ($records[$i]->marks as $mark) {
-							$html .= "<td>" . $mark['value'] . "</td>";
+							if($schema->title !== $mark['name']){
+								$html .= "<td>" . $mark['value'] . "</td>";
+							}
 						}
 						$html .= "<td>{$record->value}</td></tr>";
 					}
-					if(isset($textResult->sum) ){//数值型显示合计
+					//数值型显示合计
+					if(isset($textResult->sum) ){
 						$html .= "<tr><td>合计</td>";
 						if($sumNumber > 0){
 							for($i = 0, $j = $sumNumber; $i < $j; $i++) {

@@ -802,6 +802,7 @@ class record_model extends \TMS_MODEL {
 						// }
 						if($mark->id === 'nickname'){
 							$recordsMarkName[$keyNum]['name'] = '昵称';
+							$recordsMarks[$keyNum]['name'] = '昵称';
 							$recordsMarks[$keyNum]['value'] = $record->nickname;
 						}else{
 							$p = [
@@ -812,9 +813,11 @@ class record_model extends \TMS_MODEL {
 							$recordsMark = $this->query_obj_ss($p);
 							if($recordsMark){
 								$recordsMarkName[$keyNum]['name'] = $mark->name;
+								$recordsMarks[$keyNum]['name'] = $mark->name;
 								$recordsMarks[$keyNum]['value'] = $recordsMark->value;
 							}else{
 								$recordsMarkName[$keyNum]['name'] = $mark->name;
+								$recordsMarks[$keyNum]['name'] = $mark->name;
 								$recordsMarks[$keyNum]['value'] = '';
 							}
 						}
@@ -826,6 +829,7 @@ class record_model extends \TMS_MODEL {
 			}else{
 				foreach ($records as $record) {
 					$recordsMarkName[0]['name'] = '昵称';
+					$recordsMarks[0]['name'] = '昵称';
 					$recordsMarks[0]['value'] = $record->nickname;
 					$record->marks = $recordsMarks;
 				}

@@ -375,8 +375,15 @@ class fans extends \pl\fe\base {
 			"siteid='$site' and yx_openid='$openid' or wx_openid='$openid' or qy_openid='$openid'"
 		]);
 
-		$config=$model->query_objs_ss(['*','xxt_site_'.$src,"siteid='$site'"]);
-		$proxy = $this->model("sns/$src/proxy", $config);
+		if(empty($src)){
+			$result=array(false,'找不到用户的注册信息');
+			
+			return $result;
+		}
+
+		$config=$model->query_obj_ss(['*','xxt_site_'.$src,"siteid='$site'"]);
+		
+		$proxy = $this->model('sns\\'.$src.'\\proxy', $config);
 
 		if ($src == 'qy') {
 			$result = $proxy->userGet($openid);
@@ -400,12 +407,10 @@ class fans extends \pl\fe\base {
 		]);
 
 		if ($src === 'qy') {
-			$member = $this->model('user/member')->byOpenid($site, $openid);
-			if (count($member) !== 1) {
-				return new \ResponseError('数据错误', $member);
+			$authid = $qy->query_val_ss(['id','xxt_site_member_schema',"siteid='$site' and qy_ab='Y'"]);
+			if (empty($authid)) {
+				return new \ResponseError('没有设置自定义认证用户信息');
 			}
-
-			$member = $member[0];
 
 			$result = $this->getFanInfo($site, $openid, false);
 			if ($result[0] === false) {
@@ -416,10 +421,10 @@ class fans extends \pl\fe\base {
 			$time=time();
 			
 			if($luser=$qy->query_val_ss(['id','xxt_site_qyfan',"siteid='$site' and openid='$user->userid'"])){
-				$qy->updateQyFan($site,$luser, $user, $member->authapi_id, $time);
+				$qy->updateQyFan($site,$luser, $user, $authid, $time);
 			}
 			
-			$fan = \TMS_APP::M('user/fans')->byId($member->fid);
+			$fan = $qy->query_obj_ss(['*','xxt_site_qyfan',"siteid='$site' and openid='$openid'"]);
 
 			return new \ResponseData($fan);
 		} else {

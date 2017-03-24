@@ -77,12 +77,15 @@
                         </thead>
                         <tbody>
                             <tr ng-repeat="record in getRecords(schema,page)" ng-switch-when="image">
+                                <td ng-repeat='m in record.marks' ng-if="m.value!=record.value">{{m.value}}</td>
                                 <td><img ng-repeat="img in record.value" ng-src='{{img}}' /></td>
                             </tr>
                             <tr ng-repeat="record in getRecords(schema,page)" ng-switch-when="file">
+                                <td ng-repeat='m in record.marks' ng-if="m.value!=record.value">{{m.value}}</td>
                                 <td><span ng-repeat='file in record.value'><a href='{{file.url}}' target="_blank">{{file.name}}</a></span></td>
                             </tr>
                             <tr ng-repeat="record in getRecords(schema,page)" ng-switch-when="date">
+                                <td ng-repeat='m in record.marks' ng-if="m.value!=record.value">{{m.value}}</td>
                                 <td>{{record.value*1000|date:'yy-MM-dd HH:mm'}}</td>
                             </tr>
                             <tr ng-repeat="record in getRecords(schema,page)" ng-switch-default>

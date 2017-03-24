@@ -433,7 +433,7 @@ class fans extends \pl\fe\base {
 				foreach ($depts as $v1) {
 					$arr=array();
 					foreach ($v1 as $v2) {
-						$arr[]=$model->query_val_ss([
+						$arr[]=$qy->query_val_ss([
 							'name',
 							'xxt_site_member_department',
 							"siteid='$site' and id='$v2'"
@@ -449,7 +449,7 @@ class fans extends \pl\fe\base {
 				$arr=explode(',',$one->tags);
 				
 				foreach ($arr as $v) {
-					$tag[$v]=$model->query_val_ss(['name','xxt_site_member_tag',"siteid='$site' and id='$v'"]);
+					$tag[$v]=$qy->query_val_ss(['name','xxt_site_member_tag',"siteid='$site' and id='$v'"]);
 				}
 
 				isset($tag) && $one->tag_name=(object) $tag;

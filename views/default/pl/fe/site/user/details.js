@@ -105,7 +105,7 @@ define(['main'], function(ngApp) {
 						email_verified: rst.data.email_verified,
 						extattr: rst.data.extattr
 					};
-					http2.post(baseURL + 'memberUpd?site=' + $scope.siteId + '&id=' + member.id, newData, function(rsp) {
+					http2.post(baseURL + 'profile/memberUpd?site=' + $scope.siteId + '&id=' + member.id, newData, function(rsp) {
 						angular.extend(member, newData);
 					});
 				} else if (rst.action === 'remove') {

@@ -778,13 +778,22 @@ class record_model extends \TMS_MODEL {
 			foreach ($data_schemas as $data_schema) {
 				//判断是否是数值型
 				if($data_schema->id === $schemaId && isset($data_schema->number) && $data_schema->number === 'Y'){
-					$q = [
+					$p = [
 						'sum(value)',
 						'xxt_enroll_record_data',
 						['aid' => $app->id, 'name' => $schemaId, 'state' => 1],
 					];
-					$rid !== 'ALL' && !empty($rid) && $q[2]['rid'] = $rid;
-					$sum = (int) $this->query_val_ss($q);
+					if(!empty($rid)){
+						if($rid !== 'ALL'){
+							$p[2]['rid'] = $rid;
+						}
+					}else{
+						if ($activeRound = $this->model('matter\enroll\round')->getActive($app)) {
+							$p[2]['rid'] = $activeRound->rid;
+						}
+					}
+
+					$sum = (int) $this->query_val_ss($p,$q2);
 					$result->sum = $sum;
 
 					break;
@@ -838,7 +847,7 @@ class record_model extends \TMS_MODEL {
 
 			// 符合条件的数据总数
 			$q[0] = 'count(*)';
-			$total = (int) $this->query_val_ss($q);
+			$total = (int) $this->query_val_ss($q, $q2);
 			$result->total = $total;
 
 		}else{//因为markname无论查询是否成功都必须返回前端

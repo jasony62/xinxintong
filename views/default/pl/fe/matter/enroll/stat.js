@@ -231,6 +231,8 @@ define(['frame'], function(ngApp) {
                             });
                         } else if(schema.number && schema.number == 'Y') {
                             $scope.itemNum = rsp.data;
+                            $scope.sum = rsp.data.sum;
+                            $scope.recordsLen = rsp.data.records.length;
                             drawNumPie($scope.itemNum,schema);
                         }
                         cached.records = rsp.data.records;
@@ -278,12 +280,20 @@ define(['frame'], function(ngApp) {
                 templateUrl: 'showCondition.html',
                 controller: ['$scope', '$uibModalInstance', function($scope2, $mi) {
                     $scope2.appMarkSchemas = angular.copy($scope.markSchemas);
+                    $scope2.appMarkNames = angular.copy($scope.markNames);
                     $scope2.rows = {
                         selected: {},
                         reset: function() {
                             this.selected = {};
                         }
                     };
+                    $scope2.appMarkNames.forEach(function(item,index) {
+                        for(var i=0; i < $scope2.appMarkSchemas.length; i++) {
+                            if(item.name == $scope2.appMarkSchemas[i].title) {
+                                $scope2.rows.selected[i] = true;
+                            }
+                        }
+                    });
                     $scope2.ok = function() {
                         $mi.close($scope2.rows);
                     };

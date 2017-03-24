@@ -57,13 +57,16 @@
                             <tr>
                                 <th ng-repeat='m in markNames' ng-if="m.name != schema.title">{{m.name}}</th>
                                 <th>登记内容</th>
+                                <th>登记总和</th>
                             </tr>
                         </thead>
                         <tbody>
                             <tr ng-repeat="record in getRecords(schema,page)">
                                 <td ng-repeat='m in record.marks' ng-if="m.value!=record.value">{{m.value}}</td>
                                 <td>{{record.value}}</td>
+                                <td rowspan="{{recordsLen}}">{{sum}}</td>
                             </tr>
+
                         </tbody>
                     </table>
                 </div>

@@ -155,12 +155,6 @@ class stat extends \pl\fe\matter\base {
 		require_once TMS_APP_DIR . '/lib/jpgraph/jpgraph_line.php';
 
 		$app = $this->model('matter\enroll')->byId($app, ['cascaded' => 'N']);
-		//获取标识
-		if(!empty($app->rp_mark)){
-			$marks = json_decode($app->rp_mark);
-		}else{
-			$marks = null;
-		}
 
 		$schemas = json_decode($app->data_schemas);
 
@@ -181,7 +175,7 @@ class stat extends \pl\fe\matter\base {
 		foreach ($schemas as $index => $schema) {
 			$html .= "<h3><span>第" . ($index + 1) . "项：</span><span>{$schema->title}</span></h3>";
 			if (in_array($schema->type, ['name', 'email', 'mobile', 'date', 'location', 'shorttext', 'longtext'])) {
-				$textResult = $modelRec->list4Schema($site, $app, $schema->id, ['rid' => 'ALL'], $marks);
+				$textResult = $modelRec->list4Schema($site, $app, $schema->id, ['rid' => 'ALL']);
 				if (!empty($textResult->records)) {
 					
 					//数值型的饼图

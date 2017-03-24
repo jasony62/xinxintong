@@ -393,6 +393,7 @@ define(['frame'], function(ngApp) {
             });
         });
         srvEnrollRound.list().then(function(result) {
+            result.rounds.splice(0,0,{id:'ALL',title:'全部'});
             $scope.rounds = result.rounds;
             if(rid) {
                 $scope.rounds.forEach(function(round) {

@@ -85,7 +85,7 @@ class fans extends \pl\fe\base {
 			//获取成员标签
 			if(!empty($one->tags)){
 				$arr=explode(',',$one->tags);
-
+				
 				foreach ($arr as $v) {
 					$tag[$v]=$model->query_val_ss(['name','xxt_site_member_tag',"siteid='$site' and id='$v'"]);
 				}

@@ -35,19 +35,27 @@ class fans extends \pl\fe\base {
 		}
 
 		if(!empty($user->yx_openid)){
-			$user->yx=$model->query_obj_ss([
-				'f.*,g.name as group_name',
-				'xxt_site_yxfan f,xxt_site_yxfangroup g',
-				"f.siteid='$site' and f.openid='$user->yx_openid' and f.groupid=g.id"
+			$yx=$model->query_obj_ss([
+				'f.*',
+				'xxt_site_yxfan f',
+				"f.siteid='$site' and f.openid='$user->yx_openid'"
 			]);
+
+			!empty($yx->groupid) && $yx->group_name=$model->query_val_ss(['name','xxt_site_yxfangroup',"siteid='$site' and id='$yx->groupid'"]);
+
+			$user->yx=$yx;			
 		}
 
 		if(!empty($user->wx_openid)){
-			$user->wx=$model->query_obj_ss([
-				'f.*,g.name as group_name',
-				'xxt_site_wxfan f,xxt_site_wxfangroup g',
-				"f.siteid='$site' and f.openid='$user->wx_openid' and f.groupid=g.id"
+			$wx=$model->query_obj_ss([
+				'f.*',
+				'xxt_site_wxfan f',
+				"f.siteid='$site' and f.openid='$user->wx_openid'"
 			]);
+
+			!empty($wx->groupid) && $wx->group_name=$model->query_val_ss(['name','xxt_site_wxfangroup',"siteid='$site' and id='$wx->groupid'"]);
+
+			$user->wx=$wx;		
 		}
 
 		if(!empty($user->qy_openid)){

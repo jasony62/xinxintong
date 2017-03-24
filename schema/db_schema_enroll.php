@@ -74,7 +74,7 @@ $sql .= ",template_id int not null default 0"; // 通过哪个模板创建
 $sql .= ",template_version varchar(10) not null default ''"; //模板版本号
 $sql .= ",op_short_url_code char(4) not null default ''"; // 运营管理页面的短链接编码
 $sql .= ",rp_short_url_code char(4) not null default ''"; // 统计报告页面的短链接编码
-$sql .= ",rp_mark varchar(255) not null default ''"; // 统计报告页面用户选择的标识信息
+$sql .= ",rp_mark text"; // 统计报告页面用户选择的标识信息
 $sql .= ",primary key(id)) ENGINE=MyISAM DEFAULT CHARSET=utf8";
 if (!$mysqli->query($sql)) {
 	header('HTTP/1.0 500 Internal Server Error');

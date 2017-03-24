@@ -3,7 +3,7 @@ require_once '../../db.php';
 
 $sqls = array();
 //
-$sqls[] = "alter table xxt_enroll add rp_mark varchar(255) not null default ''";
+$sqls[] = "alter table xxt_enroll add rp_mark text";
 
 foreach ($sqls as $sql) {
 	if (!$mysqli->query($sql)) {

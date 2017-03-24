@@ -491,9 +491,20 @@ class fans extends \pl\fe\base {
 	 * 2、同步公众的号的分组
 	 * 不更新粉丝所属的分组
 	 */
-	public function refreshGroup_action() {
-		$mpa = $this->getMpaccount();
-		$proxy = $this->model("mpproxy/" . $mpa->mpsrc, $this->mpid);
+	public function refreshGroup_action($site,$src='wx') {
+		$model=$this->model();
+		$group = $this->getPostJson();
+		$name = $group->name;
+		/**
+		 * 在公众平台上添加
+		 */
+		if(in_array($src, ['wx','yx'])){
+			$config=$model->query_obj_ss(['*','xxt_site_'.$src,"siteid='$site'"]);
+			$proxy=$this->model('sns\\'.$src.'\\proxy',$config);
+		}else{
+			return new \ResponseError('公众号类型不支持！');
+		}
+
 		$rst = $proxy->groupsGet();
 		if (false === $rst[0]) {
 			return new \ResponseError($rst[1]);
@@ -501,10 +512,11 @@ class fans extends \pl\fe\base {
 
 		$groups = $rst[1]->groups;
 
-		$this->model()->delete('xxt_fansgroup', "mpid='$this->mpid'");
+		$model->delete('xxt_site_'.$src.'fangroup', "siteid='$site'");
+
 		foreach ($groups as $g) {
-			$i = array('id' => $g->id, 'mpid' => $this->mpid, 'name' => $g->name);
-			$this->model()->insert('xxt_fansgroup', $i, false);
+			$i = array('id' => $g->id, 'siteid' => $site, 'name' => $g->name);
+			$this->model()->insert('xxt_site_'.$src.'fangroup', $i, false);
 		}
 
 		return new \ResponseData(count($groups));
@@ -514,15 +526,21 @@ class fans extends \pl\fe\base {
 	 *
 	 * 同时在公众平台和本地添加
 	 */
-	public function addGroup_action() {
-		$mpa = $this->getMpaccount();
+	public function addGroup_action($site,$src='wx') {
+		$model=$this->model();
 		$group = $this->getPostJson();
 		$name = $group->name;
 		/**
 		 * 在公众平台上添加
 		 */
-		$mpproxy = $this->model('mpproxy/' . $mpa->mpsrc, $this->mpid);
-		$rst = $mpproxy->groupsCreate($group);
+		if(in_array($src, ['wx','yx'])){
+			$config=$model->query_obj_ss(['*','xxt_site_'.$src,"siteid='$site'"]);
+			$proxy=$this->model('sns\\'.$src.'\\proxy',$config);
+		}else{
+			return new \ResponseError('公众号类型不支持！');
+		}
+	
+		$rst = $proxy->groupsCreate($group);
 		if ($rst[0] === false) {
 			return new \ResponseError($rst[1]);
 		}
@@ -531,9 +549,9 @@ class fans extends \pl\fe\base {
 		/**
 		 * 在本地添加
 		 */
-		$group->mpid = $this->mpid;
+		$group->siteid = $site;
 		$group->name = $name;
-		$this->model()->insert('xxt_fansgroup', (array) $group, false);
+		$model->insert('xxt_site_'.$src.'fangroup', (array) $group, false);
 
 		return new \ResponseData($group);
 	}
@@ -542,13 +560,20 @@ class fans extends \pl\fe\base {
 	 *
 	 * 同时修改公众平台的数据和本地数据
 	 */
-	public function updateGroup_action() {
-		$mpa = $this->getMpaccount();
+	public function updateGroup_action($site,$src='wx') {
+		$model=$this->model();
 		$group = $this->getPostJson();
+		$name = $group->name;
 		/**
-		 * 更新公众平台上的数据
+		 * 在公众平台上添加
 		 */
-		$mpproxy = $this->model('mpproxy/' . $mpa->mpsrc, $this->mpid);
+		if(in_array($src, ['wx','yx'])){
+			$config=$model->query_obj_ss(['*','xxt_site_'.$src,"siteid='$site'"]);
+			$proxy=$this->model('sns\\'.$src.'\\proxy',$config);
+		}else{
+			return new \ResponseError('公众号类型不支持！');
+		}
+
 		$rst = $mpproxy->groupsUpdate($group);
 		if ($rst[0] === false) {
 			return new \ResponseError($rst[1]);
@@ -557,10 +582,10 @@ class fans extends \pl\fe\base {
 		/**
 		 * 更新本地数据
 		 */
-		$rst = $this->model()->update(
-			'xxt_fansgroup',
+		$rst = $model->update(
+			'xxt_site_'.$src.'fangroup',
 			array('name' => $group->name),
-			"mpid='$this->mpid' and id='$group->id'"
+			"siteid='$site' and id='$group->id'"
 		);
 
 		return new \ResponseData($rst);
@@ -570,13 +595,20 @@ class fans extends \pl\fe\base {
 	 *
 	 * 同时删除公众平台上的数据和本地数据
 	 */
-	public function removeGroup_action() {
-		$mpa = $this->getMpaccount();
+	public function removeGroup_action($site,$src='wx') {	
+		$model=$this->model();
 		$group = $this->getPostJson();
+		$name = $group->name;
 		/**
-		 * 删除公众平台数据
+		 * 在公众平台上添加
 		 */
-		$mpproxy = $this->model('mpproxy/' . $mpa->mpsrc, $this->mpid);
+		if(in_array($src, ['wx','yx'])){
+			$config=$model->query_obj_ss(['*','xxt_site_'.$src,"siteid='$site'"]);
+			$proxy=$this->model('sns\\'.$src.'\\proxy',$config);
+		}else{
+			return new \ResponseError('公众号类型不支持！');
+		}
+
 		$rst = $mpproxy->groupsDelete($group);
 		if ($rst[0] === false) {
 			return new \ResponseError($rst[1]);
@@ -586,50 +618,18 @@ class fans extends \pl\fe\base {
 		 * 删除本地数据
 		 * todo 级联更新粉丝所属分组数据
 		 */
-		$rst = $this->model()->delete('xxt_fansgroup', "mpid='$this->mpid' and id='$group->id'");
+		$rst = $model->delete('xxt_site_'.$src.'fangroup', "siteid='$site' and id='$group->id'");
 
 		return new \ResponseData($rst);
 	}
 	/**
-	 * 删除一个关注用户
-	 */
-	public function removeOne_action($fid) {
-		$mpa = $this->model('mp\mpaccount')->getApis($this->mpid);
-		if ($mpa->qy_joined === 'Y') {
-			$fan = $this->model('user/fans')->byId($fid, 'openid');
-			$rst = $this->model('mpproxy/qy', $this->mpid)->userDelete($fan->openid);
-			if ($rst[0] === false) {
-				return new \ResponseError($rst[1]);
-			}
-
-		}
-
-		$this->model()->update('xxt_member', array('forbidden' => 'Y'), "fid='$fid'");
-
-		$this->model()->update('xxt_fans', array('forbidden' => 'Y'), "fid='$fid'");
-
-		return new \ResponseData('success');
-	}
-	/**
 	 *
 	 */
-	public function yxfans_action() {
-		$fans = $this->yxfans();
-		if ($fans[0]) {
-			return new \ResponseData($fans[1]);
-		} else {
-			return new \ResponseError($fans[1]);
-		}
-
-	}
-	/**
-	 *
-	 */
-	public function yxfansgroup_action() {
-		$mpa = $this->getMpaccount();
-
-		$mpproxy = $this->model('mpproxy/' . $mpa->mpsrc);
-		$rst = $mpproxy->groupsGet();
+	public function yxfansgroup_action($site) {
+		$model=$this->model();
+		$config=$model->query_obj_ss(['*','xxt_site_yx',"siteid='$site'"]);
+		$proxy = $this->model('sns\\yx\\proxy',$config);
+		$rst = $proxy->groupsGet();
 
 		if ($rst[0] === false) {
 			return new \ResponseError($rst[1]);
@@ -641,11 +641,11 @@ class fans extends \pl\fe\base {
 	/**
 	 *
 	 */
-	public function wxfansgroup_action() {
-		$mpa = $this->getMpaccount();
-
-		$mpproxy = $this->model('mpproxy/' . $mpa->mpsrc);
-		$rst = $mpproxy->groupsGet();
+	public function wxfansgroup_action($site) {
+		$model=$this->model();
+		$config=$model->query_obj_ss(['*','xxt_site_wx',"siteid='$site'"]);
+		$proxy = $this->model('sns\\wx\\proxy',$config);
+		$rst = $proxy->groupsGet();
 
 		if ($rst[0] === false) {
 			return new \ResponseError($rst[1]);

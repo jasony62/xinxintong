@@ -91,13 +91,22 @@ define(['frame'], function(ngApp) {
 
         function drawNumPie(item,schema) {
             var categories = [],
-                series = [];
+                series = [],
+                sum = 0;
+            item.records.forEach(function(op) {
+                sum += parseInt(op.value);
+            });
+            var otherSum = parseInt(item.sum) - sum;
             item.records.forEach(function(op) {
                 series.push({
                     name: op.value,
                     y: (op.value/item.sum)
                 });
             });
+            if(otherSum != 0){
+                series.push({name: '其它',y: otherSum/item.sum});
+            }
+
             new Highcharts.Chart({
                 chart: {
                     type: 'pie',

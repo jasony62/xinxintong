@@ -5,9 +5,9 @@ define(['main'], function(ngApp) {
     'use strict';
 
     ngApp.provider.controller('ctrlDetails',['$scope', 'http2', '$uibModal', 'noticebox', function($scope, http2, $uibModal, noticebox){
-        var baseURL = '/rest/pl/fe/site/user/profile/';
+        var baseURL = '/rest/pl/fe/site/user/';
 		//获取同步信息
-        http2.get(baseURL + 'get?site=' + $scope.siteId + '&userid=' + $scope.userId, function(rsp){
+        http2.get(baseURL + 'profile/get?site=' + $scope.siteId + '&userid=' + $scope.userId, function(rsp){
             var members, mapMemberSchemas = {};
             $scope.user = rsp.data.user;
             //$scope.members = rsp.data.members;
@@ -29,7 +29,7 @@ define(['main'], function(ngApp) {
             }
         });
 		//获取 增加公众号信息
-		http2.get('',function(rsp){
+		http2.get(baseURL + 'fans/getsnsinfo?site=' + $scope.siteId + '&uid=' + $scope.userId, function(rsp){
 			$scope.syncUser = rsp.data;
 		});
 		$scope.canFieldShow = function(schema, name) {
@@ -112,9 +112,9 @@ define(['main'], function(ngApp) {
 				}
 			});
 		};
-		$scope.syns = function(){
+		$scope.syns = function(openId){
 			//普通用户的标识，对当前公众号唯一 openid
-			var url  = '/rest/mp/user/fans/refreshOne?openid=' + $scope.syncUser.openid;
+			var url  = '/rest/mp/user/fans/refreshOne?openid=' + openId;
 			http.get(url, function(rsp){
 				noticebox('完成同步');
 			})

@@ -74,13 +74,13 @@
 <!--公众号信息 ng-if内判断更改 获得后台信息-->
 <div class="panel panel-default" ng-if="syncUser">
     <div class="panel-heading">
-        <span>公众号信息</span>
+        <span>微信公众号信息</span>
         <a href="javascript:void(0)" class="pull-right" click="sync()">同步信息</a>
     </div>
     <div class="panel-body">
         <div class="form-horizontal">
             <div class="form-group">
-                <label class="col-md-2 control-label">头图</label>
+                <label class="col-md-2 control-label">头项</label>
 
                 <div class='col-md-10'>
                     <img src="" alt=""/>
@@ -102,6 +102,68 @@
             </div>
             <div class="form-group">
                 <label class="col-md-2 control-label">城市</label>
+
+                <div class='col-md-10'>
+                    <p class="form-control-static">{{}}</p>
+                </div>
+            </div>
+            <div class="form-group">
+                <label class="col-md-2 control-label">关注日期</label>
+
+                <div class='col-md-10'>
+                    <p class="form-control-static">{{}}</p>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<div class="panel panel-default" ng-if="syncUser">
+    <div class="panel-heading">
+        <span>微信企业号信息</span>
+        <a href="javascript:void(0)" class="pull-right" click="sync()">同步信息</a>
+    </div>
+    <div class="panel-body">
+        <div class="form-horizontal">
+            <div class="form-group">
+                <label class="col-md-2 control-label">头像</label>
+
+                <div class='col-md-10'>
+                    <img src="" alt=""/>
+                </div>
+            </div>
+            <div class="form-group">
+                <label class="col-md-2 control-label">昵称</label>
+
+                <div class='col-md-10'>
+                    <p class="form-control-static">{{}}</p>
+                </div>
+            </div>
+            <div class="form-group">
+                <label class="col-md-2 control-label">关注日期</label>
+
+                <div class='col-md-10'>
+                    <p class="form-control-static">{{}}</p>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<div class="panel panel-default" ng-if="syncUser">
+    <div class="panel-heading">
+        <span>易信公众号信息</span>
+        <a href="javascript:void(0)" class="pull-right" click="sync()">同步信息</a>
+    </div>
+    <div class="panel-body">
+        <div class="form-horizontal">
+            <div class="form-group">
+                <label class="col-md-2 control-label">头像</label>
+
+                <div class='col-md-10'>
+                    <img src="" alt=""/>
+                </div>
+            </div>
+            <div class="form-group">
+                <label class="col-md-2 control-label">昵称</label>
 
                 <div class='col-md-10'>
                     <p class="form-control-static">{{}}</p>

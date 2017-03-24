@@ -19,8 +19,9 @@ class tmplmsg_model extends \TMS_MODEL {
 		);
 		$catelog = $this->query_obj_ss($q);
 		if ($catelog) {
+			$modelTmpl = $this->model('matter\tmplmsg\config');
 			foreach ($fields as $eventName) {
-				$mapping = \TMS_MODEL::M('matter\tmplmsg')->mappingById($catelog->{$eventName . '_tmplmsg'});
+				$mapping = $modelTmpl->byId($catelog->{$eventName . '_tmplmsg'});
 				$mappings->{$eventName} = $mapping;
 			}
 		}

@@ -41,6 +41,16 @@ class enroll_model extends app_base {
 		return $url;
 	}
 	/**
+	 * 登记活动的汇总展示链接
+	 */
+	public function getOpUrl($siteId, $id) {
+		$url = 'http://' . $_SERVER['HTTP_HOST'];
+		$url .= '/rest/site/op/matter/enroll';
+		$url .= "?site={$siteId}&app=" . $id;
+
+		return $url;
+	}
+	/**
 	 *
 	 * $aid string
 	 * $cascaded array []

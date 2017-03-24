@@ -1,9 +1,6 @@
 define(['main'], function(ngApp) {
     'use strict';
     ngApp.provider.controller('ctrlPage', ['$scope', 'http2', function($scope, http2) {
-        var catelogs = $scope.$root.catelogs;
-        catelogs.splice(0, catelogs.length);
-        $scope.$root.catelog = null;
         $scope.editPage = function(page) {
             var prop = page + '_page_name',
                 name = $scope.site[prop];
@@ -37,6 +34,18 @@ define(['main'], function(ngApp) {
                 location.href = '/rest/site/home?site=' + $scope.site.id;
             }
         };
+        $scope.downloadQrcode = function(url) {
+            $('<a href="' + url + '" download="' + $scope.site.name + '_主页二维码.png"></a>')[0].click();
+        };
+        $scope.$watch('site', function(oSite) {
+            var entry, url;
+            url = 'http://' + location.host + '/rest/site/home?site=' + oSite.id;
+            entry = {
+                url: url,
+                qrcode: '/rest/pl/fe/site/qrcode?site=' + oSite.id + '&url=' + encodeURIComponent(url),
+            };
+            $scope.entry = entry;
+        });
     }]);
     ngApp.provider.controller('ctrlHomeCarousel', ['$scope', 'http2', 'mediagallery', function($scope, http2, mediagallery) {
         function update(name) {

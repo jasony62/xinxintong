@@ -1,11 +1,8 @@
 var ngApp = angular.module('app', ['ngRoute', 'ui.bootstrap', 'ui.tms', 'ui.xxt', 'service.matter']);
 ngApp.config(['$routeProvider', '$locationProvider', 'srvSiteProvider', function($routeProvider, $locationProvider, srvSiteProvider) {
-    $routeProvider.when('/rest/pl/fe/matter/channel', {
-        templateUrl: '/views/default/pl/fe/matter/channel/setting.html?_=1',
-        controller: 'ctrlSetting',
-    }).otherwise({
-        templateUrl: '/views/default/pl/fe/matter/channel/setting.html?_=1',
-        controller: 'ctrlSetting'
+    $routeProvider.otherwise({
+        templateUrl: '/views/default/pl/fe/matter/channel/main.html?_=1',
+        controller: 'ctrlMain'
     });
     var siteId = location.search.match(/[\?&]site=([^&]*)/)[1];
     srvSiteProvider.config(siteId);
@@ -23,12 +20,9 @@ ngApp.controller('ctrlChannel', ['$scope', '$location', 'http2', 'srvSite', func
         $scope.entryUrl = 'http://' + location.host + '/rest/site/fe/matter?site=' + $scope.siteId + '&id=' + $scope.id + '&type=channel';
     });
 }]);
-ngApp.controller('ctrlSetting', ['$scope', 'http2', 'mattersgallery', function($scope, http2, mattersgallery) {
+ngApp.controller('ctrlMain', ['$scope', 'http2', 'mattersgallery', function($scope, http2, mattersgallery) {
     var modifiedData = {};
     $scope.modified = false;
-    $scope.back = function() {
-        history.back();
-    };
     $scope.matterTypes = [{
         value: 'article',
         title: '单图文',
@@ -144,6 +138,15 @@ ngApp.controller('ctrlSetting', ['$scope', 'http2', 'mattersgallery', function($
                 relations = { matter: [article] };
             http2.post('/rest/pl/fe/matter/channel/addMatter?site=' + $scope.siteId + '&channel=' + $scope.editing.id, relations, function(rsp) {
                 location.href = '/rest/pl/fe/matter/article?site=' + $scope.siteId + '&id=' + article.id;
+            });
+        });
+    };
+    $scope.createLink = function() {
+        http2.get('/rest/pl/fe/matter/link/create?site=' + $scope.siteId, function(rsp) {
+            var link = rsp.data,
+                relations = { matter: [link] };
+            http2.post('/rest/pl/fe/matter/channel/addMatter?site=' + $scope.siteId + '&channel=' + $scope.editing.id, relations, function(rsp) {
+                location.href = '/rest/pl/fe/matter/link?site=' + $scope.siteId + '&id=' + link.id;
             });
         });
     };

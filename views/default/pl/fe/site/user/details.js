@@ -30,7 +30,10 @@ define(['main'], function(ngApp) {
         });
 		//获取 增加公众号信息
 		http2.get(baseURL + 'fans/getsnsinfo?site=' + $scope.siteId + '&uid=' + $scope.userId, function(rsp){
-			$scope.syncUser = rsp.data;
+			$scope.fans = rsp.data;
+			$scope.fans.wx && ($scope.wx = $scope.fans.wx);
+			$scope.fans.qy && ($scope.wx = $scope.fans.qy);
+			$scope.fans.yx && ($scope.wx = $scope.fans.xy);
 		});
 		$scope.canFieldShow = function(schema, name) {
 			return schema['attr_' + name].charAt(0) === '0';

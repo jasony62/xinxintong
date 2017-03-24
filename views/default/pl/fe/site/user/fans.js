@@ -38,7 +38,7 @@ define(['require'], function(require) {
         $scope.subView = '';
         $scope.$on('$locationChangeSuccess', function(event, currentRoute) {
             var subView = currentRoute.match(/([^\/]+?)\?/);
-            $scope.subView = subView[1] === 'user.tpl.htm' ? 'details' : subView[1];
+            $scope.subView = subView[1] === 'fans' ? 'details' : subView[1];
         });
         srvSite.get().then(function(site) {
             $scope.site = site;

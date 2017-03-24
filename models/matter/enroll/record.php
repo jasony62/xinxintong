@@ -797,9 +797,9 @@ class record_model extends \TMS_MODEL {
 					$recordsMarks = [];//标识的值
 					$keyNum = 0;//$i
 					foreach ($marks as $mark) {
-						if($mark->id === $schemaId){
-							continue;
-						}
+						// if($mark->id === $schemaId){
+						// 	continue;
+						// }
 						if($mark->id === 'nickname'){
 							$recordsMarkName[$keyNum]['name'] = '昵称';
 							$recordsMarks[$keyNum]['value'] = $record->nickname;

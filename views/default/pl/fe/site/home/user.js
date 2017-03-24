@@ -28,7 +28,7 @@ define(['main'], function(ngApp) {
             });
         };
         $scope.openProfile = function(uid){
-            location.href = '/rest/pl/fe/site/user/login?site=' + $scope.site.id + '&uid=' + uid;
+            location.href = '/rest/pl/fe/site/user/fans?site=' + $scope.site.id + '&uid=' + uid;
         };
         $scope.$watch('site', function(site) {
             if (site === undefined) return;

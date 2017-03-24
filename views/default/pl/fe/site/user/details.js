@@ -59,7 +59,7 @@ define(['main'], function(ngApp) {
 					};
 				}]
 			}).result.then(function(member) {
-				http2.post(baseURL + 'memberAdd?site=' + $scope.siteId + '&userid=' + $scope.userId + '&schema=' + schema.id, member, function(rsp) {
+				http2.post(baseURL + 'profile/memberAdd?site=' + $scope.siteId + '&userid=' + $scope.userId + '&schema=' + schema.id, member, function(rsp) {
 					member = rsp.data;
 					member.extattr = JSON.parse(decodeURIComponent(member.extattr.replace(/\+/g, '%20')));
 					member.schema = schema;
@@ -109,17 +109,18 @@ define(['main'], function(ngApp) {
 						angular.extend(member, newData);
 					});
 				} else if (rst.action === 'remove') {
-					http2.get(baseURL + 'memberDel?site=' + $scope.siteId + '&id=' + member.id, function() {
+					http2.get(baseURL + 'profile/memberDel?site=' + $scope.siteId + '&id=' + member.id, function() {
 						$scope.members.splice($scope.members.indexOf(member), 1);
 					});
 				}
 			});
 		};
-		$scope.sync = function(openId){
+		$scope.sync = function(openId, type){
 			//普通用户的标识，对当前公众号唯一 openid
 			var url  = baseURL + 'fans/refreshOne?site='+ $scope.siteId + '&openid=' + openId;
 			http2.get(url, function(rsp){
-				noticebox('完成同步');
+				type==='wx' ? $scope.wx = rsp.data : type==='qy' ? $scope.qy = rsp.data : $scope.yx = rsp.data;
+				noticebox.success('完成同步');
 			})
 		}
     }])

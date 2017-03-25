@@ -3,6 +3,13 @@
 </style>
 <div id='stat-view'>
     <button class='btn btn-default' ng-click="export()">导出报告</button>
+    <div class='btn-group' ng-if='rounds.length'>
+        <select class='form-control' title='登记轮次'  ng-model='criteria.rid' ng-change="doRound(criteria.rid)">
+            <option value=''>当前轮次</option>
+            <option value="{{rnd.rid}}" ng-repeat="rnd in rounds">{{rnd.title}}</option>
+        </select>
+    </div>
+    <button class='btn btn-default' ng-click="show()">选择标识项</button>
     <div id='stat-result'>
         <!--schemas-->
         <div ng-repeat="schema in app.data_schemas" ng-if="schema.type!=='html'">
@@ -41,36 +48,71 @@
                     </tbody>
                 </table>
             </div>
-            <div ng-if="['single','phase','multiple','score'].indexOf(schema.type)===-1" ng-init="page={at:1,size:10}">
-                <table class='table table-bordered' ng-switch on="schema.type">
-                    <thead>
-                        <tr>
-                            <th>登记内容</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        <tr ng-repeat="record in getRecords(schema,page)" ng-switch-when="image">
-                            <td><img ng-repeat="img in record.value" ng-src='{{img}}' /></td>
-                        </tr>
-                        <tr ng-repeat="record in getRecords(schema,page)" ng-switch-when="file">
-                            <td><span ng-repeat='file in record.value'><a href='{{file.url}}' target="_blank">{{file.name}}</a></span></td>
-                        </tr>
-                        <tr ng-repeat="record in getRecords(schema,page)" ng-switch-when="date">
-                            <td>{{record.value*1000|date:'yy-MM-dd HH:mm'}}</td>
-                        </tr>
-                        <tr ng-repeat="record in getRecords(schema,page)" ng-switch-default>
-                            <td>{{record.value}}</td>
-                        </tr>
-                    </tbody>
-                </table>
-                <div class='form-inline'>
-                    <span>总数：{{page.total}}</span>
-                    <ul uib-pagination style="margin:0;vertical-align:bottom;cursor:pointer" ng-show="page.total>page.size" boundary-links="true" total-items="page.total" max-size="7" items-per-page="page.size" rotate="false" ng-model="page.at" previous-text="&lsaquo;" next-text="&rsaquo;" first-text="&laquo;" last-text="&raquo;" ng-change="getRecords(schema,page)"></ul>
+            <div ng-if="['single','phase','multiple','score'].indexOf(schema.type)===-1" ng-init="page={at:1,size:10}" >
+                <div ng-if="schema.number&&schema.number=='Y'">
+                    <div id="{{schema.id}}" style='height:300px'></div>
+                    <table class='table table-bordered' ng-switch on="schema.type">
+                        <thead>
+                            <tr>
+                                <th ng-repeat='m in markNames' ng-if="m.name != schema.title">{{m.name}}</th>
+                                <th>登记内容</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr ng-repeat="record in getRecords(schema,page)">
+                                <td ng-repeat='m in record.marks' ng-if="m.value!=record.value">{{m.value}}</td>
+                                <td>{{record.value}}</td>
+                            </tr>
+                            <tr class='text-center'>
+                                <td>登记总和</td>
+                                <td  colspan={{markNames.length}}>{{sum}}</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                    <div class='form-inline'>
+                        <span>总数：{{page.total}}</span>
+                        <ul uib-pagination style="margin:0;vertical-align:bottom;cursor:pointer" ng-show="page.total>page.size" boundary-links="true" total-items="page.total" max-size="7" items-per-page="page.size" rotate="false" ng-model="page.at" previous-text="&lsaquo;" next-text="&rsaquo;" first-text="&laquo;" last-text="&raquo;" ng-change="getRecords(schema,page)"></ul>
+                    </div>
+                </div>
+                <div ng-if="!schema.number||schema.number=='N'">
+                    <table class='table table-bordered' ng-switch on="schema.type">
+                        <thead>
+                            <tr>
+                                <th ng-repeat='m in markNames' ng-if="m.name != schema.title">{{m.name}}</th>
+                                <th>登记内容</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr ng-repeat="record in getRecords(schema,page)" ng-switch-when="image">
+                                <td ng-repeat='m in record.marks' ng-if="m.value!=record.value">{{m.value}}</td>
+                                <td><img ng-repeat="img in record.value" ng-src='{{img}}' /></td>
+                            </tr>
+                            <tr ng-repeat="record in getRecords(schema,page)" ng-switch-when="file">
+                                <td ng-repeat='m in record.marks' ng-if="m.value!=record.value">{{m.value}}</td>
+                                <td><span ng-repeat='file in record.value'><a href='{{file.url}}' target="_blank">{{file.name}}</a></span></td>
+                            </tr>
+                            <tr ng-repeat="record in getRecords(schema,page)" ng-switch-when="date">
+                                <td ng-repeat='m in record.marks' ng-if="m.value!=record.value">{{m.value}}</td>
+                                <td>{{record.value*1000|date:'yy-MM-dd HH:mm'}}</td>
+                            </tr>
+                            <tr ng-repeat="record in getRecords(schema,page)" ng-switch-default>
+                                <td ng-repeat='m in record.marks' ng-if="m.value!=record.value">
+                                    <span ng-if="m.name!='日期'">{{m.value}}</span>
+                                    <span ng-if="m.name=='日期'">{{m.value*1000|date:'yy-MM-dd HH:mm'}}</span>
+                                </td>
+                                <td>{{record.value}}</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                    <div class='form-inline'>
+                        <span>总数：{{page.total}}</span>
+                        <ul uib-pagination style="margin:0;vertical-align:bottom;cursor:pointer" ng-show="page.total>page.size" boundary-links="true" total-items="page.total" max-size="7" items-per-page="page.size" rotate="false" ng-model="page.at" previous-text="&lsaquo;" next-text="&rsaquo;" first-text="&laquo;" last-text="&raquo;" ng-change="getRecords(schema,page)"></ul>
+                    </div>
                 </div>
             </div>
         </div>
          <!--schemas-->
-         <div ng-if="scoreSummary.length">
+        <div ng-if="scoreSummary.length">
             <hr style='height:1px;background:#aaa'>
             <h3><span>打分项汇总</span></h3>
             <table class='table table-bordered'>
@@ -90,3 +132,31 @@
         </div>
     </div>
 </div>
+<script type="text/ng-template" id="showCondition.html">
+    <div class="modal-header">
+        <button class="close" type="button" ng-click="cancel()">×</button>
+        <h5 class="modal-title">展示条件</h5>
+    </div>
+    <div class="modal-body">
+        <table class='table table-bordered' style='margin-bottom:0;'>
+            <thead>
+                <tr>
+                    <th style='width:50px'>操作</th>
+                    <th>标识登记项</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr ng-repeat='m in appMarkSchemas' class='record'>
+                    <td>
+                        <input type='checkbox' ng-model="rows.selected[$index]">
+                    </td>
+                    <td>{{m.title}}</td>
+                </tr>
+            </tbody>
+        </table>
+    </div>
+    <div class="modal-footer">
+        <button class="btn btn-default" ng-click="cancel()">关闭</button>
+        <button class="btn btn-primary" ng-click="ok()">确定</button>
+    </div>
+</script>

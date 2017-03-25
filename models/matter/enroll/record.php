@@ -743,16 +743,27 @@ class record_model extends \TMS_MODEL {
 			is_array($options) && $options = (object) $options;
 			$page = isset($options->page) ? $options->page : null;
 			$size = isset($options->size) ? $options->size : null;
+			$rid = isset($options->rid) ? $options->rid : null;
 		}
 		$result = new \stdClass; // 返回的结果
 		$result->total = 0;
 
+		$schemaId = $this->escape($schemaId);
 		// 查询参数
 		$q = [
-			'value',
-			"xxt_enroll_record_data",
-			"state=1 and aid='{$app->id}' and name='{$schemaId}' and value<>''",
+			'd.value,r.nickname,d.enroll_key',
+			"xxt_enroll_record_data d , xxt_enroll_record r",
+			"d.state=1 and d.aid='{$app->id}' and d.name='{$schemaId}' and d.value<>'' and d.enroll_key = r.enroll_key",
 		];
+		if(!empty($rid)){
+			if($rid !== 'ALL'){
+				$q[2] .= " and d.rid = '".$rid."'";
+			}
+		}else{
+			if ($activeRound = $this->model('matter\enroll\round')->getActive($app)) {
+				$q[2] .= " and d.rid = '{$activeRound->rid}'";
+			}
+		}
 
 		$q2 = [];
 		// 查询结果分页
@@ -762,12 +773,94 @@ class record_model extends \TMS_MODEL {
 
 		// 处理获得的数据
 		if ($records = $this->query_objs_ss($q, $q2)) {
+			//如果是数值型计算合计值
+			$data_schemas = json_decode($app->data_schemas);
+			foreach ($data_schemas as $data_schema) {
+				//判断是否是数值型
+				if($data_schema->id === $schemaId && isset($data_schema->number) && $data_schema->number === 'Y'){
+					$p = [
+						'sum(value)',
+						'xxt_enroll_record_data',
+						['aid' => $app->id, 'name' => $schemaId, 'state' => 1],
+					];
+					if(!empty($rid)){
+						if($rid !== 'ALL'){
+							$p[2]['rid'] = $rid;
+						}
+					}else{
+						if ($activeRound = $this->model('matter\enroll\round')->getActive($app)) {
+							$p[2]['rid'] = $activeRound->rid;
+						}
+					}
+
+					$sum = (int) $this->query_val_ss($p);
+					$result->sum = $sum;
+
+					break;
+				}
+			}
+			//标识
+			if(!empty($app->rp_mark) ){
+				$marks = json_decode($app->rp_mark);
+				foreach ($records as $record) {
+					$recordsMarkName = [];//标识题目名称
+					$recordsMarks = [];//标识
+					foreach ($marks as $key => $mark) {
+						// if($mark->id === $schemaId){
+						// 	continue;
+						// }
+						if($mark->id === 'nickname'){
+							$recordsMarkName[$key]['name'] = '昵称';
+							$recordsMarks[$key]['name'] = '昵称';
+							$recordsMarks[$key]['value'] = $record->nickname;
+						}else{
+							$p = [
+								'value',
+								"xxt_enroll_record_data d",
+								"d.state=1 and d.aid='{$app->id}' and d.name='{$mark->id}' and d.enroll_key = '{$record->enroll_key}'",
+							];
+							$recordsMark = $this->query_obj_ss($p);
+							if($recordsMark){
+								$recordsMarkName[$key]['name'] = $mark->name;
+								$recordsMarks[$key]['name'] = $mark->name;
+								$recordsMarks[$key]['value'] = $recordsMark->value;
+							}else{
+								$recordsMarkName[$key]['name'] = $mark->name;
+								$recordsMarks[$key]['name'] = $mark->name;
+								$recordsMarks[$key]['value'] = '';
+							}
+						}
+					}
+					$record->marks = $recordsMarks;
+				}
+			}else{
+				foreach ($records as $record) {
+					$recordsMarkName[0]['name'] = '昵称';
+					$recordsMarks[0]['name'] = '昵称';
+					$recordsMarks[0]['value'] = $record->nickname;
+					$record->marks = $recordsMarks;
+				}
+			}
 			$result->records = $records;
+			//作为标识的题目的名称
+			$result->markNames = $recordsMarkName;
 
 			// 符合条件的数据总数
 			$q[0] = 'count(*)';
-			$total = (int) $this->query_val_ss($q);
+			$total = (int) $this->query_val_ss($q, $q2);
 			$result->total = $total;
+
+		}else{//因为markname无论查询是否成功都必须返回前端
+			$recordsMarkName = [];
+			if(!empty($app->rp_mark)){
+				$marks = json_decode($app->rp_mark);
+				foreach ($marks as $key => $mark) {
+					$recordsMarkName[$key]['name'] = $mark->name;
+				}
+			}else{
+				$recordsMarkName[0]['name'] = '昵称';
+			}
+			$result->markNames = $recordsMarkName;
 		}
 
 		return $result;
@@ -789,7 +882,7 @@ class record_model extends \TMS_MODEL {
 					'xxt_enroll_record_data',
 					['aid' => $oApp->id, 'name' => $schema->id, 'state' => 1],
 				];
-				$rid !== 'ALL' && $q[2]['rid'] = $rid;
+				$rid !== 'ALL' && !empty($rid) && $q[2]['rid'] = $rid;
 				$sum = (int) $this->query_val_ss($q);
 				$result->{$schema->id} = $sum;
 			}

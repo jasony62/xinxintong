@@ -92,21 +92,47 @@ class record extends \pl\fe\matter\base {
 		return new \ResponseData($result);
 	}
 	/**
-	 * 返回指定登记项的活动登记名单
-	 *
+	 * [setRpmark 设置统计页标识]
+	 * @param [type] $site [description]
+	 * @param [type] $app  [description]
 	 */
-	public function list4Schema_action($site, $app, $schema, $page = 1, $size = 10) {
+	public function setMark_action($site, $app){
 		if (false === ($user = $this->accountUser())) {
 			return new \ResponseTimeout();
 		}
+
+		$posted = $this->getPostJson();
+		$modelApp = $this->model('matter\enroll');
+
+		/* 处理数据 */
+		$updated = new \stdClass;
+		$rst = false;
+		if(isset($posted->mark) && !empty($posted->mark)){
+			$updated->rp_mark = $modelApp->toJson($posted->mark);
+			$rst = $modelApp->update('xxt_enroll', $updated, ["id" => $app]);
+		}
+
+		return new \ResponseData($rst);
+	}
+	/**
+	 * 返回指定登记项的活动登记名单
+	 *
+	 */
+	public function list4Schema_action($site, $app, $rid = null, $schema, $page = 1, $size = 10) {
+		if (false === ($user = $this->accountUser())) {
+			return new \ResponseTimeout();
+		}
+
 		// 登记数据过滤条件
 		$criteria = $this->getPostJson();
-
 		// 登记记录过滤条件
 		$options = [
 			'page' => $page,
 			'size' => $size,
 		];
+		if(!empty($rid)){
+			$options['rid'] = $rid;
+		}
 
 		// 登记活动
 		$modelApp = $this->model('matter\enroll');

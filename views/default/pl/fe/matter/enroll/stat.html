@@ -5,7 +5,8 @@
     <button class='btn btn-default' ng-click="export()">导出报告</button>
     <div class='btn-group' ng-if='rounds.length'>
         <select class='form-control' title='登记轮次'  ng-model='criteria.rid' ng-change="doRound(criteria.rid)">
-            <option value=''>当前轮次</option>
+            <option value='ALL'>全部</option>
+            <option ng-if="activeRound" value='{{activeRound.rid}}'>当前轮次（{{activeRound.title}}）</option>
             <option value="{{rnd.rid}}" ng-repeat="rnd in rounds">{{rnd.title}}</option>
         </select>
     </div>
@@ -49,65 +50,39 @@
                 </table>
             </div>
             <div ng-if="['single','phase','multiple','score'].indexOf(schema.type)===-1" ng-init="page={at:1,size:10}" >
-                <div ng-if="schema.number&&schema.number=='Y'">
-                    <div id="{{schema.id}}" style='height:300px'></div>
-                    <table class='table table-bordered' ng-switch on="schema.type">
-                        <thead>
-                            <tr>
-                                <th ng-repeat='m in markNames' ng-if="m.name != schema.title">{{m.name}}</th>
-                                <th>登记内容</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            <tr ng-repeat="record in getRecords(schema,page)">
-                                <td ng-repeat='m in record.marks' ng-if="m.value!=record.value">{{m.value}}</td>
-                                <td>{{record.value}}</td>
-                            </tr>
-                            <tr class='text-center'>
-                                <td>登记总和</td>
-                                <td  colspan={{markNames.length}}>{{sum}}</td>
-                            </tr>
-                        </tbody>
-                    </table>
-                    <div class='form-inline'>
-                        <span>总数：{{page.total}}</span>
-                        <ul uib-pagination style="margin:0;vertical-align:bottom;cursor:pointer" ng-show="page.total>page.size" boundary-links="true" total-items="page.total" max-size="7" items-per-page="page.size" rotate="false" ng-model="page.at" previous-text="&lsaquo;" next-text="&rsaquo;" first-text="&laquo;" last-text="&raquo;" ng-change="getRecords(schema,page)"></ul>
-                    </div>
-                </div>
-                <div ng-if="!schema.number||schema.number=='N'">
-                    <table class='table table-bordered' ng-switch on="schema.type">
-                        <thead>
-                            <tr>
-                                <th ng-repeat='m in markNames' ng-if="m.name != schema.title">{{m.name}}</th>
-                                <th>登记内容</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            <tr ng-repeat="record in getRecords(schema,page)" ng-switch-when="image">
-                                <td ng-repeat='m in record.marks' ng-if="m.value!=record.value">{{m.value}}</td>
-                                <td><img ng-repeat="img in record.value" ng-src='{{img}}' /></td>
-                            </tr>
-                            <tr ng-repeat="record in getRecords(schema,page)" ng-switch-when="file">
-                                <td ng-repeat='m in record.marks' ng-if="m.value!=record.value">{{m.value}}</td>
-                                <td><span ng-repeat='file in record.value'><a href='{{file.url}}' target="_blank">{{file.name}}</a></span></td>
-                            </tr>
-                            <tr ng-repeat="record in getRecords(schema,page)" ng-switch-when="date">
-                                <td ng-repeat='m in record.marks' ng-if="m.value!=record.value">{{m.value}}</td>
-                                <td>{{record.value*1000|date:'yy-MM-dd HH:mm'}}</td>
-                            </tr>
-                            <tr ng-repeat="record in getRecords(schema,page)" ng-switch-default>
-                                <td ng-repeat='m in record.marks' ng-if="m.value!=record.value">
-                                    <span ng-if="m.name!='日期'">{{m.value}}</span>
-                                    <span ng-if="m.name=='日期'">{{m.value*1000|date:'yy-MM-dd HH:mm'}}</span>
-                                </td>
-                                <td>{{record.value}}</td>
-                            </tr>
-                        </tbody>
-                    </table>
-                    <div class='form-inline'>
-                        <span>总数：{{page.total}}</span>
-                        <ul uib-pagination style="margin:0;vertical-align:bottom;cursor:pointer" ng-show="page.total>page.size" boundary-links="true" total-items="page.total" max-size="7" items-per-page="page.size" rotate="false" ng-model="page.at" previous-text="&lsaquo;" next-text="&rsaquo;" first-text="&laquo;" last-text="&raquo;" ng-change="getRecords(schema,page)"></ul>
-                    </div>
+                <div id="{{schema.id}}" style='height:300px' ng-if="schema.number&&schema.number=='Y'"></div>
+                <table class='table table-bordered'>
+                    <thead>
+                        <tr>
+                            <th ng-repeat='mark in app.rpConfig.marks' ng-if="mark.id!==schema.id">{{mark.name}}</th>
+                            <th>登记内容</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr ng-repeat="record in getRecords(schema,page).records">
+                            <td ng-repeat='mark in app.rpConfig.marks' ng-if="mark.id!==schema.id">
+                                <span ng-bind-html="record._data[mark.id]"></span>
+                            </td>
+                            <td ng-switch on="schema.type">
+                                <span ng-switch-when="image">
+                                    <img ng-repeat="img in record._data[schema.id]" ng-src='{{img}}' />
+                                </span>
+                                <span ng-switch-when="file">
+                                    <span ng-repeat='file in record._data[schema.id]'><a href='{{file.url}}' target="_blank">{{file.name}}</a></span>
+                                </span>
+                                <span ng-switch-when="date">{{(r._data[schema.id]*1000)|date:'yy-MM-dd HH:mm'}}</span>
+                                <span ng-switch-default ng-bind-html="record._data[schema.id]"></span>
+                            </td>
+                        </tr>
+                        <tr class='text-center' ng-if="schema.number&&schema.number=='Y'">
+                            <td>合计</td>
+                            <td colspan={{app.rpConfig.marks.length}}>{{getRecords(schema,page).sum}}</td>
+                        </tr>
+                    </tbody>
+                </table>
+                <div class='form-inline'>
+                    <span>总数：{{page.total}}</span>
+                    <ul uib-pagination style="margin:0;vertical-align:bottom;cursor:pointer" ng-show="page.total>page.size" boundary-links="true" total-items="page.total" max-size="7" items-per-page="page.size" rotate="false" ng-model="page.at" previous-text="&lsaquo;" next-text="&rsaquo;" first-text="&laquo;" last-text="&raquo;" ng-change="getRecords(schema,page)"></ul>
                 </div>
             </div>
         </div>

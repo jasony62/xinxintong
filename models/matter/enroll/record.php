@@ -8,19 +8,17 @@ class record_model extends \TMS_MODEL {
 	 * 活动登记（不包括登记数据）
 	 *
 	 * @param string $siteId
-	 * @param string $app
+	 * @param object $app
 	 * @param object $user [uid,nickname]
-	 * @param int $enrollAt
-	 * @param string $referrer
 	 */
-	public function enroll($siteId, &$app, $user = null, $options = []) {
+	public function enroll($siteId, &$oApp, $user = null, $options = []) {
 		$referrer = isset($options['referrer']) ? $options['referrer'] : '';
 		$enrollAt = isset($options['enrollAt']) ? $options['enrollAt'] : time();
 
-		$ek = $this->genKey($siteId, $app->id);
+		$ek = $this->genKey($siteId, $oApp->id);
 
 		$record = [
-			'aid' => $app->id,
+			'aid' => $oApp->id,
 			'siteid' => $siteId,
 			'mpid' => $siteId,
 			'enroll_at' => $enrollAt,
@@ -31,7 +29,7 @@ class record_model extends \TMS_MODEL {
 		];
 		/* 记录所属轮次 */
 		$modelRun = $this->model('matter\enroll\round');
-		if ($activeRound = $modelRun->getActive($app)) {
+		if ($activeRound = $modelRun->getActive($oApp)) {
 			$record['rid'] = $activeRound->rid;
 		}
 
@@ -39,7 +37,7 @@ class record_model extends \TMS_MODEL {
 		if (isset($options['nickname'])) {
 			$record['nickname'] = $this->escape($options['nickname']);
 		} else {
-			$entryRule = $app->entry_rule;
+			$entryRule = $oApp->entry_rule;
 			if (isset($entryRule->anonymous) && $entryRule->anonymous === 'Y') {
 				/* 匿名访问 */
 				$record['nickname'] = '';
@@ -84,24 +82,24 @@ class record_model extends \TMS_MODEL {
 	 * 保存登记的数据
 	 *
 	 * @param object $user [uid]
-	 * @param object $app
+	 * @param object $oApp
 	 * @param array $data
 	 */
-	public function setData($user, &$app, $ek, $data, $submitkey = '') {
+	public function setData($user, &$oApp, $ek, $data, $submitkey = '') {
 		if (empty($data)) {
 			return [true];
 		}
 		if (empty($submitkey)) {
 			$submitkey = empty($user) ? '' : $user->uid;
 		}
-		$siteId = $app->siteid;
+		$siteId = $oApp->siteid;
 
 		// 清除已有的登记数据
-		$this->delete('xxt_enroll_record_data', ['aid' => $app->id, 'enroll_key' => $ek]);
+		$this->delete('xxt_enroll_record_data', ['aid' => $oApp->id, 'enroll_key' => $ek]);
 
 		$dbData = new \stdClass; // 处理后的保存到数据库中的登记记录
 
-		$schemas = json_decode($app->data_schemas);
+		$schemas = json_decode($oApp->data_schemas);
 		$schemasById = [];
 		foreach ($schemas as $schema) {
 			$schemasById[$schema->id] = $schema;
@@ -158,7 +156,7 @@ class record_model extends \TMS_MODEL {
 							foreach ($v as $file) {
 								if (defined('SAE_TMP_PATH')) {
 									$fsAli = \TMS_APP::M('fs/alioss', $siteId);
-									$dest = '/' . $app->id . '/' . $submitkey . '_' . $file->name;
+									$dest = '/' . $oApp->id . '/' . $submitkey . '_' . $file->name;
 									$fileUploaded2 = $fsAli->getBaseURL() . $dest;
 								} else {
 									$fsUser = \TMS_APP::M('fs/local', $siteId, '_user');
@@ -214,14 +212,14 @@ class record_model extends \TMS_MODEL {
 				$treatedValue = $this->toJson($treatedValue);
 			}
 			$ic = [
-				'aid' => $app->id,
+				'aid' => $oApp->id,
 				'enroll_key' => $ek,
 				'name' => $n,
 				'value' => $this->escape($treatedValue),
 			];
 			/* 记录所属轮次 */
 			$modelRun = $this->model('matter\enroll\round');
-			if ($activeRound = $modelRun->getActive($app)) {
+			if ($activeRound = $modelRun->getActive($oApp)) {
 				$ic['rid'] = $activeRound->rid;
 			}
 			$this->insert('xxt_enroll_record_data', $ic, false);
@@ -265,6 +263,36 @@ class record_model extends \TMS_MODEL {
 		$list = $this->query_objs_ss($q, $q2);
 
 		return $list;
+	}
+	/**
+	 * 获得登记轮次的清单
+	 *
+	 * @param string $roundId
+	 */
+	public function &byRound($roundId, $options = []) {
+		$fields = isset($options['fields']) ? $options['fields'] : '*';
+		if ($fields === 'count(*)') {
+			$q = [
+				'count(*)',
+				'xxt_enroll_record',
+				["state" => 1, "rid" => $roundId],
+			];
+			$cnt = (int) $this->query_val_ss($q);
+
+			return $cnt;
+		} else {
+			$q = [
+				$fields,
+				'xxt_enroll_record',
+				["state" => 1, "rid" => $roundId],
+			];
+
+			$q2 = ['o' => 'enroll_at desc'];
+
+			$list = $this->query_objs_ss($q, $q2);
+
+			return $list;
+		}
 	}
 	/**
 	 * 获得指定项目下的登记记录
@@ -401,11 +429,11 @@ class record_model extends \TMS_MODEL {
 	 * [1] 数据总条数
 	 * [2] 数据项的定义
 	 */
-	public function find($app, $options = null, $criteria = null) {
-		if (is_string($app)) {
-			$app = $this->model('matter\enroll')->byId($app, ['cascaded' => 'N']);
+	public function find($oApp, $options = null, $criteria = null) {
+		if (is_string($oApp)) {
+			$oApp = $this->model('matter\enroll')->byId($oApp, ['cascaded' => 'N']);
 		}
-		if ($app === false) {
+		if ($oApp === false) {
 			return false;
 		}
 		if ($options) {
@@ -420,14 +448,14 @@ class record_model extends \TMS_MODEL {
 		$result->total = 0;
 
 		// 指定登记活动下的登记记录
-		$w = "e.state=1 and e.aid='{$app->id}'";
+		$w = "e.state=1 and e.aid='{$oApp->id}'";
 
 		// 指定了轮次
 		if (!empty($criteria->record->rid)) {
-			if ('all' !== $criteria->record->rid) {
+			if ('ALL' !== $criteria->record->rid) {
 				$rid = $criteria->record->rid;
 			}
-		} else if ($activeRound = $this->model('matter\enroll\round')->getActive($app)) {
+		} else if ($activeRound = $this->model('matter\enroll\round')->getActive($oApp)) {
 			/* 如果未指定就显示当前轮次 */
 			$rid = $activeRound->rid;
 		}
@@ -439,7 +467,7 @@ class record_model extends \TMS_MODEL {
 		} else if (!empty($inviter)) {
 			$user = new \stdClass;
 			$user->openid = $inviter;
-			$inviterek = $this->getLastKey($app->siteid, $aid, $user);
+			$inviterek = $this->getLastKey($oApp->siteid, $aid, $user);
 			$w .= " and e.referrer='ek:$inviterek'";
 		}
 
@@ -499,23 +527,39 @@ class record_model extends \TMS_MODEL {
 		// 查询结果排序
 		$q2['o'] = 'e.enroll_at desc';
 		/* 处理获得的数据 */
+		$roundsById = []; // 缓存轮次数据
 		if ($records = $this->query_objs_ss($q, $q2)) {
-			foreach ($records as &$r) {
-				$data = str_replace("\n", ' ', $r->data);
+			foreach ($records as &$rec) {
+				$data = str_replace("\n", ' ', $rec->data);
 				$data = json_decode($data);
 				if ($data === null) {
-					$r->data = 'json error(' . json_last_error_msg() . '):' . $r->data;
+					$rec->data = 'json error(' . json_last_error_msg() . '):' . $rec->data;
 				} else {
-					$r->data = $data;
+					$rec->data = $data;
+				}
+				// 记录的登记轮次
+				if (!empty($rec->rid)) {
+					if (!isset($roundsById[$rec->rid])) {
+						if (!isset($modelRnd)) {
+							$modelRnd = $this->model('matter\enroll\round');
+						}
+						$round = $modelRnd->byId($rec->rid, ['fields' => 'title']);
+						$roundsById[$rec->rid] = $round;
+					} else {
+						$round = $roundsById[$rec->rid];
+					}
+					if ($round) {
+						$rec->round = $round;
+					}
 				}
 				// 记录的分数
-				if ($app->scenario === 'voting' || $app->scenario === 'common') {
+				if ($oApp->scenario === 'voting' || $oApp->scenario === 'common') {
 					if (!isset($scoreSchemas)) {
-						$scoreSchemas = $this->_mapOfScoreSchema($app);
+						$scoreSchemas = $this->_mapOfScoreSchema($oApp);
 						$countScoreSchemas = count(array_keys((array) $scoreSchemas));
 					}
-					$r->_score = $this->_calcScore($scoreSchemas, $data);
-					$r->_average = $countScoreSchemas === 0 ? 0 : $r->_score / $countScoreSchemas;
+					$rec->_score = $this->_calcScore($scoreSchemas, $data);
+					$rec->_average = $countScoreSchemas === 0 ? 0 : $rec->_score / $countScoreSchemas;
 				}
 			}
 			$result->records = $records;
@@ -738,7 +782,7 @@ class record_model extends \TMS_MODEL {
 	 * [1] 数据总条数
 	 * [2] 数据项的定义
 	 */
-	public function list4Schema($siteId, &$app, $schemaId, $options = null) {
+	public function list4Schema($siteId, &$oApp, $schemaId, $options = null) {
 		if ($options) {
 			is_array($options) && $options = (object) $options;
 			$page = isset($options->page) ? $options->page : null;
@@ -749,19 +793,20 @@ class record_model extends \TMS_MODEL {
 		$result->total = 0;
 
 		$schemaId = $this->escape($schemaId);
+
 		// 查询参数
 		$q = [
-			'd.value,r.nickname,d.enroll_key',
-			"xxt_enroll_record_data d , xxt_enroll_record r",
-			"d.state=1 and d.aid='{$app->id}' and d.name='{$schemaId}' and d.value<>'' and d.enroll_key = r.enroll_key",
+			'nickname,enroll_key,data',
+			"xxt_enroll_record r",
+			['state' => 1, 'aid' => $oApp->id],
 		];
-		if(!empty($rid)){
-			if($rid !== 'ALL'){
-				$q[2] .= " and d.rid = '".$rid."'";
+		if (!empty($rid)) {
+			if ($rid !== 'ALL') {
+				$q[2]['rid'] = $rid;
 			}
-		}else{
-			if ($activeRound = $this->model('matter\enroll\round')->getActive($app)) {
-				$q[2] .= " and d.rid = '{$activeRound->rid}'";
+		} else {
+			if ($activeRound = $this->model('matter\enroll\round')->getActive($oApp)) {
+				$q[2]['rid'] = $activeRound->rid;
 			}
 		}
 
@@ -771,24 +816,25 @@ class record_model extends \TMS_MODEL {
 			$q2['r'] = ['o' => ($page - 1) * $size, 'l' => $size];
 		}
 
+		$recordsBySchema = [];
 		// 处理获得的数据
 		if ($records = $this->query_objs_ss($q, $q2)) {
 			//如果是数值型计算合计值
-			$data_schemas = json_decode($app->data_schemas);
+			$data_schemas = json_decode($oApp->data_schemas);
 			foreach ($data_schemas as $data_schema) {
 				//判断是否是数值型
-				if($data_schema->id === $schemaId && isset($data_schema->number) && $data_schema->number === 'Y'){
+				if ($data_schema->id === $schemaId && isset($data_schema->number) && $data_schema->number === 'Y') {
 					$p = [
 						'sum(value)',
 						'xxt_enroll_record_data',
-						['aid' => $app->id, 'name' => $schemaId, 'state' => 1],
+						['aid' => $oApp->id, 'name' => $schemaId, 'state' => 1],
 					];
-					if(!empty($rid)){
-						if($rid !== 'ALL'){
+					if (!empty($rid)) {
+						if ($rid !== 'ALL') {
 							$p[2]['rid'] = $rid;
 						}
-					}else{
-						if ($activeRound = $this->model('matter\enroll\round')->getActive($app)) {
+					} else {
+						if ($activeRound = $this->model('matter\enroll\round')->getActive($oApp)) {
 							$p[2]['rid'] = $activeRound->rid;
 						}
 					}
@@ -799,69 +845,26 @@ class record_model extends \TMS_MODEL {
 					break;
 				}
 			}
-			//标识
-			if(!empty($app->rp_mark) ){
-				$marks = json_decode($app->rp_mark);
-				foreach ($records as $record) {
-					$recordsMarkName = [];//标识题目名称
-					$recordsMarks = [];//标识
-					foreach ($marks as $key => $mark) {
-						// if($mark->id === $schemaId){
-						// 	continue;
-						// }
-						if($mark->id === 'nickname'){
-							$recordsMarkName[$key]['name'] = '昵称';
-							$recordsMarks[$key]['name'] = '昵称';
-							$recordsMarks[$key]['value'] = $record->nickname;
-						}else{
-							$p = [
-								'value',
-								"xxt_enroll_record_data d",
-								"d.state=1 and d.aid='{$app->id}' and d.name='{$mark->id}' and d.enroll_key = '{$record->enroll_key}'",
-							];
-							$recordsMark = $this->query_obj_ss($p);
-							if($recordsMark){
-								$recordsMarkName[$key]['name'] = $mark->name;
-								$recordsMarks[$key]['name'] = $mark->name;
-								$recordsMarks[$key]['value'] = $recordsMark->value;
-							}else{
-								$recordsMarkName[$key]['name'] = $mark->name;
-								$recordsMarks[$key]['name'] = $mark->name;
-								$recordsMarks[$key]['value'] = '';
-							}
-						}
-					}
-					$record->marks = $recordsMarks;
-				}
-			}else{
-				foreach ($records as $record) {
-					$recordsMarkName[0]['name'] = '昵称';
-					$recordsMarks[0]['name'] = '昵称';
-					$recordsMarks[0]['value'] = $record->nickname;
-					$record->marks = $recordsMarks;
-				}
+			/* 补充记录标识 */
+			if (!isset($oApp->rpConfig) || empty($oApp->rpConfig->marks)) {
+				$defaultMark = new \stdClass;
+				$defaultMark->id = 'nickname';
+				$defaultMark->name = 'nickname';
+				$marks = [$defaultMark];
+			} else {
+				$marks = $oApp->rpConfig->marks;
 			}
-			$result->records = $records;
-			//作为标识的题目的名称
-			$result->markNames = $recordsMarkName;
-
-			// 符合条件的数据总数
-			$q[0] = 'count(*)';
-			$total = (int) $this->query_val_ss($q, $q2);
-			$result->total = $total;
-
-		}else{//因为markname无论查询是否成功都必须返回前端
-			$recordsMarkName = [];
-			if(!empty($app->rp_mark)){
-				$marks = json_decode($app->rp_mark);
-				foreach ($marks as $key => $mark) {
-					$recordsMarkName[$key]['name'] = $mark->name;
-				}
-			}else{
-				$recordsMarkName[0]['name'] = '昵称';
+			foreach ($records as &$record) {
+				$record->data = empty($record->data) ? new \stdClass : json_decode($record->data);
 			}
-			$result->markNames = $recordsMarkName;
 		}
+
+		$result->records = $records;
+
+		// 符合条件的数据总数
+		$q[0] = 'count(*)';
+		$total = (int) $this->query_val_ss($q, $q2);
+		$result->total = $total;
 
 		return $result;
 	}
@@ -1110,10 +1113,10 @@ class record_model extends \TMS_MODEL {
 	 * 统计登记信息
 	 *
 	 */
-	public function &getStat($appId) {
+	public function &getStat($appId, $rid = null) {
 		$result = [];
 
-		$app = \TMS_APP::M('matter\enroll')->byId($appId, ['data_schemas', 'cascaded' => 'N']);
+		$app = $this->model('matter\enroll')->byId($appId, ['data_schemas', 'cascaded' => 'N']);
 		if (empty($app->data_schemas)) {
 			return $result;
 		}
@@ -1162,7 +1165,7 @@ class record_model extends \TMS_MODEL {
 				$q = [
 					'value',
 					'xxt_enroll_record_data',
-					"aid='$appId' and state=1 and name='{$schema->id}'",
+					['aid' => $appId, 'state' => 1, 'name' => $schema->id],
 				];
 				$values = $this->query_objs_ss($q);
 				foreach ($values as $value) {

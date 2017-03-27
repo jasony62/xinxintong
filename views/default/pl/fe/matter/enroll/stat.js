@@ -392,11 +392,15 @@ define(['frame'], function(ngApp) {
             $scope.activeRound = result.active;
             $scope.rounds = result.rounds;
             if (rid) {
-                $scope.rounds.forEach(function(round) {
-                    if (round.rid == rid) {
-                        $scope.criteria.rid = rid;
-                    }
-                });
+                if (rid === 'ALL') {
+                    $scope.criteria.rid = 'ALL';
+                } else {
+                    $scope.rounds.forEach(function(round) {
+                        if (round.rid == rid) {
+                            $scope.criteria.rid = rid;
+                        }
+                    });
+                }
             } else {
                 $scope.criteria.rid = $scope.activeRound.rid;
             }

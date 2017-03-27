@@ -59,7 +59,7 @@
                         </tr>
                     </thead>
                     <tbody>
-                        <tr ng-repeat="record in getRecords(schema,page).records" ng-if="record.data[schema.id]">
+                        <tr ng-repeat="record in getRecords(schema,page).records">
                             <td ng-repeat='mark in app.rpConfig.marks' ng-if="mark.id!==schema.id">
                                 <span ng-bind-html="record._data[mark.id]"></span>
                             </td>

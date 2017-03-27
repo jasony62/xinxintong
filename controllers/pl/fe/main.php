@@ -172,11 +172,7 @@ class main extends \pl\fe\base {
 		]);
 
 		if($matter){
-			$rst=$model->update(
-				'xxt_account_topmatter',
-				['top'=>'1','top_at'=>time(),'userid'=>$user->id],
-				['siteid'=>$site,'id'=>$matter->tid]
-			);
+			return new \ResponseError('已置顶！',101);
 		}else{		
 			$d['siteid']=$site;
 			$d['userid']=$user->id;
@@ -195,5 +191,25 @@ class main extends \pl\fe\base {
 		}
 
 		return new \ResponseData($rst);
+	}
+	/**
+	 * 置顶列表
+	 */
+	public function topList_action($page=1, $size=12){
+		if (false === ($user = $this->accountUser())) {
+			return new \ResponseTimeout();
+		}
+
+		$p=[
+			't.*,l.matter_summary,l.matter_pic,l.matter_scenario',
+			'xxt_account_topmatter t,xxt_log_matter_op l',
+			"t.siteid=l.siteid and t.matter_id=l.matter_id and t.matter_type=l.matter_type and l.user_last_op='Y' and t.userid='$user->id'"
+		];
+		$p2['r']=['o'=>($page-1)*$size, 'l'=>$size];
+		$p2['o']=['top_at desc'];
+
+		$matters=$this->model()->query_objs_ss($p,$p2);
+
+		return new \ResponseData($matters);
 	}
 }

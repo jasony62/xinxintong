@@ -136,7 +136,7 @@ class main extends \pl\fe\base {
 	}
 	/**
 	 * 个人工作台素材置顶
-	 *
+	 * $id 是日志记录的ID
 	 */
 	public function top_action($site,$id){
 		if (false === ($user = $this->accountUser())) {
@@ -144,7 +144,7 @@ class main extends \pl\fe\base {
 		}
 
 		//检查管理员的权限
-		$model=$this->model();
+		$model=$this->model('matter\log');
 		$data=$model->query_val_ss([
 			'urole',
 			'xxt_site_admin',
@@ -155,11 +155,44 @@ class main extends \pl\fe\base {
 			return new \ResponseError('当前管理员没有该素材的操作权限！');
 		}
 
-		$rst=$model->update(
+		$one=$model->query_obj_ss([
+			'matter_id,matter_type,matter_title',
 			'xxt_log_matter_op',
-			['top'=>'1','operate_at'=>time(),'operator'=>$user->id,'operator_name'=>$user->name,'operation'=>'Top'],
 			['siteid'=>$site,'id'=>$id]
-		);
+		]);
+
+		if(empty($one)){
+			return new \ResponseError('找不到素材的操作记录！');
+		}
+
+		$matter=$model->query_obj_ss([
+			'id tid,matter_id id,matter_type type,matter_title title',
+			'xxt_account_topmatter',
+			['siteid'=>$site,'matter_id'=>$one->matter_id,'matter_type'=>$one->matter_type]
+		]);
+
+		if($matter){
+			$rst=$model->update(
+				'xxt_account_topmatter',
+				['top'=>'1','top_at'=>time(),'userid'=>$user->id],
+				['siteid'=>$site,'id'=>$matter->tid]
+			);
+		}else{		
+			$d['siteid']=$site;
+			$d['userid']=$user->id;
+			$d['top']='1';
+			$d['top_at']=time();
+			$d['matter_id']=$one->matter_id;
+			$d['matter_type']=$one->matter_type;
+			$d['matter_title']=$one->matter_title;
+			$rst=$model->insert('xxt_account_topmatter',$d);
+
+			$matter=$model->query_obj_ss([
+				'id tid,matter_id id,matter_type type,matter_title title',
+				'xxt_account_topmatter',
+				"siteid='$site' and id='$rst'"
+			]);
+		}
 
 		return new \ResponseData($rst);
 	}

@@ -468,7 +468,7 @@ class log_model extends \TMS_MODEL {
 	 * @param array $options(fields,page)
 	 */
 	public function &recentMattersByUser(&$user, $options = []) {
-		$fields = empty($options['fields']) ? '*' : $options['fields'];
+		$fields = empty($options['fields']) ? 'l.*' : $options['fields'];
 		if (empty($options['page'])) {
 			$page = new \stdClass;
 			$page->at = 1;
@@ -478,18 +478,18 @@ class log_model extends \TMS_MODEL {
 		}
 		$q = [
 			$fields,
-			'xxt_log_matter_op',
-			"operator='{$user->id}' and user_last_op='Y' and (operation<>'D' and operation<>'Recycle' and operation<>'Quit')",
+			'xxt_log_matter_op l,xxt_account_topmatter t',
+			"l.siteid=t.siteid and l.matter_id=t.matter_id and l.operator='{$user->id}' and l.user_last_op='Y' and (l.operation<>'D' and l.operation<>'Recycle' and l.operation<>'Quit')",
 		];
 		if (isset($options['matterType'])) {
-			$q[2] .= " and matter_type='" . $options['matterType'] . "'";
+			$q[2] .= " and l.matter_type='" . $options['matterType'] . "'";
 		}
 		if (isset($options['scenario'])) {
-			$q[2] .= " and matter_scenario='" . $options['scenario'] . "'";
+			$q[2] .= " and l.matter_scenario='" . $options['scenario'] . "'";
 		}
 		$q2 = [
 			'r' => ['o' => ($page->at - 1) * $page->size, 'l' => $page->size],
-			'o' => ['top desc','operate_at desc'],
+			'o' => ['t.top desc','t.top_at desc'],
 		];
 
 		$matters = $this->query_objs_ss($q, $q2);

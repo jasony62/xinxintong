@@ -162,7 +162,7 @@ define(['require', 'schema', 'page'], function(require, schemaLib, pageLib) {
                     }
                 }
             }).result.then(function(criteria) {
-                defer.resolve();
+                defer.resolve(criteria);
                 angular.extend(that._oCriteria, criteria);
                 that.search(1).then(function() {
                     defer.resolve();
@@ -1190,7 +1190,7 @@ define(['require', 'schema', 'page'], function(require, schemaLib, pageLib) {
                 };
 
                 url = '/rest/pl/fe/matter/enroll/record/export';
-                url += '?site=' + _siteId + '&app=' + _appId;
+                url += '?site=' + _siteId + '&app=' + _appId + '&rid=' + params.criteria.record.rid;
                 window.open(url);
             };
             _ins.exportImage = function() {

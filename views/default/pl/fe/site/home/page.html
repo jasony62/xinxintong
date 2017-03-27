@@ -1,18 +1,26 @@
 <style>th{text-align:center;}</style>
 <div class='col-md-12'>
-    <table class='table table-bordered'>
-        <tbody>
-            <tr>
-                <td>团队主页</td>
-                <td>团队主页</td>
-                <td>
-                    <a href='' ng-click="editPage('home')">编辑页面</a>
-                    <a href='' ng-click="resetPage('home')" ng-show="site.home_page_name.length">重置页面</a>
-                    <a ng-href="/rest/site/home?site={{site.id}}" target='_blank' ng-show="site.home_page_name.length">打开</a>
-                </td>
-            </tr>
-        </tbody>
-    </table>
+    <div class='form-group clearfix'>
+        <div class='qrcode' style='width:240px;float:left;'>
+            <span><img id='entryQrcode' ng-src="{{entry.qrcode}}"></span>
+            <button class='btn btn-default' ng-click="downloadQrcode(entry.qrcode)">下载</button>
+        </div>
+        <div style='width:480px;float:left;'>
+            <div class='form-group'>
+                <div class='input-group'>
+                    <input class='form-control' readonly value="{{entry.url}}">
+                    <span class='input-group-btn'>
+                        <button class='btn btn-default text2Clipboard' data-clipboard-text="{{entry.url}}">复制</button>
+                        <a class='btn btn-default' ng-href="{{entry.url}}" target='_blank' title='打开'><i class='glyphicon glyphicon-open'></i></a>
+                    </span>
+                </div>
+            </div>
+            <div>
+                <a href='' ng-click="editPage('home')">编辑页面</a>
+                <a href='' ng-click="resetPage('home')" ng-show="site.home_page_name.length">重置页面</a>
+            </div>
+        </div>
+    </div>
     <div ng-controller="ctrlHomeCarousel">
         <table class='table table-bordered'>
             <tbody>

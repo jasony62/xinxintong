@@ -38,6 +38,7 @@
             <label>已有图文</label>
             <button class='btn btn-default btn-sm' ng-click="addMatter()">选择素材</button>
             <button class='btn btn-default btn-sm' ng-click="createArticle()">新建图文</button>
+            <button class='btn btn-default btn-sm' ng-click="createLink()">新建外部链接</button>
             <ul class='list-group' style='margin-bottom:0'>
                 <li class='list-group-item' ng-repeat="m in matters" ng-mouseenter='hover=true' ng-mouseleave='hover=false' title='{{m.type|typetitle}}'>
                     <a href='' ng-click="gotoMatter(m)">{{m.title}}</a>

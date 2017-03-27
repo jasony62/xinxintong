@@ -178,6 +178,7 @@ provider('srvQuickEntry', function() {
         };
     }];
 }).
+
 provider('srvRecordConverter', function() {
     this.$get = ['$sce', function($sce) {
         function _memberAttr(member, schema) {
@@ -317,7 +318,52 @@ provider('srvRecordConverter', function() {
             }
         };
     }];
-}).provider('srvTmplmsgNotice', function() {
+}).
+provider('srvUserNotice', function() {
+    var _logs, _oPage;
+    _logs = [];
+    _oPage = {
+        at: 1,
+        size: 10,
+        j: function() {
+            return 'page=' + this.at + '&size=' + this.size;
+        }
+    };
+    this.$get = ['$q', 'http2', function($q, http2) {
+        return {
+            uncloseList: function() {
+                var defer = $q.defer(),
+                    url;
+
+                url = '/rest/pl/fe/user/notice/uncloseList?' + _oPage.j();
+                http2.get(url, function(rsp) {
+                    _logs.splice(0, _logs.length);
+                    rsp.data.logs.forEach(function(log) {
+                        if (log.data) {
+                            log._message = JSON.parse(log.data);
+                            log._message = log._message.join('\n');
+                        }
+                        _logs.push(log);
+                    });
+                    _oPage.total = rsp.data.total;
+                    defer.resolve({ logs: _logs, page: _oPage });
+                });
+                return defer.promise;
+            },
+            closeNotice: function(log) {
+                var defer = $q.defer(),
+                    url;
+
+                url = '/rest/pl/fe/user/notice/close?id=' + log.id;
+                http2.get(url, function(rsp) {
+                    defer.resolve(rsp.data);
+                });
+                return defer.promise;
+            }
+        }
+    }];
+}).
+provider('srvTmplmsgNotice', function() {
     this.$get = ['$q', 'http2', function($q, http2) {
         return {
             init: function(sender, oPage, aBatches) {

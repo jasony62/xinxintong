@@ -22,18 +22,18 @@ class stat extends \pl\fe\matter\base {
 	 * name => array(l=>label,c=>count)
 	 *
 	 */
-	private function _getResult($site, $appId, $renewCache = 'Y') {
+	private function _getResult($site, $appId, $rid = null, $renewCache = 'Y') {
 		$current = time();
-		$model = $this->model();
+		$modelRec = $this->model('matter\enroll\record');
 		if ($renewCache === 'Y') {
 			/* 上一次保留统计结果的时间 */
 			$q = [
 				'create_at',
 				'xxt_enroll_record_stat',
-				["aid" => $appId],
+				['aid' => $appId],
 			];
 			$q2 = ['r' => ['o' => 0, 'l' => 1]];
-			$last = $model->query_objs_ss($q, $q2);
+			$last = $modelRec->query_objs_ss($q, $q2);
 			/* 上次统计后的新登记记录数 */
 			if (count($last) === 1) {
 				$last = $last[0];
@@ -42,15 +42,15 @@ class stat extends \pl\fe\matter\base {
 					'xxt_enroll_record',
 					"aid='$appId' and enroll_at>={$last->create_at}",
 				];
-				$newCnt = (int) $model->query_val_ss($q);
+				$newCnt = (int) $modelRec->query_val_ss($q);
 			} else {
 				$newCnt = 999;
 			}
 			// 如果更新的登记数据，重新计算统计结果
 			if ($newCnt > 0) {
-				$result = $this->model('matter\enroll\record')->getStat($appId);
+				$result = $modelRec->getStat($appId, $rid);
 				// 保存统计结果
-				$model->delete(
+				$modelRec->delete(
 					'xxt_enroll_record_stat',
 					"aid='$appId'"
 				);
@@ -66,7 +66,7 @@ class stat extends \pl\fe\matter\base {
 							'l' => $op->l,
 							'c' => $op->c,
 						];
-						$model->insert('xxt_enroll_record_stat', $r);
+						$modelRec->insert('xxt_enroll_record_stat', $r);
 					}
 				}
 			} else {
@@ -75,9 +75,9 @@ class stat extends \pl\fe\matter\base {
 				$q = [
 					'id,title,v,l,c',
 					'xxt_enroll_record_stat',
-					"aid='$appId'",
+					['aid' => $appId],
 				];
-				$cached = $model->query_objs_ss($q);
+				$cached = $modelRec->query_objs_ss($q);
 				foreach ($cached as $data) {
 					if (empty($result[$data->id])) {
 						$item = [
@@ -96,7 +96,7 @@ class stat extends \pl\fe\matter\base {
 				}
 			}
 		} else {
-			$result = $this->model('matter\enroll\record')->getStat($appId);
+			$result = $modelRec->getStat($appId, $rid);
 		}
 
 		return $result;
@@ -109,12 +109,12 @@ class stat extends \pl\fe\matter\base {
 	 * @return array name => array(l=>label,c=>count)
 	 *
 	 */
-	public function get_action($site, $app, $renewCache = 'Y') {
+	public function get_action($site, $app, $rid = null, $renewCache = 'Y') {
 		if (false === ($user = $this->accountUser())) {
 			return new \ResponseTimeout();
 		}
 
-		$result = $this->_getResult($site, $app, $renewCache);
+		$result = $this->_getResult($site, $app, $rid, $renewCache);
 
 		return new \ResponseData($result);
 	}
@@ -155,6 +155,7 @@ class stat extends \pl\fe\matter\base {
 		require_once TMS_APP_DIR . '/lib/jpgraph/jpgraph_line.php';
 
 		$app = $this->model('matter\enroll')->byId($app, ['cascaded' => 'N']);
+
 		$schemas = json_decode($app->data_schemas);
 
 		$statResult = $this->_getResult($site, $app->id);
@@ -174,14 +175,79 @@ class stat extends \pl\fe\matter\base {
 		foreach ($schemas as $index => $schema) {
 			$html .= "<h3><span>第" . ($index + 1) . "项：</span><span>{$schema->title}</span></h3>";
 			if (in_array($schema->type, ['name', 'email', 'mobile', 'date', 'location', 'shorttext', 'longtext'])) {
-				$textResult = $modelRec->list4Schema($site, $app, $schema->id);
+				$textResult = $modelRec->list4Schema($site, $app, $schema->id, ['rid' => 'ALL']);
 				if (!empty($textResult->records)) {
+
+					//数值型的饼图
+					if (isset($schema->number) && $schema->number === 'Y') {
+						$data = [];
+						foreach ($textResult->records as $record) {
+							$data[] = $record->value;
+						}
+						$graph = new \PieGraph(550, 300);
+						$graph->SetShadow();
+						$pie = new \PiePlot($data);
+						$labels = [];
+						for ($i = 0, $l = count($data); $i < $l; $i++) {
+							$labels[] = $op = $data[$i] . '：%.1f%%';
+						}
+						$pie->value->SetFont(FF_CHINESE, FS_NORMAL);
+						$graph->Add($pie);
+						$pie->ShowBorder();
+						$pie->setSliceColors(['#F7A35C', '#8085E9', '#90ED7D', '#7CB5EC', '#434348']);
+						$pie->SetColor(array(255, 255, 255));
+						$pie->SetLabels($labels, 1);
+
+						$graph->title->Set($schema->title);
+						$graph->title->SetFont(FF_CHINESE, FS_NORMAL);
+
+						$graph->Stroke(_IMG_HANDLER);
+						ob_start(); // start buffering
+						$graph->img->Stream(); // print data to buffer
+						$image_data = ob_get_contents(); // retrieve buffer contents
+						ob_end_clean(); // stop buffer
+						$imageBase64 = chunk_split(base64_encode($image_data));
+						//
+						$mappingOfImages[$schema->id . '.base64'] = $imageBase64;
+						//
+						$html .= '<img src="' . $schema->id . '.base64" />';
+					}
+
+					//拼装表格
 					$records = $textResult->records;
-					$html .= "<table><thead><tr><th>序号</th><th>登记内容</th></tr></thead>";
+					$html .= "<table><thead><tr>";
+					$html .= "<th>序号</th>";
+					$sumNumber = 0; //数值型最后合计的列号
+					//标识
+					foreach ($textResult->markNames as $markName) {
+						if ($schema->title !== $markName['name']) {
+							$html .= "<th>" . $markName['name'] . "</th>";
+							$sumNumber++;
+						}
+					}
+					$html .= "<th>登记内容</th></tr></thead>";
 					$html .= "<tbody>";
 					for ($i = 0, $l = count($records); $i < $l; $i++) {
+						$html .= "<tr>";
 						$record = $records[$i];
-						$html .= "<tr>" . ($i + 1) . "<td></td><td>{$record->value}</td></tr>";
+						$html .= "<td>" . ($i + 1) . "</td>";
+						//标识
+						foreach ($records[$i]->marks as $mark) {
+							if ($schema->title !== $mark['name']) {
+								$html .= "<td>" . $mark['value'] . "</td>";
+							}
+						}
+						$html .= "<td>{$record->value}</td></tr>";
+					}
+					//数值型显示合计
+					if (isset($textResult->sum)) {
+						$html .= "<tr><td>合计</td>";
+						if ($sumNumber > 0) {
+							for ($i = 0, $j = $sumNumber; $i < $j; $i++) {
+								$html .= "<td> </td>";
+							}
+						}
+						$html .= "<td>" . $textResult->sum . "</td></tr>";
 					}
 					$html .= "</tbody></table>";
 				}

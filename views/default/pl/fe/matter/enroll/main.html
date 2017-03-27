@@ -67,7 +67,10 @@
         </div>
         <div class='checkbox'>
             <label class='checkbox-inline'>
-                <input type='checkbox' ng-true-value="'Y'" ng-false-value="'N'" ng-model="app.notify_submit" ng-change="update('notify_submit')">提交填写内容</label>
+                <input type='checkbox' ng-true-value="'Y'" ng-false-value="'N'" ng-model="app.notify_submit" ng-change="update('notify_submit')">用户提交填写内容时通知</label>
+        </div>
+        <div class='form-group'>
+            <button class='btn btn-default' ng-click="addMe()">把我加入接收人</button>
         </div>
         <div class="form-horizontal" ng-if="sns.qy.joined==='Y'">
             <div class="form-group">
@@ -85,7 +88,7 @@
         </div>
         <div class='list-group'>
             <div class='list-group-item' ng-repeat="r in receivers" ng-mouseenter="entered=true" ng-mouseleave="entered=false">
-                <span>{{r.nickname}}</span>
+                <span>{{r.nickname}}</span>&nbsp;<span ng-if="r.snsUser.snsName">{{r.snsUser.snsName}}</span>
                 <button class='btn btn-default btn-xs pull-right' ng-show="entered" ng-click="remove(r)">
                     <span class='glyphicon glyphicon-remove'></span>
                 </button>
@@ -93,6 +96,11 @@
         </div>
     </div>
 </div>
+<script type="text/ng-template" id="joinQrcode.html">
+    <div style="width:200px">
+        <img ng-src="{{qrcodeURL}}" style="width:100%">
+    </div>
+</script>
 <script type="text/ng-template" id="chooseUser.html">
     <div class="modal-header">
         <button class="close" type="button" ng-click="cancel()">×</button>

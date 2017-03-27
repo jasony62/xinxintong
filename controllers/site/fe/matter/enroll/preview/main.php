@@ -43,11 +43,11 @@ class main extends \TMS_CONTROLLER {
 		$modelApp = $this->model('matter\enroll');
 
 		/* 登记活动定义 */
-		$app = $modelApp->byId($app, ['cascaded' => 'N']);
-		if ($app === false) {
+		$oApp = $modelApp->byId($app, ['cascaded' => 'N']);
+		if ($oApp === false) {
 			return new \ResponseError('指定的登记活动不存在，请检查参数是否正确');
 		}
-		$params['app'] = &$app;
+		$params['app'] = &$oApp;
 
 		/* 当前访问用户的基本信息 */
 		$user = new \stdClass;
@@ -55,14 +55,14 @@ class main extends \TMS_CONTROLLER {
 
 		/* 计算打开哪个页面 */
 		$modelPage = $this->model('matter\enroll\page');
-		$oOpenPage = $modelPage->byName($app->id, $page);
+		$oOpenPage = $modelPage->byName($oApp->id, $page);
 		if (empty($oOpenPage)) {
 			return new \ResponseError('页面不存在');
 		}
 		$params['page'] = $oOpenPage;
 
 		/* 站点页面设置 */
-		if ($app->use_site_header === 'Y' || $app->use_site_footer === 'Y') {
+		if ($oApp->use_site_header === 'Y' || $oApp->use_site_footer === 'Y') {
 			$params['site'] = $this->model('site')->byId(
 				$site,
 				['cascaded' => 'header_page_name,footer_page_name']
@@ -70,17 +70,17 @@ class main extends \TMS_CONTROLLER {
 		}
 
 		/* 项目页面设置 */
-		if ($app->use_mission_header === 'Y' || $app->use_mission_footer === 'Y') {
-			if ($app->mission_id) {
+		if ($oApp->use_mission_header === 'Y' || $oApp->use_mission_footer === 'Y') {
+			if ($oApp->mission_id) {
 				$params['mission'] = $this->model('matter\mission')->byId(
-					$app->mission_id,
+					$oApp->mission_id,
 					['cascaded' => 'header_page_name,footer_page_name']
 				);
 			}
 		}
 
-		if ($app->multi_rounds === 'Y') {
-			$params['activeRound'] = $this->model('matter\enroll\round')->getLast($app);
+		if ($oApp->multi_rounds === 'Y') {
+			$params['activeRound'] = $this->model('matter\enroll\round')->getActive($oApp);
 		}
 
 		return new \ResponseData($params);

@@ -113,4 +113,13 @@ class base extends \TMS_CONTROLLER {
 
 		return array(true);
 	}
+	/**
+	 * 二维码
+	 */
+	public function qrcode_action($site, $url) {
+		include TMS_APP_DIR . '/lib/qrcode/qrlib.php';
+		// outputs image directly into browser, as PNG stream
+		//@ob_clean();
+		\QRcode::png($url);
+	}
 }

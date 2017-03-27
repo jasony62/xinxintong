@@ -146,7 +146,7 @@ define(['require', 'schema', 'page'], function(require, schemaLib, pageLib) {
             var defer = $q.defer(),
                 that = this;
             $uibModal.open({
-                templateUrl: '/views/default/pl/fe/matter/enroll/component/recordFilter.html?_=4',
+                templateUrl: '/views/default/pl/fe/matter/enroll/component/recordFilter.html?_=6',
                 controller: 'ctrlEnrollFilter',
                 windowClass: 'auto-height',
                 backdrop: 'static',
@@ -646,7 +646,7 @@ define(['require', 'schema', 'page'], function(require, schemaLib, pageLib) {
     }).provider('srvEnrollRound', function() {
         var _siteId, _appId, _rounds, _oPage,
             _RestURL = '/rest/pl/fe/matter/enroll/round/',
-            RoundState = ['新建', '启用', '停止'];
+            RoundState = ['新建', '启用', '结束'];
 
         this.config = function(siteId, appId) {
             _siteId = siteId;
@@ -685,23 +685,35 @@ define(['require', 'schema', 'page'], function(require, schemaLib, pageLib) {
                     http2.get(url, function(rsp) {
                         _rounds.splice(0, _rounds.length);
                         rsp.data.rounds.forEach(function(rnd) {
+                            rsp.data.active && (rnd._isActive = rnd.rid === rsp.data.active.rid);
                             _rounds.push(rnd);
                         });
                         _oPage.total = parseInt(rsp.data.total);
-                        defer.resolve({ rounds: _rounds, page: _oPage });
+                        defer.resolve({ rounds: _rounds, page: _oPage, active: rsp.data.active });
                     });
 
                     return defer.promise;
                 },
                 add: function() {
                     $uibModal.open({
-                        templateUrl: 'roundEditor.html',
+                        templateUrl: '/views/default/pl/fe/matter/enroll/component/roundEditor.html?_=1',
                         backdrop: 'static',
                         controller: ['$scope', '$uibModalInstance', function($scope, $mi) {
                             $scope.round = {
-                                state: 0
+                                state: '0',
+                                start_at: '0'
                             };
                             $scope.roundState = RoundState;
+                            $scope.$on('xxt.tms-datepicker.change', function(event, data) {
+                                if (data.state === 'start_at') {
+                                    if (data.obj[data.state] == 0 && data.value > 0) {
+                                        $scope.round.state = '1';
+                                    } else if (data.obj[data.state] > 0 && data.value == 0) {
+                                        $scope.round.state = '0';
+                                    }
+                                }
+                                data.obj[data.state] = data.value;
+                            });
                             $scope.close = function() {
                                 $mi.dismiss();
                             };
@@ -725,11 +737,21 @@ define(['require', 'schema', 'page'], function(require, schemaLib, pageLib) {
                 },
                 edit: function(round) {
                     $uibModal.open({
-                        templateUrl: 'roundEditor.html',
+                        templateUrl: '/views/default/pl/fe/matter/enroll/component/roundEditor.html?_=1',
                         backdrop: 'static',
                         controller: ['$scope', '$uibModalInstance', function($scope, $mi) {
                             $scope.round = angular.copy(round);
                             $scope.roundState = RoundState;
+                            $scope.$on('xxt.tms-datepicker.change', function(event, data) {
+                                if (data.state === 'start_at') {
+                                    if (data.obj[data.state] == 0 && data.value > 0) {
+                                        $scope.round.state = '1';
+                                    } else if (data.obj[data.state] > 0 && data.value == 0) {
+                                        $scope.round.state = '0';
+                                    }
+                                }
+                                data.obj[data.state] = data.value;
+                            });
                             $scope.close = function() {
                                 $mi.dismiss();
                             };
@@ -767,7 +789,7 @@ define(['require', 'schema', 'page'], function(require, schemaLib, pageLib) {
                                 if (_rounds.length > 1 && rst.data.state == 1) {
                                     _rounds[1].state = 2;
                                 }
-                                angular.extend(round, rst.data);
+                                angular.extend(round, rsp.data);
                             });
                         } else if (rst.action === 'remove') {
                             url += 'remove?site=' + _siteId + '&app=' + _appId + '&rid=' + round.rid;
@@ -2036,8 +2058,16 @@ define(['require', 'schema', 'page'], function(require, schemaLib, pageLib) {
         };
         $scope.doSearchRound = function() {
             srvEnlRnd.list().then(function(result) {
+                var criteria = $scope.criteria;
+                $scope.activeRound = result.active;
                 $scope.rounds = result.rounds;
                 $scope.pageOfRound = result.page;
+                if (!criteria.record) {
+                    criteria.record = { rid: '' };
+                }
+                if (!criteria.record.rid && $scope.activeRound) {
+                    criteria.record.rid = $scope.activeRound.rid;
+                }
             });
         };
         $scope.doSearchRound();

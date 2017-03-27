@@ -1,6 +1,8 @@
 define(['frame'], function(ngApp) {
     'use strict';
-    ngApp.provider.controller('ctrlStat', ['$scope', 'http2', '$timeout', '$q', 'srvEnrollApp', function($scope, http2, $timeout, $q, srvEnrollApp) {
+    ngApp.provider.controller('ctrlStat', ['$scope', '$location', 'http2', '$timeout', '$q', '$uibModal', 'srvEnrollApp', 'srvEnrollRound', 'srvRecordConverter', function($scope, $location, http2, $timeout, $q, $uibModal, srvEnrollApp, srvEnrollRound, srvRecordConverter) {
+        var rid = $location.search().rid;
+
         function drawBarChart(item) {
             var categories = [],
                 series = [];
@@ -88,6 +90,63 @@ define(['frame'], function(ngApp) {
             });
         }
 
+        function drawNumPie(item, schema) {
+            var categories = [],
+                series = [],
+                sum = 0,
+                otherSum;
+            item.records.forEach(function(record) {
+                var recVal = record.data[schema.id] ? parseInt(record.data[schema.id]) : 0;
+                sum += recVal;
+                series.push({
+                    name: recVal,
+                    y: recVal
+                });
+            });
+            otherSum = parseInt(item.sum) - sum;
+            if (otherSum != 0) {
+                series.push({ name: '其它', y: otherSum });
+            }
+
+            new Highcharts.Chart({
+                chart: {
+                    type: 'pie',
+                    renderTo: schema.id
+                },
+                title: {
+                    text: schema.title
+                },
+                tooltip: {
+                    pointFormat: '{series.name}: <b>{point.percentage:.1f}</b>'
+                },
+                plotOptions: {
+                    pie: {
+                        allowPointSelect: true,
+                        cursor: 'pointer',
+                        dataLabels: {
+                            enabled: true,
+                            format: '<b>{point.name}</b>: {point.percentage:.1f} %',
+                            style: {
+                                color: (Highcharts.theme && Highcharts.theme.contrastTextColor) || 'black'
+                            }
+                        }
+                    }
+                },
+                series: [{
+                    name: '所占百分比',
+                    data: series
+                }],
+                lang: {
+                    downloadJPEG: "下载JPEG 图片",
+                    downloadPDF: "下载PDF文档",
+                    downloadPNG: "下载PNG 图片",
+                    downloadSVG: "下载SVG 矢量图",
+                    printChart: "打印图片",
+                    exportButtonTitle: "导出图片"
+                }
+            });
+        }
+
         function drawLineChart(item) {
             var categories = [],
                 data = [];
@@ -136,13 +195,13 @@ define(['frame'], function(ngApp) {
             recordsBySchema: function(schema, page) {
                 var deferred = $q.defer(),
                     cached,
+                    markNames,
                     requireGet = false,
                     url;
 
                 if (cached = _cacheOfRecordsBySchema[schema.id]) {
                     if (cached.page && cached.page.at === page.at) {
-                        records = cached.records;
-                        deferred.resolve(records);
+                        deferred.resolve(cached);
                     } else {
                         if (cached._running) {
                             deferred.resolve(false);
@@ -159,7 +218,7 @@ define(['frame'], function(ngApp) {
                 if (requireGet) {
                     url = '/rest/pl/fe/matter/enroll/record/list4Schema';
                     url += '?site=' + $scope.app.siteid + '&app=' + $scope.app.id;
-                    url += '&schema=' + schema.id + '&page=' + page.at + '&size=' + page.size;
+                    url += '&schema=' + schema.id + '&page=' + page.at + '&size=' + page.size + '&rid=' + (rid ? rid : '');
                     cached._running = true;
                     http2.get(url, function(rsp) {
                         cached._running = false;
@@ -167,27 +226,24 @@ define(['frame'], function(ngApp) {
                             at: page.at,
                             size: page.size
                         };
-                        if (schema.type === 'image') {
-                            rsp.data.records.forEach(function(rec) {
-                                if (rec.value) {
-                                    rec.value = rec.value.split(',');
-                                }
-                            });
-                        } else if (schema.type === 'file') {
-                            rsp.data.records.forEach(function(rec) {
-                                if (rec.value) {
-                                    rec.value = JSON.parse(rec.value)
-                                }
-                            });
+                        rsp.data.records.forEach(function(record) {
+                            srvRecordConverter.forTable(record);
+                        });
+                        if (schema.number && schema.number == 'Y') {
+                            cached.sum = rsp.data.sum;
+                            drawNumPie(rsp.data, schema);
                         }
                         cached.records = rsp.data.records;
                         page.total = rsp.data.total;
-                        deferred.resolve(rsp.data);
+                        deferred.resolve(cached);
                     });
                 }
 
                 return deferred.promise;
             }
+        };
+        $scope.criteria = {
+            rid: ''
         };
         $scope.export = function() {
             var url, params = {};
@@ -210,16 +266,71 @@ define(['frame'], function(ngApp) {
 
             if (cached = _cacheOfRecordsBySchema[schema.id]) {
                 if (cached.page && cached.page.at === page.at) {
-                    return cached.records;
+                    return cached;
                 }
             }
             _cacheOfRecordsBySchema.recordsBySchema(schema, page);
             return false;
         };
+        $scope.show = function() {
+            $uibModal.open({
+                templateUrl: 'showCondition.html',
+                controller: ['$scope', '$uibModalInstance', function($scope2, $mi) {
+                    var marks = $scope.app.rpConfig.marks ? $scope.app.rpConfig.marks : [];
+                    $scope2.appMarkSchemas = angular.copy($scope.markSchemas);
+                    $scope2.rows = {
+                        selected: {},
+                        reset: function() {
+                            this.selected = {};
+                        }
+                    };
+                    marks.forEach(function(item, index) {
+                        for (var i = 0; i < $scope2.appMarkSchemas.length; i++) {
+                            if (item.id == $scope2.appMarkSchemas[i].id) {
+                                $scope2.rows.selected[i] = true;
+                            }
+                        }
+                    });
+                    $scope2.ok = function() {
+                        $mi.close($scope2.rows);
+                    };
+                    $scope2.cancel = function() {
+                        $mi.dismiss();
+                    };
+                }],
+                backdrop: 'static'
+            }).result.then(function(result) {
+                var selectedSchemas = [];
+                for (var p in result.selected) {
+                    if (result.selected[p] === true) {
+                        selectedSchemas.push({
+                            id: $scope.markSchemas[p].id,
+                            name: $scope.markSchemas[p].title
+                        });
+                    }
+                }
+                $scope.app.rpConfig = {
+                    marks: selectedSchemas
+                };
+                srvEnrollApp.update('rpConfig').then(function() { location.reload() });
+            });
+        }
+        $scope.doRound = function(rid) {
+            location.href = '/rest/pl/fe/matter/enroll/stat?site=' + $scope.app.siteid + '&id=' + $scope.app.id + '&rid=' + rid;
+        };
         srvEnrollApp.get().then(function(app) {
-            var url = '/rest/pl/fe/matter/enroll/stat/get';
+            var url;
+            srvRecordConverter.config(app.data_schemas);
+            $scope.markSchemas = [{ title: "昵称", id: "nickname" }];
+            app.data_schemas.forEach(function(schema) {
+                if (['multiple', 'score', 'image', 'location', 'file', 'date'].indexOf(schema.type) === -1) {
+                    $scope.markSchemas.push(schema);
+                }
+            })
+            url = '/rest/pl/fe/matter/enroll/stat/get';
             url += '?site=' + $scope.app.siteid;
             url += '&app=' + app.id;
+            url += '&rid=' + (rid ? rid : '');
             http2.get(url, function(rsp) {
                 var stat = {};
                 app.data_schemas.forEach(function(schema) {
@@ -276,6 +387,19 @@ define(['frame'], function(ngApp) {
                     }
                 });
             });
+        });
+        srvEnrollRound.list().then(function(result) {
+            $scope.activeRound = result.active;
+            $scope.rounds = result.rounds;
+            if (rid) {
+                $scope.rounds.forEach(function(round) {
+                    if (round.rid == rid) {
+                        $scope.criteria.rid = rid;
+                    }
+                });
+            } else {
+                $scope.criteria.rid = $scope.activeRound.rid;
+            }
         });
     }]);
 });

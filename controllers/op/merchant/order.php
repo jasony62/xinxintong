@@ -215,7 +215,7 @@ class order extends \member_base {
 	 */
 	private function _notify($mpid, $action, $order) {
 		$modelProd = $this->model('app\merchant\product');
-		$modelTmpl = $this->model('matter\tmplmsg');
+		$modelTmpl = $this->model('matter\tmplmsg\config');
 		$products = json_decode($order->products);
 		$actionTmplmsg = $action . '_order_tmplmsg';
 		$pendings = array();
@@ -230,7 +230,7 @@ class order extends \member_base {
 			if (isset($pendings[$orderTmplmsgId]['mapping'])) {
 				$mapping = $pendings[$orderTmplmsgId]['mapping'];
 			} else {
-				$mapping = $modelTmpl->mappingById($orderTmplmsgId);
+				$mapping = $modelTmpl->byId($orderTmplmsgId);
 				if (false === $mapping) {
 					continue;
 				}

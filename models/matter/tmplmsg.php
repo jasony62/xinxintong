@@ -1,45 +1,45 @@
 <?php
 namespace matter;
 /**
- *
+ * 模板消息定义
  */
 class tmplmsg_model extends \TMS_MODEL {
 	/**
-	 *
+	 * 获得模板消息定义
 	 */
 	public function &byId($id, $options = array()) {
 		$fields = isset($options['fields']) ? $options['fields'] : '*';
 		$cascaded = isset($options['cascaded']) ? $options['cascaded'] : 'N';
 		/**/
-		$q = array(
+		$q = [
 			$fields,
 			'xxt_tmplmsg',
-			"id=$id",
-		);
+			['id' => $id],
+		];
 		$tmpl = $this->query_obj_ss($q);
 		/*参数*/
 		if ($tmpl && $cascaded === 'Y') {
-			$q = array(
+			$q = [
 				"id,pname,plabel",
 				'xxt_tmplmsg_param',
-				"tmplmsg_id=$id",
-			);
+				['tmplmsg_id' => $id],
+			];
 			$tmpl->params = $this->query_objs_ss($q);
 		}
 
 		return $tmpl;
 	}
 	/**
-	 *
+	 * 获得一个团队下的模板消息定义
 	 */
 	public function &bySite($siteId, $options = []) {
 		$cascaded = isset($options['cascaded']) ? $options['cascaded'] : 'Y';
 
-		$q = array(
+		$q = [
 			"t.*",
 			'xxt_tmplmsg t',
 			["t.siteid" => $siteId, "t.state" => 1],
-		);
+		];
 		$q2['o'] = 't.create_at desc';
 		$tmplmsgs = $this->query_objs_ss($q, $q2);
 		if (count($tmplmsgs) === 0 && $siteId !== 'platform') {
@@ -50,37 +50,19 @@ class tmplmsg_model extends \TMS_MODEL {
 				"id,pname,plabel",
 				'xxt_tmplmsg_param',
 			];
-			$q3=[
+			$q3 = [
 				'nickname',
-				'account'
+				'account',
 			];
 			foreach ($tmplmsgs as &$tmpl) {
 				$q[2] = "tmplmsg_id=$tmpl->id";
 				$tmpl->params = $this->query_objs_ss($q);
 
-				$q3[2]="uid='$tmpl->creater'";
-				$tmpl->author=$this->query_obj_ss($q3);
+				$q3[2] = "uid='$tmpl->creater'";
+				$tmpl->author = $this->query_obj_ss($q3);
 			}
 		}
 
 		return $tmplmsgs;
-	}
-	/**
-	 *
-	 */
-	public function &mappingById($id) {
-		$q = array(
-			'msgid,mapping',
-			'xxt_tmplmsg_mapping',
-			"id=$id",
-		);
-
-		if ($mapping = $this->query_obj_ss($q)) {
-			if (!empty($mapping->mapping)) {
-				$mapping->mapping = json_decode($mapping->mapping);
-			}
-		}
-
-		return $mapping;
 	}
 }

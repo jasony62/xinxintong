@@ -95,18 +95,21 @@ class record extends \pl\fe\matter\base {
 	 * 返回指定登记项的活动登记名单
 	 *
 	 */
-	public function list4Schema_action($site, $app, $schema, $page = 1, $size = 10) {
+	public function list4Schema_action($site, $app, $rid = null, $schema, $page = 1, $size = 10) {
 		if (false === ($user = $this->accountUser())) {
 			return new \ResponseTimeout();
 		}
+
 		// 登记数据过滤条件
 		$criteria = $this->getPostJson();
-
 		// 登记记录过滤条件
 		$options = [
 			'page' => $page,
 			'size' => $size,
 		];
+		if (!empty($rid)) {
+			$options['rid'] = $rid;
+		}
 
 		// 登记活动
 		$modelApp = $this->model('matter\enroll');

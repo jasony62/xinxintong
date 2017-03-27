@@ -4,7 +4,7 @@ define(['frame'], function(ngApp) {
         $scope.doSearch = function(pageNumber) {
             $scope.rows.reset();
             srvEnrollRecord.search(pageNumber);
-            srvEnrollRecord.sum4Schema($scope.page.byRound).then(function(result) {
+            srvEnrollRecord.sum4Schema().then(function(result) {
                 $scope.sum4Schema = result;
             });
         };
@@ -20,6 +20,9 @@ define(['frame'], function(ngApp) {
         $scope.filter = function() {
             srvEnrollRecord.filter().then(function() {
                 $scope.rows.reset();
+                srvEnrollRecord.sum4Schema().then(function(result) {
+                    $scope.sum4Schema = result;
+                });
             });
         };
         $scope.editRecord = function(record) {

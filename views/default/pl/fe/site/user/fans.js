@@ -23,7 +23,7 @@ define(['require'], function(require) {
         ngApp.provider = {
             controller: $cp.register
         };
-        $rp.when('/rest/pl/fe/site/user/details', new RouteParam('details', true))
+        $rp.when('/rest/pl/fe/site/user/fans/details', new RouteParam('details', true))
             //.when('/rest/pl/fe/site/home/analysis', new RouteParam('analysis', true))
             .otherwise(new RouteParam('details', true));
         $lp.html5Mode(true);

@@ -162,7 +162,7 @@ define(['require', 'schema', 'page'], function(require, schemaLib, pageLib) {
                     }
                 }
             }).result.then(function(criteria) {
-                defer.resolve(criteria);
+                defer.resolve();
                 angular.extend(that._oCriteria, criteria);
                 that.search(1).then(function() {
                     defer.resolve();

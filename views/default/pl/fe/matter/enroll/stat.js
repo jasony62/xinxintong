@@ -249,7 +249,7 @@ define(['frame'], function(ngApp) {
             var url, params = {};
 
             url = '/rest/pl/fe/matter/enroll/stat/export';
-            url += '?site=' + $scope.app.siteid + '&app=' + $scope.app.id;
+            url += '?site=' + $scope.app.siteid + '&app=' + $scope.app.id + '&rid=' + (rid ? rid : '');
 
             http2.post(url, params, function(rsp) {
                 var blob;

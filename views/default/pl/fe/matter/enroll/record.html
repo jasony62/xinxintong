@@ -148,6 +148,7 @@
                         <td></td>
                         <td></td>
                         <td></td>
+                        <td ng-if="app.multi_rounds==='Y'"></td>
                         <td ng-repeat="schema in recordSchemas" ng-switch on="schema.type">
                             <span ng-if="schema.number==='Y'">
                                 {{sum4Schema[schema.id]}}

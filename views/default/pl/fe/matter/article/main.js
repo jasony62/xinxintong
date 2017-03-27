@@ -10,9 +10,6 @@ define(['frame'], function(ngApp) {
 
         $scope.modified = false;
         $scope.innerlinkTypes = cstApp.innerlink;
-        $scope.back = function() {
-            history.back();
-        };
         window.onbeforeunload = function(e) {
             var message;
             if ($scope.modified) {
@@ -23,10 +20,9 @@ define(['frame'], function(ngApp) {
                 }
                 return message;
             }
-            if( !editing.pic && !editing.thumbnail){
+            if (!$scope.editing.pic && !$scope.editing.thumbnail) {
                 tmsThumbnail.thumbnail($scope.editing);
             }
-
         };
         $scope.submit = function() {
             http2.post('/rest/pl/fe/matter/article/update?site=' + $scope.editing.siteid + '&id=' + $scope.editing.id, modifiedData, function() {
@@ -308,8 +304,8 @@ define(['frame'], function(ngApp) {
                 });
             });
         });
-        $scope.$watch('editing.title', function(title, oldTitle){
-            if(!$scope.editing.pic && title.slice(0,1)!=oldTitle.slice(0,1)){
+        $scope.$watch('editing.title', function(title, oldTitle) {
+            if (!$scope.editing.pic && title.slice(0, 1) != oldTitle.slice(0, 1)) {
                 tmsThumbnail.thumbnail($scope.editing);
             }
         });
@@ -334,6 +330,5 @@ define(['frame'], function(ngApp) {
                 noticebox.success('完成申请！');
             });
         };
-
     }]);
 });

@@ -136,7 +136,7 @@ class main extends \pl\fe\matter\base {
 			return new \ResponseTimeout();
 		}
 		$modelSite = $this->model('site');
-		$site = $modelSite->byId($site, array('fields' => 'id,heading_pic'));
+		$site = $modelSite->byId($site, ['fields' => 'id,heading_pic']);
 		$current = time();
 		$link = array();
 		$link['siteid'] = $site->id;
@@ -154,7 +154,6 @@ class main extends \pl\fe\matter\base {
 
 		/* 记录操作日志 */
 		$matter = $link;
-		$matter->type = 'link';
 		$this->model('matter\log')->matterOp($site->id, $user, $matter, 'C');
 
 		return new \ResponseData($link);

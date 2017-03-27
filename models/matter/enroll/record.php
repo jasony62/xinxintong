@@ -857,7 +857,7 @@ class record_model extends \TMS_MODEL {
 				$marks = $oApp->rpConfig->marks;
 			}
 			foreach ($records as &$record) {
-				$rec = $this->byId($record->enroll_key, ['fields' => 'nickname,data']);
+				$rec = $this->byId($record->enroll_key, ['fields' => 'rid,nickname,data']);
 				$rec->enroll_key = $record->enroll_key;
 				$result->records[] = $rec;
 			}
@@ -880,6 +880,11 @@ class record_model extends \TMS_MODEL {
 
 		$result = new \stdClass;
 		$dataSchemas = json_decode($oApp->data_schemas);
+		if(empty($rid)){
+			if ($activeRound = $this->model('matter\enroll\round')->getActive($oApp)) {
+				$rid = $activeRound->rid;
+			}
+		}
 		foreach ($dataSchemas as $schema) {
 			if (isset($schema->number) && $schema->number === 'Y') {
 				$q = [
@@ -888,6 +893,7 @@ class record_model extends \TMS_MODEL {
 					['aid' => $oApp->id, 'name' => $schema->id, 'state' => 1],
 				];
 				$rid !== 'ALL' && !empty($rid) && $q[2]['rid'] = $rid;
+
 				$sum = (int) $this->query_val_ss($q);
 				$result->{$schema->id} = $sum;
 			}
@@ -1115,10 +1121,18 @@ class record_model extends \TMS_MODEL {
 	 * 统计登记信息
 	 *
 	 */
-	public function &getStat($appId, $rid = null) {
+	public function &getStat($appId, $rid = '') {
+		$app = $this->model('matter\enroll')->byId($appId, ['cascaded' => 'N']);
+		if(empty($rid)){
+			if ($activeRound = $this->model('matter\enroll\round')->getActive($app)) {
+				$rid2 = $activeRound->rid;
+			}
+		}elseif($rid !== 'ALL'){
+			$rid2 = $rid;
+		}
+
 		$result = [];
 
-		$app = $this->model('matter\enroll')->byId($appId, ['data_schemas', 'cascaded' => 'N']);
 		if (empty($app->data_schemas)) {
 			return $result;
 		}
@@ -1138,8 +1152,11 @@ class record_model extends \TMS_MODEL {
 					$q = [
 						'count(*)',
 						'xxt_enroll_record_data',
-						"aid='$appId' and state=1 and name='{$schema->id}' and value='{$op->v}'",
+						['aid' => $appId, 'state' => 1, 'name' => $schema->id, 'value' => $op->v]
 					];
+					if(isset($rid2)){
+						$q[2]['rid'] = $rid2;
+					}
 					$op->c = $this->query_val_ss($q);
 					$result[$schema->id]['ops'][] = $op;
 				}
@@ -1153,6 +1170,10 @@ class record_model extends \TMS_MODEL {
 						'xxt_enroll_record_data',
 						"aid='$appId' and state=1 and name='{$schema->id}' and FIND_IN_SET('{$op->v}', value)",
 					];
+					if(isset($rid2)){
+						$rid2 = $this->escape($rid2);
+						$q[2] .= " and rid = '$rid2'";
+					}
 					$op->c = $this->query_val_ss($q);
 					$result[$schema->id]['ops'][] = $op;
 				}
@@ -1169,6 +1190,10 @@ class record_model extends \TMS_MODEL {
 					'xxt_enroll_record_data',
 					['aid' => $appId, 'state' => 1, 'name' => $schema->id],
 				];
+				if(isset($rid2)){
+						$q[2]['rid'] = $rid2;
+				}
+
 				$values = $this->query_objs_ss($q);
 				foreach ($values as $value) {
 					$value = json_decode($value->value);

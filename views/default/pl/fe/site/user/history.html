@@ -1,0 +1,17 @@
+<div class="row">
+    <div class="col-md-12 ng-cloak" >
+        <uib-tabset active="active" type="tabs">
+            <uib-tab  ng-repeat="history in historys" heading="{{history.title}}">
+                <div class='list-group-item app' ng-repeat="app in history.content" ng-click="openApp(app,history.title)">
+                    <div class='title'>{{app.matter_title}}</div>
+                    <div class='operate_at'  ng-switch on="history.title">
+                        <span ng-switch-when="活动记录">最后操作:</span>
+                        <span ng-switch-when="阅读记录">最后阅读:</span>
+                        <span ng-switch-default>收藏时间:</span>
+                        {{app.operate_at*1000|date:'yy-MM-dd HH:mm'}}
+                    </div>
+                </div>
+            </uib-tab>
+        </uib-tabset>
+    </div>
+</div>

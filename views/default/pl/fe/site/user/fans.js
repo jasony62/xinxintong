@@ -23,9 +23,10 @@ define(['require'], function(require) {
         ngApp.provider = {
             controller: $cp.register
         };
-        $rp.when('/rest/pl/fe/site/user/fans/details', new RouteParam('details', true))
-            //.when('/rest/pl/fe/site/home/analysis', new RouteParam('analysis', true))
-            .otherwise(new RouteParam('details', true));
+        $rp
+            .when('/rest/pl/fe/site/user/fans/details', new RouteParam('details', true))
+            .when('/rest/pl/fe/site/user/fans/history', new RouteParam('history', true))
+            .otherwise(new RouteParam('detail', true));
         $lp.html5Mode(true);
     }]);
     ngApp.controller('ctrlUser', ['$scope', 'srvSite', 'http2', function($scope, srvSite, http2) {

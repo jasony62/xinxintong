@@ -1396,12 +1396,16 @@ define(['require', 'schema', 'page'], function(require, schemaLib, pageLib) {
                 return defer.promise;
             };
             _ins.sum4Schema = function(rid) {
-                var url, defer = $q.defer();
+                var url,
+                    params = {
+                        criteria: _ins._oCriteria
+                    }
+                    defer = $q.defer();
 
                 url = '/rest/pl/fe/matter/enroll/record/sum4Schema';
                 url += '?site=' + _siteId;
                 url += '&app=' + _appId;
-                url += '&rid=' + (rid ? rid : 'ALL');
+                url += '&rid=' + params.criteria.record.rid;
 
                 http2.get(url, function(rsp) {
                     defer.resolve(rsp.data);

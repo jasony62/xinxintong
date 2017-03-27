@@ -242,7 +242,7 @@ class record_model extends \TMS_MODEL {
 			'xxt_enroll_record',
 			"enroll_key='$ek'",
 		];
-		if (($record = $this->query_obj_ss($q)) && $fields === '*') {
+		if (($record = $this->query_obj_ss($q)) && ($fields === '*' || false !== strpos($fields, 'data'))) {
 			$record->data = json_decode($record->data);
 		}
 
@@ -790,23 +790,25 @@ class record_model extends \TMS_MODEL {
 			$rid = isset($options->rid) ? $options->rid : null;
 		}
 		$result = new \stdClass; // 返回的结果
+		$result->records = [];
 		$result->total = 0;
 
 		$schemaId = $this->escape($schemaId);
 
 		// 查询参数
 		$q = [
-			'rid,nickname,enroll_key,data',
-			"xxt_enroll_record r",
-			['state' => 1, 'aid' => $oApp->id],
+			'enroll_key,value',
+			"xxt_enroll_record_data",
+			"state=1 and aid='{$oApp->id}' and name='{$schemaId}' and value<>''",
 		];
 		if (!empty($rid)) {
 			if ($rid !== 'ALL') {
-				$q[2]['rid'] = $rid;
+				$q[2] .= " and rid='{$rid}'";
 			}
 		} else {
+			/* 没有指定轮次，就使用当前轮次 */
 			if ($activeRound = $this->model('matter\enroll\round')->getActive($oApp)) {
-				$q[2]['rid'] = $activeRound->rid;
+				$q[2] .= " and rid='{$activeRound->rid}'";
 			}
 		}
 
@@ -855,11 +857,11 @@ class record_model extends \TMS_MODEL {
 				$marks = $oApp->rpConfig->marks;
 			}
 			foreach ($records as &$record) {
-				$record->data = empty($record->data) ? new \stdClass : json_decode($record->data);
+				$rec = $this->byId($record->enroll_key, ['fields' => 'rid,nickname,data']);
+				$rec->enroll_key = $record->enroll_key;
+				$result->records[] = $rec;
 			}
 		}
-
-		$result->records = $records;
 
 		// 符合条件的数据总数
 		$q[0] = 'count(*)';

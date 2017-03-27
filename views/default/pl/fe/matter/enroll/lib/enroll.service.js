@@ -1912,7 +1912,7 @@ define(['require', 'schema', 'page'], function(require, schemaLib, pageLib) {
                 }
             };
         }];
-    }).controller('ctrlEnrollEdit', ['$scope', '$uibModalInstance', 'record', 'srvEnrollApp', 'srvEnrollRecord', 'srvRecordConverter', function($scope, $uibModalInstance, record, srvEnrollApp, srvEnrollRecord, srvRecordConverter) {
+    }).controller('ctrlEnrollEdit', ['$scope', '$uibModalInstance', 'record', 'srvEnrollApp', 'srvEnrollRecord', 'srvRecordConverter', 'srvEnrollRound', function($scope, $uibModalInstance, record, srvEnrollApp, srvEnrollRecord, srvRecordConverter, srvEnlRnd) {
         srvEnrollApp.get().then(function(app) {
             if (record.data) {
                 app.data_schemas.forEach(function(col) {
@@ -1949,6 +1949,7 @@ define(['require', 'schema', 'page'], function(require, schemaLib, pageLib) {
             record.comment && (p.comment = record.comment);
             p.verified = record.verified;
             p.data = $scope.record.data;
+            p.rid = record.rid;
             $uibModalInstance.close([p, $scope.aTags]);
         };
         $scope.cancel = function() {
@@ -2003,6 +2004,14 @@ define(['require', 'schema', 'page'], function(require, schemaLib, pageLib) {
         $scope.syncByGroup = function() {
             srvEnrollRecord.syncByGroup($scope.record);
         };
+        $scope.doSearchRound = function() {
+            srvEnlRnd.list().then(function(result) {
+                $scope.activeRound = result.active;
+                $scope.rounds = result.rounds;
+                $scope.pageOfRound = result.page;
+            });
+        };
+        $scope.doSearchRound();
     }]).controller('ctrlEnrollFilter', ['$scope', '$uibModalInstance', 'dataSchemas', 'criteria', 'srvEnlRnd', function($scope, $mi, dataSchemas, lastCriteria, srvEnlRnd) {
         var canFilteredSchemas = [];
 

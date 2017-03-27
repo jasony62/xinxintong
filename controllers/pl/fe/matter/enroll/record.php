@@ -190,10 +190,18 @@ class record extends \pl\fe\matter\base {
 		if (isset($record->verified)) {
 			$updated->verified = $record->verified;
 		}
+		if(isset($record->rid)){
+			$updated->rid = $record->rid;
+		}
 		$modelEnl->update('xxt_enroll_record', $updated, "enroll_key='$ek'");
 
 		/* 记录登记数据 */
 		$result = $modelRec->setData(null, $app, $ek, isset($record->data) ? $record->data : new \stdClass);
+		$updated2 = new \stdClass;
+		if(isset($record->rid)){
+			$updated2->rid = $record->rid;
+		}
+		$modelEnl->update('xxt_enroll_record_data', $updated2, "enroll_key='$ek'");
 
 		if ($updated->verified === 'Y') {
 			$this->_whenVerifyRecord($app, $ek);
@@ -205,6 +213,14 @@ class record extends \pl\fe\matter\base {
 
 		/* 返回完整的记录 */
 		$record = $modelRec->byId($ek);
+		if(isset($record->rid)){
+			$record->round = new \stdClass;
+			if($round = $this->model('matter\enroll\round')->byId($record->rid, ['fields' => 'title'])){
+				$record->round->title =$round->title;
+			}else{
+				$record->round->title ='';
+			}
+		}
 
 		return new \ResponseData($record);
 	}

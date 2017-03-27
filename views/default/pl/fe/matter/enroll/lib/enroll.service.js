@@ -2009,9 +2009,6 @@ define(['require', 'schema', 'page'], function(require, schemaLib, pageLib) {
                 $scope.activeRound = result.active;
                 $scope.rounds = result.rounds;
                 $scope.pageOfRound = result.page;
-                if (!record.rid) {
-                    record.rid = 'NONE';
-                }
             });
         };
         $scope.doSearchRound();

@@ -181,13 +181,8 @@ class main extends \pl\fe\base {
 			$d['matter_id']=$one->matter_id;
 			$d['matter_type']=$one->matter_type;
 			$d['matter_title']=$one->matter_title;
+			
 			$rst=$model->insert('xxt_account_topmatter',$d);
-
-			$matter=$model->query_obj_ss([
-				'id tid,matter_id id,matter_type type,matter_title title',
-				'xxt_account_topmatter',
-				"siteid='$site' and id='$rst'"
-			]);
 		}
 
 		return new \ResponseData($rst);

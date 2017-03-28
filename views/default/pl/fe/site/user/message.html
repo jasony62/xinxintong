@@ -1,0 +1,38 @@
+
+<div class="row">
+    <div class="col-md-12 margin-bottom">
+        <button type="button" class="btn btn-default pull-right" ng-click="notify()">发送消息</button>
+    </div>
+    <div class="col-md-12 ng-cloak">
+        <div class="row">
+            <div class="col-md-4" ng-repeat="m in message">
+                <div class="thumbnail" ng-class="{'success':m.state==='Y','fail':m.state==='N'}">
+                    <h4 class='title' ng-bind='m.title'></h4>
+                    <p class='summary' ng-bind='m.remark'></p>
+                    <div class='attr'>
+                        <div title='发送时间' ng-bind="m.time*1000|date:'yy-MM-dd HH:mm'"></div>
+                    </div>
+                    <div class='actions' ng-if="m.state==='N'">
+                       失败原因: {{m.case}}
+                    </div>
+                </div>
+            </div>
+        </div>
+        <!--<table class="table table-bordered table-striped">-->
+            <!--<thead>-->
+                <!--<tr>-->
+                    <!--<th>标题</th>-->
+                    <!--<th>发送时间</th>-->
+                    <!--<th>操作</th>-->
+                <!--</tr>-->
+            <!--</thead>-->
+            <!--<tbody>-->
+                <!--<tr ng-repeat="m in message">-->
+                    <!--<td ng-bind="m.title"></td>-->
+                    <!--<td ng-bind="m.time*1000|date:'yy-MM-dd HH:mm'"></td>-->
+                    <!--<td ><a href="javascript:void(0)" ng-click="open()">查看详情</a></td>-->
+                <!--</tr>-->
+            <!--</tbody>-->
+        <!--</table>-->
+    </div>
+</div>

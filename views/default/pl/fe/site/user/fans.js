@@ -26,7 +26,8 @@ define(['require'], function(require) {
         $rp
             .when('/rest/pl/fe/site/user/fans/details', new RouteParam('details', true))
             .when('/rest/pl/fe/site/user/fans/history', new RouteParam('history', true))
-            .otherwise(new RouteParam('detail', true));
+            .when('/rest/pl/fe/site/user/fans/message', new RouteParam('message', true))
+            .otherwise(new RouteParam('message', true));
         $lp.html5Mode(true);
     }]);
     ngApp.controller('ctrlUser', ['$scope', 'srvSite', 'http2', function($scope, srvSite, http2) {

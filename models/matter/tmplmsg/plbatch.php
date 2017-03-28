@@ -71,66 +71,66 @@ class plbatch_model extends \TMS_MODEL {
 			$log['userid'] = $userid;
 
 			/* 平台应用内消息 */
-			$log['data'] = $modelTmpl->escape($modelTmpl->toJson($txtTmplMsg));
-			$log['send_to'] = 'pl';
-			$modelTmpl->insert('xxt_log_tmplmsg_pldetail', $log, false);
-
-			/* 微信公众号用户 */
-			if (!empty($user->wx_openid)) {
-				if (!empty($tmpl->templateid)) {
-					/* 发送微信模板消息 */
-					$wxTmplMsg['touser'] = $user->wx_openid;
-					$log['openid'] = $user->wx_openid;
-					$log['data'] = $modelTmpl->escape($modelTmpl->toJson($wxTmplMsg));
-					if (!isset($snsConfig)) {
-						$snsConfig = $this->model('sns\wx')->bySite($tmpl->siteid);
-						$wxProxy = $this->model('sns\wx\proxy', $snsConfig);
-					}
-					$rst = $wxProxy->messageTemplateSend($wxTmplMsg);
-					if ($rst[0] === false) {
-						$log['status'] = 'failed:' . $rst[1];
+			if (empty($user->wx_openid) && empty($user->qy_openid) && empty($user->yx_openid)) {
+				$log['data'] = $modelTmpl->escape($modelTmpl->toJson($txtTmplMsg));
+				$log['send_to'] = 'pl';
+				$modelTmpl->insert('xxt_log_tmplmsg_pldetail', $log, false);
+			} else {
+				/* 微信公众号用户 */
+				if (!empty($user->wx_openid)) {
+					if (!empty($tmpl->templateid)) {
+						/* 发送微信模板消息 */
+						$wxTmplMsg['touser'] = $user->wx_openid;
+						$log['openid'] = $user->wx_openid;
+						$log['data'] = $modelTmpl->escape($modelTmpl->toJson($wxTmplMsg));
+						if (!isset($snsConfig)) {
+							$snsConfig = $this->model('sns\wx')->bySite($tmpl->siteid);
+							$wxProxy = $this->model('sns\wx\proxy', $snsConfig);
+						}
+						$rst = $wxProxy->messageTemplateSend($wxTmplMsg);
+						if ($rst[0] === false) {
+							$log['status'] = 'failed:' . $rst[1];
+						} else {
+							$log['msgid'] = $rst[1]->msgid;
+						}
 					} else {
-						$log['msgid'] = $rst[1]->msgid;
+						$log['openid'] = $user->wx_openid;
+						if (!empty($url)) {
+							$txtTmplMsg[] = " <a href='" . $url . "'>查看详情</a>";
+						}
+						$log['data'] = $modelTmpl->escape($modelTmpl->toJson($txtTmplMsg));
+
+						$rst = $this->_sendTxtByOpenid($siteId, $user->wx_openid, 'wx', $txtTmplMsg, $log);
+
 					}
-				} else {
-					$log['openid'] = $user->wx_openid;
+					$log['send_to'] = 'wx';
+					$modelTmpl->insert('xxt_log_tmplmsg_pldetail', $log, false);
+				}
+				/* 微信企业号用户，将模板消息转换文本消息 */
+				if (!empty($user->qy_openid)) {
+					$log['openid'] = $user->qy_openid;
 					if (!empty($url)) {
 						$txtTmplMsg[] = " <a href='" . $url . "'>查看详情</a>";
 					}
 					$log['data'] = $modelTmpl->escape($modelTmpl->toJson($txtTmplMsg));
 
-					$rst = $this->_sendTxtByOpenid($siteId, $user->wx_openid, 'wx', $txtTmplMsg, $log);
-
+					$rst = $this->_sendTxtByOpenid($siteId, $user->qy_openid, 'qy', $txtTmplMsg, $log);
+					$log['send_to'] = 'qy';
+					$modelTmpl->insert('xxt_log_tmplmsg_pldetail', $log, false);
 				}
-				$log['send_to'] = 'wx';
-				$modelTmpl->insert('xxt_log_tmplmsg_pldetail', $log, false);
-			}
+				/* 易信用户，将模板消息转换文本消息 */
+				if (!empty($user->yx_openid)) {
+					$log['openid'] = $user->yx_openid;
+					if (!empty($url)) {
+						$txtTmplMsg[] = '查看详情：\n' . $url;
+					}
+					$log['data'] = $modelTmpl->escape($modelTmpl->toJson($txtTmplMsg));
 
-			/* 微信企业号用户，将模板消息转换文本消息 */
-			if (!empty($user->qy_openid)) {
-				$log['openid'] = $user->qy_openid;
-				if (!empty($url)) {
-					$txtTmplMsg[] = " <a href='" . $url . "'>查看详情</a>";
+					$rst = $this->_sendTxtByOpenid($siteId, $user->yx_openid, 'yx', $txtTmplMsg, $log);
+
+					$log['send_to'] = 'yx';
+					$modelTmpl->insert('xxt_log_tmplmsg_pldetail', $log, false);
 				}
-				$log['data'] = $modelTmpl->escape($modelTmpl->toJson($txtTmplMsg));
-
-				$rst = $this->_sendTxtByOpenid($siteId, $user->qy_openid, 'qy', $txtTmplMsg, $log);
-				$log['send_to'] = 'qy';
-				$modelTmpl->insert('xxt_log_tmplmsg_pldetail', $log, false);
-			}
-
-			/* 易信用户，将模板消息转换文本消息 */
-			if (!empty($user->yx_openid)) {
-				$log['openid'] = $user->yx_openid;
-				if (!empty($url)) {
-					$txtTmplMsg[] = '查看详情：\n' . $url;
-				}
-				$log['data'] = $modelTmpl->escape($modelTmpl->toJson($txtTmplMsg));
-
-				$rst = $this->_sendTxtByOpenid($siteId, $user->yx_openid, 'yx', $txtTmplMsg, $log);
-
-				$log['send_to'] = 'yx';
-				$modelTmpl->insert('xxt_log_tmplmsg_pldetail', $log, false);
 			}
 		}
 	}

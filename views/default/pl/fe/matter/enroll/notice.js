@@ -24,7 +24,14 @@ define(['frame'], function(ngApp) {
             })
         };
         $scope.fail = function() {
-
+            var failRecords = [];
+            $scope.records.forEach(function(item,index) {
+                console.log(item.noticeStatus.indexOf('failed'));
+                if(!(item.noticeStatus.indexOf('failed') < 0)) {
+                    failRecords.push(item);
+                }
+            });
+            $scope.records = failRecords;
         }
         $scope.$watch('app', function(app) {
             var recordSchemas;

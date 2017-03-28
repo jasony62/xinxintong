@@ -1909,9 +1909,6 @@ define(['require', 'schema', 'page'], function(require, schemaLib, pageLib) {
                     });
 
                     return defer.promise;
-                },
-                fail: function() {
-
                 }
             };
         }];

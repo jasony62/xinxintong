@@ -1,6 +1,6 @@
 <div id='notice-view'>
     <div class="col-md-12 form-group">
-        <button class='btn btn-default' ng-click="fail()">查看失败记录</button>
+        <button class='btn btn-default' ng-if="records.length"ng-click="fail()">仅展示失败记录</button>
     </div>
 	<div class='col-md-4'>
 		<div class='list-group'>

@@ -13,7 +13,7 @@
                     <ul class="dropdown-menu">
                         <li><a href="" ng-click="batchVerify()">通过审核</a></li>
                         <li><a href="" ng-click="batchTag()">打标签</a></li>
-                        <li><a href=""  ng-click="notify(true)">发送信息</a></li>
+                        <li><a href="" ng-if="app.entry_rule.scope==='sns'" ng-click="notify(true)">发送信息</a></li>
                         <li class="divider"></li>
                         <li><a href="" ng-click="createAppByRecords()" ng-show="countSelected()">根据选中记录创建活动</a></li>
                     </ul>

@@ -164,11 +164,11 @@ class main extends \pl\fe\base {
 		if(empty($one)){
 			return new \ResponseError('找不到素材的操作记录！');
 		}
-
+		//获取当前用户的置顶素材
 		$matter=$model->query_obj_ss([
 			'id tid,matter_id id,matter_type type,matter_title title',
 			'xxt_account_topmatter',
-			['siteid'=>$site,'matter_id'=>$one->matter_id,'matter_type'=>$one->matter_type]
+			['siteid'=>$site,'userid'=>$user->id,'matter_id'=>$one->matter_id,'matter_type'=>$one->matter_type]
 		]);
 
 		if($matter){
@@ -206,5 +206,20 @@ class main extends \pl\fe\base {
 		$matters=$this->model()->query_objs_ss($p,$p2);
 
 		return new \ResponseData($matters);
+	}
+	/**
+	 * 删除置顶
+	 */
+	public function delTop_action($site, $id, $type){
+		if (false === ($user = $this->accountUser())) {
+			return new \ResponseTimeout();
+		}
+
+		$rst = $this->model()->delete(
+			'xxt_account_topmatter',
+			"siteid='$site' and userid='$user->id' and matter_id='$id' and matter_type='$type'"
+		);
+
+		return new \ResponseData($rst);
 	}
 }

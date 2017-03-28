@@ -378,22 +378,21 @@ class channel_model extends article_base {
 		is_array($matter) && $matter = (object) $matter;
 
 		$channel = $this->byId($id);
-		$matterType = $matter->type;
-		$matter = \TMS_APP::M('matter\\' . $matterType)->byId($matter->id);
-		$matter->type = $matterType;
+		$oMatter = $this->model('matter\\' . $matter->type)->byId($matter->id);
 		$current = time();
 
-		$newc['matter_id'] = $matter->id;
-		$newc['matter_type'] = $matter->type;
+		$newc['matter_id'] = $oMatter->id;
+		$newc['matter_type'] = $oMatter->type;
 		$newc['create_at'] = $current;
 		$newc['creater'] = $creater;
 		$newc['creater_src'] = $createrSrc;
 		$newc['creater_name'] = $createrName;
-		// check
+
+		/* 是否已经加入到频道中 */
 		$q = [
 			'count(*)',
 			'xxt_channel_matter',
-			["channel_id" => $id, "matter_id" => $matter->id, "matter_type" => $matter->type],
+			["channel_id" => $id, "matter_id" => $oMatter->id, "matter_type" => $oMatter->type],
 		];
 		if (1 === (int) $this->query_val_ss($q)) {
 			return false;
@@ -401,21 +400,20 @@ class channel_model extends article_base {
 
 		// new one
 		$newc['channel_id'] = $id;
-
 		$this->insert('xxt_channel_matter', $newc, false);
 
 		/* 如果频道已经发布到团队主页上，频道增加素材时，推送给关注者 */
 		if ($this->isAtHome($channel->id)) {
-			$modelSite = \TMS_APP::M('site');
-			$site = $modelSite->byId($matter->siteid);
+			$modelSite = $this->model('site');
+			$site = $modelSite->byId($oMatter->siteid);
 			/**
 			 * 推送给关注团队的站点用户
 			 */
-			$modelSite->pushToSubscriber($site, $matter);
+			$modelSite->pushToClient($site, $oMatter);
 			/**
-			 * 推送给关注团队的站点用户
+			 * 推送给关注团队的团队账号
 			 */
-			$modelSite->pushToFriend($site, $matter);
+			$modelSite->pushToFriend($site, $oMatter);
 		}
 
 		return true;

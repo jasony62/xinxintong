@@ -1190,7 +1190,7 @@ define(['require', 'schema', 'page'], function(require, schemaLib, pageLib) {
                 };
 
                 url = '/rest/pl/fe/matter/enroll/record/export';
-                url += '?site=' + _siteId + '&app=' + _appId;
+                url += '?site=' + _siteId + '&app=' + _appId + '&rid=' + params.criteria.record.rid;
                 window.open(url);
             };
             _ins.exportImage = function() {
@@ -1396,12 +1396,16 @@ define(['require', 'schema', 'page'], function(require, schemaLib, pageLib) {
                 return defer.promise;
             };
             _ins.sum4Schema = function(rid) {
-                var url, defer = $q.defer();
+                var url,
+                    params = {
+                        criteria: _ins._oCriteria
+                    }
+                    defer = $q.defer();
 
                 url = '/rest/pl/fe/matter/enroll/record/sum4Schema';
                 url += '?site=' + _siteId;
                 url += '&app=' + _appId;
-                url += '&rid=' + (rid ? rid : 'ALL');
+                url += '&rid=' + params.criteria.record.rid;
 
                 http2.get(url, function(rsp) {
                     defer.resolve(rsp.data);
@@ -1912,7 +1916,7 @@ define(['require', 'schema', 'page'], function(require, schemaLib, pageLib) {
                 }
             };
         }];
-    }).controller('ctrlEnrollEdit', ['$scope', '$uibModalInstance', 'record', 'srvEnrollApp', 'srvEnrollRecord', 'srvRecordConverter', function($scope, $uibModalInstance, record, srvEnrollApp, srvEnrollRecord, srvRecordConverter) {
+    }).controller('ctrlEnrollEdit', ['$scope', '$uibModalInstance', 'record', 'srvEnrollApp', 'srvEnrollRecord', 'srvRecordConverter', 'srvEnrollRound', function($scope, $uibModalInstance, record, srvEnrollApp, srvEnrollRecord, srvRecordConverter, srvEnlRnd) {
         srvEnrollApp.get().then(function(app) {
             if (record.data) {
                 app.data_schemas.forEach(function(col) {
@@ -1949,6 +1953,7 @@ define(['require', 'schema', 'page'], function(require, schemaLib, pageLib) {
             record.comment && (p.comment = record.comment);
             p.verified = record.verified;
             p.data = $scope.record.data;
+            p.rid = record.rid;
             $uibModalInstance.close([p, $scope.aTags]);
         };
         $scope.cancel = function() {
@@ -2003,6 +2008,14 @@ define(['require', 'schema', 'page'], function(require, schemaLib, pageLib) {
         $scope.syncByGroup = function() {
             srvEnrollRecord.syncByGroup($scope.record);
         };
+        $scope.doSearchRound = function() {
+            srvEnlRnd.list().then(function(result) {
+                $scope.activeRound = result.active;
+                $scope.rounds = result.rounds;
+                $scope.pageOfRound = result.page;
+            });
+        };
+        $scope.doSearchRound();
     }]).controller('ctrlEnrollFilter', ['$scope', '$uibModalInstance', 'dataSchemas', 'criteria', 'srvEnlRnd', function($scope, $mi, dataSchemas, lastCriteria, srvEnlRnd) {
         var canFilteredSchemas = [];
 

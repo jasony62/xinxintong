@@ -22,16 +22,25 @@ class stat extends \pl\fe\matter\base {
 	 * name => array(l=>label,c=>count)
 	 *
 	 */
-	private function _getResult($site, $appId, $rid = null, $renewCache = 'Y') {
+	private function _getResult($site, $appId, $rid = '', $renewCache = 'Y') {
+		if (empty($rid)) {
+			$app = $this->model('matter\enroll')->byId($appId, ['cascaded' => 'N']);
+			if ($activeRound = $this->model('matter\enroll\round')->getActive($app)) {
+				$rid = $activeRound->rid;
+			}
+		}
+
 		$current = time();
 		$modelRec = $this->model('matter\enroll\record');
+		$rid = $modelRec->escape($rid);
 		if ($renewCache === 'Y') {
 			/* 上一次保留统计结果的时间 */
 			$q = [
 				'create_at',
 				'xxt_enroll_record_stat',
-				['aid' => $appId],
+				['aid' => $appId, 'rid' => $rid],
 			];
+
 			$q2 = ['r' => ['o' => 0, 'l' => 1]];
 			$last = $modelRec->query_objs_ss($q, $q2);
 			/* 上次统计后的新登记记录数 */
@@ -42,6 +51,10 @@ class stat extends \pl\fe\matter\base {
 					'xxt_enroll_record',
 					"aid='$appId' and enroll_at>={$last->create_at}",
 				];
+				if ($rid !== 'ALL' && !empty($rid)) {
+					$q[2] .= " and rid = '$rid'";
+				}
+
 				$newCnt = (int) $modelRec->query_val_ss($q);
 			} else {
 				$newCnt = 999;
@@ -52,7 +65,7 @@ class stat extends \pl\fe\matter\base {
 				// 保存统计结果
 				$modelRec->delete(
 					'xxt_enroll_record_stat',
-					"aid='$appId'"
+					['aid' => $appId, 'rid' => $rid]
 				);
 				foreach ($result as $id => $stat) {
 					foreach ($stat['ops'] as $op) {
@@ -65,6 +78,7 @@ class stat extends \pl\fe\matter\base {
 							'v' => $op->v,
 							'l' => $op->l,
 							'c' => $op->c,
+							'rid' => $rid,
 						];
 						$modelRec->insert('xxt_enroll_record_stat', $r);
 					}
@@ -75,8 +89,9 @@ class stat extends \pl\fe\matter\base {
 				$q = [
 					'id,title,v,l,c',
 					'xxt_enroll_record_stat',
-					['aid' => $appId],
+					['aid' => $appId, 'rid' => $rid],
 				];
+
 				$cached = $modelRec->query_objs_ss($q);
 				foreach ($cached as $data) {
 					if (empty($result[$data->id])) {
@@ -109,7 +124,7 @@ class stat extends \pl\fe\matter\base {
 	 * @return array name => array(l=>label,c=>count)
 	 *
 	 */
-	public function get_action($site, $app, $rid = null, $renewCache = 'Y') {
+	public function get_action($site, $app, $rid = '', $renewCache = 'Y') {
 		if (false === ($user = $this->accountUser())) {
 			return new \ResponseTimeout();
 		}
@@ -144,7 +159,7 @@ class stat extends \pl\fe\matter\base {
 	/**
 	 *
 	 */
-	public function export_action($site, $app) {
+	public function export_action($site, $app, $rid = '') {
 		if (false === ($user = $this->accountUser())) {
 			return new \ResponseTimeout();
 		}
@@ -154,11 +169,15 @@ class stat extends \pl\fe\matter\base {
 		require_once TMS_APP_DIR . '/lib/jpgraph/jpgraph_pie.php';
 		require_once TMS_APP_DIR . '/lib/jpgraph/jpgraph_line.php';
 
-		$app = $this->model('matter\enroll')->byId($app, ['cascaded' => 'N']);
+		$oApp = $this->model('matter\enroll')->byId($app, ['cascaded' => 'N']);
 
-		$schemas = json_decode($app->data_schemas);
+		$schemas = json_decode($oApp->data_schemas);
+		$schemasById = [];
+		foreach ($schemas as $schema) {
+			$schemasById[$schema->id] = $schema;
+		}
 
-		$statResult = $this->_getResult($site, $app->id);
+		$statResult = $this->_getResult($site, $oApp->id, $rid);
 
 		$html = '<html xmlns:o="urn:schemas-microsoft-com:office:office" xmlns:w="urn:schemas-microsoft-com:office:word" xmlns="http://www.w3.org/TR/REC-html40">';
 		$html .= '<head>';
@@ -175,14 +194,19 @@ class stat extends \pl\fe\matter\base {
 		foreach ($schemas as $index => $schema) {
 			$html .= "<h3><span>第" . ($index + 1) . "项：</span><span>{$schema->title}</span></h3>";
 			if (in_array($schema->type, ['name', 'email', 'mobile', 'date', 'location', 'shorttext', 'longtext'])) {
-				$textResult = $modelRec->list4Schema($site, $app, $schema->id, ['rid' => 'ALL']);
+				$textResult = $modelRec->list4Schema($site, $oApp, $schema->id, ['rid' => $rid]);
 				if (!empty($textResult->records)) {
-
 					//数值型的饼图
 					if (isset($schema->number) && $schema->number === 'Y') {
 						$data = [];
 						foreach ($textResult->records as $record) {
-							$data[] = $record->value;
+							$schemaId = $schema->id;
+							if (isset($record->data->$schemaId)) {
+								$data[] = $record->data->$schemaId;
+							}
+						}
+						if (empty($data)) {
+							continue;
 						}
 						$graph = new \PieGraph(550, 300);
 						$graph->SetShadow();
@@ -212,18 +236,26 @@ class stat extends \pl\fe\matter\base {
 						//
 						$html .= '<img src="' . $schema->id . '.base64" />';
 					}
-
 					//拼装表格
 					$records = $textResult->records;
 					$html .= "<table><thead><tr>";
 					$html .= "<th>序号</th>";
+					//$html .= "<th>轮次</th>";
 					$sumNumber = 0; //数值型最后合计的列号
 					//标识
-					foreach ($textResult->markNames as $markName) {
-						if ($schema->title !== $markName['name']) {
-							$html .= "<th>" . $markName['name'] . "</th>";
-							$sumNumber++;
+					if (!empty($oApp->rp_config)) {
+						$rpConfig = json_decode($oApp->rp_config);
+						if (!empty($rpConfig->marks)) {
+							foreach ($rpConfig->marks as $key => $mark) {
+								if ($schema->title !== $mark->name) {
+									$html .= "<th>" . $mark->name . "</th>";
+									$sumNumber++;
+								}
+							}
 						}
+					} else {
+						$html .= "<th>昵称</th>";
+						$sumNumber++;
 					}
 					$html .= "<th>登记内容</th></tr></thead>";
 					$html .= "<tbody>";
@@ -231,19 +263,55 @@ class stat extends \pl\fe\matter\base {
 						$html .= "<tr>";
 						$record = $records[$i];
 						$html .= "<td>" . ($i + 1) . "</td>";
+						// if ($ridName = $this->model('matter\enroll\round')->byId($record->rid, ['fields' => 'title'])) {
+						// 	$html .= "<td>" . $ridName->title . "</td>";
+						// } else {
+						// 	$html .= "<td>无</td>";
+						// }
 						//标识
-						foreach ($records[$i]->marks as $mark) {
-							if ($schema->title !== $mark['name']) {
-								$html .= "<td>" . $mark['value'] . "</td>";
+						if (isset($rpConfig) && !empty($rpConfig->marks)) {
+							foreach ($rpConfig->marks as $mark) {
+								if ($schema->id !== $mark->id) {
+									if ($mark->id === 'nickname') {
+										$html .= "<td>" . $record->nickname . "</td>";
+									} else {
+										$markId = $mark->id;
+										if (isset($record->data->$markId)) {
+											$markSchema = $schemasById[$mark->id];
+											if (in_array($markSchema->type, ['single', 'phase'])) {
+												$label = '';
+												foreach ($markSchema->ops as $op) {
+													if ($op->v === $record->data->$markId) {
+														$label = $op->l;
+														break;
+													}
+												}
+											} else {
+												$label = $record->data->$markId;
+											}
+											$html .= "<td>" . $label . "</td>";
+
+										} else {
+											$html .= "<td></td>";
+										}
+									}
+								}
 							}
+						} else {
+							$html .= "<td>" . $record->nickname . "</td>";
 						}
-						$html .= "<td>{$record->value}</td></tr>";
+						$schemaId = $schema->id;
+						if (isset($record->data->$schemaId)) {
+							$html .= "<td>" . $record->data->$schemaId . "</td>";
+						} else {
+							$html .= "<td></td>";
+						}
 					}
 					//数值型显示合计
 					if (isset($textResult->sum)) {
 						$html .= "<tr><td>合计</td>";
 						if ($sumNumber > 0) {
-							for ($i = 0, $j = $sumNumber; $i < $j; $i++) {
+							for ($i = 0, $j = $sumNumber + 1; $i < $j; $i++) {
 								$html .= "<td> </td>";
 							}
 						}
@@ -261,7 +329,9 @@ class stat extends \pl\fe\matter\base {
 						$sum += (int) $op['c'];
 					}
 				}
-
+				if (empty($data)) {
+					continue;
+				}
 				if (in_array($schema->type, ['single', 'phase'])) {
 					// Create a pie pot
 					if ($sum) {
@@ -412,7 +482,7 @@ class stat extends \pl\fe\matter\base {
 				$html .= "<tr><td>{$op['l']}</td><td>{$op['c']}</td></tr>";
 			}
 			$html .= "<tr><td>所有打分项总平均分</td><td>{$avgScoreSummary}</td></tr>";
-			$html .= "<tr><td>所有打分项合计}</td><td>{$totalScoreSummary}</td></tr>";
+			$html .= "<tr><td>所有打分项合计</td><td>{$totalScoreSummary}</td></tr>";
 			$html .= "</tbody></table>";
 		}
 

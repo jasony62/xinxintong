@@ -2,6 +2,7 @@ define(['frame'], function(ngApp) {
     'use strict';
     ngApp.provider.controller('ctrlNotice', ['$scope', 'srvTmplmsgNotice', 'srvSigninNotice', 'srvRecordConverter', function($scope, srvTmplmsgNotice, srvSigninNotice, srvRecordConverter) {
         var oBatchPage, aBatches;
+        $scope.tmsTableWrapReady = 'N';
         $scope.oBatchPage = oBatchPage = {};
         $scope.batches = aBatches = [];
         $scope.detail = function(batch) {
@@ -22,6 +23,16 @@ define(['frame'], function(ngApp) {
                 $scope.activeBatch = batch;
             })
         };
+        $scope.fail = function() {
+            var failRecords = [];
+            $scope.records.forEach(function(item,index) {
+                console.log(item.noticeStatus.indexOf('failed'));
+                if(!(item.noticeStatus.indexOf('failed') < 0)) {
+                    failRecords.push(item);
+                }
+            });
+            $scope.records = failRecords;
+        }
         $scope.$watch('app', function(app) {
             var recordSchemas;
             if (!app) return;
@@ -33,6 +44,7 @@ define(['frame'], function(ngApp) {
             });
             srvTmplmsgNotice.init('signin:' + app.id, oBatchPage, aBatches);
             srvTmplmsgNotice.list();
+            $scope.tmsTableWrapReady = 'Y';
             $scope.recordSchemas = recordSchemas;
         });
     }]);

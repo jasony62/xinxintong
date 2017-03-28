@@ -7,16 +7,16 @@ require_once dirname(__FILE__) . '/base.php';
  */
 class main extends \pl\fe\base {
 	/**
-	 * 用户登录后的首页
+	 * 用户个人工作台
 	 */
 	public function index_action($ver = null) {
 		if ($ver === '2') {
-			\TPL::output('/pl/fe/console/frame');
+			\TPL::output('/pl/fe/main2');
 			exit;
 		} else if ($ver === '1') {
 			$this->view_action('/pl/fe/main');
 		} else {
-			\TPL::output('/pl/fe/main2');
+			\TPL::output('/pl/fe/console/frame');
 			exit;
 		}
 	}

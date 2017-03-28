@@ -218,9 +218,8 @@ define(['frame'], function(ngApp) {
                 $scope.sites = rsp.data;
             });
         };
-
-        $scope.openHome = function(site) {
-            location.href = '/rest/site/home?site=' + site.id;
+        $scope.setHome = function(site) {
+            location.href = '/rest/pl/fe/site/home?site=' + site.id;
         };
         $scope.openConsole = function(site) {
             location.href = '/rest/pl/fe/site?site=' + site.id;

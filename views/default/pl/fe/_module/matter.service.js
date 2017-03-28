@@ -21,10 +21,23 @@ provider('srvSite', function() {
                 }
                 return defer.promise;
             },
-            matterList: function() {
+            matterList: function(page) {
+                if (!page) {
+                    page = {
+                        at: 1,
+                        size: 10,
+                        total: 0,
+                        _j: function() {
+                            return 'page=' + this.at + '&size=' + this.size;
+                        }
+                    }
+                } else {
+                    page.at++;
+                }
                 var defer = $q.defer();
-                http2.get('/rest/pl/fe/site/matterList', function(rsp) {
-                    defer.resolve(rsp.data);
+                http2.get('/rest/pl/fe/site/matterList?' + page._j(), function(rsp) {
+                    page.total = rsp.data.total;
+                    defer.resolve({ matters: rsp.data.matters, page: page });
                 });
                 return defer.promise;
             },

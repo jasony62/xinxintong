@@ -209,7 +209,7 @@ class main extends \pl\fe\base {
 	/**
 	 * 已经关注过的团队发布的消息
 	 */
-	public function matterList_action($page = 1, $size = 30) {
+	public function matterList_action($page = 1, $size = 10) {
 		if (false === ($user = $this->accountUser())) {
 			return new \ResponseTimeout();
 		}
@@ -221,7 +221,7 @@ class main extends \pl\fe\base {
 		foreach ($mySites as $mySite) {
 			$mySiteIds[] = $mySite->id;
 		}
-		$result->matters = $modelSite->matterByFriend($mySiteIds, ['page' => ['at' => $page, 'size' => $size]]);
+		$result = $modelSite->matterByFriend($mySiteIds, ['page' => ['at' => $page, 'size' => $size]]);
 
 		return new \ResponseData($result);
 	}

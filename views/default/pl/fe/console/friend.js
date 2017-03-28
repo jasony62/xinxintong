@@ -38,7 +38,9 @@ define(['frame'], function(ngApp) {
                             sites.push(mySite.id);
                         });
                         url += '&subscriber=' + sites.join(',');
-                        http2.get(url, function(rsp) {});
+                        http2.get(url, function(rsp) {
+                            site._subscribed = 'Y';
+                        });
                     });
                 }
             });
@@ -48,11 +50,27 @@ define(['frame'], function(ngApp) {
                 $scope.friendSites.splice($scope.friendSites.indexOf(site), 1);
             });
         };
-        $scope.openSite = function(siteId) {
-            location.href = '/rest/site/home?site=' + siteId;
+        $scope.openMatter = function(matter) {
+            var url;
+            if (/article|custom|news|channel/.test(matter.matter_type)) {
+                url = '/rest/site/fe/matter?type=' + matter.matter_type;
+                url += '&id=' + matter.matter_id + '&site=' + matter.from_siteid;
+            } else {
+                url = '/rest/site/fe/matter/' + matter.matter_type;
+                url += '?id=' + matter.matter_id + '&site=' + matter.from_siteid;
+            }
+            location.href = url;
+        };
+        $scope.moreMatter = function() {
+            srvSite.matterList($scope.pageOfmatters).then(function(result) {
+                result.matters.forEach(function(matter) {
+                    $scope.matters.push(matter);
+                });
+            });
         };
         srvSite.matterList().then(function(result) {
             $scope.matters = result.matters;
+            $scope.pageOfmatters = result.page;
         });
         srvSite.friendList().then(function(sites) {
             $scope.friendSites = sites;

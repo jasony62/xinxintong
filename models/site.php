@@ -394,7 +394,9 @@ class site_model extends \TMS_MODEL {
 	 */
 	public function matterByFriend($friendIds, $options = []) {
 		$fields = isset($options['fields']) ? $options['fields'] : '*';
-		$page = isset($options['page']) ? $options['page'] : ['at' => 1, 'size' => 30];
+		$page = isset($options['page']) ? $options['page'] : ['at' => 1, 'size' => 10];
+
+		$result = new \stdClass;
 
 		is_string($friendIds) && $friendIds = explose(',', $friendIds);
 		$where = 'from_siteid in ("';
@@ -408,8 +410,11 @@ class site_model extends \TMS_MODEL {
 		];
 		$q2 = ['o' => 'put_at desc', 'r' => ['o' => ($page['at'] - 1) * $page['size'], 'l' => $page['size']]];
 
-		$sites = $this->query_objs_ss($q, $q2);
+		$result->matters = $this->query_objs_ss($q, $q2);
 
-		return $sites;
+		$q[0] = 'count(*)';
+		$result->total = $this->query_val_ss($q);
+
+		return $result;
 	}
 }

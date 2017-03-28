@@ -7,11 +7,8 @@
         <div class="row">
             <div class="col-md-4" ng-repeat="m in message">
                 <div class="thumbnail" ng-class="{'success':m.state==='Y','fail':m.state==='N'}">
-                    <h4 class='title' ng-bind='m.title'></h4>
+                    <h4 class='title' ng-bind="m.time*1000|date:'yy-MM-dd HH:mm'"></h4>
                     <p class='summary' ng-bind='m.remark'></p>
-                    <div class='attr'>
-                        <div title='发送时间' ng-bind="m.time*1000|date:'yy-MM-dd HH:mm'"></div>
-                    </div>
                     <div class='actions' ng-if="m.state==='N'">
                        失败原因: {{m.case}}
                     </div>
@@ -36,3 +33,39 @@
         <!--</table>-->
     </div>
 </div>
+<script type="text/ng-template" id="notify.html">
+    <div class="modal-header">
+        <button class="close" type="button" ng-click="cancel()">×</button>
+        <span class="modal-title h5">发送信息</span>
+        <ul uib-pagination style="margin:0;vertical-align:bottom;cursor:pointer" ng-show="page2.total>page2.size" boundary-links="true" total-items="page2.total" max-size="7" items-per-page="page2.size" rotate="false" ng-model="page2.at" previous-text="&lsaquo;" next-text="&rsaquo;" first-text="&laquo;" last-text="&raquo;" ng-change="doSearch2(page2.at)"></ul>
+    </div>
+    <div class="modal-body" style='overflow:auto'>
+        <div class="row">
+            <!-- matters -->
+            <div class="col-md-6">
+                <ul class="list-group">
+                    <li class="list-group-item" ng-repeat="m in matters">
+                        <div class="radio" style="margin:0">
+                            <label><input type="radio" ng-checked="aChecked.indexOf(m)!==-1" ng-click="doCheck(m)">{{m.title}}</label>
+                        </div>
+                    </li>
+                </ul>
+            </div>
+            <!-- end matters -->
+            <div class="col-md-6" ng-if="pickedTmplmsg">
+                <div class='form-group' ng-repeat='p in pickedTmplmsg.params'>
+                    <label><span>{{p.plabel}}</span><span>（{{p.pname}}）</span></label>
+                    <input class='form-control' placeholder='{{p.pname}}' ng-model="message[p.pname]">
+                </div>
+                <div class='form-group'>
+                    <label><span>详情</span><span>（URL）</span></label>
+                    <textarea class='form-control' placeholder='URL' ng-model="message.url" rows=3></textarea>
+                </div>
+            </div>
+            <!-- end template message-->
+        </div>
+    </div>
+    <div class="modal-footer">
+        <button class="btn btn-success" ng-click="ok()">发送</button>
+    </div>
+</script>

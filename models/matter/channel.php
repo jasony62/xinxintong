@@ -378,9 +378,7 @@ class channel_model extends article_base {
 		is_array($matter) && $matter = (object) $matter;
 
 		$channel = $this->byId($id);
-		$matterType = $matter->type;
-		$matter = \TMS_APP::M('matter\\' . $matterType)->byId($matter->id);
-		$matter->type = $matterType;
+		$matter = $this->model('matter\\' . $matter->type)->byId($matter->id);
 		$current = time();
 
 		$newc['matter_id'] = $matter->id;
@@ -389,7 +387,8 @@ class channel_model extends article_base {
 		$newc['creater'] = $creater;
 		$newc['creater_src'] = $createrSrc;
 		$newc['creater_name'] = $createrName;
-		// check
+
+		/* 是否已经加入到频道中 */
 		$q = [
 			'count(*)',
 			'xxt_channel_matter',
@@ -401,19 +400,18 @@ class channel_model extends article_base {
 
 		// new one
 		$newc['channel_id'] = $id;
-
 		$this->insert('xxt_channel_matter', $newc, false);
 
 		/* 如果频道已经发布到团队主页上，频道增加素材时，推送给关注者 */
 		if ($this->isAtHome($channel->id)) {
-			$modelSite = \TMS_APP::M('site');
+			$modelSite = $this->model('site');
 			$site = $modelSite->byId($matter->siteid);
 			/**
 			 * 推送给关注团队的站点用户
 			 */
 			$modelSite->pushToSubscriber($site, $matter);
 			/**
-			 * 推送给关注团队的站点用户
+			 * 推送给关注团队的团队账号
 			 */
 			$modelSite->pushToFriend($site, $matter);
 		}

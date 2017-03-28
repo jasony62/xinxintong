@@ -24,9 +24,6 @@ class round extends \pl\fe\matter\base {
 
 		$modelRnd = $this->model('matter\enroll\round');
 
-		/* 先检查是否要根据定时规则生成轮次 */
-		$modelRnd->getActive($oApp);
-
 		$oPage = new \stdClass;
 		$oPage->num = $page;
 		$oPage->size = $size;
@@ -78,20 +75,24 @@ class round extends \pl\fe\matter\base {
 		}
 
 		$modelRnd = $this->model('matter\enroll\round');
+		$oRound = $modelRnd->byId($rid);
+		if (false === $oRound) {
+			return new \ObjectNotFoundError();
+		}
+
 		$posted = $this->getPostJson();
 
-		if (isset($posted->state) && (int) $posted->state === 1) {
-			/**
-			 * 启用一个轮次，要停用上一个轮次
-			 */
-			if ($lastRound = $modelRnd->getLast($oApp)) {
-				if ((int) $lastRound->state !== 2) {
-					$modelRnd->update(
-						'xxt_enroll_round',
-						['state' => 2],
-						['aid' => $oApp->id, 'rid' => $lastRound->rid]
-					);
-				}
+		/* 指定了开始时间的轮次，自动指定为启用状态 */
+		if ((int) $oRound->start_at > 0 && (int) $posted->start_at === 0) {
+			$posted->state = 0;
+		} else if ((int) $oRound->start_at === 0 && (int) $posted->start_at > 0) {
+			$posted->state = 1;
+		}
+
+		/* 更改轮次的状态 */
+		if (isset($posted->state) && (int) $posted->state !== (int) $oRound->state && (int) $posted->state === 1 && (int) $posted->start_at === 0) {
+			if ($lastRound = $modelRnd->getAssignedActive($oApp)) {
+				return new \ResponseError('请先停止轮次【' . $lastRound->title . '】');
 			}
 		}
 
@@ -101,7 +102,9 @@ class round extends \pl\fe\matter\base {
 			['aid' => $app, 'rid' => $rid]
 		);
 
-		return new \ResponseData($rst);
+		$oRound = $modelRnd->byId($rid);
+
+		return new \ResponseData($oRound);
 	}
 	/**
 	 * 删除轮次
@@ -120,16 +123,25 @@ class round extends \pl\fe\matter\base {
 		}
 
 		$modelRnd = $this->model('matter\enroll\round');
+		$oRound = $modelRnd->byId($rid);
+		if (false === $oRound) {
+			return new \ObjectNotFoundError();
+		}
+
+		$modelRec = $this->model('matter\enroll\record');
+		$countOfRecords = $modelRec->byRound($rid, ['fields' => 'count(*)']);
+		if ($countOfRecords > 0) {
+			return new \ResponseError('【' . $oRound->title . '】已有登记数据不能删除');
+		}
 		/**
 		 * 删除轮次
-		 * ??? 如果轮次已经启用？如果已经有数据呢？
 		 */
 		$rst = $modelRnd->delete(
 			'xxt_enroll_round',
 			['aid' => $oApp->id, 'rid' => $rid]
 		);
 
-		if (false === $modelRnd->getLast($oApp)) {
+		if (0 === (int) $modelRnd->query_val_ss(['count(*)', 'xxt_enroll_round', ['aid' => $oApp->id]])) {
 			/**
 			 * 如果不存在轮次了修改登记活动的状态标记
 			 */

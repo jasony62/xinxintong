@@ -81,6 +81,17 @@ define(['frame'], function(ngApp) {
                 $scope.qrcodeShown = false;
             }
         };
+        $scope.addMe = function() {
+            var url;
+            url = '/rest/pl/fe/matter/enroll/receiver/addMe';
+            url += '?site=' + $scope.app.siteid;
+            url += '&app=' + $scope.app.id;
+            http2.get(url, function(rsp) {
+                http2.get(baseURL + 'list?site=' + $scope.app.siteid + '&app=' + $scope.app.id, function(rsp) {
+                    $scope.receivers = rsp.data;
+                });
+            });
+        };
         $scope.remove = function(receiver) {
             http2.get(baseURL + 'remove?site=' + $scope.app.siteid + '&app=' + $scope.app.id + '&receiver=' + receiver.userid, function(rsp) {
                 $scope.receivers.splice($scope.receivers.indexOf(receiver), 1);
@@ -104,6 +115,13 @@ define(['frame'], function(ngApp) {
         };
         srvEnrollApp.get().then(function(app) {
             http2.get(baseURL + 'list?site=' + app.siteid + '&app=' + app.id, function(rsp) {
+                var map = { wx: '微信', yx: '易信', qy: '企业号' };
+                rsp.data.forEach(function(receiver) {
+                    if (receiver.sns_user) {
+                        receiver.snsUser = JSON.parse(receiver.sns_user);
+                        map[receiver.snsUser.src] && (receiver.snsUser.snsName = map[receiver.snsUser.src]);
+                    }
+                });
                 $scope.receivers = rsp.data;
             });
         });

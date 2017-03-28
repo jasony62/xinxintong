@@ -99,6 +99,31 @@ class url_model extends \TMS_MODEL {
 		return false;
 	}
 	/**
+	 * 任务访问链接
+	 */
+	public function urlByCode($code) {
+		$url = 'http://' . $_SERVER['HTTP_HOST'];
+		$url .= "/q/{$code}";
+
+		return $url;
+	}
+	/**
+	 * 根据链接获得短链接
+	 *
+	 * @param string $siteId
+	 * @param string $url
+	 */
+	public function urlByUrl($siteId, $url) {
+		$user = new \stdClass;
+		$task = $this->byUrl($user, $siteId, $url);
+		if (false === $task) {
+			return false;
+		}
+		$qUrl = $this->urlByCode($task->code);
+
+		return $qUrl;
+	}
+	/**
 	 * generate a 4bits code.
 	 */
 	private static function genCode() {

@@ -197,7 +197,7 @@ class fan_model extends \TMS_MODEL {
 			" siteid='$site' and qy_openid ='$openid' ",
 		]);
 
-		if (isset($uid)) {
+		if (!empty($uid)) {
 			$fan['userid'] = $uid;
 		} else {
 			$option = array(
@@ -290,7 +290,7 @@ class fan_model extends \TMS_MODEL {
 			" siteid='$site' and qy_openid ='$openid' ",
 		]);
 
-		if (isset($uid)) {
+		if (!empty($uid)) {
 			$fan['userid'] = $uid;
 		} else {
 			$option = array(

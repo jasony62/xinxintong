@@ -18,11 +18,11 @@ ul{margin:0;padding:0}
         </div>
         <div class="form-group" ng-if="rounds.length">
             <label class="col-md-3 control-label">轮次</label>
-            <div class="col-md-7">
+            <div class="col-md-9">
                 <select class='form-control' ng-model="criteria.record.rid" size=5>
-                    <option value=''>当前轮次</option>
-                    <option value='all'>全部</option>
-                    <option value="{{rnd.rid}}" ng-repeat="rnd in rounds">{{rnd.title}}</option>
+                    <option value='ALL'>全部</option>
+                    <option ng-if="activeRound" value='{{activeRound.rid}}'>当前轮次（{{activeRound.title}}）</option>
+                    <option value="{{rnd.rid}}" ng-repeat="rnd in rounds" ng-if="!rnd._isActive">{{rnd.title}}</option>
                 </select>
                 <div ng-show="pageOfRound.total>pageOfRound.size">
                     <span style='line-height:34px'>总数：{{pageOfRound.total}}</span>
@@ -32,7 +32,7 @@ ul{margin:0;padding:0}
         </div>
         <div class="form-group" ng-repeat="schema in schemas">
             <label class="col-md-3 control-label">{{schema.title}}</label>
-            <div class="col-md-7">
+            <div class="col-md-9">
                 <input type='text' class='form-control' ng-if="['name','email','mobile','shorttext','location'].indexOf(schema.type)!==-1" ng-model="criteria.data[schema.id]">
                 <textarea class='form-control' ng-if="'longtext'===schema.type" ng-model="criteria.data[schema.id]"></textarea>
                 <select class='form-control' ng-if="['single','phase'].indexOf(schema.type)!==-1" ng-model="criteria.data[schema.id]" ng-options="op.v as op.l for op in schema.ops">

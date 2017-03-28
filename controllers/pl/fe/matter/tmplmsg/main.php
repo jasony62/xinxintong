@@ -41,7 +41,7 @@ class main extends \pl\fe\matter\base {
 		if (false === ($user = $this->accountUser())) {
 			return new \ResponseTimeout();
 		}
-		$mapping = $this->model('matter\tmplmsg')->mappingById($id);
+		$mapping = $this->model('matter\tmplmsg\config')->byId($id);
 
 		return new \ResponseData($mapping);
 	}
@@ -181,7 +181,7 @@ class main extends \pl\fe\matter\base {
 
 		$templates = $rst[1]->template_list;
 
-		if(empty($templates)){
+		if (empty($templates)) {
 			return new \ResponseError('微信公众号没有设置模板消息！');
 		}
 

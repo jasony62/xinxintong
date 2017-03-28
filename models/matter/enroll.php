@@ -41,6 +41,16 @@ class enroll_model extends app_base {
 		return $url;
 	}
 	/**
+	 * 登记活动的汇总展示链接
+	 */
+	public function getOpUrl($siteId, $id) {
+		$url = 'http://' . $_SERVER['HTTP_HOST'];
+		$url .= '/rest/site/op/matter/enroll';
+		$url .= "?site={$siteId}&app=" . $id;
+
+		return $url;
+	}
+	/**
 	 *
 	 * $aid string
 	 * $cascaded array []
@@ -61,18 +71,25 @@ class enroll_model extends app_base {
 			if (isset($app->entry_rule)) {
 				$app->entry_rule = json_decode($app->entry_rule);
 			}
-			if (isset($app->scenario_config)) {
+			if ($fields === '*' || false !== strpos($fields, 'scenario_config')) {
 				if (!empty($app->scenario_config)) {
 					$app->scenarioConfig = json_decode($app->scenario_config);
 				} else {
 					$app->scenarioConfig = new \stdClass;
 				}
 			}
-			if (isset($app->round_cron)) {
+			if ($fields === '*' || false !== strpos($fields, 'round_cron')) {
 				if (!empty($app->round_cron)) {
 					$app->roundCron = json_decode($app->round_cron);
 				} else {
 					$app->roundCron = [];
+				}
+			}
+			if ($fields === '*' || false !== strpos($fields, 'rp_config')) {
+				if (!empty($app->rp_config)) {
+					$app->rpConfig = json_decode($app->rp_config);
+				} else {
+					$app->rpConfig = new \stdClass;
 				}
 			}
 			if ($cascaded === 'Y') {

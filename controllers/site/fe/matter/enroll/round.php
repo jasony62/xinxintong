@@ -12,12 +12,14 @@ class round extends base {
 	 * @param string $app
 	 */
 	public function list_action($site, $app) {
+
+		$oApp = $this->model('matter\enroll')->byId($app, ['cascaded' => 'N']);
 		$modelRun = $this->model('matter\enroll\round');
-		$options = array(
+		$options = [
 			'fields' => 'rid,title',
 			'state' => '1,2',
-		);
-		$rounds = $modelRun->byApp($site, $app, $options);
+		];
+		$rounds = $modelRun->byApp($oApp, $options);
 
 		return new \ResponseData($rounds);
 	}

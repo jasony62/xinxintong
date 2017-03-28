@@ -3,6 +3,14 @@
 </style>
 <div id='stat-view'>
     <button class='btn btn-default' ng-click="export()">导出报告</button>
+    <div class='btn-group' ng-if='rounds.length'>
+        <select class='form-control' title='登记轮次'  ng-model='criteria.rid' ng-change="doRound(criteria.rid)">
+            <option value='ALL'>全部</option>
+            <option ng-if="activeRound" value='{{activeRound.rid}}'>当前轮次（{{activeRound.title}}）</option>
+            <option value="{{rnd.rid}}" ng-repeat="rnd in rounds">{{rnd.title}}</option>
+        </select>
+    </div>
+    <button class='btn btn-default' ng-click="show()">选择标识项</button>
     <div id='stat-result'>
         <!--schemas-->
         <div ng-repeat="schema in app.data_schemas" ng-if="schema.type!=='html'">
@@ -41,25 +49,38 @@
                     </tbody>
                 </table>
             </div>
-            <div ng-if="['single','phase','multiple','score'].indexOf(schema.type)===-1" ng-init="page={at:1,size:10}">
-                <table class='table table-bordered' ng-switch on="schema.type">
+            <div ng-if="['single','phase','multiple','score'].indexOf(schema.type)===-1" ng-init="page={at:1,size:10}" >
+                <div id="{{schema.id}}" style='height:300px' ng-if="schema.number&&schema.number=='Y'"></div>
+                <table class='table table-bordered'>
                     <thead>
                         <tr>
+                            <th ng-repeat='mark in app.rpConfig.marks' ng-if="mark.id!==schema.id">{{mark.name}}</th>
                             <th>登记内容</th>
                         </tr>
                     </thead>
                     <tbody>
-                        <tr ng-repeat="record in getRecords(schema,page)" ng-switch-when="image">
-                            <td><img ng-repeat="img in record.value" ng-src='{{img}}' /></td>
+                        <tr ng-repeat="record in getRecords(schema,page).records">
+                            <td ng-repeat='mark in app.rpConfig.marks' ng-if="['nickname'].indexOf(mark.id)!==-1&&mark.id!==schema.id">
+                                <span ng-bind-html="record.nickname"></span>
+                            </td>
+                            <td ng-repeat='mark in app.rpConfig.marks' ng-if="['nickname'].indexOf(mark.id)===-1&&mark.id!==schema.id">
+                                <span ng-bind-html="record._data[mark.id]"></span>
+                            </td>
+
+                            <td ng-switch on="schema.type">
+                                <span ng-switch-when="image">
+                                    <img ng-repeat="img in record._data[schema.id]" ng-src='{{img}}' />
+                                </span>
+                                <span ng-switch-when="file">
+                                    <span ng-repeat='file in record._data[schema.id]'><a href='{{file.url}}' target="_blank">{{file.name}}</a></span>
+                                </span>
+                                <span ng-switch-when="date">{{(record._data[schema.id]*1000)|date:'yy-MM-dd HH:mm'}}</span>
+                                <span ng-switch-default ng-bind-html="record._data[schema.id]"></span>
+                            </td>
                         </tr>
-                        <tr ng-repeat="record in getRecords(schema,page)" ng-switch-when="file">
-                            <td><span ng-repeat='file in record.value'><a href='{{file.url}}' target="_blank">{{file.name}}</a></span></td>
-                        </tr>
-                        <tr ng-repeat="record in getRecords(schema,page)" ng-switch-when="date">
-                            <td>{{record.value*1000|date:'yy-MM-dd HH:mm'}}</td>
-                        </tr>
-                        <tr ng-repeat="record in getRecords(schema,page)" ng-switch-default>
-                            <td>{{record.value}}</td>
+                        <tr class='text-center' ng-if="schema.number&&schema.number=='Y'">
+                            <td>合计</td>
+                            <td colspan={{app.rpConfig.marks.length}}>{{getRecords(schema,page).sum}}</td>
                         </tr>
                     </tbody>
                 </table>
@@ -70,7 +91,7 @@
             </div>
         </div>
          <!--schemas-->
-         <div ng-if="scoreSummary.length">
+        <div ng-if="scoreSummary.length">
             <hr style='height:1px;background:#aaa'>
             <h3><span>打分项汇总</span></h3>
             <table class='table table-bordered'>
@@ -90,3 +111,31 @@
         </div>
     </div>
 </div>
+<script type="text/ng-template" id="showCondition.html">
+    <div class="modal-header">
+        <button class="close" type="button" ng-click="cancel()">×</button>
+        <h5 class="modal-title">展示条件</h5>
+    </div>
+    <div class="modal-body">
+        <table class='table table-bordered' style='margin-bottom:0;'>
+            <thead>
+                <tr>
+                    <th style='width:50px'>操作</th>
+                    <th>标识登记项</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr ng-repeat='m in appMarkSchemas' class='record'>
+                    <td>
+                        <input type='checkbox' ng-model="rows.selected[$index]">
+                    </td>
+                    <td>{{m.title}}</td>
+                </tr>
+            </tbody>
+        </table>
+    </div>
+    <div class="modal-footer">
+        <button class="btn btn-default" ng-click="cancel()">关闭</button>
+        <button class="btn btn-primary" ng-click="ok()">确定</button>
+    </div>
+</script>

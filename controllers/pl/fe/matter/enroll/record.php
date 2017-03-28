@@ -190,10 +190,18 @@ class record extends \pl\fe\matter\base {
 		if (isset($record->verified)) {
 			$updated->verified = $record->verified;
 		}
+		if (isset($record->rid)) {
+			$updated->rid = $record->rid;
+		}
 		$modelEnl->update('xxt_enroll_record', $updated, "enroll_key='$ek'");
 
 		/* 记录登记数据 */
 		$result = $modelRec->setData(null, $app, $ek, isset($record->data) ? $record->data : new \stdClass);
+		$updated2 = new \stdClass;
+		if (isset($record->rid)) {
+			$updated2->rid = $record->rid;
+		}
+		$modelEnl->update('xxt_enroll_record_data', $updated2, "enroll_key='$ek'");
 
 		if ($updated->verified === 'Y') {
 			$this->_whenVerifyRecord($app, $ek);
@@ -205,6 +213,14 @@ class record extends \pl\fe\matter\base {
 
 		/* 返回完整的记录 */
 		$record = $modelRec->byId($ek);
+		if (isset($record->rid)) {
+			$record->round = new \stdClass;
+			if ($round = $this->model('matter\enroll\round')->byId($record->rid, ['fields' => 'title'])) {
+				$record->round->title = $round->title;
+			} else {
+				$record->round->title = '';
+			}
+		}
 
 		return new \ResponseData($record);
 	}
@@ -510,18 +526,18 @@ class record extends \pl\fe\matter\base {
 	/**
 	 * 登记数据导出
 	 */
-	public function export_action($site, $app) {
+	public function export_action($site, $app, $rid = '') {
 		if (false === ($user = $this->accountUser())) {
 			return new \ResponseTimeout();
 		}
 
 		// 登记活动
-		$app = $this->model('matter\enroll')->byId($app, ['fields' => 'siteid,id,title,data_schemas,scenario,enroll_app_id,group_app_id', 'cascaded' => 'N']);
-		$schemas = json_decode($app->data_schemas);
+		$oApp = $this->model('matter\enroll')->byId($app, ['fields' => 'siteid,id,title,data_schemas,scenario,enroll_app_id,group_app_id', 'cascaded' => 'N']);
+		$schemas = json_decode($oApp->data_schemas);
 
 		// 关联的登记活动
-		if (!empty($app->enroll_app_id)) {
-			$matchApp = $this->model('matter\enroll')->byId($app->enroll_app_id, ['fields' => 'id,title,data_schemas', 'cascaded' => 'N']);
+		if (!empty($oApp->enroll_app_id)) {
+			$matchApp = $this->model('matter\enroll')->byId($oApp->enroll_app_id, ['fields' => 'id,title,data_schemas', 'cascaded' => 'N']);
 			$enrollSchemas = json_decode($matchApp->data_schemas);
 			$mapOfAppSchemas = [];
 			foreach ($schemas as $schema) {
@@ -534,8 +550,8 @@ class record extends \pl\fe\matter\base {
 			}
 		}
 		// 关联的分组活动
-		if (!empty($app->group_app_id)) {
-			$matchApp = $this->model('matter\group')->byId($app->group_app_id, ['fields' => 'id,title,data_schemas', 'cascaded' => 'N']);
+		if (!empty($oApp->group_app_id)) {
+			$matchApp = $this->model('matter\group')->byId($oApp->group_app_id, ['fields' => 'id,title,data_schemas', 'cascaded' => 'N']);
 			$groupSchemas = json_decode($matchApp->data_schemas);
 			$mapOfAppSchemas = [];
 			foreach ($schemas as $schema) {
@@ -550,7 +566,12 @@ class record extends \pl\fe\matter\base {
 
 		// 获得所有有效的登记记录
 		$modelRec2 = $this->model('matter\enroll\record');
-		$records = $modelRec2->find($app);
+		//选择对应轮次
+		$criteria = new \stdClass;
+		$criteria->record = new \stdClass;
+		$criteria->record->rid = new \stdClass;
+		$criteria->record->rid = $rid;
+		$records = $modelRec2->find($oApp, null, $criteria);
 		if ($records->total === 0) {
 			die('record empty');
 		}
@@ -563,14 +584,15 @@ class record extends \pl\fe\matter\base {
 		// Set properties
 		$objPHPExcel->getProperties()->setCreator("信信通")
 			->setLastModifiedBy("信信通")
-			->setTitle($app->title)
-			->setSubject($app->title)
-			->setDescription($app->title);
+			->setTitle($oApp->title)
+			->setSubject($oApp->title)
+			->setDescription($oApp->title);
 
 		$objActiveSheet = $objPHPExcel->getActiveSheet();
 
 		$objActiveSheet->setCellValueByColumnAndRow(0, 1, '登记时间');
 		$objActiveSheet->setCellValueByColumnAndRow(1, 1, '审核通过');
+		$objActiveSheet->setCellValueByColumnAndRow(2, 1, '登记轮次');
 
 		// 转换标题
 		$isTotal = []; //是否需要合计
@@ -581,17 +603,17 @@ class record extends \pl\fe\matter\base {
 				continue;
 			}
 			if (isset($schema->number) && $schema->number === 'Y') {
-				$isTotal[$i + 2] = $schema->id;
+				$isTotal[$i + 3] = $schema->id;
 			}
-			$objActiveSheet->setCellValueByColumnAndRow($i + 2, 1, $schema->title);
+			$objActiveSheet->setCellValueByColumnAndRow($i + 3, 1, $schema->title);
 		}
-		$objActiveSheet->setCellValueByColumnAndRow($i + 2, 1, '昵称');
-		$objActiveSheet->setCellValueByColumnAndRow($i + 3, 1, '备注');
-		$objActiveSheet->setCellValueByColumnAndRow($i + 4, 1, '标签');
+		$objActiveSheet->setCellValueByColumnAndRow($i + 3, 1, '昵称');
+		$objActiveSheet->setCellValueByColumnAndRow($i + 4, 1, '备注');
+		$objActiveSheet->setCellValueByColumnAndRow($i + 5, 1, '标签');
 		// 记录分数
-		if ($app->scenario === 'voting') {
-			$objActiveSheet->setCellValueByColumnAndRow($i + 5, 1, '总分数');
-			$objActiveSheet->setCellValueByColumnAndRow($i + 6, 1, '平均分数');
+		if ($oApp->scenario === 'voting') {
+			$objActiveSheet->setCellValueByColumnAndRow($i + 6, 1, '总分数');
+			$objActiveSheet->setCellValueByColumnAndRow($i + 7, 1, '平均分数');
 			$titles[] = '总分数';
 			$titles[] = '平均分数';
 		}
@@ -601,6 +623,12 @@ class record extends \pl\fe\matter\base {
 			$rowIndex = $j + 2;
 			$objActiveSheet->setCellValueByColumnAndRow(0, $rowIndex, date('y-m-j H:i', $record->enroll_at));
 			$objActiveSheet->setCellValueByColumnAndRow(1, $rowIndex, $record->verified);
+			//轮次名
+			if ($ridName = $this->model('matter\enroll\round')->byId($record->rid, ['fields' => 'title'])) {
+				$objActiveSheet->setCellValueByColumnAndRow(2, $rowIndex, $ridName->title);
+			} else {
+				$objActiveSheet->setCellValueByColumnAndRow(2, $rowIndex, '无');
+			}
 			// 处理登记项
 			$data = $record->data;
 			for ($i = 0, $ii = count($schemas); $i < $ii; $i++) {
@@ -615,12 +643,12 @@ class record extends \pl\fe\matter\base {
 					$disposed = null;
 					foreach ($schema->ops as $op) {
 						if ($op->v === $v) {
-							$objActiveSheet->setCellValueByColumnAndRow($i + 2, $rowIndex, $op->l);
+							$objActiveSheet->setCellValueByColumnAndRow($i + 3, $rowIndex, $op->l);
 							$disposed = true;
 							break;
 						}
 					}
-					empty($disposed) && $objActiveSheet->setCellValueByColumnAndRow($i + 2, $rowIndex, $v);
+					empty($disposed) && $objActiveSheet->setCellValueByColumnAndRow($i + 3, $rowIndex, $v);
 					break;
 				case 'multiple':
 					$labels = [];
@@ -633,7 +661,7 @@ class record extends \pl\fe\matter\base {
 							}
 						}
 					}
-					$objActiveSheet->setCellValueByColumnAndRow($i + 2, $rowIndex, implode(',', $labels));
+					$objActiveSheet->setCellValueByColumnAndRow($i + 3, $rowIndex, implode(',', $labels));
 					break;
 				case 'score':
 					$labels = [];
@@ -642,31 +670,31 @@ class record extends \pl\fe\matter\base {
 							$labels[] = $op->l . ':' . $v->{$op->v};
 						}
 					}
-					$objActiveSheet->setCellValueByColumnAndRow($i + 2, $rowIndex, implode(' / ', $labels));
+					$objActiveSheet->setCellValueByColumnAndRow($i + 3, $rowIndex, implode(' / ', $labels));
 					break;
 				case 'image':
 				case 'file':
 					break;
 				default:
-					$objActiveSheet->setCellValueExplicitByColumnAndRow($i + 2, $rowIndex, $v, \PHPExcel_Cell_DataType::TYPE_STRING);
+					$objActiveSheet->setCellValueExplicitByColumnAndRow($i + 3, $rowIndex, $v, \PHPExcel_Cell_DataType::TYPE_STRING);
 					break;
 				}
 			}
 			// 昵称
-			$objActiveSheet->setCellValueByColumnAndRow($i + 2, $rowIndex, $record->nickname);
+			$objActiveSheet->setCellValueByColumnAndRow($i + 3, $rowIndex, $record->nickname);
 			// 备注
-			$objActiveSheet->setCellValueByColumnAndRow($i + 3, $rowIndex, $record->comment);
+			$objActiveSheet->setCellValueByColumnAndRow($i + 4, $rowIndex, $record->comment);
 			// 标签
-			$objActiveSheet->setCellValueByColumnAndRow($i + 4, $rowIndex, $record->tags);
+			$objActiveSheet->setCellValueByColumnAndRow($i + 5, $rowIndex, $record->tags);
 			// 记录分数
-			if ($app->scenario === 'voting') {
-				$objActiveSheet->setCellValueByColumnAndRow($i + 5, $rowIndex, $record->_score);
-				$objActiveSheet->setCellValueByColumnAndRow($i + 6, $rowIndex, sprintf('%.2f', $record->_average));
+			if ($oApp->scenario === 'voting') {
+				$objActiveSheet->setCellValueByColumnAndRow($i + 6, $rowIndex, $record->_score);
+				$objActiveSheet->setCellValueByColumnAndRow($i + 7, $rowIndex, sprintf('%.2f', $record->_average));
 			}
 		}
 		if (!empty($isTotal)) {
 			//合计
-			$total2 = $modelRec2->sum4Schema($app);
+			$total2 = $modelRec2->sum4Schema($oApp, $rid);
 			$rowIndex = count($records) + 2;
 			$objActiveSheet->setCellValueByColumnAndRow(0, $rowIndex, '合计');
 			foreach ($isTotal as $key => $val) {
@@ -676,7 +704,7 @@ class record extends \pl\fe\matter\base {
 
 		// 输出
 		header('Content-Type: application/vnd.ms-excel');
-		header('Content-Disposition: attachment;filename="' . $app->title . '.xlsx"');
+		header('Content-Disposition: attachment;filename="' . $oApp->title . '.xlsx"');
 		header('Cache-Control: max-age=0');
 		$objWriter = \PHPExcel_IOFactory::createWriter($objPHPExcel, 'Excel2007');
 		$objWriter->save('php://output');

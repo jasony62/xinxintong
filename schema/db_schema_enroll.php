@@ -273,13 +273,14 @@ if (!$mysqli->query($sql)) {
 $sql = "create table if not exists xxt_enroll_record_stat(";
 $sql .= "siteid varchar(32) not null";
 $sql .= ",aid varchar(40) not null";
+$sql .= ",rid varchar(13) not null default ''";
 $sql .= ",create_at int not null";
 $sql .= ",id varchar(40) not null";
 $sql .= ",title varchar(255) not null";
 $sql .= ",v varchar(40) not null";
 $sql .= ",l varchar(255) not null";
 $sql .= ",c double not null";
-$sql .= ",primary key(aid,id,v)) ENGINE=MyISAM DEFAULT CHARSET=utf8";
+$sql .= ") ENGINE=MyISAM DEFAULT CHARSET=utf8";
 if (!$mysqli->query($sql)) {
 	header('HTTP/1.0 500 Internal Server Error');
 	echo 'database error: ' . $mysqli->error;

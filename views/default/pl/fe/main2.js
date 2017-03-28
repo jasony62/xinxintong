@@ -215,6 +215,14 @@ config(['$uibTooltipProvider', function($uibTooltipProvider) {
             }
         });
     };
+    $scope.top = function(m, i){
+        var url = '/rest/pl/fe/top?site=' + m.siteid +  '&id=' + m.id;
+        http2.get(url, function(rsp){
+            $scope.matters.splice(i,1);
+            $scope.page.at===1 && $scope.matters.splice(0,0,m);
+            noticebox.success('完成置顶');
+        })
+    };
     $scope.list(1);
 }]).controller('ctrlSite', ['$scope', 'http2', function($scope, http2) {
     var t = (new Date() * 1);

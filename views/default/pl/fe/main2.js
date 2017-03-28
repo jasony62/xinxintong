@@ -295,4 +295,20 @@ config(['$uibTooltipProvider', function($uibTooltipProvider) {
         $scope.list();
     }, true);
     $scope.listSite();
+}]).controller('ctrlTop', ['$scope', 'http2', function($scope, http2){
+    var page;
+    $scope.page = page = {
+        at: 1,
+        size:9,
+        j: function(){
+            return 'page=' + this.at + '&size=' + this.size;
+        }
+    };
+    $scope.list = function(){
+        var url = '/rest/pl/fe/topList?' + page.j();
+        http2.get(url, function(rsp){
+            $scope.top = rsp.data;
+        })
+    };
+    $scope.list();
 }]);

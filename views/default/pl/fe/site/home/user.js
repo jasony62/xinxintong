@@ -27,7 +27,7 @@ define(['main'], function(ngApp) {
                 $scope.page.total = rsp.data.total;
             });
         };
-        $scope.openProfile = function(uid){
+        $scope.openProfile = function(uid) {
             location.href = '/rest/pl/fe/site/user/fans?site=' + $scope.site.id + '&uid=' + uid;
         };
         $scope.$watch('site', function(site) {

@@ -76,11 +76,11 @@ class batch_model extends \TMS_MODEL {
 		foreach ($mapOfUsers as $userid => $user) {
 			$log['userid'] = $userid;
 			isset($user->assoc_with) && $log['assoc_with'] = $user->assoc_with;
+
 			if (empty($user->wx_openid) && empty($user->qy_openid) && empty($user->yx_openid)) {
 				$log['status'] = 'failed:无法获得用户的公众号身份';
 				$modelTmpl->insert('xxt_log_tmplmsg_detail', $log, false);
 			} else {
-
 				if (!empty($user->wx_openid)) {
 					if (!empty($tmpl->templateid)) {
 						/* 发送微信模板消息 */
@@ -139,11 +139,12 @@ class batch_model extends \TMS_MODEL {
 		$batch->tmplmsg_id = $tmpl->id;
 		$batch->template_id = $tmpl->templateid;
 		$batch->user_num = $userCount;
-		$batch->creater = $creater->uid;
-		$batch->creater_name = $creater->name;
-		$batch->creater_src = $creater->src;
+		$batch->creater = isset($creater->uid) ? $creater->uid : '';
+		$batch->creater_name = isset($creater->name) ? $creater->name : '';
+		$batch->creater_src = isset($creater->src) ? $creater->src : '';
 		$batch->create_at = time();
 		$batch->params = $this->escape($this->toJson($params));
+		!empty($options['event_name']) && $batch->event_name = $options['event_name'];
 		!empty($options['send_from']) && $batch->send_from = $options['send_from'];
 		!empty($options['remark']) && $batch->remark = $options['remark'];
 

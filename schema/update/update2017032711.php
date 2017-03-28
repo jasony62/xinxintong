@@ -3,7 +3,8 @@ require_once '../../db.php';
 
 $sqls = array();
 //
-$sqls[] = "alter table xxt_enroll add rp_config text";
+$sqls[] = "alter table xxt_enroll_record_stat add rid varchar(13) not null default '' after aid";
+$sqls[] = "alter table xxt_enroll_record_stat drop primary key";
 
 foreach ($sqls as $sql) {
 	if (!$mysqli->query($sql)) {

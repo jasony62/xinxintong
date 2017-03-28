@@ -74,6 +74,7 @@ $sql .= ",template_id int not null default 0"; // 通过哪个模板创建
 $sql .= ",template_version varchar(10) not null default ''"; //模板版本号
 $sql .= ",op_short_url_code char(4) not null default ''"; // 运营管理页面的短链接编码
 $sql .= ",rp_short_url_code char(4) not null default ''"; // 统计报告页面的短链接编码
+$sql .= ",rp_config text"; // 统计报告页面用户选择的标识信息
 $sql .= ",primary key(id)) ENGINE=MyISAM DEFAULT CHARSET=utf8";
 if (!$mysqli->query($sql)) {
 	header('HTTP/1.0 500 Internal Server Error');
@@ -272,13 +273,14 @@ if (!$mysqli->query($sql)) {
 $sql = "create table if not exists xxt_enroll_record_stat(";
 $sql .= "siteid varchar(32) not null";
 $sql .= ",aid varchar(40) not null";
+$sql .= ",rid varchar(13) not null default ''";
 $sql .= ",create_at int not null";
 $sql .= ",id varchar(40) not null";
 $sql .= ",title varchar(255) not null";
 $sql .= ",v varchar(40) not null";
 $sql .= ",l varchar(255) not null";
 $sql .= ",c double not null";
-$sql .= ",primary key(aid,id,v)) ENGINE=MyISAM DEFAULT CHARSET=utf8";
+$sql .= ") ENGINE=MyISAM DEFAULT CHARSET=utf8";
 if (!$mysqli->query($sql)) {
 	header('HTTP/1.0 500 Internal Server Error');
 	echo 'database error: ' . $mysqli->error;

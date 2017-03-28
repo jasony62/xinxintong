@@ -111,6 +111,7 @@ define(["require", "angular", "util.site", "enrollService"], function(require, a
                     groupDataSchemas.push(schema);
                 }
             });
+            $scope.app = app;
             $scope.groupDataSchemas = groupDataSchemas;
             $scope.tmsTableWrapReady = 'Y';
             $timeout(function() {

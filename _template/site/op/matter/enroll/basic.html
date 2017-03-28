@@ -8,6 +8,7 @@
                             <input type='checkbox' ng-true-value="'Y'" ng-false-value="'N'" ng-model="rows.allSelected">
                         </th>
                         <th>登记时间</th>
+                        <th ng-if="app.multi_rounds==='Y'">登记轮次</th>
                         <th>审核通过</th>
                         <th ng-repeat="schema in recordSchemas">{{schema.title}}</th>
                         <th>标签</th>
@@ -19,6 +20,7 @@
                     <tr ng-repeat='r in records' class='record'>
                         <td data-th='选择'><span><input type='checkbox' ng-model="rows.selected[$index]"></span></td>
                         <td data-th='登记时间'><span>{{(r.enroll_at*1000)|date:'MM-dd HH:mm'}}</span></td>
+                        <td ng-if="app.multi_rounds==='Y'">{{r.round.title}}</td>
                         <td data-th='审核通过'><span ng-class="{'notice':r.verified==='N'}">{{r.verified}}</span></td>
                         <td data-th='{{schema.title}}' ng-repeat="schema in recordSchemas" ng-switch on="schema.type">
                             <span ng-switch-when="image">

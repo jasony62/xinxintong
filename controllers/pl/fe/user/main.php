@@ -16,19 +16,6 @@ class main extends \pl\fe\base {
 		return $rule_action;
 	}
 	/**
-	 * 结束登录状态
-	 */
-	public function logout_action() {
-		/* 清除登录状态 */
-		\TMS_CLIENT::logout();
-
-		/* 清除自动登录状态 */
-		$this->mySetCookie('_login_auto', '');
-		$this->mySetCookie('_login_token', '');
-
-		$this->redirect('');
-	}
-	/**
 	 * 获得当前用户信息
 	 */
 	public function get_action() {

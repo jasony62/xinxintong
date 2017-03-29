@@ -31,30 +31,30 @@ class home extends base {
 	public function get_action($site) {
 		$modelSite = $this->model('site');
 
-		$site = $modelSite->byId(
+		$oSite = $modelSite->byId(
 			$site,
 			['fields' => '*', 'cascaded' => 'home_page_name']
 		);
-		if ($site) {
+		if ($oSite) {
 			/* 轮播图片 */
-			if (!empty($site->home_carousel)) {
-				$site->home_carousel = json_decode($site->home_carousel);
+			if (!empty($oSite->home_carousel)) {
+				$oSite->home_carousel = json_decode($oSite->home_carousel);
 			}
 			$modelWay = $this->model('site\fe\way');
-			$siteUser = $modelWay->who('platform');
+			$siteUser = $modelWay->who($site);
 			/* 团队是否已经被当前用户关注 */
-			$site->_subscribed = 'N';
+			$oSite->_subscribed = 'N';
 			if (!empty($siteUser->loginExpire)) {
 				$modelSite = $this->model('site');
-				if ($rel = $modelSite->isSubscribed($siteUser->uid, $site->id)) {
-					if ($rel->subscribe_at) {
-						$site->_subscribed = 'Y';
+				if ($rel = $modelSite->isSubscribed($siteUser->uid, $oSite->id)) {
+					if ($rel->subscribe_at > 0) {
+						$oSite->_subscribed = 'Y';
 					}
 				}
 			}
 		}
 
-		return new \ResponseData($site);
+		return new \ResponseData($oSite);
 	}
 	/**
 	 *

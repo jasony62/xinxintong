@@ -1,7 +1,14 @@
-.tms-panel{border:1px solid #e7e7e7;border-radius:4px;background:#fff;padding:30px 0;margin-bottom:30px;}
+.carousel{background:#fff;padding:30px 0;margin-bottom:30px;}
 .carousel-control.left{background-image:none;}
 .carousel-control.right{background-image:none;}
 
 /*channel*/
 .channel .matter{cursor:pointer;}
 .media-object{width:96px;height:96px;}
+
+/*template/matter*/
+.template{position:relative;height:200px;cursor:pointer;display:flex;flex-direction:column;padding:15px;}
+.template .summary{flex:1;overflow:hidden;}
+.template .attr{display:flex;padding:8px 0;}
+.template .creater_name{flex:1;}
+.template .actions{border-top:1px solid #ddd;padding-top:8px;}

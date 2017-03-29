@@ -11,6 +11,7 @@ config(['$uibTooltipProvider', function($uibTooltipProvider) {
     $scope.closeNotice = function(log) {
         srvUserNotice.closeNotice(log).then(function(rsp) {
             $scope.notice.logs.splice($scope.notice.logs.indexOf(log), 1);
+            $scope.notice.page.total--;
         });
     };
     srvUserNotice.uncloseList().then(function(result) {

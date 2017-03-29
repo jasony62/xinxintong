@@ -77,33 +77,43 @@ class receiver extends \pl\fe\matter\base {
 		}
 
 		$modelApp = $this->model('matter\enroll');
-		$modelRev = $this->model('matter\enroll\receiver');
-		$enroll = $modelApp->byId($app, array('cascaded' => 'Y'));
+		$oApp = $modelApp->byId($app, ['cascaded' => 'Y']);
+		if (false === $oApp) {
+			return new \ObjectNotFoundError();
+		}
 
 		$users = $this->getPostJson();
+		if (0 === count($users)) {
+			return new \ParameterError();
+		}
+
+		$modelRev = $this->model('matter\enroll\receiver');
+		$modelAct = $this->model('site\user\account');
 
 		foreach ($users as $user) {
 			$uid = $user->uid;
 			$nickname = $user->nickname;
 
 			if (empty($modelRev->query_obj_ss(['*', 'xxt_enroll_receiver', "siteid='$site' and aid='$app' and userid='$uid'"]))) {
-				$account = $this->model('site\user\account')->byId($uid);
-				$arr = array();
+				$account = $modelAct->byId($uid);
+				$arr = new \stdClass;
 				if (!empty($account->wx_openid)) {
-					$arr['wx_openid'] = $account->wx_openid;
+					$arr->openid = $account->wx_openid;
+					$arr->src = 'wx';
 				}
 				if (!empty($account->yx_openid)) {
-					$arr['yx_openid'] = $account->yx_openid;
+					$arr->openid = $account->yx_openid;
+					$arr->src = 'yx';
 				}
 				if (!empty($account->qy_openid)) {
-					$arr['qy_openid'] = $account->qy_openid;
+					$arr->openid = $account->qy_openid;
+					$arr->src = 'qy';
 				}
-
 				$rst[] = $modelRev->insert(
 					'xxt_enroll_receiver',
 					[
 						'siteid' => $site,
-						'aid' => $enroll->id,
+						'aid' => $oApp->id,
 						'join_at' => time(),
 						'userid' => $uid,
 						'nickname' => empty($nickname) ? '未知姓名' : $modelRev->escape($nickname),
@@ -111,18 +121,12 @@ class receiver extends \pl\fe\matter\base {
 					],
 					false
 				);
-
-				$token = $this->model('q\urltoken');
-				if (empty($token->query_obj_ss(["*", 'xxt_short_url_token', "code='enro'"]))) {
-					$token->add('enro', '', 60 * 60 * 24 * 10);
-				}
 			} else {
 				$rst[] = true;
 			}
 		}
 		/* 记录操作日志 */
-		$enroll->type = 'enroll';
-		$this->model('matter\log')->matterOp($site, $u, $enroll, 'C');
+		$this->model('matter\log')->matterOp($site, $u, $oApp, 'C');
 
 		return new \ResponseData($rst);
 	}
@@ -176,7 +180,7 @@ class receiver extends \pl\fe\matter\base {
 		$data = $this->getPostJson();
 		$keyword = isset($data) ? $data->keyword : '';
 
-		$rst = $this->model("sns\qy\fan")->getMem($site, $keyword, $page, $size);
+		$rst = $this->model("sns\\qy\\fan")->getMem($site, $keyword, $page, $size);
 
 		return new \ResponseData($rst);
 	}

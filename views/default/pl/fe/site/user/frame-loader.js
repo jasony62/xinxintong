@@ -1,7 +1,7 @@
 require.config({
     paths: {
         "domReady": '/static/js/domReady',
-        "frame": '/views/default/pl/fe/site/user/fans',
+        "frame": '/views/default/pl/fe/site/user/frame',
     },
     urlArgs: "bust=" + (new Date() * 1)
 });

@@ -24,7 +24,7 @@ define(['require'], function(require) {
             controller: $cp.register
         };
         $rp
-            .when('/rest/pl/fe/site/user/fans/index', new RouteParam('main', true))
+            .when('/rest/pl/fe/site/user/fans/main', new RouteParam('main', true))
             .when('/rest/pl/fe/site/user/fans/history', new RouteParam('history', true))
             .when('/rest/pl/fe/site/user/fans/message', new RouteParam('message', true))
             .otherwise(new RouteParam('main', true));

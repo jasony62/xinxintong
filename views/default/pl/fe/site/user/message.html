@@ -1,71 +1,50 @@
 
 <div class="row">
-    <div class="col-md-12 margin-bottom">
-        <button type="button" class="btn btn-default pull-right" ng-click="notify()">发送消息</button>
-    </div>
-    <div class="col-md-12 ng-cloak">
-        <div class="row">
-            <div class="col-md-4" ng-repeat="m in message">
-                <div class="thumbnail" ng-class="{'success':m.state==='Y','fail':m.state==='N'}">
-                    <h4 class='title' ng-bind="m.time*1000|date:'yy-MM-dd HH:mm'"></h4>
-                    <p class='summary' ng-bind='m.remark'></p>
-                    <div class='actions' ng-if="m.state==='N'">
-                       失败原因: {{m.case}}
+    <div class="col-md-12">
+
+        <div class="panel panel-default">
+            <div class="panel-heading">交流记录</div>
+            <div class="panel-body">
+                <div class='col-md-5'>
+                    <div class='form-inline form-group'>
+                        <div class='form-group'>
+                            <select class='form-control' ng-model="matterType" ng-options="s.value as s.content for s in sel" ng-change='fetchMatter()'></select>
+                        </div>
+                        <!--？-->
+                        <!--<label class="checkbox-inline" ng-show="hasParent">-->
+                            <!--<input type='checkbox' ng-true-value="'Y'" ng-false-value="'N'" ng-model='fromParent'-->
+                                   <!--ng-change='fetchMatter()'>来源于父账号</label>-->
+
+                        <div class='form-group pull-right'>
+                            <button class='btn btn-primary' ng-disabled="!selectedMatter&&matterType!='write'"
+                                    ng-click='send()'>发送
+                            </button>
+                        </div>
+                    </div>
+                    <textarea class='form-control' rows=4 ng-model='text' ng-show="matterType=='write'"></textarea>
+
+                    <div class='list-group' ng-hide="matterType=='write'">
+                        <a class='list-group-item' ng-class="{'active':selectedMatter==m}" ng-repeat='m in matters'
+                           ng-click='selectMatter(m)'>{{m.title||m.content}}</a>
+                    </div>
+                    <div ng-show='page2.total>page2.size'>
+                        <span style='height:34px;line-height:34px'>总数：{{page2.total}}</span>
+                        <ul uib-pagination style="margin:0;vertical-align:bottom;cursor:pointer" class='pull-right' ng-show="page2.total>page2.size" boundary-links="true" total-items="page2.total" max-size="4" items-per-page="page2.size" rotate="false" ng-model="page2.at" previous-text="&lsaquo;" next-text="&rsaquo;" first-text="&laquo;" last-text="&raquo;" ng-change="list()"></ul>
+                    </div>
+                </div>
+                <div class='col-md-7'>
+                    <ul class='list-group'>
+                        <a class='list-group-item' ng-class="{'send':t.creater}" ng-repeat='t in track'>
+                            <div>{{t.content}}</div>
+                            <div><span>{{t.create_at*1000|date:'yyyy-MM-dd HH:mm'}}</span></div>
+                        </a>
+                    </ul>
+                    <div>
+                        <span style='height:34px;line-height:34px'>总数：{{page.total}}</span>
+                        <ul uib-pagination style="margin:0;vertical-align:bottom;cursor:pointer" class='pull-right' ng-show="page.total>page.size" boundary-links="true" total-items="page.total" max-size="4" items-per-page="page.size" rotate="false" ng-model="page.at" previous-text="&lsaquo;" next-text="&rsaquo;" first-text="&laquo;" last-text="&raquo;" ng-change="list()"></ul>
                     </div>
                 </div>
             </div>
         </div>
-        <!--<table class="table table-bordered table-striped">-->
-            <!--<thead>-->
-                <!--<tr>-->
-                    <!--<th>标题</th>-->
-                    <!--<th>发送时间</th>-->
-                    <!--<th>操作</th>-->
-                <!--</tr>-->
-            <!--</thead>-->
-            <!--<tbody>-->
-                <!--<tr ng-repeat="m in message">-->
-                    <!--<td ng-bind="m.title"></td>-->
-                    <!--<td ng-bind="m.time*1000|date:'yy-MM-dd HH:mm'"></td>-->
-                    <!--<td ><a href="javascript:void(0)" ng-click="open()">查看详情</a></td>-->
-                <!--</tr>-->
-            <!--</tbody>-->
-        <!--</table>-->
     </div>
 </div>
-<script type="text/ng-template" id="notify.html">
-    <div class="modal-header">
-        <button class="close" type="button" ng-click="cancel()">×</button>
-        <span class="modal-title h5">发送信息</span>
-        <ul uib-pagination style="margin:0;vertical-align:bottom;cursor:pointer" ng-show="page2.total>page2.size" boundary-links="true" total-items="page2.total" max-size="7" items-per-page="page2.size" rotate="false" ng-model="page2.at" previous-text="&lsaquo;" next-text="&rsaquo;" first-text="&laquo;" last-text="&raquo;" ng-change="doSearch2(page2.at)"></ul>
-    </div>
-    <div class="modal-body" style='overflow:auto'>
-        <div class="row">
-            <!-- matters -->
-            <div class="col-md-6">
-                <ul class="list-group">
-                    <li class="list-group-item" ng-repeat="m in matters">
-                        <div class="radio" style="margin:0">
-                            <label><input type="radio" ng-checked="aChecked.indexOf(m)!==-1" ng-click="doCheck(m)">{{m.title}}</label>
-                        </div>
-                    </li>
-                </ul>
-            </div>
-            <!-- end matters -->
-            <div class="col-md-6" ng-if="pickedTmplmsg">
-                <div class='form-group' ng-repeat='p in pickedTmplmsg.params'>
-                    <label><span>{{p.plabel}}</span><span>（{{p.pname}}）</span></label>
-                    <input class='form-control' placeholder='{{p.pname}}' ng-model="message[p.pname]">
-                </div>
-                <div class='form-group'>
-                    <label><span>详情</span><span>（URL）</span></label>
-                    <textarea class='form-control' placeholder='URL' ng-model="message.url" rows=3></textarea>
-                </div>
-            </div>
-            <!-- end template message-->
-        </div>
-    </div>
-    <div class="modal-footer">
-        <button class="btn btn-success" ng-click="ok()">发送</button>
-    </div>
-</script>

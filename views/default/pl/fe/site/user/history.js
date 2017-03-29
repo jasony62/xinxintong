@@ -1,7 +1,7 @@
 /**
  * Created by lishuai on 2017/3/23.
  */
-define(['main'], function(ngApp) {
+define(['frame'], function(ngApp) {
     'use strict';
 
     ngApp.provider.controller('ctrlHistory',['$scope', 'http2', function($scope, http2){

@@ -3,9 +3,4 @@ body{padding-top:71px;margin-bottom:50px;}
 .ng-cloak{display:none;}
 .margin-bottom{margin-bottom: 15px;}
 /*message*/
-.thumbnail{position:relative;height:180px;display:flex;flex-direction:column;padding:.5em 1em;}
-.thumbnail .summary{flex:1;overflow:hidden;}
-/*.thumbnail .attr{display:flex;padding:.5em 0;justify-content:flex-end;}*/
-.thumbnail .actions{border-top:1px solid #ddd;padding-top:.5em;color:#ab0505;}
-.success:after{content:'成功';position:absolute;top:-8px;left:-8px;background:green;padding:2px 4px;font-size:60%;color:#fff;border-radius:4px;}
-.fail:after{content:'失败';position:absolute;top:-8px;left:-8px;background:red;padding:2px 4px;font-size:60%;color:#fff;border-radius:4px;}
+.send{text-align: right}

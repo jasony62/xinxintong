@@ -147,8 +147,7 @@ class send extends \pl\fe\base {
 	 * 微信企业号
 	 * 开通了点对点认证接口的易信公众号
 	 */
-	public function mass_action() {
-		$mpaccount = $this->getMpaccount();
+	public function mass_action($site, $src='wx') {
 		// 要发送的素材
 		$matter = $this->getPostJson();
 		if (empty($matter->targetUser) || empty($matter->userSet)) {
@@ -163,19 +162,19 @@ class send extends \pl\fe\base {
 			/**
 			 * set message
 			 */
-			if ($mpaccount->mpsrc === 'wx') {
+			if ($src === 'wx') {
 				/**
 				 * 微信的图文群发消息需要上传到公众号平台，所以链接素材无法处理
 				 */
 				$model = $this->model('matter\\' . $matter->type);
 				if ($matter->type === 'text') {
-					$message = $model->forCustomPush($this->mpid, $matter->id, 'OLD');
+					$message = $model->forCustomPush($site, $matter->id, 'OLD');
 				} else if (in_array($matter->type, array('article', 'news', 'channel'))) {
-					$message = $model->forWxGroupPush($this->mpid, $matter->id, 'OLD');
+					$message = $model->forWxGroupPush($site, $matter->id, 'OLD');
 				}
 
-			} else if ($mpaccount->mpsrc === 'yx') {
-				$message = $this->assemble_custom_message($matter);
+			} else if ($src === 'yx') {
+				$message = $this->assemble_custom_message($site, $matter);
 			}
 			if (empty($message)) {
 				return new \ResponseError('指定的素材无法向微信用户群发！');
@@ -187,36 +186,36 @@ class send extends \pl\fe\base {
 				/**
 				 * 发给所有用户
 				 */
-				$mpaccount->mpsrc === 'wx' && $message['filter'] = array('is_to_all' => true);
-				$this->send2group($mpaccount->mpsrc, $this->mpid, $message, $matter, $warning);
+				$src === 'wx' && $message['filter'] = array('is_to_all' => true);
+				$this->send2group($src, $site, $message, $matter, $warning);
 			} else {
 				/**
 				 * 发送给指定的关注用户组
 				 */
-				if ($mpaccount->mpsrc === 'wx') {
+				if ($src === 'wx') {
 					foreach ($userSet as $us) {
 						$message['filter'] = array(
 							'is_to_all' => false,
 							'group_id' => $us->identity,
 						);
-						$this->send2group($mpaccount->mpsrc, $this->mpid, $message, $matter, $warning);
+						$this->send2group($src, $site, $message, $matter, $warning);
 					}
-				} else if ($mpaccount->mpsrc === 'yx') {
-					$message = $this->assemble_custom_message($matter);
+				} else if ($src === 'yx') {
+					$message = $this->assemble_custom_message($site, $matter);
 					foreach ($userSet as $us) {
 						$message['group'] = $us->label;
-						$this->send2group($mpaccount->mpsrc, $this->mpid, $message, $matter, $warning);
+						$this->send2group($src, $site, $message, $matter, $warning);
 					}
 				}
 			}
 		} else {
 			/**
 			 * 发送给认证用户
-			 */
+			 *
 			$rst = $this->send2Member($mpaccount, $matter->userSet, $matter);
 			if ($rst[0] === false) {
 				is_array($rst[1]) ? $warning = $rst[1] : $warning[] = $rst[1];
-			}
+			}*/
 		}
 		if (!empty($warning)) {
 			return new \ResponseError(implode(';', $warning));

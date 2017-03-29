@@ -536,4 +536,43 @@ class log_model extends \TMS_MODEL {
 
 		return $result;
 	}
+	/**
+	 * 汇总各类日志，形成用户完整的踪迹用于展示用户详情的发送消息列表记录
+	 */
+	public function track($site, $openid, $page = 1, $size = 30) {
+		$q = array(
+			'creater,create_at,content,matter_id,matter_type',
+			'xxt_log_mpsend',
+			"mpid='$site' and openid='$openid'",
+		);
+		$q2 = array(
+			'r' => array('o' => ($page - 1) * $size, 'l' => $size),
+			'o' => 'create_at desc',
+		);
+
+		$sendlogs = $this->query_objs_ss($q, $q2);
+
+		$q = array(
+			'create_at,data content',
+			'xxt_log_mpreceive',
+			"mpid='$site' and openid='$openid' and type='text'",
+		);
+		$q2 = array(
+			'r' => array('o' => ($page - 1) * $size, 'l' => $size),
+			'o' => 'create_at desc',
+		);
+
+		$recelogs = $this->query_objs_ss($q, $q2);
+
+		$logs = array_merge($sendlogs, $recelogs);
+
+		/**
+		 * order by create_at
+		 */
+		usort($logs, function ($a, $b) {
+			return $b->create_at - $a->create_at;
+		});
+
+		return $logs;
+	}
 }

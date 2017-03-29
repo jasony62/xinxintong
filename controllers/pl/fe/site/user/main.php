@@ -37,8 +37,17 @@ class main extends \pl\fe\base {
 		$q2['r']=['o'=>($page-1)*$size,'l'=>$size];
 		$q2['o']=['read_at desc'];
 
-		$rst=$model->query_objs_ss($q,$q2);
+		$matters=$model->query_objs_ss($q,$q2);
 
-		return new \responseData($rst);
+		$result = new \stdClass;
+		$result->matters = $matters;
+		if (empty($matters)) {
+			$result->total = 0;
+		} else {
+			$q[0] = 'count(*)';
+			$result->total = $model->query_val_ss($q);
+		}
+
+		return new \responseData($result);
 	}
 }

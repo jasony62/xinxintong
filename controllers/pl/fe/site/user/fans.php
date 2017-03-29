@@ -196,7 +196,7 @@ class fans extends \pl\fe\base {
 	 * 用户的交互足迹
 	 */
 	public function track_action($site,$openid, $page = 1, $size = 30) {
-		$track = $this->model('log')->track($site, $openid, $page, $size);
+		$track = $this->model('matter\log')->track($site, $openid, $page, $size);
 
 		return new \ResponseData($track);
 	}

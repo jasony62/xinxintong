@@ -19,14 +19,14 @@ class history extends \site\fe\base {
 	 * @param string $site site'id
 	 * @param string $matterType
 	 */
-	public function appList_action($site, $matterType = 'enroll,signin') {
+	public function appList_action($site, $matterType = 'enroll,signin', $uid='') {
 		$result = new \stdClass;
-
+		$userid=empty($uid) ? $this->who->uid : $uid;
 		$modelLog = $this->model('matter\log');
 		$q = [
 			'matter_id,matter_type,matter_title,operate_at',
 			'xxt_log_user_matter',
-			"siteid='" . $modelLog->escape($site) . "' and userid='" . $this->who->uid . "' and user_last_op='Y' and operation='submit'",
+			"siteid='" . $modelLog->escape($site) . "' and userid='" . $userid . "' and user_last_op='Y' and operation='submit'",
 		];
 		if (!empty($matterType)) {
 			$matterType = explode(',', $matterType);

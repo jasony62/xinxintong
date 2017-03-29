@@ -26,8 +26,10 @@ body{margin-bottom:50px;}
 .site .actions,
 .mission .actions,
 .matter .actions{border-top:1px solid #ddd;padding-top:8px;}
+.top .actions-top,
 .site .actions-top,
 .matter .actions-top{position:absolute;top:.5em;right:.5em;display:none}
+.top:hover .actions-top,
 .site:hover .actions-top,
 .matter:hover .actions-top{display: block}
 /*user notice*/

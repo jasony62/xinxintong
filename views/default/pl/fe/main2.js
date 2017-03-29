@@ -17,6 +17,9 @@ config(['$uibTooltipProvider', function($uibTooltipProvider) {
     srvUserNotice.uncloseList().then(function(result) {
         $scope.notice = result;
     });
+    $scope.$on('fromCtrlRecentStickTop', function(event,data){
+        $scope.$broadcast('toCtrlTopList', data);
+    });
 }]).controller('ctrlRecent', ['$scope', '$uibModal', 'http2', 'templateShop', 'noticebox', function($scope, $uibModal, http2, templateShop, noticebox) {
     var _fns = {
         createSite: function() {
@@ -215,12 +218,11 @@ config(['$uibTooltipProvider', function($uibTooltipProvider) {
             }
         });
     };
-    $scope.top = function(m, i){
+    $scope.stickTop = function(m){
         var url = '/rest/pl/fe/top?site=' + m.siteid +  '&id=' + m.id;
         http2.get(url, function(rsp){
-            //$scope.matters.splice(i,1);
-            //$scope.page.at===1 && $scope.matters.splice(0,0,m);
             noticebox.success('完成置顶');
+            $scope.$emit('fromCtrlRecentStickTop',m);
         })
     };
     $scope.list(1);
@@ -303,7 +305,7 @@ config(['$uibTooltipProvider', function($uibTooltipProvider) {
         $scope.list();
     }, true);
     $scope.listSite();
-}]).controller('ctrlTop', ['$scope', 'http2', function($scope, http2){
+}]).controller('ctrlTop', ['$scope', 'http2', 'noticebox' ,function($scope, http2, noticebox){
     var page;
     $scope.page = page = {
         at: 1,
@@ -319,5 +321,16 @@ config(['$uibTooltipProvider', function($uibTooltipProvider) {
             $scope.page.total = rsp.data.total;
         })
     };
+    $scope.removeTop = function(t, i){
+        var url = '/rest/pl/fe/delTop?site=' + t.siteid + '&id=' + t.matter_id + '&type=' + t.matter_type;
+        http2.get(url, function(rsp){
+            $scope.top.splice(i,1);
+            noticebox.success('完成')
+        })
+    };
+    $scope.$on('toCtrlTopList', function(event,data) {
+        //数据不完全一致，直接调用接口刷新
+        $scope.list();
+    });
     $scope.list();
 }]);

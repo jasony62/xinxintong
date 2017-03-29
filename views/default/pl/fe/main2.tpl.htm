@@ -84,6 +84,9 @@
                                 <div class='actions' ng-switch-default>
                                     <button class='btn btn-sm btn-default' ng-click="open(t,'main')">进入</button>
                                 </div>
+                                <div class='actions-top' ng-switch on="t.top">
+                                    <button  class='btn btn-default' title='取消置顶' ng-click="removeTop(t)">取消置顶</button>
+                                </div>
                             </div>
                         </div>
                         <div class='col-md-12'>
@@ -161,7 +164,7 @@
                                     <button class='btn btn-sm btn-default' ng-click="open(m,'main')">进入</button>
                                 </div>
                                 <div class='actions-top'>
-                                    <button class='btn btn-default' title='置顶' ng-click="top(m,$index)">置顶</button>
+                                    <button class='btn btn-default' title='置顶' ng-click="stickTop(m)">置顶</button>
                                 </div>
                             </div>
                         </div>

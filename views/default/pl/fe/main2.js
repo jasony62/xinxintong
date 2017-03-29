@@ -317,7 +317,7 @@ config(['$uibTooltipProvider', function($uibTooltipProvider) {
     $scope.list = function(){
         var url = '/rest/pl/fe/topList?' + page.j();
         http2.get(url, function(rsp){
-            $scope.top = rsp.data;
+            $scope.top = rsp.data.matters;
             $scope.page.total = rsp.data.total;
         })
     };
@@ -325,6 +325,7 @@ config(['$uibTooltipProvider', function($uibTooltipProvider) {
         var url = '/rest/pl/fe/delTop?site=' + t.siteid + '&id=' + t.matter_id + '&type=' + t.matter_type;
         http2.get(url, function(rsp){
             $scope.top.splice(i,1);
+            $scope.page.total--;
             noticebox.success('完成')
         })
     };

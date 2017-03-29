@@ -4,7 +4,7 @@
 define(['main'], function(ngApp) {
     'use strict';
 
-    ngApp.provider.controller('ctrlDetails',['$scope', 'http2', '$uibModal', 'noticebox', function($scope, http2, $uibModal, noticebox){
+    ngApp.provider.controller('ctrlMain',['$scope', 'http2', '$uibModal', 'noticebox', function($scope, http2, $uibModal, noticebox){
         var baseURL = '/rest/pl/fe/site/user/';
 		//获取同步信息
         http2.get(baseURL + 'profile/get?site=' + $scope.siteId + '&userid=' + $scope.userId, function(rsp){

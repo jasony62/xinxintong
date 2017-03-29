@@ -24,10 +24,10 @@ define(['require'], function(require) {
             controller: $cp.register
         };
         $rp
-            .when('/rest/pl/fe/site/user/fans/details', new RouteParam('details', true))
+            .when('/rest/pl/fe/site/user/fans/index', new RouteParam('main', true))
             .when('/rest/pl/fe/site/user/fans/history', new RouteParam('history', true))
             .when('/rest/pl/fe/site/user/fans/message', new RouteParam('message', true))
-            .otherwise(new RouteParam('message', true));
+            .otherwise(new RouteParam('main', true));
         $lp.html5Mode(true);
     }]);
     ngApp.controller('ctrlUser', ['$scope', 'srvSite', 'http2', function($scope, srvSite, http2) {
@@ -40,7 +40,7 @@ define(['require'], function(require) {
         $scope.subView = '';
         $scope.$on('$locationChangeSuccess', function(event, currentRoute) {
             var subView = currentRoute.match(/([^\/]+?)\?/);
-            $scope.subView = subView[1] === 'fans' ? 'details' : subView[1];
+            $scope.subView = subView[1] === 'fans' ? 'main' : subView[1];
         });
         srvSite.get().then(function(site) {
             $scope.site = site;

@@ -195,6 +195,7 @@ class main extends \pl\fe\base {
 			return new \ResponseTimeout();
 		}
 
+		$model=$this->model();
 		$p=[
 			't.*,l.matter_summary,l.matter_pic,l.matter_scenario',
 			'xxt_account_topmatter t,xxt_log_matter_op l',
@@ -203,9 +204,19 @@ class main extends \pl\fe\base {
 		$p2['r']=['o'=>($page-1)*$size, 'l'=>$size];
 		$p2['o']=['top_at desc'];
 
-		$matters=$this->model()->query_objs_ss($p,$p2);
+		$matters=$model->query_objs_ss($p,$p2);
 
-		return new \ResponseData($matters);
+		$result = new \stdClass;
+		$result->matters = $matters;
+
+		if (empty($matters)) {
+			$result->total = 0;
+		} else {
+			$p[0] = 'count(*)';
+			$result->total = $model->query_val_ss($p);
+		}
+
+		return new \ResponseData($result);
 	}
 	/**
 	 * 删除置顶

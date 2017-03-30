@@ -86,7 +86,6 @@ class log_model extends TMS_MODEL {
 	 */
 	public function send($mpid, $openid, $groupid, $content, $matter) {
 		$i['mpid'] = $mpid;
-		$i['siteid'] = $mpid;
 		$i['creater'] = TMS_CLIENT::get_client_uid();
 		$i['create_at'] = time();
 		!empty($openid) && $i['openid'] = $openid;

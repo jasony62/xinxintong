@@ -4,6 +4,8 @@ require_once '../../db.php';
 $sqls = array();
 //
 $sqls[] = "alter table xxt_platform add home_nav text";
+$sqls[] = "alter table xxt_platform add is_show_site char(1) not null default 'Y'";
+$sqls[] = "alter table xxt_platform add is_show_template char(1) not null default 'Y'";
 
 foreach ($sqls as $sql) {
 	if (!$mysqli->query($sql)) {

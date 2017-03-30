@@ -42,6 +42,26 @@ provider('srvSite', function() {
                 });
                 return defer.promise;
             },
+            subscriberList: function(category, page) {
+                if (!page) {
+                    page = {
+                        at: 1,
+                        size: 10,
+                        total: 0,
+                        _j: function() {
+                            return 'page=' + this.at + '&size=' + this.size;
+                        }
+                    };
+                } else {
+                    page.at++;
+                }
+                var defer = $q.defer();
+                http2.get('/rest/pl/fe/site/subscriberList?site=' + _siteId + '&category=' + category + '&' + page._j(), function(rsp) {
+                    page.total = rsp.data.total;
+                    defer.resolve({ subscribers: rsp.data.subscribers, page: page });
+                });
+                return defer.promise;
+            },
             snsList: function() {
                 var defer = $q.defer();
                 if (_aSns) {

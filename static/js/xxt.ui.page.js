@@ -1,35 +1,38 @@
 define(['angular', 'domReady!'], function(angular) {
     'use strict';
     var ngApp = angular.module('app', []),
-        injector, codeAssembler;
+        injector, codeAssembler, loadedModules = {};
     angular._lazyLoadModule = function(moduleName) {
-        var lazyModule = angular.module(moduleName);
-        /* 应用的injector，和config中的injector不是同一个，是instanceInject，返回的是通过provider.$get创建的实例 */
-        /* 递归加载依赖的模块 */
-        angular.forEach(lazyModule.requires, function(r) {
-            angular._lazyLoadModule(r);
-        });
-        /* 用provider的injector运行模块的controller，directive等等 */
-        angular.forEach(lazyModule._invokeQueue, function(invokeArgs) {
-            try {
-                var provider = ngApp.providers.$injector.get(invokeArgs[0]);
-                provider[invokeArgs[1]].apply(provider, invokeArgs[2]);
-            } catch (e) {
-                console.error('load module invokeQueue failed:' + e.message, invokeArgs);
-            }
-        });
-        /* 用provider的injector运行模块的config */
-        angular.forEach(lazyModule._configBlocks, function(invokeArgs) {
-            try {
-                ngApp.providers.$injector.invoke.apply(ngApp.providers.$injector, invokeArgs[2]);
-            } catch (e) {
-                console.error('load module configBlocks failed:' + e.message, invokeArgs);
-            }
-        });
-        /* 用应用的injector运行模块的run */
-        angular.forEach(lazyModule._runBlocks, function(fn) {
-            injector.invoke(fn);
-        });
+        if (!loadedModules[moduleName]) { // 避免模块的重复加载
+            var lazyModule = angular.module(moduleName);
+            /* 应用的injector，和config中的injector不是同一个，是instanceInject，返回的是通过provider.$get创建的实例 */
+            /* 递归加载依赖的模块 */
+            angular.forEach(lazyModule.requires, function(r) {
+                angular._lazyLoadModule(r);
+            });
+            /* 用provider的injector运行模块的controller，directive等等 */
+            angular.forEach(lazyModule._invokeQueue, function(invokeArgs) {
+                try {
+                    var provider = ngApp.providers.$injector.get(invokeArgs[0]);
+                    provider[invokeArgs[1]].apply(provider, invokeArgs[2]);
+                } catch (e) {
+                    console.error('load module invokeQueue failed:' + e.message, invokeArgs);
+                }
+            });
+            /* 用provider的injector运行模块的config */
+            angular.forEach(lazyModule._configBlocks, function(invokeArgs) {
+                try {
+                    ngApp.providers.$injector.invoke.apply(ngApp.providers.$injector, invokeArgs[2]);
+                } catch (e) {
+                    console.error('load module configBlocks failed:' + e.message, invokeArgs);
+                }
+            });
+            /* 用应用的injector运行模块的run */
+            angular.forEach(lazyModule._runBlocks, function(fn) {
+                injector.invoke(fn);
+            });
+            loadedModules[moduleName] = true;
+        }
     };
     ngApp.config(['$injector', '$controllerProvider', function($injector, $controllerProvider) {
         /*＊

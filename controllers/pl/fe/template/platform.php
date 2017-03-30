@@ -29,14 +29,14 @@ class platform extends \pl\fe\base {
 		$q = [
 			'*',
 			"xxt_template",
-			"visible_scope = 'P' and state = 1 and pub_version <> ''"
+			"visible_scope = 'P' and state = 1 and pub_version <> ''",
 		];
-		if(!empty($matterType)){
-			$matterType = $model->escape($matterType);
+		if (!empty($matterType)) {
+			$matterType = $modelTmpl->escape($matterType);
 			$q[2] .= " and matter_type = '$matterType'";
 		}
 		if (!empty($scenario)) {
-			$scenario = $model->escape($scenario);
+			$scenario = $modelTmpl->escape($scenario);
 			$q[2] .= " and scenario = '$scenario'";
 		}
 		$q2 = [
@@ -72,7 +72,7 @@ class platform extends \pl\fe\base {
 			"xxt_template t",
 			"exists(select 1 from xxt_template_acl a where a.receiver='{$user->id}' and t.id=a.template_id)",
 		];
-		if(!empty($matterType)){
+		if (!empty($matterType)) {
 			$matterType = $modelTmpl->escape($matterType);
 			$q[2] .= " and matter_type='$matterType'";
 		}

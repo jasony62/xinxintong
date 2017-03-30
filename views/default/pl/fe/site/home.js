@@ -24,6 +24,7 @@ define(['require'], function(require) {
             controller: $cp.register
         };
         $rp.when('/rest/pl/fe/site/home/user', new RouteParam('user', true))
+        $rp.when('/rest/pl/fe/site/home/subscriber', new RouteParam('subscriber', true))
             .when('/rest/pl/fe/site/home/analysis', new RouteParam('analysis', true))
             .otherwise(new RouteParam('page', true));
         $lp.html5Mode(true);

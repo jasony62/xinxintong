@@ -1,4 +1,16 @@
-ngApp.provider.controller('ctrlTemplate', ['$scope', '$http', '$uibModal', function($scope, $http, $uibModal) {
+ngApp.provider.controller('ctrlHome', ['$scope', '$http', '$uibModal', function($scope, $http, $uibModal) {
+    function listSites() {
+        $http.get('/rest/home/listSite?userType=admin').success(function(rsp) {
+            $scope.sites = rsp.data.sites;
+        });
+    }
+
+    function listTemplates() {
+        $http.get('/rest/home/listTemplate').success(function(rsp) {
+            $scope.templates = rsp.data;
+        });
+    }
+
     function createSite() {
         var defer = $q.defer(),
             url = '/rest/pl/fe/site/create?_=' + (new Date() * 1);
@@ -19,25 +31,8 @@ ngApp.provider.controller('ctrlTemplate', ['$scope', '$http', '$uibModal', funct
             });
         });
     }
-    var criteria;
-    $scope.criteria = criteria = {
-        scope: 'P'
-    };
-    $scope.page = {
-        size: 21,
-        at: 1,
-        total: 0
-    };
-    $scope.changeScope = function(scope) {
-        criteria.scope = scope;
-        $scope.searchTemplate();
-    };
-    $scope.searchTemplate = function() {
-        var url = '/rest/pl/fe/template/platform/list?matterType=enroll&scope=' + criteria.scope;
-        $http.get(url).success(function(rsp) {
-            $scope.templates = rsp.data.templates;
-            $scope.page.total = rsp.data.total;
-        });
+    $scope.openMatter = function(matter) {
+        location.href = matter.url;
     };
     $scope.favorTemplate = function(template) {
         if ($scope.siteAdminUser === false) {
@@ -132,8 +127,73 @@ ngApp.provider.controller('ctrlTemplate', ['$scope', '$http', '$uibModal', funct
             });
         }
     };
-    $scope.$watch('platform', function(platform) {
-        if (!platform) return;
-        $scope.searchTemplate();
-    });
+    $scope.subscribeSite = function(site) {
+        if ($scope.siteAdminUser === false) {
+            if (window.sessionStorage) {
+                var method = JSON.stringify({
+                    name: 'subscribeSite',
+                    args: [site]
+                });
+                window.sessionStorage.setItem('xxt.home.auth.pending', method);
+            }
+            location.href = '/rest/pl/fe/user/auth';
+        } else {
+            var url = '/rest/pl/fe/site/canSubscribe?site=' + site.siteid + '&_=' + (new Date() * 1);
+            $http.get(url).success(function(rsp) {
+                var sites = rsp.data;
+                if (sites.length === 1) {
+
+                } else if (sites.length === 0) {
+
+                } else {
+                    $uibModal.open({
+                        templateUrl: 'subscribeSite.html',
+                        dropback: 'static',
+                        controller: ['$scope', '$uibModalInstance', function($scope2, $mi) {
+                            $scope2.mySites = sites;
+                            $scope2.ok = function() {
+                                var selected = [];
+                                sites.forEach(function(site) {
+                                    site._selected === 'Y' && selected.push(site);
+                                });
+                                if (selected.length) {
+                                    $mi.close(selected);
+                                } else {
+                                    $mi.dismiss();
+                                }
+                            };
+                            $scope2.cancel = function() {
+                                $mi.dismiss();
+                            };
+                        }]
+                    }).result.then(function(selected) {
+                        var url = '/rest/pl/fe/site/subscribe?site=' + site.siteid;
+                        sites = [];
+
+                        selected.forEach(function(mySite) {
+                            sites.push(mySite.id);
+                        });
+                        url += '&subscriber=' + sites.join(',');
+                        $http.get(url).success(function(rsp) {
+                            site._subscribed = 'Y';
+                        });
+                    });
+                }
+            });
+        }
+    };
+    $scope.listApps();
+    $scope.listArticles();
 }]);
+ngApp.provider.controller('ctrlCarousel', function($scope) {
+    $scope.myInterval = 5000;
+    $scope.noWrapSlides = false;
+    $scope.active = 0;
+
+    $scope.$watch('platform', function(platform) {
+        if (platform === undefined) return;
+        if (platform.home_carousel.length) {
+            $scope.slides = platform.home_carousel;
+        }
+    });
+});

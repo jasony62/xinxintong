@@ -1,35 +1,33 @@
 
 <div class="row">
-    <div class="col-md-12" ng-if="!fans.ufrom">您没有绑定微信公众号或微信企业号或易信号 <a href="/rest/pl/fe/site/setting?site={{siteId}}">去绑定</a></div>
-    <div class="col-md-12" ng-if="fans.ufrom">
+    <div class="col-md-12" ng-if="!(selSync&&selSync.length)">
+        <p class="alert alert-danger ">您没有绑定微信公众号或微信企业号或易信公众号 !</p>
+        <ul class="list-unstyled">
+            <li><a href="/rest/pl/fe/site/sns/wx?site={{siteId}}" target='_self'>绑定微信公众号</a></li>
+            <li><a href="/rest/pl/fe/site/sns/qy?site={{siteId}}" target='_self'>绑定微信企业号</a></li>
+            <li><a href="/rest/pl/fe/site/sns/yx?site={{siteId}}" target='_self'>绑定易信公众号</a></li>
+        </ul>
+    </div>
+    <div class="col-md-12" ng-if="selSync&&selSync.length">
         <div class="panel panel-default">
             <div class="panel-heading">交流记录</div>
             <div class="panel-body">
                 <div class='col-md-5'>
                     <div class='form-inline form-group'>
                         <div class='form-group'>
-                            <select class='form-control' ng-model="matterType" ng-options="s.value as s.content for s in sel" ng-change='fetchMatter()'></select>
+                            <select class='form-control' ng-model="matterType" ng-options="s.value as s.content for s in selMatter" ng-change='fetchMatter(matterType)'></select>
+                            <select class='form-control' ng-model="syncOpenId" ng-options="s.value as s.title for s in selSync" ng-change='doSearch(syncOpenId)'></select>
                         </div>
-                        <!--？-->
-                        <!--<label class="checkbox-inline" ng-show="hasParent">-->
-                            <!--<input type='checkbox' ng-true-value="'Y'" ng-false-value="'N'" ng-model='fromParent'-->
-                                   <!--ng-change='fetchMatter()'>来源于父账号</label>-->
-
+                        <div class="form-group pull-right">
+                            <button class='btn btn-primary' ng-disabled="!selectedMatter&&matterType!='write'"
+                                    ng-click='send()' >发送
+                            </button>
+                        </div>
                     </div>
                     <div class="form-group">
                         <textarea class='form-control' rows=4 ng-model='text' ng-show="matterType=='write'"></textarea>
                     </div>
-                    <div class="form-group pull-right">
-                        <button class='btn btn-primary' ng-disabled="!selectedMatter&&matterType!='write'"
-                                ng-click='send(fans.wx.openid)' ng-if="fans.wx">发送给微信公众号
-                        </button>
-                        <button class='btn btn-primary' ng-disabled="!selectedMatter&&matterType!='write'"
-                                ng-click='send(fans.qy.openid)' ng-if="fans.qy">发送给微信企业号
-                        </button>
-                        <button class='btn btn-primary' ng-disabled="!selectedMatter&&matterType!='write'"
-                                ng-click='send(fans.yx.openid)' ng-if="fans.yx">发送易信公众号
-                        </button>
-                    </div>
+
                     <div class='list-group' ng-hide="matterType=='write'">
                         <a class='list-group-item' ng-class="{'active':selectedMatter==m}" ng-repeat='m in matters'
                            ng-click='selectMatter(m)'>{{m.title||m.content}}</a>
@@ -40,6 +38,9 @@
                     </div>
                 </div>
                 <div class='col-md-7'>
+                    <div class="form-group">
+                        <select class='form-control' ng-model="syncOpenId" ng-options="s.value as s.content for s in selSync" ng-change='doSearch(syncOpenId)'></select>
+                    </div>
                     <ul class='list-group'>
                         <a class='list-group-item' ng-class="{'send':t.creater}" ng-repeat='t in track'>
                             <div>{{t.content}}</div>

@@ -5,8 +5,7 @@ define(['frame'], function (ngApp) {
     'use strict';
 
     ngApp.provider.controller('ctrlMessage', ['$scope', 'http2', '$uibModal', '$timeout', function ($scope, http2, $uibModal, $timeout) {
-        var page,page2,
-            baseURL = '/rest/pl/fe/site/user/';
+        var page, page2;
         $scope.page = page = {
             at: 1,
             size: 10,
@@ -21,7 +20,7 @@ define(['frame'], function (ngApp) {
                 return '&page=' + this.at + '&size=' + this.size;
             }
         };
-        $scope.sel = [
+        $scope.selMatter = [
             {value: 'write', content: '编辑'},
             {value: 'text', content: '文本'},
             {value: 'article', content: '单图文'},
@@ -29,27 +28,59 @@ define(['frame'], function (ngApp) {
             {value: 'link', content: '链接'},
             {value: 'channel', content: '频道'}
         ];
-        $scope.matterType = 'write';
+        $scope.matterType = $scope.selMatter[0].value;//默认显示编辑项
+        $scope.selSync = [];
         //获取消息 包括 用户 和 管理员；用什么区分 用户信息左侧显示，管理员右侧显示
-        $scope.doSearch = function () {
-            var url = '/rest/pl/fe/site/user/fans/track?site=' + $scope.siteId + '&openid=' + $scope.openid + $scope.page.j();
-            http2.get(url, function(rsp) {
-                //$scope.track = rsp.data;
+        $scope.doSearch = function (syncOpenId) {
+            $scope.openId = syncOpenId ? syncOpenId : $scope.syncOpenId;
+            //初始化分页
+            $scope.page.at = 1;
+            $scope.page2.at = 1;
+            //syncOpenId && ($scope.syncOpenId = syncOpenId);
+            var url = '/rest/pl/fe/site/user/fans/track?site=' + $scope.siteId + '&openid=' + $scope.openId + $scope.page.j();
+            http2.get(url, function (rsp) {
+                $scope.track = rsp.data;
                 //$scope.page.total = 20;
-                //$scope.track = [
-                //    {
-                //        "creater": "5715c9edc7738",
-                //        "create_at": "1490771516",
-                //        "content": "aaaaa",
-                //        "matter_id": "",
-                //        "matter_type": ""
-                //    },
-                //    {"create_at": "1490232005", "content": "huininghui"}
-                //];
             });
         };
-        $scope.doSearch();
-        $scope.send = function(openId) {
+        //问题：公众号信息异步获取；可能得不到，重新获取
+        http2.get('/rest/pl/fe/site/user/fans/getsnsinfo?site=' + $scope.siteId + '&uid=' + $scope.userId, function (rsp) {
+            var fans = rsp.data;
+            //fans.wx && ($scope.wx = fans.wx);
+            //fans.qy && ($scope.qy = fans.qy);
+            //fans.yx && ($scope.yx = fans.yx);
+            //$scope.wx && ($scope.selSync[length] = {value: $scope.wx.openid, title: '微信公众号', content: '微信公众号信息'});
+            //$scope.qy && ($scope.selSync[length] = {value: $scope.qy.openid, title: '微信企业号', content: '微信企业号信息'});
+            //$scope.yx && ($scope.selSync[length] = {value: $scope.yx.openid, title: '易信公众号', content: '易信公众号信息'});
+            //压缩-插件化
+            var data = {},
+                fans = rsp.data,
+                obj = {};
+            //代码不执行
+            if (!(fans.wx && fans.qy && fans.yx))  {return;}
+            console.log(1);
+            fans.wx && (data.wx = fans.wx);
+            fans.qy && (data.qy = fans.qy);
+            fans.yx && (data.yx = fans.yx);
+            angular.forEach(data, function (d, key) {
+                if (key === 'wx') {
+                    obj.title = '微信公众号';
+                    obj.content = '微信公众号信息' ;
+                }else if(key === 'qy'){
+                    obj.title = '微信企业号';
+                    obj.content = '微信企业号信息' ;
+                }else if(key === 'yx'){
+                    obj.title = '易信公众号';
+                    obj.content = '易信公众号信息' ;
+                }
+                obj.value = d.openid ;
+                $scope.selSync[length] = obj;
+                obj = {};
+            });
+            $scope.selSync && $scope.selSync.length && ($scope.syncOpenId = $scope.selSync[0].value);//默认显示微信公众号
+            $scope.doSearch();
+        });
+        $scope.send = function () {
             var data;
             if ($scope.matterType === 'write') {
                 data = {
@@ -63,12 +94,13 @@ define(['frame'], function (ngApp) {
                 };
             }
             //发送接口？
-            http2.post('/rest/pl/fe/site/user/send/custom?site=' + $scope.siteId + '&openid=' + openId, data, function(rsp) {
+            http2.post('/rest/pl/fe/site/user/send/custom?site=' + $scope.siteId + '&openid=' + $scope.openId, data, function (rsp) {
                 $scope.doSearch();
             });
         };
         //获取资料
-        $scope.fetchMatter = function(page) {
+        $scope.fetchMatter = function (matterType) {
+            $scope.matterType = matterType ? matterType : $scope.matterType;
             if ($scope.matterType === 'write') {
                 $scope.matters = null;
                 return;
@@ -78,9 +110,9 @@ define(['frame'], function (ngApp) {
             url = '/rest/pl/fe/matter/' + $scope.matterType + '/list?site=' + $scope.siteId;
             url += $scope.page2.j();
             //$scope.fromParent && $scope.fromParent === 'Y' && (params.src = 'p');
-            http2.get(url, function(rsp) {
+            http2.get(url, function (rsp) {
                 //除了单图文都没有total 都没有做分页
-                if (/article/.test($scope.matterType)) {
+                if (/article/.test(matterType)) {
                     $scope.matters = rsp.data.articles;
                     $scope.page2.total = rsp.data.total;
                 } else {
@@ -89,7 +121,7 @@ define(['frame'], function (ngApp) {
             });
         };
         //选择资料
-        $scope.selectMatter = function(matter) {
+        $scope.selectMatter = function (matter) {
             $scope.selectedMatter = matter;
         };
     }]);

@@ -1,0 +1,18 @@
+<div ng-switch on="catelog.v">
+    <div class='col-md-12' ng-controller="ctrlClient" ng-switch-when="client">
+        <div class='list-group'>
+            <div class='list-group-item' ng-repeat="s in subscribers">
+                <div>{{s.nickname}}</div>
+                <div>{{s.subscribe_at*1000|date:'yy-MM-dd HH:mm'}}</div>
+            </div>
+        </div>
+    </div>
+    <div class='col-md-12' ng-controller="ctrlFriend" ng-switch-when="friend">
+        <div class='list-group'>
+            <div class='list-group-item' ng-repeat="s in subscribers">
+                <div>{{s.from_site_name}}</div>
+                <div>{{s.subscribe_at*1000|date:'yy-MM-dd HH:mm'}}</div>
+            </div>
+        </div>
+    </div>
+</div>

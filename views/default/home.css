@@ -1,0 +1,4 @@
+body{margin-bottom:50px}
+.navbar-nav .active:after{content:' ';position:absolute;left:0;right:0;bottom:-1px;height:3px;background:red;}
+.user-login a,.user-register a,.user-subscribe a{display:block;padding:3px 20px;clear:both;font-weight:400;line-height:1.5;color:#333;white-space:nowrap;}
+.user-login a:hover,.user-register a:hover,.user-subscribe a:hover{color:#262626;text-decoration:none;background-color:#f5f5f5}

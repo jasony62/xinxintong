@@ -2,9 +2,11 @@ define(['frame'], function(ngApp) {
     'use strict';
     ngApp.provider.controller('ctrlNotice', ['$scope', 'srvTmplmsgNotice', 'srvEnrollNotice', 'srvRecordConverter', function($scope, srvTmplmsgNotice, srvEnrollNotice, srvRecordConverter) {
         var oBatchPage, aBatches;
+        $scope.tmsTableWrapReady = 'N';
         $scope.oBatchPage = oBatchPage = {};
         $scope.batches = aBatches = [];
         $scope.detail = function(batch) {
+            $scope.batchId = batch;
             srvEnrollNotice.detail(batch).then(function(result) {
                 var records, noticeStatus;
                 $scope.logs = result.logs;
@@ -22,6 +24,18 @@ define(['frame'], function(ngApp) {
                 $scope.activeBatch = batch;
             })
         };
+        $scope.choose = 'N';
+        $scope.fail = function(isCheck) {
+            if(isCheck == 'Y') {
+                $scope.records.forEach(function(item,index) {
+                    if(!(item.noticeStatus.indexOf('failed') < 0)) {
+                        $scope.records.splice(item,index);
+                    }
+                });
+            }else {
+                $scope.detail($scope.batchId);
+            }
+        }
         $scope.$watch('app', function(app) {
             var recordSchemas;
             if (!app) return;
@@ -33,6 +47,7 @@ define(['frame'], function(ngApp) {
             });
             srvTmplmsgNotice.init('enroll:' + app.id, oBatchPage, aBatches);
             srvTmplmsgNotice.list();
+            $scope.tmsTableWrapReady = 'Y';
             $scope.recordSchemas = recordSchemas;
         });
     }]);

@@ -18,6 +18,9 @@ class platform extends \pl\be\base {
 			if (!empty($platform->home_carousel)) {
 				$platform->home_carousel = json_decode($platform->home_carousel);
 			}
+			if (!empty($platform->home_nav)) {
+				$platform->home_nav = json_decode($platform->home_nav);
+			}
 		}
 
 		return new \ResponseData($platform);
@@ -30,12 +33,16 @@ class platform extends \pl\be\base {
 			return new \ResponseTimeout();
 		}
 		$nv = $this->getPostJson();
+		$model = $this->model();
+
 		foreach ($nv as $n => $v) {
 			if ($n === 'home_carousel') {
 				$nv->{$n} = json_encode($v);
+			} else if ($n === 'home_nav') {
+				$nv->{$n} = $model->escape($model->toJson($v));
 			}
 		}
-		$rst = $this->model()->update(
+		$rst = $model->update(
 			'xxt_platform',
 			$nv,
 			"1=1"

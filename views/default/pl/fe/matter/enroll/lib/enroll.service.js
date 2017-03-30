@@ -625,7 +625,7 @@ define(['require', 'schema', 'page'], function(require, schemaLib, pageLib) {
                                     multiple: true,
                                     setshowname: true
                                 };
-                                mediagallery.open($scope.app.siteid, options);
+                                mediagallery.open($scope2.app.siteid, options);
                             });
                             $scope2.$on('tinymce.instance.init', function(event, editor) {
                                 var page;
@@ -740,7 +740,7 @@ define(['require', 'schema', 'page'], function(require, schemaLib, pageLib) {
                         templateUrl: '/views/default/pl/fe/matter/enroll/component/roundEditor.html?_=1',
                         backdrop: 'static',
                         controller: ['$scope', '$uibModalInstance', function($scope, $mi) {
-                            $scope.round = angular.copy(round);
+                            $scope.round = { title: round.title, start_at: round.start_at, end_at: round.end_at, state: round.state };
                             $scope.roundState = RoundState;
                             $scope.$on('xxt.tms-datepicker.change', function(event, data) {
                                 if (data.state === 'start_at') {
@@ -767,14 +767,14 @@ define(['require', 'schema', 'page'], function(require, schemaLib, pageLib) {
                                 });
                             };
                             $scope.stop = function() {
-                                $scope.round.state = 2;
+                                $scope.round.state = '2';
                                 $mi.close({
                                     action: 'update',
                                     data: $scope.round
                                 });
                             };
                             $scope.start = function() {
-                                $scope.round.state = 1;
+                                $scope.round.state = '1';
                                 $mi.close({
                                     action: 'update',
                                     data: $scope.round
@@ -786,8 +786,8 @@ define(['require', 'schema', 'page'], function(require, schemaLib, pageLib) {
                         if (rst.action === 'update') {
                             url += 'update?site=' + _siteId + '&app=' + _appId + '&rid=' + round.rid;
                             http2.post(url, rst.data, function(rsp) {
-                                if (_rounds.length > 1 && rst.data.state == 1) {
-                                    _rounds[1].state = 2;
+                                if (_rounds.length > 1 && rst.data.state === '1') {
+                                    _rounds[1].state = '2';
                                 }
                                 angular.extend(round, rsp.data);
                             });
@@ -1400,7 +1400,7 @@ define(['require', 'schema', 'page'], function(require, schemaLib, pageLib) {
                     params = {
                         criteria: _ins._oCriteria
                     }
-                    defer = $q.defer();
+                defer = $q.defer();
 
                 url = '/rest/pl/fe/matter/enroll/record/sum4Schema';
                 url += '?site=' + _siteId;

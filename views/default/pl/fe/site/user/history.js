@@ -27,11 +27,11 @@ define(['frame'], function (ngApp) {
         };
         $scope.page = page = {
             at: 1,
-            site: 30,
+            size: 30,
             type : '活动记录',
             total : $scope.historys.enroll.total,
             j: function () {
-                return '&at=' + this.at + '&site=' + this.site;
+                return '&page=' + this.at + '&size=' + this.size;
             }
         };
         //获取活动记录

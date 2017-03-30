@@ -305,8 +305,10 @@ define(['frame'], function(ngApp) {
             });
         });
         $scope.$watch('editing.title', function(title, oldTitle) {
-            if (!$scope.editing.pic && title.slice(0, 1) != oldTitle.slice(0, 1)) {
-                tmsThumbnail.thumbnail($scope.editing);
+            if ($scope.editing) {
+                if (!$scope.editing.pic && title.slice(0, 1) != oldTitle.slice(0, 1)) {
+                    tmsThumbnail.thumbnail($scope.editing);
+                }
             }
         });
         $scope.$on('tinymce.instance.init', function(event, editor) {

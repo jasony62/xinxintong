@@ -29,6 +29,14 @@
             </tbody>
         </table>
         <div ng-controller="ctrlHomeNav" class='form-group'>
+            <div class="checkbox">
+                <label>
+                    <input type='checkbox' ng-true-value="'Y'" ng-false-value="'N'" ng-model="platform.is_show_site" ng-change="update('is_show_site')">导航条中显示团队库</label>
+            </div>
+            <div class="checkbox">
+                <label>
+                    <input type='checkbox' ng-true-value="'Y'" ng-false-value="'N'" ng-model="platform.is_show_template" ng-change="update('is_show_template')">导航条中显示团队库</label>
+            </div>
             <table class='table table-bordered'>
                 <tbody>
                     <tr ng-repeat='nav in navs'>

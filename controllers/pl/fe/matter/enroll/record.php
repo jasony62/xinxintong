@@ -624,7 +624,11 @@ class record extends \pl\fe\matter\base {
 			$objActiveSheet->setCellValueByColumnAndRow(0, $rowIndex, date('y-m-j H:i', $record->enroll_at));
 			$objActiveSheet->setCellValueByColumnAndRow(1, $rowIndex, $record->verified);
 			//轮次名
-			$objActiveSheet->setCellValueByColumnAndRow(2, $rowIndex, $record->round->title);
+			if (isset($record->round)) {
+				$objActiveSheet->setCellValueByColumnAndRow(2, $rowIndex, $record->round->title);
+			} else {
+				$objActiveSheet->setCellValueByColumnAndRow(2, $rowIndex, '');
+			}
 			// 处理登记项
 			$data = $record->data;
 			for ($i = 0, $ii = count($schemas); $i < $ii; $i++) {

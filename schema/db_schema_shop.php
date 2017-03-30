@@ -163,6 +163,8 @@ $sql .= ",template_page_name varchar(13) not null default ''"; // 平台模版�
 $sql .= ",site_page_id int not null default 0"; // 平台站点库
 $sql .= ",site_page_name varchar(13) not null default ''"; // 平台站点库
 $sql .= ",home_nav text"; // 平台首页导航条设置
+$sql .= ",is_show_site char(1) not null default 'Y'"; // 是否显示团队库
+$sql .= ",is_show_template char(1) not null default 'Y'"; // 是否显示模板库
 $sql .= ",primary key(id)) ENGINE=MyISAM DEFAULT CHARSET=utf8";
 if (!$mysqli->query($sql)) {
 	header('HTTP/1.0 500 Internal Server Error');

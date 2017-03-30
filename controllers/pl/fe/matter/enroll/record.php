@@ -532,7 +532,7 @@ class record extends \pl\fe\matter\base {
 		}
 
 		// 登记活动
-		$oApp = $this->model('matter\enroll')->byId($app, ['fields' => 'siteid,id,title,data_schemas,scenario,enroll_app_id,group_app_id', 'cascaded' => 'N']);
+		$oApp = $this->model('matter\enroll')->byId($app, ['fields' => 'siteid,id,title,data_schemas,scenario,enroll_app_id,group_app_id,multi_rounds', 'cascaded' => 'N']);
 		$schemas = json_decode($oApp->data_schemas);
 
 		// 关联的登记活动
@@ -589,31 +589,35 @@ class record extends \pl\fe\matter\base {
 			->setDescription($oApp->title);
 
 		$objActiveSheet = $objPHPExcel->getActiveSheet();
-
-		$objActiveSheet->setCellValueByColumnAndRow(0, 1, '登记时间');
-		$objActiveSheet->setCellValueByColumnAndRow(1, 1, '审核通过');
-		$objActiveSheet->setCellValueByColumnAndRow(2, 1, '登记轮次');
+		$columnNum1 = 0;//列号
+		$objActiveSheet->setCellValueByColumnAndRow($columnNum1++, 1, '登记时间');
+		$objActiveSheet->setCellValueByColumnAndRow($columnNum1++, 1, '审核通过');
+		if($oApp->multi_rounds === 'Y'){
+			$objActiveSheet->setCellValueByColumnAndRow($columnNum1++, 1, '登记轮次');
+		}
 
 		// 转换标题
 		$isTotal = []; //是否需要合计
 		for ($i = 0, $ii = count($schemas); $i < $ii; $i++) {
+			$columnNum4 = $columnNum1;//列号
 			$schema = $schemas[$i];
 			/* 跳过图片和文件 */
 			if (in_array($schema->type, ['image', 'file'])) {
 				continue;
 			}
 			if (isset($schema->number) && $schema->number === 'Y') {
-				$isTotal[$i + 3] = $schema->id;
+				$isTotal[($i + $columnNum4)] = $schema->id;
 			}
-			$objActiveSheet->setCellValueByColumnAndRow($i + 3, 1, $schema->title);
+
+			$objActiveSheet->setCellValueByColumnAndRow($i + $columnNum4++, 1, $schema->title);
 		}
-		$objActiveSheet->setCellValueByColumnAndRow($i + 3, 1, '昵称');
-		$objActiveSheet->setCellValueByColumnAndRow($i + 4, 1, '备注');
-		$objActiveSheet->setCellValueByColumnAndRow($i + 5, 1, '标签');
+		$objActiveSheet->setCellValueByColumnAndRow($i + $columnNum1++, 1, '昵称');
+		$objActiveSheet->setCellValueByColumnAndRow($i + $columnNum1++, 1, '备注');
+		$objActiveSheet->setCellValueByColumnAndRow($i + $columnNum1++, 1, '标签');
 		// 记录分数
 		if ($oApp->scenario === 'voting') {
-			$objActiveSheet->setCellValueByColumnAndRow($i + 6, 1, '总分数');
-			$objActiveSheet->setCellValueByColumnAndRow($i + 7, 1, '平均分数');
+			$objActiveSheet->setCellValueByColumnAndRow($i + $columnNum1++, 1, '总分数');
+			$objActiveSheet->setCellValueByColumnAndRow($i + $columnNum1++, 1, '平均分数');
 			$titles[] = '总分数';
 			$titles[] = '平均分数';
 		}
@@ -621,17 +625,17 @@ class record extends \pl\fe\matter\base {
 		for ($j = 0, $jj = count($records); $j < $jj; $j++) {
 			$record = $records[$j];
 			$rowIndex = $j + 2;
-			$objActiveSheet->setCellValueByColumnAndRow(0, $rowIndex, date('y-m-j H:i', $record->enroll_at));
-			$objActiveSheet->setCellValueByColumnAndRow(1, $rowIndex, $record->verified);
+			$columnNum2 = 0;//列号
+			$objActiveSheet->setCellValueByColumnAndRow($columnNum2++, $rowIndex, date('y-m-j H:i', $record->enroll_at));
+			$objActiveSheet->setCellValueByColumnAndRow($columnNum2++, $rowIndex, $record->verified);
 			//轮次名
 			if (isset($record->round)) {
-				$objActiveSheet->setCellValueByColumnAndRow(2, $rowIndex, $record->round->title);
-			} else {
-				$objActiveSheet->setCellValueByColumnAndRow(2, $rowIndex, '');
+				$objActiveSheet->setCellValueByColumnAndRow($columnNum2++, $rowIndex, $record->round->title);
 			}
 			// 处理登记项
 			$data = $record->data;
 			for ($i = 0, $ii = count($schemas); $i < $ii; $i++) {
+				 $columnNum3 =  $columnNum2;//列号
 				$schema = $schemas[$i];
 				$v = isset($data->{$schema->id}) ? $data->{$schema->id} : '';
 				if (empty($v)) {
@@ -643,12 +647,12 @@ class record extends \pl\fe\matter\base {
 					$disposed = null;
 					foreach ($schema->ops as $op) {
 						if ($op->v === $v) {
-							$objActiveSheet->setCellValueByColumnAndRow($i + 3, $rowIndex, $op->l);
+							$objActiveSheet->setCellValueByColumnAndRow($i + $columnNum3++, $rowIndex, $op->l);
 							$disposed = true;
 							break;
 						}
 					}
-					empty($disposed) && $objActiveSheet->setCellValueByColumnAndRow($i + 3, $rowIndex, $v);
+					empty($disposed) && $objActiveSheet->setCellValueByColumnAndRow($i + $columnNum3++, $rowIndex, $v);
 					break;
 				case 'multiple':
 					$labels = [];
@@ -661,7 +665,7 @@ class record extends \pl\fe\matter\base {
 							}
 						}
 					}
-					$objActiveSheet->setCellValueByColumnAndRow($i + 3, $rowIndex, implode(',', $labels));
+					$objActiveSheet->setCellValueByColumnAndRow($i + $columnNum3++, $rowIndex, implode(',', $labels));
 					break;
 				case 'score':
 					$labels = [];
@@ -670,26 +674,26 @@ class record extends \pl\fe\matter\base {
 							$labels[] = $op->l . ':' . $v->{$op->v};
 						}
 					}
-					$objActiveSheet->setCellValueByColumnAndRow($i + 3, $rowIndex, implode(' / ', $labels));
+					$objActiveSheet->setCellValueByColumnAndRow($i + $columnNum3++, $rowIndex, implode(' / ', $labels));
 					break;
 				case 'image':
 				case 'file':
 					break;
 				default:
-					$objActiveSheet->setCellValueExplicitByColumnAndRow($i + 3, $rowIndex, $v, \PHPExcel_Cell_DataType::TYPE_STRING);
+					$objActiveSheet->setCellValueExplicitByColumnAndRow($i + $columnNum3++, $rowIndex, $v, \PHPExcel_Cell_DataType::TYPE_STRING);
 					break;
 				}
 			}
 			// 昵称
-			$objActiveSheet->setCellValueByColumnAndRow($i + 3, $rowIndex, $record->nickname);
+			$objActiveSheet->setCellValueByColumnAndRow($i + $columnNum2++, $rowIndex, $record->nickname);
 			// 备注
-			$objActiveSheet->setCellValueByColumnAndRow($i + 4, $rowIndex, $record->comment);
+			$objActiveSheet->setCellValueByColumnAndRow($i + $columnNum2++, $rowIndex, $record->comment);
 			// 标签
-			$objActiveSheet->setCellValueByColumnAndRow($i + 5, $rowIndex, $record->tags);
+			$objActiveSheet->setCellValueByColumnAndRow($i + $columnNum2++, $rowIndex, $record->tags);
 			// 记录分数
 			if ($oApp->scenario === 'voting') {
-				$objActiveSheet->setCellValueByColumnAndRow($i + 6, $rowIndex, $record->_score);
-				$objActiveSheet->setCellValueByColumnAndRow($i + 7, $rowIndex, sprintf('%.2f', $record->_average));
+				$objActiveSheet->setCellValueByColumnAndRow($i + $columnNum2++, $rowIndex, $record->_score);
+				$objActiveSheet->setCellValueByColumnAndRow($i + $columnNum2++, $rowIndex, sprintf('%.2f', $record->_average));
 			}
 		}
 		if (!empty($isTotal)) {

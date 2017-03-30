@@ -271,7 +271,7 @@ class main extends base {
 		}
 
 		if ($oApp->multi_rounds === 'Y') {
-			$params['activeRound'] = $this->model('matter\enroll\round')->getLast($oApp);
+			$params['activeRound'] = $this->model('matter\enroll\round')->getActive($oApp);
 		}
 
 		/* 是否需要返回登记记录 */

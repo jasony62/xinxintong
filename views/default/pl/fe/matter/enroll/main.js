@@ -34,6 +34,19 @@ define(['frame'], function(ngApp) {
         };
     }]);
     ngApp.provider.controller('ctrlReceiver', ['$scope', 'http2', '$interval', '$uibModal', 'srvEnrollApp', function($scope, http2, $interval, $uibModal, srvEnrollApp) {
+        function listReceivers(app) {
+            http2.get(baseURL + 'list?site=' + app.siteid + '&app=' + app.id, function(rsp) {
+                var map = { wx: '微信', yx: '易信', qy: '企业号' };
+                rsp.data.forEach(function(receiver) {
+                    if (receiver.sns_user) {
+                        receiver.snsUser = JSON.parse(receiver.sns_user);
+                        map[receiver.snsUser.src] && (receiver.snsUser.snsName = map[receiver.snsUser.src]);
+                    }
+                });
+                $scope.receivers = rsp.data;
+            });
+        }
+
         var baseURL = '/rest/pl/fe/matter/enroll/receiver/';
         $scope.qrcodeShown = false;
         $scope.qrcode = function(snsName) {
@@ -97,33 +110,23 @@ define(['frame'], function(ngApp) {
                 $scope.receivers.splice($scope.receivers.indexOf(receiver), 1);
             });
         };
-        $scope.choose = function() {
+        $scope.chooseQy = function() {
             $uibModal.open({
                 templateUrl: 'chooseUser.html',
                 controller: 'ctrlChooseUser',
             }).result.then(function(data) {
-                var url;
+                var app = $scope.app,
+                    url;
                 url = '/rest/pl/fe/matter/enroll/receiver/add';
-                url += '?site=' + $scope.app.siteid;
-                url += '&app=' + $scope.app.id;
+                url += '?site=' + app.siteid;
+                url += '&app=' + app.id;
                 http2.post(url, data, function(rsp) {
-                    http2.get(baseURL + 'list?site=' + $scope.app.siteid + '&app=' + $scope.app.id, function(rsp) {
-                        $scope.receivers = rsp.data;
-                    });
+                    listReceivers(app);
                 });
             })
         };
         srvEnrollApp.get().then(function(app) {
-            http2.get(baseURL + 'list?site=' + app.siteid + '&app=' + app.id, function(rsp) {
-                var map = { wx: '微信', yx: '易信', qy: '企业号' };
-                rsp.data.forEach(function(receiver) {
-                    if (receiver.sns_user) {
-                        receiver.snsUser = JSON.parse(receiver.sns_user);
-                        map[receiver.snsUser.src] && (receiver.snsUser.snsName = map[receiver.snsUser.src]);
-                    }
-                });
-                $scope.receivers = rsp.data;
-            });
+            listReceivers(app);
         });
     }]);
     ngApp.provider.controller('ctrlChooseUser', ['$scope', '$uibModalInstance', 'http2', 'srvEnrollApp', function($scope, $mi, http2, srvEnrollApp) {

@@ -1,32 +1,56 @@
 <div class='container' ng-controller="ctrlHome">
-    <div class='row tms-panel' ng-if="site.home_carousel">
-        <div style="height: 305px" ng-controller="ctrlCarousel">
-            <div uib-carousel active="active" interval="myInterval" no-wrap="noWrapSlides">
-                <div uib-slide ng-repeat="slide in slides" index="$index">
-                    <img ng-src="{{slide.picUrl}}" style="height:305px;margin:auto;">
-                    <div class="carousel-caption"></div>
+    <div class='row' ng-if="site.home_carousel">
+        <div class='col-md-12'>
+            <div ng-controller="ctrlCarousel">
+                <div uib-carousel active="active" interval="myInterval" no-wrap="noWrapSlides">
+                    <div uib-slide ng-repeat="slide in slides" index="$index">
+                        <img ng-src="{{slide.picUrl}}" style="height:305px;margin:auto;">
+                        <div class="carousel-caption"></div>
+                    </div>
                 </div>
             </div>
         </div>
     </div>
     <div class='row'>
-        <uib-tabset active="0">
-            <uib-tab index="$index" ng-repeat="c in channels">
-                <uib-tab-heading>{{c.title}}</uib-tab-heading>
-                <div class='list-group channel'>
-                    <div class='list-group-item matter' ng-repeat="m in c._matters" ng-click='openMatter(m)'>
-                        <div class="media">
-                            <div class="media-left">
-                                <img class="media-object" ng-src="{{m.pic||m.thumbnail}}">
-                            </div>
-                            <div class="media-body">
-                                <h4 class="media-heading">{{m.title}}</h4>
-                                <div>{{m.summary}}</div>
+        <div class='col-md-12'>
+            <uib-tabset active="0">
+                <uib-tab index="$index" ng-repeat="c in channels">
+                    <uib-tab-heading>{{c.title}}</uib-tab-heading>
+                    <div class='list-group channel'>
+                        <div class='list-group-item matter' ng-repeat="m in c._matters" ng-click='openMatter(m)'>
+                            <div class="media">
+                                <div class="media-left">
+                                    <img class="media-object" ng-src="{{m.pic||m.thumbnail}}">
+                                </div>
+                                <div class="media-body">
+                                    <h4 class="media-heading">{{m.title}}</h4>
+                                    <div>{{m.summary}}</div>
+                                </div>
                             </div>
                         </div>
                     </div>
+                </uib-tab>
+            </uib-tabset>
+        </div>
+    </div>
+    <div class='row templates'>
+        <div class='col-md-4' ng-repeat="t in templates">
+            <div class='thumbnail template'>
+                <h4 class='title' ng-bind="t.title"></h4>
+                <p class='summary' ng-bind="t.summary"></p>
+                <div class='heading-pic' heading-pic ng-if="t.pic">
+                    <img ng-src='{{t.pic}}'>
                 </div>
-            </uib-tab>
-        </uib-tabset>
+                <div class='attr'>
+                    <div class='creater_name' ng-bind="t.creater_name"></div>
+                    <div class='put_at' ng-bind="t.put_at*1000|date:'yyyy-MM-dd'"></div>
+                </div>
+                <div class='actions'>
+                    <a class='btn btn-sm btn-default' href="/rest/site/fe/matter/template?template={{t.id}}">预览</a>
+                    <button class='btn btn-sm btn-success' ng-click='favorTemplate(t)'>收藏</button>
+                    <button class='btn btn-sm btn-success' ng-click='useTemplate(t)'>使用</button>
+                </div>
+            </div>
+        </div>
     </div>
 </div>

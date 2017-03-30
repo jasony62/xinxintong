@@ -70,6 +70,7 @@
                         <th style='width:40px'></th>
                         <th style='width:140px'>用户昵称</th>
                         <th style='width:100px'>登记时间</th>
+                        <th style='width:100px' ng-if="app.multi_rounds==='Y'">登记轮次</th>
                         <th class='custom-col row' ng-repeat="c in recordSchemas">{{c.title}}</th>
                         <th class='custom-col matched enroll' ng-repeat="c in enrollDataSchemas">{{c.title}}</th>
                         <th class='custom-col matched group' ng-repeat="c in groupDataSchemas">{{c.title}}</th>
@@ -96,6 +97,7 @@
                         <td>{{(page.at-1)*page.size+$index+1}}</td>
                         <td>{{r.nickname}}</td>
                         <td>{{(r.enroll_at*1000)|date:'MM-dd HH:mm'}}</td>
+                        <td ng-if="app.multi_rounds==='Y'">{{r.round.title}}</td>
                         <td ng-repeat="schema in recordSchemas" ng-switch on="schema.type">
                             <span ng-switch-when="image">
                                 <img ng-repeat="img in r._data[schema.id]" ng-src='{{img}}' />
@@ -146,6 +148,7 @@
                         <td></td>
                         <td></td>
                         <td></td>
+                        <td ng-if="app.multi_rounds==='Y'"></td>
                         <td ng-repeat="schema in recordSchemas" ng-switch on="schema.type">
                             <span ng-if="schema.number==='Y'">
                                 {{sum4Schema[schema.id]}}

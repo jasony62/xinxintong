@@ -29,9 +29,9 @@ class main extends \pl\fe\matter\base {
 	}
 	/**
 	 *
-	 * $src 是否从父账号获取资源
-	 * $acceptType
-	 * $cascade 是否获得频道内的素材和访问控制列表
+	 * @param string $site site's id
+	 * @param string $acceptType 频道素材类型
+	 * @param string $cascade 是否获得频道内的素材和访问控制列表
 	 */
 	public function list_action($site, $acceptType = null, $cascade = 'Y') {
 		if (false === ($user = $this->accountUser())) {
@@ -42,16 +42,16 @@ class main extends \pl\fe\matter\base {
 		 * 素材的来源
 		 */
 		$q = [
-			"c.*",
-			'xxt_channel c',
-			"c.siteid='$site' and c.state=1",
+			'*',
+			'xxt_channel',
+			['siteid' => $site, 'state' => 1],
 		];
-		!empty($acceptType) && $q[2] .= " and (matter_type='' or matter_type='$acceptType')";
+		!empty($acceptType) && $q[2]['matter_type'] = ['', $acceptType];
 		$q2['o'] = 'create_at desc';
-		$channels = $this->model()->query_objs_ss($q, $q2);
+		$modelChn = $this->model('matter\channel');
+		$channels = $modelChn->query_objs_ss($q, $q2);
 		/* 获得子资源 */
 		if ($channels && $cascade == 'Y') {
-			$modelChn = $this->model('matter\channel');
 			$modelAcl = $this->model('acl');
 			foreach ($channels as $c) {
 				$c->url = $modelChn->getEntryUrl($site, $c->id);
@@ -163,26 +163,26 @@ class main extends \pl\fe\matter\base {
 			return new \ResponseTimeout();
 		}
 		$matter = $this->getPostJson();
-
+		$modelChn = $this->model('matter\channel');
 		if ($pos === 'top') {
-			$this->model()->update('xxt_channel',
-				array(
+			$modelChn->update('xxt_channel',
+				[
 					'top_type' => $matter->t,
 					'top_id' => $matter->id,
-				),
-				"siteid='$site' and id=$id"
+				],
+				['siteid' => $site, 'id' => $id]
 			);
 		} else if ($pos === 'bottom') {
-			$this->model()->update('xxt_channel',
-				array(
+			$modelChn->update('xxt_channel',
+				[
 					'bottom_type' => $matter->t,
 					'bottom_id' => $matter->id,
-				),
-				"siteid='$site' and id=$id"
+				],
+				['siteid' => $site, 'id' => $id]
 			);
 		}
 
-		$matters = $this->model('matter\channel')->getMatters($id);
+		$matters = $modelChn->getMatters($id);
 
 		return new \ResponseData($matters);
 	}
@@ -219,7 +219,6 @@ class main extends \pl\fe\matter\base {
 
 			return new \ResponseData($matters);
 		}
-
 	}
 	/**
 	 *
@@ -271,11 +270,11 @@ class main extends \pl\fe\matter\base {
 
 		$rst = $this->model()->update(
 			'xxt_channel',
-			array(
+			[
 				$page . '_page_id' => $code->id,
 				$page . '_page_name' => $code->name,
-			),
-			"siteid='{$site}' and id='$id'"
+			],
+			['siteid' => $site, 'id' => $id]
 		);
 
 		return new \ResponseData($code);
@@ -291,11 +290,11 @@ class main extends \pl\fe\matter\base {
 		}
 		$modelChn = $this->model('matter\channel');
 		$channel = $modelChn->byId($id);
-		$data = array(
+		$data = [
 			'html' => '',
 			'css' => '',
 			'js' => '',
-		);
+		];
 		$modelCode = $this->model('code\page');
 		$code = $modelCode->lastByName($site, $channel->{$page . '_page_name'});
 		$rst = $modelCode->modify($code->id, $data);

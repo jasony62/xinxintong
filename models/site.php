@@ -115,63 +115,23 @@ class site_model extends \TMS_MODEL {
 		return $rel;
 	}
 	/**
-	 * 获得指定团队的站点关注用户
+	 * 获得指定团队的个人关注用户
 	 */
-	public function subscriber($siteId) {
+	public function subscriber($siteId, $page = 1, $size = 10) {
+		$result = new \stdClass;
 		$q = [
 			'*',
 			'xxt_site_subscriber',
 			["siteid" => $siteId],
 		];
-		$q2 = ['o' => 'subscribe_at desc'];
+		$q2 = ['o' => 'subscribe_at desc', 'r' => ['o' => ($page - 1) * $size, 'l' => $size]];
 
-		$subscribers = $this->query_objs_ss($q, $q2);
+		$result->subscribers = $this->query_objs_ss($q, $q2);
 
-		return $subscribers;
-	}
-	/**
-	 * 推送素材给关注团队的站点用户
-	 *
-	 * @param object $site
-	 * @param object $matter
-	 */
-	public function pushToSubscriber($site, &$matter) {
-		$subscribers = $this->subscriber($site->id);
-		$current = time();
-		foreach ($subscribers as $subscriber) {
-			$q = [
-				'id',
-				'xxt_site_subscription',
-				['matter_id' => $matter->id, 'matter_type' => $matter->type, 'userid' => $subscriber->userid],
-			];
-			if ($rel = $this->query_obj_ss($q)) {
-				$subscription = new \stdClass;
-				$subscription->site_name = $site->name;
-				$subscription->put_at = $current;
-				$subscription->nickname = $subscriber->nickname;
-				$subscription->matter_title = $matter->title;
-				$subscription->matter_pic = $matter->pic;
-				$subscription->matter_summary = $matter->summary;
+		$q[0] = 'count(*)';
+		$result->total = $this->query_val_ss($q);
 
-				$this->update('xxt_site_subscription', $subscription, ['id' => $rel->id]);
-			} else {
-				$subscription = new \stdClass;
-				$subscription->siteid = $site->id;
-				$subscription->site_name = $site->name;
-				$subscription->put_at = $current;
-				$subscription->userid = $subscriber->userid;
-				$subscription->nickname = $subscriber->nickname;
-				$subscription->matter_id = $matter->id;
-				$subscription->matter_type = $matter->type;
-				$subscription->matter_title = $matter->title;
-				$subscription->matter_pic = $matter->pic;
-				$subscription->matter_summary = $matter->summary;
-
-				$this->insert('xxt_site_subscription', $subscription, false);
-			}
-		}
-
-		return count($subscribers);
+		return $result;
 	}
 	/**
 	 * 返回建立了关注关系的团队
@@ -199,18 +159,23 @@ class site_model extends \TMS_MODEL {
 	/**
 	 * 获得指定团队的站点关注用户
 	 */
-	public function friendBySite($siteId) {
+	public function friendBySite($siteId, $page = 1, $size = 10) {
+		$result = new \stdClass;
+
 		$siteId = $this->escape($siteId);
 		$q = [
 			'*',
 			'xxt_site_friend',
 			"siteid='$siteId' and subscribe_at<>0",
 		];
-		$q2 = ['o' => 'subscribe_at desc'];
+		$q2 = ['o' => 'subscribe_at desc', 'r' => ['o' => ($page - 1) * $size, 'l' => $size]];
 
-		$friends = $this->query_objs_ss($q, $q2);
+		$result->subscribers = $this->query_objs_ss($q, $q2);
 
-		return $friends;
+		$q[0] = 'count(*)';
+		$result->total = $this->query_val_ss($q);
+
+		return $result;
 	}
 	/**
 	 * 团队是否已经被团队关注
@@ -267,48 +232,169 @@ class site_model extends \TMS_MODEL {
 		return $rel;
 	}
 	/**
+	 * 推送素材给关注团队的站点用户
+	 *
+	 * @param object $oSite
+	 * @param object $oMatter
+	 */
+	public function pushToClient($oSite, &$oMatter) {
+		$subscribers = $this->subscriber($oSite->id);
+		if (count($subscribers) === 0) {
+			return 0;
+		}
+		$current = time();
+
+		foreach ($subscribers as $subscriber) {
+			$q = [
+				'id',
+				'xxt_site_subscription',
+				['matter_id' => $oMatter->id, 'matter_type' => $oMatter->type, 'userid' => $subscriber->userid],
+			];
+			if ($rel = $this->query_obj_ss($q)) {
+				$subscription = new \stdClass;
+				$subscription->site_name = $oSite->name;
+				$subscription->put_at = $current;
+				$subscription->nickname = $subscriber->nickname;
+				$subscription->matter_title = $oMatter->title;
+				$subscription->matter_pic = $oMatter->pic;
+				$subscription->matter_summary = $oMatter->summary;
+
+				$this->update('xxt_site_subscription', $subscription, ['id' => $rel->id]);
+			} else {
+				$subscription = new \stdClass;
+				$subscription->siteid = $oSite->id;
+				$subscription->site_name = $oSite->name;
+				$subscription->put_at = $current;
+				$subscription->userid = $subscriber->userid;
+				$subscription->nickname = $subscriber->nickname;
+				$subscription->matter_id = $oMatter->id;
+				$subscription->matter_type = $oMatter->type;
+				$subscription->matter_title = $oMatter->title;
+				$subscription->matter_pic = $oMatter->pic;
+				$subscription->matter_summary = $oMatter->summary;
+
+				$this->insert('xxt_site_subscription', $subscription, false);
+			}
+		}
+		/* 给关注团队的站点用户发送通知 */
+		if (!isset($notice)) {
+			$notice = $this->model('site\notice')->byName('platform', 'site.home.publish.client');
+			if ($notice) {
+				$tmplConfig = $this->model('matter\tmplmsg\config')->byId($notice->tmplmsg_config_id, ['cascaded' => 'Y']);
+				if (isset($tmplConfig->tmplmsg)) {
+					$params = $this->_buildPublishNotice($tmplConfig, $oSite, $oMatter);
+					$modelTmplBat = $this->model('matter\tmplmsg\batch');
+					$creater = new \stdClass;
+					$creater->src = 'pl';
+					$modelTmplBat->send($oSite->id, $tmplConfig->msgid, $creater, $subscribers, $params, ['event_name' => 'site.home.publish.client', 'send_from' => 'site:' . $oSite->id]);
+				}
+			}
+		}
+
+		return count($subscribers);
+	}
+	/**
 	 * 推送素材给关注团队的团队
 	 *
-	 * @param object $site
-	 * @param object $matter
+	 * @param object $oSite
+	 * @param object $oMatter
+	 *
 	 */
-	public function pushToFriend($site, &$matter) {
-		$friends = $this->friendBySite($site->id);
+	public function pushToFriend($oSite, &$oMatter) {
+		$friends = $this->friendBySite($oSite->id);
 		$current = time();
 		foreach ($friends as $friend) {
 			$q = [
 				'id',
 				'xxt_site_friend_subscription',
-				['matter_id' => $matter->id, 'matter_type' => $matter->type, 'from_siteid' => $friend->from_siteid],
+				['matter_id' => $oMatter->id, 'matter_type' => $oMatter->type, 'from_siteid' => $friend->from_siteid],
 			];
 			if ($rel = $this->query_obj_ss($q)) {
 				$subscription = new \stdClass;
-				$subscription->site_name = $site->name;
+				$subscription->site_name = $oSite->name;
 				$subscription->put_at = $current;
 				$subscription->from_site_name = $friend->from_site_name;
-				$subscription->matter_title = $matter->title;
-				$subscription->matter_pic = $matter->pic;
-				$subscription->matter_summary = $matter->summary;
+				$subscription->matter_title = $oMatter->title;
+				$subscription->matter_pic = $oMatter->pic;
+				$subscription->matter_summary = $oMatter->summary;
 
 				$this->update('xxt_site_friend_subscription', $subscription, ['id' => $rel->id]);
 			} else {
 				$subscription = new \stdClass;
-				$subscription->siteid = $site->id;
-				$subscription->site_name = $site->name;
+				$subscription->siteid = $oSite->id;
+				$subscription->site_name = $oSite->name;
 				$subscription->put_at = $current;
 				$subscription->from_siteid = $friend->from_siteid;
 				$subscription->from_site_name = $friend->from_site_name;
-				$subscription->matter_id = $matter->id;
-				$subscription->matter_type = $matter->type;
-				$subscription->matter_title = $matter->title;
-				$subscription->matter_pic = $matter->pic;
-				$subscription->matter_summary = $matter->summary;
+				$subscription->matter_id = $oMatter->id;
+				$subscription->matter_type = $oMatter->type;
+				$subscription->matter_title = $oMatter->title;
+				$subscription->matter_pic = $oMatter->pic;
+				$subscription->matter_summary = $oMatter->summary;
 
 				$this->insert('xxt_site_friend_subscription', $subscription, false);
+			}
+			/* 给关注团队的团队用户发送通知 */
+			if (!isset($notice)) {
+				$notice = $this->model('site\notice')->byName('platform', 'site.home.publish.friend');
+				if ($notice) {
+					$tmplConfig = $this->model('matter\tmplmsg\config')->byId($notice->tmplmsg_config_id, ['cascaded' => 'Y']);
+					if (isset($tmplConfig->tmplmsg)) {
+						$params = $this->_buildPublishNotice($tmplConfig, $oSite, $oMatter);
+					} else {
+						$params = false;
+					}
+				}
+			}
+			if (isset($tmplConfig->msgid) && $params) {
+				$this->_notifyPublishFriend($oSite->id, $friend->from_siteid, $tmplConfig->msgid, $params);
 			}
 		}
 
 		return count($friends);
+	}
+	/**
+	 * 构造事件通知
+	 */
+	private function _buildPublishNotice($tmplConfig, $oFromSite, $oMatter) {
+		$params = new \stdClass;
+
+		foreach ($tmplConfig->tmplmsg->params as $param) {
+			$mapping = $tmplConfig->mapping->{$param->pname};
+			if ($mapping->src === 'matter') {
+				if (isset($oApp->{$mapping->id})) {
+					$value = $oApp->{$mapping->id};
+				}
+			} else if ($mapping->src === 'text') {
+				$value = $mapping->name;
+			}
+			!isset($value) && $value = '';
+			$params->{$param->pname} = $value;
+		}
+		!empty($oMatter->entryUrl) && $params->url = $oMatter->entryUrl;
+
+		return $param;
+	}
+	/**
+	 * 给关注团队的管理员用户发送通知
+	 */
+	private function _notifyPublishFriend($bySiteId, $friendSiteId, $tmplmsgId, &$params) {
+		// 团队下的所有管理员用户
+		$admins = $this->model('site\admin')->bySite($bySiteId);
+
+		if (count($admins)) {
+			$receivers = [];
+			foreach ($admins as $admin) {
+				$receiver = new \stdClass;
+				$receiver->userid = $admin->uid;
+				$receivers[] = $receiver;
+			}
+
+			$modelTmplBat = $this->model('matter\tmplmsg\plbatch');
+			$modelTmplBat->send($bySiteId, $tmplmsgId, $receivers, $params, ['event_name' => 'site.home.publish.friend', 'send_from' => 'site:' . $bySiteId]);
+		}
+
+		return [true];
 	}
 	/**
 	 * 返回建立了关注关系的团队可以看到的素材

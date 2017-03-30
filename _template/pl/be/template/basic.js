@@ -1,4 +1,4 @@
-ngApp.provider.controller('ctrlTemplate', ['$scope', '$http', '$uibModal', 'srvUser', function($scope, $http, $uibModal, srvUser) {
+ngApp.provider.controller('ctrlTemplate', ['$scope', '$http', '$uibModal', function($scope, $http, $uibModal) {
     function createSite() {
         var defer = $q.defer(),
             url = '/rest/pl/fe/site/create?_=' + (new Date() * 1);
@@ -134,17 +134,6 @@ ngApp.provider.controller('ctrlTemplate', ['$scope', '$http', '$uibModal', 'srvU
     };
     $scope.$watch('platform', function(platform) {
         if (!platform) return;
-        srvUser.getSiteAdminUser().then(function(user) {
-            $scope.siteAdminUser = user;
-            if (window.sessionStorage) {
-                var pendingMethod;
-                if (pendingMethod = window.sessionStorage.getItem('xxt.home.auth.pending')) {
-                    window.sessionStorage.removeItem('xxt.home.auth.pending');
-                    pendingMethod = JSON.parse(pendingMethod);
-                    $scope[pendingMethod.name].apply($scope, pendingMethod.args);
-                }
-            }
-            $scope.searchTemplate();
-        });
+        $scope.searchTemplate();
     });
 }]);

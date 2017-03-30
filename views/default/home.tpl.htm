@@ -36,20 +36,21 @@
                     <li><a href='' uib-popover-template="'userRegister.html'" popover-placement="bottom" popover-class='user-register' popover-trigger="outsideClick">注册 <span class='caret'></span></a></li>
                 </ul>
                 <form class='navbar-form navbar-right ng-cloak' ng-cloak ng-if="user.isLogin===true">
-                    <div class="btn-group">
-                        <a href='/rest/site/fe/user?site=platform' target='_self' class="btn btn-default"><i class='glyphicon glyphicon-user'></i> <span ng-bind="user.nickname"></span></a>
+                    <div class="btn-group" ng-switch on="user.role">
+                        <a ng-switch-when="admin" ng-href='/rest/pl/fe' target='_self' class="btn btn-default"><i class='glyphicon glyphicon-user'></i> <span ng-bind="user.nickname"></span></a>
+                        <a ng-switch-when="person" href='/rest/site/fe/user?site=platform' target='_self' class="btn btn-default"><i class='glyphicon glyphicon-user'></i> <span ng-bind="user.nickname"></span></a>
                         <button type="button" class="btn btn-default dropdown-toggle" data-toggle="dropdown">
                             <span class="caret"></span>
                             <span class="sr-only">Toggle Dropdown</span>
                         </button>
-                        <ul class="dropdown-menu" role="menu" ng-if="user.role==='person'">
+                        <ul class="dropdown-menu" role="menu" ng-switch-when="person">
                             <li><a href='/rest/site/fe/user?site=platform' target='_self'>用户设置</a></li>
                             <li class="divider"></li>
                             <li><a href='/rest/site/fe/user/logout/do?site=platform&redirect=Y' target='_self'>退出</a></li>
                             <li class="divider"></li>
                             <li><a href='' ng-click="shiftAsAdmin()">切换到团队账号</a></li>
                         </ul>
-                        <ul class="dropdown-menu" role="menu" ng-if="user.role==='admin'">
+                        <ul class="dropdown-menu" role="menu" ng-switch-when="admin">
                             <li><a href='/rest/pl/fe/user/settings' target='_self'>用户设置</a></li>
                             <li class="divider"></li>
                             <li><a href='/rest/pl/fe/user/logout' target='_self'>退出</a></li>
@@ -64,14 +65,74 @@
     <div dynamic-html='page.html'></div>
     <script type="text/ng-template" id="userLogin.html">
         <div>
-            <div><a href='/rest/site/fe/user/login?site={{site.id}}' target='_self'>个人账号</a></div>
+            <div><a href='/rest/site/fe/user/login?site=platform' target='_self'>个人账号</a></div>
             <div><a href='/rest/pl/fe/user/auth' target='_self'>团队账号</a></div>
         </div>
     </script>
     <script type="text/ng-template" id="userRegister.html">
         <div>
-            <div><a href='/rest/site/fe/user/register?site={{site.id}}' target='_self'>个人账号</a></div>
+            <div><a href='/rest/site/fe/user/register?site=platform' target='_self'>个人账号</a></div>
             <div><a href='/rest/pl/fe/user/register' target='_self'>团队账号</a></div>
+        </div>
+    </script>
+    <script type="text/ng-template" id="userSubscribe.html">
+        <div>
+            <div><a href='' ng-click="subscribeByPerson(s)">个人账号关注</a></div>
+            <div><a href='' ng-click="subscribeByTeam(s)">团队账号关注</a></div>
+        </div>
+    </script>
+    <script type="text/ng-template" id="subscribeByTeam.html">
+        <div class="modal-header">
+            <button class="close" type="button" ng-click="cancel()">×</button>
+            <h5 class="modal-title ">指定关注团队的团队</h5>
+        </div>
+        <div class="modal-body ">
+            <div class="checkbox" ng-repeat="site in mySites">
+                <label ng-if="site._subscribed!=='Y'">
+                    <input type='checkbox' ng-true-value="'Y'" ng-false-value="'N'" ng-model='site._selected'>{{site.name}}</label>
+                <label ng-if="site._subscribed==='Y'">
+                    <input type='checkbox' checked disabled><span>{{site.name}}</span>（已关注）</label>
+                </label>
+            </div>
+            <div class='alert alert-danger' ng-if="mySites.length===0">请创建用于关注本团队的团队</div>
+        </div>
+        <div class="modal-footer">
+            <button class="btn btn-success" ng-click="ok() ">确定</button>
+        </div>
+    </script>
+    <script type="text/ng-template" id="favorTemplateSite.html">
+        <div class="modal-header">
+            <button class="close" type="button" ng-click="cancel()">×</button>
+            <h5 class="modal-title ">指定收藏模版的团队</h5>
+        </div>
+        <div class="modal-body ">
+            <div class="checkbox" ng-repeat="site in mySites">
+                <label ng-if="site._favored!=='Y'">
+                    <input type='checkbox' ng-true-value="'Y'" ng-false-value="'N'" ng-model='site._selected'>{{site.name}}</label>
+                <label ng-if="site._favored==='Y'">
+                    <input type='checkbox' checked disabled><span>{{site.name}}</span>（已收藏）</label>
+                </label>
+            </div>
+            <div class='alert alert-danger' ng-if="mySites.length===0">请创建用于收藏本模版的团队</div>
+        </div>
+        <div class="modal-footer">
+            <button class="btn btn-success" ng-click="ok() ">确定</button>
+        </div>
+    </script>
+    <script type="text/ng-template" id="useTemplateSite.html">
+        <div class="modal-header">
+            <button class="close" type="button" ng-click="cancel()">×</button>
+            <h5 class="modal-title ">指定使用模版的团队</h5>
+        </div>
+        <div class="modal-body ">
+            <div class="radio" ng-repeat="site in mySites">
+                <label ng-if="site._favored!=='Y'">
+                    <input type='radio' name='site' value="{{$index}}" ng-model='data.index'>{{site.name}}</label>
+            </div>
+            <div class='alert alert-danger' ng-if="mySites.length===0">请创建使用模版的团队</div>
+        </div>
+        <div class="modal-footer">
+            <button class="btn btn-success" ng-click="ok() ">确定</button>
         </div>
     </script>
     <script src="/static/js/require.js" defer async data-main="/views/default/home-loader.js?_=3"></script>

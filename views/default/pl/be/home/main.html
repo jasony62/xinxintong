@@ -11,19 +11,19 @@
                     </td>
                 </tr>
                 <tr>
-                    <td>平台模版库页面</td>
-                    <td>平台模版库页面</td>
-                    <td>
-                        <a href='' ng-click="editPage('template')">编辑页面</a>
-                        <a href='' ng-click="resetPage('template')" ng-show="platform.template_page_name">重置页面</a>
-                    </td>
-                </tr>
-                <tr>
                     <td>平台团队库页面</td>
                     <td>平台团队库页面</td>
                     <td>
                         <a href='' ng-click="editPage('site')">编辑页面</a>
                         <a href='' ng-click="resetPage('site')" ng-show="platform.site_page_name">重置页面</a>
+                    </td>
+                </tr>
+                <tr>
+                    <td>平台模版库页面</td>
+                    <td>平台模版库页面</td>
+                    <td>
+                        <a href='' ng-click="editPage('template')">编辑页面</a>
+                        <a href='' ng-click="resetPage('template')" ng-show="platform.template_page_name">重置页面</a>
                     </td>
                 </tr>
             </tbody>
@@ -44,21 +44,3 @@
         </div>
     </div>
 </div>
-<script type="text/ng-template" id="homePageTemplate.html">
-    <div class="modal-header">
-        <button class="close" type="button" ng-click="cancel()">×</button>
-        <h5 class="modal-title ">指定平台主页页面模板</h5>
-    </div>
-    <div class="modal-body ">
-        <div class='form-group'>
-            <select class='form-control' ng-model="data.template">
-                <option value='basic'>个人和团队用户</option>
-                <option value='siteuser'>个人用户</option>
-                <option value='adminuser'>团队用户</option>
-            </select>
-        </div>
-    </div>
-    <div class="modal-footer">
-        <button class="btn btn-success" ng-click="ok() ">确定</button>
-    </div>
-</script>

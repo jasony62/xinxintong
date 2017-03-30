@@ -41,33 +41,17 @@ class home extends TMS_CONTROLLER {
 	 * @param string $userType 站点用户还是团队管理员用户
 	 *
 	 */
-	public function listSite_action($userType = 'user') {
+	public function listSite_action() {
 		$modelHome = $this->model('site\home');
 		$result = $modelHome->atHome();
 		if ($result->total) {
-			if ($userType === 'admin') {
-				if ($user = $this->_accountUser()) {
-					$modelSite = $this->model('site');
-					$mySites = $modelSite->byUser($user->id);
-					foreach ($result->sites as &$site) {
-						foreach ($mySites as $mySite) {
-							if ($rel = $modelSite->isFriend($site->siteid, $mySite->id)) {
-								$site->_subscribed = $rel->subscribe_at ? 'Y' : 'N';
-								break;
-							}
-						}
-					}
-				}
-			} else {
-				$modelWay = $this->model('site\fe\way');
-				$siteUser = $modelWay->who('platform');
-				/* 团队是否已经被当前用户关注 */
-				if (isset($siteUser->loginExpire)) {
-					$modelSite = $this->model('site');
-					foreach ($result->sites as &$site) {
-						if ($rel = $modelSite->isSubscribed($siteUser->uid, $site->siteid)) {
-							$site->_subscribed = $rel->subscribe_at ? 'Y' : 'N';
-						}
+			$modelWay = $this->model('site\fe\way');
+			$siteUser = $modelWay->who('platform');
+			if (isset($siteUser->loginExpire)) {
+				$modelSite = $this->model('site');
+				foreach ($result->sites as &$site) {
+					if ($rel = $modelSite->isSubscribed($siteUser->uid, $site->siteid)) {
+						$site->_subscribed = $rel->subscribe_at ? 'Y' : 'N';
 					}
 				}
 			}

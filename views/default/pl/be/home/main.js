@@ -34,7 +34,7 @@ define(['frame'], function(ngApp) {
                 templateUrl: 'homePageTemplate.html',
                 dropback: 'static',
                 controller: ['$scope', '$uibModalInstance', function($scope2, $mi) {
-                    $scope2.data = { template: 'siteuser' };
+                    $scope2.data = { template: 'basic' };
                     $scope2.ok = function() {
                         $mi.close($scope2.data);
                     };

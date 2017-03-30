@@ -694,7 +694,7 @@ angular.module('ui.tms', ['ngSanitize']).service('noticebox', ['$timeout', funct
         priority: 1000,
         terminal: true,
         compile: function(tElement, tAttrs, transclude) {
-            var repeatExpr, childExpr, rootExpr, childrenExpr;
+            var repeatExpr, childExpr, rootExpr, childrenExpr, branchExpr;
             repeatExpr = tAttrs.tmsTree.match(/^(.*) in ((?:.*\.)?(.*)) at (.*)$/);
             childExpr = repeatExpr[1];
             rootExpr = repeatExpr[2];
@@ -781,7 +781,7 @@ angular.module('ui.tms', ['ngSanitize']).service('noticebox', ['$timeout', funct
                     })(root, rootElement, scope, 0);
                     // Cleanup objects which have been removed.
                     // Remove DOM elements and destroy scopes to prevent memory leaks.
-                    i = cache.length;
+                    var i = cache.length;
                     while (i--) {
                         cached = cache[i];
                         if (cached.scope)

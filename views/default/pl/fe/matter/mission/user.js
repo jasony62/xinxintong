@@ -141,9 +141,32 @@ define(['frame', 'enrollService', 'signinService'], function(ngApp) {
         });
     }]);
     ngApp.provider.controller('ctrlUserAction', ['$scope', 'srvMission', 'srvRecordConverter', function($scope, srvMission, srvRecordConverter) {
-        var _oResultSet;
+        var _oResultSet, _del;
         $scope.resultSet = _oResultSet = {};
         $scope.tmsTableWrapReady = 'N';
+        $scope.del = _del = [];
+        $scope.doAttend = function(isCheck) {
+
+            if(isCheck=='Y') {
+                _del = [];
+                var keys = [];
+                for(var i in $scope.recordsByApp) {
+                    (Object.keys($scope.recordsByApp[i])).forEach(function(item,index) {
+                        keys.push(item);
+                    });
+                }
+                for(var i = $scope.showMatters.length-1; i >= 0; i--) {
+                    if(keys.indexOf($scope.showMatters[i].id) == -1) {
+                        _del.push($scope.showMatters[i]);
+                        $scope.showMatters.splice(i, 1);
+                    }
+                }
+            }else {
+                _del.forEach(function(item) {
+                    $scope.showMatters.push(item);
+                });
+            }
+        }
         $scope.doUserSearch = function() {
             srvMission.userList(_oResultSet).then(function(result) {
                 $scope.tmsTableWrapReady = 'Y';

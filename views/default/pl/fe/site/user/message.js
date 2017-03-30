@@ -32,24 +32,24 @@ define(['frame'], function (ngApp) {
         $scope.matterType = 'write';
         //获取消息 包括 用户 和 管理员；用什么区分 用户信息左侧显示，管理员右侧显示
         $scope.doSearch = function () {
-            //var url = '';
-            //http2.get(url, function(rsp) {
-            //$scope.track = rsp.data;
-            $scope.page.total = 20;
-            $scope.track = [
-                {
-                    "creater": "5715c9edc7738",
-                    "create_at": "1490771516",
-                    "content": "aaaaa",
-                    "matter_id": "",
-                    "matter_type": ""
-                },
-                {"create_at": "1490232005", "content": "huininghui"}
-            ];
-            //});
+            var url = '/rest/pl/fe/site/user/fans/track?site=' + $scope.siteId + '&openid=' + $scope.openid + $scope.page.j();
+            http2.get(url, function(rsp) {
+                //$scope.track = rsp.data;
+                //$scope.page.total = 20;
+                //$scope.track = [
+                //    {
+                //        "creater": "5715c9edc7738",
+                //        "create_at": "1490771516",
+                //        "content": "aaaaa",
+                //        "matter_id": "",
+                //        "matter_type": ""
+                //    },
+                //    {"create_at": "1490232005", "content": "huininghui"}
+                //];
+            });
         };
         $scope.doSearch();
-        $scope.send = function() {
+        $scope.send = function(openId) {
             var data;
             if ($scope.matterType === 'write') {
                 data = {
@@ -63,7 +63,7 @@ define(['frame'], function (ngApp) {
                 };
             }
             //发送接口？
-            http2.post('', data, function(rsp) {
+            http2.post('/rest/pl/fe/site/user/send/custom?site=' + $scope.siteId + '&openid=' + openId, data, function(rsp) {
                 $scope.doSearch();
             });
         };

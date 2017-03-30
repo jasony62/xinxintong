@@ -50,7 +50,7 @@ define(['frame'], function (ngApp) {
         };
         //获取收藏记录
         $scope.favorList = function () {
-            http2.get('/rest/site/fe/user/favor/list?site=' + $scope.siteId + '&uid' + $scope.userId + page.j(), function (rsp) {
+            http2.get('/rest/site/fe/user/favor/list?site=' + $scope.siteId + '&uid=' + $scope.userId + page.j(), function (rsp) {
                 $scope.historys.favor.content = rsp.data.matters;
                 rsp.data.total ? $scope.historys.favor.total = rsp.data.total : 0;
             });

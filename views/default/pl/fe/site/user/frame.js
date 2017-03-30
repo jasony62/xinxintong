@@ -48,6 +48,13 @@ define(['require'], function(require) {
         http2.get('/rest/pl/fe/site/member/schema/list?site=' + params.siteId, function(rsp) {
             $scope.memberSchemas = rsp.data;
         });
+        //获取 增加公众号信息
+        http2.get('/rest/pl/fe/site/user/fans/getsnsinfo?site=' + $scope.siteId + '&uid=' + $scope.userId, function(rsp) {
+            $scope.fans = rsp.data;
+            $scope.fans.wx && ($scope.wx = $scope.fans.wx);
+            $scope.fans.qy && ($scope.qy = $scope.fans.qy);
+            $scope.fans.yx && ($scope.yx = $scope.fans.yx);
+        });
     }]);
     /***/
     require(['domReady!'], function(document) {

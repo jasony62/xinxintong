@@ -1,7 +1,7 @@
 
 <div class="row">
-    <div class="col-md-12">
-
+    <div class="col-md-12" ng-if="!fans.ufrom">您没有绑定微信公众号或微信企业号或易信号 <a href="/rest/pl/fe/site/setting?site={{siteId}}">去绑定</a></div>
+    <div class="col-md-12" ng-if="fans.ufrom">
         <div class="panel panel-default">
             <div class="panel-heading">交流记录</div>
             <div class="panel-body">
@@ -15,14 +15,21 @@
                             <!--<input type='checkbox' ng-true-value="'Y'" ng-false-value="'N'" ng-model='fromParent'-->
                                    <!--ng-change='fetchMatter()'>来源于父账号</label>-->
 
-                        <div class='form-group pull-right'>
-                            <button class='btn btn-primary' ng-disabled="!selectedMatter&&matterType!='write'"
-                                    ng-click='send()'>发送
-                            </button>
-                        </div>
                     </div>
-                    <textarea class='form-control' rows=4 ng-model='text' ng-show="matterType=='write'"></textarea>
-
+                    <div class="form-group">
+                        <textarea class='form-control' rows=4 ng-model='text' ng-show="matterType=='write'"></textarea>
+                    </div>
+                    <div class="form-group pull-right">
+                        <button class='btn btn-primary' ng-disabled="!selectedMatter&&matterType!='write'"
+                                ng-click='send(fans.wx.openid)' ng-if="fans.wx">发送给微信公众号
+                        </button>
+                        <button class='btn btn-primary' ng-disabled="!selectedMatter&&matterType!='write'"
+                                ng-click='send(fans.qy.openid)' ng-if="fans.qy">发送给微信企业号
+                        </button>
+                        <button class='btn btn-primary' ng-disabled="!selectedMatter&&matterType!='write'"
+                                ng-click='send(fans.yx.openid)' ng-if="fans.yx">发送易信公众号
+                        </button>
+                    </div>
                     <div class='list-group' ng-hide="matterType=='write'">
                         <a class='list-group-item' ng-class="{'active':selectedMatter==m}" ng-repeat='m in matters'
                            ng-click='selectMatter(m)'>{{m.title||m.content}}</a>

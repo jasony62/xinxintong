@@ -575,4 +575,42 @@ class log_model extends \TMS_MODEL {
 
 		return $logs;
 	}
+	/**
+	 * 记录所有发送给用户的消息
+	 */
+	public function send($site, $openid, $groupid, $content, $matter) {
+		$i['mpid'] = $site;
+		$i['siteid'] = $site;
+		$i['creater'] = TMS_CLIENT::get_client_uid();
+		$i['create_at'] = time();
+		!empty($openid) && $i['openid'] = $openid;
+		!empty($groupid) && $i['groupid'] = $groupid;
+		!empty($content) && $i['content'] = $this->escape($content);
+		if (!empty($matter)) {
+			$i['matter_id'] = $matter->id;
+			$i['matter_type'] = $matter->type;
+		}
+		$this->insert('xxt_log_mpsend', $i, false);
+
+		return true;
+	}
+	/**
+	 * 群发消息发送日志
+	 */
+	public function mass($sender, $site, $matterId, $matterType, $message, $msgid, $result) {
+		$log = array(
+			'mpid' => $site,
+			'matter_type' => $matterType,
+			'matter_id' => $matterId,
+			'sender' => $sender,
+			'send_at' => time(),
+			'message' => $this->escape(json_encode($message)),
+			'result' => $result,
+			'msgid' => $msgid,
+		);
+
+		$this->insert('xxt_log_massmsg', $log, false);
+
+		return true;
+	}
 }

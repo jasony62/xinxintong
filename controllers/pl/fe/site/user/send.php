@@ -21,11 +21,25 @@ class send extends \pl\fe\base {
 	protected function sendByOpenid($site, $openid, $message, $openid_src = null) {
 		$model = $this->model();
 		if (empty($openid_src)) {
-			$openid_src = $model->query_val_ss([
-				'ufrom',
+			$one = $model->query_obj_ss([
+				'yx_openid,wx_openid,qy_openid',
 				'xxt_site_account',
-				"siteid='$site' and (wx_openid='$openid' or qy_openid='$openid' or yx_openid='$openid')",
+				"siteid='$site' and (yx_openid='$openid' or wx_openid='$openid' or qy_openid='$openid')"
 			]);
+
+			if(!empty($one->yx_openid)){
+				$src='yx';
+			}
+
+			if(!empty($one->wx_openid)){
+				$src='wx';
+			}
+
+			if(!empty($one->qy_openid)){
+				$src='qy';
+			}
+
+			$openid_src = $src;
 		}
 
 		switch ($openid_src) {
@@ -59,11 +73,23 @@ class send extends \pl\fe\base {
 	 */
 	public function custom_action($site, $openid) {
 		$model=$this->model();
-		$src = $model->query_val_ss([
-			'ufrom',
+		$one = $model->query_obj_ss([
+			'yx_openid,wx_openid,qy_openid',
 			'xxt_site_account',
 			"siteid='$site' and (yx_openid='$openid' or wx_openid='$openid' or qy_openid='$openid')"
 		]);
+
+		if(!empty($one->yx_openid)){
+			$src='yx';
+		}
+
+		if(!empty($one->wx_openid)){
+			$src='wx';
+		}
+
+		if(!empty($one->qy_openid)){
+			$src='qy';
+		}
 
 		if(empty($src)){
 			return new \ResponseError('找不到该openID的注册用户');

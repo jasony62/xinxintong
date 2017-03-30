@@ -41,6 +41,24 @@ class article_model extends article_base {
 	/**
 	 *
 	 */
+	public function &byId($id, $options = []) {
+		$fields = isset($options['fields']) ? $options['fields'] : '*';
+
+		$q = [
+			$fields,
+			$this->table(),
+			["id" => $id],
+		];
+		if ($matter = $this->query_obj_ss($q)) {
+			$matter->type = $this->getTypeName();
+			$matter->entryUrl = $this->getEntryUrl($matter->siteid, $id);
+		}
+
+		return $matter;
+	}
+	/**
+	 *
+	 */
 	public function &byCreater($mpid, $creater, $fields = '*', $cascade = false) {
 		$q = array(
 			$fields,

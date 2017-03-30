@@ -115,19 +115,23 @@ class site_model extends \TMS_MODEL {
 		return $rel;
 	}
 	/**
-	 * 获得指定团队的站点关注用户
+	 * 获得指定团队的个人关注用户
 	 */
-	public function subscriber($siteId) {
+	public function subscriber($siteId, $page = 1, $size = 10) {
+		$result = new \stdClass;
 		$q = [
 			'*',
 			'xxt_site_subscriber',
 			["siteid" => $siteId],
 		];
-		$q2 = ['o' => 'subscribe_at desc'];
+		$q2 = ['o' => 'subscribe_at desc', 'r' => ['o' => ($page - 1) * $size, 'l' => $size]];
 
-		$subscribers = $this->query_objs_ss($q, $q2);
+		$result->subscribers = $this->query_objs_ss($q, $q2);
 
-		return $subscribers;
+		$q[0] = 'count(*)';
+		$result->total = $this->query_val_ss($q);
+
+		return $result;
 	}
 	/**
 	 * 返回建立了关注关系的团队
@@ -155,18 +159,23 @@ class site_model extends \TMS_MODEL {
 	/**
 	 * 获得指定团队的站点关注用户
 	 */
-	public function friendBySite($siteId) {
+	public function friendBySite($siteId, $page = 1, $size = 10) {
+		$result = new \stdClass;
+
 		$siteId = $this->escape($siteId);
 		$q = [
 			'*',
 			'xxt_site_friend',
 			"siteid='$siteId' and subscribe_at<>0",
 		];
-		$q2 = ['o' => 'subscribe_at desc'];
+		$q2 = ['o' => 'subscribe_at desc', 'r' => ['o' => ($page - 1) * $size, 'l' => $size]];
 
-		$friends = $this->query_objs_ss($q, $q2);
+		$result->subscribers = $this->query_objs_ss($q, $q2);
 
-		return $friends;
+		$q[0] = 'count(*)';
+		$result->total = $this->query_val_ss($q);
+
+		return $result;
 	}
 	/**
 	 * 团队是否已经被团队关注

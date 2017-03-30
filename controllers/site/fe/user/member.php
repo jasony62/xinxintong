@@ -74,8 +74,8 @@ class member extends \site\fe\base {
 			return new \ResponseError('自定义用户信息已经存在，不能重复创建');
 		}
 
-		$schema = $this->model('site\user\memberschema')->byId($schema, 'id,attr_mobile,attr_email,attr_name,extattr,auto_verified');
-		if ($schema === false) {
+		$oSchema = $this->model('site\user\memberschema')->byId($schema, 'id,title,attr_mobile,attr_email,attr_name,extattr,auto_verified');
+		if ($oSchema === false) {
 			return new \ObjectNotFoundError();
 		}
 
@@ -88,7 +88,7 @@ class member extends \site\fe\base {
 
 		$modelWay = $this->model('site\fe\way');
 		$modelMem = $this->model('site\user\member');
-		$bindMembers = $modelMem->byUser($cookieUser->uid, ['schema' => $schema]);
+		$bindMembers = $modelMem->byUser($cookieUser->uid, ['schema' => $oSchema]);
 		if (count($bindMembers) > 1) {
 			throw new \Exception('数据错误，一个用户绑定了多个自定义用户信息');
 		} else if (count($bindMembers) === 1) {
@@ -99,17 +99,17 @@ class member extends \site\fe\base {
 
 		/* 给当前用户创建自定义用户信息 */
 		$member->siteid = $this->siteId;
-		$member->schema_id = $schema->id;
+		$member->schema_id = $oSchema->id;
 		/**
 		 * check auth data.
 		 */
-		if ($errMsg = $modelMem->rejectAuth($member, $schema)) {
+		if ($errMsg = $modelMem->rejectAuth($member, $oSchema)) {
 			return new \ParameterError($errMsg);
 		}
 		/* 验证状态 */
-		$member->verified = $schema->auto_verified;
+		$member->verified = $oSchema->auto_verified;
 		/* 创建新的自定义用户 */
-		$rst = $modelMem->create($this->siteId, $siteUser->uid, $schema, $member);
+		$rst = $modelMem->create($this->siteId, $siteUser->uid, $oSchema, $member);
 		if ($rst[0] === false) {
 			return new \ResponseError($rst[1]);
 		}
@@ -138,15 +138,15 @@ class member extends \site\fe\base {
 			return new \ResponseError('请登录后再指定用户信息');
 		}
 
-		$schema = $this->model('site\user\memberschema')->byId($schema, 'id,attr_mobile,attr_email,attr_name,extattr');
-		if ($schema === false) {
+		$oSchema = $this->model('site\user\memberschema')->byId($schema, 'id,title,attr_mobile,attr_email,attr_name,extattr');
+		if ($oSchema === false) {
 			return new \ObjectNotFoundError();
 		}
 
 		$member = $this->getPostJson();
 		/* 检查数据合法性。根据用户填写的自定义信息，找回数据。 */
 		$modelMem = $this->model('site\user\member');
-		if (false === ($found = $modelMem->findMember($member, $schema, false))) {
+		if (false === ($found = $modelMem->findMember($member, $oSchema, false))) {
 			return new \ParameterError('找不到匹配的认证用户');
 		}
 		if ($found->userid !== $siteUser->uid) {
@@ -154,7 +154,7 @@ class member extends \site\fe\base {
 		}
 
 		/* 更新用户信息 */
-		$modelMem->modify($this->siteId, $schema, $found->id, $member);
+		$modelMem->modify($this->siteId, $oSchema, $found->id, $member);
 		$found = $modelMem->byId($found->id);
 
 		/* 绑定当前站点用户 */
@@ -184,12 +184,12 @@ class member extends \site\fe\base {
 				return new \ResponseData($target);
 			}
 		} else {
-			$schema = $this->model('site\user\memberschema')->byId($schema, 'passed_url');
+			$oSchema = $this->model('site\user\memberschema')->byId($schema, 'passed_url');
 			/**
 			 * 认证成功后的缺省页面
 			 */
-			if (!empty($schema->passed_url)) {
-				$target = $schema->passed_url;
+			if (!empty($oSchema->passed_url)) {
+				$target = $oSchema->passed_url;
 			} else {
 				$target = '/rest/site/fe/user?site=' . $site;
 			}

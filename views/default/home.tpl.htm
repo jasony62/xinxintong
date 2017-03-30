@@ -26,10 +26,11 @@
                 </button>
             </div>
             <div id='navbar-collapse-1' class='collapse navbar-collapse'>
-                <ul class='nav navbar-nav'>
+                <ul class='nav navbar-nav ng-cloak' ng-cloak>
                     <li ng-class="{'active':subView==='home'}"><a href='' ng-click="shiftPage('home')">平台首页</a></li>
                     <li ng-class="{'active':subView==='site'}"><a href='' ng-click="shiftPage('site')">服务团队</a></li>
                     <li ng-class="{'active':subView==='template'}"><a href='' ng-click="shiftPage('template')">应用模版</a></li>
+                    <li ng-repeat="nav in platform.home_nav" class='nav-site'><a href="/rest/site/home?site={{nav.site.id}}" target='_self'>{{nav.title}}</a></li>
                 </ul>
                 <ul class='nav navbar-nav navbar-right ng-cloak' ng-cloak ng-if="user.isLogin===false">
                     <li><a href='' uib-popover-template="'userLogin.html'" popover-placement="bottom" popover-class='user-login' popover-trigger="outsideClick">登录 <span class='caret'></span></a></li>

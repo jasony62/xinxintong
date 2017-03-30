@@ -28,6 +28,9 @@ class home extends TMS_CONTROLLER {
 		if (!empty($platform->home_carousel)) {
 			$platform->home_carousel = json_decode($platform->home_carousel);
 		}
+		if (!empty($platform->home_nav)) {
+			$platform->home_nav = json_decode($platform->home_nav);
+		}
 
 		$param = [
 			'platform' => $platform,

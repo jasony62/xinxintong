@@ -15,12 +15,12 @@ class platform_model extends \TMS_MODEL {
 			'1=1',
 		];
 		if (false === ($platform = $this->query_obj_ss($q))) {
-			$this->insert('xxt_platform', ['home_carousel' => '']);
+			$this->insert('xxt_platform', ['home_carousel' => '', 'home_nav' => '']);
 			$platform = $this->query_obj_ss($q);
 		}
 		if (!empty($cascaded)) {
 			$cascaded = explode(',', $cascaded);
-			$modelCode = \TMS_APP::M('code\page');
+			$modelCode = $this->model('code\page');
 			foreach ($cascaded as $field) {
 				if ($field === 'home_page') {
 					$platform->home_page = $modelCode->lastPublishedByName('platform', $platform->home_page_name, ['fields' => 'id,html,css,js']);

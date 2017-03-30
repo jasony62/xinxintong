@@ -67,4 +67,66 @@ define(['frame'], function(ngApp) {
             $scope.slides = slides;
         });
     }]);
+    ngApp.provider.controller('ctrlHomeNav', ['$scope', '$uibModal', 'http2', function($scope, $uibModal, http2) {
+        var navs;
+        $scope.add = function() {
+            $uibModal.open({
+                templateUrl: 'navSites.html',
+                controller: ['$scope', '$uibModalInstance', function($scope2, $mi) {
+                    var page, selected = [];
+                    $scope2.page = page = {};
+                    $scope2.listSite = function() {
+                        var url = '/rest/pl/be/home/recommend/listSite';
+                        http2.get(url, function(rsp) {
+                            $scope2.sites = rsp.data.sites;
+                            $scope2.page.total = rsp.data.total;
+                        });
+                    };
+                    $scope2.choose = function(site) {
+                        if (site._selected === 'Y') {
+                            selected.push(site);
+                        } else {
+                            selected.splice(selected.indexOf(site), 1);
+                        }
+                    };
+                    $scope2.ok = function() {
+                        $mi.close(selected);
+                    };
+                    $scope2.listSite();
+                }],
+                backdrop: 'static'
+            }).result.then(function(sites) {
+                if (sites && sites.length) {
+                    sites.forEach(function(site) {
+                        navs.push({ title: site.title, site: { id: site.siteid, name: site.title }, type: 'site' });
+                    });
+                    $scope.update('home_nav');
+                }
+            });
+        };
+        $scope.edit = function(homeNav) {
+            $uibModal.open({
+                templateUrl: 'editNavSite.html',
+                controller: ['$scope', '$uibModalInstance', function($scope2, $mi) {
+                    $scope2.homeNav = angular.copy(homeNav);
+                    $scope2.ok = function() {
+                        $mi.close($scope2.homeNav);
+                    };
+                }],
+                backdrop: 'static'
+            }).result.then(function(newHomeNav) {
+                homeNav.title = newHomeNav.title;
+                $scope.update('home_nav');
+            });
+        };
+        $scope.remove = function(homeNav, index) {
+            navs.splice(index, 1);
+            $scope.update('home_nav');
+        };
+        $scope.$watch('platform', function(platform) {
+            if (platform === undefined) return;
+            if (!platform.home_nav) platform.home_nav = [];
+            $scope.navs = navs = platform.home_nav;
+        });
+    }]);
 });

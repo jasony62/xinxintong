@@ -254,9 +254,9 @@ class main extends \pl\fe\base {
 			}
 			$dataTmp = array();
 			isset($nv->scenario) && $dataTmp['scenario'] = $nv->scenario;
-			isset($nv->title) && $dataTmp['title'] = $nv->title;
+			isset($nv->title) && $dataTmp['title'] = $modelTmp->escape($nv->title);
 			isset($nv->pic) && $dataTmp['pic'] = $nv->pic;
-			isset($nv->summary) && $dataTmp['summary'] = $nv->summary;
+			isset($nv->summary) && $dataTmp['summary'] = $modelTmp->escape($nv->summary);
 			isset($nv->visible_scope) && $dataTmp['visible_scope'] = $nv->visible_scope;
 			isset($nv->coin) && $dataTmp['coin'] = $nv->coin;
 			if (!empty($dataTmp)) {
@@ -282,7 +282,7 @@ class main extends \pl\fe\base {
 			isset($nv->data_schemas) && $dataE['data_schemas'] = $nv->data_schemas;
 			isset($nv->enrolled_entry_page) && $dataE['enrolled_entry_page'] = $nv->enrolled_entry_page;
 			isset($nv->open_lastroll) && $dataE['open_lastroll'] = $nv->open_lastroll;
-			isset($nv->up_said) && $dataE['up_said'] = $nv->up_said;
+			isset($nv->up_said) && $dataE['up_said'] = $modelTmp->escape($nv->up_said);
 			// if(isset($nv->scenario)){
 			// 	$pageConfig = $this->_getSysTemplate($nv->scenario, 'simple');
 			// 	/* 场景设置 */

@@ -1,7 +1,7 @@
 <div class="row">
     <div class="col-md-12 ng-cloak" >
         <uib-tabset active="active" type="tabs">
-            <uib-tab  ng-repeat="history in historys" heading="{{history.title}}">
+            <uib-tab  ng-repeat="history in historys" heading="{{history.title}}" ng-click="init(history.title)">
                 <div class='list-group-item app' ng-repeat="app in history.content" ng-click="openApp(app,history.title)">
                     <div class='title'>{{app.matter_title}}</div>
                     <div class='operate_at'  ng-switch on="history.title">
@@ -13,5 +13,9 @@
                 </div>
             </uib-tab>
         </uib-tabset>
+    </div>
+    <div class='col-md-12' ng-show="page.total>page.size">
+        <span style='height:34px;line-height:34px'>总数：{{page.total}}</span>
+        <ul uib-pagination style="margin:0;vertical-align:bottom;cursor:pointer" class='pull-right' ng-show="page.total>page.size" boundary-links="true" total-items="page.total" max-size="7" items-per-page="page.size" rotate="false" ng-model="page.at" previous-text="&lsaquo;" next-text="&rsaquo;" first-text="&laquo;" last-text="&raquo;" ng-change="doSearch()"></ul>
     </div>
 </div>

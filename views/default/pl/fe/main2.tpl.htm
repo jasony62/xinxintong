@@ -63,26 +63,26 @@
                                 <h4 class='title' ng-bind="t.matter_title"></h4>
                                 <p class='summary' ng-bind="t.matter_summary"></p>
                                 <div class='actions' ng-switch-when="enroll">
-                                    <button class='btn btn-sm btn-default' ng-click="open(t,'main')">定义</button>
-                                    <button class='btn btn-sm btn-default' ng-click="open(t,'publish')">发布</button>
-                                    <button class='btn btn-sm btn-default' ng-click="open(t,'record')">数据</button>
+                                    <button class='btn btn-sm btn-default' ng-click="openMatter(t,'main')">定义</button>
+                                    <button class='btn btn-sm btn-default' ng-click="openMatter(t,'publish')">发布</button>
+                                    <button class='btn btn-sm btn-default' ng-click="openMatter(t,'record')">数据</button>
                                 </div>
                                 <div class='actions' ng-switch-when="signin">
-                                    <button class='btn btn-sm btn-default' ng-click="open(t,'main')">定义</button>
-                                    <button class='btn btn-sm btn-default' ng-click="open(t,'publish')">发布</button>
-                                    <button class='btn btn-sm btn-default' ng-click="open(t,'record')">数据</button>
+                                    <button class='btn btn-sm btn-default' ng-click="openMatter(t,'main')">定义</button>
+                                    <button class='btn btn-sm btn-default' ng-click="openMatter(t,'publish')">发布</button>
+                                    <button class='btn btn-sm btn-default' ng-click="openMatter(t,'record')">数据</button>
                                 </div>
                                 <div class='actions' ng-switch-when="group">
-                                    <button class='btn btn-sm btn-default' ng-click="open(t,'main')">定义</button>
-                                    <button class='btn btn-sm btn-default' ng-click="open(t,'player')">数据</button>
+                                    <button class='btn btn-sm btn-default' ng-click="openMatter(t,'main')">定义</button>
+                                    <button class='btn btn-sm btn-default' ng-click="openMatter(t,'player')">数据</button>
                                 </div>
                                 <div class='actions' ng-switch-when="mission">
-                                    <button class='btn btn-sm btn-default' ng-click="open(t,'main')">定义</button>
-                                    <button class='btn btn-sm btn-default' ng-click="open(t,'matter')">活动</button>
-                                    <button class='btn btn-sm btn-default' ng-click="open(t,'user')">数据</button>
+                                    <button class='btn btn-sm btn-default' ng-click="openMatter(t,'main')">定义</button>
+                                    <button class='btn btn-sm btn-default' ng-click="openMatter(t,'matter')">活动</button>
+                                    <button class='btn btn-sm btn-default' ng-click="openMatter(t,'user')">数据</button>
                                 </div>
                                 <div class='actions' ng-switch-default>
-                                    <button class='btn btn-sm btn-default' ng-click="open(t,'main')">进入</button>
+                                    <button class='btn btn-sm btn-default' ng-click="openMatter(t,'main')">进入</button>
                                 </div>
                                 <div class='actions-top' ng-switch on="t.top">
                                     <button  class='btn btn-default' title='取消置顶' ng-click="removeTop(t)">取消置顶</button>
@@ -142,26 +142,26 @@
                                 <h4 class='title' ng-bind="m.matter_title"></h4>
                                 <p class='summary' ng-bind="m.matter_summary"></p>
                                 <div class='actions' ng-switch-when="enroll">
-                                    <button class='btn btn-sm btn-default' ng-click="open(m,'main')">定义</button>
-                                    <button class='btn btn-sm btn-default' ng-click="open(m,'publish')">发布</button>
-                                    <button class='btn btn-sm btn-default' ng-click="open(m,'record')">数据</button>
+                                    <button class='btn btn-sm btn-default' ng-click="openMatter(m,'main')">定义</button>
+                                    <button class='btn btn-sm btn-default' ng-click="openMatter(m,'publish')">发布</button>
+                                    <button class='btn btn-sm btn-default' ng-click="openMatter(m,'record')">数据</button>
                                 </div>
                                 <div class='actions' ng-switch-when="signin">
-                                    <button class='btn btn-sm btn-default' ng-click="open(m,'main')">定义</button>
-                                    <button class='btn btn-sm btn-default' ng-click="open(m,'publish')">发布</button>
-                                    <button class='btn btn-sm btn-default' ng-click="open(m,'record')">数据</button>
+                                    <button class='btn btn-sm btn-default' ng-click="openMatter(m,'main')">定义</button>
+                                    <button class='btn btn-sm btn-default' ng-click="openMatter(m,'publish')">发布</button>
+                                    <button class='btn btn-sm btn-default' ng-click="openMatter(m,'record')">数据</button>
                                 </div>
                                 <div class='actions' ng-switch-when="group">
-                                    <button class='btn btn-sm btn-default' ng-click="open(m,'main')">定义</button>
-                                    <button class='btn btn-sm btn-default' ng-click="open(m,'player')">数据</button>
+                                    <button class='btn btn-sm btn-default' ng-click="openMatter(m,'main')">定义</button>
+                                    <button class='btn btn-sm btn-default' ng-click="openMatter(m,'player')">数据</button>
                                 </div>
                                 <div class='actions' ng-switch-when="mission">
-                                    <button class='btn btn-sm btn-default' ng-click="open(m,'main')">定义</button>
-                                    <button class='btn btn-sm btn-default' ng-click="open(m,'matter')">活动</button>
-                                    <button class='btn btn-sm btn-default' ng-click="open(m,'user')">数据</button>
+                                    <button class='btn btn-sm btn-default' ng-click="openMatter(m,'main')">定义</button>
+                                    <button class='btn btn-sm btn-default' ng-click="openMatter(m,'matter')">活动</button>
+                                    <button class='btn btn-sm btn-default' ng-click="openMatter(m,'user')">数据</button>
                                 </div>
                                 <div class='actions' ng-switch-default>
-                                    <button class='btn btn-sm btn-default' ng-click="open(m,'main')">进入</button>
+                                    <button class='btn btn-sm btn-default' ng-click="openMatter(m,'main')">进入</button>
                                 </div>
                                 <div class='actions-top'>
                                     <button class='btn btn-default' title='置顶' ng-click="stickTop(m)">置顶</button>

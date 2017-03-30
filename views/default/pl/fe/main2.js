@@ -20,6 +20,14 @@ config(['$uibTooltipProvider', function($uibTooltipProvider) {
     $scope.$on('fromCtrlRecentStickTop', function(event,data){
         $scope.$broadcast('toCtrlTopList', data);
     });
+    $scope.openMatter = function(matter, subView) {
+        var url = '/rest/pl/fe/matter/' + matter.matter_type;
+        if (subView) {
+            url += '/' + subView;
+        }
+        url += '?id=' + matter.matter_id + '&site=' + matter.siteid;
+        location.href = url;
+    };
 }]).controller('ctrlRecent', ['$scope', '$uibModal', 'http2', 'templateShop', 'noticebox', function($scope, $uibModal, http2, templateShop, noticebox) {
     var _fns = {
         createSite: function() {
@@ -165,14 +173,6 @@ config(['$uibTooltipProvider', function($uibTooltipProvider) {
             $scope.matters = rsp.data.matters;
             $scope.page.total = rsp.data.total;
         });
-    };
-    $scope.open = function(matter, subView) {
-        var url = '/rest/pl/fe/matter/' + matter.matter_type;
-        if (subView) {
-            url += '/' + subView;
-        }
-        url += '?id=' + matter.matter_id + '&site=' + matter.siteid;
-        location.href = url;
     };
     $scope.popoverAddMatter = function() {
         var target = $('#popoverAddMatter');

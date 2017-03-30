@@ -109,8 +109,9 @@ class send extends \pl\fe\base {
 		/**
 		 * 记录日志
 		 */
-		
-		if (isset($matter->id) && isset($group_id)) {
+		$group_id=empty($group_id) ? null : $group_id;
+
+		if (isset($matter->id)) {
 			$this->model('matter\log')->send($site, $openid, $group_id, $matter->title, $matter);
 		} else {
 			$this->model('matter\log')->send($site, $openid, null, $matter->text, null);

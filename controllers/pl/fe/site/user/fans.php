@@ -15,7 +15,7 @@ class fans extends \pl\fe\base {
 	 *
 	 */
 	public function index_action() {
-		\TPL::output('/pl/fe/site/user/fans');
+		\TPL::output('/pl/fe/site/user/frame');
 		die();
 	}
 	/**

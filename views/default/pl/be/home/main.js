@@ -1,27 +1,27 @@
 define(['frame'], function(ngApp) {
     'use strict';
     ngApp.provider.controller('ctrlMain', ['$scope', 'http2', '$uibModal', function($scope, http2, $uibModal) {
-        function createPage(pageType, template) {
+        function createPage(pageType) {
             var url = '/rest/pl/be/home/pageCreate?name=' + pageType;
-            template && (url += '&template=' + template);
+            url += '&template=basic';
             http2.get(url, function(rsp) {
                 $scope.platform[pageType + '_page_name'] = rsp.data.name;
                 location.href = '/rest/pl/fe/code?site=platform&name=' + rsp.data.name;
             });
         }
 
-        function resetPage(pageType, template) {
+        function resetPage(pageType) {
             var name = $scope.platform[pageType + '_page_name'],
                 url;
             if (name && name.length) {
                 url = '/rest/pl/be/home/pageReset?name=' + pageType;
-                template && (url += '&template=' + template);
+                url += '&template=basic';
                 http2.get(url, function(rsp) {
                     location.href = '/rest/pl/fe/code?site=platform&name=' + name;
                 });
             } else {
                 url = '/rest/pl/be/home/pageCreate?name=' + pageType;
-                template && (url += '&template=' + template);
+                url += '&template=basic';
                 http2.get(url, function(rsp) {
                     $scope.platform[pageType + '_page_name'] = rsp.data.name;
                     location.href = '/rest/pl/fe/code?site=platform&name=' + rsp.data.name;
@@ -29,44 +29,17 @@ define(['frame'], function(ngApp) {
             }
         }
 
-        function chooseTemplate() {
-            return $uibModal.open({
-                templateUrl: 'homePageTemplate.html',
-                dropback: 'static',
-                controller: ['$scope', '$uibModalInstance', function($scope2, $mi) {
-                    $scope2.data = { template: 'basic' };
-                    $scope2.ok = function() {
-                        $mi.close($scope2.data);
-                    };
-                    $scope2.cancel = function() {
-                        $mi.dismiss();
-                    };
-                }]
-            }).result;
-        }
         $scope.editPage = function(pageType) {
             var name = $scope.platform[pageType + '_page_name'];
             if (name && name.length) {
                 location.href = '/rest/pl/fe/code?site=platform&name=' + name;
             } else {
-                if (/home|site/.test(pageType)) {
-                    chooseTemplate().then(function(selected) {
-                        createPage(pageType, selected.template);
-                    });
-                } else {
-                    createPage(pageType);
-                }
+                createPage(pageType);
             }
         };
         $scope.resetPage = function(pageType) {
             if (window.confirm('重置操作将覆盖已经做出的修改，确定重置？')) {
-                if (/home|site/.test(pageType)) {
-                    chooseTemplate().then(function(selected) {
-                        resetPage(pageType, selected.template);
-                    });
-                } else {
-                    resetPage(pageType);
-                }
+                resetPage(pageType);
             }
         };
     }]);

@@ -29,7 +29,6 @@ define(['frame'], function (ngApp) {
             {value: 'channel', content: '频道'}
         ];
         $scope.matterType = $scope.selMatter[0].value;//默认显示编辑项
-        $scope.selSync = [];
         //获取消息 包括 用户 和 管理员；用什么区分 用户信息左侧显示，管理员右侧显示
         $scope.doSearch = function (syncOpenId) {
             $scope.openId = syncOpenId ? syncOpenId : $scope.syncOpenId;
@@ -39,13 +38,14 @@ define(['frame'], function (ngApp) {
             //syncOpenId && ($scope.syncOpenId = syncOpenId);
             var url = '/rest/pl/fe/site/user/fans/track?site=' + $scope.siteId + '&openid=' + $scope.openId + $scope.page.j();
             http2.get(url, function (rsp) {
-                $scope.track = rsp.data;
-                //$scope.page.total = 20;
+                $scope.track = rsp.data.data;
+                //$scope.page.total = rsp.data.total;
+                $scope.page.total = rsp.data.total;
             });
         };
         //问题：公众号信息异步获取；可能得不到，重新获取
         http2.get('/rest/pl/fe/site/user/fans/getsnsinfo?site=' + $scope.siteId + '&uid=' + $scope.userId, function (rsp) {
-            var fans = rsp.data;
+            //var fans = rsp.data;
             //fans.wx && ($scope.wx = fans.wx);
             //fans.qy && ($scope.qy = fans.qy);
             //fans.yx && ($scope.yx = fans.yx);
@@ -56,8 +56,9 @@ define(['frame'], function (ngApp) {
             var data = {},
                 fans = rsp.data,
                 obj = {};
+            $scope.selSync = [];
             //代码不执行
-            if (!(fans.wx && fans.qy && fans.yx))  {return;}
+            if (!(fans.wx || fans.qy || fans.yx))  {return;}
             fans.wx && (data.wx = fans.wx);
             fans.qy && (data.qy = fans.qy);
             fans.yx && (data.yx = fans.yx);

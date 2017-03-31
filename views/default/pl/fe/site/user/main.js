@@ -22,11 +22,7 @@ define(['frame'], function (ngApp) {
                     memberSchema.member = mapMembers[memberSchema.id];
                 });
                 angular.forEach($scope.memberSchemas, function (memberSchema) {
-                    if(memberSchema.member){
-                        $scope.registerYes[$scope.registerYes.length] = memberSchema;
-                    }else{
-                        $scope.registerNo[$scope.registerNo.length] = memberSchema;
-                    }
+                    memberSchema.member?$scope.registerYes.push(memberSchema):$scope.registerNopush(memberSchema);
                 });
             }
         });

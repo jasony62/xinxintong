@@ -8,7 +8,9 @@ define(['frame'], function (ngApp) {
         var page, page2;
         $scope.page = page = {
             at: 1,
-            size: 10,
+            size: 2,
+            text: '',
+            state: '',
             j: function () {
                 return '&page=' + this.at + '&size=' + this.size;
             }
@@ -32,14 +34,10 @@ define(['frame'], function (ngApp) {
         //获取消息 包括 用户 和 管理员；用什么区分 用户信息左侧显示，管理员右侧显示
         $scope.doSearch = function (syncOpenId) {
             $scope.openId = syncOpenId ? syncOpenId : $scope.syncOpenId;
-            //初始化分页
-            $scope.page.at = 1;
-            $scope.page2.at = 1;
             //syncOpenId && ($scope.syncOpenId = syncOpenId);
             var url = '/rest/pl/fe/site/user/fans/track?site=' + $scope.siteId + '&openid=' + $scope.openId + $scope.page.j();
             http2.get(url, function (rsp) {
                 $scope.track = rsp.data.data;
-                //$scope.page.total = rsp.data.total;
                 $scope.page.total = rsp.data.total;
             });
         };
@@ -57,8 +55,8 @@ define(['frame'], function (ngApp) {
                 fans = rsp.data,
                 obj = {};
             $scope.selSync = [];
-            //代码不执行
-            if (!(fans.wx || fans.qy || fans.yx))  {return;}
+            //代码不执行 定义状态
+            if (!(fans.wx || fans.qy || fans.yx))  {$scope.page.state=1; return;}else{$scope.page.state=2}
             fans.wx && (data.wx = fans.wx);
             fans.qy && (data.qy = fans.qy);
             fans.yx && (data.yx = fans.yx);
@@ -74,7 +72,7 @@ define(['frame'], function (ngApp) {
                     obj.content = '易信公众号信息' ;
                 }
                 obj.value = d.openid ;
-                $scope.selSync[length] = obj;
+                $scope.selSync.push(obj);
                 obj = {};
             });
             $scope.selSync && $scope.selSync.length && ($scope.syncOpenId = $scope.selSync[0].value);//默认显示微信公众号
@@ -84,7 +82,8 @@ define(['frame'], function (ngApp) {
             var data;
             if ($scope.matterType === 'write') {
                 data = {
-                    text: $scope.text
+                    //直接用$scope.text获取不到信息 原因暂时不明
+                    text: $scope.page.text
                 };
             } else {
                 data = {
@@ -95,7 +94,12 @@ define(['frame'], function (ngApp) {
             }
             //发送接口？
             http2.post('/rest/pl/fe/site/user/send/custom?site=' + $scope.siteId + '&openid=' + $scope.openId, data, function (rsp) {
+                //初始化分页
+                $scope.page.at = 1;
+                //$scope.matterType !== 'write'&& ($scope.page2.at = 1);
                 $scope.doSearch();
+                noticebox.success('完成');
+                $scope.page.text = '';
             });
         };
         //获取资料
@@ -124,5 +128,12 @@ define(['frame'], function (ngApp) {
         $scope.selectMatter = function (matter) {
             $scope.selectedMatter = matter;
         };
+        //切换公众号
+        $scope.checkoutSns = function(syncOpenId){
+            //初始化分页
+            $scope.page.at = 1;
+            $scope.page2.at = 1;
+            $scope.doSearch(syncOpenId);
+        }
     }]);
 });

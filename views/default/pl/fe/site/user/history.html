@@ -8,7 +8,7 @@
                         <span ng-switch-when="活动记录">最后操作:</span>
                         <span ng-switch-when="阅读记录">最后阅读:</span>
                         <span ng-switch-default>收藏时间:</span>
-                        {{app.operate_at*1000|date:'yy-MM-dd HH:mm'}}
+                        {{app.operate_at*1000||app.read_at*1000||app.favor_at*1000|date:'yy-MM-dd HH:mm'}}
                     </div>
                 </div>
             </uib-tab>

@@ -30,8 +30,9 @@ class round extends \pl\fe\matter\base {
 
 		$result = $modelRnd->byApp($oApp, ['page' => $oPage]);
 		if(!empty($checked)){
-			$checked = $modelRnd->byId($checked);
-			$result->checked = $checked;
+			if($checked = $modelRnd->byId($checked)){
+				$result->checked = $checked;
+			}
 		}
 		
 		return new \ResponseData($result);

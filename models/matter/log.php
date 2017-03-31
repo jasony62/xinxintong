@@ -538,6 +538,8 @@ class log_model extends \TMS_MODEL {
 	}
 	/**
 	 * 汇总各类日志，形成用户完整的踪迹用于展示用户详情的发送消息列表记录
+	 * $total 用以分页的总数 
+	 * $sum 实际上的总记录数
 	 */
 	public function track($site, $openid, $page = 1, $size = 30) {
 		$q = array(
@@ -552,12 +554,8 @@ class log_model extends \TMS_MODEL {
 
 		$sendlogs = $this->query_objs_ss($q, $q2);
 
-		if(empty($sendlogs)){
-			$total_s=0;
-		}else{
-			$q[0]='count(*)';
-			$total_s=$this->query_val_ss($q);
-		}
+		$q[0]='count(*)';
+		$total_s=$this->query_val_ss($q);
 
 		$q = array(
 			'create_at,data content',
@@ -571,14 +569,12 @@ class log_model extends \TMS_MODEL {
 
 		$recelogs = $this->query_objs_ss($q, $q2);
 
-		if(empty($recelogs)){
-			$total_r=0;
-		}else{
-			$q[0]='count(*)';
-			$total_r=$this->query_val_ss($q);
-		}
+		$q[0]='count(*)';
+		$total_r=$this->query_val_ss($q);
 		//确定分页的总数以记录多的表的总数为准
 		$total=($total_s>=$total_r) ? $total_s : $total_r;
+		//实际的总数
+		$sum=$total_s+$total_r;
 		$logs = array_merge($sendlogs, $recelogs);
 		/**
 		 * order by create_at
@@ -589,6 +585,7 @@ class log_model extends \TMS_MODEL {
 
 		$result=new \stdClass;
 		$result->total=$total;
+		$result->sum=$sum;
 		$result->data=$logs;
 
 		return $result;

@@ -181,7 +181,7 @@ class receiver extends \pl\fe\matter\base {
 		$data = $this->getPostJson();
 		$keyword = isset($data) ? $data->keyword : '';
 
-		$rst = $this->model("sns\qy\fan")->getMem($site, $keyword, $page, $size);
+		$rst = $this->model("sns\\qy\\fan")->getMem($site, $keyword, $page, $size);
 
 		return new \ResponseData($rst);
 	}

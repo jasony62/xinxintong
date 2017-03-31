@@ -42,7 +42,7 @@ class profile extends \pl\fe\base {
 		$model= $this->model('site\user\memberschema');
 		$schema = $model->byId($schema);
 		$arr['used']=$schema->used+1;
-		$model->update('xxt_site_member_schema',$arr,"id='$schema' and siteid='$site'");
+		$model->update('xxt_site_member_schema',$arr,"id='$schema->id' and siteid='$site'");
 		$rst = $this->model('site\user\member')->create($site, $userid, $schema, $posted);
 		if ($rst[0] === false) {
 			return new \ResponseError($rst[1]);

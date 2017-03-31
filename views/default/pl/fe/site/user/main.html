@@ -4,10 +4,10 @@
         <p class="modal-title h5 form-control-static">{{user.nickname}}</p>
     </div>
     <div class='pull-right' ng-show="memberSchemas.length">
-        <select class='form-control' ng-model='selectedSchema' ng-options='ms.title for ms in memberSchemas'>
+        <select class='form-control' ng-model='selectedSchema' ng-options='ms.title for ms in registerNo'>
             <option value=''></option>
         </select>
-        <button class='btn btn-primary' ng-disabled='!selectedSchema' ng-click='addMember(selectedSchema)'>添加自定义用户信息
+        <button class='btn btn-primary' ng-disabled='!selectedSchema' ng-click='addMember(selectedSchema,i)'>添加自定义用户信息
         </button>
     </div>
 </div>
@@ -26,46 +26,46 @@
         </div>
     </div>
 </div>
-<div class="panel panel-default" ng-repeat='m in members'>
+<div class="panel panel-default" ng-repeat='memberSchema in registerYes'>
     <div class="panel-heading">
-        <span>{{m.schema.title}}</span>
-        <a href='javascript:void(0)' class='pull-right' ng-click='editMember(m)'>修改</a>
+        <span>{{memberSchema.title}}</span>
+        <a href='javascript:void(0)' class='pull-right' ng-click='editMember(memberSchema)'>修改</a>
     </div>
     <div class="panel-body">
         <div class="form-horizontal">
-            <div class="form-group" ng-show="canFieldShow(m.schema,'name')">
+            <div class="form-group" ng-show="canFieldShow(memberSchema,'name')">
                 <label class="col-md-2 control-label">姓名</label>
 
                 <div class="col-md-10">
-                    <p class="form-control-static">{{m.name}}</p>
+                    <p class="form-control-static">{{memberSchema.member.name}}</p>
                 </div>
             </div>
-            <div class="form-group" ng-show="canFieldShow(m.schema,'mobile')">
+            <div class="form-group" ng-show="canFieldShow(memberSchema,'mobile')">
                 <label class="col-md-2 control-label">手机</label>
 
                 <div class="col-md-10">
-                    <p class="form-control-static">{{m.mobile}}</p>
+                    <p class="form-control-static">{{memberSchema.member.mobile}}</p>
                 </div>
             </div>
-            <div class="form-group" ng-show="canFieldShow(m.schema,'email')">
+            <div class="form-group" ng-show="canFieldShow(memberSchema,'email')">
                 <label class="col-md-2 control-label">邮箱</label>
 
                 <div class="col-md-10">
-                    <p class="form-control-static">{{m.email}}</p>
+                    <p class="form-control-static">{{memberSchema.member.email}}</p>
                 </div>
             </div>
-            <div class="form-group" ng-repeat='ea in m.schema.extattr'>
+            <div class="form-group" ng-repeat='ea in memberSchema.extattr'>
                 <label class="col-md-2 control-label">{{ea.label}}</label>
 
                 <div class="col-md-10">
-                    <p class="form-control-static">{{m.extattr[ea.id]}}</p>
+                    <p class="form-control-static">{{memberSchema.member.extattr[ea.id]}}</p>
                 </div>
             </div>
             <div class="form-group">
                 <label class="col-md-2 control-label">完成认证</label>
 
                 <div class="col-md-10">
-                    <div class="form-control-static">{{m.verified==='Y'?'是':'否'}}</div>
+                    <div class="form-control-static">{{memberSchema.member.verified==='Y'?'是':'否'}}</div>
                 </div>
             </div>
         </div>

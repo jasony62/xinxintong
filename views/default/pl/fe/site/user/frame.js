@@ -47,6 +47,7 @@ define(['require'], function(require) {
         });
         http2.get('/rest/pl/fe/site/member/schema/list?site=' + params.siteId, function(rsp) {
             $scope.memberSchemas = rsp.data;
+            $scope.memberSchemasSelect = angular.copy($scope.memberSchemas);
         });
         //获取 增加公众号信息
         http2.get('/rest/pl/fe/site/user/fans/getsnsinfo?site=' + $scope.siteId + '&uid=' + $scope.userId, function(rsp) {

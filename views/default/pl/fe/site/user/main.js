@@ -1,117 +1,121 @@
 /**
  * Created by lishuai on 2017/3/23.
  */
-define(['frame'], function(ngApp) {
+define(['frame'], function (ngApp) {
     'use strict';
 
-    ngApp.provider.controller('ctrlMain',['$scope', 'http2', '$uibModal', 'noticebox', function($scope, http2, $uibModal, noticebox){
+    ngApp.provider.controller('ctrlMain', ['$scope', 'http2', '$uibModal', 'noticebox', function ($scope, http2, $uibModal, noticebox) {
         var baseURL = '/rest/pl/fe/site/user/';
         //获取同步信息
-        http2.get(baseURL + 'profile/get?site=' + $scope.siteId + '&userid=' + $scope.userId, function(rsp) {
-            var members, mapMemberSchemas = {};
+        $scope.registerYes = [];
+        $scope.registerNo = [];
+        http2.get(baseURL + 'profile/get?site=' + $scope.siteId + '&userid=' + $scope.userId, function (rsp) {
+            var members, mapMembers = {};
             $scope.user = rsp.data.user;
-            //$scope.members = rsp.data.members;
             if (rsp.data.members) {
-                angular.forEach($scope.memberSchemas, function(schema) {
-                    mapMemberSchemas[schema.id] = schema;
-                });
                 members = rsp.data.members;
-                angular.forEach(members, function(member) {
-                    member.schema = mapMemberSchemas[member.schema_id];
-                    member.schema.tags = [{
-                        name: 'abc'
-                    }, {
-                        name: 'xyz'
-                    }];
-                    member.tags2 = [];
+                angular.forEach(members, function (member) {
+                    mapMembers[member.schema_id] = member;
                 });
-                $scope.members = members;
+                angular.forEach($scope.memberSchemas, function (memberSchema) {
+                    memberSchema.member = mapMembers[memberSchema.id];
+                });
+                angular.forEach($scope.memberSchemas, function (memberSchema) {
+                    if(memberSchema.member){
+                        $scope.registerYes[$scope.registerYes.length] = memberSchema;
+                    }else{
+                        $scope.registerNo[$scope.registerNo.length] = memberSchema;
+                    }
+                });
             }
         });
-        $scope.canFieldShow = function(schema, name) {
-            return schema['attr_' + name].charAt(0) === '0';
+        $scope.canFieldShow = function (memberSchema, name) {
+            return memberSchema['attr_' + name].charAt(0) === '0';
         };
         //增加-ok
-        $scope.addMember = function(schema) {
+        $scope.addMember = function (schema, i) {
             $uibModal.open({
                 templateUrl: 'memberEditor.html',
                 backdrop: 'static',
-                controller: ['$uibModalInstance', '$scope', function($mi, $scope) {
+                controller: ['$uibModalInstance', '$scope', function ($mi, $scope) {
                     $scope.schema = schema;
                     $scope.member = {
                         extattr: {}
                     };
-                    $scope.canShow = function(name) {
+                    $scope.canShow = function (name) {
                         return schema['attr_' + name].charAt(0) === '0';
                     };
-                    $scope.close = function() {
+                    $scope.close = function () {
                         $mi.dismiss();
                     };
-                    $scope.ok = function() {
+                    $scope.ok = function () {
                         $mi.close($scope.member);
                     };
                 }]
-            }).result.then(function(member) {
-                http2.post(baseURL + 'profile/memberAdd?site=' + $scope.siteId + '&userid=' + $scope.userId + '&schema=' + schema.id, member, function(rsp) {
-                    member = rsp.data;
-                    member.extattr = JSON.parse(decodeURIComponent(member.extattr.replace(/\+/g, '%20')));
-                    member.schema = schema;
-                    !$scope.members && ($scope.members = []);
-                    $scope.members.push(member);
+            }).result.then(function (member) {
+                    http2.post(baseURL + 'profile/memberAdd?site=' + $scope.siteId + '&userid=' + $scope.userId + '&schema=' + schema.id, member, function (rsp) {
+                        schema.member = member;
+                        $scope.registerNo.splice(i,1);
+                        $scope.registerYes.splice(0,0,schema);
+                        //member = rsp.data;
+                        //member.extattr = JSON.parse(decodeURIComponent(member.extattr.replace(/\+/g, '%20')));
+                        //member.schema = schema;
+                        //!$scope.members && ($scope.members = []);
+                        //$scope.members.push(member);
+                    });
                 });
-            });
         };
         //修改-ok
-        $scope.editMember = function(member) {
+        $scope.editMember = function (memberSchema) {
             $uibModal.open({
                 templateUrl: 'memberEditor.html',
                 backdrop: 'static',
-                controller: ['$uibModalInstance', '$scope', function($mi, $scope) {
-                    $scope.schema = member.schema;
-                    $scope.member = angular.copy(member);
-                    $scope.canShow = function(name) {
+                controller: ['$uibModalInstance', '$scope', function ($mi, $scope) {
+                    $scope.schema = memberSchema;
+                    $scope.member = angular.copy($scope.schema.member);
+                    $scope.canShow = function (name) {
                         return $scope.schema && $scope.schema['attr_' + name].charAt(0) === '0';
                     };
-                    $scope.close = function() {
+                    $scope.close = function () {
                         $mi.dismiss();
                     };
-                    $scope.ok = function() {
+                    $scope.ok = function () {
                         $mi.close({
                             action: 'update',
                             data: $scope.member
                         });
                     };
-                    $scope.remove = function() {
+                    $scope.remove = function () {
                         $mi.close({
                             action: 'remove'
                         });
                     };
                 }]
-            }).result.then(function(rst) {
-                if (rst.action === 'update') {
-                    var newData, i, ea;
-                    newData = {
-                        verified: rst.data.verified,
-                        name: rst.data.name,
-                        mobile: rst.data.mobile,
-                        email: rst.data.email,
-                        email_verified: rst.data.email_verified,
-                        extattr: rst.data.extattr
-                    };
-                    http2.post(baseURL + 'profile/memberUpd?site=' + $scope.siteId + '&id=' + member.id, newData, function(rsp) {
-                        angular.extend(member, newData);
-                    });
-                } else if (rst.action === 'remove') {
-                    http2.get(baseURL + 'profile/memberDel?site=' + $scope.siteId + '&id=' + member.id, function() {
-                        $scope.members.splice($scope.members.indexOf(member), 1);
-                    });
-                }
-            });
+            }).result.then(function (rst) {
+                    if (rst.action === 'update') {
+                        var newData, i, ea;
+                        newData = {
+                            verified: rst.data.verified,
+                            name: rst.data.name,
+                            mobile: rst.data.mobile,
+                            email: rst.data.email,
+                            email_verified: rst.data.email_verified,
+                            extattr: rst.data.extattr
+                        };
+                        http2.post(baseURL + 'profile/memberUpd?site=' + $scope.siteId + '&id=' + memberSchema.member.id, newData, function (rsp) {
+                            angular.extend(memberSchema.member, newData);
+                        });
+                    } else if (rst.action === 'remove') {
+                        http2.get(baseURL + 'profile/memberDel?site=' + $scope.siteId + '&id=' + memberSchema.member.id, function () {
+                            $scope.members.splice($scope.members.indexOf(member), 1);
+                        });
+                    }
+                });
         };
-        $scope.sync = function(openId, type) {
+        $scope.sync = function (openId, type) {
             //普通用户的标识，对当前公众号唯一 openid
             var url = baseURL + 'fans/refreshOne?site=' + $scope.siteId + '&openid=' + openId;
-            http2.get(url, function(rsp) {
+            http2.get(url, function (rsp) {
                 type === 'wx' ? $scope.wx = rsp.data : type === 'qy' ? $scope.qy = rsp.data : $scope.yx = rsp.data;
                 noticebox.success('完成同步');
             })

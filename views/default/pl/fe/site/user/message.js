@@ -58,7 +58,6 @@ define(['frame'], function (ngApp) {
                 obj = {};
             //代码不执行
             if (!(fans.wx && fans.qy && fans.yx))  {return;}
-            console.log(1);
             fans.wx && (data.wx = fans.wx);
             fans.qy && (data.qy = fans.qy);
             fans.yx && (data.yx = fans.yx);

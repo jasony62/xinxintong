@@ -1,297 +1,364 @@
 <!DOCTYPE html>
 <html>
-    <head>
-        <meta charset="UTF-8">
-        <meta content="width=device-width,user-scalable=no,initial-scale=1.0" name="viewport">
-        <link href="/static/css/bootstrap.min.css" rel="stylesheet">
-        <link href="/views/default/pl/fe/main.css?_=3" rel="stylesheet">
-        <title><?php echo APP_TITLE;?></title>
-    </head>
-    <body ng-app='app' ng-controller='ctrlMain'>
-        <nav class='navbar navbar-default'>
-            <div class='container'>
-                <div class="navbar-header">
-                    <a class='navbar-brand' href='/rest/home' target='_self'><?php echo APP_TITLE;?></a>
-                    <button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target='#navbar-collapse-1'>
-                        <span class="sr-only">Toggle navigation</span>
-                        <span class="icon-bar"></span>
-                        <span class="icon-bar"></span>
-                        <span class="icon-bar"></span>
+
+<head>
+    <meta charset="UTF-8">
+    <meta content="width=device-width,user-scalable=no,initial-scale=1.0" name="viewport">
+    <link href="/static/css/bootstrap.min.css" rel="stylesheet">
+    <link href="/static/css/tms.css" rel="stylesheet">
+    <link href="/views/default/pl/fe/main.css?_=2" rel="stylesheet">
+    <title>
+        <?php echo APP_TITLE;?>
+    </title>
+</head>
+
+<body ng-app='app' ng-controller='ctrlMain'>
+    <nav class='navbar navbar-default'>
+        <div class='container'>
+            <div class="navbar-header">
+                <a class='navbar-brand' href='/rest/home' target='_self'>
+                    <?php echo APP_TITLE;?>
+                </a>
+                <button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target='#navbar-collapse-1'>
+                    <span class="sr-only">Toggle navigation</span>
+                    <span class="icon-bar"></span>
+                    <span class="icon-bar"></span>
+                    <span class="icon-bar"></span>
+                </button>
+            </div>
+            <div class='collapse navbar-collapse' id='navbar-collapse-1'>
+                <form class='navbar-form navbar-right ng-cloak' ng-cloak>
+                    <button class="btn btn-primary" ng-if="notice.page.total>0" uib-popover-template="'userNotice.html'" popover-title="未读消息" popover-placement="bottom" popover-append-to-body='true' popover-trigger="outsideClick" popover-class='user-notice'>
+                        <span class='glyphicon glyphicon-bell'></span>&nbsp;&nbsp;<span class="badge">{{notice.page.total}}</span>
                     </button>
-                </div>
-                <div class='collapse navbar-collapse' id='navbar-collapse-1'>
-                    <form class='navbar-form navbar-right ng-cloak' ng-cloak>
-                        <button class="btn btn-primary" ng-if="notice.page.total>0" uib-popover-template="'userNotice.html'" popover-title="未读消息" popover-placement="bottom" popover-append-to-body='true' popover-trigger="outsideClick" popover-class='user-notice'>
-                            <span class='glyphicon glyphicon-bell'></span>&nbsp;&nbsp;<span class="badge">{{notice.page.total}}</span>
+                    <div class="btn-group">
+                        <a href='' target='_self' class="btn btn-default"><i class='glyphicon glyphicon-user'></i> {{loginUser.nickname}}</a>
+                        <button type="button" class="btn btn-default dropdown-toggle" data-toggle="dropdown">
+                            <span class="caret"></span>
+                            <span class="sr-only">Toggle Dropdown</span>
                         </button>
-                        <div class="btn-group">
-                            <a href='' target='_self' class="btn btn-default"><i class='glyphicon glyphicon-user'></i> {{loginUser.nickname}}</a>
-                            <button type="button" class="btn btn-default dropdown-toggle" data-toggle="dropdown">
-                                <span class="caret"></span>
-                                <span class="sr-only">Toggle Dropdown</span>
+                        <ul class="dropdown-menu" role="menu">
+                            <li><a href='/rest/pl/fe/user/settings' target='_self'>用户设置</a></li>
+                            <li class="divider"></li>
+                            <li><a href='/rest/pl/fe/user/logout' target='_self'>退出</a></li>
+                        </ul>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </nav>
+    <div class='container ng-cloak' ng-cloak>
+        <div class='row viewRecent' ng-controller="ctrlTop">
+            <div class='col-md-12'>
+                <nav class='navbar navbar-default tms-panel-heading'>
+                    <div class='container-fluid'>
+                        <div class="navbar-header">
+                            <span class="navbar-brand">置顶的活动资料</span>
+                            <button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target='#navbar-collapse-4'>
+                                <span class="sr-only">Toggle navigation</span>
+                                <span class="icon-bar"></span>
+                                <span class="icon-bar"></span>
+                                <span class="icon-bar"></span>
                             </button>
-                            <ul class="dropdown-menu" role="menu">
-                                <li><a href='/rest/pl/fe/user/settings' target='_self'>用户设置</a></li>
-                                <li class="divider"></li>
-                                <li><a href='/rest/pl/fe/user/logout' target='_self'>退出</a></li>
-                            </ul>
                         </div>
-                    </form>
-                </div>
-            </div>
-        </nav>
-        <div class='container ng-cloak' ng-cloak>
-            <div id='viewRecent' class='row' ng-controller="ctrlRecent">
-                <div class='col-md-12'>
-                    <nav class='navbar navbar-default tms-panel-heading'>
-                        <div class='container-fluid'>
-                            <div class="navbar-header">
-                                <span class="navbar-brand">我进行的工作</span>
-                                <button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target='#navbar-collapse-2'>
-                                    <span class="sr-only">Toggle navigation</span>
-                                    <span class="icon-bar"></span>
-                                    <span class="icon-bar"></span>
-                                    <span class="icon-bar"></span>
-                                </button>
+                    </div>
+                </nav>
+                <div class='tms-panel-body'>
+                    <div class='col-md-4' ng-repeat='t in top'>
+                        <div class='thumbnail top' ng-class="t.matter_type" ng-switch on="t.matter_type">
+                            <h4 class='title' ng-bind="t.matter_title"></h4>
+                            <p class='summary' ng-bind="t.matter_summary"></p>
+                            <div class='actions' ng-switch-when="enroll">
+                                <button class='btn btn-sm btn-default' ng-click="openMatter(t,'main')">定义</button>
+                                <button class='btn btn-sm btn-default' ng-click="openMatter(t,'publish')">发布</button>
+                                <button class='btn btn-sm btn-default' ng-click="openMatter(t,'record')">数据</button>
                             </div>
-                            <div class='collapse navbar-collapse' id='navbar-collapse-2'>
-                                <form class='navbar-form navbar-right clearfix'>
-                                    <div class='form-group'>
-                                        <select class='form-control' ng-model="matterType" ng-change="list(1)">
-                                            <option value=''>全部</option>
-                                            <option value='mission'>项目</option>
-                                            <option value='article'>单图文</option>
-                                            <option value='enroll'>登记活动</option>
-                                            <option value='signin'>签到活动</option>
-                                            <option value='group'>分组活动</option>
-                                            <option value='lottery'>抽奖活动</option>
-                                            <option value='news'>多图文</option>
-                                            <option value='channel'>频道</option>
-                                            <option value='contribute'>投稿活动</option>
-                                            <option value='text'>文本</option>
-                                            <option value='link'>链接</option>
-                                            <option value='merchant'>订购</option>
-                                            <option value='wall'>信息墙</option>
-                                            <option value='addressbook'>通讯录</option>
-                                            <option value='custom'>定制页</option>
-                                        </select>
-                                    </div>
-                                    <button id='popoverAddMatter' uib-popover-template="'addMatter.html'" popover-placement="bottom-right" popover-append-to-body='true' popover-trigger="show" popover-title="新建素材" class='btn btn-default pull-right' ng-click="popoverAddMatter()"><i class='glyphicon glyphicon-plus'></i> <span>新建</span></button>
-                                </form>
+                            <div class='actions' ng-switch-when="signin">
+                                <button class='btn btn-sm btn-default' ng-click="openMatter(t,'main')">定义</button>
+                                <button class='btn btn-sm btn-default' ng-click="openMatter(t,'publish')">发布</button>
+                                <button class='btn btn-sm btn-default' ng-click="openMatter(t,'record')">数据</button>
+                            </div>
+                            <div class='actions' ng-switch-when="group">
+                                <button class='btn btn-sm btn-default' ng-click="openMatter(t,'main')">定义</button>
+                                <button class='btn btn-sm btn-default' ng-click="openMatter(t,'player')">数据</button>
+                            </div>
+                            <div class='actions' ng-switch-when="mission">
+                                <button class='btn btn-sm btn-default' ng-click="openMatter(t,'main')">定义</button>
+                                <button class='btn btn-sm btn-default' ng-click="openMatter(t,'matter')">活动</button>
+                                <button class='btn btn-sm btn-default' ng-click="openMatter(t,'user')">数据</button>
+                            </div>
+                            <div class='actions' ng-switch-default>
+                                <button class='btn btn-sm btn-default' ng-click="openMatter(t,'main')">进入</button>
+                            </div>
+                            <div class='actions-top' ng-switch on="t.top">
+                                <button class='btn btn-default' title='取消置顶' ng-click="removeTop(t)">取消置顶</button>
                             </div>
                         </div>
-                    </nav>
-                    <div class='tms-panel-body'>
-                        <div class='col-md-4' ng-repeat='m in matters'>
-                            <div class='thumbnail matter' ng-class="m.matter_type" ng-switch on="m.matter_type">
-                                <h4 class='title' ng-bind="m.matter_title"></h4>
-                                <p class='summary' ng-bind="m.matter_summary"></p>
-                                <div class='actions' ng-switch-when="enroll">
-                                    <button class='btn btn-sm btn-default' ng-click="open(m,'main')">定义</button>
-                                    <button class='btn btn-sm btn-default' ng-click="open(m,'publish')">设置</button>
-                                    <button class='btn btn-sm btn-default' ng-click="open(m,'record')">数据</button>
-                                </div>
-                                <div class='actions' ng-switch-when="signin">
-                                    <button class='btn btn-sm btn-default' ng-click="open(m,'main')">定义</button>
-                                    <button class='btn btn-sm btn-default' ng-click="open(m,'publish')">设置</button>
-                                    <button class='btn btn-sm btn-default' ng-click="open(m,'record')">数据</button>
-                                </div>
-                                <div class='actions' ng-switch-when="group">
-                                    <button class='btn btn-sm btn-default' ng-click="open(m,'main')">定义</button>
-                                    <button class='btn btn-sm btn-default' ng-click="open(m,'player')">数据</button>
-                                </div>
-                                <div class='actions' ng-switch-when="mission">
-                                    <button class='btn btn-sm btn-default' ng-click="open(m,'main')">定义</button>
-                                    <button class='btn btn-sm btn-default' ng-click="open(m,'matter')">活动</button>
-                                    <button class='btn btn-sm btn-default' ng-click="open(m,'user')">数据</button>
-                                </div>
-                                <div class='actions' ng-switch-default>
-                                    <button class='btn btn-sm btn-default' ng-click="open(m,'main')">进入</button>
-                                </div>
-                            </div>
-                        </div>
-                        <div class='col-md-12'>
-                            <span style='height:34px;line-height:34px'>总数：{{page.total}}</span>
-                            <ul uib-pagination style="margin:0;vertical-align:bottom;cursor:pointer" class='pull-right' ng-show="page.total>page.size" boundary-links="true" total-items="page.total" max-size="7" items-per-page="page.size" rotate="false" ng-model="page.at" previous-text="&lsaquo;" next-text="&rsaquo;" first-text="&laquo;" last-text="&raquo;" ng-change="list()"></ul>
-                        </div>
+                    </div>
+                    <div class='col-md-12'>
+                        <span style='height:34px;line-height:34px'>总数：{{page.total}}</span>
+                        <ul uib-pagination style="margin:0;vertical-align:bottom;cursor:pointer" class='pull-right' ng-show="page.total>page.size" boundary-links="true" total-items="page.total" max-size="7" items-per-page="page.size" rotate="false" ng-model="page.at" previous-text="&lsaquo;" next-text="&rsaquo;" first-text="&laquo;" last-text="&raquo;" ng-change="list()"></ul>
                     </div>
                 </div>
             </div>
-            <div class='row' ng-controller="ctrlMission">
-                <div class='col-md-12'>
-                    <nav class='navbar navbar-default tms-panel-heading'>
-                        <div class='container-fluid'>
-                            <div class="navbar-header">
-                                <span class="navbar-brand">我参与的项目</span>
-                                <button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target='#navbar-collapse-3'>
-                                    <span class="sr-only">Toggle navigation</span>
-                                    <span class="icon-bar"></span>
-                                    <span class="icon-bar"></span>
-                                    <span class="icon-bar"></span>
-                                </button>
-                            </div>
-                            <div class='collapse navbar-collapse' id='navbar-collapse-3'>
-                                <form class='navbar-form navbar-right clearfix'>
-                                    <div class='form-group'>
-                                        <select class='form-control' ng-model="filter.bySite" ng-options="site.id as site.name for site in missionSites">
-                                            <option value=''>全部</option>
-                                        </select>
-                                    </div>
-                                    <button uib-popover-template="'filterMission.html'" popover-placement="bottom-right" popover-append-to-body='true' popover-trigger="outsideClick" class='btn btn-default pull-right'><i class='glyphicon glyphicon-filter'></i> <span>筛选</span></button>
-                                </form>
-                            </div>
+        </div>
+        <div class='row viewRecent' ng-controller="ctrlRecent">
+            <div class='col-md-12'>
+                <nav class='navbar navbar-default tms-panel-heading'>
+                    <div class='container-fluid'>
+                        <div class="navbar-header">
+                            <span class="navbar-brand">我进行的工作</span>
+                            <button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target='#navbar-collapse-2'>
+                                <span class="sr-only">Toggle navigation</span>
+                                <span class="icon-bar"></span>
+                                <span class="icon-bar"></span>
+                                <span class="icon-bar"></span>
+                            </button>
                         </div>
-                    </nav>
-                    <div class='tms-panel-body'>
-                        <div  class='col-md-4' ng-repeat='m in missions'>
-                            <div class='thumbnail mission'>
-                                <h4 class='title'>{{m.site_name}}\{{m.title}}</h4>
-                                <p class='summary' ng-bind="m.summary"></p>
-                                <div class='attr'>
-                                    <div class='creater_name' ng-bind="m.creater_name"></div>
-                                    <div class='create_at' ng-bind="m.create_at*1000|date:'yyyy-MM-dd'"></div>
+                        <div class='collapse navbar-collapse' id='navbar-collapse-2'>
+                            <form class='navbar-form navbar-right clearfix'>
+                                <div class='form-group'>
+                                    <select class='form-control' ng-model="matterType" ng-change="list(1)">
+                                        <option value=''>全部</option>
+                                        <option value='mission'>项目</option>
+                                        <option value='article'>单图文</option>
+                                        <option value='enroll'>登记活动</option>
+                                        <option value='signin'>签到活动</option>
+                                        <option value='group'>分组活动</option>
+                                        <option value='lottery'>抽奖活动</option>
+                                        <option value='news'>多图文</option>
+                                        <option value='channel'>频道</option>
+                                        <option value='contribute'>投稿活动</option>
+                                        <option value='text'>文本</option>
+                                        <option value='link'>链接</option>
+                                        <option value='merchant'>订购</option>
+                                        <option value='wall'>信息墙</option>
+                                        <option value='addressbook'>通讯录</option>
+                                        <option value='custom'>定制页</option>
+                                    </select>
                                 </div>
-                                <div class='actions'>
-                                    <button class='btn btn-sm btn-default' ng-click="open(m,'main')">定义</button>
-                                    <button class='btn btn-sm btn-default' ng-click="open(m,'matter')">活动</button>
-                                    <button class='btn btn-sm btn-default' ng-click="open(m,'user')">数据</button>
-                                </div>
+                                <button id='popoverAddMatter' uib-popover-template="'addMatter.html'" popover-placement="bottom-right" popover-append-to-body='true' popover-trigger="show" popover-title="新建素材" class='btn btn-default pull-right' ng-click="popoverAddMatter()"><i class='glyphicon glyphicon-plus'></i> <span>新建</span></button>
+                            </form>
+                        </div>
+                    </div>
+                </nav>
+                <div class='tms-panel-body'>
+                    <div class='col-md-4' ng-repeat='m in matters'>
+                        <div class='thumbnail matter' ng-class="m.matter_type" ng-switch on="m.matter_type">
+                            <h4 class='title' ng-bind="m.matter_title"></h4>
+                            <p class='summary' ng-bind="m.matter_summary"></p>
+                            <div class='actions' ng-switch-when="enroll">
+                                <button class='btn btn-sm btn-default' ng-click="open(m,'main')">定义</button>
+                                <button class='btn btn-sm btn-default' ng-click="open(m,'publish')">设置</button>
+                                <button class='btn btn-sm btn-default' ng-click="open(m,'record')">数据</button>
+                            </div>
+                            <div class='actions' ng-switch-when="signin">
+                                <button class='btn btn-sm btn-default' ng-click="open(m,'main')">定义</button>
+                                <button class='btn btn-sm btn-default' ng-click="open(m,'publish')">设置</button>
+                                <button class='btn btn-sm btn-default' ng-click="open(m,'record')">数据</button>
+                            </div>
+                            <div class='actions' ng-switch-when="group">
+                                <button class='btn btn-sm btn-default' ng-click="openMatter(m,'main')">定义</button>
+                                <button class='btn btn-sm btn-default' ng-click="openMatter(m,'player')">数据</button>
+                            </div>
+                            <div class='actions' ng-switch-when="mission">
+                                <button class='btn btn-sm btn-default' ng-click="openMatter(m,'main')">定义</button>
+                                <button class='btn btn-sm btn-default' ng-click="openMatter(m,'matter')">活动</button>
+                                <button class='btn btn-sm btn-default' ng-click="openMatter(m,'user')">数据</button>
+                            </div>
+                            <div class='actions' ng-switch-default>
+                                <button class='btn btn-sm btn-default' ng-click="openMatter(m,'main')">进入</button>
+                            </div>
+                            <div class='actions-top'>
+                                <button class='btn btn-default' title='置顶' ng-click="stickTop(m)">置顶</button>
                             </div>
                         </div>
-                        <div class='col-md-12'>
-                            <span style='height:34px;line-height:34px'>总数：{{page.total}}</span>
-                            <ul uib-pagination style="margin:0;vertical-align:bottom;cursor:pointer" class='pull-right' ng-show="page.total>page.size" boundary-links="true" total-items="page.total" max-size="7" items-per-page="page.size" rotate="false" ng-model="page.at" previous-text="&lsaquo;" next-text="&rsaquo;" first-text="&laquo;" last-text="&raquo;" ng-change="list()"></ul>
-                        </div>
+                    </div>
+                    <div class='col-md-12'>
+                        <span style='height:34px;line-height:34px'>总数：{{page.total}}</span>
+                        <ul uib-pagination style="margin:0;vertical-align:bottom;cursor:pointer" class='pull-right' ng-show="page.total>page.size" boundary-links="true" total-items="page.total" max-size="7" items-per-page="page.size" rotate="false" ng-model="page.at" previous-text="&lsaquo;" next-text="&rsaquo;" first-text="&laquo;" last-text="&raquo;" ng-change="list()"></ul>
                     </div>
                 </div>
             </div>
-            <div class='row'>
-                <div class='col-md-12' ng-controller="ctrlSite">
-                    <nav class='navbar navbar-default tms-panel-heading'>
-                        <div class='container-fluid'>
-                            <div class="navbar-header">
-                                <span class="navbar-brand">我所属的团队</span>
-                                <button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target="#navbar-collapse-4">
-                                    <span class="sr-only">Toggle navigation</span>
-                                    <span class="icon-bar"></span>
-                                    <span class="icon-bar"></span>
-                                    <span class="icon-bar"></span>
-                                </button>
+        </div>
+        <div class='row' ng-controller="ctrlMission">
+            <div class='col-md-12'>
+                <nav class='navbar navbar-default tms-panel-heading'>
+                    <div class='container-fluid'>
+                        <div class="navbar-header">
+                            <span class="navbar-brand">我参与的项目</span>
+                            <button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target='#navbar-collapse-3'>
+                                <span class="sr-only">Toggle navigation</span>
+                                <span class="icon-bar"></span>
+                                <span class="icon-bar"></span>
+                                <span class="icon-bar"></span>
+                            </button>
+                        </div>
+                        <div class='collapse navbar-collapse' id='navbar-collapse-3'>
+                            <form class='navbar-form navbar-right clearfix'>
+                                <div class='form-group'>
+                                    <select class='form-control' ng-model="filter.bySite" ng-options="site.id as site.name for site in missionSites">
+                                        <option value=''>全部</option>
+                                    </select>
+                                </div>
+                                <button uib-popover-template="'filterMission.html'" popover-placement="bottom-right" popover-append-to-body='true' popover-trigger="outsideClick" class='btn btn-default pull-right'><i class='glyphicon glyphicon-filter'></i> <span>筛选</span></button>
+                            </form>
+                        </div>
+                    </div>
+                </nav>
+                <div class='tms-panel-body'>
+                    <div class='col-md-4' ng-repeat='m in missions'>
+                        <div class='thumbnail mission'>
+                            <h4 class='title'>{{m.site_name}}\{{m.title}}</h4>
+                            <p class='summary' ng-bind="m.summary"></p>
+                            <div class='attr'>
+                                <div class='creater_name' ng-bind="m.creater_name"></div>
+                                <div class='create_at' ng-bind="m.create_at*1000|date:'yyyy-MM-dd'"></div>
                             </div>
-                            <div class="collapse navbar-collapse" id="navbar-collapse-4">
-                                <ul class="nav navbar-nav navbar-right">
-                                    <li ng-class="{'active':siteType===1}"><a href="javaScript:void(0)" ng-click="siteType=1;sites=site1"><span class='glyphicon glyphicon-user'></span>&nbsp&nbsp我的团队</a></li>
-                                    <li><a href="javaScript:void(0)"  ng-click='create()'><span class='glyphicon glyphicon-plus'></span>&nbsp&nbsp新建团队</a></li>
-                                    <li ng-class="{'active':siteType===0}">
-                                        <a href="javaScript:void(0)" ng-click="siteType=0;sites=sites0"><span class='glyphicon glyphicon-trash'></span>&nbsp&nbsp回收站
+                            <div class='actions'>
+                                <button class='btn btn-sm btn-default' ng-click="open(m,'main')">定义</button>
+                                <button class='btn btn-sm btn-default' ng-click="open(m,'matter')">活动</button>
+                                <button class='btn btn-sm btn-default' ng-click="open(m,'user')">数据</button>
+                            </div>
+                        </div>
+                    </div>
+                    <div class='col-md-12'>
+                        <span style='height:34px;line-height:34px'>总数：{{page.total}}</span>
+                        <ul uib-pagination style="margin:0;vertical-align:bottom;cursor:pointer" class='pull-right' ng-show="page.total>page.size" boundary-links="true" total-items="page.total" max-size="7" items-per-page="page.size" rotate="false" ng-model="page.at" previous-text="&lsaquo;" next-text="&rsaquo;" first-text="&laquo;" last-text="&raquo;" ng-change="list()"></ul>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class='row'>
+            <div class='col-md-12' ng-controller="ctrlSite">
+                <nav class='navbar navbar-default tms-panel-heading'>
+                    <div class='container-fluid'>
+                        <div class="navbar-header">
+                            <span class="navbar-brand">我所属的团队</span>
+                            <button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target="#navbar-collapse-4">
+                                <span class="sr-only">Toggle navigation</span>
+                                <span class="icon-bar"></span>
+                                <span class="icon-bar"></span>
+                                <span class="icon-bar"></span>
+                            </button>
+                        </div>
+                        <div class="collapse navbar-collapse" id="navbar-collapse-4">
+                            <ul class="nav navbar-nav navbar-right">
+                                <li ng-class="{'active':siteType===1}"><a href="javaScript:void(0)" ng-click="siteType=1;sites=site1"><span class='glyphicon glyphicon-user'></span>&nbsp&nbsp我的团队</a></li>
+                                <li><a href="javaScript:void(0)" ng-click='create()'><span class='glyphicon glyphicon-plus'></span>&nbsp&nbsp新建团队</a></li>
+                                <li ng-class="{'active':siteType===0}">
+                                    <a href="javaScript:void(0)" ng-click="siteType=0;sites=sites0"><span class='glyphicon glyphicon-trash'></span>&nbsp&nbsp回收站
                                        <span class="badge">
                                             <span ng-if="sites0.length>0" ng-bind="sites0.length"></span>
                                             <span ng-if="!sites0.length">空</span>
                                         </span>
                                         </a>
-                                    </li>
-
-                                </ul>
-                            </div>
+                                </li>
+                            </ul>
                         </div>
-                    </nav>
-                    <div class='tms-panel-body'>
-                        <div  class='col-md-4' ng-repeat='site in sites'>
-                            <div class='thumbnail site' ng-switch on="siteType">
-                                <h4 class='title' ng-bind="site.name"></h4>
-                                <p class='summary' ng-bind="site.summary"></p>
-                                <div class='attr'>
-                                    <div class='creater_name' ng-bind="site.creater_name"></div>
-                                    <div class='create_at' ng-bind="site.create_at*1000|date:'yyyy-MM-dd'"></div>
-                                </div>
-                                <div class='actions' ng-switch-when="1">
-                                    <a class='btn btn-sm btn-default' ng-click="openConsole(site)">工作台</a>
-                                    <a class='btn btn-sm btn-default' ng-click="setHome(site)">设置主页</a>
-                                </div>
-                                <div class='actions-top' ng-switch-when="0">
-                                    <button class='btn btn-default' title='恢复' ng-click="restoreSite(site)">恢复</button>
-                                </div>
+                    </div>
+                </nav>
+                <div class='tms-panel-body'>
+                    <div class='col-md-4' ng-repeat='site in sites'>
+                        <div class='thumbnail site' ng-switch on="siteType">
+                            <h4 class='title' ng-bind="site.name"></h4>
+                            <p class='summary' ng-bind="site.summary"></p>
+                            <div class='attr'>
+                                <div class='creater_name' ng-bind="site.creater_name"></div>
+                                <div class='create_at' ng-bind="site.create_at*1000|date:'yyyy-MM-dd'"></div>
+                            </div>
+                            <div class='actions' ng-switch-when="1">
+                                <a class='btn btn-sm btn-default' ng-click="openConsole(site)">工作台</a>
+                                <a class='btn btn-sm btn-default' ng-click="setHome(site)">设置主页</a>
+                            </div>
+                            <div class='actions-top' ng-switch-when="0">
+                                <button class='btn btn-default' title='恢复' ng-click="restoreSite(site)">恢复</button>
                             </div>
                         </div>
                     </div>
                 </div>
             </div>
         </div>
-        <script type="text/ng-template" id="userNotice.html">
-            <div id="userNotice">
-                <div class='list-group'>
-                    <div class='list-group-item log' ng-repeat="log in notice.logs" ng-mouseenter="entered=true" ng-mouseleave="entered=false">
-                        <div>{{log._message}}</div>
-                        <div ng-if="!entered">{{log.batch.create_at*1000|date:'M月d日'}}</div>
-                        <div ng-if="entered"><button class='btn btn-default btn-sm' ng-click="closeNotice(log)"><span class='glyphicon glyphicon-ok'></span></button></div>
+    </div>
+    <script type="text/ng-template" id="userNotice.html">
+        <div id="userNotice">
+            <div class='list-group'>
+                <div class='list-group-item log' ng-repeat="log in notice.logs" ng-mouseenter="entered=true" ng-mouseleave="entered=false">
+                    <div>{{log._message}}</div>
+                    <div ng-if="!entered">{{log.batch.create_at*1000|date:'M月d日'}}</div>
+                    <div ng-if="entered">
+                        <button class='btn btn-default btn-sm' ng-click="closeNotice(log)"><span class='glyphicon glyphicon-ok'></span></button>
                     </div>
                 </div>
             </div>
-        </script>
-        <script type="text/ng-template" id="addMatter.html">
-            <div id="addMatter">
-                <div class='form-group'>
-                    <button class='btn btn-default' ng-click="addMatter('mission')">项目</button>
-                </div>
-                <div class='form-group'>
-                    <button class='btn btn-default' ng-click="addMatter('article')">单图文</button>
-                    <button class='btn btn-default' ng-click="addMatter('news')">多图文</button>
-                    <button class='btn btn-default' ng-click="addMatter('channel')">频道</button>
-                </div>
-                <div class='form-group'>
-                    <button class='btn btn-default' ng-click="addMatter('enroll','common')">登记活动</button>
-                    <button class='btn btn-default' ng-click="addMatter('signin')">签到活动</button>
-                    <button class='btn btn-default' ng-click="addMatter('group')">分组活动</button>
-                    <button class='btn btn-default' ng-click="addMatter('wall')">信息墙</button>
-                    <button class='btn btn-default' ng-click="addMatter('lottery')">抽奖活动</button>
-                </div>
-                <div class='form-group'>
-                    <button class='btn btn-default' ng-click="addMatter('link')">链接</button>
-                    <button class='btn btn-default' ng-click="addMatter('custom')">定制页</button>
-                </div>
-                <div class='form-group'>
-                    <button class='btn btn-default' ng-click="addMatter('addressbook')">通讯录</button>
-                    <button class='btn btn-default' ng-click="addMatter('contribute')">投稿活动</button>
-                    <button class='btn btn-default' ng-click="addMatter('merchant')">订购活动</button>
-                </div>
+        </div>
+    </script>
+    <script type="text/ng-template" id="addMatter.html">
+        <div id="addMatter">
+            <div class='form-group'>
+                <button class='btn btn-default' ng-click="addMatter('mission')">项目</button>
+            </div>
+            <div class='form-group'>
+                <button class='btn btn-default' ng-click="addMatter('article')">单图文</button>
+                <button class='btn btn-default' ng-click="addMatter('news')">多图文</button>
+                <button class='btn btn-default' ng-click="addMatter('channel')">频道</button>
+            </div>
+            <div class='form-group'>
+                <button class='btn btn-default' ng-click="addMatter('enroll','common')">登记活动</button>
+                <button class='btn btn-default' ng-click="addMatter('signin')">签到活动</button>
+                <button class='btn btn-default' ng-click="addMatter('group')">分组活动</button>
+                <button class='btn btn-default' ng-click="addMatter('wall')">信息墙</button>
+                <button class='btn btn-default' ng-click="addMatter('lottery')">抽奖活动</button>
+            </div>
+            <div class='form-group'>
+                <button class='btn btn-default' ng-click="addMatter('link')">链接</button>
+                <button class='btn btn-default' ng-click="addMatter('custom')">定制页</button>
+            </div>
+            <div class='form-group'>
+                <button class='btn btn-default' ng-click="addMatter('addressbook')">通讯录</button>
+                <button class='btn btn-default' ng-click="addMatter('contribute')">投稿活动</button>
+                <button class='btn btn-default' ng-click="addMatter('merchant')">订购活动</button>
+            </div>
             <div>
-        </script>
-        <script type="text/ng-template" id="filterMission.html">
-            <div id="filterMission">
-                <div class='form-group'>
-                    <label>名称</label>
-                    <input type='input' class='form-control' ng-model='filter2.byTitle'>
-                </div>
-                <div class='form-group'>
-                    <button class='btn btn-default btn-block' ng-click="doFilter()">执行筛选</button>
-                    <button class='btn btn-default btn-block' ng-click="cleanFilter()">取消筛选</button>
-                </div>
+    </script>
+    <script type="text/ng-template" id="filterMission.html">
+        <div id="filterMission">
+            <div class='form-group'>
+                <label>名称</label>
+                <input type='input' class='form-control' ng-model='filter2.byTitle'>
             </div>
-        </script>
-        <script type="text/ng-template" id="addMatterSite.html">
-            <div class="modal-header">
-                <button class="close" type="button" ng-click="cancel()">×</button>
-                <h5 class="modal-title ">指定创建素材的团队</h5>
+            <div class='form-group'>
+                <button class='btn btn-default btn-block' ng-click="doFilter()">执行筛选</button>
+                <button class='btn btn-default btn-block' ng-click="cleanFilter()">取消筛选</button>
             </div>
-            <div class="modal-body ">
-                <div class="radio" ng-repeat="site in mySites">
-                    <label ng-if="site._favored!=='Y'"><input type='radio' name='site' value="{{$index}}" ng-model='data.index'>{{site.name}}</label>
-                </div>
-                <div class='alert alert-danger' ng-if="mySites.length===0">请创建添加素材的团队</div>
+        </div>
+    </script>
+    <script type="text/ng-template" id="addMatterSite.html">
+        <div class="modal-header">
+            <button class="close" type="button" ng-click="cancel()">×</button>
+            <h5 class="modal-title ">指定创建素材的团队</h5>
+        </div>
+        <div class="modal-body ">
+            <div class="radio" ng-repeat="site in mySites">
+                <label ng-if="site._favored!=='Y'">
+                    <input type='radio' name='site' value="{{$index}}" ng-model='data.index'>{{site.name}}</label>
             </div>
-            <div class="modal-footer">
-                <button class="btn btn-success" ng-click="ok() ">确定</button>
-            </div>
-        </script>
-        <script src="/static/js/jquery.min.js"></script>
-        <script src="/static/js/bootstrap.min.js"></script>
-        <script src="/static/js/angular.min.js"></script>
-        <script src="/static/js/angular-sanitize.min.js"></script>
-        <script src="/static/js/ui-bootstrap-tpls.min.js"></script>
-        <script src="/static/js/ui-tms.js"></script>
-        <script src="/static/js/xxt.ui.js?_=1"></script>
-        <script src="/static/js/xxt.ui.tmplshop.js?_=1"></script>
-        <script src="/views/default/pl/fe/_module/matter.service.js"></script>
-        <script src="/views/default/pl/fe/main2.js"></script>
-    </body>
+            <div class='alert alert-danger' ng-if="mySites.length===0">请创建添加素材的团队</div>
+        </div>
+        <div class="modal-footer">
+            <button class="btn btn-success" ng-click="ok() ">确定</button>
+        </div>
+    </script>
+    <script src="/static/js/jquery.min.js"></script>
+    <script src="/static/js/bootstrap.min.js"></script>
+    <script src="/static/js/angular.min.js"></script>
+    <script src="/static/js/angular-sanitize.min.js"></script>
+    <script src="/static/js/ui-bootstrap-tpls.min.js"></script>
+    <script src="/static/js/ui-tms.js"></script>
+    <script src="/static/js/xxt.ui.js?_=1"></script>
+    <script src="/static/js/xxt.ui.tmplshop.js?_=1"></script>
+    <script src="/views/default/pl/fe/_module/matter.service.js"></script>
+    <script src="/views/default/pl/fe/main2.js"></script>
+</body>
+
 </html>

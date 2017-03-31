@@ -625,7 +625,7 @@ define(['require', 'schema', 'page'], function(require, schemaLib, pageLib) {
                                     multiple: true,
                                     setshowname: true
                                 };
-                                mediagallery.open($scope.app.siteid, options);
+                                mediagallery.open($scope2.app.siteid, options);
                             });
                             $scope2.$on('tinymce.instance.init', function(event, editor) {
                                 var page;

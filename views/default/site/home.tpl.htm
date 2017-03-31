@@ -33,20 +33,21 @@
                     <li><a href='' uib-popover-template="'userRegister.html'" popover-placement="bottom" popover-class='user-register' popover-trigger="outsideClick">注册 <span class='caret'></span></a></li>
                 </ul>
                 <form class='navbar-form navbar-right ng-cloak' ng-cloak ng-if="user.isLogin===true">
-                    <div class="btn-group">
-                        <a href='/rest/site/fe/user?site=platform' target='_self' class="btn btn-default"><i class='glyphicon glyphicon-user'></i> <span ng-bind="user.nickname"></span></a>
+                    <div class="btn-group" ng-switch on="user.role">
+                        <a ng-switch-when="admin" ng-href='/rest/pl/fe' target='_self' class="btn btn-default"><i class='glyphicon glyphicon-user'></i> <span ng-bind="user.nickname"></span></a>
+                        <a ng-switch-when="person" href='/rest/site/fe/user?site=platform' target='_self' class="btn btn-default"><i class='glyphicon glyphicon-user'></i> <span ng-bind="user.nickname"></span></a>
                         <button type="button" class="btn btn-default dropdown-toggle" data-toggle="dropdown">
                             <span class="caret"></span>
                             <span class="sr-only">Toggle Dropdown</span>
                         </button>
-                        <ul class="dropdown-menu" role="menu" ng-if="user.role==='person'">
+                        <ul class="dropdown-menu" role="menu" ng-switch-when="person">
                             <li><a href='/rest/site/fe/user?site=platform' target='_self'>用户设置</a></li>
                             <li class="divider"></li>
                             <li><a href='/rest/site/fe/user/logout/do?site=platform&redirect=Y' target='_self'>退出</a></li>
                             <li class="divider"></li>
                             <li><a href='' ng-click="shiftAsAdmin()">切换到团队账号</a></li>
                         </ul>
-                        <ul class="dropdown-menu" role="menu" ng-if="user.role==='admin'">
+                        <ul class="dropdown-menu" role="menu" ng-switch-when="admin">
                             <li><a href='/rest/pl/fe/user/settings' target='_self'>用户设置</a></li>
                             <li class="divider"></li>
                             <li><a href='/rest/pl/fe/user/logout' target='_self'>退出</a></li>
@@ -101,6 +102,16 @@
         <div>
             <div><a href='' ng-click="subscribeByPerson()">个人账号关注</a></div>
             <div><a href='' ng-click="subscribeByTeam()">团队账号关注</a></div>
+        </div>
+    </script>
+    <script type="text/ng-template" id="favorTempateAsAdmin.html">
+        <div id='favorTempateAsAdmin'>
+            <div>请切换到团队账号后收藏本模板，<a href='' ng-click="favorTemplate(t,true)">继续</a></div>
+        </div>
+    </script>
+    <script type="text/ng-template" id="useTempateAsAdmin.html">
+        <div id='useTempateAsAdmin'>
+            <div>请切换到团队账号后使用本模板，<a href='' ng-click="useTemplate(t,true)">继续</a></div>
         </div>
     </script>
     <script type="text/ng-template" id="subscribeByTeam.html">

@@ -20,7 +20,7 @@ class enroll_model extends \TMS_MODEL {
 			'scenario' => isset($data->scenario) ? $data->scenario : 'common',
 			'title' => isset($data->title)? $data->title : '新模板('.$data->matter_type.')',
 			'pic' => isset($data->pic)? $data->pic : '',
-			'summary' => isset($data->summary)? $data->summary : '',
+			'summary' => isset($data->summary)? $this->escape($data->summary) : '',
 			'coin' => isset($data->coin)? $data->coin : 0,
 			'visible_scope' => isset($data->visible_scope)? $data->visible_scope : 'S',
 			'push_home' => isset($data->push_home) ? $data->push_home : 'N',
@@ -96,11 +96,11 @@ class enroll_model extends \TMS_MODEL {
 			'create_at' => $current,
 			'siteid' => $site,
 			'template_id' => $tid,
-			'scenario_config' => empty($matter->scenario_config) ? '' : $matter->scenario_config,
+			'scenario_config' => empty($matter->scenario_config) ? '' : $this->escape($matter->scenario_config),
 			'multi_rounds' => $matter->multi_rounds,
 			'enrolled_entry_page' => $matter->enrolled_entry_page,
 			'open_lastroll' => $matter->open_lastroll,
-			'data_schemas' => $matter->data_schemas,
+			'data_schemas' => $this->escape($matter->data_schemas),
 			'pub_status' => $pubStatus,
 		];
 		//版本id

@@ -1,6 +1,6 @@
 
 <div class="row ng-cloak">
-    <div class="col-md-12" ng-if="">
+    <div class="col-md-12" ng-if="page.state===1">
         <p class="alert alert-danger ">您没有绑定微信公众号或微信企业号或易信公众号 !</p>
         <ul class="list-unstyled">
             <li><a href="/rest/pl/fe/site/sns/wx?site={{siteId}}" target='_self'>绑定微信公众号</a></li>

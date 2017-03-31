@@ -9,22 +9,26 @@ define(['frame'], function (ngApp) {
         //获取同步信息
         $scope.registerYes = [];
         $scope.registerNo = [];
-        http2.get(baseURL + 'profile/get?site=' + $scope.siteId + '&userid=' + $scope.userId, function (rsp) {
-            var members, mapMembers = {};
-            $scope.user = rsp.data.user;
-            if (rsp.data.members) {
-                members = rsp.data.members;
-                angular.forEach(members, function (member) {
-                    member.extattr = JSON.parse(decodeURIComponent(member.extattr.replace(/\+/g, '%20')));
-                    mapMembers[member.schema_id] = member;
-                });
-                angular.forEach($scope.memberSchemas, function (memberSchema) {
-                    memberSchema.member = mapMembers[memberSchema.id];
-                });
-                angular.forEach($scope.memberSchemas, function (memberSchema) {
-                    memberSchema.member?$scope.registerYes.push(memberSchema):$scope.registerNopush(memberSchema);
-                });
-            }
+        //有时间改用promise
+        http2.get('/rest/pl/fe/site/member/schema/list?site=' + $scope.siteId, function(rsp) {
+            $scope.memberSchemas = rsp.data;
+            http2.get(baseURL + 'profile/get?site=' + $scope.siteId + '&userid=' + $scope.userId, function (rsp) {
+                var members, mapMembers = {};
+                $scope.user = rsp.data.user;
+                if (rsp.data.members) {
+                    members = rsp.data.members;
+                    angular.forEach(members, function (member) {
+                        member.extattr = JSON.parse(decodeURIComponent(member.extattr.replace(/\+/g, '%20')));
+                        mapMembers[member.schema_id] = member;
+                    });
+                    angular.forEach($scope.memberSchemas, function (memberSchema) {
+                        memberSchema.member = mapMembers[memberSchema.id];
+                    });
+                    angular.forEach($scope.memberSchemas, function (memberSchema) {
+                        memberSchema.member?$scope.registerYes.push(memberSchema):$scope.registerNo.push(memberSchema);
+                    });
+                }
+            });
         });
         $scope.canFieldShow = function (memberSchema, name) {
             return memberSchema['attr_' + name].charAt(0) === '0';

@@ -42,8 +42,8 @@ define(['frame'], function (ngApp) {
             });
         };
         //问题：公众号信息异步获取；可能得不到，重新获取
-        http2.get('/rest/pl/fe/site/user/fans/getsnsinfo?site=' + $scope.siteId + '&uid=' + $scope.userId, function (rsp) {
-            //var fans = rsp.data;
+        $scope.$watch('fans',function(fans){
+            if (!fans) {return;}
             //fans.wx && ($scope.wx = fans.wx);
             //fans.qy && ($scope.qy = fans.qy);
             //fans.yx && ($scope.yx = fans.yx);
@@ -52,7 +52,6 @@ define(['frame'], function (ngApp) {
             //$scope.yx && ($scope.selSync[length] = {value: $scope.yx.openid, title: '易信公众号', content: '易信公众号信息'});
             //压缩-插件化
             var data = {},
-                fans = rsp.data,
                 obj = {};
             $scope.selSync = [];
             //代码不执行 定义状态

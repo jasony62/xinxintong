@@ -328,8 +328,7 @@ define(['frame'], function(ngApp) {
                 backdrop: 'static',
                 controller: ['$scope', '$uibModalInstance', 'srvEnrollRound', function($scope2, $mi, srvEnrollRound) {
                     $scope2.moreCriteria = {
-                        rid: '',
-                        title: ''
+                        rid: ''
                     }
                     $scope2.doSearchRound = function() {
                         srvEnrollRound.list().then(function(result) {
@@ -360,10 +359,7 @@ define(['frame'], function(ngApp) {
                     $scope2.doSearchRound();
                 }]
             }).result.then(function(result) {
-                var url = '/rest/pl/fe/matter/enroll/round/list?site=' + $scope.app.siteid + '&app=' + $scope.app.id + '&checked=' + result
-                http2.get(url, function(rsp) {
-                    location.href = '/rest/pl/fe/matter/enroll/stat?site=' + $scope.app.siteid + '&id=' + $scope.app.id + '&rid=' + result;
-                });
+                location.href = '/rest/pl/fe/matter/enroll/stat?site=' + $scope.app.siteid + '&id=' + $scope.app.id + '&rid=' + result;
             });
         }
         srvEnrollApp.get().then(function(app) {
@@ -436,14 +432,15 @@ define(['frame'], function(ngApp) {
                 });
             });
         });
-        srvEnrollRound.list().then(function(result) {
-            $scope.roundResult = result;
+        srvEnrollRound.list(rid).then(function(result) {
             $scope.activeRound = result.active;
             $scope.checkedRound = result.checked;
             $scope.rounds = result.rounds;
             if (rid) {
                 if (rid === 'ALL') {
                     $scope.criteria.rid = 'ALL';
+                } else if (rid == $scope.checkedRound.rid){
+                    $scope.criteria.rid = $scope.checkedRound.rid;
                 } else {
                     $scope.rounds.forEach(function(round) {
                         if (round.rid == rid) {
@@ -452,11 +449,7 @@ define(['frame'], function(ngApp) {
                     });
                 }
             } else {
-                if($scope.checkedRound) {
-                    $scope.criteria.rid = $scope.checkedRound.rid;
-                }else {
-                    $scope.criteria.rid = $scope.activeRound.rid;
-                }
+                $scope.criteria.rid = $scope.activeRound.rid;
             }
         });
     }]);

@@ -210,9 +210,9 @@ class template_model extends \TMS_MODEL {
 				'matter_type' => $matter->matter_type,
 				'matter_id' => isset($matter->matter_id) ? $matter->matter_id : '',
 				'scenario' => empty($matter->scenario) ? '' : $matter->scenario,
-				'title' => $matter->title,
+				'title' => $this->escape($matter->title),
 				'pic' => $matter->pic,
-				'summary' => $matter->summary,
+				'summary' => $this->escape($matter->summary),
 				'coin' => isset($matter->coin) ? $matter->coin : 0,
 				'visible_scope' => isset($matter->visible_scope) ? $matter->visible_scope : 'S',
 				'push_home' => isset($matter->push_home) ? $matter->push_home : 'N',
@@ -233,10 +233,10 @@ class template_model extends \TMS_MODEL {
 		} else {
 			/* 更新模板 */
 			$updated = [
-				'title' => $matter->title,
+				'title' => $this->escape($matter->title),
 				'pic' => $matter->pic,
 				'put_at' => $current,
-				'summary' => $matter->summary,
+				'summary' => $this->escape($matter->summary),
 				'coin' => isset($matter->coin) ? $matter->coin : 0,
 				'visible_scope' => isset($matter->visible_scope) ? $matter->visible_scope : 'S',
 				'push_home' => isset($matter->push_home) ? $matter->push_home : 'N',

@@ -12,7 +12,7 @@ ngApp.provider.controller('ctrlSite', ['$scope', '$http', '$uibModal', function(
         $scope.searchTemplate();
     };
     $scope.searchSite = function() {
-        var url = '/rest/home/listSite?userType=admin';
+        var url = '/rest/home/listSite';
         $http.get(url).success(function(rsp) {
             $scope.sites = rsp.data.sites;
         });

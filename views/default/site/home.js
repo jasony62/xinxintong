@@ -28,12 +28,15 @@ define(["angular", "xxt-page"], function(angular, codeAssembler) {
             };
         }];
     });
-    ngApp.config(['$controllerProvider', function($cp) {
+    ngApp.config(['$controllerProvider', '$uibTooltipProvider', function($cp, $uibTooltipProvider) {
         ngApp.provider = {
             controller: $cp.register
         };
+        $uibTooltipProvider.setTriggers({
+            'show': 'hide'
+        });
     }]);
-    ngApp.controller('ctrlMain', ['$scope', '$q', '$uibModal', 'http2', 'srvUser', function($scope, $q, $uibModal, http2, srvUser) {
+    ngApp.controller('ctrlMain', ['$scope', '$timeout', '$q', '$uibModal', 'http2', 'srvUser', function($scope, $timeout, $q, $uibModal, http2, srvUser) {
         function createSite() {
             var defer = $q.defer(),
                 url = '/rest/pl/fe/site/create?_=' + (new Date() * 1);
@@ -111,20 +114,39 @@ define(["angular", "xxt-page"], function(angular, codeAssembler) {
         }
 
         var user, ls = location.search,
-            siteId = ls.match(/site=([^&]*)/)[1];
+            siteId = ls.match(/site=([^&]*)/)[1],
+            popoverUseTempateAsAdmin = false,
+            popoverFavorTempateAsAdmin = false;
 
+        $('body').click(function() {
+            if (popoverUseTempateAsAdmin) {
+                $('#popoverUseTempateAsAdmin').trigger('hide');
+                popoverUseTempateAsAdmin = false;
+            }
+            if (popoverFavorTempateAsAdmin) {
+                $('#popoverFavorTempateAsAdmin').trigger('hide');
+                popoverFavorTempateAsAdmin = false;
+            }
+        });
         $scope.user = user = {};
-        $scope.favorTemplate = function(template) {
-            if (user.isLogin === false || user.role !== 'admin') {
-                if (window.sessionStorage) {
-                    var method = JSON.stringify({
+        $scope.favorTemplate = function(template, asAdmin) {
+            if (user.role !== 'admin') {
+                if (asAdmin) {
+                    $scope.shiftAsAdmin({
                         name: 'favorTemplate',
                         args: [template]
+                    }).then(function(user) {
+                        $scope.favorTemplate(template);
                     });
-                    window.sessionStorage.setItem('xxt.site.home.auth.pending', method);
+                } else {
+                    $('#popoverFavorTempateAsAdmin').trigger('show');
+                    $timeout(function() {
+                        popoverFavorTempateAsAdmin = true;
+                    });
+                    return;
                 }
-                location.href = '/rest/pl/fe/user/auth';
-            } else {
+            }
+            if (user.isLogin && user.role === 'admin') {
                 var url = '/rest/pl/fe/template/siteCanFavor?template=' + template.id + '&_=' + (new Date() * 1);
                 http2.get(url, function(rsp) {
                     var sites = rsp.data;
@@ -161,17 +183,25 @@ define(["angular", "xxt-page"], function(angular, codeAssembler) {
                 });
             }
         };
-        $scope.useTemplate = function(template) {
-            if (user.isLogin === false || user.role !== 'admin') {
-                if (window.sessionStorage) {
-                    var method = JSON.stringify({
+        $scope.useTemplate = function(template, asAdmin) {
+            if (user.role !== 'admin') {
+                if (asAdmin) {
+                    $scope.shiftAsAdmin({
                         name: 'useTemplate',
                         args: [template]
+                    }).then(function(user) {
+                        $scope.useTemplate(template);
                     });
-                    window.sessionStorage.setItem('xxt.site.home.auth.pending', method);
+                } else {
+                    $('#popoverUseTempateAsAdmin').trigger('show');
+                    $timeout(function() {
+                        popoverUseTempateAsAdmin = true;
+                    });
+                    return;
                 }
-                location.href = '/rest/pl/fe/user/auth';
-            } else {
+            }
+
+            if (user.isLogin && user.role === 'admin') {
                 var url = '/rest/pl/fe/site/list?_=' + (new Date() * 1);
                 http2.get(url, function(rsp) {
                     var sites = rsp.data;
@@ -275,7 +305,8 @@ define(["angular", "xxt-page"], function(angular, codeAssembler) {
                 });
             }
         };
-        $scope.shiftAsAdmin = function() {
+        $scope.shiftAsAdmin = function(oPendingMethod) {
+            var defer = $q.defer();
             srvUser.getSiteAdmin().then(function(siteAdmin) {
                 if (window.localStorage) {
                     window.localStorage.setItem('xxt.site.home.user.role', 'admin');
@@ -285,10 +316,15 @@ define(["angular", "xxt-page"], function(angular, codeAssembler) {
                     user.role = 'admin';
                     user.isLogin = true;
                     user.account = siteAdmin;
+                    defer.resolve(user);
                 } else {
+                    if (oPendingMethod && window.sessionStorage) {
+                        window.sessionStorage.setItem('xxt.site.home.auth.pending', JSON.stringify(oPendingMethod));
+                    }
                     location.href = '/rest/pl/fe/user/auth';
                 }
             });
+            return defer.promise;
         };
         $scope.shiftAsPerson = function() {
             srvUser.getSiteUser(siteId).then(function(siteUser) {

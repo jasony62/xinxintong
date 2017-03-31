@@ -44,9 +44,11 @@ class profile extends \pl\fe\base {
 		$arr['used']=$schema->used+1;
 		$model->update('xxt_site_member_schema',$arr,"id='$schema->id' and siteid='$site'");
 		$rst = $this->model('site\user\member')->create($site, $userid, $schema, $posted);
+
 		if ($rst[0] === false) {
 			return new \ResponseError($rst[1]);
 		}
+		
 		$member = $rst[1];
 
 		return new \ResponseData($member);

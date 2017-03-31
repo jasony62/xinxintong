@@ -12,7 +12,7 @@ class round extends \pl\fe\matter\base {
 	 * @param string $app app's id
 	 *
 	 */
-	public function list_action($app, $page = 1, $size = 10) {
+	public function list_action($app, $checked = null, $page = 1, $size = 10) {
 		if (false === ($user = $this->accountUser())) {
 			return new \ResponseTimeout();
 		}
@@ -22,10 +22,6 @@ class round extends \pl\fe\matter\base {
 			return new \ObjectNotFoundError();
 		}
 
-		$posted = $this->getPostJson();
-		if(isset($posted->checked)){
-			$checked = $posted->checked;
-		}
 		$modelRnd = $this->model('matter\enroll\round');
 
 		$oPage = new \stdClass;
@@ -33,7 +29,8 @@ class round extends \pl\fe\matter\base {
 		$oPage->size = $size;
 
 		$result = $modelRnd->byApp($oApp, ['page' => $oPage]);
-		if(isset($checked) && !empty($checked)){
+		if(!empty($checked)){
+			$checked = $modelRnd->byId($checked);
 			$result->checked = $checked;
 		}
 		

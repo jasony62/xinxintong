@@ -15,12 +15,22 @@
                         </div>
                         <div class='actions'>
                             <a class='btn btn-sm btn-default' href="/rest/site/fe/matter/template?template={{t.id}}">详情</a>
-                            <button class='btn btn-sm btn-success' ng-click="favorTemplate(t)">收藏</button>
-                            <button class='btn btn-sm btn-success' ng-click="useTemplate(t)">使用</button>
+                            <button id="popoverFavorTempateAsAdmin" class='btn btn-sm btn-success' uib-popover-template="'favorTempateAsAdmin.html'" popover-placement="bottom" popover-trigger="show" ng-click="favorTemplate(t)">收藏</button>
+                            <button id="popoverUseTempateAsAdmin" class='btn btn-sm btn-success' uib-popover-template="'useTempateAsAdmin.html'" popover-placement="bottom" popover-trigger="show" ng-click="useTemplate(t)">使用</button>
                         </div>
                     </div>
                 </div>
             </div>
         </div>
     </div>
+    <script type="text/ng-template" id="favorTempateAsAdmin.html">
+        <div id='favorTempateAsAdmin'>
+            <div>请切换到团队账号后收藏本模板，<a href='' ng-click="favorTemplate(t,true)">继续</a></div>
+        </div>
+    </script>
+    <script type="text/ng-template" id="useTempateAsAdmin.html">
+        <div id='useTempateAsAdmin'>
+            <div>请切换到团队账号后使用本模板，<a href='' ng-click="useTemplate(t,true)">继续</a></div>
+        </div>
+    </script>
 </div>

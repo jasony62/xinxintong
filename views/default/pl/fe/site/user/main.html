@@ -4,7 +4,7 @@
         <p class="modal-title h5 form-control-static">{{user.nickname}}</p>
     </div>
     <div class='pull-right' ng-show="memberSchemas.length">
-        <select class='form-control' ng-model='selectedSchema' ng-options='ms.title for ms in registerNo'>
+        <select class='form-control' ng-model='selectedSchema' ng-options='ms.title for ms in registerNo' style="min-width:150px;">
             <option value=''></option>
         </select>
         <button class='btn btn-primary' ng-disabled='!selectedSchema' ng-click='addMember(selectedSchema,i)'>添加自定义用户信息

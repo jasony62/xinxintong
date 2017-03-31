@@ -15,6 +15,7 @@ define(['frame'], function (ngApp) {
             if (rsp.data.members) {
                 members = rsp.data.members;
                 angular.forEach(members, function (member) {
+                    member.extattr = JSON.parse(decodeURIComponent(member.extattr.replace(/\+/g, '%20')));
                     mapMembers[member.schema_id] = member;
                 });
                 angular.forEach($scope.memberSchemas, function (memberSchema) {
@@ -54,12 +55,12 @@ define(['frame'], function (ngApp) {
                 }]
             }).result.then(function (member) {
                     http2.post(baseURL + 'profile/memberAdd?site=' + $scope.siteId + '&userid=' + $scope.userId + '&schema=' + schema.id, member, function (rsp) {
+                        member = rsp.data;
+                        member.extattr = JSON.parse(decodeURIComponent(member.extattr.replace(/\+/g, '%20')));
                         schema.member = member;
                         $scope.registerNo.splice(i,1);
                         $scope.registerYes.splice(0,0,schema);
-                        //member = rsp.data;
-                        //member.extattr = JSON.parse(decodeURIComponent(member.extattr.replace(/\+/g, '%20')));
-                        //member.schema = schema;
+                        noticebox.success('完成');
                         //!$scope.members && ($scope.members = []);
                         //$scope.members.push(member);
                     });
@@ -104,6 +105,7 @@ define(['frame'], function (ngApp) {
                         };
                         http2.post(baseURL + 'profile/memberUpd?site=' + $scope.siteId + '&id=' + memberSchema.member.id, newData, function (rsp) {
                             angular.extend(memberSchema.member, newData);
+                            noticebox.success('完成');
                         });
                     } else if (rst.action === 'remove') {
                         http2.get(baseURL + 'profile/memberDel?site=' + $scope.siteId + '&id=' + memberSchema.member.id, function () {

@@ -552,6 +552,13 @@ class log_model extends \TMS_MODEL {
 
 		$sendlogs = $this->query_objs_ss($q, $q2);
 
+		if(empty($sendlogs)){
+			$total_s=0;
+		}else{
+			$q[0]='count(*)';
+			$total_s=$this->query_val_ss($q);
+		}
+
 		$q = array(
 			'create_at,data content',
 			'xxt_log_mpreceive',
@@ -564,8 +571,15 @@ class log_model extends \TMS_MODEL {
 
 		$recelogs = $this->query_objs_ss($q, $q2);
 
+		if(empty($recelogs)){
+			$total_r=0;
+		}else{
+			$q[0]='count(*)';
+			$total_r=$this->query_val_ss($q);
+		}
+		//确定分页的总数以记录多的表的总数为准
+		$total=($total_s>=$total_r) ? $total_s : $total_r;
 		$logs = array_merge($sendlogs, $recelogs);
-
 		/**
 		 * order by create_at
 		 */
@@ -573,7 +587,11 @@ class log_model extends \TMS_MODEL {
 			return $b->create_at - $a->create_at;
 		});
 
-		return $logs;
+		$result=new \stdClass;
+		$result->total=$total;
+		$result->data=$logs;
+
+		return $result;
 	}
 	/**
 	 * 记录所有发送给用户的消息

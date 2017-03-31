@@ -22,6 +22,10 @@ class round extends \pl\fe\matter\base {
 			return new \ObjectNotFoundError();
 		}
 
+		$posted = $this->getPostJson();
+		if(isset($posted->checked)){
+			$checked = $posted->checked;
+		}
 		$modelRnd = $this->model('matter\enroll\round');
 
 		$oPage = new \stdClass;
@@ -29,7 +33,9 @@ class round extends \pl\fe\matter\base {
 		$oPage->size = $size;
 
 		$result = $modelRnd->byApp($oApp, ['page' => $oPage]);
-
+		if(isset($checked) && !empty($checked)){
+			$result->checked = $checked;
+		}
 		return new \ResponseData($result);
 	}
 	/**

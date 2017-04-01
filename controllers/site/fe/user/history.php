@@ -19,9 +19,9 @@ class history extends \site\fe\base {
 	 * @param string $site site'id
 	 * @param string $matterType
 	 */
-	public function appList_action($site, $matterType = 'enroll,signin', $uid='') {
+	public function appList_action($site, $matterType = 'enroll,signin') {
 		$result = new \stdClass;
-		$userid=empty($uid) ? $this->who->uid : $uid;
+
 		$modelLog = $this->model('matter\log');
 		$q = [
 			'matter_id,matter_type,matter_title,operate_at',

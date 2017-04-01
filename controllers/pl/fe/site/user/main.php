@@ -50,4 +50,34 @@ class main extends \pl\fe\base {
 
 		return new \responseData($result);
 	}
+	/**
+	 * 获得当前用户在指定站点参与的活动
+	 *
+	 * @param string $site site'id
+	 * @param string $uid
+	 */
+	public function actList_action($site, $uid, $page=1, $size=12) {
+		$result = new \stdClass;
+
+		$modelLog = $this->model('matter\log');
+		$q = [
+			'matter_id,matter_type,matter_title,operate_at',
+			'xxt_log_user_matter',
+			"siteid='" . $modelLog->escape($site) . "' and userid='" . $uid . "' and user_last_op='Y' and operation='submit' and matter_type in ('enroll','signin')",
+		];
+		$q2['r']=['o'=>($page-1)*$size,'l'=>$size];
+		$q2['o']=['operate_at desc'];
+
+		$logs = $modelLog->query_objs_ss($q,$q2);
+		$result = new \stdClass;
+		$result->apps = $logs;
+		if (empty($logs)) {
+			$result->total = 0;
+		} else {
+			$q[0] = 'count(*)';
+			$result->total = $modelLog->query_val_ss($q);
+		}
+
+		return new \ResponseData($result);
+	}
 }

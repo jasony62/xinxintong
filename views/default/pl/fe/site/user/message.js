@@ -4,7 +4,7 @@
 define(['frame'], function (ngApp) {
     'use strict';
 
-    ngApp.provider.controller('ctrlMessage', ['$scope', 'http2', '$uibModal', '$timeout', function ($scope, http2, $uibModal, $timeout) {
+    ngApp.provider.controller('ctrlMessage', ['$scope', 'http2', '$uibModal', '$timeout', 'noticebox', function ($scope, http2, $uibModal, $timeout, noticebox) {
         var page, page2;
         $scope.page = page = {
             at: 1,
@@ -88,7 +88,7 @@ define(['frame'], function (ngApp) {
                 };
             }
             //发送接口？
-            http2.post('/rest/pl/fe/site/user/send/custom?site=' + $scope.siteId + '&openid=' + $scope.openId + '&src=' + $scope.sns.src, data, function (rsp) {
+            http2.post('/rest/pl/fe/site/user/send/custom?site=' + $scope.siteId + '&openid=' + $scope.sns.openId + '&src=' + $scope.sns.src, data, function (rsp) {
                 //初始化分页
                 $scope.page.at = 1;
                 $scope.doSearch();

@@ -79,7 +79,6 @@ class plbatch_model extends \TMS_MODEL {
 			} else {
 				/* 微信公众号用户 */
 				if (!empty($user->wx_openid)) {
-					$log['send_to'] = 'wx';
 					if (!empty($tmpl->templateid)) {
 						/* 发送微信模板消息 */
 						$wxTmplMsg['touser'] = $user->wx_openid;
@@ -93,9 +92,11 @@ class plbatch_model extends \TMS_MODEL {
 						if ($rst[0] === false) {
 							$log['status'] = 'failed:' . $rst[1];
 						} else {
+							$log['status'] = 'success';
 							$log['msgid'] = $rst[1]->msgid;
 						}
 
+						$log['send_to'] = 'wx';
 						$modelTmpl->insert('xxt_log_tmplmsg_pldetail', $log, false);
 					} else {
 						$log['openid'] = $user->wx_openid;
@@ -109,7 +110,6 @@ class plbatch_model extends \TMS_MODEL {
 				}
 				/* 微信企业号用户，将模板消息转换文本消息 */
 				if (!empty($user->qy_openid)) {
-					$log['send_to'] = 'qy';
 					$log['openid'] = $user->qy_openid;
 					if (!empty($url)) {
 						$txtTmplMsg[] = " <a href='" . $url . "'>查看详情</a>";
@@ -120,7 +120,6 @@ class plbatch_model extends \TMS_MODEL {
 				}
 				/* 易信用户，将模板消息转换文本消息 */
 				if (!empty($user->yx_openid)) {
-					$log['send_to'] = 'yx';
 					$log['openid'] = $user->yx_openid;
 					if (!empty($url)) {
 						$txtTmplMsg[] = '查看详情：\n' . $url;
@@ -164,6 +163,7 @@ class plbatch_model extends \TMS_MODEL {
 		];
 		switch ($openidSrc) {
 		case 'yx':
+			$log['send_to'] = 'yx';
 			$snsConfig = $this->model('sns\yx')->bySite($siteId);
 			$snsProxy = $this->model('sns\yx\proxy', $snsConfig);
 			if ($snsConfig->can_p2p === 'Y') {
@@ -176,6 +176,7 @@ class plbatch_model extends \TMS_MODEL {
 			}
 			break;
 		case 'qy':
+			$log['send_to'] = 'qy';
 			$snsConfig = $this->model('sns\qy')->bySite($siteId);
 			$snsProxy = $this->model('sns\qy\proxy', $snsConfig);
 			$message['touser'] = $openid;
@@ -183,6 +184,7 @@ class plbatch_model extends \TMS_MODEL {
 			$rst = $snsProxy->messageSend($message, $openid);
 			break;
 		case 'wx':
+			$log['send_to'] = 'wx';
 			$snsConfig = $this->model('sns\wx')->bySite($siteId);
 			$snsProxy = $this->model('sns\wx\proxy', $snsConfig);
 			$rst = $snsProxy->messageCustomSend($message, $openid);

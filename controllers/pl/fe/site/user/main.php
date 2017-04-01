@@ -51,13 +51,15 @@ class main extends \pl\fe\base {
 		return new \responseData($result);
 	}
 	/**
-	 * 获得当前用户在指定站点参与的活动
+	 * 获得指定用户在指定站点参与的活动
 	 *
 	 * @param string $site site'id
 	 * @param string $uid
 	 */
 	public function actList_action($site, $uid, $page=1, $size=12) {
-		$result = new \stdClass;
+		if (false === ($user = $this->accountUser())) {
+			return new \ResponseTimeout();
+		}
 
 		$modelLog = $this->model('matter\log');
 		$q = [
@@ -76,6 +78,52 @@ class main extends \pl\fe\base {
 		} else {
 			$q[0] = 'count(*)';
 			$result->total = $modelLog->query_val_ss($q);
+		}
+
+		return new \ResponseData($result);
+	}
+	/**
+	 * 返回指定用户收藏的素材,增加了素材的标题、头图、摘要
+	 * 
+	 */
+	public function favList_action($site, $uid='', $page = 1, $size = 10) {		
+		if (false === ($user = $this->accountUser())) {
+			return new \ResponseTimeout();
+		}
+
+		$model = $this->model();
+		$q = array(
+			'id,favor_at,matter_id,matter_type,matter_title',
+			'xxt_site_favor',
+			"siteid='$site' and userid='$uid'",
+		);
+		$q2 = array(
+			'o' => 'favor_at desc',
+			'r' => array('o' => ($page - 1) * $size, $size, 'l' => $size),
+		);
+
+		$matters = $model->query_objs_ss($q, $q2);
+
+		foreach ($matters as $k => $v) {
+			if($v->matter_type=='custom'){
+				$type='article';	
+			}else{
+				$type=$v->matter_type;
+			}
+			$d=$this->model()->query_obj_ss(['id,title,summary,pic','xxt_'.$type,"siteid='$site' and id='$v->matter_id'"]);
+			$v->data=$d;
+			$b[$k]=$v;
+		}
+		if(isset($b)){
+			$matters=(object)$b;
+		}
+		$result = new \stdClass;
+		$result->matters = $matters;
+		if (empty($matters)) {
+			$result->total = 0;
+		} else {
+			$q[0] = 'count(*)';
+			$result->total = $model->query_val_ss($q);
 		}
 
 		return new \ResponseData($result);

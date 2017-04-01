@@ -1,4 +1,5 @@
 body{padding-top:71px;margin-bottom:50px;}
 .navbar-nav .active:after{content:' ';position:absolute;left:0;right:0;bottom:-1px;height:3px;background:red;}
 .ng-cloak{display:none;}
-.margin-bottom{margin-bottom: 15px;}
+/*message*/
+.send{text-align: right}

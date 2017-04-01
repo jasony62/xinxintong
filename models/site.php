@@ -118,18 +118,24 @@ class site_model extends \TMS_MODEL {
 	 * 获得指定团队的个人关注用户
 	 */
 	public function subscriber($siteId, $page = 1, $size = 10) {
-		$result = new \stdClass;
 		$q = [
 			'*',
 			'xxt_site_subscriber',
 			["siteid" => $siteId],
 		];
-		$q2 = ['o' => 'subscribe_at desc', 'r' => ['o' => ($page - 1) * $size, 'l' => $size]];
 
-		$result->subscribers = $this->query_objs_ss($q, $q2);
+		if (empty($page) || empty($size)) {
+			$result = $this->query_objs_ss($q);
+		} else {
+			$result = new \stdClass;
+			$q2 = ['o' => 'subscribe_at desc'];
+			$q2['r'] = ['o' => ($page - 1) * $size, 'l' => $size];
 
-		$q[0] = 'count(*)';
-		$result->total = $this->query_val_ss($q);
+			$result->subscribers = $this->query_objs_ss($q, $q2);
+
+			$q[0] = 'count(*)';
+			$result->total = $this->query_val_ss($q);
+		}
 
 		return $result;
 	}
@@ -168,12 +174,16 @@ class site_model extends \TMS_MODEL {
 			'xxt_site_friend',
 			"siteid='$siteId' and subscribe_at<>0",
 		];
-		$q2 = ['o' => 'subscribe_at desc', 'r' => ['o' => ($page - 1) * $size, 'l' => $size]];
+		if (empty($page) || empty($size)) {
+			$result = $this->query_objs_ss($q);
+		} else {
+			$q2 = ['o' => 'subscribe_at desc', 'r' => ['o' => ($page - 1) * $size, 'l' => $size]];
 
-		$result->subscribers = $this->query_objs_ss($q, $q2);
+			$result->subscribers = $this->query_objs_ss($q, $q2);
 
-		$q[0] = 'count(*)';
-		$result->total = $this->query_val_ss($q);
+			$q[0] = 'count(*)';
+			$result->total = $this->query_val_ss($q);
+		}
 
 		return $result;
 	}
@@ -238,7 +248,8 @@ class site_model extends \TMS_MODEL {
 	 * @param object $oMatter
 	 */
 	public function pushToClient($oSite, &$oMatter) {
-		$subscribers = $this->subscriber($oSite->id);
+		$subscribers = $this->subscriber($oSite->id, null, null);
+		/* @todo  这种实现方式有问题，如果用户数量太多，性能上不可接受 */
 		if (count($subscribers) === 0) {
 			return 0;
 		}
@@ -301,7 +312,7 @@ class site_model extends \TMS_MODEL {
 	 *
 	 */
 	public function pushToFriend($oSite, &$oMatter) {
-		$friends = $this->friendBySite($oSite->id);
+		$friends = $this->friendBySite($oSite->id, null, null);
 		$current = time();
 		foreach ($friends as $friend) {
 			$q = [

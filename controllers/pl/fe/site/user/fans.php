@@ -659,36 +659,4 @@ class fans extends \pl\fe\base {
 		}
 
 	}
-	/*
-	 * 用户发送信息的列表
-	 * $chat 默认是N（单独模式，只有自己发送的），当为Y的时候 表示交流模式（对话模式）
-	 */
-	public function sendMsgList_action($site, $openid, $chat='N', $page=1, $size=12){
-		$model=$this->model();
-		$q=[
-			'*',
-			'xxt_log_mpsend',
-			"siteid='$site' and openid='$openid'"
-		];
-		$q2['l']=['o'=>($page-1)*$size, 'l'=>$size];
-		$q2['o']=['create_at asc'];
-
-		$one=$model->query_obj_ss([
-			'uid,ufrom',
-			'xxt_site_account',
-			"siteid='$site' and (yx_openid='$openid' or wx_openid='$openid' or qy_openid='$openid')"
-		]);
-
-		if(empty($one)){
-			return new \ResponseError('找不到用户的注册信息！');
-		}
-
-		if($chat=='Y'){		
-			$q[2].=" or creater='$one->uid'";
-		}
-
-		$rst=$model->query_objs_ss($q,$q2);
-
-		return new \ResponseData($rst);
-	}
 }

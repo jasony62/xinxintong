@@ -22,7 +22,6 @@ define(['main'], function(ngApp) {
             page && ($scope.page.at = page);
             url += '?site=' + $scope.site.id;
             url += '&page=' + $scope.page.at + '&size=' + $scope.page.size;
-            $scope.nickname && (url += '&nickname=' + $scope.nickname);
             http2.get(url, function(rsp) {
                 $scope.users = rsp.data.users;
                 $scope.page.total = rsp.data.total;

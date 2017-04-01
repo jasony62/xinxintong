@@ -1,81 +1,87 @@
 <!DOCTYPE html>
 <html>
-    
-    <head>
-        <meta charset="utf-8">
-        <meta content="width=device-width,user-scalable=no,initial-scale=1.0" name="viewport">
-        <base href="/" />
-        <title>用户主页</title>
-        <link href="/static/css/bootstrap.min.css" rel="stylesheet">
-        <link href="/static/css/site.fe.css?_=1" rel="stylesheet">
-        <style>
-            html,body{height:100%;width:100%}
-            body{font-family:"Microsoft YaHei","HSimHei";}
-            .avatar{text-align:center}
-            .avatar .headimg{width:64px;height:64px;}
-            .avatar .nickname{height:4em;line-height:4em;}
-        </style>
-    </head>
-    
-    <body>
-        <div class="loading"><div class='loading-indicator'><i></i></div></div>
-        <div class="container ng-cloak" ng-cloak ng-app="app" ng-controller='ctrlMain'>
-            <div class='alert alert-danger' ng-class="{'active':errmsg}" ng-click="errmsg=''" ng-bind='errmsg' ng-show='errmsg'></div>
-            <nav class='navbar navbar-default'>
-                <div class='container-fluid'>
-                    <div class="navbar-header">
-                        <a class='navbar-brand' href='/rest/site/home?site={{site.id}}' target='_self' ng-if="site.id!=='platform'">{{site.name}}</a>
-                        <a class='navbar-brand' href='/rest/home' target='_self' ng-if="site.id==='platform'">{{site.name}}</a>
-                    </div>
-                </div>
-            </nav>
-            <div class='avatar'>
-                <img class='headimg img-circle' ng-src="{{user.headimgurl}}">
-                <div class='nickname' ng-bind="user.nickname"></div>
-            </div>
-            <div class='form-group'>
-                <div class='list-group-item'>
-                    积分：<span ng-bind="user.coin"></span>
-                </div>
-                <div class='list-group-item'>
-                    <a href="/rest/site/fe/user/favor?site={{site.id}}">我的收藏</a>
-                </div>
-                <div class='list-group-item'>
-                    <a href="/rest/site/fe/user/notice?site={{site.id}}">我的通知</a>
-                </div>
-                <div class='list-group-item'>
-                    <a href="/rest/site/fe/user/history?site={{site.id}}">历史轨迹</a>
-                </div>
-                <div class='list-group-item'>
-                    <a href="" ng-click="userSetting=!userSetting">个人设置</a>
+
+<head>
+    <meta charset="utf-8">
+    <meta content="width=device-width,user-scalable=no,initial-scale=1.0" name="viewport">
+    <base href="/" />
+    <title>用户主页</title>
+    <link href="/static/css/bootstrap.min.css" rel="stylesheet">
+    <link href="/static/css/site.fe.css?_=1" rel="stylesheet">
+    <style>
+        html,body{height:100%;width:100%}
+        body{font-family:"Microsoft YaHei","HSimHei";}
+        .avatar{text-align:center}
+        .avatar .headimg{width:64px;height:64px;}
+        .avatar .nickname{height:4em;line-height:4em;}
+    </style>
+</head>
+
+<body>
+    <div class="loading">
+        <div class='loading-indicator'><i></i></div>
+    </div>
+    <div class="container ng-cloak" ng-cloak ng-app="app" ng-controller='ctrlMain'>
+        <div class='alert alert-danger' ng-class="{'active':errmsg}" ng-click="errmsg=''" ng-bind='errmsg' ng-show='errmsg'></div>
+        <nav class='navbar navbar-default'>
+            <div class='container-fluid'>
+                <div class="navbar-header">
+                    <a class='navbar-brand' href='/rest/site/home?site={{site.id}}' target='_self' ng-if="site.id!=='platform'">{{site.name}}</a>
+                    <a class='navbar-brand' href='/rest/home' target='_self' ng-if="site.id==='platform'">{{site.name}}</a>
                 </div>
             </div>
-            <div>
-                <button class="btn btn-default btn-block" ng-click='gotoLogin()' ng-if="!user.loginExpire">去登录</button>
-                <button class="btn btn-default btn-block" ng-click='gotoRegister()'>去注册</button>
-                <button class="btn btn-default btn-block" ng-click='gotoMember(ms)' ng-repeat="ms in memberSchemas">补充【{{ms.title}}】信息</button>
-                <button class="btn btn-default btn-block" ng-click='logout()' ng-if="user.loginExpire">退出登录</button>
+        </nav>
+        <div class='avatar'>
+            <img class='headimg img-circle' ng-src="{{user.headimgurl}}">
+            <div class='nickname' ng-bind="user.nickname"></div>
+        </div>
+        <div class='form-group'>
+            <div class='list-group-item'>
+                积分：<span ng-bind="user.coin"></span>
             </div>
-            <div ng-if="userSetting">
-                <hr>
-                <div class='form-group'>
-                    <input type='text' class='form-control input-lg' name='nickname' ng-model="user.nickname" placeholder='用户昵称'>
-                </div>
-                <div class='form-group'>
-                    <button class="btn btn-lg btn-block btn-success" ng-click="changeNickname()">修改昵称</button>
-                </div>
-                <hr>
-                <div class='form-group'>
-                    <input type='password' class='form-control input-lg' name='password' ng-model="user.password" ng-minlength='6' ng-maxlength='16' placeholder='输入6-16位登录密码'>
-                </div>
-                <div class='form-group'>
-                    <input type='password' class='form-control input-lg' ng-pattern="repeatPwd" name='password2' ng-model="password2" placeholder='再次输入登录密码'/>
-                </div>
-                <div class='form-group'>
-                    <button class="btn btn-lg btn-block btn-success" ng-click="changePwd()">修改登录密码</button>
-                </div>
+            <div class='list-group-item'>
+                <a href="/rest/site/fe/user/subscribe?site={{site.id}}">我的关注</a>
+            </div>
+            <div class='list-group-item'>
+                <a href="/rest/site/fe/user/favor?site={{site.id}}">我的收藏</a>
+            </div>
+            <div class='list-group-item'>
+                <a href="/rest/site/fe/user/notice?site={{site.id}}">我的通知</a>
+            </div>
+            <div class='list-group-item'>
+                <a href="/rest/site/fe/user/history?site={{site.id}}">历史轨迹</a>
+            </div>
+            <div class='list-group-item'>
+                <a href="" ng-click="userSetting=!userSetting">个人设置</a>
             </div>
         </div>
-        <script src="/static/js/require.js" defer async data-main="/views/default/site/fe/user/main-loader.js?_=2"></script>
-    </body>
+        <div>
+            <button class="btn btn-default btn-block" ng-click='gotoLogin()' ng-if="!user.loginExpire">去登录</button>
+            <button class="btn btn-default btn-block" ng-click='gotoRegister()'>去注册</button>
+            <button class="btn btn-default btn-block" ng-click='gotoMember(ms)' ng-repeat="ms in memberSchemas">补充【{{ms.title}}】信息</button>
+            <button class="btn btn-default btn-block" ng-click='logout()' ng-if="user.loginExpire">退出登录</button>
+        </div>
+        <div ng-if="userSetting">
+            <hr>
+            <div class='form-group'>
+                <input type='text' class='form-control input-lg' name='nickname' ng-model="user.nickname" placeholder='用户昵称'>
+            </div>
+            <div class='form-group'>
+                <button class="btn btn-lg btn-block btn-success" ng-click="changeNickname()">修改昵称</button>
+            </div>
+            <hr>
+            <div class='form-group'>
+                <input type='password' class='form-control input-lg' name='password' ng-model="user.password" ng-minlength='6' ng-maxlength='16' placeholder='输入6-16位登录密码'>
+            </div>
+            <div class='form-group'>
+                <input type='password' class='form-control input-lg' ng-pattern="repeatPwd" name='password2' ng-model="password2" placeholder='再次输入登录密码' />
+            </div>
+            <div class='form-group'>
+                <button class="btn btn-lg btn-block btn-success" ng-click="changePwd()">修改登录密码</button>
+            </div>
+        </div>
+    </div>
+    <script src="/static/js/require.js" defer async data-main="/views/default/site/fe/user/main-loader.js?_=2"></script>
+</body>
+
 </html>

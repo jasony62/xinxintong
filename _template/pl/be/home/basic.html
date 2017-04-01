@@ -14,7 +14,7 @@
     <div class='row'>
         <div class='col-md-12'>
             <uib-tabset active="0">
-                <uib-tab index="0">
+                <uib-tab index="0" ng-if="articles.length">
                     <uib-tab-heading>热门时讯</uib-tab-heading>
                     <div class='thumbnail article' ng-repeat="a in articles" ng-click="openMatter(a)">
                         <div class="media">
@@ -32,7 +32,7 @@
                         </div>
                     </div>
                 </uib-tab>
-                <uib-tab index="1">
+                <uib-tab index="1" ng-if="sites.length">
                     <uib-tab-heading>推荐团队</uib-tab-heading>
                     <div class='thumbnail site' ng-repeat="s in sites" ng-click="openSite(s)">
                         <div class="media">
@@ -50,7 +50,7 @@
                         </div>
                     </div>
                 </uib-tab>
-                <uib-tab index="2">
+                <uib-tab index="2" ng-if="apps.length">
                     <uib-tab-heading>推荐活动</uib-tab-heading>
                     <div class='thumbnail app' ng-repeat="a in apps" ng-click="openMatter(a)">
                         <div class="media">
@@ -68,9 +68,9 @@
                         </div>
                     </div>
                 </uib-tab>
-                <uib-tab index="3">
+                <uib-tab index="3" ng-if="templates.length">
                     <uib-tab-heading>精选模板</uib-tab-heading>
-                    <div class='thumbnail template' ng-repeat="t in templates" ng-click="openMatter(a)">
+                    <div class='thumbnail template' ng-repeat="t in templates" ng-click="openTemplate(t)">
                         <div class="media">
                             <div class="media-left">
                                 <img class="media-object" ng-src='{{t.pic}}'>
@@ -81,11 +81,6 @@
                                 <div class='attr'>
                                     <div class='creater_name' ng-bind="t.creater_name"></div>
                                     <div class='put_at' ng-bind="t.put_at*1000|date:'yyyy-MM-dd'"></div>
-                                    <div class='actions'>
-                                        <a class='btn btn-sm btn-default' href='/rest/site/fe/matter/template?template={{t.id}}'>详情</a>
-                                        <button class='btn btn-sm btn-success' ng-click="favorTemplate(t)">收藏</button>
-                                        <button class='btn btn-sm btn-success' ng-click="useTemplate(t)">使用</button>
-                                    </div>
                                 </div>
                             </div>
                         </div>

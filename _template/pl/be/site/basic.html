@@ -13,9 +13,18 @@
                             <div class='creater_name' ng-bind="s.creater_name"></div>
                             <div class='put_at' ng-bind="s.put_at*1000|date:'yyyy-MM-dd'"></div>
                         </div>
-                        <div class='actions'>
-                            <a class='btn btn-sm btn-default' ng-click="openSite(s)">打开</a>
-                            <button class='btn btn-sm btn-success' ng-click="subscribeSite(s)">关注</button>
+                        <div class='actions' ng-switch on="user.role">
+                            <a class='btn btn-sm btn-default' ng-click="openSite(s)">打开主页</a>
+                            <span ng-switch-when="person">
+                                <button class="btn btn-success" ng-click="subscribeByPerson(s)" ng-if="s._subscribed==='N'">关注</button>
+                                <button class="btn btn-default" ng-click="unsubscribeByPerson(s)" ng-if="s._subscribed==='Y'">取消关注</button>
+                            </span>
+                            <span ng-switch-when="admin">
+                                <button class="btn btn-success" ng-click="subscribeByTeam(s)">关注</button>
+                            </span>
+                            <span ng-switch-default>
+                                <button class="btn btn-success" uib-popover-template="'userSubscribe.html'" popover-placement="bottom" popover-class='user-subscribe' popover-trigger="outsideClick">关注 <span class='caret'></span></button>
+                            </span>
                         </div>
                     </div>
                 </div>

@@ -625,7 +625,7 @@ define(['require', 'schema', 'page'], function(require, schemaLib, pageLib) {
                                     multiple: true,
                                     setshowname: true
                                 };
-                                mediagallery.open($scope.app.siteid, options);
+                                mediagallery.open($scope2.app.siteid, options);
                             });
                             $scope2.$on('tinymce.instance.init', function(event, editor) {
                                 var page;
@@ -666,7 +666,7 @@ define(['require', 'schema', 'page'], function(require, schemaLib, pageLib) {
                         }
                     }
                 },
-                list: function() {
+                list: function(checkRid) {
                     var defer = $q.defer(),
                         url;
                     if (_rounds === undefined) {
@@ -682,6 +682,9 @@ define(['require', 'schema', 'page'], function(require, schemaLib, pageLib) {
                         };
                     }
                     url = _RestURL + 'list?site=' + _siteId + '&app=' + _appId + '&' + _oPage.j();
+                    if(checkRid) {
+                        url += '&checked=' + checkRid;
+                    }
                     http2.get(url, function(rsp) {
                         _rounds.splice(0, _rounds.length);
                         rsp.data.rounds.forEach(function(rnd) {
@@ -689,7 +692,8 @@ define(['require', 'schema', 'page'], function(require, schemaLib, pageLib) {
                             _rounds.push(rnd);
                         });
                         _oPage.total = parseInt(rsp.data.total);
-                        defer.resolve({ rounds: _rounds, page: _oPage, active: rsp.data.active });
+                        _checked = (rsp.data.checked ? rsp.data.checked : '');
+                        defer.resolve({ rounds: _rounds, page: _oPage, active: rsp.data.active, checked: _checked });
                     });
 
                     return defer.promise;

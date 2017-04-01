@@ -71,29 +71,8 @@ class send extends \pl\fe\base {
 	 *
 	 * 需要开通高级接口
 	 */
-	public function custom_action($site, $openid) {
+	public function custom_action($site, $openid, $src='wx') {
 		$model=$this->model();
-		$one = $model->query_obj_ss([
-			'yx_openid,wx_openid,qy_openid',
-			'xxt_site_account',
-			"siteid='$site' and (yx_openid='$openid' or wx_openid='$openid' or qy_openid='$openid')"
-		]);
-
-		if(!empty($one->yx_openid)){
-			$src='yx';
-		}
-
-		if(!empty($one->wx_openid)){
-			$src='wx';
-		}
-
-		if(!empty($one->qy_openid)){
-			$src='qy';
-		}
-
-		if(empty($src)){
-			return new \ResponseError('找不到该openID的注册用户');
-		}
 		/**
 		 * 检查是否开通了群发接口
 		 */

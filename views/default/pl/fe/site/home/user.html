@@ -1,5 +1,15 @@
 <div class='col-md-12' ng-switch on="catelog.v">
     <div ng-controller='ctrlAccount' ng-switch-when="account">
+        <div class='form-group' style='max-width:200px'>
+            <div class="input-group">
+                <input type='text' class='form-control' ng-model='nickname' placeholder='请输入昵称'>
+                    <span class="input-group-btn">
+                        <button class="btn btn-default" type="button" ng-click='find()'>
+                            <span class="glyphicon glyphicon-search"></span>
+                        </button>
+                    </span>
+            </div>
+        </div>
         <table class='table table-bordered'>
             <thead>
                 <tr>

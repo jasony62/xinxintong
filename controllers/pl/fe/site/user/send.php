@@ -50,7 +50,7 @@ class send extends \pl\fe\base {
 	 *
 	 * 需要开通高级接口
 	 */
-	public function custom_action($site, $openid, $src='wx') {
+	public function custom_action($site, $openid, $src = 'wx') {
 		$model = $this->model();
 		/**
 		 * 检查是否开通了群发接口

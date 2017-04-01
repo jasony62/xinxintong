@@ -28,16 +28,16 @@ class main extends \pl\fe\base {
 			return new \ResponseTimeout();
 		}
 
-		$model=$this->model();
-		$q=[
+		$model = $this->model();
+		$q = [
 			'*',
 			'xxt_log_matter_read',
-			"siteid='$site' and userid='$uid'"
+			"siteid='$site' and userid='$uid'",
 		];
-		$q2['r']=['o'=>($page-1)*$size,'l'=>$size];
-		$q2['o']=['read_at desc'];
+		$q2['r'] = ['o' => ($page - 1) * $size, 'l' => $size];
+		$q2['o'] = ['read_at desc'];
 
-		$matters=$model->query_objs_ss($q,$q2);
+		$matters = $model->query_objs_ss($q, $q2);
 
 		$result = new \stdClass;
 		$result->matters = $matters;
@@ -56,7 +56,7 @@ class main extends \pl\fe\base {
 	 * @param string $site site'id
 	 * @param string $uid
 	 */
-	public function actList_action($site, $uid, $page=1, $size=12) {
+	public function actList_action($site, $uid, $page = 1, $size = 12) {
 		if (false === ($user = $this->accountUser())) {
 			return new \ResponseTimeout();
 		}
@@ -67,10 +67,10 @@ class main extends \pl\fe\base {
 			'xxt_log_user_matter',
 			"siteid='" . $modelLog->escape($site) . "' and userid='" . $uid . "' and user_last_op='Y' and operation='submit' and matter_type in ('enroll','signin')",
 		];
-		$q2['r']=['o'=>($page-1)*$size,'l'=>$size];
-		$q2['o']=['operate_at desc'];
+		$q2['r'] = ['o' => ($page - 1) * $size, 'l' => $size];
+		$q2['o'] = ['operate_at desc'];
 
-		$logs = $modelLog->query_objs_ss($q,$q2);
+		$logs = $modelLog->query_objs_ss($q, $q2);
 		$result = new \stdClass;
 		$result->apps = $logs;
 		if (empty($logs)) {
@@ -84,9 +84,9 @@ class main extends \pl\fe\base {
 	}
 	/**
 	 * 返回指定用户收藏的素材,增加了素材的标题、头图、摘要
-	 * 
+	 *
 	 */
-	public function favList_action($site, $uid='', $page = 1, $size = 10) {		
+	public function favList_action($site, $uid = '', $page = 1, $size = 10) {
 		if (false === ($user = $this->accountUser())) {
 			return new \ResponseTimeout();
 		}
@@ -105,17 +105,17 @@ class main extends \pl\fe\base {
 		$matters = $model->query_objs_ss($q, $q2);
 
 		foreach ($matters as $k => $v) {
-			if($v->matter_type=='custom'){
-				$type='article';	
-			}else{
-				$type=$v->matter_type;
+			if ($v->matter_type == 'custom') {
+				$type = 'article';
+			} else {
+				$type = $v->matter_type;
 			}
-			$d=$this->model()->query_obj_ss(['id,title,summary,pic','xxt_'.$type,"siteid='$site' and id='$v->matter_id'"]);
-			$v->data=$d;
-			$b[$k]=$v;
+			$d = $this->model()->query_obj_ss(['id,title,summary,pic', 'xxt_' . $type, "siteid='$site' and id='$v->matter_id'"]);
+			$v->data = $d;
+			$b[$k] = $v;
 		}
-		if(isset($b)){
-			$matters=(object)$b;
+		if (isset($b)) {
+			$matters = (object) $b;
 		}
 		$result = new \stdClass;
 		$result->matters = $matters;
@@ -125,7 +125,7 @@ class main extends \pl\fe\base {
 			$q[0] = 'count(*)';
 			$result->total = $model->query_val_ss($q);
 		}
-		
+
 		return new \ResponseData($result);
 	}
 }

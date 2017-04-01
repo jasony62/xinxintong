@@ -39,16 +39,16 @@ class profile extends \pl\fe\base {
 	 */
 	public function memberAdd_action($site, $userid, $schema) {
 		$posted = $this->getPostJson();
-		$model= $this->model('site\user\memberschema');
+		$model = $this->model('site\user\memberschema');
 		$schema = $model->byId($schema);
-		$arr['used']=$schema->used+1;
-		$model->update('xxt_site_member_schema',$arr,"id='$schema->id' and siteid='$site'");
+		$arr['used'] = $schema->used + 1;
+		$model->update('xxt_site_member_schema', $arr, "id='$schema->id' and siteid='$site'");
 		$rst = $this->model('site\user\member')->create($site, $userid, $schema, $posted);
 
 		if ($rst[0] === false) {
 			return new \ResponseError($rst[1]);
 		}
-		
+
 		$member = $rst[1];
 
 		return new \ResponseData($member);

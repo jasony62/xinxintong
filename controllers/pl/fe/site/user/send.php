@@ -24,21 +24,6 @@ class send extends \pl\fe\base {
 			$one = $model->query_obj_ss([
 				'yx_openid,wx_openid,qy_openid',
 				'xxt_site_account',
-<<<<<<< HEAD
-				"siteid='$site' and (yx_openid='$openid' or wx_openid='$openid' or qy_openid='$openid')"
-			]);
-
-			if(!empty($one->yx_openid)){
-				$src='yx';
-			}
-
-			if(!empty($one->wx_openid)){
-				$src='wx';
-			}
-
-			if(!empty($one->qy_openid)){
-				$src='qy';
-=======
 				"siteid='$site' and (yx_openid='$openid' or wx_openid='$openid' or qy_openid='$openid')",
 			]);
 
@@ -52,7 +37,6 @@ class send extends \pl\fe\base {
 
 			if (!empty($one->qy_openid)) {
 				$src = 'qy';
->>>>>>> master
 			}
 
 			$openid_src = $src;
@@ -87,47 +71,16 @@ class send extends \pl\fe\base {
 	 *
 	 * 需要开通高级接口
 	 */
-<<<<<<< HEAD
 	public function custom_action($site, $openid, $src='wx') {
 		$model=$this->model();
-=======
-	public function custom_action($site, $openid) {
-		$model = $this->model();
-		$one = $model->query_obj_ss([
-			'yx_openid,wx_openid,qy_openid',
-			'xxt_site_account',
-			"siteid='$site' and (yx_openid='$openid' or wx_openid='$openid' or qy_openid='$openid')",
-		]);
-
-		if (!empty($one->yx_openid)) {
-			$src = 'yx';
-		}
-
-		if (!empty($one->wx_openid)) {
-			$src = 'wx';
-		}
-
-		if (!empty($one->qy_openid)) {
-			$src = 'qy';
-		}
-
-		if (empty($src)) {
-			return new \ResponseError('找不到该openID的注册用户');
-		}
->>>>>>> master
 		/**
 		 * 检查是否开通了群发接口
 		 */
 		if ($src == 'wx' || $src == 'yx') {
-<<<<<<< HEAD
+
 			$config=$model->query_obj_ss(['*','xxt_site_'.$src,"siteid='$site'"]);
 
 			if(empty($config)){
-=======
-			$config = $model->query_obj_ss(['*', 'xxt_site_' . $src, "siteid='$site'"]);
-
-			if (empty($config)) {
->>>>>>> master
 				return new \ResponseError('没有绑定公众号信息');
 			}
 
@@ -135,22 +88,15 @@ class send extends \pl\fe\base {
 				return new \ResponseError('未开通群发高级接口，请检查！');
 			}
 
-<<<<<<< HEAD
-			$group_id=$model->query_val_ss(['groupid','xxt_site_'.$src.'fan',"siteid='$site' and openid='$openid'"]);
-=======
 			$group_id = $model->query_val_ss(['groupid', 'xxt_site_' . $src . 'fan', "siteid='$site' and openid='$openid'"]);
->>>>>>> master
+
 		}
 		/**
 		 * get matter.
 		 */
 		$matter = $this->getPostJson();
 		if (isset($matter->id)) {
-<<<<<<< HEAD
-			$message = $this->assemble_custom_message($site,$matter);
-=======
 			$message = $this->assemble_custom_message($site, $matter);
->>>>>>> master
 		} else {
 			$message = array(
 				"msgtype" => "text",
@@ -170,11 +116,7 @@ class send extends \pl\fe\base {
 		/**
 		 * 记录日志
 		 */
-<<<<<<< HEAD
-		$group_id=empty($group_id) ? null : $group_id;
-=======
 		$group_id = empty($group_id) ? null : $group_id;
->>>>>>> master
 
 		if (isset($matter->id)) {
 			$this->model('matter\log')->send($site, $openid, $group_id, $matter->title, $matter);

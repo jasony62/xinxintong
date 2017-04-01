@@ -17,10 +17,10 @@ class favor extends \site\fe\base {
 	 * 返回当前用户收藏的素材,增加了素材的标题、头图、摘要
 	 * 
 	 */
-	public function list_action($uid='', $page = 1, $size = 10) {		
+	public function list_action($page = 1, $size = 10) {		
 
 		$model = $this->model();
-		$userid = empty($uid) ? $this->who->uid : $uid;
+		$userid = $this->who->uid;
 		$q = array(
 			'id,favor_at,matter_id,matter_type,matter_title',
 			'xxt_site_favor',

@@ -24,19 +24,19 @@ class send extends \pl\fe\base {
 			$one = $model->query_obj_ss([
 				'yx_openid,wx_openid,qy_openid',
 				'xxt_site_account',
-				"siteid='$site' and (yx_openid='$openid' or wx_openid='$openid' or qy_openid='$openid')"
+				"siteid='$site' and (yx_openid='$openid' or wx_openid='$openid' or qy_openid='$openid')",
 			]);
 
-			if(!empty($one->yx_openid)){
-				$src='yx';
+			if (!empty($one->yx_openid)) {
+				$src = 'yx';
 			}
 
-			if(!empty($one->wx_openid)){
-				$src='wx';
+			if (!empty($one->wx_openid)) {
+				$src = 'wx';
 			}
 
-			if(!empty($one->qy_openid)){
-				$src='qy';
+			if (!empty($one->qy_openid)) {
+				$src = 'qy';
 			}
 
 			$openid_src = $src;
@@ -72,35 +72,35 @@ class send extends \pl\fe\base {
 	 * 需要开通高级接口
 	 */
 	public function custom_action($site, $openid) {
-		$model=$this->model();
+		$model = $this->model();
 		$one = $model->query_obj_ss([
 			'yx_openid,wx_openid,qy_openid',
 			'xxt_site_account',
-			"siteid='$site' and (yx_openid='$openid' or wx_openid='$openid' or qy_openid='$openid')"
+			"siteid='$site' and (yx_openid='$openid' or wx_openid='$openid' or qy_openid='$openid')",
 		]);
 
-		if(!empty($one->yx_openid)){
-			$src='yx';
+		if (!empty($one->yx_openid)) {
+			$src = 'yx';
 		}
 
-		if(!empty($one->wx_openid)){
-			$src='wx';
+		if (!empty($one->wx_openid)) {
+			$src = 'wx';
 		}
 
-		if(!empty($one->qy_openid)){
-			$src='qy';
+		if (!empty($one->qy_openid)) {
+			$src = 'qy';
 		}
 
-		if(empty($src)){
+		if (empty($src)) {
 			return new \ResponseError('找不到该openID的注册用户');
 		}
 		/**
 		 * 检查是否开通了群发接口
 		 */
 		if ($src == 'wx' || $src == 'yx') {
-			$config=$model->query_obj_ss(['*','xxt_site_'.$src,"siteid='$site'"]);
+			$config = $model->query_obj_ss(['*', 'xxt_site_' . $src, "siteid='$site'"]);
 
-			if(empty($config)){
+			if (empty($config)) {
 				return new \ResponseError('没有绑定公众号信息');
 			}
 
@@ -108,14 +108,14 @@ class send extends \pl\fe\base {
 				return new \ResponseError('未开通群发高级接口，请检查！');
 			}
 
-			$group_id=$model->query_val_ss(['groupid','xxt_site_'.$src.'fan',"siteid='$site' and openid='$openid'"]);
+			$group_id = $model->query_val_ss(['groupid', 'xxt_site_' . $src . 'fan', "siteid='$site' and openid='$openid'"]);
 		}
 		/**
 		 * get matter.
 		 */
 		$matter = $this->getPostJson();
 		if (isset($matter->id)) {
-			$message = $this->assemble_custom_message($site,$matter);
+			$message = $this->assemble_custom_message($site, $matter);
 		} else {
 			$message = array(
 				"msgtype" => "text",
@@ -135,7 +135,7 @@ class send extends \pl\fe\base {
 		/**
 		 * 记录日志
 		 */
-		$group_id=empty($group_id) ? null : $group_id;
+		$group_id = empty($group_id) ? null : $group_id;
 
 		if (isset($matter->id)) {
 			$this->model('matter\log')->send($site, $openid, $group_id, $matter->title, $matter);
@@ -152,8 +152,8 @@ class send extends \pl\fe\base {
 		//管理员的UID也就是谁发的信息
 		$uid = \TMS_CLIENT::get_client_uid();
 
-		$config=$this->model()->query_obj_ss(['*','xxt_site_'.$src,"siteid='$site'"]);
-		$proxy = $this->model('sns\\' . $src.'\\proxy', $config);
+		$config = $this->model()->query_obj_ss(['*', 'xxt_site_' . $src, "siteid='$site'"]);
+		$proxy = $this->model('sns\\' . $src . '\\proxy', $config);
 
 		$rst = $proxy->send2group($message);
 		if ($rst[0] === true) {
@@ -171,7 +171,7 @@ class send extends \pl\fe\base {
 	 *
 	 * $param userSet
 	 */
-	protected function getOpenid($site,$userSet) {
+	protected function getOpenid($site, $userSet) {
 		$openids = array();
 		foreach ($userSet as $us) {
 			switch ($us->idsrc) {
@@ -220,21 +220,21 @@ class send extends \pl\fe\base {
 				}
 				break;
 			case 'M':
-				$model=$this->model();
+				$model = $this->model();
 				$mid = $us->identity;
-				$member = $model->query_obj_ss(['*','xxt_site_member',"siteid='$site' and id='$mid'"]);
+				$member = $model->query_obj_ss(['*', 'xxt_site_member', "siteid='$site' and id='$mid'"]);
 
 				$fan = $model->query_obj_ss([
 					'ufrom,yx_openid,wx_openid,qy_openid',
 					'xxt_site_account',
-					"siteid='$site' and uid='$member->userid'"
+					"siteid='$site' and uid='$member->userid'",
 				]);
 
 				if (empty($fan->ufrom)) {
 					return array(false, '无法获得当前用户的openid');
 				}
 
-				$openids[] = $fan->{$fan->ufrom.'_openid'};
+				$openids[] = $fan->{$fan->ufrom . '_openid'};
 				break;
 			}
 		}
@@ -248,7 +248,7 @@ class send extends \pl\fe\base {
 	 * $message
 	 */
 	public function send2Qyuser($site, $message, $encoded = false) {
-		$config=$this->model()->query_obj_ss(['*','xxt_site_qy',"siteid='$site'"]);
+		$config = $this->model()->query_obj_ss(['*', 'xxt_site_qy', "siteid='$site'"]);
 
 		$proxy = $this->model('sns\\qy\\proxy', $config);
 
@@ -263,8 +263,8 @@ class send extends \pl\fe\base {
 	 * $userSet
 	 * $message
 	 */
-	public function send2Member($site,$src='wx', $userSet, $matter) {
-		$model=$this->model();
+	public function send2Member($site, $src = 'wx', $userSet, $matter) {
+		$model = $this->model();
 		/**
 		 * 消息内容
 		 */
@@ -352,7 +352,7 @@ class send extends \pl\fe\base {
 	 * 微信企业号
 	 * 开通了点对点认证接口的易信公众号
 	 */
-	public function mass_action($site, $src='wx') {
+	public function mass_action($site, $src = 'wx') {
 		// 要发送的素材
 		$matter = $this->getPostJson();
 		if (empty($matter->targetUser) || empty($matter->userSet)) {
@@ -483,7 +483,7 @@ class send extends \pl\fe\base {
 	 * 通过微信
 	 */
 	public function send2WxuserByPreview($site, $message, $openid) {
-		$config=$this->model()->query_obj_ss(['*','xxt_site_wx',"siteid='$site'"]);
+		$config = $this->model()->query_obj_ss(['*', 'xxt_site_wx', "siteid='$site'"]);
 		$proxy = $this->model('sns\\wx\\proxy', $config);
 
 		$rst = $proxy->messageMassPreview($message, $openid);
@@ -498,7 +498,7 @@ class send extends \pl\fe\base {
 	 * $openids
 	 */
 	public function send2YxUserByP2p($site, $message, $openids) {
-		$config=$this->model()->query_obj_ss(['*','xxt_site_yx',"siteid='$site'"]);
+		$config = $this->model()->query_obj_ss(['*', 'xxt_site_yx', "siteid='$site'"]);
 		$proxy = $this->model('sns\\yx\\proxy', $config);
 
 		$rst = $proxy->messageSend($message, $openids);
@@ -512,7 +512,7 @@ class send extends \pl\fe\base {
 	 * 开通点对点消息的易信公众奥
 	 * 微信企业号
 	 */
-	public function preview_action($site, $src='wx', $matterId, $matterType, $openids) {
+	public function preview_action($site, $src = 'wx', $matterId, $matterType, $openids) {
 		if ($src === 'wx') {
 			$model = $this->model('matter\\' . $matterType);
 			if ($matterType === 'text') {
@@ -525,7 +525,7 @@ class send extends \pl\fe\base {
 			}
 			$rst = $this->send2WxuserByPreview($site, $message, $openids);
 		} else if ($src === 'yx') {
-			$message = $this->assemble_custom_message($site,$matter);
+			$message = $this->assemble_custom_message($site, $matter);
 			$rst = $this->send2YxUserByP2p($site, $message, $openids);
 		} else if ($src === 'qy') {
 		}
@@ -541,7 +541,7 @@ class send extends \pl\fe\base {
 	/**
 	 * 根据指定的素材，组装客服消息
 	 */
-	private function assemble_custom_message($site,$matter) {
+	private function assemble_custom_message($site, $matter) {
 		$model = $this->model('matter\\' . $matter->type);
 		$message = $model->forCustomPush($site, $matter->id);
 
@@ -615,9 +615,9 @@ class send extends \pl\fe\base {
 	/**
 	 * 测试上传媒体文件接口
 	 */
-	public function uploadPic_action($site, $src='wx', $url) {
-		$config=$this->model()->query_obj_ss(['*','xxt_site_'.$src,"siteid='$site'"]);
-		$proxy = $this->model('sns\\' . $src.'\\proxy', $config);
+	public function uploadPic_action($site, $src = 'wx', $url) {
+		$config = $this->model()->query_obj_ss(['*', 'xxt_site_' . $src, "siteid='$site'"]);
+		$proxy = $this->model('sns\\' . $src . '\\proxy', $config);
 
 		$media = $proxy->mediaUpload($url);
 		if ($media[0] === false) {

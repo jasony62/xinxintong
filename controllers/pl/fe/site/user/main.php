@@ -23,21 +23,21 @@ class main extends \pl\fe\base {
 	/**
 	 * 用户访问详情列表
 	 */
-	public function readList_action($site, $uid, $page=1, $size=12){
+	public function readList_action($site, $uid, $page = 1, $size = 12) {
 		if (false === ($user = $this->accountUser())) {
 			return new \ResponseTimeout();
 		}
 
-		$model=$this->model();
-		$q=[
+		$model = $this->model();
+		$q = [
 			'*',
 			'xxt_log_matter_read',
-			"siteid='$site' and userid='$uid'"
+			['siteid' => $site, 'userid' => $uid],
 		];
-		$q2['r']=['o'=>($page-1)*$size,'l'=>$size];
-		$q2['o']=['read_at desc'];
+		$q2['r'] = ['o' => ($page - 1) * $size, 'l' => $size];
+		$q2['o'] = ['read_at desc'];
 
-		$matters=$model->query_objs_ss($q,$q2);
+		$matters = $model->query_objs_ss($q, $q2);
 
 		$result = new \stdClass;
 		$result->matters = $matters;

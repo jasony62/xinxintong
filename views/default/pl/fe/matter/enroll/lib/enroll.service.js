@@ -63,7 +63,7 @@ define(['require', 'schema', 'page'], function(require, schemaLib, pageLib) {
                     records = [];
                 }
                 records.forEach(function(record) {
-                    srvRecordConverter.forTable(record, that._oApp._schemasById);
+                    srvRecordConverter.forTable(record, that._oApp._unionSchemasById);
                     that._aRecords.push(record);
                 });
                 defer.resolve(records);
@@ -176,6 +176,7 @@ define(['require', 'schema', 'page'], function(require, schemaLib, pageLib) {
         function _mapSchemas(app) {
             var mapOfSchemaByType = {},
                 mapOfSchemaById = {},
+                mapOfUnionSchemaById = {},
                 enrollDataSchemas = [],
                 groupDataSchemas = [],
                 canFilteredSchemas = [];
@@ -184,6 +185,7 @@ define(['require', 'schema', 'page'], function(require, schemaLib, pageLib) {
                 mapOfSchemaByType[schema.type] === undefined && (mapOfSchemaByType[schema.type] = []);
                 mapOfSchemaByType[schema.type].push(schema.id);
                 mapOfSchemaById[schema.id] = schema;
+                mapOfUnionSchemaById[schema.id] = schema;
                 if (false === /image|file/.test(schema.type)) {
                     canFilteredSchemas.push(schema);
                 }
@@ -191,8 +193,8 @@ define(['require', 'schema', 'page'], function(require, schemaLib, pageLib) {
             // 关联的报名登记项
             if (app.enrollApp && app.enrollApp.data_schemas) {
                 app.enrollApp.data_schemas.forEach(function(item) {
-                    if (mapOfSchemaById[item.id] === undefined) {
-                        mapOfSchemaById[item.id] = item;
+                    if (mapOfUnionSchemaById[item.id] === undefined) {
+                        mapOfUnionSchemaById[item.id] = item;
                         enrollDataSchemas.push(item);
                     }
                 });
@@ -200,8 +202,8 @@ define(['require', 'schema', 'page'], function(require, schemaLib, pageLib) {
             // 关联的分组活动的登记项
             if (app.groupApp && app.groupApp.data_schemas) {
                 app.groupApp.data_schemas.forEach(function(item) {
-                    if (mapOfSchemaById[item.id] === undefined) {
-                        mapOfSchemaById[item.id] = item;
+                    if (mapOfUnionSchemaById[item.id] === undefined) {
+                        mapOfUnionSchemaById[item.id] = item;
                         groupDataSchemas.push(item);
                     }
                 });
@@ -209,6 +211,7 @@ define(['require', 'schema', 'page'], function(require, schemaLib, pageLib) {
 
             app._schemasByType = mapOfSchemaByType;
             app._schemasById = mapOfSchemaById;
+            app._unionSchemasById = mapOfUnionSchemaById;
             app._schemasCanFilter = canFilteredSchemas;
             app._schemasFromEnrollApp = enrollDataSchemas;
             app._schemasFromGroupApp = groupDataSchemas;
@@ -682,7 +685,7 @@ define(['require', 'schema', 'page'], function(require, schemaLib, pageLib) {
                         };
                     }
                     url = _RestURL + 'list?site=' + _siteId + '&app=' + _appId + '&' + _oPage.j();
-                    if(checkRid) {
+                    if (checkRid) {
                         url += '&checked=' + checkRid;
                     }
                     http2.get(url, function(rsp) {
@@ -978,7 +981,7 @@ define(['require', 'schema', 'page'], function(require, schemaLib, pageLib) {
                         records = [];
                     }
                     records.forEach(function(record) {
-                        srvRecordConverter.forTable(record, _ins._oApp._schemasById);
+                        srvRecordConverter.forTable(record, _ins._oApp._unionSchemasById);
                         _ins._aRecords.push(record);
                     });
                     defer.resolve(records);
@@ -999,7 +1002,7 @@ define(['require', 'schema', 'page'], function(require, schemaLib, pageLib) {
             _ins.update = function(record, updated) {
                 http2.post('/rest/pl/fe/matter/enroll/record/update?site=' + _siteId + '&app=' + _appId + '&ek=' + record.enroll_key, updated, function(rsp) {
                     angular.extend(record, rsp.data);
-                    srvRecordConverter.forTable(record, _ins._oApp._schemasById);
+                    srvRecordConverter.forTable(record, _ins._oApp._unionSchemasById);
                 });
             };
             _ins.edit = function(record) {
@@ -1566,6 +1569,7 @@ define(['require', 'schema', 'page'], function(require, schemaLib, pageLib) {
         function _mapSchemas(app) {
             var mapOfSchemaByType = {},
                 mapOfSchemaById = {},
+                mapOfUnionSchemaById = {},
                 enrollDataSchemas = [],
                 groupDataSchemas = [],
                 canFilteredSchemas = [];
@@ -1574,6 +1578,7 @@ define(['require', 'schema', 'page'], function(require, schemaLib, pageLib) {
                 mapOfSchemaByType[schema.type] === undefined && (mapOfSchemaByType[schema.type] = []);
                 mapOfSchemaByType[schema.type].push(schema.id);
                 mapOfSchemaById[schema.id] = schema;
+                mapOfUnionSchemaById[schema.id] = schema;
                 if (false === /image|file/.test(schema.type)) {
                     canFilteredSchemas.push(schema);
                 }
@@ -1581,8 +1586,8 @@ define(['require', 'schema', 'page'], function(require, schemaLib, pageLib) {
             // 关联的报名登记项
             if (app.enrollApp && app.enrollApp.data_schemas) {
                 app.enrollApp.data_schemas.forEach(function(item) {
-                    if (mapOfSchemaById[item.id] === undefined) {
-                        mapOfSchemaById[item.id] = item;
+                    if (mapOfUnionSchemaById[item.id] === undefined) {
+                        mapOfUnionSchemaById[item.id] = item;
                         enrollDataSchemas.push(item);
                     }
                 });
@@ -1590,8 +1595,8 @@ define(['require', 'schema', 'page'], function(require, schemaLib, pageLib) {
             // 关联的分组活动的登记项
             if (app.groupApp && app.groupApp.data_schemas) {
                 app.groupApp.data_schemas.forEach(function(item) {
-                    if (mapOfSchemaById[item.id] === undefined) {
-                        mapOfSchemaById[item.id] = item;
+                    if (mapOfUnionSchemaById[item.id] === undefined) {
+                        mapOfUnionSchemaById[item.id] = item;
                         groupDataSchemas.push(item);
                     }
                 });
@@ -1599,6 +1604,7 @@ define(['require', 'schema', 'page'], function(require, schemaLib, pageLib) {
 
             app._schemasByType = mapOfSchemaByType;
             app._schemasById = mapOfSchemaById;
+            app._unionSchemasById = mapOfUnionSchemaById;
             app._schemasCanFilter = canFilteredSchemas;
             app._schemasFromEnrollApp = enrollDataSchemas;
             app._schemasFromGroupApp = groupDataSchemas;
@@ -1638,7 +1644,7 @@ define(['require', 'schema', 'page'], function(require, schemaLib, pageLib) {
                                 schemaLib._upgrade(schema);
                             });
                             data.pages.forEach(function(page) {
-                                pageLib.enhance(page, data._schemasById);
+                                pageLib.enhance(page, data._unionSchemasById);
                             });
                         }
                         _tGet(_oApp, _mapSchemas);

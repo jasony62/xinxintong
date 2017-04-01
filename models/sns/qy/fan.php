@@ -280,6 +280,7 @@ class fan_model extends \TMS_MODEL {
 			}
 		}
 		$fan['depts'] = json_encode($udepts);
+		$fan['sex']=$user->gender;
 		/*
 			 * 建立企业号通信录成员关联到信信通的账户
 		*/

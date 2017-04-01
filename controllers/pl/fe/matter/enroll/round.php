@@ -12,7 +12,7 @@ class round extends \pl\fe\matter\base {
 	 * @param string $app app's id
 	 *
 	 */
-	public function list_action($app, $page = 1, $size = 10) {
+	public function list_action($app, $checked = null, $page = 1, $size = 10) {
 		if (false === ($user = $this->accountUser())) {
 			return new \ResponseTimeout();
 		}
@@ -29,7 +29,12 @@ class round extends \pl\fe\matter\base {
 		$oPage->size = $size;
 
 		$result = $modelRnd->byApp($oApp, ['page' => $oPage]);
-
+		if(!empty($checked)){
+			if($checked = $modelRnd->byId($checked)){
+				$result->checked = $checked;
+			}
+		}
+		
 		return new \ResponseData($result);
 	}
 	/**

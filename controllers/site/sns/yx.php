@@ -378,6 +378,18 @@ class yx extends \member_base {
 					);
 				}
 				break;
+			case 'signinreceiver':
+				$r = $this->model('sns\reply\signinreceiver', $call, $reply->matter_id);
+				$tip = $r->exec(false);
+				if (!empty($tip)) {
+					$message = array(
+						"msgtype" => "text",
+						"text" => array(
+							"content" => $tip,
+						),
+					);
+				}
+				break;
 			default:
 				$message = $this->model('matter\\' . $reply->matter_type)->forCustomPush($mpid, $reply->matter_id);
 			}

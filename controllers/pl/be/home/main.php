@@ -57,10 +57,10 @@ class main extends \pl\be\base {
 		return new \ResponseData($rst);
 	}
 	/**
-	 * 通过本地模版生成页面
+	 * 通过系统内置模板生成页面
 	 */
 	private function &_makePage($name, $template) {
-		$templateDir = TMS_APP_TEMPLATE . '/pl/be/' . $name;
+		$templateDir = TMS_APP_TEMPLATE_DEFAULT . '/pl/be/' . $name;
 		$data = array(
 			'html' => file_get_contents($templateDir . '/' . $template . '.html'),
 			'css' => file_get_contents($templateDir . '/' . $template . '.css'),

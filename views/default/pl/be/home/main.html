@@ -1,60 +1,97 @@
 <div class='container'>
-	<div class='row'>
-		<table class='table table-bordered'>
-			<tbody>
-				<tr>
-					<td>平台主页</td>
-					<td>平台主页</td>
-					<td>
-						<a href='' ng-click="editPage('home')">编辑页面</a>
-						<a href='' ng-click="resetPage('home')" ng-show="platform.home_page_name">重置页面</a>
-					</td>
-				</tr>
-				<tr>
-					<td>平台模版库页面</td>
-					<td>平台模版库页面</td>
-					<td>
-						<a href='' ng-click="editPage('template')">编辑页面</a>
-						<a href='' ng-click="resetPage('template')" ng-show="platform.template_page_name">重置页面</a>
-					</td>
-				</tr>
-				<tr>
-					<td>平台团队库页面</td>
-					<td>平台团队库页面</td>
-					<td>
-						<a href='' ng-click="editPage('site')">编辑页面</a>
-						<a href='' ng-click="resetPage('site')" ng-show="platform.site_page_name">重置页面</a>
-					</td>
-				</tr>
-			</tbody>
-		</table>
-		<div ng-controller="ctrlHomeCarousel">
-			<table class='table table-bordered'>
-				<tbody>
-					<tr ng-repeat='s in slides'>
-						<td>{{$index+1}}</td>
-						<td><img ng-src="{{s.picUrl}}"/ style='width:200px'></td>
-						<td>
-							<button class='btn btn-xs btn-danger' ng-click="remove(c,$index)"><i class='glyphicon glyphicon-remove'></i></button>
-						</td>
-					</tr>
-				</tbody>
-			</table>
-			<button class='btn btn-default' ng-click="add()">添加主页轮播</button>
-		</div>
-	</div>
+    <div class='row'>
+        <table class='table table-bordered'>
+            <tbody>
+                <tr>
+                    <td>平台主页</td>
+                    <td>平台主页</td>
+                    <td>
+                        <a href='' ng-click="editPage('home')">编辑页面</a>
+                        <a href='' ng-click="resetPage('home')" ng-show="platform.home_page_name">重置页面</a>
+                    </td>
+                </tr>
+                <tr>
+                    <td>平台团队库页面</td>
+                    <td>平台团队库页面</td>
+                    <td>
+                        <a href='' ng-click="editPage('site')">编辑页面</a>
+                        <a href='' ng-click="resetPage('site')" ng-show="platform.site_page_name">重置页面</a>
+                    </td>
+                </tr>
+                <tr>
+                    <td>平台模版库页面</td>
+                    <td>平台模版库页面</td>
+                    <td>
+                        <a href='' ng-click="editPage('template')">编辑页面</a>
+                        <a href='' ng-click="resetPage('template')" ng-show="platform.template_page_name">重置页面</a>
+                    </td>
+                </tr>
+            </tbody>
+        </table>
+        <div ng-controller="ctrlHomeNav" class='form-group'>
+            <div class="checkbox">
+                <label>
+                    <input type='checkbox' ng-true-value="'Y'" ng-false-value="'N'" ng-model="platform.is_show_site" ng-change="update('is_show_site')">导航条中显示团队库</label>
+            </div>
+            <div class="checkbox">
+                <label>
+                    <input type='checkbox' ng-true-value="'Y'" ng-false-value="'N'" ng-model="platform.is_show_template" ng-change="update('is_show_template')">导航条中显示团队库</label>
+            </div>
+            <table class='table table-bordered'>
+                <tbody>
+                    <tr ng-repeat='nav in navs'>
+                        <td>{{$index+1}}</td>
+                        <td>{{nav.title}}</td>
+                        <td>{{nav.site.name}}</td>
+                        <td>
+                            <button class='btn btn-xs btn-default' ng-click="edit(nav)"><i class='glyphicon glyphicon-edit'></i></button>
+                            <button class='btn btn-xs btn-danger' ng-click="remove(nav,$index)"><i class='glyphicon glyphicon-remove'></i></button>
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+            <button class='btn btn-default' ng-click="add()">在平台主导航条添加团队主页</button>
+        </div>
+        <div ng-controller="ctrlHomeCarousel" class='form-group'>
+            <table class='table table-bordered'>
+                <tbody>
+                    <tr ng-repeat='s in slides'>
+                        <td>{{$index+1}}</td>
+                        <td><img ng-src="{{s.picUrl}}" style='width:200px'></td>
+                        <td>
+                            <button class='btn btn-xs btn-danger' ng-click="remove(c,$index)"><i class='glyphicon glyphicon-remove'></i></button>
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+            <button class='btn btn-default' ng-click="add()">添加主页轮播</button>
+        </div>
+    </div>
 </div>
-<script type="text/ng-template" id="homePageTemplate.html">
+<script type="text/ng-template" id="navSites.html">
     <div class="modal-header">
         <button class="close" type="button" ng-click="cancel()">×</button>
-        <h5 class="modal-title ">指定平台主页页面模板</h5>
+        <h5 class="modal-title ">指定加入主导航条的团队</h5>
     </div>
     <div class="modal-body ">
-     	<div class='form-group'>
-        	<select class='form-control' ng-model="data.template">
-				<option value='siteuser'>站点用户</option>        		
-				<option value='adminuser'>团队管理员用户</option>        		
-        	</select>
+        <div class="checkbox" ng-repeat="site in sites">
+            <label>
+                <input type='checkbox' ng-true-value="'Y'" ng-false-value="'N'" ng-model='site._selected' ng-change="choose(site)">{{site.title}}</label>
+        </div>
+    </div>
+    <div class="modal-footer">
+        <button class="btn btn-success" ng-click="ok() ">确定</button>
+    </div>
+</script>
+<script type="text/ng-template" id="editNavSite.html">
+    <div class="modal-header">
+        <button class="close" type="button" ng-click="cancel()">×</button>
+        <h5 class="modal-title ">修改加入主导航条的团队信息</h5>
+    </div>
+    <div class="modal-body ">
+        <div class='form-group'>
+            <label>导航栏中显示的标题</label>
+            <input type='text' class='form-control' ng-model="homeNav.title">
         </div>
     </div>
     <div class="modal-footer">

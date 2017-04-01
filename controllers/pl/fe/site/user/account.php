@@ -18,16 +18,20 @@ class account extends \pl\fe\base {
 	 */
 	public function list_action($site, $page = 1, $size = 30) {
 		$model = $this->model();
-
+		$posted = $this->getPostJson();
+		$nickname=empty($posted->nickname) ? '' : $posted->nickname;
 		$result = array();
+
 		$q = array(
 			'uid,nickname,headimgurl,reg_time,ufrom,coin',
 			'xxt_site_account',
-			['siteid' => $site],
+			"siteid='$site'"
 		);
+		$q[2].=" and nickname like '%$nickname%'";
 		$q2['o'] = 'reg_time desc';
 		$q2['r']['o'] = ($page - 1) * $size;
 		$q2['r']['l'] = $size;
+		
 		if ($users = $model->query_objs_ss($q, $q2)) {
 			$result['users'] = $users;
 			$q[0] = 'count(*)';

@@ -16,7 +16,7 @@
                     <div class='form-inline form-group'>
                         <div class='form-group'>
                             <select class='form-control' ng-model="matterType" ng-options="s.value as s.content for s in selMatter" ng-change='fetchMatter(matterType)'></select>
-                            <select class='form-control' ng-model="syncOpenId" ng-options="s.value as s.title for s in selSync" ng-change='checkoutSns(syncOpenId)'></select>
+                            <select class='form-control' ng-model="sns" ng-options="s as s.title for s in selSync" ng-change='checkoutSns(sns)'></select>
                         </div>
                         <div class="form-group pull-right">
                             <button class='btn btn-primary' ng-disabled="!selectedMatter&&matterType!='write'"

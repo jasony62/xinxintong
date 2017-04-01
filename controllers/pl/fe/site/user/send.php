@@ -98,6 +98,7 @@ class send extends \pl\fe\base {
 		 * 检查是否开通了群发接口
 		 */
 		if ($src == 'wx' || $src == 'yx') {
+			$config = $model->query_obj_ss(['*', 'xxt_site_' . $src, "siteid='$site'"]);
 
 			if (empty($config)) {
 				return new \ResponseError('没有绑定公众号信息');

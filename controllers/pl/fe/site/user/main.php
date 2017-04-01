@@ -23,7 +23,7 @@ class main extends \pl\fe\base {
 	/**
 	 * 用户访问详情列表
 	 */
-	public function readList_action($site, $uid, $page=1, $size=12){
+	public function readList_action($site, $uid, $page = 1, $size = 12) {
 		if (false === ($user = $this->accountUser())) {
 			return new \ResponseTimeout();
 		}
@@ -125,7 +125,7 @@ class main extends \pl\fe\base {
 			$q[0] = 'count(*)';
 			$result->total = $model->query_val_ss($q);
 		}
-
+		
 		return new \ResponseData($result);
 	}
 }

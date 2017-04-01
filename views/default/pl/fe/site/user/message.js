@@ -8,7 +8,7 @@ define(['frame'], function (ngApp) {
         var page, page2;
         $scope.page = page = {
             at: 1,
-            size: 2,
+            size: 30,
             text: '',
             state: '',
             j: function () {
@@ -17,7 +17,7 @@ define(['frame'], function (ngApp) {
         };
         $scope.page2 = page2 = {
             at: 1,
-            size: 2,
+            size: 30,
             j: function () {
                 return '&page=' + this.at + '&size=' + this.size;
             }

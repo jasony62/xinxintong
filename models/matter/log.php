@@ -596,7 +596,7 @@ class log_model extends \TMS_MODEL {
 	public function send($site, $openid, $groupid, $content, $matter) {
 		$i['mpid'] = $site;
 		$i['siteid'] = $site;
-		$i['creater'] = TMS_CLIENT::get_client_uid();
+		$i['creater'] = \TMS_CLIENT::get_client_uid();
 		$i['create_at'] = time();
 		!empty($openid) && $i['openid'] = $openid;
 		!empty($groupid) && $i['groupid'] = $groupid;

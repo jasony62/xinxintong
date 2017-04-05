@@ -200,7 +200,7 @@ class main extends \pl\fe\base {
 		$p = [
 			't.*,l.matter_summary,l.matter_pic,l.matter_scenario',
 			'xxt_account_topmatter t,xxt_log_matter_op l',
-			"t.siteid=l.siteid and t.matter_id=l.matter_id and t.matter_type=l.matter_type and l.user_last_op='Y' and t.userid='$user->id'",
+			"t.siteid=l.siteid and t.matter_id=l.matter_id and t.matter_type=l.matter_type and l.user_last_op='Y' and t.userid='$user->id' and t.userid=l.operator",
 		];
 		$p2['r'] = ['o' => ($page - 1) * $size, 'l' => $size];
 		$p2['o'] = ['top_at desc'];

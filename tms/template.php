@@ -142,9 +142,9 @@ class TPL {
 			$template_filename .= self::$template_ext;
 		}
 
-		$display_template_filename = TMS_APP_VIEW_NAME . '/' . $template_filename;
-		if (!file_exists(self::$template_path . '/' . TMS_APP_VIEW_NAME . '/' . $template_filename . self::$template_ext)) {
-			$display_template_filename = TMS_APP_VIEW_NAME_DEFAULT . '/' . $template_filename;
+		$display_template_filename = TMS_APP_VIEW_NAME . $template_filename;
+		if (!file_exists(self::$template_path . '/' . $display_template_filename)) {
+			$display_template_filename = TMS_APP_VIEW_NAME_DEFAULT . $template_filename;
 		}
 
 		self::assign('template_name', TMS_APP_VIEW_NAME);

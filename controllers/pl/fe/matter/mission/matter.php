@@ -29,7 +29,13 @@ class matter extends \pl\fe\matter\base {
 			return new \ResponseError('数据不存在');
 		}
 
-		$matters = $this->model('matter\mission\matter')->byMission($id, $matterType);
+		$criteria = $this->getPostJson();
+		$options = [];
+		if(isset($criteria->phase)) {
+			$options['phase'] = $criteria->phase;
+		}
+
+		$matters = $this->model('matter\mission\matter')->byMission($id, $matterType, $options);
 
 		return new \ResponseData($matters);
 	}

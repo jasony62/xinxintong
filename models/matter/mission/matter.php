@@ -50,10 +50,17 @@ class matter_model extends \TMS_MODEL {
 					if (in_array($mm->matter_type, ['enroll', 'group'])) {
 						$fields .= ',scenario';
 					}
+					//
+					$options2 = ['fields' => $fields, 'cascaded' => 'N'];
+					if(isset($options['phase'])) {
+						$options2['where'] = array('mission_phase_id' => $options['phase']);	
+					}
 				} else {
 					$fields = 'siteid,id,title,summary,pic,create_at,creater_name';
+					$options2 = ['fields' => $fields, 'cascaded' => 'N'];
 				}
-				if ($matter = $modelMat->byId($mm->matter_id, ['fields' => $fields, 'cascaded' => 'N'])) {
+
+				if ($matter = $modelMat->byId($mm->matter_id, $options2)) {
 					/* 是否开放了运营者链接 */
 					if (isset($options['op_short_url_code']) && $options['op_short_url_code'] === true && empty($matter->op_short_url_code)) {
 						continue;

@@ -60,6 +60,7 @@ define('TMS_COOKIE_SITE_USER_BIND_INTERVAL', 600);
 define('TMS_APP_DIR', dirname(__FILE__));
 /* 应用程序视图名称，起始路径为：TMS_APP_DIR.'/views/'.TMS_APP_VIEW_NAME */
 !defined('TMS_APP_VIEW_NAME') && define('TMS_APP_VIEW_NAME', 'default');
+!defined('TMS_APP_VIEW_NAME_DEFAULT') && define('TMS_APP_VIEW_NAME_DEFAULT', TMS_APP_VIEW_NAME);
 /* 应用程序模版起始目录 */
 define('TMS_APP_TEMPLATE_DEFAULT', dirname(__FILE__) . '/_template');
 !defined('TMS_APP_TEMPLATE') && define('TMS_APP_TEMPLATE', TMS_APP_TEMPLATE_DEFAULT);

@@ -153,12 +153,12 @@ class main extends \pl\fe\matter\base {
 		 */
 		$q2['r'] = array('o' => ($page - 1) * $size, 'l' => $size);
 
-		if ($articles = $this->model()->query_objs_ss($q, $q2)) {
+		if ($articles = $model->query_objs_ss($q, $q2)) {
 			/**
 			 * 活的符合条件的图文数量
 			 */
 			$q[0] = 'count(*)';
-			$total = (int) $this->model()->query_val_ss($q);
+			$total = (int) $model->query_val_ss($q);
 			/**
 			 * 处理每个图文的附件信息
 			 */

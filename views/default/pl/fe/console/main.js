@@ -1,6 +1,14 @@
 define(['frame'], function(ngApp) {
     'use strict';
     ngApp.provider.controller('ctrlMain', ['$scope', function($scope) {
+        $scope.openMatter = function(matter, subView) {
+            var url = '/rest/pl/fe/matter/' + matter.matter_type;
+            if (subView) {
+                url += '/' + subView;
+            }
+            url += '?id=' + matter.matter_id + '&site=' + matter.siteid;
+            location.href = url;
+        };
         $scope.$on('fromCtrlRecentStickTop', function(event, data) {
             $scope.$broadcast('toCtrlTopList', data);
         });
@@ -181,14 +189,7 @@ define(['frame'], function(ngApp) {
                 $scope.page.total = rsp.data.total;
             });
         };
-        $scope.open = function(matter, subView) {
-            var url = '/rest/pl/fe/matter/' + matter.matter_type;
-            if (subView) {
-                url += '/' + subView;
-            }
-            url += '?id=' + matter.matter_id + '&site=' + matter.siteid;
-            location.href = url;
-        };
+
         $scope.popoverAddMatter = function() {
             var target = $('#popoverAddMatter');
             if (target.data('popover') === 'Y') {

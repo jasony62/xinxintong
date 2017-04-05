@@ -82,6 +82,9 @@ class main extends \pl\fe\matter\base {
 		if (isset($filter->byTitle)) {
 			$q[2] .= " and title like '%" . $modelApp->escape($filter->byTitle) . "%'";
 		}
+		if (isset($filter->mission_phase_id)) {
+			$q[2] .= " and mission_phase_id = '" . $modelApp->escape($filter->mission_phase_id) . "'";
+		}
 
 		$q2['o'] = 'a.modify_at desc';
 		$q2['r']['o'] = ($page - 1) * $size;

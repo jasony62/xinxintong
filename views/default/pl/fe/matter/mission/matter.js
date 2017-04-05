@@ -166,14 +166,13 @@ define(['frame'], function(ngApp) {
                 location.href = '/rest/pl/fe/matter/' + type + '?site=' + $scope.mission.siteid + '&id=' + rsp.data.id;
             });
         };
-        $scope.list = function(matterType, pid) {
+        $scope.list = function(matterType) {
             var url;
 
             matterType === undefined && (matterType = '');
 
             if (matterType === '') {
                 url = '/rest/pl/fe/matter/mission/matter/list?id=' + $scope.mission.id;
-                url += '&phase=' + pid;
                 url += '&_=' + (new Date() * 1);
 
                 http2.get(url, function(rsp) {
@@ -208,7 +207,7 @@ define(['frame'], function(ngApp) {
                 } else {
                     url += matterType;
                 }
-                url += '/list?mission=' + $scope.mission.id + '&phase=' + pid;
+                url += '/list?mission=' + $scope.mission.id;
                 scenario !== undefined && (url += '&scenario=' + scenario);
                 url += '&_=' + (new Date() * 1);
                 http2.get(url, function(rsp) {
@@ -233,12 +232,18 @@ define(['frame'], function(ngApp) {
             pid: 'ALL'
         }
         $scope.doSearch = function(pid) {
-            list($scope.matterType, pid);
+            var url, checkedMatter = [];
+            url = '/rest/pl/fe/matter/mission/matter/list?id=' + $scope.mission.id;
+            url += '&matterType=' + $scope.matterType;
+
+            http2.post(url, {mission_phase_id: pid}, function(rsp) {
+                $scope.matters = rsp.data;
+            });
         }
         $scope.$watch('mission', function(nv) {
             $scope.$watch('matterType', function(matterType) {
                 if (matterType === undefined) return;
-                $scope.list(matterType, 'ALL');
+                $scope.list(matterType);
             });
             if (!nv) return;
             $scope.matterType = location.hash ? location.hash.substr(1) : '';

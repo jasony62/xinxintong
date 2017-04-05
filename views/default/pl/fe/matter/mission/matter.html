@@ -17,7 +17,7 @@
             <div class='navbar-form navbar-right' ng-if="phases.length">
                 <select class="form-control" title="项目阶段" ng-model="criteria.pid"  ng-change="doSearch(criteria.pid)" >
                     <option value="ALL">全部阶段</option>
-                    <option value="{{phs.id}}" ng-repeat="phs in phases">{{phs.title}}</option>
+                    <option value="{{phs.phase_id}}" ng-repeat="phs in phases">{{phs.title}}</option>
                 </select>
             </div>
         </div>

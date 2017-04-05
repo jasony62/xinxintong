@@ -82,7 +82,7 @@ class main extends \pl\fe\matter\base {
 		if (isset($filter->byTitle)) {
 			$q[2] .= " and title like '%" . $modelApp->escape($filter->byTitle) . "%'";
 		}
-		if (isset($filter->mission_phase_id)) {
+		if (isset($filter->mission_phase_id) && !empty($filter->mission_phase_id) && $filter->mission_phase_id !== "ALL") {
 			$q[2] .= " and mission_phase_id = '" . $modelApp->escape($filter->mission_phase_id) . "'";
 		}
 

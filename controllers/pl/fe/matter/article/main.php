@@ -40,6 +40,7 @@ class main extends \pl\fe\matter\base {
 		if (!($options = $this->getPostJson())) {
 			$options = new \stdClass;
 		}
+		$model = $this->model();
 		/**
 		 * select fields
 		 */
@@ -54,8 +55,15 @@ class main extends \pl\fe\matter\base {
 		 * 按项目过滤
 		 */
 		if (!empty($mission)) {
+			$mission = $model->escape($mission);
 			$w .= " and a.mission_id=$mission";
+			//按项目阶段过滤
+			if(isset($options->mission_phase_id) && !empty($options->mission_phase_id) && $options->mission_phase_id !== "ALL"){
+				$mission_phase_id = $model->escape($options->mission_phase_id);
+				$w .= " and a.mission_phase_id = '".$mission_phase_id."'";
+			}
 		} else {
+			$site = $model->escape($site);
 			$w .= " and a.siteid='$site'";
 		}
 		/**

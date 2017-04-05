@@ -212,7 +212,7 @@ class main extends \pl\fe\matter\base {
 			}
 			/* 所属项目 */
 			if ($article->mission_id) {
-				$article->mission = $this->model('matter\mission')->byId($article->mission_id);
+				$article->mission = $this->model('matter\mission')->byId($article->mission_id, ['cascaded' => 'phase']);
 			}
 		}
 

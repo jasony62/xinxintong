@@ -20,7 +20,6 @@ ini_set('default_charset', 'utf-8');
  * database resource.
  */
 error_reporting(E_ERROR); // 控制系统的报错信息，否则数据库连接失败会报warning
-include_once 'db.php';
 /**
  * 加载本地化设置
  */

@@ -4,9 +4,108 @@ class TMS_DB {
 	public $prefix;
 
 	private static $db;
+	/**
+	 * 查询操作连接
+	 */
+	private $_mysqli;
+	/**
+	 * 写操作连接
+	 */
+	private $_writeMysqli;
 
 	public function __construct() {
 		$this->prefix = '';
+	}
+	/**
+	 * 获得mysql数据库查询操作连接
+	 */
+	private function &_getDbConn() {
+		if (isset($this->_mysqli)) {
+			return $this->_mysqli;
+		}
+		if (file_exists(TMS_APP_DIR . '/cus/db.php')) {
+			/**
+			 * 加载本地化配置
+			 */
+			include_once TMS_APP_DIR . '/cus/db.php';
+			/**
+			 * 缺省数据库连接
+			 */
+			$host = TMS_MYSQL_HOST;
+			$port = TMS_MYSQL_PORT;
+			$user = TMS_MYSQL_USER;
+			$pwd = TMS_MYSQL_PASS;
+			$dbname = TMS_MYSQL_DB;
+		} else if (defined('SAE_MYSQL_HOST_M')) {
+			/**
+			 * 缺省部署在sae
+			 */
+			$host = SAE_MYSQL_HOST_M;
+			$port = SAE_MYSQL_PORT;
+			$user = SAE_MYSQL_USER;
+			$pwd = SAE_MYSQL_PASS;
+			$dbname = SAE_MYSQL_DB;
+		} else {
+			die('无法获得数据库连接参数');
+		}
+
+		try {
+			$mysqli = new mysqli($host, $user, $pwd, $dbname, $port);
+		} catch (Error $e) {
+			die('数据库连接异常：' . $e->getMessage());
+		}
+		if ($mysqli->connect_errno) {
+			die("数据库连接失败: (" . $mysqli->connect_errno . ") " . $mysqli->connect_error);
+		}
+		$mysqli->query("SET NAMES UTF8");
+
+		$this->_mysqli = &$mysqli;
+
+		return $this->_mysqli;
+	}
+	/**
+	 * 获得mysql数据库写操作连接
+	 */
+	private function &_getDbWriteConn() {
+		if (isset($this->_writeMysqli)) {
+			return $this->_writeMysqli;
+		}
+		if (defined('SAE_MYSQL_HOST_M')) {
+			$this->_writeMysqli = $this->_getDbConn();
+		} else {
+			if (!file_exists(TMS_APP_DIR . '/cus/db.php')) {
+				die('无法获得数据库连接参数');
+			}
+			/* 加载本地化配置 */
+			include_once TMS_APP_DIR . '/cus/db.php';
+			/**
+			 * 如果指定了写数据库，使用写数据库连接参数，否则使用查询数据库的连接
+			 * 保证查询连接和写连接不是同一个才创建连接
+			 */
+			if (defined('TMS_MYSQL_HOST_W') && defined('TMS_MYSQL_PORT_W') && defined('TMS_MYSQL_USER_W') && defined('TMS_MYSQL_PASS_W') && defined('TMS_MYSQL_DB_W')) {
+				if (TMS_MYSQL_HOST_W !== TMS_MYSQL_HOST || TMS_MYSQL_PORT_W !== TMS_MYSQL_PORT || TMS_MYSQL_DB_W !== TMS_MYSQL_DB || TMS_MYSQL_USER_W !== TMS_MYSQL_USER) {
+					try {
+						$mysqli = new mysqli(TMS_MYSQL_HOST_W, TMS_MYSQL_USER_W, TMS_MYSQL_PASS_W, TMS_MYSQL_DB_W, TMS_MYSQL_PORT_W);
+					} catch (Error $e) {
+						die('数据库连接异常：' . $e->getMessage());
+					}
+
+					if ($mysqli->connect_errno) {
+						die("数据库连接失败: (" . $mysqli->connect_errno . ") " . $mysqli->connect_error);
+					}
+
+					$mysqli->query("SET NAMES UTF8");
+
+					$this->_writeMysqli = &$mysqli;
+				} else {
+					$this->_writeMysqli = $this->_getDbConn();
+				}
+			} else {
+				$this->_writeMysqli = $this->_getDbConn();
+			}
+		}
+
+		return $this->_writeMysqli;
 	}
 
 	public static function db() {
@@ -41,12 +140,12 @@ class TMS_DB {
 			$sql .= '` (' . implode(', ', array_keys($insert_data));
 			$sql .= ') VALUES (' . implode(', ', $insert_data) . ')';
 		}
-		global $mysqli_w;
 
-		($mysqli_w->query($sql)) || $this->show_error('database error:' . $sql . ';' . $mysqli_w->error);
+		$mysqli = $this->_getDbWriteConn();
+		($mysqli->query($sql)) || $this->show_error('database error:' . $sql . ';' . $mysqli->error);
 
 		if ($autoid) {
-			$last_insert_id = $mysqli_w->insert_id;
+			$last_insert_id = $mysqli->insert_id;
 			return $last_insert_id;
 		} else {
 			return true;
@@ -81,13 +180,12 @@ class TMS_DB {
 			$sql .= ' WHERE ' . implode(' and ', $clauses);
 		}
 
-		global $mysqli_w;
-
-		if (!$mysqli_w->query($sql)) {
-			throw new Exception("database error(update $table):" . $sql . ';' . $mysqli_w->error);
+		$mysqli = $this->_getDbWriteConn();
+		if (!$mysqli->query($sql)) {
+			throw new Exception("database error(update $table):" . $sql . ';' . $mysqli->error);
 		}
 
-		$rows_affected = $mysqli_w->affected_rows;
+		$rows_affected = $mysqli->affected_rows;
 
 		return $rows_affected;
 	}
@@ -98,8 +196,6 @@ class TMS_DB {
 		if (empty($where)) {
 			throw new Exception('DB Delete no where string.');
 		}
-
-		global $mysqli_w;
 
 		$sql = 'DELETE FROM ' . $this->get_table($table);
 		/* 防止SQL注入 */
@@ -113,11 +209,12 @@ class TMS_DB {
 		}
 		$sql .= ' WHERE ' . implode(' and ', $clauses);
 
-		if (!$mysqli_w->query($sql)) {
-			throw new Exception("database error(delete $table):" . $sql . ';' . $mysqli_w->error);
+		$mysqli = $this->_getDbWriteConn();
+		if (!$mysqli->query($sql)) {
+			throw new Exception("database error(delete $table):" . $sql . ';' . $mysqli->error);
 		}
 
-		$rows_affected = $mysqli_w->affected_rows;
+		$rows_affected = $mysqli->affected_rows;
 
 		return $rows_affected;
 	}
@@ -125,10 +222,10 @@ class TMS_DB {
 	 *查询一行, 返回对象
 	 */
 	public function query_obj($select, $from = null, $where = null) {
-		global $mysqli;
 
 		$sql = $this->_assemble_query($select, $from, $where);
 
+		$mysqli = $this->_getDbConn();
 		($db_result = $mysqli->query($sql)) || $this->show_error("database error:" . $sql . ';' . $mysqli->error);
 
 		if ($db_result->num_rows > 1) {
@@ -147,11 +244,9 @@ class TMS_DB {
 	 * 获取查询全部
 	 */
 	public function query_objs($select, $from = null, $where = null, $group = null, $order = null, $offset = null, $limit = null) {
-		global $mysqli;
-
 		$sql = $this->_assemble_query($select, $from, $where, $group, $order, $offset, $limit);
 
-		($db_result = $mysqli->query($sql)) || $this->show_error("database error:$sql;" . $mysqli->error);
+		($db_result = $this->_getDbConn()->query($sql)) || $this->show_error("database error:$sql;" . $mysqli->error);
 
 		$objects = array();
 		while ($obj = $db_result->fetch_object()) {
@@ -168,10 +263,9 @@ class TMS_DB {
 	 * return if rownum == 0 then return false.
 	 */
 	public function query_value($select, $from = null, $where = null) {
-		global $mysqli;
-
 		$sql = $this->_assemble_query($select, $from, $where);
 
+		$mysqli = $this->_getDbConn();
 		($db_result = $mysqli->query($sql)) || $this->show_error("database error:$sql;" . $mysqli->error);
 
 		$row = $db_result->fetch_row();
@@ -186,10 +280,9 @@ class TMS_DB {
 	 *
 	 */
 	public function query_values($select, $from = null, $where = null) {
-		global $mysqli;
-
 		$sql = $this->_assemble_query($select, $from, $where);
 
+		$mysqli = $this->_getDbConn();
 		($db_result = $mysqli->query($sql)) || $this->show_error("database error:" . $sql . ';' . $mysqli->error);
 
 		$values = array();
@@ -209,9 +302,7 @@ class TMS_DB {
 	 * 处理SQL注入问题
 	 */
 	public function escape($str) {
-		global $mysqli;
-
-		if ($mysqli) {
+		if ($mysqli = $this->_getDbConn()) {
 			$str = empty($str) ? '' : $mysqli->real_escape_string($str);
 		}
 

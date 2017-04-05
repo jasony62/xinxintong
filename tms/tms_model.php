@@ -44,7 +44,6 @@ class TMS_MODEL {
 			if (false === strpos($model_class, self::$model_prefix)) {
 				$model_class .= self::$model_prefix;
 			}
-
 		}
 		// no constructed class
 		if (!class_exists($model_class)) {

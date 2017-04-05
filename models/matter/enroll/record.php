@@ -787,7 +787,7 @@ class record_model extends \TMS_MODEL {
 			is_array($options) && $options = (object) $options;
 			$page = isset($options->page) ? $options->page : null;
 			$size = isset($options->size) ? $options->size : null;
-			$rid = isset($options->rid) ? $options->rid : null;
+			$rid = isset($options->rid) ? $this->escape($options->rid) : null;
 		}
 		$result = new \stdClass; // 返回的结果
 		$result->records = [];

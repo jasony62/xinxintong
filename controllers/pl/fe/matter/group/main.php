@@ -51,6 +51,7 @@ class main extends \pl\fe\matter\base {
 			return new \ResponseTimeout();
 		}
 
+		$post = $this->getPostJson();
 		$result = ['apps' => null, 'total' => 0];
 		$model = $this->model();
 		$q = [
@@ -59,9 +60,16 @@ class main extends \pl\fe\matter\base {
 			"state<>0",
 		];
 		if (empty($mission)) {
+			$site = $model->escape($site);
 			$q[2] .= " and siteid='$site'";
 		} else {
+			$mission = $model->escape($mission);
 			$q[2] .= " and mission_id='$mission'";
+			//按项目阶段筛选
+			if(isset($post->mission_phase_id) && !empty($post->mission_phase_id) && $post->mission_phase_id !== "ALL"){
+				$mission_phase_id = $model->escape($post->mission_phase_id);
+				$q[2] .= " and mission_phase_id='$mission_phase_id'";
+			}
 		}
 		$q2['o'] = 'modify_at desc';
 		$q2['r']['o'] = ($page - 1) * $size;

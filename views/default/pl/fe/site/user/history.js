@@ -36,21 +36,21 @@ define(['frame'], function (ngApp) {
         };
         //获取活动记录
         $scope.enrollList = function () {
-            http2.get('/rest/site/fe/user/history/appList?site=' + $scope.siteId + '&uid=' + $scope.userId + page.j(), function (rsp) {
+            http2.get(baseURL+'actList?site=' + $scope.siteId + '&uid=' + $scope.userId + page.j(), function (rsp) {
                 $scope.historys.enroll.content = rsp.data.apps;
                 rsp.data.total ? $scope.historys.enroll.total = rsp.data.total : 0;
             });
         };
         //获取阅读记录
         $scope.readList = function () {
-            http2.get('/rest/pl/fe/site/user/readList?site=' + $scope.siteId + '&uid=' + $scope.userId + page.j(), function (rsp) {
+            http2.get(baseURL+'readList?site=' + $scope.siteId + '&uid=' + $scope.userId + page.j(), function (rsp) {
                 $scope.historys.read.content = rsp.data.matters;
                 rsp.data.total ? $scope.historys.read.total = rsp.data.total : 0;
             });
         };
         //获取收藏记录
         $scope.favorList = function () {
-            http2.get('/rest/site/fe/user/favor/list?site=' + $scope.siteId + '&uid=' + $scope.userId + page.j(), function (rsp) {
+            http2.get(baseURL+'favList?site=' + $scope.siteId + '&uid=' + $scope.userId + page.j(), function (rsp) {
                 $scope.historys.favor.content = rsp.data.matters;
                 rsp.data.total ? $scope.historys.favor.total = rsp.data.total : 0;
             });
@@ -69,10 +69,6 @@ define(['frame'], function (ngApp) {
             $scope.page.type = type;
             $scope.page.total = type === '活动记录' ? $scope.historys.enroll.total : type === '阅读记录'? $scope.historys.read.total: $scope.historys.favor.total;
         };
-        //管理员打开活动
-        //$scope.openApp = function(app){
-        //	location.href = '/rest/pl/fe/matter/' + app.matter_type + '?id=' + app.matter_id + '&site=' + $scope.siteId;
-        //}
     }])
 
 });

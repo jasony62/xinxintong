@@ -38,6 +38,7 @@ define(['main'], function(ngApp) {
             $('<a href="' + url + '" download="' + $scope.site.name + '_主页二维码.png"></a>')[0].click();
         };
         $scope.$watch('site', function(oSite) {
+            if (!oSite) return;
             var entry, url;
             url = 'http://' + location.host + '/rest/site/home?site=' + oSite.id;
             entry = {

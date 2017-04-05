@@ -36,6 +36,7 @@ define(['frame', 'schema', 'wrap'], function(ngApp, schemaLib, wrapLib) {
                             removeSchemaFromPage(index);
                         } else {
                             $scope.app.data_schemas.splice($scope.app.data_schemas.indexOf(removedSchema), 1);
+                            delete $scope.app._schemasById[removedSchema.id];
                             srvEnrollApp.update('data_schemas');
                         }
                     });

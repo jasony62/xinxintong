@@ -52,12 +52,13 @@ class matter_model extends \TMS_MODEL {
 					}
 					//
 					$options2 = ['fields' => $fields, 'cascaded' => 'N'];
-					if(isset($options['phase'])) {
-						$options2['where'] = array('mission_phase_id' => $options['phase']);	
-					}
 				} else {
 					$fields = 'siteid,id,title,summary,pic,create_at,creater_name';
 					$options2 = ['fields' => $fields, 'cascaded' => 'N'];
+				}
+				
+				if(isset($options['mission_phase_id'])) {
+					$options2['where'] = array('mission_phase_id' => $options['mission_phase_id']);	
 				}
 
 				if ($matter = $modelMat->byId($mm->matter_id, $options2)) {

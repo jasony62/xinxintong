@@ -31,8 +31,8 @@ class matter extends \pl\fe\matter\base {
 
 		$criteria = $this->getPostJson();
 		$options = [];
-		if(isset($criteria->phase) && !empty($criteria->phase) && $criteria->phase !== "ALL") {
-			$options['phase'] = $criteria->phase;
+		if(isset($criteria->mission_phase_id) && !empty($criteria->mission_phase_id) && $criteria->mission_phase_id !== "ALL") {
+			$options['mission_phase_id'] = $criteria->mission_phase_id;
 		}
 
 		$matters = $this->model('matter\mission\matter')->byMission($id, $matterType, $options);

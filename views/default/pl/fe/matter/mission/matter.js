@@ -230,7 +230,7 @@ define(['frame'], function(ngApp) {
         };
         $scope.criteria = {
             pid: 'ALL'
-        }
+        };
         $scope.doSearch = function(pid) {
             var url;
             if($scope.matterType == '') {
@@ -267,7 +267,7 @@ define(['frame'], function(ngApp) {
                     $scope.matters = rsp.data;
                 }
             });
-        }
+        };
         $scope.$watch('mission', function(nv) {
             $scope.$watch('matterType', function(matterType) {
                 if (matterType === undefined) return;

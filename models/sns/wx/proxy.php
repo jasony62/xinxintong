@@ -46,10 +46,11 @@ class proxy_model extends \sns\proxybase {
 		$tmpStr = implode($tmpArr);
 		$tmpStr = sha1($tmpStr);
 		if ($tmpStr === $signature) {
+			$model = \TMS_APP::model();
 			/**
 			 * 如果存在，断开公众号原有连接
 			 */
-			\TMS_APP::model()->update(
+			$model->update(
 				'xxt_site_wx',
 				array('joined' => 'N'),
 				"appid='{$this->config->appid}' and appsecret='{$this->config->appsecret}'"
@@ -57,7 +58,7 @@ class proxy_model extends \sns\proxybase {
 			/**
 			 * 确认建立连接
 			 */
-			\TMS_APP::model()->update(
+			$model->update(
 				'xxt_site_wx',
 				array('joined' => 'Y'),
 				"siteid='{$this->config->siteid}'"
@@ -96,6 +97,10 @@ class proxy_model extends \sns\proxybase {
 		/**
 		 * 重新获取token
 		 */
+		if (empty($this->config->appid) || empty($this->config->appsecret)) {
+			throw new \Exception('微信公众号参数为空');
+		}
+
 		$url_token = "https://api.weixin.qq.com/cgi-bin/token";
 		$url_token .= "?grant_type=client_credential";
 		$url_token .= "&appid={$this->config->appid}&secret={$this->config->appsecret}";

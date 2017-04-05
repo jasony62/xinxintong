@@ -98,7 +98,7 @@ class proxy_model extends \sns\proxybase {
 		 * 重新获取token
 		 */
 		if (empty($this->config->appid) || empty($this->config->appsecret)) {
-			throw new \Exception('微信公众号参数为空');
+			throw array(false, '微信公众号参数为空');
 		}
 
 		$url_token = "https://api.weixin.qq.com/cgi-bin/token";

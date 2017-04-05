@@ -246,7 +246,8 @@ class TMS_DB {
 	public function query_objs($select, $from = null, $where = null, $group = null, $order = null, $offset = null, $limit = null) {
 		$sql = $this->_assemble_query($select, $from, $where, $group, $order, $offset, $limit);
 
-		($db_result = $this->_getDbConn()->query($sql)) || $this->show_error("database error:$sql;" . $mysqli->error);
+		$mysqli = $this->_getDbConn();
+		($db_result = $mysqli->query($sql)) || $this->show_error("database error:$sql;" . $mysqli->error);
 
 		$objects = array();
 		while ($obj = $db_result->fetch_object()) {

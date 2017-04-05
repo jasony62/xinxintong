@@ -18,7 +18,7 @@ angular.module('service.article', ['ui.bootstrap', 'ui.xxt']).provider('srvLog',
                     });
                 }
                 //收藏接口
-                url = type ==='log' ?  '/rest/pl/fe/matter/article/log/list?id=' + article.id  :  '/rest/pl/fe/matter/article/favor/list?site=' + article.siteid + '&id=' + article.id ;
+                url = type === 'log' ? '/rest/pl/fe/matter/article/log/list?id=' + article.id : '/rest/pl/fe/matter/article/favor/list?site=' + article.siteid + '&id=' + article.id;
                 url += page._j();
                 http2.get(url, function(rsp) {
                     rsp.data.total && (page.total = rsp.data.total);
@@ -159,7 +159,7 @@ angular.module('service.article', ['ui.bootstrap', 'ui.xxt']).provider('srvLog',
             },
         };
     }];
-}).provider('srvCoin',function(){
+}).provider('srvCoin', function() {
     this.$get = ['$q', 'http2', function($q, http2) {
         return {
             list: function(articleSiteId, articleId, page) {
@@ -178,7 +178,7 @@ angular.module('service.article', ['ui.bootstrap', 'ui.xxt']).provider('srvLog',
                         }
                     });
                 }
-                url = '/rest/pl/fe/matter/article/coin/logs?site='+ articleSiteId + '&id=' + articleId + page._j();
+                url = '/rest/pl/fe/matter/article/coin/logs?site=' + articleSiteId + '&id=' + articleId + page._j();
                 http2.get(url, function(rsp) {
                     rsp.data.total && (page.total = rsp.data.total);
                     defer.resolve(rsp.data.logs);

@@ -49,12 +49,12 @@ class article_model extends article_base {
 			$this->table(),
 			["id" => $id],
 		];
-		if(isset($options['where'])) {
+		if (isset($options['where'])) {
 			foreach ($options['where'] as $key => $value) {
 				$q[2][$key] = $value;
 			}
 		}
-		
+
 		if ($matter = $this->query_obj_ss($q)) {
 			$matter->type = $this->getTypeName();
 			$matter->entryUrl = $this->getEntryUrl($matter->siteid, $id);

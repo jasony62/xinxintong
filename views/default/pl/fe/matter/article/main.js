@@ -312,12 +312,12 @@ define(['frame'], function(ngApp) {
             //如果数据不为空，
             // 如果图片为空 ，且 标题第一个字发生变化 则更改缩略图
             //且上一个
-            if($scope.editing){
-                  if(!$scope.editing.pic && title.slice(0, 1) != oldTitle.slice(0, 1)){
-                      $timeout(function(){
-                          tmsThumbnail.thumbnail($scope.editing);
-                      },3000);
-                  }
+            if ($scope.editing) {
+                if (!$scope.editing.pic && title.slice(0, 1) != oldTitle.slice(0, 1)) {
+                    $timeout(function() {
+                        tmsThumbnail.thumbnail($scope.editing);
+                    }, 3000);
+                }
             }
         });
         $scope.$on('tinymce.instance.init', function(event, editor) {

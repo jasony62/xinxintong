@@ -61,6 +61,9 @@ define(['frame'], function(ngApp) {
         $scope.quitMission = function() {
             srvApp.quitMission().then(function() {});
         };
+        $scope.choosePhase = function() {
+            srvApp.choosePhase();
+        };
         $scope.$on('tinymce.multipleimage.open', function(event, callback) {
             var options = {
                 callback: callback,

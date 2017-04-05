@@ -81,8 +81,8 @@ class member_model extends \TMS_MODEL {
 		if (!empty($schema->extattr)) {
 			$extdata = array();
 			foreach ($schema->extattr as $ea) {
-				if (isset($data->{$ea->id})) {
-					$extdata[$ea->id] = urlencode($data->{$ea->id});
+				if (isset($data->extattr->{$ea->id})) {
+					$extdata[$ea->id] = urlencode($data->extattr->{$ea->id});
 					unset($data->{$ea->id});
 				}
 			}

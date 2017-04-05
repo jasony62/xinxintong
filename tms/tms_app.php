@@ -415,12 +415,15 @@ class TMS_APP {
 	 */
 	private static function _autoLogin() {
 		if ('Y' === TMS_CONTROLLER::myGetCookie('_login_auto')) {
-			$modelAct = self::M('account');
 			$token = TMS_CONTROLLER::myGetCookie('_login_token');
+			if (empty($token)) {
+				return false;
+			}
 			$cookiekey = md5($_SERVER['HTTP_USER_AGENT']);
 			$token = TMS_MODEL::encrypt($token, 'DECODE', $cookiekey);
 			$token = json_decode($token);
 
+			$modelAct = self::M('account');
 			/* check */
 			$result = $modelAct->validate($token->email, $token->password);
 			if ($result->err_code != 0) {

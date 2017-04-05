@@ -536,4 +536,96 @@ class log_model extends \TMS_MODEL {
 
 		return $result;
 	}
+	/**
+	 * 汇总各类日志，形成用户完整的踪迹用于展示用户详情的发送消息列表记录
+	 * $total 用以分页的总数 
+	 * $sum 实际上的总记录数
+	 */
+	public function track($site, $openid, $page = 1, $size = 30) {
+		$q = array(
+			'creater,create_at,content,matter_id,matter_type',
+			'xxt_log_mpsend',
+			"mpid='$site' and openid='$openid'",
+		);
+		$q2 = array(
+			'r' => array('o' => ($page - 1) * $size, 'l' => $size),
+			'o' => 'create_at desc',
+		);
+
+		$sendlogs = $this->query_objs_ss($q, $q2);
+
+		$q[0]='count(*)';
+		$total_s=$this->query_val_ss($q);
+
+		$q = array(
+			'create_at,data content',
+			'xxt_log_mpreceive',
+			"mpid='$site' and openid='$openid' and type='text'",
+		);
+		$q2 = array(
+			'r' => array('o' => ($page - 1) * $size, 'l' => $size),
+			'o' => 'create_at desc',
+		);
+
+		$recelogs = $this->query_objs_ss($q, $q2);
+
+		$q[0]='count(*)';
+		$total_r=$this->query_val_ss($q);
+		//确定分页的总数以记录多的表的总数为准
+		$total=($total_s>=$total_r) ? $total_s : $total_r;
+		//实际的总数
+		$sum=$total_s+$total_r;
+		$logs = array_merge($sendlogs, $recelogs);
+		/**
+		 * order by create_at
+		 */
+		usort($logs, function ($a, $b) {
+			return $b->create_at - $a->create_at;
+		});
+
+		$result=new \stdClass;
+		$result->total=$total;
+		$result->sum=$sum;
+		$result->data=$logs;
+
+		return $result;
+	}
+	/**
+	 * 记录所有发送给用户的消息
+	 */
+	public function send($site, $openid, $groupid, $content, $matter) {
+		$i['mpid'] = $site;
+		$i['siteid'] = $site;
+		$i['creater'] = \TMS_CLIENT::get_client_uid();
+		$i['create_at'] = time();
+		!empty($openid) && $i['openid'] = $openid;
+		!empty($groupid) && $i['groupid'] = $groupid;
+		!empty($content) && $i['content'] = $this->escape($content);
+		if (!empty($matter)) {
+			$i['matter_id'] = $matter->id;
+			$i['matter_type'] = $matter->type;
+		}
+		$this->insert('xxt_log_mpsend', $i, false);
+
+		return true;
+	}
+	/**
+	 * 群发消息发送日志
+	 */
+	public function mass($sender, $site, $matterId, $matterType, $message, $msgid, $result) {
+		$log = array(
+			'mpid' => $site,
+			'matter_type' => $matterType,
+			'matter_id' => $matterId,
+			'sender' => $sender,
+			'send_at' => time(),
+			'message' => $this->escape(json_encode($message)),
+			'result' => $result,
+			'msgid' => $msgid,
+		);
+
+		$this->insert('xxt_log_massmsg', $log, false);
+
+		return true;
+	}
 }

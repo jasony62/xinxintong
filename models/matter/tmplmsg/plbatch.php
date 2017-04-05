@@ -74,6 +74,7 @@ class plbatch_model extends \TMS_MODEL {
 			if (empty($user->wx_openid) && empty($user->qy_openid) && empty($user->yx_openid)) {
 				$log['data'] = $modelTmpl->escape($modelTmpl->toJson($txtTmplMsg));
 				$log['send_to'] = 'pl';
+				$log['openid'] = '';
 				$modelTmpl->insert('xxt_log_tmplmsg_pldetail', $log, false);
 			} else {
 				/* 微信公众号用户 */
@@ -91,8 +92,12 @@ class plbatch_model extends \TMS_MODEL {
 						if ($rst[0] === false) {
 							$log['status'] = 'failed:' . $rst[1];
 						} else {
+							$log['status'] = 'success';
 							$log['msgid'] = $rst[1]->msgid;
 						}
+
+						$log['send_to'] = 'wx';
+						$modelTmpl->insert('xxt_log_tmplmsg_pldetail', $log, false);
 					} else {
 						$log['openid'] = $user->wx_openid;
 						if (!empty($url)) {
@@ -101,10 +106,7 @@ class plbatch_model extends \TMS_MODEL {
 						$log['data'] = $modelTmpl->escape($modelTmpl->toJson($txtTmplMsg));
 
 						$rst = $this->_sendTxtByOpenid($siteId, $user->wx_openid, 'wx', $txtTmplMsg, $log);
-
 					}
-					$log['send_to'] = 'wx';
-					$modelTmpl->insert('xxt_log_tmplmsg_pldetail', $log, false);
 				}
 				/* 微信企业号用户，将模板消息转换文本消息 */
 				if (!empty($user->qy_openid)) {
@@ -115,8 +117,6 @@ class plbatch_model extends \TMS_MODEL {
 					$log['data'] = $modelTmpl->escape($modelTmpl->toJson($txtTmplMsg));
 
 					$rst = $this->_sendTxtByOpenid($siteId, $user->qy_openid, 'qy', $txtTmplMsg, $log);
-					$log['send_to'] = 'qy';
-					$modelTmpl->insert('xxt_log_tmplmsg_pldetail', $log, false);
 				}
 				/* 易信用户，将模板消息转换文本消息 */
 				if (!empty($user->yx_openid)) {
@@ -127,9 +127,6 @@ class plbatch_model extends \TMS_MODEL {
 					$log['data'] = $modelTmpl->escape($modelTmpl->toJson($txtTmplMsg));
 
 					$rst = $this->_sendTxtByOpenid($siteId, $user->yx_openid, 'yx', $txtTmplMsg, $log);
-
-					$log['send_to'] = 'yx';
-					$modelTmpl->insert('xxt_log_tmplmsg_pldetail', $log, false);
 				}
 			}
 		}
@@ -166,6 +163,7 @@ class plbatch_model extends \TMS_MODEL {
 		];
 		switch ($openidSrc) {
 		case 'yx':
+			$log['send_to'] = 'yx';
 			$snsConfig = $this->model('sns\yx')->bySite($siteId);
 			$snsProxy = $this->model('sns\yx\proxy', $snsConfig);
 			if ($snsConfig->can_p2p === 'Y') {
@@ -178,6 +176,7 @@ class plbatch_model extends \TMS_MODEL {
 			}
 			break;
 		case 'qy':
+			$log['send_to'] = 'qy';
 			$snsConfig = $this->model('sns\qy')->bySite($siteId);
 			$snsProxy = $this->model('sns\qy\proxy', $snsConfig);
 			$message['touser'] = $openid;
@@ -185,6 +184,7 @@ class plbatch_model extends \TMS_MODEL {
 			$rst = $snsProxy->messageSend($message, $openid);
 			break;
 		case 'wx':
+			$log['send_to'] = 'wx';
 			$snsConfig = $this->model('sns\wx')->bySite($siteId);
 			$snsProxy = $this->model('sns\wx\proxy', $snsConfig);
 			$rst = $snsProxy->messageCustomSend($message, $openid);

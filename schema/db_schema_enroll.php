@@ -350,6 +350,7 @@ $sql .= ",use_mission_footer char(1) not null default 'Y'"; // 使用项目页�
 $sql .= ",extattrs text"; //扩展属性
 $sql .= ",tags text";
 $sql .= ",op_short_url_code char(4) not null default ''"; // 运营管理页面的短链接编码
+$sql .= ",notify_submit char(1) not null default 'N'"; // 是否发送提交事件通知
 $sql .= ",primary key(id)) ENGINE=MyISAM DEFAULT CHARSET=utf8";
 if (!$mysqli->query($sql)) {
 	header('HTTP/1.0 500 Internal Server Error');
@@ -443,6 +444,22 @@ $sql .= ",name varchar(40) not null";
 $sql .= ",value text";
 $sql .= ",state tinyint not null default 1"; //0:remove,1:normal
 $sql .= ",primary key(aid,enroll_key,name)) ENGINE=MyISAM DEFAULT CHARSET=utf8";
+if (!$mysqli->query($sql)) {
+	header('HTTP/1.0 500 Internal Server Error');
+	echo 'database error: ' . $mysqli->error;
+}
+/**
+ * 登记信息通知接收人
+ */
+$sql = "create table if not exists xxt_signin_receiver(";
+$sql .= "id int not null auto_increment";
+$sql .= ",siteid varchar(32) not null";
+$sql .= ",aid varchar(40) not null";
+$sql .= ",join_at int not null default 0"; // 加入时间
+$sql .= ",userid varchar(40) not null default ''";
+$sql .= ",nickname varchar(255) not null default ''";
+$sql .= ",sns_user text"; // 社交账号信息
+$sql .= ",primary key(id)) ENGINE=MyISAM DEFAULT CHARSET=utf8";
 if (!$mysqli->query($sql)) {
 	header('HTTP/1.0 500 Internal Server Error');
 	echo 'database error: ' . $mysqli->error;

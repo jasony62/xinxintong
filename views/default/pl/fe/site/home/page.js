@@ -42,6 +42,7 @@ define(['main'], function(ngApp) {
             http2.get(url, function(rsp) {});
         };
         $scope.$watch('site', function(oSite) {
+            if (!oSite) return;
             var entry, url;
             url = 'http://' + location.host + '/rest/site/home?site=' + oSite.id;
             entry = {

@@ -23,9 +23,11 @@ define(['require'], function(require) {
         ngApp.provider = {
             controller: $cp.register
         };
-        $rp.when('/rest/pl/fe/site/user/fans/details', new RouteParam('details', true))
-            //.when('/rest/pl/fe/site/home/analysis', new RouteParam('analysis', true))
-            .otherwise(new RouteParam('details', true));
+        $rp
+            .when('/rest/pl/fe/site/user/fans/main', new RouteParam('main', true))
+            .when('/rest/pl/fe/site/user/fans/history', new RouteParam('history', true))
+            .when('/rest/pl/fe/site/user/fans/message', new RouteParam('message', true))
+            .otherwise(new RouteParam('main', true));
         $lp.html5Mode(true);
     }]);
     ngApp.controller('ctrlUser', ['$scope', 'srvSite', 'http2', function($scope, srvSite, http2) {
@@ -38,13 +40,17 @@ define(['require'], function(require) {
         $scope.subView = '';
         $scope.$on('$locationChangeSuccess', function(event, currentRoute) {
             var subView = currentRoute.match(/([^\/]+?)\?/);
-            $scope.subView = subView[1] === 'fans' ? 'details' : subView[1];
+            $scope.subView = subView[1] === 'fans' ? 'main' : subView[1];
         });
         srvSite.get().then(function(site) {
             $scope.site = site;
         });
-        http2.get('/rest/pl/fe/site/member/schema/list?site=' + params.siteId, function(rsp) {
-            $scope.memberSchemas = rsp.data;
+        //获取 增加公众号信息
+        http2.get('/rest/pl/fe/site/user/fans/getsnsinfo?site=' + $scope.siteId + '&uid=' + $scope.userId, function(rsp) {
+            $scope.fans = rsp.data;
+            $scope.fans.wx && ($scope.wx = $scope.fans.wx);
+            $scope.fans.qy && ($scope.qy = $scope.fans.qy);
+            $scope.fans.yx && ($scope.yx = $scope.fans.yx);
         });
     }]);
     /***/

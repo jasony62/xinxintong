@@ -1,5 +1,5 @@
 define(['frame'], function(ngApp) {
-    ngApp.provider.controller('ctrlMain', ['$scope', '$uibModal', 'http2', 'noticebox', 'mattersgallery', 'mediagallery', 'noticebox', 'srvApp', 'cstApp', 'tmsThumbnail', function($scope, $uibModal, http2, noticebox, mattersgallery, mediagallery, noticebox, srvApp, cstApp, tmsThumbnail) {
+    ngApp.provider.controller('ctrlMain', ['$scope', '$uibModal', 'http2', 'noticebox', 'mattersgallery', 'mediagallery', 'noticebox', 'srvApp', 'cstApp', 'tmsThumbnail', '$timeout', function($scope, $uibModal, http2, noticebox, mattersgallery, mediagallery, noticebox, srvApp, cstApp, tmsThumbnail, $timeout) {
         (function() {
             new ZeroClipboard(document.querySelectorAll('.text2Clipboard'));
         })();
@@ -60,6 +60,9 @@ define(['frame'], function(ngApp) {
         };
         $scope.quitMission = function() {
             srvApp.quitMission().then(function() {});
+        };
+        $scope.choosePhase = function() {
+            srvApp.choosePhase();
         };
         $scope.$on('tinymce.multipleimage.open', function(event, callback) {
             var options = {
@@ -304,9 +307,17 @@ define(['frame'], function(ngApp) {
                 });
             });
         });
+        //更改缩略图
         $scope.$watch('editing.title', function(title, oldTitle) {
-            if (!$scope.editing.pic && title.slice(0, 1) != oldTitle.slice(0, 1)) {
-                tmsThumbnail.thumbnail($scope.editing);
+            //如果数据不为空，
+            // 如果图片为空 ，且 标题第一个字发生变化 则更改缩略图
+            //且上一个
+            if ($scope.editing) {
+                if (!$scope.editing.pic && title.slice(0, 1) != oldTitle.slice(0, 1)) {
+                    $timeout(function() {
+                        tmsThumbnail.thumbnail($scope.editing);
+                    }, 3000);
+                }
             }
         });
         $scope.$on('tinymce.instance.init', function(event, editor) {

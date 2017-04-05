@@ -316,8 +316,52 @@ define(['frame'], function(ngApp) {
             });
         }
         $scope.doRound = function(rid) {
-            location.href = '/rest/pl/fe/matter/enroll/stat?site=' + $scope.app.siteid + '&id=' + $scope.app.id + '&rid=' + rid;
+            if(rid == 'more') {
+                $scope.moreRounds();
+            } else {
+                location.href = '/rest/pl/fe/matter/enroll/stat?site=' + $scope.app.siteid + '&id=' + $scope.app.id + '&rid=' + rid;
+            }
         };
+        $scope.moreRounds = function() {
+            $uibModal.open({
+                templateUrl: 'moreRound.html',
+                backdrop: 'static',
+                controller: ['$scope', '$uibModalInstance', 'srvEnrollRound', function($scope2, $mi, srvEnrollRound) {
+                    $scope2.moreCriteria = {
+                        rid: ''
+                    }
+                    $scope2.doSearchRound = function() {
+                        srvEnrollRound.list().then(function(result) {
+                            $scope2.activeRound = result.active;
+                            $scope2.rounds = result.rounds;
+                            $scope2.pageOfRound = result.page;
+                            if(rid) {
+                                if (rid === 'ALL') {
+                                    $scope2.moreCriteria.rid = 'ALL';
+                                } else {
+                                    $scope2.rounds.forEach(function(round) {
+                                        if (round.rid == rid) {
+                                            $scope2.moreCriteria.rid = rid;
+                                        }
+                                    });
+                                }
+                            }else {
+                                $scope2.moreCriteria.rid = $scope.activeRound.rid;
+                            }
+                        })
+                    };
+                    $scope2.cancel = function() {
+                        $mi.dismiss();
+                    };
+                    $scope2.ok = function() {
+                        $mi.close($scope2.moreCriteria.rid);
+                    }
+                    $scope2.doSearchRound();
+                }]
+            }).result.then(function(result) {
+                location.href = '/rest/pl/fe/matter/enroll/stat?site=' + $scope.app.siteid + '&id=' + $scope.app.id + '&rid=' + result;
+            });
+        }
         srvEnrollApp.get().then(function(app) {
             var url;
             srvRecordConverter.config(app.data_schemas);
@@ -388,12 +432,15 @@ define(['frame'], function(ngApp) {
                 });
             });
         });
-        srvEnrollRound.list().then(function(result) {
+        srvEnrollRound.list(rid).then(function(result) {
             $scope.activeRound = result.active;
+            $scope.checkedRound = result.checked;
             $scope.rounds = result.rounds;
             if (rid) {
                 if (rid === 'ALL') {
                     $scope.criteria.rid = 'ALL';
+                } else if (rid == $scope.checkedRound.rid){
+                    $scope.criteria.rid = $scope.checkedRound.rid;
                 } else {
                     $scope.rounds.forEach(function(round) {
                         if (round.rid == rid) {

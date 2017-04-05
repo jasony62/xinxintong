@@ -34,6 +34,18 @@ define(['main'], function(ngApp) {
             if (site === undefined) return;
             $scope.doSearch(1);
         });
+        $scope.find = function(){
+            var url = '/rest/pl/fe/site/user/account/list',
+                data = {
+                   nickname:$scope.nickname
+                };
+            url += '?site=' + $scope.site.id;
+            url += '&nickname=' + $scope.nickname;
+            http2.post(url,data,function(rsp){
+                $scope.users = rsp.data.users;
+                $scope.page.total = rsp.data.total;
+            })
+        }
     }]);
     ngApp.provider.controller('ctrlMember', ['$scope', '$uibModal', '$location', 'http2', function($scope, $uibModal, $location, http2) {
         $scope.$watch('catelog', function(nv) {

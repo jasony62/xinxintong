@@ -71,6 +71,7 @@
                         <td>合计</td>
                         <td></td>
                         <td></td>
+                        <td></td>
                         <td ng-repeat="schema in recordSchemas" ng-switch on="schema.type">
                             <span ng-if="schema.number==='Y'">
                                 {{sum4Schema[schema.id]}}
@@ -107,6 +108,19 @@
             </nav>
         </div>
         <div id='edit' class='col-md-12' ng-if="subView==='editing'">
+            <div class="form-group" >
+                <label>所属轮次</label>
+                <div>
+                    <select class='form-control' ng-model="record.rid" size=5>
+                        <option ng-if="activeRound" value='{{activeRound.rid}}'>当前轮次（{{activeRound.title}}）</option>
+                        <option value="{{rnd.rid}}" ng-repeat="rnd in rounds" ng-if="!rnd._isActive">{{rnd.title}}</option>
+                    </select>
+                    <div ng-show="pageOfRound.total>pageOfRound.size">
+                        <span style='line-height:34px'>总数：{{pageOfRound.total}}</span>
+                        <ul uib-pagination style="margin:0;vertical-align:bottom;cursor:pointer" boundary-links="true" total-items="pageOfRound.total" max-size="5" items-per-page="pageOfRound.size" rotate="false" ng-model="pageOfRound.at" previous-text="&lsaquo;" next-text="&rsaquo;" first-text="&laquo;" last-text="&raquo;" ng-change="doSearchRound()"></ul>
+                    </div>
+                </div>
+            </div>
             <div class="form-group" ng-repeat="schema in app.data_schemas" ng-if="schema.type!=='html'" >
                 <label>{{schema.title}}</label>
                 <div ng-switch on="schema.type">

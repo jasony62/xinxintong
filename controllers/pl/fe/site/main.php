@@ -183,7 +183,7 @@ class main extends \pl\fe\base {
 		return new \ResponseData($result);
 	}
 	/**
-	 * 已经关注过的团队
+	 * 当前用户已经关注过的团队
 	 */
 	public function friendList_action() {
 		if (false === ($user = $this->accountUser())) {
@@ -205,6 +205,31 @@ class main extends \pl\fe\base {
 		}
 
 		return new \ResponseData($friendSites);
+	}
+	/**
+	 * 指定站点的关注用户
+	 *
+	 * @param string $site site'id
+	 * @param string $category 用户分类，client|team
+	 *
+	 */
+	public function subscriberList_action($site, $category = 'client', $page = 1, $size = 30) {
+		if (false === ($user = $this->accountUser())) {
+			return new \ResponseTimeout();
+		}
+		$modelSite = $this->model('site');
+		if (false === ($oSite = $modelSite->byId($site))) {
+			return new \ObjectNotFoundError();
+		}
+		if ($category === 'client') {
+			$result = $modelSite->subscriber($oSite->id);
+		} else if ($category === 'friend') {
+			$result = $modelSite->friendBySite($oSite->id);
+		} else {
+			return new \ParameterError('category');
+		}
+
+		return new \ResponseData($result);
 	}
 	/**
 	 * 已经关注过的团队发布的消息

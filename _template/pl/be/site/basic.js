@@ -1,4 +1,4 @@
-ngApp.provider.controller('ctrlSite', ['$scope', '$http', '$uibModal', 'srvUser', function($scope, $http, $uibModal, srvUser) {
+ngApp.provider.controller('ctrlSite', ['$scope', '$http', '$uibModal', function($scope, $http, $uibModal) {
     $scope.criteria = {
         scope: 'A'
     };
@@ -12,7 +12,7 @@ ngApp.provider.controller('ctrlSite', ['$scope', '$http', '$uibModal', 'srvUser'
         $scope.searchTemplate();
     };
     $scope.searchSite = function() {
-        var url = '/rest/home/listSite?userType=admin';
+        var url = '/rest/home/listSite';
         $http.get(url).success(function(rsp) {
             $scope.sites = rsp.data.sites;
         });
@@ -74,17 +74,6 @@ ngApp.provider.controller('ctrlSite', ['$scope', '$http', '$uibModal', 'srvUser'
     };
     $scope.$watch('platform', function(platform) {
         if (!platform) return;
-        srvUser.getSiteAdminUser().then(function(user) {
-            $scope.siteAdminUser = user;
-            if (window.sessionStorage) {
-                var pendingMethod;
-                if (pendingMethod = window.sessionStorage.getItem('xxt.home.auth.pending')) {
-                    window.sessionStorage.removeItem('xxt.home.auth.pending');
-                    pendingMethod = JSON.parse(pendingMethod);
-                    $scope[pendingMethod.name].apply($scope, pendingMethod.args);
-                }
-            }
-            $scope.searchSite();
-        });
+        $scope.searchSite();
     });
 }]);

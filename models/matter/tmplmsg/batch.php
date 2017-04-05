@@ -184,9 +184,18 @@ class batch_model extends \TMS_MODEL {
 			$rst = $snsProxy->messageSend($message, $openid);
 			break;
 		case 'wx':
-			$snsConfig = $this->model('sns\wx')->bySite($siteId);
-			$snsProxy = $this->model('sns\wx\proxy', $snsConfig);
-			$rst = $snsProxy->messageCustomSend($message, $openid);
+			$modelWx = $this->model('sns\wx');
+			if (($wxConfig = $modelWx->bySite($siteId)) && $wxConfig->joined === 'Y') {
+				$snsConfig = $this->model('sns\wx')->bySite($siteId);
+			} else if (($wxConfig = $modelWx->bySite('platform')) && $wxConfig->joined === 'Y') {
+				$snsConfig = $this->model('sns\wx')->bySite('platform');
+			}
+			if (isset($snsConfig)) {
+				$snsProxy = $this->model('sns\wx\proxy', $snsConfig);
+				$rst = $snsProxy->messageCustomSend($message, $openid);
+			} else {
+				$rst = [false, '无法获得有效的微信公众号配置信息'];
+			}
 			break;
 		}
 		/* 记录日志 */

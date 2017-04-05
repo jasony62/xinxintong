@@ -115,19 +115,29 @@ class site_model extends \TMS_MODEL {
 		return $rel;
 	}
 	/**
-	 * 获得指定团队的站点关注用户
+	 * 获得指定团队的个人关注用户
 	 */
-	public function subscriber($siteId) {
+	public function subscriber($siteId, $page = 1, $size = 10) {
 		$q = [
 			'*',
 			'xxt_site_subscriber',
 			["siteid" => $siteId],
 		];
-		$q2 = ['o' => 'subscribe_at desc'];
 
-		$subscribers = $this->query_objs_ss($q, $q2);
+		if (empty($page) || empty($size)) {
+			$result = $this->query_objs_ss($q);
+		} else {
+			$result = new \stdClass;
+			$q2 = ['o' => 'subscribe_at desc'];
+			$q2['r'] = ['o' => ($page - 1) * $size, 'l' => $size];
 
-		return $subscribers;
+			$result->subscribers = $this->query_objs_ss($q, $q2);
+
+			$q[0] = 'count(*)';
+			$result->total = $this->query_val_ss($q);
+		}
+
+		return $result;
 	}
 	/**
 	 * 返回建立了关注关系的团队
@@ -155,18 +165,27 @@ class site_model extends \TMS_MODEL {
 	/**
 	 * 获得指定团队的站点关注用户
 	 */
-	public function friendBySite($siteId) {
+	public function friendBySite($siteId, $page = 1, $size = 10) {
+		$result = new \stdClass;
+
 		$siteId = $this->escape($siteId);
 		$q = [
 			'*',
 			'xxt_site_friend',
 			"siteid='$siteId' and subscribe_at<>0",
 		];
-		$q2 = ['o' => 'subscribe_at desc'];
+		if (empty($page) || empty($size)) {
+			$result = $this->query_objs_ss($q);
+		} else {
+			$q2 = ['o' => 'subscribe_at desc', 'r' => ['o' => ($page - 1) * $size, 'l' => $size]];
 
-		$friends = $this->query_objs_ss($q, $q2);
+			$result->subscribers = $this->query_objs_ss($q, $q2);
 
-		return $friends;
+			$q[0] = 'count(*)';
+			$result->total = $this->query_val_ss($q);
+		}
+
+		return $result;
 	}
 	/**
 	 * 团队是否已经被团队关注
@@ -229,7 +248,8 @@ class site_model extends \TMS_MODEL {
 	 * @param object $oMatter
 	 */
 	public function pushToClient($oSite, &$oMatter) {
-		$subscribers = $this->subscriber($oSite->id);
+		$subscribers = $this->subscriber($oSite->id, null, null);
+		/* @todo  这种实现方式有问题，如果用户数量太多，性能上不可接受 */
 		if (count($subscribers) === 0) {
 			return 0;
 		}
@@ -292,7 +312,7 @@ class site_model extends \TMS_MODEL {
 	 *
 	 */
 	public function pushToFriend($oSite, &$oMatter) {
-		$friends = $this->friendBySite($oSite->id);
+		$friends = $this->friendBySite($oSite->id, null, null);
 		$current = time();
 		foreach ($friends as $friend) {
 			$q = [

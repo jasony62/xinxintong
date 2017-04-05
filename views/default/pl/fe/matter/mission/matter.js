@@ -232,12 +232,40 @@ define(['frame'], function(ngApp) {
             pid: 'ALL'
         }
         $scope.doSearch = function(pid) {
-            var url, checkedMatter = [];
-            url = '/rest/pl/fe/matter/mission/matter/list?id=' + $scope.mission.id;
-            url += '&matterType=' + $scope.matterType;
+            var url;
+            if($scope.matterType == '') {
+                url = '/rest/pl/fe/matter/mission/matter/list?id=' + $scope.mission.id;
+            }else {
+                var scenario;
+                url = '/rest/pl/fe/matter/';
+                if ('enroll' === $scope.matterType) {
+                    url += 'enroll';
+                    scenario = '';
+                } else if (/registration|voting|group_week_report|common/.test($scope.matterType)) {
+                    url += 'enroll'
+                    scenario = $scope.matterType;
+                } else {
+                    url += $scope.matterType;
+                }
+                url += '/list?mission=' + $scope.mission.id;
+                scenario !== undefined && (url += '&scenario=' + scenario);
+            }
 
             http2.post(url, {mission_phase_id: pid}, function(rsp) {
-                $scope.matters = rsp.data;
+                $scope.indicators = [];
+                if (/article/.test($scope.matterType)) {
+                    $scope.matters = rsp.data.articles;
+                    if (rsp.data.total == 0) {
+                        indicators.article && $scope.indicators.push(indicators.article);
+                    }
+                } else if (/enroll|voting|registration|group_week_report|common|signin|group/.test($scope.matterType)) {
+                    $scope.matters = rsp.data.apps;
+                    if (rsp.data.total == 0) {
+                        indicators[$scope.matterType] && $scope.indicators.push(indicators[$scope.matterType]);
+                    }
+                } else {
+                    $scope.matters = rsp.data;
+                }
             });
         }
         $scope.$watch('mission', function(nv) {

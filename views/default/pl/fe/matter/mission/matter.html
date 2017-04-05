@@ -29,7 +29,7 @@
                 <p class='summary' ng-bind='m.summary'></p>
                 <div class='attrs'>
                     <div class='operator' ng-bind='m._operator||m.creater_name||m.modifier_name'></div>
-                    <div class='operateAt' ng-bind="(m._operateAt||m.modify_at)*1000|date:'yy-MM-dd'"></div>
+                    <div class='operateAt' ng-bind="(m._operateAt||m.modify_at||m.create_at)*1000|date:'yy-MM-dd'"></div>
                 </div>
                 <div class='actions' ng-switch-when="enroll">
                     <button class='btn btn-sm btn-default' ng-click="open(m,'main')">定义</button>

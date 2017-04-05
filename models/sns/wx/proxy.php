@@ -101,17 +101,21 @@ class proxy_model extends \sns\proxybase {
 		$url_token .= "&appid={$this->config->appid}&secret={$this->config->appsecret}";
 		$ch = curl_init($url_token);
 		curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1);
-		curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, false);
-		curl_setopt($ch, CURLOPT_SSL_VERIFYHOST, false);
+		curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, 0);
+		curl_setopt($ch, CURLOPT_SSL_VERIFYHOST, 0);
 		curl_setopt($ch, CURLOPT_SSLVERSION, CURL_SSLVERSION_TLSv1);
 		if (false === ($response = curl_exec($ch))) {
 			$err = curl_error($ch);
 			curl_close($ch);
 			return array(false, $err);
 		}
-		curl_close($ch);
 		if (empty($response)) {
+			$info = curl_getinfo($ch);
+			curl_close($ch);
+			\TMS_APP::model('log')->log('error', 'accessToken: response is empty.', json_encode($info));
 			return array(false, 'response for getting accessToken is empty');
+		} else {
+			curl_close($ch);
 		}
 		$token = json_decode($response);
 		if (!is_object($token)) {
@@ -732,9 +736,9 @@ class proxy_model extends \sns\proxybase {
 	 * 获取微信公众号下所有模板列表
 	 */
 	public function templateList() {
-		$cmd='https://api.weixin.qq.com/cgi-bin/template/get_all_private_template';
+		$cmd = 'https://api.weixin.qq.com/cgi-bin/template/get_all_private_template';
 
-		$rst=$this->httpGet($cmd);
+		$rst = $this->httpGet($cmd);
 
 		return $rst;
 	}

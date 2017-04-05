@@ -31,7 +31,7 @@ class matter extends \pl\fe\matter\base {
 
 		$criteria = $this->getPostJson();
 		$options = [];
-		if(isset($criteria->phase)) {
+		if(isset($criteria->phase) && !empty($criteria->phase) && $criteria->phase !== "ALL") {
 			$options['phase'] = $criteria->phase;
 		}
 

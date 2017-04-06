@@ -11,10 +11,10 @@ class base extends \TMS_CONTROLLER {
 		if ($account = \TMS_CLIENT::account()) {
 			$model = $this->model('account');
 			if (!$model->canManagePlatform($account->uid)) {
-				die('没有访问权限');
+				die('没有访问权限，请联系系统管理员');
 			}
 		} else {
-			die('没有访问权限');
+			die('没有访问权限，请登录后再操作');
 		}
 	}
 	/**

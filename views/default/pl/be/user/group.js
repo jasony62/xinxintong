@@ -3,9 +3,10 @@ define(['main'], function(ngApp) {
 	ngApp.provider.controller('ctrlGroup', ['$scope', 'http2', function($scope, http2) {
 		$scope.add = function() {
 			http2.post('/rest/pl/be/user/group/add', {
-				'name=': $scope.groupName
+				'name': $scope.groupName
 			}, function(rsp) {
 				$scope.groups.push(rsp.data);
+				$scope.groupName = '';
 			});
 		};
 		$scope.update = function(group, pname) {

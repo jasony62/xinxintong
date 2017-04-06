@@ -89,6 +89,9 @@ define(['frame'], function(ngApp) {
                             selected.splice(selected.indexOf(site), 1);
                         }
                     };
+                    $scope2.cancel = function() {
+                        $mi.dismiss();
+                    };
                     $scope2.ok = function() {
                         $mi.close(selected);
                     };

@@ -132,7 +132,9 @@ class TPL {
 
 		return self::$view;
 	}
-
+	/**
+	 * 输出页面
+	 */
 	public static function output($template_filename, $display = true) {
 		self::init();
 
@@ -140,7 +142,10 @@ class TPL {
 			$template_filename .= self::$template_ext;
 		}
 
-		$display_template_filename = TMS_APP_VIEW_NAME . '/' . $template_filename;
+		$display_template_filename = TMS_APP_VIEW_NAME . $template_filename;
+		if (!file_exists(self::$template_path . '/' . $display_template_filename)) {
+			$display_template_filename = TMS_APP_VIEW_NAME_DEFAULT . $template_filename;
+		}
 
 		self::assign('template_name', TMS_APP_VIEW_NAME);
 

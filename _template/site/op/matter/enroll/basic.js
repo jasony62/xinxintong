@@ -1,4 +1,4 @@
-ngApp.provider.controller('ctrlBasic', ['$scope', '$http', 'PageUrl', 'srvEnrollApp', 'srvEnrollRecord', 'srvRecordConverter', function($scope, $http, PageUrl, srvEnrollApp, srvEnrollRecord, srvRecordConverter) {
+ngApp.provider.controller('ctrlBasic', ['$scope', '$http', 'PageUrl', 'srvEnrollApp', 'srvEnrollRecord', 'srvOpEnrollRound', 'srvRecordConverter', function($scope, $http, PageUrl, srvEnrollApp, srvEnrollRecord, srvOpEnrollRound, srvRecordConverter) {
     var PU, params = location.search.match('site=(.*)')[1];
     PU = PageUrl.ins('/rest/site/op/matter/enroll', ['site', 'app', 'accessToken']);
 
@@ -40,6 +40,7 @@ ngApp.provider.controller('ctrlBasic', ['$scope', '$http', 'PageUrl', 'srvEnroll
             $scope.record.aTags = (!record.tags || record.tags.length === 0) ? [] : record.tags.split(',');
             $scope.aTags = app.tags;
         });
+        $scope.doSearchRound();
     }
     $scope.update = function() {
         var record = $scope.record,
@@ -53,6 +54,7 @@ ngApp.provider.controller('ctrlBasic', ['$scope', '$http', 'PageUrl', 'srvEnroll
         record.comment && (p.comment = record.comment);
         p.verified = record.verified;
         p.data = $scope.record.data;
+        p.rid = record.rid;
         submit(ek, p);
     };
     $scope.back = function() {
@@ -97,5 +99,12 @@ ngApp.provider.controller('ctrlBasic', ['$scope', '$http', 'PageUrl', 'srvEnroll
     };
     $scope.syncByGroup = function() {
         srvEnrollRecord.syncByGroup($scope.record);
+    };
+    $scope.doSearchRound = function() {
+        srvOpEnrollRound.list().then(function(result) {
+            $scope.activeRound = result.active;
+            $scope.rounds = result.rounds;
+            $scope.pageOfRound = result.page;
+        });
     };
 }]);

@@ -1467,13 +1467,17 @@ define(['require', 'schema', 'page'], function(require, schemaLib, pageLib) {
                 }
             };
             _ins.sum4Schema = function(rid) {
-                var url, defer = $q.defer();
+                var url,
+                    params = {
+                        criteria: _ins._oCriteria
+                    },
+                    defer = $q.defer();
 
                 url = '/rest/site/op/matter/enroll/record/sum4Schema';
                 url += '?site=' + _siteId;
                 url += '&app=' + _appId;
                 url += '&accessToken=' + _accessId;
-                url += '&rid=' + (rid ? rid : 'ALL');
+                url += '&rid=' + params.criteria.record.rid;
 
                 http2.get(url, function(rsp) {
                     defer.resolve(rsp.data);
@@ -1526,10 +1530,11 @@ define(['require', 'schema', 'page'], function(require, schemaLib, pageLib) {
                     http2.get(url, function(rsp) {
                         _rounds.splice(0, _rounds.length);
                         rsp.data.rounds.forEach(function(rnd) {
+                            rsp.data.active && (rnd._isActive = rnd.rid === rsp.data.active.rid);
                             _rounds.push(rnd);
                         });
                         _oPage.total = parseInt(rsp.data.total);
-                        defer.resolve({ rounds: _rounds, page: _oPage });
+                        defer.resolve({ rounds: _rounds, page: _oPage, active: rsp.data.active});
                     });
 
                     return defer.promise;

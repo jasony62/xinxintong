@@ -153,7 +153,7 @@ define(['require', "angular", 'enrollService'],function(require, angular) {
             });
         }
 
-        function drawNumPie(item, schema) {
+        function drawNumPieChart(item, schema) {
             var categories = [],
                 series = [],
                 sum = 0,
@@ -253,7 +253,7 @@ define(['require', "angular", 'enrollService'],function(require, angular) {
 
                         if (schema.number && schema.number == 'Y') {
                             cached.sum = rsp.data.sum;
-                            drawNumPie(rsp.data, schema);
+                            drawNumPieChart(rsp.data, schema);
                         }
 
                         cached.records = rsp.data.records;

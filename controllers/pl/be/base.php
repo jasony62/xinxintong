@@ -5,6 +5,21 @@ namespace pl\be;
  */
 class base extends \TMS_CONTROLLER {
 	/**
+	 * 检查用户权限
+	 */
+	public function __construct(){
+		if($account = \TMS_CLIENT::account()){
+			$model=\TMS_APP::M('account');
+			$rst=$model->checkAcl($account->uid);
+			
+			if(!$rst){
+				die("<script>alert('管理员没有访问权限！');window.history.back();</script>");
+			}
+		}else{
+			return new \ResponseTimeout();
+		}
+	}
+	/**
 	 *
 	 */
 	public function get_access_rule() {

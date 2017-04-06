@@ -243,7 +243,7 @@ class account_model extends TMS_MODEL {
 	 */
 	public function getGroup($gid = null) {
 		$q = array(
-			'g.group_id,g.group_name,g.asdefault,g.p_mpgroup_create,g.p_mp_create,g.p_mp_permission,count(i.account_uid) account_count',
+			'g.group_id,g.group_name,g.asdefault,g.p_mpgroup_create,g.p_mp_create,g.p_mp_permission,g.platform_manage,count(i.account_uid) account_count',
 			'account_group g left join account_in_group i on g.group_id=i.group_id',
 		);
 		if (empty($gid)) {
@@ -285,5 +285,23 @@ class account_model extends TMS_MODEL {
 			return true;
 		}
 		return false;
+	}
+	/**
+	 * 检查用户所在组的权限
+	 */
+	public function checkAcl($uid){
+		$q=[
+			"g.group_id,g.group_name,g.asdefault,g.platform_manage",
+			"account_group g,account_in_group i",
+			"i.group_id=g.group_id and i.account_uid='$uid'",
+		];
+
+		$acl=$this->query_obj_ss($q);
+
+		if(isset($acl->platform_manage) && $acl->platform_manage==1){
+			return true;
+		}else{
+			return false;	
+		}		
 	}
 }

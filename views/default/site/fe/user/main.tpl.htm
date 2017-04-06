@@ -35,7 +35,12 @@
             <img class='headimg img-circle' ng-src="{{user.headimgurl}}">
             <div class='nickname' ng-bind="user.nickname"></div>
         </div>
-        <div class='form-group'>
+        <div class='form-group' ng-if="site.id==='platform'">
+            <a class='list-group-item' ng-repeat="site in mySites" href='/rest/site/fe/user?site={{site.id}}'>
+                <span>{{site.name}}</span>
+            </a>
+        </div>
+        <div class='form-group' ng-if="site.id!=='platform'">
             <div class='list-group-item'>
                 积分：<span ng-bind="user.coin"></span>
             </div>

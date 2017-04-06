@@ -2,73 +2,71 @@
     <div class='col-md-6'>
         <uib-tabset active="0">
             <uib-tab index="0">
-                <uib-tab-heading>已关注（{{friendSites.length}}）</uib-tab-heading>
+                <uib-tab-heading>已关注团队（{{friendSites.length}}）</uib-tab-heading>
                 <div class='list-group'>
-                	<div class='list-group-item' ng-repeat="site in friendSites">
-		                <div class="media">
-							<div class="media-left">
-							    <a href="#">
-							        <img class="media-object" ng-src="{{site.heading_pic}}">
-							    </a>
-							</div>
-							<div class="media-body">
-							    <h4 class="media-heading">{{site.name}}</h4>
-							    <div>{{site.summary}}</div>
-							</div>
-						</div>
-						<div class='actions'>
-		                    <a class='btn btn-sm btn-default' ng-click="openSite(site.id)">主页</a>
-		                    <button class='btn btn-sm btn-success' ng-click="unsubscribe(site,site.friend)">取消关注</button>
-		                    <span class='pull-right'>{{site.friend.from_site_name}}</span>
-		                </div>
-					</div>
-				</div>
+                    <div class='list-group-item' ng-repeat="site in friendSites">
+                        <div class="media">
+                            <div class="media-left">
+                                <a href="#">
+                                    <img class="media-object" ng-src="{{site.heading_pic}}">
+                                </a>
+                            </div>
+                            <div class="media-body">
+                                <h4 class="media-heading">{{site.name}}</h4>
+                                <div>{{site.summary}}</div>
+                            </div>
+                        </div>
+                        <div class='actions'>
+                            <a href='/rest/site/home?site={{site.id}}' class='btn btn-sm btn-default' target='_blank'>打开主页</a>
+                            <button class='btn btn-sm btn-default' ng-click="unsubscribe(site,site.friend)">取消关注</button>
+                            <span class='pull-right'>{{site.friend.from_site_name}}</span>
+                        </div>
+                    </div>
+                </div>
             </uib-tab>
             <uib-tab index="1">
-                <uib-tab-heading>查找</uib-tab-heading>
+                <uib-tab-heading>查找允许公开访问的团队</uib-tab-heading>
                 <div class='list-group'>
-                	<div class='list-group-item' ng-repeat="site in publicSites">
-		                <div class="media">
-							<div class="media-left">
-							    <a href="#">
-							        <img class="media-object" ng-src="{{site.pic}}">
-							    </a>
-							</div>
-							<div class="media-body">
-							    <h4 class="media-heading">{{site.title}}</h4>
-							    <div>{{site.summary}}</div>
-							</div>
-						</div>
-						<div class='actions'>
-		                    <a class='btn btn-sm btn-default' ng-click="openSite(site.siteid)">主页</a>
-		                    <button class='btn btn-sm btn-success' ng-click="subscribe(site)" ng-if="site._subscribed==='N'">关注</button>
-		                    <button class='btn btn-sm btn-default' ng-click="unsubscribe(site)" ng-if="site._subscribed==='Y'">取消关注</button>
-		                </div>
-					</div>
-				</div>
+                    <div class='list-group-item' ng-repeat="site in publicSites">
+                        <div class="media">
+                            <div class="media-left">
+                                <a href="#">
+                                    <img class="media-object" ng-src="{{site.pic}}">
+                                </a>
+                            </div>
+                            <div class="media-body">
+                                <h4 class="media-heading">{{site.title}}</h4>
+                                <div>{{site.summary}}</div>
+                            </div>
+                        </div>
+                        <div class='actions'>
+                            <a href='/rest/site/home?site={{site.id}}' class='btn btn-sm btn-default' target='_blank'>打开主页</a>
+                            <button class='btn btn-sm btn-success' ng-click="subscribe(site)">关注</button>
+                        </div>
+                    </div>
+                </div>
             </uib-tab>
         </uib-tabset>
     </div>
     <div class='col-md-6'>
-        <div class='list-group'>
-        	<div class='list-group-item friend-matter' ng-repeat="matter in matters" ng-click="openMatter(matter)">
-                <div class="media">
-					<div class="media-left">
-					    <a href="#">
-					        <img class="media-object" ng-src="{{matter.matter_pic}}">
-					    </a>
-					</div>
-					<div class="media-body">
-					    <h4 class="media-heading">{{matter.matter_title}}</h4>
-					    <div>{{matter.matter_summary}}</div>
-					</div>
-				</div>
-				<div class='actions'>
-                    <span><a href='' ng-click="openSite(matter.from_siteid)">{{matter.from_site_name}}</a></span>
-                    <span class='pull-right'>{{matter.put_at*1000|date:'yy-MM-dd HH:mm'}}</span>
+        <div class='thumbnail friend-matter' ng-repeat="matter in matters">
+            <div class="media" ng-click="openMatter(matter)">
+                <div class="media-left">
+                    <a href="#">
+                        <img class="media-object" ng-src="{{matter.matter_pic}}">
+                    </a>
                 </div>
-			</div>
-		</div>
+                <div class="media-body">
+                    <h4 class="media-heading">{{matter.matter_title}}</h4>
+                    <div>{{matter.matter_summary}}</div>
+                </div>
+            </div>
+            <div class='actions'>
+                <span><a href='' ng-click="openSite(matter.from_siteid)">{{matter.from_site_name}}</a></span>
+                <span class='pull-right'>{{matter.put_at*1000|date:'yy-MM-dd HH:mm'}}</span>
+            </div>
+        </div>
+        <button class='btn btn-default btn-block' ng-if="pageOfmatters.total>matters.length" ng-click="moreMatter()">更多</button>
     </div>
 </div>
 <script type="text/ng-template" id="subscribeSite.html">
@@ -78,8 +76,11 @@
     </div>
     <div class="modal-body ">
         <div class="checkbox" ng-repeat="site in mySites">
-            <label ng-if="site._subscribed!=='Y'"><input type='checkbox' ng-true-value="'Y'" ng-false-value="'N'" ng-model='site._selected'>{{site.name}}</label>
-            <label ng-if="site._subscribed==='Y'"><input type='checkbox' checked disabled><span>{{site.name}}</span>（已关注）</label></label>
+            <label ng-if="site._subscribed!=='Y'">
+                <input type='checkbox' ng-true-value="'Y'" ng-false-value="'N'" ng-model='site._selected'>{{site.name}}</label>
+            <label ng-if="site._subscribed==='Y'">
+                <input type='checkbox' checked disabled><span>{{site.name}}</span>（已关注）</label>
+            </label>
         </div>
         <div class='alert alert-danger' ng-if="mySites.length===0">请创建用于关注本团队的团队</div>
     </div>

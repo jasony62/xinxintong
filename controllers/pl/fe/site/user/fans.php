@@ -21,79 +21,79 @@ class fans extends \pl\fe\base {
 	/**
 	 * 根据uid（userid）获取公众号用户信息
 	 */
-	public function getSnsInfo_action($site,$uid){
-		$model=$this->model();
+	public function getSnsInfo_action($site, $uid) {
+		$model = $this->model();
 
-		$user=$model->query_obj_ss([
+		$user = $model->query_obj_ss([
 			'ufrom,yx_openid,wx_openid,qy_openid',
 			'xxt_site_account',
-			"siteid='$site' and uid='$uid'"
+			"siteid='$site' and uid='$uid'",
 		]);
-		
-		if(empty($user)){
+
+		if (empty($user)) {
 			return new \ResponseError('暂无该用户公众号信息！');
 		}
 
-		if(!empty($user->yx_openid)){
-			$yx=$model->query_obj_ss([
+		if (!empty($user->yx_openid)) {
+			$yx = $model->query_obj_ss([
 				'f.*',
 				'xxt_site_yxfan f',
-				"f.siteid='$site' and f.openid='$user->yx_openid'"
+				"f.siteid='$site' and f.openid='$user->yx_openid'",
 			]);
 
-			!empty($yx->groupid) && $yx->group_name=$model->query_val_ss(['name','xxt_site_yxfangroup',"siteid='$site' and id='$yx->groupid'"]);
+			!empty($yx->groupid) && $yx->group_name = $model->query_val_ss(['name', 'xxt_site_yxfangroup', "siteid='$site' and id='$yx->groupid'"]);
 
-			$user->yx=$yx;			
+			$user->yx = $yx;
 		}
 
-		if(!empty($user->wx_openid)){
-			$wx=$model->query_obj_ss([
+		if (!empty($user->wx_openid)) {
+			$wx = $model->query_obj_ss([
 				'f.*',
 				'xxt_site_wxfan f',
-				"f.siteid='$site' and f.openid='$user->wx_openid'"
+				"f.siteid='$site' and f.openid='$user->wx_openid'",
 			]);
 
-			!empty($wx->groupid) && $wx->group_name=$model->query_val_ss(['name','xxt_site_wxfangroup',"siteid='$site' and id='$wx->groupid'"]);
+			!empty($wx->groupid) && $wx->group_name = $model->query_val_ss(['name', 'xxt_site_wxfangroup', "siteid='$site' and id='$wx->groupid'"]);
 
-			$user->wx=$wx;		
+			$user->wx = $wx;
 		}
 
-		if(!empty($user->qy_openid)){
-			$one=$model->query_obj_ss([
+		if (!empty($user->qy_openid)) {
+			$one = $model->query_obj_ss([
 				'*',
 				'xxt_site_qyfan',
-				"siteid='$site' and openid='$user->qy_openid'"
+				"siteid='$site' and openid='$user->qy_openid'",
 			]);
 			//获取所属部门
-			if(!empty($one->depts)){
-				$depts=json_decode($one->depts);
+			if (!empty($one->depts)) {
+				$depts = json_decode($one->depts);
 
 				foreach ($depts as $v1) {
-					$arr=array();
+					$arr = array();
 					foreach ($v1 as $v2) {
-						$arr[]=$model->query_val_ss([
+						$arr[] = $model->query_val_ss([
 							'name',
 							'xxt_site_member_department',
-							"siteid='$site' and id='$v2'"
+							"siteid='$site' and id='$v2'",
 						]);
 					}
-					$brr[]=(object)$arr;
+					$brr[] = (object) $arr;
 				}
 
-				$one->depts_name=(object) $brr;
+				$one->depts_name = (object) $brr;
 			}
 			//获取成员标签
-			if(!empty($one->tags)){
-				$arr=explode(',',$one->tags);
-				
+			if (!empty($one->tags)) {
+				$arr = explode(',', $one->tags);
+
 				foreach ($arr as $v) {
-					$tag[$v]=$model->query_val_ss(['name','xxt_site_member_tag',"siteid='$site' and id='$v'"]);
+					$tag[$v] = $model->query_val_ss(['name', 'xxt_site_member_tag', "siteid='$site' and id='$v'"]);
 				}
 
-				isset($tag) && $one->tag_name=(object) $tag;
+				isset($tag) && $one->tag_name = (object) $tag;
 			}
 
-			$user->qy=$one;
+			$user->qy = $one;
 		}
 
 		return new \ResponseData($user);
@@ -195,7 +195,7 @@ class fans extends \pl\fe\base {
 	/**
 	 * 用户的交互足迹
 	 */
-	public function track_action($site,$openid, $page = 1, $size = 30) {
+	public function track_action($site, $openid, $page = 1, $size = 30) {
 		$track = $this->model('matter\log')->track($site, $openid, $page, $size);
 
 		return new \ResponseData($track);
@@ -203,12 +203,12 @@ class fans extends \pl\fe\base {
 	/**
 	 * 更新粉丝信息
 	 */
-	public function update_action($site,$openid) {
-		$model=$this->model();
+	public function update_action($site, $openid) {
+		$model = $this->model();
 		$src = $model->query_val_ss([
 			'ufrom',
 			'xxt_site_account',
-			"siteid='$site' and (yx_openid='$openid' or wx_openid='$openid' or qy_openid='$openid')"
+			"siteid='$site' and (yx_openid='$openid' or wx_openid='$openid' or qy_openid='$openid')",
 		]);
 
 		$nv = $this->getPostJson();
@@ -219,8 +219,8 @@ class fans extends \pl\fe\base {
 			/**
 			 * 更新公众平台上的数据
 			 */
-			$config=$model->query_obj_ss(['*','xxt_site_'.$src,"siteid='$site'"]);
-			$proxy = $this->model('sns/' . $src.'/proxy', $config);
+			$config = $model->query_obj_ss(['*', 'xxt_site_' . $src, "siteid='$site'"]);
+			$proxy = $this->model('sns/' . $src . '/proxy', $config);
 			$rst = $proxy->groupsMembersUpdate($openid, $nv->groupid);
 
 			if ($rst[0] === false) {
@@ -231,7 +231,7 @@ class fans extends \pl\fe\base {
 		 * 更新本地数据
 		 */
 		$rst = $model->update(
-			'xxt_site_'.$src.'fan',
+			'xxt_site_' . $src . 'fan',
 			(array) $nv,
 			"siteid='$site' and openid='$openid'"
 		);
@@ -247,13 +247,13 @@ class fans extends \pl\fe\base {
 	 * $nextOpenid
 	 *
 	 */
-	public function refreshAll_action($site,$src='wx',$step = 0, $nextOpenid = '') {
-		$model=$this->model();
+	public function refreshAll_action($site, $src = 'wx', $step = 0, $nextOpenid = '') {
+		$model = $this->model();
 
-		if(in_array($src, ['wx','yx'])){
-			$config=$model->query_obj_ss(['*','xxt_site_'.$src,"siteid='$site'"]);
-			$proxy=$this->model('sns\\'.$src.'\\proxy',$config);
-		}else{
+		if (in_array($src, ['wx', 'yx'])) {
+			$config = $model->query_obj_ss(['*', 'xxt_site_' . $src, "siteid='$site'"]);
+			$proxy = $this->model('sns\\' . $src . '\\proxy', $config);
+		} else {
 			return new \ResponseError('公众号类型不支持！');
 		}
 
@@ -307,7 +307,7 @@ class fans extends \pl\fe\base {
 				$finish++;
 				unset($openids[$index]);
 
-				$lfan = $model->query_obj_ss(['*','xxt_site_'.$src.'fan',"siteid='$site' and openid='$openid'"]);
+				$lfan = $model->query_obj_ss(['*', 'xxt_site_' . $src . 'fan', "siteid='$site' and openid='$openid'"]);
 				if ($lfan && $lfan->sync_at + 43200 > $current) {
 					/* 一小时之内不同步 */
 					continue;
@@ -339,7 +339,7 @@ class fans extends \pl\fe\base {
 						isset($rfan->province) && $upd['province'] = $rfan->province;
 						isset($rfan->country) && $upd['country'] = $rfan->country;
 						$model->update(
-							'xxt_site_'.$src.'fan',
+							'xxt_site_' . $src . 'fan',
 							$upd,
 							"siteid='$site' and openid='$openid'"
 						);
@@ -359,7 +359,7 @@ class fans extends \pl\fe\base {
 							isset($rfan->headimgurl) && $ins['headimgurl'] = $rfan->headimgurl;
 							isset($rfan->province) && $ins['province'] = $rfan->province;
 							isset($rfan->country) && $ins['country'] = $rfan->country;
-							$model->insert('xxt_site_'.$src.'fan', $ins, false);
+							$model->insert('xxt_site_' . $src . 'fan', $ins, false);
 							$fansCount++;
 						}
 					}
@@ -373,22 +373,22 @@ class fans extends \pl\fe\base {
 	 * 获得一个指定粉丝的信息
 	 */
 	protected function getFanInfo($site, $openid, $getGroup = false) {
-		$model=$this->model();
+		$model = $this->model();
 		$src = $model->query_val_ss([
 			'ufrom',
 			'xxt_site_account',
-			"siteid='$site' and yx_openid='$openid' or wx_openid='$openid' or qy_openid='$openid'"
+			"siteid='$site' and yx_openid='$openid' or wx_openid='$openid' or qy_openid='$openid'",
 		]);
 
-		if(empty($src)){
-			$result=array(false,'找不到用户的注册信息');
+		if (empty($src)) {
+			$result = array(false, '找不到用户的注册信息');
 
 			return $result;
 		}
 
-		$config=$model->query_obj_ss(['*','xxt_site_'.$src,"siteid='$site'"]);
-		
-		$proxy = $this->model('sns\\'.$src.'\\proxy', $config);
+		$config = $model->query_obj_ss(['*', 'xxt_site_' . $src, "siteid='$site'"]);
+
+		$proxy = $this->model('sns\\' . $src . '\\proxy', $config);
 
 		if ($src == 'qy') {
 			$result = $proxy->userGet($openid);
@@ -400,19 +400,19 @@ class fans extends \pl\fe\base {
 	}
 	/**
 	 * 从公众平台同步指定粉丝的基本信息和分组信息
-	 * 
+	 *
 	 * todo 从公众号获得粉丝的代码是否应该挪走？
 	 */
-	public function refreshOne_action($site,$openid) {
-		$qy=\TMS_APP::M('sns\qy\fan');
+	public function refreshOne_action($site, $openid) {
+		$qy = \TMS_APP::M('sns\qy\fan');
 		$src = $qy->query_val_ss([
 			'ufrom',
 			'xxt_site_account',
-			"yx_openid='$openid' or wx_openid='$openid' or qy_openid='$openid'"
+			"yx_openid='$openid' or wx_openid='$openid' or qy_openid='$openid'",
 		]);
 
 		if ($src === 'qy') {
-			$authid = $qy->query_val_ss(['id','xxt_site_member_schema',"siteid='$site' and qy_ab='Y'"]);
+			$authid = $qy->query_val_ss(['id', 'xxt_site_member_schema', "siteid='$site' and qy_ab='Y'"]);
 			if (empty($authid)) {
 				return new \ResponseError('没有设置自定义认证用户信息');
 			}
@@ -423,41 +423,41 @@ class fans extends \pl\fe\base {
 			}
 
 			$user = $result[1];
-			$time=time();
-			
-			if($luser=$qy->query_val_ss(['id','xxt_site_qyfan',"siteid='$site' and openid='$user->userid'"])){
-				$qy->updateQyFan($site,$luser, $user, $authid, $time);
+			$time = time();
+
+			if ($luser = $qy->query_val_ss(['id', 'xxt_site_qyfan', "siteid='$site' and openid='$user->userid'"])) {
+				$qy->updateQyFan($site, $luser, $user, $authid, $time);
 			}
-			
-			$one = $qy->query_obj_ss(['*','xxt_site_qyfan',"siteid='$site' and openid='$openid'"]);
+
+			$one = $qy->query_obj_ss(['*', 'xxt_site_qyfan', "siteid='$site' and openid='$openid'"]);
 
 			//获取所属部门
-			if(!empty($one->depts)){
-				$depts=json_decode($one->depts);
+			if (!empty($one->depts)) {
+				$depts = json_decode($one->depts);
 
 				foreach ($depts as $v1) {
-					$arr=array();
+					$arr = array();
 					foreach ($v1 as $v2) {
-						$arr[]=$qy->query_val_ss([
+						$arr[] = $qy->query_val_ss([
 							'name',
 							'xxt_site_member_department',
-							"siteid='$site' and id='$v2'"
+							"siteid='$site' and id='$v2'",
 						]);
 					}
-					$brr[]=(object)$arr;
+					$brr[] = (object) $arr;
 				}
 
-				$one->depts_name=(object) $brr;
+				$one->depts_name = (object) $brr;
 			}
 			//获取成员标签
-			if(!empty($one->tags)){
-				$arr=explode(',',$one->tags);
-				
+			if (!empty($one->tags)) {
+				$arr = explode(',', $one->tags);
+
 				foreach ($arr as $v) {
-					$tag[$v]=$qy->query_val_ss(['name','xxt_site_member_tag',"siteid='$site' and id='$v'"]);
+					$tag[$v] = $qy->query_val_ss(['name', 'xxt_site_member_tag', "siteid='$site' and id='$v'"]);
 				}
 
-				isset($tag) && $one->tag_name=(object) $tag;
+				isset($tag) && $one->tag_name = (object) $tag;
 			}
 
 			return new \ResponseData($one);
@@ -482,7 +482,7 @@ class fans extends \pl\fe\base {
 			isset($info[1]->province) && $u['province'] = $info[1]->province;
 			isset($info[1]->country) && $u['country'] = $info[1]->country;
 			$qy->update(
-				'xxt_site_'.$src.'fan',
+				'xxt_site_' . $src . 'fan',
 				$u,
 				"siteid='$site' and openid='$openid'"
 			);
@@ -496,17 +496,17 @@ class fans extends \pl\fe\base {
 	 * 2、同步公众的号的分组
 	 * 不更新粉丝所属的分组
 	 */
-	public function refreshGroup_action($site,$src='wx') {
-		$model=$this->model();
+	public function refreshGroup_action($site, $src = 'wx') {
+		$model = $this->model();
 		$group = $this->getPostJson();
 		$name = $group->name;
 		/**
 		 * 在公众平台上添加
 		 */
-		if(in_array($src, ['wx','yx'])){
-			$config=$model->query_obj_ss(['*','xxt_site_'.$src,"siteid='$site'"]);
-			$proxy=$this->model('sns\\'.$src.'\\proxy',$config);
-		}else{
+		if (in_array($src, ['wx', 'yx'])) {
+			$config = $model->query_obj_ss(['*', 'xxt_site_' . $src, "siteid='$site'"]);
+			$proxy = $this->model('sns\\' . $src . '\\proxy', $config);
+		} else {
 			return new \ResponseError('公众号类型不支持！');
 		}
 
@@ -517,11 +517,11 @@ class fans extends \pl\fe\base {
 
 		$groups = $rst[1]->groups;
 
-		$model->delete('xxt_site_'.$src.'fangroup', "siteid='$site'");
+		$model->delete('xxt_site_' . $src . 'fangroup', "siteid='$site'");
 
 		foreach ($groups as $g) {
 			$i = array('id' => $g->id, 'siteid' => $site, 'name' => $g->name);
-			$this->model()->insert('xxt_site_'.$src.'fangroup', $i, false);
+			$this->model()->insert('xxt_site_' . $src . 'fangroup', $i, false);
 		}
 
 		return new \ResponseData(count($groups));
@@ -531,20 +531,20 @@ class fans extends \pl\fe\base {
 	 *
 	 * 同时在公众平台和本地添加
 	 */
-	public function addGroup_action($site,$src='wx') {
-		$model=$this->model();
+	public function addGroup_action($site, $src = 'wx') {
+		$model = $this->model();
 		$group = $this->getPostJson();
 		$name = $group->name;
 		/**
 		 * 在公众平台上添加
 		 */
-		if(in_array($src, ['wx','yx'])){
-			$config=$model->query_obj_ss(['*','xxt_site_'.$src,"siteid='$site'"]);
-			$proxy=$this->model('sns\\'.$src.'\\proxy',$config);
-		}else{
+		if (in_array($src, ['wx', 'yx'])) {
+			$config = $model->query_obj_ss(['*', 'xxt_site_' . $src, "siteid='$site'"]);
+			$proxy = $this->model('sns\\' . $src . '\\proxy', $config);
+		} else {
 			return new \ResponseError('公众号类型不支持！');
 		}
-	
+
 		$rst = $proxy->groupsCreate($group);
 		if ($rst[0] === false) {
 			return new \ResponseError($rst[1]);
@@ -556,7 +556,7 @@ class fans extends \pl\fe\base {
 		 */
 		$group->siteid = $site;
 		$group->name = $name;
-		$model->insert('xxt_site_'.$src.'fangroup', (array) $group, false);
+		$model->insert('xxt_site_' . $src . 'fangroup', (array) $group, false);
 
 		return new \ResponseData($group);
 	}
@@ -565,17 +565,17 @@ class fans extends \pl\fe\base {
 	 *
 	 * 同时修改公众平台的数据和本地数据
 	 */
-	public function updateGroup_action($site,$src='wx') {
-		$model=$this->model();
+	public function updateGroup_action($site, $src = 'wx') {
+		$model = $this->model();
 		$group = $this->getPostJson();
 		$name = $group->name;
 		/**
 		 * 在公众平台上添加
 		 */
-		if(in_array($src, ['wx','yx'])){
-			$config=$model->query_obj_ss(['*','xxt_site_'.$src,"siteid='$site'"]);
-			$proxy=$this->model('sns\\'.$src.'\\proxy',$config);
-		}else{
+		if (in_array($src, ['wx', 'yx'])) {
+			$config = $model->query_obj_ss(['*', 'xxt_site_' . $src, "siteid='$site'"]);
+			$proxy = $this->model('sns\\' . $src . '\\proxy', $config);
+		} else {
 			return new \ResponseError('公众号类型不支持！');
 		}
 
@@ -588,7 +588,7 @@ class fans extends \pl\fe\base {
 		 * 更新本地数据
 		 */
 		$rst = $model->update(
-			'xxt_site_'.$src.'fangroup',
+			'xxt_site_' . $src . 'fangroup',
 			array('name' => $group->name),
 			"siteid='$site' and id='$group->id'"
 		);
@@ -600,17 +600,17 @@ class fans extends \pl\fe\base {
 	 *
 	 * 同时删除公众平台上的数据和本地数据
 	 */
-	public function removeGroup_action($site,$src='wx') {	
-		$model=$this->model();
+	public function removeGroup_action($site, $src = 'wx') {
+		$model = $this->model();
 		$group = $this->getPostJson();
 		$name = $group->name;
 		/**
 		 * 在公众平台上添加
 		 */
-		if(in_array($src, ['wx','yx'])){
-			$config=$model->query_obj_ss(['*','xxt_site_'.$src,"siteid='$site'"]);
-			$proxy=$this->model('sns\\'.$src.'\\proxy',$config);
-		}else{
+		if (in_array($src, ['wx', 'yx'])) {
+			$config = $model->query_obj_ss(['*', 'xxt_site_' . $src, "siteid='$site'"]);
+			$proxy = $this->model('sns\\' . $src . '\\proxy', $config);
+		} else {
 			return new \ResponseError('公众号类型不支持！');
 		}
 
@@ -623,7 +623,7 @@ class fans extends \pl\fe\base {
 		 * 删除本地数据
 		 * todo 级联更新粉丝所属分组数据
 		 */
-		$rst = $model->delete('xxt_site_'.$src.'fangroup', "siteid='$site' and id='$group->id'");
+		$rst = $model->delete('xxt_site_' . $src . 'fangroup', "siteid='$site' and id='$group->id'");
 
 		return new \ResponseData($rst);
 	}
@@ -631,9 +631,9 @@ class fans extends \pl\fe\base {
 	 *
 	 */
 	public function yxfansgroup_action($site) {
-		$model=$this->model();
-		$config=$model->query_obj_ss(['*','xxt_site_yx',"siteid='$site'"]);
-		$proxy = $this->model('sns\\yx\\proxy',$config);
+		$model = $this->model();
+		$config = $model->query_obj_ss(['*', 'xxt_site_yx', "siteid='$site'"]);
+		$proxy = $this->model('sns\\yx\\proxy', $config);
 		$rst = $proxy->groupsGet();
 
 		if ($rst[0] === false) {
@@ -647,9 +647,9 @@ class fans extends \pl\fe\base {
 	 *
 	 */
 	public function wxfansgroup_action($site) {
-		$model=$this->model();
-		$config=$model->query_obj_ss(['*','xxt_site_wx',"siteid='$site'"]);
-		$proxy = $this->model('sns\\wx\\proxy',$config);
+		$model = $this->model();
+		$config = $model->query_obj_ss(['*', 'xxt_site_wx', "siteid='$site'"]);
+		$proxy = $this->model('sns\\wx\\proxy', $config);
 		$rst = $proxy->groupsGet();
 
 		if ($rst[0] === false) {

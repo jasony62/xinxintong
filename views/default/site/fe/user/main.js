@@ -78,7 +78,9 @@ define(['require', 'angular'], function(require, angular) {
                 $scope.user = user;
                 window.loading.finish();
             });
-            $http.get('/rest/site/fe/user/siteList?site=' + site).success(function(rsp) {});
+            $http.get('/rest/site/fe/user/siteList?site=' + site).success(function(rsp) {
+                $scope.mySites = rsp.data;
+            });
             $http.get('/rest/site/fe/memberSchemaList?site=' + site).success(function(rsp) {
                 $scope.memberSchemas = rsp.data;
             });

@@ -37,7 +37,12 @@ define(['main'], function(ngApp) {
         $scope.downloadQrcode = function(url) {
             $('<a href="' + url + '" download="' + $scope.site.name + '_主页二维码.png"></a>')[0].click();
         };
+        $scope.applyToHome = function() {
+            var url = '/rest/pl/fe/site/applyToHome?site=' + $scope.site.id;
+            http2.get(url, function(rsp) {});
+        };
         $scope.$watch('site', function(oSite) {
+            if (!oSite) return;
             var entry, url;
             url = 'http://' + location.host + '/rest/site/home?site=' + oSite.id;
             entry = {

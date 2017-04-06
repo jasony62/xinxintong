@@ -22,7 +22,7 @@ define(["require", "angular", "util.site", "enrollService"], function(require, a
         $scope.getRecords = function(pageNumber) {
             $scope.rows.reset();
             srvOpEnrollRecord.search(pageNumber);
-            srvOpEnrollRecord.sum4Schema($scope.page.byRound).then(function(result) {
+            srvOpEnrollRecord.sum4Schema().then(function(result) {
                 $scope.sum4Schema = result;
             });
         };
@@ -35,6 +35,9 @@ define(["require", "angular", "util.site", "enrollService"], function(require, a
         $scope.filter = function() {
             srvOpEnrollRecord.filter().then(function() {
                 $scope.rows.reset();
+                srvOpEnrollRecord.sum4Schema().then(function(result) {
+                    $scope.sum4Schema = result;
+                });
             });
         };
         $scope.scoreRangeArray = function(schema) {

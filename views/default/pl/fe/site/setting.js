@@ -147,10 +147,6 @@ define(['require'], function(require) {
         $scope.gotoSns = function(snsName) {
             location.href = '/rest/pl/fe/site/sns/' + snsName + '?site=' + $scope.siteId;
         };
-        $scope.applyToHome = function() {
-            var url = '/rest/pl/fe/site/applyToHome?site=' + $scope.siteId;
-            http2.get(url, function(rsp) {});
-        };
     }]);
     ngApp.controller('ctrlBasic', ['$scope', function($scope) {
         (function() {

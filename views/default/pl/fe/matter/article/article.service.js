@@ -18,7 +18,7 @@ angular.module('service.article', ['ui.bootstrap', 'ui.xxt']).provider('srvLog',
                     });
                 }
                 //收藏接口
-                url = type ==='log' ?  '/rest/pl/fe/matter/article/log/list?id=' + article.id  :  '/rest/pl/fe/matter/article/favor/list?site=' + article.siteid + '&id=' + article.id ;
+                url = type === 'log' ? '/rest/pl/fe/matter/article/log/list?id=' + article.id : '/rest/pl/fe/matter/article/favor/list?site=' + article.siteid + '&id=' + article.id;
                 url += page._j();
                 http2.get(url, function(rsp) {
                     rsp.data.total && (page.total = rsp.data.total);
@@ -124,10 +124,42 @@ angular.module('service.article', ['ui.bootstrap', 'ui.xxt']).provider('srvLog',
                     });
                 });
                 return defer.promise;
-            }
+            },
+            choosePhase: function() {
+                var phaseId = edit.mission_phase_id,
+                    newPhase, updatedFields = ['mission_phase_id'],
+                    that = this;
+
+                // 去掉活动标题中现有的阶段后缀
+                edit.mission.phases.forEach(function(phase) {
+                    edit.title = edit.title.replace('-' + phase.title, '');
+                    if (phase.phase_id === phaseId) {
+                        newPhase = phase;
+                    }
+                });
+                if (newPhase) {
+                    // 给活动标题加上阶段后缀
+                    edit.title += '-' + newPhase.title;
+                    updatedFields.push('title');
+                    // 设置活动开始时间
+                    if (edit.start_at == 0) {
+                        edit.start_at = newPhase.start_at;
+                        updatedFields.push('start_at');
+                    }
+                    // 设置活动结束时间
+                    if (edit.end_at == 0) {
+                        edit.end_at = newPhase.end_at;
+                        updatedFields.push('end_at');
+                    }
+                } else {
+                    updatedFields.push('title');
+                }
+
+                that.update(updatedFields);
+            },
         };
     }];
-}).provider('srvCoin',function(){
+}).provider('srvCoin', function() {
     this.$get = ['$q', 'http2', function($q, http2) {
         return {
             list: function(articleSiteId, articleId, page) {
@@ -146,7 +178,7 @@ angular.module('service.article', ['ui.bootstrap', 'ui.xxt']).provider('srvLog',
                         }
                     });
                 }
-                url = '/rest/pl/fe/matter/article/coin/logs?site='+ articleSiteId + '&id=' + articleId + page._j();
+                url = '/rest/pl/fe/matter/article/coin/logs?site=' + articleSiteId + '&id=' + articleId + page._j();
                 http2.get(url, function(rsp) {
                     rsp.data.total && (page.total = rsp.data.total);
                     defer.resolve(rsp.data.logs);

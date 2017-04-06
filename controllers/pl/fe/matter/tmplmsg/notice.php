@@ -51,7 +51,7 @@ class notice extends \pl\fe\matter\base {
 			'xxt_log_tmplmsg_batch',
 			"send_from='" . $modelTmplBat->escape($sender) . "'",
 		];
-		$q2 = ['o' => 'create_at desc', 'r' => ['o' => 1, 'l' => 1]];
+		$q2 = ['o' => 'create_at desc', 'r' => ['o' => 0, 'l' => 1]];
 
 		$batches = $modelTmplBat->query_objs_ss($q, $q2);
 		if (count($batches) === 1) {

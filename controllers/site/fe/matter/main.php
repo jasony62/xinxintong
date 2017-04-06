@@ -107,26 +107,46 @@ class main extends \site\fe\matter\base {
 		//	exit;
 		//}
 
-		switch ($type) {
-		case 'article':
-			$this->model()->update("update xxt_article set read_num=read_num+1 where id='$id'");
-			break;
-		case 'channel':
-			$this->model()->update("update xxt_channel set read_num=read_num+1 where id='$id'");
-			break;
-		case 'news':
-			$this->model()->update("update xxt_news set read_num=read_num+1 where id='$id'");
-			break;
-		case 'enroll':
-			$this->model()->update("update xxt_enroll set read_num=read_num+1 where id='$id'");
+		if (defined('TMS_PHP_RESQUE') && TMS_PHP_RESQUE === 'Y' && defined('TMS_PHP_RESQUE_REDIS') && strlen(TMS_PHP_RESQUE_REDIS)) {
+			require_once TMS_APP_DIR . '/vendor/chrisboulton/php-resque/lib/Resque.php';
+
+			\Resque::setBackend(TMS_PHP_RESQUE_REDIS);
+
+			$args = [
+				'site' => $site,
+				'id' => $id,
+				'title' => $title,
+				'type' => $type,
+				'user_uid' => $this->who->uid,
+				'user_nickname' => $this->who->nickname,
+				'clientIp' => $this->client_ip(),
+				'HTTP_USER_AGENT' => $_SERVER['HTTP_USER_AGENT'],
+				'QUERY_STRING' => isset($_SERVER['QUERY_STRING']) ? $_SERVER['QUERY_STRING'] : '',
+				'HTTP_REFERER' => isset($_SERVER['HTTP_REFERER']) ? $_SERVER['HTTP_REFERER'] : '',
+			];
+			\Resque::enqueue('default', 'job\log\site\fe\matter\access', $args);
+		} else {
+
+			switch ($type) {
+			case 'article':
+				$this->model()->update("update xxt_article set read_num=read_num+1 where id='$id'");
+				break;
+			case 'channel':
+				$this->model()->update("update xxt_channel set read_num=read_num+1 where id='$id'");
+				break;
+			case 'news':
+				$this->model()->update("update xxt_news set read_num=read_num+1 where id='$id'");
+				break;
+			case 'enroll':
+				$this->model()->update("update xxt_enroll set read_num=read_num+1 where id='$id'");
+			}
+
+			$user = $this->who;
+
+			$logid = $this->logRead($site, $user, $id, $type, $title, $shareby);
 		}
 
-		$posted = $this->getPostJson();
-		$user = $this->who;
-
-		$logid = $this->logRead($site, $user, $id, $type, $title, $shareby = '');
-
-		return new \ResponseData($logid);
+		return new \ResponseData('ok');
 	}
 	/**
 	 * 记录访问日志

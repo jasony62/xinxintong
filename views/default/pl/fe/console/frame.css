@@ -1,18 +1,25 @@
 body{margin-bottom:50px;}
 .ng-cloak{display:none;}
+.navbar-nav .active:after{content:' ';position:absolute;left:0;right:0;bottom:-1px;height:3px;background:red;}
 .tms-panel-heading{margin-bottom:-1px;}
 .tms-panel-body{border:1px solid #eee;border-radius:4px;background:#fff;padding:30px 0;margin-bottom:30px;}
 .tms-panel-body:before{content:' ';display:table;}
 .tms-panel-body:after{content:' ';display:table;clear:both;}
 
+/*user notice*/
+.popover.user-notice{max-width:376px;}
+.popover.user-notice .log{display:flex;flex-direction:row;}
+.popover.user-notice .log>div:nth-child(1){margin-right:1em;}
+.popover.user-notice .log>div:nth-child(2){width:10em;text-align:right;color:#999;}
+
 /*mission/site*/
-.site,.mission,.matter{position:relative;height:180px;display:flex;flex-direction:column;padding:.5em 1em;}
-.site .summary,.mission .summary,.matter .summary{flex:1;overflow:hidden;}
-.site .attr,.mission .attr,.matter .attr{display:flex;padding:8px 0;}
-.site .creater_name,.mission .creater_name,.matter .creater_name{flex:1;}
-.site .actions,.mission .actions,.matter .actions{border-top:1px solid #ddd;padding-top:8px;}
-.site .actions-top{position:absolute;top:.5em;right:.5em;display: none}
-.site:hover .actions-top{display: block}
+.top,.site,.mission,.matter{position:relative;height:180px;display:flex;flex-direction:column;padding:.5em 1em;}
+.top .summary,.site .summary,.mission .summary,.matter .summary{flex:1;overflow:hidden;}
+.top .attr,.site .attr,.mission .attr,.matter .attr{display:flex;padding:8px 0;}
+.top .creater_name,.site .creater_name,.mission .creater_name,.matter .creater_name{flex:1;}
+.top .actions,.site .actions,.mission .actions,.matter .actions{border-top:1px solid #ddd;padding-top:8px;}
+.top .actions-top,.matter .actions-top,.site .actions-top{position:absolute;top:.5em;right:.5em;display:none}
+.top:hover .actions-top,.matter:hover .actions-top,.site:hover .actions-top{display:block}
 
 /*matter*/
 #viewRecent .article:after{content:'图文';position:absolute;top:-8px;left:-8px;background:green;padding:2px 4px;font-size:60%;color:#fff;border-radius:4px;}
@@ -23,7 +30,6 @@ body{margin-bottom:50px;}
 #viewRecent .group:after{content:'分组';position:absolute;top:-8px;left:-8px;background:#000099;padding:2px 4px;font-size:60%;color:#fff;border-radius:4px;}
 #viewRecent .split:after{content:'分组';position:absolute;top:-8px;left:-8px;background:#000099;padding:2px 4px;font-size:60%;color:#fff;border-radius:4px;}
 #viewRecent .mission:after{content:'项目';position:absolute;top:-8px;left:-8px;background:#000066;padding:2px 4px;font-size:60%;color:#fff;border-radius:4px;}
-
+.friend-matter{cursor:pointer;padding:15px;}
 .media-object{width:96px;height:96px;}
 .actions{border-top:1px solid #ddd;margin-top:8px;padding-top:8px;}
-.friend-matter{cursor:pointer;}

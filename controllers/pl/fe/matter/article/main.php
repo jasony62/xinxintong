@@ -40,6 +40,7 @@ class main extends \pl\fe\matter\base {
 		if (!($options = $this->getPostJson())) {
 			$options = new \stdClass;
 		}
+		$model = $this->model();
 		/**
 		 * select fields
 		 */
@@ -54,8 +55,15 @@ class main extends \pl\fe\matter\base {
 		 * 按项目过滤
 		 */
 		if (!empty($mission)) {
+			$mission = $model->escape($mission);
 			$w .= " and a.mission_id=$mission";
+			//按项目阶段过滤
+			if(isset($options->mission_phase_id) && !empty($options->mission_phase_id) && $options->mission_phase_id !== "ALL"){
+				$mission_phase_id = $model->escape($options->mission_phase_id);
+				$w .= " and a.mission_phase_id = '".$mission_phase_id."'";
+			}
 		} else {
+			$site = $model->escape($site);
 			$w .= " and a.siteid='$site'";
 		}
 		/**
@@ -145,12 +153,12 @@ class main extends \pl\fe\matter\base {
 		 */
 		$q2['r'] = array('o' => ($page - 1) * $size, 'l' => $size);
 
-		if ($articles = $this->model()->query_objs_ss($q, $q2)) {
+		if ($articles = $model->query_objs_ss($q, $q2)) {
 			/**
 			 * 活的符合条件的图文数量
 			 */
 			$q[0] = 'count(*)';
-			$total = (int) $this->model()->query_val_ss($q);
+			$total = (int) $model->query_val_ss($q);
 			/**
 			 * 处理每个图文的附件信息
 			 */
@@ -212,7 +220,7 @@ class main extends \pl\fe\matter\base {
 			}
 			/* 所属项目 */
 			if ($article->mission_id) {
-				$article->mission = $this->model('matter\mission')->byId($article->mission_id);
+				$article->mission = $this->model('matter\mission')->byId($article->mission_id, ['cascaded' => 'phase']);
 			}
 		}
 

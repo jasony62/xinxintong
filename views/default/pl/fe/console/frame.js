@@ -1,6 +1,6 @@
 define(['require'], function(require) {
     'use strict';
-    var ngApp = angular.module('app', ['ngRoute', 'ui.tms', 'ui.bootstrap', 'tmplshop.ui.xxt', 'service.matter']);
+    var ngApp = angular.module('app', ['ngRoute', 'ui.bootstrap', 'ui.tms', 'tmplshop.ui.xxt', 'service.matter']);
     ngApp.config(['$controllerProvider', '$routeProvider', '$locationProvider', '$compileProvider', '$uibTooltipProvider', function($controllerProvider, $routeProvider, $locationProvider, $compileProvider, $uibTooltipProvider) {
         var RouteParam = function(name) {
             var baseURL = '/views/default/pl/fe/console/';
@@ -28,7 +28,7 @@ define(['require'], function(require) {
             'show': 'hide'
         });
     }]);
-    ngApp.controller('ctrlFrame', ['$scope', 'http2', function($scope, http2) {
+    ngApp.controller('ctrlFrame', ['$scope', 'http2', 'srvUserNotice', function($scope, http2, srvUserNotice) {
         $scope.subView = '';
         $scope.$on('$locationChangeSuccess', function(event, currentRoute) {
             var subView = currentRoute.match(/[^\/]+$/)[0];
@@ -38,6 +38,15 @@ define(['require'], function(require) {
         var url = '/rest/pl/fe/user/get?_=' + (new Date() * 1);
         http2.get(url, function(rsp) {
             $scope.loginUser = rsp.data;
+        });
+        $scope.closeNotice = function(log) {
+            srvUserNotice.closeNotice(log).then(function(rsp) {
+                $scope.notice.logs.splice($scope.notice.logs.indexOf(log), 1);
+                $scope.notice.page.total--;
+            });
+        };
+        srvUserNotice.uncloseList().then(function(result) {
+            $scope.notice = result;
         });
     }]);
     /***/

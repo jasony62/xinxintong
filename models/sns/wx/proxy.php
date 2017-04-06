@@ -46,10 +46,11 @@ class proxy_model extends \sns\proxybase {
 		$tmpStr = implode($tmpArr);
 		$tmpStr = sha1($tmpStr);
 		if ($tmpStr === $signature) {
+			$model = \TMS_APP::model();
 			/**
 			 * 如果存在，断开公众号原有连接
 			 */
-			\TMS_APP::model()->update(
+			$model->update(
 				'xxt_site_wx',
 				array('joined' => 'N'),
 				"appid='{$this->config->appid}' and appsecret='{$this->config->appsecret}'"
@@ -57,7 +58,7 @@ class proxy_model extends \sns\proxybase {
 			/**
 			 * 确认建立连接
 			 */
-			\TMS_APP::model()->update(
+			$model->update(
 				'xxt_site_wx',
 				array('joined' => 'Y'),
 				"siteid='{$this->config->siteid}'"
@@ -96,22 +97,30 @@ class proxy_model extends \sns\proxybase {
 		/**
 		 * 重新获取token
 		 */
+		if (empty($this->config->appid) || empty($this->config->appsecret)) {
+			throw array(false, '微信公众号参数为空');
+		}
+
 		$url_token = "https://api.weixin.qq.com/cgi-bin/token";
 		$url_token .= "?grant_type=client_credential";
 		$url_token .= "&appid={$this->config->appid}&secret={$this->config->appsecret}";
 		$ch = curl_init($url_token);
 		curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1);
-		curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, false);
-		curl_setopt($ch, CURLOPT_SSL_VERIFYHOST, false);
+		curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, 0);
+		curl_setopt($ch, CURLOPT_SSL_VERIFYHOST, 0);
 		curl_setopt($ch, CURLOPT_SSLVERSION, CURL_SSLVERSION_TLSv1);
 		if (false === ($response = curl_exec($ch))) {
 			$err = curl_error($ch);
 			curl_close($ch);
 			return array(false, $err);
 		}
-		curl_close($ch);
 		if (empty($response)) {
+			$info = curl_getinfo($ch);
+			curl_close($ch);
+			\TMS_APP::model('log')->log('error', 'accessToken: response is empty.', json_encode($info));
 			return array(false, 'response for getting accessToken is empty');
+		} else {
+			curl_close($ch);
 		}
 		$token = json_decode($response);
 		if (!is_object($token)) {
@@ -732,9 +741,9 @@ class proxy_model extends \sns\proxybase {
 	 * 获取微信公众号下所有模板列表
 	 */
 	public function templateList() {
-		$cmd='https://api.weixin.qq.com/cgi-bin/template/get_all_private_template';
+		$cmd = 'https://api.weixin.qq.com/cgi-bin/template/get_all_private_template';
 
-		$rst=$this->httpGet($cmd);
+		$rst = $this->httpGet($cmd);
 
 		return $rst;
 	}

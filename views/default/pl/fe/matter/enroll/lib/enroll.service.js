@@ -1139,7 +1139,7 @@ define(['require', 'schema', 'page'], function(require, schemaLib, pageLib) {
                 }
             };
             _ins.verifyAll = function() {
-                if (window.confirm('确定审核通过所有记录（共' + _oPage.total + '条）？')) {
+                if (window.confirm('确定审核通过所有记录（共' + _ins._oPage.total + '条）？')) {
                     http2.get('/rest/pl/fe/matter/enroll/record/verifyAll?site=' + _siteId + '&app=' + _appId, function(rsp) {
                         _ins._aRecords.forEach(function(record) {
                             record.verified = 'Y';
@@ -1538,7 +1538,7 @@ define(['require', 'schema', 'page'], function(require, schemaLib, pageLib) {
                         });
                         _oPage.total = parseInt(rsp.data.total);
                         _checked = (rsp.data.checked ? rsp.data.checked : '');
-                        defer.resolve({ rounds: _rounds, page: _oPage, active: rsp.data.active, checked: _checked});
+                        defer.resolve({ rounds: _rounds, page: _oPage, active: rsp.data.active, checked: _checked });
                     });
 
                     return defer.promise;

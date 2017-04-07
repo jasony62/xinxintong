@@ -142,7 +142,10 @@ class TPL {
 			$template_filename .= self::$template_ext;
 		}
 
-		$display_template_filename = TMS_APP_VIEW_NAME . $template_filename;
+		$display_template_filename = TMS_APP_VIEW_NAME;
+		0 !== strpos($template_filename, '/') && $display_template_filename .= '/';
+		$display_template_filename .= $template_filename;
+
 		if (!file_exists(self::$template_path . '/' . $display_template_filename)) {
 			$display_template_filename = TMS_APP_VIEW_NAME_DEFAULT . $template_filename;
 		}

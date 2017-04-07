@@ -36,6 +36,7 @@ $sql = 'CREATE TABLE IF NOT EXISTS `account_group` (
     `p_mpgroup_create` tinyint not null default 0 comment \'创建公众号群\',
     `p_mp_create` tinyint not null default 0 comment \'创建公众号\',
     `p_mp_permission` tinyint not null default 0 comment \'设置公众号权限\',
+    `p_platform_manage` tinyint  not null default 0 comment \'平台管理\',
     PRIMARY KEY (`group_id`)
 ) ENGINE=MyISAM DEFAULT CHARSET=utf8';
 if (!$mysqli->query($sql)) {
@@ -54,7 +55,7 @@ if (!$mysqli->query($sql)) {
 }
 
 //素材置顶表 make matter top
-$sqls[]="CREATE TABLE `xxt_account_topmatter` (
+$sqls[] = "CREATE TABLE `xxt_account_topmatter` (
   `id` int(11) unsigned NOT NULL AUTO_INCREMENT,
   `siteid` varchar(32) NOT NULL,
   `userid` varchar(32) NOT NULL COMMENT '置顶操作的用户',
@@ -68,10 +69,10 @@ $sqls[]="CREATE TABLE `xxt_account_topmatter` (
 ";
 
 foreach ($sqls as $sql) {
-    if (!$mysqli->query($sql)) {
-        header('HTTP/1.0 500 Internal Server Error');
-        echo 'database error: ' . $mysqli->error;
-    }
+	if (!$mysqli->query($sql)) {
+		header('HTTP/1.0 500 Internal Server Error');
+		echo 'database error: ' . $mysqli->error;
+	}
 }
 
 echo 'finish account.' . PHP_EOL;

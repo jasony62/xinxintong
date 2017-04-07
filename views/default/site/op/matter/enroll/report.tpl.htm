@@ -4,17 +4,31 @@
 <head>
     <meta charset="UTF-8">
     <base href="/" />
-    <title><?php TPL::pt('title');?>--统计报告</title>
+    <title>
+        <?php TPL::pt('title');?>--统计报告</title>
     <link href="/static/css/bootstrap.min.css" rel="stylesheet">
     <link href="/static/css/tms.css?_=1" rel="stylesheet">
-    <style>#stat-result img{max-height:48px}</style>
+    <style>
+    #stat-result img {
+        max-height: 48px
+    }
+    </style>
 </head>
 
-<body ng-app='app' ng-controller='ctrlApp' ng-cloak class='ng-cloak'>
+<body ng-controller='ctrlApp' ng-cloak class='ng-cloak'>
     <div class='container'>
         <div id='stat-result' class='row'>
             <h3>{{app.title}}</h3>
             <hr>
+            <div class='btn-group' ng-if='rounds.length'>
+                <select class='form-control' title='登记轮次' ng-model='criteria.rid' ng-change="doRound(criteria.rid)">
+                    <option value='ALL'>全部</option>
+                    <option ng-if="checkedRound" value='{{checkedRound.rid}}'>选中轮次（{{checkedRound.title}}）</option>
+                    <option ng-if="activeRound" value='{{activeRound.rid}}'>启用轮次（{{activeRound.title}}）</option>
+                    <option value="{{rnd.rid}}" ng-repeat="rnd in rounds">{{rnd.title}}</option>
+                    <option value="more">更多</option>
+                </select>
+            </div>
             <!--schemas-->
             <div ng-repeat="schema in app.data_schemas" ng-if="schema.type!=='html'">
                 <h3><span>第{{$index+1}}项：</span><span ng-bind="schema.title"></span></h3>
@@ -53,24 +67,39 @@
                     </table>
                 </div>
                 <div ng-if="['single','phase','multiple','score'].indexOf(schema.type)===-1" ng-init="page={at:1,size:10}">
+                    <div id="{{schema.id}}" style='height:300px' ng-if="schema.number&&schema.number=='Y'"></div>
                     <table class='table table-bordered' ng-switch on="schema.type">
                         <thead>
                             <tr>
+                                <th ng-repeat='mark in app.rpConfig.marks' ng-if="mark.id!==schema.id">{{mark.name}}</th>
                                 <th>登记内容</th>
                             </tr>
                         </thead>
                         <tbody>
-                            <tr ng-repeat="record in getRecords(schema,page)" ng-switch-when="image">
-                                <td><img ng-repeat="img in record.value" ng-src='{{img}}' /></td>
+                            <tr ng-repeat="record in getRecords(schema,page).records">
+                                <td ng-repeat='mark in app.rpConfig.marks' ng-if="['nickname'].indexOf(mark.id)!==-1&&mark.id!==schema.id">
+                                    <span ng-bind-html="record.nickname"></span>
+                                </td>
+                                <td ng-repeat='mark in app.rpConfig.marks' ng-if="['nickname'].indexOf(mark.id)===-1&&mark.id!==schema.id">
+                                    <span ng-bind-html="record._data[mark.id]"></span>
+                                </td>
+                                <td ng-switch on="schema.type">
+                                    <span ng-switch-when="image">
+                                        <img ng-repeat="img in record._data[schema.id]" ng-src='{{img}}' />
+                                    </span>
+                                    <span ng-switch-when="file">
+                                        <span ng-repeat='file in record._data[schema.id]'><a href='{{file.url}}' target="_blank">{{file.name}}</a></span>
+                                    </span>
+                                    <span ng-switch-when="date">{{(record._data[schema.id]*1000)|date:'yy-MM-dd HH:mm'}}</span>
+                                    <span ng-switch-default ng-bind-html="record._data[schema.id]"></span>
+                                </td>
                             </tr>
-                            <tr ng-repeat="record in getRecords(schema,page)" ng-switch-when="file">
-                                <td><span ng-repeat='file in record.value'><a href='{{file.url}}' target="_blank">{{file.name}}</a></span></td>
+                            <tr class='text-center' ng-if="schema.number&&schema.number=='Y'&&app.rpConfig.marks.length">
+                                <td>合计</td>
+                                <td colspan={{app.rpConfig.marks.length}}>{{getRecords(schema,page).sum}}</td>
                             </tr>
-                            <tr ng-repeat="record in getRecords(schema,page)" ng-switch-when="date">
-                                <td>{{record.value*1000|date:'yyMMdd HH:mm'}}</td>
-                            </tr>
-                            <tr ng-repeat="record in getRecords(schema,page)" ng-switch-default>
-                                <td>{{record.value}}</td>
+                            <tr class='text-center' ng-if="schema.number&&schema.number=='Y'&&!app.rpConfig.marks.length">
+                                <td>合计：{{getRecords(schema,page).sum}}</td>
                             </tr>
                         </tbody>
                     </table>
@@ -101,17 +130,34 @@
             </div>
         </div>
     </div>
-    <script src="/static/js/jquery.min.js"></script>
-    <script src="/static/js/jquery-ui.min.js"></script>
-    <script src="/static/js/bootstrap.min.js"></script>
-    <script src="/static/js/angular.min.js"></script>
-    <script src="/static/js/angular-route.min.js"></script>
-    <script src="/static/js/angular-sanitize.min.js"></script>
-    <script src="/static/js/ui-bootstrap-tpls.min.js"></script>
-    <script src="/static/js/highcharts.js"></script>
-    <script src="/static/js/highcharts/exporting.js"></script>
-    <script src="/static/js/ui-tms.js?_=1"></script>
-    <script src="/views/default/site/op/matter/enroll/report.js?_=1"></script>
+    <script src="/static/js/require.js" defer async data-main="/views/default/site/op/matter/enroll/report-loader.js?_=3"></script>
 </body>
 
 </html>
+<script type="text/ng-template" id="moreRound.html">
+    <div class="modal-header">
+        <button class="close" type="button" ng-click="cancel()">×</button>
+        <h5 class="modal-title">轮次列表</h5>
+    </div>
+    <div class="modal-body">
+        <form class="form-horizontal">
+            <div class="form-group">
+                <label class="col-md-3 control-label">全部轮次</label>
+                <div class="col-md-9">
+                    <select class='form-control' ng-model="moreCriteria.rid" size=5>
+                        <option value='ALL'>全部</option>
+                        <option ng-if="activeRound" value='{{activeRound.rid}}'>当前轮次（{{activeRound.title}}）</option>
+                        <option value="{{rnd.rid}}" ng-repeat="rnd in rounds" ng-if="!rnd._isActive">{{rnd.title}}</option>
+                    </select>
+                    <div ng-show="pageOfRound.total>pageOfRound.size">
+                        <span style='line-height:34px'>总数：{{pageOfRound.total}}</span>
+                        <ul uib-pagination style="margin:0;vertical-align:bottom;cursor:pointer" boundary-links="true" total-items="pageOfRound.total" max-size="5" items-per-page="pageOfRound.size" rotate="false" ng-model="pageOfRound.at" previous-text="&lsaquo;" next-text="&rsaquo;" first-text="&laquo;" last-text="&raquo;" ng-change="doSearchRound()"></ul>
+                    </div>
+                </div>
+            </div>
+        </form>
+    </div>
+    <div class="modal-footer">
+        <button class="btn btn-primary" ng-click="ok()">确定</button>
+    </div>
+</script>

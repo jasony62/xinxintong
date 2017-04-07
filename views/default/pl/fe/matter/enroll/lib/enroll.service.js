@@ -1139,7 +1139,7 @@ define(['require', 'schema', 'page'], function(require, schemaLib, pageLib) {
                 }
             };
             _ins.verifyAll = function() {
-                if (window.confirm('确定审核通过所有记录（共' + _oPage.total + '条）？')) {
+                if (window.confirm('确定审核通过所有记录（共' + _ins._oPage.total + '条）？')) {
                     http2.get('/rest/pl/fe/matter/enroll/record/verifyAll?site=' + _siteId + '&app=' + _appId, function(rsp) {
                         _ins._aRecords.forEach(function(record) {
                             record.verified = 'Y';
@@ -1511,7 +1511,7 @@ define(['require', 'schema', 'page'], function(require, schemaLib, pageLib) {
                         }
                     }
                 },
-                list: function() {
+                list: function(checkRid) {
                     var defer = $q.defer(),
                         url;
                     if (_rounds === undefined) {
@@ -1527,6 +1527,9 @@ define(['require', 'schema', 'page'], function(require, schemaLib, pageLib) {
                         };
                     }
                     url = _RestURL + 'list?site=' + _siteId + '&app=' + _appId + '&accessToken=' + _accessId + '&' + _oPage.j();
+                    if (checkRid) {
+                        url += '&checked=' + checkRid;
+                    }
                     http2.get(url, function(rsp) {
                         _rounds.splice(0, _rounds.length);
                         rsp.data.rounds.forEach(function(rnd) {
@@ -1534,7 +1537,8 @@ define(['require', 'schema', 'page'], function(require, schemaLib, pageLib) {
                             _rounds.push(rnd);
                         });
                         _oPage.total = parseInt(rsp.data.total);
-                        defer.resolve({ rounds: _rounds, page: _oPage, active: rsp.data.active});
+                        _checked = (rsp.data.checked ? rsp.data.checked : '');
+                        defer.resolve({ rounds: _rounds, page: _oPage, active: rsp.data.active, checked: _checked });
                     });
 
                     return defer.promise;

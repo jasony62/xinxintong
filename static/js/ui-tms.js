@@ -819,7 +819,8 @@ angular.module('ui.tms', ['ngSanitize']).service('noticebox', ['$timeout', funct
         restrict: 'A',
         scope: {
             minColWidth: '@',
-            ready: '='
+            ready: '=',
+            overflowX: '@'
         },
         link: function(scope, elem, attrs) {
             scope.$watch('ready', function(ready) {
@@ -830,7 +831,9 @@ angular.module('ui.tms', ['ngSanitize']).service('noticebox', ['$timeout', funct
                         eleCols, tableWidth = 0;
 
                     if (eleTable) {
-                        eleWrap.style.overflowX = 'auto';
+                        if (scope.overflowX) {
+                            eleWrap.style.overflowX = scope.overflowX;
+                        }
                         eleTable.style.maxWidth = 'none';
                         eleCols = eleTable.querySelectorAll('th');
                         angular.forEach(eleCols, function(eleCol) {

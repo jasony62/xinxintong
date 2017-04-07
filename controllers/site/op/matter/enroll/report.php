@@ -30,15 +30,16 @@ class report extends \site\op\base {
 	 * name => array(l=>label,c=>count)
 	 *
 	 */
-	private function _getResult($site, $appId, $renewCache = 'Y') {
+	private function _getResult($site, $appId, $rid = null, $renewCache = 'Y') {
 		$current = time();
 		$model = $this->model();
+		$rid = $model->escape($rid);
 		if ($renewCache === 'Y') {
 			/* 上一次保留统计结果的时间 */
 			$q = [
 				'create_at',
 				'xxt_enroll_record_stat',
-				["aid" => $appId],
+				["aid" => $appId, 'rid' => $rid],
 			];
 			$q2 = ['r' => ['o' => 0, 'l' => 1]];
 			$last = $model->query_objs_ss($q, $q2);
@@ -50,17 +51,21 @@ class report extends \site\op\base {
 					'xxt_enroll_record',
 					"aid='$appId' and enroll_at>={$last->create_at}",
 				];
+				if ($rid !== 'ALL' && !empty($rid)) {
+					$q[2] .= " and rid = '$rid'";
+				}
+				
 				$newCnt = (int) $model->query_val_ss($q);
 			} else {
 				$newCnt = 999;
 			}
 			// 如果更新的登记数据，重新计算统计结果
 			if ($newCnt > 0) {
-				$result = $this->model('matter\enroll\record')->getStat($appId);
+				$result = $this->model('matter\enroll\record')->getStat($appId, $rid);
 				// 保存统计结果
 				$model->delete(
 					'xxt_enroll_record_stat',
-					"aid='$appId'"
+					['aid' => $appId, 'rid' => $rid]
 				);
 				foreach ($result as $id => $stat) {
 					foreach ($stat['ops'] as $op) {
@@ -73,6 +78,7 @@ class report extends \site\op\base {
 							'v' => $op->v,
 							'l' => $op->l,
 							'c' => $op->c,
+							'rid' => $rid,
 						];
 						$model->insert('xxt_enroll_record_stat', $r);
 					}
@@ -83,7 +89,7 @@ class report extends \site\op\base {
 				$q = [
 					'id,title,v,l,c',
 					'xxt_enroll_record_stat',
-					"aid='$appId'",
+					['aid' => $appId, 'rid' => $rid],
 				];
 				$cached = $model->query_objs_ss($q);
 				foreach ($cached as $data) {
@@ -104,7 +110,7 @@ class report extends \site\op\base {
 				}
 			}
 		} else {
-			$result = $this->model('matter\enroll\record')->getStat($appId);
+			$result = $this->model('matter\enroll\record')->getStat($appId, $rid);
 		}
 
 		return $result;
@@ -118,7 +124,7 @@ class report extends \site\op\base {
 	 * name => array(l=>label,c=>count)
 	 *
 	 */
-	public function get_action($site, $app, $renewCache = 'Y') {
+	public function get_action($site, $app, $rid = null, $renewCache = 'Y') {
 		if (!$this->checkAccessToken()) {
 			return new \InvalidAccessToken();
 		}
@@ -127,7 +133,12 @@ class report extends \site\op\base {
 
 		$app = $this->model('matter\enroll')->byId($app, ['cascaded' => 'N']);
 
-		$stat = $this->_getResult($site, $app->id, $renewCache);
+		if(empty($rid)) {
+			if ($activeRound = $this->model('matter\enroll\round')->getActive($app)) {
+				$rid = $activeRound->rid;
+			}
+		}
+		$stat = $this->_getResult($site, $app->id, $rid, $renewCache);
 
 		$result->app = $app;
 		$result->stat = $stat;

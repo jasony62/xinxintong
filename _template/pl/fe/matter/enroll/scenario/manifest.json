@@ -51,5 +51,17 @@
 				"description": "自有定制展示内容"
 			}
 		}
+	},
+	"quiz": {
+		"title": "测验",
+		"name": "quiz",
+		"description": "测验信息收集",
+		"templates": {
+			"simple": {
+				"title": "简单",
+				"name": "simple",
+				"description": "简单快速"
+			}
+		}
 	}
 }

@@ -1,6 +1,8 @@
 define(['main'], function(ngApp) {
     'use strict';
-    ngApp.provider.controller('ctrlPage', ['$scope', 'http2', function($scope, http2) {
+    ngApp.provider.controller('ctrlPage', ['$scope', 'http2', 'noticebox', function($scope, http2, noticebox) {
+        var recommenSite, navSite;
+        $scope.state = 'N';
         $scope.editPage = function(page) {
             var prop = page + '_page_name',
                 name = $scope.site[prop];
@@ -39,8 +41,17 @@ define(['main'], function(ngApp) {
         };
         $scope.applyToHome = function() {
             var url = '/rest/pl/fe/site/applyToHome?site=' + $scope.site.id;
-            http2.get(url, function(rsp) {});
+            http2.get(url, function(rsp) {
+                $scope.state = 'Y';
+            });
         };
+        $scope.cancleToHome = function() {
+            if(recommenSite.approved == 'Y' || navSite) {
+                noticebox.error('团队已推荐到平台主页或发布到平台主导航条，不允许禁止');
+            }else {
+                $scope.state = 'N';
+            }
+        }
         $scope.$watch('site', function(oSite) {
             if (!oSite) return;
             var entry, url;
@@ -50,6 +61,23 @@ define(['main'], function(ngApp) {
                 qrcode: '/rest/pl/fe/site/qrcode?site=' + oSite.id + '&url=' + encodeURIComponent(url),
             };
             $scope.entry = entry;
+        });
+        http2.get('/rest/pl/be/platform/get', function(rsp) {
+            $scope.home_nav = rsp.data.home_nav;
+            $scope.home_nav.forEach(function(item){
+                if(item.site.id == $scope.site.id) {
+                    $scope.navSite = navSite = item;
+                }
+            })
+        })
+        http2.get('/rest/pl/be/home/recommend/listSite', function(rsp) {
+            $scope.sites = rsp.data.sites;
+            $scope.sites.forEach(function(item) {
+                if(item.siteid == $scope.site.id) {
+                    $scope.recommenSite = recommenSite = item;
+                    $scope.state = 'Y';
+                }
+            });
         });
     }]);
     ngApp.provider.controller('ctrlHomeCarousel', ['$scope', 'http2', 'mediagallery', function($scope, http2, mediagallery) {

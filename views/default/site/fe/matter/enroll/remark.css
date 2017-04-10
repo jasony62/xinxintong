@@ -6,6 +6,14 @@ header{margin:-15px -15px 0 -15px;}
 footer{margin:0 -15px -15px -15px;}
 #errmsg{display:block;opacity:0;height:0;overflow:hidden;width:300px;position:fixed;top:0;left:50%;margin:0 0 0 -150px;text-align:center;transition:opacity 1s;z-index:-1;word-break:break-all}
 #errmsg.active{opacity:1;height:auto;z-index:999}
+
+/*remark*/
 #remarkList .accordion-toggle{text-decoration:none;display:block;}
+#remarkList .accordion-toggle:focus{outline:0}
 #remarkList .accordion-toggle>span{display:flex;}
 #remarkList .accordion-toggle>span .title{flex:1;line-height:30px}
+#remarkList .remark{border-bottom:1px solid #ddd;}
+#remarkList .remark:last-child{border-bottom:0;}
+#remarkList .remark>*{margin:1em 0;}
+#remarkList .remark .content{border-left:3px solid #ccc;padding-left:1em;}
+#remarkList .remark .datetime{color:#777;font-size:.8em;}

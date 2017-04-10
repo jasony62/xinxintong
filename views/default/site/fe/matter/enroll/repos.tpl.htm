@@ -25,8 +25,8 @@
                     <uib-accordion-heading>
                         {{schema.title}} <i ng-click="switchSchema(schema,page)" class="pull-right glyphicon" ng-class="{'glyphicon-chevron-down':schema._open,'glyphicon-chevron-right':!schema._open}"></i>
                     </uib-accordion-heading>
-                    <div class='list-group'>
-                        <div class='list-group-item record' ng-repeat="rec in repos[schema.id]">
+                    <div>
+                        <div class='record' ng-repeat="rec in repos[schema.id]">
                             <div class='nickname'>{{rec.nickname||'匿名用户'}}</div>
                             <div class='content'>{{rec.data[schema.id]}}</div>
                             <div class='bottom-bar'>

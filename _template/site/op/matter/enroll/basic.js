@@ -1,5 +1,5 @@
 ngApp.provider.controller('ctrlBasic', ['$scope', '$http', 'PageUrl', 'srvEnrollApp', 'srvEnrollRecord', 'srvOpEnrollRound', 'srvRecordConverter', function($scope, $http, PageUrl, srvEnrollApp, srvEnrollRecord, srvOpEnrollRound, srvRecordConverter) {
-    var PU, params = location.search.match('site=(.*)')[1];
+    var oRecord, oBeforeRecord, PU, params = location.search.match('site=(.*)')[1];
     PU = PageUrl.ins('/rest/site/op/matter/enroll', ['site', 'app', 'accessToken']);
 
     function submit(ek, posted) {
@@ -8,7 +8,6 @@ ngApp.provider.controller('ctrlBasic', ['$scope', '$http', 'PageUrl', 'srvEnroll
                 $scope.errmsg = rsp.err_msg;
                 return;
             }
-            angular.extend($scope.record, rsp.data);
             $scope.back();
         });
     };
@@ -36,26 +35,26 @@ ngApp.provider.controller('ctrlBasic', ['$scope', '$http', 'PageUrl', 'srvEnroll
             $scope.app = app;
             $scope.enrollDataSchemas = app._schemasByEnrollApp;
             $scope.groupDataSchemas = app._schemasByGroupApp;
-            $scope.record = record;
-            $scope.record.aTags = (!record.tags || record.tags.length === 0) ? [] : record.tags.split(',');
+            $scope.record = oRecord = record;
+            oBeforeRecord = angular.copy(oRecord);
+            oRecord.aTags = (!oRecord.tags || oRecord.tags.length === 0) ? [] : oRecord.tags.split(',');
             $scope.aTags = app.tags;
         });
         $scope.doSearchRound();
     }
     $scope.update = function() {
-        var record = $scope.record,
-            ek = $scope.record.enroll_key,
-            p = {
-                tags: record.aTags.join(','),
-                data: {}
-            };
+        var updated = {
+            tags: oRecord.aTags.join(','),
+        };
 
-        record.tags = p.tags;
-        record.comment && (p.comment = record.comment);
-        p.verified = record.verified;
-        p.data = $scope.record.data;
-        p.rid = record.rid;
-        submit(ek, p);
+        oRecord.tags = updated.tags;
+        updated.comment = oRecord.comment;
+        updated.verified = oRecord.verified;
+        if (!angular.equals(oRecord.data, oBeforeRecord.data)) {
+            updated.data = oRecord.data;
+        }
+        updated.rid = oRecord.rid;
+        submit(oRecord.enroll_key, updated);
     };
     $scope.back = function() {
         location.href = '/rest/site/op/matter/enroll?site=' + params;

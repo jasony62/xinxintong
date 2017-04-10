@@ -194,7 +194,7 @@ class stat extends \pl\fe\matter\base {
 		foreach ($schemas as $index => $schema) {
 			$html .= "<h3><span>第" . ($index + 1) . "项：</span><span>{$schema->title}</span></h3>";
 			if (in_array($schema->type, ['name', 'email', 'mobile', 'date', 'location', 'shorttext', 'longtext'])) {
-				$textResult = $modelRec->list4Schema($site, $oApp, $schema->id, ['rid' => $rid]);
+				$textResult = $modelRec->list4Schema($oApp, $schema->id, ['rid' => $rid]);
 				if (!empty($textResult->records)) {
 					//数值型的饼图
 					if (isset($schema->number) && $schema->number === 'Y') {

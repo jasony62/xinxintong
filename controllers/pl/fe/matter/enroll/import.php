@@ -236,23 +236,26 @@ class import extends \pl\fe\matter\base {
 			 * 登记数据
 			 */
 			if (isset($record->data)) {
+				//
+				$jsonData = $modelRec->toJson($record->data);
+				$modelRec->update('xxt_enroll_record', ['data' => $jsonData], "enroll_key='$ek'");
+				$enrollKeys[] = $ek;
+				//
 				foreach ($record->data as $n => $v) {
 					if (is_object($v) || is_array($v)) {
 						$v = json_encode($v);
 					}
-					$cd = [
-						'aid' => $appId,
-						'enroll_key' => $ek,
-						'name' => $n,
-						'value' => $v,
-					];
-					$modelRec->insert('xxt_enroll_record_data', $cd, false);
+					if (count($v)) {
+						$cd = [
+							'aid' => $appId,
+							'enroll_key' => $ek,
+							'schema_id' => $n,
+							'value' => $v,
+						];
+						$modelRec->insert('xxt_enroll_record_data', $cd, false);
+					}
 				}
-				//
-				$jsonData = $modelRec->toJson($record->data);
-				$modelRec->update('xxt_enroll_record', ['data' => $jsonData], "enroll_key='$ek'");
 			}
-			$enrollKeys[] = $ek;
 		}
 
 		return $enrollKeys;

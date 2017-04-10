@@ -192,7 +192,7 @@ define(["angular", "enroll-common", "angular-sanitize", "xxt-share"], function(a
                 schema = $scope.app._schemasById[schemaId],
                 val;
 
-            if (schema && facRecord.current.data) {
+            if (schema && facRecord.current.data && facRecord.current.data[schemaId]) {
                 val = facRecord.current.data[schemaId];
                 if (schema.ops && schema.ops.length) {
                     schema.ops.forEach(function(op, index) {
@@ -204,6 +204,9 @@ define(["angular", "enroll-common", "angular-sanitize", "xxt-share"], function(a
         };
         $scope.editRecord = function(event, page) {
             page ? $scope.gotoPage(event, page, facRecord.current.enroll_key) : alert('没有指定登记编辑页');
+        };
+        $scope.remarkRecord = function(event) {
+            $scope.gotoPage(event, 'remark', facRecord.current.enroll_key);
         };
         $scope.removeRecord = function(event, page) {
             facRecord.remove(facRecord.current).then(function(data) {

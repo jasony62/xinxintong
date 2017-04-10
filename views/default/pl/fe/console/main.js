@@ -1,7 +1,49 @@
 define(['frame'], function(ngApp) {
     'use strict';
-    ngApp.provider.controller('ctrlMain', [function() {}]);
-    ngApp.provider.controller('ctrlRecent', ['$scope', '$uibModal', 'http2', 'templateShop', function($scope, $uibModal, http2, templateShop) {
+    ngApp.provider.controller('ctrlMain', ['$scope', function($scope) {
+        $scope.openMatter = function(matter, subView) {
+            var url = '/rest/pl/fe/matter/' + matter.matter_type;
+            if (subView) {
+                url += '/' + subView;
+            }
+            url += '?id=' + matter.matter_id + '&site=' + matter.siteid;
+            location.href = url;
+        };
+        $scope.$on('fromCtrlRecentStickTop', function(event, data) {
+            $scope.$broadcast('toCtrlTopList', data);
+        });
+    }]);
+    ngApp.provider.controller('ctrlTop', ['$scope', 'http2', 'noticebox', function($scope, http2, noticebox) {
+        var page;
+        $scope.page = page = {
+            at: 1,
+            size: 9,
+            j: function() {
+                return 'page=' + this.at + '&size=' + this.size;
+            }
+        };
+        $scope.list = function() {
+            var url = '/rest/pl/fe/topList?' + page.j();
+            http2.get(url, function(rsp) {
+                $scope.top = rsp.data.matters;
+                $scope.page.total = rsp.data.total;
+            })
+        };
+        $scope.removeTop = function(t, i) {
+            var url = '/rest/pl/fe/delTop?site=' + t.siteid + '&id=' + t.matter_id + '&type=' + t.matter_type;
+            http2.get(url, function(rsp) {
+                $scope.top.splice(i, 1);
+                $scope.page.total--;
+                noticebox.success('完成')
+            })
+        };
+        $scope.$on('toCtrlTopList', function(event, data) {
+            //数据不完全一致，直接调用接口刷新
+            $scope.list();
+        });
+        $scope.list();
+    }])
+    ngApp.provider.controller('ctrlRecent', ['$scope', '$uibModal', 'http2', 'templateShop', 'noticebox', function($scope, $uibModal, http2, templateShop, noticebox) {
         var _fns = {
             createSite: function() {
                 var defer = $q.defer(),
@@ -147,14 +189,7 @@ define(['frame'], function(ngApp) {
                 $scope.page.total = rsp.data.total;
             });
         };
-        $scope.open = function(matter, subView) {
-            var url = '/rest/pl/fe/matter/' + matter.matter_type;
-            if (subView) {
-                url += '/' + subView;
-            }
-            url += '?id=' + matter.matter_id + '&site=' + matter.siteid;
-            location.href = url;
-        };
+
         $scope.popoverAddMatter = function() {
             var target = $('#popoverAddMatter');
             if (target.data('popover') === 'Y') {
@@ -199,6 +234,13 @@ define(['frame'], function(ngApp) {
                 }
             });
         };
+        $scope.stickTop = function(m) {
+            var url = '/rest/pl/fe/top?site=' + m.siteid + '&id=' + m.id;
+            http2.get(url, function(rsp) {
+                noticebox.success('完成置顶');
+                $scope.$emit('fromCtrlRecentStickTop', m);
+            })
+        };
         $scope.list(1);
     }]);
     ngApp.provider.controller('ctrlSite', ['$scope', 'http2', function($scope, http2) {
@@ -218,9 +260,8 @@ define(['frame'], function(ngApp) {
                 $scope.sites = rsp.data;
             });
         };
-
-        $scope.openHome = function(site) {
-            location.href = '/rest/site/home?site=' + site.id;
+        $scope.setHome = function(site) {
+            location.href = '/rest/pl/fe/site/home?site=' + site.id;
         };
         $scope.openConsole = function(site) {
             location.href = '/rest/pl/fe/site?site=' + site.id;

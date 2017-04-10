@@ -50,6 +50,12 @@ class signin_model extends app_base {
 			'xxt_signin',
 			["id" => $appId],
 		];
+		if(isset($options['where'])) {
+			foreach ($options['where'] as $key => $value) {
+				$q[2][$key] = $value;
+			}
+		}
+		
 		if ($app = $this->query_obj_ss($q)) {
 			$app->type = 'signin';
 			if (isset($app->siteid) && isset($app->id)) {
@@ -100,13 +106,21 @@ class signin_model extends app_base {
 	/**
 	 * 返回签到活动列表
 	 */
-	public function &byMission($mission, $page = null, $size = null) {
+	public function &byMission($mission, $options = [], $page = null, $size = null) {
+		$mission = $this->escape($mission);
 		$result = new \stdClass;
 		$q = [
 			"*,'signin' type",
 			'xxt_signin',
 			"state<>0 and mission_id='$mission'",
 		];
+		if(isset($options['where'])){
+			foreach ($options['where'] as $key => $value) {
+				$key = $this->escape($key);
+				$value = $this->escape($value);
+				$q[2] .= " and ".$key." = '".$value."'";
+			}
+		}
 		$q2['o'] = 'modify_at desc';
 		if ($page && $size) {
 			$q2['r']['o'] = ($page - 1) * $size;

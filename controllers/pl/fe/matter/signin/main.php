@@ -49,11 +49,17 @@ class main extends \pl\fe\matter\base {
 			return new \ResponseTimeout();
 		}
 
+		$post = $this->getPostJson();
 		$model = $this->model('matter\signin');
 		if (empty($mission)) {
 			$result = $model->bySite($site, $page, $size, $onlySns);
 		} else {
-			$result = $model->byMission($mission, $page, $size);
+			$options = [];
+			//按项目阶段筛选
+			if(isset($post->mission_phase_id) && !empty($post->mission_phase_id) && $post->mission_phase_id !== "ALL"){
+				$options['where']['mission_phase_id'] = $post->mission_phase_id;
+			}
+			$result = $model->byMission($mission, $options, $page, $size);
 		}
 
 		if (strlen($cascaded) && count($result->apps)) {

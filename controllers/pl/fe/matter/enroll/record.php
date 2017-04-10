@@ -181,17 +181,17 @@ class record extends \pl\fe\matter\base {
 		$updated = new \stdClass;
 		$updated->enroll_at = time();
 		if (isset($record->comment)) {
-			$updated->comment = $record->comment;
+			$updated->comment = $modelEnl->escape($record->comment);
 		}
 		if (isset($record->tags)) {
-			$updated->tags = $record->tags;
-			$modelEnl->updateTags($app->id, $record->tags);
+			$updated->tags = $modelEnl->escape($record->tags);
+			$modelEnl->updateTags($app->id, $updated->tags);
 		}
 		if (isset($record->verified)) {
-			$updated->verified = $record->verified;
+			$updated->verified = $modelEnl->escape($record->verified);
 		}
 		if (isset($record->rid)) {
-			$updated->rid = $record->rid;
+			$updated->rid = $modelEnl->escape($record->rid);
 		}
 		$modelEnl->update('xxt_enroll_record', $updated, "enroll_key='$ek'");
 
@@ -199,7 +199,7 @@ class record extends \pl\fe\matter\base {
 		$result = $modelRec->setData(null, $app, $ek, isset($record->data) ? $record->data : new \stdClass);
 		$updated2 = new \stdClass;
 		if (isset($record->rid)) {
-			$updated2->rid = $record->rid;
+			$updated2->rid = $modelEnl->escape($record->rid);
 		}
 		$modelEnl->update('xxt_enroll_record_data', $updated2, "enroll_key='$ek'");
 
@@ -344,7 +344,6 @@ class record extends \pl\fe\matter\base {
 					$enrollKey, ['fields' => 'userid,data', 'cascaded' => 'N']
 				);
 				if (!empty($enrollRecord->data)) {
-					$enrollData = json_decode($enrollRecord->data);
 					foreach ($signinApps as $signinApp) {
 						// 更新对应的签到记录，如果签到记录已经审核通过就不更新
 						$q = [
@@ -589,17 +588,17 @@ class record extends \pl\fe\matter\base {
 			->setDescription($oApp->title);
 
 		$objActiveSheet = $objPHPExcel->getActiveSheet();
-		$columnNum1 = 0;//列号
+		$columnNum1 = 0; //列号
 		$objActiveSheet->setCellValueByColumnAndRow($columnNum1++, 1, '登记时间');
 		$objActiveSheet->setCellValueByColumnAndRow($columnNum1++, 1, '审核通过');
-		if($oApp->multi_rounds === 'Y'){
+		if ($oApp->multi_rounds === 'Y') {
 			$objActiveSheet->setCellValueByColumnAndRow($columnNum1++, 1, '登记轮次');
 		}
 
 		// 转换标题
 		$isTotal = []; //是否需要合计
 		for ($i = 0, $ii = count($schemas); $i < $ii; $i++) {
-			$columnNum4 = $columnNum1;//列号
+			$columnNum4 = $columnNum1; //列号
 			$schema = $schemas[$i];
 			/* 跳过图片和文件 */
 			if (in_array($schema->type, ['image', 'file'])) {
@@ -625,7 +624,7 @@ class record extends \pl\fe\matter\base {
 		for ($j = 0, $jj = count($records); $j < $jj; $j++) {
 			$record = $records[$j];
 			$rowIndex = $j + 2;
-			$columnNum2 = 0;//列号
+			$columnNum2 = 0; //列号
 			$objActiveSheet->setCellValueByColumnAndRow($columnNum2++, $rowIndex, date('y-m-j H:i', $record->enroll_at));
 			$objActiveSheet->setCellValueByColumnAndRow($columnNum2++, $rowIndex, $record->verified);
 			//轮次名
@@ -635,7 +634,7 @@ class record extends \pl\fe\matter\base {
 			// 处理登记项
 			$data = $record->data;
 			for ($i = 0, $ii = count($schemas); $i < $ii; $i++) {
-				 $columnNum3 =  $columnNum2;//列号
+				$columnNum3 = $columnNum2; //列号
 				$schema = $schemas[$i];
 				$v = isset($data->{$schema->id}) ? $data->{$schema->id} : '';
 				if (empty($v)) {

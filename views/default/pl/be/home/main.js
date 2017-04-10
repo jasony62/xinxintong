@@ -60,6 +60,18 @@ define(['frame'], function(ngApp) {
             slides.splice(index, 1);
             $scope.update('home_carousel');
         };
+        $scope.up = function(slide, index) {
+            if (index === 0) return;
+            slides.splice(index, 1);
+            slides.splice(--index, 0, slide);
+            $scope.update('home_carousel');
+        };
+        $scope.down = function(slide, index) {
+            if (index === slides.length - 1) return;
+            slides.splice(index, 1);
+            slides.splice(++index, 0, slide);
+            $scope.update('home_carousel');
+        };
         $scope.$watch('platform', function(platform) {
             if (platform === undefined) return;
             if (!platform.home_carousel) platform.home_carousel = [];
@@ -88,6 +100,9 @@ define(['frame'], function(ngApp) {
                         } else {
                             selected.splice(selected.indexOf(site), 1);
                         }
+                    };
+                    $scope2.cancel = function() {
+                        $mi.dismiss();
                     };
                     $scope2.ok = function() {
                         $mi.close(selected);
@@ -121,6 +136,18 @@ define(['frame'], function(ngApp) {
         };
         $scope.remove = function(homeNav, index) {
             navs.splice(index, 1);
+            $scope.update('home_nav');
+        };
+        $scope.up = function(homeNav, index) {
+            if (index === 0) return;
+            navs.splice(index, 1);
+            navs.splice(--index, 0, homeNav);
+            $scope.update('home_nav');
+        };
+        $scope.down = function(homeNav, index) {
+            if (index === navs.length - 1) return;
+            navs.splice(index, 1);
+            navs.splice(++index, 0, homeNav);
             $scope.update('home_nav');
         };
         $scope.$watch('platform', function(platform) {

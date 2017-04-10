@@ -35,10 +35,16 @@
             </div>
             <div class="checkbox">
                 <label>
-                    <input type='checkbox' ng-true-value="'Y'" ng-false-value="'N'" ng-model="platform.is_show_template" ng-change="update('is_show_template')">导航条中显示团队库</label>
+                    <input type='checkbox' ng-true-value="'Y'" ng-false-value="'N'" ng-model="platform.is_show_template" ng-change="update('is_show_template')">导航条中显示模板库</label>
             </div>
             <table class='table table-bordered'>
                 <tbody>
+                    <tr>
+                        <th style='width:4em'>序号</th>
+                        <th>显示名称</th>
+                        <th>团队名称</th>
+                        <th style='width:10em'>操作</th>
+                    </tr>
                     <tr ng-repeat='nav in navs'>
                         <td>{{$index+1}}</td>
                         <td>{{nav.title}}</td>
@@ -46,6 +52,8 @@
                         <td>
                             <button class='btn btn-xs btn-default' ng-click="edit(nav)"><i class='glyphicon glyphicon-edit'></i></button>
                             <button class='btn btn-xs btn-danger' ng-click="remove(nav,$index)"><i class='glyphicon glyphicon-remove'></i></button>
+                            <button class='btn btn-xs btn-default' ng-click="up(nav,$index)"><i class='glyphicon glyphicon-chevron-up'></i></button>
+                            <button class='btn btn-xs btn-default' ng-click="down(nav,$index)"><i class='glyphicon glyphicon-chevron-down'></i></button>
                         </td>
                     </tr>
                 </tbody>
@@ -55,11 +63,18 @@
         <div ng-controller="ctrlHomeCarousel" class='form-group'>
             <table class='table table-bordered'>
                 <tbody>
+                    <tr>
+                        <th style='width:4em'>序号</th>
+                        <th>图片</th>
+                        <th style='width:7em'>操作</th>
+                    </tr>
                     <tr ng-repeat='s in slides'>
                         <td>{{$index+1}}</td>
                         <td><img ng-src="{{s.picUrl}}" style='width:200px'></td>
                         <td>
-                            <button class='btn btn-xs btn-danger' ng-click="remove(c,$index)"><i class='glyphicon glyphicon-remove'></i></button>
+                            <button class='btn btn-xs btn-danger' ng-click="remove(s,$index)"><i class='glyphicon glyphicon-remove'></i></button>
+                            <button class='btn btn-xs btn-default' ng-click="up(s,$index)"><i class='glyphicon glyphicon-chevron-up'></i></button>
+                            <button class='btn btn-xs btn-default' ng-click="down(s,$index)"><i class='glyphicon glyphicon-chevron-down'></i></button>
                         </td>
                     </tr>
                 </tbody>

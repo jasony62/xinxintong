@@ -20,7 +20,6 @@ ini_set('default_charset', 'utf-8');
  * database resource.
  */
 error_reporting(E_ERROR); // 控制系统的报错信息，否则数据库连接失败会报warning
-include_once 'db.php';
 /**
  * 加载本地化设置
  */
@@ -60,7 +59,8 @@ define('TMS_COOKIE_SITE_USER_BIND_INTERVAL', 600);
 /* 应用程序起始目录 */
 define('TMS_APP_DIR', dirname(__FILE__));
 /* 应用程序视图名称，起始路径为：TMS_APP_DIR.'/views/'.TMS_APP_VIEW_NAME */
-!defined('TMS_APP_VIEW_NAME') && define('TMS_APP_VIEW_NAME', 'default');
+!defined('TMS_APP_VIEW_NAME_DEFAULT') && define('TMS_APP_VIEW_NAME_DEFAULT', 'default');
+!defined('TMS_APP_VIEW_NAME') && define('TMS_APP_VIEW_NAME', TMS_APP_VIEW_NAME_DEFAULT);
 /* 应用程序模版起始目录 */
 define('TMS_APP_TEMPLATE_DEFAULT', dirname(__FILE__) . '/_template');
 !defined('TMS_APP_TEMPLATE') && define('TMS_APP_TEMPLATE', TMS_APP_TEMPLATE_DEFAULT);

@@ -12,7 +12,7 @@ class round extends \site\op\base {
 	 * @param string $app app's id
 	 *
 	 */
-	public function list_action($app, $page = 1, $size = 10) {
+	public function list_action($app, $checked = null, $page = 1, $size = 10) {
 		if (!$this->checkAccessToken()) {
 			return new \InvalidAccessToken();
 		}
@@ -32,7 +32,12 @@ class round extends \site\op\base {
 		$oPage->size = $size;
 
 		$result = $modelRnd->byApp($oApp, ['page' => $oPage]);
-
+		if(!empty($checked)){
+			if($checked = $modelRnd->byId($checked)){
+				$result->checked = $checked;
+			}
+		}
+		
 		return new \ResponseData($result);
 	}
 	

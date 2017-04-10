@@ -51,19 +51,27 @@ class record extends \site\op\base {
 		$updated = new \stdClass;
 		$updated->enroll_at = time();
 		if (isset($record->comment)) {
-			$updated->comment = $record->comment;
+			$updated->comment =  $modelEnl->escape($record->comment);
 		}
 		if (isset($record->tags)) {
-			$updated->tags = $record->tags;
-			$modelEnl->updateTags($app->id, $record->tags);
+			$updated->tags =  $modelEnl->escape($record->tags);
+			$modelEnl->updateTags($app->id, $updated->tags);
 		}
 		if (isset($record->verified)) {
-			$updated->verified = $record->verified;
+			$updated->verified =  $modelEnl->escape($record->verified);
+		}
+		if (isset($record->rid)) {
+			$updated->rid = $modelEnl->escape($record->rid);
 		}
 		$modelEnl->update('xxt_enroll_record', $updated, "enroll_key='$ek'");
 
 		/* 记录登记数据 */
 		$result = $modelRec->setData(null, $app, $ek, isset($record->data) ? $record->data : new \stdClass);
+		$updated2 = new \stdClass;
+		if (isset($record->rid)) {
+			$updated2->rid =  $modelEnl->escape($record->rid);
+		}
+		$modelEnl->update('xxt_enroll_record_data', $updated2, "enroll_key='$ek'");
 
 		if (isset($updated->verified) && $updated->verified === 'Y') {
 			$this->_whenVerifyRecord($app, $ek);
@@ -180,7 +188,7 @@ class record extends \site\op\base {
 	 * 返回指定登记项的活动登记名单
 	 *
 	 */
-	public function list4Schema_action($site, $app, $schema, $page = 1, $size = 10) {
+	public function list4Schema_action($site, $app, $rid = null, $schema, $page = 1, $size = 10) {
 		if (!$this->checkAccessToken()) {
 			return new \InvalidAccessToken();
 		}
@@ -193,6 +201,9 @@ class record extends \site\op\base {
 			'page' => $page,
 			'size' => $size,
 		];
+		if (!empty($rid)) {
+			$options['rid'] = $rid;
+		}
 
 		// 登记活动
 		$modelApp = $this->model('matter\enroll');

@@ -7,9 +7,9 @@
       "type": "I",
       "data_schemas": [
         {
-          "schema": {//填空 河北的省会
+          "schema": {
             "id": "c1001",
-            "title": "信息1",
+            "title": "1.河北的省会是哪里？",
             "type": "shorttext",
             "answer": "石家庄",
             "score": 10
@@ -20,9 +20,9 @@
           }
         },
         {
-          "schema":  {//单选 1+1=
+          "schema":  {
             "id": "c1002",
-            "title": "单选1",
+            "title": "2.1+1= ? ()",
             "type": "single",
             "answer": "v3",
             "score": 10,
@@ -53,9 +53,9 @@
           }
         },
         {
-          "schema":   {//多选 属于三大运营商的
+          "schema":   {
             "id": "c1003",
-            "title": "多选1",
+            "title": "3.下面属于三大运营商的是? ()",
             "type": "multiple",
             "answer": "v1,v2",
             "score": 10,
@@ -87,9 +87,9 @@
           }
         },
         {
-          "schema": {//深化六化
+          "schema": {
             "id": "c1004",
-            "title": "信息2",
+            "title": "4.如何理解深化六化?",
             "type": "longtext",
             "answer": "要求：1.什么是六化;2.对六话展开讨论;3.字数超过300;4其他酌情给分",
             "score": 20
@@ -117,13 +117,13 @@
         {
           "config": {
             "id": "s1",
-            "pattern": "record",//提示信息
-            "inline": "N",//？
-            "splitLine": "Y"//？
+            "pattern": "record",
+            "inline": "N",
+            "splitLine": "Y"
           },
-          "schema":  {//填空 河北的省会
+          "schema":  {
             "id": "c1001",
-            "title": "信息1",
+            "title": "1.河北的省会是哪里？",
             "type": "shorttext",
             "answer": "石家庄",
             "score": 10
@@ -136,9 +136,9 @@
             "inline": "N",
             "splitLine": "Y"
           },
-          "schema": {//单选 1+1=
+          "schema": {
             "id": "c1002",
-            "title": "单选1",
+            "title": "2.1+1= ? ()",
             "type": "single",
             "answer": "v3",
             "score": 10,
@@ -169,9 +169,9 @@
             "inline": "N",
             "splitLine": "Y"
           },
-          "schema": {//多选 属于三大运营商的
+          "schema": {
             "id": "c1003",
-            "title": "多选1",
+            "title": "3.下面属于三大运营商的是? ()",
             "type": "multiple",
             "answer": "v1,v2",
             "score": 10,
@@ -203,9 +203,9 @@
             "inline": "N",
             "splitLine": "Y"
           },
-          "schema": {//深化六化
+          "schema": {
             "id": "c1004",
-            "title": "信息2",
+            "title": "3.下面属于三大运营商的是? ()",
             "type": "longtext",
             "answer": "要求：1.什么是六化;2.对六话展开讨论;3.字数超过300;4其他酌情给分",
             "score": 20
@@ -217,22 +217,21 @@
           "id": "act2",
           "name": "closeWindow",
           "label": "关闭"
-//          "next": ""
         }
       ]
     }
   ],
   "schema": [
-    {//填空 河北的省会
+    {
       "id": "c1001",
-      "title": "信息1",
+      "title": "1.河北的省会是哪里？",
       "type": "shorttext",
       "answer": "石家庄",
       "score": 10
     },
-    {//单选 1+1=
+    {
       "id": "c1002",
-      "title": "单选1",
+      "title": "2.1+1= ? ()",
       "type": "single",
       "answer": "v3",
       "score": 10,
@@ -255,9 +254,9 @@
         }
       ]
     },
-    {//多选 属于三大运营商的
+    {
       "id": "c1003",
-      "title": "多选1",
+      "title": "3.下面属于三大运营商的是? ()",
       "type": "multiple",
       "answer": "v1,v2",
       "score": 10,
@@ -281,9 +280,9 @@
         }
       ]
     },
-    {//深化六化
+    {
       "id": "c1004",
-      "title": "信息2",
+      "title": "4.如何理解深化六化?",
       "type": "longtext",
       "answer": "要求：1.什么是六化;2.对六话展开讨论;3.字数超过300;4其他酌情给分",
       "score": 20

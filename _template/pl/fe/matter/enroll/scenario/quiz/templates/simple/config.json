@@ -1,0 +1,302 @@
+{
+  "scenario": "quiz",
+  "pages": [
+    {
+      "name": "quiz",
+      "title": "考试页",
+      "type": "I",
+      "data_schemas": [
+        {
+          "schema": {//填空 河北的省会
+            "id": "c1001",
+            "title": "信息1",
+            "type": "shorttext",
+            "answer": "石家庄",
+            "score": 10
+          },
+          "config": {
+            "required": "N",
+            "showname": "placeholder"
+          }
+        },
+        {
+          "schema":  {//单选 1+1=
+            "id": "c1002",
+            "title": "单选1",
+            "type": "single",
+            "answer": "v3",
+            "score": 10,
+            "ops": [
+              {
+                "v": "v1",
+                "l": "A.0"
+              },
+              {
+                "v": "v2",
+                "l": "B.1"
+              },
+              {
+                "v": "v3",
+                "l": "C.2"
+              },
+              {
+                "v": "v4",
+                "l": "D.3"
+              }
+            ]
+          },
+          "config": {
+            "required": "N",
+            "showname": "label",
+            "component": "R",
+            "align": "V"
+          }
+        },
+        {
+          "schema":   {//多选 属于三大运营商的
+            "id": "c1003",
+            "title": "多选1",
+            "type": "multiple",
+            "answer": "v1,v2",
+            "score": 10,
+            "mean": 5,
+            "ops": [
+              {
+                "v": "v1",
+                "l": "A.电信"
+              },
+              {
+                "v": "v2",
+                "l": "B.移动"
+              },
+              {
+                "v": "v3",
+                "l": "C.铁通"
+              },
+              {
+                "v": "v4",
+                "l": "D.网通"
+              }
+            ]
+          },
+          "config": {
+            "required": "N",
+            "showname": "label",
+            "component": "R",
+            "align": "V"
+          }
+        },
+        {
+          "schema": {//深化六化
+            "id": "c1004",
+            "title": "信息2",
+            "type": "longtext",
+            "answer": "要求：1.什么是六化;2.对六话展开讨论;3.字数超过300;4其他酌情给分",
+            "score": 20
+          },
+          "config": {
+            "required": "N",
+            "showname": "placeholder"
+          }
+        }
+      ],
+      "act_schemas": [
+        {
+          "id": "btnSubmit",
+          "name": "submit",
+          "label": "提交考卷",
+          "next": "result"
+        }
+      ]
+    },
+    {
+      "name": "result",
+      "title": "考试结果页",
+      "type": "V",
+      "data_schemas": [
+        {
+          "config": {
+            "id": "s1",
+            "pattern": "record",//提示信息
+            "inline": "N",//？
+            "splitLine": "Y"//？
+          },
+          "schema":  {//填空 河北的省会
+            "id": "c1001",
+            "title": "信息1",
+            "type": "shorttext",
+            "answer": "石家庄",
+            "score": 10
+          }
+        },
+        {
+          "config": {
+            "id": "s2",
+            "pattern": "record",
+            "inline": "N",
+            "splitLine": "Y"
+          },
+          "schema": {//单选 1+1=
+            "id": "c1002",
+            "title": "单选1",
+            "type": "single",
+            "answer": "v3",
+            "score": 10,
+            "ops": [
+              {
+                "v": "v1",
+                "l": "A.0"
+              },
+              {
+                "v": "v2",
+                "l": "B.1"
+              },
+              {
+                "v": "v3",
+                "l": "C.2"
+              },
+              {
+                "v": "v4",
+                "l": "D.3"
+              }
+            ]
+          }
+        },
+        {
+          "config": {
+            "id": "s3",
+            "pattern": "record",
+            "inline": "N",
+            "splitLine": "Y"
+          },
+          "schema": {//多选 属于三大运营商的
+            "id": "c1003",
+            "title": "多选1",
+            "type": "multiple",
+            "answer": "v1,v2",
+            "score": 10,
+            "mean": 5,
+            "ops": [
+              {
+                "v": "v1",
+                "l": "A.电信"
+              },
+              {
+                "v": "v2",
+                "l": "B.移动"
+              },
+              {
+                "v": "v3",
+                "l": "C.铁通"
+              },
+              {
+                "v": "v4",
+                "l": "D.网通"
+              }
+            ]
+          }
+        },
+        {
+          "config": {
+            "id": "V4",
+            "pattern": "record",
+            "inline": "N",
+            "splitLine": "Y"
+          },
+          "schema": {//深化六化
+            "id": "c1004",
+            "title": "信息2",
+            "type": "longtext",
+            "answer": "要求：1.什么是六化;2.对六话展开讨论;3.字数超过300;4其他酌情给分",
+            "score": 20
+          }
+        }
+      ],
+      "act_schemas": [
+        {
+          "id": "act2",
+          "name": "closeWindow",
+          "label": "关闭"
+//          "next": ""
+        }
+      ]
+    }
+  ],
+  "schema": [
+    {//填空 河北的省会
+      "id": "c1001",
+      "title": "信息1",
+      "type": "shorttext",
+      "answer": "石家庄",
+      "score": 10
+    },
+    {//单选 1+1=
+      "id": "c1002",
+      "title": "单选1",
+      "type": "single",
+      "answer": "v3",
+      "score": 10,
+      "ops": [
+        {
+          "v": "v1",
+          "l": "A.0"
+        },
+        {
+          "v": "v2",
+          "l": "B.1"
+        },
+        {
+          "v": "v3",
+          "l": "C.2"
+        },
+        {
+          "v": "v4",
+          "l": "D.3"
+        }
+      ]
+    },
+    {//多选 属于三大运营商的
+      "id": "c1003",
+      "title": "多选1",
+      "type": "multiple",
+      "answer": "v1,v2",
+      "score": 10,
+      "mean": 5,
+      "ops": [
+        {
+          "v": "v1",
+          "l": "A.电信"
+        },
+        {
+          "v": "v2",
+          "l": "B.移动"
+        },
+        {
+          "v": "v3",
+          "l": "C.铁通"
+        },
+        {
+          "v": "v4",
+          "l": "D.网通"
+        }
+      ]
+    },
+    {//深化六化
+      "id": "c1004",
+      "title": "信息2",
+      "type": "longtext",
+      "answer": "要求：1.什么是六化;2.对六话展开讨论;3.字数超过300;4其他酌情给分",
+      "score": 20
+    }
+  ],
+  "scenarioConfig": {
+    "can_rounds": "D"
+  },
+  "entryRule": {
+    "otherwise": {
+      "entry": "quiz"
+    }
+  },
+  "multi_rounds": "N",
+  "enrolled_entry_page": "result"
+}

@@ -137,7 +137,8 @@ service('templateShop', ['$uibModal', 'http2', '$q', function($uibModal, http2, 
                             if (assignedScenario && assignedScenario.length) {
                                 if (oScenarioes[assignedScenario]) {
                                     $scope.result.scenario = oScenarioes[assignedScenario];
-                                    $scope.fixedScenario = true;
+                                    //打开进入入口
+                                    //$scope.fixedScenario = true;
                                     oTemplates = $scope.result.scenario.templates;
                                     $scope.result.template = oTemplates[Object.keys(oTemplates)];
                                     $scope.chooseTemplate();

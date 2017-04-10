@@ -20,16 +20,19 @@
     <div ng-cloak class='ng-cloak app'>
         <div id='errmsg' class='alert alert-danger' ng-class="{'active':errmsg}" ng-click="errmsg=''" ng-bind='errmsg'></div>
         <div class='container' ng-controller="ctrlRepos">
-            <uib-accordion close-others="true">
-                <div uib-accordion-group class="panel-default" is-open="schema._open" heading="{{schema.title}}" ng-repeat="schema in schemas" ng-click="switchSchema(schema,page)" ng-init="page={at:1,size:10}">
+            <uib-accordion id='recordRepos' close-others="true">
+                <div uib-accordion-group is-disabled="true" is-open="schema._open" heading="{{schema.title}}" ng-repeat="schema in schemas" ng-init="page={at:1,size:10}">
                     <uib-accordion-heading>
-                        {{schema.title}} <i class="pull-right glyphicon" ng-class="{'glyphicon-chevron-down':schema._open,'glyphicon-chevron-right':!schema._open}"></i>
+                        {{schema.title}} <i ng-click="switchSchema(schema,page)" class="pull-right glyphicon" ng-class="{'glyphicon-chevron-down':schema._open,'glyphicon-chevron-right':!schema._open}"></i>
                     </uib-accordion-heading>
                     <div class='list-group'>
-                        <div class='list-group-item' ng-repeat="rec in repos[schema.id]">
-                            <div>{{rec.nickname}}</div>
-                            <div>{{rec.data[schema.id]}}</div>
-                            <button class='btn btn-default' ng-click="gotoRemark(rec.enroll_key)">看评论</button>
+                        <div class='list-group-item record' ng-repeat="rec in repos[schema.id]">
+                            <div class='nickname'>{{rec.nickname||'匿名用户'}}</div>
+                            <div class='content'>{{rec.data[schema.id]}}</div>
+                            <div class='bottom-bar'>
+                                <div class='datetime text-muted'>{{rec.enroll_at*1000|date:'MM-dd HH:mm'}}</div>
+                                <button class='btn btn-default btn-sm' ng-click="gotoRemark(rec.enroll_key)">看评论</button>
+                            </div>
                         </div>
                     </div>
                     <div class='form-inline'>

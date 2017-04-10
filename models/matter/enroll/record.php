@@ -889,7 +889,7 @@ class record_model extends \TMS_MODEL {
 				$marks = $oApp->rpConfig->marks;
 			}
 			foreach ($records as &$record) {
-				$rec = $this->byId($record->enroll_key, ['fields' => 'rid,nickname,data']);
+				$rec = $this->byId($record->enroll_key, ['fields' => 'rid,nickname,data,enroll_at']);
 				$rec->enroll_key = $record->enroll_key;
 				$result->records[] = $rec;
 			}

@@ -150,11 +150,6 @@ define(['frame'], function(ngApp) {
                 });
             }
         };
-        $scope.doSearchRemark = function() {
-            srvEnrollRecord.listRemark(ek).then(function(result) {
-                $scope.remarks = result.remarks;
-            });
-        };
         $scope.addRemark = function(schema) {
             srvEnrollRecord.addRemark(ek, schema ? schema.id : null, $scope.newRemark).then(function(remark) {
                 if (schema) {
@@ -179,7 +174,6 @@ define(['frame'], function(ngApp) {
                     });
                     $scope.remarkableSchemas = remarkableSchemas;
                 });
-                $scope.doSearchRemark();
             } else {
                 app.data_schemas.forEach(function(schema) {
                     remarkableSchemas.push(schema);

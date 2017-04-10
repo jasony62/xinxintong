@@ -58,9 +58,6 @@ define(["angular", "enroll-common", "angular-sanitize", "xxt-share"], function(a
                 });
                 $scope.remarkableSchemas = remarkableSchemas;
             });
-            listRemarks().then(function(result) {
-                $scope.remarks = result.remarks;
-            });
         });
     }]);
 

@@ -15,6 +15,7 @@ define(["angular", "enroll-common", "angular-sanitize", "xxt-share"], function(a
             });
         };
         $scope.switchSchema = function(schema, page) {
+            schema._open = !schema._open;
             if (schema._open) {
                 $scope.list4Schema(schema, page);
             }

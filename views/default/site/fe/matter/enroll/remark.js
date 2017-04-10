@@ -24,6 +24,7 @@ define(["angular", "enroll-common", "angular-sanitize", "xxt-share"], function(a
         $scope.newRemark = {};
         $scope.schemaRemarks = schemaRemarks = {};
         $scope.switchSchema = function(schema) {
+            schema._open = !schema._open;
             if (schema._open) {
                 listRemarks(schema).then(function(result) {
                     schemaRemarks[schema.id] = result.remarks;

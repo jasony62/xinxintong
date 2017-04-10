@@ -7,6 +7,9 @@
 #record-editor ul.img-tiles li.img-thumbnail button{position:absolute;top:0;right:0}
 #record-editor ul.img-tiles li.img-picker button{position:auto;width:100%;height:100%}
 #record-editor ul.img-tiles li.img-picker button span{font-size:36px}
+#record-editor .accordion-toggle{text-decoration:none;display:block;}
+#record-editor .accordion-toggle>span{display:flex;}
+#record-editor .accordion-toggle>span .title{flex:1;line-height:30px}
 </style>
 <div id='record-editor' class='col-md-8 col-md-offset-2'>
     <uib-tabset active="0">
@@ -182,30 +185,24 @@
             <uib-tab-heading>评论</uib-tab-heading>
             <div ng-controller="ctrlRemark">
                 <uib-accordion close-others="true">
-                    <div uib-accordion-group class="panel-default" is-open="schema._open" heading="{{schema.title}}" ng-repeat="schema in remarkableSchemas" ng-click="switchSchema(schema)">
+                    <div uib-accordion-group is-disabled='true' is-open="schema._open" heading="{{schema.title}}" ng-repeat="schema in remarkableSchemas" expanding='expanding'>
                         <uib-accordion-heading>
-                             <span>{{schema.title}}</span><span class="badge">{{schema.summary.remark_num}}</span> <i class="pull-right glyphicon" ng-class="{'glyphicon-chevron-down':schema._open, 'glyphicon-chevron-right':!schema._open}"></i>
+                            <div class='title'>{{schema.title}}</div>
+                            <button class='btn btn-default btn-sm' ng-click="switchSchema(schema)"><span class='glyphicon glyphicon-comment'></span> <span class="badge">{{schema.summary.remark_num}}</span></button>
                         </uib-accordion-heading>
                         <div class='list-group'>
                             <div class='list-group-item' ng-repeat="remark in schemaRemarks[schema.id]">
-                                <span>{{remark.content}}</span>
+                                <div class='nickname'>{{remark.nickname}}</div>
+                                <div class='content'>{{remark.content}}</div>
+                                <div class='datetime'>{{remark.create_at*1000|date:'MM-dd HH:mm'}}</div>
                             </div>
                         </div>
                         <div class='form-group'>
                             <textarea class='form-control' ng-model="newRemark.content"></textarea>
                             <button class='btn btn-success' ng-click="addRemark(schema)">发布</button>
-                        </div>                 
+                        </div>
                     </div>
                 </uib-accordion>
-                <div class='list-group'>
-                    <div class='list-group-item' ng-repeat="remark in remarks">
-                        <div>{{remark.content}}</div>
-                    </div>
-                </div>
-                <div class='form-group'>
-                    <textarea class='form-control' ng-model="newRemark.content"></textarea>
-                    <button class='btn btn-success' ng-click="addRemark()">发布</button>
-                </div>
             </div>
         </uib-tab>
     </uib-tabset>

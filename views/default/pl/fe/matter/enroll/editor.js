@@ -143,6 +143,7 @@ define(['frame'], function(ngApp) {
         $scope.newRemark = {};
         $scope.schemaRemarks = schemaRemarks = {};
         $scope.switchSchema = function(schema) {
+            schema._open = !schema._open;
             if (schema._open) {
                 srvEnrollRecord.listRemark(ek, schema.id).then(function(result) {
                     schemaRemarks[schema.id] = result.remarks;

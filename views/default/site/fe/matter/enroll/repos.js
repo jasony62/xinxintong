@@ -30,6 +30,7 @@ define(["angular", "enroll-common", "angular-sanitize", "xxt-share"], function(a
             oApp = params.app;
             params.app.data_schemas.forEach(function(schema) {
                 if (schema.type !== 'html') {
+                    schema._open = false;
                     schemas.push(schema);
                 }
             });

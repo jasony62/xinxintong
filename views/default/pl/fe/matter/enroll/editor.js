@@ -170,12 +170,14 @@ define(['frame'], function(ngApp) {
                     });
                     app.data_schemas.forEach(function(schema) {
                         summaryBySchema[schema.id] && (schema.summary = summaryBySchema[schema.id]);
+                        schema._open = false;
                         remarkableSchemas.push(schema);
                     });
                     $scope.remarkableSchemas = remarkableSchemas;
                 });
             } else {
                 app.data_schemas.forEach(function(schema) {
+                    schema._open = false;
                     remarkableSchemas.push(schema);
                 });
                 $scope.remarkableSchemas = remarkableSchemas;

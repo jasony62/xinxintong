@@ -38,7 +38,7 @@ define(["angular", "enroll-common", "angular-sanitize", "xxt-share"], function(a
             $http.post(url, $scope.newRemark).success(function(rsp) {
                 if (schema) {
                     !schemaRemarks[schema.id] && (schemaRemarks[schema.id] = []);
-                    schemaRemarks[schema.id].splice(0, 0, remark);
+                    schemaRemarks[schema.id].splice(0, 0, rsp.data);
                 } else {
                     $scope.remarks.splice(0, 0, rsp.data);
                 }

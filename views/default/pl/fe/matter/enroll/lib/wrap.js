@@ -848,6 +848,11 @@ define([], function() {
                 return 'submit' + PrefabActSchema._args(schema);
             }
         },
+        remarkRecord: {
+            act: function(schema) {
+                return 'remarkRecord' + PrefabActSchema._args(schema);
+            }
+        },
         acceptInvite: {
             act: function(schema) {
                 return 'accept' + PrefabActSchema._args(schema);
@@ -880,7 +885,7 @@ define([], function() {
             angular.isFunction(action) && (action = action(schema));
             if (schema.name === 'acceptInvite') {
                 attrs['ng-controller'] = 'ctrlInvite';
-            } else if (['editRecord', 'removeRecord'].indexOf(schema.name) !== -1) {
+            } else if (['editRecord', 'removeRecord', 'remarkRecord'].indexOf(schema.name) !== -1) {
                 attrs['ng-controller'] = 'ctrlRecord';
             }
 

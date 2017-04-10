@@ -3,6 +3,7 @@ require.config({
         "domReady": '/static/js/domReady',
         "angular": "/static/js/angular.min",
         "angular-sanitize": "/static/js/angular-sanitize.min",
+        "ui-bootstrap": "/static/js/ui-bootstrap-tpls.min",
         "tms-discuss": "/static/js/xxt.ui.discuss2",
         "tms-coinpay": "/static/js/xxt.ui.coinpay",
         "tms-favor": "/static/js/xxt.ui.favor",
@@ -27,5 +28,7 @@ require.config({
     urlArgs: "bust=" + (new Date() * 1)
 });
 require(['xxt-page'], function(assembler) {
-    assembler.bootstrap('/views/default/site/fe/matter/enroll/template.js');
+    require(['ui-bootstrap'], function() {
+        assembler.bootstrap('/views/default/site/fe/matter/enroll/template.js');
+    });
 });

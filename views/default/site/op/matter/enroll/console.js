@@ -18,7 +18,7 @@ define(["require", "angular", "util.site", "enrollService"], function(require, a
             srvOpEnrollRoundProvider.config(siteId, appId, accessId);
         })();
     }]);
-    ngApp.controller('ctrl', ['$scope', '$http', '$timeout', '$uibModal', 'PageLoader', 'PageUrl', 'srvOpEnrollRecord', 'srvEnrollApp', 'srvOpEnrollRound', function($scope, $http, $timeout, $uibModal, PageLoader, PageUrl, srvOpEnrollRecord, srvEnrollApp, srvOpEnrollRound) {
+    ngApp.controller('ctrl', ['$scope', '$timeout', 'PageLoader', 'PageUrl', 'srvOpEnrollRecord', 'srvEnrollApp', 'srvOpEnrollRound', function($scope, $timeout, PageLoader, PageUrl, srvOpEnrollRecord, srvEnrollApp, srvOpEnrollRound) {
         $scope.getRecords = function(pageNumber) {
             $scope.rows.reset();
             srvOpEnrollRecord.search(pageNumber);

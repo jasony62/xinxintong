@@ -28,13 +28,4 @@ class record extends \member_base {
 
 		return new \ResponseData($result);
 	}
-	/**
-	 *
-	 */
-	public function enrollerList_action($mpid, $aid, $rid = '') {
-		$mdoelRec = $this->model('app\enroll\record');
-		$result = $mdoelRec->enrollers($aid, $rid);
-
-		return new \ResponseData($result);
-	}
 }

@@ -177,23 +177,33 @@ class account_model extends \TMS_MODEL {
 		if (isset($props['ufrom'])) {
 			$account->ufrom = $props['ufrom'];
 		}
+		/* 检查：一个公众号用户（openid），在一个站点下，只能有一个主站点用户账号 */
 		if (isset($props['wx_openid'])) {
 			$account->wx_openid = $props['wx_openid'];
-		}
-		if (isset($props['is_wx_primary'])) {
-			$account->is_wx_primary = $props['is_wx_primary'];
+			if (isset($props['is_wx_primary'])) {
+				if ($this->byPrimaryOpenid($siteid, 'wx', $account->wx_openid)) {
+					throw new \Exception('数据错误，重复创建主公众号用户站点访客账号');
+				}
+				$account->is_wx_primary = $props['is_wx_primary'];
+			}
 		}
 		if (isset($props['yx_openid'])) {
 			$account->yx_openid = $props['yx_openid'];
-		}
-		if (isset($props['is_yx_primary'])) {
-			$account->is_yx_primary = $props['is_yx_primary'];
+			if (isset($props['is_yx_primary'])) {
+				if ($this->byPrimaryOpenid($siteid, 'yx', $account->yx_openid)) {
+					throw new \Exception('数据错误，重复创建主公众号用户站点访客账号');
+				}
+				$account->is_yx_primary = $props['is_yx_primary'];
+			}
 		}
 		if (isset($props['qy_openid'])) {
 			$account->qy_openid = $props['qy_openid'];
-		}
-		if (isset($props['is_qy_primary'])) {
-			$account->is_qy_primary = $props['is_qy_primary'];
+			if (isset($props['is_qy_primary'])) {
+				if ($this->byPrimaryOpenid($siteid, 'qy', $account->qy_openid)) {
+					throw new \Exception('数据错误，重复创建主公众号用户站点访客账号');
+				}
+				$account->is_qy_primary = $props['is_qy_primary'];
+			}
 		}
 		if ($persisted === true) {
 			$this->insert('xxt_site_account', $account, false);

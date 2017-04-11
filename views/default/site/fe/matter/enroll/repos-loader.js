@@ -56,7 +56,7 @@ window.loading = {
         });
         require(['xxt-page'], function(assembler) {
             require(['ui-bootstrap'], function() {
-                assembler.bootstrap('/views/default/site/fe/matter/enroll/view.js?_=' + (timestamp * 1));
+                assembler.bootstrap('/views/default/site/fe/matter/enroll/repos.js?_=' + (timestamp * 1));
             });
         });
     }

@@ -66,6 +66,7 @@ define(['require', 'enrollService'], function(require) {
             .when('/rest/pl/fe/matter/enroll/schema', new RouteParam('schema'))
             .when('/rest/pl/fe/matter/enroll/page', new RouteParam('page'))
             .when('/rest/pl/fe/matter/enroll/record', new RouteParam('record'))
+            .when('/rest/pl/fe/matter/enroll/editor', new RouteParam('editor'))
             .when('/rest/pl/fe/matter/enroll/recycle', new RouteParam('recycle'))
             .when('/rest/pl/fe/matter/enroll/stat', new RouteParam('stat'))
             .when('/rest/pl/fe/matter/enroll/log', new RouteParam('log'))
@@ -108,6 +109,7 @@ define(['require', 'enrollService'], function(require) {
             'schema': '修改题目',
             'page': '修改页面',
             'record': '查看数据',
+            'editor': '编辑数据',
             'stat': '统计报告',
             'discuss': '用户评论',
             'coin': '积分规则',

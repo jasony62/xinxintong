@@ -1,0 +1,16 @@
+.ng-cloak{display:none;}
+html,body{height:100%;width:100%;background:#efefef;font-family:Microsoft Yahei,Arial;}
+body{position:relative;font-size:16px;}
+img{max-width:100%}
+#errmsg{display:block;opacity:0;height:0;overflow:hidden;width:300px;position:fixed;top:0;left:50%;margin:0 0 0 -150px;text-align:center;transition:opacity 1s;z-index:-1;word-break:break-all}
+#errmsg.active{opacity:1;height:auto;z-index:999}
+
+/*record*/
+#recordRepos .accordion-toggle{text-decoration:none;display:block;}
+#recordRepos .accordion-toggle:focus{outline:0}
+#recordRepos .record{border-bottom:1px solid #ddd;}
+#recordRepos .record:last-child{border-bottom:0;}
+#recordRepos .record>*{margin:1em 0;}
+#recordRepos .record .content{border-left:3px solid #ccc;padding-left:1em;}
+#recordRepos .record .bottom-bar{display:flex;}
+#recordRepos .record .bottom-bar .datetime{flex:1;line-height:30px;font-size:.8em;}

@@ -1,6 +1,6 @@
 define(['frame'], function(ngApp) {
     'use strict';
-    ngApp.provider.controller('ctrlRecord', ['$scope', 'srvEnrollApp', 'srvEnrollRound', 'srvEnrollRecord', function($scope, srvEnrollApp, srvEnlRnd, srvEnrollRecord) {
+    ngApp.provider.controller('ctrlRecord', ['$scope', '$location', 'srvEnrollApp', 'srvEnrollRound', 'srvEnrollRecord', function($scope, $location, srvEnrollApp, srvEnlRnd, srvEnrollRecord) {
         $scope.doSearch = function(pageNumber) {
             $scope.rows.reset();
             srvEnrollRecord.search(pageNumber);
@@ -26,7 +26,7 @@ define(['frame'], function(ngApp) {
             });
         };
         $scope.editRecord = function(record) {
-            srvEnrollRecord.edit(record);
+            $location.path('/rest/pl/fe/matter/enroll/editor').search({ site: $scope.app.siteid, id: $scope.app.id, ek: record ? record.enroll_key : '' });
         };
         $scope.batchTag = function() {
             srvEnrollRecord.batchTag($scope.rows);

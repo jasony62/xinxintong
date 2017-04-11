@@ -148,7 +148,7 @@ class record_model extends \TMS_MODEL {
 			foreach ($records as &$r) {
 				/* 获得填写的登记数据 */
 				$qc = array(
-					'name,value',
+					'schema_id,value',
 					'xxt_enroll_record_data',
 					"enroll_key='$r->enroll_key'",
 				);
@@ -289,7 +289,7 @@ class record_model extends \TMS_MODEL {
 	 */
 	public function dataById($ek) {
 		$q = array(
-			'name,value',
+			'schema_id,value',
 			'xxt_enroll_record_data',
 			"enroll_key='$ek'",
 		);
@@ -383,7 +383,7 @@ class record_model extends \TMS_MODEL {
 			$submitkey = isset($user->vid) ? $user->vid : '';
 		}
 		// 已有的登记数据
-		$fields = $this->query_vals_ss(array('name', 'xxt_enroll_record_data', "aid='$aid' and enroll_key='$ek'"));
+		$fields = $this->query_vals_ss(array('schema_id', 'xxt_enroll_record_data', "aid='$aid' and enroll_key='$ek'"));
 		foreach ($data as $n => $v) {
 			/**
 			 * 插入自定义属性
@@ -450,7 +450,7 @@ class record_model extends \TMS_MODEL {
 				$this->update(
 					'xxt_enroll_record_data',
 					array('value' => $vv),
-					"aid='$aid' and enroll_key='$ek' and name='$n'"
+					"aid='$aid' and enroll_key='$ek' and schema_id='$n'"
 				);
 				unset($fields[array_search($n, $fields)]);
 			} else {
@@ -551,17 +551,17 @@ class record_model extends \TMS_MODEL {
 		return $rst;
 	}
 	/**
-	 * 当前访问用户是否已经点了赞
+	 * 指定用户是否已经点了赞
 	 *
-	 * $openid
-	 * $ek
+	 * @param string $userid
+	 * @param string $ek
 	 */
-	public function hasScored($openid, $ek) {
-		$q = array(
+	public function hasScored($userid, $ek) {
+		$q = [
 			'score',
 			'xxt_enroll_record_score',
-			"enroll_key='$ek' and openid='$openid'",
-		);
+			['enroll_key'=>$ek, 'userid'=>$userid],
+		];
 
 		return 1 === (int) $this->query_val_ss($q);
 	}

@@ -58,6 +58,25 @@
             </div>
             <div class='list-group-item'>
                 <a href="" ng-click="userSetting=!userSetting">个人设置</a>
+                <div ng-if="userSetting">
+                    <hr>
+                    <div class='form-group'>
+                        <input type='text' class='form-control input-lg' name='nickname' ng-model="user.nickname" placeholder='用户昵称'>
+                    </div>
+                    <div class='form-group'>
+                        <button class="btn btn-lg btn-block btn-success" ng-click="changeNickname()">修改昵称</button>
+                    </div>
+                    <hr>
+                    <div class='form-group'>
+                        <input type='password' class='form-control input-lg' name='password' ng-model="user.password" ng-minlength='6' ng-maxlength='16' placeholder='输入6-16位登录密码'>
+                    </div>
+                    <div class='form-group'>
+                        <input type='password' class='form-control input-lg' ng-pattern="repeatPwd" name='password2' ng-model="password2" placeholder='再次输入登录密码' />
+                    </div>
+                    <div class='form-group'>
+                        <button class="btn btn-lg btn-block btn-success" ng-click="changePwd()">修改登录密码</button>
+                    </div>
+                </div>
             </div>
         </div>
         <div>
@@ -65,25 +84,6 @@
             <button class="btn btn-default btn-block" ng-click='gotoRegister()'>去注册</button>
             <button class="btn btn-default btn-block" ng-click='gotoMember(ms)' ng-repeat="ms in memberSchemas">补充【{{ms.title}}】信息</button>
             <button class="btn btn-default btn-block" ng-click='logout()' ng-if="user.loginExpire">退出登录</button>
-        </div>
-        <div ng-if="userSetting">
-            <hr>
-            <div class='form-group'>
-                <input type='text' class='form-control input-lg' name='nickname' ng-model="user.nickname" placeholder='用户昵称'>
-            </div>
-            <div class='form-group'>
-                <button class="btn btn-lg btn-block btn-success" ng-click="changeNickname()">修改昵称</button>
-            </div>
-            <hr>
-            <div class='form-group'>
-                <input type='password' class='form-control input-lg' name='password' ng-model="user.password" ng-minlength='6' ng-maxlength='16' placeholder='输入6-16位登录密码'>
-            </div>
-            <div class='form-group'>
-                <input type='password' class='form-control input-lg' ng-pattern="repeatPwd" name='password2' ng-model="password2" placeholder='再次输入登录密码' />
-            </div>
-            <div class='form-group'>
-                <button class="btn btn-lg btn-block btn-success" ng-click="changePwd()">修改登录密码</button>
-            </div>
         </div>
     </div>
     <script src="/static/js/require.js" defer async data-main="/views/default/site/fe/user/main-loader.js?_=2"></script>

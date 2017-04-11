@@ -19,15 +19,12 @@ window.loading = {
                 "angular": "/static/js/angular.min",
                 "angular-sanitize": "/static/js/angular-sanitize.min",
                 "ui-bootstrap": "/static/js/ui-bootstrap-tpls.min",
-                "resumable": "/static/js/resumable.min",
                 "tms-discuss": "/static/js/xxt.ui.discuss2",
                 "tms-coinpay": "/static/js/xxt.ui.coinpay",
                 "tms-favor": "/static/js/xxt.ui.favor",
                 "tms-siteuser": "/static/js/xxt.ui.siteuser",
                 "xxt-page": "/static/js/xxt.ui.page",
                 "xxt-share": "/static/js/xxt.share",
-                "xxt-image": "/static/js/xxt.image",
-                "xxt-geo": "/static/js/xxt.geo",
                 "enroll-directive": "/views/default/site/fe/matter/enroll/directive",
                 "enroll-common": "/views/default/site/fe/matter/enroll/common",
             },
@@ -56,7 +53,7 @@ window.loading = {
         });
         require(['xxt-page'], function(assembler) {
             require(['ui-bootstrap'], function() {
-                assembler.bootstrap('/views/default/site/fe/matter/enroll/view.js?_=' + (timestamp * 1));
+                assembler.bootstrap('/views/default/site/fe/matter/enroll/remark.js?_=' + (timestamp * 1));
             });
         });
     }

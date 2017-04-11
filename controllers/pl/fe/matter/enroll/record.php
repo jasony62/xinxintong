@@ -17,6 +17,20 @@ class record extends \pl\fe\matter\base {
 	 * 活动登记名单
 	 *
 	 */
+	public function get_action($ek) {
+		if (false === ($user = $this->accountUser())) {
+			return new \ResponseTimeout();
+		}
+
+		$mdoelRec = $this->model('matter\enroll\record');
+		$record = $mdoelRec->byId($ek);
+
+		return new \ResponseData($record);
+	}
+	/**
+	 * 活动登记名单
+	 *
+	 */
 	public function list_action($site, $app, $page = 1, $size = 30, $orderby = null, $contain = null, $includeSignin = null) {
 		if (false === ($user = $this->accountUser())) {
 			return new \ResponseTimeout();
@@ -117,7 +131,7 @@ class record extends \pl\fe\matter\base {
 
 		// 查询结果
 		$mdoelRec = $this->model('matter\enroll\record');
-		$result = $mdoelRec->list4Schema($site, $enrollApp, $schema, $options);
+		$result = $mdoelRec->list4Schema($enrollApp, $schema, $options);
 
 		return new \ResponseData($result);
 	}
@@ -149,7 +163,7 @@ class record extends \pl\fe\matter\base {
 		$modelRec->update('xxt_enroll_record', $record, "enroll_key='$ek'");
 
 		/* 记录登记数据 */
-		$result = $modelRec->setData(null, $app, $ek, $posted->data);
+		$result = $modelRec->setData(null, $app, $ek, $posted->data, true);
 
 		/* 记录操作日志 */
 		$app->type = 'enroll';
@@ -175,7 +189,7 @@ class record extends \pl\fe\matter\base {
 		$modelEnl = $this->model('matter\enroll');
 		$modelRec = $this->model('matter\enroll\record');
 
-		$app = $modelEnl->byId($app, ['cascaded' => 'N']);
+		$oApp = $modelEnl->byId($app, ['cascaded' => 'N']);
 
 		/* 更新记录数据 */
 		$updated = new \stdClass;
@@ -185,7 +199,7 @@ class record extends \pl\fe\matter\base {
 		}
 		if (isset($record->tags)) {
 			$updated->tags = $modelEnl->escape($record->tags);
-			$modelEnl->updateTags($app->id, $updated->tags);
+			$modelEnl->updateTags($oApp->id, $updated->tags);
 		}
 		if (isset($record->verified)) {
 			$updated->verified = $modelEnl->escape($record->verified);
@@ -196,20 +210,21 @@ class record extends \pl\fe\matter\base {
 		$modelEnl->update('xxt_enroll_record', $updated, "enroll_key='$ek'");
 
 		/* 记录登记数据 */
-		$result = $modelRec->setData(null, $app, $ek, isset($record->data) ? $record->data : new \stdClass);
-		$updated2 = new \stdClass;
-		if (isset($record->rid)) {
-			$updated2->rid = $modelEnl->escape($record->rid);
+		if (isset($record->data)) {
+			$modelRec->setData(null, $oApp, $ek, $record->data);
 		}
-		$modelEnl->update('xxt_enroll_record_data', $updated2, "enroll_key='$ek'");
+
+		/* 更新登记项数据的轮次 */
+		if (isset($record->rid)) {
+			$modelEnl->update('xxt_enroll_record_data', ['rid' => $modelEnl->escape($record->rid)], ['enroll_key' => $ek]);
+		}
 
 		if ($updated->verified === 'Y') {
-			$this->_whenVerifyRecord($app, $ek);
+			$this->_whenVerifyRecord($oApp, $ek);
 		}
 
 		/* 记录操作日志 */
-		$app->type = 'enroll';
-		$this->model('matter\log')->matterOp($site, $user, $app, 'update', $record);
+		$this->model('matter\log')->matterOp($site, $user, $oApp, 'update', $record);
 
 		/* 返回完整的记录 */
 		$record = $modelRec->byId($ek);
@@ -371,7 +386,7 @@ class record extends \pl\fe\matter\base {
 										'aid' => $app->id,
 										'enroll_key' => $signinRecord->enroll_key,
 										'name' => $k,
-										'value' => $v,
+										'value' => $model->toJson($v),
 									];
 									$modelSigninRec->insert('xxt_signin_record_data', $ic, false);
 								}
@@ -935,5 +950,54 @@ class record extends \pl\fe\matter\base {
 		}
 
 		return new \ResponseData($countOfImport);
+	}
+	/**
+	 * 返回一条登记记录的所有评论
+	 */
+	public function listRemark_action($ek, $page = 1, $size = 10) {
+		if (false === ($user = $this->accountUser())) {
+			return new \ResponseTimeout();
+		}
+		$result = $this->model('matter\enroll\record')->listRemark($ek, $page, $size);
+
+		return new \ResponseData($result);
+	}
+	/*
+		* 给指定的登记记录的添加评论
+	*/
+	public function addRemark_action($ek) {
+		if (false === ($user = $this->accountUser())) {
+			return new \ResponseTimeout();
+		}
+		$data = $this->getPostJson();
+		if (empty($data->content)) {
+			return new \ResponseError('评论内容不允许为空');
+		}
+
+		$modelRec = $this->model('matter\enroll\record');
+		$oRecord = $modelRec->byId($ek);
+		if (false === $oRecord) {
+			return new \ObjectNotFoundError();
+		}
+		$modelEnl = $this->model('matter\enroll');
+		$oApp = $modelEnl->byId($oRecord->siteid, ['cascaded' => 'N']);
+		/**
+		 * 发表评论的用户
+		 */
+		$remark = new \stdClass;
+		$remark->userid = $user->id;
+		$remark->user_src = 'P';
+		$remark->nickname = $user->name;
+		$remark->enroll_key = $ek;
+		$remark->create_at = time();
+		$remark->content = $modelRec->escape($data->content);
+
+		$remark->id = $modelRec->insert('xxt_enroll_record_remark', $remark, true);
+
+		$modelRec->update("update xxt_enroll_record set remark_num=remark_num+1 where enroll_key='$ek'");
+
+		//$this->_notifyHasRemark();
+
+		return new \ResponseData($remark);
 	}
 }

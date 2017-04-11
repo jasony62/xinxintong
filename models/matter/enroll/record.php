@@ -973,7 +973,7 @@ class record_model extends \TMS_MODEL {
 				$q = [
 					'sum(value)',
 					'xxt_enroll_record_data',
-					['aid' => $oApp->id, 'name' => $schema->id, 'state' => 1],
+					['aid' => $oApp->id, 'schema_id' => $schema->id, 'state' => 1],
 				];
 				$rid !== 'ALL' && !empty($rid) && $q[2]['rid'] = $rid;
 

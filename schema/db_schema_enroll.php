@@ -204,6 +204,7 @@ $sql .= ",value text";
 $sql .= ",state tinyint not null default 1"; //0:remove,1:normal
 $sql .= ",remark_num int not null default 0"; // 评论数
 $sql .= ",last_remark_at int not null default 0"; // 最后一次被评论的时间
+$sql .= ",score float not null default 0"; // 登记项获得的分数
 $sql .= ",modify_log longtext"; // 数据修改日志
 $sql .= ",primary key(id)) ENGINE=MyISAM DEFAULT CHARSET=utf8";
 if (!$mysqli->query($sql)) {

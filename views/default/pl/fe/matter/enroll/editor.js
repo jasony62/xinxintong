@@ -1,7 +1,7 @@
 define(['frame'], function(ngApp) {
     'use strict';
     ngApp.provider.controller('ctrlEditor', ['$scope', '$location', 'srvEnrollApp', 'srvEnrollRecord', 'srvRecordConverter', 'srvEnrollRound', function($scope, $location, srvEnrollApp, srvEnrollRecord, srvRecordConverter, srvEnlRnd) {
-        function afterGetApp(app) {
+        function _afterGetApp(app) {
             if (oRecord.data) {
                 app.data_schemas.forEach(function(schema) {
                     if (oRecord.data[schema.id]) {
@@ -24,9 +24,32 @@ define(['frame'], function(ngApp) {
             $scope.enrollDataSchemas = app._schemasByEnrollApp;
             $scope.groupDataSchemas = app._schemasByGroupApp;
             $scope.aTags = app.tags;
+            if (oApp.scenario === 'quiz') {
+                oQuizScore = {};
+                _quizScore(oRecord);
+                $scope.quizScore = oQuizScore;
+            }
+            /* 点评数据 */
+            var remarkableSchemas = [];
+            app.dataSchemas.forEach(function(schema) {
+                schema._open = false;
+                oRecord.verbose && oRecord.verbose[schema.id] && (schema.summary = oRecord.verbose[schema.id]);
+                remarkableSchemas.push(schema);
+            });
+            $scope.remarkableSchemas = remarkableSchemas;
         }
 
-        var oRecord, oBeforeRecord, oApp;
+        function _quizScore(oRecord) {
+            if (oRecord.verbose) {
+                for (var schemaId in oRecord.verbose) {
+                    oQuizScore[schemaId] = oRecord.verbose[schemaId].score;
+                }
+                oBeforeQuizScore = angular.copy(oQuizScore);
+            }
+        }
+
+        var oRecord, oBeforeRecord, oQuizScore, oBeforeQuizScore, oApp;
+
 
         $scope.save = function() {
             var updated = {
@@ -41,12 +64,22 @@ define(['frame'], function(ngApp) {
                 if (!angular.equals(oRecord.data, oBeforeRecord.data)) {
                     updated.data = oRecord.data;
                 }
-                srvEnrollRecord.update(oRecord, updated);
+                if (!angular.equals(oQuizScore, oBeforeQuizScore)) {
+                    updated.quizScore = oQuizScore;
+                }
+                srvEnrollRecord.update(oRecord, updated).then(function(newRecord) {
+                    if (oApp.scenario === 'quiz') {
+                        _quizScore(newRecord);
+                    }
+                });
             } else {
                 srvEnrollRecord.add(updated).then(function(newRecord) {
                     oRecord.enroll_key = newRecord.enroll_key;
                     oRecord.enroll_at = newRecord.enroll_at;
                     $location.search({ site: oApp.siteid, id: oApp.id, ek: newRecord.enroll_key });
+                    if (oApp.scenario === 'quiz') {
+                        _quizScore(newRecord);
+                    }
                 });
             }
             oBeforeRecord = angular.copy(oRecord);
@@ -107,41 +140,20 @@ define(['frame'], function(ngApp) {
                 $scope.pageOfRound = result.page;
             });
         };
-
-        if ($location.search().ek) {
-            srvEnrollRecord.get($location.search().ek).then(function(record) {
-                $scope.record = oRecord = record;
-                oRecord.aTags = (!oRecord.tags || oRecord.tags.length === 0) ? [] : oRecord.tags.split(',');
-                $scope.doSearchRound();
-                srvEnrollApp.get().then(function(app) {
-                    afterGetApp(app);
-                });
-            });
-        } else {
-            $scope.record = oRecord = {};
-            oRecord.aTags = [];
-            $scope.doSearchRound();
-            srvEnrollApp.get().then(function(app) {
-                afterGetApp(app);
-            });
-        }
-    }]);
-    ngApp.provider.controller('ctrlRemark', ['$scope', '$location', '$q', '$http', 'srvEnrollApp', 'srvEnrollRecord', function($scope, $location, $q, $http, srvEnrollApp, srvEnrollRecord) {
-        function summary(ek) {
-            var url, defer = $q.defer();
-            url = '/rest/site/fe/matter/enroll/remark/summary?site=' + $scope.app.siteid + '&ek=' + ek;
-            $http.get(url).success(function(rsp) {
-                defer.resolve(rsp.data)
-            });
-            return defer.promise;
-        }
-
+        $scope.gotoRemark = function(schema) {
+            $scope.activeTab = 'remark';
+            schema._open = false;
+            $scope.switchSchema(schema);
+        };
         var ek = $location.search().ek,
-            remarkableSchemas = [],
             schemaRemarks;
 
         $scope.newRemark = {};
         $scope.schemaRemarks = schemaRemarks = {};
+        $scope.activeTab = 'fields';
+        $scope.selectTab = function(tab) {
+            $scope.activeTab = tab;
+        };
         $scope.switchSchema = function(schema) {
             schema._open = !schema._open;
             if (schema._open) {
@@ -161,27 +173,22 @@ define(['frame'], function(ngApp) {
                 $scope.newRemark.content = '';
             });
         };
-        srvEnrollApp.get().then(function(app) {
-            if (ek) {
-                summary(ek).then(function(result) {
-                    var summaryBySchema = {};
-                    result.forEach(function(schema) {
-                        summaryBySchema[schema.schema_id] = schema;
-                    });
-                    app.data_schemas.forEach(function(schema) {
-                        summaryBySchema[schema.id] && (schema.summary = summaryBySchema[schema.id]);
-                        schema._open = false;
-                        remarkableSchemas.push(schema);
-                    });
-                    $scope.remarkableSchemas = remarkableSchemas;
+        if (ek) {
+            srvEnrollRecord.get(ek).then(function(record) {
+                $scope.record = oRecord = record;
+                oRecord.aTags = (!oRecord.tags || oRecord.tags.length === 0) ? [] : oRecord.tags.split(',');
+                $scope.doSearchRound();
+                srvEnrollApp.get().then(function(app) {
+                    _afterGetApp(app);
                 });
-            } else {
-                app.data_schemas.forEach(function(schema) {
-                    schema._open = false;
-                    remarkableSchemas.push(schema);
-                });
-                $scope.remarkableSchemas = remarkableSchemas;
-            }
-        });
+            });
+        } else {
+            $scope.record = oRecord = {};
+            oRecord.aTags = [];
+            $scope.doSearchRound();
+            srvEnrollApp.get().then(function(app) {
+                _afterGetApp(app);
+            });
+        }
     }]);
 });

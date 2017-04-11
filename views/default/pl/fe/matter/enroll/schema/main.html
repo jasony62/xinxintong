@@ -66,4 +66,35 @@
     <div class="form-group" ng-show="'Y'===activeSchema.requireCheck">
         <p class='help-block'>需要在【<span>{{assocAppName(activeSchema.fromApp)}}</span>】中检查</label>
     </div>
+    <div ng-if="app.scenario==='quiz'">
+        <!--设置分数-->
+        <div class="form-group">
+            <label>设置分数</label>
+            <input class='form-control' type='text' ng-model='activeSchema.score' ng-change="updSchema(activeSchema,'score')">
+        </div>
+        <!--短文本设置参考答案-->
+        <div class="form-group" ng-if="activeSchema.type==='shorttext'">
+            <label>设置参考答案</label>
+            <input class='form-control' type='text' ng-model='activeSchema.answer' ng-change="updSchema(activeSchema,'answer')">
+        </div>
+        <!--长文本设置参考答案或要求-->
+        <div class="form-group" ng-if="activeSchema.type==='longtext'">
+            <label>设置参考答案或要求</label>
+            <textarea class='form-control' name="" id="" cols="10" rows="3" ng-model='activeSchema.answer' ng-change="updSchema(activeSchema,'answer')"></textarea>
+        </div>
+        <!--单选设置答案-->
+        <ul class="form-group list-unstyled" ng-if="activeSchema.type==='single'">
+            <li><label >设置答案</label></li>
+            <li class="radio" wrap="radio" ng-repeat="op in activeSchema.ops">
+                <label ><input type="radio" name="{{activeSchema.id}}" value="{{op.v}}" ng-model="activeSchema.answer"  ng-change="updSchema(activeSchema,'answer')"/><span>{{op.l}}</span></label>
+            </li>
+        </ul>
+        <!--多选设置答案-->
+        <ul class="form-group list-unstyled" ng-if="activeSchema.type==='multiple'">
+            <li class="checkbox" wrap="checkbox"  ng-repeat="op in activeSchema.ops">
+                <label><input type="checkbox"  ng-model="data[op.v]" ng-change="updSchemaMultiple(activeSchema,data[op.v])"/><span>{{op.l}}</span></label>
+            </li>
+        </ul>
+    </div>
+
 </div>

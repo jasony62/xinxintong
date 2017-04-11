@@ -99,7 +99,7 @@ define(['frame'], function(ngApp) {
         };
         $scope.addMatter = function(matterType) {
             $('body').click();
-            if (/voting|registration|group_week_report|common/.test(matterType)) {
+            if (/quiz|voting|registration|group_week_report|common/.test(matterType)) {
                 $scope.addEnroll(matterType);
             } else {
                 $scope['add' + matterType[0].toUpperCase() + matterType.substr(1)]();

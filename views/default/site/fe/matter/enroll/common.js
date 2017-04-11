@@ -1,6 +1,5 @@
-define(["angular", "xxt-page", "tms-discuss", "tms-siteuser", "tms-favor", "enroll-directive"], function(angular, codeAssembler) {
+define(["angular", "xxt-page", 'ui-bootstrap', "tms-discuss", "tms-siteuser", "tms-favor", "enroll-directive"], function(angular, codeAssembler) {
     'use strict';
-
     if (/MicroMessenger/i.test(navigator.userAgent) && window.signPackage && window.wx) {
         window.wx.ready(function() {
             window.wx.showOptionMenu();
@@ -11,7 +10,7 @@ define(["angular", "xxt-page", "tms-discuss", "tms-siteuser", "tms-favor", "enro
         }, false);
     }
 
-    var ngApp = angular.module('enroll', ['ngSanitize', 'discuss.ui.xxt', 'siteuser.ui.xxt', 'favor.ui.xxt', 'directive.enroll']);
+    var ngApp = angular.module('enroll', ['ngSanitize', 'ui.bootstrap', 'discuss.ui.xxt', 'siteuser.ui.xxt', 'favor.ui.xxt', 'directive.enroll']);
     ngApp.config(['$controllerProvider', 'lsProvider', function($cp, lsProvider) {
         ngApp.provider = {
             controller: $cp.register
@@ -82,14 +81,14 @@ define(["angular", "xxt-page", "tms-discuss", "tms-siteuser", "tms-favor", "enro
             try {
                 var sharelink, summary;
                 sharelink = 'http://' + location.host + LS.j('', 'site', 'app');
-                if (params.page.share_page && params.page.share_page === 'Y') {
+                if (params.page && params.page.share_page && params.page.share_page === 'Y') {
                     sharelink += '&page=' + params.page.name;
                     sharelink += '&ek=' + params.enrollKey;
                 }
                 window.shareid = params.user.uid + (new Date() * 1);
                 sharelink += "&shareby=" + window.shareid;
                 summary = params.app.summary;
-                if (params.page.share_summary && params.page.share_summary.length && params.record) {
+                if (params.page && params.page.share_summary && params.page.share_summary.length && params.record) {
                     summary = params.record.data[params.page.share_summary];
                 }
                 scope.shareData = {
@@ -168,7 +167,11 @@ define(["angular", "xxt-page", "tms-discuss", "tms-siteuser", "tms-favor", "enro
             rid !== undefined && rid !== null && rid.length && (url += '&rid=' + rid);
             page !== undefined && page !== null && page.length && (url += '&page=' + page);
             newRecord !== undefined && newRecord === 'Y' && (url += '&newRecord=Y');
-            location.replace(url);
+            if (/remark|repos/.test(page)) {
+                location = url;
+            } else {
+                location.replace(url);
+            }
         };
         $scope.openMatter = function(id, type, replace, newWindow) {
             var url = '/rest/site/fe/matter?site=' + LS.p.site + '&id=' + id + '&type=' + type;
@@ -241,9 +244,11 @@ define(["angular", "xxt-page", "tms-discuss", "tms-siteuser", "tms-favor", "enro
                 if (app.use_site_footer === 'Y' && site && site.footer_page) {
                     codeAssembler.loadCode(ngApp, site.footer_page);
                 }
-                codeAssembler.loadCode(ngApp, params.page).then(function() {
-                    $scope.page = params.page;
-                });
+                if (params.page) {
+                    codeAssembler.loadCode(ngApp, params.page).then(function() {
+                        $scope.page = params.page;
+                    });
+                }
                 if (tasksOfOnReady.length) {
                     angular.forEach(tasksOfOnReady, PG.exec);
                 }

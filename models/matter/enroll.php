@@ -77,6 +77,13 @@ class enroll_model extends app_base {
 			if (isset($app->entry_rule)) {
 				$app->entry_rule = json_decode($app->entry_rule);
 			}
+			if ($fields === '*' || false !== strpos($fields, 'data_schemas')) {
+				if (!empty($app->data_schemas)) {
+					$app->dataSchemas = json_decode($app->data_schemas);
+				} else {
+					$app->dataSchemas = [];
+				}
+			}
 			if ($fields === '*' || false !== strpos($fields, 'scenario_config')) {
 				if (!empty($app->scenario_config)) {
 					$app->scenarioConfig = json_decode($app->scenario_config);

@@ -10,8 +10,8 @@
     </title>
     <link href="/static/css/bootstrap.min.css" rel="stylesheet">
     <link href='/static/css/site.fe.css?_=1' rel="stylesheet">
-    <link href="/views/default/site/fe/matter/enroll/input.css?_=6" rel="stylesheet">
     <link href="/views/default/site/fe/matter/enroll/directive.css?_=2" rel="stylesheet">
+    <link href="/views/default/site/fe/matter/enroll/input.css?_=6" rel="stylesheet">
     <style ng-if="page.css" ng-bind='page.css'></style>
 </head>
 
@@ -32,7 +32,23 @@
     <div class="loading">
         <div class='loading-indicator'><i></i></div>
     </div>
-    <script src="/static/js/require.js?_=1" defer async data-main="/views/default/site/fe/matter/enroll/input-loader.js?_=17"></script>
+    <script type="text/ng-template" id="dataBySchema.html">
+        <div class="modal-header">
+            <button class="close" ng-click="cancel()">×</button>
+            <h5 class="modal-title">已填写过的内容</h5>
+        </div>
+        <div class="modal-body">
+            <form>
+                <div class='form-group'>
+                    <select class="form-control" ng-model="data.selected" ng-options="rec.value for rec in records" size='5'></select>
+                </div>
+            </form>
+        </div>
+        <div class="modal-footer">
+            <button class="btn btn-primary" ng-click="ok()">使用选择的内容填写</button>
+        </div>
+    </script>
+    <script src="/static/js/require.js?_=1" defer async data-main="/views/default/site/fe/matter/enroll/input-loader.js?_=18"></script>
 </body>
 
 </html>

@@ -28,6 +28,8 @@
                 <option value=''>不跳转</option>
                 <option value='{{p.name}}' ng-repeat="p in app.pages">{{p.title}}</option>
                 <option value='closeWindow'>关闭页面</option>
+                <option value='remark'>评论页</option>
+                <option value='repos'>所有数据页</option>
             </select>
             <span class="input-group-btn">
                 <button class="btn btn-default" type="button" ng-click="newPage('next')">+</button>

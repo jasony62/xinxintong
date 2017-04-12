@@ -20,7 +20,9 @@ class article2_model extends article_base {
 	 *
 	 */
 	public function getEntryUrl($siteId, $id) {
-		if (isset($_SERVER['HTTP_HOST'])) {
+		if(defined('TMS_HTTP_HOST')){
+			$url = "http://" . TMS_HTTP_HOST;
+		}else if (isset($_SERVER['HTTP_HOST'])) {
 			$url = "http://" . $_SERVER['HTTP_HOST'];
 		} else {
 			$url = '';

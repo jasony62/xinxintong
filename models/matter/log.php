@@ -628,4 +628,57 @@ class log_model extends \TMS_MODEL {
 
 		return true;
 	}
+	/**
+	 * 记录访问日志
+	 */
+	public function logRead($args) {
+		$logUser = new \stdClass;
+		$logUser->userid = $args['user_uid'];
+		$logUser->nickname = $args['user_nickname'];
+
+		$logMatter = new \stdClass;
+		$logMatter->id = $args['id'];
+		$logMatter->type = $args['type'];
+		$logMatter->title = $args['title'];
+
+		$logClient = new \stdClass;
+		$logClient->agent = $args['HTTP_USER_AGENT'];
+		$logClient->ip = $args['clientIp'];
+
+		$search = $args['QUERY_STRING'];
+		$referer = $args['HTTP_REFERER'];
+
+		switch ($args['type']) {
+			case 'article':
+				$this->update("update xxt_article set read_num=read_num+1 where id='".$args['id']."'");
+				break;
+			case 'channel':
+				$this->update("update xxt_channel set read_num=read_num+1 where id='".$args['id']."'");
+				break;
+			case 'news':
+				$this->update("update xxt_news set read_num=read_num+1 where id='".$args['id']."'");
+				break;
+			case 'enroll':
+				$this->update("update xxt_enroll set read_num=read_num+1 where id='".$args['id']."'");
+		}
+
+		$logid = $this->addMatterRead($args['site'], $logUser, $logMatter, $logClient, $args['shareby'], $search, $referer);
+		/**
+		 * coin log
+		 */
+		$user = new \stdClass;
+		$user->uid = $args['user_uid'];
+		$user->nickname = $args['user_nickname'];
+		if ($args['type'] === 'article') {
+			$modelCoin = $this->model('site\coin\log');
+			$matter = $this->model('matter\article2')->byId($args['id']);
+			$modelCoin->award($matter, $user, 'site.matter.article.read');
+		} else if ($args['type'] === 'enroll') {
+			$modelCoin = $this->model('site\coin\log');
+			$matter = $this->model('matter\enroll')->byId($args['id'], ['cascaded' => 'N']);
+			$modelCoin->award($matter, $user, 'site.matter.enroll.read');
+		}
+
+		return $logid;
+	}
 }

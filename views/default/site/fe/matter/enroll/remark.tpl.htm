@@ -33,11 +33,9 @@
                             <div class='datetime'>{{remark.create_at*1000|date:'MM-dd HH:mm'}}</div>
                         </div>
                     </div>
-                    <div class="input-group">
+                    <div class="form-group">
                         <textarea class='form-control' ng-model="newRemark.content"></textarea>
-                        <span class="input-group-btn" style='padding-left:10px;'>
-                            <button class='btn btn-success' ng-click="addRemark(schema)">发布</button>
-                        </span>
+                        <button class='btn btn-success' ng-click="addRemark(schema)">发布</button>
                     </div>
                 </div>
             </uib-accordion>

@@ -254,13 +254,26 @@ define([], function() {
             case 'email':
             case 'shorttext':
             case 'member':
-                html += '<input type="text" ng-model="data.' + schema.id + '" title="' + schema.title + '"';
-                config.showname === 'placeholder' && (html += ' placeholder="' + schema.title + '"');
-                config.required === 'Y' && (html += 'required=""');
-                schema.type === 'member' && (html += 'ng-init="data.member.schema_id=' + schema.schema_id + '"');
-                html += ' class="form-control input-lg"';
-                forEdit && (html += ' readonly');
-                html += '>';
+                if (schema.type === 'shorttext' && schema.history === 'Y') {
+                    html += '<div wrap="shorttext-history" class="input-group input-group-lg">';
+                    html += '<input type="text" ng-model="data.' + schema.id + '"';
+                    html += ' title="' + schema.title + '"';
+                    config.showname === 'placeholder' && (html += ' placeholder="' + schema.title + '"');
+                    config.required === 'Y' && (html += 'required=""');
+                    html += ' class="form-control">';
+                    html += '<span class="input-group-btn">';
+                    html += '<button class="btn btn-default" ng-click="' + 'dataBySchema(\'' + schema.id + '\')' + '">查找</button>';
+                    html += '</span>';
+                    html += '</div>';
+                } else {
+                    html += '<input type="text" ng-model="data.' + schema.id + '" title="' + schema.title + '"';
+                    config.showname === 'placeholder' && (html += ' placeholder="' + schema.title + '"');
+                    config.required === 'Y' && (html += 'required=""');
+                    schema.type === 'member' && (html += 'ng-init="data.member.schema_id=' + schema.schema_id + '"');
+                    html += ' class="form-control input-lg"';
+                    forEdit && (html += ' readonly');
+                    html += '>';
+                }
                 break;
             case 'date':
                 inpAttrs['tms-date'] = 'Y';
@@ -326,7 +339,7 @@ define([], function() {
                 config.required === 'Y' && (html += 'required=""');
                 html += ' class="form-control">';
                 html += '<span class="input-group-btn">';
-                html += '<button class="btn btn-default" type="button" ng-click="' + 'getMyLocation(\'' + schema.id + '\')' + '">定位</button>';
+                html += '<button class="btn btn-default" ng-click="' + 'getMyLocation(\'' + schema.id + '\')' + '">定位</button>';
                 html += '</span>';
                 html += '</div>';
                 break;
@@ -360,7 +373,7 @@ define([], function() {
 
         $dom = $(domWrap);
         if (dataWrap.type === 'input') {
-            if (beforeSchema && schema.type !== beforeSchema.type) {
+            if (beforeSchema && (schema.type !== beforeSchema.type || (schema.type === 'shorttext' && schema.history === 'Y'))) {
                 $dom.html(this.embed(dataWrap).html);
             } else {
                 $label = $dom.find('label');

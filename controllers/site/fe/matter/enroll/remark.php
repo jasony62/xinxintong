@@ -43,7 +43,10 @@ class remark extends base {
 		}
 		$current = time();
 		$modelEnl = $this->model('matter\enroll');
-		$oApp = $modelEnl->byId($oRecord->siteid, ['cascaded' => 'N']);
+		$oApp = $modelEnl->byId($oRecord->aid, ['cascaded' => 'N']);
+		if (false === $oApp) {
+			return new \ObjectNotFoundError();
+		}
 		/**
 		 * 发表评论的用户
 		 */
@@ -62,8 +65,65 @@ class remark extends base {
 		if (isset($schema)) {
 			$modelRec->update("update xxt_enroll_record_data set remark_num=remark_num+1,last_remark_at=$current where enroll_key='$ek' and schema_id='$schema'");
 		}
-		//$this->_notifyHasRemark();
+
+		$this->_notifyHasRemark($oApp, $oRecord, $remark);
 
 		return new \ResponseData($remark);
+	}
+
+	/**
+	 * 通知登记活动事件接收人
+	 */
+	private function _notifyHasRemark($oApp, $oRecord, $oRemark) {
+		$receivers = $this->model('matter\enroll\receiver')->byApp($oApp->siteid, $oApp->id);
+		if (count($receivers) === 0) {
+			return false;
+		}
+		/* 模板消息参数 */
+		$notice = $this->model('site\notice')->byName($oApp->siteid, 'site.enroll.remark');
+		if ($notice === false) {
+			return false;
+		}
+		$tmplConfig = $this->model('matter\tmplmsg\config')->byId($notice->tmplmsg_config_id, ['cascaded' => 'Y']);
+		if (!isset($tmplConfig->tmplmsg)) {
+			return false;
+		}
+
+		$params = new \stdClass;
+		foreach ($tmplConfig->tmplmsg->params as $param) {
+			$mapping = $tmplConfig->mapping->{$param->pname};
+			if ($mapping->src === 'matter') {
+				if (isset($oApp->{$mapping->id})) {
+					$value = $oApp->{$mapping->id};
+				}
+			} else if ($mapping->src === 'text') {
+				$value = $mapping->name;
+			}
+			!isset($value) && $value = '';
+			$params->{$param->pname} = $value;
+		}
+
+		/* 获得活动的管理员链接 */
+		$noticeURL = 'http://' . $_SERVER['HTTP_HOST'];
+		$noticeURL .= '/rest/pl/fe/matter/enroll/editor?site=' . $oApp->siteid;
+		$noticeURL .= '&id=' . $oApp->id;
+		$noticeURL .= '&ek=' . $oRecord->enroll_key;
+		$params->url = $noticeURL;
+
+		/* 发送消息 */
+		foreach ($receivers as &$receiver) {
+			if (!empty($receiver->sns_user)) {
+				$snsUser = json_decode($receiver->sns_user);
+				if (isset($snsUser->src) && isset($snsUser->openid)) {
+					$receiver->{$snsUser->src . '_openid'} = $snsUser->openid;
+				}
+			}
+		}
+
+		/* 发送给活动管理员 */
+		$modelTmplBat = $this->model('matter\tmplmsg\plbatch');
+		$modelTmplBat->send($oApp->siteid, $tmplConfig->msgid, $receivers, $params, ['event_name' => 'site.enroll.remark', 'send_from' => 'enroll:' . $oApp->id . ':' . $oRemark->enroll_key]);
+
+		return true;
 	}
 }

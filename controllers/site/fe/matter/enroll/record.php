@@ -43,7 +43,7 @@ class record extends base {
 
 		// 应用的定义
 		$modelEnl = $this->model('matter\enroll');
-		if (false === ($enrollApp = $modelEnl->byId($app, ['cascaded' => 'N']))) {
+		if (false === ($oEnrollApp = $modelEnl->byId($app, ['cascaded' => 'N']))) {
 			header('HTTP/1.0 500 parameter error:app dosen\'t exist.');
 			die('登记活动不存在');
 		}
@@ -53,24 +53,24 @@ class record extends base {
 		// 提交的数据
 		$enrolledData = $this->getPostJson();
 		// 检查是否允许登记
-		$rst = $this->_canEnroll($site, $enrollApp, $user, $enrolledData, $ek);
+		$rst = $this->_canEnroll($site, $oEnrollApp, $user, $enrolledData, $ek);
 		if ($rst[0] === false) {
 			return new \ResponseError($rst[1]);
 		}
 		/**
 		 * 检查是否存在匹配的登记记录
 		 */
-		if (!empty($enrollApp->enroll_app_id)) {
-			$matchApp = $modelEnl->byId($enrollApp->enroll_app_id);
+		if (!empty($oEnrollApp->enroll_app_id)) {
+			$matchApp = $modelEnl->byId($oEnrollApp->enroll_app_id);
 			if (empty($matchApp)) {
 				return new \ParameterError('指定的登记匹配登记活动不存在');
 			}
 			/* 获得要检查的登记项 */
 			$requireCheckedData = new \stdClass;
-			$dataSchemas = json_decode($enrollApp->data_schemas);
+			$dataSchemas = $oEnrollApp->dataSchemas;
 			foreach ($dataSchemas as $dataSchema) {
 				if (isset($dataSchema->requireCheck) && $dataSchema->requireCheck === 'Y') {
-					if (isset($dataSchema->fromApp) && $dataSchema->fromApp === $enrollApp->enroll_app_id) {
+					if (isset($dataSchema->fromApp) && $dataSchema->fromApp === $oEnrollApp->enroll_app_id) {
 						$requireCheckedData->{$dataSchema->id} = isset($enrolledData->{$dataSchema->id}) ? $enrolledData->{$dataSchema->id} : '';
 					}
 				}
@@ -94,17 +94,17 @@ class record extends base {
 		/**
 		 * 检查是否存在匹配的分组记录
 		 */
-		if (!empty($enrollApp->group_app_id)) {
-			$groupApp = $this->model('matter\group')->byId($enrollApp->group_app_id);
+		if (!empty($oEnrollApp->group_app_id)) {
+			$groupApp = $this->model('matter\group')->byId($oEnrollApp->group_app_id);
 			if (empty($groupApp)) {
 				return new \ParameterError('指定的登记匹配分组活动不存在');
 			}
 			/* 获得要检查的登记项 */
 			$requireCheckedData = new \stdClass;
-			$dataSchemas = json_decode($enrollApp->data_schemas);
+			$dataSchemas = $oEnrollApp->dataSchemas;
 			foreach ($dataSchemas as $dataSchema) {
 				if (isset($dataSchema->requireCheck) && $dataSchema->requireCheck === 'Y') {
-					if (isset($dataSchema->fromApp) && $dataSchema->fromApp === $enrollApp->group_app_id) {
+					if (isset($dataSchema->fromApp) && $dataSchema->fromApp === $oEnrollApp->group_app_id) {
 						$requireCheckedData->{$dataSchema->id} = isset($enrolledData->{$dataSchema->id}) ? $enrolledData->{$dataSchema->id} : '';
 					}
 				}
@@ -142,15 +142,15 @@ class record extends base {
 		$modelRec = $this->model('matter\enroll\record');
 		if (empty($ek)) {
 			/* 插入登记数据 */
-			$ek = $modelRec->enroll($site, $enrollApp, $user);
+			$ek = $modelRec->enroll($site, $oEnrollApp, $user);
 			/* 处理自定义信息 */
-			$rst = $modelRec->setData($user, $enrollApp, $ek, $enrolledData, $submitkey, true);
+			$rst = $modelRec->setData($user, $oEnrollApp, $ek, $enrolledData, $submitkey, true);
 			/* 登记提交的积分奖励 */
 			$modelCoin = $this->model('site\coin\log');
-			$modelCoin->award($enrollApp, $user, 'site.matter.enroll.submit');
+			$modelCoin->award($oEnrollApp, $user, 'site.matter.enroll.submit');
 		} else {
 			/* 重新插入新提交的数据 */
-			$rst = $modelRec->setData($user, $enrollApp, $ek, $enrolledData, $submitkey);
+			$rst = $modelRec->setData($user, $oEnrollApp, $ek, $enrolledData, $submitkey);
 			if ($rst[0] === true) {
 				/* 已经登记，更新原先提交的数据，只要进行更新操作就设置为未审核通过的状态 */
 				$updatedEnrollRec['enroll_at'] = time();
@@ -175,12 +175,12 @@ class record extends base {
 			);
 		}
 		/* 记录操作日志 */
-		$this->_logSubmit($site, $enrollApp, $ek);
+		$this->_logSubmit($site, $oEnrollApp, $ek);
 		/**
 		 * 通知登记活动事件接收人
 		 */
-		if ($enrollApp->notify_submit === 'Y') {
-			$this->_notifyReceivers($enrollApp, $ek);
+		if ($oEnrollApp->notify_submit === 'Y') {
+			$this->_notifyReceivers($oEnrollApp, $ek);
 		}
 
 		return new \ResponseData($ek);

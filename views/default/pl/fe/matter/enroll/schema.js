@@ -156,6 +156,27 @@ define(['frame', 'schema', 'wrap'], function(ngApp, schemaLib, wrapLib) {
 
         $scope.chooseSchema = function(event, schema) {
             $scope.activeSchema = schema;
+            if ($scope.app.scenario && $scope.activeSchema.type === 'multiple') {
+                angular.isString($scope.activeSchema.answer) && ($scope.activeSchema.answer = $scope.activeSchema.answer.split(','));
+                !$scope.data && ($scope.data = {});
+                angular.forEach($scope.activeSchema.answer, function(answer) {
+                    $scope.data[answer] = true;
+                })
+            }
+        };
+        $scope.updSchemaMultiple = function(activeSchema) {
+            angular.forEach($scope.data, function(data, key) {
+                var i = $scope.activeSchema.answer.indexOf(key);
+                //如果key 在answer中 data为false，则去掉
+                //    如果不在answer中，data为true ，则添加
+                if (i !== -1 && data === false) {
+                    $scope.activeSchema.answer.splice(i, 1);
+                } else if (i === -1 && data === true) {
+                    $scope.activeSchema.answer.push(key);
+                }
+            });
+            $scope.activeSchema.answer.join(',');
+            $scope.updSchema(activeSchema, 'answer');
         };
         $scope.schemaHtml = function(schema) {
             if (schema) {

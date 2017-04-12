@@ -193,6 +193,7 @@ define(["angular", "xxt-page", "tms-discuss", "tms-coinpay", "tms-favor", "tms-s
         $scope.siteId = siteId;
         $scope.articleId = id;
         $scope.mode = ls.match(/mode=([^&]*)/) ? ls.match(/mode=([^&]*)/)[1] : '';
+        $scope.code = '/rest/site/fe/matter/article/qrcode?site=' + $scope.siteId + '&url=' + encodeURIComponent(location.href);
         $scope.followYixinMp = function() {
             //location.href = 'yixin://opencard?pid=' + $scope.mpa.yx_cardid;
         };

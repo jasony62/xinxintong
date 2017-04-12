@@ -684,8 +684,13 @@ class record extends \pl\fe\matter\base {
 				}
 				switch ($schema->type) {
 				case 'single':
-					isset($data->{$schema->id.'_score'}) && $v.=' ('.$data->{$schema->id.'_score'}.'分)';
-					$objActiveSheet->setCellValueExplicitByColumnAndRow($i + $columnNum3++, $rowIndex, $v, \PHPExcel_Cell_DataType::TYPE_STRING);
+					foreach ($schema->ops as $op) {
+						if($op->v===$v){
+							$v0=$op->l;
+						}
+					}
+					isset($data->{$schema->id.'_score'}) && ($v0.=' ('.$data->{$schema->id.'_score'}.'分)');
+					$objActiveSheet->setCellValueExplicitByColumnAndRow($i + $columnNum3++, $rowIndex, $v0, \PHPExcel_Cell_DataType::TYPE_STRING);
 					break;
 				case 'phase':
 					$disposed = null;

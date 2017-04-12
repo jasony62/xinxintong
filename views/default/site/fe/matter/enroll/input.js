@@ -1,6 +1,5 @@
 define(["angular", "enroll-common", "angular-sanitize", "xxt-share", "xxt-image", "xxt-geo"], function(angular, ngApp) {
     'use strict';
-
     ngApp.config(['$compileProvider', function($compileProvider) {
         $compileProvider.aHrefSanitizationWhitelist(/^\s*(https?|ftp|mailto|tel|file|sms|wxLocalResource):/);
     }]);
@@ -346,7 +345,7 @@ define(["angular", "enroll-common", "angular-sanitize", "xxt-share", "xxt-image"
             }
         }
     }]);
-    ngApp.controller('ctrlInput', ['$scope', '$http', '$q', 'Input', 'ls', function($scope, $http, $q, Input, LS) {
+    ngApp.controller('ctrlInput', ['$scope', '$http', '$q', '$uibModal', 'Input', 'ls', function($scope, $http, $q, $uibModal, Input, LS) {
         var PG = (function() {
             return {
                 setMember: function(user, member) {
@@ -565,6 +564,24 @@ define(["angular", "enroll-common", "angular-sanitize", "xxt-share", "xxt-image"
                 } else {
                     $scope.$parent.errmsg = data.errmsg;
                 }
+            });
+        };
+        $scope.dataBySchema = function(schemaId) {
+            var app = $scope.app;
+            $uibModal.open({
+                templateUrl: 'dataBySchema.html',
+                controller: ['$scope', '$uibModalInstance', function($scope2, $mi) {
+                    $scope2.data = {};
+                    $scope2.cancel = function() { $mi.dismiss(); };
+                    $scope2.ok = function() { $mi.close($scope2.data); };
+                    $http.get('/rest/site/fe/matter/enroll/repos/dataBySchema?site=' + app.siteid + '&app=' + app.id + '&schema=' + schemaId).success(function(result) {
+                        $scope2.records = result.data.records;
+                    });
+                }],
+                windowClass: 'auto-height',
+                backdrop: 'static',
+            }).result.then(function(result) {
+                $scope.data[schemaId] = result.selected.value;
             });
         };
         $scope.score = function(schemaId, opIndex, number) {

@@ -1,0 +1,52 @@
+<!DOCTYPE html>
+<html ng-controller='ctrl'>
+
+<head>
+    <meta charset="utf-8">
+    <meta content="width=device-width,user-scalable=no,initial-scale=1.0" name="viewport">
+    <base href="/" />
+    <title>
+        <?php TPL::pt('title');?>
+    </title>
+    <link href="/static/css/bootstrap.min.css" rel="stylesheet">
+    <link href='/static/css/site.fe.css?_=1' rel="stylesheet">
+    <link href="/views/default/site/fe/matter/enroll/directive.css?_=1" rel="stylesheet">
+    <link href="/views/default/site/fe/matter/enroll/remark.css?_=1" rel="stylesheet">
+</head>
+
+<body>
+    <header ng-if="app.use_site_header==='Y'" dynamic-html="site.header_page.html"></header>
+    <header ng-if="app.use_mission_header==='Y'" dynamic-html="mission.header_page.html"></header>
+    <div ng-cloak class='ng-cloak app'>
+        <div id='errmsg' class='alert alert-danger' ng-class="{'active':errmsg}" ng-click="errmsg=''" ng-bind='errmsg'></div>
+        <div class='container' ng-controller="ctrlRemark">
+            <uib-accordion id='remarkList' close-others="true">
+                <div uib-accordion-group is-disabled='true' is-open="schema._open" heading="{{schema.title}}" ng-repeat="schema in remarkableSchemas">
+                    <uib-accordion-heading>
+                        <div class='title'>{{schema.title}}</div>
+                        <button class='btn btn-default btn-sm' ng-click="switchSchema(schema)"><span class='glyphicon glyphicon-comment'></span> <span class="badge">{{schema.summary.remark_num}}</span></button>
+                    </uib-accordion-heading>
+                    <div class='remarks'>
+                        <div class='remark' ng-repeat="remark in schemaRemarks[schema.id]">
+                            <div class='nickname'>{{remark.nickname}}</div>
+                            <div class='content'>{{remark.content}}</div>
+                            <div class='datetime'>{{remark.create_at*1000|date:'MM-dd HH:mm'}}</div>
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <textarea class='form-control' ng-model="newRemark.content"></textarea>
+                        <button class='btn btn-success' ng-click="addRemark(schema)">发布</button>
+                    </div>
+                </div>
+            </uib-accordion>
+        </div>
+    </div>
+    <footer ng-if="app.use_mission_footer==='Y'" dynamic-html="mission.footer_page.html"></footer>
+    <footer ng-if="app.use_site_footer==='Y'" dynamic-html="site.footer_page.html"></footer>
+    <div class="loading">
+        <div class='loading-indicator'><i></i></div>
+    </div>
+    <script src="/static/js/require.js?_=1" defer async data-main="/views/default/site/fe/matter/enroll/remark-loader.js?_=12"></script>
+</body>
+
+</html>

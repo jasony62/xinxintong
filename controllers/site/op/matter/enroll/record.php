@@ -51,27 +51,28 @@ class record extends \site\op\base {
 		$updated = new \stdClass;
 		$updated->enroll_at = time();
 		if (isset($record->comment)) {
-			$updated->comment =  $modelEnl->escape($record->comment);
+			$updated->comment = $modelEnl->escape($record->comment);
 		}
 		if (isset($record->tags)) {
-			$updated->tags =  $modelEnl->escape($record->tags);
+			$updated->tags = $modelEnl->escape($record->tags);
 			$modelEnl->updateTags($app->id, $updated->tags);
 		}
 		if (isset($record->verified)) {
-			$updated->verified =  $modelEnl->escape($record->verified);
+			$updated->verified = $modelEnl->escape($record->verified);
 		}
 		if (isset($record->rid)) {
 			$updated->rid = $modelEnl->escape($record->rid);
 		}
-		$modelEnl->update('xxt_enroll_record', $updated, "enroll_key='$ek'");
+		$modelEnl->update('xxt_enroll_record', $updated, ['enroll_key' => $ek]);
 
 		/* 记录登记数据 */
-		$result = $modelRec->setData(null, $app, $ek, isset($record->data) ? $record->data : new \stdClass);
-		$updated2 = new \stdClass;
-		if (isset($record->rid)) {
-			$updated2->rid =  $modelEnl->escape($record->rid);
+		if (isset($record->data)) {
+			$modelRec->setData(null, $app, $ek, $record->data);
 		}
-		$modelEnl->update('xxt_enroll_record_data', $updated2, "enroll_key='$ek'");
+
+		if (isset($record->rid)) {
+			$modelEnl->update('xxt_enroll_record_data', ['rid' => $modelEnl->escape($record->rid)], ['enroll_key' => $ek]);
+		}
 
 		if (isset($updated->verified) && $updated->verified === 'Y') {
 			$this->_whenVerifyRecord($app, $ek);
@@ -103,7 +104,7 @@ class record extends \site\op\base {
 					$enrollKey, ['fields' => 'userid,data', 'cascaded' => 'N']
 				);
 				if (!empty($enrollRecord->data)) {
-					$enrollData = json_decode($enrollRecord->data);
+					$enrollData = $enrollRecord->data;
 					foreach ($signinApps as $signinApp) {
 						// 更新对应的签到记录
 						$q = [
@@ -131,7 +132,7 @@ class record extends \site\op\base {
 										'aid' => $app->id,
 										'enroll_key' => $signinRecord->enroll_key,
 										'name' => $k,
-										'value' => $v,
+										'value' => $model->toJson($v),
 									];
 									$model->insert('xxt_signin_record_data', $ic, false);
 								}
@@ -211,7 +212,7 @@ class record extends \site\op\base {
 
 		// 查询结果
 		$mdoelRec = $this->model('matter\enroll\record');
-		$result = $mdoelRec->list4Schema($site, $enrollApp, $schema, $options);
+		$result = $mdoelRec->list4Schema($enrollApp, $schema, $options);
 
 		return new \ResponseData($result);
 	}

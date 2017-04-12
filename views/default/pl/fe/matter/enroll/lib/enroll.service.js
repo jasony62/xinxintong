@@ -992,45 +992,26 @@ define(['require', 'schema', 'page'], function(require, schemaLib, pageLib) {
             _ins.filter = function() {
                 return _ins._bFilter(srvEnlRnd);
             };
-            _ins.add = function(newRecord) {
-                http2.post('/rest/pl/fe/matter/enroll/record/add?site=' + _siteId + '&app=' + _appId, newRecord, function(rsp) {
-                    var record = rsp.data;
-                    srvRecordConverter.forTable(record, _ins._oApp._schemasById);
-                    _ins._aRecords.splice(0, 0, record);
+            _ins.get = function(ek) {
+                var defer = $q.defer();
+                http2.get('/rest/pl/fe/matter/enroll/record/get?ek=' + ek, function(rsp) {
+                    defer.resolve(rsp.data);
                 });
+                return defer.promise;
+            };
+            _ins.add = function(newRecord) {
+                var defer = $q.defer();
+                http2.post('/rest/pl/fe/matter/enroll/record/add?site=' + _siteId + '&app=' + _appId, newRecord, function(rsp) {
+                    defer.resolve(rsp.data);
+                });
+                return defer.promise;
             };
             _ins.update = function(record, updated) {
+                var defer = $q.defer();
                 http2.post('/rest/pl/fe/matter/enroll/record/update?site=' + _siteId + '&app=' + _appId + '&ek=' + record.enroll_key, updated, function(rsp) {
-                    angular.extend(record, rsp.data);
-                    srvRecordConverter.forTable(record, _ins._oApp._unionSchemasById);
+                    defer.resolve(rsp.data);
                 });
-            };
-            _ins.edit = function(record) {
-                $uibModal.open({
-                    templateUrl: '/views/default/pl/fe/matter/enroll/component/recordEditor.html?_=7',
-                    controller: 'ctrlEnrollEdit',
-                    backdrop: 'static',
-                    resolve: {
-                        record: function() {
-                            if (record === undefined) {
-                                return {
-                                    aid: _appId,
-                                    tags: '',
-                                    data: {}
-                                };
-                            } else {
-                                record.aid = _appId;
-                                return angular.copy(record);
-                            }
-                        },
-                    }
-                }).result.then(function(updated) {
-                    if (record) {
-                        _ins.update(record, updated[0]);
-                    } else {
-                        _ins.add(updated[0]);
-                    }
-                });
+                return defer.promise;
             };
             _ins.batchTag = function(rows) {
                 $uibModal.open({
@@ -1241,39 +1222,39 @@ define(['require', 'schema', 'page'], function(require, schemaLib, pageLib) {
                 return defer.promise;
             };
             _ins.syncByEnroll = function(record) {
-                    var url;
+                var url;
 
-                    url = '/rest/pl/fe/matter/enroll/record/matchEnroll';
-                    url += '?site=' + _siteId;
-                    url += '&app=' + _appId;
+                url = '/rest/pl/fe/matter/enroll/record/matchEnroll';
+                url += '?site=' + _siteId;
+                url += '&app=' + _appId;
 
-                    http2.post(url, record.data, function(rsp) {
-                        var matched;
-                        if (rsp.data && rsp.data.length === 1) {
-                            matched = rsp.data[0];
-                            angular.extend(record.data, matched);
-                        } else {
-                            alert('没有找到匹配的记录，请检查数据是否一致');
-                        }
-                    });
-                },
-                _ins.syncByGroup = function(record) {
-                    var url;
+                http2.post(url, record.data, function(rsp) {
+                    var matched;
+                    if (rsp.data && rsp.data.length === 1) {
+                        matched = rsp.data[0];
+                        angular.extend(record.data, matched);
+                    } else {
+                        alert('没有找到匹配的记录，请检查数据是否一致');
+                    }
+                });
+            };
+            _ins.syncByGroup = function(record) {
+                var url;
 
-                    url = '/rest/pl/fe/matter/enroll/record/matchGroup';
-                    url += '?site=' + _siteId;
-                    url += '&app=' + _appId;
+                url = '/rest/pl/fe/matter/enroll/record/matchGroup';
+                url += '?site=' + _siteId;
+                url += '&app=' + _appId;
 
-                    http2.post(url, record.data, function(rsp) {
-                        var matched;
-                        if (rsp.data && rsp.data.length === 1) {
-                            matched = rsp.data[0];
-                            angular.extend(record.data, matched);
-                        } else {
-                            alert('没有找到匹配的记录，请检查数据是否一致');
-                        }
-                    });
-                };
+                http2.post(url, record.data, function(rsp) {
+                    var matched;
+                    if (rsp.data && rsp.data.length === 1) {
+                        matched = rsp.data[0];
+                        angular.extend(record.data, matched);
+                    } else {
+                        alert('没有找到匹配的记录，请检查数据是否一致');
+                    }
+                });
+            };
             _ins.importByOther = function() {
                 var defer = $q.defer();
                 $uibModal.open({
@@ -1419,6 +1400,26 @@ define(['require', 'schema', 'page'], function(require, schemaLib, pageLib) {
                 })
                 return defer.promise;
             };
+            _ins.listRemark = function(ek, schemaId) {
+                var url, defer = $q.defer();
+                url = '/rest/pl/fe/matter/enroll/remark/list';
+                url += '?site=' + _siteId;
+                url += '&ek=' + ek;
+                schemaId && (url += '&schema=' + schemaId);
+                http2.get(url, function(rsp) {
+                    defer.resolve(rsp.data);
+                });
+                return defer.promise;
+            };
+            _ins.addRemark = function(ek, schemaId, newRemark) {
+                var url, defer = $q.defer();
+                url = '/rest/pl/fe/matter/enroll/remark/add?ek=' + ek;
+                schemaId && (url += '&schema=' + schemaId);
+                http2.post(url, newRemark, function(rsp) {
+                    defer.resolve(rsp.data);
+                });
+                return defer.promise;
+            };
 
             return _ins;
         }];
@@ -1482,6 +1483,22 @@ define(['require', 'schema', 'page'], function(require, schemaLib, pageLib) {
                 http2.get(url, function(rsp) {
                     defer.resolve(rsp.data);
                 })
+                return defer.promise;
+            };
+            _ins.listRemark = function(ek) {
+                var url, defer = $q.defer();
+                url = '/rest/site/op/matter/enroll/record/listRemark?ek=' + ek;
+                http2.get(url, function(rsp) {
+                    defer.resolve(rsp.data);
+                });
+                return defer.promise;
+            };
+            _ins.addRemark = function(ek, newRemark) {
+                var url, defer = $q.defer();
+                url = '/rest/site/op/matter/enroll/record/addRemark?ek=' + ek;
+                http2.post(url, newRemark, function(rsp) {
+                    defer.resolve(rsp.data);
+                });
                 return defer.promise;
             };
 
@@ -1935,107 +1952,7 @@ define(['require', 'schema', 'page'], function(require, schemaLib, pageLib) {
                 }
             };
         }];
-    }).controller('ctrlEnrollEdit', ['$scope', '$uibModalInstance', 'record', 'srvEnrollApp', 'srvEnrollRecord', 'srvRecordConverter', 'srvEnrollRound', function($scope, $uibModalInstance, record, srvEnrollApp, srvEnrollRecord, srvRecordConverter, srvEnlRnd) {
-        srvEnrollApp.get().then(function(app) {
-            if (record.data) {
-                app.data_schemas.forEach(function(col) {
-                    if (record.data[col.id]) {
-                        srvRecordConverter.forEdit(col, record.data);
-                    }
-                });
-                app._schemasFromEnrollApp.forEach(function(col) {
-                    if (record.data[col.id]) {
-                        srvRecordConverter.forEdit(col, record.data);
-                    }
-                });
-                app._schemasFromGroupApp.forEach(function(col) {
-                    if (record.data[col.id]) {
-                        srvRecordConverter.forEdit(col, record.data);
-                    }
-                });
-            }
-            $scope.app = app;
-            $scope.enrollDataSchemas = app._schemasByEnrollApp;
-            $scope.groupDataSchemas = app._schemasByGroupApp;
-            $scope.record = record;
-            $scope.record.aTags = (!record.tags || record.tags.length === 0) ? [] : record.tags.split(',');
-            $scope.aTags = app.tags;
-        });
-        $scope.ok = function() {
-            var record = $scope.record,
-                p = {
-                    tags: record.aTags.join(','),
-                    data: {}
-                };
-
-            record.tags = p.tags;
-            record.comment && (p.comment = record.comment);
-            p.verified = record.verified;
-            p.data = $scope.record.data;
-            p.rid = record.rid;
-            $uibModalInstance.close([p, $scope.aTags]);
-        };
-        $scope.cancel = function() {
-            $uibModalInstance.dismiss('cancel');
-        };
-        $scope.scoreRangeArray = function(schema) {
-            var arr = [];
-            if (schema.range && schema.range.length === 2) {
-                for (var i = schema.range[0]; i <= schema.range[1]; i++) {
-                    arr.push('' + i);
-                }
-            }
-            return arr;
-        };
-        $scope.chooseImage = function(fieldName) {
-            var data = $scope.record.data;
-            srvEnrollRecord.chooseImage(fieldName).then(function(img) {
-                !data[fieldName] && (data[fieldName] = []);
-                data[fieldName].push(img);
-            });
-        };
-        $scope.removeImage = function(field, index) {
-            field.splice(index, 1);
-        };
-        $scope.$on('tag.xxt.combox.done', function(event, aSelected) {
-            var aNewTags = [];
-            for (var i in aSelected) {
-                var existing = false;
-                for (var j in $scope.record.aTags) {
-                    if (aSelected[i] === $scope.record.aTags[j]) {
-                        existing = true;
-                        break;
-                    }
-                }!existing && aNewTags.push(aSelected[i]);
-            }
-            $scope.record.aTags = $scope.record.aTags.concat(aNewTags);
-        });
-        $scope.$on('tag.xxt.combox.add', function(event, newTag) {
-            if (-1 === $scope.record.aTags.indexOf(newTag)) {
-                $scope.record.aTags.push(newTag);
-                if (-1 === $scope.aTags.indexOf(newTag)) {
-                    $scope.aTags.push(newTag);
-                }
-            }
-        });
-        $scope.$on('tag.xxt.combox.del', function(event, removed) {
-            $scope.record.aTags.splice($scope.record.aTags.indexOf(removed), 1);
-        });
-        $scope.syncByEnroll = function() {
-            srvEnrollRecord.syncByEnroll($scope.record);
-        };
-        $scope.syncByGroup = function() {
-            srvEnrollRecord.syncByGroup($scope.record);
-        };
-        $scope.doSearchRound = function() {
-            srvEnlRnd.list().then(function(result) {
-                $scope.activeRound = result.active;
-                $scope.rounds = result.rounds;
-                $scope.pageOfRound = result.page;
-            });
-        };
-        $scope.doSearchRound();
-    }]).controller('ctrlEnrollFilter', ['$scope', '$uibModalInstance', 'dataSchemas', 'criteria', 'srvEnlRnd', function($scope, $mi, dataSchemas, lastCriteria, srvEnlRnd) {
+    }).controller('ctrlEnrollFilter', ['$scope', '$uibModalInstance', 'dataSchemas', 'criteria', 'srvEnlRnd', function($scope, $mi, dataSchemas, lastCriteria, srvEnlRnd) {
         var canFilteredSchemas = [];
 
         dataSchemas.forEach(function(schema) {

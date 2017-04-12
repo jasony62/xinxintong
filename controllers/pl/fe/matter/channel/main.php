@@ -243,13 +243,17 @@ class main extends \pl\fe\matter\base {
 	/**
 	 * 删除频道
 	 */
-	public function delete_action($id) {
+	public function delete_action($site, $id) {
 		if (false === ($user = $this->accountUser())) {
 			return new \ResponseTimeout();
 		}
 
-		$rst = $this->model()->update('xxt_channel', array('state' => 0), "mpid='$this->mpid' and id=$id");
+		$modelCh = $this->model('matter\channel');
+		$channel = $modelCh->byId($id, 'id,title');
+		$rst = $modelCh->update('xxt_channel', array('state' => 0), "siteid='$site' and id=$id");
 
+		/* 记录操作日志 */
+		$this->model('matter\log')->matterOp($site, $user, $channel, 'Recycle');
 		return new \ResponseData($rst);
 	}
 	/**

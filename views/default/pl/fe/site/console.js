@@ -157,6 +157,7 @@ ngApp.controller('ctrlConsole', ['$scope', '$uibModal', 'http2', 'templateShop',
                     url += type + '/remove?app=' + id + '&site=' + $scope.siteId;
                     break;
                 case 'news':
+                case 'channel':
                     url += type + '/delete?site=' + $scope.siteId + '&id=' + id;
             }
             http2.get(url, function(rsp) {
@@ -221,12 +222,11 @@ ngApp.controller('ctrlConsole', ['$scope', '$uibModal', 'http2', 'templateShop',
     };
     //研究项目-登记活动
     $scope.addEnrollByTemplate = function(scenario) {
-        $('body').trigger('click');
         templateShop.choose($scope.siteId, 'enroll', scenario).then(function(choice) {
             if (choice) {
                 if (choice.source === 'share') {
                     var url, data = choice.data;
-                    url = '/rest/pl/fe/template/purchase?template=' + data.id +'&site=' + $scope.siteId;
+                    url = '/rest/pl/fe/template/purchase?template=' + data.id + '&site=' + $scope.siteId;
                     http2.get(url, function(rsp) {
                         http2.get('/rest/pl/fe/matter/enroll/createByOther?site=' + $scope.siteId + '&template=' + data.id, function(rsp) {
                             location.href = '/rest/pl/fe/matter/enroll?id=' + rsp.data.id + '&site=' + $scope.siteId;

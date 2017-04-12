@@ -1,6 +1,6 @@
 <div class='container-fluid' ng-controller="ctrlBasic">
     <div class='row'>
-        <div id='records' class='col-md-12' ng-if="subView==='list'">
+        <div id='records' class='col-md-12'>
             <table class='table table-bordered'>
                 <thead>
                     <tr>
@@ -56,12 +56,12 @@
                         <td data-th='备注'><span>{{r.comment}}</span></td>
                         <td data-th='操作'>
                             <span>
-	                            <button class='btn btn-xs btn-danger' ng-click='removeRecord(r)'>
-	                                <i class='glyphicon glyphicon-remove'></i>
-	                            </button>
-	                            <button class='btn btn-xs btn-default' ng-click='editRecord(r)'>
-	                                <i class='glyphicon glyphicon-edit'></i>
-	                            </button>
+                                <button class='btn btn-xs btn-danger' ng-click='removeRecord(r)'>
+                                    <i class='glyphicon glyphicon-remove'></i>
+                                </button>
+                                <button class='btn btn-xs btn-default' ng-click='editRecord(r)'>
+                                    <i class='glyphicon glyphicon-edit'></i>
+                                </button>
                             </span>
                         </td>
                     </tr>
@@ -88,113 +88,24 @@
             <nav class="navbar navbar-default navbar-fixed-bottom">
                 <div class="container-fluid">
                     <form class="navbar-form navbar-left">
-                    	<div class="btn-group dropup">
-						    <button type="button" ng-disabled="!countSelected()" class="btn btn-default dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-						        选中记录 <span class="caret"></span>
-						    </button>
-						    <ul class="dropdown-menu">
-						        <li><a href="" ng-click="batchVerify()">通过审核</a></li>
-						    </ul>
-						</div>
+                        <div class="btn-group dropup">
+                            <button type="button" ng-disabled="!countSelected()" class="btn btn-default dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                                选中记录 <span class="caret"></span>
+                            </button>
+                            <ul class="dropdown-menu">
+                                <li><a href="" ng-click="batchVerify()">通过审核</a></li>
+                            </ul>
+                        </div>
                         <button class='btn btn-default' ng-click="filter()">筛选</button>
                     </form>
                     <form class="navbar-form navbar-right">
                         <span>共{{page.total}}条，</span>
                         <span>第 <select class='form-control' ng-model="page.at" ng-options="number as number for number in page.numbers" ng-change="getRecords()"></select>
-            			<span>页</span>
+                        <span>页</span>
                         <button class='btn btn-default' ng-click="getRecords()">刷新</button>
                     </form>
                 </div>
             </nav>
-        </div>
-        <div id='edit' class='col-md-12' ng-if="subView==='editing'">
-            <div class="form-group" >
-                <label>所属轮次</label>
-                <div>
-                    <select class='form-control' ng-model="record.rid" size=5>
-                        <option ng-if="activeRound" value='{{activeRound.rid}}'>当前轮次（{{activeRound.title}}）</option>
-                        <option value="{{rnd.rid}}" ng-repeat="rnd in rounds" ng-if="!rnd._isActive">{{rnd.title}}</option>
-                    </select>
-                    <div ng-show="pageOfRound.total>pageOfRound.size">
-                        <span style='line-height:34px'>总数：{{pageOfRound.total}}</span>
-                        <ul uib-pagination style="margin:0;vertical-align:bottom;cursor:pointer" boundary-links="true" total-items="pageOfRound.total" max-size="5" items-per-page="pageOfRound.size" rotate="false" ng-model="pageOfRound.at" previous-text="&lsaquo;" next-text="&rsaquo;" first-text="&laquo;" last-text="&raquo;" ng-change="doSearchRound()"></ul>
-                    </div>
-                </div>
-            </div>
-            <div class="form-group" ng-repeat="schema in app.data_schemas" ng-if="schema.type!=='html'" >
-                <label>{{schema.title}}</label>
-                <div ng-switch on="schema.type">
-                    <textarea class='form-control' ng-switch-when="longtext" ng-model="record.data[schema.id]"></textarea>
-                    <select class='form-control' ng-switch-when="single" ng-model="record.data[schema.id]" ng-options="op.v as op.l for op in schema.ops">
-                        <option></option>
-                    </select>
-                    <select class='form-control' ng-switch-when="phase" ng-model="record.data[schema.id]" ng-options="op.v as op.l for op in schema.ops">
-                        <option></option>
-                    </select>
-                    <ul ng-switch-when="multiple">
-                        <li class='checkbox' ng-repeat="op in schema.ops">
-                            <label><input type="checkbox" name="{{schema.id}}" ng-model="record.data[schema.id][op.v]"/><span>{{op.l}}</span></label>
-                        </li>
-                    </ul>
-                    <div ng-switch-when="score">
-                        <div ng-repeat="op in schema.ops">
-                            <div>{{op.l}}</div>
-                            <select class='form-control' ng-model="record.data[schema.id][op.v]" ng-options="number as number for number in scoreRangeArray(schema)"><option></option></select>
-                        </div>
-                    </div>
-                    <ul ng-switch-when="image" class="img-tiles clearfix">
-                        <li wrap="img" ng-repeat="img in record.data[schema.id]" class="img-thumbnail" title="图片">
-                            <img flex-img="" />
-                            <button class="btn btn-default btn-xs" ng-click="removeImage(record.data[schema.id],$index)"><span class="glyphicon glyphicon-remove"></span></button>
-                        </li>
-                        <li class="img-picker">
-                            <button class="btn btn-default" ng-click="chooseImage(schema.id)"><span class="glyphicon glyphicon-picture"></span><br />上传图片</button>
-                        </li>
-                    </ul>
-                    <span ng-switch-when="file">
-                        <span ng-repeat="file in record.data[schema.id]">
-                            <span ng-bind="file.url"></span>
-                            <video ng-if="file.type.indexOf('video')===0" style="width:100%;" controls="controls">
-                                <source src="{{file.url}}" type="{{file.type}}"/>
-                            </video>
-                            <img ng-if="file.type.indexOf('image')===0" ng-src='{{file.url}}' style="width:100%"/>
-                        </span>
-                    </span>
-                    <input type="text" class='form-control' ng-switch-when='mobile' ng-model="record.data[schema.id]">
-                    <div ng-switch-when='date'>
-                        <tms-datepicker class='tms-datepicker' tms-title='时间' tms-obj="rnd" tms-date="record.data[schema.id]" tms-state="signinAt"></tms-datepicker>
-                    </div>
-                    <input type='text' class='form-control' ng-switch-default ng-model="record.data[schema.id]">
-                </div>
-            </div>
-            <hr>
-            <div class="form-group" ng-if='record.enroll_at'>
-                <label>登记时间</label>
-                <p class="form-control-static">{{record.enroll_at*1000|date:'yy-MM-dd hh:mm'}}</p>
-            </div>
-            <div class="form-group">
-                <label>审核通过</label>
-                <div>
-                    <label class='checkbox-inline'><input type='checkbox' ng-true-value="'Y'" ng-false-value="'N'" ng-model="record.verified">是</label>
-                </div>
-            </div>
-            <div class="form-group">
-                <label>备注</label>
-                <div>
-                    <textarea class='form-control' ng-model="record.comment" style="border-radius:4px"></textarea>
-                </div>
-            </div>
-            <div class="form-group">
-                <label>标签</label>
-                <div>
-                    <combox evt-prefix='tag' existing='record.aTags' options='aTags'></combox>
-                </div>
-            </div>
-            <hr>
-            <div class="form-group">
-                <button class='btn btn-success' ng-click="update()">保存</button>
-                <button class='btn btn-success' ng-click="back()">返回</button>
-            </div>
         </div>
     </div>
 </div>

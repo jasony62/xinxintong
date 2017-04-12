@@ -18,35 +18,35 @@
 #recordEditor .remark .content{border-left:3px solid #ccc;padding-left:1em;}
 #recordEditor .remark .datetime{color:#777;font-size:.8em;}
 </style>
-<div id='recordEditor' class='col-md-8 col-md-offset-2'>
-    <uib-tabset active="0">
-        <uib-tab index="0">
-            <uib-tab-heading>填写内容</uib-tab-heading>
+<div id='recordEditor' class='col-md-10 col-md-offset-1'>
+    <uib-tabset active="activeTab">
+        <uib-tab index="'fields'" select="selectTab('fields')">
+            <uib-tab-heading>修改内容</uib-tab-heading>
             <div class='edit-content'>
                 <button class='btn btn-success' ng-click="save()">保存</button>
                 <hr>
                 <form class='form-horizontal'>
                     <div class="form-group" ng-if='record.enroll_at'>
                         <label class='form-label col-md-2'>登记时间</label>
-                        <div class='col-md-10'>
+                        <div class='col-md-6'>
                             <p class='form-static-text'>{{record.enroll_at*1000|date:'yy-MM-dd HH:mm'}}</p>
                         </div>
                     </div>
                     <div class="form-group">
                         <label class='form-label col-md-2'>审核通过</label>
-                        <div class='col-md-10'>
+                        <div class='col-md-6'>
                             <input type='checkbox' ng-true-value="'Y'" ng-false-value="'N'" ng-model="record.verified">
                         </div>
                     </div>
                     <div class="form-group">
                         <label class='form-label col-md-2'>备注</label>
-                        <div class='col-md-10'>
+                        <div class='col-md-6'>
                             <textarea class='form-control' ng-model="record.comment"></textarea>
                         </div>
                     </div>
                     <div class="form-group">
                         <label class='form-label col-md-2'>标签</label>
-                        <div class='col-md-10'>
+                        <div class='col-md-6'>
                             <combox evt-prefix='tag' existing='record.aTags' options='aTags'></combox>
                         </div>
                     </div>
@@ -56,7 +56,7 @@
                 <form class='form-horizontal'>
                     <div class="form-group" ng-if="rounds.length">
                         <label class='form-label col-md-2'>所属轮次</label>
-                        <div class='col-md-10'>
+                        <div class='col-md-6'>
                             <select class='form-control' ng-model="record.rid" size=5>
                                 <option ng-if="activeRound" value='{{activeRound.rid}}'>当前轮次（{{activeRound.title}}）</option>
                                 <option value="{{rnd.rid}}" ng-repeat="rnd in rounds" ng-if="!rnd._isActive">{{rnd.title}}</option>
@@ -67,9 +67,9 @@
                             </div>
                         </div>
                     </div>
-                    <div class="form-group" ng-repeat="schema in app.data_schemas" ng-if="schema.type!=='html'">
+                    <div class="form-group" ng-repeat="schema in app.dataSchemas" ng-if="schema.type!=='html'">
                         <label class='form-label col-md-2'>{{schema.title}}</label>
-                        <div ng-switch on="schema.type" class='col-md-10'>
+                        <div ng-switch on="schema.type" class='col-md-6'>
                             <textarea class='form-control' ng-switch-when="longtext" ng-model="record.data[schema.id]"></textarea>
                             <select class='form-control' ng-switch-when="single" ng-model="record.data[schema.id]" ng-options="op.v as op.l for op in schema.ops">
                                 <option></option>
@@ -110,11 +110,16 @@
                                     <img ng-if="file.type.indexOf('image')===0" ng-src='{{file.url}}' style="width:100%" />
                                 </span>
                             </span>
-                            <input type="text" class='form-control' ng-switch-when='mobile' ng-model="record.data[schema.id]">
                             <div ng-switch-when='date'>
                                 <tms-datepicker class='tms-datepicker' tms-title='时间' tms-obj="rnd" tms-date="record.data[schema.id]" tms-state="signinAt"></tms-datepicker>
                             </div>
                             <input type='text' class='form-control' ng-switch-default ng-model="record.data[schema.id]">
+                        </div>
+                        <div class='col-md-4'>
+                            <div ng-if="app.scenario==='quiz'">
+                                <span>分数：<input type='text' class='form-control' ng-disabled="['single','multiple'].indexOf(schema.type)!==-1" ng-model="quizScore[schema.id]" style='display:inline-block;width:64px'></span>
+                                <button class='btn btn-default btn-sm' style='display:inline-block;margin-left:1em;' ng-click="gotoRemark(schema)"><span class='glyphicon glyphicon-comment'></span> <span class="badge">{{schema.summary.remark_num}}</span></button>
+                            </div>
                         </div>
                     </div>
                 </form>
@@ -123,7 +128,7 @@
                     <!-- enroll record -->
                     <div class="form-group" ng-repeat="schema in enrollDataSchemas">
                         <label class='form-label col-md-2'>{{schema.title}}</label>
-                        <div ng-switch on="schema.type" class='col-md-10'>
+                        <div ng-switch on="schema.type" class='col-md-6'>
                             <textarea class='form-control' disabled ng-switch-when="longtext" ng-model="record.data[schema.id]"></textarea>
                             <select class='form-control' disabled ng-switch-when="single" ng-model="record.data[schema.id]" ng-options="op.v as op.l for op in schema.ops">
                                 <option></option>
@@ -164,7 +169,7 @@
                     <!-- enroll record -->
                     <div class="form-group" ng-repeat="schema in groupDataSchemas">
                         <labe class='form-label col-md-2'l>{{schema.title}}</label>
-                        <div ng-switch on="schema.type" class='col-md-10'>
+                        <div ng-switch on="schema.type" class='col-md-6'>
                             <textarea class='form-control' disabled ng-switch-when="longtext" ng-model="record.data[schema.id]"></textarea>
                             <select class='form-control' disabled ng-switch-when="single" ng-model="record.data[schema.id]" ng-options="op.v as op.l for op in schema.ops">
                                 <option></option>
@@ -204,32 +209,30 @@
                 <button class='btn btn-success' ng-click="save()">保存</button>
             </div>
         </uib-tab>
-        <uib-tab index="1">
-            <uib-tab-heading>评论</uib-tab-heading>
-            <div ng-controller="ctrlRemark">
-                <div class='edit-content'>
-                    <uib-accordion close-others="true">
-                        <div uib-accordion-group is-disabled='true' is-open="schema._open" heading="{{schema.title}}" ng-repeat="schema in remarkableSchemas">
-                            <uib-accordion-heading>
-                                <div class='title'>{{schema.title}}</div>
-                                <button class='btn btn-default btn-sm' ng-click="switchSchema(schema)"><span class='glyphicon glyphicon-comment'></span> <span class="badge">{{schema.summary.remark_num}}</span></button>
-                            </uib-accordion-heading>
-                            <div class='remarks'>
-                                <div class='remark' ng-repeat="remark in schemaRemarks[schema.id]">
-                                    <div class='nickname'>{{remark.nickname}}</div>
-                                    <div class='content'>{{remark.content}}</div>
-                                    <div class='datetime'>{{remark.create_at*1000|date:'MM-dd HH:mm'}}</div>
-                                </div>
-                            </div>
-                            <div class="input-group">
-                                <textarea class='form-control' ng-model="newRemark.content"></textarea>
-                                <span class="input-group-btn" style='padding-left:10px;'>
-                                    <button class='btn btn-success' ng-click="addRemark(schema)">发布</button>
-                                </span>
+        <uib-tab index="'remark'" select="selectTab('remark')">
+            <uib-tab-heading>内容点评</uib-tab-heading>
+            <div class='edit-content'>
+                <uib-accordion close-others="true">
+                    <div uib-accordion-group is-disabled='true' is-open="schema._open" heading="{{schema.title}}" ng-repeat="schema in remarkableSchemas">
+                        <uib-accordion-heading>
+                            <div class='title'>{{schema.title}}</div>
+                            <button class='btn btn-default btn-sm' ng-click="switchSchema(schema)"><span class='glyphicon glyphicon-comment'></span> <span class="badge">{{schema.summary.remark_num}}</span></button>
+                        </uib-accordion-heading>
+                        <div class='remarks'>
+                            <div class='remark' ng-repeat="remark in schemaRemarks[schema.id]">
+                                <div class='nickname'>{{remark.nickname}}</div>
+                                <div class='content'>{{remark.content}}</div>
+                                <div class='datetime'>{{remark.create_at*1000|date:'MM-dd HH:mm'}}</div>
                             </div>
                         </div>
-                    </uib-accordion>
-                </div>
+                        <div class="input-group">
+                            <textarea class='form-control' ng-model="newRemark.content"></textarea>
+                            <span class="input-group-btn" style='padding-left:10px;'>
+                                <button class='btn btn-success' ng-click="addRemark(schema)">发表</button>
+                            </span>
+                        </div>
+                    </div>
+                </uib-accordion>
             </div>
         </uib-tab>
     </uib-tabset>

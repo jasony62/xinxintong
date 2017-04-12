@@ -23,7 +23,7 @@ class record extends \pl\fe\matter\base {
 		}
 
 		$mdoelRec = $this->model('matter\enroll\record');
-		$record = $mdoelRec->byId($ek);
+		$record = $mdoelRec->byId($ek, ['verbose' => 'Y']);
 
 		return new \ResponseData($record);
 	}
@@ -166,7 +166,6 @@ class record extends \pl\fe\matter\base {
 		$result = $modelRec->setData(null, $app, $ek, $posted->data, true);
 
 		/* 记录操作日志 */
-		$app->type = 'enroll';
 		$this->model('matter\log')->matterOp($site, $user, $app, 'add', $ek);
 
 		/* 返回完整的记录 */
@@ -180,7 +179,7 @@ class record extends \pl\fe\matter\base {
 	 * @param string $app
 	 * @param $ek record's key
 	 */
-	public function update_action($site, $app, $ek) {
+	public function update_action($app, $ek) {
 		if (false === ($user = $this->accountUser())) {
 			return new \ResponseTimeout();
 		}
@@ -207,16 +206,25 @@ class record extends \pl\fe\matter\base {
 		if (isset($record->rid)) {
 			$updated->rid = $modelEnl->escape($record->rid);
 		}
-		$modelEnl->update('xxt_enroll_record', $updated, "enroll_key='$ek'");
+		$modelEnl->update('xxt_enroll_record', $updated, ['enroll_key' => $ek]);
 
 		/* 记录登记数据 */
 		if (isset($record->data)) {
 			$modelRec->setData(null, $oApp, $ek, $record->data);
 		}
-
+		/* 修改登记项的分值 */
+		if (isset($record->quizScore)) {
+			foreach ($oApp->dataSchemas as $schema) {
+				if (!in_array($schema->type, ['single', 'multiple'])) {
+					if (isset($record->quizScore->{$schema->id})) {
+						$modelEnl->update('xxt_enroll_record_data', ['score' => $record->quizScore->{$schema->id}], ['enroll_key' => $ek, 'schema_id' => $schema->id, 'state' => 1]);
+					}
+				}
+			}
+		}
 		/* 更新登记项数据的轮次 */
 		if (isset($record->rid)) {
-			$modelEnl->update('xxt_enroll_record_data', ['rid' => $modelEnl->escape($record->rid)], ['enroll_key' => $ek]);
+			$modelEnl->update('xxt_enroll_record_data', ['rid' => $modelEnl->escape($record->rid)], ['enroll_key' => $ek, 'state' => 1]);
 		}
 
 		if ($updated->verified === 'Y') {
@@ -224,10 +232,10 @@ class record extends \pl\fe\matter\base {
 		}
 
 		/* 记录操作日志 */
-		$this->model('matter\log')->matterOp($site, $user, $oApp, 'update', $record);
+		$this->model('matter\log')->matterOp($oApp->siteid, $user, $oApp, 'update', $record);
 
 		/* 返回完整的记录 */
-		$record = $modelRec->byId($ek);
+		$record = $modelRec->byId($ek, ['verbose' => 'Y']);
 		if (isset($record->rid)) {
 			$record->round = new \stdClass;
 			if ($round = $this->model('matter\enroll\round')->byId($record->rid, ['fields' => 'title'])) {

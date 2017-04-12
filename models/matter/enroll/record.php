@@ -218,6 +218,31 @@ class record_model extends \TMS_MODEL {
 			if (is_object($treatedValue) || is_array($treatedValue)) {
 				$treatedValue = $this->toJson($treatedValue);
 			}
+			/* 计算题目的分数。只支持对单选题和多选题自动打分 */
+			if ($oApp->scenario === 'quiz') {
+				$quizScore = null;
+				$schema = $schemasById[$schemaId];
+				if (!empty($schema->answer)) {
+					switch ($schema->type) {
+					case 'single':
+						$quizScore = $treatedValue === $schema->answer ? ($schema->score ? $schema->score : 0) : 0;
+						break;
+					case 'multiple':
+						$correct = 0;
+						$pendingValues = explode(',', $treatedValue);
+						foreach ($pendingValues as $pending) {
+							if (in_array($pending, $schema->answer)) {
+								$correct++;
+							} else {
+								$correct = 0;
+								break;
+							}
+						}
+						$quizScore = ($schema->score ? $schema->score : 0) / count($schema->answer) * $correct;
+						break;
+					}
+				}
+			}
 			$lastSchemaValue = $this->query_obj_ss(
 				[
 					'submit_at,value,modify_log',
@@ -235,6 +260,7 @@ class record_model extends \TMS_MODEL {
 					'schema_id' => $schemaId,
 					'value' => $this->escape($treatedValue),
 				];
+				isset($quizScore) && $schemaValue['score'] = $quizScore;
 				$this->insert('xxt_enroll_record_data', $schemaValue, false);
 			} else {
 				if ($treatedValue !== $lastSchemaValue->value) {
@@ -253,6 +279,7 @@ class record_model extends \TMS_MODEL {
 						'value' => $this->escape($treatedValue),
 						'modify_log' => $this->toJson($valueModifyLogs),
 					];
+					isset($quizScore) && $schemaValue['score'] = $quizScore;
 					$this->update(
 						'xxt_enroll_record_data',
 						$schemaValue,
@@ -288,17 +315,45 @@ class record_model extends \TMS_MODEL {
 	 */
 	public function &byId($ek, $options = []) {
 		$fields = isset($options['fields']) ? $options['fields'] : '*';
+		$verbose = isset($options['verbose']) ? $options['verbose'] : 'N';
 
 		$q = [
 			$fields,
 			'xxt_enroll_record',
-			"enroll_key='$ek'",
+			['enroll_key' => $ek],
 		];
-		if (($record = $this->query_obj_ss($q)) && ($fields === '*' || false !== strpos($fields, 'data'))) {
-			$record->data = json_decode($record->data);
+		if ($record = $this->query_obj_ss($q)) {
+			if ($fields === '*' || false !== strpos($fields, 'data')) {
+				$record->data = json_decode($record->data);
+			}
+			if ($verbose === 'Y') {
+				$record->verbose = $this->_dataByRecord($ek);
+			}
 		}
 
 		return $record;
+	}
+	/**
+	 *
+	 */
+	private function _dataByRecord($ek, $options = []) {
+		$result = new \stdClass;
+		$fields = isset($options['fields']) ? $options['fields'] : 'schema_id,value,remark_num,last_remark_at,score,modify_log';
+		$q = [
+			$fields,
+			'xxt_enroll_record_data',
+			['enroll_key' => $ek, 'state' => 1],
+		];
+		$data = $this->query_objs_ss($q);
+		if (count($data)) {
+			foreach ($data as $schemaData) {
+				$schemaId = $schemaData->schema_id;
+				unset($schemaData->schema_id);
+				$result->{$schemaId} = $schemaData;
+			}
+		}
+
+		return $result;
 	}
 	/**
 	 * 获得用户的登记清单
@@ -447,7 +502,7 @@ class record_model extends \TMS_MODEL {
 	/**
 	 * 计算记录的分数
 	 */
-	private function _calcScore(&$scoreSchemas, &$data) {
+	private function _calcVotingScore(&$scoreSchemas, &$data) {
 		$score = 0;
 		foreach ($scoreSchemas as $schemaId => $schema) {
 			if (!empty($data->{$schemaId})) {
@@ -610,7 +665,7 @@ class record_model extends \TMS_MODEL {
 						$scoreSchemas = $this->_mapOfScoreSchema($oApp);
 						$countScoreSchemas = count(array_keys((array) $scoreSchemas));
 					}
-					$rec->_score = $this->_calcScore($scoreSchemas, $data);
+					$rec->_score = $this->_calcVotingScore($scoreSchemas, $data);
 					$rec->_average = $countScoreSchemas === 0 ? 0 : $rec->_score / $countScoreSchemas;
 				}
 			}
@@ -796,7 +851,7 @@ class record_model extends \TMS_MODEL {
 						$scoreSchemas = $this->_mapOfScoreSchema($app);
 						$countScoreSchemas = count(array_keys((array) $scoreSchemas));
 					}
-					$r->_score = $this->_calcScore($scoreSchemas, $data);
+					$r->_score = $this->_calcVotingScore($scoreSchemas, $data);
 					$r->_average = $countScoreSchemas === 0 ? 0 : $r->_score / $countScoreSchemas;
 				}
 			}

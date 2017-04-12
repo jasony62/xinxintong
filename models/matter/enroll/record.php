@@ -248,7 +248,7 @@ class record_model extends \TMS_MODEL {
 				}
 			}
 			//记录分数
-			isset($quizScore) && $scoreData[$schemaId.'_score']=$quizScore && $scoreData['sum'] += $quizScore;
+			isset($quizScore) && ($scoreData[$schemaId.'_score']=$quizScore) && ($scoreData['sum'] += $quizScore);
 			
 			$lastSchemaValue = $this->query_obj_ss(
 				[

@@ -212,9 +212,12 @@ class record_model extends \TMS_MODEL {
 		 * 保存用户提交的数据
 		 */
 		$submitAt = time(); // 数据提交时间
-
+		$scoreData=array(); // 在xxt_enroll_record 存储分数
+		$scoreData['sum']=0; //记录总分
 		/* 按登记项记录数据 */
 		foreach ($dbData as $schemaId => $treatedValue) {
+			$scoreData[$schemaId]=$treatedValue;
+			
 			if (is_object($treatedValue) || is_array($treatedValue)) {
 				$treatedValue = $this->toJson($treatedValue);
 			}
@@ -230,6 +233,7 @@ class record_model extends \TMS_MODEL {
 					case 'multiple':
 						$correct = 0;
 						$pendingValues = explode(',', $treatedValue);
+						$schema->answer= explode(',', $schema->answer);
 						foreach ($pendingValues as $pending) {
 							if (in_array($pending, $schema->answer)) {
 								$correct++;
@@ -243,6 +247,9 @@ class record_model extends \TMS_MODEL {
 					}
 				}
 			}
+			//记录分数
+			isset($quizScore) && $scoreData[$schemaId.'_score']=$quizScore && $scoreData['sum'] += $quizScore;
+			
 			$lastSchemaValue = $this->query_obj_ss(
 				[
 					'submit_at,value,modify_log',
@@ -288,7 +295,8 @@ class record_model extends \TMS_MODEL {
 				}
 			}
 		}
-
+	
+		isset($scoreData) && $dbData=(object)$scoreData;
 		/* 更新在登记记录上记录数据 */
 		$recordUpdated = [];
 		$recordUpdated['data'] = $this->escape($this->toJson($dbData));

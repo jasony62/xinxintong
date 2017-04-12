@@ -106,7 +106,14 @@
                                 <span ng-repeat='file in r._data[schema.id]'><a href='{{file.url}}' target="_blank">{{file.name}}</a></span>
                             </span>
                             <span ng-switch-when="date">{{(r._data[schema.id]*1000)|date:'yy-MM-dd HH:mm'}}</span>
-                            <span ng-switch-default ng-bind-html="r._data[schema.id]"></span>
+                            <div ng-switch-default ng-switch on="app.scenario">
+                                <!--增加测验场景得分-->
+                                <div ng-switch-when="quiz">
+                                    <p>答案: <span ng-bind-html="r._data[schema.id]"></span></p>
+                                    <p>得分: <span ng-bind-html="r._data[schema.id+'_score']"></span></p>
+                                </div>
+                                <span ng-switch-default ng-bind-html="r._data[schema.id]"></span>
+                            </div>
                         </td>
                         <td class='matched enroll' ng-repeat="schema in enrollDataSchemas" ng-switch on="schema.type">
                             <span ng-switch-when="image">

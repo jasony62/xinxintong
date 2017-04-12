@@ -59,6 +59,10 @@
         <label>
             <input type='checkbox' ng-true-value="'Y'" ng-false-value="'N'" ng-model='activeSchema.number' ng-change="updSchema(activeSchema,'number')">数值</label>
     </div>
+    <div class="checkbox" ng-show="'shorttext'===activeSchema.type">
+        <label>
+            <input type='checkbox' ng-true-value="'Y'" ng-false-value="'N'" ng-model='activeSchema.history' ng-change="updSchema(activeSchema,'history')">参考已填数据</label>
+    </div>
     <div class="form-group" ng-show="['image','file'].indexOf(activeSchema.type)!==-1">
         <label>限制数量（填0不限制）</label>
         <input type='text' class='form-control' ng-model='activeSchema.count' ng-change="updSchema(activeSchema,'count')">
@@ -84,17 +88,20 @@
         </div>
         <!--单选设置答案-->
         <ul class="form-group list-unstyled" ng-if="activeSchema.type==='single'">
-            <li><label >设置答案</label></li>
+            <li>
+                <label>设置答案</label>
+            </li>
             <li class="radio" wrap="radio" ng-repeat="op in activeSchema.ops">
-                <label ><input type="radio" name="{{activeSchema.id}}" value="{{op.v}}" ng-model="activeSchema.answer"  ng-change="updSchema(activeSchema,'answer')"/><span>{{op.l}}</span></label>
+                <label>
+                    <input type="radio" name="{{activeSchema.id}}" value="{{op.v}}" ng-model="activeSchema.answer" ng-change="updSchema(activeSchema,'answer')" /><span>{{op.l}}</span></label>
             </li>
         </ul>
         <!--多选设置答案-->
         <ul class="form-group list-unstyled" ng-if="activeSchema.type==='multiple'">
-            <li class="checkbox" wrap="checkbox"  ng-repeat="op in activeSchema.ops">
-                <label><input type="checkbox"  ng-model="data[op.v]" ng-change="updSchemaMultiple(activeSchema,data[op.v])"/><span>{{op.l}}</span></label>
+            <li class="checkbox" wrap="checkbox" ng-repeat="op in activeSchema.ops">
+                <label>
+                    <input type="checkbox" ng-model="data[op.v]" ng-change="updSchemaMultiple(activeSchema,data[op.v])" /><span>{{op.l}}</span></label>
             </li>
         </ul>
     </div>
-
 </div>

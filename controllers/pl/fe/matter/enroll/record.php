@@ -233,8 +233,9 @@ class record extends \pl\fe\matter\base {
 				}
 			}
 			$one['sum']=$sum;
+			$data=$modelRec->toJson($one);
 			//更新record表
-			$modelRec->update('xxt_enroll_record',['data'=>json_encode($one)],['aid'=>$app,'enroll_key'=>$ek]);
+			$modelRec->update('xxt_enroll_record',['data'=>$data],['aid'=>$app,'enroll_key'=>$ek]);
 		}
 		/* 更新登记项数据的轮次 */
 		if (isset($record->rid)) {

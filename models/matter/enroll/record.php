@@ -221,7 +221,7 @@ class record_model extends \TMS_MODEL {
 			}
 
 			$scoreData[$schemaId]=$treatedValue;
-
+			//跳过测验场景的参数（用户的总数和每题的分数），因为在xxt_enroll中没有对应的键会报错
 			if(preg_match('/(sum)|(\w+score)/i',$schemaId)){
 				continue;
 			}

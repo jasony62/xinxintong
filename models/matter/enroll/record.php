@@ -295,7 +295,7 @@ class record_model extends \TMS_MODEL {
 				}
 			}
 		}
-	
+		
 		isset($scoreData) && $dbData=(object)$scoreData;
 		/* 更新在登记记录上记录数据 */
 		$recordUpdated = [];

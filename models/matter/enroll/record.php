@@ -215,12 +215,12 @@ class record_model extends \TMS_MODEL {
 		$scoreData=array(); // 在xxt_enroll_record 存储分数
 		$scoreData['sum']=0; //记录总分
 		/* 按登记项记录数据 */
-		foreach ($dbData as $schemaId => $treatedValue) {
-			$scoreData[$schemaId]=$treatedValue;
-			
+		foreach ($dbData as $schemaId => $treatedValue) {			
 			if (is_object($treatedValue) || is_array($treatedValue)) {
 				$treatedValue = $this->toJson($treatedValue);
 			}
+
+			$scoreData[$schemaId]=$treatedValue;
 			/* 计算题目的分数。只支持对单选题和多选题自动打分 */
 			if ($oApp->scenario === 'quiz') {
 				$quizScore = null;

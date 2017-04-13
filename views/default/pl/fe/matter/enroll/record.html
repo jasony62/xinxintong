@@ -72,6 +72,7 @@
                         <th style='width:100px'>登记时间</th>
                         <th style='width:100px' ng-if="app.multi_rounds==='Y'">登记轮次</th>
                         <th class='custom-col row' ng-repeat="c in recordSchemas">{{c.title}}</th>
+                        <th ng-if="app.scenario==='quiz'">总分</th>
                         <th class='custom-col matched enroll' ng-repeat="c in enrollDataSchemas">{{c.title}}</th>
                         <th class='custom-col matched group' ng-repeat="c in groupDataSchemas">{{c.title}}</th>
                         <th style='width:80px'>审核通过</th>
@@ -115,6 +116,7 @@
                                 <span ng-switch-default ng-bind-html="r._data[schema.id]"></span>
                             </div>
                         </td>
+                        <th ng-if="app.scenario==='quiz'" ng-bind="r.data.sum"></th>
                         <td class='matched enroll' ng-repeat="schema in enrollDataSchemas" ng-switch on="schema.type">
                             <span ng-switch-when="image">
                                 <img ng-repeat="img in r._data[schema.id]" ng-src='{{img}}' />

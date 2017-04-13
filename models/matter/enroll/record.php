@@ -221,6 +221,10 @@ class record_model extends \TMS_MODEL {
 			}
 
 			$scoreData[$schemaId]=$treatedValue;
+
+			if(preg_match('/(sum)|(\w+score)/i',$schemaId)){
+				continue;
+			}
 			/* 计算题目的分数。只支持对单选题和多选题自动打分 */
 			if ($oApp->scenario === 'quiz') {
 				$quizScore = null;

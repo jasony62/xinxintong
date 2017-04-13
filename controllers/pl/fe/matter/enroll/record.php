@@ -210,12 +210,13 @@ class record extends \pl\fe\matter\base {
 
 		/* 记录登记数据 */
 		if (isset($record->data)) {
-			$modelRec->setData(null, $oApp, $ek, $record->data);
+			$score= isset($record->quizScore) ? $record->quizScore : null;
+			$modelRec->setData(null, $oApp, $ek, $record->data,$score);
 		}
 		/* 修改登记项的分值 */
 		if (isset($record->quizScore)) {
 			$scoreData=array();
-			$one=$modelRec->query_val_ss(['data','xxt_enroll_record',['aid'=>$app,'enroll_key'=>$ek]]);
+			$one=$modelRec->query_val_ss(['score','xxt_enroll_record',['aid'=>$app,'enroll_key'=>$ek]]);
 			!empty($one) && $one=json_decode($one,1);
 			foreach ($oApp->dataSchemas as $schema) {
 				if (!in_array($schema->type, ['single', 'multiple'])) {
@@ -235,7 +236,7 @@ class record extends \pl\fe\matter\base {
 			$one['sum']=$sum;
 			$data=$modelRec->toJson($one);
 			//更新record表
-			$modelRec->update('xxt_enroll_record',['data'=>$data],['aid'=>$app,'enroll_key'=>$ek]);
+			$modelRec->update('xxt_enroll_record',['score'=>$data],['aid'=>$app,'enroll_key'=>$ek]);
 		}
 		/* 更新登记项数据的轮次 */
 		if (isset($record->rid)) {
@@ -675,6 +676,7 @@ class record extends \pl\fe\matter\base {
 			}
 			// 处理登记项
 			$data = $record->data;
+			$score=$record->score;
 			for ($i = 0, $ii = count($schemas); $i < $ii; $i++) {
 				$columnNum3 = $columnNum2; //列号
 				$schema = $schemas[$i];
@@ -690,7 +692,7 @@ class record extends \pl\fe\matter\base {
 							$v0=$op->l;
 						}
 					}
-					isset($data->{$schema->id.'_score'}) && ($v0.=' ('.$data->{$schema->id.'_score'}.'分)');
+					isset($score->{$schema->id.'_score'}) && ($v0.=' ('.$score->{$schema->id.'_score'}.'分)');
 					$objActiveSheet->setCellValueExplicitByColumnAndRow($i + $columnNum3++, $rowIndex, $v0, \PHPExcel_Cell_DataType::TYPE_STRING);
 					break;
 				case 'phase':
@@ -716,7 +718,7 @@ class record extends \pl\fe\matter\base {
 						}
 					}
 					$cellValue=implode(',', $labels);
-					isset($data->{$schema->id.'_score'}) && $cellValue.=' ('.$data->{$schema->id.'_score'}.'分)';
+					isset($score->{$schema->id.'_score'}) && $cellValue.=' ('.$score->{$schema->id.'_score'}.'分)';
 					$objActiveSheet->setCellValueByColumnAndRow($i + $columnNum3++, $rowIndex, $cellValue);
 					break;
 				case 'score':
@@ -732,7 +734,7 @@ class record extends \pl\fe\matter\base {
 				case 'file':
 					break;
 				default:
-					isset($data->{$schema->id.'_score'}) && $v.=' ('.$data->{$schema->id.'_score'}.'分)';
+					isset($score->{$schema->id.'_score'}) && $v.=' ('.$score->{$schema->id.'_score'}.'分)';
 					$objActiveSheet->setCellValueExplicitByColumnAndRow($i + $columnNum3++, $rowIndex, $v, \PHPExcel_Cell_DataType::TYPE_STRING);
 					break;
 				}
@@ -750,7 +752,7 @@ class record extends \pl\fe\matter\base {
 			}
 			// 记录测验分数
 			if ($oApp->scenario === 'quiz') {
-				$objActiveSheet->setCellValueByColumnAndRow($i + $columnNum2++, $rowIndex, $data->sum.'分');
+				$objActiveSheet->setCellValueByColumnAndRow($i + $columnNum2++, $rowIndex, $score->sum.'分');
 			}
 		}
 		if (!empty($isTotal)) {

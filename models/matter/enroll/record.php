@@ -85,7 +85,7 @@ class record_model extends \TMS_MODEL {
 	 * @param object $oApp
 	 * @param array $data 用户提交的数据
 	 */
-	public function setData($user, &$oApp, $ek, $submitData, $submitkey = '', $firstSubmit = false) {
+	public function setData($user, &$oApp, $ek, $submitData, $submitkey = '', $firstSubmit = false,$score=null) {
 		if (empty($submitData)) {
 			return [true];
 		}
@@ -221,10 +221,14 @@ class record_model extends \TMS_MODEL {
 			}
 
 			$scoreData[$schemaId]=$treatedValue;
-			//跳过测验场景的参数（用户的总数和每题的分数），因为在xxt_enroll中没有对应的键会报错
-			if(preg_match('/(sum)|(\w+score)/i',$schemaId)){
-				continue;
-			}
+
+			$lastSchemaValue = $this->query_obj_ss(
+				[
+					'submit_at,value,modify_log,score',
+					'xxt_enroll_record_data',
+					['aid' => $oApp->id, 'rid' => $oRecord->rid, 'enroll_key' => $ek, 'schema_id' => $schemaId, 'state' => 1],
+				]
+			);
 			/* 计算题目的分数。只支持对单选题和多选题自动打分 */
 			if ($oApp->scenario === 'quiz') {
 				$quizScore = null;
@@ -248,19 +252,23 @@ class record_model extends \TMS_MODEL {
 						}
 						$quizScore = ($schema->score ? $schema->score : 0) / count($schema->answer) * $correct;
 						break;
+					//主观题 	
+					default:
+						//有提交记录且没修改且已经评分
+						if(!empty($lastSchemaValue) && ($lastSchemaValue->value==$treatedValue) && !empty($lastSchemaValue->score)){
+							$quizScore=$lastSchemaValue->score;
+						}elseif(!empty($score) && isset($score->{$schemaId})){
+							$quizScore=$score->{$schemaId};
+						}else{
+							$quizScore=0;
+						}
+						break;
 					}
 				}
+				//记录分数
+				isset($quizScore) && ($scoreData[$schemaId.'_score']=$quizScore) && ($scoreData['sum'] += $quizScore);
 			}
-			//记录分数
-			isset($quizScore) && ($scoreData[$schemaId.'_score']=$quizScore) && ($scoreData['sum'] += $quizScore);
-			
-			$lastSchemaValue = $this->query_obj_ss(
-				[
-					'submit_at,value,modify_log',
-					'xxt_enroll_record_data',
-					['aid' => $oApp->id, 'rid' => $oRecord->rid, 'enroll_key' => $ek, 'schema_id' => $schemaId, 'state' => 1],
-				]
-			);
+			//记录结果
 			if (false === $lastSchemaValue) {
 				$schemaValue = [
 					'aid' => $oApp->id,
@@ -300,10 +308,10 @@ class record_model extends \TMS_MODEL {
 			}
 		}
 	
-		isset($scoreData) && $dbData=(object)$scoreData;
 		/* 更新在登记记录上记录数据 */
 		$recordUpdated = [];
 		$recordUpdated['data'] = $this->escape($this->toJson($dbData));
+		isset($scoreData) && $recordUpdated['score']= $this->escape($this->toJson($scoreData));
 		/* 记录提交日志 */
 		if ($firstSubmit === false) {
 			if (empty($oRecord->submit_log)) {
@@ -633,7 +641,7 @@ class record_model extends \TMS_MODEL {
 
 		// 查询参数
 		$q = [
-			'e.enroll_key,e.rid,e.enroll_at,e.tags,e.userid,e.nickname,e.wx_openid,e.yx_openid,e.qy_openid,e.headimgurl,e.verified,e.comment,e.data',
+			'e.enroll_key,e.rid,e.enroll_at,e.tags,e.userid,e.nickname,e.wx_openid,e.yx_openid,e.qy_openid,e.headimgurl,e.verified,e.comment,e.data,e.score',
 			"xxt_enroll_record e",
 			$w,
 		];
@@ -651,6 +659,8 @@ class record_model extends \TMS_MODEL {
 			foreach ($records as &$rec) {
 				$data = str_replace("\n", ' ', $rec->data);
 				$data = json_decode($data);
+				$score = str_replace("\n", ' ', $rec->score);
+				$rec->score = json_decode($score);
 				if ($data === null) {
 					$rec->data = 'json error(' . json_last_error_msg() . '):' . $rec->data;
 				} else {

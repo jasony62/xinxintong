@@ -30,7 +30,7 @@
              },
              cancel: function() {}
          });
-     };
+     }
 
      function setYxShare(title, link, desc, img, options) {
          var _this = this,
@@ -56,7 +56,8 @@
              }
              window.YixinJSBridge.invoke('shareTimeline', shareData, function(res) {});
          });
-     };
+     }
+
      this.config = function(options) {
          this.options = options;
      };

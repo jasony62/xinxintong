@@ -208,6 +208,7 @@ class record extends \pl\fe\matter\base {
 		}
 		$modelEnl->update('xxt_enroll_record', $updated, ['enroll_key' => $ek]);
 		/* 修改登记项的分值 */
+		/*
 		if (isset($record->quizScore)) {
 			$scoreData=array();
 			$one=$modelRec->query_val_ss(['score','xxt_enroll_record',['aid'=>$app,'enroll_key'=>$ek]]);
@@ -232,10 +233,11 @@ class record extends \pl\fe\matter\base {
 			$data=$modelRec->toJson($one);
 			//更新record表
 			$modelRec->update('xxt_enroll_record',['score'=>$data],['aid'=>$app,'enroll_key'=>$ek]);
-		}
+		}*/
 		/* 记录登记数据 */
 		if (isset($record->data)) {
-			$modelRec->setData(null, $oApp, $ek, $record->data);
+			$score= isset($record->quizScore) ? $record->quizScore : null;
+			$modelRec->setData(null, $oApp, $ek, $record->data, '', false, $score);
 		}
 		/* 更新登记项数据的轮次 */
 		if (isset($record->rid)) {
@@ -686,7 +688,7 @@ class record extends \pl\fe\matter\base {
 			}
 			// 处理登记项
 			$data = $record->data;
-			$score=$record->score;
+			isset($record->score) && $score=$record->score;
 			for ($i = 0, $ii = count($schemas); $i < $ii; $i++) {
 				$columnNum3 = $columnNum2; //列号
 				$schema = $schemas[$i];

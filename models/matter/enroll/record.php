@@ -85,7 +85,7 @@ class record_model extends \TMS_MODEL {
 	 * @param object $oApp
 	 * @param array $data 用户提交的数据
 	 */
-	public function setData($user, &$oApp, $ek, $submitData, $submitkey = '', $firstSubmit = false) {
+	public function setData($user, &$oApp, $ek, $submitData, $submitkey = '', $firstSubmit = false, $score=null) {
 		if (empty($submitData)) {
 			return [true];
 		}
@@ -252,8 +252,11 @@ class record_model extends \TMS_MODEL {
 						break;
 					//主观题 	
 					default:
-						//有提交记录且没修改且已经评分
-						if(!empty($lastSchemaValue) && ($lastSchemaValue->value==$treatedValue) && !empty($lastSchemaValue->score)){
+						//有指定的优先使用指定的评分				
+						if(!empty($score) && isset($score->{$schemaId})){
+							$quizScore=$score->{$schemaId};
+						//有提交记录且没修改且已经评分	
+						}elseif(!empty($lastSchemaValue) && ($lastSchemaValue->value==$treatedValue) && !empty($lastSchemaValue->score)){
 							$quizScore=$lastSchemaValue->score;
 						}else{
 							$quizScore=0;
@@ -278,6 +281,8 @@ class record_model extends \TMS_MODEL {
 				isset($quizScore) && $schemaValue['score'] = $quizScore;
 				$this->insert('xxt_enroll_record_data', $schemaValue, false);
 			} else {
+				isset($quizScore) && $schemaValue['score'] = $quizScore;
+
 				if ($treatedValue !== $lastSchemaValue->value) {
 					if (strlen($lastSchemaValue->modify_log)) {
 						$valueModifyLogs = json_decode($lastSchemaValue->modify_log);
@@ -294,13 +299,13 @@ class record_model extends \TMS_MODEL {
 						'value' => $this->escape($treatedValue),
 						'modify_log' => $this->toJson($valueModifyLogs),
 					];
-					isset($quizScore) && $schemaValue['score'] = $quizScore;
-					$this->update(
-						'xxt_enroll_record_data',
-						$schemaValue,
-						['aid' => $oApp->id, 'rid' => $oRecord->rid, 'enroll_key' => $ek, 'schema_id' => $schemaId, 'state' => 1]
-					);
 				}
+
+				$this->update(
+					'xxt_enroll_record_data',
+					$schemaValue,
+					['aid' => $oApp->id, 'rid' => $oRecord->rid, 'enroll_key' => $ek, 'schema_id' => $schemaId, 'state' => 1]
+				);
 			}
 		}
 		/* 更新在登记记录上记录数据 */

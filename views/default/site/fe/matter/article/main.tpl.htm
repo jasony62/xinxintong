@@ -6,7 +6,7 @@
         <meta content="width=device-width,user-scalable=no,initial-scale=1.0" name="viewport">
         <base href="/" />
         <title><?php TPL::pt('title');?></title>
-        <link href="/views/default/site/fe/matter/article/main.css?_=1" rel="stylesheet">
+        <link href="/views/default/site/fe/matter/article/main.css?_=2" rel="stylesheet">
     </head>
 
     <body>
@@ -42,7 +42,7 @@
                     <p class="url" ng-if="article.url">
                         <a ng-href="{{article.url}}" target="_self">阅读原文</a>
                     </p>
-                    <div id="qrCode">
+                    <div id="qrCode1">
                         <img class="code" ng-src="{{code}}" alt="">
                         <p class="note">(手机“扫一扫”，分享给好友)</p>
                     </div>
@@ -62,7 +62,7 @@
                     </div>
                 </div>
                 <div class="right-column">
-                    <div id="qrCode">
+                    <div id="qrCode2">
                         <img class="code" ng-src="{{code}}" alt="">
                         <p class="note">(手机“扫一扫”，分享给好友)</p>
                     </div>

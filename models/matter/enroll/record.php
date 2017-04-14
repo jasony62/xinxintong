@@ -303,7 +303,6 @@ class record_model extends \TMS_MODEL {
 				}
 			}
 		}
-	
 		/* 更新在登记记录上记录数据 */
 		$recordUpdated = [];
 		$recordUpdated['data'] = $this->escape($this->toJson($dbData));

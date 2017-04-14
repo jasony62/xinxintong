@@ -85,7 +85,7 @@ class record_model extends \TMS_MODEL {
 	 * @param object $oApp
 	 * @param array $data 用户提交的数据
 	 */
-	public function setData($user, &$oApp, $ek, $submitData, $submitkey = '', $firstSubmit = false,$score=null) {
+	public function setData($user, &$oApp, $ek, $submitData, $submitkey = '', $firstSubmit = false) {
 		if (empty($submitData)) {
 			return [true];
 		}
@@ -220,8 +220,6 @@ class record_model extends \TMS_MODEL {
 				$treatedValue = $this->toJson($treatedValue);
 			}
 
-			$scoreData[$schemaId]=$treatedValue;
-
 			$lastSchemaValue = $this->query_obj_ss(
 				[
 					'submit_at,value,modify_log,score',
@@ -241,7 +239,7 @@ class record_model extends \TMS_MODEL {
 					case 'multiple':
 						$correct = 0;
 						$pendingValues = explode(',', $treatedValue);
-						$schema->answer= explode(',', $schema->answer);
+						is_string($schema->answer) && $schema->answer= explode(',', $schema->answer);
 						foreach ($pendingValues as $pending) {
 							if (in_array($pending, $schema->answer)) {
 								$correct++;
@@ -257,8 +255,6 @@ class record_model extends \TMS_MODEL {
 						//有提交记录且没修改且已经评分
 						if(!empty($lastSchemaValue) && ($lastSchemaValue->value==$treatedValue) && !empty($lastSchemaValue->score)){
 							$quizScore=$lastSchemaValue->score;
-						}elseif(!empty($score) && isset($score->{$schemaId})){
-							$quizScore=$score->{$schemaId};
 						}else{
 							$quizScore=0;
 						}
@@ -641,10 +637,14 @@ class record_model extends \TMS_MODEL {
 
 		// 查询参数
 		$q = [
-			'e.enroll_key,e.rid,e.enroll_at,e.tags,e.userid,e.nickname,e.wx_openid,e.yx_openid,e.qy_openid,e.headimgurl,e.verified,e.comment,e.data,e.score',
+			'e.enroll_key,e.rid,e.enroll_at,e.tags,e.userid,e.nickname,e.wx_openid,e.yx_openid,e.qy_openid,e.headimgurl,e.verified,e.comment,e.data',
 			"xxt_enroll_record e",
 			$w,
 		];
+		//测验场景
+		if($oApp->scenario==='quiz'){
+			$q[0].=',e.score';
+		}
 
 		$q2 = [];
 		// 查询结果分页
@@ -659,8 +659,18 @@ class record_model extends \TMS_MODEL {
 			foreach ($records as &$rec) {
 				$data = str_replace("\n", ' ', $rec->data);
 				$data = json_decode($data);
-				$score = str_replace("\n", ' ', $rec->score);
-				$rec->score = json_decode($score);
+				//测验场景
+				if($oApp->scenario==='quiz' && !empty($rec->score)){
+					$score = str_replace("\n", ' ', $rec->score);
+					$score = json_decode($score);
+
+					if($score===null){
+						$rec->score = 'json error(' . json_last_error_msg() . '):' . $rec->score;
+					} else {
+						$rec->score = $score;
+					}
+				}
+
 				if ($data === null) {
 					$rec->data = 'json error(' . json_last_error_msg() . '):' . $rec->data;
 				} else {

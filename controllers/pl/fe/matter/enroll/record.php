@@ -207,18 +207,13 @@ class record extends \pl\fe\matter\base {
 			$updated->rid = $modelEnl->escape($record->rid);
 		}
 		$modelEnl->update('xxt_enroll_record', $updated, ['enroll_key' => $ek]);
-
-		/* 记录登记数据 */
-		if (isset($record->data)) {
-			$score= isset($record->quizScore) ? $record->quizScore : null;
-			$modelRec->setData(null, $oApp, $ek, $record->data,$score);
-		}
 		/* 修改登记项的分值 */
 		if (isset($record->quizScore)) {
 			$scoreData=array();
 			$one=$modelRec->query_val_ss(['score','xxt_enroll_record',['aid'=>$app,'enroll_key'=>$ek]]);
 			!empty($one) && $one=json_decode($one,1);
 			foreach ($oApp->dataSchemas as $schema) {
+				//主观题评分
 				if (!in_array($schema->type, ['single', 'multiple'])) {
 					if (isset($record->quizScore->{$schema->id})) {
 						$modelEnl->update('xxt_enroll_record_data', ['score' => $record->quizScore->{$schema->id}], ['enroll_key' => $ek, 'schema_id' => $schema->id, 'state' => 1]);
@@ -237,6 +232,10 @@ class record extends \pl\fe\matter\base {
 			$data=$modelRec->toJson($one);
 			//更新record表
 			$modelRec->update('xxt_enroll_record',['score'=>$data],['aid'=>$app,'enroll_key'=>$ek]);
+		}
+		/* 记录登记数据 */
+		if (isset($record->data)) {
+			$modelRec->setData(null, $oApp, $ek, $record->data);
 		}
 		/* 更新登记项数据的轮次 */
 		if (isset($record->rid)) {
@@ -258,6 +257,17 @@ class record extends \pl\fe\matter\base {
 				$record->round->title = $round->title;
 			} else {
 				$record->round->title = '';
+			}
+		}
+
+		if($oApp->scenario==='quiz' && isset($record->score)){
+			$score=str_replace("\n", "", $record->score);
+			$score=json_decode($score);
+
+			if($score===null){
+				$record->score='('.json_last_error().')'.$record->score;
+			}else{
+				$record->score=$score;
 			}
 		}
 

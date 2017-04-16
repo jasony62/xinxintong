@@ -52,6 +52,8 @@ define(['frame'], function(ngApp) {
                     config.proto.title = $scope.mission.title + '-评价';
                 } else if (assignedScenario === 'group_week_report') {
                     config.proto.title = $scope.mission.title + '-周报';
+                } else if (assignedScenario === 'quiz') {
+                    config.proto.title = $scope.mission.title + '-测验';
                 } else if (assignedScenario === 'common') {
                     config.proto.title = $scope.mission.title + '-登记';
                 }
@@ -201,7 +203,7 @@ define(['frame'], function(ngApp) {
                 if ('enroll' === matterType) {
                     url += 'enroll';
                     scenario = '';
-                } else if (/registration|voting|group_week_report|common/.test(matterType)) {
+                } else if (/registration|voting|group_week_report|quiz|common/.test(matterType)) {
                     url += 'enroll'
                     scenario = $scope.matterType;
                 } else {
@@ -217,7 +219,7 @@ define(['frame'], function(ngApp) {
                         if (rsp.data.total == 0) {
                             indicators.article && $scope.indicators.push(indicators.article);
                         }
-                    } else if (/enroll|voting|registration|group_week_report|common|signin|group/.test(matterType)) {
+                    } else if (/enroll|voting|registration|group_week_report|quiz|common|signin|group/.test(matterType)) {
                         $scope.matters = rsp.data.apps;
                         if (rsp.data.total == 0) {
                             indicators[matterType] && $scope.indicators.push(indicators[matterType]);
@@ -233,15 +235,15 @@ define(['frame'], function(ngApp) {
         };
         $scope.doSearch = function(pid) {
             var url;
-            if($scope.matterType == '') {
+            if ($scope.matterType == '') {
                 url = '/rest/pl/fe/matter/mission/matter/list?id=' + $scope.mission.id;
-            }else {
+            } else {
                 var scenario;
                 url = '/rest/pl/fe/matter/';
                 if ('enroll' === $scope.matterType) {
                     url += 'enroll';
                     scenario = '';
-                } else if (/registration|voting|group_week_report|common/.test($scope.matterType)) {
+                } else if (/registration|voting|group_week_report|quiz|common/.test($scope.matterType)) {
                     url += 'enroll'
                     scenario = $scope.matterType;
                 } else {
@@ -251,14 +253,14 @@ define(['frame'], function(ngApp) {
                 scenario !== undefined && (url += '&scenario=' + scenario);
             }
 
-            http2.post(url, {mission_phase_id: pid}, function(rsp) {
+            http2.post(url, { mission_phase_id: pid }, function(rsp) {
                 $scope.indicators = [];
                 if (/article/.test($scope.matterType)) {
                     $scope.matters = rsp.data.articles;
                     if (rsp.data.total == 0) {
                         indicators.article && $scope.indicators.push(indicators.article);
                     }
-                } else if (/enroll|voting|registration|group_week_report|common|signin|group/.test($scope.matterType)) {
+                } else if (/enroll|voting|registration|group_week_report|quiz|common|signin|group/.test($scope.matterType)) {
                     $scope.matters = rsp.data.apps;
                     if (rsp.data.total == 0) {
                         indicators[$scope.matterType] && $scope.indicators.push(indicators[$scope.matterType]);

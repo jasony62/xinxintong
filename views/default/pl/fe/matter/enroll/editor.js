@@ -59,10 +59,9 @@ define(['frame'], function(ngApp) {
             };
 
             oRecord.tags = updated.tags;
-            updated.comment = oRecord.comment;//oRecord 信息
+            updated.comment = oRecord.comment; //oRecord 信息
             updated.verified = oRecord.verified;
             updated.rid = oRecord.rid;
-            updated.data = oRecord.data;
             if (oRecord.enroll_key) {
                 if (!angular.equals(oRecord.data, oBeforeRecord.data)) {
                     updated.data = oRecord.data;
@@ -76,6 +75,8 @@ define(['frame'], function(ngApp) {
                     }
                 });
             } else {
+                updated.data = oRecord.data;
+                updated.quizScore = oQuizScore;
                 srvEnrollRecord.add(updated).then(function(newRecord) {
                     oRecord.enroll_key = newRecord.enroll_key;
                     oRecord.enroll_at = newRecord.enroll_at;

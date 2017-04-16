@@ -1,5 +1,4 @@
 'use strict';
-require('!style-loader!css-loader!../../../../../../asset/css/site.fe.css');
 require('!style-loader!css-loader!./main.css');
 require('../../../../../../asset/js/xxt.ui.page.js');
 require('../../../../../../asset/js/xxt.ui.siteuser.js');

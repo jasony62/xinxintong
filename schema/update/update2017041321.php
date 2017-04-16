@@ -3,7 +3,7 @@ require_once '../../db.php';
 
 $sqls = array();
 //
-$sqls[] = "ALTER TABLE  `xxt_enroll_record` CHANGE  `score`  `score` TEXT NULL COMMENT  'quiz打分记录'";
+$sqls[] = "alter table xxt_enroll_record change score score text after data";
 
 foreach ($sqls as $sql) {
 	if (!$mysqli->query($sql)) {

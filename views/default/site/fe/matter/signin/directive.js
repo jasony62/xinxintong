@@ -137,7 +137,7 @@ ngApp.directive('flexImg', function() {
     return {
         restrict: 'A',
         replace: true,
-        template: "<img src='{{img.imgSrc}}'>",
+        template: "<img ng-src='{{img.imgSrc}}'>",
         link: function(scope, elem, attrs) {
             angular.element(elem).on('load', function() {
                 var w = this.clientWidth,

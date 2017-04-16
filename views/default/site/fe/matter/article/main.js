@@ -159,7 +159,7 @@ ngApp.controller('ctrlMain', ['$scope', '$http', '$timeout', '$q', 'tmsDynaPage'
             if (/MicroMessenger|Yixin/i.test(navigator.userAgent)) {
                 var shareid, sharelink, shareby;
                 shareby = location.search.match(/shareby=([^&]*)/) ? location.search.match(/shareby=([^&]*)/)[1] : '';
-                shareid = $scope.user.uid + (new Date() * 1);
+                shareid = $scope.user.uid + '_' + (new Date() * 1);
                 sharelink = 'http://' + location.hostname + '/rest/site/fe/matter';
                 sharelink += '?site=' + siteId;
                 sharelink += '&type=article';

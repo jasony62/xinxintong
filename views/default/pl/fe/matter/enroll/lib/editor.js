@@ -106,8 +106,8 @@ define(['wrap'], function(wrapLib) {
             if (page.type === 'I') {
                 html.find('[readonly]').removeAttr('readonly');
                 html.find('[disabled]').removeAttr('disabled');
-                html.find('[contenteditable]').removeAttr('contenteditable');
             }
+            html.find('[contenteditable]').removeAttr('contenteditable');
             html.find('.active').removeClass('active');
             html = html.html();
 

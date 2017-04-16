@@ -31,63 +31,6 @@ class record extends \site\op\base {
 		return new \ResponseData($result);
 	}
 	/**
-	 * 更新登记记录
-	 *
-	 * @param string $app
-	 * @param $ek record's key
-	 */
-	public function update_action($site, $app, $ek) {
-		if (!$this->checkAccessToken()) {
-			return new \InvalidAccessToken();
-		}
-
-		$record = $this->getPostJson();
-		$modelEnl = $this->model('matter\enroll');
-		$modelRec = $this->model('matter\enroll\record');
-
-		$app = $modelEnl->byId($app, ['cascaded' => 'N']);
-
-		/* 更新记录数据 */
-		$updated = new \stdClass;
-		$updated->enroll_at = time();
-		if (isset($record->comment)) {
-			$updated->comment = $modelEnl->escape($record->comment);
-		}
-		if (isset($record->tags)) {
-			$updated->tags = $modelEnl->escape($record->tags);
-			$modelEnl->updateTags($app->id, $updated->tags);
-		}
-		if (isset($record->verified)) {
-			$updated->verified = $modelEnl->escape($record->verified);
-		}
-		if (isset($record->rid)) {
-			$updated->rid = $modelEnl->escape($record->rid);
-		}
-		$modelEnl->update('xxt_enroll_record', $updated, ['enroll_key' => $ek]);
-
-		/* 记录登记数据 */
-		if (isset($record->data)) {
-			$modelRec->setData(null, $app, $ek, $record->data);
-		}
-
-		if (isset($record->rid)) {
-			$modelEnl->update('xxt_enroll_record_data', ['rid' => $modelEnl->escape($record->rid)], ['enroll_key' => $ek]);
-		}
-
-		if (isset($updated->verified) && $updated->verified === 'Y') {
-			$this->_whenVerifyRecord($app, $ek);
-		}
-
-		/* 记录操作日志 */
-		// $app->type = 'enroll';
-		// $this->model('matter\log')->matterOp($site, $user, $app, 'update', $record);
-
-		/* 返回完整的记录 */
-		$record = $modelRec->byId($ek);
-
-		return new \ResponseData($record);
-	}
-	/**
 	 * 验证通过时，如果登记记录有对应的签到记录，且签到记录没有验证通过，那么验证通过
 	 */
 	private function _whenVerifyRecord(&$app, $enrollKey) {

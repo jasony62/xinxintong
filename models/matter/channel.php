@@ -118,7 +118,7 @@ class channel_model extends article_base {
 		 * load channel.
 		 */
 		if (empty($channel)) {
-			$channel = $this->byId($channel_id, 'id,siteid,matter_type,orderby,volume,top_type,top_id,bottom_type,bottom_id');
+			$channel = $this->byId($channel_id, ['fields' => 'id,siteid,matter_type,orderby,volume,top_type,top_id,bottom_type,bottom_id']);
 		}
 		if ($channel === false) {
 			return $matters;
@@ -231,7 +231,7 @@ class channel_model extends article_base {
 		 * load channel.
 		 */
 		if (empty($channel)) {
-			$channel = $this->byId($channel_id, 'id,mpid,orderby,volume,top_type,top_id,bottom_type,bottom_id');
+			$channel = $this->byId($channel_id, ['fields' => 'id,mpid,orderby,volume,top_type,top_id,bottom_type,bottom_id']);
 		}
 
 		/**
@@ -292,12 +292,12 @@ class channel_model extends article_base {
 		/**
 		 * load channel.
 		 */
-		$channel = $this->byId($channel_id, 'matter_type');
+		$channel = $this->byId($channel_id, ['fields' => 'matter_type,orderby']);
 		/**
 		 * in channel
 		 */
 		if ($channel->matter_type === 'article') {
-			$orderby = $params->orderby || $channel->orderby;
+			$orderby = empty($params->orderby)? $channel->orderby : $params->orderby;
 			$q1 = array();
 			$q1[] = "m.id,m.title,m.summary,m.pic,m.create_at,m.creater_name,cm.create_at add_at,'article' type,m.score,m.remark_num,s.score myscore";
 			$q1[] = "xxt_article m left join xxt_article_score s on m.id=s.article_id and s.vid='$userid',xxt_channel_matter cm";

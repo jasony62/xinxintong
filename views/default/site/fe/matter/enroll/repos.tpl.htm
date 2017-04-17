@@ -29,7 +29,7 @@
                             <div class='content'>{{rec.data[schema.id]}}</div>
                             <div class='bottom-bar'>
                                 <div class='datetime text-muted'>{{rec.enroll_at*1000|date:'MM-dd HH:mm'}}</div>
-                                <button class='btn btn-default btn-sm' ng-click="gotoRemark(rec.enroll_key)">看评论</button>
+                                <button ng-if="schema.remarkable==='Y'" class='btn btn-default btn-sm' ng-click="gotoRemark(rec.enroll_key)">看评论</button>
                             </div>
                         </div>
                     </div>

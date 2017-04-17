@@ -31,7 +31,7 @@ ngApp.controller('ctrlRepos', ['$scope', '$http', function($scope, $http) {
     $scope.$on('xxt.app.enroll.ready', function(event, params) {
         oApp = params.app;
         oApp.dataSchemas.forEach(function(schema) {
-            if (schema.type !== 'html') {
+            if (schema.shareable === 'Y') {
                 schema._open = false;
                 schemas.push(schema);
             }

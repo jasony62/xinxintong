@@ -116,8 +116,8 @@
                             <input type='text' class='form-control' ng-switch-default ng-model="record.data[schema.id]">
                         </div>
                         <div class='col-md-4'>
-                            <div ng-if="app.scenario==='quiz'">
-                                <span>分数：<input type='text' class='form-control' ng-disabled="['single','multiple'].indexOf(schema.type)!==-1" ng-model="quizScore[schema.id]" style='display:inline-block;width:64px'></span>
+                            <div>
+                                <span ng-if="schema.requireScore==='Y'">分数：<input type='text' class='form-control' ng-disabled="['single','multiple'].indexOf(schema.type)!==-1" ng-model="quizScore[schema.id]" style='display:inline-block;width:64px'></span>
                                 <button class='btn btn-default btn-sm' style='display:inline-block;margin-left:1em;' ng-click="gotoRemark(schema)"><span class='glyphicon glyphicon-comment'></span> <span class="badge">{{schema.summary.remark_num}}</span></button>
                             </div>
                         </div>

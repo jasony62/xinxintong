@@ -164,6 +164,21 @@ function tms_exception_handler($exception) {
 }
 set_exception_handler('tms_exception_handler');
 /**
+ *  Given a file, i.e. /css/base.css, replaces it with a string containing the
+ *  file's mtime, i.e. /css/base.1221534296.css.
+ *
+ *  @param $file  The file to be loaded.  Must be an absolute path (i.e.
+ *                starting with slash).
+ */
+function auto_version($file) {
+	if (strpos($file, '/') !== 0 || !file_exists(TMS_APP_DIR . $file)) {
+		return $file;
+	}
+	$mtime = filemtime(TMS_APP_DIR . $file);
+	$file .= '?_=' . $mtime;
+	return $file;
+}
+/**
  * error handle
  */
 ini_set('display_errors', 'On');

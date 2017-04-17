@@ -53,7 +53,10 @@ class remark extends \pl\fe\matter\base {
 			return new \ObjectNotFoundError();
 		}
 		$modelEnl = $this->model('matter\enroll');
-		$oApp = $modelEnl->byId($oRecord->siteid, ['cascaded' => 'N']);
+		$oApp = $modelEnl->byId($oRecord->aid, ['cascaded' => 'N']);
+		if (false === $oApp) {
+			return new \ObjectNotFoundError();
+		}
 		/**
 		 * 发表评论的用户
 		 */
@@ -73,8 +76,56 @@ class remark extends \pl\fe\matter\base {
 			$modelRec->update("update xxt_enroll_record_data set remark_num=remark_num+1,last_remark_at=$current where enroll_key='$ek' and schema_id='$schema'");
 		}
 
-		//$this->_notifyHasRemark();
+		$this->_notifyHasRemark($oApp, $oRecord, $remark);
 
 		return new \ResponseData($remark);
+	}
+	/**
+	 * 给登记人发送评论通知
+	 */
+	private function _notifyHasRemark($oApp, $oRecord, $oRemark) {
+		/* 模板消息参数 */
+		$notice = $this->model('site\notice')->byName($oApp->siteid, 'site.enroll.remark');
+		if ($notice === false) {
+			return false;
+		}
+		$tmplConfig = $this->model('matter\tmplmsg\config')->byId($notice->tmplmsg_config_id, ['cascaded' => 'Y']);
+		if (!isset($tmplConfig->tmplmsg)) {
+			return false;
+		}
+
+		$params = new \stdClass;
+		foreach ($tmplConfig->tmplmsg->params as $param) {
+			$mapping = $tmplConfig->mapping->{$param->pname};
+			if ($mapping->src === 'matter') {
+				if (isset($oApp->{$mapping->id})) {
+					$value = $oApp->{$mapping->id};
+				}
+			} else if ($mapping->src === 'text') {
+				$value = $mapping->name;
+			}
+			!isset($value) && $value = '';
+			$params->{$param->pname} = $value;
+		}
+
+		/* 获得活动的管理员链接 */
+		$noticeURL = $this->model('matter\enroll')->getEntryUrl($oApp->siteid, $oApp->id);
+		$noticeURL .= '&page=remark&ek=' . $oRecord->enroll_key;
+		$params->url = $noticeURL;
+
+		/* 消息的创建人 */
+		$creater = new \stdClass;
+		$creater->uid = $oRemark->userid;
+		$creater->name = $oRemark->nickname;
+		$creater->src = 'pl';
+
+		/* 消息的接收人 */
+		$receiver = new \stdClass;
+		$receiver->assoc_with = $oRecord->enroll_key;
+		$receiver->userid = $oRecord->userid;
+
+		/* 给用户发通知消息 */
+		$modelTmplBat = $this->model('matter\tmplmsg\batch');
+		$modelTmplBat->send($oRecord->siteid, $tmplConfig->msgid, $creater, [$receiver], $params, ['send_from' => 'enroll:' . $oRecord->aid . ':' . $oRecord->enroll_key]);
 	}
 }

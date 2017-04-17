@@ -1,0 +1,261 @@
+{
+    "scenario": "quiz",
+    "pages": [{
+        "name": "quiz",
+        "title": "考试页",
+        "type": "I",
+        "data_schemas": [{
+            "schema": {
+                "id": "c1001",
+                "title": "题目1",
+                "type": "shorttext",
+                "requireScore": "Y",
+                "answer": "参考答案1",
+                "score": 10
+            },
+            "config": {
+                "required": "N",
+                "showname": "placeholder"
+            }
+        }, {
+            "schema": {
+                "id": "c1002",
+                "title": "题目2",
+                "type": "single",
+                "requireScore": "Y",
+                "answer": "v3",
+                "score": 10,
+                "ops": [{
+                    "v": "v1",
+                    "l": "A.答案1"
+                }, {
+                    "v": "v2",
+                    "l": "B.答案2"
+                }, {
+                    "v": "v3",
+                    "l": "C.答案3"
+                }, {
+                    "v": "v4",
+                    "l": "D.答案4"
+                }]
+            },
+            "config": {
+                "required": "N",
+                "showname": "label",
+                "component": "R",
+                "align": "V"
+            }
+        }, {
+            "schema": {
+                "id": "c1003",
+                "title": "题目3",
+                "type": "multiple",
+                "requireScore": "Y",
+                "answer": "v1,v2",
+                "score": 10,
+                "mean": 5,
+                "ops": [{
+                    "v": "v1",
+                    "l": "A.答案1"
+                }, {
+                    "v": "v2",
+                    "l": "B.答案2"
+                }, {
+                    "v": "v3",
+                    "l": "C.答案3"
+                }, {
+                    "v": "v4",
+                    "l": "D.答案4"
+                }]
+            },
+            "config": {
+                "required": "N",
+                "showname": "label",
+                "component": "R",
+                "align": "V"
+            }
+        }, {
+            "schema": {
+                "id": "c1004",
+                "title": "题目4",
+                "type": "longtext",
+                "requireScore": "Y",
+                "answer": "参考答案4",
+                "score": 20
+            },
+            "config": {
+                "required": "N",
+                "showname": "placeholder"
+            }
+        }],
+        "act_schemas": [{
+            "id": "btnSubmit",
+            "name": "submit",
+            "label": "提交考卷",
+            "next": "result"
+        }]
+    }, {
+        "name": "result",
+        "title": "考试结果页",
+        "type": "V",
+        "data_schemas": [{
+            "config": {
+                "id": "s1",
+                "pattern": "record",
+                "inline": "N",
+                "splitLine": "Y"
+            },
+            "schema": {
+                "id": "c1001",
+                "title": "题目1",
+                "type": "shorttext",
+                "requireScore": "Y",
+                "answer": "参考答案1",
+                "score": 10
+            }
+        }, {
+            "config": {
+                "id": "s2",
+                "pattern": "record",
+                "inline": "N",
+                "splitLine": "Y"
+            },
+            "schema": {
+                "id": "c1002",
+                "title": "题目2",
+                "type": "single",
+                "requireScore": "Y",
+                "answer": "v3",
+                "score": 10,
+                "ops": [{
+                    "v": "v1",
+                    "l": "A.答案1"
+                }, {
+                    "v": "v2",
+                    "l": "B.答案2"
+                }, {
+                    "v": "v3",
+                    "l": "C.答案3"
+                }, {
+                    "v": "v4",
+                    "l": "D.答案4"
+                }]
+            }
+        }, {
+            "config": {
+                "id": "s3",
+                "pattern": "record",
+                "inline": "N",
+                "splitLine": "Y"
+            },
+            "schema": {
+                "id": "c1003",
+                "title": "题目3",
+                "type": "multiple",
+                "requireScore": "Y",
+                "answer": "v1,v2",
+                "score": 10,
+                "mean": 5,
+                "ops": [{
+                    "v": "v1",
+                    "l": "A.答案1"
+                }, {
+                    "v": "v2",
+                    "l": "B.答案2"
+                }, {
+                    "v": "v3",
+                    "l": "C.答案3"
+                }, {
+                    "v": "v4",
+                    "l": "D.答案4"
+                }]
+            }
+        }, {
+            "config": {
+                "id": "V4",
+                "pattern": "record",
+                "inline": "N",
+                "splitLine": "Y"
+            },
+            "schema": {
+                "id": "c1004",
+                "title": "题目4",
+                "type": "longtext",
+                "requireScore": "Y",
+                "answer": "参考答案4",
+                "score": 20
+            }
+        }],
+        "act_schemas": [{
+            "id": "act2",
+            "name": "closeWindow",
+            "label": "关闭"
+        }]
+    }],
+    "schema": [{
+        "id": "c1001",
+        "title": "问题1",
+        "type": "shorttext",
+        "requireScore": "Y",
+        "answer": "答案1",
+        "score": 10
+    }, {
+        "id": "c1002",
+        "title": "问题2",
+        "type": "single",
+        "requireScore": "Y",
+        "answer": "v3",
+        "score": 10,
+        "ops": [{
+            "v": "v1",
+            "l": "A.答案1"
+        }, {
+            "v": "v2",
+            "l": "B.答案2"
+        }, {
+            "v": "v3",
+            "l": "C.答案3"
+        }, {
+            "v": "v4",
+            "l": "D.答案4"
+        }]
+    }, {
+        "id": "c1003",
+        "title": "问题3",
+        "type": "multiple",
+        "requireScore": "Y",
+        "answer": "v1,v2",
+        "score": 10,
+        "mean": 5,
+        "ops": [{
+            "v": "v1",
+            "l": "A.答案1"
+        }, {
+            "v": "v2",
+            "l": "B.答案2"
+        }, {
+            "v": "v3",
+            "l": "C.答案3"
+        }, {
+            "v": "v4",
+            "l": "D.答案4"
+        }]
+    }, {
+        "id": "c1004",
+        "title": "问题4",
+        "type": "longtext",
+        "requireScore": "Y",
+        "answer": "参考答案4",
+        "score": 20
+    }],
+    "scenarioConfig": {
+        "can_rounds": "D"
+    },
+    "entryRule": {
+        "otherwise": {
+            "entry": "quiz"
+        }
+    },
+    "multi_rounds": "N",
+    "enrolled_entry_page": "result"
+}

@@ -9,6 +9,7 @@
                 <li ng-class="{'active':matterType==='group'}"><a href='#group' ng-click="matterType='group'">分组</a></li>
                 <li ng-class="{'active':matterType==='voting'}"><a href='#voting' ng-click="matterType='voting'">投票</a></li>
                 <li ng-class="{'active':matterType==='group_week_report'}"><a href='#group_week_report' ng-click="matterType='group_week_report'">团队周报</a></li>
+                <li ng-class="{'active':matterType==='quiz'}"><a href='#quiz' ng-click="matterType='quiz'">测验</a></li>
                 <li ng-class="{'active':matterType==='common'}"><a href='#common' ng-click="matterType='common'">通用登记</a></li>
             </ul>
             <form class="navbar-form navbar-right">
@@ -69,6 +70,7 @@
         <div class='form-group'>
             <button class='btn btn-default' ng-click="addMatter('registration')">报名活动</button>
             <button class='btn btn-default' ng-click="addMatter('voting')">问卷活动</button>
+            <button class='btn btn-default' ng-click="addMatter('quiz')">测验活动</button>
             <button class='btn btn-default' ng-click="addEnroll('group_week_report')">团队周报</button>
             <button class='btn btn-default' ng-click="addEnroll('common')">通用登记</button>
             <button class='btn btn-default' ng-click="addMatter('signin')">签到活动</button>

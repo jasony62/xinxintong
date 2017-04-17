@@ -23,7 +23,7 @@ class record extends \pl\fe\matter\base {
 		}
 
 		$mdoelRec = $this->model('matter\enroll\record');
-		$record = $mdoelRec->byId($ek);
+		$record = $mdoelRec->byId($ek, ['verbose' => 'Y']);
 
 		return new \ResponseData($record);
 	}
@@ -140,7 +140,7 @@ class record extends \pl\fe\matter\base {
 	 *
 	 * @param string $app
 	 */
-	public function add_action($site, $app) {
+	public function add_action($app) {
 		if (false === ($user = $this->accountUser())) {
 			return new \ResponseTimeout();
 		}
@@ -149,30 +149,29 @@ class record extends \pl\fe\matter\base {
 		$modelEnl = $this->model('matter\enroll');
 		$modelRec = $this->model('matter\enroll\record');
 
-		$app = $modelEnl->byId($app, ['cascaded' => 'N']);
+		$oApp = $modelEnl->byId($app, ['cascaded' => 'N']);
 
 		/* 创建登记记录 */
-		$ek = $modelRec->enroll($site, $app);
+		$ek = $modelRec->enroll($oApp->siteid, $oApp);
 		$record = [];
 		$record['verified'] = isset($posted->verified) ? $posted->verified : 'N';
 		$record['comment'] = isset($posted->comment) ? $posted->comment : '';
 		if (isset($posted->tags)) {
 			$record['tags'] = $posted->tags;
-			$modelEnl->updateTags($app->id, $posted->tags);
+			$modelEnl->updateTags($oApp->id, $posted->tags);
 		}
 		$modelRec->update('xxt_enroll_record', $record, "enroll_key='$ek'");
 
 		/* 记录登记数据 */
-		$result = $modelRec->setData(null, $app, $ek, $posted->data, true);
+		$result = $modelRec->setData(null, $oApp, $ek, $posted->data, '', true, isset($posted->quizScore) ? $posted->quizScore : null);
 
 		/* 记录操作日志 */
-		$app->type = 'enroll';
-		$this->model('matter\log')->matterOp($site, $user, $app, 'add', $ek);
+		$this->model('matter\log')->matterOp($oApp->siteid, $user, $oApp, 'add', $ek);
 
 		/* 返回完整的记录 */
-		$record = $modelRec->byId($ek);
+		$oNewRecord = $modelRec->byId($ek, ['verbose' => 'Y']);
 
-		return new \ResponseData($record);
+		return new \ResponseData($oNewRecord);
 	}
 	/**
 	 * 更新登记记录
@@ -180,7 +179,7 @@ class record extends \pl\fe\matter\base {
 	 * @param string $app
 	 * @param $ek record's key
 	 */
-	public function update_action($site, $app, $ek) {
+	public function update_action($app, $ek) {
 		if (false === ($user = $this->accountUser())) {
 			return new \ResponseTimeout();
 		}
@@ -207,37 +206,54 @@ class record extends \pl\fe\matter\base {
 		if (isset($record->rid)) {
 			$updated->rid = $modelEnl->escape($record->rid);
 		}
-		$modelEnl->update('xxt_enroll_record', $updated, "enroll_key='$ek'");
-
+		$modelEnl->update('xxt_enroll_record', $updated, ['enroll_key' => $ek]);
 		/* 记录登记数据 */
 		if (isset($record->data)) {
-			$modelRec->setData(null, $oApp, $ek, $record->data);
+			$score = isset($record->quizScore) ? $record->quizScore : null;
+			$modelRec->setData(null, $oApp, $ek, $record->data, '', false, $score);
+		} else if (isset($record->quizScore)) {
+			/* 只修改登记项的分值 */
+			$oAfterScore = new \stdClass;
+			$oAfterScore->sum = 0;
+			$oBeforeScore = $modelRec->query_val_ss(['score', 'xxt_enroll_record', ['aid' => $app, 'enroll_key' => $ek, 'state' => 1]]);
+			$oBeforeScore = empty($oBeforeScore) ? new stdClass : json_decode($oBeforeScore);
+			foreach ($oApp->dataSchemas as $schema) {
+				if (empty($schema->requireScore) || $schema->requireScore !== 'Y') {
+					continue;
+				}
+				//主观题评分
+				if (in_array($schema->type, ['single', 'multiple'])) {
+					$oAfterScore->{$schema->id} = isset($oBeforeScore->{$schema->id}) ? $oBeforeScore->{$schema->id} : 0;
+				} else {
+					if (isset($record->quizScore->{$schema->id})) {
+						$modelEnl->update('xxt_enroll_record_data', ['score' => $record->quizScore->{$schema->id}], ['enroll_key' => $ek, 'schema_id' => $schema->id, 'state' => 1]);
+						$oAfterScore->{$schema->id} = $record->quizScore->{$schema->id};
+					} else {
+						$oAfterScore->{$schema->id} = 0;
+					}
+				}
+				$oAfterScore->sum += (int) $oAfterScore->{$schema->id};
+			}
+			$newScore = $modelRec->toJson($oAfterScore);
+			//更新record表
+			$modelRec->update('xxt_enroll_record', ['score' => $newScore], ['aid' => $app, 'enroll_key' => $ek, 'state' => 1]);
 		}
 
 		/* 更新登记项数据的轮次 */
 		if (isset($record->rid)) {
-			$modelEnl->update('xxt_enroll_record_data', ['rid' => $modelEnl->escape($record->rid)], ['enroll_key' => $ek]);
+			$modelEnl->update('xxt_enroll_record_data', ['rid' => $modelEnl->escape($record->rid)], ['enroll_key' => $ek, 'state' => 1]);
 		}
-
 		if ($updated->verified === 'Y') {
 			$this->_whenVerifyRecord($oApp, $ek);
 		}
 
 		/* 记录操作日志 */
-		$this->model('matter\log')->matterOp($site, $user, $oApp, 'update', $record);
+		$this->model('matter\log')->matterOp($oApp->siteid, $user, $oApp, 'update', $record);
 
 		/* 返回完整的记录 */
-		$record = $modelRec->byId($ek);
-		if (isset($record->rid)) {
-			$record->round = new \stdClass;
-			if ($round = $this->model('matter\enroll\round')->byId($record->rid, ['fields' => 'title'])) {
-				$record->round->title = $round->title;
-			} else {
-				$record->round->title = '';
-			}
-		}
+		$oNewRecord = $modelRec->byId($ek, ['verbose' => 'Y']);
 
-		return new \ResponseData($record);
+		return new \ResponseData($oNewRecord);
 	}
 	/**
 	 * 删除一条登记信息
@@ -635,6 +651,10 @@ class record extends \pl\fe\matter\base {
 			$titles[] = '总分数';
 			$titles[] = '平均分数';
 		}
+		if ($oApp->scenario === 'quiz') {
+			$objActiveSheet->setCellValueByColumnAndRow($i + $columnNum1++, 1, '总分');
+			$titles[] = '总分';
+		}
 		// 转换数据
 		for ($j = 0, $jj = count($records); $j < $jj; $j++) {
 			$record = $records[$j];
@@ -648,15 +668,25 @@ class record extends \pl\fe\matter\base {
 			}
 			// 处理登记项
 			$data = $record->data;
+			isset($record->score) && $score = $record->score;
 			for ($i = 0, $ii = count($schemas); $i < $ii; $i++) {
 				$columnNum3 = $columnNum2; //列号
 				$schema = $schemas[$i];
 				$v = isset($data->{$schema->id}) ? $data->{$schema->id} : '';
+
 				if (empty($v)) {
 					continue;
 				}
 				switch ($schema->type) {
 				case 'single':
+					foreach ($schema->ops as $op) {
+						if ($op->v === $v) {
+							$v0 = $op->l;
+						}
+					}
+					isset($score->{$schema->id . '_score'}) && ($v0 .= ' (' . $score->{$schema->id . '_score'} . '分)');
+					$objActiveSheet->setCellValueExplicitByColumnAndRow($i + $columnNum3++, $rowIndex, $v0, \PHPExcel_Cell_DataType::TYPE_STRING);
+					break;
 				case 'phase':
 					$disposed = null;
 					foreach ($schema->ops as $op) {
@@ -679,7 +709,9 @@ class record extends \pl\fe\matter\base {
 							}
 						}
 					}
-					$objActiveSheet->setCellValueByColumnAndRow($i + $columnNum3++, $rowIndex, implode(',', $labels));
+					$cellValue = implode(',', $labels);
+					isset($score->{$schema->id . '_score'}) && $cellValue .= ' (' . $score->{$schema->id . '_score'} . '分)';
+					$objActiveSheet->setCellValueByColumnAndRow($i + $columnNum3++, $rowIndex, $cellValue);
 					break;
 				case 'score':
 					$labels = [];
@@ -694,6 +726,7 @@ class record extends \pl\fe\matter\base {
 				case 'file':
 					break;
 				default:
+					isset($score->{$schema->id . '_score'}) && $v .= ' (' . $score->{$schema->id . '_score'} . '分)';
 					$objActiveSheet->setCellValueExplicitByColumnAndRow($i + $columnNum3++, $rowIndex, $v, \PHPExcel_Cell_DataType::TYPE_STRING);
 					break;
 				}
@@ -704,10 +737,14 @@ class record extends \pl\fe\matter\base {
 			$objActiveSheet->setCellValueByColumnAndRow($i + $columnNum2++, $rowIndex, $record->comment);
 			// 标签
 			$objActiveSheet->setCellValueByColumnAndRow($i + $columnNum2++, $rowIndex, $record->tags);
-			// 记录分数
+			// 记录投票分数
 			if ($oApp->scenario === 'voting') {
 				$objActiveSheet->setCellValueByColumnAndRow($i + $columnNum2++, $rowIndex, $record->_score);
 				$objActiveSheet->setCellValueByColumnAndRow($i + $columnNum2++, $rowIndex, sprintf('%.2f', $record->_average));
+			}
+			// 记录测验分数
+			if ($oApp->scenario === 'quiz') {
+				$objActiveSheet->setCellValueByColumnAndRow($i + $columnNum2++, $rowIndex, $score->sum . '分');
 			}
 		}
 		if (!empty($isTotal)) {

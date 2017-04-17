@@ -297,7 +297,7 @@ class channel_model extends article_base {
 		 * in channel
 		 */
 		if ($channel->matter_type === 'article') {
-			$orderby = empty($params->orderby)? $channel->orderby : $params->orderby;
+			$orderby = $channel->orderby;
 			$q1 = array();
 			$q1[] = "m.id,m.title,m.summary,m.pic,m.create_at,m.creater_name,cm.create_at add_at,'article' type,m.score,m.remark_num,s.score myscore";
 			$q1[] = "xxt_article m left join xxt_article_score s on m.id=s.article_id and s.vid='$userid',xxt_channel_matter cm";

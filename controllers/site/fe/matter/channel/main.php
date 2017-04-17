@@ -36,7 +36,7 @@ class main extends \site\fe\matter\base {
 	 * $site
 	 * $id channel's id
 	 */
-	public function mattersGet_action($site, $id, $page = null, $size = null) {
+	public function mattersGet_action($site, $id, $orderby = 'time', $page = null, $size = null) {
 		$user = $this->who;
 
 		$params = new \stdClass;

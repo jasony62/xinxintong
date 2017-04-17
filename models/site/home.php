@@ -136,8 +136,8 @@ class home_model extends \TMS_MODEL {
 
 		$q = [
 			$fields,
-			'xxt_home_site',
-			["approved" => 'Y'],
+			'xxt_home_site h, xxt_site s',
+			"h.approved = 'Y' and h.siteid = s.id and s.state = 1"
 		];
 
 		$q2 = [

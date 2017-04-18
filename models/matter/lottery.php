@@ -55,7 +55,7 @@ class lottery_model extends app_base {
 					'xxt_lottery_plate',
 					"lid='$lid'",
 				);
-				if ($plate = parent::query_obj_ss($q)) {
+				if ($plate = $this->query_obj_ss($q)) {
 					$lot->plate = $plate;
 				}
 			}

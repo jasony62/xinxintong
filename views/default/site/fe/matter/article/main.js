@@ -183,7 +183,7 @@ ngApp.controller('ctrlMain', ['$scope', '$http', '$timeout', '$q', 'tmsDynaPage'
             }
 
             if (oArticle.can_picviewer === 'Y') {
-                tmsDynaPage.loadScript(['/static/js/hammer.min.js', '/views/default/picviewer.js']);
+                tmsDynaPage.loadScript(['/static/js/hammer.min.js', '/asset/js/xxt.ui.picviewer.js']);
             }
             if (!document.querySelector('.tms-switch-favor')) {
                 tmsFavor.showSwitch(oArticle.siteid, oArticle);

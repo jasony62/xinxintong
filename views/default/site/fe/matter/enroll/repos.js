@@ -2,6 +2,31 @@
 require('!style-loader!css-loader!./remark.css');
 
 var ngApp = require('./main.js');
+ngApp.factory('Round', ['$http', '$q', function($http, $q) {
+    var Round, _ins;
+    Round = function(oApp) {
+        this.oApp = oApp;
+    };
+    Round.prototype.list = function() {
+        var deferred, url;
+        deferred = $q.defer();
+        url = '/rest/site/fe/matter/enroll/round/list?site=' + this.oApp.siteid + '&app=' + this.oApp.id;
+        $http.get(url).success(function(rsp) {
+            if (rsp.err_code != 0) {
+                alert(rsp.data);
+                return;
+            }
+            deferred.resolve(rsp.data);
+        });
+        return deferred.promise;
+    };
+    return {
+        ins: function(oApp) {
+            _ins = _ins ? _ins : new Round(oApp);
+            return _ins;
+        }
+    };
+}]);
 ngApp.controller('ctrlRepos', ['$scope', '$http', function($scope, $http) {
     var oApp, schemas = [];
     $scope.schemas = schemas;
@@ -31,7 +56,7 @@ ngApp.controller('ctrlRepos', ['$scope', '$http', function($scope, $http) {
     $scope.$on('xxt.app.enroll.ready', function(event, params) {
         oApp = params.app;
         oApp.dataSchemas.forEach(function(schema) {
-            if (schema.type !== 'html') {
+            if (schema.shareable === 'Y') {
                 schema._open = false;
                 schemas.push(schema);
             }

@@ -55,9 +55,11 @@ ngApp.controller('ctrlRemark', ['$scope', '$q', '$http', function($scope, $q, $h
                 summaryBySchema[schema.schema_id] = schema;
             });
             oApp.dataSchemas.forEach(function(schema) {
-                summaryBySchema[schema.id] && (schema.summary = summaryBySchema[schema.id]);
-                schema._open = false;
-                remarkableSchemas.push(schema);
+                if (schema.remarkable === 'Y') {
+                    summaryBySchema[schema.id] && (schema.summary = summaryBySchema[schema.id]);
+                    schema._open = false;
+                    remarkableSchemas.push(schema);
+                }
             });
             $scope.remarkableSchemas = remarkableSchemas;
         });

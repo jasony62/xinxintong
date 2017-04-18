@@ -40,7 +40,6 @@ class main extends \site\fe\matter\base {
 		$user = $this->who;
 
 		$params = new \stdClass;
-		$params->orderby = $orderby;
 		if ($page !== null && $size !== null) {
 			$params->page = $page;
 			$params->size = $size;

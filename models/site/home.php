@@ -45,8 +45,8 @@ class home_model extends \TMS_MODEL {
 
 		$q = [
 			$fields,
-			'xxt_home_site',
-			"1=1",
+			'xxt_home_site h,xxt_site s',
+			"h.siteid = s.id and s.state = 1",
 		];
 
 		$q2 = [
@@ -110,7 +110,7 @@ class home_model extends \TMS_MODEL {
 		$rst = $this->update(
 			'xxt_home_site',
 			['approved' => 'Y'],
-			["id" => $applicationId]
+			["siteid" => $applicationId]
 		);
 
 		return $rst;
@@ -122,7 +122,7 @@ class home_model extends \TMS_MODEL {
 		$rst = $this->update(
 			'xxt_home_site',
 			['approved' => 'N'],
-			["id" => $applicationId]
+			["siteid" => $applicationId]
 		);
 
 		return $rst;
@@ -136,8 +136,8 @@ class home_model extends \TMS_MODEL {
 
 		$q = [
 			$fields,
-			'xxt_home_site',
-			["approved" => 'Y'],
+			'xxt_home_site h, xxt_site s',
+			"h.approved = 'Y' and h.siteid = s.id and s.state = 1"
 		];
 
 		$q2 = [

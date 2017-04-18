@@ -198,6 +198,7 @@ $sql .= ",creater varchar(40) not null";
 $sql .= ",creater_name varchar(255) not null default ''";
 $sql .= ',put_at int not null';
 $sql .= ",siteid varchar(32) not null";
+$sql .= ",site_name varchar(50) not null";
 $sql .= ",matter_id varchar(40) not null";
 $sql .= ",matter_type varchar(20) not null";
 $sql .= ",scenario varchar(255) not null default ''"; // 登记／分组活动场景
@@ -206,6 +207,7 @@ $sql .= ',pic text';
 $sql .= ',summary varchar(240) not null';
 $sql .= ",score int not null default 0";
 $sql .= ",approved char(1) not null default 'N'"; // 是否批准推送到主页
+$sql .= ",weight int not null default 0"; 
 $sql .= ",primary key(id)) ENGINE=MyISAM DEFAULT CHARSET=utf8";
 if (!$mysqli->query($sql)) {
 	header('HTTP/1.0 500 Internal Server Error');

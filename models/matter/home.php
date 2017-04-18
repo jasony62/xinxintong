@@ -100,6 +100,7 @@ class home_model extends \TMS_MODEL {
 	 * @param object $matter 共享的素材
 	 */
 	public function putMatter($siteId, &$account, &$matter, $options = array()) {
+		$site = $this->model('site')->byId($siteId);
 		if ($this->byMatter($matter->id, $matter->type)) {
 			// 更新素材信息
 			$current = time();
@@ -108,7 +109,9 @@ class home_model extends \TMS_MODEL {
 				'title' => $matter->title,
 				'pic' => $matter->pic,
 				'summary' => $matter->summary,
+				'site_name' => $site->name,
 			];
+			
 			$this->update(
 				'xxt_home_matter',
 				$item,
@@ -129,8 +132,9 @@ class home_model extends \TMS_MODEL {
 				'title' => $matter->title,
 				'pic' => $matter->pic,
 				'summary' => $matter->summary,
+				'site_name' => $site->name,
 			];
-
+			
 			$id = $this->insert('xxt_home_matter', $item, true);
 			$item = $this->byId($id);
 		}

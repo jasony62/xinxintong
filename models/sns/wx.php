@@ -12,7 +12,7 @@ class wx_model extends \TMS_MODEL {
 		$q = array(
 			$fields,
 			'xxt_site_wx',
-			"siteid='$siteId'",
+			['siteid' => $siteId]
 		);
 		$wx = $this->query_obj_ss($q);
 
@@ -22,7 +22,7 @@ class wx_model extends \TMS_MODEL {
 	 * 创建绑定的公众号配置信息
 	 */
 	public function &create($siteId, $data = []) {
-		$data['siteid'] = $siteId;
+		$data['siteid'] = $this->escape($siteId);
 
 		$this->insert('xxt_site_wx', $data, false);
 

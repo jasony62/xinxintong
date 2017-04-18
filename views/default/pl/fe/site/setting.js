@@ -80,7 +80,7 @@ define(['require'], function(require) {
             http2.post('/rest/pl/fe/site/update?site=' + $scope.siteId, p, function(rsp) {});
         };
         $scope.remove = function() {
-            if(recommenSite.approved == 'Y' || navSite) {
+            if((recommenSite&&recommenSite.approved == 'Y' )|| navSite) {
                 noticebox.error('团队已推荐到平台主页或发布到平台主导航条，不能删除');
             }else {
                 if (window.confirm('确定删除站点？')) {

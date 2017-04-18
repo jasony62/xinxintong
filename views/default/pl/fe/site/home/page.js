@@ -46,7 +46,7 @@ define(['main'], function(ngApp) {
             });
         };
         $scope.cancleToHome = function() {
-            if(recommenSite.approved == 'Y' || navSite) {
+            if((recommenSite && recommenSite.approved == 'Y' )|| navSite) {
                 noticebox.error('团队已推荐到平台主页或发布到平台主导航条，不允许禁止');
             }else {
                 $scope.state = 'N';

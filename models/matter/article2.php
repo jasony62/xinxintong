@@ -328,11 +328,11 @@ class article2_model extends article_base {
 
 		//内容标签
 		$q3 = "select * from xxt_article_tag t left join xxt_tag g on t.tag_id=g.id where t.mpid='$site' and t.sub_type=0";
-		$tag_content = parent::query_objs($q3);
+		$tag_content = $this->query_objs($q3);
 
 		//频道标签
 		$q4 = "select m.matter_id,m.channel_id,c.siteid,c.title from xxt_channel_matter m left join xxt_channel c on m.channel_id=c.id where c.siteid='$site' and m.matter_type='article' ";
-		$tag_channel = parent::query_objs($q4);
+		$tag_channel = $this->query_objs($q4);
 
 		//将一篇文章所有标签放到tag下
 		$b = array();

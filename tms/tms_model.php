@@ -85,13 +85,37 @@ class TMS_MODEL {
 	public static function delete($table, $where) {
 		return TMS_DB::db()->delete($table, $where);
 	}
-
-	public static function query_value($select, $from = null, $where = null) {
-		return TMS_DB::db()->query_value($select, $from, $where);
+	/**
+	 *
+	 */
+	public function query_value($select, $from = null, $where = null) {
+		return TMS_DB::db()->query_value($select, $from, $where, $this->onlyWriteDbConn);
 	}
+	/**
+	 *
+	 */
+	public function query_val_ss($p) {
+		$select = $p[0];
+		$from = $p[1];
+		$where = isset($p[2]) ? $p[2] : null;
 
-	public static function query_values($select, $from = null, $where = null) {
-		return TMS_DB::db()->query_values($select, $from, $where);
+		return $this->query_value($select, $from, $where);
+	}
+	/**
+	 *
+	 */
+	public function query_values($select, $from = null, $where = null) {
+		return TMS_DB::db()->query_values($select, $from, $where, $this->onlyWriteDbConn);
+	}
+	/**
+	 * $params [select,from,where]
+	 */
+	public function query_vals_ss($p) {
+		$select = $p[0];
+		$from = $p[1];
+		$where = isset($p[2]) ? $p[2] : null;
+
+		return $this->query_values($select, $from, $where);
 	}
 	/**
 	 * 返回单个对象
@@ -112,10 +136,32 @@ class TMS_MODEL {
 	/**
 	 *
 	 */
-	public static function query_objs($select, $from = null, $where = null, $group = null, $order = null, $limit = null, $offset = null) {
-		return TMS_DB::db()->query_objs($select, $from, $where, $group, $order, $limit, $offset);
+	public function query_objs($select, $from = null, $where = null, $group = null, $order = null, $limit = null, $offset = null) {
+		return TMS_DB::db()->query_objs($select, $from, $where, $group, $order, $limit, $offset, $this->onlyWriteDbConn);
 	}
-
+	/**
+	 *
+	 */
+	public function query_objs_ss($p, $p2 = null) {
+		// select,from,where
+		$select = $p[0];
+		$from = $p[1] ? $p['1'] : null;
+		$where = isset($p[2]) ? $p[2] : null;
+		// group,order by,limit
+		$group = $order = $offset = $limit = null;
+		if ($p2) {
+			$group = !empty($p2['g']) ? $p2['g'] : null;
+			$order = !empty($p2['o']) ? $p2['o'] : null;
+			if (!empty($p2['r'])) {
+				$offset = $p2['r']['o'];
+				$limit = $p2['r']['l'];
+			}
+		}
+		return $this->query_objs($select, $from, $where, $group, $order, $offset, $limit);
+	}
+	/**
+	 *
+	 */
 	public static function found_rows() {
 		return TMS_DB::db()->query_value('SELECT FOUND_ROWS()');
 	}
@@ -139,77 +185,7 @@ class TMS_MODEL {
 			return $data;
 		}
 	}
-	/**
-	 * Array(
-	 * s=>select
-	 * f=>from
-	 * w=>where
-	 * g=>group
-	 * o=>order
-	 * r=>range
-	 * )
-	 */
-	public static function query_objs_s($params) {
-		$select = $params['s'];
-		$from = $params['f'] ? $params['f'] : null;
-		$where = isset($params['w']) ? $params['w'] : null;
-		$group = isset($params['g']) ? $params['g'] : null;
-		$order = isset($params['o']) ? $params['o'] : null;
-		$offset = $limit = null;
-		if (isset($params['r'])) {
-			$offset = $params['r']['o'] ? $params['r']['o'] : null;
-			$limit = $params['r']['l'] ? $params['r']['l'] : null;
-		}
-		return self::query_objs($select, $from, $where, $group, $order, $offset, $limit);
-	}
-	/**
-	 *
-	 */
-	public static function query_val_s($params) {
-		$select = $params['s'];
-		$from = $params['f'] ? $params['f'] : null;
-		$where = isset($params['w']) ? $params['w'] : null;
-		return self::query_value($select, $from, $where);
-	}
-	/**
-	 * $p [select,from,where]
-	 */
-	public function query_objs_ss($p, $p2 = null) {
-		// select,from,where
-		$select = $p[0];
-		$from = $p[1] ? $p['1'] : null;
-		$where = isset($p[2]) ? $p[2] : null;
-		// group,order by,limit
-		$group = $order = $offset = $limit = null;
-		if ($p2) {
-			$group = !empty($p2['g']) ? $p2['g'] : null;
-			$order = !empty($p2['o']) ? $p2['o'] : null;
-			if (!empty($p2['r'])) {
-				$offset = $p2['r']['o'];
-				$limit = $p2['r']['l'];
-			}
-		}
-		return self::query_objs($select, $from, $where, $group, $order, $offset, $limit);
-	}
 
-	/**
-	 * $params [select,from,where]
-	 */
-	public function query_val_ss($p) {
-		$select = $p[0];
-		$from = $p[1];
-		$where = isset($p[2]) ? $p[2] : null;
-		return self::query_value($select, $from, $where);
-	}
-	/**
-	 * $params [select,from,where]
-	 */
-	public function query_vals_ss($p) {
-		$select = $p[0];
-		$from = $p[1];
-		$where = isset($p[2]) ? $p[2] : null;
-		return self::query_values($select, $from, $where);
-	}
 	/**
 	 *
 	 * return 32bit

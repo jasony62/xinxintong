@@ -246,10 +246,14 @@ class TMS_DB {
 	/**
 	 * 获取查询全部
 	 */
-	public function query_objs($select, $from = null, $where = null, $group = null, $order = null, $offset = null, $limit = null) {
+	public function query_objs($select, $from = null, $where = null, $group = null, $order = null, $offset = null, $limit = null, $onlyWriteDbConn = false) {
 		$sql = $this->_assemble_query($select, $from, $where, $group, $order, $offset, $limit);
 
-		$mysqli = $this->_getDbConn();
+		if ($onlyWriteDbConn === true) {
+			$mysqli = $this->_getDbWriteConn();
+		} else {
+			$mysqli = $this->_getDbConn();
+		}
 		($db_result = $mysqli->query($sql)) || $this->show_error("database error:$sql;" . $mysqli->error);
 
 		$objects = array();
@@ -266,10 +270,14 @@ class TMS_DB {
 	 *
 	 * return if rownum == 0 then return false.
 	 */
-	public function query_value($select, $from = null, $where = null) {
+	public function query_value($select, $from = null, $where = null, $onlyWriteDbConn = false) {
 		$sql = $this->_assemble_query($select, $from, $where);
 
-		$mysqli = $this->_getDbConn();
+		if ($onlyWriteDbConn === true) {
+			$mysqli = $this->_getDbWriteConn();
+		} else {
+			$mysqli = $this->_getDbConn();
+		}
 		($db_result = $mysqli->query($sql)) || $this->show_error("database error:$sql;" . $mysqli->error);
 
 		$row = $db_result->fetch_row();
@@ -283,10 +291,14 @@ class TMS_DB {
 	/**
 	 *
 	 */
-	public function query_values($select, $from = null, $where = null) {
+	public function query_values($select, $from = null, $where = null, $onlyWriteDbConn = false) {
 		$sql = $this->_assemble_query($select, $from, $where);
 
-		$mysqli = $this->_getDbConn();
+		if ($onlyWriteDbConn === true) {
+			$mysqli = $this->_getDbWriteConn();
+		} else {
+			$mysqli = $this->_getDbConn();
+		}
 		($db_result = $mysqli->query($sql)) || $this->show_error("database error:" . $sql . ';' . $mysqli->error);
 
 		$values = array();

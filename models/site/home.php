@@ -45,8 +45,8 @@ class home_model extends \TMS_MODEL {
 
 		$q = [
 			$fields,
-			'xxt_home_site',
-			"1=1",
+			'xxt_home_site h,xxt_site s',
+			"h.siteid = s.id and s.state = 1",
 		];
 
 		$q2 = [

@@ -207,6 +207,7 @@ $sql .= ',pic text';
 $sql .= ',summary varchar(240) not null';
 $sql .= ",score int not null default 0";
 $sql .= ",approved char(1) not null default 'N'"; // 是否批准推送到主页
+$sql .= ",weight int not null default 0"; 
 $sql .= ",primary key(id)) ENGINE=MyISAM DEFAULT CHARSET=utf8";
 if (!$mysqli->query($sql)) {
 	header('HTTP/1.0 500 Internal Server Error');

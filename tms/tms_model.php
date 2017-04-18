@@ -12,6 +12,17 @@ class TMS_MODEL {
 	 */
 	private static $model_prefix = '_model';
 	/**
+	 * 仅使用数据库读链接访问
+	 * 在数据库主从分离的部署环境下，有可能写操作同步有延迟，导致后续的读操作取不到数据，因为有些读操作必须强制使用写连接
+	 */
+	private $onlyWriteDbConn = false;
+	/**
+	 *
+	 */
+	public function setOnlyWriteDbConn($only) {
+		$this->onlyWriteDbConn = $only;
+	}
+	/**
 	 * 实例化model
 	 *
 	 * model_path可以用'\'，'/'和'.'进行分割。用'\'代表namespace，用'/'代表目录，用'.'代表文件问题
@@ -82,11 +93,25 @@ class TMS_MODEL {
 	public static function query_values($select, $from = null, $where = null) {
 		return TMS_DB::db()->query_values($select, $from, $where);
 	}
-
-	public static function query_obj($select, $from = null, $where = null) {
-		return TMS_DB::db()->query_obj($select, $from, $where);
+	/**
+	 * 返回单个对象
+	 */
+	public function query_obj($select, $from = null, $where = null) {
+		return TMS_DB::db()->query_obj($select, $from, $where, $this->onlyWriteDbConn);
 	}
+	/**
+	 *  返回单个对象
+	 */
+	public function query_obj_ss($p, $p2 = null) {
+		$select = $p[0];
+		$from = $p[1];
+		$where = isset($p[2]) ? $p[2] : null;
 
+		return $this->query_obj($select, $from, $where);
+	}
+	/**
+	 *
+	 */
 	public static function query_objs($select, $from = null, $where = null, $group = null, $order = null, $limit = null, $offset = null) {
 		return TMS_DB::db()->query_objs($select, $from, $where, $group, $order, $limit, $offset);
 	}
@@ -149,7 +174,7 @@ class TMS_MODEL {
 	/**
 	 * $p [select,from,where]
 	 */
-	public static function query_objs_ss($p, $p2 = null) {
+	public function query_objs_ss($p, $p2 = null) {
 		// select,from,where
 		$select = $p[0];
 		$from = $p[1] ? $p['1'] : null;
@@ -166,20 +191,11 @@ class TMS_MODEL {
 		}
 		return self::query_objs($select, $from, $where, $group, $order, $offset, $limit);
 	}
-	/**
-	 * $params [select,from,where]
-	 */
-	public static function query_obj_ss($p, $p2 = null) {
-		$select = $p[0];
-		$from = $p[1];
-		$where = isset($p[2]) ? $p[2] : null;
 
-		return self::query_obj($select, $from, $where);
-	}
 	/**
 	 * $params [select,from,where]
 	 */
-	public static function query_val_ss($p) {
+	public function query_val_ss($p) {
 		$select = $p[0];
 		$from = $p[1];
 		$where = isset($p[2]) ? $p[2] : null;
@@ -188,7 +204,7 @@ class TMS_MODEL {
 	/**
 	 * $params [select,from,where]
 	 */
-	public static function query_vals_ss($p) {
+	public function query_vals_ss($p) {
 		$select = $p[0];
 		$from = $p[1];
 		$where = isset($p[2]) ? $p[2] : null;

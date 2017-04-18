@@ -303,7 +303,7 @@ class article2_model extends article_base {
 		$q2['r']['o'] = ($page - 1) * $limit;
 		$q2['r']['l'] = $limit;
 
-		$articles = parent::query_objs_ss($q, $q2);
+		$articles = $this->query_objs_ss($q, $q2);
 
 		return $articles;
 	}
@@ -322,7 +322,7 @@ class article2_model extends article_base {
 
 		$q2['o'] = 'create_at desc';
 
-		$articles = parent::query_objs_ss($q, $q2);
+		$articles = $this->query_objs_ss($q, $q2);
 		$articles = json_encode($articles);
 		$articles = json_decode($articles, 1);
 
@@ -369,7 +369,7 @@ class article2_model extends article_base {
 
 		$q2['o'] = 'create_at desc';
 
-		$r = parent::query_objs_ss($q, $q2);
+		$r = $this->query_objs_ss($q, $q2);
 		$one = (array) $r[0];
 		$num = $one['c'];
 

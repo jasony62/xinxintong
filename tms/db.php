@@ -219,13 +219,16 @@ class TMS_DB {
 		return $rows_affected;
 	}
 	/**
-	 *查询一行, 返回对象
+	 * 查询一行, 返回对象
 	 */
-	public function query_obj($select, $from = null, $where = null) {
-
+	public function query_obj($select, $from = null, $where = null, $onlyWriteDbConn = false) {
 		$sql = $this->_assemble_query($select, $from, $where);
 
-		$mysqli = $this->_getDbConn();
+		if ($onlyWriteDbConn === true) {
+			$mysqli = $this->_getDbWriteConn();
+		} else {
+			$mysqli = $this->_getDbConn();
+		}
 		($db_result = $mysqli->query($sql)) || $this->show_error("database error:" . $sql . ';' . $mysqli->error);
 
 		if ($db_result->num_rows > 1) {

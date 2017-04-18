@@ -1,14 +1,27 @@
 define(['frame'], function(ngApp) {
     'use strict';
-    ngApp.provider.controller('ctrlFriend', ['$scope', 'srvSite', 'http2', '$uibModal', function($scope, srvSite, http2, $uibModal) {
+    ngApp.provider.controller('ctrlFriend', ['$scope', 'srvSite', 'http2', '$uibModal', 'noticebox', function($scope, srvSite, http2, $uibModal, noticebox) {
         $scope.subscribe = function(site) {
             var url = '/rest/pl/fe/site/canSubscribe?site=' + site.siteid + '&_=' + (new Date() * 1);
             http2.get(url, function(rsp) {
+                function _chooseSite(chooseSite) {
+                    var url = '/rest/pl/fe/site/subscribe?site=' + site.siteid;
+                        sites = [];
+
+                    chooseSite.forEach(function(mySite) {
+                        sites.push(mySite.id);
+                    });
+                    url += '&subscriber=' + sites.join(',');
+                    http2.get(url, function(rsp) {
+                        site._subscribed = 'Y';
+                    });
+                }
+
                 var sites = rsp.data;
                 if (sites.length === 1) {
-
+                    _chooseSite(sites);
                 } else if (sites.length === 0) {
-
+                    noticebox.error('请先创建用于关注团队的团队');
                 } else {
                     $uibModal.open({
                         templateUrl: 'subscribeSite.html',
@@ -31,16 +44,7 @@ define(['frame'], function(ngApp) {
                             };
                         }]
                     }).result.then(function(selected) {
-                        var url = '/rest/pl/fe/site/subscribe?site=' + site.siteid;
-                        sites = [];
-
-                        selected.forEach(function(mySite) {
-                            sites.push(mySite.id);
-                        });
-                        url += '&subscriber=' + sites.join(',');
-                        http2.get(url, function(rsp) {
-                            site._subscribed = 'Y';
-                        });
+                        _chooseSite(selected);
                     });
                 }
             });

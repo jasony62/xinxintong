@@ -16,7 +16,7 @@ class base_model extends \TMS_MODEL {
 			$table = 'xxt_' . $type;
 			$q = ['id,title,summary,pic', $table, ["id" => $id]];
 		}
-		if ($matter = self::query_obj_ss($q)) {
+		if ($matter = $this->query_obj_ss($q)) {
 			$matter->type = $type;
 		}
 
@@ -41,7 +41,7 @@ class base_model extends \TMS_MODEL {
 			$q = ['id,title', $table, ["id" => $id]];
 		}
 
-		if ($matter = self::query_obj_ss($q)) {
+		if ($matter = $this->query_obj_ss($q)) {
 			$matter->type = $type;
 		}
 

@@ -144,8 +144,9 @@ class record_model extends \TMS_MODEL {
 							$treatedValue[] = $rst[1];
 						}
 						$treatedValue = implode(',', $treatedValue);
-						// image url
 						$dbData->{$schemaId} = $treatedValue;
+					} else if (empty($submitVal)) {
+						$dbData->{$schemaId} = $treatedValue = '';
 					} else {
 						throw new \Exception('登记的数据类型和登记项【image】需要的类型不匹配');
 					}

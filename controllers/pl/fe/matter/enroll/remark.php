@@ -36,6 +36,7 @@ class remark extends \pl\fe\matter\base {
 	}
 	/**
 	 * 给指定的登记记录的添加评论
+	 * 需要处理用户没有提交评论的登记项数据的情况（用户提交数据后又增加了登记项）
 	 */
 	public function add_action($ek, $schema = null) {
 		if (false === ($user = $this->accountUser())) {
@@ -72,8 +73,24 @@ class remark extends \pl\fe\matter\base {
 		$remark->id = $modelRec->insert('xxt_enroll_record_remark', $remark, true);
 
 		$modelRec->update("update xxt_enroll_record set remark_num=remark_num+1 where enroll_key='$ek'");
+
 		if (isset($schema)) {
-			$modelRec->update("update xxt_enroll_record_data set remark_num=remark_num+1,last_remark_at=$current where enroll_key='$ek' and schema_id='$schema'");
+			$oSchemaData = $modelRec->query_obj_ss(['id', 'xxt_enroll_record_data', ['enroll_key' => $ek, 'schema_id' => $schema, 'state' => 1]]);
+			if ($oSchemaData) {
+				$modelRec->update("update xxt_enroll_record_data set remark_num=remark_num+1,last_remark_at=$current where id='{$oSchemaData->id}'");
+			} else {
+				/* 用户没有提交过数据，创建一条记录 */
+				$aNewSchemaData = [
+					'aid' => $oRecord->aid,
+					'rid' => $oRecord->rid,
+					'enroll_key' => $ek,
+					'submit_at' => $oRecord->enroll_at,
+					'userid' => $oRecord->userid,
+					'schema_id' => $schema,
+					'remark_num' => 1,
+				];
+				$modelRec->insert('xxt_enroll_record_data', $aNewSchemaData, false);
+			}
 		}
 
 		$this->_notifyHasRemark($oApp, $oRecord, $remark);

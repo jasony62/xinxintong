@@ -110,7 +110,7 @@ class home_model extends \TMS_MODEL {
 		$rst = $this->update(
 			'xxt_home_site',
 			['approved' => 'Y'],
-			["id" => $applicationId]
+			["siteid" => $applicationId]
 		);
 
 		return $rst;
@@ -122,7 +122,7 @@ class home_model extends \TMS_MODEL {
 		$rst = $this->update(
 			'xxt_home_site',
 			['approved' => 'N'],
-			["id" => $applicationId]
+			["siteid" => $applicationId]
 		);
 
 		return $rst;

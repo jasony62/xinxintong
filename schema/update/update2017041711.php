@@ -3,7 +3,7 @@ require_once '../../db.php';
 
 $sqls = array();
 //
-$sqls[] = "alter table xxt_home_matter add weight int not null default 0";
+//$sqls[] = "alter table xxt_home_matter add weight int not null default 0";
 $sqls[] = "alter table xxt_home_matter add site_name varchar(50) not null after siteid";
 $sqls[] = "update xxt_home_matter h,xxt_site s set h.site_name=s.name where h.siteid=s.id";
 

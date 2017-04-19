@@ -26,6 +26,9 @@ class main extends \site\fe\matter\base {
 	 * $id
 	 */
 	public function get_action($site, $id) {
+		$model = $this->model();
+		$site = $model->escape($site);
+		$id = $model->escape($id);
 		$user = $this->who;
 
 		$modelArticle = $this->model('matter\article2');
@@ -48,7 +51,7 @@ class main extends \site\fe\matter\base {
 		/* 单图文所属的标签 */
 		$article->tags = $modelArticle->tags($id);
 		if ($article->has_attachment === 'Y') {
-			$article->attachments = $this->model()->query_objs_ss(
+			$article->attachments = $model->query_objs_ss(
 				array(
 					'*',
 					'xxt_article_attachment',

@@ -26,7 +26,7 @@ class site_model extends \TMS_MODEL {
 		$q = [
 			$fields,
 			'xxt_site',
-			["id" => $siteId],
+			["id" => $siteId, 'state' => 1],
 		];
 		if (($site = $this->query_obj_ss($q)) && !empty($cascaded)) {
 			$cascaded = explode(',', $cascaded);

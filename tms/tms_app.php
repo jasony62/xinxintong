@@ -421,10 +421,12 @@ class TMS_APP {
 			}
 
 			$cookiekey = md5($_SERVER['HTTP_USER_AGENT']);
-			$token = TMS_MODEL::encrypt($token, 'DECODE', $cookiekey);
-			$oToken = json_decode($token);
+			$decodeToken = TMS_MODEL::encrypt($token, 'DECODE', $cookiekey);
+			$oToken = json_decode($decodeToken);
 			if (JSON_ERROR_NONE !== json_last_error()) {
-				self::M('log')->log('error', 'tms_app::_autoLogin::json_error', $token, '', '');
+				$agent = isset($_SERVER['HTTP_USER_AGENT']) ? $_SERVER['HTTP_USER_AGENT'] : '';
+				$referer = isset($_SERVER['HTTP_REFERER']) ? $_SERVER['HTTP_REFERER'] : '';
+				self::M('log')->log('error', 'tms_app::_autoLogin::json_error', $token, $agent, $referer);
 				return false;
 			}
 

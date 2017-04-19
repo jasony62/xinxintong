@@ -25,17 +25,21 @@ class home_model extends \TMS_MODEL {
 	 */
 	public function &findApp($options = []) {
 		$fields = isset($options['fields']) ? $options['fields'] : '*';
+		if(strpos($fields, 'h.') === false && strpos($fields, 's.') === false){
+			$fields = str_replace(',',',h.',$fields);
+			$fields = 'h.'.$fields;
+		}
 		$page = isset($options['page']) ? $options['page'] : ['at' => 1, 'size' => 8];
 
 		$q = [
 			$fields,
-			'xxt_home_matter',
-			"matter_type<>'article'",
+			'xxt_home_matter h,xxt_site s',
+			"h.matter_type<>'article' and h.siteid = s.id and s.state=1",
 		];
 
 		$q2 = [
 			'r' => ['o' => ($page['at'] - 1) * $page['size'], 'l' => $page['size']],
-			'o' => 'put_at desc',
+			'o' => 'h.put_at desc',
 		];
 
 		$result = new \stdClass;
@@ -54,17 +58,21 @@ class home_model extends \TMS_MODEL {
 	 */
 	public function &findArticle($options = []) {
 		$fields = isset($options['fields']) ? $options['fields'] : '*';
+		if(strpos($fields, 'h.') === false && strpos($fields, 's.') === false){
+			$fields = str_replace(',',',h.',$fields);
+			$fields = 'h.'.$fields;
+		}
 		$page = isset($options['page']) ? $options['page'] : ['at' => 1, 'size' => 8];
 
 		$q = [
 			$fields,
-			'xxt_home_matter',
-			"matter_type='article'",
+			'xxt_home_matter h,xxt_site s',
+			"h.matter_type='article' and h.siteid = s.id and s.state=1",
 		];
 
 		$q2 = [
 			'r' => ['o' => ($page['at'] - 1) * $page['size'], 'l' => $page['size']],
-			'o' => 'put_at desc',
+			'o' => 'h.put_at desc',
 		];
 
 		$result = new \stdClass;
@@ -170,17 +178,21 @@ class home_model extends \TMS_MODEL {
 	 */
 	public function &atHome($options = []) {
 		$fields = isset($options['fields']) ? $options['fields'] : '*';
+		if(strpos($fields, 'h.') === false && strpos($fields, 's.') === false){
+			$fields = str_replace(',',',h.',$fields);
+			$fields = 'h.'.$fields;
+		}
 		$page = isset($options['page']) ? $options['page'] : ['at' => 1, 'size' => 8];
 
 		$q = [
 			$fields,
-			'xxt_home_matter',
-			"approved='Y' and matter_type<>'article'",
+			'xxt_home_matter h, xxt_site s',
+			"approved='Y' and matter_type<>'article' and h.siteid = s.id and s.state=1 ",
 		];
 
 		$q2 = [
 			'r' => ['o' => ($page['at'] - 1) * $page['size'], 'l' => $page['size']],
-			'o' => 'score desc,weight desc,put_at desc',
+			'o' => 'h.score desc,h.weight desc,h.put_at desc',
 		];
 
 		$result = new \stdClass;
@@ -199,17 +211,21 @@ class home_model extends \TMS_MODEL {
 	 */
 	public function &atHomeArticle($options = []) {
 		$fields = isset($options['fields']) ? $options['fields'] : '*';
+		if(strpos($fields, 'h.') === false && strpos($fields, 's.') === false){
+			$fields = str_replace(',',',h.',$fields);
+			$fields = 'h.'.$fields;
+		}
 		$page = isset($options['page']) ? $options['page'] : ['at' => 1, 'size' => 8];
 
 		$q = [
 			$fields,
-			'xxt_home_matter',
-			"approved='Y' and matter_type='article'",
+			'xxt_home_matter h, xxt_site s',
+			"h.approved='Y' and h.matter_type='article' and h.siteid = s.id and s.state=1 ",
 		];
 
 		$q2 = [
 			'r' => ['o' => ($page['at'] - 1) * $page['size'], 'l' => $page['size']],
-			'o' => 'score desc,weight desc,put_at desc',
+			'o' => 'h.score desc,h.weight desc,h.put_at desc',
 		];
 
 		$result = new \stdClass;
@@ -222,5 +238,81 @@ class home_model extends \TMS_MODEL {
 		}
 
 		return $result;
+	}
+	/**
+	 * 已经批准在主页上的素材
+	 */
+	public function &atHomeTop($options = []) {
+		$fields = isset($options['fields']) ? $options['fields'] : '*';
+		if(strpos($fields, 'h.') === false && strpos($fields, 's.') === false){
+			$fields = str_replace(',',',h.',$fields);
+			$fields = 'h.'.$fields;
+		}
+		$page = isset($options['page']) ? $options['page'] : ['at' => 1, 'size' => 3];
+		$type = isset($options['type']) ? $this->escape($options['type']) : 'article';
+
+		$q = [
+			$fields,
+			'xxt_home_matter h, xxt_site s',
+			"h.approved='Y' and h.weight>0 and h.siteid = s.id and s.state=1 ",
+		];
+		if(!empty($type) && $type !== 'ALL') {
+			$q[2] .= " and h.matter_type = " . $type;
+		}
+
+		$q2 = [
+			'r' => ['o' => ($page['at'] - 1) * $page['size'], 'l' => $page['size']],
+			'o' => 'h.weight desc,h.score desc,h.put_at desc',
+		];
+
+		$result = new \stdClass;
+		$result->matters = $this->query_objs_ss($q, $q2);
+		if (count($result->matters)) {
+			$q[0] = 'count(*)';
+			$result->total = (int) $this->query_val_ss($q);
+		} else {
+			$result->total = 0;
+		}
+
+		return $result;
+	}
+	/**
+	 * 素材置顶
+	 */
+	public function pushHomeTop($applicationId) {
+		$q = [
+			'max(weight)',
+			'xxt_home_matter',
+		];
+		$weightNum = $this->query_val_ss($q);
+		$rst = $this->update(
+			'xxt_home_matter',
+			['weight' => $weightNum+1],
+			["id" => $applicationId]
+		);
+
+		return $rst;
+	}
+	/**
+	 * 撤销素材置顶
+	 */
+	public function pullHomeTop($applicationId) {
+		$q = [
+			'weight',
+			"xxt_home_matter",
+			["id" => $applicationId]
+		];
+		$weight = $this->query_obj_ss($q);
+		$weightNum = $weight->weight;
+		$rst = $this->update(
+			'xxt_home_matter',
+			['weight' => 0],
+			["id" => $applicationId]
+		);
+		if($rst){
+			$this->update("update xxt_home_matter set weight = weight-1 where weight > ".$weightNum);
+		}
+
+		return $rst;
 	}
 }

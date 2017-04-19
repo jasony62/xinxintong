@@ -99,4 +99,31 @@ class recommend extends \pl\be\base {
 
 		return new \ResponseData($rst);
 	}
+	/**
+	 * [素材置顶]
+	 * @param  [type] $application [description]
+	 * @return [type]              [description]
+	 */
+	public function pushMatterTop_action($application) {
+		$modelHome = $this->model('matter\home');
+
+		$rst = $modelHome->pushHomeTop($application);
+		if(isset($rst[0]) && $rst[0] === false){
+			return new \ResponseError($rst[1]);
+		}
+
+		return new \ResponseData($rst);
+	}
+	/**
+	 * [撤销素材置顶]
+	 * @param  [type] $application [description]
+	 * @return [type]              [description]
+	 */
+	public function pullMatterTop_action($application) {
+		$modelHome = $this->model('matter\home');
+
+		$rst = $modelHome->pullHomeTop($application);
+
+		return new \ResponseData($rst);
+	}
 }

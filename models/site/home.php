@@ -41,6 +41,10 @@ class home_model extends \TMS_MODEL {
 	 */
 	public function &find($options = []) {
 		$fields = isset($options['fields']) ? $options['fields'] : '*';
+		if(strpos($fields, 'h.') === false && strpos($fields, 's.') === false){
+			$fields = str_replace(',',',h.',$fields);
+			$fields = 'h.'.$fields;
+		}
 		$page = isset($options['page']) ? $options['page'] : ['at' => 1, 'size' => 8];
 
 		$q = [
@@ -51,7 +55,7 @@ class home_model extends \TMS_MODEL {
 
 		$q2 = [
 			'r' => ['o' => ($page['at'] - 1) * $page['size'], 'l' => $page['size']],
-			'o' => 'put_at desc',
+			'o' => 'h.put_at desc',
 		];
 
 		$result = new \stdClass;
@@ -110,7 +114,7 @@ class home_model extends \TMS_MODEL {
 		$rst = $this->update(
 			'xxt_home_site',
 			['approved' => 'Y'],
-			["siteid" => $applicationId]
+			["id" => $applicationId]
 		);
 
 		return $rst;
@@ -122,7 +126,7 @@ class home_model extends \TMS_MODEL {
 		$rst = $this->update(
 			'xxt_home_site',
 			['approved' => 'N'],
-			["siteid" => $applicationId]
+			["id" => $applicationId]
 		);
 
 		return $rst;
@@ -132,6 +136,10 @@ class home_model extends \TMS_MODEL {
 	 */
 	public function &atHome($options = []) {
 		$fields = isset($options['fields']) ? $options['fields'] : '*';
+		if(strpos($fields, 'h.') === false && strpos($fields, 's.') === false){
+			$fields = str_replace(',',',h.',$fields);
+			$fields = 'h.'.$fields;
+		}
 		$page = isset($options['page']) ? $options['page'] : ['at' => 1, 'size' => 8];
 
 		$q = [
@@ -142,7 +150,7 @@ class home_model extends \TMS_MODEL {
 
 		$q2 = [
 			'r' => ['o' => ($page['at'] - 1) * $page['size'], 'l' => $page['size']],
-			'o' => 'score desc,put_at desc',
+			'o' => 'h.score desc,h.put_at desc',
 		];
 
 		$result = new \stdClass;

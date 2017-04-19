@@ -34,7 +34,7 @@ class home_model extends \TMS_MODEL {
 		$q = [
 			$fields,
 			'xxt_home_matter h,xxt_site s',
-			"h.matter_type<>'article' and h.siteid = s.id and s.state=1",
+			"h.matter_type<>'article' and matter_type<>'channel' and h.siteid = s.id and s.state=1",
 		];
 
 		$q2 = [
@@ -68,6 +68,39 @@ class home_model extends \TMS_MODEL {
 			$fields,
 			'xxt_home_matter h,xxt_site s',
 			"h.matter_type='article' and h.siteid = s.id and s.state=1",
+		];
+
+		$q2 = [
+			'r' => ['o' => ($page['at'] - 1) * $page['size'], 'l' => $page['size']],
+			'o' => 'h.put_at desc',
+		];
+
+		$result = new \stdClass;
+		$result->matters = $this->query_objs_ss($q, $q2);
+		if (count($result->matters)) {
+			$q[0] = 'count(*)';
+			$result->total = (int) $this->query_val_ss($q);
+		} else {
+			$result->total = 0;
+		}
+
+		return $result;
+	}
+	/**
+	 *
+	 */
+	public function &findChannel($options = []) {
+		$fields = isset($options['fields']) ? $options['fields'] : '*';
+		if(strpos($fields, 'h.') === false && strpos($fields, 's.') === false){
+			$fields = str_replace(',',',h.',$fields);
+			$fields = 'h.'.$fields;
+		}
+		$page = isset($options['page']) ? $options['page'] : ['at' => 1, 'size' => 8];
+
+		$q = [
+			$fields,
+			'xxt_home_matter h,xxt_site s',
+			"h.matter_type='channel' and h.siteid = s.id and s.state=1",
 		];
 
 		$q2 = [
@@ -187,7 +220,7 @@ class home_model extends \TMS_MODEL {
 		$q = [
 			$fields,
 			'xxt_home_matter h, xxt_site s',
-			"approved='Y' and matter_type<>'article' and h.siteid = s.id and s.state=1 ",
+			"approved='Y' and matter_type<>'article' and matter_type<>'channel' and h.siteid = s.id and s.state=1 ",
 		];
 
 		$q2 = [
@@ -221,6 +254,39 @@ class home_model extends \TMS_MODEL {
 			$fields,
 			'xxt_home_matter h, xxt_site s',
 			"h.approved='Y' and h.matter_type='article' and h.siteid = s.id and s.state=1 ",
+		];
+
+		$q2 = [
+			'r' => ['o' => ($page['at'] - 1) * $page['size'], 'l' => $page['size']],
+			'o' => 'h.score desc,h.weight desc,h.put_at desc',
+		];
+
+		$result = new \stdClass;
+		$result->matters = $this->query_objs_ss($q, $q2);
+		if (count($result->matters)) {
+			$q[0] = 'count(*)';
+			$result->total = (int) $this->query_val_ss($q);
+		} else {
+			$result->total = 0;
+		}
+
+		return $result;
+	}
+	/**
+	 * 已经批准在主页上的频道
+	 */
+	public function &atHomeChannel($options = []) {
+		$fields = isset($options['fields']) ? $options['fields'] : '*';
+		if(strpos($fields, 'h.') === false && strpos($fields, 's.') === false){
+			$fields = str_replace(',',',h.',$fields);
+			$fields = 'h.'.$fields;
+		}
+		$page = isset($options['page']) ? $options['page'] : ['at' => 1, 'size' => 8];
+
+		$q = [
+			$fields,
+			'xxt_home_matter h, xxt_site s',
+			"h.approved='Y' and h.matter_type='channel' and h.siteid = s.id and s.state=1 ",
 		];
 
 		$q2 = [

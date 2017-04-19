@@ -75,9 +75,12 @@ class home extends TMS_CONTROLLER {
 	/**
 	 *
 	 */
-	public function listApp_action() {
+	public function listApp_action($page = 1, $size = 8) {
 		$modelHome = $this->model('matter\home');
 
+		$options = [];
+		$options['page']['at']=$page;
+		$options['page']['size']=$size;
 		$result = $modelHome->atHome();
 		if (count($result->matters)) {
 			foreach ($result->matters as &$matter) {
@@ -90,10 +93,31 @@ class home extends TMS_CONTROLLER {
 	/**
 	 *
 	 */
-	public function listArticle_action() {
+	public function listChannel_action($page = 1, $size = 8) {
 		$modelHome = $this->model('matter\home');
 
-		$result = $modelHome->atHomeArticle();
+		$options = [];
+		$options['page']['at']=$page;
+		$options['page']['size']=$size;
+		$result = $modelHome->atHomeChannel($options);
+		if (count($result->matters)) {
+			foreach ($result->matters as &$matter) {
+				$matter->url = $this->model('matter\channel')->getEntryUrl($matter->siteid, $matter->matter_id);
+			}
+		}
+
+		return new \ResponseData($result);
+	}
+	/**
+	 *
+	 */
+	public function listArticle_action($page = 1, $size = 8) {
+		$modelHome = $this->model('matter\home');
+
+		$options = [];
+		$options['page']['at']=$page;
+		$options['page']['size']=$size;
+		$result = $modelHome->atHomeArticle($options);
 		if (count($result->matters)) {
 			foreach ($result->matters as &$matter) {
 				$matter->url = $this->model('matter\article')->getEntryUrl($matter->siteid, $matter->matter_id);

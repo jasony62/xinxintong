@@ -36,13 +36,18 @@ class recommend extends \pl\be\base {
 	/**
 	 *
 	 */
-	public function listMatter_action($category) {
+	public function listMatter_action($category, $page = 1, $size = 8) {
 		$modelHome = $this->model('matter\home');
 
+		$options = [];
+		$options['page']['at']=$page;
+		$options['page']['size']=$size;
 		if ($category === 'app') {
-			$matters = $modelHome->findApp();
+			$matters = $modelHome->findApp($options);
 		} else if ($category === 'article') {
-			$matters = $modelHome->findArticle();
+			$matters = $modelHome->findArticle($options);
+		} else if ($category === 'channel') {
+			$matters = $modelHome->findChannel($options);
 		} else {
 			$matters = false;
 		}

@@ -100,32 +100,35 @@ class batch_model extends \TMS_MODEL {
 						$modelTmpl->insert('xxt_log_tmplmsg_detail', $log, false);
 					} else {
 						$log['openid'] = $user->wx_openid;
+						$wxTxtTmplMsg = $txtTmplMsg;
 						if (!empty($url)) {
-							$txtTmplMsg[] = " <a href='" . $url . "'>查看详情</a>";
+							$wxTxtTmplMsg[] = " <a href='" . $url . "'>查看详情</a>";
 						}
-						$log['data'] = $modelTmpl->escape($modelTmpl->toJson($txtTmplMsg));
+						$log['data'] = $modelTmpl->escape($modelTmpl->toJson($wxTxtTmplMsg));
 
-						$rst = $this->_sendTxtByOpenid($siteId, $user->wx_openid, 'wx', $txtTmplMsg, $log);
+						$rst = $this->_sendTxtByOpenid($siteId, $user->wx_openid, 'wx', $wxTxtTmplMsg, $log);
 					}
 				}
 				/* 易信用户，将模板消息转换文本消息 */
 				if (!empty($user->qy_openid)) {
 					$log['openid'] = $user->qy_openid;
+					$qyTxtTmplMsg = $txtTmplMsg;
 					if (!empty($url)) {
-						$txtTmplMsg[] = " <a href='" . $url . "'>查看详情</a>";
+						$qyTxtTmplMsg[] = " <a href='" . $url . "'>查看详情</a>";
 					}
-					$log['data'] = $modelTmpl->escape($modelTmpl->toJson($txtTmplMsg));
+					$log['data'] = $modelTmpl->escape($modelTmpl->toJson($qyTxtTmplMsg));
 
-					$rst = $this->_sendTxtByOpenid($siteId, $user->qy_openid, 'qy', $txtTmplMsg, $log);
+					$rst = $this->_sendTxtByOpenid($siteId, $user->qy_openid, 'qy', $qyTxtTmplMsg, $log);
 				}
 				if (!empty($user->yx_openid)) {
 					$log['openid'] = $user->yx_openid;
+					$yxTxtTmplMsg = $txtTmplMsg;
 					if (!empty($url)) {
-						$txtTmplMsg[] = '查看详情：\n' . $url;
+						$yxTxtTmplMsg[] = '查看详情：\n' . $url;
 					}
-					$log['data'] = $modelTmpl->escape($modelTmpl->toJson($txtTmplMsg));
+					$log['data'] = $modelTmpl->escape($modelTmpl->toJson($yxTxtTmplMsg));
 
-					$rst = $this->_sendTxtByOpenid($siteId, $user->yx_openid, 'yx', $txtTmplMsg, $log);
+					$rst = $this->_sendTxtByOpenid($siteId, $user->yx_openid, 'yx', $yxTxtTmplMsg, $log);
 				}
 			}
 		}

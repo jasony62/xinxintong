@@ -11,7 +11,7 @@ class round extends base {
 	 * @param string $site
 	 * @param string $app
 	 */
-	public function list_action($site, $app) {
+	public function list_action($site, $app, $page = 1, $size = 10) {
 
 		$oApp = $this->model('matter\enroll')->byId($app, ['cascaded' => 'N']);
 		$modelRun = $this->model('matter\enroll\round');
@@ -19,8 +19,14 @@ class round extends base {
 			'fields' => 'rid,title',
 			'state' => '1,2',
 		];
-		$rounds = $modelRun->byApp($oApp, $options);
 
-		return new \ResponseData($rounds);
+		$oPage = new \stdClass;
+		$oPage->num = $page;
+		$oPage->size = $size;
+		$options['page'] = $oPage;
+
+		$result = $modelRun->byApp($oApp, $options);
+
+		return new \ResponseData($result);
 	}
 }

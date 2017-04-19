@@ -18,19 +18,18 @@
     <div ng-cloak class='ng-cloak app'>
         <div id='errmsg' class='alert alert-danger' ng-class="{'active':errmsg}" ng-click="errmsg=''" ng-bind='errmsg'></div>
         <div class='container' ng-controller="ctrlRepos">
-            <div class='btn-group' ng-if='rounds.length'>
-                <select class='form-control' title='登记轮次'  ng-model='criteria.rid' ng-change="doRound(criteria.rid)">
+            <div class='form-group' ng-if='rounds.length'>
+                <select class='form-control input-lg' ng-model='criteria.rid' ng-change="shiftRound()">
                     <option value='ALL'>全部</option>
-                    <option ng-if="checkedRound" value='{{checkedRound.rid}}'>选中轮次（{{checkedRound.title}}）</option>
-                    <option ng-if="activeRound" value='{{activeRound.rid}}'>启用轮次（{{activeRound.title}}）</option>
                     <option value="{{rnd.rid}}" ng-repeat="rnd in rounds">{{rnd.title}}</option>
-                    <option value="more">更多</option>
+                    <option value="more" ng-if="facRound.oPage.total>rounds.length">更多</option>
                 </select>
             </div>
             <uib-accordion id='recordRepos' close-others="true">
                 <div uib-accordion-group is-disabled="true" is-open="schema._open" heading="{{schema.title}}" ng-repeat="schema in schemas" ng-init="page={at:1,size:10}">
                     <uib-accordion-heading>
-                        {{schema.title}} <i ng-click="switchSchema(schema,page)" class="pull-right glyphicon" ng-class="{'glyphicon-chevron-down':schema._open,'glyphicon-chevron-right':!schema._open}"></i>
+                        <h4 ng-click="switchSchema(schema,page)">{{schema.title}} <i class="pull-right glyphicon" ng-class="{'glyphicon-chevron-down':schema._open,'glyphicon-chevron-right':!schema._open}"></i>
+                        </h4>
                     </uib-accordion-heading>
                     <div>
                         <div class='record' ng-repeat="rec in repos[schema.id]">

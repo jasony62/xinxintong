@@ -173,11 +173,12 @@ class main extends \pl\fe\matter\base {
 		$newapp['can_siteuser'] = 'Y';
 		isset($config) && $newapp['data_schemas'] = \TMS_MODEL::toJson($config->schema);
 
-		$this->model()->insert('xxt_enroll', $newapp, false);
+		$modelApp = $this->model('matter\enroll');
+		$modelApp->setOnlyWriteDbConn(true);
+		$modelApp->insert('xxt_enroll', $newapp, false);
+		$app = $modelApp->byId($appId);
 
-		$app = $this->model('matter\enroll')->byId($appId);
 		/* 记录操作日志 */
-		$app->type = 'enroll';
 		$this->model('matter\log')->matterOp($site->id, $user, $app, 'C');
 		/* 记录和任务的关系 */
 		if (isset($mission->id)) {
@@ -204,6 +205,7 @@ class main extends \pl\fe\matter\base {
 		$customConfig = $this->getPostJson();
 		$current = time();
 		$modelApp = $this->model('matter\enroll');
+		$modelApp->setOnlyWriteDbConn(true);
 		$modelPage = $this->model('matter\enroll\page');
 		$modelCode = $this->model('code\page');
 
@@ -286,7 +288,6 @@ class main extends \pl\fe\matter\base {
 		$app = $modelApp->byId($newaid, ['cascaded' => 'N']);
 
 		/* 记录操作日志 */
-		$app->type = 'enroll';
 		$this->model('matter\log')->matterOp($site, $user, $app, 'C');
 
 		/* 记录和任务的关系 */
@@ -378,11 +379,12 @@ class main extends \pl\fe\matter\base {
 		$newapp['can_siteuser'] = 'Y';
 		isset($config) && $newapp['data_schemas'] = \TMS_MODEL::toJson($config->schema);
 
-		$this->model()->insert('xxt_enroll', $newapp, false);
+		$modelApp = $this->model('matter\enroll');
+		$modelApp->setOnlyWriteDbConn(true);
+		$modelApp->insert('xxt_enroll', $newapp, false);
 
-		$app = $this->model('matter\enroll')->byId($appId);
+		$app = $modelApp->byId($appId);
 		/* 记录操作日志 */
-		$app->type = 'enroll';
 		$this->model('matter\log')->matterOp($site->id, $user, $app, 'C');
 		/* 记录和任务的关系 */
 		if (isset($mission->id)) {
@@ -407,6 +409,7 @@ class main extends \pl\fe\matter\base {
 
 		$current = time();
 		$modelApp = $this->model('matter\enroll');
+		$modelApp->setOnlyWriteDbConn(true);
 		$modelCode = $this->model('code\page');
 
 		$copied = $modelApp->byId($app);
@@ -499,6 +502,7 @@ class main extends \pl\fe\matter\base {
 		}
 
 		$modelApp = $this->model('matter\enroll');
+		$modelApp->setOnlyWriteDbConn(true);
 		$modelRec = $this->model('matter\enroll\record');
 
 		$customConfig = $this->getPostJson();
@@ -650,6 +654,7 @@ class main extends \pl\fe\matter\base {
 
 		$posted = $this->getPostJson();
 		$modelApp = $this->model('matter\enroll');
+		$matter = $modelApp->byId($app, 'id,title,summary,pic');
 
 		/* 处理数据 */
 		$updated = new \stdClass;
@@ -677,7 +682,6 @@ class main extends \pl\fe\matter\base {
 		$rst = $modelApp->update('xxt_enroll', $updated, ["id" => $app]);
 		if ($rst) {
 			// 记录操作日志
-			$matter = $modelApp->byId($app, 'id,title,summary,pic');
 			$this->model('matter\log')->matterOp($site, $user, $matter, 'U');
 		}
 

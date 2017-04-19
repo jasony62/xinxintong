@@ -59,7 +59,7 @@ class tag_model extends TMS_MODEL {
 		$sql .= ' order by matched desc, weight desc, max(create_time) desc';
 		$sql .= " limit $offset,$limit";
 
-		$result['res'] = parent::query_objs($sql);
+		$result['res'] = $this->query_objs($sql);
 		$result['foundRows'] = parent::found_rows();
 
 		$end = round(microtime(true) * 1000);
@@ -86,7 +86,7 @@ class tag_model extends TMS_MODEL {
 			$sql .= " and r.res_id in (" . implode(',', $res_id) . ")";
 			$sql .= " and r.sub_type=$subType";
 			$sql .= ' order by r.res_id';
-			if ($rels = parent::query_objs($sql)) {
+			if ($rels = $this->query_objs($sql)) {
 				foreach ($rels as $rel) {
 					$result[$rel->res_id][] = array(
 						'id' => $rel->id,
@@ -100,7 +100,7 @@ class tag_model extends TMS_MODEL {
 			$sql .= ' where t.id=r.tag_id';
 			$sql .= " and r.res_id='$res_id'";
 			$sql .= " and r.sub_type=$subType";
-			$result = parent::query_objs($sql);
+			$result = $this->query_objs($sql);
 		}
 
 		!isset($result) && $result = array();
@@ -137,7 +137,7 @@ class tag_model extends TMS_MODEL {
 						 */
 						$tag_id = $this->insert('xxt_tag',
 							array(
-								'siteid'=>$mpid,
+								'siteid' => $mpid,
 								'mpid' => $mpid,
 								'title' => $added->title,
 							),
@@ -146,7 +146,7 @@ class tag_model extends TMS_MODEL {
 					}
 					$added->id = $tag_id;
 				}
-				if ('1' === parent::query_value('1', 'xxt_article_tag'
+				if ('1' === $this->query_value('1', 'xxt_article_tag'
 					, "(mpid='$mpid' or siteid='$mpid') and res_id=$res_id and tag_id=$added->id")
 				) {
 					// 关联已经存在
@@ -156,7 +156,7 @@ class tag_model extends TMS_MODEL {
 				 * 建立资源与标签之间的关联
 				 */
 				$tag2res = array(
-					'siteid'=>$mpid,
+					'siteid' => $mpid,
 					'mpid' => $mpid,
 					'res_id' => $res_id,
 					'tag_id' => $added->id,

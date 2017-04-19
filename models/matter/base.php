@@ -7,7 +7,7 @@ class base_model extends \TMS_MODEL {
 	/**
 	 * 根据类型和ID获得素材
 	 */
-	public static function getCardInfoById($type, $id) {
+	public function getCardInfoById($type, $id) {
 		switch ($type) {
 		case 'joinwall':
 			$q = ['id,title,summary,pic', 'xxt_wall', ["id" => $id]];
@@ -16,7 +16,7 @@ class base_model extends \TMS_MODEL {
 			$table = 'xxt_' . $type;
 			$q = ['id,title,summary,pic', $table, ["id" => $id]];
 		}
-		if ($matter = self::query_obj_ss($q)) {
+		if ($matter = $this->query_obj_ss($q)) {
 			$matter->type = $type;
 		}
 
@@ -25,7 +25,7 @@ class base_model extends \TMS_MODEL {
 	/**
 	 * 根据类型和ID获得素材基本信息，mpid,id和title
 	 */
-	public static function getMatterInfoById($type, $id) {
+	public function getMatterInfoById($type, $id) {
 		switch ($type) {
 		case 'text':
 			$q = ['id,title', 'xxt_text', ["id" => $id]];
@@ -41,7 +41,7 @@ class base_model extends \TMS_MODEL {
 			$q = ['id,title', $table, ["id" => $id]];
 		}
 
-		if ($matter = self::query_obj_ss($q)) {
+		if ($matter = $this->query_obj_ss($q)) {
 			$matter->type = $type;
 		}
 

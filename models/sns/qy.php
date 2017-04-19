@@ -13,7 +13,7 @@ class qy_model extends \TMS_MODEL {
 		$q = array(
 			$fields,
 			'xxt_site_qy',
-			"siteid='$siteid'",
+			['siteid' => $siteid]
 		);
 		$qy = $this->query_obj_ss($q);
 		return $qy;
@@ -22,7 +22,7 @@ class qy_model extends \TMS_MODEL {
 	 * 创建绑定的公众号配置信息
 	 */
 	public function &create($site,$data=[]) {
-		$data['siteid'] = $site;
+		$data['siteid'] = $this->escape($site);
 		$this->insert('xxt_site_qy', $data, false);
 
 		$qy = $this->bySite($site);

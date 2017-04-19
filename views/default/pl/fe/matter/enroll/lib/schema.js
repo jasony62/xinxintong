@@ -125,6 +125,9 @@ define([], function() {
                     schema.content = '请点击下面“编辑”按钮，编辑本说明文字';
                 }
             }
+            if (/longtext|file|image/.test(type)) {
+                schema.openRemark = 'Y';
+            }
 
             return schema;
         },

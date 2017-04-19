@@ -42,8 +42,8 @@ ngMod.service('tmsDynaPage', ['$q', function($q) {
             script = document.createElement('script');
             script.src = urls[index];
             script.onload = function() {
-                index--;
-                if (index > 0) {
+                index++;
+                if (index < urls.length) {
                     fnLoad();
                 } else {
                     deferred.resolve();
@@ -54,7 +54,7 @@ ngMod.service('tmsDynaPage', ['$q', function($q) {
         if (urls) {
             angular.isString(urls) && (urls = [urls]);
             if (urls.length) {
-                index = urls.length - 1;
+                index = 0;
                 fnLoad();
             }
         }

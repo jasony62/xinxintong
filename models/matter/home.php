@@ -323,7 +323,7 @@ class home_model extends \TMS_MODEL {
 			"h.approved='Y' and h.weight>0 and h.siteid = s.id and s.state=1 ",
 		];
 		if(!empty($type) && $type !== 'ALL') {
-			$q[2] .= " and h.matter_type = " . $type;
+			$q[2] .= " and h.matter_type = '" . $type . "'";
 		}
 
 		$q2 = [

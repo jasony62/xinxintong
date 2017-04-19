@@ -140,6 +140,7 @@ class record extends base {
 		 */
 		$updatedEnrollRec = [];
 		$modelRec = $this->model('matter\enroll\record');
+		$modelRec->setOnlyWriteDbConn(true);
 		if (empty($ek)) {
 			/* 插入登记数据 */
 			$ek = $modelRec->enroll($site, $oEnrollApp, $user);

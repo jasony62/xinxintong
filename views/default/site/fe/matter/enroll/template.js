@@ -291,46 +291,6 @@ ngApp.controller('ctrlOrderbyOptions', ['$scope', function($scope) {
         }
     };
 }]);
-ngApp.controller('ctrlStatistic', ['$scope', '$http', function($scope, $http) {
-    var fnFetch;
-    fnFetch = function() {
-        $http.post(LS.j('statGet', 'scenario', 'template'), $scope.CustomConfig).success(function(rsp) {
-            $scope.statistic = rsp.data;
-        });
-    };
-    fnFetch = function(options) {
-        var url;
-        url = LS.j('statGet', 'scenario', 'template');
-        if (options) {
-            if (options.fromCache && options.fromCache === 'Y') {
-                url += '&fromCache=Y';
-                if (options.interval) {
-                    url += '&interval=' + options.interval;
-                }
-            }
-        }
-        $http.post(url, $scope.CustomConfig).success(function(rsp) {
-            $scope.statistic = rsp.data;
-        });
-    };
-    $scope.fetch = fnFetch;
-}]);
-ngApp.directive('enrollStatistic', [function() {
-    return {
-        restrict: 'A',
-        link: function(scope, elem, attrs) {
-            var i, params, pv, options;
-            params = attrs.enrollStatistic.split(';');
-            options = {};
-            for (i in params) {
-                pv = params[i];
-                pv = pv.split('=');
-                options[pv[0]] = pv[1];
-            }
-            scope.fetch(options);
-        }
-    };
-}]);
 ngApp.controller('ctrlMain', ['$scope', '$http', '$timeout', '$q', function($scope, $http, $timeout, $q) {
     function renew(page, config) {
         $scope.CustomConfig = config;

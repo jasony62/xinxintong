@@ -419,13 +419,20 @@ class TMS_APP {
 			if (empty($token)) {
 				return false;
 			}
-			$cookiekey = md5($_SERVER['HTTP_USER_AGENT']);
-			$token = TMS_MODEL::encrypt($token, 'DECODE', $cookiekey);
-			$token = json_decode($token);
 
-			$modelAct = self::M('account');
+			$cookiekey = md5($_SERVER['HTTP_USER_AGENT']);
+			$decodeToken = TMS_MODEL::encrypt($token, 'DECODE', $cookiekey);
+			$oToken = json_decode($decodeToken);
+			if (JSON_ERROR_NONE !== json_last_error()) {
+				$agent = isset($_SERVER['HTTP_USER_AGENT']) ? $_SERVER['HTTP_USER_AGENT'] : '';
+				$referer = isset($_SERVER['HTTP_REFERER']) ? $_SERVER['HTTP_REFERER'] : '';
+				self::M('log')->log('error', 'tms_app::_autoLogin::json_error', $token, $agent, $referer);
+				return false;
+			}
+
 			/* check */
-			$result = $modelAct->validate($token->email, $token->password);
+			$modelAct = self::M('account');
+			$result = $modelAct->validate($oToken->email, $oToken->password);
 			if ($result->err_code != 0) {
 				return false;
 			}

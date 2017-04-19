@@ -19,7 +19,7 @@
     <div ng-cloak class='ng-cloak app'>
         <div id='errmsg' class='alert alert-danger' ng-class="{'active':errmsg}" ng-click="errmsg=''" ng-bind='errmsg'></div>
         <div class='container'>
-            <div class='row' ng-controller='ctrlView' dynamic-html="page.html">
+            <div class='row' ng-controller='ctrlList' dynamic-html="page.html">
             </div>
         </div>
     </div>
@@ -31,7 +31,7 @@
     <script src="/static/js/angular.min.js"></script>
     <script src="/static/js/angular-sanitize.min.js"></script>
     <script src="/static/js/ui-bootstrap-tpls.min.js"></script>
-    <script src="/bundles/default/site/fe/matter/enroll/list.js?_=1"></script>
+    <script src="<?php echo auto_version('/bundles/default/site/fe/matter/enroll/list.js');?>"></script>
 </body>
 
 </html>

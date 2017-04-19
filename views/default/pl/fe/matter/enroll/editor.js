@@ -32,9 +32,11 @@ define(['frame'], function(ngApp) {
             /* 点评数据 */
             var remarkableSchemas = [];
             app.dataSchemas.forEach(function(schema) {
-                schema._open = false;
-                oRecord.verbose && oRecord.verbose[schema.id] && (schema.summary = oRecord.verbose[schema.id]);
-                remarkableSchemas.push(schema);
+                if (schema.remarkable === 'Y') {
+                    schema._open = false;
+                    oRecord.verbose && oRecord.verbose[schema.id] && (schema.summary = oRecord.verbose[schema.id]);
+                    remarkableSchemas.push(schema);
+                }
             });
             $scope.remarkableSchemas = remarkableSchemas;
         }

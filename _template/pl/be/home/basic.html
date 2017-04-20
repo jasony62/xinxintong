@@ -86,20 +86,21 @@
                         </div>
                     </div>
                 </uib-tab>
-                <uib-tab inex="4" ng-if="channels.length">
+                <uib-tab index="4" ng-if="channels.length">
                     <uib-tab-heading>引导手册</uib-tab-heading>
                     <div class='thumbnail channel' ng-repeat="c in channels">
-                        <div class="pull-right" ng-click="more(c.link)">更多</div>
                         <div class="media">
+                            <h4 class="media-heading">{{c.title}}</h4>
+                            <a class="pull-right" ng-href="{{c.url}}">更多</a>
                             <div class="media-body" ng-repeat="a in channelArticles">
                                 <a class="media-heading" ng-href="{{a.entryUrl}}">{{a.title}}</a>
                             </div>
                         </div>
                     </div>
                 </uib-tab>
-                <uib-tab inex="5" ng-if="topArticles.length">
+                <uib-tab index="5" ng-if="topArticles.length">
                     <uib-tab-heading>置顶文章</uib-tab-heading>
-                    <div class='thumbnail channel' ng-repeat="ta in topArticles">
+                    <div class='thumbnail topArticles' ng-repeat="ta in topArticles">
                         <div class="media">
                             <div class="media-left">
                                 <img class="media-object" ng-src='{{ta.pic}}'>

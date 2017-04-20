@@ -8,6 +8,7 @@ th{text-align:center;}
 				<select class='form-control' ng-model='criteria.category'>
 					<option value='template'>模版</option>
 					<option value='app'>活动</option>
+					<option value='channel'>频道</option>
 					<option value='article'>文章</option>
 					<option value='site'>团队</option>
 				</select>
@@ -36,7 +37,7 @@ th{text-align:center;}
 						<td>{{t.title}}</td>
 						<td>{{t.summary}}</td>
 						<td>{{t.creater_name}}</td>
-						<td>{{t.put_at*1000|date:'yy-MM-dd:HHmm'}}</td>
+						<td>{{t.put_at*1000|date:'yy-MM-dd HH:mm'}}</td>
 						<td>
 							<span>{{t.push_home}}</span>
 							<button class='btn btn-xs btn-default pull-right' ng-if="t.push_home==='Y'" ng-click="pullHome(t)">撤销</button>
@@ -61,6 +62,46 @@ th{text-align:center;}
 						<th>提交人</th>
 						<th>提交时间</th>
 						<th style='width:96px'>出现在主页</th>
+						<th style='width:96px'>活动置顶</th>
+						<th style='width:100px'></th>
+					</tr>
+				</thead>
+				<tbody>
+					<tr ng-repeat="m in matters">
+						<td>{{$index+1}}</td>
+						<td>{{m.title}}</td>
+						<td>{{m.summary}}</td>
+						<td>{{m.creater_name}}</td>
+						<td>{{m.put_at*1000|date:'yy-MM-dd HH:mm'}}</td>
+						<td>
+							<span>{{m.approved}}</span>
+							<button class='btn btn-xs btn-default pull-right' ng-if="m.approved==='Y'" ng-click="pullHome(m)">撤销</button>
+						</td>
+						<td>
+							<span ng-if="m.dd==='Y'">{{m.dd}}</span>
+							<button class='btn btn-xs btn-default pull-right' ng-if="m.weight!=='0'" ng-click="cancleHome(m)">取消</button>
+						</td>
+						<td>
+							<button class='btn btn-xs btn-default' ng-click="preview(m)">查看</button>
+							<button class='btn btn-xs btn-default pull-right' ng-if="m.weight==='0'" ng-click="carryHome(m)">置顶</button>
+						</td>
+					</tr>
+				</tbody>
+			</table>
+			<ul uib-pagination style="margin:0;vertical-align:bottom;cursor:pointer" ng-show="page.total>page.size" boundary-links="true" total-items="page.total" max-size="7" items-per-page="page.size" rotate="false" ng-model="page.at" previous-text="&lsaquo;" next-text="&rsaquo;" first-text="&laquo;" last-text="&raquo;" ng-change="doSearch()"></ul>
+		</div>
+	</div>
+	<div class='row' ng-if="criteria.category==='channel'">
+		<div class='col-md-12' ng-controller="ctrlMatter">
+			<table class='table table-bordered'>
+				<thead>
+					<tr>
+						<th style='width:48px'></th>
+						<th>标题</th>
+						<th>说明</th>
+						<th>提交人</th>
+						<th>提交时间</th>
+						<th style='width:96px'>出现在主页</th>
 						<th style='width:56px'></th>
 					</tr>
 				</thead>
@@ -70,7 +111,7 @@ th{text-align:center;}
 						<td>{{m.title}}</td>
 						<td>{{m.summary}}</td>
 						<td>{{m.creater_name}}</td>
-						<td>{{m.put_at*1000|date:'yy-MM-dd:HHmm'}}</td>
+						<td>{{m.put_at*1000|date:'yy-MM-dd HH:mm'}}</td>
 						<td>
 							<span>{{m.approved}}</span>
 							<button class='btn btn-xs btn-default pull-right' ng-if="m.approved==='Y'" ng-click="pullHome(m)">撤销</button>
@@ -95,7 +136,8 @@ th{text-align:center;}
 						<th>提交人</th>
 						<th>提交时间</th>
 						<th style='width:96px'>出现在主页</th>
-						<th style='width:56px'></th>
+						<th style='width:96px'>文章置顶</th>
+						<th style='width:100px'></th>
 					</tr>
 				</thead>
 				<tbody>
@@ -104,13 +146,18 @@ th{text-align:center;}
 						<td>{{m.title}}</td>
 						<td>{{m.summary}}</td>
 						<td>{{m.creater_name}}</td>
-						<td>{{m.put_at*1000|date:'yy-MM-dd:HHmm'}}</td>
+						<td>{{m.put_at*1000|date:'yy-MM-dd HH:mm'}}</td>
 						<td>
 							<span>{{m.approved}}</span>
 							<button class='btn btn-xs btn-default pull-right' ng-if="m.approved==='Y'" ng-click="pullHome(m)">撤销</button>
 						</td>
 						<td>
+							<span ng-if="m.dd==='Y'">{{m.dd}}</span>
+							<button class='btn btn-xs btn-default pull-right' ng-if="m.weight!=='0'" ng-click="cancleHome(m)">取消</button>
+						</td>
+						<td>
 							<button class='btn btn-xs btn-default' ng-click="preview(m)">查看</button>
+							<button class='btn btn-xs btn-default pull-right' ng-if="m.weight==='0'" ng-click="carryHome(m)">置顶</button>
 						</td>
 					</tr>
 				</tbody>
@@ -138,7 +185,7 @@ th{text-align:center;}
 						<td>{{s.title}}</td>
 						<td>{{s.summary}}</td>
 						<td>{{s.creater_name}}</td>
-						<td>{{s.put_at*1000|date:'yy-MM-dd:HHmm'}}</td>
+						<td>{{s.put_at*1000|date:'yy-MM-dd HH:mm'}}</td>
 						<td>
 							<span>{{s.approved}}</span>
 							<button class='btn btn-xs btn-default pull-right' ng-if="s.approved==='Y'" ng-click="pullHome(s)">撤销</button>

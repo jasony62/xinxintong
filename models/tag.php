@@ -78,6 +78,8 @@ class tag_model extends TMS_MODEL {
 	 *
 	 */
 	public function &tagsByRes($res_id, $res_type, $subType = 0) {
+		$res_id = $this->escape($res_id);
+		$res_type = $this->escape($res_type);
 		$resTable = $this->resTable($res_type);
 		if (is_array($res_id)) {
 			$sql = 'select r.res_id,t.id,t.title';

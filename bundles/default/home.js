@@ -63,11 +63,12 @@
 /******/ 	__webpack_require__.p = "";
 /******/
 /******/ 	// Load entry module and return exports
-/******/ 	return __webpack_require__(__webpack_require__.s = 55);
+/******/ 	return __webpack_require__(__webpack_require__.s = 47);
 /******/ })
 /************************************************************************/
-/******/ ([
-/* 0 */
+/******/ ({
+
+/***/ 0:
 /***/ (function(module, exports, __webpack_require__) {
 
 /* WEBPACK VAR INJECTION */(function(Buffer) {/*
@@ -149,7 +150,8 @@ function toComment(sourceMap) {
 /* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(4).Buffer))
 
 /***/ }),
-/* 1 */
+
+/***/ 1:
 /***/ (function(module, exports, __webpack_require__) {
 
 /*
@@ -445,7 +447,421 @@ function updateLink(linkElement, options, obj) {
 
 
 /***/ }),
-/* 2 */
+
+/***/ 18:
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+
+__webpack_require__(38);
+__webpack_require__(2);
+
+var ngApp = angular.module('app', ['ngSanitize', 'ui.bootstrap', 'ui.tms', 'page.ui.xxt']);
+ngApp.config(['$locationProvider', '$controllerProvider', '$uibTooltipProvider', function($lp, $cp, $uibTooltipProvider) {
+    $lp.html5Mode(true);
+    ngApp.provider = {
+        controller: $cp.register
+    };
+    $uibTooltipProvider.setTriggers({
+        'show': 'hide'
+    });
+}]);
+ngApp.provider('srvUser', function() {
+    var _getSiteAdminDeferred, _getSiteUserDeferred;
+    this.$get = ['$q', 'http2', function($q, http2) {
+        return {
+            getSiteAdmin: function() {
+                if (_getSiteAdminDeferred) {
+                    return _getSiteAdminDeferred.promise;
+                }
+                _getSiteAdminDeferred = $q.defer();
+                http2.get('/rest/pl/fe/user/get', function(rsp) {
+                    _getSiteAdminDeferred.resolve(rsp.data);
+                });
+                return _getSiteAdminDeferred.promise;
+            },
+            getSiteUser: function(siteId) {
+                if (_getSiteUserDeferred) {
+                    return _getSiteUserDeferred.promise;
+                }
+                _getSiteUserDeferred = $q.defer();
+                http2.get('/rest/site/fe/user/get?site=' + siteId, function(rsp) {
+                    _getSiteUserDeferred.resolve(rsp.data);
+                });
+                return _getSiteUserDeferred.promise;
+            }
+        };
+    }];
+});
+ngApp.controller('ctrlMain', ['$scope', '$timeout', '$q', '$uibModal', 'http2', 'srvUser', 'tmsDynaPage', function($scope, $timeout, $q, $uibModal, http2, srvUser, tmsDynaPage) {
+    function createSite() {
+        var defer = $q.defer(),
+            url = '/rest/pl/fe/site/create?_=' + (new Date() * 1);
+
+        http2.get(url, function(rsp) {
+            defer.resolve(rsp.data);
+        });
+        return defer.promise;
+    }
+
+    function useTemplate(site, template) {
+        var url = '/rest/pl/fe/template/purchase?template=' + template.id;
+        url += '&site=' + site.id;
+
+        http2.get(url, function(rsp) {
+            http2.get('/rest/pl/fe/matter/enroll/createByOther?site=' + site.id + '&template=' + template.id, function(rsp) {
+                location.href = '/rest/pl/fe/matter/enroll?id=' + rsp.data.id + '&site=' + site.id;
+            });
+        });
+    }
+
+    function getUser() {
+        var defer = $q.defer(),
+            userRole;
+
+        if (window.localStorage) {
+            userRole = window.localStorage.getItem('xxt.site.home.user.role');
+        }
+        if (userRole === 'person') {
+            srvUser.getSiteUser('platform').then(function(siteUser) {
+                if (siteUser.loginExpire) {
+                    user.nickname = siteUser.nickname;
+                    user.role = 'person';
+                    user.isLogin = true;
+                    user.account = siteUser;
+                    defer.resolve(user);
+                } else {
+                    srvUser.getSiteAdmin().then(function(siteAdmin) {
+                        if (siteAdmin) {
+                            user.nickname = siteAdmin.nickname;
+                            user.role = 'admin';
+                            user.isLogin = true;
+                            user.account = siteAdmin;
+                        } else {
+                            user.isLogin = false;
+                        }
+                    });
+                    defer.resolve(user);
+                }
+            });
+        } else {
+            srvUser.getSiteAdmin().then(function(siteAdmin) {
+                if (false === siteAdmin) {
+                    srvUser.getSiteUser('platform').then(function(siteUser) {
+                        if (siteUser.loginExpire) {
+                            user.nickname = siteUser.nickname;
+                            user.role = 'person';
+                            user.isLogin = true;
+                            user.account = siteUser;
+                        } else {
+                            user.isLogin = false;
+                        }
+                        defer.resolve(user);
+                    });
+                } else {
+                    user.nickname = siteAdmin.nickname;
+                    user.role = 'admin';
+                    user.isLogin = true;
+                    user.account = siteAdmin;
+                    defer.resolve(user);
+                }
+            });
+        }
+        return defer.promise;
+    }
+
+    var platform, user, pages = {},
+        popoverUseTempateAsAdmin = false,
+        popoverFavorTempateAsAdmin = false;
+
+    $scope.user = user = {};
+    $scope.subView = '';
+    $('body').click(function() {
+        if (popoverUseTempateAsAdmin) {
+            $('#popoverUseTempateAsAdmin').trigger('hide');
+            popoverUseTempateAsAdmin = false;
+        }
+        if (popoverFavorTempateAsAdmin) {
+            $('#popoverFavorTempateAsAdmin').trigger('hide');
+            popoverFavorTempateAsAdmin = false;
+        }
+    });
+    $scope.favorTemplate = function(template, asAdmin) {
+        if (user.role !== 'admin') {
+            if (asAdmin) {
+                $scope.shiftAsAdmin({
+                    name: 'favorTemplate',
+                    args: [template]
+                }).then(function(user) {
+                    $scope.favorTemplate(template);
+                });
+            } else {
+                $('#popoverFavorTempateAsAdmin').trigger('show');
+                $timeout(function() {
+                    popoverFavorTempateAsAdmin = true;
+                });
+                return;
+            }
+        }
+
+        if (user.isLogin && user.role === 'admin') {
+            var url = '/rest/pl/fe/template/siteCanFavor?template=' + template.id + '&_=' + (new Date() * 1);
+            http2.get(url, function(rsp) {
+                var sites = rsp.data;
+                $uibModal.open({
+                    templateUrl: 'favorTemplateSite.html',
+                    dropback: 'static',
+                    controller: ['$scope', '$uibModalInstance', function($scope2, $mi) {
+                        $scope2.mySites = sites;
+                        $scope2.ok = function() {
+                            var selected = [];
+                            sites.forEach(function(site) {
+                                site._selected === 'Y' && selected.push(site);
+                            });
+                            if (selected.length) {
+                                $mi.close(selected);
+                            } else {
+                                $mi.dismiss();
+                            }
+                        };
+                        $scope2.cancel = function() {
+                            $mi.dismiss();
+                        };
+                    }]
+                }).result.then(function(selected) {
+                    var url = '/rest/pl/fe/template/favor?template=' + template.id,
+                        sites = [];
+
+                    selected.forEach(function(site) {
+                        sites.push(site.id);
+                    });
+                    url += '&site=' + sites.join(',');
+                    http2.get(url, function(rsp) {});
+                });
+            });
+        }
+    };
+
+    $scope.useTemplate = function(template, asAdmin) {
+        if (user.role !== 'admin') {
+            if (asAdmin) {
+                $scope.shiftAsAdmin({
+                    name: 'useTemplate',
+                    args: [template]
+                }).then(function(user) {
+                    $scope.useTemplate(template);
+                });
+            } else {
+                $('#popoverUseTempateAsAdmin').trigger('show');
+                $timeout(function() {
+                    popoverUseTempateAsAdmin = true;
+                });
+                return;
+            }
+        }
+
+        if (user.isLogin && user.role === 'admin') {
+            var url = '/rest/pl/fe/site/list?_=' + (new Date() * 1);
+            http2.get(url, function(rsp) {
+                var sites = rsp.data;
+                if (sites.length === 1) {
+                    useTemplate(sites[0], template);
+                } else if (sites.length === 0) {
+                    createSite().then(function(site) {
+                        useTemplate(site, template);
+                    });
+                } else {
+                    $uibModal.open({
+                        templateUrl: 'useTemplateSite.html',
+                        dropback: 'static',
+                        controller: ['$scope', '$uibModalInstance', function($scope2, $mi) {
+                            var data;
+                            $scope2.mySites = sites;
+                            $scope2.data = data = {};
+                            $scope2.ok = function() {
+                                if (data.index !== undefined) {
+                                    $mi.close(sites[data.index]);
+                                } else {
+                                    $mi.dismiss();
+                                }
+                            };
+                            $scope2.cancel = function() {
+                                $mi.dismiss();
+                            };
+                        }]
+                    }).result.then(function(site) {
+                        useTemplate(site, template);
+                    });
+                }
+            });
+        }
+    };
+    $scope.subscribeByPerson = function(site) {
+        if (user.isLogin === false) {
+            if (window.sessionStorage) {
+                var method = JSON.stringify({
+                    name: 'subscribeByPerson',
+                    args: [site]
+                });
+                window.sessionStorage.setItem('xxt.home.auth.pending', method);
+            }
+            $scope.shiftAsPerson();
+        } else {
+            var url = '/rest/site/fe/user/site/subscribe?site=platform&target=' + site.siteid;
+            http2.get(url, function(rsp) {
+                site._subscribed = 'Y';
+            });
+        }
+    };
+    $scope.unsubscribeByPerson = function(site) {
+        var url = '/rest/site/fe/user/site/unsubscribe?site=platform&target=' + site.siteid;
+        http2.get(url, function(rsp) {
+            site._subscribed = 'N';
+        });
+    };
+    $scope.subscribeByTeam = function(site) {
+        if (user.isLogin === false) {
+            if (window.sessionStorage) {
+                var method = JSON.stringify({
+                    name: 'subscribeByTeam',
+                    args: [site]
+                });
+                window.sessionStorage.setItem('xxt.home.auth.pending', method);
+            }
+            $scope.shiftAsAdmin();
+        } else {
+            var url = '/rest/pl/fe/site/canSubscribe?site=' + site.siteid + '&_=' + (new Date() * 1);
+            http2.get(url, function(rsp) {
+                var sites = rsp.data;
+                $uibModal.open({
+                    templateUrl: 'subscribeByTeam.html',
+                    dropback: 'static',
+                    controller: ['$scope', '$uibModalInstance', function($scope2, $mi) {
+                        $scope2.mySites = sites;
+                        $scope2.ok = function() {
+                            var selected = [];
+                            sites.forEach(function(site) {
+                                site._selected === 'Y' && selected.push(site);
+                            });
+                            if (selected.length) {
+                                $mi.close(selected);
+                            } else {
+                                $mi.dismiss();
+                            }
+                        };
+                        $scope2.cancel = function() {
+                            $mi.dismiss();
+                        };
+                    }]
+                }).result.then(function(selected) {
+                    var url = '/rest/pl/fe/site/subscribe?site=' + site.id;
+                    sites = [];
+
+                    selected.forEach(function(mySite) {
+                        sites.push(mySite.id);
+                    });
+                    url += '&subscriber=' + sites.join(',');
+                    http2.get(url, function(rsp) {});
+                });
+            });
+        }
+    };
+    $scope.shiftPage = function(subView) {
+        if ($scope.subView === subView) return;
+        if (pages[subView] === undefined) {
+            tmsDynaPage.loadCode(ngApp, platform[subView + '_page']).then(function() {
+                pages[subView] = platform[subView + '_page'];
+                $scope.page = pages[subView] || {
+                    html: '<div></div>'
+                };
+                $scope.subView = subView;
+                history.replaceState({}, '', '/rest/home/' + subView);
+            });
+        } else {
+            $scope.page = pages[subView] || {
+                html: '<div></div>'
+            };
+            $scope.subView = subView;
+            history.replaceState({}, '', '/rest/home/' + subView);
+        }
+    };
+    $scope.shiftAsAdmin = function(oPendingMethod) {
+        var defer = $q.defer();
+        srvUser.getSiteAdmin().then(function(siteAdmin) {
+            if (window.localStorage) {
+                window.localStorage.setItem('xxt.site.home.user.role', 'admin');
+            }
+            if (siteAdmin) {
+                user.nickname = siteAdmin.nickname;
+                user.role = 'admin';
+                user.isLogin = true;
+                user.account = siteAdmin;
+                defer.resolve(user);
+            } else {
+                if (oPendingMethod && window.sessionStorage) {
+                    window.sessionStorage.setItem('xxt.home.auth.pending', JSON.stringify(oPendingMethod));
+                }
+                location.href = '/rest/pl/fe/user/auth';
+            }
+        });
+        return defer.promise;
+    };
+    $scope.shiftAsPerson = function() {
+        srvUser.getSiteUser('platform').then(function(siteUser) {
+            if (window.localStorage) {
+                window.localStorage.setItem('xxt.site.home.user.role', 'person');
+            }
+            if (siteUser.loginExpire) {
+                user.nickname = siteUser.nickname;
+                user.role = 'person';
+                user.isLogin = true;
+                user.account = siteUser;
+            } else {
+                location.href = '/rest/site/fe/user/login?site=platform';
+            }
+        });
+    };
+    $scope.openSite = function(site) {
+        location.href = '/rest/site/home?site=' + site.siteid;
+    };
+    $scope.openTemplate = function(template) {
+        location.href = '/rest/site/fe/matter/template?template=' + template.id;
+    };
+    http2.get('/rest/home/get', function(rsp) {
+        platform = rsp.data.platform;
+        if (platform.home_page === false) {
+            location.href = '/rest/pl/fe';
+        } else {
+            $scope.platform = platform;
+            if (/\/site/.test(location.href)) {
+                $scope.shiftPage('site');
+            } else if (/\/template/.test(location.href)) {
+                $scope.shiftPage('template');
+            } else {
+                $scope.shiftPage('home');
+            }
+        }
+        getUser().then(function(user) {
+            if (window.sessionStorage) {
+                var pendingMethod;
+                if (pendingMethod = window.sessionStorage.getItem('xxt.home.auth.pending')) {
+                    window.sessionStorage.removeItem('xxt.home.auth.pending');
+                    if (user.isLogin) {
+                        pendingMethod = JSON.parse(pendingMethod);
+                        $scope[pendingMethod.name].apply($scope, pendingMethod.args || []);
+                    }
+                }
+            }
+        });
+    });
+}]);
+module.exports = ngApp;
+
+
+
+/***/ }),
+
+/***/ 2:
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -605,7 +1021,23 @@ ngMod.service('tmsDynaPage', ['$q', function($q) {
 
 
 /***/ }),
-/* 3 */
+
+/***/ 29:
+/***/ (function(module, exports, __webpack_require__) {
+
+exports = module.exports = __webpack_require__(0)(undefined);
+// imports
+
+
+// module
+exports.push([module.i, "body{margin-bottom:50px}\r\n.navbar-nav .active:after{content:' ';position:absolute;left:0;right:0;bottom:-1px;height:3px;background:red;}\r\n.user-login a,.user-register a,.user-subscribe a{display:block;padding:3px 20px;clear:both;font-weight:400;line-height:1.5;color:#333;white-space:nowrap;}\r\n.user-login a:hover,.user-register a:hover,.user-subscribe a:hover{color:#262626;text-decoration:none;background-color:#f5f5f5}", ""]);
+
+// exports
+
+
+/***/ }),
+
+/***/ 3:
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -726,7 +1158,35 @@ function fromByteArray (uint8) {
 
 
 /***/ }),
-/* 4 */
+
+/***/ 38:
+/***/ (function(module, exports, __webpack_require__) {
+
+// style-loader: Adds some css to the DOM by adding a <style> tag
+
+// load the styles
+var content = __webpack_require__(29);
+if(typeof content === 'string') content = [[module.i, content, '']];
+// add the styles to the DOM
+var update = __webpack_require__(1)(content, {});
+if(content.locals) module.exports = content.locals;
+// Hot Module Replacement
+if(false) {
+	// When the styles change, update the <style> tags
+	if(!content.locals) {
+		module.hot.accept("!!../../node_modules/css-loader/index.js!./home.css", function() {
+			var newContent = require("!!../../node_modules/css-loader/index.js!./home.css");
+			if(typeof newContent === 'string') newContent = [[module.id, newContent, '']];
+			update(newContent);
+		});
+	}
+	// When the module is disposed, remove the <style> tags
+	module.hot.dispose(function() { update(); });
+}
+
+/***/ }),
+
+/***/ 4:
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -2523,7 +2983,16 @@ function isnan (val) {
 /* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(8)))
 
 /***/ }),
-/* 5 */
+
+/***/ 47:
+/***/ (function(module, exports, __webpack_require__) {
+
+module.exports = __webpack_require__(18);
+
+
+/***/ }),
+
+/***/ 5:
 /***/ (function(module, exports) {
 
 exports.read = function (buffer, offset, isLE, mLen, nBytes) {
@@ -2613,7 +3082,8 @@ exports.write = function (buffer, value, offset, isLE, mLen, nBytes) {
 
 
 /***/ }),
-/* 6 */
+
+/***/ 6:
 /***/ (function(module, exports) {
 
 var toString = {}.toString;
@@ -2624,7 +3094,8 @@ module.exports = Array.isArray || function (arr) {
 
 
 /***/ }),
-/* 7 */
+
+/***/ 7:
 /***/ (function(module, exports) {
 
 
@@ -2719,7 +3190,8 @@ module.exports = function (css) {
 
 
 /***/ }),
-/* 8 */
+
+/***/ 8:
 /***/ (function(module, exports) {
 
 var g;
@@ -2745,1258 +3217,6 @@ try {
 module.exports = g;
 
 
-/***/ }),
-/* 9 */
-/***/ (function(module, exports, __webpack_require__) {
-
-"use strict";
-
-
-function openPlugin(content, cb) {
-    var frag, wrap, frm;
-    frag = document.createDocumentFragment();
-    wrap = document.createElement('div');
-    wrap.setAttribute('id', 'frmPlugin');
-    frm = document.createElement('iframe');
-    wrap.appendChild(frm);
-    wrap.onclick = function() {
-        wrap.parentNode.removeChild(wrap);
-    };
-    frag.appendChild(wrap);
-    document.body.appendChild(frag);
-    if (content.indexOf('http') === 0) {
-        window.onClosePlugin = function() {
-            wrap.parentNode.removeChild(wrap);
-            cb && cb();
-        };
-        frm.setAttribute('src', content);
-    } else {
-        if (frm.contentDocument && frm.contentDocument.body) {
-            frm.contentDocument.body.innerHTML = content;
-        }
-    }
-}
-
-var ngMod = angular.module('coinpay.ui.xxt', []);
-ngMod.service('tmsCoinPay', function() {
-    this.showSwitch = function(siteId, matter) {
-        var eSwitch;
-        eSwitch = document.createElement('div');
-        eSwitch.classList.add('tms-switch', 'tms-switch-coinpay');
-        eSwitch.addEventListener('click', function(event) {
-            event.preventDefault();
-            event.stopPropagation();
-            var url = 'http://' + location.host;
-            url += '/rest/site/fe/coin/pay';
-            url += "?site=" + siteId;
-            url += "&matter=" + matter;
-            openPlugin(url);
-        }, true);
-        document.body.appendChild(eSwitch);
-    }
-});
-
-
-/***/ }),
-/* 10 */
-/***/ (function(module, exports, __webpack_require__) {
-
-"use strict";
-
-var ngMod = angular.module('discuss.ui.xxt', []);
-ngMod.service('tmsDiscuss', function() {
-    this.showSwitch = function(siteId, threadKey, title, url) {
-        var eSwitch;
-        eSwitch = document.createElement('div');
-        eSwitch.classList.add('tms-switch', 'tms-switch-discuss');
-        eSwitch.addEventListener('click', function(event) {
-            event.preventDefault();
-            event.stopPropagation();
-            location.href = '/rest/site/fe/discuss?site=' + siteId + '&threadKey=' + threadKey + '&title=' + title;
-        }, true);
-        document.body.appendChild(eSwitch);
-    }
-});
-
-
-/***/ }),
-/* 11 */
-/***/ (function(module, exports, __webpack_require__) {
-
-"use strict";
-
-var ngMod = angular.module('favor.ui.xxt', []);
-ngMod.service('tmsFavor', ['$http', '$q', function($http, $q) {
-    function byUser(siteId, matter) {
-        var url, defer;
-        defer = $q.defer();
-        url = 'http://' + location.host;
-        url += '/rest/site/fe/user/favor/byUser';
-        url += "?site=" + siteId;
-        url += "&id=" + matter.id;
-        url += "&type=" + matter.type;
-        url += "&title=" + matter.title;
-        $http.get(url).success(function(rsp) {
-            defer.resolve(rsp.data);
-        });
-        return defer.promise;
-    }
-
-    function favor(siteId, matter) {
-        var url, defer;
-        defer = $q.defer();
-
-        url = 'http://' + location.host;
-        url += '/rest/site/fe/user/favor/add';
-        url += "?site=" + siteId;
-        url += "&id=" + matter.id;
-        url += "&type=" + matter.type;
-        url += "&title=" + matter.title;
-        $http.get(url).success(function(rsp) {
-            defer.resolve(rsp.data);
-        });
-        return defer.promise;
-    }
-
-    function unfavor(siteId, matter) {
-        var url, defer;
-        defer = $q.defer();
-        url = 'http://' + location.host;
-        url += '/rest/site/fe/user/favor/remove';
-        url += "?site=" + siteId;
-        url += "&id=" + matter.id;
-        url += "&type=" + matter.type;
-        $http.get(url).success(function(rsp) {
-            defer.resolve(rsp.data);
-        });
-        return defer.promise;
-    }
-
-    this.showSwitch = function(siteId, matter) {
-        var eSwitch;
-        eSwitch = document.createElement('div');
-        eSwitch.classList.add('tms-switch', 'tms-switch-favor');
-        eSwitch.addEventListener('click', function(event) {
-            event.preventDefault();
-            event.stopPropagation();
-            if (eSwitch.classList.contains('favored')) {
-                unfavor(siteId, matter).then(function(log) {
-                    eSwitch.classList.remove('favored');
-                });
-            } else {
-                favor(siteId, matter).then(function(log) {
-                    eSwitch.classList.add('favored');
-                });
-            }
-        }, true);
-        document.body.appendChild(eSwitch);
-        byUser(siteId, matter).then(function(log) {
-            if (log) {
-                eSwitch.classList.add('favored');
-            }
-        });
-    };
-}]);
-
-
-/***/ }),
-/* 12 */
-/***/ (function(module, exports, __webpack_require__) {
-
-"use strict";
- 
- var ngMod = angular.module('snsshare.ui.xxt', []);
- ngMod.service('tmsSnsShare', ['$http', function($http) {
-     function setWxShare(title, link, desc, img, options) {
-         var _this = this;
-         window.wx.onMenuShareTimeline({
-             title: options.descAsTitle ? desc : title,
-             link: link,
-             imgUrl: img,
-             success: function() {
-                 try {
-                     options.logger && options.logger('T');
-                 } catch (ex) {
-                     alert('share failed:' + ex.message);
-                 }
-             },
-             cancel: function() {}
-         });
-         window.wx.onMenuShareAppMessage({
-             title: title,
-             desc: desc,
-             link: link,
-             imgUrl: img,
-             success: function() {
-                 try {
-                     options.logger && options.logger('F');
-                 } catch (ex) {
-                     alert('share failed:' + ex.message);
-                 }
-             },
-             cancel: function() {}
-         });
-     }
-
-     function setYxShare(title, link, desc, img, options) {
-         var _this = this,
-             shareData = {
-                 'img_url': img,
-                 'link': link,
-                 'title': title,
-                 'desc': desc
-             };
-         window.YixinJSBridge.on('menu:share:appmessage', function(argv) {
-             try {
-                 options.logger && options.logger('F');
-             } catch (ex) {
-                 alert('share failed:' + ex.message);
-             }
-             window.YixinJSBridge.invoke('sendAppMessage', shareData, function(res) {});
-         });
-         window.YixinJSBridge.on('menu:share:timeline', function(argv) {
-             try {
-                 options.logger && options.logger('T');
-             } catch (ex) {
-                 alert('share failed:' + ex.message);
-             }
-             window.YixinJSBridge.invoke('shareTimeline', shareData, function(res) {});
-         });
-     }
-
-     this.config = function(options) {
-         this.options = options;
-     };
-     this.set = function(title, link, desc, img, fnOther) {
-         var _this = this;
-         if (/MicroMessenger/i.test(navigator.userAgent)) {
-             var script;
-             script = document.createElement('script');
-             script.src = 'http://res.wx.qq.com/open/js/jweixin-1.0.0.js';
-             script.onload = function() {
-                 var xhr = new XMLHttpRequest();
-                 xhr.open('GET', "/rest/site/fe/wxjssdksignpackage?site=" + _this.options.siteId + "&url=" + encodeURIComponent(location.href.split('#')[0]), true);
-                 xhr.onreadystatechange = function() {
-                     if (xhr.readyState == 4) {
-                         if (xhr.status >= 200 && xhr.status < 400) {
-                             var signPackage;
-                             try {
-                                 eval("(" + xhr.responseText + ')');
-                                 if (signPackage) {
-                                     signPackage.debug = false;
-                                     signPackage.jsApiList = _this.options.jsApiList;
-                                     wx.config(signPackage);
-                                     setWxShare(title, link, desc, img, _this.options);
-                                 }
-                             } catch (e) {
-                                 alert('local error:' + e.toString());
-                             }
-                         } else {
-                             alert('http error:' + xhr.statusText);
-                         }
-                     };
-                 }
-                 xhr.send();
-             };
-             document.body.appendChild(script);
-         } else if (/Yixin/i.test(navigator.userAgent)) {
-             if (window.YixinJSBridge === undefined) {
-                 document.addEventListener('YixinJSBridgeReady', function() {
-                     setYxShare(title, link, desc, img, _this.options);
-                 }, false);
-             } else {
-                 setYxShare(title, link, desc, img, _this.options);
-             }
-         } else if (fnOther && typeof fnOther === 'function') {
-             fnOther(title, link, desc, img);
-         }
-     };
- }]);
-
-
-/***/ }),
-/* 13 */
-/***/ (function(module, exports, __webpack_require__) {
-
-"use strict";
-
-
-function openPlugin(content, cb) {
-    var frag, wrap, frm;
-    frag = document.createDocumentFragment();
-    wrap = document.createElement('div');
-    wrap.setAttribute('id', 'frmPlugin');
-    frm = document.createElement('iframe');
-    wrap.appendChild(frm);
-    wrap.onclick = function() {
-        wrap.parentNode.removeChild(wrap);
-    };
-    frag.appendChild(wrap);
-    document.body.appendChild(frag);
-    if (content.indexOf('http') === 0) {
-        window.onClosePlugin = function() {
-            wrap.parentNode.removeChild(wrap);
-            cb && cb();
-        };
-        frm.setAttribute('src', content);
-    } else {
-        if (frm.contentDocument && frm.contentDocument.body) {
-            frm.contentDocument.body.innerHTML = content;
-        }
-    }
-}
-
-var ngMod = angular.module('siteuser.ui.xxt', []);
-ngMod.service('tmsSiteUser', function() {
-    this.showSwitch = function(siteId, redirect) {
-        var eSwitch;
-        eSwitch = document.createElement('div');
-        eSwitch.classList.add('tms-switch', 'tms-switch-siteuser');
-        eSwitch.addEventListener('click', function(event) {
-            event.preventDefault();
-            event.stopPropagation();
-            var url = 'http://' + location.host;
-            url += '/rest/site/fe/user';
-            url += "?site=" + siteId;
-            if (redirect) {
-                location.href = url;
-            } else {
-                openPlugin(url);
-            }
-        }, true);
-        document.body.appendChild(eSwitch);
-    }
-});
-
-
-/***/ }),
-/* 14 */
-/***/ (function(module, exports, __webpack_require__) {
-
-exports = module.exports = __webpack_require__(0)(undefined);
-// imports
-
-
-// module
-exports.push([module.i, "/*dialog*/\r\n.dialog.mask{position:fixed;background:rgba(0,0,0,0.3);top:0;left:0;bottom:0;right:0;overflow:auto;z-index:998}\r\n.dialog.dlg{position:absolute;background:#fff;left:0;right:0;bottom:0;margin:15px}\r\n.dialog .dlg-header{padding:15px 15px 0 15px}\r\n.dialog .dlg-body{padding:15px 15px 0 15px}\r\n.dialog .dlg-footer{text-align:right;padding:15px}\r\n.dialog .dlg-footer button{border-radius:0}\r\n\r\n/*filter*/\r\ndiv[wrap=filter] .detail{background:#ccc}\r\ndiv[wrap=filter] .detail .options .label{display:inline-block;margin:.5em;padding-top:.3em;font-size:100%}\r\ndiv[wrap=filter] .detail .actions .btn{border-radius:0}\r\n\r\n/*discuss switch*/\r\n\r\n/*switch*/\r\n.tms-switch{position:fixed;right:15px;width:48px;height:48px;background:rgba(192,192,192,0.5);border-radius:4px;color:#666;font-size:24px;line-height:48px;text-align:center;cursor:pointer;}\r\n.tms-switch:before{font-size:0.7em;}\r\n.tms-switch:nth-of-type(2){bottom:8px;}\r\n.tms-switch:nth-of-type(3){bottom:64px;}\r\n.tms-switch:nth-of-type(4){bottom:120px;}\r\n.tms-switch:nth-of-type(5){bottom:176px;}\r\n.tms-switch:nth-of-type(6){bottom:236px;}\r\n.tms-switch-favor:before{content:'\\6536\\85CF';}\r\n.tms-switch-favor.favored{background:rgba(132,255,192,0.5);}\r\n.tms-switch-discuss:before{content:'\\7559\\8A00';}\r\n.tms-switch-coinpay:before{content:'\\6253\\8D4F';}\r\n.tms-switch-siteuser:before{content:'\\6211';}\r\n.tms-discuss-switch{position:fixed;bottom:48px;right:15px;width:48px;height:48px;background:rgba(192,192,192,0.5);border-radius:4px;color:#666;font-size:24px;line-height:48px;text-align:center;}\r\n.tms-discuss-switch:before{content:'\\8BC4\\8BBA';font-size:0.7em;}", ""]);
-
-// exports
-
-
-/***/ }),
-/* 15 */
-/***/ (function(module, exports, __webpack_require__) {
-
-// style-loader: Adds some css to the DOM by adding a <style> tag
-
-// load the styles
-var content = __webpack_require__(14);
-if(typeof content === 'string') content = [[module.i, content, '']];
-// add the styles to the DOM
-var update = __webpack_require__(1)(content, {});
-if(content.locals) module.exports = content.locals;
-// Hot Module Replacement
-if(false) {
-	// When the styles change, update the <style> tags
-	if(!content.locals) {
-		module.hot.accept("!!../../../../../../node_modules/css-loader/index.js!./directive.css", function() {
-			var newContent = require("!!../../../../../../node_modules/css-loader/index.js!./directive.css");
-			if(typeof newContent === 'string') newContent = [[module.id, newContent, '']];
-			update(newContent);
-		});
-	}
-	// When the module is disposed, remove the <style> tags
-	module.hot.dispose(function() { update(); });
-}
-
-/***/ }),
-/* 16 */
-/***/ (function(module, exports, __webpack_require__) {
-
-"use strict";
-
-
-var __util = {};
-__util.makeDialog = function(id, html) {
-    var dlg, mask;
-
-    mask = document.createElement('div');
-    mask.setAttribute('id', id);
-    mask.classList.add('dialog', 'mask');
-
-    dlg = "<div class='dialog dlg'>";
-    html.header && html.header.length && (dlg += "<div class='dlg-header'>" + html.header + "</div>");
-    dlg += "<div class='dlg-body'>" + html.body + "</div>";
-    html.footer && html.footer.length && (dlg += "<div class='dlg-footer'>" + html.footer + "</div>");
-    dlg += "</div>";
-
-    mask.innerHTML = dlg;
-
-    document.body.appendChild(mask);
-
-    return mask.children;
-};
-
-var ngMod = angular.module('directive.enroll', []);
-ngMod.directive('tmsDate', ['$compile', function($compile) {
-    return {
-        restrict: 'A',
-        scope: {
-            value: '=tmsDateValue'
-        },
-        controller: ['$scope', function($scope) {
-            $scope.close = function() {
-                var mask;
-                mask = document.querySelector('#' + $scope.dialogID);
-                document.body.removeChild(mask);
-                $scope.opened = false;
-            };
-            $scope.ok = function() {
-                var dtObject;
-                dtObject = new Date();
-                dtObject.setTime(0);
-                dtObject.setFullYear($scope.data.year);
-                dtObject.setMonth($scope.data.month - 1);
-                dtObject.setDate($scope.data.date);
-                dtObject.setHours($scope.data.hour);
-                dtObject.setMinutes($scope.data.minute);
-                $scope.value = parseInt(dtObject.getTime() / 1000);
-                $scope.close();
-            };
-        }],
-        link: function(scope, elem, attrs) {
-            var fnOpenPicker, dtObject, dtMinute, htmlBody;
-            scope.value === undefined && (scope.value = (new Date() * 1) / 1000);
-            dtObject = new Date();
-            dtObject.setTime(scope.value * 1000);
-            scope.options = {
-                years: [2014, 2015, 2016, 2017],
-                months: [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12],
-                dates: [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25, 26, 27, 28, 29, 30, 31],
-                hours: [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23],
-                minutes: [0, 5, 10, 15, 20, 25, 30, 35, 40, 45, 50, 55],
-            };
-            dtMinute = Math.round(dtObject.getMinutes() / 5) * 5;
-            scope.data = {
-                year: dtObject.getFullYear(),
-                month: dtObject.getMonth() + 1,
-                date: dtObject.getDate(),
-                hour: dtObject.getHours(),
-                minute: dtMinute
-            };
-            scope.options.minutes.indexOf(dtMinute) === -1 && scope.options.minutes.push(dtMinute);
-            htmlBody = '<div class="form-group"><select class="form-control" ng-model="data.year" ng-options="y for y in options.years"></select></div>';
-            htmlBody += '<div class="form-group"><select class="form-control" ng-model="data.month" ng-options="m for m in options.months"></select></div>';
-            htmlBody += '<div class="form-group"><select class="form-control" ng-model="data.date" ng-options="d for d in options.dates"></select></div>';
-            htmlBody += '<div class="form-group"><select class="form-control" ng-model="data.hour" ng-options="h for h in options.hours"></select></div>';
-            htmlBody += '<div class="form-group"><select class="form-control" ng-model="data.minute" ng-options="mi for mi in options.minutes"></select></div>';
-            fnOpenPicker = function(event) {
-                event.preventDefault();
-                event.stopPropagation();
-                if (scope.opened) return;
-                var html, id;
-                id = '_dlg-' + (new Date() * 1);
-                html = {
-                    header: '',
-                    body: htmlBody,
-                    footer: '<button class="btn btn-default" ng-click="close()">关闭</button><button class="btn btn-success" ng-click="ok()">确定</button>'
-                };
-                html = __util.makeDialog(id, html);
-                scope.opened = true;
-                scope.dialogID = id;
-                $compile(html)(scope);
-            };
-            elem[0].querySelector('[ng-bind]').addEventListener('click', fnOpenPicker);
-        }
-    }
-}]);
-ngMod.directive('tmsCheckboxGroup', function() {
-    return {
-        restrict: 'A',
-        link: function(scope, elem, attrs) {
-            var groupName, model, options, upper;
-            if (attrs.tmsCheckboxGroup && attrs.tmsCheckboxGroup.length) {
-                groupName = attrs.tmsCheckboxGroup;
-                if (attrs.tmsCheckboxGroupModel && attrs.tmsCheckboxGroupModel.length) {
-                    model = attrs.tmsCheckboxGroupModel;
-                    if (attrs.tmsCheckboxGroupUpper && attrs.tmsCheckboxGroupUpper.length) {
-                        upper = attrs.tmsCheckboxGroupUpper;
-                        options = document.querySelectorAll('[name=' + groupName + ']');
-                        scope.$watch(model + '.' + groupName, function(data) {
-                            var cnt;
-                            cnt = 0;
-                            angular.forEach(data, function(v, p) {
-                                v && cnt++;
-                            });
-                            if (cnt >= upper) {
-                                [].forEach.call(options, function(el) {
-                                    if (el.checked === undefined) {
-                                        !el.classList.contains('checked') && el.setAttribute('disabled', true);
-                                    } else {
-                                        !el.checked && (el.disabled = true);
-                                    }
-                                });
-                            } else {
-                                [].forEach.call(options, function(el) {
-                                    if (el.checked === undefined) {
-                                        el.removeAttribute('disabled');
-                                    } else {
-                                        el.disabled = false;
-                                    }
-                                });
-                            }
-                        }, true);
-                    }
-                }
-            }
-        }
-    };
-});
-ngMod.directive('runningButton', function() {
-    return {
-        restrict: 'EA',
-        template: "<button ng-class=\"isRunning?'btn-default':'btn-primary'\" ng-disabled='isRunning' ng-transclude></button>",
-        scope: {
-            isRunning: '='
-        },
-        replace: true,
-        transclude: true
-    };
-});
-ngMod.directive('flexImg', function() {
-    return {
-        restrict: 'A',
-        replace: true,
-        template: "<img ng-src='{{img.imgSrc}}'>",
-        link: function(scope, elem, attrs) {
-            angular.element(elem).on('load', function() {
-                var w = this.clientWidth,
-                    h = this.clientHeight,
-                    sw, sh;
-                if (w > h) {
-                    sw = w / h * 80;
-                    angular.element(this).css({
-                        'height': '100%',
-                        'width': sw + 'px',
-                        'top': '0',
-                        'left': '50%',
-                        'margin-left': (-1 * sw / 2) + 'px'
-                    });
-                } else {
-                    sh = h / w * 80;
-                    angular.element(this).css({
-                        'width': '100%',
-                        'height': sh + 'px',
-                        'left': '0',
-                        'top': '50%',
-                        'margin-top': (-1 * sh / 2) + 'px'
-                    });
-                }
-            })
-        }
-    }
-});
-ngMod.directive('tmsFilter', function() {
-    return {
-        restrict: 'A',
-        link: function(scope, ele, attrs) {
-            var $switch, $ok, $cancel, fnSelectItem, fnDefaultItem;
-            fnDefaultItem = function() {
-                var defaultItem, path, i;
-                path = attrs.tmsFilterDefault;
-                path = path.split('.');
-                i = 0;
-                defaultItem = scope;
-                while (i < path.length) {
-                    defaultItem = defaultItem[path[i]];
-                    i++;
-                }
-                defaultItem && (defaultItem = scope.match(defaultItem));
-                return defaultItem;
-            };
-            fnSelectItem = function(item) {
-                if (!item) return;
-                var selected;
-                item._selected = !item._selected;
-                selected = scope.tmsFilter.selected;
-                if (item._selected) {
-                    if (attrs.tmsFilterMultiple && attrs.tmsFilterMultiple === 'N') {
-                        selected.length === 1 && (selected[0]._selected = false);
-                        selected[0] = item;
-                    } else {
-                        selected.push(item);
-                    }
-                } else {
-                    selected.splice(selected.indexOf(item), 1);
-                }
-            };
-            scope.tmsFilter === undefined && (scope.tmsFilter = {});
-            scope.tmsFilter.opened = false;
-            scope.tmsFilter.selected = [];
-            if (attrs.tmsFilterDefault && attrs.tmsFilterDefault.length && scope.match) {
-                if (scope.onDataReady) {
-                    scope.onDataReady(function(rounds) {
-                        fnSelectItem(fnDefaultItem());
-                    });
-                } else {
-                    fnSelectItem(fnDefaultItem());
-                }
-            }
-            scope.click = fnSelectItem;
-            $switch = ele[0].querySelector('[tms-filter-switch]').addEventListener('click', function() {
-                scope.$apply(function() {
-                    scope.tmsFilter.opened = !scope.tmsFilter.opened;
-                });
-            });
-            $ok = ele[0].querySelector('[tms-filter-ok]').addEventListener('click', function() {
-                scope.$apply(function() {
-                    scope.tmsFilter.opened = false;
-                    scope.$emit(attrs.tmsFilterEvent, scope.tmsFilter.selected);
-                });
-            });
-            $cancel = ele[0].querySelector('[tms-filter-cancel]').addEventListener('click', function() {
-                scope.$apply(function() {
-                    scope.tmsFilter.opened = false;
-                });
-            });
-        }
-    };
-});
-ngMod.directive('enrollRecords', function() {
-    return {
-        restrict: 'A',
-        replace: 'false',
-        link: function(scope, ele, attrs) {
-            if (scope.options && attrs.enrollRecordsOwner && attrs.enrollRecordsOwner.length) {
-                scope.options.owner = attrs.enrollRecordsOwner;
-            }
-        }
-    }
-});
-
-
-/***/ }),
-/* 17 */
-/***/ (function(module, exports, __webpack_require__) {
-
-"use strict";
-
-if (/MicroMessenger/i.test(navigator.userAgent) && window.signPackage && window.wx) {
-    window.wx.ready(function() {
-        window.wx.showOptionMenu();
-    });
-} else if (/YiXin/i.test(navigator.userAgent)) {
-    document.addEventListener('YixinJSBridgeReady', function() {
-        YixinJSBridge.call('showOptionMenu');
-    }, false);
-}
-
-__webpack_require__(15);
-
-__webpack_require__(2);
-__webpack_require__(13);
-__webpack_require__(11);
-__webpack_require__(9);
-__webpack_require__(10);
-__webpack_require__(12);
-
-__webpack_require__(16);
-
-var ngApp = angular.module('app', ['ngSanitize', 'ui.bootstrap', 'page.ui.xxt', 'snsshare.ui.xxt', 'directive.enroll', 'siteuser.ui.xxt', 'favor.ui.xxt', 'discuss.ui.xxt']);
-ngApp.provider('ls', function() {
-    var _baseUrl = '/rest/site/fe/matter/enroll',
-        _params = {};
-
-    this.params = function(params) {
-        var ls;
-        ls = location.search;
-        angular.forEach(params, function(q) {
-            var match, pattern;
-            pattern = new RegExp(q + '=([^&]*)');
-            match = ls.match(pattern);
-            _params[q] = match ? match[1] : '';
-        });
-        return _params;
-    };
-
-    this.$get = function() {
-        return {
-            p: _params,
-            j: function(method) {
-                var i = 1,
-                    l = arguments.length,
-                    url = _baseUrl,
-                    _this = this,
-                    search = [];
-                method && method.length && (url += '/' + method);
-                for (; i < l; i++) {
-                    search.push(arguments[i] + '=' + _params[arguments[i]]);
-                };
-                search.length && (url += '?' + search.join('&'));
-                return url;
-            }
-        };
-    };
-});
-ngApp.config(['$controllerProvider', 'lsProvider', function($cp, lsProvider) {
-    ngApp.provider = {
-        controller: $cp.register
-    };
-    lsProvider.params(['site', 'app', 'rid', 'page', 'ek', 'preview', 'newRecord', 'ignoretime']);
-}]);
-ngApp.controller('ctrlMain', ['$scope', '$http', '$timeout', 'ls', 'tmsDynaPage', 'tmsSnsShare', 'tmsSiteUser', 'tmsFavor', 'tmsDiscuss', function($scope, $http, $timeout, LS, tmsDynaPage, tmsSnsShare, tmsSiteUser, tmsFavor, tmsDiscuss) {
-    var tasksOfOnReady = [];
-    $scope.errmsg = '';
-    $scope.closePreviewTip = function() {
-        $scope.preview = 'N';
-    };
-    var openAskFollow = function() {
-        $http.get(LS.j('askFollow', 'site')).error(function(content) {
-            var body, el;;
-            body = document.body;
-            el = document.createElement('iframe');
-            el.setAttribute('id', 'frmPopup');
-            el.height = body.clientHeight;
-            body.scrollTop = 0;
-            body.appendChild(el);
-            window.closeAskFollow = function() {
-                el.style.display = 'none';
-            };
-            el.setAttribute('src', LS.j('askFollow', 'site'));
-            el.style.display = 'block';
-        });
-    };
-    var PG = (function() {
-        return {
-            exec: function(task) {
-                var obj, fn, args, valid;
-                valid = true;
-                obj = $scope;
-                args = task.match(/\((.*?)\)/)[1].replace(/'|"/g, "").split(',');
-                angular.forEach(task.replace(/\(.*?\)/, '').split('.'), function(attr) {
-                    if (fn) obj = fn;
-                    if (!obj[attr]) {
-                        valid = false;
-                        return;
-                    }
-                    fn = obj[attr];
-                });
-                if (valid) {
-                    fn.apply(obj, args);
-                }
-            }
-        };
-    })();
-    $scope.closeWindow = function() {
-        if (/MicroMessenger/i.test(navigator.userAgent)) {
-            window.wx.closeWindow();
-        } else if (/YiXin/i.test(navigator.userAgent)) {
-            window.YixinJSBridge.call('closeWebView');
-        }
-    };
-    $scope.addRecord = function(event, page) {
-        page ? $scope.gotoPage(event, page, null, null, false, 'Y') : alert('没有指定登记编辑页');
-    };
-    $scope.gotoPage = function(event, page, ek, rid, fansOnly, newRecord) {
-        event.preventDefault();
-        event.stopPropagation();
-        if (fansOnly && !$scope.User.fan) {
-            openAskFollow();
-            return;
-        }
-        var url = LS.j('', 'site', 'app');
-        if (ek !== undefined && ek !== null && ek.length) {
-            url += '&ek=' + ek;
-        }
-        rid !== undefined && rid !== null && rid.length && (url += '&rid=' + rid);
-        page !== undefined && page !== null && page.length && (url += '&page=' + page);
-        newRecord !== undefined && newRecord === 'Y' && (url += '&newRecord=Y');
-        if (/remark|repos/.test(page)) {
-            location = url;
-        } else {
-            location.replace(url);
-        }
-    };
-    $scope.openMatter = function(id, type, replace, newWindow) {
-        var url = '/rest/site/fe/matter?site=' + LS.p.site + '&id=' + id + '&type=' + type;
-        if (replace) {
-            location.replace(url);
-        } else {
-            if (newWindow === false) {
-                location.href = url;
-            } else {
-                window.open(url);
-            }
-        }
-    };
-    $scope.onReady = function(task) {
-        if ($scope.params) {
-            PG.exec(task);
-        } else {
-            tasksOfOnReady.push(task);
-        }
-    };
-    $http.get(LS.j('get', 'site', 'app', 'rid', 'page', 'ek', 'newRecord')).success(function(rsp) {
-        if (rsp.err_code !== 0) {
-            $scope.errmsg = rsp.err_msg;
-            return;
-        }
-        var params = rsp.data,
-            oSite = params.site,
-            oApp = params.app,
-            oMission = params.mission,
-            oPage = params.page,
-            oUser = params.user,
-            schemasById = {};
-
-        oApp.dataSchemas.forEach(function(schema) {
-            schemasById[schema.id] = schema;
-        });
-        oApp._schemasById = schemasById;
-        $scope.params = params;
-        $scope.site = oSite;
-        $scope.mission = oMission;
-        $scope.app = oApp;
-        $scope.user = oUser;
-        if (oApp.multi_rounds === 'Y') {
-            $scope.activeRound = params.activeRound;
-        }
-        /* 设置分享 */
-        if (/MicroMessenger|Yixin/i.test(navigator.userAgent)) {
-            var shareid, sharelink, shareby, summary;
-
-            shareid = oUser.uid + '_' + (new Date() * 1);
-            sharelink = 'http://' + location.host + LS.j('', 'site', 'app');
-            if (oPage && oPage.share_page && oPage.share_page === 'Y') {
-                sharelink += '&page=' + oPage.name;
-                params.enrollKey && (sharelink += '&ek=' + params.enrollKey);
-            }
-            sharelink += "&shareby=" + shareid;
-
-            summary = oApp.summary;
-            if (oPage && oPage.share_summary && oPage.share_summary.length && params.record) {
-                summary = params.record.data[oPage.share_summary];
-            }
-            /* 分享次数计数器 */
-            window.shareCounter = 0;
-            tmsSnsShare.config({
-                siteId: oSite.id,
-                logger: function(shareto) {
-                    var url;
-                    url = "/rest/site/fe/matter/logShare";
-                    url += "?shareid=" + shareid;
-                    url += "&site=" + oSite.id;
-                    url += "&id=" + oApp.id;
-                    url += "&type=enroll";
-                    url += "&title=" + oApp.title;
-                    url += "&shareby=" + shareid;
-                    url += "&shareto=" + shareto;
-                    $http.get(url);
-                    window.shareCounter++;
-                    if (oApp.can_autoenroll === 'Y' && oPage.autoenroll_onshare === 'Y') {
-                        $http.get(LS.j('emptyGet', 'site', 'app') + '&once=Y');
-                    }
-                    window.onshare && window.onshare(window.shareCounter);
-                },
-                jsApiList: ['hideOptionMenu', 'onMenuShareTimeline', 'onMenuShareAppMessage', 'chooseImage', 'uploadImage', 'getLocation']
-            });
-            tmsSnsShare.set(oApp.title, sharelink, summary, oApp.pic);
-        }
-
-        if (oApp.use_site_header === 'Y' && oSite && oSite.header_page) {
-            tmsDynaPage.loadCode(ngApp, oSite.header_page);
-        }
-        if (oApp.use_mission_header === 'Y' && oMission && oMission.header_page) {
-            tmsDynaPage.loadCode(ngApp, oMission.header_page);
-        }
-        if (oApp.use_mission_footer === 'Y' && oMission && oMission.footer_page) {
-            tmsDynaPage.loadCode(ngApp, oMission.footer_page);
-        }
-        if (oApp.use_site_footer === 'Y' && oSite && oSite.footer_page) {
-            tmsDynaPage.loadCode(ngApp, oSite.footer_page);
-        }
-        if (params.page) {
-            tmsDynaPage.loadCode(ngApp, params.page).then(function() {
-                $scope.page = params.page;
-            });
-        }
-        if (tasksOfOnReady.length) {
-            angular.forEach(tasksOfOnReady, PG.exec);
-        }
-        tmsFavor.showSwitch(oApp.siteid, oApp);
-        if (oApp.can_discuss === 'Y') {
-            tmsDiscuss.showSwitch(oApp.siteid, 'enroll,' + oApp.id, oApp.title);
-        }
-        if (oApp.can_siteuser === 'Y') {
-            tmsSiteUser.showSwitch(oApp.siteid, true);
-        }
-        $timeout(function() {
-            $scope.$broadcast('xxt.app.enroll.ready', params);
-        });
-        //
-        var eleLoading;
-        if (eleLoading = document.querySelector('.loading')) {
-            eleLoading.parentNode.removeChild(eleLoading);
-        }
-        //
-        $http.post('/rest/site/fe/matter/logAccess?site=' + oApp.siteid + '&id=' + oApp.id + '&type=enroll&title=' + oApp.title + '&shareby=', {
-            search: location.search.replace('?', ''),
-            referer: document.referrer
-        });
-    }).error(function(content, httpCode) {
-        if (httpCode === 401) {
-            var el = document.createElement('iframe');
-            el.setAttribute('id', 'frmPopup');
-            el.onload = function() {
-                this.height = document.querySelector('body').clientHeight;
-            };
-            document.body.appendChild(el);
-            if (content.indexOf('http') === 0) {
-                window.onAuthSuccess = function() {
-                    el.style.display = 'none';
-                };
-                el.setAttribute('src', content);
-                el.style.display = 'block';
-            } else {
-                if (el.contentDocument && el.contentDocument.body) {
-                    el.contentDocument.body.innerHTML = content;
-                    el.style.display = 'block';
-                }
-            }
-        } else {
-            $scope.errmsg = content;
-        }
-    });
-}]);
-module.exports = ngApp;
-
-
-/***/ }),
-/* 18 */,
-/* 19 */,
-/* 20 */,
-/* 21 */,
-/* 22 */,
-/* 23 */,
-/* 24 */,
-/* 25 */,
-/* 26 */
-/***/ (function(module, exports, __webpack_require__) {
-
-"use strict";
-
-__webpack_require__(46);
-
-var ngApp = __webpack_require__(17);
-ngApp.factory('Round', ['$http', '$q', 'ls', function($http, $q, LS) {
-    var Round, _ins;
-    Round = function() {};
-    Round.prototype.list = function() {
-        var deferred, url;
-        deferred = $q.defer();
-        url = LS.j('round/list', 'site', 'app');
-        $http.get(url).success(function(rsp) {
-            if (rsp.err_code != 0) {
-                alert(rsp.data);
-                return;
-            }
-            deferred.resolve(rsp.data);
-        });
-        return deferred.promise;
-    };
-    return {
-        ins: function() {
-            _ins = _ins ? _ins : new Round();
-            return _ins;
-        }
-    };
-}]);
-ngApp.controller('ctrlRounds', ['$scope', 'Round', function($scope, Round) {
-    var facRound, onDataReadyCallbacks;
-    facRound = Round.ins();
-    facRound.list().then(function(rounds) {
-        $scope.rounds = rounds;
-        angular.forEach(onDataReadyCallbacks, function(cb) {
-            cb(rounds);
-        });
-    });
-    onDataReadyCallbacks = [];
-    $scope.onDataReady = function(callback) {
-        onDataReadyCallbacks.push(callback);
-    };
-    $scope.match = function(matched) {
-        var i, l, round;
-        for (i = 0, l = $scope.rounds.length; i < l; i++) {
-            round = $scope.rounds[i];
-            if (matched.rid === $scope.rounds[i].rid) {
-                return $scope.rounds[i];
-            }
-        }
-        return false;
-    };
-}]);
-ngApp.factory('Record', ['$http', '$q', 'ls', function($http, $q, LS) {
-    var Record, _ins, _running;
-    Record = function(oApp) {
-        var data = {}; // 初始化空数据，优化加载体验
-        oApp.dataSchemas.forEach(function(schema) {
-            data[schema.id] = '';
-        });
-        this.current = {
-            enroll_at: 0,
-            data: data
-        };
-    };
-    _running = false;
-    Record.prototype.get = function(ek) {
-        if (_running) return false;
-        _running = true;
-        var _this, url, deferred;
-        _this = this;
-        deferred = $q.defer();
-        url = LS.j('record/get', 'site', 'app');
-        ek && (url += '&ek=' + ek);
-        $http.get(url).success(function(rsp) {
-            var record;
-            record = rsp.data;
-            if (rsp.err_code == 0) {
-                _this.current = record;
-                deferred.resolve(record);
-            }
-            _running = false;
-        });
-        return deferred.promise;
-    };
-    Record.prototype.list = function(owner, rid) {
-        var deferred = $q.defer(),
-            url;
-        url = LS.j('record/list', 'site', 'app');
-        url += '&owner=' + owner;
-        rid && rid.length && (url += '&rid=' + rid);
-        $http.get(url).success(function(rsp) {
-            var records, record, i, l;
-            if (rsp.err_code == 0) {
-                records = rsp.data.records;
-                if (records && records.length) {
-                    for (i = 0, l = records.length; i < l; i++) {
-                        record = records[i];
-                        record.data.member && (record.data.member = JSON.parse(record.data.member));
-                    }
-                }
-                deferred.resolve(records);
-            }
-        });
-        return deferred.promise;
-    };
-    Record.prototype.remove = function(record) {
-        var deferred = $q.defer(),
-            url;
-        url = LS.j('record/remove', 'site', 'app');
-        url += '&ek=' + record.enroll_key;
-        $http.get(url).success(function(rsp) {
-            deferred.resolve(rsp.data);
-        });
-        return deferred.promise;
-    };
-    return {
-        ins: function(oApp) {
-            if (_ins) {
-                return _ins;
-            }
-            _ins = new Record(oApp);
-            return _ins;
-        }
-    };
-}]);
-ngApp.controller('ctrlRecord', ['$scope', 'Record', 'ls', '$sce', function($scope, Record, LS, $sce) {
-    var facRecord;
-
-    $scope.value2Label = function(schemaId) {
-        var val, schema, aVal, aLab = [];
-
-        if ((schema = $scope.app._schemasById[schemaId]) && facRecord.current.data) {
-            if (val = facRecord.current.data[schemaId]) {
-                if (schema.ops && schema.ops.length) {
-                    aVal = val.split(',');
-                    schema.ops.forEach(function(op) {
-                        aVal.indexOf(op.v) !== -1 && aLab.push(op.l);
-                    });
-                    val = aLab.join(',');
-                }
-            } else {
-                val = '';
-            }
-        }
-        return $sce.trustAsHtml(val);
-    };
-    $scope.score2Html = function(schemaId) {
-        var label = '',
-            schema = $scope.app._schemasById[schemaId],
-            val;
-
-        if (schema && facRecord.current.data && facRecord.current.data[schemaId]) {
-            val = facRecord.current.data[schemaId];
-            if (schema.ops && schema.ops.length) {
-                schema.ops.forEach(function(op, index) {
-                    label += '<div>' + op.l + ': ' + (val[op.v] ? val[op.v] : 0) + '</div>';
-                });
-            }
-        }
-        return $sce.trustAsHtml(label);
-    };
-    $scope.editRecord = function(event, page) {
-        page ? $scope.gotoPage(event, page, facRecord.current.enroll_key) : alert('没有指定登记编辑页');
-    };
-    $scope.remarkRecord = function(event) {
-        $scope.gotoPage(event, 'remark', facRecord.current.enroll_key);
-    };
-    $scope.removeRecord = function(event, page) {
-        facRecord.remove(facRecord.current).then(function(data) {
-            page && $scope.gotoPage(event, page);
-        });
-    };
-    $scope.$watch('app', function(app) {
-        if (!app) return;
-        facRecord = Record.ins(app);
-        facRecord.get(LS.p.ek);
-        $scope.Record = facRecord;
-    });
-}]);
-ngApp.controller('ctrlInvite', ['$scope', '$http', 'Record', 'ls', function($scope, $http, Record, LS) {
-    var facRecord;
-    $scope.options = {
-        genRecordWhenAccept: 'Y'
-    };
-    $scope.invitee = '';
-    $scope.send = function(event, invitePage, nextAction) {
-        event.preventDefault();
-        event.stopPropagation();
-        var url;
-        url = LS.j('record/inviteSend', 'site', 'app');
-        url += '&ek=' + facRecord.current.enroll_key;
-        url += '&invitee=' + $scope.invitee;
-        url += '&page=' + invitePage;
-        $http.get(url).success(function(rsp) {
-            if (rsp.err_code != 0) {
-                alert(rsp.err_msg);
-                return;
-            }
-            if (nextAction === 'closeWindow') {
-                $scope.closeWindow();
-            } else if (nextAction !== undefined && nextAction.length) {
-                var url = LS.j('', 'site', 'app');
-                url += '&ek=' + facRecord.current.enroll_key;
-                url += '&page=' + nextAction;
-                location.replace(url);
-            } else {
-                alert('操作成功');
-            }
-        });
-    };
-    $scope.accept = function(event, nextAction) {
-        var inviter, url;
-        if (!$scope.Record.current) {
-            alert('未进行登记，无效的邀请');
-            return;
-        }
-        if ($scope.Record.current.openid === $scope.User.fan.openid) {
-            alert('不能自己邀请自己');
-            return;
-        }
-        inviter = $scope.Record.current.enroll_key;
-        url = LS.j('record/acceptInvite', 'site', 'app');
-        url += '&inviter=' + inviter;
-        $scope.options.genRecordWhenAccept === 'N' && (url += '&state=2');
-        $http.get(url).success(function(rsp) {
-            if (nextAction === 'closeWindow') {
-                $scope.closeWindow();
-            } else if (nextAction !== undefined && nextAction.length) {
-                var url = LS.j('', 'site', 'app');
-                url += '&ek=' + rsp.data.ek;
-                url += '&page=' + nextAction;
-                location.replace(url);
-            }
-        });
-    };
-    facRecord = Record.ins();
-    facRecord.get(LS.p.ek);
-    $scope.Record = facRecord;
-}]);
-ngApp.controller('ctrlView', ['$scope', function($scope) {}]);
-
-
-/***/ }),
-/* 27 */,
-/* 28 */,
-/* 29 */,
-/* 30 */,
-/* 31 */,
-/* 32 */,
-/* 33 */,
-/* 34 */,
-/* 35 */,
-/* 36 */,
-/* 37 */
-/***/ (function(module, exports, __webpack_require__) {
-
-exports = module.exports = __webpack_require__(0)(undefined);
-// imports
-
-
-// module
-exports.push([module.i, "html,body{height:100%;width:100%;background:#efefef;font-family:Microsoft Yahei,Arial;}\r\nbody{position:relative;padding:15px;font-size:16px;}\r\nimg{max-width:100%}\r\nheader{margin:-15px -15px 0 -15px;}\r\nfooter{margin:0 -15px -15px -15px;}\r\n#errmsg{display:block;opacity:0;height:0;overflow:hidden;width:300px;position:fixed;top:0;left:50%;margin:0 0 0 -150px;text-align:center;transition:opacity 1s;z-index:-1;word-break:break-all}\r\n#errmsg.active{opacity:1;height:auto;z-index:999}\r\n\r\n/* default form style*/\r\ndiv[wrap].wrap-splitline{padding-bottom:0.5em;border-bottom:1px dotted #eee;}\r\ndiv[wrap].wrap-inline>*{display:inline-block;vertical-align:top;margin:0 1em 0 0;}\r\ndiv[wrap].wrap-inline>label{width:6em;overflow:hidden;white-space:nowrap;text-overflow:ellipsis;}\r\ndiv[wrap] ul{list-style:none;padding:0;margin:0;max-width:50%;}\r\ndiv[schema-type=image]>ul>li>img{width:100%;}\r\ndiv[wrap=matter]>span{cursor:pointer;text-decoration:underline;}\r\n\r\n/*list*/\r\nli .wrap-inline>label{padding:7px 0;color:#444;}\r\nli .wrap-inline{border-bottom:1px dashed #efefef;}\r\nli .wrap-inline:last-child{border-bottom:0;}\r\n\r\n/* auth */\r\n#frmPopup{position:absolute;top:0;left:0;right:0;bottom:0;border:none;width:100%;z-index:999;box-sizing:border-box;}", ""]);
-
-// exports
-
-
-/***/ }),
-/* 38 */,
-/* 39 */,
-/* 40 */,
-/* 41 */,
-/* 42 */,
-/* 43 */,
-/* 44 */,
-/* 45 */,
-/* 46 */
-/***/ (function(module, exports, __webpack_require__) {
-
-// style-loader: Adds some css to the DOM by adding a <style> tag
-
-// load the styles
-var content = __webpack_require__(37);
-if(typeof content === 'string') content = [[module.i, content, '']];
-// add the styles to the DOM
-var update = __webpack_require__(1)(content, {});
-if(content.locals) module.exports = content.locals;
-// Hot Module Replacement
-if(false) {
-	// When the styles change, update the <style> tags
-	if(!content.locals) {
-		module.hot.accept("!!../../../../../../node_modules/css-loader/index.js!./view.css", function() {
-			var newContent = require("!!../../../../../../node_modules/css-loader/index.js!./view.css");
-			if(typeof newContent === 'string') newContent = [[module.id, newContent, '']];
-			update(newContent);
-		});
-	}
-	// When the module is disposed, remove the <style> tags
-	module.hot.dispose(function() { update(); });
-}
-
-/***/ }),
-/* 47 */,
-/* 48 */,
-/* 49 */,
-/* 50 */,
-/* 51 */,
-/* 52 */,
-/* 53 */,
-/* 54 */,
-/* 55 */
-/***/ (function(module, exports, __webpack_require__) {
-
-module.exports = __webpack_require__(26);
-
-
 /***/ })
-/******/ ]);
+
+/******/ });

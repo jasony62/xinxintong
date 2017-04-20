@@ -9,7 +9,9 @@
   "dependencies": {
     "webpack": "^2.3.3"
   },
-  "devDependencies": {},
+  "devDependencies": {
+    "assets-webpack-plugin": "^3.5.1"
+  },
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
     "start": "webpack --config site.webpack.config.js -w",

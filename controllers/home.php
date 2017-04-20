@@ -81,7 +81,7 @@ class home extends TMS_CONTROLLER {
 		$options = [];
 		$options['page']['at']=$page;
 		$options['page']['size']=$size;
-		$result = $modelHome->atHome();
+		$result = $modelHome->atHome($options);
 		if (count($result->matters)) {
 			foreach ($result->matters as &$matter) {
 				$matter->url = $this->model('matter\\' . $matter->matter_type)->getEntryUrl($matter->siteid, $matter->matter_id);

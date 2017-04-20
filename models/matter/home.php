@@ -346,14 +346,26 @@ class home_model extends \TMS_MODEL {
 	 * 素材置顶
 	 */
 	public function pushHomeTop($applicationId) {
+		$p = [
+			'weight',
+			'xxt_home_matter',
+			["id" => $applicationId]
+		];
+		$result = $this->query_obj_ss($p);
+		$weightNow = (int)$result->weight;
+		if($weightNow > 0){
+			return array(false, '素材已置顶');
+		}
+
 		$q = [
 			'max(weight)',
 			'xxt_home_matter',
 		];
-		$weightNum = (int)$this->query_val_ss($q);
+		$weightMax = (int)$this->query_val_ss($q);
+
 		$rst = $this->update(
 			'xxt_home_matter',
-			['weight' => $weightNum+1],
+			['weight' => $weightMax+1],
 			["id" => $applicationId]
 		);
 

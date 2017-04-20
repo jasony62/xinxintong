@@ -350,7 +350,7 @@ class home_model extends \TMS_MODEL {
 			'max(weight)',
 			'xxt_home_matter',
 		];
-		$weightNum = $this->query_val_ss($q);
+		$weightNum = (int)$this->query_val_ss($q);
 		$rst = $this->update(
 			'xxt_home_matter',
 			['weight' => $weightNum+1],
@@ -369,7 +369,7 @@ class home_model extends \TMS_MODEL {
 			["id" => $applicationId]
 		];
 		$weight = $this->query_obj_ss($q);
-		$weightNum = $weight->weight;
+		$weightNum = (int)$weight->weight;
 		$rst = $this->update(
 			'xxt_home_matter',
 			['weight' => 0],

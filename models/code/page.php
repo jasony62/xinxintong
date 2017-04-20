@@ -83,7 +83,7 @@ class page_model extends \TMS_MODEL {
 		$q = array(
 			$fields,
 			'xxt_code_page',
-			"name='$name' and is_last_published='Y'",
+			['name' => $name, 'is_last_published' => 'Y']
 		);
 		$p = $this->query_obj_ss($q);
 		if ($p && isset($p->id)) {
@@ -93,7 +93,7 @@ class page_model extends \TMS_MODEL {
 			$q = array(
 				'*',
 				'xxt_code_external',
-				"code_id={$p->id}",
+				['code_id' => $p->id]
 			);
 			$exts = $this->query_objs_ss($q);
 			foreach ($exts as $ext) {

@@ -107,6 +107,11 @@ class main extends \site\fe\matter\base {
 		//	exit;
 		//}
 
+		$model = $this->model();
+		$site = $model->escape($site);
+		$id = $model->escape($id);
+		$type = $model->escape($type);
+		$shareby = $model->escape($shareby);
 		if (defined('TMS_PHP_RESQUE') && TMS_PHP_RESQUE === 'Y' && defined('TMS_PHP_RESQUE_REDIS') && strlen(TMS_PHP_RESQUE_REDIS)) {
 			require_once TMS_APP_DIR . '/vendor/chrisboulton/php-resque/lib/Resque.php';
 
@@ -115,7 +120,7 @@ class main extends \site\fe\matter\base {
 			$args = [
 				'site' => $site,
 				'id' => $id,
-				'title' => $title,
+				'title' => $model->escape($title),
 				'type' => $type,
 				'user_uid' => $this->who->uid,
 				'user_nickname' => $this->who->nickname,
@@ -129,16 +134,16 @@ class main extends \site\fe\matter\base {
 
 			switch ($type) {
 			case 'article':
-				$this->model()->update("update xxt_article set read_num=read_num+1 where id='$id'");
+				$model->update("update xxt_article set read_num=read_num+1 where id='$id'");
 				break;
 			case 'channel':
-				$this->model()->update("update xxt_channel set read_num=read_num+1 where id='$id'");
+				$model->update("update xxt_channel set read_num=read_num+1 where id='$id'");
 				break;
 			case 'news':
-				$this->model()->update("update xxt_news set read_num=read_num+1 where id='$id'");
+				$model->update("update xxt_news set read_num=read_num+1 where id='$id'");
 				break;
 			case 'enroll':
-				$this->model()->update("update xxt_enroll set read_num=read_num+1 where id='$id'");
+				$model->update("update xxt_enroll set read_num=read_num+1 where id='$id'");
 			}
 
 			$user = $this->who;
@@ -197,6 +202,14 @@ class main extends \site\fe\matter\base {
 	 */
 	public function logShare_action($shareid, $site, $id, $type, $title, $shareto, $shareby = '') {
 		//header('Access-Control-Allow-Origin:*');
+		
+		$model = $this->model();
+		$shareid = $model->escape($shareid);
+		$site = $model->escape($site);
+		$id = $model->escape($id);
+		$type = $model->escape($type);
+		$shareto = $model->escape($shareto);
+		$shareby = $model->escape($shareby);
 		/* 检查请求是否由客户端发起 */
 		if ($type === 'lottery') {
 			if (!$this->_isAgentEnter($id)) {
@@ -225,9 +238,9 @@ class main extends \site\fe\matter\base {
 		}
 
 		if ($shareto === 'F') {
-			$this->model()->update("update $table set share_friend_num=share_friend_num+1 where id='$id'");
+			$model->update("update $table set share_friend_num=share_friend_num+1 where id='$id'");
 		} else if ($shareto === 'T') {
-			$this->model()->update("update $table set share_timeline_num=share_timeline_num+1 where id='$id'");
+			$model->update("update $table set share_timeline_num=share_timeline_num+1 where id='$id'");
 		}
 
 		$user = $this->who;
@@ -239,7 +252,7 @@ class main extends \site\fe\matter\base {
 		$logMatter = new \stdClass;
 		$logMatter->id = $id;
 		$logMatter->type = $type;
-		$logMatter->title = $this->model()->escape($title);
+		$logMatter->title = $model->escape($title);
 
 		$logClient = new \stdClass;
 		$logClient->agent = $_SERVER['HTTP_USER_AGENT'];

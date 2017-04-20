@@ -1,5 +1,5 @@
 'use strict';
-require('!style-loader!css-loader!./preview.css');
+require('./preview.css');
 
 var ngApp = require('./main.js');
 ngApp.factory('Record', ['$http', '$q', function($http, $q) {
@@ -51,16 +51,15 @@ ngApp.controller('ctrlRecord', ['$scope', 'Record', 'ls', function($scope, Recor
     facRecord.get(LS.p.ek);
     $scope.Record = facRecord;
 }]);
-ngApp.directive('tmsImageInput', function($compile, $q) {
+ngApp.directive('tmsImageInput', ['$compile', '$q', function($compile, $q) {
     return {
         restrict: 'A',
         controller: function($scope, $timeout) {}
     }
-});
-ngApp.directive('tmsFileInput', function($q) {
+}]);
+ngApp.directive('tmsFileInput', ['$q', function($q) {
     return {
         restrict: 'A',
         controller: function($scope, $timeout) {}
     }
-});
-
+}]);

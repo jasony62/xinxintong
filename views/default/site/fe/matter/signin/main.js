@@ -10,93 +10,13 @@ if (/MicroMessenger/i.test(navigator.userAgent) && window.signPackage && window.
     }, false);
 }
 
-require('!style-loader!css-loader!./directive.css');
+require('./directive.css');
 
 require('../../../../../../asset/js/xxt.ui.image.js');
 require('../../../../../../asset/js/xxt.ui.geo.js');
 
 require('./directive.js');
 
-
-//var LS = (function(fields) {
-//    var _ins;
-//
-//    function extract() {
-//        var ls, search;
-//        ls = location.search;
-//        search = {};
-//        angular.forEach(fields, function(q) {
-//            var match, pattern;
-//            pattern = new RegExp(q + '=([^&]*)');
-//            match = ls.match(pattern);
-//            search[q] = match ? match[1] : '';
-//        });
-//        return search;
-//    };
-//    /*join search*/
-//    function j(method) {
-//        var i = 1,
-//            l = arguments.length,
-//            url = '/rest/site/fe/matter/signin',
-//            _this = this,
-//            search = [];
-//        method && method.length && (url += '/' + method);
-//        for (; i < l; i++) {
-//            search.push(arguments[i] + '=' + _this.p[arguments[i]]);
-//        };
-//        this.p['ignoretime'] === 'Y' && search.push('ignoretime=' + this.p['ignoretime']);
-//        search.length && (url += '?' + search.join('&'));
-//        return url;
-//    };
-//    if (_ins === undefined) {
-//        _ins = {
-//            p: extract(),
-//            j: j
-//        }
-//    };
-//    return _ins;
-//})(['site', 'app', 'rid', 'page', 'ek', 'preview', 'newRecord', 'ignoretime']);
-//var PG = (function() {
-//    return {
-//        exec: function(task) {
-//            var obj, fn, args, valid;
-//            valid = true;
-//            obj = $scope;
-//            args = task.match(/\((.*?)\)/)[1].replace(/'|"/g, "").split(',');
-//            angular.forEach(task.replace(/\(.*?\)/, '').split('.'), function(attr) {
-//                if (fn) obj = fn;
-//                if (!obj[attr]) {
-//                    valid = false;
-//                    return;
-//                }
-//                fn = obj[attr];
-//            });
-//            if (valid) {
-//                fn.apply(obj, args);
-//            }
-//        },
-//        setMember: function(user, member) {
-//            var member2, eles;
-//            if (user && member && member.schema_id && user.members) {
-//                if (member2 = user.members[member.schema_id]) {
-//                    eles = document.querySelectorAll("[ng-model^='data.member']");
-//                    angular.forEach(eles, function(ele) {
-//                        var attr;
-//                        attr = ele.getAttribute('ng-model');
-//                        attr = attr.replace('data.member.', '');
-//                        attr = attr.split('.');
-//                        if (attr.length == 2) {
-//                            !member.extattr && (member.extattr = {});
-//                            member.extattr[attr[1]] = member2.extattr[attr[1]];
-//                        } else {
-//                            member[attr[0]] = member2[attr[0]];
-//                        }
-//                    });
-//                }
-//            }
-//        }
-//    };
-//})();
 var setPage = function($scope, page) {
     if (page.ext_css && page.ext_css.length) {
         angular.forEach(page.ext_css, function(css) {
@@ -224,7 +144,7 @@ ngApp.provider('ls', function() {
         };
     };
 });
-ngApp.service('PG', function(){
+ngApp.service('PG', function() {
     this.exec = function(task) {
         var obj, fn, args, valid;
         valid = true;
@@ -263,7 +183,7 @@ ngApp.service('PG', function(){
         }
     };
 });
-ngApp.config(['$controllerProvider','lsProvider', function($cp, lsProvider) {
+ngApp.config(['$controllerProvider', 'lsProvider', function($cp, lsProvider) {
     ngApp.provider = {
         controller: $cp.register
     };

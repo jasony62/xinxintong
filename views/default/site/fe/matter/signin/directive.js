@@ -233,7 +233,7 @@ ngMod.directive('tmsFilter', function() {
         }
     };
 });
-ngMod.directive('dynamicHtml', function($compile) {
+ngMod.directive('dynamicHtml', ['$compile', function($compile) {
     return {
         restrict: 'EA',
         replace: true,
@@ -246,7 +246,7 @@ ngMod.directive('dynamicHtml', function($compile) {
             });
         }
     };
-});
+}]);
 ngMod.directive('enrollRecords', function() {
     return {
         restrict: 'A',

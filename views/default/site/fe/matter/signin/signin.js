@@ -1,7 +1,7 @@
 'use strict';
 //////加载css
 //////    加载singin.css
-require('!style-loader!css-loader!./signin.css');
+require('./signin.css');
 //////加载依赖
 var ngApp = require('./main.js');
 ngApp.config(['$compileProvider', function($compileProvider) {
@@ -174,7 +174,7 @@ ngApp.factory('Input', ['$http', '$q', '$timeout', 'ls', function($http, $q, $ti
         }
     }
 }]);
-ngApp.directive('tmsImageInput', function($compile, $q) {
+ngApp.directive('tmsImageInput', ['$compile', '$q', function($compile, $q) {
     var modifiedImgFields, openPickFrom, onSubmit;
     modifiedImgFields = [];
     openPickFrom = function(scope) {
@@ -268,15 +268,15 @@ ngApp.directive('tmsImageInput', function($compile, $q) {
             };
         }
     }
-});
-ngApp.directive('tmsFileInput', function($q) {
+}]);
+ngApp.directive('tmsFileInput', ['$q', function($q) {
     var r, onSubmit;
     //require(['resumable'], function(Resumable) {
-        r = new Resumable({
-            target: '/rest/site/fe/matter/signin/record/uploadFile?site=' + LS.p.site + '&aid=' + LS.p.app,
-            testChunks: false,
-            chunkSize: 512 * 1024
-        });
+    r = new Resumable({
+        target: '/rest/site/fe/matter/signin/record/uploadFile?site=' + LS.p.site + '&aid=' + LS.p.app,
+        testChunks: false,
+        chunkSize: 512 * 1024
+    });
     //});
     onSubmit = function($scope) {
         var defer;
@@ -343,13 +343,12 @@ ngApp.directive('tmsFileInput', function($q) {
             };
         }
     }
-});
-
+}]);
 ngApp.controller('ctrlSignin', ['$scope', '$http', 'Input', 'PG', 'ls', function($scope, $http, Input, PG, LS) {
     var facInput, tasksOfOnReady, tasksOfBeforeSubmit;
     tasksOfBeforeSubmit = [];
-    $scope.$watch('app',function(app){
-        if(app ){
+    $scope.$watch('app', function(app) {
+        if (app) {
             $scope.app.subState = 1;
         }
     });
@@ -451,7 +450,7 @@ ngApp.controller('ctrlSignin', ['$scope', '$http', 'Input', 'PG', 'ls', function
     };
     $scope.submit = function(event, nextAction) {
         var checkResult, task, seq;
-        if($scope.app.subState === 1){
+        if ($scope.app.subState === 1) {
             if (true === (checkResult = facInput.check($scope.data, $scope.app, $scope.page))) {
                 tasksOfBeforeSubmit.length ? doTask(0, nextAction) : doSubmit(nextAction);
             } else {

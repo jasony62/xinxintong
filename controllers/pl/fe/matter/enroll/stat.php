@@ -181,10 +181,10 @@ class stat extends \pl\fe\matter\base {
 		$statResult = $this->_getResult($site, $oApp->id, $rid);
 
 		$phpWord = new \PhpOffice\PhpWord\PhpWord();
-        $phpWord->setDefaultFontName('Times New Roman');
-        $section = $phpWord->addSection(array('pageNumberingStart' => 1));
-        $footer  = $section->addFooter();
-        $footer->addPreserveText('Page {PAGE} of {NUMPAGES}.');
+		$phpWord->setDefaultFontName('Times New Roman');
+		$section = $phpWord->addSection(array('pageNumberingStart' => 1));
+		$footer  = $section->addFooter();
+		$footer->addPreserveText('Page {PAGE} of {NUMPAGES}.');
 
 		$mappingOfImages = [];
 		$modelRec = $this->model('matter\enroll\record');
@@ -527,15 +527,14 @@ class stat extends \pl\fe\matter\base {
 		
 		$name=!empty($oApp->title) ? $oApp->title : uniqid();
 		$file = $name . '.docx';
-
-        header("Content-Description: File Transfer");
-        header('Content-Disposition: attachment; filename="' . $file . '"');
-        header('Content-Type: application/vnd.openxmlformats-officedocument.wordprocessingml.document');
-        header('Content-Transfer-Encoding: binary');
-        header('Cache-Control: must-revalidate, post-check=0, pre-check=0');
-        header('Expires: 0');
-        $xmlWriter = \PhpOffice\PhpWord\IOFactory::createWriter($phpWord, 'Word2007');
-        $xmlWriter->save("php://output");
+		header("Content-Description: File Transfer");
+		header('Content-Disposition: attachment; filename="' . $file . '"');
+		header('Content-Type: application/vnd.openxmlformats-officedocument.wordprocessingml.document');
+		header('Content-Transfer-Encoding: binary');
+		header('Cache-Control: must-revalidate, post-check=0, pre-check=0');
+		header('Expires: 0');
+		$xmlWriter = \PhpOffice\PhpWord\IOFactory::createWriter($phpWord, 'Word2007');
+		$xmlWriter->save("php://output");
    
         die();
 	}

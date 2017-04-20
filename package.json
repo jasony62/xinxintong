@@ -13,9 +13,7 @@
         "assets-webpack-plugin": "^3.5.1"
     },
     "scripts": {
-        "test": "echo \"Error: no test specified\" && exit 1",
-        "start": "webpack --config site.webpack.config.js -w",
-        "package": "webpack --config site.webpack.config.js -p"
+        "test": "echo \"Error: no test specified\" && exit 1"
     },
     "repository": {
         "type": "git",

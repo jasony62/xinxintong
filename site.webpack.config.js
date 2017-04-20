@@ -1,6 +1,7 @@
 var path = require("path");
 module.exports = {
     entry: {
+        'home': ['./views/default/home.js'],
         '/fe/matter/article/main': ['./views/default/site/fe/matter/article/main.js'],
         '/fe/matter/enroll/input': ['./views/default/site/fe/matter/enroll/input.js'],
         '/fe/matter/enroll/view': ['./views/default/site/fe/matter/enroll/view.js'],
@@ -14,7 +15,7 @@ module.exports = {
         '/fe/matter/signin/preview': ['./views/default/site/fe/matter/signin/preview.js'],
     },
     output: {
-        path: path.resolve(__dirname, 'bundles/default/site'),
+        path: path.resolve(__dirname, 'bundles/default/'),
         filename: '[name].js'
     },
     module: {

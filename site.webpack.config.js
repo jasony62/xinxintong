@@ -9,9 +9,17 @@ module.exports = {
         '/fe/matter/enroll/repos': ['./views/default/site/fe/matter/enroll/repos.js'],
         '/fe/matter/enroll/preview': ['./views/default/site/fe/matter/enroll/preview.js'],
         '/fe/matter/enroll/template': ['./views/default/site/fe/matter/enroll/template.js'],
+        '/fe/matter/signin/signin': ['./views/default/site/fe/matter/signin/signin.js'],
+        '/fe/matter/signin/view': ['./views/default/site/fe/matter/signin/view.js'],
+        '/fe/matter/signin/preview': ['./views/default/site/fe/matter/signin/preview.js'],
     },
     output: {
         path: path.resolve(__dirname, 'bundles/default/site'),
         filename: '[name].js'
+    },
+    module: {
+        loaders: [
+            {test: /\.css$/,loader: 'style-loader!css-loader'}
+        ]
     }
 }

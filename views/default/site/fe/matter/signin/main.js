@@ -1,3 +1,5 @@
+'use strict';
+require('../../../../../../asset/js/xxt.ui.share.js');
 if (/MicroMessenger/i.test(navigator.userAgent) && window.signPackage && window.wx) {
     window.wx.ready(function() {
         window.wx.showOptionMenu();
@@ -7,85 +9,94 @@ if (/MicroMessenger/i.test(navigator.userAgent) && window.signPackage && window.
         YixinJSBridge.call('showOptionMenu');
     }, false);
 }
-var LS = (function(fields) {
-    var _ins;
 
-    function extract() {
-        var ls, search;
-        ls = location.search;
-        search = {};
-        angular.forEach(fields, function(q) {
-            var match, pattern;
-            pattern = new RegExp(q + '=([^&]*)');
-            match = ls.match(pattern);
-            search[q] = match ? match[1] : '';
-        });
-        return search;
-    };
-    /*join search*/
-    function j(method) {
-        var i = 1,
-            l = arguments.length,
-            url = '/rest/site/fe/matter/signin',
-            _this = this,
-            search = [];
-        method && method.length && (url += '/' + method);
-        for (; i < l; i++) {
-            search.push(arguments[i] + '=' + _this.p[arguments[i]]);
-        };
-        this.p['ignoretime'] === 'Y' && search.push('ignoretime=' + this.p['ignoretime']);
-        search.length && (url += '?' + search.join('&'));
-        return url;
-    };
-    if (_ins === undefined) {
-        _ins = {
-            p: extract(),
-            j: j
-        }
-    };
-    return _ins;
-})(['site', 'app', 'rid', 'page', 'ek', 'preview', 'newRecord', 'ignoretime']);
-var PG = (function() {
-    return {
-        exec: function(task) {
-            var obj, fn, args, valid;
-            valid = true;
-            obj = $scope;
-            args = task.match(/\((.*?)\)/)[1].replace(/'|"/g, "").split(',');
-            angular.forEach(task.replace(/\(.*?\)/, '').split('.'), function(attr) {
-                if (fn) obj = fn;
-                if (!obj[attr]) {
-                    valid = false;
-                    return;
-                }
-                fn = obj[attr];
-            });
-            if (valid) {
-                fn.apply(obj, args);
-            }
-        },
-        setMember: function(user, member) {
-            var member2, eles;
-            if (user && member && member.schema_id && user.members) {
-                if (member2 = user.members[member.schema_id]) {
-                    eles = document.querySelectorAll("[ng-model^='data.member']");
-                    angular.forEach(eles, function(ele) {
-                        var attr;
-                        attr = ele.getAttribute('ng-model');
-                        attr = attr.replace('data.member.', '');
-                        attr = attr.split('.');
-                        if (attr.length == 2) {
-                            !member.extattr && (member.extattr = {});
-                            member.extattr[attr[1]] = member2.extattr[attr[1]];
-                        } else {
-                            member[attr[0]] = member2[attr[0]];
-                        }
-                    });
-                }
-            }
-        }
-    };
-})();
+require('!style-loader!css-loader!./directive.css');
+
+require('../../../../../../asset/js/xxt.ui.image.js');
+require('../../../../../../asset/js/xxt.ui.geo.js');
+
+require('./directive.js');
+
+
+//var LS = (function(fields) {
+//    var _ins;
+//
+//    function extract() {
+//        var ls, search;
+//        ls = location.search;
+//        search = {};
+//        angular.forEach(fields, function(q) {
+//            var match, pattern;
+//            pattern = new RegExp(q + '=([^&]*)');
+//            match = ls.match(pattern);
+//            search[q] = match ? match[1] : '';
+//        });
+//        return search;
+//    };
+//    /*join search*/
+//    function j(method) {
+//        var i = 1,
+//            l = arguments.length,
+//            url = '/rest/site/fe/matter/signin',
+//            _this = this,
+//            search = [];
+//        method && method.length && (url += '/' + method);
+//        for (; i < l; i++) {
+//            search.push(arguments[i] + '=' + _this.p[arguments[i]]);
+//        };
+//        this.p['ignoretime'] === 'Y' && search.push('ignoretime=' + this.p['ignoretime']);
+//        search.length && (url += '?' + search.join('&'));
+//        return url;
+//    };
+//    if (_ins === undefined) {
+//        _ins = {
+//            p: extract(),
+//            j: j
+//        }
+//    };
+//    return _ins;
+//})(['site', 'app', 'rid', 'page', 'ek', 'preview', 'newRecord', 'ignoretime']);
+//var PG = (function() {
+//    return {
+//        exec: function(task) {
+//            var obj, fn, args, valid;
+//            valid = true;
+//            obj = $scope;
+//            args = task.match(/\((.*?)\)/)[1].replace(/'|"/g, "").split(',');
+//            angular.forEach(task.replace(/\(.*?\)/, '').split('.'), function(attr) {
+//                if (fn) obj = fn;
+//                if (!obj[attr]) {
+//                    valid = false;
+//                    return;
+//                }
+//                fn = obj[attr];
+//            });
+//            if (valid) {
+//                fn.apply(obj, args);
+//            }
+//        },
+//        setMember: function(user, member) {
+//            var member2, eles;
+//            if (user && member && member.schema_id && user.members) {
+//                if (member2 = user.members[member.schema_id]) {
+//                    eles = document.querySelectorAll("[ng-model^='data.member']");
+//                    angular.forEach(eles, function(ele) {
+//                        var attr;
+//                        attr = ele.getAttribute('ng-model');
+//                        attr = attr.replace('data.member.', '');
+//                        attr = attr.split('.');
+//                        if (attr.length == 2) {
+//                            !member.extattr && (member.extattr = {});
+//                            member.extattr[attr[1]] = member2.extattr[attr[1]];
+//                        } else {
+//                            member[attr[0]] = member2[attr[0]];
+//                        }
+//                    });
+//                }
+//            }
+//        }
+//    };
+//})();
 var setPage = function($scope, page) {
     if (page.ext_css && page.ext_css.length) {
         angular.forEach(page.ext_css, function(css) {
@@ -177,13 +188,89 @@ var setShareData = function(scope, params, $http) {
         alert(e.message);
     }
 };
-ngApp = angular.module('app', ['ngSanitize']);
-ngApp.config(['$controllerProvider', function($cp) {
+var ngApp = angular.module('app', ['ngSanitize', 'directive.signin', 'snsshare.ui.xxt']);
+ngApp.provider('ls', function() {
+    var _baseUrl = '/rest/site/fe/matter/signin',
+        _params = {};
+
+    this.params = function(params) {
+        var ls;
+        ls = location.search;
+        angular.forEach(params, function(q) {
+            var match, pattern;
+            pattern = new RegExp(q + '=([^&]*)');
+            match = ls.match(pattern);
+            _params[q] = match ? match[1] : '';
+        });
+        return _params;
+    };
+
+    this.$get = function() {
+        return {
+            p: _params,
+            j: function(method) {
+                var i = 1,
+                    l = arguments.length,
+                    url = _baseUrl,
+                    _this = this,
+                    search = [];
+                method && method.length && (url += '/' + method);
+                for (; i < l; i++) {
+                    search.push(arguments[i] + '=' + _params[arguments[i]]);
+                };
+                search.length && (url += '?' + search.join('&'));
+                return url;
+            }
+        };
+    };
+});
+ngApp.service('PG', function(){
+    this.exec = function(task) {
+        var obj, fn, args, valid;
+        valid = true;
+        obj = $scope;
+        args = task.match(/\((.*?)\)/)[1].replace(/'|"/g, "").split(',');
+        angular.forEach(task.replace(/\(.*?\)/, '').split('.'), function(attr) {
+            if (fn) obj = fn;
+            if (!obj[attr]) {
+                valid = false;
+                return;
+            }
+            fn = obj[attr];
+        });
+        if (valid) {
+            fn.apply(obj, args);
+        }
+    };
+    this.setMember = function(user, member) {
+        var member2, eles;
+        if (user && member && member.schema_id && user.members) {
+            if (member2 = user.members[member.schema_id]) {
+                eles = document.querySelectorAll("[ng-model^='data.member']");
+                angular.forEach(eles, function(ele) {
+                    var attr;
+                    attr = ele.getAttribute('ng-model');
+                    attr = attr.replace('data.member.', '');
+                    attr = attr.split('.');
+                    if (attr.length == 2) {
+                        !member.extattr && (member.extattr = {});
+                        member.extattr[attr[1]] = member2.extattr[attr[1]];
+                    } else {
+                        member[attr[0]] = member2[attr[0]];
+                    }
+                });
+            }
+        }
+    };
+});
+ngApp.config(['$controllerProvider','lsProvider', function($cp, lsProvider) {
     ngApp.provider = {
         controller: $cp.register
     };
+    lsProvider.params(['site', 'app', 'rid', 'page', 'ek', 'preview', 'newRecord', 'ignoretime']);
+
 }]);
-ngApp.controller('ctrl', ['$scope', '$http', '$timeout', function($scope, $http, $timeout) {
+ngApp.controller('ctrlMain', ['$scope', '$http', '$timeout', 'ls', function($scope, $http, $timeout, LS) {
     var tasksOfOnReady = [];
     $scope.errmsg = '';
     $scope.closePreviewTip = function() {
@@ -365,7 +452,10 @@ ngApp.controller('ctrl', ['$scope', '$http', '$timeout', function($scope, $http,
             $timeout(function() {
                 $scope.$broadcast('xxt.app.signin.ready', params);
             });
-            window.loading.finish();
+            var eleLoading;
+            if (eleLoading = document.querySelector('.loading')) {
+                eleLoading.parentNode.removeChild(eleLoading);
+            }
         } catch (e) {
             alert(e.message);
         }
@@ -394,3 +484,4 @@ ngApp.controller('ctrl', ['$scope', '$http', '$timeout', function($scope, $http,
         }
     });
 }]);
+module.exports = ngApp;

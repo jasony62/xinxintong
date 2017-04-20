@@ -1,5 +1,5 @@
 'use strict';
-require('!style-loader!css-loader!./home.css');
+require('./home.css');
 require('../../asset/js/xxt.ui.page.js');
 
 var ngApp = angular.module('app', ['ngSanitize', 'ui.bootstrap', 'ui.tms', 'page.ui.xxt']);
@@ -402,4 +402,3 @@ ngApp.controller('ctrlMain', ['$scope', '$timeout', '$q', '$uibModal', 'http2', 
     });
 }]);
 module.exports = ngApp;
-

@@ -78,7 +78,7 @@ th{text-align:center;}
 							<button class='btn btn-xs btn-default pull-right' ng-if="m.approved==='Y'" ng-click="pullHome(m)">撤销</button>
 						</td>
 						<td>
-							<span ng-if="m.dd==='Y'">{{m.dd}}</span>
+							<span ng-if="m.weight!=='0'">Y</span>
 							<button class='btn btn-xs btn-default pull-right' ng-if="m.weight!=='0'" ng-click="cancleHome(m)">取消</button>
 						</td>
 						<td>
@@ -152,7 +152,7 @@ th{text-align:center;}
 							<button class='btn btn-xs btn-default pull-right' ng-if="m.approved==='Y'" ng-click="pullHome(m)">撤销</button>
 						</td>
 						<td>
-							<span ng-if="m.dd==='Y'">{{m.dd}}</span>
+							<span ng-if="m.weight!=='0'">Y</span>
 							<button class='btn btn-xs btn-default pull-right' ng-if="m.weight!=='0'" ng-click="cancleHome(m)">取消</button>
 						</td>
 						<td>

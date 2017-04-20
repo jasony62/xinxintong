@@ -535,7 +535,7 @@ class stat extends \pl\fe\matter\base {
 		header('Expires: 0');
 		$xmlWriter = \PhpOffice\PhpWord\IOFactory::createWriter($phpWord, 'Word2007');
 		$xmlWriter->save("php://output");
-   
-        die();
+
+		die();
 	}
 }

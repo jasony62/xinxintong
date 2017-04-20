@@ -10,7 +10,8 @@ __util.makeDialog = function(id, html) {
     $('body').append($dlg);
     return $dlg.contents();
 };
-ngApp.directive('tmsDate', ['$compile', function($compile) {
+var ngMod = angular.module('directive.signin', []);
+ngMod.directive('tmsDate', ['$compile', function($compile) {
     return {
         restrict: 'A',
         scope: {
@@ -80,7 +81,7 @@ ngApp.directive('tmsDate', ['$compile', function($compile) {
         }
     }
 }]);
-ngApp.directive('tmsCheckboxGroup', function() {
+ngMod.directive('tmsCheckboxGroup', function() {
     return {
         restrict: 'A',
         link: function(scope, elem, attrs) {
@@ -122,7 +123,7 @@ ngApp.directive('tmsCheckboxGroup', function() {
         }
     };
 });
-ngApp.directive('runningButton', function() {
+ngMod.directive('runningButton', function() {
     return {
         restrict: 'EA',
         template: "<button ng-class=\"isRunning?'btn-default':'btn-primary'\" ng-disabled='isRunning' ng-transclude></button>",
@@ -133,7 +134,7 @@ ngApp.directive('runningButton', function() {
         transclude: true
     };
 });
-ngApp.directive('flexImg', function() {
+ngMod.directive('flexImg', function() {
     return {
         restrict: 'A',
         replace: true,
@@ -166,7 +167,7 @@ ngApp.directive('flexImg', function() {
         }
     }
 });
-ngApp.directive('tmsFilter', function() {
+ngMod.directive('tmsFilter', function() {
     return {
         restrict: 'A',
         link: function(scope, ele, attrs) {
@@ -232,7 +233,7 @@ ngApp.directive('tmsFilter', function() {
         }
     };
 });
-ngApp.directive('dynamicHtml', function($compile) {
+ngMod.directive('dynamicHtml', function($compile) {
     return {
         restrict: 'EA',
         replace: true,
@@ -246,7 +247,7 @@ ngApp.directive('dynamicHtml', function($compile) {
         }
     };
 });
-ngApp.directive('enrollRecords', function() {
+ngMod.directive('enrollRecords', function() {
     return {
         restrict: 'A',
         replace: 'false',

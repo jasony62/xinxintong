@@ -63,7 +63,7 @@
 /******/ 	__webpack_require__.p = "";
 /******/
 /******/ 	// Load entry module and return exports
-/******/ 	return __webpack_require__(__webpack_require__.s = 57);
+/******/ 	return __webpack_require__(__webpack_require__.s = 65);
 /******/ })
 /************************************************************************/
 /******/ ([
@@ -2701,13 +2701,469 @@ module.exports = g;
 
 
 /***/ }),
-/* 9 */
+/* 9 */,
+/* 10 */,
+/* 11 */,
+/* 12 */,
+/* 13 */,
+/* 14 */,
+/* 15 */,
+/* 16 */,
+/* 17 */,
+/* 18 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
 
-var ngMod = angular.module('page.ui.xxt', []);
-ngMod.directive('dynamicHtml', ['$compile', function($compile) {
+window.xxt === undefined && (window.xxt = {});
+window.xxt.geo = {
+    options: {},
+    getAddress: function($http, deferred, siteId) {
+        var promise;
+        promise = deferred.promise;
+        if (window.wx) {
+            window.wx.getLocation({
+                success: function(res) {
+                    var url = '/rest/site/fe/matter/enroll/locationGet';
+                    url += '?site=' + siteId;
+                    url += '&lat=' + res.latitude;
+                    url += '&lng=' + res.longitude;
+                    $http.get(url).success(function(rsp) {
+                        if (rsp.err_code === 0) {
+                            deferred.resolve({
+                                errmsg: 'ok',
+                                lat: res.latitude,
+                                lng: res.longitude,
+                                address: rsp.data.address
+                            });
+                        } else {
+                            deferred.resolve({
+                                errmsg: rsp.err_msg
+                            });
+                        }
+                    });
+                }
+            });
+        } else {
+            try {
+                var nav = window.navigator;
+                if (nav !== null) {
+                    var geoloc = nav.geolocation;
+                    if (geoloc !== null) {
+                        geoloc.getCurrentPosition(function(position) {
+                            var url = '/rest/site/fe/matter/enroll/locationGet';
+                            url += '?site=' + siteId;
+                            url += '&lat=' + position.coords.latitude;
+                            url += '&lng=' + position.coords.longitude;
+                            $http.get(url).success(function(rsp) {
+                                if (rsp.err_code === 0) {
+                                    deferred.resolve({
+                                        errmsg: 'ok',
+                                        lat: position.coords.latitude,
+                                        lng: position.coords.longitude,
+                                        address: rsp.data.address
+                                    });
+                                } else {
+                                    deferred.resolve({
+                                        errmsg: rsp.err_msg
+                                    });
+                                }
+                            });
+                        }, function() {
+                            deferred.resolve({
+                                errmsg: '获取地理位置失败'
+                            })
+                        });
+                    } else {
+                        deferred.resolve({
+                            errmsg: "无法获取地理位置"
+                        });
+                    }
+                } else {
+                    deferred.resolve({
+                        errmsg: "无法获取地理位置"
+                    });
+                }
+            } catch (e) {
+                alert('exception:' + e.message);
+            }
+        }
+        return promise;
+    },
+};
+
+
+/***/ }),
+/* 19 */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+
+window.xxt === undefined && (window.xxt = {});
+window.xxt.image = {
+    options: {},
+    choose: function(deferred, from) {
+        var promise, imgs = [];
+        promise = deferred.promise;
+        if (window.wx !== undefined) {
+            window.wx.chooseImage({
+                success: function(res) {
+                    var i, img;
+                    for (i in res.localIds) {
+                        img = {
+                            imgSrc: res.localIds[i]
+                        };
+                        imgs.push(img);
+                    }
+                    deferred.resolve(imgs);
+                }
+            });
+        } else if (window.YixinJSBridge) {
+            window.YixinJSBridge.invoke(
+                'pickImage', {
+                    type: from,
+                    quality: 100
+                },
+                function(result) {
+                    var img;
+                    if (result.data && result.data.length) {
+                        img = {
+                            imgSrc: 'data:' + result.mime + ';base64,' + result.data
+                        };
+                        imgs.push(img);
+                    }
+                    deferred.resolve(imgs);
+                });
+        } else {
+            var ele = document.createElement('input');
+            ele.setAttribute('type', 'file');
+            ele.addEventListener('change', function(evt) {
+                var i, cnt, f, type;
+                cnt = evt.target.files.length;
+                for (i = 0; i < cnt; i++) {
+                    f = evt.target.files[i];
+                    type = {
+                        ".jp": "image/jpeg",
+                        ".pn": "image/png",
+                        ".gi": "image/gif"
+                    }[f.name.match(/\.(\w){2}/g)[0] || ".jp"];
+                    f.type2 = f.type || type;
+                    var reader = new FileReader();
+                    reader.onload = (function(theFile) {
+                        return function(e) {
+                            var img = {};
+                            img.imgSrc = e.target.result.replace(/^.+(,)/, "data:" + theFile.type2 + ";base64,");
+                            imgs.push(img);
+                            deferred.resolve(imgs);
+                        };
+                    })(f);
+                    reader.readAsDataURL(f);
+                }
+            }, false);
+            ele.click();
+        }
+        return promise;
+    },
+    wxUpload: function(deferred, img) {
+        var promise;
+        promise = deferred.promise;
+        if (0 === img.imgSrc.indexOf('weixin://') || 0 === img.imgSrc.indexOf('wxLocalResource://')) {
+            window.wx.uploadImage({
+                localId: img.imgSrc,
+                isShowProgressTips: 1,
+                success: function(res) {
+                    img.serverId = res.serverId;
+                    deferred.resolve(img);
+                }
+            });
+        } else {
+            deferred.resolve(img);
+        }
+        return promise;
+    }
+};
+
+
+/***/ }),
+/* 20 */
+/***/ (function(module, exports, __webpack_require__) {
+
+exports = module.exports = __webpack_require__(0)(undefined);
+// imports
+
+
+// module
+exports.push([module.i, "/*dialog*/\r\n.dialog.mask{position:fixed;background:rgba(0,0,0,0.3);top:0;left:0;bottom:0;right:0;overflow:auto;z-index:998}\r\n.dialog.dlg{position:absolute;background:#fff;left:0;right:0;bottom:0;margin:15px}\r\n.dialog .dlg-header{padding:15px 15px 0 15px}\r\n.dialog .dlg-body{padding:15px 15px 0 15px}\r\n.dialog .dlg-footer{text-align:right;padding:15px}\r\n.dialog .dlg-footer button{border-radius:0}\r\n\r\n/*filter*/\r\ndiv[wrap=filter] .detail{background:#ccc}\r\ndiv[wrap=filter] .detail .options .label{display:inline-block;margin:.5em;padding-top:.3em;font-size:100%}\r\ndiv[wrap=filter] .detail .actions .btn{border-radius:0}", ""]);
+
+// exports
+
+
+/***/ }),
+/* 21 */
+/***/ (function(module, exports, __webpack_require__) {
+
+// style-loader: Adds some css to the DOM by adding a <style> tag
+
+// load the styles
+var content = __webpack_require__(20);
+if(typeof content === 'string') content = [[module.i, content, '']];
+// add the styles to the DOM
+var update = __webpack_require__(1)(content, {});
+if(content.locals) module.exports = content.locals;
+// Hot Module Replacement
+if(false) {
+	// When the styles change, update the <style> tags
+	if(!content.locals) {
+		module.hot.accept("!!../../../../../../node_modules/css-loader/index.js!./directive.css", function() {
+			var newContent = require("!!../../../../../../node_modules/css-loader/index.js!./directive.css");
+			if(typeof newContent === 'string') newContent = [[module.id, newContent, '']];
+			update(newContent);
+		});
+	}
+	// When the module is disposed, remove the <style> tags
+	module.hot.dispose(function() { update(); });
+}
+
+/***/ }),
+/* 22 */
+/***/ (function(module, exports) {
+
+var __util = {};
+__util.makeDialog = function(id, html) {
+    var dlg, $dlg;
+    dlg = "<div class='dialog mask'><div class='dialog dlg'>";
+    html.header && html.header.length && (dlg += "<div class='dlg-header'>" + html.header + "</div>");
+    dlg += "<div class='dlg-body'>" + html.body + "</div>";
+    html.footer && html.fotter.length && (dlg += "<div class='dlg-footer'>" + html.footer + "</div>");
+    dlg += "</div></div>";
+    $dlg = $(dlg).attr('id', id);
+    $('body').append($dlg);
+    return $dlg.contents();
+};
+var ngMod = angular.module('directive.signin', []);
+ngMod.directive('tmsDate', ['$compile', function($compile) {
+    return {
+        restrict: 'A',
+        scope: {
+            value: '=tmsDateValue'
+        },
+        controller: function($scope) {
+            $scope.close = function() {
+                $scope.opened = false;
+                $('#' + $scope.dialogID).remove();
+            };
+            $scope.ok = function() {
+                var dtObject;
+                dtObject = new Date();
+                dtObject.setTime(0);
+                dtObject.setFullYear($scope.data.year);
+                dtObject.setMonth($scope.data.month - 1);
+                dtObject.setDate($scope.data.date);
+                dtObject.setHours($scope.data.hour);
+                dtObject.setMinutes($scope.data.minute);
+                $scope.value = dtObject.getTime();
+                $scope.close();
+            };
+        },
+        link: function(scope, elem, attrs) {
+            var fnOpenPicker, dtObject, dtMinute, htmlBody;
+            scope.value === undefined && (scope.value = new Date().getTime());
+            dtObject = new Date();
+            dtObject.setTime(scope.value);
+            scope.options = {
+                years: [2014, 2015, 2016, 2017],
+                months: [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12],
+                dates: [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25, 26, 27, 28, 29, 30, 31],
+                hours: [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23],
+                minutes: [0, 5, 10, 15, 20, 25, 30, 35, 40, 45, 50, 55],
+            };
+            dtMinute = Math.round(dtObject.getMinutes() / 5) * 5;
+            scope.data = {
+                year: dtObject.getFullYear(),
+                month: dtObject.getMonth() + 1,
+                date: dtObject.getDate(),
+                hour: dtObject.getHours(),
+                minute: dtMinute
+            };
+            scope.options.minutes.indexOf(dtMinute) === -1 && scope.options.minutes.push(dtMinute);
+            htmlBody = '<div class="form-group"><select class="form-control" ng-model="data.year" ng-options="y for y in options.years"></select></div>';
+            htmlBody += '<div class="form-group"><select class="form-control" ng-model="data.month" ng-options="m for m in options.months"></select></div>';
+            htmlBody += '<div class="form-group"><select class="form-control" ng-model="data.date" ng-options="d for d in options.dates"></select></div>';
+            htmlBody += '<div class="form-group"><select class="form-control" ng-model="data.hour" ng-options="h for h in options.hours"></select></div>';
+            htmlBody += '<div class="form-group"><select class="form-control" ng-model="data.minute" ng-options="mi for mi in options.minutes"></select></div>';
+            fnOpenPicker = function(event) {
+                event.preventDefault();
+                event.stopPropagation();
+                if (scope.opened) return;
+                var html, id;
+                id = '_dlg-' + (new Date()).getTime();
+                html = {
+                    header: '',
+                    body: htmlBody,
+                    footer: '<button class="btn btn-default" ng-click="close()">关闭</button><button class="btn btn-success" ng-click="ok()">确定</button>'
+                };
+                html = __util.makeDialog(id, html);
+                scope.opened = true;
+                scope.dialogID = id;
+                $compile(html)(scope);
+            };
+            $(elem).find('[ng-bind]').click(fnOpenPicker);
+        }
+    }
+}]);
+ngMod.directive('tmsCheckboxGroup', function() {
+    return {
+        restrict: 'A',
+        link: function(scope, elem, attrs) {
+            var groupName, model, options, upper;
+            if (attrs.tmsCheckboxGroup && attrs.tmsCheckboxGroup.length) {
+                groupName = attrs.tmsCheckboxGroup;
+                if (attrs.tmsCheckboxGroupModel && attrs.tmsCheckboxGroupModel.length) {
+                    model = attrs.tmsCheckboxGroupModel;
+                    if (attrs.tmsCheckboxGroupUpper && attrs.tmsCheckboxGroupUpper.length) {
+                        upper = attrs.tmsCheckboxGroupUpper;
+                        options = document.querySelectorAll('[name=' + groupName + ']');
+                        scope.$watch(model + '.' + groupName, function(data) {
+                            var cnt;
+                            cnt = 0;
+                            angular.forEach(data, function(v, p) {
+                                v && cnt++;
+                            });
+                            if (cnt >= upper) {
+                                [].forEach.call(options, function(el) {
+                                    if (el.checked === undefined) {
+                                        !el.classList.contains('checked') && el.setAttribute('disabled', true);
+                                    } else {
+                                        !el.checked && (el.disabled = true);
+                                    }
+                                });
+                            } else {
+                                [].forEach.call(options, function(el) {
+                                    if (el.checked === undefined) {
+                                        el.removeAttribute('disabled');
+                                    } else {
+                                        el.disabled = false;
+                                    }
+                                });
+                            }
+                        }, true);
+                    }
+                }
+            }
+        }
+    };
+});
+ngMod.directive('runningButton', function() {
+    return {
+        restrict: 'EA',
+        template: "<button ng-class=\"isRunning?'btn-default':'btn-primary'\" ng-disabled='isRunning' ng-transclude></button>",
+        scope: {
+            isRunning: '='
+        },
+        replace: true,
+        transclude: true
+    };
+});
+ngMod.directive('flexImg', function() {
+    return {
+        restrict: 'A',
+        replace: true,
+        template: "<img ng-src='{{img.imgSrc}}'>",
+        link: function(scope, elem, attrs) {
+            angular.element(elem).on('load', function() {
+                var w = this.clientWidth,
+                    h = this.clientHeight,
+                    sw, sh;
+                if (w > h) {
+                    sw = w / h * 80;
+                    angular.element(this).css({
+                        'height': '100%',
+                        'width': sw + 'px',
+                        'top': '0',
+                        'left': '50%',
+                        'margin-left': (-1 * sw / 2) + 'px'
+                    });
+                } else {
+                    sh = h / w * 80;
+                    angular.element(this).css({
+                        'width': '100%',
+                        'height': sh + 'px',
+                        'left': '0',
+                        'top': '50%',
+                        'margin-top': (-1 * sh / 2) + 'px'
+                    });
+                }
+            })
+        }
+    }
+});
+ngMod.directive('tmsFilter', function() {
+    return {
+        restrict: 'A',
+        link: function(scope, ele, attrs) {
+            var $switch, $ok, $cancel, fnSelectItem, fnDefaultItem;
+            fnDefaultItem = function() {
+                var defaultItem, path, i;
+                path = attrs.tmsFilterDefault;
+                path = path.split('.');
+                i = 0;
+                defaultItem = scope;
+                while (i < path.length) {
+                    defaultItem = defaultItem[path[i]];
+                    i++;
+                }
+                defaultItem && (defaultItem = scope.match(defaultItem));
+                return defaultItem;
+            };
+            fnSelectItem = function(item) {
+                if (!item) return;
+                var selected;
+                item._selected = !item._selected;
+                selected = scope.tmsFilter.selected;
+                if (item._selected) {
+                    if (attrs.tmsFilterMultiple && attrs.tmsFilterMultiple === 'N') {
+                        selected.length === 1 && (selected[0]._selected = false);
+                        selected[0] = item;
+                    } else {
+                        selected.push(item);
+                    }
+                } else {
+                    selected.splice(selected.indexOf(item), 1);
+                }
+            };
+            scope.tmsFilter === undefined && (scope.tmsFilter = {});
+            scope.tmsFilter.opened = false;
+            scope.tmsFilter.selected = [];
+            if (attrs.tmsFilterDefault && attrs.tmsFilterDefault.length && scope.match) {
+                if (scope.onDataReady) {
+                    scope.onDataReady(function(rounds) {
+                        fnSelectItem(fnDefaultItem());
+                    });
+                } else {
+                    fnSelectItem(fnDefaultItem());
+                }
+            }
+            scope.click = fnSelectItem;
+            $switch = $(ele).find('[tms-filter-switch]').click(function() {
+                scope.$apply(function() {
+                    scope.tmsFilter.opened = !scope.tmsFilter.opened;
+                });
+            });
+            $ok = $(ele).find('[tms-filter-ok]').click(function() {
+                scope.$apply(function() {
+                    scope.tmsFilter.opened = false;
+                    scope.$emit(attrs.tmsFilterEvent, scope.tmsFilter.selected);
+                });
+            });
+            $cancel = $(ele).find('[tms-filter-cancel]').click(function() {
+                scope.$apply(function() {
+                    scope.tmsFilter.opened = false;
+                });
+            });
+        }
+    };
+});
+ngMod.directive('dynamicHtml', function($compile) {
     return {
         restrict: 'EA',
         replace: true,
@@ -2720,625 +3176,515 @@ ngMod.directive('dynamicHtml', ['$compile', function($compile) {
             });
         }
     };
-}]);
-ngMod.service('tmsDynaPage', ['$q', function($q) {
-    this.loadCss = function(css) {
-        var style, head;
-        style = document.createElement('style');
-        style.innerHTML = css;
-        head = document.querySelector('head');
-        head.appendChild(style);
+});
+ngMod.directive('enrollRecords', function() {
+    return {
+        restrict: 'A',
+        replace: 'false',
+        link: function(scope, ele, attrs) {
+            if (attrs.enrollRecordsOwner && attrs.enrollRecordsOwner.length) {
+                scope.options.owner = attrs.enrollRecordsOwner;
+            }
+        }
+    }
+});
+
+/***/ }),
+/* 23 */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+
+__webpack_require__(8);
+if (/MicroMessenger/i.test(navigator.userAgent) && window.signPackage && window.wx) {
+    window.wx.ready(function() {
+        window.wx.showOptionMenu();
+    });
+} else if (/YiXin/i.test(navigator.userAgent)) {
+    document.addEventListener('YixinJSBridgeReady', function() {
+        YixinJSBridge.call('showOptionMenu');
+    }, false);
+}
+
+__webpack_require__(21);
+
+__webpack_require__(19);
+__webpack_require__(18);
+
+__webpack_require__(22);
+
+
+//var LS = (function(fields) {
+//    var _ins;
+//
+//    function extract() {
+//        var ls, search;
+//        ls = location.search;
+//        search = {};
+//        angular.forEach(fields, function(q) {
+//            var match, pattern;
+//            pattern = new RegExp(q + '=([^&]*)');
+//            match = ls.match(pattern);
+//            search[q] = match ? match[1] : '';
+//        });
+//        return search;
+//    };
+//    /*join search*/
+//    function j(method) {
+//        var i = 1,
+//            l = arguments.length,
+//            url = '/rest/site/fe/matter/signin',
+//            _this = this,
+//            search = [];
+//        method && method.length && (url += '/' + method);
+//        for (; i < l; i++) {
+//            search.push(arguments[i] + '=' + _this.p[arguments[i]]);
+//        };
+//        this.p['ignoretime'] === 'Y' && search.push('ignoretime=' + this.p['ignoretime']);
+//        search.length && (url += '?' + search.join('&'));
+//        return url;
+//    };
+//    if (_ins === undefined) {
+//        _ins = {
+//            p: extract(),
+//            j: j
+//        }
+//    };
+//    return _ins;
+//})(['site', 'app', 'rid', 'page', 'ek', 'preview', 'newRecord', 'ignoretime']);
+//var PG = (function() {
+//    return {
+//        exec: function(task) {
+//            var obj, fn, args, valid;
+//            valid = true;
+//            obj = $scope;
+//            args = task.match(/\((.*?)\)/)[1].replace(/'|"/g, "").split(',');
+//            angular.forEach(task.replace(/\(.*?\)/, '').split('.'), function(attr) {
+//                if (fn) obj = fn;
+//                if (!obj[attr]) {
+//                    valid = false;
+//                    return;
+//                }
+//                fn = obj[attr];
+//            });
+//            if (valid) {
+//                fn.apply(obj, args);
+//            }
+//        },
+//        setMember: function(user, member) {
+//            var member2, eles;
+//            if (user && member && member.schema_id && user.members) {
+//                if (member2 = user.members[member.schema_id]) {
+//                    eles = document.querySelectorAll("[ng-model^='data.member']");
+//                    angular.forEach(eles, function(ele) {
+//                        var attr;
+//                        attr = ele.getAttribute('ng-model');
+//                        attr = attr.replace('data.member.', '');
+//                        attr = attr.split('.');
+//                        if (attr.length == 2) {
+//                            !member.extattr && (member.extattr = {});
+//                            member.extattr[attr[1]] = member2.extattr[attr[1]];
+//                        } else {
+//                            member[attr[0]] = member2[attr[0]];
+//                        }
+//                    });
+//                }
+//            }
+//        }
+//    };
+//})();
+var setPage = function($scope, page) {
+    if (page.ext_css && page.ext_css.length) {
+        angular.forEach(page.ext_css, function(css) {
+            var link, head;
+            link = document.createElement('link');
+            link.href = css.url;
+            link.rel = 'stylesheet';
+            head = document.querySelector('head');
+            head.appendChild(link);
+        });
+    }
+    if (page.ext_js && page.ext_js.length) {
+        var i, l, loadJs;
+        i = 0;
+        l = page.ext_js.length;
+        loadJs = function() {
+            var js;
+            js = page.ext_js[i];
+            $.getScript(js.url, function() {
+                i++;
+                if (i === l) {
+                    if (page.js && page.js.length) {
+                        $scope.$apply(
+                            function dynamicjs() {
+                                eval(page.js);
+                                $scope.page = page;
+                            }
+                        );
+                    }
+                } else {
+                    loadJs();
+                }
+            });
+        };
+        loadJs();
+    } else if (page.js && page.js.length) {
+        (function dynamicjs() {
+            eval(page.js);
+            $scope.page = page;
+        })();
+    } else {
+        $scope.page = page;
+    }
+};
+var setShareData = function(scope, params, $http) {
+    if (!window.xxt || !window.xxt.share) {
+        return false;
+    }
+    try {
+        var sharelink, summary;
+        sharelink = 'http://' + location.host + LS.j('', 'site', 'app');
+        if (params.page.share_page && params.page.share_page === 'Y') {
+            sharelink += '&page=' + params.page.name;
+            sharelink += '&ek=' + params.enrollKey;
+        }
+        //window.shareid = params.user.vid + (new Date()).getTime();
+        //sharelink += "&shareby=" + window.shareid;
+        summary = params.app.summary;
+        if (params.page.share_summary && params.page.share_summary.length && params.record)
+            summary = params.record.data[params.page.share_summary];
+        scope.shareData = {
+            title: params.app.title,
+            link: sharelink,
+            desc: summary,
+            pic: params.app.pic
+        };
+        window.xxt.share.set(params.app.title, sharelink, summary, params.app.pic);
+        window.shareCounter = 0;
+        window.xxt.share.options.logger = function(shareto) {
+            /*var app, url;
+            app = scope.App;
+            url = "/rest/mi/matter/logShare";
+            url += "?shareid=" + window.shareid;
+            url += "&mpid=" + LS.p.mpid;
+            url += "&id=" + app.id;
+            url += "&type=enroll";
+            url += "&title=" + app.title;
+            url += "&shareby=" + scope.params.shareby;
+            url += "&shareto=" + shareto;
+            $http.get(url);
+            window.shareCounter++;*/
+            /* 是否需要自动登记 */
+            /*if (app.can_autoenroll === 'Y' && scope.Page.autoenroll_onshare === 'Y') {
+                $http.get(LS.j('emptyGet', 'mpid', 'aid') + '&once=Y');
+            }
+            window.onshare && window.onshare(window.shareCounter);*/
+        };
+    } catch (e) {
+        alert(e.message);
+    }
+};
+var ngApp = angular.module('app', ['ngSanitize', 'directive.signin', 'snsshare.ui.xxt']);
+ngApp.provider('ls', function() {
+    var _baseUrl = '/rest/site/fe/matter/signin',
+        _params = {};
+
+    this.params = function(params) {
+        var ls;
+        ls = location.search;
+        angular.forEach(params, function(q) {
+            var match, pattern;
+            pattern = new RegExp(q + '=([^&]*)');
+            match = ls.match(pattern);
+            _params[q] = match ? match[1] : '';
+        });
+        return _params;
     };
-    this.loadExtCss = function(url) {
+
+    this.$get = function() {
+        return {
+            p: _params,
+            j: function(method) {
+                var i = 1,
+                    l = arguments.length,
+                    url = _baseUrl,
+                    _this = this,
+                    search = [];
+                method && method.length && (url += '/' + method);
+                for (; i < l; i++) {
+                    search.push(arguments[i] + '=' + _params[arguments[i]]);
+                };
+                search.length && (url += '?' + search.join('&'));
+                return url;
+            }
+        };
+    };
+});
+ngApp.service('PG', function(){
+    this.exec = function(task) {
+        var obj, fn, args, valid;
+        valid = true;
+        obj = $scope;
+        args = task.match(/\((.*?)\)/)[1].replace(/'|"/g, "").split(',');
+        angular.forEach(task.replace(/\(.*?\)/, '').split('.'), function(attr) {
+            if (fn) obj = fn;
+            if (!obj[attr]) {
+                valid = false;
+                return;
+            }
+            fn = obj[attr];
+        });
+        if (valid) {
+            fn.apply(obj, args);
+        }
+    };
+    this.setMember = function(user, member) {
+        var member2, eles;
+        if (user && member && member.schema_id && user.members) {
+            if (member2 = user.members[member.schema_id]) {
+                eles = document.querySelectorAll("[ng-model^='data.member']");
+                angular.forEach(eles, function(ele) {
+                    var attr;
+                    attr = ele.getAttribute('ng-model');
+                    attr = attr.replace('data.member.', '');
+                    attr = attr.split('.');
+                    if (attr.length == 2) {
+                        !member.extattr && (member.extattr = {});
+                        member.extattr[attr[1]] = member2.extattr[attr[1]];
+                    } else {
+                        member[attr[0]] = member2[attr[0]];
+                    }
+                });
+            }
+        }
+    };
+});
+ngApp.config(['$controllerProvider','lsProvider', function($cp, lsProvider) {
+    ngApp.provider = {
+        controller: $cp.register
+    };
+    lsProvider.params(['site', 'app', 'rid', 'page', 'ek', 'preview', 'newRecord', 'ignoretime']);
+
+}]);
+ngApp.controller('ctrlMain', ['$scope', '$http', '$timeout', 'ls', function($scope, $http, $timeout, LS) {
+    var tasksOfOnReady = [];
+    $scope.errmsg = '';
+    $scope.closePreviewTip = function() {
+        $scope.preview = 'N';
+    };
+    var openAskFollow = function() {
+        $http.get('/rest/site/fe/matter/signin/askFollow?site=' + LS.p.site).error(function(content) {
+            var body, el;;
+            body = document.body;
+            el = document.createElement('iframe');
+            el.setAttribute('id', 'frmPopup');
+            el.height = body.clientHeight;
+            body.scrollTop = 0;
+            body.appendChild(el);
+            window.closeAskFollow = function() {
+                el.style.display = 'none';
+            };
+            el.setAttribute('src', '/rest/site/fe/matter/signin/askFollow?site=' + LS.p.site);
+            el.style.display = 'block';
+        });
+    };
+    var loadCss = function(css) {
         var link, head;
         link = document.createElement('link');
-        link.href = url;
+        link.href = css.url;
         link.rel = 'stylesheet';
         head = document.querySelector('head');
         head.appendChild(link);
     };
-    this.loadJs = function(ngApp, js) {
-        (function(ngApp) {
-            eval(js);
-        })(ngApp);
+    var loadDynaCss = function(css) {
+        var style, head;
+        style = document.createElement('style');
+        style.rel = 'stylesheet';
+        style.innerHTML = css;
+        head = document.querySelector('head');
+        head.appendChild(style);
     };
-    this.loadScript = function(urls) {
-        var index, fnLoad, deferred = $q.defer();
-        fnLoad = function() {
-            var script;
-            script = document.createElement('script');
-            script.src = urls[index];
-            script.onload = function() {
-                index++;
-                if (index < urls.length) {
-                    fnLoad();
-                } else {
-                    deferred.resolve();
-                }
-            };
-            document.body.appendChild(script);
-        };
-        if (urls) {
-            angular.isString(urls) && (urls = [urls]);
-            if (urls.length) {
-                index = 0;
-                fnLoad();
-            }
+    $scope.closeWindow = function() {
+        if (/MicroMessenger/i.test(navigator.userAgent)) {
+            window.wx.closeWindow();
+        } else if (/YiXin/i.test(navigator.userAgent)) {
+            window.YixinJSBridge.call('closeWebView');
         }
-
-        return deferred.promise;
     };
-    this.loadExtJs = function(ngApp, code) {
-        var _self = this,
-            deferred = $q.defer(),
-            jslength = code.ext_js.length,
-            loadScript2;
-        loadScript2 = function(js) {
-            var script;
-            script = document.createElement('script');
-            script.src = js.url;
-            script.onload = function() {
-                jslength--;
-                if (jslength === 0) {
-                    if (code.js && code.js.length) {
-                        _self.loadJs(ngApp, code.js);
-                    }
-                    deferred.resolve();
-                }
-            };
-            document.body.appendChild(script);
-        };
-        if (code.ext_js && code.ext_js.length) {
-            code.ext_js.forEach(loadScript2);
-        }
-        return deferred.promise;
+    $scope.addRecord = function(event, page) {
+        page ? $scope.gotoPage(event, page, null, null, false, 'Y') : alert('没有指定登记编辑页');
     };
-    this.loadCode = function(ngApp, code) {
-        var _self = this,
-            deferred = $q.defer();
-        if (code.ext_css && code.ext_css.length) {
-            code.ext_css.forEach(function(css) {
-                _self.loadExtCss(css.url);
-            });
+    $scope.gotoPage = function(event, page, ek, rid, fansOnly, newRecord) {
+        event.preventDefault();
+        event.stopPropagation();
+        if (fansOnly && !$scope.User.fan) {
+            openAskFollow();
+            return;
         }
-        if (code.css && code.css.length) {
-            this.loadCss(code.css);
+        var url = LS.j('', 'site', 'app');
+        if (ek !== undefined && ek !== null && ek.length) {
+            url += '&ek=' + ek;
         }
-        if (code.ext_js && code.ext_js.length) {
-            _self.loadExtJs(ngApp, code).then(function() {
-                deferred.resolve();
-            });
+        rid !== undefined && rid !== null && rid.length && (url += '&rid=' + rid);
+        page !== undefined && page !== null && page.length && (url += '&page=' + page);
+        newRecord !== undefined && newRecord === 'Y' && (url += '&newRecord=Y');
+        location.replace(url);
+    };
+    $scope.openMatter = function(id, type, replace, newWindow) {
+        var url = '/rest/site/fe/matter?site=' + LS.p.site + '&id=' + id + '&type=' + type;
+        if (replace) {
+            location.replace(url);
         } else {
-            if (code.js && code.js.length) {
-                _self.loadJs(ngApp, code.js);
-            }
-            deferred.resolve();
-        }
-        return deferred.promise;
-    };
-    this.openPlugin = function(content) {
-        var frag, wrap, frm, deferred = $q.defer();
-        frag = document.createDocumentFragment();
-        wrap = document.createElement('div');
-        wrap.setAttribute('id', 'frmPlugin');
-        frm = document.createElement('iframe');
-        wrap.appendChild(frm);
-        wrap.onclick = function() {
-            wrap.parentNode.removeChild(wrap);
-        };
-        frag.appendChild(wrap);
-        document.body.appendChild(frag);
-        if (content.indexOf('http') === 0) {
-            window.onClosePlugin = function() {
-                wrap.parentNode.removeChild(wrap);
-                deferred.resolve();
-            };
-            frm.setAttribute('src', content);
-        } else {
-            if (frm.contentDocument && frm.contentDocument.body) {
-                frm.contentDocument.body.innerHTML = content;
-            }
-        }
-        return deferred.promise;
-    };
-    this.cookieLogin = function(siteId) {
-        var ck, cn, cs, ce, login;
-        ck = document.cookie;
-        cn = '_site_' + siteId + '_fe_login';
-        if (ck.length > 0) {
-            cs = ck.indexOf(cn + "=");
-            if (cs !== -1) {
-                cs = cs + cn.length + 1;
-                ce = ck.indexOf(";", cs);
-                if (ce === -1) ce = ck.length;
-                login = ck.substring(cs, ce);
-                return JSON.parse(decodeURIComponent(login));
-            }
-        }
-        return false;
-    };
-}]);
-
-
-/***/ }),
-/* 10 */
-/***/ (function(module, exports, __webpack_require__) {
-
-"use strict";
-
-
-function openPlugin(content, cb) {
-    var frag, wrap, frm;
-    frag = document.createDocumentFragment();
-    wrap = document.createElement('div');
-    wrap.setAttribute('id', 'frmPlugin');
-    frm = document.createElement('iframe');
-    wrap.appendChild(frm);
-    wrap.onclick = function() {
-        wrap.parentNode.removeChild(wrap);
-    };
-    frag.appendChild(wrap);
-    document.body.appendChild(frag);
-    if (content.indexOf('http') === 0) {
-        window.onClosePlugin = function() {
-            wrap.parentNode.removeChild(wrap);
-            cb && cb();
-        };
-        frm.setAttribute('src', content);
-    } else {
-        if (frm.contentDocument && frm.contentDocument.body) {
-            frm.contentDocument.body.innerHTML = content;
-        }
-    }
-}
-
-var ngMod = angular.module('coinpay.ui.xxt', []);
-ngMod.service('tmsCoinPay', function() {
-    this.showSwitch = function(siteId, matter) {
-        var eSwitch;
-        eSwitch = document.createElement('div');
-        eSwitch.classList.add('tms-switch', 'tms-switch-coinpay');
-        eSwitch.addEventListener('click', function(event) {
-            event.preventDefault();
-            event.stopPropagation();
-            var url = 'http://' + location.host;
-            url += '/rest/site/fe/coin/pay';
-            url += "?site=" + siteId;
-            url += "&matter=" + matter;
-            openPlugin(url);
-        }, true);
-        document.body.appendChild(eSwitch);
-    }
-});
-
-
-/***/ }),
-/* 11 */
-/***/ (function(module, exports, __webpack_require__) {
-
-"use strict";
-
-var ngMod = angular.module('discuss.ui.xxt', []);
-ngMod.service('tmsDiscuss', function() {
-    this.showSwitch = function(siteId, threadKey, title, url) {
-        var eSwitch;
-        eSwitch = document.createElement('div');
-        eSwitch.classList.add('tms-switch', 'tms-switch-discuss');
-        eSwitch.addEventListener('click', function(event) {
-            event.preventDefault();
-            event.stopPropagation();
-            location.href = '/rest/site/fe/discuss?site=' + siteId + '&threadKey=' + threadKey + '&title=' + title;
-        }, true);
-        document.body.appendChild(eSwitch);
-    }
-});
-
-
-/***/ }),
-/* 12 */
-/***/ (function(module, exports, __webpack_require__) {
-
-"use strict";
-
-var ngMod = angular.module('favor.ui.xxt', []);
-ngMod.service('tmsFavor', ['$http', '$q', function($http, $q) {
-    function byUser(siteId, matter) {
-        var url, defer;
-        defer = $q.defer();
-        url = 'http://' + location.host;
-        url += '/rest/site/fe/user/favor/byUser';
-        url += "?site=" + siteId;
-        url += "&id=" + matter.id;
-        url += "&type=" + matter.type;
-        url += "&title=" + matter.title;
-        $http.get(url).success(function(rsp) {
-            defer.resolve(rsp.data);
-        });
-        return defer.promise;
-    }
-
-    function favor(siteId, matter) {
-        var url, defer;
-        defer = $q.defer();
-
-        url = 'http://' + location.host;
-        url += '/rest/site/fe/user/favor/add';
-        url += "?site=" + siteId;
-        url += "&id=" + matter.id;
-        url += "&type=" + matter.type;
-        url += "&title=" + matter.title;
-        $http.get(url).success(function(rsp) {
-            defer.resolve(rsp.data);
-        });
-        return defer.promise;
-    }
-
-    function unfavor(siteId, matter) {
-        var url, defer;
-        defer = $q.defer();
-        url = 'http://' + location.host;
-        url += '/rest/site/fe/user/favor/remove';
-        url += "?site=" + siteId;
-        url += "&id=" + matter.id;
-        url += "&type=" + matter.type;
-        $http.get(url).success(function(rsp) {
-            defer.resolve(rsp.data);
-        });
-        return defer.promise;
-    }
-
-    this.showSwitch = function(siteId, matter) {
-        var eSwitch;
-        eSwitch = document.createElement('div');
-        eSwitch.classList.add('tms-switch', 'tms-switch-favor');
-        eSwitch.addEventListener('click', function(event) {
-            event.preventDefault();
-            event.stopPropagation();
-            if (eSwitch.classList.contains('favored')) {
-                unfavor(siteId, matter).then(function(log) {
-                    eSwitch.classList.remove('favored');
-                });
-            } else {
-                favor(siteId, matter).then(function(log) {
-                    eSwitch.classList.add('favored');
-                });
-            }
-        }, true);
-        document.body.appendChild(eSwitch);
-        byUser(siteId, matter).then(function(log) {
-            if (log) {
-                eSwitch.classList.add('favored');
-            }
-        });
-    };
-}]);
-
-
-/***/ }),
-/* 13 */
-/***/ (function(module, exports, __webpack_require__) {
-
-"use strict";
-
-
-function openPlugin(content, cb) {
-    var frag, wrap, frm;
-    frag = document.createDocumentFragment();
-    wrap = document.createElement('div');
-    wrap.setAttribute('id', 'frmPlugin');
-    frm = document.createElement('iframe');
-    wrap.appendChild(frm);
-    wrap.onclick = function() {
-        wrap.parentNode.removeChild(wrap);
-    };
-    frag.appendChild(wrap);
-    document.body.appendChild(frag);
-    if (content.indexOf('http') === 0) {
-        window.onClosePlugin = function() {
-            wrap.parentNode.removeChild(wrap);
-            cb && cb();
-        };
-        frm.setAttribute('src', content);
-    } else {
-        if (frm.contentDocument && frm.contentDocument.body) {
-            frm.contentDocument.body.innerHTML = content;
-        }
-    }
-}
-
-var ngMod = angular.module('siteuser.ui.xxt', []);
-ngMod.service('tmsSiteUser', function() {
-    this.showSwitch = function(siteId, redirect) {
-        var eSwitch;
-        eSwitch = document.createElement('div');
-        eSwitch.classList.add('tms-switch', 'tms-switch-siteuser');
-        eSwitch.addEventListener('click', function(event) {
-            event.preventDefault();
-            event.stopPropagation();
-            var url = 'http://' + location.host;
-            url += '/rest/site/fe/user';
-            url += "?site=" + siteId;
-            if (redirect) {
+            if (newWindow === false) {
                 location.href = url;
             } else {
-                openPlugin(url);
+                window.open(url);
             }
-        }, true);
-        document.body.appendChild(eSwitch);
-    }
-});
-
-
-/***/ }),
-/* 14 */,
-/* 15 */,
-/* 16 */,
-/* 17 */,
-/* 18 */,
-/* 19 */,
-/* 20 */,
-/* 21 */,
-/* 22 */,
-/* 23 */,
-/* 24 */
-/***/ (function(module, exports, __webpack_require__) {
-
-"use strict";
-
-__webpack_require__(46);
-__webpack_require__(9);
-__webpack_require__(13);
-__webpack_require__(12);
-__webpack_require__(10);
-__webpack_require__(11);
-__webpack_require__(8);
-
-var ngApp = angular.module('app', ['page.ui.xxt', 'snsshare.ui.xxt', 'siteuser.ui.xxt', 'favor.ui.xxt', 'coinpay.ui.xxt', 'discuss.ui.xxt']);
-ngApp.config(['$controllerProvider', function($cp) {
-    ngApp.provider = {
-        controller: $cp.register
+        }
     };
-}]);
-ngApp.directive('tmsScroll', [function() {
-    function _endScroll(event, $scope) {
-        var target = event.target,
-            scrollTop = target.scrollTop;
-
-        if (scrollTop === 0) {
-            if ($scope.$parent.uppermost) {
-                $scope.$parent.uppermost(target);
-            }
-        } else if (scrollTop === target.scrollHeight - target.clientHeight) {
-            if ($scope.$parent.downmost) {
-                $scope.$parent.downmost(target);
-            }
+    $scope.gotoLottery = function(event, lottery, ek) {
+        event.preventDefault();
+        event.stopPropagation();
+        location.replace('/rest/app/lottery?mpid=' + LS.p.mpid + '&lottery=' + lottery + '&enrollKey=' + ek);
+    };
+    $scope.followMp = function(event, page) {
+        if (/YiXin/i.test(navigator.userAgent)) {
+            location.href = 'yixin://opencard?pid=' + $scope.mpa.yx_cardid;
+        } else if (page !== undefined && page.length) {
+            $scope.gotoPage(event, page);
         } else {
-            if (target.__lastScrollTop === undefined || scrollTop > target.__lastScrollTop) {
-                if ($scope.$parent.upward) {
-                    $scope.$parent.upward(target);
-                }
-            } else {
-                if ($scope.$parent.downward) {
-                    $scope.$parent.downward(target);
-                }
-            }
-        }
-        target.__lastScrollTop = scrollTop;
-    }
-
-    function _domReady($scope, elems) {
-        for (var i = elems.length - 1; i >= 0; i--) {
-            if (elems[i].scrollHeight === elems[i].clientHeight) {
-                if ($scope.downmost && angular.isString($scope.downmost) && $scope.$parent.downmost) {
-                    $scope.$parent.downmost(elems[i]);
-                }
-            }
-        }
-    }
-
-    return {
-        restrict: 'EA',
-        scope: {
-            upward: '@',
-            downward: '@',
-            uppermost: '@',
-            downmost: '@',
-            ready: '=',
-        },
-        link: function($scope, elems, attrs) {
-            if (attrs.ready) {
-                $scope.$watch('ready', function(ready) {
-                    if (ready === 'Y') {
-                        _domReady($scope, elems);
-                    }
-                });
-            } else {
-                /* link发生在load之前 */
-                window.addEventListener('load', function() {
-                    _domReady($scope, elems);
-                });
-            }
-            for (var i = elems.length - 1; i >= 0; i--) {
-                elems[i].onscroll = function(event) {
-                    var target = event.target;
-                    if (target.__timer) {
-                        clearTimeout(target.__timer);
-                    }
-                    target.__timer = setTimeout(function() {
-                        _endScroll(event, $scope);
-                    }, 35);
-                };
-            }
+            alert('请在易信中打开页面');
         }
     };
-}]);
-ngApp.filter('filesize', function() {
-    return function(length) {
-        var unit;
-        if (length / 1024 < 1) {
-            unit = 'B';
+    $scope.onReady = function(task) {
+        if ($scope.params) {
+            PG.exec(task);
         } else {
-            length = length / 1024;
-            if (length / 1024 < 1) {
-                unit = 'K';
-            } else {
-                length = length / 1024;
-                unit = 'M';
-            }
+            tasksOfOnReady.push(task);
         }
-        length = (new Number(length)).toFixed(2);
-
-        return length + unit;
     };
-});
-ngApp.controller('ctrlMain', ['$scope', '$http', '$timeout', '$q', 'tmsDynaPage', 'tmsSnsShare', 'tmsDiscuss', 'tmsCoinPay', 'tmsFavor', 'tmsSiteUser', function($scope, $http, $timeout, $q, tmsDynaPage, tmsSnsShare, tmsDiscuss, tmsCoinPay, tmsFavor, tmsSiteUser) {
-    function finish() {
-        var eleLoading, eleStyle;
-        eleLoading = document.querySelector('.loading');
-        eleLoading.parentNode.removeChild(eleLoading);
-    }
+    $http.get(LS.j('get', 'site', 'app', 'rid', 'page', 'ek', 'newRecord')).success(function(rsp) {
+        if (rsp.err_code !== 0) {
+            $scope.errmsg = rsp.err_msg;
+            return;
+        }
+        try {
+            var params = rsp.data,
+                site = params.site,
+                app = params.app,
+                mission = params.mission,
+                schemasById = {};
 
-    function articleLoaded() {
-        finish();
-        $timeout(function() {
-            var audios;
-            audios = document.querySelectorAll('audio');
-            audios.length > 0 && audios[0].play();
-        });
-        $scope.code = '/rest/site/fe/matter/article/qrcode?site=' + siteId + '&url=' + encodeURIComponent(location.href);
-    }
-
-    function loadArticle() {
-        var deferred = $q.defer();
-        $http.get('/rest/site/fe/matter/article/get?site=' + siteId + '&id=' + id).success(function(rsp) {
-            var site = rsp.data.site,
-                mission = rsp.data.mission,
-                oArticle = rsp.data.article,
-                channels = oArticle.channels;
-
-            if (oArticle.use_site_header === 'Y' && site && site.header_page) {
-                tmsDynaPage.loadCode(ngApp, site.header_page);
-            }
-            if (oArticle.use_mission_header === 'Y' && mission && mission.header_page) {
-                tmsDynaPage.loadCode(ngApp, mission.header_page);
-            }
-            if (oArticle.use_mission_footer === 'Y' && mission && mission.footer_page) {
-                tmsDynaPage.loadCode(ngApp, mission.footer_page);
-            }
-            if (oArticle.use_site_footer === 'Y' && site && site.footer_page) {
-                tmsDynaPage.loadCode(ngApp, site.footer_page);
-            }
-            if (channels && channels.length) {
-                for (var i = 0, l = channels.length, channel; i < l; i++) {
-                    channel = channels[i];
-                    if (channel.style_page) {
-                        tmsDynaPage.loadCode(ngApp, channel.style_page);
-                    }
-                }
-            }
+            app.data_schemas = JSON.parse(app.data_schemas);
+            app.data_schemas.forEach(function(schema) {
+                schemasById[schema.id] = schema;
+            });
+            app._schemasById = schemasById;
+            $scope.params = params;
             $scope.site = site;
             $scope.mission = mission;
-            $scope.article = oArticle;
-            $scope.user = rsp.data.user;
-            /* 设置分享 */
-            if (/MicroMessenger|Yixin/i.test(navigator.userAgent)) {
-                var shareid, sharelink, shareby;
-                shareby = location.search.match(/shareby=([^&]*)/) ? location.search.match(/shareby=([^&]*)/)[1] : '';
-                shareid = $scope.user.uid + '_' + (new Date() * 1);
-                sharelink = 'http://' + location.hostname + '/rest/site/fe/matter';
-                sharelink += '?site=' + siteId;
-                sharelink += '&type=article';
-                sharelink += '&id=' + id;
-                sharelink += "&shareby=" + shareid;
-                tmsSnsShare.config({
-                    siteId: siteId,
-                    logger: function(shareto) {
-                        var url = "/rest/site/fe/matter/logShare";
-                        url += "?shareid=" + shareid;
-                        url += "&site=" + siteId;
-                        url += "&id=" + id;
-                        url += "&type=article";
-                        url += "&title=" + oArticle.title;
-                        url += "&shareto=" + shareto;
-                        url += "&shareby=" + shareby;
-                        $http.get(url);
-                    },
-                    jsApiList: ['hideOptionMenu', 'onMenuShareTimeline', 'onMenuShareAppMessage']
-                });
-                tmsSnsShare.set(oArticle.title, sharelink, oArticle.summary, oArticle.pic);
+            $scope.app = app;
+            $scope.user = params.user;
+            if (params.app.multi_rounds === 'Y') {
+                $scope.activeRound = params.activeRound;
             }
-
-            if (oArticle.can_picviewer === 'Y') {
-                tmsDynaPage.loadScript(['/static/js/hammer.min.js', '/asset/js/xxt.ui.picviewer.js']);
-            }
-            if (!document.querySelector('.tms-switch-favor')) {
-                tmsFavor.showSwitch(oArticle.siteid, oArticle);
-            }
-            if (oArticle.can_discuss === 'Y') {
-                if (!document.querySelector('.tms-switch-discuss')) {
-                    tmsDiscuss.showSwitch(oArticle.siteid, 'article,' + oArticle.id, oArticle.title);
+            setShareData($scope, params, $http);
+            if (app.use_site_header === 'Y' && site && site.header_page) {
+                if (site.header_page.ext_css && site.header_page.ext_css.length) {
+                    angular.forEach(site.header_page.ext_css, function(css) {
+                        loadCss(css);
+                    });
                 }
-            }
-            if (oArticle.can_coinpay === 'Y') {
-                if (!document.querySelector('.tms-switch-coinpay')) {
-                    tmsCoinPay.showSwitch(oArticle.siteid, 'article,' + oArticle.id);
+                if (site.header_page.css.length) {
+                    loadDynaCss(site.header_page.css);
                 }
+                (function() {
+                    eval(site.header_page.js);
+                })();
             }
-            if (oArticle.can_siteuser === 'Y') {
-                if (!document.querySelector('.tms-switch-siteuser')) {
-                    tmsSiteUser.showSwitch(oArticle.siteid, true);
+            if (app.use_mission_header === 'Y' && mission && mission.header_page) {
+                if (mission.header_page.ext_css && mission.header_page.ext_css.length) {
+                    angular.forEach(mission.header_page.ext_css, function(css) {
+                        loadCss(css);
+                    });
                 }
+                if (mission.header_page.css.length) {
+                    loadDynaCss(mission.header_page.css);
+                }
+                (function() {
+                    eval(mission.header_page.js);
+                })();
             }
-            $http.post('/rest/site/fe/matter/logAccess?site=' + siteId + '&id=' + id + '&type=article&title=' + oArticle.title + '&shareby=' + shareby, {
-                search: location.search.replace('?', ''),
-                referer: document.referrer
+            if (app.use_mission_footer === 'Y' && mission && mission.footer_page) {
+                if (mission.footer_page.ext_css && mission.footer_page.ext_css.length) {
+                    angular.forEach(mission.footer_page.ext_css, function(css) {
+                        loadCss(css);
+                    });
+                }
+                if (mission.footer_page.css.length) {
+                    loadDynaCss(mission.footer_page.css);
+                }
+                (function() {
+                    eval(mission.footer_page.js);
+                })();
+            }
+            if (app.use_site_footer === 'Y' && site && site.footer_page) {
+                if (site.footer_page.ext_css && site.footer_page.ext_css.length) {
+                    angular.forEach(site.footer_page.ext_css, function(css) {
+                        loadCss(css);
+                    });
+                }
+                if (site.footer_page.css.length) {
+                    loadDynaCss(site.footer_page.css);
+                }
+                (function() {
+                    eval(site.footer_page.js);
+                })();
+            }
+            setPage($scope, params.page);
+            if (tasksOfOnReady.length) {
+                angular.forEach(tasksOfOnReady, PG.exec);
+            }
+            $timeout(function() {
+                $scope.$broadcast('xxt.app.signin.ready', params);
             });
-            $scope.dataReady = 'Y';
-            deferred.resolve();
-        }).error(function(content, httpCode) {
-            if (httpCode === 401) {
-                tmsDynaPage.openPlugin(content).then(function() {
-                    loadArticle().then(articleLoaded);
-                });
-            } else {
-                alert(content);
+            var eleLoading;
+            if (eleLoading = document.querySelector('.loading')) {
+                eleLoading.parentNode.removeChild(eleLoading);
             }
-        });
-        return deferred.promise;
-    };
-
-    var ls, siteId, id;
-
-    ls = location.search;
-    siteId = ls.match(/[\?&]site=([^&]*)/)[1];
-    id = ls.match(/(\?|&)id=([^&]*)/)[2];
-
-    $scope.followYixinMp = function() {
-        //location.href = 'yixin://opencard?pid=' + $scope.site.yx_cardid;
-    };
-    $scope.openChannel = function(ch) {
-        location.href = '/rest/site/fe/matter?site=' + siteId + '&type=channel&id=' + ch.id;
-    };
-    $scope.searchByTag = function(tag) {
-        location.href = '/rest/site/fe/matter/article?site=' + siteId + '&tagid=' + tag.id;
-    };
-    $scope.openMatter = function(evt, id, type) {
-        evt.preventDefault();
-        evt.stopPropagation();
-        if (/article|custom|news|channel|link/.test(type)) {
-            location.href = '/rest/site/fe/matter?site=' + siteId + '&id=' + id + '&type=' + type;
-        } else {
-            location.href = '/rest/site/fe/matter/' + type + '?site=' + siteId + '&app=' + id;
+        } catch (e) {
+            alert(e.message);
         }
-    };
-    document.querySelector('#gototop').addEventListener('click', function() {
-        document.querySelector('.article').scrollTop = 0;
+    }).error(function(content, httpCode) {
+        if (httpCode === 401) {
+            var el = document.createElement('iframe');
+            el.setAttribute('id', 'frmPopup');
+            el.onload = function() {
+                this.height = document.querySelector('body').clientHeight;
+            };
+            document.body.appendChild(el);
+            if (content.indexOf('http') === 0) {
+                window.onAuthSuccess = function() {
+                    el.style.display = 'none';
+                };
+                el.setAttribute('src', content);
+                el.style.display = 'block';
+            } else {
+                if (el.contentDocument && el.contentDocument.body) {
+                    el.contentDocument.body.innerHTML = content;
+                    el.style.display = 'block';
+                }
+            }
+        } else {
+            $scope.errmsg = content;
+        }
     });
-    loadArticle().then(articleLoaded);
 }]);
+module.exports = ngApp;
 
 
 /***/ }),
+/* 24 */,
 /* 25 */,
 /* 26 */,
 /* 27 */,
@@ -3346,23 +3692,82 @@ ngApp.controller('ctrlMain', ['$scope', '$http', '$timeout', '$q', 'tmsDynaPage'
 /* 29 */,
 /* 30 */,
 /* 31 */,
-/* 32 */,
-/* 33 */,
-/* 34 */,
-/* 35 */
+/* 32 */
 /***/ (function(module, exports, __webpack_require__) {
 
-exports = module.exports = __webpack_require__(0)(undefined);
-// imports
+"use strict";
 
+__webpack_require__(54);
 
-// module
-exports.push([module.i, "html,body,h1,div,img,p{margin:0;padding:0}\r\nhtml,body{height:100%;width:100%}\r\nbody{background-color:#fff;font:12.5pt/1.45 Microsoft Yahei,Arial;position:relative;overflow:hidden;}\r\n.ng-cloak{display:none;}\r\n.article{position:relative;height:100%;box-sizing:border-box;overflow-y:auto;margin:0 auto;padding:40px 0 8px;color:#666;white-space:normal;word-wrap:break-word;word-break:break-all}\r\n@media screen and (max-width:719px){\r\n\t.article{padding-top:28px}\r\n\t.article .wrap{margin:0 28px}\r\n\t.right-column #qrCode{display:none;}\r\n}\r\n@media screen and (max-width:639px){\r\n\t.article{padding-top:24px}\r\n\t.article .wrap{margin:0 24px}\r\n}\r\n@media screen and (max-width:479px){\r\n\t.article{padding-top:18px}\r\n\t.article .wrap{margin:0 18px}\r\n}\r\n@media screen and (max-width:319px){\r\n\t.article{padding-top:12px}\r\n\t.article .wrap{margin:0 12px}\r\n}\r\n@media screen and (min-width:720px){\r\n\t.article .wrap{margin:0 3%;overflow:hidden;}\r\n\t.wrap > .left-column{width:70%;float:left;}\r\n\t.wrap > .right-column{width:28%;float:right;}\r\n}\r\n@media screen and (min-width:1190px){\r\n\t.article .wrap{margin:0 10%;overflow:hidden;}\r\n}\r\n@media screen and (min-width:1440px){\r\n\t.article .wrap{margin:0 15%;overflow:hidden;}\r\n}\r\n\r\n/* left-column */\r\n#title{font-size:15pt;color:#333;font-weight:bold}\r\n#attribute{margin-top:10px}\r\n#attribute .time{font-size:10pt;color:#b9b9b9}\r\n#attribute .author{font-size:10pt;color:#b9b9b9}\r\n.article .headpic{margin:10px 0}\r\n.article img{display:block;max-width:100%;margin:5px auto}\r\n.article .wrap-img{position:relative}\r\n.article .wrap-img i{position:absolute;right:0;bottom:0;font-size:12px;color:#aaa}\r\n.article .content{margin:12pt 0 12pt 0}\r\n.article .content p{margin:0 0 12pt;line-height:2em}\r\n.article .url{margin-top:20px}\r\n.article a{color:#2980b9;text-decoration:none}\r\n.article a:hover{text-decoration:underline}\r\n#article_from_mp{font-size:10pt;overflow:hidden;text-align:left}\r\n#article_from_mp a{text-overflow:ellipsis;overflow:hidden;white-space:nowrap;text-decoration:none;color:#2880C0}\r\ndiv.tablewrap{width:100%;overflow-x:auto;overflow-y:hidden}\r\ntable,table.mce-item-table{border:solid 1px #ddd;border-top:0;border-left:0;border-collapse:collapse;border-spacing:0;position:relative;table-layout:fixed}\r\ntable caption,table.mce-item-table caption{border:solid 1px #ddd;border-bottom:0;background:#E5E5E5;font-weight:bold;font-size:14px;padding:4px}\r\ntable thead,table.mce-item-table thead{text-align:center}\r\ntable th,table td,table.mce-item-table th,table.mce-item-table td{border-left:1px solid #ddd;border-top:1px solid #ddd;padding:5px;empty-cells:show}\r\n#stat{color:#8c8c8c;font-size:14px;margin:.5em 0;padding:1em 0;border-top:1px solid #eee}\r\n#stat .read{margin-right:14px}\r\n#stat .read span:nth-child(2){margin-left:7px}\r\n#stat .like span{margin-left:7px}\r\n#stat .like em{-webkit-tap-highlight-color:rgba(0,0,0,0);display:inline-block;background-image:url(\"/static/img/icons.svg\");background-size:68.75px 103.13px;background-position:-31.25px 0;background-repeat:no-repeat;width:15px;height:15px}\r\n#stat .like em.praised{background-position:-31.25px -25px}\r\n#stat *{vertical-align:middle}\r\n#tag{font-size:14px;padding:1em 0;border-top:1px solid #eee}\r\n#tag>span{display:inline-block;margin-right:.3em;padding:.7em;color:#333;background:#ccc}\r\n\r\n/* right-column */\r\n#qrCode .note{font-size:10pt;color:#b9b9b9;text-align:center;margin-bottom:20px;}\r\n\r\n/*switch*/\r\n.tms-switch{position:fixed;right:15px;width:48px;height:48px;background:rgba(192,192,192,0.5);border-radius:4px;color:#666;font-size:24px;line-height:48px;text-align:center;cursor:pointer;}\r\n.tms-switch:before{font-size:0.7em;}\r\n.tms-switch:nth-of-type(2){bottom:8px;}\r\n.tms-switch:nth-of-type(3){bottom:64px;}\r\n.tms-switch:nth-of-type(4){bottom:120px;}\r\n.tms-switch:nth-of-type(5){bottom:176px;}\r\n.tms-switch:nth-of-type(6){bottom:236px;}\r\n#gototop:before{content:'\\9876\\90E8';}\r\n.tms-switch-favor:before{content:'\\6536\\85CF';}\r\n.tms-switch-favor.favored{background:rgba(132,255,192,0.5);}\r\n.tms-switch-discuss:before{content:'\\7559\\8A00';}\r\n.tms-switch-coinpay:before{content:'\\6253\\8D4F';}\r\n.tms-switch-siteuser:before{content:'\\6211';}\r\n\r\n/*picviewer*/\r\n#picViewer{position:absolute;left:0px;right:0px;top:0px;bottom:0px;z-index:999;display:none;margin:0 auto;overflow:hidden;background:black}\r\n#picViewer>div{position:absolute;bottom:6px;left:8px;right:8px;z-index:1999;height:36px}\r\n#picViewer span{display:inline-block;width:36px;height:36px;line-height:36px;border-radius:18px;font-size:36px;text-align:center}\r\n#picViewer span.page{position:absolute;left:50%;margin-left:-18px;font-size:18px}\r\n#picViewer span.prev{position:absolute;left:50%;margin-left:-72px}\r\n#picViewer span.next{position:absolute;left:50%;margin-left:36px}\r\n#picViewer span.exit{position:absolute;right:0}\r\n.article .weui_dialog_alert{display:none}\r\n#frmPlugin{position:absolute;top:0;bottom:0;left:0;right:0;width:100%;height:100%;border:none;z-index:999;box-sizing:border-box;padding-bottom:48px;background:#fff;}\r\n#frmPlugin iframe{width:100%;height:100%;}\r\n#frmPlugin:after{content:'\\5173\\95ED';position:absolute;width:100px;text-align:center;left:50%;margin-left:-50px;bottom:4px;padding:5px 6px 3px;border:1px solid #ccc;border-radius:4px;}", ""]);
+var ngApp = __webpack_require__(23);
+ngApp.factory('Record', ['$http', '$q', function($http, $q) {
+    var Record, _ins;
+    Record = function() {};
+    Record.prototype.get = function(ek) {
+        var url, deferred;
+        deferred = $q.defer();
+        deferred.resolve({
+            data: {}
+        });
+        return deferred.promise;
+    };
+    return {
+        ins: function() {
+            return _ins ? _ins : (new Record());
+        }
+    };
+}]);
+ngApp.controller('ctrlRecord', ['$scope', 'Record', 'ls', function($scope, Record, LS) {
+    var facRecord = Record.ins(),
+        schemas = $scope.app.data_schemas;
+    $scope.value2Label = function(key) {
+        var val, i, j, s, aVal, aLab = [];
+        if (schemas && facRecord.current && facRecord.current.data) {
+            val = facRecord.current.data[key];
+            if (val === undefined) return '';
+            for (i = 0, j = schemas.length; i < j; i++) {
+                s = schemas[i];
+                if (schemas[i].id === key) {
+                    s = schemas[i];
+                    break;
+                }
+            }
+            if (s && s.ops && s.ops.length) {
+                aVal = val.split(',');
+                for (i = 0, j = s.ops.length; i < j; i++) {
+                    aVal.indexOf(s.ops[i].v) !== -1 && aLab.push(s.ops[i].l);
+                }
+                if (aLab.length) return aLab.join(',');
+            }
+            return val;
+        } else {
+            return '';
+        }
+    };
+    $scope.editRecord = function(event, page) {};
+    $scope.gotoEnroll = function(event, page) {};
+    facRecord.get(LS.p.ek);
+    $scope.Record = facRecord;
+}]);
+ngApp.directive('tmsImageInput', function($compile, $q) {
+    return {
+        restrict: 'A',
+        controller: function($scope, $timeout) {}
+    }
+});
+ngApp.directive('tmsFileInput', function($q) {
+    return {
+        restrict: 'A',
+        controller: function($scope, $timeout) {}
+    }
+});
 
-// exports
 
 
 /***/ }),
+/* 33 */,
+/* 34 */,
+/* 35 */,
 /* 36 */,
 /* 37 */,
 /* 38 */,
@@ -3370,16 +3775,37 @@ exports.push([module.i, "html,body,h1,div,img,p{margin:0;padding:0}\r\nhtml,body
 /* 40 */,
 /* 41 */,
 /* 42 */,
-/* 43 */,
+/* 43 */
+/***/ (function(module, exports, __webpack_require__) {
+
+exports = module.exports = __webpack_require__(0)(undefined);
+// imports
+
+
+// module
+exports.push([module.i, ".ng-cloak{display:none;}\r\nhtml,body{height:100%;width:100%;background:#f8f8f8;font-family:Microsoft Yahei,Arial;}\r\nbody{position:relative;padding:15px;font-size:16px;}\r\nimg{max-width:100%}\r\nul{margin:0;padding:0;list-style:none}\r\nli{margin:0;padding:0}\r\n#errmsg{display:block;opacity:0;height:0;overflow:hidden;width:300px;position:fixed;top:0;left:50%;margin:0 0 0 -150px;text-align:center;transition:opacity 1s;z-index:-1;word-break:break-all}\r\n#errmsg.active{opacity:1;height:auto;z-index:999}\r\n\r\n/* img tiles */\r\nul.img-tiles li{position:relative;display:inline-block;overflow:hidden;width:80px;height:80px;margin:0px;padding:0px;float:left}\r\nul.img-tiles li.img-thumbnail img{display:inline-block;position:absolute;max-width:none;}\r\nul.img-tiles li.img-thumbnail button{position:absolute;top:0;right:0}\r\nul.img-tiles li.img-picker button{position:auto;width:100%;height:100%}\r\nul.img-tiles li.img-picker button span{font-size:36px}\r\n\r\n/* default form style*/\r\ndiv[wrap].wrap-splitline{padding-bottom:0.5em;border-bottom:1px solid #fff;}\r\ndiv[wrap].wrap-inline>*{display:inline-block;vertical-align:middle;margin:0 1em 0 0;}\r\ndiv[wrap].wrap-inline>label{width:6em;overflow:hidden;white-space:nowrap;text-overflow:ellipsis;}\r\ndiv[wrap=matter]>span{cursor:pointer;text-decoration:underline;}\r\n\r\n/* auth */\r\n#frmPopup{position:absolute;top:0;left:0;right:0;bottom:0;border:none;width:100%;z-index:999;box-sizing:border-box;}", ""]);
+
+// exports
+
+
+/***/ }),
 /* 44 */,
 /* 45 */,
-/* 46 */
+/* 46 */,
+/* 47 */,
+/* 48 */,
+/* 49 */,
+/* 50 */,
+/* 51 */,
+/* 52 */,
+/* 53 */,
+/* 54 */
 /***/ (function(module, exports, __webpack_require__) {
 
 // style-loader: Adds some css to the DOM by adding a <style> tag
 
 // load the styles
-var content = __webpack_require__(35);
+var content = __webpack_require__(43);
 if(typeof content === 'string') content = [[module.i, content, '']];
 // add the styles to the DOM
 var update = __webpack_require__(1)(content, {});
@@ -3388,8 +3814,8 @@ if(content.locals) module.exports = content.locals;
 if(false) {
 	// When the styles change, update the <style> tags
 	if(!content.locals) {
-		module.hot.accept("!!../../../../../../node_modules/css-loader/index.js!./main.css", function() {
-			var newContent = require("!!../../../../../../node_modules/css-loader/index.js!./main.css");
+		module.hot.accept("!!../../../../../../node_modules/css-loader/index.js!./preview.css", function() {
+			var newContent = require("!!../../../../../../node_modules/css-loader/index.js!./preview.css");
 			if(typeof newContent === 'string') newContent = [[module.id, newContent, '']];
 			update(newContent);
 		});
@@ -3399,20 +3825,20 @@ if(false) {
 }
 
 /***/ }),
-/* 47 */,
-/* 48 */,
-/* 49 */,
-/* 50 */,
-/* 51 */,
-/* 52 */,
-/* 53 */,
-/* 54 */,
 /* 55 */,
 /* 56 */,
-/* 57 */
+/* 57 */,
+/* 58 */,
+/* 59 */,
+/* 60 */,
+/* 61 */,
+/* 62 */,
+/* 63 */,
+/* 64 */,
+/* 65 */
 /***/ (function(module, exports, __webpack_require__) {
 
-module.exports = __webpack_require__(24);
+module.exports = __webpack_require__(32);
 
 
 /***/ })

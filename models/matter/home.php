@@ -39,7 +39,7 @@ class home_model extends \TMS_MODEL {
 
 		$q2 = [
 			'r' => ['o' => ($page['at'] - 1) * $page['size'], 'l' => $page['size']],
-			'o' => 'h.put_at desc',
+			'o' => 'h.weight desc,h.put_at desc',
 		];
 
 		$result = new \stdClass;
@@ -72,7 +72,7 @@ class home_model extends \TMS_MODEL {
 
 		$q2 = [
 			'r' => ['o' => ($page['at'] - 1) * $page['size'], 'l' => $page['size']],
-			'o' => 'h.put_at desc',
+			'o' => 'h.weight desc,h.put_at desc',
 		];
 
 		$result = new \stdClass;
@@ -105,7 +105,7 @@ class home_model extends \TMS_MODEL {
 
 		$q2 = [
 			'r' => ['o' => ($page['at'] - 1) * $page['size'], 'l' => $page['size']],
-			'o' => 'h.put_at desc',
+			'o' => 'h.weight desc,h.put_at desc',
 		];
 
 		$result = new \stdClass;
@@ -225,7 +225,7 @@ class home_model extends \TMS_MODEL {
 
 		$q2 = [
 			'r' => ['o' => ($page['at'] - 1) * $page['size'], 'l' => $page['size']],
-			'o' => 'h.score desc,h.weight desc,h.put_at desc',
+			'o' => 'h.score desc,h.put_at desc,h.weight desc',
 		];
 
 		$result = new \stdClass;
@@ -258,7 +258,7 @@ class home_model extends \TMS_MODEL {
 
 		$q2 = [
 			'r' => ['o' => ($page['at'] - 1) * $page['size'], 'l' => $page['size']],
-			'o' => 'h.score desc,h.weight desc,h.put_at desc',
+			'o' => 'h.score desc,h.put_at desc,h.weight desc',
 		];
 
 		$result = new \stdClass;
@@ -291,7 +291,7 @@ class home_model extends \TMS_MODEL {
 
 		$q2 = [
 			'r' => ['o' => ($page['at'] - 1) * $page['size'], 'l' => $page['size']],
-			'o' => 'h.score desc,h.weight desc,h.put_at desc',
+			'o' => 'h.score desc,h.put_at desc,h.weight desc',
 		];
 
 		$result = new \stdClass;

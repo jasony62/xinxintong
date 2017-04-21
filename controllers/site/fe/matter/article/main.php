@@ -27,8 +27,6 @@ class main extends \site\fe\matter\base {
 	 */
 	public function get_action($site, $id) {
 		$model = $this->model();
-		$site = $model->escape($site);
-		$id = $model->escape($id);
 		$user = $this->who;
 
 		$modelArticle = $this->model('matter\article2');
@@ -55,7 +53,7 @@ class main extends \site\fe\matter\base {
 				array(
 					'*',
 					'xxt_article_attachment',
-					"article_id='$id'",
+					['article_id' => $id]
 				)
 			);
 		}
@@ -301,7 +299,11 @@ class main extends \site\fe\matter\base {
 		/**
 		 * 记录日志
 		 */
-		$this->model()->update("update xxt_article set download_num=download_num+1 where id='$articleid'");
+		$model = $this->model();
+		$site = $model->escape($site);
+		$articleid = $model->escape($articleid);
+		$attachmentid = $model->escape($attachmentid);
+		$model->update("update xxt_article set download_num=download_num+1 where id='$articleid'");
 		$log = array(
 			'userid' => $user->uid,
 			'nickname' => $user->nickname,
@@ -312,7 +314,7 @@ class main extends \site\fe\matter\base {
 			'user_agent' => $_SERVER['HTTP_USER_AGENT'],
 			'client_ip' => $this->client_ip(),
 		);
-		$this->model()->insert('xxt_article_download_log', $log, false);
+		$model->insert('xxt_article_download_log', $log, false);
 		/**
 		 * 获取附件
 		 */
@@ -321,7 +323,7 @@ class main extends \site\fe\matter\base {
 			'xxt_article_attachment',
 			"article_id='$articleid' and id='$attachmentid'",
 		);
-		$att = $this->model()->query_obj_ss($q);
+		$att = $model->query_obj_ss($q);
 
 		if (strpos($att->url, 'alioss') === 0) {
 			$downloadUrl = 'http://xxt-attachment.oss-cn-shanghai.aliyuncs.com/' . $site . '/article/' . $articleid . '/' . urlencode($att->name);

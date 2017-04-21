@@ -1,5 +1,5 @@
 'use strict';
-require('!style-loader!css-loader!./remark.css');
+require('./remark.css');
 
 var ngApp = require('./main.js');
 ngApp.controller('ctrlRemark', ['$scope', '$q', '$http', function($scope, $q, $http) {

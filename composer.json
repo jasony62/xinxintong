@@ -1,5 +1,17 @@
 {
     "require": {
-        "chrisboulton/php-resque": "1.2.x"
+        "chrisboulton/php-resque": "1.2.x",
+        "php": ">=5.3.3",
+        "ext-xml": "*",
+        "zendframework/zend-escaper": "2.4.*",
+        "zendframework/zend-stdlib": "2.4.*",
+        "zendframework/zend-validator": "2.4.*",
+        "phpoffice/common": "0.2.*"
+    },
+    "repositories" : {
+        "packagist": {
+            "type": "composer",
+            "url": "https://packagist.phpcomposer.com"
+        }
     }
 }

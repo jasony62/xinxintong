@@ -81,6 +81,18 @@ define(['frame'], function(ngApp) {
 				application.approved = 'N';
 			});
 		};
+		$scope.carryHome = function(application) {
+			var url = '/rest/pl/be/home/recommend/pushMatterTop?application=' + application.id;
+			http2.post(url, {}, function(rsp) {
+				application.weight = '1';
+			});
+		}
+		$scope.cancleHome = function(application) {
+			var url = '/rest/pl/be/home/recommend/pullMatterTop?application=' + application.id;
+			http2.post(url, {}, function(rsp) {
+				application.weight = '0';
+			});
+		}
 		$scope.searchMatter();
 	}]);
 	ngApp.provider.controller('ctrlSite', ['$scope', '$uibModal', 'http2', function($scope, $uibModal, http2) {

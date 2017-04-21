@@ -1,5 +1,5 @@
 'use strict';
-require('!style-loader!css-loader!./input.css');
+require('./input.css');
 
 require('../../../../../../asset/js/xxt.ui.image.js');
 require('../../../../../../asset/js/xxt.ui.geo.js');

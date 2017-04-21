@@ -684,7 +684,7 @@ class record extends \pl\fe\matter\base {
 							$v0 = $op->l;
 						}
 					}
-					isset($score->{$schema->id . '_score'}) && ($v0 .= ' (' . $score->{$schema->id . '_score'} . '分)');
+					isset($score->{$schema->id}) && ($v0 .= ' (' . $score->{$schema->id} . '分)');
 					$objActiveSheet->setCellValueExplicitByColumnAndRow($i + $columnNum3++, $rowIndex, $v0, \PHPExcel_Cell_DataType::TYPE_STRING);
 					break;
 				case 'phase':
@@ -710,7 +710,7 @@ class record extends \pl\fe\matter\base {
 						}
 					}
 					$cellValue = implode(',', $labels);
-					isset($score->{$schema->id . '_score'}) && $cellValue .= ' (' . $score->{$schema->id . '_score'} . '分)';
+					isset($score->{$schema->id}) && $cellValue .= ' (' . $score->{$schema->id} . '分)';
 					$objActiveSheet->setCellValueByColumnAndRow($i + $columnNum3++, $rowIndex, $cellValue);
 					break;
 				case 'score':
@@ -726,7 +726,7 @@ class record extends \pl\fe\matter\base {
 				case 'file':
 					break;
 				default:
-					isset($score->{$schema->id . '_score'}) && $v .= ' (' . $score->{$schema->id . '_score'} . '分)';
+					isset($score->{$schema->id}) && $v .= ' (' . $score->{$schema->id} . '分)';
 					$objActiveSheet->setCellValueExplicitByColumnAndRow($i + $columnNum3++, $rowIndex, $v, \PHPExcel_Cell_DataType::TYPE_STRING);
 					break;
 				}

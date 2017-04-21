@@ -1,5 +1,6 @@
 {
     "require": {
-        "chrisboulton/php-resque": "1.2.x"
+        "chrisboulton/php-resque": "1.2.x",
+        "phpoffice/phpword": "v0.13.*"
     }
 }

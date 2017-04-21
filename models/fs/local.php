@@ -26,6 +26,14 @@ class local_model {
 		}
 	}
 	/**
+	 * 返回指定文件名的文件的存储位置
+	 */
+	public function getPath($filename) {
+		$path = $this->rootDir . '/' . TMS_MODEL::toLocalEncoding($filename);
+
+		return $path;
+	}
+	/**
 	 * 将上传的文件文件保存在指定位置
 	 *
 	 * return bool

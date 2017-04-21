@@ -1,6 +1,6 @@
 'use strict';
-require('!style-loader!css-loader!./directive.css');
-require('!style-loader!css-loader!./template.css');
+require('./directive.css');
+require('./template.css');
 
 require('../../../../../../asset/js/xxt.ui.page.js');
 require('../../../../../../asset/js/xxt.ui.siteuser.js');

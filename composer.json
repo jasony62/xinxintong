@@ -7,8 +7,8 @@
         "zendframework/zend-stdlib": "2.4.*",
         "zendframework/zend-validator": "2.4.*",
         "phpoffice/common": "0.2.*"
-    }
-    "repositories": {
+    },
+    "repositories" : {
         "packagist": {
             "type": "composer",
             "url": "https://packagist.phpcomposer.com"

@@ -159,7 +159,7 @@ class stat extends \pl\fe\matter\base {
 	/**
 	 *
 	 */
-		public function export_action($site, $app, $rid = '') {
+	public function export_action($site, $app, $rid = '') {
 		if (false === ($user = $this->accountUser())) {
 			return new \ResponseTimeout();
 		}

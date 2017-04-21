@@ -155,6 +155,9 @@ class base extends \site\fe\base {
 	 *
 	 */
 	protected function accessControl($siteId, $objId, $memberSchemas, $userid, &$obj, $targetUrl = null) {
+		$model = $this->model();
+		$siteId = $model->escape($siteId);
+		$objId = $model->escape($objId);
 		$aMemberSchemas = explode(',', $memberSchemas);
 		$members = array();
 		foreach ($aMemberSchemas as $memberSchema) {
@@ -174,7 +177,7 @@ class base extends \site\fe\base {
 				'xxt_site_qyfan',
 				"siteid='$siteId' and openid='$openid' and subscribe_at > 0 and unsubscribe_at = 0 ",
 			);
-			$qySnsUser = $this->model()->query_obj_ss($p);
+			$qySnsUser = $model->query_obj_ss($p);
 			if ($qySnsUser) {
 				$members['qy'] = $qySnsUser;
 			}
@@ -206,7 +209,6 @@ class base extends \site\fe\base {
 			 */
 			$this->gotoMember($siteId, $aMemberSchemas, $userid, $targetUrl);
 		} else {
-			$model = $this->model();
 			$passed = false;
 			//如果时从企业号进入的用户不需要认证
 			if (isset($members['qy'])) {

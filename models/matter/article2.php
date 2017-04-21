@@ -179,7 +179,7 @@ class article2_model extends article_base {
 		$q = array(
 			'id,score,userid,nickname',
 			'xxt_article_score',
-			"article_id='$articleId' and userid='{$user->uid}'",
+			['article_id' => $articleId, 'userid' => $user->uid]
 		);
 		$log = $this->query_obj_ss($q);
 		if ($log) {
@@ -204,7 +204,7 @@ class article2_model extends article_base {
 		$q = array(
 			'r.*',
 			'xxt_article_remark r',
-			"r.article_id='$articleId'",
+			['r.article_id' => $articleId]
 		);
 
 		if (!$range) {
@@ -215,7 +215,7 @@ class article2_model extends article_base {
 				$q2 = array('o' => 'r.create_at desc');
 				$remarks = $this->query_objs_ss($q, $q2);
 			} else {
-				$q[2] .= " and id='$remarkId'";
+				$q[2]['id'] = $remarkId;
 				$remarks = $this->query_obj_ss($q);
 			}
 			return $remarks;

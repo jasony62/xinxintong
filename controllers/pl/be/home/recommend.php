@@ -36,13 +36,18 @@ class recommend extends \pl\be\base {
 	/**
 	 *
 	 */
-	public function listMatter_action($category) {
+	public function listMatter_action($category, $page = 1, $size = 8) {
 		$modelHome = $this->model('matter\home');
 
+		$options = [];
+		$options['page']['at']=$page;
+		$options['page']['size']=$size;
 		if ($category === 'app') {
-			$matters = $modelHome->findApp();
+			$matters = $modelHome->findApp($options);
 		} else if ($category === 'article') {
-			$matters = $modelHome->findArticle();
+			$matters = $modelHome->findArticle($options);
+		} else if ($category === 'channel') {
+			$matters = $modelHome->findChannel($options);
 		} else {
 			$matters = false;
 		}
@@ -96,6 +101,33 @@ class recommend extends \pl\be\base {
 		$modelHome = $this->model('site\home');
 
 		$rst = $modelHome->pullHome($application);
+
+		return new \ResponseData($rst);
+	}
+	/**
+	 * [素材置顶]
+	 * @param  [type] $application [description]
+	 * @return [type]              [description]
+	 */
+	public function pushMatterTop_action($application) {
+		$modelHome = $this->model('matter\home');
+
+		$rst = $modelHome->pushHomeTop($application);
+		if(isset($rst[0]) && $rst[0] === false){
+			return new \ResponseError($rst[1]);
+		}
+
+		return new \ResponseData($rst);
+	}
+	/**
+	 * [撤销素材置顶]
+	 * @param  [type] $application [description]
+	 * @return [type]              [description]
+	 */
+	public function pullMatterTop_action($application) {
+		$modelHome = $this->model('matter\home');
+
+		$rst = $modelHome->pullHomeTop($application);
 
 		return new \ResponseData($rst);
 	}

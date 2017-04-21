@@ -1,5 +1,5 @@
 'use strict';
-require('!style-loader!css-loader!./list.css');
+require('./list.css');
 
 var ngApp = require('./main.js');
 ngApp.factory('Round', ['$http', '$q', 'ls', function($http, $q, LS) {

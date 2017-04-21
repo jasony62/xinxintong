@@ -23,10 +23,28 @@ ngApp.provider.controller('ctrlHome', ['$scope', '$http', '$uibModal', function(
             $scope.articles = rsp.data.matters;
         });
     };
+    $scope.listChannels = function() {
+        $http.get('/rest/home/listChannel').success(function(rsp) {
+            $scope.channels = rsp.data.matters;
+            $scope.channels.forEach(function(item) {
+                var url;
+                    url = '/rest/site/fe/matter/channel/mattersGet';
+                    url += '?site=' + item.siteid + '&id=' + item.matter_id;
+                    url += '&page=1&size=5';
+                $http.get(url).success(function(rsp) {
+                    $scope.channelArticles = rsp.data;
+                });
+            });
+        });
+    };
+    $http.get('/rest/home/listMatterTop?type=article&page=1&size=3').success(function(rsp) {
+        $scope.topArticles = rsp.data.matters;
+    });
     listSites();
     listTemplates();
     $scope.listApps();
     $scope.listArticles();
+    $scope.listChannels();
 }]);
 ngApp.provider.controller('ctrlCarousel', function($scope) {
     $scope.myInterval = 5000;

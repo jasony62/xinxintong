@@ -67,6 +67,14 @@
         <label>
             <input type='checkbox' ng-true-value="'Y'" ng-false-value="'N'" ng-model='activeSchema.requireScore' ng-change="updSchema(activeSchema,'requireScore')">作为考题</label>
     </div>
+    <div class="checkbox">
+        <label>
+            <input type='checkbox' ng-true-value="'Y'" ng-false-value="'N'" ng-model='activeSchema.remarkable' ng-change="updSchema(activeSchema,'remarkable')">支持点评</label>
+    </div>
+    <div class="checkbox">
+        <label>
+            <input type='checkbox' ng-true-value="'Y'" ng-false-value="'N'" ng-model='activeSchema.shareable' ng-change="updSchema(activeSchema,'shareable')">共享内容</label>
+    </div>
     <div class="form-group" ng-show="['image','file'].indexOf(activeSchema.type)!==-1">
         <label>限制数量（填0不限制）</label>
         <input type='text' class='form-control' ng-model='activeSchema.count' ng-change="updSchema(activeSchema,'count')">

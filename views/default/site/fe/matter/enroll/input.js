@@ -1,5 +1,5 @@
 'use strict';
-require('!style-loader!css-loader!./input.css');
+require('./input.css');
 
 require('../../../../../../asset/js/xxt.ui.image.js');
 require('../../../../../../asset/js/xxt.ui.geo.js');
@@ -439,13 +439,35 @@ ngApp.controller('ctrlInput', ['$scope', '$http', '$q', '$uibModal', 'Input', 'l
     $scope.submitState = submitState = {
         modified: false,
         state: 'waiting',
-        start: function() {
+        start: function(event) {
+            var submitButton;
+            if (event) {
+                submitButton = event.target;
+                if (submitButton.tagName === 'BUTTON' || ((submitButton = submitButton.parentNode) && submitButton.tagName === 'BUTTON')) {
+                    if (/submit\(.*\)/.test(submitButton.getAttribute('ng-click'))) {
+                        var span;
+                        this.button = submitButton;
+                        span = submitButton.querySelector('span');
+                        span.setAttribute('data-label', span.innerHTML);
+                        span.innerHTML = '正在提交数据...';
+                        this.button.classList.add('submit-running');
+                    }
+                }
+            }
             this.state = 'running';
         },
         finish: function() {
             var cacheKey;
             this.state = 'waiting';
             this.modified = false;
+            if (this.button) {
+                var span;
+                span = this.button.querySelector('span');
+                span.innerHTML = span.getAttribute('data-label');
+                span.removeAttribute('data-label');
+                this.button.classList.remove('submit-running');
+                this.button = null;
+            }
             if (window.localStorage) {
                 cacheKey = this._cacheKey();
                 window.localStorage.removeItem(cacheKey);
@@ -549,7 +571,7 @@ ngApp.controller('ctrlInput', ['$scope', '$http', '$q', '$uibModal', 'Input', 'l
     $scope.submit = function(event, nextAction) {
         var checkResult;
         if (!submitState.isRunning()) {
-            submitState.start();
+            submitState.start(event);
             if (true === (checkResult = facInput.check($scope.data, $scope.app, $scope.page))) {
                 tasksOfBeforeSubmit.length ? doTask(0, nextAction) : doSubmit(nextAction);
             } else {

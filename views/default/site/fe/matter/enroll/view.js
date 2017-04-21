@@ -1,5 +1,5 @@
 'use strict';
-require('!style-loader!css-loader!./view.css');
+require('./view.css');
 
 var ngApp = require('./main.js');
 ngApp.factory('Round', ['$http', '$q', 'ls', function($http, $q, LS) {
@@ -49,42 +49,16 @@ ngApp.controller('ctrlRounds', ['$scope', 'Round', function($scope, Round) {
         return false;
     };
 }]);
-ngApp.controller('ctrlOwnerOptions', ['$scope', function($scope) {
-    $scope.owners = {
-        'A': {
-            id: 'A',
-            label: '全部'
-        },
-        'U': {
-            id: 'U',
-            label: '我的'
-        }
-    };
-    $scope.match = function(owner) {
-        return $scope.owners[owner.id];
-    }
-}]);
-ngApp.controller('ctrlOrderbyOptions', ['$scope', function($scope) {
-    $scope.orderbys = {
-        time: {
-            id: 'time',
-            label: '最新'
-        },
-        score: {
-            id: 'score',
-            label: '点赞'
-        },
-        remark: {
-            id: 'remark',
-            label: '评论'
-        }
-    };
-}]);
 ngApp.factory('Record', ['$http', '$q', 'ls', function($http, $q, LS) {
     var Record, _ins, _running;
-    Record = function() {
+    Record = function(oApp) {
+        var data = {}; // 初始化空数据，优化加载体验
+        oApp.dataSchemas.forEach(function(schema) {
+            data[schema.id] = '';
+        });
         this.current = {
-            enroll_at: 0
+            enroll_at: 0,
+            data: data
         };
     };
     _running = false;
@@ -139,33 +113,14 @@ ngApp.factory('Record', ['$http', '$q', 'ls', function($http, $q, LS) {
         return deferred.promise;
     };
     return {
-        ins: function(siteId, appId, rid, $scope) {
+        ins: function(oApp) {
             if (_ins) {
                 return _ins;
             }
-            _ins = new Record(siteId, appId, rid, $scope);
+            _ins = new Record(oApp);
             return _ins;
         }
     };
-}]);
-ngApp.factory('Statistic', ['$http', function($http) {
-    var Stat = function(siteId, appId, data) {
-        this.siteId = siteId;
-        this.appId = appId;
-        this.data = null;
-        this.result = {};
-    };
-    Stat.prototype.rankByFollower = function() {
-        var _this, url;
-        _this = this;
-        url = '/rest/app/enroll/rankByFollower';
-        url += '?site=' + this.siteId;
-        url += '&app=' + this.appId;
-        $http.get(url).success(function(rsp) {
-            _this.result.rankByFollower = rsp.data;
-        });
-    };
-    return Stat;
 }]);
 ngApp.controller('ctrlRecord', ['$scope', 'Record', 'ls', '$sce', function($scope, Record, LS, $sce) {
     var facRecord;
@@ -214,52 +169,12 @@ ngApp.controller('ctrlRecord', ['$scope', 'Record', 'ls', '$sce', function($scop
             page && $scope.gotoPage(event, page);
         });
     };
-    $scope.like = function(event, nextAction) {
-        event.preventDefault();
-        event.stopPropagation();
-        facRecord.like(facRecord.current).then(function(data) {
-            if (nextAction === 'closeWindow') {
-                $scope.closeWindow();
-            } else if (nextAction !== undefined && nextAction.length) {
-                var url = LS.j('', 'site', 'app');
-                url += '&ek=' + facRecord.current.enroll_key;
-                url += '&page=' + nextAction;
-                location.replace(url);
-            } else {
-                alert('操作成功');
-            }
-        });
-    };
-    $scope.likers = function(event) {
-        facRecord.likerList(facRecord.current).then(function(data) {
-            $scope.likers = data.likers;
-        });
-    };
-    facRecord = Record.ins();
-    facRecord.get(LS.p.ek);
-    $scope.Record = facRecord;
-}]);
-ngApp.controller('ctrlRemark', ['$scope', '$http', 'Record', 'ls', function($scope, $http, Record, LS) {
-    var facRecord;
-    $scope.newRemark = '';
-    $scope.remark = function(event) {
-        event.preventDefault();
-        event.stopPropagation();
-        if ($scope.newRemark.length === 0) {
-            alert('评论内容不允许为空');
-            return false;
-        }
-        if (facRecord.current.enroll_key === undefined) {
-            alert('没有指定要评论的登记记录');
-            return false;
-        }
-        facRecord.remark(facRecord.current, $scope.newRemark).then(function(rsp) {
-            $scope.newRemark = '';
-        });
-    };
-    facRecord = Record.ins();
-    facRecord.get(LS.p.ek);
-    $scope.Record = facRecord;
+    $scope.$watch('app', function(app) {
+        if (!app) return;
+        facRecord = Record.ins(app);
+        facRecord.get(LS.p.ek);
+        $scope.Record = facRecord;
+    });
 }]);
 ngApp.controller('ctrlInvite', ['$scope', '$http', 'Record', 'ls', function($scope, $http, Record, LS) {
     var facRecord;
@@ -321,45 +236,4 @@ ngApp.controller('ctrlInvite', ['$scope', '$http', 'Record', 'ls', function($sco
     facRecord.get(LS.p.ek);
     $scope.Record = facRecord;
 }]);
-ngApp.controller('ctrlStatistic', ['$scope', '$http', 'ls', function($scope, $http, LS) {
-    var fnFetch;
-    fnFetch = function(options) {
-        var url;
-        url = LS.j('statGet', 'site', 'app');
-        if (options) {
-            if (options.fromCache && options.fromCache === 'Y') {
-                url += '&fromCache=Y';
-                if (options.interval) {
-                    url += '&interval=' + options.interval;
-                }
-            }
-        }
-        $http.get(url).success(function(rsp) {
-            $scope.statistic = rsp.data;
-        });
-    };
-    $scope.fetch = fnFetch;
-}]);
-ngApp.directive('enrollStatistic', [function() {
-    return {
-        restrict: 'A',
-        link: function(scope, elem, attrs) {
-            var i, params, pv, options;
-            params = attrs.enrollStatistic.split(';');
-            options = {};
-            for (i in params) {
-                pv = params[i];
-                pv = pv.split('=');
-                options[pv[0]] = pv[1];
-            }
-            scope.fetch(options);
-        }
-    };
-}]);
-ngApp.controller('ctrlView', ['$scope', function($scope) {
-    $scope.$on('xxt.app.enroll.filter.owner', function(event, data) {
-        if (event.targetScope !== $scope) {
-            $scope.$broadcast('xxt.app.enroll.filter.owner', data);
-        }
-    });
-}]);
+ngApp.controller('ctrlView', ['$scope', function($scope) {}]);

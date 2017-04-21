@@ -422,9 +422,9 @@ class Image extends AbstractElement
         } elseif (filter_var($source, FILTER_VALIDATE_URL) !== false) {
             $this->memoryImage = true;
             $this->sourceType = self::SOURCE_GD;
-        } elseif (@file_exists($source)) {
-            $this->memoryImage = false;
-            $this->sourceType = self::SOURCE_LOCAL;
+        //} elseif (@file_exists($source)) {
+          //  $this->memoryImage = false;
+           // $this->sourceType = self::SOURCE_LOCAL;
         } else {
             $this->memoryImage = true;
             $this->sourceType = self::SOURCE_STRING;
@@ -496,7 +496,7 @@ class Image extends AbstractElement
     {
         switch ($this->imageType) {
             case 'image/png':
-                $this->imageCreateFunc = 'imagecreatefrompng';
+                $this->imageCreateFunc = 'imagecreatefromstring';
                 $this->imageFunc = 'imagepng';
                 $this->imageExtension = 'png';
                 break;

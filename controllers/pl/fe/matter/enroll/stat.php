@@ -159,7 +159,7 @@ class stat extends \pl\fe\matter\base {
 	/**
 	 *
 	 */
-	public function export_action($site, $app, $rid = '') {
+		public function export_action($site, $app, $rid = '') {
 		if (false === ($user = $this->accountUser())) {
 			return new \ResponseTimeout();
 		}
@@ -168,7 +168,8 @@ class stat extends \pl\fe\matter\base {
 		require_once TMS_APP_DIR . '/lib/jpgraph/jpgraph_bar.php';
 		require_once TMS_APP_DIR . '/lib/jpgraph/jpgraph_pie.php';
 		require_once TMS_APP_DIR . '/lib/jpgraph/jpgraph_line.php';
-
+		require_once TMS_APP_DIR . '/lib/PHPWord/bootstrap.php';
+       
 		$oApp = $this->model('matter\enroll')->byId($app, ['cascaded' => 'N']);
 
 		$schemas = json_decode($oApp->data_schemas);
@@ -179,20 +180,30 @@ class stat extends \pl\fe\matter\base {
 
 		$statResult = $this->_getResult($site, $oApp->id, $rid);
 
-		$html = '<html xmlns:o="urn:schemas-microsoft-com:office:office" xmlns:w="urn:schemas-microsoft-com:office:word" xmlns="http://www.w3.org/TR/REC-html40">';
-		$html .= '<head>';
-		$html .= '<meta http-equiv="Content-Type" content="text/html;charset=utf-8"/>';
-		$html .= "<style>table{width:100%;border-spacing:0;border-collapse:collapse;border:1px solid #ddd;}th,td{border:1px solid #ddd;}</style>";
-		$html .= '</head>';
-		$html .= '<body>';
+		$phpWord = new \PhpOffice\PhpWord\PhpWord();
+		$phpWord->setDefaultFontName('Times New Roman');
+		$section = $phpWord->addSection(array('pageNumberingStart' => 1));
+		$footer  = $section->addFooter();
+		$footer->addPreserveText('Page {PAGE} of {NUMPAGES}.');
 
 		$mappingOfImages = [];
 		$modelRec = $this->model('matter\enroll\record');
 
 		$scoreSummary = []; //所有打分题汇总数据
 		$totalScoreSummary = 0; //所有打分题的平局分合计
+		$fancyTableStyle = array(
+			'borderSize' => 6, 
+			'borderColor' => '006699', 
+			'cellMargin' => 80, 
+			'alignment' => \PhpOffice\PhpWord\SimpleType\JcTable::CENTER
+		);
+		$firstStyle= array('borderBottomSize' => 18, 'borderBottomColor' => '0000FF','bold'=>true,'size'=>18);
+		$fancyTableCellStyle = array('valign' => 'center');
+
 		foreach ($schemas as $index => $schema) {
-			$html .= "<h3><span>第" . ($index + 1) . "项：</span><span>{$schema->title}</span></h3>";
+			$section->addText("第".($index + 1)."项",['bold'=>true,'size'=>18]);
+			$section->addTextBreak(1,null,null);
+			
 			if (in_array($schema->type, ['name', 'email', 'mobile', 'date', 'location', 'shorttext', 'longtext'])) {
 				$textResult = $modelRec->list4Schema($oApp, $schema->id, ['rid' => $rid]);
 				if (!empty($textResult->records)) {
@@ -234,12 +245,13 @@ class stat extends \pl\fe\matter\base {
 						//
 						$mappingOfImages[$schema->id . '.base64'] = $imageBase64;
 						//
-						$html .= '<img src="' . $schema->id . '.base64" />';
+						$section->addImage($image_data);					
 					}
 					//拼装表格
 					$records = $textResult->records;
-					$html .= "<table><thead><tr>";
-					$html .= "<th>序号</th>";
+					$table1=$section->addTable("one",$fancyTableStyle);
+					$table1->addRow(900);
+					$table1->addCell(2000,$fancyTableCellStyle)->addText('序号',$firstStyle);
 					//$html .= "<th>轮次</th>";
 					$sumNumber = 0; //数值型最后合计的列号
 					//标识
@@ -248,21 +260,21 @@ class stat extends \pl\fe\matter\base {
 						if (!empty($rpConfig->marks)) {
 							foreach ($rpConfig->marks as $key => $mark) {
 								if ($schema->title !== $mark->name) {
-									$html .= "<th>" . $mark->name . "</th>";
+									$table1->addCell(2000,$fancyTableCellStyle)->addText($mark->name,$firstStyle);									
 									$sumNumber++;
 								}
 							}
 						}
 					} else {
-						$html .= "<th>昵称</th>";
+						$table1->addCell(2000,$fancyTableCellStyle)->addText('昵称',$firstStyle);						
 						$sumNumber++;
 					}
-					$html .= "<th>登记内容</th></tr></thead>";
-					$html .= "<tbody>";
+					$table1->addCell(2000,$fancyTableCellStyle)->addText('登记内容',$firstStyle);
+					
 					for ($i = 0, $l = count($records); $i < $l; $i++) {
-						$html .= "<tr>";
+						$table1->addRow(900);				
 						$record = $records[$i];
-						$html .= "<td>" . ($i + 1) . "</td>";
+						$table1->addCell(2000,$fancyTableCellStyle)->addText(($i + 1));
 						// if ($ridName = $this->model('matter\enroll\round')->byId($record->rid, ['fields' => 'title'])) {
 						// 	$html .= "<td>" . $ridName->title . "</td>";
 						// } else {
@@ -273,7 +285,7 @@ class stat extends \pl\fe\matter\base {
 							foreach ($rpConfig->marks as $mark) {
 								if ($schema->id !== $mark->id) {
 									if ($mark->id === 'nickname') {
-										$html .= "<td>" . $record->nickname . "</td>";
+										$table1->addCell(2000,$fancyTableCellStyle)->addText($record->nickname);									
 									} else {
 										$markId = $mark->id;
 										if (isset($record->data->$markId)) {
@@ -289,41 +301,42 @@ class stat extends \pl\fe\matter\base {
 											} else {
 												$label = $record->data->$markId;
 											}
-											$html .= "<td>" . $label . "</td>";
-
+											$table1->addCell(2000,$fancyTableCellStyle)->addText($label);							
 										} else {
-											$html .= "<td></td>";
+											$table1->addCell(2000,$fancyTableCellStyle)->addText('');											
 										}
 									}
 								}
 							}
 						} else {
-							$html .= "<td>" . $record->nickname . "</td>";
+							$table1->addCell(2000,$fancyTableCellStyle)->addText($record->nickname);							
 						}
 						$schemaId = $schema->id;
 						if (isset($record->data->$schemaId)) {
-							$html .= "<td>" . $record->data->$schemaId . "</td>";
+							$table1->addCell(2000,$fancyTableCellStyle)->addText($record->data->$schemaId);							
 						} else {
-							$html .= "<td></td>";
+							$table1->addCell(2000,$fancyTableCellStyle)->addText('');							
 						}
 					}
 					//数值型显示合计
 					if (isset($textResult->sum)) {
-						$html .= "<tr><td>合计</td>";
+						$table1->addRow(900);
+						$table1->addCell(2000,$fancyTableCellStyle)->addText('合计');					
 						if ($sumNumber > 0) {
 							for ($i = 0, $j = $sumNumber + 1; $i < $j; $i++) {
-								$html .= "<td> </td>";
+								$table1->addCell(2000,$fancyTableCellStyle)->addText('');							
 							}
 						}
-						$html .= "<td>" . $textResult->sum . "</td></tr>";
+						$table1->addCell(2000,$fancyTableCellStyle)->addText($textResult->sum);						
 					}
-					$html .= "</tbody></table>";
+					$section->addTextBreak(2,null,null);					
 				}
 			} else if (in_array($schema->type, ['single', 'phase', 'multiple'])) {
-				$item = $statResult[$schema->id];
+				$item = (array)$statResult[$schema->id];
 				$data = [];
 				$sum = 0;
 				foreach ($item['ops'] as $op) {
+					$op=(array)$op;
 					if ((int) $op['c'] !== 0) {
 						$data[] = (int) $op['c'];
 						$sum += (int) $op['c'];
@@ -340,7 +353,7 @@ class stat extends \pl\fe\matter\base {
 						$pie = new \PiePlot($data);
 						$labels = [];
 						for ($i = 0, $l = count($item['ops']); $i < $l; $i++) {
-							$op = $item['ops'][$i];
+							$op =(array)$item['ops'][$i];
 							if ((int) $op['c'] !== 0) {
 								$labels[] = '选项' . ($i + 1) . '：%.1f%%';
 							}
@@ -363,7 +376,7 @@ class stat extends \pl\fe\matter\base {
 					// Create a bar pot
 					$labels = [];
 					for ($i = 0, $l = count($item['ops']); $i < $l; $i++) {
-						$op = $item['ops'][$i];
+						$op = (array)$item['ops'][$i];
 						if ((int) $op['c'] !== 0) {
 							$labels[] = '选项' . ($i + 1);
 						}
@@ -391,16 +404,24 @@ class stat extends \pl\fe\matter\base {
 					$imageBase64 = chunk_split(base64_encode($image_data));
 					//
 					$mappingOfImages[$item['id'] . '.base64'] = $imageBase64;
-					//
-					$html .= '<img src="' . $item['id'] . '.base64" />';
+					
+					$section->addImage($image_data);				
 				}
-				$html .= "<table><thead><tr><th>选项编号</th><th>选项内容</th><th>数量</th></tr></thead>";
-				$html .= "<tbody>";
+				$section->addTextBreak(1,null,null);
+				$table2=$section->addTable('two',$fancyTableStyle);
+				$table2->addRow(900);
+				$table2->addCell(2000, $fancyTableCellStyle)->addText('选项编号',$firstStyle);
+				$table2->addCell(2000, $fancyTableCellStyle)->addText('选项内容',$firstStyle);
+				$table2->addCell(2000, $fancyTableCellStyle)->addText('数量',$firstStyle);
+			
 				for ($i = 0, $l = count($item['ops']); $i < $l; $i++) {
-					$op = $item['ops'][$i];
-					$html .= "<tr><td>选项" . ($i + 1) . "</td><td>{$op['l']}</td><td>{$op['c']}</td></tr>";
+					$op = (array)$item['ops'][$i];
+					$table2->addRow(900);
+					$table2->addCell(2000, $fancyTableCellStyle)->addText("选项". ($i + 1));
+					$table2->addCell(2000, $fancyTableCellStyle)->addText($op['l']);
+					$table2->addCell(2000, $fancyTableCellStyle)->addText($op['c']);				
 				}
-				$html .= "</tbody></table>";
+				$section->addTextBreak(2,null,null);			
 			} else if ('score' === $schema->type) {
 				//
 				$item = $statResult[$schema->id];
@@ -452,49 +473,69 @@ class stat extends \pl\fe\matter\base {
 					ob_end_clean(); // stop buffer
 					$imageBase64 = chunk_split(base64_encode($image_data));
 					//
-					$mappingOfImages[$item['id'] . '.base64'] = $imageBase64;
-					//
-					$html .= '<img src="' . $item['id'] . '.base64" />';
+					$mappingOfImages[$item['id'] . '.base64'] = $imageBase64;			
+			
+					$section->addImage($image_data);		
 				}
 				// table
-				$html .= "<table><thead><tr><th>打分项编号</th><th>打分项内容</th><th>平均分</th></tr></thead>";
-				$html .= "<tbody>";
+				$table3=$section->addTable('three',$fancyTableStyle);
+				$table3->addRow(900);
+				$table3->addCell(2000, $fancyTableCellStyle)->addText('打分项编号',$firstStyle);
+				$table3->addCell(2000, $fancyTableCellStyle)->addText('打分项内容',$firstStyle);
+				$table3->addCell(2000, $fancyTableCellStyle)->addText('平均分',$firstStyle);
+				
 				for ($i = 0, $l = count($item['ops']); $i < $l; $i++) {
 					$op2 = $item['ops'][$i];
-					$html .= "<tr><td>打分项" . ($i + 1) . "</td><td>{$op2['l']}</td><td>{$op2['c']}</td></tr>";
+					$table3->addRow(900);
+					$table3->addCell(2000, $fancyTableCellStyle)->addText($i+1);
+					$table3->addCell(2000, $fancyTableCellStyle)->addText($op2['l']);
+					$table3->addCell(2000, $fancyTableCellStyle)->addText($op2['c']);					
 				}
 				$avgScore = round($totalScore / count($item['ops']), 2);
-				$html .= "<tr><td>本项平均分</td><td>{$avgScore}</td></tr>";
-				$html .= "</tbody></table>";
+				$table3->addRow(900);
+				$table3->addCell(2000, $fancyTableCellStyle)->addText('本项平均分');
+				$table3->addCell(2000, $fancyTableCellStyle)->addText($avgScore);				
 				/*打分题汇总*/
 				$scoreSummary[] = ['l' => $schema->title, 'c' => $avgScore];
 				$totalScoreSummary += $avgScore;
 			}
-			$html .= "<div>&nbsp;</div>";
+			$section->addTextBreak(2,null,null);			
 		}
 		$avgScoreSummary = 0; //所有打分题的平均分
 		if (count($scoreSummary)) {
 			$avgScoreSummary = round($totalScoreSummary / count($scoreSummary), 2);
-			$html .= "<h3><span>打分项汇总</span></h3>";
-			$html .= "<table><thead><tr><th>打分项</th><th>平均分</th></tr></thead>";
-			$html .= "<tbody>";
+			$section->addText('打分项汇总',['bold'=>true,'size'=>18]);
+			$section->addTextBreak(1,null,null);
+			$table4=$section->addTable('four',$fancyTableStyle);
+			$table4->addRow(900);
+			$table4->addCell(2000, $fancyTableCellStyle)->addText('打分项',$firstStyle);
+			$table4->addCell(2000, $fancyTableCellStyle)->addText('平均分',$firstStyle);
+
 			foreach ($scoreSummary as $op) {
-				$html .= "<tr><td>{$op['l']}</td><td>{$op['c']}</td></tr>";
+				$table4->addRow(900);
+				$table4->addCell(2000, $fancyTableCellStyle)->addText($op['l']);
+				$table4->addCell(2000, $fancyTableCellStyle)->addText($op['c']);			
 			}
-			$html .= "<tr><td>所有打分项总平均分</td><td>{$avgScoreSummary}</td></tr>";
-			$html .= "<tr><td>所有打分项合计</td><td>{$totalScoreSummary}</td></tr>";
-			$html .= "</tbody></table>";
+			$table4->addRow(900);
+			$table4->addCell(2000, $fancyTableCellStyle)->addText('所有打分项总平均分');
+			$table4->addCell(2000, $fancyTableCellStyle)->addText($avgScoreSummary);
+			$table4->addRow(900);
+			$table4->addCell(2000, $fancyTableCellStyle)->addText('所有打分项合计');
+			$table4->addCell(2000, $fancyTableCellStyle)->addText($totalScoreSummary);
 		}
+		$section->addTextBreak(1,null,null);
+		
+		$name=!empty($oApp->title) ? $oApp->title : uniqid();
+		$file = $name . '.docx';
+		header("Content-Description: File Transfer");
+		header('Content-Disposition: attachment; filename="' . $file . '"');
+		header('Content-Type: application/vnd.openxmlformats-officedocument.wordprocessingml.document');
+		header('Content-Transfer-Encoding: binary');
+		header('Cache-Control: must-revalidate, post-check=0, pre-check=0');
+		header('Expires: 0');
+		$xmlWriter = \PhpOffice\PhpWord\IOFactory::createWriter($phpWord, 'Word2007');
+		$xmlWriter->save("php://output");
 
-		$html .= '</body>';
-		$html .= '</html>';
-		$html = $this->_MhtMake($html, $mappingOfImages); //生成mht内容
-
-		//header('pragma:public');
-		//header("Content-Type: application/vnd.ms-word;charset=utf-8;name=welcome.doc");
-		//header("Content-Disposition: attachment;filename=welcome.doc");
-		//echo $html;
-
-		return new \ResponseData($html);
+		die();
 	}
 }

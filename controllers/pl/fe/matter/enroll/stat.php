@@ -241,9 +241,6 @@ class stat extends \pl\fe\matter\base {
 						$graph->img->Stream(); // print data to buffer
 						$image_data = ob_get_contents(); // retrieve buffer contents
 						ob_end_clean(); // stop buffer
-						$imageBase64 = chunk_split(base64_encode($image_data));
-						//
-						$mappingOfImages[$schema->id . '.base64'] = $imageBase64;
 						//
 						$section->addImage($image_data);					
 					}
@@ -275,11 +272,6 @@ class stat extends \pl\fe\matter\base {
 						$table1->addRow(900);				
 						$record = $records[$i];
 						$table1->addCell(2000,$fancyTableCellStyle)->addText(($i + 1));
-						// if ($ridName = $this->model('matter\enroll\round')->byId($record->rid, ['fields' => 'title'])) {
-						// 	$html .= "<td>" . $ridName->title . "</td>";
-						// } else {
-						// 	$html .= "<td>无</td>";
-						// }
 						//标识
 						if (isset($rpConfig) && !empty($rpConfig->marks)) {
 							foreach ($rpConfig->marks as $mark) {
@@ -401,9 +393,6 @@ class stat extends \pl\fe\matter\base {
 					$graph->img->Stream(); // print data to buffer
 					$image_data = ob_get_contents(); // retrieve buffer contents
 					ob_end_clean(); // stop buffer
-					$imageBase64 = chunk_split(base64_encode($image_data));
-					//
-					$mappingOfImages[$item['id'] . '.base64'] = $imageBase64;
 					
 					$section->addImage($image_data);				
 				}
@@ -470,10 +459,7 @@ class stat extends \pl\fe\matter\base {
 					ob_start(); // start buffering
 					$graph->img->Stream(); // print data to buffer
 					$image_data = ob_get_contents(); // retrieve buffer contents
-					ob_end_clean(); // stop buffer
-					$imageBase64 = chunk_split(base64_encode($image_data));
-					//
-					$mappingOfImages[$item['id'] . '.base64'] = $imageBase64;			
+					ob_end_clean(); // stop buffer	
 			
 					$section->addImage($image_data);		
 				}

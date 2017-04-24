@@ -628,11 +628,12 @@ class record extends \pl\fe\matter\base {
 
 		// 转换标题
 		$isTotal = []; //是否需要合计
-		for ($i = 0, $ii = count($schemas); $i < $ii; $i++) {
+		$i = 0;
+		for ($a = 0, $ii = count($schemas); $a < $ii; $a++) {
 			$columnNum4 = $columnNum1; //列号
-			$schema = $schemas[$i];
-			/* 跳过图片和文件 */
-			if (in_array($schema->type, ['image', 'file'])) {
+			$schema = $schemas[$a];
+			/* 跳过图片,描述说明和文件 */
+			if (in_array($schema->type, ['image', 'file', 'html'])) {
 				continue;
 			}
 			if (isset($schema->number) && $schema->number === 'Y') {
@@ -640,6 +641,7 @@ class record extends \pl\fe\matter\base {
 			}
 
 			$objActiveSheet->setCellValueByColumnAndRow($i + $columnNum4++, 1, $schema->title);
+			$i++;
 		}
 		$objActiveSheet->setCellValueByColumnAndRow($i + $columnNum1++, 1, '昵称');
 		$objActiveSheet->setCellValueByColumnAndRow($i + $columnNum1++, 1, '备注');
@@ -669,12 +671,13 @@ class record extends \pl\fe\matter\base {
 			// 处理登记项
 			$data = $record->data;
 			isset($record->score) && $score = $record->score;
-			for ($i = 0, $ii = count($schemas); $i < $ii; $i++) {
+			$i = 0;
+			for ($i2 = 0, $ii = count($schemas); $i2 < $ii; $i2++) {
 				$columnNum3 = $columnNum2; //列号
-				$schema = $schemas[$i];
+				$schema = $schemas[$i2];
 				$v = isset($data->{$schema->id}) ? $data->{$schema->id} : '';
 
-				if (empty($v)) {
+				if (in_array($schema->type, ['image', 'file', 'html'])) {
 					continue;
 				}
 				switch ($schema->type) {
@@ -684,8 +687,10 @@ class record extends \pl\fe\matter\base {
 							$v0 = $op->l;
 						}
 					}
-					isset($score->{$schema->id}) && ($v0 .= ' (' . $score->{$schema->id} . '分)');
-					$objActiveSheet->setCellValueExplicitByColumnAndRow($i + $columnNum3++, $rowIndex, $v0, \PHPExcel_Cell_DataType::TYPE_STRING);
+					if(isset($v0)){
+						isset($score->{$schema->id}) && ($v0 .= ' (' . $score->{$schema->id} . '分)');
+						$objActiveSheet->setCellValueExplicitByColumnAndRow($i + $columnNum3++, $rowIndex, $v0, \PHPExcel_Cell_DataType::TYPE_STRING);
+					}
 					break;
 				case 'phase':
 					$disposed = null;
@@ -730,6 +735,7 @@ class record extends \pl\fe\matter\base {
 					$objActiveSheet->setCellValueExplicitByColumnAndRow($i + $columnNum3++, $rowIndex, $v, \PHPExcel_Cell_DataType::TYPE_STRING);
 					break;
 				}
+				$i++;
 			}
 			// 昵称
 			$objActiveSheet->setCellValueByColumnAndRow($i + $columnNum2++, $rowIndex, $record->nickname);

@@ -1,9 +1,15 @@
 /*carousel*/
-.carousel{background:#fff;padding:30px 0;margin-bottom:30px;}
+.carousel{background:#fff;margin-bottom:15px;position:relative;}
+.carousel:before{content:'';position: absolute;top:0;left:0;width:100%;height:100%;background: linear-gradient(to bottom, rgba(0,0,0,0) 85%, rgba(0,0,0,0.6));}
+@media screen and (min-width: 768px){.carousel-indicators {bottom:0px;}}
+.carousel-indicators li{margin:0 10px 0 0;border-radius:0;background-color:#a3cfe2;border:0;}
+.carousel-indicators .active{margin:0 10px 0 0;width:12px;height:12px;transform:rotate(45deg);position:relative;}
+.carousel-indicators .active:after{content:'';width:4px;height:4px;background-color:#a3cfe2;position:absolute;top:50%;left:50%;margin-left:-2px;margin-top:-2px;}
 .carousel-control.left{background-image:none;}
 .carousel-control.right{background-image:none;}
 
 /*articles/sites/apps/templates*/
+ul{list-style:none;padding-left:0;overflow: hidden;}
 #home .thumbnail{padding:1em;cursor:pointer;}
 #home .thumbnail:first-child{border-top:0;border-top-left-radius:0;border-top-right-radius:0;}
 #home .media-object{width:128px;height:128px;}

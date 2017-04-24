@@ -17,14 +17,14 @@ define(['frame'], function(ngApp) {
                 url = '/rest/pl/be/home/pageReset?name=' + pageType;
                 url += '&template=basic';
                 http2.get(url, function(rsp) {
-                    location.href = '/rest/pl/fe/code?site=platform&name=' + name;
+                    /*location.href = '/rest/pl/fe/code?site=platform&name=' + name;*/
                 });
             } else {
                 url = '/rest/pl/be/home/pageCreate?name=' + pageType;
                 url += '&template=basic';
                 http2.get(url, function(rsp) {
                     $scope.platform[pageType + '_page_name'] = rsp.data.name;
-                    location.href = '/rest/pl/fe/code?site=platform&name=' + rsp.data.name;
+                    /*location.href = '/rest/pl/fe/code?site=platform&name=' + rsp.data.name;*/
                 });
             }
         }

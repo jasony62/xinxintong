@@ -181,7 +181,7 @@ class article2_model extends article_base {
 		$q = array(
 			'id,score,userid,nickname',
 			'xxt_article_score',
-			"article_id='$articleId' and userid='{$user->uid}'",
+			['article_id' => $articleId, 'userid' => $user->uid]
 		);
 		$log = $this->query_obj_ss($q);
 		if ($log) {
@@ -206,7 +206,7 @@ class article2_model extends article_base {
 		$q = array(
 			'r.*',
 			'xxt_article_remark r',
-			"r.article_id='$articleId'",
+			['r.article_id' => $articleId]
 		);
 
 		if (!$range) {
@@ -217,7 +217,7 @@ class article2_model extends article_base {
 				$q2 = array('o' => 'r.create_at desc');
 				$remarks = $this->query_objs_ss($q, $q2);
 			} else {
-				$q[2] .= " and id='$remarkId'";
+				$q[2]['id'] = $remarkId;
 				$remarks = $this->query_obj_ss($q);
 			}
 			return $remarks;
@@ -305,7 +305,7 @@ class article2_model extends article_base {
 		$q2['r']['o'] = ($page - 1) * $limit;
 		$q2['r']['l'] = $limit;
 
-		$articles = parent::query_objs_ss($q, $q2);
+		$articles = $this->query_objs_ss($q, $q2);
 
 		return $articles;
 	}
@@ -324,17 +324,17 @@ class article2_model extends article_base {
 
 		$q2['o'] = 'create_at desc';
 
-		$articles = parent::query_objs_ss($q, $q2);
+		$articles = $this->query_objs_ss($q, $q2);
 		$articles = json_encode($articles);
 		$articles = json_decode($articles, 1);
 
 		//内容标签
 		$q3 = "select * from xxt_article_tag t left join xxt_tag g on t.tag_id=g.id where t.mpid='$site' and t.sub_type=0";
-		$tag_content = parent::query_objs($q3);
+		$tag_content = $this->query_objs($q3);
 
 		//频道标签
 		$q4 = "select m.matter_id,m.channel_id,c.siteid,c.title from xxt_channel_matter m left join xxt_channel c on m.channel_id=c.id where c.siteid='$site' and m.matter_type='article' ";
-		$tag_channel = parent::query_objs($q4);
+		$tag_channel = $this->query_objs($q4);
 
 		//将一篇文章所有标签放到tag下
 		$b = array();
@@ -371,7 +371,7 @@ class article2_model extends article_base {
 
 		$q2['o'] = 'create_at desc';
 
-		$r = parent::query_objs_ss($q, $q2);
+		$r = $this->query_objs_ss($q, $q2);
 		$one = (array) $r[0];
 		$num = $one['c'];
 

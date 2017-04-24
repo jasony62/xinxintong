@@ -199,9 +199,10 @@ class main extends \pl\fe\base {
 		$friendSites = [];
 		$friends = $modelSite->byFriend($mySiteIds);
 		foreach ($friends as $friend) {
-			$friendSite = $modelSite->byId($friend->siteid, ['fields' => 'id,name,summary,heading_pic']);
-			$friendSite->friend = $friend;
-			$friendSites[] = $friendSite;
+			if($friendSite = $modelSite->byId($friend->siteid, ['fields' => 'id,name,summary,heading_pic'])) {
+				$friendSite->friend = $friend;
+				$friendSites[] = $friendSite;
+			}
 		}
 
 		return new \ResponseData($friendSites);

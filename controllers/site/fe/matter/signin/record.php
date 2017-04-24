@@ -67,6 +67,7 @@ class record extends base {
 		 * 签到并保存登记的数据
 		 */
 		$modelRec = $this->model('matter\signin\record');
+		$modelRec->setOnlyWriteDbConn(true);
 		$signState = $modelRec->signin($user, $site, $signinApp, $signinData);
 		// 保存签到登记数据
 		empty($submitkey) && $submitkey = $user->uid;

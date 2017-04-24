@@ -20,12 +20,12 @@
                     <p class='summary' ng-bind="t.matter_summary"></p>
                     <div class='actions' ng-switch-when="enroll">
                         <button class='btn btn-sm btn-default' ng-click="openMatter(t,'main')">定义</button>
-                        <button class='btn btn-sm btn-default' ng-click="openMatter(t,'publish')">发布</button>
+                        <button class='btn btn-sm btn-default' ng-click="openMatter(t,'publish')">设置</button>
                         <button class='btn btn-sm btn-default' ng-click="openMatter(t,'record')">数据</button>
                     </div>
                     <div class='actions' ng-switch-when="signin">
                         <button class='btn btn-sm btn-default' ng-click="openMatter(t,'main')">定义</button>
-                        <button class='btn btn-sm btn-default' ng-click="openMatter(t,'publish')">发布</button>
+                        <button class='btn btn-sm btn-default' ng-click="openMatter(t,'publish')">设置</button>
                         <button class='btn btn-sm btn-default' ng-click="openMatter(t,'record')">数据</button>
                     </div>
                     <div class='actions' ng-switch-when="group">
@@ -240,7 +240,7 @@
             <button class='btn btn-default' ng-click="addMatter('channel')">频道</button>
         </div>
         <div class='form-group'>
-            <button class='btn btn-default' ng-click="addMatter('enroll','common')">登记活动</button>
+            <button class='btn btn-default' ng-click="addMatter('enroll')">登记活动</button>
             <button class='btn btn-default' ng-click="addMatter('signin')">签到活动</button>
             <button class='btn btn-default' ng-click="addMatter('group')">分组活动</button>
             <button class='btn btn-default' ng-click="addMatter('wall')">信息墙</button>

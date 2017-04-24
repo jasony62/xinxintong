@@ -20,7 +20,7 @@ ngApp.controller('ctrlChannel', ['$scope', '$location', 'http2', 'srvSite', func
         $scope.entryUrl = 'http://' + location.host + '/rest/site/fe/matter?site=' + $scope.siteId + '&id=' + $scope.id + '&type=channel';
     });
 }]);
-ngApp.controller('ctrlMain', ['$scope', 'http2', 'mattersgallery', function($scope, http2, mattersgallery) {
+ngApp.controller('ctrlMain', ['$scope', 'http2', 'mattersgallery', 'noticebox', function($scope, http2, mattersgallery, noticebox) {
     var modifiedData = {};
     $scope.modified = false;
     $scope.matterTypes = [{
@@ -95,6 +95,12 @@ ngApp.controller('ctrlMain', ['$scope', 'http2', 'mattersgallery', function($sco
             }
         });
     };
+    $scope.applyToHome = function() {
+        var url = '/rest/pl/fe/matter/home/apply?site=' + $scope.siteId + '&type=channel&id=' + $scope.id;
+        http2.get(url, function(rsp) {
+            noticebox.success('完成申请！');
+        });
+    }
     $scope.update = function(name) {
         $scope.modified = true;
         modifiedData[name] = $scope.editing[name];

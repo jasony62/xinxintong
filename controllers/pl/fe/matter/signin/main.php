@@ -56,7 +56,7 @@ class main extends \pl\fe\matter\base {
 		} else {
 			$options = [];
 			//按项目阶段筛选
-			if(isset($post->mission_phase_id) && !empty($post->mission_phase_id) && $post->mission_phase_id !== "ALL"){
+			if (isset($post->mission_phase_id) && !empty($post->mission_phase_id) && $post->mission_phase_id !== "ALL") {
 				$options['where']['mission_phase_id'] = $post->mission_phase_id;
 			}
 			$result = $model->byMission($mission, $options, $page, $size);
@@ -104,6 +104,7 @@ class main extends \pl\fe\matter\base {
 		$current = time();
 		$appId = uniqid();
 		$modelApp = $this->model('matter\signin');
+		$modelApp->setOnlyWriteDbConn(true);
 
 		/* 从站点和项目中获得pic定义 */
 		$site = $this->model('site')->byId($site, ['fields' => 'id,heading_pic']);
@@ -185,6 +186,7 @@ class main extends \pl\fe\matter\base {
 
 		$current = time();
 		$modelApp = $this->model('matter\signin');
+		$modelApp->setOnlyWriteDbConn(true);
 		$modelCode = $this->model('code\page');
 
 		$copied = $modelApp->byId($app);
@@ -286,7 +288,6 @@ class main extends \pl\fe\matter\base {
 
 		if ($rst = $modelApp->update('xxt_signin', $nv, ["id" => $app])) {
 			/*记录操作日志*/
-			$matter->type = 'signin';
 			$this->model('matter\log')->matterOp($site, $user, $matter, 'U');
 		}
 

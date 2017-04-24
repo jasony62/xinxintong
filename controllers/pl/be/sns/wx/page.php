@@ -20,19 +20,19 @@ class page extends \pl\be\base {
 		if (false === ($user = $this->accountUser())) {
 			return new \ResponseTimeout();
 		}
-		$site = $this->model('site')->byId($site);
+		$oSite = $this->model('site')->byId($site);
 
-		$data = $this->_makePage($site, $template);
+		$data = $this->_makePage($oSite, $template);
 
-		$code = \TMS_APP::model('code\page')->create($site, $user->id, $data);
+		$code = \TMS_APP::model('code\page')->create('platform', $user->id, $data);
 
 		$rst = $this->model()->update(
 			'xxt_site_wx',
-			array(
+			[
 				'follow_page_id' => $code->id,
 				'follow_page_name' => $code->name,
-			),
-			"siteid='platform'"
+			],
+			['siteid' => 'platform']
 		);
 
 		return new \ResponseData($code);
@@ -47,12 +47,12 @@ class page extends \pl\be\base {
 			return new \ResponseTimeout();
 		}
 
-		$site = $this->model('site')->byId($site);
+		$oSite = $this->model('site')->byId($site);
 
-		$data = $this->_makePage($site, $template);
+		$data = $this->_makePage($oSite, $template);
 
 		$modelCode = \TMS_APP::model('code\page');
-		$code = $modelCode->lastByName($site, $name);
+		$code = $modelCode->lastByName('platform', $name);
 		$rst = $modelCode->modify($code->id, $data);
 
 		return new \ResponseData($rst);

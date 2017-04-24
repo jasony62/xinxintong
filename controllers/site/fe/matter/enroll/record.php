@@ -140,6 +140,7 @@ class record extends base {
 		 */
 		$updatedEnrollRec = [];
 		$modelRec = $this->model('matter\enroll\record');
+		$modelRec->setOnlyWriteDbConn(true);
 		if (empty($ek)) {
 			/* 插入登记数据 */
 			$ek = $modelRec->enroll($site, $oEnrollApp, $user);
@@ -311,6 +312,9 @@ class record extends base {
 			return false;
 		}
 		foreach ($tmplConfig->tmplmsg->params as $param) {
+			if (!isset($tmplConfig->mapping->{$param->pname})) {
+				continue;
+			}
 			$mapping = $tmplConfig->mapping->{$param->pname};
 			if ($mapping->src === 'matter') {
 				if (isset($oApp->{$mapping->id})) {

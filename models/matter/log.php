@@ -42,7 +42,7 @@ class log_model extends \TMS_MODEL {
 		$q = [
 			'l.userid,l.nickname,l.read_at',
 			'xxt_log_matter_read l',
-			"l.matter_type='$type' and l.matter_id='$id'",
+			['l.matter_type' => $type, 'l.matter_id' => $id]
 		];
 		/**
 		 * 分页数据

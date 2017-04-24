@@ -32,9 +32,11 @@ define(['frame'], function(ngApp) {
             /* 点评数据 */
             var remarkableSchemas = [];
             app.dataSchemas.forEach(function(schema) {
-                schema._open = false;
-                oRecord.verbose && oRecord.verbose[schema.id] && (schema.summary = oRecord.verbose[schema.id]);
-                remarkableSchemas.push(schema);
+                if (schema.remarkable === 'Y') {
+                    schema._open = false;
+                    oRecord.verbose && oRecord.verbose[schema.id] && (schema.summary = oRecord.verbose[schema.id]);
+                    remarkableSchemas.push(schema);
+                }
             });
             $scope.remarkableSchemas = remarkableSchemas;
         }
@@ -52,12 +54,14 @@ define(['frame'], function(ngApp) {
 
 
         $scope.save = function() {
+            //updated 上传数据包
             var updated = {
+                //数组 转 字符串
                 tags: oRecord.aTags.join(','),
             };
 
             oRecord.tags = updated.tags;
-            updated.comment = oRecord.comment;
+            updated.comment = oRecord.comment; //oRecord 信息
             updated.verified = oRecord.verified;
             updated.rid = oRecord.rid;
             if (oRecord.enroll_key) {
@@ -73,6 +77,8 @@ define(['frame'], function(ngApp) {
                     }
                 });
             } else {
+                updated.data = oRecord.data;
+                updated.quizScore = oQuizScore;
                 srvEnrollRecord.add(updated).then(function(newRecord) {
                     oRecord.enroll_key = newRecord.enroll_key;
                     oRecord.enroll_at = newRecord.enroll_at;

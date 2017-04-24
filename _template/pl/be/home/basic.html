@@ -25,7 +25,7 @@
                                 <h4 class="media-heading">{{a.title}}</h4>
                                 <div>{{a.summary}}</div>
                                 <div class='attr'>
-                                    <div class='creater_name' ng-bind="a.creater_name"></div>
+                                    <div class='creater_name' ng-bind="a.site_name"></div>
                                     <div class='put_at' ng-bind="a.put_at*1000|date:'yyyy-MM-dd'"></div>
                                 </div>
                             </div>
@@ -82,6 +82,32 @@
                                     <div class='creater_name' ng-bind="t.creater_name"></div>
                                     <div class='put_at' ng-bind="t.put_at*1000|date:'yyyy-MM-dd'"></div>
                                 </div>
+                            </div>
+                        </div>
+                    </div>
+                </uib-tab>
+                <uib-tab index="4" ng-if="channels.length">
+                    <uib-tab-heading>引导手册</uib-tab-heading>
+                    <div class='thumbnail channel' ng-repeat="c in channels">
+                        <div class="media">
+                            <h4 class="media-heading">{{c.title}}</h4>
+                            <a class="pull-right" ng-href="{{c.url}}">更多</a>
+                            <div class="media-body" ng-repeat="a in channelArticles">
+                                <a class="media-heading" ng-href="{{a.entryUrl}}">{{a.title}}</a>
+                            </div>
+                        </div>
+                    </div>
+                </uib-tab>
+                <uib-tab index="5" ng-if="topArticles.length">
+                    <uib-tab-heading>置顶文章</uib-tab-heading>
+                    <div class='thumbnail topArticles' ng-repeat="ta in topArticles">
+                        <div class="media">
+                            <div class="media-left">
+                                <img class="media-object" ng-src='{{ta.pic}}'>
+                            </div>
+                            <div class="media-body">
+                                <h4 class="media-heading">{{ta.title}}</h4>
+                                <div>{{ta.summary}}</div>
                             </div>
                         </div>
                     </div>

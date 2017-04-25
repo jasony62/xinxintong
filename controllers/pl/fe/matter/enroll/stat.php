@@ -183,8 +183,10 @@ class stat extends \pl\fe\matter\base {
 		$phpWord = new \PhpOffice\PhpWord\PhpWord();
 		$phpWord->setDefaultFontName('Times New Roman');
 		$section = $phpWord->addSection(array('pageNumberingStart' => 1));
+		$header = $section->addHeader();
+		$header->addText($oApp->title,['bold'=>true,'size'=>28,'name'=>'Arial'],['alignment' => \PhpOffice\PhpWord\SimpleType\Jc::CENTER,]);
 		$footer  = $section->addFooter();
-		$footer->addPreserveText('Page {PAGE} of {NUMPAGES}.');
+		$footer->addPreserveText('Page {PAGE} of {NUMPAGES}.',null,['alignment' => \PhpOffice\PhpWord\SimpleType\Jc::CENTER]);
 
 		$mappingOfImages = [];
 		$modelRec = $this->model('matter\enroll\record');
@@ -194,14 +196,21 @@ class stat extends \pl\fe\matter\base {
 		$fancyTableStyle = array(
 			'borderSize' => 6, 
 			'borderColor' => '006699', 
-			'cellMargin' => 80, 
-			'alignment' => \PhpOffice\PhpWord\SimpleType\JcTable::CENTER
+			'cellMargin' => 188, 
+			//'alignment' => \PhpOffice\PhpWord\SimpleType\JcTable::CENTER,
 		);
 		$firstStyle= array('borderBottomSize' => 18, 'borderBottomColor' => '0000FF','bold'=>true,'size'=>18);
 		$fancyTableCellStyle = array('valign' => 'center');
+		$paragraphStyle=array('alignment' => \PhpOffice\PhpWord\SimpleType\Jc::CENTER);
+		$imgStyle= array(
+			'marginTop'     => 1,
+			'marginLeft'    => 1,
+			//'alignment' => \PhpOffice\PhpWord\SimpleType\Jc::CENTER,
+			'wrappingStyle' => 'behind'
+    	);
 
 		foreach ($schemas as $index => $schema) {
-			$section->addText("第".($index + 1)."项",['bold'=>true,'size'=>18]);
+			$section->addText("第".($index + 1)."项",['bold'=>true,'size'=>18,'color'=>'B6292B']);
 			$section->addTextBreak(1,null,null);
 			
 			if (in_array($schema->type, ['name', 'email', 'mobile', 'date', 'location', 'shorttext', 'longtext'])) {
@@ -219,7 +228,7 @@ class stat extends \pl\fe\matter\base {
 						if (empty($data)) {
 							continue;
 						}
-						$graph = new \PieGraph(550, 300);
+						$graph = new \PieGraph(369, 300);
 						$graph->SetShadow();
 						$pie = new \PiePlot($data);
 						$labels = [];
@@ -242,14 +251,14 @@ class stat extends \pl\fe\matter\base {
 						$image_data = ob_get_contents(); // retrieve buffer contents
 						ob_end_clean(); // stop buffer
 						//
-						$section->addImage($image_data);					
+						$section->addImage($image_data,$imgStyle);					
 					}
 					//拼装表格
 					$records = $textResult->records;
+					$phpWord->addTableStyle("one", $fancyTableStyle, $firstStyle);
 					$table1=$section->addTable("one",$fancyTableStyle);
-					$table1->addRow(900);
-					$table1->addCell(2000,$fancyTableCellStyle)->addText('序号',$firstStyle);
-					//$html .= "<th>轮次</th>";
+					$table1->addRow(800);
+					$table1->addCell(2000,$fancyTableCellStyle)->addText('序号',$firstStyle,$paragraphStyle);
 					$sumNumber = 0; //数值型最后合计的列号
 					//标识
 					if (!empty($oApp->rp_config)) {
@@ -257,19 +266,19 @@ class stat extends \pl\fe\matter\base {
 						if (!empty($rpConfig->marks)) {
 							foreach ($rpConfig->marks as $key => $mark) {
 								if ($schema->title !== $mark->name) {
-									$table1->addCell(2000,$fancyTableCellStyle)->addText($mark->name,$firstStyle);									
+									$table1->addCell(2000,$fancyTableCellStyle)->addText($mark->name,$firstStyle,$paragraphStyle);									
 									$sumNumber++;
 								}
 							}
 						}
 					} else {
-						$table1->addCell(2000,$fancyTableCellStyle)->addText('昵称',$firstStyle);						
+						$table1->addCell(2000,$fancyTableCellStyle)->addText('昵称',$firstStyle,$paragraphStyle);						
 						$sumNumber++;
 					}
-					$table1->addCell(2000,$fancyTableCellStyle)->addText('登记内容',$firstStyle);
+					$table1->addCell(2000,$fancyTableCellStyle)->addText('登记内容',$firstStyle,$paragraphStyle);
 					
 					for ($i = 0, $l = count($records); $i < $l; $i++) {
-						$table1->addRow(900);				
+						$table1->addRow(800);				
 						$record = $records[$i];
 						$table1->addCell(2000,$fancyTableCellStyle)->addText(($i + 1));
 						//标识
@@ -312,7 +321,7 @@ class stat extends \pl\fe\matter\base {
 					}
 					//数值型显示合计
 					if (isset($textResult->sum)) {
-						$table1->addRow(900);
+						$table1->addRow(800);
 						$table1->addCell(2000,$fancyTableCellStyle)->addText('合计');					
 						if ($sumNumber > 0) {
 							for ($i = 0, $j = $sumNumber + 1; $i < $j; $i++) {
@@ -340,7 +349,7 @@ class stat extends \pl\fe\matter\base {
 				if (in_array($schema->type, ['single', 'phase'])) {
 					// Create a pie pot
 					if ($sum) {
-						$graph = new \PieGraph(550, 300);
+						$graph = new \PieGraph(369, 300);
 						$graph->SetShadow();
 						$pie = new \PiePlot($data);
 						$labels = [];
@@ -359,7 +368,7 @@ class stat extends \pl\fe\matter\base {
 					}
 				} else if ($schema->type === 'multiple') {
 					// Create the graph. These two calls are always required
-					$graph = new \Graph(550, 200);
+					$graph = new \Graph(369, 200);
 					$graph->SetScale("textint");
 					// Add a drop shadow
 					$graph->SetShadow();
@@ -394,18 +403,19 @@ class stat extends \pl\fe\matter\base {
 					$image_data = ob_get_contents(); // retrieve buffer contents
 					ob_end_clean(); // stop buffer
 					
-					$section->addImage($image_data);				
+					$section->addImage($image_data,$imgStyle);				
 				}
 				$section->addTextBreak(1,null,null);
+				$phpWord->addTableStyle("two", $fancyTableStyle, $firstStyle);
 				$table2=$section->addTable('two',$fancyTableStyle);
-				$table2->addRow(900);
-				$table2->addCell(2000, $fancyTableCellStyle)->addText('选项编号',$firstStyle);
-				$table2->addCell(2000, $fancyTableCellStyle)->addText('选项内容',$firstStyle);
-				$table2->addCell(2000, $fancyTableCellStyle)->addText('数量',$firstStyle);
+				$table2->addRow(800);
+				$table2->addCell(2000, $fancyTableCellStyle)->addText('选项编号',$firstStyle,$paragraphStyle);
+				$table2->addCell(2000, $fancyTableCellStyle)->addText('选项内容',$firstStyle,$paragraphStyle);
+				$table2->addCell(2000, $fancyTableCellStyle)->addText('数量',$firstStyle,$paragraphStyle);
 			
 				for ($i = 0, $l = count($item['ops']); $i < $l; $i++) {
 					$op = (array)$item['ops'][$i];
-					$table2->addRow(900);
+					$table2->addRow(800);
 					$table2->addCell(2000, $fancyTableCellStyle)->addText("选项". ($i + 1));
 					$table2->addCell(2000, $fancyTableCellStyle)->addText($op['l']);
 					$table2->addCell(2000, $fancyTableCellStyle)->addText($op['c']);				
@@ -427,7 +437,7 @@ class stat extends \pl\fe\matter\base {
 				if (count($data) > 1) {
 					// 如果只有1个点，jpgraph会报错，所以跳过绘图。
 					// Setup the graph
-					$graph = new \Graph(550, 200);
+					$graph = new \Graph(369, 200);
 					$graph->SetScale("textlin");
 
 					$theme_class = new \UniversalTheme;
@@ -461,24 +471,25 @@ class stat extends \pl\fe\matter\base {
 					$image_data = ob_get_contents(); // retrieve buffer contents
 					ob_end_clean(); // stop buffer	
 			
-					$section->addImage($image_data);		
+					$section->addImage($image_data,$imgStyle);		
 				}
 				// table
+				$phpWord->addTableStyle("three", $fancyTableStyle, $firstStyle);
 				$table3=$section->addTable('three',$fancyTableStyle);
-				$table3->addRow(900);
-				$table3->addCell(2000, $fancyTableCellStyle)->addText('打分项编号',$firstStyle);
-				$table3->addCell(2000, $fancyTableCellStyle)->addText('打分项内容',$firstStyle);
-				$table3->addCell(2000, $fancyTableCellStyle)->addText('平均分',$firstStyle);
+				$table3->addRow(800);
+				$table3->addCell(2000, $fancyTableCellStyle)->addText('打分项编号',$firstStyle,$paragraphStyle);
+				$table3->addCell(2000, $fancyTableCellStyle)->addText('打分项内容',$firstStyle,$paragraphStyle);
+				$table3->addCell(2000, $fancyTableCellStyle)->addText('平均分',$firstStyle,$paragraphStyle);
 				
 				for ($i = 0, $l = count($item['ops']); $i < $l; $i++) {
 					$op2 = $item['ops'][$i];
-					$table3->addRow(900);
+					$table3->addRow(800);
 					$table3->addCell(2000, $fancyTableCellStyle)->addText($i+1);
 					$table3->addCell(2000, $fancyTableCellStyle)->addText($op2['l']);
 					$table3->addCell(2000, $fancyTableCellStyle)->addText($op2['c']);					
 				}
 				$avgScore = round($totalScore / count($item['ops']), 2);
-				$table3->addRow(900);
+				$table3->addRow(800);
 				$table3->addCell(2000, $fancyTableCellStyle)->addText('本项平均分');
 				$table3->addCell(2000, $fancyTableCellStyle)->addText($avgScore);				
 				/*打分题汇总*/
@@ -492,20 +503,21 @@ class stat extends \pl\fe\matter\base {
 			$avgScoreSummary = round($totalScoreSummary / count($scoreSummary), 2);
 			$section->addText('打分项汇总',['bold'=>true,'size'=>18]);
 			$section->addTextBreak(1,null,null);
+			$phpWord->addTableStyle("four", $fancyTableStyle, $firstStyle);
 			$table4=$section->addTable('four',$fancyTableStyle);
-			$table4->addRow(900);
-			$table4->addCell(2000, $fancyTableCellStyle)->addText('打分项',$firstStyle);
-			$table4->addCell(2000, $fancyTableCellStyle)->addText('平均分',$firstStyle);
+			$table4->addRow(800);
+			$table4->addCell(2000, $fancyTableCellStyle)->addText('打分项',$firstStyle,$paragraphStyle);
+			$table4->addCell(2000, $fancyTableCellStyle)->addText('平均分',$firstStyle,$paragraphStyle);
 
 			foreach ($scoreSummary as $op) {
-				$table4->addRow(900);
+				$table4->addRow(800);
 				$table4->addCell(2000, $fancyTableCellStyle)->addText($op['l']);
 				$table4->addCell(2000, $fancyTableCellStyle)->addText($op['c']);			
 			}
-			$table4->addRow(900);
+			$table4->addRow(800);
 			$table4->addCell(2000, $fancyTableCellStyle)->addText('所有打分项总平均分');
 			$table4->addCell(2000, $fancyTableCellStyle)->addText($avgScoreSummary);
-			$table4->addRow(900);
+			$table4->addRow(800);
 			$table4->addCell(2000, $fancyTableCellStyle)->addText('所有打分项合计');
 			$table4->addCell(2000, $fancyTableCellStyle)->addText($totalScoreSummary);
 		}

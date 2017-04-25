@@ -91,6 +91,13 @@ class main extends \site\fe\matter\base {
 				);
 			}
 		}
+		/*如果此单图文属于引用那么需要返回被引用的单图文*/
+		if($article->from_mode === 'C'){
+			$id2 = $article->from_id;
+			$article2 = $modelArticle->byId($id2, ['fields' => 'body,author,siteid,id']);
+			$article->body = $article2->body;
+			$article->author = $article2->author;
+		}
 
 		return new \ResponseData($data);
 	}

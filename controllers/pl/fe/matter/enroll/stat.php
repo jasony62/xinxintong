@@ -194,9 +194,10 @@ class stat extends \pl\fe\matter\base {
 		$scoreSummary = []; //所有打分题汇总数据
 		$totalScoreSummary = 0; //所有打分题的平局分合计
 		$fancyTableStyle = array(
-			'borderSize' => 6, 
+			'borderSize' => 6,
+			//'width' =>'1000',
 			'borderColor' => '006699', 
-			'cellMargin' => 188, 
+			'cellMargin' => 88, 
 			//'alignment' => \PhpOffice\PhpWord\SimpleType\JcTable::CENTER,
 		);
 		$firstStyle= array('borderBottomSize' => 18, 'borderBottomColor' => '0000FF','bold'=>true,'size'=>18);
@@ -278,7 +279,7 @@ class stat extends \pl\fe\matter\base {
 					$table1->addCell(2000,$fancyTableCellStyle)->addText('登记内容',$firstStyle,$paragraphStyle);
 					
 					for ($i = 0, $l = count($records); $i < $l; $i++) {
-						$table1->addRow(800);				
+						$table1->addRow(500);				
 						$record = $records[$i];
 						$table1->addCell(2000,$fancyTableCellStyle)->addText(($i + 1));
 						//标识
@@ -321,7 +322,7 @@ class stat extends \pl\fe\matter\base {
 					}
 					//数值型显示合计
 					if (isset($textResult->sum)) {
-						$table1->addRow(800);
+						$table1->addRow(500);
 						$table1->addCell(2000,$fancyTableCellStyle)->addText('合计');					
 						if ($sumNumber > 0) {
 							for ($i = 0, $j = $sumNumber + 1; $i < $j; $i++) {
@@ -415,7 +416,7 @@ class stat extends \pl\fe\matter\base {
 			
 				for ($i = 0, $l = count($item['ops']); $i < $l; $i++) {
 					$op = (array)$item['ops'][$i];
-					$table2->addRow(800);
+					$table2->addRow(500);
 					$table2->addCell(2000, $fancyTableCellStyle)->addText("选项". ($i + 1));
 					$table2->addCell(2000, $fancyTableCellStyle)->addText($op['l']);
 					$table2->addCell(2000, $fancyTableCellStyle)->addText($op['c']);				
@@ -483,13 +484,13 @@ class stat extends \pl\fe\matter\base {
 				
 				for ($i = 0, $l = count($item['ops']); $i < $l; $i++) {
 					$op2 = $item['ops'][$i];
-					$table3->addRow(800);
+					$table3->addRow(500);
 					$table3->addCell(2000, $fancyTableCellStyle)->addText($i+1);
 					$table3->addCell(2000, $fancyTableCellStyle)->addText($op2['l']);
 					$table3->addCell(2000, $fancyTableCellStyle)->addText($op2['c']);					
 				}
 				$avgScore = round($totalScore / count($item['ops']), 2);
-				$table3->addRow(800);
+				$table3->addRow(500);
 				$table3->addCell(2000, $fancyTableCellStyle)->addText('本项平均分');
 				$table3->addCell(2000, $fancyTableCellStyle)->addText($avgScore);				
 				/*打分题汇总*/
@@ -510,14 +511,14 @@ class stat extends \pl\fe\matter\base {
 			$table4->addCell(2000, $fancyTableCellStyle)->addText('平均分',$firstStyle,$paragraphStyle);
 
 			foreach ($scoreSummary as $op) {
-				$table4->addRow(800);
+				$table4->addRow(500);
 				$table4->addCell(2000, $fancyTableCellStyle)->addText($op['l']);
 				$table4->addCell(2000, $fancyTableCellStyle)->addText($op['c']);			
 			}
-			$table4->addRow(800);
+			$table4->addRow(500);
 			$table4->addCell(2000, $fancyTableCellStyle)->addText('所有打分项总平均分');
 			$table4->addCell(2000, $fancyTableCellStyle)->addText($avgScoreSummary);
-			$table4->addRow(800);
+			$table4->addRow(500);
 			$table4->addCell(2000, $fancyTableCellStyle)->addText('所有打分项合计');
 			$table4->addCell(2000, $fancyTableCellStyle)->addText($totalScoreSummary);
 		}

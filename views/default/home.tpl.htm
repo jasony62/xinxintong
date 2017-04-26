@@ -42,31 +42,32 @@
                 </ul>
                 <form class='navbar-form navbar-right ng-cloak' ng-cloak ng-if="user.isLogin===true">
                     <div class="btn-group" ng-switch on="user.role">
-                        <a ng-switch-when="admin" ng-href='/rest/pl/fe' target='_self' class="btn btn-default">
-                            <i class='glyphicon glyphicon-user'></i>
+                        <a ng-switch-when="admin" ng-href='/rest/pl/fe' target='_self' class="btn btn-default" data-toggle="dropdown">
+                            <span class="site_fe_home site_fe_home_icon xxt_team"></span>
                             <span ng-bind="user.nickname" ></span>
                         </a>
-                        <a ng-switch-when="person" ng-href='/rest/site/fe/user?site=platform' target='_self' class="btn btn-default">
-                            <i class='glyphicon glyphicon-user'></i>
+                        <a ng-switch-when="person" ng-href='/rest/site/fe/user?site=platform' target='_self' class="btn btn-default" data-toggle="dropdown">
+                            <span class="site_fe_home site_fe_home_icon xxt_person"></span>
                             <span ng-bind="user.nickname"></span>
                         </a>
-                        <button type="button" class="btn btn-default dropdown-toggle" data-toggle="dropdown">
-                            <span class="caret"></span>
-                            <span class="sr-only">Toggle Dropdown</span>
-                        </button>
                         <ul class="dropdown-menu" role="menu" ng-switch-when="admin">
-                            <li><a href='/rest/pl/fe/user/settings' target='_self'>用户设置</a></li>
-                            <li class="divider"></li>
-                            <li><a href='/rest/pl/fe/user/logout' target='_self'>退出</a></li>
-                            <li class="divider"></li>
-                            <li><a href='' ng-click="shiftAsPerson()">切换到个人账号</a></li>
+                            <li><a href='/rest/pl/fe/user/settings' target='_self'>
+                            <span class="site_fe_home site_fe_home_icon xxt_setting"></span>用户设置</a></li>
+
+                            <li><a href='' ng-click="shiftAsPerson()">
+                            <span class="site_fe_home site_fe_home_icon xxt_person"></span>切换个人</a></li>
+
+                            <li><a href='/rest/pl/fe/user/logout' target='_self'>
+                            <span class="site_fe_home site_fe_home_icon xxt_quite"></span>退出</a></li>
                         </ul>
                         <ul class="dropdown-menu" role="menu" ng-switch-when="person">
-                            <li><a href='/rest/site/fe/user?site=platform' target='_self'>用户设置</a></li>
-                            <li class="divider"></li>
-                            <li><a href='/rest/site/fe/user/logout/do?site=platform&redirect=Y' target='_self'>退出</a></li>
-                            <li class="divider"></li>
-                            <li><a href='' ng-click="shiftAsAdmin()">切换到团队账号</a></li>
+                            <li><a href='/rest/site/fe/user?site=platform' target='_self'>
+                            <span class="site_fe_home site_fe_home_icon xxt_setting"></span>用户设置</a></li>
+                            <li><a href='' ng-click="shiftAsAdmin()">
+                            <span class="site_fe_home site_fe_home_icon xxt_team"></span>切换团队</a></li>
+
+                            <li><a href='/rest/site/fe/user/logout/do?site=platform&redirect=Y' target='_self'>
+                            <span class="site_fe_home site_fe_home_icon xxt_quite"></span>退出</a></li>
                         </ul>
                     </div>
                 </form>
@@ -74,6 +75,11 @@
         </div>
     </nav>
     <div dynamic-html='page.html'></div>
+    <nav class="navbar navbar-inverse">
+        <div class="container">
+            <div class="row"></div>
+        </div>
+    </nav>
     <script type="text/ng-template" id="userLogin.html">
         <div>
             <div>

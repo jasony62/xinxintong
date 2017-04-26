@@ -1,4 +1,4 @@
-<div id='home' ng-controller='ctrlHome' class='container'>
+<div id='home' ng-controller='ctrlHome' class='container home'>
     <div class='row' ng-if="platform.home_carousel">
         <div class='col-md-12'>
             <div ng-controller="ctrlCarousel">
@@ -12,106 +12,178 @@
         </div>
     </div>
     <div class='row'>
-        <div class='col-md-8'>
-            <div class="tab-title row">
-                <ul>
-                    <li ng-mouseenter="selectTag($index)" class="selectTag col-xs-6 col-md-4" ng-repeat="ta in topArticles">
-                        <a ng-href="{{ta.url}}" class="thumbnail">
-                            <h4 class="media-heading">{{ta.title}}</h4>
-                            <p>{{ta.summary}}</p>
-                            <img class="img-responsive" ng-src="{{ta.pic}}" />
-                        </a>
-                    </li>
-                </ul>
+        <div class="col-md-12 col-xs-12 main">
+            <div class='col-md-8 col-xs-12'>
+                <div id="slider_extends" class="row slider_extends">
+                    <ul class="list-unstyled">
+                        <li ng-mouseenter="selectTag($index)" class="col-xs-6 col-md-4 slider_extend" ng-repeat="ta in topArticles" >
+                            <a ng-href="{{ta.url}}">
+                                <div class="caption">
+                                    <h5 class="text-wrap">{{ta.title}}</h5>
+                                    <p class="text-wrap">{{ta.summary}}</p>
+                                </div>
+                                <span class="mask"></span>
+                                <img class="img-responsive" ng-src="{{ta.pic}}" />
+                            </a>
+                        </li>
+                    </ul>
+                </div>
+                <uib-tabset active="0" class="row">
+                    <uib-tab index="0" ng-if="articles.length">
+                        <uib-tab-heading>热门时讯</uib-tab-heading>
+                        <table class="table table-hover">
+                            <tbody>
+                                <tr ng-repeat="a in articles" ng-click="openMatter(a)">
+                                    <td>
+                                        <div class="media">
+                                            <div class="media-left">
+                                                <img class="media-object" ng-src='{{a.pic}}'>
+                                            </div>
+                                            <div class="media-body">
+                                                <h4 class="media-heading">{{a.title}}</h4>
+                                                <div class="media-summary">{{a.summary}}</div>
+                                                <div class='attr clearfix'>
+                                                    <div class='creater_name pull-left'>
+                                                        <span class="site_fe_home site_fe_home_icon xxt_team"></span>
+                                                        {{a.site_name}}
+                                                    </div>
+                                                    <div class='put_at pull-left' ng-bind="a.put_at*1000|date:'yyyy-MM-dd'"></div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
+                        <div>
+                            <button class='btn btn-lg btn-primary  btn-gradient center-block' ng-click="moreMatters('article')" ng-if="articles.total>articles.length">加 载 更 多</button>
+                        </div>
+                    </uib-tab>
+                    <uib-tab index="1" ng-if="sites.length">
+                        <uib-tab-heading>推荐团队</uib-tab-heading>
+                        <table class="table table-hover">
+                            <tbody>
+                                <tr ng-repeat="s in sites" ng-click="openSite(s)">
+                                    <td>
+                                        <div class="media">
+                                            <div class="media-left">
+                                                <img class="media-object" ng-src='{{s.pic}}'>
+                                            </div>
+                                            <div class="media-body">
+                                                <h4 class="media-heading">{{s.title}}</h4>
+                                                <div class="media-summary">{{s.summary}}</div>
+                                                <div class='attr clearfix'>
+                                                    <div class='creater_name pull-left'>
+                                                        <span class="site_fe_home site_fe_home_icon xxt_team"></span>
+                                                        {{s.creater_name}}
+                                                    </div>
+                                                    <div class='put_at pull-left' ng-bind="s.put_at*1000|date:'yyyy-MM-dd'"></div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
+                        <div>
+                            <button class='btn btn-lg btn-primary  btn-gradient center-block' ng-click="moreMatters('site')" ng-if="sites.total>sites.length">加 载 更 多</button>
+                        </div>
+                    </uib-tab>
+                    <uib-tab index="2" ng-if="apps.length">
+                        <uib-tab-heading>推荐活动</uib-tab-heading>
+                        <table class="table table-hover">
+                            <tbody>
+                                <tr ng-repeat="a in apps" ng-click="openMatter(a)">
+                                    <td>
+                                        <div class="media">
+                                            <div class="media-left">
+                                                <img class="media-object" ng-src='{{a.pic}}'>
+                                            </div>
+                                            <div class="media-body">
+                                                <h4 class="media-heading">{{a.title}}</h4>
+                                                <div class="media-summary">{{a.summary}}</div>
+                                                <div class='attr clearfix'>
+                                                    <div class='creater_name pull-left'>
+                                                        <span class="site_fe_home site_fe_home_icon xxt_team"></span>
+                                                        {{a.creater_name}}
+                                                    </div>
+                                                    <div class='put_at pull-left' ng-bind="a.put_at*1000|date:'yyyy-MM-dd'"></div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
+                        <div>
+                            <button class='btn btn-lg btn-primary  btn-gradient center-block' ng-click="moreMatters('app')" ng-if="apps.total>apps.length">加 载 更 多</button>
+                        </div>
+                    </uib-tab>
+                    <uib-tab index="3" ng-if="templates.length">
+                        <uib-tab-heading>精选模板</uib-tab-heading>
+                        <table class="table table-hover">
+                            <tbody>
+                                <tr ng-repeat="t in templates" ng-click="openTemplate(t)">
+                                    <td>
+                                        <div class="media">
+                                            <div class="media-left">
+                                                <img class="media-object" ng-src='{{t.pic}}'>
+                                            </div>
+                                            <div class="media-body">
+                                                <h4 class="media-heading">{{t.title}}</h4>
+                                                <div class="media-summary">{{t.summary}}</div>
+                                                <div class='attr clearfix'>
+                                                    <div class='creater_name pull-left'>
+                                                        <span class="site_fe_home site_fe_home_icon xxt_team"></span>
+                                                        {{t.creater_name}}
+                                                    </div>
+                                                    <div class='put_at pull-left' ng-bind="t.put_at*1000|date:'yyyy-MM-dd'"></div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
+                        <div class='thumbnail template' ng-repeat="t in templates" ng-click="openTemplate(t)">
+                            <div class="media">
+                                <div class="media-left">
+                                    <img class="media-object" ng-src='{{t.pic}}'>
+                                </div>
+                                <div class="media-body">
+                                    <h4 class="media-heading">{{t.title}}</h4>
+                                    <div>{{t.summary}}</div>
+                                    <div class='attr'>
+                                        <div class='creater_name' ng-bind="t.creater_name"></div>
+                                        <div class='put_at' ng-bind="t.put_at*1000|date:'yyyy-MM-dd'"></div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </uib-tab>
+                </uib-tabset>
             </div>
-            <uib-tabset active="0">
-                <uib-tab index="0" ng-if="articles.length">
-                    <uib-tab-heading>热门资讯</uib-tab-heading>
-                    <div class='thumbnail article' ng-repeat="a in articles" ng-click="openMatter(a)">
-                        <div class="media">
-                            <div class="media-left">
-                                <img class="media-object" ng-src='{{a.pic}}'>
-                            </div>
-                            <div class="media-body">
-                                <h4 class="media-heading">{{a.title}}</h4>
-                                <div>{{a.summary}}</div>
-                                <div class='attr'>
-                                    <div class='creater_name' ng-bind="a.site_name"></div>
-                                    <div class='put_at' ng-bind="a.put_at*1000|date:'yyyy-MM-dd'"></div>
-                                </div>
-                            </div>
-                        </div>
+            <aside class="col-md-4 col-xs-12 pull-right">
+                <div class="mainSide" ng-repeat="c in channels">
+                    <div class="mainSide-header">
+                        <span class="site_fe_home site_fe_home_icon xxt_guide"></span>
+                        <h4 >{{c.title}}</h4>
+                        <small class="pull-right">
+                            <a ng-href="{{c.url}}">更多<span class="site_fe_home site_fe_home_icon xxt_chevron-right"></span></a>
+                        </small>
                     </div>
-                </uib-tab>
-                <uib-tab index="1" ng-if="sites.length">
-                    <uib-tab-heading>推荐团队</uib-tab-heading>
-                    <div class='thumbnail site' ng-repeat="s in sites" ng-click="openSite(s)">
-                        <div class="media">
-                            <div class="media-left">
-                                <img class="media-object" ng-src='{{s.pic}}'>
-                            </div>
-                            <div class="media-body">
-                                <h4 class="media-heading">{{s.title}}</h4>
-                                <div>{{s.summary}}</div>
-                                <div class='attr'>
-                                    <div class='creater_name' ng-bind="s.creater_name"></div>
-                                    <div class='put_at' ng-bind="s.put_at*1000|date:'yyyy-MM-dd'"></div>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                </uib-tab>
-                <uib-tab index="2" ng-if="apps.length">
-                    <uib-tab-heading>推荐活动</uib-tab-heading>
-                    <div class='thumbnail app' ng-repeat="a in apps" ng-click="openMatter(a)">
-                        <div class="media">
-                            <div class="media-left">
-                                <img class="media-object" ng-src='{{a.pic}}'>
-                            </div>
-                            <div class="media-body">
-                                <h4 class="media-heading">{{a.title}}</h4>
-                                <div>{{a.summary}}</div>
-                                <div class='attr'>
-                                    <div class='creater_name' ng-bind="a.creater_name"></div>
-                                    <div class='put_at' ng-bind="a.put_at*1000|date:'yyyy-MM-dd'"></div>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                </uib-tab>
-                <uib-tab index="3" ng-if="templates.length">
-                    <uib-tab-heading>精选模板</uib-tab-heading>
-                    <div class='thumbnail template' ng-repeat="t in templates" ng-click="openTemplate(t)">
-                        <div class="media">
-                            <div class="media-left">
-                                <img class="media-object" ng-src='{{t.pic}}'>
-                            </div>
-                            <div class="media-body">
-                                <h4 class="media-heading">{{t.title}}</h4>
-                                <div>{{t.summary}}</div>
-                                <div class='attr'>
-                                    <div class='creater_name' ng-bind="t.creater_name"></div>
-                                    <div class='put_at' ng-bind="t.put_at*1000|date:'yyyy-MM-dd'"></div>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                </uib-tab>
-            </uib-tabset>
-        </div>
-        <div class="col-md-4 pull-right">
-            <aside >
-                <div class='thumbnail channel' ng-repeat="c in channels">
-                    <div class="media">
-                        <h4 class="media-heading">{{c.title}}</h4>
-                        <a class="pull-right" ng-href="{{c.url}}">更多</a>
-                        <div class="media-body" ng-repeat="a in channelArticles">
-                            <a class="media-heading" ng-href="{{a.entryUrl}}">{{a.title}}</a>
-                        </div>
+                    <div class="madinSide-body">
+                        <a class="list-group-item" ng-href="{{a.entryUrl}}" ng-repeat="a in channelArticles">
+                            <span class="site_fe_home site_fe_home_icon xxt_line"></span>{{a.title}}
+                            <hr/>
+                        </a>
                     </div>
                 </div>
             </aside>
         </div>
+    </div>
+    <div id='gototop' class='tms-switch'>
+        <span class="site_fe_home site_fe_home_icon xxt_backTop"></span>
     </div>
 </div>
 <script type="text/ng-template" id="favorTemplateSite.html">

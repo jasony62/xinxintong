@@ -1,4 +1,6 @@
-body{background-color:#fff;margin-bottom:50px;}
+html,body{height:100%;width:100%}
+body{background-color:#fff;position: relative;}
+
 .navbar{border:0;margin-bottom:0;}
 .navbar-default{border-bottom:2px solid #ccc;}
 .navbar-brand{height:58px;padding:6px 6px;}
@@ -6,19 +8,28 @@ body{background-color:#fff;margin-bottom:50px;}
 .navbar-default .navbar-nav>.active>a{background-color: #fff;}
 .navbar-default .navbar-nav>.active>a,
 .navbar-default .navbar-nav>.active>a:hover,
-.navbar-default .navbar-nav>.active>a:focus {
-  background-color: #fff;
-}
+.navbar-default .navbar-nav>.active>a:focus {background-color: #fff;}
 .navbar-nav .active:after{content:' ';position:absolute;left:0;right:0;bottom:-1px;height:3px;background: #388dbf;}
 @media screen and (min-width: 768px){
   .navbar-nav {margin: 0 0 0 45px;}
 }
 .popover.bottom{margin-top:0;}
 .popover-content {padding:0;}
-.site_fe_home_icon{display: inline-block;width: 18px;height: 13px; margin-right: 11px;background-repeat: no-repeat;}
+.site_fe_home_icon{display: inline-block;width: 18px;height: 13px; margin-right: 5px;background-repeat: no-repeat;}
 .xxt_team{background-position: -112px -74px;}
 .xxt_person{background-position: -110px -32px;}
+.xxt_setting{background-position: -115px -117px;}
+.xxt_quite{background-position: -110px -167px;}
+
 .user-login a,.user-register a,.user-subscribe a{position: relative;display:block;padding:5px 20px;clear:both;font-weight:400;line-height:1.5;color:#333;white-space:nowrap;}
 .user-login a:hover,.user-register a:hover,.user-subscribe a:hover{color:#fff;text-decoration:none;background-color:#388dbf;}
-.user-login a:hover .xxt_team,.user-register a:hover .xxt_team,.user-subscribe a:hover .xxt_team {background-position: -40px -74px;}
-.user-login a:hover .xxt_person,.user-register a:hover .xxt_person,.user-subscribe a:hover .xxt_person {background-position: -40px -31px;}
+.user-login a:hover .xxt_team,.user-register a:hover .xxt_team, .dropdown-menu>li>a:hover .xxt_team, .user-subscribe a:hover .xxt_team {background-position: -40px -74px;}
+.user-login a:hover .xxt_person,.user-register a:hover .xxt_person, .dropdown-menu>li>a:hover .xxt_person, .user-subscribe a:hover .xxt_person {background-position: -40px -31px;}
+
+.dropdown-menu{padding:0px;}
+.dropdown-menu>li>a{padding:10px 20px;}
+.dropdown-menu>li>a:hover, .dropdown-menu>li>a:focus {text-decoration: none;color: #fff;background-color: #388dbf;}
+.dropdown-menu>li>a:hover .xxt_quite{background-position:-43px -168px;}
+.dropdown-menu>li>a:hover .xxt_setting{background-position: -43px -117px;}
+
+@media screen and (min-width: 768px){.navbar-nav{margin: 0;}}

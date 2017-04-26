@@ -6,14 +6,14 @@ define(['frame'], function(ngApp) {
             var options = {
                 callback: function(url) {
                     $scope.app.pic = url + '?_=' + (new Date() * 1);
-                    srvEnrollApp.update('pic');
+                    srvTempApp.update('pic');
                 }
             };
             mediagallery.open($scope.app.siteid, options);
         };
         $scope.removePic = function() {
             $scope.app.pic = '';
-            srvEnrollApp.update('pic');
+            srvTempApp.update('pic');
         };
         /**
          * 访问控制规则

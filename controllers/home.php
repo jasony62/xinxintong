@@ -44,9 +44,13 @@ class home extends TMS_CONTROLLER {
 	 * @param string $userType 站点用户还是团队管理员用户
 	 *
 	 */
-	public function listSite_action() {
+	public function listSite_action($page = 1, $size = 8) {
 		$modelHome = $this->model('site\home');
-		$result = $modelHome->atHome();
+
+		$options = [];
+		$options['page']['at']=$page;
+		$options['page']['size']=$size;
+		$result = $modelHome->atHome($options);
 		if ($result->total) {
 			$modelWay = $this->model('site\fe\way');
 			$siteUser = $modelWay->who('platform');

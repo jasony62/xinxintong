@@ -335,7 +335,10 @@ class log_model extends \TMS_MODEL {
 	 * @param string $op
 	 * @param object|string $data
 	 */
-	public function matterOp($siteId, &$user, &$matter, $op, $data = null) {
+	public function matterOp($siteId, &$user, &$matter, $op, $data = null) {site// 避免数据库双机同步延迟问题
+		// 避免数据库双机同步延迟问题
+		$this->setOnlyWriteDbConn(true);
+		
 		$q = [
 			'*',
 			'xxt_log_matter_op',

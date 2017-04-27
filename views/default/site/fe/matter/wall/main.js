@@ -7,9 +7,11 @@ app.controller('wallCtrl',['$scope','$http','$location',function($scope,$http,$l
         $scope.id = ls.app;
         $scope.siteId = ls.site;
     if (/MicroMessenger/.test(navigator.userAgent)) {
-        document.addEventListener('wx', function(){
-            wx.hideOptionMenu();
-        }, false);
+        window.onload = function() {
+            window.wx.ready(function() {
+                wx.hideOptionMenu();
+            })
+        }
     } else if (/YiXin/.test(navigator.userAgent)) {
         document.addEventListener('YixinJSBridgeReady', function() {
             YixinJSBridge.call('hideOptionMenu');

@@ -24,7 +24,7 @@ class favor extends \site\fe\base {
 		$q = array(
 			'id,favor_at,matter_id,matter_type,matter_title',
 			'xxt_site_favor',
-			"siteid='$this->siteId' and userid='$userid'",
+			['siteid' => $this->siteId, 'userid' => $userid]
 		);
 		$q2 = array(
 			'o' => 'favor_at desc',
@@ -64,16 +64,16 @@ class favor extends \site\fe\base {
 		$q = [
 			'id',
 			'xxt_site_favor',
-			"siteid='$this->siteId' and userid='$userid' and matter_id='$id' and matter_type='$type'",
+			['siteid' => $this->siteId, 'userid' => $userid, 'matter_id' => $id, 'matter_type' => $type]
 		];
 		if (false === $model->query_obj_ss($q)) {
 			$log = [
-				'siteid' => $this->siteId,
+				'siteid' => $model->escape($this->siteId),
 				'userid' => $this->who->uid,
 				'nickname' => empty($this->who->nickname) ? '' : $model->escape($this->who->nickname),
 				'favor_at' => time(),
-				'matter_id' => $id,
-				'matter_type' => $type,
+				'matter_id' => $model->escape($id),
+				'matter_type' => $model->escape($type),
 				'matter_title' => $model->escape($title),
 			];
 
@@ -93,7 +93,7 @@ class favor extends \site\fe\base {
 		$q = [
 			'id,favor_at',
 			'xxt_site_favor',
-			"siteid='$this->siteId' and userid='$userid' and matter_id='$id' and matter_type='$type'",
+			['siteid' => $this->siteId, 'userid' => $userid, 'matter_id' => $id, 'matter_type' => $type]
 		];
 		$log = $model->query_obj_ss($q);
 
@@ -107,7 +107,7 @@ class favor extends \site\fe\base {
 
 		$rst = $this->model()->delete(
 			'xxt_site_favor',
-			"siteid='$this->siteId' and userid='$userid' and matter_id='$id' and matter_type='$type'"
+			['siteid' => $this->siteId, 'userid' => $userid, 'matter_id' => $id, 'matter_type' => $type]
 		);
 
 		return new \ResponseData($rst);

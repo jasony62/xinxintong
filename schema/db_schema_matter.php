@@ -51,12 +51,16 @@ $sql .= ",share_friend_num int not null default 0"; // 分享给好友数
 $sql .= ",share_timeline_num int not null default 0"; // 分享朋友圈数
 $sql .= ",has_attachment char(1) not null default 'N'";
 $sql .= ",download_num int not null default 0"; // 附件下载数
+$sql .= ",copy_num int not null default 0"; // 复制数
 $sql .= ",media_id varchar(256) not null default ''";
 $sql .= ",upload_at int not null default 0";
 $sql .= ",use_site_header char(1) not null default 'Y'"; // 使用站点页眉
 $sql .= ",use_site_footer char(1) not null default 'Y'"; // 使用站点页脚
 $sql .= ",use_mission_header char(1) not null default 'Y'"; // 使用项目页眉
 $sql .= ",use_mission_footer char(1) not null default 'Y'"; // 使用项目页脚
+$sql .= ",from_mode char(1) not null default 'O'"; // 素材来源类型O:origin、C:cite、D:duplicate、S(同一个团队中的复制)
+$sql .= ",from_siteid varchar(32) not null default ''";
+$sql .= ",from_id int not null default 0";
 $sql .= ",primary key(id)) ENGINE=MyISAM DEFAULT CHARSET=utf8";
 if (!$mysqli->query($sql)) {
 	header('HTTP/1.0 500 Internal Server Error');

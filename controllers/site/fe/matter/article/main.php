@@ -38,6 +38,13 @@ class main extends \site\fe\matter\base {
 		if (isset($article->access_control) && $article->access_control === 'Y' && !empty($article->authapis)) {
 			$this->accessControl($site, $id, $article->authapis, $user->uid, $article, false);
 		}
+		/*如果此单图文属于引用那么需要返回被引用的单图文*/
+		if($article->from_mode === 'C'){
+			$id2 = $article->from_id;
+			$article2 = $modelArticle->byId($id2, ['fields' => 'body,author,siteid,id']);
+			$article->body = $article2->body;
+			$article->author = $article2->author;
+		}
 		/* 单图文所属的频道 */
 		$article->channels = $this->model('matter\channel')->byMatter($id, 'article');
 		$modelCode = $this->model('code\page');

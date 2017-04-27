@@ -42,7 +42,7 @@ class log_model extends \TMS_MODEL {
 		$q = [
 			'l.userid,l.nickname,l.read_at',
 			'xxt_log_matter_read l',
-			['l.matter_type' => $type, 'l.matter_id' => $id]
+			['l.matter_type' => $type, 'l.matter_id' => $id],
 		];
 		/**
 		 * 分页数据
@@ -234,6 +234,8 @@ class log_model extends \TMS_MODEL {
 	 * 用户操作素材日志
 	 */
 	public function addUserMatterOp($siteId, &$user, &$matter, &$operation, &$client, $referer = '') {
+		// 避免数据库双机同步延迟问题
+		$this->setOnlyWriteDbConn(true);
 		// 素材累积执行指定操作的次数
 		$q = [
 			'id,matter_op_num',
@@ -538,7 +540,7 @@ class log_model extends \TMS_MODEL {
 	}
 	/**
 	 * 汇总各类日志，形成用户完整的踪迹用于展示用户详情的发送消息列表记录
-	 * $total 用以分页的总数 
+	 * $total 用以分页的总数
 	 * $sum 实际上的总记录数
 	 */
 	public function track($site, $openid, $page = 1, $size = 30) {
@@ -554,8 +556,8 @@ class log_model extends \TMS_MODEL {
 
 		$sendlogs = $this->query_objs_ss($q, $q2);
 
-		$q[0]='count(*)';
-		$total_s=$this->query_val_ss($q);
+		$q[0] = 'count(*)';
+		$total_s = $this->query_val_ss($q);
 
 		$q = array(
 			'create_at,data content',
@@ -569,12 +571,12 @@ class log_model extends \TMS_MODEL {
 
 		$recelogs = $this->query_objs_ss($q, $q2);
 
-		$q[0]='count(*)';
-		$total_r=$this->query_val_ss($q);
+		$q[0] = 'count(*)';
+		$total_r = $this->query_val_ss($q);
 		//确定分页的总数以记录多的表的总数为准
-		$total=($total_s>=$total_r) ? $total_s : $total_r;
+		$total = ($total_s >= $total_r) ? $total_s : $total_r;
 		//实际的总数
-		$sum=$total_s+$total_r;
+		$sum = $total_s + $total_r;
 		$logs = array_merge($sendlogs, $recelogs);
 		/**
 		 * order by create_at
@@ -583,10 +585,10 @@ class log_model extends \TMS_MODEL {
 			return $b->create_at - $a->create_at;
 		});
 
-		$result=new \stdClass;
-		$result->total=$total;
-		$result->sum=$sum;
-		$result->data=$logs;
+		$result = new \stdClass;
+		$result->total = $total;
+		$result->sum = $sum;
+		$result->data = $logs;
 
 		return $result;
 	}

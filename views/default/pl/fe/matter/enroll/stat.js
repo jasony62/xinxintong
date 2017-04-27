@@ -251,15 +251,16 @@ define(['frame'], function(ngApp) {
             url = '/rest/pl/fe/matter/enroll/stat/export';
             url += '?site=' + $scope.app.siteid + '&app=' + $scope.app.id + '&rid=' + (rid ? rid : '');
 
-            http2.post(url, params, function(rsp) {
-                var blob;
+            window.open(url);
+            // http2.post(url, params, function(rsp) {
+            //     var blob;
 
-                blob = new Blob([rsp.data], {
-                    type: "application/vnd.ms-word;charset=utf-8;"
-                });
+            //     blob = new Blob([rsp.data], {
+            //         type: "application/vnd.ms-word;charset=utf-8;"
+            //     });
 
-                saveAs(blob, $scope.app.title + '.doc');
-            });
+            //     saveAs(blob, $scope.app.title + '.doc');
+            // });
         };
         $scope.getRecords = function(schema, page) {
             var cached;
@@ -316,7 +317,7 @@ define(['frame'], function(ngApp) {
             });
         }
         $scope.doRound = function(rid) {
-            if(rid == 'more') {
+            if (rid == 'more') {
                 $scope.moreRounds();
             } else {
                 location.href = '/rest/pl/fe/matter/enroll/stat?site=' + $scope.app.siteid + '&id=' + $scope.app.id + '&rid=' + rid;
@@ -335,7 +336,7 @@ define(['frame'], function(ngApp) {
                             $scope2.activeRound = result.active;
                             $scope2.rounds = result.rounds;
                             $scope2.pageOfRound = result.page;
-                            if(rid) {
+                            if (rid) {
                                 if (rid === 'ALL') {
                                     $scope2.moreCriteria.rid = 'ALL';
                                 } else {
@@ -345,7 +346,7 @@ define(['frame'], function(ngApp) {
                                         }
                                     });
                                 }
-                            }else {
+                            } else {
                                 $scope2.moreCriteria.rid = $scope.activeRound.rid;
                             }
                         })
@@ -439,7 +440,7 @@ define(['frame'], function(ngApp) {
             if (rid) {
                 if (rid === 'ALL') {
                     $scope.criteria.rid = 'ALL';
-                } else if (rid == $scope.checkedRound.rid){
+                } else if (rid == $scope.checkedRound.rid) {
                     $scope.criteria.rid = $scope.checkedRound.rid;
                 } else {
                     $scope.rounds.forEach(function(round) {

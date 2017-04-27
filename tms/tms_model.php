@@ -17,7 +17,7 @@ class TMS_MODEL {
 	 */
 	private $onlyWriteDbConn = false;
 	/**
-	 *
+	 * @param boolean $only
 	 */
 	public function setOnlyWriteDbConn($only) {
 		$this->onlyWriteDbConn = $only;

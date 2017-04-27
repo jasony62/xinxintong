@@ -2,6 +2,7 @@
 require('./home.css');
 require('../../asset/js/xxt.ui.page.js');
 
+
 var ngApp = angular.module('app', ['ngSanitize', 'ui.bootstrap', 'ui.tms', 'page.ui.xxt']);
 ngApp.config(['$locationProvider', '$controllerProvider', '$uibTooltipProvider', function($lp, $cp, $uibTooltipProvider) {
     $lp.html5Mode(true);

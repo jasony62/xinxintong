@@ -426,7 +426,8 @@ ngApp.controller('ctrlInput', ['$scope', '$http', '$q', '$uibModal', 'Input', 'l
                 $scope.$broadcast('xxt.app.enroll.submit.done', rsp.data);
             }
         }, function(reason) {
-            submitState.finish();
+            // 如果放开提交状态，有可能导致用户多次提交
+            //submitState.finish();
             $scope.$parent.errmsg = reason;
         });
     }

@@ -33,3 +33,10 @@ body{margin-bottom:50px;}
 .friend-matter{cursor:pointer;padding:15px;}
 .media-object{width:96px;height:96px;}
 .actions{border-top:1px solid #ddd;margin-top:8px;padding-top:8px;}
+
+/* new */
+.main{position: relative;margin-left:100px;margin-top: -20px;background-color: red;}
+.main > .main-sidebar{position:absolute;top: 0;left: 0;padding-top: 50px;min-height: 100%;width: 100px;}
+.sidebar{padding-bottom: 10px;}
+.sidebar-menu{overflow: hidden;}
+.sidebar-menu>li {position: relative;margin: 0;padding: 0;}

@@ -7,9 +7,11 @@ app.controller('wallCtrl',['$scope','$http','$location',function($scope,$http,$l
         $scope.id = ls.app;
         $scope.siteId = ls.site;
     if (/MicroMessenger/.test(navigator.userAgent)) {
-        document.addEventListener('WeixinJSBridgeReady', function(){
-            WeixinJSBridge.call('hideOptionMenu');
-        }, false);
+        window.onload = function() {
+            window.wx.ready(function() {
+                wx.hideOptionMenu();
+            })
+        }
     } else if (/YiXin/.test(navigator.userAgent)) {
         document.addEventListener('YixinJSBridgeReady', function() {
             YixinJSBridge.call('hideOptionMenu');
@@ -21,7 +23,7 @@ app.controller('wallCtrl',['$scope','$http','$location',function($scope,$http,$l
         $scope.status = rsp.data.wallUser;
     })
     $scope.join = function() {
-        $http.get('/rest/site/fe/matter/wall/join?site='+ $scope.siteId + '&app=' + $scope.id ,function(rsp){
+        $http.get('/rest/site/fe/matter/wall/join?site='+ $scope.siteId + '&app=' + $scope.id).success(function(rsp) {
             if (angular.isString(rsp)) {
                 alert(rsp);
                 return;
@@ -32,7 +34,7 @@ app.controller('wallCtrl',['$scope','$http','$location',function($scope,$http,$l
             }
             if (rsp.err_code == 0) {
                 if (/MicroMessenger/.test(navigator.userAgent)) {
-                    WeixinJSBridge.invoke('closeWindow',{},function(res){});
+                    wx.closeWindow();
                 } else if (/YiXin/.test(navigator.userAgent)) {
                     YixinJSBridge.invoke('closeWindow',{},function(res){});
                 }
@@ -40,7 +42,7 @@ app.controller('wallCtrl',['$scope','$http','$location',function($scope,$http,$l
         });
     };
     $scope.unjoin = function() {
-        $http.get('/rest/site/fe/matter/wall/quit?site='+ $scope.siteId + '&app=' + $scope.id,function(rsp){
+        $http.get('/rest/site/fe/matter/wall/quit?site='+ $scope.siteId + '&app=' + $scope.id).success(function(rsp) {
             if (angular.isString(rsp)) {
                 alert(rsp);
                 return;
@@ -51,7 +53,7 @@ app.controller('wallCtrl',['$scope','$http','$location',function($scope,$http,$l
             }
             if (rsp.err_code == 0) {
                 if (/MicroMessenger/.test(navigator.userAgent)) {
-                    WeixinJSBridge.invoke('closeWindow',{},function(res){});
+                    wx.closeWindow();
                 } else if (/YiXin/.test(navigator.userAgent)) {
                     YixinJSBridge.invoke('closeWindow',{},function(res){});
                 }

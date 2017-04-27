@@ -8,6 +8,13 @@
     <link href="/static/css/bootstrap.min.css" rel="stylesheet">
     <link href="//cdn.bootcss.com/font-awesome/4.3.0/css/font-awesome.min.css" rel="stylesheet">
     <link href="/views/default/site/fe/matter/wall/main.css" rel="stylesheet">
+    <script type="text/javascript">
+        if (/MicroMessenger/i.test(navigator.userAgent)) {
+        var siteid = location.search.match(/site=([^&]*)/)[1];
+        document.write("<script src='http:\/\/res.wx.qq.com\/open\/js\/jweixin-1.0.0.js'><\/script>");
+        document.write("<script src='\/rest\/site\/fe\/base\/wxjssdksignpackage?site="+siteid+"&url="+encodeURIComponent(location.href.split('#')[0])+"'><\/script>");
+        }
+    </script>
 </head>
 <body>
     <div ng-controller='wallCtrl'>
@@ -22,6 +29,7 @@
             <button class='btn btn-primary btn-lg btn-block' ng-click='join()' ng-if="status.state == 'N'">参加讨论</button>
         </div>
     </div>
+
     <script src="/static/js/jquery.min.js"></script>
     <script src="/static/js/angular.min.js"></script>
     <script src="/static/js/hammer.min.js"></script>

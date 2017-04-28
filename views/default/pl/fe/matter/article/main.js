@@ -20,8 +20,10 @@ define(['frame'], function(ngApp) {
                 }
                 return message;
             }
-            if (!$scope.editing.pic && !$scope.editing.thumbnail) {
-                tmsThumbnail.thumbnail($scope.editing);
+            if ($scope.editing) {
+                if (!$scope.editing.pic && !$scope.editing.thumbnail) {
+                    tmsThumbnail.thumbnail($scope.editing);
+                }
             }
         };
         $scope.submit = function() {

@@ -12,11 +12,11 @@ class registration_model extends \TMS_MODEL {
 	 * @return object
 	 */
 	public function &byId($uid, $options = []) {
-		$fields = isset($options['fields']) ? $options['fields'] : 'unionid,uname,nickname,password,salt,from_siteid';
+		$fields = isset($options['fields']) ? $options['fields'] : 'uid unionid,email uname,nickname,password,salt,from_siteid';
 		$q = [
 			$fields,
-			'xxt_site_registration',
-			["unionid" => $uid],
+			'account',
+			["uid" => $uid],
 		];
 		$act = $this->query_obj_ss($q);
 
@@ -30,11 +30,11 @@ class registration_model extends \TMS_MODEL {
 	 * return object
 	 */
 	public function &byUname($uname, $options = []) {
-		$fields = isset($options['fields']) ? $options['fields'] : 'unionid,uname,nickname,password,salt,from_siteid';
+		$fields = isset($options['fields']) ? $options['fields'] : 'uid unionid,email uname,nickname,password,salt,from_siteid';
 		$q = [
 			$fields,
-			'xxt_site_registration',
-			["uname" => $uname],
+			'account',
+			["email" => $uname],
 		];
 		if (isset($options['forbidden'])) {
 			/* 帐号是否已关闭 */
@@ -51,6 +51,8 @@ class registration_model extends \TMS_MODEL {
 		if ($this->checkUname($uname)) {
 			return [false, '注册账号已经存在，不能重复注册'];
 		}
+		$this->setOnlyWriteDbConn(true);
+
 		$current = time();
 		/*password*/
 		$pw_salt = $this->gen_salt();
@@ -63,9 +65,12 @@ class registration_model extends \TMS_MODEL {
 		$unionid = md5($uname . $siteId);
 
 		$registration = new \stdClass;
-		$registration->unionid = $unionid;
+		//$registration->unionid = $unionid;
+		$registration->uid = $unionid;
 		$registration->from_siteid = $siteId;
-		$registration->uname = $uname;
+		$registration->authed_from = 'xxt_site';
+		$registration->authed_id = $uname;
+		$registration->email = $uname;
 		$registration->nickname = $nickname;
 		$registration->password = $pw_hash;
 		$registration->salt = $pw_salt;
@@ -75,7 +80,8 @@ class registration_model extends \TMS_MODEL {
 		$registration->last_ip = $from_ip;
 		$registration->last_active = $current;
 
-		$this->insert('xxt_site_registration', $registration, false);
+		$this->insert('account', $registration, false);
+		$registration = $this->byId($unionid);
 
 		return [true, $registration];
 	}
@@ -85,8 +91,8 @@ class registration_model extends \TMS_MODEL {
 	public function checkUname($uname) {
 		$q = [
 			'1',
-			'xxt_site_registration',
-			["uname" => $uname],
+			'account',
+			["email" => $uname],
 		];
 		$rst = $this->query_val_ss($q);
 
@@ -99,9 +105,9 @@ class registration_model extends \TMS_MODEL {
 		$updated['last_login'] = time();
 		$updated['last_ip'] = $from_ip;
 		$rst = $this->update(
-			'xxt_site_registration',
+			'account',
 			$updated,
-			["unionid" => $uid]
+			["uid" => $uid]
 		);
 
 		return $rst;
@@ -111,9 +117,9 @@ class registration_model extends \TMS_MODEL {
 	 */
 	public function changeNickname($uname, $nickname) {
 		$rst = $this->update(
-			'xxt_site_registration',
+			'account',
 			['nickname' => $nickname],
-			["uname" => $uname]
+			["email" => $uname]
 		);
 
 		return $rst;
@@ -125,9 +131,9 @@ class registration_model extends \TMS_MODEL {
 		$pw_hash = $this->compile_password($uname, $password, $pw_salt);
 		$update_data['password'] = $pw_hash;
 		$rst = $this->update(
-			'xxt_site_registration',
+			'account',
 			$update_data,
-			["uname" => $uname]
+			["email" => $uname]
 		);
 
 		return $rst;

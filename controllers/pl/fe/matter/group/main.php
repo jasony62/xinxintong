@@ -66,7 +66,7 @@ class main extends \pl\fe\matter\base {
 			$mission = $model->escape($mission);
 			$q[2] .= " and mission_id='$mission'";
 			//按项目阶段筛选
-			if(isset($post->mission_phase_id) && !empty($post->mission_phase_id) && $post->mission_phase_id !== "ALL"){
+			if (isset($post->mission_phase_id) && !empty($post->mission_phase_id) && $post->mission_phase_id !== "ALL") {
 				$mission_phase_id = $model->escape($post->mission_phase_id);
 				$q[2] .= " and mission_phase_id='$mission_phase_id'";
 			}
@@ -95,6 +95,8 @@ class main extends \pl\fe\matter\base {
 		}
 
 		$modelApp = $this->model('matter\group');
+		$modelApp->setOnlyWriteDbConn(true);
+
 		$customConfig = $this->getPostJson();
 		$current = time();
 		$newapp = array();
@@ -156,6 +158,7 @@ class main extends \pl\fe\matter\base {
 
 		$current = time();
 		$modelApp = $this->model('matter\group');
+		$modelApp->setOnlyWriteDbConn(true);
 		$modelCode = $this->model('code\page');
 
 		$copied = $modelApp->byId($app);
@@ -184,8 +187,7 @@ class main extends \pl\fe\matter\base {
 			$newapp['mission_id'] = $mission;
 		}
 
-		$this->model()->insert('xxt_group', $newapp, false);
-
+		$modelApp->insert('xxt_group', $newapp, false);
 		$app = $modelApp->byId($newaid, ['cascaded' => 'N']);
 
 		/* 记录操作日志 */
@@ -210,6 +212,7 @@ class main extends \pl\fe\matter\base {
 			return new \ResponseTimeout();
 		}
 		$modelApp = $this->model('matter\group');
+		$modelApp->setOnlyWriteDbConn(true);
 		/**
 		 * 处理数据
 		 */

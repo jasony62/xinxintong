@@ -40,6 +40,19 @@ ngApp.provider('srvUser', function() {
         };
     }];
 });
+ngApp.directive('autoHeight',['$window', function ($window) {
+    return {
+        restrict : 'A',
+        scope : {},
+        link : function($scope, element, attrs) {
+            var winowHeight = $window.innerHeight; //获取窗口高度
+            var headerHeight = 60;
+            var footerHeight = 50;
+            element.css('min-height',
+                    (winowHeight - headerHeight - footerHeight) + 'px');
+        }
+    }
+}]);
 ngApp.controller('ctrlMain', ['$scope', '$timeout', '$q', '$uibModal', 'http2', 'srvUser', 'tmsDynaPage', function($scope, $timeout, $q, $uibModal, http2, srvUser, tmsDynaPage) {
     function createSite() {
         var defer = $q.defer(),

@@ -50,6 +50,9 @@ class member_model extends \TMS_MODEL {
 	 * $schema
 	 */
 	public function create($siteId, $userid, &$schema, &$data) {
+		// 结束数据库读写分离带来的问题
+		$this->setOnlyWriteDbConn(true);
+
 		if (empty($userid)) {
 			return [false, '仅支持对站点用户进行认证'];
 		}
@@ -101,6 +104,9 @@ class member_model extends \TMS_MODEL {
 	 * 创建认证用户
 	 */
 	public function createByApp($siteId, &$oSchema, $userid, $member) {
+		// 结束数据库读写分离带来的问题
+		$this->setOnlyWriteDbConn(true);
+
 		if (empty($siteId)) {
 			return array(false, '没有指定站点');
 		}

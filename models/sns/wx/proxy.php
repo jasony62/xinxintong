@@ -263,20 +263,24 @@ class proxy_model extends \sns\proxybase {
 				'openid' => $openid,
 				'lang' => 'zh_CN',
 			);
-			/*user info*/
+			/* user info */
 			$userRst = $this->httpGet($cmd, $params, false, false);
-			if ($userRst[0] === false && strpos($userRst[1], 'json failed:') === 0) {
-				$user = new \stdClass;
-				$json = str_replace(array('json failed:', '{', '}'), '', $userRst[1]);
-				$data = explode(',', $json);
-				foreach ($data as $pv) {
-					$pv = explode(':', $pv);
-					$p = str_replace('"', '', $pv[0]);
-					$v = str_replace('"', '', $pv[1]);
-					$fan->{$p} = $v;
+			if ($userRst[0] === false) {
+				if (strpos($userRst[1], 'json failed:') === 0) {
+					$user = new \stdClass;
+					$json = str_replace(array('json failed:', '{', '}'), '', $userRst[1]);
+					$data = explode(',', $json);
+					foreach ($data as $pv) {
+						$pv = explode(':', $pv);
+						$p = str_replace('"', '', $pv[0]);
+						$v = str_replace('"', '', $pv[1]);
+						$fan->{$p} = $v;
+					}
+					$userRst[0] = true;
+					$userRst[1] = $user;
+				} else {
+					return array(false, $userRst[1]);
 				}
-				$userRst[0] = true;
-				$userRst[1] = $user;
 			} else if (empty($userRst[1])) {
 				return array(false, 'empty openid:' . $openid);
 			} else {

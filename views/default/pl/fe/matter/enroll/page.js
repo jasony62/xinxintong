@@ -7,7 +7,7 @@ define(['frame', 'schema', 'page', 'editor'], function(ngApp, schemaLib, pageLib
         $scope.ep = null;
         window.onbeforeunload = function(e) {
             var message;
-            if ($scope.ep.$$modified) {
+            if ($scope.ep && $scope.ep.$$modified) {
                 message = '已经修改的页面还没有保存，确定离开？';
                 e = e || window.event;
                 if (e) {

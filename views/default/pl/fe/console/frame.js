@@ -29,12 +29,16 @@ define(['require'], function(require) {
         });
     }]);
     ngApp.controller('ctrlFrame', ['$scope', 'http2', 'srvUserNotice', function($scope, http2, srvUserNotice) {
+        var criteria;
         $scope.subView = '';
         $scope.$on('$locationChangeSuccess', function(event, currentRoute) {
             var subView = currentRoute.match(/[^\/]+$/)[0];
             subView.indexOf('?') !== -1 && (subView = subView.substr(0, subView.indexOf('?')));
             $scope.subView = subView === 'fe' ? 'main' : subView;
         });
+        $scope.criteria = criteria = {
+            sid: ''
+        };
         var url = '/rest/pl/fe/user/get?_=' + (new Date() * 1);
         http2.get(url, function(rsp) {
             $scope.loginUser = rsp.data;
@@ -48,6 +52,7 @@ define(['require'], function(require) {
         srvUserNotice.uncloseList().then(function(result) {
             $scope.notice = result;
         });
+
     }]);
     /***/
     require(['domReady!'], function(document) {

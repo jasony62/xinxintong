@@ -28,6 +28,12 @@
                 </button>
             </div>
             <ul class='nav navbar-nav'>
+                <li>
+                    <select class='form-control' title='团队列表' ng-model="criteria.sid" ng-change="doTeam(criteria.sid)">
+                        <option value="ALL">全部团队</option>
+                        <option value="{{site.id}}" ng-repeat="site in sites">{{site.name}}</option>
+                    </select>
+                </li>
                 <li ng-class="{'active':subView==='main'}"><a href='/rest/pl/fe'>个人工作台</a></li>
                 <li ng-class="{'active':subView==='friend'}"><a href='/rest/pl/fe/friend'>其他团队</a></li>
             </ul>
@@ -56,8 +62,21 @@
         <aside class="main-sidebar">
             <section class="sidebar" style="height:auto">
                 <ul class="sidebar-menu list-unstyled">
-                    <li class="treeView">
-                        11111111111
+                    <li class="btn-group">
+
+                        <a ng-href='#' target='_self' class="btn btn-default">置顶</a>
+                        <button class="btn btn-default">最近</button>
+                    </li>
+                    <li >
+                        <button class="btn btn-default">团队</button>
+                    </li>
+                    <li >
+                        <button class="btn btn-default">项目</button>
+                        <button class="btn btn-default">活动</button>
+                        <button class="btn btn-default">资料</button>
+                    </li>
+                    <li>
+                        <button class="btn btn-default">新建团队</button>
                     </li>
                 </ul>
             </section>

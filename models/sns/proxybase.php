@@ -58,7 +58,7 @@ class proxybase {
 				return $this->httpGet($cmd, $params, true);
 			}
 			if ($result->errcode !== 0) {
-				return array(false, $result->errmsg . "($result->errcode)");
+				return array(false, $result->errmsg . "(errcode:$result->errcode)");
 			}
 		} else if (empty($result)) {
 			if (strpos($response, '{') === 0) {

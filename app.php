@@ -34,7 +34,7 @@ file_exists(dirname(__FILE__) . '/cus/app.php') && include_once dirname(__FILE__
 /**
  * 定义应用的logo
  */
-!defined('APP_LOGO') && define('APP_LOGO', 'logo.png');
+!defined('APP_LOGO') && define('APP_LOGO', '/static/img/logo.png');
 /**
  * 微信要求采用TLSv1
  */

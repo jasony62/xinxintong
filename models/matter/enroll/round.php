@@ -37,7 +37,7 @@ class round_model extends \TMS_MODEL {
 			'xxt_enroll_round',
 			['aid' => $oApp->id],
 		];
-		$state && $q[2]['state'] = [$state];
+		$state && $q[2]['state'] = $state;
 		$q2 = ['o' => 'create_at desc'];
 		!empty($page) && $q2['r'] = ['o' => ($page->num - 1) * $page->size, 'l' => $page->size];
 		$result->rounds = $this->query_objs_ss($q, $q2);

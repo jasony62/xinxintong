@@ -59,7 +59,6 @@ class wall_model extends app_base {
 			$reply = '信息墙已停用';
 			return $reply;
 		}
-
 		/**
 		 * 加入一个信息墙需要从其他的墙退出
 		 */
@@ -69,27 +68,29 @@ class wall_model extends app_base {
 			$where = " and yx_openid='{$user->yx_openid}'";
 		} else if (isset($user->qy_openid)) {
 			$where = " and qy_openid='{$user->qy_openid}'";
+		} else {
+			return '不能活的公众号身份信息，无法加入信息墙';
 		}
 		$this->update(
 			'xxt_wall_enroll',
-			array('close_at' => time()),
+			['close_at' => time()],
 			"siteid='$runningSiteId'" . $where
 		);
 		/**
 		 * 加入一个组
 		 */
-		$q = array(
+		$q = [
 			'count(*)',
 			'xxt_wall_enroll',
 			"siteid='$runningSiteId' and wid='$wid' " . $where,
-		);
+		];
 		if (1 === (int) $this->query_val_ss($q)) {
 			/**
 			 * 之前已经加入个这个组，重置状态
 			 */
 			$this->update(
 				'xxt_wall_enroll',
-				array('close_at' => 0),
+				['close_at' => 0],
 				$q[2]
 			);
 		} else {

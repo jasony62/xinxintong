@@ -32,6 +32,10 @@ file_exists(dirname(__FILE__) . '/cus/app.php') && include_once dirname(__FILE__
  */
 !defined('APP_TITLE') && define('APP_TITLE', '信信通');
 /**
+ * 定义应用的logo
+ */
+!defined('APP_LOGO') && define('APP_LOGO', '/static/img/logo.png');
+/**
  * 微信要求采用TLSv1
  */
 !defined('CURL_SSLVERSION_TLSv1') && define('CURL_SSLVERSION_TLSv1', 1);

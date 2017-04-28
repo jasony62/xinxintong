@@ -62,7 +62,8 @@ class follow extends \site\fe\base {
 		];
 
 		/* 访问素材信息 */
-		if (!empty($matter)) {
+		if (in_array($sns, ['wx', 'yx']) && !empty($matter)) {
+			/* 加入素材的场景二维码，企业号不支持 */
 			$matter = explode(',', $matter);
 			if (count($matter) === 2) {
 				$modelQrcode = $this->model('sns\\' . $sns . '\\call\qrcode');

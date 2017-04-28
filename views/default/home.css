@@ -1,9 +1,9 @@
-html,body{height:100%;width:100%}
-body{background-color:#fff;position: relative;}
+html,body{height:100%;width:100%;background-color:#fff;}
+.home{position: relative;padding-bottom: 50px;}
 
-.navbar{border:0;margin-bottom:0;}
+.navbar{border:0;margin-bottom:0;border-radius:0;}
 .navbar-default{border-bottom:2px solid #ccc;}
-.navbar-brand{height:58px;padding:6px 6px;}
+.navbar-brand{width:178px;height:58px;padding:6px 6px;}
 .navbar-nav>li>a{line-height:28px;}
 .navbar-default .navbar-nav>.active>a{background-color: #fff;}
 .navbar-default .navbar-nav>.active>a,
@@ -15,21 +15,31 @@ body{background-color:#fff;position: relative;}
 }
 .popover.bottom{margin-top:0;}
 .popover-content {padding:0;}
-.site_fe_home_icon{display: inline-block;width: 18px;height: 13px; margin-right: 5px;background-repeat: no-repeat;}
-.xxt_team{background-position: -112px -74px;}
-.xxt_person{background-position: -110px -32px;}
-.xxt_setting{background-position: -115px -117px;}
-.xxt_quite{background-position: -110px -167px;}
+.site_fe_home_icon{position: absolute;width:18px;height: 18px;background-repeat: no-repeat;}
+.btn-group > .btn {padding-left:43px;}
+.xxt_person{top:6px;left:18px;background-position:-107px -32px;}
+.xxt_team{width:22px;top:7px;left:15px; background-position: -106px -70px;}
+.xxt_console{top:11px;left:12px;background-position: -206px -32px;}
+.xxt_setting{top:50px;left:11px;background-position: -112px -114px;}
+.xxt_quite{top:130px; left:12px;background-position: -109px -165px;}
 
-.user-login a,.user-register a,.user-subscribe a{position: relative;display:block;padding:5px 20px;clear:both;font-weight:400;line-height:1.5;color:#333;white-space:nowrap;}
+.user-login a,.user-register a,.user-subscribe a{position: relative;display:block;padding:5px 22px 5px 45px;clear:both;font-weight:400;line-height:1.5;color:#333;white-space:nowrap;}
 .user-login a:hover,.user-register a:hover,.user-subscribe a:hover{color:#fff;text-decoration:none;background-color:#388dbf;}
-.user-login a:hover .xxt_team,.user-register a:hover .xxt_team, .dropdown-menu>li>a:hover .xxt_team, .user-subscribe a:hover .xxt_team {background-position: -40px -74px;}
-.user-login a:hover .xxt_person,.user-register a:hover .xxt_person, .dropdown-menu>li>a:hover .xxt_person, .user-subscribe a:hover .xxt_person {background-position: -40px -31px;}
+.user-login a:hover .xxt_team,.user-register a:hover .xxt_team, .dropdown-menu>li>a:hover .xxt_team, .user-subscribe a:hover .xxt_team {background-position: -40px -68px;}
+.user-login a:hover .xxt_person,.user-register a:hover .xxt_person, .dropdown-menu>li>a:hover .xxt_person, .user-subscribe a:hover .xxt_person {background-position: -43px -32px;}
 
 .dropdown-menu{padding:0px;}
-.dropdown-menu>li>a{padding:10px 20px;}
+.dropdown-menu>li>a{padding:10px 20px 10px 40px;}
 .dropdown-menu>li>a:hover, .dropdown-menu>li>a:focus {text-decoration: none;color: #fff;background-color: #388dbf;}
-.dropdown-menu>li>a:hover .xxt_quite{background-position:-43px -168px;}
-.dropdown-menu>li>a:hover .xxt_setting{background-position: -43px -117px;}
+.dropdown-menu>li>a>.xxt_person{top:90px; left:11px;background-position: -107px -32px;}
+.dropdown-menu>li>a>.xxt_team{top:90px; left:11px;background-position: -107px -70px;}
+.dropdown-menu>li>a>.xxt_person_index{top:14px;left:11px;background-position: -205px -71px;}
+.dropdown-menu>li>a:hover .xxt_console{background-position:-157px -32px;}
+.dropdown-menu>li>a:hover .xxt_person_index{background-position:-157px -72px;}
+.dropdown-menu>li>a:hover .xxt_setting{background-position: -43px -112px;}
+.dropdown-menu>li>a:hover .xxt_quite{background-position:-40px -165px;}
 
-@media screen and (min-width: 768px){.navbar-nav{margin: 0;}}
+
+/* gototop */
+.tms-switch{position:fixed;bottom:60px;right:0;width:60px;height:60px;background:rgba(192,192,192,0.5);border-radius:4px;color:#666;font-size:24px;line-height:48px;text-align:center;cursor:pointer;}
+.xxt_backTop{width:60px;height:60px;top:0;left:0;background-position: -41px -368px;}

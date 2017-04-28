@@ -3,7 +3,7 @@ html,body{height:100%;width:100%;background-color:#fff;}
 
 .navbar{border:0;margin-bottom:0;border-radius:0;}
 .navbar-default{border-bottom:2px solid #ccc;}
-.navbar-brand{width:178px;height:61px;padding:6px 6px;}
+.navbar-brand{width:178px;height:58px;padding:6px 6px;}
 .navbar-nav>li>a{line-height:28px;}
 .navbar-default .navbar-nav>.active>a{background-color: #fff;}
 .navbar-default .navbar-nav>.active>a,

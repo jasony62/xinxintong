@@ -26,7 +26,7 @@
                     <span class="icon-bar"></span>
                 </button>
                 <a class="navbar-brand" href="/rest/home/home/">
-                    <img src="../../static/img/logo.png" height="61" width="178" alt="能力开发平台" >
+                    <!-- <img src="../../static/img/logo.png" height="61" width="178" > -->
                 </a>
             </div>
             <div id='navbar-collapse-1' class='collapse navbar-collapse'>
@@ -40,41 +40,66 @@
                     <li><a href='' uib-popover-template="'userLogin.html'" popover-placement="bottom" popover-class='user-login' popover-trigger="outsideClick">登录</a></li>
                     <li><a href='' uib-popover-template="'userRegister.html'" popover-placement="bottom" popover-class='user-register' popover-trigger="outsideClick">注册</a></li>
                 </ul>
-                <form class='navbar-form navbar-right ng-cloak' ng-cloak ng-if="user.isLogin===true">
+                <form class='navbar-form navbar-right ng-cloak' ng-cloak ng-if="user.isLogin===true" >
                     <div class="btn-group" ng-switch on="user.role">
-                        <a ng-switch-when="admin" ng-href='/rest/pl/fe' target='_self' class="btn btn-default" data-toggle="dropdown">
+                        <a ng-switch-when="admin" class="btn btn-default" data-toggle="dropdown" >
                             <span class="site_fe_home site_fe_home_icon xxt_team"></span>
                             <span ng-bind="user.nickname" ></span>
                         </a>
-                        <a ng-switch-when="person" ng-href='/rest/site/fe/user?site=platform' target='_self' class="btn btn-default" data-toggle="dropdown">
+                        <a ng-switch-when="person" class="btn btn-default" data-toggle="dropdown">
                             <span class="site_fe_home site_fe_home_icon xxt_person"></span>
                             <span ng-bind="user.nickname"></span>
                         </a>
                         <ul class="dropdown-menu" role="menu" ng-switch-when="admin">
-                            <li><a href='/rest/pl/fe/user/settings' target='_self'>
-                            <span class="site_fe_home site_fe_home_icon xxt_setting"></span>用户设置</a></li>
-
-                            <li><a href='' ng-click="shiftAsPerson()">
-                            <span class="site_fe_home site_fe_home_icon xxt_person"></span>切换个人</a></li>
-
-                            <li><a href='/rest/pl/fe/user/logout' target='_self'>
-                            <span class="site_fe_home site_fe_home_icon xxt_quite"></span>退出</a></li>
+                            <li>
+                                <a href='/rest/pl/fe' target='_self'>
+                                    <span class="site_fe_home site_fe_home_icon xxt_console"></span>个人工作台
+                                </a>
+                            </li>
+                            <li>
+                                <a href='/rest/pl/fe/user/settings' target='_self'>
+                                    <span class="site_fe_home site_fe_home_icon xxt_setting"></span>用户设置
+                                </a>
+                            </li>
+                            <li>
+                                <a href='' ng-click="shiftAsPerson()">
+                                    <span class="site_fe_home site_fe_home_icon xxt_person"></span>切换到个人账号
+                                </a>
+                            </li>
+                            <li>
+                                <a href='/rest/pl/fe/user/logout' target='_self'>
+                                    <span class="site_fe_home site_fe_home_icon xxt_quite"></span>退出
+                                </a>
+                            </li>
                         </ul>
                         <ul class="dropdown-menu" role="menu" ng-switch-when="person">
-                            <li><a href='/rest/site/fe/user?site=platform' target='_self'>
-                            <span class="site_fe_home site_fe_home_icon xxt_setting"></span>用户设置</a></li>
-                            <li><a href='' ng-click="shiftAsAdmin()">
-                            <span class="site_fe_home site_fe_home_icon xxt_team"></span>切换团队</a></li>
-
-                            <li><a href='/rest/site/fe/user/logout/do?site=platform&redirect=Y' target='_self'>
-                            <span class="site_fe_home site_fe_home_icon xxt_quite"></span>退出</a></li>
+                            <li>
+                                <a href='/rest/site/fe/user?site=platform' target='_self'>
+                                    <span class="site_fe_home site_fe_home_icon xxt_person_index"></span>个人主页
+                                </a>
+                            </li>
+                            <li>
+                                <a href='/rest/site/fe/user?site=platform' target='_self'>
+                                    <span class="site_fe_home site_fe_home_icon xxt_setting"></span>用户设置
+                                </a>
+                            </li>
+                            <li>
+                                <a href='' ng-click="shiftAsAdmin()">
+                                    <span class="site_fe_home site_fe_home_icon xxt_team"></span>切换到团队账号
+                                </a>
+                            </li>
+                            <li>
+                                <a href='/rest/site/fe/user/logout/do?site=platform&redirect=Y' target='_self'>
+                                    <span class="site_fe_home site_fe_home_icon xxt_quite"></span>退出
+                                </a>
+                            </li>
                         </ul>
                     </div>
                 </form>
             </div>
         </div>
     </nav>
-    <div dynamic-html='page.html'></div>
+    <div class="home" dynamic-html='page.html' auto-height></div>
     <nav class="navbar navbar-inverse">
         <div class="container">
             <div class="row"></div>

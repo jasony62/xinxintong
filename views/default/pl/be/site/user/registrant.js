@@ -38,7 +38,7 @@ define(['main'], function(ngApp) {
                     };
                 }]
             }).result.then(function(data) {
-                data.unionid = user.unionid;
+                data.uid = user.uid;
                 http2.post('/rest/pl/be/site/registrant/resetPwd', data, function(rsp) {
                     alert('ok');
                 });
@@ -46,14 +46,14 @@ define(['main'], function(ngApp) {
         };
         $scope.forbideUser = function(user) {
             if (window.confirm('确定关闭帐号【' + user.uname + '】？')) {
-                http2.post('/rest/pl/be/site/registrant/forbide', { unionid: user.unionid }, function(rsp) {
+                http2.post('/rest/pl/be/site/registrant/forbide', { uid: user.uid }, function(rsp) {
                     user.forbidden = '1';
                 });
             }
         };
         $scope.activeUser = function(user) {
             if (window.confirm('确定关闭帐号【' + user.uname + '】？')) {
-                http2.post('/rest/pl/be/site/registrant/active', { unionid: user.unionid }, function(rsp) {
+                http2.post('/rest/pl/be/site/registrant/active', { uid: user.uid }, function(rsp) {
                     user.forbidden = '0';
                 });
             }

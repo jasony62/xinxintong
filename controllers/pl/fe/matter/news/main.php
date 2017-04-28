@@ -52,9 +52,9 @@ class main extends \pl\fe\matter\base {
 		$modelNews = $this->model('matter\news');
 
 		$q = [
-			'n.*',
-			'xxt_news n',
-			"n.siteid='$site' and n.state=1",
+			'*',
+			'xxt_news',
+			['siteid' => $site, 'state' => 1],
 		];
 		$q2['o'] = 'create_at desc';
 		$news = $modelNews->query_objs_ss($q, $q2);
@@ -86,6 +86,8 @@ class main extends \pl\fe\matter\base {
 			return new \ResponseTimeout();
 		}
 
+		$modelNews = $this->model('matter\news');
+		$modelNews->setOnlyWriteDbConn(true);
 		$nv = $this->getPostJson();
 		$current = time();
 
@@ -94,29 +96,32 @@ class main extends \pl\fe\matter\base {
 		$nv->modifier_name = $user->name;
 		$nv->modify_at = $current;
 		/* 更新数据 */
-		$rst = $this->model()->update(
+		$rst = $modelNews->update(
 			'xxt_news',
 			$nv,
-			"siteid='$site' and id='$id'"
+			['siteid' => $site, 'id' => $id]
 		);
 		/* 记录操作日志 */
 		if ($rst) {
-			$news = $this->model('matter\\' . 'news')->byId($id, 'id,title');
-			$news->type = 'news';
+			$news = $modelNews->byId($id, 'id,title');
 			$this->model('matter\log')->matterOp($site, $user, $news, 'U');
 		}
 
 		return new \ResponseData($rst);
 	}
 	/**
+	 * 更新多图文中的素材
 	 *
+	 * @param int $id 多图文的id
 	 */
 	public function updateMatter_action($id) {
 		$matters = $this->getPostJson();
+
+		$model = $this->model();
 		/**
 		 * delete relation.
 		 */
-		$this->model()->delete('xxt_news_matter', "news_id=$id");
+		$model->delete('xxt_news_matter', ['news_id' => $id]);
 		/**
 		 * insert new relation.
 		 */
@@ -128,6 +133,9 @@ class main extends \pl\fe\matter\base {
 	 *
 	 */
 	private function _assignMatters($news_id, &$matters) {
+		$model = $this->model();
+		$model->setOnlyWriteDbConn(true);
+
 		foreach ($matters as $i => $m) {
 			$matter_id = $m->id;
 			$matter_type = $m->type;
@@ -135,7 +143,7 @@ class main extends \pl\fe\matter\base {
 			$ns['matter_id'] = $matter_id;
 			$ns['matter_type'] = $matter_type;
 			$ns['seq'] = $i;
-			$this->model()->insert('xxt_news_matter', $ns);
+			$model->insert('xxt_news_matter', $ns);
 		}
 
 		return true;
@@ -163,7 +171,10 @@ class main extends \pl\fe\matter\base {
 		$news['modifier_name'] = $user->name;
 		$news['modify_at'] = $current;
 		$news['title'] = isset($posted->title) ? $posted->title : '新多图文';
-		$id = $this->model()->insert('xxt_news', $news, true);
+
+		$modelNews = $this->model('matter\news');
+		$modelNews->setOnlyWriteDbConn(true);
+		$id = $modelNews->insert('xxt_news', $news, true);
 
 		/* 指定包含的素材 */
 		!empty($posted->matters) && $this->_assignMatters($id, $posted->matters);
@@ -174,23 +185,24 @@ class main extends \pl\fe\matter\base {
 		$matter->type = 'news';
 		$this->model('matter\log')->matterOp($site, $user, $matter, 'C');
 
-		$news = $this->model('matter\news')->byId($id);
+		$news = $modelNews->byId($id);
 
 		return new \ResponseData($news);
 	}
 	/**
 	 * 删除一个多图文素材
 	 */
-	public function delete_action($site,$id) {
+	public function delete_action($site, $id) {
 		if (false === ($user = $this->accountUser())) {
 			return new \ResponseTimeout();
 		}
-		
+
+		$modelNews = $this->model('matter\news');
+		$matter = $modelNews->byId($id);
+		$rst = $modelNews->update('xxt_news', ['state' => 0], ['siteid' => $site, 'id' => $id]);
+
 		/* 记录操作日志 */
-		$matter=$this->model("matter\\news")->byId($id);
 		$this->model('matter\log')->matterOp($site, $user, $matter, 'D');
-		
-		$rst = $this->model()->update('xxt_news', ['state' => 0], "siteid='$site' and id=$id");
 
 		return new \ResponseData($rst);
 	}
@@ -212,7 +224,7 @@ class main extends \pl\fe\matter\base {
 				'empty_reply_type' => $matter->mt,
 				'empty_reply_id' => $matter->mid,
 			],
-			"id='$id'"
+			['id' => $id]
 		);
 
 		return new \ResponseData($ret);

@@ -37,7 +37,7 @@ class round_model extends \TMS_MODEL {
 			'xxt_enroll_round',
 			['aid' => $oApp->id],
 		];
-		$state && $q[2]['state'] = [$state];
+		$state && $q[2]['state'] = $state;
 		$q2 = ['o' => 'create_at desc'];
 		!empty($page) && $q2['r'] = ['o' => ($page->num - 1) * $page->size, 'l' => $page->size];
 		$result->rounds = $this->query_objs_ss($q, $q2);
@@ -57,6 +57,9 @@ class round_model extends \TMS_MODEL {
 	 * @param object $oCreator
 	 */
 	public function create($oApp, $props, $oCreator = null) {
+		// 结束数据库读写分离带来的问题
+		$this->setOnlyWriteDbConn(true);
+
 		/* 只允许有一个指定启动轮次 */
 		if (isset($props->state) && (int) $props->state === 1 && isset($props->start_at) && (int) $props->start_at === 0) {
 			if ($lastRound = $this->getAssignedActive($oApp)) {

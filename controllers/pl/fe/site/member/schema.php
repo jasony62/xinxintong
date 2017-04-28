@@ -226,7 +226,8 @@ class schema extends \pl\fe\base {
 		$timestamp = time(); // 进行同步操作的时间戳
 		$qyproxy = $this->model('sns\qy\proxy', $qyConfig);
 		$modelDept = $this->model('site\user\department');
-
+		//同步操作应该是用写链接
+		$modelDept->setOnlyWriteDbConn(true);
 		/**
 		 * 同步部门数据
 		 */

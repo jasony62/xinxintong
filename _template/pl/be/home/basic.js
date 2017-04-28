@@ -49,6 +49,7 @@ ngApp.provider.controller('ctrlHome', ['$scope', '$http', '$uibModal', function(
         });
     };
     $scope.listChannels = function() {
+        $scope.channelArticles = [];
         $http.get('/rest/home/listChannel').success(function(rsp) {
             $scope.channels = rsp.data.matters;
             $scope.channels.forEach(function(item) {
@@ -57,7 +58,7 @@ ngApp.provider.controller('ctrlHome', ['$scope', '$http', '$uibModal', function(
                     url += '?site=' + item.siteid + '&id=' + item.matter_id;
                     url += '&page=1&size=5';
                 $http.get(url).success(function(rsp) {
-                    $scope.channelArticles = rsp.data;
+                    $scope.channelArticles.push({title:item.title,url:item.url,data:rsp.data});
                 });
             });
         });

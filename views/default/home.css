@@ -13,6 +13,7 @@ html,body{height:100%;width:100%;background-color:#fff;}
 @media screen and (min-width: 768px){
   .navbar-nav {margin: 0 0 0 45px;}
 }
+#navbar-collapse-1 .navbar-form{margin-top:12px;margin-bottom: 12px;}
 .popover.bottom{margin-top:0;}
 .popover-content {padding:0;}
 .site_fe_home_icon{position: absolute;width:18px;height: 18px;background-repeat: no-repeat;}

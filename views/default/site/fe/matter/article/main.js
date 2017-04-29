@@ -1,13 +1,12 @@
 'use strict';
-require('!style-loader!css-loader!./main.css');
+require('./main.css');
 require('../../../../../../asset/js/xxt.ui.page.js');
 require('../../../../../../asset/js/xxt.ui.siteuser.js');
 require('../../../../../../asset/js/xxt.ui.favor.js');
 require('../../../../../../asset/js/xxt.ui.coinpay.js');
-require('../../../../../../asset/js/xxt.ui.discuss2.js');
 require('../../../../../../asset/js/xxt.ui.share.js');
 
-var ngApp = angular.module('app', ['page.ui.xxt', 'snsshare.ui.xxt', 'siteuser.ui.xxt', 'favor.ui.xxt', 'coinpay.ui.xxt', 'discuss.ui.xxt']);
+var ngApp = angular.module('app', ['page.ui.xxt', 'snsshare.ui.xxt', 'siteuser.ui.xxt', 'favor.ui.xxt', 'coinpay.ui.xxt']);
 ngApp.config(['$controllerProvider', function($cp) {
     ngApp.provider = {
         controller: $cp.register
@@ -105,7 +104,7 @@ ngApp.filter('filesize', function() {
         return length + unit;
     };
 });
-ngApp.controller('ctrlMain', ['$scope', '$http', '$timeout', '$q', 'tmsDynaPage', 'tmsSnsShare', 'tmsDiscuss', 'tmsCoinPay', 'tmsFavor', 'tmsSiteUser', function($scope, $http, $timeout, $q, tmsDynaPage, tmsSnsShare, tmsDiscuss, tmsCoinPay, tmsFavor, tmsSiteUser) {
+ngApp.controller('ctrlMain', ['$scope', '$http', '$timeout', '$q', 'tmsDynaPage', 'tmsSnsShare', 'tmsCoinPay', 'tmsFavor', 'tmsSiteUser', function($scope, $http, $timeout, $q, tmsDynaPage, tmsSnsShare, tmsCoinPay, tmsFavor, tmsSiteUser) {
     function finish() {
         var eleLoading, eleStyle;
         eleLoading = document.querySelector('.loading');
@@ -187,11 +186,6 @@ ngApp.controller('ctrlMain', ['$scope', '$http', '$timeout', '$q', 'tmsDynaPage'
             }
             if (!document.querySelector('.tms-switch-favor')) {
                 tmsFavor.showSwitch(oArticle.siteid, oArticle);
-            }
-            if (oArticle.can_discuss === 'Y') {
-                if (!document.querySelector('.tms-switch-discuss')) {
-                    tmsDiscuss.showSwitch(oArticle.siteid, 'article,' + oArticle.id, oArticle.title);
-                }
             }
             if (oArticle.can_coinpay === 'Y') {
                 if (!document.querySelector('.tms-switch-coinpay')) {

@@ -40,16 +40,16 @@ ngApp.provider('srvUser', function() {
         };
     }];
 });
-ngApp.directive('autoHeight',['$window', function ($window) {
+ngApp.directive('autoHeight', ['$window', function($window) {
     return {
-        restrict : 'A',
-        scope : {},
-        link : function($scope, element, attrs) {
+        restrict: 'A',
+        scope: {},
+        link: function($scope, element, attrs) {
             var winowHeight = $window.innerHeight; //获取窗口高度
             var headerHeight = 60;
             var footerHeight = 50;
             element.css('min-height',
-                    (winowHeight - headerHeight - footerHeight) + 'px');
+                (winowHeight - headerHeight - footerHeight) + 'px');
         }
     }
 }]);
@@ -290,7 +290,7 @@ ngApp.controller('ctrlMain', ['$scope', '$timeout', '$q', '$uibModal', 'http2', 
             }
             $scope.shiftAsAdmin();
         } else {
-            var url = '/rest/pl/fe/site/canSubscribe?site=' + site.siteid + '&_=' + (new Date() * 1);
+            var url = '/rest/pl/fe/site/subscribe/sitesByUser?site=' + site.siteid + '&_=' + (new Date() * 1);
             http2.get(url, function(rsp) {
                 var sites = rsp.data;
                 $uibModal.open({
@@ -314,7 +314,7 @@ ngApp.controller('ctrlMain', ['$scope', '$timeout', '$q', '$uibModal', 'http2', 
                         };
                     }]
                 }).result.then(function(selected) {
-                    var url = '/rest/pl/fe/site/subscribe?site=' + site.id;
+                    var url = '/rest/pl/fe/site/subscribe/do?site=' + site.id;
                     sites = [];
 
                     selected.forEach(function(mySite) {

@@ -22,8 +22,8 @@ class main extends \site\fe\matter\base {
 	/**
 	 * 返回请求的素材
 	 *
-	 * $siteId
-	 * $id
+	 * @param strng $site
+	 * @param int $id
 	 */
 	public function get_action($site, $id) {
 		$model = $this->model();
@@ -32,7 +32,7 @@ class main extends \site\fe\matter\base {
 		$modelArticle = $this->model('matter\article2');
 		$article = $modelArticle->byId($id);
 		if (false === $article) {
-			return new \ResponseError('not exist');
+			return new \ObjectNotFoundError();
 		}
 
 		if (isset($article->access_control) && $article->access_control === 'Y' && !empty($article->authapis)) {

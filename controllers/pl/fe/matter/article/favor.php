@@ -10,8 +10,8 @@ class favor extends \pl\fe\matter\base {
 	 * 单图文的收藏列表
 	 *
 	 */
-	public function list_action($site, $id, $page=1, $size=30) {
-		$p=['*','xxt_site_favor',"siteid='$site' and matter_type='article' and matter_id='$id'"];
+	public function list_action($site, $id, $page = 1, $size = 30) {
+		$p = ['*', 'xxt_site_favor', "siteid='$site' and matter_type='article' and matter_id='$id'"];
 		$p2['r']['o'] = ($page - 1) * $size;
 		$p2['r']['l'] = $size;
 		$p2['o'] = 'id desc';

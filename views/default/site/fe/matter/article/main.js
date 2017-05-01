@@ -1,12 +1,15 @@
 'use strict';
 require('./main.css');
+
 require('../../../../../../asset/js/xxt.ui.page.js');
 require('../../../../../../asset/js/xxt.ui.siteuser.js');
+require('../../../../../../asset/js/xxt.ui.subscribe.js');
 require('../../../../../../asset/js/xxt.ui.favor.js');
+require('../../../../../../asset/js/xxt.ui.forward.js');
 require('../../../../../../asset/js/xxt.ui.coinpay.js');
 require('../../../../../../asset/js/xxt.ui.share.js');
 
-var ngApp = angular.module('app', ['page.ui.xxt', 'snsshare.ui.xxt', 'siteuser.ui.xxt', 'favor.ui.xxt', 'coinpay.ui.xxt']);
+var ngApp = angular.module('app', ['page.ui.xxt', 'snsshare.ui.xxt', 'siteuser.ui.xxt', 'subscribe.ui.xxt', 'favor.ui.xxt', 'forward.ui.xxt', 'coinpay.ui.xxt']);
 ngApp.config(['$controllerProvider', function($cp) {
     ngApp.provider = {
         controller: $cp.register
@@ -104,7 +107,7 @@ ngApp.filter('filesize', function() {
         return length + unit;
     };
 });
-ngApp.controller('ctrlMain', ['$scope', '$http', '$timeout', '$q', 'tmsDynaPage', 'tmsSnsShare', 'tmsCoinPay', 'tmsFavor', 'tmsSiteUser', function($scope, $http, $timeout, $q, tmsDynaPage, tmsSnsShare, tmsCoinPay, tmsFavor, tmsSiteUser) {
+ngApp.controller('ctrlMain', ['$scope', '$http', '$timeout', '$q', 'tmsDynaPage', 'tmsSubscribe', 'tmsSnsShare', 'tmsCoinPay', 'tmsFavor', 'tmsForward', 'tmsSiteUser', function($scope, $http, $timeout, $q, tmsDynaPage, tmsSubscribe, tmsSnsShare, tmsCoinPay, tmsFavor, tmsForward, tmsSiteUser) {
     function finish() {
         var eleLoading, eleStyle;
         eleLoading = document.querySelector('.loading');
@@ -119,6 +122,16 @@ ngApp.controller('ctrlMain', ['$scope', '$http', '$timeout', '$q', 'tmsDynaPage'
             audios.length > 0 && audios[0].play();
         });
         $scope.code = '/rest/site/fe/matter/article/qrcode?site=' + siteId + '&url=' + encodeURIComponent(location.href);
+        if (window.sessionStorage) {
+            var pendingMethod;
+            if (pendingMethod = window.sessionStorage.getItem('xxt.site.fe.matter.article.auth.pending')) {
+                window.sessionStorage.removeItem('xxt.site.fe.matter.article.auth.pending');
+                if ($scope.user.loginExpire) {
+                    pendingMethod = JSON.parse(pendingMethod);
+                    $scope[pendingMethod.name].apply($scope, pendingMethod.args || []);
+                }
+            }
+        }
     }
 
     function loadArticle() {
@@ -185,7 +198,10 @@ ngApp.controller('ctrlMain', ['$scope', '$http', '$timeout', '$q', 'tmsDynaPage'
                 tmsDynaPage.loadScript(['/static/js/hammer.min.js', '/asset/js/xxt.ui.picviewer.js']);
             }
             if (!document.querySelector('.tms-switch-favor')) {
-                tmsFavor.showSwitch(oArticle.siteid, oArticle);
+                tmsFavor.showSwitch($scope.user, oArticle);
+            }
+            if (!document.querySelector('.tms-switch-forward')) {
+                tmsForward.showSwitch($scope.user, oArticle);
             }
             if (oArticle.can_coinpay === 'Y') {
                 if (!document.querySelector('.tms-switch-coinpay')) {
@@ -221,9 +237,6 @@ ngApp.controller('ctrlMain', ['$scope', '$http', '$timeout', '$q', 'tmsDynaPage'
     siteId = ls.match(/[\?&]site=([^&]*)/)[1];
     id = ls.match(/(\?|&)id=([^&]*)/)[2];
 
-    $scope.followYixinMp = function() {
-        //location.href = 'yixin://opencard?pid=' + $scope.site.yx_cardid;
-    };
     $scope.openChannel = function(ch) {
         location.href = '/rest/site/fe/matter?site=' + siteId + '&type=channel&id=' + ch.id;
     };
@@ -237,6 +250,19 @@ ngApp.controller('ctrlMain', ['$scope', '$http', '$timeout', '$q', 'tmsDynaPage'
             location.href = '/rest/site/fe/matter?site=' + siteId + '&id=' + id + '&type=' + type;
         } else {
             location.href = '/rest/site/fe/matter/' + type + '?site=' + siteId + '&app=' + id;
+        }
+    };
+    $scope.subscribeSite = function() {
+        if (!$scope.user.loginExpire) {
+            if (window.sessionStorage) {
+                var method = JSON.stringify({
+                    name: 'subscribeSite',
+                });
+                window.sessionStorage.setItem('xxt.site.fe.matter.article.auth.pending', method);
+            }
+            location.href = '/rest/site/fe/user/login?site=' + siteId;
+        } else {
+            tmsSubscribe.open($scope.user, $scope.site);
         }
     };
     document.querySelector('#gototop').addEventListener('click', function() {

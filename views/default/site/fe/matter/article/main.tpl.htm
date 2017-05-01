@@ -8,7 +8,7 @@
     <title>
         <?php TPL::pt('title');?>
     </title>
-    <link href='/static/css/site.fe.css?_=1' rel="stylesheet">
+    <link href='/asset/css/site.fe.css?_=1' rel="stylesheet">
 </head>
 
 <body>
@@ -21,9 +21,6 @@
                 <div id="attribute">
                     <span class="time" ng-bind="article.modify_at*1000|date:'yy-MM-dd'"></span>
                     <span class="author" ng-bind='article.author'></span>
-                    <span id='article_from_mp' ng-if='site.yx.cardid'>
-                            <a ng-click="followYixinMp()" href="" ng-bind='site.yx.cardname'></a>
-                        </span>
                 </div>
                 <div class="headpic" ng-if="article.hide_pic!=='Y'">
                     <img ng-src="{{article.pic}}">
@@ -52,6 +49,11 @@
                 <div id='tag' ng-if="article.channels.length||article.tags.length">
                     <span ng-repeat="c in article.channels" ng-click="openChannel(c)" ng-bind="c.title"></span>
                     <span ng-repeat="t in article.tags" ng-click="searchByTag(t)" ng-bind="t.title"></span>
+                </div>
+                <div id='site'>
+                    <p><a ng-href="{{'/rest/site/home?site='+site.id}}" ng-bind="site.name"></a></p>
+                    <p ng-bind="site.summary"></p>
+                    <p><button ng-click="subscribeSite()">+关注</button></p>
                 </div>
             </div>
             <div class="right-column">

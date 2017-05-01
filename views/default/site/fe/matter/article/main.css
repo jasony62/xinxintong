@@ -46,8 +46,6 @@ body{background-color:#fff;font:12.5pt/1.45 Microsoft Yahei,Arial;position:relat
 .article .url{margin-top:20px}
 .article a{color:#2980b9;text-decoration:none}
 .article a:hover{text-decoration:underline}
-#article_from_mp{font-size:10pt;overflow:hidden;text-align:left}
-#article_from_mp a{text-overflow:ellipsis;overflow:hidden;white-space:nowrap;text-decoration:none;color:#2880C0}
 div.tablewrap{width:100%;overflow-x:auto;overflow-y:hidden}
 table,table.mce-item-table{border:solid 1px #ddd;border-top:0;border-left:0;border-collapse:collapse;border-spacing:0;position:relative;table-layout:fixed}
 table caption,table.mce-item-table caption{border:solid 1px #ddd;border-bottom:0;background:#E5E5E5;font-weight:bold;font-size:14px;padding:4px}
@@ -56,9 +54,6 @@ table th,table td,table.mce-item-table th,table.mce-item-table td{border-left:1p
 #stat{color:#8c8c8c;font-size:14px;margin:.5em 0;padding:1em 0;border-top:1px solid #eee}
 #stat .read{margin-right:14px}
 #stat .read span:nth-child(2){margin-left:7px}
-#stat .like span{margin-left:7px}
-#stat .like em{-webkit-tap-highlight-color:rgba(0,0,0,0);display:inline-block;background-image:url("/static/img/icons.svg");background-size:68.75px 103.13px;background-position:-31.25px 0;background-repeat:no-repeat;width:15px;height:15px}
-#stat .like em.praised{background-position:-31.25px -25px}
 #stat *{vertical-align:middle}
 #tag{font-size:14px;padding:1em 0;border-top:1px solid #eee}
 #tag>span{display:inline-block;margin-right:.3em;padding:.7em;color:#333;background:#ccc}
@@ -77,7 +72,7 @@ table th,table td,table.mce-item-table th,table.mce-item-table td{border-left:1p
 #gototop:before{content:'顶部';}
 .tms-switch-favor:before{content:'收藏';}
 .tms-switch-favor.favored{background:rgba(132,255,192,0.5);}
-.tms-switch-discuss:before{content:'留言';}
+.tms-switch-forward:before{content:'转发';}
 .tms-switch-coinpay:before{content:'打赏';}
 .tms-switch-siteuser:before{content:'我';}
 
@@ -89,7 +84,6 @@ table th,table td,table.mce-item-table th,table.mce-item-table td{border-left:1p
 #picViewer span.prev{position:absolute;left:50%;margin-left:-72px}
 #picViewer span.next{position:absolute;left:50%;margin-left:36px}
 #picViewer span.exit{position:absolute;right:0}
-.article .weui_dialog_alert{display:none}
 #frmPlugin{position:absolute;top:0;bottom:0;left:0;right:0;width:100%;height:100%;border:none;z-index:999;box-sizing:border-box;padding-bottom:48px;background:#fff;}
 #frmPlugin iframe{width:100%;height:100%;}
 #frmPlugin:after{content:'关闭';position:absolute;width:100px;text-align:center;left:50%;margin-left:-50px;bottom:4px;padding:5px 6px 3px;border:1px solid #ccc;border-radius:4px;}

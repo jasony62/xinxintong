@@ -122,9 +122,9 @@ ngMod.service('tmsDynaPage', ['$q', function($q) {
         frag.appendChild(wrap);
         document.body.appendChild(frag);
         if (content.indexOf('http') === 0) {
-            window.onClosePlugin = function() {
+            window.onClosePlugin = function(result) {
                 wrap.parentNode.removeChild(wrap);
-                deferred.resolve();
+                deferred.resolve(result);
             };
             frm.setAttribute('src', content);
         } else {
@@ -133,21 +133,5 @@ ngMod.service('tmsDynaPage', ['$q', function($q) {
             }
         }
         return deferred.promise;
-    };
-    this.cookieLogin = function(siteId) {
-        var ck, cn, cs, ce, login;
-        ck = document.cookie;
-        cn = '_site_' + siteId + '_fe_login';
-        if (ck.length > 0) {
-            cs = ck.indexOf(cn + "=");
-            if (cs !== -1) {
-                cs = cs + cn.length + 1;
-                ce = ck.indexOf(";", cs);
-                if (ce === -1) ce = ck.length;
-                login = ck.substring(cs, ce);
-                return JSON.parse(decodeURIComponent(login));
-            }
-        }
-        return false;
     };
 }]);

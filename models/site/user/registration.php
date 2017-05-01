@@ -83,6 +83,13 @@ class registration_model extends \TMS_MODEL {
 		$this->insert('account', $registration, false);
 		$registration = $this->byId($unionid);
 
+		/* 指定缺省用户组 */
+		$account_group = [
+			'account_uid' => $unionid,
+			'group_id' => 1,
+		];
+		$this->insert('account_in_group', $account_group, false);
+
 		return [true, $registration];
 	}
 	/**

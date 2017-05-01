@@ -9,6 +9,15 @@ class main extends \pl\fe\base {
 	/**
 	 *
 	 */
+	public function get_access_rule() {
+		$rule_action['rule_type'] = 'white';
+		$rule_action['actions'] = [];
+
+		return $rule_action;
+	}
+	/**
+	 *
+	 */
 	public function index_action() {
 		\TPL::output('/pl/fe/site/console');
 		exit;
@@ -36,7 +45,7 @@ class main extends \pl\fe\base {
 		$admin->urole = 'O';
 		$rst = $modelAdm->add($user, $siteid, $admin);
 
-		return new \ResponseData(['id' => $siteid]);
+		return new \ResponseData(['id' => $siteid, 'name' => $site['name']]);
 	}
 	/**
 	 * 删除团队
@@ -199,7 +208,7 @@ class main extends \pl\fe\base {
 		$friendSites = [];
 		$friends = $modelSite->byFriend($mySiteIds);
 		foreach ($friends as $friend) {
-			if($friendSite = $modelSite->byId($friend->siteid, ['fields' => 'id,name,summary,heading_pic'])) {
+			if ($friendSite = $modelSite->byId($friend->siteid, ['fields' => 'id,name,summary,heading_pic'])) {
 				$friendSite->friend = $friend;
 				$friendSites[] = $friendSite;
 			}
@@ -250,77 +259,6 @@ class main extends \pl\fe\base {
 		$result = $modelSite->matterByFriend($mySiteIds, ['page' => ['at' => $page, 'size' => $size]]);
 
 		return new \ResponseData($result);
-	}
-	/**
-	 * 关注指定团队
-	 */
-	public function subscribe_action($site, $subscriber) {
-		if (false === ($user = $this->accountUser())) {
-			return new \ResponseTimeout();
-		}
-
-		$modelSite = $this->model('site');
-
-		if (false === ($target = $modelSite->byId($site))) {
-			return new \ResponseError('数据不存在');
-		}
-
-		$siteIds = explode(',', $subscriber);
-		foreach ($siteIds as $siteId) {
-			$subscriber = $modelSite->byId($siteId);
-			$modelSite->subscribeBySite($user, $target, $subscriber);
-		}
-
-		return new \ResponseData('ok');
-	}
-	/**
-	 * 取消关注指定团队
-	 */
-	public function unsubscribe_action($site, $friend) {
-		if (false === ($user = $this->accountUser())) {
-			return new \ResponseTimeout();
-		}
-
-		$modelSite = $this->model('site');
-
-		if (false === ($target = $modelSite->byId($site))) {
-			return new \ObjectNotFoundError();
-		}
-		if (false === ($target = $modelSite->byId($friend))) {
-			return new \ObjectNotFoundError();
-		}
-
-		$rst = $modelSite->unsubscribeBySite($site, $friend);
-
-		return new \ResponseData($rst);
-	}
-	/**
-	 * 返回当前用户可以关注指定团队的团队
-	 *
-	 * @param string $site site'id
-	 */
-	public function canSubscribe_action($site) {
-		if (false === ($user = $this->accountUser())) {
-			return new \ResponseTimeout();
-		}
-
-		$modelSite = $this->model('site');
-		if (false === ($site = $modelSite->byId($site))) {
-			return new \ResponseError('数据不存在');
-		}
-		/* 当前用户管理的团队 */
-		$mySites = $modelSite->byUser($user->id);
-		$targets = []; // 符合条件的团队
-		foreach ($mySites as &$mySite) {
-			if ($mySite->id === $site->id) {
-				continue;
-			}
-			$rel = $modelSite->isFriend($site->id, $mySite->id);
-			$mySite->_subscribed = !empty($rel->subscribe_at) ? 'Y' : 'N';
-			$targets[] = $mySite;
-		}
-
-		return new \ResponseData($targets);
 	}
 	/**
 	 * 获得团队绑定的第三方公众号

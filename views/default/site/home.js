@@ -269,7 +269,7 @@ define(["angular", "xxt-page"], function(angular, codeAssembler) {
                 }
                 location.href = '/rest/pl/fe/user/auth';
             } else {
-                var url = '/rest/pl/fe/site/canSubscribe?site=' + siteId + '&_=' + (new Date() * 1);
+                var url = '/rest/pl/fe/site/subscribe/sitesByUser?site=' + siteId + '&_=' + (new Date() * 1);
                 http2.get(url, function(rsp) {
                     var sites = rsp.data;
                     $uibModal.open({
@@ -293,7 +293,7 @@ define(["angular", "xxt-page"], function(angular, codeAssembler) {
                             };
                         }]
                     }).result.then(function(selected) {
-                        var url = '/rest/pl/fe/site/subscribe?site=' + siteId;
+                        var url = '/rest/pl/fe/site/subscribe/do?site=' + siteId;
                         sites = [];
 
                         selected.forEach(function(mySite) {

@@ -74,6 +74,8 @@ define(['require', 'enrollService'], function (require) {
             .when('/rest/pl/fe/matter/enroll/prepare', new RouteParam('prepare'))
             .when('/rest/pl/fe/matter/enroll/notice', new RouteParam('notice'))
             .when('/rest/pl/fe/matter/enroll/discuss', new RouteParam('discuss', '/views/default/pl/fe/_module/'))
+            //编辑页
+            //.when('/rest/pl/fe/matter/enroll/mainVer1', new RouteParam('mainVer1'))
             .otherwise(new RouteParam('publish'));
 
         $locationProvider.html5Mode(true);
@@ -96,7 +98,7 @@ define(['require', 'enrollService'], function (require) {
             srvQuickEntryProvider.setSiteId(siteId);
         })();
     }]);
-    ngApp.controller('ctrlFrame', ['$scope', 'srvSite', 'srvEnrollApp', 'templateShop', function ($scope, srvSite, srvEnrollApp, templateShop) {
+    ngApp.controller('ctrlFrame', ['$scope', 'srvSite', 'srvEnrollApp', 'templateShop', '$location', function ($scope, srvSite, srvEnrollApp, templateShop, $location) {
         $scope.scenarioNames = {
             'common': '通用登记',
             'registration': '报名',
@@ -181,15 +183,15 @@ define(['require', 'enrollService'], function (require) {
         $scope.goTo = function (value ,view) {
             var url = '/rest/pl/fe/matter/enroll/';
             url += value ;
-            url += '?site' + $scope.app.siteid;
-            url += '&id' + $scope.app.id;
+            //url += '?site' + $scope.app.siteid;
+            //url += '&id' + $scope.app.id;
             //如果是空数组，则没有二级页面，打开链接，更改状态，关闭所有折叠
             if(!view.inferior.length){
                 angular.forEach($scope.views, function(v){
                     v.inferiorShow && (v.inferiorShow=false)
                 });
-                //location.herf = url ;
                 $scope.leftState = value;
+                $location.path(url) ;
             }else{
                 angular.forEach($scope.views, function(v){
                     v.inferiorShow && (v.inferiorShow=false)
@@ -203,10 +205,10 @@ define(['require', 'enrollService'], function (require) {
         $scope.goToInferior = function(value){
             var url = '/rest/pl/fe/matter/enroll/';
             url += value ;
-            url += '?site' + $scope.app.siteid;
-            url += '&id' + $scope.app.id;
+            //url += '?site' + $scope.app.siteid;
+            //url += '&id' + $scope.app.id;
             $scope.leftInferior = value;
-            location.href = url;
+            $location.path(url) ;
         };
         $scope.subView = '';
         $scope.$on('$locationChangeSuccess', function (event, currentRoute) {

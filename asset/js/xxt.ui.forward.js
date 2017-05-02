@@ -30,8 +30,9 @@ ngMod.service('tmsForward', ['$rootScope', '$http', '$q', 'tmsDynaPage', 'tmsMod
         template += '<span>{{chn.title}}</span>';
         template += '</label>';
         template += '</div>'
+        template += '<div ng-if="site.homeChannels.length===0"><a href="" ng-click="createChannel(site)">创建</a>团队主页频道，转发内容到团队主页</div>';
         template += '</div>'
-        template += '<div ng-if="mySites.length===0">创建团队和主页频道，转发内容到团队主页</div>';
+        template += '<div ng-if="mySites.length===0"><a href="" ng-click="createSite()">创建</a>团队，转发内容到团队主页</div>';
         template += '</div>';
         template += '<div class="modal-footer"><button ng-click="cancel()">关闭</button><button ng-click="ok()">确定</button></div>';
         tmsModal.open({
@@ -45,6 +46,22 @@ ngMod.service('tmsForward', ['$rootScope', '$http', '$q', 'tmsDynaPage', 'tmsMod
                     });
                     $scope2.mySites = mySites;
                 });
+                $scope2.createChannel = function(site) {
+                    $http.post('/rest/pl/fe/matter/channel/create?site=' + site.id, {}).success(function(rsp) {
+                        var oChannel = rsp.data;
+                        $http.post('/rest/pl/fe/site/setting/page/addHomeChannel?site=' + site.id, oChannel).success(function(rsp) {
+                            site.homeChannels.push(rsp.data);
+                        });
+                    });
+                };
+                $scope2.createSite = function() {
+                    $http.get('/rest/pl/fe/site/create').success(function(rsp) {
+                        var site = rsp.data;
+                        site._selected = 'N';
+                        site.homeChannels = [];
+                        $scope2.mySites = [site];
+                    });
+                };
                 $scope2.choose = function(oSite, oChannel) {
                     if (oChannel._selected === 'Y') {
                         oChannel.siteid = oSite.id;

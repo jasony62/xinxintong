@@ -9,6 +9,7 @@
         <?php TPL::pt('title');?>
     </title>
     <link href='/asset/css/site.fe.css?_=1' rel="stylesheet">
+    <link href="<?php echo auto_version('/views/default/site/fe/matter/article/main.css');?>" rel="stylesheet">
 </head>
 
 <body>
@@ -52,8 +53,9 @@
                 </div>
                 <div id='site'>
                     <p><a ng-href="{{'/rest/site/home?site='+site.id}}" ng-bind="site.name"></a></p>
+                    <hr>
                     <p ng-bind="site.summary"></p>
-                    <p><button ng-click="subscribeSite()">+关注</button></p>
+                    <button class='subscribe' ng-click="subscribeSite()">+关注</button>
                 </div>
             </div>
             <div class="right-column">

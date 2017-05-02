@@ -63,7 +63,7 @@ class main extends \pl\fe\matter\base {
 		return new \ResponseData($channels);
 	}
 	/**
-	 * 创建频道素材
+	 * 在指定团队下创建频道素材
 	 */
 	public function create_action($site) {
 		if (false === ($user = $this->accountUser())) {

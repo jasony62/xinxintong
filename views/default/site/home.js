@@ -1,5 +1,4 @@
 'use strict';
-require('./home.css');
 require('../../../asset/js/xxt.ui.page.js');
 require('../../../asset/js/xxt.ui.subscribe.js');
 

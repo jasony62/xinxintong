@@ -1,5 +1,4 @@
 'use strict';
-require('./main.css');
 
 require('../../../../../../asset/js/xxt.ui.page.js');
 require('../../../../../../asset/js/xxt.ui.siteuser.js');

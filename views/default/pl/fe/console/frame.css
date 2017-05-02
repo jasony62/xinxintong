@@ -39,9 +39,9 @@ body{margin-bottom:50px;}
 
 /* new */
 .main{position: relative;margin-top: -20px;}
-.main > .main-sidebar{background-color: #222D32;position:absolute;top: 0;left: 0;padding-top: 50px;min-height: 100%;width: 100px;}
+.main > .main-sidebar{width: 200px;background-color: #222D32;position:absolute;top: 0;left: 0;padding-top: 20px;min-height: 100%;}
 .sidebar{padding-bottom: 10px;}
 .sidebar-menu{overflow: hidden;}
 .sidebar-menu>li {position: relative;margin: 0;padding: 0;}
 
-.main > .main-container{margin-left:100px;}
+.main > .main-container{margin-left:230px;}

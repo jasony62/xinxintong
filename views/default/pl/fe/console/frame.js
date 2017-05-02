@@ -36,9 +36,6 @@ define(['require'], function(require) {
             subView.indexOf('?') !== -1 && (subView = subView.substr(0, subView.indexOf('?')));
             $scope.subView = subView === 'fe' ? 'main' : subView;
         });
-        $scope.criteria = criteria = {
-            sid: ''
-        };
         var url = '/rest/pl/fe/user/get?_=' + (new Date() * 1);
         http2.get(url, function(rsp) {
             $scope.loginUser = rsp.data;
@@ -52,7 +49,23 @@ define(['require'], function(require) {
         srvUserNotice.uncloseList().then(function(result) {
             $scope.notice = result;
         });
+        $scope.criteria = criteria = {
+            sid: '',
+            scope: 'top'
+        };
+        $scope.list = function() {
+            $scope.siteType = 1;
+            var url = '/rest/pl/fe/site/list?_=' + (new Date() * 1);
+            http2.get(url, function(rsp) {
+                $scope.site1 = rsp.data;
+                $scope.sites = rsp.data;
+            });
+        };
+        $scope.list();
+        $scope.$watch('criteria.sid', function(nv) {
+            if(!nv) return;
 
+        },true);
     }]);
     /***/
     require(['domReady!'], function(document) {

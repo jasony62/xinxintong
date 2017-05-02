@@ -24,6 +24,14 @@ class base extends \site\base {
 		/* 获得访问用户的信息 */
 		$modelWay = $this->model('site\fe\way');
 		$this->who = $modelWay->who($siteId);
+		/* 用户注册信息 */
+		$cookieRegUser = $modelWay->getCookieRegUser();
+		if ($cookieRegUser) {
+			if (isset($cookieRegUser->loginExpire)) {
+				$this->who->unionid = $cookieRegUser->unionid;
+				$this->who->loginExpire = $cookieRegUser->loginExpire;
+			}
+		}
 	}
 	/**
 	 *

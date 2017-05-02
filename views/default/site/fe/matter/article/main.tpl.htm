@@ -8,7 +8,8 @@
     <title>
         <?php TPL::pt('title');?>
     </title>
-    <link href='/static/css/site.fe.css?_=1' rel="stylesheet">
+    <link href='/asset/css/site.fe.css?_=1' rel="stylesheet">
+    <link href="<?php echo auto_version('/views/default/site/fe/matter/article/main.css');?>" rel="stylesheet">
 </head>
 
 <body>
@@ -21,9 +22,6 @@
                 <div id="attribute">
                     <span class="time" ng-bind="article.modify_at*1000|date:'yy-MM-dd'"></span>
                     <span class="author" ng-bind='article.author'></span>
-                    <span id='article_from_mp' ng-if='site.yx.cardid'>
-                            <a ng-click="followYixinMp()" href="" ng-bind='site.yx.cardname'></a>
-                        </span>
                 </div>
                 <div class="headpic" ng-if="article.hide_pic!=='Y'">
                     <img ng-src="{{article.pic}}">
@@ -45,17 +43,19 @@
                 </p>
                 <div id='stat'>
                     <span class='read'>
-                            <span>阅读</span>
+                        <span>阅读</span>
                     <span id='readNum' ng-bind='article.read_num'></span>
-                    </span>
-                    <span class='like' style='display:none'>
-                            <em ng-class="{'praised':article.praised}" ng-click="like()"></em>
-                            <span id='score' ng-bind='article.score'></span>
                     </span>
                 </div>
                 <div id='tag' ng-if="article.channels.length||article.tags.length">
                     <span ng-repeat="c in article.channels" ng-click="openChannel(c)" ng-bind="c.title"></span>
                     <span ng-repeat="t in article.tags" ng-click="searchByTag(t)" ng-bind="t.title"></span>
+                </div>
+                <div id='site'>
+                    <p><a ng-href="{{'/rest/site/home?site='+site.id}}" ng-bind="site.name"></a></p>
+                    <hr>
+                    <p ng-bind="site.summary"></p>
+                    <button class='subscribe' ng-click="subscribeSite()">+关注</button>
                 </div>
             </div>
             <div class="right-column">

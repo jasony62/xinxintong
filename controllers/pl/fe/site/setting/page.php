@@ -27,18 +27,21 @@ class page extends \pl\fe\base {
 		return new \ResponseData($hcs);
 	}
 	/**
-	 * 添加主页频道
+	 * 在指定团队下添加主页频道
 	 */
 	public function addHomeChannel_action($site) {
 		if (false === ($user = $this->accountUser())) {
 			return new \ResponseTimeout();
 		}
 
-		$channel = $this->getPostJson();
-		$site = $this->model('site')->byId($site);
+		$oChannel = $this->getPostJson();
+		$oSite = $this->model('site')->byId($site);
+		if (false === $oSite) {
+			return new \ObjectNotFoundError();
+		}
 
 		$modelSp = $this->model('site\page');
-		$hc = $modelSp->addHomeChannel($user, $site, $channel);
+		$hc = $modelSp->addHomeChannel($user, $oSite, $oChannel);
 
 		return new \ResponseData($hc);
 	}

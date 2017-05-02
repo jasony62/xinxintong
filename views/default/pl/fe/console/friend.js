@@ -2,11 +2,11 @@ define(['frame'], function(ngApp) {
     'use strict';
     ngApp.provider.controller('ctrlFriend', ['$scope', 'srvSite', 'http2', '$uibModal', 'noticebox', function($scope, srvSite, http2, $uibModal, noticebox) {
         $scope.subscribe = function(site) {
-            var url = '/rest/pl/fe/site/canSubscribe?site=' + site.siteid + '&_=' + (new Date() * 1);
+            var url = '/rest/pl/fe/site/subscribe/sitesByUser?site=' + site.siteid + '&_=' + (new Date() * 1);
             http2.get(url, function(rsp) {
                 function _chooseSite(chooseSite) {
                     var url = '/rest/pl/fe/site/subscribe?site=' + site.siteid;
-                        sites = [];
+                    sites = [];
 
                     chooseSite.forEach(function(mySite) {
                         sites.push(mySite.id);

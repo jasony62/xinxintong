@@ -26,9 +26,9 @@ class registrant extends \pl\be\base {
 		$model = $this->model();
 		$result = [];
 		$q = [
-			'r.unionid,r.uname,r.nickname,r.reg_time,r.last_login,r.forbidden,s.name "site_name"',
-			'xxt_site_registration r,xxt_site s',
-			"r.from_siteid=s.id",
+			'r.uid,r.email,r.nickname,r.reg_time,r.last_login,r.forbidden,s.name "site_name"',
+			'account r,xxt_site s',
+			"r.authed_from='xxt_site' and r.from_siteid=s.id",
 		];
 		if (!empty($filter->uname)) {
 			$q[2] .= " and r.uname like '%{$filter->uname}%'";
@@ -60,7 +60,7 @@ class registrant extends \pl\be\base {
 
 		$modelReg = $this->model('site\user\registration');
 
-		$user = $modelReg->byId($data->unionid);
+		$user = $modelReg->byId($data->uid);
 		if (empty($user->salt)) {
 			return new \ResponseError('用户没有设置过口令，不允许重置口令');
 		}
@@ -79,7 +79,7 @@ class registrant extends \pl\be\base {
 
 		$user = $this->getPostJson();
 
-		$this->model()->update('xxt_site_registration', ['forbidden' => '1'], ['unionid' => $user->unionid]);
+		$this->model()->update('account', ['forbidden' => '1'], ['uid' => $user->uid]);
 
 		return new \ResponseData('ok');
 	}
@@ -93,7 +93,7 @@ class registrant extends \pl\be\base {
 
 		$user = $this->getPostJson();
 
-		$this->model()->update('xxt_site_registration', ['forbidden' => '0'], ['unionid' => $user->unionid]);
+		$this->model()->update('account', ['forbidden' => '0'], ['uid' => $user->uid]);
 
 		return new \ResponseData('ok');
 	}

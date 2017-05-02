@@ -9,10 +9,13 @@
         <?php echo APP_TITLE;?>
     </title>
     <style>
-        .site_fe_home{background-image: url('../../static/img/site_fe_home.png');}
+    .site_fe_home {
+        background-image: url('../../static/img/site_fe_home.png');
+    }
     </style>
     <link href="/static/css/bootstrap.min.css" rel="stylesheet">
     <link href="/static/css/site.fe.css" rel="stylesheet">
+    <link href="<?php echo auto_version('/views/default/home.css');?>" rel="stylesheet">
 </head>
 
 <body ng-controller='ctrlMain'>
@@ -26,7 +29,8 @@
                     <span class="icon-bar"></span>
                 </button>
                 <a class="navbar-brand" href="/rest/home/home/">
-                    <?php if(!empty(APP_LOGO)){ ?><img src="../..<?php echo APP_LOGO; ?>" height="61" width="178" alt="能力开发平台" > <?php } ?>
+                    <?php if(!empty(APP_LOGO)){ ?><img src="../..<?php echo APP_LOGO; ?>" height="61" width="178" alt="能力开发平台">
+                    <?php } ?>
                 </a>
             </div>
             <div id='navbar-collapse-1' class='collapse navbar-collapse'>
@@ -36,61 +40,30 @@
                     <li ng-if="platform.is_show_template==='Y'" ng-class="{'active':subView==='template'}"><a href='' ng-click="shiftPage('template')">应用模版</a></li>
                     <li ng-repeat="nav in platform.home_nav" class='nav-site'><a href="/rest/site/home?site={{nav.site.id}}" target='_self'>{{nav.title}}</a></li>
                 </ul>
-                <ul class='nav navbar-nav navbar-right ng-cloak' ng-cloak ng-if="user.isLogin===false">
-                    <li><a href='' uib-popover-template="'userLogin.html'" popover-placement="bottom" popover-class='user-login' popover-trigger="outsideClick">登录</a></li>
-                    <li><a href='' uib-popover-template="'userRegister.html'" popover-placement="bottom" popover-class='user-register' popover-trigger="outsideClick">注册</a></li>
+                <ul class='nav navbar-nav navbar-right ng-cloak' ng-cloak ng-if="!user.loginExpire">
+                    <li><a href='/rest/site/fe/user/login?site=platform'>登录</a></li>
+                    <li><a href='/rest/site/fe/user/register?site=platform'>注册</a></li>
                 </ul>
-                <form class='navbar-form navbar-right ng-cloak' ng-cloak ng-if="user.isLogin===true" >
+                <form class='navbar-form navbar-right ng-cloak' ng-cloak ng-if="user.loginExpire">
                     <div class="btn-group" ng-switch on="user.role">
-                        <a ng-switch-when="admin" class="btn btn-default" data-toggle="dropdown" >
-                            <span class="site_fe_home site_fe_home_icon xxt_team"></span>
-                            <span ng-bind="user.nickname" ></span>
-                        </a>
-                        <a ng-switch-when="person" class="btn btn-default" data-toggle="dropdown">
+                        <a class="btn btn-default" data-toggle="dropdown">
                             <span class="site_fe_home site_fe_home_icon xxt_person"></span>
                             <span ng-bind="user.nickname"></span>
                         </a>
-                        <ul class="dropdown-menu" role="menu" ng-switch-when="admin">
+                        <ul class="dropdown-menu" role="menu">
                             <li>
                                 <a href='/rest/pl/fe' target='_self'>
-                                    <span class="site_fe_home site_fe_home_icon xxt_console"></span>个人工作台
-                                </a>
-                            </li>
-                            <li>
-                                <a href='/rest/pl/fe/user/settings' target='_self'>
-                                    <span class="site_fe_home site_fe_home_icon xxt_setting"></span>用户设置
-                                </a>
-                            </li>
-                            <li>
-                                <a href='' ng-click="shiftAsPerson()">
-                                    <span class="site_fe_home site_fe_home_icon xxt_person"></span>切换到个人账号
-                                </a>
-                            </li>
-                            <li>
-                                <a href='/rest/pl/fe/user/logout' target='_self'>
-                                    <span class="site_fe_home site_fe_home_icon xxt_quite"></span>退出
-                                </a>
-                            </li>
-                        </ul>
-                        <ul class="dropdown-menu" role="menu" ng-switch-when="person">
-                            <li>
-                                <a href='/rest/site/fe/user?site=platform' target='_self'>
-                                    <span class="site_fe_home site_fe_home_icon xxt_person_index"></span>个人主页
+                                    <span class="site_fe_home site_fe_home_icon xxt_person_index"></span>我的工作台
                                 </a>
                             </li>
                             <li>
                                 <a href='/rest/site/fe/user?site=platform' target='_self'>
-                                    <span class="site_fe_home site_fe_home_icon xxt_setting"></span>用户设置
-                                </a>
-                            </li>
-                            <li>
-                                <a href='' ng-click="shiftAsAdmin()">
-                                    <span class="site_fe_home site_fe_home_icon xxt_team"></span>切换到团队账号
+                                    <span class="site_fe_home site_fe_home_icon xxt_setting"></span>账号信息设置
                                 </a>
                             </li>
                             <li>
                                 <a href='/rest/site/fe/user/logout/do?site=platform&redirect=Y' target='_self'>
-                                    <span class="site_fe_home site_fe_home_icon xxt_quite"></span>退出
+                                    <span class="site_fe_home site_fe_home_icon xxt_quite"></span>退出登录
                                 </a>
                             </li>
                         </ul>
@@ -105,59 +78,6 @@
             <div class="row"></div>
         </div>
     </nav>
-    <script type="text/ng-template" id="userLogin.html">
-        <div>
-            <div>
-                <a href='/rest/site/fe/user/login?site=platform' target='_self'>
-                    <span class="site_fe_home site_fe_home_icon xxt_team"></span>团队账号
-                </a>
-            </div>
-            <div>
-                <a href='/rest/pl/fe/user/auth' target='_self'>
-                    <span class="site_fe_home site_fe_home_icon xxt_person"></span>个人账号
-                </a>
-            </div>
-        </div>
-    </script>
-    <script type="text/ng-template" id="userRegister.html">
-        <div>
-            <div>
-                <a href='/rest/site/fe/user/register?site=platform' target='_self'>
-                    <span class="site_fe_home site_fe_home_icon xxt_person"></span>个人账号
-                </a>
-            </div>
-            <div>
-                <a href='/rest/pl/fe/user/register' target='_self'>
-                    <span class="site_fe_home site_fe_home_icon xxt_team"></span>团队账号
-                </a>
-            </div>
-        </div>
-    </script>
-    <script type="text/ng-template" id="userSubscribe.html">
-        <div>
-            <div><a href='' ng-click="subscribeByPerson(s)">个人账号关注</a></div>
-            <div><a href='' ng-click="subscribeByTeam(s)">团队账号关注</a></div>
-        </div>
-    </script>
-    <script type="text/ng-template" id="subscribeByTeam.html">
-        <div class="modal-header">
-            <button class="close" type="button" ng-click="cancel()">×</button>
-            <h5 class="modal-title ">指定关注团队的团队</h5>
-        </div>
-        <div class="modal-body ">
-            <div class="checkbox" ng-repeat="site in mySites">
-                <label ng-if="site._subscribed!=='Y'">
-                    <input type='checkbox' ng-true-value="'Y'" ng-false-value="'N'" ng-model='site._selected'>{{site.name}}</label>
-                <label ng-if="site._subscribed==='Y'">
-                    <input type='checkbox' checked disabled><span>{{site.name}}</span>（已关注）</label>
-                </label>
-            </div>
-            <div class='alert alert-danger' ng-if="mySites.length===0">请创建用于关注本团队的团队</div>
-        </div>
-        <div class="modal-footer">
-            <button class="btn btn-success" ng-click="ok() ">确定</button>
-        </div>
-    </script>
     <script type="text/ng-template" id="favorTemplateSite.html">
         <div class="modal-header">
             <button class="close" type="button" ng-click="cancel()">×</button>

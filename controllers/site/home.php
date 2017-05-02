@@ -40,13 +40,20 @@ class home extends base {
 			if (!empty($oSite->home_carousel)) {
 				$oSite->home_carousel = json_decode($oSite->home_carousel);
 			}
+			/* 用户注册信息 */
 			$modelWay = $this->model('site\fe\way');
 			$siteUser = $modelWay->who($site);
+			$cookieRegUser = $modelWay->getCookieRegUser();
+			if ($cookieRegUser) {
+				if (isset($cookieRegUser->loginExpire)) {
+					$siteUser->unionid = $cookieRegUser->unionid;
+				}
+			}
 			/* 团队是否已经被当前用户关注 */
 			$oSite->_subscribed = 'N';
-			if (!empty($siteUser->loginExpire)) {
+			if (!empty($siteUser->unionid)) {
 				$modelSite = $this->model('site');
-				if ($rel = $modelSite->isSubscribed($siteUser->uid, $oSite->id)) {
+				if ($rel = $modelSite->isSubscribed($siteUser->unionid, $oSite->id)) {
 					if ($rel->subscribe_at > 0) {
 						$oSite->_subscribed = 'Y';
 					}

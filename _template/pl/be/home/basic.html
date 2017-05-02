@@ -170,7 +170,7 @@
                 </uib-tabset>
             </div>
             <aside class="col-md-4 col-xs-12 pull-right">
-                <div class="mainSide" ng-repeat="c in channels">
+                <div class="mainSide" ng-repeat="c in channelArticles">
                     <div class="mainSide-header">
                         <span class="site_fe_home site_fe_home_icon xxt_guide"></span>
                         <h4 >{{c.title}}</h4>
@@ -179,7 +179,7 @@
                         </small>
                     </div>
                     <div class="madinSide-body">
-                        <a class="list-group-item" ng-href="{{a.url}}" ng-repeat="a in channelArticles">
+                        <a class="list-group-item" ng-href="{{a.url}}" ng-repeat="a in c.data">
                             <span class="site_fe_home site_fe_home_icon xxt_line"></span>{{a.title}}
                             <hr/>
                         </a>

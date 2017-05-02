@@ -121,6 +121,7 @@ class main extends \pl\fe\matter\base {
 		$current = time();
 		$modelSite = $this->model('site');
 		$modelMis = $this->model('matter\mission');
+		$modelMis->setOnlyWriteDbConn(true);
 
 		$site = $modelSite->byId($site, ['fields' => 'id,heading_pic']);
 

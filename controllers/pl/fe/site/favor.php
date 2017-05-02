@@ -3,7 +3,7 @@ namespace pl\fe\site;
 
 require_once dirname(dirname(__FILE__)) . '/base.php';
 /**
- * 用户收藏
+ * 团队收藏
  */
 class favor extends \pl\fe\base {
 	/**

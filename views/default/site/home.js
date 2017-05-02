@@ -1,8 +1,9 @@
 'use strict';
 require('../../../asset/js/xxt.ui.page.js');
 require('../../../asset/js/xxt.ui.subscribe.js');
+require('../../../asset/js/xxt.ui.contribute.js');
 
-var ngApp = angular.module('app', ['ui.bootstrap', 'ui.tms', 'page.ui.xxt', 'subscribe.ui.xxt']);
+var ngApp = angular.module('app', ['ui.bootstrap', 'ui.tms', 'page.ui.xxt', 'subscribe.ui.xxt', 'contribute.ui.xxt']);
 ngApp.provider('srvUser', function() {
     var _getSiteUserDeferred;
     this.$get = ['$q', 'http2', function($q, http2) {
@@ -28,7 +29,7 @@ ngApp.config(['$controllerProvider', '$uibTooltipProvider', function($cp, $uibTo
         'show': 'hide'
     });
 }]);
-ngApp.controller('ctrlMain', ['$scope', '$timeout', '$q', '$uibModal', 'http2', 'srvUser', 'tmsDynaPage', 'tmsSubscribe', function($scope, $timeout, $q, $uibModal, http2, srvUser, tmsDynaPage, tmsSubscribe) {
+ngApp.controller('ctrlMain', ['$scope', '$q', '$uibModal', 'http2', 'srvUser', 'tmsDynaPage', 'tmsSubscribe', 'tmsContribute', function($scope, $q, $uibModal, http2, srvUser, tmsDynaPage, tmsSubscribe, tmsContribute) {
     function createSite() {
         var defer = $q.defer(),
             url = '/rest/pl/fe/site/create?_=' + (new Date() * 1);
@@ -138,6 +139,19 @@ ngApp.controller('ctrlMain', ['$scope', '$timeout', '$q', '$uibModal', 'http2', 
                     });
                 }
             });
+        }
+    };
+    $scope.contributeSite = function() {
+        if (!$scope.user.loginExpire) {
+            if (window.sessionStorage) {
+                var method = JSON.stringify({
+                    name: 'contributeSite',
+                });
+                window.sessionStorage.setItem('xxt.site.home.auth.pending', method);
+            }
+            location.href = '/rest/site/fe/user/login?site=' + siteId;
+        } else {
+            tmsContribute.open(oUser, $scope.site);
         }
     };
     $scope.subscribeSite = function() {

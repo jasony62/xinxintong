@@ -3,7 +3,7 @@ namespace pl\fe\site;
 
 require_once dirname(dirname(__FILE__)) . '/base.php';
 /**
- *
+ * 团队关注团队
  */
 class subscribe extends \pl\fe\base {
 	/**

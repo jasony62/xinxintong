@@ -157,16 +157,10 @@ class main extends \pl\fe\base {
 			return new \ResponseTimeout();
 		}
 
-		$q = [
-			'id,creater_name,create_at,name',
-			'xxt_site s',
-			"state=1 and (creater='{$user->id}' or exists(select 1 from xxt_site_admin sa where sa.siteid=s.id and uid='{$user->id}'))",
-		];
-		$q2 = ['o' => 'create_at desc'];
+		$modelSite = $this->model('site');
+		$mySites = $modelSite->byUser($user->id);
 
-		$sites = $this->model()->query_objs_ss($q, $q2);
-
-		return new \ResponseData($sites);
+		return new \ResponseData($mySites);
 	}
 	/**
 	 * 允许公开访问的团队

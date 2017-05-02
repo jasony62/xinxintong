@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html ng-controller='ctrlMain'>
+<html ng-app='app' ng-controller='ctrlMain'>
 
 <head>
     <meta charset="utf-8">
@@ -10,7 +10,6 @@
     </title>
     <link href="/static/css/bootstrap.min.css" rel="stylesheet">
     <link href="/static/css/site.fe.css" rel="stylesheet">
-    <link href='/views/default/site/home.css?_=1' rel="stylesheet">
 </head>
 
 <body>
@@ -28,31 +27,22 @@
                 </button>
             </div>
             <div id='navbar-collapse-1' class='collapse navbar-collapse'>
-                <ul class='nav navbar-nav navbar-right ng-cloak' ng-cloak ng-if="user.isLogin===false">
-                    <li><a href='' uib-popover-template="'userLogin.html'" popover-placement="bottom" popover-class='user-login' popover-trigger="outsideClick">登录 <span class='caret'></span></a></li>
-                    <li><a href='' uib-popover-template="'userRegister.html'" popover-placement="bottom" popover-class='user-register' popover-trigger="outsideClick">注册 <span class='caret'></span></a></li>
+                <ul class='nav navbar-nav navbar-right ng-cloak' ng-cloak ng-if="!user.loginExpire">
+                    <li><a href='/rest/site/fe/user/login?site={{site.id}}' target='_self'>登录</a></li>
+                    <li><a href='/rest/site/fe/user/register?site={{site.id}}' target='_self'>注册</a></li>
                 </ul>
-                <form class='navbar-form navbar-right ng-cloak' ng-cloak ng-if="user.isLogin===true">
-                    <div class="btn-group" ng-switch on="user.role">
-                        <a ng-switch-when="admin" ng-href='/rest/pl/fe' target='_self' class="btn btn-default"><i class='glyphicon glyphicon-user'></i> <span ng-bind="user.nickname"></span></a>
-                        <a ng-switch-when="person" href='/rest/site/fe/user?site={{site.id}}' target='_self' class="btn btn-default"><i class='glyphicon glyphicon-user'></i> <span ng-bind="user.nickname"></span></a>
+                <form class='navbar-form navbar-right ng-cloak' ng-cloak ng-if="user.loginExpire">
+                    <div class="btn-group">
+                        <a href='/rest/site/fe/user?site={{site.id}}' target='_self' class="btn btn-default"><i class='glyphicon glyphicon-user'></i> <span ng-bind="user.nickname"></span></a>
                         <button type="button" class="btn btn-default dropdown-toggle" data-toggle="dropdown">
                             <span class="caret"></span>
                             <span class="sr-only">Toggle Dropdown</span>
                         </button>
-                        <ul class="dropdown-menu" role="menu" ng-switch-when="person">
-                            <li><a href='/rest/site/fe/user?site={{site.id}}' target='_self'>用户设置</a></li>
+                        <ul class="dropdown-menu" role="menu">
+                            <li><a ng-href='/rest/pl/fe' target='_self'>我的工作台</a></li>
+                            <li><a href='/rest/site/fe/user?site={{site.id}}' target='_self'>账号信息设置</a></li>
                             <li class="divider"></li>
-                            <li><a href='/rest/site/fe/user/logout/do?site={{site.id}}&redirect=Y' target='_self'>退出</a></li>
-                            <li class="divider"></li>
-                            <li><a href='' ng-click="shiftAsAdmin()">切换到团队账号</a></li>
-                        </ul>
-                        <ul class="dropdown-menu" role="menu" ng-switch-when="admin">
-                            <li><a href='/rest/pl/fe/user/settings' target='_self'>用户设置</a></li>
-                            <li class="divider"></li>
-                            <li><a href='/rest/pl/fe/user/logout' target='_self'>退出</a></li>
-                            <li class="divider"></li>
-                            <li><a href='' ng-click="shiftAsPerson()">切换到个人账号</a></li>
+                            <li><a href='/rest/site/fe/user/logout/do?site={{site.id}}&redirect=Y' target='_self'>退出登录</a></li>
                         </ul>
                     </div>
                 </form>
@@ -62,41 +52,16 @@
     <div class='container'>
         <div class='row'>
             <div class='col-md-12'>
-                <nav class='navbar navbar-default' ng-switch on="user.role">
+                <nav class='navbar navbar-default'>
                     <p class="navbar-text" ng-bind="site.name"></p>
-                    <form class="navbar-form navbar-right ng-cloak" ng-cloak ng-switch-when="person" style='margin-right:0'>
-                        <button class="btn btn-success" ng-click="subscribeByPerson()" ng-if="site._subscribed==='N'">关注</button>
-                        <button class="btn btn-default" ng-click="unsubscribeByPerson()" ng-if="site._subscribed==='Y'">取消关注</button>
-                    </form>
-                    <form class="navbar-form navbar-right ng-cloak" ng-cloak ng-switch-when="admin" style='margin-right:0'>
-                        <button class="btn btn-success" ng-click="subscribeByTeam()">关注</button>
-                    </form>
-                    <form class="navbar-form navbar-right ng-cloak" ng-cloak ng-switch-default style='margin-right:0'>
-                        <button class="btn btn-success" uib-popover-template="'userSubscribe.html'" popover-placement="bottom" popover-class='user-subscribe' popover-trigger="outsideClick">关注 <span class='caret'></span></button>
+                    <form class="navbar-form navbar-right ng-cloak" ng-cloak style='margin-right:0'>
+                        <button class="btn btn-success" ng-click="subscribeSite()">关注</button>
                     </form>
                 </nav>
             </div>
         </div>
     </div>
     <div id="content" dynamic-html='page.html' ng-cloak class='ng-cloak'></div>
-    <script type="text/ng-template" id="userLogin.html">
-        <div>
-            <div><a href='/rest/site/fe/user/login?site={{site.id}}' target='_self'>个人账号</a></div>
-            <div><a href='/rest/pl/fe/user/auth' target='_self'>团队账号</a></div>
-        </div>
-    </script>
-    <script type="text/ng-template" id="userRegister.html">
-        <div>
-            <div><a href='/rest/site/fe/user/register?site={{site.id}}' target='_self'>个人账号</a></div>
-            <div><a href='/rest/pl/fe/user/register' target='_self'>团队账号</a></div>
-        </div>
-    </script>
-    <script type="text/ng-template" id="userSubscribe.html">
-        <div>
-            <div><a href='' ng-click="subscribeByPerson()">个人账号关注</a></div>
-            <div><a href='' ng-click="subscribeByTeam()">团队账号关注</a></div>
-        </div>
-    </script>
     <script type="text/ng-template" id="favorTempateAsAdmin.html">
         <div id='favorTempateAsAdmin'>
             <div>请切换到团队账号后收藏本模板，<a href='' ng-click="favorTemplate(t,true)">继续</a></div>
@@ -107,22 +72,6 @@
             <div>请切换到团队账号后使用本模板，<a href='' ng-click="useTemplate(t,true)">继续</a></div>
         </div>
     </script>
-    <script type="text/ng-template" id="subscribeByTeam.html">
-        <div class="modal-header">
-            <button class="close" type="button" ng-click="cancel()">×</button>
-            <h5 class="modal-title ">指定关注团队的团队</h5>
-        </div>
-        <div class="modal-body ">
-            <div class="checkbox" ng-repeat="site in mySites">
-                <label ng-if="site._subscribed!=='Y'"><input type='checkbox' ng-true-value="'Y'" ng-false-value="'N'" ng-model='site._selected'>{{site.name}}</label>
-                <label ng-if="site._subscribed==='Y'"><input type='checkbox' checked disabled><span>{{site.name}}</span>（已关注）</label></label>
-            </div>
-            <div class='alert alert-danger' ng-if="mySites.length===0">请创建用于关注本团队的团队</div>
-        </div>
-        <div class="modal-footer">
-            <button class="btn btn-success" ng-click="ok() ">确定</button>
-        </div>
-    </script>
     <script type="text/ng-template" id="favorTemplateSite.html">
         <div class="modal-header">
             <button class="close" type="button" ng-click="cancel()">×</button>
@@ -130,8 +79,11 @@
         </div>
         <div class="modal-body ">
             <div class="checkbox" ng-repeat="site in mySites">
-                <label ng-if="site._favored!=='Y'"><input type='checkbox' ng-true-value="'Y'" ng-false-value="'N'" ng-model='site._selected'>{{site.name}}</label>
-                <label ng-if="site._favored==='Y'"><input type='checkbox' checked disabled><span>{{site.name}}</span>（已收藏）</label></label>
+                <label ng-if="site._favored!=='Y'">
+                    <input type='checkbox' ng-true-value="'Y'" ng-false-value="'N'" ng-model='site._selected'>{{site.name}}</label>
+                <label ng-if="site._favored==='Y'">
+                    <input type='checkbox' checked disabled><span>{{site.name}}</span>（已收藏）</label>
+                </label>
             </div>
             <div class='alert alert-danger' ng-if="mySites.length===0">请创建用于收藏本模版的团队</div>
         </div>
@@ -146,7 +98,8 @@
         </div>
         <div class="modal-body ">
             <div class="radio" ng-repeat="site in mySites">
-                <label ng-if="site._favored!=='Y'"><input type='radio' name='site' value="{{$index}}" ng-model='data.index'>{{site.name}}</label>
+                <label ng-if="site._favored!=='Y'">
+                    <input type='radio' name='site' value="{{$index}}" ng-model='data.index'>{{site.name}}</label>
             </div>
             <div class='alert alert-danger' ng-if="mySites.length===0">请创建使用模版的团队</div>
         </div>
@@ -154,7 +107,13 @@
             <button class="btn btn-success" ng-click="ok() ">确定</button>
         </div>
     </script>
-    <script src="/static/js/require.js" defer async data-main="/views/default/site/home-loader.js?_=4"></script>
+    <script src="/static/js/jquery.min.js"></script>
+    <script src="/static/js/bootstrap.min.js"></script>
+    <script src="/static/js/angular.min.js"></script>
+    <script src="/static/js/angular-sanitize.min.js"></script>
+    <script src="/static/js/ui-bootstrap-tpls.min.js"></script>
+    <script src="/static/js/ui-tms.js"></script>
+    <script src="<?php echo auto_version('/bundles/default/site/home.js');?>"></script>
 </body>
 
 </html>

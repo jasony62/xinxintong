@@ -472,7 +472,7 @@ class log_model extends \TMS_MODEL {
 	 * @param object $user
 	 * @param array $options(fields,page)
 	 */
-	public function &recentMattersByUser(&$user, $options = []) {
+	public function &recentMattersByUser($site = null, &$user, $options = []) {
 		$fields = empty($options['fields']) ? '*' : $options['fields'];
 		if (empty($options['page'])) {
 			$page = new \stdClass;
@@ -487,10 +487,14 @@ class log_model extends \TMS_MODEL {
 			"operator='{$user->id}' and user_last_op='Y' and (operation<>'D' and operation<>'Recycle' and operation<>'Quit')",
 		];
 		if (isset($options['matterType'])) {
-			$q[2] .= " and matter_type='" . $options['matterType'] . "'";
+			$q[2] .= " and matter_type='" . $this->escape($options['matterType']) . "'";
 		}
 		if (isset($options['scenario'])) {
-			$q[2] .= " and matter_scenario='" . $options['scenario'] . "'";
+			$q[2] .= " and matter_scenario='" . $this->escape($options['scenario']) . "'";
+		}
+		if(!empty($site)){
+			$site = $this->escape($site);
+			$q[2] .= " and siteid = '$site'";
 		}
 		$q2 = [
 			'r' => ['o' => ($page->at - 1) * $page->size, 'l' => $page->size],

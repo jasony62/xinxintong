@@ -23,7 +23,7 @@ class main extends \pl\fe\base {
 	/**
 	 * 列出站点最近操作的素材
 	 */
-	public function recent_action($page = 1, $size = 30, $matterType = null, $scenario = null) {
+	public function recent_action($site = null, $page = 1, $size = 30, $matterType = null, $scenario = null) {
 		if (false === ($user = $this->accountUser())) {
 			return new \ResponseTimeout();
 		}
@@ -43,7 +43,7 @@ class main extends \pl\fe\base {
 		// 活动场景
 		$scenario !== null && $options['scenario'] = $scenario;
 
-		$matters = $modelLog->recentMattersByUser($user, $options);
+		$matters = $modelLog->recentMattersByUser($site, $user, $options);
 
 		return new \ResponseData($matters);
 	}
@@ -191,7 +191,7 @@ class main extends \pl\fe\base {
 	/**
 	 * 置顶列表
 	 */
-	public function topList_action($page = 1, $size = 12) {
+	public function topList_action($site = null, $page = 1, $size = 12) {
 		if (false === ($user = $this->accountUser())) {
 			return new \ResponseTimeout();
 		}
@@ -202,6 +202,11 @@ class main extends \pl\fe\base {
 			'xxt_account_topmatter t,xxt_log_matter_op l',
 			"t.siteid=l.siteid and t.matter_id=l.matter_id and t.matter_type=l.matter_type and l.user_last_op='Y' and t.userid='$user->id' and t.userid=l.operator",
 		];
+		if(!empty($site)){
+			$site = $model->escape($site);
+			$p[2] .= " and l.siteid = '$site'";
+		}
+
 		$p2['r'] = ['o' => ($page - 1) * $size, 'l' => $size];
 		$p2['o'] = ['top_at desc'];
 

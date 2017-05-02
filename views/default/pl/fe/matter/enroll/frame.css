@@ -67,3 +67,70 @@ body{padding:71px 0;font-family:Microsoft Yahei,Arial;}
 #chooseUser .table{margin-bottom:15px;}
 #chooseUser .table>tbody>tr>td{padding:3px;vertical-align:middle;}
 #chooseUser > .clearfix{padding-left:15px;}
+
+
+/*frame*/
+/*布局*/
+#container{
+    /*填充整个区域*/
+    position: fixed;
+    height: 100%;
+    width: 100%;
+}
+#container>.left{
+    position: absolute;
+    background:#ffffff;
+    width: 200px;
+    min-height: 100%;
+    border: 1px solid #ddd;
+}
+#container>.right{
+    margin-left: 220px;
+    min-height: 900px;
+    padding-bottom: 20px;
+}
+/*导航条*/
+.navbar .set,
+.navbar .preview{
+    border-radius: 50%;
+}
+/*侧边栏*/
+.leftActive{
+    background: #f5f5f5;
+}
+#container>.left>li{
+    border-top: 1px solid #ddd;
+    border-bottom: 1px solid #ddd;
+    margin-bottom: 3em;
+}
+#container>.left :first-child{
+    border-top: none;
+}
+#container>.left :last-child{
+    border-bottom: none;
+}
+#container>.left>li>a{
+    height: 2em;
+    line-height: 2em;
+    font-size: 1.4em;
+    color: #000;
+}
+#container>.left a{
+   display: block;
+}
+#container>.left a:hover,
+#container>.left a:focus{
+    background: #f5f5f5;
+    text-decoration: none;
+}
+#container>.left ul{
+    font-size: 1.2em;
+    margin:1em .5em 1em;
+}
+
+#container>.left ul li{
+    padding: .2em 0;
+}
+#container>.left ul a{
+    color: #928c8c;
+}

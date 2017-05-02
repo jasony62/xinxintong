@@ -2,7 +2,9 @@
 body{padding:71px 0;font-family:Microsoft Yahei,Arial;}
 .navbar-nav.tms-breadcrumb>li>a{padding-left:0;padding-right:0;color:#428bca;max-width:12em;overflow:hidden;white-space:nowrap;text-overflow:ellipsis;}
 .navbar-nav.tms-breadcrumb>li:last-child>a{color:#777;}
-.navbar-nav.tms-breadcrumb>li+li>a:before{content:'/\00a0';padding-left:5px;color:#ccc;}
+.navbar-nav.tms-breadcrumb>li>a:after{content:'/\00a0';padding-left:5px;color:#ccc;}
+.navbar-nav.tms-breadcrumb>li:last-child>a:after{content:''}
+/*.navbar-nav.tms-breadcrumb>li:last-child>input{content:''}*/
 
 /*publish-view*/
 #simulator{position:relative;width:360px;height:640px;box-shadow:0px 2px 5px 5px rgba(0,0,0,0.3);}
@@ -90,6 +92,7 @@ body{padding:71px 0;font-family:Microsoft Yahei,Arial;}
     padding-bottom: 20px;
 }
 /*导航条*/
+.navbar .reName,
 .navbar .set,
 .navbar .preview{
     border-radius: 50%;

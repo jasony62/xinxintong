@@ -30,7 +30,7 @@ th{text-align:center;}
     </thead>
     <tbody>
         <tr ng-repeat='u in users'>
-            <td ng-click="openProfile(u.uid)">{{u.uname}}</td>
+            <td>{{u.email}}</td>
             <td>{{u.nickname}}</td>
             <td>{{u.site_name}}</td>
             <td>{{u.reg_time*1000|date:'yy-MM-dd HH:mm'}}</td>

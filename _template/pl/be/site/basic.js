@@ -28,7 +28,7 @@ ngApp.provider.controller('ctrlSite', ['$scope', '$http', '$uibModal', function(
             }
             location.href = '/rest/pl/fe/user/auth';
         } else {
-            var url = '/rest/pl/fe/site/canSubscribe?site=' + site.siteid + '&_=' + (new Date() * 1);
+            var url = '/rest/pl/fe/site/subscribe/sitesByUser?site=' + site.siteid + '&_=' + (new Date() * 1);
             $http.get(url).success(function(rsp) {
                 var sites = rsp.data;
                 if (sites.length === 1) {

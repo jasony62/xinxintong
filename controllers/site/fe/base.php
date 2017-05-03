@@ -29,6 +29,7 @@ class base extends \site\base {
 		if ($cookieRegUser) {
 			if (isset($cookieRegUser->loginExpire)) {
 				$this->who->unionid = $cookieRegUser->unionid;
+				$this->who->nickname = $cookieRegUser->nickname;
 				$this->who->loginExpire = $cookieRegUser->loginExpire;
 			}
 		}

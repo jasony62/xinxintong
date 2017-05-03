@@ -4,11 +4,31 @@ define(['require', 'angular'], function(require, angular) {
     app.controller('ctrlLogin', ['$scope', '$http', function($scope, $http) {
         var site = location.search.match('site=(.*)')[1];
         $scope.data = {};
+        if (window.localStorage) {
+            $scope.supportLocalStorage = 'Y';
+            if (window.localStorage.getItem('xxt.login.rememberMe') === 'Y') {
+                $scope.data.uname = window.localStorage.getItem('xxt.login.email');
+                $scope.data.rememberMe = 'Y';
+                document.querySelector('[ng-model="data.password"]').focus();
+            } else {
+                document.querySelector('[ng-model="data.uname"]').focus();
+            }
+        } else {
+            $scope.supportLocalStorage = 'N';
+            document.querySelector('[ng-model="data.uname"]').focus();
+        }
         $scope.login = function() {
             $http.post('/rest/site/fe/user/login/do?site=' + site, $scope.data).success(function(rsp) {
                 if (rsp.err_code != 0) {
                     $scope.errmsg = rsp.err_msg;
                     return;
+                }
+                if ($scope.data.rememberMe === 'Y') {
+                    window.localStorage.setItem('xxt.login.rememberMe', 'Y');
+                    window.localStorage.setItem('xxt.login.email', $scope.data.uname);
+                } else {
+                    window.localStorage.setItem('xxt.login.rememberMe', 'N');
+                    window.localStorage.removeItem('xxt.login.email');
                 }
                 if (window.parent && window.parent.onClosePlugin) {
                     window.parent.onClosePlugin(rsp.data);

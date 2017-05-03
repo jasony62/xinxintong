@@ -63,12 +63,19 @@ class main extends \pl\fe\base {
 		}
 
 		$data = $this->getPostJson();
+		$modelWay = $this->model('site\fe\way');
 
-		$rst = $this->model()->update(
+		$rst = $modelWay->update(
 			'account',
 			['nickname' => $data->nickname],
 			['uid' => $loginUser->id]
 		);
+
+		$cookieRegUser = $modelWay->getCookieRegUser();
+		if ($cookieRegUser) {
+			$cookieRegUser->nickname = $data->nickname;
+			$modelWay->setCookieRegUser($cookieRegUser);
+		}
 
 		return new \ResponseData($rst);
 	}

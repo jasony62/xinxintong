@@ -40,7 +40,7 @@ class console extends \pl\fe\base {
 	/**
 	 * 最近删除的素材
 	 */
-	public function recycle_action($site, $page = 1, $size = 30) {
+	public function recycle_action($site = null, $page = 1, $size = 30) {
 		$modelLog = $this->model('matter\log');
 
 		/*分页参数*/

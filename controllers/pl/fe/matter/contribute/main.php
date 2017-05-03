@@ -58,17 +58,22 @@ class main extends \pl\fe\matter\base {
 	/**
 	 * 投稿活动列表
 	 */
-	public function list_action($site, $page = 1, $size = 30) {
+	public function list_action($site = null, $page = 1, $size = 30) {
+		$model = $this->model();
 		$q = array(
 			'*',
 			'xxt_contribute',
-			"siteid='$site' and state<>0",
+			"state<>0",
 		);
+		if(!empty($site)) {
+			$site = $model->escape($site);
+			$q[2] .= " and siteid='$site'";
+		}
 		$q2['o'] = 'create_at desc';
-		if ($c = $this->model()->query_objs_ss($q, $q2)) {
+		if ($c = $model->query_objs_ss($q, $q2)) {
 			$result['apps'] = $c;
 			$q[0] = 'count(*)';
-			$total = (int) $this->model()->query_val_ss($q);
+			$total = (int) $model->query_val_ss($q);
 			$result['total'] = $total;
 			return new \ResponseData($result);
 		}

@@ -53,7 +53,7 @@ class main extends \pl\fe\matter\base {
 	 * --$order
 	 *
 	 */
-	public function list_action($site, $page = 1, $size = 30) {
+	public function list_action($site = null, $page = 1, $size = 30) {
 		if (!($options = $this->getPostJson())) {
 			$options = new \stdClass;
 		}
@@ -67,7 +67,11 @@ class main extends \pl\fe\matter\base {
 		/**
 		 * where
 		 */
-		$w = "a.custom_body='Y' and a.siteid='$site' and a.state=1 and finished='Y'";
+		$w = "a.custom_body='Y' and a.state=1 and finished='Y'";
+		if(!empty($site)) {
+			$site = $this->model()->escape($site);
+			$w .= " and a.siteid='$site'";
+		}
 		/**
 		 * 按频道过滤
 		 */

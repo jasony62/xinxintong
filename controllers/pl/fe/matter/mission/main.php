@@ -52,7 +52,7 @@ class main extends \pl\fe\matter\base {
 	 * @param int $page
 	 * @param int $size
 	 */
-	public function list_action($site, $page = 1, $size = 20) {
+	public function list_action($site = null, $page = 1, $size = 20) {
 		if (false === ($user = $this->accountUser())) {
 			return new \ResponseTimeout();
 		}
@@ -65,6 +65,7 @@ class main extends \pl\fe\matter\base {
 		if (!empty($filter->byTitle)) {
 			$options['byTitle'] = $modelMis->escape($filter->byTitle);
 		}
+		$site = $modelMis->escape($site);
 		$result = $modelMis->bySite($site, $options);
 
 		return new \ResponseData($result);

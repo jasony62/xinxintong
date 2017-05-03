@@ -43,7 +43,7 @@ class main extends \pl\fe\matter\base {
 	/**
 	 *
 	 */
-	public function list_action($site, $cascade = 'Y') {
+	public function list_action($site = null, $cascade = 'Y') {
 		if (false === ($user = $this->accountUser())) {
 			return new \ResponseTimeout();
 		}
@@ -54,8 +54,11 @@ class main extends \pl\fe\matter\base {
 		$q = [
 			'*',
 			'xxt_news',
-			['siteid' => $site, 'state' => 1],
+			['state' => 1],
 		];
+		if(!empty($site)) {
+			$q[2]['siteid'] = $site;
+		}
 		$q2['o'] = 'create_at desc';
 		$news = $modelNews->query_objs_ss($q, $q2);
 		/**
@@ -65,13 +68,13 @@ class main extends \pl\fe\matter\base {
 			$modelBase = $this->model('matter\base');
 			$modelAcl = $this->model('acl');
 			foreach ($news as &$n) {
-				$n->url = $modelNews->getEntryUrl($site, $n->id);
+				$n->url = $modelNews->getEntryUrl($n->siteid, $n->id);
 				if ($n->empty_reply_type && $n->empty_reply_id) {
 					$n->emptyReply = $modelBase->getMatterInfoById($n->empty_reply_type, $n->empty_reply_id);
 				}
 				if ($cascade === 'Y') {
 					$n->matters = $modelNews->getMatters($n->id);
-					$n->acl = $modelAcl->byMatter($site, 'news', $n->id);
+					$n->acl = $modelAcl->byMatter($n->siteid, 'news', $n->id);
 				}
 			}
 		}

@@ -58,7 +58,7 @@ class main extends \pl\fe\matter\base {
 	/**
 	 *
 	 */
-	public function list_action($site, $cascade = 'Y') {
+	public function list_action($site = null, $cascade = 'Y') {
 		if (false === ($user = $this->accountUser())) {
 			return new \ResponseTimeout();
 		}
@@ -70,8 +70,11 @@ class main extends \pl\fe\matter\base {
 		$q = array(
 			"*",
 			'xxt_link',
-			"siteid='$site' and state=1",
+			["state" => 1],
 		);
+		if(!empty($site)) {
+			$q[2]['siteid'] = $site;
+		}
 		$q2['o'] = 'create_at desc';
 		$links = $model->query_objs_ss($q, $q2);
 		/**
@@ -95,7 +98,7 @@ class main extends \pl\fe\matter\base {
 				/**
 				 * acl
 				 */
-				$l->acl = $modelAcl->byMatter($site, 'link', $l->id);
+				$l->acl = $modelAcl->byMatter($l->siteid, 'link', $l->id);
 			}
 		}
 

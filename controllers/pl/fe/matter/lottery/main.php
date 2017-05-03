@@ -55,15 +55,18 @@ class main extends \pl\fe\matter\base {
 	/**
 	 * 抽奖活动
 	 */
-	public function list_action($site) {
+	public function list_action($site = null) {
 		if (false === ($user = $this->accountUser())) {
 			return new \ResponseTimeout();
 		}
 		$q = [
 			"*,'lottery' type",
 			'xxt_lottery',
-			['siteid' => $site, 'state' => [1, 2]],
+			['state' => [1, 2]],
 		];
+		if(!empty($site)) {
+			$q[2]['siteid'] = $site;
+		}
 		$q2['o'] = 'create_at desc';
 
 		$apps = $this->model()->query_objs_ss($q, $q2);

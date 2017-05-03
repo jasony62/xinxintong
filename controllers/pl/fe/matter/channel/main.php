@@ -33,7 +33,7 @@ class main extends \pl\fe\matter\base {
 	 * @param string $acceptType 频道素材类型
 	 * @param string $cascade 是否获得频道内的素材和访问控制列表
 	 */
-	public function list_action($site, $acceptType = null, $cascade = 'Y') {
+	public function list_action($site = null, $acceptType = null, $cascade = 'Y') {
 		if (false === ($user = $this->accountUser())) {
 			return new \ResponseTimeout();
 		}
@@ -44,8 +44,11 @@ class main extends \pl\fe\matter\base {
 		$q = [
 			'*',
 			'xxt_channel',
-			['siteid' => $site, 'state' => 1],
+			['state' => 1],
 		];
+		if(!empty($site)) {
+			$q[2]['siteid'] = $site;
+		}
 		!empty($acceptType) && $q[2]['matter_type'] = ['', $acceptType];
 		$q2['o'] = 'create_at desc';
 		$modelChn = $this->model('matter\channel');
@@ -54,9 +57,9 @@ class main extends \pl\fe\matter\base {
 		if ($channels && $cascade == 'Y') {
 			$modelAcl = $this->model('acl');
 			foreach ($channels as $c) {
-				$c->url = $modelChn->getEntryUrl($site, $c->id);
-				$c->matters = $modelChn->getMatters($c->id, $c, $site);
-				$c->acl = $modelAcl->byMatter($site, 'channel', $c->id);
+				$c->url = $modelChn->getEntryUrl($c->siteid, $c->id);
+				$c->matters = $modelChn->getMatters($c->id, $c, $c->siteid);
+				$c->acl = $modelAcl->byMatter($c->siteid, 'channel', $c->id);
 			}
 		}
 

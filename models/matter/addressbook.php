@@ -46,7 +46,7 @@ class addressbook_model extends app_base {
         $q = array(
             '*',
             'xxt_addressbook',
-            ['siteid' => $siteid]
+            "siteid='$siteid'"
         );
         $q2 = array(
             'o'=>'modify_at desc'

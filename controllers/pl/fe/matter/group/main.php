@@ -61,9 +61,7 @@ class main extends \pl\fe\matter\base {
 		];
 		if (empty($mission)) {
 			$site = $model->escape($site);
-			if(!empty($site)) {
-				$q[2] .= " and siteid='$site'";
-			}
+			$q[2] .= " and siteid='$site'";
 		} else {
 			$mission = $model->escape($mission);
 			$q[2] .= " and mission_id='$mission'";

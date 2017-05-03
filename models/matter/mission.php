@@ -58,11 +58,8 @@ class mission_model extends app_base {
 		$q = [
 			$fields,
 			'xxt_mission',
-			"state=1",
+			"siteid='$siteId' and state=1",
 		];
-		if(!empty($siteId)) {
-			$q[2] .= " and siteid='$siteId'";
-		}
 		if (isset($options['byTitle'])) {
 			$q[2] .= " and title like '%{$options['byTitle']}%'";
 		}

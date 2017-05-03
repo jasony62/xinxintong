@@ -26,10 +26,8 @@ class shop_model extends \TMS_MODEL {
 		$q = array(
 			'*',
 			'xxt_merchant_shop s',
+			"siteid='$siteId'",
 		);
-		if(!empty($siteId)) {
-			$q[2]['siteid'] = $siteId;
-		}
 		$q2 = array('o' => 'create_at desc');
 
 		$shops = $this->query_objs_ss($q, $q2);

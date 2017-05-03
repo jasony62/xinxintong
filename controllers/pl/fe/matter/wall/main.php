@@ -58,11 +58,9 @@ class main extends \pl\fe\matter\base {
 	/**
 	 *
 	 */
-	public function list_action($src = null, $site = null) {
+	public function list_action($src = null, $site) {
 		$q = array('*', 'xxt_wall');
-		if(!empty($site)) {
-			$q[2]['siteid'] = $site;
-		}
+		$q[2] = "siteid='$site'";
 		$q2['o'] = 'create_at desc';
 
 		$walls = $this->model()->query_objs_ss($q, $q2);
@@ -71,7 +69,7 @@ class main extends \pl\fe\matter\base {
 		 */
 		if ($walls) {
 			foreach ($walls as $wall) {
-				$wall->user_url = $this->model('matter\wall')->getEntryUrl($wall->siteid, $wall->id);
+				$wall->user_url = $this->model('matter\wall')->getEntryUrl($site, $wall->id);
 			}
 		}
 

@@ -71,9 +71,7 @@ class main extends \pl\fe\matter\base {
 		if (!empty($mission)) {
 			$q[2] .= " and mission_id=" . $modelApp->escape($mission);
 		} else {
-			if(!empty($site)){
-				$q[2] .= " and siteid='" . $modelApp->escape($site) . "'";
-			}
+			$q[2] .= " and siteid='" . $modelApp->escape($site) . "'";
 		}
 		if ($scenario !== null) {
 			$q[2] .= " and scenario='" . $modelApp->escape($scenario) . "'";

@@ -527,12 +527,8 @@ class log_model extends \TMS_MODEL {
 		$q = [
 			$fields,
 			'xxt_log_matter_op',
-			"last_op='Y' and operation='Recycle'",
+			"siteid='$siteId' and last_op='Y' and operation='Recycle'",
 		];
-		if(!empty($siteId)) {
-			$siteId = $this->escape($siteId);
-			$q[2] .= " and siteid='$siteId'";
-		}
 		$q2 = [
 			'r' => ['o' => ($page->at - 1) * $page->size, 'l' => $page->size],
 			'o' => ['operate_at desc'],

@@ -22,7 +22,7 @@ class main extends \pl\fe\matter\base {
 	/**
 	 * 商店列表
 	 */
-	public function list_action($site = null) {
+	public function list_action($site) {
 		$shops = $this->model('matter\merchant\shop')->bySite($site);
 
 		return new \ResponseData($shops);

@@ -82,11 +82,8 @@ class signin_model extends app_base {
 		$q = [
 			"*,'signin' type",
 			'xxt_signin',
-			"state<>0",
+			"state<>0 and siteid='$siteId'",
 		];
-		if(!empty($siteId)){
-			$q[2] .= " and siteid='$siteId'";
-		}
 		if ($onlySns === 'Y') {
 			$q[2] .= " and entry_rule like '%\"scope\":\"sns\"%'";
 		}

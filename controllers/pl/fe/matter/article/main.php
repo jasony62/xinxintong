@@ -63,10 +63,8 @@ class main extends \pl\fe\matter\base {
 				$w .= " and a.mission_phase_id = '".$mission_phase_id."'";
 			}
 		} else {
-			if(!empty($site)) {
-				$site = $model->escape($site);
-				$w .= " and a.siteid='$site'";
-			}
+			$site = $model->escape($site);
+			$w .= " and a.siteid='$site'";
 		}
 		/**
 		 * 按频道过滤

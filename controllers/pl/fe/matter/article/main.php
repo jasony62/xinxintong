@@ -406,7 +406,7 @@ class main extends \pl\fe\matter\base {
 			foreach ($sites as $site2) {
 				$siteid = $modelArt->escape($site2->siteid);
 				$article->siteid = $siteid;
-				if($site === $siteid){
+				if($copied->siteid === $siteid){
 					continue;
 				}
 				if(isset($article->type)){

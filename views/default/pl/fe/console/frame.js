@@ -50,8 +50,7 @@ define(['require'], function(require) {
             $scope.notice = result;
         });
         $scope.criteria = criteria = {
-            sid: '',
-            scope: 'top'
+            sid: ''
         };
         $scope.list = function() {
             $scope.siteType = 1;
@@ -62,10 +61,6 @@ define(['require'], function(require) {
             });
         };
         $scope.list();
-        $scope.$watch('criteria.sid', function(nv) {
-            if(!nv) return;
-
-        },true);
     }]);
     /***/
     require(['domReady!'], function(document) {

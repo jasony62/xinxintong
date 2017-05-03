@@ -407,7 +407,7 @@ class main extends \pl\fe\matter\base {
 				$siteid = $modelArt->escape($site2->siteid);
 				$article->siteid = $siteid;
 				if($site === $siteid){
-					$article->from_mode = 'S';
+					continue;
 				}
 				if(isset($article->type)){
 					unset($article->type);

@@ -22,7 +22,7 @@ class logout extends \site\fe\base {
 		$modelWay = $this->model('site\fe\way');
 		$modelWay->quitRegUser($this->siteId);
 		if ($redirect === 'Y') {
-			$referer = $_SERVER['HTTP_REFERER'];
+			$referer = isset($_SERVER['HTTP_REFERER']) ? $_SERVER['HTTP_REFERER'] : '';
 			$this->redirect($referer);
 		} else {
 			return new \ResponseData('ok');

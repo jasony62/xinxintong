@@ -269,12 +269,16 @@ class menu extends \pl\fe\base {
 
 		$newpos = $this->getPostJson();
 
-		$q = array(
+		$q = [
 			'l1_pos,l2_pos',
 			'xxt_call_menu_qy',
-			"siteid='$site' and menu_key='$k' and published='N'",
-		);
+			['siteid' => $site, 'menu_key' => $k, 'published' => 'N'],
+		];
 		$oldpos = $this->model()->query_obj_ss($q);
+		if (false === $oldpos) {
+			return new \ObjectNotFoundError();
+		}
+
 		if (empty($oldpos->l2_pos) && empty($newpos->l2_pos)) {
 			/**
 			 * 一级菜单
@@ -440,7 +444,7 @@ class menu extends \pl\fe\base {
 		if ($qyConfig->joined === 'N') {
 			return new \ResponseError('公众账号未连接成功，请检查。');
 		}
-		
+
 		$proxy = $this->model("sns\qy\proxy", $qyConfig);
 		$rst = $proxy->menuCreate($literalMenu);
 		if ($rst[0] === false) {

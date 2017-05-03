@@ -17,7 +17,7 @@ class round extends base {
 		$modelRun = $this->model('matter\enroll\round');
 		$options = [
 			'fields' => 'rid,title',
-			'state' => '1,2',
+			'state' => ['1','2'],
 		];
 
 		$oPage = new \stdClass;

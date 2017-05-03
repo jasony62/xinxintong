@@ -6,11 +6,13 @@
         "zendframework/zend-escaper": "2.4.*",
         "zendframework/zend-stdlib": "2.4.*",
         "zendframework/zend-validator": "2.4.*",
-        "phpoffice/common": "0.2.*"
+        "phpoffice/common": "0.2.*",
+        "phpoffice/phppresentation": "dev-master"
     },
     "autoload": {
         "psr-4": {
-            "PhpOffice\\PhpWord\\": "lib/PHPWord/src/PhpWord"
+            "PhpOffice\\PhpWord\\": "lib/PHPWord/src/PhpWord",
+            "PhpOffice\\PhpPresentation\\": "src/PhpPresentation/"
         }
     },
     "repositories" : {

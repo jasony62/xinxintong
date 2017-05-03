@@ -97,12 +97,13 @@
         <!--<li><a ng-class="{'leftActive':leftState==='log'}" href="" ng-click="goTo()">运营日志</a></li>-->
         <li ng-repeat="v in views">
             <a ng-class="{'leftActive':leftState===v.value}" href="" ng-bind="v.title" ng-click="goTo(v.value ,v)"></a>
-            <ul class="list-unstyled" ng-if="v.inferiorShow">
+            <ul class="list-unstyled" ng-show="v.inferiorShow" ng-style="{height:v.inferior.length*35+'px'}">
                 <li ng-repeat="i in v.inferior"> <a ng-class="{'leftActive':leftInferior===i.value}" href="" ng-bind="i.title" ng-click="goToInferior(i.value)"></a></li>
             </ul>
         </li>
+        <li ng-if="app.can_discuss==='Y'"><a href="/rest/pl/fe/matter/enroll/discuss?site={{app.siteid}}&id={{app.id}}">活动评论</a></li>
     </ul>
-    <div class="right">
+    <div class="right clearfix">
         <div class='row' ng-view></div>
     </div>
 </div>
@@ -112,6 +113,9 @@
 <script src="/static/js/bootstrap-switch.min.js"></script>
 <script src="/static/js/angular.min.js"></script>
 <script src="/static/js/angular-route.min.js"></script>
+
+<script src="/js/angular-animate.js"></script>
+
 <script src="/static/js/angular-sanitize.min.js"></script>
 <script src="/static/js/ui-bootstrap-tpls.min.js"></script>
 <script src="/static/js/angular-bootstrap-switch.min.js"></script>

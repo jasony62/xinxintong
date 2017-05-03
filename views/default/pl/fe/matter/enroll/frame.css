@@ -128,7 +128,7 @@ body{padding:71px 0;font-family:Microsoft Yahei,Arial;}
 }
 #container>.left ul{
     font-size: 1.2em;
-    margin:1em .5em 1em;
+    /*margin:1em .5em 1em;*/
 }
 
 #container>.left ul li{
@@ -136,4 +136,12 @@ body{padding:71px 0;font-family:Microsoft Yahei,Arial;}
 }
 #container>.left ul a{
     color: #928c8c;
+}
+/*侧边栏过度*/
+#container>.left ul{
+    transition: all .5s linear ;
+    overflow: hidden;
+}
+#container>.left ul.ng-hide{
+    height: 0 !important;/*配合行内样式 + important*/
 }

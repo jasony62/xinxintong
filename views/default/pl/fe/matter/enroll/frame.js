@@ -1,6 +1,6 @@
 define(['require', 'enrollService'], function (require) {
     'use strict';
-    var ngApp = angular.module('app', ['ngRoute', 'frapontillo.bootstrap-switch', 'ui.tms', 'tmplshop.ui.xxt', 'service.matter', 'service.enroll', 'tinymce.enroll', 'ui.xxt']);
+    var ngApp = angular.module('app', ['ngRoute', 'frapontillo.bootstrap-switch', 'ui.tms', 'tmplshop.ui.xxt', 'service.matter', 'service.enroll', 'tinymce.enroll', 'ui.xxt', 'ngAnimate']);
     ngApp.constant('cstApp', {
         notifyMatter: [{
             value: 'tmplmsg',
@@ -124,10 +124,19 @@ define(['require', 'enrollService'], function (require) {
         //定义默认状态
         $scope.firstView = ['main', 'publish', 'recycle', 'log'];
         $scope.views = [{
-            value: 'main',
+            value: 'edit',
             title: '编辑',
             inferiorShow: false,
-            inferior: []
+            inferior: [{
+                value: 'main',
+                title: '活动定义'
+            }, {
+                value: 'schema',
+                title: '修改题目'
+            }, {
+                value: 'page',
+                title: '修改页面'
+            }]
         }, {
             value: 'publish',
             title: '发布',
@@ -155,8 +164,18 @@ define(['require', 'enrollService'], function (require) {
             title: '运行日志',
             inferiorShow: false,
             inferior: []
+        }, {
+            value: 'other',
+            title: '其他',
+            inferiorShow: false,
+            inferior: [{
+                value: 'notice',
+                title: '通知发送记录'
+            }, {
+                value: 'discuss',
+                title: '活动评论'
+            }]
         //},{
-
         }];
         //$scope.leftState = 'main';
         //第一次进入初始化状态

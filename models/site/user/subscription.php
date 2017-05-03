@@ -10,7 +10,7 @@ class subscription_model extends \TMS_MODEL {
 	 * @param string $userId
 	 * @param string $siteId
 	 */
-	public function byUser($userId, $siteId, $options = []) {
+	public function byUser($unionid, $siteId, $options = []) {
 		$fields = isset($options['fields']) ? $options['fields'] : '*';
 		$page = isset($options['page']) ? $options['page'] : ['at' => 1, 'size' => 30];
 		$result = new \stdClass;
@@ -18,7 +18,7 @@ class subscription_model extends \TMS_MODEL {
 		$q = [
 			$fields,
 			'xxt_site_subscription',
-			['userid' => $userId, 'siteid' => $siteId],
+			['unionid' => $unionid, 'siteid' => $siteId],
 		];
 		$q2 = ['o' => 'put_at desc', 'r' => ['o' => ($page['at'] - 1) * $page['size'], 'l' => $page['size']]];
 

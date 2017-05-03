@@ -28,7 +28,7 @@ class article2_model extends article_base {
 		$url .= "/rest/site/fe/matter";
 		if ($siteId === 'platform') {
 			$article = $this->byId($id);
-			$url .= "?site={$article->siteid}&id={$id}&type=article";
+			$url .= "?site={$newArticle->siteid}&id={$id}&type=article";
 		} else {
 			$url .= "?site={$siteId}&id={$id}&type=article";
 		}
@@ -150,7 +150,7 @@ class article2_model extends article_base {
 	 */
 	public function &getMatters($id) {
 		$article = $this->byId($id, "id,siteid,title,author,summary,pic,body,url");
-		$article->type = 'article';
+		$newArticle->type = 'article';
 		$articles = array($article);
 
 		return $articles;
@@ -160,7 +160,7 @@ class article2_model extends article_base {
 	 */
 	public function &getArticles($id) {
 		$article = $this->byId($id, 'id,siteid,title,author,summary,pic,body,url');
-		$article->type = 'article';
+		$newArticle->type = 'article';
 		$articles = array($article);
 
 		return $articles;
@@ -179,7 +179,7 @@ class article2_model extends article_base {
 		$q = array(
 			'id,score,userid,nickname',
 			'xxt_article_score',
-			['article_id' => $articleId, 'userid' => $user->uid]
+			['article_id' => $articleId, 'userid' => $user->uid],
 		);
 		$log = $this->query_obj_ss($q);
 		if ($log) {
@@ -204,7 +204,7 @@ class article2_model extends article_base {
 		$q = array(
 			'r.*',
 			'xxt_article_remark r',
-			['r.article_id' => $articleId]
+			['r.article_id' => $articleId],
 		);
 
 		if (!$range) {

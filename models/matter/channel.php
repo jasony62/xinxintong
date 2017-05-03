@@ -376,7 +376,7 @@ class channel_model extends article_base {
 	 * @param int $id channel's id
 	 * @param object $matter
 	 */
-	public function addMatter($id, $matter, $creater, $createrName, $createrSrc = 'A') {
+	public function addMatter($id, $matter, $createrId, $createrName, $createrSrc = 'A') {
 		is_array($matter) && $matter = (object) $matter;
 
 		$channel = $this->byId($id);
@@ -386,7 +386,7 @@ class channel_model extends article_base {
 		$newc['matter_id'] = $oMatter->id;
 		$newc['matter_type'] = $oMatter->type;
 		$newc['create_at'] = $current;
-		$newc['creater'] = $creater;
+		$newc['creater'] = $createrId;
 		$newc['creater_src'] = $createrSrc;
 		$newc['creater_name'] = $createrName;
 

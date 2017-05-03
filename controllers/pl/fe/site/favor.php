@@ -3,7 +3,7 @@ namespace pl\fe\site;
 
 require_once dirname(dirname(__FILE__)) . '/base.php';
 /**
- * 用户收藏
+ * 团队收藏
  */
 class favor extends \pl\fe\base {
 	/**
@@ -26,7 +26,7 @@ class favor extends \pl\fe\base {
 		$q = array(
 			'*',
 			'xxt_site_friend_favor',
-			['siteid' => $site]
+			['siteid' => $site],
 		);
 		$q2 = array(
 			'o' => 'favor_at desc',
@@ -34,17 +34,17 @@ class favor extends \pl\fe\base {
 		);
 		$matters = $model->query_objs_ss($q, $q2);
 		foreach ($matters as $k => $v) {
-			if($v->matter_type=='custom'){
-				$type='article';	
-			}else{
-				$type=$v->matter_type;
+			if ($v->matter_type == 'custom') {
+				$type = 'article';
+			} else {
+				$type = $v->matter_type;
 			}
-			$d=$model->query_obj_ss(['id,title,summary,pic','xxt_'.$type,"siteid='$v->from_siteid' and id='$v->matter_id'"]);
-			$v->data=$d;
-			$b[$k]=$v;
+			$d = $model->query_obj_ss(['id,title,summary,pic', 'xxt_' . $type, "siteid='$v->from_siteid' and id='$v->matter_id'"]);
+			$v->data = $d;
+			$b[$k] = $v;
 		}
-		if(isset($b)){
-			$matters=(object)$b;
+		if (isset($b)) {
+			$matters = (object) $b;
 		}
 		$result = new \stdClass;
 		$result->matters = $matters;
@@ -59,85 +59,73 @@ class favor extends \pl\fe\base {
 	}
 	/**
 	 * 加入收藏
-	 * @param string $siteFrom 被收藏素材所在站点
+	 *
+	 * @param string $id 素材id
+	 * @param string $type 素材type
+	 *
 	 */
-	public function add_action($siteFrom, $id, $type, $title) {
+	public function add_action($id, $type) {
 		if (false === ($user = $this->accountUser())) {
 			return new \ResponseTimeout();
 		}
-
-		if(empty($siteFrom) || empty($id) || empty($type) || empty($title)){
-			return new \ResponseError('请检查参数');
+		if (empty($id) || empty($type)) {
+			return new \ParameterError();
 		}
-
-		$sites = $this->getPostJson();
-		if(empty($sites)) {
+		$aTargetSites = $this->getPostJson();
+		if (empty($aTargetSites)) {
 			return new \ResponseError('没有选择需要收藏素材的团队');
 		}
-		
-		$model = $this->model();
-		$current = time();
 
+		$modelMat = $this->model('matter\\' . $type);
+		$oMatter = $modelMat->byId($id, ['cascaded' => 'N']);
+		if (false === $oMatter) {
+			return new \ObjectNotFoundError();
+		}
+
+		$current = time();
 		$log = [
 			'creater' => $user->id,
-			'creater_name' => $model->escape($user->name),
+			'creater_name' => $modelMat->escape($user->name),
 			'favor_at' => $current,
-			'from_siteid' => $model->escape($siteFrom),
-			'matter_id' => $model->escape($id),
-			'matter_type' => $model->escape($type),
-			'matter_title' => $model->escape($title),
+			'from_siteid' => $oMatter->siteid,
+			'matter_id' => $oMatter->id,
+			'matter_type' => $oMatter->type,
+			'matter_title' => $modelMat->escape($oMatter->title),
 		];
-		foreach($sites as $site){
-			if($site->siteid === $siteFrom){
-				continue;
-			}
+		foreach ($aTargetSites as $targetSiteId) {
 			$q = [
 				'id',
 				'xxt_site_friend_favor',
-				['siteid' => $site->siteid, 'from_siteid' => $siteFrom, 'matter_id' => $id, 'matter_type' => $type]
+				['siteid' => $targetSiteId, 'from_siteid' => $oMatter->siteid, 'matter_id' => $id, 'matter_type' => $type],
 			];
-			if (false === $model->query_obj_ss($q)) {
-				$log['siteid'] = $model->escape($site->siteid);
-				$model->insert('xxt_site_friend_favor', $log, true);
+			if (false === $modelMat->query_obj_ss($q)) {
+				$log['siteid'] = $modelMat->escape($targetSiteId);
+				$modelMat->insert('xxt_site_friend_favor', $log, false);
 			}
 		}
 
 		return new \ResponseData('ok');
 	}
 	/**
-	 * 检查团队是否收藏了指定素材
+	 * 取消收藏
 	 */
-	public function bySite_action($site, $siteFrom, $id, $type) {
+	public function remove_action($id, $type) {
 		if (false === ($user = $this->accountUser())) {
 			return new \ResponseTimeout();
 		}
 
-		if(empty($siteFrom) || empty($id) || empty($type) || empty($site)){
-			return new \ResponseError('请检查参数');
+		$aTargetSites = $this->getPostJson();
+		if (empty($aTargetSites)) {
+			return new \ResponseError('没有选择取消收藏素材的团队');
 		}
 
 		$model = $this->model();
-		$q = [
-			'id,favor_at',
-			'xxt_site_friend_favor',
-			['siteid' => $site, 'from_siteid' => $siteFrom, 'matter_id' => $id, 'matter_type' => $type]
-		];
-		$log = $model->query_obj_ss($q);
-
-		return new \ResponseData($log);
-	}
-	/**
-	 * 取消收藏
-	 */
-	public function remove_action($site, $siteFrom, $id, $type) {
-		if (false === ($user = $this->accountUser())) {
-			return new \ResponseTimeout();
+		foreach ($aTargetSites as $targetSiteId) {
+			$rst = $model->delete(
+				'xxt_site_friend_favor',
+				['siteid' => $targetSiteId, 'matter_id' => $id, 'matter_type' => $type]
+			);
 		}
-
-		$rst = $this->model()->delete(
-			'xxt_site_friend_favor',
-			['siteid' => $site, 'from_siteid' => $siteFrom, 'matter_id' => $id, 'matter_type' => $type]
-		);
 
 		return new \ResponseData($rst);
 	}
@@ -146,37 +134,58 @@ class favor extends \pl\fe\base {
 	 *
 	 * @param string $site site'id
 	 */
-	public function canFavor_action($siteFrom, $id, $type) {
+	public function sitesByUser_action($site, $id, $type) {
 		if (false === ($user = $this->accountUser())) {
 			return new \ResponseTimeout();
 		}
-		if(empty($siteFrom) || empty($id) || empty($type)){
+		if (empty($site) || empty($id) || empty($type)) {
 			return new \ResponseError('请检查参数');
 		}
 
+		$fromSiteId = $site;
 		$modelSite = $this->model('site');
-
 		/* 当前用户管理的团队 */
 		$mySites = $modelSite->byUser($user->id);
 		$targets = []; // 符合条件的团队
 		foreach ($mySites as &$mySite) {
-			if ($mySite->id === $siteFrom) {
+			if ($mySite->id === $fromSiteId) {
 				continue;
 			}
-
 			$q = [
 				'id',
 				'xxt_site_friend_favor',
-				['siteid' => $mySite->id, 'from_siteid' => $siteFrom, 'matter_id' => $id, 'matter_type' => $type]
+				['siteid' => $mySite->id, 'from_siteid' => $fromSiteId, 'matter_id' => $id, 'matter_type' => $type],
 			];
 			if (false === $modelSite->query_obj_ss($q)) {
-				$mySite->_subscribed = 'N';
-			}else{
-				$mySite->_subscribed = 'Y';
+				$mySite->_favored = 'N';
+			} else {
+				$mySite->_favored = 'Y';
 			}
 			$targets[] = $mySite;
 		}
 
 		return new \ResponseData($targets);
+	}
+	/**
+	 * 检查团队是否收藏了指定素材
+	 */
+	public function bySite_action($site, $fromSiteId, $id, $type) {
+		if (false === ($user = $this->accountUser())) {
+			return new \ResponseTimeout();
+		}
+
+		if (empty($fromSiteId) || empty($id) || empty($type) || empty($site)) {
+			return new \ResponseError('请检查参数');
+		}
+
+		$model = $this->model();
+		$q = [
+			'id,favor_at',
+			'xxt_site_friend_favor',
+			['siteid' => $site, 'from_siteid' => $fromSiteId, 'matter_id' => $id, 'matter_type' => $type],
+		];
+		$log = $model->query_obj_ss($q);
+
+		return new \ResponseData($log);
 	}
 }

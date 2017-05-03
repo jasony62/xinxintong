@@ -63,7 +63,7 @@ class main extends \pl\fe\matter\base {
 		return new \ResponseData($channels);
 	}
 	/**
-	 * 创建频道素材
+	 * 在指定团队下创建频道素材
 	 */
 	public function create_action($site) {
 		if (false === ($user = $this->accountUser())) {
@@ -71,6 +71,7 @@ class main extends \pl\fe\matter\base {
 		}
 
 		$modelCh = $this->model('matter\channel');
+		$modelCh->setOnlyWriteDbConn(true);
 		$posted = $this->getPostJson();
 		$current = time();
 
@@ -88,14 +89,10 @@ class main extends \pl\fe\matter\base {
 		$channel['matter_type'] = '';
 
 		$id = $modelCh->insert('xxt_channel', $channel, true);
+		$channel = $modelCh->byId($id);
 
 		/* 记录操作日志 */
-		$matter = (object) $channel;
-		$matter->id = $id;
-		$matter->type = 'channel';
-		$this->model('matter\log')->matterOp($site, $user, $matter, 'C');
-
-		$channel = $modelCh->byId($id);
+		$this->model('matter\log')->matterOp($site, $user, $channel, 'C');
 
 		return new \ResponseData($channel);
 	}
@@ -164,6 +161,8 @@ class main extends \pl\fe\matter\base {
 		}
 		$matter = $this->getPostJson();
 		$modelChn = $this->model('matter\channel');
+		$modelCh->setOnlyWriteDbConn(true);
+
 		if ($pos === 'top') {
 			$modelChn->update('xxt_channel',
 				[
@@ -200,6 +199,7 @@ class main extends \pl\fe\matter\base {
 
 		$relations = $this->getPostJson();
 		$modelCh = $this->model('matter\channel');
+		$modelCh->setOnlyWriteDbConn(true);
 
 		$matters = is_array($relations->matter) ? $relations->matter : [$relations->matter];
 		if (empty($channel)) {
@@ -229,12 +229,13 @@ class main extends \pl\fe\matter\base {
 		}
 		$matter = $this->getPostJson();
 
-		$model = $this->model('matter\channel');
+		$modelCh = $this->model('matter\channel');
+		$modelCh->setOnlyWriteDbConn(true);
 
-		$rst = $model->removeMatter($id, $matter);
+		$rst = $modelCh->removeMatter($id, $matter);
 
 		if ($reload === 'Y') {
-			$matters = $model->getMatters($id);
+			$matters = $modelCh->getMatters($id);
 			return new \ResponseData($matters);
 		} else {
 			return new \ResponseData($rst);
@@ -250,10 +251,11 @@ class main extends \pl\fe\matter\base {
 
 		$modelCh = $this->model('matter\channel');
 		$channel = $modelCh->byId($id, 'id,title');
-		$rst = $modelCh->update('xxt_channel', array('state' => 0), "siteid='$site' and id=$id");
+		$rst = $modelCh->update('xxt_channel', ['state' => 0], ['siteid' => $site, 'id' => $id]);
 
 		/* 记录操作日志 */
 		$this->model('matter\log')->matterOp($site, $user, $channel, 'Recycle');
+
 		return new \ResponseData($rst);
 	}
 	/**

@@ -67,11 +67,11 @@ class site_model extends \TMS_MODEL {
 	/**
 	 * 团队是否已经被指定用户关注
 	 */
-	public function isSubscribed($userid, $siteid) {
+	public function isSubscribed($unionid, $siteid) {
 		$q = [
 			'*',
 			'xxt_site_subscriber',
-			["siteid" => $siteid, "userid" => $userid],
+			['siteid' => $siteid, 'unionid' => $unionid],
 		];
 		$rel = $this->query_obj_ss($q);
 
@@ -81,11 +81,11 @@ class site_model extends \TMS_MODEL {
 	 * 访客用户关注团队
 	 */
 	public function subscribe(&$user, &$site) {
-		if (false === ($rel = $this->isSubscribed($user->uid, $site->id))) {
+		if (false === ($rel = $this->isSubscribed($user->unionid, $site->id))) {
 			$newRel = new \stdClass;
 			$newRel->siteid = $site->id;
 			$newRel->site_name = $site->name;
-			$newRel->userid = $user->uid;
+			$newRel->unionid = $user->unionid;
 			$newRel->nickname = $user->nickname;
 			$newRel->subscribe_at = time();
 			$newRel->unsubscribe_at = 0;
@@ -108,7 +108,7 @@ class site_model extends \TMS_MODEL {
 	 * 访客用户关注团队
 	 */
 	public function unsubscribe(&$user, &$site) {
-		if ($rel = $this->isSubscribed($user->uid, $site->id)) {
+		if ($rel = $this->isSubscribed($user->unionid, $site->id)) {
 			$rst = $this->update('xxt_site_subscriber', ['subscribe_at' => 0, 'unsubscribe_at' => time()], ['id' => $rel->id]);
 		}
 
@@ -259,7 +259,7 @@ class site_model extends \TMS_MODEL {
 			$q = [
 				'id',
 				'xxt_site_subscription',
-				['matter_id' => $oMatter->id, 'matter_type' => $oMatter->type, 'userid' => $subscriber->userid],
+				['matter_id' => $oMatter->id, 'matter_type' => $oMatter->type, 'unionid' => $subscriber->unionid],
 			];
 			if ($rel = $this->query_obj_ss($q)) {
 				$subscription = new \stdClass;
@@ -276,7 +276,7 @@ class site_model extends \TMS_MODEL {
 				$subscription->siteid = $oSite->id;
 				$subscription->site_name = $oSite->name;
 				$subscription->put_at = $current;
-				$subscription->userid = $subscriber->userid;
+				$subscription->unionid = $subscriber->unionid;
 				$subscription->nickname = $subscriber->nickname;
 				$subscription->matter_id = $oMatter->id;
 				$subscription->matter_type = $oMatter->type;

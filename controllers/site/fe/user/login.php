@@ -75,6 +75,14 @@ class login extends \site\fe\base {
 			$this->mySetCookie('_auth_referer', null);
 		}
 
+		/* 模拟管理端账号登录 */
+		$modelAct = $this->model('account');
+		$act = $modelAct->byId($registration->unionid);
+		if ($act) {
+			// 记录客户端登录状态
+			\TMS_CLIENT::account($act);
+		}
+
 		return new \ResponseData($cookieUser);
 	}
 }

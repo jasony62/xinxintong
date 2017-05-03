@@ -37,6 +37,13 @@ class main extends \pl\fe\base {
 
 		$siteid = $this->model('site')->create($site);
 
+		/* 记录操作日志 */
+		$matter = new \stdClass;
+		$matter->id = $siteid;
+		$matter->type = 'site';
+		$matter->title = $site['name'];
+		$this->model('matter\log')->matterOp($siteid, $user, $matter, 'C');
+
 		/* 添加到团队的访问控制列表 */
 		$modelAdm = $this->model('site\admin');
 		$admin = new \stdClass;
@@ -305,6 +312,12 @@ class main extends \pl\fe\base {
 			$nv,
 			"id='$site'"
 		);
+		/*记录操作日志*/
+		$modelSite = $this->model('site');
+		$modelSite->setOnlyWriteDbConn(true);
+		$matter = $modelSite->byId($site, ['fields' => 'id,name as title']);
+		$matter->type = 'site';
+		$this->model('matter\log')->matterOp($site, $user, $matter, 'U');
 
 		return new \ResponseData($rst);
 	}

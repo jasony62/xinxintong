@@ -200,7 +200,7 @@ class main extends \pl\fe\base {
 		$p = [
 			't.*,l.matter_summary,l.matter_pic,l.matter_scenario',
 			'xxt_account_topmatter t,xxt_log_matter_op l',
-			"t.siteid=l.siteid and t.matter_id=l.matter_id and t.matter_type=l.matter_type and l.user_last_op='Y' and t.userid='$user->id' and t.userid=l.operator",
+			"t.siteid=l.siteid and t.matter_id=l.matter_id and t.matter_type=l.matter_type and l.user_last_op='Y' and t.userid='$user->id' and t.userid=l.operator  and (l.operation<>'D' and l.operation<>'Recycle' and l.operation<>'Quit')",
 		];
 		if(!empty($site)){
 			$site = $model->escape($site);

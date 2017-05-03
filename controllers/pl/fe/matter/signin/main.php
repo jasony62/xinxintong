@@ -52,6 +52,7 @@ class main extends \pl\fe\matter\base {
 		$post = $this->getPostJson();
 		$model = $this->model('matter\signin');
 		if (empty($mission)) {
+			$site = $model->escape($site);
 			$result = $model->bySite($site, $page, $size, $onlySns);
 		} else {
 			$options = [];

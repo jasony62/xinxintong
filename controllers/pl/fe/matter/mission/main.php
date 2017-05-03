@@ -65,6 +65,7 @@ class main extends \pl\fe\matter\base {
 		if (!empty($filter->byTitle)) {
 			$options['byTitle'] = $modelMis->escape($filter->byTitle);
 		}
+		$site = $modelMis->escape($site);
 		$result = $modelMis->bySite($site, $options);
 
 		return new \ResponseData($result);

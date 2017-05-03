@@ -59,6 +59,8 @@ class main extends \pl\fe\matter\base {
 		}
 
 		$uid = \TMS_CLIENT::get_client_uid();
+		$model = $this->model();
+		$site = $model->escape($site);
 		/**
 		 * select fields
 		 */
@@ -137,12 +139,12 @@ class main extends \pl\fe\matter\base {
 		 */
 		$q2['r'] = array('o' => ($page - 1) * $size, 'l' => $size);
 
-		if ($articles = $this->model()->query_objs_ss($q, $q2)) {
+		if ($articles = $model->query_objs_ss($q, $q2)) {
 			/**
 			 * amount
 			 */
 			$q[0] = 'count(*)';
-			$total = (int) $this->model()->query_val_ss($q);
+			$total = (int) $model->query_val_ss($q);
 			/**
 			 * 获得每个图文的tag
 			 */

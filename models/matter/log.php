@@ -492,10 +492,13 @@ class log_model extends \TMS_MODEL {
 		if (isset($options['scenario'])) {
 			$q[2] .= " and matter_scenario='" . $this->escape($options['scenario']) . "'";
 		}
-		if(!empty($site)){
-			$site = $this->escape($site);
-			$q[2] .= " and siteid = '$site'";
+		if (isset($options['byTitle'])) {
+			$q[2] .= " and matter_title like '%" . $this->escape($options['byTitle']) . "%'";
 		}
+		if(!empty($site)){
+			$q[2] .= " and siteid = '" . $this->escape($site) . "'";
+		}
+
 		$q2 = [
 			'r' => ['o' => ($page->at - 1) * $page->size, 'l' => $page->size],
 			'o' => ['operate_at desc'],

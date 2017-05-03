@@ -76,7 +76,7 @@ class main extends \pl\fe\matter\base {
 	 * @param int $page
 	 * @param int $size
 	 */
-	public function listByUser_action($page = 1, $size = 20) {
+	public function listByUser_action($site = null, $page = 1, $size = 20) {
 		if (false === ($user = $this->accountUser())) {
 			return new \ResponseTimeout();
 		}
@@ -92,6 +92,10 @@ class main extends \pl\fe\matter\base {
 		if (!empty($filter->byTitle)) {
 			$options['byTitle'] = $modelMis->escape($filter->byTitle);
 		}
+		if(!empty($site)) {
+			$options['bySite'] = $modelMis->escape($site);
+		}
+		
 		$result = $modelMis->byAcl($user, $options);
 
 		return new \ResponseData($result);

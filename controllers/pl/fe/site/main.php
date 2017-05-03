@@ -164,8 +164,17 @@ class main extends \pl\fe\base {
 			return new \ResponseTimeout();
 		}
 
+		$filter = $this->getPostJson();
 		$modelSite = $this->model('site');
-		$mySites = $modelSite->byUser($user->id);
+
+		$options = array();
+		if (!empty($filter->bySite)) {
+			$options['bySite'] = $modelSite->escape($filter->bySite);
+		}
+		if (!empty($filter->byTitle)) {
+			$options['byTitle'] = $modelSite->escape($filter->byTitle);
+		}
+		$mySites = $modelSite->byUser($user->id, $options);
 
 		return new \ResponseData($mySites);
 	}

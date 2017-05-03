@@ -51,13 +51,21 @@ class site_model extends \TMS_MODEL {
 	/**
 	 * 指定用户参与管理的团队
 	 */
-	public function &byUser($userId) {
+	public function &byUser($userId, $options = array()) {
 		/* 当前用户管理的团队 */
 		$q = [
 			'id,creater_name,create_at,name',
 			'xxt_site s',
 			"(creater='{$userId}' or exists(select 1 from xxt_site_admin sa where sa.siteid=s.id and uid='{$userId}')) and state=1",
 		];
+		if(!empty($filter)) {
+			if(isset($options['byTitle'])){
+				$q[2] .= " and s.name like '%".$options['byTitle']."%'";
+			}
+			if(isset($options['bySite'])){
+				$q[2] .= " and s.id = '".$options['bySite']."'";
+			}
+		}
 		$q2 = ['o' => 'create_at desc'];
 
 		$sites = $this->query_objs_ss($q, $q2);

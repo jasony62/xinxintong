@@ -28,6 +28,7 @@ class main extends \pl\fe\base {
 			return new \ResponseTimeout();
 		}
 
+		$filter = $this->getPostJson();
 		$modelLog = $this->model('matter\log');
 
 		// 分页参数
@@ -42,6 +43,9 @@ class main extends \pl\fe\base {
 		!empty($matterType) && $options['matterType'] = $matterType;
 		// 活动场景
 		$scenario !== null && $options['scenario'] = $scenario;
+		if (!empty($filter->byTitle)) {
+			$options['byTitle'] = $filter->byTitle;
+		}
 
 		$matters = $modelLog->recentMattersByUser($site, $user, $options);
 

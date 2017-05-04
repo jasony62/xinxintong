@@ -68,7 +68,7 @@ define(['require'], function(require) {
         });
     }]);
     ngApp.controller('ctrlSetting', ['$scope', 'http2', 'mediagallery', 'noticebox', function($scope, http2, mediagallery, noticebox) {
-         var recommenSite, navSite;
+        var recommenSite, navSite;
         $scope.subView = '';
         $scope.$on('$locationChangeSuccess', function(event, currentRoute) {
             var subView = currentRoute.match(/([^\/]+?)\?/);
@@ -80,9 +80,9 @@ define(['require'], function(require) {
             http2.post('/rest/pl/fe/site/update?site=' + $scope.siteId, p, function(rsp) {});
         };
         $scope.remove = function() {
-            if((recommenSite&&recommenSite.approved == 'Y' )|| navSite) {
+            if ((recommenSite && recommenSite.approved == 'Y') || navSite) {
                 noticebox.error('团队已推荐到平台主页或发布到平台主导航条，不能删除');
-            }else {
+            } else {
                 if (window.confirm('确定删除站点？')) {
                     var url = '/rest/pl/fe/site/remove?site=' + $scope.siteId;
                     http2.get(url, function(rsp) {
@@ -152,18 +152,19 @@ define(['require'], function(require) {
         $scope.gotoSns = function(snsName) {
             location.href = '/rest/pl/fe/site/sns/' + snsName + '?site=' + $scope.siteId;
         };
+        /* 下面两段代码的逻辑要优化 */
         http2.get('/rest/pl/be/platform/get', function(rsp) {
             $scope.home_nav = rsp.data.home_nav;
-            $scope.home_nav.forEach(function(item){
-                if(item.site.id == $scope.site.id) {
+            $scope.home_nav.forEach(function(item) {
+                if (item.site.id == $scope.site.id) {
                     $scope.navSite = navSite = item;
                 }
             })
-        })
+        });
         http2.get('/rest/pl/be/home/recommend/listSite', function(rsp) {
             $scope.sites = rsp.data.sites;
             $scope.sites.forEach(function(item) {
-                if(item.siteid == $scope.site.id) {
+                if (item.siteid == $scope.site.id) {
                     $scope.recommenSite = recommenSite = item;
                 }
             });

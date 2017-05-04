@@ -258,7 +258,7 @@ define(['frame', 'schema', 'wrap'], function(ngApp, schemaLib, wrapLib) {
         };
         // 回车添加选项
         $('body').on('keyup', function(evt) {
-            if (event.keyCode === 13) {
+            if (evt.keyCode === 13) {
                 var schemaId, opNode, opIndex;
                 opNode = evt.target.parentNode;
                 if (opNode && opNode.getAttribute('evt-prefix') === 'option') {

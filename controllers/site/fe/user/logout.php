@@ -18,11 +18,15 @@ class logout extends \site\fe\base {
 	 * 执行退出登录状态
 	 */
 	public function do_action($redirect = 'N') {
-		/*更新cookie状态*/
-		$modelWay = $this->model('site\fe\way');
-		$modelWay->quitRegUser($this->siteId);
+		/* 退出登录状态 */
+		\TMS_CLIENT::logout();
+
+		/* 清除自动登录状态 */
+		$this->mySetCookie('_login_auto', '');
+		$this->mySetCookie('_login_token', '');
+
 		if ($redirect === 'Y') {
-			$referer = $_SERVER['HTTP_REFERER'];
+			$referer = isset($_SERVER['HTTP_REFERER']) ? $_SERVER['HTTP_REFERER'] : '';
 			$this->redirect($referer);
 		} else {
 			return new \ResponseData('ok');

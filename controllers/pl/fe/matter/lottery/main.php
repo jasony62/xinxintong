@@ -94,6 +94,9 @@ class main extends \pl\fe\matter\base {
 			return new \ResponseTimeout();
 		}
 
+		$modelApp = $this->model('matter\lottery');
+		$modelApp->setOnlyWriteDbConn(true);
+
 		$lid = uniqid();
 		$current = time();
 		$site = $this->model('site')->byId($site, array('fields' => 'id,heading_pic'));
@@ -129,7 +132,7 @@ class main extends \pl\fe\matter\base {
 		$newone['page_id'] = $page->id;
 		$newone['page_code_name'] = $page->name;
 
-		$this->model()->insert('xxt_lottery', $newone, false);
+		$modelApp->insert('xxt_lottery', $newone, false);
 		/**
 		 * default award
 		 */
@@ -140,7 +143,7 @@ class main extends \pl\fe\matter\base {
 		$award['title'] = '谢谢参与';
 		$award['prob'] = 100;
 		$award['type'] = 0;
-		$this->model()->insert('xxt_lottery_award', $award, false);
+		$modelApp->insert('xxt_lottery_award', $award, false);
 		/**
 		 * plate
 		 */
@@ -149,10 +152,10 @@ class main extends \pl\fe\matter\base {
 		for ($i = 0; $i < 12; $i++) {
 			$plate["a$i"] = $aid;
 		}
-		$this->model()->insert('xxt_lottery_plate', $plate, false);
-		$app = $this->model('matter\lottery')->byId($lid);
+		$modelApp->insert('xxt_lottery_plate', $plate, false);
+		$app = $modelApp->byId($lid);
+
 		/*记录操作日志*/
-		$app->type = 'lottery';
 		$this->model('matter\log')->matterOp($site->id, $user, $app, 'C');
 
 		return new \ResponseData($lid);
@@ -166,8 +169,10 @@ class main extends \pl\fe\matter\base {
 			return new \ResponseTimeout();
 		}
 
+		$modelApp = $this->model('matter\lottery');
+		$modelApp->setOnlyWriteDbConn(true);
 		$modelMis = $this->model('matter\mission');
-		$mission = $modelMis->byId($id);
+
 		/* lottery */
 		$lid = uniqid();
 		$current = time();
@@ -203,7 +208,7 @@ class main extends \pl\fe\matter\base {
 		$modelCode->modify($page->id, $data);
 		$newone['page_id'] = $page->id;
 
-		$this->model()->insert('xxt_lottery', $newone, false);
+		$modelApp->insert('xxt_lottery', $newone, false);
 		/**
 		 * default award
 		 */
@@ -214,7 +219,7 @@ class main extends \pl\fe\matter\base {
 		$award['title'] = '谢谢参与';
 		$award['prob'] = 100;
 		$award['type'] = 0;
-		$this->model()->insert('xxt_lottery_award', $award, false);
+		$modelApp->insert('xxt_lottery_award', $award, false);
 		/**
 		 * plate
 		 */
@@ -223,11 +228,12 @@ class main extends \pl\fe\matter\base {
 		for ($i = 0; $i < 12; $i++) {
 			$plate["a$i"] = $aid;
 		}
-		$this->model()->insert('xxt_lottery_plate', $plate, false);
-		$app = $this->model('matter\lottery')->byId($lid);
+		$modelApp->insert('xxt_lottery_plate', $plate, false);
+		$app = $modelApp->byId($lid);
+
 		/*记录操作日志*/
-		$app->type = 'lottery';
 		$this->model('matter\log')->matterOp($site->id, $user, $app, 'C');
+
 		/*记录和任务的关系*/
 		$modelMis->addMatter($user, $site, $id, $app);
 
@@ -237,12 +243,13 @@ class main extends \pl\fe\matter\base {
 	 * 更新抽奖活动的基本设置信息
 	 */
 	public function update_action($site, $app) {
-		$user = $this->accountUser();
-		if (false === $user) {
+		if (false === ($user = $this->accountUser())) {
 			return new \ResponseTimeout();
 		}
 
-		$model = $this->model();
+		$modelApp = $this->model('matter\lottery');
+		$modelApp->setOnlyWriteDbConn(true);
+
 		$nv = $this->getPostJson();
 
 		foreach ($nv as $k => $v) {
@@ -255,11 +262,10 @@ class main extends \pl\fe\matter\base {
 		$nv->modifier_name = $user->name;
 		$nv->modify_at = time();
 
-		$rst = $this->model()->update('xxt_lottery', $nv, "id='$app'");
+		$rst = $modelApp->update('xxt_lottery', $nv, "id='$app'");
 		/*记录操作日志*/
 		if ($rst) {
-			$app = $this->model('matter\lottery')->byId($app, 'id,title,summary,pic');
-			$app->type = 'lottery';
+			$app = $modelApp->byId($app, 'id,title,summary,pic');
 			$this->model('matter\log')->matterOp($site, $user, $app, 'U');
 		}
 

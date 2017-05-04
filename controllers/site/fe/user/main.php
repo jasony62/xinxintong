@@ -22,14 +22,6 @@ class main extends \site\fe\base {
 			$this->who->coin = $account->coin;
 			$this->who->headimgurl = $account->headimgurl;
 		}
-		/* 站点注册信息 */
-		$modelWay = $this->model('site\fe\way');
-		$cookieRegUser = $modelWay->getCookieRegUser();
-		if ($cookieRegUser) {
-			if (isset($cookieRegUser->loginExpire)) {
-				$this->who->loginExpire = $cookieRegUser->loginExpire;
-			}
-		}
 
 		return new \ResponseData($this->who);
 	}
@@ -41,17 +33,24 @@ class main extends \site\fe\base {
 		$data = $this->getPostJson();
 		$user = $this->who;
 
+		/* 更新注册用户信息 */
+		$modelWay = $this->model('site\fe\way');
+		$cookieRegUser = $modelWay->getCookieRegUser();
+		if ($cookieRegUser) {
+			$rst = $modelWay->update(
+				'account',
+				['nickname' => $data->nickname],
+				['uid' => $cookieRegUser->unionid]
+			);
+			$cookieRegUser->nickname = $data->nickname;
+			$modelWay->setCookieRegUser($cookieRegUser);
+		}
+
+		/* 更新站点用户信息 */
 		$modelUsr = $this->model('site\user\account');
 		if ($account = $modelUsr->byId($user->uid)) {
 			$modelUsr->changeNickname($this->siteId, $account->uid, $data->nickname);
-			if (!empty($account->unionid)) {
-				$modelReg = $this->model('site\user\registration');
-				$registration = $modelReg->byId($account->unionid);
-				$modelReg->changeNickname($registration->uname, $data->nickname);
-			}
 		}
-		/* 缓存用户信息 */
-		$modelWay = $this->model('site\fe\way');
 		$cookieUser = $modelWay->getCookieUser($this->siteId);
 		$cookieUser->nickname = $data->nickname;
 		$modelWay->setCookieUser($this->siteId, $cookieUser);

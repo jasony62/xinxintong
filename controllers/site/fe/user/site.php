@@ -18,7 +18,7 @@ class site extends \site\fe\base {
 	 */
 	public function subscribe_action($target) {
 		$user = $this->who;
-		if (empty($user->loginExpire)) {
+		if (empty($user->unionid)) {
 			return new \ResponseError('请登录后再关注');
 		}
 		$modelSite = $this->model('site');
@@ -26,8 +26,7 @@ class site extends \site\fe\base {
 			return new \ObjectNotFoundError();
 		}
 
-		$siteUser = $this->model('site\user\account')->byId($user->uid);
-		$modelSite->subscribe($siteUser, $target);
+		$modelSite->subscribe($user, $target);
 
 		return new \ResponseData('ok');
 	}
@@ -36,7 +35,7 @@ class site extends \site\fe\base {
 	 */
 	public function unsubscribe_action($target) {
 		$user = $this->who;
-		if (empty($user->loginExpire)) {
+		if (empty($user->unionid)) {
 			return new \ResponseError('请登录后再取消关注');
 		}
 		$modelSite = $this->model('site');
@@ -44,8 +43,7 @@ class site extends \site\fe\base {
 			return new \ObjectNotFoundError();
 		}
 
-		$siteUser = $this->model('site\user\account')->byId($user->uid);
-		$modelSite->unsubscribe($siteUser, $target);
+		$modelSite->unsubscribe($user, $target);
 
 		return new \ResponseData('ok');
 	}
@@ -54,7 +52,7 @@ class site extends \site\fe\base {
 	 */
 	public function trends_action() {
 		$user = $this->who;
-		if (empty($user->loginExpire)) {
+		if (empty($user->unionid)) {
 			return new \ResponseData([]);
 		}
 		$result = new \stdClass;
@@ -63,7 +61,7 @@ class site extends \site\fe\base {
 		$q = [
 			'*',
 			'xxt_site_subscription',
-			["userid" => $user->uid],
+			["unionid" => $user->unionid],
 		];
 		$q2 = ['o' => 'put_at desc'];
 

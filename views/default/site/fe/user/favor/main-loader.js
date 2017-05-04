@@ -1,10 +1,8 @@
 window.loading = {
     finish: function() {
-        var eleLoading, eleStyle;
+        var eleLoading;
         eleLoading = document.querySelector('.loading');
         eleLoading.parentNode.removeChild(eleLoading);
-        eleStyle = document.querySelector('#loadingStyle');
-        eleStyle.parentNode.removeChild(eleStyle);
     },
     load: function() {
         var timestamp, minutes;
@@ -33,7 +31,7 @@ window.loading = {
             }
         });
         require(['main'], function() {
-            angular.bootstrap(document,['app']);
+            angular.bootstrap(document, ['app']);
         });
     }
 };

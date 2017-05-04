@@ -25,7 +25,7 @@ class way_model extends \TMS_MODEL {
 				$cookieUser = $this->_bindSiteSnsUser($siteId, $snsName, $snsUser, $cookieUser, $cookieRegUser);
 			}
 			$modified = true;
-		} else if ($cookieUser === false) {
+		} else if (empty($cookieUser)) {
 			/* 无访客身份用户首次访问站点 */
 			$modelSiteUser = \TMS_App::M('site\user\account');
 			$cookieRegUser = $this->getCookieRegUser();
@@ -382,10 +382,11 @@ class way_model extends \TMS_MODEL {
 		$sites = $this->siteList(true);
 		$modelAct = $this->model('site\user\account');
 		foreach ($sites as $siteId) {
-			$cookieUser = $this->getCookieUser($siteId);
-			$account = $modelAct->byId($cookieUser->uid);
-			if (!empty($account->unionid)) {
-				$this->cleanCookieUser($siteId);
+			if ($cookieUser = $this->getCookieUser($siteId)) {
+				$account = $modelAct->byId($cookieUser->uid);
+				if (!empty($account->unionid)) {
+					$this->cleanCookieUser($siteId);
+				}
 			}
 		}
 

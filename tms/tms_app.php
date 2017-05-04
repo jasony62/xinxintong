@@ -84,7 +84,8 @@ class TMS_APP {
 		global $__controller, $__action;
 
 		/* 如果不是登录状态，尝试自动登录 */
-		if (!TMS_CLIENT::is_authenticated()) {
+		$uid = TMS_CLIENT::get_client_uid();
+		if (empty($uid)) {
 			self::_autoLogin();
 		}
 
@@ -398,7 +399,8 @@ class TMS_APP {
 		/**
 		 * 使用平台定义的认证方法
 		 */
-		if (!TMS_CLIENT::is_authenticated()) {
+		$uid = TMS_CLIENT::get_client_uid();
+		if (empty($uid)) {
 			/**
 			 * 如果当前用户没有登录过，跳转到指定的登录页面，记录页面的跳转关系
 			 */
@@ -437,7 +439,14 @@ class TMS_APP {
 				return false;
 			}
 			$act = $result->data;
-			TMS_CLIENT::account($act);
+			/* cookie中保留注册信息 */
+			$modelWay = self::M('site\fe\way');
+			$registration = new \stdClass;
+			$registration->unionid = $act->uid;
+			$registration->uname = $act->email;
+			$registration->nickname = $act->nickname;
+			$cookieRegUser = $modelWay->shiftRegUser($registration);
+
 			return true;
 		}
 

@@ -52,7 +52,7 @@ class main extends \pl\fe\matter\base {
 			$options = array('cascaded' => 'N', 'fields' => 'id,title');
 			$w->sourceApp = $this->model('matter\\' . $sourceApp->type)->byId($sourceApp->id, $options);
 		}
-		
+
 		return new \ResponseData($w);
 	}
 	/**
@@ -67,8 +67,8 @@ class main extends \pl\fe\matter\base {
 		/**
 		 * 获得每个讨论组的url
 		 */
-		if($walls){
-			foreach($walls as $wall){
+		if ($walls) {
+			foreach ($walls as $wall) {
 				$wall->user_url = $this->model('matter\wall')->getEntryUrl($site, $wall->id);
 			}
 		}
@@ -101,29 +101,31 @@ class main extends \pl\fe\matter\base {
 			return new \ResponseTimeout();
 		}
 
+		$modelApp = $this->model('matter\wall');
+		$modelApp->setOnlyWriteDbConn(true);
+
 		$nv = $this->getPostJson();
 		if (isset($nv->title)) {
-			$nv->title = $this->model()->escape($nv->title);
+			$nv->title = $modelApp->escape($nv->title);
 		} else if (isset($nv->join_reply)) {
-			$nv->join_reply = $this->model()->escape($nv->join_reply);
+			$nv->join_reply = $modelApp->escape($nv->join_reply);
 		} else if (isset($nv->quit_reply)) {
-			$nv->quit_reply = $this->model()->escape($nv->quit_reply);
+			$nv->quit_reply = $modelApp->escape($nv->quit_reply);
 		} else if (isset($nv->entry_ele)) {
-			$nv->entry_ele = $this->model()->escape($nv->entry_ele);
+			$nv->entry_ele = $modelApp->escape($nv->entry_ele);
 		} else if (isset($nv->entry_css)) {
-			$nv->entry_css = $this->model()->escape($nv->entry_css);
+			$nv->entry_css = $modelApp->escape($nv->entry_css);
 		} else if (isset($nv->body_css)) {
-			$nv->body_css = $this->model()->escape($nv->body_css);
-		} else if (isset($nv->active) && $nv->active === 'N'){
+			$nv->body_css = $modelApp->escape($nv->body_css);
+		} else if (isset($nv->active) && $nv->active === 'N') {
 			//如果停用信息墙，退出所有用户
-			$this->model()->update('xxt_wall_enroll', array('close_at'=>time()), "wid='$app'");
+			$modelApp->update('xxt_wall_enroll', array('close_at' => time()), ['wid' => $app]);
 		}
 
-		$rst = $this->model()->update('xxt_wall', (array) $nv, "id='$app'");
+		$rst = $modelApp->update('xxt_wall', (array) $nv, ['id' => $app]);
 		/*记录操作日志*/
 		if ($rst) {
-			$matter = $this->model('matter\wall')->byId($app, 'id,title,summary,pic');
-			$matter->type = 'wall';
+			$matter = $modelApp->byId($app, 'id,title,summary,pic');
 			$this->model('matter\log')->matterOp($site, $user, $matter, 'U');
 		}
 

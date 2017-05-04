@@ -9,18 +9,17 @@ if (/MicroMessenger/i.test(navigator.userAgent) && window.signPackage && window.
     }, false);
 }
 
-require('!style-loader!css-loader!./directive.css');
+require('./directive.css');
 
 require('../../../../../../asset/js/xxt.ui.page.js');
 require('../../../../../../asset/js/xxt.ui.siteuser.js');
 require('../../../../../../asset/js/xxt.ui.favor.js');
 require('../../../../../../asset/js/xxt.ui.coinpay.js');
-require('../../../../../../asset/js/xxt.ui.discuss2.js');
 require('../../../../../../asset/js/xxt.ui.share.js');
 
 require('./directive.js');
 
-var ngApp = angular.module('app', ['ngSanitize', 'ui.bootstrap', 'page.ui.xxt', 'snsshare.ui.xxt', 'directive.enroll', 'siteuser.ui.xxt', 'favor.ui.xxt', 'discuss.ui.xxt']);
+var ngApp = angular.module('app', ['ngSanitize', 'ui.bootstrap', 'page.ui.xxt', 'snsshare.ui.xxt', 'directive.enroll', 'siteuser.ui.xxt', 'favor.ui.xxt']);
 ngApp.provider('ls', function() {
     var _baseUrl = '/rest/site/fe/matter/enroll',
         _params = {};
@@ -62,7 +61,7 @@ ngApp.config(['$controllerProvider', 'lsProvider', function($cp, lsProvider) {
     };
     lsProvider.params(['site', 'app', 'rid', 'page', 'ek', 'preview', 'newRecord', 'ignoretime']);
 }]);
-ngApp.controller('ctrlMain', ['$scope', '$http', '$timeout', 'ls', 'tmsDynaPage', 'tmsSnsShare', 'tmsSiteUser', 'tmsFavor', 'tmsDiscuss', function($scope, $http, $timeout, LS, tmsDynaPage, tmsSnsShare, tmsSiteUser, tmsFavor, tmsDiscuss) {
+ngApp.controller('ctrlMain', ['$scope', '$http', '$timeout', 'ls', 'tmsDynaPage', 'tmsSnsShare', 'tmsSiteUser', 'tmsFavor', function($scope, $http, $timeout, LS, tmsDynaPage, tmsSnsShare, tmsSiteUser, tmsFavor) {
     var tasksOfOnReady = [];
     $scope.errmsg = '';
     $scope.closePreviewTip = function() {
@@ -241,10 +240,7 @@ ngApp.controller('ctrlMain', ['$scope', '$http', '$timeout', 'ls', 'tmsDynaPage'
         if (tasksOfOnReady.length) {
             angular.forEach(tasksOfOnReady, PG.exec);
         }
-        tmsFavor.showSwitch(oApp.siteid, oApp);
-        if (oApp.can_discuss === 'Y') {
-            tmsDiscuss.showSwitch(oApp.siteid, 'enroll,' + oApp.id, oApp.title);
-        }
+        tmsFavor.showSwitch($scope.user, oApp);
         if (oApp.can_siteuser === 'Y') {
             tmsSiteUser.showSwitch(oApp.siteid, true);
         }

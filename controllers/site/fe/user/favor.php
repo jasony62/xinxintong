@@ -15,42 +15,41 @@ class favor extends \site\fe\base {
 	}
 	/**
 	 * 返回当前用户收藏的素材,增加了素材的标题、头图、摘要
-	 * 
+	 *
 	 */
-	public function list_action($uid='', $page = 1, $size = 10) {		
-
+	public function list_action($page = 1, $size = 10) {
+		if (!isset($this->who->unionid)) {
+			return new \ResponseError('仅限登录用户操作');
+		}
 		$model = $this->model();
-		$userid = empty($uid) ? $this->who->uid : $uid;
-		$q = array(
+		$loginUserid = $this->who->unionid;
+		$q = [
 			'id,favor_at,matter_id,matter_type,matter_title',
 			'xxt_site_favor',
-			"siteid='$this->siteId' and userid='$userid'",
-		);
-		$q2 = array(
+			['unionid' => $loginUserid],
+		];
+		// 指定团队下的访问记录
+		if (!empty($this->siteId) && $this->siteId !== 'platform') {
+			$q[2]['siteid'] = $this->siteId;
+		}
+		$q2 = [
 			'o' => 'favor_at desc',
-			'r' => array('o' => ($page - 1) * $size, $size, 'l' => $size),
-		);
-		$matters = $model->query_objs_ss($q, $q2);
-		foreach ($matters as $k => $v) {
-			if($v->matter_type=='custom'){
-				$type='article';	
-			}else{
-				$type=$v->matter_type;
-			}
-			$d=$this->model()->query_obj_ss(['id,title,summary,pic','xxt_'.$type,"siteid='$this->siteId' and id='$v->matter_id'"]);
-			$v->data=$d;
-			$b[$k]=$v;
-		}
-		if(isset($b)){
-			$matters=(object)$b;
-		}
+			'r' => ['o' => ($page - 1) * $size, $size, 'l' => $size],
+		];
+		$logs = $model->query_objs_ss($q, $q2);
+
 		$result = new \stdClass;
-		$result->matters = $matters;
-		if (empty($matters)) {
-			$result->total = 0;
-		} else {
+		if (count($logs)) {
+			foreach ($logs as $log) {
+				$matter = $this->model('matter\\' . $log->matter_type)->byId($log->matter_id, ['fields' => 'siteid,title,summary,pic']);
+				$log->data = $matter;
+				$result->matters[] = $log;
+			}
 			$q[0] = 'count(*)';
 			$result->total = $model->query_val_ss($q);
+		} else {
+			$result->matters = [];
+			$result->total = 0;
 		}
 
 		return new \ResponseData($result);
@@ -58,26 +57,35 @@ class favor extends \site\fe\base {
 	/**
 	 * 加入收藏
 	 */
-	public function add_action($id, $type, $title) {
-		$model = $this->model();
-		$userid = $this->who->uid;
+	public function add_action($id, $type) {
+		$modelMat = $this->model('matter\\' . $type);
+		$oMatter = $modelMat->byId($id, ['cascaded' => 'N']);
+		if (false === $oMatter) {
+			return new \ObjectNotFoundError();
+		}
+		if (!isset($this->who->unionid)) {
+			return new \ResponseError('仅限登录用户操作');
+		}
+
+		$loginUserid = $this->who->unionid;
+
 		$q = [
 			'id',
 			'xxt_site_favor',
-			"siteid='$this->siteId' and userid='$userid' and matter_id='$id' and matter_type='$type'",
+			['siteid' => $oMatter->siteid, 'unionid' => $loginUserid, 'matter_id' => $id, 'matter_type' => $type],
 		];
-		if (false === $model->query_obj_ss($q)) {
+		if (false === $modelMat->query_obj_ss($q)) {
 			$log = [
-				'siteid' => $this->siteId,
-				'userid' => $this->who->uid,
-				'nickname' => empty($this->who->nickname) ? '' : $model->escape($this->who->nickname),
+				'siteid' => $oMatter->siteid,
+				'unionid' => $loginUserid,
+				'nickname' => empty($this->who->nickname) ? '' : $modelMat->escape($this->who->nickname),
 				'favor_at' => time(),
-				'matter_id' => $id,
-				'matter_type' => $type,
-				'matter_title' => $model->escape($title),
+				'matter_id' => $oMatter->id,
+				'matter_type' => $oMatter->type,
+				'matter_title' => $modelMat->escape($oMatter->title),
 			];
 
-			$id = $model->insert('xxt_site_favor', $log, true);
+			$id = $modelMat->insert('xxt_site_favor', $log, true);
 
 			return new \ResponseData($id);
 		} else {
@@ -88,12 +96,16 @@ class favor extends \site\fe\base {
 	 * 检查用户是否收藏了指定素材
 	 */
 	public function byUser_action($id, $type) {
+		if (!isset($this->who->unionid)) {
+			return new \ResponseError('仅限登录用户操作');
+		}
+
 		$model = $this->model();
-		$userid = $this->who->uid;
+		$loginUserid = $this->who->unionid;
 		$q = [
 			'id,favor_at',
 			'xxt_site_favor',
-			"siteid='$this->siteId' and userid='$userid' and matter_id='$id' and matter_type='$type'",
+			['siteid' => $this->siteId, 'unionid' => $loginUserid, 'matter_id' => $id, 'matter_type' => $type],
 		];
 		$log = $model->query_obj_ss($q);
 
@@ -103,11 +115,14 @@ class favor extends \site\fe\base {
 	 * 取消收藏
 	 */
 	public function remove_action($id, $type) {
-		$userid = $this->who->uid;
+		if (!isset($this->who->unionid)) {
+			return new \ResponseError('仅限登录用户操作');
+		}
+		$loginUserid = $this->who->unionid;
 
 		$rst = $this->model()->delete(
 			'xxt_site_favor',
-			"siteid='$this->siteId' and userid='$userid' and matter_id='$id' and matter_type='$type'"
+			['siteid' => $this->siteId, 'unionid' => $loginUserid, 'matter_id' => $id, 'matter_type' => $type]
 		);
 
 		return new \ResponseData($rst);

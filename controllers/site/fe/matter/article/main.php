@@ -22,8 +22,8 @@ class main extends \site\fe\matter\base {
 	/**
 	 * 返回请求的素材
 	 *
-	 * $siteId
-	 * $id
+	 * @param strng $site
+	 * @param int $id
 	 */
 	public function get_action($site, $id) {
 		$model = $this->model();
@@ -32,11 +32,18 @@ class main extends \site\fe\matter\base {
 		$modelArticle = $this->model('matter\article2');
 		$article = $modelArticle->byId($id);
 		if (false === $article) {
-			return new \ResponseError('not exist');
+			return new \ObjectNotFoundError();
 		}
 
 		if (isset($article->access_control) && $article->access_control === 'Y' && !empty($article->authapis)) {
 			$this->accessControl($site, $id, $article->authapis, $user->uid, $article, false);
+		}
+		/*如果此单图文属于引用那么需要返回被引用的单图文*/
+		if ($article->from_mode === 'C') {
+			$id2 = $article->from_id;
+			$article2 = $modelArticle->byId($id2, ['fields' => 'body,author,siteid,id']);
+			$article->body = $article2->body;
+			$article->author = $article2->author;
 		}
 		/* 单图文所属的频道 */
 		$article->channels = $this->model('matter\channel')->byMatter($id, 'article');
@@ -53,7 +60,7 @@ class main extends \site\fe\matter\base {
 				array(
 					'*',
 					'xxt_article_attachment',
-					['article_id' => $id]
+					['article_id' => $id],
 				)
 			);
 		}
@@ -287,6 +294,10 @@ class main extends \site\fe\matter\base {
 	 * 下载附件
 	 */
 	public function attachmentGet_action($site, $articleid, $attachmentid) {
+		if (empty($site) || empty($articleid) || empty($attachmentid)) {
+			return new \ObjectNotFoundError();
+		}
+
 		$user = $this->who;
 		/**
 		 * 访问控制

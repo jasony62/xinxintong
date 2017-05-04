@@ -174,6 +174,7 @@ class main extends \pl\fe\base {
 		if (!empty($filter->byTitle)) {
 			$options['byTitle'] = $modelSite->escape($filter->byTitle);
 		}
+		
 		$mySites = $modelSite->byUser($user->id, $options);
 
 		return new \ResponseData($mySites);

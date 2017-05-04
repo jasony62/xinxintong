@@ -106,20 +106,6 @@ define(['require', 'enrollService'], function (require) {
             'quiz': '测验',
             'group_week_report': '周报'
         };
-        $scope.viewNames = {
-            'main': '活动定义',
-            'publish': '发布预览',
-            'schema': '修改题目',
-            'page': '修改页面',
-            'record': '查看数据',
-            'editor': '编辑数据',
-            'stat': '统计报告',
-            'discuss': '用户评论',
-            'coin': '积分规则',
-            'notice': '通知发送记录',
-            'log': '运行日志',
-            'recycle': '回收站',
-        };
         //定义侧边栏数据
         //定义默认状态
         $scope.firstView = ['edit', 'publish', 'data', 'other', 'recycle'];
@@ -177,7 +163,6 @@ define(['require', 'enrollService'], function (require) {
             }]
         //},{
         }];
-        //$scope.leftState = 'main';
         //第一次进入初始化状态
         var subView  = location.href.match(/([^\/]+?)\?/) ;
         $scope.subView = subView[1] === 'enroll' ? 'main' : subView[1];
@@ -191,8 +176,8 @@ define(['require', 'enrollService'], function (require) {
                 if(v.value==='data'){
                     v.inferiorShow = true;
                 }
-            })
-        }else if($scope.subView.indexOf($scope.firstView)!==-1){
+            });
+        }else if($scope.firstView.indexOf($scope.subView)!==-1){
             $scope.leftState = $scope.subView;
         }else{
             angular.forEach($scope.views, function(v){
@@ -238,11 +223,6 @@ define(['require', 'enrollService'], function (require) {
             $scope.leftInferior = value;
             $location.path(url) ;
         };
-        $scope.subView = '';
-        $scope.$on('$locationChangeSuccess', function (event, currentRoute) {
-            var subView = currentRoute.match(/([^\/]+?)\?/);
-            $scope.subView = subView[1] === 'enroll' ? 'publish' : subView[1];
-        });
         $scope.update = function (name) {
             srvEnrollApp.update(name);
         };

@@ -49,52 +49,18 @@
                     </a>
                 </li>
             </nav>
-            <!--折叠部分-->
+            <!--折叠部分 设计暂时不用隐藏掉-->
             <a class="btn btn-default navbar-btn reName" href="" ng-click="Title= Title?false:true">重命名</a>
-            <a class="btn btn-default navbar-btn navbar-right navbar-text"  href="">生成模板</a>
-            <a class="btn btn-default navbar-btn navbar-right navbar-text"  href="">导出模板</a>
-            <a class="btn btn-default navbar-btn navbar-right navbar-text preview"  href="">预览</a>
-            <a class="btn btn-default navbar-btn navbar-right navbar-text set"  href="">设置</a>
+            <!--<a class="btn btn-default navbar-btn navbar-right navbar-text"  href="">生成模板</a>-->
+            <!--<a class="btn btn-default navbar-btn navbar-right navbar-text"  href="">导出模板</a>-->
+            <!--<a class="btn btn-default navbar-btn navbar-right navbar-text preview"  href="">预览</a>-->
+            <!--<a class="btn btn-default navbar-btn navbar-right navbar-text set"  href="">设置</a>-->
             <!--干掉-->
-            <ul class='nav navbar-nav navbar-right'>
-            <!--<ul class='nav navbar-nav navbar-right' ng-hide="true">-->
-                <li class="dropdown">
-                    <a href="#" class="dropdown-toggle" data-toggle="dropdown">{{viewNames[subView]}} <span
-                            class="caret"></span></a>
-                    <ul class="dropdown-menu" role="menu">
-                        <li><a href="/rest/pl/fe/matter/enroll/main?site={{app.siteid}}&id={{app.id}}">活动定义</a></li>
-                        <li><a href="/rest/pl/fe/matter/enroll/schema?site={{app.siteid}}&id={{app.id}}">修改题目</a></li>
-                        <li><a href="/rest/pl/fe/matter/enroll/page?site={{app.siteid}}&id={{app.id}}">修改页面</a></li>
-                        <li><a href="/rest/pl/fe/matter/enroll/publish?site={{app.siteid}}&id={{app.id}}">发布预览</a></li>
-                        <li><a href="/rest/pl/fe/matter/enroll/record?site={{app.siteid}}&id={{app.id}}">查看数据</a></li>
-                        <li><a href="/rest/pl/fe/matter/enroll/stat?site={{app.siteid}}&id={{app.id}}">统计报告</a></li>
-                        <li><a href="/rest/pl/fe/matter/enroll/notice?site={{app.siteid}}&id={{app.id}}">通知发送记录</a></li>
-                        <li ng-if="app.can_discuss==='Y'"><a
-                                href="/rest/pl/fe/matter/enroll/discuss?site={{app.siteid}}&id={{app.id}}">活动评论</a></li>
-                        <li class="divider"></li>
-                        <li><a href="/rest/pl/fe/matter/enroll/coin?site={{app.siteid}}&id={{app.id}}">积分规则</a></li>
-                        <li><a href="/rest/pl/fe/matter/enroll/log?site={{app.siteid}}&id={{app.id}}">运行日志</a></li>
-                        <li class="divider"></li>
-                        <li><a href="/rest/pl/fe/matter/enroll/recycle?site={{app.siteid}}&id={{app.id}}">回收站</a></li>
-                    </ul>
-                </li>
-            </ul>
         </div>
     </div>
 </nav>
 <div id="container">
     <ul class="left list-unstyled text-center">
-        <!--<li><a ng-class="{'leftActive':leftState==='publise'}" href="" ng-click="goTo()">发布</a></li>-->
-        <!--<li>-->
-            <!--<a ng-class="{'leftActive':leftState==='record'||leftState==='stat'}" href="" ng-click="goTo()">数据与统计</a>-->
-            <!--<ul class="list-unstyled" >-->
-                <!--<li><a class="leftActive" ng-class="{'leftActive':leftState==='record'}" href="">数据</a></li>-->
-                <!--<li><a ng-class="{'leftActive':leftState==='stat'}" href="">统计报告</a></li>-->
-                <!--<li><a href="">用户管理</a></li>-->
-            <!--</ul>-->
-        <!--</li>-->
-        <!--<li><a ng-class="{'leftActive':leftState==='recycle'}" href="" ng-click="goTo()">回收站</a></li>-->
-        <!--<li><a ng-class="{'leftActive':leftState==='log'}" href="" ng-click="goTo()">运营日志</a></li>-->
         <li ng-repeat="v in views">
             <a ng-class="{'leftActive':leftState===v.value}" href="" ng-bind="v.title" ng-click="goTo(v.value ,v)"></a>
             <ul class="list-unstyled" ng-show="v.inferiorShow" ng-style="{height:v.inferior.length*35+'px'}">

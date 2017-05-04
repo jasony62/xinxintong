@@ -472,7 +472,7 @@ class log_model extends \TMS_MODEL {
 	 * @param object $user
 	 * @param array $options(fields,page)
 	 */
-	public function &recentMattersByUser($site = null, &$user, $options = []) {
+	public function &recentMattersByUser(&$user, $options = []) {
 		$fields = empty($options['fields']) ? '*' : $options['fields'];
 		if (empty($options['page'])) {
 			$page = new \stdClass;
@@ -486,8 +486,8 @@ class log_model extends \TMS_MODEL {
 			'xxt_log_matter_op',
 			"operator='{$user->id}' and user_last_op='Y' and (operation<>'D' and operation<>'Recycle' and operation<>'Quit')",
 		];
-		if (isset($options['matterType'])) {
-			$q[2] .= " and matter_type='" . $this->escape($options['matterType']) . "'";
+		if (isset($options['byType'])) {
+			$q[2] .= " and matter_type='" . $this->escape($options['byType']) . "'";
 		}
 		if (isset($options['scenario'])) {
 			$q[2] .= " and matter_scenario='" . $this->escape($options['scenario']) . "'";
@@ -495,8 +495,8 @@ class log_model extends \TMS_MODEL {
 		if (isset($options['byTitle'])) {
 			$q[2] .= " and matter_title like '%" . $this->escape($options['byTitle']) . "%'";
 		}
-		if(!empty($site)){
-			$q[2] .= " and siteid = '" . $this->escape($site) . "'";
+		if(isset($options['bySite'])) {
+			$q[2] .= " and siteid = '" . $this->escape($options['bySite']) . "'";
 		}
 
 		$q2 = [

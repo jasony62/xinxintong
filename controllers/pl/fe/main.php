@@ -23,7 +23,7 @@ class main extends \pl\fe\base {
 	/**
 	 * 列出站点最近操作的素材
 	 */
-	public function recent_action($site = null, $page = 1, $size = 30, $matterType = null, $scenario = null) {
+	public function recent_action($page = 1, $size = 30) {
 		if (false === ($user = $this->accountUser())) {
 			return new \ResponseTimeout();
 		}
@@ -39,15 +39,22 @@ class main extends \pl\fe\base {
 		$options = [
 			'page' => $p,
 		];
-		// 类型参数
-		!empty($matterType) && $options['matterType'] = $matterType;
-		// 活动场景
-		$scenario !== null && $options['scenario'] = $scenario;
+		if (!empty($filter->bySite)) {
+			$options['bySite'] = $filter->bySite;
+		}
 		if (!empty($filter->byTitle)) {
 			$options['byTitle'] = $filter->byTitle;
 		}
+		// 类型参数
+		if (!empty($filter->byType)) {
+			$options['byType'] = $filter->byType;
+		}
+		// 活动场景
+		if (!empty($filter->scenario)) {
+			$options['scenario'] = $filter->scenario;
+		}
 
-		$matters = $modelLog->recentMattersByUser($site, $user, $options);
+		$matters = $modelLog->recentMattersByUser($user, $options);
 
 		return new \ResponseData($matters);
 	}

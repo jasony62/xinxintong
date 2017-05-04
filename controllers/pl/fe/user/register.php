@@ -44,15 +44,14 @@ class register extends \TMS_CONTROLLER {
 		//
 		$fromip = $this->client_ip();
 		$account = $modelAcnt->register($email, $password, $nickname, $fromip);
-		// record account into session and cookie.
-		\TMS_CLIENT::account($account);
 
-		/* 用户注册获得积分 */
-		$user = new \stdClass;
-		$user->id = $account->uid;
-		$user->name = $account->nickname;
-		$modelCoin = $this->model('pl\coin\log');
-		$modelCoin->award($user, 'pl.user.register');
+		/* cookie中保留注册信息 */
+		$modelWay = $this->model('site\fe\way');
+		$registration = new \stdClass;
+		$registration->unionid = $account->uid;
+		$registration->uname = $email;
+		$registration->nickname = $account->nickname;
+		$cookieRegUser = $modelWay->shiftRegUser($registration, false);
 
 		return new \ResponseData($account);
 	}

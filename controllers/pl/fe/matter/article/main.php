@@ -449,7 +449,7 @@ class main extends \pl\fe\matter\base {
 		}
 
 		$model = $this->model();
-		$article = $this->model('matter\article2')->byId($id, ['fields' => 'from_mode,siteid,id']);
+		$article = $this->model('matter\article2')->byId($id, ['fields' => 'from_mode,siteid,id,title,summary,pic']);
 		if ($article === false) {
 			return new \ObjectNotFoundError();
 		}
@@ -469,6 +469,13 @@ class main extends \pl\fe\matter\base {
 		}
 
 		$rst = $this->_update($site, $id, $nv);
+		if ($rst) {
+			// 记录操作日志并更新信息
+			isset($nv['title']) && $article->title = $nv['title'];
+			isset($nv['summary']) && $article->summary = $nv['summary'];
+			isset($nv['pic']) && $article->pic = $nv['pic'];
+			$this->model('matter\log')->matterOp($site, $user, $article, 'U');
+		}
 
 		return new \ResponseData($rst);
 	}

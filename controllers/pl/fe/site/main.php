@@ -311,20 +311,22 @@ class main extends \pl\fe\base {
 		if (false === ($user = $this->accountUser())) {
 			return new \ResponseTimeout();
 		}
+		
+		$modelSite = $this->model('site');
+		$modelSite->setOnlyWriteDbConn(true);
+		
 		$nv = $this->getPostJson();
 		foreach ($nv as $n => $v) {
 			if ($n === 'home_carousel') {
 				$nv->{$n} = json_encode($v);
 			}
 		}
-		$rst = $this->model()->update(
+		$rst = $modelSite->update(
 			'xxt_site',
 			$nv,
 			"id='$site'"
 		);
 		/*记录操作日志*/
-		$modelSite = $this->model('site');
-		$modelSite->setOnlyWriteDbConn(true);
 		$matter = $modelSite->byId($site, ['fields' => 'id,name as title']);
 		$matter->type = 'site';
 		$this->model('matter\log')->matterOp($site, $user, $matter, 'U');

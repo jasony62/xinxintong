@@ -87,7 +87,6 @@
                             <th style='width:40px'>序号</th>
                             <th style="width:40px">类型</th>
                             <th style='width:140px'>名称</th>
-                            <th style='width:140px'>修改人</th>
                             <th style='width:100px'>最后修改时间</th>
                             <th style='width:140px'>置顶</th>
                             <th style='width:140px'>操作</th>
@@ -98,7 +97,6 @@
                             <td>{{$index+1}}</td>
                             <td>{{matterNames[m.matter_type]}}</td>
                             <td>{{m.matter_title}}</td>
-                            <td>{{m.operator_name}}</td>
                             <td>{{(m.operate_at*1000)|date:'MM-dd HH:mm'}}</td>
                             <td>
                                 <button class='btn btn-sm btn-default' title='置顶' ng-click="stickTop(m)">置顶</button>
@@ -122,6 +120,10 @@
                                     <button class='btn btn-sm btn-default' ng-click="openMatter(m,'main')">定义</button>
                                     <button class='btn btn-sm btn-default' ng-click="openMatter(m,'matter')">活动</button>
                                     <button class='btn btn-sm btn-default' ng-click="openMatter(m,'user')">数据</button>
+                                </div>
+                                <div ng-switch-when="site">
+                                    <a class='btn btn-sm btn-default' ng-click="openConsole(m)">工作台</a>
+                                    <a class='btn btn-sm btn-default' ng-click="setHome(m)">设置主页</a>
                                 </div>
                                 <div ng-switch-default>
                                     <button class='btn btn-sm btn-default' ng-click="openMatter(m,'main')">进入</button>
@@ -294,7 +296,7 @@
                         </ul>
                         <form class='nav navbar-form pull-right'>
                             <button id='infoAddMatter' uib-popover-template="'addMatter.html'" popover-placement="bottom-right" popover-append-to-body='true' popover-trigger="show" popover-title="新建" class='btn btn-default' ng-click="infoAddMatter()"><i class='glyphicon glyphicon-plus'></i> <span>新建</span></button>
-                            <button uib-popover-template="'filterMission.html'" popover-placement="bottom-right" popover-append-to-body='true' popover-trigger="outsideClick" class='btn btn-default pull-right'><i class='glyphicon glyphicon-filter'></i> <span>筛选</span></button>
+                            <button uib-popover-template="'filter.html'" popover-placement="bottom-right" popover-append-to-body='true' popover-trigger="outsideClick" class='btn btn-default pull-right'><i class='glyphicon glyphicon-filter'></i> <span>筛选</span></button>
                         </form>
                     </div>
                 </nav>

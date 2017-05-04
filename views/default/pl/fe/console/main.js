@@ -201,6 +201,7 @@ define(['frame'], function(ngApp) {
         };
         /*置顶*/
         $scope.stickTop = function(m) {
+
             var siteid = m.siteid ? m.siteid : m.id;
             var url = '/rest/pl/fe/top?site=' + siteid + '&id=' + m.id;
             http2.get(url, function(rsp) {
@@ -217,10 +218,10 @@ define(['frame'], function(ngApp) {
             location.href = url;
         };
         $scope.setHome = function(site) {
-            location.href = '/rest/pl/fe/site/home?site=' + site.id;
+            location.href = '/rest/pl/fe/site/home?site=' + site.siteid;
         };
         $scope.openConsole = function(site) {
-            location.href = '/rest/pl/fe/site?site=' + site.id;
+            location.href = '/rest/pl/fe/site?site=' + site.siteid;
         };
         $scope.$on('fromCtrlRecentStickTop', function(event, data) {
             $scope.$broadcast('toCtrlTopList', data);

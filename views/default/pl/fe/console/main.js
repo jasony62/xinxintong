@@ -319,7 +319,7 @@ define(['frame'], function(ngApp) {
             $('body').click();
         };
         $scope.cleanFilter = function() {
-            filter2.byTitle = '';
+            filter.byTitle = '';
             $('body').click();
         };
         $scope.$watch('criteria.sid', function(nv) {
@@ -376,7 +376,7 @@ define(['frame'], function(ngApp) {
             $('body').click();
         };
         $scope.cleanFilter = function() {
-            filter2.byTitle = '';
+            filter.byTitle = '';
             $('body').click();
         };
         $scope.$watch('criteria.sid', function(nv) {
@@ -435,7 +435,7 @@ define(['frame'], function(ngApp) {
             $('body').click();
         };
         $scope.cleanFilter = function() {
-            filter2.byTitle = '';
+            filter.byTitle = '';
             $('body').click();
         };
         $scope.$watch('criteria3.matterType', function(nv) {
@@ -486,7 +486,7 @@ define(['frame'], function(ngApp) {
             $('body').click();
         };
         $scope.cleanFilter = function() {
-            filter2.byTitle = '';
+            filter.byTitle = '';
             $('body').click();
         };
         $scope.$watch('criteria4.matterType', function(nv) {

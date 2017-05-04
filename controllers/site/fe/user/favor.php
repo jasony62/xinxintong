@@ -23,36 +23,33 @@ class favor extends \site\fe\base {
 		}
 		$model = $this->model();
 		$loginUserid = $this->who->unionid;
-		$q = array(
+		$q = [
 			'id,favor_at,matter_id,matter_type,matter_title',
 			'xxt_site_favor',
-			['siteid' => $this->siteId, 'unionid' => $loginUserid],
-		);
-		$q2 = array(
+			['unionid' => $loginUserid],
+		];
+		// 指定团队下的访问记录
+		if (!empty($this->siteId) && $this->siteId !== 'platform') {
+			$q[2]['siteid'] = $this->siteId;
+		}
+		$q2 = [
 			'o' => 'favor_at desc',
-			'r' => array('o' => ($page - 1) * $size, $size, 'l' => $size),
-		);
-		$matters = $model->query_objs_ss($q, $q2);
-		foreach ($matters as $k => $v) {
-			if ($v->matter_type == 'custom') {
-				$type = 'article';
-			} else {
-				$type = $v->matter_type;
-			}
-			$d = $model->query_obj_ss(['id,title,summary,pic', 'xxt_' . $type, "siteid='$this->siteId' and id='$v->matter_id'"]);
-			$v->data = $d;
-			$b[$k] = $v;
-		}
-		if (isset($b)) {
-			$matters = (object) $b;
-		}
+			'r' => ['o' => ($page - 1) * $size, $size, 'l' => $size],
+		];
+		$logs = $model->query_objs_ss($q, $q2);
+
 		$result = new \stdClass;
-		$result->matters = $matters;
-		if (empty($matters)) {
-			$result->total = 0;
-		} else {
+		if (count($logs)) {
+			foreach ($logs as $log) {
+				$matter = $this->model('matter\\' . $log->matter_type)->byId($log->matter_id, ['fields' => 'siteid,title,summary,pic']);
+				$log->data = $matter;
+				$result->matters[] = $log;
+			}
 			$q[0] = 'count(*)';
 			$result->total = $model->query_val_ss($q);
+		} else {
+			$result->matters = [];
+			$result->total = 0;
 		}
 
 		return new \ResponseData($result);

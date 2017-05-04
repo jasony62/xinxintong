@@ -64,8 +64,17 @@ class auth extends \pl\fe\base {
 		$fromip = $this->client_ip();
 		$modelAct->update_last_login($uid, $fromip);
 
-		// 记录客户端登录状态
-		\TMS_CLIENT::account($act);
+		$modelWay = $this->model('site\fe\way');
+		$cookieRegUser = $modelWay->getCookieRegUser();
+		if ($cookieRegUser) {
+			$modelWay->quitRegUser();
+		}
+		/* cookie中保留注册信息 */
+		$registration = new \stdClass;
+		$registration->unionid = $act->uid;
+		$registration->uname = $act->email;
+		$registration->nickname = $act->nickname;
+		$cookieRegUser = $modelWay->shiftRegUser($registration);
 
 		// 页面跳转
 		if ($referer = $this->myGetCookie('_login_referer')) {

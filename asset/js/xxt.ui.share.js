@@ -40,6 +40,7 @@
                  'title': title,
                  'desc': desc
              };
+
          window.YixinJSBridge.on('menu:share:appmessage', function(argv) {
              try {
                  options.logger && options.logger('F');
@@ -63,6 +64,8 @@
      };
      this.set = function(title, link, desc, img, fnOther) {
          var _this = this;
+         // 将图片的相对地址改为绝对地址
+         img && img.indexOf('http') === -1 && (img = 'http://' + location.host + img);
          if (/MicroMessenger/i.test(navigator.userAgent)) {
              var script;
              script = document.createElement('script');

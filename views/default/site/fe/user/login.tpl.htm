@@ -40,6 +40,16 @@
                             <p class='help-block'>输入6-16位登录密码</p>
                         </div>
                     </div>
+                    <div class='form-group'>
+                        <div class="col-md-10 col-md-offset-2">
+                            <div class='checkbox' ng-if="supportLocalStorage==='Y'">
+                                <label>
+                                    <input type='checkbox' ng-model='data.rememberMe' ng-true-value="'Y'" ng-false-value="'N'" />记住帐号</label>
+                                <label>
+                                    <input type='checkbox' ng-model='data.autologin' ng-true-value="'Y'" ng-false-value="'N'" />自动登录</label>
+                            </div>
+                        </div>
+                    </div>
                 </form>
                 <div class='form-group'>
                     <button class="btn btn-primary btn-block" ng-disabled="user.loginExpire" ng-click='login()'>登录</button>

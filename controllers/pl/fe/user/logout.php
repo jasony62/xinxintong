@@ -19,7 +19,7 @@ class logout extends \pl\fe\base {
 	 * 结束登录状态
 	 */
 	public function index_action() {
-		/* 清除登录状态 */
+		/* 退出登录状态 */
 		\TMS_CLIENT::logout();
 
 		/* 清除自动登录状态 */

@@ -151,7 +151,7 @@ class pptx_to_article
             $sShapeImgContents = ob_get_contents();
             ob_end_clean();
             if(!file_exists('0.jpg')){
-                imagecreatefromstring($sShapeImgContents);
+                $im=imagecreatefromstring($sShapeImgContents);
                 imagejpeg($im,'0.jpg');
                 imagedestroy($im);
             }

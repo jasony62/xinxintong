@@ -11,7 +11,7 @@
                         <span class="input-group-btn">
                             <button class="btn btn-default" type="button" ng-click='delSchema(s)'>
                                 <span class='glyphicon glyphicon-remove'></span>
-                            </button>
+                        </button>
                         </span>
                     </div>
                 </div>
@@ -30,13 +30,10 @@
                     <button class='btn btn-default' ng-if="s.type==='inner'" ng-click='resetCode(s)'>重置认证页面</button>
                 </div>
                 <div class="form-group" ng-show="s.valid==='Y'">
-                    <label class='checkbox-inline'><input type='checkbox' ng-true-value="'N'" ng-false-value="'Y'"
-                                                          ng-model='s.auto_verified'
-                                                          ng-change="updSchema(s,'auto_verified')">是否需要管理员审核</label>
-                    <label class='checkbox-inline'><input type='checkbox' ng-true-value="'Y'" ng-false-value="'N'"
-                                                          ng-model='s.qy_ab'
-                                                          ng-change="updQy(s,'qy_ab')">企业号同步通讯录使用</label>
-
+                    <label class='checkbox-inline'>
+                        <input type='checkbox' ng-true-value="'N'" ng-false-value="'Y'" ng-model='s.auto_verified' ng-change="updSchema(s,'auto_verified')">是否需要管理员审核</label>
+                    <label class='checkbox-inline'>
+                        <input type='checkbox' ng-true-value="'Y'" ng-false-value="'N'" ng-model='s.qy_ab' ng-change="updQy(s,'qy_ab')">企业号同步通讯录使用</label>
                 </div>
             </div>
         </div>
@@ -59,8 +56,7 @@
                         <tr ng-repeat='attr in attrOps'>
                             <td>{{attr[0]}}</td>
                             <td ng-repeat='op in attr[2]'>
-                                <input type='checkbox' ng-if='op===$index' ng-true-value="'1'" ng-false-value="'0'" ng-model="s.attrs[attr[1]][$index]"
-                                ng-change="updAttr(s,attr[1])">
+                                <input type='checkbox' ng-if='op===$index' ng-true-value="'1'" ng-false-value="'0'" ng-model="s.attrs[attr[1]][$index]" ng-change="updAttr(s,attr[1])">
                             </td>
                             <td></td>
                         </tr>
@@ -82,32 +78,42 @@
             <div class='form-group'>
                 <table class='table table-bordered'>
                     <tr>
-                        <td><label>认证页面地址</label></td>
+                        <td>
+                            <label>认证页面地址</label>
+                        </td>
                         <td>
                             <input type='text' ng-show="s.type==='cus'" class='form-control' ng-model='s.url' placeholder='输入URL' tms-auto-update tms-wait=1000 tms-update="updSchema(s,'url')">
                             <div class='form-control-static'>{{fullUrl(s)}}</div>
                         </td>
                     </tr>
                     <tr>
-                        <td><label>认证通过后页面地址</label></td>
+                        <td>
+                            <label>认证通过后页面地址</label>
+                        </td>
                         <td>
                             <input type='text' class='form-control' ng-model='s.passed_url' placeholder='输入URL' tms-auto-update tms-wait=1000 tms-update="updSchema(s,'passed_url')">
                         </td>
                     </tr>
                     <tr>
-                        <td><label>进入认证页面前提示</label></td>
+                        <td>
+                            <label>进入认证页面前提示</label>
+                        </td>
                         <td>
                             <textarea class='form-control' ng-model='s.entry_statement' placeholder='进入前说明' tms-auto-update tms-wait=1000 tms-update="updSchema(s,'entry_statement')"></textarea>
                         </td>
                     </tr>
                     <tr>
-                        <td><label>不在白名单中说明</label></td>
+                        <td>
+                            <label>不在白名单中说明</label>
+                        </td>
                         <td>
                             <textarea class='form-control' ng-model='s.acl_statement' placeholder='不在白名单中说明' tms-auto-update tms-wait=1000 tms-update="updSchema(s,'acl_statement')"></textarea>
                         </td>
                     </tr>
                     <tr>
-                        <td><label>验证未通过说明</label></td>
+                        <td>
+                            <label>验证未通过说明</label>
+                        </td>
                         <td>
                             <textarea class='form-control' ng-model='s.notpass_statement' placeholder='验证未通过说明' tms-auto-update tms-wait=1000 tms-update="updSchema(s,'notpass_statement')"></textarea>
                         </td>

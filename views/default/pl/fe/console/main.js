@@ -24,6 +24,9 @@ define(['frame'], function(ngApp) {
             'mission': '项目',
             'site': '团队'
         };
+        $scope.load = function(id) {
+            location.href = '/rest/pl/fe/site/setting?site=' + id;
+        }
         /*新建素材*/
         var _fns = {
             createSite: function() {
@@ -213,6 +216,12 @@ define(['frame'], function(ngApp) {
             url += '?id=' + matter.matter_id + '&site=' + matter.siteid;
             location.href = url;
         };
+        $scope.setHome = function(site) {
+            location.href = '/rest/pl/fe/site/home?site=' + site.id;
+        };
+        $scope.openConsole = function(site) {
+            location.href = '/rest/pl/fe/site?site=' + site.id;
+        };
         $scope.$on('fromCtrlRecentStickTop', function(event, data) {
             $scope.$broadcast('toCtrlTopList', data);
         });
@@ -255,7 +264,8 @@ define(['frame'], function(ngApp) {
         },true);
     }])
     ngApp.provider.controller('ctrlRecent', ['$scope', 'http2', function($scope, http2, noticebox) {
-        var url, page;
+        var url, page,filter;
+        $scope.filter = filter = {};
         $scope.page = page = {
             at: 1,
             size: 12,
@@ -264,26 +274,23 @@ define(['frame'], function(ngApp) {
             }
         };
         $scope.matterType = '';
-        $scope.list = function(pageAt,sid) {
+        $scope.list = function(pageAt) {
             var url = '/rest/pl/fe/recent?' + page.j();
             if (pageAt) {
                 page.at = pageAt;
             }
-            if ($scope.matterType) {
-                url += '&matterType=' + $scope.matterType;
-            }
-            if(sid) {
-                url += '&site=' + sid;
-            }
-            http2.get(url, function(rsp) {
+            http2.post(url, filter, function(rsp) {
                 $scope.matters = rsp.data.matters;
                 $scope.page.total = rsp.data.total;
             });
         };
         $scope.$watch('criteria.sid', function(nv) {
-            if(!nv) return;
-            $scope.list(1,nv);
-        },true);
+            angular.extend(filter,{bySite:nv});
+        });
+        $scope.$watch('filter', function(nv) {
+            if (!nv) return;
+            $scope.list();
+        }, true);
     }]);
     ngApp.provider.controller('ctrlSite', ['$scope', 'http2', function($scope, http2) {
         var t = (new Date() * 1), filter, filter2;
@@ -295,22 +302,11 @@ define(['frame'], function(ngApp) {
                 location.href = '/rest/pl/fe/site/setting?site=' + rsp.data.id;
             });
         };
-        //区分我的团队和回收站团队属性state ：0 是回收站信息；1是我的团队
-        $scope.list = function(sid) {
-            $scope.siteType = 1;
-            if(sid) {
-                var url = '/rest/pl/fe/site/list?_=' + t + '&site=' + sid;
-                http2.get(url, function(rsp) {
-                    $scope.site1 = rsp.data;
-                    $scope.sites = rsp.data;
-                });
-            }else {
-                var url = '/rest/pl/fe/site/list?_=' + t;
-                http2.post(url, filter, function(rsp) {
-                    $scope.site1 = rsp.data;
-                    $scope.sites = rsp.data;
-                });
-            }
+        $scope.list = function() {
+            var url = '/rest/pl/fe/site/list?_=' + t;
+            http2.post(url, filter, function(rsp) {
+                $scope.sites = rsp.data;
+            });
         };
         $scope.setHome = function(site) {
             location.href = '/rest/pl/fe/site/home?site=' + site.id;
@@ -318,6 +314,194 @@ define(['frame'], function(ngApp) {
         $scope.openConsole = function(site) {
             location.href = '/rest/pl/fe/site?site=' + site.id;
         };
+        $scope.doFilter = function() {
+            angular.extend(filter,filter2);
+            $('body').click();
+        };
+        $scope.cleanFilter = function() {
+            filter2.byTitle = '';
+            $('body').click();
+        };
+        $scope.$watch('criteria.sid', function(nv) {
+            angular.extend(filter, {bySite:nv});
+        });
+        $scope.$watch('filter', function(nv) {
+            if (!nv) return;
+            $scope.list();
+        }, true);
+    }]);
+    ngApp.provider.controller('ctrlMission', ['$scope', 'http2', function($scope, http2) {
+        var page, filter, filter2, t = (new Date() * 1);
+        $scope.page = page = {
+            at: 1,
+            size: 12,
+            j: function() {
+                return 'page=' + this.at + '&size=' + this.size;
+            }
+        };
+        $scope.filter = filter = {};
+        $scope.filter2 = filter2 = {};
+        $scope.missionAddMatter = function() {
+            var target = $('#missionAddMatter');
+            if (target.data('popover') === 'Y') {
+                target.trigger('hide').data('popover', 'N');
+            } else {
+                target.trigger('show').data('popover', 'Y');
+            }
+        };
+        $scope.open = function(mission, subView) {
+            location.href = '/rest/pl/fe/matter/mission/' + subView + '?site=' + mission.siteid + '&id=' + mission.mission_id;
+        };
+        $scope.create = function() {
+            var url = '/rest/pl/fe/matter/mission/create?site=' + $scope.criteria.sid;
+            http2.get(url, function(rsp) {
+                location.href = '/rest/pl/fe/matter/mission?site=' + rsp.data.id + '&id=' + rsp.data.id;
+            });
+        };
+        $scope.listSite = function() {
+            var url = '/rest/pl/fe/matter/mission/listSite?_=' + t;
+            http2.get(url, function(rsp) {
+                $scope.missionSites = rsp.data.sites;
+            });
+        };
+        $scope.list = function() {
+            var url = '/rest/pl/fe/matter/mission/listByUser?_=' + t + '&' + page.j();
+            http2.post(url, filter, function(rsp) {
+                $scope.missions = rsp.data.missions;
+                $scope.page.total = rsp.data.total;
+            });
+        };
+        $scope.doFilter = function() {
+            angular.extend(filter, filter2);
+            $('body').click();
+        };
+        $scope.cleanFilter = function() {
+            filter2.byTitle = '';
+            $('body').click();
+        };
+        $scope.$watch('criteria.sid', function(nv) {
+            angular.extend(filter,{bySite:nv});
+        });
+        $scope.$watch('filter', function(nv) {
+            if (!nv) return;
+            $scope.list();
+        }, true);
+        $scope.listSite();
+    }]);
+    ngApp.provider.controller('ctrlActivity',['$scope', 'http2', function($scope, http2) {
+        var criteria3, page, filter, filter2;
+        $scope.filter = filter = {};
+        $scope.filter2 = filter2 = {};
+        $scope.scenarioNames = {
+            'common': '通用登记',
+            'registration': '报名',
+            'voting': '投票',
+            'quiz': '测验',
+            'group_week_report': '周报'
+        };
+        $scope.criteria3 = criteria3 = {
+            matterType: 'enroll'
+        }
+        $scope.changeMatter = function(type) {
+            criteria3.matterType = type;
+        }
+        $scope.activityAddMatter = function() {
+            var target = $('#activityAddMatter');
+            if (target.data('popover') === 'Y') {
+                target.trigger('hide').data('popover', 'N');
+            } else {
+                target.trigger('show').data('popover', 'Y');
+            }
+        }
+        $scope.page = page = {
+            at: 1,
+            size: 12,
+            j: function() {
+                return 'page=' + this.at + '&size=' + this.size;
+            }
+        };
+        $scope.list = function(pageAt) {
+            var url = '/rest/pl/fe/recent?' + page.j();
+            if (pageAt) {
+                page.at = pageAt;
+            }
+            http2.post(url, filter, function(rsp) {
+                $scope.matters = rsp.data.matters;
+                $scope.page.total = rsp.data.total;
+            });
+        };
+        $scope.doFilter = function() {
+            angular.extend(filter, filter2);
+            $('body').click();
+        };
+        $scope.cleanFilter = function() {
+            filter2.byTitle = '';
+            $('body').click();
+        };
+        $scope.$watch('criteria3.matterType', function(nv) {
+            angular.extend(filter, {byType:nv});
+        })
+        $scope.$watch('criteria.sid', function(nv) {
+            angular.extend(filter, {bySite:nv});
+        });
+        $scope.$watch('filter', function(nv) {
+            if (!nv) return;
+            $scope.list();
+        }, true);
+    }]);
+    ngApp.provider.controller('ctrlInfo',['$scope', 'http2', function($scope, http2) {
+        var criteria4, page, filter, filter2;
+        $scope.filter = filter = {};
+        $scope.filter2 = filter2 = {};
+        $scope.criteria4 = criteria4 = {
+            matterType: 'article'
+        }
+        $scope.changeMatter = function(type) {
+            criteria4.matterType = type;
+        }
+        $scope.infoAddMatter = function() {
+            var target = $('#infoAddMatter');
+            if (target.data('popover') === 'Y') {
+                target.trigger('hide').data('popover', 'N');
+            } else {
+                target.trigger('show').data('popover', 'Y');
+            }
+        }
+        $scope.page = page = {
+            at: 1,
+            size: 12,
+            j: function() {
+                return 'page=' + this.at + '&size=' + this.size;
+            }
+        };
+        $scope.list = function() {
+            var url = '/rest/pl/fe/recent?' + page.j();
+            http2.post(url, filter, function(rsp) {
+                $scope.matters = rsp.data.matters;
+                $scope.page.total = rsp.data.total;
+            });
+        };
+        $scope.doFilter = function() {
+            angular.extend(filter, filter2);
+            $('body').click();
+        };
+        $scope.cleanFilter = function() {
+            filter2.byTitle = '';
+            $('body').click();
+        };
+        $scope.$watch('criteria4.matterType', function(nv) {
+            angular.extend(filter, {byType:nv});
+        })
+        $scope.$watch('criteria.sid', function(nv) {
+            angular.extend(filter, {bySite:nv});
+        });
+        $scope.$watch('filter', function(nv) {
+            if (!nv) return;
+            $scope.list();
+        }, true);
+    }]);
+    ngApp.provider.controller('ctrlRecycle',['$scope','http2', function($scope, http2) {
+        var t = (new Date() * 1);
         $scope.recycle = function() {
             //获取回收站信息
             var url = '/rest/pl/fe/site/wasteList?_=' + t;
@@ -332,79 +516,6 @@ define(['frame'], function(ngApp) {
                 location.href = '/rest/pl/fe/site?site=' + site.id;
             })
         };
-        $scope.doFilter = function() {
-            angular.extend(filter,filter2);
-            $('body').click();
-        };
-        $scope.cleanFilter = function() {
-            filter2.byTitle = '';
-            $('body').click();
-        };
         $scope.recycle();
-        $scope.$watch('filter', function(nv) {
-            if (!nv) return;
-            $scope.list();
-        }, true);
-        $scope.$watch('criteria.sid', function(sid) {
-            $scope.list(sid);
-        },true);
-    }]);
-    ngApp.provider.controller('ctrlMission', ['$scope', 'http2', function($scope, http2) {
-        var page, filter, filter2, t = (new Date() * 1);
-        $scope.page = page = {
-            at: 1,
-            size: 12,
-            j: function() {
-                return 'page=' + this.at + '&size=' + this.size;
-            }
-        };
-        $scope.filter = filter = {};
-        $scope.filter2 = filter2 = {};
-        $scope.open = function(mission, subView) {
-            location.href = '/rest/pl/fe/matter/mission/' + subView + '?site=' + mission.siteid + '&id=' + mission.mission_id;
-        };
-        $scope.listSite = function(sid) {
-            if(sid) {
-                var url = '/rest/pl/fe/matter/mission/listSite?_=' + t + '&site=' + sid;
-            }else {
-                var url = '/rest/pl/fe/matter/mission/listSite?_=' + t;
-            }
-            http2.get(url, function(rsp) {
-                $scope.missionSites = rsp.data.sites;
-            });
-        };
-        $scope.list = function(sid) {
-            if(sid) {
-                var url = '/rest/pl/fe/matter/mission/listByUser?_=' + t + '&' + page.j() + '&site=' + sid;
-            }else {
-                var url = '/rest/pl/fe/matter/mission/listByUser?_=' + t + '&' + page.j();
-            }
-            http2.post(url, filter, function(rsp) {
-                $scope.missions = rsp.data.missions;
-                $scope.page.total = rsp.data.total;
-            });
-        };
-        $scope.doFilter = function() {
-            angular.extend(filter, filter2);
-            $('body').click();
-        };
-        $scope.cleanFilter = function() {
-            filter.byTitle = '';
-            $('body').click();
-        };
-        $scope.$watch('filter', function(nv) {
-            var id = $scope.criteria.sid ? $scope.criteria.sid : '';
-            if (!nv) return;
-            $scope.list(id);
-        }, true);
-        $scope.$watch('criteria.sid', function(sid) {
-            $scope.listSite(sid);
-        })
-    }]);
-    ngApp.provider.controller('ctrlActivity',['$scope', 'http2', function($scope, http2) {
-
-    }]);
-    ngApp.provider.controller('ctrlInfo',['$scope', 'http2', function($scope, http2) {
-
-    }]);
+    }])
 });

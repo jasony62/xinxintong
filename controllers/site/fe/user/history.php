@@ -19,22 +19,44 @@ class history extends \site\fe\base {
 	 * @param string $site site'id
 	 * @param string $matterType
 	 */
-	public function appList_action($site, $matterType = 'enroll,signin', $uid='') {
+	public function appList_action($site = '', $matterType = 'enroll,signin', $userid = '') {
 		$result = new \stdClass;
-		$userid=empty($uid) ? $this->who->uid : $uid;
-		$modelLog = $this->model('matter\log');
+		$modelAct = $this->model('site\user\account');
 		$q = [
 			'matter_id,matter_type,matter_title,operate_at',
 			'xxt_log_user_matter',
-			"siteid='" . $modelLog->escape($site) . "' and userid='" . $this->who->uid . "' and user_last_op='Y' and operation='submit'",
+			"user_last_op='Y' and operation='submit'",
 		];
+		// 指定团队下的访问记录
+		if (!empty($site) && $site !== 'platform') {
+			$site = $modelAct->escape($site);
+			$q[2] .= " and siteid='{$site}'";
+		}
+		// 指定用户的访问记录
+		if (!empty($userid)) {
+			$userid = $modelAct->escape($userid);
+			$q[2] .= " and userid='{userid}'";
+		} else if (empty($this->who->unionid)) {
+			$q[2] .= " and userid='{$this->who->uid}'";
+		} else {
+			$aSiteAccounts = $modelAct->byUnionid($this->who->unionid, ['fields' => 'uid']);
+			$q[2] .= " and userid in('";
+			foreach ($aSiteAccounts as $index => $oSiteAccount) {
+				if ($index > 0) {
+					$q[2] .= "','";
+				}
+				$q[2] .= $oSiteAccount->uid;
+			}
+			$q[2] .= "')";
+		}
+		// 指定素材类型
 		if (!empty($matterType)) {
 			$matterType = explode(',', $matterType);
 			$matterType = "'" . implode("','", $matterType) . "'";
 			$q[2] .= " and matter_type in (" . $matterType . ")";
 		}
 
-		$logs = $modelLog->query_objs_ss($q);
+		$logs = $modelAct->query_objs_ss($q);
 		$result->apps = $logs;
 
 		return new \ResponseData($result);
@@ -44,16 +66,41 @@ class history extends \site\fe\base {
 	 *
 	 * @param string $site
 	 */
-	public function missionList_action($site) {
+	public function missionList_action($site, $userid = '') {
 		$result = new \stdClass;
 
-		$modelLog = $this->model('matter\log');
+		$modelAct = $this->model('site\user\account');
 		$q = [
 			'distinct mission_id,mission_title',
 			'xxt_log_user_matter',
-			"siteid='" . $modelLog->escape($site) . "' and userid='" . $this->who->uid . "' and mission_id<>0",
+			"mission_id<>0",
 		];
-		$logs = $modelLog->query_objs_ss($q);
+
+		// 指定团队下的访问记录
+		if (!empty($site) && $site !== 'platform') {
+			$site = $modelAct->escape($site);
+			$q[2] .= " and siteid='{$site}'";
+		}
+
+		// 指定用户的访问记录
+		if (!empty($userid)) {
+			$userid = $modelAct->escape($userid);
+			$q[2] .= " and userid='{userid}'";
+		} else if (empty($this->who->unionid)) {
+			$q[2] .= " and userid='{$this->who->uid}'";
+		} else {
+			$aSiteAccounts = $modelAct->byUnionid($this->who->unionid, ['fields' => 'uid']);
+			$q[2] .= " and userid in('";
+			foreach ($aSiteAccounts as $index => $oSiteAccount) {
+				if ($index > 0) {
+					$q[2] .= "','";
+				}
+				$q[2] .= $oSiteAccount->uid;
+			}
+			$q[2] .= "')";
+		}
+
+		$logs = $modelAct->query_objs_ss($q);
 
 		$result->missions = $logs;
 

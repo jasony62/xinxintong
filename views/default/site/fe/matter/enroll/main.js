@@ -240,7 +240,7 @@ ngApp.controller('ctrlMain', ['$scope', '$http', '$timeout', 'ls', 'tmsDynaPage'
         if (tasksOfOnReady.length) {
             angular.forEach(tasksOfOnReady, PG.exec);
         }
-        tmsFavor.showSwitch(oApp.siteid, oApp);
+        tmsFavor.showSwitch($scope.user, oApp);
         if (oApp.can_siteuser === 'Y') {
             tmsSiteUser.showSwitch(oApp.siteid, true);
         }

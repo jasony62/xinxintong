@@ -74,8 +74,6 @@ define(['require', 'enrollService'], function (require) {
             .when('/rest/pl/fe/matter/enroll/prepare', new RouteParam('prepare'))
             .when('/rest/pl/fe/matter/enroll/notice', new RouteParam('notice'))
             .when('/rest/pl/fe/matter/enroll/discuss', new RouteParam('discuss', '/views/default/pl/fe/_module/'))
-            //编辑页
-            //.when('/rest/pl/fe/matter/enroll/mainVer1', new RouteParam('mainVer1'))
             .otherwise(new RouteParam('publish'));
 
         $locationProvider.html5Mode(true);
@@ -157,6 +155,9 @@ define(['require', 'enrollService'], function (require) {
             inferior: [{
                 value: 'notice',
                 title: '通知发送记录'
+            }, {
+                value: 'coin',
+                title: '积分规则'
             }, {
                 value: 'discuss',
                 title: '活动评论'

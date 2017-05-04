@@ -150,7 +150,7 @@ class main extends \pl\fe\base {
 	 *
 	 * @param int $id 是日志记录的ID
 	 */
-	public function top_action($site, $id) {
+	public function top_action($site, $id, $matterType = null) {
 		if (false === ($user = $this->accountUser())) {
 			return new \ResponseTimeout();
 		}
@@ -167,11 +167,16 @@ class main extends \pl\fe\base {
 			return new \ResponseError('当前管理员没有该素材的操作权限！');
 		}
 
-		$one = $model->query_obj_ss([
+		$q = array(
 			'matter_id,matter_type,matter_title',
 			'xxt_log_matter_op',
-			['siteid' => $site, 'id' => $id],
-		]);
+			['siteid' => $site, 'id' => $id]
+		);
+		if($matterType === 'site' || $matterType === 'mission'){
+			$q[2] = ['siteid' => $site, 'matter_id' => $id, 'matter_type' => $matterType, 'user_last_op' => 'Y', 'operator' => $user->id];
+		}
+		
+		$one = $model->query_obj_ss($q);
 
 		if (empty($one)) {
 			return new \ResponseError('找不到素材的操作记录！');

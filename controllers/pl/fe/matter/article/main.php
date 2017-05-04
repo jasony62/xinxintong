@@ -734,10 +734,12 @@ class main extends \pl\fe\matter\base {
 				 $article = new \pptx_to_article($oPHPPresentation);
 				 $model=$this->model();
 				 //设置头图
-				 $attDir = str_replace('.' . $ext, '', $attachment);
-				 mkdir($appRoot . '/' . $attDir);
-				 rename('0.jpg',$appRoot . '/' . $attDir . '/0.jpg');
-				 $this->setCoverByAtt($id, $attDir);
+				 if(file_exists('0.jpg')){
+				 	$attDir = str_replace('.' . $ext, '', $attachment);
+				 	mkdir($appRoot . '/' . $attDir);
+				 	rename('0.jpg',$appRoot . '/' . $attDir . '/0.jpg');
+				 	$this->setCoverByAtt($id, $attDir);
+				 }				 
 				 //转单图文
 				 $d['creater_name']=$article->creator;
 				 $d['author']=$article->creator;

@@ -55,7 +55,6 @@
             <!--<a class="btn btn-default navbar-btn navbar-right navbar-text"  href="">导出模板</a>-->
             <!--<a class="btn btn-default navbar-btn navbar-right navbar-text preview"  href="">预览</a>-->
             <!--<a class="btn btn-default navbar-btn navbar-right navbar-text set"  href="">设置</a>-->
-            <!--干掉-->
         </div>
     </div>
 </nav>
@@ -64,10 +63,12 @@
         <li ng-repeat="v in views">
             <a ng-class="{'leftActive':leftState===v.value}" href="" ng-bind="v.title" ng-click="goTo(v.value ,v)"></a>
             <ul class="list-unstyled" ng-show="v.inferiorShow" ng-style="{height:v.inferior.length*35+'px'}">
-                <li ng-repeat="i in v.inferior"> <a ng-class="{'leftActive':leftInferior===i.value}" href="" ng-bind="i.title" ng-click="goToInferior(i.value)"></a></li>
+                <li ng-repeat="i in v.inferior" ng-switch on="i.value">
+                    <a ng-switch-when="discuss" ng-if="app.can_discuss==='Y'" ng-class="{'leftActive':leftInferior===i.value}" href="" ng-bind="i.title" ng-click="goToInferior(i.value)"></a>
+                    <a ng-switch-default ng-class="{'leftActive':leftInferior===i.value}" href="" ng-bind="i.title" ng-click="goToInferior(i.value)"></a>
+                </li>
             </ul>
         </li>
-        <li ng-if="app.can_discuss==='Y'"><a href="/rest/pl/fe/matter/enroll/discuss?site={{app.siteid}}&id={{app.id}}">活动评论</a></li>
     </ul>
     <div class="right clearfix">
         <div class='row' ng-view></div>

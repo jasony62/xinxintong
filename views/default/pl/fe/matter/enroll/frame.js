@@ -160,6 +160,7 @@ define(['require', 'enrollService'], function (require) {
             }, {
                 value: 'discuss',
                 title: '活动评论'
+
             }]
         //},{
         }];

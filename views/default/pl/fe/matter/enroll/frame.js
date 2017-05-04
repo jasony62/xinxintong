@@ -122,7 +122,7 @@ define(['require', 'enrollService'], function (require) {
         };
         //定义侧边栏数据
         //定义默认状态
-        $scope.firstView = ['main', 'publish', 'recycle', 'log'];
+        $scope.firstView = ['edit', 'publish', 'data', 'other', 'recycle'];
         $scope.views = [{
             value: 'edit',
             title: '编辑',
@@ -179,25 +179,34 @@ define(['require', 'enrollService'], function (require) {
         }];
         //$scope.leftState = 'main';
         //第一次进入初始化状态
-        //var subView  = location.href.match(/([^\/]+?)\?/) ;
-        //$scope.subView = subView[1] === 'enroll' ? 'main' : subView[1];
-        ////如果是一级页面，修改一级状态；
-        ////如果是二级页面，修改一级状态，打开折叠，修改耳机状态
-        //if($scope.subView.indexOf(firstView)){
-        //    $scope.leftState = $scope.subView;
-        //}else{
-        //    angular.forEach($scope.views, function(v){
-        //        if(v.inferior.length){
-        //            angular.forEach(v.inferior, function(i){
-        //                if(i.value===$scope.subView){
-        //                    $scope.leftState = v.value;
-        //                    $scope.leftInferior = i.value;
-        //                    v.inferiorShow = true;
-        //                }
-        //            })
-        //        }
-        //    })
-        //}
+        var subView  = location.href.match(/([^\/]+?)\?/) ;
+        $scope.subView = subView[1] === 'enroll' ? 'main' : subView[1];
+        //如果是一级页面，修改一级状态；
+        //如果是二级页面，修改一级状态，打开折叠，修改耳机状态
+        //如果在编辑数据页面刷新 打开 一级状态 $scope.leftState = 'data'; $scope.leftInferior = 'record';打开折叠
+        if($scope.subView==='editor'){
+            $scope.leftState = 'data';
+            $scope.leftInferior = 'record';
+            angular.forEach($scope.views, function(v){
+                if(v.value==='data'){
+                    v.inferiorShow = true;
+                }
+            })
+        }else if($scope.subView.indexOf($scope.firstView)!==-1){
+            $scope.leftState = $scope.subView;
+        }else{
+            angular.forEach($scope.views, function(v){
+                if(v.inferior.length){
+                    angular.forEach(v.inferior, function(i){
+                        if(i.value===$scope.subView){
+                            $scope.leftState = v.value;
+                            $scope.leftInferior = i.value;
+                            v.inferiorShow = true;
+                        }
+                    })
+                }
+            })
+        }
         //切换页面,更改激活状态 一级
         $scope.goTo = function (value ,view) {
             var url = '/rest/pl/fe/matter/enroll/';

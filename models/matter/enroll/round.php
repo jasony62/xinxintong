@@ -73,7 +73,7 @@ class round_model extends \TMS_MODEL {
 			'rid' => $roundId,
 			'creater' => isset($oCreator->id) ? $oCreator->id : '',
 			'create_at' => time(),
-			'title' => $this->escape($props->title),
+			'title' => empty($props->title) ? '' : $this->escape($props->title),
 			'state' => isset($props->state) ? $props->state : 0,
 			'start_at' => empty($props->start_at) ? 0 : $props->start_at,
 		];

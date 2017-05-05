@@ -256,7 +256,7 @@ class wx extends \member_base {
 					);
 				}
 			} else {
-				$this->model('log')->log($siteId, 'subscribe', json_encode($fanInfo[0]));
+				$this->model('log')->log($siteId, '_subscribeCall', json_encode($fanInfo[1]));
 			}
 		}
 		if (!empty($scene_id)) {

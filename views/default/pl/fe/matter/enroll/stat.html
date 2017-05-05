@@ -1,66 +1,67 @@
 <style>
     #stat-result img{max-height:48px}
 </style>
-<div id='stat-view'>
-    <button class='btn btn-default' ng-click="export()">导出报告</button>
-    <div class='btn-group' ng-if='rounds.length'>
-        <select class='form-control' title='登记轮次'  ng-model='criteria.rid' ng-change="doRound(criteria.rid)">
-            <option value='ALL'>全部</option>
-            <option ng-if="checkedRound" value='{{checkedRound.rid}}'>选中轮次（{{checkedRound.title}}）</option>
-            <option ng-if="activeRound" value='{{activeRound.rid}}'>启用轮次（{{activeRound.title}}）</option>
-            <option value="{{rnd.rid}}" ng-repeat="rnd in rounds">{{rnd.title}}</option>
-            <option value="more">更多</option>
-        </select>
-    </div>
-    <button class='btn btn-default' ng-click="show()">选择标识项</button>
-    <div id='stat-result'>
-        <!--schemas-->
-        <div ng-repeat="schema in app.data_schemas" ng-if="schema.type!=='html'">
-            <h3><span>第{{$index+1}}项：</span><span ng-bind="schema.title"></span></h3>
-            <div ng-if="['single','phase','multiple'].indexOf(schema.type)!==-1">
-                <div id="{{schema.id}}" style='height:300px'></div>
-                <table class='table table-bordered'>
-                    <thead>
+<div class="col-md-12">
+    <div id='stat-view'>
+        <button class='btn btn-default' ng-click="export()">导出报告</button>
+        <div class='btn-group' ng-if='rounds.length'>
+            <select class='form-control' title='登记轮次'  ng-model='criteria.rid' ng-change="doRound(criteria.rid)">
+                <option value='ALL'>全部</option>
+                <option ng-if="checkedRound" value='{{checkedRound.rid}}'>选中轮次（{{checkedRound.title}}）</option>
+                <option ng-if="activeRound" value='{{activeRound.rid}}'>启用轮次（{{activeRound.title}}）</option>
+                <option value="{{rnd.rid}}" ng-repeat="rnd in rounds">{{rnd.title}}</option>
+                <option value="more">更多</option>
+            </select>
+        </div>
+        <button class='btn btn-default' ng-click="show()">选择标识项</button>
+        <div id='stat-result'>
+            <!--schemas-->
+            <div ng-repeat="schema in app.data_schemas" ng-if="schema.type!=='html'">
+                <h3><span>第{{$index+1}}项：</span><span ng-bind="schema.title"></span></h3>
+                <div ng-if="['single','phase','multiple'].indexOf(schema.type)!==-1">
+                    <div id="{{schema.id}}" style='height:300px'></div>
+                    <table class='table table-bordered'>
+                        <thead>
                         <tr>
                             <th>选项</th>
                             <th>数量</th>
                         </tr>
-                    </thead>
-                    <tbody>
+                        </thead>
+                        <tbody>
                         <tr ng-repeat="op in stat[schema.id].ops">
                             <td>{{op.l}}</td>
                             <td>{{op.c}}</td>
                         </tr>
-                    </tbody>
-                </table>
-            </div>
-            <div ng-if="'score'===schema.type">
-                <div id="{{schema.id}}" style='height:300px'></div>
-                <table class='table table-bordered'>
-                    <thead>
+                        </tbody>
+                    </table>
+                </div>
+                <div ng-if="'score'===schema.type">
+                    <div id="{{schema.id}}" style='height:300px'></div>
+                    <table class='table table-bordered'>
+                        <thead>
                         <tr>
                             <th>打分项</th>
                             <th>平均分</th>
                         </tr>
-                    </thead>
-                    <tbody>
+                        </thead>
+                        <tbody>
                         <tr ng-repeat="op in stat[schema.id].ops">
                             <td>{{op.l}}</td>
                             <td>{{op.c}}</td>
                         </tr>
-                    </tbody>
-                </table>
-            </div>
-            <div ng-if="['single','phase','multiple','score'].indexOf(schema.type)===-1" ng-init="page={at:1,size:10}">
-                <div id="{{schema.id}}" style='height:300px' ng-if="schema.number&&schema.number=='Y'"></div>
-                <table class='table table-bordered'>
-                    <thead>
+                        </tbody>
+                    </table>
+                </div>
+                <div ng-if="['single','phase','multiple','score'].indexOf(schema.type)===-1" ng-init="page={at:1,size:10}">
+                    <div id="{{schema.id}}" style='height:300px' ng-if="schema.number&&schema.number=='Y'"></div>
+                    <table class='table table-bordered'>
+                        <thead>
                         <tr>
                             <th ng-repeat='mark in app.rpConfig.marks' ng-if="mark.id!==schema.id">{{mark.name}}</th>
                             <th>登记内容</th>
                         </tr>
-                    </thead>
-                    <tbody>
+                        </thead>
+                        <tbody>
                         <tr ng-repeat="record in getRecords(schema,page).records">
                             <td ng-repeat='mark in app.rpConfig.marks' ng-if="['nickname'].indexOf(mark.id)!==-1&&mark.id!==schema.id">
                                 <span ng-bind-html="record.nickname"></span>
@@ -84,87 +85,88 @@
                             <td>合计</td>
                             <td colspan={{app.rpConfig.marks.length}}>{{getRecords(schema,page).sum}}</td>
                         </tr>
-                    </tbody>
-                </table>
-                <div class='form-inline'>
-                    <span>总数：{{page.total}}</span>
-                    <ul uib-pagination style="margin:0;vertical-align:bottom;cursor:pointer" ng-show="page.total>page.size" boundary-links="true" total-items="page.total" max-size="7" items-per-page="page.size" rotate="false" ng-model="page.at" previous-text="&lsaquo;" next-text="&rsaquo;" first-text="&laquo;" last-text="&raquo;" ng-change="getRecords(schema,page)"></ul>
+                        </tbody>
+                    </table>
+                    <div class='form-inline'>
+                        <span>总数：{{page.total}}</span>
+                        <ul uib-pagination style="margin:0;vertical-align:bottom;cursor:pointer" ng-show="page.total>page.size" boundary-links="true" total-items="page.total" max-size="7" items-per-page="page.size" rotate="false" ng-model="page.at" previous-text="&lsaquo;" next-text="&rsaquo;" first-text="&laquo;" last-text="&raquo;" ng-change="getRecords(schema,page)"></ul>
+                    </div>
                 </div>
             </div>
-        </div>
-         <!--schemas-->
-        <div ng-if="scoreSummary.length">
-            <hr style='height:1px;background:#aaa'>
-            <h3><span>打分项汇总</span></h3>
-            <table class='table table-bordered'>
-                <thead>
+            <!--schemas-->
+            <div ng-if="scoreSummary.length">
+                <hr style='height:1px;background:#aaa'>
+                <h3><span>打分项汇总</span></h3>
+                <table class='table table-bordered'>
+                    <thead>
                     <tr>
                         <th>打分项</th>
                         <th>平均分</th>
                     </tr>
-                </thead>
-                <tbody>
+                    </thead>
+                    <tbody>
                     <tr ng-repeat="op in scoreSummary">
                         <td>{{op.l}}</td>
                         <td>{{op.c}}</td>
                     </tr>
-                </tbody>
-            </table>
+                    </tbody>
+                </table>
+            </div>
         </div>
     </div>
-</div>
-<script type="text/ng-template" id="showCondition.html">
-    <div class="modal-header">
-        <button class="close" type="button" ng-click="cancel()">×</button>
-        <h5 class="modal-title">展示条件</h5>
-    </div>
-    <div class="modal-body">
-        <table class='table table-bordered' style='margin-bottom:0;'>
-            <thead>
+    <script type="text/ng-template" id="showCondition.html">
+        <div class="modal-header">
+            <button class="close" type="button" ng-click="cancel()">×</button>
+            <h5 class="modal-title">展示条件</h5>
+        </div>
+        <div class="modal-body">
+            <table class='table table-bordered' style='margin-bottom:0;'>
+                <thead>
                 <tr>
                     <th style='width:50px'>操作</th>
                     <th>标识登记项</th>
                 </tr>
-            </thead>
-            <tbody>
+                </thead>
+                <tbody>
                 <tr ng-repeat='m in appMarkSchemas' class='record'>
                     <td>
                         <input type='checkbox' ng-model="rows.selected[$index]">
                     </td>
                     <td>{{m.title}}</td>
                 </tr>
-            </tbody>
-        </table>
-    </div>
-    <div class="modal-footer">
-        <button class="btn btn-default" ng-click="cancel()">关闭</button>
-        <button class="btn btn-primary" ng-click="ok()">确定</button>
-    </div>
-</script>
-<script type="text/ng-template" id="moreRound.html">
-    <div class="modal-header">
-        <button class="close" type="button" ng-click="cancel()">×</button>
-        <h5 class="modal-title">轮次列表</h5>
-    </div>
-    <div class="modal-body">
-        <form class="form-horizontal">
-            <div class="form-group">
-                <label class="col-md-3 control-label">全部轮次</label>
-                <div class="col-md-9">
-                    <select class='form-control' ng-model="moreCriteria.rid" size=5>
-                        <option value='ALL'>全部</option>
-                        <option ng-if="activeRound" value='{{activeRound.rid}}'>当前轮次（{{activeRound.title}}）</option>
-                        <option value="{{rnd.rid}}" ng-repeat="rnd in rounds" ng-if="!rnd._isActive">{{rnd.title}}</option>
-                    </select>
-                    <div ng-show="pageOfRound.total>pageOfRound.size">
-                        <span style='line-height:34px'>总数：{{pageOfRound.total}}</span>
-                        <ul uib-pagination style="margin:0;vertical-align:bottom;cursor:pointer" boundary-links="true" total-items="pageOfRound.total" max-size="5" items-per-page="pageOfRound.size" rotate="false" ng-model="pageOfRound.at" previous-text="&lsaquo;" next-text="&rsaquo;" first-text="&laquo;" last-text="&raquo;" ng-change="doSearchRound()"></ul>
+                </tbody>
+            </table>
+        </div>
+        <div class="modal-footer">
+            <button class="btn btn-default" ng-click="cancel()">关闭</button>
+            <button class="btn btn-primary" ng-click="ok()">确定</button>
+        </div>
+    </script>
+    <script type="text/ng-template" id="moreRound.html">
+        <div class="modal-header">
+            <button class="close" type="button" ng-click="cancel()">×</button>
+            <h5 class="modal-title">轮次列表</h5>
+        </div>
+        <div class="modal-body">
+            <form class="form-horizontal">
+                <div class="form-group">
+                    <label class="col-md-3 control-label">全部轮次</label>
+                    <div class="col-md-9">
+                        <select class='form-control' ng-model="moreCriteria.rid" size=5>
+                            <option value='ALL'>全部</option>
+                            <option ng-if="activeRound" value='{{activeRound.rid}}'>当前轮次（{{activeRound.title}}）</option>
+                            <option value="{{rnd.rid}}" ng-repeat="rnd in rounds" ng-if="!rnd._isActive">{{rnd.title}}</option>
+                        </select>
+                        <div ng-show="pageOfRound.total>pageOfRound.size">
+                            <span style='line-height:34px'>总数：{{pageOfRound.total}}</span>
+                            <ul uib-pagination style="margin:0;vertical-align:bottom;cursor:pointer" boundary-links="true" total-items="pageOfRound.total" max-size="5" items-per-page="pageOfRound.size" rotate="false" ng-model="pageOfRound.at" previous-text="&lsaquo;" next-text="&rsaquo;" first-text="&laquo;" last-text="&raquo;" ng-change="doSearchRound()"></ul>
+                        </div>
                     </div>
                 </div>
-            </div>
-        </form>
-    </div>
-    <div class="modal-footer">
-        <button class="btn btn-primary" ng-click="ok()">确定</button>
-    </div>
-</script>
+            </form>
+        </div>
+        <div class="modal-footer">
+            <button class="btn btn-primary" ng-click="ok()">确定</button>
+        </div>
+    </script>
+</div>

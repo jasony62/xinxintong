@@ -201,9 +201,15 @@ define(['frame'], function(ngApp) {
         };
         /*置顶*/
         $scope.stickTop = function(m) {
+            var url;
+            if(!m.matter_type && !m.mission_id) {
+                url = '/rest/pl/fe/top?site=' + m.id + '&id=' + m.id + '&matterType=site';
+            }else if (!m.matter_type && m.mission_id) {
+                url = '/rest/pl/fe/top?site=' + m.siteid + '&id=' + m.mission_id + '&matterType=mission';
+            } else {
+                url = '/rest/pl/fe/top?site=' + m.siteid + '&id=' + m.id;
+            }
 
-            var siteid = m.siteid ? m.siteid : m.id;
-            var url = '/rest/pl/fe/top?site=' + siteid + '&id=' + m.id;
             http2.get(url, function(rsp) {
                 noticebox.success('完成置顶');
                 $scope.$emit('fromCtrlRecentStickTop', m);

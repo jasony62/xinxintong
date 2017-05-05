@@ -63,6 +63,7 @@ class main extends \pl\fe\matter\base {
 			return new \ResponseTimeout();
 		}
 		$model = $this->model();
+		$site = $model->escape($site);
 		$options = $this->getPostJson();
 		/**
 		 * get links

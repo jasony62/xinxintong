@@ -15,6 +15,7 @@ class setting extends \pl\fe\matter\base {
 		}
 
 		$modelMis = $this->model('matter\mission');
+		$modelMis->setOnlyWriteDbConn(true);
 		/* data */
 		$nv = $this->getPostJson();
 

@@ -45,6 +45,7 @@ class main extends \pl\fe\matter\base {
 		}
 
 		$model = $this->model();
+		$model->setOnlyWriteDbConn(true);
 		$text = $this->getPostJson();
 
 		$d = array();
@@ -66,7 +67,11 @@ class main extends \pl\fe\matter\base {
 			'xxt_text',
 			["id" => $id],
 		];
-		$text = $this->model()->query_obj_ss($q);
+		$text = $model->query_obj_ss($q);
+
+		/* 记录操作日志 */
+		$text->type = 'text';
+		$this->model('matter\log')->matterOp($text->siteid, $user, $text, 'C');
 
 		return new \ResponseData($text);
 	}
@@ -102,6 +107,7 @@ class main extends \pl\fe\matter\base {
 		}
 
 		$model = $this->model();
+		$model->setOnlyWriteDbConn(true);
 		$nv = $this->getPostJson();
 
 		if (isset($nv->title)) {
@@ -117,6 +123,16 @@ class main extends \pl\fe\matter\base {
 			$nv,
 			["siteid" => $site, "id" => $id]
 		);
+
+		/* 记录操作日志 */
+		$q = [
+			"*",
+			'xxt_text',
+			["id" => $id],
+		];
+		$text = $model->query_obj_ss($q);
+		$text->type = 'text';
+		$this->model('matter\log')->matterOp($text->siteid, $user, $text, 'U');
 
 		return new \ResponseData($rst);
 	}

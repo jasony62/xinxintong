@@ -37,6 +37,13 @@ class main extends \pl\fe\base {
 
 		$siteid = $this->model('site')->create($site);
 
+		/* 记录操作日志 */
+		$matter = new \stdClass;
+		$matter->id = $siteid;
+		$matter->type = 'site';
+		$matter->title = $site['name'];
+		$this->model('matter\log')->matterOp($siteid, $user, $matter, 'C');
+
 		/* 添加到团队的访问控制列表 */
 		$modelAdm = $this->model('site\admin');
 		$admin = new \stdClass;
@@ -157,8 +164,18 @@ class main extends \pl\fe\base {
 			return new \ResponseTimeout();
 		}
 
+		$filter = $this->getPostJson();
 		$modelSite = $this->model('site');
-		$mySites = $modelSite->byUser($user->id);
+
+		$options = array();
+		if (!empty($filter->bySite)) {
+			$options['bySite'] = $modelSite->escape($filter->bySite);
+		}
+		if (!empty($filter->byTitle)) {
+			$options['byTitle'] = $modelSite->escape($filter->byTitle);
+		}
+		
+		$mySites = $modelSite->byUser($user->id, $options);
 
 		return new \ResponseData($mySites);
 	}
@@ -294,17 +311,25 @@ class main extends \pl\fe\base {
 		if (false === ($user = $this->accountUser())) {
 			return new \ResponseTimeout();
 		}
+		
+		$modelSite = $this->model('site');
+		$modelSite->setOnlyWriteDbConn(true);
+		
 		$nv = $this->getPostJson();
 		foreach ($nv as $n => $v) {
 			if ($n === 'home_carousel') {
 				$nv->{$n} = json_encode($v);
 			}
 		}
-		$rst = $this->model()->update(
+		$rst = $modelSite->update(
 			'xxt_site',
 			$nv,
 			"id='$site'"
 		);
+		/*记录操作日志*/
+		$matter = $modelSite->byId($site, ['fields' => 'id,name as title']);
+		$matter->type = 'site';
+		$this->model('matter\log')->matterOp($site, $user, $matter, 'U');
 
 		return new \ResponseData($rst);
 	}

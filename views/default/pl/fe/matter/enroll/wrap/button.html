@@ -3,7 +3,7 @@
         <label>操作类型</label>
         <select class='form-control' ng-model='activeWrap.schema.name' ng-options='btn.n as btn.l for btn in buttons' ng-change="chooseType()"></select>
     </div>
-    <div class="form-group" ng-show="'remarkRecord'!==activeWrap.schema.name">
+    <div class="form-group">
         <label>显示为</label>
         <input type='text' class='form-control' ng-model='activeWrap.schema.label' ng-change="updWrap('schema','label')">
     </div>

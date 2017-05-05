@@ -681,7 +681,11 @@ class main extends \pl\fe\matter\base {
 
 		$rst = $modelApp->update('xxt_enroll', $updated, ["id" => $app]);
 		if ($rst) {
-			// 记录操作日志
+			// 记录操作日志并更新信息
+			isset($updated->title) && $matter->title = $updated->title;
+			isset($updated->summary) && $matter->summary = $updated->summary;
+			isset($updated->pic) && $matter->pic = $updated->pic;
+			isset($updated->scenario) && $matter->scenario = $updated->scenario;
 			$this->model('matter\log')->matterOp($site, $user, $matter, 'U');
 		}
 

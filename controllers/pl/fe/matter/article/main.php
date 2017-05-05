@@ -357,11 +357,12 @@ class main extends \pl\fe\matter\base {
 
 		$sites = $this->getPostJson();
 		$modelArt = $this->model('matter\article2');
+		$modelArt->setOnlyWriteDbConn(true);
 		$modelLog = $this->model('matter\log');
+		$modelTag = $this->model('tag');
 
 		$copied = $modelArt->byId($id);
 		/*获取原图文的内容标签*/
-		$modelTag = $this->model('tag');
 		$tags = $modelTag->tagsByRes($copied->id, 'article', 0);
 		$current = time();
 
@@ -376,7 +377,6 @@ class main extends \pl\fe\matter\base {
 		$article->modify_at = $current;
 		$article->author = $modelArt->escape($user->name);
 		$article->summary = $modelArt->escape($copied->summary);
-		$article->body = $modelArt->escape($copied->body);
 		$article->hide_pic = $copied->hide_pic;
 		$article->url = $copied->url;
 		$article->can_siteuser = $copied->can_siteuser;
@@ -384,6 +384,7 @@ class main extends \pl\fe\matter\base {
 		$article->from_id = $modelArt->escape($id);
 		if($mode === 'D'){
 			$article->title = $modelArt->escape($copied->title . '（副本）');
+			$article->body = $modelArt->escape($copied->body);
 		}else{
 			$article->title = $modelArt->escape($copied->title . '（引用）');
 		}
@@ -422,8 +423,8 @@ class main extends \pl\fe\matter\base {
 			foreach ($sites as $site2) {
 				$siteid = $modelArt->escape($site2->siteid);
 				$article->siteid = $siteid;
-				if($site === $siteid){
-					$article->from_mode = 'S';
+				if($copied->siteid === $siteid){
+					continue;
 				}
 				if(isset($article->type)){
 					unset($article->type);
@@ -465,7 +466,7 @@ class main extends \pl\fe\matter\base {
 		}
 
 		$model = $this->model();
-		$article = $this->model('matter\article2')->byId($id, ['fields' => 'from_mode,siteid,id']);
+		$article = $this->model('matter\article2')->byId($id, ['fields' => 'from_mode,siteid,id,title,summary,pic']);
 		if ($article === false) {
 			return new \ObjectNotFoundError();
 		}
@@ -485,6 +486,13 @@ class main extends \pl\fe\matter\base {
 		}
 
 		$rst = $this->_update($site, $id, $nv);
+		if ($rst) {
+			// 记录操作日志并更新信息
+			isset($nv['title']) && $article->title = $nv['title'];
+			isset($nv['summary']) && $article->summary = $nv['summary'];
+			isset($nv['pic']) && $article->pic = $nv['pic'];
+			$this->model('matter\log')->matterOp($site, $user, $article, 'U');
+		}
 
 		return new \ResponseData($rst);
 	}

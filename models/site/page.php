@@ -12,8 +12,11 @@ class page_model extends \TMS_MODEL {
 		$q = [
 			$fields,
 			'xxt_site_home_channel',
-			"siteid='$siteId'",
+			['siteid' => $siteId]
 		];
+		if (!empty($options['home_group'])) {
+			$q[2]['home_group'] = $options['home_group'];
+		}
 		$q2 = ['o' => 'seq'];
 		$homeChannels = $this->query_objs_ss($q, $q2);
 
@@ -22,11 +25,11 @@ class page_model extends \TMS_MODEL {
 	/**
 	 * 在主页中添加频道
 	 */
-	public function &addHomeChannel(&$user, &$site, &$channel) {
+	public function &addHomeChannel(&$user, &$site, &$channel, $homeGroup) {
 		$q = [
 			'max(seq)',
 			'xxt_site_home_channel',
-			["siteid" => $site->id],
+			["siteid" => $site->id, 'home_group' => $homeGroup],
 		];
 		$maxSeq = (int) $this->query_val_ss($q);
 
@@ -40,6 +43,7 @@ class page_model extends \TMS_MODEL {
 		$hc->summary = $channel->summary;
 		$hc->pic = $channel->pic;
 		$hc->seq = $maxSeq + 1;
+		$hc->home_group = $this->escape($homeGroup);
 
 		$hc->id = $this->insert('xxt_site_home_channel', $hc, true);
 

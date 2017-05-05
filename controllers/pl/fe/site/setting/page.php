@@ -29,7 +29,7 @@ class page extends \pl\fe\base {
 	/**
 	 * 在指定团队下添加主页频道
 	 */
-	public function addHomeChannel_action($site) {
+	public function addHomeChannel_action($site, $homeGroup = 'C') {
 		if (false === ($user = $this->accountUser())) {
 			return new \ResponseTimeout();
 		}
@@ -41,7 +41,7 @@ class page extends \pl\fe\base {
 		}
 
 		$modelSp = $this->model('site\page');
-		$hc = $modelSp->addHomeChannel($user, $oSite, $oChannel);
+		$hc = $modelSp->addHomeChannel($user, $oSite, $oChannel, $homeGroup);
 
 		return new \ResponseData($hc);
 	}

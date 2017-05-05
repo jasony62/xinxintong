@@ -255,17 +255,21 @@ class main extends \pl\fe\base {
 	/**
 	 * 已经关注过的团队发布的消息
 	 */
-	public function matterList_action($page = 1, $size = 10) {
+	public function matterList_action($site = null, $page = 1, $size = 10) {
 		if (false === ($user = $this->accountUser())) {
 			return new \ResponseTimeout();
 		}
 		$result = new \stdClass;
 
 		$modelSite = $this->model('site');
-		$mySites = $modelSite->byUser($user->id);
 		$mySiteIds = [];
-		foreach ($mySites as $mySite) {
-			$mySiteIds[] = $mySite->id;
+		if (empty($site)) {
+			$mySites = $modelSite->byUser($user->id);
+			foreach ($mySites as $mySite) {
+				$mySiteIds[] = $mySite->id;
+			}
+		}else{
+			$mySiteIds[] = $site;
 		}
 		$result = $modelSite->matterByFriend($mySiteIds, ['page' => ['at' => $page, 'size' => $size]]);
 

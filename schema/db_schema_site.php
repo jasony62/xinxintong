@@ -75,6 +75,7 @@ $sql .= ",title varchar(70) not null default ''";
 $sql .= ',pic text';
 $sql .= ',summary varchar(240) not null';
 $sql .= ",seq int not null default 0";
+$sql .= ",home_group char(1) not null default 'C'";
 $sql .= ",primary key(id)) ENGINE=MyISAM DEFAULT CHARSET=utf8";
 if (!$mysqli->query($sql)) {
 	header('HTTP/1.0 500 Internal Server Error');

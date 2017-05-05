@@ -25,9 +25,9 @@ define(['frame'], function(ngApp) {
             'site': '团队'
         };
         $scope.load = function(id) {
-            location.href = '/rest/pl/fe/site/setting?site=' + id;
-        }
-        /*新建素材*/
+                location.href = '/rest/pl/fe/site/setting?site=' + id;
+            }
+            /*新建素材*/
         var _fns = {
             createSite: function() {
                 var defer = $q.defer(),
@@ -142,6 +142,7 @@ define(['frame'], function(ngApp) {
                 location.href = '/rest/pl/fe/matter/text?site=' + site.id;
             }
         };
+
         function addMatter(site, matterType, scenario) {
             var fnName = 'add' + matterType[0].toUpperCase() + matterType.substr(1);
             _fns[fnName].call(_fns, site, scenario);
@@ -155,7 +156,7 @@ define(['frame'], function(ngApp) {
             }
         };
         $scope.addMatter = function(matterType, scenario) {
-            if(matterType == 'site') {
+            if (matterType == 'site') {
                 var url = '/rest/pl/fe/site/create?_=' + (new Date() * 1);
                 http2.get(url, function(rsp) {
                     location.href = '/rest/pl/fe/site/setting?site=' + rsp.data.id;
@@ -199,12 +200,13 @@ define(['frame'], function(ngApp) {
                 }
             });
         };
+
         /*置顶*/
         $scope.stickTop = function(m) {
             var url;
-            if(!m.matter_type && !m.mission_id) {
+            if (!m.matter_type && !m.mission_id) {
                 url = '/rest/pl/fe/top?site=' + m.id + '&matterId=' + m.id + '&matterType=site' + '&matterTitle=' + m.name;
-            }else if (!m.matter_type && m.mission_id) {
+            } else if (!m.matter_type && m.mission_id) {
                 url = '/rest/pl/fe/top?site=' + m.siteid + '&matterId=' + m.mission_id + '&matterType=mission' + '&matterTitle=' + m.title;
             } else {
                 url = '/rest/pl/fe/top?site=' + m.siteid + '&matterId=' + m.matter_id + '&matterType=' + m.matter_type + '&matterTitle=' + m.matter_title;
@@ -244,9 +246,9 @@ define(['frame'], function(ngApp) {
         };
         $scope.list = function(sid) {
             var url;
-            if(sid) {
+            if (sid) {
                 url = '/rest/pl/fe/topList?' + page.j() + '&site=' + sid;
-            }else {
+            } else {
                 url = '/rest/pl/fe/topList?' + page.j();
             }
             http2.get(url, function(rsp) {
@@ -268,10 +270,10 @@ define(['frame'], function(ngApp) {
         });
         $scope.$watch('criteria.sid', function(nv) {
             $scope.list(nv);
-        },true);
+        }, true);
     }])
     ngApp.provider.controller('ctrlRecent', ['$scope', 'http2', function($scope, http2, noticebox) {
-        var url, page,filter;
+        var url, page, filter;
         $scope.filter = filter = {};
         $scope.page = page = {
             at: 1,
@@ -292,7 +294,7 @@ define(['frame'], function(ngApp) {
             });
         };
         $scope.$watch('criteria.sid', function(nv) {
-            angular.extend(filter,{bySite:nv});
+            angular.extend(filter, { bySite: nv });
         });
         $scope.$watch('filter', function(nv) {
             if (!nv) return;
@@ -300,7 +302,8 @@ define(['frame'], function(ngApp) {
         }, true);
     }]);
     ngApp.provider.controller('ctrlSite', ['$scope', 'http2', function($scope, http2) {
-        var t = (new Date() * 1), filter, filter2;
+        var t = (new Date() * 1),
+            filter, filter2;
         $scope.filter = filter = {};
         $scope.filter2 = filter2 = {};
         $scope.create = function() {
@@ -322,7 +325,7 @@ define(['frame'], function(ngApp) {
             location.href = '/rest/pl/fe/site?site=' + site.id;
         };
         $scope.doFilter = function() {
-            angular.extend(filter,filter2);
+            angular.extend(filter, filter2);
             $('body').click();
         };
         $scope.cleanFilter = function() {
@@ -330,7 +333,7 @@ define(['frame'], function(ngApp) {
             $('body').click();
         };
         $scope.$watch('criteria.sid', function(nv) {
-            angular.extend(filter, {bySite:nv});
+            angular.extend(filter, { bySite: nv });
         });
         $scope.$watch('filter', function(nv) {
             if (!nv) return;
@@ -387,7 +390,7 @@ define(['frame'], function(ngApp) {
             $('body').click();
         };
         $scope.$watch('criteria.sid', function(nv) {
-            angular.extend(filter,{bySite:nv});
+            angular.extend(filter, { bySite: nv });
         });
         $scope.$watch('filter', function(nv) {
             if (!nv) return;
@@ -395,7 +398,7 @@ define(['frame'], function(ngApp) {
         }, true);
         $scope.listSite();
     }]);
-    ngApp.provider.controller('ctrlActivity',['$scope', 'http2', function($scope, http2) {
+    ngApp.provider.controller('ctrlActivity', ['$scope', 'http2', function($scope, http2) {
         var criteria3, page, filter, filter2;
         $scope.filter = filter = {};
         $scope.filter2 = filter2 = {};
@@ -446,17 +449,17 @@ define(['frame'], function(ngApp) {
             $('body').click();
         };
         $scope.$watch('criteria3.matterType', function(nv) {
-            angular.extend(filter, {byType:nv});
+            angular.extend(filter, { byType: nv });
         })
         $scope.$watch('criteria.sid', function(nv) {
-            angular.extend(filter, {bySite:nv});
+            angular.extend(filter, { bySite: nv });
         });
         $scope.$watch('filter', function(nv) {
             if (!nv) return;
             $scope.list();
         }, true);
     }]);
-    ngApp.provider.controller('ctrlInfo',['$scope', 'http2', function($scope, http2) {
+    ngApp.provider.controller('ctrlInfo', ['$scope', '$uibModal', 'http2', function($scope, $uibModal, http2) {
         var criteria4, page, filter, filter2;
         $scope.filter = filter = {};
         $scope.filter2 = filter2 = {};
@@ -465,7 +468,7 @@ define(['frame'], function(ngApp) {
         }
         $scope.changeMatter = function(type) {
             criteria4.matterType = type;
-        }
+        };
         $scope.infoAddMatter = function() {
             var target = $('#infoAddMatter');
             if (target.data('popover') === 'Y') {
@@ -473,7 +476,7 @@ define(['frame'], function(ngApp) {
             } else {
                 target.trigger('show').data('popover', 'Y');
             }
-        }
+        };
         $scope.page = page = {
             at: 1,
             size: 12,
@@ -497,17 +500,17 @@ define(['frame'], function(ngApp) {
             $('body').click();
         };
         $scope.$watch('criteria4.matterType', function(nv) {
-            angular.extend(filter, {byType:nv});
+            angular.extend(filter, { byType: nv });
         })
         $scope.$watch('criteria.sid', function(nv) {
-            angular.extend(filter, {bySite:nv});
+            angular.extend(filter, { bySite: nv });
         });
         $scope.$watch('filter', function(nv) {
             if (!nv) return;
             $scope.list();
         }, true);
     }]);
-    ngApp.provider.controller('ctrlRecycle',['$scope','http2', function($scope, http2) {
+    ngApp.provider.controller('ctrlRecycle', ['$scope', 'http2', function($scope, http2) {
         var t = (new Date() * 1);
         $scope.recycle = function() {
             //获取回收站信息

@@ -70,7 +70,7 @@
                                 </div>
                             </td>
                             <td ng-switch on="t.top">
-                                <button class='btn btn-default' title='取消置顶' ng-click="removeTop(t)">取消置顶</button>
+                                <button class='btn btn-sm btn-default' title='取消置顶' ng-click="removeTop(t)">取消置顶</button>
                             </td>
                         </tr>
                     </tbody>
@@ -240,7 +240,7 @@
                             <th ng-if="criteria3.matterType =='enroll'" style='width:90px'>场景</th>
                             <th>名称</th>
                             <th style='width:140px'>创建人</th>
-                            <th style='width:100px'>创建时间</th>
+                            <th style='width:120px'>创建时间</th>
                             <th style='width:64px'>置顶</th>
                             <th style='width:180px'>操作</th>
                         </tr>
@@ -340,10 +340,10 @@
                     <thead>
                         <tr>
                             <th style='width:48px'>序号</th>
-                            <th style='width:140px'>名称</th>
+                            <th>名称</th>
                             <th style='width:140px'>创建人</th>
-                            <th style='width:100px'>创建时间</th>
-                            <th style='width:180px'>操作</th>
+                            <th style='width:120px'>创建时间</th>
+                            <th style='width:48px'>操作</th>
                         </tr>
                     </thead>
                     <tbody>
@@ -353,7 +353,7 @@
                             <td>{{site.creater_name}}</td>
                             <td>{{site.create_at*1000|date:'yyyy-MM-dd'}}</td>
                             <td>
-                                <button class='btn btn-default' title='恢复' ng-click="restoreSite(site)">恢复</button>
+                                <button class='btn btn-sm btn-default' title='恢复' ng-click="restoreSite(site)">恢复</button>
                             </td>
                         </tr>
                     </tbody>
@@ -396,7 +396,7 @@
         <div class='form-group'>
             <button class='btn btn-default' ng-click="addMatter('mission')">项目</button>
         </div>
-    <div>
+        <div>
 </script>
 <script type="text/ng-template" id="addActivity.html">
     <div id="addMatter">
@@ -411,7 +411,7 @@
         <div class='form-group'>
             <button class='btn btn-default' ng-click="addMatter('lottery')">抽奖活动</button>
         </div>
-    <div>
+        <div>
 </script>
 <script type="text/ng-template" id="addInfo.html">
     <div id="addMatter">

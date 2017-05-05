@@ -1,4 +1,4 @@
-define(['require', 'enrollService'], function (require) {
+define(['require', 'enrollService'], function(require) {
     'use strict';
     var ngApp = angular.module('app', ['ngRoute', 'frapontillo.bootstrap-switch', 'ui.tms', 'tmplshop.ui.xxt', 'service.matter', 'service.enroll', 'tinymce.enroll', 'ui.xxt', 'ngAnimate']);
     ngApp.constant('cstApp', {
@@ -41,15 +41,15 @@ define(['require', 'enrollService'], function (require) {
             'require.mission.phase': '请先指定项目的阶段'
         }
     });
-    ngApp.config(['$controllerProvider', '$routeProvider', '$locationProvider', '$compileProvider', '$uibTooltipProvider', 'srvSiteProvider', 'srvQuickEntryProvider', 'srvEnrollAppProvider', 'srvEnrollRoundProvider', 'srvEnrollPageProvider', 'srvEnrollRecordProvider', function ($controllerProvider, $routeProvider, $locationProvider, $compileProvider, $uibTooltipProvider, srvSiteProvider, srvQuickEntryProvider, srvEnrollAppProvider, srvEnrollRoundProvider, srvEnrollPageProvider, srvEnrollRecordProvider) {
-        var RouteParam = function (name, baseURL) {
+    ngApp.config(['$controllerProvider', '$routeProvider', '$locationProvider', '$compileProvider', '$uibTooltipProvider', 'srvSiteProvider', 'srvQuickEntryProvider', 'srvEnrollAppProvider', 'srvEnrollRoundProvider', 'srvEnrollPageProvider', 'srvEnrollRecordProvider', function($controllerProvider, $routeProvider, $locationProvider, $compileProvider, $uibTooltipProvider, srvSiteProvider, srvQuickEntryProvider, srvEnrollAppProvider, srvEnrollRoundProvider, srvEnrollPageProvider, srvEnrollRecordProvider) {
+        var RouteParam = function(name, baseURL) {
             !baseURL && (baseURL = '/views/default/pl/fe/matter/enroll/');
             this.templateUrl = baseURL + name + '.html?_=' + (new Date() * 1);
             this.controller = 'ctrl' + name[0].toUpperCase() + name.substr(1);
             this.resolve = {
-                load: function ($q) {
+                load: function($q) {
                     var defer = $q.defer();
-                    require([baseURL + name + '.js'], function () {
+                    require([baseURL + name + '.js'], function() {
                         defer.resolve();
                     });
                     return defer.promise;
@@ -82,7 +82,7 @@ define(['require', 'enrollService'], function (require) {
             'show': 'hide'
         });
 
-        (function () {
+        (function() {
             var ls, siteId, appId;
             ls = location.search;
             siteId = ls.match(/[\?&]site=([^&]*)/)[1];
@@ -96,7 +96,7 @@ define(['require', 'enrollService'], function (require) {
             srvQuickEntryProvider.setSiteId(siteId);
         })();
     }]);
-    ngApp.controller('ctrlFrame', ['$scope', 'srvSite', 'srvEnrollApp', 'templateShop', '$location', function ($scope, srvSite, srvEnrollApp, templateShop, $location) {
+    ngApp.controller('ctrlFrame', ['$scope', 'srvSite', 'srvEnrollApp', 'templateShop', '$location', function($scope, srvSite, srvEnrollApp, templateShop, $location) {
         $scope.scenarioNames = {
             'common': '通用登记',
             'registration': '报名',
@@ -143,7 +143,7 @@ define(['require', 'enrollService'], function (require) {
             title: '回收站',
             inferiorShow: false,
             inferior: []
-        },{
+        }, {
             value: 'log',
             title: '运行日志',
             inferiorShow: false,
@@ -153,39 +153,39 @@ define(['require', 'enrollService'], function (require) {
             title: '其他',
             inferiorShow: false,
             inferior: [{
-                value: 'notice',
-                title: '通知发送记录'
-            }, {
-                value: 'coin',
-                title: '积分规则'
-            }, {
-                value: 'discuss',
-                title: '活动评论'
+                    value: 'notice',
+                    title: '通知发送记录'
+                }, {
+                    value: 'coin',
+                    title: '积分规则'
+                }, {
+                    value: 'discuss',
+                    title: '活动评论'
 
-            }]
-        //},{
+                }]
+                //},{
         }];
         //第一次进入初始化状态
-        var subView  = location.href.match(/([^\/]+?)\?/) ;
+        var subView = location.href.match(/([^\/]+?)\?/);
         $scope.subView = subView[1] === 'enroll' ? 'main' : subView[1];
         //如果是一级页面，修改一级状态；
         //如果是二级页面，修改一级状态，打开折叠，修改耳机状态
         //如果在编辑数据页面刷新 打开 一级状态 $scope.leftState = 'data'; $scope.leftInferior = 'record';打开折叠
-        if($scope.subView==='editor'){
+        if ($scope.subView === 'editor') {
             $scope.leftState = 'data';
             $scope.leftInferior = 'record';
-            angular.forEach($scope.views, function(v){
-                if(v.value==='data'){
+            angular.forEach($scope.views, function(v) {
+                if (v.value === 'data') {
                     v.inferiorShow = true;
                 }
             });
-        }else if($scope.firstView.indexOf($scope.subView)!==-1){
+        } else if ($scope.firstView.indexOf($scope.subView) !== -1) {
             $scope.leftState = $scope.subView;
-        }else{
-            angular.forEach($scope.views, function(v){
-                if(v.inferior.length){
-                    angular.forEach(v.inferior, function(i){
-                        if(i.value===$scope.subView){
+        } else {
+            angular.forEach($scope.views, function(v) {
+                if (v.inferior.length) {
+                    angular.forEach(v.inferior, function(i) {
+                        if (i.value === $scope.subView) {
                             $scope.leftState = v.value;
                             $scope.leftInferior = i.value;
                             v.inferiorShow = true;
@@ -195,21 +195,21 @@ define(['require', 'enrollService'], function (require) {
             })
         }
         //切换页面,更改激活状态 一级
-        $scope.goTo = function (value ,view) {
+        $scope.goTo = function(value, view) {
             var url = '/rest/pl/fe/matter/enroll/';
-            url += value ;
+            url += value;
             //url += '?site' + $scope.app.siteid;
             //url += '&id' + $scope.app.id;
             //如果是空数组，则没有二级页面，打开链接，更改状态，关闭所有折叠
-            if(!view.inferior.length){
-                angular.forEach($scope.views, function(v){
-                    v.inferiorShow && (v.inferiorShow=false)
+            if (!view.inferior.length) {
+                angular.forEach($scope.views, function(v) {
+                    v.inferiorShow && (v.inferiorShow = false)
                 });
                 $scope.leftState = value;
-                $location.path(url) ;
-            }else{
-                angular.forEach($scope.views, function(v){
-                    v.inferiorShow && (v.inferiorShow=false)
+                $location.path(url);
+            } else {
+                angular.forEach($scope.views, function(v) {
+                    v.inferiorShow && (v.inferiorShow = false)
                 });
                 $scope.leftState = value;
                 view.inferiorShow = true;
@@ -217,32 +217,32 @@ define(['require', 'enrollService'], function (require) {
 
         };
         //二级
-        $scope.goToInferior = function(value){
+        $scope.goToInferior = function(value) {
             var url = '/rest/pl/fe/matter/enroll/';
-            url += value ;
+            url += value;
             //url += '?site' + $scope.app.siteid;
             //url += '&id' + $scope.app.id;
             $scope.leftInferior = value;
-            $location.path(url) ;
+            $location.path(url);
         };
-        $scope.update = function (name) {
+        $scope.update = function(name) {
             srvEnrollApp.update(name);
         };
-        $scope.shareAsTemplate = function () {
-            templateShop.share($scope.app.siteid, $scope.app).then(function (template) {
+        $scope.shareAsTemplate = function() {
+            templateShop.share($scope.app.siteid, $scope.app).then(function(template) {
                 location.href = '/rest/pl/fe/template/enroll?site=' + template.siteid + '&id=' + template.id;
             });
         };
-        srvSite.get().then(function (oSite) {
+        srvSite.get().then(function(oSite) {
             $scope.site = oSite;
         });
-        srvSite.snsList().then(function (aSns) {
+        srvSite.snsList().then(function(aSns) {
             $scope.sns = aSns;
         });
-        srvSite.memberSchemaList().then(function (aMemberSchemas) {
+        srvSite.memberSchemaList().then(function(aMemberSchemas) {
             $scope.memberSchemas = aMemberSchemas;
         });
-        srvEnrollApp.get().then(function (app) {
+        srvEnrollApp.get().then(function(app) {
             $scope.app = app;
             app.__schemasOrderConsistent = 'Y'; //页面上登记项显示顺序与定义顺序一致
             // 用户评论
@@ -256,7 +256,7 @@ define(['require', 'enrollService'], function (require) {
         });
     }]);
     /***/
-    require(['domReady!'], function (document) {
+    require(['domReady!'], function(document) {
         angular.bootstrap(document, ["app"]);
     });
     /***/

@@ -4,7 +4,7 @@
 <head>
     <meta charset="UTF-8">
     <meta content="width=device-width,user-scalable=no,initial-scale=1.0" name="viewport">
-    <base href="/"/>
+    <base href="/" />
     <title>登记活动</title>
     <link href="/static/css/bootstrap.min.css" rel="stylesheet">
     <link href="/static/css/bootstrap-switch.min.css" rel="stylesheet">
@@ -14,88 +14,83 @@
 </head>
 
 <body ng-controller='ctrlFrame' ng-cloak class='ng-cloak'>
-<nav class='navbar navbar-default navbar-fixed-top'>
-    <div class='container-fluid'>
-        <div class="navbar-header">
-            <button type="button" class="navbar-toggle collapsed" data-toggle="collapse"
-                    data-target='#navbar-collapse-1'>
-                <span class="sr-only">Toggle navigation</span>
-                <span class="icon-bar"></span>
-                <span class="icon-bar"></span>
-                <span class="icon-bar"></span>
-            </button>
+    <nav class='navbar navbar-default navbar-fixed-top'>
+        <div class='container-fluid'>
+            <div class="navbar-header">
+                <button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target='#navbar-collapse-1'>
+                    <span class="sr-only">Toggle navigation</span>
+                    <span class="icon-bar"></span>
+                    <span class="icon-bar"></span>
+                    <span class="icon-bar"></span>
+                </button>
+            </div>
+            <div class='collapse navbar-collapse' id='navbar-collapse-1'>
+                <nav class='nav navbar-nav tms-breadcrumb'>
+                    <li>
+                        <a href='/rest/home' target='_self'>
+                            <?php echo APP_TITLE;?>
+                        </a>
+                    </li>
+                    <li><a href="/rest/pl/fe" target='_self'>个人工作台</a></li>
+                    <li ng-if="site.yourRole"><a href="/rest/pl/fe/site/console?site={{app.siteid}}" target='_self'>{{site.name}}</a>
+                    </li>
+                    <li ng-if="!site.yourRole"><a href="javascript:void(0)" style='color:#777;cursor:default;'>{{site.name}}</a></li>
+                    <li ng-if="app.mission"><a href="/rest/pl/fe/matter/mission?site={{app.siteid}}&id={{app.mission.id}}" target='_self' title="{{app.mission.title}}">{{app.mission.title}}</a></li>
+                    <li ng-if="app.mission"><a href="/rest/pl/fe/matter/mission/matter?site={{app.siteid}}&id={{app.mission.id}}#{{app.scenario||'enroll'}}" target='_self'>{{scenarioNames[app.scenario]||'登记'}}</a></li>
+                    <li>
+                        <a href="/rest/pl/fe/matter/enroll/main?site={{app.siteid}}&id={{app.id}}" title='{{app.title}}' ng-if="!Title">{{app.title}}</a>
+                        <a ng-if="Title">
+                            <input type='text' min-size="10" title='{{app.title}}' ng-model='app.title' tms-auto-update tms-wait=1000 tms-update="update('title')" ng-if="Title">
+                        </a>
+                    </li>
+                </nav>
+                <!--折叠部分 设计暂时不用隐藏掉-->
+                <a class="btn btn-default navbar-btn reName" href="" ng-click="Title= Title?false:true">重命名</a>
+                <!--<a class="btn btn-default navbar-btn navbar-right navbar-text"  href="">生成模板</a>-->
+                <!--<a class="btn btn-default navbar-btn navbar-right navbar-text"  href="">导出模板</a>-->
+                <!--<a class="btn btn-default navbar-btn navbar-right navbar-text preview"  href="">预览</a>-->
+                <!--<a class="btn btn-default navbar-btn navbar-right navbar-text set"  href="">设置</a>-->
+            </div>
         </div>
-        <div class='collapse navbar-collapse' id='navbar-collapse-1'>
-            <nav class='nav navbar-nav tms-breadcrumb'>
-                <li>
-                    <a href='/rest/home' target='_self'>
-                        <?php echo APP_TITLE;?>
-                    </a>
-                </li>
-                <li><a href="/rest/pl/fe" target='_self'>个人工作台</a></li>
-                <li ng-if="site.yourRole"><a href="/rest/pl/fe/site/console?site={{app.siteid}}" target='_self'>{{site.name}}</a>
-                </li>
-                <li ng-if="!site.yourRole"><a href="javascript:void(0)"
-                                              style='color:#777;cursor:default;'>{{site.name}}</a></li>
-                <li ng-if="app.mission"><a href="/rest/pl/fe/matter/mission?site={{app.siteid}}&id={{app.mission.id}}"
-                                           target='_self' title="{{app.mission.title}}">{{app.mission.title}}</a></li>
-                <li ng-if="app.mission"><a
-                        href="/rest/pl/fe/matter/mission/matter?site={{app.siteid}}&id={{app.mission.id}}#{{app.scenario||'enroll'}}"
-                        target='_self'>{{scenarioNames[app.scenario]||'登记'}}</a></li>
-                <li>
-                    <a href="/rest/pl/fe/matter/enroll/main?site={{app.siteid}}&id={{app.id}}" title='{{app.title}}' ng-if="!Title">{{app.title}}</a>
-                    <a ng-if="Title">
-                        <input type='text' min-size="10" title='{{app.title}}' ng-model='app.title' tms-auto-update tms-wait=1000 tms-update="update('title')" ng-if="Title">
-                    </a>
-                </li>
-            </nav>
-            <!--折叠部分 设计暂时不用隐藏掉-->
-            <a class="btn btn-default navbar-btn reName" href="" ng-click="Title= Title?false:true">重命名</a>
-            <!--<a class="btn btn-default navbar-btn navbar-right navbar-text"  href="">生成模板</a>-->
-            <!--<a class="btn btn-default navbar-btn navbar-right navbar-text"  href="">导出模板</a>-->
-            <!--<a class="btn btn-default navbar-btn navbar-right navbar-text preview"  href="">预览</a>-->
-            <!--<a class="btn btn-default navbar-btn navbar-right navbar-text set"  href="">设置</a>-->
+    </nav>
+    <div id="container">
+        <ul class="left list-unstyled text-center">
+            <li ng-repeat="v in views">
+                <a ng-class="{'leftActive':leftState===v.value}" href="" ng-bind="v.title" ng-click="goTo(v.value ,v)"></a>
+                <ul class="list-unstyled" ng-show="v.inferiorShow" ng-style="{height:v.inferior.length*35+'px'}">
+                    <li ng-repeat="i in v.inferior" ng-switch on="i.value">
+                        <a ng-switch-when="discuss" ng-if="app.can_discuss==='Y'" ng-class="{'leftActive':leftInferior===i.value}" href="" ng-bind="i.title" ng-click="goToInferior(i.value)"></a>
+                        <a ng-switch-default ng-class="{'leftActive':leftInferior===i.value}" href="" ng-bind="i.title" ng-click="goToInferior(i.value)"></a>
+                    </li>
+                </ul>
+            </li>
+        </ul>
+        <div class="right clearfix">
+            <div class='row' ng-view></div>
         </div>
     </div>
-</nav>
-<div id="container">
-    <ul class="left list-unstyled text-center">
-        <li ng-repeat="v in views">
-            <a ng-class="{'leftActive':leftState===v.value}" href="" ng-bind="v.title" ng-click="goTo(v.value ,v)"></a>
-            <ul class="list-unstyled" ng-show="v.inferiorShow" ng-style="{height:v.inferior.length*35+'px'}">
-                <li ng-repeat="i in v.inferior" ng-switch on="i.value">
-                    <a ng-switch-when="discuss" ng-if="app.can_discuss==='Y'" ng-class="{'leftActive':leftInferior===i.value}" href="" ng-bind="i.title" ng-click="goToInferior(i.value)"></a>
-                    <a ng-switch-default ng-class="{'leftActive':leftInferior===i.value}" href="" ng-bind="i.title" ng-click="goToInferior(i.value)"></a>
-                </li>
-            </ul>
-        </li>
-    </ul>
-    <div class="right clearfix">
-        <div class='row' ng-view></div>
-    </div>
-</div>
-<script src="/static/js/jquery.min.js"></script>
-<script src="/static/js/jquery-ui.min.js"></script>
-<script src="/static/js/bootstrap.min.js"></script>
-<script src="/static/js/bootstrap-switch.min.js"></script>
-<script src="/static/js/angular.min.js"></script>
-<script src="/static/js/angular-route.min.js"></script>
-<script src="/static/js/angular-animate.min.js"></script>
-<script src="/static/js/angular-sanitize.min.js"></script>
-<script src="/static/js/ui-bootstrap-tpls.min.js"></script>
-<script src="/static/js/angular-bootstrap-switch.min.js"></script>
-<script src="/static/js/tinymce/tinymce.min.js"></script>
-<script src="/static/js/resumable.js"></script>
-<script src="/static/js/FileSaver.min.js "></script>
-<script src="/static/js/ZeroClipboard.min.js"></script>
-<script src="/static/js/highcharts.js"></script>
-<script src="/static/js/highcharts/exporting.js"></script>
-<script src="/static/js/ui-tms.js?_=4"></script>
-<script src="/static/js/xxt.ui.js?_=4"></script>
-<script src="/static/js/xxt.ui.tmplshop.js?_=1"></script>
-<script src="/views/default/pl/fe/_module/matter.service.js?_=1"></script>
-<script src="/views/default/pl/fe/matter/enroll/lib/enroll.tinymce.js?_=2"></script>
-<script src="/static/js/require.js" data-main="/views/default/pl/fe/matter/enroll/frame-loader.js?_=8"></script>
+    <script src="/static/js/jquery.min.js"></script>
+    <script src="/static/js/jquery-ui.min.js"></script>
+    <script src="/static/js/bootstrap.min.js"></script>
+    <script src="/static/js/bootstrap-switch.min.js"></script>
+    <script src="/static/js/angular.min.js"></script>
+    <script src="/static/js/angular-route.min.js"></script>
+    <script src="/static/js/angular-animate.min.js"></script>
+    <script src="/static/js/angular-sanitize.min.js"></script>
+    <script src="/static/js/ui-bootstrap-tpls.min.js"></script>
+    <script src="/static/js/angular-bootstrap-switch.min.js"></script>
+    <script src="/static/js/tinymce/tinymce.min.js"></script>
+    <script src="/static/js/resumable.js"></script>
+    <script src="/static/js/FileSaver.min.js "></script>
+    <script src="/static/js/ZeroClipboard.min.js"></script>
+    <script src="/static/js/highcharts.js"></script>
+    <script src="/static/js/highcharts/exporting.js"></script>
+    <script src="/static/js/ui-tms.js?_=4"></script>
+    <script src="/static/js/xxt.ui.js?_=4"></script>
+    <script src="/static/js/xxt.ui.tmplshop.js?_=1"></script>
+    <script src="/views/default/pl/fe/_module/matter.service.js?_=1"></script>
+    <script src="/views/default/pl/fe/matter/enroll/lib/enroll.tinymce.js?_=2"></script>
+    <script src="/static/js/require.js" data-main="/views/default/pl/fe/matter/enroll/frame-loader.js?_=8"></script>
 </body>
 
 </html>

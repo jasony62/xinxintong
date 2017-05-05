@@ -1,7 +1,7 @@
 <div class="col-md-12">
     <div id='publish-view' class='row'>
         <!-- preview -->
-        <div class='col-md-4 hidden-xs' ng-controller="ctrlPreview">
+        <div class='col-md-5 hidden-xs' ng-controller="ctrlPreview">
             <div id='simulator'>
                 <iframe ng-src={{previewURL}}></iframe>
                 <div id='simulatorActions'>
@@ -22,7 +22,7 @@
         </div>
         <!-- end preview -->
         <!-- setting -->
-        <div class='col-md-6'>
+        <div class='col-md-5'>
             <div class='form-group hidden-xs'>
                 <div class='list-group-item'>
                     <div ng-if="app.multi_rounds==='Y'">当前轮次：{{summary[0].title}}</div>

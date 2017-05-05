@@ -486,12 +486,19 @@ class log_model extends \TMS_MODEL {
 			'xxt_log_matter_op',
 			"operator='{$user->id}' and user_last_op='Y' and (operation<>'D' and operation<>'Recycle' and operation<>'Quit')",
 		];
-		if (isset($options['matterType'])) {
-			$q[2] .= " and matter_type='" . $options['matterType'] . "'";
+		if (isset($options['byType'])) {
+			$q[2] .= " and matter_type='" . $this->escape($options['byType']) . "'";
 		}
 		if (isset($options['scenario'])) {
-			$q[2] .= " and matter_scenario='" . $options['scenario'] . "'";
+			$q[2] .= " and matter_scenario='" . $this->escape($options['scenario']) . "'";
 		}
+		if (isset($options['byTitle'])) {
+			$q[2] .= " and matter_title like '%" . $this->escape($options['byTitle']) . "%'";
+		}
+		if(isset($options['bySite'])) {
+			$q[2] .= " and siteid = '" . $this->escape($options['bySite']) . "'";
+		}
+
 		$q2 = [
 			'r' => ['o' => ($page->at - 1) * $page->size, 'l' => $page->size],
 			'o' => ['operate_at desc'],

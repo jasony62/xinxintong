@@ -49,6 +49,7 @@ ngApp.controller('ctrlRemark', ['$scope', '$q', '$http', function($scope, $q, $h
     };
     $scope.$on('xxt.app.enroll.ready', function(event, params) {
         oApp = params.app;
+        $scope.record = params.record;
         summary().then(function(result) {
             var summaryBySchema = {};
             result.forEach(function(schema) {

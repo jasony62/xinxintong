@@ -280,7 +280,7 @@ class main extends base {
 			$params['page'] = $oOpenPage;
 
 			/* 是否需要返回登记记录 */
-			if ($oOpenPage->type === 'I' && $newRecord !== 'Y') {
+			if (($oOpenPage->type === 'I' && $newRecord !== 'Y') || $page === 'remark') {
 				$modelRec = $this->model('matter\enroll\record');
 				if (empty($ek)) {
 					if ($oApp->open_lastroll === 'Y') {
@@ -296,6 +296,10 @@ class main extends base {
 					$params['record'] = $record;
 				}
 			}
+		} else if ($page === 'remark' && !empty($ek)) {
+			$modelRec = $this->model('matter\enroll\record');
+			$record = $modelRec->byId($ek);
+			$params['record'] = $record;
 		}
 
 		return new \ResponseData($params);

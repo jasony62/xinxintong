@@ -177,10 +177,7 @@ define(['require'], function(require) {
         $scope.homeURL = 'http://' + location.host + '/rest/site/home?site=' + $scope.siteId;
     }]);
     ngApp.controller('ctrlMschema', ['$scope', 'http2', '$http', '$uibModal', 'MemberSchema', function($scope, http2, $http, $uibModal, MemberSchema) {
-        var service = {
-            memberSchema: new MemberSchema($scope.siteId)
-        };
-        var shiftAttr = function(schema) {
+        function shiftAttr(schema) {
             schema.attrs = {
                 mobile: schema.attr_mobile.split(''),
                 email: schema.attr_email.split(''),
@@ -189,6 +186,9 @@ define(['require'], function(require) {
             angular.forEach(schema.extattr, function(ea) {
                 ea.cfg2 = ea.cfg.split('');
             });
+        };
+        var service = {
+            memberSchema: new MemberSchema($scope.siteId)
         };
         $scope.days = [{
             n: '会话',
@@ -220,6 +220,7 @@ define(['require'], function(require) {
         $scope.addSchema = function() {
             var url = '/rest/pl/fe/site/member/schema/create?site=' + $scope.siteId;
             http2.get(url, function(rsp) {
+                shiftAttr(rsp.data);
                 $scope.schemas.push(rsp.data);
             });
         };
@@ -247,9 +248,14 @@ define(['require'], function(require) {
         $scope.updSchema = function(schema, field) {
             var pv = {};
             pv[field] = (/entry_statement|acl_statement|notpass_statement/.test(field)) ? encodeURIComponent(schema[field]) : schema[field];
-            service.memberSchema.update(schema, pv).then(function() {
-                if (field === 'type') {
-                    schema.url = rsp.data.url;
+            service.memberSchema.update(schema, pv).then(function(data) {
+                if (schema.id === undefined) {
+                    shiftAttr(data);
+                    angular.extend(schema, data);
+                } else {
+                    if (field === 'type') {
+                        schema.url = data.url;
+                    }
                 }
             });
         };
@@ -364,14 +370,19 @@ define(['require'], function(require) {
             }
         };
         service.memberSchema.get('N').then(function(schemas) {
-            angular.forEach(schemas, function(schema) {
+            schemas.forEach(function(schema) {
                 shiftAttr(schema);
                 $scope.schemas.push(schema);
             });
             if ($scope.schemas.length === 0) {
                 $scope.schemas.push({
                     type: 'inner',
-                    valid: 'N'
+                    valid: 'N',
+                    attrs: {
+                        mobile: ['0', '0', '0', '0', '0', '0', '0'],
+                        email: ['0', '0', '0', '0', '0', '0', '0'],
+                        name: ['0', '0', '0', '0', '0', '0', '0']
+                    }
                 });
             }
         });

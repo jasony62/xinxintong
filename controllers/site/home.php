@@ -59,6 +59,16 @@ class home extends base {
 					}
 				}
 			}
+			/*关注此团队的团队数*/
+			$q = [
+				'count(*)',
+				'xxt_site_friend',
+				"siteid='$site' and subscribe_at<>0",
+			];
+			$oSite->subFriend_num = $modelSite->query_val_ss($q);
+			/*关注此团队的个人数*/
+			$q[1] = 'xxt_site_subscriber';
+			$oSite->subUser_num = $modelSite->query_val_ss($q);
 		}
 
 		return new \ResponseData($oSite);

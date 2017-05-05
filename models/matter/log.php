@@ -482,29 +482,33 @@ class log_model extends \TMS_MODEL {
 			$page = $options['page'];
 		}
 		
-		if(isset($options['bySite']) && isset($options['byType'])) {
+		if (isset($options['bySite']) && isset($options['byType'])) {
 			$q = array();
 			$q[0] = "'".$options['byType']."' as matter_type,t.siteid,t.id matter_id,t.title matter_title,t.create_at operate_at,a.nickname operator_name";
 			$q[1] = 'xxt_' . $options['byType'] . ' t,account a';
 			$q[2] = "t.creater = a.uid and t.siteid = '" . $this->escape($options['bySite']) . "'";
 			switch ($options['byType']){
 				case 'wall':
-					$q[0] .= ',t.summary matter_summary';
+					$q[0] .= ',t.summary matter_summary,t.pic matter_pic';
 					break;
 				case 'custom':
-					$q[0] .= ',t.summary matter_summary';
+					$q[0] .= ',t.summary matter_summary,t.pic matter_pic';
 					$q[1] = 'xxt_article t,account a';
 					$q[2] .= " and t.custom_body='Y' and t.state<>0 and t.finished='Y'";
 					break;
 				case 'article':
-					$q[0] .= ',t.summary matter_summary';
+					$q[0] .= ',t.summary matter_summary,t.pic matter_pic';
 					$q[2] .= " and t.custom_body='N' and t.state<>0 and t.finished='Y'";
 					break;
 				case 'text':
 					$q[2] .= " and t.state<>0";
 					break;
+				case 'enroll':
+					$q[0] .= ',t.summary matter_summary,t.pic matter_pic,t.scenario matter_scenario';
+					$q[2] .= " and t.state<>0";
+					break;
 				default:
-					$q[0] .= ',t.summary matter_summary';
+					$q[0] .= ',t.summary matter_summary,t.pic matter_pic';
 					$q[2] .= " and t.state<>0";
 					break;
 			}
@@ -531,6 +535,9 @@ class log_model extends \TMS_MODEL {
 			if (isset($options['byTitle'])) {
 				$q[2] .= " and matter_title like '%" . $this->escape($options['byTitle']) . "%'";
 			}
+			if (isset($options['bySite'])) {
+				$q[2] .= " and siteid = '" . $this->escape($options['bySite']) . "'";
+			}
 
 			$q2 = [
 				'r' => ['o' => ($page->at - 1) * $page->size, 'l' => $page->size],
@@ -539,10 +546,6 @@ class log_model extends \TMS_MODEL {
 		}
 
 		$matters = $this->query_objs_ss($q, $q2);
-		foreach($matters as $matter){
-			$matter->matter_pic = isset($matter->pic)? $matter->pic : '';
-			$matter->matter_scenario = isset($matter->scenario)? $matter->scenario : '';
-		}
 
 		$result = ['matters' => $matters];
 		if (empty($matters)) {

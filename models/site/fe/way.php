@@ -382,10 +382,11 @@ class way_model extends \TMS_MODEL {
 		$sites = $this->siteList(true);
 		$modelAct = $this->model('site\user\account');
 		foreach ($sites as $siteId) {
-			$cookieUser = $this->getCookieUser($siteId);
-			$account = $modelAct->byId($cookieUser->uid);
-			if (!empty($account->unionid)) {
-				$this->cleanCookieUser($siteId);
+			if ($cookieUser = $this->getCookieUser($siteId)) {
+				$account = $modelAct->byId($cookieUser->uid);
+				if (!empty($account->unionid)) {
+					$this->cleanCookieUser($siteId);
+				}
 			}
 		}
 

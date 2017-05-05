@@ -47,7 +47,6 @@ class login extends \site\fe\base {
 
 		$modelWay = $this->model('site\fe\way');
 		$modelReg = $this->model('site\user\registration');
-		$modelAct = $this->model('site\user\account');
 
 		$cookieRegUser = $modelWay->getCookieRegUser();
 		if ($cookieRegUser) {
@@ -69,18 +68,27 @@ class login extends \site\fe\base {
 		$cookieRegUser = $modelWay->shiftRegUser($registration);
 
 		$cookieUser = $modelWay->getCookieUser($this->siteId);
-
 		if ($referer = $this->myGetCookie('_auth_referer')) {
 			$cookieUser->_loginReferer = $referer;
 			$this->mySetCookie('_auth_referer', null);
 		}
+		/**
+		 * 支持自动登录
+		 */
+		if (isset($data->autologin) && $data->autologin === 'Y') {
+			$expire = time() + (86400 * 365 * 10);
+			$ua = $_SERVER['HTTP_USER_AGENT'];
+			$token = [
+				'uid' => $registration->unionid,
+				'email' => $registration->uname,
+				'password' => $registration->password,
+			];
+			$cookiekey = md5($ua);
+			$cookieToken = json_encode($token);
+			$encoded = $modelWay->encrypt($cookieToken, 'ENCODE', $cookiekey);
 
-		/* 模拟管理端账号登录 */
-		$modelAct = $this->model('account');
-		$act = $modelAct->byId($registration->unionid);
-		if ($act) {
-			// 记录客户端登录状态
-			\TMS_CLIENT::account($act);
+			$this->mySetCookie('_login_auto', 'Y', $expire);
+			$this->mySetCookie('_login_token', $encoded, $expire);
 		}
 
 		return new \ResponseData($cookieUser);

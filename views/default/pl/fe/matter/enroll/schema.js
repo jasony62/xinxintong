@@ -212,6 +212,7 @@ define(['frame', 'schema', 'wrap'], function(ngApp, schemaLib, wrapLib) {
                 _changeSchemaOrder(schema);
             }
         };
+
         $scope.$on('schemas.orderChanged', function(e, moved) {
             _changeSchemaOrder(moved);
         });

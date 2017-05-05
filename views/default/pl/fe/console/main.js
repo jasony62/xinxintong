@@ -110,7 +110,7 @@ define(['frame'], function(ngApp) {
             },
             addLottery: function(site) {
                 http2.get('/rest/pl/fe/matter/lottery/create?site=' + site.id, function(rsp) {
-                    location.href = '/rest/pl/fe/matter/lottery?site=' + site.id + '&id=' + rsp.data.id;
+                    location.href = '/rest/pl/fe/matter/lottery?site=' + site.id + '&id=' + rsp.data;
                 });
             },
             addContribute: function(site) {
@@ -125,24 +125,21 @@ define(['frame'], function(ngApp) {
             },
             addCustom: function(site) {
                 http2.get('/rest/pl/fe/matter/custom/create?site=' + site.id, function(rsp) {
-                    location.href = '/rest/pl/fe/matter/custom?site=' + site.id + '&id=' + rsp.data.id;
+                    location.href = '/rest/pl/fe/matter/custom?site=' + site.id + '&id=' + rsp.data;
                 });
             },
             addMerchant: function(site) {
                 http2.get('/rest/pl/fe/matter/merchant/shop/create?site=' + site.id, function(rsp) {
-                    location.href = '/rest/pl/fe/matter/merchant/shop?site=' + site.id + '&id=' + rsp.data.id;
+                    location.href = '/rest/pl/fe/matter/merchant/shop?site=' + site.id + '&id=' + rsp.data;
                 });
             },
             addWall: function(site) {
                 http2.get('/rest/pl/fe/matter/wall/create?site=' + site.id, function(rsp) {
-                    location.href = '/rest/pl/fe/matter/wall?site=' + site.id + '&id=' + rsp.data.id;
+                    location.href = '/rest/pl/fe/matter/wall?site=' + site.id + '&id=' + rsp.data;
                 });
             },
-            addAddressbook: function(site) {
-                http2.get('/rest/pl/fe/matter/addressbook/create?site=' + site.id, function(rsp) {
-                    location.href = '/rest/pl/fe/matter/addressbook?site=' + site.id + '&id=' + rsp.data.id;
-
-                });
+            addText: function(site) {
+                location.href = '/rest/pl/fe/matter/text?site=' + site.id;
             }
         };
         function addMatter(site, matterType, scenario) {
@@ -166,6 +163,9 @@ define(['frame'], function(ngApp) {
             }
             var url = '/rest/pl/fe/site/list?_=' + (new Date() * 1);
             $('#popoverAddMatter').trigger('hide');
+            $('#missionAddMatter').trigger('hide');
+            $('#activityAddMatter').trigger('hide');
+            $('#infoAddMatter').trigger('hide');
             http2.get(url, function(rsp) {
                 var sites = rsp.data;
                 if (sites.length === 1) {

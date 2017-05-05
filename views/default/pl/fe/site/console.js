@@ -211,6 +211,7 @@ ngApp.controller('ctrlConsole', ['$scope', '$uibModal', 'http2', 'templateShop',
         });
     };
     $scope.createArticleByPptx = function() {
+        var siteId = $scope.siteId;
         $uibModal.open({
             templateUrl: 'createArticleByPptx.html',
             controller: ['$scope', '$uibModalInstance', '$timeout', function($scope, $mi) {
@@ -219,7 +220,7 @@ ngApp.controller('ctrlConsole', ['$scope', '$uibModal', 'http2', 'templateShop',
                 };
                 $scope.ok = function() {
                     var r = new Resumable({
-                        target: '/rest/pl/fe/matter/article/uploadAndCreate',
+                        target: '/rest/pl/fe/matter/article/uploadAndCreate?site=' + siteId,
                         testChunks: false,
                     });
                     r.on('fileAdded', function(file, event) {
@@ -244,7 +245,7 @@ ngApp.controller('ctrlConsole', ['$scope', '$uibModal', 'http2', 'templateShop',
                                 uniqueIdentifier: f.uniqueIdentifier,
                             }
                         };
-                        http2.post('/rest/pl/fe/matter/article/uploadAndCreate?state=done', posted, function(rsp) {
+                        http2.post('/rest/pl/fe/matter/article/uploadAndCreate?site=' + siteId + '&state=done', posted, function(rsp) {
                             $mi.close(rsp.data);
                         });
                     });
@@ -253,7 +254,7 @@ ngApp.controller('ctrlConsole', ['$scope', '$uibModal', 'http2', 'templateShop',
             }],
             backdrop: 'static',
         }).result.then(function(data) {
-            location.href = '/rest/pl/fe/matter/article?site=' + data.siteid + '&id=' + data.id;
+            location.href = '/rest/pl/fe/matter/article?site=' + siteId + '&id=' + data.id;
         });
     };
     $scope.addNews = function() {

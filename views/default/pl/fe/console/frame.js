@@ -29,6 +29,7 @@ define(['require'], function(require) {
         });
     }]);
     ngApp.controller('ctrlFrame', ['$scope', 'http2', 'srvUserNotice', function($scope, http2, srvUserNotice) {
+        var criteria;
         $scope.subView = '';
         $scope.$on('$locationChangeSuccess', function(event, currentRoute) {
             var subView = currentRoute.match(/[^\/]+$/)[0];
@@ -48,6 +49,18 @@ define(['require'], function(require) {
         srvUserNotice.uncloseList().then(function(result) {
             $scope.notice = result;
         });
+        $scope.criteria = criteria = {
+            sid: ''
+        };
+        $scope.list = function() {
+            $scope.siteType = 1;
+            var url = '/rest/pl/fe/site/list?_=' + (new Date() * 1);
+            http2.get(url, function(rsp) {
+                $scope.site1 = rsp.data;
+                $scope.sites = rsp.data;
+            });
+        };
+        $scope.list();
     }]);
     /***/
     require(['domReady!'], function(document) {

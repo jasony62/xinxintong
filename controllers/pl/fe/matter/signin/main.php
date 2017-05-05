@@ -52,6 +52,7 @@ class main extends \pl\fe\matter\base {
 		$post = $this->getPostJson();
 		$model = $this->model('matter\signin');
 		if (empty($mission)) {
+			$site = $model->escape($site);
 			$result = $model->bySite($site, $page, $size, $onlySns);
 		} else {
 			$options = [];
@@ -279,6 +280,8 @@ class main extends \pl\fe\matter\base {
 		foreach ($nv as $n => $v) {
 			if (in_array($n, ['entry_rule', 'data_schemas'])) {
 				$nv->{$n} = $modelApp->escape($modelApp->toJson($v));
+			}else if (in_array($n, ['title', 'summary'])) {
+				$nv->{$n} = $modelApp->escape($v);
 			}
 		}
 		$nv->modifier = $user->id;
@@ -288,6 +291,9 @@ class main extends \pl\fe\matter\base {
 
 		if ($rst = $modelApp->update('xxt_signin', $nv, ["id" => $app])) {
 			/*记录操作日志*/
+			isset($nv->title) && $matter->title = $nv->title;
+			isset($nv->summary) && $matter->summary = $nv->summary;
+			isset($nv->pic) && $matter->pic = $nv->pic;
 			$this->model('matter\log')->matterOp($site, $user, $matter, 'U');
 		}
 

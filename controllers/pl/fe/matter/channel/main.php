@@ -140,6 +140,7 @@ class main extends \pl\fe\matter\base {
 				$modelCh->update('xxt_site_home_channel', $updatedHomeCh, ['channel_id' => $id]);
 			}
 			/* 记录操作日志 */
+			isset($updated->title) && $channel->title = $updated->title;
 			$this->model('matter\log')->matterOp($site, $user, $channel, 'U');
 		}
 

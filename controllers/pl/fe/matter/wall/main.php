@@ -59,8 +59,7 @@ class main extends \pl\fe\matter\base {
 	 *
 	 */
 	public function list_action($src = null, $site) {
-		$q = array('*', 'xxt_wall');
-		$q[2] = "siteid='$site'";
+		$q = array('*', 'xxt_wall', ['siteid' => $site]);
 		$q2['o'] = 'create_at desc';
 
 		$walls = $this->model()->query_objs_ss($q, $q2);

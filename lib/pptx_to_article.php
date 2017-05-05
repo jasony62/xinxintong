@@ -1,4 +1,6 @@
 <?php
+require_once TMS_APP_DIR . '/vendor/autoload.php';
+
 use PhpOffice\PhpPresentation\Autoloader;
 use PhpOffice\PhpPresentation\Settings;
 use PhpOffice\PhpPresentation\IOFactory;

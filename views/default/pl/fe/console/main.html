@@ -70,7 +70,7 @@
                                 </div>
                             </td>
                             <td ng-switch on="t.top">
-                                <button class='btn btn-default' title='取消置顶' ng-click="removeTop(t)">取消置顶</button>
+                                <button class='btn btn-sm btn-default' title='取消置顶' ng-click="removeTop(t)">取消置顶</button>
                             </td>
                         </tr>
                     </tbody>
@@ -179,7 +179,7 @@
             <div class='col-md-12'>
                 <div class='pull-right'>
                     <button ng-if="criteria.sid!=''" class="btn btn-default" ng-click='create()'><i class='glyphicon glyphicon-plus'></i> <span>新建</span></button>
-                    <button ng-if="criteria.sid==''" id='missionAddMatter' uib-popover-template="'addMatter.html'" popover-placement="bottom-right" popover-append-to-body='true' popover-trigger="show" popover-title="新建" class='btn btn-default' ng-click="missionAddMatter()"><i class='glyphicon glyphicon-plus'></i> <span>新建</span></button>
+                    <button ng-if="criteria.sid==''" class="btn btn-default" ng-click="addMatter('mission')"><i class='glyphicon glyphicon-plus'></i> <span>新建</span></button>
                     <button uib-popover-template="'filter.html'" popover-placement="bottom-right" popover-append-to-body='true' popover-trigger="outsideClick" class='btn btn-default pull-right'><i class='glyphicon glyphicon-filter'></i> <span>筛选</span></button>
                 </div>
                 <table class='table table-bordered'>
@@ -228,7 +228,7 @@
                             <li ng-class="{'active':criteria3.matterType==='wall'}"><a href='' ng-click="changeMatter('wall')">信息墙</a></li>
                         </ul>
                         <form class='nav navbar-form pull-right'>
-                            <button id='activityAddMatter' uib-popover-template="'addMatter.html'" popover-placement="bottom-right" popover-append-to-body='true' popover-trigger="show" popover-title="新建" class='btn btn-default' ng-click="activityAddMatter()"><i class='glyphicon glyphicon-plus'></i> <span>新建</span></button>
+                            <button id='activityAddMatter' uib-popover-template="'addActivity.html'" popover-placement="bottom-right" popover-append-to-body='true' popover-trigger="show" popover-title="新建" class='btn btn-default' ng-click="activityAddMatter()"><i class='glyphicon glyphicon-plus'></i> <span>新建</span></button>
                             <button uib-popover-template="'filter.html'" popover-placement="bottom-right" popover-append-to-body='true' popover-trigger="outsideClick" class='btn btn-default pull-right'><i class='glyphicon glyphicon-filter'></i> <span>筛选</span></button>
                         </form>
                     </div>
@@ -240,7 +240,7 @@
                             <th ng-if="criteria3.matterType =='enroll'" style='width:90px'>场景</th>
                             <th>名称</th>
                             <th style='width:140px'>创建人</th>
-                            <th style='width:100px'>创建时间</th>
+                            <th style='width:120px'>创建时间</th>
                             <th style='width:64px'>置顶</th>
                             <th style='width:180px'>操作</th>
                         </tr>
@@ -297,7 +297,7 @@
                             <li ng-class="{'active':criteria4.matterType==='custom'}"><a href='' ng-click="changeMatter('custom')">定制页</a></li>
                         </ul>
                         <form class='nav navbar-form pull-right'>
-                            <button id='infoAddMatter' uib-popover-template="'addMatter.html'" popover-placement="bottom-right" popover-append-to-body='true' popover-trigger="show" popover-title="新建" class='btn btn-default' ng-click="infoAddMatter()"><i class='glyphicon glyphicon-plus'></i> <span>新建</span></button>
+                            <button id='infoAddMatter' uib-popover-template="'addInfo.html'" popover-placement="bottom-right" popover-append-to-body='true' popover-trigger="show" popover-title="新建" class='btn btn-default' ng-click="infoAddMatter()"><i class='glyphicon glyphicon-plus'></i> <span>新建</span></button>
                             <button uib-popover-template="'filter.html'" popover-placement="bottom-right" popover-append-to-body='true' popover-trigger="outsideClick" class='btn btn-default pull-right'><i class='glyphicon glyphicon-filter'></i> <span>筛选</span></button>
                         </form>
                     </div>
@@ -340,10 +340,10 @@
                     <thead>
                         <tr>
                             <th style='width:48px'>序号</th>
-                            <th style='width:140px'>名称</th>
+                            <th>名称</th>
                             <th style='width:140px'>创建人</th>
-                            <th style='width:100px'>创建时间</th>
-                            <th style='width:180px'>操作</th>
+                            <th style='width:120px'>创建时间</th>
+                            <th style='width:48px'>操作</th>
                         </tr>
                     </thead>
                     <tbody>
@@ -353,7 +353,7 @@
                             <td>{{site.creater_name}}</td>
                             <td>{{site.create_at*1000|date:'yyyy-MM-dd'}}</td>
                             <td>
-                                <button class='btn btn-default' title='恢复' ng-click="restoreSite(site)">恢复</button>
+                                <button class='btn btn-sm btn-default' title='恢复' ng-click="restoreSite(site)">恢复</button>
                             </td>
                         </tr>
                     </tbody>
@@ -385,9 +385,48 @@
             <button class='btn btn-default' ng-click="addMatter('custom')">定制页</button>
         </div>
         <div class='form-group'>
-            <button class='btn btn-default' ng-click="addMatter('addressbook')">通讯录</button>
+            <button class='btn btn-default' ng-click="addMatter('text')">文本</button>
             <button class='btn btn-default' ng-click="addMatter('contribute')">投稿活动</button>
             <button class='btn btn-default' ng-click="addMatter('merchant')">订购活动</button>
+        </div>
+        <div>
+</script>
+<script type="text/ng-template" id="addMission.html">
+    <div id="addMatter">
+        <div class='form-group'>
+            <button class='btn btn-default' ng-click="addMatter('mission')">项目</button>
+        </div>
+        <div>
+</script>
+<script type="text/ng-template" id="addActivity.html">
+    <div id="addMatter">
+        <div class='form-group'>
+            <button class='btn btn-default' ng-click="addMatter('enroll')">登记活动</button>
+            <button class='btn btn-default' ng-click="addMatter('signin')">签到活动</button>
+        </div>
+        <div class='form-group'>
+            <button class='btn btn-default' ng-click="addMatter('group')">分组活动</button>
+            <button class='btn btn-default' ng-click="addMatter('wall')">信息墙</button>
+        </div>
+        <div class='form-group'>
+            <button class='btn btn-default' ng-click="addMatter('lottery')">抽奖活动</button>
+        </div>
+        <div>
+</script>
+<script type="text/ng-template" id="addInfo.html">
+    <div id="addMatter">
+        <div class='form-group'>
+            <button class='btn btn-default' ng-click="addMatter('article')">单图文</button>
+            <button class='btn btn-default' ng-click="addMatter('news')">多图文</button>
+            <button class='btn btn-default' ng-click="addMatter('channel')">频道</button>
+        </div>
+        <div class='form-group'>
+            <button class='btn btn-default' ng-click="addMatter('link')">链接</button>
+            <button class='btn btn-default' ng-click="addMatter('custom')">定制页</button>
+        </div>
+        <div class='form-group'>
+            <button class='btn btn-default' ng-click="addMatter('text')">文本</button>
+            <button class='btn btn-default' ng-click="addMatter('contribute')">投稿活动</button>
         </div>
         <div>
 </script>

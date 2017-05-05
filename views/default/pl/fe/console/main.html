@@ -2,19 +2,21 @@
     <aside class="main-sidebar">
         <section class="sidebar" style="height:auto">
             <ul class="sidebar-menu list-unstyled">
-                <li ng-class="{'active':criteria2.scope==='top'}" ><a href='' ng-click="changeScope('top')" class="btn btn-default">置顶</a></li>
-                <li ng-class="{'active':criteria2.scope==='recent'}"><a href='' ng-click="changeScope('recent')" class="btn btn-default">最近</a></li>
-                <li ng-class="{'active':criteria2.scope==='site'}"><a href='' ng-click="changeScope('site')" class="btn btn-default">团队</a></li>
-                <li ng-class="{'active':criteria2.scope==='mission'}" ><a href='' ng-click="changeScope('mission')" class="btn btn-default">项目</a></li>
-                <li ng-class="{'active':criteria2.scope==='activity'}" ><a href='' ng-click="changeScope('activity')" class="btn btn-default">活动</a></li>
-                <li ng-class="{'active':criteria2.scope==='info'}" ><a href='' ng-click="changeScope('info')" class="btn btn-default">资料</a></li>
-                <li ng-class="{'active':criteria2.scope==='recycle'}" ng-if="criteria.sid==''"><a href='' ng-click="changeScope('recycle')" class="btn btn-default">回收站</a></li>
+                <li ng-class="{'active':criteria2.scope==='top'}"><a href='' ng-click="changeScope('top')" class="btn btn-default btn-block">置顶</a></li>
+                <li ng-class="{'active':criteria2.scope==='recent'}"><a href='' ng-click="changeScope('recent')" class="btn btn-default btn-block">最近</a></li>
+                <hr>
+                <li ng-class="{'active':criteria2.scope==='site'}"><a href='' ng-click="changeScope('site')" class="btn btn-default btn-block">团队</a></li>
+                <li ng-class="{'active':criteria2.scope==='mission'}"><a href='' ng-click="changeScope('mission')" class="btn btn-default btn-block">项目</a></li>
+                <li ng-class="{'active':criteria2.scope==='activity'}"><a href='' ng-click="changeScope('activity')" class="btn btn-default btn-block">活动</a></li>
+                <li ng-class="{'active':criteria2.scope==='info'}"><a href='' ng-click="changeScope('info')" class="btn btn-default btn-block">资料</a></li>
+                <li ng-class="{'active':criteria2.scope==='recycle'}" ng-if="criteria.sid==''"><a href='' ng-click="changeScope('recycle')" class="btn btn-default btn-block">回收站</a></li>
                 </li>
                 <li ng-if="criteria.sid!=''">
-                    <button class="btn btn-default" ng-click='load(criteria.sid)'>设置团队</a>
+                    <button class="btn btn-default btn-block" ng-click='load(criteria.sid)'>设置团队</a>
                 </li>
+                <hr>
                 <li>
-                    <button id='popoverAddMatter' uib-popover-template="'addMatter.html'" popover-placement="right" popover-append-to-body='true' popover-trigger="show" popover-title="新建素材" class='btn btn-default' ng-click="popoverAddMatter()"><span>新建素材</span></button>
+                    <button id='popoverAddMatter' uib-popover-template="'addMatter.html'" popover-placement="right" popover-append-to-body='true' popover-trigger="show" popover-title="新建素材" class='btn btn-default btn-block' ng-click="popoverAddMatter()"><span>新建</span></button>
                 </li>
             </ul>
         </section>
@@ -25,47 +27,47 @@
                 <table class='table table-bordered'>
                     <thead>
                         <tr>
-                            <th style='width:40px'>序号</th>
-                            <th style="width:40px">类型</th>
-                            <th style='width:140px'>名称</th>
-                            <th style='width:100px'>置顶时间</th>
-                            <th style='width:140px'>操作</th>
-                            <th style='width:140px'></th>
+                            <th style='width:48px'>序号</th>
+                            <th style="width:64px">类型</th>
+                            <th>名称</th>
+                            <th style='width:120px'>置顶时间</th>
+                            <th style='width:180px'>操作</th>
+                            <th style='width:100px'></th>
                         </tr>
                     </thead>
                     <tbody>
-                        <tr ng-repeat='t in top' >
+                        <tr ng-repeat='t in top'>
                             <td>{{$index+1}}</td>
                             <td>{{matterNames[t.matter_type]}}</td>
                             <td>{{t.matter_title}}</td>
                             <td>{{(t.top_at*1000)|date:'MM-dd HH:mm'}}</td>
                             <td ng-switch on="t.matter_type">
                                 <div ng-switch-when="enroll">
-                                <button class='btn btn-sm btn-default' ng-click="openMatter(t,'main')">定义</button>
-                                <button class='btn btn-sm btn-default' ng-click="openMatter(t,'publish')">设置</button>
-                                <button class='btn btn-sm btn-default' ng-click="openMatter(t,'record')">数据</button>
-                            </div>
-                            <div ng-switch-when="signin">
-                                <button class='btn btn-sm btn-default' ng-click="openMatter(t,'main')">定义</button>
-                                <button class='btn btn-sm btn-default' ng-click="openMatter(t,'publish')">设置</button>
-                                <button class='btn btn-sm btn-default' ng-click="openMatter(t,'record')">数据</button>
-                            </div>
-                            <div ng-switch-when="group">
-                                <button class='btn btn-sm btn-default' ng-click="openMatter(t,'main')">定义</button>
-                                <button class='btn btn-sm btn-default' ng-click="openMatter(t,'player')">数据</button>
-                            </div>
-                            <div ng-switch-when="mission">
-                                <button class='btn btn-sm btn-default' ng-click="openMatter(t,'main')">定义</button>
-                                <button class='btn btn-sm btn-default' ng-click="openMatter(t,'matter')">活动</button>
-                                <button class='btn btn-sm btn-default' ng-click="openMatter(t,'user')">数据</button>
-                            </div>
-                            <div ng-switch-when="site">
-                                <a class='btn btn-sm btn-default' ng-click="openConsole(t)">工作台</a>
-                                <a class='btn btn-sm btn-default' ng-click="setHome(t)">设置主页</a>
-                            </div>
-                            <div ng-switch-default>
-                                <button class='btn btn-sm btn-default' ng-click="openMatter(t,'main')">进入</button>
-                            </div>
+                                    <button class='btn btn-sm btn-default' ng-click="openMatter(t,'main')">定义</button>
+                                    <button class='btn btn-sm btn-default' ng-click="openMatter(t,'publish')">设置</button>
+                                    <button class='btn btn-sm btn-default' ng-click="openMatter(t,'record')">数据</button>
+                                </div>
+                                <div ng-switch-when="signin">
+                                    <button class='btn btn-sm btn-default' ng-click="openMatter(t,'main')">定义</button>
+                                    <button class='btn btn-sm btn-default' ng-click="openMatter(t,'publish')">设置</button>
+                                    <button class='btn btn-sm btn-default' ng-click="openMatter(t,'record')">数据</button>
+                                </div>
+                                <div ng-switch-when="group">
+                                    <button class='btn btn-sm btn-default' ng-click="openMatter(t,'main')">定义</button>
+                                    <button class='btn btn-sm btn-default' ng-click="openMatter(t,'player')">数据</button>
+                                </div>
+                                <div ng-switch-when="mission">
+                                    <button class='btn btn-sm btn-default' ng-click="openMatter(t,'main')">定义</button>
+                                    <button class='btn btn-sm btn-default' ng-click="openMatter(t,'matter')">活动</button>
+                                    <button class='btn btn-sm btn-default' ng-click="openMatter(t,'user')">数据</button>
+                                </div>
+                                <div ng-switch-when="site">
+                                    <a class='btn btn-sm btn-default' ng-click="openConsole(t)">工作台</a>
+                                    <a class='btn btn-sm btn-default' ng-click="setHome(t)">设置主页</a>
+                                </div>
+                                <div ng-switch-default>
+                                    <button class='btn btn-sm btn-default' ng-click="openMatter(t,'main')">进入</button>
+                                </div>
                             </td>
                             <td ng-switch on="t.top">
                                 <button class='btn btn-default' title='取消置顶' ng-click="removeTop(t)">取消置顶</button>
@@ -84,12 +86,12 @@
                 <table class='table table-bordered'>
                     <thead>
                         <tr>
-                            <th style='width:40px'>序号</th>
-                            <th style="width:40px">类型</th>
-                            <th style='width:140px'>名称</th>
-                            <th style='width:100px'>最后修改时间</th>
-                            <th style='width:140px'>置顶</th>
-                            <th style='width:140px'>操作</th>
+                            <th style='width:48px'>序号</th>
+                            <th style="width:64px">类型</th>
+                            <th>名称</th>
+                            <th style='width:120px'>最后修改时间</th>
+                            <th style='width:64px'>置顶</th>
+                            <th style='width:180px'>操作</th>
                         </tr>
                     </thead>
                     <tbody>
@@ -147,12 +149,12 @@
                 <table class='table table-bordered'>
                     <thead>
                         <tr>
-                            <th style='width:40px'>序号</th>
-                            <th style='width:140px'>名称</th>
+                            <th style='width:48px'>序号</th>
+                            <th>名称</th>
                             <th style='width:140px'>创建人</th>
                             <th style='width:100px'>创建时间</th>
-                            <th style='width:140px'>置顶</th>
-                            <th style='width:140px'>操作</th>
+                            <th style='width:64px'>置顶</th>
+                            <th style='width:180px'>操作</th>
                         </tr>
                     </thead>
                     <tbody>
@@ -183,12 +185,12 @@
                 <table class='table table-bordered'>
                     <thead>
                         <tr>
-                            <th style='width:40px'>序号</th>
-                            <th style='width:140px'>名称</th>
+                            <th style='width:48px'>序号</th>
+                            <th>名称</th>
                             <th style='width:140px'>创建人</th>
                             <th style='width:100px'>创建时间</th>
-                            <th style='width:140px'>置顶</th>
-                            <th style='width:140px'>操作</th>
+                            <th style='width:64px'>置顶</th>
+                            <th style='width:180px'>操作</th>
                         </tr>
                     </thead>
                     <tbody>
@@ -234,41 +236,41 @@
                 <table class='table table-bordered'>
                     <thead>
                         <tr>
-                            <th style='width:40px'>序号</th>
-                            <th style='width:140px'>名称</th>
-                            <th ng-if="criteria3.matterType =='enroll'" style='width:140px'>场景</th>
+                            <th style='width:48px'>序号</th>
+                            <th ng-if="criteria3.matterType =='enroll'" style='width:90px'>场景</th>
+                            <th>名称</th>
                             <th style='width:140px'>创建人</th>
                             <th style='width:100px'>创建时间</th>
-                            <th style='width:140px'>置顶</th>
-                            <th style='width:140px'>操作</th>
+                            <th style='width:64px'>置顶</th>
+                            <th style='width:180px'>操作</th>
                         </tr>
                     </thead>
                     <tbody>
-                        <tr ng-repeat='m in matters' >
+                        <tr ng-repeat='m in matters'>
                             <td>{{$index+1}}</td>
-                            <td>{{m.matter_title}}</td>
                             <td ng-if="criteria3.matterType=='enroll'">{{scenarioNames[m.matter_scenario]}}</td>
+                            <td>{{m.matter_title}}</td>
                             <td>{{m.operator_name}}</td>
                             <td>{{m.operate_at*1000|date:'yy-MM-dd HH:mm'}}</td>
                             <td>
-                               <button class='btn btn-sm btn-default' title='置顶' ng-click="stickTop(m)">置顶</button>
+                                <button class='btn btn-sm btn-default' title='置顶' ng-click="stickTop(m)">置顶</button>
                             </td>
                             <td ng-switch on="m.matter_type">
-                                 <div ng-switch-when="group">
+                                <div ng-switch-when="group">
                                     <button class='btn btn-sm btn-default' ng-click="openMatter(m,'main')">定义</button>
                                     <button class='btn btn-sm btn-default' ng-click="openMatter(m,'player')">数据</button>
                                 </div>
                                 <div ng-switch-when="enroll">
                                     <button class='btn btn-sm btn-default' ng-click="openMatter(m,'main')">定义</bumton>
-                                    <button class='btn btn-sm btn-default' ng-click="openMatter(m,'publish')">设置</bmtton>
-                                    <button class='btn btn-sm btn-default' ng-click="openMatter(m,'record')">数据</bumton>
+                                        <button class='btn btn-sm btn-default' ng-click="openMatter(m,'publish')">设置</bmtton>
+                                            <button class='btn btn-sm btn-default' ng-click="openMatter(m,'record')">数据</bumton>
                                 </div>
                                 <div ng-switch-when="signin">
                                     <button class='btn btn-sm btn-default' ng-click="openMatter(m,'main')">定义</button>
                                     <button class='btn btn-sm btn-default' ng-click="openMatter(m,'publish')">设置</button>
                                     <button class='btn btn-sm btn-default' ng-click="openMatter(m,'record')">数据</button>
                                 </div>
-                                <div  ng-switch-default>
+                                <div ng-switch-default>
                                     <button class='btn btn-sm btn-default' ng-click="openMatter(m,'main')">进入</button>
                                 </div>
                             </td>
@@ -303,22 +305,22 @@
                 <table class='table table-bordered'>
                     <thead>
                         <tr>
-                            <th style='width:40px'>序号</th>
-                            <th style='width:140px'>名称</th>
+                            <th style='width:48px'>序号</th>
+                            <th>名称</th>
                             <th style='width:140px'>创建人</th>
-                            <th style='width:100px'>创建时间</th>
-                            <th style='width:140px'>置顶</th>
-                            <th style='width:140px'>操作</th>
+                            <th style='width:120px'>创建时间</th>
+                            <th style='width:64px'>置顶</th>
+                            <th style='width:64px'>操作</th>
                         </tr>
                     </thead>
                     <tbody>
-                        <tr ng-repeat='m in matters' >
+                        <tr ng-repeat='m in matters'>
                             <td>{{$index+1}}</td>
                             <td>{{m.matter_title}}</td>
                             <td>{{m.operator_name}}</td>
                             <td>{{m.operate_at*1000|date:'yy-MM-dd HH:mm'}}</td>
                             <td>
-                               <button class='btn btn-sm btn-default' title='置顶' ng-click="stickTop(m)">置顶</button>
+                                <button class='btn btn-sm btn-default' title='置顶' ng-click="stickTop(m)">置顶</button>
                             </td>
                             <td>
                                 <button class='btn btn-sm btn-default' ng-click="openMatter(m,'main')">进入</button>
@@ -337,11 +339,11 @@
                 <table class='table table-bordered'>
                     <thead>
                         <tr>
-                            <th style='width:40px'>序号</th>
+                            <th style='width:48px'>序号</th>
                             <th style='width:140px'>名称</th>
                             <th style='width:140px'>创建人</th>
                             <th style='width:100px'>创建时间</th>
-                            <th style='width:140px'>操作</th>
+                            <th style='width:180px'>操作</th>
                         </tr>
                     </thead>
                     <tbody>

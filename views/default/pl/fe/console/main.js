@@ -203,11 +203,11 @@ define(['frame'], function(ngApp) {
         $scope.stickTop = function(m) {
             var url;
             if(!m.matter_type && !m.mission_id) {
-                url = '/rest/pl/fe/top?site=' + m.id + '&id=' + m.id + '&matterType=site';
+                url = '/rest/pl/fe/top?site=' + m.id + '&matterId=' + m.id + '&matterType=site' + '&matterTitle=' + m.name;
             }else if (!m.matter_type && m.mission_id) {
-                url = '/rest/pl/fe/top?site=' + m.siteid + '&id=' + m.mission_id + '&matterType=mission';
+                url = '/rest/pl/fe/top?site=' + m.siteid + '&matterId=' + m.mission_id + '&matterType=mission' + '&matterTitle=' + m.title;
             } else {
-                url = '/rest/pl/fe/top?site=' + m.siteid + '&id=' + m.id;
+                url = '/rest/pl/fe/top?site=' + m.siteid + '&matterId=' + m.matter_id + '&matterType=' + m.matter_type + '&matterTitle=' + m.matter_title;
             }
 
             http2.get(url, function(rsp) {

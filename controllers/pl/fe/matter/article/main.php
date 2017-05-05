@@ -2,6 +2,23 @@
 namespace pl\fe\matter\article;
 
 require_once dirname(dirname(__FILE__)) . '/base.php';
+require_once TMS_APP_DIR . '/vendor/autoload.php';
+require_once TMS_APP_DIR.'/lib/pptx_to_article.php';
+
+use PhpOffice\PhpPresentation\Autoloader;
+use PhpOffice\PhpPresentation\Settings;
+use PhpOffice\PhpPresentation\IOFactory;
+use PhpOffice\PhpPresentation\Slide;
+use PhpOffice\PhpPresentation\PhpPresentation;
+use PhpOffice\PhpPresentation\AbstractShape;
+use PhpOffice\PhpPresentation\DocumentLayout;
+use PhpOffice\PhpPresentation\Shape\Drawing;
+use PhpOffice\PhpPresentation\Shape\RichText;
+use PhpOffice\PhpPresentation\Shape\RichText\BreakElement;
+use PhpOffice\PhpPresentation\Shape\RichText\TextElement;
+use PhpOffice\PhpPresentation\Style\Alignment;
+use PhpOffice\PhpPresentation\Style\Bullet;
+use PhpOffice\PhpPresentation\Style\Color;
 /*
  * 文章控制器
  */
@@ -702,7 +719,7 @@ class main extends \pl\fe\matter\base {
 			$ext = explode('.', $filename);
 			$ext = array_pop($ext);
 			$attAbs = $appRoot . '/' . $attachment;
-			if (in_array($ext, array('doc', 'docx', 'ppt', 'pptx'))) {
+			if (in_array($ext, array('doc', 'docx', 'ppt'))) {
 				/* 存放附件转换结果 */
 				$attDir = str_replace('.' . $ext, '', $attachment);
 				mkdir($appRoot . '/' . $attDir);
@@ -719,6 +736,27 @@ class main extends \pl\fe\matter\base {
 				if (in_array($ext, array('ppt', 'pptx'))) {
 					$this->setCoverByAtt($id, $attDir);
 				}
+			}else if($ext==='pptx'){
+				 $oReader = IOFactory::createReader('PowerPoint2007');
+				 $oPHPPresentation=$oReader->load($attAbs);
+				 $article = new \pptx_to_article($oPHPPresentation);
+				 $model=$this->model();
+				 //设置头图
+				 if(file_exists('0.jpg')){
+				 	$attDir = str_replace('.' . $ext, '', $attachment);
+				 	mkdir($appRoot . '/' . $attDir);
+				 	rename('0.jpg',$appRoot . '/' . $attDir . '/0.jpg');
+				 	$this->setCoverByAtt($id, $attDir);
+				 }				 
+				 //转单图文
+				 $d['creater_name']=$article->creator;
+				 $d['author']=$article->creator;
+				 $d['create_at']=$article->create_at;
+				 $d['title']=$article->title;
+				 $d['modify_at']=$article->modify_at;
+				 $d['body']=$article->htmlOutput;
+
+				 $model->update('xxt_article',$d,['id'=>$id]);
 			} else if ($ext === 'pdf') {
 				/* 存放附件转换结果 */
 				$attDir = str_replace('.' . $ext, '', $attachment);

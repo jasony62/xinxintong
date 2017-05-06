@@ -26,7 +26,7 @@ body{padding:71px 0;font-family:Microsoft Yahei,Arial;}
 #schema-view .schema.date:after{content:'日期';position:absolute;top:0;right:0;background:#999;padding:2px 4px;font-size:60%;color:#fff;border-top-right-radius:2px;}
 #schema-view .schema.shorttext:after{content:'单行文本';position:absolute;top:0;right:0;background:#999;padding:2px 4px;font-size:60%;color:#fff;border-top-right-radius:2px;}
 #schema-view .schema.longtext:after{content:'多行文本';position:absolute;top:0;right:0;background:#999;padding:2px 4px;font-size:60%;color:#fff;border-top-right-radius:2px;}
-#schema-view .schema.member:after{content:'自定义用户';position:absolute;top:0;right:0;background:#999;padding:2px 4px;font-size:60%;color:#fff;border-top-right-radius:2px;}
+#schema-view .schema.member:after{content:'通讯录联系人';position:absolute;top:0;right:0;background:#999;padding:2px 4px;font-size:60%;color:#fff;border-top-right-radius:2px;}
 #schema-view .schema.single:after{content:'单选题';position:absolute;top:0;right:0;background:#999;padding:2px 4px;font-size:60%;color:#fff;border-top-right-radius:2px;}
 #schema-view .schema.phase:after{content:'项目阶段';position:absolute;top:0;right:0;background:#999;padding:2px 4px;font-size:60%;color:#fff;border-top-right-radius:2px;}
 #schema-view .schema.score:after{content:'打分题';position:absolute;top:0;right:0;background:#999;padding:2px 4px;font-size:60%;color:#fff;border-top-right-radius:2px;}

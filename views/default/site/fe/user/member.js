@@ -30,27 +30,13 @@ var LS = (function(fields) {
         j: j
     };
 })(['site', 'schema', 'debug']);
-var ngApp = angular.module('app', []);
+var ngApp = angular.module('app', ['page.ui.xxt']);
 ngApp.config(['$controllerProvider', function($cp) {
     ngApp.provider = {
         controller: $cp.register
     };
 }]);
-ngApp.directive('dynamicHtml', function($compile) {
-    return {
-        restrict: 'EA',
-        replace: true,
-        link: function(scope, ele, attrs) {
-            scope.$watch(attrs.dynamicHtml, function(html) {
-                if (html && html.length) {
-                    ele.html(html);
-                    $compile(ele.contents())(scope);
-                }
-            });
-        }
-    };
-});
-ngApp.controller('ctrlMember', ['$scope', '$http', '$timeout', '$q', function($scope, $http, $timeout, $q) {
+ngApp.controller('ctrlMember', ['$scope', '$http', '$timeout', '$q', 'tmsDynaPage', function($scope, $http, $timeout, $q, tmsDynaPage) {
     var validate = function() {
         var required = function(value, len, alerttext) {
             if (value == null || value == "" || value.length < len) {
@@ -93,50 +79,8 @@ ngApp.controller('ctrlMember', ['$scope', '$http', '$timeout', '$q', function($s
         }
         return true;
     };
-    var makePage = function($scope, page) {
-        if (page.ext_css && page.ext_css.length) {
-            angular.forEach(page.ext_css, function(css) {
-                var link, head;
-                link = document.createElement('link');
-                link.href = css.url;
-                link.rel = 'stylesheet';
-                head = document.querySelector('head');
-                head.appendChild(link);
-            });
-        }
-        if (page.ext_js && page.ext_js.length) {
-            var i = 0,
-                l = page.ext_js.length,
-                loadJs = function() {
-                    var js;
-                    js = page.ext_js[i];
-                    $.getScript(js.url, function() {
-                        i++;
-                        if (i === l) {
-                            if (page.js && page.js.length) {
-                                $scope.$apply(
-                                    function dynamicjs() {
-                                        eval(page.js);
-                                        $scope.page = page;
-                                    }
-                                );
-                            }
-                        } else {
-                            loadJs();
-                        }
-                    });
-                };
-            loadJs();
-        } else if (page.js && page.js.length) {
-            (function dynamicjs() {
-                eval(page.js);
-                $scope.page = page;
-            })();
-        } else {
-            $scope.page = page;
-        }
-    };
-    var sendRequest = function(url, deferred) {
+
+    function sendRequest(url, deferred) {
         $scope.posting = true;
         $http.post(url, $scope.member).
         success(function(rsp) {
@@ -156,8 +100,9 @@ ngApp.controller('ctrlMember', ['$scope', '$http', '$timeout', '$q', function($s
                 });
             }
         });
-    };
-    var setMember = function(user) {
+    }
+
+    function setMember(user) {
         var member;
         user.members && (member = user.members[LS.p.schema]);
         $scope.member = {
@@ -165,6 +110,7 @@ ngApp.controller('ctrlMember', ['$scope', '$http', '$timeout', '$q', function($s
         };
         if (member) {
             $scope.member.id = member.id;
+            $scope.member.verified = member.verified;
             $scope.attrs.name && ($scope.member.name = member.name);
             $scope.attrs.email && ($scope.member.email = member.email);
             $scope.attrs.mobile && ($scope.member.mobile = member.mobile);
@@ -176,8 +122,9 @@ ngApp.controller('ctrlMember', ['$scope', '$http', '$timeout', '$q', function($s
                 });
             }
         }
-    };
-    var siteId = location.search.match('site=([^&]*)')[1];
+    }
+
+    var siteId = LS.p.site;
     if (/MicroMessenger/i.test(navigator.userAgent)) {
         $scope.snsClient = 'wx';
     } else if (/YiXin/i.test(navigator.userAgent)) {
@@ -279,7 +226,7 @@ ngApp.controller('ctrlMember', ['$scope', '$http', '$timeout', '$q', function($s
     $http.get('/rest/site/fe/get?site=' + LS.p.site).success(function(rsp) {
         $scope.site = rsp.data;
     });
-    $http.get(LS.j('pageGet', 'site', 'schema')).success(function(rsp) {
+    $http.get(LS.j('schemaGet', 'site', 'schema')).success(function(rsp) {
         if (rsp.err_code !== 0) {
             $scope.errmsg = rsp.err_msg;
             return;
@@ -305,9 +252,11 @@ ngApp.controller('ctrlMember', ['$scope', '$http', '$timeout', '$q', function($s
                 $scope.loginUser.nickname = $scope.user.sns.yx.nickname;
             }
         }
-        makePage($scope, rsp.data.schema.page);
-        $timeout(function() {
-            $scope.$broadcast('xxt.member.auth.ready', rsp.data);
+        tmsDynaPage.loadCode(ngApp, rsp.data.schema.page).then(function() {
+            $scope.page = rsp.data.schema.page;
+            $timeout(function() {
+                $scope.$broadcast('xxt.member.auth.ready', rsp.data);
+            });
         });
     }).error(function(content, httpCode) {
         $scope.errmsg = content;

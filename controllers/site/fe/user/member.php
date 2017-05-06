@@ -31,27 +31,33 @@ class member extends \site\fe\base {
 		exit;
 	}
 	/**
-	 * 获得页面定义
+	 * 获得自定义用户的定义
 	 */
-	public function pageGet_action($site, $schema) {
+	public function schemaGet_action($site, $schema) {
 		$params = array();
 
-		$schema = $this->model('site\user\memberschema')->byId($schema);
-		if ($schema === false) {
+		$oSchema = $this->model('site\user\memberschema')->byId($schema);
+		if ($oSchema === false) {
 			return new \ResponseError('指定的自定义用户定义不存在');
 		}
-		$params['schema'] = $schema;
+		$params['schema'] = $oSchema;
 		/* 属性定义 */
-		$attrs = array(
-			'mobile' => $schema->attr_mobile,
-			'email' => $schema->attr_email,
-			'name' => $schema->attr_name,
-			'extattrs' => $schema->extattr,
-		);
+		$attrs = [
+			'mobile' => $oSchema->attr_mobile,
+			'email' => $oSchema->attr_email,
+			'name' => $oSchema->attr_name,
+			'extattrs' => $oSchema->extattr,
+		];
 		$params['attrs'] = $attrs;
 
 		/* 已填写的用户信息 */
-		$params['user'] = $this->who;
+		$user = $this->who;
+		if (isset($user->members->{$oSchema->id})) {
+			$oMember = $user->members->{$oSchema->id};
+			$oMember = $this->model('site\user\member')->byId($oMember->id, ['fields' => '*']);
+			$user->members->{$oSchema->id} = $oMember;
+		}
+		$params['user'] = $user;
 
 		return new \ResponseData($params);
 	}
@@ -69,60 +75,57 @@ class member extends \site\fe\base {
 	 *
 	 */
 	public function doAuth_action($schema) {
-		$member = $this->getPostJson();
-		if (!empty($member->id)) {
-			return new \ResponseError('自定义用户信息已经存在，不能重复创建');
+		$oNewMember = $this->getPostJson();
+		if (!empty($oNewMember->id)) {
+			return new \ResponseError('已经有对应通讯录联系人，不能重复创建');
 		}
 
-		$oSchema = $this->model('site\user\memberschema')->byId($schema, 'id,title,attr_mobile,attr_email,attr_name,extattr,auto_verified');
-		if ($oSchema === false) {
+		$oMschema = $this->model('site\user\memberschema')->byId($schema, 'siteid,id,title,attr_mobile,attr_email,attr_name,extattr,auto_verified');
+		if ($oMschema === false) {
 			return new \ObjectNotFoundError();
 		}
 
 		$modelSiteUser = $this->model('site\user\account');
 		$cookieUser = $this->who;
 		$siteUser = $modelSiteUser->byId($cookieUser->uid);
-		if ($siteUser === false || $siteUser->is_reg_primary !== 'Y') {
-			return new \ResponseError('请登录后再指定用户信息');
+		if ($siteUser === false || empty($siteUser->unionid)) {
+			return new \ResponseError('请注册或登录后再填写通讯录联系人信息');
 		}
 
 		$modelWay = $this->model('site\fe\way');
 		$modelMem = $this->model('site\user\member');
-		$bindMembers = $modelMem->byUser($cookieUser->uid, ['schema' => $oSchema]);
+		$bindMembers = $modelMem->byUser($cookieUser->uid, ['schemas' => $oMschema->id]);
 		if (count($bindMembers) > 1) {
-			throw new \Exception('数据错误，一个用户绑定了多个自定义用户信息');
+			throw new \Exception('数据错误：1个用户绑定了同一个通讯录中的多个联系人信息');
 		} else if (count($bindMembers) === 1) {
-			$member = $bindMembers[0];
-			$modelWay->bindMember($this->siteId, $member);
-			return new \ResponseError('自定义用户信息已经存在，不能重复创建');
+			$oNewMember = $bindMembers[0];
+			$modelWay->bindMember($oMschema->siteid, $oNewMember);
+			return new \ResponseError('用户信息已经存在，不能重复创建');
 		}
 
 		/* 给当前用户创建自定义用户信息 */
-		$member->siteid = $this->siteId;
-		$member->schema_id = $oSchema->id;
-		/**
-		 * check auth data.
-		 */
-		if ($errMsg = $modelMem->rejectAuth($member, $oSchema)) {
+		$oNewMember->siteid = $oMschema->siteid;
+		$oNewMember->schema_id = $oMschema->id;
+		$oNewMember->unionid = $siteUser->unionid;
+		/* check auth data */
+		if ($errMsg = $modelMem->rejectAuth($oNewMember, $oMschema)) {
 			return new \ParameterError($errMsg);
 		}
 		/* 验证状态 */
-		$member->verified = $oSchema->auto_verified;
+		$oNewMember->verified = $oMschema->auto_verified;
 		/* 创建新的自定义用户 */
-		$rst = $modelMem->create($this->siteId, $siteUser->uid, $oSchema, $member);
+		$rst = $modelMem->create($siteUser->uid, $oMschema, $oNewMember);
 		if ($rst[0] === false) {
 			return new \ResponseError($rst[1]);
 		}
-		if ($member = $rst[1]) {
+		if ($oNewMember = $rst[1]) {
 			/* 绑定当前站点用户 */
-			$modelWay->bindMember($this->siteId, $member);
+			$modelWay->bindMember($oMschema->siteid, $oNewMember);
 		} else {
 			throw new \Exception('程序异常：无法创建自定义用户');
 		}
-		// log
-		//$this->model('log')->writeMemberAuth($site, $siteUser->openid, $mid);
 
-		return new \ResponseData($member);
+		return new \ResponseData($oNewMember);
 	}
 	/**
 	 * 重新进行用户身份验证
@@ -138,15 +141,15 @@ class member extends \site\fe\base {
 			return new \ResponseError('请登录后再指定用户信息');
 		}
 
-		$oSchema = $this->model('site\user\memberschema')->byId($schema, 'id,title,attr_mobile,attr_email,attr_name,extattr');
-		if ($oSchema === false) {
+		$oMschema = $this->model('site\user\memberschema')->byId($schema, 'siteid,id,title,attr_mobile,attr_email,attr_name,extattr,auto_verified');
+		if ($oMschema === false) {
 			return new \ObjectNotFoundError();
 		}
 
 		$member = $this->getPostJson();
 		/* 检查数据合法性。根据用户填写的自定义信息，找回数据。 */
 		$modelMem = $this->model('site\user\member');
-		if (false === ($found = $modelMem->findMember($member, $oSchema, false))) {
+		if (false === ($found = $modelMem->findMember($member, $oMschema, false))) {
 			return new \ParameterError('找不到匹配的认证用户');
 		}
 		if ($found->userid !== $siteUser->uid) {
@@ -154,12 +157,12 @@ class member extends \site\fe\base {
 		}
 
 		/* 更新用户信息 */
-		$modelMem->modify($this->siteId, $oSchema, $found->id, $member);
+		$modelMem->modify($oMschema, $found->id, $member);
 		$found = $modelMem->byId($found->id);
 
 		/* 绑定当前站点用户 */
 		$modelWay = $this->model('site\fe\way');
-		$modelWay->bindMember($this->siteId, $found);
+		$modelWay->bindMember($oMschema->siteid, $found);
 
 		return new \ResponseData($found);
 	}
@@ -184,12 +187,12 @@ class member extends \site\fe\base {
 				return new \ResponseData($target);
 			}
 		} else {
-			$oSchema = $this->model('site\user\memberschema')->byId($schema, 'passed_url');
+			$oMschema = $this->model('site\user\memberschema')->byId($schema, 'passed_url');
 			/**
 			 * 认证成功后的缺省页面
 			 */
-			if (!empty($oSchema->passed_url)) {
-				$target = $oSchema->passed_url;
+			if (!empty($oMschema->passed_url)) {
+				$target = $oMschema->passed_url;
 			} else {
 				$target = '/rest/site/fe/user?site=' . $site;
 			}

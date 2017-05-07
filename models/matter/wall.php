@@ -14,15 +14,14 @@ class wall_model extends app_base {
 	const APPROVE_REJECT = 2;
 	/**
 	 *
-	 * $wid string
-	 * $cascaded array []
 	 */
-	public function &byId($id, $fields = '*') {
-		$q = array(
+	public function &byId($id, $options = []) {
+		$fields = isset($options['fields']) ? $options['fields'] : '*';
+		$q = [
 			$fields,
 			'xxt_wall',
-			"id='$id'",
-		);
+			['id' => $id],
+		];
 		if ($w = $this->query_obj_ss($q)) {
 			$w->type = 'wall';
 		}

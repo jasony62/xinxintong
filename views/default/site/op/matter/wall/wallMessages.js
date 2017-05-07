@@ -1,9 +1,9 @@
 onmessage = function(event) {
-    var mpid = event.data.mpid,
+    var siteId = event.data.siteId,
         wid = event.data.wid,
         last = event.data.last;
     setInterval(function() {
-        doAjax('GET', '/rest/op/wall/messageList?mpid=' + mpid + '&wall=' + wid + '&last=' + last, null, function(rsp) {
+        doAjax('GET', '/rest/site/op/matter/wall/messageList?site=' + siteId + '&wall=' + wid + '&last=' + last, null, function(rsp) {
             postMessage(rsp.data[0]);
             last = rsp.data[1];
         });

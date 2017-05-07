@@ -46,7 +46,7 @@
                     <span class="input-group-btn">
                         <button class="btn btn-default" type="button" ng-click="quitMission()">
                             <span class='glyphicon glyphicon-remove'></span>
-                        </button>
+                    </button>
                     </span>
                 </div>
             </div>
@@ -90,12 +90,16 @@
             <div class="form-group compact">
                 <div class="help-block">用户进入URL</div>
                 <div class='input-group'>
-                    <input class='form-control' readonly value="{{wall.user_url}}">
+                    <input class='form-control' readonly value="{{entry.url}}">
                     <span class='input-group-btn'>
-                        <button class='btn btn-default text2Clipboard' data-clipboard-text="{{wall.user_url}}">复制</button>
-                        <a class='btn btn-default' ng-href="{{wall.user_url}}" target='_blank' title='打开'><i class='glyphicon glyphicon-open'></i></a>
+                        <button class='btn btn-default text2Clipboard' data-clipboard-text="{{entry.url}}">复制</button>
+                        <a class='btn btn-default' ng-href="{{entry.url}}" target='_blank' title='打开'><i class='glyphicon glyphicon-open'></i></a>
                     </span>
                 </div>
+            </div>
+            <div class="form-group compact">
+                <span><img id='entryQrcode' ng-src="{{entry.qrcode}}"></span>
+                <button class='btn btn-default' ng-click="downloadQrcode(entry.qrcode)">下载</button>
             </div>
         </div>
     </div>

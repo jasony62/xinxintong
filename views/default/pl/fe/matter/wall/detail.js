@@ -38,5 +38,16 @@ define(['frame'], function(ngApp) {
         $scope.choosePhase = function() {
             srvWallApp.choosePhase();
         };
+        $scope.downloadQrcode = function(url) {
+            $('<a href="' + url + '" download="' + $scope.wall.title + '.png"></a>')[0].click();
+        };
+        $scope.$watch('wall', function(oWall) {
+            if (oWall) {
+                $scope.entry = {
+                    url: oWall.user_url,
+                    qrcode: '/rest/site/fe/matter/wall/qrcode?site=' + oWall.siteid + '&url=' + encodeURIComponent(oWall.user_url),
+                };
+            }
+        });
     }]);
 });

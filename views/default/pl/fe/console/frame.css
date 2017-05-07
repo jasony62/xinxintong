@@ -1,4 +1,5 @@
 body{margin-bottom:50px;}
+hr{margin:5px 0;}
 @media screen and (min-width:1200px){
 	.container{width:100%;}
 }

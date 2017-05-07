@@ -510,6 +510,150 @@ define(['frame'], function(ngApp) {
             $scope.list();
         }, true);
     }]);
+    ngApp.provider.controller('ctrlSiteUser', ['$scope', 'http2', function($scope, http2) {}]);
+    ngApp.provider.controller('ctrlMember', ['$scope', '$uibModal', '$location', 'http2', function($scope, $uibModal, $location, http2) {
+        $scope.selectedMschema = null;
+        $scope.$watch('selectedMschema', function(nv) {
+            if (!nv) return;
+            $scope.searchBys = [];
+            nv.attr_name[0] == 0 && $scope.searchBys.push({
+                n: '姓名',
+                v: 'name'
+            });
+            nv.attr_mobile[0] == 0 && $scope.searchBys.push({
+                n: '手机号',
+                v: 'mobile'
+            });
+            nv.attr_email[0] == 0 && $scope.searchBys.push({
+                n: '邮箱',
+                v: 'email'
+            });
+            $scope.page = {
+                at: 1,
+                size: 30,
+                keyword: '',
+                searchBy: $scope.searchBys[0].v
+            };
+            $scope.doSearch(1);
+        });
+        $scope.doSearch = function(page) {
+            page && ($scope.page.at = page);
+            var url, filter = '';
+            if ($scope.page.keyword !== '') {
+                filter = '&kw=' + $scope.page.keyword;
+                filter += '&by=' + $scope.page.searchBy;
+            }
+            url = '/rest/pl/fe/site/member/list?site=' + $scope.criteria.sid + '&schema=' + $scope.selectedMschema.id;
+            url += '&page=' + $scope.page.at + '&size=' + $scope.page.size + filter
+            url += '&contain=total';
+            http2.get(url, function(rsp) {
+                var i, member, members = rsp.data.members;
+                for (i in members) {
+                    member = members[i];
+                    if (member.extattr) {
+                        try {
+                            member.extattr = JSON.parse(member.extattr);
+                        } catch (e) {
+                            member.extattr = {};
+                        }
+                    }
+                }
+                $scope.members = members;
+                $scope.page.total = rsp.data.total;
+            });
+        };
+        $scope.editMember = function(member) {
+            $uibModal.open({
+                templateUrl: '/views/default/pl/fe/_module/memberEditor.html?_=1',
+                backdrop: 'static',
+                resolve: {
+                    schema: function() {
+                        return angular.copy($scope.selectedMschema);
+                    }
+                },
+                controller: ['$uibModalInstance', '$scope', 'schema', function($mi, $scope, schema) {
+                    $scope.schema = schema;
+                    $scope.member = angular.copy(member);
+                    $scope.canShow = function(name) {
+                        return schema && schema['attr_' + name].charAt(0) === '0';
+                    };
+                    $scope.close = function() {
+                        $mi.dismiss();
+                    };
+                    $scope.ok = function() {
+                        $mi.close({
+                            action: 'update',
+                            data: $scope.member
+                        });
+                    };
+                    $scope.remove = function() {
+                        $mi.close({
+                            action: 'remove'
+                        });
+                    };
+                }]
+            }).result.then(function(rst) {
+                if (rst.action === 'update') {
+                    var data = rst.data,
+                        newData = {
+                            verified: data.verified,
+                            name: data.name,
+                            mobile: data.mobile,
+                            email: data.email,
+                            email_verified: data.email_verified,
+                            extattr: data.extattr
+                        },
+                        i, ea;
+                    for (i in $scope.schema.extattr) {
+                        ea = $scope.schema.extattr[i];
+                        newData[ea.id] = rst.data[ea.id];
+                    }
+                    http2.post('/rest/pl/fe/site/member/update?site=' + $scope.criteria.sid + '&id=' + member.id, newData, function(rsp) {
+                        angular.extend(member, newData);
+                    });
+                } else if (rst.action === 'remove') {
+                    http2.get('/rest/pl/fe/site/member/remove?site=' + $scope.criteria.sid + '&id=' + member.id, function() {
+                        $scope.members.splice($scope.members.indexOf(member), 1);
+                    });
+                }
+            });
+        };
+        http2.get('/rest/pl/fe/site/member/schema/list?site=' + $scope.criteria.sid, function(rsp) {
+            $scope.mschemas = rsp.data;
+        });
+    }]);
+    ngApp.provider.controller('ctrlSiteAccount', ['$scope', '$uibModal', 'http2', function($scope, $uibModal, http2) {
+        $scope.page = {
+            at: 1,
+            size: 30,
+        };
+        $scope.doSearch = function(page) {
+            var url = '/rest/pl/fe/site/user/account/list';
+            page && ($scope.page.at = page);
+            url += '?site=' + $scope.criteria.sid;
+            url += '&page=' + $scope.page.at + '&size=' + $scope.page.size;
+            http2.get(url, function(rsp) {
+                $scope.users = rsp.data.users;
+                $scope.page.total = rsp.data.total;
+            });
+        };
+        $scope.openProfile = function(uid) {
+            //location.href = '/rest/pl/fe/site/user/fans?site=' + $scope.criteria.sid + '&uid=' + uid;
+        };
+        $scope.find = function() {
+            var url = '/rest/pl/fe/site/user/account/list',
+                data = {
+                    nickname: $scope.nickname
+                };
+            url += '?site=' + $scope.criteria.sid;
+            url += '&nickname=' + $scope.nickname;
+            http2.post(url, data, function(rsp) {
+                $scope.users = rsp.data.users;
+                $scope.page.total = rsp.data.total;
+            })
+        };
+        $scope.doSearch(1);
+    }]);
     ngApp.provider.controller('ctrlRecycle', ['$scope', 'http2', function($scope, http2) {
         var t = (new Date() * 1);
         $scope.recycle = function() {
@@ -527,5 +671,5 @@ define(['frame'], function(ngApp) {
             })
         };
         $scope.recycle();
-    }])
+    }]);
 });

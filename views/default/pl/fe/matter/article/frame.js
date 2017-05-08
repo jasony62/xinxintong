@@ -30,7 +30,7 @@ define(['require'], function() {
             url: '/rest/pl/fe/matter'
         }, {
             value: 'wall',
-            title: '讨论组',
+            title: '信息墙',
             url: '/rest/pl/fe/matter'
         }],
     });
@@ -105,7 +105,7 @@ define(['require'], function() {
             }
         });
         window.onbeforeunload = function(e) {
-            if( !editing.pic && !editing.thumbnail){
+            if (!editing.pic && !editing.thumbnail) {
                 tmsThumbnail.thumbnail($scope.editing);
             }
         };

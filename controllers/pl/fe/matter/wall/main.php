@@ -30,7 +30,7 @@ class main extends \pl\fe\matter\base {
 		$modelWall = $this->model('matter\wall');
 		$oWall = $modelWall->byId($id, '*');
 		/**
-		 * 获得讨论组的url
+		 * 获得信息墙的url
 		 */
 		$oWall->user_url = $modelWall->getEntryUrl($site, $id);
 		/*所属项目*/
@@ -77,7 +77,7 @@ class main extends \pl\fe\matter\base {
 
 		$walls = $modelWall->query_objs_ss($q, $q2);
 		/**
-		 * 获得每个讨论组的url
+		 * 获得每个信息墙的url
 		 */
 		if ($walls) {
 			foreach ($walls as &$wall) {
@@ -89,27 +89,38 @@ class main extends \pl\fe\matter\base {
 		return new \ResponseData($walls);
 	}
 	/**
-	 * 创建一个讨论组
+	 * 创建一个信息墙
 	 */
 	public function create_action($site) {
 		if (false === ($user = $this->accountUser())) {
 			return new \ResponseTimeout();
 		}
 
+		$oSite = $this->model('site')->byId($site, ['fields' => 'id,heading_pic']);
+		if (false === $oSite) {
+			return new \ObjectNotFoundError();
+		}
+
 		$model = $this->model();
 
+		$newone = new \stdClass;
 		$wid = uniqid();
-		$newone['id'] = $wid;
-		$newone['siteid'] = $site;
-		$newone['title'] = '新信息墙';
-		$newone['creater'] = $user->id;
-		$newapp['creater_name'] = $model->escape($user->name);
-		$newone['create_at'] = time();
-		$newone['quit_cmd'] = 'q';
-		$newone['join_reply'] = '欢迎加入';
-		$newone['quit_reply'] = '已经退出';
+		$newone->id = $wid;
+		$newone->siteid = $site;
+		$newone->title = '新信息墙';
+		$newone->pic = $oSite->heading_pic;
+		$newone->creater = $user->id;
+		$newone->creater_name = $model->escape($user->name);
+		$newone->create_at = time();
+		$newone->quit_cmd = 'q';
+		$newone->join_reply = '欢迎加入';
+		$newone->quit_reply = '已经退出';
 
 		$model->insert('xxt_wall', $newone, false);
+
+		/* 记录操作日志 */
+		$newone->type = 'wall';
+		$this->model('matter\log')->matterOp($oSite->id, $user, $newone, 'C');
 
 		return new \ResponseData($wid);
 	}
@@ -139,10 +150,10 @@ class main extends \pl\fe\matter\base {
 			$nv->body_css = $modelApp->escape($nv->body_css);
 		} else if (isset($nv->active) && $nv->active === 'N') {
 			//如果停用信息墙，退出所有用户
-			$modelApp->update('xxt_wall_enroll', array('close_at' => time()), ['wid' => $app]);
+			$modelApp->update('xxt_wall_enroll', ['close_at' => time()], ['wid' => $app]);
 		}
 
-		$rst = $modelApp->update('xxt_wall', (array) $nv, ['id' => $app]);
+		$rst = $modelApp->update('xxt_wall', $nv, ['id' => $app]);
 		/*记录操作日志*/
 		if ($rst) {
 			$matter = $modelApp->byId($app, 'id,title,summary,pic');

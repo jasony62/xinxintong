@@ -37,11 +37,11 @@ constant('matterTypes', [{
     url: '/rest/pl/fe/matter'
 }, {
     value: 'wall',
-    title: '讨论组',
+    title: '信息墙',
     url: '/rest/pl/fe/matter'
 }, {
     value: 'joinwall',
-    title: '加入讨论组',
+    title: '进入信息墙',
     url: '/rest/pl/fe/matter'
 }, {
     value: 'contribute',

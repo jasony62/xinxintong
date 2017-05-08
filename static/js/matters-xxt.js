@@ -37,11 +37,11 @@ xxtMatters.constant('matterTypes', [{
     url: '/rest/mp/matter'
 }, {
     value: 'wall',
-    title: '讨论组',
+    title: '信息墙',
     url: '/rest/mp/matter'
 }, {
     value: 'joinwall',
-    title: '加入讨论组',
+    title: '进入信息墙',
     url: '/rest/mp/matter'
 }, {
     value: 'contribute',

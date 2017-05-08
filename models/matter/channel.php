@@ -136,6 +136,7 @@ class channel_model extends article_base {
 				'link' => 'xxt_link',
 				'contribute' => 'xxt_contribute',
 				'wall' => 'xxt_wall',
+				'mission' => 'xxt_mission',
 			];
 		} else {
 			$matterTypes = [$channel->matter_type => 'xxt_' . $channel->matter_type];
@@ -314,7 +315,7 @@ class channel_model extends article_base {
 					'o' => ($params->page - 1) * $params->size,
 					'l' => $params->size,
 				);
-			}else if(isset($channel->volume)){
+			} else if (isset($channel->volume)) {
 				$q2['r'] = array(
 					'o' => 0,
 					'l' => $channel->volume,
@@ -342,9 +343,9 @@ class channel_model extends article_base {
 			foreach ($simpleMatters as $sm) {
 				/* 检查素材是否可用 */
 				$valid = true;
-				if($sm->matter_type !== 'article'){
+				if ($sm->matter_type !== 'article') {
 					$fullMatter = \TMS_APP::M('matter\\' . $sm->matter_type)->byId($sm->matter_id);
-				}else{
+				} else {
 					$q = [
 						"a.*,s.name site_name,'article' type",
 						'xxt_article a, xxt_site s',

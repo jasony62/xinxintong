@@ -47,7 +47,6 @@ class main extends \site\fe\matter\base {
 
 		$modelChannel = $this->model('matter\channel');
 		$site = $modelChannel->escape($site);
-		$id = $modelChannel->escape($id);
 		$matters = $modelChannel->getMattersNoLimit($id, $user->uid, $params);
 		$tagModel = $this->model('tag');
 		foreach ($matters as &$m) {

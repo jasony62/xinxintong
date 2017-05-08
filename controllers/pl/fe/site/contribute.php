@@ -11,18 +11,31 @@ class contribute extends \pl\fe\base {
 	 *
 	 * @param string $site site'id
 	 */
-	public function list_action($site, $page = 1, $size = 10) {
+	public function list_action($site = null, $page = 1, $size = 10) {
 		if (false === ($user = $this->accountUser())) {
 			return new \ResponseTimeout();
 		}
 
-		$model = $this->model();
+		$model = $this->model('site');
+		$sites = [];
+		if(empty($site)){
+			//获取用户有权管理的团队
+			$sites2 = $model->byUser($user->id);
+			foreach ($sites2 as $site) {
+				$sites[] = $site->id;
+			}
+		}else{
+			$sites[0] = $model->escape($site);
+		}
+
+		$sites = "('" . implode("','", $sites) . "')";
+		
 		$result = new \stdClass;
 
 		$q = [
 			'*',
 			'xxt_site_contribute',
-			['siteid' => $site],
+			"siteid in $sites",
 		];
 		$q2 = [
 			'o' => 'create_at desc',

@@ -59,10 +59,10 @@ class joinwall_model extends Reply {
 		 * 返回活动加入成功提示
 		 */
 		if ($doResponse) {
-			$r = $this->textResponse($desc);
+			$r = $this->textResponse($desc[1]);
 			die($r);
 		} else {
-			return $desc;
+			return $desc[1];
 		}
 	}
 }

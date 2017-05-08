@@ -122,7 +122,14 @@ define(['main'], function(ngApp) {
             $scope.slides = slides;
         });
     }]);
-    ngApp.provider.controller('ctrlHomeChannel', ['$scope', 'http2', 'mattersgallery', function($scope, http2, mattersgallery) {
+    ngApp.provider.controller('ctrlHomeChannel', ['$scope', 'http2', 'mattersgallery', 'noticebox', function($scope, http2, mattersgallery, noticebox) {
+        $scope.doGroup = function(channel, group) {
+            var url = '/rest/pl/fe/site/setting/page/updateHomeChannel';
+                url += '?site=' + channel.siteid + '&id=' + channel.id;
+            http2.post(url, {homeGroup: group}, function(rsp) {
+                noticebox.success('完成分组');
+            });
+        }
         function updateSeq() {
             var updated = {};
             $scope.channels.forEach(function(channel, index) {

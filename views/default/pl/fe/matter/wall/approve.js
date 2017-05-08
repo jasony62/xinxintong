@@ -1,9 +1,8 @@
-
 define(['frame'], function(ngApp) {
     /**
      * app setting controller
      */
-    ngApp.provider.controller('ctrlApprove', ['$scope', '$q', 'http2',function($scope, $q, http2) {
+    ngApp.provider.controller('ctrlApprove', ['$scope', 'http2', function($scope, http2) {
         $scope.$parent.subView = 'approve';
         var inlist = function(id) {
             for (var i in $scope.messages) {
@@ -31,18 +30,16 @@ define(['frame'], function(ngApp) {
             site: $scope.siteId
         });
         $scope.approve = function(msg) {
-            http2.get('/rest/pl/fe/matter/wall/message/approve?wall=' + $scope.id + '&id=' + msg.id  + '&site=' +$scope.siteId, function(rsp) {
+            http2.get('/rest/pl/fe/matter/wall/message/approve?wall=' + $scope.id + '&id=' + msg.id + '&site=' + $scope.siteId, function(rsp) {
                 var i = $scope.messages.indexOf(msg);
                 $scope.messages.splice(i, 1);
             });
         };
         $scope.reject = function(msg) {
-
-            http2.get('/rest/pl/fe/matter/wall/message/reject?wall=' + $scope.id + '&id=' + msg.id + '&site=' +$scope.siteId , function(rsp) {
+            http2.get('/rest/pl/fe/matter/wall/message/reject?wall=' + $scope.id + '&id=' + msg.id + '&site=' + $scope.siteId, function(rsp) {
                 var i = $scope.messages.indexOf(msg);
                 $scope.messages.splice(i, 1);
             });
         };
     }]);
 });
-

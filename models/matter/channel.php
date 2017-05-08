@@ -135,7 +135,7 @@ class channel_model extends article_base {
 				//'news' => 'xxt_news',
 				'link' => 'xxt_link',
 				'contribute' => 'xxt_contribute',
-				//'wall'=>'xxt_wall',
+				'wall' => 'xxt_wall',
 			];
 		} else {
 			$matterTypes = [$channel->matter_type => 'xxt_' . $channel->matter_type];
@@ -294,16 +294,17 @@ class channel_model extends article_base {
 		/**
 		 * load channel.
 		 */
-		$channel = $this->byId($channel_id, ['fields' => 'matter_type,orderby']);
+		$channel = $this->byId($channel_id, ['fields' => 'matter_type,orderby,volume']);
 		/**
 		 * in channel
 		 */
 		if ($channel->matter_type === 'article') {
 			$orderby = $channel->orderby;
+			$channel_id = $this->escape($channel_id);
 			$q1 = array();
-			$q1[] = "m.id,m.title,m.summary,m.pic,m.create_at,m.creater_name,cm.create_at add_at,'article' type,m.score,m.remark_num,s.score myscore";
-			$q1[] = "xxt_article m left join xxt_article_score s on m.id=s.article_id and s.vid='$userid',xxt_channel_matter cm";
-			$q1[] = "m.state=1 and m.approved='Y' and cm.channel_id=$channel_id and m.id=cm.matter_id and cm.matter_type='article'";
+			$q1[] = "m.id,m.title,m.summary,m.pic,m.create_at,m.creater_name,cm.create_at add_at,'article' type,m.score,m.remark_num,s.score myscore,st.name site_name,st.id siteid";
+			$q1[] = "xxt_article m left join xxt_article_score s on m.id=s.article_id and s.vid='$userid',xxt_channel_matter cm,xxt_site st";
+			$q1[] = "m.state=1 and m.approved='Y' and cm.channel_id=$channel_id and m.id=cm.matter_id and cm.matter_type='article' and m.siteid=st.id";
 
 			$q2 = array();
 			$q2['o'] = $this->matterOrderby('article', $orderby, 'cm.create_at desc');
@@ -312,6 +313,11 @@ class channel_model extends article_base {
 				$q2['r'] = array(
 					'o' => ($params->page - 1) * $params->size,
 					'l' => $params->size,
+				);
+			}else if(isset($channel->volume)){
+				$q2['r'] = array(
+					'o' => 0,
+					'l' => $channel->volume,
 				);
 			}
 
@@ -325,27 +331,33 @@ class channel_model extends article_base {
 			$q2['o'] = 'cm.create_at desc';
 
 			// 分页获取，如果素材已经删除，或者素材尚未批准的情况下，分页会导致返回的数量不正确
-			// if (isset($params->page) && isset($params->size)) {
-			// 	$q2['r'] = array(
-			// 		'o' => ($params->page - 1) * $params->size,
-			// 		'l' => $params->size,
-			// 	);
-			// }
+			if (isset($params->page) && isset($params->size)) {
+				$q2['r'] = array(
+					'o' => ($params->page - 1) * $params->size,
+					'l' => $params->size,
+				);
+			}
 			$matters = []; // 可用的素材
 			$simpleMatters = $this->query_objs_ss($q1, $q2);
 			foreach ($simpleMatters as $sm) {
-				$fullMatter = \TMS_APP::M('matter\\' . $sm->matter_type)->byId($sm->matter_id);
+				/* 检查素材是否可用 */
+				$valid = true;
+				if($sm->matter_type !== 'article'){
+					$fullMatter = \TMS_APP::M('matter\\' . $sm->matter_type)->byId($sm->matter_id);
+				}else{
+					$q = [
+						"a.*,s.name site_name,'article' type",
+						'xxt_article a, xxt_site s',
+						"a.id = $sm->matter_id and a.state = 1 and a.approved = 'Y' and a.siteid=s.id and s.state = 1",
+					];
+					$fullMatter = $this->query_obj_ss($q);
+				}
+
 				if (false === $fullMatter) {
 					continue;
 				}
-				/* 检查素材是否可用 */
-				$valid = true;
+
 				switch ($sm->matter_type) {
-				case 'article':
-					if ($fullMatter->state !== '1' || $fullMatter->approved !== 'Y') {
-						$valid = false;
-					}
-					break;
 				case 'enroll':
 				case 'signin':
 				case 'lottery':

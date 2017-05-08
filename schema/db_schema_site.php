@@ -75,6 +75,7 @@ $sql .= ",title varchar(70) not null default ''";
 $sql .= ',pic text';
 $sql .= ',summary varchar(240) not null';
 $sql .= ",seq int not null default 0";
+$sql .= ",home_group char(1) not null default 'C'";
 $sql .= ",primary key(id)) ENGINE=MyISAM DEFAULT CHARSET=utf8";
 if (!$mysqli->query($sql)) {
 	header('HTTP/1.0 500 Internal Server Error');
@@ -324,7 +325,7 @@ if (!$mysqli->query($sql)) {
 	echo 'database error: ' . $mysqli->error;
 }
 /*
- * 通过认证的用户
+ * 团队通讯录联系人
  *
  * 支持与企业号用户同步
  * 系统支持多个认证源
@@ -333,6 +334,7 @@ $sql = "create table if not exists xxt_site_member(";
 $sql .= "id int not null auto_increment";
 $sql .= ",siteid varchar(32) not null"; //
 $sql .= ",userid varchar(40) not null"; // xxt_site_account
+$sql .= ",unionid varchar(32) not null default ''"; // xxt_site_registration
 $sql .= ",schema_id int not null"; // id from xxt_site_member_schema
 $sql .= ",create_at int not null";
 $sql .= ",identity varchar(255) not null default ''"; // 认证用户的唯一标识

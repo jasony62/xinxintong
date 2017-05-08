@@ -150,13 +150,14 @@ class main extends \pl\fe\base {
 	 *
 	 * @param int $id 是日志记录的ID
 	 */
-	public function top_action($site, $id, $matterType = null) {
+	public function top_action($site, $matterId, $matterType, $matterTitle) {
 		if (false === ($user = $this->accountUser())) {
 			return new \ResponseTimeout();
 		}
 
 		//检查管理员的权限
 		$model = $this->model('matter\log');
+		$model->setOnlyWriteDbConn(true);
 		$data = $model->query_val_ss([
 			'urole',
 			'xxt_site_admin',
@@ -167,14 +168,18 @@ class main extends \pl\fe\base {
 			return new \ResponseError('当前管理员没有该素材的操作权限！');
 		}
 
+		// 记录操作日志
+		$matter = new \stdClass;
+		$matter->id = $matterId;
+		$matter->title = $matterTitle;
+		$matter->type = $matterType;
+		$model->matterOp($site, $user, $matter, 'top');
+
 		$q = array(
 			'matter_id,matter_type,matter_title',
 			'xxt_log_matter_op',
-			['siteid' => $site, 'id' => $id]
+			['siteid' => $site, 'matter_id' => $matterId, 'matter_type' => $matterType, 'user_last_op' => 'Y', 'operator' => $user->id]
 		);
-		if($matterType === 'site' || $matterType === 'mission'){
-			$q[2] = ['siteid' => $site, 'matter_id' => $id, 'matter_type' => $matterType, 'user_last_op' => 'Y', 'operator' => $user->id];
-		}
 		
 		$one = $model->query_obj_ss($q);
 

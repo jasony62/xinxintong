@@ -8,11 +8,14 @@ $sql .= "id varchar(32) not null";
 $sql .= ",mpid varchar(32) not null default ''";
 $sql .= ",siteid varchar(32) not null default ''";
 $sql .= ",creater varchar(40) not null";
+$sql .= ",creater_name varchar(255) not null default ''";
 $sql .= ",create_at int not null";
 $sql .= ",active char(1) not null default 'N'";
 $sql .= ",title varchar(70) not null";
 $sql .= ",pic text"; // 分享或生成链接时的图片
 $sql .= ",summary varchar(240) not null default ''"; // 分享或生成链接时的摘要
+$sql .= ",mission_id int not null default 0"; // 所属项目
+$sql .= ",mission_phase_id varchar(13) not null default ''"; // 所属项目阶段
 $sql .= ",access_control char(1) not null default 'N'";
 $sql .= ",authapis text";
 $sql .= ",user_url text";
@@ -27,6 +30,7 @@ $sql .= ",body_css text";
 $sql .= ",last_sync_at int not null default 0"; // 最后同步的时间
 $sql .= ",source_app varchar(255) not null default ''"; // 关联的登记或签到活动
 $sql .= ",data_schemas text";
+$sql .= ",state tinyint not null default 1"; //0:stop,1:normal
 $sql .= ",primary key(id)) ENGINE=MyISAM DEFAULT CHARSET=utf8";
 if (!$mysqli->query($sql)) {
 	header('HTTP/1.0 500 Internal Server Error');

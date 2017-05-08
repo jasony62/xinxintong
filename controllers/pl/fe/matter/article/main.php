@@ -2,6 +2,7 @@
 namespace pl\fe\matter\article;
 
 require_once dirname(dirname(__FILE__)) . '/base.php';
+
 /*
  * 文章控制器
  */
@@ -58,9 +59,9 @@ class main extends \pl\fe\matter\base {
 			$mission = $model->escape($mission);
 			$w .= " and a.mission_id=$mission";
 			//按项目阶段过滤
-			if(isset($options->mission_phase_id) && !empty($options->mission_phase_id) && $options->mission_phase_id !== "ALL"){
+			if (isset($options->mission_phase_id) && !empty($options->mission_phase_id) && $options->mission_phase_id !== "ALL") {
 				$mission_phase_id = $model->escape($options->mission_phase_id);
-				$w .= " and a.mission_phase_id = '".$mission_phase_id."'";
+				$w .= " and a.mission_phase_id = '" . $mission_phase_id . "'";
 			}
 		} else {
 			$site = $model->escape($site);
@@ -224,7 +225,7 @@ class main extends \pl\fe\matter\base {
 			}
 		}
 		/*如果此单图文属于引用那么需要返回被引用的单图文*/
-		if($article->from_mode === 'C'){
+		if ($article->from_mode === 'C') {
 			$id2 = $article->from_id;
 			$article2 = $modelAct->byId($id2, ['fields' => 'body,author,siteid,id']);
 			$article->body = $article2->body;
@@ -330,7 +331,7 @@ class main extends \pl\fe\matter\base {
 	/**
 	 * 复制单图文
 	 * @param string $site 被复制单图文所在的团队siteid
-	 * @param char $mode 复制模式O:origin C:cite  D:duplicate 
+	 * @param char $mode 复制模式O:origin C:cite  D:duplicate
 	 * @param int $id
 	 */
 	public function copy_action($site, $id, $mission = null, $mode = 'D') {
@@ -340,11 +341,12 @@ class main extends \pl\fe\matter\base {
 
 		$sites = $this->getPostJson();
 		$modelArt = $this->model('matter\article2');
+		$modelArt->setOnlyWriteDbConn(true);
 		$modelLog = $this->model('matter\log');
+		$modelTag = $this->model('tag');
 
 		$copied = $modelArt->byId($id);
 		/*获取原图文的内容标签*/
-		$modelTag = $this->model('tag');
 		$tags = $modelTag->tagsByRes($copied->id, 'article', 0);
 		$current = time();
 
@@ -359,22 +361,22 @@ class main extends \pl\fe\matter\base {
 		$article->modify_at = $current;
 		$article->author = $modelArt->escape($user->name);
 		$article->summary = $modelArt->escape($copied->summary);
-		$article->body = $modelArt->escape($copied->body);
 		$article->hide_pic = $copied->hide_pic;
 		$article->url = $copied->url;
 		$article->can_siteuser = $copied->can_siteuser;
 		$article->from_siteid = $modelArt->escape($site);
 		$article->from_id = $modelArt->escape($id);
-		if($mode === 'D'){
+		if ($mode === 'D') {
 			$article->title = $modelArt->escape($copied->title . '（副本）');
-		}else{
+			$article->body = $modelArt->escape($copied->body);
+		} else {
 			$article->title = $modelArt->escape($copied->title . '（引用）');
 		}
 		if (!empty($mission)) {
 			$article->mission_id = $mission;
 		}
 
-		if(empty($sites)) {
+		if (empty($sites)) {
 			$site = $modelArt->escape($site);
 			$article->siteid = $site;
 			$article->from_mode = 'S';
@@ -389,36 +391,37 @@ class main extends \pl\fe\matter\base {
 				$modelMis->addMatter($user, $site, $mission, $article);
 			}
 			/*建立图文和内容标签之间的关系*/
-			if(!empty($tags)){
-				foreach($tags as $tag){
+			if (!empty($tags)) {
+				foreach ($tags as $tag) {
 					unset($tag->id);
 				}
 				$this->model('tag')->save($site, $article->id, 'article', 0, $tags, null);
 			}
 
-		}else{
-			if($mode === 'D'){
+		} else {
+			if ($mode === 'D') {
 				$article->from_mode = 'D';
-			}else{
+			} else {
 				$article->from_mode = 'C';
 			}
 			foreach ($sites as $site2) {
 				$siteid = $modelArt->escape($site2->siteid);
 				$article->siteid = $siteid;
-				if($site === $siteid){
-					$article->from_mode = 'S';
+				if ($copied->siteid === $siteid) {
+					continue;
 				}
-				if(isset($article->type)){
+				if (isset($article->type)) {
 					unset($article->type);
 				}
-				if(isset($article->id)){
+				if (isset($article->id)) {
 					unset($article->id);
 				}
 
 				$article->id = $modelArt->insert('xxt_article', $article, true);
 				/*建立图文和内容标签之间的关系*/
-				if(!empty($tags)){
-					foreach($tags as $tag){//此操作如果放在循环外，第二次循环会出现$tag->id，因为在save方法中被加上了
+				if (!empty($tags)) {
+					foreach ($tags as $tag) {
+//此操作如果放在循环外，第二次循环会出现$tag->id，因为在save方法中被加上了
 						unset($tag->id);
 					}
 					$modelTag->save($siteid, $article->id, 'article', 0, $tags, null);
@@ -428,7 +431,7 @@ class main extends \pl\fe\matter\base {
 				$article->type = 'article';
 				$modelLog->matterOp($siteid, $user, $article, 'C');
 				/* 增加原图文的复制数 */
-				if($site !== $siteid){
+				if ($site !== $siteid) {
 					$modelArt->update("update xxt_article set copy_num = copy_num +1 where id = $id");
 				}
 			}
@@ -448,7 +451,7 @@ class main extends \pl\fe\matter\base {
 		}
 
 		$model = $this->model();
-		$article = $this->model('matter\article2')->byId($id, ['fields' => 'from_mode,siteid,id']);
+		$article = $this->model('matter\article2')->byId($id, ['fields' => 'from_mode,siteid,id,title,summary,pic']);
 		if ($article === false) {
 			return new \ObjectNotFoundError();
 		}
@@ -458,16 +461,23 @@ class main extends \pl\fe\matter\base {
 		isset($nv['summary']) && $nv['summary'] = $model->escape($nv['summary']);
 		isset($nv['author']) && $nv['author'] = $model->escape($nv['author']);
 		isset($nv['body']) && $nv['body'] = $model->escape(urldecode($nv['body']));
-		if($article->from_mode === 'C'){
-			if(isset($nv['body'])){
+		if ($article->from_mode === 'C') {
+			if (isset($nv['body'])) {
 				unset($nv['body']);
 			}
-			if(isset($nv['author'])){
+			if (isset($nv['author'])) {
 				unset($nv['author']);
 			}
 		}
 
 		$rst = $this->_update($site, $id, $nv);
+		if ($rst) {
+			// 记录操作日志并更新信息
+			isset($nv['title']) && $article->title = $nv['title'];
+			isset($nv['summary']) && $article->summary = $nv['summary'];
+			isset($nv['pic']) && $article->pic = $nv['pic'];
+			$this->model('matter\log')->matterOp($site, $user, $article, 'U');
+		}
 
 		return new \ResponseData($rst);
 	}
@@ -643,6 +653,9 @@ class main extends \pl\fe\matter\base {
 	 */
 	public function uploadAndCreate_action($site, $state = null) {
 		if ($state === 'done') {
+			require_once TMS_APP_DIR . '/vendor/autoload.php';
+			require_once TMS_APP_DIR . '/lib/pptx_to_article.php';
+
 			$user = $this->accountUser();
 			$posted = $this->getPostJson();
 			$file = $posted->file;
@@ -652,7 +665,7 @@ class main extends \pl\fe\matter\base {
 
 			/* 生成图文*/
 			$article = array();
-			$article['mpid'] = $site;
+			$article['siteid'] = $site;
 			$article['creater'] = $user->id;
 			$article['creater_src'] = $user->src;
 			$article['creater_name'] = $user->name;
@@ -694,7 +707,7 @@ class main extends \pl\fe\matter\base {
 			$ext = explode('.', $filename);
 			$ext = array_pop($ext);
 			$attAbs = $appRoot . '/' . $attachment;
-			if (in_array($ext, array('doc', 'docx', 'ppt', 'pptx'))) {
+			if (in_array($ext, array('doc', 'docx', 'ppt'))) {
 				/* 存放附件转换结果 */
 				$attDir = str_replace('.' . $ext, '', $attachment);
 				mkdir($appRoot . '/' . $attDir);
@@ -706,11 +719,31 @@ class main extends \pl\fe\matter\base {
 				if ($status == 1) {
 					return new \ResponseError('转换文件失败：' . $rsp);
 				}
-
 				$this->setBodyByAtt($id, $attDir);
 				if (in_array($ext, array('ppt', 'pptx'))) {
 					$this->setCoverByAtt($id, $attDir);
 				}
+			} else if ($ext === 'pptx') {
+				$oReader = \PhpOffice\PhpPresentation\IOFactory::createReader('PowerPoint2007');
+				$oPHPPresentation = $oReader->load($attAbs);
+				$pptx = new \pptx_to_article($oPHPPresentation);
+				$model = $this->model();
+				//设置头图
+				if (file_exists('0.jpg')) {
+					$attDir = str_replace('.' . $ext, '', $attachment);
+					mkdir($appRoot . '/' . $attDir);
+					rename('0.jpg', $appRoot . '/' . $attDir . '/0.jpg');
+					$this->setCoverByAtt($id, $attDir);
+				}
+				//转单图文
+				//$d['creater_name'] = $article->creator;
+				//$d['author'] = $article->creator;
+				//$d['create_at'] = $article->create_at;
+				//$d['title'] = $article->title;
+				//$d['modify_at'] = $article->modify_at;
+				$d['body'] = $pptx->htmlOutput;
+
+				$model->update('xxt_article', $d, ['id' => $id]);
 			} else if ($ext === 'pdf') {
 				/* 存放附件转换结果 */
 				$attDir = str_replace('.' . $ext, '', $attachment);
@@ -726,7 +759,7 @@ class main extends \pl\fe\matter\base {
 			$matter->type = 'article';
 			$this->model('matter\log')->matterOp($site, $user, $matter, 'C');
 
-			return new \ResponseData($id);
+			return new \ResponseData($matter);
 		} else {
 			/**
 			 * 分块上传文件

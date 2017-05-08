@@ -22,32 +22,29 @@ class page extends \pl\fe\matter\base {
 		$modelPage = $this->model('matter\wall\page');
 		$modelCode = $this->model('code\page');
 
-		$wallPages = array(
-			array(
-				'name' => '信息墙大屏幕',
-				'title' => '信息墙大屏幕',
-				'type' => 'op',
-				'seq' => 1,
-			),
-		);
-		$pages = array();
-		foreach ($wallPages as $wp) {
-			$page = $modelPage->byType($wp['type'], $id);
-			if (empty($page)) {
-				$page = $modelPage->add($site, $wp, $id);
-				$tmplateDir = dirname(__FILE__) . '/template/' . str_replace('.', '/', $wp['type']) . '/';
-				$data = array(
-					'html' => file_get_contents($tmplateDir . 'basic.html'),
-					'css' => file_get_contents($tmplateDir . 'basic.css'),
-					'js' => file_get_contents($tmplateDir . 'basic.js'),
-				);
-				$modelCode->modify($page->code_id, $data);
-			}
-			if (is_array($page)) {
-				$pages = array_merge($pages, $page);
-			} else {
-				$pages[] = $page;
-			}
+		$pages = [];
+		$wp = [
+			'name' => '信息墙大屏幕',
+			'title' => '信息墙大屏幕',
+			'type' => 'op',
+			'seq' => 1,
+			'templateDir' => TMS_APP_TEMPLATE . '/site/op/matter/wall/',
+		];
+		$page = $modelPage->byType($wp['type'], $id);
+		if (empty($page)) {
+			$page = $modelPage->add($site, $wp, $id);
+			$templateDir = $wp['templateDir'];
+			$data = array(
+				'html' => file_get_contents($templateDir . 'basic.html'),
+				'css' => file_get_contents($templateDir . 'basic.css'),
+				'js' => file_get_contents($templateDir . 'basic.js'),
+			);
+			$modelCode->modify($page->code_id, $data);
+		}
+		if (is_array($page)) {
+			$pages = array_merge($pages, $page);
+		} else {
+			$pages[] = $page;
 		}
 
 		return new \ResponseData($pages);
@@ -60,8 +57,7 @@ class page extends \pl\fe\matter\base {
 		$modelCode = $this->model('code\page');
 
 		$pattern = 'basic';
-		$dir = str_replace('.', '/', $page->type);
-		$templateDir = dirname(__FILE__) . '/template/' . $dir . '/';
+		$templateDir = TMS_APP_TEMPLATE . '/site/op/matter/wall/';
 		$data = array(
 			'html' => file_get_contents($templateDir . $pattern . '.html'),
 			'css' => file_get_contents($templateDir . $pattern . '.css'),

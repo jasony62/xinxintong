@@ -23,11 +23,12 @@ class main extends \pl\fe\base {
 	/**
 	 * 列出站点最近操作的素材
 	 */
-	public function recent_action($page = 1, $size = 30, $matterType = null, $scenario = null) {
+	public function recent_action($page = 1, $size = 30) {
 		if (false === ($user = $this->accountUser())) {
 			return new \ResponseTimeout();
 		}
 
+		$filter = $this->getPostJson();
 		$modelLog = $this->model('matter\log');
 
 		// 分页参数
@@ -38,10 +39,20 @@ class main extends \pl\fe\base {
 		$options = [
 			'page' => $p,
 		];
+		if (!empty($filter->bySite)) {
+			$options['bySite'] = $filter->bySite;
+		}
+		if (!empty($filter->byTitle)) {
+			$options['byTitle'] = $filter->byTitle;
+		}
 		// 类型参数
-		!empty($matterType) && $options['matterType'] = $matterType;
+		if (!empty($filter->byType)) {
+			$options['byType'] = $filter->byType;
+		}
 		// 活动场景
-		$scenario !== null && $options['scenario'] = $scenario;
+		if (!empty($filter->scenario)) {
+			$options['scenario'] = $filter->scenario;
+		}
 
 		$matters = $modelLog->recentMattersByUser($user, $options);
 
@@ -139,13 +150,14 @@ class main extends \pl\fe\base {
 	 *
 	 * @param int $id 是日志记录的ID
 	 */
-	public function top_action($site, $id) {
+	public function top_action($site, $matterId, $matterType, $matterTitle) {
 		if (false === ($user = $this->accountUser())) {
 			return new \ResponseTimeout();
 		}
 
 		//检查管理员的权限
 		$model = $this->model('matter\log');
+		$model->setOnlyWriteDbConn(true);
 		$data = $model->query_val_ss([
 			'urole',
 			'xxt_site_admin',
@@ -156,11 +168,20 @@ class main extends \pl\fe\base {
 			return new \ResponseError('当前管理员没有该素材的操作权限！');
 		}
 
-		$one = $model->query_obj_ss([
+		// 记录操作日志
+		$matter = new \stdClass;
+		$matter->id = $matterId;
+		$matter->title = $matterTitle;
+		$matter->type = $matterType;
+		$model->matterOp($site, $user, $matter, 'top');
+
+		$q = array(
 			'matter_id,matter_type,matter_title',
 			'xxt_log_matter_op',
-			['siteid' => $site, 'id' => $id],
-		]);
+			['siteid' => $site, 'matter_id' => $matterId, 'matter_type' => $matterType, 'user_last_op' => 'Y', 'operator' => $user->id]
+		);
+		
+		$one = $model->query_obj_ss($q);
 
 		if (empty($one)) {
 			return new \ResponseError('找不到素材的操作记录！');
@@ -191,7 +212,7 @@ class main extends \pl\fe\base {
 	/**
 	 * 置顶列表
 	 */
-	public function topList_action($page = 1, $size = 12) {
+	public function topList_action($site = null, $page = 1, $size = 12) {
 		if (false === ($user = $this->accountUser())) {
 			return new \ResponseTimeout();
 		}
@@ -200,8 +221,13 @@ class main extends \pl\fe\base {
 		$p = [
 			't.*,l.matter_summary,l.matter_pic,l.matter_scenario',
 			'xxt_account_topmatter t,xxt_log_matter_op l',
-			"t.siteid=l.siteid and t.matter_id=l.matter_id and t.matter_type=l.matter_type and l.user_last_op='Y' and t.userid='$user->id' and t.userid=l.operator",
+			"t.siteid=l.siteid and t.matter_id=l.matter_id and t.matter_type=l.matter_type and l.user_last_op='Y' and t.userid='$user->id' and t.userid=l.operator  and (l.operation<>'D' and l.operation<>'Recycle' and l.operation<>'Quit')",
 		];
+		if(!empty($site)){
+			$site = $model->escape($site);
+			$p[2] .= " and l.siteid = '$site'";
+		}
+
 		$p2['r'] = ['o' => ($page - 1) * $size, 'l' => $size];
 		$p2['o'] = ['top_at desc'];
 

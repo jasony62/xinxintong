@@ -1,4 +1,8 @@
 body{margin-bottom:50px;}
+hr{margin:5px 0;}
+@media screen and (min-width:1200px){
+	.container{width:100%;}
+}
 .ng-cloak{display:none;}
 .navbar-nav .active:after{content:' ';position:absolute;left:0;right:0;bottom:-1px;height:3px;background:red;}
 .tms-panel-heading{margin-bottom:-1px;}
@@ -33,3 +37,12 @@ body{margin-bottom:50px;}
 .friend-matter{cursor:pointer;padding:15px;}
 .media-object{width:96px;height:96px;}
 .actions{border-top:1px solid #ddd;margin-top:8px;padding-top:8px;}
+
+/* new */
+.main{position:relative;}
+.active > .btn-default{color:#fff;background-color:green;border-color:green;}
+.main > .main-sidebar{width:100px;position:absolute;top:0;left:0;min-height:100%;}
+.sidebar{padding-bottom:10px;}
+.sidebar-menu{overflow:hidden;}
+.sidebar-menu>li{position:relative;margin:0;padding:0;}
+.main > .main-container{margin-left:120px;margin-right:40px;overflow:hidden;}

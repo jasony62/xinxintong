@@ -13,7 +13,7 @@
     </title>
 </head>
 
-<body ng-controller='ctrlFrame'>
+<body class="wrapper" ng-controller='ctrlFrame'>
     <nav class='navbar navbar-default'>
         <div class='container'>
             <div class="navbar-header">
@@ -27,14 +27,23 @@
                     <span class="icon-bar"></span>
                 </button>
             </div>
+            <form class='navbar-form navbar-left'>
+                <select class='form-control' title='团队列表' ng-model="criteria.sid">
+                    <option value=''>全部团队</option>
+                    <option value="{{site.id}}" ng-repeat="site in sites">{{site.name}}</option>
+                </select>
+            </form>
             <ul class='nav navbar-nav'>
-                <li ng-class="{'active':subView==='main'}"><a href='/rest/pl/fe'>个人工作台</a></li>
-                <li ng-class="{'active':subView==='friend'}"><a href='/rest/pl/fe/friend'>其他团队</a></li>
+                <li ng-class="{'active':subView==='main'}">
+                    <a href='/rest/pl/fe' ng-if="criteria.sid==''">我的工作台</a>
+                    <a href='/rest/pl/fe?site={{criteria.sid}}' ng-if="criteria.sid!=''">我的工作台</a>
+                </li>
+                <li ng-class="{'active':subView==='friend'}"><a href='/rest/pl/fe/friend'>团队关注</a></li>
             </ul>
             <div class='collapse navbar-collapse' id='navbar-collapse-1'>
                 <form class='navbar-form navbar-right ng-cloak' ng-cloak>
-                    <button class="btn btn-primary" ng-if="notice.page.total>0" uib-popover-template="'userNotice.html'" popover-title="未读消息" popover-placement="bottom" popover-append-to-body='true' popover-trigger="outsideClick" popover-class='user-notice'>
-                        <span class='glyphicon glyphicon-bell'></span>&nbsp;&nbsp;<span class="badge">{{notice.page.total}}</span>
+                    <button class="btn btn-default" ng-if="notice.page.total>0" uib-popover-template="'userNotice.html'" popover-title="未读消息" popover-placement="bottom" popover-append-to-body='true' popover-trigger="outsideClick" popover-class='user-notice'>
+                        <span class='glyphicon glyphicon-bell'> </span>&nbsp;&nbsp;<span class="badge">{{notice.page.total}}</span>
                     </button>
                     <div class="btn-group">
                         <a href='' target='_self' class="btn btn-default"><i class='glyphicon glyphicon-user'></i> {{loginUser.nickname}}</a>
@@ -52,7 +61,7 @@
             </div>
         </div>
     </nav>
-    <div class='container ng-cloak' ng-cloak ng-view></div>
+    <div class='ng-cloak container' ng-cloak ng-view></div>
     <script type="text/ng-template" id="userNotice.html">
         <div id="userNotice">
             <div class='list-group'>
@@ -72,11 +81,12 @@
     <script src="/static/js/angular-sanitize.min.js"></script>
     <script src="/static/js/angular-route.min.js"></script>
     <script src="/static/js/ui-bootstrap-tpls.min.js"></script>
+    <script src="/static/js/resumable.js"></script>
     <script src="/static/js/ui-tms.js"></script>
     <script src="/static/js/xxt.ui.js"></script>
     <script src="/static/js/xxt.ui.tmplshop.js?_=2"></script>
     <script src="/views/default/pl/fe/_module/matter.service.js?_=1"></script>
-    <script src="/static/js/require.js" data-main="/views/default/pl/fe/console/frame-loader.js?_=1"></script>
+    <script src="/static/js/require.js" data-main="/views/default/pl/fe/console/frame-loader.js?_=2"></script>
 </body>
 
 </html>

@@ -90,7 +90,13 @@ ngApp.factory('Input', ['$http', '$q', '$timeout', 'ls', function($http, $q, $ti
                 schema = item.schema;
                 if (item.config.required === 'Y') {
                     if (schema.id.indexOf('member.') === 0) {
-                        value = data['member'][schema.id.substr(7)];
+                        var memberSchema = schema.id.substr(7);
+                        if (memberSchema.indexOf('.') === -1) {
+                            value = data.member[memberSchema];
+                        } else {
+                            memberSchema = memberSchema.split('.');
+                            value = data.member.extattr[memberSchema[1]];
+                        }
                     } else {
                         value = data[schema.id];
                     }
@@ -351,46 +357,33 @@ ngApp.directive('tmsFileInput', ['$q', 'ls', 'tmsDynaPage', function($q, LS, tms
     }
 }]);
 ngApp.controller('ctrlInput', ['$scope', '$http', '$q', '$uibModal', 'Input', 'ls', function($scope, $http, $q, $uibModal, Input, LS) {
-    var PG = (function() {
-        return {
-            setMember: function(user, member) {
-                var member2, eles;
-                if (user && member && member.schema_id && user.members) {
-                    if (member2 = user.members[member.schema_id]) {
-                        if (angular.isString(member2.extattr)) {
-                            if (member2.extattr.length) {
-                                member2.extattr = JSON.parse(member2.extattr);
-                            } else {
-                                member2.extattr = {};
-                            }
-                        }
-                        eles = document.querySelectorAll("[ng-model^='data.member']");
-                        angular.forEach(eles, function(ele) {
-                            var attr;
-                            attr = ele.getAttribute('ng-model');
-                            attr = attr.replace('data.member.', '');
-                            attr = attr.split('.');
-                            if (attr.length == 2) {
-                                !member.extattr && (member.extattr = {});
-                                member.extattr[attr[1]] = member2.extattr[attr[1]];
-                            } else {
-                                member[attr[0]] = member2[attr[0]];
-                            }
-                        });
+    function setMember(user, member) {
+        var member2, eles;
+        if (user && member && member.schema_id && user.members) {
+            if (member2 = user.members[member.schema_id]) {
+                if (angular.isString(member2.extattr)) {
+                    if (member2.extattr.length) {
+                        member2.extattr = JSON.parse(member2.extattr);
+                    } else {
+                        member2.extattr = {};
                     }
                 }
+                eles = document.querySelectorAll("[ng-model^='data.member']");
+                angular.forEach(eles, function(ele) {
+                    var attr;
+                    attr = ele.getAttribute('ng-model');
+                    attr = attr.replace('data.member.', '');
+                    attr = attr.split('.');
+                    if (attr.length == 2) {
+                        !member.extattr && (member.extattr = {});
+                        member.extattr[attr[1]] = member2.extattr[attr[1]];
+                    } else {
+                        member[attr[0]] = member2[attr[0]];
+                    }
+                });
             }
-        };
-    })();
-    $scope.beforeSubmit = function(fn) {
-        if (tasksOfBeforeSubmit.indexOf(fn) === -1) {
-            tasksOfBeforeSubmit.push(fn);
         }
-    };
-    window.onbeforeunload = function() {
-        // 保存未提交数据
-        submitState.modified && submitState.cache();
-    };
+    }
 
     function doTask(seq, nextAction) {
         var task = tasksOfBeforeSubmit[seq];
@@ -427,10 +420,14 @@ ngApp.controller('ctrlInput', ['$scope', '$http', '$q', '$uibModal', 'Input', 'l
             }
         }, function(reason) {
             // 如果放开提交状态，有可能导致用户多次提交
-            //submitState.finish();
             $scope.$parent.errmsg = reason;
         });
     }
+    window.onbeforeunload = function() {
+        // 保存未提交数据
+        submitState.modified && submitState.cache();
+    };
+
     var facInput, tasksOfBeforeSubmit, submitState;
     tasksOfBeforeSubmit = [];
     facInput = Input.ins();
@@ -508,6 +505,11 @@ ngApp.controller('ctrlInput', ['$scope', '$http', '$q', '$uibModal', 'Input', 'l
             return val;
         }
     };
+    $scope.beforeSubmit = function(fn) {
+        if (tasksOfBeforeSubmit.indexOf(fn) === -1) {
+            tasksOfBeforeSubmit.push(fn);
+        }
+    };
     $scope.$on('xxt.app.enroll.ready', function(event, params) {
         var schemasById,
             hasSetMember = false,
@@ -561,7 +563,7 @@ ngApp.controller('ctrlInput', ['$scope', '$http', '$q', '$uibModal', 'Input', 'l
             }
         }
         // 无论是否有登记记录都自动填写自定义用户信息
-        !hasSetMember && PG.setMember(params.user, $scope.data.member);
+        !hasSetMember && setMember(params.user, $scope.data.member);
         // 跟踪数据变化
         $scope.$watch('data', function(nv, ov) {
             if (nv !== ov) {
@@ -633,7 +635,4 @@ ngApp.controller('ctrlInput', ['$scope', '$http', '$q', '$uibModal', 'Input', 'l
 
         return $scope.data[schemaId][op.v] >= number;
     };
-    $scope.$watch('data.member.authid', function(nv) {
-        if (nv && nv.length) PG.setMember($scope.params, $scope.data.member);
-    });
 }]);

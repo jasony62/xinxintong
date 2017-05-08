@@ -226,7 +226,6 @@ class main extends \pl\fe\matter\base {
 		}
 
 		/* 创建活动 */
-
 		$newaid = uniqid();
 		$newapp = array();
 		if (empty($mission)) {
@@ -304,6 +303,165 @@ class main extends \pl\fe\matter\base {
 		/* 更新模板使用情况数据 */
 
 		return new \ResponseData($app);
+	}
+	/**
+	 * 通过自定义用户定义创建登记活动
+	 *
+	 * @param string $mschema schema's id
+	 *
+	 */
+	public function createByMschema_action($mschema, $scenario = 'registration', $template = 'simple') {
+		if (false === ($user = $this->accountUser())) {
+			return new \ResponseTimeout();
+		}
+
+		$oMschema = $this->model('site\user\memberschema')->byId($mschema);
+		if (false === $oMschema) {
+			return new \ObjectNotFoundError();
+		}
+
+		$current = time();
+		$newDataSchemas = [];
+		if (substr($oMschema->attr_email, 0, 1) === '0') {
+			$dataSchema = new \stdClass;
+			$dataSchema->id = 'member.email';
+			$dataSchema->type = 'member';
+			$dataSchema->title = '邮箱';
+			$dataSchema->schema_id = $oMschema->id;
+			$dataSchema->unique = 'Y';
+			$dataSchema->_ver = '1';
+			$newDataSchemas[] = $dataSchema;
+		}
+		if (substr($oMschema->attr_mobile, 0, 1) === '0') {
+			$dataSchema = new \stdClass;
+			$dataSchema->id = 'member.mobile';
+			$dataSchema->type = 'member';
+			$dataSchema->title = '手机';
+			$dataSchema->schema_id = $oMschema->id;
+			$dataSchema->unique = 'Y';
+			$dataSchema->_ver = '1';
+			$newDataSchemas[] = $dataSchema;
+		}
+		if (substr($oMschema->attr_name, 0, 1) === '0') {
+			$dataSchema = new \stdClass;
+			$dataSchema->id = 'member.name';
+			$dataSchema->type = 'member';
+			$dataSchema->title = '姓名';
+			$dataSchema->schema_id = $oMschema->id;
+			$dataSchema->unique = 'N';
+			$dataSchema->_ver = '1';
+			$newDataSchemas[] = $dataSchema;
+		}
+		if (!empty($oMschema->extattr)) {
+			foreach ($oMschema->extattr as $extattr) {
+				$dataSchema = new \stdClass;
+				$dataSchema->id = 'member.extattr.' . $extattr->id;
+				$dataSchema->type = 'member';
+				$dataSchema->title = $extattr->label;
+				$dataSchema->schema_id = $oMschema->id;
+				$dataSchema->unique = 'N';
+				$dataSchema->_ver = '1';
+				$newDataSchemas[] = $dataSchema;
+			}
+		}
+
+		if (empty($newDataSchemas)) {
+			return new \ParameterError();
+		}
+
+		$modelApp = $this->model('matter\enroll');
+		$modelApp->setOnlyWriteDbConn(true);
+
+		$current = time();
+		$oNewApp = new \stdClass;
+		$appId = uniqid();
+		$oNewApp->id = $appId;
+		$oNewApp->summary = '';
+		$oNewApp->use_mission_header = 'N';
+		$oNewApp->use_mission_footer = 'N';
+		$oNewApp->scenario = $scenario;
+
+		/* 从站点或任务获得的信息 */
+		$oSite = $this->model('site')->byId($oMschema->siteid, ['fields' => 'id,heading_pic']);
+		$oNewApp->pic = $oSite->heading_pic;
+
+		/* 获得模板定义 */
+		$templateConfig = $this->_getSysTemplate($scenario, $template);
+		/* 改写模板定义 */
+		$templateConfig->schema = [];
+		foreach ($templateConfig->pages as &$page) {
+			if (in_array($page->type, ['I', 'V', 'L'])) {
+				$page->data_schemas = [];
+			}
+		}
+		foreach ($newDataSchemas as $newSchema) {
+			$templateConfig->schema[] = $newSchema;
+			foreach ($templateConfig->pages as &$page) {
+				if ($page->type === 'I') {
+					$newWrap = new \stdClass;
+					$newWrap->schema = $newSchema;
+					$wrapConfig = new \stdClass;
+					$wrapConfig->showname = 'label';
+					$wrapConfig->required = 'Y';
+					$newWrap->config = $wrapConfig;
+					$page->data_schemas[] = $newWrap;
+				} else if ($page->type === 'V') {
+					$newWrap = new \stdClass;
+					$newWrap->schema = $newSchema;
+					$wrapConfig = new \stdClass;
+					$newWrap->config = $wrapConfig;
+					$wrapConfig->id = "V1";
+					$wrapConfig->pattern = "record";
+					$wrapConfig->inline = "N";
+					$wrapConfig->splitLine = "Y";
+					$page->data_schemas[] = $newWrap;
+				}
+			}
+		}
+		/* 进入规则 */
+		$entryRule = $templateConfig->entryRule;
+		if (empty($entryRule)) {
+			return new \ResponseError('没有获得页面进入规则');
+		}
+		/* 添加页面 */
+		$this->_addPageByTemplate($user, $oSite, null, $appId, $templateConfig, null);
+
+		/* 登记数量限制 */
+		if (isset($templateConfig->count_limit)) {
+			$oNewApp->count_limit = $templateConfig->count_limit;
+		}
+		if (isset($templateConfig->enrolled_entry_page)) {
+			$oNewApp->enrolled_entry_page = $templateConfig->enrolled_entry_page;
+		}
+		/* 场景设置 */
+		if (isset($templateConfig->scenarioConfig)) {
+			$scenarioConfig = $templateConfig->scenarioConfig;
+			$oNewApp->scenario_config = json_encode($scenarioConfig);
+		}
+
+		/* create app */
+		$oNewApp->siteid = $oSite->id;
+		$oNewApp->title = $modelApp->escape($oMschema->title . '-登记活动');
+		$oNewApp->creater = $user->id;
+		$oNewApp->creater_src = $user->src;
+		$oNewApp->creater_name = $modelApp->escape($user->name);
+		$oNewApp->create_at = $current;
+		$oNewApp->modifier = $user->id;
+		$oNewApp->modifier_src = $user->src;
+		$oNewApp->modifier_name = $modelApp->escape($user->name);
+		$oNewApp->modify_at = $current;
+		$oNewApp->entry_rule = json_encode($entryRule);
+		$oNewApp->can_siteuser = 'Y';
+		isset($templateConfig) && $oNewApp->data_schemas = $modelApp->toJson($templateConfig->schema);
+
+		$modelApp->insert('xxt_enroll', $oNewApp, false);
+
+		$oNewApp = $modelApp->byId($appId);
+
+		/* 记录操作日志 */
+		$this->model('matter\log')->matterOp($oSite->id, $user, $oNewApp, 'C');
+
+		return new \ResponseData($oNewApp);
 	}
 	/**
 	 * 创建登记活动
@@ -681,7 +839,11 @@ class main extends \pl\fe\matter\base {
 
 		$rst = $modelApp->update('xxt_enroll', $updated, ["id" => $app]);
 		if ($rst) {
-			// 记录操作日志
+			// 记录操作日志并更新信息
+			isset($updated->title) && $matter->title = $updated->title;
+			isset($updated->summary) && $matter->summary = $updated->summary;
+			isset($updated->pic) && $matter->pic = $updated->pic;
+			isset($updated->scenario) && $matter->scenario = $updated->scenario;
 			$this->model('matter\log')->matterOp($site, $user, $matter, 'U');
 		}
 
@@ -876,7 +1038,7 @@ class main extends \pl\fe\matter\base {
 	 * @param string $scenario scenario's name
 	 * @param string $template template's name
 	 */
-	private function &_addPageByTemplate(&$user, &$site, &$mission, &$app, &$config, $customConfig) {
+	private function &_addPageByTemplate(&$user, &$site, $oMission, &$app, &$config, $customConfig) {
 		$pages = $config->pages;
 		if (empty($pages)) {
 			return false;
@@ -890,13 +1052,13 @@ class main extends \pl\fe\matter\base {
 		}
 		/* 包含项目阶段 */
 		if (isset($config->schema_include_mission_phases) && $config->schema_include_mission_phases === 'Y') {
-			if (!empty($mission) && $mission->multi_phase === 'Y') {
+			if (!empty($oMission) && $oMission->multi_phase === 'Y') {
 				$schemaPhase = new \stdClass;
 				$schemaPhase->id = 'phase';
 				$schemaPhase->title = '项目阶段';
 				$schemaPhase->type = 'phase';
 				$schemaPhase->ops = [];
-				$phases = $this->model('matter\mission\phase')->byMission($mission->id);
+				$phases = $this->model('matter\mission\phase')->byMission($oMission->id);
 				foreach ($phases as $phase) {
 					$newOp = new \stdClass;
 					$newOp->l = $phase->title;

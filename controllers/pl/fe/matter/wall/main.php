@@ -22,54 +22,67 @@ class main extends \pl\fe\matter\base {
 	/**
 	 *
 	 */
-	public function detail_action() {
-		\TPL::output('/pl/fe/matter/wall/frame');
-		exit;
-	}
-	/**
-	 *
-	 */
-	public function approve_action() {
-		\TPL::output('/pl/fe/matter/wall/frame');
-		exit;
-	}
-	/**
-	 *
-	 */
-	public function get_action($id = null, $src = null, $site) {
+	public function get_action($site, $id) {
+		if (false === ($user = $this->accountUser())) {
+			return new \ResponseTimeout();
+		}
+
 		$modelWall = $this->model('matter\wall');
-		$w = $modelWall->byId($id, '*');
+		$oWall = $modelWall->byId($id, '*');
 		/**
 		 * 获得讨论组的url
 		 */
-		$w->user_url = $modelWall->getEntryUrl($site, $id);
+		$oWall->user_url = $modelWall->getEntryUrl($site, $id);
+		/*所属项目*/
+		if ($oWall->mission_id) {
+			$oWall->mission = $this->model('matter\mission')->byId($oWall->mission_id, ['cascaded' => 'phase']);
+		}
 		/**
 		 * acl
 		 */
-		$w->acl = $this->model('acl')->byMatter($site, 'wall', $id);
-		if (!empty($w->source_app)) {
-			$sourceApp = json_decode($w->source_app);
+		$oWall->acl = $this->model('acl')->byMatter($site, 'wall', $id);
+		if (!empty($oWall->source_app)) {
+			$sourceApp = json_decode($oWall->source_app);
 			$options = array('cascaded' => 'N', 'fields' => 'id,title');
-			$w->sourceApp = $this->model('matter\\' . $sourceApp->type)->byId($sourceApp->id, $options);
+			$oWall->sourceApp = $this->model('matter\\' . $sourceApp->type)->byId($sourceApp->id, $options);
 		}
 
-		return new \ResponseData($w);
+		return new \ResponseData($oWall);
 	}
 	/**
 	 *
 	 */
-	public function list_action($src = null, $site) {
-		$q = array('*', 'xxt_wall');
-		$q[2] = "siteid='$site'";
+	public function list_action($site = null, $mission = null) {
+		if (false === ($user = $this->accountUser())) {
+			return new \ResponseTimeout();
+		}
+		if (empty($site) && empty($mission)) {
+			return new \ParameterError();
+		}
+		$modelWall = $this->model('matter\wall');
+		if (!empty($mission)) {
+			$q = [
+				'*',
+				'xxt_wall',
+				['mission_id' => $mission],
+			];
+		} else {
+			$q = [
+				'*',
+				'xxt_wall',
+				['siteid' => $site],
+			];
+		}
 		$q2['o'] = 'create_at desc';
 
-		$walls = $this->model()->query_objs_ss($q, $q2);
+		$walls = $modelWall->query_objs_ss($q, $q2);
 		/**
 		 * 获得每个讨论组的url
 		 */
 		if ($walls) {
-			foreach ($walls as $wall) {
-				$wall->user_url = $this->model('matter\wall')->getEntryUrl($site, $wall->id);
+			foreach ($walls as &$wall) {
+				$wall->type = 'wall';
+				$wall->user_url = $modelWall->getEntryUrl($site, $wall->id);
 			}
 		}
 
@@ -79,17 +92,24 @@ class main extends \pl\fe\matter\base {
 	 * 创建一个讨论组
 	 */
 	public function create_action($site) {
+		if (false === ($user = $this->accountUser())) {
+			return new \ResponseTimeout();
+		}
+
+		$model = $this->model();
+
 		$wid = uniqid();
 		$newone['id'] = $wid;
 		$newone['siteid'] = $site;
 		$newone['title'] = '新信息墙';
-		$newone['creater'] = \TMS_CLIENT::get_client_uid();
+		$newone['creater'] = $user->id;
+		$newapp['creater_name'] = $model->escape($user->name);
 		$newone['create_at'] = time();
 		$newone['quit_cmd'] = 'q';
 		$newone['join_reply'] = '欢迎加入';
 		$newone['quit_reply'] = '已经退出';
 
-		$this->model()->insert('xxt_wall', $newone, false);
+		$model->insert('xxt_wall', $newone, false);
 
 		return new \ResponseData($wid);
 	}

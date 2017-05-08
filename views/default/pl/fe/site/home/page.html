@@ -70,7 +70,7 @@
                     <td><a href='/rest/pl/fe/matter/channel?site={{site.id}}&id={{c.channel_id}}' target='_self'>{{c.title}}</a></td>
                     <td>{{c.summary}}</td>
                     <td>
-                        <select class='form-control' ng-init="criteria.group=c.home_group" ng-model="criteria.group" ng-change='doGroup(c, criteria.group)'>
+                        <select class='form-control' ng-model="c.home_group" ng-change='doGroup(c, c.home_group)'>
                             <option value=>请选择</option>
                             <option value='C'>第1组</option>
                             <option value='R'>第2组</option>

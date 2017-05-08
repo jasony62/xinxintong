@@ -12,7 +12,7 @@ class member_model extends \TMS_MODEL {
 		$q = [
 			$fields,
 			'xxt_site_member',
-			"id='$id' and forbidden='N'",
+			['id' => $id, 'forbidden' => 'N'],
 		];
 		if ($member = $this->query_obj_ss($q)) {
 			if (!empty($member->extattr)) {
@@ -41,15 +41,9 @@ class member_model extends \TMS_MODEL {
 		return $members;
 	}
 	/**
-	 * 创建一个自定义用户
-	 *
-	 * 自定义用户首先必须是站点用户
-	 *
-	 * $userid 站点用户id
-	 * $data
-	 * $schema
+	 * 创建通讯录联系人
 	 */
-	public function create($siteId, $userid, &$schema, &$data) {
+	public function create($userid, &$oMschema, &$data) {
 		// 结束数据库读写分离带来的问题
 		$this->setOnlyWriteDbConn(true);
 
@@ -63,27 +57,27 @@ class member_model extends \TMS_MODEL {
 		is_array($data) && $data = (object) $data;
 
 		$create_at = time();
-		$data->siteid = $siteId;
+		$data->siteid = $oMschema->siteid;
 		$data->userid = $userid;
-		$data->schema_id = $schema->id;
+		$data->schema_id = $oMschema->id;
 		$data->create_at = $create_at;
 		/**
 		 * todo 应该支持使用扩展属性作为唯一标识
 		 */
-		if ($schema->attr_mobile[5] === '1' && isset($data->mobile)) {
-			if ($schema->attr_mobile[4] === '1') {
+		if ($oMschema->attr_mobile[5] === '1' && isset($data->mobile)) {
+			if ($oMschema->attr_mobile[4] === '1') {
 				/*检查手机号*/
 			}
 			$data->identity = $data->mobile;
-		} else if ($schema->attr_email[5] === '1' && isset($data->email)) {
+		} else if ($oMschema->attr_email[5] === '1' && isset($data->email)) {
 			$data->identity = $data->email;
 		}
 		/**
 		 * 扩展属性
 		 */
-		if (!empty($schema->extattr)) {
+		if (!empty($oMschema->extattr)) {
 			$extdata = array();
-			foreach ($schema->extattr as $ea) {
+			foreach ($oMschema->extattr as $ea) {
 				if (isset($data->extattr->{$ea->id})) {
 					$extdata[$ea->id] = urlencode($data->extattr->{$ea->id});
 					unset($data->{$ea->id});
@@ -95,114 +89,102 @@ class member_model extends \TMS_MODEL {
 		}
 
 		$id = $this->insert('xxt_site_member', $data, true);
-
 		$member = $this->byId($id);
 
 		return array(true, $member);
 	}
 	/**
-	 * 创建认证用户
+	 * 在应用中创建通讯录联系人
 	 */
-	public function createByApp($siteId, &$oSchema, $userid, $member) {
+	public function createByApp(&$oMschema, $userid, $oNewMember) {
 		// 结束数据库读写分离带来的问题
 		$this->setOnlyWriteDbConn(true);
 
-		if (empty($siteId)) {
-			return array(false, '没有指定站点');
-		}
-
-		if (empty($oSchema)) {
+		if (empty($oMschema)) {
 			return array(false, '没有指定用户自定义接口');
 		}
 
-		is_array($member) && $member = (object) $member;
-		$member->siteid = $siteId;
+		is_array($oNewMember) && $oNewMember = (object) $oNewMember;
+		$oNewMember->siteid = $oMschema->siteid;
 		$create_at = time();
-		$member->userid = $userid;
-		$member->schema_id = $oSchema->id;
-		$member->create_at = $create_at;
+		$oNewMember->userid = $userid;
+		$oNewMember->schema_id = $oMschema->id;
+		$oNewMember->create_at = $create_at;
 
-		if ($errMsg = $this->rejectAuth($member, $oSchema)) {
+		if ($errMsg = $this->rejectAuth($oNewMember, $oMschema)) {
 			return array(false, $errMsg);
 		}
 		/* 用户的邮箱需要验证，将状态设置为等待验证的状态 */
-		$member->email_verified = ($oSchema->attr_email[4] === '1') ? 'N' : 'Y';
+		$oNewMember->email_verified = ($oMschema->attr_email[4] === '1') ? 'N' : 'Y';
 		/**
 		 * todo 应该支持使用扩展属性作为唯一标识
 		 */
-		if ($oSchema->attr_mobile[5] === '1' && isset($member->mobile)) {
-			if ($oSchema->attr_mobile[4] === '1') {
+		if ($oMschema->attr_mobile[5] === '1' && isset($oNewMember->mobile)) {
+			if ($oMschema->attr_mobile[4] === '1') {
 				/*检查手机号*/
 			}
-			$member->identity = $member->mobile;
-		} else if ($oSchema->attr_email[5] === '1' && isset($member->email)) {
-			$member->identity = $member->email;
+			$oNewMember->identity = $oNewMember->mobile;
+		} else if ($oMschema->attr_email[5] === '1' && isset($oNewMember->email)) {
+			$oNewMember->identity = $oNewMember->email;
 		} else {
 			return array(false, '无法获得用户身份标识信息');
 		}
 		/* 扩展属性 */
-		if (!empty($member->extattr)) {
+		if (!empty($oNewMember->extattr)) {
 			$extdata = array();
-			foreach ($member->extattr as $ek => $ev) {
+			foreach ($oNewMember->extattr as $ek => $ev) {
 				$extdata[$ek] = urlencode($ev);
 			}
-			$member->extattr = urldecode(json_encode($extdata));
+			$oNewMember->extattr = urldecode(json_encode($extdata));
 		} else {
-			$member->extattr = '{}';
+			$oNewMember->extattr = '{}';
 		}
+		/* 验证状态 */
+		$oNewMember->verified = $oMschema->auto_verified;
 
-		$id = $this->insert('xxt_site_member', $member, true);
+		$id = $this->insert('xxt_site_member', $oNewMember, true);
+		$oNewMember = $this->byId($id);
 
-		$member = $this->byId($id);
-
-		return array(true, $member);
+		return array(true, $oNewMember);
 	}
 	/**
-	 * 更新认证用户
-	 *
-	 * 要求认证用户首先必须是关注用户
-	 *
-	 * $siteId
-	 * $fid 关注用户id
-	 * $data
-	 * $attrs
+	 * 更新通讯录联系人
 	 */
-	public function modify($siteId, &$oSchema, $memberId, &$member) {
-		if (empty($siteId)) {
-			return array(false, '没有指定SITEID');
-		}
+	public function modify(&$oMschema, $memberId, &$oNewMember) {
 		if (empty($memberId)) {
 			return array(false, '没有指定认证用户MID');
 		}
-		if ($errMsg = $this->rejectAuth($member, $oSchema)) {
+		if ($errMsg = $this->rejectAuth($oNewMember, $oMschema)) {
 			return array(false, $errMsg);
 		}
-		is_array($member) && $member = (object) $member;
+		is_array($oNewMember) && $oNewMember = (object) $oNewMember;
 		/**
 		 * 用户的邮箱需要验证，将状态设置为等待验证的状态
 		 */
-		$member->email_verified = ($oSchema->attr_email[4] === '1') ? 'N' : 'Y';
+		$oNewMember->email_verified = ($oMschema->attr_email[4] === '1') ? 'N' : 'Y';
 		/**
 		 * todo 应该支持使用扩展属性作为唯一标识
 		 */
-		if ($oSchema->attr_mobile[5] === '1' && isset($member->mobile)) {
-			if ($oSchema->attr_mobile[4] === '1') {
+		if ($oMschema->attr_mobile[5] === '1' && isset($oNewMember->mobile)) {
+			if ($oMschema->attr_mobile[4] === '1') {
 				/*检查手机号*/
 			}
-			$member->identity = $member->mobile;
-		} else if ($oSchema->attr_email[5] === '1' && isset($member->email)) {
-			$member->identity = $member->email;
+			$oNewMember->identity = $oNewMember->mobile;
+		} else if ($oMschema->attr_email[5] === '1' && isset($oNewMember->email)) {
+			$oNewMember->identity = $oNewMember->email;
 		}
 		/**
 		 * 扩展属性
 		 */
-		if (!empty($member->extattr)) {
-			$member->extattr = $this->toJson($member->extattr);
+		if (!empty($oNewMember->extattr)) {
+			$oNewMember->extattr = $this->toJson($oNewMember->extattr);
 		} else {
-			$member->extattr = '{}';
+			$oNewMember->extattr = '{}';
 		}
+		/* 验证状态 */
+		$oNewMember->verified = $oMschema->auto_verified;
 
-		$this->update('xxt_site_member', $member, ['id' => $memberId]);
+		$this->update('xxt_site_member', $oNewMember, ['id' => $memberId]);
 
 		return array(true);
 	}
@@ -265,7 +247,7 @@ class member_model extends \TMS_MODEL {
 	 * 判断当前用户信息是否有效
 	 *
 	 * @param object $member
-	 * @param object $oSchema
+	 * @param object $oMschema
 	 *
 	 * $attrs array 用户认证信息定义
 	 *  0:hidden,1:mandatory,2:unique,3:immuatable,4:verification,5:identity
@@ -274,8 +256,8 @@ class member_model extends \TMS_MODEL {
 	 *  若不合法，返回描述原因的字符串
 	 *  合法返回false
 	 */
-	public function rejectAuth(&$member, &$oSchema) {
-		if (isset($member->mobile) && $oSchema->attr_mobile[2] === '1') {
+	public function rejectAuth(&$member, &$oMschema) {
+		if (isset($member->mobile) && $oMschema->attr_mobile[2] === '1') {
 			/**
 			 * 检查手机号的唯一性
 			 */
@@ -290,14 +272,14 @@ class member_model extends \TMS_MODEL {
 
 			$members = $this->query_objs_ss($q);
 			if (count($members) > 0) {
-				if (empty($oSchema->title)) {
+				if (empty($oMschema->title)) {
 					return '手机号已经存在，不允许重复登记！';
 				} else {
-					return '手机号已经在【' . $oSchema->title . '】中存在，不允许重复登记！';
+					return '手机号已经在【' . $oMschema->title . '】中存在，不允许重复登记！';
 				}
 			}
 		}
-		if (isset($member->email) && $oSchema->attr_email[2] === '1') {
+		if (isset($member->email) && $oMschema->attr_email[2] === '1') {
 			/**
 			 * 检查邮箱的唯一性
 			 */
@@ -312,10 +294,10 @@ class member_model extends \TMS_MODEL {
 
 			$members = $this->query_objs_ss($q);
 			if (count($members) > 1) {
-				if (empty($oSchema->title)) {
+				if (empty($oMschema->title)) {
 					return '邮箱已经存在，不允许重复登记！';
 				} else {
-					return '邮箱已经【' . $oSchema->title . '】中，不允许重复登记！';
+					return '邮箱已经【' . $oMschema->title . '】中，不允许重复登记！';
 				}
 			}
 		}
@@ -326,18 +308,18 @@ class member_model extends \TMS_MODEL {
 	 * 根据提交的认证信息，查找已经存在认证用户
 	 *
 	 * @param object $member
-	 * @param object $oSchema
+	 * @param object $oMschema
 	 *
 	 * $items array 用户认证信息定义
 	 * 0:hidden,1:mandatory,2:unique,3:immuatable,4:verification,5:identity
 	 */
-	public function findMember(&$member, &$oSchema, $options = array()) {
-		if (isset($member->mobile) && $oSchema->attr_mobile[5] === '1') {
+	public function findMember(&$member, &$oMschema, $options = array()) {
+		if (isset($member->mobile) && $oMschema->attr_mobile[5] === '1') {
 			/**
 			 * 手机号唯一
 			 */
 			$identity = $member->mobile;
-		} else if (isset($member->email) && $oSchema->attr_email[5] === '1') {
+		} else if (isset($member->email) && $oMschema->attr_email[5] === '1') {
 			/**
 			 * 邮箱唯一
 			 */
@@ -348,7 +330,7 @@ class member_model extends \TMS_MODEL {
 			$q = [
 				$fields,
 				'xxt_site_member',
-				"schema_id={$oSchema->id} and forbidden='N' and identity='$identity'",
+				"schema_id={$oMschema->id} and forbidden='N' and identity='$identity'",
 			];
 			$found = $this->query_obj_ss($q);
 		}

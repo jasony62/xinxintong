@@ -106,7 +106,7 @@ define(['require', 'enrollService'], function(require) {
         };
         //定义侧边栏数据
         //定义默认状态
-        $scope.firstView = ['edit', 'publish', 'data', 'other', 'recycle'];
+        $scope.firstView = ['edit', 'publish', 'data', 'other', 'recycle', 'log'];
         $scope.views = [{
             value: 'edit',
             title: '编辑',

@@ -330,12 +330,12 @@ class channel_model extends article_base {
 			$q2['o'] = 'cm.create_at desc';
 
 			// 分页获取，如果素材已经删除，或者素材尚未批准的情况下，分页会导致返回的数量不正确
-			// if (isset($params->page) && isset($params->size)) {
-			// 	$q2['r'] = array(
-			// 		'o' => ($params->page - 1) * $params->size,
-			// 		'l' => $params->size,
-			// 	);
-			// }
+			if (isset($params->page) && isset($params->size)) {
+				$q2['r'] = array(
+					'o' => ($params->page - 1) * $params->size,
+					'l' => $params->size,
+				);
+			}
 			$matters = []; // 可用的素材
 			$simpleMatters = $this->query_objs_ss($q1, $q2);
 			foreach ($simpleMatters as $sm) {
@@ -350,9 +350,6 @@ class channel_model extends article_base {
 						"a.id = $sm->matter_id and a.state = 1 and a.approved = 'Y' and a.siteid=s.id and s.state = 1",
 					];
 					$fullMatter = $this->query_obj_ss($q);
-					if($fullMatter){
-						$fullMatter->entryUrl = $this->getEntryUrl($fullMatter->siteid, $sm->matter_id);
-					}
 				}
 
 				if (false === $fullMatter) {

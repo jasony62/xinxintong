@@ -23,40 +23,50 @@ class base extends \site\fe\matter\base {
 	 * 检查登记活动进入规则
 	 *
 	 * @param string $siteId
-	 * @param object $app
+	 * @param object $oApp
 	 * @param boolean $redirect
 	 *
 	 * @return string page 页面名称
+	 *
 	 */
-	protected function checkEntryRule($siteId, $app, $redirect = false) {
+	protected function checkEntryRule($oApp, $redirect = false) {
 		$user = $this->who;
-		$entryRule = $app->entry_rule;
+		$entryRule = $oApp->entry_rule;
 		if (isset($entryRule->scope) && $entryRule->scope === 'member') {
+			/* 限自定义用户访问 */
 			foreach ($entryRule->member as $schemaId => $rule) {
 				if (!empty($rule->entry)) {
 					if (isset($user->members->{$schemaId})) {
-						$page = $rule->entry;
-						break;
-					} else {
-						$page = $entryRule->other->entry;
-						break;
+						/* 检查用户的信息是否完整，是否已经通过审核 */
+						$oMember = $user->members->{$schemaId};
+						$oMember = $this->model('site\user\member')->byId($oMember->id);
+						if ($oMember && $oMember->verified === 'Y') {
+							$page = $rule->entry;
+							break;
+						}
 					}
 				}
 			}
-			!isset($page) && $page = '$memberschema';
+			if (!isset($page)) {
+				if (isset($entryRule->other->entry)) {
+					$page = $entryRule->other->entry;
+				} else {
+					$page = '$memberschema';
+				}
+			}
 		} else if (isset($entryRule->scope) && $entryRule->scope === 'sns') {
 			foreach ($entryRule->sns as $snsName => $rule) {
 				if (isset($user->sns->{$snsName})) {
 					// 检查用户对应的公众号
 					if ($snsName === 'wx') {
 						$modelWx = $this->model('sns\wx');
-						if (($wxConfig = $modelWx->bySite($siteId)) && $wxConfig->joined === 'Y') {
-							$snsSiteId = $siteId;
+						if (($wxConfig = $modelWx->bySite($oApp->siteid)) && $wxConfig->joined === 'Y') {
+							$snsSiteId = $oApp->siteid;
 						} else {
 							$snsSiteId = 'platform';
 						}
 					} else {
-						$snsSiteId = $siteId;
+						$snsSiteId = $oApp->siteid;
 					}
 					// 检查用户是否已经关注
 					$snsUser = $user->sns->{$snsName};
@@ -86,19 +96,19 @@ class base extends \site\fe\matter\base {
 			}
 			if ($redirect) {
 				/*页面跳转*/
-				$this->gotoMember($siteId, $aMemberSchemas, $user->uid);
+				$this->gotoMember($oApp->siteid, $aMemberSchemas, $user->uid);
 			} else {
 				/*返回地址*/
-				$this->gotoMember($siteId, $aMemberSchemas, $user->uid, false);
+				$this->gotoMember($oApp->siteid, $aMemberSchemas, $user->uid, false);
 			}
 			break;
 		case '$mpfollow':
 			if (!empty($entryRule->sns->wx->entry)) {
-				$this->snsFollow($siteId, 'wx', $app);
+				$this->snsFollow($oApp->siteid, 'wx', $oApp);
 			} else if (!empty($entryRule->sns->qy->entry)) {
-				$this->snsFollow($siteId, 'qy', $app);
+				$this->snsFollow($oApp->siteid, 'qy', $oApp);
 			} else if (!empty($entryRule->sns->yx->entry)) {
-				$this->snsFollow($siteId, 'yx', $app);
+				$this->snsFollow($oApp->siteid, 'yx', $oApp);
 			}
 			break;
 		}

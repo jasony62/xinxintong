@@ -210,6 +210,53 @@ ngApp.controller('ctrlConsole', ['$scope', '$uibModal', 'http2', 'templateShop',
             location.href = '/rest/pl/fe/matter/article?site=' + $scope.siteId + '&id=' + rsp.data.id;
         });
     };
+    $scope.createArticleByPptx = function() {
+        var siteId = $scope.siteId;
+        $uibModal.open({
+            templateUrl: 'createArticleByPptx.html',
+            controller: ['$scope', '$uibModalInstance', '$timeout', function($scope, $mi) {
+                $scope.cancel = function() {
+                    $mi.dismiss();
+                };
+                $scope.ok = function() {
+                    var r = new Resumable({
+                        target: '/rest/pl/fe/matter/article/uploadAndCreate?site=' + siteId,
+                        testChunks: false,
+                    });
+                    r.on('fileAdded', function(file, event) {
+                        console.log('file Added and begin upload.');
+                        r.upload();
+                    });
+                    r.on('progress', function() {
+                        console.log('progress.');
+                    });
+                    r.on('complete', function() {
+                        console.log('complete.');
+                        var f, lastModified, posted;
+                        f = r.files[0].file;
+                        lastModified = f.lastModified ? f.lastModified : (f.lastModifiedDate ? f.lastModifiedDate.getTime() : 0);
+                        posted = {
+                            file: {
+                                uniqueIdentifier: r.files[0].uniqueIdentifier,
+                                name: f.name,
+                                size: f.size,
+                                type: f.type,
+                                lastModified: lastModified,
+                                uniqueIdentifier: f.uniqueIdentifier,
+                            }
+                        };
+                        http2.post('/rest/pl/fe/matter/article/uploadAndCreate?site=' + siteId + '&state=done', posted, function(rsp) {
+                            $mi.close(rsp.data);
+                        });
+                    });
+                    r.addFile(document.querySelector('#fileUpload').files[0]);
+                };
+            }],
+            backdrop: 'static',
+        }).result.then(function(data) {
+            location.href = '/rest/pl/fe/matter/article?site=' + siteId + '&id=' + data.id;
+        });
+    };
     $scope.addNews = function() {
         http2.get('/rest/pl/fe/matter/news/create?site=' + $scope.siteId, function(rsp) {
             location.href = '/rest/pl/fe/matter/news?site=' + $scope.siteId + '&id=' + rsp.data.id;

@@ -44,16 +44,6 @@ class memberschema_model extends \TMS_MODEL {
 	}
 	/**
 	 *
-	 */
-	public function byUrl($mpid, $url, $fields = '*') {
-		$api = $this->_queryBy("mpid='$mpid' and url='$url'");
-
-		$api = count($api) === 1 ? $api[0] : false;
-
-		return $api;
-	}
-	/**
-	 *
 	 * @param string $siteId
 	 * @param string $valid [null|Y|N]
 	 */

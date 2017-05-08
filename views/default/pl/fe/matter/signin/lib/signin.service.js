@@ -448,6 +448,13 @@ define(['require', 'schema', 'page'], function(require, schemaLib, pageLib) {
                     $uibModal.open({
                         templateUrl: 'assignEnrollApp.html',
                         controller: ['$scope', '$uibModalInstance', function($scope2, $mi) {
+                            function listEnrollApp() {
+                                var url = '/rest/pl/fe/matter/enroll/list?site=' + siteId + '&scenario=registration&size=999';
+                                $scope2.data.sameMission === 'Y' && (url += '&mission=' + app.mission.id);
+                                http2.get(url, function(rsp) {
+                                    $scope2.apps = rsp.data.apps;
+                                });
+                            }
                             $scope2.app = app;
                             $scope2.data = {
                                 filter: {},
@@ -460,11 +467,7 @@ define(['require', 'schema', 'page'], function(require, schemaLib, pageLib) {
                             $scope2.ok = function() {
                                 $mi.close($scope2.data);
                             };
-                            var url = '/rest/pl/fe/matter/enroll/list?site=' + siteId + '&scenario=registration&size=999';
-                            app.mission && (url += '&mission=' + app.mission.id);
-                            http2.get(url, function(rsp) {
-                                $scope2.apps = rsp.data.apps;
-                            });
+                            $scope2.$watch('data.sameMission', listEnrollApp);
                         }],
                         backdrop: 'static'
                     }).result.then(function(data) {
@@ -1062,8 +1065,8 @@ define(['require', 'schema', 'page'], function(require, schemaLib, pageLib) {
 
             return _ins;
         }];
-    }).provider('srvSigninNotice', function(){
-        this.$get = ['$q', 'http2', function($q, http2){
+    }).provider('srvSigninNotice', function() {
+        this.$get = ['$q', 'http2', function($q, http2) {
             return {
                 detail: function(batch) {
                     var defer = $q.defer(),

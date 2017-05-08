@@ -295,7 +295,7 @@ class main extends \site\fe\matter\base {
 	 */
 	public function attachmentGet_action($site, $articleid, $attachmentid) {
 		if (empty($site) || empty($articleid) || empty($attachmentid)) {
-			return new \ObjectNotFoundError();
+			die('没有指定有效的附件');
 		}
 
 		$user = $this->who;
@@ -307,15 +307,27 @@ class main extends \site\fe\matter\base {
 		if (isset($article->access_control) && $article->access_control === 'Y') {
 			$this->accessControl($site, $articleid, $article->authapis, $user->uid, $article);
 		}
+
+		/**
+		 * 获取附件
+		 */
+		$q = [
+			'*',
+			'xxt_article_attachment',
+			['article_id' => $articleid, 'id' => $attachmentid],
+		];
+		if (false === ($att = $modelArticle->query_obj_ss($q))) {
+			die('指定的附件不存在');
+		}
+
 		/**
 		 * 记录日志
 		 */
-		$model = $this->model();
-		$site = $model->escape($site);
-		$articleid = $model->escape($articleid);
-		$attachmentid = $model->escape($attachmentid);
-		$model->update("update xxt_article set download_num=download_num+1 where id='$articleid'");
-		$log = array(
+		$site = $modelArticle->escape($site);
+		$articleid = $modelArticle->escape($articleid);
+		$attachmentid = $modelArticle->escape($attachmentid);
+		$modelArticle->update("update xxt_article set download_num=download_num+1 where id='$articleid'");
+		$log = [
 			'userid' => $user->uid,
 			'nickname' => $user->nickname,
 			'download_at' => time(),
@@ -324,17 +336,8 @@ class main extends \site\fe\matter\base {
 			'attachment_id' => $attachmentid,
 			'user_agent' => $_SERVER['HTTP_USER_AGENT'],
 			'client_ip' => $this->client_ip(),
-		);
-		$model->insert('xxt_article_download_log', $log, false);
-		/**
-		 * 获取附件
-		 */
-		$q = array(
-			'*',
-			'xxt_article_attachment',
-			"article_id='$articleid' and id='$attachmentid'",
-		);
-		$att = $model->query_obj_ss($q);
+		];
+		$modelArticle->insert('xxt_article_download_log', $log, false);
 
 		if (strpos($att->url, 'alioss') === 0) {
 			$downloadUrl = 'http://xxt-attachment.oss-cn-shanghai.aliyuncs.com/' . $site . '/article/' . $articleid . '/' . urlencode($att->name);

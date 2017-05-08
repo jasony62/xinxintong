@@ -2,12 +2,12 @@ onmessage = function(event) {
     //console.log(event);
     var id = event.data.id,
         last = event.data.last;
-        site = event.data.site;
-    doAjax('GET', '/rest/pl/fe/matter/wall/message/pendingList?id=' +  id + '&last=' + last + '&site=' + site, null, function(rsp) {
+    site = event.data.site;
+    doAjax('GET', '/rest/pl/fe/matter/wall/message/pendingList?id=' + id + '&last=' + last + '&site=' + site, null, function(rsp) {
         postMessage(rsp.data[0]);
         last = rsp.data[1];
         setInterval(function() {
-            doAjax('GET', '/rest/pl/fe/matter/wall/message/pendingList?id=' +  id  + '&last=' + last +'&site=' + site , null, function(rsp) {
+            doAjax('GET', '/rest/pl/fe/matter/wall/message/pendingList?id=' + id + '&last=' + last + '&site=' + site, null, function(rsp) {
                 postMessage(rsp.data[0]);
                 last = rsp.data[1];
             });

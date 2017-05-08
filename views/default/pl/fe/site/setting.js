@@ -83,7 +83,7 @@ define(['require'], function(require) {
             if ((recommenSite && recommenSite.approved == 'Y') || navSite) {
                 noticebox.error('团队已推荐到平台主页或发布到平台主导航条，不能删除');
             } else {
-                if (window.confirm('确定删除站点？')) {
+                if (window.confirm('确定删除团队？')) {
                     var url = '/rest/pl/fe/site/remove?site=' + $scope.siteId;
                     http2.get(url, function(rsp) {
                         location.href = '/rest/pl/fe';
@@ -92,7 +92,7 @@ define(['require'], function(require) {
             }
         };
         $scope.quit = function() {
-            if (window.confirm('确定退出站点？')) {
+            if (window.confirm('确定退出团队？')) {
                 var url = '/rest/pl/fe/site/setting/admin/remove?site=' + $scope.siteId + '&uid=' + $scope.site.uid;
                 http2.get(url, function(rsp) {
                     location.href = '/rest/pl/fe';
@@ -368,6 +368,11 @@ define(['require'], function(require) {
                     });
                 });
             }
+        };
+        $scope.createEnrollApp = function(oSchema) {
+            http2.post('/rest/pl/fe/matter/enroll/createByMschema?mschema=' + oSchema.id, {}, function(rsp) {
+                location.href = '/rest/pl/fe/matter/enroll?site=' + rsp.data.siteid + '&id=' + rsp.data.id;
+            });
         };
         service.memberSchema.get('N').then(function(schemas) {
             schemas.forEach(function(schema) {

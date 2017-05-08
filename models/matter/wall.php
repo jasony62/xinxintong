@@ -14,15 +14,14 @@ class wall_model extends app_base {
 	const APPROVE_REJECT = 2;
 	/**
 	 *
-	 * $wid string
-	 * $cascaded array []
 	 */
-	public function &byId($id, $fields = '*') {
-		$q = array(
+	public function &byId($id, $options = []) {
+		$fields = isset($options['fields']) ? $options['fields'] : '*';
+		$q = [
 			$fields,
 			'xxt_wall',
-			"id='$id'",
-		);
+			['id' => $id],
+		];
 		if ($w = $this->query_obj_ss($q)) {
 			$w->type = 'wall';
 		}
@@ -56,7 +55,7 @@ class wall_model extends app_base {
 		 */
 		$wall = $this->byId($wid, 'join_reply,active');
 		if ($wall->active === 'N') {
-			$reply = '信息墙已停用';
+			$reply = [false, '信息墙已停用'];
 			return $reply;
 		}
 		/**
@@ -69,7 +68,7 @@ class wall_model extends app_base {
 		} else if (isset($user->qy_openid)) {
 			$where = " and qy_openid='{$user->qy_openid}'";
 		} else {
-			return '不能活的公众号身份信息，无法加入信息墙';
+			return [false, '不能获得公众号身份信息，无法加入信息墙'];
 		}
 		$this->update(
 			'xxt_wall_enroll',
@@ -117,9 +116,9 @@ class wall_model extends app_base {
 		 * 加入提示
 		 */
 		if (empty($wall->join_reply)) {
-			$reply = '欢迎进入，请输入您的发言。';
+			$reply = [true, '欢迎进入，请输入您的发言。'];
 		} else {
-			$reply = $wall->join_reply;
+			$reply = [true, $wall->join_reply];
 		}
 
 		return $reply;

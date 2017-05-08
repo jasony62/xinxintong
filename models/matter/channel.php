@@ -135,7 +135,7 @@ class channel_model extends article_base {
 				//'news' => 'xxt_news',
 				'link' => 'xxt_link',
 				'contribute' => 'xxt_contribute',
-				//'wall'=>'xxt_wall',
+				'wall' => 'xxt_wall',
 			];
 		} else {
 			$matterTypes = [$channel->matter_type => 'xxt_' . $channel->matter_type];

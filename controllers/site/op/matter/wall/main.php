@@ -1,11 +1,11 @@
 <?php
-namespace op\wall;
+namespace site\op\matter\wall;
 
-require_once dirname(dirname(dirname(__FILE__))) . '/member_base.php';
+require_once TMS_APP_DIR . '/controllers/site/op/base.php';
 /**
- * 信息墙
+ *
  */
-class main extends \member_base {
+class main extends \site\op\base {
 	/**
 	 *
 	 */
@@ -18,32 +18,31 @@ class main extends \member_base {
 	/**
 	 * 信息墙大屏幕页面
 	 *
-	 * $mpid
-	 * $wall
+	 * @param string $wall
 	 *
 	 */
-	public function index_action($mpid, $wall) {
-		$model = $this->model('app\wall');
+	public function index_action($wall) {
+		$model = $this->model('matter\wall');
 		$w = $model->byId($wall, 'title');
 		\TPL::assign('title', $w->title);
 
 		$params = array();
 		\TPL::assign('params', $params);
 
-		\TPL::output('/op/wall/page');
+		\TPL::output('/site/op/matter/wall/page');
 		exit;
 	}
 	/**
 	 *
 	 */
-	public function pageGet_action($mpid, $wall) {
+	public function pageGet_action($wall) {
 		// page
-		$page = $this->model('app\wall\page')->byType('op', $wall);
+		$page = $this->model('matter\wall\page')->byType('op', $wall);
 		if (empty($page)) {
 			return new \ResponseError('没有获得页面定义');
 		}
 		$page = $page[0];
-		$model = $this->model('app\wall');
+		$model = $this->model('matter\wall');
 		$wall = $model->byId($wall, 'title');
 
 		$params = array(
@@ -56,10 +55,11 @@ class main extends \member_base {
 	/**
 	 *
 	 */
-	public function messageList_action($mpid, $wall) {
-		$model = $this->model('app\wall');
+	public function messageList_action($site, $wall) {
+		$model = $this->model('matter\wall');
 		$last = $this->getGet('last', 0);
-		$m = $model->approvedMessages($mpid, $wall, $last);
+		$m = $model->approvedMessages($site, $wall, $last);
+
 		return new \ResponseData($m);
 	}
 }

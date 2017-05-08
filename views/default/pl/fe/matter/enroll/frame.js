@@ -167,7 +167,7 @@ define(['require', 'enrollService'], function(require) {
         }];
         //第一次进入初始化状态
         var subView = location.href.match(/([^\/]+?)\?/);
-        $scope.subView = subView[1] === 'enroll' ? 'main' : subView[1];
+        $scope.subView = subView[1] === 'enroll' ? 'publish' : subView[1];
         //如果是一级页面，修改一级状态；
         //如果是二级页面，修改一级状态，打开折叠，修改耳机状态
         //如果在编辑数据页面刷新 打开 一级状态 $scope.leftState = 'data'; $scope.leftInferior = 'record';打开折叠
@@ -222,6 +222,20 @@ define(['require', 'enrollService'], function(require) {
             url += value;
             //url += '?site' + $scope.app.siteid;
             //url += '&id' + $scope.app.id;
+            //切换状态：关闭所有折叠 移除状态， 打开折叠，增加状态
+            angular.forEach($scope.views, function(v) {
+                if(v.inferior){
+                    v.inferiorShow = false ;
+                    angular.forEach(v.inferior, function(i){
+                        if(i.value===value){
+                            $scope.leftState = v.value;
+                            //i.leftInferior = i.value ;
+                            v.inferiorShow = true;
+                        }
+                    })
+                }
+
+            });
             $scope.leftInferior = value;
             $location.path(url);
         };

@@ -38,7 +38,7 @@
                     <li ng-if="app.mission"><a href="/rest/pl/fe/matter/mission?site={{app.siteid}}&id={{app.mission.id}}" target='_self' title="{{app.mission.title}}">{{app.mission.title}}</a></li>
                     <li ng-if="app.mission"><a href="/rest/pl/fe/matter/mission/matter?site={{app.siteid}}&id={{app.mission.id}}#{{app.scenario||'enroll'}}" target='_self'>{{scenarioNames[app.scenario]||'登记'}}</a></li>
                     <li>
-                        <a href="/rest/pl/fe/matter/enroll/main?site={{app.siteid}}&id={{app.id}}" title='{{app.title}}' ng-if="!Title">{{app.title}}</a>
+                        <a href="" ng-click="goToInferior('main')" title='{{app.title}}' ng-if="!Title">{{app.title}}</a>
                         <a ng-if="Title">
                             <input type='text' min-size="10" title='{{app.title}}' ng-model='app.title' tms-auto-update tms-wait=1000 tms-update="update('title')" ng-if="Title">
                         </a>

@@ -123,6 +123,17 @@ define(['main'], function(ngApp) {
         });
     }]);
     ngApp.provider.controller('ctrlHomeChannel', ['$scope', 'http2', 'mattersgallery', function($scope, http2, mattersgallery) {
+        var criteria;
+        $scope.criteria = {
+            group: ''
+        }
+        $scope.doGroup = function(channel, group) {
+            var url = '/rest/pl/fe/site/setting/page/updateHomeChannel';
+                url += '?site=' + channel.siteid + '&id=' + c.channel_id;
+            http2.post(url, group, function(rsp) {
+                console.log(rsp.data);
+            });
+        }
         function updateSeq() {
             var updated = {};
             $scope.channels.forEach(function(channel, index) {

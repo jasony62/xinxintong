@@ -62,7 +62,7 @@
                     <th style='width:4em'>序号</th>
                     <th>频道名称</th>
                     <th>频道说明</th>
-                    <th style='width:6em'>频道分组</th>
+                    <th style='width:8em'>频道分组</th>
                     <th style='width:7em'>操作</th>
                 </tr>
                 <tr ng-repeat='c in channels'>
@@ -70,10 +70,10 @@
                     <td><a href='/rest/pl/fe/matter/channel?site={{site.id}}&id={{c.channel_id}}' target='_self'>{{c.title}}</a></td>
                     <td>{{c.summary}}</td>
                     <td>
-                        <select class='form-control' ng-model="criteria.group">
+                        <select class='form-control' ng-init="criteria.group=c.home_group" ng-model="criteria.group" ng-change='doGroup(c, criteria.group)'>
                             <option value=>请选择</option>
-                            <option value='1'>第1组</option>
-                            <option value='2'>第2组</option>
+                            <option value='C'>第1组</option>
+                            <option value='R'>第2组</option>
                         </select>
                     </td>
                     <td>
@@ -85,7 +85,7 @@
             </tbody>
             <tfoot>
                 <tr>
-                    <td colspan="4">
+                    <td colspan="5">
                         <button class='btn btn-default' ng-click="add()">添加主页频道</button>
                         <button class='btn btn-default' ng-click="create()">新建主页频道</button>
                     </td>

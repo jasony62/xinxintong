@@ -13,11 +13,38 @@
     </div>
     <div class='row'>
         <div class='col-md-12'>
-            <uib-tabset active="0">
-                <uib-tab index="$index" ng-repeat="c in channels">
-                    <uib-tab-heading>{{c.title}}</uib-tab-heading>
+            <div class="col-md-8">
+                <uib-tabset active="0">
+                    <uib-tab index="$index" ng-repeat="c in c_channels">
+                        <uib-tab-heading>{{c.title}}</uib-tab-heading>
+                        <div class='list-group channel'>
+                            <div class='list-group-item matter' ng-repeat="m in c._matters" ng-click='openMatter(m)'>
+                                <div class="media">
+                                    <div class="media-left">
+                                        <img class="media-object" ng-src="{{m.pic||m.thumbnail}}">
+                                    </div>
+                                    <div class="media-body">
+                                        <h4 class="media-heading">{{m.title}}</h4>
+                                        <div>{{m.summary}}</div>
+                                        <div class='creater_name pull-left' ng-if="m.siteid!=siteId">
+                                            <a ng-href='/rest/site/home?site={{m.siteid}}'>
+                                                <span class="site_fe_home site_fe_home_icon xxt_team"></span>
+                                                {{m.site_name}}
+                                            </a>
+                                        </div>
+                                        <div class='put_at pull-left' ng-bind="m.create_at*1000|date:'yyyy-MM-dd'"></div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </uib-tab>
+                </uib-tabset>
+            </div>
+            <div class="col-md-4">
+                <div ng-repeat="r in r_channels">
+                    <div>{{r.title}}</div>
                     <div class='list-group channel'>
-                        <div class='list-group-item matter' ng-repeat="m in c._matters" ng-click='openMatter(m)'>
+                        <div class='list-group-item matter' ng-repeat="m in r._matters" ng-click='openMatter(m)'>
                             <div class="media">
                                 <div class="media-left">
                                     <img class="media-object" ng-src="{{m.pic||m.thumbnail}}">
@@ -39,8 +66,8 @@
                             </div>
                         </div>
                     </div>
-                </uib-tab>
-            </uib-tabset>
+                </div>
+            </div>
         </div>
     </div>
 </div>

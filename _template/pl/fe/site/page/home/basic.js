@@ -1,6 +1,7 @@
 ngApp.provider.controller('ctrlHome', ['$scope', '$http', 'tmsFavor', 'tmsForward', 'tmsDynaPage', function($scope, $http, tmsFavor, tmsForward, tmsDynaPage) {
     var ls = location.search,
         siteId = ls.match(/site=([^&]*)/)[1];
+    $scope.siteId = siteId;
 
     function listTemplates() {
         $http.get('/rest/site/home/listTemplate?site=' + siteId).success(function(rsp) {
@@ -9,9 +10,17 @@ ngApp.provider.controller('ctrlHome', ['$scope', '$http', 'tmsFavor', 'tmsForwar
     };
 
     function listChannels() {
-        $http.get('/rest/site/home/listChannel?site=' + siteId).success(function(rsp) {
-            $scope.channels = rsp.data;
-            $scope.channels.forEach(function(channel) {
+        $http.get('/rest/site/home/listChannel?site=' + siteId + '&homeGroup=C').success(function(rsp) {
+            $scope.c_channels = rsp.data;
+            $scope.c_channels.forEach(function(channel) {
+                $http.get('/rest/site/fe/matter/channel/mattersGet?site=' + siteId + '&id=' + channel.channel_id).success(function(rsp) {
+                    channel._matters = rsp.data;
+                });
+            });
+        });
+        $http.get('/rest/site/home/listChannel?site=' + siteId + '&homeGroup=R').success(function(rsp) {
+            $scope.r_channels = rsp.data;
+            $scope.r_channels.forEach(function(channel) {
                 $http.get('/rest/site/fe/matter/channel/mattersGet?site=' + siteId + '&id=' + channel.channel_id).success(function(rsp) {
                     channel._matters = rsp.data;
                 });

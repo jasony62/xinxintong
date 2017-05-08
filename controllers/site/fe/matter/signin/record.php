@@ -182,16 +182,16 @@ class record extends base {
 	 */
 	private function _submitMember($siteId, &$member, &$user) {
 		$schemaId = $member->schema_id;
-		$oSchema = $this->model('site\user\memberschema')->byId($schemaId, 'id,title,attr_mobile,attr_email,attr_name,extattr');
+		$oMschema = $this->model('site\user\memberschema')->byId($schemaId, 'siteid,id,title,auto_verified,attr_mobile,attr_email,attr_name,extattr');
 		$modelMem = $this->model('site\user\member');
 
 		$existentMember = $modelMem->byUser($user->uid, array('schemas' => $schemaId));
 		if (count($existentMember)) {
 			$memberId = $existentMember[0]->id;
 			$member->id = $memberId;
-			$rst = $modelMem->modify($siteId, $oSchema, $memberId, $member);
+			$rst = $modelMem->modify($oMschema, $memberId, $member);
 		} else {
-			$rst = $modelMem->createByApp($siteId, $oSchema, $user->uid, $member);
+			$rst = $modelMem->createByApp($oMschema, $user->uid, $member);
 		}
 		$member->schema_id = $schemaId;
 

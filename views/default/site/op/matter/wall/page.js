@@ -67,10 +67,10 @@ app.controller('wallCtrl', ['$scope', '$http', function($scope, $http) {
     };
     var ls;
     ls = location.search;
-    $scope.mpid = ls.match(/mpid=([^&]*)/)[1];
+    $scope.siteId = ls.match(/site=([^&]*)/)[1];
     $scope.wallId = ls.match(/wall=([^&]*)/)[1];
     $scope.stop = false;
-    $http.get('/rest/op/wall/pageGet?mpid=' + $scope.mpid + '&wall=' + $scope.wallId).success(function(rsp) {
+    $http.get('/rest/site/op/matter/wall/pageGet?site=' + $scope.siteId + '&wall=' + $scope.wallId).success(function(rsp) {
         if (rsp.err_code !== 0) {
             $scope.errmsg = rsp.err_msg;
             return;
@@ -79,7 +79,7 @@ app.controller('wallCtrl', ['$scope', '$http', function($scope, $http) {
         params = rsp.data;
         $scope.Wall = params.wall;
         setPage($scope, params.page);
-        $http.get('/rest/op/wall/messageList?mpid=' + $scope.mpid + '&wall=' + $scope.wallId + '&_=' + (new Date()).getTime(), {
+        $http.get('/rest/site/op/matter/wall/messageList?site=' + $scope.siteId + '&wall=' + $scope.wallId + '&_=' + (new Date() * 1), {
             headers: {
                 'Accept': 'application/json'
             }
@@ -87,7 +87,7 @@ app.controller('wallCtrl', ['$scope', '$http', function($scope, $http) {
             var last, worker;
             $scope.messages = rsp.data[0];
             last = rsp.data[1];
-            worker = new Worker("/views/default/op/wall/wallMessages.js?_=2");
+            worker = new Worker("/views/default/site/op/matter/wall/wallMessages.js?_=2");
             worker.onmessage = function(e) {
                 var messages = e.data;
                 for (var i in messages) {
@@ -97,7 +97,7 @@ app.controller('wallCtrl', ['$scope', '$http', function($scope, $http) {
                 $scope.$apply();
             };
             worker.postMessage({
-                mpid: $scope.mpid,
+                siteId: $scope.siteId,
                 wid: $scope.wallId,
                 last: last
             });

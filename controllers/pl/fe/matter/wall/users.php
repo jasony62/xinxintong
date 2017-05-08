@@ -495,14 +495,17 @@ class users extends \pl\fe\matter\base {
 			$user2->userid = '';
 			//加入讨论组
 			$reply = $this->model('matter\wall')->join($site, $app, $user2, 'import');
-			if ($reply === $joinReply->join_reply) {
+			if (false === $reply[0]) {
+				return new \ResponseError($reply[1]);
+			}
+			if ($reply[1] === $joinReply->join_reply) {
 				$num++;
 
 				/*发送消息通知*/
 				$message = array(
 					"msgtype" => "text",
 					"text" => array(
-						"content" => $reply,
+						"content" => $reply[1],
 					),
 				);
 				if ($type === 'yx') {

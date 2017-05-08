@@ -29,17 +29,20 @@ class main extends base {
 		empty($site) && $this->outputError('没有指定当前站点的ID');
 		empty($app) && $this->outputError('登记活动ID为空');
 
-		$app = $this->modelApp->byId($app, ['cascaded' => 'N']);
-		if ($app === false) {
+		$oApp = $this->modelApp->byId($app, ['cascaded' => 'N']);
+		if ($oApp === false) {
 			$this->outputError('指定的登记活动不存在，请检查参数是否正确');
 		}
 		if (!$this->afterSnsOAuth()) {
 			/* 检查是否需要第三方社交帐号OAuth */
-			$this->_requireSnsOAuth($site, $app);
+			$this->_requireSnsOAuth($site, $oApp);
 		}
 
+		// 检查进入规则
+		$this->checkEntryRule($oApp, true);
+
 		/* 返回登记活动页面 */
-		\TPL::assign('title', $app->title);
+		\TPL::assign('title', $oApp->title);
 		if ($page === 'repos') {
 			\TPL::output('/site/fe/matter/enroll/repos');
 		} elseif ($page === 'remark') {
@@ -47,9 +50,9 @@ class main extends base {
 		} else {
 			if (empty($page)) {
 				/* 计算打开哪个页面 */
-				$oOpenPage = $this->_defaultPage($site, $app, true, $ignoretime);
+				$oOpenPage = $this->_defaultPage($site, $oApp, true, $ignoretime);
 			} else {
-				$oOpenPage = $this->model('matter\enroll\page')->byName($app->id, $page);
+				$oOpenPage = $this->model('matter\enroll\page')->byName($oApp->id, $page);
 			}
 			empty($oOpenPage) && $this->outputError('没有可访问的页面');
 			if ($oOpenPage->type === 'I') {
@@ -144,17 +147,17 @@ class main extends base {
 	 * 2、如果已经登记过，且指定了登记过访问页面，进入指定的页面
 	 * 3、如果已经登记过，且没有指定登记过访问页面，进入第一个查看页
 	 */
-	private function _defaultPage($site, &$app, $redirect = false, $ignoretime = 'N') {
+	private function _defaultPage($site, &$oApp, $redirect = false, $ignoretime = 'N') {
 		$user = $this->who;
 		$oOpenPage = null;
 		$modelPage = $this->model('matter\enroll\page');
 
 		if ($ignoretime === 'N') {
-			$rst = $this->_isValid($app);
+			$rst = $this->_isValid($oApp);
 			if ($rst[0] === false) {
 				if (is_string($rst[1])) {
 					if ($redirect === true) {
-						$this->outputError($rst[1], $app->title);
+						$this->outputError($rst[1], $oApp->title);
 					}
 					return null;
 				} else {
@@ -165,26 +168,26 @@ class main extends base {
 
 		if ($oOpenPage === null) {
 			// 根据登记状态确定进入页面
-			$userEnrolled = $this->modelApp->userEnrolled($app, $user);
+			$userEnrolled = $this->modelApp->userEnrolled($oApp, $user);
 			if ($userEnrolled) {
-				if (empty($app->enrolled_entry_page)) {
-					$pages = $modelPage->byApp($app->id);
+				if (empty($oApp->enrolled_entry_page)) {
+					$pages = $modelPage->byApp($oApp->id);
 					foreach ($pages as $p) {
 						if ($p->type === 'V') {
-							$oOpenPage = $modelPage->byId($app->id, $p->id);
+							$oOpenPage = $modelPage->byId($oApp->id, $p->id);
 							break;
 						}
 					}
 				} else {
-					$oOpenPage = $modelPage->byName($app->id, $app->enrolled_entry_page);
+					$oOpenPage = $modelPage->byName($oApp->id, $oApp->enrolled_entry_page);
 				}
 			}
 		}
 
 		if ($oOpenPage === null) {
 			// 根据进入规则确定进入页面
-			$page = $this->checkEntryRule($site, $app, $redirect);
-			$oOpenPage = $modelPage->byName($app->id, $page);
+			$page = $this->checkEntryRule($oApp, $redirect);
+			$oOpenPage = $modelPage->byName($oApp->id, $page);
 		}
 
 		if ($oOpenPage === null) {

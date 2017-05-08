@@ -40,6 +40,10 @@ ngApp.controller('ctrlMain', ['$scope', 'http2', 'mattersgallery', 'noticebox', 
         title: '抽奖活动',
         url: '/rest/pl/fe/matter'
     }, {
+        value: 'wall',
+        title: '信息墙',
+        url: '/rest/pl/fe/matter'
+    }, {
         value: 'link',
         title: '链接',
         url: '/rest/mp/matter'

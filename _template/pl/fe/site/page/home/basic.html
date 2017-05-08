@@ -25,6 +25,16 @@
                                 <div class="media-body">
                                     <h4 class="media-heading">{{m.title}}</h4>
                                     <div>{{m.summary}}</div>
+                                    <div class="pull-left forward">
+                                        <a href="" ng-click="forward(user,m)">
+                                            <span class="site_fe_home "></span>转发
+                                        </a>
+                                    </div>
+                                    <div class="pull-left favor" >
+                                        <a href="" ng-click="favor(user,m)" >
+                                            <span class="site_fe_home"></span>收藏
+                                        </a>
+                                    </div>
                                 </div>
                             </div>
                         </div>

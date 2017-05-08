@@ -89,7 +89,7 @@ class page extends \pl\fe\base {
 		return new \ResponseData('ok');
 	}
 	/**
-	 * 修改主页频道排序
+	 * 修改主页频道分组
 	 */
 	public function updateHomeChannel_action($site, $id) {
 		if (false === ($user = $this->accountUser())) {

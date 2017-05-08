@@ -165,7 +165,9 @@ define(['require', 'enrollService'], function(require) {
                 }]
                 //},{
         }];
+        //侧边栏代码
         $scope.leftSlider = {
+            //初始化状态,关闭折叠
             init: function(){
                 angular.forEach($scope.views, function(v) {
                     v.inferiorShow = false ;
@@ -174,6 +176,7 @@ define(['require', 'enrollService'], function(require) {
                 $scope.leftState = false ;
                 $scope.leftInferior = false ;
             },
+            //去一级页面
             goToFirst: function(value){
                 this.init();
                 //如果二级不为空(用v.inferior.length判断)，打开折叠；否则跳转页面
@@ -191,6 +194,7 @@ define(['require', 'enrollService'], function(require) {
                     }
                 });
             },
+            //去二级页面
             goToSecond: function(value){
                 //关闭所有折叠
                 this.init();
@@ -209,6 +213,7 @@ define(['require', 'enrollService'], function(require) {
                     });
                 });
             },
+            //区分一二级单页，特殊单页处理
             goTo: function(value){
                 //如果在一级页面查到 返回值不为-1; 特殊处理-修改数据单页，刷新无状态的bug
                 if(value==='editor'){

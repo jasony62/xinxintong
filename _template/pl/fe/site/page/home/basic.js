@@ -1,4 +1,4 @@
-ngApp.provider.controller('ctrlHome', ['$scope', '$http', function($scope, $http) {
+ngApp.provider.controller('ctrlHome', ['$scope', '$http', 'tmsFavor', 'tmsForward', 'tmsDynaPage', function($scope, $http, tmsFavor, tmsForward, tmsDynaPage) {
     var ls = location.search,
         siteId = ls.match(/site=([^&]*)/)[1];
 
@@ -18,6 +18,32 @@ ngApp.provider.controller('ctrlHome', ['$scope', '$http', function($scope, $http
             });
         });
     };
+    $scope.favor = function(user,article) {
+        event.preventDefault();
+        event.stopPropagation();
+
+        if (!user.loginExpire) {
+            tmsDynaPage.openPlugin('http://' + location.host + '/rest/site/fe/user/login?site=' + oMatter.siteid).then(function(data) {
+                user.loginExpire = data.loginExpire;
+                tmsFavor.open(article);
+            });
+        } else {
+            tmsFavor.open(article);
+        }
+    }
+    $scope.forward = function(user,article) {
+        event.preventDefault();
+        event.stopPropagation();
+
+        if (!user.loginExpire) {
+            tmsDynaPage.openPlugin('http://' + location.host + '/rest/site/fe/user/login?site=' + oMatter.siteid).then(function(data) {
+                user.loginExpire = data.loginExpire;
+                tmsForward.open(article);
+            });
+        } else {
+            tmsForward.open(article);
+        }
+    }
     $scope.openMatter = function(matter) {
         location.href = matter.url;
     };

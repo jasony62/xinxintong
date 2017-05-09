@@ -25,28 +25,37 @@
                     <option value="more" ng-if="facRound.oPage.total>rounds.length">更多</option>
                 </select>
             </div>
-            <uib-accordion id='recordRepos' close-others="true">
-                <div uib-accordion-group is-disabled="true" is-open="schema._open" heading="{{schema.title}}" ng-repeat="schema in schemas" ng-init="page={at:1,size:10}">
+            <uib-accordion id='recordRepos' close-others="true" ng-class="{'single':schemas.length===1}">
+                <div uib-accordion-group is-disabled="true" is-open="schema._open" ng-repeat="schema in schemas">
                     <uib-accordion-heading>
                         <h4 ng-click="switchSchema(schema,page)">{{schema.title}} <i class="pull-right glyphicon" ng-class="{'glyphicon-chevron-down':schema._open,'glyphicon-chevron-right':!schema._open}"></i>
                         </h4>
                     </uib-accordion-heading>
-                    <div>
+                    <div class='records'>
                         <div class='record' ng-repeat="rec in repos[schema.id]">
                             <div class='nickname'>{{rec.nickname||'匿名用户'}}</div>
                             <div class='content'>{{rec.data[schema.id]}}</div>
                             <div class='bottom-bar'>
                                 <div class='datetime text-muted'>{{rec.enroll_at*1000|date:'MM-dd HH:mm'}}</div>
-                                <button ng-if="schema.remarkable==='Y'" class='btn btn-default btn-sm' ng-click="gotoRemark(rec.enroll_key)">看评论</button>
+                                <button ng-if="schema.remarkable==='Y'" class='btn btn-default btn-sm' ng-click="gotoRemark(rec.enroll_key,schema)"><span class='glyphicon glyphicon-comment'></span></button>
                             </div>
                         </div>
                     </div>
                     <div class='form-inline'>
-                        <span>总数：{{page.total}}</span>
-                        <ul uib-pagination style="margin:0;vertical-align:bottom;cursor:pointer" ng-show="page.total>page.size" boundary-links="true" total-items="page.total" max-size="7" items-per-page="page.size" rotate="false" ng-model="page.at" previous-text="&lsaquo;" next-text="&rsaquo;" first-text="&laquo;" last-text="&raquo;" ng-change="list4Schema(schema,page)"></ul>
+                        <span>总数：{{schema._page.total}}</span>
+                        <ul uib-pagination style="margin:0;vertical-align:bottom;cursor:pointer" ng-show="schema._page.total>schema._page.size" boundary-links="true" total-items="schema._page.total" max-size="5" items-per-page="schema._page.size" rotate="false" ng-model="schema._page.at" previous-text="&lsaquo;" next-text="&rsaquo;" first-text="&laquo;" last-text="&raquo;" ng-change="list4Schema(schema)"></ul>
                     </div>
                 </div>
             </uib-accordion>
+            <div class='form-group'>
+                <div class='form-inline text-center'>
+                    <select class='form-control' ng-model="criteria.owner" ng-change="shiftOwner()">
+                        <option value='all'>全部</option>
+                        <option value='{{params.user.uid}}'>我的</option>
+                    </select>
+                    <button class='btn btn-default' ng-click="addRecord($event,'enroll')">&nbsp;&nbsp;<span class='glyphicon glyphicon-plus'></span>&nbsp;&nbsp;</button>
+                </div>
+            </div>
         </div>
     </div>
     <footer ng-if="app.use_mission_footer==='Y'" dynamic-html="mission.footer_page.html"></footer>

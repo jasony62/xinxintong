@@ -948,6 +948,11 @@ class record_model extends \TMS_MODEL {
 			"xxt_enroll_record_data",
 			"state=1 and aid='{$oApp->id}' and schema_id='{$schemaId}' and value<>''",
 		];
+		/* 指定用户 */
+		if (!empty($options->owner)) {
+			$q[2] .= " and userid='" . $options->owner . "'";
+		}
+		/* 指定登记轮次 */
 		if (!empty($rid)) {
 			if ($rid !== 'ALL') {
 				$q[2] .= " and rid='{$rid}'";

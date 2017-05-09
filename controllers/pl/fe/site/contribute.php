@@ -84,6 +84,7 @@ class contribute extends \pl\fe\base {
 		foreach ($aMatters as $oMatter) {
 			$modelMat = $this->model('matter\\' . $oMatter->type);
 			$oMatter = $modelMat->byId($oMatter->id, ['cascaded' => 'N']);
+			$fromSite = $modelSite->byId($oMatter->siteid, ['fields' => 'name']);
 			if (false === $oMatter) {
 				continue;
 			}
@@ -94,6 +95,7 @@ class contribute extends \pl\fe\base {
 			];
 			if (false === $modelMat->query_obj_ss($q)) {
 				$log['from_siteid'] = $oMatter->siteid;
+				$log['from_site_name'] = $modelMat->escape($fromSite->name);
 				$log['matter_id'] = $oMatter->id;
 				$log['matter_type'] = $oMatter->type;
 				$log['matter_title'] = $modelMat->escape($oMatter->title);
@@ -105,6 +107,9 @@ class contribute extends \pl\fe\base {
 
 		return new \ResponseData('ok');
 	}
+	/**
+	 *
+	 */
 	public function update_action($id){
 		if (false === ($user = $this->accountUser())) {
 			return new \ResponseTimeout();
@@ -115,7 +120,7 @@ class contribute extends \pl\fe\base {
 				['close_at' => time()],
 				['id' => $id]
 			);
-		
+
 		return new \ResponseData($rst);
 	}
 }

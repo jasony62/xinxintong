@@ -67,6 +67,7 @@ class favor extends \site\fe\base {
 			return new \ResponseError('仅限登录用户操作');
 		}
 
+		$fromSite = $this->model('site')->byId($oMatter->siteid, ['fields' => 'name']);
 		$loginUserid = $this->who->unionid;
 
 		$q = [
@@ -77,6 +78,7 @@ class favor extends \site\fe\base {
 		if (false === $modelMat->query_obj_ss($q)) {
 			$log = [
 				'siteid' => $oMatter->siteid,
+				'site_name' => $modelMat->escape($fromSite->name),
 				'unionid' => $loginUserid,
 				'nickname' => empty($this->who->nickname) ? '' : $modelMat->escape($this->who->nickname),
 				'favor_at' => time(),

@@ -162,43 +162,48 @@ define(['frame'], function(ngApp) {
                     location.href = '/rest/pl/fe/site/setting?site=' + rsp.data.id;
                 });
             }
-            var url = '/rest/pl/fe/site/list?_=' + (new Date() * 1);
             $('#popoverAddMatter').trigger('hide');
             $('#missionAddMatter').trigger('hide');
             $('#activityAddMatter').trigger('hide');
             $('#infoAddMatter').trigger('hide');
-            http2.get(url, function(rsp) {
-                var sites = rsp.data;
-                if (sites.length === 1) {
-                    addMatter(sites[0], matterType);
-                } else if (sites.length === 0) {
-                    createSite().then(function(site) {
-                        addMatter(site, matterType, scenario);
-                    });
-                } else {
-                    $uibModal.open({
-                        templateUrl: 'addMatterSite.html',
-                        dropback: 'static',
-                        controller: ['$scope', '$uibModalInstance', function($scope2, $mi) {
-                            var data;
-                            $scope2.mySites = sites;
-                            $scope2.data = data = {};
-                            $scope2.ok = function() {
-                                if (data.index !== undefined) {
-                                    $mi.close(sites[data.index]);
-                                } else {
+            if($scope.criteria.sid != '') {
+                var site = {id: $scope.criteria.sid};
+                addMatter(site, matterType, scenario);
+            }else {
+                var url = '/rest/pl/fe/site/list?_=' + (new Date() * 1);
+                http2.get(url, function(rsp) {
+                    var sites = rsp.data;
+                    if (sites.length === 1) {
+                        addMatter(sites[0], matterType);
+                    } else if (sites.length === 0) {
+                        createSite().then(function(site) {
+                            addMatter(site, matterType, scenario);
+                        });
+                    } else {
+                        $uibModal.open({
+                            templateUrl: 'addMatterSite.html',
+                            dropback: 'static',
+                            controller: ['$scope', '$uibModalInstance', function($scope2, $mi) {
+                                var data;
+                                $scope2.mySites = sites;
+                                $scope2.data = data = {};
+                                $scope2.ok = function() {
+                                    if (data.index !== undefined) {
+                                        $mi.close(sites[data.index]);
+                                    } else {
+                                        $mi.dismiss();
+                                    }
+                                };
+                                $scope2.cancel = function() {
                                     $mi.dismiss();
-                                }
-                            };
-                            $scope2.cancel = function() {
-                                $mi.dismiss();
-                            };
-                        }]
-                    }).result.then(function(site) {
-                        addMatter(site, matterType, scenario);
-                    });
-                }
-            });
+                                };
+                            }]
+                        }).result.then(function(site) {
+                            addMatter(site, matterType, scenario);
+                        });
+                    }
+                });
+            }
         };
 
         /*置顶*/

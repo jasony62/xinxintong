@@ -17,21 +17,35 @@ class favor extends \pl\fe\base {
 	 * 返回当前团队收藏的素材,增加了素材的标题、头图、摘要
 	 * @param string $site site'id
 	 */
-	public function list_action($site, $page = 1, $size = 10) {
+	public function list_action($site = null, $page = 1, $size = 10) {
 		if (false === ($user = $this->accountUser())) {
 			return new \ResponseTimeout();
 		}
 
-		$model = $this->model();
+		$model = $this->model('site');
+		$sites = [];
+		if(empty($site)){
+			//获取用户有权管理的团队
+			$sites2 = $model->byUser($user->id);
+			foreach ($sites2 as $site) {
+				$sites[] = $site->id;
+			}
+		}else{
+			$sites[0] = $model->escape($site);
+		}
+
+		$sites = "('" . implode("','", $sites) . "')";
+
 		$q = array(
 			'*',
 			'xxt_site_friend_favor',
-			['siteid' => $site],
+			"siteid in $sites",
 		);
 		$q2 = array(
 			'o' => 'favor_at desc',
 			'r' => array('o' => ($page - 1) * $size, $size, 'l' => $size),
 		);
+
 		$matters = $model->query_objs_ss($q, $q2);
 		foreach ($matters as $k => $v) {
 			if ($v->matter_type == 'custom') {

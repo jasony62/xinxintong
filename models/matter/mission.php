@@ -21,6 +21,21 @@ class mission_model extends app_base {
 	/**
 	 *
 	 */
+	public function getEntryUrl($siteId, $id) {
+		$url = "http://" . $_SERVER['HTTP_HOST'];
+		$url .= "/rest/site/fe/matter/mission";
+		if ($siteId === 'platform') {
+			$oMission = $this->byId($id, ['cascaded' => 'N']);
+			$url .= "?site={$oMission->siteid}&mission=" . $id;
+		} else {
+			$url .= "?site={$siteId}&mission=" . $id;
+		}
+
+		return $url;
+	}
+	/**
+	 *
+	 */
 	public function &byId($id, $options = []) {
 		$fields = isset($options['fields']) ? $options['fields'] : '*';
 		$cascaded = isset($options['cascaded']) ? $options['cascaded'] : '';

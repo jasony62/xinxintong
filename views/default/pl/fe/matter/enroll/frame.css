@@ -1,5 +1,6 @@
 .ng-cloak{display:none;}
-body{padding:71px 0;font-family:Microsoft Yahei,Arial;}
+body, html{padding: 0;min-height: 100%}
+body{font-family:Microsoft Yahei,Arial;}
 .navbar-nav.tms-breadcrumb>li>a{padding-left:0;padding-right:0;color:#428bca;max-width:12em;overflow:hidden;white-space:nowrap;text-overflow:ellipsis;}
 .navbar-nav.tms-breadcrumb>li:last-child>a{color:#777;}
 .navbar-nav.tms-breadcrumb>li>a:after{content:'/\00a0';padding-left:5px;color:#ccc;}
@@ -77,9 +78,9 @@ body{padding:71px 0;font-family:Microsoft Yahei,Arial;}
 /*布局*/
 
 #container{    /*填充整个区域*/
-position:fixed;height:100%;width:100%;}
+position:relative;margin-top: 60px}
 #container>.left{position:absolute;background:#ffffff;width:120px;min-height:100%;border:1px solid #ddd;}
-#container>.right{margin-left:140px;margin-top:20px;min-height:900px;padding-bottom:20px;}
+#container>.right{margin:0 0 0 140px;min-height:900px;padding-bottom:20px;}
 
 /*导航条*/
 .navbar .reName,.navbar .set,.navbar .preview{border-radius:50%;}

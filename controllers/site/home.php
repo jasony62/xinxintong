@@ -86,9 +86,10 @@ class home extends base {
 	/**
 	 *
 	 */
-	public function listChannel_action($site) {
+	public function listChannel_action($site, $homeGroup = null) {
 		$modelSp = $this->model('site\page');
-		$hcs = $modelSp->homeChannelBySite($site);
+		$options = ['home_group' => $homeGroup];
+		$hcs = $modelSp->homeChannelBySite($site, $options);
 
 		return new \ResponseData($hcs);
 	}

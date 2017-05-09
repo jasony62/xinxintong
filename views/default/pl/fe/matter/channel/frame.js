@@ -46,7 +46,11 @@ ngApp.controller('ctrlMain', ['$scope', 'http2', 'mattersgallery', 'noticebox', 
     }, {
         value: 'link',
         title: '链接',
-        url: '/rest/mp/matter'
+        url: '/rest/pl/fe/matter'
+    }, {
+        value: 'mission',
+        title: '项目',
+        url: '/rest/pl/fe/matter'
     }];
     $scope.acceptMatterTypes = [{
         name: '',
@@ -133,11 +137,17 @@ ngApp.controller('ctrlMain', ['$scope', 'http2', 'mattersgallery', 'noticebox', 
     };
     $scope.addMatter = function() {
         mattersgallery.open($scope.siteId, function(matters, type) {
-            var relations = { matter: matters };
-            http2.post('/rest/pl/fe/matter/channel/addMatter?site=' + $scope.siteId + '&channel=' + $scope.editing.id, relations, function(rsp) {
-                $scope.editing.matters = rsp.data;
-                arrangeMatters();
-            });
+            var relations;
+            if (matters && matters.length) {
+                matters.forEach(function(matter) {
+                    matter.type = type;
+                });
+                relations = { matter: matters };
+                http2.post('/rest/pl/fe/matter/channel/addMatter?site=' + $scope.siteId + '&channel=' + $scope.editing.id, relations, function(rsp) {
+                    $scope.editing.matters = rsp.data;
+                    arrangeMatters();
+                });
+            }
         }, {
             matterTypes: $scope.matterTypes,
         });

@@ -13,7 +13,7 @@ class acl_model extends app_base {
 		return $this->enrollReceiver_acls($siteId, $aid);
 	}
 	/**
-	 * 获得讨论组的所有用户
+	 * 获得信息墙的所有用户
 	 * 将ACL翻译为具体的用户
 	 */
 	public function wallUsers($siteId, $wid) {
@@ -475,7 +475,7 @@ class acl_model extends app_base {
 	 */
 	private function _checkBySchema($siteId, &$aSchemaIds, $acls, $identity) {
 		$posted = json_encode($acls);
-		$aSchemaIds = explode(',',$aSchemaIds);
+		$aSchemaIds = explode(',', $aSchemaIds);
 		foreach ($aSchemaIds as $schemaId) {
 			$q = array(
 				'url',

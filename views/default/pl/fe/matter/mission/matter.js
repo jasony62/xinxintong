@@ -141,6 +141,7 @@ define(['frame'], function(ngApp) {
                     case 'enroll':
                     case 'signin':
                     case 'group':
+                    case 'wall':
                         url += type + '/remove?app=' + id + '&site=' + $scope.mission.siteid;
                         break;
                 }

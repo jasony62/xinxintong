@@ -86,7 +86,7 @@ class users extends \pl\fe\matter\base {
 		/* 导入数据 */
 		if (!empty($records)) {
 			foreach ($records as $record) {
-				//退出其它讨论组
+				//退出其它信息墙
 				$this->model()->update(
 					'xxt_wall_enroll',
 					array('close_at' => $sync_at),
@@ -161,7 +161,7 @@ class users extends \pl\fe\matter\base {
 		/* 导入数据 */
 		if (!empty($records)) {
 			foreach ($records as $record) {
-				//退出其它讨论组
+				//退出其它信息墙
 				$this->model()->update(
 					'xxt_wall_enroll',
 					array('close_at' => $sync_at),
@@ -318,7 +318,7 @@ class users extends \pl\fe\matter\base {
 		if (!empty($records)) {
 			foreach ($records as $record) {
 				if ($record->state === '1') {
-					//退出其它讨论组
+					//退出其它信息墙
 					$this->model()->update(
 						'xxt_wall_enroll',
 						array('close_at' => $sync_at),
@@ -493,7 +493,7 @@ class users extends \pl\fe\matter\base {
 			// added by yangyue: 一个openid可能对应多个userid
 
 			$user2->userid = '';
-			//加入讨论组
+			//加入信息墙
 			$reply = $this->model('matter\wall')->join($site, $app, $user2, 'import');
 			if (false === $reply[0]) {
 				return new \ResponseError($reply[1]);

@@ -2,6 +2,10 @@ define(['frame'], function(ngApp) {
     'use strict';
     ngApp.provider.controller('ctrlMain', ['$scope', function($scope) {}]);
     ngApp.provider.controller('ctrlSetting', ['$scope', 'http2', '$uibModal', 'mediagallery', function($scope, http2, $uibModal, mediagallery) {
+        $scope.$watch('mission', function(oMission) {
+            if (!oMission) return;
+            $scope.entry = { url: 'http://' + location.host + '/rest/site/fe/matter/mission?site=' + oMission.siteid + '&mission=' + oMission.id }
+        });
         $scope.remove = function() {
             if (window.confirm('确定删除项目？')) {
                 http2.get('/rest/pl/fe/matter/mission/remove?id=' + $scope.mission.id, function(rsp) {

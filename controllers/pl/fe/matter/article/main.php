@@ -653,9 +653,6 @@ class main extends \pl\fe\matter\base {
 	 */
 	public function uploadAndCreate_action($site, $state = null) {
 		if ($state === 'done') {
-			require_once TMS_APP_DIR . '/vendor/autoload.php';
-			require_once TMS_APP_DIR . '/lib/pptx_to_article.php';
-
 			$user = $this->accountUser();
 			$posted = $this->getPostJson();
 			$file = $posted->file;
@@ -707,7 +704,7 @@ class main extends \pl\fe\matter\base {
 			$ext = explode('.', $filename);
 			$ext = array_pop($ext);
 			$attAbs = $appRoot . '/' . $attachment;
-			if (in_array($ext, array('doc', 'docx', 'ppt'))) {
+			if (in_array($ext, array('doc', 'docx', 'ppt', 'pptx'))) {
 				/* 存放附件转换结果 */
 				$attDir = str_replace('.' . $ext, '', $attachment);
 				mkdir($appRoot . '/' . $attDir);
@@ -723,27 +720,6 @@ class main extends \pl\fe\matter\base {
 				if (in_array($ext, array('ppt', 'pptx'))) {
 					$this->setCoverByAtt($id, $attDir);
 				}
-			} else if ($ext === 'pptx') {
-				$oReader = \PhpOffice\PhpPresentation\IOFactory::createReader('PowerPoint2007');
-				$oPHPPresentation = $oReader->load($attAbs);
-				$pptx = new \pptx_to_article($oPHPPresentation);
-				$model = $this->model();
-				//设置头图
-				if (file_exists('0.jpg')) {
-					$attDir = str_replace('.' . $ext, '', $attachment);
-					mkdir($appRoot . '/' . $attDir);
-					rename('0.jpg', $appRoot . '/' . $attDir . '/0.jpg');
-					$this->setCoverByAtt($id, $attDir);
-				}
-				//转单图文
-				//$d['creater_name'] = $article->creator;
-				//$d['author'] = $article->creator;
-				//$d['create_at'] = $article->create_at;
-				//$d['title'] = $article->title;
-				//$d['modify_at'] = $article->modify_at;
-				$d['body'] = $pptx->htmlOutput;
-
-				$model->update('xxt_article', $d, ['id' => $id]);
 			} else if ($ext === 'pdf') {
 				/* 存放附件转换结果 */
 				$attDir = str_replace('.' . $ext, '', $attachment);

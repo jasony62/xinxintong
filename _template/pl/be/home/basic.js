@@ -1,4 +1,4 @@
-ngApp.provider.controller('ctrlHome', ['$scope', '$http', '$uibModal', function($scope, $http, $uibModal) {
+ngApp.provider.controller('ctrlHome', ['$scope', '$http', '$uibModal', 'tmsFavor', 'tmsForward', 'tmsDynaPage', function($scope, $http, $uibModal, tmsFavor, tmsForward, tmsDynaPage) {
     var page;
     $scope.page = page = {
         at: 1,
@@ -48,6 +48,34 @@ ngApp.provider.controller('ctrlHome', ['$scope', '$http', '$uibModal', function(
             $scope.articles.total = rsp.data.total;
         });
     };
+    $scope.favor = function(user,article) {
+        article.type = article.matter_type;
+        event.preventDefault();
+        event.stopPropagation();
+
+        if (!user.loginExpire) {
+            tmsDynaPage.openPlugin('http://' + location.host + '/rest/site/fe/user/login?site=' + oMatter.siteid).then(function(data) {
+                user.loginExpire = data.loginExpire;
+                tmsFavor.open(article);
+            });
+        } else {
+            tmsFavor.open(article);
+        }
+    }
+    $scope.forward = function(user,article) {
+        article.type = article.matter_type;
+        event.preventDefault();
+        event.stopPropagation();
+
+        if (!user.loginExpire) {
+            tmsDynaPage.openPlugin('http://' + location.host + '/rest/site/fe/user/login?site=' + oMatter.siteid).then(function(data) {
+                user.loginExpire = data.loginExpire;
+                tmsForward.open(article);
+            });
+        } else {
+            tmsForward.open(article);
+        }
+    }
     $scope.listChannels = function() {
         $scope.channelArticles = [];
         $http.get('/rest/home/listChannel').success(function(rsp) {

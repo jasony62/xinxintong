@@ -7,7 +7,7 @@ define(['frame'], function(ngApp) {
         //退出信息墙功能  删除所有用户
         $scope.quit = function() {
             var vcode;
-            vcode = prompt('是否要退出所有在线用户？，若是，请输入讨论组名称。');
+            vcode = prompt('是否要退出所有在线用户？，若是，请输入信息墙名称。');
             //下面需修改，与杨总讨论
             if (vcode === $scope.wall.title) {
                 http2.get('/rest/pl/fe/matter/wall/users/quit?id=' + $scope.id + '&site=' + $scope.siteId, function(rsp) {
@@ -15,7 +15,6 @@ define(['frame'], function(ngApp) {
                     delete $scope.wall.sourceApp;
                     $scope.$root.infomsg = '操作完成';
                 });
-
             }
         };
         //删除用户

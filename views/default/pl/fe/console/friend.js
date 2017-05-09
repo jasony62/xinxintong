@@ -118,10 +118,11 @@ define(['frame'], function(ngApp) {
     }]);
     ngApp.provider.controller('ctrlContributeSite', ['$scope', 'http2', '$q', 'srvSite', function($scope, http2, $q, srvSite) {
         $scope.close = function(m) {
-            http2.get('rest/pl/fe/site/contribute/list?id=' + m.id, function(rsp) {
+            http2.get('rest/pl/fe/site/contribute/update?id=' + m.id, function(rsp) {
                 $scope.matters.forEach(function(item) {
                     if(m.id == item.id) {
                         $scope.matters.splice(item,1);
+                        $scope.pageOfmatters--;
                     }
                 });
             });

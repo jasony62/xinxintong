@@ -53,7 +53,7 @@
                             </div>
                             <div class="summary">{{matter.matter_summary}}</div>
                             <div class='attr'>
-                                <span class='name pull-left' ><a href='' ng-click='openSite(matter.siteid)'>{{matter.site_name}}&nbsp;&nbsp;</a></span>
+                                <span class='name pull-left' ><a href='' ng-click='openSite(matter.from_siteid)'>{{matter.from_site_name}}&nbsp;&nbsp;</a></span>
                                 <span class='create_at pull-left'>{{matter.create_at*1000|date:'yy-MM-dd HH:mm'}}</span>
                                 <button class="btn btn-default btn-sm pull-right" ng-click="forward(matter)">转发到团队主页</button>
                                 <button style="margin-right:5px" class="btn btn-default btn-sm pull-right" ng-click="close(matter)">关闭</button>
@@ -80,7 +80,7 @@
                             </div>
                             <div class="summary">{{matter.matter_summary}}</div>
                             <div class='attr'>
-                                <span class='name pull-left' ><a href='' ng-click='openSite(matter.siteid)'>{{matter.site_name}}&nbsp;&nbsp;</a></span>
+                                <span class='name pull-left' ><a href='' ng-click='openSite(matter.from_siteid)'>{{matter.from_site_name}}&nbsp;&nbsp;</a></span>
                                 <span class='create_at pull-left'>{{matter.put_at*1000|date:'yy-MM-dd HH:mm'}}</span>
                                 <button class="btn btn-default btn-sm pull-right" ng-click="forward(matter)">转发到团队主页</button>
                                 <button style="margin-right:5px" class="btn btn-default btn-sm pull-right" ng-click="unfavor(matter)">取消收藏</button>

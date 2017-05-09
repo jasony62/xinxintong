@@ -26,7 +26,7 @@
             <div class='form-group hidden-xs'>
                 <div class='list-group-item'>
                     <div ng-if="app.multi_rounds==='Y'">当前轮次：{{summary[0].title}}</div>
-                    <div><span>打开次数：{{app.read_num}}</span>，<span ng-if="app.multi_rounds!=='Y'"><a href="/rest/pl/fe/matter/enroll/record?site={{app.siteid}}&id={{app.id}}">填写数量：{{summary.total}}</a></span><span ng-if="app.multi_rounds==='Y'"><a href="/rest/pl/fe/matter/enroll/record?site={{app.siteid}}&id={{app.id}}">填写数量：{{summary[0].total}}</a></span></div>
+                    <div><span>打开次数：{{app.read_num}}</span>，<span ng-if="app.multi_rounds!=='Y'"><a href="" ng-click="leftSlider.goTo('record')">填写数量：{{summary.total}}</a></span><span ng-if="app.multi_rounds==='Y'"><a href="/rest/pl/fe/matter/enroll/record?site={{app.siteid}}&id={{app.id}}">填写数量：{{summary[0].total}}</a></span></div>
                     <div><span>分享好友：{{app.share_friend_num}}</span>，<span>分享朋友圈：{{app.share_timeline_num}}</span></div>
                 </div>
             </div>

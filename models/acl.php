@@ -26,7 +26,7 @@ class acl_model extends TMS_MODEL {
 		return $this->enrollReceiver_acls($mpid, $aid);
 	}
 	/**
-	 * 获得讨论组的所有用户
+	 * 获得信息墙的所有用户
 	 * 将ACL翻译为具体的用户
 	 */
 	public function wallUsers($mpid, $wid) {

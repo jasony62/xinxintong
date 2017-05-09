@@ -124,7 +124,7 @@ class wall_model extends app_base {
 		return $reply;
 	}
 	/**
-	 * 判断当前用户是否已经参加了讨论组
+	 * 判断当前用户是否已经参加了信息墙
 	 *
 	 * 一个用户在一个公众号中只能加入一个信息墙
 	 *
@@ -140,7 +140,7 @@ class wall_model extends app_base {
 		return $wid;
 	}
 	/**
-	 * 判断当前用户是否已经参加了指定讨论组
+	 * 判断当前用户是否已经参加了指定信息墙
 	 */
 	public function joinedWall($runningSiteId, $wid, $openid) {
 		$q = array(
@@ -293,7 +293,7 @@ class wall_model extends app_base {
 		$siteid = $msg['siteid'];
 		$openid = $msg['from_user'];
 
-		$wlog = array(); // 讨论组记录
+		$wlog = array(); // 信息墙记录
 		if ($msg['type'] === 'text') {
 			$wlog['data_type'] = 'text';
 			$wlog['data'] = $msg['data'];
@@ -349,7 +349,7 @@ class wall_model extends app_base {
 		return true;
 	}
 	/**
-	 * 将消息发送给讨论组中的用户
+	 * 将消息发送给信息墙中的用户
 	 *
 	 * $mpid
 	 * $openid
@@ -487,8 +487,8 @@ class wall_model extends app_base {
 
 		}
 		/**
-		 * 如果当前账号是企业号，且指定了参与的用户，那么发送给所有指定的用户；如果指定用户并未加入讨论组，应该提示他加入
-		 * 如果当前账号是服务号，那么发送给已经加入讨论组的所有用户
+		 * 如果当前账号是企业号，且指定了参与的用户，那么发送给所有指定的用户；如果指定用户并未加入信息墙，应该提示他加入
+		 * 如果当前账号是服务号，那么发送给已经加入信息墙的所有用户
 		 */
 		if (!empty($usersQy)) {
 
@@ -504,7 +504,7 @@ class wall_model extends app_base {
 				$pos = array_search($openid, $groupUsers);
 				unset($groupUsers[$pos]);
 				/**
-				 * 推送给已经加入讨论组的用户
+				 * 推送给已经加入信息墙的用户
 				 */
 				$joinedGroupUsers = array();
 				$ingroup = $this->joinedUsers($site, $wid);
@@ -516,7 +516,7 @@ class wall_model extends app_base {
 					$userid = $ig->openid;
 					$joinedGroupUsers[] = $userid;
 					/**
-					 * 从所有成员用户中删除已进入讨论组的用户
+					 * 从所有成员用户中删除已进入信息墙的用户
 					 */
 					$pos = array_search($userid, $groupUsers);
 					unset($groupUsers[$pos]);
@@ -526,7 +526,7 @@ class wall_model extends app_base {
 					$this->send2Qyuser($site, $message);
 				}
 				/**
-				 * 推送给未加入讨论组的用户
+				 * 推送给未加入信息墙的用户
 				 */
 				if (!empty($groupUsers)) {
 					$message['touser'] = implode('|', $groupUsers);

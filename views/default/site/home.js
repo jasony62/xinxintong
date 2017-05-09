@@ -2,8 +2,10 @@
 require('../../../asset/js/xxt.ui.page.js');
 require('../../../asset/js/xxt.ui.subscribe.js');
 require('../../../asset/js/xxt.ui.contribute.js');
+require('../../../asset/js/xxt.ui.favor.js');
+require('../../../asset/js/xxt.ui.forward.js');
 
-var ngApp = angular.module('app', ['ui.bootstrap', 'ui.tms', 'page.ui.xxt', 'subscribe.ui.xxt', 'contribute.ui.xxt']);
+var ngApp = angular.module('app', ['ui.bootstrap', 'ui.tms', 'page.ui.xxt', 'subscribe.ui.xxt', 'contribute.ui.xxt', 'favor.ui.xxt', 'forward.ui.xxt']);
 ngApp.provider('srvUser', function() {
     var _getSiteUserDeferred;
     this.$get = ['$q', 'http2', function($q, http2) {
@@ -29,7 +31,7 @@ ngApp.config(['$controllerProvider', '$uibTooltipProvider', function($cp, $uibTo
         'show': 'hide'
     });
 }]);
-ngApp.controller('ctrlMain', ['$scope', '$q', '$uibModal', 'http2', 'srvUser', 'tmsDynaPage', 'tmsSubscribe', 'tmsContribute', function($scope, $q, $uibModal, http2, srvUser, tmsDynaPage, tmsSubscribe, tmsContribute) {
+ngApp.controller('ctrlMain', ['$scope', '$q', '$uibModal', 'http2', 'srvUser', 'tmsDynaPage', 'tmsSubscribe', 'tmsContribute', 'tmsFavor', 'tmsForward', function($scope, $q, $uibModal, http2, srvUser, tmsDynaPage, tmsSubscribe, tmsContribute, tmsFavor, tmsForward) {
     function createSite() {
         var defer = $q.defer(),
             url = '/rest/pl/fe/site/create?_=' + (new Date() * 1);

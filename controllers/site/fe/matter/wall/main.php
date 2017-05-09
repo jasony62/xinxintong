@@ -32,7 +32,7 @@ class main extends \site\fe\base {
 		exit;
 	}
 	/**
-	 * 用户加入讨论组
+	 * 用户加入信息墙
 	 */
 	public function join_action($site, $app) {
 		$user = $this->who;
@@ -67,7 +67,7 @@ class main extends \site\fe\base {
 		}
 		$user2->userid = $user->uid;
 
-		//加入讨论组
+		//加入信息墙
 		$reply = $this->model('matter\wall')->join($site, $app, $user2, 'click');
 		if (false === $reply[0]) {
 			return new \ResponseError($reply[1]);
@@ -109,7 +109,7 @@ class main extends \site\fe\base {
 		return new \ResponseData($reply[1]);
 	}
 	/**
-	 * 用户退出讨论组
+	 * 用户退出信息墙
 	 */
 	public function quit_action($site, $app) {
 		$user = $this->who;

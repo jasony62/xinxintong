@@ -106,7 +106,7 @@ define(['require', 'enrollService'], function(require) {
         };
         //定义侧边栏数据
         //定义默认状态
-        $scope.firstView = ['edit', 'publish', 'data', 'other', 'recycle'];
+        $scope.firstView = ['edit', 'publish', 'data', 'other', 'recycle', 'log'];
         $scope.views = [{
             value: 'edit',
             title: '编辑',
@@ -165,66 +165,75 @@ define(['require', 'enrollService'], function(require) {
                 }]
                 //},{
         }];
-        //第一次进入初始化状态
-        var subView = location.href.match(/([^\/]+?)\?/);
-        $scope.subView = subView[1] === 'enroll' ? 'main' : subView[1];
-        //如果是一级页面，修改一级状态；
-        //如果是二级页面，修改一级状态，打开折叠，修改耳机状态
-        //如果在编辑数据页面刷新 打开 一级状态 $scope.leftState = 'data'; $scope.leftInferior = 'record';打开折叠
-        if ($scope.subView === 'editor') {
-            $scope.leftState = 'data';
-            $scope.leftInferior = 'record';
-            angular.forEach($scope.views, function(v) {
-                if (v.value === 'data') {
-                    v.inferiorShow = true;
-                }
-            });
-        } else if ($scope.firstView.indexOf($scope.subView) !== -1) {
-            $scope.leftState = $scope.subView;
-        } else {
-            angular.forEach($scope.views, function(v) {
-                if (v.inferior.length) {
+        //侧边栏代码
+        $scope.leftSlider = {
+            //初始化状态,关闭折叠
+            init: function(){
+                angular.forEach($scope.views, function(v) {
+                    v.inferiorShow = false ;
+                });
+                //所有状态为false
+                $scope.leftState = false ;
+                $scope.leftInferior = false ;
+            },
+            //去一级页面
+            goToFirst: function(value){
+                this.init();
+                //如果二级不为空(用v.inferior.length判断)，打开折叠；否则跳转页面
+                angular.forEach($scope.views, function(v) {
+                    if(v.value===value){
+                        $scope.leftState = v.value;
+                        if( v.inferior.length){
+                            v.inferiorShow = true;
+                        }else{
+                            var url = '/rest/pl/fe/matter/enroll/';
+                            url += value;
+                            $location.path(url);
+                        }
+                        //跳出循环
+                    }
+                });
+            },
+            //去二级页面
+            goToSecond: function(value){
+                //关闭所有折叠
+                this.init();
+                angular.forEach($scope.views, function(v) {
                     angular.forEach(v.inferior, function(i) {
-                        if (i.value === $scope.subView) {
+                        if(i.value===value){
                             $scope.leftState = v.value;
                             $scope.leftInferior = i.value;
+                            v.inferiorShow = true ;
+                            //跳转页面
+                            var url = '/rest/pl/fe/matter/enroll/';
+                            url += value;
+                            $location.path(url);
+                            //跳出循环
+                        }
+                    });
+                });
+            },
+            //区分一二级单页，特殊单页处理
+            goTo: function(value){
+                //如果在一级页面查到 返回值不为-1; 特殊处理-修改数据单页，刷新无状态的bug
+                if(value==='editor'){
+                    $scope.leftState = 'data';
+                    $scope.leftInferior = 'record';
+                    angular.forEach($scope.views, function(v) {
+                        if(v.value==='data'){
                             v.inferiorShow = true;
                         }
                     })
+                }else if($scope.firstView.indexOf(value)!==-1){
+                    this.goToFirst(value);
+                }else{
+                    this.goToSecond(value);
                 }
-            })
-        }
-        //切换页面,更改激活状态 一级
-        $scope.goTo = function(value, view) {
-            var url = '/rest/pl/fe/matter/enroll/';
-            url += value;
-            //url += '?site' + $scope.app.siteid;
-            //url += '&id' + $scope.app.id;
-            //如果是空数组，则没有二级页面，打开链接，更改状态，关闭所有折叠
-            if (!view.inferior.length) {
-                angular.forEach($scope.views, function(v) {
-                    v.inferiorShow && (v.inferiorShow = false)
-                });
-                $scope.leftState = value;
-                $location.path(url);
-            } else {
-                angular.forEach($scope.views, function(v) {
-                    v.inferiorShow && (v.inferiorShow = false)
-                });
-                $scope.leftState = value;
-                view.inferiorShow = true;
             }
-
         };
-        //二级
-        $scope.goToInferior = function(value) {
-            var url = '/rest/pl/fe/matter/enroll/';
-            url += value;
-            //url += '?site' + $scope.app.siteid;
-            //url += '&id' + $scope.app.id;
-            $scope.leftInferior = value;
-            $location.path(url);
-        };
+        var subView = location.href.match(/([^\/]+?)\?/);
+        $scope.subView = subView[1] === 'enroll' ? 'publish' : subView[1];
+        $scope.leftSlider.goTo($scope.subView);
         $scope.update = function(name) {
             srvEnrollApp.update(name);
         };
@@ -233,6 +242,7 @@ define(['require', 'enrollService'], function(require) {
                 location.href = '/rest/pl/fe/template/enroll?site=' + template.siteid + '&id=' + template.id;
             });
         };
+
         srvSite.get().then(function(oSite) {
             $scope.site = oSite;
         });

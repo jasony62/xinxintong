@@ -35,7 +35,7 @@ class contribute extends \pl\fe\base {
 		$q = [
 			'*',
 			'xxt_site_contribute',
-			"siteid in $sites",
+			"siteid in $sites and close_at = 0",
 		];
 		$q2 = [
 			'o' => 'create_at desc',
@@ -63,6 +63,7 @@ class contribute extends \pl\fe\base {
 		if (false === ($user = $this->accountUser())) {
 			return new \ResponseTimeout();
 		}
+
 		$aMatters = $this->getPostJson();
 		if (empty($aMatters)) {
 			return new \ResponseError('没有指定投稿的内容');
@@ -103,5 +104,18 @@ class contribute extends \pl\fe\base {
 		}
 
 		return new \ResponseData('ok');
+	}
+	public function update_action($id){
+		if (false === ($user = $this->accountUser())) {
+			return new \ResponseTimeout();
+		}
+
+		$rst = $this->model()->update(
+				'xxt_site_contribute',
+				['close_at' => time()],
+				['id' => $id]
+			);
+		
+		return new \ResponseData($rst);
 	}
 }

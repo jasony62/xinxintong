@@ -75,7 +75,7 @@ define(['frame'], function(ngApp) {
             });
         };
     }]);
-    ngApp.provider.controller('ctrlFriend', ['$scope',  'http2', '$uibModal', 'noticebox', 'tmsDynaPage', 'tmsCopy', function($scope, http2, $uibModal, noticebox, tmsDynaPage, tmsCopy) {
+    ngApp.provider.controller('ctrlFriend', ['$scope',  'http2', '$uibModal', 'noticebox', 'tmsDynaPage', 'tmsCopy', 'srvSite', function($scope, http2, $uibModal, noticebox, tmsDynaPage, tmsCopy, srvSite) {
         var criteria2;
         $scope.criteria2 = criteria2 = {
             scope: 'subscribeSite'
@@ -100,93 +100,42 @@ define(['frame'], function(ngApp) {
             }
             location.href = url;
         };
+        $scope.moreMatter = function() {
+            srvSite.matterList($scope.criteria2.scope, $scope.criteria.sid, $scope.pageOfmatters).then(function(result) {
+                result.matters.forEach(function(matter) {
+                    $scope.matters.push(matter);
+                });
+            });
+        };
     }]);
     ngApp.provider.controller('ctrlSubscribeSite', ['$scope', 'http2', 'srvSite', function($scope, http2, srvSite) {
-        $scope.moreMatter = function() {
-            srvSite.matterList($scope.criteria.sid, $scope.pageOfmatters).then(function(result) {
-                result.matters.forEach(function(matter) {
-                    $scope.matters.push(matter);
-                });
-            });
-        };
         $scope.$watch('criteria.sid', function(nv) {
-            srvSite.matterList(nv).then(function(result) {
+            srvSite.matterList('subscribeSite', nv).then(function(result) {
                 $scope.matters = result.matters;
                 $scope.pageOfmatters = result.page;
             });
         },true);
     }]);
-    ngApp.provider.controller('ctrlContributeSite', ['$scope', 'http2', '$q', function($scope, http2, $q) {
-        var contributeList = function(site, page) {
-            if(!site) {
-                site = '';
-            }
-            if (!page) {
-                page = {
-                    at: 1,
-                    size: 10,
-                    total: 0,
-                    _j: function() {
-                        return 'page=' + this.at + '&size=' + this.size;
+    ngApp.provider.controller('ctrlContributeSite', ['$scope', 'http2', '$q', 'srvSite', function($scope, http2, $q, srvSite) {
+        $scope.close = function(m) {
+            http2.get('rest/pl/fe/site/contribute/list?id=' + m.id, function(rsp) {
+                $scope.matters.forEach(function(item) {
+                    if(m.id == item.id) {
+                        $scope.matters.splice(item,1);
                     }
-                }
-            } else {
-                page.at++;
-            }
-            var defer = $q.defer();
-            http2.get('/rest/pl/fe/site/contribute/list?' + page._j() + '&site=' + site, function(rsp) {
-                page.total = rsp.data.total;
-                defer.resolve({ matters: rsp.data.matters, page: page });
-            });
-            return defer.promise;
-        };
-        $scope.moreMatter = function() {
-            contributeList($scope.criteria.sid, $scope.pageOfmatters).then(function(result) {
-                result.matters.forEach(function(matter) {
-                    $scope.matters.push(matter);
                 });
             });
-        };
+        }
         $scope.$watch('criteria.sid', function(nv) {
-            contributeList(nv).then(function(result) {
+            srvSite.matterList('contributeSite', nv).then(function(result) {
                 $scope.matters = result.matters;
                 $scope.pageOfmatters = result.page;
             });
         },true);
     }]);
-    ngApp.provider.controller('ctrlFavorSite', ['$scope', 'http2', '$q', function($scope, http2, $q) {
-        var favorList = function(site, page) {
-            if(!site) {
-                site = '';
-            }
-            if (!page) {
-                page = {
-                    at: 1,
-                    size: 10,
-                    total: 0,
-                    _j: function() {
-                        return 'page=' + this.at + '&size=' + this.size;
-                    }
-                }
-            } else {
-                page.at++;
-            }
-            var defer = $q.defer();
-            http2.get('/rest/pl/fe/site/favor/list?' + page._j() + '&site=' + site, function(rsp) {
-                page.total = rsp.data.total;
-                defer.resolve({ matters: rsp.data.matters, page: page });
-            });
-            return defer.promise;
-        };
-        $scope.moreMatter = function() {
-            favorList($scope.criteria.sid, $scope.pageOfmatters).then(function(result) {
-                result.matters.forEach(function(matter) {
-                    $scope.matters.push(matter);
-                });
-            });
-        };
+    ngApp.provider.controller('ctrlFavorSite', ['$scope', 'http2', '$q', 'srvSite', function($scope, http2, $q, srvSite) {
         $scope.$watch('criteria.sid', function(nv) {
-            favorList(nv).then(function(result) {
+            srvSite.matterList('favorSite', nv).then(function(result) {
                 $scope.matters = result.matters;
                 $scope.pageOfmatters = result.page;
             });

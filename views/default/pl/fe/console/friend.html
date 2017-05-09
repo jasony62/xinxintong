@@ -93,22 +93,3 @@
         </div>
     </div>
 </div>
-<script type="text/ng-template" id="subscribeSite.html">
-    <div class="modal-header">
-        <button class="close" type="button" ng-click="cancel()">×</button>
-        <h5 class="modal-title ">指定关注本团队的团队</h5>
-    </div>
-    <div class="modal-body ">
-        <div class="checkbox" ng-repeat="site in mySites">
-            <label ng-if="site._subscribed!=='Y'">
-                <input type='checkbox' ng-true-value="'Y'" ng-false-value="'N'" ng-model='site._selected'>{{site.name}}</label>
-            <label ng-if="site._subscribed==='Y'">
-                <input type='checkbox' checked disabled><span>{{site.name}}</span>（已关注）</label>
-            </label>
-        </div>
-        <div class='alert alert-danger' ng-if="mySites.length===0">请创建用于关注本团队的团队</div>
-    </div>
-    <div class="modal-footer">
-        <button class="btn btn-success" ng-click="ok() ">确定</button>
-    </div>
-</script>

@@ -21,7 +21,10 @@ provider('srvSite', function() {
                 }
                 return defer.promise;
             },
-            matterList: function(page) {
+            matterList: function(site, page) {
+                if(!site) {
+                    site = '';
+                }
                 if (!page) {
                     page = {
                         at: 1,
@@ -35,7 +38,7 @@ provider('srvSite', function() {
                     page.at++;
                 }
                 var defer = $q.defer();
-                http2.get('/rest/pl/fe/site/matterList?' + page._j(), function(rsp) {
+                http2.get('/rest/pl/fe/site/matterList?' + page._j() + '&site=' + site, function(rsp) {
                     page.total = rsp.data.total;
                     defer.resolve({ matters: rsp.data.matters, page: page });
                 });

@@ -163,23 +163,23 @@ class main extends \pl\fe\matter\base {
 		return new \ResponseData($rst);
 	}
 	/*
-	 * 导出Excel
-	 */
-	public function export_action($site, $wid){
+		 * 导出Excel
+	*/
+	public function export_action($site, $wid) {
 		if (false === ($user = $this->accountUser())) {
 			return new \ResponseTimeout();
 		}
 
-		$model=$this->model('matter\wall');
-		$oApp=$model->query_obj_ss(['*','xxt_wall',['siteid'=>$site,'id'=>$wid]]);
+		$model = $this->model('matter\wall');
+		$oApp = $model->query_obj_ss(['*', 'xxt_wall', ['siteid' => $site, 'id' => $wid]]);
 
-		if(empty($oApp)){
+		if (empty($oApp)) {
 			return new \ResponseError('信息墙未创建！');
 		}
 
-		require_once TMS_APP_DIR.'/lib/PHPExcel.php';
+		require_once TMS_APP_DIR . '/lib/PHPExcel.php';
 
-		$PHPExcel=new \PHPExcel();
+		$PHPExcel = new \PHPExcel();
 		$PHPExcel->getProperties()->setCreator("信信通")
 			->setLastModifiedBy("信信通")
 			->setTitle($oApp->title)
@@ -195,23 +195,23 @@ class main extends \pl\fe\matter\base {
 		$objActiveSheet->setCellValueByColumnAndRow($columnNum1++, 1, '留言内容');
 		$objActiveSheet->setCellValueByColumnAndRow($columnNum1++, 1, '状态');
 
-		$data=$model->msgList($site,$wid);
-		$row=2;
+		$data = $model->msgList($site, $wid);
+		$row = 2;
 
 		foreach ($data as $k => $v) {
 			$columnNum2 = 0; //列号
 
-			if($v->approved===0){
-				$status='未审核';
-			}else if($v->approved===1){
-				$status='审核通过';
-			}else{
-				$status='审核未通过';
+			if ($v->approved === 0) {
+				$status = '未审核';
+			} else if ($v->approved === 1) {
+				$status = '审核通过';
+			} else {
+				$status = '审核未通过';
 			}
 
-			$objActiveSheet->setCellValueByColumnAndRow($columnNum2++, $row, !empty($v->nickname) ? $v->nickname : ('用户'.$v->userid));
-			$objActiveSheet->setCellValueByColumnAndRow($columnNum2++, $row, date('Y-m-d H:i:s',$v->approve_at));
-			$objActiveSheet->setCellValueByColumnAndRow($columnNum2++, $row,  date('Y-m-d H:i:s',$v->publish_at));
+			$objActiveSheet->setCellValueByColumnAndRow($columnNum2++, $row, !empty($v->nickname) ? $v->nickname : ('用户' . $v->userid));
+			$objActiveSheet->setCellValueByColumnAndRow($columnNum2++, $row, date('Y-m-d H:i:s', $v->approve_at));
+			$objActiveSheet->setCellValueByColumnAndRow($columnNum2++, $row, date('Y-m-d H:i:s', $v->publish_at));
 			$objActiveSheet->setCellValueByColumnAndRow($columnNum2++, $row, $v->data);
 			$objActiveSheet->setCellValueByColumnAndRow($columnNum2++, $row++, $status);
 		}

@@ -193,7 +193,7 @@ class wall_model extends app_base {
 	/**
 	 * 获得所有消息列表
 	 * 没有分页，主要用于导出Excel
-	 * 
+	 *
 	 */
 	public function msgList($runningSiteId, $wid) {
 		$q = array(

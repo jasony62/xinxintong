@@ -18,11 +18,12 @@
     <div ng-cloak class='ng-cloak app'>
         <div id='errmsg' class='alert alert-danger' ng-class="{'active':errmsg}" ng-click="errmsg=''" ng-bind='errmsg'></div>
         <div class='container' ng-controller="ctrlRemark">
+            <div class='alert alert-info'><span>{{record.nickname}}</span><span class='pull-right'>{{record.enroll_at*1000|date:'MM-dd HH:mm'}}</span></div>
             <uib-accordion id='remarkList' close-others="true">
                 <div uib-accordion-group is-disabled='true' is-open="schema._open" heading="{{schema.title}}" ng-repeat="schema in remarkableSchemas">
                     <uib-accordion-heading>
-                        <div class='title' ng-click="switchSchema(schema)">{{schema.title}} - {{record.data[schema.id]}}</div>
-                        <button class='btn btn-default btn-sm' ng-click="switchSchema(schema)"><span class='glyphicon glyphicon-comment'></span> <span class="badge">{{schema.summary.remark_num}}</span></button>
+                        <div class='title' ng-click="switchSchema(schema)"><span ng-if="remarkableSchemas.length>1">{{schema.title}} - </span>{{record.data[schema.id]}}</div>
+                        <button class='btn btn-default btn-sm' ng-click="switchSchema(schema)"><span class="badge">{{schema.summary.remark_num}}</span></button>
                     </uib-accordion-heading>
                     <div class='remarks'>
                         <div class='remark' ng-repeat="remark in schemaRemarks[schema.id]">
@@ -31,12 +32,19 @@
                             <div class='datetime'>{{remark.create_at*1000|date:'MM-dd HH:mm'}}</div>
                         </div>
                     </div>
-                    <div class="form-group">
+                    <div class='input-group'>
                         <textarea class='form-control' ng-model="newRemark.content"></textarea>
-                        <button class='btn btn-success' ng-click="addRemark(schema)">发布</button>
+                        <span class='input-group-btn' style='padding-left:15px'>
+                            <button class='btn btn-success' ng-click="addRemark(schema)">发布</button>
+                        </span>
                     </div>
                 </div>
             </uib-accordion>
+            <div class='form-group'>
+                <div class='form-inline text-center'>
+                    <button class='btn btn-default' ng-click="back()">返回</button>
+                </div>
+            </div>
         </div>
     </div>
     <footer ng-if="app.use_mission_footer==='Y'" dynamic-html="mission.footer_page.html"></footer>

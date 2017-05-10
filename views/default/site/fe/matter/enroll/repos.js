@@ -42,36 +42,36 @@ ngApp.controller('ctrlRepos', ['$scope', '$http', 'Round', function($scope, $htt
     var oApp, facRound, criteria, opened = {},
         schemas = [];
 
-    $scope.criteria = criteria = {};
+    $scope.criteria = criteria = { owner: 'all' };
     $scope.schemas = schemas;
     $scope.repos = {};
-    $scope.list4Schema = function(schema, page) {
-        var url;
+    $scope.list4Schema = function(schema) {
+        var url, page;
+        page = schema._page;
         url = '/rest/site/fe/matter/enroll/repos/list4Schema?site=' + oApp.siteid + '&app=' + oApp.id;
         url += '&schema=' + schema.id;
         url += '&page=' + page.at + '&size=' + page.size;
-        criteria.rid && (url += '&rid=' + criteria.rid)
+        criteria.rid && (url += '&rid=' + criteria.rid);
+        criteria.owner && criteria.owner !== 'all' && (url += '&owner=' + criteria.owner);
         $http.get(url).success(function(result) {
             $scope.repos[schema.id] = result.data.records;
             page.total = result.data.total;
         });
     }
-    $scope.schemaExpanded = function(schema, page) {
-        console.log(schema);
-    };
-    $scope.switchSchema = function(schema, page) {
+    $scope.schemaExpanded = function(schema) {};
+    $scope.switchSchema = function(schema) {
         schema._open = !schema._open;
         if (schema._open) {
+            schema._page.at = 1;
             opened.schema = schema;
-            opened.page = page;
-            page.at = 1;
-            $scope.list4Schema(schema, page);
+            $scope.list4Schema(schema);
         }
     };
-    $scope.gotoRemark = function(ek, page) {
+    $scope.gotoRemark = function(ek, schema) {
         var url;
         url = '/rest/site/fe/matter/enroll?site=' + oApp.siteid + '&app=' + oApp.id + '&page=remark';
         url += '&ek=' + ek;
+        schema && (url += '&schema=' + schema.id);
         location.href = url;
     };
     $scope.shiftRound = function() {
@@ -87,21 +87,27 @@ ngApp.controller('ctrlRepos', ['$scope', '$http', 'Round', function($scope, $htt
                 })
             });
         } else {
-            if (opened.schema && opened.page) {
-                opened.page.at = 1;
-                $scope.list4Schema(opened.schema, opened.page);
+            if (opened.schema) {
+                opened.schema._page.at = 1;
+                $scope.list4Schema(opened.schema);
             }
         }
+    };
+    $scope.shiftOwner = function() {
+        $scope.list4Schema(opened.schema);
     };
     $scope.$on('xxt.app.enroll.ready', function(event, params) {
         oApp = params.app;
         oApp.dataSchemas.forEach(function(schema) {
             if (schema.shareable === 'Y') {
                 schema._open = false;
+                schema._page = { at: 1, size: 10 };
                 schemas.push(schema);
             }
         });
-        schemas = angular.copy(schemas);
+        if (schemas.length === 1) {
+            $scope.switchSchema(schemas[0]);
+        }
         $scope.facRound = facRound = srvRound.ins(oApp);
         facRound.list().then(function(result) {
             if (result.active) {

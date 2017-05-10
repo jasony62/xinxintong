@@ -9,7 +9,7 @@ class repos extends base {
 	/**
 	 * 返回指定登记项的活动登记名单
 	 */
-	public function list4Schema_action($app, $schema, $rid = '', $page = 1, $size = 10) {
+	public function list4Schema_action($app, $schema, $rid = '', $owner = '', $page = 1, $size = 10) {
 		// 登记活动
 		$modelApp = $this->model('matter\enroll');
 		$oApp = $modelApp->byId($app, ['cascaded' => 'N']);
@@ -22,6 +22,7 @@ class repos extends base {
 			'size' => $size,
 		];
 		!empty($rid) && $options['rid'] = $rid;
+		!empty($owner) && $options['owner'] = $owner;
 
 		// 查询结果
 		$mdoelRec = $this->model('matter\enroll\record');

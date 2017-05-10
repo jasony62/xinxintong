@@ -166,10 +166,10 @@ define(['frame'], function(ngApp) {
             $('#missionAddMatter').trigger('hide');
             $('#activityAddMatter').trigger('hide');
             $('#infoAddMatter').trigger('hide');
-            if($scope.criteria.sid != '') {
-                var site = {id: $scope.criteria.sid};
+            if ($scope.criteria.sid != '') {
+                var site = { id: $scope.criteria.sid };
                 addMatter(site, matterType, scenario);
-            }else {
+            } else {
                 var url = '/rest/pl/fe/site/list?_=' + (new Date() * 1);
                 http2.get(url, function(rsp) {
                     var sites = rsp.data;
@@ -609,8 +609,8 @@ define(['frame'], function(ngApp) {
                             extattr: data.extattr
                         },
                         i, ea;
-                    for (i in $scope.schema.extattr) {
-                        ea = $scope.schema.extattr[i];
+                    for (i in $scope.selectedMschema.extattr) {
+                        ea = $scope.selectedMschema.extattr[i];
                         newData[ea.id] = rst.data[ea.id];
                     }
                     http2.post('/rest/pl/fe/site/member/update?site=' + $scope.criteria.sid + '&id=' + member.id, newData, function(rsp) {

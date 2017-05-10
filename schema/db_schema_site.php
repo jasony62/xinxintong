@@ -17,6 +17,7 @@ $sql .= ",state tinyint not null default 1"; // 1:正常, 0:停用
 $sql .= ",home_page_id int not null default 0"; // 团队主页
 $sql .= ",home_page_name varchar(13) not null default ''"; // 团队主页
 $sql .= ",home_carousel text"; // 首页轮播
+$sql .= ",home_qrcode_group text"; // 首页群二维码
 $sql .= ",header_page_id int not null default 0"; // 通用页头
 $sql .= ",header_page_name varchar(13) not null default ''"; // 通用页头
 $sql .= ",footer_page_id int not null default 0"; // 通用页尾

@@ -40,6 +40,10 @@ class home extends base {
 			if (!empty($oSite->home_carousel)) {
 				$oSite->home_carousel = json_decode($oSite->home_carousel);
 			}
+			/* 团队群二维码 */
+			if (!empty($oSite->home_qrcode_group)) {
+				$oSite->home_qrcode_group = json_decode($oSite->home_qrcode_group);
+			}
 			/* 用户注册信息 */
 			$modelWay = $this->model('site\fe\way');
 			$siteUser = $modelWay->who($site);

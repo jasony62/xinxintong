@@ -323,6 +323,8 @@ class main extends \pl\fe\base {
 		foreach ($nv as $n => $v) {
 			if ($n === 'home_carousel') {
 				$nv->{$n} = json_encode($v);
+			}else if($n === 'home_qrcode_group') {
+				$nv->{$n} =  $modelSite->escape($modelSite->toJson($v));
 			}
 		}
 		$rst = $modelSite->update(

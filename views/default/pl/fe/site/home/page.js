@@ -20,7 +20,7 @@ define(['main'], function(ngApp) {
                 var name = $scope.site[page + '_page_name'];
                 if (name && name.length) {
                     http2.get('/rest/pl/fe/site/pageReset?site=' + $scope.site.id + '&page=' + page, function(rsp) {
-                        location.href = '/rest/pl/fe/code?site=' + $scope.site.id + '&name=' + name;
+                        /*location.href = '/rest/pl/fe/code?site=' + $scope.site.id + '&name=' + name;*/
                     });
                 } else {
                     http2.get('/rest/pl/fe/site/pageCreate?site=' + $scope.site.id + '&page=' + page, function(rsp) {

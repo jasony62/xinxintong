@@ -31,6 +31,19 @@ ngApp.config(['$controllerProvider', '$uibTooltipProvider', function($cp, $uibTo
         'show': 'hide'
     });
 }]);
+ngApp.directive('autoHeight', ['$window', function($window) {
+    return {
+        restrict: 'A',
+        scope: {},
+        link: function($scope, element, attrs) {
+            var winowHeight = $window.innerHeight; //获取窗口高度
+            var headerHeight = 60;
+            var footerHeight = 50;
+            element.css('min-height',
+                (winowHeight - headerHeight - footerHeight) + 'px');
+        }
+    }
+}]);
 ngApp.controller('ctrlMain', ['$scope', '$q', '$uibModal', 'http2', 'srvUser', 'tmsDynaPage', 'tmsSubscribe', 'tmsContribute', 'tmsFavor', 'tmsForward', function($scope, $q, $uibModal, http2, srvUser, tmsDynaPage, tmsSubscribe, tmsContribute, tmsFavor, tmsForward) {
     function createSite() {
         var defer = $q.defer(),

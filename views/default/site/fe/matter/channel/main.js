@@ -66,9 +66,9 @@ angular.module('xxt', ['infinite-scroll']).config(['$locationProvider', function
                     }
                     _this.page++;
                     // 任意类型素材情况下不支持分页
-                    if ($scope.channel && $scope.channel.matter_type === '') {
-                        _this.end = true;
-                    }
+                    //if ($scope.channel && $scope.channel.matter_type === '') {
+                    //    _this.end = true;
+                    //}
                 } else {
                     _this.end = true;
                 }

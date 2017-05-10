@@ -348,6 +348,8 @@ class main extends \pl\fe\matter\base {
 		$copied = $modelArt->byId($id);
 		/*获取原图文的内容标签*/
 		$tags = $modelTag->tagsByRes($copied->id, 'article', 0);
+		/*获取元图文的团队名称*/
+		$fromSite = $this->model('site')->byId($site, ['fields' => 'name']);
 		$current = time();
 
 		$article = new \stdClass;
@@ -365,6 +367,7 @@ class main extends \pl\fe\matter\base {
 		$article->url = $copied->url;
 		$article->can_siteuser = $copied->can_siteuser;
 		$article->from_siteid = $modelArt->escape($site);
+		$article->from_site_name = $modelArt->escape($fromSite->name);
 		$article->from_id = $modelArt->escape($id);
 		if ($mode === 'D') {
 			$article->title = $modelArt->escape($copied->title . '（副本）');

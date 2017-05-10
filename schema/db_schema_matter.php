@@ -60,6 +60,7 @@ $sql .= ",use_mission_header char(1) not null default 'Y'"; // 使用项目页�
 $sql .= ",use_mission_footer char(1) not null default 'Y'"; // 使用项目页脚
 $sql .= ",from_mode char(1) not null default 'O'"; // 素材来源类型O:origin、C:cite、D:duplicate、S(同一个团队中的复制)
 $sql .= ",from_siteid varchar(32) not null default ''";
+$sql .= ",from_site_name varchar(50) not null default ''";
 $sql .= ",from_id int not null default 0";
 $sql .= ",primary key(id)) ENGINE=MyISAM DEFAULT CHARSET=utf8";
 if (!$mysqli->query($sql)) {

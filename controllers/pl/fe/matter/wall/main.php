@@ -210,8 +210,8 @@ class main extends \pl\fe\matter\base {
 			}
 
 			$objActiveSheet->setCellValueByColumnAndRow($columnNum2++, $row, !empty($v->nickname) ? $v->nickname : ('用户'.$v->userid));
-			$objActiveSheet->setCellValueByColumnAndRow($columnNum2++, $row, date('Y-m-d H:i:s',$v->publish_at));
-			$objActiveSheet->setCellValueByColumnAndRow($columnNum2++, $row,  date('Y-m-d H:i:s',$v->approve_at));
+			$objActiveSheet->setCellValueByColumnAndRow($columnNum2++, $row, date('Y-m-d H:i:s',$v->approve_at));
+			$objActiveSheet->setCellValueByColumnAndRow($columnNum2++, $row,  date('Y-m-d H:i:s',$v->publish_at));
 			$objActiveSheet->setCellValueByColumnAndRow($columnNum2++, $row, $v->data);
 			$objActiveSheet->setCellValueByColumnAndRow($columnNum2++, $row++, $status);
 		}

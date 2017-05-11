@@ -8,6 +8,11 @@
     <title>
         <?php TPL::pt('title');?>
     </title>
+    <style>
+    .site_fe_home {
+        background-image: url('../../static/img/site_fe_home.png');
+    }
+    </style>
     <link href="/static/css/bootstrap.min.css" rel="stylesheet">
     <link href="/static/css/site.fe.css" rel="stylesheet">
     <link href="<?php echo auto_version('/views/default/site/home.css');?>" rel="stylesheet">
@@ -18,7 +23,8 @@
         <div class='container'>
             <div class="navbar-header">
                 <a class='navbar-brand' href='/rest/home' target='_self'>
-                    <?php echo APP_TITLE;?>
+                    <?php if(!empty(APP_LOGO)){ ?><img src="../..<?php echo APP_LOGO; ?>" height="61" width="178" alt="能力开发平台">
+                    <?php } ?>
                 </a>
                 <button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target='#navbar-collapse-1'>
                     <span class="sr-only">Toggle navigation</span>
@@ -34,36 +40,37 @@
                 </ul>
                 <form class='navbar-form navbar-right ng-cloak' ng-cloak ng-if="user.loginExpire">
                     <div class="btn-group">
-                        <a href='/rest/site/fe/user?site={{site.id}}' target='_self' class="btn btn-default"><i class='glyphicon glyphicon-user'></i> <span ng-bind="user.nickname"></span></a>
-                        <button type="button" class="btn btn-default dropdown-toggle" data-toggle="dropdown">
-                            <span class="caret"></span>
-                            <span class="sr-only">Toggle Dropdown</span>
-                        </button>
+                        <a class="btn btn-default" data-toggle="dropdown">
+                            <span class="site_fe_home site_fe_home_icon xxt_person"></span>
+                            <span ng-bind="user.nickname"></span>
+                        </a>
                         <ul class="dropdown-menu" role="menu">
-                            <li><a href='/rest/pl/fe' target='_self'>我的工作台</a></li>
-                            <li><a href='/rest/site/fe/user?site={{site.id}}' target='_self'>账号信息设置</a></li>
-                            <li class="divider"></li>
-                            <li><a href='/rest/site/fe/user/logout/do?site={{site.id}}&redirect=Y' target='_self'>退出登录</a></li>
+                            <li>
+                                <a href='/rest/pl/fe' target='_self'>
+                                    <span class="site_fe_home site_fe_home_icon xxt_person_index"></span>我的工作台
+                                </a>
+                            </li>
+                            <li>
+                                <a href='/rest/site/fe/user?site={{site.id}}' target='_self'>
+                                    <span class="site_fe_home site_fe_home_icon xxt_setting"></span>账号信息设置</a>
+                            </li>
+                            <li>
+                                <a href='/rest/site/fe/user/logout/do?site={{site.id}}&redirect=Y' target='_self'>
+                                    <span class="site_fe_home site_fe_home_icon xxt_quite"></span>退出登录
+                                </a>
+                            </li>
                         </ul>
                     </div>
                 </form>
             </div>
         </div>
     </nav>
-    <div class='container'>
-        <div class='row'>
-            <div class='col-md-12'>
-                <nav class='navbar navbar-default'>
-                    <p class="navbar-text" ng-bind="site.name"></p>
-                    <form class="navbar-form navbar-right ng-cloak" ng-cloak style='margin-right:0'>
-                        <button class="btn btn-success" ng-click="subscribeSite()">关注</button>
-                        <button class="btn btn-success" ng-click="contributeSite()">投稿</button>
-                    </form>
-                </nav>
-            </div>
+    <div id="content" class="home" dynamic-html='page.html' ng-cloak class='ng-cloak' auto-height></div>
+    <nav class="navbar navbar-inverse">
+        <div class="container">
+            <div class="row"></div>
         </div>
-    </div>
-    <div id="content" dynamic-html='page.html' ng-cloak class='ng-cloak'></div>
+    </nav>
     <script type="text/ng-template" id="favorTempateAsAdmin.html">
         <div id='favorTempateAsAdmin'>
             <div>请切换到团队账号后收藏本模板，<a href='' ng-click="favorTemplate(t,true)">继续</a></div>

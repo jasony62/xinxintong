@@ -44,7 +44,7 @@
                         <uib-tab-heading>{{c.title}}</uib-tab-heading>
                         <table class="table table-hover">
                             <tbody>
-                                <tr ng-repeat="m in c._matters">
+                                <tr ng-repeat="m in cTotal[c.channel_id]['data']">
                                     <td>
                                         <div class="media">
                                             <div class="media-left">
@@ -79,7 +79,7 @@
                             </tbody>
                         </table>
                         <div>
-                            <button class='btn btn-lg btn-primary  btn-gradient center-block' ng-click="moreMatters(c.channel_id)" ng-if="c._matters.length>=page.size">加 载 更 多</button>
+                            <button class='btn btn-lg btn-primary  btn-gradient center-block' ng-click="moreMatters(c.channel_id)" ng-if="cTotal[c.channel_id]['total'] >= page.size">加 载 更 多</button>
                         </div>
                     </uib-tab>
                 </uib-tabset>

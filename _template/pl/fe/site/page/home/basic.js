@@ -11,7 +11,7 @@ ngApp.provider.controller('ctrlHome', ['$scope', '$http', 'tmsFavor', 'tmsForwar
     $scope.siteId = siteId;
     $scope.page = page = {
         at: 1,
-        size: 2,
+        size: 5,
         j: function() {
             return '&page=' + this.at + '&size=' + this.size;
         }
@@ -23,20 +23,15 @@ ngApp.provider.controller('ctrlHome', ['$scope', '$http', 'tmsFavor', 'tmsForwar
     };
     var lastId;
     $scope.moreMatters = function(id) {
-        if(lastId == id) {
-            $scope.page.at = $scope.page.at + 1;
-        }else {
-            $scope.page.at = 2;
-        }
+        $scope.cTotal[id].pageAt++;
+        $scope.page.at = $scope.cTotal[id].pageAt;
         $http.get('/rest/site/fe/matter/channel/mattersGet?site=' + siteId + '&id=' + id + '&' + page.j()).success(function(rsp) {
-            rsp.data.forEach(function(item) {
-                $scope.c_channels.forEach(function(c) {
-                    if(id == c.channel_id){
-                        c._matters.push(item);
-                    }
+                var matterData = $scope.cTotal[id].data;
+                rsp.data.forEach(function(item) {
+                   matterData.push(item);
                 });
-            });
-            lastId = id;
+                $scope.cTotal[id].data =  matterData;
+                $scope.cTotal[id].total = rsp.data.length;
         });
     }
     function c_listChannels() {
@@ -44,7 +39,11 @@ ngApp.provider.controller('ctrlHome', ['$scope', '$http', 'tmsFavor', 'tmsForwar
             $scope.c_channels = rsp.data;
             $scope.c_channels.forEach(function(channel) {
                 $http.get('/rest/site/fe/matter/channel/mattersGet?site=' + siteId + '&id=' + channel.channel_id + '&' + page.j()).success(function(rsp) {
-                    channel._matters = rsp.data;
+                    var chid = channel.channel_id, data = [];
+                    data.data = rsp.data;
+                    data.total = rsp.data.length;
+                    data.pageAt = $scope.page.at;
+                    $scope.cTotal[chid]=data;
                 });
             });
         });

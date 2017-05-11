@@ -126,7 +126,7 @@ define([], function() {
                 }
             }
             if (/longtext|file|image/.test(type)) {
-                schema.openRemark = 'Y';
+                schema.remarkable = 'Y';
             }
 
             return schema;

@@ -340,6 +340,7 @@ class channel_model extends article_base {
 			}
 			$matters = []; // 可用的素材
 			$simpleMatters = $this->query_objs_ss($q1, $q2);
+
 			foreach ($simpleMatters as $sm) {
 				/* 检查素材是否可用 */
 				$valid = true;
@@ -347,7 +348,7 @@ class channel_model extends article_base {
 					$fullMatter = \TMS_APP::M('matter\\' . $sm->matter_type)->byId($sm->matter_id);
 				} else {
 					$q = [
-						"a.*,s.name site_name,'article' type",
+						"a.id,a.title,a.creater_name,a.create_at,a.summary,a.pic,a.state,s.name site_name,'article' type",
 						'xxt_article a, xxt_site s',
 						"a.id = $sm->matter_id and a.state = 1 and a.approved = 'Y' and a.siteid=s.id and s.state = 1",
 					];
@@ -380,7 +381,6 @@ class channel_model extends article_base {
 				$matters[] = $fullMatter;
 			}
 		}
-
 		return $matters;
 	}
 	/**

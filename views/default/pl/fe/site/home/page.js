@@ -129,32 +129,32 @@ define(['main'], function(ngApp) {
             p[name] = site[name];
             http2.post('/rest/pl/fe/site/update?site=' + site.id, p, function(rsp) {});
         }
-        var slides;
+        var qrcodes;
         $scope.add = function() {
             var options = {
                 callback: function(url) {
-                    slides.push({
+                    qrcodes.push({
                         picUrl: url + '?_=' + (new Date() * 1)
                     });
-                    update('home_carousel');
+                    update('home_qrcode_group');
                 }
             };
             mediagallery.open($scope.site.id, options);
         };
         $scope.remove = function(slide, index) {
-            slides.splice(index, 1);
+            qrcodes.splice(index, 1);
             update('home_qrcode_group');
         };
         $scope.up = function(slide, index) {
             if (index === 0) return;
-            slides.splice(index, 1);
-            slides.splice(--index, 0, slide);
+            qrcodes.splice(index, 1);
+            qrcodes.splice(--index, 0, slide);
             update('home_qrcode_group');
         };
         $scope.down = function(slide, index) {
-            if (index === slides.length - 1) return;
-            slides.splice(index, 1);
-            slides.splice(++index, 0, slide);
+            if (index === qrcodes.length - 1) return;
+            qrcodes.splice(index, 1);
+            qrcodes.splice(++index, 0, slide);
             update('home_qrcode_group');
         };
         $scope.$watch('site', function(site) {

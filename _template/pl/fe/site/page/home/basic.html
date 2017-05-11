@@ -32,7 +32,7 @@
                     <span ng-mouseenter="hover=true" ng-mouseleave="hover=false" class="site_fe_home site_fe_home_icon xxt_scan"></span>
                 </div>
                 <div class="team-qrcode" ng-if="hover">
-                    <img ng-src="{{entry.qrcode}}" />
+                    <img ng-src="{{entry.qrcode}}" class="qrcode"/>
                 </div>
             </div>
         </div>
@@ -44,14 +44,14 @@
                         <uib-tab-heading>{{c.title}}</uib-tab-heading>
                         <table class="table table-hover">
                             <tbody>
-                                <tr ng-repeat="m in c._matters" ng-click="openMatter(m)">
+                                <tr ng-repeat="m in c._matters">
                                     <td>
                                         <div class="media">
                                             <div class="media-left">
                                                 <img class="media-object" ng-src='{{m.pic||m.thumbnail}}'>
                                             </div>
                                             <div class="media-body">
-                                                <h4 class="media-heading">{{m.title}}</h4>
+                                                <h4 class="media-heading" ng-click="openMatter(m)">{{m.title}}</h4>
                                                 <div class="media-summary">{{m.summary}}</div>
                                                 <div class='attr clearfix'>
                                                     <div class='put_at pull-right' ng-bind="m.create_at*1000|date:'yyyy-MM-dd'"></div>
@@ -103,7 +103,22 @@
             </aside>
         </div>
     </div>
-    <div id='gototop' class='tms-switch'>
+    <div id='gototop' class='tms-switch tms-top'>
         <span class="site_fe_home site_fe_home_icon xxt_backTop"></span>
+    </div>
+    <div class="tms-switch tms-qrcode">
+        <span class="site_fe_home site_fe_home_icon xxt_talk_qrcode" ng-mouseenter="active=true" ng-mouseleave="active=false"></span>
+    </div>
+    <div id='gototalk'>
+        <div class="talk-qrcodes">
+            <div class="talk-qrcode">
+                <span>扫码进群</span>
+                <img ng-src="{{entry.qrcode}}" class="qrcode" />
+            </div>
+            <div class="talk-qrcode">
+                <span>扫码进群</span>
+                <img ng-src="{{entry.qrcode}}" class="qrcode" />
+            </div>
+        </div>
     </div>
 </div>

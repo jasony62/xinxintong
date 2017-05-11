@@ -1,5 +1,5 @@
 .ng-cloak{display:none;}
-body, html{padding: 0;min-height: 100%}
+body,html{padding:0;min-height:100%}
 body{font-family:Microsoft Yahei,Arial;}
 .navbar-nav.tms-breadcrumb>li>a{padding-left:0;padding-right:0;color:#428bca;max-width:12em;overflow:hidden;white-space:nowrap;text-overflow:ellipsis;}
 .navbar-nav.tms-breadcrumb>li:last-child>a{color:#777;}
@@ -72,8 +72,3 @@ body{font-family:Microsoft Yahei,Arial;}
 #chooseUser .table{margin-bottom:15px;}
 #chooseUser .table>tbody>tr>td{padding:3px;vertical-align:middle;}
 #chooseUser > .clearfix{padding-left:15px;}
-
-/*frame*/
-/*侧边栏过度*/
-.pl-layout .nav-tabs ul{transition:all .5s linear;overflow:hidden;}
-.pl-layout .nav-tabs ul.ng-hide{height:0!important;    /*配合行内样式 + important*/}

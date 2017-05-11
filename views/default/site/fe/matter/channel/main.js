@@ -1,9 +1,10 @@
+'use strict';
 if (/MicroMessenger/.test(navigator.userAgent)) {
     //signPackage.debug = true;
     signPackage.jsApiList = ['hideOptionMenu', 'onMenuShareTimeline', 'onMenuShareAppMessage'];
     wx.config(signPackage);
 }
-angular.module('xxt', ['infinite-scroll']).config(['$locationProvider', function($locationProvider) {
+angular.module('app', ['infinite-scroll']).config(['$locationProvider', function($locationProvider) {
     $locationProvider.html5Mode(true);
 }]).controller('ctrl', ['$scope', '$location', '$http', '$q', function($scope, $location, $http, $q) {
     var siteId, channelId, shareby;
@@ -25,10 +26,11 @@ angular.module('xxt', ['infinite-scroll']).config(['$locationProvider', function
             $http.get(url);
         };
         sharelink = location.href;
-        if (/shareby=/.test(sharelink))
+        if (/shareby=/.test(sharelink)) {
             sharelink = sharelink.replace(/shareby=[^&]*/, 'shareby=' + shareid);
-        else
+        } else {
             sharelink += "&shareby=" + shareid;
+        }
         window.xxt.share.set($scope.channel.title, sharelink, $scope.channel.title, '');
     };
     $scope.Matter = {
@@ -65,10 +67,6 @@ angular.module('xxt', ['infinite-scroll']).config(['$locationProvider', function
                         _this.matters.push(matters[i]);
                     }
                     _this.page++;
-                    // 任意类型素材情况下不支持分页
-                    //if ($scope.channel && $scope.channel.matter_type === '') {
-                    //    _this.end = true;
-                    //}
                 } else {
                     _this.end = true;
                 }
@@ -88,12 +86,6 @@ angular.module('xxt', ['infinite-scroll']).config(['$locationProvider', function
                 setShare();
             }
             deferred.resolve();
-            if ($scope.Matter.matters) {
-                // 任意类型素材情况下不支持分页
-                if ($scope.channel.matter_type === '') {
-                    $scope.Matter.matters.end = true;
-                }
-            }
             $http.post('/rest/site/fe/matter/logAccess?site=' + siteId + '&id=' + channelId + '&type=channel&title=' + $scope.channel.title + '&shareby=' + shareby, {
                 search: location.search.replace('?', ''),
                 referer: document.referrer

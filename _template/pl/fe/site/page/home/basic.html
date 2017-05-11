@@ -15,7 +15,7 @@
         <div class='col-md-12'>
             <div class="team-info">
                 <div class="team-img pull-left">
-                    <img class="img-circle" style="width:200px;height:200px"ng-src='{{site.heading_pic}}'>
+                    <img class="img-circle" style="width:200px;height:200px" ng-src='{{site.heading_pic}}'>
                 </div>
                 <div class="team-content pull-left">
                     <div class="team-text">
@@ -23,16 +23,14 @@
                     </div>
                     <div class="team-summary">{{site.summary}}</div>
                 </div>
-                <div class="team-handel pull-left">
-                    <form class="navbar-form ng-cloak" ng-cloak style='margin-right:0'>
-                        <button class="btn btn-warning btn-custom" ng-click="subscribeSite()">关注</button>
-                        <button class="btn btn-primary btn-custom" ng-click="contributeSite()">投稿</button>
-                    </form>
+                <div class="team-handle pull-left">
+                    <button class="btn btn-warning btn-custom" ng-click="subscribeSite()">关注</button>
+                    <button class="btn btn-primary btn-custom" ng-click="contributeSite()">投稿</button>
                 </div>
                 <span ng-mouseenter="hover=true" ng-mouseleave="hover=false" class="site_fe_home site_fe_home_icon xxt_scan"></span>
             </div>
             <div class="team-qrcode" ng-if="hover">
-                <img ng-src="{{entry.qrcode}}" class="qrcode"/>
+                <img ng-src="{{entry.qrcode}}" class="qrcode" />
             </div>
         </div>
     </div>
@@ -60,15 +58,14 @@
                                                             <span class="site_fe_home site_fe_home_icon xxt_forward"></span>转发
                                                         </a>
                                                     </div>
-                                                    <div class="favor pull-right" >
-                                                        <a href="" ng-click="favor(user,m)" >
+                                                    <div class="favor pull-right">
+                                                        <a href="" ng-click="favor(user,m)">
                                                             <span class="site_fe_home site_fe_home_icon xxt_favor"></span>收藏
                                                         </a>
                                                     </div>
                                                     <div class='creater_name pull-right'>
                                                         <a ng-href='/rest/site/home?site={{m.siteid}}'>
-                                                            <span class="site_fe_home site_fe_home_icon xxt_team"></span>
-                                                            {{m.site_name}}
+                                                            <span class="site_fe_home site_fe_home_icon xxt_team"></span> {{m.site_name}}
                                                         </a>
                                                     </div>
                                                 </div>
@@ -113,7 +110,7 @@
         <div class="talk-qrcodes">
             <div class="talk-qrcode" ng-repeat="q in site.home_qrcode_group">
                 <span ng-bind="{{q.tip}}"></span>
-                <img class="qrcode"  ng-src="{{q.picUrl}}" />
+                <img class="qrcode" ng-src="{{q.picUrl}}" />
             </div>
         </div>
     </div>

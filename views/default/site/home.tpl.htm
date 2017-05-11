@@ -8,11 +8,6 @@
     <title>
         <?php TPL::pt('title');?>
     </title>
-    <style>
-    .site_fe_home {
-        background-image: url('../../static/img/site_fe_home.png');
-    }
-    </style>
     <link href="/static/css/bootstrap.min.css" rel="stylesheet">
     <link href="/static/css/site.fe.css" rel="stylesheet">
     <link href="<?php echo auto_version('/views/default/site/home.css');?>" rel="stylesheet">
@@ -23,8 +18,7 @@
         <div class='container'>
             <div class="navbar-header">
                 <a class='navbar-brand' href='/rest/home' target='_self'>
-                    <?php if(!empty(APP_LOGO)){ ?><img src="../..<?php echo APP_LOGO; ?>" height="61" width="178" alt="能力开发平台">
-                    <?php } ?>
+                    <?php echo APP_TITLE;?>
                 </a>
                 <button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target='#navbar-collapse-1'>
                     <span class="sr-only">Toggle navigation</span>

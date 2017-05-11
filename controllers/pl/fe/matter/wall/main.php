@@ -162,9 +162,9 @@ class main extends \pl\fe\matter\base {
 
 		return new \ResponseData($rst);
 	}
-	/*
-		 * 导出Excel
-	*/
+	/**
+	 * 导出Excel
+	 */
 	public function export_action($site, $wid) {
 		if (false === ($user = $this->accountUser())) {
 			return new \ResponseTimeout();

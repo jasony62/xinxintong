@@ -13,20 +13,26 @@
     </div>
     <div class='row'>
             <div class='col-md-12'>
-                <div class="media">
-                    <div class="media-left">
+                <div class="team-info">
+                    <div class="team-img pull-left">
                         <img class="img-circle" style="width:200px;height:200px"ng-src='{{site.heading_pic}}'>
                     </div>
-                    <div class="media-body">
-                        <div class="media-heading">
-                            <h4>{{site.name}}</h4>
-                            <form class="navbar-form pull-right ng-cloak" ng-cloak style='margin-right:0'>
-                                <button class="btn btn-success" ng-click="subscribeSite()">关注</button>
-                                <button class="btn btn-success" ng-click="contributeSite()">投稿</button>
-                            </form>
+                    <div class="team-content pull-left">
+                        <div class="team-text">
+                            <h4 class="media-heading pull-left">{{site.name}}</h4>
                         </div>
-                        <div class="media-summary">{{site.summary}}</div>
+                        <div class="team-summary">{{site.summary}}</div>
                     </div>
+                    <div class="team-handel pull-left">
+                        <form class="navbar-form ng-cloak" ng-cloak style='margin-right:0'>
+                            <button class="btn btn-warning btn-custom" ng-click="subscribeSite()">关注</button>
+                            <button class="btn btn-primary btn-custom" ng-click="contributeSite()">投稿</button>
+                        </form>
+                    </div>
+                    <span ng-mouseenter="hover=true" ng-mouseleave="hover=false" class="site_fe_home site_fe_home_icon xxt_scan"></span>
+                </div>
+                <div class="team-qrcode" ng-if="hover">
+                    <img ng-src="{{entry.qrcode}}" />
                 </div>
             </div>
         </div>
@@ -78,7 +84,7 @@
                     </uib-tab>
                 </uib-tabset>
             </div>
-            <aside class="col-md-4 col-xs-12 pull-right">
+            <aside id="aside" class="col-md-4 col-xs-12 pull-right">
                 <div class="mainSide" ng-repeat="r in r_channels">
                     <div class="mainSide-header">
                         <span class="site_fe_home site_fe_home_icon xxt_guide"></span>

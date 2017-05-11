@@ -1,7 +1,12 @@
 ngApp.provider.controller('ctrlHome', ['$scope', '$http', 'tmsFavor', 'tmsForward', 'tmsDynaPage', function($scope, $http, tmsFavor, tmsForward, tmsDynaPage) {
     var ls = location.search,
         siteId = ls.match(/site=([^&]*)/)[1],
-        page;
+        page, entry, url;
+    url = 'http://' + location.host + '/rest/site/home?site=' + siteId;
+    $scope.entry = entry = {
+        url: url,
+        qrcode: '/rest/pl/fe/site/qrcode?site=' + siteId + '&url=' + encodeURIComponent(url)
+    }
     $scope.cTotal = [];
     $scope.siteId = siteId;
     $scope.page = page = {

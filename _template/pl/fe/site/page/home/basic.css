@@ -9,8 +9,8 @@
 .team-content > .team-text{padding:20px 0;overflow:hidden;}
 .team-text > h4{font-weight:800;}
 .team-content > .team-summary{font-size:14px;color:#333;line-height:1.8;margin-top: 6%;}
-.btn-warning{color: #fff;background-color: #ffb400;border-color: #ffb400;box-shadow:0 0 10px 2px #ffb400;}
-.btn-primary{color: #fff;background-color: #0080ff;border-color: #0080ff;box-shadow:0 0 10px 2px #0080ff;}
+.team-handel .btn-warning{color: #fff;background-color: #ffb400;border-color: #ffb400;box-shadow:0 0 10px 2px #ffb400;}
+.team-handel .btn-primary{color: #fff;background-color: #0080ff;border-color: #0080ff;box-shadow:0 0 10px 2px #0080ff;}
 .btn-custom{font-size:18px;font-weight:600;padding:5px 20px;border-radius: 50em;margin-left: 10px;}
 .btn:focus,.btn:active:focus{outline: none;}
 .xxt_scan{cursor:pointer;width:77px;height:77px;bottom:0;right:0;background-position: -137px -259px;}

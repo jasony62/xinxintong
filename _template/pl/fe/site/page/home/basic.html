@@ -12,30 +12,30 @@
         </div>
     </div>
     <div class='row'>
-            <div class='col-md-12'>
-                <div class="team-info">
-                    <div class="team-img pull-left">
-                        <img class="img-circle" style="width:200px;height:200px"ng-src='{{site.heading_pic}}'>
-                    </div>
-                    <div class="team-content pull-left">
-                        <div class="team-text">
-                            <h4 class="media-heading pull-left">{{site.name}}</h4>
-                        </div>
-                        <div class="team-summary">{{site.summary}}</div>
-                    </div>
-                    <div class="team-handel pull-left">
-                        <form class="navbar-form ng-cloak" ng-cloak style='margin-right:0'>
-                            <button class="btn btn-warning btn-custom" ng-click="subscribeSite()">关注</button>
-                            <button class="btn btn-primary btn-custom" ng-click="contributeSite()">投稿</button>
-                        </form>
-                    </div>
-                    <span ng-mouseenter="hover=true" ng-mouseleave="hover=false" class="site_fe_home site_fe_home_icon xxt_scan"></span>
+        <div class='col-md-12'>
+            <div class="team-info">
+                <div class="team-img pull-left">
+                    <img class="img-circle" style="width:200px;height:200px"ng-src='{{site.heading_pic}}'>
                 </div>
-                <div class="team-qrcode" ng-if="hover">
-                    <img ng-src="{{entry.qrcode}}" class="qrcode"/>
+                <div class="team-content pull-left">
+                    <div class="team-text">
+                        <h4 class="media-heading pull-left">{{site.name}}</h4>
+                    </div>
+                    <div class="team-summary">{{site.summary}}</div>
                 </div>
+                <div class="team-handel pull-left">
+                    <form class="navbar-form ng-cloak" ng-cloak style='margin-right:0'>
+                        <button class="btn btn-warning btn-custom" ng-click="subscribeSite()">关注</button>
+                        <button class="btn btn-primary btn-custom" ng-click="contributeSite()">投稿</button>
+                    </form>
+                </div>
+                <span ng-mouseenter="hover=true" ng-mouseleave="hover=false" class="site_fe_home site_fe_home_icon xxt_scan"></span>
+            </div>
+            <div class="team-qrcode" ng-if="hover">
+                <img ng-src="{{entry.qrcode}}" class="qrcode"/>
             </div>
         </div>
+    </div>
     <div class='row'>
         <div class='col-md-12 col-xs-12 main'>
             <div class="col-md-8 col-xs-12">
@@ -79,7 +79,7 @@
                             </tbody>
                         </table>
                         <div>
-                            <button class='btn btn-lg btn-primary  btn-gradient center-block' ng-click="moreMatters(c.channel_id)" ng-if="cTotal.total>=page.size">加 载 更 多</button>
+                            <button class='btn btn-lg btn-primary  btn-gradient center-block' ng-click="moreMatters(c.channel_id)" ng-if="c._matters.length>=page.size">加 载 更 多</button>
                         </div>
                     </uib-tab>
                 </uib-tabset>

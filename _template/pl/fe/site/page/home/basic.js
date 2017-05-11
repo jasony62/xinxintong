@@ -21,13 +21,22 @@ ngApp.provider.controller('ctrlHome', ['$scope', '$http', 'tmsFavor', 'tmsForwar
             $scope.templates = rsp.data;
         });
     };
+    var lastId;
     $scope.moreMatters = function(id) {
-        $scope.page.at = $scope.page.at + 1;
+        if(lastId == id) {
+            $scope.page.at = $scope.page.at + 1;
+        }else {
+            $scope.page.at = 2;
+        }
         $http.get('/rest/site/fe/matter/channel/mattersGet?site=' + siteId + '&id=' + id + '&' + page.j()).success(function(rsp) {
-                rsp.data.forEach(function(item) {
-                    $scope.cTotal.data.push(item);
+            rsp.data.forEach(function(item) {
+                $scope.c_channels.forEach(function(c) {
+                    if(id == c.channel_id){
+                        c._matters.push(item);
+                    }
                 });
-                $scope.cTotal.total = rsp.data.length;
+            });
+            lastId = id;
         });
     }
     function c_listChannels() {

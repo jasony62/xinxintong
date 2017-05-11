@@ -66,8 +66,8 @@ html,body{height:100%;width:100%;background-color:#fff;font-family:"HSimHei","Mi
 .mainSide-header{position: relative;margin-bottom: 40px;padding-left: 30px;}
 .mainSide-header > h4{display: inline-block;margin: 0 0;}
 .mainSide-header > small > a {color: #999;font-size:14px;position: relative;padding-right: 20px;}
-.list-group-item{border:0;padding:0 0 0 30px;}
-a.list-group-item:hover, a.list-group-item:focus {text-decoration: none;color: #388dbf;background-color:#fff;}
+#aside .list-group-item{border:0;padding:0 0 0 30px;}
+#aside a.list-group-item:hover, a.list-group-item:focus {text-decoration: none;color: #388dbf;background-color:#fff;}
 .xxt_guide{top:0;left:0;background-position: -111px -209px;}
 .xxt_chevron-right{top:-1px;right:-5px;background-position: -43px -207px;}
 .xxt_line{width:10px;height:85px;position:absolute;top:-10px;left:5px;background-position: -256px -30px;}

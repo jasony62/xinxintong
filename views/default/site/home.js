@@ -197,6 +197,9 @@ ngApp.controller('ctrlMain', ['$scope', '$q', '$uibModal', 'http2', 'srvUser', '
             }
         });
         tmsDynaPage.loadCode(ngApp, rsp.data.home_page).then(function() {
+            if (!rsp.data.heading_pic) {
+                rsp.data.heading_pic = '/static/img/avatar.png';
+            }
             $scope.site = rsp.data;
             $scope.page = rsp.data.home_page;
         });

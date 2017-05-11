@@ -97,11 +97,13 @@ class favor extends \pl\fe\base {
 		}
 
 		$current = time();
+		$fromSite = $this->model('site')->byId($oMatter->siteid, ['fields' => 'name']);
 		$log = [
 			'creater' => $user->id,
 			'creater_name' => $modelMat->escape($user->name),
 			'favor_at' => $current,
 			'from_siteid' => $oMatter->siteid,
+			'from_site_name' => $modelMat->escape($fromSite->name),
 			'matter_id' => $oMatter->id,
 			'matter_type' => $oMatter->type,
 			'matter_title' => $modelMat->escape($oMatter->title),

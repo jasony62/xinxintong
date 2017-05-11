@@ -19,7 +19,7 @@
                 </li>
                 <hr>
                 <li>
-                    <button id='popoverAddMatter' uib-popover-template="'addMatter.html'" popover-placement="right" popover-append-to-body='true' popover-trigger="show" popover-title="新建素材" class='btn btn-default btn-block' ng-click="popoverAddMatter()"><span>新建</span></button>
+                    <button uib-popover-template="'addMatter.html'" popover-placement="right" popover-append-to-body='true' popover-trigger="outsideClick" popover-title="新建素材" class='btn btn-default btn-block'><span>新建</span></button>
                 </li>
             </ul>
         </section>
@@ -231,7 +231,7 @@
                             <li ng-class="{'active':criteria3.matterType==='wall'}"><a href='' ng-click="changeMatter('wall')">信息墙</a></li>
                         </ul>
                         <form class='nav navbar-form pull-right'>
-                            <button id='activityAddMatter' uib-popover-template="'addActivity.html'" popover-placement="bottom-right" popover-append-to-body='true' popover-trigger="show" popover-title="新建" class='btn btn-default' ng-click="activityAddMatter()"><i class='glyphicon glyphicon-plus'></i> <span>新建</span></button>
+                            <button uib-popover-template="'addActivity.html'" popover-placement="bottom-right" popover-append-to-body='true' popover-trigger="outsideClick" popover-title="新建" class='btn btn-default'><i class='glyphicon glyphicon-plus'></i> <span>新建</span></button>
                             <button uib-popover-template="'filter.html'" popover-placement="bottom-right" popover-append-to-body='true' popover-trigger="outsideClick" class='btn btn-default pull-right'><i class='glyphicon glyphicon-filter'></i> <span>筛选</span></button>
                         </form>
                     </div>
@@ -264,9 +264,9 @@
                                     <button class='btn btn-sm btn-default' ng-click="openMatter(m,'player')">数据</button>
                                 </div>
                                 <div ng-switch-when="enroll">
-                                    <button class='btn btn-sm btn-default' ng-click="openMatter(m,'main')">定义</bumton>
-                                        <button class='btn btn-sm btn-default' ng-click="openMatter(m,'publish')">设置</bmtton>
-                                            <button class='btn btn-sm btn-default' ng-click="openMatter(m,'record')">数据</bumton>
+                                    <button class='btn btn-sm btn-default' ng-click="openMatter(m,'main')">定义</button>
+                                    <button class='btn btn-sm btn-default' ng-click="openMatter(m,'publish')">设置</bmtton>
+                                        <button class='btn btn-sm btn-default' ng-click="openMatter(m,'record')">数据</button>
                                 </div>
                                 <div ng-switch-when="signin">
                                     <button class='btn btn-sm btn-default' ng-click="openMatter(m,'main')">定义</button>
@@ -300,7 +300,7 @@
                             <li ng-class="{'active':criteria4.matterType==='custom'}"><a href='' ng-click="changeMatter('custom')">定制页</a></li>
                         </ul>
                         <form class='nav navbar-form pull-right'>
-                            <button id='infoAddMatter' uib-popover-template="'addInfo.html'" popover-placement="bottom-right" popover-append-to-body='true' popover-trigger="show" popover-title="新建" class='btn btn-default' ng-click="infoAddMatter()"><i class='glyphicon glyphicon-plus'></i> <span>新建</span></button>
+                            <button uib-popover-template="'addInfo.html'" popover-placement="bottom-right" popover-append-to-body='true' popover-trigger="outsideClick" popover-title="新建" class='btn btn-default'><i class='glyphicon glyphicon-plus'></i> <span>新建</span></button>
                             <button uib-popover-template="'filter.html'" popover-placement="bottom-right" popover-append-to-body='true' popover-trigger="outsideClick" class='btn btn-default pull-right'><i class='glyphicon glyphicon-filter'></i> <span>筛选</span></button>
                         </form>
                     </div>

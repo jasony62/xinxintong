@@ -1,7 +1,7 @@
 define(['require'], function(require) {
     'use strict';
-    var ngApp = angular.module('app', ['ngRoute', 'ui.bootstrap', 'ui.tms', 'tmplshop.ui.xxt', 'service.matter']);
-    ngApp.config(['$controllerProvider', '$routeProvider', '$locationProvider', '$compileProvider', '$uibTooltipProvider', function($controllerProvider, $routeProvider, $locationProvider, $compileProvider, $uibTooltipProvider) {
+    var ngApp = angular.module('app', ['ngRoute', 'ui.bootstrap', 'ui.tms', 'tmplshop.ui.xxt', 'service.matter', 'page.ui.xxt', 'modal.ui.xxt']);
+    ngApp.config(['$controllerProvider', '$provide', '$routeProvider', '$locationProvider', '$compileProvider', '$uibTooltipProvider', function($controllerProvider, $provide, $routeProvider, $locationProvider, $compileProvider, $uibTooltipProvider) {
         var RouteParam = function(name) {
             var baseURL = '/views/default/pl/fe/console/';
             this.templateUrl = baseURL + name + '.html?_=' + (new Date() * 1);
@@ -18,7 +18,8 @@ define(['require'], function(require) {
         };
         ngApp.provider = {
             controller: $controllerProvider.register,
-            directive: $compileProvider.directive
+            directive: $compileProvider.directive,
+            service: $provide.service
         };
         $locationProvider.html5Mode(true);
         $routeProvider

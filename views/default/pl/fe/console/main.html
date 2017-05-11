@@ -354,56 +354,61 @@
                     </div>
                 </nav>
                 <div ng-controller='ctrlMember' ng-switch-when="member">
-                    <div class='form-group form-inline'>
-                        <div class='form-group'>
-                            <select class='form-control' ng-options="mschema.title for mschema in mschemas" ng-model="selectedMschema"></select>
-                        </div>
-                        <div class='form-group'>
-                            <select class='form-control' ng-model='page.searchBy' ng-options='s.v as s.n for s in searchBys'></select>
-                        </div>
-                        <div class='form-group' style='max-width:200px'>
-                            <div class="input-group">
-                                <input type='text' class='form-control' ng-model='page.keyword' placeholder='搜索条件' ng-keyup='keywordKeyup($event)'>
-                                <span class="input-group-btn">
-                                    <button class="btn btn-default" type="button" ng-click='doSearch(1)'>
-                                    <span class="glyphicon glyphicon-search"></span>
-                                </button>
-                                </span>
+                    <div ng-if='mschemas.length===0'>
+                        <div class='alert alert-info'>请创建团队联系人通讯录</div>
+                    </div>
+                    <div ng-if='mschemas.length'>
+                        <div class='form-group form-inline'>
+                            <div class='form-group'>
+                                <select class='form-control' ng-options="mschema.title for mschema in mschemas" ng-model="selectedMschema"></select>
+                            </div>
+                            <div class='form-group'>
+                                <select class='form-control' ng-model='page.searchBy' ng-options='s.v as s.n for s in searchBys'></select>
+                            </div>
+                            <div class='form-group' style='max-width:200px'>
+                                <div class="input-group">
+                                    <input type='text' class='form-control' ng-model='page.keyword' placeholder='搜索条件' ng-keyup='keywordKeyup($event)'>
+                                    <span class="input-group-btn">
+                                        <button class="btn btn-default" type="button" ng-click='doSearch(1)'>
+                                        <span class="glyphicon glyphicon-search"></span>
+                                    </button>
+                                    </span>
+                                </div>
                             </div>
                         </div>
-                    </div>
-                    <div>
-                        <table class='table table-bordered'>
-                            <thead>
-                                <tr>
-                                    <th style='width:100px'>认证日期</th>
-                                    <th style='width:80px'>完成认证</th>
-                                    <th ng-if='selectedMschema.attr_name[0]==0'>姓名</th>
-                                    <th ng-if='selectedMschema.attr_mobile[0]==0'>手机号</th>
-                                    <th ng-if='selectedMschema.attr_email[0]==0'>电子邮件</th>
-                                    <th style='width:80px' ng-if='selectedMschema.attr_email[0]==0&&selectedMschema.attr_email[4]==1'>邮箱验证</th>
-                                    <th ng-repeat='ea in selectedMschema.extattr'>{{ea.label}}</th>
-                                    <th>操作</th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                <tr ng-repeat='m in members'>
-                                    <td>{{m.create_at*1000|date:'yy-MM-dd'}}</td>
-                                    <td>{{m.verified==='Y'?'是':'否'}}</td>
-                                    <td ng-if='selectedMschema.attr_name[0]==0'>{{m.name}}</td>
-                                    <td ng-if="selectedMschema.attr_mobile[0]==0">{{m.mobile}}</td>
-                                    <td ng-if="selectedMschema.attr_email[0]==0">{{m.email}}</td>
-                                    <td ng-if="selectedMschema.attr_email[0]==0&&schema.attr_email[4]==1">{{m.email_verified==='Y'?'通过':'未通过'}}</td>
-                                    <td ng-repeat='ea in selectedMschema.extattr'>{{m.extattr[ea.id]}}</td>
-                                    <td>
-                                        <a href='javascript:void(0)' ng-click='editMember(m)'>修改</a>
-                                    </td>
-                                </tr>
-                            </tbody>
-                        </table>
-                        <div class='form-group form-inline'>
-                            <span style='height:34px;line-height:34px'>总数：{{page.total}}</span>
-                            <ul uib-pagination style='margin:0;cursor:pointer' class='pull-right' ng-if='page.total>page.size' boundary-links="true" total-items="page.total" max-size="7" items-per-page="page.size" rotate="false" ng-model="page.at" previous-text="&lsaquo;" next-text="&rsaquo;" first-text="&laquo;" last-text="&raquo;" ng-change="doSearch()"></ul>
+                        <div>
+                            <table class='table table-bordered'>
+                                <thead>
+                                    <tr>
+                                        <th style='width:100px'>认证日期</th>
+                                        <th style='width:80px'>完成认证</th>
+                                        <th ng-if='selectedMschema.attr_name[0]==0'>姓名</th>
+                                        <th ng-if='selectedMschema.attr_mobile[0]==0'>手机号</th>
+                                        <th ng-if='selectedMschema.attr_email[0]==0'>电子邮件</th>
+                                        <th style='width:80px' ng-if='selectedMschema.attr_email[0]==0&&selectedMschema.attr_email[4]==1'>邮箱验证</th>
+                                        <th ng-repeat='ea in selectedMschema.extattr'>{{ea.label}}</th>
+                                        <th>操作</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <tr ng-repeat='m in members'>
+                                        <td>{{m.create_at*1000|date:'yy-MM-dd'}}</td>
+                                        <td>{{m.verified==='Y'?'是':'否'}}</td>
+                                        <td ng-if='selectedMschema.attr_name[0]==0'>{{m.name}}</td>
+                                        <td ng-if="selectedMschema.attr_mobile[0]==0">{{m.mobile}}</td>
+                                        <td ng-if="selectedMschema.attr_email[0]==0">{{m.email}}</td>
+                                        <td ng-if="selectedMschema.attr_email[0]==0&&schema.attr_email[4]==1">{{m.email_verified==='Y'?'通过':'未通过'}}</td>
+                                        <td ng-repeat='ea in selectedMschema.extattr'>{{m.extattr[ea.id]}}</td>
+                                        <td>
+                                            <a href='javascript:void(0)' ng-click='editMember(m)'>修改</a>
+                                        </td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                            <div class='form-group form-inline'>
+                                <span style='height:34px;line-height:34px'>总数：{{page.total}}</span>
+                                <ul uib-pagination style='margin:0;cursor:pointer' class='pull-right' ng-if='page.total>page.size' boundary-links="true" total-items="page.total" max-size="7" items-per-page="page.size" rotate="false" ng-model="page.at" previous-text="&lsaquo;" next-text="&rsaquo;" first-text="&laquo;" last-text="&raquo;" ng-change="doSearch()"></ul>
+                            </div>
                         </div>
                     </div>
                 </div>

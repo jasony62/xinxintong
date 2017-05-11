@@ -27,8 +27,10 @@
                     </uib-accordion-heading>
                     <div class='remarks'>
                         <div class='remark' ng-repeat="remark in schemaRemarks[schema.id]">
-                            <div class='nickname'>{{remark.nickname}}</div>
-                            <div class='content'>{{remark.content}}</div>
+                            <blockquote>
+                                <p>{{remark.content}}</p>
+                                <footer>{{remark.nickname}}</footer>
+                            </blockquote>
                             <div class='datetime'>{{remark.create_at*1000|date:'MM-dd HH:mm'}}</div>
                         </div>
                     </div>

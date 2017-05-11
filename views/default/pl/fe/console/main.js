@@ -59,7 +59,6 @@ define(['frame'], function(ngApp) {
                 });
             },
             addEnroll: function(site, scenario) {
-                $('body').trigger('click');
                 templateShop.choose(site.id, 'enroll', scenario).then(function(choice) {
                     if (choice) {
                         if (choice.source === 'share') {
@@ -147,25 +146,14 @@ define(['frame'], function(ngApp) {
             var fnName = 'add' + matterType[0].toUpperCase() + matterType.substr(1);
             _fns[fnName].call(_fns, site, scenario);
         }
-        $scope.popoverAddMatter = function() {
-            var target = $('#popoverAddMatter');
-            if (target.data('popover') === 'Y') {
-                target.trigger('hide').data('popover', 'N');
-            } else {
-                target.trigger('show').data('popover', 'Y');
-            }
-        };
         $scope.addMatter = function(matterType, scenario) {
+            $('body').trigger('click');
             if (matterType == 'site') {
                 var url = '/rest/pl/fe/site/create?_=' + (new Date() * 1);
                 http2.get(url, function(rsp) {
                     location.href = '/rest/pl/fe/site/setting?site=' + rsp.data.id;
                 });
             }
-            $('#popoverAddMatter').trigger('hide');
-            $('#missionAddMatter').trigger('hide');
-            $('#activityAddMatter').trigger('hide');
-            $('#infoAddMatter').trigger('hide');
             if ($scope.criteria.sid != '') {
                 var site = { id: $scope.criteria.sid };
                 addMatter(site, matterType, scenario);
@@ -174,7 +162,7 @@ define(['frame'], function(ngApp) {
                 http2.get(url, function(rsp) {
                     var sites = rsp.data;
                     if (sites.length === 1) {
-                        addMatter(sites[0], matterType);
+                        addMatter(sites[0], matterType, scenario);
                     } else if (sites.length === 0) {
                         createSite().then(function(site) {
                             addMatter(site, matterType, scenario);

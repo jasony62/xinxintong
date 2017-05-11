@@ -183,7 +183,7 @@ ngApp.controller('ctrlConsole', ['$scope', '$uibModal', 'http2', 'templateShop',
                 url += type + '/copy?app=' + id + '&site=' + $scope.siteId;
                 break;
             default:
-                alert('程序错误');
+                alert('指定素材不支持复制');
                 return;
         }
         http2.get(url, function(rsp) {

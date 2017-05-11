@@ -191,6 +191,23 @@ class wall_model extends app_base {
 		return array();
 	}
 	/**
+	 * 获得所有消息列表
+	 * 没有分页，主要用于导出Excel
+	 *
+	 */
+	public function msgList($runningSiteId, $wid) {
+		$q = array(
+			'l.*,e.nickname,e.userid',
+			'xxt_wall_log l,xxt_wall_enroll e',
+			"l.siteid = '$runningSiteId' and l.wid = '$wid' and e.wid = l.wid and (e.wx_openid = l.openid or e.yx_openid = l.openid or e.qy_openid = l.openid)",
+		);
+		$q2['o'] = 'approve_at desc';
+
+		$rst = $this->query_objs_ss($q, $q2);
+
+		return $rst;
+	}
+	/**
 	 * 获得墙内的所有用户
 	 */
 	public function joinedUsers($runningSiteId, $wid, $fields = 'openid') {

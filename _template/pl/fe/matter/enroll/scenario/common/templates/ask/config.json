@@ -1,0 +1,53 @@
+{
+    "scenario": "common",
+    "pages": [{
+        "name": "enroll",
+        "title": "填写问题页",
+        "type": "I",
+        "data_schemas": [{
+            "schema": {
+                "id": "c1",
+                "title": "请填写您的问题",
+                "type": "longtext",
+                "remarkable": "Y",
+                "shareable": "Y",
+                "unique": "Y"
+            },
+            "config": {
+                "required": "Y",
+                "showname": "placeholder"
+            }
+        }],
+        "act_schemas": [{
+            "id": "btnSubmit",
+            "name": "submit",
+            "label": "提交问题",
+            "next": "repos"
+        }, {
+            "id": "actGotoRepos",
+            "name": "gotoPage",
+            "label": "查看全部问题",
+            "next": "repos"
+        }]
+    }],
+    "schema": [{
+        "id": "c1",
+        "title": "请填写您的问题",
+        "type": "longtext",
+        "remarkable": "Y",
+        "shareable": "Y",
+        "unique": "Y"
+    }],
+    "scenarioConfig": {
+        "can_rounds": "D"
+    },
+    "entryRule": {
+        "otherwise": {
+            "entry": "enroll"
+        }
+    },
+    "count_limit": "0",
+    "multi_rounds": "Y",
+    "enrolled_entry_page": "enroll",
+    "schema_include_mission_phases": "N"
+}

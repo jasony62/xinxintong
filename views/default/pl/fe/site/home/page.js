@@ -122,6 +122,48 @@ define(['main'], function(ngApp) {
             $scope.slides = slides;
         });
     }]);
+    ngApp.provider.controller('ctrlHomeQrcode', ['$scope', 'http2', 'mediagallery', function($scope, http2, mediagallery) {
+        function update(name) {
+            var p = {},
+                site = $scope.site;
+            p[name] = site[name];
+            http2.post('/rest/pl/fe/site/update?site=' + site.id, p, function(rsp) {});
+        }
+        var slides;
+        $scope.add = function() {
+            var options = {
+                callback: function(url) {
+                    slides.push({
+                        picUrl: url + '?_=' + (new Date() * 1)
+                    });
+                    update('home_carousel');
+                }
+            };
+            mediagallery.open($scope.site.id, options);
+        };
+        $scope.remove = function(slide, index) {
+            slides.splice(index, 1);
+            update('home_qrcode_group');
+        };
+        $scope.up = function(slide, index) {
+            if (index === 0) return;
+            slides.splice(index, 1);
+            slides.splice(--index, 0, slide);
+            update('home_qrcode_group');
+        };
+        $scope.down = function(slide, index) {
+            if (index === slides.length - 1) return;
+            slides.splice(index, 1);
+            slides.splice(++index, 0, slide);
+            update('home_qrcode_group');
+        };
+        $scope.$watch('site', function(site) {
+            if (site === undefined) return;
+            if (!site.home_qrcode_group) site.home_qrcode_group = [];
+            qrcodes = site.home_qrcode_group;
+            $scope.qrcodes = qrcodes;
+        });
+    }]);
     ngApp.provider.controller('ctrlHomeChannel', ['$scope', 'http2', 'mattersgallery', 'noticebox', function($scope, http2, mattersgallery, noticebox) {
         $scope.doGroup = function(channel, group) {
             var url = '/rest/pl/fe/site/setting/page/updateHomeChannel';

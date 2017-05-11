@@ -33,5 +33,10 @@ define(['frame'], function(ngApp) {
             });
         };
         $scope.doSearch();
+        $scope.export = function(){
+            var url = 'rest/pl/fe/matter/wall/export';
+            url += '?site=' + $scope.siteId + '&wid=' + $scope.id;
+            window.open(url);
+        }
     }]);
 });

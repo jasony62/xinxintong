@@ -10,7 +10,6 @@ img{max-width:100%}
 #recordRepos .record{border-bottom:1px solid #ddd;}
 #recordRepos .record:last-child{margin-bottom:1em;}
 #recordRepos .record>*{margin:1em 0;}
-#recordRepos .record .content{border-left:3px solid #ccc;padding-left:1em;}
 #recordRepos .record .bottom-bar{display:flex;}
 #recordRepos .record .bottom-bar .datetime{flex:1;line-height:30px;font-size:.8em;}
 #recordRepos.single .panel-heading{display:none;}

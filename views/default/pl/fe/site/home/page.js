@@ -46,9 +46,9 @@ define(['main'], function(ngApp) {
             });
         };
         $scope.cancleToHome = function() {
-            if((recommenSite && recommenSite.approved == 'Y' )|| navSite) {
+            if ((recommenSite && recommenSite.approved == 'Y') || navSite) {
                 noticebox.error('团队已推荐到平台主页或发布到平台主导航条，不允许禁止');
-            }else {
+            } else {
                 $scope.state = 'N';
             }
         }
@@ -63,17 +63,19 @@ define(['main'], function(ngApp) {
             $scope.entry = entry;
         });
         http2.get('/rest/pl/be/platform/get', function(rsp) {
-            $scope.home_nav = rsp.data.home_nav;
-            $scope.home_nav.forEach(function(item){
-                if(item.site.id == $scope.site.id) {
-                    $scope.navSite = navSite = item;
-                }
-            })
+            if (rsp.data.home_nav) {
+                $scope.home_nav = rsp.data.home_nav;
+                $scope.home_nav.forEach(function(item) {
+                    if (item.site.id == $scope.site.id) {
+                        $scope.navSite = navSite = item;
+                    }
+                })
+            }
         })
         http2.get('/rest/pl/be/home/recommend/listSite', function(rsp) {
             $scope.sites = rsp.data.sites;
             $scope.sites.forEach(function(item) {
-                if(item.siteid == $scope.site.id) {
+                if (item.siteid == $scope.site.id) {
                     $scope.recommenSite = recommenSite = item;
                     $scope.state = 'Y';
                 }
@@ -125,11 +127,12 @@ define(['main'], function(ngApp) {
     ngApp.provider.controller('ctrlHomeChannel', ['$scope', 'http2', 'mattersgallery', 'noticebox', function($scope, http2, mattersgallery, noticebox) {
         $scope.doGroup = function(channel, group) {
             var url = '/rest/pl/fe/site/setting/page/updateHomeChannel';
-                url += '?site=' + channel.siteid + '&id=' + channel.id;
-            http2.post(url, {homeGroup: group}, function(rsp) {
+            url += '?site=' + channel.siteid + '&id=' + channel.id;
+            http2.post(url, { homeGroup: group }, function(rsp) {
                 noticebox.success('完成分组');
             });
         }
+
         function updateSeq() {
             var updated = {};
             $scope.channels.forEach(function(channel, index) {

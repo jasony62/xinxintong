@@ -154,12 +154,14 @@ define(['require'], function(require) {
         };
         /* 下面两段代码的逻辑要优化 */
         http2.get('/rest/pl/be/platform/get', function(rsp) {
-            $scope.home_nav = rsp.data.home_nav;
-            $scope.home_nav.forEach(function(item) {
-                if (item.site.id == $scope.site.id) {
-                    $scope.navSite = navSite = item;
-                }
-            })
+            if (rsp.data.home_nav) {
+                $scope.home_nav = rsp.data.home_nav;
+                $scope.home_nav.forEach(function(item) {
+                    if (item.site.id == $scope.site.id) {
+                        $scope.navSite = navSite = item;
+                    }
+                })
+            }
         });
         http2.get('/rest/pl/be/home/recommend/listSite', function(rsp) {
             $scope.sites = rsp.data.sites;

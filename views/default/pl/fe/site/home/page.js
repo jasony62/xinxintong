@@ -141,6 +141,9 @@ define(['main'], function(ngApp) {
             };
             mediagallery.open($scope.site.id, options);
         };
+        $scope.doTip = function(tip) {
+            update('home_qrcode_group');
+        }
         $scope.remove = function(slide, index) {
             qrcodes.splice(index, 1);
             update('home_qrcode_group');

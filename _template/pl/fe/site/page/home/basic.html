@@ -111,13 +111,9 @@
     </div>
     <div id='gototalk'>
         <div class="talk-qrcodes">
-            <div class="talk-qrcode">
-                <span>扫码进群</span>
-                <img ng-src="{{entry.qrcode}}" class="qrcode" />
-            </div>
-            <div class="talk-qrcode">
-                <span>扫码进群</span>
-                <img ng-src="{{entry.qrcode}}" class="qrcode" />
+            <div class="talk-qrcode" ng-repeat="q in site.home_qrcode_group">
+                <span ng-bind="{{q.tip}}"></span>
+                <img class="qrcode"  ng-src="{{q.picUrl}}" />
             </div>
         </div>
     </div>

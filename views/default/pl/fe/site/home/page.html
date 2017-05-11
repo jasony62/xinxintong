@@ -68,7 +68,7 @@
                     <td>{{$index+1}}</td>
                     <td><img ng-src="{{q.picUrl}}" style='width:200px'></td>
                     <td>
-                        <input type="text" ng-model="q.summary" class="form-group">
+                        <input type="text" ng-model="q.tip" class="form-group" ng-blur='doTip(q)'>
                     </td>
                     <td>
                         <button class='btn btn-xs btn-danger' ng-click="remove(q,$index)"><i class='glyphicon glyphicon-remove'></i></button>

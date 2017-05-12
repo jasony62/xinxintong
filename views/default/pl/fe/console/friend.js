@@ -76,13 +76,6 @@ define(['frame'], function(ngApp) {
         };
     }]);
     ngApp.provider.controller('ctrlFriend', ['$scope',  'http2', '$uibModal', 'noticebox', 'tmsDynaPage', 'tmsCopy', 'srvSite', function($scope, http2, $uibModal, noticebox, tmsDynaPage, tmsCopy, srvSite) {
-        var criteria2;
-        $scope.criteria2 = criteria2 = {
-            scope: 'subscribeSite'
-        };
-        $scope.changeScope = function(scope) {
-            criteria2.scope = scope;
-        };
         $scope.openSite = function(id) {
             location.href = '/rest/site/home?site=' + id;
         };
@@ -100,15 +93,16 @@ define(['frame'], function(ngApp) {
             }
             location.href = url;
         };
+    }]);
+    ngApp.provider.controller('ctrlSubscribeSite', ['$scope', 'http2', 'srvSite', function($scope, http2, srvSite) {
         $scope.moreMatter = function() {
-            srvSite.matterList($scope.criteria2.scope, $scope.criteria.sid, $scope.pageOfmatters).then(function(result) {
+            srvSite.matterList($scope.criteria3.scope, $scope.criteria.sid, $scope.pageOfmatters).then(function(result) {
                 result.matters.forEach(function(matter) {
                     $scope.matters.push(matter);
+                    $scope.pageOfmatters = result.page;
                 });
             });
         };
-    }]);
-    ngApp.provider.controller('ctrlSubscribeSite', ['$scope', 'http2', 'srvSite', function($scope, http2, srvSite) {
         $scope.$watch('criteria.sid', function(nv) {
             srvSite.matterList('subscribeSite', nv).then(function(result) {
                 $scope.matters = result.matters;
@@ -121,12 +115,21 @@ define(['frame'], function(ngApp) {
             http2.get('rest/pl/fe/site/contribute/update?id=' + m.id, function(rsp) {
                 $scope.matters.forEach(function(item) {
                     if(m.id == item.id) {
-                        $scope.matters.splice(item,1);
+                        matters.splice(item,1);
+                        $scope.matters = matters;
                         $scope.pageOfmatters--;
                     }
                 });
             });
         }
+        $scope.moreMatter = function() {
+            srvSite.matterList($scope.criteria3.scope, $scope.criteria.sid, $scope.pageOfmatters).then(function(result) {
+                result.matters.forEach(function(matter) {
+                    $scope.matters.push(matter);
+                    $scope.pageOfmatters = result.page;
+                });
+            });
+        };
         $scope.$watch('criteria.sid', function(nv) {
             srvSite.matterList('contributeSite', nv).then(function(result) {
                 $scope.matters = result.matters;
@@ -135,6 +138,14 @@ define(['frame'], function(ngApp) {
         },true);
     }]);
     ngApp.provider.controller('ctrlFavorSite', ['$scope', 'http2', '$q', 'srvSite', function($scope, http2, $q, srvSite) {
+        $scope.moreMatter = function() {
+            srvSite.matterList($scope.criteria3.scope, $scope.criteria.sid, $scope.pageOfmatters).then(function(result) {
+                result.matters.forEach(function(matter) {
+                    $scope.matters.push(matter);
+                    $scope.pageOfmatters = result.page;
+                });
+            });
+        };
         $scope.$watch('criteria.sid', function(nv) {
             srvSite.matterList('favorSite', nv).then(function(result) {
                 $scope.matters = result.matters;

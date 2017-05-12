@@ -329,7 +329,7 @@ class channel_model extends article_base {
 				'xxt_channel_matter cm',
 				["cm.channel_id" => $channel_id],
 			];
-			$q2['o'] = 'cm.create_at desc';
+			$q2['o'] = 'cm.create_at desc , cm.matter_id desc , cm.matter_type desc';
 
 			// 分页获取，如果素材已经删除，或者素材尚未批准的情况下，分页会导致返回的数量不正确
 			if (isset($params->page) && isset($params->size)) {

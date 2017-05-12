@@ -7,8 +7,9 @@ ngApp.provider.controller('ctrlHome', ['$scope', '$http', '$uibModal', 'tmsFavor
             return '&page=' + this.at + '&size=' + this.size;
         }
     }
+
     function listSites(number) {
-        $http.get('/rest/home/listSite'+ '?page=1' + '&size=' + number).success(function(rsp) {
+        $http.get('/rest/home/listSite' + '?page=1' + '&size=' + number).success(function(rsp) {
             $scope.sites = rsp.data.sites;
             $scope.sites.total = rsp.data.total;
         });
@@ -37,18 +38,18 @@ ngApp.provider.controller('ctrlHome', ['$scope', '$http', '$uibModal', 'tmsFavor
         location.href = matter.url;
     };
     $scope.listApps = function(number) {
-        $http.get('/rest/home/listApp'+ '?page=1' + '&size=' + number).success(function(rsp) {
+        $http.get('/rest/home/listApp' + '?page=1' + '&size=' + number).success(function(rsp) {
             $scope.apps = rsp.data.matters;
             $scope.apps.total = rsp.data.total;
         });
     };
     $scope.listArticles = function(number) {
-        $http.get('/rest/home/listArticle'+ '?page=1' + '&size=' + number).success(function(rsp) {
+        $http.get('/rest/home/listArticle' + '?page=1' + '&size=' + number).success(function(rsp) {
             $scope.articles = rsp.data.matters;
             $scope.articles.total = rsp.data.total;
         });
     };
-    $scope.favor = function(user,article) {
+    $scope.favor = function(user, article) {
         article.type = article.matter_type;
         event.preventDefault();
         event.stopPropagation();
@@ -62,7 +63,7 @@ ngApp.provider.controller('ctrlHome', ['$scope', '$http', '$uibModal', 'tmsFavor
             tmsFavor.open(article);
         }
     }
-    $scope.forward = function(user,article) {
+    $scope.forward = function(user, article) {
         article.type = article.matter_type;
         event.preventDefault();
         event.stopPropagation();
@@ -82,11 +83,11 @@ ngApp.provider.controller('ctrlHome', ['$scope', '$http', '$uibModal', 'tmsFavor
             $scope.channels = rsp.data.matters;
             $scope.channels.forEach(function(item) {
                 var url;
-                    url = '/rest/site/fe/matter/channel/mattersGet';
-                    url += '?site=' + item.siteid + '&id=' + item.matter_id;
-                    url += '&page=1&size=5';
+                url = '/rest/site/fe/matter/channel/mattersGet';
+                url += '?site=' + item.siteid + '&id=' + item.matter_id;
+                url += '&page=1&size=5';
                 $http.get(url).success(function(rsp) {
-                    $scope.channelArticles.push({title:item.title,url:item.url,data:rsp.data});
+                    $scope.channelArticles.push({ title: item.title, url: item.url, data: rsp.data });
                 });
             });
         });

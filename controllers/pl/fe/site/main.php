@@ -145,6 +145,10 @@ class main extends \pl\fe\base {
 			if (!empty($site->home_carousel)) {
 				$site->home_carousel = json_decode($site->home_carousel);
 			}
+			/* 团队群二维码 */
+			if (!empty($site->home_qrcode_group)) {
+				$site->home_qrcode_group = json_decode($site->home_qrcode_group);
+			}
 
 			return new \ResponseData($site);
 		} else {
@@ -323,6 +327,8 @@ class main extends \pl\fe\base {
 		foreach ($nv as $n => $v) {
 			if ($n === 'home_carousel') {
 				$nv->{$n} = json_encode($v);
+			}else if($n === 'home_qrcode_group') {
+				$nv->{$n} =  $modelSite->escape($modelSite->toJson($v));
 			}
 		}
 		$rst = $modelSite->update(

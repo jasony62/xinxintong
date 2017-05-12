@@ -24,6 +24,8 @@ class copy_model extends \TMS_MODEL {
 
 		/*获取原图文的内容标签*/
 		$tags = $modelTag->tagsByRes($copied->id, 'article', 0);
+		/*获取元图文的团队名称*/
+		$fromSite = $this->model('site')->byId($fromSiteId, ['fields' => 'name']);
 		$current = time();
 
 		$newArticle = new \stdClass;
@@ -44,6 +46,7 @@ class copy_model extends \TMS_MODEL {
 		$newArticle->url = $copied->url;
 		$newArticle->can_siteuser = $copied->can_siteuser;
 		$newArticle->from_siteid = $modelArt->escape($fromSiteId);
+		$newArticle->from_site_name = $modelArt->escape($fromSite->name);
 		$newArticle->from_id = $modelArt->escape($id);
 		$newArticle->title = $modelArt->escape($copied->title);
 

@@ -16,7 +16,7 @@
             <div class='col-md-8 col-xs-12'>
                 <div id="slider_extends" class="row slider_extends">
                     <ul class="list-unstyled">
-                        <li ng-mouseenter="selectTag($index)" class="col-xs-6 col-md-4 slider_extend" ng-repeat="ta in topArticles" >
+                        <li ng-mouseenter="selectTag($index)" class="col-xs-6 col-md-4 slider_extend" ng-repeat="ta in topArticles">
                             <a ng-href="{{ta.url}}">
                                 <div class="caption">
                                     <h5 class="text-wrap">{{ta.title}}</h5>
@@ -43,21 +43,20 @@
                                                 <h4 class="media-heading">{{a.title}}</h4>
                                                 <div class="media-summary">{{a.summary}}</div>
                                                 <div class='attr clearfix'>
-                                                    <div class='creater_name pull-left'>
-                                                        <a ng-href='/rest/site/home?site={{a.siteid}}'>
-                                                            <span class="site_fe_home site_fe_home_icon xxt_team"></span>
-                                                            {{a.site_name}}
-                                                        </a>
-                                                    </div>
-                                                    <div class='put_at pull-left' ng-bind="a.put_at*1000|date:'yyyy-MM-dd'"></div>
-                                                    <div class="pull-left forward">
+                                                    <div class='put_at pull-right' ng-bind="a.put_at*1000|date:'yyyy-MM-dd'"></div>
+                                                    <div class="forward pull-right">
                                                         <a href="" ng-click="forward(user,a)">
-                                                            <span class="site_fe_home "></span>转发
+                                                            <span class="site_fe_home site_fe_home_icon xxt_forward"></span>转发
                                                         </a>
                                                     </div>
-                                                    <div class="pull-left favor" >
-                                                        <a href="" ng-click="favor(user,a)" >
-                                                            <span class="site_fe_home"></span>收藏
+                                                    <div class="favor pull-right">
+                                                        <a href="" ng-click="favor(user,a)">
+                                                            <span class="site_fe_home site_fe_home_icon xxt_favor"></span>收藏
+                                                        </a>
+                                                    </div>
+                                                    <div class='creater_name pull-right'>
+                                                        <a ng-href='/rest/site/home?site={{a.siteid}}'>
+                                                            <span class="site_fe_home site_fe_home_icon xxt_team"></span> {{a.site_name}}
                                                         </a>
                                                     </div>
                                                 </div>
@@ -85,13 +84,12 @@
                                                 <h4 class="media-heading">{{s.title}}</h4>
                                                 <div class="media-summary">{{s.summary}}</div>
                                                 <div class='attr clearfix'>
-                                                    <div class='creater_name pull-left'>
+                                                    <div class='put_at pull-right' ng-bind="s.put_at*1000|date:'yyyy-MM-dd'"></div>
+                                                    <div class='creater_name pull-right'>
                                                         <a ng-href='/rest/site/home?site={{s.siteid}}'>
-                                                            <span class="site_fe_home site_fe_home_icon xxt_team"></span>
-                                                            {{s.creater_name}}
+                                                            <span class="site_fe_home site_fe_home_icon xxt_team"></span> {{s.creater_name}}
                                                         </a>
                                                     </div>
-                                                    <div class='put_at pull-left' ng-bind="s.put_at*1000|date:'yyyy-MM-dd'"></div>
                                                 </div>
                                             </div>
                                         </div>
@@ -117,12 +115,12 @@
                                                 <h4 class="media-heading">{{a.title}}</h4>
                                                 <div class="media-summary">{{a.summary}}</div>
                                                 <div class='attr clearfix'>
-                                                    <div class='creater_name pull-left'>
+                                                    <div class='put_at pull-right' ng-bind="a.put_at*1000|date:'yyyy-MM-dd'"></div>
+                                                    <div class='creater_name pull-right'>
                                                         <a ng-href='/rest/site/home?site={{a.siteid}}'>
                                                             <span class="site_fe_home site_fe_home_icon xxt_team"></span>{{a.creater_name}}
                                                         </a>
                                                     </div>
-                                                    <div class='put_at pull-left' ng-bind="a.put_at*1000|date:'yyyy-MM-dd'"></div>
                                                 </div>
                                             </div>
                                         </div>
@@ -148,12 +146,12 @@
                                                 <h4 class="media-heading">{{t.title}}</h4>
                                                 <div class="media-summary">{{t.summary}}</div>
                                                 <div class='attr clearfix'>
-                                                    <div class='creater_name pull-left'>
+                                                    <div class='put_at pull-right' ng-bind="t.put_at*1000|date:'yyyy-MM-dd'"></div>
+                                                    <div class='creater_name pull-right'>
                                                         <a ng-href='/rest/site/home?site={{t.siteid}}'>
                                                             <span class="site_fe_home site_fe_home_icon xxt_team"></span>{{t.creater_name}}
                                                         </a>
                                                     </div>
-                                                    <div class='put_at pull-left' ng-bind="t.put_at*1000|date:'yyyy-MM-dd'"></div>
                                                 </div>
                                             </div>
                                         </div>
@@ -179,11 +177,11 @@
                     </uib-tab>
                 </uib-tabset>
             </div>
-            <aside class="col-md-4 col-xs-12 pull-right">
+            <aside id="aside" class="col-md-4 col-xs-12 pull-right">
                 <div class="mainSide" ng-repeat="c in channelArticles">
                     <div class="mainSide-header">
                         <span class="site_fe_home site_fe_home_icon xxt_guide"></span>
-                        <h4 >{{c.title}}</h4>
+                        <h4>{{c.title}}</h4>
                         <small class="pull-right">
                             <a ng-href="{{c.url}}">更多<span class="site_fe_home site_fe_home_icon xxt_chevron-right"></span></a>
                         </small>

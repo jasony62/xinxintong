@@ -162,9 +162,9 @@ class main extends \pl\fe\matter\base {
 
 		return new \ResponseData($rst);
 	}
-	/*
-		 * 导出Excel
-	*/
+	/**
+	 * 导出Excel
+	 */
 	public function export_action($site, $wid) {
 		if (false === ($user = $this->accountUser())) {
 			return new \ResponseTimeout();
@@ -201,9 +201,9 @@ class main extends \pl\fe\matter\base {
 		foreach ($data as $k => $v) {
 			$columnNum2 = 0; //列号
 
-			if ($v->approved === 0) {
+			if ($v->approved == 0) {
 				$status = '未审核';
-			} else if ($v->approved === 1) {
+			} else if ($v->approved == 1) {
 				$status = '审核通过';
 			} else {
 				$status = '审核未通过';

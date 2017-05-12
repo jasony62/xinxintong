@@ -15,7 +15,6 @@
 #recordEditor .remark{border-bottom:1px solid #ddd;}
 #recordEditor .remark:last-child{border-bottom:0;}
 #recordEditor .remark>*{margin:1em 0;}
-#recordEditor .remark .content{border-left:3px solid #ccc;padding-left:1em;}
 #recordEditor .remark .datetime{color:#777;font-size:.8em;}
 </style>
 <div id='recordEditor' class='col-md-10 col-md-offset-1'>
@@ -220,8 +219,10 @@
                         </uib-accordion-heading>
                         <div class='remarks'>
                             <div class='remark' ng-repeat="remark in schemaRemarks[schema.id]">
-                                <div class='nickname'>{{remark.nickname}}</div>
-                                <div class='content'>{{remark.content}}</div>
+                                <blockquote>
+                                    <p>{{remark.content}}</p>
+                                    <footer>{{remark.nickname}}</footer>
+                                </blockquote>
                                 <div class='datetime'>{{remark.create_at*1000|date:'MM-dd HH:mm'}}</div>
                             </div>
                         </div>

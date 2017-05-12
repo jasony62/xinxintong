@@ -37,7 +37,7 @@ hr{margin:5px 0;}
 .media-object{width:96px;height:96px;}
 .actions{border-top:1px solid #ddd;margin-top:8px;padding-top:8px;}
 
-
+.modal.in .modal-dialog {transform: translate(-50%, -50%);}
 /* 团队关注 */
 .media-left{width:15%;vertical-align: middle;}
 .media-body{width: 85%;vertical-align: middle;}

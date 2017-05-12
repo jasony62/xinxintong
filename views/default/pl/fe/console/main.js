@@ -1,13 +1,6 @@
 define(['frame'], function(ngApp) {
     'use strict';
     ngApp.provider.controller('ctrlMain', ['$scope', '$uibModal', 'templateShop', 'http2', 'noticebox', function($scope, $uibModal, templateShop, http2, noticebox) {
-        var criteria2;
-        $scope.criteria2 = criteria2 = {
-            scope: 'top'
-        };
-        $scope.changeScope = function(scope) {
-            criteria2.scope = scope;
-        };
         $scope.matterNames = {
             'article': '单图文',
             'news': '多图文',

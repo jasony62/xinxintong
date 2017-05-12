@@ -30,7 +30,7 @@ define(['require'], function(require) {
         });
     }]);
     ngApp.controller('ctrlFrame', ['$scope', 'http2', 'srvUserNotice', function($scope, http2, srvUserNotice) {
-        var criteria;
+        var criteria, criteria2, criteria3;
         $scope.subView = '';
         $scope.$on('$locationChangeSuccess', function(event, currentRoute) {
             var subView = currentRoute.match(/[^\/]+$/)[0];
@@ -52,6 +52,15 @@ define(['require'], function(require) {
         });
         $scope.criteria = criteria = {
             sid: ''
+        };
+        $scope.criteria2 = criteria2 = {
+            scope: 'top'
+        };
+        $scope.criteria3 = criteria3 = {
+            scope: 'subscribeSite'
+        };
+        $scope.changeScope = function(criteria, scope) {
+            criteria.scope = scope;
         };
         $scope.list = function() {
             $scope.siteType = 1;

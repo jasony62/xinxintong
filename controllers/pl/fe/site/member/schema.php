@@ -102,12 +102,17 @@ class schema extends \pl\fe\base {
 			return new \ResponseTimeout();
 		}
 
+		$config = $this->getPostJson();
+
+		$modelMs = $this->model('site\user\memberschema');
+		$modelMs->setOnlyWriteDbConn(true);
+
 		$code = $this->_pageCreate();
-		$i = array(
+		$i = [
 			'siteid' => $this->siteId,
-			'title' => '',
+			'title' => isset($config->title) ? $config->title : '新通讯录',
 			'type' => 'inner',
-			'valid' => 'N',
+			'valid' => (isset($config->valid) && $config->valid === 'Y') ? 'Y' : 'N',
 			'creater' => $user->id,
 			'create_at' => time(),
 			'entry_statement' => '无法确认您是否有权限进行该操作，请先完成【<a href="{{authapi}}">用户身份确认</a>】。',
@@ -116,12 +121,16 @@ class schema extends \pl\fe\base {
 			'url' => TMS_APP_API_PREFIX . "/site/fe/user/member",
 			'code_id' => $code->id,
 			'page_code_name' => $code->name,
-		);
-		$id = $this->model()->insert('xxt_site_member_schema', $i, true);
+		];
+		$id = $modelMs->insert('xxt_site_member_schema', $i, true);
 
-		$q = array('*', 'xxt_site_member_schema', "siteid='$this->siteId' and id='$id'");
+		$q = [
+			'*',
+			'xxt_site_member_schema',
+			"siteid='$this->siteId' and id='$id'",
+		];
 
-		$schema = $this->model()->query_obj_ss($q);
+		$schema = $modelMs->byId($id);
 
 		return new \ResponseData($schema);
 	}
@@ -215,7 +224,6 @@ class schema extends \pl\fe\base {
 		if (!$qyConfig || $qyConfig->joined === 'N') {
 			return new \ResponseError('未与企业号连接，无法同步通讯录');
 		}
-
 
 		$schema = $this->model('site\user\memberschema')->qyabSchemaBySite($site, ['fields' => 'id']);
 		if ($schema === false) {

@@ -352,6 +352,15 @@ define(['frame'], function(ngApp) {
             };
             $scope.doSearch(1);
         });
+        $scope.createMschema = function() {
+            var url;
+            if ($scope.criteria.sid) {
+                url = '/rest/pl/fe/site/member/schema/create?site=' + $scope.criteria.sid;
+                http2.post(url, { valid: 'Y' }, function(rsp) {
+                    location.href = 'http://localhost/rest/pl/fe/site/setting/mschema?site=' + $scope.criteria.sid;
+                });
+            }
+        };
         $scope.doSearch = function(page) {
             page && ($scope.page.at = page);
             var url, filter = '';
@@ -434,8 +443,14 @@ define(['frame'], function(ngApp) {
                 }
             });
         };
-        http2.get('/rest/pl/fe/site/member/schema/list?site=' + $scope.criteria.sid, function(rsp) {
-            $scope.mschemas = rsp.data;
+        $scope.$watch('criteria.sid', function(siteId) {
+            if (siteId) {
+                http2.get('/rest/pl/fe/site/member/schema/list?site=' + siteId, function(rsp) {
+                    $scope.mschemas = rsp.data;
+                });
+            } else {
+                $scope.mschemas = [];
+            }
         });
     }]);
     ngApp.provider.controller('ctrlSiteAccount', ['$scope', '$uibModal', 'http2', function($scope, $uibModal, http2) {

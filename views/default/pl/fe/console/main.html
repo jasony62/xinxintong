@@ -329,7 +329,7 @@
             </nav>
             <div ng-controller='ctrlMember' ng-switch-when="member">
                 <div ng-if='mschemas.length===0'>
-                    <div class='alert alert-info'>请创建团队联系人通讯录</div>
+                    <div class='alert alert-info'>请<a href='' class="alert-link" ng-click="createMschema()">创建</a>团队联系人通讯录</div>
                 </div>
                 <div ng-if='mschemas.length'>
                     <div class='form-group form-inline'>
@@ -354,8 +354,8 @@
                         <table class='table table-bordered'>
                             <thead>
                                 <tr>
-                                    <th style='width:100px'>认证日期</th>
-                                    <th style='width:80px'>完成认证</th>
+                                    <th style='width:100px'>填写日期</th>
+                                    <th style='width:80px'>完成审核</th>
                                     <th ng-if='selectedMschema.attr_name[0]==0'>姓名</th>
                                     <th ng-if='selectedMschema.attr_mobile[0]==0'>手机号</th>
                                     <th ng-if='selectedMschema.attr_email[0]==0'>电子邮件</th>

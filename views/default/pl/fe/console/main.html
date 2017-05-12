@@ -334,8 +334,8 @@
                 <div ng-if='mschemas.length'>
                     <div class='form-group form-inline'>
                         <div class='form-group'>
-                            <select class='form-control' ng-options="mschema.title for mschema in mschemas" ng-model="selectedMschema"></select>
-                        </div>
+                            <select class='form-control' ng-options="mschema.title for mschema in mschemas" ng-model="selected.mschema" ng-change="chooseMschema()"></select>
+                         </div>
                         <div class='form-group'>
                             <select class='form-control' ng-model='page.searchBy' ng-options='s.v as s.n for s in searchBys'></select>
                         </div>
@@ -349,32 +349,38 @@
                                 </span>
                             </div>
                         </div>
+                        <div class='form-group'>
+                            <button class='btn btn-default' ng-click="createEnrollApp(selectedMschema)">生成登记活动</button>
+                        </div>
+                        <div class='form-group'>
+                            <button class='btn btn-default' ng-click="createMschema()">添加通讯录</button>
+                        </div>
                     </div>
                     <div>
                         <table class='table table-bordered'>
                             <thead>
                                 <tr>
-                                    <th style='width:100px'>填写日期</th>
-                                    <th style='width:80px'>完成审核</th>
-                                    <th ng-if='selectedMschema.attr_name[0]==0'>姓名</th>
-                                    <th ng-if='selectedMschema.attr_mobile[0]==0'>手机号</th>
-                                    <th ng-if='selectedMschema.attr_email[0]==0'>电子邮件</th>
-                                    <th style='width:80px' ng-if='selectedMschema.attr_email[0]==0&&selectedMschema.attr_email[4]==1'>邮箱验证</th>
-                                    <th ng-repeat='ea in selectedMschema.extattr'>{{ea.label}}</th>
-                                    <th>操作</th>
+                                    <th style='width:120px'>填写日期</th>
+                                    <th style='width:80px'>通过审核</th>
+                                    <th ng-if='selected.mschema.attr_name[0]==0'>姓名</th>
+                                    <th ng-if='selected.mschema.attr_mobile[0]==0'>手机号</th>
+                                    <th ng-if='selected.mschema.attr_email[0]==0'>电子邮件</th>
+                                    <th style='width:80px' ng-if='selected.mschema.attr_email[0]==0&&selected.mschema.attr_email[4]==1'>邮箱验证</th>
+                                    <th ng-repeat='ea in selected.mschema.extattr'>{{ea.label}}</th>
+                                    <th style='width:48px'>操作</th>
                                 </tr>
                             </thead>
                             <tbody>
                                 <tr ng-repeat='m in members'>
-                                    <td>{{m.create_at*1000|date:'yy-MM-dd'}}</td>
+                                    <td>{{m.create_at*1000|date:'yy-MM-dd HH:mm'}}</td>
                                     <td>{{m.verified==='Y'?'是':'否'}}</td>
-                                    <td ng-if='selectedMschema.attr_name[0]==0'>{{m.name}}</td>
-                                    <td ng-if="selectedMschema.attr_mobile[0]==0">{{m.mobile}}</td>
-                                    <td ng-if="selectedMschema.attr_email[0]==0">{{m.email}}</td>
-                                    <td ng-if="selectedMschema.attr_email[0]==0&&schema.attr_email[4]==1">{{m.email_verified==='Y'?'通过':'未通过'}}</td>
-                                    <td ng-repeat='ea in selectedMschema.extattr'>{{m.extattr[ea.id]}}</td>
+                                    <td ng-if='selected.mschema.attr_name[0]==0'>{{m.name}}</td>
+                                    <td ng-if="selected.mschema.attr_mobile[0]==0">{{m.mobile}}</td>
+                                    <td ng-if="selected.mschema.attr_email[0]==0">{{m.email}}</td>
+                                    <td ng-if="selected.mschema.attr_email[0]==0&&schema.attr_email[4]==1">{{m.email_verified==='Y'?'通过':'未通过'}}</td>
+                                    <td ng-repeat='ea in selected.mschema.extattr'>{{m.extattr[ea.id]}}</td>
                                     <td>
-                                        <a href='javascript:void(0)' ng-click='editMember(m)'>修改</a>
+                                        <a href='' ng-click='editMember(m)'>修改</a>
                                     </td>
                                 </tr>
                             </tbody>

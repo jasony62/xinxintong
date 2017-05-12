@@ -328,30 +328,35 @@ define(['frame'], function(ngApp) {
     }]);
     ngApp.provider.controller('ctrlSiteUser', ['$scope', 'http2', function($scope, http2) {}]);
     ngApp.provider.controller('ctrlMember', ['$scope', '$uibModal', '$location', 'http2', function($scope, $uibModal, $location, http2) {
-        $scope.selectedMschema = null;
-        $scope.$watch('selectedMschema', function(nv) {
-            if (!nv) return;
-            $scope.searchBys = [];
-            nv.attr_name[0] == 0 && $scope.searchBys.push({
-                n: '姓名',
-                v: 'name'
-            });
-            nv.attr_mobile[0] == 0 && $scope.searchBys.push({
-                n: '手机号',
-                v: 'mobile'
-            });
-            nv.attr_email[0] == 0 && $scope.searchBys.push({
-                n: '邮箱',
-                v: 'email'
-            });
-            $scope.page = {
-                at: 1,
-                size: 30,
-                keyword: '',
-                searchBy: $scope.searchBys[0].v
-            };
-            $scope.doSearch(1);
-        });
+        var selected;
+        $scope.selected = selected = {
+            mschema: null
+        };
+        $scope.chooseMschema = function() {
+            var mschema;
+            if (mschema = selected.mschema) {
+                $scope.searchBys = [];
+                mschema.attr_name[0] == 0 && $scope.searchBys.push({
+                    n: '姓名',
+                    v: 'name'
+                });
+                mschema.attr_mobile[0] == 0 && $scope.searchBys.push({
+                    n: '手机号',
+                    v: 'mobile'
+                });
+                mschema.attr_email[0] == 0 && $scope.searchBys.push({
+                    n: '邮箱',
+                    v: 'email'
+                });
+                $scope.page = {
+                    at: 1,
+                    size: 30,
+                    keyword: '',
+                    searchBy: $scope.searchBys[0].v
+                };
+                $scope.doSearch(1);
+            }
+        };
         $scope.createMschema = function() {
             var url;
             if ($scope.criteria.sid) {
@@ -368,7 +373,7 @@ define(['frame'], function(ngApp) {
                 filter = '&kw=' + $scope.page.keyword;
                 filter += '&by=' + $scope.page.searchBy;
             }
-            url = '/rest/pl/fe/site/member/list?site=' + $scope.criteria.sid + '&schema=' + $scope.selectedMschema.id;
+            url = '/rest/pl/fe/site/member/list?site=' + $scope.criteria.sid + '&schema=' + selected.mschema.id;
             url += '&page=' + $scope.page.at + '&size=' + $scope.page.size + filter
             url += '&contain=total';
             http2.get(url, function(rsp) {
@@ -393,7 +398,7 @@ define(['frame'], function(ngApp) {
                 backdrop: 'static',
                 resolve: {
                     schema: function() {
-                        return angular.copy($scope.selectedMschema);
+                        return angular.copy($scope.selected.mschema);
                     }
                 },
                 controller: ['$uibModalInstance', '$scope', 'schema', function($mi, $scope, schema) {
@@ -429,8 +434,8 @@ define(['frame'], function(ngApp) {
                             extattr: data.extattr
                         },
                         i, ea;
-                    for (i in $scope.selectedMschema.extattr) {
-                        ea = $scope.selectedMschema.extattr[i];
+                    for (i in selected.mschema.extattr) {
+                        ea = selected.mschema.extattr[i];
                         newData[ea.id] = rst.data[ea.id];
                     }
                     http2.post('/rest/pl/fe/site/member/update?site=' + $scope.criteria.sid + '&id=' + member.id, newData, function(rsp) {
@@ -443,13 +448,23 @@ define(['frame'], function(ngApp) {
                 }
             });
         };
+        $scope.createEnrollApp = function(oSchema) {
+            http2.post('/rest/pl/fe/matter/enroll/createByMschema?mschema=' + oSchema.id, {}, function(rsp) {
+                location.href = '/rest/pl/fe/matter/enroll?site=' + rsp.data.siteid + '&id=' + rsp.data.id;
+            });
+        };
         $scope.$watch('criteria.sid', function(siteId) {
             if (siteId) {
                 http2.get('/rest/pl/fe/site/member/schema/list?site=' + siteId, function(rsp) {
                     $scope.mschemas = rsp.data;
+                    if ($scope.mschemas.length) {
+                        selected.mschema = $scope.mschemas[0];
+                        $scope.chooseMschema();
+                    }
                 });
             } else {
                 $scope.mschemas = [];
+                selected.mschema = null;
             }
         });
     }]);

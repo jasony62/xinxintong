@@ -21,7 +21,12 @@ provider('srvSite', function() {
                 }
                 return defer.promise;
             },
-            matterList: function(page) {
+            matterList: function(moduleTitle, site, page) {
+                if(!site) {
+                    site = '';
+                } else {
+                    site = site;
+                }
                 if (!page) {
                     page = {
                         at: 1,
@@ -34,8 +39,20 @@ provider('srvSite', function() {
                 } else {
                     page.at++;
                 }
-                var defer = $q.defer();
-                http2.get('/rest/pl/fe/site/matterList?' + page._j(), function(rsp) {
+                var url, title = moduleTitle, defer = $q.defer();
+                switch(title) {
+                    case 'subscribeSite':
+                        url = '/rest/pl/fe/site/matterList';
+                    break;
+                    case 'contributeSite':
+                        url = '/rest/pl/fe/site/contribute/list';
+                    break;
+                    case 'favorSite':
+                        url = '/rest/pl/fe/site/favor/list';
+                    break;
+                }
+                url += '?' + page._j() + '&site=' + site;
+                http2.get(url, function(rsp) {
                     page.total = rsp.data.total;
                     defer.resolve({ matters: rsp.data.matters, page: page });
                 });

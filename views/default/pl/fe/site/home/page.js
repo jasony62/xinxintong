@@ -20,7 +20,7 @@ define(['main'], function(ngApp) {
                 var name = $scope.site[page + '_page_name'];
                 if (name && name.length) {
                     http2.get('/rest/pl/fe/site/pageReset?site=' + $scope.site.id + '&page=' + page, function(rsp) {
-                        location.href = '/rest/pl/fe/code?site=' + $scope.site.id + '&name=' + name;
+                        /*location.href = '/rest/pl/fe/code?site=' + $scope.site.id + '&name=' + name;*/
                     });
                 } else {
                     http2.get('/rest/pl/fe/site/pageCreate?site=' + $scope.site.id + '&page=' + page, function(rsp) {
@@ -122,6 +122,51 @@ define(['main'], function(ngApp) {
             if (!site.home_carousel) site.home_carousel = [];
             slides = site.home_carousel;
             $scope.slides = slides;
+        });
+    }]);
+    ngApp.provider.controller('ctrlHomeQrcode', ['$scope', 'http2', 'mediagallery', function($scope, http2, mediagallery) {
+        function update(name) {
+            var p = {},
+                site = $scope.site;
+            p[name] = site[name];
+            http2.post('/rest/pl/fe/site/update?site=' + site.id, p, function(rsp) {});
+        }
+        var qrcodes;
+        $scope.add = function() {
+            var options = {
+                callback: function(url) {
+                    qrcodes.push({
+                        picUrl: url + '?_=' + (new Date() * 1)
+                    });
+                    update('home_qrcode_group');
+                }
+            };
+            mediagallery.open($scope.site.id, options);
+        };
+        $scope.doTip = function(tip) {
+            update('home_qrcode_group');
+        }
+        $scope.remove = function(slide, index) {
+            qrcodes.splice(index, 1);
+            update('home_qrcode_group');
+        };
+        $scope.up = function(slide, index) {
+            if (index === 0) return;
+            qrcodes.splice(index, 1);
+            qrcodes.splice(--index, 0, slide);
+            update('home_qrcode_group');
+        };
+        $scope.down = function(slide, index) {
+            if (index === qrcodes.length - 1) return;
+            qrcodes.splice(index, 1);
+            qrcodes.splice(++index, 0, slide);
+            update('home_qrcode_group');
+        };
+        $scope.$watch('site', function(site) {
+            if (site === undefined) return;
+            if (!site.home_qrcode_group) site.home_qrcode_group = [];
+            qrcodes = site.home_qrcode_group;
+            $scope.qrcodes = qrcodes;
         });
     }]);
     ngApp.provider.controller('ctrlHomeChannel', ['$scope', 'http2', 'mattersgallery', 'noticebox', function($scope, http2, mattersgallery, noticebox) {

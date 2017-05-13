@@ -356,7 +356,7 @@ ngApp.directive('tmsFileInput', ['$q', 'ls', 'tmsDynaPage', function($q, LS, tms
         }]
     }
 }]);
-ngApp.controller('ctrlInput', ['$scope', '$http', '$q', '$uibModal', 'Input', 'ls', function($scope, $http, $q, $uibModal, Input, LS) {
+ngApp.controller('ctrlInput', ['$scope', '$http', '$q', '$uibModal', '$timeout', 'Input', 'ls', function($scope, $http, $q, $uibModal, $timeout, Input, LS) {
     function setMember(user, member) {
         var member2, eles;
         if (user && member && member.schema_id && user.members) {
@@ -570,6 +570,13 @@ ngApp.controller('ctrlInput', ['$scope', '$http', '$q', '$uibModal', 'Input', 'l
                 submitState.modified = true;
             }
         }, true);
+        // 登录提示
+        if (!params.user.unionid) {
+            var domTip = document.querySelector('#appLoginTip');
+            var evt = document.createEvent("HTMLEvents");
+            evt.initEvent("show", false, false);
+            domTip.dispatchEvent(evt);
+        }
     });
     $scope.submit = function(event, nextAction) {
         var checkResult;

@@ -408,16 +408,18 @@ class way_model extends \TMS_MODEL {
 			$sites = $this->siteList(true);
 			foreach ($sites as $siteId) {
 				$cookieUser = $this->getCookieUser($siteId);
-				$account = $modelAct->byId($cookieUser->uid);
-				if (empty($account->unionid)) {
-					$unbounds[$siteId] = $cookieUser;
-				} else {
-					if ($unionid === false) {
-						$unionid = $account->unionid;
+				if ($cookieUser) {
+					$account = $modelAct->byId($cookieUser->uid);
+					if (empty($account->unionid)) {
+						$unbounds[$siteId] = $cookieUser;
 					} else {
-						if ($account->unionid !== $unionid) {
-							// 清除不是同一注册用户下的数据
-							$this->cleanCookieUser($siteId);
+						if ($unionid === false) {
+							$unionid = $account->unionid;
+						} else {
+							if ($account->unionid !== $unionid) {
+								// 清除不是同一注册用户下的数据
+								$this->cleanCookieUser($siteId);
+							}
 						}
 					}
 				}

@@ -67,9 +67,9 @@ class record_model extends \TMS_MODEL {
 		if (!empty($oUser)) {
 			$oUserOpenids = $this->model('site\user\account')->byId($oUser->uid, ['fields' => 'wx_openid,yx_openid,qy_openid']);
 			if ($oUserOpenids) {
-				$record['wx_openid'] = $userOpenids->wx_openid;
-				$record['yx_openid'] = $userOpenids->yx_openid;
-				$record['qy_openid'] = $userOpenids->qy_openid;
+				$record['wx_openid'] = $oUserOpenids->wx_openid;
+				$record['yx_openid'] = $oUserOpenids->yx_openid;
+				$record['qy_openid'] = $oUserOpenids->qy_openid;
 			}
 		}
 

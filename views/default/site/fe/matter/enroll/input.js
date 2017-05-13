@@ -510,9 +510,9 @@ ngApp.controller('ctrlInput', ['$scope', '$http', '$q', '$uibModal', '$timeout',
             tasksOfBeforeSubmit.push(fn);
         }
     };
+    var hasSetMember = false;
     $scope.$on('xxt.app.enroll.ready', function(event, params) {
         var schemasById,
-            hasSetMember = false,
             dataOfRecord, p, value;
 
         $scope.schemasById = schemasById = params.app._schemasById;
@@ -525,7 +525,6 @@ ngApp.controller('ctrlInput', ['$scope', '$http', '$q', '$uibModal', '$timeout',
                         dataOfRecord.member = JSON.parse(dataOfRecord.member);
                     }
                     $scope.data.member = angular.extend($scope.data.member, dataOfRecord.member);
-                    hasSetMember = true;
                 } else if (undefined !== schemasById[p]) {
                     var schema = schemasById[p];
                     if (schema.type === 'score') { // is object
@@ -558,12 +557,13 @@ ngApp.controller('ctrlInput', ['$scope', '$http', '$q', '$uibModal', '$timeout',
         if (window.localStorage) {
             var cached = submitState.fromCache();
             if (cached) {
+                if (cached.member) {
+                    delete cached.member;
+                }
                 angular.extend($scope.data, cached);
                 submitState.modified = true;
             }
         }
-        // 无论是否有登记记录都自动填写自定义用户信息
-        !hasSetMember && setMember(params.user, $scope.data.member);
         // 跟踪数据变化
         $scope.$watch('data', function(nv, ov) {
             if (nv !== ov) {
@@ -576,6 +576,12 @@ ngApp.controller('ctrlInput', ['$scope', '$http', '$q', '$uibModal', '$timeout',
             var evt = document.createEvent("HTMLEvents");
             evt.initEvent("show", false, false);
             domTip.dispatchEvent(evt);
+        }
+    });
+    $scope.$watch('data.member.schema_id', function(schemaId) {
+        if (false === hasSetMember && schemaId && $scope.user) {
+            setMember($scope.user, $scope.data.member);
+            hasSetMember = true;
         }
     });
     $scope.submit = function(event, nextAction) {

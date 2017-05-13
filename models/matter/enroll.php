@@ -205,43 +205,13 @@ class enroll_model extends app_base {
 		return true;
 	}
 	/**
-	 * 检查用户是否已经登记
-	 *
-	 * 如果设置轮次，只检查当前轮次是否已经登记
-	 *
-	 * @param object $app
-	 * @param object $user
-	 *
-	 */
-	public function userEnrolled(&$app, &$user) {
-		if (empty($app) || empty($user->uid)) {
-			return false;
-		}
-		$q = [
-			'count(*)',
-			'xxt_enroll_record',
-			"state=1 and enroll_at>0 and aid='{$app->id}' and userid='{$user->uid}'",
-		];
-		/* 当前轮次 */
-		if ($app->multi_rounds === 'Y' || (isset($app->roundCron) && isset($app->roundCron->enabled) && $app->roundCron->enabled === 'Y')) {
-			$modelRun = $this->model('matter\enroll\round');
-			if ($activeRound = $modelRun->getActive($app)) {
-				$q[2] .= " and rid='$activeRound->rid'";
-			}
-		}
-
-		$rst = (int) $this->query_val_ss($q);
-
-		return $rst > 0;
-	}
-	/**
 	 * 根据邀请到的用户数量进行的排名
 	 */
 	public function rankByFollower($mpid, $aid, $openid) {
 		$modelRec = \TMS_APP::M('matter\enroll\record');
 		$user = new \stdClass;
 		$user->openid = $openid;
-		$last = $modelRec->getLast($aid, $user);
+		$last = $modelRec->lastByUser($aid, $user);
 
 		$q = array(
 			'count(*)',

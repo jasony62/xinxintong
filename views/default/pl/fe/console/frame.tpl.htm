@@ -18,13 +18,13 @@
 <body ng-controller='ctrlFrame'>
     <div class='pl-layout'>
         <!-- logo + leftSide -->
-        <div class='pl-layout-leftnav ng-cloak' ng-cloak>
+        <div class='pl-layout-leftnav'>
             <div class='pl-layout-leftnav-header'>
                 <a class='navbar-brand' href='/rest/home' target='_self'>
                     <?php echo APP_TITLE;?>
                 </a>
             </div>
-            <ul class="nav nav-tabs nav-stacked" ng-if="subView=='main'">
+            <ul class="nav nav-tabs nav-stacked ng-cloak" ng-cloak ng-if="subView=='main'">
                 <li ng-class="{'active':criteria2.scope==='top'}"><a href='' ng-click="changeScope(criteria2, 'top')">置顶</a></li>
                 <li ng-class="{'active':criteria2.scope==='recent'}"><a href='' ng-click="changeScope(criteria2, 'recent')">最近</a></li>
                 <hr />
@@ -40,7 +40,7 @@
                 <hr />
                 <li><a href="" uib-popover-template="'addMatter.html'" popover-placement="right" popover-append-to-body='true' popover-trigger="outsideClick"><span>新建</span></a></li>
             </ul>
-            <ul class="nav nav-tabs nav-stacked" ng-if="subView=='friend'">
+            <ul class="nav nav-tabs nav-stacked ng-cloak" ng-cloak ng-if="subView=='friend'">
                 <li ng-class="{'active':criteria3.scope==='subscribeSite'}"><a href='' ng-click="changeScope(criteria3, 'subscribeSite')">关注</a></li>
                 <li ng-class="{'active':criteria3.scope==='contributeSite'}"><a href='' ng-click="changeScope(criteria3, 'contributeSite')">投稿</a></li>
                 <hr>
@@ -50,7 +50,7 @@
         <!-- navtop + container -->
         <div class='pl-layout-main pl-layout-main-topnav'>
             <nav class='navbar navbar-default pl-navbar-fixed-top'>
-                <div class='container-fluid'>
+                <div class='container-fluid ng-cloak' ng-cloak>
                     <div class="navbar-header">
                         <button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target='#navbar-collapse-1'>
                             <span class="sr-only">Toggle navigation</span>

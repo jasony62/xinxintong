@@ -50,7 +50,7 @@ class main extends base {
 		} else {
 			if (empty($page)) {
 				/* 计算打开哪个页面 */
-				$oOpenPage = $this->_defaultPage($site, $oApp, true, $ignoretime);
+				$oOpenPage = $this->_defaultPage($oApp, true, $ignoretime);
 			} else {
 				$oOpenPage = $this->model('matter\enroll\page')->byName($oApp->id, $page);
 			}
@@ -147,8 +147,8 @@ class main extends base {
 	 * 2、如果已经登记过，且指定了登记过访问页面，进入指定的页面
 	 * 3、如果已经登记过，且没有指定登记过访问页面，进入第一个查看页
 	 */
-	private function _defaultPage($site, &$oApp, $redirect = false, $ignoretime = 'N') {
-		$user = $this->who;
+	private function _defaultPage(&$oApp, $redirect = false, $ignoretime = 'N') {
+		$oUser = $this->who;
 		$oOpenPage = null;
 		$modelPage = $this->model('matter\enroll\page');
 
@@ -168,7 +168,8 @@ class main extends base {
 
 		if ($oOpenPage === null) {
 			// 根据登记状态确定进入页面
-			$userEnrolled = $this->modelApp->userEnrolled($oApp, $user);
+			$modelRec = $this->model('matter\enroll\record');
+			$userEnrolled = $modelRec->lastByUser($oApp, $oUser);
 			if ($userEnrolled) {
 				if (empty($oApp->enrolled_entry_page)) {
 					$pages = $modelPage->byApp($oApp->id);
@@ -250,15 +251,15 @@ class main extends base {
 			$params['activeRound'] = $this->model('matter\enroll\round')->getActive($oApp);
 		}
 
+		$modelRec = $this->model('matter\enroll\record');
 		if ($page !== 'repos' && $page !== 'remark') {
-			$userEnrolled = $this->modelApp->userEnrolled($oApp, $user);
+			$userEnrolled = $modelRec->lastByUser($oApp, $user);
 			/* 自动登记???，解决之要打开了页面就登记？ */
 			if (!$userEnrolled && $oApp->can_autoenroll === 'Y' && $oOpenPage->autoenroll_onenter === 'Y') {
-				$modelRec = $this->model('matter\enroll\record');
 				$options = [
 					'fields' => 'enroll_key,enroll_at',
 				];
-				$lastRecord = $modelRec->getLast($$oApp->id, $user, $options);
+				$lastRecord = $modelRec->lastByUser($$oApp->id, $user, $options);
 				if (false === $lastRecord) {
 					$modelRec->add($site, $oApp, $user, (empty($posted->referrer) ? '' : $posted->referrer));
 				} else if ($lastRecord->enroll_at === '0') {
@@ -272,7 +273,7 @@ class main extends base {
 
 			/* 计算打开哪个页面 */
 			if (empty($page)) {
-				$oOpenPage = $this->_defaultPage($site, $oApp, false, $ignoretime);
+				$oOpenPage = $this->_defaultPage($oApp, false, $ignoretime);
 			} else {
 				$modelPage = $this->model('matter\enroll\page');
 				$oOpenPage = $modelPage->byName($oApp->id, $page);
@@ -284,14 +285,13 @@ class main extends base {
 
 			/* 是否需要返回登记记录 */
 			if (($oOpenPage->type === 'I' && $newRecord !== 'Y') || $page === 'remark') {
-				$modelRec = $this->model('matter\enroll\record');
 				if (empty($ek)) {
 					if ($oApp->open_lastroll === 'Y') {
 						/* 获得最后一条登记数据。记录有可能未进行过数据填写 */
 						$options = [
 							'fields' => '*',
 						];
-						$lastRecord = $modelRec->getLast($oApp, $user, $options);
+						$lastRecord = $modelRec->lastByUser($oApp, $user, $options);
 						$params['record'] = $lastRecord;
 					}
 				} else {
@@ -300,7 +300,6 @@ class main extends base {
 				}
 			}
 		} else if ($page === 'remark' && !empty($ek)) {
-			$modelRec = $this->model('matter\enroll\record');
 			$record = $modelRec->byId($ek);
 			$params['record'] = $record;
 		}

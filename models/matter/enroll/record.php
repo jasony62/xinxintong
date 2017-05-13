@@ -7,24 +7,23 @@ class record_model extends \TMS_MODEL {
 	/**
 	 * 活动登记（不包括登记数据）
 	 *
-	 * @param string $siteId
 	 * @param object $app
-	 * @param object $user [uid,nickname]
+	 * @param object $oUser [uid,nickname]
 	 */
-	public function enroll($siteId, &$oApp, $user = null, $options = []) {
+	public function enroll(&$oApp, $oUser = null, $options = []) {
 		$referrer = isset($options['referrer']) ? $options['referrer'] : '';
 		$enrollAt = isset($options['enrollAt']) ? $options['enrollAt'] : time();
 
-		$ek = $this->genKey($siteId, $oApp->id);
+		$ek = $this->genKey($oApp->siteid, $oApp->id);
 
 		$record = [
 			'aid' => $oApp->id,
-			'siteid' => $siteId,
-			'mpid' => $siteId,
+			'siteid' => $oApp->siteid,
+			'mpid' => $oApp->siteid,
 			'enroll_at' => $enrollAt,
 			'first_enroll_at' => $enrollAt,
 			'enroll_key' => $ek,
-			'userid' => empty($user->uid) ? '' : $user->uid,
+			'userid' => empty($oUser->uid) ? '' : $oUser->uid,
 			'referrer' => $referrer,
 		];
 		/* 记录所属轮次 */
@@ -44,15 +43,15 @@ class record_model extends \TMS_MODEL {
 			} else {
 				if (isset($entryRule->scope) && $entryRule->scope === 'member') {
 					foreach ($entryRule->member as $schemaId => $rule) {
-						if (isset($user->members->{$schemaId})) {
-							$record['nickname'] = $user->members->{$schemaId}->name;
+						if (isset($oUser->members->{$schemaId})) {
+							$record['nickname'] = $oUser->members->{$schemaId}->name;
 							break;
 						}
 					}
 				} else if (isset($entryRule->scope) && $entryRule->scope === 'sns') {
 					foreach ($entryRule->sns as $snsName => $rule) {
-						if (isset($user->sns->{$snsName})) {
-							$snsUser = $user->sns->{$snsName};
+						if (isset($oUser->sns->{$snsName})) {
+							$snsUser = $oUser->sns->{$snsName};
 							$record['nickname'] = isset($snsUser->nickname) ? $this->escape($snsUser->nickname) : '';
 							$record['headimgurl'] = isset($snsUser->headimgurl) ? $snsUser->headimgurl : '';
 							break;
@@ -60,14 +59,14 @@ class record_model extends \TMS_MODEL {
 					}
 				} else if (empty($entryRule->scope) || $entryRule->scope === 'none') {
 					/* 不限制用户访问来源 */
-					$record['nickname'] = empty($user->nickname) ? '' : $this->escape($user->nickname);
+					$record['nickname'] = empty($oUser->nickname) ? '' : $this->escape($oUser->nickname);
 				}
 			}
 		}
 		/* 登记用户的社交账号信息 */
-		if (!empty($user)) {
-			$userOpenids = $this->model('site\user\account')->byId($user->uid, ['fields' => 'wx_openid,yx_openid,qy_openid']);
-			if ($userOpenids) {
+		if (!empty($oUser)) {
+			$oUserOpenids = $this->model('site\user\account')->byId($oUser->uid, ['fields' => 'wx_openid,yx_openid,qy_openid']);
+			if ($oUserOpenids) {
 				$record['wx_openid'] = $userOpenids->wx_openid;
 				$record['yx_openid'] = $userOpenids->yx_openid;
 				$record['qy_openid'] = $userOpenids->qy_openid;
@@ -81,12 +80,12 @@ class record_model extends \TMS_MODEL {
 	/**
 	 * 保存登记的数据
 	 *
-	 * @param object $user [uid]
+	 * @param object $oUser [uid]
 	 * @param object $oApp
 	 * @param string $ek
 	 * @param array $submitData 用户提交的数据
 	 */
-	public function setData($user, &$oApp, $ek, $submitData, $submitkey = '', $firstSubmit = false, $assignScore = null) {
+	public function setData($oUser, &$oApp, $ek, $submitData, $submitkey = '', $firstSubmit = false, $assignScore = null) {
 		if (empty($submitData)) {
 			return [true];
 		}
@@ -97,7 +96,7 @@ class record_model extends \TMS_MODEL {
 		}
 
 		if (empty($submitkey)) {
-			$submitkey = empty($user) ? '' : $user->uid;
+			$submitkey = empty($oUser) ? '' : $oUser->uid;
 		}
 
 		$siteId = $oApp->siteid;
@@ -283,7 +282,7 @@ class record_model extends \TMS_MODEL {
 					'rid' => $oRecord->rid,
 					'enroll_key' => $ek,
 					'submit_at' => $submitAt,
-					'userid' => isset($user->uid) ? $user->uid : '',
+					'userid' => isset($oUser->uid) ? $oUser->uid : '',
 					'schema_id' => $schemaId,
 					'value' => $this->escape($treatedValue),
 				];
@@ -302,7 +301,7 @@ class record_model extends \TMS_MODEL {
 					$valueModifyLogs[] = $newModifyLog;
 					$schemaValue = [
 						'submit_at' => $submitAt,
-						'userid' => isset($user->uid) ? $user->uid : '',
+						'userid' => isset($oUser->uid) ? $oUser->uid : '',
 						'value' => $this->escape($treatedValue),
 						'modify_log' => $this->toJson($valueModifyLogs),
 					];
@@ -402,11 +401,11 @@ class record_model extends \TMS_MODEL {
 	/**
 	 * 获得用户的登记清单
 	 */
-	public function &byUser($appId, &$user) {
+	public function &byUser($appId, &$oUser) {
 		$q = [
 			'*',
 			'xxt_enroll_record',
-			["state" => 1, "aid" => $appId, "userid" => $user->uid],
+			["state" => 1, "aid" => $appId, "userid" => $oUser->uid],
 		];
 
 		$q2 = ['o' => 'enroll_at desc'];
@@ -621,9 +620,9 @@ class record_model extends \TMS_MODEL {
 		if (!empty($creater)) {
 			$w .= " and e.userid='$creater'";
 		} else if (!empty($inviter)) {
-			$user = new \stdClass;
-			$user->openid = $inviter;
-			$inviterek = $this->getLastKey($oApp->siteid, $aid, $user);
+			$oUser = new \stdClass;
+			$oUser->openid = $inviter;
+			$inviterek = $this->lastKeyByUser($oApp, $oUser);
 			$w .= " and e.referrer='ek:$inviterek'";
 		}
 
@@ -1111,24 +1110,50 @@ class record_model extends \TMS_MODEL {
 	}
 	/**
 	 * 获得指定用户最后一次登记记录
+	 *
+	 * 如果用户是注册用户，那么获得这个注册用户，在活动所属团队下，对应的所有站点用户账号填写的内容
+	 *
 	 * 如果设置轮次，只返回当前轮次的情况
 	 */
-	public function getLast($app, $user, $options = []) {
+	public function lastByUser($oApp, $oUser, $options = []) {
 		$fields = isset($options['fields']) ? $options['fields'] : '*';
 
 		$q = [
 			$fields,
 			'xxt_enroll_record',
-			"siteid='{$app->siteid}' and aid='{$app->id}' and state=1",
+			"siteid='{$oApp->siteid}' and aid='{$oApp->id}' and state=1",
 		];
-		$q[2] .= " and userid='{$user->uid}'";
-		if ($activeRound = $this->model('matter\enroll\round')->getActive($app)) {
+		/* 指定登记用户 */
+		if (empty($oUser->unionid)) {
+			$q[2] .= " and userid='{$oUser->uid}'";
+		} else {
+			$modelAcnt = $this->model('site\user\account');
+			$aSiteUsers = $modelAcnt->byUnionid($oUser->unionid, ['siteid' => $oApp->siteid, 'fields' => 'uid']);
+			if (count($aSiteUsers) === 1) {
+				$q[2] .= " and userid='{$aSiteUsers[0]->uid}'";
+			} else {
+				$q[2] .= " and userid in (";
+				foreach ($aSiteUsers as $index => $aSiteUser) {
+					if ($index > 0) {
+						$q[2] .= ',';
+					}
+					$q[2] .= "'{$aSiteUser->uid}'";
+				}
+				$q[2] .= ")";
+			}
+		}
+
+		/* 指定登记轮次 */
+		if ($activeRound = $this->model('matter\enroll\round')->getActive($oApp)) {
 			$q[2] .= " and rid='$activeRound->rid'";
 		}
+
+		/* 登记的时间 */
 		$q2 = [
 			'o' => 'enroll_at desc',
 			'r' => ['o' => 0, 'l' => 1],
 		];
+
 		$records = $this->query_objs_ss($q, $q2);
 
 		$record = count($records) === 1 ? $records[0] : false;
@@ -1142,13 +1167,12 @@ class record_model extends \TMS_MODEL {
 	 * 获得指定用户最后一次登记的key
 	 * 如果设置轮次，只检查当前轮次的情况
 	 *
-	 * @param string $siteId
-	 * @param object $app
-	 * @param object $user
+	 * @param object $oApp
+	 * @param object $oUser
 	 *
 	 */
-	public function getLastKey($siteId, &$app, &$user) {
-		$last = $this->getLast($siteId, $app, $user);
+	public function lastKeyByUser(&$oApp, &$oUser) {
+		$last = $this->lastByUser($oApp, $oUser);
 
 		return $last ? $last->enroll_key : false;
 	}

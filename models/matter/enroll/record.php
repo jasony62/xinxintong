@@ -362,7 +362,7 @@ class record_model extends \TMS_MODEL {
 				$oRecord->score = json_decode($oRecord->score);
 			}
 			if ($verbose === 'Y') {
-				$oRecord->verbose = $this->_dataByRecord($ek);
+				$oRecord->verbose = $this->dataByRecord($ek);
 			}
 			if (!empty($oRecord->rid)) {
 				$oRecord->round = new \stdClass;
@@ -377,26 +377,35 @@ class record_model extends \TMS_MODEL {
 		return $oRecord;
 	}
 	/**
-	 *
+	 * 获得指定登记记录登记数据的详细信息
 	 */
-	private function _dataByRecord($ek, $options = []) {
-		$result = new \stdClass;
-		$fields = isset($options['fields']) ? $options['fields'] : 'schema_id,value,remark_num,last_remark_at,score,modify_log';
+	public function dataByRecord($ek, $options = []) {
+		$fields = isset($options['fields']) ? $options['fields'] : 'id,schema_id,value,remark_num,last_remark_at,score,modify_log,like_log,like_num';
+
 		$q = [
 			$fields,
 			'xxt_enroll_record_data',
 			['enroll_key' => $ek, 'state' => 1],
 		];
-		$data = $this->query_objs_ss($q);
-		if (count($data)) {
-			foreach ($data as $schemaData) {
-				$schemaId = $schemaData->schema_id;
-				unset($schemaData->schema_id);
-				$result->{$schemaId} = $schemaData;
-			}
-		}
 
-		return $result;
+		if (isset($options['schema'])) {
+			$q[2]['schema_id'] = $options['schema'];
+			$data = $this->query_obj_ss($q);
+
+			return $data;
+		} else {
+			$result = new \stdClass;
+			$data = $this->query_objs_ss($q);
+			if (count($data)) {
+				foreach ($data as $schemaData) {
+					$schemaId = $schemaData->schema_id;
+					unset($schemaData->schema_id);
+					$result->{$schemaId} = $schemaData;
+				}
+			}
+
+			return $result;
+		}
 	}
 	/**
 	 * 获得用户的登记清单
@@ -948,7 +957,7 @@ class record_model extends \TMS_MODEL {
 
 		// 查询参数
 		$q = [
-			'enroll_key,value',
+			'enroll_key,value,like_log,like_num',
 			"xxt_enroll_record_data",
 			"state=1 and aid='{$oApp->id}' and schema_id='{$schemaId}' and value<>''",
 		];
@@ -1015,6 +1024,8 @@ class record_model extends \TMS_MODEL {
 			foreach ($records as &$record) {
 				$rec = $this->byId($record->enroll_key, ['fields' => 'rid,nickname,data,enroll_at']);
 				$rec->enroll_key = $record->enroll_key;
+				$rec->like_log = empty($record->like_log) ? new \stdClass : json_decode($record->like_log);
+				$rec->like_num = $record->like_num;
 				$result->records[] = $rec;
 			}
 		}
@@ -1477,56 +1488,6 @@ class record_model extends \TMS_MODEL {
 				$result[] = [$schemaB, $schemaA];
 			}
 		}
-
-		return $result;
-	}
-	/**
-	 * 指定用户是否已经点了赞
-	 *
-	 * @param string $userid
-	 * @param string $ek
-	 */
-	public function hasUserScored($userid, $ek) {
-		$q = [
-			'score',
-			'xxt_enroll_record_score',
-			['enroll_key' => $ek, 'userid' => $userid],
-		];
-
-		return 1 === (int) $this->query_val_ss($q);
-	}
-	/**
-	 * 登记记录总的赞数
-	 *
-	 * @param string $ek
-	 */
-	public function scoreById($ek) {
-		$q = [
-			'count(*)',
-			'xxt_enroll_record_score',
-			['enroll_key' => $ek],
-		];
-		$score = (int) $this->query_val_ss($q);
-
-		return $score;
-	}
-	/**
-	 * 获得指定登记记录的评论
-	 */
-	public function listRemark($ek, $schemaId = '', $page = 1, $size = 10, $options = []) {
-		$fields = isset($options['fields']) ? $options['fields'] : '*';
-
-		$result = new \stdClass;
-		$q = [
-			$fields,
-			'xxt_enroll_record_remark',
-			['enroll_key' => $ek, 'schema_id' => $schemaId],
-		];
-		$q2 = ['o' => 'create_at desc', 'r' => ['o' => ($page - 1) * $size, 'l' => $size]];
-		$result->remarks = $this->query_objs_ss($q, $q2);
-
-		$q[0] = 'count(*)';
-		$result->total = (int) $this->query_val_ss($q);
 
 		return $result;
 	}

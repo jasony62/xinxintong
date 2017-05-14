@@ -48,6 +48,16 @@ ngApp.controller('ctrlRemark', ['$scope', '$q', '$http', function($scope, $q, $h
             $scope.newRemark.content = '';
         });
     };
+    $scope.likeRemark = function(oRemark) {
+        var url;
+        url = '/rest/site/fe/matter/enroll/remark/like';
+        url += '?site=' + oApp.siteid;
+        url += '&remark=' + oRemark.id;
+        $http.get(url).success(function(rsp) {
+            oRemark.like_log = rsp.data.like_log;
+            oRemark.like_num = rsp.data.like_num;
+        });
+    };
     $scope.$on('xxt.app.enroll.ready', function(event, params) {
         oApp = params.app;
         $scope.record = params.record;

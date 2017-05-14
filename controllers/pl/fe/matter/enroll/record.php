@@ -1001,7 +1001,7 @@ class record extends \pl\fe\matter\base {
 		if (false === ($user = $this->accountUser())) {
 			return new \ResponseTimeout();
 		}
-		$result = $this->model('matter\enroll\record')->listRemark($ek, $page, $size);
+		$result = $this->model('matter\enroll\remark')->listByRecord($ek, $page, $size);
 
 		return new \ResponseData($result);
 	}

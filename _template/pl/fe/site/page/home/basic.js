@@ -21,7 +21,6 @@ ngApp.provider.controller('ctrlHome', ['$scope', '$http', 'tmsFavor', 'tmsForwar
             $scope.templates = rsp.data;
         });
     };
-    var lastId;
     $scope.moreMatters = function(id) {
         $scope.cTotal[id].pageAt++;
         $scope.page.at = $scope.cTotal[id].pageAt;

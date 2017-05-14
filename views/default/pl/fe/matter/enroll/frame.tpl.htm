@@ -27,7 +27,7 @@
             <!--侧边栏-->
             <ul class="nav nav-tabs nav-stacked">
                 <li>
-                    <a href='' ng-click="opened=opened==='edit'?false:'edit'">编辑 <span class="caret"></span></a>
+                    <a href='' ng-click="opened=opened==='edit'?false:'edit';switchTo('schema')">编辑 <span class="caret"></span></a>
                     <ul class="nav nav-tabs nav-stacked" ng-style="{'height':opened==='edit'?'126px':'0'}">
                         <li ng-class="{'active':subView==='main'}">
                             <a href='' ng-click="switchTo('main')">活动定义</a>
@@ -44,7 +44,7 @@
                     <a href='' ng-click="opened='';switchTo('publish')">发布</a>
                 </li>
                 <li>
-                    <a href='' ng-click="opened=opened==='data'?false:'data'">数据 <span class="caret"></span></a>
+                    <a href='' ng-click="opened=opened==='data'?false:'data';switchTo('record')">数据 <span class="caret"></span></a>
                     <ul class="nav nav-tabs nav-stacked" ng-style="{'height':opened==='data'?'84px':'0'}">
                         <li ng-class="{'active':subView==='record'}">
                             <a href='' ng-click="switchTo('record')">详细数据</a>

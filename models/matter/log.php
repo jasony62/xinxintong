@@ -481,36 +481,36 @@ class log_model extends \TMS_MODEL {
 		} else {
 			$page = $options['page'];
 		}
-		
+
 		if (isset($options['bySite']) && isset($options['byType'])) {
 			$q = array();
-			$q[0] = "'".$options['byType']."' as matter_type,t.siteid,t.id matter_id,t.title matter_title,t.create_at operate_at,a.nickname operator_name";
+			$q[0] = "'" . $options['byType'] . "' as matter_type,t.siteid,t.id matter_id,t.title matter_title,t.create_at operate_at,a.nickname operator_name";
 			$q[1] = 'xxt_' . $options['byType'] . ' t,account a';
 			$q[2] = "t.creater = a.uid and t.siteid = '" . $this->escape($options['bySite']) . "'";
-			switch ($options['byType']){
-				case 'wall':
-					$q[0] .= ',t.summary matter_summary,t.pic matter_pic';
-					break;
-				case 'custom':
-					$q[0] .= ',t.summary matter_summary,t.pic matter_pic';
-					$q[1] = 'xxt_article t,account a';
-					$q[2] .= " and t.custom_body='Y' and t.state<>0 and t.finished='Y'";
-					break;
-				case 'article':
-					$q[0] .= ',t.summary matter_summary,t.pic matter_pic';
-					$q[2] .= " and t.custom_body='N' and t.state<>0 and t.finished='Y'";
-					break;
-				case 'text':
-					$q[2] .= " and t.state<>0";
-					break;
-				case 'enroll':
-					$q[0] .= ',t.summary matter_summary,t.pic matter_pic,t.scenario matter_scenario';
-					$q[2] .= " and t.state<>0";
-					break;
-				default:
-					$q[0] .= ',t.summary matter_summary,t.pic matter_pic';
-					$q[2] .= " and t.state<>0";
-					break;
+			switch ($options['byType']) {
+			case 'wall':
+				$q[0] .= ',t.summary matter_summary,t.pic matter_pic';
+				break;
+			case 'custom':
+				$q[0] .= ',t.summary matter_summary,t.pic matter_pic';
+				$q[1] = 'xxt_article t,account a';
+				$q[2] .= " and t.custom_body='Y' and t.state<>0 and t.finished='Y'";
+				break;
+			case 'article':
+				$q[0] .= ',t.summary matter_summary,t.pic matter_pic';
+				$q[2] .= " and t.custom_body='N' and t.state<>0 and t.finished='Y'";
+				break;
+			case 'text':
+				$q[2] .= " and t.state<>0";
+				break;
+			case 'enroll':
+				$q[0] .= ',t.summary matter_summary,t.pic matter_pic,t.scenario matter_scenario';
+				$q[2] .= " and t.state<>0";
+				break;
+			default:
+				$q[0] .= ',t.summary matter_summary,t.pic matter_pic';
+				$q[2] .= " and t.state<>0";
+				break;
 			}
 			if (isset($options['byTitle'])) {
 				$q[2] .= " and t.title like '%" . $this->escape($options['byTitle']) . "%'";
@@ -520,7 +520,7 @@ class log_model extends \TMS_MODEL {
 				'r' => ['o' => ($page->at - 1) * $page->size, 'l' => $page->size],
 				'o' => ['t.create_at desc'],
 			];
-		}else{
+		} else {
 			$q = [
 				$fields,
 				'xxt_log_matter_op',

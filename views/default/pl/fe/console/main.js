@@ -1,22 +1,7 @@
 define(['frame'], function(ngApp) {
     'use strict';
-    ngApp.provider.controller('ctrlMain', ['$scope', '$uibModal', 'templateShop', 'http2', 'noticebox', function($scope, $uibModal, templateShop, http2, noticebox) {
-        $scope.matterNames = {
-            'article': '单图文',
-            'news': '多图文',
-            'channel': '频道',
-            'link': '链接',
-            'contribute': '投稿',
-            'text': '文本',
-            'custom': '定制页',
-            'enroll': '登记',
-            'signin': '签到',
-            'group': '分组',
-            'lottery': '抽奖',
-            'wall': '信息墙',
-            'mission': '项目',
-            'site': '团队'
-        };
+    ngApp.provider.controller('ctrlMain', ['$scope', '$uibModal', 'templateShop', 'http2', 'noticebox', 'cstApp', function($scope, $uibModal, templateShop, http2, noticebox, cstApp) {
+        $scope.matterNames = cstApp.matterNames;
         /*置顶*/
         $scope.stickTop = function(m) {
             var url;
@@ -142,11 +127,9 @@ define(['frame'], function(ngApp) {
         };
         $scope.doFilter = function() {
             angular.extend(filter, filter2);
-            $('body').click();
         };
         $scope.cleanFilter = function() {
-            filter.byTitle = '';
-            $('body').click();
+            filter.byTitle = filter2.byTitle = '';
         };
         $scope.$watch('criteria.sid', function(nv) {
             angular.extend(filter, { bySite: nv });
@@ -199,11 +182,9 @@ define(['frame'], function(ngApp) {
         };
         $scope.doFilter = function() {
             angular.extend(filter, filter2);
-            $('body').click();
         };
         $scope.cleanFilter = function() {
-            filter.byTitle = '';
-            $('body').click();
+            filter.byTitle = filter2.byTitle = '';
         };
         $scope.$watch('criteria.sid', function(nv) {
             angular.extend(filter, { bySite: nv });
@@ -214,17 +195,11 @@ define(['frame'], function(ngApp) {
         }, true);
         $scope.listSite();
     }]);
-    ngApp.provider.controller('ctrlActivity', ['$scope', 'http2', function($scope, http2) {
+    ngApp.provider.controller('ctrlActivity', ['$scope', 'http2', 'cstApp', function($scope, http2, cstApp) {
         var criteria3, page, filter, filter2;
         $scope.filter = filter = {};
         $scope.filter2 = filter2 = {};
-        $scope.scenarioNames = {
-            'common': '通用登记',
-            'registration': '报名',
-            'voting': '投票',
-            'quiz': '测验',
-            'group_week_report': '周报'
-        };
+        $scope.scenarioNames = cstApp.scenarioNames;
         $scope.criteria3 = criteria3 = {
             matterType: 'enroll'
         }
@@ -258,17 +233,15 @@ define(['frame'], function(ngApp) {
         };
         $scope.doFilter = function() {
             angular.extend(filter, filter2);
-            $('body').click();
         };
         $scope.cleanFilter = function() {
-            filter.byTitle = '';
-            $('body').click();
+            filter.byTitle = filter2.byTitle = '';
         };
         $scope.$watch('criteria3.matterType', function(nv) {
-            angular.extend(filter, { byType: nv });
+            angular.extend(filter, { byType: nv, scenario: '' });
         })
         $scope.$watch('criteria.sid', function(nv) {
-            angular.extend(filter, { bySite: nv });
+            angular.extend(filter, { bySite: nv, scenario: '' });
         });
         $scope.$watch('filter', function(nv) {
             if (!nv) return;
@@ -309,11 +282,9 @@ define(['frame'], function(ngApp) {
         };
         $scope.doFilter = function() {
             angular.extend(filter, filter2);
-            $('body').click();
         };
         $scope.cleanFilter = function() {
-            filter.byTitle = '';
-            $('body').click();
+            filter.byTitle = filter2.byTitle = '';
         };
         $scope.$watch('criteria4.matterType', function(nv) {
             angular.extend(filter, { byType: nv });

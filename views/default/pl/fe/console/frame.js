@@ -1,6 +1,31 @@
 define(['require'], function(require) {
     'use strict';
     var ngApp = angular.module('app', ['ngRoute', 'ui.bootstrap', 'ui.tms', 'tmplshop.ui.xxt', 'service.matter', 'page.ui.xxt', 'modal.ui.xxt']);
+    ngApp.constant('cstApp', {
+        matterNames: {
+            'article': '单图文',
+            'news': '多图文',
+            'channel': '频道',
+            'link': '链接',
+            'contribute': '投稿',
+            'text': '文本',
+            'custom': '定制页',
+            'enroll': '登记',
+            'signin': '签到',
+            'group': '分组',
+            'lottery': '抽奖',
+            'wall': '信息墙',
+            'mission': '项目',
+            'site': '团队'
+        },
+        scenarioNames: {
+            'common': '通用登记',
+            'registration': '报名',
+            'voting': '投票',
+            'quiz': '测验',
+            'group_week_report': '周报'
+        }
+    });
     ngApp.config(['$controllerProvider', '$provide', '$routeProvider', '$locationProvider', '$compileProvider', '$uibTooltipProvider', function($controllerProvider, $provide, $routeProvider, $locationProvider, $compileProvider, $uibTooltipProvider) {
         var RouteParam = function(name) {
             var baseURL = '/views/default/pl/fe/console/';
@@ -29,7 +54,7 @@ define(['require'], function(require) {
             'show': 'hide'
         });
     }]);
-    ngApp.controller('ctrlFrame', ['$scope', 'http2', 'srvUserNotice', '$uibModal', 'templateShop',function($scope, http2, srvUserNotice, $uibModal, templateShop) {
+    ngApp.controller('ctrlFrame', ['$scope', 'http2', 'srvUserNotice', '$uibModal', 'templateShop', function($scope, http2, srvUserNotice, $uibModal, templateShop) {
         var criteria, criteria2, criteria3;
         $scope.subView = '';
         $scope.$on('$locationChangeSuccess', function(event, currentRoute) {
@@ -63,9 +88,9 @@ define(['require'], function(require) {
             criteria.scope = scope;
         };
         $scope.load = function(id) {
-            location.href = '/rest/pl/fe/site/setting?site=' + id;
-        }
-        /*新建素材*/
+                location.href = '/rest/pl/fe/site/setting?site=' + id;
+            }
+            /*新建素材*/
         var _fns = {
             createSite: function() {
                 var defer = $q.defer(),
@@ -179,6 +204,7 @@ define(['require'], function(require) {
                 location.href = '/rest/pl/fe/matter/text?site=' + site.id;
             }
         };
+
         function addMatter(site, matterType, scenario) {
             var fnName = 'add' + matterType[0].toUpperCase() + matterType.substr(1);
             _fns[fnName].call(_fns, site, scenario);

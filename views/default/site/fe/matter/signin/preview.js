@@ -54,12 +54,12 @@ ngApp.controller('ctrlRecord', ['$scope', 'Record', 'ls', function($scope, Recor
 ngApp.directive('tmsImageInput', ['$compile', '$q', function($compile, $q) {
     return {
         restrict: 'A',
-        controller: function($scope, $timeout) {}
+        controller: ['$scope', '$timeout', function($scope, $timeout) {}]
     }
 }]);
 ngApp.directive('tmsFileInput', ['$q', function($q) {
     return {
         restrict: 'A',
-        controller: function($scope, $timeout) {}
+        controller: ['$scope', '$timeout', function($scope, $timeout) {}]
     }
 }]);

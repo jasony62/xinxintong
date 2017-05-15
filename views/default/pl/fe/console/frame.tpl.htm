@@ -24,27 +24,27 @@
                     <?php echo APP_TITLE;?>
                 </a>
             </div>
-            <ul class="nav nav-tabs nav-stacked ng-cloak" ng-cloak ng-if="subView=='main'">
-                <li ng-class="{'active':criteria2.scope==='top'}"><a href='' ng-click="changeScope(criteria2, 'top')">置顶</a></li>
-                <li ng-class="{'active':criteria2.scope==='recent'}"><a href='' ng-click="changeScope(criteria2, 'recent')">最近</a></li>
+            <ul class="nav nav-tabs nav-stacked ng-cloak" ng-cloak ng-if="frameState.view=='main'">
+                <li ng-class="{'active':frameState.scope==='top'}"><a href='' ng-click="changeScope('top')">置顶</a></li>
+                <li ng-class="{'active':frameState.scope==='recent'}"><a href='' ng-click="changeScope('recent')">最近</a></li>
                 <hr />
-                <li ng-class="{'active':criteria2.scope==='site'}"><a href='' ng-click="changeScope(criteria2, 'site')">团队</a></li>
-                <li ng-class="{'active':criteria2.scope==='mission'}"><a href='' ng-click="changeScope(criteria2, 'mission')">项目</a></li>
-                <li ng-class="{'active':criteria2.scope==='activity'}"><a href='' ng-click="changeScope(criteria2, 'activity')">活动</a></li>
-                <li ng-class="{'active':criteria2.scope==='info'}"><a href='' ng-click="changeScope(criteria2, 'info')">资料</a></li>
+                <li ng-class="{'active':frameState.scope==='site'}"><a href='' ng-click="changeScope('site')">团队</a></li>
+                <li ng-class="{'active':frameState.scope==='mission'}"><a href='' ng-click="changeScope('mission')">项目</a></li>
+                <li ng-class="{'active':frameState.scope==='activity'}"><a href='' ng-click="changeScope('activity')">活动</a></li>
+                <li ng-class="{'active':frameState.scope==='info'}"><a href='' ng-click="changeScope('info')">资料</a></li>
                 <hr />
-                <li ng-class="{'active':criteria2.scope==='siteuser'}"><a href='' ng-click="changeScope(criteria2, 'siteuser')">用户</a></li>
+                <li ng-class="{'active':frameState.scope==='siteuser'}"><a href='' ng-click="changeScope('siteuser')">用户</a></li>
                 <hr />
-                <li ng-class="{'active':criteria2.scope==='recycle'}" ng-if="criteria.sid==''"><a href='' ng-click="changeScope(criteria2, 'recycle')">回收站</a></li>
+                <li ng-class="{'active':frameState.scope==='recycle'}" ng-if="criteria.sid==''"><a href='' ng-click="changeScope('recycle')">回收站</a></li>
                 <li ng-if="criteria.sid!=''"><a href="" ng-click='load(criteria.sid)'>设置团队</a></li>
                 <hr />
                 <li><a href="" uib-popover-template="'addMatter.html'" popover-placement="right" popover-append-to-body='true' popover-trigger="outsideClick"><span class='glyphicon glyphicon-plus'></span> 新建</a></li>
             </ul>
-            <ul class="nav nav-tabs nav-stacked ng-cloak" ng-cloak ng-if="subView=='friend'">
-                <li ng-class="{'active':criteria3.scope==='subscribeSite'}"><a href='' ng-click="changeScope(criteria3, 'subscribeSite')">关注</a></li>
-                <li ng-class="{'active':criteria3.scope==='contributeSite'}"><a href='' ng-click="changeScope(criteria3, 'contributeSite')">投稿</a></li>
+            <ul class="nav nav-tabs nav-stacked ng-cloak" ng-cloak ng-if="frameState.view=='friend'">
+                <li ng-class="{'active':frameState.scope==='subscribeSite'}"><a href='' ng-click="changeScope('subscribeSite')">关注</a></li>
+                <li ng-class="{'active':frameState.scope==='contributeSite'}"><a href='' ng-click="changeScope('contributeSite')">投稿</a></li>
                 <hr>
-                <li ng-class="{'active':criteria3.scope==='favorSite'}"><a href='' ng-click="changeScope(criteria3, 'favorSite')">收藏</a></li>
+                <li ng-class="{'active':frameState.scope==='favorSite'}"><a href='' ng-click="changeScope('favorSite')">收藏</a></li>
             </ul>
         </div>
         <!-- navtop + container -->
@@ -60,17 +60,17 @@
                         </button>
                     </div>
                     <form class='navbar-form navbar-left'>
-                        <select class='form-control' title='团队列表' ng-model="criteria.sid">
+                        <select class='form-control' title='团队列表' ng-model="frameState.sid">
                             <option value=''>全部团队</option>
                             <option value="{{site.id}}" ng-repeat="site in sites">{{site.name}}</option>
                         </select>
                     </form>
                     <ul class='nav navbar-nav'>
-                        <li ng-class="{'active':subView==='main'}">
+                        <li ng-class="{'active':frameState.view==='main'}">
                             <a href='/rest/pl/fe' ng-if="criteria.sid==''">我的工作台</a>
                             <a href='/rest/pl/fe?site={{criteria.sid}}' ng-if="criteria.sid!=''">我的工作台</a>
                         </li>
-                        <li ng-class="{'active':subView==='friend'}">
+                        <li ng-class="{'active':frameState.view==='friend'}">
                             <a href='/rest/pl/fe/friend'>团队关注</a>
                         </li>
                     </ul>
@@ -97,7 +97,7 @@
                     </div>
                 </div>
             </nav>
-            <div class='container-fluid' >
+            <div class='container-fluid'>
                 <div class="ng-cloak row" ng-cloak ng-view></div>
             </div>
         </div>

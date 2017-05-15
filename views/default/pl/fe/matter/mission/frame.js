@@ -74,6 +74,10 @@ define(['missionService', 'enrollService', 'signinService'], function() {
             var subView = currentRoute.match(/([^\/]+?)\?/);
             $scope.subView = subView[1] === 'mission' ? 'main' : subView[1];
         });
+        $scope.switchTo = function(subView) {
+            var url = '/rest/pl/fe/matter/mission/' + subView;
+            $location.path(url);
+        }
         srvSite.get().then(function(oSite) {
             $scope.site = oSite;
         });

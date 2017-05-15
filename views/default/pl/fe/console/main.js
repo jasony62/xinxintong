@@ -35,6 +35,16 @@ define(['frame'], function(ngApp) {
         $scope.$on('fromCtrlRecentStickTop', function(event, data) {
             $scope.$broadcast('toCtrlTopList', data);
         });
+        $scope.$watch('criteria.sid', function(nv) {
+            window.localStorage.setItem("teamId", nv);
+        });
+        $scope.$watch('criteria2.scope', function(nv) {
+            window.localStorage.setItem("leftItem", nv);
+        });
+        var teamId = window.localStorage.getItem('teamId');
+        var leftItem = window.localStorage.getItem("leftItem");
+        $scope.criteria.sid = teamId ? teamId : '';
+        $scope.criteria2.scope = leftItem ? leftItem : 'top';
     }]);
     ngApp.provider.controller('ctrlTop', ['$scope', 'http2', 'noticebox', function($scope, http2, noticebox) {
         var page;
@@ -196,15 +206,15 @@ define(['frame'], function(ngApp) {
         $scope.listSite();
     }]);
     ngApp.provider.controller('ctrlActivity', ['$scope', 'http2', 'cstApp', function($scope, http2, cstApp) {
-        var criteria3, page, filter, filter2;
+        var criteria4, page, filter, filter2;
         $scope.filter = filter = {};
         $scope.filter2 = filter2 = {};
         $scope.scenarioNames = cstApp.scenarioNames;
-        $scope.criteria3 = criteria3 = {
+        $scope.criteria4 = criteria4 = {
             matterType: 'enroll'
         }
         $scope.changeMatter = function(type) {
-            criteria3.matterType = type;
+            criteria4.matterType = type;
         }
         $scope.activityAddMatter = function() {
             var target = $('#activityAddMatter');
@@ -237,9 +247,10 @@ define(['frame'], function(ngApp) {
         $scope.cleanFilter = function() {
             filter.byTitle = filter2.byTitle = '';
         };
-        $scope.$watch('criteria3.matterType', function(nv) {
+        $scope.$watch('criteria4.matterType', function(nv) {
             angular.extend(filter, { byType: nv, scenario: '' });
-        })
+            window.localStorage.setItem("activityMatterType", nv);
+        });
         $scope.$watch('criteria.sid', function(nv) {
             angular.extend(filter, { bySite: nv, scenario: '' });
         });
@@ -247,16 +258,19 @@ define(['frame'], function(ngApp) {
             if (!nv) return;
             $scope.list();
         }, true);
+        var activityMatterType = window.localStorage.getItem('activityMatterType');
+        console.log(activityMatterType);
+        $scope.criteria4.matterType = activityMatterType ? activityMatterType : 'enroll';
     }]);
     ngApp.provider.controller('ctrlInfo', ['$scope', '$uibModal', 'http2', function($scope, $uibModal, http2) {
-        var criteria4, page, filter, filter2;
+        var criteria5, page, filter, filter2;
         $scope.filter = filter = {};
         $scope.filter2 = filter2 = {};
-        $scope.criteria4 = criteria4 = {
+        $scope.criteria5 = criteria5 = {
             matterType: 'article'
         }
         $scope.changeMatter = function(type) {
-            criteria4.matterType = type;
+            criteria5.matterType = type;
         };
         $scope.infoAddMatter = function() {
             var target = $('#infoAddMatter');
@@ -286,8 +300,9 @@ define(['frame'], function(ngApp) {
         $scope.cleanFilter = function() {
             filter.byTitle = filter2.byTitle = '';
         };
-        $scope.$watch('criteria4.matterType', function(nv) {
+        $scope.$watch('criteria5.matterType', function(nv) {
             angular.extend(filter, { byType: nv });
+            window.localStorage.setItem("infoMatterType", nv);
         })
         $scope.$watch('criteria.sid', function(nv) {
             angular.extend(filter, { bySite: nv });
@@ -296,6 +311,8 @@ define(['frame'], function(ngApp) {
             if (!nv) return;
             $scope.list();
         }, true);
+        var infoMatterType = window.localStorage.getItem('infoMatterType');
+        $scope.criteria5.matterType = infoMatterType ? infoMatterType : 'article';
     }]);
     ngApp.provider.controller('ctrlSiteUser', ['$scope', 'http2', function($scope, http2) {}]);
     ngApp.provider.controller('ctrlMember', ['$scope', '$uibModal', '$location', 'http2', function($scope, $uibModal, $location, http2) {

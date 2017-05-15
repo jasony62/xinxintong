@@ -239,8 +239,8 @@ define(['require'], function(require) {
                     location.href = '/rest/pl/fe/site/setting?site=' + rsp.data.id;
                 });
             }
-            if ($scope.criteria.sid != '') {
-                var site = { id: $scope.criteria.sid };
+            if (frameState.sid != '') {
+                var site = { id: frameState.sid };
                 addMatter(site, matterType, scenario);
             } else {
                 var url = '/rest/pl/fe/site/list?_=' + (new Date() * 1);

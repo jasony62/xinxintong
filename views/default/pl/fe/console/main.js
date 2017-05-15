@@ -196,10 +196,11 @@ define(['frame'], function(ngApp) {
     ngApp.provider.controller('ctrlActivity', ['$scope', 'http2', 'cstApp', function($scope, http2, cstApp) {
         var page, filter, filter2;
         if (window.localStorage) {
-            $scope.$watch('filter',
-                function(nv) {
+            $scope.$watch('filter', function(nv) {
+                if (nv) {
                     window.localStorage.setItem("pl.fe.activity.filter", JSON.stringify(nv));
-                }, true);
+                }
+            }, true);
             if (filter = window.localStorage.getItem("pl.fe.activity.filter")) {
                 filter = JSON.parse(filter);
             } else {
@@ -214,6 +215,7 @@ define(['frame'], function(ngApp) {
         $scope.scenarioNames = cstApp.scenarioNames;
         $scope.changeMatter = function(type) {
             filter.byType = type;
+            filter.scenario = '';
         };
         $scope.page = page = {
             at: 1,
@@ -239,7 +241,7 @@ define(['frame'], function(ngApp) {
             filter.byTitle = filter2.byTitle = '';
         };
         $scope.$watch('frameState.sid', function(nv) {
-            angular.extend(filter, { bySite: nv, scenario: '' });
+            angular.extend(filter, { bySite: nv });
         });
         $scope.$watch('filter', function(nv) {
             if (!nv) return;
@@ -249,10 +251,11 @@ define(['frame'], function(ngApp) {
     ngApp.provider.controller('ctrlInfo', ['$scope', '$uibModal', 'http2', function($scope, $uibModal, http2) {
         var page, filter, filter2;
         if (window.localStorage) {
-            $scope.$watch('filter',
-                function(nv) {
+            $scope.$watch('filter', function(nv) {
+                if (nv) {
                     window.localStorage.setItem("pl.fe.info.filter", JSON.stringify(nv));
-                }, true);
+                }
+            }, true);
             if (filter = window.localStorage.getItem("pl.fe.info.filter")) {
                 filter = JSON.parse(filter);
             } else {

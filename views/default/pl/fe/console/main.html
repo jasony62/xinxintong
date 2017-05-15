@@ -182,8 +182,8 @@
                         </div>
                     </form>
                     <form class='nav navbar-form pull-right'>
-                        <button ng-if="criteria.sid!=''" class="btn btn-default" ng-click='create()'><i class='glyphicon glyphicon-plus'></i> <span>新建</span></button>
-                        <button ng-if="criteria.sid==''" class="btn btn-default" ng-click="addMatter('mission')"><i class='glyphicon glyphicon-plus'></i> <span>新建</span></button>
+                        <button ng-if="frameState.sid!=''" class="btn btn-default" ng-click='create()'><i class='glyphicon glyphicon-plus'></i> <span>新建</span></button>
+                        <button ng-if="frameState.sid==''" class="btn btn-default" ng-click="addMatter('mission')"><i class='glyphicon glyphicon-plus'></i> <span>新建</span></button>
                     </form>
                 </div>
             </nav>
@@ -370,13 +370,13 @@
         </div>
     </div>
     <div ng-controller="ctrlSiteUser" ng-switch-when="siteuser">
-        <div class='col-md-3' ng-if="!criteria.sid">
+        <div class='col-md-3' ng-if="!frameState.sid">
             <div class='form-group'>
                 <label>选择团队</label>
-                <select class='form-control' ng-model="criteria.sid" ng-options="site.id as site.name for site in sites"></select>
+                <select class='form-control' ng-model="frameState.sid" ng-options="site.id as site.name for site in sites"></select>
             </div>
         </div>
-        <div class="col-md-12" ng-if="criteria.sid" ng-switch on="catelog">
+        <div class="col-md-12" ng-if="frameState.sid" ng-switch on="catelog">
             <nav class='navbar navbar-default'>
                 <div class='container-fluid'>
                     <ul class='nav navbar-nav' ng-init="catelog='member'">

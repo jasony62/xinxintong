@@ -515,7 +515,11 @@ class log_model extends \TMS_MODEL {
 			if (isset($options['byTitle'])) {
 				$q[2] .= " and t.title like '%" . $this->escape($options['byTitle']) . "%'";
 			}
-
+			if ($options['byType'] === 'enroll') {
+				if (isset($options['scenario'])) {
+					$q[2] .= " and scenario='" . $this->escape($options['scenario']) . "'";
+				}
+			}
 			$q2 = [
 				'r' => ['o' => ($page->at - 1) * $page->size, 'l' => $page->size],
 				'o' => ['t.create_at desc'],

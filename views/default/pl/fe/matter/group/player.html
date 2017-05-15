@@ -1,5 +1,13 @@
-
-<!-- left -->
+<div class='col-md-12'>
+    <nav class="navbar navbar-default">
+        <div class="container-fluid text-center">
+            <form class="navbar-form" style='display:inline-block'>
+                <button class='btn btn-success' ng-disabled="!app.sourceApp||!rounds.length" ng-click="execute()">进行分组</button>
+                <button class='btn btn-primary' ng-click='export()'>导出结果</button>
+            </form>
+        </div>
+    </nav>
+</div>
 <div class='col-md-4'>
     <div class='tile'>
         <div class='form-group' ng-if="!app.sourceApp">
@@ -134,17 +142,6 @@
 </div>
 <!-- end one round -->
 <!-- end right -->
-<!-- bottom nav -->
-<nav class="navbar navbar-default navbar-fixed-bottom">
-    <div class="container-fluid text-center">
-        <form class="navbar-form" style='display:inline-block'>
-            <button class='btn btn-success' ng-disabled="!app.sourceApp||!rounds.length" ng-click="execute()">进行分组</button>
-            <button class='btn btn-primary' ng-click='export()'>导出结果</button>
-        </form>
-    </div>
-</nav>
-<!-- end bottom nav -->
-
 <script type="text/ng-template" id="configRule.html">
     <div class="modal-header">
         <button class="close" type="button" ng-click="cancel()">×</button>

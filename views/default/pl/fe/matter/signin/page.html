@@ -1,6 +1,7 @@
 <div id='page-view' class='col-md-12'>
     <!-- pages -->
     <nav class='navbar navbar-default'>
+        <div class='container-fluid'>
             <ul class="nav navbar-nav">
                 <li ng-class="{'active':p===ep}" ng-repeat="p in app.pages">
                     <a href="#" ng-click="choosePage(p)"><span><i class='fa fa-file-o'></i> {{p.title}}</span></a>
@@ -10,6 +11,7 @@
                 <button class='btn btn-success' ng-click="save()">保存修改</button>
                 <button uib-popover-template="'pageSetting.html'" popover-placement="bottom" popover-title="页面设置" popover-trigger="outsideClick" class="btn btn-default">页面设置 <span class="caret"></span></button>
             </ul>
+        </div>
     </nav>
     <!-- end pages -->
     <!-- one page -->

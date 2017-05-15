@@ -47,14 +47,14 @@ ngApp.controller('ctrlRepos', ['$scope', '$http', 'Round', function($scope, $htt
     $scope.repos = {};
     $scope.list4Schema = function(schema) {
         var url, page;
-        page = schema._page;
+        page = { at: 1, size: 12 };
         url = '/rest/site/fe/matter/enroll/repos/list4Schema?site=' + oApp.siteid + '&app=' + oApp.id;
-        url += '&schema=' + schema.id;
+        //url += '&schema=' + schema.id;
         url += '&page=' + page.at + '&size=' + page.size;
         criteria.rid && (url += '&rid=' + criteria.rid);
         criteria.owner && criteria.owner !== 'all' && (url += '&owner=' + criteria.owner);
         $http.get(url).success(function(result) {
-            $scope.repos[schema.id] = result.data.records;
+            $scope.repos = result.data.records;
             page.total = result.data.total;
         });
     }
@@ -116,9 +116,10 @@ ngApp.controller('ctrlRepos', ['$scope', '$http', 'Round', function($scope, $htt
                 schemas.push(schema);
             }
         });
-        if (schemas.length === 1) {
-            $scope.switchSchema(schemas[0]);
-        }
+        $scope.list4Schema();
+        // if (schemas.length === 1) {
+        //     $scope.switchSchema(schemas[0]);
+        // }
         $scope.facRound = facRound = srvRound.ins(oApp);
         facRound.list().then(function(result) {
             if (result.active) {

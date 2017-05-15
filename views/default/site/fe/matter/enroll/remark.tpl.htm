@@ -31,7 +31,10 @@
                                 <p>{{remark.content}}</p>
                                 <footer>{{remark.nickname}}</footer>
                             </blockquote>
-                            <div class='datetime'>{{remark.create_at*1000|date:'MM-dd HH:mm'}}</div>
+                            <div class='bottom-bar'>
+                                <div class='datetime'>{{remark.create_at*1000|date:'MM-dd HH:mm'}}</div>
+                                <button class='btn btn-default btn-sm' ng-click="likeRemark(remark)"><span class='glyphicon' ng-class="{'glyphicon-heart':remark.like_log[user.uid],'glyphicon-heart-empty':!remark.like_log[user.uid]}"></span>&nbsp;<span ng-bind="remark.like_num"></span></button>
+                            </div>
                         </div>
                     </div>
                     <div class='input-group'>

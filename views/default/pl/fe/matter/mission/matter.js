@@ -21,7 +21,7 @@ define(['frame'], function(ngApp) {
                 }
             },
             voting: {
-                title: '评价',
+                title: '投票',
                 handler: function() {
                     $scope.addEnroll('voting');
                 }
@@ -49,7 +49,7 @@ define(['frame'], function(ngApp) {
                 if (assignedScenario === 'registration') {
                     config.proto.title = $scope.mission.title + '-报名';
                 } else if (assignedScenario === 'voting') {
-                    config.proto.title = $scope.mission.title + '-评价';
+                    config.proto.title = $scope.mission.title + '-投票';
                 } else if (assignedScenario === 'group_week_report') {
                     config.proto.title = $scope.mission.title + '-周报';
                 } else if (assignedScenario === 'quiz') {

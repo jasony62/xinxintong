@@ -284,10 +284,10 @@ define(['frame', 'schema'], function(ngApp, schemaLib) {
         $scope.$on('option.xxt.editable.changed', function(e, op, schemaId) {
             $scope.updSchema(mapOfSchemas[schemaId], 'ops');
         });
-        $scope.$watch('app', function(app) {
-            if (app) {
-                $scope.appSchemas = $scope.app.data_schemas;
-                $scope.appSchemas.forEach(function(schema) {
+        $scope.$watchCollection('app.data_schemas', function(dataSchemas) {
+            if (dataSchemas) {
+                $scope.appSchemas = dataSchemas;
+                dataSchemas.forEach(function(schema) {
                     mapOfSchemas[schema.id] = schema;
                 });
             }

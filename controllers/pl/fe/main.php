@@ -21,14 +21,14 @@ class main extends \pl\fe\base {
 		}
 	}
 	/**
-	 * 列出站点最近操作的素材
+	 * 列出当前用户最近操作的素材
 	 */
 	public function recent_action($page = 1, $size = 30) {
-		if (false === ($user = $this->accountUser())) {
+		if (false === ($oUser = $this->accountUser())) {
 			return new \ResponseTimeout();
 		}
 
-		$filter = $this->getPostJson();
+		$oFilter = $this->getPostJson();
 		$modelLog = $this->model('matter\log');
 
 		// 分页参数
@@ -39,22 +39,22 @@ class main extends \pl\fe\base {
 		$options = [
 			'page' => $p,
 		];
-		if (!empty($filter->bySite)) {
-			$options['bySite'] = $filter->bySite;
+		if (!empty($oFilter->bySite)) {
+			$options['bySite'] = $oFilter->bySite;
 		}
-		if (!empty($filter->byTitle)) {
-			$options['byTitle'] = $filter->byTitle;
+		if (!empty($oFilter->byTitle)) {
+			$options['byTitle'] = $oFilter->byTitle;
 		}
 		// 类型参数
-		if (!empty($filter->byType)) {
-			$options['byType'] = $filter->byType;
+		if (!empty($oFilter->byType)) {
+			$options['byType'] = $oFilter->byType;
 		}
 		// 活动场景
-		if (!empty($filter->scenario)) {
-			$options['scenario'] = $filter->scenario;
+		if (!empty($oFilter->scenario)) {
+			$options['scenario'] = $oFilter->scenario;
 		}
 
-		$matters = $modelLog->recentMattersByUser($user, $options);
+		$matters = $modelLog->recentMattersByUser($oUser, $options);
 
 		return new \ResponseData($matters);
 	}
@@ -178,9 +178,9 @@ class main extends \pl\fe\base {
 		$q = array(
 			'matter_id,matter_type,matter_title',
 			'xxt_log_matter_op',
-			['siteid' => $site, 'matter_id' => $matterId, 'matter_type' => $matterType, 'user_last_op' => 'Y', 'operator' => $user->id]
+			['siteid' => $site, 'matter_id' => $matterId, 'matter_type' => $matterType, 'user_last_op' => 'Y', 'operator' => $user->id],
 		);
-		
+
 		$one = $model->query_obj_ss($q);
 
 		if (empty($one)) {
@@ -223,7 +223,7 @@ class main extends \pl\fe\base {
 			'xxt_account_topmatter t,xxt_log_matter_op l',
 			"t.siteid=l.siteid and t.matter_id=l.matter_id and t.matter_type=l.matter_type and l.user_last_op='Y' and t.userid='$user->id' and t.userid=l.operator  and (l.operation<>'D' and l.operation<>'Recycle' and l.operation<>'Quit')",
 		];
-		if(!empty($site)){
+		if (!empty($site)) {
 			$site = $model->escape($site);
 			$p[2] .= " and l.siteid = '$site'";
 		}

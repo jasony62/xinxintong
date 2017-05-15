@@ -30,33 +30,52 @@ class base extends \site\fe\matter\base {
 	 *
 	 */
 	protected function checkEntryRule($oApp, $redirect = false) {
-		$user = $this->who;
-		$entryRule = $oApp->entry_rule;
-		if (isset($entryRule->scope) && $entryRule->scope === 'member') {
+		$oUser = $this->who;
+		$oEntryRule = $oApp->entry_rule;
+		if (isset($oEntryRule->scope) && $oEntryRule->scope === 'member') {
 			/* 限自定义用户访问 */
-			foreach ($entryRule->member as $schemaId => $rule) {
+			foreach ($oEntryRule->member as $schemaId => $rule) {
 				if (!empty($rule->entry)) {
-					if (isset($user->members->{$schemaId})) {
-						/* 检查用户的信息是否完整，是否已经通过审核 */
-						$oMember = $user->members->{$schemaId};
-						$oMember = $this->model('site\user\member')->byId($oMember->id);
-						if ($oMember && $oMember->verified === 'Y') {
-							$page = $rule->entry;
+					/* 检查用户的信息是否完整，是否已经通过审核 */
+					$modelMem = $this->model('site\user\member');
+					if (empty($oUser->unionid)) {
+						$aMembers = $modelMem->byUser($oUser->uid, ['schemas' => $schemaId]);
+						if (count($aMembers) === 1) {
+							$oMember = $aMembers[0];
+							if ($oMember->verified === 'Y') {
+								$page = $rule->entry;
+								break;
+							}
+						}
+					} else {
+						$modelAcnt = $this->model('site\user\account');
+						$aUnionUsers = $modelAcnt->byUnionid($oUser->unionid, ['siteid' => $oApp->siteid, 'fields' => 'uid']);
+						foreach ($aUnionUsers as $oUnionUser) {
+							$aMembers = $modelMem->byUser($oUnionUser->uid, ['schemas' => $schemaId]);
+							if (count($aMembers) === 1) {
+								$oMember = $aMembers[0];
+								if ($oMember->verified === 'Y') {
+									$page = $rule->entry;
+									break;
+								}
+							}
+						}
+						if (isset($page)) {
 							break;
 						}
 					}
 				}
 			}
 			if (!isset($page)) {
-				if (isset($entryRule->other->entry)) {
-					$page = $entryRule->other->entry;
+				if (isset($oEntryRule->other->entry)) {
+					$page = $oEntryRule->other->entry;
 				} else {
 					$page = '$memberschema';
 				}
 			}
-		} else if (isset($entryRule->scope) && $entryRule->scope === 'sns') {
-			foreach ($entryRule->sns as $snsName => $rule) {
-				if (isset($user->sns->{$snsName})) {
+		} else if (isset($oEntryRule->scope) && $oEntryRule->scope === 'sns') {
+			foreach ($oEntryRule->sns as $snsName => $rule) {
+				if (isset($oUser->sns->{$snsName})) {
 					// 检查用户对应的公众号
 					if ($snsName === 'wx') {
 						$modelWx = $this->model('sns\wx');
@@ -69,7 +88,7 @@ class base extends \site\fe\matter\base {
 						$snsSiteId = $oApp->siteid;
 					}
 					// 检查用户是否已经关注
-					$snsUser = $user->sns->{$snsName};
+					$snsUser = $oUser->sns->{$snsName};
 					$modelSnsUser = $this->model('sns\\' . $snsName . '\fan');
 					if ($modelSnsUser->isFollow($snsSiteId, $snsUser->openid)) {
 						$page = $rule->entry;
@@ -77,10 +96,10 @@ class base extends \site\fe\matter\base {
 					}
 				}
 			}
-			!isset($page) && $page = $entryRule->other->entry;
+			!isset($page) && $page = $oEntryRule->other->entry;
 		} else {
-			if (isset($entryRule->otherwise->entry)) {
-				$page = $entryRule->otherwise->entry;
+			if (isset($oEntryRule->otherwise->entry)) {
+				$page = $oEntryRule->otherwise->entry;
 			} else {
 				$page = null;
 			}
@@ -89,25 +108,25 @@ class base extends \site\fe\matter\base {
 		switch ($page) {
 		case '$memberschema':
 			$aMemberSchemas = array();
-			foreach ($entryRule->member as $schemaId => $rule) {
+			foreach ($oEntryRule->member as $schemaId => $rule) {
 				if (!empty($rule->entry)) {
 					$aMemberSchemas[] = $schemaId;
 				}
 			}
 			if ($redirect) {
 				/*页面跳转*/
-				$this->gotoMember($oApp->siteid, $aMemberSchemas, $user->uid);
+				$this->gotoMember($oApp->siteid, $aMemberSchemas, $oUser->uid);
 			} else {
 				/*返回地址*/
-				$this->gotoMember($oApp->siteid, $aMemberSchemas, $user->uid, false);
+				$this->gotoMember($oApp->siteid, $aMemberSchemas, $oUser->uid, false);
 			}
 			break;
 		case '$mpfollow':
-			if (!empty($entryRule->sns->wx->entry)) {
+			if (!empty($oEntryRule->sns->wx->entry)) {
 				$this->snsFollow($oApp->siteid, 'wx', $oApp);
-			} else if (!empty($entryRule->sns->qy->entry)) {
+			} else if (!empty($oEntryRule->sns->qy->entry)) {
 				$this->snsFollow($oApp->siteid, 'qy', $oApp);
-			} else if (!empty($entryRule->sns->yx->entry)) {
+			} else if (!empty($oEntryRule->sns->yx->entry)) {
 				$this->snsFollow($oApp->siteid, 'yx', $oApp);
 			}
 			break;

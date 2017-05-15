@@ -1,8 +1,5 @@
-body{margin-bottom:50px;}
+body,html{padding:0;min-height:100%;}
 hr{margin:5px 0;}
-@media screen and (min-width:1200px){
-	.container{width:100%;}
-}
 .ng-cloak{display:none;}
 .navbar-nav .active:after{content:' ';position:absolute;left:0;right:0;bottom:-1px;height:3px;background:red;}
 .tms-panel-heading{margin-bottom:-1px;}
@@ -26,31 +23,16 @@ hr{margin:5px 0;}
 .top:hover .actions-top,.matter:hover .actions-top,.site:hover .actions-top{display:block}
 
 /*matter*/
-#viewRecent .article:after{content:'图文';position:absolute;top:-8px;left:-8px;background:green;padding:2px 4px;font-size:60%;color:#fff;border-radius:4px;}
-#viewRecent .enroll:after{content:'登记';position:absolute;top:-8px;left:-8px;background:#0000ff;padding:2px 4px;font-size:60%;color:#fff;border-radius:4px;}
-#viewRecent .registration:after{content:'报名';position:absolute;top:-8px;left:-8px;background:#0000ff;padding:2px 4px;font-size:60%;color:#fff;border-radius:4px;}
-#viewRecent .voting:after{content:'评价';position:absolute;top:-8px;left:-8px;background:#0000ff;padding:2px 4px;font-size:60%;color:#fff;border-radius:4px;}
-#viewRecent .signin:after{content:'签到';position:absolute;top:-8px;left:-8px;background:#0000cc;padding:2px 4px;font-size:60%;color:#fff;border-radius:4px;}
-#viewRecent .group:after{content:'分组';position:absolute;top:-8px;left:-8px;background:#000099;padding:2px 4px;font-size:60%;color:#fff;border-radius:4px;}
-#viewRecent .split:after{content:'分组';position:absolute;top:-8px;left:-8px;background:#000099;padding:2px 4px;font-size:60%;color:#fff;border-radius:4px;}
-#viewRecent .mission:after{content:'项目';position:absolute;top:-8px;left:-8px;background:#000066;padding:2px 4px;font-size:60%;color:#fff;border-radius:4px;}
 .friend-matter{padding:15px;}
 .media-object{width:96px;height:96px;}
 .actions{border-top:1px solid #ddd;margin-top:8px;padding-top:8px;}
+.modal.in .modal-dialog{transform:translate(-50%,-50%);}
 
-/* new */
-.main{position:relative;}
-.active > .btn-default{color:#fff;background-color:green;border-color:green;}
-.main > .main-sidebar{width:100px;position:absolute;top:0;left:0;min-height:100%;}
-.sidebar{padding-bottom:10px;}
-.sidebar-menu{overflow:hidden;}
-.sidebar-menu>li{position:relative;margin:0;padding:0;}
-.main > .main-container{margin-left:120px;margin-right:40px;overflow:hidden;}
-
-.media-left{width:15%;vertical-align: middle;}
-.media-body{width: 85%;vertical-align: middle;}
-.media-body > div {position: relative;overflow: hidden;}
-.title > .media-heading{cursor: pointer;margin-top: 7px;margin-bottom: 0px;}
-.title{margin-bottom: 5px;}
-.summary{margin-bottom: 5px;width:100%;font-size:13px;display: -webkit-box;-webkit-line-clamp: 2;-webkit-box-orient: vertical;overflow: hidden;}
-.attr > .name, .attr > .create_at{line-height: 2;}
+/* 团队关注 */
+.media-left{width:15%;vertical-align:middle;}
+.media-body{width:85%;vertical-align:middle;}
+.media-body > div{position:relative;overflow:hidden;}
+.title > .media-heading{cursor:pointer;margin-top:7px;margin-bottom:0px;}
+.title{margin-bottom:5px;}
+.summary{margin-bottom:5px;width:100%;font-size:13px;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden;}
+.attr > .name,.attr > .create_at{line-height:2;}

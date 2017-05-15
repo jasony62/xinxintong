@@ -1,199 +1,7 @@
 define(['frame'], function(ngApp) {
     'use strict';
-    ngApp.provider.controller('ctrlMain', ['$scope', '$uibModal', 'templateShop', 'http2', 'noticebox', function($scope, $uibModal, templateShop, http2, noticebox) {
-        var criteria2;
-        $scope.criteria2 = criteria2 = {
-            scope: 'top'
-        };
-        $scope.changeScope = function(scope) {
-            criteria2.scope = scope;
-        };
-        $scope.matterNames = {
-            'article': '单图文',
-            'news': '多图文',
-            'channel': '频道',
-            'link': '链接',
-            'contribute': '投稿',
-            'text': '文本',
-            'custom': '定制页',
-            'enroll': '登记',
-            'signin': '签到',
-            'group': '分组',
-            'lottery': '抽奖',
-            'wall': '信息墙',
-            'mission': '项目',
-            'site': '团队'
-        };
-        $scope.load = function(id) {
-                location.href = '/rest/pl/fe/site/setting?site=' + id;
-            }
-            /*新建素材*/
-        var _fns = {
-            createSite: function() {
-                var defer = $q.defer(),
-                    url = '/rest/pl/fe/site/create?_=' + (new Date() * 1);
-
-                http2.get(url, function(rsp) {
-                    defer.resolve(rsp.data);
-                });
-                return defer.promise;
-            },
-            addLink: function(site) {
-                http2.get('/rest/pl/fe/matter/link/create?site=' + site.id, function(rsp) {
-                    location.href = '/rest/pl/fe/matter/link?site=' + site.id + '&id=' + rsp.data.id;
-                });
-            },
-            addArticle: function(site) {
-                http2.get('/rest/pl/fe/matter/article/create?site=' + site.id, function(rsp) {
-                    location.href = '/rest/pl/fe/matter/article?site=' + site.id + '&id=' + rsp.data.id;
-                });
-            },
-            addNews: function(site) {
-                http2.get('/rest/pl/fe/matter/news/create?site=' + site.id, function(rsp) {
-                    location.href = '/rest/pl/fe/matter/news?site=' + site.id + '&id=' + rsp.data.id;
-                });
-            },
-            addChannel: function(site) {
-                http2.get('/rest/pl/fe/matter/channel/create?site=' + site.id, function(rsp) {
-                    location.href = '/rest/pl/fe/matter/channel?site=' + site.id + '&id=' + rsp.data.id;
-                });
-            },
-            addEnroll: function(site, scenario) {
-                templateShop.choose(site.id, 'enroll', scenario).then(function(choice) {
-                    if (choice) {
-                        if (choice.source === 'share') {
-                            var url, data = choice.data;
-                            url = '/rest/pl/fe/matter/enroll/createByOther?site=' + site.id + '&template=' + data.id;
-                            http2.get(url, function(rsp) {
-                                location.href = '/rest/pl/fe/matter/enroll?site=' + site.id + '&id=' + rsp.data.id;
-                            });
-                        } else if (choice.source === 'platform') {
-                            var url, config, data = choice.data;
-                            url = '/rest/pl/fe/matter/enroll/create?site=' + site.id;
-                            config = {};
-                            if (data) {
-                                url += '&scenario=' + data.scenario.name;
-                                url += '&template=' + data.template.name;
-                                if (data.simpleSchema && data.simpleSchema.length) {
-                                    config.simpleSchema = data.simpleSchema;
-                                }
-                            }
-                            http2.post(url, config, function(rsp) {
-                                location.href = '/rest/pl/fe/matter/enroll?site=' + site.id + '&id=' + rsp.data.id;
-                            });
-                        } else if (choice.source === 'file') {
-                            var url, data = choice.data;
-                            url = '/rest/pl/fe/matter/enroll/createByFile?site=' + site.id;
-                            http2.post(url, data, function(rsp) {
-                                location.href = '/rest/pl/fe/matter/enroll?site=' + site.id + '&id=' + rsp.data.id;
-                            });
-                        }
-                    } else {
-                        var url;
-                        url = '/rest/pl/fe/matter/enroll/create?site=' + site.id;
-                        http2.post(url, {}, function(rsp) {
-                            location.href = '/rest/pl/fe/matter/enroll?site=' + site.id + '&id=' + rsp.data.id;
-                        });
-                    }
-                });
-            },
-            addSignin: function(site) {
-                http2.get('/rest/pl/fe/matter/signin/create?site=' + site.id, function(rsp) {
-                    location.href = '/rest/pl/fe/matter/signin?site=' + site.id + '&id=' + rsp.data.id;
-                });
-            },
-            addGroup: function(site) {
-                http2.get('/rest/pl/fe/matter/group/create?site=' + site.id + '&scenario=split', function(rsp) {
-                    location.href = '/rest/pl/fe/matter/group/main?site=' + site.id + '&id=' + rsp.data.id;
-                });
-            },
-            addLottery: function(site) {
-                http2.get('/rest/pl/fe/matter/lottery/create?site=' + site.id, function(rsp) {
-                    location.href = '/rest/pl/fe/matter/lottery?site=' + site.id + '&id=' + rsp.data;
-                });
-            },
-            addContribute: function(site) {
-                http2.get('/rest/pl/fe/matter/contribute/create?site=' + site.id, function(rsp) {
-                    location.href = '/rest/pl/fe/matter/contribute?site=' + site.id + '&id=' + rsp.data.id;
-                });
-            },
-            addMission: function(site) {
-                http2.get('/rest/pl/fe/matter/mission/create?site=' + site.id, function(rsp) {
-                    location.href = '/rest/pl/fe/matter/mission?site=' + site.id + '&id=' + rsp.data.id;
-                });
-            },
-            addCustom: function(site) {
-                http2.get('/rest/pl/fe/matter/custom/create?site=' + site.id, function(rsp) {
-                    location.href = '/rest/pl/fe/matter/custom?site=' + site.id + '&id=' + rsp.data;
-                });
-            },
-            addMerchant: function(site) {
-                http2.get('/rest/pl/fe/matter/merchant/shop/create?site=' + site.id, function(rsp) {
-                    location.href = '/rest/pl/fe/matter/merchant/shop?site=' + site.id + '&id=' + rsp.data;
-                });
-            },
-            addWall: function(site) {
-                http2.get('/rest/pl/fe/matter/wall/create?site=' + site.id, function(rsp) {
-                    location.href = '/rest/pl/fe/matter/wall?site=' + site.id + '&id=' + rsp.data;
-                });
-            },
-            addText: function(site) {
-                location.href = '/rest/pl/fe/matter/text?site=' + site.id;
-            }
-        };
-
-        function addMatter(site, matterType, scenario) {
-            var fnName = 'add' + matterType[0].toUpperCase() + matterType.substr(1);
-            _fns[fnName].call(_fns, site, scenario);
-        }
-        $scope.addMatter = function(matterType, scenario) {
-            $('body').trigger('click');
-            if (matterType == 'site') {
-                var url = '/rest/pl/fe/site/create?_=' + (new Date() * 1);
-                http2.get(url, function(rsp) {
-                    location.href = '/rest/pl/fe/site/setting?site=' + rsp.data.id;
-                });
-            }
-            if ($scope.criteria.sid != '') {
-                var site = { id: $scope.criteria.sid };
-                addMatter(site, matterType, scenario);
-            } else {
-                var url = '/rest/pl/fe/site/list?_=' + (new Date() * 1);
-                http2.get(url, function(rsp) {
-                    var sites = rsp.data;
-                    if (sites.length === 1) {
-                        addMatter(sites[0], matterType, scenario);
-                    } else if (sites.length === 0) {
-                        createSite().then(function(site) {
-                            addMatter(site, matterType, scenario);
-                        });
-                    } else {
-                        $uibModal.open({
-                            templateUrl: 'addMatterSite.html',
-                            dropback: 'static',
-                            controller: ['$scope', '$uibModalInstance', function($scope2, $mi) {
-                                var data;
-                                $scope2.mySites = sites;
-                                $scope2.data = data = {};
-                                $scope2.ok = function() {
-                                    if (data.index !== undefined) {
-                                        $mi.close(sites[data.index]);
-                                    } else {
-                                        $mi.dismiss();
-                                    }
-                                };
-                                $scope2.cancel = function() {
-                                    $mi.dismiss();
-                                };
-                            }]
-                        }).result.then(function(site) {
-                            addMatter(site, matterType, scenario);
-                        });
-                    }
-                });
-            }
-        };
-
+    ngApp.provider.controller('ctrlMain', ['$scope', '$uibModal', 'templateShop', 'http2', 'noticebox', 'cstApp', function($scope, $uibModal, templateShop, http2, noticebox, cstApp) {
+        $scope.matterNames = cstApp.matterNames;
         /*置顶*/
         $scope.stickTop = function(m) {
             var url;
@@ -319,11 +127,9 @@ define(['frame'], function(ngApp) {
         };
         $scope.doFilter = function() {
             angular.extend(filter, filter2);
-            $('body').click();
         };
         $scope.cleanFilter = function() {
-            filter.byTitle = '';
-            $('body').click();
+            filter.byTitle = filter2.byTitle = '';
         };
         $scope.$watch('criteria.sid', function(nv) {
             angular.extend(filter, { bySite: nv });
@@ -376,11 +182,9 @@ define(['frame'], function(ngApp) {
         };
         $scope.doFilter = function() {
             angular.extend(filter, filter2);
-            $('body').click();
         };
         $scope.cleanFilter = function() {
-            filter.byTitle = '';
-            $('body').click();
+            filter.byTitle = filter2.byTitle = '';
         };
         $scope.$watch('criteria.sid', function(nv) {
             angular.extend(filter, { bySite: nv });
@@ -391,17 +195,11 @@ define(['frame'], function(ngApp) {
         }, true);
         $scope.listSite();
     }]);
-    ngApp.provider.controller('ctrlActivity', ['$scope', 'http2', function($scope, http2) {
+    ngApp.provider.controller('ctrlActivity', ['$scope', 'http2', 'cstApp', function($scope, http2, cstApp) {
         var criteria3, page, filter, filter2;
         $scope.filter = filter = {};
         $scope.filter2 = filter2 = {};
-        $scope.scenarioNames = {
-            'common': '通用登记',
-            'registration': '报名',
-            'voting': '投票',
-            'quiz': '测验',
-            'group_week_report': '周报'
-        };
+        $scope.scenarioNames = cstApp.scenarioNames;
         $scope.criteria3 = criteria3 = {
             matterType: 'enroll'
         }
@@ -435,17 +233,15 @@ define(['frame'], function(ngApp) {
         };
         $scope.doFilter = function() {
             angular.extend(filter, filter2);
-            $('body').click();
         };
         $scope.cleanFilter = function() {
-            filter.byTitle = '';
-            $('body').click();
+            filter.byTitle = filter2.byTitle = '';
         };
         $scope.$watch('criteria3.matterType', function(nv) {
-            angular.extend(filter, { byType: nv });
+            angular.extend(filter, { byType: nv, scenario: '' });
         })
         $scope.$watch('criteria.sid', function(nv) {
-            angular.extend(filter, { bySite: nv });
+            angular.extend(filter, { bySite: nv, scenario: '' });
         });
         $scope.$watch('filter', function(nv) {
             if (!nv) return;
@@ -486,11 +282,9 @@ define(['frame'], function(ngApp) {
         };
         $scope.doFilter = function() {
             angular.extend(filter, filter2);
-            $('body').click();
         };
         $scope.cleanFilter = function() {
-            filter.byTitle = '';
-            $('body').click();
+            filter.byTitle = filter2.byTitle = '';
         };
         $scope.$watch('criteria4.matterType', function(nv) {
             angular.extend(filter, { byType: nv });
@@ -505,30 +299,44 @@ define(['frame'], function(ngApp) {
     }]);
     ngApp.provider.controller('ctrlSiteUser', ['$scope', 'http2', function($scope, http2) {}]);
     ngApp.provider.controller('ctrlMember', ['$scope', '$uibModal', '$location', 'http2', function($scope, $uibModal, $location, http2) {
-        $scope.selectedMschema = null;
-        $scope.$watch('selectedMschema', function(nv) {
-            if (!nv) return;
-            $scope.searchBys = [];
-            nv.attr_name[0] == 0 && $scope.searchBys.push({
-                n: '姓名',
-                v: 'name'
-            });
-            nv.attr_mobile[0] == 0 && $scope.searchBys.push({
-                n: '手机号',
-                v: 'mobile'
-            });
-            nv.attr_email[0] == 0 && $scope.searchBys.push({
-                n: '邮箱',
-                v: 'email'
-            });
-            $scope.page = {
-                at: 1,
-                size: 30,
-                keyword: '',
-                searchBy: $scope.searchBys[0].v
-            };
-            $scope.doSearch(1);
-        });
+        var selected;
+        $scope.selected = selected = {
+            mschema: null
+        };
+        $scope.chooseMschema = function() {
+            var mschema;
+            if (mschema = selected.mschema) {
+                $scope.searchBys = [];
+                mschema.attr_name[0] == 0 && $scope.searchBys.push({
+                    n: '姓名',
+                    v: 'name'
+                });
+                mschema.attr_mobile[0] == 0 && $scope.searchBys.push({
+                    n: '手机号',
+                    v: 'mobile'
+                });
+                mschema.attr_email[0] == 0 && $scope.searchBys.push({
+                    n: '邮箱',
+                    v: 'email'
+                });
+                $scope.page = {
+                    at: 1,
+                    size: 30,
+                    keyword: '',
+                    searchBy: $scope.searchBys[0].v
+                };
+                $scope.doSearch(1);
+            }
+        };
+        $scope.createMschema = function() {
+            var url;
+            if ($scope.criteria.sid) {
+                url = '/rest/pl/fe/site/member/schema/create?site=' + $scope.criteria.sid;
+                http2.post(url, { valid: 'Y' }, function(rsp) {
+                    location.href = 'http://localhost/rest/pl/fe/site/setting/mschema?site=' + $scope.criteria.sid;
+                });
+            }
+        };
         $scope.doSearch = function(page) {
             page && ($scope.page.at = page);
             var url, filter = '';
@@ -536,7 +344,7 @@ define(['frame'], function(ngApp) {
                 filter = '&kw=' + $scope.page.keyword;
                 filter += '&by=' + $scope.page.searchBy;
             }
-            url = '/rest/pl/fe/site/member/list?site=' + $scope.criteria.sid + '&schema=' + $scope.selectedMschema.id;
+            url = '/rest/pl/fe/site/member/list?site=' + $scope.criteria.sid + '&schema=' + selected.mschema.id;
             url += '&page=' + $scope.page.at + '&size=' + $scope.page.size + filter
             url += '&contain=total';
             http2.get(url, function(rsp) {
@@ -561,7 +369,7 @@ define(['frame'], function(ngApp) {
                 backdrop: 'static',
                 resolve: {
                     schema: function() {
-                        return angular.copy($scope.selectedMschema);
+                        return angular.copy($scope.selected.mschema);
                     }
                 },
                 controller: ['$uibModalInstance', '$scope', 'schema', function($mi, $scope, schema) {
@@ -597,8 +405,8 @@ define(['frame'], function(ngApp) {
                             extattr: data.extattr
                         },
                         i, ea;
-                    for (i in $scope.selectedMschema.extattr) {
-                        ea = $scope.selectedMschema.extattr[i];
+                    for (i in selected.mschema.extattr) {
+                        ea = selected.mschema.extattr[i];
                         newData[ea.id] = rst.data[ea.id];
                     }
                     http2.post('/rest/pl/fe/site/member/update?site=' + $scope.criteria.sid + '&id=' + member.id, newData, function(rsp) {
@@ -611,8 +419,24 @@ define(['frame'], function(ngApp) {
                 }
             });
         };
-        http2.get('/rest/pl/fe/site/member/schema/list?site=' + $scope.criteria.sid, function(rsp) {
-            $scope.mschemas = rsp.data;
+        $scope.createEnrollApp = function(oSchema) {
+            http2.post('/rest/pl/fe/matter/enroll/createByMschema?mschema=' + oSchema.id, {}, function(rsp) {
+                location.href = '/rest/pl/fe/matter/enroll?site=' + rsp.data.siteid + '&id=' + rsp.data.id;
+            });
+        };
+        $scope.$watch('criteria.sid', function(siteId) {
+            if (siteId) {
+                http2.get('/rest/pl/fe/site/member/schema/list?site=' + siteId, function(rsp) {
+                    $scope.mschemas = rsp.data;
+                    if ($scope.mschemas.length) {
+                        selected.mschema = $scope.mschemas[0];
+                        $scope.chooseMschema();
+                    }
+                });
+            } else {
+                $scope.mschemas = [];
+                selected.mschema = null;
+            }
         });
     }]);
     ngApp.provider.controller('ctrlSiteAccount', ['$scope', '$uibModal', 'http2', function($scope, $uibModal, http2) {

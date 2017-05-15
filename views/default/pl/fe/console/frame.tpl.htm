@@ -7,62 +7,101 @@
     <base href="/">
     <link href="/static/css/bootstrap.min.css" rel="stylesheet">
     <link href="/static/css/tms.css?_=1" rel="stylesheet">
-    <link href="/views/default/pl/fe/console/frame.css?_=2" rel="stylesheet">
     <link href="/asset/css/xxt.ui.modal.css?_=1" rel="stylesheet">
+    <link href="/static/css/pl.fe.css" rel="stylesheet">
+    <link href="/views/default/pl/fe/console/frame.css?_=2" rel="stylesheet">
     <title>
         <?php echo APP_TITLE;?>
     </title>
 </head>
 
-<body class="wrapper" ng-controller='ctrlFrame'>
-    <nav class='navbar navbar-default'>
-        <div class='container'>
-            <div class="navbar-header">
+<body ng-controller='ctrlFrame' class="ng-cloak" ng-cloak>
+    <div class='pl-layout'>
+        <!-- logo + leftSide -->
+        <div class='pl-layout-leftnav'>
+            <div class='pl-layout-leftnav-header'>
                 <a class='navbar-brand' href='/rest/home' target='_self'>
                     <?php echo APP_TITLE;?>
                 </a>
-                <button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target='#navbar-collapse-1'>
-                    <span class="sr-only">Toggle navigation</span>
-                    <span class="icon-bar"></span>
-                    <span class="icon-bar"></span>
-                    <span class="icon-bar"></span>
-                </button>
             </div>
-            <form class='navbar-form navbar-left'>
-                <select class='form-control' title='团队列表' ng-model="criteria.sid">
-                    <option value=''>全部团队</option>
-                    <option value="{{site.id}}" ng-repeat="site in sites">{{site.name}}</option>
-                </select>
-            </form>
-            <ul class='nav navbar-nav'>
-                <li ng-class="{'active':subView==='main'}">
-                    <a href='/rest/pl/fe' ng-if="criteria.sid==''">我的工作台</a>
-                    <a href='/rest/pl/fe?site={{criteria.sid}}' ng-if="criteria.sid!=''">我的工作台</a>
-                </li>
-                <li ng-class="{'active':subView==='friend'}"><a href='/rest/pl/fe/friend'>团队关注</a></li>
+            <ul class="nav nav-tabs nav-stacked ng-cloak" ng-cloak ng-if="subView=='main'">
+                <li ng-class="{'active':criteria2.scope==='top'}"><a href='' ng-click="changeScope(criteria2, 'top')">置顶</a></li>
+                <li ng-class="{'active':criteria2.scope==='recent'}"><a href='' ng-click="changeScope(criteria2, 'recent')">最近</a></li>
+                <hr />
+                <li ng-class="{'active':criteria2.scope==='site'}"><a href='' ng-click="changeScope(criteria2, 'site')">团队</a></li>
+                <li ng-class="{'active':criteria2.scope==='mission'}"><a href='' ng-click="changeScope(criteria2, 'mission')">项目</a></li>
+                <li ng-class="{'active':criteria2.scope==='activity'}"><a href='' ng-click="changeScope(criteria2, 'activity')">活动</a></li>
+                <li ng-class="{'active':criteria2.scope==='info'}"><a href='' ng-click="changeScope(criteria2, 'info')">资料</a></li>
+                <hr />
+                <li ng-class="{'active':criteria2.scope==='siteuser'}"><a href='' ng-click="changeScope(criteria2, 'siteuser')">用户</a></li>
+                <hr />
+                <li ng-class="{'active':criteria2.scope==='recycle'}" ng-if="criteria.sid==''"><a href='' ng-click="changeScope(criteria2, 'recycle')">回收站</a></li>
+                <li ng-if="criteria.sid!=''"><a href="" ng-click='load(criteria.sid)'>设置团队</a></li>
+                <hr />
+                <li><a href="" uib-popover-template="'addMatter.html'" popover-placement="right" popover-append-to-body='true' popover-trigger="outsideClick"><span class='glyphicon glyphicon-plus'></span> 新建</a></li>
             </ul>
-            <div class='collapse navbar-collapse' id='navbar-collapse-1'>
-                <form class='navbar-form navbar-right ng-cloak' ng-cloak>
-                    <button class="btn btn-default" ng-if="notice.page.total>0" uib-popover-template="'userNotice.html'" popover-title="未读消息" popover-placement="bottom" popover-append-to-body='true' popover-trigger="outsideClick" popover-class='user-notice'>
-                        <span class='glyphicon glyphicon-bell'> </span>&nbsp;&nbsp;<span class="badge">{{notice.page.total}}</span>
-                    </button>
-                    <div class="btn-group">
-                        <a href='' target='_self' class="btn btn-default"><i class='glyphicon glyphicon-user'></i> {{loginUser.nickname}}</a>
-                        <button type="button" class="btn btn-default dropdown-toggle" data-toggle="dropdown">
-                            <span class="caret"></span>
-                            <span class="sr-only">Toggle Dropdown</span>
+            <ul class="nav nav-tabs nav-stacked ng-cloak" ng-cloak ng-if="subView=='friend'">
+                <li ng-class="{'active':criteria3.scope==='subscribeSite'}"><a href='' ng-click="changeScope(criteria3, 'subscribeSite')">关注</a></li>
+                <li ng-class="{'active':criteria3.scope==='contributeSite'}"><a href='' ng-click="changeScope(criteria3, 'contributeSite')">投稿</a></li>
+                <hr>
+                <li ng-class="{'active':criteria3.scope==='favorSite'}"><a href='' ng-click="changeScope(criteria3, 'favorSite')">收藏</a></li>
+            </ul>
+        </div>
+        <!-- navtop + container -->
+        <div class='pl-layout-main pl-layout-main-topnav'>
+            <nav class='navbar navbar-default pl-navbar-fixed-top'>
+                <div class='container-fluid ng-cloak' ng-cloak>
+                    <div class="navbar-header">
+                        <button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target='#navbar-collapse-1'>
+                            <span class="sr-only">Toggle navigation</span>
+                            <span class="icon-bar"></span>
+                            <span class="icon-bar"></span>
+                            <span class="icon-bar"></span>
                         </button>
-                        <ul class="dropdown-menu" role="menu">
-                            <li><a href='/rest/pl/fe/user/settings' target='_self'>用户设置</a></li>
-                            <li class="divider"></li>
-                            <li><a href='/rest/pl/fe/user/logout' target='_self'>退出</a></li>
-                        </ul>
                     </div>
-                </form>
+                    <form class='navbar-form navbar-left'>
+                        <select class='form-control' title='团队列表' ng-model="criteria.sid">
+                            <option value=''>全部团队</option>
+                            <option value="{{site.id}}" ng-repeat="site in sites">{{site.name}}</option>
+                        </select>
+                    </form>
+                    <ul class='nav navbar-nav'>
+                        <li ng-class="{'active':subView==='main'}">
+                            <a href='/rest/pl/fe' ng-if="criteria.sid==''">我的工作台</a>
+                            <a href='/rest/pl/fe?site={{criteria.sid}}' ng-if="criteria.sid!=''">我的工作台</a>
+                        </li>
+                        <li ng-class="{'active':subView==='friend'}">
+                            <a href='/rest/pl/fe/friend'>团队关注</a>
+                        </li>
+                    </ul>
+                    <div class='collapse navbar-collapse' id='navbar-collapse-1'>
+                        <form class='navbar-form navbar-right ng-cloak' ng-cloak>
+                            <button class="btn btn-default" ng-if="notice.page.total>0" uib-popover-template="'userNotice.html'" popover-title="未读消息" popover-placement="bottom" popover-append-to-body='true' popover-trigger="outsideClick" popover-class='user-notice'>
+                                <span class='glyphicon glyphicon-bell'> </span>&nbsp;&nbsp;<span class="badge">{{notice.page.total}}</span>
+                            </button>
+                            <div class="btn-group">
+                                <a href='' target='_self' class="btn btn-default"><i class='glyphicon glyphicon-user'></i> {{loginUser.nickname}}</a>
+                                <button type="button" class="btn btn-default dropdown-toggle" data-toggle="dropdown">
+                                    <span class="caret"></span>
+                                    <span class="sr-only">Toggle Dropdown</span>
+                                </button>
+                                <ul class="dropdown-menu" role="menu">
+                                    <li>
+                                        <a href='/rest/pl/fe/user/settings' target='_self'>用户设置</a>
+                                    </li>
+                                    <li class="divider"></li>
+                                    <li><a href='/rest/pl/fe/user/logout' target='_self'>退出</a></li>
+                                </ul>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            </nav>
+            <div class='container-fluid' >
+                <div class="ng-cloak row" ng-cloak ng-view></div>
             </div>
         </div>
-    </nav>
-    <div class='ng-cloak container' ng-cloak ng-view></div>
+    </div>
     <script type="text/ng-template" id="userNotice.html">
         <div id="userNotice">
             <div class='list-group'>
@@ -82,7 +121,6 @@
     <script src="/static/js/angular-sanitize.min.js"></script>
     <script src="/static/js/angular-route.min.js"></script>
     <script src="/static/js/ui-bootstrap-tpls.min.js"></script>
-    <script src="/static/js/resumable.js"></script>
     <script src="/static/js/ui-tms.js"></script>
     <script src="/static/js/xxt.ui.js"></script>
     <script src="/static/js/xxt.ui.tmplshop.js?_=2"></script>

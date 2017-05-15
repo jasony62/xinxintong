@@ -96,6 +96,17 @@ ngApp.controller('ctrlRepos', ['$scope', '$http', 'Round', function($scope, $htt
     $scope.shiftOwner = function() {
         $scope.list4Schema(opened.schema);
     };
+    $scope.likeRecordData = function(oRecord, oSchema) {
+        var url;
+        url = '/rest/site/fe/matter/enroll/record/like';
+        url += '?site=' + oApp.siteid;
+        url += '&ek=' + oRecord.enroll_key;
+        url += '&schema=' + oSchema.id;
+        $http.get(url).success(function(rsp) {
+            oRecord.like_log = rsp.data.like_log;
+            oRecord.like_num = rsp.data.like_num;
+        });
+    };
     $scope.$on('xxt.app.enroll.ready', function(event, params) {
         oApp = params.app;
         oApp.dataSchemas.forEach(function(schema) {

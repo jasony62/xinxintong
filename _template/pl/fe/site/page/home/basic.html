@@ -103,10 +103,10 @@
     <div id='gototop' class='tms-switch tms-top'>
         <span class="site_fe_home site_fe_home_icon xxt_backTop"></span>
     </div>
-    <div class="tms-switch tms-qrcode">
+    <div class="tms-switch tms-qrcode" ng-if="site.home_qrcode_group">
         <span class="site_fe_home site_fe_home_icon xxt_talk_qrcode" ng-mouseenter="active=true" ng-mouseleave="active=false"></span>
     </div>
-    <div id='gototalk'>
+    <div id='gototalk' ng-if="site.home_qrcode_group">
         <div class="talk-qrcodes">
             <div class="talk-qrcode" ng-repeat="q in site.home_qrcode_group">
                 <span ng-bind="{{q.tip}}"></span>

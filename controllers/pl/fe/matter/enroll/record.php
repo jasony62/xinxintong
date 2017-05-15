@@ -152,7 +152,7 @@ class record extends \pl\fe\matter\base {
 		$oApp = $modelEnl->byId($app, ['cascaded' => 'N']);
 
 		/* 创建登记记录 */
-		$ek = $modelRec->enroll($oApp->siteid, $oApp);
+		$ek = $modelRec->enroll($oApp);
 		$record = [];
 		$record['verified'] = isset($posted->verified) ? $posted->verified : 'N';
 		$record['comment'] = isset($posted->comment) ? $posted->comment : '';
@@ -687,7 +687,7 @@ class record extends \pl\fe\matter\base {
 							$v0 = $op->l;
 						}
 					}
-					if(isset($v0)){
+					if (isset($v0)) {
 						isset($score->{$schema->id}) && ($v0 .= ' (' . $score->{$schema->id} . '分)');
 						$objActiveSheet->setCellValueExplicitByColumnAndRow($i + $columnNum3++, $rowIndex, $v0, \PHPExcel_Cell_DataType::TYPE_STRING);
 					}
@@ -946,7 +946,7 @@ class record extends \pl\fe\matter\base {
 				$options = [];
 				$options['enrollAt'] = $record->enroll_at;
 				$options['nickname'] = $record->nickname;
-				$ek = $modelRec->enroll($site, $app, $user, $options);
+				$ek = $modelRec->enroll($app, $user, $options);
 				// 登记数据
 				$data = new \stdClass;
 				foreach ($compatibleSchemas as $cs) {
@@ -1001,7 +1001,7 @@ class record extends \pl\fe\matter\base {
 		if (false === ($user = $this->accountUser())) {
 			return new \ResponseTimeout();
 		}
-		$result = $this->model('matter\enroll\record')->listRemark($ek, $page, $size);
+		$result = $this->model('matter\enroll\remark')->listByRecord($ek, $page, $size);
 
 		return new \ResponseData($result);
 	}

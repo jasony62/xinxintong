@@ -39,6 +39,7 @@
                             </blockquote>
                             <div class='bottom-bar'>
                                 <div class='datetime text-muted'>{{rec.enroll_at*1000|date:'MM-dd HH:mm'}}</div>
+                                <button class='btn btn-default btn-sm' ng-click="likeRecordData(rec,schema)"><span class='glyphicon' ng-class="{'glyphicon-heart':rec.like_log[user.uid],'glyphicon-heart-empty':!rec.like_log[user.uid]}"></span>&nbsp;<span ng-bind="rec.like_num"></span></button>&nbsp;&nbsp;&nbsp;&nbsp;
                                 <button ng-if="schema.remarkable==='Y'" class='btn btn-default btn-sm' ng-click="gotoRemark(rec.enroll_key,schema)"><span class='glyphicon glyphicon-comment'></span></button>
                             </div>
                         </div>

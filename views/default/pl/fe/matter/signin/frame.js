@@ -96,7 +96,7 @@ define(['require', 'page', 'schema', 'signinService'], function(require, pageLib
         $scope.opened = '';
         $scope.$on('$locationChangeSuccess', function(event, currentRoute) {
             var subView = currentRoute.match(/([^\/]+?)\?/);
-            $scope.subView = subView[1] === 'enroll' ? 'publish' : subView[1];
+            $scope.subView = subView[1] === 'signin' ? 'publish' : subView[1];
             switch ($scope.subView) {
                 case 'main':
                 case 'page':

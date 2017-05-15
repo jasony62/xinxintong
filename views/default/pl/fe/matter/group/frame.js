@@ -80,18 +80,15 @@ define(['require'], function() {
             srvQuickEntryProvider.setSiteId(siteId);
         })();
     }]);
-    ngApp.controller('ctrlApp', ['$scope', 'srvSite', 'srvGroupApp', function($scope, srvSite, srvGroupApp) {
-        $scope.viewNames = {
-            'main': '活动定义',
-            'player': '分组数据',
-            'notice': '通知发送记录',
-        };
-        $scope.subView = '';
+    ngApp.controller('ctrlApp', ['$scope', 'srvSite', 'srvGroupApp', '$location', function($scope, srvSite, srvGroupApp, $location) {
         $scope.$on('$locationChangeSuccess', function(event, currentRoute) {
             var subView = currentRoute.match(/([^\/]+?)\?/);
             $scope.subView = subView[1] === 'group' ? 'player' : subView[1];
-
         });
+        $scope.switchTo = function(subView) {
+            var url = '/rest/pl/fe/matter/group/' + subView;
+            $location.path(url);
+        };
         srvSite.get().then(function(oSite) {
             $scope.site = oSite;
         });

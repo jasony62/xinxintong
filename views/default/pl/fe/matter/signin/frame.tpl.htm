@@ -9,52 +9,82 @@
     <link href="/static/css/bootstrap-switch.min.css" rel="stylesheet">
     <link href="/static/css/font-awesome.min.css" rel="stylesheet">
     <link href="/static/css/tms.css?_=2" rel="stylesheet">
+    <link href="/static/css/pl.fe.css" rel="stylesheet">
     <link href="/views/default/pl/fe/matter/signin/frame.css?_=6" rel="stylesheet">
 </head>
 
 <body ng-controller='ctrlFrame' ng-cloak class='ng-cloak'>
-    <nav class='navbar navbar-default navbar-fixed-top'>
-        <div class='container-fluid'>
-            <div class="navbar-header">
-                <button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target='#navbar-collapse-1'>
-                    <span class="sr-only">Toggle navigation</span>
-                    <span class="icon-bar"></span>
-                    <span class="icon-bar"></span>
-                    <span class="icon-bar"></span>
-                </button>
+    <div class='pl-layout'>
+        <!--logo+侧边栏-->
+        <div class='pl-layout-leftnav'>
+            <!--logo-->
+            <div class='pl-layout-leftnav-header'>
+                <a href='/rest/home' target='_self'>
+                    <?php echo APP_TITLE;?>
+                </a>
             </div>
-            <div class='collapse navbar-collapse' id='navbar-collapse-1'>
-                <nav class='nav navbar-nav tms-breadcrumb'>
-                    <li>
-                        <a href='/rest/home' target='_self'>
-                            <?php echo APP_TITLE;?>
-                        </a>
-                    </li>
-                    <li><a href="/rest/pl/fe" target='_self'>个人工作台</a></li>
-                    <li ng-if="site.yourRole"><a href="/rest/pl/fe/site/console?site={{app.siteid}}" target='_self'>{{site.name}}</a></li>
-                    <li ng-if="!site.yourRole"><a href="javascript:void(0)" style='color:#777;cursor:default;'>{{site.name}}</a></li>
-                    <li ng-if="app.mission"><a href="/rest/pl/fe/matter/mission?site={{app.siteid}}&id={{app.mission.id}}" target='_self' title="{{app.mission.title}}">{{app.mission.title}}</a></li>
-                    <li ng-if="app.mission"><a href="/rest/pl/fe/matter/mission/matter?site={{app.siteid}}&id={{app.mission.id}}#signin" target='_self'>签到</a></li>
-                    <li><a href="/rest/pl/fe/matter/signin/main?site={{app.siteid}}&id={{app.id}}" title='{{app.title}}'>{{app.title}}</a></li>
-                </nav>
-                <ul class='nav navbar-nav navbar-right'>
-                    <li class="dropdown">
-                        <a href="#" class="dropdown-toggle" data-toggle="dropdown">{{viewNames[subView]}} <span class="caret"></span></a>
-                        <ul class="dropdown-menu" role="menu">
-                            <li><a href="/rest/pl/fe/matter/signin/main?site={{app.siteid}}&id={{app.id}}">活动定义</a></li>
-                            <li><a href="/rest/pl/fe/matter/signin/schema?site={{app.siteid}}&id={{app.id}}">修改题目</a></li>
-                            <li><a href="/rest/pl/fe/matter/signin/page?site={{app.siteid}}&id={{app.id}}">修改页面</a></li>
-                            <li><a href="/rest/pl/fe/matter/signin/publish?site={{app.siteid}}&id={{app.id}}">发布预览</a></li>
-                            <li><a href="/rest/pl/fe/matter/signin/record?site={{app.siteid}}&id={{app.id}}">查看数据</a></li>
-                            <li><a href="/rest/pl/fe/matter/signin/notice?site={{app.siteid}}&id={{app.id}}">通知发送记录</a></li>
-                        </ul>
-                    </li>
-                </ul>
+            <!--侧边栏-->
+            <ul class="nav nav-tabs nav-stacked">
+                <li>
+                    <a href='' ng-click="opened=opened==='edit'?false:'edit';switchTo('schema')">编辑 <span class="caret"></span></a>
+                    <ul class="nav nav-tabs nav-stacked" ng-style="{'height':opened==='edit'?'126px':'0'}">
+                        <li ng-class="{'active':subView==='main'}">
+                            <a href='' ng-click="switchTo('main')">活动定义</a>
+                        </li>
+                        <li ng-class="{'active':subView==='schema'}">
+                            <a href='' ng-click="switchTo('schema')">修改题目</a>
+                        </li>
+                        <li ng-class="{'active':subView==='page'}">
+                            <a href='' ng-click="switchTo('page')">修改页面</a>
+                        </li>
+                    </ul>
+                </li>
+                <li ng-class="{'active':subView==='publish'}">
+                    <a href='' ng-click="opened='';switchTo('publish')">发布</a>
+                </li>
+                <li ng-class="{'active':subView==='record'}">
+                    <a href='' ng-click="opened='';switchTo('record')">数据详情</a>
+                </li>
+                <li ng-class="{'active':subView==='notice'}">
+                    <a href='' ng-click="opened='';switchTo('notice')">通知记录</a>
+                </li>
+            </ul>
+        </div>
+        <!--导航+主体内容-->
+        <div class='pl-layout-main pl-layout-main-topnav'>
+            <nav class="navbar navbar-default pl-navbar-fixed-top">
+                <div class='container-fluid'>
+                    <div class="navbar-header">
+                        <button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target='#navbar-collapse-1'>
+                            <span class="sr-only">Toggle navigation</span>
+                            <span class="icon-bar"></span>
+                            <span class="icon-bar"></span>
+                            <span class="icon-bar"></span>
+                        </button>
+                    </div>
+                    <div class='collapse navbar-collapse' id='navbar-collapse-1'>
+                        <nav class='nav navbar-nav tms-breadcrumb'>
+                            <li><a href="/rest/pl/fe" target='_self'>个人工作台</a></li>
+                            <li ng-if="site.yourRole"><a href="/rest/pl/fe/site/console?site={{app.siteid}}" target='_self'>{{site.name}}</a>
+                            </li>
+                            <li ng-if="!site.yourRole"><a href="javascript:void(0)" style='color:#777;cursor:default;'>{{site.name}}</a></li>
+                            <li ng-if="app.mission"><a href="/rest/pl/fe/matter/mission?site={{app.siteid}}&id={{app.mission.id}}" target='_self' title="{{app.mission.title}}">{{app.mission.title}}</a></li>
+                            <li ng-if="app.mission"><a href="/rest/pl/fe/matter/mission/matter?site={{app.siteid}}&id={{app.mission.id}}#{{app.scenario||'enroll'}}" target='_self'>{{scenarioNames[app.scenario]||'登记'}}</a></li>
+                            <li>
+                                <a href="" ng-click="leftSlider.goTo('main')" title='{{app.title}}' ng-if="!Title">{{app.title}}</a>
+                                <a ng-if="Title">
+                                    <input type='text' min-size="10" title='{{app.title}}' ng-model='app.title' tms-auto-update tms-wait=1000 tms-update="update('title')" ng-if="Title">
+                                </a>
+                            </li>
+                        </nav>
+                        <a class="btn btn-default navbar-btn reName" href="" ng-click="Title= Title?false:true">重命名</a>
+                    </div>
+                </div>
+            </nav>
+            <div class='container-fluid'>
+                <div class="row " ng-view></div>
             </div>
         </div>
-    </nav>
-    <div class='container'>
-        <div class='row' ng-view></div>
     </div>
     <script src="/static/js/jquery.min.js"></script>
     <script src="/static/js/jquery-ui.min.js"></script>

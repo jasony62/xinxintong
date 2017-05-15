@@ -35,8 +35,8 @@
                 <hr />
                 <li ng-class="{'active':frameState.scope==='siteuser'}"><a href='' ng-click="changeScope('siteuser')">用户</a></li>
                 <hr />
-                <li ng-class="{'active':frameState.scope==='recycle'}" ng-if="criteria.sid==''"><a href='' ng-click="changeScope('recycle')">回收站</a></li>
-                <li ng-if="criteria.sid!=''"><a href="" ng-click='load(criteria.sid)'>设置团队</a></li>
+                <li ng-class="{'active':frameState.scope==='recycle'}" ng-if="frameState.sid==''"><a href='' ng-click="changeScope('recycle')">回收站</a></li>
+                <li ng-if="frameState.sid!=''"><a href="" ng-click='load(frameState.sid)'>设置团队</a></li>
                 <hr />
                 <li><a href="" uib-popover-template="'addMatter.html'" popover-placement="right" popover-append-to-body='true' popover-trigger="outsideClick"><span class='glyphicon glyphicon-plus'></span> 新建</a></li>
             </ul>
@@ -67,8 +67,8 @@
                     </form>
                     <ul class='nav navbar-nav'>
                         <li ng-class="{'active':frameState.view==='main'}">
-                            <a href='/rest/pl/fe' ng-if="criteria.sid==''">我的工作台</a>
-                            <a href='/rest/pl/fe?site={{criteria.sid}}' ng-if="criteria.sid!=''">我的工作台</a>
+                            <a href='/rest/pl/fe' ng-if="frameState.sid==''">我的工作台</a>
+                            <a href='/rest/pl/fe?site={{frameState.sid}}' ng-if="frameState.sid!=''">我的工作台</a>
                         </li>
                         <li ng-class="{'active':frameState.view==='friend'}">
                             <a href='/rest/pl/fe/friend'>团队关注</a>

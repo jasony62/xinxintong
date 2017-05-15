@@ -226,14 +226,14 @@
             <nav class='navbar navbar-default'>
                 <div class='container-fluid'>
                     <ul class='nav navbar-nav'>
-                        <li ng-class="{'active':criteria3.matterType==='enroll'}"><a href='' ng-click="changeMatter('enroll')">登记活动</a></li>
-                        <li ng-class="{'active':criteria3.matterType==='signin'}"><a href='' ng-click="changeMatter('signin')">签到活动</a></li>
-                        <li ng-class="{'active':criteria3.matterType==='group'}"><a href='' ng-click="changeMatter('group')">分组活动</a></li>
-                        <li ng-class="{'active':criteria3.matterType==='lottery'}"><a href='' ng-click="changeMatter('lottery')">抽奖活动</a></li>
-                        <li ng-class="{'active':criteria3.matterType==='wall'}"><a href='' ng-click="changeMatter('wall')">信息墙</a></li>
+                        <li ng-class="{'active':criteria4.matterType==='enroll'}"><a href='' ng-click="changeMatter('enroll')">登记活动</a></li>
+                        <li ng-class="{'active':criteria4.matterType==='signin'}"><a href='' ng-click="changeMatter('signin')">签到活动</a></li>
+                        <li ng-class="{'active':criteria4.matterType==='group'}"><a href='' ng-click="changeMatter('group')">分组活动</a></li>
+                        <li ng-class="{'active':criteria4.matterType==='lottery'}"><a href='' ng-click="changeMatter('lottery')">抽奖活动</a></li>
+                        <li ng-class="{'active':criteria4.matterType==='wall'}"><a href='' ng-click="changeMatter('wall')">信息墙</a></li>
                     </ul>
                     <form class='nav navbar-form pull-left'>
-                        <div class="form-group" ng-if="criteria3.matterType==='enroll'">
+                        <div class="form-group" ng-if="criteria4.matterType==='enroll'">
                             <select class='form-control' ng-model="filter.scenario">
                                 <option value=''>全部场景</option>
                                 <option value='common'>通用登记</option>
@@ -262,7 +262,7 @@
                 <thead>
                     <tr>
                         <th style='width:48px'>序号</th>
-                        <th ng-if="criteria3.matterType =='enroll'" style='width:90px'>场景</th>
+                        <th ng-if="criteria4.matterType =='enroll'" style='width:90px'>场景</th>
                         <th>名称</th>
                         <th style='width:140px'>创建人</th>
                         <th style='width:120px'>创建时间</th>
@@ -273,7 +273,7 @@
                 <tbody>
                     <tr ng-repeat='m in matters'>
                         <td>{{$index+1}}</td>
-                        <td ng-if="criteria3.matterType=='enroll'">{{scenarioNames[m.matter_scenario]}}</td>
+                        <td ng-if="criteria4.matterType=='enroll'">{{scenarioNames[m.matter_scenario]}}</td>
                         <td>{{m.matter_title}}</td>
                         <td>{{m.operator_name}}</td>
                         <td>{{m.operate_at*1000|date:'yy-MM-dd HH:mm'}}</td>
@@ -313,13 +313,13 @@
             <nav class='navbar navbar-default'>
                 <div class='container-fluid'>
                     <ul class='nav navbar-nav'>
-                        <li ng-class="{'active':criteria4.matterType==='article'}"><a href='' ng-click="changeMatter('article')">单图文</a></li>
-                        <li ng-class="{'active':criteria4.matterType==='news'}"><a href='' ng-click="changeMatter('news')">多图文</a></li>
-                        <li ng-class="{'active':criteria4.matterType==='channel'}"><a href='' ng-click="changeMatter('channel')">频道</a></li>
-                        <li ng-class="{'active':criteria4.matterType==='link'}"><a href='' ng-click="changeMatter('link')">链接</a></li>
-                        <li ng-class="{'active':criteria4.matterType==='contribute'}"><a href='' ng-click="changeMatter('contribute')">投稿</a></li>
-                        <li ng-class="{'active':criteria4.matterType==='text'}"><a href='' ng-click="changeMatter('text')">文本</a></li>
-                        <li ng-class="{'active':criteria4.matterType==='custom'}"><a href='' ng-click="changeMatter('custom')">定制页</a></li>
+                        <li ng-class="{'active':criteria5.matterType==='article'}"><a href='' ng-click="changeMatter('article')">单图文</a></li>
+                        <li ng-class="{'active':criteria5.matterType==='news'}"><a href='' ng-click="changeMatter('news')">多图文</a></li>
+                        <li ng-class="{'active':criteria5.matterType==='channel'}"><a href='' ng-click="changeMatter('channel')">频道</a></li>
+                        <li ng-class="{'active':criteria5.matterType==='link'}"><a href='' ng-click="changeMatter('link')">链接</a></li>
+                        <li ng-class="{'active':criteria5.matterType==='contribute'}"><a href='' ng-click="changeMatter('contribute')">投稿</a></li>
+                        <li ng-class="{'active':criteria5.matterType==='text'}"><a href='' ng-click="changeMatter('text')">文本</a></li>
+                        <li ng-class="{'active':criteria5.matterType==='custom'}"><a href='' ng-click="changeMatter('custom')">定制页</a></li>
                     </ul>
                     <form class='nav navbar-form pull-left'>
                         <div class='form-group'>

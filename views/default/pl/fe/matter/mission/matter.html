@@ -14,7 +14,7 @@
                 <li ng-class="{'active':matterType==='wall'}"><a href='#wall' ng-click="matterType='wall'">信息墙</a></li>
             </ul>
             <form class="navbar-form navbar-right">
-                <button uib-popover-template="'addMatter.html'" popover-placement="bottom" popover-append-to-body='true' popover-trigger="outsideClick" popover-title="添加素材" class='btn btn-default'><i class='glyphicon glyphicon-plus'></i> <i class='caret'></i></button>
+                <button uib-popover-template="'addMatter.html'" popover-placement="bottom" popover-append-to-body='true' popover-trigger="outsideClick" popover-title="添加素材" class='btn btn-default'><i class='glyphicon glyphicon-plus'></i> <span>新建</span> <i class='caret'></i></button>
             </form>
             <div class='navbar-form navbar-right' ng-if="phases.length">
                 <select class="form-control" title="项目阶段" ng-model="criteria.pid"  ng-change="doSearch(criteria.pid)" >
@@ -67,6 +67,7 @@
     <div id="addMatter">
         <div class='form-group'>
             <button class='btn btn-default' ng-click="addMatter('article')">单图文</button>
+            <button class='btn btn-default' ng-click="addMatter('group')">信息墙</button>
         </div>
         <div class='form-group'>
             <button class='btn btn-default' ng-click="addMatter('registration')">报名活动</button>
@@ -74,6 +75,8 @@
             <button class='btn btn-default' ng-click="addMatter('quiz')">测验活动</button>
             <button class='btn btn-default' ng-click="addEnroll('group_week_report')">团队周报</button>
             <button class='btn btn-default' ng-click="addEnroll('common')">通用登记</button>
+        </div>
+        <div class='form-group'>
             <button class='btn btn-default' ng-click="addMatter('signin')">签到活动</button>
             <button class='btn btn-default' ng-click="addMatter('group')">分组活动</button>
         </div>

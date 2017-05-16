@@ -520,7 +520,6 @@ define(['frame'], function(ngApp) {
                 var url = '/rest/pl/fe/site/console/recycle?site=' + filter.bySite + '&_=' + t;
                 http2.post(url, filter, function(rsp) {
                     $scope.matters = rsp.data.matters;
-                    /*$scope.page.total = rsp.data.total;*/
                 });
             }
         };

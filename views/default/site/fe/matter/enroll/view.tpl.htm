@@ -16,6 +16,7 @@
 <body>
     <header ng-if="app.use_site_header==='Y'" dynamic-html="site.header_page.html"></header>
     <header ng-if="app.use_mission_header==='Y'" dynamic-html="mission.header_page.html"></header>
+    <div id="appLoginTip" uib-popover-template="'appLoginTip.html'" uib-popover="" popover-placement="bottom" popover-trigger="show" popover-append-to-body="true"></div>
     <div ng-cloak class='ng-cloak app'>
         <div id='errmsg' class='alert alert-danger' ng-class="{'active':errmsg}" ng-click="errmsg=''" ng-bind='errmsg'></div>
         <div class='container'>
@@ -32,6 +33,16 @@
     <script src="/static/js/angular-sanitize.min.js"></script>
     <script src="/static/js/ui-bootstrap-tpls.min.js"></script>
     <script src="<?php echo auto_version('/bundles/default/site/fe/matter/enroll/view.js');?>"></script>
+    <script type="text/ng-template" id="appLoginTip.html">
+        <div ng-controller="ctrlAppTip" ng-init="domId='#appLoginTip'">
+            <div class='form-group'>
+                <a href="/rest/site/fe/user/login?site={{app.siteid}}">登录</a>，在其他终端共享填写数据
+            </div>
+            <div class='text-right'>
+                <button class='btn btn-default btn-sm' ng-click="closeTip()">关闭 <span ng-bind="autoCloseTime"></span></button>
+            </div>
+        </div>
+    </script>
 </body>
 
 </html>

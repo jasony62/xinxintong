@@ -221,7 +221,7 @@ define(['require'], function(require) {
         };
         $scope.addSchema = function() {
             var url = '/rest/pl/fe/site/member/schema/create?site=' + $scope.siteId;
-            http2.get(url, function(rsp) {
+            http2.post(url, {}, function(rsp) {
                 shiftAttr(rsp.data);
                 $scope.schemas.push(rsp.data);
             });

@@ -356,7 +356,7 @@ ngApp.directive('tmsFileInput', ['$q', 'ls', 'tmsDynaPage', function($q, LS, tms
         }]
     }
 }]);
-ngApp.controller('ctrlInput', ['$scope', '$http', '$q', '$uibModal', 'Input', 'ls', function($scope, $http, $q, $uibModal, Input, LS) {
+ngApp.controller('ctrlInput', ['$scope', '$http', '$q', '$uibModal', '$timeout', 'Input', 'ls', function($scope, $http, $q, $uibModal, $timeout, Input, LS) {
     function setMember(user, member) {
         var member2, eles;
         if (user && member && member.schema_id && user.members) {
@@ -510,9 +510,9 @@ ngApp.controller('ctrlInput', ['$scope', '$http', '$q', '$uibModal', 'Input', 'l
             tasksOfBeforeSubmit.push(fn);
         }
     };
+    var hasSetMember = false;
     $scope.$on('xxt.app.enroll.ready', function(event, params) {
         var schemasById,
-            hasSetMember = false,
             dataOfRecord, p, value;
 
         $scope.schemasById = schemasById = params.app._schemasById;
@@ -525,7 +525,6 @@ ngApp.controller('ctrlInput', ['$scope', '$http', '$q', '$uibModal', 'Input', 'l
                         dataOfRecord.member = JSON.parse(dataOfRecord.member);
                     }
                     $scope.data.member = angular.extend($scope.data.member, dataOfRecord.member);
-                    hasSetMember = true;
                 } else if (undefined !== schemasById[p]) {
                     var schema = schemasById[p];
                     if (schema.type === 'score') { // is object
@@ -558,18 +557,32 @@ ngApp.controller('ctrlInput', ['$scope', '$http', '$q', '$uibModal', 'Input', 'l
         if (window.localStorage) {
             var cached = submitState.fromCache();
             if (cached) {
+                if (cached.member) {
+                    delete cached.member;
+                }
                 angular.extend($scope.data, cached);
                 submitState.modified = true;
             }
         }
-        // 无论是否有登记记录都自动填写自定义用户信息
-        !hasSetMember && setMember(params.user, $scope.data.member);
         // 跟踪数据变化
         $scope.$watch('data', function(nv, ov) {
             if (nv !== ov) {
                 submitState.modified = true;
             }
         }, true);
+        // 登录提示
+        if (!params.user.unionid) {
+            var domTip = document.querySelector('#appLoginTip');
+            var evt = document.createEvent("HTMLEvents");
+            evt.initEvent("show", false, false);
+            domTip.dispatchEvent(evt);
+        }
+    });
+    $scope.$watch('data.member.schema_id', function(schemaId) {
+        if (false === hasSetMember && schemaId && $scope.user) {
+            setMember($scope.user, $scope.data.member);
+            hasSetMember = true;
+        }
     });
     $scope.submit = function(event, nextAction) {
         var checkResult;

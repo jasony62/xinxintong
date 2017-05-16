@@ -15,7 +15,8 @@
 #recordEditor .remark{border-bottom:1px solid #ddd;}
 #recordEditor .remark:last-child{border-bottom:0;}
 #recordEditor .remark>*{margin:1em 0;}
-#recordEditor .remark .datetime{color:#777;font-size:.8em;}
+#recordEditor .remark .bottom-bar{display:flex;}
+#recordEditor .remark .bottom-bar .datetime{color:#777;flex:1;line-height:30px;font-size:.8em;}
 </style>
 <div id='recordEditor' class='col-md-10 col-md-offset-1'>
     <uib-tabset active="activeTab">
@@ -118,6 +119,7 @@
                             <div>
                                 <span ng-if="schema.requireScore==='Y'">分数：<input type='text' class='form-control' ng-disabled="['single','multiple'].indexOf(schema.type)!==-1" ng-model="quizScore[schema.id]" style='display:inline-block;width:64px'></span>
                                 <button ng-if="schema.remarkable==='Y'" class='btn btn-default btn-sm' style='display:inline-block;margin-left:1em;' ng-click="gotoRemark(schema)"><span class='glyphicon glyphicon-comment'></span> <span class="badge">{{schema.summary.remark_num}}</span></button>
+                                <span style='display:inline-block;margin-left:1rem' ng-if="schema.remarkable==='Y'">点赞 <span class='badge'>{{record.verbose[schema.id].like_num}}</span></span>
                             </div>
                         </div>
                     </div>
@@ -223,7 +225,10 @@
                                     <p>{{remark.content}}</p>
                                     <footer>{{remark.nickname}}</footer>
                                 </blockquote>
-                                <div class='datetime'>{{remark.create_at*1000|date:'MM-dd HH:mm'}}</div>
+                                <div class='bottom-bar'>
+                                    <div class='datetime'>{{remark.create_at*1000|date:'MM-dd HH:mm'}}</div>
+                                    <span>点赞 <span class='badge'>{{remark.like_num}}</span></span>
+                                </div>
                             </div>
                         </div>
                         <div class="input-group">

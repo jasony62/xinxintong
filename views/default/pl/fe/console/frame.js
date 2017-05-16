@@ -1,6 +1,31 @@
 define(['require'], function(require) {
     'use strict';
     var ngApp = angular.module('app', ['ngRoute', 'ui.bootstrap', 'ui.tms', 'tmplshop.ui.xxt', 'service.matter', 'page.ui.xxt', 'modal.ui.xxt']);
+    ngApp.constant('cstApp', {
+        matterNames: {
+            'article': '单图文',
+            'news': '多图文',
+            'channel': '频道',
+            'link': '链接',
+            'contribute': '投稿',
+            'text': '文本',
+            'custom': '定制页',
+            'enroll': '登记',
+            'signin': '签到',
+            'group': '分组',
+            'lottery': '抽奖',
+            'wall': '信息墙',
+            'mission': '项目',
+            'site': '团队'
+        },
+        scenarioNames: {
+            'common': '通用登记',
+            'registration': '报名',
+            'voting': '投票',
+            'quiz': '测验',
+            'group_week_report': '周报'
+        }
+    });
     ngApp.config(['$controllerProvider', '$provide', '$routeProvider', '$locationProvider', '$compileProvider', '$uibTooltipProvider', function($controllerProvider, $provide, $routeProvider, $locationProvider, $compileProvider, $uibTooltipProvider) {
         var RouteParam = function(name) {
             var baseURL = '/views/default/pl/fe/console/';
@@ -29,13 +54,44 @@ define(['require'], function(require) {
             'show': 'hide'
         });
     }]);
-    ngApp.controller('ctrlFrame', ['$scope', 'http2', 'srvUserNotice', '$uibModal', 'templateShop',function($scope, http2, srvUserNotice, $uibModal, templateShop) {
-        var criteria, criteria2, criteria3;
-        $scope.subView = '';
+    ngApp.controller('ctrlFrame', ['$scope', 'http2', 'srvUserNotice', '$uibModal', 'templateShop', function($scope, http2, srvUserNotice, $uibModal, templateShop) {
+        var frameState;
+        if (window.localStorage) {
+            $scope.$watch('frameState', function(nv) {
+                if (nv) {
+                    window.localStorage.setItem("pl.fe.frameState", JSON.stringify(nv));
+                }
+            }, true);
+            if (frameState = window.localStorage.getItem("pl.fe.frameState")) {
+                frameState = JSON.parse(frameState);
+            } else {
+                frameState = {
+                    sid: '',
+                    view: '',
+                    scope: ''
+                };
+            }
+        } else {
+            frameState = {
+                sid: '',
+                view: '',
+                scope: ''
+            };
+        }
+        $scope.frameState = frameState;
+
         $scope.$on('$locationChangeSuccess', function(event, currentRoute) {
             var subView = currentRoute.match(/[^\/]+$/)[0];
             subView.indexOf('?') !== -1 && (subView = subView.substr(0, subView.indexOf('?')));
-            $scope.subView = subView === 'fe' ? 'main' : subView;
+            subView = subView === 'fe' ? 'main' : subView;
+            if (subView !== frameState.view) {
+                frameState.view = subView;
+                if (frameState.view === 'main') {
+                    frameState.scope = 'top';
+                } else if (frameState.view === 'friend') {
+                    frameState.scope = 'subscribeSite';
+                }
+            }
         });
         var url = '/rest/pl/fe/user/get?_=' + (new Date() * 1);
         http2.get(url, function(rsp) {
@@ -50,22 +106,13 @@ define(['require'], function(require) {
         srvUserNotice.uncloseList().then(function(result) {
             $scope.notice = result;
         });
-        $scope.criteria = criteria = {
-            sid: ''
-        };
-        $scope.criteria2 = criteria2 = {
-            scope: 'top'
-        };
-        $scope.criteria3 = criteria3 = {
-            scope: 'subscribeSite'
-        };
-        $scope.changeScope = function(criteria, scope) {
-            criteria.scope = scope;
+        $scope.changeScope = function(scope) {
+            frameState.scope = scope;
         };
         $scope.load = function(id) {
-            location.href = '/rest/pl/fe/site/setting?site=' + id;
-        }
-        /*新建素材*/
+                location.href = '/rest/pl/fe/site/setting?site=' + id;
+            }
+            /*新建素材*/
         var _fns = {
             createSite: function() {
                 var defer = $q.defer(),
@@ -179,6 +226,7 @@ define(['require'], function(require) {
                 location.href = '/rest/pl/fe/matter/text?site=' + site.id;
             }
         };
+
         function addMatter(site, matterType, scenario) {
             var fnName = 'add' + matterType[0].toUpperCase() + matterType.substr(1);
             _fns[fnName].call(_fns, site, scenario);
@@ -191,8 +239,8 @@ define(['require'], function(require) {
                     location.href = '/rest/pl/fe/site/setting?site=' + rsp.data.id;
                 });
             }
-            if ($scope.criteria.sid != '') {
-                var site = { id: $scope.criteria.sid };
+            if (frameState.sid != '') {
+                var site = { id: frameState.sid };
                 addMatter(site, matterType, scenario);
             } else {
                 var url = '/rest/pl/fe/site/list?_=' + (new Date() * 1);
@@ -234,7 +282,6 @@ define(['require'], function(require) {
             $scope.siteType = 1;
             var url = '/rest/pl/fe/site/list?_=' + (new Date() * 1);
             http2.get(url, function(rsp) {
-                $scope.site1 = rsp.data;
                 $scope.sites = rsp.data;
             });
         };

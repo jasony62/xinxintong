@@ -13,4 +13,5 @@ img{max-width:100%}
 #remarkList .remark{border-bottom:1px solid #ddd;}
 #remarkList .remark:last-child{border-bottom:0;}
 #remarkList .remark>*{margin:1em 0;}
-#remarkList .remark .datetime{color:#777;font-size:.8em;}
+#remarkList .remark .bottom-bar{display:flex;}
+#remarkList .remark .bottom-bar .datetime{color:#777;flex:1;line-height:30px;font-size:.8em;}

@@ -41,9 +41,9 @@ class home_model extends \TMS_MODEL {
 	 */
 	public function &find($options = []) {
 		$fields = isset($options['fields']) ? $options['fields'] : '*';
-		if(strpos($fields, 'h.') === false && strpos($fields, 's.') === false){
-			$fields = str_replace(',',',h.',$fields);
-			$fields = 'h.'.$fields;
+		if (strpos($fields, 'h.') === false && strpos($fields, 's.') === false) {
+			$fields = str_replace(',', ',h.', $fields);
+			$fields = 'h.' . $fields;
 		}
 		$page = isset($options['page']) ? $options['page'] : ['at' => 1, 'size' => 8];
 
@@ -114,19 +114,19 @@ class home_model extends \TMS_MODEL {
 		$rst = $this->update(
 			'xxt_home_site',
 			['approved' => 'Y'],
-			["siteid" => $applicationId]
+			["id" => $applicationId]
 		);
 
 		return $rst;
 	}
 	/**
-	 * 推送到主页
+	 * 从主页撤销
 	 */
 	public function pullHome($applicationId) {
 		$rst = $this->update(
 			'xxt_home_site',
 			['approved' => 'N'],
-			["siteid" => $applicationId]
+			["id" => $applicationId]
 		);
 
 		return $rst;
@@ -136,16 +136,16 @@ class home_model extends \TMS_MODEL {
 	 */
 	public function &atHome($options = []) {
 		$fields = isset($options['fields']) ? $options['fields'] : '*';
-		if(strpos($fields, 'h.') === false && strpos($fields, 's.') === false){
-			$fields = str_replace(',',',h.',$fields);
-			$fields = 'h.'.$fields;
+		if (strpos($fields, 'h.') === false && strpos($fields, 's.') === false) {
+			$fields = str_replace(',', ',h.', $fields);
+			$fields = 'h.' . $fields;
 		}
 		$page = isset($options['page']) ? $options['page'] : ['at' => 1, 'size' => 8];
 
 		$q = [
 			$fields,
 			'xxt_home_site h, xxt_site s',
-			"h.approved = 'Y' and h.siteid = s.id and s.state = 1"
+			"h.approved = 'Y' and h.siteid = s.id and s.state = 1",
 		];
 
 		$q2 = [

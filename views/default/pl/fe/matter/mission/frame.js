@@ -13,7 +13,6 @@ define(['missionService', 'enrollService', 'signinService'], function() {
             'quiz': '测验',
             'group_week_report': '周报',
             'signin': '签到',
-            'group': '分组',
             'split': '分组',
             'wall': '信息墙'
         }

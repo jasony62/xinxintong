@@ -499,21 +499,54 @@ define(['frame'], function(ngApp) {
         $scope.doSearch(1);
     }]);
     ngApp.provider.controller('ctrlRecycle', ['$scope', 'http2', function($scope, http2) {
-        var t = (new Date() * 1);
-        $scope.recycle = function() {
-            //获取回收站信息
-            var url = '/rest/pl/fe/site/wasteList?_=' + t;
-            http2.get(url, function(rsp) {
-                $scope.sites0 = rsp.data;
-            });
+        var t = (new Date() * 1), filter, filter2;
+        $scope.filter = filter = {};
+        $scope.filter2 = filter2 = {};
+        $scope.list = function() {
+            if(filter.bySite == '') {
+                var url = '/rest/pl/fe/site/wasteList?_=' + t,
+                    url2 = '/rest/pl/fe/site/console/recycle?site=' + filter.bySite + '&_=' + t;
+                http2.post(url, filter, function(rsp) {
+                    $scope.matters = rsp.data;
+                })
+                http2.post(url2, filter, function(rsp) {
+                    rsp.data.matters.forEach(function(item) {
+                        $scope.matters.push(item);
+                    });
+                })
+            }else {
+                var url = '/rest/pl/fe/site/console/recycle?site=' + filter.bySite + '&_=' + t;
+                http2.post(url, filter, function(rsp) {
+                    $scope.matters = rsp.data.matters;
+                    /*$scope.page.total = rsp.data.total;*/
+                });
+            }
+        };
+        $scope.doFilter = function() {
+            angular.extend(filter, filter2);
+        };
+        $scope.cleanFilter = function() {
+            filter.byTitle = filter2.byTitle = '';
         };
         $scope.restoreSite = function(site) {
-            //恢复删除站点
+            //恢复删除的站点
             var url = '/rest/pl/fe/site/recover?site=' + site.id;
             http2.get(url, function(rsp) {
                 location.href = '/rest/pl/fe/site?site=' + site.id;
             })
         };
-        $scope.recycle();
+        $scope.restoreMatter = function(matter) {
+            var url = '/rest/pl/fe/matter/' + matter.matter_type + '/restore' + '?site=' + matter.siteid + '&id=' + matter.matter_id;
+            http2.get(url, function(rsp) {
+                location.href = '/rest/pl/fe/matter/' + matter.matter_type + '?site=' + matter.siteid + '&id=' + matter.matter_id;
+            });
+        };
+        $scope.$watch('frameState.sid', function(nv) {
+            angular.extend(filter, { bySite: nv });
+        });
+        $scope.$watch('filter', function(nv) {
+            if (!nv) return;
+            $scope.list();
+        }, true);
     }]);
 });

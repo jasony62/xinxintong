@@ -372,6 +372,7 @@ class main extends \pl\fe\matter\base {
 		$rst = $model->update('xxt_article', ['state' => 1, 'modify_at' => time()], ['siteid' => $site, 'id' => $id]);
 
 		/* 记录操作日志 */
+		$custom->type = 'custom';
 		$this->model('matter\log')->matterOp($site, $user, $custom, 'Restore');
 
 		return new \ResponseData($rst);

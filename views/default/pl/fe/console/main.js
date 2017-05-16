@@ -30,6 +30,32 @@ define(['frame'], function(ngApp) {
         $scope.openConsole = function(site) {
             location.href = '/rest/pl/fe/site?site=' + site.siteid;
         };
+        $scope.copyMatter = function(evt, matter) {
+            var type = (matter.matter_type || matter.type || $scope.matterType),
+            id = (matter.matter_id || matter.id),
+            siteid = matter.siteid,
+            url = '/rest/pl/fe/matter/';
+
+            evt.stopPropagation();
+            switch (type) {
+                case 'article':
+                    url += type + '/copy?id=' + id + '&site=' + siteid;
+                    break;
+                case 'enroll':
+                    url += 'enroll/copy?app=' + id + '&site=' + siteid;
+                    break;
+                case 'signin':
+                case 'group':
+                    url += type + '/copy?app=' + id + '&site=' + siteid;
+                    break;
+                default:
+                    alert('指定素材不支持复制');
+                    return;
+            }
+            http2.get(url, function(rsp) {
+                location.href = '/rest/pl/fe/matter/' + type + '?site=' + rsp.data.siteid + '&id=' + rsp.data.id;
+            });
+        };
         $scope.$on('fromCtrlRecentStickTop', function(event, data) {
             $scope.$broadcast('toCtrlTopList', data);
         });

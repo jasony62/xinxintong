@@ -68,7 +68,7 @@
                         <th>名称</th>
                         <th style='width:120px'>最后修改时间</th>
                         <th style='width:64px'>置顶</th>
-                        <th style='width:180px'>操作</th>
+                        <th style='width:220px'>操作</th>
                     </tr>
                 </thead>
                 <tbody>
@@ -85,15 +85,18 @@
                                 <button class='btn btn-sm btn-default' ng-click="openMatter(m,'main')">定义</button>
                                 <button class='btn btn-sm btn-default' ng-click="openMatter(m,'publish')">设置</button>
                                 <button class='btn btn-sm btn-default' ng-click="openMatter(m,'record')">数据</button>
+                                <button class='btn btn-sm btn-default' ng-click="copyMatter($event,m)">复制</button>
                             </div>
                             <div ng-switch-when="signin">
                                 <button class='btn btn-sm btn-default' ng-click="openMatter(m,'main')">定义</button>
                                 <button class='btn btn-sm btn-default' ng-click="openMatter(m,'publish')">设置</button>
                                 <button class='btn btn-sm btn-default' ng-click="openMatter(m,'record')">数据</button>
+                                <button class='btn btn-sm btn-default' ng-click="copyMatter($event,m)">复制</button>
                             </div>
                             <div ng-switch-when="group">
                                 <button class='btn btn-sm btn-default' ng-click="openMatter(m,'main')">定义</button>
                                 <button class='btn btn-sm btn-default' ng-click="openMatter(m,'player')">数据</button>
+                                <button class='btn btn-sm btn-default' ng-click="copyMatter($event,m)">复制</button>
                             </div>
                             <div ng-switch-when="mission">
                                 <button class='btn btn-sm btn-default' ng-click="openMatter(m,'main')">定义</button>
@@ -106,6 +109,7 @@
                             </div>
                             <div ng-switch-default>
                                 <button class='btn btn-sm btn-default' ng-click="openMatter(m,'main')">进入</button>
+                                <button class='btn btn-sm btn-default' ng-click="copyMatter($event,m)" ng-if="m.matter_type=='article'">复制</button>
                             </div>
                         </td>
                     </tr>
@@ -267,7 +271,7 @@
                         <th style='width:140px'>创建人</th>
                         <th style='width:120px'>创建时间</th>
                         <th style='width:64px'>置顶</th>
-                        <th style='width:180px'>操作</th>
+                        <th style='width:220px'>操作</th>
                     </tr>
                 </thead>
                 <tbody>
@@ -284,16 +288,19 @@
                             <div ng-switch-when="group">
                                 <button class='btn btn-sm btn-default' ng-click="openMatter(m,'main')">定义</button>
                                 <button class='btn btn-sm btn-default' ng-click="openMatter(m,'player')">数据</button>
+                                <button class='btn btn-sm btn-default' ng-click="copyMatter($event,m)">复制</button>
                             </div>
                             <div ng-switch-when="enroll">
                                 <button class='btn btn-sm btn-default' ng-click="openMatter(m,'main')">定义</button>
                                 <button class='btn btn-sm btn-default' ng-click="openMatter(m,'publish')">设置</button>
                                 <button class='btn btn-sm btn-default' ng-click="openMatter(m,'record')">数据</button>
+                                <button class='btn btn-sm btn-default' ng-click="copyMatter($event,m)">复制</button>
                             </div>
                             <div ng-switch-when="signin">
                                 <button class='btn btn-sm btn-default' ng-click="openMatter(m,'main')">定义</button>
                                 <button class='btn btn-sm btn-default' ng-click="openMatter(m,'publish')">设置</button>
                                 <button class='btn btn-sm btn-default' ng-click="openMatter(m,'record')">数据</button>
+                                <button class='btn btn-sm btn-default' ng-click="copyMatter($event,m)">复制</button>
                             </div>
                             <div ng-switch-default>
                                 <button class='btn btn-sm btn-default' ng-click="openMatter(m,'main')">进入</button>
@@ -345,7 +352,7 @@
                         <th style='width:140px'>创建人</th>
                         <th style='width:120px'>创建时间</th>
                         <th style='width:64px'>置顶</th>
-                        <th style='width:64px'>操作</th>
+                        <th style='width:120px'>操作</th>
                     </tr>
                 </thead>
                 <tbody>
@@ -359,6 +366,7 @@
                         </td>
                         <td>
                             <button class='btn btn-sm btn-default' ng-click="openMatter(m,'main')">进入</button>
+                            <button class='btn btn-sm btn-default' ng-click="copyMatter($event,m)" ng-if="m.matter_type=='article'">复制</button>
                         </td>
                     </tr>
                 </tbody>

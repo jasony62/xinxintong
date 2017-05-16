@@ -207,6 +207,28 @@ class main extends \pl\fe\matter\base {
 		return new \ResponseData($rst);
 	}
 	/**
+	 * 恢复被删除的素材
+	 */
+	public function restore_action($site, $id) {
+		if (false === ($user = $this->accountUser())) {
+			return new \ResponseTimeout();
+		}
+
+		$model = $this->model('matter\news');
+		$matter = $model->byId($id);
+		if (false === $matter) {
+			return new \ResponseError('数据已经被彻底删除，无法恢复');
+		}
+
+		/* 恢复数据 */
+		$rst = $model->update('xxt_news', ['state' => 1], ['siteid' => $site, 'id' => $id]);
+
+		/* 记录操作日志 */
+		$this->model('matter\log')->matterOp($site, $user, $matter, 'Restore');
+
+		return new \ResponseData($rst);
+	}
+	/**
 	 *
 	 */
 	protected function getMatterType() {

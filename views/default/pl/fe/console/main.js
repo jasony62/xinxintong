@@ -505,15 +505,17 @@ define(['frame'], function(ngApp) {
         $scope.list = function() {
             if(filter.bySite == '') {
                 var url = '/rest/pl/fe/site/wasteList?_=' + t,
-                    url2 = '/rest/pl/fe/site/console/recycle?site=' + filter.bySite + '&_=' + t;
-                http2.post(url, filter, function(rsp) {
-                    $scope.matters = rsp.data;
-                })
-                http2.post(url2, filter, function(rsp) {
-                    rsp.data.matters.forEach(function(item) {
-                        $scope.matters.push(item);
+                    url2 = '/rest/pl/fe/site/console/recycle?site=' + filter.bySite + '&_=' + t,
+                    urls = [url, url2];
+                $scope.matters = [];
+                urls.forEach(function(item) {
+                    http2.post(item, filter, function(rsp) {
+                        var data = rsp.data.matters || rsp.data;
+                        data.forEach(function(matter) {
+                            $scope.matters.push(matter);
+                        });
                     });
-                })
+                });
             }else {
                 var url = '/rest/pl/fe/site/console/recycle?site=' + filter.bySite + '&_=' + t;
                 http2.post(url, filter, function(rsp) {

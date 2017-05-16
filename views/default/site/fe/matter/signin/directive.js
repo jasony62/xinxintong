@@ -1,14 +1,22 @@
 var __util = {};
 __util.makeDialog = function(id, html) {
-    var dlg, $dlg;
-    dlg = "<div class='dialog mask'><div class='dialog dlg'>";
+    var dlg, mask;
+
+    mask = document.createElement('div');
+    mask.setAttribute('id', id);
+    mask.classList.add('dialog', 'mask');
+
+    dlg = "<div class='dialog dlg'>";
     html.header && html.header.length && (dlg += "<div class='dlg-header'>" + html.header + "</div>");
     dlg += "<div class='dlg-body'>" + html.body + "</div>";
-    html.footer && html.fotter.length && (dlg += "<div class='dlg-footer'>" + html.footer + "</div>");
-    dlg += "</div></div>";
-    $dlg = $(dlg).attr('id', id);
-    $('body').append($dlg);
-    return $dlg.contents();
+    html.footer && html.footer.length && (dlg += "<div class='dlg-footer'>" + html.footer + "</div>");
+    dlg += "</div>";
+
+    mask.innerHTML = dlg;
+
+    document.body.appendChild(mask);
+
+    return mask.children;
 };
 var ngMod = angular.module('directive.signin', []);
 ngMod.directive('tmsDate', ['$compile', function($compile) {
@@ -17,10 +25,12 @@ ngMod.directive('tmsDate', ['$compile', function($compile) {
         scope: {
             value: '=tmsDateValue'
         },
-        controller: function($scope) {
+        controller: ['$scope', function($scope) {
             $scope.close = function() {
+                var mask;
+                mask = document.querySelector('#' + $scope.dialogID);
+                document.body.removeChild(mask);
                 $scope.opened = false;
-                $('#' + $scope.dialogID).remove();
             };
             $scope.ok = function() {
                 var dtObject;
@@ -31,15 +41,15 @@ ngMod.directive('tmsDate', ['$compile', function($compile) {
                 dtObject.setDate($scope.data.date);
                 dtObject.setHours($scope.data.hour);
                 dtObject.setMinutes($scope.data.minute);
-                $scope.value = dtObject.getTime();
+                $scope.value = parseInt(dtObject.getTime() / 1000);
                 $scope.close();
             };
-        },
+        }],
         link: function(scope, elem, attrs) {
             var fnOpenPicker, dtObject, dtMinute, htmlBody;
-            scope.value === undefined && (scope.value = new Date().getTime());
+            scope.value === undefined && (scope.value = (new Date() * 1) / 1000);
             dtObject = new Date();
-            dtObject.setTime(scope.value);
+            dtObject.setTime(scope.value * 1000);
             scope.options = {
                 years: [2014, 2015, 2016, 2017],
                 months: [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12],
@@ -66,7 +76,7 @@ ngMod.directive('tmsDate', ['$compile', function($compile) {
                 event.stopPropagation();
                 if (scope.opened) return;
                 var html, id;
-                id = '_dlg-' + (new Date()).getTime();
+                id = '_dlg-' + (new Date() * 1);
                 html = {
                     header: '',
                     body: htmlBody,
@@ -77,7 +87,7 @@ ngMod.directive('tmsDate', ['$compile', function($compile) {
                 scope.dialogID = id;
                 $compile(html)(scope);
             };
-            $(elem).find('[ng-bind]').click(fnOpenPicker);
+            elem[0].querySelector('[ng-bind]').addEventListener('click', fnOpenPicker);
         }
     }
 }]);

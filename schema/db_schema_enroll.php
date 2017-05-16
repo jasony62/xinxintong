@@ -206,6 +206,8 @@ $sql .= ",remark_num int not null default 0"; // 评论数
 $sql .= ",last_remark_at int not null default 0"; // 最后一次被评论的时间
 $sql .= ",score float not null default 0"; // 登记项获得的分数
 $sql .= ",modify_log longtext"; // 数据修改日志
+$sql .= ",like_log longtext"; // 点赞日志 {userid:likeAt}
+$sql .= ",like_num int not null default 0"; // 点赞数
 $sql .= ",primary key(id)) ENGINE=MyISAM DEFAULT CHARSET=utf8";
 if (!$mysqli->query($sql)) {
 	header('HTTP/1.0 500 Internal Server Error');
@@ -236,18 +238,20 @@ $sql = "create table if not exists xxt_enroll_record_remark(";
 $sql .= "id int not null auto_increment";
 $sql .= ",enroll_key varchar(32) not null";
 $sql .= ",userid varchar(40) not null default ''";
-$sql .= ",user_src char(1) not null default 'S'"; // 用户来源团队用户账号（Platform）或个人用户账号（Site）
+$sql .= ",user_src char(1) not null default 'S'"; // 用户来源团队用户账号（Platform）或个人用户账号（Site）；没用了，userid已经统一了
 $sql .= ",nickname varchar(255) not null default ''";
 $sql .= ",create_at int";
 $sql .= ",content text";
 $sql .= ",schema_id varchar(40) not null default ''"; // 针对某条登记记录的某个登记项的评论
+$sql .= ",like_log longtext"; // 点赞日志 {userid:likeAt}
+$sql .= ",like_num int not null default 0"; // 点赞数
 $sql .= ",primary key(id)) ENGINE=MyISAM DEFAULT CHARSET=utf8";
 if (!$mysqli->query($sql)) {
 	header('HTTP/1.0 500 Internal Server Error');
 	echo 'database error: ' . $mysqli->error;
 }
 /**
- * 登记活动内容点赞
+ * 登记活动内容点赞（should be remove）
  */
 $sql = "create table if not exists xxt_enroll_record_score(";
 $sql .= "id int not null auto_increment";

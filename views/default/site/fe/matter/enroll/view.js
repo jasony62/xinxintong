@@ -236,4 +236,13 @@ ngApp.controller('ctrlInvite', ['$scope', '$http', 'Record', 'ls', function($sco
     facRecord.get(LS.p.ek);
     $scope.Record = facRecord;
 }]);
-ngApp.controller('ctrlView', ['$scope', function($scope) {}]);
+ngApp.controller('ctrlView', ['$scope', '$timeout', function($scope, $timeout) {
+    $scope.$on('xxt.app.enroll.ready', function(event, params) {
+        if (!params.user.unionid) {
+            var domTip = document.querySelector('#appLoginTip');
+            var evt = document.createEvent("HTMLEvents");
+            evt.initEvent("show", false, false);
+            domTip.dispatchEvent(evt);
+        }
+    });
+}]);

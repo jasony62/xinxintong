@@ -10,7 +10,7 @@ class remark extends base {
 	 * 返回一条登记记录的所有评论
 	 */
 	public function list_action($ek, $schema = '', $page = 1, $size = 99) {
-		$result = $this->model('matter\enroll\record')->listRemark($ek, $schema, $page, $size);
+		$result = $this->model('matter\enroll\remark')->listByRecord($ek, $schema, $page, $size);
 
 		return new \ResponseData($result);
 	}
@@ -125,5 +125,37 @@ class remark extends base {
 		$modelTmplBat->send($oApp->siteid, $tmplConfig->msgid, $receivers, $params, ['event_name' => 'site.enroll.remark', 'send_from' => 'enroll:' . $oApp->id . ':' . $oRemark->enroll_key]);
 
 		return true;
+	}
+	/**
+	 * 点赞登记记录中的某一个题
+	 *
+	 * @param string $remark remark'id
+	 *
+	 */
+	public function like_action($remark) {
+		$modelRem = $this->model('matter\enroll\remark');
+		$oRemark = $modelRem->byId($remark, ['fields' => 'id,like_log']);
+		if (false === $oRemark) {
+			return new \ObjectNotFoundError();
+		}
+
+		$oLikeLog = $oRemark->like_log;
+
+		$oUser = $this->who;
+
+		if (isset($oLikeLog->{$oUser->uid})) {
+			unset($oLikeLog->{$oUser->uid});
+		} else {
+			$oLikeLog->{$oUser->uid} = time();
+		}
+		$likeNum = count(get_object_vars($oLikeLog));
+
+		$modelRem->update(
+			'xxt_enroll_record_remark',
+			['like_log' => json_encode($oLikeLog), 'like_num' => $likeNum],
+			['id' => $oRemark->id]
+		);
+
+		return new \ResponseData(['like_log' => $oLikeLog, 'like_num' => $likeNum]);
 	}
 }

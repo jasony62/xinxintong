@@ -57,6 +57,7 @@ define(['require', 'page', 'schema', 'signinService'], function(require, pageLib
             directive: $compileProvider.directive
         };
         $routeProvider
+
             .when('/rest/pl/fe/matter/signin/main', new RouteParam('main'))
             .when('/rest/pl/fe/matter/signin/page', new RouteParam('page'))
             .when('/rest/pl/fe/matter/signin/schema', new RouteParam('schema'))
@@ -91,20 +92,25 @@ define(['require', 'page', 'schema', 'signinService'], function(require, pageLib
             srvQuickEntryProvider.setSiteId(siteId);
         })();
     }]);
-    ngApp.controller('ctrlFrame', ['$scope', 'srvSite', 'srvSigninApp', function($scope, srvSite, srvSigninApp) {
-        $scope.viewNames = {
-            'main': '活动定义',
-            'publish': '发布预览',
-            'schema': '修改题目',
-            'page': '修改页面',
-            'record': '查看数据',
-            'notice': '通知发送记录'
-        };
-        $scope.subView = '';
+    ngApp.controller('ctrlFrame', ['$scope', 'srvSite', 'srvSigninApp', '$location', function($scope, srvSite, srvSigninApp, $location) {
+        $scope.opened = '';
         $scope.$on('$locationChangeSuccess', function(event, currentRoute) {
             var subView = currentRoute.match(/([^\/]+?)\?/);
             $scope.subView = subView[1] === 'signin' ? 'publish' : subView[1];
+            switch ($scope.subView) {
+                case 'main':
+                case 'page':
+                case 'schema':
+                    $scope.opened = 'edit';
+                    break;
+                default:
+                    $scope.opened = '';
+            }
         });
+        $scope.switchTo = function(subView) {
+            var url = '/rest/pl/fe/matter/signin/' + subView;
+            $location.path(url);
+        };
         $scope.update = function(props) {
             srvSigninApp.update(props);
         };

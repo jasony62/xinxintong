@@ -27,7 +27,7 @@
             <!--侧边栏-->
             <ul class="nav nav-tabs nav-stacked">
                 <li>
-                    <a href='' ng-click="opened=opened==='edit'?false:'edit'">编辑 <span class="caret"></span></a>
+                    <a href='' ng-click="opened=opened==='edit'?false:'edit';switchTo('schema')">编辑 <span class="caret"></span></a>
                     <ul class="nav nav-tabs nav-stacked" ng-style="{'height':opened==='edit'?'126px':'0'}">
                         <li ng-class="{'active':subView==='main'}">
                             <a href='' ng-click="switchTo('main')">活动定义</a>
@@ -44,7 +44,7 @@
                     <a href='' ng-click="opened='';switchTo('publish')">发布</a>
                 </li>
                 <li>
-                    <a href='' ng-click="opened=opened==='data'?false:'data'">数据 <span class="caret"></span></a>
+                    <a href='' ng-click="opened=opened==='data'?false:'data';switchTo('record')">数据 <span class="caret"></span></a>
                     <ul class="nav nav-tabs nav-stacked" ng-style="{'height':opened==='data'?'84px':'0'}">
                         <li ng-class="{'active':subView==='record'}">
                             <a href='' ng-click="switchTo('record')">详细数据</a>
@@ -94,7 +94,7 @@
                             <li ng-if="app.mission"><a href="/rest/pl/fe/matter/mission?site={{app.siteid}}&id={{app.mission.id}}" target='_self' title="{{app.mission.title}}">{{app.mission.title}}</a></li>
                             <li ng-if="app.mission"><a href="/rest/pl/fe/matter/mission/matter?site={{app.siteid}}&id={{app.mission.id}}#{{app.scenario||'enroll'}}" target='_self'>{{scenarioNames[app.scenario]||'登记'}}</a></li>
                             <li>
-                                <a href="" ng-click="leftSlider.goTo('main')" title='{{app.title}}' ng-if="!Title">{{app.title}}</a>
+                                <a href="" ng-click="switchTo('main')" title='{{app.title}}' ng-if="!Title">{{app.title}}</a>
                                 <a ng-if="Title">
                                     <input type='text' min-size="10" title='{{app.title}}' ng-model='app.title' tms-auto-update tms-wait=1000 tms-update="update('title')" ng-if="Title">
                                 </a>
@@ -115,7 +115,6 @@
     <script src="/static/js/bootstrap-switch.min.js"></script>
     <script src="/static/js/angular.min.js"></script>
     <script src="/static/js/angular-route.min.js"></script>
-    <script src="/static/js/angular-animate.min.js"></script>
     <script src="/static/js/angular-sanitize.min.js"></script>
     <script src="/static/js/ui-bootstrap-tpls.min.js"></script>
     <script src="/static/js/angular-bootstrap-switch.min.js"></script>

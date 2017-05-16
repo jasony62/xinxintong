@@ -47,14 +47,14 @@ ngApp.controller('ctrlRepos', ['$scope', '$http', 'Round', function($scope, $htt
     $scope.repos = {};
     $scope.list4Schema = function(schema) {
         var url, page;
-        page = schema._page;
+        page = { at: 1, size: 12 };
         url = '/rest/site/fe/matter/enroll/repos/list4Schema?site=' + oApp.siteid + '&app=' + oApp.id;
-        url += '&schema=' + schema.id;
+        //url += '&schema=' + schema.id;
         url += '&page=' + page.at + '&size=' + page.size;
         criteria.rid && (url += '&rid=' + criteria.rid);
         criteria.owner && criteria.owner !== 'all' && (url += '&owner=' + criteria.owner);
         $http.get(url).success(function(result) {
-            $scope.repos[schema.id] = result.data.records;
+            $scope.repos = result.data.records;
             page.total = result.data.total;
         });
     }
@@ -96,6 +96,17 @@ ngApp.controller('ctrlRepos', ['$scope', '$http', 'Round', function($scope, $htt
     $scope.shiftOwner = function() {
         $scope.list4Schema(opened.schema);
     };
+    $scope.likeRecordData = function(oRecord, oSchema) {
+        var url;
+        url = '/rest/site/fe/matter/enroll/record/like';
+        url += '?site=' + oApp.siteid;
+        url += '&ek=' + oRecord.enroll_key;
+        url += '&schema=' + oSchema.id;
+        $http.get(url).success(function(rsp) {
+            oRecord.like_log = rsp.data.like_log;
+            oRecord.like_num = rsp.data.like_num;
+        });
+    };
     $scope.$on('xxt.app.enroll.ready', function(event, params) {
         oApp = params.app;
         oApp.dataSchemas.forEach(function(schema) {
@@ -105,9 +116,10 @@ ngApp.controller('ctrlRepos', ['$scope', '$http', 'Round', function($scope, $htt
                 schemas.push(schema);
             }
         });
-        if (schemas.length === 1) {
-            $scope.switchSchema(schemas[0]);
-        }
+        $scope.list4Schema();
+        // if (schemas.length === 1) {
+        //     $scope.switchSchema(schemas[0]);
+        // }
         $scope.facRound = facRound = srvRound.ins(oApp);
         facRound.list().then(function(result) {
             if (result.active) {

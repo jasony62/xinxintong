@@ -166,6 +166,7 @@ define(['frame', 'schema', 'wrap'], function(ngApp, schemaLib, wrapLib) {
         };
         $scope.updSchemaMultiple = function(activeSchema) {
             angular.forEach($scope.data, function(data, key) {
+                !$scope.activeSchema.answer && ($scope.activeSchema.answer=[]);
                 var i = $scope.activeSchema.answer.indexOf(key);
                 //如果key 在answer中 data为false，则去掉
                 //    如果不在answer中，data为true ，则添加

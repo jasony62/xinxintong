@@ -219,7 +219,7 @@ ngApp.directive('tmsImageInput', ['$compile', '$q', function($compile, $q) {
     };
     return {
         restrict: 'A',
-        controller: function($scope, $timeout) {
+        controller: ['$scope', '$timeout', function($scope, $timeout) {
             $scope.beforeSubmit(function() {
                 return onSubmit($scope.data);
             });
@@ -266,7 +266,7 @@ ngApp.directive('tmsImageInput', ['$compile', '$q', function($compile, $q) {
             $scope.removeImage = function(imgField, index) {
                 imgField.splice(index, 1);
             };
-        }
+        }]
     }
 }]);
 ngApp.directive('tmsFileInput', ['$q', function($q) {
@@ -312,7 +312,7 @@ ngApp.directive('tmsFileInput', ['$q', function($q) {
     };
     return {
         restrict: 'A',
-        controller: function($scope) {
+        controller: ['$scope', function($scope) {
             $scope.progressOfUploadFile = 0;
             $scope.beforeSubmit(function() {
                 return onSubmit($scope);
@@ -341,7 +341,7 @@ ngApp.directive('tmsFileInput', ['$q', function($q) {
                 }, false);
                 ele.click();
             };
-        }
+        }]
     }
 }]);
 ngApp.controller('ctrlSignin', ['$scope', '$http', 'Input', 'PG', 'ls', function($scope, $http, Input, PG, LS) {

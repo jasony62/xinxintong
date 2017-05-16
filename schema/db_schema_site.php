@@ -207,7 +207,7 @@ if (!$mysqli->query($sql)) {
  * 团队注册用户
  * 注册用户跨团队，一个注册用户可以对应多个访客用户
  */
-$sql = "create table if not exists xxt_site_registration (";
+$sql = "create table if not exists xxt_site_registration ("; // should be removed
 $sql .= "unionid varchar(32) not null comment '用户的注册id'";
 $sql .= ",from_siteid varchar(32) not null comment '从哪个团队发起的注册id'";
 $sql .= ",uname varchar(50) default null comment '登录用户名'";
@@ -338,7 +338,7 @@ $sql = "create table if not exists xxt_site_member(";
 $sql .= "id int not null auto_increment";
 $sql .= ",siteid varchar(32) not null"; //
 $sql .= ",userid varchar(40) not null"; // xxt_site_account
-$sql .= ",unionid varchar(32) not null default ''"; // xxt_site_registration
+$sql .= ",unionid varchar(32) not null default ''"; // account
 $sql .= ",schema_id int not null"; // id from xxt_site_member_schema
 $sql .= ",create_at int not null";
 $sql .= ",identity varchar(255) not null default ''"; // 认证用户的唯一标识

@@ -17,7 +17,7 @@ class remark extends \pl\fe\matter\base {
 		if (false === ($user = $this->accountUser())) {
 			return new \ResponseTimeout();
 		}
-		$result = $this->model('matter\enroll\record')->listRemark($ek, $schema, $page, $size);
+		$result = $this->model('matter\enroll\remark')->listByRecord($ek, $schema, $page, $size);
 
 		return new \ResponseData($result);
 	}

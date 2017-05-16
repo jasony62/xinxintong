@@ -28,11 +28,15 @@ ngApp.factory('Round', ['$http', '$q', 'ls', function($http, $q, LS) {
 ngApp.controller('ctrlRounds', ['$scope', 'Round', function($scope, Round) {
     var facRound, onDataReadyCallbacks;
     facRound = Round.ins();
-    facRound.list().then(function(rounds) {
-        $scope.rounds = rounds;
-        angular.forEach(onDataReadyCallbacks, function(cb) {
-            cb(rounds);
-        });
+    facRound.list().then(function(data) {
+        if (data.rounds) {
+            $scope.rounds = data.rounds;
+            angular.forEach(onDataReadyCallbacks, function(cb) {
+                cb(rounds);
+            });
+        } else {
+            $scope.rounds = [];
+        }
     });
     onDataReadyCallbacks = [];
     $scope.onDataReady = function(callback) {

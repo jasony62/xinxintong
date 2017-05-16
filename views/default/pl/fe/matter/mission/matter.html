@@ -38,7 +38,7 @@
         <tbody>
             <tr ng-repeat='m in matters'>
                 <td>{{$index+1}}</td>
-                <td>{{(scenarioNames[m.matter_scenario])||m.type}}</td>
+                <td>{{scenarioNames[m.scenario||m.type]}}</td>
                 <td>{{m.title}}</td>
                 <td>{{m._operator||m.creater_name||m.modifier_name}}</td>
                 <td>{{(m._operateAt||m.modify_at||m.create_at)*1000|date:'yy-MM-dd HH:mm'}}</td>

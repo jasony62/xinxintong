@@ -4,7 +4,19 @@ define(['missionService', 'enrollService', 'signinService'], function() {
     ngApp.constant('cstApp', {
         notifyMatter: [],
         innerlink: [],
-        alertMsg: {}
+        alertMsg: {},
+        scenarioNames: {
+            'article': '单图文',
+            'common': '通用登记',
+            'registration': '报名',
+            'voting': '投票',
+            'quiz': '测验',
+            'group_week_report': '周报',
+            'signin': '签到',
+            'group': '分组',
+            'split': '分组',
+            'wall': '信息墙'
+        }
     });
     ngApp.config(['$controllerProvider', '$routeProvider', '$locationProvider', '$compileProvider', '$uibTooltipProvider', 'srvSiteProvider', 'srvMissionProvider', 'srvQuickEntryProvider', function($controllerProvider, $routeProvider, $locationProvider, $compileProvider, $uibTooltipProvider, srvSiteProvider, srvMissionProvider, srvQuickEntryProvider) {
         var RouteParam = function(name) {

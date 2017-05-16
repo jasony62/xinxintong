@@ -1,6 +1,7 @@
 define(['frame'], function(ngApp) {
     'use strict';
-    ngApp.provider.controller('ctrlMatter', ['$scope', 'http2', 'templateShop', function($scope, http2, templateShop) {
+    ngApp.provider.controller('ctrlMatter', ['$scope', 'http2', 'templateShop', 'cstApp', function($scope, http2, templateShop, cstApp) {
+        $scope.scenarioNames = cstApp.scenarioNames;
         var indicators = {
             registration: {
                 title: '在线报名',

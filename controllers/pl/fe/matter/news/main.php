@@ -202,7 +202,7 @@ class main extends \pl\fe\matter\base {
 		$rst = $modelNews->update('xxt_news', ['state' => 0], ['siteid' => $site, 'id' => $id]);
 
 		/* 记录操作日志 */
-		$this->model('matter\log')->matterOp($site, $user, $matter, 'D');
+		$this->model('matter\log')->matterOp($site, $user, $matter, 'Recycle');
 
 		return new \ResponseData($rst);
 	}

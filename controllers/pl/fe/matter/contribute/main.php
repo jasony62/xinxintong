@@ -145,11 +145,21 @@ class main extends \pl\fe\matter\base {
 	 * 删除
 	 */
 	public function remove_action($site, $app) {
+		if (false === ($user = $this->accountUser())) {
+			return new \ResponseTimeout();
+		}
+
+		$app = $this->model('matter\contribute')->byId($app);
 		$rst = $this->model()->update(
 			'xxt_contribute',
 			array('state' => 0),
-			"siteid='$site' and id='$app'"
+			"siteid='$site' and id='$app->id'"
 		);
+
+		/**
+		 * 记录操作日志
+		 */
+		$this->model('matter\log')->matterOp($site, $user, $app, 'Recycle');
 
 		return new \ResponseData($rst);
 	}

@@ -181,7 +181,7 @@ class main extends \pl\fe\matter\base {
 		/*记录操作日志*/
 		$link = $this->model('matter\link')->byId($id, 'id,title,summary,pic');
 		$link->type = 'link';
-		$this->model('matter\log')->matterOp($site, $user, $link, 'D');
+		$this->model('matter\log')->matterOp($site, $user, $link, 'Recycle');
 
 		return new \ResponseData($rst);
 	}

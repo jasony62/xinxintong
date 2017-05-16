@@ -82,11 +82,18 @@ class main extends \pl\fe\matter\base {
 		if (false === ($user = $this->accountUser())) {
 			return new \ResponseTimeout();
 		}
+		$app = $this->model('matter\tmplmsg')->byId($id);
 		$rst = $this->model()->update(
 			'xxt_tmplmsg',
 			array('state' => 0),
 			"siteid='$site' and id=$id"
 		);
+
+		/**
+		 * 记录操作日志
+		 */
+		$app->type='tmplmsg';
+		$this->model('matter\log')->matterOp($site, $user, $app, 'Recycle');
 
 		return new \ResponseData($rst);
 	}

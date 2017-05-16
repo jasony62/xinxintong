@@ -83,6 +83,7 @@ class main extends \pl\fe\matter\base {
 			return new \ResponseTimeout();
 		}
 
+		$text = $this->model('matter\text')->byId($id);
 		$model = $this->model();
 		$nv = new \stdClass;
 		$nv->state = 0;
@@ -96,7 +97,10 @@ class main extends \pl\fe\matter\base {
 			["siteid" => $site, "id" => $id]
 		);
 
-		return new \ResponseError($rst);
+		/* 记录操作日志 */
+		$this->model('matter\log')->matterOp($site, $user, $text, 'Recycle');
+
+		return new \ResponseData($rst);
 	}
 	/**
 	 * 更新文本素材的属性

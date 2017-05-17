@@ -426,9 +426,13 @@ class TMS_APP {
 			$decodeToken = TMS_MODEL::encrypt($token, 'DECODE', $cookiekey);
 			$oToken = json_decode($decodeToken);
 			if (JSON_ERROR_NONE !== json_last_error()) {
+				/* 清除错误数据 */
+				TMS_CONTROLLER::mySetCookie('_login_token', '', 0);
+				TMS_CONTROLLER::mySetCookie('_login_auto', '', 0);
+				/* 记录日志 */
 				$agent = isset($_SERVER['HTTP_USER_AGENT']) ? $_SERVER['HTTP_USER_AGENT'] : '';
 				$referer = isset($_SERVER['HTTP_REFERER']) ? $_SERVER['HTTP_REFERER'] : '';
-				self::M('log')->log('error', 'tms_app::_autoLogin::json_error', $token, $agent, $referer);
+				self::M('log')->log('error', 'tms_app::_autoLogin::json_error', $decodeToken, $agent, $referer);
 				return false;
 			}
 

@@ -30,6 +30,32 @@ define(['frame'], function(ngApp) {
         $scope.openConsole = function(site) {
             location.href = '/rest/pl/fe/site?site=' + site.siteid;
         };
+        $scope.copyMatter = function(evt, matter) {
+            var type = (matter.matter_type || matter.type || $scope.matterType),
+            id = (matter.matter_id || matter.id),
+            siteid = matter.siteid,
+            url = '/rest/pl/fe/matter/';
+
+            evt.stopPropagation();
+            switch (type) {
+                case 'article':
+                    url += type + '/copy?id=' + id + '&site=' + siteid;
+                    break;
+                case 'enroll':
+                    url += 'enroll/copy?app=' + id + '&site=' + siteid;
+                    break;
+                case 'signin':
+                case 'group':
+                    url += type + '/copy?app=' + id + '&site=' + siteid;
+                    break;
+                default:
+                    alert('指定素材不支持复制');
+                    return;
+            }
+            http2.get(url, function(rsp) {
+                location.href = '/rest/pl/fe/matter/' + type + '?site=' + rsp.data.siteid + '&id=' + rsp.data.id;
+            });
+        };
         $scope.$on('fromCtrlRecentStickTop', function(event, data) {
             $scope.$broadcast('toCtrlTopList', data);
         });
@@ -473,21 +499,55 @@ define(['frame'], function(ngApp) {
         $scope.doSearch(1);
     }]);
     ngApp.provider.controller('ctrlRecycle', ['$scope', 'http2', function($scope, http2) {
-        var t = (new Date() * 1);
-        $scope.recycle = function() {
-            //获取回收站信息
-            var url = '/rest/pl/fe/site/wasteList?_=' + t;
-            http2.get(url, function(rsp) {
-                $scope.sites0 = rsp.data;
-            });
+        var t = (new Date() * 1), filter, filter2;
+        $scope.filter = filter = {};
+        $scope.filter2 = filter2 = {};
+        $scope.list = function() {
+            if(filter.bySite == '') {
+                var url = '/rest/pl/fe/site/wasteList?_=' + t,
+                    url2 = '/rest/pl/fe/site/console/recycle?site=' + filter.bySite + '&_=' + t,
+                    urls = [url, url2];
+                $scope.matters = [];
+                urls.forEach(function(item) {
+                    http2.post(item, filter, function(rsp) {
+                        var data = rsp.data.matters || rsp.data;
+                        data.forEach(function(matter) {
+                            $scope.matters.push(matter);
+                        });
+                    });
+                });
+            }else {
+                var url = '/rest/pl/fe/site/console/recycle?site=' + filter.bySite + '&_=' + t;
+                http2.post(url, filter, function(rsp) {
+                    $scope.matters = rsp.data.matters;
+                });
+            }
+        };
+        $scope.doFilter = function() {
+            angular.extend(filter, filter2);
+        };
+        $scope.cleanFilter = function() {
+            filter.byTitle = filter2.byTitle = '';
         };
         $scope.restoreSite = function(site) {
-            //恢复删除站点
+            //恢复删除的站点
             var url = '/rest/pl/fe/site/recover?site=' + site.id;
             http2.get(url, function(rsp) {
                 location.href = '/rest/pl/fe/site?site=' + site.id;
             })
         };
-        $scope.recycle();
+        $scope.restoreMatter = function(matter) {
+            var url = '/rest/pl/fe/matter/' + matter.matter_type + '/restore' + '?site=' + matter.siteid + '&id=' + matter.matter_id;
+            http2.get(url, function(rsp) {
+                location.href = '/rest/pl/fe/matter/' + matter.matter_type + '?site=' + matter.siteid + '&id=' + matter.matter_id;
+            });
+        };
+        $scope.$watch('frameState.sid', function(nv) {
+            angular.extend(filter, { bySite: nv });
+        });
+        $scope.$watch('filter', function(nv) {
+            if (!nv) return;
+            $scope.list();
+        }, true);
     }]);
 });

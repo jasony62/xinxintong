@@ -17,7 +17,7 @@
                         <td>{{$index+1}}</td>
                         <td>{{matterNames[t.matter_type]}}</td>
                         <td>{{t.matter_title}}</td>
-                        <td>{{(t.top_at*1000)|date:'MM-dd HH:mm'}}</td>
+                        <td>{{(t.top_at*1000)|date:'yy-MM-dd HH:mm'}}</td>
                         <td ng-switch on="t.matter_type">
                             <div ng-switch-when="enroll">
                                 <button class='btn btn-sm btn-default' ng-click="openMatter(t,'main')">定义</button>
@@ -68,7 +68,7 @@
                         <th>名称</th>
                         <th style='width:120px'>最后修改时间</th>
                         <th style='width:64px'>置顶</th>
-                        <th style='width:180px'>操作</th>
+                        <th style='width:220px'>操作</th>
                     </tr>
                 </thead>
                 <tbody>
@@ -76,7 +76,7 @@
                         <td>{{$index+1}}</td>
                         <td>{{matterNames[m.matter_type]}}</td>
                         <td>{{m.matter_title}}</td>
-                        <td>{{(m.operate_at*1000)|date:'MM-dd HH:mm'}}</td>
+                        <td>{{(m.operate_at*1000)|date:'yy-MM-dd HH:mm'}}</td>
                         <td>
                             <button class='btn btn-sm btn-default' title='置顶' ng-click="stickTop(m)">置顶</button>
                         </td>
@@ -85,15 +85,18 @@
                                 <button class='btn btn-sm btn-default' ng-click="openMatter(m,'main')">定义</button>
                                 <button class='btn btn-sm btn-default' ng-click="openMatter(m,'publish')">设置</button>
                                 <button class='btn btn-sm btn-default' ng-click="openMatter(m,'record')">数据</button>
+                                <button class='btn btn-sm btn-default' ng-click="copyMatter($event,m)">复制</button>
                             </div>
                             <div ng-switch-when="signin">
                                 <button class='btn btn-sm btn-default' ng-click="openMatter(m,'main')">定义</button>
                                 <button class='btn btn-sm btn-default' ng-click="openMatter(m,'publish')">设置</button>
                                 <button class='btn btn-sm btn-default' ng-click="openMatter(m,'record')">数据</button>
+                                <button class='btn btn-sm btn-default' ng-click="copyMatter($event,m)">复制</button>
                             </div>
                             <div ng-switch-when="group">
                                 <button class='btn btn-sm btn-default' ng-click="openMatter(m,'main')">定义</button>
                                 <button class='btn btn-sm btn-default' ng-click="openMatter(m,'player')">数据</button>
+                                <button class='btn btn-sm btn-default' ng-click="copyMatter($event,m)">复制</button>
                             </div>
                             <div ng-switch-when="mission">
                                 <button class='btn btn-sm btn-default' ng-click="openMatter(m,'main')">定义</button>
@@ -106,6 +109,7 @@
                             </div>
                             <div ng-switch-default>
                                 <button class='btn btn-sm btn-default' ng-click="openMatter(m,'main')">进入</button>
+                                <button class='btn btn-sm btn-default' ng-click="copyMatter($event,m)" ng-if="m.matter_type=='article'">复制</button>
                             </div>
                         </td>
                     </tr>
@@ -193,7 +197,7 @@
                         <th style='width:48px'>序号</th>
                         <th>名称</th>
                         <th style='width:140px'>创建人</th>
-                        <th style='width:100px'>创建时间</th>
+                        <th style='width:120px'>创建时间</th>
                         <th style='width:64px'>置顶</th>
                         <th style='width:180px'>操作</th>
                     </tr>
@@ -203,7 +207,7 @@
                         <td>{{$index+1}}</td>
                         <td>{{m.site_name}}\{{m.title}}</td>
                         <td>{{m.creater_name}}</td>
-                        <td>{{m.create_at*1000|date:'yyyy-MM-dd'}}</td>
+                        <td>{{m.create_at*1000|date:'yy-MM-dd HH:mm'}}</td>
                         <td>
                             <button class='btn btn-sm btn-default' title='置顶' ng-click="stickTop(m)">置顶</button>
                         </td>
@@ -267,7 +271,7 @@
                         <th style='width:140px'>创建人</th>
                         <th style='width:120px'>创建时间</th>
                         <th style='width:64px'>置顶</th>
-                        <th style='width:180px'>操作</th>
+                        <th style='width:220px'>操作</th>
                     </tr>
                 </thead>
                 <tbody>
@@ -284,16 +288,19 @@
                             <div ng-switch-when="group">
                                 <button class='btn btn-sm btn-default' ng-click="openMatter(m,'main')">定义</button>
                                 <button class='btn btn-sm btn-default' ng-click="openMatter(m,'player')">数据</button>
+                                <button class='btn btn-sm btn-default' ng-click="copyMatter($event,m)">复制</button>
                             </div>
                             <div ng-switch-when="enroll">
                                 <button class='btn btn-sm btn-default' ng-click="openMatter(m,'main')">定义</button>
                                 <button class='btn btn-sm btn-default' ng-click="openMatter(m,'publish')">设置</button>
                                 <button class='btn btn-sm btn-default' ng-click="openMatter(m,'record')">数据</button>
+                                <button class='btn btn-sm btn-default' ng-click="copyMatter($event,m)">复制</button>
                             </div>
                             <div ng-switch-when="signin">
                                 <button class='btn btn-sm btn-default' ng-click="openMatter(m,'main')">定义</button>
                                 <button class='btn btn-sm btn-default' ng-click="openMatter(m,'publish')">设置</button>
                                 <button class='btn btn-sm btn-default' ng-click="openMatter(m,'record')">数据</button>
+                                <button class='btn btn-sm btn-default' ng-click="copyMatter($event,m)">复制</button>
                             </div>
                             <div ng-switch-default>
                                 <button class='btn btn-sm btn-default' ng-click="openMatter(m,'main')">进入</button>
@@ -345,7 +352,7 @@
                         <th style='width:140px'>创建人</th>
                         <th style='width:120px'>创建时间</th>
                         <th style='width:64px'>置顶</th>
-                        <th style='width:64px'>操作</th>
+                        <th style='width:120px'>操作</th>
                     </tr>
                 </thead>
                 <tbody>
@@ -359,6 +366,7 @@
                         </td>
                         <td>
                             <button class='btn btn-sm btn-default' ng-click="openMatter(m,'main')">进入</button>
+                            <button class='btn btn-sm btn-default' ng-click="copyMatter($event,m)" ng-if="m.matter_type=='article'">复制</button>
                         </td>
                     </tr>
                 </tbody>
@@ -488,6 +496,21 @@
     </div>
     <div ng-controller="ctrlRecycle" ng-switch-when="recycle">
         <div class="col-md-12">
+            <nav class='navbar navbar-default'>
+                <div class='container-fluid'>
+                    <form class='nav navbar-form pull-left'>
+                        <div class='form-group'>
+                            <div class='input-group'>
+                                <input type='input' class='form-control' placeholder='按名称筛选' ng-model='filter2.byTitle'>
+                                <span class='input-group-btn'>
+                                    <button class='btn btn-default' ng-click="doFilter()"><span class='glyphicon glyphicon-search'></button>
+                                    <button class='btn btn-default' ng-click="cleanFilter()"><span class='glyphicon glyphicon-remove'></button>
+                                </span>
+                            </div>
+                        </div>
+                    </form>
+                </div>
+            </nav>
             <table class='table table-bordered'>
                 <thead>
                     <tr>
@@ -499,13 +522,14 @@
                     </tr>
                 </thead>
                 <tbody>
-                    <tr ng-repeat='site in sites0'>
+                    <tr ng-repeat='m in matters'>
                         <td>{{$index+1}}</td>
-                        <td>{{site.name}}</td>
-                        <td>{{site.creater_name}}</td>
-                        <td>{{site.create_at*1000|date:'yyyy-MM-dd'}}</td>
+                        <td>{{m.name||m.matter_title}}</td>
+                        <td>{{m.creater_name||m.operator_name}}</td>
+                        <td>{{(m.create_at||m.operate_at)*1000|date:'yy-MM-dd HH:mm'}}</td>
                         <td>
-                            <button class='btn btn-sm btn-default' title='恢复' ng-click="restoreSite(site)">恢复</button>
+                            <button ng-if="!m.siteid" class='btn btn-sm btn-default' title='恢复' ng-click="restoreSite(m)">恢复</button>
+                            <button ng-if="m.siteid" class='btn btn-sm btn-default' title='恢复' ng-click="restoreMatter(m)">恢复</button>
                         </td>
                     </tr>
                 </tbody>

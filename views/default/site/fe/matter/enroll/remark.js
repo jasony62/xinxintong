@@ -3,10 +3,10 @@ require('./remark.css');
 
 var ngApp = require('./main.js');
 ngApp.controller('ctrlRemark', ['$scope', '$q', '$http', function($scope, $q, $http) {
-    function listRemarks(schema) {
+    function listRemarks() {
         var url, defer = $q.defer();
         url = '/rest/site/fe/matter/enroll/remark/list?site=' + oApp.siteid + '&ek=' + ek;
-        schema && (url += '&schema=' + schema.id);
+        url += '&schema=' + schemaId;
         $http.get(url).success(function(rsp) {
             defer.resolve(rsp.data)
         });
@@ -21,30 +21,17 @@ ngApp.controller('ctrlRemark', ['$scope', '$q', '$http', function($scope, $q, $h
         });
         return defer.promise;
     }
-    var oApp, ek, enterSchemaId, schemaRemarks, remarkableSchemas = [];
+    var oApp, ek, schemaId;
     ek = location.search.match(/[\?&]ek=([^&]*)/)[1];
-    enterSchemaId = location.search.match(/[\?&]schema=([^&]*)/)[1];
+    schemaId = location.search.match(/[\?&]schema=([^&]*)/)[1];
+    $scope.schemaId = schemaId;
     $scope.newRemark = {};
-    $scope.schemaRemarks = schemaRemarks = {};
-    $scope.switchSchema = function(schema) {
-        schema._open = !schema._open;
-        if (schema._open) {
-            listRemarks(schema).then(function(result) {
-                schemaRemarks[schema.id] = result.remarks;
-            })
-        }
-    };
-    $scope.addRemark = function(schema) {
+    $scope.addRemark = function() {
         var url;
         url = '/rest/site/fe/matter/enroll/remark/add?site=' + oApp.siteid + '&ek=' + ek;
-        schema && (url += '&schema=' + schema.id);
+        url += '&schema=' + schemaId;
         $http.post(url, $scope.newRemark).success(function(rsp) {
-            if (schema) {
-                !schemaRemarks[schema.id] && (schemaRemarks[schema.id] = []);
-                schemaRemarks[schema.id].splice(0, 0, rsp.data);
-            } else {
-                $scope.remarks.splice(0, 0, rsp.data);
-            }
+            $scope.remarks.splice(0, 0, rsp.data);
             $scope.newRemark.content = '';
         });
     };
@@ -61,22 +48,8 @@ ngApp.controller('ctrlRemark', ['$scope', '$q', '$http', function($scope, $q, $h
     $scope.$on('xxt.app.enroll.ready', function(event, params) {
         oApp = params.app;
         $scope.record = params.record;
-        summary().then(function(result) {
-            var summaryBySchema = {};
-            result.forEach(function(schema) {
-                summaryBySchema[schema.schema_id] = schema;
-            });
-            oApp.dataSchemas.forEach(function(schema) {
-                if (schema.remarkable === 'Y') {
-                    summaryBySchema[schema.id] && (schema.summary = summaryBySchema[schema.id]);
-                    schema._open = false;
-                    remarkableSchemas.push(schema);
-                    if (enterSchemaId === schema.id) {
-                        $scope.switchSchema(schema);
-                    }
-                }
-            });
-            $scope.remarkableSchemas = remarkableSchemas;
+        listRemarks().then(function(data) {
+            $scope.remarks = data.remarks;
         });
     });
 }]);

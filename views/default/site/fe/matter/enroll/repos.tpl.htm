@@ -53,14 +53,18 @@
             <div id='repos' class='form-group'>
                 <div class='records'>
                     <div class='record' ng-repeat="rec in repos">
-                        <div ng-if="schemaCount>1"><span class="label label-default">{{schemas[rec.schema_id].title}}</span></div>
+                        <div>
+                            <span ng-if="schemaCount>1" class="label label-default">{{schemas[rec.schema_id].title}}</span>
+                            <span ng-if="rec.agreed==='Y'" class="label label-success">推荐</span>
+                            <span ng-if="rec.agreed==='N'" class="label label-danger">屏蔽</span>
+                        </div>
                         <blockquote>
                             <p>{{rec.value}}</p>
                             <footer>{{rec.nickname||'匿名用户'}}</footer>
                         </blockquote>
                         <div class='bottom-bar'>
                             <div class='datetime text-muted'>{{rec.submit_at*1000|date:'MM-dd HH:mm'}}</div>
-                            <button class='btn btn-default btn-sm' ng-click="likeRecordData(rec,schema)"><span class='glyphicon' ng-class="{'glyphicon-heart':rec.like_log[user.uid],'glyphicon-heart-empty':!rec.like_log[user.uid]}"></span>&nbsp;<span ng-bind="rec.like_num"></span></button>&nbsp;&nbsp;
+                            <button class='btn btn-default btn-sm' ng-click="likeRecordData(rec)"><span class='glyphicon' ng-class="{'glyphicon-heart':rec.like_log[user.uid],'glyphicon-heart-empty':!rec.like_log[user.uid]}"></span>&nbsp;<span ng-bind="rec.like_num"></span></button>&nbsp;&nbsp;
                             <button class='btn btn-default btn-sm' ng-click="gotoRemark(rec)"><span class='glyphicon glyphicon-comment'></span>&nbsp;<span ng-bind="rec.remark_num"></span></button>
                         </div>
                     </div>

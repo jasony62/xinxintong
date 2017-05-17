@@ -10,6 +10,8 @@ class repos extends base {
 	 * 返回指定登记项的活动登记名单
 	 */
 	public function list4Schema_action($app, $page = 1, $size = 12) {
+		$oUser = $this->who;
+
 		// 登记活动
 		$modelApp = $this->model('matter\enroll');
 		$oApp = $modelApp->byId($app, ['fields' => 'id,data_schemas', 'cascaded' => 'N']);
@@ -36,7 +38,7 @@ class repos extends base {
 
 		// 查询结果
 		$mdoelData = $this->model('matter\enroll\data');
-		$result = $mdoelData->byApp($oApp, $options);
+		$result = $mdoelData->byApp($oApp, $oUser, $options);
 
 		return new \ResponseData($result);
 	}

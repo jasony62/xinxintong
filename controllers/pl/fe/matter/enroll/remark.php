@@ -145,4 +145,26 @@ class remark extends \pl\fe\matter\base {
 		$modelTmplBat = $this->model('matter\tmplmsg\batch');
 		$modelTmplBat->send($oRecord->siteid, $tmplConfig->msgid, $creater, [$receiver], $params, ['send_from' => 'enroll:' . $oRecord->aid . ':' . $oRecord->enroll_key]);
 	}
+	/**
+	 *
+	 */
+	public function agree_action($remark, $value = '') {
+		if (false === ($user = $this->accountUser())) {
+			return new \ResponseTimeout();
+		}
+
+		$modelRem = $this->model('matter\enroll\remark');
+		if ($value !== 'Y' && $value !== 'N') {
+			$value = '';
+		}
+
+		$rst = $modelRem->update(
+			'xxt_enroll_record_remark',
+			['agreed' => $value],
+			['id' => $remark]
+		);
+
+		return new \ResponseData($rst);
+	}
+
 }

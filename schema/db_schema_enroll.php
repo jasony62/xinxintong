@@ -208,6 +208,7 @@ $sql .= ",score float not null default 0"; // 登记项获得的分数
 $sql .= ",modify_log longtext"; // 数据修改日志
 $sql .= ",like_log longtext"; // 点赞日志 {userid:likeAt}
 $sql .= ",like_num int not null default 0"; // 点赞数
+$sql .= ",agreed char(1) not null default ''"; // 是否赞同
 $sql .= ",primary key(id)) ENGINE=MyISAM DEFAULT CHARSET=utf8";
 if (!$mysqli->query($sql)) {
 	header('HTTP/1.0 500 Internal Server Error');
@@ -245,6 +246,7 @@ $sql .= ",content text";
 $sql .= ",schema_id varchar(40) not null default ''"; // 针对某条登记记录的某个登记项的评论
 $sql .= ",like_log longtext"; // 点赞日志 {userid:likeAt}
 $sql .= ",like_num int not null default 0"; // 点赞数
+$sql .= ",agreed char(1) not null default ''"; // 是否赞同
 $sql .= ",primary key(id)) ENGINE=MyISAM DEFAULT CHARSET=utf8";
 if (!$mysqli->query($sql)) {
 	header('HTTP/1.0 500 Internal Server Error');

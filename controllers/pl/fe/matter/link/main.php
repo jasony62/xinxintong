@@ -176,12 +176,39 @@ class main extends \pl\fe\matter\base {
 		$rst = $model->update(
 			'xxt_link',
 			$link,
-			"siteid='$site' and id=$id"
+			['siteid' => $site, 'id' => $id]
 		);
 		/*记录操作日志*/
 		$link = $this->model('matter\link')->byId($id, 'id,title,summary,pic');
 		$link->type = 'link';
-		$this->model('matter\log')->matterOp($site, $user, $link, 'D');
+		$this->model('matter\log')->matterOp($site, $user, $link, 'Recycle');
+
+		return new \ResponseData($rst);
+	}
+	/**
+	 * 恢复被删除的素材
+	 */
+	public function restore_action($site, $id) {
+		if (false === ($user = $this->accountUser())) {
+			return new \ResponseTimeout();
+		}
+
+		$model = $this->model('matter\link');
+		$link = $model->byId($id, 'id,title,summary,pic');
+		if (false === $link) {
+			return new \ResponseError('数据已经被彻底删除，无法恢复');
+		}
+
+		/* 恢复数据 */
+		$update = array();
+		$update['modifier'] = $user->id;
+		$update['modifier_name'] = $user->name;
+		$update['modify_at'] = time();
+		$update['state'] = 1;
+		$rst = $model->update('xxt_link', $update, ['siteid' => $site, 'id' => $id]);
+
+		/* 记录操作日志 */
+		$this->model('matter\log')->matterOp($site, $user, $link, 'Restore');
 
 		return new \ResponseData($rst);
 	}

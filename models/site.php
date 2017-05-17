@@ -53,8 +53,9 @@ class site_model extends \TMS_MODEL {
 	 */
 	public function &byUser($userId, $options = array()) {
 		/* 当前用户管理的团队 */
+		$fields = empty($options['fields']) ? 'id,creater_name,create_at,name' : $options['fields'];
 		$q = [
-			'id,creater_name,create_at,name',
+			$fields,
 			'xxt_site s',
 			"(creater='{$userId}' or exists(select 1 from xxt_site_admin sa where sa.siteid=s.id and uid='{$userId}')) and state=1",
 		];

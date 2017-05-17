@@ -1,7 +1,7 @@
-<div id='page-view' class='row'>
+<div id='page-view' class='col-md-12'>
     <!-- pages -->
     <nav class='navbar navbar-default'>
-        <div class='container'>
+        <div class='container-fluid'>
             <ul class="nav navbar-nav">
                 <li ng-class="{'active':p===ep}" ng-repeat="p in app.pages">
                     <a href="#" ng-click="choosePage(p)"><span><i class='fa fa-file-o'></i> {{p.title}}</span></a>

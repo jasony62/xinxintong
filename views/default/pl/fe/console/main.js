@@ -2,7 +2,6 @@ define(['frame'], function(ngApp) {
     'use strict';
     ngApp.provider.controller('ctrlMain', ['$scope', '$uibModal', 'templateShop', 'http2', 'noticebox', 'cstApp', function($scope, $uibModal, templateShop, http2, noticebox, cstApp) {
         $scope.matterNames = cstApp.matterNames;
-        /*置顶*/
         $scope.stickTop = function(m) {
             var url;
             if (!m.matter_type && !m.mission_id) {
@@ -12,7 +11,6 @@ define(['frame'], function(ngApp) {
             } else {
                 url = '/rest/pl/fe/top?site=' + m.siteid + '&matterId=' + m.matter_id + '&matterType=' + m.matter_type + '&matterTitle=' + m.matter_title;
             }
-
             http2.get(url, function(rsp) {
                 noticebox.success('完成置顶');
                 $scope.$emit('fromCtrlRecentStickTop', m);
@@ -31,6 +29,32 @@ define(['frame'], function(ngApp) {
         };
         $scope.openConsole = function(site) {
             location.href = '/rest/pl/fe/site?site=' + site.siteid;
+        };
+        $scope.copyMatter = function(evt, matter) {
+            var type = (matter.matter_type || matter.type || $scope.matterType),
+            id = (matter.matter_id || matter.id),
+            siteid = matter.siteid,
+            url = '/rest/pl/fe/matter/';
+
+            evt.stopPropagation();
+            switch (type) {
+                case 'article':
+                    url += type + '/copy?id=' + id + '&site=' + siteid;
+                    break;
+                case 'enroll':
+                    url += 'enroll/copy?app=' + id + '&site=' + siteid;
+                    break;
+                case 'signin':
+                case 'group':
+                    url += type + '/copy?app=' + id + '&site=' + siteid;
+                    break;
+                default:
+                    alert('指定素材不支持复制');
+                    return;
+            }
+            http2.get(url, function(rsp) {
+                location.href = '/rest/pl/fe/matter/' + type + '?site=' + rsp.data.siteid + '&id=' + rsp.data.id;
+            });
         };
         $scope.$on('fromCtrlRecentStickTop', function(event, data) {
             $scope.$broadcast('toCtrlTopList', data);
@@ -69,7 +93,7 @@ define(['frame'], function(ngApp) {
             //数据不完全一致，直接调用接口刷新
             $scope.list();
         });
-        $scope.$watch('criteria.sid', function(nv) {
+        $scope.$watch('frameState.sid', function(nv) {
             $scope.list(nv);
         }, true);
     }])
@@ -94,7 +118,7 @@ define(['frame'], function(ngApp) {
                 $scope.page.total = rsp.data.total;
             });
         };
-        $scope.$watch('criteria.sid', function(nv) {
+        $scope.$watch('frameState.sid', function(nv) {
             angular.extend(filter, { bySite: nv });
         });
         $scope.$watch('filter', function(nv) {
@@ -131,7 +155,7 @@ define(['frame'], function(ngApp) {
         $scope.cleanFilter = function() {
             filter.byTitle = filter2.byTitle = '';
         };
-        $scope.$watch('criteria.sid', function(nv) {
+        $scope.$watch('frameState.sid', function(nv) {
             angular.extend(filter, { bySite: nv });
         });
         $scope.$watch('filter', function(nv) {
@@ -162,7 +186,7 @@ define(['frame'], function(ngApp) {
             location.href = '/rest/pl/fe/matter/mission/' + subView + '?site=' + mission.siteid + '&id=' + mission.mission_id;
         };
         $scope.create = function() {
-            var url = '/rest/pl/fe/matter/mission/create?site=' + $scope.criteria.sid;
+            var url = '/rest/pl/fe/matter/mission/create?site=' + $scope.frameState.sid;
             http2.get(url, function(rsp) {
                 location.href = '/rest/pl/fe/matter/mission?site=' + rsp.data.id + '&id=' + rsp.data.id;
             });
@@ -186,7 +210,7 @@ define(['frame'], function(ngApp) {
         $scope.cleanFilter = function() {
             filter.byTitle = filter2.byTitle = '';
         };
-        $scope.$watch('criteria.sid', function(nv) {
+        $scope.$watch('frameState.sid', function(nv) {
             angular.extend(filter, { bySite: nv });
         });
         $scope.$watch('filter', function(nv) {
@@ -196,24 +220,29 @@ define(['frame'], function(ngApp) {
         $scope.listSite();
     }]);
     ngApp.provider.controller('ctrlActivity', ['$scope', 'http2', 'cstApp', function($scope, http2, cstApp) {
-        var criteria3, page, filter, filter2;
-        $scope.filter = filter = {};
-        $scope.filter2 = filter2 = {};
-        $scope.scenarioNames = cstApp.scenarioNames;
-        $scope.criteria3 = criteria3 = {
-            matterType: 'enroll'
-        }
-        $scope.changeMatter = function(type) {
-            criteria3.matterType = type;
-        }
-        $scope.activityAddMatter = function() {
-            var target = $('#activityAddMatter');
-            if (target.data('popover') === 'Y') {
-                target.trigger('hide').data('popover', 'N');
+        var page, filter, filter2;
+        if (window.localStorage) {
+            $scope.$watch('filter', function(nv) {
+                if (nv) {
+                    window.localStorage.setItem("pl.fe.activity.filter", JSON.stringify(nv));
+                }
+            }, true);
+            if (filter = window.localStorage.getItem("pl.fe.activity.filter")) {
+                filter = JSON.parse(filter);
             } else {
-                target.trigger('show').data('popover', 'Y');
+                filter = { byType: 'enroll' };
             }
+        } else {
+            filter = { byType: 'enroll' };
         }
+        $scope.filter = filter;
+        $scope.filter2 = filter2 = {};
+        if (filter.byType) { filter2.byTitle = filter.byTitle }
+        $scope.scenarioNames = cstApp.scenarioNames;
+        $scope.changeMatter = function(type) {
+            filter.byType = type;
+            filter.scenario = '';
+        };
         $scope.page = page = {
             at: 1,
             size: 12,
@@ -237,11 +266,8 @@ define(['frame'], function(ngApp) {
         $scope.cleanFilter = function() {
             filter.byTitle = filter2.byTitle = '';
         };
-        $scope.$watch('criteria3.matterType', function(nv) {
-            angular.extend(filter, { byType: nv, scenario: '' });
-        })
-        $scope.$watch('criteria.sid', function(nv) {
-            angular.extend(filter, { bySite: nv, scenario: '' });
+        $scope.$watch('frameState.sid', function(nv) {
+            angular.extend(filter, { bySite: nv });
         });
         $scope.$watch('filter', function(nv) {
             if (!nv) return;
@@ -249,22 +275,26 @@ define(['frame'], function(ngApp) {
         }, true);
     }]);
     ngApp.provider.controller('ctrlInfo', ['$scope', '$uibModal', 'http2', function($scope, $uibModal, http2) {
-        var criteria4, page, filter, filter2;
-        $scope.filter = filter = {};
-        $scope.filter2 = filter2 = {};
-        $scope.criteria4 = criteria4 = {
-            matterType: 'article'
-        }
-        $scope.changeMatter = function(type) {
-            criteria4.matterType = type;
-        };
-        $scope.infoAddMatter = function() {
-            var target = $('#infoAddMatter');
-            if (target.data('popover') === 'Y') {
-                target.trigger('hide').data('popover', 'N');
+        var page, filter, filter2;
+        if (window.localStorage) {
+            $scope.$watch('filter', function(nv) {
+                if (nv) {
+                    window.localStorage.setItem("pl.fe.info.filter", JSON.stringify(nv));
+                }
+            }, true);
+            if (filter = window.localStorage.getItem("pl.fe.info.filter")) {
+                filter = JSON.parse(filter);
             } else {
-                target.trigger('show').data('popover', 'Y');
+                filter = { byType: 'article' };
             }
+        } else {
+            filter = { byType: 'article' };
+        }
+        $scope.filter = filter;
+        $scope.filter2 = filter2 = {};
+        if (filter.byType) { filter2.byTitle = filter.byTitle }
+        $scope.changeMatter = function(type) {
+            filter.byType = type;
         };
         $scope.page = page = {
             at: 1,
@@ -286,10 +316,7 @@ define(['frame'], function(ngApp) {
         $scope.cleanFilter = function() {
             filter.byTitle = filter2.byTitle = '';
         };
-        $scope.$watch('criteria4.matterType', function(nv) {
-            angular.extend(filter, { byType: nv });
-        })
-        $scope.$watch('criteria.sid', function(nv) {
+        $scope.$watch('frameState.sid', function(nv) {
             angular.extend(filter, { bySite: nv });
         });
         $scope.$watch('filter', function(nv) {
@@ -330,10 +357,10 @@ define(['frame'], function(ngApp) {
         };
         $scope.createMschema = function() {
             var url;
-            if ($scope.criteria.sid) {
-                url = '/rest/pl/fe/site/member/schema/create?site=' + $scope.criteria.sid;
+            if ($scope.frameState.sid) {
+                url = '/rest/pl/fe/site/member/schema/create?site=' + $scope.frameState.sid;
                 http2.post(url, { valid: 'Y' }, function(rsp) {
-                    location.href = 'http://localhost/rest/pl/fe/site/setting/mschema?site=' + $scope.criteria.sid;
+                    location.href = 'http://localhost/rest/pl/fe/site/setting/mschema?site=' + $scope.frameState.sid;
                 });
             }
         };
@@ -344,7 +371,7 @@ define(['frame'], function(ngApp) {
                 filter = '&kw=' + $scope.page.keyword;
                 filter += '&by=' + $scope.page.searchBy;
             }
-            url = '/rest/pl/fe/site/member/list?site=' + $scope.criteria.sid + '&schema=' + selected.mschema.id;
+            url = '/rest/pl/fe/site/member/list?site=' + $scope.frameState.sid + '&schema=' + selected.mschema.id;
             url += '&page=' + $scope.page.at + '&size=' + $scope.page.size + filter
             url += '&contain=total';
             http2.get(url, function(rsp) {
@@ -409,11 +436,11 @@ define(['frame'], function(ngApp) {
                         ea = selected.mschema.extattr[i];
                         newData[ea.id] = rst.data[ea.id];
                     }
-                    http2.post('/rest/pl/fe/site/member/update?site=' + $scope.criteria.sid + '&id=' + member.id, newData, function(rsp) {
+                    http2.post('/rest/pl/fe/site/member/update?site=' + $scope.frameState.sid + '&id=' + member.id, newData, function(rsp) {
                         angular.extend(member, newData);
                     });
                 } else if (rst.action === 'remove') {
-                    http2.get('/rest/pl/fe/site/member/remove?site=' + $scope.criteria.sid + '&id=' + member.id, function() {
+                    http2.get('/rest/pl/fe/site/member/remove?site=' + $scope.frameState.sid + '&id=' + member.id, function() {
                         $scope.members.splice($scope.members.indexOf(member), 1);
                     });
                 }
@@ -424,7 +451,7 @@ define(['frame'], function(ngApp) {
                 location.href = '/rest/pl/fe/matter/enroll?site=' + rsp.data.siteid + '&id=' + rsp.data.id;
             });
         };
-        $scope.$watch('criteria.sid', function(siteId) {
+        $scope.$watch('frameState.sid', function(siteId) {
             if (siteId) {
                 http2.get('/rest/pl/fe/site/member/schema/list?site=' + siteId, function(rsp) {
                     $scope.mschemas = rsp.data;
@@ -447,7 +474,7 @@ define(['frame'], function(ngApp) {
         $scope.doSearch = function(page) {
             var url = '/rest/pl/fe/site/user/account/list';
             page && ($scope.page.at = page);
-            url += '?site=' + $scope.criteria.sid;
+            url += '?site=' + $scope.frameState.sid;
             url += '&page=' + $scope.page.at + '&size=' + $scope.page.size;
             http2.get(url, function(rsp) {
                 $scope.users = rsp.data.users;
@@ -455,14 +482,14 @@ define(['frame'], function(ngApp) {
             });
         };
         $scope.openProfile = function(uid) {
-            //location.href = '/rest/pl/fe/site/user/fans?site=' + $scope.criteria.sid + '&uid=' + uid;
+            //location.href = '/rest/pl/fe/site/user/fans?site=' + $scope.frameState.sid + '&uid=' + uid;
         };
         $scope.find = function() {
             var url = '/rest/pl/fe/site/user/account/list',
                 data = {
                     nickname: $scope.nickname
                 };
-            url += '?site=' + $scope.criteria.sid;
+            url += '?site=' + $scope.frameState.sid;
             url += '&nickname=' + $scope.nickname;
             http2.post(url, data, function(rsp) {
                 $scope.users = rsp.data.users;
@@ -472,21 +499,55 @@ define(['frame'], function(ngApp) {
         $scope.doSearch(1);
     }]);
     ngApp.provider.controller('ctrlRecycle', ['$scope', 'http2', function($scope, http2) {
-        var t = (new Date() * 1);
-        $scope.recycle = function() {
-            //获取回收站信息
-            var url = '/rest/pl/fe/site/wasteList?_=' + t;
-            http2.get(url, function(rsp) {
-                $scope.sites0 = rsp.data;
-            });
+        var t = (new Date() * 1), filter, filter2;
+        $scope.filter = filter = {};
+        $scope.filter2 = filter2 = {};
+        $scope.list = function() {
+            if(filter.bySite == '') {
+                var url = '/rest/pl/fe/site/wasteList?_=' + t,
+                    url2 = '/rest/pl/fe/site/console/recycle?site=' + filter.bySite + '&_=' + t,
+                    urls = [url, url2];
+                $scope.matters = [];
+                urls.forEach(function(item) {
+                    http2.post(item, filter, function(rsp) {
+                        var data = rsp.data.matters || rsp.data;
+                        data.forEach(function(matter) {
+                            $scope.matters.push(matter);
+                        });
+                    });
+                });
+            }else {
+                var url = '/rest/pl/fe/site/console/recycle?site=' + filter.bySite + '&_=' + t;
+                http2.post(url, filter, function(rsp) {
+                    $scope.matters = rsp.data.matters;
+                });
+            }
+        };
+        $scope.doFilter = function() {
+            angular.extend(filter, filter2);
+        };
+        $scope.cleanFilter = function() {
+            filter.byTitle = filter2.byTitle = '';
         };
         $scope.restoreSite = function(site) {
-            //恢复删除站点
+            //恢复删除的站点
             var url = '/rest/pl/fe/site/recover?site=' + site.id;
             http2.get(url, function(rsp) {
                 location.href = '/rest/pl/fe/site?site=' + site.id;
             })
         };
-        $scope.recycle();
+        $scope.restoreMatter = function(matter) {
+            var url = '/rest/pl/fe/matter/' + matter.matter_type + '/restore' + '?site=' + matter.siteid + '&id=' + matter.matter_id;
+            http2.get(url, function(rsp) {
+                location.href = '/rest/pl/fe/matter/' + matter.matter_type + '?site=' + matter.siteid + '&id=' + matter.matter_id;
+            });
+        };
+        $scope.$watch('frameState.sid', function(nv) {
+            angular.extend(filter, { bySite: nv });
+        });
+        $scope.$watch('filter', function(nv) {
+            if (!nv) return;
+            $scope.list();
+        }, true);
     }]);
 });

@@ -515,7 +515,11 @@ class log_model extends \TMS_MODEL {
 			if (isset($options['byTitle'])) {
 				$q[2] .= " and t.title like '%" . $this->escape($options['byTitle']) . "%'";
 			}
-
+			if ($options['byType'] === 'enroll') {
+				if (isset($options['scenario'])) {
+					$q[2] .= " and scenario='" . $this->escape($options['scenario']) . "'";
+				}
+			}
 			$q2 = [
 				'r' => ['o' => ($page->at - 1) * $page->size, 'l' => $page->size],
 				'o' => ['t.create_at desc'],
@@ -560,7 +564,7 @@ class log_model extends \TMS_MODEL {
 	/**
 	 * 站点内最近删除的素材
 	 */
-	public function &recycleMatters($siteId, $options = array()) {
+	public function &recycleMatters($siteId, $user, $options = array()) {
 		$fields = empty($options['fields']) ? '*' : $options['fields'];
 		if (empty($options['page'])) {
 			$page = new \stdClass;
@@ -572,8 +576,25 @@ class log_model extends \TMS_MODEL {
 		$q = [
 			$fields,
 			'xxt_log_matter_op',
-			"siteid='$siteId' and last_op='Y' and operation='Recycle'",
+			"last_op='Y' and operation='Recycle'",
 		];
+		!empty($options['byType']) && $q[2] .= " and matter_type = '" . $this->escape($options['byType']) . "'";
+		!empty($options['byTitle']) && $q[2] .= " and matter_title like '%" . $this->escape($options['byTitle']) . "%'";
+		if(!empty($siteId)){
+			$q[2] .= " and siteid = '" . $this->escape($siteId) . "'";
+		}else{
+			if($mySites = $this->model('site')->byUser($user->id, ['fields' => 'id'])){
+				$siteArr = [];
+				foreach ($mySites as $site) {
+					$siteArr[] = $site->id;
+				}
+				$site = "('";
+				$site .= implode("','", $siteArr);
+				$site .= "')";
+				$q[2] .= " and siteid in $site";
+			}
+		}
+
 		$q2 = [
 			'r' => ['o' => ($page->at - 1) * $page->size, 'l' => $page->size],
 			'o' => ['operate_at desc'],

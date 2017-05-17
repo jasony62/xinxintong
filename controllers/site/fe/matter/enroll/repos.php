@@ -9,24 +9,34 @@ class repos extends base {
 	/**
 	 * 返回指定登记项的活动登记名单
 	 */
-	public function list4Schema_action($app, $schema, $rid = '', $owner = '', $page = 1, $size = 10) {
+	public function list4Schema_action($app, $page = 1, $size = 12) {
 		// 登记活动
 		$modelApp = $this->model('matter\enroll');
-		$oApp = $modelApp->byId($app, ['cascaded' => 'N']);
+		$oApp = $modelApp->byId($app, ['fields' => 'id,data_schemas', 'cascaded' => 'N']);
 		// 登记数据过滤条件
 		$criteria = $this->getPostJson();
 
 		// 登记记录过滤条件
-		$options = [
-			'page' => $page,
-			'size' => $size,
-		];
-		!empty($rid) && $options['rid'] = $rid;
-		!empty($owner) && $options['owner'] = $owner;
+		$options = new \stdClass;
+		$options->page = $page;
+		$options->size = $size;
+		!empty($criteria->keyword) && $options->keyword = $criteria->keyword;
+		!empty($criteria->rid) && $options->rid = $criteria->rid;
+		!empty($criteria->owner) && $options->owner = $criteria->owner;
+		if (empty($criteria->schema)) {
+			$options->schemas = [];
+			foreach ($oApp->dataSchemas as $dataSchema) {
+				if (isset($dataSchema->shareable) && $dataSchema->shareable === 'Y') {
+					$options->schemas[] = $dataSchema->id;
+				}
+			}
+		} else {
+			$options->schemas = [$criteria->schema];
+		}
 
 		// 查询结果
-		$mdoelRec = $this->model('matter\enroll\record');
-		$result = $mdoelRec->list4Schema($oApp, $schema, $options);
+		$mdoelData = $this->model('matter\enroll\data');
+		$result = $mdoelData->byApp($oApp, $options);
 
 		return new \ResponseData($result);
 	}
@@ -57,7 +67,7 @@ class repos extends base {
 			return new \ObjectNotFoundError();
 		}
 
-		$modelRec = $this->model('matter\enroll\record');
+		$modelData = $this->model('matter\enroll\data');
 		$options = new \stdClass;
 		$options->rid = $rid;
 		$options->page = $page;
@@ -65,7 +75,7 @@ class repos extends base {
 		if ($onlyMine === 'Y') {
 			//$options->userid = $this->who->uid;
 		}
-		$result = $modelRec->dataBySchema($oApp, $oSchema, $options);
+		$result = $modelData->bySchema($oApp, $oSchema, $options);
 
 		return new \ResponseData($result);
 	}

@@ -4,12 +4,21 @@ img{max-width:100%}
 #errmsg{display:block;opacity:0;height:0;overflow:hidden;width:300px;position:fixed;top:0;left:50%;margin:0 0 0 -150px;text-align:center;transition:opacity 1s;z-index:-1;word-break:break-all}
 #errmsg.active{opacity:1;height:auto;z-index:999}
 
+/*criteria*/
+#advCriteria{position:relative;}
+#advCriteria span.opened{transform:rotate(90deg);}
+#advCriteria form{position:absolute;top:100%;right:0;margin-top:1px;width:300px;background:#fff;padding:1rem;border:1px solid #ccc;border-top:0;}
+#advCriteria form .form-control{float:none;}
+#advCriteria form .form-group:last-child{margin-bottom:0;}
+
 /*record*/
-#recordRepos .accordion-toggle{text-decoration:none;display:block;}
-#recordRepos .accordion-toggle:focus{outline:0}
-#recordRepos .record{border-bottom:1px solid #ddd;}
-#recordRepos .record:last-child{margin-bottom:1em;}
-#recordRepos .record>*{margin:1em 0;}
-#recordRepos .record .bottom-bar{display:flex;}
-#recordRepos .record .bottom-bar .datetime{flex:1;line-height:30px;font-size:.8em;}
-#recordRepos.single .panel-heading{display:none;}
+#repos{background:#fff;padding:1rem;margin-bottom:60px;}
+#repos .record{border-bottom:1px solid #ddd;}
+#repos .record:last-child{margin-bottom:1rem;}
+#repos .record>*{margin:1rem 0;}
+#repos .record .label{padding-top:.3em}
+#repos .record .bottom-bar{display:flex;}
+#repos .record .bottom-bar .datetime{flex:1;line-height:30px;font-size:.8rem;}
+
+/*actions*/
+#reposActions{position:fixed;bottom:0;left:0;right:0;padding:6px;}

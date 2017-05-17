@@ -40,7 +40,11 @@ class console extends \pl\fe\base {
 	/**
 	 * 最近删除的素材
 	 */
-	public function recycle_action($site, $page = 1, $size = 30) {
+	public function recycle_action($site = null, $page = 1, $size = 30) {
+		if (false === ($user = $this->accountUser())) {
+			return new \ResponseTimeout();
+		}
+
 		$modelLog = $this->model('matter\log');
 
 		/*分页参数*/
@@ -52,7 +56,15 @@ class console extends \pl\fe\base {
 			'page' => $p,
 		);
 
-		$matters = $modelLog->recycleMatters($site, $options);
+		$oFilter = $this->getPostJson();
+		if (!empty($oFilter->byTitle)) {
+			$options['byTitle'] = $oFilter->byTitle;
+		}
+		if (!empty($oFilter->byType)) {
+			$options['byType'] = $oFilter->byType;
+		}
+
+		$matters = $modelLog->recycleMatters($site, $user, $options);
 
 		return new \ResponseData($matters);
 	}

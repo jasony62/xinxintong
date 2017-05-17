@@ -55,12 +55,43 @@ define(['require'], function(require) {
         });
     }]);
     ngApp.controller('ctrlFrame', ['$scope', 'http2', 'srvUserNotice', '$uibModal', 'templateShop', function($scope, http2, srvUserNotice, $uibModal, templateShop) {
-        var criteria, criteria2, criteria3;
-        $scope.subView = '';
+        var frameState;
+        if (window.localStorage) {
+            $scope.$watch('frameState', function(nv) {
+                if (nv) {
+                    window.localStorage.setItem("pl.fe.frameState", JSON.stringify(nv));
+                }
+            }, true);
+            if (frameState = window.localStorage.getItem("pl.fe.frameState")) {
+                frameState = JSON.parse(frameState);
+            } else {
+                frameState = {
+                    sid: '',
+                    view: '',
+                    scope: ''
+                };
+            }
+        } else {
+            frameState = {
+                sid: '',
+                view: '',
+                scope: ''
+            };
+        }
+        $scope.frameState = frameState;
+
         $scope.$on('$locationChangeSuccess', function(event, currentRoute) {
             var subView = currentRoute.match(/[^\/]+$/)[0];
             subView.indexOf('?') !== -1 && (subView = subView.substr(0, subView.indexOf('?')));
-            $scope.subView = subView === 'fe' ? 'main' : subView;
+            subView = subView === 'fe' ? 'main' : subView;
+            if (subView !== frameState.view) {
+                frameState.view = subView;
+                if (frameState.view === 'main') {
+                    frameState.scope = 'top';
+                } else if (frameState.view === 'friend') {
+                    frameState.scope = 'subscribeSite';
+                }
+            }
         });
         var url = '/rest/pl/fe/user/get?_=' + (new Date() * 1);
         http2.get(url, function(rsp) {
@@ -75,17 +106,8 @@ define(['require'], function(require) {
         srvUserNotice.uncloseList().then(function(result) {
             $scope.notice = result;
         });
-        $scope.criteria = criteria = {
-            sid: ''
-        };
-        $scope.criteria2 = criteria2 = {
-            scope: 'top'
-        };
-        $scope.criteria3 = criteria3 = {
-            scope: 'subscribeSite'
-        };
-        $scope.changeScope = function(criteria, scope) {
-            criteria.scope = scope;
+        $scope.changeScope = function(scope) {
+            frameState.scope = scope;
         };
         $scope.load = function(id) {
                 location.href = '/rest/pl/fe/site/setting?site=' + id;
@@ -217,8 +239,8 @@ define(['require'], function(require) {
                     location.href = '/rest/pl/fe/site/setting?site=' + rsp.data.id;
                 });
             }
-            if ($scope.criteria.sid != '') {
-                var site = { id: $scope.criteria.sid };
+            if (frameState.sid != '') {
+                var site = { id: frameState.sid };
                 addMatter(site, matterType, scenario);
             } else {
                 var url = '/rest/pl/fe/site/list?_=' + (new Date() * 1);
@@ -260,7 +282,6 @@ define(['require'], function(require) {
             $scope.siteType = 1;
             var url = '/rest/pl/fe/site/list?_=' + (new Date() * 1);
             http2.get(url, function(rsp) {
-                $scope.site1 = rsp.data;
                 $scope.sites = rsp.data;
             });
         };

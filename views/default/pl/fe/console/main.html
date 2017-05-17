@@ -1,4 +1,4 @@
-<div ng-switch on="criteria2.scope">
+<div ng-switch on="frameState.scope">
     <div ng-controller="ctrlTop" ng-switch-when="top">
         <div class="col-md-12">
             <table class='table table-bordered'>
@@ -17,7 +17,7 @@
                         <td>{{$index+1}}</td>
                         <td>{{matterNames[t.matter_type]}}</td>
                         <td>{{t.matter_title}}</td>
-                        <td>{{(t.top_at*1000)|date:'MM-dd HH:mm'}}</td>
+                        <td>{{(t.top_at*1000)|date:'yy-MM-dd HH:mm'}}</td>
                         <td ng-switch on="t.matter_type">
                             <div ng-switch-when="enroll">
                                 <button class='btn btn-sm btn-default' ng-click="openMatter(t,'main')">定义</button>
@@ -68,7 +68,7 @@
                         <th>名称</th>
                         <th style='width:120px'>最后修改时间</th>
                         <th style='width:64px'>置顶</th>
-                        <th style='width:180px'>操作</th>
+                        <th style='width:220px'>操作</th>
                     </tr>
                 </thead>
                 <tbody>
@@ -76,7 +76,7 @@
                         <td>{{$index+1}}</td>
                         <td>{{matterNames[m.matter_type]}}</td>
                         <td>{{m.matter_title}}</td>
-                        <td>{{(m.operate_at*1000)|date:'MM-dd HH:mm'}}</td>
+                        <td>{{(m.operate_at*1000)|date:'yy-MM-dd HH:mm'}}</td>
                         <td>
                             <button class='btn btn-sm btn-default' title='置顶' ng-click="stickTop(m)">置顶</button>
                         </td>
@@ -85,15 +85,18 @@
                                 <button class='btn btn-sm btn-default' ng-click="openMatter(m,'main')">定义</button>
                                 <button class='btn btn-sm btn-default' ng-click="openMatter(m,'publish')">设置</button>
                                 <button class='btn btn-sm btn-default' ng-click="openMatter(m,'record')">数据</button>
+                                <button class='btn btn-sm btn-default' ng-click="copyMatter($event,m)">复制</button>
                             </div>
                             <div ng-switch-when="signin">
                                 <button class='btn btn-sm btn-default' ng-click="openMatter(m,'main')">定义</button>
                                 <button class='btn btn-sm btn-default' ng-click="openMatter(m,'publish')">设置</button>
                                 <button class='btn btn-sm btn-default' ng-click="openMatter(m,'record')">数据</button>
+                                <button class='btn btn-sm btn-default' ng-click="copyMatter($event,m)">复制</button>
                             </div>
                             <div ng-switch-when="group">
                                 <button class='btn btn-sm btn-default' ng-click="openMatter(m,'main')">定义</button>
                                 <button class='btn btn-sm btn-default' ng-click="openMatter(m,'player')">数据</button>
+                                <button class='btn btn-sm btn-default' ng-click="copyMatter($event,m)">复制</button>
                             </div>
                             <div ng-switch-when="mission">
                                 <button class='btn btn-sm btn-default' ng-click="openMatter(m,'main')">定义</button>
@@ -106,6 +109,7 @@
                             </div>
                             <div ng-switch-default>
                                 <button class='btn btn-sm btn-default' ng-click="openMatter(m,'main')">进入</button>
+                                <button class='btn btn-sm btn-default' ng-click="copyMatter($event,m)" ng-if="m.matter_type=='article'">复制</button>
                             </div>
                         </td>
                     </tr>
@@ -119,7 +123,7 @@
     </div>
     <div ng-controller="ctrlSite" ng-switch-when="site">
         <div class='col-md-12'>
-            <nav class='navbar navbar-default' ng-if="criteria.sid==''">
+            <nav class='navbar navbar-default' ng-if="frameState.sid===''">
                 <div class='container-fluid'>
                     <form class='nav navbar-form pull-left'>
                         <div class='form-group'>
@@ -182,8 +186,8 @@
                         </div>
                     </form>
                     <form class='nav navbar-form pull-right'>
-                        <button ng-if="criteria.sid!=''" class="btn btn-default" ng-click='create()'><i class='glyphicon glyphicon-plus'></i> <span>新建</span></button>
-                        <button ng-if="criteria.sid==''" class="btn btn-default" ng-click="addMatter('mission')"><i class='glyphicon glyphicon-plus'></i> <span>新建</span></button>
+                        <button ng-if="frameState.sid!=''" class="btn btn-default" ng-click='create()'><i class='glyphicon glyphicon-plus'></i> <span>新建</span></button>
+                        <button ng-if="frameState.sid==''" class="btn btn-default" ng-click="addMatter('mission')"><i class='glyphicon glyphicon-plus'></i> <span>新建</span></button>
                     </form>
                 </div>
             </nav>
@@ -193,7 +197,7 @@
                         <th style='width:48px'>序号</th>
                         <th>名称</th>
                         <th style='width:140px'>创建人</th>
-                        <th style='width:100px'>创建时间</th>
+                        <th style='width:120px'>创建时间</th>
                         <th style='width:64px'>置顶</th>
                         <th style='width:180px'>操作</th>
                     </tr>
@@ -203,7 +207,7 @@
                         <td>{{$index+1}}</td>
                         <td>{{m.site_name}}\{{m.title}}</td>
                         <td>{{m.creater_name}}</td>
-                        <td>{{m.create_at*1000|date:'yyyy-MM-dd'}}</td>
+                        <td>{{m.create_at*1000|date:'yy-MM-dd HH:mm'}}</td>
                         <td>
                             <button class='btn btn-sm btn-default' title='置顶' ng-click="stickTop(m)">置顶</button>
                         </td>
@@ -226,14 +230,14 @@
             <nav class='navbar navbar-default'>
                 <div class='container-fluid'>
                     <ul class='nav navbar-nav'>
-                        <li ng-class="{'active':criteria3.matterType==='enroll'}"><a href='' ng-click="changeMatter('enroll')">登记活动</a></li>
-                        <li ng-class="{'active':criteria3.matterType==='signin'}"><a href='' ng-click="changeMatter('signin')">签到活动</a></li>
-                        <li ng-class="{'active':criteria3.matterType==='group'}"><a href='' ng-click="changeMatter('group')">分组活动</a></li>
-                        <li ng-class="{'active':criteria3.matterType==='lottery'}"><a href='' ng-click="changeMatter('lottery')">抽奖活动</a></li>
-                        <li ng-class="{'active':criteria3.matterType==='wall'}"><a href='' ng-click="changeMatter('wall')">信息墙</a></li>
+                        <li ng-class="{'active':filter.byType==='enroll'}"><a href='' ng-click="changeMatter('enroll')">登记活动</a></li>
+                        <li ng-class="{'active':filter.byType==='signin'}"><a href='' ng-click="changeMatter('signin')">签到活动</a></li>
+                        <li ng-class="{'active':filter.byType==='group'}"><a href='' ng-click="changeMatter('group')">分组活动</a></li>
+                        <li ng-class="{'active':filter.byType==='lottery'}"><a href='' ng-click="changeMatter('lottery')">抽奖活动</a></li>
+                        <li ng-class="{'active':filter.byType==='wall'}"><a href='' ng-click="changeMatter('wall')">信息墙</a></li>
                     </ul>
                     <form class='nav navbar-form pull-left'>
-                        <div class="form-group" ng-if="criteria3.matterType==='enroll'">
+                        <div class="form-group" ng-if="filter.byType==='enroll'">
                             <select class='form-control' ng-model="filter.scenario">
                                 <option value=''>全部场景</option>
                                 <option value='common'>通用登记</option>
@@ -262,18 +266,18 @@
                 <thead>
                     <tr>
                         <th style='width:48px'>序号</th>
-                        <th ng-if="criteria3.matterType =='enroll'" style='width:90px'>场景</th>
+                        <th ng-if="filter.byType =='enroll'" style='width:90px'>场景</th>
                         <th>名称</th>
                         <th style='width:140px'>创建人</th>
                         <th style='width:120px'>创建时间</th>
                         <th style='width:64px'>置顶</th>
-                        <th style='width:180px'>操作</th>
+                        <th style='width:220px'>操作</th>
                     </tr>
                 </thead>
                 <tbody>
                     <tr ng-repeat='m in matters'>
                         <td>{{$index+1}}</td>
-                        <td ng-if="criteria3.matterType=='enroll'">{{scenarioNames[m.matter_scenario]}}</td>
+                        <td ng-if="filter.byType=='enroll'">{{scenarioNames[m.matter_scenario]}}</td>
                         <td>{{m.matter_title}}</td>
                         <td>{{m.operator_name}}</td>
                         <td>{{m.operate_at*1000|date:'yy-MM-dd HH:mm'}}</td>
@@ -284,16 +288,19 @@
                             <div ng-switch-when="group">
                                 <button class='btn btn-sm btn-default' ng-click="openMatter(m,'main')">定义</button>
                                 <button class='btn btn-sm btn-default' ng-click="openMatter(m,'player')">数据</button>
+                                <button class='btn btn-sm btn-default' ng-click="copyMatter($event,m)">复制</button>
                             </div>
                             <div ng-switch-when="enroll">
                                 <button class='btn btn-sm btn-default' ng-click="openMatter(m,'main')">定义</button>
                                 <button class='btn btn-sm btn-default' ng-click="openMatter(m,'publish')">设置</button>
                                 <button class='btn btn-sm btn-default' ng-click="openMatter(m,'record')">数据</button>
+                                <button class='btn btn-sm btn-default' ng-click="copyMatter($event,m)">复制</button>
                             </div>
                             <div ng-switch-when="signin">
                                 <button class='btn btn-sm btn-default' ng-click="openMatter(m,'main')">定义</button>
                                 <button class='btn btn-sm btn-default' ng-click="openMatter(m,'publish')">设置</button>
                                 <button class='btn btn-sm btn-default' ng-click="openMatter(m,'record')">数据</button>
+                                <button class='btn btn-sm btn-default' ng-click="copyMatter($event,m)">复制</button>
                             </div>
                             <div ng-switch-default>
                                 <button class='btn btn-sm btn-default' ng-click="openMatter(m,'main')">进入</button>
@@ -313,13 +320,13 @@
             <nav class='navbar navbar-default'>
                 <div class='container-fluid'>
                     <ul class='nav navbar-nav'>
-                        <li ng-class="{'active':criteria4.matterType==='article'}"><a href='' ng-click="changeMatter('article')">单图文</a></li>
-                        <li ng-class="{'active':criteria4.matterType==='news'}"><a href='' ng-click="changeMatter('news')">多图文</a></li>
-                        <li ng-class="{'active':criteria4.matterType==='channel'}"><a href='' ng-click="changeMatter('channel')">频道</a></li>
-                        <li ng-class="{'active':criteria4.matterType==='link'}"><a href='' ng-click="changeMatter('link')">链接</a></li>
-                        <li ng-class="{'active':criteria4.matterType==='contribute'}"><a href='' ng-click="changeMatter('contribute')">投稿</a></li>
-                        <li ng-class="{'active':criteria4.matterType==='text'}"><a href='' ng-click="changeMatter('text')">文本</a></li>
-                        <li ng-class="{'active':criteria4.matterType==='custom'}"><a href='' ng-click="changeMatter('custom')">定制页</a></li>
+                        <li ng-class="{'active':filter.byType==='article'}"><a href='' ng-click="changeMatter('article')">单图文</a></li>
+                        <li ng-class="{'active':filter.byType==='news'}"><a href='' ng-click="changeMatter('news')">多图文</a></li>
+                        <li ng-class="{'active':filter.byType==='channel'}"><a href='' ng-click="changeMatter('channel')">频道</a></li>
+                        <li ng-class="{'active':filter.byType==='link'}"><a href='' ng-click="changeMatter('link')">链接</a></li>
+                        <li ng-class="{'active':filter.byType==='contribute'}"><a href='' ng-click="changeMatter('contribute')">投稿</a></li>
+                        <li ng-class="{'active':filter.byType==='text'}"><a href='' ng-click="changeMatter('text')">文本</a></li>
+                        <li ng-class="{'active':filter.byType==='custom'}"><a href='' ng-click="changeMatter('custom')">定制页</a></li>
                     </ul>
                     <form class='nav navbar-form pull-left'>
                         <div class='form-group'>
@@ -345,7 +352,7 @@
                         <th style='width:140px'>创建人</th>
                         <th style='width:120px'>创建时间</th>
                         <th style='width:64px'>置顶</th>
-                        <th style='width:64px'>操作</th>
+                        <th style='width:120px'>操作</th>
                     </tr>
                 </thead>
                 <tbody>
@@ -359,6 +366,7 @@
                         </td>
                         <td>
                             <button class='btn btn-sm btn-default' ng-click="openMatter(m,'main')">进入</button>
+                            <button class='btn btn-sm btn-default' ng-click="copyMatter($event,m)" ng-if="m.matter_type=='article'">复制</button>
                         </td>
                     </tr>
                 </tbody>
@@ -370,13 +378,13 @@
         </div>
     </div>
     <div ng-controller="ctrlSiteUser" ng-switch-when="siteuser">
-        <div class='col-md-3' ng-if="!criteria.sid">
+        <div class='col-md-3' ng-if="!frameState.sid">
             <div class='form-group'>
                 <label>选择团队</label>
-                <select class='form-control' ng-model="criteria.sid" ng-options="site.id as site.name for site in sites"></select>
+                <select class='form-control' ng-model="frameState.sid" ng-options="site.id as site.name for site in sites"></select>
             </div>
         </div>
-        <div class="col-md-12" ng-if="criteria.sid" ng-switch on="catelog">
+        <div class="col-md-12" ng-if="frameState.sid" ng-switch on="catelog">
             <nav class='navbar navbar-default'>
                 <div class='container-fluid'>
                     <ul class='nav navbar-nav' ng-init="catelog='member'">
@@ -488,6 +496,21 @@
     </div>
     <div ng-controller="ctrlRecycle" ng-switch-when="recycle">
         <div class="col-md-12">
+            <nav class='navbar navbar-default'>
+                <div class='container-fluid'>
+                    <form class='nav navbar-form pull-left'>
+                        <div class='form-group'>
+                            <div class='input-group'>
+                                <input type='input' class='form-control' placeholder='按名称筛选' ng-model='filter2.byTitle'>
+                                <span class='input-group-btn'>
+                                    <button class='btn btn-default' ng-click="doFilter()"><span class='glyphicon glyphicon-search'></button>
+                                    <button class='btn btn-default' ng-click="cleanFilter()"><span class='glyphicon glyphicon-remove'></button>
+                                </span>
+                            </div>
+                        </div>
+                    </form>
+                </div>
+            </nav>
             <table class='table table-bordered'>
                 <thead>
                     <tr>
@@ -499,13 +522,14 @@
                     </tr>
                 </thead>
                 <tbody>
-                    <tr ng-repeat='site in sites0'>
+                    <tr ng-repeat='m in matters'>
                         <td>{{$index+1}}</td>
-                        <td>{{site.name}}</td>
-                        <td>{{site.creater_name}}</td>
-                        <td>{{site.create_at*1000|date:'yyyy-MM-dd'}}</td>
+                        <td>{{m.name||m.matter_title}}</td>
+                        <td>{{m.creater_name||m.operator_name}}</td>
+                        <td>{{(m.create_at||m.operate_at)*1000|date:'yy-MM-dd HH:mm'}}</td>
                         <td>
-                            <button class='btn btn-sm btn-default' title='恢复' ng-click="restoreSite(site)">恢复</button>
+                            <button ng-if="!m.siteid" class='btn btn-sm btn-default' title='恢复' ng-click="restoreSite(m)">恢复</button>
+                            <button ng-if="m.siteid" class='btn btn-sm btn-default' title='恢复' ng-click="restoreMatter(m)">恢复</button>
                         </td>
                     </tr>
                 </tbody>

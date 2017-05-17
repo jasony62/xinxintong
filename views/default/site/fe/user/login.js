@@ -37,6 +37,11 @@ define(['require', 'angular'], function(require, angular) {
                 } else {
                     location.replace('/rest/site/fe/user?site=' + site);
                 }
+            }).error(function(data, header, config, status) {
+                if (data) {
+                    $http.post('/rest/log/add', { src: 'site.fe.user.login', msg: JSON.stringify(arguments) });
+                }
+                alert('操作失败：' + (data === null ? '网络不可用' : data));
             });
         };
         $scope.logout = function() {
@@ -50,6 +55,9 @@ define(['require', 'angular'], function(require, angular) {
                 } else {
                     location.replace('/rest/site/fe/user/login?site=' + site);
                 }
+            }).error(function(data, header, config, status) {
+                $http.post('/rest/log/add', { src: 'site.fe.user.logout', msg: JSON.stringify(arguments) });
+                alert('操作失败：' + (data === null ? '网络不可用' : data));
             });
         };
         $scope.gotoRegister = function() {
@@ -63,7 +71,10 @@ define(['require', 'angular'], function(require, angular) {
             $http.get('/rest/site/fe/user/get?site=' + site).success(function(rsp) {
                 $scope.user = rsp.data;
                 window.loading.finish();
-            });
+            }).error(function(data, header, config, status) {
+                $http.post('/rest/log/add', { src: 'site.fe.user.logout', msg: JSON.stringify(arguments) });
+                alert('操作失败：' + (data === null ? '网络不可用' : data));
+            });;
         });
     }]);
 });

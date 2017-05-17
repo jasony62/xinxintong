@@ -39,47 +39,33 @@ ngApp.factory('Round', ['$http', '$q', function($http, $q) {
     };
 }]);
 ngApp.controller('ctrlRepos', ['$scope', '$http', 'Round', function($scope, $http, srvRound) {
-    var oApp, facRound, criteria, opened = {},
-        schemas = [];
-
+    var oApp, facRound, page, criteria, schemas;
+    $scope.schemaCount = 0;
+    $scope.page = page = { at: 1, size: 12 };
     $scope.criteria = criteria = { owner: 'all' };
-    $scope.schemas = schemas;
+    $scope.schemas = schemas = {};
     $scope.repos = {};
-    $scope.list4Schema = function(schema) {
-        var url, page;
-        page = schema._page;
+    $scope.list4Schema = function(pageAt) {
+        var url;
+        if (pageAt) {
+            page.at = pageAt;
+        }
         url = '/rest/site/fe/matter/enroll/repos/list4Schema?site=' + oApp.siteid + '&app=' + oApp.id;
-        url += '&schema=' + schema.id;
         url += '&page=' + page.at + '&size=' + page.size;
-        criteria.rid && (url += '&rid=' + criteria.rid);
-        criteria.owner && criteria.owner !== 'all' && (url += '&owner=' + criteria.owner);
-        $http.get(url).success(function(result) {
-            $scope.repos[schema.id] = result.data.records;
+        $http.post(url, criteria).success(function(result) {
+            $scope.repos = result.data.records;
             page.total = result.data.total;
         });
     }
-    $scope.schemaExpanded = function(schema) {};
-    $scope.switchSchema = function(schema) {
-        schema._open = !schema._open;
-        if (schema._open) {
-            schema._page.at = 1;
-            opened.schema = schema;
-            $scope.list4Schema(schema);
-        }
-    };
-    $scope.gotoRemark = function(ek, schema) {
+    $scope.gotoRemark = function(oRecordData) {
         var url;
         url = '/rest/site/fe/matter/enroll?site=' + oApp.siteid + '&app=' + oApp.id + '&page=remark';
-        url += '&ek=' + ek;
-        schema && (url += '&schema=' + schema.id);
+        url += '&ek=' + oRecordData.enroll_key;
+        url += '&schema=' + oRecordData.schema_id;
         location.href = url;
     };
     $scope.shiftRound = function() {
         if (criteria.rid === 'more') {
-            if (opened.schema) {
-                opened.schema._open = false;
-                opened = {};
-            }
             facRound.oPage.at++;
             facRound.list().then(function(result) {
                 result.rounds.forEach(function(round) {
@@ -87,14 +73,14 @@ ngApp.controller('ctrlRepos', ['$scope', '$http', 'Round', function($scope, $htt
                 })
             });
         } else {
-            if (opened.schema) {
-                opened.schema._page.at = 1;
-                $scope.list4Schema(opened.schema);
-            }
+            $scope.list4Schema();
         }
     };
     $scope.shiftOwner = function() {
-        $scope.list4Schema(opened.schema);
+        $scope.list4Schema();
+    };
+    $scope.shiftSchema = function() {
+        $scope.list4Schema();
     };
     $scope.likeRecordData = function(oRecord, oSchema) {
         var url;
@@ -111,14 +97,11 @@ ngApp.controller('ctrlRepos', ['$scope', '$http', 'Round', function($scope, $htt
         oApp = params.app;
         oApp.dataSchemas.forEach(function(schema) {
             if (schema.shareable === 'Y') {
-                schema._open = false;
-                schema._page = { at: 1, size: 10 };
-                schemas.push(schema);
+                schemas[schema.id] = schema;
+                $scope.schemaCount++;
             }
         });
-        if (schemas.length === 1) {
-            $scope.switchSchema(schemas[0]);
-        }
+        $scope.list4Schema();
         $scope.facRound = facRound = srvRound.ins(oApp);
         facRound.list().then(function(result) {
             if (result.active) {

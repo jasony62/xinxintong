@@ -91,27 +91,38 @@ class main extends \pl\fe\matter\base {
 	/**
 	 * 创建一个信息墙
 	 */
-	public function create_action($site) {
+	public function create_action($site = null, $mission = null) {
 		if (false === ($user = $this->accountUser())) {
 			return new \ResponseTimeout();
 		}
 
-		$oSite = $this->model('site')->byId($site, ['fields' => 'id,heading_pic']);
-		if (false === $oSite) {
-			return new \ObjectNotFoundError();
+		$newone = new \stdClass;
+		$current = time();
+		/*从站点或项目获取的定义*/
+		if (empty($mission)) {
+			$site = $this->model('site')->byId($site, ['fields' => 'id,heading_pic']);
+			if (false === $site) {
+				return new \ObjectNotFoundError();
+			}
+			$newone->siteid = $site->id;
+			$newone->pic = $site->heading_pic; //使用站点的缺省头图
+			$newone->summary = '';
+		} else {
+			$modelMis = $this->model('matter\mission');
+			$mission = $modelMis->byId($mission);
+			$newone->siteid = $mission->siteid;
+			$newone->summary = $mission->summary;
+			$newone->pic = $mission->pic;
+			$newone->mission_id = $mission->id;
 		}
 
 		$model = $this->model();
-
-		$newone = new \stdClass;
 		$wid = uniqid();
 		$newone->id = $wid;
-		$newone->siteid = $site;
 		$newone->title = '新信息墙';
-		$newone->pic = $oSite->heading_pic;
 		$newone->creater = $user->id;
 		$newone->creater_name = $model->escape($user->name);
-		$newone->create_at = time();
+		$newone->create_at = $current;
 		$newone->quit_cmd = 'q';
 		$newone->join_reply = '欢迎加入';
 		$newone->quit_reply = '已经退出';
@@ -120,7 +131,12 @@ class main extends \pl\fe\matter\base {
 
 		/* 记录操作日志 */
 		$newone->type = 'wall';
-		$this->model('matter\log')->matterOp($oSite->id, $user, $newone, 'C');
+		$this->model('matter\log')->matterOp($newone->siteid, $user, $newone, 'C');
+
+		/* 记录和任务的关系 */
+		if (isset($mission->id)) {
+			$modelMis->addMatter($user, $newone->siteid, $mission->id, $newone);
+		}
 
 		return new \ResponseData($wid);
 	}

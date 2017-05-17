@@ -21,7 +21,7 @@
             </thead>
             <tbody>
                 <tr ng-repeat='u in users'>
-                    <td><a href='' ng-click="openProfile(u.uid)">{{u.nickname}}</a></td>
+                    <td><a href='' ng-click="openProfile(u.uid, u.unionid)">{{u.nickname}}</a></td>
                     <td>{{u.ufrom}}</td>
                     <td>{{u.reg_time*1000|date:'yy-MM-dd HH:mm'}}</td>
                     <td>{{u.coin}}</td>

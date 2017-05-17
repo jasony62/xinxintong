@@ -33,10 +33,12 @@ define(['require'], function(require) {
     ngApp.controller('ctrlUser', ['$scope', 'srvSite', 'http2', function($scope, srvSite, http2) {
         var params = {
             siteId :  location.search.match(/site=([^&]*)/)[1],
-            userId :  location.search.match(/uid=([^&]*)/)[1]
+            userId :  location.search.match(/uid=([^&]*)/)[1],
+            unionId :  location.search.match(/unionid=([^&]*)/)[1],
         };
         $scope.siteId = params.siteId;
         $scope.userId = params.userId;
+        $scope.unionId = params.unionId;
         $scope.subView = '';
         $scope.$on('$locationChangeSuccess', function(event, currentRoute) {
             var subView = currentRoute.match(/([^\/]+?)\?/);

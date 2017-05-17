@@ -98,7 +98,7 @@ class main extends \pl\fe\base {
 			'id,favor_at,matter_id,matter_type,matter_title',
 			'xxt_site_favor',
 			['unionid' => $unionid]
-		];
+		);
 		!empty($site) && $q[2]['siteid'] = $site;
 		$q2 = array(
 			'o' => 'favor_at desc',

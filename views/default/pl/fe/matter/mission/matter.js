@@ -10,9 +10,38 @@ define(['frame'], function(ngApp) {
                     }
                 };
             http2.post(url, config, function(rsp) {
-                location.href = '/rest/pl/fe/matter/wall?site=' + $scope.mission.siteid + '&id=' + rsp.data.id;
+                location.href = '/rest/pl/fe/matter/wall?site=' + $scope.mission.siteid + '&id=' + rsp.data;
             })
 
+        };
+        var indicators = {
+            registration: {
+                title: '在线报名',
+                handler: function() {
+                    $scope.addEnroll('registration');
+                }
+            },
+            signin: {
+                title: '签到',
+                handler: function() {
+                    $scope.addSignin();
+                }
+            },
+            group: {
+                title: '分组',
+                handler: function() {
+                    $scope.addGroup();
+                }
+            },
+            voting: {
+                title: '投票',
+                handler: function() {
+                    $scope.addEnroll('voting');
+                }
+            },
+        };
+        $scope.addByIndicator = function(indicator) {
+            indicator.handler();
         };
         $scope.addArticle = function() {
             var url = '/rest/pl/fe/matter/article/create?mission=' + $scope.mission.id,

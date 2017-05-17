@@ -23,7 +23,7 @@ class main extends \pl\fe\base {
 	/**
 	 * 用户访问详情列表
 	 */
-	public function readList_action($site, $uid, $page = 1, $size = 12) {
+	public function readList_action($site = null, $uid, $page = 1, $size = 12) {
 		if (false === ($user = $this->accountUser())) {
 			return new \ResponseTimeout();
 		}
@@ -32,8 +32,9 @@ class main extends \pl\fe\base {
 		$q = [
 			'*',
 			'xxt_log_matter_read',
-			"siteid='$site' and userid='$uid'",
+			['userid' => $uid]
 		];
+		!empty($site) && $q[2]['siteid'] = $site;
 		$q2['r'] = ['o' => ($page - 1) * $size, 'l' => $size];
 		$q2['o'] = ['read_at desc'];
 
@@ -56,7 +57,7 @@ class main extends \pl\fe\base {
 	 * @param string $site site'id
 	 * @param string $uid
 	 */
-	public function actList_action($site, $uid, $page = 1, $size = 12) {
+	public function actList_action($site = null, $uid, $page = 1, $size = 12) {
 		if (false === ($user = $this->accountUser())) {
 			return new \ResponseTimeout();
 		}
@@ -65,8 +66,9 @@ class main extends \pl\fe\base {
 		$q = [
 			'matter_id,matter_type,matter_title,operate_at',
 			'xxt_log_user_matter',
-			"siteid='" . $modelLog->escape($site) . "' and userid='" . $uid . "' and user_last_op='Y' and operation='submit' and matter_type in ('enroll','signin')",
+			"userid='" . $uid . "' and user_last_op='Y' and operation='submit' and matter_type in ('enroll','signin')",
 		];
+		!empty($site) && $q[2] .= " and siteid = '". $modelLog->escape($site) ."'";
 		$q2['r'] = ['o' => ($page - 1) * $size, 'l' => $size];
 		$q2['o'] = ['operate_at desc'];
 
@@ -86,7 +88,7 @@ class main extends \pl\fe\base {
 	 * 返回指定用户收藏的素材,增加了素材的标题、头图、摘要
 	 *
 	 */
-	public function favList_action($site, $uid = '', $page = 1, $size = 10) {
+	public function favList_action($site = null, $unionid = '', $page = 1, $size = 10) {
 		if (false === ($user = $this->accountUser())) {
 			return new \ResponseTimeout();
 		}
@@ -95,8 +97,9 @@ class main extends \pl\fe\base {
 		$q = array(
 			'id,favor_at,matter_id,matter_type,matter_title',
 			'xxt_site_favor',
-			"siteid='$site' and userid='$uid'",
-		);
+			['unionid' => $unionid]
+		];
+		!empty($site) && $q[2]['siteid'] = $site;
 		$q2 = array(
 			'o' => 'favor_at desc',
 			'r' => array('o' => ($page - 1) * $size, $size, 'l' => $size),

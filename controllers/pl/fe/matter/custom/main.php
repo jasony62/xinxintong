@@ -337,11 +337,11 @@ class main extends \pl\fe\matter\base {
 		$rst = $model->update(
 			'xxt_article',
 			['state' => 0, 'modify_at' => time()],
-			"siteid='$site' and id='$id'"
+			['siteid' => $site, 'id' => $id]
 		);
 		/* 将图文从所属的多图文和频道中删除 */
 		if ($rst) {
-			$model->delete('xxt_channel_matter', "matter_id='$id' and matter_type='custom'");
+			$model->delete('xxt_channel_matter', ['matter_id' => $id, 'matter_type' => 'custom']);
 			$modelNews = $this->model('matter\news');
 			if ($news = $modelNews->byMatter($id, 'custom')) {
 				foreach ($news as $n) {
@@ -351,6 +351,29 @@ class main extends \pl\fe\matter\base {
 			/*记录操作日志*/
 			$this->model('matter\log')->matterOp($site, $user, $matter, 'Recycle');
 		}
+
+		return new \ResponseData($rst);
+	}
+	/**
+	 * 恢复被删除的素材
+	 */
+	public function restore_action($site, $id) {
+		if (false === ($user = $this->accountUser())) {
+			return new \ResponseTimeout();
+		}
+
+		$model = $this->model('matter\article2');
+		$custom = $model->byId($id, 'id,title,summary,pic');
+		if (false === $custom) {
+			return new \ResponseError('数据已经被彻底删除，无法恢复');
+		}
+
+		/* 恢复数据 */
+		$rst = $model->update('xxt_article', ['state' => 1, 'modify_at' => time()], ['siteid' => $site, 'id' => $id]);
+
+		/* 记录操作日志 */
+		$custom->type = 'custom';
+		$this->model('matter\log')->matterOp($site, $user, $custom, 'Restore');
 
 		return new \ResponseData($rst);
 	}

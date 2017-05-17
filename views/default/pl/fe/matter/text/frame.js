@@ -27,7 +27,7 @@ ngApp.controller('ctrlSetting', ['$scope', 'http2', function($scope, http2) {
 	$scope.deleteOne = function(event) {
 		event.preventDefault();
 		event.stopPropagation();
-		http2.get('/rest/mp/matter/text/delete?site=' + $scope.siteId + '&id=' + $scope.editing.id, function(rsp) {
+		http2.get('/rest/pl/fe/matter/text/delete?site=' + $scope.siteId + '&id=' + $scope.editing.id, function(rsp) {
 			$scope.texts.splice($scope.selectedIndex, 1);
 			if ($scope.texts.length == 0) {
 				alert('empty');

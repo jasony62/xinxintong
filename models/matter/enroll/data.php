@@ -108,8 +108,13 @@ class data_model extends \TMS_MODEL {
 		$q = [
 			$fields,
 			"xxt_enroll_record_data",
-			"state=1 and aid='{$oApp->id}' and value<>''",
+			"state=1 and aid='{$oApp->id}'",
 		];
+		if (empty($options->keyword)) {
+			$q[2] .= " and value<>''";
+		} else {
+			$q[2] .= " and value like '%" . $options->keyword . "%'";
+		}
 		if (isset($options->schemas) && count($options->schemas)) {
 			$q[2] .= " and schema_id in(";
 			foreach ($options->schemas as $index => $schemaId) {
@@ -122,7 +127,7 @@ class data_model extends \TMS_MODEL {
 		}
 		/* 限制填写轮次 */
 		if (!empty($rid)) {
-			if ($rid !== 'ALL') {
+			if (!strcasecmp($rid, 'all') === 0) {
 				$q[2] .= " and rid='{$rid}'";
 			}
 		} else {

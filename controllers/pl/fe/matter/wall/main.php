@@ -96,6 +96,7 @@ class main extends \pl\fe\matter\base {
 			return new \ResponseTimeout();
 		}
 
+		$customConfig = $this->getPostJson();
 		$newone = new \stdClass;
 		$current = time();
 		/*从站点或项目获取的定义*/
@@ -119,7 +120,8 @@ class main extends \pl\fe\matter\base {
 		$model = $this->model();
 		$wid = uniqid();
 		$newone->id = $wid;
-		$newone->title = '新信息墙';
+		/* 前端指定的信息 */
+		$newone->title = empty($customConfig->proto->title) ? '新信息墙' : $model->escape($customConfig->proto->title);
 		$newone->creater = $user->id;
 		$newone->creater_name = $model->escape($user->name);
 		$newone->create_at = $current;

@@ -2,6 +2,18 @@ define(['frame'], function(ngApp) {
     'use strict';
     ngApp.provider.controller('ctrlMatter', ['$scope', 'http2', 'templateShop', 'cstApp', function($scope, http2, templateShop, cstApp) {
         $scope.scenarioNames = cstApp.scenarioNames;
+        $scope.addWall = function() {
+            var url = '/rest/pl/fe/matter/wall/create?site=' + $scope.mission.siteid + '&mission=' + $scope.mission.id + '&scenario=wall',
+                config = {
+                    proto: {
+                        title: $scope.mission.title + '-信息墙'
+                    }
+                };
+            http2.post(url, config, function(rsp) {
+                location.href = '/rest/pl/fe/matter/wall?site=' + $scope.mission.siteid + '&id=' + rsp.data;
+            })
+
+        };
         $scope.addArticle = function() {
             var url = '/rest/pl/fe/matter/article/create?mission=' + $scope.mission.id,
                 config = {

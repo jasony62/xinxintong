@@ -67,8 +67,12 @@ class main extends \pl\fe\matter\base {
 			"siteid='$site' and state<>0",
 		);
 		$q2['o'] = 'create_at desc';
-		if ($c = $model->query_objs_ss($q, $q2)) {
-			$result['apps'] = $c;
+		if ($contribute = $model->query_objs_ss($q, $q2)) {
+			foreach ($contribute as $c) {
+				$c->url = $this->model('matter\contribute')->getEntryUrl($site, $c->id);
+				$c->type = 'contribute';
+			}
+			$result['apps'] = $contribute;
 			$q[0] = 'count(*)';
 			$total = (int) $model->query_val_ss($q);
 			$result['total'] = $total;

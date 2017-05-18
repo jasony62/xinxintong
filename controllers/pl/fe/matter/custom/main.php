@@ -151,6 +151,7 @@ class main extends \pl\fe\matter\base {
 			foreach ($articles as &$a) {
 				$ids[] = $a->id;
 				$map[$a->id] = &$a;
+				$a->type = 'custom';
 			}
 			$rels = $this->model('tag')->tagsByRes($ids, 'article', 0);
 			foreach ($rels as $aid => &$tags) {

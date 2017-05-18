@@ -57,6 +57,7 @@ class main extends \pl\fe\matter\base {
 				$c->url = $modelChn->getEntryUrl($site, $c->id);
 				$c->matters = $modelChn->getMatters($c->id, $c, $site);
 				$c->acl = $modelAcl->byMatter($site, 'channel', $c->id);
+				$c->type = 'channel';
 			}
 		}
 

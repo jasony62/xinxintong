@@ -97,6 +97,7 @@ class main extends \pl\fe\matter\base {
 				 * acl
 				 */
 				$l->acl = $modelAcl->byMatter($site, 'link', $l->id);
+				$l->type = 'link';
 			}
 		}
 

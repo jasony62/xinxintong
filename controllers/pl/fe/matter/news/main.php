@@ -66,6 +66,7 @@ class main extends \pl\fe\matter\base {
 			$modelAcl = $this->model('acl');
 			foreach ($news as &$n) {
 				$n->url = $modelNews->getEntryUrl($site, $n->id);
+				$n->type = 'news';
 				if ($n->empty_reply_type && $n->empty_reply_id) {
 					$n->emptyReply = $modelBase->getMatterInfoById($n->empty_reply_type, $n->empty_reply_id);
 				}

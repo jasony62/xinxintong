@@ -33,6 +33,11 @@ class main extends \pl\fe\matter\base {
 		];
 		$q2['o'] = 'create_at desc';
 		$texts = $this->model()->query_objs_ss($q, $q2);
+		if($texts){
+			foreach ($texts as $text) {
+				$text->type = 'text';
+			}
+		}
 
 		return new \ResponseData($texts);
 	}

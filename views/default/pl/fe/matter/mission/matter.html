@@ -11,10 +11,10 @@
             </ul>
             <form class='nav navbar-form pull-left'>
                 <div class="form-group" ng-if="matterType==='enroll'">
-                    <select class='form-control'>
+                    <select class='form-control' >
                         <option value=''>全部场景</option>
-                        <option value='common'><a href="#common">通用登记</a></option>
-                        <option value='registration'>报名</option>
+                        <option value='common'>通用登记</option>
+                        <option value='registration'><a href='#registration' ng-click="matterType='registration'">报名</a></option>
                         <option value='voting'>投票</option>
                         <option value='group_week_report'>周报</option>
                         <option value='quiz'>测验</option>

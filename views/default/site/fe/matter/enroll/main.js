@@ -219,12 +219,12 @@ ngApp.controller('ctrlMain', ['$scope', '$http', '$timeout', 'ls', 'tmsDynaPage'
             /* 分享次数计数器 */
             window.shareCounter = 0;
             tmsSnsShare.config({
-                siteId: oSite.id,
+                siteId: oApp.siteid,
                 logger: function(shareto) {
                     var url;
                     url = "/rest/site/fe/matter/logShare";
                     url += "?shareid=" + shareid;
-                    url += "&site=" + oSite.id;
+                    url += "&site=" + oApp.siteid;
                     url += "&id=" + oApp.id;
                     url += "&type=enroll";
                     url += "&title=" + oApp.title;

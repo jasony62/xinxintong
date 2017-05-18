@@ -45,6 +45,10 @@ ngApp.controller('ctrlRepos', ['$scope', '$http', 'Round', function($scope, $htt
     $scope.criteria = criteria = { owner: 'all' };
     $scope.schemas = schemas = {};
     $scope.repos = {};
+    $scope.clickAdvCriteria = function(event) {
+        event.preventDefault();
+        event.stopPropagation();
+    };
     $scope.list4Schema = function(pageAt) {
         var url;
         if (pageAt) {

@@ -26,12 +26,11 @@
                         <button class='btn btn-default' ng-click="list4Schema(1)"><span class='glyphicon glyphicon-search'></span></button>
                         <button id='advCriteria' class="btn btn-default" ng-click="status.opened=!status.opened">
                             <span class='glyphicon glyphicon-chevron-right' ng-class="{'opened':status.opened}"></span>
-                            <form ng-if='status.opened'>
+                            <form ng-if='status.opened' ng-click="clickAdvCriteria($event)">
                                 <div class='form-group' ng-if='rounds.length'>
-                                    <select class='form-control' ng-model='criteria.rid' ng-change="shiftRound()" size=2>
+                                    <select class='form-control' ng-model='criteria.rid' ng-change="shiftRound()" size='6'>
                                         <option value='all'>全部轮次</option>
                                         <option value="{{rnd.rid}}" ng-repeat="rnd in rounds">{{rnd.title}}</option>
-                                        <option value="more" ng-if="facRound.oPage.total>rounds.length">更多</option>
                                     </select>
                                 </div>
                                 <div class='form-group'>
@@ -41,7 +40,7 @@
                                     </select>
                                 </div>
                                 <div class='form-group' ng-if="schemaCount>1">
-                                    <select class='form-control' ng-model="criteria.schema" ng-options="schema.id as schema.title for schema in schemas" ng-change="shiftSchema()" size=3>
+                                    <select class='form-control' ng-model="criteria.schema" ng-options="schema.id as schema.title for schema in schemas" ng-change="shiftSchema()" size='6'>
                                         <option value>全部题目</option>
                                     </select>
                                 </div>

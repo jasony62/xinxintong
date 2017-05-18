@@ -40,17 +40,17 @@ ngApp.factory('Input', ['$http', '$q', '$timeout', 'ls', function($http, $q, $ti
 
     function validate(data) {
         var reason;
-        if (document.querySelector('[ng-model="data.name"]')) {
+        if (document.querySelector('[schema-type="name"]')) {
             reason = '请提供您的姓名！';
-            if (false === required(data.name, 2)) {
-                document.querySelector('[ng-model="data.name"]').focus();
+            if (false === required(data[document.querySelector('[schema-type="name"]').getAttribute('schema')], 2)) {
+                document.querySelector('[schema-type="name"]').focus();
                 return reason;
             }
         }
-        if (document.querySelector('[ng-model="data.mobile"]')) {
+        if (document.querySelector('[schema-type="mobile"]')) {
             reason = '请提供正确的手机号（11位数字）！';
-            if (false === validateMobile(data.mobile)) {
-                document.querySelector('[ng-model="data.mobile"]').focus();
+            if (false === validateMobile(data[document.querySelector('[schema-type="mobile"]').getAttribute('schema')])) {
+                document.querySelector('[schema-type="mobile"]').focus();
                 return reason;
             }
         }

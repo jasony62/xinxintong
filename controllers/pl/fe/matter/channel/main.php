@@ -260,6 +260,28 @@ class main extends \pl\fe\matter\base {
 		return new \ResponseData($rst);
 	}
 	/**
+	 * 恢复被删除的频道
+	 */
+	public function restore_action($site, $id) {
+		if (false === ($user = $this->accountUser())) {
+			return new \ResponseTimeout();
+		}
+
+		$modelCh = $this->model('matter\channel');
+		$channel = $modelCh->byId($id, 'id,title');
+		if (false === $channel) {
+			return new \ResponseError('数据已经被彻底删除，无法恢复');
+		}
+
+		/* 恢复数据 */
+		$rst = $modelCh->update('xxt_channel', ['state' => 1], ['siteid' => $site, 'id' => $id]);
+
+		/* 记录操作日志 */
+		$this->model('matter\log')->matterOp($site, $user, $channel, 'Restore');
+
+		return new \ResponseData($rst);
+	}
+	/**
 	 *
 	 */
 	protected function getMatterType() {

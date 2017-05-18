@@ -91,7 +91,20 @@ class main extends \pl\fe\base {
 			return new \ResponseTimeout();
 		}
 
-		$rst = $this->model()->query_objs_ss(["*", "xxt_site", ['creater' => $user->id, 'state' => '0']], ['o' => 'create_at desc']);
+		$model = $this->model();
+		$oFilter = $this->getPostJson();
+		$q = [
+			"*",
+			"xxt_site",
+			"creater = '{$user->id}' and state = 0",
+		];
+
+		if (!empty($oFilter->byTitle)) {
+			$q[2] .= " and name like '%" . $model->escape($oFilter->byTitle) . "%'";
+		}
+		
+		$q2 = ['o' => 'create_at desc'];
+		$rst = $model->query_objs_ss($q, $q2);
 
 		return new \ResponseData($rst);
 	}

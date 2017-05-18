@@ -7,12 +7,12 @@ class data_model extends \TMS_MODEL {
 	/**
 	 * 缺省返回的列
 	 */
-	const DEFAULT_FIELDS = 'id,value,enroll_key,schema_id,userid,submit_at,score,remark_num,last_remark_at,like_num,like_log,modify_log';
+	const DEFAULT_FIELDS = 'id,value,enroll_key,schema_id,userid,submit_at,score,remark_num,last_remark_at,like_num,like_log,modify_log,agreed';
 	/**
 	 * 获得指定登记记录登记数据的详细信息
 	 */
 	public function byRecord($ek, $options = []) {
-		$fields = isset($options['fields']) ? $options['fields'] : 'id,schema_id,value,remark_num,last_remark_at,score,modify_log,like_log,like_num';
+		$fields = isset($options['fields']) ? $options['fields'] : self::DEFAULT_FIELDS;
 
 		$q = [
 			$fields,
@@ -93,7 +93,7 @@ class data_model extends \TMS_MODEL {
 	/**
 	 * 返回指定活动，填写的数据
 	 */
-	public function byApp(&$oApp, $options = null) {
+	public function byApp(&$oApp, $oUser, $options = null) {
 		if ($options) {
 			is_array($options) && $options = (object) $options;
 		}
@@ -108,8 +108,13 @@ class data_model extends \TMS_MODEL {
 		$q = [
 			$fields,
 			"xxt_enroll_record_data",
-			"state=1 and aid='{$oApp->id}' and value<>''",
+			"state=1 and aid='{$oApp->id}'",
 		];
+		if (empty($options->keyword)) {
+			$q[2] .= " and value<>''";
+		} else {
+			$q[2] .= " and value like '%" . $options->keyword . "%'";
+		}
 		if (isset($options->schemas) && count($options->schemas)) {
 			$q[2] .= " and schema_id in(";
 			foreach ($options->schemas as $index => $schemaId) {
@@ -122,7 +127,7 @@ class data_model extends \TMS_MODEL {
 		}
 		/* 限制填写轮次 */
 		if (!empty($rid)) {
-			if ($rid !== 'ALL') {
+			if (!strcasecmp($rid, 'all') === 0) {
 				$q[2] .= " and rid='{$rid}'";
 			}
 		} else {
@@ -132,8 +137,12 @@ class data_model extends \TMS_MODEL {
 			}
 		}
 		/* 限制填写用户 */
-		if (!empty($options->userid)) {
-			$q[2] .= " and userid='{$options->userid}'";
+		if (!empty($options->owner) && strcasecmp($options->owner, 'all') !== 0) {
+			$q[2] .= " and userid='{$options->owner}'";
+		} else if (!empty($oUser->uid)) {
+			$q[2] .= " and (agreed<>'N' or userid='{$oUser->uid}')";
+		} else {
+			$q[2] .= " and agreed<>'N'";
 		}
 
 		$q2 = [];

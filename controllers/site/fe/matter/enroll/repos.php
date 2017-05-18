@@ -9,7 +9,9 @@ class repos extends base {
 	/**
 	 * 返回指定登记项的活动登记名单
 	 */
-	public function list4Schema_action($app, $schema = '', $rid = '', $owner = '', $page = 1, $size = 12) {
+	public function list4Schema_action($app, $page = 1, $size = 12) {
+		$oUser = $this->who;
+
 		// 登记活动
 		$modelApp = $this->model('matter\enroll');
 		$oApp = $modelApp->byId($app, ['fields' => 'id,data_schemas', 'cascaded' => 'N']);
@@ -20,9 +22,10 @@ class repos extends base {
 		$options = new \stdClass;
 		$options->page = $page;
 		$options->size = $size;
-		!empty($rid) && $options->rid = $rid;
-		!empty($owner) && $options->owner = $owner;
-		if (empty($schema)) {
+		!empty($criteria->keyword) && $options->keyword = $criteria->keyword;
+		!empty($criteria->rid) && $options->rid = $criteria->rid;
+		!empty($criteria->owner) && $options->owner = $criteria->owner;
+		if (empty($criteria->schema)) {
 			$options->schemas = [];
 			foreach ($oApp->dataSchemas as $dataSchema) {
 				if (isset($dataSchema->shareable) && $dataSchema->shareable === 'Y') {
@@ -30,12 +33,12 @@ class repos extends base {
 				}
 			}
 		} else {
-			$options->schemas = [$schema];
+			$options->schemas = [$criteria->schema];
 		}
 
 		// 查询结果
 		$mdoelData = $this->model('matter\enroll\data');
-		$result = $mdoelData->byApp($oApp, $options);
+		$result = $mdoelData->byApp($oApp, $oUser, $options);
 
 		return new \ResponseData($result);
 	}

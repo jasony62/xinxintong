@@ -36,21 +36,21 @@ define(['frame'], function (ngApp) {
         };
         //获取活动记录
         $scope.enrollList = function () {
-            http2.get(baseURL+'actList?site=' + $scope.siteId + '&uid=' + $scope.userId + page.j(), function (rsp) {
+            http2.get(baseURL+'actList?uid=' + $scope.userId + page.j(), function (rsp) {
                 $scope.historys.enroll.content = rsp.data.apps;
                 rsp.data.total ? $scope.historys.enroll.total = rsp.data.total : 0;
             });
         };
         //获取阅读记录
         $scope.readList = function () {
-            http2.get(baseURL+'readList?site=' + $scope.siteId + '&uid=' + $scope.userId + page.j(), function (rsp) {
+            http2.get(baseURL+'readList?uid=' + $scope.userId + page.j(), function (rsp) {
                 $scope.historys.read.content = rsp.data.matters;
                 rsp.data.total ? $scope.historys.read.total = rsp.data.total : 0;
             });
         };
         //获取收藏记录
         $scope.favorList = function () {
-            http2.get(baseURL+'favList?site=' + $scope.siteId + '&uid=' + $scope.userId + page.j(), function (rsp) {
+            http2.get(baseURL+'favList?unionid=' + $scope.unionId + page.j(), function (rsp) {
                 $scope.historys.favor.content = rsp.data.matters;
                 rsp.data.total ? $scope.historys.favor.total = rsp.data.total : 0;
             });

@@ -1420,6 +1420,25 @@ define(['require', 'schema', 'page'], function(require, schemaLib, pageLib) {
                 });
                 return defer.promise;
             };
+            _ins.agree = function(ek, schemaId, value) {
+                var url, defer = $q.defer();
+                url = '/rest/pl/fe/matter/enroll/data/agree?ek=' + ek;
+                url += '&schema=' + schemaId;
+                url += '&value=' + value;
+                http2.get(url, function(rsp) {
+                    defer.resolve(rsp.data);
+                });
+                return defer.promise;
+            };
+            _ins.agreeRemark = function(remarkId, value) {
+                var url, defer = $q.defer();
+                url = '/rest/pl/fe/matter/enroll/remark/agree?remark=' + remarkId;
+                url += '&value=' + value;
+                http2.get(url, function(rsp) {
+                    defer.resolve(rsp.data);
+                });
+                return defer.promise;
+            };
 
             return _ins;
         }];

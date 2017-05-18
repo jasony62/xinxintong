@@ -145,11 +145,43 @@ class main extends \pl\fe\matter\base {
 	 * 删除
 	 */
 	public function remove_action($site, $app) {
+		if (false === ($user = $this->accountUser())) {
+			return new \ResponseTimeout();
+		}
+
+		$app = $this->model('matter\contribute')->byId($app);
 		$rst = $this->model()->update(
 			'xxt_contribute',
 			array('state' => 0),
-			"siteid='$site' and id='$app'"
+			['siteid' => $site, 'id' => $app->id]
 		);
+
+		/**
+		 * 记录操作日志
+		 */
+		$this->model('matter\log')->matterOp($site, $user, $app, 'Recycle');
+
+		return new \ResponseData($rst);
+	}
+	/**
+	 * 恢复被删除的素材
+	 */
+	public function restore_action($site, $id) {
+		if (false === ($user = $this->accountUser())) {
+			return new \ResponseTimeout();
+		}
+
+		$modelCont = $this->model('matter\contribute');
+		$contribute = $modelCont->byId($id, 'id,title');
+		if (false === $contribute) {
+			return new \ResponseError('数据已经被彻底删除，无法恢复');
+		}
+
+		/* 恢复数据 */
+		$rst = $modelCont->update('xxt_contribute', ['state' => 1], ['siteid' => $site, 'id' => $id]);
+
+		/* 记录操作日志 */
+		$this->model('matter\log')->matterOp($site, $user, $contribute, 'Restore');
 
 		return new \ResponseData($rst);
 	}

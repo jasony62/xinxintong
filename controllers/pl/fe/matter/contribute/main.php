@@ -68,8 +68,9 @@ class main extends \pl\fe\matter\base {
 		);
 		$q2['o'] = 'create_at desc';
 		if ($contribute = $model->query_objs_ss($q, $q2)) {
+			$modelContribute = $this->model('matter\contribute');
 			foreach ($contribute as $c) {
-				$c->url = $this->model('matter\contribute')->getEntryUrl($site, $c->id);
+				$c->url = $modelContribute->getEntryUrl($site, $c->id);
 				$c->type = 'contribute';
 			}
 			$result['apps'] = $contribute;

@@ -526,10 +526,12 @@ class way_model extends \TMS_MODEL {
 					$cookieUser->nickname = $account->nickname;
 					$cookieUser->loginExpire = $loginExpire;
 					/* 站点自定义用户信息 */
-					$members = $modelMem->byUser($account->uid);
+					$members = $modelMem->byUser($account->uid, ['fields' => 'id,schema_id,name,mobile,email']);
 					!empty($members) && $cookieUser->members = new \stdClass;
 					foreach ($members as $member) {
-						$cookieUser->members->{$member->schema_id} = $member;
+						$schemaId = $member->schema_id;
+						unset($member->schema_id);
+						$cookieUser->members->{$schemaId} = $member;
 					}
 					$cookieUser->sns = new \stdClass;
 					/* wx用户 */

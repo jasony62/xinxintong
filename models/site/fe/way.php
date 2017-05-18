@@ -537,21 +537,21 @@ class way_model extends \TMS_MODEL {
 						if (!isset($modelWxFan)) {
 							$modelWxFan = \TMS_App::M('sns\wx\fan');
 						}
-						$cookieUser->sns->wx = $modelWxFan->byOpenid($account->siteid, $account->wx_openid);
+						$cookieUser->sns->wx = $modelWxFan->byOpenid($account->siteid, $account->wx_openid, 'openid,nickname,headimgurl');
 					}
 					/* yx用户 */
 					if (!empty($account->yx_openid)) {
 						if (!isset($modelYxFan)) {
 							$modelYxFan = \TMS_App::M('sns\yx\fan');
 						}
-						$cookieUser->sns->yx = $modelYxFan->byOpenid($account->siteid, $account->yx_openid);
+						$cookieUser->sns->yx = $modelYxFan->byOpenid($account->siteid, $account->yx_openid, 'openid,nickname,headimgurl');
 					}
 					/* qy用户 */
 					if (!empty($account->qy_openid)) {
 						if (!isset($modelQyFan)) {
 							$modelQyFan = \TMS_App::M('sns\qy\fan');
 						}
-						$cookieUser->sns->qy = $modelQyFan->byOpenid($account->siteid, $account->qy_openid);
+						$cookieUser->sns->qy = $modelQyFan->byOpenid($account->siteid, $account->qy_openid, 'openid,nickname,headimgurl');
 					}
 					/* 在cookie中保留访客用户信息 */
 					$this->setCookieUser($account->siteid, $cookieUser);

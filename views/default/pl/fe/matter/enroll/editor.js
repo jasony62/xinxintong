@@ -151,6 +151,12 @@ define(['frame'], function(ngApp) {
             schema._open = false;
             $scope.switchSchema(schema);
         };
+        $scope.agree = function(oRecord, oSchema) {
+            srvEnrollRecord.agree(oRecord.enroll_key, oSchema.id, oRecord.verbose[oSchema.id].agreed).then(function() {});
+        };
+        $scope.agreeRemark = function(oRemark) {
+            srvEnrollRecord.agreeRemark(oRemark.id, oRemark.agreed).then(function() {});
+        };
         var ek = $location.search().ek,
             schemaRemarks;
 

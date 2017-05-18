@@ -23,7 +23,7 @@ class account extends \pl\fe\base {
 		$result = array();
 
 		$q = array(
-			'uid,nickname,headimgurl,reg_time,ufrom,coin',
+			'uid,nickname,headimgurl,reg_time,ufrom,coin,unionid',
 			'xxt_site_account',
 			"siteid='$site'",
 		);

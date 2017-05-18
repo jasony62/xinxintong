@@ -10,7 +10,9 @@ class remark extends base {
 	 * 返回一条登记记录的所有评论
 	 */
 	public function list_action($ek, $schema = '', $page = 1, $size = 99) {
-		$result = $this->model('matter\enroll\remark')->listByRecord($ek, $schema, $page, $size);
+		$oUser = $this->who;
+
+		$result = $this->model('matter\enroll\remark')->listByRecord($oUser, $ek, $schema, $page, $size);
 
 		return new \ResponseData($result);
 	}

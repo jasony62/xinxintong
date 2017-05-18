@@ -277,14 +277,14 @@
                 <tbody>
                     <tr ng-repeat='m in matters'>
                         <td>{{$index+1}}</td>
-                        <td ng-if="filter.byType=='enroll'">{{scenarioNames[m.matter_scenario]}}</td>
-                        <td>{{m.matter_title}}</td>
-                        <td>{{m.operator_name}}</td>
-                        <td>{{m.operate_at*1000|date:'yy-MM-dd HH:mm'}}</td>
+                        <td ng-if="filter.byType=='enroll'">{{scenarioNames[m.matter_scenario||m.scenario]}}</td>
+                        <td>{{m.matter_title||m.title}}</td>
+                        <td>{{m.operator_name||m.creater_name}}</td>
+                        <td>{{(m.operate_at||m.create_at)*1000|date:'yy-MM-dd HH:mm'}}</td>
                         <td>
                             <button class='btn btn-sm btn-default' title='置顶' ng-click="stickTop(m)">置顶</button>
                         </td>
-                        <td ng-switch on="m.matter_type">
+                        <td ng-switch on="m.matter_type||m.type">
                             <div ng-switch-when="group">
                                 <button class='btn btn-sm btn-default' ng-click="openMatter(m,'main')">定义</button>
                                 <button class='btn btn-sm btn-default' ng-click="openMatter(m,'player')">数据</button>
@@ -358,9 +358,9 @@
                 <tbody>
                     <tr ng-repeat='m in matters'>
                         <td>{{$index+1}}</td>
-                        <td>{{m.matter_title}}</td>
-                        <td>{{m.operator_name}}</td>
-                        <td>{{m.operate_at*1000|date:'yy-MM-dd HH:mm'}}</td>
+                        <td>{{m.matter_title||m.title}}</td>
+                        <td>{{m.operator_name||m.creater_name}}</td>
+                        <td>{{(m.operate_at||m.create_at)*1000|date:'yy-MM-dd HH:mm'}}</td>
                         <td>
                             <button class='btn btn-sm btn-default' title='置顶' ng-click="stickTop(m)">置顶</button>
                         </td>

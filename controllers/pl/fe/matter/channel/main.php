@@ -51,13 +51,17 @@ class main extends \pl\fe\matter\base {
 		$modelChn = $this->model('matter\channel');
 		$channels = $modelChn->query_objs_ss($q, $q2);
 		/* 获得子资源 */
-		if ($channels && $cascade == 'Y') {
-			$modelAcl = $this->model('acl');
+		if ($channels) {
 			foreach ($channels as $c) {
-				$c->url = $modelChn->getEntryUrl($site, $c->id);
-				$c->matters = $modelChn->getMatters($c->id, $c, $site);
-				$c->acl = $modelAcl->byMatter($site, 'channel', $c->id);
 				$c->type = 'channel';
+			}
+			if($cascade == 'Y'){
+				$modelAcl = $this->model('acl');
+				foreach ($channels as $c) {
+					$c->url = $modelChn->getEntryUrl($site, $c->id);
+					$c->matters = $modelChn->getMatters($c->id, $c, $site);
+					$c->acl = $modelAcl->byMatter($site, 'channel', $c->id);
+				}
 			}
 		}
 

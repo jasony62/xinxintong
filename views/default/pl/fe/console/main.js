@@ -251,14 +251,23 @@ define(['frame'], function(ngApp) {
             }
         };
         $scope.list = function(pageAt) {
-            var url = '/rest/pl/fe/recent?' + page.j();
+            var url = '/rest/pl/fe/recent?' + page.j(),
+                t = (new Date() * 1),
+                url2 = '/rest/pl/fe/matter/'+ filter.byType +'/list?site=' + filter.bySite + page.j() + t;
             if (pageAt) {
                 page.at = pageAt;
             }
-            http2.post(url, filter, function(rsp) {
-                $scope.matters = rsp.data.matters;
-                $scope.page.total = rsp.data.total;
-            });
+            if(filter.bySite == '') {
+                http2.post(url, filter, function(rsp) {
+                    $scope.matters = rsp.data.matters;
+                    $scope.page.total = rsp.data.total;
+                });
+            }else {
+                http2.get(url2, function(rsp) {
+                    $scope.matters = rsp.data.matters;
+                    $scope.page.total = rsp.data.total;
+                });
+            }
         };
         $scope.doFilter = function() {
             angular.extend(filter, filter2);
@@ -304,11 +313,21 @@ define(['frame'], function(ngApp) {
             }
         };
         $scope.list = function() {
-            var url = '/rest/pl/fe/recent?' + page.j();
-            http2.post(url, filter, function(rsp) {
-                $scope.matters = rsp.data.matters;
-                $scope.page.total = rsp.data.total;
-            });
+            var url = '/rest/pl/fe/recent?' + page.j(),
+                t = (new Date() * 1),
+                url2 = '/rest/pl/fe/matter/'+ filter.byType +'/list?site=' + filter.bySite + page.j() + t;
+
+            if(filter.bySite == '') {
+                http2.post(url, filter, function(rsp) {
+                    $scope.matters = rsp.data.matters;
+                    $scope.page.total = rsp.data.total;
+                });
+            }else {
+                http2.get(url2, function(rsp) {
+                    $scope.matters = rsp.data.matters;
+                    $scope.page.total = rsp.data.total;
+                });
+            }
         };
         $scope.doFilter = function() {
             angular.extend(filter, filter2);

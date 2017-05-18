@@ -73,7 +73,7 @@ class main extends \pl\fe\matter\base {
 		} else {
 			$q[2] .= " and siteid='" . $modelApp->escape($site) . "'";
 		}
-		if ($scenario !== null) {
+		if (!empty($scenario)) {
 			$q[2] .= " and scenario='" . $modelApp->escape($scenario) . "'";
 		}
 		if ($onlySns === 'Y') {

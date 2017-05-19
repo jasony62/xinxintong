@@ -127,7 +127,7 @@ class data_model extends \TMS_MODEL {
 		}
 		/* 限制填写轮次 */
 		if (!empty($rid)) {
-			if (!strcasecmp($rid, 'all') === 0) {
+			if (strcasecmp($rid, 'all') !== 0) {
 				$q[2] .= " and rid='{$rid}'";
 			}
 		} else {

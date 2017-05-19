@@ -5,11 +5,11 @@ img{max-width:100%}
 #errmsg.active{opacity:1;height:auto;z-index:999}
 
 /*criteria*/
-#advCriteria{position:relative;}
-#advCriteria span.opened{transform:rotate(90deg);}
-#advCriteria form{position:absolute;top:100%;right:0;margin-top:1px;width:300px;background:#fff;padding:1rem;border:1px solid #ccc;border-top:0;z-index:1000;}
-#advCriteria form .form-control{float:none;}
-#advCriteria form .form-group:last-child{margin-bottom:0;}
+#advCriteriaSwitch span.opened{transform:rotate(90deg);}
+#advCriteria{position:absolute;top:100%;right:0;margin-top:1px;width:300px;background:#fff;padding:1rem;border:1px solid #ccc;border-top:0;z-index:1000;}
+#advCriteria .form-control{float:none;}
+#advCriteria .form-group{display:block;}
+#advCriteria .form-group:last-child{margin-bottom:0;}
 
 /*record*/
 #repos{background:#fff;padding:1rem;margin-bottom:60px;}

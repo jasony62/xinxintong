@@ -178,9 +178,9 @@ define(['frame'], function(ngApp) {
             srvEnrollRecord.addRemark(ek, schema ? schema.id : null, $scope.newRemark).then(function(remark) {
                 if (schema) {
                     !schemaRemarks[schema.id] && (schemaRemarks[schema.id] = []);
-                    schemaRemarks[schema.id].splice(0, 0, remark);
+                    schemaRemarks[schema.id].push(remark);
                 } else {
-                    $scope.remarks.splice(0, 0, remark);
+                    $scope.remarks.push(remark);
                 }
                 $scope.newRemark.content = '';
             });

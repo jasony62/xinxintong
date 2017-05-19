@@ -19,33 +19,33 @@
         <div id='errmsg' class='alert alert-danger' ng-class="{'active':errmsg}" ng-click="errmsg=''" ng-bind='errmsg'></div>
         <div class='container'>
             <div class='form-group'>
-                <div class='input-group'>
+                <div id='filterCriteria' class='input-group'>
                     <input class='form-control' ng-model='criteria.keyword' placeholder='输入搜索关键字'>
                     <div class='input-group-btn'>
                         <button class='btn btn-default' ng-if="criteria.keyword" ng-click="criteria.keyword='';list4Schema(1)"><span class='glyphicon glyphicon-remove'></span></button>
                         <button class='btn btn-default' ng-click="list4Schema(1)"><span class='glyphicon glyphicon-search'></span></button>
-                        <button id='advCriteria' class="btn btn-default" ng-click="status.opened=!status.opened">
+                        <button id='advCriteriaSwitch' class="btn btn-default" ng-click="status.opened=!status.opened">
                             <span class='glyphicon glyphicon-chevron-right' ng-class="{'opened':status.opened}"></span>
-                            <form ng-if='status.opened' ng-click="clickAdvCriteria($event)">
-                                <div class='form-group' ng-if='rounds.length'>
-                                    <select class='form-control' ng-model='criteria.rid' ng-change="shiftRound()" size='6'>
-                                        <option value='all'>全部轮次</option>
-                                        <option value="{{rnd.rid}}" ng-repeat="rnd in rounds">{{rnd.title}}</option>
-                                    </select>
-                                </div>
-                                <div class='form-group'>
-                                    <select class='form-control' ng-model="criteria.owner" ng-change="shiftOwner()" size=2>
-                                        <option value='all'>全部用户</option>
-                                        <option value='{{params.user.uid}}'>我的</option>
-                                    </select>
-                                </div>
-                                <div class='form-group' ng-if="schemaCount>1">
-                                    <select class='form-control' ng-model="criteria.schema" ng-options="schema.id as schema.title for schema in schemas" ng-change="shiftSchema()" size='6'>
-                                        <option value>全部题目</option>
-                                    </select>
-                                </div>
-                            </form>
                         </button>
+                        <form id='advCriteria' ng-if='status.opened' ng-click="clickAdvCriteria($event)">
+                            <div class='form-group' ng-if='rounds.length'>
+                                <select class='form-control' ng-model='criteria.rid' ng-change="shiftRound()" size='6'>
+                                    <option value='all'>全部轮次</option>
+                                    <option value="{{rnd.rid}}" ng-repeat="rnd in rounds">{{rnd.title}}</option>
+                                </select>
+                            </div>
+                            <div class='form-group'>
+                                <select class='form-control' ng-model="criteria.owner" ng-change="shiftOwner()" size=2>
+                                    <option value='all'>全部用户</option>
+                                    <option value='{{params.user.uid}}'>我的</option>
+                                </select>
+                            </div>
+                            <div class='form-group' ng-if="schemaCount>1">
+                                <select class='form-control' ng-model="criteria.schema" ng-options="schema.id as schema.title for schema in schemas" ng-change="shiftSchema()" size='6'>
+                                    <option value>全部题目</option>
+                                </select>
+                            </div>
+                        </form>
                     </div>
                 </div>
             </div>

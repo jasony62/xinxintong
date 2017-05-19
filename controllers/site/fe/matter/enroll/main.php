@@ -235,6 +235,9 @@ class main extends base {
 			foreach ($aUnionUsers as $oUnionUser) {
 				$aMembers = $modelMem->byUser($oUnionUser->uid);
 				foreach ($aMembers as $oMember) {
+					if (!isset($oUser->members)) {
+						$oUser->members = new \stdClass;
+					}
 					$oUser->members->{$oMember->schema_id} = $oMember;
 				}
 			}

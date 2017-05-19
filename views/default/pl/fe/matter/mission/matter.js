@@ -120,7 +120,7 @@ define(['frame'], function(ngApp) {
                 $scope['add' + matterType[0].toUpperCase() + matterType.substr(1)]();
             }
         };
-        $scope.open = function(matter, subView) {
+        $scope.openMatter = function(matter, subView) {
             var url = '/rest/pl/fe/matter/',
                 type = matter.type || $scope.matterType,
                 id = matter.id;
@@ -183,6 +183,9 @@ define(['frame'], function(ngApp) {
                 location.href = '/rest/pl/fe/matter/' + type + '?site=' + $scope.mission.siteid + '&id=' + rsp.data.id;
             });
         };
+        $scope.doChange = function(ms) {
+            location.hash = ms;
+        }
         $scope.list = function(matterType) {
             var url;
 
@@ -292,6 +295,9 @@ define(['frame'], function(ngApp) {
             });
             if (!nv) return;
             $scope.matterType = location.hash ? location.hash.substr(1) : '';
+            if(/enroll|registration|voting|group_week_report|quiz|common/.test($scope.matterType)) {
+                $scope.matter_scenario = $scope.matterType;
+            }
             $scope.mission = nv;
             http2.get('/rest/pl/fe/matter/mission/phase/list?mission=' + $scope.mission.id, function(rsp) {
                 $scope.phases = rsp.data;

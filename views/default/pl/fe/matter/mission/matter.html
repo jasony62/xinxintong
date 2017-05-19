@@ -4,17 +4,17 @@
             <ul class="nav navbar-nav">
                 <li ng-class="{'active':matterType===''}"><a href='#' ng-click="matterType=''">全部</a></li>
                 <li ng-class="{'active':matterType==='article'}"><a href='#article' ng-click="matterType='article'">图文</a></li>
-                <li ng-class="{'active':matterType==='enroll'}"><a href='#enroll' ng-click="matterType='enroll'">登记活动</a></li>
+                <li ng-class="{'active':matterType===matter_scenario}"><a href='#enroll' ng-click="matterType='enroll'">登记活动</a></li>
                 <li ng-class="{'active':matterType==='signin'}"><a href='#signin' ng-click="matterType='signin'">签到</a></li>
                 <li ng-class="{'active':matterType==='group'}"><a href='#group' ng-click="matterType='group'">分组</a></li>
                 <li ng-class="{'active':matterType==='wall'}"><a href='#wall' ng-click="matterType='wall'">信息墙</a></li>
             </ul>
             <form class='nav navbar-form pull-left'>
-                <div class="form-group" ng-if="matterType==='enroll'">
-                    <select class='form-control' >
-                        <option value=''>全部场景</option>
+                <div class="form-group" ng-if="matterType===matter_scenario">
+                    <select class='form-control' ng-model="matter_scenario" ng-change="doChange(matter_scenario)">
+                        <option value='enroll'>全部场景</option>
                         <option value='common'>通用登记</option>
-                        <option value='registration'><a href='#registration' ng-click="matterType='registration'">报名</a></option>
+                        <option value='registration'>报名</option>
                         <option value='voting'>投票</option>
                         <option value='group_week_report'>周报</option>
                         <option value='quiz'>测验</option>

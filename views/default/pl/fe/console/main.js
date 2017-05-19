@@ -17,11 +17,11 @@ define(['frame'], function(ngApp) {
             })
         };
         $scope.openMatter = function(matter, subView) {
-            var url = '/rest/pl/fe/matter/' + matter.matter_type;
+            var url = '/rest/pl/fe/matter/' + (matter.matter_type||matter.type);
             if (subView) {
                 url += '/' + subView;
             }
-            url += '?id=' + matter.matter_id + '&site=' + matter.siteid;
+            url += '?id=' + (matter.matter_id||matter.id) + '&site=' + matter.siteid;
             location.href = url;
         };
         $scope.setHome = function(site) {
@@ -251,14 +251,28 @@ define(['frame'], function(ngApp) {
             }
         };
         $scope.list = function(pageAt) {
-            var url = '/rest/pl/fe/recent?' + page.j();
+            var url = '/rest/pl/fe/recent?' + page.j(),
+                t = (new Date() * 1),
+                url2;
             if (pageAt) {
                 page.at = pageAt;
             }
-            http2.post(url, filter, function(rsp) {
-                $scope.matters = rsp.data.matters;
-                $scope.page.total = rsp.data.total;
-            });
+            if(filter.bySite == '') {
+                http2.post(url, filter, function(rsp) {
+                    $scope.matters = rsp.data.matters;
+                    $scope.page.total = rsp.data.total;
+                });
+            }else {
+                if(filter.scenario !== '') {
+                    url2 = '/rest/pl/fe/matter/'+ filter.byType +'/list?site=' + filter.bySite + '&scenario=' + filter.scenario +'&' + page.j() + '&_=' +t;
+                }else {
+                    url2 = '/rest/pl/fe/matter/'+ filter.byType +'/list?site=' + filter.bySite + '&' + page.j() + '&_=' +t;
+                }
+                http2.post(url2, {byTitle: filter.byTitle}, function(rsp) {
+                    $scope.matters = rsp.data.apps || rsp.data;
+                    $scope.page.total = rsp.data.total;
+                });
+            }
         };
         $scope.doFilter = function() {
             angular.extend(filter, filter2);
@@ -304,11 +318,34 @@ define(['frame'], function(ngApp) {
             }
         };
         $scope.list = function() {
-            var url = '/rest/pl/fe/recent?' + page.j();
-            http2.post(url, filter, function(rsp) {
-                $scope.matters = rsp.data.matters;
-                $scope.page.total = rsp.data.total;
-            });
+            var url = '/rest/pl/fe/recent?' + page.j(),
+                t = (new Date() * 1),
+                url2 = '/rest/pl/fe/matter/'+ filter.byType +'/list?site=' + filter.bySite + '&' + page.j() +'&_=' + t ;
+
+            if(filter.bySite == '') {
+                http2.post(url, filter, function(rsp) {
+                    $scope.matters = rsp.data.matters;
+                    $scope.page.total = rsp.data.total;
+                });
+            }else {
+                filter.byType == 'channel' ? url2 += '&cascade=N' : url2;
+                http2.post(url2, {byTitle: filter.byTitle}, function(rsp) {
+                    switch(filter.byType) {
+                        case 'article':
+                            $scope.matters = rsp.data.articles;
+                            break;
+                        case 'contribute':
+                            $scope.matters = rsp.data.apps;
+                            break;
+                        case 'custom':
+                            $scope.matters = rsp.data.customs;
+                            break;
+                        default:
+                            $scope.matters = rsp.data;
+                    }
+                    $scope.page.total = rsp.data.total;
+                });
+            }
         };
         $scope.doFilter = function() {
             angular.extend(filter, filter2);

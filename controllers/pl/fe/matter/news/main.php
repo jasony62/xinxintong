@@ -54,8 +54,11 @@ class main extends \pl\fe\matter\base {
 		$q = [
 			'*',
 			'xxt_news',
-			['siteid' => $site, 'state' => 1],
+			"siteid = '". $modelNews->escape($site) ."' and state = 1"
 		];
+		if (!empty($options->byTitle)) {
+			$q[2] .= " and title like '%". $modelNews->escape($options->byTitle) ."%'";
+		}
 		$q2['o'] = 'create_at desc';
 		$news = $modelNews->query_objs_ss($q, $q2);
 		/**
@@ -66,6 +69,7 @@ class main extends \pl\fe\matter\base {
 			$modelAcl = $this->model('acl');
 			foreach ($news as &$n) {
 				$n->url = $modelNews->getEntryUrl($site, $n->id);
+				$n->type = 'news';
 				if ($n->empty_reply_type && $n->empty_reply_id) {
 					$n->emptyReply = $modelBase->getMatterInfoById($n->empty_reply_type, $n->empty_reply_id);
 				}

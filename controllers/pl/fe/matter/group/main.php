@@ -59,6 +59,9 @@ class main extends \pl\fe\matter\base {
 			'xxt_group',
 			"state<>0",
 		];
+		if(!empty($post->byTitle)){
+			$q[2] .= " and title like '%". $model->escape($post->byTitle) ."%'";
+		}
 		if (empty($mission)) {
 			$site = $model->escape($site);
 			$q[2] .= " and siteid='$site'";

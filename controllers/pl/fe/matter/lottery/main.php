@@ -59,14 +59,20 @@ class main extends \pl\fe\matter\base {
 		if (false === ($user = $this->accountUser())) {
 			return new \ResponseTimeout();
 		}
+
+		$model = $this->model();
+		$post = $this->getPostJson();
 		$q = [
 			"*,'lottery' type",
 			'xxt_lottery',
-			['siteid' => $site, 'state' => [1, 2]],
+			"siteid = '". $model->escape($site) ."' and state in (1,2)"
 		];
+		if(!empty($post->byTitle)){
+			$q[2] .= " and title like '%". $model->escape($post->byTitle) ."%'";
+		}
 		$q2['o'] = 'create_at desc';
 
-		$apps = $this->model()->query_objs_ss($q, $q2);
+		$apps = $model->query_objs_ss($q, $q2);
 
 		return new \ResponseData($apps);
 	}

@@ -60,15 +60,26 @@ class main extends \pl\fe\matter\base {
 	 */
 	public function list_action($site, $page = 1, $size = 30) {
 		$model = $this->model();
+		$post = $this->getPostJson();
+
 		$site = $model->escape($site);
 		$q = array(
 			'*',
 			'xxt_contribute',
 			"siteid='$site' and state<>0",
 		);
+		if(!empty($post->byTitle)){
+			$q[2] .= " and title like '%". $model->escape($post->byTitle) ."%'";
+		}
+
 		$q2['o'] = 'create_at desc';
-		if ($c = $model->query_objs_ss($q, $q2)) {
-			$result['apps'] = $c;
+		if ($contribute = $model->query_objs_ss($q, $q2)) {
+			$modelContribute = $this->model('matter\contribute');
+			foreach ($contribute as $c) {
+				$c->url = $modelContribute->getEntryUrl($site, $c->id);
+				$c->type = 'contribute';
+			}
+			$result['apps'] = $contribute;
 			$q[0] = 'count(*)';
 			$total = (int) $model->query_val_ss($q);
 			$result['total'] = $total;

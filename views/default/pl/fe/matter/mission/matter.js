@@ -191,7 +191,7 @@ define(['frame'], function(ngApp) {
             $scope.list($scope.matterType);
         }
         $scope.cleanFilter = function() {
-            $scope.fitler2.byTitle = '';
+            $scope.filter2.byTitle = '';
         }
         $scope.list = function(matterType) {
             var url;

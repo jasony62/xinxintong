@@ -138,6 +138,7 @@ define(["require", "angular", "util.site", "enrollService"], function(require, a
             $scope.groupDataSchemas = groupDataSchemas;
             $scope.tmsTableWrapReady = 'Y';
             $scope.getRecords();
+            window.loading.finish();
         });
     }]);
     ngApp.controller('ctrlReport', ['$scope', '$location', '$uibModal', '$timeout', '$q', 'http2', 'srvOpEnrollRound', 'srvRecordConverter', function($scope, $location, $uibModal, $timeout, $q, http2, srvOpEnrollRound, srvRecordConverter) {

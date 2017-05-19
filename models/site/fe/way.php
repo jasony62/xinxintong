@@ -59,7 +59,7 @@ class way_model extends \TMS_MODEL {
 				}
 			}
 		}
-		if ($cookieRegUser && isset($cookieRegUser->unionid)) {
+		if ($cookieRegUser && isset($cookieRegUser->loginExpire)) {
 			$cookieUser->unionid = $cookieRegUser->unionid;
 			$cookieUser->nickname = $cookieRegUser->nickname;
 			$cookieUser->loginExpire = $cookieRegUser->loginExpire;

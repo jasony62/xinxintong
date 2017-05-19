@@ -333,6 +333,9 @@ define(['frame', 'schema', 'wrap'], function(ngApp, schemaLib, wrapLib) {
         };
         $scope.changeSchemaType = function() {
             var beforeState = angular.copy($scope.activeSchema);
+            if(['name', 'mobile', 'email'].indexOf($scope.activeSchema.type)!==-1){
+                $scope.activeSchema.fastSelect = $scope.activeSchema.type;
+            };
             if (schemaLib.changeType($scope.activeSchema, editing.type)) {
                 $scope.activeConfig = wrapLib.input.newWrap($scope.activeSchema).config;
                 $scope.updSchema($scope.activeSchema, beforeState);

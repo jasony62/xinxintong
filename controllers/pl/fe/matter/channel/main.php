@@ -37,6 +37,8 @@ class main extends \pl\fe\matter\base {
 		if (false === ($user = $this->accountUser())) {
 			return new \ResponseTimeout();
 		}
+
+		$modelChn = $this->model('matter\channel');
 		$options = $this->getPostJson();
 		/**
 		 * 素材的来源
@@ -44,11 +46,20 @@ class main extends \pl\fe\matter\base {
 		$q = [
 			'*',
 			'xxt_channel',
-			['siteid' => $site, 'state' => 1],
+			"siteid = '". $modelChn->escape($site) ."' and state = 1",
 		];
-		!empty($acceptType) && $q[2]['matter_type'] = ['', $acceptType];
+		if(!empty($acceptType)){
+			$acceptType = ['', $acceptType];
+			$acceptType = "('";
+			$acceptType .= implode("','", $v);
+			$acceptType .= "')";
+			$q[2] .= " and matter_type in $acceptType";
+		}
+		if(!empty($options->byTitle)){
+			$q[2] .= " and title like '%". $modelChn->escape($options->byTitle) ."%'";
+		}
+		
 		$q2['o'] = 'create_at desc';
-		$modelChn = $this->model('matter\channel');
 		$channels = $modelChn->query_objs_ss($q, $q2);
 		/* 获得子资源 */
 		if ($channels) {
@@ -167,7 +178,7 @@ class main extends \pl\fe\matter\base {
 		}
 		$matter = $this->getPostJson();
 		$modelChn = $this->model('matter\channel');
-		$modelCh->setOnlyWriteDbConn(true);
+		$modelChn->setOnlyWriteDbConn(true);
 
 		if ($pos === 'top') {
 			$modelChn->update('xxt_channel',

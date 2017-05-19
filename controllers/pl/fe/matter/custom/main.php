@@ -70,6 +70,10 @@ class main extends \pl\fe\matter\base {
 		 * where
 		 */
 		$w = "a.custom_body='Y' and a.siteid='$site' and a.state=1 and finished='Y'";
+		/*按名称过滤*/
+		if(!empty($options->byTitle)){
+			$w .= " and a.title like '%". $model->escape($options->btTitle) ."%'";
+		}
 		/**
 		 * 按频道过滤
 		 */

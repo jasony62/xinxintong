@@ -60,12 +60,18 @@ class main extends \pl\fe\matter\base {
 	 */
 	public function list_action($site, $page = 1, $size = 30) {
 		$model = $this->model();
+		$post = $this->getPostJson();
+
 		$site = $model->escape($site);
 		$q = array(
 			'*',
 			'xxt_contribute',
 			"siteid='$site' and state<>0",
 		);
+		if(!empty($post->byTitle)){
+			$q[2] .= " and title like '%". $model->escape($post->byTitle) ."%'";
+		}
+
 		$q2['o'] = 'create_at desc';
 		if ($contribute = $model->query_objs_ss($q, $q2)) {
 			$modelContribute = $this->model('matter\contribute');

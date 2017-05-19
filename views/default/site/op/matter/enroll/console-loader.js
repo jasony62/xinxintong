@@ -1,8 +1,9 @@
 window.loading = {
     finish: function() {
         var eleLoading, eleStyle;
-        eleLoading = document.querySelector('.loading');
-        eleLoading.parentNode.removeChild(eleLoading);
+        if (eleLoading = document.querySelector('.loading')) {
+            eleLoading.parentNode.removeChild(eleLoading);
+        }
     },
     load: function() {
         var timestamp, minutes;
@@ -15,12 +16,13 @@ window.loading = {
         require.config({
             waitSeconds: 0,
             paths: {
-                "jquery": '/static/js/jquery.min',
-                "bootstrap": '/static/js/bootstrap.min',
                 "domReady": '/static/js/domReady',
                 "angular": "/static/js/angular.min",
                 "angular-sanitize": '/static/js/angular-sanitize.min',
+                "angular-route": '/static/js/angular-route.min',
                 "ui-bootstrap": '/static/js/ui-bootstrap-tpls.min',
+                "highcharts": '/static/js/highcharts',
+                "highcharts-exporting": '/static/js/highcharts/exporting',
                 "ui-tms": '/static/js/ui-tms',
                 "ui-xxt": '/static/js/xxt.ui',
                 "util.site": "/views/default/site/util",
@@ -40,7 +42,7 @@ window.loading = {
                 }
             },
             urlArgs: function(id, url) {
-                if (/jquery|bootstrap|domReady|angular/.test(id)) {
+                if (/bootstrap|domReady|angular/.test(id)) {
                     return '';
                 }
                 if (/xxt|tms/.test(id)) {
@@ -49,13 +51,13 @@ window.loading = {
                 return "?bust=" + (timestamp * 1);
             },
         });
-        require(['jquery'], function() {
-            require(['bootstrap'], function() {
-                require(['angular'], function() {
-                    require(['angular-sanitize'], function() {
-                        require(['ui-bootstrap'], function() {
-                            require(['ui-tms'], function() {
-                                require(['ui-xxt'], function() {
+        require(['angular'], function() {
+            require(['angular-route'], function() {
+                require(['angular-sanitize'], function() {
+                    require(['ui-bootstrap'], function() {
+                        require(['ui-tms'], function() {
+                            require(['ui-xxt'], function() {
+                                require(['highcharts'], function() {
                                     requirejs(['/views/default/site/op/matter/enroll/console.js']);
                                 });
                             });

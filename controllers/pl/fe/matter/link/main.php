@@ -73,6 +73,9 @@ class main extends \pl\fe\matter\base {
 			'xxt_link',
 			"siteid='$site' and state=1",
 		);
+		if(!empty($options->byTitle)){
+			$q[2] .= " and title like '%". $model->escape($options->byTitle) ."%'";
+		}
 		$q2['o'] = 'create_at desc';
 		$links = $model->query_objs_ss($q, $q2);
 		/**
@@ -97,6 +100,7 @@ class main extends \pl\fe\matter\base {
 				 * acl
 				 */
 				$l->acl = $modelAcl->byMatter($site, 'link', $l->id);
+				$l->type = 'link';
 			}
 		}
 

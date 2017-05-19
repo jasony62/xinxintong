@@ -277,14 +277,14 @@
                 <tbody>
                     <tr ng-repeat='m in matters'>
                         <td>{{$index+1}}</td>
-                        <td ng-if="filter.byType=='enroll'">{{scenarioNames[m.matter_scenario]}}</td>
-                        <td>{{m.matter_title}}</td>
-                        <td>{{m.operator_name}}</td>
-                        <td>{{m.operate_at*1000|date:'yy-MM-dd HH:mm'}}</td>
+                        <td ng-if="filter.byType=='enroll'">{{scenarioNames[m.matter_scenario||m.scenario]}}</td>
+                        <td>{{m.matter_title||m.title}}</td>
+                        <td>{{m.operator_name||m.creater_name}}</td>
+                        <td>{{(m.operate_at||m.create_at)*1000|date:'yy-MM-dd HH:mm'}}</td>
                         <td>
                             <button class='btn btn-sm btn-default' title='置顶' ng-click="stickTop(m)">置顶</button>
                         </td>
-                        <td ng-switch on="m.matter_type">
+                        <td ng-switch on="m.matter_type||m.type">
                             <div ng-switch-when="group">
                                 <button class='btn btn-sm btn-default' ng-click="openMatter(m,'main')">定义</button>
                                 <button class='btn btn-sm btn-default' ng-click="openMatter(m,'player')">数据</button>
@@ -358,9 +358,9 @@
                 <tbody>
                     <tr ng-repeat='m in matters'>
                         <td>{{$index+1}}</td>
-                        <td>{{m.matter_title}}</td>
-                        <td>{{m.operator_name}}</td>
-                        <td>{{m.operate_at*1000|date:'yy-MM-dd HH:mm'}}</td>
+                        <td>{{m.matter_title||m.title}}</td>
+                        <td>{{m.operator_name||m.creater_name}}</td>
+                        <td>{{(m.operate_at||m.create_at)*1000|date:'yy-MM-dd HH:mm'}}</td>
                         <td>
                             <button class='btn btn-sm btn-default' title='置顶' ng-click="stickTop(m)">置顶</button>
                         </td>
@@ -399,8 +399,9 @@
                 </div>
                 <div ng-if='mschemas.length'>
                     <div class='form-group form-inline'>
-                        <div class='form-group'>
+                        <div class='input-group'>
                             <select class='form-control' ng-options="mschema.title for mschema in mschemas" ng-model="selected.mschema" ng-change="chooseMschema()"></select>
+                            <span class='input-group-btn'><a class='btn btn-default' href="/rest/pl/fe/site/mschema?site={{selected.mschema.siteid}}#{{selected.mschema.id}}" target='_self'><span class='glyphicon glyphicon-edit'></span></a></span>
                         </div>
                         <div class='form-group'>
                             <select class='form-control' ng-model='page.searchBy' ng-options='s.v as s.n for s in searchBys'></select>
@@ -416,10 +417,13 @@
                             </div>
                         </div>
                         <div class='form-group'>
-                            <button class='btn btn-default' ng-click="createEnrollApp(selectedMschema)">生成登记活动</button>
+                            <button class='btn btn-default' ng-click="createEnrollApp(selected.mschema)">生成登记活动</button>
                         </div>
                         <div class='form-group'>
                             <button class='btn btn-default' ng-click="createMschema()">添加通讯录</button>
+                        </div>
+                        <div class='form-group' ng-if="selected.mschema.require_invite">
+                            <button class='btn btn-default'>管理邀请码</button>
                         </div>
                     </div>
                     <div>

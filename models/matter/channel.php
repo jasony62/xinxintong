@@ -184,9 +184,9 @@ class channel_model extends article_base {
 				$qaw .= " and m.state=1";
 			}
 
-			!empty($top) && $top->type === $type && $qaw .= " and m.id<>$top->id";
+			!empty($top) && $top->type === $type && $qaw .= " and m.id<>'$top->id'";
 
-			!empty($bottom) && $bottom->type === $type && $qaw .= " and m.id<>$bottom->id";
+			!empty($bottom) && $bottom->type === $type && $qaw .= " and m.id<>'$bottom->id'";
 
 			$q1[] = $qaw;
 			$q2 = [];

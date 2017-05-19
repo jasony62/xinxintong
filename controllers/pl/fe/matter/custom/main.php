@@ -70,6 +70,10 @@ class main extends \pl\fe\matter\base {
 		 * where
 		 */
 		$w = "a.custom_body='Y' and a.siteid='$site' and a.state=1 and finished='Y'";
+		/*按名称过滤*/
+		if(!empty($options->byTitle)){
+			$w .= " and a.title like '%". $model->escape($options->byTitle) ."%'";
+		}
 		/**
 		 * 按频道过滤
 		 */
@@ -151,6 +155,7 @@ class main extends \pl\fe\matter\base {
 			foreach ($articles as &$a) {
 				$ids[] = $a->id;
 				$map[$a->id] = &$a;
+				$a->type = 'custom';
 			}
 			$rels = $this->model('tag')->tagsByRes($ids, 'article', 0);
 			foreach ($rels as $aid => &$tags) {

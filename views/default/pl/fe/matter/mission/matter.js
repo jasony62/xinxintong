@@ -2,6 +2,7 @@ define(['frame'], function(ngApp) {
     'use strict';
     ngApp.provider.controller('ctrlMatter', ['$scope', 'http2', 'templateShop', 'cstApp', function($scope, http2, templateShop, cstApp) {
         $scope.scenarioNames = cstApp.scenarioNames;
+        $scope.filter2 = {};
         $scope.addWall = function() {
             var url = '/rest/pl/fe/matter/wall/create?mission=' + $scope.mission.id,
                 config = {
@@ -120,7 +121,7 @@ define(['frame'], function(ngApp) {
                 $scope['add' + matterType[0].toUpperCase() + matterType.substr(1)]();
             }
         };
-        $scope.open = function(matter, subView) {
+        $scope.openMatter = function(matter, subView) {
             var url = '/rest/pl/fe/matter/',
                 type = matter.type || $scope.matterType,
                 id = matter.id;
@@ -183,6 +184,15 @@ define(['frame'], function(ngApp) {
                 location.href = '/rest/pl/fe/matter/' + type + '?site=' + $scope.mission.siteid + '&id=' + rsp.data.id;
             });
         };
+        $scope.doChange = function(ms) {
+            location.hash = ms;
+        }
+        $scope.doFilter = function() {
+            $scope.list($scope.matterType);
+        }
+        $scope.cleanFilter = function() {
+            $scope.filter2.byTitle = '';
+        }
         $scope.list = function(matterType) {
             var url;
 
@@ -227,7 +237,7 @@ define(['frame'], function(ngApp) {
                 url += '/list?mission=' + $scope.mission.id;
                 scenario !== undefined && (url += '&scenario=' + scenario);
                 url += '&_=' + (new Date() * 1);
-                http2.get(url, function(rsp) {
+                http2.post(url, {byTitle:$scope.filter2.byTitle}, function(rsp) {
                     $scope.indicators = [];
                     if (/article/.test(matterType)) {
                         $scope.matters = rsp.data.articles;
@@ -292,6 +302,9 @@ define(['frame'], function(ngApp) {
             });
             if (!nv) return;
             $scope.matterType = location.hash ? location.hash.substr(1) : '';
+            if(/enroll|registration|voting|group_week_report|quiz|common/.test($scope.matterType)) {
+                $scope.matter_scenario = $scope.matterType;
+            }
             $scope.mission = nv;
             http2.get('/rest/pl/fe/matter/mission/phase/list?mission=' + $scope.mission.id, function(rsp) {
                 $scope.phases = rsp.data;

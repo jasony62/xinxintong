@@ -39,9 +39,6 @@ class main extends \pl\fe\base {
 		$options = [
 			'page' => $p,
 		];
-		if (!empty($oFilter->bySite)) {
-			$options['bySite'] = $oFilter->bySite;
-		}
 		if (!empty($oFilter->byTitle)) {
 			$options['byTitle'] = $oFilter->byTitle;
 		}

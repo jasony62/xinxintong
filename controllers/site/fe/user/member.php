@@ -3,7 +3,7 @@ namespace site\fe\user;
 
 require_once dirname(dirname(__FILE__)) . '/base.php';
 /**
- * 站点自定义用户信息
+ * 团队联系人用户
  */
 class member extends \site\fe\base {
 	/**
@@ -80,9 +80,21 @@ class member extends \site\fe\base {
 			return new \ResponseError('已经有对应通讯录联系人，不能重复创建');
 		}
 
-		$oMschema = $this->model('site\user\memberschema')->byId($schema, 'siteid,id,title,attr_mobile,attr_email,attr_name,extattr,auto_verified');
+		$oMschema = $this->model('site\user\memberschema')->byId($schema, 'siteid,id,title,attr_mobile,attr_email,attr_name,extattr,auto_verified,require_invite');
 		if ($oMschema === false) {
 			return new \ObjectNotFoundError();
+		}
+
+		if ($oMschema->require_invite === 'Y') {
+			if (empty($oNewMember->invite_code)) {
+				return new \ResponseError('请提供邀请码');
+			}
+			if (strlen($oNewMember->invite_code) !== 6) {
+				return new \ResponseError('请提供有效的邀请码');
+			}
+			if (false === $this->model('site\user\memberinvite')->useCode($oMschema->id, $oNewMember->invite_code)) {
+				return new \ResponseError('邀请码不存在或者已经失效');
+			}
 		}
 
 		$modelSiteUser = $this->model('site\user\account');
@@ -112,7 +124,11 @@ class member extends \site\fe\base {
 			return new \ParameterError($errMsg);
 		}
 		/* 验证状态 */
-		$oNewMember->verified = $oMschema->auto_verified;
+		if ($oMschema->require_invite === 'Y' && isset($oNewMember->invite_code)) {
+			$oNewMember->verified = 'Y';
+		} else {
+			$oNewMember->verified = $oMschema->auto_verified;
+		}
 		/* 创建新的自定义用户 */
 		$rst = $modelMem->create($siteUser->uid, $oMschema, $oNewMember);
 		if ($rst[0] === false) {
@@ -388,5 +404,4 @@ class member extends \site\fe\base {
 
 		return new \ResponseError('no matched');
 	}
-
 }

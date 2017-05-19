@@ -85,7 +85,7 @@ class signin_model extends app_base {
 			"state<>0 and siteid='$siteId'",
 		];
 		if(!empty($options['byTitle'])){
-			$q[2] .= " and title like '%". $this->$options['byTitle'] ."%'";
+			$q[2] .= " and title like '%". $this->escape($options['byTitle']) ."%'";
 		}
 		if ($onlySns === 'Y') {
 			$q[2] .= " and entry_rule like '%\"scope\":\"sns\"%'";
@@ -123,6 +123,9 @@ class signin_model extends app_base {
 				$value = $this->escape($value);
 				$q[2] .= " and ".$key." = '".$value."'";
 			}
+		}
+		if(!empty($options['byTitle'])) {
+			$q[2] .= " and title like '%". $this->escape($options['byTitle']) ."%'";
 		}
 		$q2['o'] = 'modify_at desc';
 		if ($page && $size) {

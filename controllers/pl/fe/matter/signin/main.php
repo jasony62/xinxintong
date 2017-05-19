@@ -65,7 +65,7 @@ class main extends \pl\fe\matter\base {
 				$options['where']['mission_phase_id'] = $post->mission_phase_id;
 			}
 			if(!empty($post->byTitle)) {
-				$options['where']['title'] = $post->byTitle;
+				$options['byTitle'] = $post->byTitle;
 			}
 			$result = $model->byMission($mission, $options, $page, $size);
 		}

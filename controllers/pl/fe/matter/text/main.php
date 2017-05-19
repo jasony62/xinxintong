@@ -32,7 +32,6 @@ class main extends \pl\fe\matter\base {
 		$q = [
 			$fields,
 			'xxt_text',
-			["siteid" => $site, "state" => 1],
 			"siteid = '". $model->escape($site) ."' and state = 1"
 		];
 		if (!empty($post->byTitle)) {

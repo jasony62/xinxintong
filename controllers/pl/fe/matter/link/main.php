@@ -74,7 +74,7 @@ class main extends \pl\fe\matter\base {
 			"siteid='$site' and state=1",
 		);
 		if(!empty($options->byTitle)){
-			$q[2] .= " and title like '%". $model->escape($post->byTitle) ."%'";
+			$q[2] .= " and title like '%". $model->escape($options->byTitle) ."%'";
 		}
 		$q2['o'] = 'create_at desc';
 		$links = $model->query_objs_ss($q, $q2);

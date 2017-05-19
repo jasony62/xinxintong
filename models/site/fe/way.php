@@ -59,6 +59,11 @@ class way_model extends \TMS_MODEL {
 				}
 			}
 		}
+		if ($cookieRegUser && isset($cookieRegUser->unionid)) {
+			$cookieUser->unionid = $cookieRegUser->unionid;
+			$cookieUser->nickname = $cookieRegUser->nickname;
+			$cookieUser->loginExpire = $cookieRegUser->loginExpire;
+		}
 		/* 将用户信息保存在cookie中 */
 		if ($modified) {
 			$this->setCookieUser($siteId, $cookieUser);

@@ -20,7 +20,7 @@
                         <option value='quiz'>测验</option>
                     </select>
                 </div>
-                <div class='form-group'>
+                <div class='form-group' ng-if="matterType!==''">
                     <div class='input-group'>
                         <input type='input' class='form-control' placeholder='按名称筛选' ng-model='filter2.byTitle'>
                         <span class='input-group-btn'>

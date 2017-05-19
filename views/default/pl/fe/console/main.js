@@ -268,7 +268,7 @@ define(['frame'], function(ngApp) {
                 }else {
                     url2 = '/rest/pl/fe/matter/'+ filter.byType +'/list?site=' + filter.bySite + '&' + page.j() + '&_=' +t;
                 }
-                http2.get(url2, function(rsp) {
+                http2.post(url2, {byTitle: filter.byTitle}, function(rsp) {
                     $scope.matters = rsp.data.apps;
                     $scope.page.total = rsp.data.total;
                 });
@@ -329,7 +329,7 @@ define(['frame'], function(ngApp) {
                 });
             }else {
                 filter.byType == 'channel' ? url2 += '&cascade=N' : url2;
-                http2.get(url2, function(rsp) {
+                http2.post(url2, {byTitle: filter.byTitle}, function(rsp) {
                     switch(filter.byType) {
                         case 'article':
                             $scope.matters = rsp.data.articles;

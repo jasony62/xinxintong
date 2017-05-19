@@ -2,6 +2,7 @@ define(['frame'], function(ngApp) {
     'use strict';
     ngApp.provider.controller('ctrlMatter', ['$scope', 'http2', 'templateShop', 'cstApp', function($scope, http2, templateShop, cstApp) {
         $scope.scenarioNames = cstApp.scenarioNames;
+        $scope.filter2 = {};
         $scope.addWall = function() {
             var url = '/rest/pl/fe/matter/wall/create?mission=' + $scope.mission.id,
                 config = {
@@ -186,6 +187,12 @@ define(['frame'], function(ngApp) {
         $scope.doChange = function(ms) {
             location.hash = ms;
         }
+        $scope.doFilter = function() {
+            $scope.list($scope.matterType);
+        }
+        $scope.cleanFilter = function() {
+            $scope.fitler2.byTitle = '';
+        }
         $scope.list = function(matterType) {
             var url;
 
@@ -230,7 +237,7 @@ define(['frame'], function(ngApp) {
                 url += '/list?mission=' + $scope.mission.id;
                 scenario !== undefined && (url += '&scenario=' + scenario);
                 url += '&_=' + (new Date() * 1);
-                http2.get(url, function(rsp) {
+                http2.post(url, {byTitle:$scope.filter2.byTitle}, function(rsp) {
                     $scope.indicators = [];
                     if (/article/.test(matterType)) {
                         $scope.matters = rsp.data.articles;

@@ -76,17 +76,6 @@ class auth extends \pl\fe\base {
 		$registration->nickname = $act->nickname;
 		$cookieRegUser = $modelWay->shiftRegUser($registration);
 
-		/* 监测cookie超长的问题 */
-		$cookieLength = 0;
-		foreach ($_COOKIE as $key => $value) {
-			$cookieLength += strlen($key);
-			$cookieLength += strlen($value);
-			$cookieLength += 1;
-		}
-		if ($cookieLength > 1000) {
-			$this->model('log')->log('platform', '/pl/fe/user/auth/passed', 'cookie-length:' . $cookieLength);
-		}
-
 		// 页面跳转
 		if ($referer = $this->myGetCookie('_login_referer')) {
 			// 跳转到前一页

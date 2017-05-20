@@ -7,6 +7,21 @@ require_once TMS_APP_DIR . '/controllers/site/op/base.php';
  */
 class record extends \site\op\base {
 	/**
+	 * 返回视图
+	 */
+	public function index_action($app) {
+		if (!$this->checkAccessToken()) {
+			header('HTTP/1.0 500 parameter error:accessToken is invalid.');
+			die('没有获得有效访问令牌！');
+		}
+
+		$oApp = $this->model('matter\enroll')->byId($app, ['cascaded' => 'N']);
+
+		\TPL::assign('title', $oApp->title);
+		\TPL::output('/site/op/matter/enroll/console');
+		exit;
+	}
+	/**
 	 *
 	 */
 	public function list_action($site, $app, $rid = null, $page = 1, $size = 30, $tags = null, $orderby = null) {

@@ -1504,22 +1504,6 @@ define(['require', 'schema', 'page'], function(require, schemaLib, pageLib) {
                 })
                 return defer.promise;
             };
-            _ins.listRemark = function(ek) {
-                var url, defer = $q.defer();
-                url = '/rest/site/op/matter/enroll/record/listRemark?ek=' + ek;
-                http2.get(url, function(rsp) {
-                    defer.resolve(rsp.data);
-                });
-                return defer.promise;
-            };
-            _ins.addRemark = function(ek, newRemark) {
-                var url, defer = $q.defer();
-                url = '/rest/site/op/matter/enroll/record/addRemark?ek=' + ek;
-                http2.post(url, newRemark, function(rsp) {
-                    defer.resolve(rsp.data);
-                });
-                return defer.promise;
-            };
 
             return _ins;
         }];

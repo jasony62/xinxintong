@@ -117,7 +117,7 @@
                         <div class='col-md-4'>
                             <div class='form-inline'>
                                 <div class='form-group' style='margin:0' ng-if="schema.requireScore==='Y'">
-                                    <label>分数：</labe>
+                                    <label>分数：</label>
                                         <input type='text' class='form-control' ng-disabled="['single','multiple'].indexOf(schema.type)!==-1" ng-model="quizScore[schema.id]" style='width:64px'>
                                 </div>
                                 <div class="form-group" style='margin:0' ng-if="schema.shareable==='Y'">
@@ -128,10 +128,10 @@
                                     </select>
                                 </div>
                                 <div class='form-group' style='margin:0' ng-if="schema.remarkable==='Y'">
-                                    <button class='btn btn-default btn-sm' ng-click="gotoRemark(schema)"><span class='glyphicon glyphicon-comment'></span> <span class="badge">{{schema.summary.remark_num}}</span></button>
+                                    <button class='btn btn-default btn-sm' ng-click="gotoRemark(schema)"><span class='glyphicon glyphicon-comment'></span> <span class="badge">{{record.verbose[schema.id].remark_num||0}}</span></button>
                                 </div>
-                                <div class='form-group' style='margin:0' ng-if="schema.remarkable==='Y'">
-                                    <span>点赞 <span class='badge'>{{record.verbose[schema.id].like_num}}</span></span>
+                                <div class='form-group' style='margin:0' ng-if="schema.shareable==='Y'">
+                                    <span>点赞 <span class='badge'>{{record.verbose[schema.id].like_num||0}}</span></span>
                                 </div>
                             </div>
                         </div>
@@ -182,7 +182,7 @@
                 <form ng-if="app.groupApp">
                     <!-- enroll record -->
                     <div class="form-group" ng-repeat="schema in groupDataSchemas">
-                        <labe class='form-label col-md-2' l>{{schema.title}}</label>
+                        <label class='form-label col-md-2' l>{{schema.title}}</label>
                             <div ng-switch on="schema.type" class='col-md-6'>
                                 <textarea class='form-control' disabled ng-switch-when="longtext" ng-model="record.data[schema.id]"></textarea>
                                 <select class='form-control' disabled ng-switch-when="single" ng-model="record.data[schema.id]" ng-options="op.v as op.l for op in schema.ops">

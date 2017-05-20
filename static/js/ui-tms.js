@@ -1,3 +1,8 @@
+/**
+ * directives:
+ * combox
+ * editable
+ */
 'use strict';
 (function() {
     function doXhr(method, url, data) {
@@ -268,14 +273,16 @@ angular.module('ui.tms', ['ngSanitize']).service('noticebox', ['$timeout', funct
         },
         replace: true,
         link: function(scope, elem, attrs) {
-            $(elem).find('.dropdown-toggle').click(function(e) {
-                if (!$(this).parent().hasClass('open') && !scope.retainState) {
+            elem[0].querySelector('.dropdown-toggle').addEventListener('click', function(e) {
+                if (!this.classList.contains('open') && !scope.retainState) {
                     scope.empty();
                     scope.$apply();
                 }
             });
-            $(elem).find('.dropdown-menu *').click(function(e) {
-                e.stopPropagation();
+            elem[0].querySelectorAll('.dropdown-menu *').forEach(function(elem2) {
+                elem2.addEventListener('click', function(e) {
+                    e.stopPropagation();
+                });
             });
         }
     }

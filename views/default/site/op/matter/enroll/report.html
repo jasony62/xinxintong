@@ -1,23 +1,6 @@
-<!DOCTYPE html>
-<html>
-
-<head>
-    <meta charset="UTF-8">
-    <base href="/" />
-    <title>
-        <?php TPL::pt('title');?>--统计报告</title>
-    <link href="/static/css/bootstrap.min.css" rel="stylesheet">
-    <link href="/static/css/tms.css?_=1" rel="stylesheet">
-    <style>
-    #stat-result img {
-        max-height: 48px
-    }
-    </style>
-</head>
-
-<body ng-controller='ctrlApp' ng-cloak class='ng-cloak'>
-    <div class='container'>
-        <div id='stat-result' class='row'>
+<div class='container'>
+    <div id='report' class='row'>
+        <div class='col-md-12'>
             <h3>{{app.title}}</h3>
             <hr>
             <div class='btn-group' ng-if='rounds.length'>
@@ -129,35 +112,10 @@
                 </table>
             </div>
         </div>
-    </div>
-    <script src="/static/js/require.js" defer async data-main="/views/default/site/op/matter/enroll/report-loader.js?_=3"></script>
-</body>
-
-</html>
-<script type="text/ng-template" id="moreRound.html">
-    <div class="modal-header">
-        <button class="close" type="button" ng-click="cancel()">×</button>
-        <h5 class="modal-title">轮次列表</h5>
-    </div>
-    <div class="modal-body">
-        <form class="form-horizontal">
-            <div class="form-group">
-                <label class="col-md-3 control-label">全部轮次</label>
-                <div class="col-md-9">
-                    <select class='form-control' ng-model="moreCriteria.rid" size=5>
-                        <option value='ALL'>全部</option>
-                        <option ng-if="activeRound" value='{{activeRound.rid}}'>当前轮次（{{activeRound.title}}）</option>
-                        <option value="{{rnd.rid}}" ng-repeat="rnd in rounds" ng-if="!rnd._isActive">{{rnd.title}}</option>
-                    </select>
-                    <div ng-show="pageOfRound.total>pageOfRound.size">
-                        <span style='line-height:34px'>总数：{{pageOfRound.total}}</span>
-                        <ul uib-pagination style="margin:0;vertical-align:bottom;cursor:pointer" boundary-links="true" total-items="pageOfRound.total" max-size="5" items-per-page="pageOfRound.size" rotate="false" ng-model="pageOfRound.at" previous-text="&lsaquo;" next-text="&rsaquo;" first-text="&laquo;" last-text="&raquo;" ng-change="doSearchRound()"></ul>
-                    </div>
-                </div>
+        <nav class="navbar navbar-default navbar-fixed-bottom">
+            <div class="container-fluid">
+                <p class="navbar-text"><a href="" ng-click="switchTo('list')" class="navbar-link">看列表</a></p>
             </div>
-        </form>
+        </nav>
     </div>
-    <div class="modal-footer">
-        <button class="btn btn-primary" ng-click="ok()">确定</button>
-    </div>
-</script>
+</div>

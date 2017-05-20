@@ -532,6 +532,26 @@ define(['frame'], function(ngApp) {
                 });
             });
         };
+        $scope.stopInvite = function(oInvite) {
+            http2.post('/rest/pl/fe/site/member/invite/update?invite=' + oInvite.id, { stop: 'Y' }, function(rsp) {
+                angular.extend(oInvite, rsp.data);
+            });
+        };
+        $scope.startInvite = function(oInvite) {
+            http2.post('/rest/pl/fe/site/member/invite/update?invite=' + oInvite.id, { stop: 'N' }, function(rsp) {
+                angular.extend(oInvite, rsp.data);
+            });
+        };
+        $scope.removeInvite = function(oInvite) {
+            http2.post('/rest/pl/fe/site/member/invite/update?invite=' + oInvite.id, { state: 0 }, function(rsp) {
+                oInvite.state = '0';
+            });
+        };
+        $scope.restoreInvite = function(oInvite) {
+            http2.post('/rest/pl/fe/site/member/invite/update?invite=' + oInvite.id, { state: 1 }, function(rsp) {
+                oInvite.state = '1';
+            });
+        };
         $scope.$watch('frameState.sid', function(siteId) {
             if (siteId) {
                 http2.get('/rest/pl/fe/site/member/schema/list?site=' + siteId, function(rsp) {

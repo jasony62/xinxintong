@@ -401,7 +401,8 @@
                     <div class='form-group form-inline'>
                         <div class='input-group'>
                             <select class='form-control' ng-options="mschema.title for mschema in mschemas" ng-model="selected.mschema" ng-change="chooseMschema()"></select>
-                            <span class='input-group-btn'><a class='btn btn-default' href="/rest/pl/fe/site/mschema?site={{selected.mschema.siteid}}#{{selected.mschema.id}}" target='_self'><span class='glyphicon glyphicon-edit'></span></a></span>
+                            <span class='input-group-btn'><a class='btn btn-default' href="/rest/pl/fe/site/mschema?site={{selected.mschema.siteid}}#{{selected.mschema.id}}" target='_self'><span class='glyphicon glyphicon-edit'></span></a>
+                            </span>
                         </div>
                         <div class='form-group'>
                             <select class='form-control' ng-model='page.searchBy' ng-options='s.v as s.n for s in searchBys'></select>
@@ -462,24 +463,30 @@
                             <thead>
                                 <tr>
                                     <th style='width:48px'>序号</th>
-                                    <th style='width:80px'>邀请码</th>
-                                    <th>可邀请次数</th>
-                                    <th>已使用次数</th>
-                                    <th>到期时间</th>
-                                    <th style='width:48px'>操作</th>
+                                    <th style='width:64px'>已停用</th>
+                                    <th>邀请码</th>
+                                    <th style='width:100px'>可邀请次数</th>
+                                    <th style='width:100px'>已使用次数</th>
+                                    <th style='width:120px'>到期时间</th>
+                                    <th style='width:120px'>操作</th>
                                 </tr>
                             </thead>
                             <tbody>
                                 <tr ng-repeat='invite in invites'>
                                     <td>{{$index+1}}</td>
-                                    <td>{{invite.code}}</td>
+                                    <td ng-if="invite.stop==='Y'"><span style='color:red'>{{invite.stop}}</span></td>
+                                    <td ng-if="invite.stop==='N'">{{invite.stop}}</td>
+                                    <td ng-if="invite.state=='0'"><del class='text-danger' title='页面刷新后不可恢复'>{{invite.code}}</del></td>
+                                    <td ng-if="invite.state=='1'">{{invite.code}}</td>
                                     <td>{{invite.max_count}}</td>
                                     <td>{{invite.use_count}}</td>
                                     <td><span ng-if="invite.expire_at">{{invite.expire_at*1000|date:'MM-dd HH:mm'}}</span></td>
                                     <td>
-                                        <a href='' ng-click='editInvite(invite)'>修改</a>
-                                        <a href='' ng-click='stopInvite(invite)'>停用</a>
-                                        <a href='' ng-click='removeInvite(invite)'>删除</a>
+                                        <a href='' ng-click='editInvite(invite)' ng-if="invite.state=='1'">修改</a>
+                                        <a href='' ng-click='stopInvite(invite)' ng-if="invite.state=='1'&&invite.stop==='N'">停用</a>
+                                        <a href='' ng-click='startInvite(invite)' ng-if="invite.state=='1'&&invite.stop==='Y'">启用</a>
+                                        <a href='' ng-click='removeInvite(invite)' ng-if="invite.state=='1'">删除</a>
+                                        <a href='' ng-click='restoreInvite(invite)' ng-if="invite.state=='0'">恢复</a>
                                     </td>
                                 </tr>
                             </tbody>
@@ -662,6 +669,12 @@
                 <lable class='col-md-3 control-label'>可邀请次数</lable>
                 <div class='col-md-9'>
                     <input class='form-control' ng-model="option.max_count">
+                </div>
+            </div>
+            <div class='form-group'>
+                <lable class='col-md-3 control-label'>到期时间</lable>
+                <div class='col-md-9'>
+                    <tms-datepicker class='tms-datepicker' tms-obj="option" tms-date="option.expire_at" tms-state="expireAt"></tms-datepicker>
                 </div>
             </div>
         </form>

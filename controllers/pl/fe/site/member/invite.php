@@ -35,8 +35,17 @@ class invite extends \pl\fe\base {
 			return new \ObjectNotFoundError();
 		}
 
+		$posted = $this->getPostJson();
+		$created = new \stdClass;
+		if (isset($posted->max_count)) {
+			$created->max_count = $posted->max_count;
+		}
+		if (isset($posted->expire_at)) {
+			$created->expire_at = $posted->expire_at;
+		}
+
 		$modelInv = $this->model('site\user\memberinvite');
-		$oInvite = $modelInv->add($oUser, $oSchema);
+		$oInvite = $modelInv->add($oUser, $oSchema, $created);
 
 		return new \ResponseData($oInvite);
 	}
@@ -58,6 +67,18 @@ class invite extends \pl\fe\base {
 		$updated = new \stdClass;
 		if (isset($posted->max_count)) {
 			$updated->max_count = $posted->max_count;
+		}
+		if (isset($posted->expire_at)) {
+			$updated->expire_at = $posted->expire_at;
+		}
+		if (isset($posted->stop)) {
+			$updated->stop = $posted->stop === 'Y' ? 'Y' : 'N';
+		}
+		if (isset($posted->state)) {
+			$updated->state = $posted->state;
+		}
+		if (count(get_object_vars($updated)) === 0) {
+			return new \ParameterError('没有指定有效的更新数据');
 		}
 
 		$rst = $modelInv->update(

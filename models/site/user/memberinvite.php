@@ -39,7 +39,7 @@ class memberinvite_model extends \TMS_MODEL {
 	/**
 	 * 生成邀请
 	 */
-	public function add(&$oUser, $oSchema) {
+	public function add(&$oUser, $oSchema, $options = null) {
 		$code = $this->_genCode();
 
 		$q = [
@@ -60,10 +60,11 @@ class memberinvite_model extends \TMS_MODEL {
 		$oInvite->schema_id = $oSchema->id;
 		$oInvite->code = $code;
 		$oInvite->create_at = $current;
-		$oInvite->expire_at = 0;
-		$oInvite->max_count = 1;
+		$oInvite->expire_at = isset($options->expire_at) ? $options->expire_at : 0;
+		$oInvite->max_count = isset($options->max_count) ? $options->max_count : 0;
 		$oInvite->use_count = 0;
 		$oInvite->stop = 'N';
+		$oInvite->state = 1;
 
 		$oInvite->id = $this->insert('xxt_site_member_invite', $oInvite, true);
 

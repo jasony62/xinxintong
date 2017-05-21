@@ -21,7 +21,9 @@ ngMod.service('http2', ['$rootScope', '$http', '$timeout', '$q', '$sce', '$compi
     }
 
     function removeAlert(alertDomEl) {
-        document.body.removeChild(alertDomEl);
+        if (alertDomEl) {
+            document.body.removeChild(alertDomEl);
+        }
     }
 
     this.get = function(url, options) {
@@ -45,8 +47,10 @@ ngMod.service('http2', ['$rootScope', '$http', '$timeout', '$q', '$sce', '$compi
         $http.get(url, options).success(function(rsp) {
             if (options.showProgress === true) {
                 _timer && $timeout.cancel(_timer);
-                removeAlert(_alert);
-                _alert = null;
+                if (_alert) {
+                    removeAlert(_alert);
+                    _alert = null;
+                }
             }
             if (angular.isString(rsp)) {
                 if (options.autoNotice) {
@@ -64,7 +68,10 @@ ngMod.service('http2', ['$rootScope', '$http', '$timeout', '$q', '$sce', '$compi
         }).error(function(data, status) {
             if (options.showProgress === true) {
                 _timer && $timeout.cancel(_timer);
-                //noticebox.close();
+                if (_alert) {
+                    removeAlert(_alert);
+                    _alert = null;
+                }
             }
             createAlert(data === null ? '网络不可用' : data, 'danger');
         });
@@ -91,7 +98,10 @@ ngMod.service('http2', ['$rootScope', '$http', '$timeout', '$q', '$sce', '$compi
         $http.post(url, posted, options).success(function(rsp) {
             if (options.showProgress === true) {
                 _timer && $timeout.cancel(_timer);
-                removeAlert(_alert);
+                if (_alert) {
+                    removeAlert(_alert);
+                    _alert = null;
+                }
             }
             if (angular.isString(rsp)) {
                 if (options.autoNotice) {
@@ -110,7 +120,10 @@ ngMod.service('http2', ['$rootScope', '$http', '$timeout', '$q', '$sce', '$compi
         }).error(function(data, status) {
             if (options.showProgress === true) {
                 _timer && $timeout.cancel(_timer);
-                //noticebox.close();
+                if (_alert) {
+                    removeAlert(_alert);
+                    _alert = null;
+                }
             }
             createAlert(data === null ? '网络不可用' : data, 'danger');
         });

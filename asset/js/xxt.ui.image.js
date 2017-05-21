@@ -54,12 +54,15 @@ window.xxt.image = {
                             var img = {};
                             img.imgSrc = e.target.result.replace(/^.+(,)/, "data:" + theFile.type2 + ";base64,");
                             imgs.push(img);
+                            document.body.removeChild(ele);
                             deferred.resolve(imgs);
                         };
                     })(f);
                     reader.readAsDataURL(f);
                 }
             }, false);
+            ele.style.opacity = 0;
+            document.body.appendChild(ele);
             ele.click();
         }
         return promise;

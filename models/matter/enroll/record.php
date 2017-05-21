@@ -343,6 +343,33 @@ class record_model extends \TMS_MODEL {
 		return [true, $dbData];
 	}
 	/**
+	 * 保存登记的数据
+	 *
+	 * @param object $oUser [uid]
+	 * @param object $oApp
+	 * @param string $ek
+	 * @param array $submitSupp 用户提交的补充说明
+	 */
+	public function setSupplement($oUser, &$oApp, $ek, $submitSupp) {
+		/*record*/
+		$rst = $this->update(
+			'xxt_enroll_record',
+			['supplement' => $this->escape($this->toJson($submitSupp))],
+			['enroll_key' => $ek, 'state' => 1]
+		);
+
+		/*record data*/
+		foreach ($submitSupp as $schemaId => $sSupplement) {
+			$rst = $this->update(
+				'xxt_enroll_record_data',
+				['supplement' => $this->escape($sSupplement)],
+				['enroll_key' => $ek, 'schema_id' => $schemaId, 'state' => 1]
+			);
+		}
+
+		return $rst;
+	}
+	/**
 	 * 根据ID返回登记记录
 	 */
 	public function &byId($ek, $options = []) {

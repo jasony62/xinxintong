@@ -395,7 +395,7 @@ define([], function() {
                     }
                 } else if (/single|phase/.test(schema.type)) {
                     (function(lib) {
-                        var html;
+                        var html, $supplement;
                         if (schema.ops && schema.ops.length > 0) {
                             $dom.children('ul,select').remove();
                             if (config.component === 'R') {
@@ -406,14 +406,36 @@ define([], function() {
                                 $dom.append(html);
                             }
                         }
+                        if (schema.supplement === 'Y') {
+                            $supplement = $dom.find('.supplement');
+                            if ($supplement.length === 0) {
+                                $dom.append('<textarea style="height: auto;" placeholder="补充说明" rows=3 class="form-control input-lg supplement" ng-model="supplement.' + schema.id + '"></textarea>');
+                            }
+                        } else {
+                            $supplement = $dom.find('.supplement');
+                            if ($supplement.length) {
+                                $supplement.remove();
+                            }
+                        }
                     })(this);
                 } else if ('multiple' === schema.type) {
                     (function(lib) {
-                        var html;
+                        var html, $supplement;
                         if (schema.ops && schema.ops.length > 0) {
                             html = lib._htmlMultiple(dataWrap);
                             $dom.children('ul').remove();
                             $dom.append(html);
+                        }
+                        if (schema.supplement === 'Y') {
+                            $supplement = $dom.find('.supplement');
+                            if ($supplement.length === 0) {
+                                $dom.append('<textarea style="height: auto;" placeholder="补充说明" rows=3 class="form-control input-lg supplement" ng-model="supplement.' + schema.id + '"></textarea>');
+                            }
+                        } else {
+                            $supplement = $dom.find('.supplement');
+                            if ($supplement.length) {
+                                $supplement.remove();
+                            }
                         }
                     })(this);
                 } else if ('score' === schema.type) {
@@ -428,18 +450,40 @@ define([], function() {
                 } else if (/image/.test(schema.type)) {
                     (function(lib) {
                         var $button = $dom.find('li.img-picker button'),
-                            sNgClick;
+                            sNgClick, $supplement;
 
                         sNgClick = 'chooseImage(' + "'" + schema.id + "'," + schema.count + ')';
                         $button.attr('ng-click', sNgClick);
+                        if (schema.supplement === 'Y') {
+                            $supplement = $dom.find('.supplement');
+                            if ($supplement.length === 0) {
+                                $dom.append('<textarea style="height: auto;" placeholder="补充说明" rows=3 class="form-control input-lg supplement" ng-model="supplement.' + schema.id + '"></textarea>');
+                            }
+                        } else {
+                            $supplement = $dom.find('.supplement');
+                            if ($supplement.length) {
+                                $supplement.remove();
+                            }
+                        }
                     })(this);
                 } else if (/file/.test(schema.type)) {
                     (function(lib) {
                         var $button = $dom.find('li.file-picker button'),
-                            sNgClick;
+                            sNgClick, $supplement;
 
                         sNgClick = 'chooseFile(' + "'" + schema.id + "'," + schema.count + ')';
                         $button.attr('ng-click', sNgClick).html(schema.title);
+                        if (schema.supplement === 'Y') {
+                            $supplement = $dom.find('.supplement');
+                            if ($supplement.length === 0) {
+                                $dom.append('<textarea style="height: auto;" placeholder="补充说明" rows=3 class="form-control input-lg supplement" ng-model="supplement.' + schema.id + '"></textarea>');
+                            }
+                        } else {
+                            $supplement = $dom.find('.supplement');
+                            if ($supplement.length) {
+                                $supplement.remove();
+                            }
+                        }
                     })(this);
                 }
             }

@@ -28,14 +28,12 @@
                 <li ng-class="{'active':frameState.scope==='recent'}"><a href='' ng-click="changeScope('recent')">最近</a></li>
                 <hr />
                 <li ng-class="{'active':frameState.scope==='site'}"><a href='' ng-click="changeScope('site')">团队</a></li>
+                <li ng-class="{'active':frameState.scope==='siteuser'}"><a href='' ng-click="changeScope('siteuser')">用户</a></li>
+                <hr />
                 <li ng-class="{'active':frameState.scope==='mission'}"><a href='' ng-click="changeScope('mission')">项目</a></li>
                 <li ng-class="{'active':frameState.scope==='activity'}"><a href='' ng-click="changeScope('activity')">活动</a></li>
                 <li ng-class="{'active':frameState.scope==='info'}"><a href='' ng-click="changeScope('info')">资料</a></li>
-                <hr />
-                <li ng-class="{'active':frameState.scope==='siteuser'}"><a href='' ng-click="changeScope('siteuser')">用户</a></li>
-                <hr />
                 <li ng-class="{'active':frameState.scope==='recycle'}"><a href='' ng-click="changeScope('recycle')">回收站</a></li>
-                <li ng-if="frameState.sid!=''"><a href="" ng-click='load(frameState.sid)'>设置团队</a></li>
                 <hr />
                 <li><a href="" uib-popover-template="'addMatter.html'" popover-placement="right" popover-append-to-body='true' popover-trigger="outsideClick"><span class='glyphicon glyphicon-plus'></span> 新建</a></li>
             </ul>
@@ -59,10 +57,15 @@
                         </button>
                     </div>
                     <form class='navbar-form navbar-left'>
-                        <select class='form-control' title='团队列表' ng-model="frameState.sid">
-                            <option value=''>全部团队</option>
-                            <option value="{{site.id}}" ng-repeat="site in sites">{{site.name}}</option>
-                        </select>
+                        <div class='input-group'>
+                            <select class='form-control' title='团队列表' ng-model="frameState.sid">
+                                <option value=''>全部团队</option>
+                                <option value="{{site.id}}" ng-repeat="site in sites">{{site.name}}</option>
+                            </select>
+                            <span class='input-group-btn' ng-if="frameState.sid">
+                                <button class='btn btn-default' ng-click='load(frameState.sid)'><span class='glyphicon glyphicon-cog'></span> 设置</button>
+                            </span>
+                        </div>
                     </form>
                     <ul class='nav navbar-nav'>
                         <li ng-class="{'active':frameState.view==='main'}">

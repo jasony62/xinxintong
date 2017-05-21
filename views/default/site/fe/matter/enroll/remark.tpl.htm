@@ -9,18 +9,18 @@
         <?php TPL::pt('title');?>
     </title>
     <link href="/static/css/bootstrap.min.css" rel="stylesheet">
-    <link href='/static/css/site.fe.css?_=1' rel="stylesheet">
+    <link href='/static/css/site.fe.css?_=2' rel="stylesheet">
 </head>
 
 <body>
     <header ng-if="app.use_site_header==='Y'" dynamic-html="site.header_page.html"></header>
     <header ng-if="app.use_mission_header==='Y'" dynamic-html="mission.header_page.html"></header>
     <div ng-cloak class='ng-cloak app'>
-        <div id='errmsg' class='alert alert-danger' ng-class="{'active':errmsg}" ng-click="errmsg=''" ng-bind='errmsg'></div>
         <div class='container' ng-controller="ctrlRemark">
-            <div id='recordData' class="bg-info">
-                <blockquote>
-                    <p>{{record.data[schemaId]}}</p>
+            <div id='recordData'>
+                <blockquote ng-switch on="schema.type">
+                    <p ng-switch-when="image"><img ng-src="{{record.data[schemaId]}}"></p>
+                    <p ng-switch-default>{{record.data[schemaId]}}</p>
                     <footer>{{record.nickname}}</footer>
                 </blockquote>
                 <div class='bottom-bar'>

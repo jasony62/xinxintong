@@ -5,12 +5,17 @@ define(['frame'], function(ngApp) {
             new ZeroClipboard(document.querySelectorAll('.text2Clipboard'));
         });
         srvEnrollApp.get().then(function(app) {
-            var entry;
-            entry = {
+            var oEntry;
+            oEntry = {
                 url: app.entryUrl,
                 qrcode: '/rest/site/fe/matter/enroll/qrcode?site=' + app.siteid + '&url=' + encodeURIComponent(app.entryUrl),
+                pages: []
             };
-            $scope.entry = entry;
+            $scope.entry = oEntry;
+            app.pages.forEach(function(oPage) {
+                oEntry.pages.push(oPage);
+            });
+            oEntry.pages.push({ name: 'repos', 'title': '所有数据页' });
         });
         $scope.setPic = function() {
             var options = {

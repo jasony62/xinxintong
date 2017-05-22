@@ -21,6 +21,7 @@
                 <blockquote ng-switch on="schema.type">
                     <p ng-switch-when="image"><img ng-src="{{record.data[schemaId]}}"></p>
                     <p ng-switch-default>{{record.data[schemaId]}}</p>
+                    <p ng-if="schema.supplement==='Y'" class='supplement'>{{record.supplement[schemaId]}}</p>
                     <footer>{{record.nickname}}</footer>
                 </blockquote>
                 <div class='bottom-bar'>

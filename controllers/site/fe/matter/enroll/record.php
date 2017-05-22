@@ -51,7 +51,12 @@ class record extends base {
 		// 当前访问用户的基本信息
 		$oUser = $this->who;
 		// 提交的数据
-		$enrolledData = $this->getPostJson();
+		$posted = $this->getPostJson();
+		if (isset($posted->data)) {
+			$enrolledData = $posted->data;
+		} else {
+			$enrolledData = $posted;
+		}
 		// 检查是否允许登记
 		$rst = $this->_canEnroll($site, $oEnrollApp, $oUser, $enrolledData, $ek);
 		if ($rst[0] === false) {
@@ -161,6 +166,12 @@ class record extends base {
 		}
 		if (false === $rst[0]) {
 			return new \ResponseError($rst[1]);
+		}
+		/**
+		 * 提交补充说明
+		 */
+		if (isset($posted->supplement) && count(get_object_vars($posted->supplement))) {
+			$rst = $modelRec->setSupplement($oUser, $oEnrollApp, $ek, $posted->supplement);
 		}
 		if (isset($matchedRecord)) {
 			$updatedEnrollRec['matched_enroll_key'] = $matchedRecord->enroll_key;

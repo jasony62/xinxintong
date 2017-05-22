@@ -119,7 +119,7 @@ ngApp.factory('Input', ['$http', '$q', '$timeout', 'ls', function($http, $q, $ti
         }
         return true;
     };
-    Input.prototype.submit = function(data, ek) {
+    Input.prototype.submit = function(ek, data, oSupplement) {
         var defer, url, d, d2, posted;
         defer = $q.defer();
         posted = angular.copy(data);
@@ -137,7 +137,7 @@ ngApp.factory('Input', ['$http', '$q', '$timeout', 'ls', function($http, $q, $ti
                 }
             }
         }
-        $http.post(url, posted).success(function(rsp) {
+        $http.post(url, { data: posted, supplement: oSupplement }).success(function(rsp) {
             if (typeof rsp === 'string') {
                 defer.reject(rsp);
             } else if (rsp.err_code != 0) {
@@ -394,7 +394,7 @@ ngApp.controller('ctrlInput', ['$scope', '$http', '$q', '$uibModal', '$timeout',
     function doSubmit(nextAction) {
         var ek, submitData;
         ek = $scope.record ? $scope.record.enroll_key : undefined;
-        facInput.submit($scope.data, ek).then(function(rsp) {
+        facInput.submit(ek, $scope.data, $scope.supplement).then(function(rsp) {
             var url;
             submitState.finish();
             if (nextAction === 'closeWindow') {
@@ -432,6 +432,7 @@ ngApp.controller('ctrlInput', ['$scope', '$http', '$q', '$uibModal', '$timeout',
     $scope.data = {
         member: {},
     };
+    $scope.supplement = {};
     $scope.submitState = submitState = {
         modified: false,
         state: 'waiting',
@@ -583,6 +584,7 @@ ngApp.controller('ctrlInput', ['$scope', '$http', '$q', '$uibModal', '$timeout',
         }
     });
     $scope.submit = function(event, nextAction) {
+        console.log($scope.supplement);
         var checkResult;
         if (!submitState.isRunning()) {
             submitState.start(event);

@@ -9,14 +9,13 @@
         <?php TPL::pt('title');?>
     </title>
     <link href="/static/css/bootstrap.min.css" rel="stylesheet">
-    <link href='/static/css/site.fe.css?_=1' rel="stylesheet">
+    <link href='/static/css/site.fe.css?_=2' rel="stylesheet">
 </head>
 
 <body>
     <header ng-if="app.use_site_header==='Y'" dynamic-html="site.header_page.html"></header>
     <header ng-if="app.use_mission_header==='Y'" dynamic-html="mission.header_page.html"></header>
     <div ng-cloak class='ng-cloak app' ng-controller="ctrlRepos">
-        <div id='errmsg' class='alert alert-danger' ng-class="{'active':errmsg}" ng-click="errmsg=''" ng-bind='errmsg'></div>
         <div class='container'>
             <div class='form-group'>
                 <div id='filterCriteria' class='input-group'>
@@ -57,8 +56,9 @@
                             <span ng-if="rec.agreed==='Y'" class="label label-success">推荐</span>
                             <span ng-if="rec.agreed==='N'" class="label label-danger">屏蔽</span>
                         </div>
-                        <blockquote>
-                            <p>{{rec.value}}</p>
+                        <blockquote ng-switch on="schemas[rec.schema_id].type">
+                            <p ng-switch-when="image"><img ng-src="{{rec.value}}"></p>
+                            <p ng-switch-default>{{rec.value}}</p>
                             <footer>{{rec.nickname||'匿名用户'}}</footer>
                         </blockquote>
                         <div class='bottom-bar'>

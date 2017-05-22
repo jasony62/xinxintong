@@ -15,10 +15,10 @@ class report extends \site\op\base {
 			die('没有获得有效访问令牌！');
 		}
 
-		$app = $this->model('matter\enroll')->byId($app, ['cascaded' => 'N']);
+		$oApp = $this->model('matter\enroll')->byId($app, ['cascaded' => 'N']);
 
-		\TPL::assign('title', $app->title);
-		\TPL::output('/site/op/matter/enroll/report');
+		\TPL::assign('title', $oApp->title);
+		\TPL::output('/site/op/matter/enroll/console');
 		exit;
 	}
 	/**
@@ -54,7 +54,7 @@ class report extends \site\op\base {
 				if ($rid !== 'ALL' && !empty($rid)) {
 					$q[2] .= " and rid = '$rid'";
 				}
-				
+
 				$newCnt = (int) $model->query_val_ss($q);
 			} else {
 				$newCnt = 999;
@@ -133,7 +133,7 @@ class report extends \site\op\base {
 
 		$app = $this->model('matter\enroll')->byId($app, ['cascaded' => 'N']);
 
-		if(empty($rid)) {
+		if (empty($rid)) {
 			if ($activeRound = $this->model('matter\enroll\round')->getActive($app)) {
 				$rid = $activeRound->rid;
 			}

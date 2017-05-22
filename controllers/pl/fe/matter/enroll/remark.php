@@ -168,5 +168,4 @@ class remark extends \pl\fe\matter\base {
 
 		return new \ResponseData($rst);
 	}
-
 }

@@ -5,9 +5,41 @@ namespace site\user;
  */
 class memberinvite_model extends \TMS_MODEL {
 	/**
+	 *
+	 */
+	public function byId($id, $options = []) {
+		$fields = isset($options['fields']) ? $options['fields'] : '*';
+		$result = new \stdClass;
+		$q = [
+			$fields,
+			'xxt_site_member_invite',
+			['id' => $id],
+		];
+		$oInvite = $this->query_obj_ss($q);
+
+		return $oInvite;
+	}
+	/**
+	 *
+	 */
+	public function bySchema($oSchema, $options = []) {
+		$fields = isset($options['fields']) ? $options['fields'] : '*';
+		$result = new \stdClass;
+		$q = [
+			$fields,
+			'xxt_site_member_invite',
+			['schema_id' => $oSchema->id, 'state' => 1],
+		];
+		$aInvites = $this->query_objs_ss($q);
+
+		$result->invites = $aInvites;
+
+		return $result;
+	}
+	/**
 	 * 生成邀请
 	 */
-	public function add(&$oUser, $oSchema) {
+	public function add(&$oUser, $oSchema, $options = null) {
 		$code = $this->_genCode();
 
 		$q = [
@@ -28,10 +60,11 @@ class memberinvite_model extends \TMS_MODEL {
 		$oInvite->schema_id = $oSchema->id;
 		$oInvite->code = $code;
 		$oInvite->create_at = $current;
-		$oInvite->expire_at = $current;
-		$oInvite->max_count = 1;
+		$oInvite->expire_at = isset($options->expire_at) ? $options->expire_at : 0;
+		$oInvite->max_count = isset($options->max_count) ? $options->max_count : 0;
 		$oInvite->use_count = 0;
 		$oInvite->stop = 'N';
+		$oInvite->state = 1;
 
 		$oInvite->id = $this->insert('xxt_site_member_invite', $oInvite, true);
 

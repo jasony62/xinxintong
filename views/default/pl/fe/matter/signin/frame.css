@@ -48,8 +48,7 @@ body{padding-top:71px;}
 .page-editor .mce-tinymce .mce-menubtn.mce-fixed-width span{width:auto;}
 
 /*record-view*/
-#record-view{position:absolute;top:71px;bottom:0;left:30px;right:30px;}
-#record-view table img{max-width:96px;}
+#signinRecords table img{max-width:96px;}
 #signinRecords th{text-align:center;}
 #signinRecords th.enroll{background:yellow;}
 #signinRecords td span.signin_late{color:red;}

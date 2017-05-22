@@ -12,10 +12,10 @@ class main extends \site\op\base {
 	public function index_action($app) {
 		if (!$this->checkAccessToken()) {
 			header('HTTP/1.0 500 parameter error:accessToken is invalid.');
-			die('没有获得有效访问令牌！');
+			die('提供的令牌无效，或者令牌已经过期！');
 		}
-		$app = $this->model('matter\enroll')->byId($app);
-		\TPL::assign('title', $app->title);
+		$oApp = $this->model('matter\enroll')->byId($app);
+		\TPL::assign('title', $oApp->title);
 		\TPL::output('site/op/matter/enroll/console');
 		exit;
 	}

@@ -385,6 +385,9 @@ class record_model extends \TMS_MODEL {
 			if ($fields === '*' || false !== strpos($fields, 'data')) {
 				$oRecord->data = json_decode($oRecord->data);
 			}
+			if ($fields === '*' || false !== strpos($fields, 'supplement')) {
+				$oRecord->supplement = json_decode($oRecord->supplement);
+			}
 			if ($fields === '*' || false !== strpos($fields, 'score')) {
 				$oRecord->score = json_decode($oRecord->score);
 			}
@@ -1115,6 +1118,7 @@ class record_model extends \TMS_MODEL {
 		$record = count($records) === 1 ? $records[0] : false;
 		if ($record) {
 			$record->data = json_decode($record->data);
+			$record->supplement = json_decode($record->supplement);
 		}
 
 		return $record;

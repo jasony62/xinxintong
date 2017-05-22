@@ -731,7 +731,8 @@ define([], function() {
     ValueWrap.prototype.modify = function(domWrap, oWrap, beforeSchema) {
         var config = oWrap.config,
             schema = oWrap.schema,
-            $dom = $(domWrap);
+            $dom = $(domWrap),
+            $supplement;
 
         if (beforeSchema && schema.type !== beforeSchema.type) {
             $dom.html(this.embed(oWrap).html);
@@ -743,6 +744,17 @@ define([], function() {
             }
             config.inline === 'Y' ? $dom.addClass('wrap-inline') : $dom.removeClass('wrap-inline');
             config.splitLine === 'Y' ? $dom.addClass('wrap-splitline') : $dom.removeClass('wrap-splitline');
+        }
+        if (schema.supplement === 'Y') {
+            $supplement = $dom.find('.supplement');
+            if ($supplement.length === 0) {
+                $dom.append('<p class="supplement" ng-bind="Record.current.supplement.' + schema.id + '"></p>');
+            }
+        } else {
+            $supplement = $dom.find('.supplement');
+            if ($supplement.length) {
+                $supplement.remove();
+            }
         }
     };
     ValueWrap.prototype.dataByDom = function(domWrap, page) {

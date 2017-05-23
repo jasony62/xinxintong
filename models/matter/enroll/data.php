@@ -7,7 +7,7 @@ class data_model extends \TMS_MODEL {
 	/**
 	 * 缺省返回的列
 	 */
-	const DEFAULT_FIELDS = 'id,value,enroll_key,schema_id,userid,submit_at,score,remark_num,last_remark_at,like_num,like_log,modify_log,agreed';
+	const DEFAULT_FIELDS = 'id,value,supplement,enroll_key,schema_id,userid,submit_at,score,remark_num,last_remark_at,like_num,like_log,modify_log,agreed';
 	/**
 	 * 获得指定登记记录登记数据的详细信息
 	 */
@@ -135,6 +135,10 @@ class data_model extends \TMS_MODEL {
 			if ($activeRound = $this->model('matter\enroll\round')->getActive($oApp)) {
 				$q[2] .= " and rid='{$activeRound->rid}'";
 			}
+		}
+		/* 限制管理员态度 */
+		if (!empty($options->agreed) && $options->agreed === 'Y') {
+			$q[2] .= " and agreed='Y'";
 		}
 		/* 限制填写用户 */
 		if (!empty($options->owner) && strcasecmp($options->owner, 'all') !== 0) {

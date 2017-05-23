@@ -28,7 +28,7 @@ class player_model extends \TMS_MODEL {
 			'siteid' => $siteId,
 			'enroll_key' => $ek,
 			'userid' => $user->uid,
-			'nickname' => $user->nickname,
+			'nickname' => $this->escape($user->nickname),
 			'wx_openid' => $user->wx_openid,
 			'yx_openid' => $user->yx_openid,
 			'qy_openid' => $user->qy_openid,

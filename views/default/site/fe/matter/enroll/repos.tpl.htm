@@ -34,6 +34,12 @@
                                 </select>
                             </div>
                             <div class='form-group'>
+                                <select class='form-control' ng-model="criteria.agreed" ng-change="shiftAgreed()" size=2>
+                                    <option value=''>全部状态</option>
+                                    <option value='Y'>推荐</option>
+                                </select>
+                            </div>
+                            <div class='form-group'>
                                 <select class='form-control' ng-model="criteria.owner" ng-change="shiftOwner()" size=2>
                                     <option value='all'>全部用户</option>
                                     <option value='{{params.user.uid}}'>我的</option>
@@ -59,6 +65,7 @@
                         <blockquote ng-switch on="schemas[rec.schema_id].type">
                             <p ng-switch-when="image"><img ng-src="{{rec.value}}"></p>
                             <p ng-switch-default>{{rec.value}}</p>
+                            <p ng-if="schemas[rec.schema_id].supplement==='Y'" class='supplement'>{{rec.supplement}}</p>
                             <footer>{{rec.nickname||'匿名用户'}}</footer>
                         </blockquote>
                         <div class='bottom-bar'>
@@ -68,14 +75,14 @@
                         </div>
                     </div>
                 </div>
-                <div class='form-inline'>
+                <div>
                     <span>总数：{{page.total}}</span>
-                    <ul uib-pagination style="margin:0;vertical-align:bottom;cursor:pointer" ng-show="page.total>page.size" boundary-links="true" total-items="page.total" max-size="5" items-per-page="page.size" rotate="false" ng-model="page.at" previous-text="&lsaquo;" next-text="&rsaquo;" first-text="&laquo;" last-text="&raquo;" ng-change="list4Schema()"></ul>
+                    <ul uib-pagination style='margin:0 0 0 2rem;vertical-align:middle;cursor:pointer' ng-show="page.total>page.size" boundary-links="true" total-items="page.total" max-size="5" items-per-page="page.size" rotate="false" ng-model="page.at" previous-text="&lsaquo;" next-text="&rsaquo;" first-text="&laquo;" last-text="&raquo;" ng-change="list4Schema()"></ul>
                 </div>
             </div>
         </div>
         <div id='reposActions' class='form-inline text-center'>
-            <button class='btn btn-default' ng-click="addRecord($event,'enroll')">&nbsp;&nbsp;<span class='glyphicon glyphicon-plus'></span>&nbsp;&nbsp;</button>
+            <button class='btn btn-default btn-lg' ng-click="addRecord($event,'enroll')">&nbsp;&nbsp;<span class='glyphicon glyphicon-plus'></span>&nbsp;&nbsp;</button>
         </div>
     </div>
     <footer ng-if="app.use_mission_footer==='Y'" dynamic-html="mission.footer_page.html"></footer>

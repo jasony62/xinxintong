@@ -44,7 +44,7 @@ ngApp.controller('ctrlRepos', ['$scope', 'http2', 'Round', function($scope, http
     $scope.page = page = { at: 1, size: 12 };
     $scope.criteria = criteria = { owner: 'all' };
     $scope.schemas = schemas = {};
-    $scope.repos = {};
+    $scope.repos = [];
     $scope.clickAdvCriteria = function(event) {
         event.preventDefault();
         event.stopPropagation();
@@ -79,6 +79,9 @@ ngApp.controller('ctrlRepos', ['$scope', 'http2', 'Round', function($scope, http
         } else {
             $scope.list4Schema();
         }
+    };
+    $scope.shiftAgreed = function() {
+        $scope.list4Schema();
     };
     $scope.shiftOwner = function() {
         $scope.list4Schema();

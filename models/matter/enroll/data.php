@@ -136,6 +136,10 @@ class data_model extends \TMS_MODEL {
 				$q[2] .= " and rid='{$activeRound->rid}'";
 			}
 		}
+		/* 限制管理员态度 */
+		if (!empty($options->agreed) && $options->agreed === 'Y') {
+			$q[2] .= " and agreed='Y'";
+		}
 		/* 限制填写用户 */
 		if (!empty($options->owner) && strcasecmp($options->owner, 'all') !== 0) {
 			$q[2] .= " and userid='{$options->owner}'";

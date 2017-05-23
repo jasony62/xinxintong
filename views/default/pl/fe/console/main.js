@@ -269,7 +269,11 @@ define(['frame'], function(ngApp) {
                     url2 = '/rest/pl/fe/matter/' + filter.byType + '/list?site=' + filter.bySite + '&' + page.j() + '&_=' + t;
                 }
                 http2.post(url2, { byTitle: filter.byTitle }, function(rsp) {
-                    $scope.matters = rsp.data.apps || rsp.data;
+                    if (rsp.data.apps === null) {
+                        $scope.matters = [];
+                    } else {
+                        $scope.matters = rsp.data.apps || rsp.data;
+                    }
                     $scope.page.total = rsp.data.total;
                 });
             }

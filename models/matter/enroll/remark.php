@@ -38,6 +38,9 @@ class remark_model extends \TMS_MODEL {
 		if (!empty($oUser->uid)) {
 			$q[2] .= " and (agreed<>'N' or userid='{$oUser->uid}')";
 		}
+		if (isset($options['agreed']) && $options['agreed'] === 'Y') {
+			$q[2] .= " and agreed='Y'";
+		}
 		$q2 = ['r' => ['o' => ($page - 1) * $size, 'l' => $size]];
 		$aRemarks = $this->query_objs_ss($q, $q2);
 		if (count($aRemarks)) {

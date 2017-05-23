@@ -1,6 +1,10 @@
 html,body{height:100%;width:100%;background:#efefef;font-family:Microsoft Yahei,Arial;}
 body{position:relative;font-size:16px;}
 img{max-width:100%}
+.glyphicon-heart{color:red;}
+.bottom-bar{display:flex;}
+.bottom-bar .datetime{color:#777;flex:1;line-height:30px;font-size:.8em;}
+p{word-break:break-all;}
 
 /*record*/
 #recordData{padding:1rem;background:#eee;}
@@ -11,5 +15,3 @@ img{max-width:100%}
 #remarks .remark{border-bottom:1px solid #ddd;}
 #remarks .remark:last-child{border-bottom:0;}
 #remarks .remark>*{margin:1em 0;}
-#remarks .remark .bottom-bar{display:flex;}
-#remarks .remark .bottom-bar .datetime{color:#777;flex:1;line-height:30px;font-size:.8em;}

@@ -503,7 +503,7 @@ define(['frame'], function(ngApp) {
                 templateUrl: 'inviteEditor.html',
                 backdrop: 'static',
                 controller: ['$uibModalInstance', '$scope', function($mi, $scope2) {
-                    $scope2.option = { max_count: oInvite.max_count };
+                    $scope2.option = { max_count: oInvite.max_count, expire_at: oInvite.expire_at };
                     $scope2.cancel = function() {
                         $mi.dismiss();
                     };

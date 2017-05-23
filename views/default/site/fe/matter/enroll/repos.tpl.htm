@@ -62,7 +62,7 @@
                             <span ng-if="rec.agreed==='Y'" class="label label-success">推荐</span>
                             <span ng-if="rec.agreed==='N'" class="label label-danger">屏蔽</span>
                         </div>
-                        <blockquote ng-switch on="schemas[rec.schema_id].type">
+                        <blockquote ng-switch on="schemas[rec.schema_id].type" ng-click="gotoRemark(rec)">
                             <p ng-switch-when="image"><img ng-src="{{rec.value}}"></p>
                             <p ng-switch-default>{{rec.value}}</p>
                             <p ng-if="schemas[rec.schema_id].supplement==='Y'" class='supplement'>{{rec.supplement}}</p>
@@ -72,6 +72,17 @@
                             <div class='datetime text-muted'>{{rec.submit_at*1000|date:'MM-dd HH:mm'}}</div>
                             <button class='btn btn-default btn-sm' ng-click="likeRecordData(rec)"><span class='glyphicon' ng-class="{'glyphicon-heart':rec.like_log[user.uid],'glyphicon-heart-empty':!rec.like_log[user.uid]}"></span>&nbsp;<span ng-bind="rec.like_num"></span></button>&nbsp;&nbsp;
                             <button class='btn btn-default btn-sm' ng-click="gotoRemark(rec)"><span class='glyphicon glyphicon-comment'></span>&nbsp;<span ng-bind="rec.remark_num"></span></button>
+                        </div>
+                        <div class='remarks' ng-if="rec.agreedRemarks.remarks.length">
+                            <div class='remark' ng-repeat="remark in rec.agreedRemarks.remarks">
+                                <p ng-bind-html="remark.content"></p>
+                                <div class='bottom-bar text-muted'>
+                                    <div ng-bind-html="remark.nickname"></div>
+                                    <div>
+                                        <button class='btn btn-default btn-sm' ng-click="likeRemark(remark)"><span class='glyphicon' ng-class="{'glyphicon-heart':remark.like_log[user.uid],'glyphicon-heart-empty':!remark.like_log[user.uid]}"></span>&nbsp;<span ng-bind="remark.like_num"></span></button>
+                                    </div>
+                                </div>
+                            </div>
                         </div>
                     </div>
                 </div>

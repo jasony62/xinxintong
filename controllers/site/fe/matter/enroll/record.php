@@ -552,10 +552,9 @@ class record extends base {
 			return new \ObjectNotFoundError();
 		}
 
-		$oLikeLog = empty($oRecordData->like_log) ? new \stdClass : json_decode($oRecordData->like_log);
-
 		$oUser = $this->who;
 
+		$oLikeLog = $oRecordData->like_log;
 		if (isset($oLikeLog->{$oUser->uid})) {
 			unset($oLikeLog->{$oUser->uid});
 		} else {

@@ -20,16 +20,27 @@ class data_model extends \TMS_MODEL {
 			['enroll_key' => $ek, 'state' => 1],
 		];
 
+		if ($fields === '*' || false !== strpos($fields, 'like_log')) {
+			$fnHandler = function (&$oData) {
+				$oData->like_log = empty($oData->like_log) ? new \stdClass : json_decode($oData->like_log);
+			};
+		}
+
 		if (isset($options['schema'])) {
 			$q[2]['schema_id'] = $options['schema'];
 			$data = $this->query_obj_ss($q);
-
+			if (isset($fnHandler)) {
+				$fnHandler($data);
+			}
 			return $data;
 		} else {
 			$result = new \stdClass;
 			$data = $this->query_objs_ss($q);
 			if (count($data)) {
 				foreach ($data as $schemaData) {
+					if (isset($fnHandler)) {
+						$fnHandler($schemaData);
+					}
 					$schemaId = $schemaData->schema_id;
 					unset($schemaData->schema_id);
 					$result->{$schemaId} = $schemaData;
@@ -169,6 +180,10 @@ class data_model extends \TMS_MODEL {
 					$mapOfNicknames[$oRecord->userid] = $rec->nickname;
 				}
 				$oRecord->nickname = $mapOfNicknames[$oRecord->userid];
+				/* like log */
+				if ($oRecord->like_log) {
+					$oRecord->like_log = json_decode($oRecord->like_log);
+				}
 			}
 		}
 		$result->records = $aRecords;

@@ -252,7 +252,7 @@ class stat extends \pl\fe\matter\base {
 							}
 						}
 					} else {
-						$sumNumber++;
+						//$sumNumber++;
 					}
 
 					$cell_w1 = floor($a4_width / ($sumNumber + 2));
@@ -271,7 +271,7 @@ class stat extends \pl\fe\matter\base {
 							}
 						}
 					} else {
-						$table1->addCell($cell_w1, $fancyTableCellStyle)->addText('昵称', $firstStyle, $paragraphStyle);
+						//$table1->addCell($cell_w1, $fancyTableCellStyle)->addText('昵称', $firstStyle, $paragraphStyle);
 						//$sumNumber++;
 					}
 					$table1->addCell($cell_w1, $fancyTableCellStyle)->addText('登记内容', $firstStyle, $paragraphStyle);
@@ -309,7 +309,7 @@ class stat extends \pl\fe\matter\base {
 								}
 							}
 						} else {
-							$table1->addCell($cell_w1, $fancyTableCellStyle)->addText($record->nickname);
+							//$table1->addCell($cell_w1, $fancyTableCellStyle)->addText($record->nickname);
 						}
 						$schemaId = $schema->id;
 						if (isset($record->data->$schemaId)) {
@@ -492,6 +492,7 @@ class stat extends \pl\fe\matter\base {
 				$avgScore = round($totalScore / count($item['ops']), 2);
 				$table3->addRow(500);
 				$table3->addCell($cell_w3, $fancyTableCellStyle)->addText('本项平均分');
+				$table3->addCell($cell_w3, $fancyTableCellStyle)->addText('');
 				$table3->addCell($cell_w3, $fancyTableCellStyle)->addText($avgScore);
 				/*打分题汇总*/
 				$scoreSummary[] = ['l' => $schema->title, 'c' => $avgScore];

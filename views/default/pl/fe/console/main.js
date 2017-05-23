@@ -407,7 +407,7 @@ define(['frame'], function(ngApp) {
             if ($scope.frameState.sid) {
                 url = '/rest/pl/fe/site/member/schema/create?site=' + $scope.frameState.sid;
                 http2.post(url, { valid: 'Y' }, function(rsp) {
-                    location.href = 'http://localhost/rest/pl/fe/site/setting/mschema?site=' + $scope.frameState.sid;
+                    location.href = '/rest/pl/fe/site/mschema?site=' + $scope.frameState.sid + '#' + rsp.data.id;
                 });
             }
         };

@@ -22,13 +22,13 @@ define(['require'], function(require) {
             });
             return deferred.promise;
         }
-        MemberSchema.prototype.update = function(schema, updated) {
+        MemberSchema.prototype.update = function(oSchema, updated) {
             var deferred, url;
             deferred = $q.defer();
             url = this.baseUrl;
             url += 'update?site=' + this.siteId;
-            url += '&type=' + $scope.choosedSchema.type;
-            if ($scope.choosedSchema.id) url += '&id=' + $scope.choosedSchema.id;
+            url += '&type=' + oSchema.type;
+            if (oSchema.id) url += '&id=' + oSchema.id;
             http2.post(url, updated, function(rsp) {
                 deferred.resolve(rsp.data);
             });
@@ -36,7 +36,7 @@ define(['require'], function(require) {
         };
         return MemberSchema;
     });
-    ngApp.controller('ctrlMschema', ['$scope', 'srvSite', 'MemberSchema', function($scope, srvSite, MemberSchema) {
+    ngApp.controller('ctrlMschema', ['$scope', 'http2', 'srvSite', 'MemberSchema', function($scope, http2, srvSite, MemberSchema) {
         function shiftAttr(oSchema) {
             oSchema.attrs = {
                 mobile: oSchema.attr_mobile.split(''),
@@ -53,9 +53,16 @@ define(['require'], function(require) {
             $scope.site = site;
             service.memberSchema = new MemberSchema(site.id);
             service.memberSchema.get('N').then(function(schemas) {
+                var entryMschemaId, oEntryMschema;
+                if (location.hash) {
+                    entryMschemaId = location.hash.substr(1);
+                }
                 schemas.forEach(function(schema) {
                     shiftAttr(schema);
                     $scope.schemas.push(schema);
+                    if (schema.id = entryMschemaId) {
+                        oEntryMschema = schema;
+                    }
                 });
                 if ($scope.schemas.length === 0) {
                     $scope.schemas.push({
@@ -68,7 +75,9 @@ define(['require'], function(require) {
                         }
                     });
                 }
-                if (schemas.length) {
+                if (oEntryMschema) {
+                    $scope.chooseSchema(oEntryMschema);
+                } else if (schemas.length) {
                     $scope.chooseSchema(schemas[0]);
                 }
             });
@@ -111,28 +120,33 @@ define(['require'], function(require) {
             });
         };
         $scope.delSchema = function() {
-            var url = '/rest/pl/fe/site/member/schema/delete?site=' + $scope.site.id + '&id=' + $scope.choosedSchema.id;
+            var url, schema;
+            schema = $scope.choosedSchema;
+            url = '/rest/pl/fe/site/member/schema/delete?site=' + $scope.site.id + '&id=' + schema.id;
             http2.get(url, function(rsp) {
                 var i = $scope.schemas.indexOf(schema);
                 $scope.schemas.splice(i, 1);
+                $scope.choosedSchema = null;
             });
         };
         $scope.updQy = function(field) {
-            if ($scope.choosedSchema.qy_ab === 'Y') {
+            var schema = $scope.choosedSchema;
+            if (schema.qy_ab === 'Y') {
                 $scope.schemas.forEach(function(s) {
                     if (s !== schema && s.qy_ab === 'Y') {
-                        $scope.choosedSchema.qy_ab = 'N';
+                        schema.qy_ab = 'N';
                         alert('您已经定义了"企业号同步通信录使用",请先取消');
                         return;
                     }
                 })
-                $scope.choosedSchema.qy_ab === 'Y' && ($scope.updSchema(schema, field));
+                schema.qy_ab === 'Y' && ($scope.updSchema(schema, field));
             } else {
                 $scope.updSchema(field);
             }
         }
         $scope.updSchema = function(field) {
-            var pv = {};
+            var pv = {},
+                schema = $scope.choosedSchema;
             pv[field] = (/entry_statement|acl_statement|notpass_statement/.test(field)) ? encodeURIComponent(schema[field]) : schema[field];
             service.memberSchema.update($scope.choosedSchema, pv).then(function(data) {
                 if ($scope.choosedSchema.id === undefined) {

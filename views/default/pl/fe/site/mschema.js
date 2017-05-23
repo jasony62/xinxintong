@@ -60,7 +60,7 @@ define(['require'], function(require) {
                 schemas.forEach(function(schema) {
                     shiftAttr(schema);
                     $scope.schemas.push(schema);
-                    if (schema.id = entryMschemaId) {
+                    if (schema.id === entryMschemaId) {
                         oEntryMschema = schema;
                     }
                 });

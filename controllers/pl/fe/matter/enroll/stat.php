@@ -250,6 +250,8 @@ class stat extends \pl\fe\matter\base {
 									$sumNumber++;
 								}
 							}
+						}else{
+							$sumNumber++;
 						}
 					} else {
 						$sumNumber++;
@@ -269,6 +271,8 @@ class stat extends \pl\fe\matter\base {
 									//$sumNumber++;
 								}
 							}
+						}else{
+							$table1->addCell($cell_w1, $fancyTableCellStyle)->addText('昵称', $firstStyle, $paragraphStyle);
 						}
 					} else {
 						$table1->addCell($cell_w1, $fancyTableCellStyle)->addText('昵称', $firstStyle, $paragraphStyle);

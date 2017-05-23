@@ -514,7 +514,7 @@ class stat extends \pl\fe\matter\base {
 		$avgScoreSummary = 0; //所有打分题的平均分
 		if (count($scoreSummary)) {
 			$avgScoreSummary = round($totalScoreSummary / count($scoreSummary), 2);
-			$section->addText('打分项汇总', ['bold' => true, 'size' => 18]);
+			$section->addText('打分项汇总', ['bold' => true, 'size' => 18, 'color' => 'B6292B']);
 			$section->addTextBreak(1, null, null);
 			$phpWord->addTableStyle("four", $fancyTableStyle, $firstStyle);
 			$table4 = $section->addTable('four', $fancyTableStyle);

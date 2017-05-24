@@ -1,18 +1,17 @@
-.ng-cloak{display:none;}
 html,body{height:100%;width:100%;background:#efefef;font-family:Microsoft Yahei,Arial;}
 body{position:relative;font-size:16px;}
 img{max-width:100%}
-#errmsg{display:block;opacity:0;height:0;overflow:hidden;width:300px;position:fixed;top:0;left:50%;margin:0 0 0 -150px;text-align:center;transition:opacity 1s;z-index:-1;word-break:break-all}
-#errmsg.active{opacity:1;height:auto;z-index:999}
+.glyphicon-heart{color:red;}
+.bottom-bar{display:flex;}
+.bottom-bar .datetime{color:#777;flex:1;line-height:30px;font-size:.8em;}
+p{word-break:break-all;}
 
 /*record*/
-#recordData{padding:1rem;}
-#recordData blockquote{border-left:5px solid #337ab7;}
+#recordData{padding:1rem;background:#eee;}
+#recordData blockquote{border-left:5px solid #999;}
 
 /*remark*/
 #remarks{background:#fff;padding:1rem;margin-top:1rem;margin-bottom:15px;}
 #remarks .remark{border-bottom:1px solid #ddd;}
 #remarks .remark:last-child{border-bottom:0;}
 #remarks .remark>*{margin:1em 0;}
-#remarks .remark .bottom-bar{display:flex;}
-#remarks .remark .bottom-bar .datetime{color:#777;flex:1;line-height:30px;font-size:.8em;}

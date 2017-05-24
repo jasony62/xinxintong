@@ -55,7 +55,9 @@ class main extends base {
 				$oOpenPage = $this->model('matter\enroll\page')->byName($oApp->id, $page);
 			}
 			empty($oOpenPage) && $this->outputError('没有可访问的页面');
-			if ($oOpenPage->type === 'I') {
+			if ($oOpenPage->name === 'repos') {
+				\TPL::output('/site/fe/matter/enroll/repos');
+			} else if ($oOpenPage->type === 'I') {
 				\TPL::output('/site/fe/matter/enroll/input');
 			} else if ($oOpenPage->type === 'V') {
 				\TPL::output('/site/fe/matter/enroll/view');
@@ -284,7 +286,6 @@ class main extends base {
 					$modelRec->update('xxt_enroll_record', $updated, "enroll_key='$lastRecord->enroll_key'");
 				}
 			}
-
 			/* 计算打开哪个页面 */
 			if (empty($page)) {
 				$oOpenPage = $this->_defaultPage($oApp, false, $ignoretime);
@@ -295,22 +296,23 @@ class main extends base {
 			if (empty($oOpenPage)) {
 				return new \ResponseError('页面不存在');
 			}
-			$params['page'] = $oOpenPage;
-
-			/* 是否需要返回登记记录 */
-			if (($oOpenPage->type === 'I' && $newRecord !== 'Y') || $page === 'remark') {
-				if (empty($ek)) {
-					if ($oApp->open_lastroll === 'Y') {
-						/* 获得最后一条登记数据。记录有可能未进行过数据填写 */
-						$options = [
-							'fields' => '*',
-						];
-						$lastRecord = $modelRec->lastByUser($oApp, $oUser, $options);
-						$params['record'] = $lastRecord;
+			if ($oOpenPage->name !== 'repos') {
+				$params['page'] = $oOpenPage;
+				/* 是否需要返回登记记录 */
+				if (($oOpenPage->type === 'I' && $newRecord !== 'Y') || $page === 'remark') {
+					if (empty($ek)) {
+						if ($oApp->open_lastroll === 'Y') {
+							/* 获得最后一条登记数据。记录有可能未进行过数据填写 */
+							$options = [
+								'fields' => '*',
+							];
+							$lastRecord = $modelRec->lastByUser($oApp, $oUser, $options);
+							$params['record'] = $lastRecord;
+						}
+					} else {
+						$record = $modelRec->byId($ek);
+						$params['record'] = $record;
 					}
-				} else {
-					$record = $modelRec->byId($ek);
-					$params['record'] = $record;
 				}
 			}
 		} else if ($page === 'remark' && !empty($ek)) {

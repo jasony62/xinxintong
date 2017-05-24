@@ -53,12 +53,19 @@ class main extends \pl\fe\matter\base {
 		$model = $this->model('matter\signin');
 		if (empty($mission)) {
 			$site = $model->escape($site);
-			$result = $model->bySite($site, $page, $size, $onlySns);
+			$options = array();
+			if(!empty($post->byTitle)) {
+				$options['byTitle'] = $post->byTitle;
+			}
+			$result = $model->bySite($site, $page, $size, $onlySns, $options);
 		} else {
 			$options = [];
 			//按项目阶段筛选
 			if (isset($post->mission_phase_id) && !empty($post->mission_phase_id) && $post->mission_phase_id !== "ALL") {
 				$options['where']['mission_phase_id'] = $post->mission_phase_id;
+			}
+			if(!empty($post->byTitle)) {
+				$options['byTitle'] = $post->byTitle;
 			}
 			$result = $model->byMission($mission, $options, $page, $size);
 		}

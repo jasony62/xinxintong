@@ -18,14 +18,13 @@ window.loading = {
             paths: {
                 "domReady": '/static/js/domReady',
                 "angular": "/static/js/angular.min",
+                "angular-route": "/static/js/angular-route.min",
                 "angular-sanitize": '/static/js/angular-sanitize.min',
-                "angular-route": '/static/js/angular-route.min',
                 "ui-bootstrap": '/static/js/ui-bootstrap-tpls.min',
                 "highcharts": '/static/js/highcharts',
                 "highcharts-exporting": '/static/js/highcharts/exporting',
                 "ui-tms": '/static/js/ui-tms',
                 "ui-xxt": '/static/js/xxt.ui',
-                "util.site": "/views/default/site/util",
                 "service.matter": '/views/default/pl/fe/_module/matter.service',
                 "enrollService": '/views/default/pl/fe/matter/enroll/lib/enroll.service',
                 "page": '/views/default/pl/fe/matter/enroll/lib/page',
@@ -42,7 +41,7 @@ window.loading = {
                 }
             },
             urlArgs: function(id, url) {
-                if (/bootstrap|domReady|angular/.test(id)) {
+                if (/bootstrap|domReady|angular|highcharts/.test(id)) {
                     return '';
                 }
                 if (/xxt|tms/.test(id)) {

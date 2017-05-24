@@ -166,7 +166,7 @@ define(['frame', 'schema', 'wrap'], function(ngApp, schemaLib, wrapLib) {
         };
         $scope.updSchemaMultiple = function(activeSchema) {
             angular.forEach($scope.data, function(data, key) {
-                !$scope.activeSchema.answer && ($scope.activeSchema.answer=[]);
+                !$scope.activeSchema.answer && ($scope.activeSchema.answer = []);
                 var i = $scope.activeSchema.answer.indexOf(key);
                 //如果key 在answer中 data为false，则去掉
                 //    如果不在answer中，data为true ，则添加
@@ -288,9 +288,9 @@ define(['frame', 'schema', 'wrap'], function(ngApp, schemaLib, wrapLib) {
             });
         };
         var timerOfUpdate = null;
-        $scope.updSchema = function(schema, beforeState) {
-            $scope.app.pages.forEach(function(page) {
-                page.updateSchema(schema, beforeState);
+        $scope.updSchema = function(oSchema, oBeforeState) {
+            $scope.app.pages.forEach(function(oPage) {
+                oPage.updateSchema(oSchema, oBeforeState);
             });
             if (timerOfUpdate !== null) {
                 $timeout.cancel(timerOfUpdate);

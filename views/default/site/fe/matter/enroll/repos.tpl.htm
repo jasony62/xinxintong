@@ -9,14 +9,13 @@
         <?php TPL::pt('title');?>
     </title>
     <link href="/static/css/bootstrap.min.css" rel="stylesheet">
-    <link href='/static/css/site.fe.css?_=1' rel="stylesheet">
+    <link href='/static/css/site.fe.css?_=2' rel="stylesheet">
 </head>
 
 <body>
     <header ng-if="app.use_site_header==='Y'" dynamic-html="site.header_page.html"></header>
     <header ng-if="app.use_mission_header==='Y'" dynamic-html="mission.header_page.html"></header>
     <div ng-cloak class='ng-cloak app' ng-controller="ctrlRepos">
-        <div id='errmsg' class='alert alert-danger' ng-class="{'active':errmsg}" ng-click="errmsg=''" ng-bind='errmsg'></div>
         <div class='container'>
             <div class='form-group'>
                 <div id='filterCriteria' class='input-group'>
@@ -32,6 +31,12 @@
                                 <select class='form-control' ng-model='criteria.rid' ng-change="shiftRound()" size='6'>
                                     <option value='all'>全部轮次</option>
                                     <option value="{{rnd.rid}}" ng-repeat="rnd in rounds">{{rnd.title}}</option>
+                                </select>
+                            </div>
+                            <div class='form-group'>
+                                <select class='form-control' ng-model="criteria.agreed" ng-change="shiftAgreed()" size=2>
+                                    <option value=''>全部状态</option>
+                                    <option value='Y'>推荐</option>
                                 </select>
                             </div>
                             <div class='form-group'>
@@ -57,8 +62,10 @@
                             <span ng-if="rec.agreed==='Y'" class="label label-success">推荐</span>
                             <span ng-if="rec.agreed==='N'" class="label label-danger">屏蔽</span>
                         </div>
-                        <blockquote>
-                            <p>{{rec.value}}</p>
+                        <blockquote ng-switch on="schemas[rec.schema_id].type" ng-click="gotoRemark(rec)">
+                            <p ng-switch-when="image"><img ng-src="{{rec.value}}"></p>
+                            <p ng-switch-default>{{rec.value}}</p>
+                            <p ng-if="schemas[rec.schema_id].supplement==='Y'" class='supplement'>{{rec.supplement}}</p>
                             <footer>{{rec.nickname||'匿名用户'}}</footer>
                         </blockquote>
                         <div class='bottom-bar'>
@@ -66,16 +73,27 @@
                             <button class='btn btn-default btn-sm' ng-click="likeRecordData(rec)"><span class='glyphicon' ng-class="{'glyphicon-heart':rec.like_log[user.uid],'glyphicon-heart-empty':!rec.like_log[user.uid]}"></span>&nbsp;<span ng-bind="rec.like_num"></span></button>&nbsp;&nbsp;
                             <button class='btn btn-default btn-sm' ng-click="gotoRemark(rec)"><span class='glyphicon glyphicon-comment'></span>&nbsp;<span ng-bind="rec.remark_num"></span></button>
                         </div>
+                        <div class='remarks' ng-if="rec.agreedRemarks.remarks.length">
+                            <div class='remark' ng-repeat="remark in rec.agreedRemarks.remarks">
+                                <p ng-bind-html="remark.content"></p>
+                                <div class='bottom-bar text-muted'>
+                                    <div ng-bind-html="remark.nickname"></div>
+                                    <div>
+                                        <button class='btn btn-default btn-sm' ng-click="likeRemark(remark)"><span class='glyphicon' ng-class="{'glyphicon-heart':remark.like_log[user.uid],'glyphicon-heart-empty':!remark.like_log[user.uid]}"></span>&nbsp;<span ng-bind="remark.like_num"></span></button>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
                     </div>
                 </div>
-                <div class='form-inline'>
+                <div>
                     <span>总数：{{page.total}}</span>
-                    <ul uib-pagination style="margin:0;vertical-align:bottom;cursor:pointer" ng-show="page.total>page.size" boundary-links="true" total-items="page.total" max-size="5" items-per-page="page.size" rotate="false" ng-model="page.at" previous-text="&lsaquo;" next-text="&rsaquo;" first-text="&laquo;" last-text="&raquo;" ng-change="list4Schema()"></ul>
+                    <ul uib-pagination style='margin:0 0 0 2rem;vertical-align:middle;cursor:pointer' ng-show="page.total>page.size" boundary-links="true" total-items="page.total" max-size="5" items-per-page="page.size" rotate="false" ng-model="page.at" previous-text="&lsaquo;" next-text="&rsaquo;" first-text="&laquo;" last-text="&raquo;" ng-change="list4Schema()"></ul>
                 </div>
             </div>
         </div>
         <div id='reposActions' class='form-inline text-center'>
-            <button class='btn btn-default' ng-click="addRecord($event,'enroll')">&nbsp;&nbsp;<span class='glyphicon glyphicon-plus'></span>&nbsp;&nbsp;</button>
+            <button class='btn btn-default btn-lg' ng-click="addRecord($event,'enroll')">&nbsp;&nbsp;<span class='glyphicon glyphicon-plus'></span>&nbsp;&nbsp;</button>
         </div>
     </div>
     <footer ng-if="app.use_mission_footer==='Y'" dynamic-html="mission.footer_page.html"></footer>

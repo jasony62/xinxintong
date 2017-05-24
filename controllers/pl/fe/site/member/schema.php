@@ -94,8 +94,8 @@ class schema extends \pl\fe\base {
 		return new \ResponseData($schema);
 	}
 	/**
-	 * 填加自定义认证接口
-	 * 自定义认证接口只有在本地部署版本中才有效
+	 * 填加自定义联系人接口
+	 * 自定义联系人接口只有在本地部署版本中才有效
 	 */
 	public function create_action() {
 		if (false === ($user = $this->accountUser())) {

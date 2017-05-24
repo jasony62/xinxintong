@@ -52,7 +52,6 @@ define(['frame'], function(ngApp) {
 
         var oRecord, oBeforeRecord, oQuizScore, oBeforeQuizScore, oApp;
 
-
         $scope.save = function() {
             //updated 上传数据包
             var updated = {

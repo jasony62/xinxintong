@@ -7,7 +7,7 @@ class data_model extends \TMS_MODEL {
 	/**
 	 * 缺省返回的列
 	 */
-	const DEFAULT_FIELDS = 'id,value,enroll_key,schema_id,userid,submit_at,score,remark_num,last_remark_at,like_num,like_log,modify_log,agreed';
+	const DEFAULT_FIELDS = 'id,value,supplement,enroll_key,schema_id,userid,submit_at,score,remark_num,last_remark_at,like_num,like_log,modify_log,agreed';
 	/**
 	 * 获得指定登记记录登记数据的详细信息
 	 */
@@ -20,16 +20,27 @@ class data_model extends \TMS_MODEL {
 			['enroll_key' => $ek, 'state' => 1],
 		];
 
+		if ($fields === '*' || false !== strpos($fields, 'like_log')) {
+			$fnHandler = function (&$oData) {
+				$oData->like_log = empty($oData->like_log) ? new \stdClass : json_decode($oData->like_log);
+			};
+		}
+
 		if (isset($options['schema'])) {
 			$q[2]['schema_id'] = $options['schema'];
 			$data = $this->query_obj_ss($q);
-
+			if (isset($fnHandler)) {
+				$fnHandler($data);
+			}
 			return $data;
 		} else {
 			$result = new \stdClass;
 			$data = $this->query_objs_ss($q);
 			if (count($data)) {
 				foreach ($data as $schemaData) {
+					if (isset($fnHandler)) {
+						$fnHandler($schemaData);
+					}
 					$schemaId = $schemaData->schema_id;
 					unset($schemaData->schema_id);
 					$result->{$schemaId} = $schemaData;
@@ -136,6 +147,10 @@ class data_model extends \TMS_MODEL {
 				$q[2] .= " and rid='{$activeRound->rid}'";
 			}
 		}
+		/* 限制管理员态度 */
+		if (!empty($options->agreed) && $options->agreed === 'Y') {
+			$q[2] .= " and agreed='Y'";
+		}
 		/* 限制填写用户 */
 		if (!empty($options->owner) && strcasecmp($options->owner, 'all') !== 0) {
 			$q[2] .= " and userid='{$options->owner}'";
@@ -146,6 +161,8 @@ class data_model extends \TMS_MODEL {
 		}
 
 		$q2 = [];
+		// 排序规则
+		$q2['o'] = "submit_at desc";
 		// 查询结果分页
 		if (!empty($page) && !empty($size)) {
 			$q2['r'] = ['o' => ($page - 1) * $size, 'l' => $size];
@@ -163,6 +180,10 @@ class data_model extends \TMS_MODEL {
 					$mapOfNicknames[$oRecord->userid] = $rec->nickname;
 				}
 				$oRecord->nickname = $mapOfNicknames[$oRecord->userid];
+				/* like log */
+				if ($oRecord->like_log) {
+					$oRecord->like_log = json_decode($oRecord->like_log);
+				}
 			}
 		}
 		$result->records = $aRecords;

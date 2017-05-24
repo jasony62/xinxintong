@@ -5,13 +5,13 @@
 <div class="modal-body">
     <form class="form-horizontal">
         <div class="form-group">
-            <label class="col-md-2 control-label">认证日期</label>
+            <label class="col-md-2 control-label">审核日期</label>
             <div class="col-md-10">
                 <p class="form-control-static">{{member.create_at*1000|date:'yy-MM-dd hh:mm'}}</p>
             </div>
         </div>
         <div class="form-group">
-            <label class="col-md-2 control-label">完成认证</label>
+            <label class="col-md-2 control-label">完成审核</label>
             <div class="col-md-10">
                 <label class='checkbox-inline'>
                     <input type='checkbox' ng-true-value="'Y'" ng-false-value="'N'" ng-model='member.verified'>是

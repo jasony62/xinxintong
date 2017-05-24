@@ -10,7 +10,9 @@
                         <th>登记时间</th>
                         <th ng-if="app.multi_rounds==='Y'">登记轮次</th>
                         <th>审核通过</th>
-                        <th ng-repeat="schema in recordSchemas">{{schema.title}}</th>
+                        <th ng-repeat="schema in recordSchemas2">{{schema.title}}</th>
+                        <th ng-repeat="schema in enrollDataSchemas">{{schema.title}}</th>
+                        <th ng-repeat="schema in groupDataSchemas">{{schema.title}}</th>
                         <th>标签</th>
                         <th>备注</th>
                         <th style='width:72px'>操作</th>
@@ -19,10 +21,10 @@
                 <tbody>
                     <tr ng-repeat='r in records' class='record'>
                         <td data-th='选择'><span><input type='checkbox' ng-model="rows.selected[$index]"></span></td>
-                        <td data-th='登记时间'><span>{{(r.enroll_at*1000)|date:'MM-dd HH:mm'}}</span></td>
-                        <td ng-if="app.multi_rounds==='Y'">{{r.round.title}}</td>
+                        <td data-th='登记时间'><span ng-class="{unread:r.enroll_at>lastCachedStatus.lastAt}">{{(r.enroll_at*1000)|date:'MM-dd HH:mm'}}</span></td>
+                        <td data-th='登记轮次' ng-if="app.multi_rounds==='Y'"><span>{{r.round.title}}</span></td>
                         <td data-th='审核通过'><span ng-class="{'notice':r.verified==='N'}">{{r.verified}}</span></td>
-                        <td data-th='{{schema.title}}' ng-repeat="schema in recordSchemas" ng-switch on="schema.type">
+                        <td data-th='{{schema.title}}' ng-repeat="schema in recordSchemas2" ng-switch on="schema.type">
                             <span ng-switch-when="image">
                                 <img ng-repeat="img in r._data[schema.id]" ng-src='{{img}}' />
                             </span>
@@ -30,6 +32,7 @@
                                 <span ng-repeat='file in r._data[schema.id]'><a href='{{file.url}}' target="_blank">{{file.name}}</a></span>
                             </span>
                             <span ng-switch-when="date">{{(r._data[schema.id]*1000)|date:'yy-MM-dd HH:mm'}}</span>
+                            <span ng-switch-when="remark" ng-class="{unread:r.verbose.data[schema.id].last_remark_at>lastCachedStatus.lastAt}">{{r.verbose.data[schema.id].remark_num}}</span>
                             <span ng-switch-default ng-bind-html="r._data[schema.id]"></span>
                         </td>
                         <td data-th='{{schema.title}}' ng-repeat="schema in enrollDataSchemas" ng-switch on="schema.type">
@@ -109,8 +112,8 @@
         </nav>
     </div>
     <script type="text/ng-template" id="leadToLogin.html">
-        <div">
-            <span>请登录后进行此操作，<a href='' ng-click="switchToLogin($event)">继续</a></span>
+        <div ">
+            <span>请登录后进行此操作，<a href='' ng-click="switchToLogin($event) ">继续</a></span>
         </div>
     </script>
 </div>

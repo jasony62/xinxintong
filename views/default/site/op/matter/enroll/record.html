@@ -108,7 +108,7 @@
                                             </select>
                                         </div>
                                         <div class='form-group tms-keep-inline' style='margin:0' ng-if="schema.remarkable==='Y'">
-                                            <button class='btn btn-default btn-sm' ng-click="gotoRemark(schema)"><span class='glyphicon glyphicon-comment'></span> <span class="badge">{{record.verbose[schema.id].remark_num||0}}</span></button>
+                                            <button class='btn btn-default btn-sm' ng-click="gotoRemark(schema)"><span class='glyphicon glyphicon-comment'></span> <span class="badge" ng-class="{unread:record.verbose[schema.id].last_remark_at>lastCachedStatus.lastAt}">{{record.verbose[schema.id].remark_num||0}}</span></button>
                                         </div>
                                         <div class='form-group tms-keep-inline' style='margin:0' ng-if="schema.shareable==='Y'">
                                             <span>点赞 <span class='badge'>{{record.verbose[schema.id].like_num||0}}</span></span>
@@ -210,9 +210,9 @@
                                 <button class='btn btn-default btn-sm' ng-click="switchSchema(schema)"><span class='glyphicon glyphicon-comment'></span> <span class="badge">{{record.verbose[schema.id].remark_num||0}}</span></button>
                             </uib-accordion-heading>
                             <div class='remarks'>
-                                <div class='remark' ng-repeat="remark in schemaRemarks[schema.id]">
+                                <div class='remark' ng-class="{unread:remark.create_at>lastCachedStatus.lastAt}" ng-repeat="remark in schemaRemarks[schema.id]">
                                     <blockquote>
-                                        <p>{{remark.content}}</p>
+                                        <p style="word-break:break-all;">{{remark.content}}</p>
                                         <footer>{{remark.nickname}}</footer>
                                     </blockquote>
                                     <div class='bottom-bar'>

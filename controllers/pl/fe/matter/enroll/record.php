@@ -767,9 +767,9 @@ class record extends \pl\fe\matter\base {
 			//合计
 			$total2 = $modelRec2->sum4Schema($oApp, $rid);
 			$rowIndex = count($records) + 2;
-			$objActiveSheet->setCellValueByColumnAndRow(0, $rowIndex, '合计');
+			!empty((array)$total2) && $objActiveSheet->setCellValueByColumnAndRow(0, $rowIndex, '合计');
 			foreach ($isTotal as $key => $val) {
-				$objActiveSheet->setCellValueByColumnAndRow($key, $rowIndex, $total2->$val);
+				isset($total2->$val) && $objActiveSheet->setCellValueByColumnAndRow($key, $rowIndex, $total2->$val);
 			}
 		}
 

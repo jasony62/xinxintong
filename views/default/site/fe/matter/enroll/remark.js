@@ -31,7 +31,7 @@ ngApp.controller('ctrlRemark', ['$scope', '$q', 'http2', function($scope, $q, ht
         url = '/rest/site/fe/matter/enroll/remark/add?site=' + oApp.siteid + '&ek=' + ek;
         url += '&schema=' + schemaId;
         http2.post(url, $scope.newRemark).then(function(rsp) {
-            $scope.remarks.splice(0, 0, rsp.data);
+            $scope.remarks.push(0, 0, rsp.data);
             $scope.newRemark.content = '';
         });
     };
@@ -43,6 +43,17 @@ ngApp.controller('ctrlRemark', ['$scope', '$q', 'http2', function($scope, $q, ht
         http2.get(url).then(function(rsp) {
             oRemark.like_log = rsp.data.like_log;
             oRemark.like_num = rsp.data.like_num;
+        });
+    };
+    $scope.likeRecordData = function() {
+        var url;
+        url = '/rest/site/fe/matter/enroll/record/like';
+        url += '?site=' + oApp.siteid;
+        url += '&ek=' + $scope.record.enroll_key;
+        url += '&schema=' + schemaId;
+        http2.get(url).then(function(rsp) {
+            $scope.data.like_log = rsp.data.like_log;
+            $scope.data.like_num = rsp.data.like_num;
         });
     };
     $scope.$on('xxt.app.enroll.ready', function(event, params) {
@@ -57,6 +68,7 @@ ngApp.controller('ctrlRemark', ['$scope', '$q', 'http2', function($scope, $q, ht
         }
         $scope.schema = oSchema;
         listRemarks().then(function(data) {
+            $scope.data = data.data;
             $scope.remarks = data.remarks;
         });
     });

@@ -40,6 +40,17 @@ class repos extends base {
 		// 查询结果
 		$mdoelData = $this->model('matter\enroll\data');
 		$result = $mdoelData->byApp($oApp, $oUser, $options);
+		if (count($result->records)) {
+			$modelRem = $this->model('matter\enroll\remark');
+			foreach ($result->records as &$oRec) {
+				if ($oRec->remark_num) {
+					$agreedRemarks = $modelRem->listByRecord($oUser, $oRec->enroll_key, $oRec->schema_id, $page = 1, $size = 10, ['agreed' => 'Y', 'fields' => 'id,content,create_at,nickname,like_num,like_log']);
+					if ($agreedRemarks->total) {
+						$oRec->agreedRemarks = $agreedRemarks;
+					}
+				}
+			}
+		}
 
 		return new \ResponseData($result);
 	}

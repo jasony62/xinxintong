@@ -19,13 +19,14 @@
         <div class='container' ng-controller="ctrlRemark">
             <div id='recordData'>
                 <blockquote ng-switch on="schema.type">
-                    <p ng-switch-when="image"><img ng-src="{{record.data[schemaId]}}"></p>
-                    <p ng-switch-default>{{record.data[schemaId]}}</p>
-                    <p ng-if="schema.supplement==='Y'" class='supplement'>{{record.supplement[schemaId]}}</p>
+                    <p ng-switch-when="image"><img ng-src="{{data.value}}"></p>
+                    <p ng-switch-default>{{data.value}}</p>
+                    <p ng-if="schema.supplement==='Y'" class='supplement'>{{data.supplement}}</p>
                     <footer>{{record.nickname}}</footer>
                 </blockquote>
                 <div class='bottom-bar'>
                     <div class='datetime'>{{record.enroll_at*1000|date:'MM-dd HH:mm'}}</div>
+                    <button class='btn btn-default btn-sm' ng-click="likeRecordData(record)"><span class='glyphicon' ng-class="{'glyphicon-heart':data.like_log[user.uid],'glyphicon-heart-empty':!data.like_log[user.uid]}"></span>&nbsp;<span ng-bind="data.like_num"></span></button>
                 </div>
             </div>
             <div id='remarks'>

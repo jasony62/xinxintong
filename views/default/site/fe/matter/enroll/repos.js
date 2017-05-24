@@ -100,6 +100,16 @@ ngApp.controller('ctrlRepos', ['$scope', 'http2', 'Round', function($scope, http
             oRecord.like_num = rsp.data.like_num;
         });
     };
+    $scope.likeRemark = function(oRemark) {
+        var url;
+        url = '/rest/site/fe/matter/enroll/remark/like';
+        url += '?site=' + oApp.siteid;
+        url += '&remark=' + oRemark.id;
+        http2.get(url).then(function(rsp) {
+            oRemark.like_log = rsp.data.like_log;
+            oRemark.like_num = rsp.data.like_num;
+        });
+    };
     $scope.$on('xxt.app.enroll.ready', function(event, params) {
         oApp = params.app;
         oApp.dataSchemas.forEach(function(schema) {
@@ -110,16 +120,18 @@ ngApp.controller('ctrlRepos', ['$scope', 'http2', 'Round', function($scope, http
         });
         $scope.list4Schema();
         $scope.facRound = facRound = srvRound.ins(oApp);
-        facRound.list().then(function(result) {
-            if (result.active) {
-                for (var i = 0, ii = result.rounds.length; i < ii; i++) {
-                    if (result.rounds[i].rid === result.active.rid) {
-                        criteria.rid = result.active.rid;
-                        break;
+        if (oApp.multi_rounds === 'Y') {
+            facRound.list().then(function(result) {
+                if (result.active) {
+                    for (var i = 0, ii = result.rounds.length; i < ii; i++) {
+                        if (result.rounds[i].rid === result.active.rid) {
+                            criteria.rid = result.active.rid;
+                            break;
+                        }
                     }
                 }
-            }
-            $scope.rounds = result.rounds;
-        });
+                $scope.rounds = result.rounds;
+            });
+        }
     });
 }]);

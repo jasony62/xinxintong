@@ -177,11 +177,16 @@ class stat extends \pl\fe\matter\base {
 		$totalScoreSummary = 0; //所有打分题的平局分合计
 		$fancyTableStyle = array(
 			'borderSize' => 6,
-			'borderColor' => '006699',
-			'cellMargin' => 44,
+			//'borderColor' => '006699',
+			//'cellMargin' => 44,
 			'alignment' => \PhpOffice\PhpWord\SimpleType\JcTable::CENTER,
 		);
-		$firstStyle = array('borderBottomSize' => 12, 'borderBottomColor' => '0000FF', 'bold' => true, 'size' => 14);
+		$firstStyle = [
+			//'borderBottomSize' => 12,
+			//'borderBottomColor' => '0000FF',
+			'bold' => true,
+			'size' => 14,
+		];
 		$fancyTableCellStyle = array('valign' => 'center');
 		$paragraphStyle = array('alignment' => \PhpOffice\PhpWord\SimpleType\Jc::CENTER);
 		$cellTextStyle = ['size' => 12];
@@ -193,12 +198,13 @@ class stat extends \pl\fe\matter\base {
 		);
 		// a4纸宽210mm 取15㎝，1CM=567 twips
 		$a4_width = 15 * 567;
-
-		$section->addText($oApp->title, ['bold' => true, 'size' => 24, 'color' => '000000'], ['alignment' => \PhpOffice\PhpWord\SimpleType\Jc::CENTER]);
+		$graphWidth = 450;
+		$graphHeight = 300;
+		$section->addText($oApp->title, ['bold' => true, 'size' => 24], ['alignment' => \PhpOffice\PhpWord\SimpleType\Jc::CENTER]);
 		$section->addTextBreak(2, null, null);
 
 		foreach ($schemas as $index => $schema) {
-			$section->addText($schema->title, ['bold' => true, 'size' => 16, 'color' => 'B6292B']);
+			$section->addText($schema->title, ['bold' => true, 'size' => 16]);
 			$section->addTextBreak(1, null, null);
 
 			if (in_array($schema->type, ['name', 'email', 'mobile', 'date', 'location', 'shorttext', 'longtext'])) {
@@ -216,7 +222,7 @@ class stat extends \pl\fe\matter\base {
 						if (empty($data)) {
 							continue;
 						}
-						$graph = new \PieGraph(369, 300);
+						$graph = new \PieGraph($graphWidth, $graphHeight);
 						$graph->SetShadow();
 						$pie = new \PiePlot($data);
 						$labels = [];
@@ -355,7 +361,7 @@ class stat extends \pl\fe\matter\base {
 				if (in_array($schema->type, ['single', 'phase'])) {
 					// Create a pie pot
 					if ($sum) {
-						$graph = new \PieGraph(369, 300);
+						$graph = new \PieGraph($graphWidth, $graphHeight);
 						$graph->SetShadow();
 						$pie = new \PiePlot($data);
 						$labels = [];
@@ -374,7 +380,7 @@ class stat extends \pl\fe\matter\base {
 					}
 				} else if ($schema->type === 'multiple') {
 					// Create the graph. These two calls are always required
-					$graph = new \Graph(369, 200);
+					$graph = new \Graph($graphWidth, $graphHeight);
 					$graph->SetScale("textint");
 					// Add a drop shadow
 					$graph->SetShadow();
@@ -446,7 +452,7 @@ class stat extends \pl\fe\matter\base {
 				if (count($data) > 1) {
 					// 如果只有1个点，jpgraph会报错，所以跳过绘图。
 					// Setup the graph
-					$graph = new \Graph(369, 200);
+					$graph = new \Graph($graphWidth, $graphHeight);
 					$graph->SetScale("textlin");
 
 					$theme_class = new \UniversalTheme;
@@ -514,7 +520,7 @@ class stat extends \pl\fe\matter\base {
 		$avgScoreSummary = 0; //所有打分题的平均分
 		if (count($scoreSummary)) {
 			$avgScoreSummary = round($totalScoreSummary / count($scoreSummary), 2);
-			$section->addText('打分项汇总', ['bold' => true, 'size' => 18, 'color' => 'B6292B']);
+			$section->addText('打分项汇总', ['bold' => true, 'size' => 18]);
 			$section->addTextBreak(1, null, null);
 			$phpWord->addTableStyle("four", $fancyTableStyle, $firstStyle);
 			$table4 = $section->addTable('four', $fancyTableStyle);

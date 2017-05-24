@@ -236,8 +236,8 @@ class stat extends \pl\fe\matter\base {
 						$pie->SetColor(array(255, 255, 255));
 						$pie->SetLabels($labels, 1);
 
-						$graph->title->Set($schema->title);
-						$graph->title->SetFont(FF_CHINESE, FS_NORMAL);
+						//$graph->title->Set($schema->title);
+						//$graph->title->SetFont(FF_CHINESE, FS_NORMAL);
 
 						$graph->Stroke(_IMG_HANDLER);
 						ob_start(); // start buffering
@@ -406,8 +406,8 @@ class stat extends \pl\fe\matter\base {
 					$graph->xaxis->title->SetFont(FF_CHINESE, FS_NORMAL);
 				}
 				if ($sum) {
-					$graph->title->Set($item['title']);
-					$graph->title->SetFont(FF_CHINESE, FS_NORMAL);
+					//$graph->title->Set($item['title']);
+					//$graph->title->SetFont(FF_CHINESE, FS_NORMAL);
 
 					$graph->Stroke(_IMG_HANDLER);
 					ob_start(); // start buffering
@@ -459,8 +459,8 @@ class stat extends \pl\fe\matter\base {
 
 					$graph->SetTheme($theme_class);
 					$graph->img->SetAntiAliasing(false);
-					$graph->title->Set($item['title']);
-					$graph->title->SetFont(FF_CHINESE, FS_NORMAL);
+					//$graph->title->Set($item['title']);
+					//$graph->title->SetFont(FF_CHINESE, FS_NORMAL);
 					$graph->SetBox(false);
 
 					$graph->img->SetAntiAliasing();

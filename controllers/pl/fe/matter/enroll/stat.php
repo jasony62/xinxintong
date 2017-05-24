@@ -342,7 +342,7 @@ class stat extends \pl\fe\matter\base {
 						}
 						$table1->addCell($cell_w2, $fancyTableCellStyle)->addText($textResult->sum, $cellTextStyle);
 					}
-					$section->addTextBreak(1, null, null);
+					$section->addTextBreak(2, null, null);
 				}
 			} else if (in_array($schema->type, ['single', 'phase', 'multiple'])) {
 				$item = (array) $statResult[$schema->id];
@@ -435,7 +435,7 @@ class stat extends \pl\fe\matter\base {
 					$table2->addCell($cell_w2, $fancyTableCellStyle)->addText($op['l'], $cellTextStyle);
 					$table2->addCell($cell_w3, $fancyTableCellStyle)->addText($op['c'], $cellTextStyle);
 				}
-				$section->addTextBreak(1, null, null);
+				$section->addTextBreak(2, null, null);
 			} else if ('score' === $schema->type) {
 				//
 				$item = $statResult[$schema->id];
@@ -515,7 +515,7 @@ class stat extends \pl\fe\matter\base {
 				$scoreSummary[] = ['l' => $schema->title, 'c' => $avgScore];
 				$totalScoreSummary += $avgScore;
 			}
-			$section->addTextBreak(1, null, null);
+			$section->addTextBreak(2, null, null);
 		}
 		$avgScoreSummary = 0; //所有打分题的平均分
 		if (count($scoreSummary)) {

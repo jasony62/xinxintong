@@ -1,18 +1,14 @@
 .navbar-nav>li>a{line-height:28px;}
-.navbar-default .navbar-nav>.active>a{background-color: #fff;}
-.navbar-default .navbar-nav>.active>a,
-.navbar-default .navbar-nav>.active>a:hover,
-.navbar-default .navbar-nav>.active>a:focus {background-color: #fff;}
-.navbar-nav .active:after{content:' ';position:absolute;left:0;right:0;bottom:-1px;height:3px;background: #388dbf;}
-@media screen and (min-width: 768px){
-  .navbar-nav {margin: 0 0 0 45px;}
+.navbar-default .navbar-nav>.active>a{background-color:#fff;}
+.navbar-default .navbar-nav>.active>a,.navbar-default .navbar-nav>.active>a:hover,.navbar-default .navbar-nav>.active>a:focus{background-color:#fff;}
+.navbar-nav .active:after{content:' ';position:absolute;left:0;right:0;bottom:-3px;height:3px;background:#388dbf;z-index:1040;}
+@media screen and (min-width:768px){
+	.navbar-nav{margin:0 0 0 45px;}
 }
 .popover.bottom{margin-top:0;}
-.popover-content {padding:0;}
-.btn-group > .btn {padding-left:43px;}
-
-
-.user-login a,.user-register a,.user-subscribe a{position: relative;display:block;padding:5px 22px 5px 45px;clear:both;font-weight:400;line-height:1.5;color:#333;white-space:nowrap;}
+.popover-content{padding:0;}
+.btn-group > .btn{padding-left:43px;}
+.user-login a,.user-register a,.user-subscribe a{position:relative;display:block;padding:5px 22px 5px 45px;clear:both;font-weight:400;line-height:1.5;color:#333;white-space:nowrap;}
 .user-login a:hover,.user-register a:hover,.user-subscribe a:hover{color:#fff;text-decoration:none;background-color:#388dbf;}
-.user-login a:hover .xxt_team,.user-register a:hover .xxt_team, .dropdown-menu>li>a:hover .xxt_team, .user-subscribe a:hover .xxt_team {background-position: -40px -68px;}
-.user-login a:hover .xxt_person,.user-register a:hover .xxt_person, .dropdown-menu>li>a:hover .xxt_person, .user-subscribe a:hover .xxt_person {background-position: -43px -32px;}
+.user-login a:hover .xxt_team,.user-register a:hover .xxt_team,.dropdown-menu>li>a:hover .xxt_team,.user-subscribe a:hover .xxt_team{background-position:-40px -68px;}
+.user-login a:hover .xxt_person,.user-register a:hover .xxt_person,.dropdown-menu>li>a:hover .xxt_person,.user-subscribe a:hover .xxt_person{background-position:-43px -32px;}

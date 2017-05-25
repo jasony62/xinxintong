@@ -30,13 +30,14 @@ class batch_model extends \TMS_MODEL {
 			return true;
 		}
 
+		/*接收消息的用户*/
 		$modelAcnt = $this->model('site\user\account');
 		$mapOfUsers = [];
 		foreach ($receivers as $receiver) {
-			$user = $modelAcnt->byId($receiver->userid, ['fields' => 'nickname,wx_openid,yx_openid,qy_openid']);
-			if ($user) {
-				isset($receiver->assoc_with) && $user->assoc_with = $receiver->assoc_with;
-				$mapOfUsers[$receiver->userid] = $user;
+			$oUser = $modelAcnt->byPrimaryUnionid($siteId, $receiver->unionid);
+			if ($oUser) {
+				isset($receiver->assoc_with) && $oUser->assoc_with = $receiver->assoc_with;
+				$mapOfUsers[$oUser->uid] = $oUser;
 			}
 		}
 

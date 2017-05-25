@@ -84,7 +84,7 @@ define(["require", "angular", "enrollService"], function(require, angular) {
                     !cachedStatus[oApp.id] && (cachedStatus[oApp.id] = {});
                     cachedStatus[oApp.id].lastAt = parseInt((new Date() * 1) / 1000);
                     window.localStorage.setItem("site.op.matter.enroll.console", JSON.stringify(cachedStatus));
-                }, 3000);
+                }, 6000);
             }
             $scope.$broadcast('site.op.matter.enroll.app.ready', data);
         });

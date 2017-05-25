@@ -989,7 +989,7 @@ class record_model extends \TMS_MODEL {
 			$data_schemas = json_decode($oApp->data_schemas);
 			foreach ($data_schemas as $data_schema) {
 				//判断是否是数值型
-				if ($data_schema->id === $schemaId && isset($data_schema->number) && $data_schema->number === 'Y') {
+				if ($data_schema->id === $schemaId && isset($data_schema->fastSelect) && $data_schema->fastSelect === 'number') {
 					$p = [
 						'sum(value)',
 						'xxt_enroll_record_data',
@@ -1052,7 +1052,7 @@ class record_model extends \TMS_MODEL {
 			}
 		}
 		foreach ($dataSchemas as $schema) {
-			if (isset($schema->number) && $schema->number === 'Y') {
+			if (isset($schema->fastSelect) && $schema->fastSelect === 'number') {
 				$q = [
 					'sum(value)',
 					'xxt_enroll_record_data',

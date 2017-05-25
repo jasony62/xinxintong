@@ -618,7 +618,7 @@ class stat extends \pl\fe\matter\base {
 				$textResult = $modelRec->list4Schema($oApp, $schema->id, ['rid' => $rid]);
 				if (!empty($textResult->records)) {
 					//数值型的饼图
-					if (isset($schema->number) && $schema->number === 'Y') {
+					if (isset($schema->fastSelect) && $schema->fastSelect === 'number') {
 						$data = [];
 						foreach ($textResult->records as $record) {
 							$schemaId = $schema->id;

@@ -29,6 +29,10 @@ class record extends \site\op\base {
 			return new \InvalidAccessToken();
 		}
 
+		$oApp = $this->model('matter\enroll')->byId($app, ['cascaded' => 'N']);
+		if (false === $oApp) {
+			return new \ObjectNotFountError();
+		}
 		// 登记数据过滤条件
 		$criteria = $this->getPostJson();
 		//
@@ -39,9 +43,24 @@ class record extends \site\op\base {
 			'rid' => $rid,
 		);
 
-		$app = $this->model('matter\enroll')->byId($app);
 		$mdoelRec = $this->model('matter\enroll\record');
-		$result = $mdoelRec->find($app, $options, $criteria);
+		$result = $mdoelRec->find($oApp, $options, $criteria);
+		if (count($result->records)) {
+			$remarkables = [];
+			foreach ($oApp->dataSchemas as $oSchema) {
+				if (isset($oSchema->remarkable) && $oSchema->remarkable === 'Y') {
+					$remarkables[] = $oSchema->id;
+				}
+			}
+			if (count($remarkables)) {
+				foreach ($result->records as &$oRec) {
+					$modelRem = $this->model('matter\enroll\data');
+					$oRecordData = $modelRem->byRecord($oRec->enroll_key, ['schema' => $remarkables]);
+					$oRec->verbose = new \stdClass;
+					$oRec->verbose->data = $oRecordData;
+				}
+			}
+		}
 
 		return new \ResponseData($result);
 	}

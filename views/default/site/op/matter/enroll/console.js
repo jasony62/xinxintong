@@ -31,38 +31,61 @@ define(["require", "angular", "enrollService"], function(require, angular) {
         srvOpEnrollRoundProvider.config(siteId, appId, accessId);
         srvEnrollRecordProvider.config(siteId, appId);
     }]);
-    ngApp.controller('ctrlApp', ['$scope', '$location', 'http2', 'srvEnrollApp', function($scope, $location, http2, srvEnrollApp) {
+    ngApp.controller('ctrlApp', ['$scope', '$timeout', '$location', 'http2', 'srvEnrollApp', function($scope, $timeout, $location, http2, srvEnrollApp) {
+        var cachedStatus, lastCachedStatus;
         $scope.switchTo = function(view) {
             $location.path('/rest/site/op/matter/enroll/' + view);
         };
         srvEnrollApp.opGet().then(function(data) {
-            var app = data.app;
+            var oApp = data.app;
             // schemas
             var recordSchemas = [],
+                recordSchemas2 = [],
                 enrollDataSchemas = [],
                 groupDataSchemas = [];
-            app.data_schemas.forEach(function(schema) {
+            oApp.data_schemas.forEach(function(schema) {
                 if (schema.type !== 'html') {
                     recordSchemas.push(schema);
+                    recordSchemas2.push(schema);
+                }
+                if (schema.remarkable && schema.remarkable === 'Y') {
+                    recordSchemas2.push({ type: 'remark', title: '评论数', id: schema.id });
                 }
                 if (schema.number && schema.number === 'Y') {
                     $scope.numberSchemas.push(schema);
                 }
             });
             $scope.recordSchemas = recordSchemas;
-            app._schemasFromEnrollApp.forEach(function(schema) {
+            $scope.recordSchemas2 = recordSchemas2;
+            oApp._schemasFromEnrollApp.forEach(function(schema) {
                 if (schema.type !== 'html') {
                     enrollDataSchemas.push(schema);
                 }
             });
             $scope.enrollDataSchemas = enrollDataSchemas;
-            app._schemasFromGroupApp.forEach(function(schema) {
+            oApp._schemasFromGroupApp.forEach(function(schema) {
                 if (schema.type !== 'html') {
                     groupDataSchemas.push(schema);
                 }
             });
-            $scope.app = app;
+            $scope.app = oApp;
             $scope.groupDataSchemas = groupDataSchemas;
+            /*上一次访问状态*/
+            if (window.localStorage) {
+                if (cachedStatus = window.localStorage.getItem("site.op.matter.enroll.console")) {
+                    cachedStatus = JSON.parse(cachedStatus);
+                    if (lastCachedStatus = cachedStatus[oApp.id]) {
+                        $scope.lastCachedStatus = angular.copy(lastCachedStatus);
+                    }
+                } else {
+                    cachedStatus = {};
+                }
+                $timeout(function() {
+                    !cachedStatus[oApp.id] && (cachedStatus[oApp.id] = {});
+                    cachedStatus[oApp.id].lastAt = parseInt((new Date() * 1) / 1000);
+                    window.localStorage.setItem("site.op.matter.enroll.console", JSON.stringify(cachedStatus));
+                }, 3000);
+            }
             $scope.$broadcast('site.op.matter.enroll.app.ready', data);
         });
         http2.get('/rest/site/fe/user/get?site=' + siteId, function(rsp) {

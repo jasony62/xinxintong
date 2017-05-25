@@ -367,13 +367,15 @@ define([], function() {
             html: html
         };
     };
+    //老元素 ，新配置，老schema
     InputWrap.prototype.modify = function(domWrap, dataWrap, beforeSchema) {
         var $dom, $label, $input, config = dataWrap.config,
             schema = dataWrap.schema;
 
-        $dom = $(domWrap);
+        $dom = $(domWrap);//？
         if (dataWrap.type === 'input') {
             if (beforeSchema && (schema.type !== beforeSchema.type || (schema.type === 'shorttext' && schema.history === 'Y'))) {
+                //从新生成容器内的内容
                 $dom.html(this.embed(dataWrap).html);
             } else {
                 $label = $dom.find('label');

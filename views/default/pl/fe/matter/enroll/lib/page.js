@@ -149,13 +149,15 @@ define(['wrap'], function(SchemaWrap) {
         updateSchema: function(oSchema, oBeforeState) {
             var $html, $dom, wrap;
 
+            //this是page 对象
             $html = $('<div>' + this.html + '</div>');
             if ($dom = $html.find("[schema='" + oSchema.id + "']")) {
                 //更新schema-type 属性
                 $dom.attr('schema-type', oSchema.type);
-                if (wrap = this.wrapBySchema(oSchema)) {
+                if (wrap = this.wrapBySchema(oSchema)) {//page页面中对应得信息schema和config
                     wrap.type = $dom.attr('wrap');
                     if (oBeforeState && oSchema.type !== oBeforeState.type) {
+                        //传入激活信息
                         wrap.config = SchemaWrap.input.newWrap(oSchema).config;
                     }
                     SchemaWrap.input.modify($dom, wrap, oBeforeState);

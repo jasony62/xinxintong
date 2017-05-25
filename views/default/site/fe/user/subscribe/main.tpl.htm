@@ -16,10 +16,13 @@
         <div class='loading-indicator'><i></i></div>
     </div>
     <div class="container ng-cloak" ng-controller="ctrlMain" ng-cloak>
-        <nav class='navbar navbar-default'>
+        <nav class='navbar navbar-default navbar-fixed-top'>
             <div class='container-fluid'>
                 <div class="navbar-header">
-                    <a class='navbar-brand' href='/rest/site/home?site={{site.id}}' target='_self'>{{site.name}}</a>
+                    <a class='navbar-brand' href='/rest/home' target='_self'>
+                        <span class='glyphicon glyphicon-menu-left'></span>&nbsp;
+                        <?php echo APP_TITLE;?>
+                    </a>
                 </div>
             </div>
         </nav>
@@ -41,7 +44,7 @@
                 </div>
             </div>
         </div>
-        <div class='row'>
+        <div class='row' ng-if="page.total>matters.length">
             <div class='col-md-12'>
                 <button class='btn btn-default btn-block' ng-click="moreMatters()">更多</button>
             </div>

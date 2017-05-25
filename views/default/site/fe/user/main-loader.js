@@ -15,7 +15,10 @@ window.loading = {
         require.config({
             waitSeconds: 0,
             paths: {
+                "domReady": '/static/js/domReady',
                 "angular": "/static/js/angular.min",
+                "angular-sanitize": "/static/js/angular-sanitize.min",
+                "xxt-http": "/asset/js/xxt.ui.http",
             },
             shim: {
                 "angular": {
@@ -29,7 +32,13 @@ window.loading = {
                 return "?bust=" + (timestamp * 1);
             }
         });
-        require(['main'], function() {});
+        require(['angular'], function(angular) {
+            require(['angular-sanitize'], function() {
+                require(['xxt-http'], function() {
+                    require(['main']);
+                });
+            });
+        });
     }
 };
 window.loading.load();

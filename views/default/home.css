@@ -3,7 +3,7 @@
 .navbar-default .navbar-nav>.active>a,
 .navbar-default .navbar-nav>.active>a:hover,
 .navbar-default .navbar-nav>.active>a:focus {background-color: #fff;}
-.navbar-nav .active:after{content:' ';position:absolute;left:0;right:0;bottom:-1px;height:3px;background: #388dbf;}
+.navbar-nav .active:after{content:' ';position:absolute;left:0;right:0;bottom:-4px;height:3px;background: #388dbf;}
 @media screen and (min-width: 768px){
   .navbar-nav {margin: 0 0 0 45px;}
 }

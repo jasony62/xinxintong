@@ -1,4 +1,5 @@
 .container{margin-top:71px;margin-bottom:71px;}
+.navbar .navbar-text{float:none;}
 .avatar{text-align:center;}
 .avatar .headimg{width:64px;height:64px;}
 .avatar .nickname{height:4em;line-height:4em;}

@@ -677,7 +677,7 @@ class record_model extends \TMS_MODEL {
 
 		// 查询参数
 		$q = [
-			'e.enroll_key,e.rid,e.enroll_at,e.tags,e.userid,e.nickname,e.wx_openid,e.yx_openid,e.qy_openid,e.headimgurl,e.verified,e.comment,e.data',
+			'e.enroll_key,e.rid,e.enroll_at,e.tags,e.userid,e.nickname,e.wx_openid,e.yx_openid,e.qy_openid,e.headimgurl,e.verified,e.comment,e.data,e.supplement',
 			"xxt_enroll_record e",
 			$w,
 		];
@@ -708,6 +708,17 @@ class record_model extends \TMS_MODEL {
 						$rec->score = 'json error(' . json_last_error_msg() . '):' . $rec->score;
 					} else {
 						$rec->score = $score;
+					}
+				}
+				//附加说明
+				if(!empty($rec->supplement)){
+					$supplement = str_replace("\n", ' ', $rec->supplement);
+					$supplement = json_decode($supplement);
+
+					if ($supplement === null) {
+						$rec->supplement = 'json error(' . json_last_error_msg() . '):' . $rec->supplement;
+					} else {
+						$rec->supplement = $supplement;
 					}
 				}
 

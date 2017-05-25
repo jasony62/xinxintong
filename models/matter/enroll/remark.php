@@ -26,7 +26,7 @@ class remark_model extends \TMS_MODEL {
 	/**
 	 * 获得指定登记记录的评论
 	 */
-	public function listByRecord($oUser, $ek, $schemaId = '', $page = 1, $size = 10, $options = []) {
+	public function listByRecord($oUser, $ek, $schemaId, $page = 1, $size = 10, $options = []) {
 		$fields = isset($options['fields']) ? $options['fields'] : '*';
 
 		$result = new \stdClass;

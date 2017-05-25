@@ -45,7 +45,7 @@ class record extends \site\op\base {
 
 		$mdoelRec = $this->model('matter\enroll\record');
 		$result = $mdoelRec->find($oApp, $options, $criteria);
-		if (count($result->records)) {
+		if (!empty($result->records)) {
 			$remarkables = [];
 			foreach ($oApp->dataSchemas as $oSchema) {
 				if (isset($oSchema->remarkable) && $oSchema->remarkable === 'Y') {

@@ -64,7 +64,7 @@ define(['require', 'angular'], function(require, angular) {
             });
         };
         $scope.logout = function() {
-            http2.get('/rest/site/fe/user/logout/do?site=' + siteId).success(function(rsp) {
+            http2.get('/rest/site/fe/user/logout/do?site=' + siteId).then(function(rsp) {
                 location.replace('/rest/site/fe/user?site=' + siteId);
             });
         };
@@ -79,35 +79,37 @@ define(['require', 'angular'], function(require, angular) {
         };
         http2.get('/rest/site/fe/get?site=' + siteId).then(function(rsp) {
             $scope.site = rsp.data;
-            userService.get().then(function(user) {
-                $scope.user = user;
+            userService.get().then(function(oUser) {
+                $scope.user = oUser;
+                if (oUser.unionid) {
+                    http2.get('/rest/site/fe/user/memberschema/atHome?site=' + siteId).then(function(rsp) {
+                        $scope.memberSchemas = rsp.data;
+                    });
+                    http2.get('/rest/site/fe/user/subscribe/count?site=' + siteId).then(function(rsp) {
+                        $scope.count.subscription = rsp.data;
+                    });
+                    http2.get('/rest/site/fe/user/favor/count?site=' + siteId).then(function(rsp) {
+                        $scope.count.favor = rsp.data;
+                    });
+                    /*上一次访问状态*/
+                    if (window.localStorage) {
+                        if (cachedStatus = window.localStorage.getItem("site.fe.user.main")) {
+                            cachedStatus = JSON.parse(cachedStatus);
+                            lastCachedStatus = angular.copy(cachedStatus);
+                        } else {
+                            cachedStatus = {};
+                        }
+                        $timeout(function() {
+                            cachedStatus.lastAt = parseInt((new Date() * 1) / 1000);
+                            window.localStorage.setItem("site.fe.user.main", JSON.stringify(cachedStatus));
+                        }, 6000);
+                        if (lastCachedStatus && lastCachedStatus.lastAt) {
+                            newSubscriptions(lastCachedStatus.lastAt);
+                        }
+                    }
+                }
                 window.loading.finish();
             });
-            http2.get('/rest/site/fe/user/memberschema/atHome?site=' + siteId).then(function(rsp) {
-                $scope.memberSchemas = rsp.data;
-            });
-            http2.get('/rest/site/fe/user/subscribe/count?site=' + siteId).then(function(rsp) {
-                $scope.count.subscription = rsp.data;
-            });
-            http2.get('/rest/site/fe/user/favor/count?site=' + siteId).then(function(rsp) {
-                $scope.count.favor = rsp.data;
-            });
-            /*上一次访问状态*/
-            if (window.localStorage) {
-                if (cachedStatus = window.localStorage.getItem("site.fe.user.main")) {
-                    cachedStatus = JSON.parse(cachedStatus);
-                    lastCachedStatus = angular.copy(cachedStatus);
-                } else {
-                    cachedStatus = {};
-                }
-                $timeout(function() {
-                    cachedStatus.lastAt = parseInt((new Date() * 1) / 1000);
-                    window.localStorage.setItem("site.fe.user.main", JSON.stringify(cachedStatus));
-                }, 6000);
-                if (lastCachedStatus && lastCachedStatus.lastAt) {
-                    newSubscriptions(lastCachedStatus.lastAt);
-                }
-            }
         });
     }]);
     /* bootstrap angular app */

@@ -20,12 +20,12 @@ class page extends \pl\fe\base {
 		if (false === ($user = $this->accountUser())) {
 			return new \ResponseTimeout();
 		}
-		$site = $this->model('site')->byId($site);
+		$oSite = $this->model('site')->byId($site);
 
-		$data = $this->_makePage($site, $template);
+		$data = $this->_makePage($oSite, $template);
 
 		$modelPage = $this->model('code\page');
-		$code = $modelPage->create($site, $user->id, $data);
+		$code = $modelPage->create($oSite->id, $user->id, $data);
 
 		$rst = $modelPage->update(
 			'xxt_site_yx',
@@ -33,7 +33,7 @@ class page extends \pl\fe\base {
 				'follow_page_id' => $code->id,
 				'follow_page_name' => $code->name,
 			],
-			["siteid" => $site->id]
+			["siteid" => $oSite->id]
 		);
 
 		return new \ResponseData($code);

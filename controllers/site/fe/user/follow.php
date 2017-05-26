@@ -43,7 +43,7 @@ class follow extends \site\fe\base {
 		$modelSns = $this->model('sns\\' . $sns);
 		/* 公众号配置信息 */
 		$snsConfig = $modelSns->bySite($siteId, ['fields' => 'joined,qrcode,follow_page_id,follow_page_name']);
-		if ($snsConfig === false || $snsConfig->joined === 'N') {
+		if ($snsConfig === false || ($snsConfig->joined === 'N' && $sns === 'wx')) {
 			$siteId = 'platform';
 			$snsConfig = $modelSns->bySite('platform', ['fields' => 'joined,qrcode,follow_page_id,follow_page_name']);
 		}

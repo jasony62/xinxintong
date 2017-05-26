@@ -22,7 +22,7 @@
             </ul>
         </div>
     </nav>
-    <div class='container-fluid'>
+    <div class='container'>
         <div class='row'>
             <div class='col-md-3'>
                 <div class='list-group'>
@@ -30,7 +30,7 @@
                         {{schema.title}}
                     </a>
                 </div>
-                <button class='btn btn-default' ng-click='addSchema()'><span class='glyphicon glyphicon-plus'></span> 添加定义</button>
+                <button class='btn btn-default btn-block' ng-click='addSchema()'><span class='glyphicon glyphicon-plus'></span> 添加定义</button>
             </div>
             <div class='col-md-9' ng-if="choosedSchema">
                 <div class='form-group'>
@@ -46,17 +46,17 @@
                                 </span>
                             </div>
                         </div>
-                        <div class='form-group'>
+                        <div class='form-group hide'>
                             <select class='form-control' title='类型' ng-model='choosedSchema.type' ng-change="updSchema('type')">
                                 <option value='inner'>内置</option>
                                 <option value='cus'>自定义</option>
                             </select>
                         </div>
-                        <div class='form-group'>
+                        <div class='form-group hide'>
                             <select class='form-control' title='数据有效期' ng-model='choosedSchema.validity' ng-options='d.v as d.n for d in days' ng-change="updSchema('validity')"></select>
                         </div>
                         <div class='form-group'>
-                            <button class='btn btn-success' ng-click='addExtattr(s)'>增加信息项</button>
+                            <button class='btn btn-default' ng-click='addExtattr(s)'>增加信息项</button>
                             <button class='btn btn-default' ng-if="choosedSchema.type==='inner'" ng-click='gotoCode()'>定制填写页面</button>
                             <button class='btn btn-default' ng-if="choosedSchema.type==='inner'" ng-click='resetCode()'>重置填写页面</button>
                         </div>
@@ -71,8 +71,20 @@
                                 <input type='checkbox' ng-true-value="'Y'" ng-false-value="'N'" ng-model='choosedSchema.require_invite' ng-change="updSchema('require_invite')">通过邀请码验证</label>
                             <label class='checkbox-inline'>
                                 <input type='checkbox' ng-true-value="'N'" ng-false-value="'Y'" ng-model='choosedSchema.auto_verified' ng-change="updSchema('auto_verified')">是否需要管理员审核</label>
+                        </div>
+                    </div>
+                </div>
+                <div class='form-group'>
+                    <div class='form-inline'>
+                        <div class="form-group">
                             <label class='checkbox-inline'>
                                 <input type='checkbox' ng-true-value="'Y'" ng-false-value="'N'" ng-model='choosedSchema.qy_ab' ng-change="updQy('qy_ab')">企业号同步通讯录使用</label>
+                            <label class='checkbox-inline'>
+                                <input type='checkbox' ng-true-value="'Y'" ng-false-value="'N'" ng-model='choosedSchema.is_wx_fan' ng-change="updSchema('is_wx_fan')">是微信公众号关注用户</label>
+                            <label class='checkbox-inline'>
+                                <input type='checkbox' ng-true-value="'Y'" ng-false-value="'N'" ng-model='choosedSchema.is_qy_fan' ng-change="updSchema('is_qy_fan')">是微信企业号关注用户</label>
+                            <label class='checkbox-inline'>
+                                <input type='checkbox' ng-true-value="'Y'" ng-false-value="'N'" ng-model='choosedSchema.is_yx_fan' ng-change="updSchema('is_yx_fan')">是易信公众号关注用户</label>
                         </div>
                     </div>
                 </div>
@@ -135,7 +147,7 @@
                             </div>
                         </div>
                         <div class='form-group'>
-                            <label class="col-md-3 control-label">不在白名单中说明</label>
+                            <label class="col-md-3 control-label">不在名单中说明</label>
                             <div class='col-md-9'>
                                 <textarea class='form-control' ng-model='choosedSchema.acl_statement' placeholder='不在白名单中说明' tms-auto-update tms-wait=1000 tms-update="updSchema('acl_statement')"></textarea>
                             </div>

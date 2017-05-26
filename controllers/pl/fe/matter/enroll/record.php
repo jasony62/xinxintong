@@ -217,7 +217,7 @@ class record extends \pl\fe\matter\base {
 			$updated->rid = $modelEnl->escape($record->rid);
 		}
 		if (isset($record->supplement)) {
-			$updated->supplement = $modelEnl->escape($record->supplement);
+			$updated->supplement = $modelEnl->toJson($record->supplement);
 		}
 		$modelEnl->update('xxt_enroll_record', $updated, ['enroll_key' => $ek]);
 		/* 记录登记数据 */

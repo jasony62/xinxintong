@@ -286,6 +286,11 @@ define(['require'], function(require) {
             });
         };
         $scope.list();
+        var isNavCollapsed = false;
+        if (document.body.clientWidth <= 768) {
+            isNavCollapsed = true;
+        }
+        $scope.isNavCollapsed = { frame: isNavCollapsed, activity: isNavCollapsed };
     }]);
     /***/
     require(['domReady!'], function(document) {

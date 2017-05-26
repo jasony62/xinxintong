@@ -324,6 +324,7 @@ $sql .= ",sync_to_qy_at int not null default 0"; // 最近一次向企业号通�
 $sql .= ",sync_from_qy_at int not null default 0"; // 最近一次从企业号通讯录同步的时间
 $sql .= ",auto_verified char(1) not null default 'Y'"; // 用户默认是否通过认证
 $sql .= ",require_invite char(1) not null default 'N'"; // 是否需要邀请码
+$sql .= ",at_user_home char(1) not null default 'N'"; // 是否出现在用户主页
 $sql .= ",primary key(id)) ENGINE=MyISAM DEFAULT CHARSET=utf8";
 if (!$mysqli->query($sql)) {
 	header('HTTP/1.0 500 Internal Server Error');

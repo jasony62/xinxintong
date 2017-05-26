@@ -42,7 +42,8 @@ define(["require", "angular", "enrollService"], function(require, angular) {
             var recordSchemas = [],
                 recordSchemas2 = [],
                 enrollDataSchemas = [],
-                groupDataSchemas = [];
+                groupDataSchemas = [],
+                numberSchemas = [];
             oApp.data_schemas.forEach(function(schema) {
                 if (schema.type !== 'html') {
                     recordSchemas.push(schema);
@@ -52,11 +53,12 @@ define(["require", "angular", "enrollService"], function(require, angular) {
                     recordSchemas2.push({ type: 'remark', title: '评论数', id: schema.id });
                 }
                 if (schema.number && schema.number === 'Y') {
-                    $scope.numberSchemas.push(schema);
+                    numberSchemas.push(schema);
                 }
             });
             $scope.recordSchemas = recordSchemas;
             $scope.recordSchemas2 = recordSchemas2;
+            $scope.numberSchemas = numberSchemas;
             oApp._schemasFromEnrollApp.forEach(function(schema) {
                 if (schema.type !== 'html') {
                     enrollDataSchemas.push(schema);

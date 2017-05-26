@@ -32,4 +32,14 @@ class memberschema extends \site\fe\base {
 
 		return new \ResponseData($aMemberSchemas);
 	}
+	/**
+	 * 获得用户主页可用的自定义联系人定义
+	 */
+	public function atHome_action($site) {
+		$modelSchema = $this->model('site\user\memberschema');
+
+		$schemas = $modelSchema->bySite($site, 'Y', ['atUserHome' => 'Y', 'fields' => 'id,require_invite,title,type,url']);
+
+		return new \ResponseData($schemas);
+	}
 }

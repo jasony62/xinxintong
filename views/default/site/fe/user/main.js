@@ -83,10 +83,7 @@ define(['require', 'angular'], function(require, angular) {
                 $scope.user = user;
                 window.loading.finish();
             });
-            http2.get('/rest/site/fe/user/siteList?site=' + siteId).then(function(rsp) {
-                $scope.mySites = rsp.data;
-            });
-            http2.get('/rest/site/fe/memberSchemaList?site=' + siteId).then(function(rsp) {
+            http2.get('/rest/site/fe/user/memberschema/atHome?site=' + siteId).then(function(rsp) {
                 $scope.memberSchemas = rsp.data;
             });
             http2.get('/rest/site/fe/user/subscribe/count?site=' + siteId).then(function(rsp) {

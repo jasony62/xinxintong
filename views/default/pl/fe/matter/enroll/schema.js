@@ -340,7 +340,7 @@ define(['frame', 'schema', 'wrap'], function (ngApp, schemaLib, wrapLib) {
                 //如果新类型是shortext===shorttext
                 // 且老类型是'name', 'mobile', 'email'  增加属性fastSelect
                 if ($scope.activeSchema.type === 'shorttext' && ['name', 'mobile', 'email'].indexOf(beforeState.type) !== -1) {
-                    $scope.activeSchema.fastSelect = $scope.activeSchema.type;
+                    $scope.activeSchema.fastSelect = beforeState.type;
                 }
                 ;
                 $scope.activeConfig = wrapLib.input.newWrap($scope.activeSchema).config;//修改配置 激活配置哪里用的？用户左侧设置栏

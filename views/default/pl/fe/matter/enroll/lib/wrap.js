@@ -624,7 +624,7 @@ define([], function() {
         $span.html(dataWrap.schema.ops[0].l);
     };
     /**
-     * value wrap class 
+     * value wrap class
      */
     var ValueWrap = function() {};
     ValueWrap.prototype = Object.create(Wrap.prototype);

@@ -151,6 +151,8 @@ define(['wrap'], function(SchemaWrap) {
 
             $html = $('<div>' + this.html + '</div>');
             if ($dom = $html.find("[schema='" + oSchema.id + "']")) {
+                //更新schema-type 属性
+                $dom.attr('schema-type', oSchema.type);
                 if (wrap = this.wrapBySchema(oSchema)) {
                     wrap.type = $dom.attr('wrap');
                     if (oBeforeState && oSchema.type !== oBeforeState.type) {

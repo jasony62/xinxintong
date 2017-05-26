@@ -8,7 +8,7 @@
     <title>我的关注</title>
     <link href="/static/css/bootstrap.min.css" rel="stylesheet">
     <link href='/static/css/site.fe.css?_=1' rel="stylesheet">
-    <link href='/views/default/site/fe/user/subscribe/main.css?_=1' rel="stylesheet">
+    <link href='/views/default/site/fe/user/subscribe/main.css?_=2' rel="stylesheet">
 </head>
 
 <body>
@@ -17,13 +17,13 @@
     </div>
     <div class="container ng-cloak" ng-controller="ctrlMain" ng-cloak>
         <nav class='navbar navbar-default navbar-fixed-top'>
-            <div class='container-fluid'>
-                <div class="navbar-header">
-                    <a class='navbar-brand' href='/rest/home' target='_self'>
-                        <span class='glyphicon glyphicon-menu-left'></span>&nbsp;
-                        <?php echo APP_TITLE;?>
+            <div class='container-fluid text-right'>
+                <p class="navbar-text">
+                    <a class='navbar-link' href='/rest/home' target='_self'>
+                        <?php echo APP_TITLE;?> &nbsp;
+                        <span class='glyphicon glyphicon-menu-right'></span>
                     </a>
-                </div>
+                </p>
             </div>
         </nav>
         <div class='row'>

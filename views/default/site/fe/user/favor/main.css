@@ -5,9 +5,8 @@
 @media screen and (max-width:768px){
 	.hide-pc{display:none;}
 }
-html,body{height:100%;width:100%}
-body{font-family:"Microsoft YaHei","HSimHei";}
 .ng-cloak{display:none}
+.navbar .navbar-text{float:none;}
 
 /*app*/
 .text-summary{height:4.5em;overflow:hidden;}

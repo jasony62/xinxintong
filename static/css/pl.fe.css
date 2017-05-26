@@ -1,6 +1,6 @@
 .pl-layout{display:flex;position:absolute;top:0;left:0;right:0;bottom:0;}
 .pl-layout .pl-layout-leftnav{flex-shrink:0;width:90px;background:#333;}
-.pl-layout .pl-layout-leftnav-header a{font-size:120%;color:#fff;text-decoration:none;border-radius:0;}
+.pl-layout .pl-layout-leftnav-header a{font-size:120%;color:#fff;text-decoration:none;border-radius:0;width:100%;text-overflow:ellipsis;white-space:nowrap;overflow:hidden;}
 .pl-layout .pl-layout-leftnav .nav-tabs{border-bottom:0;}
 .pl-layout .pl-layout-leftnav .nav-tabs .nav-tabs{background:#444;}
 .pl-layout .pl-layout-leftnav .nav-tabs ul{transition:all .2s linear;overflow:hidden;}

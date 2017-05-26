@@ -63,6 +63,11 @@
         <label>
             <input type='checkbox' ng-true-value="'Y'" ng-false-value="'N'" ng-model='activeSchema.unique' ng-change="updSchema(activeSchema)">唯一</label>
     </div>
+    <!--老版本数值测试版本需要，测试完成后，对外发布时删除-->
+    <div class="checkbox" ng-show="'shorttext'===activeSchema.type">
+        <label>
+            <input type='checkbox' ng-true-value="'Y'" ng-false-value="'N'" ng-model='activeSchema.number' ng-change="updSchema(activeSchema,'number')">数值</label>
+    </div>
     <div class="checkbox" ng-show="'shorttext'===activeSchema.type">
         <label>
             <input type='checkbox' ng-true-value="'Y'" ng-false-value="'N'" ng-model='activeSchema.history' ng-change="updSchema(activeSchema,'history')">参考已填数据</label>

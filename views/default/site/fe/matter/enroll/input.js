@@ -150,7 +150,7 @@ ngApp.factory('Input', ['$http', '$q', '$timeout', 'ls', function ($http, $q, $t
                     }
                 }
                 if (/image|file/.test(schema.type)) {
-                    if (schema.count) {
+                    if (schema.count && schema.count!=0) {
                         if (data[schema.id] && data[schema.id].length > schema.count) {
                             return '［' + schema.title + '］超出上传数量（' + schema.count + '）限制';
                         }
@@ -276,7 +276,7 @@ ngApp.directive('tmsImageInput', ['$compile', '$q', function ($compile, $q) {
                 if (imgFieldName !== null) {
                     modifiedImgFields.indexOf(imgFieldName) === -1 && modifiedImgFields.push(imgFieldName);
                     $scope.data[imgFieldName] === undefined && ($scope.data[imgFieldName] = []);
-                    if (count !== null && $scope.data[imgFieldName].length === count) {
+                    if (count !== null && $scope.data[imgFieldName].length === count && count!=0) {
                         $scope.$parent.errmsg = '最多允许上传' + count + '张图片';
                         return;
                     }

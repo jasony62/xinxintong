@@ -20,7 +20,7 @@ ngMod.service('tmsForward', ['$rootScope', '$http', '$q', 'tmsDynaPage', 'tmsMod
     }
     this.open = function(oMatter) {
         var template;
-        template = '<div class="modal-header"><span class="modal-cancle" ng-click="cancel()">×</span><span class="modal-title">转 发</span><hr/><span class="modal-note">请选择你想转发到的团队主页</span></div>';
+        template = '<div class="modal-header"><span class="modal-title">转发到哪个团队和频道</span></div>';
         template += '<div class="modal-body">';
         template += '<div ng-repeat="site in mySites">';
         template += '<span>{{site.name}}</span>';
@@ -34,7 +34,7 @@ ngMod.service('tmsForward', ['$rootScope', '$http', '$q', 'tmsDynaPage', 'tmsMod
         template += '</div>'
         template += '<div ng-if="mySites.length===0"><a href="" ng-click="createSite()">创建</a>团队，转发内容到团队主页</div>';
         template += '</div>';
-        template += '<div class="modal-footer"><button class="btn btn-lg btn-primary" ng-click="ok()">确定</button></div>';
+        template += '<div class="modal-footer"><button class="btn btn-default" ng-click="cancel()">关闭</button><button class="btn btn-success" ng-click="ok()">确定</button></div>';
         tmsModal.open({
             template: template,
             controller: ['$http', '$scope', '$tmsModalInstance', function($http, $scope2, $mi) {

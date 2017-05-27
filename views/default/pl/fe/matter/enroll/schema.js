@@ -1,9 +1,9 @@
-define(['frame', 'schema', 'wrap'], function (ngApp, schemaLib, wrapLib) {
+define(['frame', 'schema', 'wrap'], function(ngApp, schemaLib, wrapLib) {
     'use strict';
     /**
      * 登记项管理
      */
-    ngApp.provider.controller('ctrlSchema', ['$scope', 'cstApp', 'srvEnrollPage', 'srvEnrollApp', function ($scope, cstApp, srvEnrollPage, srvEnrollApp) {
+    ngApp.provider.controller('ctrlSchema', ['$scope', 'cstApp', 'srvEnrollPage', 'srvEnrollApp', function($scope, cstApp, srvEnrollPage, srvEnrollApp) {
         function _appendSchema(newSchema, afterIndex) {
             if ($scope.app._schemasById[newSchema.id]) {
                 alert(cstApp.alertMsg['schema.duplicated']);
@@ -15,8 +15,8 @@ define(['frame', 'schema', 'wrap'], function (ngApp, schemaLib, wrapLib) {
                 $scope.app.data_schemas.splice(afterIndex + 1, 0, newSchema);
             }
             $scope.app._schemasById[newSchema.id] = newSchema;
-            srvEnrollApp.update('data_schemas').then(function () {
-                $scope.app.pages.forEach(function (page) {
+            srvEnrollApp.update('data_schemas').then(function() {
+                $scope.app.pages.forEach(function(page) {
                     if (page.appendSchema(newSchema)) {
                         srvEnrollPage.update(page, ['data_schemas', 'html']);
                     }
@@ -31,7 +31,7 @@ define(['frame', 'schema', 'wrap'], function (ngApp, schemaLib, wrapLib) {
             (function removeSchemaFromPage(index) {
                 var page = pages[index];
                 if (page.removeSchema(removedSchema)) {
-                    srvEnrollPage.update(page, ['data_schemas', 'html']).then(function () {
+                    srvEnrollPage.update(page, ['data_schemas', 'html']).then(function() {
                         if (++index < l) {
                             removeSchemaFromPage(index);
                         } else {
@@ -52,7 +52,7 @@ define(['frame', 'schema', 'wrap'], function (ngApp, schemaLib, wrapLib) {
             })(0);
         }
 
-        $scope.newSchema = function (type) {
+        $scope.newSchema = function(type) {
             var newSchema, mission;
 
             if (type === 'phase') {
@@ -65,7 +65,7 @@ define(['frame', 'schema', 'wrap'], function (ngApp, schemaLib, wrapLib) {
             newSchema = schemaLib.newSchema(type, $scope.app);
             _appendSchema(newSchema);
         };
-        $scope.newMember = function (ms, schema) {
+        $scope.newMember = function(ms, schema) {
             var newSchema = schemaLib.newSchema('member', $scope.app);
 
             newSchema.schema_id = ms.id;
@@ -73,9 +73,9 @@ define(['frame', 'schema', 'wrap'], function (ngApp, schemaLib, wrapLib) {
             newSchema.title = schema.title;
             _appendSchema(newSchema);
         };
-        $scope.importByOther = function () {
-            srvEnrollApp.importSchemaByOther().then(function (schemas) {
-                schemas.forEach(function (schema) {
+        $scope.importByOther = function() {
+            srvEnrollApp.importSchemaByOther().then(function(schemas) {
+                schemas.forEach(function(schema) {
                     var newSchema;
                     newSchema = schemaLib.newSchema(schema.type, $scope.app);
                     newSchema.type === 'member' && (newSchema.schema_id = schema.schema_id);
@@ -93,7 +93,7 @@ define(['frame', 'schema', 'wrap'], function (ngApp, schemaLib, wrapLib) {
                 });
             });
         };
-        $scope.newByOtherApp = function (schema, otherApp) {
+        $scope.newByOtherApp = function(schema, otherApp) {
             var newSchema;
 
             newSchema = schemaLib.newSchema(schema.type, $scope.app);
@@ -107,7 +107,7 @@ define(['frame', 'schema', 'wrap'], function (ngApp, schemaLib, wrapLib) {
             }
             _appendSchema(newSchema);
         };
-        $scope.copySchema = function (schema) {
+        $scope.copySchema = function(schema) {
             var newSchema = angular.copy(schema),
                 afterIndex;
 
@@ -115,39 +115,38 @@ define(['frame', 'schema', 'wrap'], function (ngApp, schemaLib, wrapLib) {
             afterIndex = $scope.app.data_schemas.indexOf(schema);
             _appendSchema(newSchema, afterIndex);
         };
-        $scope.removeSchema = function (removedSchema) {
+        $scope.removeSchema = function(removedSchema) {
             if (window.confirm('确定从所有页面上删除登记项［' + removedSchema.title + '］？')) {
                 _removeSchema(removedSchema);
             }
         };
-        $scope.assignEnrollApp = function () {
+        $scope.assignEnrollApp = function() {
             srvEnrollApp.assignEnrollApp();
         };
-        $scope.cancelEnrollApp = function () {
+        $scope.cancelEnrollApp = function() {
             $scope.app.enroll_app_id = '';
             srvEnrollApp.update('enroll_app_id');
         };
-        $scope.assignGroupApp = function () {
+        $scope.assignGroupApp = function() {
             srvEnrollApp.assignGroupApp();
         };
-        $scope.cancelGroupApp = function () {
+        $scope.cancelGroupApp = function() {
             $scope.app.group_app_id = '';
-            srvEnrollApp.update('group_app_id').then(function () {
-            });
+            srvEnrollApp.update('group_app_id').then(function() {});
         };
     }]);
     /**
      * 应用的所有登记项
      */
-    ngApp.provider.controller('ctrlList', ['$scope', '$timeout', '$sce', 'srvEnrollPage', 'srvEnrollApp', 'srvEnrollSchema', function ($scope, $timeout, $sce, srvEnrollPage, srvEnrollApp, srvEnrollSchema) {
+    ngApp.provider.controller('ctrlList', ['$scope', '$timeout', '$sce', 'srvEnrollPage', 'srvEnrollApp', 'srvEnrollSchema', function($scope, $timeout, $sce, srvEnrollPage, srvEnrollApp, srvEnrollSchema) {
         function _changeSchemaOrder(moved) {
-            srvEnrollApp.update('data_schemas').then(function () {
+            srvEnrollApp.update('data_schemas').then(function() {
                 var app = $scope.app;
                 if (app.__schemasOrderConsistent === 'Y') {
                     var i = app.data_schemas.indexOf(moved),
                         prevSchema;
                     if (i > 0) prevSchema = app.data_schemas[i - 1];
-                    app.pages.forEach(function (page) {
+                    app.pages.forEach(function(page) {
                         page.moveSchema(moved, prevSchema);
                         srvEnrollPage.update(page, ['data_schemas', 'html']);
                     });
@@ -155,18 +154,18 @@ define(['frame', 'schema', 'wrap'], function (ngApp, schemaLib, wrapLib) {
             });
         }
 
-        $scope.chooseSchema = function (event, schema) {
+        $scope.chooseSchema = function(event, schema) {
             $scope.activeSchema = schema;
             if ($scope.app.scenario && $scope.activeSchema.type === 'multiple') {
                 angular.isString($scope.activeSchema.answer) && ($scope.activeSchema.answer = $scope.activeSchema.answer.split(','));
                 !$scope.data && ($scope.data = {});
-                angular.forEach($scope.activeSchema.answer, function (answer) {
+                angular.forEach($scope.activeSchema.answer, function(answer) {
                     $scope.data[answer] = true;
                 })
             }
         };
-        $scope.updSchemaMultiple = function (activeSchema) {
-            angular.forEach($scope.data, function (data, key) {
+        $scope.updSchemaMultiple = function(activeSchema) {
+            angular.forEach($scope.data, function(data, key) {
                 !$scope.activeSchema.answer && ($scope.activeSchema.answer = []);
                 var i = $scope.activeSchema.answer.indexOf(key);
                 //如果key 在answer中 data为false，则去掉
@@ -180,13 +179,13 @@ define(['frame', 'schema', 'wrap'], function (ngApp, schemaLib, wrapLib) {
             $scope.activeSchema.answer.join(',');
             $scope.updSchema(activeSchema, 'answer');
         };
-        $scope.schemaHtml = function (schema) {
+        $scope.schemaHtml = function(schema) {
             if (schema) {
                 var bust = (new Date()).getMinutes();
                 return '/views/default/pl/fe/matter/enroll/schema/' + schema.type + '.html?_=' + bust;
             }
         };
-        $scope.schemaEditorHtml = function () {
+        $scope.schemaEditorHtml = function() {
             if ($scope.activeSchema) {
                 var bust = (new Date()).getMinutes();
                 return '/views/default/pl/fe/matter/enroll/schema/main.html?_=' + bust;
@@ -194,7 +193,7 @@ define(['frame', 'schema', 'wrap'], function (ngApp, schemaLib, wrapLib) {
                 return '';
             }
         };
-        $scope.upSchema = function (schema) {
+        $scope.upSchema = function(schema) {
             var schemas = $scope.app.data_schemas,
                 index = schemas.indexOf(schema);
 
@@ -204,7 +203,7 @@ define(['frame', 'schema', 'wrap'], function (ngApp, schemaLib, wrapLib) {
                 _changeSchemaOrder(schema);
             }
         };
-        $scope.downSchema = function (schema) {
+        $scope.downSchema = function(schema) {
             var schemas = $scope.app.data_schemas,
                 index = schemas.indexOf(schema);
 
@@ -215,10 +214,10 @@ define(['frame', 'schema', 'wrap'], function (ngApp, schemaLib, wrapLib) {
             }
         };
 
-        $scope.$on('schemas.orderChanged', function (e, moved) {
+        $scope.$on('schemas.orderChanged', function(e, moved) {
             _changeSchemaOrder(moved);
         });
-        $scope.showSchemaProto = function ($event) {
+        $scope.showSchemaProto = function($event) {
             var target = event.target;
             if (target.dataset.isOpen === 'Y') {
                 delete target.dataset.isOpen;
@@ -228,7 +227,7 @@ define(['frame', 'schema', 'wrap'], function (ngApp, schemaLib, wrapLib) {
                 $(target).trigger('show');
             }
         };
-        $scope.addOption = function (schema, afterIndex) {
+        $scope.addOption = function(schema, afterIndex) {
             var maxSeq = 0,
                 newOp = {
                     l: ''
@@ -237,7 +236,7 @@ define(['frame', 'schema', 'wrap'], function (ngApp, schemaLib, wrapLib) {
             if (schema.ops === undefined) {
                 schema.ops = [];
             }
-            schema.ops.forEach(function (op) {
+            schema.ops.forEach(function(op) {
                 var opSeq = parseInt(op.v.substr(1));
                 opSeq > maxSeq && (maxSeq = opSeq);
             });
@@ -247,64 +246,64 @@ define(['frame', 'schema', 'wrap'], function (ngApp, schemaLib, wrapLib) {
             } else {
                 schema.ops.splice(afterIndex + 1, 0, newOp);
             }
-            $timeout(function () {
+            $timeout(function() {
                 $scope.$broadcast('xxt.editable.add', newOp);
             });
         };
-        $scope.$on('title.xxt.editable.changed', function (e, schema) {
+        $scope.$on('title.xxt.editable.changed', function(e, schema) {
             $scope.updSchema(schema);
         });
-        $scope.removeOption = function (schema, op) {
+        $scope.removeOption = function(schema, op) {
             schema.ops.splice(schema.ops.indexOf(op), 1);
             $scope.updSchema(schema);
         };
         // 回车添加选项
-        $('body').on('keyup', function (evt) {
+        $('body').on('keyup', function(evt) {
             if (evt.keyCode === 13) {
                 var schemaId, opNode, opIndex;
                 opNode = evt.target.parentNode;
                 if (opNode && opNode.getAttribute('evt-prefix') === 'option') {
                     schemaId = opNode.getAttribute('state');
                     opIndex = parseInt(opNode.dataset.index);
-                    $scope.$apply(function () {
+                    $scope.$apply(function() {
                         $scope.addOption($scope.app._schemasById[schemaId], opIndex);
                     });
                 }
             }
         });
-        $scope.$on('options.orderChanged', function (e, moved, schemaId) {
+        $scope.$on('options.orderChanged', function(e, moved, schemaId) {
             $scope.updSchema($scope.app._schemasById[schemaId]);
         });
-        $scope.$on('option.xxt.editable.changed', function (e, op, schemaId) {
+        $scope.$on('option.xxt.editable.changed', function(e, op, schemaId) {
             $scope.updSchema($scope.app._schemasById[schemaId]);
         });
-        $scope.trustAsHtml = function (schema, prop) {
+        $scope.trustAsHtml = function(schema, prop) {
             return $sce.trustAsHtml(schema[prop]);
         };
-        $scope.makePagelet = function (schema) {
-            srvEnrollSchema.makePagelet(schema).then(function (result) {
+        $scope.makePagelet = function(schema) {
+            srvEnrollSchema.makePagelet(schema).then(function(result) {
                 schema.title = $(result.html).text();
                 schema.content = result.html;
                 $scope.updSchema(schema);
             });
         };
         var timerOfUpdate = null;
-        $scope.updSchema = function (oSchema, oBeforeState) {
+        $scope.updSchema = function(oSchema, oBeforeState) {
             //所有页面的schema   和cofig
-            $scope.app.pages.forEach(function (oPage) {
+            $scope.app.pages.forEach(function(oPage) {
                 oPage.updateSchema(oSchema, oBeforeState);
             });
             if (timerOfUpdate !== null) {
                 $timeout.cancel(timerOfUpdate);
             }
-            timerOfUpdate = $timeout(function () {//为何放在定时器里？
-                srvEnrollApp.update('data_schemas').then(function () {
-                    $scope.app.pages.forEach(function (page) {
+            timerOfUpdate = $timeout(function() { //为何放在定时器里？
+                srvEnrollApp.update('data_schemas').then(function() {
+                    $scope.app.pages.forEach(function(page) {
                         srvEnrollPage.update(page, ['data_schemas', 'html']);
                     });
                 });
             }, 1000);
-            timerOfUpdate.then(function () {
+            timerOfUpdate.then(function() {
                 timerOfUpdate = null;
             });
         };
@@ -312,11 +311,11 @@ define(['frame', 'schema', 'wrap'], function (ngApp, schemaLib, wrapLib) {
     /**
      * 登记项编辑
      */
-    ngApp.provider.controller('ctrlSchemaEdit', ['$scope', 'srvEnrollPage', function ($scope, srvEnrollPage) {
+    ngApp.provider.controller('ctrlSchemaEdit', ['$scope', 'srvEnrollPage', function($scope, srvEnrollPage) {
         var editing;
 
         $scope.editing = editing = {};
-        $scope.assocAppName = function (appId) {
+        $scope.assocAppName = function(appId) {
             var assocApp;
             if ($scope.app.enrollApp && $scope.app.enrollApp.id === appId) {
                 return $scope.app.enrollApp.title;
@@ -326,56 +325,29 @@ define(['frame', 'schema', 'wrap'], function (ngApp, schemaLib, wrapLib) {
                 return '';
             }
         };
-        $scope.updConfig = function (prop) {
+        $scope.updConfig = function(prop) {
             var inputPage;
             if (inputPage = $scope.inputPage) {
                 inputPage.updateSchema($scope.activeSchema);
                 srvEnrollPage.update(inputPage, ['data_schemas', 'html']);
             }
         };
-        $scope.changeSchemaType = function () {
+        $scope.changeSchemaType = function() {
             //直接拿的激活 schema数据
             var beforeState = angular.copy($scope.activeSchema);
-            if (schemaLib.changeType($scope.activeSchema, editing.type)) {//修改激活属性
-                //如果新类型是shortext===shorttext
-                // 且老类型是'name', 'mobile', 'email'  增加属性fastSelect
-                if ($scope.activeSchema.type === 'shorttext' && ['name', 'mobile', 'email'].indexOf(beforeState.type) !== -1) {
-                    $scope.activeSchema.fastSelect = beforeState.type;
-                }
-                ;
-                $scope.activeConfig = wrapLib.input.newWrap($scope.activeSchema).config;//修改配置 激活配置哪里用的？用户左侧设置栏
+            if (schemaLib.changeType($scope.activeSchema, editing.type)) { //修改激活属性
+                $scope.activeConfig = wrapLib.input.newWrap($scope.activeSchema).config; //修改配置 激活配置哪里用的？用户左侧设置栏
                 //提交数据，重构后台html
                 $scope.updSchema($scope.activeSchema, beforeState);
             }
         };
-        //自动更改类型
-
-        //$timeout(function () {
-        //    // schema数据
-        //    var schema;
-        //
-        //    schema.fastSelect = $scope.activeSchema.type;
-        //    angular.forEach($scope.app.pages, function(page){
-        //        if(page.type==='I'){
-        //            var changeTypes= [];
-        //            //获取所有schema==='name'和schema==='email'和schema==='moble' 的元素
-        //            if(changeTypes=''){
-        //                angular.forEach(changeTypes, function(changeType){
-        //                    //$scope.updSchema(schema, beforeState);
-        //                })
-        //            }
-        //        }
-        //    });
-        //    //提交数据，重构后台html
-        //    $scope.updSchema(schema, beforeState);
-        //},100000);
-        $scope.$watch('activeSchema', function () {
+        $scope.$watch('activeSchema', function() {
             var page, wrap;
 
             editing.type = $scope.activeSchema.type;
             if (editing.type === 'member') {
                 if ($scope.activeSchema.schema_id) {
-                    (function () {
+                    (function() {
                         var i, j, memberSchema, schema;
                         /*自定义用户*/
                         for (i = $scope.memberSchemas.length - 1; i >= 0; i--) {
@@ -414,25 +386,25 @@ define(['frame', 'schema', 'wrap'], function (ngApp, schemaLib, wrapLib) {
     /**
      * 导入导出记录
      */
-    ngApp.provider.controller('ctrlImport', ['$scope', 'http2', 'noticebox', 'srvEnrollApp', function ($scope, http2, noticebox, srvEnrollApp) {
-        srvEnrollApp.get().then(function (app) {
+    ngApp.provider.controller('ctrlImport', ['$scope', 'http2', 'noticebox', 'srvEnrollApp', function($scope, http2, noticebox, srvEnrollApp) {
+        srvEnrollApp.get().then(function(app) {
             var r = new Resumable({
                 target: '/rest/pl/fe/matter/enroll/import/upload?site=' + app.siteid + '&app=' + app.id,
                 testChunks: false,
             });
             r.assignBrowse(document.getElementById('btnImportRecords'));
-            r.on('fileAdded', function (file, event) {
-                $scope.$apply(function () {
+            r.on('fileAdded', function(file, event) {
+                $scope.$apply(function() {
                     noticebox.progress('开始上传文件');
                 });
                 r.upload();
             });
-            r.on('progress', function (file, event) {
-                $scope.$apply(function () {
+            r.on('progress', function(file, event) {
+                $scope.$apply(function() {
                     noticebox.progress('正在上传文件：' + Math.floor(r.progress() * 100) + '%');
                 });
             });
-            r.on('complete', function () {
+            r.on('complete', function() {
                 var f, lastModified, posted;
                 f = r.files.pop().file;
                 lastModified = f.lastModified ? f.lastModified : (f.lastModifiedDate ? f.lastModifiedDate.getTime() : 0);
@@ -443,14 +415,13 @@ define(['frame', 'schema', 'wrap'], function (ngApp, schemaLib, wrapLib) {
                     lastModified: lastModified,
                     uniqueIdentifier: f.uniqueIdentifier,
                 };
-                http2.post('/rest/pl/fe/matter/enroll/import/endUpload?site=' + app.siteid + '&app=' + app.id, posted, function success(rsp) {
-                });
+                http2.post('/rest/pl/fe/matter/enroll/import/endUpload?site=' + app.siteid + '&app=' + app.id, posted, function success(rsp) {});
             });
         });
         $scope.options = {
             overwrite: 'Y'
         };
-        $scope.downloadTemplate = function () {
+        $scope.downloadTemplate = function() {
             var url = '/rest/pl/fe/matter/enroll/import/downloadTemplate?site=' + $scope.app.siteid + '&app=' + $scope.app.id;
             window.open(url);
         };

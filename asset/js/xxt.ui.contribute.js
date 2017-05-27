@@ -17,7 +17,7 @@ ngMod.service('tmsContribute', ['$http', 'tmsModal', function($http, tmsModal) {
         template += '<dd ng-repeat="m in matters" ng-click="chooseMatter(m)"><span>{{m.title}}</span></dd>';
         template += '</dl>';
         template += '</div>';
-        template += '<div class="modal-footer"><button ng-click="cancel()">关闭</button><button ng-click="ok()">确定</button></div>';
+        template += '<div class="modal-footer"><button class="btn btn-default" ng-click="cancel()">关闭</button><button class="btn btn-success" ng-click="ok()">确定</button></div>';
         tmsModal.open({
             template: template,
             controller: ['$scope', '$tmsModalInstance', function($scope2, $mi) {

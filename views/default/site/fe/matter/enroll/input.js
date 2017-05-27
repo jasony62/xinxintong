@@ -5,14 +5,13 @@ require('../../../../../../asset/js/xxt.ui.image.js');
 require('../../../../../../asset/js/xxt.ui.geo.js');
 
 var ngApp = require('./main.js');
-ngApp.config(['$compileProvider', function ($compileProvider) {
+ngApp.config(['$compileProvider', function($compileProvider) {
     $compileProvider.aHrefSanitizationWhitelist(/^\s*(https?|ftp|mailto|tel|file|sms|wxLocalResource):/);
 }]);
 ngApp.factory('Record', ['http2', '$q', function(http2, $q) {
     var Record, _ins;
-    Record = function () {
-    };
-    Record.prototype.get = function (ek) {
+    Record = function() {};
+    Record.prototype.get = function(ek) {
         var url, deferred;
         deferred = $q.defer();
         url = LS.j('record/get', 'site', 'aid');
@@ -23,12 +22,12 @@ ngApp.factory('Record', ['http2', '$q', function(http2, $q) {
         return deferred.promise;
     };
     return {
-        ins: function () {
+        ins: function() {
             return _ins ? _ins : (new Record());
         }
     };
 }]);
-ngApp.factory('Input', ['$http', '$q', '$timeout', 'ls', function ($http, $q, $timeout, LS) {
+ngApp.factory('Input', ['$http', '$q', '$timeout', 'ls', function($http, $q, $timeout, LS) {
     function required(value, len) {
         return (value == null || value == "" || value.length < len) ? false : true;
     }
@@ -75,9 +74,8 @@ ngApp.factory('Input', ['$http', '$q', '$timeout', 'ls', function ($http, $q, $t
     }
 
     var Input, _ins;
-    Input = function () {
-    };
-    Input.prototype.check = function (data, app, page) {
+    Input = function() {};
+    Input.prototype.check = function(data, app, page) {
         var reason, dataSchemas, item, schema, value;
         //验证手机号和姓名规则
         if (true !== (reason = validate(data))) {
@@ -102,55 +100,50 @@ ngApp.factory('Input', ['$http', '$q', '$timeout', 'ls', function ($http, $q, $t
                         value = data[schema.id];
                     }
                     if (value === undefined || isEmpty(schema, value)) {
-                        return '请填写必填项［' + schema.title + '］';
+                        return '请填写必填题目［' + schema.title + '］';
                     }
                 }
                 //最终删掉 schema.number
                 if (schema.number && schema.number === 'Y') {
                     value = data[schema.id];
                     if (!/^-{0,1}[0-9]+(.[0-9]+){0,1}$/.test(value)) {
-                        return '填写项［' + schema.title + '］只能填写数值';
+                        return '题目［' + schema.title + '］只能填写数值';
                     }
                 }
-                if (schema.fastSelect) {
+                if (schema.format) {
                     var value = data[schema.id];
-                    if (schema.fastSelect === 'number') {
+                    if (schema.format === 'number') {
                         //验证规则
                         if (!/^-{0,1}[0-9]+(.[0-9]+){0,1}$/.test(value)) {
-                            return '填写项［' + schema.title + '］只能填写数值';
+                            return '题目［' + schema.title + '］只能填写数值';
                         }
-
-                    } else if (schema.fastSelect === 'name') {
+                    } else if (schema.format === 'name') {
                         //验证规则
-                        if(value.length < 2){return '请提供您的姓名！';}
-
-                    } else if (schema.fastSelect === 'mobile') {
+                        if (value.length < 2) {
+                            return '请提供正确的姓名！';
+                        }
+                    } else if (schema.format === 'mobile') {
                         //验证规则
                         //reason = '请提供正确的手机号（11位数字）！';
-                        if(!/^(\+86|0086)?\s*1[3|4|5|7|8]\d{9}$/.test(value)){
-                            return '请提供正确的手机号（11位数字）！';
+                        if (!/^(\+86|0086)?\s*1[3|4|5|7|8]\d{9}$/.test(value)) {
+                            return '题目［' + schema.title + '］只能填写手机号（11位数字）！';
                         }
-
-                    } else if (schema.fastSelect === 'email') {
-                        //reason = '请提供正确的邮箱！';
+                    } else if (schema.format === 'email') {
                         //1. 开头字母数字下划线 至少一个 ^\w+
                         //2. 一个@
                         //3.字母数字下划线 至少一个 \w+
                         //4. 一个'.' 注意. 在增则中有意义需要转译  \.
-                        //5. 一个com com  \.
                         //   /^\w+@\w+\.com/
-
-                        if(!/^\w+@\w+\.com/.test(value)){
-                            return '请提供正确的邮箱 ！';
+                        if (!/^\w+@\w+/.test(value)) {
+                            return '题目［' + schema.title + '］只能填写邮箱！';
                         }
-
-                    } else if (schema.fastSelect === 'date') {
+                    } else if (schema.format === 'date') {
                         //未定义
-                        //alert(schema.fastSelect);
+                        //alert(schema.format);
                     }
                 }
                 if (/image|file/.test(schema.type)) {
-                    if (schema.count && schema.count!=0) {
+                    if (schema.count && schema.count != 0) {
                         if (data[schema.id] && data[schema.id].length > schema.count) {
                             return '［' + schema.title + '］超出上传数量（' + schema.count + '）限制';
                         }
@@ -187,16 +180,16 @@ ngApp.factory('Input', ['$http', '$q', '$timeout', 'ls', function ($http, $q, $t
             } else {
                 defer.resolve(rsp);
             }
-        }).error(function (content, httpCode) {
+        }).error(function(content, httpCode) {
             if (httpCode === 401) {
                 var el = document.createElement('iframe');
                 el.setAttribute('id', 'frmPopup');
-                el.onload = function () {
+                el.onload = function() {
                     this.height = document.querySelector('body').clientHeight;
                 };
                 document.body.appendChild(el);
                 if (content.indexOf('http') === 0) {
-                    window.onAuthSuccess = function () {
+                    window.onAuthSuccess = function() {
                         el.style.display = 'none';
                     };
                     el.setAttribute('src', content);
@@ -215,7 +208,7 @@ ngApp.factory('Input', ['$http', '$q', '$timeout', 'ls', function ($http, $q, $t
         return defer.promise;
     };
     return {
-        ins: function () {
+        ins: function() {
             if (!_ins) {
                 _ins = new Input();
             }
@@ -223,10 +216,10 @@ ngApp.factory('Input', ['$http', '$q', '$timeout', 'ls', function ($http, $q, $t
         }
     }
 }]);
-ngApp.directive('tmsImageInput', ['$compile', '$q', function ($compile, $q) {
+ngApp.directive('tmsImageInput', ['$compile', '$q', function($compile, $q) {
     var modifiedImgFields, openPickFrom, onSubmit;
     modifiedImgFields = [];
-    openPickFrom = function (scope) {
+    openPickFrom = function(scope) {
         var html;
         html = "<div class='form-group'><button class='btn btn-default btn-lg btn-block' ng-click=\"chooseImage(null,null,'camera')\">拍照</button></div>";
         html += "<div class='form-group'><button class='btn btn-default btn-lg btn-block' ng-click=\"chooseImage(null,null,'album')\">相册</button></div>";
@@ -235,17 +228,17 @@ ngApp.directive('tmsImageInput', ['$compile', '$q', function ($compile, $q) {
         });
         $compile(html)(scope);
     };
-    onSubmit = function (data) {
+    onSubmit = function(data) {
         var defer = $q.defer(),
             i = 0,
             j = 0,
             nextWxImage;
         if (window.wx !== undefined && modifiedImgFields.length) {
-            nextWxImage = function () {
+            nextWxImage = function() {
                 var imgField, img;
                 imgField = data[modifiedImgFields[i]];
                 img = imgField[j];
-                window.xxt.image.wxUpload($q.defer(), img).then(function (data) {
+                window.xxt.image.wxUpload($q.defer(), img).then(function(data) {
                     if (j < imgField.length - 1) {
                         /* next img*/
                         j++;
@@ -268,15 +261,15 @@ ngApp.directive('tmsImageInput', ['$compile', '$q', function ($compile, $q) {
     };
     return {
         restrict: 'A',
-        controller: ['$scope', '$timeout', function ($scope, $timeout) {
-            $scope.beforeSubmit(function () {
+        controller: ['$scope', '$timeout', function($scope, $timeout) {
+            $scope.beforeSubmit(function() {
                 return onSubmit($scope.data);
             });
-            $scope.chooseImage = function (imgFieldName, count, from) {
+            $scope.chooseImage = function(imgFieldName, count, from) {
                 if (imgFieldName !== null) {
                     modifiedImgFields.indexOf(imgFieldName) === -1 && modifiedImgFields.push(imgFieldName);
                     $scope.data[imgFieldName] === undefined && ($scope.data[imgFieldName] = []);
-                    if (count !== null && $scope.data[imgFieldName].length === count && count!=0) {
+                    if (count !== null && $scope.data[imgFieldName].length === count && count != 0) {
                         $scope.$parent.errmsg = '最多允许上传' + count + '张图片';
                         return;
                     }
@@ -291,17 +284,17 @@ ngApp.directive('tmsImageInput', ['$compile', '$q', function ($compile, $q) {
                     $scope.cachedImgFieldName = null;
                     angular.element('#pickImageFrom').remove();
                 }
-                window.xxt.image.choose($q.defer(), from).then(function (imgs) {
+                window.xxt.image.choose($q.defer(), from).then(function(imgs) {
                     var phase, i, j, img;
                     phase = $scope.$root.$$phase;
                     if (phase === '$digest' || phase === '$apply') {
                         $scope.data[imgFieldName] = $scope.data[imgFieldName].concat(imgs);
                     } else {
-                        $scope.$apply(function () {
+                        $scope.$apply(function() {
                             $scope.data[imgFieldName] = $scope.data[imgFieldName].concat(imgs);
                         });
                     }
-                    $timeout(function () {
+                    $timeout(function() {
                         for (i = 0, j = imgs.length; i < j; i++) {
                             img = imgs[i];
                             if (window.wx !== undefined) {
@@ -312,44 +305,44 @@ ngApp.directive('tmsImageInput', ['$compile', '$q', function ($compile, $q) {
                     });
                 });
             };
-            $scope.removeImage = function (imgField, index) {
+            $scope.removeImage = function(imgField, index) {
                 imgField.splice(index, 1);
             };
         }]
     }
 }]);
-ngApp.directive('tmsFileInput', ['$q', 'ls', 'tmsDynaPage', function ($q, LS, tmsDynaPage) {
+ngApp.directive('tmsFileInput', ['$q', 'ls', 'tmsDynaPage', function($q, LS, tmsDynaPage) {
     var r, onSubmit;
-    tmsDynaPage.loadScript(['/static/js/resumable.js']).then(function () {
+    tmsDynaPage.loadScript(['/static/js/resumable.js']).then(function() {
         r = new Resumable({
             target: LS.j('record/uploadFile', 'site', 'app'),
             testChunks: false,
             chunkSize: 512 * 1024
         });
     });
-    onSubmit = function ($scope) {
+    onSubmit = function($scope) {
         var defer;
         defer = $q.defer();
         if (!r.files || r.files.length === 0)
             defer.resolve('empty');
-        r.on('progress', function () {
+        r.on('progress', function() {
             var phase, p;
             p = r.progress();
             var phase = $scope.$root.$$phase;
             if (phase === '$digest' || phase === '$apply') {
                 $scope.progressOfUploadFile = Math.ceil(p * 100);
             } else {
-                $scope.$apply(function () {
+                $scope.$apply(function() {
                     $scope.progressOfUploadFile = Math.ceil(p * 100);
                 });
             }
         });
-        r.on('complete', function () {
+        r.on('complete', function() {
             var phase = $scope.$root.$$phase;
             if (phase === '$digest' || phase === '$apply') {
                 $scope.progressOfUploadFile = '完成';
             } else {
-                $scope.$apply(function () {
+                $scope.$apply(function() {
                     $scope.progressOfUploadFile = '完成';
                 });
             }
@@ -361,22 +354,22 @@ ngApp.directive('tmsFileInput', ['$q', 'ls', 'tmsDynaPage', function ($q, LS, tm
     };
     return {
         restrict: 'A',
-        controller: ['$scope', function ($scope) {
+        controller: ['$scope', function($scope) {
             $scope.progressOfUploadFile = 0;
-            $scope.beforeSubmit(function () {
+            $scope.beforeSubmit(function() {
                 return onSubmit($scope);
             });
-            $scope.chooseFile = function (fileFieldName, count, accept) {
+            $scope.chooseFile = function(fileFieldName, count, accept) {
                 var ele = document.createElement('input');
                 ele.setAttribute('type', 'file');
                 accept !== undefined && ele.setAttribute('accept', accept);
-                ele.addEventListener('change', function (evt) {
+                ele.addEventListener('change', function(evt) {
                     var i, cnt, f;
                     cnt = evt.target.files.length;
                     for (i = 0; i < cnt; i++) {
                         f = evt.target.files[i];
                         r.addFile(f);
-                        $scope.$apply(function () {
+                        $scope.$apply(function() {
                             $scope.data[fileFieldName] === undefined && ($scope.data[fileFieldName] = []);
                             $scope.data[fileFieldName].push({
                                 uniqueIdentifier: r.files[r.files.length - 1].uniqueIdentifier,
@@ -408,7 +401,7 @@ ngApp.controller('ctrlInput', ['$scope', '$http', '$q', '$uibModal', '$timeout',
                     }
                 }
                 eles = document.querySelectorAll("[ng-model^='data.member']");
-                angular.forEach(eles, function (ele) {
+                angular.forEach(eles, function(ele) {
                     var attr;
                     attr = ele.getAttribute('ng-model');
                     attr = attr.replace('data.member.', '');
@@ -426,7 +419,7 @@ ngApp.controller('ctrlInput', ['$scope', '$http', '$q', '$uibModal', '$timeout',
 
     function doTask(seq, nextAction) {
         var task = tasksOfBeforeSubmit[seq];
-        task().then(function (rsp) {
+        task().then(function(rsp) {
             seq++;
             seq < tasksOfBeforeSubmit.length ? doTask(seq, nextAction) : doSubmit(nextAction);
         });
@@ -457,13 +450,13 @@ ngApp.controller('ctrlInput', ['$scope', '$http', '$q', '$uibModal', '$timeout',
                 }
                 $scope.$broadcast('xxt.app.enroll.submit.done', rsp.data);
             }
-        }, function (reason) {
+        }, function(reason) {
             // 如果放开提交状态，有可能导致用户多次提交
             $scope.$parent.errmsg = reason;
         });
     }
 
-    window.onbeforeunload = function () {
+    window.onbeforeunload = function() {
         // 保存未提交数据
         submitState.modified && submitState.cache();
     };
@@ -478,7 +471,7 @@ ngApp.controller('ctrlInput', ['$scope', '$http', '$q', '$uibModal', '$timeout',
     $scope.submitState = submitState = {
         modified: false,
         state: 'waiting',
-        start: function (event) {
+        start: function(event) {
             var submitButton;
             if (event) {
                 submitButton = event.target;
@@ -495,7 +488,7 @@ ngApp.controller('ctrlInput', ['$scope', '$http', '$q', '$uibModal', '$timeout',
             }
             this.state = 'running';
         },
-        finish: function () {
+        finish: function() {
             var cacheKey;
             this.state = 'waiting';
             this.modified = false;
@@ -512,14 +505,14 @@ ngApp.controller('ctrlInput', ['$scope', '$http', '$q', '$uibModal', '$timeout',
                 window.localStorage.removeItem(cacheKey);
             }
         },
-        isRunning: function () {
+        isRunning: function() {
             return this.state === 'running';
         },
-        _cacheKey: function () {
+        _cacheKey: function() {
             var app = $scope.app;
             return '/site/' + app.siteid + '/app/' + app.id + '/record/' + ($scope.record ? $scope.record.enroll_key : '') + '/unsubmit';
         },
-        cache: function () {
+        cache: function() {
             if (window.localStorage) {
                 var key, val;
                 key = this._cacheKey();
@@ -529,7 +522,7 @@ ngApp.controller('ctrlInput', ['$scope', '$http', '$q', '$uibModal', '$timeout',
                 window.localStorage.setItem(key, val);
             }
         },
-        fromCache: function (keep) {
+        fromCache: function(keep) {
             if (window.localStorage) {
                 var key, val;
                 key = this._cacheKey();
@@ -546,13 +539,13 @@ ngApp.controller('ctrlInput', ['$scope', '$http', '$q', '$uibModal', '$timeout',
             return val;
         }
     };
-    $scope.beforeSubmit = function (fn) {
+    $scope.beforeSubmit = function(fn) {
         if (tasksOfBeforeSubmit.indexOf(fn) === -1) {
             tasksOfBeforeSubmit.push(fn);
         }
     };
     var hasSetMember = false;
-    $scope.$on('xxt.app.enroll.ready', function (event, params) {
+    $scope.$on('xxt.app.enroll.ready', function(event, params) {
         var schemasById,
             dataOfRecord, p, value;
 
@@ -606,7 +599,7 @@ ngApp.controller('ctrlInput', ['$scope', '$http', '$q', '$uibModal', '$timeout',
             }
         }
         // 跟踪数据变化
-        $scope.$watch('data', function (nv, ov) {
+        $scope.$watch('data', function(nv, ov) {
             if (nv !== ov) {
                 submitState.modified = true;
             }
@@ -619,7 +612,7 @@ ngApp.controller('ctrlInput', ['$scope', '$http', '$q', '$uibModal', '$timeout',
             domTip.dispatchEvent(evt);
         }
     });
-    $scope.$watch('data.member.schema_id', function (schemaId) {
+    $scope.$watch('data.member.schema_id', function(schemaId) {
         if (false === hasSetMember && schemaId && $scope.user) {
             setMember($scope.user, $scope.data.member);
             hasSetMember = true;
@@ -638,8 +631,8 @@ ngApp.controller('ctrlInput', ['$scope', '$http', '$q', '$uibModal', '$timeout',
             }
         }
     };
-    $scope.getMyLocation = function (prop) {
-        window.xxt.geo.getAddress($http, $q.defer(), LS.p.site).then(function (data) {
+    $scope.getMyLocation = function(prop) {
+        window.xxt.geo.getAddress($http, $q.defer(), LS.p.site).then(function(data) {
             if (data.errmsg === 'ok') {
                 $scope.data[prop] = data.address;
             } else {
@@ -647,11 +640,11 @@ ngApp.controller('ctrlInput', ['$scope', '$http', '$q', '$uibModal', '$timeout',
             }
         });
     };
-    $scope.dataBySchema = function (schemaId) {
+    $scope.dataBySchema = function(schemaId) {
         var app = $scope.app;
         $uibModal.open({
             templateUrl: 'dataBySchema.html',
-            controller: ['$scope', '$uibModalInstance', function ($scope2, $mi) {
+            controller: ['$scope', '$uibModalInstance', function($scope2, $mi) {
                 $scope2.data = {};
                 $scope2.cancel = function() { $mi.dismiss(); };
                 $scope2.ok = function() { $mi.close($scope2.data); };
@@ -661,24 +654,24 @@ ngApp.controller('ctrlInput', ['$scope', '$http', '$q', '$uibModal', '$timeout',
             }],
             windowClass: 'auto-height',
             backdrop: 'static',
-        }).result.then(function (result) {
-                $scope.data[schemaId] = result.selected.value;
-            });
+        }).result.then(function(result) {
+            $scope.data[schemaId] = result.selected.value;
+        });
     };
-    $scope.score = function (schemaId, opIndex, number) {
+    $scope.score = function(schemaId, opIndex, number) {
         var schema = $scope.schemasById[schemaId],
             op = schema.ops[opIndex];
 
         if ($scope.data[schemaId] === undefined) {
             $scope.data[schemaId] = {};
-            schema.ops.forEach(function (op) {
+            schema.ops.forEach(function(op) {
                 $scope.data[schema.id][op.v] = 0;
             });
         }
 
         $scope.data[schemaId][op.v] = number;
     };
-    $scope.lessScore = function (schemaId, opIndex, number) {
+    $scope.lessScore = function(schemaId, opIndex, number) {
         if (!$scope.schemasById) return false;
 
         var schema = $scope.schemasById[schemaId],

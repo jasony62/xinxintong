@@ -268,7 +268,7 @@ define(['require', 'schema', 'page'], function(require, schemaLib, pageLib) {
                         if (name === 'tags') {
                             modifiedData.tags = _oApp.tags.join(',');
                         } else {
-                            modifiedData[name] = _oApp[name];
+                            modifiedData[name] = _oApp[name];//_oApp  登记活动包  哪里传过来的？
                         }
                     });
 

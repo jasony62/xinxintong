@@ -5,10 +5,15 @@
     </div>
     <div class="radio" ng-show="'shorttext'===activeSchema.type">
         <div style="display:block;max-width:100%;margin-bottom:5px;font-weight:bold">填写限制</div>
-        <label><input type='radio' value="number" name="fastSelect" ng-model='activeSchema.fastSelect' ng-change="updSchema(activeSchema,'fastSelect')">数值</label>
-        <label><input type='radio' value="name" name="fastSelect" ng-model='activeSchema.fastSelect' ng-change="updSchema(activeSchema,'fastSelect')">姓名</label>
-        <label><input type='radio' value="mobile" name="fastSelect" ng-model='activeSchema.fastSelect' ng-change="updSchema(activeSchema,'fastSelect')">手机</label>
-        <label><input type='radio' value="email" name="fastSelect" ng-model='activeSchema.fastSelect' ng-change="updSchema(activeSchema,'fastSelect')">邮箱</label>
+        <div>
+            <label><input type='radio' value="" name="fastSelect" ng-model='activeSchema.fastSelect' ng-change="updSchema(activeSchema,'fastSelect')">不限</label>
+        </div>
+        <div>
+            <label><input type='radio' value="number" name="fastSelect" ng-model='activeSchema.fastSelect' ng-change="updSchema(activeSchema,'fastSelect')">数值</label>
+            <label><input type='radio' value="name" name="fastSelect" ng-model='activeSchema.fastSelect' ng-change="updSchema(activeSchema,'fastSelect')">姓名</label>
+            <label><input type='radio' value="mobile" name="fastSelect" ng-model='activeSchema.fastSelect' ng-change="updSchema(activeSchema,'fastSelect')">手机</label>
+            <label><input type='radio' value="email" name="fastSelect" ng-model='activeSchema.fastSelect' ng-change="updSchema(activeSchema,'fastSelect')">邮箱</label>
+        </div>
     </div>
     <div class="form-group">
         <label>题目类型</label>

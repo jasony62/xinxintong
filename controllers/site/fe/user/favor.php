@@ -29,9 +29,9 @@ class favor extends \site\fe\base {
 			['unionid' => $loginUserid],
 		];
 		// 指定团队下的访问记录
-		if (!empty($this->siteId) && $this->siteId !== 'platform') {
-			$q[2]['siteid'] = $this->siteId;
-		}
+		//if (!empty($this->siteId) && $this->siteId !== 'platform') {
+		//	$q[2]['siteid'] = $this->siteId;
+		//}
 		$q2 = [
 			'o' => 'favor_at desc',
 			'r' => ['o' => ($page - 1) * $size, $size, 'l' => $size],
@@ -53,6 +53,24 @@ class favor extends \site\fe\base {
 		}
 
 		return new \ResponseData($result);
+	}
+	/**
+	 *
+	 */
+	public function count_action() {
+		if (!isset($this->who->unionid)) {
+			return new \ResponseError('仅限登录用户操作');
+		}
+		$model = $this->model();
+		$loginUserid = $this->who->unionid;
+		$q = [
+			'count(*)',
+			'xxt_site_favor',
+			['unionid' => $loginUserid],
+		];
+		$count = $model->query_val_ss($q);
+
+		return new \ResponseData($count);
 	}
 	/**
 	 * 加入收藏
@@ -107,7 +125,7 @@ class favor extends \site\fe\base {
 		$q = [
 			'id,favor_at',
 			'xxt_site_favor',
-			['siteid' => $this->siteId, 'unionid' => $loginUserid, 'matter_id' => $id, 'matter_type' => $type],
+			['unionid' => $loginUserid, 'matter_id' => $id, 'matter_type' => $type],
 		];
 		$log = $model->query_obj_ss($q);
 
@@ -124,7 +142,7 @@ class favor extends \site\fe\base {
 
 		$rst = $this->model()->delete(
 			'xxt_site_favor',
-			['siteid' => $this->siteId, 'unionid' => $loginUserid, 'matter_id' => $id, 'matter_type' => $type]
+			['unionid' => $loginUserid, 'matter_id' => $id, 'matter_type' => $type]
 		);
 
 		return new \ResponseData($rst);

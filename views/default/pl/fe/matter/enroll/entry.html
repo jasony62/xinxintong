@@ -1,0 +1,123 @@
+<div class="col-md-6">
+    <div class='form-group'>
+        <div class='list-group-item'>
+            <div ng-if="app.multi_rounds==='Y'">当前轮次：{{summary[0].title}}</div>
+            <div><span>打开次数：{{app.read_num}}</span>，<span ng-if="app.multi_rounds!=='Y'"><a href="" ng-click="switchTo('record')">填写数量：{{summary.total}}</a></span><span ng-if="app.multi_rounds==='Y'"><a href="/rest/pl/fe/matter/enroll/record?site={{app.siteid}}&id={{app.id}}">填写数量：{{summary[0].total}}</a></span></div>
+            <div><span>分享好友：{{app.share_friend_num}}</span>，<span>分享朋友圈：{{app.share_timeline_num}}</span></div>
+        </div>
+    </div>
+    <div class="panel panel-default">
+        <div class="panel-heading">填写链接</div>
+        <div class="panel-body">
+            <div class='form-group'>
+                <div class='input-group'>
+                    <input class='form-control' readonly value="{{entry.url}}">
+                    <span class='input-group-btn'>
+                                    <button class='btn btn-default text2Clipboard' data-clipboard-text="{{entry.url}}">复制</button>
+                                    <a class='btn btn-default' ng-href="{{entry.url}}" target='_blank' title='打开'><i class='glyphicon glyphicon-open'></i></a>
+                                </span>
+                </div>
+            </div>
+            <div class="form-group compact" ng-if="app.entry_rule.scope!=='sns'||sns.qy.joined==='Y'">
+                <span><img id='entryQrcode' ng-src="{{entry.qrcode}}"></span>
+                <button class='btn btn-default' ng-click="downloadQrcode(entry.qrcode)">下载</button>
+            </div>
+            <div class='form-group compact' ng-if="app.entry_rule.scope==='sns'&&sns.wx.can_qrcode==='Y'" ng-controller="ctrlWxQrcode">
+                <label>微信二维码</label>
+                <div ng-if='!qrcode'>
+                    <button class='btn btn-default' ng-click="create()">生成微信二维码</button>
+                </div>
+                <div ng-if='qrcode'>
+                    <span><img style='width:135px;height:135px;' ng-src="{{qrcode.pic}}"></span>
+                    <button class='btn btn-default' ng-click="download()">下载</button>
+                </div>
+            </div>
+            <div class='form-group compact' ng-if="app.entry_rule.scope==='sns'&&sns.yx.can_qrcode==='Y'">
+                <label>易信二维码</label>
+            </div>
+        </div>
+    </div>
+    <div class="panel panel-default" ng-controller="ctrlOpUrl">
+        <div class="panel-heading">汇总结果分享链接</div>
+        <div class="panel-body">
+            <div class='form-group'>
+                <div class='input-group'>
+                    <input class='form-control' readonly value="{{opEntry.url}}">
+                    <span class='input-group-btn'>
+                                    <button class='btn btn-default text2Clipboard' data-clipboard-text="{{opEntry.url}}">复制</button>
+                                    <a class='btn btn-default' ng-href="{{opEntry.url}}" target='_blank' title='打开'><i class='glyphicon glyphicon-open'></i></a>
+                                </span>
+                </div>
+            </div>
+            <div class='form-group'>
+                <button class='btn btn-default' ng-if="!opEntry.url" ng-click="makeOpUrl()">生成</button>
+                <button class='btn btn-default' ng-if="opEntry.url" ng-click="closeOpUrl()">关闭</button>
+                <button uib-popover-template="'opUrlPasswd.html'" popover-append-to-body='true' popover-placement="bottom" popover-title="访问密码" popover-trigger="outsideClick" type="button" class="btn btn-default" class='btn btn-default' ng-if="opEntry.url">密码 <span class="caret"></span></button>
+            </div>
+            <div class='form-group' ng-if="opEntry.url">
+                <label class='checkbox-inline'>
+                    <input type='checkbox' ng-true-value="'Y'" ng-false-value="'N'" ng-model="opEntry.can_favor" ng-change="updCanFavor()">支持收藏</label>
+                <p class='help-block'>分享链接有效期1小时，设置【支持收藏】后，用户可收藏本链接，避免有效期限制</p>
+            </div>
+        </div>
+    </div>
+    <div class="panel panel-default">
+        <div class="panel-heading">公众号分享设置</div>
+        <div class="panel-body">
+            <div class='form-group'>
+                <label>分享卡片头图（可选，建议尺寸360*200）</label>
+                <div style='position:relative'>
+                    <div style="width:182px;border:1px solid #CCC">
+                        <div style="height:100px;text-align:center;padding-top:32px" ng-if="!app.pic">
+                            <button class='btn btn-default' ng-click='setPic();'>
+                                <span class='glyphicon glyphicon-picture'></span>选择图片</button>
+                        </div>
+                        <div style='position:relative' ng-if="app.pic!=''" ng-mouseenter='hover=true' ng-mouseleave='hover=false'>
+                            <img name='pic' ng-src="{{app.pic}}" width='180px' />
+                            <button class='btn btn-default btn-sm' style='position:absolute;top:2px;left:2px' ng-if='hover' ng-click='setPic();'>
+                                <span class='glyphicon glyphicon-picture'></span>
+                            </button>
+                            <button class='btn btn-default btn-sm' style='position:absolute;top:2px;right:2px' ng-if='hover' ng-click='removePic();'>
+                                <span class='glyphicon glyphicon-trash'></span>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class='form-group'>
+                <label>分享卡片摘要（可选）</label>
+                <textarea class='form-control' ng-model='app.summary' rows=5 tms-auto-update tms-wait=1000 tms-update="update('summary')"></textarea>
+            </div>
+        </div>
+    </div>
+    <script type="text/ng-template" id="pageSetting.html">
+        <div class='checkbox'>
+            <label>
+                <input type='checkbox' ng-true-value="'Y'" ng-false-value="'N'" ng-model='app.use_site_header' ng-change="update('use_site_header');">使用站点页眉</label>
+        </div>
+        <div class='checkbox'>
+            <label>
+                <input type='checkbox' ng-true-value="'Y'" ng-false-value="'N'" ng-model='app.use_site_footer' ng-change="update('use_site_footer');">使用站点页脚</label>
+        </div>
+        <div class='checkbox' ng-if="app.mission_id>0">
+            <label>
+                <input type='checkbox' ng-true-value="'Y'" ng-false-value="'N'" ng-model='app.use_mission_header' ng-change="update('use_mission_header');">使用项目页眉</label>
+        </div>
+        <div class='checkbox' ng-if="app.mission_id>0">
+            <label>
+                <input type='checkbox' ng-true-value="'Y'" ng-false-value="'N'" ng-model='app.use_mission_footer' ng-change="update('use_mission_footer');">使用项目页脚</label>
+        </div>
+    </script>
+    <script type="text/ng-template" id="opUrlPasswd.html">
+        <div id="opUrlPasswd">
+            <div class='form-group'>
+                <div class='input-group'>
+                    <input class='form-control' ng-model="opEntry.password">
+                    <span class='input-group-btn'>
+                    <button class='btn btn-default' ng-click="configOpUrl($event,'password')">设置</button>
+                </span>
+                </div>
+            </div>
+        </div>
+    </script>
+</div>

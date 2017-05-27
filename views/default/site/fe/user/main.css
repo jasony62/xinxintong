@@ -1,0 +1,6 @@
+.container{margin-top:71px;margin-bottom:71px;}
+.navbar .navbar-text{float:none;}
+.avatar{text-align:center;}
+.avatar .headimg{width:64px;height:64px;}
+.avatar .nickname{height:4em;line-height:4em;}
+.subscription .badge-new{margin-left:.5em;background:#dd0000;display:inline-block;width:8px;height:8px;border-radius:3px;}

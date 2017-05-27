@@ -21,19 +21,21 @@
                         <option value='cus'>自定义</option>
                     </select>
                 </div>
-                <div class='form-group' ng-show="s.valid==='Y'">
+                <div class='form-group'>
                     <select class='form-control' title='数据有效期' ng-model='s.validity' ng-options='d.v as d.n for d in days' ng-change="updSchema(s,'validity')"></select>
                 </div>
-                <div class='form-group' ng-show="s.valid==='Y'">
+                <div class='form-group'>
                     <button class='btn btn-success' ng-click='addExtattr(s)'>增加信息项</button>
                     <button class='btn btn-default' ng-if="s.type==='inner'" ng-click='gotoCode(s)'>定制认证页面</button>
                     <button class='btn btn-default' ng-if="s.type==='inner'" ng-click='resetCode(s)'>重置认证页面</button>
                 </div>
             </div>
         </div>
-        <div class='form-group' ng-show="s.valid==='Y'">
+        <div class='form-group'>
             <div class='form-inline'>
-                <div class="form-group" ng-show="s.valid==='Y'">
+                <div class="form-group">
+                    <label class='checkbox-inline'>
+                        <input type='checkbox' ng-true-value="'Y'" ng-false-value="'N'" ng-model='s.require_invite' ng-change="updSchema(s,'require_invite')">通过邀请码验证</label>
                     <label class='checkbox-inline'>
                         <input type='checkbox' ng-true-value="'N'" ng-false-value="'Y'" ng-model='s.auto_verified' ng-change="updSchema(s,'auto_verified')">是否需要管理员审核</label>
                     <label class='checkbox-inline'>
@@ -44,7 +46,7 @@
                 </div>
             </div>
         </div>
-        <div ng-show="s.valid==='Y'">
+        <div>
             <div class='form-group'>
                 <table class='table table-bordered'>
                     <thead>

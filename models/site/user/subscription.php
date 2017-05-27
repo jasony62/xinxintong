@@ -10,7 +10,7 @@ class subscription_model extends \TMS_MODEL {
 	 * @param string $userId
 	 * @param string $siteId
 	 */
-	public function byUser($unionid, $siteId, $options = []) {
+	public function byUser($unionid, $siteId = '', $options = []) {
 		$fields = isset($options['fields']) ? $options['fields'] : '*';
 		$page = isset($options['page']) ? $options['page'] : ['at' => 1, 'size' => 30];
 		$result = new \stdClass;
@@ -18,8 +18,11 @@ class subscription_model extends \TMS_MODEL {
 		$q = [
 			$fields,
 			'xxt_site_subscription',
-			['unionid' => $unionid, 'siteid' => $siteId],
+			['unionid' => $unionid],
 		];
+		if (!empty($siteId)) {
+			$q[2]['siteid'] = $siteId;
+		}
 		$q2 = ['o' => 'put_at desc', 'r' => ['o' => ($page['at'] - 1) * $page['size'], 'l' => $page['size']]];
 
 		$result->matters = $this->query_objs_ss($q, $q2);
@@ -28,5 +31,24 @@ class subscription_model extends \TMS_MODEL {
 		$result->total = $this->query_val_ss($q);
 
 		return $result;
+	}
+	/**
+	 *
+	 *
+	 * @param string $userId
+	 */
+	public function countByUser($unionid, $options = []) {
+		$q = [
+			'count(*)',
+			'xxt_site_subscription',
+			"unionid='{$unionid}'",
+		];
+		if (!empty($options['afterAt'])) {
+			$q[2] .= " and put_at>={$options['afterAt']}";
+		}
+
+		$count = $this->query_val_ss($q);
+
+		return $count;
 	}
 }

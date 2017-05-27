@@ -1,0 +1,190 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <meta charset="UTF-8">
+    <meta content="width=device-width,user-scalable=no,initial-scale=1.0" name="viewport">
+    <base href='/'>
+    <link href="/static/css/bootstrap.min.css" rel="stylesheet">
+    <link href="/static/css/tms.css" rel="stylesheet">
+    <link href="/views/default/pl/fe/site/mschema.css" rel="stylesheet">
+    <title>团队——通讯录</title>
+</head>
+
+<body ng-controller='ctrlMschema'>
+    <nav class='navbar navbar-default navbar-fixed-top'>
+        <div class='container'>
+            <div class='navbar-header'>
+                <a class='navbar-text' href='/rest/pl/fe' target='_self'><i class='glyphicon glyphicon-chevron-left'></i> 个人工作台</a>
+            </div>
+            <ul class='nav navbar-nav'>
+                <li class='active'><a href='/rest/pl/fe/site/mschema?site={{siteId}}'>通讯录</a></li>
+            </ul>
+        </div>
+    </nav>
+    <div class='container-fluid'>
+        <div class='row'>
+            <div class='col-md-3'>
+                <div class='list-group'>
+                    <a href='' class='list-group-item' ng-class="{active:choosedSchema===schema}" ng-repeat='schema in schemas' ng-click="chooseSchema(schema)">
+                        {{schema.title}}
+                    </a>
+                </div>
+                <button class='btn btn-default' ng-click='addSchema()'><span class='glyphicon glyphicon-plus'></span> 添加定义</button>
+            </div>
+            <div class='col-md-9' ng-if="choosedSchema">
+                <div class='form-group'>
+                    <div class='form-inline'>
+                        <div class='form-group'>
+                            <div class='input-group'>
+                                <span class='input-group-addon'>
+                                <input type='checkbox' ng-true-value="'Y'" ng-false-value="'N'" ng-model='choosedSchema.valid' ng-change="updSchema('valid')">
+                                </span>
+                                <input type='text' class='form-control' style='width:200px' ng-model='choosedSchema.title' placeholder='输入名称' tms-auto-update tms-wait=1000 tms-update="updSchema('title')">
+                                <span class="input-group-btn">
+                                <button class="btn btn-default" type="button" ng-click='delSchema()'><span class='glyphicon glyphicon-remove'></span></button>
+                                </span>
+                            </div>
+                        </div>
+                        <div class='form-group'>
+                            <select class='form-control' title='类型' ng-model='choosedSchema.type' ng-change="updSchema('type')">
+                                <option value='inner'>内置</option>
+                                <option value='cus'>自定义</option>
+                            </select>
+                        </div>
+                        <div class='form-group'>
+                            <select class='form-control' title='数据有效期' ng-model='choosedSchema.validity' ng-options='d.v as d.n for d in days' ng-change="updSchema('validity')"></select>
+                        </div>
+                        <div class='form-group'>
+                            <button class='btn btn-success' ng-click='addExtattr(s)'>增加信息项</button>
+                            <button class='btn btn-default' ng-if="choosedSchema.type==='inner'" ng-click='gotoCode()'>定制填写页面</button>
+                            <button class='btn btn-default' ng-if="choosedSchema.type==='inner'" ng-click='resetCode()'>重置填写页面</button>
+                        </div>
+                    </div>
+                </div>
+                <div class='form-group'>
+                    <div class='form-inline'>
+                        <div class="form-group">
+                            <label class='checkbox-inline'>
+                                <input type='checkbox' ng-true-value="'Y'" ng-false-value="'N'" ng-model='choosedSchema.at_user_home' ng-change="updSchema('at_user_home')">出现在用户主页</label>
+                            <label class='checkbox-inline'>
+                                <input type='checkbox' ng-true-value="'Y'" ng-false-value="'N'" ng-model='choosedSchema.require_invite' ng-change="updSchema('require_invite')">通过邀请码验证</label>
+                            <label class='checkbox-inline'>
+                                <input type='checkbox' ng-true-value="'N'" ng-false-value="'Y'" ng-model='choosedSchema.auto_verified' ng-change="updSchema('auto_verified')">是否需要管理员审核</label>
+                            <label class='checkbox-inline'>
+                                <input type='checkbox' ng-true-value="'Y'" ng-false-value="'N'" ng-model='choosedSchema.qy_ab' ng-change="updQy('qy_ab')">企业号同步通讯录使用</label>
+                        </div>
+                    </div>
+                </div>
+                <div>
+                    <div class='form-group'>
+                        <table class='table table-bordered'>
+                            <thead>
+                                <tr>
+                                    <th style='width:96px'>信息项</th>
+                                    <th style='width:96px'>隐藏</th>
+                                    <th style='width:96px'>必填</th>
+                                    <th style='width:96px'>唯一</th>
+                                    <th style='width:96px'>不可更改</th>
+                                    <th style='width:96px'>需要验证</th>
+                                    <th style='width:96px'>身份标识</th>
+                                    <th style='width:96px'>操作</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr ng-repeat='attr in attrOps'>
+                                    <td>{{attr[0]}}</td>
+                                    <td ng-repeat='op in attr[2]'>
+                                        <input type='checkbox' ng-if='op===$index' ng-true-value="'1'" ng-false-value="'0'" ng-model="choosedSchema.attrs[attr[1]][$index]" ng-change="updAttr(attr[1])">
+                                    </td>
+                                    <td></td>
+                                </tr>
+                                <tr ng-repeat='ea in choosedSchema.extattr'>
+                                    <td>{{ea.label}}</td>
+                                    <td></td>
+                                    <td></td>
+                                    <td></td>
+                                    <td></td>
+                                    <td></td>
+                                    <td></td>
+                                    <td>
+                                        <a href='javascript:void(0)' ng-click='editExtattr(ea)'>修改</a>
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                    <form class='form-horizontal' style='background:#fff;padding:15px;'>
+                        <div class='form-group'>
+                            <label class="col-md-3 control-label">填写页面地址</label>
+                            <div class='col-md-9'>
+                                <input type='text' ng-show="choosedSchema.type==='cus'" class='form-control' ng-model='choosedSchema.url' placeholder='输入URL' tms-auto-update tms-wait=1000 tms-update="updSchema('url')">
+                                <div class='form-control-static'>{{fullUrl()}}</div>
+                            </div>
+                        </div>
+                        <div class='form-group'>
+                            <label class="col-md-3 control-label">填写后页面地址</label>
+                            <div class='col-md-9'>
+                                <input type='text' class='form-control' ng-model='choosedSchema.passed_url' placeholder='输入URL' tms-auto-update tms-wait=1000 tms-update="updSchema('passed_url')">
+                            </div>
+                        </div>
+                        <div class='form-group'>
+                            <label class="col-md-3 control-label">进入填写页面前提示</label>
+                            <div class='col-md-9'>
+                                <textarea class='form-control' ng-model='choosedSchema.entry_statement' placeholder='进入前说明' tms-auto-update tms-wait=1000 tms-update="updSchema('entry_statement')"></textarea>
+                            </div>
+                        </div>
+                        <div class='form-group'>
+                            <label class="col-md-3 control-label">不在白名单中说明</label>
+                            <div class='col-md-9'>
+                                <textarea class='form-control' ng-model='choosedSchema.acl_statement' placeholder='不在白名单中说明' tms-auto-update tms-wait=1000 tms-update="updSchema('acl_statement')"></textarea>
+                            </div>
+                        </div>
+                        <div class='form-group'>
+                            <label class="col-md-3 control-label">验证未通过说明</label>
+                            <div class='col-md-9'>
+                                <textarea class='form-control' ng-model='choosedSchema.notpass_statement' placeholder='验证未通过说明' tms-auto-update tms-wait=1000 tms-update="updSchema('notpass_statement')"></textarea>
+                            </div>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+    <script type="text/ng-template" id="schemaEditor.html">
+        <div class="modal-header">
+            <button class="close" type="button" ng-click="close()">×</button>
+            <h5 class="modal-title">{{schema.title}}</h5>
+        </div>
+        <div class="modal-body">
+            <form class="form-horizontal">
+                <div class="form-group">
+                    <label class="col-md-2 control-label">属性ID</label>
+                    <div class="col-md-10">
+                        <input class="form-control" ng-model='attr.id'>
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label class="col-md-2 control-label">属性名称</label>
+                    <div class="col-md-10">
+                        <input class="form-control" ng-model='attr.label'>
+                    </div>
+                </div>
+            </form>
+        </div>
+        <div class="modal-footer">
+            <button class="btn btn-danger pull-left" ng-if='canRemove' ng-click="remove()">删除</button>
+            <button class="btn btn-success" ng-click="ok()">保存</button>
+        </div>
+    </script>
+    <script src="/static/js/angular.min.js"></script>
+    <script src="/static/js/angular-route.min.js"></script>
+    <script src="/static/js/angular-sanitize.min.js"></script>
+    <script src="/static/js/ui-bootstrap-tpls.min.js"></script>
+    <script src="/static/js/ui-tms.js?_=1"></script>
+    <script src="/static/js/xxt.ui.js?_=1"></script>
+    <script src="/views/default/pl/fe/_module/matter.service.js?_=1"></script>
+    <script src="/static/js/require.js" data-main="/views/default/pl/fe/site/mschema-loader.js?_=1"></script>
+</body>
+
+</html>

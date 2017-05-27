@@ -323,6 +323,28 @@ $sql .= ",notpass_statement text";
 $sql .= ",sync_to_qy_at int not null default 0"; // 最近一次向企业号通讯录同步的时间
 $sql .= ",sync_from_qy_at int not null default 0"; // 最近一次从企业号通讯录同步的时间
 $sql .= ",auto_verified char(1) not null default 'Y'"; // 用户默认是否通过认证
+$sql .= ",require_invite char(1) not null default 'N'"; // 是否需要邀请码
+$sql .= ",at_user_home char(1) not null default 'N'"; // 是否出现在用户主页
+$sql .= ",primary key(id)) ENGINE=MyISAM DEFAULT CHARSET=utf8";
+if (!$mysqli->query($sql)) {
+	header('HTTP/1.0 500 Internal Server Error');
+	echo 'database error: ' . $mysqli->error;
+}
+/**
+ * 验证邀请码
+ */
+$sql = "create table if not exists xxt_site_member_invite(";
+$sql .= "id int not null auto_increment";
+$sql .= ",siteid varchar(32) not null";
+$sql .= ",creater varchar(40) not null";
+$sql .= ",schema_id int not null";
+$sql .= ",create_at int not null"; // 邀请码生产时间
+$sql .= ",expire_at int not null"; // 邀请码到期时间
+$sql .= ",code varchar(6) not null default ''"; // 邀请码的值
+$sql .= ",max_count int not null default 0"; // 可以使用的次数
+$sql .= ",use_count int not null default 0"; // 使用的次数
+$sql .= ",stop char(1) not null default 'N'"; // 停止使用
+$sql .= ",state int not null default 1";
 $sql .= ",primary key(id)) ENGINE=MyISAM DEFAULT CHARSET=utf8";
 if (!$mysqli->query($sql)) {
 	header('HTTP/1.0 500 Internal Server Error');
@@ -353,6 +375,7 @@ $sql .= ",depts text"; // 所属部门
 $sql .= ",tags text"; // 所属标签
 $sql .= ",verified char(1) not null default 'N'"; // 用户是否已通过认证
 $sql .= ",forbidden char(1) not null default 'N'";
+$sql .= ",invite_code varchar(6) not null default ''"; // 邀请码
 $sql .= ",primary key(id)) ENGINE=MyISAM DEFAULT CHARSET=utf8";
 if (!$mysqli->query($sql)) {
 	header('HTTP/1.0 500 Internal Server Error');

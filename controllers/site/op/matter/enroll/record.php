@@ -7,6 +7,21 @@ require_once TMS_APP_DIR . '/controllers/site/op/base.php';
  */
 class record extends \site\op\base {
 	/**
+	 * 返回视图
+	 */
+	public function index_action($app) {
+		if (!$this->checkAccessToken()) {
+			header('HTTP/1.0 500 parameter error:accessToken is invalid.');
+			die('没有获得有效访问令牌！');
+		}
+
+		$oApp = $this->model('matter\enroll')->byId($app, ['cascaded' => 'N']);
+
+		\TPL::assign('title', $oApp->title);
+		\TPL::output('/site/op/matter/enroll/console');
+		exit;
+	}
+	/**
 	 *
 	 */
 	public function list_action($site, $app, $rid = null, $page = 1, $size = 30, $tags = null, $orderby = null) {
@@ -14,6 +29,10 @@ class record extends \site\op\base {
 			return new \InvalidAccessToken();
 		}
 
+		$oApp = $this->model('matter\enroll')->byId($app, ['cascaded' => 'N']);
+		if (false === $oApp) {
+			return new \ObjectNotFountError();
+		}
 		// 登记数据过滤条件
 		$criteria = $this->getPostJson();
 		//
@@ -24,9 +43,24 @@ class record extends \site\op\base {
 			'rid' => $rid,
 		);
 
-		$app = $this->model('matter\enroll')->byId($app);
 		$mdoelRec = $this->model('matter\enroll\record');
-		$result = $mdoelRec->find($app, $options, $criteria);
+		$result = $mdoelRec->find($oApp, $options, $criteria);
+		if (!empty($result->records)) {
+			$remarkables = [];
+			foreach ($oApp->dataSchemas as $oSchema) {
+				if (isset($oSchema->remarkable) && $oSchema->remarkable === 'Y') {
+					$remarkables[] = $oSchema->id;
+				}
+			}
+			if (count($remarkables)) {
+				foreach ($result->records as &$oRec) {
+					$modelRem = $this->model('matter\enroll\data');
+					$oRecordData = $modelRem->byRecord($oRec->enroll_key, ['schema' => $remarkables]);
+					$oRec->verbose = new \stdClass;
+					$oRec->verbose->data = $oRecordData;
+				}
+			}
+		}
 
 		return new \ResponseData($result);
 	}

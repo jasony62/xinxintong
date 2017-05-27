@@ -1,16 +1,17 @@
 define(['frame'], function(ngApp) {
     'use strict';
-    ngApp.provider.controller('ctrlPublish', ['$scope', 'mediagallery', '$timeout', 'srvEnrollApp', function($scope, mediagallery, $timeout, srvEnrollApp) {
+    ngApp.provider.controller('ctrlEntry', ['$scope', 'mediagallery', '$timeout', 'srvEnrollApp', function($scope, mediagallery, $timeout, srvEnrollApp) {
         $timeout(function() {
             new ZeroClipboard(document.querySelectorAll('.text2Clipboard'));
         });
         srvEnrollApp.get().then(function(app) {
-            var entry;
-            entry = {
+            var oEntry;
+            oEntry = {
                 url: app.entryUrl,
                 qrcode: '/rest/site/fe/matter/enroll/qrcode?site=' + app.siteid + '&url=' + encodeURIComponent(app.entryUrl),
+                pages: []
             };
-            $scope.entry = entry;
+            $scope.entry = oEntry;
         });
         $scope.setPic = function() {
             var options = {
@@ -30,10 +31,6 @@ define(['frame'], function(ngApp) {
         };
         srvEnrollApp.summary().then(function(data) {
             $scope.summary = data;
-        });
-        $scope.$on('xxt.tms-datepicker.change', function(event, data) {
-            $scope.app[data.state] = data.value;
-            srvEnrollApp.update(data.state);
         });
     }]);
     ngApp.provider.controller('ctrlOpUrl', ['$scope', 'srvQuickEntry', 'srvEnrollApp', function($scope, srvQuickEntry, srvEnrollApp) {
@@ -78,39 +75,6 @@ define(['frame'], function(ngApp) {
             srvQuickEntry.update(opEntry.code, { can_favor: opEntry.can_favor });
         };
     }]);
-    ngApp.provider.controller('ctrlReportUrl', ['$scope', 'srvQuickEntry', 'srvEnrollApp', function($scope, srvQuickEntry, srvEnrollApp) {
-        var targetUrl;
-        $scope.reportEntry = {};
-        srvEnrollApp.get().then(function(app) {
-            targetUrl = 'http://' + location.host + '/rest/site/op/matter/enroll/report?site=' + $scope.app.siteid + '&app=' + $scope.app.id;
-            srvQuickEntry.get(targetUrl).then(function(entry) {
-                if (entry) {
-                    $scope.reportEntry.url = 'http://' + location.host + '/q/' + entry.code;
-                    $scope.reportEntry.password = entry.password;
-                }
-            });
-        });
-        $scope.makeUrl = function() {
-            srvQuickEntry.add(targetUrl).then(function(task) {
-                $scope.app.rp_short_url_code = task.code;
-                srvEnrollApp.update('rp_short_url_code');
-                $scope.reportEntry.url = 'http://' + location.host + '/q/' + task.code;
-            });
-        };
-        $scope.closeUrl = function() {
-            srvQuickEntry.remove(targetUrl).then(function(task) {
-                $scope.reportEntry.url = '';
-                $scope.app.rp_short_url_code = '';
-                srvEnrollApp.update('rp_short_url_code');
-            });
-        };
-        $scope.configUrl = function(event, prop) {
-            event.preventDefault();
-            srvQuickEntry.config(targetUrl, {
-                password: $scope.reportEntry.password
-            });
-        };
-    }]);
     /**
      * 微信二维码
      */
@@ -131,33 +95,6 @@ define(['frame'], function(ngApp) {
             var qrcodes = rsp.data;
             $scope.qrcode = qrcodes.length ? qrcodes[0] : false;
         });
-    }]);
-    /**
-     * 访问控制规则
-     */
-    ngApp.provider.controller('ctrlAccessRule', ['$scope', 'http2', 'srvEnrollApp', function($scope, http2, srvEnrollApp) {
-        $scope.rule = {};
-        $scope.isInputPage = function(pageName) {
-            if (!$scope.app) {
-                return false;
-            }
-            for (var i in $scope.app.pages) {
-                if ($scope.app.pages[i].name === pageName && $scope.app.pages[i].type === 'I') {
-                    return true;
-                }
-            }
-            return false;
-        };
-        $scope.reset = function() {
-            srvEnrollApp.resetEntryRule();
-        };
-        $scope.changeUserScope = function() {
-            srvEnrollApp.changeUserScope($scope.rule.scope, $scope.sns, $scope.memberSchemas, $scope.jumpPages.defaultInput);
-        };
-        srvEnrollApp.get().then(function(app) {
-            $scope.jumpPages = srvEnrollApp.jumpPages();
-            $scope.rule.scope = app.entry_rule.scope || 'none';
-        }, true);
     }]);
     ngApp.provider.controller('ctrlPreview', ['$scope', 'srvEnrollApp', function($scope, srvEnrollApp) {
         function refresh() {
@@ -198,27 +135,5 @@ define(['frame'], function(ngApp) {
                 });
             }
         });
-    }]);
-    ngApp.provider.controller('ctrlRound', ['$scope', 'srvEnrollRound', function($scope, srvEnlRnd) {
-        var rounds, page;
-        $scope.pageOfRound = page = {};
-        $scope.rounds = rounds = [];
-        srvEnlRnd.init(rounds, page)
-        $scope.roundState = srvEnlRnd.RoundState;
-        $scope.openCron = function() {
-            srvEnlRnd.cron().then(function() {
-                $scope.doSearchRound();
-            });
-        };
-        $scope.doSearchRound = function() {
-            srvEnlRnd.list();
-        };
-        $scope.add = function() {
-            srvEnlRnd.add();
-        };
-        $scope.edit = function(round) {
-            srvEnlRnd.edit(round);
-        };
-        $scope.doSearchRound();
     }]);
 });

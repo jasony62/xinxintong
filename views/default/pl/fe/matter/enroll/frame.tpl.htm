@@ -40,8 +40,22 @@
                         </li>
                     </ul>
                 </li>
-                <li ng-class="{'active':subView==='publish'}">
-                    <a href='' ng-click="opened='';switchTo('publish')">发布</a>
+                <li>
+                    <a href='' ng-click="opened=opened==='publish'?false:'publish';switchTo('entry')">发布 <span class="caret"></span></a>
+                    <ul class="nav nav-tabs nav-stacked" ng-style="{'height':opened==='publish'?'168px':'0'}">
+                        <li ng-class="{'active':subView==='access'}">
+                            <a href='' ng-click="switchTo('access')">指定用户</a>
+                        </li>
+                        <li ng-class="{'active':subView==='time'}">
+                            <a href='' ng-click="switchTo('time')">指定时间</a>
+                        </li>
+                        <li ng-class="{'active':subView==='preview'}">
+                            <a href='' ng-click="switchTo('preview')">预览</a>
+                        </li>
+                        <li ng-class="{'active':subView==='entry'}">
+                            <a href='' ng-click="switchTo('entry')">发放入口</a>
+                        </li>
+                    </ul>
                 </li>
                 <li>
                     <a href='' ng-click="opened=opened==='data'?false:'data';switchTo('record')">数据 <span class="caret"></span></a>

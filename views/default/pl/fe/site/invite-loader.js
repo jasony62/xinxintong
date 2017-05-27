@@ -1,4 +1,5 @@
 require.config({
+	waitSeconds: 0,
 	paths: {
 		"domReady": '/static/js/domReady',
 		"ngSanitize": '/static/js/angular-sanitize.min',

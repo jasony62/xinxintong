@@ -39,23 +39,23 @@
         </div>
     </nav>
     <div class='container'>
-	    <nav class='navbar navbar-default'>
-	        <div class='container-fluid'>
-	            <ul class='nav navbar-nav'>
-	            	<li ng-class="{'active':subView==='main'}"><a href='/rest/pl/fe/site/user/fans/main?site={{site.id}}&uid={{userId}}'>详情</a></li>
-				    <li ng-class="{'active':subView==='history'}"><a href='/rest/pl/fe/site/user/fans/history?site={{site.id}}&uid={{userId}}'>历史记录</a></li>
-				    <li ng-class="{'active':subView==='message'}"><a href='/rest/pl/fe/site/user/fans/message?site={{site.id}}&uid={{userId}}'>消息管理</a></li>
-	            </ul>
+        <nav class='navbar navbar-default'>
+            <div class='container-fluid'>
+                <ul class='nav navbar-nav'>
+                    <li ng-class="{'active':subView==='main'}"><a href='/rest/pl/fe/site/user/fans/main?site={{site.id}}&uid={{userId}}'>详情</a></li>
+                    <li ng-class="{'active':subView==='history'}"><a href='/rest/pl/fe/site/user/fans/history?site={{site.id}}&uid={{userId}}'>历史记录</a></li>
+                    <li ng-class="{'active':subView==='message'}"><a href='/rest/pl/fe/site/user/fans/message?site={{site.id}}&uid={{userId}}'>消息管理</a></li>
+                </ul>
                 <!--？-->
                 <form class="navbar-form navbar-right" ng-show="catelogs.length">
                     <div class='form-group'>
                         <select class='form-control' ng-model="catelog" ng-options="cat.l for cat in catelogs"></select>
                     </div>
                 </form>
-	        </div>
-	    </nav>
+            </div>
+        </nav>
         <!--<div class='row'>-->
-        	<div ng-view style="background: #fff;padding:1em"></div>
+        <div ng-view style="background: #fff;padding:1em"></div>
         <!--</div>-->
     </div>
     <script src="/static/js/jquery.min.js"></script>

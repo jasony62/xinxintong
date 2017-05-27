@@ -26,13 +26,25 @@ class main extends \pl\fe\matter\base {
 			return new \ResponseTimeout();
 		}
 
+		$model = $this->model();
+		$post = $this->getPostJson();
+
 		$q = [
 			$fields,
 			'xxt_text',
-			["siteid" => $site, "state" => 1],
+			"siteid = '". $model->escape($site) ."' and state = 1"
 		];
+		if (!empty($post->byTitle)) {
+			$q[2] .= " and title like '%". $model->escape($post->byTitle) ."%'";
+		}
+
 		$q2['o'] = 'create_at desc';
-		$texts = $this->model()->query_objs_ss($q, $q2);
+		$texts = $model->query_objs_ss($q, $q2);
+		if($texts){
+			foreach ($texts as $text) {
+				$text->type = 'text';
+			}
+		}
 
 		return new \ResponseData($texts);
 	}

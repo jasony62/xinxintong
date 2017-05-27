@@ -48,10 +48,26 @@ class memberschema_model extends \TMS_MODEL {
 	 * @param string $valid [null|Y|N]
 	 */
 	public function &bySite($siteId, $valid = null, $options = []) {
+		$siteId = $this->escape($siteId);
 		$where = "siteid='$siteId'";
-		!empty($valid) && $where .= " and valid='$valid'";
 
-		$schemas = $this->_queryBy($where);
+		if (isset($valid)) {
+			if ($valid === 'Y') {
+				$where .= " and valid='Y'";
+			} else if ($valid === 'N') {
+				$where .= " and valid='N'";
+			}
+		}
+
+		if (isset($options['atUserHome'])) {
+			$where .= " and at_user_home='Y'";
+		}
+
+		if (isset($options['fields'])) {
+			$schemas = $this->_queryBy($where, $options['fields']);
+		} else {
+			$schemas = $this->_queryBy($where);
+		}
 
 		return $schemas;
 	}

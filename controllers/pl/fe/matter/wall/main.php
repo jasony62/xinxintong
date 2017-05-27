@@ -59,19 +59,25 @@ class main extends \pl\fe\matter\base {
 		if (empty($site) && empty($mission)) {
 			return new \ParameterError();
 		}
+
+		$post = $this->getPostJson();
 		$modelWall = $this->model('matter\wall');
 		if (!empty($mission)) {
 			$q = [
 				'*',
 				'xxt_wall',
-				['mission_id' => $mission],
+				"mission_id = " . $modelWall->escape($mission),
 			];
 		} else {
 			$q = [
 				'*',
 				'xxt_wall',
-				['siteid' => $site],
+				"siteid = '" . $modelWall->escape($site) . "'",
 			];
+		}
+
+		if(!empty($post->byTitle)){
+			$q[2] .= " and title like '%". $modelWall->escape($post->byTitle) ."%'";
 		}
 		$q2['o'] = 'create_at desc';
 

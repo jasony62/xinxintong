@@ -225,41 +225,51 @@
             </div>
         </div>
     </div>
-    <div ng-controller="ctrlActivity" ng-switch-when="activity">
+    <div id='activities' ng-controller="ctrlActivity" ng-switch-when="activity">
         <div class='col-md-12'>
             <nav class='navbar navbar-default'>
                 <div class='container-fluid'>
-                    <ul class='nav navbar-nav'>
-                        <li ng-class="{'active':filter.byType==='enroll'}"><a href='' ng-click="changeMatter('enroll')">登记活动</a></li>
-                        <li ng-class="{'active':filter.byType==='signin'}"><a href='' ng-click="changeMatter('signin')">签到活动</a></li>
-                        <li ng-class="{'active':filter.byType==='group'}"><a href='' ng-click="changeMatter('group')">分组活动</a></li>
-                        <li ng-class="{'active':filter.byType==='lottery'}"><a href='' ng-click="changeMatter('lottery')">抽奖活动</a></li>
-                        <li ng-class="{'active':filter.byType==='wall'}"><a href='' ng-click="changeMatter('wall')">信息墙</a></li>
-                    </ul>
-                    <form class='nav navbar-form pull-left'>
-                        <div class="form-group" ng-if="filter.byType==='enroll'">
-                            <select class='form-control' ng-model="filter.scenario">
-                                <option value=''>全部场景</option>
-                                <option value='common'>通用登记</option>
-                                <option value='registration'>报名</option>
-                                <option value='voting'>投票</option>
-                                <option value='group_week_report'>周报</option>
-                                <option value='quiz'>测验</option>
-                            </select>
-                        </div>
-                        <div class='form-group'>
-                            <div class='input-group'>
-                                <input type='input' class='form-control' placeholder='按名称筛选' ng-model='filter2.byTitle'>
-                                <span class='input-group-btn'>
-                                    <button class='btn btn-default' ng-click="doFilter()"><span class='glyphicon glyphicon-search'></button>
-                                    <button class='btn btn-default' ng-click="cleanFilter()"><span class='glyphicon glyphicon-remove'></button>
-                                </span>
+                    <div class="navbar-header">
+                        <button type="button" class="navbar-toggle collapsed" ng-click="isNavCollapsed.activity=!isNavCollapsed.activity">
+                            <span class="sr-only">Toggle navigation</span>
+                            <span class="icon-bar"></span>
+                            <span class="icon-bar"></span>
+                            <span class="icon-bar"></span>
+                        </button>
+                    </div>
+                    <div class='collapse navbar-collapse' uib-collapse="isNavCollapsed.activity">
+                        <ul class='nav navbar-nav'>
+                            <li ng-class="{'active':filter.byType==='enroll'}"><a href='' ng-click="changeMatter('enroll')">登记活动</a></li>
+                            <li ng-class="{'active':filter.byType==='signin'}"><a href='' ng-click="changeMatter('signin')">签到活动</a></li>
+                            <li ng-class="{'active':filter.byType==='group'}"><a href='' ng-click="changeMatter('group')">分组活动</a></li>
+                            <li ng-class="{'active':filter.byType==='lottery'}"><a href='' ng-click="changeMatter('lottery')">抽奖活动</a></li>
+                            <li ng-class="{'active':filter.byType==='wall'}"><a href='' ng-click="changeMatter('wall')">信息墙</a></li>
+                        </ul>
+                        <form class='nav navbar-form pull-left'>
+                            <div class="form-group" ng-if="filter.byType==='enroll'">
+                                <select class='form-control' ng-model="filter.scenario">
+                                    <option value=''>全部场景</option>
+                                    <option value='common'>通用登记</option>
+                                    <option value='registration'>报名</option>
+                                    <option value='voting'>投票</option>
+                                    <option value='group_week_report'>周报</option>
+                                    <option value='quiz'>测验</option>
+                                </select>
                             </div>
-                        </div>
-                    </form>
-                    <form class='nav navbar-form pull-right'>
-                        <button uib-popover-template="'addActivity.html'" popover-placement="bottom-right" popover-append-to-body='true' popover-trigger="outsideClick" popover-title="新建" class='btn btn-default'><i class='glyphicon glyphicon-plus'></i> <span>新建</span></button>
-                    </form>
+                            <div class='form-group'>
+                                <div class='input-group'>
+                                    <input type='input' class='form-control' placeholder='按名称筛选' ng-model='filter2.byTitle'>
+                                    <span class='input-group-btn'>
+                                        <button class='btn btn-default' ng-click="doFilter()"><span class='glyphicon glyphicon-search'></span></button>
+                                        <button class='btn btn-default' ng-click="cleanFilter()"><span class='glyphicon glyphicon-remove'></span></button>
+                                    </span>
+                                </div>
+                            </div>
+                        </form>
+                        <form class='nav navbar-form pull-right'>
+                            <button uib-popover-template="'addActivity.html'" popover-placement="bottom-right" popover-append-to-body='true' popover-trigger="outsideClick" popover-title="新建" class='btn btn-default'><i class='glyphicon glyphicon-plus'></i> <span>新建</span></button>
+                        </form>
+                    </div>
                 </div>
             </nav>
             <table class='table table-bordered'>
@@ -271,40 +281,41 @@
                         <th style='width:140px'>创建人</th>
                         <th style='width:120px'>创建时间</th>
                         <th style='width:64px'>置顶</th>
-                        <th style='width:220px'>操作</th>
+                        <th style='width:290px'>操作</th>
                     </tr>
                 </thead>
                 <tbody>
                     <tr ng-repeat='m in matters'>
-                        <td>{{$index+1}}</td>
-                        <td ng-if="filter.byType=='enroll'">{{scenarioNames[m.matter_scenario]}}</td>
-                        <td>{{m.matter_title}}</td>
-                        <td>{{m.operator_name}}</td>
-                        <td>{{m.operate_at*1000|date:'yy-MM-dd HH:mm'}}</td>
-                        <td>
-                            <button class='btn btn-sm btn-default' title='置顶' ng-click="stickTop(m)">置顶</button>
+                        <td data-th='序号' class='hidden-xs'><span>{{$index+1}}</span></td>
+                        <td data-th='场景' ng-if="filter.byType=='enroll'"><span>{{scenarioNames[m.matter_scenario||m.scenario]}}</span></td>
+                        <td data-th='名称'><span>{{m.matter_title||m.title}}</span></td>
+                        <td data-th='创建人'><span>{{m.operator_name||m.creater_name}}</span></td>
+                        <td data-th='创建时间'><span>{{(m.operate_at||m.create_at)*1000|date:'yy-MM-dd HH:mm'}}</span></td>
+                        <td data-th='置顶' class='hidden-xs'>
+                            <span><button class='btn btn-sm btn-default' title='置顶' ng-click="stickTop(m)">置顶</button></span>
                         </td>
-                        <td ng-switch on="m.matter_type">
-                            <div ng-switch-when="group">
+                        <td data-th='操作' ng-switch on="m.matter_type||m.type" class='span-cols-sm'>
+                            <span ng-switch-when="group">
                                 <button class='btn btn-sm btn-default' ng-click="openMatter(m,'main')">定义</button>
                                 <button class='btn btn-sm btn-default' ng-click="openMatter(m,'player')">数据</button>
                                 <button class='btn btn-sm btn-default' ng-click="copyMatter($event,m)">复制</button>
-                            </div>
-                            <div ng-switch-when="enroll">
+                            </span>
+                            <span ng-switch-when="enroll">
+                                <button class='btn btn-sm btn-default' ng-click="openMatter(m,'main')">定义</button>
+                                <button class='btn btn-sm btn-default' ng-click="openMatter(m,'publish')">设置</button>
+                                <button class='btn btn-sm btn-default hidden-xs' ng-click="openMatter(m,'record')">数据</button>
+                                <button class='btn btn-sm btn-default hidden-xs' ng-click="copyMatter($event,m)">复制</button>
+                                <a ng-if="m.op_short_url_code" href="/q/{{m.op_short_url_code}}" target='_self' class='btn btn-sm btn-default'>汇总结果</a>
+                            </span>
+                            <span ng-switch-when="signin">
                                 <button class='btn btn-sm btn-default' ng-click="openMatter(m,'main')">定义</button>
                                 <button class='btn btn-sm btn-default' ng-click="openMatter(m,'publish')">设置</button>
                                 <button class='btn btn-sm btn-default' ng-click="openMatter(m,'record')">数据</button>
                                 <button class='btn btn-sm btn-default' ng-click="copyMatter($event,m)">复制</button>
-                            </div>
-                            <div ng-switch-when="signin">
-                                <button class='btn btn-sm btn-default' ng-click="openMatter(m,'main')">定义</button>
-                                <button class='btn btn-sm btn-default' ng-click="openMatter(m,'publish')">设置</button>
-                                <button class='btn btn-sm btn-default' ng-click="openMatter(m,'record')">数据</button>
-                                <button class='btn btn-sm btn-default' ng-click="copyMatter($event,m)">复制</button>
-                            </div>
-                            <div ng-switch-default>
+                            </span>
+                            <span ng-switch-default>
                                 <button class='btn btn-sm btn-default' ng-click="openMatter(m,'main')">进入</button>
-                            </div>
+                            </span>
                         </td>
                     </tr>
                 </tbody>
@@ -358,15 +369,15 @@
                 <tbody>
                     <tr ng-repeat='m in matters'>
                         <td>{{$index+1}}</td>
-                        <td>{{m.matter_title}}</td>
-                        <td>{{m.operator_name}}</td>
-                        <td>{{m.operate_at*1000|date:'yy-MM-dd HH:mm'}}</td>
+                        <td>{{m.matter_title||m.title}}</td>
+                        <td>{{m.operator_name||m.creater_name}}</td>
+                        <td>{{(m.operate_at||m.create_at)*1000|date:'yy-MM-dd HH:mm'}}</td>
                         <td>
                             <button class='btn btn-sm btn-default' title='置顶' ng-click="stickTop(m)">置顶</button>
                         </td>
                         <td>
                             <button class='btn btn-sm btn-default' ng-click="openMatter(m,'main')">进入</button>
-                            <button class='btn btn-sm btn-default' ng-click="copyMatter($event,m)" ng-if="m.matter_type=='article'">复制</button>
+                            <button class='btn btn-sm btn-default' ng-click="copyMatter($event,m)" ng-if="m.type=='article'">复制</button>
                         </td>
                     </tr>
                 </tbody>
@@ -399,8 +410,10 @@
                 </div>
                 <div ng-if='mschemas.length'>
                     <div class='form-group form-inline'>
-                        <div class='form-group'>
+                        <div class='input-group'>
                             <select class='form-control' ng-options="mschema.title for mschema in mschemas" ng-model="selected.mschema" ng-change="chooseMschema()"></select>
+                            <span class='input-group-btn'><a class='btn btn-default' href="/rest/pl/fe/site/mschema?site={{selected.mschema.siteid}}#{{selected.mschema.id}}" target='_self'><span class='glyphicon glyphicon-edit'></span></a>
+                            </span>
                         </div>
                         <div class='form-group'>
                             <select class='form-control' ng-model='page.searchBy' ng-options='s.v as s.n for s in searchBys'></select>
@@ -416,7 +429,7 @@
                             </div>
                         </div>
                         <div class='form-group'>
-                            <button class='btn btn-default' ng-click="createEnrollApp(selectedMschema)">生成登记活动</button>
+                            <button class='btn btn-default' ng-click="createEnrollApp(selected.mschema)">生成登记活动</button>
                         </div>
                         <div class='form-group'>
                             <button class='btn btn-default' ng-click="createMschema()">添加通讯录</button>
@@ -455,6 +468,41 @@
                             <span style='height:34px;line-height:34px'>总数：{{page.total}}</span>
                             <ul uib-pagination style='margin:0;cursor:pointer' class='pull-right' ng-if='page.total>page.size' boundary-links="true" total-items="page.total" max-size="7" items-per-page="page.size" rotate="false" ng-model="page.at" previous-text="&lsaquo;" next-text="&rsaquo;" first-text="&laquo;" last-text="&raquo;" ng-change="doSearch()"></ul>
                         </div>
+                    </div>
+                    <div class='form-group' ng-if="selected.mschema.require_invite==='Y'">
+                        <table class='table table-bordered'>
+                            <thead>
+                                <tr>
+                                    <th style='width:48px'>序号</th>
+                                    <th style='width:64px'>已停用</th>
+                                    <th>邀请码</th>
+                                    <th style='width:100px'>可邀请次数</th>
+                                    <th style='width:100px'>已使用次数</th>
+                                    <th style='width:120px'>到期时间</th>
+                                    <th style='width:120px'>操作</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr ng-repeat='invite in invites'>
+                                    <td>{{$index+1}}</td>
+                                    <td ng-if="invite.stop==='Y'"><span style='color:red'>{{invite.stop}}</span></td>
+                                    <td ng-if="invite.stop==='N'">{{invite.stop}}</td>
+                                    <td ng-if="invite.state=='0'"><del class='text-danger' title='页面刷新后不可恢复'>{{invite.code}}</del></td>
+                                    <td ng-if="invite.state=='1'">{{invite.code}}</td>
+                                    <td>{{invite.max_count}}</td>
+                                    <td>{{invite.use_count}}</td>
+                                    <td><span ng-if="invite.expire_at">{{invite.expire_at*1000|date:'MM-dd HH:mm'}}</span></td>
+                                    <td>
+                                        <a href='' ng-click='editInvite(invite)' ng-if="invite.state=='1'">修改</a>
+                                        <a href='' ng-click='stopInvite(invite)' ng-if="invite.state=='1'&&invite.stop==='N'">停用</a>
+                                        <a href='' ng-click='startInvite(invite)' ng-if="invite.state=='1'&&invite.stop==='Y'">启用</a>
+                                        <a href='' ng-click='removeInvite(invite)' ng-if="invite.state=='1'">删除</a>
+                                        <a href='' ng-click='restoreInvite(invite)' ng-if="invite.state=='0'">恢复</a>
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
+                        <button class='btn btn-default' ng-click="addInvite()">添加邀请码</button>
                     </div>
                 </div>
             </div>
@@ -616,6 +664,31 @@
                 <input type='radio' name='site' value="{{$index}}" ng-model='data.index'>{{site.name}}</label>
         </div>
         <div class='alert alert-danger' ng-if="mySites.length===0">请创建添加素材的团队</div>
+    </div>
+    <div class="modal-footer">
+        <button class="btn btn-success" ng-click="ok() ">确定</button>
+    </div>
+</script>
+<script type="text/ng-template" id="inviteEditor.html">
+    <div class="modal-header">
+        <button class="close" type="button" ng-click="cancel()">×</button>
+        <h5 class="modal-title ">邀请码</h5>
+    </div>
+    <div class="modal-body ">
+        <form class='form-horizontal'>
+            <div class='form-group'>
+                <lable class='col-md-3 control-label'>可邀请次数</lable>
+                <div class='col-md-9'>
+                    <input class='form-control' ng-model="option.max_count">
+                </div>
+            </div>
+            <div class='form-group'>
+                <lable class='col-md-3 control-label'>到期时间</lable>
+                <div class='col-md-9'>
+                    <tms-datepicker class='tms-datepicker' tms-obj="option" tms-date="option.expire_at" tms-state="expireAt"></tms-datepicker>
+                </div>
+            </div>
+        </form>
     </div>
     <div class="modal-footer">
         <button class="btn btn-success" ng-click="ok() ">确定</button>

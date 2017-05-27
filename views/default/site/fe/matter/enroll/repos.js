@@ -2,7 +2,7 @@
 require('./repos.css');
 
 var ngApp = require('./main.js');
-ngApp.factory('Round', ['$http', '$q', function($http, $q) {
+ngApp.factory('Round', ['http2', '$q', function(http2, $q) {
     var Round, _ins;
     Round = function(oApp) {
         this.oApp = oApp;
@@ -21,7 +21,7 @@ ngApp.factory('Round', ['$http', '$q', function($http, $q) {
 
         url = '/rest/site/fe/matter/enroll/round/list?site=' + this.oApp.siteid + '&app=' + this.oApp.id;
         url += this.oPage.j();
-        $http.get(url).success(function(rsp) {
+        http2.get(url).then(function(rsp) {
             if (rsp.err_code != 0) {
                 alert(rsp.data);
                 return;
@@ -38,13 +38,17 @@ ngApp.factory('Round', ['$http', '$q', function($http, $q) {
         }
     };
 }]);
-ngApp.controller('ctrlRepos', ['$scope', '$http', 'Round', function($scope, $http, srvRound) {
+ngApp.controller('ctrlRepos', ['$scope', 'http2', 'Round', function($scope, http2, srvRound) {
     var oApp, facRound, page, criteria, schemas;
     $scope.schemaCount = 0;
     $scope.page = page = { at: 1, size: 12 };
     $scope.criteria = criteria = { owner: 'all' };
     $scope.schemas = schemas = {};
-    $scope.repos = {};
+    $scope.repos = [];
+    $scope.clickAdvCriteria = function(event) {
+        event.preventDefault();
+        event.stopPropagation();
+    };
     $scope.list4Schema = function(pageAt) {
         var url;
         if (pageAt) {
@@ -52,7 +56,7 @@ ngApp.controller('ctrlRepos', ['$scope', '$http', 'Round', function($scope, $htt
         }
         url = '/rest/site/fe/matter/enroll/repos/list4Schema?site=' + oApp.siteid + '&app=' + oApp.id;
         url += '&page=' + page.at + '&size=' + page.size;
-        $http.post(url, criteria).success(function(result) {
+        http2.post(url, criteria).then(function(result) {
             $scope.repos = result.data.records;
             page.total = result.data.total;
         });
@@ -76,6 +80,9 @@ ngApp.controller('ctrlRepos', ['$scope', '$http', 'Round', function($scope, $htt
             $scope.list4Schema();
         }
     };
+    $scope.shiftAgreed = function() {
+        $scope.list4Schema();
+    };
     $scope.shiftOwner = function() {
         $scope.list4Schema();
     };
@@ -88,9 +95,19 @@ ngApp.controller('ctrlRepos', ['$scope', '$http', 'Round', function($scope, $htt
         url += '?site=' + oApp.siteid;
         url += '&ek=' + oRecord.enroll_key;
         url += '&schema=' + oRecord.schema_id;
-        $http.get(url).success(function(rsp) {
+        http2.get(url).then(function(rsp) {
             oRecord.like_log = rsp.data.like_log;
             oRecord.like_num = rsp.data.like_num;
+        });
+    };
+    $scope.likeRemark = function(oRemark) {
+        var url;
+        url = '/rest/site/fe/matter/enroll/remark/like';
+        url += '?site=' + oApp.siteid;
+        url += '&remark=' + oRemark.id;
+        http2.get(url).then(function(rsp) {
+            oRemark.like_log = rsp.data.like_log;
+            oRemark.like_num = rsp.data.like_num;
         });
     };
     $scope.$on('xxt.app.enroll.ready', function(event, params) {
@@ -103,16 +120,18 @@ ngApp.controller('ctrlRepos', ['$scope', '$http', 'Round', function($scope, $htt
         });
         $scope.list4Schema();
         $scope.facRound = facRound = srvRound.ins(oApp);
-        facRound.list().then(function(result) {
-            if (result.active) {
-                for (var i = 0, ii = result.rounds.length; i < ii; i++) {
-                    if (result.rounds[i].rid === result.active.rid) {
-                        criteria.rid = result.active.rid;
-                        break;
+        if (oApp.multi_rounds === 'Y') {
+            facRound.list().then(function(result) {
+                if (result.active) {
+                    for (var i = 0, ii = result.rounds.length; i < ii; i++) {
+                        if (result.rounds[i].rid === result.active.rid) {
+                            criteria.rid = result.active.rid;
+                            break;
+                        }
                     }
                 }
-            }
-            $scope.rounds = result.rounds;
-        });
+                $scope.rounds = result.rounds;
+            });
+        }
     });
 }]);

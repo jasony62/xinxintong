@@ -291,27 +291,30 @@ define(['require', 'schema', 'page'], function(require, schemaLib, pageLib) {
                     return defer.promise;
                 },
                 jumpPages: function() {
-                    var defaultInput, pages = _oApp.pages,
+                    var defaultInput, inapp = [],
                         pages4NonMember = [{
                             name: '$memberschema',
-                            title: '填写自定义用户信息'
+                            title: '提示填写联系人信息'
                         }],
                         pages4Nonfan = [{
                             name: '$mpfollow',
                             title: '提示关注'
                         }];
 
-                    pages.forEach(function(page) {
+                    _oApp.pages.forEach(function(page) {
                         var newPage = {
                             name: page.name,
                             title: page.title
                         };
+                        inapp.push(newPage);
                         pages4NonMember.push(newPage);
                         pages4Nonfan.push(newPage);
                         page.type === 'I' && (defaultInput = newPage);
                     });
+                    inapp.push({ name: 'repos', 'title': '所有数据页' });
 
                     return {
+                        inapp: inapp,
                         nonMember: pages4NonMember,
                         nonfan: pages4Nonfan,
                         defaultInput: defaultInput
@@ -1502,22 +1505,6 @@ define(['require', 'schema', 'page'], function(require, schemaLib, pageLib) {
                 http2.get(url, function(rsp) {
                     defer.resolve(rsp.data);
                 })
-                return defer.promise;
-            };
-            _ins.listRemark = function(ek) {
-                var url, defer = $q.defer();
-                url = '/rest/site/op/matter/enroll/record/listRemark?ek=' + ek;
-                http2.get(url, function(rsp) {
-                    defer.resolve(rsp.data);
-                });
-                return defer.promise;
-            };
-            _ins.addRemark = function(ek, newRemark) {
-                var url, defer = $q.defer();
-                url = '/rest/site/op/matter/enroll/record/addRemark?ek=' + ek;
-                http2.post(url, newRemark, function(rsp) {
-                    defer.resolve(rsp.data);
-                });
                 return defer.promise;
             };
 

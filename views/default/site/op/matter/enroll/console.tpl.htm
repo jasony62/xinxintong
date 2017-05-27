@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html ng-controller='ctrl'>
+<html>
 
 <head>
     <meta charset="utf-8">
@@ -10,22 +10,15 @@
     </title>
     <link href="/static/css/bootstrap.min.css" rel="stylesheet">
     <link href="/static/css/tms.css?_=1" rel="stylesheet">
-    <link href='/static/css/site.fe.css?_=1' rel="stylesheet">
-    <style type="text/css">
-        html,
-        body{height:100%;width:100%;padding:0;margin:0}
-        body{font-family:"HSimHei","Microsoft YaHei"}
-        #content{height:100%;width:100%}
-    </style>
-    <style type="text/css" ng-bind="doc.css"></style>
+    <link href='/views/default/site/op/matter/enroll/console.css?_1' rel="stylesheet">
 </head>
 
-<body>
-    <div id="content" dynamic-html='doc.html' ng-cloak class='ng-cloak'></div>
+<body ng-controller='ctrlApp' ng-cloak class='ng-cloak'>
+    <div ng-view></div>
     <div class="loading">
         <div class='loading-indicator'><i></i></div>
     </div>
-    <script src="/static/js/require.js" defer async data-main="/views/default/site/op/matter/enroll/console-loader.js?_=3"></script>
+    <script src="/static/js/require.js" defer async data-main="<?php echo auto_version('/views/default/site/op/matter/enroll/console-loader.js');?>"></script>
 </body>
 
 </html>

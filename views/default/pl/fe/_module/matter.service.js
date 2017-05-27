@@ -4,7 +4,7 @@ provider('srvSite', function() {
     this.config = function(siteId) {
         _siteId = siteId;
     };
-    this.$get = ['$q', 'http2', function($q, http2) {
+    this.$get = ['$q', '$uibModal', 'http2', function($q, $uibModal, http2) {
         return {
             getSiteId: function() {
                 return _siteId;
@@ -22,7 +22,7 @@ provider('srvSite', function() {
                 return defer.promise;
             },
             matterList: function(moduleTitle, site, page) {
-                if(!site) {
+                if (!site) {
                     site = '';
                 } else {
                     site = site;
@@ -39,17 +39,18 @@ provider('srvSite', function() {
                 } else {
                     page.at++;
                 }
-                var url, title = moduleTitle, defer = $q.defer();
-                switch(title) {
+                var url, title = moduleTitle,
+                    defer = $q.defer();
+                switch (title) {
                     case 'subscribeSite':
                         url = '/rest/pl/fe/site/matterList';
-                    break;
+                        break;
                     case 'contributeSite':
                         url = '/rest/pl/fe/site/contribute/list';
-                    break;
+                        break;
                     case 'favorSite':
                         url = '/rest/pl/fe/site/favor/list';
-                    break;
+                        break;
                 }
                 url += '?' + page._j() + '&site=' + site;
                 http2.get(url, function(rsp) {
@@ -149,6 +150,38 @@ provider('srvSite', function() {
                     });
                 }
                 return defer.promise;
+            },
+            chooseMschema: function() {
+                var _this = this;
+                return $uibModal.open({
+                    templateUrl: '/views/default/pl/fe/_module/chooseMschema.html?_=1',
+                    resolve: {
+                        mschemas: function() {
+                            return _this.memberSchemaList();
+                        }
+                    },
+                    controller: ['$scope', '$uibModalInstance', 'mschemas', function($scope2, $mi, mschemas) {
+                        $scope2.mschemas = mschemas;
+                        $scope2.data = {};
+                        if (mschemas.length) {
+                            $scope2.data.chosen = mschemas[0];
+                        }
+                        $scope2.create = function() {
+                            var url;
+                            url = '/rest/pl/fe/site/member/schema/create?site=' + _siteId;
+                            http2.post(url, { valid: 'Y' }, function(rsp) {
+                                mschemas.push(rsp.data);
+                            });
+                        };
+                        $scope2.ok = function() {
+                            $mi.close($scope2.data);
+                        };
+                        $scope2.cancel = function() {
+                            $mi.dismiss();
+                        };
+                    }],
+                    backdrop: 'static'
+                }).result;
             }
         };
     }];
@@ -227,9 +260,7 @@ provider('srvQuickEntry', function() {
             }
         };
     }];
-}).
-
-provider('srvRecordConverter', function() {
+}).provider('srvRecordConverter', function() {
     this.$get = ['$sce', function($sce) {
         function _memberAttr(member, schema) {
             var keys;

@@ -31,7 +31,7 @@ ngApp.controller('ctrlRemark', ['$scope', '$q', 'http2', function($scope, $q, ht
         url = '/rest/site/fe/matter/enroll/remark/add?site=' + oApp.siteid + '&ek=' + ek;
         url += '&schema=' + schemaId;
         http2.post(url, $scope.newRemark).then(function(rsp) {
-            $scope.remarks.push(0, 0, rsp.data);
+            $scope.remarks.push(rsp.data);
             $scope.newRemark.content = '';
         });
     };

@@ -8,48 +8,37 @@
     <title>用户主页</title>
     <link href="/static/css/bootstrap.min.css" rel="stylesheet">
     <link href="/static/css/site.fe.css?_=1" rel="stylesheet">
-    <style>
-        html,body{height:100%;width:100%}
-        body{font-family:"Microsoft YaHei","HSimHei";}
-        .avatar{text-align:center}
-        .avatar .headimg{width:64px;height:64px;}
-        .avatar .nickname{height:4em;line-height:4em;}
-    </style>
+    <link href="/views/default/site/fe/user/main.css?_=1" rel="stylesheet">
 </head>
 
-<body>
+<body ng-controller='ctrlMain'>
     <div class="loading">
         <div class='loading-indicator'><i></i></div>
     </div>
-    <div class="container ng-cloak" ng-cloak ng-app="app" ng-controller='ctrlMain'>
-        <div class='alert alert-danger' ng-class="{'active':errmsg}" ng-click="errmsg=''" ng-bind='errmsg' ng-show='errmsg'></div>
-        <nav class='navbar navbar-default'>
-            <div class='container-fluid'>
-                <div class="navbar-header">
-                    <a class='navbar-brand' href='/rest/site/home?site={{site.id}}' target='_self' ng-if="site.id!=='platform'">{{site.name}}</a>
-                    <a class='navbar-brand' href='/rest/home' target='_self' ng-if="site.id==='platform'">{{site.name}}</a>
-                </div>
+    <div class="container ng-cloak" ng-cloak>
+        <nav class='navbar navbar-default navbar-fixed-top'>
+            <div class='container-fluid text-right'>
+                <p class="navbar-text">
+                    <a class='navbar-link' href='/rest/home' target='_self'>
+                        <?php echo APP_TITLE;?> &nbsp;
+                        <span class='glyphicon glyphicon-menu-right'></span>
+                    </a>
+                </p>
             </div>
         </nav>
         <div class='avatar'>
             <img class='headimg img-circle' ng-src="{{user.headimgurl}}">
             <div class='nickname' ng-bind="user.nickname"></div>
         </div>
-        <div class='form-group'>
-            <div class='list-group-item'>
-                <a href="/rest/site/fe/user/subscribe?site={{site.id}}">我的关注</a>
-            </div>
-            <div class='list-group-item'>
-                <a href="/rest/site/fe/user/favor?site={{site.id}}">我的收藏</a>
-            </div>
-            <div class='list-group-item'>
+        <div class='list-group'>
+            <a class='list-group-item subscription' href="/rest/site/fe/user/subscribe?site={{site.id}}">我的关注<span class="badge-new" ng-if="count.newSubscriptions>0"></span><span class="badge" ng-bind="count.subscription"></span></a>
+            <a class='list-group-item' href="/rest/site/fe/user/favor?site={{site.id}}">我的收藏<span class="badge" ng-bind="count.favor"></span></a>
+            <div class='list-group-item hide'>
                 <a href="/rest/site/fe/user/notice?site={{site.id}}">我的通知</a>
             </div>
-            <div class='list-group-item'>
-                <a href="/rest/site/fe/user/history?site={{site.id}}">访问记录</a>
-            </div>
-            <div class='list-group-item'>
-                <a href="" ng-click="userSetting=!userSetting">个人设置</a>
+            <a class='list-group-item' href="/rest/site/fe/user/history?site={{site.id}}">历史轨迹</a>
+            <a href='' class='list-group-item' ng-click="userSetting=!userSetting">
+                <span>个人设置</span>
                 <div ng-if="userSetting">
                     <hr>
                     <div class='form-group'>
@@ -69,7 +58,7 @@
                         <button class="btn btn-lg btn-block btn-success" ng-click="changePwd()">修改登录密码</button>
                     </div>
                 </div>
-            </div>
+            </a>
         </div>
         <div>
             <button class="btn btn-default btn-block" ng-click='gotoLogin()' ng-if="!user.loginExpire">去登录</button>
@@ -78,7 +67,16 @@
             <button class="btn btn-default btn-block" ng-click='logout()' ng-if="user.loginExpire">退出登录</button>
         </div>
     </div>
-    <script src="/static/js/require.js" defer async data-main="/views/default/site/fe/user/main-loader.js?_=2"></script>
+    <nav class='navbar navbar-default navbar-fixed-bottom' ng-if="site.id!=='platform'">
+        <div class='container-fluid text-right'>
+            <p class="navbar-text">
+                <a class='navbar-link' href='/rest/home?site={{site.id}}' target='_self'>
+                    {{site.name}}&nbsp;<span class='glyphicon glyphicon-menu-right'></span>
+                </a>
+            </p>
+        </div>
+    </nav>
+    <script src="/static/js/require.js" defer async data-main="<?php echo auto_version('/views/default/site/fe/user/main-loader.js');?>"></script>
 </body>
 
 </html>

@@ -36,8 +36,6 @@ define(['require', 'angular'], function(require, angular) {
             hisService.myMissions().then(function(missions) {
                 $scope.myMissions = missions;
             });
-            $http.get('/rest/site/fe/user/siteList?site=' + site).success(function(rsp) {});
-            /* end app loading */
             $scope.site = rsp.data;
         });
     }]);

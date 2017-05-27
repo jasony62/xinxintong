@@ -27,12 +27,29 @@ class data_model extends \TMS_MODEL {
 		}
 
 		if (isset($options['schema'])) {
-			$q[2]['schema_id'] = $options['schema'];
-			$data = $this->query_obj_ss($q);
-			if (isset($fnHandler)) {
-				$fnHandler($data);
+			if (is_array($options['schema'])) {
+				$result = new \stdClass;
+				$q[2]['schema_id'] = $options['schema'];
+				$data = $this->query_objs_ss($q);
+				if (count($data)) {
+					foreach ($data as $schemaData) {
+						if (isset($fnHandler)) {
+							$fnHandler($schemaData);
+						}
+						$schemaId = $schemaData->schema_id;
+						unset($schemaData->schema_id);
+						$result->{$schemaId} = $schemaData;
+					}
+				}
+				return $result;
+			} else {
+				$q[2]['schema_id'] = $options['schema'];
+				$data = $this->query_obj_ss($q);
+				if (isset($fnHandler)) {
+					$fnHandler($data);
+				}
+				return $data;
 			}
-			return $data;
 		} else {
 			$result = new \stdClass;
 			$data = $this->query_objs_ss($q);

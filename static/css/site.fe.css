@@ -17,7 +17,7 @@ html,body{height:100%;width:100%;background-color:#fff;font-family:"HSimHei","Mi
 
 /* nav */
 .navbar{border:0;margin-bottom:0;border-radius:0;}
-.navbar-default{border-bottom:2px solid #ccc;}
+.navbar-default{border-bottom:3px ridge #eee;}
 #navbar-collapse-1 .navbar-form{margin-top:12px;margin-bottom:12px;}
 
 /* 下拉菜单 */

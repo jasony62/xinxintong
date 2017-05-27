@@ -82,8 +82,7 @@ ngApp.controller('ctrlMember', ['$scope', '$http', '$timeout', '$q', 'tmsDynaPag
 
     function sendRequest(url, deferred) {
         $scope.posting = true;
-        $http.post(url, $scope.member).
-        success(function(rsp) {
+        $http.post(url, $scope.member).success(function(rsp) {
             $scope.posting = false;
             if (angular.isString(rsp)) {
                 $scope.errmsg = rsp;
@@ -99,7 +98,12 @@ ngApp.controller('ctrlMember', ['$scope', '$http', '$timeout', '$q', 'tmsDynaPag
                     location.href = rsp.data;
                 });
             }
-        });
+        }).error(function(data, header, config, status) {
+            if (data) {
+                $http.post('/rest/log/add', { src: 'site.fe.user.login', msg: JSON.stringify(arguments) });
+            }
+            alert('操作失败：' + (data === null ? '网络不可用' : data));
+        });;
     }
 
     function setMember(user) {
@@ -232,6 +236,7 @@ ngApp.controller('ctrlMember', ['$scope', '$http', '$timeout', '$q', 'tmsDynaPag
             return;
         }
         $scope.user = rsp.data.user;
+        $scope.schema = rsp.data.schema;
         $scope.attrs = {};
         angular.forEach(rsp.data.attrs, function(attr, name) {
             if (name === 'extattrs') {

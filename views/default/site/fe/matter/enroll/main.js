@@ -11,6 +11,7 @@ if (/MicroMessenger/i.test(navigator.userAgent) && window.signPackage && window.
 
 require('./directive.css');
 
+require('../../../../../../asset/js/xxt.ui.http.js');
 require('../../../../../../asset/js/xxt.ui.page.js');
 require('../../../../../../asset/js/xxt.ui.siteuser.js');
 require('../../../../../../asset/js/xxt.ui.favor.js');
@@ -19,7 +20,7 @@ require('../../../../../../asset/js/xxt.ui.share.js');
 
 require('./directive.js');
 
-var ngApp = angular.module('app', ['ngSanitize', 'ui.bootstrap', 'page.ui.xxt', 'snsshare.ui.xxt', 'directive.enroll', 'siteuser.ui.xxt', 'favor.ui.xxt']);
+var ngApp = angular.module('app', ['ngSanitize', 'ui.bootstrap', 'http.ui.xxt', 'page.ui.xxt', 'snsshare.ui.xxt', 'directive.enroll', 'siteuser.ui.xxt', 'favor.ui.xxt']);
 ngApp.provider('ls', function() {
     var _baseUrl = '/rest/site/fe/matter/enroll',
         _params = {};
@@ -219,12 +220,12 @@ ngApp.controller('ctrlMain', ['$scope', '$http', '$timeout', 'ls', 'tmsDynaPage'
             /* 分享次数计数器 */
             window.shareCounter = 0;
             tmsSnsShare.config({
-                siteId: oSite.id,
+                siteId: oApp.siteid,
                 logger: function(shareto) {
                     var url;
                     url = "/rest/site/fe/matter/logShare";
                     url += "?shareid=" + shareid;
-                    url += "&site=" + oSite.id;
+                    url += "&site=" + oApp.siteid;
                     url += "&id=" + oApp.id;
                     url += "&type=enroll";
                     url += "&title=" + oApp.title;

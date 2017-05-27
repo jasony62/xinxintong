@@ -423,6 +423,11 @@ class main extends \pl\fe\matter\base {
 		if (empty($entryRule)) {
 			return new \ResponseError('没有获得页面进入规则');
 		}
+		$entryRule->scope = 'member';
+		$entryRule->other = (object) ['entry' => '$memberschema'];
+		$entryRule->member = new \stdClass;
+		$entryRule->member->{$oMschema->id} = (object) ['entry' => 'enroll'];
+
 		/* 添加页面 */
 		$this->_addPageByTemplate($user, $oSite, null, $appId, $templateConfig, null);
 

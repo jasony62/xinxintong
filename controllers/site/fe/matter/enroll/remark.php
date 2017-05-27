@@ -9,10 +9,14 @@ class remark extends base {
 	/**
 	 * 返回一条登记记录的所有评论
 	 */
-	public function list_action($ek, $schema = '', $page = 1, $size = 99) {
+	public function list_action($ek, $schema, $page = 1, $size = 99) {
 		$oUser = $this->who;
 
+		$oRecordData = $this->model('matter\enroll\data')->byRecord($ek, ['schema' => $schema, 'fields' => 'id,agreed,value,like_num,like_log,remark_num,supplement']);
+
 		$result = $this->model('matter\enroll\remark')->listByRecord($oUser, $ek, $schema, $page, $size);
+
+		$result->data = $oRecordData;
 
 		return new \ResponseData($result);
 	}

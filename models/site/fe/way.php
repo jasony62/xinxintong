@@ -11,8 +11,8 @@ class way_model extends \TMS_MODEL {
 		$modified = false;
 		/* cookie中缓存的用户信息 */
 		$cookieUser = $this->getCookieUser($siteId);
+		$cookieRegUser = $this->getCookieRegUser();
 		if (!empty($auth)) {
-			$cookieRegUser = $this->getCookieRegUser();
 			/* 有身份用户首次访问，若已经有绑定的站点用户，获取站点用户；否则，创建持久化的站点用户，并绑定关系 */
 			foreach ($auth['sns'] as $snsName => $snsUser) {
 				if ($cookieUser) {
@@ -28,7 +28,6 @@ class way_model extends \TMS_MODEL {
 		} else if (empty($cookieUser)) {
 			/* 无访客身份用户首次访问站点 */
 			$modelSiteUser = \TMS_App::M('site\user\account');
-			$cookieRegUser = $this->getCookieRegUser();
 			if ($cookieRegUser) {
 				/* 注册主站点访客账号，有，使用，没有，创建 */
 				$siteUser = $modelSiteUser->byPrimaryUnionid($siteId, $cookieRegUser->unionid);
@@ -54,12 +53,16 @@ class way_model extends \TMS_MODEL {
 			$modified = true;
 		} else {
 			if (empty($cookieUser->loginExpire)) {
-				$cookieRegUser = $this->getCookieRegUser();
 				if ($cookieRegUser && isset($cookieRegUser->loginExpire)) {
 					$cookieUser->loginExpire = $cookieRegUser->loginExpire;
 					$modified = true;
 				}
 			}
+		}
+		if ($cookieRegUser && isset($cookieRegUser->loginExpire)) {
+			$cookieUser->unionid = $cookieRegUser->unionid;
+			$cookieUser->nickname = $cookieRegUser->nickname;
+			$cookieUser->loginExpire = $cookieRegUser->loginExpire;
 		}
 		/* 将用户信息保存在cookie中 */
 		if ($modified) {
@@ -526,10 +529,12 @@ class way_model extends \TMS_MODEL {
 					$cookieUser->nickname = $account->nickname;
 					$cookieUser->loginExpire = $loginExpire;
 					/* 站点自定义用户信息 */
-					$members = $modelMem->byUser($account->uid);
+					$members = $modelMem->byUser($account->uid, ['fields' => 'id,schema_id,name,mobile,email']);
 					!empty($members) && $cookieUser->members = new \stdClass;
 					foreach ($members as $member) {
-						$cookieUser->members->{$member->schema_id} = $member;
+						$schemaId = $member->schema_id;
+						unset($member->schema_id);
+						$cookieUser->members->{$schemaId} = $member;
 					}
 					$cookieUser->sns = new \stdClass;
 					/* wx用户 */
@@ -554,7 +559,8 @@ class way_model extends \TMS_MODEL {
 						$cookieUser->sns->qy = $modelQyFan->byOpenid($account->siteid, $account->qy_openid, 'openid,nickname,headimgurl');
 					}
 					/* 在cookie中保留访客用户信息 */
-					$this->setCookieUser($account->siteid, $cookieUser);
+					/* 避免cookie过大的问题 */
+					//$this->setCookieUser($account->siteid, $cookieUser);
 					/* 缓存数据，方便进行后续判断 */
 					$primaryAccounts[$account->siteid] = $cookieUser;
 				}

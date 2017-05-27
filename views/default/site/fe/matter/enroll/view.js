@@ -2,18 +2,14 @@
 require('./view.css');
 
 var ngApp = require('./main.js');
-ngApp.factory('Round', ['$http', '$q', 'ls', function($http, $q, LS) {
+ngApp.factory('Round', ['http2', '$q', 'ls', function(http2, $q, LS) {
     var Round, _ins;
     Round = function() {};
     Round.prototype.list = function() {
         var deferred, url;
         deferred = $q.defer();
         url = LS.j('round/list', 'site', 'app');
-        $http.get(url).success(function(rsp) {
-            if (rsp.err_code != 0) {
-                alert(rsp.data);
-                return;
-            }
+        http2.get(url).then(function(rsp) {
             deferred.resolve(rsp.data);
         });
         return deferred.promise;
@@ -49,7 +45,7 @@ ngApp.controller('ctrlRounds', ['$scope', 'Round', function($scope, Round) {
         return false;
     };
 }]);
-ngApp.factory('Record', ['$http', '$q', 'ls', function($http, $q, LS) {
+ngApp.factory('Record', ['http2', '$q', 'ls', function(http2, $q, LS) {
     var Record, _ins, _running;
     Record = function(oApp) {
         var data = {}; // 初始化空数据，优化加载体验
@@ -70,13 +66,11 @@ ngApp.factory('Record', ['$http', '$q', 'ls', function($http, $q, LS) {
         deferred = $q.defer();
         url = LS.j('record/get', 'site', 'app');
         ek && (url += '&ek=' + ek);
-        $http.get(url).success(function(rsp) {
+        http2.get(url).then(function(rsp) {
             var record;
             record = rsp.data;
-            if (rsp.err_code == 0) {
-                _this.current = record;
-                deferred.resolve(record);
-            }
+            _this.current = record;
+            deferred.resolve(record);
             _running = false;
         });
         return deferred.promise;
@@ -87,18 +81,16 @@ ngApp.factory('Record', ['$http', '$q', 'ls', function($http, $q, LS) {
         url = LS.j('record/list', 'site', 'app');
         url += '&owner=' + owner;
         rid && rid.length && (url += '&rid=' + rid);
-        $http.get(url).success(function(rsp) {
+        http2.get(url).then(function(rsp) {
             var records, record, i, l;
-            if (rsp.err_code == 0) {
-                records = rsp.data.records;
-                if (records && records.length) {
-                    for (i = 0, l = records.length; i < l; i++) {
-                        record = records[i];
-                        record.data.member && (record.data.member = JSON.parse(record.data.member));
-                    }
+            records = rsp.data.records;
+            if (records && records.length) {
+                for (i = 0, l = records.length; i < l; i++) {
+                    record = records[i];
+                    record.data.member && (record.data.member = JSON.parse(record.data.member));
                 }
-                deferred.resolve(records);
             }
+            deferred.resolve(records);
         });
         return deferred.promise;
     };
@@ -107,7 +99,7 @@ ngApp.factory('Record', ['$http', '$q', 'ls', function($http, $q, LS) {
             url;
         url = LS.j('record/remove', 'site', 'app');
         url += '&ek=' + record.enroll_key;
-        $http.get(url).success(function(rsp) {
+        http2.get(url).then(function(rsp) {
             deferred.resolve(rsp.data);
         });
         return deferred.promise;
@@ -176,7 +168,7 @@ ngApp.controller('ctrlRecord', ['$scope', 'Record', 'ls', '$sce', function($scop
         $scope.Record = facRecord;
     });
 }]);
-ngApp.controller('ctrlInvite', ['$scope', '$http', 'Record', 'ls', function($scope, $http, Record, LS) {
+ngApp.controller('ctrlInvite', ['$scope', 'http2', 'Record', 'ls', function($scope, http2, Record, LS) {
     var facRecord;
     $scope.options = {
         genRecordWhenAccept: 'Y'
@@ -190,11 +182,7 @@ ngApp.controller('ctrlInvite', ['$scope', '$http', 'Record', 'ls', function($sco
         url += '&ek=' + facRecord.current.enroll_key;
         url += '&invitee=' + $scope.invitee;
         url += '&page=' + invitePage;
-        $http.get(url).success(function(rsp) {
-            if (rsp.err_code != 0) {
-                alert(rsp.err_msg);
-                return;
-            }
+        http2.get(url).then(function(rsp) {
             if (nextAction === 'closeWindow') {
                 $scope.closeWindow();
             } else if (nextAction !== undefined && nextAction.length) {
@@ -221,7 +209,7 @@ ngApp.controller('ctrlInvite', ['$scope', '$http', 'Record', 'ls', function($sco
         url = LS.j('record/acceptInvite', 'site', 'app');
         url += '&inviter=' + inviter;
         $scope.options.genRecordWhenAccept === 'N' && (url += '&state=2');
-        $http.get(url).success(function(rsp) {
+        http2.get(url).then(function(rsp) {
             if (nextAction === 'closeWindow') {
                 $scope.closeWindow();
             } else if (nextAction !== undefined && nextAction.length) {

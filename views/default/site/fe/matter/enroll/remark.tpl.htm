@@ -9,22 +9,24 @@
         <?php TPL::pt('title');?>
     </title>
     <link href="/static/css/bootstrap.min.css" rel="stylesheet">
-    <link href='/static/css/site.fe.css?_=1' rel="stylesheet">
+    <link href='/static/css/site.fe.css?_=2' rel="stylesheet">
 </head>
 
 <body>
     <header ng-if="app.use_site_header==='Y'" dynamic-html="site.header_page.html"></header>
     <header ng-if="app.use_mission_header==='Y'" dynamic-html="mission.header_page.html"></header>
     <div ng-cloak class='ng-cloak app'>
-        <div id='errmsg' class='alert alert-danger' ng-class="{'active':errmsg}" ng-click="errmsg=''" ng-bind='errmsg'></div>
         <div class='container' ng-controller="ctrlRemark">
-            <div id='recordData' class="bg-info">
-                <blockquote>
-                    <p>{{record.data[schemaId]}}</p>
+            <div id='recordData'>
+                <blockquote ng-switch on="schema.type">
+                    <p ng-switch-when="image"><img ng-src="{{data.value}}"></p>
+                    <p ng-switch-default>{{data.value}}</p>
+                    <p ng-if="schema.supplement==='Y'" class='supplement'>{{data.supplement}}</p>
                     <footer>{{record.nickname}}</footer>
                 </blockquote>
                 <div class='bottom-bar'>
                     <div class='datetime'>{{record.enroll_at*1000|date:'MM-dd HH:mm'}}</div>
+                    <button class='btn btn-default btn-sm' ng-click="likeRecordData(record)"><span class='glyphicon' ng-class="{'glyphicon-heart':data.like_log[user.uid],'glyphicon-heart-empty':!data.like_log[user.uid]}"></span>&nbsp;<span ng-bind="data.like_num"></span></button>
                 </div>
             </div>
             <div id='remarks'>

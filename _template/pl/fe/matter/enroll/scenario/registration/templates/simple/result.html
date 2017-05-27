@@ -1,4 +1,4 @@
-<div wrap="text" class="form-group">已填写如下登记信息</div>
+<div wrap="text" class="form-group">已填写如下报名信息</div>
 <!-- begin: generate by schema -->
 <?php foreach ($this->schema as $def) { 
 $schema = $def->schema;
@@ -14,5 +14,5 @@ $schema = $def->schema;
 </div>
 <?php } ?>
 <!-- end: generate by schema -->
-<div id="act2" class="form-group" wrap="button" ng-controller="ctrlRecord"><button class="btn btn-primary btn-block btn-lg" ng-click="editRecord($event,'enroll')"><span>修改登记</span></button></div>
-<div id="act3" class="form-group" wrap="button" ng-controller="ctrlRecord"><button class="btn btn-primary btn-block btn-lg" ng-click="removeRecord($event,'enroll')"><span>删除登记</span></button></div>
+<div id="act2" class="form-group" wrap="button" ng-controller="ctrlRecord"><button class="btn btn-primary btn-block btn-lg" ng-click="editRecord($event,'enroll')"><span>修改报名信息</span></button></div>
+<div id="act3" class="form-group" wrap="button" ng-controller="ctrlRecord"><button class="btn btn-primary btn-block btn-lg" ng-click="removeRecord($event,'enroll')"><span>取消报名</span></button></div>

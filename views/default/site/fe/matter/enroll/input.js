@@ -8,7 +8,7 @@ var ngApp = require('./main.js');
 ngApp.config(['$compileProvider', function($compileProvider) {
     $compileProvider.aHrefSanitizationWhitelist(/^\s*(https?|ftp|mailto|tel|file|sms|wxLocalResource):/);
 }]);
-ngApp.factory('Record', ['$http', '$q', function($http, $q) {
+ngApp.factory('Record', ['http2', '$q', function(http2, $q) {
     var Record, _ins;
     Record = function() {};
     Record.prototype.get = function(ek) {
@@ -16,10 +16,8 @@ ngApp.factory('Record', ['$http', '$q', function($http, $q) {
         deferred = $q.defer();
         url = LS.j('record/get', 'site', 'aid');
         ek && (url += '&ek=' + ek);
-        $http.get(url).success(function(rsp) {
-            if (rsp.err_code == 0) {
-                deferred.resolve(rsp.data);
-            }
+        http2.get(url).then(function(rsp) {
+            deferred.resolve(rsp.data);
         });
         return deferred.promise;
     };
@@ -121,7 +119,7 @@ ngApp.factory('Input', ['$http', '$q', '$timeout', 'ls', function($http, $q, $ti
         }
         return true;
     };
-    Input.prototype.submit = function(data, ek) {
+    Input.prototype.submit = function(ek, data, oSupplement) {
         var defer, url, d, d2, posted;
         defer = $q.defer();
         posted = angular.copy(data);
@@ -139,7 +137,7 @@ ngApp.factory('Input', ['$http', '$q', '$timeout', 'ls', function($http, $q, $ti
                 }
             }
         }
-        $http.post(url, posted).success(function(rsp) {
+        $http.post(url, { data: posted, supplement: oSupplement }).success(function(rsp) {
             if (typeof rsp === 'string') {
                 defer.reject(rsp);
             } else if (rsp.err_code != 0) {
@@ -356,7 +354,7 @@ ngApp.directive('tmsFileInput', ['$q', 'ls', 'tmsDynaPage', function($q, LS, tms
         }]
     }
 }]);
-ngApp.controller('ctrlInput', ['$scope', '$http', '$q', '$uibModal', '$timeout', 'Input', 'ls', function($scope, $http, $q, $uibModal, $timeout, Input, LS) {
+ngApp.controller('ctrlInput', ['$scope', '$http', '$q', '$uibModal', '$timeout', 'Input', 'ls', 'http2', function($scope, $http, $q, $uibModal, $timeout, Input, LS, http2) {
     function setMember(user, member) {
         var member2, eles;
         if (user && member && member.schema_id && user.members) {
@@ -396,7 +394,7 @@ ngApp.controller('ctrlInput', ['$scope', '$http', '$q', '$uibModal', '$timeout',
     function doSubmit(nextAction) {
         var ek, submitData;
         ek = $scope.record ? $scope.record.enroll_key : undefined;
-        facInput.submit($scope.data, ek).then(function(rsp) {
+        facInput.submit(ek, $scope.data, $scope.supplement).then(function(rsp) {
             var url;
             submitState.finish();
             if (nextAction === 'closeWindow') {
@@ -434,6 +432,7 @@ ngApp.controller('ctrlInput', ['$scope', '$http', '$q', '$uibModal', '$timeout',
     $scope.data = {
         member: {},
     };
+    $scope.supplement = {};
     $scope.submitState = submitState = {
         modified: false,
         state: 'waiting',
@@ -585,6 +584,7 @@ ngApp.controller('ctrlInput', ['$scope', '$http', '$q', '$uibModal', '$timeout',
         }
     });
     $scope.submit = function(event, nextAction) {
+        console.log($scope.supplement);
         var checkResult;
         if (!submitState.isRunning()) {
             submitState.start(event);
@@ -613,7 +613,7 @@ ngApp.controller('ctrlInput', ['$scope', '$http', '$q', '$uibModal', '$timeout',
                 $scope2.data = {};
                 $scope2.cancel = function() { $mi.dismiss(); };
                 $scope2.ok = function() { $mi.close($scope2.data); };
-                $http.get('/rest/site/fe/matter/enroll/repos/dataBySchema?site=' + app.siteid + '&app=' + app.id + '&schema=' + schemaId).success(function(result) {
+                http2.get('/rest/site/fe/matter/enroll/repos/dataBySchema?site=' + app.siteid + '&app=' + app.id + '&schema=' + schemaId).then(function(result) {
                     $scope2.records = result.data.records;
                 });
             }],

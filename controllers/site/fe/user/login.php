@@ -67,7 +67,7 @@ class login extends \site\fe\base {
 		/* cookie中保留注册信息 */
 		$cookieRegUser = $modelWay->shiftRegUser($registration);
 
-		$cookieUser = $modelWay->getCookieUser($this->siteId);
+		$cookieUser = $modelWay->who($this->siteId);
 		if ($referer = $this->myGetCookie('_auth_referer')) {
 			$cookieUser->_loginReferer = $referer;
 			$this->mySetCookie('_auth_referer', null);

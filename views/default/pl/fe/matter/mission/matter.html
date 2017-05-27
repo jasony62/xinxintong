@@ -4,24 +4,41 @@
             <ul class="nav navbar-nav">
                 <li ng-class="{'active':matterType===''}"><a href='#' ng-click="matterType=''">全部</a></li>
                 <li ng-class="{'active':matterType==='article'}"><a href='#article' ng-click="matterType='article'">图文</a></li>
-                <li ng-class="{'active':matterType==='registration'}"><a href='#registration' ng-click="matterType='registration'">报名</a></li>
+                <li ng-class="{'active':matterType===matter_scenario}"><a href='#enroll' ng-click="matterType='enroll'">登记活动</a></li>
                 <li ng-class="{'active':matterType==='signin'}"><a href='#signin' ng-click="matterType='signin'">签到</a></li>
                 <li ng-class="{'active':matterType==='group'}"><a href='#group' ng-click="matterType='group'">分组</a></li>
-                <li ng-class="{'active':matterType==='voting'}"><a href='#voting' ng-click="matterType='voting'">投票</a></li>
-                <li ng-class="{'active':matterType==='group_week_report'}"><a href='#group_week_report' ng-click="matterType='group_week_report'">团队周报</a></li>
-                <li ng-class="{'active':matterType==='quiz'}"><a href='#quiz' ng-click="matterType='quiz'">测验</a></li>
-                <li ng-class="{'active':matterType==='common'}"><a href='#common' ng-click="matterType='common'">通用登记</a></li>
                 <li ng-class="{'active':matterType==='wall'}"><a href='#wall' ng-click="matterType='wall'">信息墙</a></li>
             </ul>
+            <form class='nav navbar-form pull-left'>
+                <div class="form-group" ng-if="matterType===matter_scenario">
+                    <select class='form-control' ng-model="matter_scenario" ng-change="doChange(matter_scenario)">
+                        <option value='enroll'>全部场景</option>
+                        <option value='common'>通用登记</option>
+                        <option value='registration'>报名</option>
+                        <option value='voting'>投票</option>
+                        <option value='group_week_report'>周报</option>
+                        <option value='quiz'>测验</option>
+                    </select>
+                </div>
+                <div class='form-group' ng-if="matterType!==''">
+                    <div class='input-group'>
+                        <input type='input' class='form-control' placeholder='按名称筛选' ng-model='filter2.byTitle'>
+                        <span class='input-group-btn'>
+                            <button class='btn btn-default' ng-click="doFilter()"><span class='glyphicon glyphicon-search'></button>
+                            <button class='btn btn-default' ng-click="cleanFilter()"><span class='glyphicon glyphicon-remove'></button>
+                        </span>
+                    </div>
+                </div>
+                <div class='form-group' ng-if="phases.length">
+                    <select class="form-control" title="项目阶段" ng-model="criteria.pid"  ng-change="doSearch(criteria.pid)" >
+                        <option value="ALL">全部阶段</option>
+                        <option value="{{phs.phase_id}}" ng-repeat="phs in phases">{{phs.title}}</option>
+                    </select>
+                </div>
+            </form>
             <form class="navbar-form navbar-right">
                 <button uib-popover-template="'addMatter.html'" popover-placement="bottom" popover-append-to-body='true' popover-trigger="outsideClick" popover-title="添加素材" class='btn btn-default'><i class='glyphicon glyphicon-plus'></i> <span>新建</span> <i class='caret'></i></button>
             </form>
-            <div class='navbar-form navbar-right' ng-if="phases.length">
-                <select class="form-control" title="项目阶段" ng-model="criteria.pid"  ng-change="doSearch(criteria.pid)" >
-                    <option value="ALL">全部阶段</option>
-                    <option value="{{phs.phase_id}}" ng-repeat="phs in phases">{{phs.title}}</option>
-                </select>
-            </div>
         </div>
     </nav>
     <table class='table table-bordered'>

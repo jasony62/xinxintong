@@ -146,17 +146,17 @@ define(['wrap'], function(SchemaWrap) {
         /**
          * 更新题目
          */
-        updateSchema: function(schema, beforeState) {
+        updateSchema: function(oSchema, oBeforeState) {
             var $html, $dom, wrap;
 
             $html = $('<div>' + this.html + '</div>');
-            if ($dom = $html.find("[schema='" + schema.id + "']")) {
-                if (wrap = this.wrapBySchema(schema)) {
+            if ($dom = $html.find("[schema='" + oSchema.id + "']")) {
+                if (wrap = this.wrapBySchema(oSchema)) {
                     wrap.type = $dom.attr('wrap');
-                    if (beforeState && schema.type !== beforeState.type) {
-                        wrap.config = SchemaWrap.input.newWrap(schema).config;
+                    if (oBeforeState && oSchema.type !== oBeforeState.type) {
+                        wrap.config = SchemaWrap.input.newWrap(oSchema).config;
                     }
-                    SchemaWrap.input.modify($dom, wrap, beforeState);
+                    SchemaWrap.input.modify($dom, wrap, oBeforeState);
                     this.html = $html.html();
                     return true;
                 }

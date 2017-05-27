@@ -29,30 +29,36 @@ class page_model extends \TMS_MODEL {
 		return $ep;
 	}
 	/**
-	 *
+	 * 根据页面的名称获得页面
 	 */
 	public function byName($appId, $name, $published = 'N') {
-		$select = 'ep.*,cp.html,cp.css,cp.js';
-		$from = 'xxt_enroll_page ep,xxt_code_page cp';
-		$where = "ep.aid='$appId' and ep.name='$name' and ep.code_id=cp.id";
-
-		$q = array($select, $from, $where);
-
-		if ($ep = $this->query_obj_ss($q)) {
-			if ($published === 'Y') {
-				$code = \TMS_APP::model('code\page')->lastPublishedByName($ep->siteid, $ep->code_name);
-			} else {
-				$code = \TMS_APP::model('code\page')->lastByName($ep->siteid, $ep->code_name);
-			}
-			$ep->html = $code->html;
-			$ep->css = $code->css;
-			$ep->js = $code->js;
-			$ep->ext_js = $code->ext_js;
-			$ep->ext_css = $code->ext_css;
+		if ($name === 'repos') {
+			$ep = new \stdClass;
+			$ep->name = 'repos';
 			return $ep;
 		} else {
-			return false;
+			$select = 'ep.*,cp.html,cp.css,cp.js';
+			$from = 'xxt_enroll_page ep,xxt_code_page cp';
+			$where = "ep.aid='$appId' and ep.name='$name' and ep.code_id=cp.id";
+
+			$q = array($select, $from, $where);
+
+			if ($ep = $this->query_obj_ss($q)) {
+				if ($published === 'Y') {
+					$code = \TMS_APP::model('code\page')->lastPublishedByName($ep->siteid, $ep->code_name);
+				} else {
+					$code = \TMS_APP::model('code\page')->lastByName($ep->siteid, $ep->code_name);
+				}
+				$ep->html = $code->html;
+				$ep->css = $code->css;
+				$ep->js = $code->js;
+				$ep->ext_js = $code->ext_js;
+				$ep->ext_css = $code->ext_css;
+				return $ep;
+			}
 		}
+
+		return false;
 	}
 	/**
 	 * 返回指定登记活动的页面
@@ -63,7 +69,7 @@ class page_model extends \TMS_MODEL {
 		$q = array(
 			$fields,
 			'xxt_enroll_page',
-			['aid' => $appId]
+			['aid' => $appId],
 		);
 		$q2 = array('o' => 'seq,create_at');
 		$eps = $this->query_objs_ss($q, $q2);

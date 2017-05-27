@@ -1,6 +1,7 @@
 define(['frame'], function(ngApp) {
     'use strict';
-    ngApp.provider.controller('ctrlAccess', ['$scope', 'http2', 'srvEnrollApp', function($scope, http2, srvEnrollApp) {
+    ngApp.provider.controller('ctrlAccess', ['$scope', '$uibModal', 'http2', 'srvSite', 'srvEnrollApp', function($scope, $uibModal, http2, srvSite, srvEnrollApp) {
+        var oEntryRule;
         $scope.rule = {};
         $scope.isInputPage = function(pageName) {
             if (!$scope.app) {
@@ -19,18 +20,33 @@ define(['frame'], function(ngApp) {
         $scope.changeUserScope = function() {
             srvEnrollApp.changeUserScope($scope.rule.scope, $scope.sns, $scope.memberSchemas, $scope.jumpPages.defaultInput);
         };
-        srvEnrollApp.get().then(function(app) {
-            var oEntry;
-            oEntry = {
-                pages: []
-            };
-            $scope.entry = oEntry;
-            app.pages.forEach(function(oPage) {
-                oEntry.pages.push(oPage);
+        $scope.chooseMschema = function() {
+            srvSite.chooseMschema().then(function(result) {
+                var rule = {};
+                if (!oEntryRule.member[result.chosen.id]) {
+                    if ($scope.jumpPages.defaultInput) {
+                        rule.entry = $scope.jumpPages.defaultInput.name;
+                    } else {
+                        rule.entry = '';
+                    }
+                    oEntryRule.member[result.chosen.id] = rule;
+                    $scope.update('entry_rule');
+                }
             });
-            oEntry.pages.push({ name: 'repos', 'title': '所有数据页' });
+        };
+        $scope.editMschema = function(oMschema) {
+            location.href = '/rest/pl/fe/site/mschema?site=' + oMschema.siteid + '#' + oMschema.id;
+        };
+        $scope.removeMschema = function(oMschema) {
+            if (oEntryRule.member[oMschema.id]) {
+                delete oEntryRule.member[oMschema.id];
+                $scope.update('entry_rule');
+            }
+        };
+        srvEnrollApp.get().then(function(app) {
             $scope.jumpPages = srvEnrollApp.jumpPages();
             $scope.rule.scope = app.entry_rule.scope || 'none';
+            oEntryRule = app.entry_rule;
         }, true);
     }]);
 });

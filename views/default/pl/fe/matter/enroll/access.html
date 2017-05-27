@@ -1,95 +1,121 @@
-<div id='access-view' class="col-md-5">
-    <div class='radio'>
-        <label>
-            <input type='radio' value='none' ng-model="rule.scope" ng-change="changeUserScope()">不限用户来源</label>
+<div id='access-view'>
+    <div class='col-md-4'>
+        <div class='radio'>
+            <label>
+                <input type='radio' value='none' ng-model="rule.scope" ng-change="changeUserScope()">不限用户来源</label>
+        </div>
+        <div class='radio'>
+            <label>
+                <input type='radio' value='member' ng-model="rule.scope" ng-change="changeUserScope()">限通讯录联系人访问</label>
+        </div>
+        <div class='radio' ng-if="sns">
+            <label>
+                <input type='radio' value='sns' ng-model="rule.scope" ng-change="changeUserScope()">限公众号关注用户访问</label>
+        </div>
+        <hr>
+        <table class='table table-bordered' ng-if="rule.scope==='none'">
+            <tbody>
+                <tr>
+                    <td>默认进入页面</td>
+                    <td style='padding:0'>
+                        <select style='border:0' class='form-control' ng-change="update('entry_rule')" ng-model='app.entry_rule.otherwise.entry' ng-options="p.name as p.title for p in jumpPages.inapp"></select>
+                    </td>
+                </tr>
+            </tbody>
+        </table>
+        <table class='table table-bordered' ng-if="rule.scope==='member'">
+            <tbody>
+                <tr ng-repeat="ms in memberSchemas" ng-if="app.entry_rule.member[ms.id]">
+                    <td>{{ms.title}}</td>
+                    <td style='padding:0'>
+                        <select style='border:0' class='form-control' ng-change="update('entry_rule')" ng-model="app.entry_rule.member[ms.id].entry" ng-options="p.name as p.title for p in jumpPages.inapp">
+                        </select>
+                    </td>
+                    <td>
+                        <button class='btn btn-default btn-xs' ng-click="removeMschema(ms)"><span class='glyphicon glyphicon-remove'></span></button>
+                        <button class='btn btn-default btn-xs' ng-click="editMschema(ms)"><span class='glyphicon glyphicon-edit'></span></button>
+                    </td>
+                </tr>
+                <tr>
+                    <td>不满足条件用户</td>
+                    <td style='padding:0'>
+                        <select style='border:0' class='form-control' ng-change="update('entry_rule')" ng-model='app.entry_rule.other.entry' ng-options="p.name as p.title for p in jumpPages.nonMember"></select>
+                    </td>
+                    <td style='width:72px'></td>
+                </tr>
+            </tbody>
+        </table>
+        <div>
+            <button class='btn btn-default' ng-click="chooseMschema()">选择通讯录</button>
+        </div>
+        <table class='table table-bordered' ng-if="rule.scope==='sns'">
+            <tbody>
+                <tr ng-if="sns.wx">
+                    <td>微信公众号关注用户</td>
+                    <td style='padding:0'>
+                        <select style='border:0' class='form-control' ng-change="update('entry_rule')" ng-model='app.entry_rule.sns.wx.entry' ng-options='p.name as p.title for p in jumpPages.inapp'>
+                        </select>
+                    </td>
+                </tr>
+                <tr ng-if="sns.qy">
+                    <td>微信企业号关注用户</td>
+                    <td style='padding:0'>
+                        <select style='border:0' class='form-control' ng-change="update('entry_rule')" ng-model='app.entry_rule.sns.qy.entry' ng-options='p.name as p.title for p in jumpPages.inapp'>
+                        </select>
+                    </td>
+                </tr>
+                <tr ng-if="sns.yx">
+                    <td>易信公众号关注用户</td>
+                    <td style='padding:0'>
+                        <select style='border:0' class='form-control' ng-change="update('entry_rule')" ng-model='app.entry_rule.sns.yx.entry' ng-options='p.name as p.title for p in jumpPages.inapp'>
+                        </select>
+                    </td>
+                </tr>
+                <tr>
+                    <td>不满足条件用户</td>
+                    <td style='padding:0'>
+                        <select style='border:0' class='form-control' ng-change="update('entry_rule')" ng-model='app.entry_rule.other.entry' ng-options="p.name as p.title for p in jumpPages.nonfan"></select>
+                    </td>
+                </tr>
+            </tbody>
+        </table>
+        <hr>
+        <div class='checkbox'>
+            <label>
+                <input type='checkbox' ng-true-value="'Y'" ng-false-value="'N'" ng-model="app.entry_rule.anonymous" ng-change="update('entry_rule')">隐藏用户昵称（匿名）</label>
+        </div>
+        <hr>
+        <button class='btn btn-block btn-success' ng-click="reset()">重置规则</button>
+        <hr>
+        <table class='table table-bordered'>
+            <tbody>
+                <tr>
+                    <td rowspan="2">已填写时进入</td>
+                    <td style='padding:0'>
+                        <select style='border:0' class='form-control' ng-model='app.enrolled_entry_page' ng-options='page.name as page.title for page in jumpPages.inapp' ng-change="update('enrolled_entry_page')">
+                        </select>
+                    </td>
+                </tr>
+                <tr ng-show='isInputPage(app.enrolled_entry_page)'>
+                    <td>
+                        <label class='checkbox-inline'>
+                            <input type="checkbox" ng-true-value="'Y'" ng-false-value="'N'" ng-model='app.open_lastroll' ng-change="update('open_lastroll')">显示最后一条填写记录</label>
+                    </td>
+                </tr>
+            </tbody>
+        </table>
     </div>
-    <div class='radio' ng-if="memberSchemas.length">
-        <label>
-            <input type='radio' value='member' ng-model="rule.scope" ng-change="changeUserScope()">限自定义联系人访问</label>
+    <div class='col-md-4 hide'>
+        <div class='list-group'>
+            <div class='list-group-item'>
+                支持通过微信公众号向填写人发送通知
+            </div>
+            <div class='list-group-item'>
+                支持获得用户的微信公众号昵称
+            </div>
+            <div class='list-group-item'>
+                支持用户在不同终端（例如：手机浏览器，PC机浏览器登）中参与活动
+            </div>
+        </div>
     </div>
-    <div class='radio' ng-if="sns">
-        <label>
-            <input type='radio' value='sns' ng-model="rule.scope" ng-change="changeUserScope()">限公众号关注用户访问</label>
-    </div>
-    <table class='table table-bordered' ng-if="rule.scope==='none'">
-        <tbody>
-            <tr>
-                <td>默认进入页面</td>
-                <td style='padding:0'>
-                    <select style='border:0' class='form-control' ng-change="update('entry_rule')" ng-model='app.entry_rule.otherwise.entry' ng-options="p.name as p.title for p in entry.pages"></select>
-                </td>
-            </tr>
-        </tbody>
-    </table>
-    <table class='table table-bordered' ng-if="rule.scope==='member'">
-        <tbody>
-            <tr ng-repeat="ms in memberSchemas">
-                <td>{{ms.title}}</td>
-                <td style='padding:0'>
-                    <select style='border:0' class='form-control' ng-change="update('entry_rule')" ng-model="app.entry_rule.member[ms.id].entry" ng-options="p.name as p.title for p in entry.pages">
-                    </select>
-                </td>
-            </tr>
-            <tr>
-                <td>不满足条件用户</td>
-                <td style='padding:0'>
-                    <select style='border:0' class='form-control' ng-change="update('entry_rule')" ng-model='app.entry_rule.other.entry' ng-options="p.name as p.title for p in jumpPages.nonMember"></select>
-                </td>
-            </tr>
-        </tbody>
-    </table>
-    <table class='table table-bordered' ng-if="rule.scope==='sns'">
-        <tbody>
-            <tr ng-if="sns.wx">
-                <td>微信公众号关注用户</td>
-                <td style='padding:0'>
-                    <select style='border:0' class='form-control' ng-change="update('entry_rule')" ng-model='app.entry_rule.sns.wx.entry' ng-options='p.name as p.title for p in entry.pages'>
-                    </select>
-                </td>
-            </tr>
-            <tr ng-if="sns.qy">
-                <td>微信企业号关注用户</td>
-                <td style='padding:0'>
-                    <select style='border:0' class='form-control' ng-change="update('entry_rule')" ng-model='app.entry_rule.sns.qy.entry' ng-options='p.name as p.title for p in entry.pages'>
-                    </select>
-                </td>
-            </tr>
-            <tr ng-if="sns.yx">
-                <td>易信公众号关注用户</td>
-                <td style='padding:0'>
-                    <select style='border:0' class='form-control' ng-change="update('entry_rule')" ng-model='app.entry_rule.sns.yx.entry' ng-options='p.name as p.title for p in entry.pages'>
-                    </select>
-                </td>
-            </tr>
-            <tr>
-                <td>不满足条件用户</td>
-                <td style='padding:0'>
-                    <select style='border:0' class='form-control' ng-change="update('entry_rule')" ng-model='app.entry_rule.other.entry' ng-options="p.name as p.title for p in jumpPages.nonfan"></select>
-                </td>
-            </tr>
-        </tbody>
-    </table>
-    <div class='checkbox'>
-        <label>
-            <input type='checkbox' ng-true-value="'Y'" ng-false-value="'N'" ng-model="app.entry_rule.anonymous" ng-change="update('entry_rule')">隐藏用户昵称（匿名）</label>
-    </div>
-    <button class='btn btn-block btn-success' ng-click="reset()">重置规则</button>
-    <hr>
-    <table class='table table-bordered'>
-        <tbody>
-            <tr>
-                <td rowspan="2">已填写时进入</td>
-                <td style='padding:0'>
-                    <select style='border:0' class='form-control' ng-model='app.enrolled_entry_page' ng-options='page.name as page.title for page in entry.pages' ng-change="update('enrolled_entry_page')">
-                    </select>
-                </td>
-            </tr>
-            <tr ng-show='isInputPage(app.enrolled_entry_page)'>
-                <td>
-                    <label class='checkbox-inline'>
-                        <input type="checkbox" ng-true-value="'Y'" ng-false-value="'N'" ng-model='app.open_lastroll' ng-change="update('open_lastroll')">显示最后一条填写记录</label>
-                </td>
-            </tr>
-        </tbody>
-    </table>
 </div>

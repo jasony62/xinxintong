@@ -1316,4 +1316,135 @@ class main extends \pl\fe\matter\base {
 
 		return new \ResponseData($summary);
 	}
+	/*
+	 *
+	 *
+	 */
+	public function synData_action($site,$id){
+		if (false === ($user = $this->accountUser())) {
+			return new \ResponseTimeout();
+		}
+
+		$this->synDataSchemas($site,$id);
+
+		return new \ResponseData('ok');
+	}
+	/*
+	 * 同步指定登记活动
+	 *
+	 */
+	protected function synDataSchemas($site,$id){
+		$modelApp = $this->model('matter\enroll');
+		$app = $modelApp->byId($id);
+
+		if(!empty($app->data_schemas)){
+			$d['data_schemas']=str_replace(
+				['"type":"name"', '"type":"mobile"', '"type":"email"', '"number":"N"', '"number":"Y"'],
+				['"type":"shorttext","fastSelect":"name"',
+				 '"type":"shorttext","fastSelect":"mobile"',
+				 '"type":"shorttext","fastSelect":"email"', 
+				 '"fastSelect":""', 
+				 '"fastSelect":"number"'
+				],
+				$app->data_schemas);
+			$modelApp->update('xxt_enroll',$d,"id='$id'");
+			//关联登记活动
+			if(!empty($app->enroll_app_id)){
+				$this->synDataSchemas($site,$app->enroll_app_id);
+			}
+			//关联分组活动
+			if(!empty($app->group_app_id)){
+				$groupApp=$modelApp->query_obj_ss(['id,data_schemas,source_app','xxt_group',"id='$app->group_app_id'"]);
+
+				if (!empty($groupApp->data_schemas)) {
+					$d['data_schemas']=str_replace(
+						['"type":"name"', '"type":"mobile"', '"type":"email"', '"number":"N"', '"number":"Y"'],
+						['"type":"shorttext","fastSelect":"name"',
+				 		 '"type":"shorttext","fastSelect":"mobile"',
+				 		 '"type":"shorttext","fastSelect":"email"', 
+				 		 '"fastSelect":""', 
+				 		 '"fastSelect":"number"'
+						],
+						$groupApp->data_schemas);
+					$modelApp->update('xxt_group',$d,"id='$app->group_app_id'");
+				}
+				//分组活动关联的活动（报名、签到、信息墙）
+				if(!empty($groupApp->source_app)){
+					$source_app=json_decode($groupApp->source_app);
+				
+					switch ($source_app->type) {
+						case 'enroll':
+							$this->synDataSchemas($site,$source_app->id);
+							break;
+						case 'signin':
+							$signinApp=$modelApp->query_obj_ss(['id,data_schemas,enroll_app_id','xxt_signin',"id='$source_app->id'"]);
+							if(!empty($signinApp->data_schemas)){
+								$d['data_schemas']=str_replace(
+									['"type":"name"', '"type":"mobile"', '"type":"email"', '"number":"N"', '"number":"Y"'],
+									['"type":"shorttext","fastSelect":"name"',
+				 		 			 '"type":"shorttext","fastSelect":"mobile"',
+				 		 			 '"type":"shorttext","fastSelect":"email"', 
+				 		 			 '"fastSelect":""', 
+				 		 			 '"fastSelect":"number"'
+									],
+								$signinApp->data_schemas);
+								$modelApp->update('xxt_signin',$d,"id='$source_app->id'");
+							}
+							if(!empty($signinApp->enroll_app_id)){
+								$this->synDataSchemas($site,$signinApp->enroll_app_id);
+							}
+							break;
+						case 'wall':
+							$wallApp=$modelApp->query_obj_ss(['id,data_schemas,source_app','xxt_wall',"id='$source_app->id'"]);
+							if(!empty($wallApp->data_schemas)){
+								$d['data_schemas']=str_replace(
+									['"type":"name"', '"type":"mobile"', '"type":"email"', '"number":"N"', '"number":"Y"'],
+									['"type":"shorttext","fastSelect":"name"',
+				 		 			 '"type":"shorttext","fastSelect":"mobile"',
+				 		 			 '"type":"shorttext","fastSelect":"email"', 
+				 		 			 '"fastSelect":""', 
+				 		 			 '"fastSelect":"number"'
+									],
+								$wallApp->data_schemas);
+								$modelApp->update('xxt_wall',$d,"id='$source_app->id'");
+							}
+							if(!empty($wallApp->source_app)){
+								$source_app=json_decode($wallApp->source_app);
+
+								switch ($source_app->type) {
+									case 'enroll':
+										$this->synDataSchemas($site,$source_app->id);
+										break;
+									case 'signin':
+										$signinApp=$modelApp->query_obj_ss(['id,data_schemas,enroll_app_id','xxt_signin',"id='$source_app->id'"]);
+										if(!empty($signinApp->data_schemas)){
+											$d['data_schemas']=str_replace(
+												['"type":"name"', '"type":"mobile"', '"type":"email"', '"number":"N"', '"number":"Y"'],
+												['"type":"shorttext","fastSelect":"name"',
+				 		 			 			 '"type":"shorttext","fastSelect":"mobile"',
+				 		 			 			 '"type":"shorttext","fastSelect":"email"', 
+				 		 						 '"fastSelect":""', 
+				 		 						 '"fastSelect":"number"'
+												],
+												$signinApp->data_schemas);
+											$modelApp->update('xxt_signin',$d,"id='$source_app->id'");
+										}
+										if(!empty($signinApp->enroll_app_id)){
+											$this->synDataSchemas($site,$signinApp->enroll_app_id);
+										}
+										break;
+									default:
+										# code...
+										break;
+								}
+							}
+							break;
+						default:
+							# code...
+							break;
+					}
+				}				
+			}
+		}
+	}
 }

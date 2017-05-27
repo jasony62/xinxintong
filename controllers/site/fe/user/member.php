@@ -38,9 +38,13 @@ class member extends \site\fe\base {
 			$modelSiteUser = $this->model('site\user\account');
 			$siteUser = $modelSiteUser->byId($cookieUser->uid);
 
+			$oMschema2 = new \stdClass;
+			$oMschema2->type = 'mschema';
+			$oMschema2->id = $schema;
+
 			if ($oSchema->is_wx_fan === 'Y') {
 				if (empty($siteUser->wx_openid)) {
-					$this->snsFollow($oSchema->siteid, 'wx');
+					$this->snsFollow($oSchema->siteid, 'wx', $oMschema2);
 				} else {
 					$modelWx = $this->model('sns\wx');
 					if (($wxConfig = $modelWx->bySite($oSchema->siteid)) && $wxConfig->joined === 'Y') {
@@ -50,7 +54,7 @@ class member extends \site\fe\base {
 					}
 					$modelSnsUser = $this->model('sns\wx\fan');
 					if (false === $modelSnsUser->isFollow($snsSiteId, $siteUser->wx_openid)) {
-						$this->snsFollow($snsSiteId, 'wx');
+						$this->snsFollow($snsSiteId, 'wx', $oMschema2);
 					}
 				}
 			}
@@ -60,7 +64,7 @@ class member extends \site\fe\base {
 				} else {
 					$modelSnsUser = $this->model('sns\qy\fan');
 					if (false === $modelSnsUser->isFollow($oSchema->siteid, $siteUser->qy_openid)) {
-						$this->snsFollow($oSchema->siteid, 'qy');
+						$this->snsFollow($oSchema->siteid, 'qy', $oMschema2);
 					}
 				}
 			}
@@ -70,7 +74,7 @@ class member extends \site\fe\base {
 				} else {
 					$modelSnsUser = $this->model('sns\yx\fan');
 					if (false === $modelSnsUser->isFollow($oSchema->siteid, $siteUser->yx_openid)) {
-						$this->snsFollow($oSchema->siteid, 'yx');
+						$this->snsFollow($oSchema->siteid, 'yx', $oMschema2);
 					}
 				}
 			}

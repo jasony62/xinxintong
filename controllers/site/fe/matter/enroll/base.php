@@ -88,11 +88,12 @@ class base extends \site\fe\matter\base {
 						$snsSiteId = $oApp->siteid;
 					}
 					// 检查用户是否已经关注
-					$snsUser = $oUser->sns->{$snsName};
-					$modelSnsUser = $this->model('sns\\' . $snsName . '\fan');
-					if ($modelSnsUser->isFollow($snsSiteId, $snsUser->openid)) {
-						$page = $rule->entry;
-						break;
+					if ($snsUser = $oUser->sns->{$snsName}) {
+						$modelSnsUser = $this->model('sns\\' . $snsName . '\fan');
+						if ($modelSnsUser->isFollow($snsSiteId, $snsUser->openid)) {
+							$page = $rule->entry;
+							break;
+						}
 					}
 				}
 			}

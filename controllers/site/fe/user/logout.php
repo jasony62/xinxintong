@@ -25,6 +25,9 @@ class logout extends \site\fe\base {
 		$this->mySetCookie('_login_auto', '');
 		$this->mySetCookie('_login_token', '');
 
+		$modelWay = $this->model('site\fe\way');
+		$modelWay->quitRegUser();
+
 		if ($redirect === 'Y') {
 			$referer = isset($_SERVER['HTTP_REFERER']) ? $_SERVER['HTTP_REFERER'] : '';
 			$this->redirect($referer);

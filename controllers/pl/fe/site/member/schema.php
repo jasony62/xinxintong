@@ -445,4 +445,22 @@ class schema extends \pl\fe\base {
 
 		return new \ResponseData($result);
 	}
+	/**
+	 * 应用的微信二维码
+	 *
+	 * @param string $site
+	 * @param string $app
+	 *
+	 */
+	public function wxQrcode_action($site, $mschema) {
+		if (false === ($user = $this->accountUser())) {
+			return new \ResponseTimeout();
+		}
+
+		$modelQrcode = $this->model('sns\wx\call\qrcode');
+
+		$qrcodes = $modelQrcode->byMatter('mschema', $mschema);
+
+		return new \ResponseData($qrcodes);
+	}
 }

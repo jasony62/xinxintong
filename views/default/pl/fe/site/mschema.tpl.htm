@@ -126,7 +126,17 @@
                             </tbody>
                         </table>
                     </div>
-                    <form class='form-horizontal' style='background:#fff;padding:15px;'>
+                    <form class='form-horizontal'>
+                        <div class='form-group' ng-if="choosedSchema.is_wx_fan==='Y'" ng-controller="ctrlWxQrcode">
+                            <label>微信二维码</label>
+                            <div ng-if='!qrcode'>
+                                <button class='btn btn-default' ng-click="create()">生成微信二维码</button>
+                            </div>
+                            <div ng-if='qrcode'>
+                                <span><img style='width:135px;height:135px;' ng-src="{{qrcode.pic}}"></span>
+                                <button class='btn btn-default' ng-click="download()">下载</button>
+                            </div>
+                        </div>
                         <div class='form-group'>
                             <label class="col-md-3 control-label">填写页面地址</label>
                             <div class='col-md-9'>

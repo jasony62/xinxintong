@@ -110,6 +110,7 @@
                             <span ng-switch-when="date">{{(r._data[schema.id]*1000)|date:'yy-MM-dd HH:mm'}}</span>
                             <span ng-switch-default ng-bind-html="r._data[schema.id]"></span>
                             <span ng-if="schema.requireScore==='Y'">（得分: <span ng-class="{'bg-danger':!r.score[schema.id]}" ng-bind-html="r.score[schema.id]?r.score[schema.id]:'未评分'"></span>）</span>
+                            <p ng-if="['single', 'multiple', 'image', 'file'].indexOf(schema.type)!==-1&&r.supplement[schema.id].length">(补充说明：{{r.supplement[schema.id]}})</p>
                         </td>
                         <td ng-if="app.scenario==='quiz'" ng-bind="r.score.sum"></td>
                         <td class='matched enroll' ng-repeat="schema in enrollDataSchemas" ng-switch on="schema.type">

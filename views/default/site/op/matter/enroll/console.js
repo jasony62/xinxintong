@@ -241,6 +241,9 @@ define(["require", "angular", "enrollService"], function(require, angular) {
                 if (!angular.equals(oRecord.data, oBeforeRecord.data)) {
                     updated.data = oRecord.data;
                 }
+                if (!angular.equals(oRecord.supplement, oBeforeRecord.supplement)) {
+                    updated.supplement = oRecord.supplement;
+                }
                 if (!angular.equals(oQuizScore, oBeforeQuizScore)) {
                     updated.quizScore = oQuizScore;
                 }
@@ -251,6 +254,7 @@ define(["require", "angular", "enrollService"], function(require, angular) {
                 });
             } else {
                 updated.data = oRecord.data;
+                updated.supplement = oRecord.supplement;
                 updated.quizScore = oQuizScore;
                 srvEnrollRecord.add(updated).then(function(newRecord) {
                     oRecord.enroll_key = newRecord.enroll_key;

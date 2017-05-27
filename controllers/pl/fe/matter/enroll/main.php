@@ -1317,7 +1317,7 @@ class main extends \pl\fe\matter\base {
 		return new \ResponseData($summary);
 	}
 	/*
-	 *
+	 * 更新指定的登记活动题目类型并更新关联的登记活动、分组活动
 	 *
 	 */
 	public function synData_action($site,$id){
@@ -1330,7 +1330,7 @@ class main extends \pl\fe\matter\base {
 		return new \ResponseData('ok');
 	}
 	/*
-	 * 同步指定登记活动
+	 * 同步指定登记活动、关联递归调用
 	 *
 	 */
 	protected function synDataSchemas($site,$id){

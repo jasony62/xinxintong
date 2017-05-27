@@ -67,83 +67,75 @@
                         </div>
                     </div>
                     <div class="form-group" ng-repeat="schema in app.dataSchemas" ng-if="schema.type!=='html'">
-                        <div class="form-group">
-                            <label class='form-label col-md-2'>{{schema.title}}</label>
-                            <div ng-switch on="schema.type" class='col-md-6'>
-                                <textarea class='form-control' ng-switch-when="longtext" ng-model="record.data[schema.id]"></textarea>
-                                <select class='form-control' ng-switch-when="single" ng-model="record.data[schema.id]" ng-options="op.v as op.l for op in schema.ops">
-                                    <option></option>
-                                </select>
-                                <select class='form-control' ng-switch-when="phase" ng-model="record.data[schema.id]" ng-options="op.v as op.l for op in schema.ops">
-                                    <option></option>
-                                </select>
-                                <ul ng-switch-when="multiple">
-                                    <li class='checkbox' ng-repeat="op in schema.ops">
-                                        <label>
-                                            <input type="checkbox" name="{{schema.id}}" ng-model="record.data[schema.id][op.v]" /><span>{{op.l}}</span></label>
-                                    </li>
-                                </ul>
-                                <div ng-switch-when="score">
-                                    <div ng-repeat="op in schema.ops">
-                                        <div>{{op.l}}</div>
-                                        <select class='form-control' ng-model="record.data[schema.id][op.v]" ng-options="number as number for number in scoreRangeArray(schema)">
-                                            <option></option>
-                                        </select>
-                                    </div>
+                        <label class='form-label col-md-2'>{{schema.title}}</label>
+                        <div ng-switch on="schema.type" class='col-md-6'>
+                            <textarea class='form-control' ng-switch-when="longtext" ng-model="record.data[schema.id]"></textarea>
+                            <select class='form-control' ng-switch-when="single" ng-model="record.data[schema.id]" ng-options="op.v as op.l for op in schema.ops">
+                                <option></option>
+                            </select>
+                            <select class='form-control' ng-switch-when="phase" ng-model="record.data[schema.id]" ng-options="op.v as op.l for op in schema.ops">
+                                <option></option>
+                            </select>
+                            <ul ng-switch-when="multiple">
+                                <li class='checkbox' ng-repeat="op in schema.ops">
+                                    <label>
+                                        <input type="checkbox" name="{{schema.id}}" ng-model="record.data[schema.id][op.v]" /><span>{{op.l}}</span></label>
+                                </li>
+                            </ul>
+                            <div ng-switch-when="score">
+                                <div ng-repeat="op in schema.ops">
+                                    <div>{{op.l}}</div>
+                                    <select class='form-control' ng-model="record.data[schema.id][op.v]" ng-options="number as number for number in scoreRangeArray(schema)">
+                                        <option></option>
+                                    </select>
                                 </div>
-                                <ul ng-switch-when="image" class="img-tiles clearfix">
-                                    <li wrap="img" ng-repeat="img in record.data[schema.id]" class="img-thumbnail" title="图片">
-                                        <img flex-img="" />
-                                        <button class="btn btn-default btn-xs" ng-click="removeImage(record.data[schema.id],$index)"><span class="glyphicon glyphicon-remove"></span></button>
-                                    </li>
-                                    <li class="img-picker">
-                                        <button class="btn btn-default" ng-click="chooseImage(schema.id)"><span class="glyphicon glyphicon-picture"></span>
-                                            <br />上传图片</button>
-                                    </li>
-                                </ul>
-                            <span ng-switch-when="file">
-                                <span ng-repeat="file in record.data[schema.id]">
+                            </div>
+                            <ul ng-switch-when="image" class="img-tiles clearfix">
+                                <li wrap="img" ng-repeat="img in record.data[schema.id]" class="img-thumbnail" title="图片">
+                                    <img flex-img="" />
+                                    <button class="btn btn-default btn-xs" ng-click="removeImage(record.data[schema.id],$index)"><span class="glyphicon glyphicon-remove"></span></button>
+                                </li>
+                                <li class="img-picker">
+                                    <button class="btn btn-default" ng-click="chooseImage(schema.id)"><span class="glyphicon glyphicon-picture"></span>
+                                        <br />上传图片</button>
+                                </li>
+                            </ul>
+                            <div ng-switch-when="file">
+                                <div ng-repeat="file in record.data[schema.id]">
                                     <span ng-bind="file.url"></span>
-                            <video ng-if="file.type.indexOf('video')===0" style="width:100%;" controls="controls">
-                                <source src="{{file.url}}" type="{{file.type}}" />
-                            </video>
-                            <img ng-if="file.type.indexOf('image')===0" ng-src='{{file.url}}' style="width:100%" />
-                            </span>
-                            </span>
-                                <div ng-switch-when='date'>
-                                    <tms-datepicker class='tms-datepicker' tms-title='时间' tms-obj="rnd" tms-date="record.data[schema.id]" tms-state="signinAt"></tms-datepicker>
+                                    <video ng-if="file.type.indexOf('video')===0" style="width:100%;" controls="controls">
+                                        <source src="{{file.url}}" type="{{file.type}}" />
+                                    </video>
+                                    <img ng-if="file.type.indexOf('image')===0" ng-src='{{file.url}}' style="width:100%" />
                                 </div>
-                                <input type='text' class='form-control' ng-switch-default ng-model="record.data[schema.id]">
                             </div>
-                            <div class='col-md-4'>
-                                <div class='form-inline'>
-                                    <div class='form-group' style='margin:0' ng-if="schema.requireScore==='Y'">
-                                        <label>分数：</label>
-                                        <input type='text' class='form-control' ng-disabled="['single','multiple'].indexOf(schema.type)!==-1" ng-model="quizScore[schema.id]" style='width:64px'>
-                                    </div>
-                                    <div class="form-group" style='margin:0' ng-if="schema.shareable==='Y'">
-                                        <select class='form-control input-sm' ng-change="agree(record,schema)" ng-model="record.verbose[schema.id].agreed">
-                                            <option value=''>不表态</option>
-                                            <option value='Y'>推荐</option>
-                                            <option value='N'>屏蔽</option>
-                                        </select>
-                                    </div>
-                                    <div class='form-group' style='margin:0' ng-if="schema.remarkable==='Y'">
-                                        <button class='btn btn-default btn-sm' ng-click="gotoRemark(schema)"><span class='glyphicon glyphicon-comment'></span> <span class="badge">{{record.verbose[schema.id].remark_num||0}}</span></button>
-                                    </div>
-                                    <div class='form-group' style='margin:0' ng-if="schema.shareable==='Y'">
-                                        <span>点赞 <span class='badge'>{{record.verbose[schema.id].like_num||0}}</span></span>
-                                    </div>
+                            <div ng-switch-when='date'>
+                                <tms-datepicker class='tms-datepicker' tms-title='时间' tms-obj="rnd" tms-date="record.data[schema.id]" tms-state="signinAt"></tms-datepicker>
+                            </div>
+                            <input type='text' class='form-control' ng-switch-default ng-model="record.data[schema.id]">
+                            <textarea ng-if="schema.supplement==='Y'" class='form-control' ng-model="record.supplement[schema.id]" rows="3"></textarea>
+                        </div>
+                        <div class='col-md-4'>
+                            <div class='form-inline'>
+                                <div class='form-group' style='margin:0' ng-if="schema.requireScore==='Y'">
+                                    <label>分数：</label>
+                                    <input type='text' class='form-control' ng-disabled="['single','multiple'].indexOf(schema.type)!==-1" ng-model="quizScore[schema.id]" style='width:64px'>
+                                </div>
+                                <div class="form-group" style='margin:0' ng-if="schema.shareable==='Y'">
+                                    <select class='form-control input-sm' ng-change="agree(record,schema)" ng-model="record.verbose[schema.id].agreed">
+                                        <option value=''>不表态</option>
+                                        <option value='Y'>推荐</option>
+                                        <option value='N'>屏蔽</option>
+                                    </select>
+                                </div>
+                                <div class='form-group' style='margin:0' ng-if="schema.remarkable==='Y'">
+                                    <button class='btn btn-default btn-sm' ng-click="gotoRemark(schema)"><span class='glyphicon glyphicon-comment'></span> <span class="badge">{{record.verbose[schema.id].remark_num||0}}</span></button>
+                                </div>
+                                <div class='form-group' style='margin:0' ng-if="schema.shareable==='Y'">
+                                    <span>点赞 <span class='badge'>{{record.verbose[schema.id].like_num||0}}</span></span>
                                 </div>
                             </div>
                         </div>
-                        <div class='col-md-12 form-group' style='margin:0' ni-if="['single', 'multiple', 'image', 'file'].indexOf(schema.type)!==-1">
-                            <label class='form-label col-md-2'>补充说明：</label>
-                            <div class="col-md-6" >
-                                <textarea class='form-control' ng-model="record.supplement[schema.id]" rows="3"></textarea>
-                            </div>
-                        </div>
-
                     </div>
                 </form>
                 <hr ng-if="app.enrollApp">

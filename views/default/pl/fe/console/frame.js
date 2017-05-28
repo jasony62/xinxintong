@@ -232,7 +232,6 @@ define(['require'], function(require) {
             _fns[fnName].call(_fns, site, scenario);
         }
         $scope.addMatter = function(matterType, scenario) {
-            $('body').trigger('click');
             if (matterType == 'site') {
                 var url = '/rest/pl/fe/site/create?_=' + (new Date() * 1);
                 http2.get(url, function(rsp) {

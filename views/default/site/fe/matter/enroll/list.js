@@ -2,14 +2,14 @@
 require('./list.css');
 
 var ngApp = require('./main.js');
-ngApp.factory('Round', ['$http', '$q', 'ls', function($http, $q, LS) {
+ngApp.factory('Round', ['http2', '$q', 'ls', function(http2, $q, LS) {
     var Round, _ins;
     Round = function() {};
     Round.prototype.list = function() {
         var deferred, url;
         deferred = $q.defer();
         url = LS.j('round/list', 'site', 'app');
-        $http.get(url).success(function(rsp) {
+        http2.get(url).then(function(rsp) {
             if (rsp.err_code != 0) {
                 alert(rsp.data);
                 return;
@@ -84,16 +84,16 @@ ngApp.controller('ctrlOrderbyOptions', ['$scope', function($scope) {
         }
     };
 }]);
-ngApp.factory('Record', ['$http', '$q', 'ls', function($http, $q, LS) {
+ngApp.factory('Record', ['http2', '$q', 'ls', function(http2, $q, LS) {
     var Record, _ins;
     Record = function() {};
-    Record.prototype.list = function(owner, rid) {
+    Record.prototype.list = function(owner, rid, oCriteria) {
         var deferred = $q.defer(),
             url;
         url = LS.j('record/list', 'site', 'app');
         url += '&owner=' + owner;
         rid && rid.length && (url += '&rid=' + rid);
-        $http.get(url).success(function(rsp) {
+        http2.post(url, oCriteria ? oCriteria : {}).then(function(rsp) {
             var records, record, i, l;
             if (rsp.err_code == 0) {
                 records = rsp.data.records;
@@ -118,9 +118,10 @@ ngApp.factory('Record', ['$http', '$q', 'ls', function($http, $q, LS) {
         }
     };
 }]);
-ngApp.controller('ctrlRecords', ['$scope', 'Record', 'ls', '$sce', function($scope, Record, LS, $sce) {
+ngApp.controller('ctrlRecords', ['$scope', '$uibModal', 'Record', 'ls', '$sce', function($scope, $uibModal, Record, LS, $sce) {
     var facRecord, options, fnFetch,
-        oApp = $scope.app;
+        oApp = $scope.app,
+        oCurrentCriteria = {};
 
     $scope.value2Label = function(record, schemaId) {
         var val, i, j, s, aVal, aLab = [];
@@ -155,6 +156,33 @@ ngApp.controller('ctrlRecords', ['$scope', 'Record', 'ls', '$sce', function($sco
             }
         }
         return $sce.trustAsHtml(label);
+    };
+    $scope.openFilter = function() {
+        $uibModal.open({
+            templateUrl: 'filter.html',
+            controller: ['$scope', '$uibModalInstance', function($scope2, $mi) {
+                $scope2.dataSchemas = $scope.app.dataSchemas;
+                $scope2.criteria = oCurrentCriteria;
+                $scope2.cancel = function() {
+                    $mi.dismiss();
+                };
+                $scope2.ok = function() {
+                    $mi.close(oCurrentCriteria);
+                };
+            }],
+            windowClass: 'auto-height',
+            backdrop: 'static',
+        }).result.then(function(oCriteria) {
+            facRecord.list(options.owner, options.rid, oCriteria).then(function(records) {
+                $scope.records = records;
+            });
+        });
+    };
+    $scope.resetFilter = function() {
+        oCurrentCriteria = {};
+        facRecord.list(options.owner, options.rid, oCurrentCriteria).then(function(records) {
+            $scope.records = records;
+        });
     };
     facRecord = Record.ins();
     options = {

@@ -510,11 +510,15 @@ class record extends base {
 	 *
 	 */
 	public function list_action($site, $app, $owner = 'U', $rid = '', $orderby = 'time', $openid = null, $page = 1, $size = 30) {
-		$user = $this->who;
+		$oUser = $this->who;
+
+		// 登记数据过滤条件
+		$oCriteria = $this->getPostJson();
+
 		switch ($owner) {
 		case 'I':
 			$options = array(
-				'inviter' => $user->uid,
+				'inviter' => $oUser->uid,
 			);
 			break;
 		case 'A':
@@ -522,7 +526,7 @@ class record extends base {
 			break;
 		default:
 			$options = array(
-				'creater' => $user->uid,
+				'creater' => $oUser->uid,
 			);
 			break;
 		}
@@ -531,10 +535,10 @@ class record extends base {
 		$options['size'] = $size;
 		$options['orderby'] = $orderby;
 
-		$app = $this->model('matter\enroll')->byId($app);
+		$oApp = $this->model('matter\enroll')->byId($app, ['cascaded' => 'N']);
 		$modelRec = $this->model('matter\enroll\record');
 
-		$rst = $modelRec->find($app, $options);
+		$rst = $modelRec->find($oApp, $options, $oCriteria);
 
 		return new \ResponseData($rst);
 	}

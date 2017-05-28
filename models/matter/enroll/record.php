@@ -624,7 +624,7 @@ class record_model extends \TMS_MODEL {
 		}
 		!empty($rid) && $w .= " and e.rid='$rid'";
 
-		// @TODO 还需要吗？
+		// 根据填写人筛选（填写端列表页需要）
 		if (!empty($creater)) {
 			$w .= " and e.userid='$creater'";
 		} else if (!empty($inviter)) {
@@ -711,7 +711,7 @@ class record_model extends \TMS_MODEL {
 					}
 				}
 				//附加说明
-				if(!empty($rec->supplement)){
+				if (!empty($rec->supplement)) {
 					$supplement = str_replace("\n", ' ', $rec->supplement);
 					$supplement = json_decode($supplement);
 

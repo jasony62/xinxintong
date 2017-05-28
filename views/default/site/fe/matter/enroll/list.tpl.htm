@@ -17,7 +17,6 @@
     <header ng-if="app.use_site_header==='Y'" dynamic-html="site.header_page.html"></header>
     <header ng-if="app.use_mission_header==='Y'" dynamic-html="mission.header_page.html"></header>
     <div ng-cloak class='ng-cloak app'>
-        <div id='errmsg' class='alert alert-danger' ng-class="{'active':errmsg}" ng-click="errmsg=''" ng-bind='errmsg'></div>
         <div class='container'>
             <div class='row' ng-controller='ctrlList' dynamic-html="page.html">
             </div>
@@ -28,6 +27,35 @@
     <div class="loading">
         <div class='loading-indicator'><i></i></div>
     </div>
+    <script type="text/ng-template" id="filter.html">
+        <div class="modal-header">
+            <h5 class="modal-title">筛选条件</h5>
+        </div>
+        <div class="modal-body">
+            <form class="form-horizontal">
+                <div class="form-group" ng-repeat="schema in dataSchemas">
+                    <label class="col-md-3 control-label">{{schema.title}}</label>
+                    <div class="col-md-9">
+                        <input type='text' class='form-control' ng-if="['name','email','mobile','shorttext','location'].indexOf(schema.type)!==-1" ng-model="criteria.data[schema.id]">
+                        <textarea class='form-control' ng-if="'longtext'===schema.type" ng-model="criteria.data[schema.id]"></textarea>
+                        <select class='form-control' ng-if="['single','phase'].indexOf(schema.type)!==-1" ng-model="criteria.data[schema.id]" ng-options="op.v as op.l for op in schema.ops">
+                            <option></option>
+                        </select>
+                        <ul ng-if="schema.type==='multiple'">
+                            <li class='checkbox' ng-repeat="op in schema.ops">
+                                <label>
+                                    <input type="checkbox" name="{{schema.id}}" ng-model="criteria.data[schema.id][op.v]" /><span>{{op.l}}</span></label>
+                            </li>
+                        </ul>
+                    </div>
+                </div>
+            </form>
+        </div>
+        <div class="modal-footer">
+            <button class="btn btn-default" ng-click="cancel()">关闭</button>
+            <button class="btn btn-success" ng-click="ok()">确定</button>
+        </div>
+    </script>
     <script src="/static/js/angular.min.js"></script>
     <script src="/static/js/angular-sanitize.min.js"></script>
     <script src="/static/js/ui-bootstrap-tpls.min.js"></script>

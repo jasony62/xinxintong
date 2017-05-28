@@ -372,7 +372,7 @@ define([], function() {
         var $dom, $label, $input, config = dataWrap.config,
             schema = dataWrap.schema;
 
-        $dom = $(domWrap);//？
+        $dom = $(domWrap); //？
         if (dataWrap.type === 'input') {
             if (beforeSchema && (schema.type !== beforeSchema.type || (schema.type === 'shorttext' && schema.history === 'Y'))) {
                 //从新生成容器内的内容
@@ -845,7 +845,9 @@ define([], function() {
             }
             html += '</div>';
         });
-        html += "</li></ul>";
+        html += "</li>";
+        html += '<li class="list-group-item actions"><button class="btn btn-default" ng-click="openFilter()">筛选</button><button class="btn btn-default" ng-click="resetFilter()">取消筛选</button></li>';
+        html += "</ul>";
 
         return html;
     };

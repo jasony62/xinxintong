@@ -58,6 +58,8 @@ class schema extends \pl\fe\base {
 				'url' => TMS_APP_API_PREFIX . "/site/fe/user/member",
 				'code_id' => $code->id,
 				'page_code_name' => $code->name,
+				'attr_mobile' => '011101',
+				'require_invite' => 'Y',
 			);
 			$i = array_merge($i, (array) $nv);
 			$id = $this->model()->insert('xxt_site_member_schema', $i, true);
@@ -121,6 +123,8 @@ class schema extends \pl\fe\base {
 			'url' => TMS_APP_API_PREFIX . "/site/fe/user/member",
 			'code_id' => $code->id,
 			'page_code_name' => $code->name,
+			'attr_mobile' => '011101',
+			'require_invite' => 'Y',
 		];
 		$id = $modelMs->insert('xxt_site_member_schema', $i, true);
 

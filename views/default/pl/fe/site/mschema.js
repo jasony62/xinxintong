@@ -1,8 +1,9 @@
 define(['require'], function(require) {
     'use strict';
-    var ngApp = angular.module('app', ['ui.bootstrap', 'ui.tms', 'ui.xxt', 'service.matter']);
+    var ngApp = angular.module('app', ['ngRoute', 'ui.bootstrap', 'ui.tms', 'ui.xxt', 'service.matter']);
     ngApp.config(['srvSiteProvider', function(srvSiteProvider) {
         var siteId = location.search.match(/site=([^&]*)/)[1];
+        console.log(siteId);
         srvSiteProvider.config(siteId);
     }]);
     ngApp.factory('MemberSchema', function($q, http2) {

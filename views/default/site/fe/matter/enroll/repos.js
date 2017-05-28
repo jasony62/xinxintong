@@ -113,7 +113,7 @@ ngApp.controller('ctrlRepos', ['$scope', 'http2', 'Round', function($scope, http
     $scope.$on('xxt.app.enroll.ready', function(event, params) {
         oApp = params.app;
         oApp.dataSchemas.forEach(function(schema) {
-            if (schema.shareable === 'Y') {
+            if (schema.shareable && schema.shareable === 'Y') {
                 schemas[schema.id] = schema;
                 $scope.schemaCount++;
             }

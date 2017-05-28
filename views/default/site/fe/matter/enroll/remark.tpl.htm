@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html ng-app='app' ng-controller='ctrlMain'>
+<html>
 
 <head>
     <meta charset="utf-8">
@@ -12,11 +12,14 @@
     <link href='/static/css/site.fe.css?_=2' rel="stylesheet">
 </head>
 
-<body>
+<body ng-app='app' ng-controller='ctrlMain'>
     <header ng-if="app.use_site_header==='Y'" dynamic-html="site.header_page.html"></header>
     <header ng-if="app.use_mission_header==='Y'" dynamic-html="mission.header_page.html"></header>
     <div ng-cloak class='ng-cloak app'>
         <div class='container' ng-controller="ctrlRemark">
+            <div class='form-group' ng-if="remarkableSchemas.length">
+                <select class='form-control' ng-options="rs.title for rs in remarkableSchemas" ng-model="filter.schema"></select>
+            </div>
             <div id='recordData'>
                 <blockquote ng-switch on="schema.type">
                     <p ng-switch-when="image"><img ng-src="{{data.value}}"></p>

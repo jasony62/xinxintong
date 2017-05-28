@@ -130,9 +130,10 @@ class remark extends \pl\fe\matter\base {
 			$params->{$param->pname} = $value;
 		}
 
-		/* 获得活动的管理员链接 */
+		/* 获得活动的用户链接 */
 		$noticeURL = $this->model('matter\enroll')->getEntryUrl($oApp->siteid, $oApp->id);
 		$noticeURL .= '&page=remark&ek=' . $oRecord->enroll_key;
+		$noticeURL .= '&schema=' . $oRemark->schema_id;
 		$params->url = $noticeURL;
 
 		/* 消息的创建人 */

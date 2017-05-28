@@ -115,6 +115,9 @@ class remark extends \pl\fe\matter\base {
 
 		$params = new \stdClass;
 		foreach ($tmplConfig->tmplmsg->params as $param) {
+			if (!isset($tmplConfig->mapping->{$param->pname})) {
+				continue;
+			}
 			$mapping = $tmplConfig->mapping->{$param->pname};
 			if ($mapping->src === 'matter') {
 				if (isset($oApp->{$mapping->id})) {

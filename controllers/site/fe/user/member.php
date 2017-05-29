@@ -104,13 +104,20 @@ class member extends \site\fe\base {
 		$params['attrs'] = $attrs;
 
 		/* 已填写的用户信息 */
-		$user = $this->who;
-		if (isset($user->members->{$oSchema->id})) {
-			$oMember = $user->members->{$oSchema->id};
-			$oMember = $this->model('site\user\member')->byId($oMember->id, ['fields' => '*']);
-			$user->members->{$oSchema->id} = $oMember;
+		$modelMem = $this->model('site\user\member');
+		$oUser = $this->who;
+		$oMember = $modelMem->byUser($oUser->uid, ['schemas' => $schema]);
+		if (count($oMember) > 1) {
+			return new \ResponseError('数据错误，当前用户已经绑定多个联系人信息，请检查');
 		}
-		$params['user'] = $user;
+		if (count($oMember) === 1) {
+			$oMember = $oMember[0];
+			if (!isset($oUser->members)) {
+				$oUser->members = new \stdClass;
+			}
+			$oUser->members->{$schema} = $oMember;
+		}
+		$params['user'] = $oUser;
 
 		return new \ResponseData($params);
 	}

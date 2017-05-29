@@ -384,11 +384,6 @@ if (!$mysqli->query($sql)) {
 	header('HTTP/1.0 500 Internal Server Error');
 	echo 'database error(xxt_site_member): ' . $mysqli->error;
 }
-$sql = "ALTER TABLE `xxt_site_member` ADD UNIQUE memberpk( `schema_id`, `identity`)";
-if (!$mysqli->query($sql)) {
-	header('HTTP/1.0 500 Internal Server Error');
-	echo 'database error(xxt_site_member): ' . $mysqli->error;
-}
 /**
  * departments
  */

@@ -255,10 +255,10 @@ class record extends base {
 				}
 				$checked = new \stdClass;
 				$checked->{$schema->id} = $posted->{$schema->id};
-				$existings = $modelRec->byData($siteId, $app, $checked, ['fields' => 'userid']);
+				$existings = $modelRec->byData($siteId, $app, $checked, ['fields' => 'enroll_key']);
 				if (count($existings)) {
 					foreach ($existings as $existing) {
-						if ($existing->userid !== $user->uid) {
+						if ($existing->enroll_key !== $ek) {
 							return [false, ['唯一项【' . $schema->title . '】不允许重复，请检查填写的数据']];
 						}
 					}

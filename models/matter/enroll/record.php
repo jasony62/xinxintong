@@ -112,17 +112,6 @@ class record_model extends \TMS_MODEL {
 				/* 自定义用户信息 */
 				$treatedValue = $submitVal;
 				$dbData->{$schemaId} = $submitVal;
-				// $treatedValue = new \stdClass;
-				// isset($submitVal->name) && $treatedValue->name = $submitVal->name;
-				// isset($submitVal->email) && $treatedValue->email = $submitVal->email;
-				// isset($submitVal->mobile) && $treatedValue->mobile = $submitVal->mobile;
-				// if (!empty($submitVal->extattr)) {
-				// 	$extattr = new \stdClass;
-				// 	foreach ($submitVal->extattr as $mek => $mev) {
-				// 		$extattr->{$mek} = $mev;
-				// 	}
-				// 	$treatedValue->extattr = $extattr;
-				// }
 			} else if (isset($schemasById[$schemaId])) {
 				/* 活动中定义的登记项 */
 				$schema = $schemasById[$schemaId];

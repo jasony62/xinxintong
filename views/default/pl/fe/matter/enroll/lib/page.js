@@ -386,18 +386,6 @@ define(['wrap'], function(SchemaWrap) {
 
             return SchemaWrap.records.embed(dataWrap);
         },
-        appendRoundList: function(app) {
-            var dataWrap = {
-                config: {
-                    id: 'L' + (new Date() * 1),
-                    pattern: 'rounds',
-                    onclick: ''
-                }
-            };
-            this.data_schemas.push(dataWrap);
-
-            return SchemaWrap.rounds.embed(dataWrap);
-        },
         wrapByList: function(config) {
             for (var i = this.data_schemas.length - 1; i >= 0; i--) {
                 if (this.data_schemas[i].config.id === config.id) {

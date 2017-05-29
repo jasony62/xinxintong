@@ -100,7 +100,6 @@ ngApp.factory('Record', ['http2', '$q', 'ls', function(http2, $q, LS) {
                 if (records && records.length) {
                     for (i = 0, l = records.length; i < l; i++) {
                         record = records[i];
-                        record.data.member && (record.data.member = JSON.parse(record.data.member));
                     }
                 }
                 deferred.resolve(records);

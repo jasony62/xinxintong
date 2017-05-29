@@ -66,7 +66,6 @@ ngApp.controller('ctrlRemark', ['$scope', '$q', 'http2', function($scope, $q, ht
             for (var i in $scope.app.pages) {
                 oPage = $scope.app.pages[i];
                 if (oPage.type === 'V') {
-                    console.log('xxxxxx');
                     $scope.gotoPage(null, oPage.name, $scope.record.enroll_key);
                     break;
                 }
@@ -77,26 +76,20 @@ ngApp.controller('ctrlRemark', ['$scope', '$q', 'http2', function($scope, $q, ht
         var oSchema, aRemarkable = [];
         oApp = params.app;
         $scope.record = params.record;
-        if (schemaId) {
-            for (var i = 0, ii = oApp.dataSchemas.length; i < ii; i++) {
-                if (oApp.dataSchemas[i].id === schemaId) {
-                    oSchema = oApp.dataSchemas[i];
-                    break;
-                }
+        for (var i = 0, ii = oApp.dataSchemas.length; i < ii; i++) {
+            if (oApp.dataSchemas[i].remarkable && oApp.dataSchemas[i].remarkable === 'Y') {
+                aRemarkable.push(oApp.dataSchemas[i]);
             }
-            $scope.filter.schema = oSchema;
-        } else {
-            for (var i = 0, ii = oApp.dataSchemas.length; i < ii; i++) {
-                if (oApp.dataSchemas[i].remarkable && oApp.dataSchemas[i].remarkable === 'Y') {
-                    aRemarkable.push(oApp.dataSchemas[i]);
-                }
-            }
-            $scope.remarkableSchemas = aRemarkable;
-            if (aRemarkable.length) {
-                schemaId = aRemarkable[0].id;
-                $scope.filter.schema = aRemarkable[0];
+            if (schemaId && oApp.dataSchemas[i].id === schemaId) {
+                oSchema = oApp.dataSchemas[i];
             }
         }
+        if (oSchema) {
+            $scope.filter.schema = oSchema;
+        } else if (aRemarkable.length) {
+            $scope.filter.schema = aRemarkable[0];
+        }
+        $scope.remarkableSchemas = aRemarkable;
     });
     $scope.$watch('filter', function(nv) {
         if (nv && nv.schema) {

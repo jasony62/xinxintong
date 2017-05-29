@@ -7,7 +7,7 @@ img{max-width:100%}
 p{word-break:break-all;}
 
 /*record*/
-#recordData{padding:1rem;background:#eee;}
+#recordData{padding:0 1rem 1rem;background:#eee;}
 #recordData .title{margin:.5rem -1rem;background:#ddd;padding:.5rem 1rem;border-bottom:3px ridge #ccc;}
 #recordData blockquote{border-left:5px solid #999;}
 

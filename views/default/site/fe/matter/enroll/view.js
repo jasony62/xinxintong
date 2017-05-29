@@ -162,9 +162,21 @@ ngApp.controller('ctrlRecord', ['$scope', 'Record', 'ls', '$sce', function($scop
         });
     };
     $scope.$watch('app', function(app) {
+        var promise;
         if (!app) return;
         facRecord = Record.ins(app);
-        facRecord.get(LS.p.ek);
+        if (promise = facRecord.get(LS.p.ek)) {
+            promise.then(function(oRecord) {
+                var schemaId, domWrap;
+                if (oRecord.verbose) {
+                    for (schemaId in oRecord.verbose) {
+                        if (domWrap = document.querySelector('[schema=' + schemaId + ']')) {
+                            domWrap.setAttribute('data-remark', oRecord.verbose[schemaId].remark_num);
+                        }
+                    }
+                }
+            });
+        }
         $scope.Record = facRecord;
     });
 }]);
@@ -224,7 +236,7 @@ ngApp.controller('ctrlInvite', ['$scope', 'http2', 'Record', 'ls', function($sco
     facRecord.get(LS.p.ek);
     $scope.Record = facRecord;
 }]);
-ngApp.controller('ctrlView', ['$scope', '$timeout', function($scope, $timeout) {
+ngApp.controller('ctrlView', ['$scope', '$timeout', 'ls', function($scope, $timeout, LS) {
     $scope.$on('xxt.app.enroll.ready', function(event, params) {
         if (!params.user.unionid) {
             var domTip = document.querySelector('#appLoginTip');
@@ -232,5 +244,18 @@ ngApp.controller('ctrlView', ['$scope', '$timeout', function($scope, $timeout) {
             evt.initEvent("show", false, false);
             domTip.dispatchEvent(evt);
         }
+        var dataSchemas = params.app.dataSchemas;
+        dataSchemas.forEach(function(oSchema) {
+            if (oSchema.remarkable && oSchema.remarkable === 'Y') {
+                var domWrap = document.querySelector('[schema=' + oSchema.id + ']');
+                domWrap.classList.add('remarkable');
+                domWrap.addEventListener('click', function() {
+                    var url = LS.j('', 'site', 'app', 'ek');
+                    url += '&schema=' + oSchema.id;
+                    url += '&page=remark';
+                    location.href = url;
+                }, true);
+            }
+        });
     });
 }]);

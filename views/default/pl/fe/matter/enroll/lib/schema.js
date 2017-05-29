@@ -77,11 +77,6 @@ define([], function() {
                 l: '页面导航',
                 scope: ['I', 'V', 'L']
             },
-            remarkRecord: {
-                n: 'remarkRecord',
-                l: '查看评论',
-                scope: ['V']
-            },
             closeWindow: {
                 n: 'closeWindow',
                 l: '关闭页面',

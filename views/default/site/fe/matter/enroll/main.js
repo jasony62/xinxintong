@@ -148,8 +148,10 @@ ngApp.controller('ctrlMain', ['$scope', '$http', '$timeout', 'ls', 'tmsDynaPage'
         }
     };
     $scope.gotoPage = function(event, page, ek, rid, fansOnly, newRecord) {
-        event.preventDefault();
-        event.stopPropagation();
+        if (event) {
+            event.preventDefault();
+            event.stopPropagation();
+        }
         if (fansOnly && !$scope.User.fan) {
             openAskFollow();
             return;

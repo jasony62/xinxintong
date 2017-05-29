@@ -60,6 +60,19 @@ ngApp.controller('ctrlRemark', ['$scope', '$q', 'http2', function($scope, $q, ht
             $scope.data.like_num = rsp.data.like_num;
         });
     };
+    $scope.gotoRecord = function() {
+        var oPage;
+        if ($scope.record.userid === $scope.user.uid) {
+            for (var i in $scope.app.pages) {
+                oPage = $scope.app.pages[i];
+                if (oPage.type === 'V') {
+                    console.log('xxxxxx');
+                    $scope.gotoPage(null, oPage.name, $scope.record.enroll_key);
+                    break;
+                }
+            }
+        }
+    };
     $scope.$on('xxt.app.enroll.ready', function(event, params) {
         var oSchema, aRemarkable = [];
         oApp = params.app;

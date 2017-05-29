@@ -8,10 +8,12 @@ p{word-break:break-all;}
 
 /*record*/
 #recordData{padding:1rem;background:#eee;}
+#recordData .title{margin:.5rem -1rem;background:#ddd;padding:.5rem 1rem;border-bottom:3px ridge #ccc;}
 #recordData blockquote{border-left:5px solid #999;}
 
 /*remark*/
-#remarks{background:#fff;padding:1rem;margin-top:1rem;margin-bottom:15px;}
+#remarks{position:relative;background:#fff;padding:1rem;margin-top:1rem;margin-bottom:15px;}
+#remarks:before{content:'评论';position:absolute;left:50%;margin-left:-1em;top:-1em;font-size:.7em;color:#eee;padding:.2em 1em;background:#666;border-radius:1em;}
 #remarks .remark{border-bottom:1px solid #ddd;}
 #remarks .remark:last-child{border-bottom:0;}
 #remarks .remark>*{margin:1em 0;}

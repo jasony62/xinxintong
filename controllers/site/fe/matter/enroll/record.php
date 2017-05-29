@@ -468,7 +468,7 @@ class record extends base {
 			}
 		} else {
 			// 打开指定的登记记录
-			$record = $modelRec->byId($openedek);
+			$record = $modelRec->byId($openedek, ['verbose' => 'Y']);
 		}
 
 		/** 互动数据？？？ */

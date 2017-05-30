@@ -38,7 +38,7 @@ ngApp.factory('Round', ['http2', '$q', function(http2, $q) {
         }
     };
 }]);
-ngApp.controller('ctrlRepos', ['$scope', 'http2', 'Round', function($scope, http2, srvRound) {
+ngApp.controller('ctrlRepos', ['$scope', 'http2', 'Round', '$sce', function($scope, http2, srvRound, $sce) {
     var oApp, facRound, page, criteria, schemas;
     $scope.schemaCount = 0;
     $scope.page = page = { at: 1, size: 12 };
@@ -109,6 +109,24 @@ ngApp.controller('ctrlRepos', ['$scope', 'http2', 'Round', function($scope, http
             oRemark.like_log = rsp.data.like_log;
             oRemark.like_num = rsp.data.like_num;
         });
+    };
+    $scope.value2Label = function(value, schemaId) {
+        var val, schema, aVal, aLab = [];
+
+        if ((schema = $scope.app._schemasById[schemaId]) && value) {
+            if (val = value) {
+                if (schema.ops && schema.ops.length) {
+                    aVal = val.split(',');
+                    schema.ops.forEach(function(op) {
+                        aVal.indexOf(op.v) !== -1 && aLab.push(op.l);
+                    });
+                    val = aLab.join(',');
+                }
+            } else {
+                val = '';
+            }
+        }
+        return $sce.trustAsHtml(val);
     };
     $scope.$on('xxt.app.enroll.ready', function(event, params) {
         oApp = params.app;

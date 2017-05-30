@@ -23,6 +23,8 @@
             <div id='recordData'>
                 <div class='title'>{{filter.schema.title}}</div>
                 <blockquote ng-switch on="filter.schema.type">
+                    <p ng-switch-when="single"><span>{{value2Label(filter.schema.id)}}</span></p>
+                    <p ng-switch-when="multiple"><span>{{value2Label(filter.schema.id)}}</span></p>
                     <p ng-switch-when="image"><img ng-src="{{data.value}}"></p>
                     <p ng-switch-default>{{data.value}}</p>
                     <p ng-if="filter.schema.supplement==='Y'" class='supplement'>{{data.supplement}}</p>

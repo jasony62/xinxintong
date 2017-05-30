@@ -63,6 +63,8 @@
                             <span ng-if="rec.agreed==='N'" class="label label-danger">屏蔽</span>
                         </div>
                         <blockquote ng-switch on="schemas[rec.schema_id].type" ng-click="gotoRemark(rec)">
+                            <p ng-switch-when="single"><span>{{value2Label(rec.value,rec.schema_id)}}</span></p>
+                            <p ng-switch-when="multiple"><span>{{value2Label(rec.value,rec.schema_id)}}</span></p>
                             <p ng-switch-when="image"><img ng-src="{{rec.value}}"></p>
                             <p ng-switch-default>{{rec.value}}</p>
                             <p ng-if="schemas[rec.schema_id].supplement==='Y'" class='supplement'>{{rec.supplement}}</p>

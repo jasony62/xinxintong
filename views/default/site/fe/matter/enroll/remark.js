@@ -2,7 +2,7 @@
 require('./remark.css');
 
 var ngApp = require('./main.js');
-ngApp.controller('ctrlRemark', ['$scope', '$q', 'http2', function($scope, $q, http2) {
+ngApp.controller('ctrlRemark', ['$scope', '$q', 'http2', '$sce', function($scope, $q, http2, $sce) {
     function listRemarks() {
         var url, defer = $q.defer();
         url = '/rest/site/fe/matter/enroll/remark/list?site=' + oApp.siteid + '&ek=' + ek;
@@ -72,6 +72,25 @@ ngApp.controller('ctrlRemark', ['$scope', '$q', 'http2', function($scope, $q, ht
             }
         }
     };
+    $scope.value2Label = function(schemaId) {
+        var val, schema, aVal, aLab = [];
+
+        if ((schema = $scope.app._schemasById[schemaId]) && $scope.record.data) {
+            if (val = $scope.record.data[schemaId]) {
+                if (schema.ops && schema.ops.length) {
+                    aVal = val.split(',');
+                    schema.ops.forEach(function(op) {
+                        aVal.indexOf(op.v) !== -1 && aLab.push(op.l);
+                    });
+                    val = aLab.join(',');
+                }
+            } else {
+                val = '';
+            }
+        }
+        return $sce.trustAsHtml(val);
+    };
+
     $scope.$on('xxt.app.enroll.ready', function(event, params) {
         var oSchema, aRemarkable = [];
         oApp = params.app;

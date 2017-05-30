@@ -50,6 +50,7 @@ $sql .= ",notify_submit char(1) not null default 'N'"; // 是否发送提交事�
 $sql .= ",can_discuss char(1) not null default 'N'"; // 支持对登记活动进行评论
 $sql .= ",can_coinpay char(1) not null default 'N'"; // 是否可以进行打赏
 $sql .= ",can_siteuser char(1) not null default 'N'"; // 是否可以进入用户主页
+$sql .= ",can_cowork char(1) not null default 'N'"; // 是否支持多人修改同一条登记记录
 $sql .= ",can_like_record char(1) not null default 'N'"; // 支持对登记记录点赞 should remove
 $sql .= ",can_remark_record char(1) not null default 'N'"; // 支持对登记记录评论 should remove
 $sql .= ",can_autoenroll char(1) not null default 'N'"; // 是否支持自动登记

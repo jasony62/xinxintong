@@ -2,51 +2,8 @@
 require('./view.css');
 
 var ngApp = require('./main.js');
-ngApp.factory('Round', ['http2', '$q', 'ls', function(http2, $q, LS) {
-    var Round, _ins;
-    Round = function() {};
-    Round.prototype.list = function() {
-        var deferred, url;
-        deferred = $q.defer();
-        url = LS.j('round/list', 'site', 'app');
-        http2.get(url).then(function(rsp) {
-            deferred.resolve(rsp.data);
-        });
-        return deferred.promise;
-    };
-    return {
-        ins: function() {
-            _ins = _ins ? _ins : new Round();
-            return _ins;
-        }
-    };
-}]);
-ngApp.controller('ctrlRounds', ['$scope', 'Round', function($scope, Round) {
-    var facRound, onDataReadyCallbacks;
-    facRound = Round.ins();
-    facRound.list().then(function(rounds) {
-        $scope.rounds = rounds;
-        angular.forEach(onDataReadyCallbacks, function(cb) {
-            cb(rounds);
-        });
-    });
-    onDataReadyCallbacks = [];
-    $scope.onDataReady = function(callback) {
-        onDataReadyCallbacks.push(callback);
-    };
-    $scope.match = function(matched) {
-        var i, l, round;
-        for (i = 0, l = $scope.rounds.length; i < l; i++) {
-            round = $scope.rounds[i];
-            if (matched.rid === $scope.rounds[i].rid) {
-                return $scope.rounds[i];
-            }
-        }
-        return false;
-    };
-}]);
 ngApp.factory('Record', ['http2', '$q', 'ls', function(http2, $q, LS) {
-    var Record, _ins, _running;
+    var Record, _ins, _deferredRecord;
     Record = function(oApp) {
         var data = {}; // 初始化空数据，优化加载体验
         oApp.dataSchemas.forEach(function(schema) {
@@ -57,42 +14,21 @@ ngApp.factory('Record', ['http2', '$q', 'ls', function(http2, $q, LS) {
             data: data
         };
     };
-    _running = false;
     Record.prototype.get = function(ek) {
-        if (_running) return false;
-        _running = true;
-        var _this, url, deferred;
-        _this = this;
-        deferred = $q.defer();
-        url = LS.j('record/get', 'site', 'app');
-        ek && (url += '&ek=' + ek);
-        http2.get(url).then(function(rsp) {
-            var record;
-            record = rsp.data;
-            _this.current = record;
-            deferred.resolve(record);
-            _running = false;
-        });
-        return deferred.promise;
-    };
-    Record.prototype.list = function(owner, rid) {
-        var deferred = $q.defer(),
-            url;
-        url = LS.j('record/list', 'site', 'app');
-        url += '&owner=' + owner;
-        rid && rid.length && (url += '&rid=' + rid);
-        http2.get(url).then(function(rsp) {
-            var records, record, i, l;
-            records = rsp.data.records;
-            if (records && records.length) {
-                for (i = 0, l = records.length; i < l; i++) {
-                    record = records[i];
-                    record.data.member && (record.data.member = JSON.parse(record.data.member));
-                }
-            }
-            deferred.resolve(records);
-        });
-        return deferred.promise;
+        var _this, url;
+        if (!_deferredRecord) {
+            _deferredRecord = $q.defer();
+            _this = this;
+            url = LS.j('record/get', 'site', 'app');
+            ek && (url += '&ek=' + ek);
+            http2.get(url).then(function(rsp) {
+                var record;
+                record = rsp.data;
+                _this.current = record;
+                _deferredRecord.resolve(record);
+            });
+        }
+        return _deferredRecord.promise;
     };
     Record.prototype.remove = function(record) {
         var deferred = $q.defer(),
@@ -151,12 +87,33 @@ ngApp.controller('ctrlRecord', ['$scope', 'Record', 'ls', '$sce', function($scop
         return $sce.trustAsHtml(label);
     };
     $scope.editRecord = function(event, page) {
-        page ? $scope.gotoPage(event, page, facRecord.current.enroll_key) : alert('没有指定登记编辑页');
+        if ($scope.app.can_cowork && $scope.app.can_cowork !== 'Y') {
+            if ($scope.user.uid !== facRecord.current.userid) {
+                alert('不允许修改他人提交的数据');
+                return;
+            }
+        }
+        if (!page) {
+            for (var i in $scope.app.pages) {
+                var oPage = $scope.app.pages[i];
+                if (oPage.type === 'I') {
+                    page = oPage.name;
+                    break;
+                }
+            }
+        }
+        $scope.gotoPage(event, page, facRecord.current.enroll_key);
     };
     $scope.remarkRecord = function(event) {
         $scope.gotoPage(event, 'remark', facRecord.current.enroll_key);
     };
     $scope.removeRecord = function(event, page) {
+        if ($scope.app.can_cowork && $scope.app.can_cowork !== 'Y') {
+            if ($scope.user.uid !== facRecord.current.userid) {
+                alert('不允许删除他人提交的数据');
+                return;
+            }
+        }
         facRecord.remove(facRecord.current).then(function(data) {
             page && $scope.gotoPage(event, page);
         });
@@ -180,64 +137,9 @@ ngApp.controller('ctrlRecord', ['$scope', 'Record', 'ls', '$sce', function($scop
         $scope.Record = facRecord;
     });
 }]);
-ngApp.controller('ctrlInvite', ['$scope', 'http2', 'Record', 'ls', function($scope, http2, Record, LS) {
-    var facRecord;
-    $scope.options = {
-        genRecordWhenAccept: 'Y'
-    };
-    $scope.invitee = '';
-    $scope.send = function(event, invitePage, nextAction) {
-        event.preventDefault();
-        event.stopPropagation();
-        var url;
-        url = LS.j('record/inviteSend', 'site', 'app');
-        url += '&ek=' + facRecord.current.enroll_key;
-        url += '&invitee=' + $scope.invitee;
-        url += '&page=' + invitePage;
-        http2.get(url).then(function(rsp) {
-            if (nextAction === 'closeWindow') {
-                $scope.closeWindow();
-            } else if (nextAction !== undefined && nextAction.length) {
-                var url = LS.j('', 'site', 'app');
-                url += '&ek=' + facRecord.current.enroll_key;
-                url += '&page=' + nextAction;
-                location.replace(url);
-            } else {
-                alert('操作成功');
-            }
-        });
-    };
-    $scope.accept = function(event, nextAction) {
-        var inviter, url;
-        if (!$scope.Record.current) {
-            alert('未进行登记，无效的邀请');
-            return;
-        }
-        if ($scope.Record.current.openid === $scope.User.fan.openid) {
-            alert('不能自己邀请自己');
-            return;
-        }
-        inviter = $scope.Record.current.enroll_key;
-        url = LS.j('record/acceptInvite', 'site', 'app');
-        url += '&inviter=' + inviter;
-        $scope.options.genRecordWhenAccept === 'N' && (url += '&state=2');
-        http2.get(url).then(function(rsp) {
-            if (nextAction === 'closeWindow') {
-                $scope.closeWindow();
-            } else if (nextAction !== undefined && nextAction.length) {
-                var url = LS.j('', 'site', 'app');
-                url += '&ek=' + rsp.data.ek;
-                url += '&page=' + nextAction;
-                location.replace(url);
-            }
-        });
-    };
-    facRecord = Record.ins();
-    facRecord.get(LS.p.ek);
-    $scope.Record = facRecord;
-}]);
-ngApp.controller('ctrlView', ['$scope', '$timeout', 'ls', function($scope, $timeout, LS) {
+ngApp.controller('ctrlView', ['$scope', '$timeout', 'ls', 'Record', function($scope, $timeout, LS, Record) {
     $scope.$on('xxt.app.enroll.ready', function(event, params) {
+        var oApp = params.app;
         if (!params.user.unionid) {
             var domTip = document.querySelector('#appLoginTip');
             var evt = document.createEvent("HTMLEvents");
@@ -257,5 +159,30 @@ ngApp.controller('ctrlView', ['$scope', '$timeout', 'ls', function($scope, $time
                 }, true);
             }
         });
+        var promise, facRecord;
+        facRecord = Record.ins(oApp);
+        if (promise = facRecord.get(LS.p.ek)) {
+            promise.then(function(oRecord) {
+                /* disable actions */
+                var fnDisableActions = function() {
+                    var domActs, domAct;
+                    if (domActs = document.querySelectorAll('button[ng-click]')) {
+                        domActs.forEach(function(domAct) {
+                            var ngClick = domAct.getAttribute('ng-click');
+                            if (ngClick.indexOf('editRecord') === 0 || ngClick.indexOf('removeRecord') === 0) {
+                                domAct.style.display = 'none';
+                            }
+                        });
+                    }
+                };
+                if (oApp.end_at > 0 && parseInt(oApp.end_at) < (new Date() * 1) / 1000) {
+                    fnDisableActions();
+                } else if ((oApp.can_cowork && oApp.can_cowork !== 'Y')) {
+                    if (params.user.uid !== oRecord.userid) {
+                        fnDisableActions();
+                    }
+                }
+            });
+        }
     });
 }]);

@@ -4,20 +4,25 @@ define(['frame', 'schema', 'wrap'], function(ngApp, schemaLib, wrapLib) {
      * 登记项管理
      */
     ngApp.provider.controller('ctrlSchema', ['$scope', 'cstApp', 'srvEnrollPage', 'srvEnrollApp', function($scope, cstApp, srvEnrollPage, srvEnrollApp) {
-        function _appendSchema(newSchema, afterIndex) {
+        function _appendSchema(newSchema, afterSchema) {
+            var afterIndex;
             if ($scope.app._schemasById[newSchema.id]) {
                 alert(cstApp.alertMsg['schema.duplicated']);
                 return;
             }
-            if (afterIndex === undefined) {
-                $scope.app.data_schemas.push(newSchema);
-            } else {
+            if (!afterSchema) {
+                afterSchema = $scope.activeSchema;
+            }
+            if (afterSchema) {
+                afterIndex = $scope.app.data_schemas.indexOf(afterSchema);
                 $scope.app.data_schemas.splice(afterIndex + 1, 0, newSchema);
+            } else {
+                $scope.app.data_schemas.push(newSchema);
             }
             $scope.app._schemasById[newSchema.id] = newSchema;
             srvEnrollApp.update('data_schemas').then(function() {
                 $scope.app.pages.forEach(function(page) {
-                    if (page.appendSchema(newSchema)) {
+                    if (page.appendSchema(newSchema, afterSchema)) {
                         srvEnrollPage.update(page, ['data_schemas', 'html']);
                     }
                 });
@@ -52,6 +57,7 @@ define(['frame', 'schema', 'wrap'], function(ngApp, schemaLib, wrapLib) {
             })(0);
         }
 
+        $scope.activeSchema = null;
         $scope.newSchema = function(type) {
             var newSchema, mission;
 
@@ -108,12 +114,10 @@ define(['frame', 'schema', 'wrap'], function(ngApp, schemaLib, wrapLib) {
             _appendSchema(newSchema);
         };
         $scope.copySchema = function(schema) {
-            var newSchema = angular.copy(schema),
-                afterIndex;
+            var newSchema = angular.copy(schema);
 
             newSchema.id = 's' + (new Date() * 1);
-            afterIndex = $scope.app.data_schemas.indexOf(schema);
-            _appendSchema(newSchema, afterIndex);
+            _appendSchema(newSchema, schema);
         };
         $scope.removeSchema = function(removedSchema) {
             if (window.confirm('确定从所有页面上删除登记项［' + removedSchema.title + '］？')) {
@@ -155,7 +159,7 @@ define(['frame', 'schema', 'wrap'], function(ngApp, schemaLib, wrapLib) {
         }
 
         $scope.chooseSchema = function(event, schema) {
-            $scope.activeSchema = schema;
+            $scope.$parent.activeSchema = schema;
             if ($scope.app.scenario && $scope.activeSchema.type === 'multiple') {
                 angular.isString($scope.activeSchema.answer) && ($scope.activeSchema.answer = $scope.activeSchema.answer.split(','));
                 !$scope.data && ($scope.data = {});

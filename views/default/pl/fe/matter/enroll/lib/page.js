@@ -125,9 +125,7 @@ define(['wrap'], function(SchemaWrap) {
 
             newWrap = SchemaWrap.input.newWrap(schema);
 
-            if (afterSchema === undefined) {
-                this.data_schemas.push(newWrap);
-            } else {
+            if (afterSchema) {
                 afterWrap = this.wrapBySchema(afterSchema);
                 var afterIndex = this.data_schemas.indexOf(afterWrap);
                 if (afterIndex === -1) {
@@ -135,6 +133,8 @@ define(['wrap'], function(SchemaWrap) {
                 } else {
                     this.data_schemas.splice(afterIndex + 1, 0, newWrap);
                 }
+            } else {
+                this.data_schemas.push(newWrap);
             }
 
             wrapParam = SchemaWrap.input.embed(newWrap);
@@ -154,7 +154,7 @@ define(['wrap'], function(SchemaWrap) {
             if ($dom = $html.find("[schema='" + oSchema.id + "']")) {
                 //更新schema-type 属性
                 $dom.attr('schema-type', oSchema.type);
-                if (wrap = this.wrapBySchema(oSchema)) {//page页面中对应得信息schema和config
+                if (wrap = this.wrapBySchema(oSchema)) { //page页面中对应得信息schema和config
                     wrap.type = $dom.attr('wrap');
                     if (oBeforeState && oSchema.type !== oBeforeState.type) {
                         //传入激活信息
@@ -239,22 +239,37 @@ define(['wrap'], function(SchemaWrap) {
         },
         /**
          * 页面中添加题目
+         * 如果【填写时间】在最后一位，新题目添加到填写时间前面
          */
         appendSchema: function(schema, afterSchema) {
-            var oNewWrap, domNewWrap, wrapParam, afterWrap;
+            var oNewWrap, domNewWrap, wrapParam, afterWrap, lastWrap, afterIndex;
+
+            if (afterSchema) {
+                afterWrap = this.wrapBySchema(afterSchema);
+            } else {
+                if (this.data_schemas.length) {
+                    lastWrap = this.data_schemas[this.data_schemas.length - 1];
+                    if (lastWrap.schema.type === '_enrollAt') {
+                        if (this.data_schemas.length > 1) {
+                            afterWrap = this.data_schemas[this.data_schemas.length - 2];
+                        }
+                    } else {
+                        afterWrap = lastWrap;
+                    }
+                }
+            }
 
             oNewWrap = SchemaWrap.value.newWrap(schema);
-
-            if (afterSchema === undefined) {
-                this.data_schemas.push(oNewWrap);
-            } else {
-                afterWrap = this.wrapBySchema(afterSchema);
-                var afterIndex = this.data_schemas.indexOf(afterWrap);
+            if (afterWrap) {
+                afterIndex = this.data_schemas.indexOf(afterWrap);
                 if (afterIndex === -1) {
                     this.data_schemas.push(oNewWrap);
                 } else {
                     this.data_schemas.splice(afterIndex + 1, 0, oNewWrap);
                 }
+            } else {
+                this.data_schemas.push(oNewWrap);
+
             }
 
             wrapParam = SchemaWrap.value.embed(oNewWrap);

@@ -462,7 +462,7 @@ class record extends base {
 		/**登记数据*/
 		if (empty($openedek)) {
 			// 获得最后一条登记数据。登记记录有可能未进行过登记
-			$record = $modelRec->lastByUser($oApp, $oUser, ['fields' => '*']);
+			$record = $modelRec->lastByUser($oApp, $oUser, ['fields' => '*', 'verbose' => 'Y']);
 			if ($record) {
 				$openedek = $record->enroll_key;
 			}

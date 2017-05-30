@@ -119,22 +119,8 @@ ngApp.controller('ctrlRecord', ['$scope', 'Record', 'ls', '$sce', function($scop
         });
     };
     $scope.$watch('app', function(app) {
-        var promise;
         if (!app) return;
-        facRecord = Record.ins(app);
-        if (promise = facRecord.get(LS.p.ek)) {
-            promise.then(function(oRecord) {
-                var schemaId, domWrap;
-                if (oRecord.verbose) {
-                    for (schemaId in oRecord.verbose) {
-                        if (domWrap = document.querySelector('[schema=' + schemaId + ']')) {
-                            domWrap.setAttribute('data-remark', oRecord.verbose[schemaId].remark_num);
-                        }
-                    }
-                }
-            });
-        }
-        $scope.Record = facRecord;
+        $scope.Record = Record.ins(app);
     });
 }]);
 ngApp.controller('ctrlView', ['$scope', '$timeout', 'ls', 'Record', function($scope, $timeout, LS, Record) {
@@ -180,6 +166,14 @@ ngApp.controller('ctrlView', ['$scope', '$timeout', 'ls', 'Record', function($sc
                 } else if ((oApp.can_cowork && oApp.can_cowork !== 'Y')) {
                     if (params.user.uid !== oRecord.userid) {
                         fnDisableActions();
+                    }
+                }
+                var schemaId, domWrap;
+                if (oRecord.verbose) {
+                    for (schemaId in oRecord.verbose) {
+                        if (domWrap = document.querySelector('[schema=' + schemaId + ']')) {
+                            domWrap.setAttribute('data-remark', oRecord.verbose[schemaId].remark_num);
+                        }
                     }
                 }
             });

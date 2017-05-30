@@ -1076,6 +1076,7 @@ class record_model extends \TMS_MODEL {
 	 */
 	public function lastByUser($oApp, $oUser, $options = []) {
 		$fields = isset($options['fields']) ? $options['fields'] : '*';
+		$verbose = isset($options['verbose']) ? $options['verbose'] : 'N';
 
 		$q = [
 			$fields,
@@ -1115,13 +1116,16 @@ class record_model extends \TMS_MODEL {
 
 		$records = $this->query_objs_ss($q, $q2);
 
-		$record = count($records) === 1 ? $records[0] : false;
-		if ($record) {
-			$record->data = json_decode($record->data);
-			$record->supplement = json_decode($record->supplement);
+		$oRecord = count($records) === 1 ? $records[0] : false;
+		if ($oRecord) {
+			$oRecord->data = json_decode($oRecord->data);
+			$oRecord->supplement = json_decode($oRecord->supplement);
+			if ($verbose === 'Y') {
+				$oRecord->verbose = $this->model('matter\enroll\data')->byRecord($oRecord->enroll_key);
+			}
 		}
 
-		return $record;
+		return $oRecord;
 	}
 	/**
 	 * 获得指定用户最后一次登记的key

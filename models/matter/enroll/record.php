@@ -1084,24 +1084,24 @@ class record_model extends \TMS_MODEL {
 			"siteid='{$oApp->siteid}' and aid='{$oApp->id}' and state=1",
 		];
 		/* 指定登记用户 */
-		if (empty($oUser->unionid)) {
-			$q[2] .= " and userid='{$oUser->uid}'";
-		} else {
-			$modelAcnt = $this->model('site\user\account');
-			$aSiteUsers = $modelAcnt->byUnionid($oUser->unionid, ['siteid' => $oApp->siteid, 'fields' => 'uid']);
-			if (count($aSiteUsers) === 1) {
-				$q[2] .= " and userid='{$aSiteUsers[0]->uid}'";
-			} else {
-				$q[2] .= " and userid in (";
-				foreach ($aSiteUsers as $index => $aSiteUser) {
-					if ($index > 0) {
-						$q[2] .= ',';
-					}
-					$q[2] .= "'{$aSiteUser->uid}'";
-				}
-				$q[2] .= ")";
-			}
-		}
+		//if (empty($oUser->unionid)) {
+		$q[2] .= " and userid='{$oUser->uid}'";
+		// } else {
+		// 	$modelAcnt = $this->model('site\user\account');
+		// 	$aSiteUsers = $modelAcnt->byUnionid($oUser->unionid, ['siteid' => $oApp->siteid, 'fields' => 'uid']);
+		// 	if (count($aSiteUsers) === 1) {
+		// 		$q[2] .= " and userid='{$aSiteUsers[0]->uid}'";
+		// 	} else {
+		// 		$q[2] .= " and userid in (";
+		// 		foreach ($aSiteUsers as $index => $aSiteUser) {
+		// 			if ($index > 0) {
+		// 				$q[2] .= ',';
+		// 			}
+		// 			$q[2] .= "'{$aSiteUser->uid}'";
+		// 		}
+		// 		$q[2] .= ")";
+		// 	}
+		// }
 
 		/* 指定登记轮次 */
 		if ($activeRound = $this->model('matter\enroll\round')->getActive($oApp)) {

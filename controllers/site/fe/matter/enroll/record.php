@@ -58,7 +58,7 @@ class record extends base {
 			$enrolledData = $posted;
 		}
 		// 检查是否允许登记
-		$rst = $this->_canEnroll($site, $oEnrollApp, $oUser, $enrolledData, $ek);
+		$rst = $this->_canSubmit($site, $oEnrollApp, $oUser, $enrolledData, $ek);
 		if ($rst[0] === false) {
 			return new \ResponseError($rst[1]);
 		}
@@ -233,29 +233,52 @@ class record extends base {
 	 * 2、登记项是否和已有登记记录重复（schema.unique）
 	 *
 	 */
-	private function _canEnroll($siteId, &$app, &$user, &$posted, $ek) {
-		$modelRec = $this->model('matter\enroll\record');
+	private function _canSubmit($siteId, &$oApp, &$oUser, &$posted, $ek) {
 		/**
-		 * 检查登记数量
+		 * 检查活动是否在进行过程中
 		 */
-		if (empty($ek) && $app->count_limit > 0) {
-			$records = $modelRec->byUser($app->id, $user);
-			if (count($records) >= $app->count_limit) {
-				return [false, ['已经进行过' . count($records) . '次登记，不允再次登记']];
+		$current = time();
+		if (!empty($oApp->start_at) && $oApp->start_at > $current) {
+			return [false, ['活动没有开始，不允许修改数据']];
+		}
+		if (!empty($oApp->end_at) && $oApp->end_at < $current) {
+			return [false, ['活动已经结束，不允许修改数据']];
+		}
+
+		$modelRec = $this->model('matter\enroll\record');
+		if (empty($ek)) {
+			/**
+			 * 检查登记数量
+			 */
+			if ($oApp->count_limit > 0) {
+				$records = $modelRec->byUser($oApp->id, $oUser);
+				if (count($records) >= $oApp->count_limit) {
+					return [false, ['已经进行过' . count($records) . '次登记，不允再次登记']];
+				}
+			}
+		} else {
+			/**
+			 * 检查提交人
+			 */
+			if (empty($oApp->can_cowork) || $oApp->can_cowork === 'N') {
+				if ($oRecord = $modelRec->byId($ek, ['fields' => 'userid'])) {
+					if ($oRecord->userid !== $oUser->uid) {
+						return [false, ['不允许修改其他用户提交的数据']];
+					}
+				}
 			}
 		}
 		/**
 		 * 检查提交数据的合法性
 		 */
-		$schemas = json_decode($app->data_schemas);
-		foreach ($schemas as $schema) {
+		foreach ($oApp->dataSchemas as $schema) {
 			if (isset($schema->unique) && $schema->unique === 'Y') {
 				if (empty($posted->{$schema->id})) {
 					return [false, ['唯一项【' . $schema->title . '】不允许为空']];
 				}
 				$checked = new \stdClass;
 				$checked->{$schema->id} = $posted->{$schema->id};
-				$existings = $modelRec->byData($siteId, $app, $checked, ['fields' => 'enroll_key']);
+				$existings = $modelRec->byData($siteId, $oApp, $checked, ['fields' => 'enroll_key']);
 				if (count($existings)) {
 					foreach ($existings as $existing) {
 						if ($existing->enroll_key !== $ek) {

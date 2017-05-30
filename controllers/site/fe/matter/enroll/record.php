@@ -522,7 +522,6 @@ class record extends base {
 	 * $site
 	 * $app
 	 * $orderby time|remark|score|follower
-	 * $openid
 	 * $page
 	 * $size
 	 *
@@ -532,7 +531,7 @@ class record extends base {
 	 * [2] 数据项的定义
 	 *
 	 */
-	public function list_action($site, $app, $owner = 'U', $rid = '', $orderby = 'time', $openid = null, $page = 1, $size = 30) {
+	public function list_action($site, $app, $owner = 'U', $orderby = 'time', $page = 1, $size = 30) {
 		$oUser = $this->who;
 
 		// 登记数据过滤条件
@@ -553,7 +552,6 @@ class record extends base {
 			);
 			break;
 		}
-		//$options['rid'] = $rid;
 		$options['page'] = $page;
 		$options['size'] = $size;
 		$options['orderby'] = $orderby;

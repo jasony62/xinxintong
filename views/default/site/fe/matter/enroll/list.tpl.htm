@@ -50,7 +50,7 @@
                         <select class='form-control' ng-if="['single','phase'].indexOf(schema.type)!==-1" ng-model="criteria.data[schema.id]" ng-options="op.v as op.l for op in schema.ops">
                             <option></option>
                         </select>
-                        <ul ng-if="schema.type==='multiple'">
+                        <ul ng-if="schema.type==='multiple'" style="padding:0">
                             <li class='checkbox' ng-repeat="op in schema.ops">
                                 <label>
                                     <input type="checkbox" name="{{schema.id}}" ng-model="criteria.data[schema.id][op.v]" /><span>{{op.l}}</span></label>

@@ -806,7 +806,7 @@ define([], function() {
 
         html = '<ul class="list-group">';
         onclick = config.onclick.length ? " ng-click=\"gotoPage($event,'" + config.onclick + "',r.enroll_key)\"" : '';
-        html += '<li class="list-group-item actions"><button class="btn btn-default" ng-click="openFilter()">筛选</button><button class="btn btn-default" ng-click="resetFilter()">取消筛选</button></li>';
+        html += '<li class="list-group-item text-center actions"><div class="btn-group"><button class="btn btn-default" ng-click="openFilter()">筛选</button><button class="btn btn-default" ng-click="resetFilter()"><span class="glyphicon glyphicon-remove"></span></button></div></li>';
         html += '<li class="list-group-item" ng-repeat="r in records"' + onclick + '>';
         schemas.forEach(function(schema) {
             html += '<div wrap="value" class="wrap-inline wrap-splitline" schema="' + schema.id + '"><label>' + schema.title + '</label>';
@@ -821,7 +821,7 @@ define([], function() {
                     html += '<div>{{r.data.' + schema.id + '}}</div>';
                     break;
                 case 'date':
-                    html += '<div>{{r.data.' + schema.id + '*1000|date:"yy-MM-dd HH:mm"}}</div>';
+                    html += '<div><span ng-if="r.data.' + schema.id + '">{{r.data.' + schema.id + '*1000|date:"yy-MM-dd HH:mm"}}</span></div>';
                     break;
                 case 'single':
                 case 'phase':
@@ -847,7 +847,7 @@ define([], function() {
             html += '</div>';
         });
         html += "</li>";
-        html += '<li class="list-group-item actions"><button class="btn btn-default" ng-click="openFilter()">筛选</button><button class="btn btn-default" ng-click="resetFilter()">取消筛选</button></li>';
+        html += '<li class="list-group-item text-center actions"><div class="btn-group"><button class="btn btn-default" ng-click="openFilter()">筛选</button><button class="btn btn-default" ng-click="resetFilter()"><span class="glyphicon glyphicon-remove"></span></button></div><button class="btn btn-default" ng-click="fetch()" ng-if="options.page.total>records.length">更多</button></li>';
         html += "</ul>";
 
         return html;

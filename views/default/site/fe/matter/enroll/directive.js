@@ -169,14 +169,3 @@ ngMod.directive('flexImg', function() {
         }
     }
 });
-ngMod.directive('enrollRecords', function() {
-    return {
-        restrict: 'A',
-        replace: 'false',
-        link: function(scope, ele, attrs) {
-            if (scope.options && attrs.enrollRecordsOwner && attrs.enrollRecordsOwner.length) {
-                scope.options.owner = attrs.enrollRecordsOwner;
-            }
-        }
-    }
-});

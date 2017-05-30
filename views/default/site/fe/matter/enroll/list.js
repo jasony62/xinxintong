@@ -25,74 +25,14 @@ ngApp.factory('Round', ['http2', '$q', 'ls', function(http2, $q, LS) {
         }
     };
 }]);
-ngApp.controller('ctrlRounds', ['$scope', 'Round', function($scope, Round) {
-    var facRound, onDataReadyCallbacks;
-    facRound = Round.ins();
-    facRound.list().then(function(data) {
-        if (data.rounds) {
-            $scope.rounds = data.rounds;
-            angular.forEach(onDataReadyCallbacks, function(cb) {
-                cb(rounds);
-            });
-        } else {
-            $scope.rounds = [];
-        }
-    });
-    onDataReadyCallbacks = [];
-    $scope.onDataReady = function(callback) {
-        onDataReadyCallbacks.push(callback);
-    };
-    $scope.match = function(matched) {
-        var i, l, round;
-        for (i = 0, l = $scope.rounds.length; i < l; i++) {
-            round = $scope.rounds[i];
-            if (matched.rid === $scope.rounds[i].rid) {
-                return $scope.rounds[i];
-            }
-        }
-        return false;
-    };
-}]);
-ngApp.controller('ctrlOwnerOptions', ['$scope', function($scope) {
-    $scope.owners = {
-        'A': {
-            id: 'A',
-            label: '全部'
-        },
-        'U': {
-            id: 'U',
-            label: '我的'
-        }
-    };
-    $scope.match = function(owner) {
-        return $scope.owners[owner.id];
-    }
-}]);
-ngApp.controller('ctrlOrderbyOptions', ['$scope', function($scope) {
-    $scope.orderbys = {
-        time: {
-            id: 'time',
-            label: '最新'
-        },
-        score: {
-            id: 'score',
-            label: '点赞'
-        },
-        remark: {
-            id: 'remark',
-            label: '评论'
-        }
-    };
-}]);
 ngApp.factory('Record', ['http2', '$q', 'ls', function(http2, $q, LS) {
     var Record, _ins;
     Record = function() {};
-    Record.prototype.list = function(owner, rid, oCriteria) {
+    Record.prototype.list = function(owner, oCriteria) {
         var deferred = $q.defer(),
             url;
         url = LS.j('record/list', 'site', 'app');
         url += '&owner=' + owner;
-        rid && rid.length && (url += '&rid=' + rid);
         http2.post(url, oCriteria ? oCriteria : {}).then(function(rsp) {
             var records, record, i, l;
             if (rsp.err_code == 0) {
@@ -159,7 +99,8 @@ ngApp.controller('ctrlRecords', ['$scope', '$uibModal', 'Record', 'ls', '$sce', 
     $scope.openFilter = function() {
         $uibModal.open({
             templateUrl: 'filter.html',
-            controller: ['$scope', '$uibModalInstance', function($scope2, $mi) {
+            controller: ['$scope', '$uibModalInstance', 'Round', function($scope2, $mi, Round) {
+                var facRound;
                 $scope2.dataSchemas = $scope.app.dataSchemas;
                 $scope2.criteria = oCurrentCriteria;
                 $scope2.cancel = function() {
@@ -168,53 +109,38 @@ ngApp.controller('ctrlRecords', ['$scope', '$uibModal', 'Record', 'ls', '$sce', 
                 $scope2.ok = function() {
                     $mi.close(oCurrentCriteria);
                 };
+                facRound = Round.ins();
+                facRound.list().then(function(result) {
+                    $scope2.rounds = result.rounds;
+                });
             }],
             windowClass: 'auto-height',
             backdrop: 'static',
         }).result.then(function(oCriteria) {
-            facRecord.list(options.owner, options.rid, oCriteria).then(function(records) {
+            facRecord.list(options.owner, oCriteria).then(function(records) {
                 $scope.records = records;
             });
         });
     };
     $scope.resetFilter = function() {
         oCurrentCriteria = {};
-        facRecord.list(options.owner, options.rid, oCurrentCriteria).then(function(records) {
+        facRecord.list(options.owner, oCurrentCriteria).then(function(records) {
             $scope.records = records;
         });
     };
     facRecord = Record.ins();
     options = {
         owner: 'U',
-        rid: LS.p.rid
     };
     fnFetch = function() {
-        facRecord.list(options.owner, options.rid).then(function(records) {
+        facRecord.list(options.owner).then(function(records) {
             $scope.records = records;
         });
     };
-    $scope.$on('xxt.app.enroll.filter.rounds', function(event, data) {
-        if (options.rid !== data[0].rid) {
-            options.rid = data[0].rid;
-            fnFetch();
-        }
-    });
-    $scope.$on('xxt.app.enroll.filter.owner', function(event, data) {
-        if (options.owner !== data[0].id) {
-            options.owner = data[0].id;
-            fnFetch();
-        }
-    });
     $scope.$watch('options', function(nv) {
         $scope.fetch();
     }, true);
     $scope.options = options;
     $scope.fetch = fnFetch;
 }]);
-ngApp.controller('ctrlList', ['$scope', function($scope) {
-    $scope.$on('xxt.app.enroll.filter.owner', function(event, data) {
-        if (event.targetScope !== $scope) {
-            $scope.$broadcast('xxt.app.enroll.filter.owner', data);
-        }
-    });
-}]);
+ngApp.controller('ctrlList', ['$scope', function($scope) {}]);

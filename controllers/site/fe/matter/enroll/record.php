@@ -553,7 +553,7 @@ class record extends base {
 			);
 			break;
 		}
-		$options['rid'] = $rid;
+		//$options['rid'] = $rid;
 		$options['page'] = $page;
 		$options['size'] = $size;
 		$options['orderby'] = $orderby;

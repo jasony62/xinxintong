@@ -56,7 +56,7 @@ ngApp.controller('ctrlRecord', ['$scope', 'Record', 'ls', '$sce', function($scop
     $scope.value2Label = function(schemaId) {
         var val, schema, aVal, aLab = [];
 
-        if ((schema = $scope.app._schemasById[schemaId]) && facRecord.current.data) {
+        if ((schema = $scope.app._schemasById[schemaId]) && facRecord.current && facRecord.current.data) {
             if (val = facRecord.current.data[schemaId]) {
                 if (schema.ops && schema.ops.length) {
                     aVal = val.split(',');
@@ -76,7 +76,7 @@ ngApp.controller('ctrlRecord', ['$scope', 'Record', 'ls', '$sce', function($scop
             schema = $scope.app._schemasById[schemaId],
             val;
 
-        if (schema && facRecord.current.data && facRecord.current.data[schemaId]) {
+        if (schema && facRecord.current && facRecord.current.data && facRecord.current.data[schemaId]) {
             val = facRecord.current.data[schemaId];
             if (schema.ops && schema.ops.length) {
                 schema.ops.forEach(function(op, index) {
@@ -120,7 +120,7 @@ ngApp.controller('ctrlRecord', ['$scope', 'Record', 'ls', '$sce', function($scop
     };
     $scope.$watch('app', function(app) {
         if (!app) return;
-        $scope.Record = Record.ins(app);
+        $scope.Record = facRecord = Record.ins(app);
     });
 }]);
 ngApp.controller('ctrlView', ['$scope', '$timeout', 'ls', 'Record', function($scope, $timeout, LS, Record) {

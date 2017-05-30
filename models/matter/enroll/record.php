@@ -600,12 +600,8 @@ class record_model extends \TMS_MODEL {
 		// 指定了轮次
 
 		if (!empty($criteria->record->rid)) {
-			if ('ALL' !== $criteria->record->rid) {
+			if (strcasecmp('all', $criteria->record->rid) !== 0) {
 				$rid = $criteria->record->rid;
-			}
-		} else if (!empty($options->rid)) {
-			if ('ALL' !== $options->rid) {
-				$rid = $options->rid;
 			}
 		} else if ($activeRound = $this->model('matter\enroll\round')->getActive($oApp)) {
 			/* 如果未指定就显示当前轮次 */

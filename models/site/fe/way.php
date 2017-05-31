@@ -386,10 +386,10 @@ class way_model extends \TMS_MODEL {
 		$modelAct = $this->model('site\user\account');
 		foreach ($sites as $siteId) {
 			if ($cookieUser = $this->getCookieUser($siteId)) {
-				$account = $modelAct->byId($cookieUser->uid);
-				if (!empty($account->unionid)) {
-					$this->cleanCookieUser($siteId);
-				}
+				//$account = $modelAct->byId($cookieUser->uid);
+				//if (!empty($account->unionid)) {
+				$this->cleanCookieUser($siteId);
+				//}
 			}
 		}
 
@@ -514,6 +514,7 @@ class way_model extends \TMS_MODEL {
 		$sites = $this->siteList(true);
 		foreach ($sites as $siteId) {
 			$beforeCookieusers[$siteId] = $this->getCookieUser($siteId);
+			$this->cleanCookieUser($siteId);
 		}
 
 		/* 从数据库中获得注册账号下管理的所有访客账号 */

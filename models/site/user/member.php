@@ -54,6 +54,11 @@ class member_model extends \TMS_MODEL {
 			return [false, '参数中包含了无法处理的信息'];
 		}
 
+		$aExisted = $this->byUser($userid, ['schemas' => $oMschema->id]);
+		if (count($aExisted)) {
+			return [false, '当前用户已经绑定了联系人信息'];
+		}
+
 		is_array($data) && $data = (object) $data;
 
 		$create_at = time();

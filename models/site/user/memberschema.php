@@ -149,4 +149,14 @@ class memberschema_model extends \TMS_MODEL {
 
 		return $schema;
 	}
+	/**
+	 *
+	 */
+	public function getEntryUrl($siteId, $mschemaId) {
+		$url = "http://" . $_SERVER['HTTP_HOST'];
+		$url .= '/rest/site/fe/user/member';
+		$url .= "?site={$siteId}&schema={$mschemaId}";
+
+		return $url;
+	}
 }

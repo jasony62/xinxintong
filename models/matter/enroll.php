@@ -105,9 +105,11 @@ class enroll_model extends app_base {
 					$app->rpConfig = new \stdClass;
 				}
 			}
+			$modelPage = $this->model('matter\enroll\page');
 			if ($cascaded === 'Y') {
-				$modelPage = \TMS_APP::M('matter\enroll\page');
 				$app->pages = $modelPage->byApp($aid);
+			} else {
+				$app->pages = $modelPage->byApp($aid, ['cascaded' => 'N', 'fields' => 'id,name,type,title']);
 			}
 		}
 

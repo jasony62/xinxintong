@@ -100,17 +100,23 @@ define(['frame'], function(ngApp) {
             srvEnrollRecord.init(app, $scope.page, $scope.criteria, $scope.records);
             // schemas
             var recordSchemas = [],
+                recordSchemas2 = [],
                 enrollDataSchemas = [],
                 groupDataSchemas = [];
             app.data_schemas.forEach(function(schema) {
                 if (schema.type !== 'html') {
                     recordSchemas.push(schema);
+                    recordSchemas2.push(schema);
+                }
+                if (schema.remarkable && schema.remarkable === 'Y') {
+                    recordSchemas2.push({ type: 'remark', title: '评论数', id: schema.id });
                 }
                 if (schema.number && schema.number === 'Y') {
                     $scope.numberSchemas.push(schema);
                 }
             });
             $scope.recordSchemas = recordSchemas;
+            $scope.recordSchemas2 = recordSchemas2;
             app._schemasFromEnrollApp.forEach(function(schema) {
                 if (schema.type !== 'html') {
                     enrollDataSchemas.push(schema);

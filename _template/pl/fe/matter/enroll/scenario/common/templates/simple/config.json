@@ -12,7 +12,7 @@
             },
             "config": {
                 "required": "N",
-                "showname": "placeholder"
+                "showname": "label"
             }
         }, {
             "schema": {
@@ -22,7 +22,7 @@
             },
             "config": {
                 "required": "N",
-                "showname": "placeholder"
+                "showname": "label"
             }
         }],
         "act_schemas": [{

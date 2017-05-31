@@ -16,16 +16,17 @@ class follow extends \site\fe\base {
 	/**
 	 * 进入引导关注页
 	 *
-	 * @param string $site
-	 * @param string $sns
+	 * @param string $site 团队id
+	 * @param string $sns 公众号类型
 	 *
 	 */
 	public function index_action($site, $sns) {
+		/* 如果用户已经绑定过公众号信息，清空后让用户重新绑定 */
 		if (isset($this->who->sns->{$sns})) {
-			/* 如果用户已经绑定过公众号信息，清空后让用户重新绑定 */
 			unset($this->who->sns->{$sns});
 			$this->model('site\fe\way')->setCookieUser($site, $this->who);
 		}
+
 		\TPL::output('/site/fe/user/follow');
 		exit;
 	}
@@ -42,10 +43,10 @@ class follow extends \site\fe\base {
 		$siteId = $site;
 		$modelSns = $this->model('sns\\' . $sns);
 		/* 公众号配置信息 */
-		$snsConfig = $modelSns->bySite($siteId, ['fields' => 'joined,qrcode,follow_page_id,follow_page_name']);
-		if ($snsConfig === false || $snsConfig->joined === 'N') {
+		$snsConfig = $modelSns->bySite($siteId, ['fields' => 'siteid,joined,qrcode,follow_page_id,follow_page_name']);
+		if ($snsConfig === false || ($snsConfig->joined === 'N' && $sns === 'wx')) {
 			$siteId = 'platform';
-			$snsConfig = $modelSns->bySite('platform', ['fields' => 'joined,qrcode,follow_page_id,follow_page_name']);
+			$snsConfig = $modelSns->bySite('platform', ['fields' => 'siteid,joined,qrcode,follow_page_id,follow_page_name']);
 		}
 		if (empty($snsConfig->follow_page_name)) {
 			$page = new \stdClass;
@@ -59,17 +60,28 @@ class follow extends \site\fe\base {
 		$param = [
 			'page' => $page,
 			'snsConfig' => $snsConfig,
+			'user' => $this->who,
 		];
-
 		/* 访问素材信息 */
-		if (in_array($sns, ['wx', 'yx']) && !empty($matter)) {
-			/* 加入素材的场景二维码，企业号不支持 */
+		if (!empty($matter)) {
 			$matter = explode(',', $matter);
 			if (count($matter) === 2) {
-				$modelQrcode = $this->model('sns\\' . $sns . '\\call\qrcode');
-				$qrcodes = $modelQrcode->byMatter($matter[0], $matter[1]);
-				if (count($qrcodes) === 1) {
-					$param['matterQrcode'] = $qrcodes[0];
+				/* 素材的url */
+				switch ($matter[0]) {
+				case 'mschema':
+					$param['referer'] = $this->model('site\user\memberschema')->getEntryUrl($site, $matter[1]);
+					break;
+				case 'enroll':
+				case 'signin':
+					break;
+				}
+				/* 加入素材的场景二维码，企业号不支持 */
+				if (in_array($sns, ['wx', 'yx'])) {
+					$modelQrcode = $this->model('sns\\' . $sns . '\\call\qrcode');
+					$qrcodes = $modelQrcode->byMatter($matter[0], $matter[1]);
+					if (count($qrcodes) === 1) {
+						$param['matterQrcode'] = $qrcodes[0];
+					}
 				}
 			}
 		}

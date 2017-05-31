@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html ng-controller='ctrlMain'>
+<html>
 
 <head>
     <meta charset="utf-8">
@@ -7,19 +7,18 @@
     <base href="/" />
     <title>邀请关注</title>
     <link href='/static/css/site.fe.css?_=1' rel="stylesheet">
-    <style>
-        *{margin:0;padding:0}
-        *,:before,:after{box-sizing:border-box}
-        body{height:100%;font-family:Microsoft Yahei,Arial;background-color: white}
-    </style>
+    <link href='/views/default/site/fe/user/follow.css?_=1' rel="stylesheet">
 </head>
 
-<body>
+<body ng-controller='ctrlMain' class='ng-cloak' ng-cloak>
     <div class="loading">
         <div class='loading-indicator'><i></i></div>
     </div>
     <div dynamic-html="page.html"></div>
-    <script src="/static/js/require.js?_=1" defer async data-main="/views/default/site/fe/user/follow-loader.js?_=1"></script>
+    <div id='gotoLogin' ng-if="!user.unionid">
+        <a href='' ng-click="gotoLogin()">已有账号绑定过公众号，去登录</a>
+    </div>
+    <script src="/static/js/require.js?_=1" defer async data-main="/views/default/site/fe/user/follow-loader.js?_=2"></script>
 </body>
 
 </html>

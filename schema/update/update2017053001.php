@@ -3,9 +3,8 @@ require_once '../../db.php';
 
 $sqls = array();
 //
-$sqls[] = "alter table xxt_call_qrcode_wx add params text";
-$sqls[] = "alter table xxt_call_qrcode_yx add params text";
-
+$sqls[] = "alter table xxt_enroll add can_cowork char(1) not null default 'N' after can_siteuser";
+//
 foreach ($sqls as $sql) {
 	if (!$mysqli->query($sql)) {
 		header('HTTP/1.0 500 Internal Server Error');

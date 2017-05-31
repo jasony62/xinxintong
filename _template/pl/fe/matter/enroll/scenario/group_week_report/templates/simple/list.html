@@ -1,5 +1,6 @@
 <div wrap="list" enroll-records enroll-records-owner="U" ng-controller="ctrlRecords">
     <ul class="list-group">
+        <li class="list-group-item text-center actions"><div class="btn-group"><button class="btn btn-default" ng-click="openFilter()">筛选</button><button class="btn btn-default" ng-click="resetFilter()"><span class="glyphicon glyphicon-remove"></span></button></div></li>
         <li class="list-group-item" ng-repeat="rec in records" ng-click="gotoPage($event,'enroll',rec.enroll_key)">
             <div wrap="static" class="wrap-inline">
                 <label>任务名称</label>
@@ -14,8 +15,9 @@
                 <div>{{rec.data.c3}}</div>
             </div>
         </li>
+        <li class="list-group-item text-center actions"><div class="btn-group"><button class="btn btn-default" ng-click="openFilter()">筛选</button><button class="btn btn-default" ng-click="resetFilter()"><span class="glyphicon glyphicon-remove"></span></button></div><button class="btn btn-default" ng-click="fetch()" ng-if="options.page.total>records.length">更多</button></li>
     </ul>
 </div>
 <div wrap="button" class="form-group">
-    <button id="btnNewRecord" class="btn btn-primary btn-block btn-lg" ng-click="addRecord($event)"><span>添加记录</span></button>
+    <button id="btnNewRecord" class="btn btn-primary btn-block btn-lg" ng-click="addRecord($event,'enroll')"><span>添加记录</span></button>
 </div>

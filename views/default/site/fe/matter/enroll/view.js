@@ -132,9 +132,11 @@ ngApp.controller('ctrlView', ['$scope', '$timeout', 'ls', 'Record', function($sc
             evt.initEvent("show", false, false);
             domTip.dispatchEvent(evt);
         }
-        var dataSchemas = params.app.dataSchemas;
+        var dataSchemas = params.app.dataSchemas,
+            aRemarkableSchemas = [];
         dataSchemas.forEach(function(oSchema) {
             if (oSchema.remarkable && oSchema.remarkable === 'Y') {
+                aRemarkableSchemas.push(oSchema);
                 var domWrap = document.querySelector('[schema=' + oSchema.id + ']');
                 domWrap.classList.add('remarkable');
                 domWrap.addEventListener('click', function() {
@@ -170,11 +172,13 @@ ngApp.controller('ctrlView', ['$scope', '$timeout', 'ls', 'Record', function($sc
                 }
                 var schemaId, domWrap;
                 if (oRecord.verbose) {
-                    for (schemaId in oRecord.verbose) {
-                        if (domWrap = document.querySelector('[schema=' + schemaId + ']')) {
-                            domWrap.setAttribute('data-remark', oRecord.verbose[schemaId].remark_num);
+                    aRemarkableSchemas.forEach(function(oSchema) {
+                        var num;
+                        if (domWrap = document.querySelector('[schema=' + oSchema.id + ']')) {
+                            num = oRecord.verbose[oSchema.id] ? oRecord.verbose[oSchema.id].remark_num : 0;
+                            domWrap.setAttribute('data-remark', num);
                         }
-                    }
+                    });
                 }
             });
         }

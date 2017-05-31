@@ -100,8 +100,8 @@
                                     <button class='btn btn-sm btn-default' ng-click="open(m,'main')">进入</button>
                                 </div>
 								<div class='actions-top' ng-if="entered">
-									<button class='btn btn-sm btn-default' title='复制' ng-if="matterType!=='recycle'&& matterType!=='news'" ng-click="copyMatter($event,m)">复制</button>
-									<button class='btn btn-sm btn-default' title='删除' ng-if="matterType!=='recycle'" ng-click="removeMatter($event,m)"><span class='glyphicon glyphicon-remove'></span></button>
+									<button class='btn btn-sm btn-default' title='复制' ng-if="matterType!=='recycle'&&m.matter_type!=='mission'&&m.matter_type!=='news'" ng-click="copyMatter($event,m)">复制</button>
+									<button class='btn btn-sm btn-default' title='删除' ng-if="matterType!=='recycle'&&m.matter_type!=='mission'" ng-click="removeMatter($event,m)"><span class='glyphicon glyphicon-remove'></span></button>
 									<button class='btn btn-default' title='恢复' ng-if="matterType==='recycle'" ng-click="restoreMatter(m)">恢复</button>
 								</div>
 							</div>

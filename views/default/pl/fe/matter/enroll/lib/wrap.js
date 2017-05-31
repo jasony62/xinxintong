@@ -367,13 +367,15 @@ define([], function() {
             html: html
         };
     };
+    //老元素 ，新配置，老schema
     InputWrap.prototype.modify = function(domWrap, dataWrap, beforeSchema) {
         var $dom, $label, $input, config = dataWrap.config,
             schema = dataWrap.schema;
 
-        $dom = $(domWrap);
+        $dom = $(domWrap); //？
         if (dataWrap.type === 'input') {
             if (beforeSchema && (schema.type !== beforeSchema.type || (schema.type === 'shorttext' && schema.history === 'Y'))) {
+                //从新生成容器内的内容
                 $dom.html(this.embed(dataWrap).html);
             } else {
                 $label = $dom.find('label');
@@ -624,7 +626,7 @@ define([], function() {
         $span.html(dataWrap.schema.ops[0].l);
     };
     /**
-     * value wrap class 
+     * value wrap class
      */
     var ValueWrap = function() {};
     ValueWrap.prototype = Object.create(Wrap.prototype);
@@ -804,6 +806,7 @@ define([], function() {
 
         html = '<ul class="list-group">';
         onclick = config.onclick.length ? " ng-click=\"gotoPage($event,'" + config.onclick + "',r.enroll_key)\"" : '';
+        html += '<li class="list-group-item text-center actions"><div class="btn-group"><button class="btn btn-default" ng-click="openFilter()">筛选</button><button class="btn btn-default" ng-click="resetFilter()"><span class="glyphicon glyphicon-remove"></span></button></div></li>';
         html += '<li class="list-group-item" ng-repeat="r in records"' + onclick + '>';
         schemas.forEach(function(schema) {
             html += '<div wrap="value" class="wrap-inline wrap-splitline" schema="' + schema.id + '"><label>' + schema.title + '</label>';
@@ -818,7 +821,7 @@ define([], function() {
                     html += '<div>{{r.data.' + schema.id + '}}</div>';
                     break;
                 case 'date':
-                    html += '<div>{{r.data.' + schema.id + '*1000|date:"yy-MM-dd HH:mm"}}</div>';
+                    html += '<div><span ng-if="r.data.' + schema.id + '">{{r.data.' + schema.id + '*1000|date:"yy-MM-dd HH:mm"}}</span></div>';
                     break;
                 case 'single':
                 case 'phase':
@@ -843,7 +846,9 @@ define([], function() {
             }
             html += '</div>';
         });
-        html += "</li></ul>";
+        html += "</li>";
+        html += '<li class="list-group-item text-center actions"><div class="btn-group"><button class="btn btn-default" ng-click="openFilter()">筛选</button><button class="btn btn-default" ng-click="resetFilter()"><span class="glyphicon glyphicon-remove"></span></button></div><button class="btn btn-default" ng-click="fetch()" ng-if="options.page.total>records.length">更多</button></li>';
+        html += "</ul>";
 
         return html;
     };
@@ -1008,54 +1013,6 @@ define([], function() {
         }
     };
     /**
-     * round wrap class
-     */
-    var RoundsWrap = function() {};
-    RoundsWrap.prototype = Object.create(Wrap.prototype);
-    RoundsWrap.prototype.embed = function(dataWrap) {
-        var config = dataWrap.config,
-            onclick, html, attrs = {
-                'ng-controller': 'ctrlRounds',
-                wrap: 'rounds',
-                class: 'form-group'
-            };
-
-        config.id && (attrs.id = config.id);
-        onclick = config.onclick.length ? " ng-click=\"gotoPage($event,'" + config.onclick + "',null,r.rid)\"" : '';
-        html = "<ul class='list-group'><li class='list-group-item' ng-repeat='r in rounds'" + onclick + "><div>{{r.title}}</div></li></ul>";
-
-        return this.append('div', attrs, html);
-    };
-    RoundsWrap.prototype.dataByDom = function(domWrap, page) {
-        var $wrap = $(domWrap),
-            config = {};
-
-        config.id = $wrap.attr('id');
-        if (page) {
-            return page.wrapByList(config);
-        } else {
-            config.pattern = 'rounds';
-            config.dataScope = $wrap.attr('enroll-records-owner');
-            return {
-                config: config
-            };
-        }
-    };
-    RoundsWrap.prototype.modify = function(domWrap, oWrap) {
-        var $wrap = $(domWrap),
-            config = oWrap.config,
-            html, onclick;
-
-        $wrap.children('ul').remove();
-
-        onclick = config.onclick.length ? " ng-click=\"gotoPage($event,'" + config.onclick + "',null,r.rid)\"" : '';
-        html = "<ul class='list-group'><li class='list-group-item' ng-repeat='r in rounds'" + onclick + "><div>{{r.title}}</div></li></ul>";
-
-        $wrap.append(html);
-
-        return true;
-    };
-    /**
      * user wrap class
      */
     var UserWrap = function() {};
@@ -1092,7 +1049,6 @@ define([], function() {
         checkbox: new CheckboxWrap(),
         value: new ValueWrap(),
         records: new RecordsWrap(),
-        rounds: new RoundsWrap(),
         button: new ButtonWrap(),
         setEditor: function(editor) {
             _editor = editor;

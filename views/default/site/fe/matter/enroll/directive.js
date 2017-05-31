@@ -136,17 +136,6 @@ ngMod.directive('tmsCheckboxGroup', function() {
         }
     };
 });
-ngMod.directive('runningButton', function() {
-    return {
-        restrict: 'EA',
-        template: "<button ng-class=\"isRunning?'btn-default':'btn-primary'\" ng-disabled='isRunning' ng-transclude></button>",
-        scope: {
-            isRunning: '='
-        },
-        replace: true,
-        transclude: true
-    };
-});
 ngMod.directive('flexImg', function() {
     return {
         restrict: 'A',
@@ -177,83 +166,6 @@ ngMod.directive('flexImg', function() {
                     });
                 }
             })
-        }
-    }
-});
-ngMod.directive('tmsFilter', function() {
-    return {
-        restrict: 'A',
-        link: function(scope, ele, attrs) {
-            var $switch, $ok, $cancel, fnSelectItem, fnDefaultItem;
-            fnDefaultItem = function() {
-                var defaultItem, path, i;
-                path = attrs.tmsFilterDefault;
-                path = path.split('.');
-                i = 0;
-                defaultItem = scope;
-                while (i < path.length) {
-                    defaultItem = defaultItem[path[i]];
-                    i++;
-                }
-                defaultItem && (defaultItem = scope.match(defaultItem));
-                return defaultItem;
-            };
-            fnSelectItem = function(item) {
-                if (!item) return;
-                var selected;
-                item._selected = !item._selected;
-                selected = scope.tmsFilter.selected;
-                if (item._selected) {
-                    if (attrs.tmsFilterMultiple && attrs.tmsFilterMultiple === 'N') {
-                        selected.length === 1 && (selected[0]._selected = false);
-                        selected[0] = item;
-                    } else {
-                        selected.push(item);
-                    }
-                } else {
-                    selected.splice(selected.indexOf(item), 1);
-                }
-            };
-            scope.tmsFilter === undefined && (scope.tmsFilter = {});
-            scope.tmsFilter.opened = false;
-            scope.tmsFilter.selected = [];
-            if (attrs.tmsFilterDefault && attrs.tmsFilterDefault.length && scope.match) {
-                if (scope.onDataReady) {
-                    scope.onDataReady(function(rounds) {
-                        fnSelectItem(fnDefaultItem());
-                    });
-                } else {
-                    fnSelectItem(fnDefaultItem());
-                }
-            }
-            scope.click = fnSelectItem;
-            $switch = ele[0].querySelector('[tms-filter-switch]').addEventListener('click', function() {
-                scope.$apply(function() {
-                    scope.tmsFilter.opened = !scope.tmsFilter.opened;
-                });
-            });
-            $ok = ele[0].querySelector('[tms-filter-ok]').addEventListener('click', function() {
-                scope.$apply(function() {
-                    scope.tmsFilter.opened = false;
-                    scope.$emit(attrs.tmsFilterEvent, scope.tmsFilter.selected);
-                });
-            });
-            $cancel = ele[0].querySelector('[tms-filter-cancel]').addEventListener('click', function() {
-                scope.$apply(function() {
-                    scope.tmsFilter.opened = false;
-                });
-            });
-        }
-    };
-});
-ngMod.directive('enrollRecords', function() {
-    return {
-        restrict: 'A',
-        replace: 'false',
-        link: function(scope, ele, attrs) {
-            if (scope.options && attrs.enrollRecordsOwner && attrs.enrollRecordsOwner.length) {
-                scope.options.owner = attrs.enrollRecordsOwner;
-            }
         }
     }
 });

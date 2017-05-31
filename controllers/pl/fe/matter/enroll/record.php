@@ -58,11 +58,27 @@ class record extends \pl\fe\matter\base {
 
 		// 登记活动
 		$modelApp = $this->model('matter\enroll');
-		$enrollApp = $modelApp->byId($app);
+		$oEnrollApp = $modelApp->byId($app);
 
 		// 查询结果
 		$mdoelRec = $this->model('matter\enroll\record');
-		$result = $mdoelRec->find($enrollApp, $options, $criteria);
+		$result = $mdoelRec->find($oEnrollApp, $options, $criteria);
+		if (!empty($result->records)) {
+			$remarkables = [];
+			foreach ($oEnrollApp->dataSchemas as $oSchema) {
+				if (isset($oSchema->remarkable) && $oSchema->remarkable === 'Y') {
+					$remarkables[] = $oSchema->id;
+				}
+			}
+			if (count($remarkables)) {
+				foreach ($result->records as &$oRec) {
+					$modelRem = $this->model('matter\enroll\data');
+					$oRecordData = $modelRem->byRecord($oRec->enroll_key, ['schema' => $remarkables]);
+					$oRec->verbose = new \stdClass;
+					$oRec->verbose->data = $oRecordData;
+				}
+			}
+		}
 
 		return new \ResponseData($result);
 	}
@@ -215,6 +231,9 @@ class record extends \pl\fe\matter\base {
 		}
 		if (isset($record->rid)) {
 			$updated->rid = $modelEnl->escape($record->rid);
+		}
+		if (isset($record->supplement)) {
+			$updated->supplement = $modelEnl->toJson($record->supplement);
 		}
 		$modelEnl->update('xxt_enroll_record', $updated, ['enroll_key' => $ek]);
 		/* 记录登记数据 */
@@ -643,7 +662,7 @@ class record extends \pl\fe\matter\base {
 			$columnNum4 = $columnNum1; //列号
 			$schema = $schemas[$a];
 			/* 跳过图片,描述说明和文件 */
-			if (in_array($schema->type, ['image', 'file', 'html'])) {
+			if (in_array($schema->type, ['html'])) {
 				continue;
 			}
 			if (isset($schema->number) && $schema->number === 'Y') {
@@ -680,6 +699,7 @@ class record extends \pl\fe\matter\base {
 			}
 			// 处理登记项
 			$data = $record->data;
+			$supplement = $record->supplement;
 			isset($record->score) && $score = $record->score;
 			$i = 0;
 			for ($i2 = 0, $ii = count($schemas); $i2 < $ii; $i2++) {
@@ -687,7 +707,7 @@ class record extends \pl\fe\matter\base {
 				$schema = $schemas[$i2];
 				$v = isset($data->{$schema->id}) ? $data->{$schema->id} : '';
 
-				if (in_array($schema->type, ['image', 'file', 'html'])) {
+				if (in_array($schema->type, ['html'])) {
 					continue;
 				}
 				switch ($schema->type) {
@@ -699,6 +719,9 @@ class record extends \pl\fe\matter\base {
 					}
 					if (isset($v0)) {
 						isset($score->{$schema->id}) && ($v0 .= ' (' . $score->{$schema->id} . '分)');
+						if (isset($schema->supplement) && $schema->supplement === 'Y') {
+							$v0 .= " (补充说明：" . $supplement->{$schema->id} . ")";
+						}
 						$objActiveSheet->setCellValueExplicitByColumnAndRow($i + $columnNum3++, $rowIndex, $v0, \PHPExcel_Cell_DataType::TYPE_STRING);
 					}
 					break;
@@ -726,6 +749,9 @@ class record extends \pl\fe\matter\base {
 					}
 					$cellValue = implode(',', $labels);
 					isset($score->{$schema->id}) && $cellValue .= ' (' . $score->{$schema->id} . '分)';
+					if (isset($schema->supplement) && $schema->supplement === 'Y') {
+						$cellValue .= " (补充说明：" . $supplement->{$schema->id} . ")";
+					}
 					$objActiveSheet->setCellValueByColumnAndRow($i + $columnNum3++, $rowIndex, $cellValue);
 					break;
 				case 'score':
@@ -738,7 +764,18 @@ class record extends \pl\fe\matter\base {
 					$objActiveSheet->setCellValueByColumnAndRow($i + $columnNum3++, $rowIndex, implode(' / ', $labels));
 					break;
 				case 'image':
+					$v0 = '';
+					if (isset($schema->supplement) && $schema->supplement === 'Y') {
+						$v0 .= " (补充说明：" . $supplement->{$schema->id} . ")";
+					}
+					$objActiveSheet->setCellValueExplicitByColumnAndRow($i + $columnNum3++, $rowIndex, $v0, \PHPExcel_Cell_DataType::TYPE_STRING);
+					break;
 				case 'file':
+					$v0 = '';
+					if (isset($schema->supplement) && $schema->supplement === 'Y') {
+						$v0 .= " (补充说明：" . $supplement->{$schema->id} . ")";
+					}
+					$objActiveSheet->setCellValueExplicitByColumnAndRow($i + $columnNum3++, $rowIndex, $v0, \PHPExcel_Cell_DataType::TYPE_STRING);
 					break;
 				default:
 					isset($score->{$schema->id}) && $v .= ' (' . $score->{$schema->id} . '分)';

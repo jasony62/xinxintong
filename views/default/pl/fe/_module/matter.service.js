@@ -171,6 +171,7 @@ provider('srvSite', function() {
                             url = '/rest/pl/fe/site/member/schema/create?site=' + _siteId;
                             http2.post(url, { valid: 'Y' }, function(rsp) {
                                 mschemas.push(rsp.data);
+                                $scope2.data.chosen = rsp.data;
                             });
                         };
                         $scope2.ok = function() {

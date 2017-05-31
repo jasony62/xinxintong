@@ -28,7 +28,6 @@
             <select class='form-control' ng-switch-default ng-model='activeWrap.schema.next' ng-change="updWrap('schema','next')">
                 <option value=''>不跳转</option>
                 <option value='{{p.name}}' ng-repeat="p in app.pages">{{p.title}}</option>
-                <option value='remark'>评论页</option>
                 <option value='repos'>所有数据页</option>
                 <option value='closeWindow'>关闭页面</option>
             </select>

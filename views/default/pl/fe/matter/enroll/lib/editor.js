@@ -193,8 +193,6 @@ define(['wrap'], function(wrapLib) {
                     wrapLib.value.modify(wrap.dom, wrap);
                 } else if (wrap.type === 'records') {
                     wrapLib.records.modify(wrap.dom, wrap);
-                } else if (wrap.type === 'rounds') {
-                    wrapLib.rounds.modify(wrap.dom, wrap);
                 }
             }
         },
@@ -382,11 +380,11 @@ define(['wrap'], function(wrapLib) {
             this.setActiveWrap(null);
             if (selectableWrap) {
                 wrapType = $(selectableWrap).attr('wrap');
-                while (!/text|matter|input|radio|checkbox|value|button|records|rounds|score/.test(wrapType) && selectableWrap.parentNode) {
+                while (!/text|matter|input|radio|checkbox|value|button|records|score/.test(wrapType) && selectableWrap.parentNode) {
                     selectableWrap = selectableWrap.parentNode;
                     wrapType = $(selectableWrap).attr('wrap');
                 }
-                if (/text|matter|input|radio|checkbox|value|button|records|rounds|score/.test(wrapType)) {
+                if (/text|matter|input|radio|checkbox|value|button|records|score/.test(wrapType)) {
                     this.setActiveWrap(selectableWrap);
                 }
             }
@@ -475,18 +473,6 @@ define(['wrap'], function(wrapLib) {
 
             return wrapLib.records.embed(dataWrap);
         },
-        appendRoundList: function(app) {
-            var dataWrap = {
-                config: {
-                    id: 'L' + (new Date() * 1),
-                    pattern: 'rounds',
-                    onclick: ''
-                }
-            };
-            _page.data_schemas.push(dataWrap);
-
-            return wrapLib.rounds.embed(dataWrap);
-        },
         removeWrap: function(oWrap) {
             var wrapType = oWrap.type,
                 $domRemoved = $(oWrap.dom);
@@ -509,7 +495,7 @@ define(['wrap'], function(wrapLib) {
                         _page.removeValue(config);
                     }
                 }
-            } else if (/records|rounds/.test(wrapType)) {
+            } else if (/records/.test(wrapType)) {
                 (function removeList() {
                     var listId = $domRemoved.attr('id'),
                         list;

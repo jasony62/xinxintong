@@ -197,8 +197,6 @@ define(['frame', 'schema', 'page', 'editor'], function(ngApp, schemaLib, pageLib
             var domWrap;
             if (pattern === 'records') {
                 domWrap = $scope.ep.appendRecordList($scope.app);
-            } else if (pattern === 'rounds') {
-                domWrap = $scope.ep.appendRoundList($scope.app);
             }
             $scope.setActiveWrap(domWrap);
         };
@@ -230,7 +228,7 @@ define(['frame', 'schema', 'page', 'editor'], function(ngApp, schemaLib, pageLib
                     schema: schema
                 });
                 $scope.setActiveWrap(null);
-            } else if (/button|text|records|rounds/.test(wrapType)) {
+            } else if (/button|text|records/.test(wrapType)) {
                 editorProxy.removeWrap($scope.activeWrap);
                 $scope.setActiveWrap(null);
             }

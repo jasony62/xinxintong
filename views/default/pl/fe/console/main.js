@@ -365,8 +365,8 @@ define(['frame'], function(ngApp) {
             $scope.list();
         }, true);
     }]);
-    ngApp.provider.controller('ctrlSiteUser', ['$scope', 'http2', function($scope, http2) {}]);
-    ngApp.provider.controller('ctrlMember', ['$scope', '$uibModal', '$location', 'http2', function($scope, $uibModal, $location, http2) {
+    ngApp.provider.controller('ctrlUser', ['$scope', 'http2', function($scope, http2) {}]);
+    ngApp.provider.controller('ctrlMember', ['$scope', '$location', '$uibModal', 'http2', function($scope, $location, $uibModal, http2) {
         function listInvite(oSchema) {
             http2.get('/rest/pl/fe/site/member/invite/list?schema=' + oSchema.id, function(rsp) {
                 $scope.invites = rsp.data.invites;
@@ -561,7 +561,16 @@ define(['frame'], function(ngApp) {
                 http2.get('/rest/pl/fe/site/member/schema/list?site=' + siteId, function(rsp) {
                     $scope.mschemas = rsp.data;
                     if ($scope.mschemas.length) {
-                        selected.mschema = $scope.mschemas[0];
+                        if ($location.search().mschema) {
+                            for (var i in $scope.mschemas) {
+                                if ($scope.mschemas[i].id == $location.search().mschema) {
+                                    selected.mschema = $scope.mschemas[i];
+                                    break;
+                                }
+                            }
+                        } else {
+                            selected.mschema = $scope.mschemas[0];
+                        }
                         $scope.chooseMschema();
                     }
                 });

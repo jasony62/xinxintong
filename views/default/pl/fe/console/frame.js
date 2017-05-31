@@ -54,8 +54,9 @@ define(['require'], function(require) {
             'show': 'hide'
         });
     }]);
-    ngApp.controller('ctrlFrame', ['$scope', 'http2', 'srvUserNotice', '$uibModal', 'templateShop', function($scope, http2, srvUserNotice, $uibModal, templateShop) {
-        var frameState;
+    ngApp.controller('ctrlFrame', ['$scope', '$location', 'http2', 'srvUserNotice', '$uibModal', 'templateShop', function($scope, $location, http2, srvUserNotice, $uibModal, templateShop) {
+        var frameState, lsearch;
+        /* 恢复上一次访问的状态 */
         if (window.localStorage) {
             $scope.$watch('frameState', function(nv) {
                 if (nv) {
@@ -77,6 +78,17 @@ define(['require'], function(require) {
                 view: '',
                 scope: ''
             };
+        }
+        /* 通过参数指定的状态 */
+        lsearch = $location.search();
+        if (lsearch.sid) {
+            frameState.sid = lsearch.sid;
+        }
+        if (lsearch.view) {
+            frameState.view = lsearch.view;
+            if (lsearch.scope) {
+                frameState.scope = lsearch.scope;
+            }
         }
         $scope.frameState = frameState;
 
@@ -108,11 +120,14 @@ define(['require'], function(require) {
         });
         $scope.changeScope = function(scope) {
             frameState.scope = scope;
-        };
-        $scope.load = function(id) {
-                location.href = '/rest/pl/fe/site/setting?site=' + id;
+            if (location.search) {
+                $location.url('/rest/pl/fe');
             }
-            /*新建素材*/
+        };
+        $scope.openSite = function(id) {
+            location.href = '/rest/pl/fe/site/setting?site=' + id;
+        };
+        /*新建素材*/
         var _fns = {
             createSite: function() {
                 var defer = $q.defer(),

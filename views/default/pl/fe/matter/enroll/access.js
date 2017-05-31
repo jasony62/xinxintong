@@ -35,7 +35,7 @@ define(['frame'], function(ngApp) {
             });
         };
         $scope.editMschema = function(mschemaId) {
-            location.href = '/rest/pl/fe/site/mschema?site=' + $scope.app.siteid + '#' + mschemaId;
+            location.href = '/rest/pl/fe?view=main&scope=user&sid=' + $scope.app.siteid + '&mschema=' + mschemaId;
         };
         $scope.removeMschema = function(mschemaId) {
             if (oEntryRule.member[mschemaId]) {

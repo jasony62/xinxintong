@@ -1357,11 +1357,11 @@ class main extends \pl\fe\matter\base {
 		if(!empty($app->data_schemas)){
 			$d['data_schemas']=str_replace(
 				['"type":"name"', '"type":"mobile"', '"type":"email"', '"number":"N"', '"number":"Y"'],
-				['"type":"shorttext","fastSelect":"name"',
-				 '"type":"shorttext","fastSelect":"mobile"',
-				 '"type":"shorttext","fastSelect":"email"', 
-				 '"fastSelect":""', 
-				 '"fastSelect":"number"'
+				['"type":"shorttext","format":"name"',
+				 '"type":"shorttext","format":"mobile"',
+				 '"type":"shorttext","format":"email"', 
+				 '"format":""', 
+				 '"format":"number"'
 				],
 				$app->data_schemas);
 			$modelApp->update('xxt_enroll',$d,"id='$id'");
@@ -1376,11 +1376,11 @@ class main extends \pl\fe\matter\base {
 				if (!empty($groupApp->data_schemas)) {
 					$d['data_schemas']=str_replace(
 						['"type":"name"', '"type":"mobile"', '"type":"email"', '"number":"N"', '"number":"Y"'],
-						['"type":"shorttext","fastSelect":"name"',
-				 		 '"type":"shorttext","fastSelect":"mobile"',
-				 		 '"type":"shorttext","fastSelect":"email"', 
-				 		 '"fastSelect":""', 
-				 		 '"fastSelect":"number"'
+						['"type":"shorttext","format":"name"',
+				 		 '"type":"shorttext","format":"mobile"',
+				 		 '"type":"shorttext","format":"email"', 
+				 		 '"format":""', 
+				 		 '"format":"number"'
 						],
 						$groupApp->data_schemas);
 					$modelApp->update('xxt_group',$d,"id='$app->group_app_id'");
@@ -1398,11 +1398,11 @@ class main extends \pl\fe\matter\base {
 							if(!empty($signinApp->data_schemas)){
 								$d['data_schemas']=str_replace(
 									['"type":"name"', '"type":"mobile"', '"type":"email"', '"number":"N"', '"number":"Y"'],
-									['"type":"shorttext","fastSelect":"name"',
-				 		 			 '"type":"shorttext","fastSelect":"mobile"',
-				 		 			 '"type":"shorttext","fastSelect":"email"', 
-				 		 			 '"fastSelect":""', 
-				 		 			 '"fastSelect":"number"'
+									['"type":"shorttext","format":"name"',
+				 		 			 '"type":"shorttext","format":"mobile"',
+				 		 			 '"type":"shorttext","format":"email"', 
+				 		 			 '"format":""', 
+				 		 			 '"format":"number"'
 									],
 								$signinApp->data_schemas);
 								$modelApp->update('xxt_signin',$d,"id='$source_app->id'");
@@ -1416,11 +1416,11 @@ class main extends \pl\fe\matter\base {
 							if(!empty($wallApp->data_schemas)){
 								$d['data_schemas']=str_replace(
 									['"type":"name"', '"type":"mobile"', '"type":"email"', '"number":"N"', '"number":"Y"'],
-									['"type":"shorttext","fastSelect":"name"',
-				 		 			 '"type":"shorttext","fastSelect":"mobile"',
-				 		 			 '"type":"shorttext","fastSelect":"email"', 
-				 		 			 '"fastSelect":""', 
-				 		 			 '"fastSelect":"number"'
+									['"type":"shorttext","format":"name"',
+				 		 			 '"type":"shorttext","format":"mobile"',
+				 		 			 '"type":"shorttext","format":"email"', 
+				 		 			 '"format":""', 
+				 		 			 '"format":"number"'
 									],
 								$wallApp->data_schemas);
 								$modelApp->update('xxt_wall',$d,"id='$source_app->id'");
@@ -1437,11 +1437,11 @@ class main extends \pl\fe\matter\base {
 										if(!empty($signinApp->data_schemas)){
 											$d['data_schemas']=str_replace(
 												['"type":"name"', '"type":"mobile"', '"type":"email"', '"number":"N"', '"number":"Y"'],
-												['"type":"shorttext","fastSelect":"name"',
-				 		 			 			 '"type":"shorttext","fastSelect":"mobile"',
-				 		 			 			 '"type":"shorttext","fastSelect":"email"', 
-				 		 						 '"fastSelect":""', 
-				 		 						 '"fastSelect":"number"'
+												['"type":"shorttext","format":"name"',
+				 		 			 			 '"type":"shorttext","format":"mobile"',
+				 		 			 			 '"type":"shorttext","format":"email"', 
+				 		 						 '"format":""', 
+				 		 						 '"format":"number"'
 												],
 												$signinApp->data_schemas);
 											$modelApp->update('xxt_signin',$d,"id='$source_app->id'");

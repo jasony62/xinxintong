@@ -587,7 +587,7 @@ define(["require", "angular", "enrollService"], function(require, angular) {
                         }
 
                         cached.records = rsp.data.records;
-                        page.total = rsp.data.total;
+                        cached.page.total = rsp.data.total;
                         deferred.resolve(rsp.data);
                     });
                 }
@@ -598,9 +598,9 @@ define(["require", "angular", "enrollService"], function(require, angular) {
 
         $scope.getRecords = function(schema, page) {
             var cached;
-
             if (cached = _cacheOfRecordsBySchema[schema.id]) {
                 if (cached.page && cached.page.at === page.at) {
+                    page.total = cached.page.total;
                     return cached;
                 }
             }

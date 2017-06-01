@@ -484,10 +484,11 @@ define(['wrap'], function(SchemaWrap) {
             return true;
         },
         updateSchema: function(oSchema, oBeforeState) {
-            var $html;
+            var $html, $dom;
 
             $html = $('<div>' + this.html + '</div>');
-            $html.find("[schema='" + oSchema.id + "']").find('label').html(oSchema.title);
+            $dom = $html.find("[schema='" + oSchema.id + "']")
+            $dom.find('label').html(oSchema.title);
             if(oSchema.description && oSchema.description.length){
                 if(!$dom.find('[class="description"]').length){
                     $('<div class="description">' + oSchema.description + '</div>').insertAfter($dom.find('label')[0])

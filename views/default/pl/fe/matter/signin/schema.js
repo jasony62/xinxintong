@@ -304,6 +304,18 @@ define(['frame', 'schema', 'wrap'], function(ngApp, schemaLib, wrapLib) {
         var editing;
 
         $scope.editing = editing = {};
+
+        $scope.assocAppName = function(appId) {
+            var assocApp;
+            if ($scope.app.enrollApp && $scope.app.enrollApp.id === appId) {
+                return $scope.app.enrollApp.title;
+            } else if ($scope.app.groupApp && $scope.app.groupApp.id === appId) {
+                return $scope.app.groupApp.title;
+            } else {
+                return '';
+            }
+        };
+
         $scope.changeSchemaType = function() {
             //直接拿的激活 schema数据
             var beforeState = angular.copy($scope.activeSchema);
@@ -313,6 +325,7 @@ define(['frame', 'schema', 'wrap'], function(ngApp, schemaLib, wrapLib) {
                 $scope.updSchema($scope.activeSchema, beforeState);
             }
         };
+        
         $scope.$watch('activeSchema', function(activeSchema) {
             editing.type = $scope.activeSchema.type;
             if (activeSchema && activeSchema.type === 'member') {

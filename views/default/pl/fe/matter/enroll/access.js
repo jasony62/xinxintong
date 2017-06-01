@@ -34,15 +34,22 @@ define(['frame'], function(ngApp) {
                 }
             });
         };
-        $scope.editMschema = function(oMschema) {
-            location.href = '/rest/pl/fe/site/mschema?site=' + oMschema.siteid + '#' + oMschema.id;
+        $scope.editMschema = function(mschemaId) {
+            location.href = '/rest/pl/fe?view=main&scope=user&sid=' + $scope.app.siteid + '&mschema=' + mschemaId;
         };
-        $scope.removeMschema = function(oMschema) {
-            if (oEntryRule.member[oMschema.id]) {
-                delete oEntryRule.member[oMschema.id];
+        $scope.removeMschema = function(mschemaId) {
+            if (oEntryRule.member[mschemaId]) {
+                delete oEntryRule.member[mschemaId];
                 $scope.update('entry_rule');
             }
         };
+        $scope.$watch('memberSchemas', function(nv) {
+            if (!nv) return;
+            $scope.mschemasById = {};
+            $scope.memberSchemas.forEach(function(mschema) {
+                $scope.mschemasById[mschema.id] = mschema;
+            });
+        }, true);
         srvEnrollApp.get().then(function(app) {
             $scope.jumpPages = srvEnrollApp.jumpPages();
             $scope.rule.scope = app.entry_rule.scope || 'none';

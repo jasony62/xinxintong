@@ -53,6 +53,7 @@ define(['frame'], function(ngApp) {
         var oRecord, oBeforeRecord, oQuizScore, oBeforeQuizScore, oApp;
 
         $scope.save = function() {
+            //oRecord 原始数据
             //updated 上传数据包
             var updated = {
                 //数组 转 字符串
@@ -67,6 +68,9 @@ define(['frame'], function(ngApp) {
                 if (!angular.equals(oRecord.data, oBeforeRecord.data)) {
                     updated.data = oRecord.data;
                 }
+                if (!angular.equals(oRecord.supplement, oBeforeRecord.supplement)) {
+                    updated.supplement = oRecord.supplement;
+                }
                 if (!angular.equals(oQuizScore, oBeforeQuizScore)) {
                     updated.quizScore = oQuizScore;
                 }
@@ -77,6 +81,7 @@ define(['frame'], function(ngApp) {
                 });
             } else {
                 updated.data = oRecord.data;
+                updated.supplement = oRecord.supplement;
                 updated.quizScore = oQuizScore;
                 srvEnrollRecord.add(updated).then(function(newRecord) {
                     oRecord.enroll_key = newRecord.enroll_key;

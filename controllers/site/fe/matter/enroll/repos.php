@@ -33,6 +33,9 @@ class repos extends base {
 					$options->schemas[] = $dataSchema->id;
 				}
 			}
+			if (empty($options->schemas)) {
+				return new \ResponseData(['total' => 0]);
+			}
 		} else {
 			$options->schemas = [$criteria->schema];
 		}

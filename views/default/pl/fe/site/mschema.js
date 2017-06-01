@@ -1,8 +1,9 @@
 define(['require'], function(require) {
     'use strict';
-    var ngApp = angular.module('app', ['ui.bootstrap', 'ui.tms', 'ui.xxt', 'service.matter']);
+    var ngApp = angular.module('app', ['ngRoute', 'ui.bootstrap', 'ui.tms', 'ui.xxt', 'service.matter']);
     ngApp.config(['srvSiteProvider', function(srvSiteProvider) {
         var siteId = location.search.match(/site=([^&]*)/)[1];
+        console.log(siteId);
         srvSiteProvider.config(siteId);
     }]);
     ngApp.factory('MemberSchema', function($q, http2) {
@@ -269,6 +270,32 @@ define(['require'], function(require) {
                 });
             }
         };
+    }]);
+    /**
+     * 微信场景二维码
+     */
+    ngApp.controller('ctrlWxQrcode', ['$scope', 'http2', function($scope, http2) {
+        var oMschema;
+        $scope.create = function() {
+            var url;
+            url = '/rest/pl/fe/site/sns/wx/qrcode/create?site=' + oMschema.siteid;
+            url += '&matter_type=mschema&matter_id=' + oMschema.id;
+            http2.get(url, function(rsp) {
+                $scope.qrcode = rsp.data;
+            });
+        };
+        $scope.download = function() {
+            $('<a href="' + $scope.qrcode.pic + '" download="微信二维码.jpeg"></a>')[0].click();
+        };
+        $scope.$watch('choosedSchema', function(mschema) {
+            if (mschema) {
+                oMschema = mschema;
+                http2.get('/rest/pl/fe/site/member/schema/wxQrcode?site=' + oMschema.siteid + '&mschema=' + oMschema.id, function(rsp) {
+                    var qrcodes = rsp.data;
+                    $scope.qrcode = qrcodes.length ? qrcodes[0] : false;
+                });
+            }
+        });
     }]);
     /***/
     require(['domReady!'], function(document) {

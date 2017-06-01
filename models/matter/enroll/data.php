@@ -44,9 +44,10 @@ class data_model extends \TMS_MODEL {
 				return $result;
 			} else {
 				$q[2]['schema_id'] = $options['schema'];
-				$data = $this->query_obj_ss($q);
-				if (isset($fnHandler)) {
-					$fnHandler($data);
+				if ($data = $this->query_obj_ss($q)) {
+					if (isset($fnHandler)) {
+						$fnHandler($data);
+					}
 				}
 				return $data;
 			}

@@ -135,11 +135,23 @@ ngApp.controller('ctrlMain', ['$scope', '$http', '$timeout', 'ls', 'tmsDynaPage'
         }
     };
     $scope.addRecord = function(event, page) {
-        page ? $scope.gotoPage(event, page, null, null, false, 'Y') : alert('没有指定登记编辑页');
+        if (page) {
+            $scope.gotoPage(event, page, null, null, false, 'Y');
+        } else {
+            for (var i in $scope.app.pages) {
+                var oPage = $scope.app.pages[i];
+                if (oPage.type === 'I') {
+                    $scope.gotoPage(event, oPage.name, null, null, false, 'Y');
+                    break;
+                }
+            }
+        }
     };
     $scope.gotoPage = function(event, page, ek, rid, fansOnly, newRecord) {
-        event.preventDefault();
-        event.stopPropagation();
+        if (event) {
+            event.preventDefault();
+            event.stopPropagation();
+        }
         if (fansOnly && !$scope.User.fan) {
             openAskFollow();
             return;

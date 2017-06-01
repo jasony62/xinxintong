@@ -22,11 +22,64 @@ class member extends \site\fe\base {
 	 * 所以只有在无法获得之前页面取得OAuth时，认证页面才做OAuth
 	 *
 	 */
-	public function index_action($site, $schema) {
+	public function index_action($schema) {
+		$oSchema = $this->model('site\user\memberschema')->byId($schema, 'siteid,valid,is_wx_fan,is_yx_fan');
+		if ($oSchema === false || $oSchema->valid === 'N') {
+			return new \ObjectNotFoundError();
+		}
+
 		if (!$this->afterSnsOAuth()) {
 			/* 检查是否需要第三方社交帐号OAuth */
-			$this->requireSnsOAuth($site);
+			$this->requireSnsOAuth($oSchema->siteid);
 		}
+
+		if ($oSchema->is_wx_fan === 'Y' || $oSchema->is_qy_fan === 'Y' || $oSchema->is_yx_fan === 'Y') {
+			$cookieUser = $this->who;
+			$modelSiteUser = $this->model('site\user\account');
+			$siteUser = $modelSiteUser->byId($cookieUser->uid);
+
+			$oMschema2 = new \stdClass;
+			$oMschema2->type = 'mschema';
+			$oMschema2->id = $schema;
+
+			if ($oSchema->is_wx_fan === 'Y') {
+				if (empty($siteUser->wx_openid)) {
+					$this->snsFollow($oSchema->siteid, 'wx', $oMschema2);
+				} else {
+					$modelWx = $this->model('sns\wx');
+					if (($wxConfig = $modelWx->bySite($oSchema->siteid)) && $wxConfig->joined === 'Y') {
+						$snsSiteId = $oSchema->siteid;
+					} else {
+						$snsSiteId = 'platform';
+					}
+					$modelSnsUser = $this->model('sns\wx\fan');
+					if (false === $modelSnsUser->isFollow($snsSiteId, $siteUser->wx_openid)) {
+						$this->snsFollow($snsSiteId, 'wx', $oMschema2);
+					}
+				}
+			}
+			if ($oSchema->is_qy_fan === 'Y') {
+				if (empty($siteUser->qy_openid)) {
+					$this->snsFollow($oSchema->siteid, 'qy');
+				} else {
+					$modelSnsUser = $this->model('sns\qy\fan');
+					if (false === $modelSnsUser->isFollow($oSchema->siteid, $siteUser->qy_openid)) {
+						$this->snsFollow($oSchema->siteid, 'qy', $oMschema2);
+					}
+				}
+			}
+			if ($oSchema->is_yx_fan === 'Y') {
+				if (empty($siteUser->yx_openid)) {
+					$this->snsFollow($oSchema->siteid, 'yx');
+				} else {
+					$modelSnsUser = $this->model('sns\yx\fan');
+					if (false === $modelSnsUser->isFollow($oSchema->siteid, $siteUser->yx_openid)) {
+						$this->snsFollow($oSchema->siteid, 'yx', $oMschema2);
+					}
+				}
+			}
+		}
+
 		\TPL::output('/site/fe/user/member');
 		exit;
 	}
@@ -51,13 +104,20 @@ class member extends \site\fe\base {
 		$params['attrs'] = $attrs;
 
 		/* 已填写的用户信息 */
-		$user = $this->who;
-		if (isset($user->members->{$oSchema->id})) {
-			$oMember = $user->members->{$oSchema->id};
-			$oMember = $this->model('site\user\member')->byId($oMember->id, ['fields' => '*']);
-			$user->members->{$oSchema->id} = $oMember;
+		$modelMem = $this->model('site\user\member');
+		$oUser = $this->who;
+		$oMember = $modelMem->byUser($oUser->uid, ['schemas' => $schema]);
+		if (count($oMember) > 1) {
+			return new \ResponseError('数据错误，当前用户已经绑定多个联系人信息，请检查');
 		}
-		$params['user'] = $user;
+		if (count($oMember) === 1) {
+			$oMember = $oMember[0];
+			if (!isset($oUser->members)) {
+				$oUser->members = new \stdClass;
+			}
+			$oUser->members->{$schema} = $oMember;
+		}
+		$params['user'] = $oUser;
 
 		return new \ResponseData($params);
 	}

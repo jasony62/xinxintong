@@ -25,15 +25,15 @@
         </table>
         <table class='table table-bordered' ng-if="rule.scope==='member'">
             <tbody>
-                <tr ng-repeat="ms in memberSchemas" ng-if="app.entry_rule.member[ms.id]">
-                    <td>{{ms.title}}</td>
+                <tr ng-repeat="(msid,erm) in app.entry_rule.member">
+                    <td><span>{{mschemasById[msid]?mschemasById[msid].title:'通讯录不存在'}}</span></td>
                     <td style='padding:0'>
-                        <select style='border:0' class='form-control' ng-change="update('entry_rule')" ng-model="app.entry_rule.member[ms.id].entry" ng-options="p.name as p.title for p in jumpPages.inapp">
+                        <select style='border:0' class='form-control' ng-change="update('entry_rule')" ng-model="erm.entry" ng-options="p.name as p.title for p in jumpPages.inapp">
                         </select>
                     </td>
                     <td>
-                        <button class='btn btn-default btn-xs' ng-click="removeMschema(ms)"><span class='glyphicon glyphicon-remove'></span></button>
-                        <button class='btn btn-default btn-xs' ng-click="editMschema(ms)"><span class='glyphicon glyphicon-edit'></span></button>
+                        <button class='btn btn-default btn-xs' ng-click="removeMschema(msid)"><span class='glyphicon glyphicon-remove'></span></button>
+                        <button class='btn btn-default btn-xs' ng-click="editMschema(msid)"><span class='glyphicon glyphicon-edit'></span></button>
                     </td>
                 </tr>
                 <tr>

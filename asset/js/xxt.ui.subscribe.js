@@ -25,7 +25,7 @@ ngMod.service('tmsSubscribe', ['$http', 'tmsModal', function($http, tmsModal) {
         template += '</div>'
         template += '<div ng-if="mySites.length===0"><a href="" ng-click="createSite()">创建</a>团队进行关注，方便团队内共享信息</div>';
         template += '</div>';
-        template += '<div class="modal-footer"><button ng-click="cancel()">关闭</button><button ng-click="ok()">确定</button></div>';
+        template += '<div class="modal-footer"><button class="btn btn-default" ng-click="cancel()">关闭</button><button class="btn btn-success" ng-click="ok()">确定</button></div>';
         tmsModal.open({
             template: template,
             controller: ['$scope', '$tmsModalInstance', function($scope2, $mi) {

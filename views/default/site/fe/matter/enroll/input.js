@@ -32,23 +32,12 @@ ngApp.factory('Input', ['$http', '$q', '$timeout', 'ls', function($http, $q, $ti
         return (value == null || value == "" || value.length < len) ? false : true;
     }
 
-    function validateMobile(value) {
-        return (false === /^1[3|4|5|7|8][0-9]\d{8}$/.test(value)) ? false : true;
-    }
-
     function validate(data) {
         var reason;
-        if (document.querySelector('[ng-model="data.name"]')) {
-            reason = '请提供您的姓名！';
-            if (false === required(data.name, 2)) {
-                document.querySelector('[ng-model="data.name"]').focus();
-                return reason;
-            }
-        }
-        if (document.querySelector('[ng-model="data.mobile"]')) {
-            reason = '请提供正确的手机号（11位数字）！';
-            if (false === validateMobile(data.mobile)) {
-                document.querySelector('[ng-model="data.mobile"]').focus();
+        if (document.querySelector('[schema-type="name"]')) {
+            reason = '请提供正确姓名！';
+            if (false === required(data[document.querySelector('[schema-type="name"]').getAttribute('schema')], 2)) {
+                document.querySelector('[schema-type="name"]').focus();
                 return reason;
             }
         }
@@ -76,42 +65,80 @@ ngApp.factory('Input', ['$http', '$q', '$timeout', 'ls', function($http, $q, $ti
     var Input, _ins;
     Input = function() {};
     Input.prototype.check = function(data, app, page) {
-        var reason, dataSchemas, item, schema, value;
-        //验证手机号和姓名规则
-        if (true !== (reason = validate(data))) {
-            return reason;
-        }
+        var dataSchemas, item, schema, value;
         if (page.data_schemas && page.data_schemas.length) {
             dataSchemas = JSON.parse(page.data_schemas);
             for (var i = dataSchemas.length - 1; i >= 0; i--) {
                 item = dataSchemas[i];
                 schema = item.schema;
-                if (item.config.required === 'Y') {
-                    if (schema.id.indexOf('member.') === 0) {
-                        var memberSchema = schema.id.substr(7);
-                        if (memberSchema.indexOf('.') === -1) {
-                            value = data.member[memberSchema];
-                        } else {
-                            memberSchema = memberSchema.split('.');
-                            value = data.member.extattr[memberSchema[1]];
-                        }
+                if (schema.id.indexOf('member.') === 0) {
+                    var memberSchema = schema.id.substr(7);
+                    if (memberSchema.indexOf('.') === -1) {
+                        value = data.member[memberSchema];
                     } else {
-                        value = data[schema.id];
+                        memberSchema = memberSchema.split('.');
+                        value = data.member.extattr[memberSchema[1]];
                     }
+                } else {
+                    value = data[schema.id];
+                }
+                if (item.config.required === 'Y') {
                     if (value === undefined || isEmpty(schema, value)) {
-                        return '请填写必填项［' + schema.title + '］';
+                        return '请填写必填题目［' + schema.title + '］';
                     }
                 }
-                if (schema.number && schema.number === 'Y') {
-                    value = data[schema.id];
-                    if (!/^-{0,1}[0-9]+(.[0-9]+){0,1}$/.test(value)) {
-                        return '填写项［' + schema.title + '］只能填写数值';
+                if (value) {
+                    if (schema.type === 'mobile') {
+                        if (!/^(\+86|0086)?\s*1[3|4|5|7|8]\d{9}$/.test(value)) {
+                            return '题目［' + schema.title + '］只能填写手机号（11位数字）';
+                        }
+                    }
+                    if (schema.type === 'name') {
+                        if (value.length < 2) {
+                            return '题目［' + schema.title + '］请输入正确的姓名（不少于2个字符）';
+                        }
+                    }
+                    if (schema.type === 'email') {
+                        if (!/^\w+@\w+/.test(value)) {
+                            return '题目［' + schema.title + '］请输入正确的邮箱';
+                        }
+                    }
+                    //最终删掉 schema.number
+                    if (schema.number && schema.number === 'Y') {
+                        value = data[schema.id];
+                        if (!/^-{0,1}[0-9]+(.[0-9]+){0,1}$/.test(value)) {
+                            return '题目［' + schema.title + '］请输入数值';
+                        }
+                    }
+                    if (schema.format) {
+                        if (schema.format === 'number') {
+                            if (!/^-{0,1}[0-9]+(.[0-9]+){0,1}$/.test(value)) {
+                                return '题目［' + schema.title + '］请输入数值';
+                            }
+                        } else if (schema.format === 'name') {
+                            if (value.length < 2) {
+                                return '题目［' + schema.title + '］请输入正确的姓名（不少于2个字符）';
+                            }
+                        } else if (schema.format === 'mobile') {
+                            if (!/^(\+86|0086)?\s*1[3|4|5|7|8]\d{9}$/.test(value)) {
+                                return '题目［' + schema.title + '］请输入正确的手机号（11位数字）';
+                            }
+                        } else if (schema.format === 'email') {
+                            //1. 开头字母数字下划线 至少一个 ^\w+
+                            //2. 一个@
+                            //3.字母数字下划线 至少一个 \w+
+                            //4. 一个'.' 注意. 在增则中有意义需要转译  \.
+                            //   /^\w+@\w+\.com/
+                            if (!/^\w+@\w+/.test(value)) {
+                                return '题目［' + schema.title + '］请输入正确的邮箱';
+                            }
+                        }
                     }
                 }
                 if (/image|file/.test(schema.type)) {
-                    if (schema.count) {
+                    if (schema.count && schema.count != 0) {
                         if (data[schema.id] && data[schema.id].length > schema.count) {
-                            return '［' + schema.title + '］超出上传数量（' + schema.count + '）限制';
+                            return '题目［' + schema.title + '］超出上传数量（' + schema.count + '）限制';
                         }
                     }
                 }
@@ -138,11 +165,8 @@ ngApp.factory('Input', ['$http', '$q', '$timeout', 'ls', function($http, $q, $ti
             }
         }
         $http.post(url, { data: posted, supplement: oSupplement }).success(function(rsp) {
-            if (typeof rsp === 'string') {
+            if (typeof rsp === 'string' || rsp.err_code != 0) {
                 defer.reject(rsp);
-            } else if (rsp.err_code != 0) {
-                defer.reject(rsp.err_msg);
-                return rsp.err_msg;
             } else {
                 defer.resolve(rsp);
             }
@@ -235,7 +259,7 @@ ngApp.directive('tmsImageInput', ['$compile', '$q', function($compile, $q) {
                 if (imgFieldName !== null) {
                     modifiedImgFields.indexOf(imgFieldName) === -1 && modifiedImgFields.push(imgFieldName);
                     $scope.data[imgFieldName] === undefined && ($scope.data[imgFieldName] = []);
-                    if (count !== null && $scope.data[imgFieldName].length === count) {
+                    if (count !== null && $scope.data[imgFieldName].length === count && count != 0) {
                         $scope.$parent.errmsg = '最多允许上传' + count + '张图片';
                         return;
                     }
@@ -416,11 +440,16 @@ ngApp.controller('ctrlInput', ['$scope', '$http', '$q', '$uibModal', '$timeout',
                 }
                 $scope.$broadcast('xxt.app.enroll.submit.done', rsp.data);
             }
-        }, function(reason) {
-            // 如果放开提交状态，有可能导致用户多次提交
-            $scope.$parent.errmsg = reason;
+        }, function(rsp) {
+            if (typeof rsp === 'string') {
+                $scope.$parent.errmsg = rsp;
+            } else {
+                $scope.$parent.errmsg = rsp.err_msg;
+                submitState.finish();
+            }
         });
     }
+
     window.onbeforeunload = function() {
         // 保存未提交数据
         submitState.modified && submitState.cache();
@@ -584,7 +613,6 @@ ngApp.controller('ctrlInput', ['$scope', '$http', '$q', '$uibModal', '$timeout',
         }
     });
     $scope.submit = function(event, nextAction) {
-        console.log($scope.supplement);
         var checkResult;
         if (!submitState.isRunning()) {
             submitState.start(event);

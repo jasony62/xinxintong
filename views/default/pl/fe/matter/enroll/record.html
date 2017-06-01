@@ -72,10 +72,10 @@
                         <th style='width:140px'>用户昵称</th>
                         <th style='width:100px'>登记时间</th>
                         <th style='width:100px' ng-if="app.multi_rounds==='Y'">登记轮次</th>
-                        <th class='custom-col row' ng-repeat="c in recordSchemas">{{c.title}}</th>
+                        <th class='custom-col row' ng-repeat="schema in recordSchemas2">{{schema.title}}</th>
                         <th ng-if="app.scenario==='quiz'">总分</th>
-                        <th class='custom-col matched enroll' ng-repeat="c in enrollDataSchemas">{{c.title}}</th>
-                        <th class='custom-col matched group' ng-repeat="c in groupDataSchemas">{{c.title}}</th>
+                        <th class='custom-col matched enroll' ng-repeat="schema in enrollDataSchemas">{{schema.title}}</th>
+                        <th class='custom-col matched group' ng-repeat="schema in groupDataSchemas">{{schema.title}}</th>
                         <th style='width:80px'>审核通过</th>
                         <th style='width:140px' ng-if="app.tags.length">标签</th>
                         <th style='width:140px'>备注</th>
@@ -100,7 +100,7 @@
                         <td>{{r.nickname}}</td>
                         <td>{{(r.enroll_at*1000)|date:'MM-dd HH:mm'}}</td>
                         <td ng-if="app.multi_rounds==='Y'">{{r.round.title}}</td>
-                        <td ng-repeat="schema in recordSchemas" ng-switch on="schema.type">
+                        <td ng-repeat="schema in recordSchemas2" ng-switch on="schema.type">
                             <span ng-switch-when="image">
                                 <img ng-repeat="img in r._data[schema.id]" ng-src='{{img}}' />
                             </span>
@@ -108,8 +108,10 @@
                                 <span ng-repeat='file in r._data[schema.id]'><a href='{{file.url}}' target="_blank">{{file.name}}</a></span>
                             </span>
                             <span ng-switch-when="date">{{(r._data[schema.id]*1000)|date:'yy-MM-dd HH:mm'}}</span>
+                            <span ng-switch-when="remark">{{r.verbose.data[schema.id].remark_num}}</span>
                             <span ng-switch-default ng-bind-html="r._data[schema.id]"></span>
                             <span ng-if="schema.requireScore==='Y'">（得分: <span ng-class="{'bg-danger':!r.score[schema.id]}" ng-bind-html="r.score[schema.id]?r.score[schema.id]:'未评分'"></span>）</span>
+                            <p ng-if="['single', 'multiple', 'image', 'file'].indexOf(schema.type)!==-1&&r.supplement[schema.id].length">(补充说明：{{r.supplement[schema.id]}})</p>
                         </td>
                         <td ng-if="app.scenario==='quiz'" ng-bind="r.score.sum"></td>
                         <td class='matched enroll' ng-repeat="schema in enrollDataSchemas" ng-switch on="schema.type">

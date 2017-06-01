@@ -2,14 +2,14 @@
 require('./list.css');
 
 var ngApp = require('./main.js');
-ngApp.factory('Round', ['$http', '$q', 'ls', function($http, $q, LS) {
+ngApp.factory('Round', ['http2', '$q', 'ls', function(http2, $q, LS) {
     var Round, _ins;
     Round = function() {};
     Round.prototype.list = function() {
         var deferred, url;
         deferred = $q.defer();
         url = LS.j('round/list', 'site', 'app');
-        $http.get(url).success(function(rsp) {
+        http2.get(url).then(function(rsp) {
             if (rsp.err_code != 0) {
                 alert(rsp.data);
                 return;
@@ -25,86 +25,19 @@ ngApp.factory('Round', ['$http', '$q', 'ls', function($http, $q, LS) {
         }
     };
 }]);
-ngApp.controller('ctrlRounds', ['$scope', 'Round', function($scope, Round) {
-    var facRound, onDataReadyCallbacks;
-    facRound = Round.ins();
-    facRound.list().then(function(data) {
-        if (data.rounds) {
-            $scope.rounds = data.rounds;
-            angular.forEach(onDataReadyCallbacks, function(cb) {
-                cb(rounds);
-            });
-        } else {
-            $scope.rounds = [];
-        }
-    });
-    onDataReadyCallbacks = [];
-    $scope.onDataReady = function(callback) {
-        onDataReadyCallbacks.push(callback);
-    };
-    $scope.match = function(matched) {
-        var i, l, round;
-        for (i = 0, l = $scope.rounds.length; i < l; i++) {
-            round = $scope.rounds[i];
-            if (matched.rid === $scope.rounds[i].rid) {
-                return $scope.rounds[i];
-            }
-        }
-        return false;
-    };
-}]);
-ngApp.controller('ctrlOwnerOptions', ['$scope', function($scope) {
-    $scope.owners = {
-        'A': {
-            id: 'A',
-            label: '全部'
-        },
-        'U': {
-            id: 'U',
-            label: '我的'
-        }
-    };
-    $scope.match = function(owner) {
-        return $scope.owners[owner.id];
-    }
-}]);
-ngApp.controller('ctrlOrderbyOptions', ['$scope', function($scope) {
-    $scope.orderbys = {
-        time: {
-            id: 'time',
-            label: '最新'
-        },
-        score: {
-            id: 'score',
-            label: '点赞'
-        },
-        remark: {
-            id: 'remark',
-            label: '评论'
-        }
-    };
-}]);
-ngApp.factory('Record', ['$http', '$q', 'ls', function($http, $q, LS) {
+ngApp.factory('Record', ['http2', '$q', 'ls', function(http2, $q, LS) {
     var Record, _ins;
     Record = function() {};
-    Record.prototype.list = function(owner, rid) {
+    Record.prototype.list = function(options, oCriteria) {
         var deferred = $q.defer(),
             url;
         url = LS.j('record/list', 'site', 'app');
-        url += '&owner=' + owner;
-        rid && rid.length && (url += '&rid=' + rid);
-        $http.get(url).success(function(rsp) {
-            var records, record, i, l;
-            if (rsp.err_code == 0) {
-                records = rsp.data.records;
-                if (records && records.length) {
-                    for (i = 0, l = records.length; i < l; i++) {
-                        record = records[i];
-                        record.data.member && (record.data.member = JSON.parse(record.data.member));
-                    }
-                }
-                deferred.resolve(records);
-            }
+        url += '&' + options.j();
+        http2.post(url, oCriteria ? oCriteria : {}).then(function(rsp) {
+            var records, record;
+            records = rsp.data.records;
+            options.page.total = rsp.data.total;
+            deferred.resolve(records);
         });
         return deferred.promise;
     };
@@ -118,10 +51,46 @@ ngApp.factory('Record', ['$http', '$q', 'ls', function($http, $q, LS) {
         }
     };
 }]);
-ngApp.controller('ctrlRecords', ['$scope', 'Record', 'ls', '$sce', function($scope, Record, LS, $sce) {
-    var facRecord, options, fnFetch,
-        oApp = $scope.app;
+ngApp.directive('enrollRecords', function() {
+    return {
+        restrict: 'A',
+        replace: 'false',
+        link: function(scope, ele, attrs) {
+            if (scope.options && attrs.enrollRecordsOwner && attrs.enrollRecordsOwner.length) {
+                scope.options.owner = attrs.enrollRecordsOwner;
+            }
+        }
+    }
+});
+ngApp.controller('ctrlRecords', ['$scope', '$uibModal', 'Record', 'ls', '$sce', function($scope, $uibModal, Record, LS, $sce) {
+    function fnFetch(pageAt) {
+        if (pageAt) {
+            options.page.at = pageAt;
+        } else {
+            options.page.at++;
+        }
+        facRecord.list(options, oCurrentCriteria).then(function(records) {
+            if (options.page.at === 1) {
+                $scope.records = records;
+            } else {
+                $scope.records = $scope.records.concat(records);
+            }
+        });
+    }
+    var facRecord, options,
+        oApp = $scope.app,
+        oCurrentCriteria = {};
 
+    options = {
+        owner: '',
+        page: { at: 1, size: 12 },
+        j: function() {
+            return 'owner=' + this.owner + '&page=' + this.page.at + '&size=' + this.page.size;
+        }
+    };
+    $scope.options = options;
+    $scope.fetch = fnFetch;
+    facRecord = Record.ins();
     $scope.value2Label = function(record, schemaId) {
         var val, i, j, s, aVal, aLab = [];
         if (oApp._schemasById && record.data) {
@@ -148,7 +117,7 @@ ngApp.controller('ctrlRecords', ['$scope', 'Record', 'ls', '$sce', function($sco
 
         if (schema && record.data) {
             val = record.data[schemaId];
-            if (schema.ops && schema.ops.length) {
+            if (val && schema.ops && schema.ops.length) {
                 schema.ops.forEach(function(op, index) {
                     label += '<div>' + op.l + ': ' + (val[op.v] ? val[op.v] : 0) + '</div>';
                 });
@@ -156,38 +125,38 @@ ngApp.controller('ctrlRecords', ['$scope', 'Record', 'ls', '$sce', function($sco
         }
         return $sce.trustAsHtml(label);
     };
-    facRecord = Record.ins();
-    options = {
-        owner: 'U',
-        rid: LS.p.rid
-    };
-    fnFetch = function() {
-        facRecord.list(options.owner, options.rid).then(function(records) {
-            $scope.records = records;
+    $scope.openFilter = function() {
+        $uibModal.open({
+            templateUrl: 'filter.html',
+            controller: ['$scope', '$uibModalInstance', 'Round', function($scope2, $mi, Round) {
+                var facRound;
+                $scope2.dataSchemas = $scope.app.dataSchemas;
+                $scope2.criteria = oCurrentCriteria;
+                $scope2.cancel = function() {
+                    $mi.dismiss();
+                };
+                $scope2.ok = function() {
+                    $mi.close(oCurrentCriteria);
+                };
+                facRound = Round.ins();
+                facRound.list().then(function(result) {
+                    $scope2.rounds = result.rounds;
+                });
+            }],
+            windowClass: 'auto-height',
+            backdrop: 'static',
+        }).result.then(function(oCriteria) {
+            fnFetch(1);
         });
     };
-    $scope.$on('xxt.app.enroll.filter.rounds', function(event, data) {
-        if (options.rid !== data[0].rid) {
-            options.rid = data[0].rid;
-            fnFetch();
-        }
-    });
-    $scope.$on('xxt.app.enroll.filter.owner', function(event, data) {
-        if (options.owner !== data[0].id) {
-            options.owner = data[0].id;
-            fnFetch();
-        }
-    });
-    $scope.$watch('options', function(nv) {
-        $scope.fetch();
-    }, true);
-    $scope.options = options;
-    $scope.fetch = fnFetch;
-}]);
-ngApp.controller('ctrlList', ['$scope', function($scope) {
-    $scope.$on('xxt.app.enroll.filter.owner', function(event, data) {
-        if (event.targetScope !== $scope) {
-            $scope.$broadcast('xxt.app.enroll.filter.owner', data);
+    $scope.resetFilter = function() {
+        oCurrentCriteria = {};
+        fnFetch(1);
+    };
+    $scope.$watch('options.owner', function(nv) {
+        if (nv) {
+            $scope.fetch(1);
         }
     });
 }]);
+ngApp.controller('ctrlList', ['$scope', function($scope) {}]);

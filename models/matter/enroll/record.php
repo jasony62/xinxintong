@@ -112,17 +112,6 @@ class record_model extends \TMS_MODEL {
 				/* 自定义用户信息 */
 				$treatedValue = $submitVal;
 				$dbData->{$schemaId} = $submitVal;
-				// $treatedValue = new \stdClass;
-				// isset($submitVal->name) && $treatedValue->name = $submitVal->name;
-				// isset($submitVal->email) && $treatedValue->email = $submitVal->email;
-				// isset($submitVal->mobile) && $treatedValue->mobile = $submitVal->mobile;
-				// if (!empty($submitVal->extattr)) {
-				// 	$extattr = new \stdClass;
-				// 	foreach ($submitVal->extattr as $mek => $mev) {
-				// 		$extattr->{$mek} = $mev;
-				// 	}
-				// 	$treatedValue->extattr = $extattr;
-				// }
 			} else if (isset($schemasById[$schemaId])) {
 				/* 活动中定义的登记项 */
 				$schema = $schemasById[$schemaId];
@@ -611,12 +600,8 @@ class record_model extends \TMS_MODEL {
 		// 指定了轮次
 
 		if (!empty($criteria->record->rid)) {
-			if ('ALL' !== $criteria->record->rid) {
+			if (strcasecmp('all', $criteria->record->rid) !== 0) {
 				$rid = $criteria->record->rid;
-			}
-		} else if (!empty($options->rid)) {
-			if ('ALL' !== $options->rid) {
-				$rid = $options->rid;
 			}
 		} else if ($activeRound = $this->model('matter\enroll\round')->getActive($oApp)) {
 			/* 如果未指定就显示当前轮次 */
@@ -624,7 +609,7 @@ class record_model extends \TMS_MODEL {
 		}
 		!empty($rid) && $w .= " and e.rid='$rid'";
 
-		// @TODO 还需要吗？
+		// 根据填写人筛选（填写端列表页需要）
 		if (!empty($creater)) {
 			$w .= " and e.userid='$creater'";
 		} else if (!empty($inviter)) {
@@ -677,7 +662,7 @@ class record_model extends \TMS_MODEL {
 
 		// 查询参数
 		$q = [
-			'e.enroll_key,e.rid,e.enroll_at,e.tags,e.userid,e.nickname,e.wx_openid,e.yx_openid,e.qy_openid,e.headimgurl,e.verified,e.comment,e.data',
+			'e.enroll_key,e.rid,e.enroll_at,e.tags,e.userid,e.nickname,e.wx_openid,e.yx_openid,e.qy_openid,e.headimgurl,e.verified,e.comment,e.data,e.supplement',
 			"xxt_enroll_record e",
 			$w,
 		];
@@ -708,6 +693,17 @@ class record_model extends \TMS_MODEL {
 						$rec->score = 'json error(' . json_last_error_msg() . '):' . $rec->score;
 					} else {
 						$rec->score = $score;
+					}
+				}
+				//附加说明
+				if (!empty($rec->supplement)) {
+					$supplement = str_replace("\n", ' ', $rec->supplement);
+					$supplement = json_decode($supplement);
+
+					if ($supplement === null) {
+						$rec->supplement = 'json error(' . json_last_error_msg() . '):' . $rec->supplement;
+					} else {
+						$rec->supplement = $supplement;
 					}
 				}
 
@@ -1076,6 +1072,7 @@ class record_model extends \TMS_MODEL {
 	 */
 	public function lastByUser($oApp, $oUser, $options = []) {
 		$fields = isset($options['fields']) ? $options['fields'] : '*';
+		$verbose = isset($options['verbose']) ? $options['verbose'] : 'N';
 
 		$q = [
 			$fields,
@@ -1083,24 +1080,24 @@ class record_model extends \TMS_MODEL {
 			"siteid='{$oApp->siteid}' and aid='{$oApp->id}' and state=1",
 		];
 		/* 指定登记用户 */
-		if (empty($oUser->unionid)) {
-			$q[2] .= " and userid='{$oUser->uid}'";
-		} else {
-			$modelAcnt = $this->model('site\user\account');
-			$aSiteUsers = $modelAcnt->byUnionid($oUser->unionid, ['siteid' => $oApp->siteid, 'fields' => 'uid']);
-			if (count($aSiteUsers) === 1) {
-				$q[2] .= " and userid='{$aSiteUsers[0]->uid}'";
-			} else {
-				$q[2] .= " and userid in (";
-				foreach ($aSiteUsers as $index => $aSiteUser) {
-					if ($index > 0) {
-						$q[2] .= ',';
-					}
-					$q[2] .= "'{$aSiteUser->uid}'";
-				}
-				$q[2] .= ")";
-			}
-		}
+		//if (empty($oUser->unionid)) {
+		$q[2] .= " and userid='{$oUser->uid}'";
+		// } else {
+		// 	$modelAcnt = $this->model('site\user\account');
+		// 	$aSiteUsers = $modelAcnt->byUnionid($oUser->unionid, ['siteid' => $oApp->siteid, 'fields' => 'uid']);
+		// 	if (count($aSiteUsers) === 1) {
+		// 		$q[2] .= " and userid='{$aSiteUsers[0]->uid}'";
+		// 	} else {
+		// 		$q[2] .= " and userid in (";
+		// 		foreach ($aSiteUsers as $index => $aSiteUser) {
+		// 			if ($index > 0) {
+		// 				$q[2] .= ',';
+		// 			}
+		// 			$q[2] .= "'{$aSiteUser->uid}'";
+		// 		}
+		// 		$q[2] .= ")";
+		// 	}
+		// }
 
 		/* 指定登记轮次 */
 		if ($activeRound = $this->model('matter\enroll\round')->getActive($oApp)) {
@@ -1115,13 +1112,16 @@ class record_model extends \TMS_MODEL {
 
 		$records = $this->query_objs_ss($q, $q2);
 
-		$record = count($records) === 1 ? $records[0] : false;
-		if ($record) {
-			$record->data = json_decode($record->data);
-			$record->supplement = json_decode($record->supplement);
+		$oRecord = count($records) === 1 ? $records[0] : false;
+		if ($oRecord) {
+			$oRecord->data = json_decode($oRecord->data);
+			$oRecord->supplement = json_decode($oRecord->supplement);
+			if ($verbose === 'Y') {
+				$oRecord->verbose = $this->model('matter\enroll\data')->byRecord($oRecord->enroll_key);
+			}
 		}
 
-		return $record;
+		return $oRecord;
 	}
 	/**
 	 * 获得指定用户最后一次登记的key

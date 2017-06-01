@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html ng-app='app' ng-controller='ctrlMain'>
+<html>
 
 <head>
     <meta charset="utf-8">
@@ -12,17 +12,23 @@
     <link href='/static/css/site.fe.css?_=2' rel="stylesheet">
 </head>
 
-<body>
+<body ng-app='app' ng-controller='ctrlMain'>
     <header ng-if="app.use_site_header==='Y'" dynamic-html="site.header_page.html"></header>
     <header ng-if="app.use_mission_header==='Y'" dynamic-html="mission.header_page.html"></header>
     <div ng-cloak class='ng-cloak app'>
         <div class='container' ng-controller="ctrlRemark">
+            <div class='form-group' ng-if="remarkableSchemas.length">
+                <select class='form-control' ng-options="rs.title for rs in remarkableSchemas" ng-model="filter.schema"></select>
+            </div>
             <div id='recordData'>
-                <blockquote ng-switch on="schema.type">
+                <div class='title'>{{filter.schema.title}}</div>
+                <blockquote ng-switch on="filter.schema.type">
+                    <p ng-switch-when="single"><span>{{value2Label(filter.schema.id)}}</span></p>
+                    <p ng-switch-when="multiple"><span>{{value2Label(filter.schema.id)}}</span></p>
                     <p ng-switch-when="image"><img ng-src="{{data.value}}"></p>
                     <p ng-switch-default>{{data.value}}</p>
-                    <p ng-if="schema.supplement==='Y'" class='supplement'>{{data.supplement}}</p>
-                    <footer>{{record.nickname}}</footer>
+                    <p ng-if="filter.schema.supplement==='Y'" class='supplement'>{{data.supplement}}</p>
+                    <footer>{{record.nickname||'匿名用户'}}</footer>
                 </blockquote>
                 <div class='bottom-bar'>
                     <div class='datetime'>{{record.enroll_at*1000|date:'MM-dd HH:mm'}}</div>
@@ -54,10 +60,10 @@
                     </span>
                 </div>
             </div>
-        </div>
-        <div id='bottomActions' class='form-group'>
-            <div class='form-inline text-center'>
-                <button class='btn btn-default' ng-click="back()">返回</button>
+            <div id='bottomActions' class='form-group'>
+                <div class='form-inline text-center'>
+                    <button class='btn btn-default' ng-click="gotoRecord()" ng-if="record.userid===user.uid">查看记录</button>
+                </div>
             </div>
         </div>
     </div>

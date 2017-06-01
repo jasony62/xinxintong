@@ -17,7 +17,8 @@ window.loading = {
             paths: {
                 "domReady": '/static/js/domReady',
                 "angular": "/static/js/angular.min",
-                "xxt-page": "/static/js/xxt.ui.page",
+                "xxt-page": "/asset/js/xxt.ui.page",
+                "xxt-http": "/asset/js/xxt.ui.http",
                 "main": "/views/default/site/fe/user/follow",
             },
             shim: {
@@ -32,8 +33,10 @@ window.loading = {
                 return "?bust=" + (timestamp * 1);
             }
         });
-        require(['xxt-page'], function(uiPage) {
-            uiPage.bootstrap('/views/default/site/fe/user/follow.js');
+        require(['angular'], function(angular) {
+            require(['xxt-page', 'xxt-http'], function() {
+                require(['main']);
+            });
         });
     }
 };

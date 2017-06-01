@@ -77,11 +77,6 @@ define([], function() {
                 l: '页面导航',
                 scope: ['I', 'V', 'L']
             },
-            remarkRecord: {
-                n: 'remarkRecord',
-                l: '查看评论',
-                scope: ['V']
-            },
             closeWindow: {
                 n: 'closeWindow',
                 l: '关闭页面',
@@ -152,6 +147,9 @@ define([], function() {
             }
             if (!/image|file/.test(schema.type) && /image|file/.test(newType)) {
                 schema.count = 1;
+            }
+            if (!/email|mobile|name/.test(schema.type) && /shorttext/.test(newType)) {
+                schema.format = schema.type;
             }
             schema.type = newType;
 

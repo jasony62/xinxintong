@@ -28,7 +28,7 @@
                 <li ng-class="{'active':frameState.scope==='recent'}"><a href='' ng-click="changeScope('recent')">最近</a></li>
                 <hr />
                 <li ng-class="{'active':frameState.scope==='site'}"><a href='' ng-click="changeScope('site')">团队</a></li>
-                <li ng-class="{'active':frameState.scope==='siteuser'}"><a href='' ng-click="changeScope('siteuser')">用户</a></li>
+                <li ng-class="{'active':frameState.scope==='user'}"><a href='' ng-click="changeScope('user')">用户</a></li>
                 <hr />
                 <li ng-class="{'active':frameState.scope==='mission'}"><a href='' ng-click="changeScope('mission')">项目</a></li>
                 <li ng-class="{'active':frameState.scope==='activity'}"><a href='' ng-click="changeScope('activity')">活动</a></li>
@@ -65,7 +65,7 @@
                                     <option value="{{site.id}}" ng-repeat="site in sites">{{site.name}}</option>
                                 </select>
                                 <span class='input-group-btn' ng-if="frameState.sid">
-                                    <button class='btn btn-default' ng-click='load(frameState.sid)'><span class='glyphicon glyphicon-cog'></span> 设置</button>
+                                    <button class='btn btn-default' ng-click="openSite(frameState.sid)"><span class='glyphicon glyphicon-cog'></span> 设置</button>
                                 </span>
                             </div>
                         </form>
@@ -82,13 +82,13 @@
                             <button class="btn btn-default" ng-if="notice.page.total>0" uib-popover-template="'userNotice.html'" popover-title="未读消息" popover-placement="bottom" popover-append-to-body='true' popover-trigger="outsideClick" popover-class='user-notice'>
                                 <span class='glyphicon glyphicon-bell'> </span>&nbsp;&nbsp;<span class="badge">{{notice.page.total}}</span>
                             </button>
-                            <div class="btn-group">
+                            <div class="btn-group" uib-dropdown>
                                 <a href='' target='_self' class="btn btn-default"><i class='glyphicon glyphicon-user'></i> {{loginUser.nickname}}</a>
-                                <button type="button" class="btn btn-default dropdown-toggle" data-toggle="dropdown">
+                                <button type="button" class="btn btn-default" uib-dropdown-toggle>
                                     <span class="caret"></span>
                                     <span class="sr-only">Toggle Dropdown</span>
                                 </button>
-                                <ul class="dropdown-menu" role="menu">
+                                <ul class="dropdown-menu" uib-dropdown-menu role="menu">
                                     <li>
                                         <a href='/rest/pl/fe/user/settings' target='_self'>用户设置</a>
                                     </li>

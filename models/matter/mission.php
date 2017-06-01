@@ -161,6 +161,7 @@ class mission_model extends app_base {
 			'mission_id' => $missionId,
 			'matter_id' => $matter->id,
 			'matter_type' => $matter->type,
+			'matter_title' => $matter->title,
 			'creater' => $user->id,
 			'creater_name' => $user->name,
 			'creater_src' => $user->src,

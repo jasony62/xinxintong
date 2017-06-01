@@ -1,4 +1,4 @@
-define(['frame', 'schema'], function(ngApp, schemaLib) {
+define(['frame', 'schema', 'wrap'], function(ngApp, schemaLib, wrapLib) {
     'use strict';
     /**
      * 登记项管理
@@ -193,7 +193,11 @@ define(['frame', 'schema'], function(ngApp, schemaLib) {
             $scope.updSchema(schema, 'ops');
         };
         var timerOfUpdate = null;
-        $scope.updSchema = function(schema, prop) {
+        $scope.updSchema = function(oSchema, oBeforeState) {
+            //所有页面的schema   和cofig html
+            $scope.app.pages.forEach(function(oPage) {
+                oPage.updateSchema(oSchema, oBeforeState);
+            });
             if (timerOfUpdate !== null) {
                 $timeout.cancel(timerOfUpdate);
             }
@@ -202,7 +206,7 @@ define(['frame', 'schema'], function(ngApp, schemaLib) {
                 srvSigninApp.update('data_schemas').then(function() {
                     // 更新页面
                     $scope.app.pages.forEach(function(page) {
-                        page.updateSchema(schema);
+                        page.updateSchema(oSchema);
                         srvSigninPage.update(page, ['data_schemas', 'html']);
                     });
                 });
@@ -300,6 +304,15 @@ define(['frame', 'schema'], function(ngApp, schemaLib) {
         var editing;
 
         $scope.editing = editing = {};
+        $scope.changeSchemaType = function() {
+            //直接拿的激活 schema数据
+            var beforeState = angular.copy($scope.activeSchema);
+            if (schemaLib.changeType($scope.activeSchema, editing.type)) {//修改激活属性
+                $scope.activeConfig = wrapLib.input.newWrap($scope.activeSchema).config;//修改配置 激活配置哪里用的？用户左侧设置栏
+                //提交数据，重构后台html
+                $scope.updSchema($scope.activeSchema, beforeState);
+            }
+        };
         $scope.$watch('activeSchema', function(activeSchema) {
             editing.type = $scope.activeSchema.type;
             if (activeSchema && activeSchema.type === 'member') {

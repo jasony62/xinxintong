@@ -123,6 +123,9 @@ define([], function() {
             if (/longtext|file|image/.test(type)) {
                 schema.remarkable = 'Y';
             }
+            if (/shorttext/.test(type)) {
+                schema.format = '';
+            }
 
             return schema;
         },

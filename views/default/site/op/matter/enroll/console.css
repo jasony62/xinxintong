@@ -14,10 +14,13 @@ ul{padding-left:0;}
 	#list .table-bordered>tbody>tr>td:last-child{border-bottom:1px solid #ccc;}
 	#list .table-bordered>tbody>tr>td>span{display:inline-block;padding:.5em;padding-left:9em;min-height:2em;}
 	#list td:after{content:attr(data-th);display:inline-block;width:8em;background:#eee;padding:.5em;position:absolute;top:0;bottom:0;left:0;}
+	#list .table-bordered>tbody>tr>td.span-cols-sm>span{padding-left:1em;}
+	#list td.span-cols-sm:after{content:' ';display:inline-block;width:0;background:#fff;padding:0;position:absolute;top:0;bottom:0;left:0;}
 	#list .navbar-form,#record .navbar-form,#report .navbar-form{width:auto;border:0;margin-left:0;margin-right:0;padding-top:0;padding-bottom:0;-webkit-box-shadow:none;box-shadow:none;text-align:right;}
 	#list{margin-bottom:110px;}
 	#list .unread:before{right:-.5em;}
 	.modal.auto-height .modal-dialog,.modal.auto-height.middle-width .modal-dialog.modal-lg{width:100%;margin-left:0;left:0;}
+	
 }
 .notice{color:red;}
 .navbar-form .form-control{display:inline-block;width:auto;}

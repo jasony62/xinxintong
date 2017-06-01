@@ -3,9 +3,8 @@ require_once '../../db.php';
 
 $sqls = array();
 //
-$sqls[] = "alter table xxt_shop_matter add scenario varchar(255) not null default '' after matter_type";
-$sqls[] = "alter table xxt_shop_matter_acl add scenario varchar(255) not null default '' after matter_type";
-
+$sqls[] = "ALTER TABLE xxt_site_member drop index memberpk";
+//
 foreach ($sqls as $sql) {
 	if (!$mysqli->query($sql)) {
 		header('HTTP/1.0 500 Internal Server Error');

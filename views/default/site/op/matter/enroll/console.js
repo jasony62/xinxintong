@@ -241,6 +241,9 @@ define(["require", "angular", "enrollService"], function(require, angular) {
                 if (!angular.equals(oRecord.data, oBeforeRecord.data)) {
                     updated.data = oRecord.data;
                 }
+                if (!angular.equals(oRecord.supplement, oBeforeRecord.supplement)) {
+                    updated.supplement = oRecord.supplement;
+                }
                 if (!angular.equals(oQuizScore, oBeforeQuizScore)) {
                     updated.quizScore = oQuizScore;
                 }
@@ -251,6 +254,7 @@ define(["require", "angular", "enrollService"], function(require, angular) {
                 });
             } else {
                 updated.data = oRecord.data;
+                updated.supplement = oRecord.supplement;
                 updated.quizScore = oQuizScore;
                 srvEnrollRecord.add(updated).then(function(newRecord) {
                     oRecord.enroll_key = newRecord.enroll_key;
@@ -583,7 +587,7 @@ define(["require", "angular", "enrollService"], function(require, angular) {
                         }
 
                         cached.records = rsp.data.records;
-                        page.total = rsp.data.total;
+                        cached.page.total = rsp.data.total;
                         deferred.resolve(rsp.data);
                     });
                 }
@@ -594,9 +598,9 @@ define(["require", "angular", "enrollService"], function(require, angular) {
 
         $scope.getRecords = function(schema, page) {
             var cached;
-
             if (cached = _cacheOfRecordsBySchema[schema.id]) {
                 if (cached.page && cached.page.at === page.at) {
+                    page.total = cached.page.total;
                     return cached;
                 }
             }

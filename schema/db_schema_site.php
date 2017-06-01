@@ -325,6 +325,9 @@ $sql .= ",sync_from_qy_at int not null default 0"; // 最近一次从企业号�
 $sql .= ",auto_verified char(1) not null default 'Y'"; // 用户默认是否通过认证
 $sql .= ",require_invite char(1) not null default 'N'"; // 是否需要邀请码
 $sql .= ",at_user_home char(1) not null default 'N'"; // 是否出现在用户主页
+$sql .= ",is_wx_fan char(1) not null default 'N'"; // 是否为微信公众号关注用户
+$sql .= ",is_yx_fan char(1) not null default 'N'"; // 是否为易信公众号关注用户
+$sql .= ",is_qy_fan char(1) not null default 'N'"; // 是否为微信企业号关注用户
 $sql .= ",primary key(id)) ENGINE=MyISAM DEFAULT CHARSET=utf8";
 if (!$mysqli->query($sql)) {
 	header('HTTP/1.0 500 Internal Server Error');
@@ -377,11 +380,6 @@ $sql .= ",verified char(1) not null default 'N'"; // 用户是否已通过认证
 $sql .= ",forbidden char(1) not null default 'N'";
 $sql .= ",invite_code varchar(6) not null default ''"; // 邀请码
 $sql .= ",primary key(id)) ENGINE=MyISAM DEFAULT CHARSET=utf8";
-if (!$mysqli->query($sql)) {
-	header('HTTP/1.0 500 Internal Server Error');
-	echo 'database error(xxt_site_member): ' . $mysqli->error;
-}
-$sql = "ALTER TABLE `xxt_site_member` ADD UNIQUE memberpk( `schema_id`, `identity`)";
 if (!$mysqli->query($sql)) {
 	header('HTTP/1.0 500 Internal Server Error');
 	echo 'database error(xxt_site_member): ' . $mysqli->error;

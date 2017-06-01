@@ -80,7 +80,7 @@ ngMod.service('tmsFavor', ['$rootScope', '$http', '$q', 'tmsDynaPage', 'tmsModal
 
     this.open = function(oMatter) {
         var template;
-        template = '<div class="modal-header"><span class="modal-cancle" ng-click="cancel()">×</span><span class="modal-title">收 藏</span><hr/><span class="modal-note">请选择你想收藏的位置</span></div>';
+        template = '<div class="modal-header"><span class="modal-title">指定收藏位置</span></div>';
         template += '<div class="modal-body">';
         template += '<div class="checkbox">';
         template += '<label>';
@@ -98,7 +98,7 @@ ngMod.service('tmsFavor', ['$rootScope', '$http', '$q', 'tmsDynaPage', 'tmsModal
         template += '</div>'
         template += '<div ng-if="mySites.length===0"><a href="" ng-click="createSite()">创建</a>团队进行收藏，方便团队内共享信息</div>';
         template += '</div>';
-        template += '<div class="modal-footer"><button class="btn btn-lg btn-primary" ng-click="ok()">确 定</button></div>';
+        template += '<div class="modal-footer"><button class="btn btn-default" ng-click="cancel()">关闭</button><button class="btn btn-success" ng-click="ok()">确定</button></div>';
         tmsModal.open({
             template: template,
             controller: ['$scope', '$tmsModalInstance', function($scope2, $mi) {

@@ -36,6 +36,9 @@ class notice_model extends \TMS_MODEL {
 	public function byName($siteId, $name, $options = []) {
 		$notice = $this->_queryBy("siteid='$siteId' and event_name='$name'", $options);
 
+		if ($siteId !== 'platform' && count($notice) === 0) {
+			$notice = $this->_queryBy("siteid='platform' and event_name='$name'", $options);
+		}
 		$notice = count($notice) === 1 ? $notice[0] : false;
 
 		return $notice;

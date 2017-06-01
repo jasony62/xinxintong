@@ -31,33 +31,6 @@ ngApp.factory('Record', ['$http', '$q', function($http, $q) {
 ngApp.factory('Input', ['$http', '$q', '$timeout', 'ls', function($http, $q, $timeout, LS) {
     var Input, _ins;
 
-    function required(value, len) {
-        return (value == null || value == "" || value.length < len) ? false : true;
-    };
-
-    function validateMobile(value) {
-        return (false === /^1[3|4|5|7|8][0-9]\d{8}$/.test(value)) ? false : true;
-    };
-
-    //function validate(data) {
-    //    var reason;
-        //if (document.querySelector('[schema-type="name"]')) {
-        //    reason = '请提供正确姓名！';
-        //    if (false === required(data[document.querySelector('[schema-type="name"]').getAttribute('schema')], 2)) {
-        //        document.querySelector('[schema-type="name"]').focus();
-        //        return reason;
-        //    }
-        //}
-        //if (document.querySelector('[schema-type="mobile"]')) {
-        //    reason = '请提供正确的手机号（11位数字）！';
-        //    if (false === validateMobile(data[document.querySelector('[schema-type="mobile"]').getAttribute('schema')])) {
-        //        document.querySelector('[schema-type="mobile"]').focus();
-        //        return reason;
-        //    }
-        //}
-        //return true;
-    //};
-
     function isEmpty(schema, value) {
         if (value === undefined) {
             return true;
@@ -77,12 +50,7 @@ ngApp.factory('Input', ['$http', '$q', '$timeout', 'ls', function($http, $q, $ti
     };
     Input = function() {};
     Input.prototype.check = function(data, app, page) {
-        var reason, dataSchemas, item, schema, value;
-        //reason = validate(data);
-        //if (true !== reason) {
-        //    app.subState = 1;
-        //    return reason;
-        //}
+        var dataSchemas, item, schema, value;
         if (page.data_schemas && page.data_schemas.length) {
             dataSchemas = JSON.parse(page.data_schemas);
             for (var i = dataSchemas.length - 1; i >= 0; i--) {
@@ -146,7 +114,6 @@ ngApp.factory('Input', ['$http', '$q', '$timeout', 'ls', function($http, $q, $ti
                             //2. 一个@
                             //3.字母数字下划线 至少一个 \w+
                             //4. 一个'.' 注意. 在增则中有意义需要转译  \.
-                            //   /^\w+@\w+\.com/
                             if (!/^\w+@\w+/.test(value)) {
                                 return '题目［' + schema.title + '］请输入正确的邮箱';
                             }

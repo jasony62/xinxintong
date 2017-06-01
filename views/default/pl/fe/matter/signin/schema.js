@@ -194,7 +194,6 @@ define(['frame', 'schema', 'wrap'], function(ngApp, schemaLib, wrapLib) {
         };
         var timerOfUpdate = null;
         $scope.updSchema = function(oSchema, oBeforeState) {
-            //所有页面的schema   和cofig html
             $scope.app.pages.forEach(function(oPage) {
                 oPage.updateSchema(oSchema, oBeforeState);
             });
@@ -202,12 +201,9 @@ define(['frame', 'schema', 'wrap'], function(ngApp, schemaLib, wrapLib) {
                 $timeout.cancel(timerOfUpdate);
             }
             timerOfUpdate = $timeout(function() {
-                // 更新应用的定义
                 srvSigninApp.update('data_schemas').then(function() {
-                    // 更新页面
-                    $scope.app.pages.forEach(function(page) {
-                        page.updateSchema(oSchema);
-                        srvSigninPage.update(page, ['data_schemas', 'html']);
+                    $scope.app.pages.forEach(function(oPage) {
+                        srvSigninPage.update(oPage, ['data_schemas', 'html']);
                     });
                 });
             }, 1000);
@@ -319,13 +315,13 @@ define(['frame', 'schema', 'wrap'], function(ngApp, schemaLib, wrapLib) {
         $scope.changeSchemaType = function() {
             //直接拿的激活 schema数据
             var beforeState = angular.copy($scope.activeSchema);
-            if (schemaLib.changeType($scope.activeSchema, editing.type)) {//修改激活属性
-                $scope.activeConfig = wrapLib.input.newWrap($scope.activeSchema).config;//修改配置 激活配置哪里用的？用户左侧设置栏
+            if (schemaLib.changeType($scope.activeSchema, editing.type)) { //修改激活属性
+                $scope.activeConfig = wrapLib.input.newWrap($scope.activeSchema).config; //修改配置 激活配置哪里用的？用户左侧设置栏
                 //提交数据，重构后台html
                 $scope.updSchema($scope.activeSchema, beforeState);
             }
         };
-        
+
         $scope.$watch('activeSchema', function(activeSchema) {
             editing.type = $scope.activeSchema.type;
             if (activeSchema && activeSchema.type === 'member') {

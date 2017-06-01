@@ -1353,6 +1353,39 @@ class main extends \pl\fe\matter\base {
 	protected function synDataSchemas($site,$id){
 		$modelApp = $this->model('matter\enroll');
 		$app = $modelApp->byId($id);
+		$pages=$modelApp->query_objs_ss(['id,siteid,aid,data_schemas','xxt_enroll_page',['siteid'=>$site,'aid'=>$id]]);
+
+		if(!empty($app->template_id) && !empty($app->template_version)){
+			$templates=$modelApp->query_objs_ss(['id,siteid,version,template_id,data_schemas','xxt_template_enroll',['siteid'=>$site,'template_id'=>$app->template_id,'version'=>$app->template_version]]);
+
+			foreach ($templates as $template) {
+				$d['data_schemas']=str_replace(
+					['"type":"name"', '"type":"mobile"', '"type":"email"', '"number":"N"', '"number":"Y"'],
+					['"type":"shorttext","format":"name"',
+					 '"type":"shorttext","format":"mobile"',
+					 '"type":"shorttext","format":"email"', 
+					 '"format":""', 
+					 '"format":"number"'
+					],
+					$template->data_schemas);
+				$modelApp->update('xxt_template_enroll',$d,['siteid'=>$site,'id'=>$template->id]);
+			}
+		}
+
+		foreach ($pages as $page) {
+			if(!empty($page->data_schemas)){
+				$d['data_schemas']=str_replace(
+					['"type":"name"', '"type":"mobile"', '"type":"email"', '"number":"N"', '"number":"Y"'],
+					['"type":"shorttext","format":"name"',
+					 '"type":"shorttext","format":"mobile"',
+					 '"type":"shorttext","format":"email"', 
+					 '"format":""', 
+					 '"format":"number"'
+					],
+					$page->data_schemas);
+				$modelApp->update('xxt_enroll_page',$d,['siteid'=>$site,'aid'=>$id,'id'=>$page->id]);
+			}
+		}
 
 		if(!empty($app->data_schemas)){
 			$d['data_schemas']=str_replace(
@@ -1395,6 +1428,22 @@ class main extends \pl\fe\matter\base {
 							break;
 						case 'signin':
 							$signinApp=$modelApp->query_obj_ss(['id,data_schemas,enroll_app_id','xxt_signin',"id='$source_app->id'"]);
+							$signinPages=$modelApp->query_objs_ss(['id,siteid,aid,data_schemas','xxt_signin_page',['siteid'=>$site,'aid'=>$id]]);
+							foreach ($signinPages as $signinPage) {
+								if(!empty($signinPage->data_schemas)){
+									$d['data_schemas']=str_replace(
+										['"type":"name"', '"type":"mobile"', '"type":"email"', '"number":"N"', '"number":"Y"'],
+										['"type":"shorttext","format":"name"',
+										 '"type":"shorttext","format":"mobile"',
+										 '"type":"shorttext","format":"email"', 
+										 '"format":""', 
+										 '"format":"number"'
+										],
+										$signinPage->data_schemas);
+									$modelApp->update('xxt_signin_page',$d,['siteid'=>$site,'aid'=>$id,'id'=>$signinPage->id]);
+								}
+							}
+							
 							if(!empty($signinApp->data_schemas)){
 								$d['data_schemas']=str_replace(
 									['"type":"name"', '"type":"mobile"', '"type":"email"', '"number":"N"', '"number":"Y"'],
@@ -1434,6 +1483,23 @@ class main extends \pl\fe\matter\base {
 										break;
 									case 'signin':
 										$signinApp=$modelApp->query_obj_ss(['id,data_schemas,enroll_app_id','xxt_signin',"id='$source_app->id'"]);
+										$signinPages=$modelApp->query_objs_ss(['id,siteid,aid,data_schemas','xxt_signin_page',['siteid'=>$site,'aid'=>$source_app->id]]);
+
+										foreach ($signinPages as $signinPage) {
+											if(!empty($signinPage->data_schemas)){
+												$d['data_schemas']=str_replace(
+													['"type":"name"', '"type":"mobile"', '"type":"email"', '"number":"N"', '"number":"Y"'],
+													['"type":"shorttext","format":"name"',
+									 				 '"type":"shorttext","format":"mobile"',
+									 				 '"type":"shorttext","format":"email"', 
+													 '"format":""', 
+													 '"format":"number"'
+													],
+													$signinPage->data_schemas);
+												$modelApp->update('xxt_signin_page',$d,['siteid'=>$site,'aid'=>$source_app->id,'id'=>$signinPage->id]);
+											}
+										}
+										
 										if(!empty($signinApp->data_schemas)){
 											$d['data_schemas']=str_replace(
 												['"type":"name"', '"type":"mobile"', '"type":"email"', '"number":"N"', '"number":"Y"'],

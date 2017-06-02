@@ -1,0 +1,46 @@
+<div class='container-fluid'>
+    <div id='list' class='row'>
+        <div class="col-md-12">
+            <table class='table table-bordered'>
+                <thead>
+                    <tr>
+                        <th style='width:40px'></th>
+                        <th style='width:100px'>评论时间</th>
+                        <th style='width:140px'>评论用户</th>
+                        <th class='custom-col'>评论内容</th>
+                        <th style='width:5em'>点赞数</th>
+                        <th class='custom-col'>评论题目</th>
+                        <th style='width:140px'>提交用户</th>
+                        <th style='width:140px'>提交内容</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr ng-repeat='r in remarks' class='remark'>
+                        <td data-th='序号'><span>{{(page.at-1)*page.size+$index+1}}</span></td>
+                        <td data-th='评论时间'><span>{{(r.create_at*1000)|date:'MM-dd HH:mm'}}</span></td>
+                        <td data-th='评论用户'><span>{{r.nickname}}</span></td>
+                        <td data-th='评论内容'><span>{{r.content}}</span></td>
+                        <td data-th='点赞数'><span>{{r.like_num}}</span></td>
+                        <td data-th='评论题目'><span>{{app._schemasById[r.schema_id].title}}</span></td>
+                        <td data-th='提交用户'><span>{{records[r.enroll_key].nickname}}</span></td>
+                        <td data-th='提交内容'><span>{{records[r.enroll_key].data[r.schema_id]}}</span></td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+        <nav class="navbar navbar-default navbar-fixed-bottom">
+            <div class="container-fluid">
+                <p class="navbar-text tms-keep-inline"><a href="" ng-click="switchTo('list')" class="navbar-link">看列表</a></p>
+                <p class="navbar-text tms-keep-inline"><a href="" ng-click="switchTo('report')" class="navbar-link">看报告</a></p>
+                <form class="navbar-form navbar-left tms-keep-inline">
+                    <button class='btn btn-default' ng-click="filter()">筛选</button>
+                </form>
+                <form class="navbar-form navbar-right">
+                    <span>共{{page.total}}条，</span>
+                    <span>第 <select class='form-control' ng-model="page.at" ng-options="number as number for number in page.numbers" ng-change="getRecords()"></select><span>页</span></span>
+                    <button class='btn btn-default' ng-click="getRecords()">刷新</button>
+                </form>
+            </div>
+        </nav>
+    </div>
+</div>

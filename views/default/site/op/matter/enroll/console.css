@@ -1,7 +1,7 @@
 body{font-family:"HSimHei","Microsoft YaHei";margin-bottom:70px;}
 td img{max-width:100%;}
 .tms-keep-inline{display:inline-block;}
-#list,#record{margin-bottom:60px;}
+#record{margin-bottom:60px;}
 #list table img{max-width:96px;}
 #list .unread{display:inline-block;position:relative;}
 #list .unread:before{content:' ';background:red;height:8px;width:8px;border-radius:4px;position:absolute;right:-.8em;}
@@ -17,10 +17,8 @@ ul{padding-left:0;}
 	#list .table-bordered>tbody>tr>td.span-cols-sm>span{padding-left:1em;}
 	#list td.span-cols-sm:after{content:' ';display:inline-block;width:0;background:#fff;padding:0;position:absolute;top:0;bottom:0;left:0;}
 	#list .navbar-form,#record .navbar-form,#report .navbar-form{width:auto;border:0;margin-left:0;margin-right:0;padding-top:0;padding-bottom:0;-webkit-box-shadow:none;box-shadow:none;text-align:right;}
-	#list{margin-bottom:110px;}
 	#list .unread:before{right:-.5em;}
 	.modal.auto-height .modal-dialog,.modal.auto-height.middle-width .modal-dialog.modal-lg{width:100%;margin-left:0;left:0;}
-	
 }
 .notice{color:red;}
 .navbar-form .form-control{display:inline-block;width:auto;}

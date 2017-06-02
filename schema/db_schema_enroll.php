@@ -240,8 +240,11 @@ if (!$mysqli->query($sql)) {
  */
 $sql = "create table if not exists xxt_enroll_record_remark(";
 $sql .= "id int not null auto_increment";
+$sql .= ",siteid varchar(32) not null";
+$sql .= ",aid varchar(40) not null";
 $sql .= ",enroll_key varchar(32) not null";
-$sql .= ",userid varchar(40) not null default ''";
+$sql .= ",enroll_userid varchar(40) not null default ''"; // 提交登记记录的人
+$sql .= ",userid varchar(40) not null default ''"; // 发表评论的人
 $sql .= ",user_src char(1) not null default 'S'"; // 用户来源团队用户账号（Platform）或个人用户账号（Site）；没用了，userid已经统一了
 $sql .= ",nickname varchar(255) not null default ''";
 $sql .= ",create_at int";
@@ -266,6 +269,34 @@ $sql .= ",nickname varchar(255) not null default ''";
 $sql .= ",create_at int not null";
 $sql .= ",score int not null default 0";
 $sql .= ",schema_id varchar(40) not null default ''"; // 针对某条登记记录的某个登记项的点赞
+$sql .= ",primary key(id)) ENGINE=MyISAM DEFAULT CHARSET=utf8";
+if (!$mysqli->query($sql)) {
+	header('HTTP/1.0 500 Internal Server Error');
+	echo 'database error: ' . $mysqli->error;
+}
+/**
+ * 登记活动的参与人及行为汇总，包含：登记人和评论人
+ */
+$sql = "create table if not exists xxt_enroll_user(";
+$sql .= "id int not null auto_increment";
+$sql .= ",siteid varchar(32) not null";
+$sql .= ",aid varchar(40) not null";
+$sql .= ",userid varchar(40) not null default ''";
+$sql .= ",nickname varchar(255) not null default ''";
+$sql .= ",last_enroll_at int not null default 0"; // 最后一次登记时间
+$sql .= ",enroll_num int not null default 0"; // 登记记录的条数
+$sql .= ",last_remark_at int not null default 0"; // 最后一次获得评价的时间
+$sql .= ",remark_num int not null default 0"; // 获得的评价条数
+$sql .= ",last_like_at int not null default 0"; // 登记内容最后一次获得点赞的时间
+$sql .= ",like_num int not null default 0"; // 登记内容获得点赞的次数
+$sql .= ",last_like_remark_at int not null default 0"; // 评论最后一次获得点赞的时间
+$sql .= ",like_remark_num int not null default 0"; // 评论获得点赞的次数
+$sql .= ",last_remark_other_at int not null default 0"; // 最后一次发表评价的时间
+$sql .= ",remark_other_num int not null default 0"; // 发表的评价条数
+$sql .= ",last_like_other_at int not null default 0"; // 最后一次对登记内容进行点赞的时间
+$sql .= ",like_other_num int not null default 0"; // 对登记内容进行点赞的次数
+$sql .= ",last_like_other_remark_at int not null default 0"; // 最后一次对评论进行点赞的时间
+$sql .= ",like_other_remark_num int not null default 0"; // 对评论进行点赞的次数
 $sql .= ",primary key(id)) ENGINE=MyISAM DEFAULT CHARSET=utf8";
 if (!$mysqli->query($sql)) {
 	header('HTTP/1.0 500 Internal Server Error');

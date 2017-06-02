@@ -1347,6 +1347,24 @@ class main extends \pl\fe\matter\base {
 		return new \ResponseData('ok');
 	}
 	/*
+	 * 更新所有登记活动
+	 *
+	 */
+	public function synAll_action(){
+		if (false === ($user = $this->accountUser())) {
+			return new \ResponseTimeout();
+		}
+
+		$modelApp = $this->model('matter\enroll');
+		$apps=$modelApp->query_objs_ss(['id,siteid','xxt_enroll']);
+
+		foreach ($apps as $app) {
+			$this->synDataSchemas($app->siteid,$app->id);
+		}
+		
+		return new \ResponseData('all are ok');
+	}
+	/*
 	 * 同步指定登记活动、关联递归调用
 	 *
 	 */

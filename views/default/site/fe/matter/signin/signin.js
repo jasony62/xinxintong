@@ -31,33 +31,6 @@ ngApp.factory('Record', ['$http', '$q', function($http, $q) {
 ngApp.factory('Input', ['$http', '$q', '$timeout', 'ls', function($http, $q, $timeout, LS) {
     var Input, _ins;
 
-    function required(value, len) {
-        return (value == null || value == "" || value.length < len) ? false : true;
-    };
-
-    function validateMobile(value) {
-        return (false === /^1[3|4|5|7|8][0-9]\d{8}$/.test(value)) ? false : true;
-    };
-
-    function validate(data) {
-        var reason;
-        if (document.querySelector('[ng-model="data.name"]')) {
-            reason = '请提供您的姓名！';
-            if (false === required(data.name, 2)) {
-                document.querySelector('[ng-model="data.name"]').focus();
-                return reason;
-            }
-        }
-        if (document.querySelector('[ng-model="data.mobile"]')) {
-            reason = '请提供正确的手机号（11位数字）！';
-            if (false === validateMobile(data.mobile)) {
-                document.querySelector('[ng-model="data.mobile"]').focus();
-                return reason;
-            }
-        }
-        return true;
-    };
-
     function isEmpty(schema, value) {
         if (value === undefined) {
             return true;
@@ -77,26 +50,74 @@ ngApp.factory('Input', ['$http', '$q', '$timeout', 'ls', function($http, $q, $ti
     };
     Input = function() {};
     Input.prototype.check = function(data, app, page) {
-        var reason, dataSchemas, item, schema, value;
-        reason = validate(data);
-        if (true !== reason) {
-            app.subState = 1;
-            return reason;
-        }
+        var dataSchemas, item, schema, value;
         if (page.data_schemas && page.data_schemas.length) {
             dataSchemas = JSON.parse(page.data_schemas);
             for (var i = dataSchemas.length - 1; i >= 0; i--) {
                 item = dataSchemas[i];
                 schema = item.schema;
-                if (item.config.required === 'Y') {
-                    if (schema.id.indexOf('member.') === 0) {
-                        value = data['member'][schema.id.substr(7)];
+                //定义value
+                if (schema.id.indexOf('member.') === 0) {
+                    var memberSchema = schema.id.substr(7);
+                    if (memberSchema.indexOf('.') === -1) {
+                        value = data.member[memberSchema];
                     } else {
-                        value = data[schema.id];
+                        memberSchema = memberSchema.split('.');
+                        value = data.member.extattr[memberSchema[1]];
                     }
+                } else {
+                    value = data[schema.id];
+                }
+                if (item.config.required === 'Y') {
                     if (value === undefined || isEmpty(schema, value)) {
-                        app.subState = 1;
-                        return '请填写必填项［' + schema.title + '］';
+                        return '请填写必填题目［' + schema.title + '］';
+                    }
+                }
+                if (value) {
+                    if (schema.type === 'mobile') {
+                        if (!/^(\+86|0086)?\s*1[3|4|5|7|8]\d{9}$/.test(value)) {
+                            return '题目［' + schema.title + '］只能填写手机号（11位数字）';
+                        }
+                    }
+                    if (schema.type === 'name') {
+                        if (value.length < 2) {
+                            return '题目［' + schema.title + '］请输入正确的姓名（不少于2个字符）';
+                        }
+                    }
+                    if (schema.type === 'email') {
+                        if (!/^\w+@\w+/.test(value)) {
+                            return '题目［' + schema.title + '］请输入正确的邮箱';
+                        }
+                    }
+                    //最终删掉 schema.number
+                    if (schema.number && schema.number === 'Y') {
+                        value = data[schema.id];
+                        if (!/^-{0,1}[0-9]+(.[0-9]+){0,1}$/.test(value)) {
+                            return '题目［' + schema.title + '］请输入数值';
+                        }
+                    }
+                    if (schema.format) {
+                        if (schema.format === 'number') {
+                            if (!/^-{0,1}[0-9]+(.[0-9]+){0,1}$/.test(value)) {
+                                return '题目［' + schema.title + '］请输入数值';
+                            }
+                        } else if (schema.format === 'name') {
+                            if (value.length < 2) {
+                                return '题目［' + schema.title + '］请输入正确的姓名（不少于2个字符）';
+                            }
+                        } else if (schema.format === 'mobile') {
+                            if (!/^(\+86|0086)?\s*1[3|4|5|7|8]\d{9}$/.test(value)) {
+                                return '题目［' + schema.title + '］请输入正确的手机号（11位数字）';
+                            }
+                        } else if (schema.format === 'email') {
+                            //1. 开头字母数字下划线 至少一个 ^\w+
+                            //2. 一个@
+                            //3.字母数字下划线 至少一个 \w+
+                            //4. 一个'.' 注意. 在增则中有意义需要转译  \.
+                            if (!/^\w+@\w+/.test(value)) {
+                                return '题目［' + schema.title + '］请输入正确的邮箱';
+                            }
+                        }
                     }
                 }
                 if (/image|file/.test(schema.type)) {

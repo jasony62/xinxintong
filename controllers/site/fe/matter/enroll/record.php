@@ -188,6 +188,19 @@ class record extends base {
 		}
 		/* 记录操作日志 */
 		$this->_logSubmit($site, $oEnrollApp, $ek);
+
+		/* 更新活动用户数据 */
+		$modelUsr = $this->model('matter\enroll\user');
+		$oEnrollUsr = $modelUsr->byId($oEnrollApp, $oUser->uid, ['fields' => 'id,nickname,last_enroll_at,enroll_num']);
+		if (false === $oEnrollUsr) {
+			$modelUsr->add($oEnrollApp, $oUser, ['last_enroll_at' => time(), 'enroll_num' => 1]);
+		} else {
+			$modelUsr->update(
+				'xxt_enroll_user',
+				['last_enroll_at' => time(), 'enroll_num' => $oEnrollUsr->enroll_num + 1],
+				['id' => $oEnrollUsr->id]
+			);
+		}
 		/**
 		 * 通知登记活动事件接收人
 		 */
@@ -572,7 +585,7 @@ class record extends base {
 	 */
 	public function like_action($ek, $schema) {
 		$modelData = $this->model('matter\enroll\data');
-		$oRecordData = $modelData->byRecord($ek, ['schema' => $schema, 'fields' => 'id,like_log']);
+		$oRecordData = $modelData->byRecord($ek, ['schema' => $schema, 'fields' => 'aid,id,like_log']);
 		if (false === $oRecordData) {
 			return new \ObjectNotFoundError();
 		}
@@ -582,8 +595,10 @@ class record extends base {
 		$oLikeLog = $oRecordData->like_log;
 		if (isset($oLikeLog->{$oUser->uid})) {
 			unset($oLikeLog->{$oUser->uid});
+			$incLikeNum = -1;
 		} else {
 			$oLikeLog->{$oUser->uid} = time();
+			$incLikeNum = 1;
 		}
 		$likeNum = count(get_object_vars($oLikeLog));
 
@@ -592,6 +607,30 @@ class record extends base {
 			['like_log' => json_encode($oLikeLog), 'like_num' => $likeNum],
 			['id' => $oRecordData->id]
 		);
+
+		$oApp = new \stdClass;
+		$oApp->id = $oRecordData->aid;
+		$modelUsr = $this->model('matter\enroll\user');
+		/* 更新进行点赞的活动用户的数据 */
+		$oEnrollUsr = $modelUsr->byId($oApp, $oUser->uid, ['fields' => 'id,nickname,last_like_other_at,like_other_num']);
+		if (false === $oEnrollUsr) {
+			$modelUsr->add($oApp, $oUser, ['last_like_other_at' => time(), 'like_other_num' => 1]);
+		} else {
+			$modelUsr->update(
+				'xxt_enroll_user',
+				['last_like_other_at' => time(), 'like_other_num' => $oEnrollUsr->like_other_num + $incLikeNum],
+				['id' => $oEnrollUsr->id]
+			);
+		}
+		/* 更新被点赞的活动用户的数据 */
+		$oEnrollUsr = $modelUsr->byId($oApp, $oUser->uid, ['fields' => 'id,nickname,last_like_at,like_num']);
+		if ($oEnrollUsr) {
+			$modelUsr->update(
+				'xxt_enroll_user',
+				['last_like_at' => time(), 'like_num' => $oEnrollUsr->like_num + $incLikeNum],
+				['id' => $oEnrollUsr->id]
+			);
+		}
 
 		return new \ResponseData(['like_log' => $oLikeLog, 'like_num' => $likeNum]);
 	}

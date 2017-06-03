@@ -69,6 +69,7 @@ define(['frame'], function(ngApp) {
         };
         $scope.gotoRemark = function(oRemark) {
             var oSearch = $location.search();
+            oSearch.ek = oRemark.enroll_key;
             oSearch.schema = oRemark.schema_id;
             oSearch.remark = oRemark.id;
             $location.path('/rest/pl/fe/matter/enroll/editor');

@@ -815,6 +815,7 @@ define(["require", "angular", "enrollService"], function(require, angular) {
         };
         $scope.gotoRemark = function(oRemark) {
             var oSearch = $location.search();
+            oSearch.ek = oRemark.enroll_key;
             oSearch.schema = oRemark.schema_id;
             oSearch.remark = oRemark.id;
             $location.path('/rest/site/op/matter/enroll/record');

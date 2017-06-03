@@ -232,19 +232,22 @@ class main extends base {
 		$modelMem = $this->model('site\user\member');
 		if (empty($oUser->unionid)) {
 			$aMembers = $modelMem->byUser($oUser->uid);
-			foreach ($aMembers as $oMember) {
-				$oUser->members->{$oMember->schema_id} = $oMember;
+			if (count($aMembers)) {
+				!isset($oUser->members) && $oUser->members = new \stdClass;
+				foreach ($aMembers as $oMember) {
+					$oUser->members->{$oMember->schema_id} = $oMember;
+				}
 			}
 		} else {
 			$modelAcnt = $this->model('site\user\account');
 			$aUnionUsers = $modelAcnt->byUnionid($oUser->unionid, ['siteid' => $oApp->siteid, 'fields' => 'uid']);
 			foreach ($aUnionUsers as $oUnionUser) {
 				$aMembers = $modelMem->byUser($oUnionUser->uid);
-				foreach ($aMembers as $oMember) {
-					if (!isset($oUser->members)) {
-						$oUser->members = new \stdClass;
+				if (count($aMembers)) {
+					!isset($oUser->members) && $oUser->members = new \stdClass;
+					foreach ($aMembers as $oMember) {
+						$oUser->members->{$oMember->schema_id} = $oMember;
 					}
-					$oUser->members->{$oMember->schema_id} = $oMember;
 				}
 			}
 		}

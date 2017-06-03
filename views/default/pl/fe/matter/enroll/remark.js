@@ -1,6 +1,6 @@
 define(['frame'], function(ngApp) {
     'use strict';
-    ngApp.provider.controller('ctrlRemark', ['$scope', '$location', '$q', '$uibModal', 'http2', function($scope, $location, $q, $uibModal, http2) {
+    ngApp.provider.controller('ctrlRemark', ['$scope', '$location', '$q', '$uibModal', 'http2', 'srvRecordConverter', function($scope, $location, $q, $uibModal, http2, srvRecordConverter) {
         function list(oPage) {
             var defer,
                 url;
@@ -22,14 +22,20 @@ define(['frame'], function(ngApp) {
                 return 'page=' + this.at + '&size=' + this.size
             }
         };
-        oCriteria = {};
+        $scope.criteria = oCriteria = {
+            orderby: 'create_at'
+        };
         $scope.doSearch = function(pageAt) {
             if (pageAt) {
                 oPage.at = pageAt;
             }
             list(oPage).then(function(result) {
                 $scope.remarks = result.remarks;
+                for (var ek in result.records) {
+                    srvRecordConverter.forTable(result.records[ek], $scope.app._schemasById);
+                }
                 $scope.records = result.records;
+
                 oPage.total = result.total;
             });
         };
@@ -56,6 +62,16 @@ define(['frame'], function(ngApp) {
             }).result.then(function(oCriteria) {
                 $scope.doSearch(1);
             });
+        };
+        $scope.chooseOrderby = function(orderby) {
+            oCriteria.orderby = orderby;
+            $scope.doSearch(1);
+        };
+        $scope.gotoRemark = function(oRemark) {
+            var oSearch = $location.search();
+            oSearch.schema = oRemark.schema_id;
+            oSearch.remark = oRemark.id;
+            $location.path('/rest/pl/fe/matter/enroll/editor');
         };
         $scope.$watch('app', function(nv) {
             if (nv) {

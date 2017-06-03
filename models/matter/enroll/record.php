@@ -31,37 +31,12 @@ class record_model extends \TMS_MODEL {
 		if ($activeRound = $modelRun->getActive($oApp)) {
 			$record['rid'] = $activeRound->rid;
 		}
-
 		/* 登记用户昵称 */
 		if (isset($options['nickname'])) {
 			$record['nickname'] = $this->escape($options['nickname']);
 		} else {
-			$entryRule = $oApp->entry_rule;
-			if (isset($entryRule->anonymous) && $entryRule->anonymous === 'Y') {
-				/* 匿名访问 */
-				$record['nickname'] = '';
-			} else {
-				if (isset($entryRule->scope) && $entryRule->scope === 'member') {
-					foreach ($entryRule->member as $schemaId => $rule) {
-						if (isset($oUser->members->{$schemaId})) {
-							$record['nickname'] = $oUser->members->{$schemaId}->name;
-							break;
-						}
-					}
-				} else if (isset($entryRule->scope) && $entryRule->scope === 'sns') {
-					foreach ($entryRule->sns as $snsName => $rule) {
-						if (isset($oUser->sns->{$snsName})) {
-							$snsUser = $oUser->sns->{$snsName};
-							$record['nickname'] = isset($snsUser->nickname) ? $this->escape($snsUser->nickname) : '';
-							$record['headimgurl'] = isset($snsUser->headimgurl) ? $snsUser->headimgurl : '';
-							break;
-						}
-					}
-				} else if (empty($entryRule->scope) || $entryRule->scope === 'none') {
-					/* 不限制用户访问来源 */
-					$record['nickname'] = empty($oUser->nickname) ? '' : $this->escape($oUser->nickname);
-				}
-			}
+			$nickname = $this->model('matter\enroll')->getUserNickname($oApp, $oUser, $options);
+			$record['nickname'] = $this->escape($nickname);
 		}
 		/* 登记用户的社交账号信息 */
 		if (!empty($oUser)) {

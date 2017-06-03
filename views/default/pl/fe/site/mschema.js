@@ -130,7 +130,7 @@ define(['require'], function(require) {
                 $scope.choosedSchema = null;
             });
         };
-        $scope.updQy = function(field) {
+        $scope.updQy = function() {
             var schema = $scope.choosedSchema;
             if (schema.qy_ab === 'Y') {
                 $scope.schemas.forEach(function(s) {
@@ -140,9 +140,9 @@ define(['require'], function(require) {
                         return;
                     }
                 })
-                schema.qy_ab === 'Y' && ($scope.updSchema(schema, field));
+                schema.qy_ab === 'Y' && ($scope.updSchema('qy_ab'));
             } else {
-                $scope.updSchema(field);
+                $scope.updSchema('qy_ab');
             }
         }
         $scope.updSchema = function(field) {

@@ -5,6 +5,16 @@
             <div class='container-fluid'>
                 <form class='navbar-form navbar-left'>
                     <button class='btn btn-default' ng-click='filter()'><i class='glyphicon glyphicon-filter'></i> <span>筛选</span></button>
+                    <div class="btn-group" uib-dropdown>
+                        <button type="button" class="btn btn-default dropdown-toggle" uib-dropdown-toggle>
+                            排序
+                            <span class="caret"></span>
+                        </button>
+                        <ul class="dropdown-menu" uib-dropdown-menu>
+                            <li><a href='' ng-click="chooseOrderby('create_at')"><span class='glyphicon' ng-class="criteria.orderby==='create_at'?'glyphicon-check':'glyphicon-unchecked'"></span> 发表评论时间</a></li>
+                            <li><a href='' ng-click="chooseOrderby('like_num')"><span class='glyphicon' ng-class="criteria.orderby==='like_num'?'glyphicon-check':'glyphicon-unchecked'"></span> 获得赞同数</a></li>
+                        </ul>
+                    </div>
                 </form>
                 <form class='navbar-form navbar-right'>
                     <div class='form-group'>
@@ -32,10 +42,11 @@
                             <th style='width:100px'>评论时间</th>
                             <th style='width:140px'>评论用户</th>
                             <th class='custom-col'>评论内容</th>
-                            <th style='width:5em'>点赞数</th>
+                            <th style='width:6em'>获得赞同</th>
                             <th class='custom-col'>评论题目</th>
                             <th style='width:140px'>提交用户</th>
                             <th style='width:140px'>提交内容</th>
+                            <th style='width:48px'>操作</th>
                         </tr>
                     </thead>
                     <tbody>
@@ -47,7 +58,21 @@
                             <td>{{r.like_num}}</td>
                             <td>{{app._schemasById[r.schema_id].title}}</td>
                             <td>{{records[r.enroll_key].nickname}}</td>
-                            <td>{{records[r.enroll_key].data[r.schema_id]}}</td>
+                            <td ng-switch on="app._schemasById[r.schema_id].type">
+                                <div ng-switch-when="image">
+                                    <img ng-repeat="img in records[r.enroll_key]._data[r.schema_id]" ng-src='{{img}}' />
+                                </div>
+                                <div ng-switch-when="file">
+                                    <span ng-repeat='file in records[r.enroll_key]._data[r.schema_id]'><a href='{{file.url}}' target="_blank">{{file.name}}</a></span>
+                                </div>
+                                <span ng-switch-when="date">{{(r._data[schema.id]*1000)|date:'yy-MM-dd HH:mm'}}</span>
+                                <span ng-switch-default ng-bind-html="records[r.enroll_key]._data[r.schema_id]"></span>
+                            </td>
+                            <td>
+                                <button class='btn btn-xs btn-default' ng-click='gotoRemark(r)'>
+                                    <i class='glyphicon glyphicon-edit'></i>
+                                </button>
+                            </td>
                         </tr>
                     </tbody>
                 </table>

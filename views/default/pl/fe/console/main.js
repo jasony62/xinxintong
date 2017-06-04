@@ -219,8 +219,8 @@ define(['frame'], function(ngApp) {
         }, true);
         $scope.listSite();
     }]);
-    ngApp.provider.controller('ctrlActivity', ['$scope', 'http2', 'cstApp', function($scope, http2, cstApp) {
-        var page, filter, filter2;
+    ngApp.provider.controller('ctrlActivity', ['$scope', '$location', 'http2', 'cstApp', function($scope, $location, http2, cstApp) {
+        var lsearch, filter, filter2, page;
         if (window.localStorage) {
             $scope.$watch('filter', function(nv) {
                 if (nv) {
@@ -234,6 +234,10 @@ define(['frame'], function(ngApp) {
             }
         } else {
             filter = { byType: 'enroll' };
+        }
+        lsearch = $location.search();
+        if (lsearch.type) {
+            filter.byType = lsearch.type;
         }
         $scope.filter = filter;
         $scope.filter2 = filter2 = {};

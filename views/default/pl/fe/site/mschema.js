@@ -83,6 +83,9 @@ define(['require'], function(require) {
                 }
             });
         });
+        srvSite.snsList().then(function(data) {
+            $scope.sns = data;
+        });
         $scope.days = [{
             n: '会话',
             v: '0'
@@ -107,11 +110,6 @@ define(['require'], function(require) {
         ];
         $scope.chooseSchema = function(oSchema) {
             $scope.choosedSchema = oSchema;
-        };
-        $scope.fullUrl = function() {
-            var url = '';
-            !/^http/.test($scope.choosedSchema.url) && (url = 'http://' + location.host);
-            return url + $scope.choosedSchema.url + '?site=' + $scope.site.id + '&schema=' + $scope.choosedSchema.id;
         };
         $scope.addSchema = function() {
             var url = '/rest/pl/fe/site/member/schema/create?site=' + $scope.site.id;

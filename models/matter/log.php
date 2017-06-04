@@ -383,7 +383,7 @@ class log_model extends \TMS_MODEL {
 			"siteid='$siteId' and operator='{$user->id}' and matter_type='$matter->type' and matter_id='$matter->id' and user_last_op='Y'"
 		);
 		// 记录新日志，或更新日志
-		if ($userLastLog === false || $current > $userLastLog->operate_at + 600) {
+		if ($userLastLog === false || $current > $userLastLog->operate_at + 600 || $userLastLog->operation === 'C') {
 			/* 两次更新操作的间隔超过10分钟，产生新日志 */
 			$d = array();
 			$d['siteid'] = $siteId;
@@ -453,7 +453,7 @@ class log_model extends \TMS_MODEL {
 		$q = [
 			$fields,
 			'xxt_log_matter_op',
-			"siteid='$siteId' and last_op='Y' and operation<>'D' and operation<>'Recycle'",
+			"siteid='". $this->escape($siteId) ."' and last_op='Y' and operation<>'D' and operation<>'Recycle' and matter_type <> 'site'",
 		];
 		$q2 = [
 			'r' => ['o' => ($page->at - 1) * $page->size, 'l' => $page->size],

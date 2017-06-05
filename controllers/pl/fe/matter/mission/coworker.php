@@ -244,7 +244,7 @@ class coworker extends \pl\fe\matter\base {
 		//修改原作者作为管理员的权限
 		$modelMis->update(
 			'xxt_mission_acl',
-			['coworker_role' => 'A'],
+			['coworker_role' => 'C'],
 			["mission_id" => $mission->id, "coworker" => $mission->creater, "last_invite" => 'Y']
 		);
 
@@ -252,16 +252,18 @@ class coworker extends \pl\fe\matter\base {
 		$acl = $modelAcl->byCoworker($mission->id, $account->uid);
 		if (!$acl) {
 			/*加入ACL*/
-			$mission = $modelMis->escape($mission);
+			$missionNew = $modelMis->escape($mission);
+			$missionNew->creater = $account->uid;
+			$missionNew->creater_name = $account->nickname;
 			$coworker = new \stdClass;
 			$coworker->id = $account->uid;
 			$coworker->label = $account->nickname;
-			$modelAcl->add($user, $mission, $coworker, 'O');
+			$modelAcl->add($user, $missionNew, $coworker, 'O');
 		}else{
 			//修改原作者作为管理员的权限
 			$modelMis->update(
 				'xxt_mission_acl',
-				['coworker_role' => 'O'],
+				['coworker_role' => 'O', 'creater' => $account->uid, 'creater_name' => $account->nickname],
 				["mission_id" => $mission->id, "coworker" => $account->uid, "last_invite" => 'Y']
 			);
 		}

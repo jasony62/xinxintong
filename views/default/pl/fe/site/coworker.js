@@ -5,15 +5,20 @@ ngApp.config(['$locationProvider', '$uibTooltipProvider', function ($lp, $uibToo
         'show': 'hide'
     });
 }]);
-ngApp.controller('ctrlCoworker', ['$scope', '$location', 'http2',  function ($scope, $location, http2) {
+ngApp.controller('ctrlCoworker', ['$scope', '$location', 'http2',  'noticebox', function ($scope, $location, http2, noticebox) {
     $scope.siteId = $location.search().site;
     $scope.ulabel = '';
     $scope.manager = '';
+    $scope.status = false;
     $scope.modify = function() {
         var url = '/rest/pl/fe/site/setting/admin/transferSite?site=' + $scope.site.id
             url += '&label=' + $scope.manager;
-        http2.get(url, function() {
-            alert('移交成功');
+        http2.get(url, function(rsp) {
+            noticebox.success('移交成功');
+            if(rsp.data == 1 ) {
+                $scope.status = true;
+            }
+            $scope.manager = '';
         });
     }
     $scope.add = function () {

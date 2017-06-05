@@ -189,6 +189,10 @@ define(['frame'], function(ngApp) {
                 url += '&mission=' + $scope.mission.id + '&label=' + $scope.personOfNewManager;
             http2.get(url, function(rsp) {
                 noticebox.success('完成移交');
+                if(rsp.data == 1 ) {
+                    $scope.status = true;
+                }
+                $scope.personOfNewManager = '';
             });
         }
         $scope.openMyCoworkers = function() {

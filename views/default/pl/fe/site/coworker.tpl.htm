@@ -61,9 +61,9 @@
                     <button id='shareSite' uib-popover-template="'shareSite.html'" popover-trigger="show" popover-placement="bottom" popover-title="应用设置" class='btn btn-block btn-success' ng-click="makeInvite()">获取链接</button>
                 </div>
             </div>
-            <div class="col-md-6">
-                <div class="form-group" ng-if="site.yourRole=='O'">
-                    <div class='input-group'>
+            <div class="col-md-6" ng-show="site.yourRole=='O'" >
+                <div class="form-group" >
+                    <div class='input-group' ng-hide="status">
                         <input type="text" class="form-control" ng-model='manager' placeholder="请输入作为团队新创建人账号的邮箱" >
                         <span class='input-group-btn'>
                             <button class='btn btn-default' ng-click="modify()">移交</button>

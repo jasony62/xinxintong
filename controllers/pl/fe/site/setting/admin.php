@@ -119,14 +119,29 @@ class admin extends \pl\fe\base {
 		$rst = $modelSite->update(
 			'xxt_site',
 			['creater' => $account->uid, 'creater_name' => $account->nickname],
-			"id='$site'"
+			['id' => $site]
+		);
+		//修改原作者作为管理员的权限
+		$modelSite->update(
+			'xxt_site_admin',
+			['urole' => 'A'],
+			['siteid' => $site, 'uid' => $matter->creater]
 		);
 
 		$modelAdm = $this->model('site\admin');
 		$admin = new \stdClass;
 		$admin->uid = $account->uid;
 		$admin->ulabel = $account->nickname;
-		$modelAdm->add($user, $site, $admin);
+		$admin->urole = 'O';
+		$adminRst = $modelAdm->add($user, $site, $admin);
+		if(!$adminRst[0]){
+			//修改作者作为管理员的权限
+			$modelSite->update(
+				'xxt_site_admin',
+				['urole' => 'O'],
+				['siteid' => $site, 'uid' => $admin->uid]
+			);
+		}
 		/**
 		 * 对已经存在的资源进行授权。
 		 * @todo 这部分代码是否应该改为用队列实现？

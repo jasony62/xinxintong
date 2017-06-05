@@ -241,6 +241,12 @@ class coworker extends \pl\fe\matter\base {
 			$nv,
 			"id='$mission->id'"
 		);
+		//修改原作者作为管理员的权限
+		$modelMis->update(
+			'xxt_mission_acl',
+			['coworker_role' => 'A'],
+			["mission_id" => $mission->id, "coworker" => $mission->creater, "last_invite" => 'Y']
+		);
 
 		$modelAcl = $this->model('matter\mission\acl');
 		$acl = $modelAcl->byCoworker($mission->id, $account->uid);
@@ -251,6 +257,13 @@ class coworker extends \pl\fe\matter\base {
 			$coworker->id = $account->uid;
 			$coworker->label = $account->nickname;
 			$modelAcl->add($user, $mission, $coworker, 'O');
+		}else{
+			//修改原作者作为管理员的权限
+			$modelMis->update(
+				'xxt_mission_acl',
+				['coworker_role' => 'O'],
+				["mission_id" => $mission->id, "coworker" => $account->uid, "last_invite" => 'Y']
+			);
 		}
 		
 		/*记录操作日志*/

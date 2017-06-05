@@ -12,9 +12,9 @@ ul{padding-left:0;}
 	#list .table-bordered>tbody>tr>td{background:#fff;display:block;position:relative;border:1px solid #ccc;border-top:0;border-bottom:1px dotted #eee;padding:0;}
 	#list .table-bordered>tbody>tr>td:first-child{border-top:1px solid #ccc;}
 	#list .table-bordered>tbody>tr>td:last-child{border-bottom:1px solid #ccc;}
-	#list .table-bordered>tbody>tr>td>span{display:inline-block;padding:.5em;padding-left:9em;min-height:2em;}
+	#list .table-bordered>tbody>tr>td>div{display:inline-block;padding:.5em;padding-left:9em;min-height:2em;}
 	#list td:after{content:attr(data-th);display:inline-block;width:8em;background:#eee;padding:.5em;position:absolute;top:0;bottom:0;left:0;}
-	#list .table-bordered>tbody>tr>td.span-cols-sm>span{padding-left:1em;}
+	#list .table-bordered>tbody>tr>td.span-cols-sm>div{padding-left:1em;}
 	#list td.span-cols-sm:after{content:' ';display:inline-block;width:0;background:#fff;padding:0;position:absolute;top:0;bottom:0;left:0;}
 	#list .navbar-form,#record .navbar-form,#report .navbar-form{width:auto;border:0;margin-left:0;margin-right:0;padding-top:0;padding-bottom:0;-webkit-box-shadow:none;box-shadow:none;text-align:right;}
 	#list .unread:before{right:-.5em;}
@@ -42,14 +42,13 @@ ul.img-tiles li.img-picker button span{font-size:36px}
 #record .accordion-toggle:focus{outline:0}
 #record .accordion-toggle>span{display:flex;}
 #record .accordion-toggle>span .title{flex:1;line-height:30px}
-#record .edit-content{background:#fff;padding:20px;border:1px solid #ddd;border-top:0;}
 #record .form-label{text-align:right;}
 #record .remark{border-bottom:1px solid #ddd;}
 #record .remark:last-child{border-bottom:0;}
 #record .remark>*{margin:1em 0;}
-#record .remark .bottom-bar{display:flex;}
-#record .remark .bottom-bar .datetime{color:#777;flex:1;line-height:30px;font-size:.8em;}
-#record .edit-content .unread{background:#dd0000;}
+.bottom-bar{display:flex;align-items:center;}
+.bottom-bar>*{margin-right:.5em;}
+.remark .bottom-bar .datetime{color:#777;flex:1;font-size:.8em;}
 #record .remarks .unread blockquote{border-left-color:#dd0000;}
 
 /*loading*/

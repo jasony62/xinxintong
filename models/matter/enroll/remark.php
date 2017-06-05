@@ -77,6 +77,7 @@ class remark_model extends \TMS_MODEL {
 			'xxt_enroll_record_remark',
 			"aid='$oApp->id'",
 		];
+		/* filter */
 		if (isset($options['criteria'])) {
 			$oCriteria = $options['criteria'];
 			if (isset($oCriteria->enrollee)) {
@@ -86,10 +87,22 @@ class remark_model extends \TMS_MODEL {
 				$q[2] .= " and userid='{$oCriteria->remarker}'";
 			}
 		}
-		$q2 = [
-			'o' => 'create_at desc',
-			'r' => ['o' => ($page - 1) * $size, 'l' => $size],
-		];
+
+		$q2 = [];
+		/* orderby */
+		if (isset($options['criteria'])) {
+			$oCriteria = $options['criteria'];
+			if (isset($oCriteria->orderby)) {
+				$q2['o'] = $oCriteria->orderby . ' desc';
+			} else {
+				$q2['o'] = 'create_at desc';
+			}
+		} else {
+			$q2['o'] = 'create_at desc';
+		}
+		/* pagination */
+		$q2['r'] = ['o' => ($page - 1) * $size, 'l' => $size];
+
 		$aRemarks = $this->query_objs_ss($q, $q2);
 		$oAssocRecords = new \stdClass;
 		if (count($aRemarks)) {

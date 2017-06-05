@@ -50,6 +50,9 @@ class record extends base {
 
 		// 当前访问用户的基本信息
 		$oUser = $this->who;
+		$userNickname = $modelEnl->getUserNickname($oEnrollApp, $oUser);
+		$oUser->nickname = $userNickname;
+
 		// 提交的数据
 		$posted = $this->getPostJson();
 		if (isset($posted->data)) {
@@ -58,7 +61,7 @@ class record extends base {
 			$enrolledData = $posted;
 		}
 		// 检查是否允许登记
-		$rst = $this->_canSubmit($site, $oEnrollApp, $oUser, $enrolledData, $ek);
+		$rst = $this->_canSubmit($oEnrollApp, $oUser, $enrolledData, $ek);
 		if ($rst[0] === false) {
 			return new \ResponseError($rst[1]);
 		}
@@ -148,7 +151,7 @@ class record extends base {
 		$modelRec->setOnlyWriteDbConn(true);
 		if (empty($ek)) {
 			/* 插入登记数据 */
-			$ek = $modelRec->enroll($oEnrollApp, $oUser);
+			$ek = $modelRec->enroll($oEnrollApp, $oUser, ['nickname' => $oUser->nickname]);
 			/* 处理自定义信息 */
 			$rst = $modelRec->setData($oUser, $oEnrollApp, $ek, $enrolledData, $submitkey, true);
 			/* 登记提交的积分奖励 */
@@ -187,7 +190,7 @@ class record extends base {
 			);
 		}
 		/* 记录操作日志 */
-		$this->_logSubmit($site, $oEnrollApp, $ek);
+		$this->_logSubmit($oEnrollApp, $ek);
 
 		/* 更新活动用户数据 */
 		$modelUsr = $this->model('matter\enroll\user');
@@ -213,11 +216,10 @@ class record extends base {
 	/**
 	 * 记录用户提交日志
 	 *
-	 * @param string $siteId
 	 * @param object $app
 	 *
 	 */
-	private function _logSubmit($siteId, $app, $ek) {
+	private function _logSubmit($oApp, $ek) {
 		$modelLog = $this->model('matter\log');
 
 		$logUser = new \stdClass;
@@ -234,7 +236,7 @@ class record extends base {
 
 		$referer = isset($_SERVER['HTTP_REFERER']) ? $_SERVER['HTTP_REFERER'] : '';
 
-		$logid = $modelLog->addUserMatterOp($siteId, $logUser, $app, $operation, $client, $referer);
+		$logid = $modelLog->addUserMatterOp($oApp->siteid, $logUser, $oApp, $operation, $client, $referer);
 
 		return $logid;
 	}
@@ -246,7 +248,7 @@ class record extends base {
 	 * 2、登记项是否和已有登记记录重复（schema.unique）
 	 *
 	 */
-	private function _canSubmit($siteId, &$oApp, &$oUser, &$posted, $ek) {
+	private function _canSubmit(&$oApp, &$oUser, &$posted, $ek) {
 		/**
 		 * 检查活动是否在进行过程中
 		 */
@@ -291,7 +293,7 @@ class record extends base {
 				}
 				$checked = new \stdClass;
 				$checked->{$schema->id} = $posted->{$schema->id};
-				$existings = $modelRec->byData($siteId, $oApp, $checked, ['fields' => 'enroll_key']);
+				$existings = $modelRec->byData($oApp->siteid, $oApp, $checked, ['fields' => 'enroll_key']);
 				if (count($existings)) {
 					foreach ($existings as $existing) {
 						if ($existing->enroll_key !== $ek) {
@@ -334,7 +336,6 @@ class record extends base {
 	/**
 	 * 通知登记活动事件接收人
 	 *
-	 * @param string $siteId
 	 * @param object $app
 	 * @param string $ek
 	 *
@@ -510,7 +511,7 @@ class record extends base {
 		/** 互动数据？？？ */
 		if (!empty($openedek)) {
 			/*登记人信息*/
-			$record->enroller = $oUser;
+			//$record->enroller = $oUser;
 			/*获得关联抽奖活动记录*/
 			// $ql = array(
 			// 	'award_title',

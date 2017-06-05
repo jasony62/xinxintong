@@ -125,32 +125,34 @@ ngApp.controller('ctrlRecord', ['$scope', 'Record', 'ls', '$sce', function($scop
 }]);
 ngApp.controller('ctrlView', ['$scope', '$timeout', 'ls', 'Record', function($scope, $timeout, LS, Record) {
     $scope.$on('xxt.app.enroll.ready', function(event, params) {
-        var oApp = params.app;
         if (!params.user.unionid) {
             var domTip = document.querySelector('#appLoginTip');
             var evt = document.createEvent("HTMLEvents");
             evt.initEvent("show", false, false);
             domTip.dispatchEvent(evt);
         }
-        var dataSchemas = params.app.dataSchemas,
-            aRemarkableSchemas = [];
-        dataSchemas.forEach(function(oSchema) {
-            if (oSchema.remarkable && oSchema.remarkable === 'Y') {
-                aRemarkableSchemas.push(oSchema);
-                var domWrap = document.querySelector('[schema=' + oSchema.id + ']');
-                domWrap.classList.add('remarkable');
-                domWrap.addEventListener('click', function() {
-                    var url = LS.j('', 'site', 'app', 'ek');
-                    url += '&schema=' + oSchema.id;
-                    url += '&page=remark';
-                    location.href = url;
-                }, true);
-            }
-        });
-        var promise, facRecord;
+        var oApp = params.app,
+            dataSchemas = params.app.dataSchemas,
+            aRemarkableSchemas = [],
+            promise, facRecord;
+
         facRecord = Record.ins(oApp);
         if (promise = facRecord.get(LS.p.ek)) {
             promise.then(function(oRecord) {
+                dataSchemas.forEach(function(oSchema) {
+                    if (oSchema.remarkable && oSchema.remarkable === 'Y') {
+                        aRemarkableSchemas.push(oSchema);
+                        var domWrap = document.querySelector('[schema=' + oSchema.id + ']');
+                        domWrap.classList.add('remarkable');
+                        domWrap.addEventListener('click', function() {
+                            var url = LS.j('', 'site', 'app');
+                            url += '&ek=' + oRecord.enroll_key;
+                            url += '&schema=' + oSchema.id;
+                            url += '&page=remark';
+                            location.href = url;
+                        }, true);
+                    }
+                });
                 /* disable actions */
                 var fnDisableActions = function() {
                     var domActs, domAct;

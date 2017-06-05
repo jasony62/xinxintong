@@ -42,6 +42,7 @@ define(["require", "angular", "enrollService"], function(require, angular) {
             // schemas
             var recordSchemas = [],
                 recordSchemas2 = [],
+                remarkableSchemas = [],
                 enrollDataSchemas = [],
                 groupDataSchemas = [],
                 numberSchemas = [];
@@ -51,6 +52,7 @@ define(["require", "angular", "enrollService"], function(require, angular) {
                     recordSchemas2.push(schema);
                 }
                 if (schema.remarkable && schema.remarkable === 'Y') {
+                    remarkableSchemas.push(schema);
                     recordSchemas2.push({ type: 'remark', title: '评论数', id: schema.id });
                 }
                 if (schema.number && schema.number === 'Y') {
@@ -59,6 +61,7 @@ define(["require", "angular", "enrollService"], function(require, angular) {
             });
             $scope.recordSchemas = recordSchemas;
             $scope.recordSchemas2 = recordSchemas2;
+            $scope.remarkableSchemas = remarkableSchemas;
             $scope.numberSchemas = numberSchemas;
             oApp._schemasFromEnrollApp.forEach(function(schema) {
                 if (schema.type !== 'html') {
@@ -272,15 +275,11 @@ define(["require", "angular", "enrollService"], function(require, angular) {
         var schemaRemarks;
         $scope.newRemark = {};
         $scope.schemaRemarks = schemaRemarks = {};
-        $scope.activeTab = 'fields';
-        $scope.selectTab = function(tab) {
-            $scope.activeTab = tab;
-        };
-        $scope.gotoRemark = function(schema) {
-            $scope.activeTab = 'remark';
-            schema._open = false;
-            $timeout(function() {
-                $scope.switchSchema(schema);
+        $scope.openedRemarksSchema = false;
+        $scope.switchSchemaRemarks = function(schema) {
+            $scope.openedRemarksSchema = schema;
+            srvEnrollRecord.listRemark(oRecord.enroll_key, schema.id).then(function(result) {
+                schemaRemarks[schema.id] = result.remarks;
             });
         };
         $scope.addRemark = function(oSchema) {
@@ -288,6 +287,10 @@ define(["require", "angular", "enrollService"], function(require, angular) {
                 if (oSchema) {
                     !schemaRemarks[oSchema.id] && (schemaRemarks[oSchema.id] = []);
                     schemaRemarks[oSchema.id].push(remark);
+                    if (oRecord.verbose[oSchema.id] === undefined) {
+                        oRecord.verbose[oSchema.id] = {};
+                    }
+                    oRecord.verbose[oSchema.id].remark_num = schemaRemarks[oSchema.id].length;
                 } else {
                     $scope.remarks.push(remark);
                 }
@@ -299,14 +302,6 @@ define(["require", "angular", "enrollService"], function(require, angular) {
         };
         $scope.agreeRemark = function(oRemark) {
             srvEnrollRecord.agreeRemark(oRemark.id, oRemark.agreed).then(function() {});
-        };
-        $scope.switchSchema = function(schema) {
-            schema._open = !schema._open;
-            if (schema._open) {
-                srvEnrollRecord.listRemark(oRecord.enroll_key, schema.id).then(function(result) {
-                    schemaRemarks[schema.id] = result.remarks;
-                });
-            }
         };
         $scope.$watch('app', function(app) {
             if (!app) return;
@@ -367,7 +362,7 @@ define(["require", "angular", "enrollService"], function(require, angular) {
                     renderTo: item.id
                 },
                 title: {
-                    text: item.title
+                    text: '' //item.title
                 },
                 legend: {
                     enabled: false
@@ -410,7 +405,7 @@ define(["require", "angular", "enrollService"], function(require, angular) {
                     renderTo: item.id
                 },
                 title: {
-                    text: item.title
+                    text: '' //item.title
                 },
                 plotOptions: {
                     pie: {
@@ -454,7 +449,7 @@ define(["require", "angular", "enrollService"], function(require, angular) {
                     renderTo: item.id
                 },
                 title: {
-                    text: item.title,
+                    text: '' //item.title,
                 },
                 xAxis: {
                     categories: categories
@@ -508,7 +503,7 @@ define(["require", "angular", "enrollService"], function(require, angular) {
                     renderTo: schema.id
                 },
                 title: {
-                    text: schema.title
+                    text: '' //schema.title
                 },
                 tooltip: {
                     pointFormat: '{series.name}: <b>{point.percentage:.1f}</b>'
@@ -750,7 +745,7 @@ define(["require", "angular", "enrollService"], function(require, angular) {
             }
         });
     }]);
-    ngApp.controller('ctrlRemarks', ['$scope', '$location', '$q', '$uibModal', 'http2', function($scope, $location, $q, $uibModal, http2) {
+    ngApp.controller('ctrlRemarks', ['$scope', '$location', '$q', '$uibModal', 'http2', 'srvRecordConverter', function($scope, $location, $q, $uibModal, http2, srvRecordConverter) {
         function list(oPage) {
             var defer,
                 url;
@@ -773,12 +768,18 @@ define(["require", "angular", "enrollService"], function(require, angular) {
             }
         };
         oCriteria = {};
+        $scope.criteria = oCriteria = {
+            orderby: 'create_at'
+        };
         $scope.doSearch = function(pageAt) {
             if (pageAt) {
                 oPage.at = pageAt;
             }
             list(oPage).then(function(result) {
                 $scope.remarks = result.remarks;
+                for (var ek in result.records) {
+                    srvRecordConverter.forTable(result.records[ek], $scope.app._schemasById);
+                }
                 $scope.records = result.records;
                 oPage.total = result.total;
                 oPage.numbers = [];
@@ -810,6 +811,17 @@ define(["require", "angular", "enrollService"], function(require, angular) {
             }).result.then(function(oCriteria) {
                 $scope.doSearch(1);
             });
+        };
+        $scope.chooseOrderby = function(orderby) {
+            oCriteria.orderby = orderby;
+            $scope.doSearch(1);
+        };
+        $scope.gotoRemark = function(oRemark) {
+            var oSearch = $location.search();
+            oSearch.ek = oRemark.enroll_key;
+            oSearch.schema = oRemark.schema_id;
+            oSearch.remark = oRemark.id;
+            $location.path('/rest/site/op/matter/enroll/record');
         };
         $scope.$watch('app', function(nv) {
             if (nv) {

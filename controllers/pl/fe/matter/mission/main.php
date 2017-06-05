@@ -43,6 +43,12 @@ class main extends \pl\fe\matter\base {
 				$mission->userApp = $this->model('matter\signin')->byId($mission->user_app_id, ['cascaded' => 'N']);
 			}
 		}
+		/* 检查当前用户的角色 */
+		if ($user->id === $mission->creater) {
+			$mission->yourRole = 'O';
+		} else {
+			$mission->yourRole = $acl->coworker_role;
+		}
 
 		return new \ResponseData($mission);
 	}

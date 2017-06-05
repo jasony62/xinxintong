@@ -26,19 +26,17 @@ class base extends \site\fe\matter\base {
 	 * 2、用户未签到已登记
 	 * 3、需确认用户身份
 	 *
-	 * @param object $user
-	 * @param string $siteId
 	 * @param object $app
 	 * @param boolean $redirect
 	 */
-	protected function checkEntryRule($siteId, &$app, $redirect = false, &$round = null) {
-		$user = $this->who;
-		$entryRule = $app->entry_rule;
+	protected function checkEntryRule(&$oApp, $redirect = false, &$oRound = null) {
+		$oUser = $this->who;
+		$entryRule = $oApp->entry_rule;
 		$modelRec = $this->model('matter\signin\record');
-		if ($signinLog = $modelRec->userSigned($user, $siteId, $app, $round)) {
+		if ($signinLog = $modelRec->userSigned($oUser, $oApp, $oRound)) {
 			/* 用户是否已经签到 */
 			$signinRec = $modelRec->byId($signinLog->enroll_key, ['cascaded' => 'N']);
-			if (!empty($app->enroll_app_id)) {
+			if (!empty($oApp->enroll_app_id)) {
 				/* 需要验证登记信息 */
 				if ($signinRec->verified === 'Y') {
 					if (isset($entryRule->success->entry)) {
@@ -57,32 +55,61 @@ class base extends \site\fe\matter\base {
 		} elseif (isset($entryRule->scope) && $entryRule->scope === 'member') {
 			/* 限自定义用户参与 */
 			foreach ($entryRule->member as $schemaId => $rule) {
-				if (isset($user->members->{$schemaId})) {
-					$page = $rule->entry;
-					break;
-				} else {
-					$page = $entryRule->other->entry;
-					break;
+				if (!empty($rule->entry)) {
+					/* 检查用户的信息是否完整，是否已经通过审核 */
+					$modelMem = $this->model('site\user\member');
+					if (empty($oUser->unionid)) {
+						$aMembers = $modelMem->byUser($oUser->uid, ['schemas' => $schemaId]);
+						if (count($aMembers) === 1) {
+							$oMember = $aMembers[0];
+							if ($oMember->verified === 'Y') {
+								$page = $rule->entry;
+								break;
+							}
+						}
+					} else {
+						$modelAcnt = $this->model('site\user\account');
+						$aUnionUsers = $modelAcnt->byUnionid($oUser->unionid, ['siteid' => $oApp->siteid, 'fields' => 'uid']);
+						foreach ($aUnionUsers as $oUnionUser) {
+							$aMembers = $modelMem->byUser($oUnionUser->uid, ['schemas' => $schemaId]);
+							if (count($aMembers) === 1) {
+								$oMember = $aMembers[0];
+								if ($oMember->verified === 'Y') {
+									$page = $rule->entry;
+									break;
+								}
+							}
+						}
+						if (isset($page)) {
+							break;
+						}
+					}
 				}
 			}
-			!isset($page) && $page = '$memberschema';
+			if (!isset($page)) {
+				if (isset($oEntryRule->other->entry)) {
+					$page = $oEntryRule->other->entry;
+				} else {
+					$page = '$memberschema';
+				}
+			}
 		} elseif (isset($entryRule->scope) && $entryRule->scope === 'sns') {
 			// 限社交网站用户参与
 			foreach ($entryRule->sns as $snsName => $rule) {
-				if (isset($user->sns->{$snsName})) {
+				if (isset($oUser->sns->{$snsName})) {
 					// 检查用户对应的公众号
 					if ($snsName === 'wx') {
 						$modelWx = $this->model('sns\wx');
-						if (($wxConfig = $modelWx->bySite($siteId)) && $wxConfig->joined === 'Y') {
-							$snsSiteId = $siteId;
+						if (($wxConfig = $modelWx->bySite($oApp->siteid)) && $wxConfig->joined === 'Y') {
+							$snsSiteId = $oApp->siteid;
 						} else {
 							$snsSiteId = 'platform';
 						}
 					} else {
-						$snsSiteId = $siteId;
+						$snsSiteId = $oApp->siteid;
 					}
 					// 检查用户是否已经关注
-					$snsUser = $user->sns->{$snsName};
+					$snsUser = $oUser->sns->{$snsName};
 					$modelSnsUser = $this->model('sns\\' . $snsName . '\fan');
 					if ($modelSnsUser->isFollow($snsSiteId, $snsUser->openid)) {
 						$page = $rule->entry;
@@ -109,19 +136,19 @@ class base extends \site\fe\matter\base {
 			}
 			if ($redirect) {
 				/* 页面跳转 */
-				$this->gotoMember($siteId, $aMemberSchemas, $user->uid);
+				$this->gotoMember($oApp->siteid, $aMemberSchemas, $oUser->uid);
 			} else {
 				/* 返回地址 */
-				$this->gotoMember($siteId, $aMemberSchemas, $user->uid, false);
+				$this->gotoMember($oApp->siteid, $aMemberSchemas, $oUser->uid, false);
 			}
 			break;
 		case '$mpfollow':
 			if (isset($entryRule->sns->wx)) {
-				$this->snsFollow($siteId, 'wx', $app);
+				$this->snsFollow($oApp->siteid, 'wx', $oApp);
 			} elseif (isset($entryRule->sns->qy)) {
-				$this->snsFollow($siteId, 'qy', $app);
+				$this->snsFollow($oApp->siteid, 'qy', $oApp);
 			} elseif (isset($entryRule->sns->yx)) {
-				$this->snsFollow($siteId, 'yx', $app);
+				$this->snsFollow($oApp->siteid, 'yx', $oApp);
 			}
 			break;
 		}

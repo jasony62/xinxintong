@@ -242,9 +242,15 @@ class log_model extends \TMS_MODEL {
 			'xxt_log_user_matter',
 			"matter_id='$matter->id' and matter_type='$matter->type' and operation='{$operation->name}' and matter_last_op='Y'",
 		];
-		if ($matterOpNum = $this->query_obj_ss($q)) {
-			$this->update('xxt_log_user_matter', ['matter_last_op' => 'N'], "id={$matterOpNum->id}");
-			$matterOpNum = (int) $matterOpNum->matter_op_num + 1;
+		$matterOpNum = $this->query_objs_ss($q);
+		/* 并发情况下有可能产生多条数据 */
+		if (count($matterOpNum)) {
+			$lastOpNum = 0;
+			foreach ($matterOpNum as $mon) {
+				$this->update('xxt_log_user_matter', ['matter_last_op' => 'N'], "id={$mon->id}");
+				$mon->matter_op_num > $lastOpNum && $lastOpNum = $mon->matter_op_num;
+			}
+			$matterOpNum = (int) $lastOpNum + count($matterOpNum);
 		} else {
 			$matterOpNum = 1;
 		}
@@ -377,7 +383,7 @@ class log_model extends \TMS_MODEL {
 			"siteid='$siteId' and operator='{$user->id}' and matter_type='$matter->type' and matter_id='$matter->id' and user_last_op='Y'"
 		);
 		// 记录新日志，或更新日志
-		if ($userLastLog === false || $current > $userLastLog->operate_at + 600) {
+		if ($userLastLog === false || $current > $userLastLog->operate_at + 600 || $userLastLog->operation === 'C') {
 			/* 两次更新操作的间隔超过10分钟，产生新日志 */
 			$d = array();
 			$d['siteid'] = $siteId;
@@ -447,7 +453,7 @@ class log_model extends \TMS_MODEL {
 		$q = [
 			$fields,
 			'xxt_log_matter_op',
-			"siteid='$siteId' and last_op='Y' and operation<>'D' and operation<>'Recycle'",
+			"siteid='". $this->escape($siteId) ."' and last_op='Y' and operation<>'D' and operation<>'Recycle' and matter_type <> 'site'",
 		];
 		$q2 = [
 			'r' => ['o' => ($page->at - 1) * $page->size, 'l' => $page->size],
@@ -533,10 +539,10 @@ class log_model extends \TMS_MODEL {
 		];
 		!empty($options['byType']) && $q[2] .= " and matter_type = '" . $this->escape($options['byType']) . "'";
 		!empty($options['byTitle']) && $q[2] .= " and matter_title like '%" . $this->escape($options['byTitle']) . "%'";
-		if(!empty($siteId)){
+		if (!empty($siteId)) {
 			$q[2] .= " and siteid = '" . $this->escape($siteId) . "'";
-		}else{
-			if($mySites = $this->model('site')->byUser($user->id, ['fields' => 'id'])){
+		} else {
+			if ($mySites = $this->model('site')->byUser($user->id, ['fields' => 'id'])) {
 				$siteArr = [];
 				foreach ($mySites as $site) {
 					$siteArr[] = $site->id;

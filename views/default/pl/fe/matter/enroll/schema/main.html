@@ -84,7 +84,7 @@
     </div>
     <div class="checkbox">
         <label>
-            <input type='checkbox' ng-true-value="'Y'" ng-false-value="'N'" ng-model='activeSchema.remarkable' ng-change="updSchema(activeSchema)">支持点评</label>
+            <input type='checkbox' ng-true-value="'Y'" ng-false-value="'N'" ng-model='activeSchema.remarkable' ng-change="updSchema(activeSchema)">允许进行评论</label>
     </div>
     <div class="checkbox">
         <label>
@@ -92,7 +92,7 @@
     </div>
     <div class="checkbox" ng-show="['image','file','single','multiple'].indexOf(activeSchema.type)!==-1">
         <label>
-            <input type='checkbox' ng-true-value="'Y'" ng-false-value="'N'" ng-model='activeSchema.supplement' ng-change="updSchema(activeSchema)">补充说明</label>
+            <input type='checkbox' ng-true-value="'Y'" ng-false-value="'N'" ng-model='activeSchema.supplement' ng-change="updSchema(activeSchema)">允许填写补充说明</label>
     </div>
     <div class="checkbox" ng-show="'shorttext'===activeSchema.type">
         <label>

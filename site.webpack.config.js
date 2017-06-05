@@ -9,6 +9,7 @@ module.exports = {
         '/site/fe/matter/enroll/list': ['./views/default/site/fe/matter/enroll/list.js'],
         '/site/fe/matter/enroll/remark': ['./views/default/site/fe/matter/enroll/remark.js'],
         '/site/fe/matter/enroll/repos': ['./views/default/site/fe/matter/enroll/repos.js'],
+        '/site/fe/matter/enroll/rank': ['./views/default/site/fe/matter/enroll/rank.js'],
         '/site/fe/matter/enroll/preview': ['./views/default/site/fe/matter/enroll/preview.js'],
         '/site/fe/matter/enroll/template': ['./views/default/site/fe/matter/enroll/template.js'],
         '/site/fe/matter/signin/signin': ['./views/default/site/fe/matter/signin/signin.js'],

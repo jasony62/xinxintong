@@ -47,6 +47,8 @@ class main extends base {
 			\TPL::output('/site/fe/matter/enroll/repos');
 		} elseif ($page === 'remark') {
 			\TPL::output('/site/fe/matter/enroll/remark');
+		} elseif ($page === 'rank') {
+			\TPL::output('/site/fe/matter/enroll/rank');
 		} else {
 			if (empty($page)) {
 				/* 计算打开哪个页面 */
@@ -57,6 +59,8 @@ class main extends base {
 			empty($oOpenPage) && $this->outputError('没有可访问的页面');
 			if ($oOpenPage->name === 'repos') {
 				\TPL::output('/site/fe/matter/enroll/repos');
+			} else if ($oOpenPage->name === 'rank') {
+				\TPL::output('/site/fe/matter/enroll/rank');
 			} else if ($oOpenPage->type === 'I') {
 				\TPL::output('/site/fe/matter/enroll/input');
 			} else if ($oOpenPage->type === 'V') {
@@ -228,19 +232,22 @@ class main extends base {
 		$modelMem = $this->model('site\user\member');
 		if (empty($oUser->unionid)) {
 			$aMembers = $modelMem->byUser($oUser->uid);
-			foreach ($aMembers as $oMember) {
-				$oUser->members->{$oMember->schema_id} = $oMember;
+			if (count($aMembers)) {
+				!isset($oUser->members) && $oUser->members = new \stdClass;
+				foreach ($aMembers as $oMember) {
+					$oUser->members->{$oMember->schema_id} = $oMember;
+				}
 			}
 		} else {
 			$modelAcnt = $this->model('site\user\account');
 			$aUnionUsers = $modelAcnt->byUnionid($oUser->unionid, ['siteid' => $oApp->siteid, 'fields' => 'uid']);
 			foreach ($aUnionUsers as $oUnionUser) {
 				$aMembers = $modelMem->byUser($oUnionUser->uid);
-				foreach ($aMembers as $oMember) {
-					if (!isset($oUser->members)) {
-						$oUser->members = new \stdClass;
+				if (count($aMembers)) {
+					!isset($oUser->members) && $oUser->members = new \stdClass;
+					foreach ($aMembers as $oMember) {
+						$oUser->members->{$oMember->schema_id} = $oMember;
 					}
-					$oUser->members->{$oMember->schema_id} = $oMember;
 				}
 			}
 		}
@@ -268,7 +275,7 @@ class main extends base {
 		}
 
 		$modelRec = $this->model('matter\enroll\record');
-		if ($page !== 'repos' && $page !== 'remark') {
+		if ($page !== 'repos' && $page !== 'remark' && $page !== 'rank') {
 			$oUserEnrolled = $modelRec->lastByUser($oApp, $oUser);
 			/* 自动登记???，解决之要打开了页面就登记？ */
 			if (!$oUserEnrolled && $oApp->can_autoenroll === 'Y' && $oOpenPage->autoenroll_onenter === 'Y') {

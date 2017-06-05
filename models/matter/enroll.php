@@ -268,4 +268,75 @@ class enroll_model extends app_base {
 
 		return $summary;
 	}
+	/**
+	 * 获得参加登记活动的用户的昵称
+	 *
+	 * @param object $oApp
+	 * @param object $oUser [uid,nickname]
+	 */
+	public function getUserNickname(&$oApp, $oUser) {
+		$nickname = '';
+		$entryRule = $oApp->entry_rule;
+		if (isset($entryRule->anonymous) && $entryRule->anonymous === 'Y') {
+			/* 匿名访问 */
+			$nickname = '';
+		} else {
+			if (isset($entryRule->scope) && $entryRule->scope === 'member') {
+				foreach ($entryRule->member as $schemaId => $rule) {
+					$modelMem = $this->model('site\user\member');
+					if (empty($oUser->unionid)) {
+						$aMembers = $modelMem->byUser($oUser->uid, ['schemas' => $schemaId]);
+						if (count($aMembers) === 1) {
+							$oMember = $aMembers[0];
+							if ($oMember->verified === 'Y') {
+								$nickname = empty($oMember->name) ? $oMember->identity : $oMember->name;
+								break;
+							}
+						}
+					} else {
+						$modelAcnt = $this->model('site\user\account');
+						$aUnionUsers = $modelAcnt->byUnionid($oUser->unionid, ['siteid' => $oApp->siteid, 'fields' => 'uid']);
+						foreach ($aUnionUsers as $oUnionUser) {
+							$aMembers = $modelMem->byUser($oUnionUser->uid, ['schemas' => $schemaId]);
+							if (count($aMembers) === 1) {
+								$oMember = $aMembers[0];
+								if ($oMember->verified === 'Y') {
+									$nickname = empty($oMember->name) ? $oMember->identity : $oMember->name;
+									break;
+								}
+							}
+						}
+						if (!empty($nickname)) {
+							break;
+						}
+					}
+				}
+			} else if (isset($entryRule->scope) && $entryRule->scope === 'sns') {
+				foreach ($entryRule->sns as $snsName => $rule) {
+					if ($snsName === 'wx') {
+						$modelWx = $this->model('sns\wx');
+						if (($wxConfig = $modelWx->bySite($oApp->siteid)) && $wxConfig->joined === 'Y') {
+							$snsSiteId = $oApp->siteid;
+						} else {
+							$snsSiteId = 'platform';
+						}
+					} else {
+						$snsSiteId = $oApp->siteid;
+					}
+					$modelAcnt = $this->model('site\user\account');
+					$siteUser = $modelAcnt->byId($oUser->uid);
+					$modelSnsUser = $this->model('sns\\' . $snsName . '\fan');
+					if ($snsUser = $modelSnsUser->byOpenid($snsSiteId, $siteUser->{$snsName . '_openid'})) {
+						$nickname = $snsUser->nickname;
+						break;
+					}
+				}
+			} else if (empty($entryRule->scope) || $entryRule->scope === 'none') {
+				/* 不限制用户访问来源 */
+				$nickname = empty($oUser->nickname) ? '' : $oUser->nickname;
+			}
+		}
+
+		return $nickname;
+	}
 }

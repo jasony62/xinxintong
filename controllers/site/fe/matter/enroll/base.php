@@ -135,43 +135,4 @@ class base extends \site\fe\matter\base {
 
 		return $page;
 	}
-	/**
-	 *
-	 */
-	protected function checkActionRule($site, $app, $user) {
-		return 'Y';
-		if (empty($user->fan)) {
-			/**
-			 * 非关注用户
-			 */
-			$rule = $app->entry_rule->nonfan->enroll;
-		} else {
-			if (isset($user->fan)) {
-				/* 关注用户 */
-				$rule = $app->entry_rule->fan->enroll;
-			}
-			if (isset($user->membersInAcl) && !empty($user->members)) {
-				/* 认证用户不在白名单中 */
-				$rule = $app->entry_rule->member_outacl->enroll;
-			}
-			if (!empty($user->membersInAcl) || (!isset($user->membersInAcl) && !empty($user->members))) {
-				/* 白名单中的认证用户，或者，不限制白名单的认证用户，允许登记 */
-				$rule = 'Y';
-			}
-		}
-		switch ($rule) {
-		case '$authapi_outacl':
-			$appAuthapis = explode(',', $app->authapis);
-			$this->gotoOutAcl($site, $appAuthapis[0]);
-			break;
-		case '$mp_follow':
-			$this->askFollow($site, $user->openid);
-			break;
-		case '$authapi_auth':
-			$this->gotoAuth($site, $app->authapis, $user->openid, false);
-			break;
-		}
-
-		return $rule;
-	}
 }

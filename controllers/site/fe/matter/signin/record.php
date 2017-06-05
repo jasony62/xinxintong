@@ -48,17 +48,21 @@ class record extends base {
 			header('HTTP/1.0 500 parameter error:app dosen\'t exist.');
 			die('签到活动不存在');
 		}
+
+		$oUser = $this->who;
+		$userNickname = $modelApp->getUserNickname($signinApp, $oUser);
+		$oUser->nickname = $userNickname;
+
 		/**
 		 * 提交的数据
 		 */
-		$user = $this->who;
 		$signinData = $this->getPostJson();
 		/**
 		 * 包含用户身份信息
 		 */
 		if (isset($signinData->member) && isset($signinData->member->schema_id)) {
 			$member = clone $signinData->member;
-			$rst = $this->_submitMember($site, $member, $user);
+			$rst = $this->_submitMember($site, $member, $oUser);
 			if ($rst[0] === false) {
 				return new \ParameterError($rst[1]);
 			}
@@ -68,9 +72,9 @@ class record extends base {
 		 */
 		$modelRec = $this->model('matter\signin\record');
 		$modelRec->setOnlyWriteDbConn(true);
-		$signState = $modelRec->signin($user, $site, $signinApp, $signinData);
+		$signState = $modelRec->signin($oUser, $signinApp, $signinData);
 		// 保存签到登记数据
-		empty($submitkey) && $submitkey = $user->uid;
+		empty($submitkey) && $submitkey = $oUser->uid;
 		$rst = $modelRec->setData($site, $signinApp, $signState->ek, $signinData, $submitkey);
 		if (false === $rst[0]) {
 			return new \ResponseError($rst[1]);
@@ -305,7 +309,7 @@ class record extends base {
 			'fields' => '*',
 		);
 
-		$record = $modelRec->byUser($user, $site, $app, $options);
+		$record = $modelRec->byUser($user, $app, $options);
 
 		return new \ResponseData($record);
 	}

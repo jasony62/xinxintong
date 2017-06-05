@@ -420,7 +420,7 @@ define(['require', 'schema', 'page'], function(require, schemaLib, pageLib) {
                     var defaultInput, pages = app.pages,
                         pages4NonMember = [{
                             name: '$memberschema',
-                            title: '填写自定义用户信息'
+                            title: '填写联系人信息'
                         }],
                         pages4Nonfan = [{
                             name: '$mpfollow',

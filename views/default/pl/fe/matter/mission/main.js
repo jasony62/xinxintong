@@ -188,9 +188,15 @@ define(['frame'], function(ngApp) {
             var url = '/rest/pl/fe/matter/mission/coworker/transferMission?site=' + $scope.mission.siteid;
                 url += '&mission=' + $scope.mission.id + '&label=' + $scope.personOfNewManager;
             http2.get(url, function(rsp) {
-                http2.get('/rest/pl/fe/matter/mission/coworker/list?mission=' + $scope.mission.id, function(rsp) {
-                    $scope.coworkers = rsp.data;
-                });
+                $scope.coworkers.splice(0, 0, rsp.data);
+                if ($scope.myCoworkers && $scope.myCoworkers.length) {
+                    for (var i = 0, ii = $scope.myCoworkers.length; i < ii; i++) {
+                        if ($scope.label === $scope.myCoworkers[i].coworker_label) {
+                            $scope.myCoworkers.splice(i, 1);
+                            break;
+                        }
+                    }
+                }
                 $scope.personOfNewManager = '';
             });
         }

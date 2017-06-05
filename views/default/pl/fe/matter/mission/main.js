@@ -183,18 +183,18 @@ define(['frame'], function(ngApp) {
     }]);
     ngApp.provider.controller('ctrlCoworker', ['$scope', 'http2', 'noticebox', function($scope, http2, noticebox) {
         $scope.label = '';
-        $scope.personOfNewManager = '';
-        $scope.modify = function() {
+        $scope.newOwner = '';
+        $scope.transfer = function() {
             var url = '/rest/pl/fe/matter/mission/coworker/transferMission?site=' + $scope.mission.siteid;
-                url += '&mission=' + $scope.mission.id + '&label=' + $scope.personOfNewManager;
+            url += '&mission=' + $scope.mission.id + '&label=' + $scope.newOwner;
             http2.get(url, function(rsp) {
                 noticebox.success('完成移交');
-                if(rsp.data == 1 ) {
+                if (rsp.data == 1) {
                     $scope.status = true;
                 }
-                $scope.personOfNewManager = '';
+                $scope.newOwner = '';
             });
-        }
+        };
         $scope.openMyCoworkers = function() {
             if ($scope.myCoworkers && $scope.myCoworkers.length) {
                 $('#popoverMyCoworker').trigger('show');

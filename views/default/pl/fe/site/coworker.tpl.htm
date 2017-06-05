@@ -44,10 +44,10 @@
                     <div class='input-group'>
                         <input type="text" class="form-control" placeholder='请输入用户的账号' ng-model='ulabel'>
                         <span class='input-group-btn'>
-				                <button class='btn btn-default' ng-click='add()' ng-disabled="!ulabel||!ulabel.length">
-				                	<i class='glyphicon glyphicon-plus'></i> 管理员
-				                </button>
-				            </span>
+                                <button class='btn btn-default' ng-click='add()' ng-disabled="!ulabel||!ulabel.length">
+                                    <i class='glyphicon glyphicon-plus'></i> 管理员
+                                </button>
+                            </span>
                     </div>
                 </div>
                 <div class='list-group'>
@@ -61,12 +61,12 @@
                     <button id='shareSite' uib-popover-template="'shareSite.html'" popover-trigger="show" popover-placement="bottom" popover-title="应用设置" class='btn btn-block btn-success' ng-click="makeInvite()">获取链接</button>
                 </div>
             </div>
-            <div class="col-md-6" ng-show="site.yourRole=='O'" >
-                <div class="form-group" >
+            <div class="col-md-6" ng-show="site.yourRole=='O'">
+                <div class="form-group">
                     <div class='input-group' ng-hide="status">
-                        <input type="text" class="form-control" ng-model='manager' placeholder="请输入作为团队新创建人账号的邮箱" >
+                        <input type="text" class="form-control" ng-model='newOwner' placeholder="请输入作为团队新创建人的账号">
                         <span class='input-group-btn'>
-                            <button class='btn btn-default' ng-click="modify()">移交</button>
+                            <button class='btn btn-default' ng-click="transfer()">移交</button>
                         </span>
                     </div>
                 </div>
@@ -89,7 +89,7 @@
     <script src="/static/js/angular-sanitize.min.js"></script>
     <script src="/static/js/ui-bootstrap-tpls.min.js"></script>
     <script src="/static/js/ui-tms.js?_=1"></script>
-    <script src="/views/default/pl/fe/site/coworker.js"></script>
+    <script src="/views/default/pl/fe/site/coworker.js?_=1"></script>
 </body>
 
 </html>

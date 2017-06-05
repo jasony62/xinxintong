@@ -181,23 +181,14 @@ define(['frame'], function(ngApp) {
             }
         });
     }]);
-    ngApp.provider.controller('ctrlCoworker', ['$scope', 'http2', function($scope, http2) {
+    ngApp.provider.controller('ctrlCoworker', ['$scope', 'http2', 'noticebox', function($scope, http2, noticebox) {
         $scope.label = '';
         $scope.personOfNewManager = '';
         $scope.modify = function() {
             var url = '/rest/pl/fe/matter/mission/coworker/transferMission?site=' + $scope.mission.siteid;
                 url += '&mission=' + $scope.mission.id + '&label=' + $scope.personOfNewManager;
             http2.get(url, function(rsp) {
-                $scope.coworkers.splice(0, 0, rsp.data);
-                if ($scope.myCoworkers && $scope.myCoworkers.length) {
-                    for (var i = 0, ii = $scope.myCoworkers.length; i < ii; i++) {
-                        if ($scope.label === $scope.myCoworkers[i].coworker_label) {
-                            $scope.myCoworkers.splice(i, 1);
-                            break;
-                        }
-                    }
-                }
-                $scope.personOfNewManager = '';
+                noticebox.success('完成移交');
             });
         }
         $scope.openMyCoworkers = function() {

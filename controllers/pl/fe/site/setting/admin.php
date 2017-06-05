@@ -93,4 +93,53 @@ class admin extends \pl\fe\base {
 
 		return new \ResponseData($rst);
 	}
+	/**
+	 * 移交团队
+	 */
+	public function transferSite_action($site, $label) {
+		if (false === ($user = $this->accountUser())) {
+			return new \ResponseTimeout();
+		}
+		
+		$modelSite = $this->model('site');
+		$matter = $modelSite->byId($site, ['fields' => 'creater,id,name as title']);
+		if($user->id !== $matter->creater){
+			return new \ResponseError('只有创建者才有此权限');
+		}
+
+		$label = $modelSite->escape($label);
+		$account =$this->model('account')->getAccountByAuthedId($label);
+		if (!$account) {
+			return new \ResponseError('指定的账号不是注册账号，请先注册！');
+		}
+		if($account->uid === $matter->creater){
+			return new \ResponseError('用户已是团队创建者');
+		}
+
+		$rst = $modelSite->update(
+			'xxt_site',
+			['creater' => $account->uid, 'creater_name' => $account->nickname],
+			"id='$site'"
+		);
+
+		$modelAdm = $this->model('site\admin');
+		$admin = new \stdClass;
+		$admin->uid = $account->uid;
+		$admin->ulabel = $account->nickname;
+		$modelAdm->add($user, $site, $admin);
+		/**
+		 * 对已经存在的资源进行授权。
+		 * @todo 这部分代码是否应该改为用队列实现？
+		 */
+		$coworker = new \stdClass;
+		$coworker->id = $account->uid;
+		$coworker->label = $account->nickname;
+		$this->model('matter\mission\acl')->addSiteAdmin($site, $user, $coworker);
+
+		/*记录操作日志*/
+		$matter->type = 'site';
+		$this->model('matter\log')->matterOp($site, $user, $matter, 'transfer');
+
+		return new \ResponseData($rst);
+	}
 }

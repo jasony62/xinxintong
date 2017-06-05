@@ -205,4 +205,58 @@ class coworker extends \pl\fe\matter\base {
 
 		return new \ResponseData($acl);
 	}
+	/**
+	 * 移交项目
+	 */
+	public function transferMission_action($site, $mission, $label) {
+		if (false === ($user = $this->accountUser())) {
+			return new \ResponseTimeout();
+		}
+		
+		$modelMis = $this->model('matter\mission');
+		$mission = $modelMis->byId($mission);
+		if($user->id !== $mission->creater){
+			return new \ResponseError('只有创建者才有此权限');
+		}
+
+		$label = $modelMis->escape($label);
+		$account =$this->model('account')->getAccountByAuthedId($label);
+		if (!$account) {
+			return new \ResponseError('指定的账号不是注册账号，请先注册！');
+		}
+		if($account->uid === $mission->creater){
+			return new \ResponseError('用户已是项目创建者');
+		}
+
+		/* modifier */
+		$nv = new \stdClass;
+		$nv->modifier = $user->id;
+		$nv->modifier_src = $user->src;
+		$nv->modifier_name = $modelMis->escape($user->name);
+		$nv->modify_at = time();
+		$nv->creater = $account->uid;
+		$nv->creater_name = $account->nickname;
+		$rst = $modelMis->update(
+			'xxt_mission',
+			$nv,
+			"id='$mission->id'"
+		);
+
+		$modelAcl = $this->model('matter\mission\acl');
+		$acl = $modelAcl->byCoworker($mission->id, $account->uid);
+		if (!$acl) {
+			/*加入ACL*/
+			$mission = $modelMis->escape($mission);
+			$coworker = new \stdClass;
+			$coworker->id = $account->uid;
+			$coworker->label = $account->nickname;
+			$modelAcl->add($user, $mission, $coworker, 'O');
+		}
+		
+		/*记录操作日志*/
+		$mission->type = 'mission';
+		$this->model('matter\log')->matterOp($site, $user, $mission, 'transfer');
+
+		return new \ResponseData($rst);
+	}
 }

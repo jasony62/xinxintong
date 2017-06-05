@@ -241,36 +241,38 @@ class coworker extends \pl\fe\matter\base {
 			$nv,
 			"id='$mission->id'"
 		);
-		//修改原作者作为管理员的权限
-		$modelMis->update(
-			'xxt_mission_acl',
-			['coworker_role' => 'C'],
-			["mission_id" => $mission->id, "coworker" => $mission->creater, "last_invite" => 'Y']
-		);
-
-		$modelAcl = $this->model('matter\mission\acl');
-		$acl = $modelAcl->byCoworker($mission->id, $account->uid);
-		if (!$acl) {
-			/*加入ACL*/
-			$missionNew = $modelMis->escape($mission);
-			$missionNew->creater = $account->uid;
-			$missionNew->creater_name = $account->nickname;
-			$coworker = new \stdClass;
-			$coworker->id = $account->uid;
-			$coworker->label = $account->nickname;
-			$modelAcl->add($user, $missionNew, $coworker, 'O');
-		}else{
+		if($rst){
 			//修改原作者作为管理员的权限
 			$modelMis->update(
 				'xxt_mission_acl',
-				['coworker_role' => 'O', 'creater' => $account->uid, 'creater_name' => $account->nickname],
-				["mission_id" => $mission->id, "coworker" => $account->uid, "last_invite" => 'Y']
+				['coworker_role' => 'C'],
+				["mission_id" => $mission->id, "coworker" => $mission->creater, "last_invite" => 'Y']
 			);
+
+			$modelAcl = $this->model('matter\mission\acl');
+			$acl = $modelAcl->byCoworker($mission->id, $account->uid);
+			if (!$acl) {
+				/*加入ACL*/
+				$missionNew = $modelMis->escape($mission);
+				$missionNew->creater = $account->uid;
+				$missionNew->creater_name = $account->nickname;
+				$coworker = new \stdClass;
+				$coworker->id = $account->uid;
+				$coworker->label = $account->nickname;
+				$modelAcl->add($user, $missionNew, $coworker, 'O');
+			}else{
+				//修改原作者作为管理员的权限
+				$modelMis->update(
+					'xxt_mission_acl',
+					['coworker_role' => 'O', 'creater' => $account->uid, 'creater_name' => $account->nickname],
+					["mission_id" => $mission->id, "coworker" => $account->uid, "last_invite" => 'Y']
+				);
+			}
+			
+			/*记录操作日志*/
+			$mission->type = 'mission';
+			$this->model('matter\log')->matterOp($site, $user, $mission, 'transfer');
 		}
-		
-		/*记录操作日志*/
-		$mission->type = 'mission';
-		$this->model('matter\log')->matterOp($site, $user, $mission, 'transfer');
 
 		return new \ResponseData($rst);
 	}

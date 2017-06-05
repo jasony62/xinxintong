@@ -52,15 +52,23 @@ class remark extends base {
 		if (false === $oApp) {
 			return new \ObjectNotFoundError();
 		}
+
+		$oUser = $this->who;
+		$userNickname = $modelEnl->getUserNickname($oApp, $oUser);
+		$oUser->nickname = $userNickname;
+
 		/**
 		 * 发表评论的用户
 		 */
 		$current = time();
 		$remark = new \stdClass;
-		$remark->userid = $this->who->uid;
+		$remark->siteid = $oRecord->siteid;
+		$remark->aid = $oRecord->aid;
+		$remark->userid = $oUser->uid;
 		$remark->user_src = 'S';
-		$remark->nickname = $this->who->nickname;
+		$remark->nickname = $oUser->nickname;
 		$remark->enroll_key = $ek;
+		$remark->enroll_userid = $oRecord->userid;
 		$remark->schema_id = $schema;
 		$remark->create_at = $current;
 		$remark->content = $modelRec->escape($data->content);
@@ -70,6 +78,28 @@ class remark extends base {
 		$modelRec->update("update xxt_enroll_record set remark_num=remark_num+1 where enroll_key='$ek'");
 		if (isset($schema)) {
 			$modelRec->update("update xxt_enroll_record_data set remark_num=remark_num+1,last_remark_at=$current where enroll_key='$ek' and schema_id='$schema'");
+		}
+
+		$modelUsr = $this->model('matter\enroll\user');
+		/* 更新发起评论的活动用户数据 */
+		$oEnrollUsr = $modelUsr->byId($oApp, $oUser->uid, ['fields' => 'id,nickname,last_remark_other_at,remark_other_num']);
+		if (false === $oEnrollUsr) {
+			$modelUsr->add($oApp, $oUser, ['last_remark_other_at' => time(), 'remark_other_num' => 1]);
+		} else {
+			$modelUsr->update(
+				'xxt_enroll_user',
+				['last_remark_other_at' => time(), 'remark_other_num' => $oEnrollUsr->remark_other_num + 1],
+				['id' => $oEnrollUsr->id]
+			);
+		}
+		/* 更新被评论的活动用户数据 */
+		$oEnrollUsr = $modelUsr->byId($oApp, $oRecord->userid, ['fields' => 'id,nickname,last_remark_at,remark_num']);
+		if ($oEnrollUsr) {
+			$modelUsr->update(
+				'xxt_enroll_user',
+				['last_remark_at' => time(), 'remark_num' => $oEnrollUsr->remark_num + 1],
+				['id' => $oEnrollUsr->id]
+			);
 		}
 
 		$this->_notifyHasRemark($oApp, $oRecord, $remark);
@@ -166,7 +196,7 @@ class remark extends base {
 	 */
 	public function like_action($remark) {
 		$modelRem = $this->model('matter\enroll\remark');
-		$oRemark = $modelRem->byId($remark, ['fields' => 'id,like_log']);
+		$oRemark = $modelRem->byId($remark, ['fields' => 'aid,id,like_log']);
 		if (false === $oRemark) {
 			return new \ObjectNotFoundError();
 		}
@@ -177,8 +207,10 @@ class remark extends base {
 
 		if (isset($oLikeLog->{$oUser->uid})) {
 			unset($oLikeLog->{$oUser->uid});
+			$incLikeNum = -1;
 		} else {
 			$oLikeLog->{$oUser->uid} = time();
+			$incLikeNum = 1;
 		}
 		$likeNum = count(get_object_vars($oLikeLog));
 
@@ -187,6 +219,30 @@ class remark extends base {
 			['like_log' => json_encode($oLikeLog), 'like_num' => $likeNum],
 			['id' => $oRemark->id]
 		);
+
+		$oApp = new \stdClass;
+		$oApp->id = $oRemark->aid;
+		$modelUsr = $this->model('matter\enroll\user');
+		/* 更新进行点赞的活动用户的数据 */
+		$oEnrollUsr = $modelUsr->byId($oApp, $this->who->uid, ['fields' => 'id,nickname,last_like_other_remark_at,like_other_remark_num']);
+		if (false === $oEnrollUsr) {
+			$modelUsr->add($oApp, $this->who, ['last_like_other_remark_at' => time(), 'like_other_remark_num' => 1]);
+		} else {
+			$modelUsr->update(
+				'xxt_enroll_user',
+				['last_like_other_remark_at' => time(), 'like_other_remark_num' => $oEnrollUsr->like_other_remark_num + $incLikeNum],
+				['id' => $oEnrollUsr->id]
+			);
+		}
+		/* 更新被点赞的活动用户的数据 */
+		$oEnrollUsr = $modelUsr->byId($oApp, $this->who->uid, ['fields' => 'id,nickname,last_like_remark_at,like_remark_num']);
+		if ($oEnrollUsr) {
+			$modelUsr->update(
+				'xxt_enroll_user',
+				['last_like_remark_at' => time(), 'like_remark_num' => $oEnrollUsr->like_remark_num + $incLikeNum],
+				['id' => $oEnrollUsr->id]
+			);
+		}
 
 		return new \ResponseData(['like_log' => $oLikeLog, 'like_num' => $likeNum]);
 	}

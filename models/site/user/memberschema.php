@@ -8,25 +8,32 @@ class memberschema_model extends \TMS_MODEL {
 	 *
 	 */
 	private function &_queryBy($where, $fields = '*') {
-		$q = array(
+		$q = [
 			$fields,
 			'xxt_site_member_schema',
 			$where,
-		);
+		];
 
 		$schemas = $this->query_objs_ss($q);
-
-		foreach ($schemas as &$schema) {
-			if (!empty($schema->extattr)) {
-				$schema->extattr = json_decode($schema->extattr);
-			}
-			if (!empty($schema->page_code_name)) {
-				$page = \TMS_APP::M('code\page')->lastPublishedByName(
-					$schema->siteid,
-					$schema->page_code_name,
-					array('fields' => 'id,html,css,js')
-				);
-				$schema->page = $page;
+		if (count($schemas)) {
+			$modelCp = $this->model('code\page');
+			foreach ($schemas as &$schema) {
+				if ($schema->type === 'inner') {
+					if (isset($schema->siteid) && isset($schema->id)) {
+						$schema->fullUrl = 'http://' . APP_HTTP_HOST . $schema->url . '?site=' . $schema->siteid . '&schema=' . $schema->id;
+					}
+				}
+				if (!empty($schema->extattr)) {
+					$schema->extattr = json_decode($schema->extattr);
+				}
+				if (!empty($schema->page_code_name)) {
+					$page = $modelCp->lastPublishedByName(
+						$schema->siteid,
+						$schema->page_code_name,
+						['fields' => 'id,html,css,js']
+					);
+					$schema->page = $page;
+				}
 			}
 		}
 

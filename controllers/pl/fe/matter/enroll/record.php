@@ -1052,9 +1052,9 @@ class record extends \pl\fe\matter\base {
 
 		return new \ResponseData($result);
 	}
-	/*
-		* 给指定的登记记录的添加评论
-	*/
+	/**
+	 * 给指定的登记记录的添加评论
+	 */
 	public function addRemark_action($ek) {
 		if (false === ($user = $this->accountUser())) {
 			return new \ResponseTimeout();
@@ -1075,10 +1075,13 @@ class record extends \pl\fe\matter\base {
 		 * 发表评论的用户
 		 */
 		$remark = new \stdClass;
+		$remark->siteid = $oRecord->siteid;
+		$remark->aid = $oRecord->aid;
 		$remark->userid = $user->id;
 		$remark->user_src = 'P';
 		$remark->nickname = $user->name;
 		$remark->enroll_key = $ek;
+		$remark->enroll_userid = $oRecord->userid;
 		$remark->create_at = time();
 		$remark->content = $modelRec->escape($data->content);
 

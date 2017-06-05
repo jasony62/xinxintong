@@ -65,4 +65,73 @@ class remark_model extends \TMS_MODEL {
 
 		return $result;
 	}
+	/**
+	 * 获得指定登记记录的评论
+	 */
+	public function listByApp($oApp, $page = 1, $size = 10, $options = []) {
+		$fields = isset($options['fields']) ? $options['fields'] : '*';
+
+		$result = new \stdClass;
+		$q = [
+			$fields,
+			'xxt_enroll_record_remark',
+			"aid='$oApp->id'",
+		];
+		/* filter */
+		if (isset($options['criteria'])) {
+			$oCriteria = $options['criteria'];
+			if (isset($oCriteria->enrollee)) {
+				$q[2] .= " and enroll_userid='{$oCriteria->enrollee}'";
+			}
+			if (isset($oCriteria->remarker)) {
+				$q[2] .= " and userid='{$oCriteria->remarker}'";
+			}
+		}
+
+		$q2 = [];
+		/* orderby */
+		if (isset($options['criteria'])) {
+			$oCriteria = $options['criteria'];
+			if (isset($oCriteria->orderby)) {
+				$q2['o'] = $oCriteria->orderby . ' desc';
+			} else {
+				$q2['o'] = 'create_at desc';
+			}
+		} else {
+			$q2['o'] = 'create_at desc';
+		}
+		/* pagination */
+		$q2['r'] = ['o' => ($page - 1) * $size, 'l' => $size];
+
+		$aRemarks = $this->query_objs_ss($q, $q2);
+		$oAssocRecords = new \stdClass;
+		if (count($aRemarks)) {
+			$fnHandlers = [];
+			if ($fields === '*' || false !== strpos($fields, 'like_log')) {
+				$fnHandlers[] = function (&$oRemark) {
+					$oRemark->like_log = empty($oRemark->like_log) ? new \stdClass : json_decode($oRemark->like_log);
+				};
+			}
+			/* 处理获得的数据 */
+			$cachedData = new \stdClass;
+			$modelRec = $this->model('matter\enroll\record');
+			foreach ($aRemarks as &$oRemark) {
+				foreach ($fnHandlers as $fnHandler) {
+					$fnHandler($oRemark);
+				}
+				if (!isset($oAssocRecords->{$oRemark->enroll_key})) {
+					$oRecord = $modelRec->byId($oRemark->enroll_key, ['fields' => 'userid,enroll_at,nickname,data']);
+					$oAssocRecords->{$oRemark->enroll_key} = $oRecord;
+				}
+			}
+		}
+
+		$result->remarks = $aRemarks;
+		$result->records = $oAssocRecords;
+
+		$q[0] = 'count(*)';
+		$result->total = (int) $this->query_val_ss($q);
+
+		return $result;
+	}
 }

@@ -64,9 +64,8 @@
                     </div>
                     <div class='collapse navbar-collapse' id='navbar-collapse-1'>
                         <nav class='nav navbar-nav tms-breadcrumb'>
-                            <li><a href="/rest/pl/fe" target='_self'>个人工作台</a></li>
-                            <li ng-if="site.yourRole"><a href="/rest/pl/fe/site/console?site={{app.siteid}}" target='_self'>{{site.name}}</a>
-                            </li>
+                            <li><a href="/rest/pl/fe?view=main&scope=activity&type=signin&sid={{site.id}}" target='_self'>个人工作台</a></li>
+                            <li ng-if="site.yourRole"><a href="/rest/pl/fe/site/home?site={{app.siteid}}" target='_self'>{{site.name}}</a></li>
                             <li ng-if="!site.yourRole"><a href="javascript:void(0)" style='color:#777;cursor:default;'>{{site.name}}</a></li>
                             <li ng-if="app.mission"><a href="/rest/pl/fe/matter/mission?site={{app.siteid}}&id={{app.mission.id}}" target='_self' title="{{app.mission.title}}">{{app.mission.title}}</a></li>
                             <li ng-if="app.mission"><a href="/rest/pl/fe/matter/mission/matter?site={{app.siteid}}&id={{app.mission.id}}#signin" target='_self'>签到</a></li>

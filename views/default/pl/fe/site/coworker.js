@@ -8,6 +8,14 @@ ngApp.config(['$locationProvider', '$uibTooltipProvider', function ($lp, $uibToo
 ngApp.controller('ctrlCoworker', ['$scope', '$location', 'http2',  function ($scope, $location, http2) {
     $scope.siteId = $location.search().site;
     $scope.ulabel = '';
+    $scope.manager = '';
+    $scope.modify = function() {
+        var url = '/rest/pl/fe/site/setting/admin/transferSite?site=' + $scope.site.id
+            url += '&label=' + $scope.manager;
+        http2.get(url, function() {
+            alert('移交成功');
+        });
+    }
     $scope.add = function () {
         var url = '/rest/pl/fe/site/setting/admin/add?site=' + $scope.siteId;
         $scope.ulabel && $scope.ulabel.length > 0 && (url += '&ulabel=' + $scope.ulabel);

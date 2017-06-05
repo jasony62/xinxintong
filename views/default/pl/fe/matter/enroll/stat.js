@@ -17,7 +17,7 @@ define(['frame'], function(ngApp) {
                     renderTo: item.id
                 },
                 title: {
-                    text: item.title
+                    text: '' //item.title
                 },
                 legend: {
                     enabled: false
@@ -60,7 +60,7 @@ define(['frame'], function(ngApp) {
                     renderTo: item.id
                 },
                 title: {
-                    text: item.title
+                    text: '' //item.title
                 },
                 plotOptions: {
                     pie: {
@@ -114,7 +114,7 @@ define(['frame'], function(ngApp) {
                     renderTo: schema.id
                 },
                 title: {
-                    text: schema.title
+                    text: '' //schema.title
                 },
                 tooltip: {
                     pointFormat: '{series.name}: <b>{point.percentage:.1f}</b>'
@@ -161,7 +161,7 @@ define(['frame'], function(ngApp) {
                     renderTo: item.id
                 },
                 title: {
-                    text: item.title,
+                    text: '' //item.title,
                 },
                 xAxis: {
                     categories: categories
@@ -252,15 +252,6 @@ define(['frame'], function(ngApp) {
             url += '?site=' + $scope.app.siteid + '&app=' + $scope.app.id + '&rid=' + (rid ? rid : '');
 
             window.open(url);
-            // http2.post(url, params, function(rsp) {
-            //     var blob;
-
-            //     blob = new Blob([rsp.data], {
-            //         type: "application/vnd.ms-word;charset=utf-8;"
-            //     });
-
-            //     saveAs(blob, $scope.app.title + '.doc');
-            // });
         };
         $scope.getRecords = function(schema, page) {
             var cached;

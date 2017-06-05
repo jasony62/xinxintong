@@ -42,6 +42,7 @@ define(["require", "angular", "enrollService"], function(require, angular) {
             // schemas
             var recordSchemas = [],
                 recordSchemas2 = [],
+                remarkableSchemas = [],
                 enrollDataSchemas = [],
                 groupDataSchemas = [],
                 numberSchemas = [];
@@ -51,6 +52,7 @@ define(["require", "angular", "enrollService"], function(require, angular) {
                     recordSchemas2.push(schema);
                 }
                 if (schema.remarkable && schema.remarkable === 'Y') {
+                    remarkableSchemas.push(schema);
                     recordSchemas2.push({ type: 'remark', title: '评论数', id: schema.id });
                 }
                 if (schema.number && schema.number === 'Y') {
@@ -59,6 +61,7 @@ define(["require", "angular", "enrollService"], function(require, angular) {
             });
             $scope.recordSchemas = recordSchemas;
             $scope.recordSchemas2 = recordSchemas2;
+            $scope.remarkableSchemas = remarkableSchemas;
             $scope.numberSchemas = numberSchemas;
             oApp._schemasFromEnrollApp.forEach(function(schema) {
                 if (schema.type !== 'html') {
@@ -359,7 +362,7 @@ define(["require", "angular", "enrollService"], function(require, angular) {
                     renderTo: item.id
                 },
                 title: {
-                    text: item.title
+                    text: '' //item.title
                 },
                 legend: {
                     enabled: false
@@ -402,7 +405,7 @@ define(["require", "angular", "enrollService"], function(require, angular) {
                     renderTo: item.id
                 },
                 title: {
-                    text: item.title
+                    text: '' //item.title
                 },
                 plotOptions: {
                     pie: {
@@ -446,7 +449,7 @@ define(["require", "angular", "enrollService"], function(require, angular) {
                     renderTo: item.id
                 },
                 title: {
-                    text: item.title,
+                    text: '' //item.title,
                 },
                 xAxis: {
                     categories: categories
@@ -500,7 +503,7 @@ define(["require", "angular", "enrollService"], function(require, angular) {
                     renderTo: schema.id
                 },
                 title: {
-                    text: schema.title
+                    text: '' //schema.title
                 },
                 tooltip: {
                     pointFormat: '{series.name}: <b>{point.percentage:.1f}</b>'

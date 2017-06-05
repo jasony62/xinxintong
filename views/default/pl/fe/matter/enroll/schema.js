@@ -340,6 +340,12 @@ define(['frame', 'schema', 'wrap'], function(ngApp, schemaLib, wrapLib) {
             //直接拿的激活 schema数据
             var beforeState = angular.copy($scope.activeSchema);
             if (schemaLib.changeType($scope.activeSchema, editing.type)) { //修改激活属性
+                if(/shorttext|longtext/.test(editing.type)){
+                    beforeState.remarkable && ($scope.activeSchema.remarkable = beforeState.remarkable);
+                    beforeState.shareable && ($scope.activeSchema.shareable = beforeState.shareable);
+                    beforeState.description && ($scope.activeSchema.description = beforeState.description);
+                    $scope.activeSchema.format = '';
+                }
                 $scope.activeConfig = wrapLib.input.newWrap($scope.activeSchema).config; //修改配置 激活配置哪里用的？用户左侧设置栏
                 //提交数据，重构后台html
                 $scope.updSchema($scope.activeSchema, beforeState);

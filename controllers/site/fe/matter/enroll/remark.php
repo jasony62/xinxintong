@@ -52,6 +52,11 @@ class remark extends base {
 		if (false === $oApp) {
 			return new \ObjectNotFoundError();
 		}
+
+		$oUser = $this->who;
+		$userNickname = $modelEnl->getUserNickname($oApp, $oUser);
+		$oUser->nickname = $userNickname;
+
 		/**
 		 * 发表评论的用户
 		 */
@@ -59,9 +64,9 @@ class remark extends base {
 		$remark = new \stdClass;
 		$remark->siteid = $oRecord->siteid;
 		$remark->aid = $oRecord->aid;
-		$remark->userid = $this->who->uid;
+		$remark->userid = $oUser->uid;
 		$remark->user_src = 'S';
-		$remark->nickname = $this->who->nickname;
+		$remark->nickname = $oUser->nickname;
 		$remark->enroll_key = $ek;
 		$remark->enroll_userid = $oRecord->userid;
 		$remark->schema_id = $schema;
@@ -77,9 +82,9 @@ class remark extends base {
 
 		$modelUsr = $this->model('matter\enroll\user');
 		/* 更新发起评论的活动用户数据 */
-		$oEnrollUsr = $modelUsr->byId($oApp, $this->who->uid, ['fields' => 'id,nickname,last_remark_other_at,remark_other_num']);
+		$oEnrollUsr = $modelUsr->byId($oApp, $oUser->uid, ['fields' => 'id,nickname,last_remark_other_at,remark_other_num']);
 		if (false === $oEnrollUsr) {
-			$modelUsr->add($oApp, $this->who, ['last_remark_other_at' => time(), 'remark_other_num' => 1]);
+			$modelUsr->add($oApp, $oUser, ['last_remark_other_at' => time(), 'remark_other_num' => 1]);
 		} else {
 			$modelUsr->update(
 				'xxt_enroll_user',

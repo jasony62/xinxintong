@@ -3,6 +3,7 @@ define(['frame'], function(ngApp) {
     ngApp.provider.controller('ctrlEditor', ['$scope', '$location', 'srvEnrollApp', 'srvEnrollRecord', 'srvRecordConverter', 'srvEnrollRound', function($scope, $location, srvEnrollApp, srvEnrollRecord, srvRecordConverter, srvEnlRnd) {
         function _afterGetApp(app) {
             if (oRecord.data) {
+                srvRecordConverter.forTable(oRecord, app._schemasById);
                 app.data_schemas.forEach(function(schema) {
                     if (oRecord.data[schema.id]) {
                         srvRecordConverter.forEdit(schema, oRecord.data);
@@ -150,11 +151,6 @@ define(['frame'], function(ngApp) {
                 $scope.pageOfRound = result.page;
             });
         };
-        $scope.gotoRemark = function(schema) {
-            $scope.activeTab = 'remark';
-            schema._open = false;
-            $scope.switchSchema(schema);
-        };
         $scope.agree = function(oRecord, oSchema) {
             srvEnrollRecord.agree(oRecord.enroll_key, oSchema.id, oRecord.verbose[oSchema.id].agreed).then(function() {});
         };
@@ -166,23 +162,22 @@ define(['frame'], function(ngApp) {
 
         $scope.newRemark = {};
         $scope.schemaRemarks = schemaRemarks = {};
-        $scope.activeTab = 'fields';
-        $scope.selectTab = function(tab) {
-            $scope.activeTab = tab;
-        };
-        $scope.switchSchema = function(schema) {
-            schema._open = !schema._open;
-            if (schema._open) {
-                srvEnrollRecord.listRemark(ek, schema.id).then(function(result) {
-                    schemaRemarks[schema.id] = result.remarks;
-                });
-            }
+        $scope.openedRemarksSchema = false;
+        $scope.switchSchemaRemarks = function(schema) {
+            $scope.openedRemarksSchema = schema;
+            srvEnrollRecord.listRemark(ek, schema.id).then(function(result) {
+                schemaRemarks[schema.id] = result.remarks;
+            });
         };
         $scope.addRemark = function(schema) {
             srvEnrollRecord.addRemark(ek, schema ? schema.id : null, $scope.newRemark).then(function(remark) {
                 if (schema) {
                     !schemaRemarks[schema.id] && (schemaRemarks[schema.id] = []);
                     schemaRemarks[schema.id].push(remark);
+                    if (oRecord.verbose[schema.id] === undefined) {
+                        oRecord.verbose[schema.id] = {};
+                    }
+                    oRecord.verbose[schema.id].remark_num = schemaRemarks[schema.id].length;
                 } else {
                     $scope.remarks.push(remark);
                 }

@@ -268,7 +268,7 @@ define(['require', 'schema', 'page'], function(require, schemaLib, pageLib) {
                         if (name === 'tags') {
                             modifiedData.tags = _oApp.tags.join(',');
                         } else {
-                            modifiedData[name] = _oApp[name];//_oApp  登记活动包  哪里传过来的？
+                            modifiedData[name] = _oApp[name]; //_oApp  登记活动包  哪里传过来的？
                         }
                     });
 
@@ -312,6 +312,7 @@ define(['require', 'schema', 'page'], function(require, schemaLib, pageLib) {
                         page.type === 'I' && (defaultInput = newPage);
                     });
                     inapp.push({ name: 'repos', 'title': '所有数据页' });
+                    inapp.push({ name: 'rank', 'title': '排行榜' });
 
                     return {
                         inapp: inapp,

@@ -350,7 +350,6 @@ define(['frame', 'schema', 'wrap'], function(ngApp, schemaLib, wrapLib) {
                     beforeState.remarkable && ($scope.activeSchema.remarkable = beforeState.remarkable);
                     beforeState.shareable && ($scope.activeSchema.shareable = beforeState.shareable);
                     beforeState.description && ($scope.activeSchema.description = beforeState.description);
-                    $scope.activeSchema.format = '';
                 }
                 $scope.activeConfig = wrapLib.input.newWrap($scope.activeSchema).config; //修改配置 激活配置哪里用的？用户左侧设置栏
                 //提交数据，重构后台html

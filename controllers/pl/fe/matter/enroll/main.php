@@ -1370,7 +1370,7 @@ class main extends \pl\fe\matter\base {
 	 */
 	protected function synDataSchemas($site,$id){
 		$modelApp =\TMS_APP::M('matter\enroll');
-		$app = $modelApp->query_obj_ss(['*','xxt_enroll',['siteid'=>$site,'id'=>$id]]);
+		$app = $modelApp->query_obj_ss(['id,siteid,data_schemas,template_id,template_version,group_app_id,enroll_app_id','xxt_enroll',['siteid'=>$site,'id'=>$id]]);
 		$pages=$modelApp->query_objs_ss(['id,siteid,aid,data_schemas','xxt_enroll_page',['siteid'=>$site,'aid'=>$id]]);
 
 		if(!empty($app->template_id) && !empty($app->template_version)){

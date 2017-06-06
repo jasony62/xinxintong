@@ -23,15 +23,15 @@
                     <div style="width:182px;border:1px solid #CCC">
                         <div style="height:100px;text-align:center;padding-top:32px" ng-if="!mission.pic">
                             <button class='btn btn-default' ng-click='setPic();'>
-                            <span class='glyphicon glyphicon-picture'></span>选择图片</button>
+                                <span class='glyphicon glyphicon-picture'></span>选择图片</button>
                         </div>
                         <div style='position:relative' ng-if="mission.pic" ng-mouseenter='hover=true' ng-mouseleave='hover=false'>
                             <img name='pic' ng-src='{{mission.pic}}' width='180px' />
                             <button class='btn btn-default btn-sm' style='position:absolute;top:2px;left:2px' ng-if='hover' ng-click='setPic();'>
-                            <span class='glyphicon glyphicon-picture'></span>
+                                <span class='glyphicon glyphicon-picture'></span>
                             </button>
                             <button class='btn btn-default btn-sm' style='position:absolute;top:2px;right:2px' ng-if='hover' ng-click='removePic();'>
-                            <span class='glyphicon glyphicon-trash'></span>
+                                <span class='glyphicon glyphicon-trash'></span>
                             </button>
                         </div>
                     </div>
@@ -67,7 +67,7 @@
                     <div class='input-group'>
                         <span class="input-group-addon">
                             <span ng-if="!phases.length">指定阶段数量</span>
-                            <span ng-if="phases.length">增加阶段数量</span>
+                        <span ng-if="phases.length">增加阶段数量</span>
                         </span>
                         <input type='text' class='form-control' ng-model="numberOfNewPhases">
                         <span class='input-group-btn'>
@@ -109,6 +109,14 @@
         <nav class='navbar navbar-default tms-panel-heading'>
             <div class='container-fluid'>
                 <p class="navbar-text">项目合作人</p>
+                <form class='navbar-form navbar-right' ng-show="mission.yourRole==='O'">
+                    <div class='input-group' ng-hide="status">
+                        <input type="text" class="form-control" ng-model='newOwner' placeholder="输入新项目管理员的账号">
+                        <span class='input-group-btn'>
+                            <button class='btn btn-default' ng-click="transfer()">移交</button>
+                        </span>
+                    </div>
+                </form>
             </div>
         </nav>
         <div class='tms-panel-body'>
@@ -146,7 +154,7 @@
                 <div class='form-group'>
                     <button class='btn btn-default' ng-click="closeInvite()">关闭</button>
                 </div>
-            <div>
+                <div>
         </script>
         <script type="text/ng-template" id="myCoworker.html">
             <div id="myCoworker">
@@ -156,104 +164,105 @@
                     </a>
                 </div>
                 <button class='btn btn-default' ng-click="closeMyCoworkers()">关闭</button>
-            <div>
+                <div>
         </script>
-    </div>
-    <div>
-        <nav class='navbar navbar-default tms-panel-heading'>
-            <div class='container-fluid'>
-                <p class="navbar-text">分享设置</p>
-            </div>
-        </nav>
-        <div class='tms-panel-body'>
-            <div class='col-md-6'>
-                <div class='form-group'>
-                    <label>用户参与链接</label>
-                    <div class='input-group'>
-                        <input class='form-control' readonly value="{{entry.url}}">
-                        <span class='input-group-btn'>
+        </div>
+        <div>
+            <nav class='navbar navbar-default tms-panel-heading'>
+                <div class='container-fluid'>
+                    <p class="navbar-text">分享设置</p>
+                </div>
+            </nav>
+            <div class='tms-panel-body'>
+                <div class='col-md-6'>
+                    <div class='form-group'>
+                        <label>用户参与链接</label>
+                        <div class='input-group'>
+                            <input class='form-control' readonly value="{{entry.url}}">
+                            <span class='input-group-btn'>
                             <button class='btn btn-default text2Clipboard' data-clipboard-text="{{entry.url}}">复制</button>
                             <a class='btn btn-default' ng-href="{{entry.url}}" target='_blank' title='打开'><i class='glyphicon glyphicon-open'></i></a>
                         </span>
+                        </div>
                     </div>
-                </div>
-                <form ng-controller="ctrlOpUrl">
-                    <div class='form-group'>
-                        <label>结果展示页面</label>
-                        <div class='input-group'>
-                            <input class='form-control' readonly value="{{opEntry.url}}">
-                            <span class='input-group-btn'>
+                    <form ng-controller="ctrlOpUrl">
+                        <div class='form-group'>
+                            <label>结果展示页面</label>
+                            <div class='input-group'>
+                                <input class='form-control' readonly value="{{opEntry.url}}">
+                                <span class='input-group-btn'>
                                 <button class='btn btn-default text2Clipboard' data-clipboard-text="{{opEntry.url}}">复制</button>
                                 <a class='btn btn-default' ng-href="{{opEntry.url}}" target='_blank' title='打开'><i class='glyphicon glyphicon-open'></i></a>
                             </span>
+                            </div>
                         </div>
-                    </div>
-                    <div class='form-group'>
-                        <button class='btn btn-default' ng-if="!opEntry.url" ng-click="makeOpUrl()">生成</button>
-                        <button class='btn btn-default' ng-if="opEntry.url" ng-click="closeOpUrl()">关闭</button>
-                        <button uib-popover-template="'opUrlPasswd.html'" popover-append-to-body='true' popover-placement="bottom" popover-title="访问密码" popover-trigger="outsideClick" type="button" class="btn btn-default" class='btn btn-default' ng-if="opEntry.url">密码 <span class="caret"></span></button>
-                    </div>
-                    <div class='form-group' ng-if="opEntry.url">
-                        <label class='checkbox-inline'><input type='checkbox' ng-true-value="'Y'" ng-false-value="'N'" ng-model="opEntry.can_favor" ng-change="updCanFavor()">支持收藏</label>
-                        <p class='help-block'>分享链接有效期1小时，设置【支持收藏】后，用户可收藏本链接，避免有效期限制</p>
-                    </div>
-                </form>
+                        <div class='form-group'>
+                            <button class='btn btn-default' ng-if="!opEntry.url" ng-click="makeOpUrl()">生成</button>
+                            <button class='btn btn-default' ng-if="opEntry.url" ng-click="closeOpUrl()">关闭</button>
+                            <button uib-popover-template="'opUrlPasswd.html'" popover-append-to-body='true' popover-placement="bottom" popover-title="访问密码" popover-trigger="outsideClick" type="button" class="btn btn-default" class='btn btn-default' ng-if="opEntry.url">密码 <span class="caret"></span></button>
+                        </div>
+                        <div class='form-group' ng-if="opEntry.url">
+                            <label class='checkbox-inline'>
+                                <input type='checkbox' ng-true-value="'Y'" ng-false-value="'N'" ng-model="opEntry.can_favor" ng-change="updCanFavor()">支持收藏</label>
+                            <p class='help-block'>分享链接有效期1小时，设置【支持收藏】后，用户可收藏本链接，避免有效期限制</p>
+                        </div>
+                    </form>
+                </div>
             </div>
-        </div>
-        <script type="text/ng-template" id="opUrlPasswd.html">
-            <div id="opUrlPasswd">
-                <div class='form-group'>
-                    <div class='input-group'>
-                        <input class='form-control' ng-model="opEntry.password">
-                        <span class='input-group-btn'>
+            <script type="text/ng-template" id="opUrlPasswd.html">
+                <div id="opUrlPasswd">
+                    <div class='form-group'>
+                        <div class='input-group'>
+                            <input class='form-control' ng-model="opEntry.password">
+                            <span class='input-group-btn'>
                             <button class='btn btn-default' ng-click="configOpUrl($event,'password')">设置</button>
                         </span>
+                        </div>
+                    </div>
+                    <div>
+            </script>
+            </div>
+            <div>
+                <nav class='navbar navbar-default tms-panel-heading'>
+                    <div class='container-fluid'>
+                        <p class="navbar-text">其它设置</p>
+                    </div>
+                </nav>
+                <div class='tms-panel-body'>
+                    <div class='col-md-6'>
+                        <table class='table table-bordered' style='margin:0'>
+                            <tr>
+                                <td>给项目中的所有活动和资料添加页眉</td>
+                                <td>
+                                    <div class="btn-group">
+                                        <button type="button" class="btn btn-sm btn-default" ng-click="makePagelet('header')">制作</button>
+                                        <button type="button" class="btn btn-sm btn-default dropdown-toggle" data-toggle="dropdown">
+                                            <span class="caret"></span>
+                                            <span class="sr-only">Toggle Dropdown</span>
+                                        </button>
+                                        <ul class="dropdown-menu" role="menu">
+                                            <li><a href='' ng-click="codePage($event,'header')">编码</a></li>
+                                        </ul>
+                                    </div>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td>给项目中的所有活动和资料添加页脚</td>
+                                <td>
+                                    <div class="btn-group">
+                                        <button type="button" class="btn btn-sm btn-default" ng-click="makePagelet('footer')">制作</button>
+                                        <button type="button" class="btn btn-sm btn-default dropdown-toggle" data-toggle="dropdown">
+                                            <span class="caret"></span>
+                                            <span class="sr-only">Toggle Dropdown</span>
+                                        </button>
+                                        <ul class="dropdown-menu" role="menu">
+                                            <li><a href='' ng-click="codePage($event,'footer')">编码</a></li>
+                                        </ul>
+                                    </div>
+                                </td>
+                            </tr>
+                        </table>
                     </div>
                 </div>
-                <div>
-        </script>
-    </div>
-    <div>
-        <nav class='navbar navbar-default tms-panel-heading'>
-            <div class='container-fluid'>
-                <p class="navbar-text">其它设置</p>
             </div>
-        </nav>
-        <div class='tms-panel-body'>
-            <div class='col-md-6'>
-                <table class='table table-bordered' style='margin:0'>
-                    <tr>
-                        <td>给项目中的所有活动和资料添加页眉</td>
-                        <td>
-                            <div class="btn-group">
-                                <button type="button" class="btn btn-sm btn-default" ng-click="makePagelet('header')">制作</button>
-                                <button type="button" class="btn btn-sm btn-default dropdown-toggle" data-toggle="dropdown">
-                                    <span class="caret"></span>
-                                    <span class="sr-only">Toggle Dropdown</span>
-                                </button>
-                                <ul class="dropdown-menu" role="menu">
-                                    <li><a href='' ng-click="codePage($event,'header')">编码</a></li>
-                                </ul>
-                            </div>
-                        </td>
-                    </tr>
-                    <tr>
-                        <td>给项目中的所有活动和资料添加页脚</td>
-                        <td>
-                            <div class="btn-group">
-                                <button type="button" class="btn btn-sm btn-default" ng-click="makePagelet('footer')">制作</button>
-                                <button type="button" class="btn btn-sm btn-default dropdown-toggle" data-toggle="dropdown">
-                                    <span class="caret"></span>
-                                    <span class="sr-only">Toggle Dropdown</span>
-                                </button>
-                                <ul class="dropdown-menu" role="menu">
-                                    <li><a href='' ng-click="codePage($event,'footer')">编码</a></li>
-                                </ul>
-                            </div>
-                        </td>
-                    </tr>
-                </table>
             </div>
-        </div>
-    </div>
-</div>

@@ -109,7 +109,7 @@ class record extends \pl\fe\matter\base {
 					}
 				} else if (count($signinRecords) === 0) {
 					/* 没有对应的记录，创建新的 */
-					$ek = $mdoelSigninRec->enroll($site, $signinApp, null, ['verified_enroll_key' => $record->enroll_key]);
+					$ek = $mdoelSigninRec->enroll($signinApp, null, ['verified_enroll_key' => $record->enroll_key]);
 					$mdoelSigninRec->setData($site, $signinApp, $ek, $record->data, $user->id);
 					$countOfNew++;
 				} else {

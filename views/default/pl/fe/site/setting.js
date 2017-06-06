@@ -153,24 +153,24 @@ define(['require'], function(require) {
             location.href = '/rest/pl/fe/site/sns/' + snsName + '?site=' + $scope.siteId;
         };
         /* 下面两段代码的逻辑要优化 */
-        http2.get('/rest/pl/be/platform/get', function(rsp) {
-            if (rsp.data.home_nav) {
-                $scope.home_nav = rsp.data.home_nav;
-                $scope.home_nav.forEach(function(item) {
-                    if (item.site.id == $scope.site.id) {
-                        $scope.navSite = navSite = item;
-                    }
-                })
-            }
-        });
-        http2.get('/rest/pl/be/home/recommend/listSite', function(rsp) {
-            $scope.sites = rsp.data.sites;
-            $scope.sites.forEach(function(item) {
-                if (item.siteid == $scope.site.id) {
-                    $scope.recommenSite = recommenSite = item;
-                }
-            });
-        });
+        // http2.get('/rest/pl/be/platform/get', function(rsp) {
+        //     if (rsp.data.home_nav) {
+        //         $scope.home_nav = rsp.data.home_nav;
+        //         $scope.home_nav.forEach(function(item) {
+        //             if (item.site.id == $scope.site.id) {
+        //                 $scope.navSite = navSite = item;
+        //             }
+        //         })
+        //     }
+        // });
+        // http2.get('/rest/pl/be/home/recommend/listSite', function(rsp) {
+        //     $scope.sites = rsp.data.sites;
+        //     $scope.sites.forEach(function(item) {
+        //         if (item.siteid == $scope.site.id) {
+        //             $scope.recommenSite = recommenSite = item;
+        //         }
+        //     });
+        // });
     }]);
     ngApp.controller('ctrlBasic', ['$scope', function($scope) {
         (function() {

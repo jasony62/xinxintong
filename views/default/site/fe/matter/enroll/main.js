@@ -199,7 +199,8 @@ ngApp.controller('ctrlMain', ['$scope', '$http', '$timeout', 'ls', 'tmsDynaPage'
             oMission = params.mission,
             oPage = params.page,
             oUser = params.user,
-            schemasById = {};
+            schemasById = {},
+            shareid, sharelink, shareby, summary;
 
         oApp.dataSchemas.forEach(function(schema) {
             schemasById[schema.id] = schema;
@@ -213,21 +214,19 @@ ngApp.controller('ctrlMain', ['$scope', '$http', '$timeout', 'ls', 'tmsDynaPage'
         if (oApp.multi_rounds === 'Y') {
             $scope.activeRound = params.activeRound;
         }
-        /* 设置分享 */
-        if (/MicroMessenger|Yixin/i.test(navigator.userAgent)) {
-            var shareid, sharelink, shareby, summary;
-
-            shareid = oUser.uid + '_' + (new Date() * 1);
-            sharelink = 'http://' + location.host + LS.j('', 'site', 'app');
-            if (oPage && oPage.share_page && oPage.share_page === 'Y') {
-                sharelink += '&page=' + oPage.name;
-                params.record && (sharelink += '&ek=' + params.record.enroll_key);
-            }
-            sharelink += "&shareby=" + shareid;
+        /* 设置活动的当前链接 */
+        shareid = oUser.uid + '_' + (new Date() * 1);
+        sharelink = 'http://' + location.host + LS.j('', 'site', 'app');
+        sharelink += "&shareby=" + shareid;
+        if (oPage && oPage.share_page && oPage.share_page === 'Y') {
+            sharelink += '&page=' + oPage.name;
+            params.record && (sharelink += '&ek=' + params.record.enroll_key);
             if (window.history && window.history.replaceState) {
                 window.history.replaceState({}, oApp.title, sharelink);
             }
-
+        }
+        /* 设置分享 */
+        if (/MicroMessenger|Yixin/i.test(navigator.userAgent)) {
             summary = oApp.summary;
             if (oPage && oPage.share_summary && oPage.share_summary.length && params.record) {
                 summary = params.record.data[oPage.share_summary];

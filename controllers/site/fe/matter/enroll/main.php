@@ -312,18 +312,19 @@ class main extends base {
 							/* 获得最后一条登记数据。记录有可能未进行过数据填写 */
 							$options = [
 								'fields' => '*',
+								'verbose' => 'Y',
 							];
 							$lastRecord = $modelRec->lastByUser($oApp, $oUser, $options);
 							$params['record'] = $lastRecord;
 						}
 					} else {
-						$record = $modelRec->byId($ek);
+						$record = $modelRec->byId($ek, ['verbose' => 'Y']);
 						$params['record'] = $record;
 					}
 				}
 			}
 		} else if ($page === 'remark' && !empty($ek)) {
-			$record = $modelRec->byId($ek);
+			$record = $modelRec->byId($ek, ['verbose' => 'Y']);
 			$params['record'] = $record;
 		}
 

@@ -162,7 +162,7 @@ define(['frame', 'schema', 'wrap'], function(ngApp, schemaLib, wrapLib) {
             $scope.$parent.activeSchema = schema;
             if ($scope.app.scenario && $scope.activeSchema.type === 'multiple') {
                 angular.isString($scope.activeSchema.answer) && ($scope.activeSchema.answer = $scope.activeSchema.answer.split(','));
-                !$scope.data && ($scope.data = {});
+                $scope.data = {};
                 angular.forEach($scope.activeSchema.answer, function(answer) {
                     $scope.data[answer] = true;
                 })

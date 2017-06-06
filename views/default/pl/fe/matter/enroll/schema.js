@@ -337,6 +337,12 @@ define(['frame', 'schema', 'wrap'], function(ngApp, schemaLib, wrapLib) {
             }
         };
         $scope.changeSchemaType = function() {
+            if(/shorttext|longtext/.test(editing.type)){
+                if(!window.confirm('进行此操作，有些配置将不可恢复!')){
+                    editing.type = editing.type==='shorttext' ? 'longtext' : 'shorttext';
+                    return;
+                }
+            }
             //直接拿的激活 schema数据
             var beforeState = angular.copy($scope.activeSchema);
             if (schemaLib.changeType($scope.activeSchema, editing.type)) { //修改激活属性

@@ -20,7 +20,7 @@ class acl_model extends \TMS_MODEL {
 		$q = [
 			$fields,
 			'xxt_mission_acl',
-			"mission_id='$missionId'",
+			"mission_id='$missionId' and last_invite = 'Y'",
 		];
 		if ($excludeOwner === 'Y') {
 			$q[2] .= " and creater<>coworker";

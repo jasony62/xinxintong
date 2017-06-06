@@ -224,6 +224,9 @@ ngApp.controller('ctrlMain', ['$scope', '$http', '$timeout', 'ls', 'tmsDynaPage'
                 params.record && (sharelink += '&ek=' + params.record.enroll_key);
             }
             sharelink += "&shareby=" + shareid;
+            if (window.history && window.history.replaceState) {
+                window.history.replaceState({}, oApp.title, sharelink);
+            }
 
             summary = oApp.summary;
             if (oPage && oPage.share_summary && oPage.share_summary.length && params.record) {

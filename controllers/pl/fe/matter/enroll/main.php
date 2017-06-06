@@ -821,6 +821,115 @@ class main extends \pl\fe\matter\base {
 		return new \ResponseData($app);
 	}
 	/**
+	 * 通过导入的Excel数据记录创建登记活动
+	 * 目前就是填空题
+	 */
+	public function createByExcel_action($site){
+		if (false === ($user = $this->accountUser())) {
+			return new \ResponseTimeout();
+		}
+
+		require_once TMS_APP_DIR . '/lib/PHPExcel.php';
+		$modelApp = $this->model('matter\enroll');
+		$modelApp->setOnlyWriteDbConn(true);
+
+		//$filename = \TMS_MODEL::toLocalEncoding($filename);
+		$filename='./cus/a.xlsx';
+		$objPHPExcel = \PHPExcel_IOFactory::load($filename);
+		$objWorksheet = $objPHPExcel->getActiveSheet();
+		//xlsx 行号是数字
+		$highestRow = $objWorksheet->getHighestRow();
+		//xlsx 列的标识 eg：A,B,C,D,……,Z
+		$highestColumn = $objWorksheet->getHighestColumn();
+		//把最大的列换成数字
+		$highestColumnIndex = \PHPExcel_Cell::columnIndexFromString($highestColumn);
+
+		/* 使用缺省模板 */
+		$config = $this->_getSysTemplate('common', 'simple');
+		$config->schema_include_mission_phases = 'N';
+
+		/* 修改模板的配置 */
+		$config->schema = [];
+		foreach ($config->pages as &$page) {
+			if ($page->type === 'I') {
+				$page->data_schemas = [];
+			} else if ($page->type === 'V') {
+				$page->data_schemas = [];
+			} else if ($page->type === 'L') {
+				$page->data_schemas = [];
+			}
+		}
+
+		/* 进入规则 */
+		$entryRule = $config->entryRule;
+		if (empty($entryRule)) {
+			return new \ResponseError('没有获得页面进入规则');
+		}
+
+		$oSite = $this->model('site')->byId($site, ['fields' => 'id,heading_pic']);
+
+		$current = time();
+		$appId = uniqid();
+		$newapp = [];
+		/*从站点或任务获得的信息*/
+		if (empty($mission)) {
+			$newapp['pic'] = $oSite->heading_pic;
+			$newapp['summary'] = '';
+			$newapp['use_mission_header'] = 'N';
+			$newapp['use_mission_footer'] = 'N';
+		} else {
+			$modelMis = $this->model('matter\mission');
+			$mission = $modelMis->byId($mission);
+			$newapp['pic'] = $mission->pic;
+			$newapp['summary'] = $mission->summary;
+			$newapp['mission_id'] = $mission->id;
+			$newapp['use_mission_header'] = 'Y';
+			$newapp['use_mission_footer'] = 'Y';
+		}
+		/* 添加页面 */
+		$this->_addPageByTemplate($user, $oSite, $mission, $appId, $config, null);
+		/* 登记数量限制 */
+		if (isset($config->count_limit)) {
+			$newapp['count_limit'] = $config->count_limit;
+		}
+		if (isset($config->enrolled_entry_page)) {
+			$newapp['enrolled_entry_page'] = $config->enrolled_entry_page;
+		}
+		/* 场景设置 */
+		if (isset($config->scenarioConfig)) {
+			$scenarioConfig = $config->scenarioConfig;
+			$newapp['scenario_config'] = json_encode($scenarioConfig);
+		}
+		$newapp['scenario'] = 'common';
+		/* create app */
+		$newapp['id'] = $appId;
+		$newapp['siteid'] = $oSite->id;
+		$newapp['title'] = '新登记活动';
+		$newapp['creater'] = $user->id;
+		$newapp['creater_src'] = $user->src;
+		$newapp['creater_name'] = $modelApp->escape($user->name);
+		$newapp['create_at'] = $current;
+		$newapp['modifier'] = $user->id;
+		$newapp['modifier_src'] = $user->src;
+		$newapp['modifier_name'] = $modelApp->escape($user->name);
+		$newapp['modify_at'] = $current;
+		$newapp['entry_rule'] = json_encode($entryRule);
+		$newapp['can_siteuser'] = 'Y';
+		$newapp['data_schemas'] = \TMS_MODEL::toJson($config->schema);
+
+		$modelApp->insert('xxt_enroll', $newapp, false);
+
+		$app = $modelApp->byId($appId);
+		/* 记录操作日志 */
+		$this->model('matter\log')->matterOp($oSite->id, $user, $app, 'C');
+		/* 记录和任务的关系 */
+		if (isset($mission->id)) {
+			$modelMis->addMatter($user, $oSite->id, $mission->id, $app);
+		}
+
+		return new \ResponseData($app);
+	}
+	/**
 	 * 更新活动的属性信息
 	 *
 	 * @param string $site site'id

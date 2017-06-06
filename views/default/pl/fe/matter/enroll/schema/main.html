@@ -70,7 +70,7 @@
         <label class="radio-inline">
             <input type='radio' name='align' value='H' ng-model='activeConfig.align' ng-change="updConfig('align')">水平排列</label>
     </div>
-    <div class="checkbox">
+    <div class="checkbox" ng-if="['longtext','shorttext'].indexOf(activeSchema.type)!==-1">
         <label>
             <input type='checkbox' ng-true-value="'longtext'" ng-false-value="'shorttext'" ng-model='editing.type' ng-change="changeSchemaType()">是否需要多行</label>
     </div>

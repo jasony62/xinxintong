@@ -39,7 +39,13 @@ define(['require'], function() {
         alertMsg: {
             'schema.duplicated': '不允许重复添加登记项',
             'require.mission.phase': '请先指定项目的阶段'
-        }
+        },
+        importSource: [
+            { v: 'mschema', l: '通讯录联系人' },
+            { v: 'registration', l: '报名' },
+            { v: 'signin', l: '签到' },
+            { v: 'wall', l: '信息墙' }
+        ]
     });
     ngApp.config(['$controllerProvider', '$routeProvider', '$locationProvider', '$compileProvider', 'srvQuickEntryProvider', 'srvSiteProvider', 'srvGroupAppProvider', 'srvGroupRoundProvider', function($controllerProvider, $routeProvider, $locationProvider, $compileProvider, srvQuickEntryProvider, srvSiteProvider, srvGroupAppProvider, srvGroupRoundProvider) {
         var RouteParam = function(name) {

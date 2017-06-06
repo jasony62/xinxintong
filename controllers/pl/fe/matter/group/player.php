@@ -164,6 +164,8 @@ class player extends \pl\fe\matter\base {
 				$sourceApp = $this->_importBySignin($site, $app, $params);
 			} else if ($params->appType === 'wall') {
 				$sourceApp = $this->_importByWall($site, $app, $params->app, $params->onlySpeaker);
+			} else if ($params->appType === 'mschema') {
+				$sourceApp = $this->_importByMschema($app, $params->app);
 			}
 		}
 
@@ -189,16 +191,111 @@ class player extends \pl\fe\matter\base {
 				$count = $this->_syncBySignin($site, $app, $sourceApp->id);
 			} else if ($sourceApp->type === 'wall') {
 				$count = $this->_syncByWall($site, $app, $sourceApp->id, $onlySpeaker);
+			} else if ($sourceApp->type === 'mschema') {
+				$count = $this->_syncByMschema($app, $sourceApp->id);
 			}
 			// 更新同步时间
 			$modelGrp->update(
 				'xxt_group',
-				array('last_sync_at' => time()),
-				"id='{$app->id}'"
+				['last_sync_at' => time()],
+				['id' => $app->id]
 			);
 		}
 
 		return new \ResponseData($count);
+	}
+	/**
+	 * 从报名活动导入数据
+	 */
+	private function &_importByMschema($groupId, $mschemaId, $sync = 'N') {
+		$modelGrp = $this->model('matter\group');
+		$modelPly = $this->model('matter\group\player');
+		$modelMsc = $this->model('site\user\memberschema');
+
+		$oMschema = $modelMsc->byId($mschemaId);
+		$dataSchemas = [];
+		if ($oMschema->attr_mobile[0] === '0') {
+			$dataSchema = new \stdClass;
+			$dataSchema->id = 'ms_' . $mschemaId . '_mobile';
+			$dataSchema->type = 'shorttext';
+			$dataSchema->title = '手机号';
+			$dataSchema->format = 'mobile';
+			$dataSchemas[] = $dataSchema;
+		}
+		if ($oMschema->attr_mobile[0] === '0') {
+			$dataSchema = new \stdClass;
+			$dataSchema->id = 'ms_' . $mschemaId . '_email';
+			$dataSchema->type = 'shorttext';
+			$dataSchema->title = '电子邮件';
+			$dataSchema->format = 'email';
+			$dataSchemas[] = $dataSchema;
+		}
+		if ($oMschema->attr_mobile[0] === '0') {
+			$dataSchema = new \stdClass;
+			$dataSchema->id = 'ms_' . $mschemaId . '_name';
+			$dataSchema->type = 'shorttext';
+			$dataSchema->title = '姓名';
+			$dataSchema->format = 'name';
+			$dataSchemas[] = $dataSchema;
+		}
+		$extDataSchemas = [];
+		if (!empty($oMschema->extattr)) {
+			foreach ($oMschema->extattr as $ea) {
+				$dataSchema = new \stdClass;
+				$dataSchema->id = $ea->id;
+				$dataSchema->type = 'shorttext';
+				$dataSchema->title = $ea->label;
+				$extDataSchemas[] = $dataSchema;
+			}
+		}
+
+		$oMschema->data_schemas = array_merge($dataSchemas, $extDataSchemas);
+
+		/* 导入活动定义 */
+		$modelGrp->update(
+			'xxt_group',
+			[
+				'last_sync_at' => time(),
+				'source_app' => '{"id":"' . $mschemaId . '","type":"mschema"}',
+				'data_schemas' => $modelGrp->escape($modelGrp->toJson($oMschema->data_schemas)),
+			],
+			['id' => $groupId]
+		);
+		/* 清空已有分组数据 */
+		$modelPly->clean($groupId, true);
+		/* 获取所有登记数据 */
+		$modelMem = $this->model('site\user\member');
+		$members = $modelMem->byMschema($mschemaId);
+		/* 导入数据 */
+		if (count($members)) {
+			$objGrp = $modelGrp->byId($groupId, ['cascaded' => 'N']);
+			$options = ['cascaded' => 'Y'];
+			$modelUsr = $this->model('site\user\account');
+			foreach ($members as $oMember) {
+				$oSiteUser = $modelUsr->byId($oMember->userid);
+				$user = new \stdClass;
+				$user->uid = $oMember->userid;
+				$user->nickname = $modelUsr->escape($oSiteUser->nickname);
+				$user->wx_openid = $oSiteUser->wx_openid;
+				$user->yx_openid = $oSiteUser->yx_openid;
+				$user->qy_openid = $oSiteUser->qy_openid;
+				$user->headimgurl = $oSiteUser->headimgurl;
+				$modelPly->enroll($objGrp->siteid, $objGrp, $user, ['enroll_key' => $oMember->id, 'enroll_at' => $oMember->create_at]);
+				$data = new \stdClass;
+				foreach ($dataSchemas as $ds) {
+					$data->{$ds->id} = isset($oMember->{$ds->format}) ? $oMember->{$ds->format} : '';
+				}
+				if (count($extDataSchemas) && !empty($oMember->extattr)) {
+					$oExtData = json_decode($oMember->extattr);
+					foreach ($extDataSchemas as $ds) {
+						$data->{$ds->id} = isset($oExtData->{$ds->id}) ? $oExtData->{$ds->id} : '';
+					}
+				}
+				$modelPly->setData($objGrp->siteid, $objGrp, $oMember->id, $data);
+			}
+		}
+
+		return $oMschema;
 	}
 	/**
 	 * 从报名活动导入数据
@@ -371,6 +468,65 @@ class player extends \pl\fe\matter\base {
 
 		$sourceApp->onlySpeaker = $onlySpeaker;
 		return $sourceApp;
+	}
+	/**
+	 * 从通讯录联系人中导入数据
+	 *
+	 * 同步在最后一次同步之后的数据或已经删除的数据
+	 */
+	private function _syncByMschema(&$objGrp, $mschemaId) {
+		/* 获取变化的登记数据 */
+		$modelMem = $this->model('site\user\member');
+		$q = [
+			'*',
+			'xxt_site_member',
+			"schema_id='$mschemaId' and (modify_at>{$objGrp->last_sync_at} or forbidden='Y')",
+		];
+		$members = $modelMem->query_objs_ss($q);
+
+		$cnt = 0;
+		if (!empty($members)) {
+			$modelPlayer = $this->model('matter\group\player');
+			$options = ['cascaded' => 'Y'];
+			foreach ($members as $oMember) {
+				if ($oMember->forbidden === 'Y') {
+					// 删除用户
+					if ($modelPlayer->remove($objGrp->id, $oMember->id, true)) {
+						$cnt++;
+					}
+				} else {
+					$dataSchemas = json_decode($objGrp->data_schemas);
+					$oNewData = new \stdClass;
+					$oExtData = empty($oMember->extattr) ? new \stdClass : json_decode($oMember->extattr);
+					foreach ($dataSchemas as $ds) {
+						if (isset($ds->format)) {
+							$oNewData->{$ds->id} = isset($oMember->{$ds->format}) ? $oMember->{$ds->format} : '';
+						} else {
+							$oNewData->{$ds->id} = isset($oExtData->{$ds->id}) ? $oExtData->{$ds->id} : '';
+						}
+					}
+					if ($modelPlayer->byId($objGrp->id, $oMember->id, ['cascaded' => 'N'])) {
+						// 已经同步过的用户
+						$modelPlayer->setData($objGrp->siteid, $objGrp, $oMember->id, $oNewData);
+					} else {
+						$oSiteUser = $modelUsr->byId($oMember->userid);
+						$user = new \stdClass;
+						$user->uid = $oMember->userid;
+						$user->nickname = $modelUsr->escape($oSiteUser->nickname);
+						$user->wx_openid = $oSiteUser->wx_openid;
+						$user->yx_openid = $oSiteUser->yx_openid;
+						$user->qy_openid = $oSiteUser->qy_openid;
+						$user->headimgurl = $oSiteUser->headimgurl;
+						// 新用户
+						$modelPlayer->enroll($objGrp->siteid, $objGrp, $user, ['enroll_key' => $oMember->id, 'enroll_at' => $oMember->create_at]);
+						$modelPlayer->setData($objGrp->siteid, $objGrp, $oMember->id, $oNewData);
+					}
+					$cnt++;
+				}
+			}
+		}
+
+		return $cnt;
 	}
 	/**
 	 * 从登记活动导入数据

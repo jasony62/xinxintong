@@ -221,7 +221,7 @@ ngApp.controller('ctrlMain', ['$scope', '$http', '$timeout', 'ls', 'tmsDynaPage'
             sharelink = 'http://' + location.host + LS.j('', 'site', 'app');
             if (oPage && oPage.share_page && oPage.share_page === 'Y') {
                 sharelink += '&page=' + oPage.name;
-                params.enrollKey && (sharelink += '&ek=' + params.enrollKey);
+                params.record && (sharelink += '&ek=' + params.record.enroll_key);
             }
             sharelink += "&shareby=" + shareid;
 

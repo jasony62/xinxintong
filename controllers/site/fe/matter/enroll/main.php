@@ -306,9 +306,9 @@ class main extends base {
 			if ($oOpenPage->name !== 'repos') {
 				$params['page'] = $oOpenPage;
 				/* 是否需要返回登记记录 */
-				if (($oOpenPage->type === 'I' && $newRecord !== 'Y') || $page === 'remark') {
+				if (($oOpenPage->type === 'I' && $newRecord !== 'Y') || $page === 'remark' || $oOpenPage->type === 'V') {
 					if (empty($ek)) {
-						if ($oApp->open_lastroll === 'Y') {
+						if ($oApp->open_lastroll === 'Y' || $oOpenPage->type === 'V') {
 							/* 获得最后一条登记数据。记录有可能未进行过数据填写 */
 							$options = [
 								'fields' => '*',

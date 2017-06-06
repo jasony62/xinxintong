@@ -44,22 +44,23 @@ class receiver extends \pl\fe\matter\base {
 	/**
 	 * 删除接收消息的人
 	 *
-	 * @param string site
 	 * @param string $app
 	 * @param string $receiver
 	 */
-	public function remove_action($site, $app, $receiver) {
-		if (false === ($user = $this->accountUser())) {
+	public function remove_action($app, $receiver) {
+		if (false === ($oUser = $this->accountUser())) {
 			return new \ResponseTimeout();
 		}
 		/* 记录操作日志 */
-		$enroll = $this->model('matter\enroll')->byId($app, array('cascaded' => 'Y'));
-		$enroll->type = 'enroll';
-		$this->model('matter\log')->matterOp($site, $user, $enroll, 'D');
+		$modelEnl = $this->model('matter\enroll');
+		$oApp = $modelEnl->byId($app, ['cascaded' => 'Y']);
+		if (false === $oApp) {
+			return new \ObjectNotFoundError();
+		}
 
-		$rst = $this->model()->delete(
+		$rst = $modelEnl->delete(
 			'xxt_enroll_receiver',
-			"siteid='$site' and aid='$app' and userid='$receiver'"
+			['id' => $receiver]
 		);
 
 		return new \ResponseData($rst);

@@ -106,7 +106,7 @@ define(['frame'], function(ngApp) {
             });
         };
         $scope.remove = function(receiver) {
-            http2.get(baseURL + 'remove?site=' + $scope.app.siteid + '&app=' + $scope.app.id + '&receiver=' + receiver.userid, function(rsp) {
+            http2.get(baseURL + 'remove?site=' + $scope.app.siteid + '&app=' + $scope.app.id + '&receiver=' + receiver.id, function(rsp) {
                 $scope.receivers.splice($scope.receivers.indexOf(receiver), 1);
             });
         };

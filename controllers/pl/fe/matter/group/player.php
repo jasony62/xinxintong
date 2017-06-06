@@ -486,12 +486,13 @@ class player extends \pl\fe\matter\base {
 
 		$cnt = 0;
 		if (!empty($members)) {
-			$modelPlayer = $this->model('matter\group\player');
+			$modelPly = $this->model('matter\group\player');
+			$modelUsr = $this->model('site\user\account');
 			$options = ['cascaded' => 'Y'];
 			foreach ($members as $oMember) {
 				if ($oMember->forbidden === 'Y') {
 					// 删除用户
-					if ($modelPlayer->remove($objGrp->id, $oMember->id, true)) {
+					if ($modelPly->remove($objGrp->id, $oMember->id, true)) {
 						$cnt++;
 					}
 				} else {
@@ -505,9 +506,9 @@ class player extends \pl\fe\matter\base {
 							$oNewData->{$ds->id} = isset($oExtData->{$ds->id}) ? $oExtData->{$ds->id} : '';
 						}
 					}
-					if ($modelPlayer->byId($objGrp->id, $oMember->id, ['cascaded' => 'N'])) {
+					if ($modelPly->byId($objGrp->id, $oMember->id, ['cascaded' => 'N'])) {
 						// 已经同步过的用户
-						$modelPlayer->setData($objGrp->siteid, $objGrp, $oMember->id, $oNewData);
+						$modelPly->setData($objGrp->siteid, $objGrp, $oMember->id, $oNewData);
 					} else {
 						$oSiteUser = $modelUsr->byId($oMember->userid);
 						$user = new \stdClass;
@@ -518,8 +519,8 @@ class player extends \pl\fe\matter\base {
 						$user->qy_openid = $oSiteUser->qy_openid;
 						$user->headimgurl = $oSiteUser->headimgurl;
 						// 新用户
-						$modelPlayer->enroll($objGrp->siteid, $objGrp, $user, ['enroll_key' => $oMember->id, 'enroll_at' => $oMember->create_at]);
-						$modelPlayer->setData($objGrp->siteid, $objGrp, $oMember->id, $oNewData);
+						$modelPly->enroll($objGrp->siteid, $objGrp, $user, ['enroll_key' => $oMember->id, 'enroll_at' => $oMember->create_at]);
+						$modelPly->setData($objGrp->siteid, $objGrp, $oMember->id, $oNewData);
 					}
 					$cnt++;
 				}

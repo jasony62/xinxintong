@@ -377,6 +377,7 @@ $sql = "create table if not exists xxt_signin(";
 $sql .= "id varchar(40) not null";
 $sql .= ",siteid varchar(32) not null";
 $sql .= ",enroll_app_id varchar(40) not null default ''"; // 关联的登记活动
+$sql .= ",group_app_id varchar(40) not null default ''"; // 关联的分组活动
 $sql .= ",creater varchar(40) not null default ''";
 $sql .= ",creater_name varchar(255) not null default ''";
 $sql .= ",creater_src char(1)";

@@ -18,49 +18,7 @@ define(['frame', 'schema', 'wrap'], function(ngApp, schemaLib, wrapLib) {
                     srvSigninPage.update(page, ['data_schemas', 'html']);
                 });
             });
-        };
-        $scope.newSchema = function(type) {
-            var newSchema;
-
-            newSchema = schemaLib.newSchema(type, $scope.app);
-            _addSchema(newSchema);
-        };
-        $scope.newMember = function(ms, schema) {
-            var newSchema = schemaLib.newSchema('member');
-
-            newSchema.schema_id = ms.id;
-            newSchema.id = schema.id;
-            newSchema.title = schema.title;
-
-            _addSchema(newSchema);
-        };
-        $scope.newByEnroll = function(schema) {
-            var newSchema;
-
-            newSchema = schemaLib.newSchema(schema.type, $scope.app);
-            newSchema.type === 'member' && (newSchema.schema_id = schema.schema_id);
-            newSchema.id = schema.id;
-            newSchema.title = schema.title;
-            newSchema.requireCheck = 'Y';
-            newSchema.fromApp = $scope.app.enrollApp.id;
-
-            _addSchema(newSchema);
-        };
-        $scope.copySchema = function(schema) {
-            var newSchema = angular.copy(schema),
-                afterIndex;
-
-            newSchema.id = 'c' + (new Date() * 1);
-            afterIndex = $scope.app.data_schemas.indexOf(schema);
-            $scope.app.data_schemas.splice(afterIndex + 1, 0, newSchema);
-
-            srvSigninApp.update('data_schemas').then(function() {
-                $scope.app.pages.forEach(function(page) {
-                    page.appendSchema(newSchema, schema);
-                    srvSigninPage.update(page, ['data_schemas', 'html']);
-                });
-            });
-        };
+        }
 
         function removeSchema(removedSchema) {
             var deferred = $q.defer();
@@ -77,6 +35,51 @@ define(['frame', 'schema', 'wrap'], function(ngApp, schemaLib, wrapLib) {
             });
 
             return deferred.promise;
+        }
+
+        $scope.newSchema = function(type) {
+            var newSchema;
+
+            newSchema = schemaLib.newSchema(type, $scope.app);
+            _addSchema(newSchema);
+        };
+        $scope.newMember = function(ms, schema) {
+            var newSchema = schemaLib.newSchema('member');
+
+            newSchema.schema_id = ms.id;
+            newSchema.id = schema.id;
+            newSchema.title = schema.title;
+
+            _addSchema(newSchema);
+        };
+        $scope.newByOtherApp = function(schema, otherApp) {
+            var newSchema;
+
+            newSchema = schemaLib.newSchema(schema.type, $scope.app);
+            newSchema.type === 'member' && (newSchema.schema_id = schema.schema_id);
+            newSchema.id = schema.id;
+            newSchema.title = schema.title;
+            newSchema.requireCheck = 'Y';
+            newSchema.fromApp = otherApp.id;
+            if (schema.ops) {
+                newSchema.ops = schema.ops;
+            }
+            _addSchema(newSchema);
+        };
+        $scope.copySchema = function(schema) {
+            var newSchema = angular.copy(schema),
+                afterIndex;
+
+            newSchema.id = 'c' + (new Date() * 1);
+            afterIndex = $scope.app.data_schemas.indexOf(schema);
+            $scope.app.data_schemas.splice(afterIndex + 1, 0, newSchema);
+
+            srvSigninApp.update('data_schemas').then(function() {
+                $scope.app.pages.forEach(function(page) {
+                    page.appendSchema(newSchema, schema);
+                    srvSigninPage.update(page, ['data_schemas', 'html']);
+                });
+            });
         };
         $scope.removeSchema = function(removedSchema) {
             var deferred = $q.defer();

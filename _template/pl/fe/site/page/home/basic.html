@@ -4,7 +4,7 @@
             <div ng-controller="ctrlCarousel">
                 <div uib-carousel active="active" interval="myInterval" no-wrap="noWrapSlides">
                     <div uib-slide ng-repeat="slide in slides" index="$index">
-                        <img ng-src="{{slide.picUrl}}" style="height:305px;margin:auto;">
+                        <img ng-src="{{slide.picUrl}}" style="height:360px;margin:auto;">
                         <div class="carousel-caption"></div>
                     </div>
                 </div>
@@ -18,14 +18,14 @@
                     <img class="img-circle" style="width:200px;height:200px" ng-src='{{site.heading_pic}}'>
                 </div>
                 <div class="team-content pull-left">
-                    <div class="team-text">
-                        <h4 class="media-heading pull-left">{{site.name}}</h4>
+                    <div class="team-head">
+                        <h4 class="team-title pull-left">{{site.name}}</h4>
+                        <div class="team-handle pull-right">
+                            <button class="btn btn-primary" ng-click="contributeSite()">投稿</button>
+                            <button class="btn btn-warning" ng-click="subscribeSite()">关注</button>
+                        </div>
                     </div>
-                    <div class="team-summary">{{site.summary}}</div>
-                </div>
-                <div class="team-handle pull-left">
-                    <button class="btn btn-warning btn-custom" ng-click="subscribeSite()">关注</button>
-                    <button class="btn btn-primary btn-custom" ng-click="contributeSite()">投稿</button>
+                    <p class="team-summary">{{site.summary}}</p>
                 </div>
                 <span ng-mouseenter="hover=true" ng-mouseleave="hover=false" class="site_fe_home site_fe_home_icon xxt_scan"></span>
             </div>
@@ -36,7 +36,7 @@
     </div>
     <div class='row'>
         <div class='col-md-12 col-xs-12 main'>
-            <div class="col-md-8 col-xs-12">
+            <div class="col-md-9 col-xs-12">
                 <uib-tabset active="0" class="row">
                     <uib-tab index="$index" ng-repeat="c in c_channels">
                         <uib-tab-heading>{{c.title}}</uib-tab-heading>
@@ -46,9 +46,17 @@
                                     <td>
                                         <div class="media">
                                             <div class="media-left">
-                                                <img class="media-object" ng-src='{{m.pic||m.thumbnail}}'>
+                                                <div class="media-img">
+                                                    <img class="media-object" ng-src='{{m.pic||m.thumbnail}}'>
+                                                </div>
+
                                             </div>
                                             <div class="media-body">
+                                                <div class='creater_name pull-right'>
+                                                    <a ng-href='/rest/site/home?site={{m.siteid}}'>
+                                                        <span class="site_fe_home site_fe_home_icon xxt_team"></span> {{m.site_name}}
+                                                    </a>
+                                                </div>
                                                 <h4 class="media-heading" ng-click="openMatter(m)">{{m.title}}</h4>
                                                 <div class="media-summary">{{m.summary}}</div>
                                                 <div class='attr clearfix'>
@@ -61,11 +69,6 @@
                                                     <div class="favor pull-right">
                                                         <a href="" ng-click="favor(user,m)">
                                                             <span class="site_fe_home site_fe_home_icon xxt_favor"></span>收藏
-                                                        </a>
-                                                    </div>
-                                                    <div class='creater_name pull-right'>
-                                                        <a ng-href='/rest/site/home?site={{m.siteid}}'>
-                                                            <span class="site_fe_home site_fe_home_icon xxt_team"></span> {{m.site_name}}
                                                         </a>
                                                     </div>
                                                 </div>
@@ -81,7 +84,7 @@
                     </uib-tab>
                 </uib-tabset>
             </div>
-            <aside id="aside" class="col-md-4 col-xs-12 pull-right">
+            <aside id="aside" class="col-md-3 col-xs-12 pull-right">
                 <div class="mainSide" ng-repeat="r in r_channels">
                     <div class="mainSide-header">
                         <span class="site_fe_home site_fe_home_icon xxt_guide"></span>

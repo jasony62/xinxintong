@@ -216,7 +216,7 @@ ngApp.controller('ctrlMain', ['$scope', '$http', '$timeout', 'ls', 'tmsDynaPage'
         }
         /* 设置活动的当前链接 */
         shareid = oUser.uid + '_' + (new Date() * 1);
-        sharelink = 'http://' + location.host + LS.j('', 'site', 'app');
+        sharelink = 'http://' + location.host + LS.j('', 'site', 'app', 'rid', 'newRecord');
         sharelink += "&shareby=" + shareid;
         if (oPage && oPage.share_page && oPage.share_page === 'Y') {
             sharelink += '&page=' + oPage.name;

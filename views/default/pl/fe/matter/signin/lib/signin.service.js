@@ -498,6 +498,62 @@ define(['require', 'schema', 'page'], function(require, schemaLib, pageLib) {
                         });
                         _this.update('data_schemas');
                     });
+                },
+                assignGroupApp: function() {
+                    var _this = this;
+                    $uibModal.open({
+                        templateUrl: 'assignGroupApp.html',
+                        controller: ['$scope', '$uibModalInstance', function($scope2, $mi) {
+                            function listEnrollApp() {
+                                var url = '/rest/pl/fe/matter/group/list?site=' + siteId;
+                                $scope2.data.sameMission === 'Y' && (url += '&mission=' + app.mission.id);
+                                http2.get(url, function(rsp) {
+                                    $scope2.apps = rsp.data.apps;
+                                });
+                            }
+                            $scope2.app = app;
+                            $scope2.data = {
+                                filter: {},
+                                source: ''
+                            };
+                            app.mission && ($scope2.data.sameMission = 'Y');
+                            $scope2.cancel = function() {
+                                $mi.dismiss();
+                            };
+                            $scope2.ok = function() {
+                                $mi.close($scope2.data);
+                            };
+                            $scope2.$watch('data.sameMission', listEnrollApp);
+                        }],
+                        backdrop: 'static'
+                    }).result.then(function(data) {
+                        app.enroll_app_id = data.source;
+                        _this.update('group_app_id').then(function(rsp) {
+                            var url = '/rest/pl/fe/matter/enroll/get?site=' + siteId + '&id=' + app.enroll_app_id;
+                            http2.get(url, function(rsp) {
+                                rsp.data.data_schemas = JSON.parse(rsp.data.data_schemas);
+                                app.enrollApp = rsp.data;
+                            });
+                            for (var i = app.data_schemas.length - 1; i > 0; i--) {
+                                if (app.data_schemas[i].id === 'mobile') {
+                                    app.data_schemas[i].requireCheck = 'Y';
+                                    break;
+                                }
+                            }
+                            _this.update('data_schemas');
+                        });
+                    });
+                },
+                cancelGroupApp: function() {
+                    var _this = this;
+                    app.group_app_id = '';
+                    delete app.groupApp;
+                    this.update('group_app_id').then(function() {
+                        app.data_schemas.forEach(function(dataSchema) {
+                            delete dataSchema.requireCheck;
+                        });
+                        _this.update('data_schemas');
+                    });
                 }
             };
         }];

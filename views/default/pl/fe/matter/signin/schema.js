@@ -93,6 +93,13 @@ define(['frame', 'schema', 'wrap'], function(ngApp, schemaLib, wrapLib) {
         $scope.cancelEnrollApp = function() {
             srvSigninApp.cancelEnrollApp();
         };
+        $scope.assignGroupApp = function() {
+            srvSigninApp.assignGroupApp();
+        };
+        $scope.cancelGroupApp = function() {
+            $scope.app.group_app_id = '';
+            srvSigninApp.update('group_app_id');
+        };
     }]);
     /**
      * 应用的所有登记项

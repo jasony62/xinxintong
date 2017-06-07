@@ -153,7 +153,7 @@ class record extends \pl\fe\matter\base {
 			// 查找匹配的数据
 			$enrollApp = $this->model('matter\enroll')->byId($signinApp->enroll_app_id, ['cascaded' => 'N']);
 			$modelEnlRec = $this->model('matter\enroll\record');
-			$enlRecords = $modelEnlRec->byData($site, $enrollApp, $matchCriteria);
+			$enlRecords = $modelEnlRec->byData($enrollApp, $matchCriteria);
 			foreach ($enlRecords as $enlRec) {
 				$result[] = $enlRec->data;
 			}

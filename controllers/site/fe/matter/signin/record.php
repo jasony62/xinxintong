@@ -99,7 +99,7 @@ class record extends base {
 				}
 				/* 在指定的登记活动中检查数据 */
 				$modelEnrollRec = $this->model('matter\enroll\record');
-				$enrollRecords = $modelEnrollRec->byData($site, $enrollApp, $requireCheckedData);
+				$enrollRecords = $modelEnrollRec->byData($enrollApp, $requireCheckedData);
 				if (!empty($enrollRecords)) {
 					/**
 					 * 找报名表中找到对应的记录

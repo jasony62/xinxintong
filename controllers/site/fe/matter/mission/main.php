@@ -52,7 +52,7 @@ class main extends \site\fe\matter\base {
 						$modelGrpRec = $this->model('matter\group\player');
 					}
 					$matter->records = [];
-					$records = $modelGrpRec->byPlayer($matter->siteid, $matter->id, $this->who->uid);
+					$records = $modelGrpRec->byUser($matter, $this->who->uid);
 					foreach ($records as $record) {
 						!empty($record->data) && $record->data = json_decode($record->data);
 						$matter->records[] = $record;

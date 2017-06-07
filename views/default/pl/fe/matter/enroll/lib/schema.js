@@ -151,9 +151,9 @@ define([], function() {
             if (!/image|file/.test(schema.type) && /image|file/.test(newType)) {
                 schema.count = 1;
             }
-            if (!/email|mobile|name/.test(schema.type) && /shorttext/.test(newType)) {
+            if (/email|mobile|name/.test(schema.type) && /shorttext/.test(newType)) {
                 schema.format = schema.type;
-            }
+            }else if(/shorttext|longtext/.test(newType)){schema.format='';}
             schema.type = newType;
 
             return true;

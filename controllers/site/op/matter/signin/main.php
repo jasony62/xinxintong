@@ -40,6 +40,10 @@ class main extends \site\op\base {
 		if ($app->enroll_app_id) {
 			$app->enrollApp = $this->model('matter\enroll')->byId($app->enroll_app_id);
 		}
+		/*关联分组活动*/
+		if ($app->group_app_id) {
+			$app->groupApp = $this->model('matter\group')->byId($app->group_app_id);
+		}
 		/* 页面定义 */
 		$templateDir = TMS_APP_TEMPLATE . '/site/op/matter/signin';
 		$templateName = $templateDir . '/basic';

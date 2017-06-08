@@ -18,7 +18,25 @@ define(['frame', 'schema', 'wrap'], function(ngApp, schemaLib, wrapLib) {
                     srvSigninPage.update(page, ['data_schemas', 'html']);
                 });
             });
-        };
+        }
+
+        function removeSchema(removedSchema) {
+            var deferred = $q.defer();
+
+            //从应用的定义中删除
+            $scope.app.data_schemas.splice($scope.app.data_schemas.indexOf(removedSchema), 1);
+            srvSigninApp.update('data_schemas').then(function() {
+                $scope.app.pages.forEach(function(page) {
+                    if (page.removeSchema(removedSchema)) {
+                        srvSigninPage.update(page, ['data_schemas', 'html']);
+                    }
+                });
+                deferred.resolve(removedSchema);
+            });
+
+            return deferred.promise;
+        }
+
         $scope.newSchema = function(type) {
             var newSchema;
 
@@ -34,7 +52,7 @@ define(['frame', 'schema', 'wrap'], function(ngApp, schemaLib, wrapLib) {
 
             _addSchema(newSchema);
         };
-        $scope.newByEnroll = function(schema) {
+        $scope.newByOtherApp = function(schema, otherApp) {
             var newSchema;
 
             newSchema = schemaLib.newSchema(schema.type, $scope.app);
@@ -42,8 +60,10 @@ define(['frame', 'schema', 'wrap'], function(ngApp, schemaLib, wrapLib) {
             newSchema.id = schema.id;
             newSchema.title = schema.title;
             newSchema.requireCheck = 'Y';
-            newSchema.fromApp = $scope.app.enrollApp.id;
-
+            newSchema.fromApp = otherApp.id;
+            if (schema.ops) {
+                newSchema.ops = schema.ops;
+            }
             _addSchema(newSchema);
         };
         $scope.copySchema = function(schema) {
@@ -61,23 +81,6 @@ define(['frame', 'schema', 'wrap'], function(ngApp, schemaLib, wrapLib) {
                 });
             });
         };
-
-        function removeSchema(removedSchema) {
-            var deferred = $q.defer();
-
-            //从应用的定义中删除
-            $scope.app.data_schemas.splice($scope.app.data_schemas.indexOf(removedSchema), 1);
-            srvSigninApp.update('data_schemas').then(function() {
-                $scope.app.pages.forEach(function(page) {
-                    if (page.removeSchema(removedSchema)) {
-                        srvSigninPage.update(page, ['data_schemas', 'html']);
-                    }
-                });
-                deferred.resolve(removedSchema);
-            });
-
-            return deferred.promise;
-        };
         $scope.removeSchema = function(removedSchema) {
             var deferred = $q.defer();
             if (window.confirm('确定从所有页面上删除登记项［' + removedSchema.title + '］？')) {
@@ -92,6 +95,13 @@ define(['frame', 'schema', 'wrap'], function(ngApp, schemaLib, wrapLib) {
         };
         $scope.cancelEnrollApp = function() {
             srvSigninApp.cancelEnrollApp();
+        };
+        $scope.assignGroupApp = function() {
+            srvSigninApp.assignGroupApp();
+        };
+        $scope.cancelGroupApp = function() {
+            $scope.app.group_app_id = '';
+            srvSigninApp.update('group_app_id');
         };
     }]);
     /**

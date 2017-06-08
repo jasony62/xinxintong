@@ -232,7 +232,7 @@ class player_model extends \TMS_MODEL {
 	/**
 	 * 根据指定的数据查找匹配的记录
 	 */
-	public function &byData($siteId, &$app, &$data, $options = []) {
+	public function &byData(&$oApp, &$data, $options = []) {
 		$fields = isset($options['fields']) ? $options['fields'] : '*';
 		$records = false;
 
@@ -264,7 +264,7 @@ class player_model extends \TMS_MODEL {
 		$q = [
 			$fields,
 			'xxt_group_player',
-			"state=1 and aid='{$app->id}' $whereByData",
+			"state=1 and aid='{$oApp->id}' $whereByData",
 		];
 		$records = $this->query_objs_ss($q);
 		foreach ($records as &$record) {
@@ -289,7 +289,7 @@ class player_model extends \TMS_MODEL {
 	 * [0] 数据列表
 	 * [1] 数据总条数
 	 */
-	public function find($siteId, &$app, $options = null) {
+	public function find($siteId, &$oApp, $options = null) {
 		if ($options) {
 			is_array($options) && $options = (object) $options;
 			$orderby = isset($options->orderby) ? $options->orderby : '';
@@ -301,7 +301,7 @@ class player_model extends \TMS_MODEL {
 		$result = new \stdClass; // 返回的结果
 		$result->total = 0;
 		/* 数据过滤条件 */
-		$w = "e.state=1 and e.aid='{$app->id}'";
+		$w = "e.state=1 and e.aid='{$oApp->id}'";
 		/*tags*/
 		if (!empty($options->tags)) {
 			$aTags = explode(',', $options->tags);
@@ -339,17 +339,17 @@ class player_model extends \TMS_MODEL {
 	/**
 	 * 获得用户的登记
 	 */
-	public function &byPlayer($siteid, $aid, $userid) {
+	public function &byUser($oApp, $userid) {
 		if (empty($userid)) {
 			return false;
 		}
 
-		$q = array(
+		$q = [
 			'*',
 			'xxt_group_player',
-			"state=1 and siteid='$siteid' and aid='$aid' and userid='$userid'",
-		);
-		$q2 = array('o' => 'enroll_at desc');
+			['state' => 1, 'aid' => $oApp->id, 'userid' => $userid],
+		];
+		$q2 = ['o' => 'enroll_at desc'];
 
 		$list = $this->query_objs_ss($q, $q2);
 

@@ -114,7 +114,6 @@ define(['require', 'schema', 'page'], function(require, schemaLib, pageLib) {
                 try {
                     data.groupApp.data_schemas = groupAppDS && groupAppDS.length ? JSON.parse(groupAppDS) : [];
                 } catch (e) {
-                    console.log('data invalid', e, groupAppDS);
                     data.groupApp.data_schemas = [];
                 }
                 if (data.groupApp.rounds && data.groupApp.rounds.length) {

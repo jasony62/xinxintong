@@ -126,6 +126,30 @@ define(['require', 'schema', 'page'], function(require, schemaLib, pageLib) {
                     data.enrollApp.data_schemas = [];
                 }
             }
+            if (data.groupApp && data.groupApp.data_schemas) {
+                var groupAppDS = data.groupApp.data_schemas;
+                try {
+                    data.groupApp.data_schemas = groupAppDS && groupAppDS.length ? JSON.parse(groupAppDS) : [];
+                } catch (e) {
+                    data.groupApp.data_schemas = [];
+                }
+                if (data.groupApp.rounds && data.groupApp.rounds.length) {
+                    var roundDS = {
+                            id: '_round_id',
+                            type: 'single',
+                            title: '分组名称',
+                        },
+                        ops = [];
+                    data.groupApp.rounds.forEach(function(round) {
+                        ops.push({
+                            v: round.round_id,
+                            l: round.title
+                        });
+                    });
+                    roundDS.ops = ops;
+                    data.groupApp.data_schemas.splice(0, 0, roundDS);
+                }
+            }
             method(data);
             data.data_schemas.forEach(function(schema) {
                 schemaLib._upgrade(schema);
@@ -187,6 +211,7 @@ define(['require', 'schema', 'page'], function(require, schemaLib, pageLib) {
             var mapOfSchemaByType = {},
                 mapOfSchemaById = {},
                 enrollDataSchemas = [],
+                groupDataSchemas = [],
                 canFilteredSchemas = [];
 
             app.data_schemas.forEach(function(schema) {
@@ -206,16 +231,28 @@ define(['require', 'schema', 'page'], function(require, schemaLib, pageLib) {
                     }
                 });
             }
+            // 关联的分组登记项
+            if (app.groupApp && app.groupApp.data_schemas) {
+                app.groupApp.dataSchemas.forEach(function(item) {
+                    if (mapOfSchemaById[item.id] === undefined) {
+                        mapOfSchemaById[item.id] = item;
+                        groupDataSchemas.push(item);
+                    }
+                });
+            }
+
 
             app._schemasByType = mapOfSchemaByType;
             app._schemasById = mapOfSchemaById;
             app._schemasCanFilter = canFilteredSchemas;
             app._schemasFromEnrollApp = enrollDataSchemas;
+            app._schemasFromGroupApp = groupDataSchemas;
 
             return {
                 byType: mapOfSchemaByType,
                 byId: mapOfSchemaById,
                 enrollData: enrollDataSchemas,
+                groupData: groupDataSchemas,
                 canFilter: canFilteredSchemas
             }
         }
@@ -420,7 +457,7 @@ define(['require', 'schema', 'page'], function(require, schemaLib, pageLib) {
                     var defaultInput, pages = app.pages,
                         pages4NonMember = [{
                             name: '$memberschema',
-                            title: '填写自定义用户信息'
+                            title: '填写联系人信息'
                         }],
                         pages4Nonfan = [{
                             name: '$mpfollow',
@@ -493,6 +530,71 @@ define(['require', 'schema', 'page'], function(require, schemaLib, pageLib) {
                     app.enroll_app_id = '';
                     delete app.enrollApp;
                     this.update('enroll_app_id').then(function() {
+                        app.data_schemas.forEach(function(dataSchema) {
+                            delete dataSchema.requireCheck;
+                        });
+                        _this.update('data_schemas');
+                    });
+                },
+                assignGroupApp: function() {
+                    var _this = this;
+                    $uibModal.open({
+                        templateUrl: 'assignGroupApp.html',
+                        controller: ['$scope', '$uibModalInstance', function($scope2, $mi) {
+                            function listEnrollApp() {
+                                var url = '/rest/pl/fe/matter/group/list?site=' + siteId;
+                                $scope2.data.sameMission === 'Y' && (url += '&mission=' + app.mission.id);
+                                http2.get(url, function(rsp) {
+                                    $scope2.apps = rsp.data.apps;
+                                });
+                            }
+                            $scope2.app = app;
+                            $scope2.data = {
+                                filter: {},
+                                source: ''
+                            };
+                            app.mission && ($scope2.data.sameMission = 'Y');
+                            $scope2.cancel = function() {
+                                $mi.dismiss();
+                            };
+                            $scope2.ok = function() {
+                                $mi.close($scope2.data);
+                            };
+                            $scope2.$watch('data.sameMission', listEnrollApp);
+                        }],
+                        backdrop: 'static'
+                    }).result.then(function(data) {
+                        app.group_app_id = data.source;
+                        _this.update('group_app_id').then(function(rsp) {
+                            var url = '/rest/pl/fe/matter/group/get?site=' + siteId + '&app=' + app.group_app_id;
+                            http2.get(url, function(rsp) {
+                                var groupApp = rsp.data,
+                                    roundDS = {
+                                        id: '_round_id',
+                                        type: 'single',
+                                        title: '分组名称',
+                                    },
+                                    ops = [];
+                                //分组活动删除导入来源，groupApp.data_schemas为空字符串 , JSON.parse(''),splice()报错
+                                groupApp.data_schemas = groupApp.data_schemas ? JSON.parse(groupApp.data_schemas) : [];
+                                groupApp.rounds.forEach(function(round) {
+                                    ops.push({
+                                        v: round.round_id,
+                                        l: round.title
+                                    });
+                                });
+                                roundDS.ops = ops;
+                                groupApp.data_schemas.splice(0, 0, roundDS);
+                                app.groupApp = groupApp;
+                            });
+                        });
+                    });
+                },
+                cancelGroupApp: function() {
+                    var _this = this;
+                    app.group_app_id = '';
+                    delete app.groupApp;
+                    this.update('group_app_id').then(function() {
                         app.data_schemas.forEach(function(dataSchema) {
                             delete dataSchema.requireCheck;
                         });

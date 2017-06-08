@@ -37,7 +37,7 @@ define(['require'], function(require) {
         };
         return MemberSchema;
     });
-    ngApp.controller('ctrlMschema', ['$scope', 'http2', 'srvSite', 'MemberSchema', function($scope, http2, srvSite, MemberSchema) {
+    ngApp.controller('ctrlMschema', ['$scope', '$uibModal', 'http2', 'srvSite', 'MemberSchema', function($scope, $uibModal, http2, srvSite, MemberSchema) {
         function shiftAttr(oSchema) {
             oSchema.attrs = {
                 mobile: oSchema.attr_mobile.split(''),
@@ -83,6 +83,9 @@ define(['require'], function(require) {
                 }
             });
         });
+        srvSite.snsList().then(function(data) {
+            $scope.sns = data;
+        });
         $scope.days = [{
             n: '会话',
             v: '0'
@@ -108,11 +111,6 @@ define(['require'], function(require) {
         $scope.chooseSchema = function(oSchema) {
             $scope.choosedSchema = oSchema;
         };
-        $scope.fullUrl = function() {
-            var url = '';
-            !/^http/.test($scope.choosedSchema.url) && (url = 'http://' + location.host);
-            return url + $scope.choosedSchema.url + '?site=' + $scope.site.id + '&schema=' + $scope.choosedSchema.id;
-        };
         $scope.addSchema = function() {
             var url = '/rest/pl/fe/site/member/schema/create?site=' + $scope.site.id;
             http2.post(url, {}, function(rsp) {
@@ -130,7 +128,7 @@ define(['require'], function(require) {
                 $scope.choosedSchema = null;
             });
         };
-        $scope.updQy = function(field) {
+        $scope.updQy = function() {
             var schema = $scope.choosedSchema;
             if (schema.qy_ab === 'Y') {
                 $scope.schemas.forEach(function(s) {
@@ -140,11 +138,11 @@ define(['require'], function(require) {
                         return;
                     }
                 })
-                schema.qy_ab === 'Y' && ($scope.updSchema(schema, field));
+                schema.qy_ab === 'Y' && ($scope.updSchema('qy_ab'));
             } else {
-                $scope.updSchema(field);
+                $scope.updSchema('qy_ab');
             }
-        }
+        };
         $scope.updSchema = function(field) {
             var pv = {},
                 schema = $scope.choosedSchema;

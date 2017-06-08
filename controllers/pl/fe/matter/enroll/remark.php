@@ -7,6 +7,13 @@ require_once dirname(dirname(__FILE__)) . '/base.php';
  */
 class remark extends \pl\fe\matter\base {
 	/**
+	 * 返回视图
+	 */
+	public function index_action() {
+		\TPL::output('/pl/fe/matter/enroll/frame');
+		exit;
+	}
+	/**
 	 * 返回一条登记记录的所有评论
 	 *
 	 * @param string $ek
@@ -14,12 +21,36 @@ class remark extends \pl\fe\matter\base {
 	 *
 	 */
 	public function list_action($ek, $schema = '', $page = 1, $size = 99) {
-		if (false === ($user = $this->accountUser())) {
+		if (false === ($oUser = $this->accountUser())) {
 			return new \ResponseTimeout();
 		}
+		// 会按照指定的用户id进行过滤，所以去掉用户id，获得所有数据
 		$oUser = new \stdClass;
 
 		$result = $this->model('matter\enroll\remark')->listByRecord($oUser, $ek, $schema, $page, $size);
+
+		return new \ResponseData($result);
+	}
+	/**
+	 * 返回指定活动下所有评论
+	 */
+	public function byApp_action($site, $app, $page = 1, $size = 30) {
+		if (false === ($oUser = $this->accountUser())) {
+			return new \ResponseTimeout();
+		}
+
+		$modelEnl = $this->model('matter\enroll');
+		$oApp = $modelEnl->byId($app, ['cascaded' => 'N']);
+		if (false === $oApp) {
+			return new \ObjectNotFoundError();
+		}
+
+		$oCriteria = $this->getPostJson();
+		$options = [
+			'fields' => 'id,userid,user_src,create_at,nickname,content,agreed,like_num,schema_id,enroll_key',
+			'criteria' => $oCriteria,
+		];
+		$result = $this->model('matter\enroll\remark')->listByApp($oApp, $page, $size, $options);
 
 		return new \ResponseData($result);
 	}
@@ -64,10 +95,13 @@ class remark extends \pl\fe\matter\base {
 		 * 发表评论的用户
 		 */
 		$remark = new \stdClass;
+		$remark->siteid = $oRecord->siteid;
+		$remark->aid = $oRecord->aid;
 		$remark->userid = $user->id;
 		$remark->user_src = 'P';
 		$remark->nickname = $user->name;
 		$remark->enroll_key = $ek;
+		$remark->enroll_userid = $oRecord->userid;
 		$remark->schema_id = $schema;
 		$remark->create_at = $current;
 		$remark->content = $modelRec->escape($data->content);

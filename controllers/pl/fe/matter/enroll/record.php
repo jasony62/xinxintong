@@ -526,7 +526,7 @@ class record extends \pl\fe\matter\base {
 			// 查找匹配的数据
 			$matchApp = $modelApp->byId($enrollApp->enroll_app_id, ['cascaded' => 'N']);
 			$modelEnlRec = $this->model('matter\enroll\record');
-			$matchRecords = $modelEnlRec->byData($site, $matchApp, $matchCriteria);
+			$matchRecords = $modelEnlRec->byData($matchApp, $matchCriteria);
 			foreach ($matchRecords as $matchRec) {
 				$result[] = $matchRec->data;
 			}
@@ -571,7 +571,7 @@ class record extends \pl\fe\matter\base {
 			// 查找匹配的数据
 			$groupApp = $this->model('matter\group')->byId($enrollApp->group_app_id, ['cascaded' => 'N']);
 			$modelGrpRec = $this->model('matter\group\player');
-			$matchedRecords = $modelGrpRec->byData($site, $groupApp, $matchCriteria);
+			$matchedRecords = $modelGrpRec->byData($groupApp, $matchCriteria);
 			foreach ($matchedRecords as $matchedRec) {
 				if (isset($matchedRec->round_id)) {
 					$matchedRec->data->_round_id = $matchedRec->round_id;
@@ -1052,9 +1052,9 @@ class record extends \pl\fe\matter\base {
 
 		return new \ResponseData($result);
 	}
-	/*
-		* 给指定的登记记录的添加评论
-	*/
+	/**
+	 * 给指定的登记记录的添加评论
+	 */
 	public function addRemark_action($ek) {
 		if (false === ($user = $this->accountUser())) {
 			return new \ResponseTimeout();
@@ -1075,10 +1075,13 @@ class record extends \pl\fe\matter\base {
 		 * 发表评论的用户
 		 */
 		$remark = new \stdClass;
+		$remark->siteid = $oRecord->siteid;
+		$remark->aid = $oRecord->aid;
 		$remark->userid = $user->id;
 		$remark->user_src = 'P';
 		$remark->nickname = $user->name;
 		$remark->enroll_key = $ek;
+		$remark->enroll_userid = $oRecord->userid;
 		$remark->create_at = time();
 		$remark->content = $modelRec->escape($data->content);
 

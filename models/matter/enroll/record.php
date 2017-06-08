@@ -31,37 +31,12 @@ class record_model extends \TMS_MODEL {
 		if ($activeRound = $modelRun->getActive($oApp)) {
 			$record['rid'] = $activeRound->rid;
 		}
-
 		/* 登记用户昵称 */
 		if (isset($options['nickname'])) {
 			$record['nickname'] = $this->escape($options['nickname']);
 		} else {
-			$entryRule = $oApp->entry_rule;
-			if (isset($entryRule->anonymous) && $entryRule->anonymous === 'Y') {
-				/* 匿名访问 */
-				$record['nickname'] = '';
-			} else {
-				if (isset($entryRule->scope) && $entryRule->scope === 'member') {
-					foreach ($entryRule->member as $schemaId => $rule) {
-						if (isset($oUser->members->{$schemaId})) {
-							$record['nickname'] = $oUser->members->{$schemaId}->name;
-							break;
-						}
-					}
-				} else if (isset($entryRule->scope) && $entryRule->scope === 'sns') {
-					foreach ($entryRule->sns as $snsName => $rule) {
-						if (isset($oUser->sns->{$snsName})) {
-							$snsUser = $oUser->sns->{$snsName};
-							$record['nickname'] = isset($snsUser->nickname) ? $this->escape($snsUser->nickname) : '';
-							$record['headimgurl'] = isset($snsUser->headimgurl) ? $snsUser->headimgurl : '';
-							break;
-						}
-					}
-				} else if (empty($entryRule->scope) || $entryRule->scope === 'none') {
-					/* 不限制用户访问来源 */
-					$record['nickname'] = empty($oUser->nickname) ? '' : $this->escape($oUser->nickname);
-				}
-			}
+			$nickname = $this->model('matter\enroll')->getUserNickname($oApp, $oUser, $options);
+			$record['nickname'] = $this->escape($nickname);
 		}
 		/* 登记用户的社交账号信息 */
 		if (!empty($oUser)) {
@@ -220,7 +195,7 @@ class record_model extends \TMS_MODEL {
 				]
 			);
 			/* 计算题目的分数。只支持对单选题和多选题自动打分 */
-			if ($oApp->scenario === 'quiz') {
+			if ($oApp->scenario === 'quiz' && isset($schemasById[$schemaId])) {
 				$quizScore = null;
 				$schema = $schemasById[$schemaId];
 				if (isset($schema->requireScore) && $schema->requireScore === 'Y') {
@@ -476,7 +451,7 @@ class record_model extends \TMS_MODEL {
 	 *
 	 * 不是所有的字段都检查，只检查字符串类型
 	 */
-	public function &byData($siteId, &$app, &$data, $options = []) {
+	public function &byData(&$oApp, &$data, $options = []) {
 		$fields = isset($options['fields']) ? $options['fields'] : '*';
 		$records = false;
 
@@ -502,7 +477,7 @@ class record_model extends \TMS_MODEL {
 		$q = [
 			$fields,
 			'xxt_enroll_record',
-			"state=1 and aid='{$app->id}' $whereByData",
+			"state=1 and aid='{$oApp->id}' $whereByData",
 		];
 		$records = $this->query_objs_ss($q);
 		foreach ($records as &$record) {
@@ -523,10 +498,10 @@ class record_model extends \TMS_MODEL {
 	/**
 	 * 为了计算每条记录的分数，转换schema的形式
 	 */
-	private function _mapOfScoreSchema(&$app) {
+	private function _mapOfScoreSchema(&$oApp) {
 		$scoreSchemas = new \stdClass;
 
-		$schemas = is_object($app->data_schemas) ? $app->data_schemas : json_decode($app->data_schemas);
+		$schemas = is_object($oApp->data_schemas) ? $oApp->data_schemas : json_decode($oApp->data_schemas);
 		foreach ($schemas as $schema) {
 			if ($schema->type === 'single' && isset($schema->score) && $schema->score === 'Y') {
 				$scoreSchemas->{$schema->id} = new \stdClass;

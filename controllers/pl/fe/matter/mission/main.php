@@ -43,6 +43,12 @@ class main extends \pl\fe\matter\base {
 				$mission->userApp = $this->model('matter\signin')->byId($mission->user_app_id, ['cascaded' => 'N']);
 			}
 		}
+		/* 检查当前用户的角色 */
+		if ($user->id === $mission->creater) {
+			$mission->yourRole = 'O';
+		} else {
+			$mission->yourRole = $acl->coworker_role;
+		}
 
 		return new \ResponseData($mission);
 	}
@@ -186,17 +192,25 @@ class main extends \pl\fe\matter\base {
 		if (in_array($acl->coworker_role, ['O', 'A'])) {
 			/* 当前用户是项目的创建者或者团队管理员 */
 			$q = [
-				'count(*)',
+				'siteid,matter_id,matter_type,matter_title',
 				'xxt_mission_matter',
 				"mission_id='$id'",
 			];
-			$cnt = (int) $modelMis->query_val_ss($q);
+			$cnts = $modelMis->query_objs_ss($q);
 
-			if ($cnt > 0) {
+			if (count($cnts) > 0) {
 				/* 如果已经素材，就只打标记 */
 				$rst = $modelMis->update('xxt_mission_acl', ['state' => 0], ["mission_id" => $id]);
 				$rst = $modelMis->update('xxt_mission', ['state' => 0], ["id" => $id]);
 				$this->model('matter\log')->matterOp($mission->siteid, $user, $mission, 'Recycle');
+				/*给项目下的活动素材打标记*/
+				foreach ($cnts as $cnt) {
+					$modelMis->update('xxt_' . $cnt->matter_type, ['state' => 0], ['siteid' => $cnt->siteid, 'id' => $cnt->matter_id]);
+					$cnt->id = $cnt->matter_id;
+					$cnt->type = $cnt->matter_type;
+					$cnt->title = $cnt->matter_title;
+					$this->model('matter\log')->matterOp($cnt->siteid, $user, $cnt, 'Recycle');
+				}
 			} else {
 				/* 清空任务的ACL */
 				$modelAcl->removeMission($mission);
@@ -241,6 +255,23 @@ class main extends \pl\fe\matter\base {
 			['state' => 1],
 			["mission_id" => $mission->id]
 		);
+		/*恢复项目中的素材*/
+		$q = [
+			'siteid,matter_id,matter_type,matter_title',
+			'xxt_mission_matter',
+			"mission_id='$id'",
+		];
+		$cnts = $model->query_objs_ss($q);
+
+		if (count($cnts) > 0) {
+			foreach ($cnts as $cnt) {
+				$model->update('xxt_' . $cnt->matter_type, ['state' => 1], ['siteid' => $cnt->siteid, 'id' => $cnt->matter_id]);
+				$cnt->id = $cnt->matter_id;
+				$cnt->type = $cnt->matter_type;
+				$cnt->title = $cnt->matter_title;
+				$this->model('matter\log')->matterOp($cnt->siteid, $user, $cnt, 'Restore');
+			}
+		}
 
 		/* 记录操作日志 */
 		$this->model('matter\log')->matterOp($site, $user, $mission, 'Restore');

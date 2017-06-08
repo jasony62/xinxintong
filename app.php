@@ -30,6 +30,10 @@ file_exists(dirname(__FILE__) . '/cus/app.php') && include_once dirname(__FILE__
 /**
  * 定义应用的标题
  */
+!defined('APP_HTTP_HOST') && define('APP_HTTP_HOST', $_SERVER['HTTP_HOST']);
+/**
+ * 定义应用的标题
+ */
 !defined('APP_TITLE') && define('APP_TITLE', '信信通');
 /**
  * 定义应用的logo

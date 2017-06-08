@@ -50,6 +50,9 @@ class record extends base {
 
 		// 当前访问用户的基本信息
 		$oUser = $this->who;
+		$userNickname = $modelEnl->getUserNickname($oEnrollApp, $oUser);
+		$oUser->nickname = $userNickname;
+
 		// 提交的数据
 		$posted = $this->getPostJson();
 		if (isset($posted->data)) {
@@ -58,7 +61,7 @@ class record extends base {
 			$enrolledData = $posted;
 		}
 		// 检查是否允许登记
-		$rst = $this->_canSubmit($site, $oEnrollApp, $oUser, $enrolledData, $ek);
+		$rst = $this->_canSubmit($oEnrollApp, $oUser, $enrolledData, $ek);
 		if ($rst[0] === false) {
 			return new \ResponseError($rst[1]);
 		}
@@ -82,7 +85,7 @@ class record extends base {
 			}
 			/* 在指定的登记活动中检查数据 */
 			$modelMatchRec = $this->model('matter\enroll\record');
-			$matchedRecords = $modelMatchRec->byData($site, $matchApp, $requireCheckedData);
+			$matchedRecords = $modelMatchRec->byData($matchApp, $requireCheckedData);
 			if (empty($matchedRecords)) {
 				return new \ParameterError('未在指定的登记活动［' . $matchApp->title . '］中找到与提交数据相匹配的记录');
 			}
@@ -116,7 +119,7 @@ class record extends base {
 			}
 			/* 在指定的登记活动中检查数据 */
 			$modelMatchRec = $this->model('matter\group\player');
-			$groupRecords = $modelMatchRec->byData($site, $groupApp, $requireCheckedData);
+			$groupRecords = $modelMatchRec->byData($groupApp, $requireCheckedData);
 			if (empty($groupRecords)) {
 				return new \ParameterError('未在指定的分组活动［' . $groupApp->title . '］中找到与提交数据相匹配的记录');
 			}
@@ -148,7 +151,7 @@ class record extends base {
 		$modelRec->setOnlyWriteDbConn(true);
 		if (empty($ek)) {
 			/* 插入登记数据 */
-			$ek = $modelRec->enroll($oEnrollApp, $oUser);
+			$ek = $modelRec->enroll($oEnrollApp, $oUser, ['nickname' => $oUser->nickname]);
 			/* 处理自定义信息 */
 			$rst = $modelRec->setData($oUser, $oEnrollApp, $ek, $enrolledData, $submitkey, true);
 			/* 登记提交的积分奖励 */
@@ -187,7 +190,20 @@ class record extends base {
 			);
 		}
 		/* 记录操作日志 */
-		$this->_logSubmit($site, $oEnrollApp, $ek);
+		$this->_logSubmit($oEnrollApp, $ek);
+
+		/* 更新活动用户数据 */
+		$modelUsr = $this->model('matter\enroll\user');
+		$oEnrollUsr = $modelUsr->byId($oEnrollApp, $oUser->uid, ['fields' => 'id,nickname,last_enroll_at,enroll_num']);
+		if (false === $oEnrollUsr) {
+			$modelUsr->add($oEnrollApp, $oUser, ['last_enroll_at' => time(), 'enroll_num' => 1]);
+		} else {
+			$modelUsr->update(
+				'xxt_enroll_user',
+				['last_enroll_at' => time(), 'enroll_num' => $oEnrollUsr->enroll_num + 1],
+				['id' => $oEnrollUsr->id]
+			);
+		}
 		/**
 		 * 通知登记活动事件接收人
 		 */
@@ -200,11 +216,10 @@ class record extends base {
 	/**
 	 * 记录用户提交日志
 	 *
-	 * @param string $siteId
 	 * @param object $app
 	 *
 	 */
-	private function _logSubmit($siteId, $app, $ek) {
+	private function _logSubmit($oApp, $ek) {
 		$modelLog = $this->model('matter\log');
 
 		$logUser = new \stdClass;
@@ -221,7 +236,7 @@ class record extends base {
 
 		$referer = isset($_SERVER['HTTP_REFERER']) ? $_SERVER['HTTP_REFERER'] : '';
 
-		$logid = $modelLog->addUserMatterOp($siteId, $logUser, $app, $operation, $client, $referer);
+		$logid = $modelLog->addUserMatterOp($oApp->siteid, $logUser, $oApp, $operation, $client, $referer);
 
 		return $logid;
 	}
@@ -233,7 +248,7 @@ class record extends base {
 	 * 2、登记项是否和已有登记记录重复（schema.unique）
 	 *
 	 */
-	private function _canSubmit($siteId, &$oApp, &$oUser, &$posted, $ek) {
+	private function _canSubmit(&$oApp, &$oUser, &$posted, $ek) {
 		/**
 		 * 检查活动是否在进行过程中
 		 */
@@ -278,7 +293,7 @@ class record extends base {
 				}
 				$checked = new \stdClass;
 				$checked->{$schema->id} = $posted->{$schema->id};
-				$existings = $modelRec->byData($siteId, $oApp, $checked, ['fields' => 'enroll_key']);
+				$existings = $modelRec->byData($oApp, $checked, ['fields' => 'enroll_key']);
 				if (count($existings)) {
 					foreach ($existings as $existing) {
 						if ($existing->enroll_key !== $ek) {
@@ -321,7 +336,6 @@ class record extends base {
 	/**
 	 * 通知登记活动事件接收人
 	 *
-	 * @param string $siteId
 	 * @param object $app
 	 * @param string $ek
 	 *
@@ -497,7 +511,7 @@ class record extends base {
 		/** 互动数据？？？ */
 		if (!empty($openedek)) {
 			/*登记人信息*/
-			$record->enroller = $oUser;
+			//$record->enroller = $oUser;
 			/*获得关联抽奖活动记录*/
 			// $ql = array(
 			// 	'award_title',
@@ -572,7 +586,7 @@ class record extends base {
 	 */
 	public function like_action($ek, $schema) {
 		$modelData = $this->model('matter\enroll\data');
-		$oRecordData = $modelData->byRecord($ek, ['schema' => $schema, 'fields' => 'id,like_log']);
+		$oRecordData = $modelData->byRecord($ek, ['schema' => $schema, 'fields' => 'aid,id,like_log']);
 		if (false === $oRecordData) {
 			return new \ObjectNotFoundError();
 		}
@@ -582,8 +596,10 @@ class record extends base {
 		$oLikeLog = $oRecordData->like_log;
 		if (isset($oLikeLog->{$oUser->uid})) {
 			unset($oLikeLog->{$oUser->uid});
+			$incLikeNum = -1;
 		} else {
 			$oLikeLog->{$oUser->uid} = time();
+			$incLikeNum = 1;
 		}
 		$likeNum = count(get_object_vars($oLikeLog));
 
@@ -592,6 +608,30 @@ class record extends base {
 			['like_log' => json_encode($oLikeLog), 'like_num' => $likeNum],
 			['id' => $oRecordData->id]
 		);
+
+		$oApp = new \stdClass;
+		$oApp->id = $oRecordData->aid;
+		$modelUsr = $this->model('matter\enroll\user');
+		/* 更新进行点赞的活动用户的数据 */
+		$oEnrollUsr = $modelUsr->byId($oApp, $oUser->uid, ['fields' => 'id,nickname,last_like_other_at,like_other_num']);
+		if (false === $oEnrollUsr) {
+			$modelUsr->add($oApp, $oUser, ['last_like_other_at' => time(), 'like_other_num' => 1]);
+		} else {
+			$modelUsr->update(
+				'xxt_enroll_user',
+				['last_like_other_at' => time(), 'like_other_num' => $oEnrollUsr->like_other_num + $incLikeNum],
+				['id' => $oEnrollUsr->id]
+			);
+		}
+		/* 更新被点赞的活动用户的数据 */
+		$oEnrollUsr = $modelUsr->byId($oApp, $oUser->uid, ['fields' => 'id,nickname,last_like_at,like_num']);
+		if ($oEnrollUsr) {
+			$modelUsr->update(
+				'xxt_enroll_user',
+				['last_like_at' => time(), 'like_num' => $oEnrollUsr->like_num + $incLikeNum],
+				['id' => $oEnrollUsr->id]
+			);
+		}
 
 		return new \ResponseData(['like_log' => $oLikeLog, 'like_num' => $likeNum]);
 	}

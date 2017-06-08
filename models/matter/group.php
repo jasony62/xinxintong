@@ -29,9 +29,9 @@ class group_model extends app_base {
 		$q = [
 			$fields,
 			'xxt_group',
-			['id' => $aid]
+			['id' => $aid],
 		];
-		if(isset($options['where'])) {
+		if (isset($options['where'])) {
 			foreach ($options['where'] as $key => $value) {
 				$q[2][$key] = $value;
 			}
@@ -42,6 +42,13 @@ class group_model extends app_base {
 			if ($cascaded === 'Y') {
 				$rounds = \TMS_APP::M('matter\group\round')->byApp($aid);
 				$app->rounds = $rounds;
+			}
+			if ($fields === '*' || false !== strpos($fields, 'data_schemas')) {
+				if (!empty($app->data_schemas)) {
+					$app->dataSchemas = json_decode($app->data_schemas);
+				} else {
+					$app->dataSchemas = [];
+				}
 			}
 		}
 

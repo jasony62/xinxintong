@@ -102,6 +102,12 @@ define(['frame'], function(ngApp) {
                 }
             });
             $scope.enrollDataSchemas = enrollDataSchemas;
+            app._schemasFromGroupApp.forEach(function(schema) {
+                if (schema.type !== 'html') {
+                    groupDataSchemas.push(schema);
+                }
+            });
+            $scope.groupDataSchemas = groupDataSchemas;
             $scope.tmsTableWrapReady = 'Y';
             $scope.doSearch();
         });

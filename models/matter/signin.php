@@ -50,12 +50,12 @@ class signin_model extends app_base {
 			'xxt_signin',
 			["id" => $appId],
 		];
-		if(isset($options['where'])) {
+		if (isset($options['where'])) {
 			foreach ($options['where'] as $key => $value) {
 				$q[2][$key] = $value;
 			}
 		}
-		
+
 		if ($app = $this->query_obj_ss($q)) {
 			$app->type = 'signin';
 			if (isset($app->siteid) && isset($app->id)) {
@@ -84,8 +84,8 @@ class signin_model extends app_base {
 			'xxt_signin',
 			"state<>0 and siteid='$siteId'",
 		];
-		if(!empty($options['byTitle'])){
-			$q[2] .= " and title like '%". $this->escape($options['byTitle']) ."%'";
+		if (!empty($options['byTitle'])) {
+			$q[2] .= " and title like '%" . $this->escape($options['byTitle']) . "%'";
 		}
 		if ($onlySns === 'Y') {
 			$q[2] .= " and entry_rule like '%\"scope\":\"sns\"%'";
@@ -117,15 +117,15 @@ class signin_model extends app_base {
 			'xxt_signin',
 			"state<>0 and mission_id='$mission'",
 		];
-		if(isset($options['where'])){
+		if (isset($options['where'])) {
 			foreach ($options['where'] as $key => $value) {
 				$key = $this->escape($key);
 				$value = $this->escape($value);
-				$q[2] .= " and ".$key." = '".$value."'";
+				$q[2] .= " and " . $key . " = '" . $value . "'";
 			}
 		}
-		if(!empty($options['byTitle'])) {
-			$q[2] .= " and title like '%". $this->escape($options['byTitle']) ."%'";
+		if (!empty($options['byTitle'])) {
+			$q[2] .= " and title like '%" . $this->escape($options['byTitle']) . "%'";
 		}
 		$q2['o'] = 'modify_at desc';
 		if ($page && $size) {
@@ -295,5 +295,71 @@ class signin_model extends app_base {
 		$url .= "?site={$siteId}&app=" . $id;
 
 		return $url;
+	}
+	/**
+	 * 获得参加登记活动的用户的昵称
+	 *
+	 * @param object $oApp
+	 * @param object $oUser [uid,nickname]
+	 */
+	public function getUserNickname(&$oApp, $oUser) {
+		$nickname = '';
+		$entryRule = $oApp->entry_rule;
+		if (isset($entryRule->scope) && $entryRule->scope === 'member') {
+			foreach ($entryRule->member as $schemaId => $rule) {
+				$modelMem = $this->model('site\user\member');
+				if (empty($oUser->unionid)) {
+					$aMembers = $modelMem->byUser($oUser->uid, ['schemas' => $schemaId]);
+					if (count($aMembers) === 1) {
+						$oMember = $aMembers[0];
+						if ($oMember->verified === 'Y') {
+							$nickname = empty($oMember->name) ? $oMember->identity : $oMember->name;
+							break;
+						}
+					}
+				} else {
+					$modelAcnt = $this->model('site\user\account');
+					$aUnionUsers = $modelAcnt->byUnionid($oUser->unionid, ['siteid' => $oApp->siteid, 'fields' => 'uid']);
+					foreach ($aUnionUsers as $oUnionUser) {
+						$aMembers = $modelMem->byUser($oUnionUser->uid, ['schemas' => $schemaId]);
+						if (count($aMembers) === 1) {
+							$oMember = $aMembers[0];
+							if ($oMember->verified === 'Y') {
+								$nickname = empty($oMember->name) ? $oMember->identity : $oMember->name;
+								break;
+							}
+						}
+					}
+					if (!empty($nickname)) {
+						break;
+					}
+				}
+			}
+		} else if (isset($entryRule->scope) && $entryRule->scope === 'sns') {
+			foreach ($entryRule->sns as $snsName => $rule) {
+				if ($snsName === 'wx') {
+					$modelWx = $this->model('sns\wx');
+					if (($wxConfig = $modelWx->bySite($oApp->siteid)) && $wxConfig->joined === 'Y') {
+						$snsSiteId = $oApp->siteid;
+					} else {
+						$snsSiteId = 'platform';
+					}
+				} else {
+					$snsSiteId = $oApp->siteid;
+				}
+				$modelAcnt = $this->model('site\user\account');
+				$siteUser = $modelAcnt->byId($oUser->uid);
+				$modelSnsUser = $this->model('sns\\' . $snsName . '\fan');
+				if ($snsUser = $modelSnsUser->byOpenid($snsSiteId, $siteUser->{$snsName . '_openid'})) {
+					$nickname = $snsUser->nickname;
+					break;
+				}
+			}
+		} else if (empty($entryRule->scope) || $entryRule->scope === 'none') {
+			/* 不限制用户访问来源 */
+			$nickname = empty($oUser->nickname) ? '' : $oUser->nickname;
+		}
+
+		return $nickname;
 	}
 }

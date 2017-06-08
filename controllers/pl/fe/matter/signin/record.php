@@ -109,7 +109,7 @@ class record extends \pl\fe\matter\base {
 					}
 				} else if (count($signinRecords) === 0) {
 					/* 没有对应的记录，创建新的 */
-					$ek = $mdoelSigninRec->enroll($site, $signinApp, null, ['verified_enroll_key' => $record->enroll_key]);
+					$ek = $mdoelSigninRec->enroll($signinApp, null, ['verified_enroll_key' => $record->enroll_key]);
 					$mdoelSigninRec->setData($site, $signinApp, $ek, $record->data, $user->id);
 					$countOfNew++;
 				} else {
@@ -153,7 +153,7 @@ class record extends \pl\fe\matter\base {
 			// 查找匹配的数据
 			$enrollApp = $this->model('matter\enroll')->byId($signinApp->enroll_app_id, ['cascaded' => 'N']);
 			$modelEnlRec = $this->model('matter\enroll\record');
-			$enlRecords = $modelEnlRec->byData($site, $enrollApp, $matchCriteria);
+			$enlRecords = $modelEnlRec->byData($enrollApp, $matchCriteria);
 			foreach ($enlRecords as $enlRec) {
 				$result[] = $enlRec->data;
 			}
@@ -458,6 +458,21 @@ class record extends \pl\fe\matter\base {
 			}
 		}
 
+		// 关联的报名活动
+		if (!empty($signinApp->group_app_id)) {
+			$groupApp = $this->model('matter\group')->byId($signinApp->group_app_id, ['fields' => 'id,title,data_schemas', 'cascaded' => 'N']);
+			$groupSchemas = json_decode($groupApp->data_schemas);
+			$mapOfSigninSchemas = [];
+			foreach ($schemas as $schema) {
+				$mapOfSigninSchemas[] = $schema->id;
+			}
+			foreach ($groupSchemas as $schema) {
+				if (!in_array($schema->id, $mapOfSigninSchemas)) {
+					$schemas[] = $schema;
+				}
+			}
+		}
+
 		// 获得所有有效的登记记录
 		$q = [
 			'enroll_at,signin_at,signin_num,verified,data,signin_log,tags,comment,verified_enroll_key',
@@ -496,6 +511,9 @@ class record extends \pl\fe\matter\base {
 		}
 		$objActiveSheet->setCellValueByColumnAndRow($colNumber++, 1, '审核通过');
 		foreach ($schemas as $schema) {
+			if (in_array($schema->type, ['html', 'image', 'file'])) {
+				continue;
+			}
 			$objActiveSheet->setCellValueByColumnAndRow($colNumber++, 1, $schema->title);
 		}
 		if (!empty($signinApp->tags)) {
@@ -546,9 +564,11 @@ class record extends \pl\fe\matter\base {
 			}
 			$objActiveSheet->setCellValueByColumnAndRow($colNumber++, $rowNumber, $record->verified);
 			// 处理登记项
-			//$data = str_replace("\n", ' ', $record->data);
 			$data = json_decode($record->data);
 			foreach ($schemas as $schema) {
+				if (in_array($schema->type, ['html', 'image', 'file'])) {
+					continue;
+				}
 				$v = isset($data->{$schema->id}) ? $data->{$schema->id} : '';
 				switch ($schema->type) {
 				case 'single':
@@ -574,6 +594,15 @@ class record extends \pl\fe\matter\base {
 						}
 					}
 					$objActiveSheet->setCellValueByColumnAndRow($colNumber++, $rowNumber, implode(',', $labels));
+					break;
+				case 'score':
+					$labels = [];
+					foreach ($schema->ops as $op) {
+						if (isset($v->{$op->v})) {
+							$labels[] = $op->l . ':' . $v->{$op->v};
+						}
+					}
+					$objActiveSheet->setCellValueByColumnAndRow($colNumber++, $rowNumber, implode(' / ', $labels));
 					break;
 				default:
 					$objActiveSheet->setCellValueByColumnAndRow($colNumber++, $rowNumber, $v);

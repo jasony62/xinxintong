@@ -73,7 +73,12 @@ class matter extends \pl\fe\matter\base {
 		$matter = $this->getPostJson();
 
 		$modelMis = $this->model('matter\mission');
-		$modelMis->addMatter($user, $site, $id, $matter);
+		if($app = $this->model('matter\\' . $matter->type)->byId($matter->id, ['fields' => 'siteid,id,title', 'cascaded' => 'N'])) {
+			$app->type = $matter->type;
+			$modelMis->addMatter($user, $site, $id, $app);
+		}else{
+			return new \ResponseError('指定的素材不存在');
+		}
 
 		$mission = $modelMis->byId($id, ['cascaded' => 'phase']);
 

@@ -10,7 +10,8 @@
 						<th style='width:100px'>登记时间</th>
 						<th>审核通过</th>
                         <th class='custom-col' ng-repeat="schema in recordSchemas">{{schema.title}}</th>
-						<th class='custom-col enroll' ng-repeat="schema in enrollDataSchemas">{{schema.title}}</th>
+                        <th class='custom-col enroll' ng-repeat="schema in enrollDataSchemas">{{schema.title}}</th>
+						<th class='custom-col group' ng-repeat="schema in groupDataSchemas">{{schema.title}}</th>
 						<th style='width:140px'>标签</th>
 						<th>备注</th>
                         <th style='width:72px'>操作</th>
@@ -32,6 +33,16 @@
                             <span ng-switch-default ng-bind-html="r._data[schema.id]"></span>
                         </td>
                         <td data-th='{{schema.title}}' ng-repeat="schema in enrollDataSchemas" ng-switch on="schema.type">
+                            <span ng-switch-when="image">
+                                <img ng-repeat="img in r._data[schema.id]" ng-src='{{img}}' />
+                            </span>
+                            <span ng-switch-when="file">
+                                <span ng-repeat='file in r._data[schema.id]'><a href='{{file.url}}' target="_blank">{{file.name}}</a></span>
+                            </span>
+                            <span ng-switch-when="date">{{(r._data[schema.id]*1000)|date:'yy-MM-dd HH:mm'}}</span>
+                            <span ng-switch-default ng-bind-html="r._data[schema.id]"></span>
+                        </td>
+                        <td data-th='{{schema.title}}' ng-repeat="schema in groupDataSchemas" ng-switch on="schema.type">
                             <span ng-switch-when="image">
                                 <img ng-repeat="img in r._data[schema.id]" ng-src='{{img}}' />
                             </span>

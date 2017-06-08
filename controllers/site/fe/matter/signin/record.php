@@ -48,17 +48,21 @@ class record extends base {
 			header('HTTP/1.0 500 parameter error:app dosen\'t exist.');
 			die('签到活动不存在');
 		}
+
+		$oUser = $this->who;
+		$userNickname = $modelApp->getUserNickname($signinApp, $oUser);
+		$oUser->nickname = $userNickname;
+
 		/**
 		 * 提交的数据
 		 */
-		$user = $this->who;
 		$signinData = $this->getPostJson();
 		/**
 		 * 包含用户身份信息
 		 */
 		if (isset($signinData->member) && isset($signinData->member->schema_id)) {
 			$member = clone $signinData->member;
-			$rst = $this->_submitMember($site, $member, $user);
+			$rst = $this->_submitMember($site, $member, $oUser);
 			if ($rst[0] === false) {
 				return new \ParameterError($rst[1]);
 			}
@@ -68,9 +72,9 @@ class record extends base {
 		 */
 		$modelRec = $this->model('matter\signin\record');
 		$modelRec->setOnlyWriteDbConn(true);
-		$signState = $modelRec->signin($user, $site, $signinApp, $signinData);
+		$signState = $modelRec->signin($oUser, $signinApp, $signinData);
 		// 保存签到登记数据
-		empty($submitkey) && $submitkey = $user->uid;
+		empty($submitkey) && $submitkey = $oUser->uid;
 		$rst = $modelRec->setData($site, $signinApp, $signState->ek, $signinData, $submitkey);
 		if (false === $rst[0]) {
 			return new \ResponseError($rst[1]);
@@ -95,7 +99,7 @@ class record extends base {
 				}
 				/* 在指定的登记活动中检查数据 */
 				$modelEnrollRec = $this->model('matter\enroll\record');
-				$enrollRecords = $modelEnrollRec->byData($site, $enrollApp, $requireCheckedData);
+				$enrollRecords = $modelEnrollRec->byData($enrollApp, $requireCheckedData);
 				if (!empty($enrollRecords)) {
 					/**
 					 * 找报名表中找到对应的记录
@@ -137,9 +141,43 @@ class record extends base {
 				}
 			}
 		}
+		/**
+		 * 检查是否存在匹配的分组记录
+		 */
+		if (!empty($signinApp->group_app_id)) {
+			$groupApp = $this->model('matter\group')->byId($signinApp->group_app_id);
+			if (empty($groupApp)) {
+				return new \ParameterError('指定的登记匹配分组活动不存在');
+			}
+			/* 获得要检查的登记项 */
+			$requireCheckedData = new \stdClass;
+			$dataSchemas = json_decode($signinApp->data_schemas);
+			foreach ($dataSchemas as $dataSchema) {
+				if (isset($dataSchema->requireCheck) && $dataSchema->requireCheck === 'Y') {
+					if (isset($dataSchema->fromApp) && $dataSchema->fromApp === $signinApp->group_app_id) {
+						$requireCheckedData->{$dataSchema->id} = isset($signinData->{$dataSchema->id}) ? $signinData->{$dataSchema->id} : '';
+					}
+				}
+			}
+			/* 在指定的登记活动中检查数据 */
+			$modelMatchRec = $this->model('matter\group\player');
+			$groupRecords = $modelMatchRec->byData($groupApp, $requireCheckedData);
+			if (empty($groupRecords)) {
+				return new \ParameterError('未在指定的分组活动［' . $groupApp->title . '］中找到与提交数据相匹配的记录');
+			}
+			$groupRecord = $groupRecords[0];
+			/* 将匹配的登记记录数据作为提交的登记数据的一部分 */
+			$matchedData = $groupRecord->data;
+			foreach ($matchedData as $n => $v) {
+				!isset($signinData->{$n}) && $signinData->{$n} = $v;
+			}
+			if (isset($groupRecord->round_id)) {
+				$signinData->_round_id = $groupRecord->round_id;
+			}
+		}
 
 		/* 记录操作日志 */
-		$this->_logSubmit($site, $signinApp, $signState->ek);
+		$this->_logSubmit($signinApp, $signState->ek);
 		/**
 		 * 通知登记活动事件接收人
 		 */
@@ -152,11 +190,10 @@ class record extends base {
 	/**
 	 * 记录用户提交日志
 	 *
-	 * @param string $siteId
-	 * @param object $app
+	 * @param object $oApp
 	 *
 	 */
-	private function _logSubmit($siteId, $app, $ek) {
+	private function _logSubmit($oApp, $ek) {
 		$modelLog = $this->model('matter\log');
 
 		$logUser = new \stdClass;
@@ -173,7 +210,7 @@ class record extends base {
 
 		$referer = isset($_SERVER['HTTP_REFERER']) ? $_SERVER['HTTP_REFERER'] : '';
 
-		$logid = $modelLog->addUserMatterOp($siteId, $logUser, $app, $operation, $client, $referer);
+		$logid = $modelLog->addUserMatterOp($oApp->siteid, $logUser, $oApp, $operation, $client, $referer);
 
 		return $logid;
 	}
@@ -306,7 +343,7 @@ class record extends base {
 			'fields' => '*',
 		);
 
-		$record = $modelRec->byUser($user, $site, $app, $options);
+		$record = $modelRec->byUser($user, $app, $options);
 
 		return new \ResponseData($record);
 	}

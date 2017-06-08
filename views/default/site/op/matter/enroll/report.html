@@ -14,7 +14,7 @@
             </div>
             <!--schemas-->
             <div ng-repeat="schema in app.data_schemas" ng-if="schema.type!=='html'">
-                <h3><span>第{{$index+1}}项：</span><span ng-bind="schema.title"></span></h3>
+                <h3><span class='hide'>第{{$index+1}}项：</span><span ng-bind="schema.title"></span></h3>
                 <div ng-if="['single','phase','multiple'].indexOf(schema.type)!==-1">
                     <div id="{{schema.id}}" style='height:300px'></div>
                     <table class='table table-bordered'>
@@ -115,6 +115,7 @@
         <nav class="navbar navbar-default navbar-fixed-bottom">
             <div class="container-fluid">
                 <p class="navbar-text"><a href="" ng-click="switchTo('list')" class="navbar-link">看列表</a></p>
+                <p class="navbar-text" ng-if="remarkableSchemas.length"><a href="" ng-click="switchTo('remarks')" class="navbar-link">看评论</a></p>
             </div>
         </nav>
     </div>

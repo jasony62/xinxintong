@@ -35,7 +35,7 @@ class schema extends \pl\fe\base {
 	 *
 	 */
 	public function update_action($type, $id = null) {
-		if (false === ($user = $this->accountUser())) {
+		if (false === ($oUser = $this->accountUser())) {
 			return new \ResponseTimeout();
 		}
 		$nv = $this->getPostJson();
@@ -44,13 +44,13 @@ class schema extends \pl\fe\base {
 			/**
 			 * 如果是首次使用内置接口，就创建新的接口定义
 			 */
-			$code = $this->_pageCreate();
+			$code = $this->_pageCreate($oUser);
 			$i = array(
 				'siteid' => $this->siteId,
 				'title' => '内置认证',
 				'type' => 'inner',
 				'valid' => 'N',
-				'creater' => $user->id,
+				'creater' => $oUser->id,
 				'create_at' => time(),
 				'entry_statement' => '无法确认您是否有权限进行该操作，请先完成【<a href="{{authapi}}">用户身份确认</a>】。',
 				'acl_statement' => '您的身份识别信息没有放入白名单中，请与系统管理员联系。',
@@ -100,43 +100,60 @@ class schema extends \pl\fe\base {
 	 * 自定义联系人接口只有在本地部署版本中才有效
 	 */
 	public function create_action() {
-		if (false === ($user = $this->accountUser())) {
+		if (false === ($oUser = $this->accountUser())) {
 			return new \ResponseTimeout();
 		}
 
-		$config = $this->getPostJson();
+		$oConfig = $this->getPostJson();
 
 		$modelMs = $this->model('site\user\memberschema');
 		$modelMs->setOnlyWriteDbConn(true);
 
-		$code = $this->_pageCreate();
-		$i = [
-			'siteid' => $this->siteId,
-			'title' => isset($config->title) ? $config->title : '新通讯录',
-			'type' => 'inner',
-			'valid' => (isset($config->valid) && $config->valid === 'Y') ? 'Y' : 'N',
-			'creater' => $user->id,
-			'create_at' => time(),
-			'entry_statement' => '无法确认您是否有权限进行该操作，请先完成【<a href="{{authapi}}">用户身份确认</a>】。',
-			'acl_statement' => '您的身份识别信息没有放入白名单中，请与系统管理员联系。',
-			'notpass_statement' => '您的邮箱还没有验证通过，若未收到验证邮件请联系系统管理员。若需要重发验证邮件，请先完成【<a href="{{authapi}}">用户身份确认</a>】。',
-			'url' => TMS_APP_API_PREFIX . "/site/fe/user/member",
-			'code_id' => $code->id,
-			'page_code_name' => $code->name,
-			'attr_mobile' => '011101',
-			'require_invite' => 'Y',
-		];
-		$id = $modelMs->insert('xxt_site_member_schema', $i, true);
+		$oCode = $this->_pageCreate($oUser);
+		$oNewMschema = new \stdClass;
+		$oNewMschema->siteid = $this->siteId;
+		$oNewMschema->title = isset($oConfig->title) ? $oConfig->title : '新通讯录';
+		$oNewMschema->type = 'inner';
+		$oNewMschema->valid = (isset($oConfig->valid) && $oConfig->valid === 'Y') ? 'Y' : 'N';
+		$oNewMschema->creater = $oUser->id;
+		$oNewMschema->create_at = time();
+		$oNewMschema->entry_statement = '无法确认您是否有权限进行该操作，请先完成【<a href="{{authapi}}">用户身份确认</a>】。';
+		$oNewMschema->acl_statement = '您的身份识别信息没有放入白名单中，请与系统管理员联系。';
+		$oNewMschema->notpass_statement = '您的邮箱还没有验证通过，若未收到验证邮件请联系系统管理员。若需要重发验证邮件，请先完成【<a href="{{authapi}}">用户身份确认</a>】。';
+		$oNewMschema->url = TMS_APP_API_PREFIX . "/site/fe/user/member";
+		$oNewMschema->code_id = $oCode->id;
+		$oNewMschema->page_code_name = $oCode->name;
+		$oNewMschema->attr_mobile = '011101'; // 必填，唯一，不可更改，身份标识
+		$oNewMschema->attr_email = '001000';
+		$oNewMschema->attr_name = '000000';
+		$oNewMschema->require_invite = 'Y';
+		$oNewMschema->auto_verified = 'Y';
+		$oNewMschema->validity = 365;
+		$oNewMschema->at_user_home = 'N';
 
-		$q = [
-			'*',
-			'xxt_site_member_schema',
-			"siteid='$this->siteId' and id='$id'",
-		];
+		/* 默认要求已经开通的关注公众号 */
+		$modelWx = $this->model('sns\wx');
+		if (($wx = $modelWx->bySite($this->siteId, ['fields' => 'joined'])) && $wx->joined === 'Y') {
+			$oNewMschema->is_wx_fan = 'Y';
+		} else if (($wx = $modelWx->bySite('platform', ['fields' => 'joined'])) && $wx->joined === 'Y') {
+			$oNewMschema->is_wx_fan = 'Y';
+		} else {
+			$oNewMschema->is_wx_fan = 'N';
+		}
+		if (($yx = $this->model('sns\yx')->bySite($this->siteId, ['fields' => 'joined'])) && $yx->joined === 'Y') {
+			$oNewMschema->is_yx_fan = 'Y';
+		} else {
+			$oNewMschema->is_yx_fan = 'N';
+		}
+		if (($qy = $this->model('sns\qy')->bySite($this->siteId, ['fields' => 'joined'])) && $qy->joined === 'Y') {
+			$oNewMschema->is_qy_fan = 'Y';
+		} else {
+			$oNewMschema->is_qy_fan = 'N';
+		}
 
-		$schema = $modelMs->byId($id);
+		$oNewMschema->id = $modelMs->insert('xxt_site_member_schema', $oNewMschema, true);
 
-		return new \ResponseData($schema);
+		return new \ResponseData($oNewMschema);
 	}
 	/**
 	 * 只有没有被使用的自定义接口才允许被删除
@@ -176,9 +193,7 @@ class schema extends \pl\fe\base {
 	/**
 	 * 根据模板创建缺省页面
 	 */
-	private function _pageCreate($template = 'basic') {
-		$uid = \TMS_CLIENT::get_client_uid();
-
+	private function _pageCreate($oUser, $template = 'basic') {
 		$templateDir = TMS_APP_TEMPLATE . '/pl/fe/site/memberschema';
 
 		$data = array(
@@ -187,7 +202,7 @@ class schema extends \pl\fe\base {
 			'js' => file_get_contents($templateDir . '/' . $template . '.js'),
 		);
 
-		$code = \TMS_APP::model('code\page')->create($this->siteId, $uid, $data);
+		$code = $this->model('code\page')->create($this->siteId, $oUser->id, $data);
 
 		return $code;
 	}

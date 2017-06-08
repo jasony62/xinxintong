@@ -8,42 +8,7 @@ var ngApp = require('./main.js');
 ngApp.config(['$compileProvider', function($compileProvider) {
     $compileProvider.aHrefSanitizationWhitelist(/^\s*(https?|ftp|mailto|tel|file|sms|wxLocalResource):/);
 }]);
-ngApp.factory('Record', ['http2', '$q', function(http2, $q) {
-    var Record, _ins;
-    Record = function() {};
-    Record.prototype.get = function(ek) {
-        var url, deferred;
-        deferred = $q.defer();
-        url = LS.j('record/get', 'site', 'aid');
-        ek && (url += '&ek=' + ek);
-        http2.get(url).then(function(rsp) {
-            deferred.resolve(rsp.data);
-        });
-        return deferred.promise;
-    };
-    return {
-        ins: function() {
-            return _ins ? _ins : (new Record());
-        }
-    };
-}]);
 ngApp.factory('Input', ['$http', '$q', '$timeout', 'ls', function($http, $q, $timeout, LS) {
-    function required(value, len) {
-        return (value == null || value == "" || value.length < len) ? false : true;
-    }
-
-    function validate(data) {
-        var reason;
-        if (document.querySelector('[schema-type="name"]')) {
-            reason = '请提供正确姓名！';
-            if (false === required(data[document.querySelector('[schema-type="name"]').getAttribute('schema')], 2)) {
-                document.querySelector('[schema-type="name"]').focus();
-                return reason;
-            }
-        }
-        return true;
-    }
-
     function isEmpty(schema, value) {
         if (value === undefined) {
             return true;
@@ -128,7 +93,7 @@ ngApp.factory('Input', ['$http', '$q', '$timeout', 'ls', function($http, $q, $ti
                             //2. 一个@
                             //3.字母数字下划线 至少一个 \w+
                             //4. 一个'.' 注意. 在增则中有意义需要转译  \.
-                            //   /^\w+@\w+\.com/
+                            //   /^\w+@\w+/
                             if (!/^\w+@\w+/.test(value)) {
                                 return '题目［' + schema.title + '］请输入正确的邮箱';
                             }

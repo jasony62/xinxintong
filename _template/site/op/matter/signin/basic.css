@@ -1,6 +1,7 @@
 #records{margin-bottom:60px;}
 #records table img{max-width:96px;}
 #records th.enroll{background:yellow;}
+#records th.group{background:lightgreen;}
 ul{padding-left:0;}
 @media screen and (max-width:768px){
 	table thead{display:none;}

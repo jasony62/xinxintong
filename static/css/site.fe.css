@@ -46,7 +46,6 @@ html,body{height:100%;width:100%;background-color:#fff;font-family:"HSimHei","Mi
 .nav-tabs>li>a{font-size:17px;font-weight:700;border:0;}
 .nav-tabs>li.active>a,.nav-tabs>li.active>a:hover,.nav-tabs>li.active>a:focus{border:0;border-bottom:3px solid #388dbf;}
 .nav-tabs>li>a:hover,.nav-tabs>li>a:focus{background-color:#fff;}
-.table>tbody>tr>td{padding:25px 0;}
 .media-left{width:10%;padding-right:25px;}
 .media-heading{margin-bottom:10px;}
 .media-heading:hover{color:#388dbf;cursor:pointer;}

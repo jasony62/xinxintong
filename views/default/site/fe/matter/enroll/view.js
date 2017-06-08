@@ -14,22 +14,6 @@ ngApp.factory('Record', ['http2', '$q', 'ls', function(http2, $q, LS) {
             data: data
         };
     };
-    Record.prototype.get = function(ek) {
-        var _this, url;
-        if (!_deferredRecord) {
-            _deferredRecord = $q.defer();
-            _this = this;
-            url = LS.j('record/get', 'site', 'app');
-            ek && (url += '&ek=' + ek);
-            http2.get(url).then(function(rsp) {
-                var record;
-                record = rsp.data;
-                _this.current = record;
-                _deferredRecord.resolve(record);
-            });
-        }
-        return _deferredRecord.promise;
-    };
     Record.prototype.remove = function(record) {
         var deferred = $q.defer(),
             url;
@@ -125,60 +109,59 @@ ngApp.controller('ctrlRecord', ['$scope', 'Record', 'ls', '$sce', function($scop
 }]);
 ngApp.controller('ctrlView', ['$scope', '$timeout', 'ls', 'Record', function($scope, $timeout, LS, Record) {
     $scope.$on('xxt.app.enroll.ready', function(event, params) {
-        var oApp = params.app;
         if (!params.user.unionid) {
             var domTip = document.querySelector('#appLoginTip');
             var evt = document.createEvent("HTMLEvents");
             evt.initEvent("show", false, false);
             domTip.dispatchEvent(evt);
         }
-        var dataSchemas = params.app.dataSchemas,
-            aRemarkableSchemas = [];
+        var oApp = params.app,
+            dataSchemas = params.app.dataSchemas,
+            aRemarkableSchemas = [],
+            oRecord, facRecord;
+
+        facRecord = Record.ins(oApp);
+        facRecord.current = oRecord = params.record;
         dataSchemas.forEach(function(oSchema) {
             if (oSchema.remarkable && oSchema.remarkable === 'Y') {
                 aRemarkableSchemas.push(oSchema);
                 var domWrap = document.querySelector('[schema=' + oSchema.id + ']');
                 domWrap.classList.add('remarkable');
                 domWrap.addEventListener('click', function() {
-                    var url = LS.j('', 'site', 'app', 'ek');
+                    var url = LS.j('', 'site', 'app');
+                    url += '&ek=' + oRecord.enroll_key;
                     url += '&schema=' + oSchema.id;
                     url += '&page=remark';
                     location.href = url;
                 }, true);
             }
         });
-        var promise, facRecord;
-        facRecord = Record.ins(oApp);
-        if (promise = facRecord.get(LS.p.ek)) {
-            promise.then(function(oRecord) {
-                /* disable actions */
-                var fnDisableActions = function() {
-                    var domActs, domAct;
-                    if (domActs = document.querySelectorAll('button[ng-click]')) {
-                        domActs.forEach(function(domAct) {
-                            var ngClick = domAct.getAttribute('ng-click');
-                            if (ngClick.indexOf('editRecord') === 0 || ngClick.indexOf('removeRecord') === 0) {
-                                domAct.style.display = 'none';
-                            }
-                        });
+        /* disable actions */
+        var fnDisableActions = function() {
+            var domActs, domAct;
+            if (domActs = document.querySelectorAll('button[ng-click]')) {
+                domActs.forEach(function(domAct) {
+                    var ngClick = domAct.getAttribute('ng-click');
+                    if (ngClick.indexOf('editRecord') === 0 || ngClick.indexOf('removeRecord') === 0) {
+                        domAct.style.display = 'none';
                     }
-                };
-                if (oApp.end_at > 0 && parseInt(oApp.end_at) < (new Date() * 1) / 1000) {
-                    fnDisableActions();
-                } else if ((oApp.can_cowork && oApp.can_cowork !== 'Y')) {
-                    if (params.user.uid !== oRecord.userid) {
-                        fnDisableActions();
-                    }
-                }
-                var schemaId, domWrap;
-                if (oRecord.verbose) {
-                    aRemarkableSchemas.forEach(function(oSchema) {
-                        var num;
-                        if (domWrap = document.querySelector('[schema=' + oSchema.id + ']')) {
-                            num = oRecord.verbose[oSchema.id] ? oRecord.verbose[oSchema.id].remark_num : 0;
-                            domWrap.setAttribute('data-remark', num);
-                        }
-                    });
+                });
+            }
+        };
+        if (oApp.end_at > 0 && parseInt(oApp.end_at) < (new Date() * 1) / 1000) {
+            fnDisableActions();
+        } else if ((oApp.can_cowork && oApp.can_cowork !== 'Y')) {
+            if (params.user.uid !== oRecord.userid) {
+                fnDisableActions();
+            }
+        }
+        var schemaId, domWrap;
+        if (oRecord.verbose) {
+            aRemarkableSchemas.forEach(function(oSchema) {
+                var num;
+                if (domWrap = document.querySelector('[schema=' + oSchema.id + ']')) {
+                    num = oRecord.verbose[oSchema.id] ? oRecord.verbose[oSchema.id].remark_num : 0;
+                    domWrap.setAttribute('data-remark', num);
                 }
             });
         }

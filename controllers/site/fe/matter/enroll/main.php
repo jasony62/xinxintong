@@ -47,6 +47,8 @@ class main extends base {
 			\TPL::output('/site/fe/matter/enroll/repos');
 		} elseif ($page === 'remark') {
 			\TPL::output('/site/fe/matter/enroll/remark');
+		} elseif ($page === 'rank') {
+			\TPL::output('/site/fe/matter/enroll/rank');
 		} else {
 			if (empty($page)) {
 				/* 计算打开哪个页面 */
@@ -57,6 +59,8 @@ class main extends base {
 			empty($oOpenPage) && $this->outputError('没有可访问的页面');
 			if ($oOpenPage->name === 'repos') {
 				\TPL::output('/site/fe/matter/enroll/repos');
+			} else if ($oOpenPage->name === 'rank') {
+				\TPL::output('/site/fe/matter/enroll/rank');
 			} else if ($oOpenPage->type === 'I') {
 				\TPL::output('/site/fe/matter/enroll/input');
 			} else if ($oOpenPage->type === 'V') {
@@ -211,7 +215,7 @@ class main extends base {
 	 * @param string $ek record's enroll key
 	 * @param string $newRecord
 	 */
-	public function get_action($site, $app, $rid = null, $page = null, $ek = null, $newRecord = null, $ignoretime = 'N', $cascaded = 'N') {
+	public function get_action($app, $rid = null, $page = null, $ek = null, $newRecord = null, $ignoretime = 'N', $cascaded = 'N') {
 		$params = [];
 
 		/* 登记活动定义 */
@@ -224,23 +228,26 @@ class main extends base {
 		/* 当前访问用户的基本信息 */
 		$oUser = $this->who;
 
-		/* 补充联系人信息，是在什么情况下都需要补充吗？ */
+		/* 补充联系人信息，是在什么情况下都需要补充吗？ 应该在限制了联系人访问的情况下，而且应该只返回相关的 */
 		$modelMem = $this->model('site\user\member');
 		if (empty($oUser->unionid)) {
 			$aMembers = $modelMem->byUser($oUser->uid);
-			foreach ($aMembers as $oMember) {
-				$oUser->members->{$oMember->schema_id} = $oMember;
+			if (count($aMembers)) {
+				!isset($oUser->members) && $oUser->members = new \stdClass;
+				foreach ($aMembers as $oMember) {
+					$oUser->members->{$oMember->schema_id} = $oMember;
+				}
 			}
 		} else {
 			$modelAcnt = $this->model('site\user\account');
 			$aUnionUsers = $modelAcnt->byUnionid($oUser->unionid, ['siteid' => $oApp->siteid, 'fields' => 'uid']);
 			foreach ($aUnionUsers as $oUnionUser) {
 				$aMembers = $modelMem->byUser($oUnionUser->uid);
-				foreach ($aMembers as $oMember) {
-					if (!isset($oUser->members)) {
-						$oUser->members = new \stdClass;
+				if (count($aMembers)) {
+					!isset($oUser->members) && $oUser->members = new \stdClass;
+					foreach ($aMembers as $oMember) {
+						$oUser->members->{$oMember->schema_id} = $oMember;
 					}
-					$oUser->members->{$oMember->schema_id} = $oMember;
 				}
 			}
 		}
@@ -249,7 +256,7 @@ class main extends base {
 		/* 站点页面设置 */
 		if ($oApp->use_site_header === 'Y' || $oApp->use_site_footer === 'Y') {
 			$params['site'] = $this->model('site')->byId(
-				$site,
+				$oApp->siteid,
 				['cascaded' => 'header_page_name,footer_page_name']
 			);
 		}
@@ -268,7 +275,7 @@ class main extends base {
 		}
 
 		$modelRec = $this->model('matter\enroll\record');
-		if ($page !== 'repos' && $page !== 'remark') {
+		if ($page !== 'repos' && $page !== 'remark' && $page !== 'rank') {
 			$oUserEnrolled = $modelRec->lastByUser($oApp, $oUser);
 			/* 自动登记???，解决之要打开了页面就登记？ */
 			if (!$oUserEnrolled && $oApp->can_autoenroll === 'Y' && $oOpenPage->autoenroll_onenter === 'Y') {
@@ -277,11 +284,11 @@ class main extends base {
 				];
 				$lastRecord = $modelRec->lastByUser($oApp->id, $oUser, $options);
 				if (false === $lastRecord) {
-					$modelRec->add($site, $oApp, $oUser, (empty($posted->referrer) ? '' : $posted->referrer));
+					$modelRec->add($oApp->siteid, $oApp, $oUser, (empty($posted->referrer) ? '' : $posted->referrer));
 				} else if ($lastRecord->enroll_at === '0') {
-					$updated = array(
+					$updated = [
 						'enroll_at' => time(),
-					);
+					];
 					!empty($posted->referrer) && $updated['referrer'] = $posted->referrer;
 					$modelRec->update('xxt_enroll_record', $updated, "enroll_key='$lastRecord->enroll_key'");
 				}
@@ -296,27 +303,63 @@ class main extends base {
 			if (empty($oOpenPage)) {
 				return new \ResponseError('页面不存在');
 			}
-			if ($oOpenPage->name !== 'repos') {
+			if ($oOpenPage->name !== 'repos' && $oOpenPage->name !== 'rank') {
 				$params['page'] = $oOpenPage;
 				/* 是否需要返回登记记录 */
-				if (($oOpenPage->type === 'I' && $newRecord !== 'Y') || $page === 'remark') {
-					if (empty($ek)) {
-						if ($oApp->open_lastroll === 'Y') {
-							/* 获得最后一条登记数据。记录有可能未进行过数据填写 */
-							$options = [
-								'fields' => '*',
-							];
-							$lastRecord = $modelRec->lastByUser($oApp, $oUser, $options);
-							$params['record'] = $lastRecord;
+				if ($oOpenPage->type === 'I' && $newRecord === 'Y') {
+					/* 返回当前用户在关联活动中填写的数据 */
+					if (!empty($oApp->enroll_app_id)) {
+						$oAssocRec = $modelRec->byUser($oApp->enroll_app_id, $oUser);
+						if (count($oAssocRec) === 1) {
+							if (!empty($oAssocRec[0]->data)) {
+								$oAssocRecord = new \stdClass;
+								$oAssocRecord->data = json_decode($oAssocRec[0]->data);
+								$params['record'] = $oAssocRecord;
+							}
 						}
-					} else {
-						$record = $modelRec->byId($ek);
-						$params['record'] = $record;
+					}
+					if (!empty($oApp->group_app_id)) {
+						$oGrpApp = $this->model('matter\group')->byId($oApp->group_app_id, ['cascaded' => 'N']);
+						$oGrpPlayer = $this->model('matter\group\player')->byUser($oGrpApp, $oUser->uid);
+						if (count($oGrpPlayer) === 1) {
+							if (!empty($oGrpPlayer[0]->data)) {
+								if (isset($params['record'])) {
+									$oAssocRecord = $params['record'];
+									$oAssocData = json_decode($oGrpPlayer[0]->data);
+									$oAssocRecord->data->_round_id = $oGrpPlayer[0]->round_id;
+									foreach ($oAssocData as $k => $v) {
+										$oAssocRecord->data->{$k} = $v;
+									}
+								} else {
+									$oAssocRecord = new \stdClass;
+									$oAssocRecord->data = json_decode($oGrpPlayer[0]->data);
+									$oAssocRecord->data->_round_id = $oGrpPlayer[0]->round_id;
+									$params['record'] = $oAssocRecord;
+								}
+							}
+						}
+					}
+				} else {
+					if (($oOpenPage->type === 'I' && $newRecord !== 'Y') || $page === 'remark' || $oOpenPage->type === 'V') {
+						if (empty($ek)) {
+							if ($oApp->open_lastroll === 'Y' || $oOpenPage->type === 'V') {
+								/* 获得最后一条登记数据。记录有可能未进行过数据填写 */
+								$options = [
+									'fields' => '*',
+									'verbose' => 'Y',
+								];
+								$lastRecord = $modelRec->lastByUser($oApp, $oUser, $options);
+								$params['record'] = $lastRecord;
+							}
+						} else {
+							$record = $modelRec->byId($ek, ['verbose' => 'Y']);
+							$params['record'] = $record;
+						}
 					}
 				}
 			}
 		} else if ($page === 'remark' && !empty($ek)) {
-			$record = $modelRec->byId($ek);
+			$record = $modelRec->byId($ek, ['verbose' => 'Y']);
 			$params['record'] = $record;
 		}
 

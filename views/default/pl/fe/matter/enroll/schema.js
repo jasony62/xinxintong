@@ -293,14 +293,13 @@ define(['frame', 'schema', 'wrap'], function(ngApp, schemaLib, wrapLib) {
         };
         var timerOfUpdate = null;
         $scope.updSchema = function(oSchema, oBeforeState) {
-            //所有页面的schema   和cofig
             $scope.app.pages.forEach(function(oPage) {
                 oPage.updateSchema(oSchema, oBeforeState);
             });
             if (timerOfUpdate !== null) {
                 $timeout.cancel(timerOfUpdate);
             }
-            timerOfUpdate = $timeout(function() { //为何放在定时器里？
+            timerOfUpdate = $timeout(function() {
                 srvEnrollApp.update('data_schemas').then(function() {
                     $scope.app.pages.forEach(function(page) {
                         srvEnrollPage.update(page, ['data_schemas', 'html']);

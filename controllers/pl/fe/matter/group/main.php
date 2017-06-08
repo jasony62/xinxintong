@@ -34,11 +34,15 @@ class main extends \pl\fe\matter\base {
 		/*关联应用*/
 		if (!empty($app->source_app)) {
 			$sourceApp = json_decode($app->source_app);
-			$options = array('cascaded' => 'N', 'fields' => 'siteid,id,title');
-			if ($sourceApp->type === 'wall') {
-				$options = 'siteid,id,title';
+			if ($sourceApp->type === 'mschema') {
+				$app->sourceApp = $this->model('site\user\memberschema')->byId($sourceApp->id);
+			} else {
+				$options = array('cascaded' => 'N', 'fields' => 'siteid,id,title');
+				if ($sourceApp->type === 'wall') {
+					$options = 'siteid,id,title';
+				}
+				$app->sourceApp = $this->model('matter\\' . $sourceApp->type)->byId($sourceApp->id, $options);
 			}
-			$app->sourceApp = $this->model('matter\\' . $sourceApp->type)->byId($sourceApp->id, $options);
 		}
 
 		return new \ResponseData($app);
@@ -59,8 +63,8 @@ class main extends \pl\fe\matter\base {
 			'xxt_group',
 			"state<>0",
 		];
-		if(!empty($post->byTitle)){
-			$q[2] .= " and title like '%". $model->escape($post->byTitle) ."%'";
+		if (!empty($post->byTitle)) {
+			$q[2] .= " and title like '%" . $model->escape($post->byTitle) . "%'";
 		}
 		if (empty($mission)) {
 			$site = $model->escape($site);

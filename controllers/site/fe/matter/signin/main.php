@@ -142,8 +142,8 @@ class main extends base {
 		$params['app'] = &$signinApp;
 
 		// 当前访问用户的基本信息
-		$user = $this->who;
-		$params['user'] = $user;
+		$oUser = $this->who;
+		$params['user'] = $oUser;
 
 		// 当前轮次
 		$activeRound = $this->model('matter\signin\round')->getActive($site, $signinApp->id);
@@ -185,13 +185,33 @@ class main extends base {
 				'cascaded' => 'Y',
 			];
 			$modelRec = $this->model('matter\signin\record');
-			if (false === ($userRecord = $modelRec->byUser($user, $signinApp, $options))) {
+			if (false === ($oUserRecord = $modelRec->byUser($oUser, $signinApp, $options))) {
 				// 如果关联了报名记录，从报名记录中获得登记信息
 				if (!empty($signinApp->enroll_app_id)) {
-					$userRecord = $this->_recordByEnroll($signinApp, $user);
+					$oUserRecord = $this->_recordByEnroll($signinApp, $oUser);
+				}
+				/* 关联了分组活动 */
+				if (!empty($signinApp->group_app_id)) {
+					$oGrpApp = $this->model('matter\group')->byId($signinApp->group_app_id, ['cascaded' => 'N']);
+					$oGrpPlayer = $this->model('matter\group\player')->byUser($oGrpApp, $oUser->uid);
+					if (count($oGrpPlayer) === 1) {
+						if (!empty($oGrpPlayer[0]->data)) {
+							if (!empty($oUserRecord)) {
+								$oAssocData = json_decode($oGrpPlayer[0]->data);
+								$oUserRecord->data->_round_id = $oGrpPlayer[0]->round_id;
+								foreach ($oAssocData as $k => $v) {
+									$oUserRecord->data->{$k} = $v;
+								}
+							} else {
+								$oUserRecord = new \stdClass;
+								$oUserRecord->data = json_decode($oGrpPlayer[0]->data);
+								$oUserRecord->data->_round_id = $oGrpPlayer[0]->round_id;
+							}
+						}
+					}
 				}
 			}
-			$params['record'] = $userRecord;
+			$params['record'] = $oUserRecord;
 		}
 
 		return new \ResponseData($params);

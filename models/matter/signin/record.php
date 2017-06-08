@@ -378,7 +378,7 @@ class record_model extends \TMS_MODEL {
 	 *
 	 * 不是所有的字段都检查，只检查字符串类型
 	 */
-	public function &byData(&$app, &$data, $options = []) {
+	public function &byData(&$oApp, &$data, $options = []) {
 		$fields = isset($options['fields']) ? $options['fields'] : '*';
 		$records = false;
 
@@ -404,7 +404,7 @@ class record_model extends \TMS_MODEL {
 		$q = [
 			$fields,
 			'xxt_signin_record',
-			"state=1 and aid='{$app->id}' $whereByData",
+			"state=1 and aid='{$oApp->id}' $whereByData",
 		];
 		$records = $this->query_objs_ss($q);
 		foreach ($records as &$record) {

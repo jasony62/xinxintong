@@ -181,8 +181,9 @@
                         </div>
                         <div ng-if="schema.shareable==='Y'">
                             <select class='form-control input-sm' ng-change="agree(record,schema)" ng-model="record.verbose[schema.id].agreed">
-                                <option value=''>不表态</option>
+                                <option value=''>未表态</option>
                                 <option value='Y'>推荐</option>
+                                <option value='A'>接受</option>
                                 <option value='N'>屏蔽</option>
                             </select>
                         </div>
@@ -200,8 +201,9 @@
                             <div class='datetime'>{{remark.create_at*1000|date:'MM-dd HH:mm'}}</div>
                             <span>点赞 <span class='badge'>{{remark.like_num}}</span></span>
                             <select class='form-control input-sm' style='width:7em' ng-change="agreeRemark(remark)" ng-model="remark.agreed">
-                                <option value=''>不表态</option>
+                                <option value=''>未表态</option>
                                 <option value='Y'>推荐</option>
+                                <option value='A'>接受</option>
                                 <option value='N'>屏蔽</option>
                             </select>
                         </div>

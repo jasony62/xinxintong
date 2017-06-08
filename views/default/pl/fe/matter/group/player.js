@@ -1,11 +1,11 @@
 define(['frame'], function(ngApp) {
-    ngApp.provider.controller('ctrlPlayer', ['$scope', 'srvGroupApp', 'srvGroupRound', 'srvGroupPlayer', function($scope, srvGroupApp, srvGroupRound, srvGroupPlayer) {
+    ngApp.provider.controller('ctrlPlayer', ['$scope', 'cstApp', 'srvGroupApp', 'srvGroupRound', 'srvGroupPlayer', function($scope, cstApp, srvGroupApp, srvGroupRound, srvGroupPlayer) {
         $scope.activeRound = null;
         srvGroupRound.list().then(function(rounds) {
             $scope.rounds = rounds;
         });
         $scope.importByApp = function() {
-            srvGroupApp.importByApp().then(function() {
+            srvGroupApp.importByApp(cstApp.importSource).then(function() {
                 $scope.openRound(null);
             });
         };

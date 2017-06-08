@@ -366,6 +366,7 @@ $sql .= ",userid varchar(40) not null"; // xxt_site_account
 $sql .= ",unionid varchar(32) not null default ''"; // account
 $sql .= ",schema_id int not null"; // id from xxt_site_member_schema
 $sql .= ",create_at int not null";
+$sql .= ",modify_at int not null";
 $sql .= ",identity varchar(255) not null default ''"; // 认证用户的唯一标识
 $sql .= ",sync_at int not null default 0"; // 数据和企业号的同步时间
 $sql .= ",name varchar(255) not null default ''";

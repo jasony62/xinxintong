@@ -526,7 +526,7 @@ class record extends \pl\fe\matter\base {
 			// 查找匹配的数据
 			$matchApp = $modelApp->byId($enrollApp->enroll_app_id, ['cascaded' => 'N']);
 			$modelEnlRec = $this->model('matter\enroll\record');
-			$matchRecords = $modelEnlRec->byData($site, $matchApp, $matchCriteria);
+			$matchRecords = $modelEnlRec->byData($matchApp, $matchCriteria);
 			foreach ($matchRecords as $matchRec) {
 				$result[] = $matchRec->data;
 			}
@@ -571,7 +571,7 @@ class record extends \pl\fe\matter\base {
 			// 查找匹配的数据
 			$groupApp = $this->model('matter\group')->byId($enrollApp->group_app_id, ['cascaded' => 'N']);
 			$modelGrpRec = $this->model('matter\group\player');
-			$matchedRecords = $modelGrpRec->byData($site, $groupApp, $matchCriteria);
+			$matchedRecords = $modelGrpRec->byData($groupApp, $matchCriteria);
 			foreach ($matchedRecords as $matchedRec) {
 				if (isset($matchedRec->round_id)) {
 					$matchedRec->data->_round_id = $matchedRec->round_id;

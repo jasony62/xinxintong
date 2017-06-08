@@ -54,9 +54,9 @@ class main extends \pl\fe\base {
 		if (false === ($user = $this->accountUser())) {
 			return new \ResponseTimeout();
 		}
-
-		$member = $this->model('site\user\member')->byId($id, 'schema_id');
-		$attrs = $this->model('site\user\memberschema')->byId($member->schema_id, 'attr_mobile,attr_email,attr_name,extattr');
+		$modelMem = $this->model('site\user\member');
+		$oldMember = $modelMem->byId($id, 'schema_id');
+		$attrs = $this->model('site\user\memberschema')->byId($oldMember->schema_id, 'attr_mobile,attr_email,attr_name,extattr');
 
 		$data = $this->getPostJson();
 		/**
@@ -91,10 +91,11 @@ class main extends \pl\fe\base {
 			$newMember['extattr'] = urldecode(json_encode($extdata));
 		}
 
-		$rst = $this->model()->update(
+		$newMember['modify_at'] = time();
+		$rst = $modelMem->update(
 			'xxt_site_member',
 			$newMember,
-			"siteid='$site' and id='$id'"
+			['siteid' => $site, 'id' => $id]
 		);
 
 		return new \ResponseData($rst);

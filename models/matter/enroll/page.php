@@ -277,7 +277,7 @@ class page_model extends \TMS_MODEL {
 	public function add(&$user, $siteId, $appId, $data = null) {
 		is_object($data) && $data = (array) $data;
 
-		$code = \TMS_APP::model('code\page')->create($siteId, $user->id);
+		$code = $this->model('code\page')->create($siteId, $user->id);
 
 		if (empty($data['seq'])) {
 			$q = array(
@@ -290,27 +290,25 @@ class page_model extends \TMS_MODEL {
 		} else {
 			$seq = $data['seq'];
 		}
-		$newPage = array(
-			'siteid' => $siteId,
-			'aid' => $appId,
-			'creater' => $user->id,
-			'create_at' => time(),
-			'type' => isset($data['type']) ? $data['type'] : 'V',
-			'title' => isset($data['title']) ? $data['title'] : '新页面',
-			'name' => isset($data['name']) ? $data['name'] : 'z' . time(),
-			'code_id' => $code->id,
-			'code_name' => $code->name,
-			'seq' => $seq,
-		);
+		$newPage = new \stdClass;
+		$newPage->siteid = $siteId;
+		$newPage->aid = $appId;
+		$newPage->creater = $user->id;
+		$newPage->create_at = time();
+		$newPage->type = isset($data['type']) ? $data['type'] : 'V';
+		$newPage->title = isset($data['title']) ? $data['title'] : '新页面';
+		$newPage->name = isset($data['name']) ? $data['name'] : 'z' . time();
+		$newPage->code_id = $code->id;
+		$newPage->code_name = $code->name;
+		$newPage->share_page = 'Y';
+		$newPage->seq = $seq;
 
-		$apid = $this->insert('xxt_enroll_page', $newPage, true);
+		$newPage->id = $this->insert('xxt_enroll_page', $newPage, true);
+		$newPage->html = '';
+		$newPage->css = '';
+		$newPage->js = '';
 
-		$newPage['id'] = $apid;
-		$newPage['html'] = '';
-		$newPage['css'] = '';
-		$newPage['js'] = '';
-
-		return (object) $newPage;
+		return $newPage;
 	}
 	/**
 	 *

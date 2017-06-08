@@ -99,7 +99,7 @@ class record extends base {
 				}
 				/* 在指定的登记活动中检查数据 */
 				$modelEnrollRec = $this->model('matter\enroll\record');
-				$enrollRecords = $modelEnrollRec->byData($site, $enrollApp, $requireCheckedData);
+				$enrollRecords = $modelEnrollRec->byData($enrollApp, $requireCheckedData);
 				if (!empty($enrollRecords)) {
 					/**
 					 * 找报名表中找到对应的记录
@@ -139,6 +139,40 @@ class record extends base {
 						$signState->forword = $signinApp->entry_rule->fail->entry;
 					}
 				}
+			}
+		}
+		/**
+		 * 检查是否存在匹配的分组记录
+		 */
+		if (!empty($signinApp->group_app_id)) {
+			$groupApp = $this->model('matter\group')->byId($signinApp->group_app_id);
+			if (empty($groupApp)) {
+				return new \ParameterError('指定的登记匹配分组活动不存在');
+			}
+			/* 获得要检查的登记项 */
+			$requireCheckedData = new \stdClass;
+			$dataSchemas = json_decode($signinApp->data_schemas);
+			foreach ($dataSchemas as $dataSchema) {
+				if (isset($dataSchema->requireCheck) && $dataSchema->requireCheck === 'Y') {
+					if (isset($dataSchema->fromApp) && $dataSchema->fromApp === $signinApp->group_app_id) {
+						$requireCheckedData->{$dataSchema->id} = isset($signinData->{$dataSchema->id}) ? $signinData->{$dataSchema->id} : '';
+					}
+				}
+			}
+			/* 在指定的登记活动中检查数据 */
+			$modelMatchRec = $this->model('matter\group\player');
+			$groupRecords = $modelMatchRec->byData($groupApp, $requireCheckedData);
+			if (empty($groupRecords)) {
+				return new \ParameterError('未在指定的分组活动［' . $groupApp->title . '］中找到与提交数据相匹配的记录');
+			}
+			$groupRecord = $groupRecords[0];
+			/* 将匹配的登记记录数据作为提交的登记数据的一部分 */
+			$matchedData = $groupRecord->data;
+			foreach ($matchedData as $n => $v) {
+				!isset($signinData->{$n}) && $signinData->{$n} = $v;
+			}
+			if (isset($groupRecord->round_id)) {
+				$signinData->_round_id = $groupRecord->round_id;
 			}
 		}
 

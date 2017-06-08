@@ -97,7 +97,7 @@ $sql .= ",name varchar(20) not null default ''";
 $sql .= ",code_id int not null default 0"; // from xxt_code_page
 $sql .= ",code_name varchar(13) not null default ''"; // from xxt_code_page
 $sql .= ",check_entry_rule char(1) not null default 'N'"; //
-$sql .= ",share_page char(1) not null default 'N'"; // 分享时分享当前页还是分享活动，缺省分享活动
+$sql .= ",share_page char(1) not null default 'Y'"; // 分享时分享当前页还是分享活动，缺省分享活动
 $sql .= ",share_summary varchar(240)"; // 分享时的摘要字段
 $sql .= ",autoenroll_onenter char(1) not null default 'N'"; // 进入时自动登记
 $sql .= ",autoenroll_onshare char(1) not null default 'N'"; // 分享时自动登记
@@ -211,7 +211,7 @@ $sql .= ",score float not null default 0"; // 登记项获得的分数
 $sql .= ",modify_log longtext"; // 数据修改日志
 $sql .= ",like_log longtext"; // 点赞日志 {userid:likeAt}
 $sql .= ",like_num int not null default 0"; // 点赞数
-$sql .= ",agreed char(1) not null default ''"; // 是否赞同
+$sql .= ",agreed char(1) not null default ''"; // 是否赞同（Y：推荐，N：屏蔽，A(ccept)：接受）
 $sql .= ",primary key(id)) ENGINE=MyISAM DEFAULT CHARSET=utf8";
 if (!$mysqli->query($sql)) {
 	header('HTTP/1.0 500 Internal Server Error');
@@ -252,7 +252,7 @@ $sql .= ",content text";
 $sql .= ",schema_id varchar(40) not null default ''"; // 针对某条登记记录的某个登记项的评论
 $sql .= ",like_log longtext"; // 点赞日志 {userid:likeAt}
 $sql .= ",like_num int not null default 0"; // 点赞数
-$sql .= ",agreed char(1) not null default ''"; // 是否赞同
+$sql .= ",agreed char(1) not null default ''"; // 是否赞同（Y：推荐，N：屏蔽，A(ccept)：接受）
 $sql .= ",primary key(id)) ENGINE=MyISAM DEFAULT CHARSET=utf8";
 if (!$mysqli->query($sql)) {
 	header('HTTP/1.0 500 Internal Server Error');
@@ -377,6 +377,7 @@ $sql = "create table if not exists xxt_signin(";
 $sql .= "id varchar(40) not null";
 $sql .= ",siteid varchar(32) not null";
 $sql .= ",enroll_app_id varchar(40) not null default ''"; // 关联的登记活动
+$sql .= ",group_app_id varchar(40) not null default ''"; // 关联的分组活动
 $sql .= ",creater varchar(40) not null default ''";
 $sql .= ",creater_name varchar(255) not null default ''";
 $sql .= ",creater_src char(1)";

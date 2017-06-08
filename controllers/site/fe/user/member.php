@@ -226,7 +226,7 @@ class member extends \site\fe\base {
 		/* 检查数据合法性。根据用户填写的自定义信息，找回数据。 */
 		$modelMem = $this->model('site\user\member');
 		if (false === ($found = $modelMem->findMember($member, $oMschema, false))) {
-			return new \ParameterError('找不到匹配的认证用户');
+			return new \ParameterError('找不到匹配的联系人信息');
 		}
 		if ($found->userid !== $siteUser->uid) {
 			return new \ResponseError('指定的用户信息错误，和当前登录用户不一致');

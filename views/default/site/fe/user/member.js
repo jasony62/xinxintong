@@ -187,6 +187,7 @@ ngApp.controller('ctrlMember', ['$scope', '$http', '$timeout', '$q', 'tmsDynaPag
         var deferred = $q.defer();
         $http.post('/rest/site/fe/user/register/do?site=' + siteId, {
             uname: $scope.loginUser.uname,
+            nickname: $scope.loginUser.nickname,
             password: $scope.loginUser.password
         }).success(function(rsp) {
             if (rsp.err_code != 0) {

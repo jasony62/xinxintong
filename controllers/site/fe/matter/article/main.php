@@ -303,6 +303,7 @@ class main extends \site\fe\matter\base {
 		 * 访问控制
 		 */
 		$modelArticle = $this->model('matter\article2');
+		$modelArticle->setOnlyWriteDbConn(true);
 		$article = $modelArticle->byId($articleid);
 		if (isset($article->access_control) && $article->access_control === 'Y') {
 			$this->accessControl($site, $articleid, $article->authapis, $user->uid, $article);

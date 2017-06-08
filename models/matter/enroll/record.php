@@ -195,7 +195,7 @@ class record_model extends \TMS_MODEL {
 				]
 			);
 			/* 计算题目的分数。只支持对单选题和多选题自动打分 */
-			if ($oApp->scenario === 'quiz') {
+			if ($oApp->scenario === 'quiz' && isset($schemasById[$schemaId])) {
 				$quizScore = null;
 				$schema = $schemasById[$schemaId];
 				if (isset($schema->requireScore) && $schema->requireScore === 'Y') {
@@ -451,7 +451,7 @@ class record_model extends \TMS_MODEL {
 	 *
 	 * 不是所有的字段都检查，只检查字符串类型
 	 */
-	public function &byData($siteId, &$app, &$data, $options = []) {
+	public function &byData(&$oApp, &$data, $options = []) {
 		$fields = isset($options['fields']) ? $options['fields'] : '*';
 		$records = false;
 
@@ -477,7 +477,7 @@ class record_model extends \TMS_MODEL {
 		$q = [
 			$fields,
 			'xxt_enroll_record',
-			"state=1 and aid='{$app->id}' $whereByData",
+			"state=1 and aid='{$oApp->id}' $whereByData",
 		];
 		$records = $this->query_objs_ss($q);
 		foreach ($records as &$record) {
@@ -498,10 +498,10 @@ class record_model extends \TMS_MODEL {
 	/**
 	 * 为了计算每条记录的分数，转换schema的形式
 	 */
-	private function _mapOfScoreSchema(&$app) {
+	private function _mapOfScoreSchema(&$oApp) {
 		$scoreSchemas = new \stdClass;
 
-		$schemas = is_object($app->data_schemas) ? $app->data_schemas : json_decode($app->data_schemas);
+		$schemas = is_object($oApp->data_schemas) ? $oApp->data_schemas : json_decode($oApp->data_schemas);
 		foreach ($schemas as $schema) {
 			if ($schema->type === 'single' && isset($schema->score) && $schema->score === 'Y') {
 				$scoreSchemas->{$schema->id} = new \stdClass;

@@ -41,6 +41,24 @@ class member_model extends \TMS_MODEL {
 		return $members;
 	}
 	/**
+	 * 获取自定义用户信息
+	 *
+	 * @param string $userid
+	 *
+	 */
+	public function &byMschema($mschemaId, $options = []) {
+		$fields = isset($options['fields']) ? $options['fields'] : '*';
+		$q = [
+			$fields,
+			'xxt_site_member',
+			['schema_id' => $mschemaId, 'forbidden' => 'N'],
+		];
+
+		$members = $this->query_objs_ss($q);
+
+		return $members;
+	}
+	/**
 	 * 创建通讯录联系人
 	 */
 	public function create($userid, &$oMschema, &$data) {
@@ -66,6 +84,7 @@ class member_model extends \TMS_MODEL {
 		$data->userid = $userid;
 		$data->schema_id = $oMschema->id;
 		$data->create_at = $create_at;
+		$data->modify_at = $create_at;
 		/**
 		 * todo 应该支持使用扩展属性作为唯一标识
 		 */
@@ -115,6 +134,7 @@ class member_model extends \TMS_MODEL {
 		$oNewMember->userid = $userid;
 		$oNewMember->schema_id = $oMschema->id;
 		$oNewMember->create_at = $create_at;
+		$oNewMember->modify_at = $create_at;
 
 		if ($errMsg = $this->rejectAuth($oNewMember, $oMschema)) {
 			return array(false, $errMsg);
@@ -188,6 +208,7 @@ class member_model extends \TMS_MODEL {
 		}
 		/* 验证状态 */
 		$oNewMember->verified = $oMschema->auto_verified;
+		$oNewMember->modify_at = time();
 
 		$this->update('xxt_site_member', $oNewMember, ['id' => $memberId]);
 
@@ -349,8 +370,8 @@ class member_model extends \TMS_MODEL {
 		$fields = isset($options['fields']) ? $options['fields'] : '*';
 		$q = array(
 			$fields,
-			'xxt_member',
-			"mpid='$siteId' and forbidden='N' and (mobile='$identity' or email='$identity')",
+			'xxt_site_member',
+			"siteid='$siteId' and forbidden='N' and (mobile='$identity' or email='$identity')",
 		);
 		$members = $this->query_objs_ss($q);
 

@@ -11,7 +11,7 @@ class account_model extends \TMS_MODEL {
 	/**
 	 * 缺省属性列表
 	 */
-	const DEFAULT_FIELDS = 'siteid,uid,nickname,wx_openid,yx_openid,qy_openid,unionid,is_reg_primary';
+	const DEFAULT_FIELDS = 'siteid,uid,nickname,wx_openid,yx_openid,qy_openid,unionid,is_reg_primary,headimgurl';
 	/**
 	 *
 	 *

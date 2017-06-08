@@ -85,7 +85,7 @@ class record extends base {
 			}
 			/* 在指定的登记活动中检查数据 */
 			$modelMatchRec = $this->model('matter\enroll\record');
-			$matchedRecords = $modelMatchRec->byData($site, $matchApp, $requireCheckedData);
+			$matchedRecords = $modelMatchRec->byData($matchApp, $requireCheckedData);
 			if (empty($matchedRecords)) {
 				return new \ParameterError('未在指定的登记活动［' . $matchApp->title . '］中找到与提交数据相匹配的记录');
 			}
@@ -119,7 +119,7 @@ class record extends base {
 			}
 			/* 在指定的登记活动中检查数据 */
 			$modelMatchRec = $this->model('matter\group\player');
-			$groupRecords = $modelMatchRec->byData($site, $groupApp, $requireCheckedData);
+			$groupRecords = $modelMatchRec->byData($groupApp, $requireCheckedData);
 			if (empty($groupRecords)) {
 				return new \ParameterError('未在指定的分组活动［' . $groupApp->title . '］中找到与提交数据相匹配的记录');
 			}
@@ -293,7 +293,7 @@ class record extends base {
 				}
 				$checked = new \stdClass;
 				$checked->{$schema->id} = $posted->{$schema->id};
-				$existings = $modelRec->byData($oApp->siteid, $oApp, $checked, ['fields' => 'enroll_key']);
+				$existings = $modelRec->byData($oApp, $checked, ['fields' => 'enroll_key']);
 				if (count($existings)) {
 					foreach ($existings as $existing) {
 						if ($existing->enroll_key !== $ek) {

@@ -51,4 +51,5 @@ body{padding-top:71px;}
 #signinRecords table img{max-width:96px;}
 #signinRecords th{text-align:center;}
 #signinRecords th.enroll{background:yellow;}
+#signinRecords th.group{background:lightgreen;}
 #signinRecords td span.signin_late{color:red;}

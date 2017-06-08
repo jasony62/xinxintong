@@ -30,7 +30,11 @@ class main extends \pl\fe\matter\base {
 		$app = $this->model('matter\signin')->byId($id);
 		/*关联登记活动*/
 		if ($app->enroll_app_id) {
-			$app->enrollApp = $this->model('matter\enroll')->byId($app->enroll_app_id);
+			$app->enrollApp = $this->model('matter\enroll')->byId($app->enroll_app_id, ['cascaded' => 'N']);
+		}
+		/*关联分组活动*/
+		if ($app->group_app_id) {
+			$app->groupApp = $this->model('matter\group')->byId($app->group_app_id);
 		}
 		/*所属项目*/
 		if ($app->mission_id) {
@@ -54,7 +58,7 @@ class main extends \pl\fe\matter\base {
 		if (empty($mission)) {
 			$site = $model->escape($site);
 			$options = array();
-			if(!empty($post->byTitle)) {
+			if (!empty($post->byTitle)) {
 				$options['byTitle'] = $post->byTitle;
 			}
 			$result = $model->bySite($site, $page, $size, $onlySns, $options);
@@ -64,7 +68,7 @@ class main extends \pl\fe\matter\base {
 			if (isset($post->mission_phase_id) && !empty($post->mission_phase_id) && $post->mission_phase_id !== "ALL") {
 				$options['where']['mission_phase_id'] = $post->mission_phase_id;
 			}
-			if(!empty($post->byTitle)) {
+			if (!empty($post->byTitle)) {
 				$options['byTitle'] = $post->byTitle;
 			}
 			$result = $model->byMission($mission, $options, $page, $size);
@@ -287,7 +291,7 @@ class main extends \pl\fe\matter\base {
 		foreach ($nv as $n => $v) {
 			if (in_array($n, ['entry_rule', 'data_schemas'])) {
 				$nv->{$n} = $modelApp->escape($modelApp->toJson($v));
-			}else if (in_array($n, ['title', 'summary'])) {
+			} else if (in_array($n, ['title', 'summary'])) {
 				$nv->{$n} = $modelApp->escape($v);
 			}
 		}

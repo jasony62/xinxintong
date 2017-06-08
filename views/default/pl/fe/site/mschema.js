@@ -37,7 +37,7 @@ define(['require'], function(require) {
         };
         return MemberSchema;
     });
-    ngApp.controller('ctrlMschema', ['$scope', 'http2', 'srvSite', 'MemberSchema', function($scope, http2, srvSite, MemberSchema) {
+    ngApp.controller('ctrlMschema', ['$scope', '$uibModal', 'http2', 'srvSite', 'MemberSchema', function($scope, $uibModal, http2, srvSite, MemberSchema) {
         function shiftAttr(oSchema) {
             oSchema.attrs = {
                 mobile: oSchema.attr_mobile.split(''),
@@ -142,7 +142,7 @@ define(['require'], function(require) {
             } else {
                 $scope.updSchema('qy_ab');
             }
-        }
+        };
         $scope.updSchema = function(field) {
             var pv = {},
                 schema = $scope.choosedSchema;

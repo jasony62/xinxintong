@@ -5,7 +5,7 @@ provider('srvGroupApp', function() {
         _siteId = siteId;
         _appId = appId;
     };
-    this.$get = ['$q', '$uibModal', 'http2', 'noticebox', 'mattersgallery', function($q, $uibModal, http2, noticebox, mattersgallery) {
+    this.$get = ['$q', '$uibModal', 'http2', 'noticebox', 'mattersgallery', 'srvSite', function($q, $uibModal, http2, noticebox, mattersgallery, srvSite) {
         return {
             cached: function() {
                 return _oApp;
@@ -94,7 +94,7 @@ provider('srvGroupApp', function() {
 
                 return defer.promise;
             },
-            importByApp: function() {
+            importByApp: function(importSource) {
                 var defer = $q.defer();
                 $uibModal.open({
                     templateUrl: 'importByApp.html',
@@ -106,6 +106,7 @@ provider('srvGroupApp', function() {
                             onlySpeaker: 'N'
                         };
                         _oApp.mission && ($scope2.data.sameMission = 'Y');
+                        $scope2.importSource = importSource;
                         $scope2.cancel = function() {
                             $mi.dismiss();
                         };
@@ -115,20 +116,27 @@ provider('srvGroupApp', function() {
                         $scope2.$watch('data.appType', function(appType) {
                             if (!appType) return;
                             var url;
-                            if (appType === 'registration') {
-                                url = '/rest/pl/fe/matter/enroll/list?site=' + _siteId + '&size=999';
-                                url += '&scenario=registration';
+                            if (appType === 'mschema') {
+                                srvSite.memberSchemaList().then(function(aMschemas) {
+                                    $scope2.apps = aMschemas;
+                                });
                                 delete $scope2.data.includeEnroll;
-                            } else if (appType === 'signin') {
-                                url = '/rest/pl/fe/matter/signin/list?site=' + _siteId + '&size=999';
-                                $scope2.data.includeEnroll = 'Y';
                             } else {
-                                url = '/rest/pl/fe/matter/wall/list?site=' + _siteId + '&size=999';
+                                if (appType === 'registration') {
+                                    url = '/rest/pl/fe/matter/enroll/list?site=' + _siteId + '&size=999';
+                                    url += '&scenario=registration';
+                                    delete $scope2.data.includeEnroll;
+                                } else if (appType === 'signin') {
+                                    url = '/rest/pl/fe/matter/signin/list?site=' + _siteId + '&size=999';
+                                    $scope2.data.includeEnroll = 'Y';
+                                } else {
+                                    url = '/rest/pl/fe/matter/wall/list?site=' + _siteId + '&size=999';
+                                }
+                                _oApp.mission && (url += '&mission=' + _oApp.mission.id);
+                                http2.get(url, function(rsp) {
+                                    $scope2.apps = $scope2.data.appType === 'wall' ? rsp.data : rsp.data.apps;
+                                });
                             }
-                            _oApp.mission && (url += '&mission=' + _oApp.mission.id);
-                            http2.get(url, function(rsp) {
-                                $scope2.apps = $scope2.data.appType === 'wall' ? rsp.data : rsp.data.apps;
-                            });
                         });
                     }],
                     backdrop: 'static'
@@ -143,7 +151,11 @@ provider('srvGroupApp', function() {
                         data.appType === 'wall' && (params.onlySpeaker = data.onlySpeaker);
                         http2.post('/rest/pl/fe/matter/group/player/importByApp?site=' + _siteId + '&app=' + _appId, params, function(rsp) {
                             _oApp.sourceApp = data.app;
-                            _oApp.data_schemas = rsp.data.data_schemas ? JSON.parse(rsp.data.data_schemas) : '';
+                            if (angular.isString(rsp.data.data_schemas)) {
+                                _oApp.data_schemas = rsp.data.data_schemas ? JSON.parse(rsp.data.data_schemas) : '';
+                            } else {
+                                _oApp.data_schemas = rsp.data.data_schemas;
+                            }
                             defer.resolve();
                         });
                     }
@@ -503,11 +515,11 @@ provider('srvGroupApp', function() {
                 _oApp.mission && (options.missionId = _oApp.mission.id);
                 pushnotify.open(_siteId, function(notify) {
                     var url, targetAndMsg = {};
-                    if(notify.matters.length) {
-                        if(rows) {
+                    if (notify.matters.length) {
+                        if (rows) {
                             targetAndMsg.users = [];
                             Object.keys(rows.selected).forEach(function(key) {
-                                if(rows.selected[key] === true) {
+                                if (rows.selected[key] === true) {
                                     var rec = _aPlayers[key];
                                     targetAndMsg.users.push({ userid: rec.userid, enroll_key: rec.enroll_key });
                                 }
@@ -531,11 +543,11 @@ provider('srvGroupApp', function() {
         }
     }];
 }).provider('srvGroupNotice', function() {
-    this.$get = ['$q', 'http2', 'srvGroupApp', function($q, http2, srvGroupApp){
+    this.$get = ['$q', 'http2', 'srvGroupApp', function($q, http2, srvGroupApp) {
         return {
             detail: function(batch) {
                 var defer = $q.defer(),
-                        url;
+                    url;
                 srvGroupApp.get().then(function(oApp) {
                     url = '/rest/pl/fe/matter/group/notice/logList?batch=' + batch.id + '&aid=' + oApp.id;
                     http2.get(url, function(rsp) {

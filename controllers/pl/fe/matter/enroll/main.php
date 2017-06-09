@@ -858,49 +858,44 @@ class main extends \pl\fe\matter\base {
 			} else if ($colTitle === '审核通过') {
 				$schemasByCol[$col] = 'verified';
 			} else if ($colTitle === '昵称') {
-				$schemasByCol[$col]='nickname';
+				$schemasByCol[$col]=false;
 			} else if (preg_match("/.*时间/", $colTitle)) {
 				$schemasByCol[$col]='submit_at';
 			} else if (preg_match("/姓名.*/", $colTitle)) {
-				$schemasByCol[$col]='name';
 				$data->id=$this->getId();
 				$data->title= $colTitle;
 				$data->type='shorttext';
 				$data->format='name';
 				$data->unique='N';
 				$data->_ver='1';
+				$schemasByCol[$col]['id']=$data->id;
 			} else if (preg_match("/手机.*/", $colTitle)) {
-				$schemasByCol[$col]='mobile';
 				$data->id=$this->getId();
 				$data->title= $colTitle;
 				$data->type='shorttext';
 				$data->format='mobile';
 				$data->unique='N';
 				$data->_ver='1';
+				$schemasByCol[$col]['id']=$data->id;
 			} else if (preg_match("/邮箱.*/", $colTitle)) {
-				$schemasByCol[$col]='email';
 				$data->id=$this->getId();
 				$data->title= $colTitle;
 				$data->type='shorttext';
 				$data->format='email';
 				$data->unique='N';
 				$data->_ver='1';
+				$schemasByCol[$col]['id']=$data->id;
 			} else {
-				$schemasByCol[$col] = false;
+				$data->id=$this->getId();
 				$data->title= $colTitle;
 				$data->type='shorttext';
 				$data->format='';
 				$data->unique='N';
 				$data->_ver='1';
+				$schemasByCol[$col]['id']=$data->id;
 			}
 			if(!empty((array)$data)){
 				$record[]=$data;
-				$obj=new \stdClass;
-				$one['showname']='label';
-				$one['required']='Y';
-				$obj->config=(object) $one;
-				$obj->schema=$data;
-				$page_schemas[]=$obj;
 			}  
 		}
 		//获得标题
@@ -922,7 +917,30 @@ class main extends \pl\fe\matter\base {
 				$page->data_schemas = [];
 			}
 		}
-
+		foreach ($record as $newSchema) {
+			$config->schema[] = $newSchema;
+			foreach ($config->pages as &$page) {
+				if ($page->type === 'I') {
+					$newWrap = new \stdClass;
+					$newWrap->schema = $newSchema;
+					$wrapConfig = new \stdClass;
+					$wrapConfig->showname = 'label';
+					$wrapConfig->required = 'Y';
+					$newWrap->config = $wrapConfig;
+					$page->data_schemas[] = $newWrap;
+				} else if ($page->type === 'V') {
+					$newWrap = new \stdClass;
+					$newWrap->schema = $newSchema;
+					$wrapConfig = new \stdClass;
+					$newWrap->config = $wrapConfig;
+					$wrapConfig->id = "V1";
+					$wrapConfig->pattern = "record";
+					$wrapConfig->inline = "N";
+					$wrapConfig->splitLine = "Y";
+					$page->data_schemas[] = $newWrap;
+				}
+			}
+		}
 		/* 进入规则 */
 		$entryRule = $config->entryRule;
 		if (empty($entryRule)) {
@@ -950,11 +968,6 @@ class main extends \pl\fe\matter\base {
 			$newapp['use_mission_header'] = 'Y';
 			$newapp['use_mission_footer'] = 'Y';
 		}
-
-		foreach ($config->pages as &$rec) {
-			$rec->data_schemas=$page_schemas;
-		}
-
 		/* 添加页面 */
 		$this->_addPageByTemplate($user, $oSite, $mission, $appId, $config, null);
 		/* 登记数量限制 */
@@ -989,6 +1002,38 @@ class main extends \pl\fe\matter\base {
 		$modelApp->insert('xxt_enroll', $newapp, false);
 
 		$app = $modelApp->byId($appId);
+		/* 存放数据 */
+		$records2 = [];
+		for ($row = 2; $row <= $highestRow; $row++) {
+			$record2 = new \stdClass;
+			$data2 = new \stdClass;
+			for ($col = 0; $col < $highestColumnIndex; $col++) {
+				$schema = $schemasByCol[$col];
+				if ($schema === false) {
+					continue;
+				}
+				$value = (string) $objWorksheet->getCellByColumnAndRow($col, $row)->getValue();
+				if ($schema === 'verified') {
+					if (in_array($value, ['Y', '是'])) {
+						$record2->verified = 'Y';
+					} else {
+						$record2->verified = 'N';
+					}
+				} else if ($schema === 'comment') {
+					$record2->comment = $value;
+				} else if ($schema === 'tags') {
+					$record2->tags = $value;
+				}else if($schema === 'submit_at'){
+					$record2->submit_at=$value;
+				} else {
+					$data2->{$schema['id']} = $value;
+				}
+			}
+			$record2->data = $data2;
+			$records2[] = $record2;
+		}
+		/* 保存数据*/
+		$this->_persist($site,$appId,$records2);
 		/* 记录操作日志 */
 		$this->model('matter\log')->matterOp($oSite->id, $user, $app, 'C');
 		/* 记录和任务的关系 */
@@ -997,6 +1042,59 @@ class main extends \pl\fe\matter\base {
 		}
 
 		return new \ResponseData($app);
+	}
+	/**
+	 * 保存数据
+	 */
+	private function _persist($site, $appId, &$records) {
+		$current = time();
+		$modelApp = $this->model('matter\enroll');
+		$modelRec = $this->model('matter\enroll\record');
+		$enrollKeys = [];
+
+		foreach ($records as $record) {
+			$ek = $modelRec->genKey($site, $appId);
+
+			$r = array();
+			$r['aid'] = $appId;
+			$r['siteid'] = $site;
+			$r['enroll_key'] = $ek;
+			$r['enroll_at'] = $current;
+			$r['verified'] = isset($record->verified) ? $record->verified : 'N';
+			$r['comment'] = isset($record->comment) ? $record->comment : '';
+			if (isset($record->tags)) {
+				$r['tags'] = $record->tags;
+				$modelApp->updateTags($appId, $record->tags);
+			}
+			$id = $modelRec->insert('xxt_enroll_record', $r, true);
+			$r['id'] = $id;
+			/**
+			 * 登记数据
+			 */
+			if (isset($record->data)) {
+				//
+				$jsonData = $modelRec->toJson($record->data);
+				$modelRec->update('xxt_enroll_record', ['data' => $jsonData], "enroll_key='$ek'");
+				$enrollKeys[] = $ek;
+				//
+				foreach ($record->data as $n => $v) {
+					if (is_object($v) || is_array($v)) {
+						$v = json_encode($v);
+					}
+					if (count($v)) {
+						$cd = [
+							'aid' => $appId,
+							'enroll_key' => $ek,
+							'schema_id' => $n,
+							'value' => $v,
+						];
+						$modelRec->insert('xxt_enroll_record_data', $cd, false);
+					}
+				}
+			}
+		}
+
+		return $enrollKeys;
 	}
 	/**
 	 * 创建题目的id

@@ -843,7 +843,70 @@ class main extends \pl\fe\matter\base {
 		$highestColumn = $objWorksheet->getHighestColumn();
 		//把最大的列换成数字
 		$highestColumnIndex = \PHPExcel_Cell::columnIndexFromString($highestColumn);
-
+		/**
+		 * 提取数据定义信息
+		 */
+		$schemasByCol = [];
+		$record=[];
+		for ($col = 0; $col < $highestColumnIndex; $col++) {
+			$colTitle = (string) $objWorksheet->getCellByColumnAndRow($col, 1)->getValue();
+			$data=new \stdClass;
+			if ($colTitle === '备注') {
+				$schemasByCol[$col] = 'comment';
+			} else if ($colTitle === '标签') {
+				$schemasByCol[$col] = 'tags';
+			} else if ($colTitle === '审核通过') {
+				$schemasByCol[$col] = 'verified';
+			} else if ($colTitle === '昵称') {
+				$schemasByCol[$col]='nickname';
+			} else if (preg_match("/.*时间/", $colTitle)) {
+				$schemasByCol[$col]='submit_at';
+			} else if (preg_match("/姓名.*/", $colTitle)) {
+				$schemasByCol[$col]='name';
+				$data->id=$this->getId();
+				$data->title= $colTitle;
+				$data->type='shorttext';
+				$data->format='name';
+				$data->unique='N';
+				$data->_ver='1';
+			} else if (preg_match("/手机.*/", $colTitle)) {
+				$schemasByCol[$col]='mobile';
+				$data->id=$this->getId();
+				$data->title= $colTitle;
+				$data->type='shorttext';
+				$data->format='mobile';
+				$data->unique='N';
+				$data->_ver='1';
+			} else if (preg_match("/邮箱.*/", $colTitle)) {
+				$schemasByCol[$col]='email';
+				$data->id=$this->getId();
+				$data->title= $colTitle;
+				$data->type='shorttext';
+				$data->format='email';
+				$data->unique='N';
+				$data->_ver='1';
+			} else {
+				$schemasByCol[$col] = false;
+				$data->title= $colTitle;
+				$data->type='shorttext';
+				$data->format='';
+				$data->unique='N';
+				$data->_ver='1';
+			}
+			if(!empty((array)$data)){
+				$record[]=$data;
+				$obj=new \stdClass;
+				$one['showname']='label';
+				$one['required']='Y';
+				$obj->config=(object) $one;
+				$obj->schema=$data;
+				$page_schemas[]=$obj;
+			}  
+		}
+		//获得标题
+		preg_match('/[\/\\\\]{0,1}(\w+)\.xlsx$/', $filename, $matches);
+		$title0=$matches[0];
+		$title1=str_replace(['/','\\','.xlsx'], [], $title0);
 		/* 使用缺省模板 */
 		$config = $this->_getSysTemplate('common', 'simple');
 		$config->schema_include_mission_phases = 'N';
@@ -877,6 +940,7 @@ class main extends \pl\fe\matter\base {
 			$newapp['summary'] = '';
 			$newapp['use_mission_header'] = 'N';
 			$newapp['use_mission_footer'] = 'N';
+			$mission=null;
 		} else {
 			$modelMis = $this->model('matter\mission');
 			$mission = $modelMis->byId($mission);
@@ -886,6 +950,11 @@ class main extends \pl\fe\matter\base {
 			$newapp['use_mission_header'] = 'Y';
 			$newapp['use_mission_footer'] = 'Y';
 		}
+
+		foreach ($config->pages as &$rec) {
+			$rec->data_schemas=$page_schemas;
+		}
+
 		/* 添加页面 */
 		$this->_addPageByTemplate($user, $oSite, $mission, $appId, $config, null);
 		/* 登记数量限制 */
@@ -904,7 +973,7 @@ class main extends \pl\fe\matter\base {
 		/* create app */
 		$newapp['id'] = $appId;
 		$newapp['siteid'] = $oSite->id;
-		$newapp['title'] = '新登记活动';
+		$newapp['title'] = $title1;
 		$newapp['creater'] = $user->id;
 		$newapp['creater_src'] = $user->src;
 		$newapp['creater_name'] = $modelApp->escape($user->name);
@@ -915,7 +984,7 @@ class main extends \pl\fe\matter\base {
 		$newapp['modify_at'] = $current;
 		$newapp['entry_rule'] = json_encode($entryRule);
 		$newapp['can_siteuser'] = 'Y';
-		$newapp['data_schemas'] = \TMS_MODEL::toJson($config->schema);
+		$newapp['data_schemas'] = \TMS_MODEL::toJson($record);
 
 		$modelApp->insert('xxt_enroll', $newapp, false);
 
@@ -928,6 +997,16 @@ class main extends \pl\fe\matter\base {
 		}
 
 		return new \ResponseData($app);
+	}
+	/**
+	 * 创建题目的id
+	 *
+	 */
+	protected function getId(){
+		list($usec, $sec) = explode(" ", microtime());
+		$microtime=((float)$usec)*1000000;
+		$id='s'.floor($microtime);
+    	return $id;
 	}
 	/**
 	 * 更新活动的属性信息

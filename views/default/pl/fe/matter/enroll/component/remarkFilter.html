@@ -5,6 +5,18 @@
 <div class="modal-body">
     <form class="form-horizontal">
         <div class="form-group">
+            <label class="col-md-3 control-label">处理态度</label>
+            <div class="col-md-9">
+                <select class='form-control' ng-model="criteria.agreed">
+                    <option value='all'>全部</option>
+                    <option value=''>未表态</option>
+                    <option value='Y'>推荐</option>
+                    <option value='A'>接受</option>
+                    <option value='N'>屏蔽</option>
+                </select>
+            </div>
+        </div>
+        <div class="form-group">
             <label class="col-md-3 control-label">发表评论用户</label>
             <div class="col-md-9">
                 <select class='form-control' ng-model="criteria.remarker" size=5 ng-options="u.userid as u.nickname for u in remarkers">

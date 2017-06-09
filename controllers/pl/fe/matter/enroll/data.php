@@ -15,7 +15,7 @@ class data extends \pl\fe\matter\base {
 		}
 
 		$modelData = $this->model('matter\enroll\data');
-		if ($value !== 'Y' && $value !== 'N') {
+		if (!in_array($value, ['Y', 'N', 'A'])) {
 			$value = '';
 		}
 

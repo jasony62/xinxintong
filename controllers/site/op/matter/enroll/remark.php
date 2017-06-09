@@ -39,4 +39,32 @@ class remark extends \site\op\base {
 
 		return new \ResponseData($result);
 	}
+	/**
+	 *
+	 */
+	public function agree_action($value = '') {
+		$posted = $this->getPostJson();
+		if (empty($posted->remark)) {
+			return new \ParameterError('没有指定评论数据');
+		}
+		if (is_array($posted->remark)) {
+			$remarkIds = $posted->remark;
+		} else {
+			$remarkIds = [$posted->remark];
+		}
+
+		$modelRem = $this->model('matter\enroll\remark');
+		if (!in_array($value, ['Y', 'N', 'A'])) {
+			$value = '';
+		}
+		foreach ($remarkIds as $id) {
+			$rst = $modelRem->update(
+				'xxt_enroll_record_remark',
+				['agreed' => $value],
+				['id' => $id]
+			);
+		}
+
+		return new \ResponseData($rst);
+	}
 }

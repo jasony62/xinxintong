@@ -179,7 +179,7 @@ class record extends \pl\fe\matter\base {
 		$modelRec = $this->model('matter\signin\record');
 
 		$signinApp = $modelApp->byId($app, ['cascaded' => 'N']);
-		$ek = $modelRec->enroll($site, $signinApp);
+		$ek = $modelRec->enroll($signinApp);
 		/**
 		 * 签到登记记录
 		 */

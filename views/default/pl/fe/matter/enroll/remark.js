@@ -1,6 +1,6 @@
 define(['frame'], function(ngApp) {
     'use strict';
-    ngApp.provider.controller('ctrlRemark', ['$scope', '$location', '$q', '$uibModal', 'http2', 'srvRecordConverter', function($scope, $location, $q, $uibModal, http2, srvRecordConverter) {
+    ngApp.provider.controller('ctrlRemark', ['$scope', '$location', '$q', '$uibModal', 'http2', 'srvEnrollRecord', 'srvRecordConverter', function($scope, $location, $q, $uibModal, http2, srvEnrollRecord, srvRecordConverter) {
         function list(oPage) {
             var defer,
                 url;
@@ -14,7 +14,8 @@ define(['frame'], function(ngApp) {
 
         }
 
-        var oPage, oCriteria;
+        var oAgreedLabel, oPage, oCriteria;
+        oAgreedLabel = { 'Y': '推荐', 'N': '屏蔽', 'A': '接受' };
         $scope.page = oPage = {
             at: 1,
             size: 30,
@@ -23,14 +24,37 @@ define(['frame'], function(ngApp) {
             }
         };
         $scope.criteria = oCriteria = {
-            orderby: 'create_at'
+            orderby: 'create_at',
+            agreed: 'all'
         };
+        // 选中的记录
+        $scope.rows = {
+            allSelected: 'N',
+            selected: {},
+            reset: function() {
+                this.allSelected = 'N';
+                this.selected = {};
+            }
+        };
+        $scope.$watch('rows.allSelected', function(checked) {
+            var index = 0;
+            if (checked === 'Y') {
+                while (index < $scope.remarks.length) {
+                    $scope.rows.selected[index++] = true;
+                }
+            } else if (checked === 'N') {
+                $scope.rows.selected = {};
+            }
+        });
         $scope.doSearch = function(pageAt) {
             if (pageAt) {
                 oPage.at = pageAt;
             }
             list(oPage).then(function(result) {
                 $scope.remarks = result.remarks;
+                $scope.remarks.forEach(function(oRemark) {
+                    oRemark._agreed = oAgreedLabel[oRemark.agreed] || '未表态';
+                });
                 for (var ek in result.records) {
                     srvRecordConverter.forTable(result.records[ek], $scope.app._schemasById);
                 }
@@ -66,6 +90,22 @@ define(['frame'], function(ngApp) {
         $scope.chooseOrderby = function(orderby) {
             oCriteria.orderby = orderby;
             $scope.doSearch(1);
+        };
+        $scope.setAgreed = function(result) {
+            var remarkIds = [];
+            for (var i in $scope.rows.selected) {
+                if ($scope.rows.selected[i]) {
+                    remarkIds.push($scope.remarks[i].id);
+                }
+            }
+            srvEnrollRecord.agreeRemark(remarkIds, result).then(function(rsp) {
+                for (var i in $scope.rows.selected) {
+                    if ($scope.rows.selected[i]) {
+                        $scope.remarks[i].agreed = result;
+                        $scope.remarks[i]._agreed = oAgreedLabel[result] || '未表态';
+                    }
+                }
+            });
         };
         $scope.gotoRemark = function(oRemark) {
             var oSearch = $location.search();

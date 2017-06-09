@@ -15,6 +15,18 @@
                             <li><a href='' ng-click="chooseOrderby('like_num')"><span class='glyphicon' ng-class="criteria.orderby==='like_num'?'glyphicon-check':'glyphicon-unchecked'"></span> 获得赞同数</a></li>
                         </ul>
                     </div>
+                    <div class="btn-group" uib-dropdown>
+                        <button type="button" class="btn btn-default dropdown-toggle" uib-dropdown-toggle>
+                            设置态度
+                            <span class="caret"></span>
+                        </button>
+                        <ul class="dropdown-menu" uib-dropdown-menu>
+                            <li><a href='' ng-click="setAgreed('')">不表态</a></li>
+                            <li><a href='' ng-click="setAgreed('A')">接受</a></li>
+                            <li><a href='' ng-click="setAgreed('Y')">推荐</a></li>
+                            <li><a href='' ng-click="setAgreed('N')">屏蔽</a></li>
+                        </ul>
+                    </div>
                 </form>
                 <form class='navbar-form navbar-right'>
                     <div class='form-group'>
@@ -39,10 +51,14 @@
                     <thead>
                         <tr>
                             <th style='width:40px'></th>
+                            <th style='width:40px'>
+                                <input type='checkbox' ng-true-value="'Y'" ng-false-value="'N'" ng-model="rows.allSelected">
+                            </th>
+                            <th style='width:72px'>态度</th>
                             <th style='width:100px'>评论时间</th>
                             <th style='width:140px'>评论用户</th>
                             <th class='custom-col'>评论内容</th>
-                            <th style='width:6em'>获得赞同</th>
+                            <th style='width:5em'>赞同数</th>
                             <th class='custom-col'>评论题目</th>
                             <th style='width:140px'>提交用户</th>
                             <th style='width:140px'>提交内容</th>
@@ -52,6 +68,10 @@
                     <tbody>
                         <tr ng-repeat='r in remarks' class='remark'>
                             <td>{{(page.at-1)*page.size+$index+1}}</td>
+                            <td>
+                                <input type='checkbox' ng-model="rows.selected[$index]">
+                            </td>
+                            <td>{{r._agreed}}</td>
                             <td>{{(r.create_at*1000)|date:'MM-dd HH:mm'}}</td>
                             <td>{{r.nickname}}</td>
                             <td>{{r.content}}</td>

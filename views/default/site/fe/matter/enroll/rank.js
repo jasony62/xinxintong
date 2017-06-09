@@ -23,7 +23,8 @@ ngApp.controller('ctrlRank', ['$scope', '$q', 'http2', 'ls', function($scope, $q
         }
         return defer.promise;
     }
-    var oApp, oAppState;
+    var oApp, oAppState, oAgreedLabel;
+    oAgreedLabel = { 'Y': '推荐', 'N': '屏蔽', 'A': '' };
     /* 恢复上一次访问的状态 */
     if (window.localStorage) {
         $scope.$watch('appState', function(nv) {
@@ -39,7 +40,8 @@ ngApp.controller('ctrlRank', ['$scope', '$q', 'http2', 'ls', function($scope, $q
         oAppState = {
             criteria: {
                 obj: 'user',
-                orderby: 'enroll'
+                orderby: 'enroll',
+                agreed: 'all'
             },
             page: {
                 at: 1,
@@ -72,6 +74,7 @@ ngApp.controller('ctrlRank', ['$scope', '$q', 'http2', 'ls', function($scope, $q
                 case 'data':
                     if (data.records) {
                         data.records.forEach(function(record) {
+                            record._agreed = oAgreedLabel[record.agreed] || '';
                             $scope.records.push(record);
                         });
                     }
@@ -79,6 +82,7 @@ ngApp.controller('ctrlRank', ['$scope', '$q', 'http2', 'ls', function($scope, $q
                 case 'remark':
                     if (data.remarks) {
                         data.remarks.forEach(function(remark) {
+                            remark._agreed = oAgreedLabel[remark.agreed] || '';
                             $scope.remarks.push(remark);
                         });
                     }
@@ -87,39 +91,30 @@ ngApp.controller('ctrlRank', ['$scope', '$q', 'http2', 'ls', function($scope, $q
             oAppState.page.total = data.total;
         });
     };
+    $scope.changeCriteria = function() {
+        $scope.users = [];
+        $scope.records = [];
+        $scope.remarks = [];
+        $scope.doSearch(1);
+    };
     $scope.$on('xxt.app.enroll.ready', function(event, params) {
         oApp = params.app;
         $scope.$watch('appState.criteria.obj', function(oNew, oOld) {
-            var orderbyChanged = true;
             if (oNew && oOld && oNew !== oOld) {
                 switch (oNew) {
                     case 'user':
                         oAppState.criteria.orderby = 'enroll';
                         break;
                     case 'data':
-                        if (oAppState.criteria.orderby === 'remark') {
-                            orderbyChanged = false;
-                        } else {
-                            oAppState.criteria.orderby = 'remark';
-                        }
+                        oAppState.criteria.orderby = 'remark';
                         break;
                     case 'remark':
                         oAppState.criteria.orderby = '';
                         break;
                 }
-                if (!orderbyChanged) {
-                    $scope.users = [];
-                    $scope.doSearch(1);
-                }
+                $scope.changeCriteria();
             }
         });
-        $scope.$watch('appState.criteria.orderby', function(oNew) {
-            if (oNew !== undefined) {
-                $scope.users = [];
-                $scope.records = [];
-                $scope.remarks = [];
-                $scope.doSearch(1);
-            }
-        });
+        $scope.changeCriteria();
     });
 }]);

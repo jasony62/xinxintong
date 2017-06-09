@@ -12,7 +12,8 @@
 	"schema": [{
 		"id": "c1",
 		"title": "任务名称",
-		"type": "shorttext"
+		"type": "shorttext",
+		"format": "name"
 	}, {
 		"id": "c2",
 		"title": "本周情况",

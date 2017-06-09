@@ -115,9 +115,6 @@ class member_model extends \TMS_MODEL {
 		$id = $this->insert('xxt_site_member', $data, true);
 		$member = $this->byId($id);
 
-		//记录站点活跃数
-		$this->model('site\active')->add($data->siteid, $account, 0, 'bindMember');
-
 		return array(true, $member);
 	}
 	/**

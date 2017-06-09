@@ -28,7 +28,7 @@ class site extends \site\fe\base {
 
 		if (false === ($modelSite->isSubscribed($user->unionid, $target->id))) {
 			//行为增加站点活跃数
-			$this->model('site\active')->add($target->id, $user, 0, 'subscribe');
+			$this->model('site\active')->add($target->id, $user, 0, 'subscribeUser');
 		}
 
 		$modelSite->subscribe($user, $target);

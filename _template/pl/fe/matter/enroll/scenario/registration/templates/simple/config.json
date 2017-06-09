@@ -1,186 +1,198 @@
 {
-	"scenario": "registration",
-	"pages": [{
-		"name": "enroll",
-		"title": "填写页",
-		"type": "I",
-		"data_schemas": [{
-			"schema": {
-				"id": "name",
-				"title": "姓名",
-				"type": "name"
-			},
-			"config": {
-				"required": "Y",
-				"showname": "placeholder"
-			}
-		}, {
-			"schema": {
-				"id": "mobile",
-				"title": "手机",
-				"type": "mobile"
-			},
-			"config": {
-				"required": "Y",
-				"showname": "placeholder"
-			}
-		}, {
-			"schema": {
-				"id": "email",
-				"title": "邮箱",
-				"type": "email"
-			},
-			"config": {
-				"required": "Y",
-				"showname": "placeholder"
-			}
-		}, {
-			"schema": {
-				"id": "c1",
-				"title": "登记信息1",
-				"type": "shorttext"
-			},
-			"config": {
-				"required": "N",
-				"showname": "placeholder"
-			}
-		}, {
-			"schema": {
-				"id": "c2",
-				"title": "登记信息2",
-				"type": "longtext"
-			},
-			"config": {
-				"required": "N",
-				"showname": "placeholder"
-			}
-		}],
-		"act_schemas": [{
-			"id": "btnSubmit",
-			"name": "submit",
-			"label": "提交信息",
-			"next": "result"
-		}]
-	}, {
-		"name": "result",
-		"title": "填写结果页",
-		"type": "V",
-		"data_schemas": [{
-			"config": {
-				"id": "V1",
-				"pattern": "record",
-				"inline": "N",
-				"splitLine": "Y"
-			},
-			"schema": {
-				"id": "name",
-				"title": "姓名",
-				"type": "name"
-			}
-		}, {
-			"config": {
-				"id": "V2",
-				"pattern": "record",
-				"inline": "N",
-				"splitLine": "Y"
-			},
-			"schema": {
-				"id": "mobile",
-				"title": "手机",
-				"type": "mobile"
-			}
-		}, {
-			"config": {
-				"id": "V3",
-				"pattern": "record",
-				"inline": "N",
-				"splitLine": "Y"
-			},
-			"schema": {
-				"id": "email",
-				"title": "邮箱",
-				"type": "email"
-			}
-		}, {
-			"config": {
-				"id": "V4",
-				"pattern": "record",
-				"inline": "N",
-				"splitLine": "Y"
-			},
-			"schema": {
-				"id": "c1",
-				"title": "登记信息1",
-				"type": "shorttext"
-			}
-		}, {
-			"config": {
-				"id": "V5",
-				"pattern": "record",
-				"inline": "N",
-				"splitLine": "Y"
-			},
-			"schema": {
-				"id": "c2",
-				"title": "登记信息2",
-				"type": "longtext"
-			}
-		}, {
-			"config": {
-				"id": "V6",
-				"pattern": "record",
-				"inline": "N",
-				"splitLine": "Y"
-			},
-			"schema": {
-				"id": "enrollAt",
-				"title": "登记时间",
-				"type": "_enrollAt"
-			}
-		}],
-		"act_schemas": [{
-			"id": "act2",
-			"name": "editRecord",
-			"label": "修改登记",
-			"next": "enroll"
-		}, {
-			"id": "act3",
-			"name": "removeRecord",
-			"label": "删除登记",
-			"next": "enroll"
-		}]
-	}],
-	"schema": [{
-		"id": "name",
-		"title": "姓名",
-		"type": "name"
-	}, {
-		"id": "mobile",
-		"title": "手机",
-		"type": "mobile"
-	}, {
-		"id": "email",
-		"title": "邮箱",
-		"type": "email"
-	}, {
-		"id": "c1",
-		"title": "登记信息1",
-		"type": "shorttext"
-	}, {
-		"id": "c2",
-		"title": "登记信息2",
-		"type": "longtext"
-	}],
-	"scenarioConfig": {
-		"can_rounds": "D"
-	},
-	"entryRule": {
-		"otherwise": {
-			"entry": "enroll"
-		}
-	},
-	"count_limit": "1",
-	"multi_rounds": "N",
-	"enrolled_entry_page": "result",
-	"schema_include_mission_phases": "Y"
+    "scenario": "registration",
+    "pages": [{
+        "name": "enroll",
+        "title": "填写页",
+        "type": "I",
+        "data_schemas": [{
+            "schema": {
+                "id": "name",
+                "title": "姓名",
+                "type": "shorttext",
+                "format": "name"
+            },
+            "config": {
+                "required": "Y",
+                "showname": "placeholder"
+            }
+        }, {
+            "schema": {
+                "id": "mobile",
+                "title": "手机",
+                "type": "shorttext",
+                "format": "mobile"
+            },
+            "config": {
+                "required": "Y",
+                "showname": "placeholder"
+            }
+        }, {
+            "schema": {
+                "id": "email",
+                "title": "邮箱",
+                "type": "shorttext",
+                "format": "email"
+            },
+            "config": {
+                "required": "Y",
+                "showname": "placeholder"
+            }
+        }, {
+            "schema": {
+                "id": "c1",
+                "title": "登记信息1",
+                "type": "shorttext",
+                "format": ""
+            },
+            "config": {
+                "required": "N",
+                "showname": "placeholder"
+            }
+        }, {
+            "schema": {
+                "id": "c2",
+                "title": "登记信息2",
+                "type": "longtext"
+            },
+            "config": {
+                "required": "N",
+                "showname": "placeholder"
+            }
+        }],
+        "act_schemas": [{
+            "id": "btnSubmit",
+            "name": "submit",
+            "label": "提交信息",
+            "next": "result"
+        }]
+    }, {
+        "name": "result",
+        "title": "填写结果页",
+        "type": "V",
+        "data_schemas": [{
+            "config": {
+                "id": "V1",
+                "pattern": "record",
+                "inline": "N",
+                "splitLine": "Y"
+            },
+            "schema": {
+                "id": "name",
+                "title": "姓名",
+                "type": "shorttext",
+                "format": "name"
+            }
+        }, {
+            "config": {
+                "id": "V2",
+                "pattern": "record",
+                "inline": "N",
+                "splitLine": "Y"
+            },
+            "schema": {
+                "id": "mobile",
+                "title": "手机",
+                "type": "shorttext",
+                "format": "mobile"
+            }
+        }, {
+            "config": {
+                "id": "V3",
+                "pattern": "record",
+                "inline": "N",
+                "splitLine": "Y"
+            },
+            "schema": {
+                "id": "email",
+                "title": "邮箱",
+                "type": "shorttext",
+                "format": "email"
+            }
+        }, {
+            "config": {
+                "id": "V4",
+                "pattern": "record",
+                "inline": "N",
+                "splitLine": "Y"
+            },
+            "schema": {
+                "id": "c1",
+                "title": "登记信息1",
+                "type": "shorttext",
+                "format": ""
+            }
+        }, {
+            "config": {
+                "id": "V5",
+                "pattern": "record",
+                "inline": "N",
+                "splitLine": "Y"
+            },
+            "schema": {
+                "id": "c2",
+                "title": "登记信息2",
+                "type": "longtext"
+            }
+        }, {
+            "config": {
+                "id": "V6",
+                "pattern": "record",
+                "inline": "N",
+                "splitLine": "Y"
+            },
+            "schema": {
+                "id": "enrollAt",
+                "title": "登记时间",
+                "type": "_enrollAt"
+            }
+        }],
+        "act_schemas": [{
+            "id": "act2",
+            "name": "editRecord",
+            "label": "修改登记",
+            "next": "enroll"
+        }, {
+            "id": "act3",
+            "name": "removeRecord",
+            "label": "删除登记",
+            "next": "enroll"
+        }]
+    }],
+    "schema": [{
+        "id": "name",
+        "title": "姓名",
+        "type": "shorttext",
+        "format": "name"
+    }, {
+        "id": "mobile",
+        "title": "手机",
+        "type": "shorttext",
+        "format": "mobile"
+    }, {
+        "id": "email",
+        "title": "邮箱",
+        "type": "shorttext",
+        "format": "email"
+    }, {
+        "id": "c1",
+        "title": "登记信息1",
+        "type": "shorttext",
+        "format": ""
+    }, {
+        "id": "c2",
+        "title": "登记信息2",
+        "type": "longtext"
+    }],
+    "scenarioConfig": {
+        "can_rounds": "D"
+    },
+    "entryRule": {
+        "otherwise": {
+            "entry": "enroll"
+        }
+    },
+    "count_limit": "1",
+    "multi_rounds": "N",
+    "enrolled_entry_page": "result",
+    "schema_include_mission_phases": "Y"
 }

@@ -188,21 +188,31 @@ class remark extends \pl\fe\matter\base {
 	/**
 	 *
 	 */
-	public function agree_action($remark, $value = '') {
+	public function agree_action($value = '') {
 		if (false === ($user = $this->accountUser())) {
 			return new \ResponseTimeout();
 		}
-
-		$modelRem = $this->model('matter\enroll\remark');
-		if ($value !== 'Y' && $value !== 'N') {
-			$value = '';
+		$posted = $this->getPostJson();
+		if (empty($posted->remark)) {
+			return new \ParameterError('没有指定评论数据');
+		}
+		if (is_array($posted->remark)) {
+			$remarkIds = $posted->remark;
+		} else {
+			$remarkIds = [$posted->remark];
 		}
 
-		$rst = $modelRem->update(
-			'xxt_enroll_record_remark',
-			['agreed' => $value],
-			['id' => $remark]
-		);
+		$modelRem = $this->model('matter\enroll\remark');
+		if (!in_array($value, ['Y', 'N', 'A'])) {
+			$value = '';
+		}
+		foreach ($remarkIds as $id) {
+			$rst = $modelRem->update(
+				'xxt_enroll_record_remark',
+				['agreed' => $value],
+				['id' => $id]
+			);
+		}
 
 		return new \ResponseData($rst);
 	}

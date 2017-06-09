@@ -9,6 +9,7 @@
                 "id": "c1001",
                 "title": "题目1",
                 "type": "shorttext",
+                "format": "name",
                 "requireScore": "Y",
                 "answer": "参考答案1",
                 "score": 10
@@ -109,6 +110,7 @@
                 "id": "c1001",
                 "title": "题目1",
                 "type": "shorttext",
+                "format": "name",
                 "requireScore": "Y",
                 "answer": "参考答案1",
                 "score": 10
@@ -196,6 +198,7 @@
         "id": "c1001",
         "title": "问题1",
         "type": "shorttext",
+        "format": "name",
         "requireScore": "Y",
         "answer": "答案1",
         "score": 10

@@ -1435,9 +1435,9 @@ define(['require', 'schema', 'page'], function(require, schemaLib, pageLib) {
             };
             _ins.agreeRemark = function(remarkId, value) {
                 var url, defer = $q.defer();
-                url = '/rest/pl/fe/matter/enroll/remark/agree?remark=' + remarkId;
-                url += '&value=' + value;
-                http2.get(url, function(rsp) {
+                url = '/rest/pl/fe/matter/enroll/remark/agree';
+                url += '?value=' + value;
+                http2.post(url, { remark: remarkId }, function(rsp) {
                     defer.resolve(rsp.data);
                 });
                 return defer.promise;
@@ -1505,6 +1505,17 @@ define(['require', 'schema', 'page'], function(require, schemaLib, pageLib) {
                 http2.get(url, function(rsp) {
                     defer.resolve(rsp.data);
                 })
+                return defer.promise;
+            };
+            _ins.agreeRemark = function(remarkId, value) {
+                var url, defer = $q.defer();
+                url = '/rest/site/op/matter/enroll/remark/agree';
+                url += '?site=' + _siteId;
+                url += '&accessToken=' + _accessId;
+                url += '&value=' + value;
+                http2.post(url, { remark: remarkId }, function(rsp) {
+                    defer.resolve(rsp.data);
+                });
                 return defer.promise;
             };
 

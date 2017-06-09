@@ -110,6 +110,7 @@
                                     <div class="tms-keep-inline" ng-if="schema.shareable==='Y'">
                                         <select class='form-control input-sm' ng-change="agree(schema)" ng-model="record.verbose[schema.id].agreed">
                                             <option value=''>不表态</option>
+                                            <option value='A'>接受</option>
                                             <option value='Y'>推荐</option>
                                             <option value='N'>屏蔽</option>
                                         </select>
@@ -129,6 +130,7 @@
                                         <div>赞同 <span class='badge'>{{remark.like_num}}</span></div>
                                         <select class='form-control input-sm' style='width:7em' ng-change="agreeRemark(remark)" ng-model="remark.agreed">
                                             <option value=''>不表态</option>
+                                            <option value='A'>接受</option>
                                             <option value='Y'>推荐</option>
                                             <option value='N'>屏蔽</option>
                                         </select>

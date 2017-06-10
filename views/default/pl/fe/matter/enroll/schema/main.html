@@ -4,9 +4,8 @@
         <input class='form-control' type='text' ng-model='activeSchema.id' ng-change="updSchema(activeSchema)" readonly>
     </div>
     <div class="form-group">
-        <label>提示</label>
-        <input class='form-control' type='text' ng-if="['html', 'phase'].indexOf(activeSchema.type)===-1" ng-model='activeSchema.description' tms-auto-update
-                                             tms-wait=1000 tms-update="updSchema(activeSchema)">
+        <label>填写提示</label>
+        <input class='form-control' type='text' ng-if="'html'!==activeSchema.type" ng-model='activeSchema.description' tms-auto-update tms-wait=1000 tms-update="updSchema(activeSchema)">
     </div>
     <div class="form-group" ng-show="activeSchema.type==='shorttext'">
         <label>填写限制</label>

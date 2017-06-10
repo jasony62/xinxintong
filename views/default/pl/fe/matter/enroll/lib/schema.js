@@ -123,6 +123,9 @@ define([], function() {
             if (/longtext|file|image/.test(type)) {
                 schema.remarkable = 'Y';
             }
+            if (/shorttext/.test(type)) {
+                schema.format = '';
+            }
 
             return schema;
         },
@@ -150,7 +153,7 @@ define([], function() {
             }
             if (/email|mobile|name/.test(schema.type) && /shorttext/.test(newType)) {
                 schema.format = schema.type;
-            }
+            }else if(/shorttext|longtext/.test(newType)){schema.format='';}
             schema.type = newType;
 
             return true;

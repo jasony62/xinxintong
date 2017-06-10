@@ -3,7 +3,12 @@
         <label>题目ID</label>
         <input class='form-control' type='text' ng-model='activeSchema.id' ng-change="updSchema(activeSchema)" readonly>
     </div>
-    <div class="form-group" ng-show="'shorttext'===activeSchema.type">
+    <div class="form-group">
+        <label>提示</label>
+        <input class='form-control' type='text' ng-if="['html', 'phase'].indexOf(activeSchema.type)===-1" ng-model='activeSchema.description' tms-auto-update
+                                             tms-wait=1000 tms-update="updSchema(activeSchema)">
+    </div>
+    <div class="form-group" ng-show="activeSchema.type==='shorttext'">
         <label>填写限制</label>
         <div class='radio' style='margin-top:0'>
             <label class="checkbox-inline">
@@ -20,7 +25,7 @@
                 <input type='radio' value="email" name="format" ng-model='activeSchema.format' ng-change="updSchema(activeSchema,'format')">邮箱</label>
         </div>
     </div>
-    <div class="form-group">
+    <div class="form-group" ng-show="['shorttext', 'longtext'].indexOf(activeSchema.type)===-1">
         <label>题目类型</label>
         <select class='form-control' ng-model='editing.type' ng-change="changeSchemaType()">
             <option value='shorttext'>单行文本</option>
@@ -64,6 +69,10 @@
             <input type='radio' name='align' value='V' ng-model='activeConfig.align' ng-change="updConfig('align')">垂直排列</label>
         <label class="radio-inline">
             <input type='radio' name='align' value='H' ng-model='activeConfig.align' ng-change="updConfig('align')">水平排列</label>
+    </div>
+    <div class="checkbox" ng-if="['longtext','shorttext'].indexOf(activeSchema.type)!==-1&&activeSchema.format===''">
+        <label>
+            <input type='checkbox' ng-true-value="'longtext'" ng-false-value="'shorttext'" ng-model='editing.type' ng-change="changeSchemaType()">是否需要多行</label>
     </div>
     <div class="checkbox" ng-if="'html'!==activeSchema.type">
         <label>

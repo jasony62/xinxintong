@@ -69,7 +69,7 @@ ngApp.factory('Input', ['$http', '$q', '$timeout', 'ls', function($http, $q, $ti
                         }
                     }
                     //最终删掉 schema.number
-                    if (schema.number && schema.number === 'Y') {
+                    if (schema.type === 'shorttext' && schema.number && schema.number === 'Y') {
                         value = data[schema.id];
                         if (!/^-{0,1}[0-9]+(.[0-9]+){0,1}$/.test(value)) {
                             return '题目［' + schema.title + '］请输入数值';

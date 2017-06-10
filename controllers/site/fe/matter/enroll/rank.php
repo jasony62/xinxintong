@@ -79,10 +79,13 @@ class rank extends base {
 		}
 
 		$q = [
-			'value,enroll_key,schema_id',
+			'value,enroll_key,schema_id,agreed',
 			'xxt_enroll_record_data',
 			"aid='{$oApp->id}'",
 		];
+		if (isset($oCriteria->agreed) && $oCriteria->agreed === 'Y') {
+			$q[2] .= " and agreed='Y'";
+		}
 		switch ($oCriteria->orderby) {
 		case 'remark':
 			$q[0] .= ',remark_num';
@@ -125,11 +128,16 @@ class rank extends base {
 			return new \ObjectNotFoundError();
 		}
 
+		$oCriteria = $this->getPostJson();
+
 		$q = [
-			'id,userid,nickname,content,enroll_key,schema_id,like_num',
+			'id,userid,nickname,content,enroll_key,schema_id,like_num,agreed',
 			'xxt_enroll_record_remark',
 			"aid='{$oApp->id}' and like_num>0",
 		];
+		if (isset($oCriteria->agreed) && $oCriteria->agreed === 'Y') {
+			$q[2] .= " and agreed='Y'";
+		}
 		$q2 = [
 			'o' => 'like_num desc,create_at',
 			'r' => ['o' => ($page - 1) * $size, 'l' => $size],

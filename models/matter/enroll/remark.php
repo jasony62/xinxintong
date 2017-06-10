@@ -86,6 +86,9 @@ class remark_model extends \TMS_MODEL {
 			if (isset($oCriteria->remarker)) {
 				$q[2] .= " and userid='{$oCriteria->remarker}'";
 			}
+			if (isset($oCriteria->agreed) && strcasecmp($oCriteria->agreed, 'all') !== 0) {
+				$q[2] .= " and agreed='{$oCriteria->agreed}'";
+			}
 		}
 
 		$q2 = [];

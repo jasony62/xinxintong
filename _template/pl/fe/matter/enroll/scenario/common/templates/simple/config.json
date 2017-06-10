@@ -8,7 +8,8 @@
             "schema": {
                 "id": "c1",
                 "title": "信息1",
-                "type": "shorttext"
+                "type": "shorttext",
+                "format": "name"
             },
             "config": {
                 "required": "N",
@@ -45,7 +46,8 @@
             "schema": {
                 "id": "c1",
                 "title": "信息1",
-                "type": "shorttext"
+                "type": "shorttext",
+                "format": "name"
             }
         }, {
             "config": {
@@ -87,7 +89,8 @@
     "schema": [{
         "id": "c1",
         "title": "信息1",
-        "type": "shorttext"
+        "type": "shorttext",
+        "format": "name"
     }, {
         "id": "c2",
         "title": "信息2",

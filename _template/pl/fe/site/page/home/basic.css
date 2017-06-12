@@ -11,12 +11,9 @@
 
 .btn:focus,.btn:active:focus{outline:none;}
 .xxt_scan{cursor:pointer;width:77px;height:77px;bottom:0;right:0;background-position:-137px -259px;}
-.team-qrcode{position:absolute;right:-85px;bottom:0;}
+.team-qrcode{position:absolute;right:0;bottom:30px;}
 .qrcode{width:96px;height:96px;}
 
-/* loadMore */
-.btn{border:none;line-height: 1.1;margin-left:20px;}
-.btn-lg{padding:10px 80px;}
 
 /* 右侧栏小功能 */
 .tms-top{bottom:60px;}

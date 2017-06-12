@@ -27,10 +27,10 @@
                     </div>
                     <p class="team-summary">{{site.summary}}</p>
                 </div>
-                <span ng-mouseenter="hover=true" ng-mouseleave="hover=false" class="site_fe_home site_fe_home_icon xxt_scan"></span>
+                <span ng-mouseenter="hover=true"  class="site_fe_home site_fe_home_icon xxt_scan"></span>
             </div>
-            <div class="team-qrcode" ng-if="hover">
-                <img ng-src="{{entry.qrcode}}" class="qrcode" />
+            <div class="team-qrcode" ng-mouseleave="hover=false">
+                <img ng-if="hover" ng-src="{{entry.qrcode}}" class="qrcode" />
             </div>
         </div>
     </div>
@@ -49,26 +49,31 @@
                                                 <div class="media-img">
                                                     <img class="media-object" ng-src='{{m.pic||m.thumbnail}}'>
                                                 </div>
-
                                             </div>
                                             <div class="media-body">
-                                                <div class='creater_name pull-right'>
+                                                <div class='creater_name'>
                                                     <a ng-href='/rest/site/home?site={{m.siteid}}'>
-                                                        <span class="site_fe_home site_fe_home_icon xxt_team"></span> {{m.site_name}}
+                                                        <img class="img-circle" ng-src="{{site.heading_pic}}" alt="" style="width:12px;height:12px"> <h6 class="inline pdl10">{{m.site_name}}</h6>
                                                     </a>
                                                 </div>
                                                 <h4 class="media-heading" ng-click="openMatter(m)">{{m.title}}</h4>
-                                                <div class="media-summary">{{m.summary}}</div>
+                                                <h5 class="media-summary">{{m.summary}}</h5>
                                                 <div class='attr clearfix'>
-                                                    <div class='put_at pull-right' ng-bind="m.create_at*1000|date:'yyyy-MM-dd'"></div>
-                                                    <div class="forward pull-right">
-                                                        <a href="" ng-click="forward(user,m)">
-                                                            <span class="site_fe_home site_fe_home_icon xxt_forward"></span>转发
+                                                    <div class="favor pull-left">
+                                                        <a href="" ng-click="favor(user,m)">
+                                                            <i class="glyphicon glyphicon-star-empty"></i>
+                                                            <h6 class="inline pdl10">收藏</h6>
                                                         </a>
                                                     </div>
-                                                    <div class="favor pull-right">
-                                                        <a href="" ng-click="favor(user,m)">
-                                                            <span class="site_fe_home site_fe_home_icon xxt_favor"></span>收藏
+                                                    <div class="forward pull-left">
+                                                        <a href="" ng-click="forward(user,m)">
+                                                            <i class="glyphicon glyphicon-share"></i>
+                                                            <h6 class="inline pdl10">转发</h6>
+                                                        </a>
+                                                    </div>
+                                                    <div class='put_at pull-left'>
+                                                        <a href="">
+                                                            <h6 class="inline"ng-bind="m.create_at*1000|date:'yyyy-MM-dd'"></h6>
                                                         </a>
                                                     </div>
                                                 </div>
@@ -79,28 +84,31 @@
                             </tbody>
                         </table>
                         <div>
-                            <button class='btn btn-lg btn-primary  btn-gradient center-block' ng-click="moreMatters(c.channel_id)" ng-if="cTotal[c.channel_id]['total'] >= page.size">加 载 更 多</button>
+                            <button class='btn btn-lg btn-primary  btn-gradient center-block' ng-click="moreMatters(c.channel_id)" ng-if="cTotal[c.channel_id]['total'] >= page.size">加载更多</button>
                         </div>
                     </uib-tab>
                 </uib-tabset>
             </div>
-            <aside id="aside" class="col-md-3 col-xs-12 pull-right">
+            <div id="aside" class="col-md-3 col-xs-12 pull-right">
                 <div class="mainSide" ng-repeat="r in r_channels">
                     <div class="mainSide-header">
                         <span class="site_fe_home site_fe_home_icon xxt_guide"></span>
-                        <h4>{{r.title}}</h4>
-                        <small class="pull-right">
-                            <a ng-href="/rest/site/fe/matter?site={{r.siteid}}&id={{r.channel_id}}&type=channel">更多<span class="site_fe_home site_fe_home_icon xxt_chevron-right"></span></a>
-                        </small>
+                        <h3 class="inline-block">{{r.title}}</h3>
+                        <h6 class="inline-block pull-right">
+                            <a ng-href="/rest/site/fe/matter?site={{r.siteid}}&id={{r.channel_id}}&type=channel">更多<i class="glyphicon glyphicon-menu-right"></i></a>
+                        </h6>
                     </div>
                     <div class='madinSide-body'>
-                        <a class='list-group-item' ng-repeat="m in r._matters" ng-href="{{m.url}}">
-                            <span class="site_fe_home site_fe_home_icon xxt_line"></span>{{m.title}}
-                            <hr/>
-                        </a>
+                        <ul class="list-unstyled row">
+                            <li class="list-item" ng-repeat="m in r._matters">
+                                <a ng-href="{{m.url}}">
+                                    <h4 class="inline-block" ng-bind="m.title"></h4>
+                                </a>
+                            </li>
+                        </ul>
                     </div>
                 </div>
-            </aside>
+            </div>
         </div>
     </div>
     <div id='gototop' class='tms-switch tms-top'>

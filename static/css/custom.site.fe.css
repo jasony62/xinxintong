@@ -47,11 +47,9 @@ html,body{height:100%;width:100%;}
 .nav-tabs>li>a:hover,.nav-tabs>li>a:focus{background-color:#fff;}
 @media screen and (min-width:768px){.col-md-9 {padding-right:19px;}}
 .table>thead>tr>th,.table>tbody>tr>th,.table>tfoot>tr>th,.table>thead>tr>td,.table>tbody>tr>td,.table>tfoot>tr>td {padding: 20px 0px 20px 0;}
-
 .media-left{width: 31.82%;padding-right:0px;position: relative;}
 .media-img{padding-top: 57.15%;position: relative;}
 .media-img > img{position: absolute;top: 0; left: 0; width: 100%; height: 100%;}
-
 .media-body{padding-left:20px;padding-right: 20px;}
 .creater_name{margin-bottom: 10px;}
 .creater_name > a{color: #333;}
@@ -61,7 +59,6 @@ html,body{height:100%;width:100%;}
 .media-heading{color: #333;margin-bottom:20px;overflow: hidden;white-space: nowrap;text-overflow: ellipsis;}
 .media-heading:hover{cursor:pointer;}
 .media-summary{height: 50px;color: #666;line-height: inherit;margin-top: 0;margin-bottom: 20px;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden;}
-
 .attr div{margin-right:40px;}
 .attr a{color:#999;}
 
@@ -85,6 +82,7 @@ html,body{height:100%;width:100%;}
 
 /* 右侧栏小工具 */
 .tms-switch{position:fixed;right:0;width:60px;height:60px;cursor:pointer;}
+.tms-top{bottom:60px;}
 .xxt_backTop{width:60px;height:60px;top:0;left:0;background-position:-41px -368px;}
 .xxt_talk_qrcode{width:60px;height:60px;top:0;left:0;background-position:-142px -368px;}
 

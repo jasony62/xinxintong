@@ -8,7 +8,9 @@
     <title>
         <?php TPL::pt('title');?>
     </title>
-    <link href='/asset/css/site.fe.css?_=1' rel="stylesheet">
+    <link rel="stylesheet" href="/static/css/custom-bootstrap.min.css">
+    <link rel="stylesheet" href="/static/css/custom.site.fe.css">
+    <!-- <link href='/asset/css/site.fe.css?_=1' rel="stylesheet"> -->
     <link href="<?php echo auto_version('/views/default/site/fe/matter/article/main.css');?>" rel="stylesheet">
 </head>
 
@@ -16,12 +18,15 @@
     <div class="article ng-cloak" ng-cloak>
         <header ng-if="article.use_site_header==='Y'" dynamic-html="site.header_page.html"></header>
         <header ng-if="article.use_mission_header==='Y'" dynamic-html="mission.header_page.html"></header>
-        <div class="wrap">
-            <div class="left-column">
-                <h1 id="title" class="ttile" ng-bind='article.title'></h1>
+        <div class="container">
+            <div class="col-md-8">
+                <h2 id="title" class="inline-block" ng-bind='article.title'></h2>
                 <div id="attribute">
-                    <span class="time" ng-bind="article.modify_at*1000|date:'yy-MM-dd'"></span>
-                    <span class="author" ng-bind='article.author'></span>
+                    <a class="siteName" ng-href="{{'/rest/site/home?site='+site.id}}">
+                        <h6 class="inline">{{site.name}}</h6>
+                    </a>
+                    <h6 class="inline time" ng-bind="article.modify_at*1000|date:'yy-MM-dd'"></h6>
+                    <h6 class="inline read">阅读 {{article.read_num}}</h6>
                 </div>
                 <div class="headpic" ng-if="article.hide_pic!=='Y'">
                     <img ng-src="{{article.pic}}">
@@ -41,27 +46,24 @@
                 <p class="url" ng-if="article.url">
                     <a ng-href="{{article.url}}" target="_self">阅读原文</a>
                 </p>
-                <div id='stat'>
-                    <span class='read'>
-                        <span>阅读</span>
-                    <span id='readNum' ng-bind='article.read_num'></span>
-                    </span>
-                </div>
                 <div id='tag' ng-if="article.channels.length||article.tags.length">
                     <span ng-repeat="c in article.channels" ng-click="openChannel(c)" ng-bind="c.title"></span>
                     <span ng-repeat="t in article.tags" ng-click="searchByTag(t)" ng-bind="t.title"></span>
                 </div>
-                <div id='site'>
-                    <p><a ng-href="{{'/rest/site/home?site='+site.id}}" ng-bind="site.name"></a></p>
-                    <hr>
-                    <p ng-bind="site.summary"></p>
-                    <button class='subscribe' ng-click="subscribeSite()">+关注</button>
-                </div>
-            </div>
-            <div class="right-column">
                 <div id="qrCode">
                     <img class="code" ng-src="{{code}}" alt="">
-                    <p class="note">(手机“扫一扫”，分享给好友)</p>
+                </div>
+            </div>
+            <div class="col-md-4">
+                <div id='site'>
+                    <a class="site-title" ng-href="{{'/rest/site/home?site='+site.id}}">
+                        <img class="pull-left img-circle" ng-src="{{site.heading_pic}}" >
+                        <h4 class="inline-block pull-left" ng-bind="site.name"></h4>
+                        <i class="glyphicon glyphicon-menu-right pull-right"></i>
+                    </a>
+                    <p class="site-summary" ng-bind="site.summary"></p>
+                    <button class="btn btn-warning pull-right" ng-click="subscribeSite()">关注</button>
+                    <!-- <button class='subscribe' ng-click="subscribeSite()">+关注</button> -->
                 </div>
             </div>
         </div>

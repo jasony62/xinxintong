@@ -4,7 +4,7 @@
 $schema = $def->schema;
 ?>
 <div id="<?php echo $def->config->id?>" class="form-group wrap-splitline" wrap="value" ng-controller="ctrlRecord" schema="<?php echo $schema->id;?>" schema-type="<?php echo $schema->type;?>"><label><?php echo $schema->title;?></label>
-<?php if (in_array($schema->type,['name','email','mobile','shorttext','longtext'])) { ?>
+<?php if (in_array($schema->type,['shorttext','longtext'])) { ?>
 <div>{{Record.current.data.<?php echo $schema->id?>}}</div>
 <?php } else if (in_array($schema->type,['_enrollAt'])) { ?>
 <div>{{Record.current.enroll_at*1000|date:'yy-MM-dd HH:mm'}}</div>

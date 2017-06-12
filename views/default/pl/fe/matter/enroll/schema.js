@@ -293,14 +293,13 @@ define(['frame', 'schema', 'wrap'], function(ngApp, schemaLib, wrapLib) {
         };
         var timerOfUpdate = null;
         $scope.updSchema = function(oSchema, oBeforeState) {
-            //所有页面的schema   和cofig
             $scope.app.pages.forEach(function(oPage) {
                 oPage.updateSchema(oSchema, oBeforeState);
             });
             if (timerOfUpdate !== null) {
                 $timeout.cancel(timerOfUpdate);
             }
-            timerOfUpdate = $timeout(function() { //为何放在定时器里？
+            timerOfUpdate = $timeout(function() {
                 srvEnrollApp.update('data_schemas').then(function() {
                     $scope.app.pages.forEach(function(page) {
                         srvEnrollPage.update(page, ['data_schemas', 'html']);
@@ -337,10 +336,9 @@ define(['frame', 'schema', 'wrap'], function(ngApp, schemaLib, wrapLib) {
             }
         };
         $scope.changeSchemaType = function() {
-            //直接拿的激活 schema数据
             var beforeState = angular.copy($scope.activeSchema);
-            if (schemaLib.changeType($scope.activeSchema, editing.type)) { //修改激活属性
-                $scope.activeConfig = wrapLib.input.newWrap($scope.activeSchema).config; //修改配置 激活配置哪里用的？用户左侧设置栏
+            if (schemaLib.changeType($scope.activeSchema, editing.type)) {
+                $scope.activeConfig = wrapLib.input.newWrap($scope.activeSchema).config;
                 //提交数据，重构后台html
                 $scope.updSchema($scope.activeSchema, beforeState);
             }
@@ -386,6 +384,7 @@ define(['frame', 'schema', 'wrap'], function(ngApp, schemaLib, wrapLib) {
                 }
             }
         });
+
     }]);
     /**
      * 导入导出记录

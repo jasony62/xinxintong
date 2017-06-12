@@ -152,6 +152,13 @@ define(['wrap'], function(SchemaWrap) {
             //this是page 对象
             $html = $('<div>' + this.html + '</div>');
             if ($dom = $html.find("[schema='" + oSchema.id + "']")) {
+                if(oSchema.description && oSchema.description.length){
+                    if(!$dom.find('[class="description"]').length){
+                            $('<div class="description">' + oSchema.description + '</div>').insertAfter($dom.find('label')[0])
+                        }else{
+                            $dom.find('[class="description"]').html(oSchema.description);
+                        }
+                }
                 //更新schema-type 属性
                 $dom.attr('schema-type', oSchema.type);
                 if (wrap = this.wrapBySchema(oSchema)) { //page页面中对应得信息schema和config
@@ -278,12 +285,19 @@ define(['wrap'], function(SchemaWrap) {
 
             return domNewWrap;
         },
-        updateSchema: function(schema, beforeState) {
+        updateSchema: function(oSchema, oBeforeState) {
             var $html, $dom, wrap;
             $html = $('<div>' + this.html + '</div>');
-            if ($dom = $html.find("[schema='" + schema.id + "']")) {
-                if (wrap = this.wrapBySchema(schema)) {
-                    SchemaWrap.value.modify($dom, wrap, beforeState);
+            if ($dom = $html.find("[schema='" + oSchema.id + "']")) {
+                if(oSchema.description && oSchema.description.length){
+                    if(!$dom.find('[class="description"]').length){
+                        $('<div class="description">' + oSchema.description + '</div>').insertAfter($dom.find('label')[0])
+                    }else{
+                        $dom.find('[class="description"]').html(oSchema.description);
+                    }
+                }
+                if (wrap = this.wrapBySchema(oSchema)) {
+                    SchemaWrap.value.modify($dom, wrap, oBeforeState);
                     this.html = $html.html();
                     return true;
                 }
@@ -469,12 +483,11 @@ define(['wrap'], function(SchemaWrap) {
             }
             return true;
         },
-        updateSchema: function(schema, beforeState) {
+        updateSchema: function(oSchema, oBeforeState) {
             var $html;
 
             $html = $('<div>' + this.html + '</div>');
-            $html.find("[schema='" + schema.id + "']").find('label').html(schema.title);
-
+            $html.find("[schema='" + oSchema.id + "']").find('label').html(oSchema.title);
             this.html = $html.html();
 
             return true;

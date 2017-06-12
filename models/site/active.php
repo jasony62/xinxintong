@@ -48,6 +48,7 @@ class active_model extends \TMS_MODEL {
 		$log->year_active_sum = (int) $year_active_sum + (int) $activeNum;
 		$log->month_active_sum = (int) $month_active_sum + (int) $activeNum;
 		$log->day_active_sum = (int) $day_active_sum + (int) $activeNum;
+		
 		// 战点下指定用户活跃数总数
 		$q[2] = ['siteid' => $site, 'userid' => $user->uid, 'user_last_op' => 'Y'];
 		$user_active_sum = 0;

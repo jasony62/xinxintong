@@ -885,7 +885,7 @@ class main extends \pl\fe\matter\base {
 		$filename=$this->upload($site,$appId);
 	
 		if(!file_exists($filename)){
-			return new \ResponseError('上传文件失败！');
+			return new \ResponseError('上传文件失败,请上传Excel2007（xlsx格式）的文件！');
 		}
 
 		$objPHPExcel = \PHPExcel_IOFactory::load($filename);

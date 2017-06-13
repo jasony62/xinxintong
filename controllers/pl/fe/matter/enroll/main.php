@@ -1156,7 +1156,8 @@ class main extends \pl\fe\matter\base {
 		list($usec, $sec) = explode(" ", microtime());
 		$microtime=((float)$usec)*1000000;
 		$id='s'.floor($microtime);
-    	return $id;
+
+		return $id;
 	}
 	/**
 	 * 更新活动的属性信息

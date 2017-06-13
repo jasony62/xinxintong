@@ -22,7 +22,7 @@ class enroll_model extends app_base {
 	 * @param string $ver 为了兼容老版本，迁移后应该去掉
 	 */
 	public function getEntryUrl($siteId, $id, $ver = 'NEW') {
-		$url = "http://" . $_SERVER['HTTP_HOST'];
+		$url = 'http://' . APP_HTTP_HOST;
 
 		if ($ver === 'OLD') {
 			$url .= "/rest/app/enroll";
@@ -44,7 +44,7 @@ class enroll_model extends app_base {
 	 * 登记活动的汇总展示链接
 	 */
 	public function getOpUrl($siteId, $id) {
-		$url = 'http://' . $_SERVER['HTTP_HOST'];
+		$url = 'http://' . APP_HTTP_HOST;
 		$url .= '/rest/site/op/matter/enroll';
 		$url .= "?site={$siteId}&app=" . $id;
 
@@ -312,23 +312,24 @@ class enroll_model extends app_base {
 					}
 				}
 			} else if (isset($entryRule->scope) && $entryRule->scope === 'sns') {
-				foreach ($entryRule->sns as $snsName => $rule) {
-					if ($snsName === 'wx') {
-						$modelWx = $this->model('sns\wx');
-						if (($wxConfig = $modelWx->bySite($oApp->siteid)) && $wxConfig->joined === 'Y') {
-							$snsSiteId = $oApp->siteid;
+				$modelAcnt = $this->model('site\user\account');
+				if ($siteUser = $modelAcnt->byId($oUser->uid)) {
+					foreach ($entryRule->sns as $snsName => $rule) {
+						if ($snsName === 'wx') {
+							$modelWx = $this->model('sns\wx');
+							if (($wxConfig = $modelWx->bySite($oApp->siteid)) && $wxConfig->joined === 'Y') {
+								$snsSiteId = $oApp->siteid;
+							} else {
+								$snsSiteId = 'platform';
+							}
 						} else {
-							$snsSiteId = 'platform';
+							$snsSiteId = $oApp->siteid;
 						}
-					} else {
-						$snsSiteId = $oApp->siteid;
-					}
-					$modelAcnt = $this->model('site\user\account');
-					$siteUser = $modelAcnt->byId($oUser->uid);
-					$modelSnsUser = $this->model('sns\\' . $snsName . '\fan');
-					if ($snsUser = $modelSnsUser->byOpenid($snsSiteId, $siteUser->{$snsName . '_openid'})) {
-						$nickname = $snsUser->nickname;
-						break;
+						$modelSnsUser = $this->model('sns\\' . $snsName . '\fan');
+						if ($snsUser = $modelSnsUser->byOpenid($snsSiteId, $siteUser->{$snsName . '_openid'})) {
+							$nickname = $snsUser->nickname;
+							break;
+						}
 					}
 				}
 			} else if (empty($entryRule->scope) || $entryRule->scope === 'none') {

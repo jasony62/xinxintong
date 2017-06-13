@@ -22,8 +22,8 @@ class signin_model extends app_base {
 	 *
 	 */
 	public function getEntryUrl($siteId, $id, $roundId = null) {
-		$url = "http://" . $_SERVER['HTTP_HOST'];
-		$url .= "/rest/site/fe/matter/signin";
+		$url = 'http://' . APP_HTTP_HOST;
+		$url .= '/rest/site/fe/matter/signin';
 		if ($siteId === 'platform') {
 			$app = $this->byId($id, ['cascaded' => 'N']);
 			$url .= "?site={$app->siteid}&app=" . $id;
@@ -34,6 +34,16 @@ class signin_model extends app_base {
 		if (!empty($roundId)) {
 			$url .= '&round=' . $roundId;
 		}
+
+		return $url;
+	}
+	/**
+	 * 签到活动的汇总展示链接
+	 */
+	public function getOpUrl($siteId, $id) {
+		$url = 'http://' . APP_HTTP_HOST;
+		$url .= '/rest/site/op/matter/signin';
+		$url .= "?site={$siteId}&app=" . $id;
 
 		return $url;
 	}
@@ -287,16 +297,6 @@ class signin_model extends app_base {
 		return $summary;
 	}
 	/**
-	 * 签到活动的汇总展示链接
-	 */
-	public function getOpUrl($siteId, $id) {
-		$url = 'http://' . $_SERVER['HTTP_HOST'];
-		$url .= '/rest/site/op/matter/signin';
-		$url .= "?site={$siteId}&app=" . $id;
-
-		return $url;
-	}
-	/**
 	 * 获得参加登记活动的用户的昵称
 	 *
 	 * @param object $oApp
@@ -336,23 +336,24 @@ class signin_model extends app_base {
 				}
 			}
 		} else if (isset($entryRule->scope) && $entryRule->scope === 'sns') {
-			foreach ($entryRule->sns as $snsName => $rule) {
-				if ($snsName === 'wx') {
-					$modelWx = $this->model('sns\wx');
-					if (($wxConfig = $modelWx->bySite($oApp->siteid)) && $wxConfig->joined === 'Y') {
-						$snsSiteId = $oApp->siteid;
+			$modelAcnt = $this->model('site\user\account');
+			if ($siteUser = $modelAcnt->byId($oUser->uid)) {
+				foreach ($entryRule->sns as $snsName => $rule) {
+					if ($snsName === 'wx') {
+						$modelWx = $this->model('sns\wx');
+						if (($wxConfig = $modelWx->bySite($oApp->siteid)) && $wxConfig->joined === 'Y') {
+							$snsSiteId = $oApp->siteid;
+						} else {
+							$snsSiteId = 'platform';
+						}
 					} else {
-						$snsSiteId = 'platform';
+						$snsSiteId = $oApp->siteid;
 					}
-				} else {
-					$snsSiteId = $oApp->siteid;
-				}
-				$modelAcnt = $this->model('site\user\account');
-				$siteUser = $modelAcnt->byId($oUser->uid);
-				$modelSnsUser = $this->model('sns\\' . $snsName . '\fan');
-				if ($snsUser = $modelSnsUser->byOpenid($snsSiteId, $siteUser->{$snsName . '_openid'})) {
-					$nickname = $snsUser->nickname;
-					break;
+					$modelSnsUser = $this->model('sns\\' . $snsName . '\fan');
+					if ($snsUser = $modelSnsUser->byOpenid($snsSiteId, $siteUser->{$snsName . '_openid'})) {
+						$nickname = $snsUser->nickname;
+						break;
+					}
 				}
 			}
 		} else if (empty($entryRule->scope) || $entryRule->scope === 'none') {

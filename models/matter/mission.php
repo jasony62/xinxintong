@@ -46,6 +46,7 @@ class mission_model extends app_base {
 		];
 		if (($mission = $this->query_obj_ss($q))) {
 			$mission->type = 'mission';
+			$mission->entry_rule = isset($mission->entry_rule) ? json_decode($mission->entry_rule) : new \stdClass;
 			if (!empty($cascaded)) {
 				$cascaded = explode(',', $cascaded);
 				$modelCode = \TMS_APP::M('code\page');

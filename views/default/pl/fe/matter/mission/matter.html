@@ -30,7 +30,7 @@
                     </div>
                 </div>
                 <div class='form-group' ng-if="phases.length">
-                    <select class="form-control" title="项目阶段" ng-model="criteria.pid"  ng-change="doSearch(criteria.pid)" >
+                    <select class="form-control" title="项目阶段" ng-model="criteria.pid" ng-change="doSearch(criteria.pid)">
                         <option value="ALL">全部阶段</option>
                         <option value="{{phs.phase_id}}" ng-repeat="phs in phases">{{phs.title}}</option>
                     </select>
@@ -75,7 +75,7 @@
                     </div>
                     <div ng-switch-when="signin">
                         <button class='btn btn-sm btn-default' ng-click="openMatter(m,'main')">定义</button>
-                        <button class='btn btn-sm btn-default' ng-click="openMatter(m,'publish')">设置</button>
+                        <button class='btn btn-sm btn-default' ng-click="openMatter(m,'entry')">设置</button>
                         <button class='btn btn-sm btn-default' ng-click="openMatter(m,'record')">数据</button>
                         <button class='btn btn-sm btn-default' ng-click="copyMatter($event,m)">复制</button>
                         <button class='btn btn-sm btn-default' title='删除' ng-click="removeMatter($event,m)">删除</button>
@@ -107,5 +107,5 @@
             <button class='btn btn-default' ng-click="addMatter('signin')">签到活动</button>
             <button class='btn btn-default' ng-click="addMatter('group')">分组活动</button>
         </div>
-    <div>
+        <div>
 </script>

@@ -44,36 +44,23 @@ class main extends \site\op\base {
 		if ($app->group_app_id) {
 			$app->groupApp = $this->model('matter\group')->byId($app->group_app_id);
 		}
-		/* 页面定义 */
-		$templateDir = TMS_APP_TEMPLATE . '/site/op/matter/signin';
-		$templateName = $templateDir . '/basic';
-
-		$page = [
-			'html' => file_get_contents($templateName . '.html'),
-			'css' => file_get_contents($templateName . '.css'),
-			'js' => file_get_contents($templateName . '.js'),
-		];
-		$params['page'] = &$page;
 
 		return new \ResponseData($params);
 	}
 	/**
-	 * 获得页面定义
+	 * 登记情况汇总信息
 	 */
-	public function pageGet_action() {
+	public function opData_action($site, $app) {
 		if (!$this->checkAccessToken()) {
 			return new \InvalidAccessToken();
 		}
 
-		$templateDir = TMS_APP_TEMPLATE . '/site/op/matter/signin';
-		$templateName = $templateDir . '/basic';
+		$mdoelApp = $this->model('matter\signin');
+		$oApp = new \stdClass;
+		$oApp->siteid = $site;
+		$oApp->id = $app;
+		$opData = $mdoelApp->opData($oApp);
 
-		$page = array(
-			'html' => file_get_contents($templateName . '.html'),
-			'css' => file_get_contents($templateName . '.css'),
-			'js' => file_get_contents($templateName . '.js'),
-		);
-
-		return new \ResponseData($page);
+		return new \ResponseData($opData);
 	}
 }

@@ -71,8 +71,10 @@
              script = document.createElement('script');
              script.src = 'http://res.wx.qq.com/open/js/jweixin-1.0.0.js';
              script.onload = function() {
-                 var xhr = new XMLHttpRequest();
-                 xhr.open('GET', "/rest/site/fe/wxjssdksignpackage?site=" + _this.options.siteId + "&url=" + encodeURIComponent(location.href.split('#')[0]), true);
+                 var xhr, url;
+                 xhr = new XMLHttpRequest();
+                 url = "/rest/site/fe/wxjssdksignpackage?site=" + _this.options.siteId + "&url=" + encodeURIComponent(location.href.split('#')[0]);
+                 xhr.open('GET', url, true);
                  xhr.onreadystatechange = function() {
                      if (xhr.readyState == 4) {
                          if (xhr.status >= 200 && xhr.status < 400) {

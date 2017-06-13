@@ -561,6 +561,7 @@ define(["require", "angular", "enrollService"], function(require, angular) {
                 }
 
                 if (requireGet) {
+                    /member/.test(schema.id) && (schema.id = 'member');
                     url = '/rest/site/op/matter/enroll/record/list4Schema';
                     url += '?site=' + $scope.siteId + '&app=' + $scope.app.id;
                     url += '&accessToken=' + $scope.accessToken;

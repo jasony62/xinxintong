@@ -137,17 +137,48 @@ class main extends \pl\fe\matter\base {
 			$oNewApp->mission_id = $oMission->id;
 			$oNewApp->use_mission_header = 'Y';
 			$oNewApp->use_mission_footer = 'Y';
+			$oMisEntryRule = $oMission->entry_rule;
 		}
 		$appId = uniqid();
 		/* 使用指定模板 */
 		$config = $this->_getSysTemplate($scenario, $template);
-		/* 进入规则 */
-		$entryRule = $config->entryRule;
-		if (empty($entryRule)) {
-			return new \ResponseError('没有获得页面进入规则');
-		}
 		/* 添加页面 */
 		$this->_addPageByTemplate($oUser, $oSite, $oMission, $appId, $config, $customConfig);
+		/* 进入规则 */
+		$oEntryRule = $config->entryRule;
+		if (empty($oEntryRule)) {
+			return new \ResponseError('没有获得页面进入规则');
+		}
+		if (isset($oMisEntryRule)) {
+			if (isset($oMisEntryRule->scope) && $oMisEntryRule->scope !== 'none') {
+				$oEntryRule->scope = $oMisEntryRule->scope;
+				switch ($oEntryRule->scope) {
+				case 'member':
+					if (isset($oMisEntryRule->member)) {
+						$oEntryRule->member = $oMisEntryRule->member;
+						foreach ($oEntryRule->member as &$oRule) {
+							$oRule->entry = isset($oEntryRule->otherwise->entry) ? $oEntryRule->otherwise->entry : '';
+						}
+						$oEntryRule->other = new \stdClass;
+						$oEntryRule->other->entry = '$memberschema';
+					}
+					break;
+				case 'sns':
+					$oEntryRule->sns = new \stdClass;
+					if (isset($oMisEntryRule->sns)) {
+						foreach ($oMisEntryRule->sns as $snsName => $oRule) {
+							if (isset($oRule->entry) && $oRule->entry === 'Y') {
+								$oEntryRule->sns->{$snsName} = new \stdClass;
+								$oEntryRule->sns->{$snsName}->entry = isset($oEntryRule->otherwise->entry) ? $oEntryRule->otherwise->entry : '';
+							}
+						}
+						$oEntryRule->other = new \stdClass;
+						$oEntryRule->other->entry = '$mpfollow';
+					}
+					break;
+				}
+			}
+		}
 		/* 登记数量限制 */
 		if (isset($config->count_limit)) {
 			$oNewApp->count_limit = $config->count_limit;
@@ -164,18 +195,18 @@ class main extends \pl\fe\matter\base {
 		/* create app */
 		$oNewApp->id = $appId;
 		$oNewApp->siteid = $oSite->id;
-		$oNewApp->title = empty($customConfig->proto->title) ? '新登记活动' : $customConfig->proto->title;
+		$oNewApp->title = empty($customConfig->proto->title) ? '新登记活动' : $modelApp->escape($customConfig->proto->title);
 		$oNewApp->creater = $oUser->id;
 		$oNewApp->creater_src = $oUser->src;
-		$oNewApp->creater_name = $oUser->name;
+		$oNewApp->creater_name = $modelApp->escape($oUser->name);
 		$oNewApp->create_at = $current;
 		$oNewApp->modifier = $oUser->id;
 		$oNewApp->modifier_src = $oUser->src;
-		$oNewApp->modifier_name = $oUser->name;
+		$oNewApp->modifier_name = $modelApp->escape($oUser->name);
 		$oNewApp->modify_at = $current;
-		$oNewApp->entry_rule = json_encode($entryRule);
+		$oNewApp->entry_rule = json_encode($oEntryRule);
 		$oNewApp->can_siteuser = 'Y';
-		isset($config) && $oNewApp->data_schemas = \TMS_MODEL::toJson($config->schema);
+		isset($config) && $oNewApp->data_schemas = $modelApp->toJson($config->schema);
 
 		/*任务码*/
 		$entryUrl = $modelApp->getOpUrl($oSite->id, $appId);
@@ -1334,217 +1365,217 @@ class main extends \pl\fe\matter\base {
 		return new \ResponseData($summary);
 	}
 	/*
-	 * 更新指定的登记活动题目类型并更新关联的登记活动、分组活动
-	 *
-	 */
-	public function synData_action($site,$id){
+		 * 更新指定的登记活动题目类型并更新关联的登记活动、分组活动
+		 *
+	*/
+	public function synData_action($site, $id) {
 		if (false === ($user = $this->accountUser())) {
 			return new \ResponseTimeout();
 		}
 
-		$this->synDataSchemas($site,$id);
+		$this->synDataSchemas($site, $id);
 
 		return new \ResponseData('ok');
 	}
 	/*
-	 * 更新所有登记活动
-	 *
-	 */
-	public function synAll_action(){
+		 * 更新所有登记活动
+		 *
+	*/
+	public function synAll_action() {
 		if (false === ($user = $this->accountUser())) {
 			return new \ResponseTimeout();
 		}
 
 		$modelApp = $this->model('matter\enroll');
-		$apps=$modelApp->query_objs_ss(['id,siteid','xxt_enroll']);
+		$apps = $modelApp->query_objs_ss(['id,siteid', 'xxt_enroll']);
 
 		foreach ($apps as $app) {
-			$this->synDataSchemas($app->siteid,$app->id);
+			$this->synDataSchemas($app->siteid, $app->id);
 		}
-		
+
 		return new \ResponseData('all are ok');
 	}
 	/*
-	 * 同步指定登记活动、关联递归调用
-	 *
-	 */
-	protected function synDataSchemas($site,$id){
-		$modelApp =\TMS_APP::M('matter\enroll');
-		$app = $modelApp->query_obj_ss(['id,siteid,data_schemas,template_id,template_version,group_app_id,enroll_app_id','xxt_enroll',['siteid'=>$site,'id'=>$id]]);
-		$pages=$modelApp->query_objs_ss(['id,siteid,aid,data_schemas','xxt_enroll_page',['siteid'=>$site,'aid'=>$id]]);
+		 * 同步指定登记活动、关联递归调用
+		 *
+	*/
+	protected function synDataSchemas($site, $id) {
+		$modelApp = \TMS_APP::M('matter\enroll');
+		$app = $modelApp->query_obj_ss(['id,siteid,data_schemas,template_id,template_version,group_app_id,enroll_app_id', 'xxt_enroll', ['siteid' => $site, 'id' => $id]]);
+		$pages = $modelApp->query_objs_ss(['id,siteid,aid,data_schemas', 'xxt_enroll_page', ['siteid' => $site, 'aid' => $id]]);
 
-		if(!empty($app->template_id) && !empty($app->template_version)){
-			$templates=$modelApp->query_objs_ss(['id,siteid,version,template_id,data_schemas','xxt_template_enroll',['siteid'=>$site,'template_id'=>$app->template_id,'version'=>$app->template_version]]);
+		if (!empty($app->template_id) && !empty($app->template_version)) {
+			$templates = $modelApp->query_objs_ss(['id,siteid,version,template_id,data_schemas', 'xxt_template_enroll', ['siteid' => $site, 'template_id' => $app->template_id, 'version' => $app->template_version]]);
 
 			foreach ($templates as $template) {
-				$d['data_schemas']=str_replace(
+				$d['data_schemas'] = str_replace(
 					['"type":"name"', '"type":"mobile"', '"type":"email"', '"number":"N"', '"number":"Y"'],
 					['"type":"shorttext","format":"name"',
-					 '"type":"shorttext","format":"mobile"',
-					 '"type":"shorttext","format":"email"', 
-					 '"format":""', 
-					 '"format":"number"'
+						'"type":"shorttext","format":"mobile"',
+						'"type":"shorttext","format":"email"',
+						'"format":""',
+						'"format":"number"',
 					],
 					$template->data_schemas);
-				$modelApp->update('xxt_template_enroll',$d,['siteid'=>$site,'id'=>$template->id]);
+				$modelApp->update('xxt_template_enroll', $d, ['siteid' => $site, 'id' => $template->id]);
 			}
 		}
 
 		foreach ($pages as $page) {
-			if(!empty($page->data_schemas)){
-				$d['data_schemas']=str_replace(
+			if (!empty($page->data_schemas)) {
+				$d['data_schemas'] = str_replace(
 					['"type":"name"', '"type":"mobile"', '"type":"email"', '"number":"N"', '"number":"Y"'],
 					['"type":"shorttext","format":"name"',
-					 '"type":"shorttext","format":"mobile"',
-					 '"type":"shorttext","format":"email"', 
-					 '"format":""', 
-					 '"format":"number"'
+						'"type":"shorttext","format":"mobile"',
+						'"type":"shorttext","format":"email"',
+						'"format":""',
+						'"format":"number"',
 					],
 					$page->data_schemas);
-				$modelApp->update('xxt_enroll_page',$d,['siteid'=>$site,'aid'=>$id,'id'=>$page->id]);
+				$modelApp->update('xxt_enroll_page', $d, ['siteid' => $site, 'aid' => $id, 'id' => $page->id]);
 			}
 		}
 
-		if(!empty($app->data_schemas)){
-			$d['data_schemas']=str_replace(
+		if (!empty($app->data_schemas)) {
+			$d['data_schemas'] = str_replace(
 				['"type":"name"', '"type":"mobile"', '"type":"email"', '"number":"N"', '"number":"Y"'],
 				['"type":"shorttext","format":"name"',
-				 '"type":"shorttext","format":"mobile"',
-				 '"type":"shorttext","format":"email"', 
-				 '"format":""', 
-				 '"format":"number"'
+					'"type":"shorttext","format":"mobile"',
+					'"type":"shorttext","format":"email"',
+					'"format":""',
+					'"format":"number"',
 				],
 				$app->data_schemas);
-			$modelApp->update('xxt_enroll',$d,"id='$id'");
+			$modelApp->update('xxt_enroll', $d, "id='$id'");
 			//关联登记活动
-			if(!empty($app->enroll_app_id)){
-				$this->synDataSchemas($site,$app->enroll_app_id);
+			if (!empty($app->enroll_app_id)) {
+				$this->synDataSchemas($site, $app->enroll_app_id);
 			}
 			//关联分组活动
-			if(!empty($app->group_app_id)){
-				$groupApp=$modelApp->query_obj_ss(['id,data_schemas,source_app','xxt_group',"id='$app->group_app_id'"]);
+			if (!empty($app->group_app_id)) {
+				$groupApp = $modelApp->query_obj_ss(['id,data_schemas,source_app', 'xxt_group', "id='$app->group_app_id'"]);
 
 				if (!empty($groupApp->data_schemas)) {
-					$d['data_schemas']=str_replace(
+					$d['data_schemas'] = str_replace(
 						['"type":"name"', '"type":"mobile"', '"type":"email"', '"number":"N"', '"number":"Y"'],
 						['"type":"shorttext","format":"name"',
-				 		 '"type":"shorttext","format":"mobile"',
-				 		 '"type":"shorttext","format":"email"', 
-				 		 '"format":""', 
-				 		 '"format":"number"'
+							'"type":"shorttext","format":"mobile"',
+							'"type":"shorttext","format":"email"',
+							'"format":""',
+							'"format":"number"',
 						],
 						$groupApp->data_schemas);
-					$modelApp->update('xxt_group',$d,"id='$app->group_app_id'");
+					$modelApp->update('xxt_group', $d, "id='$app->group_app_id'");
 				}
 				//分组活动关联的活动（报名、签到、信息墙）
-				if(!empty($groupApp->source_app)){
-					$source_app=json_decode($groupApp->source_app);
-				
+				if (!empty($groupApp->source_app)) {
+					$source_app = json_decode($groupApp->source_app);
+
 					switch ($source_app->type) {
-						case 'enroll':
-							$this->synDataSchemas($site,$source_app->id);
-							break;
-						case 'signin':
-							$signinApp=$modelApp->query_obj_ss(['id,data_schemas,enroll_app_id','xxt_signin',"id='$source_app->id'"]);
-							$signinPages=$modelApp->query_objs_ss(['id,siteid,aid,data_schemas','xxt_signin_page',['siteid'=>$site,'aid'=>$id]]);
-							foreach ($signinPages as $signinPage) {
-								if(!empty($signinPage->data_schemas)){
-									$d['data_schemas']=str_replace(
+					case 'enroll':
+						$this->synDataSchemas($site, $source_app->id);
+						break;
+					case 'signin':
+						$signinApp = $modelApp->query_obj_ss(['id,data_schemas,enroll_app_id', 'xxt_signin', "id='$source_app->id'"]);
+						$signinPages = $modelApp->query_objs_ss(['id,siteid,aid,data_schemas', 'xxt_signin_page', ['siteid' => $site, 'aid' => $id]]);
+						foreach ($signinPages as $signinPage) {
+							if (!empty($signinPage->data_schemas)) {
+								$d['data_schemas'] = str_replace(
+									['"type":"name"', '"type":"mobile"', '"type":"email"', '"number":"N"', '"number":"Y"'],
+									['"type":"shorttext","format":"name"',
+										'"type":"shorttext","format":"mobile"',
+										'"type":"shorttext","format":"email"',
+										'"format":""',
+										'"format":"number"',
+									],
+									$signinPage->data_schemas);
+								$modelApp->update('xxt_signin_page', $d, ['siteid' => $site, 'aid' => $id, 'id' => $signinPage->id]);
+							}
+						}
+
+						if (!empty($signinApp->data_schemas)) {
+							$d['data_schemas'] = str_replace(
+								['"type":"name"', '"type":"mobile"', '"type":"email"', '"number":"N"', '"number":"Y"'],
+								['"type":"shorttext","format":"name"',
+									'"type":"shorttext","format":"mobile"',
+									'"type":"shorttext","format":"email"',
+									'"format":""',
+									'"format":"number"',
+								],
+								$signinApp->data_schemas);
+							$modelApp->update('xxt_signin', $d, "id='$source_app->id'");
+						}
+						if (!empty($signinApp->enroll_app_id)) {
+							$this->synDataSchemas($site, $signinApp->enroll_app_id);
+						}
+						break;
+					case 'wall':
+						$wallApp = $modelApp->query_obj_ss(['id,data_schemas,source_app', 'xxt_wall', "id='$source_app->id'"]);
+						if (!empty($wallApp->data_schemas)) {
+							$d['data_schemas'] = str_replace(
+								['"type":"name"', '"type":"mobile"', '"type":"email"', '"number":"N"', '"number":"Y"'],
+								['"type":"shorttext","format":"name"',
+									'"type":"shorttext","format":"mobile"',
+									'"type":"shorttext","format":"email"',
+									'"format":""',
+									'"format":"number"',
+								],
+								$wallApp->data_schemas);
+							$modelApp->update('xxt_wall', $d, "id='$source_app->id'");
+						}
+						if (!empty($wallApp->source_app)) {
+							$source_app = json_decode($wallApp->source_app);
+
+							switch ($source_app->type) {
+							case 'enroll':
+								$this->synDataSchemas($site, $source_app->id);
+								break;
+							case 'signin':
+								$signinApp = $modelApp->query_obj_ss(['id,data_schemas,enroll_app_id', 'xxt_signin', "id='$source_app->id'"]);
+								$signinPages = $modelApp->query_objs_ss(['id,siteid,aid,data_schemas', 'xxt_signin_page', ['siteid' => $site, 'aid' => $source_app->id]]);
+
+								foreach ($signinPages as $signinPage) {
+									if (!empty($signinPage->data_schemas)) {
+										$d['data_schemas'] = str_replace(
+											['"type":"name"', '"type":"mobile"', '"type":"email"', '"number":"N"', '"number":"Y"'],
+											['"type":"shorttext","format":"name"',
+												'"type":"shorttext","format":"mobile"',
+												'"type":"shorttext","format":"email"',
+												'"format":""',
+												'"format":"number"',
+											],
+											$signinPage->data_schemas);
+										$modelApp->update('xxt_signin_page', $d, ['siteid' => $site, 'aid' => $source_app->id, 'id' => $signinPage->id]);
+									}
+								}
+
+								if (!empty($signinApp->data_schemas)) {
+									$d['data_schemas'] = str_replace(
 										['"type":"name"', '"type":"mobile"', '"type":"email"', '"number":"N"', '"number":"Y"'],
 										['"type":"shorttext","format":"name"',
-										 '"type":"shorttext","format":"mobile"',
-										 '"type":"shorttext","format":"email"', 
-										 '"format":""', 
-										 '"format":"number"'
+											'"type":"shorttext","format":"mobile"',
+											'"type":"shorttext","format":"email"',
+											'"format":""',
+											'"format":"number"',
 										],
-										$signinPage->data_schemas);
-									$modelApp->update('xxt_signin_page',$d,['siteid'=>$site,'aid'=>$id,'id'=>$signinPage->id]);
+										$signinApp->data_schemas);
+									$modelApp->update('xxt_signin', $d, "id='$source_app->id'");
 								}
-							}
-							
-							if(!empty($signinApp->data_schemas)){
-								$d['data_schemas']=str_replace(
-									['"type":"name"', '"type":"mobile"', '"type":"email"', '"number":"N"', '"number":"Y"'],
-									['"type":"shorttext","format":"name"',
-				 		 			 '"type":"shorttext","format":"mobile"',
-				 		 			 '"type":"shorttext","format":"email"', 
-				 		 			 '"format":""', 
-				 		 			 '"format":"number"'
-									],
-								$signinApp->data_schemas);
-								$modelApp->update('xxt_signin',$d,"id='$source_app->id'");
-							}
-							if(!empty($signinApp->enroll_app_id)){
-								$this->synDataSchemas($site,$signinApp->enroll_app_id);
-							}
-							break;
-						case 'wall':
-							$wallApp=$modelApp->query_obj_ss(['id,data_schemas,source_app','xxt_wall',"id='$source_app->id'"]);
-							if(!empty($wallApp->data_schemas)){
-								$d['data_schemas']=str_replace(
-									['"type":"name"', '"type":"mobile"', '"type":"email"', '"number":"N"', '"number":"Y"'],
-									['"type":"shorttext","format":"name"',
-				 		 			 '"type":"shorttext","format":"mobile"',
-				 		 			 '"type":"shorttext","format":"email"', 
-				 		 			 '"format":""', 
-				 		 			 '"format":"number"'
-									],
-								$wallApp->data_schemas);
-								$modelApp->update('xxt_wall',$d,"id='$source_app->id'");
-							}
-							if(!empty($wallApp->source_app)){
-								$source_app=json_decode($wallApp->source_app);
-
-								switch ($source_app->type) {
-									case 'enroll':
-										$this->synDataSchemas($site,$source_app->id);
-										break;
-									case 'signin':
-										$signinApp=$modelApp->query_obj_ss(['id,data_schemas,enroll_app_id','xxt_signin',"id='$source_app->id'"]);
-										$signinPages=$modelApp->query_objs_ss(['id,siteid,aid,data_schemas','xxt_signin_page',['siteid'=>$site,'aid'=>$source_app->id]]);
-
-										foreach ($signinPages as $signinPage) {
-											if(!empty($signinPage->data_schemas)){
-												$d['data_schemas']=str_replace(
-													['"type":"name"', '"type":"mobile"', '"type":"email"', '"number":"N"', '"number":"Y"'],
-													['"type":"shorttext","format":"name"',
-									 				 '"type":"shorttext","format":"mobile"',
-									 				 '"type":"shorttext","format":"email"', 
-													 '"format":""', 
-													 '"format":"number"'
-													],
-													$signinPage->data_schemas);
-												$modelApp->update('xxt_signin_page',$d,['siteid'=>$site,'aid'=>$source_app->id,'id'=>$signinPage->id]);
-											}
-										}
-										
-										if(!empty($signinApp->data_schemas)){
-											$d['data_schemas']=str_replace(
-												['"type":"name"', '"type":"mobile"', '"type":"email"', '"number":"N"', '"number":"Y"'],
-												['"type":"shorttext","format":"name"',
-				 		 			 			 '"type":"shorttext","format":"mobile"',
-				 		 			 			 '"type":"shorttext","format":"email"', 
-				 		 						 '"format":""', 
-				 		 						 '"format":"number"'
-												],
-												$signinApp->data_schemas);
-											$modelApp->update('xxt_signin',$d,"id='$source_app->id'");
-										}
-										if(!empty($signinApp->enroll_app_id)){
-											$this->synDataSchemas($site,$signinApp->enroll_app_id);
-										}
-										break;
-									default:
-										# code...
-										break;
+								if (!empty($signinApp->enroll_app_id)) {
+									$this->synDataSchemas($site, $signinApp->enroll_app_id);
 								}
+								break;
+							default:
+								# code...
+								break;
 							}
-							break;
-						default:
-							# code...
-							break;
+						}
+						break;
+					default:
+						# code...
+						break;
 					}
-				}				
+				}
 			}
 		}
 	}

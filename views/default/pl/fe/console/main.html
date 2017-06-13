@@ -21,12 +21,12 @@
                         <td ng-switch on="t.matter_type">
                             <div ng-switch-when="enroll">
                                 <button class='btn btn-sm btn-default' ng-click="openMatter(t,'main')">定义</button>
-                                <button class='btn btn-sm btn-default' ng-click="openMatter(t,'publish')">设置</button>
+                                <button class='btn btn-sm btn-default' ng-click="openMatter(t,'entry')">设置</button>
                                 <button class='btn btn-sm btn-default' ng-click="openMatter(t,'record')">数据</button>
                             </div>
                             <div ng-switch-when="signin">
                                 <button class='btn btn-sm btn-default' ng-click="openMatter(t,'main')">定义</button>
-                                <button class='btn btn-sm btn-default' ng-click="openMatter(t,'publish')">设置</button>
+                                <button class='btn btn-sm btn-default' ng-click="openMatter(t,'entry')">设置</button>
                                 <button class='btn btn-sm btn-default' ng-click="openMatter(t,'record')">数据</button>
                             </div>
                             <div ng-switch-when="group">
@@ -89,7 +89,7 @@
                             </div>
                             <div ng-switch-when="signin">
                                 <button class='btn btn-sm btn-default' ng-click="openMatter(m,'main')">定义</button>
-                                <button class='btn btn-sm btn-default' ng-click="openMatter(m,'publish')">设置</button>
+                                <button class='btn btn-sm btn-default' ng-click="openMatter(m,'entry')">设置</button>
                                 <button class='btn btn-sm btn-default' ng-click="openMatter(m,'record')">数据</button>
                                 <button class='btn btn-sm btn-default' ng-click="copyMatter($event,m)">复制</button>
                             </div>
@@ -309,7 +309,7 @@
                             </span>
                             <span ng-switch-when="signin">
                                 <button class='btn btn-sm btn-default' ng-click="openMatter(m,'main')">定义</button>
-                                <button class='btn btn-sm btn-default' ng-click="openMatter(m,'publish')">设置</button>
+                                <button class='btn btn-sm btn-default' ng-click="openMatter(m,'entry')">设置</button>
                                 <button class='btn btn-sm btn-default' ng-click="openMatter(m,'record')">数据</button>
                                 <button class='btn btn-sm btn-default' ng-click="copyMatter($event,m)">复制</button>
                             </span>
@@ -625,14 +625,14 @@
             <button class='btn btn-default' ng-click="addMatter('contribute')">投稿活动</button>
             <button class='btn btn-default' ng-click="addMatter('merchant')">订购活动</button>
         </div>
-        <div>
+    </div>
 </script>
 <script type="text/ng-template" id="addMission.html">
     <div id="addMatter">
         <div class='form-group'>
             <button class='btn btn-default' ng-click="addMatter('mission')">项目</button>
         </div>
-        <div>
+    </div>
 </script>
 <script type="text/ng-template" id="addActivity.html">
     <div id="addMatter">
@@ -647,7 +647,7 @@
         <div class='form-group'>
             <button class='btn btn-default' ng-click="addMatter('lottery')">抽奖活动</button>
         </div>
-        <div>
+    </div>
 </script>
 <script type="text/ng-template" id="addInfo.html">
     <div id="addMatter">
@@ -664,7 +664,7 @@
             <button class='btn btn-default' ng-click="addMatter('text')">文本</button>
             <button class='btn btn-default' ng-click="addMatter('contribute')">投稿活动</button>
         </div>
-        <div>
+    </div>
 </script>
 <script type="text/ng-template" id="addMatterSite.html">
     <div class="modal-header">

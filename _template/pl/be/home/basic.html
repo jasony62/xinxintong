@@ -4,7 +4,7 @@
             <div ng-controller="ctrlCarousel">
                 <div uib-carousel active="active" interval="myInterval" no-wrap="noWrapSlides">
                     <div uib-slide ng-repeat="slide in slides" index="$index">
-                        <img ng-src="{{slide.picUrl}}" style="height:360px;margin:auto;">
+                        <img ng-src="{{slide.picUrl}}" >
                         <div class="carousel-caption"></div>
                     </div>
                 </div>
@@ -13,8 +13,28 @@
     </div>
     <div class='row'>
         <div class="col-md-12">
-            <div class='col-md-9'>
-                <div id="slider_extends" class="slider_extends">
+            <div class="col-md-3 col-xs-12">
+                <div class="mainSide" ng-repeat="c in channelArticles">
+                    <div class="mainSide-header">
+                        <span class="site_fe_home site_fe_home_icon xxt_guide"></span>
+                        <h3 class="inline-block">{{c.title}}</h3>
+                        <h6 class="inline-block pull-right">
+                            <a ng-href="/rest/site/fe/matter?site={{c.siteid}}&id={{c.matter_id}}&type=channel">更多<i class="glyphicon glyphicon-menu-right"></i></a>
+                        </h6>
+                    </div>
+                    <div class="madinSide-body">
+                        <ul class="list-unstyled row">
+                            <li class="list-item" ng-repeat="a in c.data">
+                                <a ng-href="{{a.url}}">
+                                    <h4 class="inline-block" ng-bind="a.title"></h4>
+                                </a>
+                            </li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+            <div class='col-md-9 col-xs-12'>
+                <div id="slider_extends" class="slider_extends bgf">
                     <ul class="list-unstyled row">
                         <li ng-mouseenter="selectTag($index)" class="slider_extend pull-left" ng-repeat="ta in topArticles">
                             <a ng-href="{{ta.url}}">
@@ -27,7 +47,7 @@
                         </li>
                     </ul>
                 </div>
-                <uib-tabset active="0" class="row">
+                <uib-tabset active="0" class="row bgf">
                     <uib-tab index="0" ng-if="articles.length">
                         <uib-tab-heading>热门时讯</uib-tab-heading>
                         <table class="table table-hover">
@@ -178,26 +198,6 @@
                         </table>
                     </uib-tab>
                 </uib-tabset>
-            </div>
-            <div class="col-md-3">
-                <div class="mainSide" ng-repeat="c in channelArticles">
-                    <div class="mainSide-header">
-                        <span class="site_fe_home site_fe_home_icon xxt_guide"></span>
-                        <h3 class="inline-block">{{c.title}}</h3>
-                        <h6 class="inline-block pull-right">
-                            <a ng-href="/rest/site/fe/matter?site={{c.siteid}}&id={{c.matter_id}}&type=channel">更多<i class="glyphicon glyphicon-menu-right"></i></a>
-                        </h6>
-                    </div>
-                    <div class="madinSide-body">
-                        <ul class="list-unstyled row">
-                            <li class="list-item" ng-repeat="a in c.data">
-                                <a ng-href="{{a.url}}">
-                                    <h4 class="inline-block" ng-bind="a.title"></h4>
-                                </a>
-                            </li>
-                        </ul>
-                    </div>
-                </div>
             </div>
         </div>
     </div>

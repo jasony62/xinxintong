@@ -19,7 +19,18 @@
         <header ng-if="article.use_site_header==='Y'" dynamic-html="site.header_page.html"></header>
         <header ng-if="article.use_mission_header==='Y'" dynamic-html="mission.header_page.html"></header>
         <div class="container">
-            <div class="col-md-8">
+            <div class="col-md-4 col-xs-12">
+                <div id='site'>
+                    <a class="site-title" ng-href="{{'/rest/site/home?site='+site.id}}">
+                        <img class="pull-left img-circle" ng-src="{{site.heading_pic}}" >
+                        <h4 class="inline-block pull-left" ng-bind="site.name"></h4>
+                        <i class="glyphicon glyphicon-menu-right pull-right"></i>
+                    </a>
+                    <p class="site-summary" ng-bind="site.summary"></p>
+                    <button class="btn btn-warning pull-right" ng-click="subscribeSite()">关注</button>
+                </div>
+            </div>
+            <div class="col-md-8 col-xs-12">
                 <h2 id="title" class="inline-block" ng-bind='article.title'></h2>
                 <div id="attribute">
                     <a class="siteName" ng-href="{{'/rest/site/home?site='+site.id}}">
@@ -32,38 +43,46 @@
                     <img ng-src="{{article.pic}}">
                 </div>
                 <div id="content" class="content" dynamic-html='article.body'></div>
-                <div id="attachment" ng-if="article.attachments">
-                    <table class='table table-bordered'>
-                        <caption>附件</caption>
-                        <tr ng-repeat='a in article.attachments'>
-                            <td>
-                                <a ng-href="{{'/rest/site/fe/matter/article/attachmentGet?site='+article.siteid+'&articleid='+article.id+'&attachmentid='+a.id}}" target='_blank' ng-bind='a.name'></a>
-                            </td>
-                            <td ng-bind='a.size|filesize' style="width:90px"></td>
-                        </tr>
-                    </table>
-                </div>
                 <p class="url" ng-if="article.url">
                     <a ng-href="{{article.url}}" target="_self">阅读原文</a>
                 </p>
-                <div id='tag' ng-if="article.channels.length||article.tags.length">
-                    <span ng-repeat="c in article.channels" ng-click="openChannel(c)" ng-bind="c.title"></span>
-                    <span ng-repeat="t in article.tags" ng-click="searchByTag(t)" ng-bind="t.title"></span>
+                <div id="behavior" class="behavior">
+                    <div id="attachment" ng-if="article.attachments">
+                        <p ng-repeat='a in article.attachments'>
+                            <a ng-href="{{'/rest/site/fe/matter/article/attachmentGet?site='+article.siteid+'&articleid='+article.id+'&attachmentid='+a.id}}" target='_blank'>
+                                <span>附件：</span>
+                                <span>{{a.name}} ——</span>
+                                <span ng-bind='a.size|filesize'></span>
+                            </a>
+                        </p>
+                    </div>
+                    <div id="attr" class="attr">
+                        <div class="tms-switch-siteuser pull-left">
+                            <a href="" ng-click="siteUser(site.id)">
+                                <i class="glyphicon glyphicon-user"></i>
+                                <h6 class="inline pdl10">个人中心</h6>
+                            </a>
+                        </div>
+                        <div class="tms-switch-favor pull-left">
+                            <a href="" ng-click="favor(user,article)">
+                                <i class="glyphicon glyphicon-star-empty"></i>
+                                <h6 class="inline pdl10">收藏</h6>
+                            </a>
+                        </div>
+                        <div class="tms-switch-forward pull-left">
+                            <a href="" ng-click="forward(user,article)">
+                                <i class="glyphicon glyphicon-share"></i>
+                                <h6 class="inline pdl10">转发</h6>
+                            </a>
+                        </div>
+                    </div>
+                    <div id='tag' class="clearfix" ng-if="article.channels.length||article.tags.length">
+                        <button class="btn btn-custom-default" ng-repeat="c in article.channels" ng-click="openChannel(c)" ng-bind="c.title"></button>
+                        <button class="btn btn-custom-default" ng-repeat="t in article.tags" ng-click="searchByTag(t)" ng-bind="t.title"></button>
+                    </div>
                 </div>
                 <div id="qrCode">
                     <img class="code" ng-src="{{code}}" alt="">
-                </div>
-            </div>
-            <div class="col-md-4">
-                <div id='site'>
-                    <a class="site-title" ng-href="{{'/rest/site/home?site='+site.id}}">
-                        <img class="pull-left img-circle" ng-src="{{site.heading_pic}}" >
-                        <h4 class="inline-block pull-left" ng-bind="site.name"></h4>
-                        <i class="glyphicon glyphicon-menu-right pull-right"></i>
-                    </a>
-                    <p class="site-summary" ng-bind="site.summary"></p>
-                    <button class="btn btn-warning pull-right" ng-click="subscribeSite()">关注</button>
-                    <!-- <button class='subscribe' ng-click="subscribeSite()">+关注</button> -->
                 </div>
             </div>
         </div>

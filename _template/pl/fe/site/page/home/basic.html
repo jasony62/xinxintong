@@ -11,8 +11,8 @@
             </div>
         </div>
     </div>
-    <div class='row'>
-        <div class='col-md-12'>
+    <div class='row bgf'>
+        <div class='col-md-12 col-xs-12'>
             <div class="team-info">
                 <div class="team-img pull-left">
                     <img class="img-circle" style="width:200px;height:200px" ng-src='{{site.heading_pic}}'>
@@ -35,7 +35,27 @@
         </div>
     </div>
     <div class='row'>
-        <div class='col-md-12 col-xs-12 main'>
+        <div class='col-md-12 col-xs-12 bgf'>
+            <div id="aside" class="col-md-3 col-xs-12 pull-right">
+                <div class="mainSide" ng-repeat="r in r_channels">
+                    <div class="mainSide-header">
+                        <span class="site_fe_home site_fe_home_icon xxt_guide"></span>
+                        <h3 class="inline-block">{{r.title}}</h3>
+                        <h6 class="inline-block pull-right">
+                            <a ng-href="/rest/site/fe/matter?site={{r.siteid}}&id={{r.channel_id}}&type=channel">更多<i class="glyphicon glyphicon-menu-right"></i></a>
+                        </h6>
+                    </div>
+                    <div class='madinSide-body'>
+                        <ul class="list-unstyled row">
+                            <li class="list-item" ng-repeat="m in r._matters">
+                                <a ng-href="{{m.url}}">
+                                    <h4 class="inline-block" ng-bind="m.title"></h4>
+                                </a>
+                            </li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
             <div class="col-md-9 col-xs-12">
                 <uib-tabset active="0" class="row">
                     <uib-tab index="$index" ng-repeat="c in c_channels">
@@ -88,26 +108,6 @@
                         </div>
                     </uib-tab>
                 </uib-tabset>
-            </div>
-            <div id="aside" class="col-md-3 col-xs-12 pull-right">
-                <div class="mainSide" ng-repeat="r in r_channels">
-                    <div class="mainSide-header">
-                        <span class="site_fe_home site_fe_home_icon xxt_guide"></span>
-                        <h3 class="inline-block">{{r.title}}</h3>
-                        <h6 class="inline-block pull-right">
-                            <a ng-href="/rest/site/fe/matter?site={{r.siteid}}&id={{r.channel_id}}&type=channel">更多<i class="glyphicon glyphicon-menu-right"></i></a>
-                        </h6>
-                    </div>
-                    <div class='madinSide-body'>
-                        <ul class="list-unstyled row">
-                            <li class="list-item" ng-repeat="m in r._matters">
-                                <a ng-href="{{m.url}}">
-                                    <h4 class="inline-block" ng-bind="m.title"></h4>
-                                </a>
-                            </li>
-                        </ul>
-                    </div>
-                </div>
             </div>
         </div>
     </div>

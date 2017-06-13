@@ -401,6 +401,7 @@
                     <ul class='nav navbar-nav' ng-init="catelog='member'">
                         <li ng-class="{'active':catelog==='member'}"><a href='' ng-click="catelog='member'">通讯录</a></li>
                         <li ng-class="{'active':catelog==='account'}"><a href='' ng-click="catelog='account'">访客</a></li>
+                        <li ng-class="{'active':catelog==='subscribe'}"><a href='' ng-click="catelog='subscribe'">关注用户</a></li>
                     </ul>
                 </div>
             </nav>
@@ -545,6 +546,36 @@
                             <td>{{u.ufrom}}</td>
                             <td>{{u.reg_time*1000|date:'yy-MM-dd HH:mm'}}</td>
                             <td>{{u.coin}}</td>
+                        </tr>
+                    </tbody>
+                </table>
+                <div class='form-group form-inline'>
+                    <span style='height:34px;line-height:34px'>总数：{{page.total}}</span>
+                    <ul uib-pagination style='margin:0;cursor:pointer' class='pull-right' ng-if='page.total>page.size' boundary-links="true" total-items="page.total" max-size="7" items-per-page="page.size" rotate="false" ng-model="page.at" previous-text="&lsaquo;" next-text="&rsaquo;" first-text="&laquo;" last-text="&raquo;" ng-change="doSearch()"></ul>
+                </div>
+            </div>
+            <div ng-controller='ctrlSiteSubscribe' ng-switch-when="subscribe">
+                <div class='form-group' style='max-width:200px'>
+                    <div class="input-group">
+                        <input type='text' class='form-control' ng-model='nickname' placeholder='请输入昵称'>
+                        <span class="input-group-btn">
+                                <button class="btn btn-default" type="button" ng-click='find()'>
+                                    <span class="glyphicon glyphicon-search"></span>
+                        </button>
+                        </span>
+                    </div>
+                </div>
+                <table class='table table-bordered'>
+                    <thead>
+                        <tr>
+                            <th>昵称</th>
+                            <th style='width:420px'>创建日期</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr ng-repeat='u in users'>
+                            <td><a href='' ng-click="openProfile(u.unionid)">{{u.nickname}}</a></td>
+                            <td>{{u.subscribe_at*1000|date:'yy-MM-dd HH:mm'}}</td>
                         </tr>
                     </tbody>
                 </table>

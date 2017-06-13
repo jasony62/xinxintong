@@ -22,7 +22,7 @@ class enroll_model extends app_base {
 	 * @param string $ver 为了兼容老版本，迁移后应该去掉
 	 */
 	public function getEntryUrl($siteId, $id, $ver = 'NEW') {
-		$url = "http://" . $_SERVER['HTTP_HOST'];
+		$url = 'http://' . APP_HTTP_HOST;
 
 		if ($ver === 'OLD') {
 			$url .= "/rest/app/enroll";
@@ -44,7 +44,7 @@ class enroll_model extends app_base {
 	 * 登记活动的汇总展示链接
 	 */
 	public function getOpUrl($siteId, $id) {
-		$url = 'http://' . $_SERVER['HTTP_HOST'];
+		$url = 'http://' . APP_HTTP_HOST;
 		$url .= '/rest/site/op/matter/enroll';
 		$url .= "?site={$siteId}&app=" . $id;
 

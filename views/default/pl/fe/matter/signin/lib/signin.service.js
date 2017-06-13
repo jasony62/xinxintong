@@ -454,7 +454,8 @@ define(['require', 'schema', 'page'], function(require, schemaLib, pageLib) {
                     return defer.promise;
                 },
                 jumpPages: function() {
-                    var defaultInput, pages = app.pages,
+                    var defaultInput, inapp = [],
+                        pages = app.pages,
                         pages4NonMember = [{
                             name: '$memberschema',
                             title: '填写联系人信息'
@@ -469,12 +470,14 @@ define(['require', 'schema', 'page'], function(require, schemaLib, pageLib) {
                             name: page.name,
                             title: page.title
                         };
+                        inapp.push(newPage);
                         pages4NonMember.push(newPage);
                         pages4Nonfan.push(newPage);
                         page.type === 'I' && (defaultInput = newPage);
                     });
 
                     return {
+                        inapp: inapp,
                         nonMember: pages4NonMember,
                         nonfan: pages4Nonfan,
                         defaultInput: defaultInput
@@ -836,6 +839,13 @@ define(['require', 'schema', 'page'], function(require, schemaLib, pageLib) {
             };
             _ins.filter = function() {
                 return _ins._bFilter();
+            };
+            _ins.get = function(ek) {
+                var defer = $q.defer();
+                http2.get('/rest/pl/fe/matter/signin/record/get?ek=' + ek, function(rsp) {
+                    defer.resolve(rsp.data);
+                });
+                return defer.promise;
             };
             _ins.add = function(newRecord) {
                 http2.post('/rest/pl/fe/matter/signin/record/add?site=' + siteId + '&app=' + appId, newRecord, function(rsp) {

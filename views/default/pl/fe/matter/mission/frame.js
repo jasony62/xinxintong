@@ -38,6 +38,7 @@ define(['missionService', 'enrollService', 'signinService'], function() {
         };
         $routeProvider
             .when('/rest/pl/fe/matter/mission/main', new RouteParam('main'))
+            .when('/rest/pl/fe/matter/mission/access', new RouteParam('access'))
             .when('/rest/pl/fe/matter/mission/matter', new RouteParam('matter'))
             .when('/rest/pl/fe/matter/mission/user', new RouteParam('user'))
             .otherwise(new RouteParam('main'));
@@ -59,11 +60,6 @@ define(['missionService', 'enrollService', 'signinService'], function() {
         })();
     }]);
     ngApp.controller('ctrlFrame', ['$scope', '$location', 'srvSite', 'srvMission', function($scope, $location, srvSite, srvMission) {
-        $scope.viewNames = {
-            'main': '项目定义',
-            'matter': '资料和活动',
-            'user': '汇总展示页',
-        };
         $scope.subView = '';
         $scope.update = function(name) {
             var modifiedData = {};

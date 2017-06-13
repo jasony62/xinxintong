@@ -114,7 +114,6 @@ define(['frame'], function(ngApp) {
             });
         };
         $scope.addMatter = function(matterType) {
-            $('body').click();
             if (/quiz|voting|registration|group_week_report|common/.test(matterType)) {
                 $scope.addEnroll(matterType);
             } else {
@@ -237,7 +236,7 @@ define(['frame'], function(ngApp) {
                 url += '/list?mission=' + $scope.mission.id;
                 scenario !== undefined && (url += '&scenario=' + scenario);
                 url += '&_=' + (new Date() * 1);
-                http2.post(url, {byTitle:$scope.filter2.byTitle}, function(rsp) {
+                http2.post(url, { byTitle: $scope.filter2.byTitle }, function(rsp) {
                     $scope.indicators = [];
                     if (/article/.test(matterType)) {
                         $scope.matters = rsp.data.articles;
@@ -302,7 +301,7 @@ define(['frame'], function(ngApp) {
             });
             if (!nv) return;
             $scope.matterType = location.hash ? location.hash.substr(1) : '';
-            if(/enroll|registration|voting|group_week_report|quiz|common/.test($scope.matterType)) {
+            if (/enroll|registration|voting|group_week_report|quiz|common/.test($scope.matterType)) {
                 $scope.matter_scenario = $scope.matterType;
             }
             $scope.mission = nv;

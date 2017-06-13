@@ -57,14 +57,15 @@ define(['require', 'page', 'schema', 'signinService'], function(require, pageLib
             directive: $compileProvider.directive
         };
         $routeProvider
-
             .when('/rest/pl/fe/matter/signin/main', new RouteParam('main'))
             .when('/rest/pl/fe/matter/signin/page', new RouteParam('page'))
             .when('/rest/pl/fe/matter/signin/schema', new RouteParam('schema'))
             .when('/rest/pl/fe/matter/signin/record', new RouteParam('record'))
-            .when('/rest/pl/fe/matter/signin/publish', new RouteParam('publish'))
+            .when('/rest/pl/fe/matter/signin/entry', new RouteParam('entry'))
+            .when('/rest/pl/fe/matter/signin/access', new RouteParam('access'))
+            .when('/rest/pl/fe/matter/signin/preview', new RouteParam('preview'))
             .when('/rest/pl/fe/matter/signin/notice', new RouteParam('notice'))
-            .otherwise(new RouteParam('publish'));
+            .otherwise(new RouteParam('entry'));
 
         $locationProvider.html5Mode(true);
         $uibTooltipProvider.setTriggers({
@@ -96,12 +97,17 @@ define(['require', 'page', 'schema', 'signinService'], function(require, pageLib
         $scope.opened = '';
         $scope.$on('$locationChangeSuccess', function(event, currentRoute) {
             var subView = currentRoute.match(/([^\/]+?)\?/);
-            $scope.subView = subView[1] === 'signin' ? 'publish' : subView[1];
+            $scope.subView = subView[1] === 'signin' ? 'entry' : subView[1];
             switch ($scope.subView) {
                 case 'main':
                 case 'page':
                 case 'schema':
                     $scope.opened = 'edit';
+                    break;
+                case 'access':
+                case 'preview':
+                case 'entry':
+                    $scope.opened = 'publish';
                     break;
                 default:
                     $scope.opened = '';

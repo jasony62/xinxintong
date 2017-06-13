@@ -852,7 +852,6 @@ class main extends \pl\fe\matter\base {
 		$modelApp->setOnlyWriteDbConn(true);
 		$appId = uniqid();
 		$filename=$this->upload($site,$appId);
-		$filename = \TMS_MODEL::toLocalEncoding($filename);
 	
 		if(!file_exists($filename)){
 			return new \ResponseError('上传文件失败！');

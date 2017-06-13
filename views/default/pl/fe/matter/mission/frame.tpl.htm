@@ -24,6 +24,7 @@
             <!--侧边栏-->
             <ul class="nav nav-tabs nav-stacked">
                 <li ng-class="{'active':subView==='main'}"><a href='' ng-click="switchTo('main')">项目定义</a></li>
+                <li ng-class="{'active':subView==='access'}"><a href='' ng-click="switchTo('access')">进入规则</a></li>
                 <li ng-class="{'active':subView==='matter'}"><a href='' ng-click="switchTo('matter')">资料活动</a></li>
                 <li ng-class="{'active':subView==='user'}"><a href='' ng-click="switchTo('user')">汇总展示</a></li>
             </ul>
@@ -56,8 +57,6 @@
         </div>
     </div>
     <script src="/static/js/jquery.min.js"></script>
-    <script src="/static/js/jquery-ui.min.js"></script>
-    <script src="/static/js/bootstrap.min.js"></script>
     <script src="/static/js/angular.min.js"></script>
     <script src="/static/js/angular-route.min.js"></script>
     <script src="/static/js/angular-sanitize.min.js"></script>

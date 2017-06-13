@@ -9,6 +9,19 @@ class record extends \site\op\base {
 	/**
 	 *
 	 */
+	public function index_action($app) {
+		if (!$this->checkAccessToken()) {
+			header('HTTP/1.0 500 parameter error:accessToken is invalid.');
+			die('没有获得有效访问令牌！');
+		}
+		$app = $this->model('matter\signin')->byId($app);
+		\TPL::assign('title', $app->title);
+		\TPL::output('site/op/matter/signin/console');
+		exit;
+	}
+	/**
+	 *
+	 */
 	public function list_action($site, $app, $page = 1, $size = 30, $signinStartAt = null, $signinEndAt = null, $tags = null, $rid = null, $kw = null, $by = null, $orderby = null, $contain = null) {
 
 		if (!$this->checkAccessToken()) {

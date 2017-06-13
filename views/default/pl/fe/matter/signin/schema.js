@@ -44,7 +44,7 @@ define(['frame', 'schema', 'wrap'], function(ngApp, schemaLib, wrapLib) {
             _addSchema(newSchema);
         };
         $scope.newMember = function(ms, schema) {
-            var newSchema = schemaLib.newSchema('member');
+            var newSchema = schemaLib.newSchema('member', $scope.app);
 
             newSchema.schema_id = ms.id;
             newSchema.id = schema.id;
@@ -103,6 +103,13 @@ define(['frame', 'schema', 'wrap'], function(ngApp, schemaLib, wrapLib) {
             $scope.app.group_app_id = '';
             srvSigninApp.update('group_app_id');
         };
+        $scope.$watch('memberSchemas', function(nv) {
+            if (!nv) return;
+            $scope.mschemasById = {};
+            $scope.memberSchemas.forEach(function(mschema) {
+                $scope.mschemasById[mschema.id] = mschema;
+            });
+        }, true);
     }]);
     /**
      * 应用的所有登记项

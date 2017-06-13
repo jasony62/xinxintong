@@ -138,6 +138,13 @@ define(['frame', 'schema', 'wrap'], function(ngApp, schemaLib, wrapLib) {
             $scope.app.group_app_id = '';
             srvEnrollApp.update('group_app_id').then(function() {});
         };
+        $scope.$watch('memberSchemas', function(nv) {
+            if (!nv) return;
+            $scope.mschemasById = {};
+            $scope.memberSchemas.forEach(function(mschema) {
+                $scope.mschemasById[mschema.id] = mschema;
+            });
+        }, true);
     }]);
     /**
      * 应用的所有登记项

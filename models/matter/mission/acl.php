@@ -150,8 +150,8 @@ class acl_model extends \TMS_MODEL {
 	 */
 	public function updateMission($mission) {
 		$acl = new \stdClass;
-		$acl->title = $mission->title;
-		$acl->summary = $mission->summary;
+		$acl->title = $this->escape($mission->title);
+		$acl->summary = $this->escape($mission->summary);
 		$acl->pic = $mission->pic;
 
 		$rst = $this->update(

@@ -915,7 +915,7 @@ class main extends \pl\fe\matter\base {
 			} else if (preg_match("/.*时间/", $colTitle)) {
 				$schemasByCol[$col]='submit_at';
 			} else if (preg_match("/姓名.*/", $colTitle)) {
-				$data->id=$this->getId();
+				$data->id=$this->getTopicId();
 				$data->title= $colTitle;
 				$data->type='shorttext';
 				$data->format='name';
@@ -923,7 +923,7 @@ class main extends \pl\fe\matter\base {
 				$data->_ver='1';
 				$schemasByCol[$col]['id']=$data->id;
 			} else if (preg_match("/手机.*/", $colTitle)) {
-				$data->id=$this->getId();
+				$data->id=$this->getTopicId();
 				$data->title= $colTitle;
 				$data->type='shorttext';
 				$data->format='mobile';
@@ -931,7 +931,7 @@ class main extends \pl\fe\matter\base {
 				$data->_ver='1';
 				$schemasByCol[$col]['id']=$data->id;
 			} else if (preg_match("/邮箱.*/", $colTitle)) {
-				$data->id=$this->getId();
+				$data->id=$this->getTopicId();
 				$data->title= $colTitle;
 				$data->type='shorttext';
 				$data->format='email';
@@ -939,7 +939,7 @@ class main extends \pl\fe\matter\base {
 				$data->_ver='1';
 				$schemasByCol[$col]['id']=$data->id;
 			} else {
-				$data->id=$this->getId();
+				$data->id=$this->getTopicId();
 				$data->title= $colTitle;
 				$data->type='shorttext';
 				$data->format='';
@@ -1152,7 +1152,7 @@ class main extends \pl\fe\matter\base {
 	 * 创建题目的id
 	 *
 	 */
-	protected function getId(){
+	protected function getTopicId(){
 		list($usec, $sec) = explode(" ", microtime());
 		$microtime=((float)$usec)*1000000;
 		$id='s'.floor($microtime);

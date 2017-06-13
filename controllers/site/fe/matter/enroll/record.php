@@ -50,12 +50,6 @@ class record extends base {
 
 		$oUser = $this->who;
 
-		// 检查是否允许登记
-		$rst = $this->_canSubmit($oEnrollApp, $oUser, $enrolledData, $ek);
-		if ($rst[0] === false) {
-			return new \ResponseError($rst[1]);
-		}
-
 		// 当前访问用户的基本信息
 		$userNickname = $modelEnl->getUserNickname($oEnrollApp, $oUser);
 		$oUser->nickname = $userNickname;
@@ -66,6 +60,12 @@ class record extends base {
 			$enrolledData = $posted->data;
 		} else {
 			$enrolledData = $posted;
+		}
+
+		// 检查是否允许登记
+		$rst = $this->_canSubmit($oEnrollApp, $oUser, $enrolledData, $ek);
+		if ($rst[0] === false) {
+			return new \ResponseError($rst[1]);
 		}
 		/**
 		 * 检查是否存在匹配的登记记录

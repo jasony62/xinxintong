@@ -36,7 +36,7 @@
     </div>
     <div class='row'>
         <div class='col-md-12 col-xs-12 bgf'>
-            <div id="aside" class="col-md-3 col-xs-12 pull-right">
+            <div id="aside" class="col-md-3 col-xs-12 bgfa">
                 <div class="mainSide" ng-repeat="r in r_channels">
                     <div class="mainSide-header">
                         <span class="site_fe_home site_fe_home_icon xxt_guide"></span>
@@ -64,13 +64,13 @@
                             <tbody>
                                 <tr ng-repeat="m in cTotal[c.channel_id]['data']">
                                     <td>
-                                        <div class="media">
-                                            <div class="media-left">
-                                                <div class="media-img">
+                                        <div class="media-item">
+                                            <div class="media-item-left pull-left">
+                                                <div class="media-item-img">
                                                     <img class="media-object" ng-src='{{m.pic||m.thumbnail}}'>
                                                 </div>
                                             </div>
-                                            <div class="media-body">
+                                            <div class="media-item-body pull-left">
                                                 <div class='creater_name'>
                                                     <a ng-href='/rest/site/home?site={{m.siteid}}'>
                                                         <img class="img-circle" ng-src="{{site.heading_pic}}" alt="" style="width:12px;height:12px"> <h6 class="inline pdl10">{{m.site_name}}</h6>

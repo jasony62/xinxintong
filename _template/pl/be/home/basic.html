@@ -12,8 +12,8 @@
         </div>
     </div>
     <div class='row'>
-        <div class="col-md-12">
-            <div class="col-md-3 col-xs-12">
+        <div class="col-md-12 col-xs-12">
+            <div class="col-md-3 col-xs-12 bgfa">
                 <div class="mainSide" ng-repeat="c in channelArticles">
                     <div class="mainSide-header">
                         <span class="site_fe_home site_fe_home_icon xxt_guide"></span>
@@ -52,13 +52,15 @@
                         <uib-tab-heading>热门时讯</uib-tab-heading>
                         <table class="table table-hover">
                             <tbody>
-                                <tr ng-repeat="a in articles" ng-click="openMatter(a)">
+                                <tr ng-repeat="a in articles">
                                     <td>
-                                        <div class="media">
-                                            <div class="media-left">
-                                                <img class="media-object" ng-src='{{a.pic}}'>
+                                        <div class="media-item">
+                                            <div class="media-item-left pull-left">
+                                                <div class="media-item-img">
+                                                    <img class="media-object" ng-src='{{a.pic}}'>
+                                                </div>
                                             </div>
-                                            <div class="media-body">
+                                            <div class="media-item-body pull-left">
                                                 <div class='creater_name'>
                                                     <a ng-href='/rest/site/home?site={{a.siteid}}'>
                                                         <img class="img-circle" ng-src="{{site.heading_pic}}" alt="" style="width:12px;height:12px"> <h6 class="inline pdl10">{{a.site_name}}</h6>
@@ -101,11 +103,13 @@
                             <tbody>
                                 <tr ng-repeat="s in sites">
                                     <td>
-                                        <div class="media">
-                                            <div class="media-left">
-                                                <img class="media-object" ng-src='{{s.pic}}'>
+                                        <div class="media-item">
+                                            <div class="media-item-left pull-left">
+                                                <div class="media-item-img">
+                                                    <img class="media-object" ng-src='{{s.pic}}'>
+                                                </div>
                                             </div>
-                                            <div class="media-body">
+                                            <div class="media-item-body pull-left">
                                                 <div class='creater_name'>
                                                     <a ng-href='/rest/site/home?site={{s.siteid}}'>
                                                         <img class="img-circle" ng-src="{{s.pic}}" alt="" style="width:12px;height:12px"> <h6 class="inline pdl10">{{s.creater_name}}</h6>
@@ -136,11 +140,13 @@
                             <tbody>
                                 <tr ng-repeat="a in apps">
                                     <td>
-                                        <div class="media">
-                                            <div class="media-left">
-                                                <img class="media-object" ng-src='{{a.pic}}'>
+                                        <div class="media-item">
+                                            <div class="media-item-left pull-left">
+                                                <div class="media-item-img">
+                                                    <img class="media-object" ng-src='{{a.pic}}'>
+                                                </div>
                                             </div>
-                                            <div class="media-body">
+                                            <div class="media-item-body pull-left">
                                                 <div class='creater_name'>
                                                     <a ng-href='/rest/site/home?site={{a.siteid}}'>
                                                         <img class="img-circle" ng-src="{{a.heading_pic}}" alt="" style="width:12px;height:12px"> <h6 class="inline pdl10">{{a.creater_name}}</h6>
@@ -171,11 +177,13 @@
                             <tbody>
                                 <tr ng-repeat="t in templates" >
                                     <td>
-                                        <div class="media">
-                                            <div class="media-left">
-                                                <img class="media-object" ng-src='{{t.pic}}'>
+                                        <div class="media-item">
+                                            <div class="media-item-left pull-left">
+                                                <div class="media-item-img">
+                                                    <img class="media-object" ng-src='{{t.pic}}'>
+                                                </div>
                                             </div>
-                                            <div class="media-body">
+                                            <div class="media-item-body pull-left">
                                                 <div class='creater_name'>
                                                     <a ng-href='/rest/site/home?site={{t.siteid}}'>
                                                         <img class="img-circle" ng-src="{{t.heading_pic}}" alt="" style="width:12px;height:12px"> <h6 class="inline pdl10">{{t.creater_name}}</h6>

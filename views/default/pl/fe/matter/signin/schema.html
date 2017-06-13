@@ -4,14 +4,8 @@
         <div class='form-group list-group-item'>
             <div class='help-block'>添加用户填写项</div>
             <div class='flexrow'>
-                <button class='btn btn-default hide' ng-click="newSchema('name')">姓名</button>
-                <button class='btn btn-default hide' ng-click="newSchema('mobile')">手机</button>
-                <button class='btn btn-default hide' ng-click="newSchema('email')">邮箱</button>
-            </div>
-            <div class='flexrow'>
                 <button class='btn btn-default' ng-click="newSchema('shorttext')">填写题</button>
                 <button class='btn btn-default' ng-click="newSchema('date')">日期</button>
-                <button class='btn btn-default hide' ng-click="newSchema('longtext')">多行文本</button>
             </div>
             <div class='flexrow'>
                 <button class='btn btn-default' ng-click="newSchema('single')">单选题</button>
@@ -20,7 +14,7 @@
             <div class='flexrow'>
                 <button class='btn btn-default' ng-click="newSchema('image')">上传图片</button>
                 <button class='btn btn-default' ng-click="newSchema('file')">上传文件</button>
-                <button class='btn btn-default' ng-click="newSchema('location')">上传位置</button>
+                <button class='btn btn-default hide' ng-click="newSchema('location')">上传位置</button>
             </div>
             <div class='flexrow'>
                 <button class='btn btn-default' ng-click="newSchema('html')">描述说明</button>

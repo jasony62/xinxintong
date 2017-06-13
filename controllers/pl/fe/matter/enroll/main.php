@@ -821,6 +821,24 @@ class main extends \pl\fe\matter\base {
 		return new \ResponseData($app);
 	}
 	/**
+	 * 上传xlsx
+	 *
+	 */
+	protected function upload($site,$appId){
+		$files=$_FILES;
+		foreach ($files as $v1) {
+			if(preg_match('/\S+\.xlsx$/i', $v1['name'])){
+				$path="kcfinder/upload/$site/enroll_$appId";
+				mkdir($path);
+				chmod($path,755);
+				$v1['name']=\TMS_MODEL::toLocalEncoding($v1['name']);
+				$filename=$path.'/'.$v1['name'];
+				move_uploaded_file($v1['tmp_name'], $filename);		
+			}
+		}
+		return isset($filename) ? $filename : false;
+	}
+	/**
 	 * 通过导入的Excel数据记录创建登记活动
 	 * 目前就是填空题
 	 */
@@ -832,9 +850,14 @@ class main extends \pl\fe\matter\base {
 		require_once TMS_APP_DIR . '/lib/PHPExcel.php';
 		$modelApp = $this->model('matter\enroll');
 		$modelApp->setOnlyWriteDbConn(true);
+		$appId = uniqid();
+		$filename=$this->upload($site,$appId);
+		$filename = \TMS_MODEL::toLocalEncoding($filename);
+	
+		if(!file_exists($filename)){
+			return new \ResponseError('上传文件失败！');
+		}
 
-		//$filename = \TMS_MODEL::toLocalEncoding($filename);
-		$filename='./cus/a.xlsx';
 		$objPHPExcel = \PHPExcel_IOFactory::load($filename);
 		$objWorksheet = $objPHPExcel->getActiveSheet();
 		//xlsx 行号是数字
@@ -899,7 +922,7 @@ class main extends \pl\fe\matter\base {
 			}  
 		}
 		//获得标题
-		preg_match('/[\/\\\\]{0,1}(\w+)\.xlsx$/', $filename, $matches);
+		preg_match('/[\/\\\\]{0,1}[^\/\\\\]+\.xlsx$/', $filename, $matches);
 		$title0=$matches[0];
 		$title1=str_replace(['/','\\','.xlsx'], [], $title0);
 		/* 使用缺省模板 */
@@ -950,7 +973,6 @@ class main extends \pl\fe\matter\base {
 		$oSite = $this->model('site')->byId($site, ['fields' => 'id,heading_pic']);
 
 		$current = time();
-		$appId = uniqid();
 		$newapp = [];
 		/*从站点或任务获得的信息*/
 		if (empty($mission)) {

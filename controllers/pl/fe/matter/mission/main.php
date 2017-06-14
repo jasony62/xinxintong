@@ -184,6 +184,12 @@ class main extends \pl\fe\matter\base {
 		/* data */
 		$posted = $this->getPostJson();
 
+		if (isset($posted->title)) {
+			$posted->title = $modelMis->escape($posted->title);
+		}
+		if (isset($posted->summary)) {
+			$posted->summary = $modelMis->escape($posted->summary);
+		}
 		if (isset($posted->entry_rule)) {
 			$posted->entry_rule = $modelMis->escape($modelMis->toJson($posted->entry_rule));
 		}

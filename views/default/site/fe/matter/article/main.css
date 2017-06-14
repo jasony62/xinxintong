@@ -1,22 +1,28 @@
 html,body{height:100%;width:100%;position: relative;overflow: hidden;}
 .ng-cloak{display:none;}
 .article{position:relative;height:100%;box-sizing:border-box;overflow-y:auto;padding-top:50px;white-space:normal;word-wrap:break-word;word-break:break-all}
+
 /* left-column */
-#title{font-size:28px;font-weight: 700;}
-#attribute{margin-top:85px;margin-bottom: 60px;}
+#title{font-size:28px;font-weight: 700;padding:0 10px;}
+#attribute{margin-top:10px;margin-bottom: 30px;padding:0 10px;}
 #attribute > .siteName{margin-right: 55px;}
 #attribute > h6{margin-right: 15px;color: #999;}
 .article .headpic{margin:10px 0}
-.article img{display:block;max-width:100%;margin:5px auto}
-.article .content{margin:12pt 0 30pt 0}
+.article img{display:block;max-width:100%;margin:5px auto;}
+.article .content{margin:12pt 0 30pt 0;padding:0 10px;}
 .article .content p{margin:0 0 12pt;line-height:2em}
 .article .url{margin-top:20px}
-.article .behavior{padding:20px 0;border:1px dashed #999;border-left:none;border-right: none;position: relative;}
-.behavior #attachment{margin-bottom: 30px;}
-.behavior #attr{position: absolute;top:20px;right:0;overflow: hidden;}
+.article .behavior{padding:20px 10px 30px 10px;border:1px dashed #999;border-left:none;border-right: none;border-bottom: none;position: relative;}
+#attachment, #tag{margin-bottom: 20px;}
+#attr{position: absolute;bottom:80%;right:0;overflow: hidden;}
 .btn-custom-default{margin-left: 0;margin-right:20px;border: 1px solid #2994d0;background-color: #fff;color: #2994d0;}
 .btn-custom-default:hover,.btn-custom-default:active,.btn-custom-default:focus{color: #fff;background-color: #2994d0;}
-
+@media screen and (max-width:768px){
+  #title{font-size: 24px;}
+  #attr{bottom: 0;left: 0;}
+  #attr > div{width: 33%;font-size: 21px;text-align: center;margin-right: 0px;}
+  #attr h6{display: none;}
+}
 /* qrcode */
 #qrCode{position: absolute;top:155px;left:-135px;}
 

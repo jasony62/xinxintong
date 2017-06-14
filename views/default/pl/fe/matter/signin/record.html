@@ -66,7 +66,7 @@
             <table class='table table-bordered'>
                 <thead>
                     <tr>
-                        <th style='width:72px'>操作</th>
+                        <th style='width:48px'>操作</th>
                         <th style='width:40px'></th>
                         <th style='width:40px'>
                             <input type='checkbox' ng-true-value="'Y'" ng-false-value="'N'" ng-model="rows.allSelected">
@@ -85,15 +85,12 @@
                         <th style='width:140px'>签到备注</th>
                         <th style='width:140px' class='enroll' ng-if="app.enroll_app_id">报名标签</th>
                         <th style='width:140px' class='enroll' ng-if="app.enroll_app_id">报名备注</th>
-                        <th style='width:72px'>操作</th>
+                        <th style='width:48px'>操作</th>
                     </tr>
                 </thead>
                 <tbody>
                     <tr ng-repeat='r in records'>
                         <td>
-                            <button class='btn btn-xs btn-danger' ng-click='removeRecord(r)'>
-                                <span class='glyphicon glyphicon-remove'></span>
-                            </button>
                             <button class='btn btn-xs btn-default' ng-click='editRecord(r)'>
                                 <span class='glyphicon glyphicon-edit'></span>
                             </button>
@@ -146,9 +143,6 @@
                         <td>
                             <button class='btn btn-xs btn-danger' ng-click='removeRecord(r)'>
                                 <span class='glyphicon glyphicon-remove'></span>
-                            </button>
-                            <button class='btn btn-xs btn-default' ng-click='editRecord(r)'>
-                                <span class='glyphicon glyphicon-edit'></span>
                             </button>
                         </td>
                     </tr>

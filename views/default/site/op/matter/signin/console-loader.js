@@ -3,8 +3,6 @@ window.loading = {
         var eleLoading, eleStyle;
         eleLoading = document.querySelector('.loading');
         eleLoading.parentNode.removeChild(eleLoading);
-        eleStyle = document.querySelector('#loadingStyle');
-        eleStyle.parentNode.removeChild(eleStyle);
     },
     load: function() {
         var timestamp, minutes;
@@ -17,13 +15,11 @@ window.loading = {
         require.config({
             waitSeconds: 0,
             paths: {
-                "jquery": '/static/js/jquery.min',
-                "bootstrap": '/static/js/bootstrap.min',
                 "domReady": '/static/js/domReady',
                 "angular": "/static/js/angular.min",
+                "angular-route": "/static/js/angular-route.min",
                 "angular-sanitize": '/static/js/angular-sanitize.min',
                 "ui-bootstrap": '/static/js/ui-bootstrap-tpls.min',
-                "util.site": "/views/default/site/util",
                 "ui-tms": '/static/js/ui-tms',
                 "ui-xxt": '/static/js/xxt.ui',
                 "service.matter": '/views/default/pl/fe/_module/matter.service',
@@ -51,15 +47,13 @@ window.loading = {
                 return "?bust=" + (timestamp * 1);
             }
         });
-        require(['jquery'], function() {
-            require(['bootstrap'], function() {
-                require(['angular'], function() {
-                    require(['angular-sanitize'], function() {
-                        require(['ui-bootstrap'], function() {
-                            require(['ui-tms'], function() {
-                                require(['ui-xxt'], function() {
-                                    requirejs(['/views/default/site/op/matter/signin/console.js']);
-                                });
+        require(['angular'], function() {
+            require(['angular-route'], function() {
+                require(['angular-sanitize'], function() {
+                    require(['ui-bootstrap'], function() {
+                        require(['ui-tms'], function() {
+                            require(['ui-xxt'], function() {
+                                requirejs(['/views/default/site/op/matter/signin/console.js']);
                             });
                         });
                     });

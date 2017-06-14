@@ -55,7 +55,6 @@ class template_model extends \TMS_MODEL {
 							if ($v->version == $template->last_version) {
 								$vid = $v->id;
 								$version = $v;
-
 								break;
 							}
 						}
@@ -64,7 +63,6 @@ class template_model extends \TMS_MODEL {
 							if ($v->version == $template->pub_version) {
 								$vid = $v->id;
 								$version = $v;
-
 								break;
 							}
 						}
@@ -74,18 +72,19 @@ class template_model extends \TMS_MODEL {
 					foreach ($template->versions as $v) {
 						if ($v->id == $vid) {
 							$version = $v;
-
 							break;
 						}
 					}
 				}
-				foreach ($version as $k => $v2) {
-					if ($k === 'id') {
-						$template->vid = $v2;
-					} elseif ($k === 'create_at') {
-						$template->vcreate_at = $v2;
-					} else {
-						$template->$k = $v2;
+				if (isset($version)) {
+					foreach ($version as $k => $v2) {
+						if ($k === 'id') {
+							$template->vid = $v2;
+						} elseif ($k === 'create_at') {
+							$template->vcreate_at = $v2;
+						} else {
+							$template->$k = $v2;
+						}
 					}
 				}
 				$modelPage = $this->model('matter\enroll\page');

@@ -98,7 +98,7 @@ class main extends \pl\fe\matter\base {
 		if (!empty($filter->byTitle)) {
 			$options['byTitle'] = $modelMis->escape($filter->byTitle);
 		}
-		
+
 		$result = $modelMis->byAcl($user, $options);
 
 		return new \ResponseData($result);
@@ -171,6 +171,50 @@ class main extends \pl\fe\matter\base {
 		return new \ResponseData($mission);
 	}
 	/**
+	 * 更新任务设置
+	 */
+	public function update_action($id) {
+		if (false === ($oUser = $this->accountUser())) {
+			return new \ResponseTimeout();
+		}
+
+		$modelMis = $this->model('matter\mission');
+		$modelMis->setOnlyWriteDbConn(true);
+
+		/* data */
+		$posted = $this->getPostJson();
+
+		if (isset($posted->title)) {
+			$posted->title = $modelMis->escape($posted->title);
+		}
+		if (isset($posted->summary)) {
+			$posted->summary = $modelMis->escape($posted->summary);
+		}
+		if (isset($posted->entry_rule)) {
+			$posted->entry_rule = $modelMis->escape($modelMis->toJson($posted->entry_rule));
+		}
+		if (isset($posted->extattrs)) {
+			$posted->extattrs = $modelMis->escape($modelMis->toJson($posted->extattrs));
+		}
+		/* modifier */
+		$posted->modifier = $oUser->id;
+		$posted->modifier_src = $oUser->src;
+		$posted->modifier_name = $modelMis->escape($oUser->name);
+		$posted->modify_at = time();
+
+		/* update */
+		$rst = $modelMis->update('xxt_mission', $posted, ["id" => $id]);
+		if ($rst) {
+			$mission = $modelMis->byId($id, 'id,siteid,title,summary,pic');
+			/*记录操作日志*/
+			$this->model('matter\log')->matterOp($mission->siteid, $oUser, $mission, 'U');
+			/*更新acl*/
+			$mission = $this->model('matter\mission\acl')->updateMission($mission);
+		}
+
+		return new \ResponseData($rst);
+	}
+	/**
 	 *
 	 * 删除项目
 	 * 只有任务的创建人和项目所在团队的管理员才能删除任务，任务合作者删除任务时，只是将自己从acl列表中移除
@@ -179,7 +223,7 @@ class main extends \pl\fe\matter\base {
 	 * @param int $id mission'id
 	 */
 	public function remove_action($site, $id) {
-		if (false === ($user = $this->accountUser())) {
+		if (false === ($oUser = $this->accountUser())) {
 			return new \ResponseTimeout();
 		}
 
@@ -187,7 +231,7 @@ class main extends \pl\fe\matter\base {
 		$mission = $modelMis->byId($id, 'id,siteid,title,summary,pic,creater');
 
 		$modelAcl = $this->model('matter\mission\acl');
-		$acl = $modelAcl->byCoworker($mission->id, $user->id);
+		$acl = $modelAcl->byCoworker($mission->id, $oUser->id);
 
 		if (in_array($acl->coworker_role, ['O', 'A'])) {
 			/* 当前用户是项目的创建者或者团队管理员 */
@@ -202,14 +246,14 @@ class main extends \pl\fe\matter\base {
 				/* 如果已经素材，就只打标记 */
 				$rst = $modelMis->update('xxt_mission_acl', ['state' => 0], ["mission_id" => $id]);
 				$rst = $modelMis->update('xxt_mission', ['state' => 0], ["id" => $id]);
-				$this->model('matter\log')->matterOp($mission->siteid, $user, $mission, 'Recycle');
+				$this->model('matter\log')->matterOp($mission->siteid, $oUser, $mission, 'Recycle');
 				/*给项目下的活动素材打标记*/
 				foreach ($cnts as $cnt) {
 					$modelMis->update('xxt_' . $cnt->matter_type, ['state' => 0], ['siteid' => $cnt->siteid, 'id' => $cnt->matter_id]);
 					$cnt->id = $cnt->matter_id;
 					$cnt->type = $cnt->matter_type;
 					$cnt->title = $cnt->matter_title;
-					$this->model('matter\log')->matterOp($cnt->siteid, $user, $cnt, 'Recycle');
+					$this->model('matter\log')->matterOp($cnt->siteid, $oUser, $cnt, 'Recycle');
 				}
 			} else {
 				/* 清空任务的ACL */
@@ -218,15 +262,15 @@ class main extends \pl\fe\matter\base {
 				$modelMis->delete('xxt_mission_phase', ["mission_id" => $id]);
 				$rst = $modelMis->delete('xxt_mission_acl', ["mission_id" => $id]);
 				$rst = $modelMis->delete('xxt_mission', ["id" => $id]);
-				$this->model('matter\log')->matterOp($mission->siteid, $user, $mission, 'D');
+				$this->model('matter\log')->matterOp($mission->siteid, $oUser, $mission, 'D');
 			}
 		} else {
 			/* 从访问列表中移除当前用户 */
 			$coworker = new \stdClass;
-			$coworker->id = $user->id;
+			$coworker->id = $oUser->id;
 			$modelAcl->removeCoworker($mission, $coworker);
 			/* 更新用户的操作日志 */
-			$this->model('matter\log')->matterOp($mission->siteid, $user, $mission, 'Quit');
+			$this->model('matter\log')->matterOp($mission->siteid, $oUser, $mission, 'Quit');
 		}
 
 		return new \ResponseData('ok');
@@ -235,7 +279,7 @@ class main extends \pl\fe\matter\base {
 	 * 恢复被删除的项目
 	 */
 	public function restore_action($site, $id) {
-		if (false === ($user = $this->accountUser())) {
+		if (false === ($oUser = $this->accountUser())) {
 			return new \ResponseTimeout();
 		}
 
@@ -269,12 +313,12 @@ class main extends \pl\fe\matter\base {
 				$cnt->id = $cnt->matter_id;
 				$cnt->type = $cnt->matter_type;
 				$cnt->title = $cnt->matter_title;
-				$this->model('matter\log')->matterOp($cnt->siteid, $user, $cnt, 'Restore');
+				$this->model('matter\log')->matterOp($cnt->siteid, $oUser, $cnt, 'Restore');
 			}
 		}
 
 		/* 记录操作日志 */
-		$this->model('matter\log')->matterOp($site, $user, $mission, 'Restore');
+		$this->model('matter\log')->matterOp($site, $oUser, $mission, 'Restore');
 
 		return new \ResponseData($rst);
 	}

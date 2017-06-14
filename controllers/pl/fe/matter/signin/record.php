@@ -14,6 +14,20 @@ class record extends \pl\fe\matter\base {
 		exit;
 	}
 	/**
+	 * 活动登记名单
+	 *
+	 */
+	public function get_action($ek) {
+		if (false === ($user = $this->accountUser())) {
+			return new \ResponseTimeout();
+		}
+
+		$mdoelRec = $this->model('matter\signin\record');
+		$record = $mdoelRec->byId($ek, ['verbose' => 'Y']);
+
+		return new \ResponseData($record);
+	}
+	/**
 	 * 签到名单
 	 *
 	 */
@@ -179,7 +193,7 @@ class record extends \pl\fe\matter\base {
 		$modelRec = $this->model('matter\signin\record');
 
 		$signinApp = $modelApp->byId($app, ['cascaded' => 'N']);
-		$ek = $modelRec->enroll($site, $signinApp);
+		$ek = $modelRec->enroll($signinApp);
 		/**
 		 * 签到登记记录
 		 */

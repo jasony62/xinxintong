@@ -19,19 +19,19 @@ class matter extends \pl\fe\matter\base {
 	 * @param int $id
 	 */
 	public function list_action($id, $matterType = null) {
-		if (false === ($user = $this->accountUser())) {
+		if (false === ($oUser = $this->accountUser())) {
 			return new \ResponseTimeout();
 		}
 
 		/* 检查权限 */
 		$modelAcl = $this->model('matter\mission\acl');
-		if (false === ($acl = $modelAcl->byCoworker($id, $user->id))) {
+		if (false === ($acl = $modelAcl->byCoworker($id, $oUser->id))) {
 			return new \ResponseError('数据不存在');
 		}
 
 		$criteria = $this->getPostJson();
 		$options = [];
-		if(isset($criteria->mission_phase_id) && !empty($criteria->mission_phase_id) && $criteria->mission_phase_id !== "ALL") {
+		if (isset($criteria->mission_phase_id) && !empty($criteria->mission_phase_id) && $criteria->mission_phase_id !== "ALL") {
 			$options['mission_phase_id'] = $criteria->mission_phase_id;
 		}
 
@@ -45,13 +45,13 @@ class matter extends \pl\fe\matter\base {
 	 * @param int $id mission'is
 	 */
 	public function count_action($id) {
-		if (false === ($user = $this->accountUser())) {
+		if (false === ($oUser = $this->accountUser())) {
 			return new \ResponseTimeout();
 		}
 
 		/* 检查权限 */
 		$modelAcl = $this->model('matter\mission\acl');
-		if (false === ($acl = $modelAcl->byCoworker($id, $user->id))) {
+		if (false === ($acl = $modelAcl->byCoworker($id, $oUser->id))) {
 			return new \ResponseError('项目不存在或没有访问项目的权限');
 		}
 
@@ -66,17 +66,17 @@ class matter extends \pl\fe\matter\base {
 	 * @param int $id
 	 */
 	public function add_action($site, $id) {
-		if (false === ($user = $this->accountUser())) {
+		if (false === ($oUser = $this->accountUser())) {
 			return new \ResponseTimeout();
 		}
 
 		$matter = $this->getPostJson();
 
 		$modelMis = $this->model('matter\mission');
-		if($app = $this->model('matter\\' . $matter->type)->byId($matter->id, ['fields' => 'siteid,id,title', 'cascaded' => 'N'])) {
+		if ($app = $this->model('matter\\' . $matter->type)->byId($matter->id, ['fields' => 'siteid,id,title', 'cascaded' => 'N'])) {
 			$app->type = $matter->type;
-			$modelMis->addMatter($user, $site, $id, $app);
-		}else{
+			$modelMis->addMatter($oUser, $site, $id, $app);
+		} else {
 			return new \ResponseError('指定的素材不存在');
 		}
 
@@ -90,7 +90,7 @@ class matter extends \pl\fe\matter\base {
 	 * @param int $id mission'id
 	 */
 	public function update_action($id, $matterType, $matterId) {
-		if (false === ($user = $this->accountUser())) {
+		if (false === ($oUser = $this->accountUser())) {
 			return new \ResponseTimeout();
 		}
 
@@ -118,7 +118,7 @@ class matter extends \pl\fe\matter\base {
 	 * @param int $id mission'id
 	 */
 	public function updateSeq_action($id) {
-		if (false === ($user = $this->accountUser())) {
+		if (false === ($oUser = $this->accountUser())) {
 			return new \ResponseTimeout();
 		}
 
@@ -138,12 +138,12 @@ class matter extends \pl\fe\matter\base {
 		return new \ResponseData($rst);
 	}
 	/**
-	 * 给项目添加素材
+	 * 删除项目下的素材
 	 *
 	 * @param int $id
 	 */
 	public function remove_action($id) {
-		if (false === ($user = $this->accountUser())) {
+		if (false === ($oUser = $this->accountUser())) {
 			return new \ResponseTimeout();
 		}
 

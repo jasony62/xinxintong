@@ -18,15 +18,21 @@
     <div ng-cloak class='ng-cloak app'>
         <div class='container' ng-controller="ctrlRank">
             <div class='row'>
-                <div class='col-xs-6'>
+                <div class='col-xs-4'>
                     <select class='form-control' ng-model="appState.criteria.obj">
                         <option value='user'>用户</option>
                         <option value='data'>提交内容</option>
                         <option value='remark'>内容评论</option>
                     </select>
                 </div>
-                <div class='col-xs-6' ng-if="appState.criteria.obj==='user'">
-                    <select class='form-control' ng-model="appState.criteria.orderby">
+                <div class='col-xs-3' ng-if="appState.criteria.obj==='data'||appState.criteria.obj==='remark'">
+                    <div class='checkbox'>
+                        <label>
+                            <input type='checkbox' ng-true-value="'Y'" ng-false-value="'all'" ng-model="appState.criteria.agreed" ng-change="changeCriteria()">推荐</label>
+                    </div>
+                </div>
+                <div class='col-xs-5' ng-if="appState.criteria.obj==='user'">
+                    <select class='form-control' ng-model="appState.criteria.orderby" ng-change="changeCriteria()">
                         <option value='enroll'>提交记录数量</option>
                         <option value='remark'>获得评论数量</option>
                         <option value='like'>获得点赞数量</option>
@@ -34,8 +40,8 @@
                         <option value='like_other'>进行点赞数量</option>
                     </select>
                 </div>
-                <div class='col-xs-6' ng-if="appState.criteria.obj==='data'">
-                    <select class='form-control' ng-model="appState.criteria.orderby">
+                <div class='col-xs-5' ng-if="appState.criteria.obj==='data'">
+                    <select class='form-control' ng-model="appState.criteria.orderby" ng-change="changeCriteria()">
                         <option value='remark'>获得评论数量</option>
                         <option value='like'>获得点赞数量</option>
                     </select>
@@ -46,14 +52,14 @@
                     <table class='table table-striped' ng-switch-when="user">
                         <thead>
                             <tr>
-                                <th style='width:3em'></th>
+                                <th class='hidden-xs' style='width:3em'></th>
                                 <th>用户</th>
                                 <th style='width:3em'></th>
                             </tr>
                         </thead>
                         <tbody>
                             <tr ng-repeat="u in users">
-                                <td>{{(appState.page.at-1)*appState.page.size+$index+1}}</td>
+                                <td class='hidden-xs'>{{(appState.page.at-1)*appState.page.size+$index+1}}</td>
                                 <td><span>{{u.nickname}}</span></td>
                                 <td><span>{{u[appState.criteria.orderby+'_num']}}</span></td>
                             </tr>
@@ -62,7 +68,8 @@
                     <table class='table table-striped' ng-switch-when="data">
                         <thead>
                             <tr>
-                                <th style='width:3em'></th>
+                                <th class='hidden-xs' style='width:3em'></th>
+                                <th style='width:4em'></th>
                                 <th>提交内容</th>
                                 <th style='width:6em'>用户</th>
                                 <th style='width:3em'></th>
@@ -71,8 +78,15 @@
                         </thead>
                         <tbody>
                             <tr ng-repeat="rec in records" ng-click="gotoRemark(rec.enroll_key,rec.schema_id)">
-                                <td>{{(appState.page.at-1)*appState.page.size+$index+1}}</td>
-                                <td><span>{{rec.value}}</span></td>
+                                <td class='hidden-xs'>{{(appState.page.at-1)*appState.page.size+$index+1}}</td>
+                                <td><span>{{rec._agreed}}</span></td>
+                                <td ng-switch on="app._schemasById[rec.schema_id].type">
+                                    <div ng-switch-when="image">
+                                        <img ng-src='{{rec.value}}' style='width:128px' />
+                                    </div>
+                                    <span ng-switch-when="date">{{(rec.value*1000)|date:'yy-MM-dd HH:mm'}}</span>
+                                    <span ng-switch-default>{{rec.value}}</span>
+                                </td>
                                 <td><span>{{rec.nickname}}</span></td>
                                 <td class='text-right'><span>{{rec[appState.criteria.orderby+'_num']}}</span></td>
                                 <td><span class='glyphicon glyphicon-menu-right'></span></td>
@@ -82,19 +96,21 @@
                     <table class='table table-striped' ng-switch-when="remark">
                         <thead>
                             <tr>
-                                <th style='width:3em'></th>
+                                <th class='hidden-xs' style='width:3em'></th>
+                                <th style='width:4em'></th>
                                 <th>评论内容</th>
                                 <th style='width:6em'>用户</th>
-                                <th style='width:3em'></th>
+                                <th style='width:4em'>赞同</th>
                                 <th style='width:2em'></th>
                             </tr>
                         </thead>
                         <tbody>
                             <tr ng-repeat="rem in remarks" ng-click="gotoRemark(rem.enroll_key,rem.schema_id,rem.id)">
-                                <td>{{(appState.page.at-1)*appState.page.size+$index+1}}</td>
+                                <td class='hidden-xs'>{{(appState.page.at-1)*appState.page.size+$index+1}}</td>
+                                <td><span>{{rem._agreed}}</span></td>
                                 <td><span>{{rem.content}}</span></td>
                                 <td><span>{{rem.nickname}}</span></td>
-                                <td class='text-right'><span>{{rem.like_num}}</span></td>
+                                <td><span>{{rem.like_num}}</span></td>
                                 <td><span class='glyphicon glyphicon-menu-right'></span></td>
                             </tr>
                         </tbody>
@@ -108,6 +124,7 @@
     <div class="loading">
         <div class='loading-indicator'><i></i></div>
     </div>
+    <script src="/static/js/xxt.ui.error.js"></script>
     <script src="/static/js/angular.min.js"></script>
     <script src="/static/js/angular-sanitize.min.js"></script>
     <script src="/static/js/ui-bootstrap-tpls.min.js"></script>

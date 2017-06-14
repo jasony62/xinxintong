@@ -82,8 +82,8 @@
                                 </button>
                             </div>
                             <div class='visible-xs'>
-                                <button class='btn btn-default btn-danger pull-right' ng-click='removeRecord(r)'>删除</button>
-                                <button uib-popover-template="'leadToLogin.html'" popover-placement="bottom-right" popover-trigger="show" class='btn btn-default btn-default' ng-click="switchToRecord($event,r)">修改</button>
+                                <button class='btn btn-danger' ng-click='removeRecord(r)'>删除</button>
+                                <button uib-popover-template="'leadToLogin.html'" popover-placement="bottom-right" popover-trigger="show" class='btn btn-default pull-right' ng-click="switchToRecord($event,r)">修改</button>
                             </div>
                         </td>
                     </tr>
@@ -132,7 +132,7 @@
         </nav>
     </div>
     <script type="text/ng-template" id="leadToLogin.html">
-        <div ">
+        <div>
             <span>请登录后进行此操作，<a href='' ng-click="switchToLogin($event) ">继续</a></span>
         </div>
     </script>

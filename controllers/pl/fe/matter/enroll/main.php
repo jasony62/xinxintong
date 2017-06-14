@@ -137,17 +137,48 @@ class main extends \pl\fe\matter\base {
 			$oNewApp->mission_id = $oMission->id;
 			$oNewApp->use_mission_header = 'Y';
 			$oNewApp->use_mission_footer = 'Y';
+			$oMisEntryRule = $oMission->entry_rule;
 		}
 		$appId = uniqid();
 		/* 使用指定模板 */
 		$config = $this->_getSysTemplate($scenario, $template);
-		/* 进入规则 */
-		$entryRule = $config->entryRule;
-		if (empty($entryRule)) {
-			return new \ResponseError('没有获得页面进入规则');
-		}
 		/* 添加页面 */
 		$this->_addPageByTemplate($oUser, $oSite, $oMission, $appId, $config, $customConfig);
+		/* 进入规则 */
+		$oEntryRule = $config->entryRule;
+		if (empty($oEntryRule)) {
+			return new \ResponseError('没有获得页面进入规则');
+		}
+		if (isset($oMisEntryRule)) {
+			if (isset($oMisEntryRule->scope) && $oMisEntryRule->scope !== 'none') {
+				$oEntryRule->scope = $oMisEntryRule->scope;
+				switch ($oEntryRule->scope) {
+				case 'member':
+					if (isset($oMisEntryRule->member)) {
+						$oEntryRule->member = $oMisEntryRule->member;
+						foreach ($oEntryRule->member as &$oRule) {
+							$oRule->entry = isset($oEntryRule->otherwise->entry) ? $oEntryRule->otherwise->entry : '';
+						}
+						$oEntryRule->other = new \stdClass;
+						$oEntryRule->other->entry = '$memberschema';
+					}
+					break;
+				case 'sns':
+					$oEntryRule->sns = new \stdClass;
+					if (isset($oMisEntryRule->sns)) {
+						foreach ($oMisEntryRule->sns as $snsName => $oRule) {
+							if (isset($oRule->entry) && $oRule->entry === 'Y') {
+								$oEntryRule->sns->{$snsName} = new \stdClass;
+								$oEntryRule->sns->{$snsName}->entry = isset($oEntryRule->otherwise->entry) ? $oEntryRule->otherwise->entry : '';
+							}
+						}
+						$oEntryRule->other = new \stdClass;
+						$oEntryRule->other->entry = '$mpfollow';
+					}
+					break;
+				}
+			}
+		}
 		/* 登记数量限制 */
 		if (isset($config->count_limit)) {
 			$oNewApp->count_limit = $config->count_limit;
@@ -164,18 +195,18 @@ class main extends \pl\fe\matter\base {
 		/* create app */
 		$oNewApp->id = $appId;
 		$oNewApp->siteid = $oSite->id;
-		$oNewApp->title = empty($customConfig->proto->title) ? '新登记活动' : $customConfig->proto->title;
+		$oNewApp->title = empty($customConfig->proto->title) ? '新登记活动' : $modelApp->escape($customConfig->proto->title);
 		$oNewApp->creater = $oUser->id;
 		$oNewApp->creater_src = $oUser->src;
-		$oNewApp->creater_name = $oUser->name;
+		$oNewApp->creater_name = $modelApp->escape($oUser->name);
 		$oNewApp->create_at = $current;
 		$oNewApp->modifier = $oUser->id;
 		$oNewApp->modifier_src = $oUser->src;
-		$oNewApp->modifier_name = $oUser->name;
+		$oNewApp->modifier_name = $modelApp->escape($oUser->name);
 		$oNewApp->modify_at = $current;
-		$oNewApp->entry_rule = json_encode($entryRule);
+		$oNewApp->entry_rule = json_encode($oEntryRule);
 		$oNewApp->can_siteuser = 'Y';
-		isset($config) && $oNewApp->data_schemas = \TMS_MODEL::toJson($config->schema);
+		isset($config) && $oNewApp->data_schemas = $modelApp->toJson($config->schema);
 
 		/*任务码*/
 		$entryUrl = $modelApp->getOpUrl($oSite->id, $appId);

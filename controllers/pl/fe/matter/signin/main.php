@@ -23,7 +23,7 @@ class main extends \pl\fe\matter\base {
 	 * 返回一个签到活动
 	 */
 	public function get_action($site, $id) {
-		if (false === ($user = $this->accountUser())) {
+		if (false === ($oUser = $this->accountUser())) {
 			return new \ResponseTimeout();
 		}
 
@@ -49,7 +49,7 @@ class main extends \pl\fe\matter\base {
 	 *
 	 */
 	public function list_action($site = null, $mission = null, $page = null, $size = null, $cascaded = '', $onlySns = 'N') {
-		if (false === ($user = $this->accountUser())) {
+		if (false === ($oUser = $this->accountUser())) {
 			return new \ResponseTimeout();
 		}
 
@@ -92,7 +92,7 @@ class main extends \pl\fe\matter\base {
 	 *
 	 */
 	public function listByEnroll_action($site, $enroll) {
-		if (false === ($user = $this->accountUser())) {
+		if (false === ($oUser = $this->accountUser())) {
 			return new \ResponseTimeout();
 		}
 
@@ -109,34 +109,9 @@ class main extends \pl\fe\matter\base {
 	 *
 	 */
 	public function create_action($site, $mission = null, $template = 'basic') {
-		if (false === ($user = $this->accountUser())) {
+		if (false === ($oUser = $this->accountUser())) {
 			return new \ResponseTimeout();
 		}
-		$newapp = [];
-		$current = time();
-		$appId = uniqid();
-		$modelApp = $this->model('matter\signin');
-		$modelApp->setOnlyWriteDbConn(true);
-
-		/* 从站点和项目中获得pic定义 */
-		$site = $this->model('site')->byId($site, ['fields' => 'id,heading_pic']);
-		if (!empty($mission)) {
-			$modelMis = $this->model('matter\mission');
-			$mission = $modelMis->byId($mission);
-			$newapp['summary'] = $mission->summary;
-			$newapp['pic'] = $mission->pic;
-			$newapp['mission_id'] = $mission->id;
-			$newapp['use_mission_header'] = 'Y';
-			$newapp['use_mission_footer'] = 'Y';
-		} else {
-			$newapp['summary'] = '';
-			$newapp['pic'] = $site->heading_pic;
-			$newapp['use_mission_header'] = 'N';
-			$newapp['use_mission_footer'] = 'N';
-		}
-		/* 用户指定的属性 */
-		$customConfig = $this->getPostJson();
-		$title = empty($customConfig->proto->title) ? '新签到活动' : $customConfig->proto->title;
 		/* 模板信息 */
 		$templateDir = TMS_APP_TEMPLATE . '/pl/fe/matter/signin/' . $template;
 		$templateConfig = file_get_contents($templateDir . '/config.json');
@@ -145,42 +120,107 @@ class main extends \pl\fe\matter\base {
 		if (JSON_ERROR_NONE !== json_last_error()) {
 			return new \ResponseError('解析模板数据错误：' . json_last_error_msg());
 		}
+
+		$modelApp = $this->model('matter\signin');
+		$modelApp->setOnlyWriteDbConn(true);
+		$oNewApp = new \stdClass;
+		$current = time();
+		$appId = uniqid();
+
+		/* 从站点和项目中获得pic定义 */
+		$oSite = $this->model('site')->byId($site, ['fields' => 'id,heading_pic']);
+		if (!empty($mission)) {
+			$modelMis = $this->model('matter\mission');
+			$oMission = $modelMis->byId($mission);
+			$oNewApp->summary = $oMission->summary;
+			$oNewApp->pic = $oMission->pic;
+			$oNewApp->mission_id = $oMission->id;
+			$oNewApp->use_mission_header = 'Y';
+			$oNewApp->use_mission_footer = 'Y';
+			$oMisEntryRule = $oMission->entry_rule;
+		} else {
+			$oNewApp->summary = '';
+			$oNewApp->pic = $oSite->heading_pic;
+			$oNewApp->use_mission_header = 'N';
+			$oNewApp->use_mission_footer = 'N';
+		}
+		/* 用户指定的属性 */
+		$customConfig = $this->getPostJson();
+		$title = empty($customConfig->proto->title) ? '新签到活动' : $modelApp->escape($customConfig->proto->title);
 		/* 登记数据 */
 		if (!empty($templateConfig->schema)) {
-			$newapp['data_schemas'] = \TMS_MODEL::toJson($templateConfig->schema);
+			$oNewApp->data_schemas = $modelApp->toJson($templateConfig->schema);
 		}
 		/* 进入规则 */
-		if (isset($templateConfig->entryRule)) {
-			$newapp['entry_rule'] = \TMS_MODEL::toJson($templateConfig->entryRule);
+		if (empty($templateConfig->entryRule)) {
+			return new \ResponseError('没有获得页面进入规则');
+		}
+		$oEntryRule = $templateConfig->entryRule;
+		if (isset($oMisEntryRule)) {
+			if (isset($oMisEntryRule->scope) && $oMisEntryRule->scope !== 'none') {
+				$oEntryRule->scope = $oMisEntryRule->scope;
+				switch ($oEntryRule->scope) {
+				case 'member':
+					if (isset($oMisEntryRule->member)) {
+						$oEntryRule->member = $oMisEntryRule->member;
+						foreach ($oEntryRule->member as &$oRule) {
+							$oRule->entry = isset($oEntryRule->otherwise->entry) ? $oEntryRule->otherwise->entry : '';
+						}
+						$oEntryRule->other = new \stdClass;
+						$oEntryRule->other->entry = '$memberschema';
+					}
+					break;
+				case 'sns':
+					$oEntryRule->sns = new \stdClass;
+					if (isset($oMisEntryRule->sns)) {
+						foreach ($oMisEntryRule->sns as $snsName => $oRule) {
+							if (isset($oRule->entry) && $oRule->entry === 'Y') {
+								$oEntryRule->sns->{$snsName} = new \stdClass;
+								$oEntryRule->sns->{$snsName}->entry = isset($oEntryRule->otherwise->entry) ? $oEntryRule->otherwise->entry : '';
+							}
+						}
+						$oEntryRule->other = new \stdClass;
+						$oEntryRule->other->entry = '$mpfollow';
+					}
+					break;
+				}
+			}
 		}
 		/*create app*/
-		$newapp['siteid'] = $site->id;
-		$newapp['id'] = $appId;
-		$newapp['title'] = $title;
-		$newapp['creater'] = $user->id;
-		$newapp['creater_src'] = $user->src;
-		$newapp['creater_name'] = $modelApp->escape($user->name);
-		$newapp['create_at'] = $current;
-		$newapp['modifier'] = $user->id;
-		$newapp['modifier_src'] = $user->src;
-		$newapp['modifier_name'] = $modelApp->escape($user->name);
-		$newapp['modify_at'] = $current;
-		$modelApp->insert('xxt_signin', $newapp, false);
-		$app = $modelApp->byId($appId, ['cascaded' => 'N']);
+		$oNewApp->siteid = $oSite->id;
+		$oNewApp->id = $appId;
+		$oNewApp->title = $title;
+		$oNewApp->creater = $oUser->id;
+		$oNewApp->creater_src = $oUser->src;
+		$oNewApp->creater_name = $modelApp->escape($oUser->name);
+		$oNewApp->create_at = $current;
+		$oNewApp->modifier = $oUser->id;
+		$oNewApp->modifier_src = $oUser->src;
+		$oNewApp->modifier_name = $modelApp->escape($oUser->name);
+		$oNewApp->modify_at = $current;
+		$oNewApp->entry_rule = $modelApp->toJson($oEntryRule);
 
-		/* 记录操作日志 */
-		$this->model('matter\log')->matterOp($site->id, $user, $app, 'C');
+		/*任务码*/
+		$entryUrl = $modelApp->getOpUrl($oSite->id, $appId);
+		$code = $this->model('q\url')->add($oUser, $oSite->id, $entryUrl, $oNewApp->title);
+		$oNewApp->op_short_url_code = $code;
+
+		$modelApp->insert('xxt_signin', $oNewApp, false);
+		$oNewApp->type = 'signin';
 
 		/* 记录和任务的关系 */
-		if ($app->mission_id) {
-			$modelMis->addMatter($user, $site->id, $mission->id, $app);
+		if (isset($oNewApp->mission_id)) {
+			$modelMis->addMatter($oUser, $oSite->id, $oMission->id, $oNewApp);
 		}
 		/* 创建缺省页面 */
-		$this->_addPageByTemplate($user, $site->id, $app, $templateConfig);
+		$this->_addPageByTemplate($oUser, $oSite->id, $oNewApp, $templateConfig);
 		/* 创建缺省轮次 */
-		$this->_addFirstRound($user, $site->id, $app);
+		$this->_addFirstRound($oUser, $oSite->id, $oNewApp);
 
-		return new \ResponseData($app);
+		/* 记录操作日志 */
+		$this->model('matter\log')->matterOp($oSite->id, $oUser, $oNewApp, 'C');
+
+		return new \ResponseData($oNewApp);
 	}
 	/**
 	 *
@@ -192,7 +232,7 @@ class main extends \pl\fe\matter\base {
 	 *
 	 */
 	public function copy_action($site, $app, $mission = null) {
-		if (false === ($user = $this->accountUser())) {
+		if (false === ($oUser = $this->accountUser())) {
 			return new \ResponseTimeout();
 		}
 
@@ -206,34 +246,34 @@ class main extends \pl\fe\matter\base {
 		 * 获得的基本信息
 		 */
 		$newaid = uniqid();
-		$newapp = [];
-		$newapp['siteid'] = $site;
-		$newapp['id'] = $newaid;
-		$newapp['creater'] = $user->id;
-		$newapp['creater_src'] = $user->src;
-		$newapp['creater_name'] = $user->name;
-		$newapp['create_at'] = $current;
-		$newapp['modifier'] = $user->id;
-		$newapp['modifier_src'] = $user->src;
-		$newapp['modifier_name'] = $user->name;
-		$newapp['modify_at'] = $current;
-		$newapp['title'] = $copied->title . '（副本）';
-		$newapp['pic'] = $copied->pic;
-		$newapp['summary'] = $modelApp->escape($copied->summary);
-		$newapp['data_schemas'] = $modelApp->escape($copied->data_schemas);
-		$newapp['entry_rule'] = json_encode($copied->entry_rule);
+		$oNewApp = [];
+		$oNewApp['siteid'] = $site;
+		$oNewApp['id'] = $newaid;
+		$oNewApp['creater'] = $oUser->id;
+		$oNewApp['creater_src'] = $oUser->src;
+		$oNewApp['creater_name'] = $modelApp->escape($oUser->name);
+		$oNewApp['create_at'] = $current;
+		$oNewApp['modifier'] = $oUser->id;
+		$oNewApp['modifier_src'] = $oUser->src;
+		$oNewApp['modifier_name'] = $modelApp->escape($oUser->name);
+		$oNewApp['modify_at'] = $current;
+		$oNewApp['title'] = $modelApp->escape($copied->title) . '（副本）';
+		$oNewApp['pic'] = $copied->pic;
+		$oNewApp['summary'] = $modelApp->escape($copied->summary);
+		$oNewApp['data_schemas'] = $modelApp->escape($copied->data_schemas);
+		$oNewApp['entry_rule'] = json_encode($copied->entry_rule);
 		if (!empty($mission)) {
-			$newapp['mission_id'] = $mission;
+			$oNewApp['mission_id'] = $mission;
 		}
 
-		$modelApp->insert('xxt_signin', $newapp, false);
+		$modelApp->insert('xxt_signin', $oNewApp, false);
 		/**
 		 * 复制自定义页面
 		 */
 		if (count($copied->pages)) {
 			$modelPage = $this->model('matter\signin\page');
 			foreach ($copied->pages as $ep) {
-				$newPage = $modelPage->add($user, $site, $newaid);
+				$newPage = $modelPage->add($oUser, $site, $newaid);
 				$rst = $modelPage->update(
 					'xxt_signin_page',
 					[
@@ -260,12 +300,12 @@ class main extends \pl\fe\matter\base {
 
 		/* 记录操作日志 */
 		$app->type = 'signin';
-		$this->model('matter\log')->matterOp($site, $user, $app, 'C');
+		$this->model('matter\log')->matterOp($site, $oUser, $app, 'C');
 
 		/* 记录和任务的关系 */
 		if (isset($mission)) {
 			$modelMis = $this->model('matter\mission');
-			$modelMis->addMatter($user, $site, $mission, $app);
+			$modelMis->addMatter($oUser, $site, $mission, $app);
 		}
 
 		return new \ResponseData($app);
@@ -278,7 +318,7 @@ class main extends \pl\fe\matter\base {
 	 *
 	 */
 	public function update_action($site, $app) {
-		if (false === ($user = $this->accountUser())) {
+		if (false === ($oUser = $this->accountUser())) {
 			return new \ResponseTimeout();
 		}
 
@@ -295,9 +335,9 @@ class main extends \pl\fe\matter\base {
 				$nv->{$n} = $modelApp->escape($v);
 			}
 		}
-		$nv->modifier = $user->id;
-		$nv->modifier_src = $user->src;
-		$nv->modifier_name = $user->name;
+		$nv->modifier = $oUser->id;
+		$nv->modifier_src = $oUser->src;
+		$nv->modifier_name = $oUser->name;
 		$nv->modify_at = time();
 
 		if ($rst = $modelApp->update('xxt_signin', $nv, ["id" => $app])) {
@@ -305,7 +345,7 @@ class main extends \pl\fe\matter\base {
 			isset($nv->title) && $matter->title = $nv->title;
 			isset($nv->summary) && $matter->summary = $nv->summary;
 			isset($nv->pic) && $matter->pic = $nv->pic;
-			$this->model('matter\log')->matterOp($site, $user, $matter, 'U');
+			$this->model('matter\log')->matterOp($site, $oUser, $matter, 'U');
 		}
 
 		return new \ResponseData($rst);
@@ -317,7 +357,7 @@ class main extends \pl\fe\matter\base {
 	 * @param string $scenario scenario's name
 	 * @param string $template template's name
 	 */
-	private function &_addPageByTemplate(&$user, $siteId, &$app, &$templateConfig) {
+	private function &_addPageByTemplate(&$oUser, $siteId, &$app, &$templateConfig) {
 		$pages = $templateConfig->pages;
 		if (empty($pages)) {
 			return false;
@@ -327,7 +367,7 @@ class main extends \pl\fe\matter\base {
 		$modelPage = $this->model('matter\signin\page');
 		$modelCode = $this->model('code\page');
 		foreach ($pages as $page) {
-			$ap = $modelPage->add($user, $siteId, $app->id, $page);
+			$ap = $modelPage->add($oUser, $siteId, $app->id, $page);
 			$data = [
 				'html' => file_get_contents($templateDir . '/' . $page->name . '.html'),
 				'css' => file_get_contents($templateDir . '/' . $page->name . '.css'),
@@ -352,7 +392,7 @@ class main extends \pl\fe\matter\base {
 	 *
 	 * @param string $app
 	 */
-	private function &_addFirstRound(&$user, $siteId, &$app) {
+	private function &_addFirstRound(&$oUser, $siteId, &$app) {
 		$modelRnd = $this->model('matter\signin\round');
 
 		$roundId = uniqid();
@@ -360,7 +400,7 @@ class main extends \pl\fe\matter\base {
 			'siteid' => $siteId,
 			'aid' => $app->id,
 			'rid' => $roundId,
-			'creater' => $user->id,
+			'creater' => $oUser->id,
 			'create_at' => time(),
 			'title' => '第1轮',
 			'state' => 1,
@@ -381,7 +421,7 @@ class main extends \pl\fe\matter\base {
 	 *
 	 */
 	public function wxQrcode_action($site, $app, $round = null) {
-		if (false === ($user = $this->accountUser())) {
+		if (false === ($oUser = $this->accountUser())) {
 			return new \ResponseTimeout();
 		}
 
@@ -406,7 +446,7 @@ class main extends \pl\fe\matter\base {
 	 *
 	 */
 	public function yxQrcode_action($site, $app) {
-		if (false === ($user = $this->accountUser())) {
+		if (false === ($oUser = $this->accountUser())) {
 			return new \ResponseTimeout();
 		}
 
@@ -423,7 +463,7 @@ class main extends \pl\fe\matter\base {
 	 *
 	 */
 	public function entryRuleReset_action($site, $app) {
-		if (false === ($user = $this->accountUser())) {
+		if (false === ($oUser = $this->accountUser())) {
 			return new \ResponseTimeout();
 		}
 
@@ -432,9 +472,9 @@ class main extends \pl\fe\matter\base {
 		$entryRule = $this->_defaultEntryRule($site, $app);
 		// 更新数据
 		$nv['entry_rule'] = $model->toJson($entryRule);
-		$nv['modifier'] = $user->id;
-		$nv['modifier_src'] = $user->src;
-		$nv['modifier_name'] = $user->name;
+		$nv['modifier'] = $oUser->id;
+		$nv['modifier_src'] = $oUser->src;
+		$nv['modifier_name'] = $oUser->name;
 		$nv['modify_at'] = time();
 
 		$rst = $model->update('xxt_signin', $nv, "id='$app'");
@@ -442,7 +482,7 @@ class main extends \pl\fe\matter\base {
 		//记录操作日志
 		if ($rst) {
 			$matter = $this->model('matter\signin')->byId($app, 'id,title,summary,pic');
-			$this->model('matter\log')->matterOp($site, $user, $matter, 'U');
+			$this->model('matter\log')->matterOp($site, $oUser, $matter, 'U');
 		}
 
 		return new \ResponseData($entryRule);
@@ -493,13 +533,13 @@ class main extends \pl\fe\matter\base {
 	 * @param string $app
 	 */
 	public function remove_action($site, $app) {
-		if (false === ($user = $this->accountUser())) {
+		if (false === ($oUser = $this->accountUser())) {
 			return new \ResponseTimeout();
 		}
 		/*在删除数据前获得数据*/
 		$modelSig = $this->model('matter\signin');
 		$app = $modelSig->byId($app, ['fields' => 'id,title,summary,pic,mission_id,creater', 'cascaded' => 'N']);
-		if ($app->creater !== $user->id) {
+		if ($app->creater !== $oUser->id) {
 			return new \ResponseError('没有删除数据的权限');
 		}
 		/*删除和任务的关联*/
@@ -519,7 +559,7 @@ class main extends \pl\fe\matter\base {
 				["id" => $app->id]
 			);
 			/*记录操作日志*/
-			$this->model('matter\log')->matterOp($site, $user, $app, 'Recycle');
+			$this->model('matter\log')->matterOp($site, $oUser, $app, 'Recycle');
 		} else {
 			$modelSig->delete(
 				'xxt_signin_log',
@@ -542,7 +582,7 @@ class main extends \pl\fe\matter\base {
 				["id" => $app->id]
 			);
 			/*记录操作日志*/
-			$this->model('matter\log')->matterOp($site, $user, $app, 'D');
+			$this->model('matter\log')->matterOp($site, $oUser, $app, 'D');
 		}
 
 		return new \ResponseData($rst);
@@ -551,7 +591,7 @@ class main extends \pl\fe\matter\base {
 	 * 恢复被删除的分组活动
 	 */
 	public function restore_action($site, $id) {
-		if (false === ($user = $this->accountUser())) {
+		if (false === ($oUser = $this->accountUser())) {
 			return new \ResponseTimeout();
 		}
 
@@ -561,7 +601,7 @@ class main extends \pl\fe\matter\base {
 		}
 		if ($app->mission_id) {
 			$modelMis = $this->model('matter\mission');
-			$modelMis->addMatter($user, $site, $app->mission_id, $app);
+			$modelMis->addMatter($oUser, $site, $app->mission_id, $app);
 		}
 
 		/* 恢复数据 */
@@ -572,7 +612,7 @@ class main extends \pl\fe\matter\base {
 		);
 
 		/* 记录操作日志 */
-		$this->model('matter\log')->matterOp($site, $user, $app, 'Restore');
+		$this->model('matter\log')->matterOp($site, $oUser, $app, 'Restore');
 
 		return new \ResponseData($rst);
 	}
@@ -580,7 +620,7 @@ class main extends \pl\fe\matter\base {
 	 * 登记情况汇总信息
 	 */
 	public function opData_action($site, $app) {
-		if (false === ($user = $this->accountUser())) {
+		if (false === ($oUser = $this->accountUser())) {
 			return new \ResponseTimeout();
 		}
 

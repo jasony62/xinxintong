@@ -1,4 +1,5 @@
 'use strict';
+require('../../../../../../asset/js/xxt.ui.share.js');
 if (/MicroMessenger/i.test(navigator.userAgent) && window.signPackage && window.wx) {
     window.wx.ready(function() {
         window.wx.showOptionMenu();
@@ -16,7 +17,6 @@ require('../../../../../../asset/js/xxt.ui.page.js');
 require('../../../../../../asset/js/xxt.ui.siteuser.js');
 require('../../../../../../asset/js/xxt.ui.favor.js');
 require('../../../../../../asset/js/xxt.ui.coinpay.js');
-require('../../../../../../asset/js/xxt.ui.share.js');
 
 require('./directive.js');
 
@@ -221,8 +221,11 @@ ngApp.controller('ctrlMain', ['$scope', '$http', '$timeout', 'ls', 'tmsDynaPage'
         if (oPage && oPage.share_page && oPage.share_page === 'Y') {
             sharelink += '&page=' + oPage.name;
             params.record && (sharelink += '&ek=' + params.record.enroll_key);
-            if (window.history && window.history.replaceState) {
-                window.history.replaceState({}, oApp.title, sharelink);
+            if (!(/iphone|ipad/i.test(navigator.userAgent))) {
+                /*ios下操作无效，且导致微信jssdk失败*/
+                if (window.history && window.history.replaceState) {
+                    window.history.replaceState({}, oApp.title, sharelink);
+                }
             }
         }
         /* 设置分享 */

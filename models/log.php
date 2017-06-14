@@ -61,23 +61,42 @@ class log_model extends TMS_MODEL {
 	}
 	/**
 	 * 是否已经接收过消息
+	 *
+	 * @param array $msg
+	 * @param int $interval 两条消息的时间间隔
 	 */
-	public function hasReceived($msg) {
+	public function hasReceived($msg, $interval = 60) {
 		$mpid = isset($msg['mpid']) ? $msg['mpid'] : $msg['siteid'];
 		$msgid = $msg['msgid'];
 		/**
 		 * 没有消息ID就认为没收到过
 		 */
 		if (empty($msgid)) {
-			return false;
+			$current = time() - $interval;
+			$openid = $msg['from_user'];
+			if (is_array($msg['data'])) {
+				$data = array();
+				foreach ($msg['data'] as $d) {
+					$data[] = urlencode($d);
+				}
+				$logData = $this->escape(urldecode(json_encode($data)));
+			} else {
+				$logData = $this->escape($msg['data']);
+			}
+			$q = [
+				'count(*)',
+				'xxt_log_mpreceive',
+				"mpid='$mpid' and openid='$openid' and data='$logData' and create_at>$current",
+			];
+			$cnt = (int) $this->query_val_ss($q);
+		} else {
+			$q = [
+				'count(*)',
+				'xxt_log_mpreceive',
+				"mpid='$mpid' and msgid='$msgid'",
+			];
+			$cnt = (int) $this->query_val_ss($q);
 		}
-
-		$q = [
-			'count(*)',
-			'xxt_log_mpreceive',
-			"mpid='$mpid' and msgid='$msgid'",
-		];
-		$cnt = (int) $this->query_val_ss($q);
 
 		return $cnt !== 0;
 	}

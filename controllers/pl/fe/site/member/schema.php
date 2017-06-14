@@ -22,7 +22,27 @@ class schema extends \pl\fe\base {
 	 * @param int $mission_id 逗号分隔的项目id，团队通讯录的项目id为0，“0,123”代表团队通讯录和项目123的通讯录
 	 *
 	 */
+	public function get_action($mschema) {
+		if (false === ($oUser = $this->accountUser())) {
+			return new \ResponseTimeout();
+		}
+		$modelSchema = $this->model('site\user\memberschema');
+
+		$schema = $modelSchema->byId($mschema);
+
+		return new \ResponseData($schema);
+	}
+	/**
+	 * 获得通讯录定义
+	 *
+	 * @param string $valid
+	 * @param int $mission_id 逗号分隔的项目id，团队通讯录的项目id为0，“0,123”代表团队通讯录和项目123的通讯录
+	 *
+	 */
 	public function list_action($valid = null, $mission = 0) {
+		if (false === ($oUser = $this->accountUser())) {
+			return new \ResponseTimeout();
+		}
 		$modelSchema = $this->model('site\user\memberschema');
 
 		$options = [];

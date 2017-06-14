@@ -62,7 +62,7 @@ class record extends \pl\fe\matter\base {
 
 		// 查询结果
 		$mdoelRec = $this->model('matter\enroll\record');
-		$result = $mdoelRec->find($oEnrollApp, $options, $criteria);
+		$result = $mdoelRec->byApp($oEnrollApp, $options, $criteria);
 		if (!empty($result->records)) {
 			$remarkables = [];
 			foreach ($oEnrollApp->dataSchemas as $oSchema) {
@@ -630,7 +630,7 @@ class record extends \pl\fe\matter\base {
 		$criteria->record = new \stdClass;
 		$criteria->record->rid = new \stdClass;
 		$criteria->record->rid = $rid;
-		$records = $modelRec2->find($oApp, null, $criteria);
+		$records = $modelRec2->byApp($oApp, null, $criteria);
 		if ($records->total === 0) {
 			die('record empty');
 		}
@@ -878,7 +878,7 @@ class record extends \pl\fe\matter\base {
 		}
 
 		// 获得所有有效的登记记录
-		$records = $this->model('matter\enroll\record')->find($enrollApp);
+		$records = $this->model('matter\enroll\record')->byApp($enrollApp);
 		if ($records->total === 0) {
 			die('record empty');
 		}
@@ -982,7 +982,7 @@ class record extends \pl\fe\matter\base {
 			return new \ResponseData('没有匹配的数据项');
 		}
 		/* 获得数据 */
-		$records = $modelRec->find($fromApp);
+		$records = $modelRec->byApp($fromApp);
 		$countOfImport = 0;
 		if ($records->total > 0) {
 			foreach ($records->records as $record) {

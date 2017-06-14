@@ -275,7 +275,7 @@ class enroll_model extends app_base {
 	 * @param object $oUser [uid,nickname]
 	 */
 	public function getUserNickname(&$oApp, $oUser) {
-		if (isset($oUser->uid)) {
+		if (empty($oUser->uid)) {
 			return '';
 		}
 		$nickname = '';

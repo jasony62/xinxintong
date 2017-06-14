@@ -720,7 +720,7 @@ class record extends \pl\fe\matter\base {
 					if (isset($v0)) {
 						isset($score->{$schema->id}) && ($v0 .= ' (' . $score->{$schema->id} . '分)');
 						if (isset($schema->supplement) && $schema->supplement === 'Y') {
-							$v0 .= " (补充说明：" . $supplement->{$schema->id} . ")";
+							$v0 .= " (补充说明：" . isset($supplement->{$schema->id}) ? $supplement->{$schema->id} : '' . ")";
 						}
 						$objActiveSheet->setCellValueExplicitByColumnAndRow($i + $columnNum3++, $rowIndex, $v0, \PHPExcel_Cell_DataType::TYPE_STRING);
 					}
@@ -750,7 +750,7 @@ class record extends \pl\fe\matter\base {
 					$cellValue = implode(',', $labels);
 					isset($score->{$schema->id}) && $cellValue .= ' (' . $score->{$schema->id} . '分)';
 					if (isset($schema->supplement) && $schema->supplement === 'Y') {
-						$cellValue .= " (补充说明：" . $supplement->{$schema->id} . ")";
+						$cellValue .= " (补充说明：" . isset($supplement->{$schema->id}) ? $supplement->{$schema->id} : '' . ")";
 					}
 					$objActiveSheet->setCellValueByColumnAndRow($i + $columnNum3++, $rowIndex, $cellValue);
 					break;
@@ -766,14 +766,14 @@ class record extends \pl\fe\matter\base {
 				case 'image':
 					$v0 = '';
 					if (isset($schema->supplement) && $schema->supplement === 'Y') {
-						$v0 .= " (补充说明：" . $supplement->{$schema->id} . ")";
+						$v0 .= " (补充说明：" . isset($supplement->{$schema->id}) ? $supplement->{$schema->id} : '' . ")";
 					}
 					$objActiveSheet->setCellValueExplicitByColumnAndRow($i + $columnNum3++, $rowIndex, $v0, \PHPExcel_Cell_DataType::TYPE_STRING);
 					break;
 				case 'file':
 					$v0 = '';
 					if (isset($schema->supplement) && $schema->supplement === 'Y') {
-						$v0 .= " (补充说明：" . $supplement->{$schema->id} . ")";
+						$v0 .= " (补充说明：" . isset($supplement->{$schema->id}) ? $supplement->{$schema->id} : '' . ")";
 					}
 					$objActiveSheet->setCellValueExplicitByColumnAndRow($i + $columnNum3++, $rowIndex, $v0, \PHPExcel_Cell_DataType::TYPE_STRING);
 					break;

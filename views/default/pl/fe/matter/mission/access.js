@@ -17,17 +17,20 @@ define(['frame'], function(ngApp) {
             this.update('entry_rule');
         };
         $scope.chooseMschema = function() {
-            srvSite.chooseMschema().then(function(result) {
-                var rule = {};
-                if (!oEntryRule.member[result.chosen.id]) {
-                    rule.entry = '';
-                    oEntryRule.member[result.chosen.id] = rule;
-                    $scope.update('entry_rule');
+            srvSite.chooseMschema($scope.mission).then(function(result) {
+                var chosen;
+                if (result && result.chosen) {
+                    chosen = result.chosen;
+                    $scope.mschemasById[chosen.id] = chosen;
+                    if (!oEntryRule.member[chosen.id]) {
+                        oEntryRule.member[chosen.id] = { entry: '' };
+                        $scope.update('entry_rule');
+                    }
                 }
             });
         };
         $scope.editMschema = function(mschemaId) {
-            location.href = '/rest/pl/fe?view=main&scope=user&sid=' + $scope.app.siteid + '&mschema=' + mschemaId;
+            location.href = '/rest/pl/fe?view=main&scope=user&sid=' + $scope.mission.siteid + '&mschema=' + mschemaId;
         };
         $scope.removeMschema = function(mschemaId) {
             if (oEntryRule.member[mschemaId]) {
@@ -38,16 +41,16 @@ define(['frame'], function(ngApp) {
         srvSite.snsList().then(function(aSns) {
             $scope.sns = aSns;
         });
-        srvSite.memberSchemaList().then(function(aMemberSchemas) {
-            $scope.memberSchemas = aMemberSchemas;
-            $scope.mschemasById = {};
-            $scope.memberSchemas.forEach(function(mschema) {
-                $scope.mschemasById[mschema.id] = mschema;
+        $scope.$watch('mission', function(oMission) {
+            if (!oMission) return;
+            $scope.rule = oEntryRule = oMission.entry_rule;
+            srvSite.memberSchemaList(oMission).then(function(aMemberSchemas) {
+                $scope.memberSchemas = aMemberSchemas;
+                $scope.mschemasById = {};
+                $scope.memberSchemas.forEach(function(mschema) {
+                    $scope.mschemasById[mschema.id] = mschema;
+                });
             });
-        });
-        $scope.$watch('mission', function(mission) {
-            if (!mission) return;
-            $scope.rule = oEntryRule = mission.entry_rule;
         });
     }]);
 });

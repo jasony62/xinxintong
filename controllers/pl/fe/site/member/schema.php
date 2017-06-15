@@ -16,25 +16,46 @@ class schema extends \pl\fe\base {
 		$this->siteId = $siteId;
 	}
 	/**
-	 * 获得定义的认证接口
+	 * 获得通讯录定义
 	 *
-	 * 返回当前公众号和它的父账号的
+	 * @param string $valid
+	 * @param int $mission_id 逗号分隔的项目id，团队通讯录的项目id为0，“0,123”代表团队通讯录和项目123的通讯录
 	 *
-	 * $own
-	 * $valid
-	 * $cascaded
 	 */
-	public function list_action($valid = null) {
+	public function get_action($mschema) {
+		if (false === ($oUser = $this->accountUser())) {
+			return new \ResponseTimeout();
+		}
 		$modelSchema = $this->model('site\user\memberschema');
 
-		$schemas = $modelSchema->bySite($this->siteId, $valid);
+		$schema = $modelSchema->byId($mschema);
+
+		return new \ResponseData($schema);
+	}
+	/**
+	 * 获得通讯录定义
+	 *
+	 * @param string $valid
+	 * @param int $mission_id 逗号分隔的项目id，团队通讯录的项目id为0，“0,123”代表团队通讯录和项目123的通讯录
+	 *
+	 */
+	public function list_action($valid = null, $mission = 0) {
+		if (false === ($oUser = $this->accountUser())) {
+			return new \ResponseTimeout();
+		}
+		$modelSchema = $this->model('site\user\memberschema');
+
+		$options = [];
+		$options['mission'] = $mission;
+
+		$schemas = $modelSchema->bySite($this->siteId, $valid, $options);
 
 		return new \ResponseData($schemas);
 	}
 	/**
 	 *
 	 */
-	public function update_action($type, $id = null) {
+	public function update_action($id = null) {
 		if (false === ($oUser = $this->accountUser())) {
 			return new \ResponseTimeout();
 		}
@@ -112,6 +133,7 @@ class schema extends \pl\fe\base {
 		$oCode = $this->_pageCreate($oUser);
 		$oNewMschema = new \stdClass;
 		$oNewMschema->siteid = $this->siteId;
+		$oNewMschema->mission_id = isset($oConfig->mission_id) ? $oConfig->mission_id : 0;
 		$oNewMschema->title = isset($oConfig->title) ? $oConfig->title : '新通讯录';
 		$oNewMschema->type = 'inner';
 		$oNewMschema->valid = (isset($oConfig->valid) && $oConfig->valid === 'Y') ? 'Y' : 'N';
@@ -159,7 +181,7 @@ class schema extends \pl\fe\base {
 	 * 只有没有被使用的自定义接口才允许被删除
 	 */
 	public function delete_action($id) {
-		if (false === ($user = $this->accountUser())) {
+		if (false === ($oUser = $this->accountUser())) {
 			return new \ResponseTimeout();
 		}
 		$rst = $this->model()->delete('xxt_site_member_schema', "siteid='$this->siteId' and id='$id' and used=0");
@@ -172,7 +194,7 @@ class schema extends \pl\fe\base {
 	 * @param int $codeId
 	 */
 	public function pageReset_action($site, $name, $template = 'basic') {
-		if (false === ($user = $this->accountUser())) {
+		if (false === ($oUser = $this->accountUser())) {
 			return new \ResponseTimeout();
 		}
 
@@ -330,17 +352,17 @@ class schema extends \pl\fe\base {
 			if ($result[0] === false) {
 				return new \ResponseError($result[1]);
 			}
-			$users = $result[1]->userlist;
-			foreach ($users as $user) {
+			$oUsers = $result[1]->userlist;
+			foreach ($oUsers as $oUser) {
 				$q = array(
 					'sync_at',
 					'xxt_site_qyfan',
-					"siteid='$site' and openid='$user->userid'",
+					"siteid='$site' and openid='$oUser->userid'",
 				);
 				if (!($luser = $modelDept->query_obj_ss($q))) {
-					$fan->createQyFan($site, $user, $authid, $timestamp, $mapDeptR2L);
+					$fan->createQyFan($site, $oUser, $authid, $timestamp, $mapDeptR2L);
 				} else if ($luser->sync_at < $timestamp) {
-					$fan->updateQyFan($site, $luser, $user, $authid, $timestamp, $mapDeptR2L);
+					$fan->updateQyFan($site, $luser, $oUser, $authid, $timestamp, $mapDeptR2L);
 				}
 			}
 		}
@@ -395,11 +417,11 @@ class schema extends \pl\fe\base {
 				return new \ResponseError($result[1]);
 			}
 			$tagUsers = $result[1]->userlist;
-			foreach ($tagUsers as $user) {
+			foreach ($tagUsers as $oUser) {
 				$q = array(
 					'sync_at,tags',
 					'xxt_site_qyfan',
-					"siteid='$site' and openid='$user->userid'",
+					"siteid='$site' and openid='$oUser->userid'",
 				);
 				if ($fans = $modelDept->query_obj_ss($q)) {
 					if (empty($fans->tags)) {
@@ -410,7 +432,7 @@ class schema extends \pl\fe\base {
 					$modelDept->update(
 						'xxt_site_qyfan',
 						array('tags' => $fans->tags),
-						"siteid='$site' and openid='$user->userid'"
+						"siteid='$site' and openid='$oUser->userid'"
 					);
 				}
 			}
@@ -425,7 +447,7 @@ class schema extends \pl\fe\base {
 
 		$rst = array(
 			isset($rdepts) ? count($rdepts) : 0,
-			isset($users) ? count($users) : 0,
+			isset($oUsers) ? count($oUsers) : 0,
 			isset($tags) ? count($tags) : 0,
 			$timestamp,
 		);
@@ -472,7 +494,7 @@ class schema extends \pl\fe\base {
 	 *
 	 */
 	public function wxQrcode_action($site, $mschema) {
-		if (false === ($user = $this->accountUser())) {
+		if (false === ($oUser = $this->accountUser())) {
 			return new \ResponseTimeout();
 		}
 

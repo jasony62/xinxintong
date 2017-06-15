@@ -105,12 +105,20 @@ provider('srvSite', function() {
                 }
                 return defer.promise;
             },
-            memberSchemaList: function() {
-                var defer = $q.defer();
+            memberSchemaList: function(oMission, onlyMission) {
+                var url, defer = $q.defer();
                 if (_aMemberSchemas) {
                     defer.resolve(_aMemberSchemas);
                 } else {
-                    http2.get('/rest/pl/fe/site/member/schema/list?valid=Y&site=' + _siteId, function(rsp) {
+                    url = '/rest/pl/fe/site/member/schema/list?valid=Y&site=' + _siteId;
+                    if (oMission && oMission.id) {
+                        if (onlyMission) {
+                            url += '&mission=' + oMission.id;
+                        } else {
+                            url += '&mission=0,' + oMission.id;
+                        }
+                    }
+                    http2.get(url, function(rsp) {
                         _aMemberSchemas = rsp.data;
                         _aMemberSchemas.forEach(function(ms) {
                             var schemas = [];
@@ -151,13 +159,13 @@ provider('srvSite', function() {
                 }
                 return defer.promise;
             },
-            chooseMschema: function() {
+            chooseMschema: function(oMission) {
                 var _this = this;
                 return $uibModal.open({
                     templateUrl: '/views/default/pl/fe/_module/chooseMschema.html?_=1',
                     resolve: {
                         mschemas: function() {
-                            return _this.memberSchemaList();
+                            return _this.memberSchemaList(oMission);
                         }
                     },
                     controller: ['$scope', '$uibModalInstance', 'mschemas', function($scope2, $mi, mschemas) {
@@ -167,9 +175,16 @@ provider('srvSite', function() {
                             $scope2.data.chosen = mschemas[0];
                         }
                         $scope2.create = function() {
-                            var url;
+                            var url, proto;
                             url = '/rest/pl/fe/site/member/schema/create?site=' + _siteId;
-                            http2.post(url, { valid: 'Y' }, function(rsp) {
+                            proto = { valid: 'Y' };
+                            if (oMission && oMission.id) {
+                                proto.mission_id = oMission.id;
+                                if (oMission.title) {
+                                    proto.title = oMission.title + '-' + '通讯录';
+                                }
+                            }
+                            http2.post(url, proto, function(rsp) {
                                 mschemas.push(rsp.data);
                                 $scope2.data.chosen = rsp.data;
                             });

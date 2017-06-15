@@ -22,13 +22,17 @@ class notice extends \pl\fe\matter\base {
 	 *
 	 */
 	public function send_action($site, $app, $tmplmsg, $rid = null) {
-		if (false === ($user = $this->accountUser())) {
+		if (false === ($oUser = $this->accountUser())) {
 			return new \ResponseTimeout();
+		}
+
+		$oApp = $this->model('matter\enroll')->byId($app, ['cascaded' => 'N']);
+		if (false === $oApp) {
+			return new \ObjectNotFountError();
 		}
 
 		$modelRec = $this->model('matter\enroll\record');
 		$site = $modelRec->escape($site);
-		$app = $modelRec->escape($app);
 		$posted = $this->getPostJson();
 		$params = $posted->message;
 
@@ -38,40 +42,40 @@ class notice extends \pl\fe\matter\base {
 			$options = [
 				'rid' => $rid,
 			];
-			$participants = $modelRec->participants($site, $app, $options, $criteria);
+			$enrollers = $modelRec->enrollerByApp($oApp, $options, $criteria);
 		} else if (isset($posted->users)) {
 			// 直接指定
-			$participants = $posted->users;
+			$enrollers = $posted->users;
 		}
 
-		if (count($participants)) {
-			$rst = $this->notifyWithMatter($site, $app, $participants, $tmplmsg, $params);
+		if (count($enrollers)) {
+			$rst = $this->notifyWithMatter($oApp, $enrollers, $tmplmsg, $params);
 			if ($rst[0] === false) {
 				return new \ResponseError($rst[1]);
 			}
 		}
 
-		return new \ResponseData($participants);
+		return new \ResponseData($enrollers);
 	}
 	/**
 	 * 给用户发送素材
 	 */
-	protected function notifyWithMatter($siteId, $appId, &$users, $tmplmsgId, &$params) {
-		if (count($users)) {
+	protected function notifyWithMatter(&$oApp, &$oUsers, $tmplmsgId, &$params) {
+		if (count($oUsers)) {
 			$receivers = [];
-			foreach ($users as $user) {
+			foreach ($oUsers as $oUser) {
 				$receiver = new \stdClass;
-				$receiver->assoc_with = $user->enroll_key;
-				$receiver->userid = $user->userid;
+				$receiver->assoc_with = $oUser->enroll_key;
+				$receiver->userid = $oUser->userid;
 				$receivers[] = $receiver;
 			}
-			$user = $this->accountUser();
+			$oUser = $this->accountUser();
 			$modelTmplBat = $this->model('matter\tmplmsg\batch');
 			$creater = new \stdClass;
-			$creater->uid = $user->id;
-			$creater->name = $user->name;
+			$creater->uid = $oUser->id;
+			$creater->name = $oUser->name;
 			$creater->src = 'pl';
-			$modelTmplBat->send($siteId, $tmplmsgId, $creater, $receivers, $params, ['send_from' => 'enroll:' . $appId]);
+			$modelTmplBat->send($oApp->siteid, $tmplmsgId, $creater, $receivers, $params, ['send_from' => 'enroll:' . $oApp->id]);
 		}
 
 		return array(true);
@@ -82,7 +86,7 @@ class notice extends \pl\fe\matter\base {
 	 * @param int $batch 通知批次id
 	 */
 	public function logList_action($batch) {
-		if (false === ($user = $this->accountUser())) {
+		if (false === ($oUser = $this->accountUser())) {
 			return new \ResponseTimeout();
 		}
 

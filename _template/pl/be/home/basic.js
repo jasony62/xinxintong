@@ -78,7 +78,7 @@ ngApp.provider.controller('ctrlHome', ['$scope', '$http', '$uibModal', 'tmsFavor
         }
     }
     $scope.listChannels = function() {
-        $scope.channelArticles = [], _titles = [], _urls = [], _datas = [];
+        $scope.channelArticles = [];
         $http.get('/rest/home/listChannel').success(function(rsp) {
             $scope.channels = rsp.data.matters;
             $scope.channels.forEach(function(item) {
@@ -87,14 +87,9 @@ ngApp.provider.controller('ctrlHome', ['$scope', '$http', '$uibModal', 'tmsFavor
                 url += '?site=' + item.siteid + '&id=' + item.matter_id;
                 url += '&page=1&size=5';
                 $http.get(url).success(function(rsp) {
-                    /*$scope.channelArticles.push({ title: item.title, url: item.url, data: rsp.data });*/
-                    _titles.push(item.title);
-                    _urls.push(item.url);
-                    _datas.push(rsp.data);
-                    $scope.channelArticles.push(_titles,_urls,_datas)
+                    $scope.channelArticles.push({title: item.title,url: item.url,data:rsp.data});
                 });
             });
-            console.log($scope.channelArticles);
         });
     };
     $http.get('/rest/home/listMatterTop?type=article&page=1&size=3').success(function(rsp) {

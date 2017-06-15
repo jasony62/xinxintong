@@ -14,7 +14,7 @@
     <div class='row'>
         <div class="col-md-12 col-xs-12">
             <div class="col-md-3 col-xs-12 bgfa">
-                <div class="mainSide" ng-repeat="c in channelArticles">
+                <div class="mainSide hidden-xs" ng-repeat="c in channelArticles">
                     <div class="mainSide-header">
                         <span class="site_fe_home site_fe_home_icon xxt_guide"></span>
                         <h3 class="inline-block">{{c.title}}</h3>
@@ -32,6 +32,21 @@
                         </ul>
                     </div>
                 </div>
+                <div class="mainSide visible-xs-block">
+                    <uib-tabset active="0" class="row">
+                        <uib-tab index="$index" ng-repeat="c in channelArticles">
+                            <uib-tab-heading>{{c.title}}</uib-tab-heading>
+                            <ul class="list-unstyled row">
+                                <li class="list-item" ng-repeat="d in c.data">
+                                    <a ng-href="{{d.url}}">
+                                        <h4 class="inline-block" ng-bind="d.title"></h4>
+                                    </a>
+                                </li>
+                            </ul>
+                            <div class="text-center"><a ng-href="{{c.url}}">更 多</a></div>
+                        </uib-tab>
+                    </uib-tabset>
+                </div>
             </div>
             <div class='col-md-9 col-xs-12'>
                 <div id="slider_extends" class="slider_extends bgf">
@@ -46,6 +61,10 @@
                             </a>
                         </li>
                     </ul>
+                    <div class="arrow" id="arrow">
+                        <a href="javascript:;" class="prev"><i class="glyphicon glyphicon-menu-left"></i></a>
+                        <a href="javascript:;" class="next"><i class="glyphicon glyphicon-menu-right"></i></a>
+                    </div>
                 </div>
                 <uib-tabset active="0" class="row bgf">
                     <uib-tab index="0" ng-if="articles.length">

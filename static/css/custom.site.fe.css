@@ -1,4 +1,5 @@
 html,body{height:100%;width:100%;}
+ul{margin-top: 0;margin-bottom: 0;}
 
 /* 公共小类 */
 .home{position:relative;padding-bottom:50px;}
@@ -94,7 +95,7 @@ html,body{height:100%;width:100%;}
 
 /* aside */
 .xxt_guide{top:0;left:0;background-position:-111px -209px;}
-.mainSide{padding:10px 10px 0 10px;}
+.mainSide{padding:10px;}
 .mainSide-header{position:relative;margin-bottom:30px;padding-left:30px;}
 .mainSide-header > h3{width: 80%;overflow: hidden;white-space: nowrap;text-overflow: ellipsis;}
 .mainSide-header > h6 > a{color:#999;}
@@ -103,6 +104,12 @@ html,body{height:100%;width:100%;}
 .list-item:not(:last-child) > a:after{content:'';width:1px;height:100%;background-color: #2994d0;position: absolute;top:10px;left:8px;}
 .list-item > a > h4{line-height: 1.75;}
 .list-item > a:hover{color: #2994d0;}
+@media screen and (max-width: 768px) {
+  .mainSide .nav-tabs{margin-bottom: 10px;}
+  .list-item > a{padding-left: 20px;padding-bottom: 10px;overflow: hidden;white-space: nowrap;text-overflow: ellipsis;}
+  .list-item > a:before{width:4px;height:4px;transform:rotate(0deg);}
+  .list-item:not(:last-child) > a:after{content:'';width:0px;}
+}
 
 /* 小屏幕底部 */
 .row > .footer{padding:20px 25px 5px 10px;background-color: #fff;}

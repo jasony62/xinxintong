@@ -7,3 +7,10 @@
 .slider_extend > a > .caption > .text-wrap{width:100%;color:#fff;line-height:1;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden;}
 .slider_extend > a > .mask{width:100%;height:35%;background-color:#2f2933;opacity:0.7;position:absolute;top:65%;left:0;z-index:500;}
 .slider_extend > a:hover > .mask{background-color:#2994d0;}
+@media screen and (max-width: 768px) {
+  #slider_extends{margin-bottom:0px;height: 160px;position: relative;}
+  .slider_extend{width: 60%;position: absolute;left:20%;top:10%;margin-right: 0px;}
+  .arrow{min-height: 100%;opacity: 1;position: relative;top:50%;margin-top: -80px;z-index: 100;}
+  .prev, .next{width: 20%;min-height: 100%;color: #333;position: absolute;top:50%;z-index: 99;font-size:18px;text-align: center;}
+  .next{right:0px;}
+}

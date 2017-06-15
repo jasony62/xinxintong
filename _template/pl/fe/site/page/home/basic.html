@@ -36,8 +36,8 @@
     </div>
     <div class='row'>
         <div class='col-md-12 col-xs-12'>
-            <div id="aside" class="col-md-3 col-xs-12 bgfa">
-                <div class="mainSide" ng-repeat="r in r_channels">
+            <div class="col-md-3 col-xs-12 bgfa">
+                <div class="mainSide hidden-xs" ng-repeat="r in r_channels">
                     <div class="mainSide-header">
                         <span class="site_fe_home site_fe_home_icon xxt_guide"></span>
                         <h3 class="inline-block">{{r.title}}</h3>
@@ -54,6 +54,21 @@
                             </li>
                         </ul>
                     </div>
+                </div>
+                <div class="mainSide visible-xs-block">
+                    <uib-tabset active="0" class="row">
+                        <uib-tab index="$index" ng-repeat="r in r_channels">
+                            <uib-tab-heading>{{r.title}}</uib-tab-heading>
+                            <ul class="list-unstyled row">
+                                <li class="list-item" ng-repeat="d in r._matters">
+                                    <a ng-href="{{d.url}}">
+                                        <h4 class="inline-block" ng-bind="d.title"></h4>
+                                    </a>
+                                </li>
+                            </ul>
+                            <div class="text-center"><a ng-href="/rest/site/fe/matter?site={{r.siteid}}&id={{r.channel_id}}&type=channel">更 多</a></div>
+                        </uib-tab>
+                    </uib-tabset>
                 </div>
             </div>
             <div class="col-md-9 col-xs-12 bgf">
@@ -115,9 +130,8 @@
     </div>
     <div class="row visible-xs-block">
         <div class="footer">
-            <a href="" class="pull-right" id='gototop'>回顶部</a>
-            <a href="" class="pull-right">&nbsp;|&nbsp;</a>
-            <a href="" class="pull-right">扫一扫加入群聊</a>
+            <a href="" class="pull-right" id='gototop'>&nbsp;|&nbsp;回顶部</a>
+            <a href="" class="pull-right" ng-if="site.home_qrcode_group">扫一扫加入群聊</a>
             <hr />
             <p>Copyright2014-2017 NEALSNC</p>
         </div>

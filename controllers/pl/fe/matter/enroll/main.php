@@ -860,8 +860,7 @@ class main extends \pl\fe\matter\base {
 		foreach ($files as $v1) {
 			if(preg_match('/\S+\.xlsx$/i', $v1['name'])){
 				$path="kcfinder/upload/$site/enroll_$appId";
-				mkdir($path);
-				chmod($path,755);
+				mkdir($path,0755,true);
 				$v1['name']=\TMS_MODEL::toLocalEncoding($v1['name']);
 				$filename=$path.'/'.$v1['name'];
 				move_uploaded_file($v1['tmp_name'], $filename);		

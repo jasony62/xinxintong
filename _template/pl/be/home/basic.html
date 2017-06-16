@@ -45,12 +45,24 @@
                             </ul>
                             <div class="text-center"><a ng-href="{{c.url}}">更 多</a></div>
                         </uib-tab>
+                        <span uib-dropdown on-toggle="toggled(open)" class="pull-right" ng-if="channels.length > 3">
+                            <a href id="simple-dropdown" uib-dropdown-toggle>
+                                <i class="glyphicon glyphicon-th-list"></i>
+                            </a>
+                            <ul class="dropdown-menu" uib-dropdown-menu aria-labelledby="simple-dropdown">
+                                <li ng-repeat="c in h_next_channels">
+                                  <a ng-href='{{c.url}}' target='_self'>
+                                        <h4 class="inline-block" ng-bind="c.title"></h4>
+                                    </a>
+                                </li>
+                            </ul>
+                        </span>
                     </uib-tabset>
                 </div>
             </div>
             <div class='col-md-9 col-xs-12'>
-                <div id="slider_extends" class="slider_extends bgf">
-                    <ul class="list-unstyled row">
+                <div id="slider_extends" class="slider_extends bgf" >
+                    <ul class="list-unstyled row" >
                         <li ng-mouseenter="selectTag($index)" class="slider_extend pull-left" ng-repeat="ta in topArticles">
                             <a ng-href="{{ta.url}}">
                                 <div class="caption">

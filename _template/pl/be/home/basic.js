@@ -1,5 +1,5 @@
 ngApp.provider.controller('ctrlHome', ['$scope', '$http', '$uibModal', 'tmsFavor', 'tmsForward', 'tmsDynaPage', function($scope, $http, $uibModal, tmsFavor, tmsForward, tmsDynaPage) {
-    var page;
+    var page, width = angular.element(window).width();
     $scope.page = page = {
         at: 1,
         size: 5,
@@ -78,10 +78,14 @@ ngApp.provider.controller('ctrlHome', ['$scope', '$http', '$uibModal', 'tmsFavor
         }
     }
     $scope.listChannels = function() {
-        $scope.channelArticles = [];
+        $scope.channelArticles = [], $scope.h_prev_channels = [], $scope.h_next_channels = [];
         $http.get('/rest/home/listChannel').success(function(rsp) {
             $scope.channels = rsp.data.matters;
-            $scope.channels.forEach(function(item) {
+            rsp.data.matters.forEach(function(item, index) {
+                index < 3 ? $scope.h_prev_channels.push(item) : $scope.h_next_channels.push(item);
+            });
+            width > 768 ? $scope.h_channels_matters = $scope.channels : $scope.h_channels_matters = $scope.h_prev_channels;
+            $scope.h_channels_matters.forEach(function(item, index) {
                 var url;
                 url = '/rest/site/fe/matter/channel/mattersGet';
                 url += '?site=' + item.siteid + '&id=' + item.matter_id;

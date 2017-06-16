@@ -19,7 +19,7 @@
   .team-img > img{width: 82px;height: 82px;}
   .team-content{width:75%;}
   .team-content > .team-head > .team-title{margin-top:10px;margin-bottom: 10px;}
-  .team-content > .team-head > .team-handle{position: absolute;bottom: 5px;left: 45%;width:100%;margin-top: 0px;}
+  .team-content > .team-head > .team-handle{position: absolute;bottom: 5px;left: 50%;margin-left: -100px;width:100%;margin-top: 0px;}
   .team-content > .team-summary{color:#666;overflow: hidden;white-space: nowrap;text-overflow: ellipsis;}
   .team-info > span{display: none;}
 }

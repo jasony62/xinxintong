@@ -851,7 +851,6 @@ class record extends \pl\fe\matter\base {
 				$objActiveSheet->setCellValueByColumnAndRow($i + $columnNum2++, $rowIndex, $score->sum . '分');
 			}
 		}
-		
 		if (!empty($isTotal)) {
 			//合计
 			$total2 = $modelRec2->sum4Schema($oApp, $rid);

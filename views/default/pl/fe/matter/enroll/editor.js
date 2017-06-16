@@ -20,6 +20,8 @@ define(['frame'], function(ngApp) {
                     }
                 });
                 oBeforeRecord = angular.copy(oRecord);
+            } else {
+                oRecord.data = {};
             }
             $scope.app = oApp = app;
             $scope.enrollDataSchemas = app._schemasByEnrollApp;

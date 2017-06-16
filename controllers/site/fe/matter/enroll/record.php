@@ -366,15 +366,16 @@ class record extends base {
 				continue;
 			}
 			$mapping = $tmplConfig->mapping->{$param->pname};
-			if ($mapping->src === 'matter') {
-				if (isset($oApp->{$mapping->id})) {
-					$value = $oApp->{$mapping->id};
+			if (isset($mapping->src)) {
+				if ($mapping->src === 'matter') {
+					if (isset($oApp->{$mapping->id})) {
+						$value = $oApp->{$mapping->id};
+					}
+				} else if ($mapping->src === 'text') {
+					$value = $mapping->name;
 				}
-			} else if ($mapping->src === 'text') {
-				$value = $mapping->name;
 			}
-			!isset($value) && $value = '';
-			$params->{$param->pname} = $value;
+			$params->{$param->pname} = isset($value) ? $value : '';
 		}
 		$noticeURL && $params->url = $noticeURL;
 
@@ -575,7 +576,7 @@ class record extends base {
 		$oApp = $this->model('matter\enroll')->byId($app, ['cascaded' => 'N']);
 		$modelRec = $this->model('matter\enroll\record');
 
-		$rst = $modelRec->find($oApp, $options, $oCriteria);
+		$rst = $modelRec->byApp($oApp, $options, $oCriteria);
 
 		return new \ResponseData($rst);
 	}

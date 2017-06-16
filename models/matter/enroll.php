@@ -275,6 +275,9 @@ class enroll_model extends app_base {
 	 * @param object $oUser [uid,nickname]
 	 */
 	public function getUserNickname(&$oApp, $oUser) {
+		if (empty($oUser->uid)) {
+			return '';
+		}
 		$nickname = '';
 		$entryRule = $oApp->entry_rule;
 		if (isset($entryRule->anonymous) && $entryRule->anonymous === 'Y') {

@@ -66,6 +66,10 @@ class memberschema_model extends \TMS_MODEL {
 			}
 		}
 
+		if (isset($options['mission'])) {
+			$where .= ' and mission_id in (' . $options['mission'] . ')';
+		}
+
 		if (isset($options['atUserHome'])) {
 			$where .= " and at_user_home='Y'";
 		}

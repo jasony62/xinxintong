@@ -42,7 +42,7 @@
                         <span class="site_fe_home site_fe_home_icon xxt_guide"></span>
                         <h3 class="inline-block">{{r.title}}</h3>
                         <h6 class="inline-block pull-right">
-                            <a ng-href="/rest/site/fe/matter?site={{r.siteid}}&id={{r.channel_id}}&type=channel">更多<i class="glyphicon glyphicon-menu-right"></i></a>
+                            <a ng-href="{{r.url}}">更多<i class="glyphicon glyphicon-menu-right"></i></a>
                         </h6>
                     </div>
                     <div class='madinSide-body'>
@@ -136,7 +136,7 @@
                             <button class='btn btn-lg btn-primary  btn-gradient center-block' ng-click="moreMatters(c.channel_id)" ng-if="cTotal[c.channel_id]['total'] >= page.size">加载更多</button>
                         </div>
                     </uib-tab>
-                    <span id="moreChannel" uib-dropdown on-toggle="toggled(open)" class="visible-xs-block pull-right" ng-if="c_channels.length > 3" >
+                    <span uib-dropdown on-toggle="toggled(open)" class="visible-xs-block pull-right" ng-if="c_channels.length > 3" >
                         <a href id="simple-dropdown" uib-dropdown-toggle>
                             <i class="glyphicon glyphicon-th-list"></i>
                         </a>

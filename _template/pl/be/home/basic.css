@@ -8,12 +8,10 @@
 .slider_extend > a > .mask{width:100%;height:35%;background-color:#2f2933;opacity:0.7;position:absolute;top:65%;left:0;z-index:500;}
 .slider_extend > a:hover > .mask{background-color:#2994d0;}
 @media screen and (max-width: 768px) {
-  #slider_extends{margin-bottom:0px;height: 160px;position: relative;}
-  .slider_extend{width:60%;position: absolute;top:10%;left:20%;margin-right: 0px;}
-  .slider_extend:not(:first-child){width:45%;top:25%;left:-30%;}
-  .slider_extend:nth-child(3){left:85%;}
-  .arrow{min-height: 100%;opacity: 1;position: relative;top:50%;margin-top: -80px;z-index: 100;}
-  .prev, .next{width: 20%;min-height: 100%;color: #333;position: absolute;top:50%;z-index: 99;font-size:18px;text-align: center;}
-  .next{right:0px;}
+  #slider_extends{margin-bottom:0px;height: 160px;position: relative;overflow: hidden;}
+  .slider_extend{position: absolute;margin-right: 0px;top:0;left:0;}
+  .arrow{min-height: 100%;opacity: 1;position: relative;top:50%;margin-top: -80px;z-index: 4;}
+  .prev, .next{width: 20%;padding:10%;color: #fff;position: absolute;top:20%;z-index: 5;font-size:18px;text-align: center;}
+  .next{right:5%;}
   .slider_extend > a > .caption > .text-wrap{width:100%;color:#fff;display: block;margin-top:0;line-height:1;overflow:hidden;white-space: nowrap;text-overflow: ellipsis;}
 }

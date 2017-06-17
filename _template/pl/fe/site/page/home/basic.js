@@ -61,7 +61,6 @@ ngApp.provider.controller('ctrlHome', ['$scope', '$http', 'tmsFavor', 'tmsForwar
                 index < 3 ? $scope.r_prev_channels.push(item) : $scope.r_next_channels.push(item);
             });
             width > 768 ? $scope.r_channels_matters = $scope.r_channels : $scope.r_channels_matters = $scope.r_channels_matters = $scope.r_prev_channels;
-            console.log($scope.r_next_channels);
             $scope.r_channels_matters.forEach(function(item,index) {
                 $http.get('/rest/site/fe/matter/channel/mattersGet?site=' + siteId + '&id=' + item.channel_id + '&page=1&size=5').success(function(rsp) {
                     $scope.channelArticles.push({

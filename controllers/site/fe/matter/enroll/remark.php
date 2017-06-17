@@ -221,6 +221,7 @@ class remark extends base {
 		);
 
 		$oApp = new \stdClass;
+		$oApp->siteid = $this->siteId;
 		$oApp->id = $oRemark->aid;
 		$modelUsr = $this->model('matter\enroll\user');
 		/* 更新进行点赞的活动用户的数据 */

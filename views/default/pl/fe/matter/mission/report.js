@@ -1,6 +1,6 @@
-define(['frame', 'enrollService', 'signinService'], function(ngApp) {
+define(['frame'], function(ngApp) {
     'use strict';
-    ngApp.provider.controller('ctrlUser', ['$scope', '$uibModal', '$q', 'http2', 'srvSite', function($scope, $uibModal, $q, http2, srvSite) {
+    ngApp.provider.controller('ctrlReport', ['$scope', '$uibModal', '$q', 'http2', 'srvMission', 'srvRecordConverter', function($scope, $uibModal, $q, http2, srvMission, srvRecordConverter) {
         function submitMatterSeqs() {
             var deferred = $q.defer(),
                 matterSeqs = [];
@@ -12,12 +12,6 @@ define(['frame', 'enrollService', 'signinService'], function(ngApp) {
             });
             return deferred.promise;
         }
-
-        var _showMatters, _hideMatters, _enrollAppSchemas;
-        $scope.closeMatters = true;
-        $scope.showMatters = _showMatters = [];
-        $scope.hideMatters = _hideMatters = [];
-        $scope.enrollAppSchemas = _enrollAppSchemas = {};
         $scope.assignUserApp = function() {
             var mission = $scope.mission;
             $uibModal.open({
@@ -73,6 +67,50 @@ define(['frame', 'enrollService', 'signinService'], function(ngApp) {
                 delete mission.userApp;
             });
         };
+        $scope.chooseApps = function() {
+            var mission = $scope.mission;
+            $uibModal.open({
+                templateUrl: 'chooseApps.html',
+                controller: ['$scope', '$uibModalInstance', function($scope2, $mi) {
+                    $scope2.cancel = function() {
+                        $mi.dismiss();
+                    };
+                    $scope2.ok = function() {
+                        var selected = [];
+                        $scope2.matters.forEach(function(oMatter) {
+                            if (oMatter._selected) {
+                                selected.push(oMatter);
+                            }
+                        });
+                        $mi.close(selected);
+                    };
+                    srvMission.matterList().then(function(matters) {
+                        $scope2.matters = matters;
+                    });
+                }],
+                backdrop: 'static'
+            }).result.then(function(matters) {
+                $scope.targetApps = matters;
+                $scope.makeReport();
+            });
+        };
+        $scope.makeReport = function() {
+            var oMission, url, params;
+            oMission = $scope.mission;
+            url = '/rest/pl/fe/matter/mission/report/userAndApp?site=' + oMission.siteid + '&mission=' + oMission.id;
+            params = {
+                userSource: { id: oMission.user_app_id, type: oMission.user_app_type }
+            };
+            if ($scope.targetApps && $scope.targetApps.length) {
+                params.apps = [];
+                $scope.targetApps.forEach(function(oApp) {
+                    params.apps.push({ id: oApp.id, type: oApp.type });
+                });
+            }
+            http2.post(url, params, function(rsp) {
+                $scope.report = rsp.data;
+            });
+        };
         $scope.hide = function(matter) {
             var url = '/rest/pl/fe/matter/mission/matter/update?id=' + $scope.mission.id + '&matterType=' + matter.type + '&matterId=' + matter.id;
             http2.post(url, { is_public: 'N' }, function(rsp) {
@@ -123,38 +161,43 @@ define(['frame', 'enrollService', 'signinService'], function(ngApp) {
                 submitMatterSeqs().then(function() {});
             }
         });
+        var _showMatters, _hideMatters, _enrollAppSchemas;
+        $scope.closeMatters = true;
+        $scope.showMatters = _showMatters = [];
+        $scope.hideMatters = _hideMatters = [];
+        $scope.enrollAppSchemas = _enrollAppSchemas = {};
         $scope.$watch('mission', function(mission) {
             if (!mission) return;
-            http2.get('/rest/pl/fe/matter/mission/matter/list?id=' + mission.id, function(rsp) {
-                rsp.data.forEach(function(matter) {
-                    if (matter.type === 'enroll') {
+            if (mission.userApp) {
+                $scope.makeReport();
+            }
+            srvMission.matterList().then(function(matters) {
+                matters.forEach(function(oMatter) {
+                    if (oMatter.type === 'enroll') {
                         var schemas, schemasById;
-                        if (matter.data_schemas) {
-                            schemas = JSON.parse(matter.data_schemas);
+                        if (oMatter.data_schemas) {
+                            schemas = JSON.parse(oMatter.data_schemas);
                             schemasById = {};
                             schemas.forEach(function(schema) {
                                 schemasById[schema.id] = schema;
                             });
-                            _enrollAppSchemas[matter.id] = schemasById;
+                            _enrollAppSchemas[oMatter.id] = schemasById;
                         }
                     }
-                    if (matter.is_public === 'Y') {
-                        matter.seq = _showMatters.length;
-                        _showMatters.push(matter);
+                    if (oMatter.is_public === 'Y') {
+                        oMatter.seq = _showMatters.length;
+                        _showMatters.push(oMatter);
                     } else {
-                        _hideMatters.push(matter);
+                        _hideMatters.push(oMatter);
                     }
                 });
             });
         });
-    }]);
-    ngApp.provider.controller('ctrlUserAction', ['$scope', 'srvMission', 'srvRecordConverter', function($scope, srvMission, srvRecordConverter) {
         var _oResultSet, _del;
         $scope.resultSet = _oResultSet = {};
         $scope.tmsTableWrapReady = 'N';
         $scope.del = _del = [];
         $scope.doAttend = function(isCheck) {
-
             if (isCheck == 'Y') {
                 _del = [];
                 var keys = [];
@@ -176,9 +219,9 @@ define(['frame', 'enrollService', 'signinService'], function(ngApp) {
             }
         }
         $scope.doUserSearch = function() {
-            srvMission.userList(_oResultSet).then(function(result) {
-                $scope.tmsTableWrapReady = 'Y';
-            });
+            // srvMission.userList(_oResultSet).then(function(result) {
+            //     $scope.tmsTableWrapReady = 'Y';
+            // });
         };
         $scope.doUserFilter = function(isCacnel) {
             _oResultSet.page.at = 1;

@@ -285,6 +285,44 @@ class record extends \pl\fe\matter\base {
 		return new \ResponseData($oNewRecord);
 	}
 	/**
+	 * 根据reocrd_data中的数据，修复record中的data字段
+	 */
+	public function repair_action($ek) {
+		if (false === ($user = $this->accountUser())) {
+			return new \ResponseTimeout();
+		}
+
+		$modelRec = $this->model('matter\enroll\record');
+		$oRecord = $modelRec->byId($ek);
+		if (false === $oRecord) {
+			return new \ParameterError();
+		}
+
+		$q = [
+			'schema_id,value',
+			'xxt_enroll_record_data',
+			['enroll_key' => $ek, 'state' => 1],
+		];
+		$schemaValues = $modelRec->query_objs_ss($q);
+
+		$oRecordData = new \stdClass;
+		foreach ($schemaValues as $schemaValue) {
+			if (strlen($schemaValue->value)) {
+				if ($jsonVal = json_decode($schemaValue->value)) {
+					$oRecordData->{$schemaValue->schema_id} = $jsonVal;
+				} else {
+					$oRecordData->{$schemaValue->schema_id} = $schemaValue->value;
+				}
+			}
+		}
+
+		$sRecordData = $modelRec->escape($modelRec->toJson($oRecordData));
+
+		$rst = $modelRec->update('xxt_enroll_record', ['data' => $sRecordData], ['enroll_key' => $ek]);
+
+		return new \ResponseData($rst);
+	}
+	/**
 	 * 删除一条登记信息
 	 */
 	public function remove_action($site, $app, $key) {
@@ -296,7 +334,6 @@ class record extends \pl\fe\matter\base {
 
 		// 记录操作日志
 		$app = $this->model('matter\enroll')->byId($app, ['cascaded' => 'N']);
-		$app->type = 'enroll';
 		$this->model('matter\log')->matterOp($site, $user, $app, 'remove', $key);
 
 		return new \ResponseData($rst);

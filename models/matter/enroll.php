@@ -269,6 +269,25 @@ class enroll_model extends app_base {
 		return $summary;
 	}
 	/**
+	 * 指定用户的行为报告
+	 */
+	public function reportByUser($oApp, $oUser) {
+
+		$result = new \stdClass;
+
+		/* 登记次数 */
+		$modelRec = $this->model('matter\enroll\record');
+		$records = $modelRec->byUser($oApp->id, $oUser, ['fields' => 'id']);
+		$result->enroll_num = count($records);
+
+		/* 发表评论次数 */
+		$modelRec = $this->model('matter\enroll\remark');
+		$remarks = $modelRec->byUser($oApp, $oUser, ['fields' => 'id']);
+		$result->remark_other_num = count($remarks);
+
+		return $result;
+	}
+	/**
 	 * 获得参加登记活动的用户的昵称
 	 *
 	 * @param object $oApp

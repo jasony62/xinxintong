@@ -30,6 +30,15 @@ define(['require'], function(require) {
 
                     return _getMissionDeferred.promise;
                 },
+                matterList: function() {
+                    var deferred, url;
+                    deferred = $q.defer();
+                    url = '/rest/pl/fe/matter/mission/matter/list?id=' + _missionId;
+                    http2.post(url, {}, function(rsp) {
+                        deferred.resolve(rsp.data);
+                    });
+                    return deferred.promise;
+                },
                 matterCount: function() {
                     var deferred = $q.defer();
                     http2.get('/rest/pl/fe/matter/mission/matter/count?id=' + _missionId, function(rsp) {

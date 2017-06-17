@@ -41,6 +41,8 @@ class main extends \pl\fe\matter\base {
 				$mission->userApp = $this->model('matter\enroll')->byId($mission->user_app_id, ['cascaded' => 'N']);
 			} else if ($mission->user_app_type === 'signin') {
 				$mission->userApp = $this->model('matter\signin')->byId($mission->user_app_id, ['cascaded' => 'N']);
+			} else if ($mission->user_app_type === 'mschema') {
+				$mission->userApp = $this->model('site\user\memberschema')->byId($mission->user_app_id);
 			}
 		}
 		/* 检查当前用户的角色 */

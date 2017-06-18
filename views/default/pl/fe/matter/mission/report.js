@@ -1,6 +1,6 @@
 define(['frame'], function(ngApp) {
     'use strict';
-    ngApp.provider.controller('ctrlReport', ['$scope', '$uibModal', '$q', 'http2', 'srvMission', 'srvRecordConverter', function($scope, $uibModal, $q, http2, srvMission, srvRecordConverter) {
+    ngApp.provider.controller('ctrlReport', ['$scope', '$uibModal', '$q', 'http2', 'srvSite', 'srvMission', 'srvRecordConverter', function($scope, $uibModal, $q, http2, srvSite, srvMission, srvRecordConverter) {
         function submitMatterSeqs() {
             var deferred = $q.defer(),
                 matterSeqs = [];
@@ -34,12 +34,10 @@ define(['frame'], function(ngApp) {
                                     $scope2.apps = aMemberSchemas;
                                 });
                             } else {
-
                                 var url = '/rest/pl/fe/matter/' + appType + '/list?mission=' + mission.id;
                                 http2.get(url, function(rsp) {
                                     $scope2.apps = rsp.data.apps;
                                 });
-
                             }
                         }
                     });
@@ -49,13 +47,22 @@ define(['frame'], function(ngApp) {
                 mission.user_app_id = data.appId;
                 mission.user_app_type = data.appType;
                 $scope.update(['user_app_id', 'user_app_type']).then(function(rsp) {
-                    var url = '/rest/pl/fe/matter/' + data.appType + '/get?site=' + mission.siteid + '&id=' + data.appId;
-                    http2.get(url, function(rsp) {
-                        mission.userApp = rsp.data;
-                        if (mission.userApp.data_schemas && angular.isString(mission.userApp.data_schemas)) {
-                            mission.userApp.data_schemas = JSON.parse(mission.userApp.data_schemas);
-                        }
-                    });
+                    if (data.appType === 'mschema') {
+                        var url = '/rest/pl/fe/site/member/schema/get?site=' + mission.siteid + '&mschema=' + data.appId;
+                        http2.get(url, function(rsp) {
+                            mission.userApp = rsp.data;
+                            $scope.makeReport();
+                        });
+                    } else {
+                        var url = '/rest/pl/fe/matter/' + data.appType + '/get?site=' + mission.siteid + '&id=' + data.appId;
+                        http2.get(url, function(rsp) {
+                            mission.userApp = rsp.data;
+                            if (mission.userApp.data_schemas && angular.isString(mission.userApp.data_schemas)) {
+                                mission.userApp.data_schemas = JSON.parse(mission.userApp.data_schemas);
+                            }
+                            $scope.makeReport();
+                        });
+                    }
                 });
             });
         };

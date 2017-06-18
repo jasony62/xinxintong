@@ -4,7 +4,7 @@ define(['frame'], function(ngApp) {
         function submitMatterSeqs() {
             var deferred = $q.defer(),
                 matterSeqs = [];
-            _showMatters.forEach(function(matter) {
+            $scope.report.orderedApps.forEach(function(matter) {
                 matterSeqs.push(matter._pk);
             });
             http2.post('/rest/pl/fe/matter/mission/matter/updateSeq?id=' + $scope.mission.id, matterSeqs, function(rsp) {
@@ -68,7 +68,6 @@ define(['frame'], function(ngApp) {
             });
         };
         $scope.chooseApps = function() {
-            var mission = $scope.mission;
             $uibModal.open({
                 templateUrl: 'chooseApps.html',
                 controller: ['$scope', '$uibModalInstance', function($scope2, $mi) {
@@ -85,7 +84,21 @@ define(['frame'], function(ngApp) {
                         $mi.close(selected);
                     };
                     srvMission.matterList().then(function(matters) {
+                        var targetAppsByPk;
                         $scope2.matters = matters;
+                        if ($scope.targetApps && $scope.targetApps.length) {
+                            targetAppsByPk = {};
+                            $scope.targetApps.forEach(function(oApp) {
+                                targetAppsByPk[oApp.type + oApp.id] = oApp;
+                            });
+                            if (matters && matters.length) {
+                                matters.forEach(function(oMatter) {
+                                    if (targetAppsByPk[oMatter.type + oMatter.id]) {
+                                        oMatter._selected = true;
+                                    }
+                                });
+                            }
+                        }
                     });
                 }],
                 backdrop: 'static'
@@ -109,89 +122,67 @@ define(['frame'], function(ngApp) {
             }
             http2.post(url, params, function(rsp) {
                 $scope.report = rsp.data;
-            });
-        };
-        $scope.hide = function(matter) {
-            var url = '/rest/pl/fe/matter/mission/matter/update?id=' + $scope.mission.id + '&matterType=' + matter.type + '&matterId=' + matter.id;
-            http2.post(url, { is_public: 'N' }, function(rsp) {
-                matter.is_public = 'N';
-                _showMatters.splice(_showMatters.indexOf(matter), 1);
-                _hideMatters.push(matter);
-            });
-        };
-        $scope.show = function(matter) {
-            var url = '/rest/pl/fe/matter/mission/matter/update?id=' + $scope.mission.id + '&matterType=' + matter.type + '&matterId=' + matter.id;
-            http2.post(url, { is_public: 'Y' }, function(rsp) {
-                matter.is_public = 'Y';
-                _hideMatters.splice(_hideMatters.indexOf(matter), 1);
-                matter.seq = _showMatters.length;
-                _showMatters.push(matter);
+                rsp.data.orderedApps.forEach(function(oMatter) {
+                    if (oMatter.type === 'enroll') {
+                        var schemasById;
+                        if (oMatter.dataSchemas) {
+                            schemasById = {};
+                            oMatter.dataSchemas.forEach(function(schema) {
+                                schemasById[schema.id] = schema;
+                            });
+                            _enrollAppSchemas[oMatter.id] = schemasById;
+                        }
+                    }
+                });
             });
         };
         $scope.moveUp = function(matter, index) {
+            var apps;
             if (index === 0) return;
-            _showMatters.splice(index, 1);
-            _showMatters.splice(index - 1, 0, matter);
-            matter.seq--;
-            _showMatters[index].seq++;
-            submitMatterSeqs().then(function() {});
+            apps = $scope.report.orderedApps;
+            apps.splice(index, 1);
+            apps.splice(index - 1, 0, matter);
+            //matter.seq--;
+            apps[index].seq++;
+            //submitMatterSeqs().then(function() {});
         };
         $scope.moveDown = function(matter, index) {
-            if (index === _showMatters.length - 1) return;
-            _showMatters.splice(index, 1);
-            _showMatters.splice(index + 1, 0, matter);
-            matter.seq++;
-            _showMatters[index].seq--;
-            submitMatterSeqs().then(function() {});
+            var apps;
+            apps = $scope.report.orderedApps;
+            if (index === apps.length - 1) return;
+            apps.splice(index, 1);
+            apps.splice(index + 1, 0, matter);
+            //matter.seq++;
+            apps[index].seq--;
+            //submitMatterSeqs().then(function() {});
         };
-        $scope.$on('matters.orderChanged', function(e, moved) {
-            var oldSeq = moved.seq,
-                newSeq = _showMatters.indexOf(moved);
-            if (newSeq < oldSeq) {
-                moved.seq = newSeq;
-                for (var i = newSeq + 1; i <= oldSeq; i++) {
-                    _showMatters[i].seq++;
-                }
-                submitMatterSeqs().then(function() {});
-            } else if (newSeq > oldSeq) {
-                for (var i = oldSeq; i < newSeq; i++) {
-                    _showMatters[i].seq--;
-                }
-                moved.seq = newSeq;
-                submitMatterSeqs().then(function() {});
-            }
-        });
-        var _showMatters, _hideMatters, _enrollAppSchemas;
+        // $scope.$on('matters.orderChanged', function(e, moved) {
+        //     var apps, oldSeq, newSeq;
+        //     apps = $scope.report.orderedApps;
+        //     oldSeq = moved.seq;
+        //     newSeq = apps.indexOf(moved);
+        //     if (newSeq < oldSeq) {
+        //         moved.seq = newSeq;
+        //         for (var i = newSeq + 1; i <= oldSeq; i++) {
+        //             apps[i].seq++;
+        //         }
+        //         //submitMatterSeqs().then(function() {});
+        //     } else if (newSeq > oldSeq) {
+        //         for (var i = oldSeq; i < newSeq; i++) {
+        //             apps[i].seq--;
+        //         }
+        //         moved.seq = newSeq;
+        //         //submitMatterSeqs().then(function() {});
+        //     }
+        // });
+        var _enrollAppSchemas;
         $scope.closeMatters = true;
-        $scope.showMatters = _showMatters = [];
-        $scope.hideMatters = _hideMatters = [];
         $scope.enrollAppSchemas = _enrollAppSchemas = {};
         $scope.$watch('mission', function(mission) {
             if (!mission) return;
             if (mission.userApp) {
                 $scope.makeReport();
             }
-            srvMission.matterList().then(function(matters) {
-                matters.forEach(function(oMatter) {
-                    if (oMatter.type === 'enroll') {
-                        var schemas, schemasById;
-                        if (oMatter.data_schemas) {
-                            schemas = JSON.parse(oMatter.data_schemas);
-                            schemasById = {};
-                            schemas.forEach(function(schema) {
-                                schemasById[schema.id] = schema;
-                            });
-                            _enrollAppSchemas[oMatter.id] = schemasById;
-                        }
-                    }
-                    if (oMatter.is_public === 'Y') {
-                        oMatter.seq = _showMatters.length;
-                        _showMatters.push(oMatter);
-                    } else {
-                        _hideMatters.push(oMatter);
-                    }
-                });
-            });
         });
         var _oResultSet, _del;
         $scope.resultSet = _oResultSet = {};

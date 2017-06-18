@@ -3,29 +3,6 @@
         <nav class='navbar navbar-default'>
             <div class='container-fluid' ng-controller="ctrlOpUrl">
                 <form class='navbar-form navbar-left'>
-                    <label>结果展示页面</label>
-                    <div class='input-group'>
-                        <input class='form-control' readonly value="{{opEntry.url}}">
-                        <span class='input-group-btn'>
-                        <button class='btn btn-default text2Clipboard' data-clipboard-text="{{opEntry.url}}">复制</button>
-                        <a class='btn btn-default' href="{{opEntry.url}}" target="_blank"><i class='glyphicon glyphicon-open'></i></a>
-                    </span>
-                    </div>
-                    <div class='form-group'>
-                        <button class='btn btn-default' ng-if="!opEntry.url" ng-click="makeOpUrl()">生成</button>
-                        <button class='btn btn-default' ng-if="opEntry.url" ng-click="closeOpUrl()">关闭</button>
-                        <button uib-popover-template="'opUrlPasswd.html'" popover-append-to-body='true' popover-placement="bottom" popover-title="访问密码" popover-trigger="outsideClick" type="button" class="btn btn-default" class='btn btn-default' ng-if="opEntry.url">密码 <span class="caret"></span></button>
-                    </div>
-                    <div class='form-group' ng-if="opEntry.url">
-                        <label class='checkbox-inline' uib-popover="分享链接有效期1小时，设置【支持收藏】后，用户可收藏本链接，避免有效期限制" popover-trigger="mouseenter" popover-placement="bottom">
-                            <input type='checkbox' ng-true-value="'Y'" ng-false-value="'N'" ng-model="opEntry.can_favor" ng-change="updCanFavor()">支持收藏</label>
-                    </div>
-                </form>
-            </div>
-        </nav>
-        <nav class='navbar navbar-default'>
-            <div class='container-fluid' ng-controller="ctrlOpUrl">
-                <form class='navbar-form navbar-left'>
                     <div class='form-group'>
                         <label>用户名单</label>
                         <div class="input-group">
@@ -41,14 +18,13 @@
                 </form>
                 <form class='navbar-form navbar-left'>
                     <button class='btn btn-default' ng-click="chooseApps()">选择活动</button>
-                    <button class='btn btn-default' ng-click="makeReport()">生成报告</button>
                 </form>
             </div>
         </nav>
     </div>
-    <div class="col-md-7" tms-flex-height top='144' bottom='50'>
+    <div class="col-md-7" tms-flex-height top='144' bottom='15'>
         <div style='overflow-x:auto'>
-            <table class='table table-bordered' style="table-layout:fixed;">
+            <table class='table table-bordered table-hover' style="table-layout:fixed;">
                 <thead>
                     <tr>
                         <th style="width:4em">序号</th>
@@ -57,7 +33,7 @@
                     </tr>
                 </thead>
                 <tbody>
-                    <tr ng-repeat="user in report.users" ng-click="chooseUser(user)">
+                    <tr ng-repeat="user in report.users" ng-click="chooseUser(user)" ng-class="{info:user===activeUser}">
                         <td>{{$index+1}}</td>
                         <td>{{user.nickname}}</td>
                         <td ng-repeat="app in report.orderedApps" ng-switch on="app.type">
@@ -79,126 +55,61 @@
             </table>
         </div>
     </div>
-    <div class='col-md-5' tms-flex-height top='144' bottom='50'>
-        <uib-tabset active="0">
-            <uib-tab index="0">
-                <uib-tab-heading>展示（{{showMatters.length}}）</uib-tab-heading>
-                <div class="form-group checkbox">
-                    <label ng-if="activeUser">
-                        <input type="checkbox" ng-model="choose" ng-true-value="'Y'" ng-false-value="'N'" ng-click="doAttend(choose)">仅展示此用户参加的活动
-                    </label>
+    <div class='col-md-5' tms-flex-height top='144' bottom='15'>
+        <div class='list-group' dnd-list dataset='report.orderedApps' evt-prefix="matters">
+            <div class='list-group-item matter dndable' ng-repeat="matter in report.orderedApps" ng-switch on="matter.type" ng-mouseenter="entered=true" ng-mouseleave="entered=false">
+                <div class='seq'>{{$index+1}}</div>
+                <div class='form-group'>
+                    <div class='title' ng-bind="matter.title"></div>
                 </div>
-                <div class='list-group' dnd-list dataset='showMatters' evt-prefix="matters">
-                    <div class='list-group-item matter dndable' ng-repeat="matter in showMatters" ng-switch on="matter.type" ng-mouseenter="entered=true" ng-mouseleave="entered=false">
-                        <div class='seq'>{{matter.seq+1}}</div>
-                        <div class='form-group'>
-                            <div class='title' ng-bind="matter.title"></div>
-                        </div>
-                        <div class='list-group' ng-switch-when="enroll">
-                            <div class='list-group-item record' ng-repeat="rec in recordsByApp.enroll[matter.id]">
-                                <div>
-                                    <label>登记时间：</label><span>{{rec.enroll_at*1000|date:'yy-MM-dd HH:mm'}}</span></div>
-                                <div>
-                                    <label>审核通过：</label><span>{{rec.verified}}</span></div>
-                                <div>
-                                    <label>备注：</label><span>{{rec.comment}}</span></div>
-                                <div ng-repeat="schema in enrollAppSchemas[matter.id]" ng-switch on="schema.type">
-                                    <label title="{{schema.title}}">{{schema.title}}：</label>
-                                    <span ng-switch-when="image">
+                <div class='list-group' ng-switch-when="enroll">
+                    <div class='list-group-item record' ng-repeat="rec in recordsByApp.enroll[matter.id]">
+                        <div>
+                            <label>登记时间：</label><span>{{rec.enroll_at*1000|date:'yy-MM-dd HH:mm'}}</span></div>
+                        <div>
+                            <label>审核通过：</label><span>{{rec.verified}}</span></div>
+                        <div>
+                            <label>备注：</label><span>{{rec.comment}}</span></div>
+                        <div ng-repeat="schema in enrollAppSchemas[matter.id]" ng-switch on="schema.type">
+                            <label title="{{schema.title}}">{{schema.title}}：</label>
+                            <span ng-switch-when="image">
                                             <img ng-repeat="img in rec._data[schema.id]" ng-src='{{img}}' />
                                         </span>
-                                    <span ng-switch-when="file">
+                            <span ng-switch-when="file">
                                             <span ng-repeat='file in rec._data[schema.id]'>{{file.name}}</span>
-                                    </span>
-                                    <span ng-switch-when="date">{{(rec._data[schema.id]*1000)|date:'yy-MM-dd HH:mm'}}</span>
-                                    <span ng-switch-default ng-bind-html="rec._data[schema.id]"></span>
-                                </div>
-                            </div>
-                        </div>
-                        <div class='list-group' ng-switch-when="signin">
-                            <div class='list-group-item record' ng-repeat="rec in recordsByApp.signin[matter.id]">
-                                <div>
-                                    <label>审核通过：</label><span>{{rec.verified}}</span></div>
-                                <div>
-                                    <label>备注：</label><span>{{rec.comment}}</span></div>
-                                <div>
-                                    <label>签到次数：</label><span>{{rec.signin_num}}</span></div>
-                                <div ng-repeat="rnd in matter.rounds">
-                                    <div>
-                                        <label title="{{rnd.title}}">{{rnd.title}}：</label><span ng-if="rec.signin_log[rnd.rid]" ng-class="{'signin_late':rnd.late_at!==0&&(rec.signin_log[rnd.rid]+60)>rnd.late_at}">{{rec.signin_log[rnd.rid]*1000|date:'yy-MM-dd HH:mm'}}</span></div>
-                                </div>
-                            </div>
-                        </div>
-                        <div class='list-group' ng-switch-when="group">
-                            <div class='list-group-item record' ng-repeat="rec in recordsByApp.group[matter.id]">
-                                <div>
-                                    <label>所属分组：</label><span>{{rec.round_title}}</span></div>
-                            </div>
-                        </div>
-                        <button class='btn btn-default btn-sm' ng-click="gotoDetail(matter)">查看活动全部数据</button>
-                        <span ng-if="entered" class='pull-right'>
-                                <button class='btn btn-default btn-sm' ng-click="hide(matter)">不放在展示页中</button>
-                                <button class='btn btn-default btn-sm' ng-click="moveUp(matter,$index)"><i class='glyphicon glyphicon-arrow-up'></i></button>
-                                <button class='btn btn-default btn-sm' ng-click="moveDown(matter,$index)"><i class='glyphicon glyphicon-arrow-down'></i></button>
                             </span>
+                            <span ng-switch-when="date">{{(rec._data[schema.id]*1000)|date:'yy-MM-dd HH:mm'}}</span>
+                            <span ng-switch-default ng-bind-html="rec._data[schema.id]"></span>
+                        </div>
                     </div>
                 </div>
-            </uib-tab>
-            <uib-tab index="1">
-                <uib-tab-heading>不展示（{{hideMatters.length}}）</uib-tab-heading>
-                <div class='list-group'>
-                    <a href='javascript:void(0)' class='list-group-item matter' ng-repeat="matter in hideMatters" ng-switch on="matter.type">
-                        <div class='seq'>{{$index+1}}</div>
-                        <div class='form-group'>
-                            <div class='title' ng-bind="matter.title"></div>
+                <div class='list-group' ng-switch-when="signin">
+                    <div class='list-group-item record' ng-repeat="rec in recordsByApp.signin[matter.id]">
+                        <div>
+                            <label>审核通过：</label><span>{{rec.verified}}</span></div>
+                        <div>
+                            <label>备注：</label><span>{{rec.comment}}</span></div>
+                        <div>
+                            <label>签到次数：</label><span>{{rec.signin_num}}</span></div>
+                        <div ng-repeat="rnd in matter.rounds">
+                            <div>
+                                <label title="{{rnd.title}}">{{rnd.title}}：</label><span ng-if="rec.signin_log[rnd.rid]" ng-class="{'signin_late':rnd.late_at!==0&&(rec.signin_log[rnd.rid]+60)>rnd.late_at}">{{rec.signin_log[rnd.rid]*1000|date:'yy-MM-dd HH:mm'}}</span></div>
                         </div>
-                        <div class='list-group' ng-switch-when="enroll">
-                            <div class='list-group-item record' ng-repeat="rec in recordsByApp.enroll[matter.id]">
-                                <div>
-                                    <label>登记时间：</label><span>{{rec.enroll_at*1000|date:'yy-MM-dd HH:mm'}}</span></div>
-                                <div>
-                                    <label>审核通过：</label><span>{{rec.verified}}</span></div>
-                                <div>
-                                    <label>备注：</label><span>{{rec.comment}}</span></div>
-                                <div ng-repeat="schema in enrollAppSchemas[matter.id]" ng-switch on="schema.type">
-                                    <label>{{schema.title}}：</label>
-                                    <span ng-switch-when="image">
-                                            <img ng-repeat="img in rec._data[schema.id]" ng-src='{{img}}' />
-                                        </span>
-                                    <span ng-switch-when="file">
-                                            <span ng-repeat='file in rec._data[schema.id]'>{{file.name}}</span>
-                                    </span>
-                                    <span ng-switch-when="date">{{(rec._data[schema.id]*1000)|date:'yy-MM-dd HH:mm'}}</span>
-                                    <span ng-switch-default ng-bind-html="rec._data[schema.id]"></span>
-                                </div>
-                            </div>
-                        </div>
-                        <div class='list-group' ng-switch-when="signin">
-                            <div class='list-group-item record' ng-repeat="rec in recordsByApp.signin[matter.id]">
-                                <div>
-                                    <label>审核通过：</label><span>{{rec.verified}}</span></div>
-                                <div>
-                                    <label>备注：</label><span>{{rec.comment}}</span></div>
-                                <div>
-                                    <label>签到次数：</label><span>{{rec.signin_num}}</span></div>
-                                <div ng-repeat="rnd in matter.rounds">
-                                    <div>
-                                        <label>{{rnd.title}}：</label><span ng-class="{'signin_late':rnd.late_at!==0&&(rec.signin_log[rnd.rid]+60)>rnd.late_at}">{{rec.signin_log[rnd.rid]*1000|date:'yy-MM-dd HH:mm'}}</span></div>
-                                </div>
-                            </div>
-                        </div>
-                        <div class='list-group' ng-switch="group">
-                            <div class='list-group-item record' ng-repeat="rec in recordsByApp.group[matter.id]">
-                                <div>
-                                    <label>所属分组：</label><span>{{rec.round_title}}</span></div>
-                            </div>
-                        </div>
-                        <button class='btn btn-default btn-sm' ng-click="gotoDetail(matter)">查看活动全部数据</button>
-                        <button class='btn btn-default btn-sm' ng-click="show(matter)">放在展示页中</button>
-                    </a>
+                    </div>
                 </div>
-            </uib-tab>
-        </uib-tabset>
+                <div class='list-group' ng-switch-when="group">
+                    <div class='list-group-item record' ng-repeat="rec in recordsByApp.group[matter.id]">
+                        <div>
+                            <label>所属分组：</label><span>{{rec.round_title}}</span></div>
+                    </div>
+                </div>
+                <button class='btn btn-default btn-sm' ng-click="gotoDetail(matter)">查看活动全部数据</button>
+                <div ng-if="entered" class='pull-right'>
+                    <button class='btn btn-default btn-sm' ng-click="moveUp(matter,$index)"><i class='glyphicon glyphicon-arrow-up'></i></button>
+                    <button class='btn btn-default btn-sm' ng-click="moveDown(matter,$index)"><i class='glyphicon glyphicon-arrow-down'></i></button>
+                </div>
+            </div>
+        </div>
     </div>
 </div>
 <script type="text/ng-template" id="assignUserApp.html">

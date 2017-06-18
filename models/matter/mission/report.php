@@ -36,8 +36,9 @@ class report_model extends \TMS_MODEL {
 				if (!isset($modelEnl)) {
 					$modelEnl = $this->model('matter\enroll');
 				}
-				$oEnlApp = $modelEnl->byId($oApp->id, ['cascaded' => 'N', 'fields' => 'id,title,create_at,start_at']);
+				$oEnlApp = $modelEnl->byId($oApp->id, ['cascaded' => 'N', 'fields' => 'id,title,create_at,start_at,data_schemas']);
 				if ($oEnlApp) {
+					unset($oEnlApp->data_schemas);
 					$orderedApps[] = $oEnlApp;
 				}
 				break;

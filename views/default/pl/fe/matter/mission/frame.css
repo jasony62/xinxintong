@@ -42,7 +42,8 @@ form .form-group:last-child{margin-bottom:0;}
 /*report*/
 #viewReport img{height:48px;}
 #viewReport .matter{position:relative;}
-#viewReport .matter .seq{display:inline-block;width:2em;text-align:center;line-height:1.6em;font-size:.5em;position:absolute;top:0;right:0;background:#666;color:#fff;}
+#viewReport .matter .seq{display:inline-block;width:2em;text-align:center;line-height:1.6em;font-size:.5em;position:absolute;top:0;left:-1em;background:#666;color:#fff;border-radius:1em;}
 #viewReport .record>div{padding:.5em 0;border-bottom:1px dotted #ccc;}
+#viewReport .record>div:last-child{border-bottom:0;}
 #viewReport .record label{width:6em;overflow:hidden;vertical-align:bottom;white-space:nowrap;text-overflow:ellipsis;margin-right:1em;margin-bottom:0;}
 #viewReport .record img{max-width:100%}

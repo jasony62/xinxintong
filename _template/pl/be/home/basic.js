@@ -106,7 +106,6 @@ ngApp.provider.controller('ctrlHome', ['$scope', '$http', '$uibModal', 'tmsFavor
     goTop.addEventListener('click', function() {
         document.querySelector('body').scrollTop = 0;
     });
-
     listSites(5);
     listTemplates();
     $scope.listApps(12);

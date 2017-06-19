@@ -4556,6 +4556,13 @@ ngApp.controller('ctrlInput', ['$scope', '$http', '$q', '$uibModal', '$timeout',
                 $scope.$parent.errmsg = rsp.err_msg;
                 submitState.finish();
             }
+        }, function(rsp) {
+            if (typeof rsp === 'string') {
+                $scope.$parent.errmsg = rsp;
+            } else {
+                $scope.$parent.errmsg = rsp.err_msg;
+                submitState.finish();
+            }
         });
     }
 

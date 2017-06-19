@@ -3610,6 +3610,9 @@ ngApp.filter('filesize', function() {
     };
 });
 ngApp.controller('ctrlMain', ['$scope', '$http', '$timeout', '$q', 'tmsDynaPage', 'tmsSubscribe', 'tmsSnsShare', 'tmsCoinPay', 'tmsFavor', 'tmsForward', 'tmsSiteUser', function($scope, $http, $timeout, $q, tmsDynaPage, tmsSubscribe, tmsSnsShare, tmsCoinPay, tmsFavor, tmsForward, tmsSiteUser) {
+    var width = document.body.clientWidth;
+    $scope.width = width;
+
     function finish() {
         var eleLoading, eleStyle;
         eleLoading = document.querySelector('.loading');
@@ -3707,7 +3710,7 @@ ngApp.controller('ctrlMain', ['$scope', '$http', '$timeout', '$q', 'tmsDynaPage'
                     event.stopPropagation();
 
                     if (!user.loginExpire) {
-                        tmsDynaPage.openPlugin('http://' + location.host + '/rest/site/fe/user/login?site=' + oMatter.siteid).then(function(data) {
+                        tmsDynaPage.openPlugin('http://' + location.host + '/rest/site/fe/user/login?site=' + article.siteid).then(function(data) {
                             user.loginExpire = data.loginExpire;
                             tmsFavor.open(article);
                         });
@@ -3724,7 +3727,7 @@ ngApp.controller('ctrlMain', ['$scope', '$http', '$timeout', '$q', 'tmsDynaPage'
                     event.stopPropagation();
 
                     if (!user.loginExpire) {
-                        tmsDynaPage.openPlugin('http://' + location.host + '/rest/site/fe/user/login?site=' + oMatter.siteid).then(function(data) {
+                        tmsDynaPage.openPlugin('http://' + location.host + '/rest/site/fe/user/login?site=' + article.siteid).then(function(data) {
                             user.loginExpire = data.loginExpire;
                             tmsForward.open(article);
                         });

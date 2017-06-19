@@ -23,7 +23,7 @@ html,body{height:100%;width:100%;position: relative;overflow: hidden;}
 .btn-custom-default:hover,.btn-custom-default:active,.btn-custom-default:focus{color: #fff;background-color: #2994d0;}
 @media screen and (max-width:768px){
   #title{font-size: 24px;font-weight: 500;padding-top: 10px;}
-  .behavior .xs-attr{position: absolute;bottom:0;left: 0;}
+  .behavior .xs-attr{width:100%;position: absolute;bottom:5px;left: 0;}
   .behavior #attr > div{width: 33%;font-size: 21px;text-align: center;margin-right: 0px;}
   .behavior #attr h6{display: none;}
 }

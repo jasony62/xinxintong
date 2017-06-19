@@ -107,7 +107,7 @@ ngApp.filter('filesize', function() {
     };
 });
 ngApp.controller('ctrlMain', ['$scope', '$http', '$timeout', '$q', 'tmsDynaPage', 'tmsSubscribe', 'tmsSnsShare', 'tmsCoinPay', 'tmsFavor', 'tmsForward', 'tmsSiteUser', function($scope, $http, $timeout, $q, tmsDynaPage, tmsSubscribe, tmsSnsShare, tmsCoinPay, tmsFavor, tmsForward, tmsSiteUser) {
-    var width = angular.element(window).width();
+    var width = document.body.clientWidth;
     $scope.width = width;
 
     function finish() {

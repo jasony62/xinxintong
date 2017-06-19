@@ -616,6 +616,39 @@ define(['frame'], function(ngApp) {
         };
         $scope.doSearch(1);
     }]);
+    ngApp.provider.controller('ctrlSiteSubscribe', ['$scope', '$uibModal', 'http2', function($scope, $uibModal, http2) {
+        $scope.page = {
+            at: 1,
+            size: 30,
+        };
+        $scope.doSearch = function(page) {
+            var url = '/rest/pl/fe/site/subscriberList';
+            page && ($scope.page.at = page);
+            url += '?site=' + $scope.frameState.sid;
+            url += '&category=client';
+            url += '&page=' + $scope.page.at + '&size=' + $scope.page.size;
+            http2.get(url, function(rsp) {
+                $scope.users = rsp.data.subscribers;
+                $scope.page.total = rsp.data.total;
+            });
+        };
+        $scope.openProfile = function(uid) {
+            //location.href = '/rest/pl/fe/site/user/fans?site=' + $scope.frameState.sid + '&uid=' + uid;
+        };
+        $scope.find = function() {
+            var url = '/rest/pl/fe/site/subscriberList',
+                data = {
+                    nickname: $scope.nickname
+                };
+            url += '?site=' + $scope.frameState.sid;
+            url += '&category=client';
+            http2.post(url, data, function(rsp) {
+                $scope.users = rsp.data.subscribers;
+                $scope.page.total = rsp.data.total;
+            })
+        };
+        $scope.doSearch(1);
+    }]);
     ngApp.provider.controller('ctrlRecycle', ['$scope', 'http2', function($scope, http2) {
         var t = (new Date() * 1),
             filter, filter2;

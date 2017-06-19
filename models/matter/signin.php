@@ -76,9 +76,9 @@ class signin_model extends app_base {
 			}
 			if ($cascaded === 'Y') {
 				/* 页面 */
-				$app->pages = \TMS_APP::M('matter\signin\page')->byApp($appId);
+				$app->pages = $this->model('matter\signin\page')->byApp($appId);
 				/* 轮次 */
-				$app->rounds = \TMS_APP::M('matter\signin\round')->byApp($appId);
+				$app->rounds = $this->model('matter\signin\round')->byApp($appId, ['fields' => 'id,rid,title,start_at,end_at,late_at,state']);
 			}
 		}
 
@@ -297,12 +297,48 @@ class signin_model extends app_base {
 		return $summary;
 	}
 	/**
+	 * 指定用户的行为报告
+	 */
+	public function reportByUser($oApp, $oUser) {
+		$modelRec = $this->model('matter\signin\record');
+
+		$oRecord = $modelRec->byUser($oUser, $oApp, ['fields' => 'id,signin_num,signin_log']);
+		if (false === $oRecord) {
+			return false;
+		}
+		$result = new \stdClass;
+
+		$result->signin_num = $oRecord->signin_num;
+
+		$late_num = 0;
+		if (!empty($oApp->rounds) && !empty($oRecord->signin_log)) {
+			foreach ($oApp->rounds as $oRound) {
+				if (isset($oRecord->signin_log->{$oRound->rid})) {
+					if ($oRound->late_at) {
+						if ($oRecord->signin_log->{$oRound->rid} > $oRound->late_at + 60) {
+							$late_num++;
+						}
+					}
+				}
+
+			}
+		}
+		if ($late_num) {
+			$result->late_num = $late_num;
+		}
+
+		return $result;
+	}
+	/**
 	 * 获得参加登记活动的用户的昵称
 	 *
 	 * @param object $oApp
 	 * @param object $oUser [uid,nickname]
 	 */
 	public function getUserNickname(&$oApp, $oUser) {
+		if (empty($oUser->uid)) {
+			return '';
+		}
 		$nickname = '';
 		$entryRule = $oApp->entry_rule;
 		if (isset($entryRule->scope) && $entryRule->scope === 'member') {

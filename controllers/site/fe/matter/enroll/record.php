@@ -54,6 +54,10 @@ class record extends base {
 		$userNickname = $modelEnl->getUserNickname($oEnrollApp, $oUser);
 		$oUser->nickname = $userNickname;
 
+		/* 记录数据提交日志，跟踪提交特殊数据失败的问题 */
+		$rawPosted = file_get_contents("php://input");
+		$this->model('log')->log('trace', 'enroll-submit-' . $oUser->uid, $rawPosted);
+
 		// 提交的数据
 		$posted = $this->getPostJson();
 		if (isset($posted->data)) {
@@ -613,6 +617,7 @@ class record extends base {
 		);
 
 		$oApp = new \stdClass;
+		$oApp->siteid = $this->siteId;
 		$oApp->id = $oRecordData->aid;
 		$modelUsr = $this->model('matter\enroll\user');
 		/* 更新进行点赞的活动用户的数据 */

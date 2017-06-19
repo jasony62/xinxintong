@@ -1,6 +1,7 @@
 ngApp.provider.controller('ctrlHome', ['$scope', '$http', 'tmsFavor', 'tmsForward', 'tmsDynaPage', function($scope, $http, tmsFavor, tmsForward, tmsDynaPage) {
     var ls = location.search,
         siteId = ls.match(/site=([^&]*)/)[1],
+        width = angular.element(window).width(),
         page, entry, url;
     url = 'http://' + location.host + '/rest/site/home?site=' + siteId;
     $scope.entry = entry = {
@@ -34,9 +35,14 @@ ngApp.provider.controller('ctrlHome', ['$scope', '$http', 'tmsFavor', 'tmsForwar
         });
     }
     function c_listChannels() {
+        $scope.c_prev_channels = [], $scope.c_next_channels = [];
         $http.get('/rest/site/home/listChannel?site=' + siteId + '&homeGroup=C').success(function(rsp) {
             $scope.c_channels = rsp.data;
-            $scope.c_channels.forEach(function(channel) {
+            rsp.data.forEach(function(item,index) {
+                index < 3 ? $scope.c_prev_channels.push(item) : $scope.c_next_channels.push(item);
+            });
+            width > 768 ? $scope.c_channels_matters = $scope.c_channels : $scope.c_channels_matters = $scope.c_prev_channels;
+            $scope.c_channels_matters.forEach(function(channel) {
                 $http.get('/rest/site/fe/matter/channel/mattersGet?site=' + siteId + '&id=' + channel.channel_id + '&' + page.j()).success(function(rsp) {
                     var chid = channel.channel_id, data = [];
                     data.data = rsp.data;
@@ -48,11 +54,20 @@ ngApp.provider.controller('ctrlHome', ['$scope', '$http', 'tmsFavor', 'tmsForwar
         });
     };
     function r_listChannels() {
+        $scope.r_prev_channels = [], $scope.r_next_channels = [], $scope.channelArticles = [];
         $http.get('/rest/site/home/listChannel?site=' + siteId + '&homeGroup=R').success(function(rsp) {
             $scope.r_channels = rsp.data;
-            $scope.r_channels.forEach(function(channel) {
-                $http.get('/rest/site/fe/matter/channel/mattersGet?site=' + siteId + '&id=' + channel.channel_id + '&page=1&size=5').success(function(rsp) {
-                    channel._matters = rsp.data;
+            rsp.data.forEach(function(item, index) {
+                index < 3 ? $scope.r_prev_channels.push(item) : $scope.r_next_channels.push(item);
+            });
+            width > 768 ? $scope.r_channels_matters = $scope.r_channels : $scope.r_channels_matters = $scope.r_channels_matters = $scope.r_prev_channels;
+            $scope.r_channels_matters.forEach(function(item,index) {
+                $http.get('/rest/site/fe/matter/channel/mattersGet?site=' + siteId + '&id=' + item.channel_id + '&page=1&size=5').success(function(rsp) {
+                    $scope.channelArticles.push({
+                        title: item.title,
+                        url: '/rest/site/fe/matter?site=' + item.siteid + '&id=' + item.channel_id + '&type=channel',
+                        data: rsp.data
+                    });
                 });
             });
         });

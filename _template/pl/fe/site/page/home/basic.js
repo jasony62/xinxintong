@@ -2,7 +2,8 @@ ngApp.provider.controller('ctrlHome', ['$scope', '$http', 'tmsFavor', 'tmsForwar
     var ls = location.search,
         siteId = ls.match(/site=([^&]*)/)[1],
         width = angular.element(window).width(),
-        page, entry, url;
+        page, entry, url, goTop;
+    width > 768 ? goTop = document.querySelector('#md_gototop') : goTop = document.querySelector('#xs_gototop');
     url = 'http://' + location.host + '/rest/site/home?site=' + siteId;
     $scope.entry = entry = {
         url: url,
@@ -101,7 +102,7 @@ ngApp.provider.controller('ctrlHome', ['$scope', '$http', 'tmsFavor', 'tmsForwar
     $scope.openMatter = function(matter) {
         location.href = matter.url;
     };
-    document.querySelector('#gototop').addEventListener('click', function() {
+    goTop.addEventListener('click', function() {
         document.querySelector('body').scrollTop = 0;
     });
     listTemplates();

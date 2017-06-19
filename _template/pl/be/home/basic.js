@@ -1,5 +1,6 @@
 ngApp.provider.controller('ctrlHome', ['$scope', '$http', '$uibModal', 'tmsFavor', 'tmsForward', 'tmsDynaPage', function($scope, $http, $uibModal, tmsFavor, tmsForward, tmsDynaPage) {
-    var page, width = angular.element(window).width();
+    var page, goTop, width = angular.element(window).width();
+    width > 768 ? goTop = document.querySelector('#md_gototop') : goTop = document.querySelector('#xs_gototop');
     $scope.page = page = {
         at: 1,
         size: 5,
@@ -99,7 +100,7 @@ ngApp.provider.controller('ctrlHome', ['$scope', '$http', '$uibModal', 'tmsFavor
     $http.get('/rest/home/listMatterTop?type=article&page=1&size=3').success(function(rsp) {
         $scope.topArticles = rsp.data.matters;
     });
-    document.querySelector('#gototop').addEventListener('click', function() {
+    goTop.addEventListener('click', function() {
         document.querySelector('body').scrollTop = 0;
     });
     listSites(5);

@@ -3,8 +3,8 @@
         <div class='col-md-12'>
             <div ng-controller="ctrlCarousel">
                 <div uib-carousel active="active" interval="myInterval" no-wrap="noWrapSlides">
-                    <div uib-slide ng-repeat="slide in slides" index="$index">
-                        <img ng-src="{{slide.picUrl}}" >
+                    <div uib-slide ng-repeat="slide in slides" index="$index" style="padding-top:30%;position:relative">
+                        <img ng-src="{{slide.picUrl}}" style="position:absolute;top:0;left:0;width:100%;height:100%">
                         <div class="carousel-caption"></div>
                     </div>
                 </div>
@@ -36,8 +36,8 @@
     </div>
     <div class='row'>
         <div class='col-md-12 col-xs-12'>
-            <div class="col-md-3 col-xs-12 bgfa">
-                <div class="mainSide hidden-xs" ng-repeat="r in channelArticles">
+            <div class="col-md-3 col-xs-12">
+                <div class="mainSide hidden-xs bgfa" ng-repeat="r in channelArticles">
                     <div class="mainSide-header">
                         <span class="site_fe_home site_fe_home_icon xxt_guide"></span>
                         <h3 class="inline-block">{{r.title}}</h3>
@@ -55,7 +55,7 @@
                         </ul>
                     </div>
                 </div>
-                <div class="mainSide visible-xs-block">
+                <div class="mainSide visible-xs-block bgfa">
                     <uib-tabset active="0" class="row">
                         <uib-tab index="$index" ng-repeat="r in channelArticles">
                             <uib-tab-heading>{{r.title}}</uib-tab-heading>
@@ -89,9 +89,9 @@
                         <uib-tab-heading>{{c.title}}</uib-tab-heading>
                         <table class="table table-hover">
                             <tbody>
-                                <tr ng-repeat="m in cTotal[c.channel_id]['data']">
+                                <tr class="media-item" ng-repeat="m in cTotal[c.channel_id]['data']" ng-click="openMatter(m)">
                                     <td>
-                                        <div class="media-item">
+                                        <div>
                                             <div class="media-item-left pull-left">
                                                 <div class="media-item-img">
                                                     <img class="media-object" ng-src='{{m.pic||m.thumbnail}}'>
@@ -99,13 +99,13 @@
                                             </div>
                                             <div class="media-item-body pull-left">
                                                 <div class='creater_name'>
-                                                    <a ng-href='/rest/site/home?site={{m.siteid}}'>
+                                                    <a ng-href='/rest/site/home?site={{site.id}}'>
                                                         <img class="img-circle" ng-src="{{site.heading_pic}}" alt="" style="width:12px;height:12px">
-                                                        <h6 class="inline pdl10">{{m.site_name}}</h6>
+                                                        <h6 class="inline pdl10">{{site.name}}</h6>
                                                         <i class="glyphicon glyphicon-menu-right pull-right"></i>
                                                     </a>
                                                 </div>
-                                                <h4 class="media-heading" ng-click="openMatter(m)">{{m.title}}</h4>
+                                                <h4 class="media-heading" >{{m.title}}</h4>
                                                 <h5 class="media-summary">{{m.summary}}</h5>
                                                 <div class='attr clearfix'>
                                                     <div class="favor pull-left">

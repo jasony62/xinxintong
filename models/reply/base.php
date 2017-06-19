@@ -147,6 +147,9 @@ abstract class MultiArticleReply extends Reply {
 	 */
 	public function exec() {
 		$matters = $this->loadMatters();
+		if (empty($matters)) {
+			die('');
+		}
 		$r = $this->cardResponse($matters);
 		die($r);
 	}

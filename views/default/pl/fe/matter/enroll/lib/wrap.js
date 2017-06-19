@@ -127,7 +127,7 @@ define([], function() {
         html += '>' + op.l + '</span></label></li>';
 
         return html;
-    };
+    }
 
     function _htmlCheckbox(schema, op, config, forEdit) {
         var html, cls;
@@ -148,7 +148,7 @@ define([], function() {
         html += '>' + op.l + '</span></label></li>';
 
         return html;
-    };
+    }
 
     function _htmlNumber(schema, op, config, forEdit) {
         var html, index;
@@ -167,7 +167,22 @@ define([], function() {
         html += '</div></li>';
 
         return html;
-    };
+    }
+
+    function _htmlSupplement($dom, schema) {
+        var $supplement;
+        if (schema.supplement === 'Y') {
+            $supplement = $dom.find('.supplement');
+            if ($supplement.length === 0) {
+                $dom.append('<textarea style="height: auto;" placeholder="补充说明" rows=3 class="form-control input-lg supplement" ng-model="supplement.' + schema.id + '"></textarea>');
+            }
+        } else {
+            $supplement = $dom.find('.supplement');
+            if ($supplement.length) {
+                $supplement.remove();
+            }
+        }
+    }
 
     InputWrap.prototype.newRadio = function(schema, op, config, forEdit) {
         return _htmlRadio(schema, op, config, forEdit);
@@ -178,47 +193,57 @@ define([], function() {
     InputWrap.prototype.newNumber = function(schema, op, config, forEdit) {
         return _htmlNumber(schema, op, config, forEdit);
     };
-    InputWrap.prototype._htmlSingleRadio = function(oWrap, forEdit) {
+    InputWrap.prototype._htmlSingleRadio = function(oWrap, forEdit, onlyChildren) {
         var config = oWrap.config,
             schema = oWrap.schema,
-            html = '<ul>';
+            html = '';
 
         schema.ops.forEach(function(op) {
             html += _htmlRadio(schema, op, config, forEdit);
         });
-        html += '</ul>';
+        if (!onlyChildren) {
+            html = '<ul>' + html + '</ul>';
+        }
 
         return html;
     };
-    InputWrap.prototype._htmlSingleSelect = function(oWrap) {
+    InputWrap.prototype._htmlSingleSelect = function(oWrap, onlyChildren) {
         var config = oWrap.config,
             schema = oWrap.schema,
-            html;
-        html = '<select class="form-control input-lg" ng-model="data.' + schema.id + '"';
-        config.required === 'Y' && (html += 'required=""');
-        html += ' title="' + schema.title + '">\r\n';
-        angular.forEach(schema.ops, function(op) {
+            html = '',
+            html2;
+
+        schema.ops.forEach(function(op) {
             html += '<option wrap="option" name="data.' + schema.id + '" value="' + op.v + '"' + 'data-label="' + op.l + '"' + 'title="' + schema.title + '"' + '>' + op.l + '</option>';
         });
-        html += '\r\n</select>';
+
+        if (!onlyChildren) {
+            html2 = '<select class="form-control input-lg" ng-model="data.' + schema.id + '"';
+            config.required === 'Y' && (html2 += 'required=""');
+            html2 += ' title="' + schema.title + '">\r\n';
+            html = html2 + html + '\r\n</select>';
+        }
 
         return html;
     };
-    InputWrap.prototype._htmlMultiple = function(oWrap, forEdit) {
+    InputWrap.prototype._htmlMultiple = function(oWrap, forEdit, onlyChildren) {
         var config = oWrap.config,
             schema = oWrap.schema,
-            html;
-
-        html = '<ul';
-        if (config.setUpper === 'Y') {
-            html += ' tms-checkbox-group="' + schema.id + '" tms-checkbox-group-model="data" tms-checkbox-group-upper="' + config.upper + '"';
-        }
-        html += '>';
+            html = '',
+            html2;
 
         schema.ops.forEach(function(op) {
             html += _htmlCheckbox(schema, op, config, forEdit);
         });
-        html += '</ul>';
+
+        if (!onlyChildren) {
+            html2 = '<ul';
+            if (config.setUpper === 'Y') {
+                html2 += ' tms-checkbox-group="' + schema.id + '" tms-checkbox-group-model="data" tms-checkbox-group-upper="' + config.upper + '"';
+            }
+            html2 += '>';
+            html = html2 + html + '</ul>';
+        }
 
         return html;
     };
@@ -249,9 +274,6 @@ define([], function() {
         forEdit && (inpAttrs.contenteditable = 'false');
 
         switch (schema.type) {
-            case 'name':
-            case 'mobile':
-            case 'email':
             case 'shorttext':
             case 'member':
                 if (schema.type === 'shorttext' && schema.history === 'Y') {
@@ -378,10 +400,10 @@ define([], function() {
                 //从新生成容器内的内容
                 $dom.html(this.embed(dataWrap).html);
             } else {
-                $label = $dom.find('label');
+                $label = $dom.children('label');
                 $label.html(schema.title);
 
-                if (/name|email|mobile|shorttext|longtext|member|date|location/.test(schema.type)) {
+                if (/shorttext|longtext|member|date|location/.test(schema.type)) {
                     $input = $dom.find('input,select,textarea');
                     if (config.showname === 'label') {
                         $label.removeClass('sr-only');
@@ -397,48 +419,36 @@ define([], function() {
                     }
                 } else if (/single|phase/.test(schema.type)) {
                     (function(lib) {
-                        var html, $supplement;
-                        if (schema.ops && schema.ops.length > 0) {
-                            $dom.children('ul,select').remove();
+                        var html;
+                        if (schema.ops) {
                             if (config.component === 'R') {
-                                html = lib._htmlSingleRadio(dataWrap);
-                                $dom.append(html);
+                                if ($dom.children('ul').length) {
+                                    html = lib._htmlSingleRadio(dataWrap, false, true);
+                                    $dom.children('ul').html(html);
+                                } else if ($dom.children('select').length) {
+                                    html = lib._htmlSingleRadio(dataWrap, false, false);
+                                    $dom.children('select').replaceWith(html);
+                                }
                             } else if (config.component === 'S') {
-                                html = lib._htmlSingleSelect(dataWrap);
-                                $dom.append(html);
+                                if ($dom.children('select').length) {
+                                    html = lib._htmlSingleSelect(dataWrap, true);
+                                    $dom.children('select').html(html);
+                                } else if ($dom.children('ul').length) {
+                                    html = lib._htmlSingleSelect(dataWrap, false);
+                                    $dom.children('ul').replaceWith(html);
+                                }
                             }
                         }
-                        if (schema.supplement === 'Y') {
-                            $supplement = $dom.find('.supplement');
-                            if ($supplement.length === 0) {
-                                $dom.append('<textarea style="height: auto;" placeholder="补充说明" rows=3 class="form-control input-lg supplement" ng-model="supplement.' + schema.id + '"></textarea>');
-                            }
-                        } else {
-                            $supplement = $dom.find('.supplement');
-                            if ($supplement.length) {
-                                $supplement.remove();
-                            }
-                        }
+                        _htmlSupplement($dom, schema);
                     })(this);
                 } else if ('multiple' === schema.type) {
                     (function(lib) {
-                        var html, $supplement;
-                        if (schema.ops && schema.ops.length > 0) {
-                            html = lib._htmlMultiple(dataWrap);
-                            $dom.children('ul').remove();
-                            $dom.append(html);
+                        var html;
+                        if (schema.ops) {
+                            html = lib._htmlMultiple(dataWrap, false, true);
+                            $dom.children('ul').html(html);
                         }
-                        if (schema.supplement === 'Y') {
-                            $supplement = $dom.find('.supplement');
-                            if ($supplement.length === 0) {
-                                $dom.append('<textarea style="height: auto;" placeholder="补充说明" rows=3 class="form-control input-lg supplement" ng-model="supplement.' + schema.id + '"></textarea>');
-                            }
-                        } else {
-                            $supplement = $dom.find('.supplement');
-                            if ($supplement.length) {
-                                $supplement.remove();
-                            }
-                        }
+                        _htmlSupplement($dom, schema);
                     })(this);
                 } else if ('score' === schema.type) {
                     (function(lib) {
@@ -452,40 +462,20 @@ define([], function() {
                 } else if (/image/.test(schema.type)) {
                     (function(lib) {
                         var $button = $dom.find('li.img-picker button'),
-                            sNgClick, $supplement;
+                            sNgClick;
 
                         sNgClick = 'chooseImage(' + "'" + schema.id + "'," + schema.count + ')';
                         $button.attr('ng-click', sNgClick);
-                        if (schema.supplement === 'Y') {
-                            $supplement = $dom.find('.supplement');
-                            if ($supplement.length === 0) {
-                                $dom.append('<textarea style="height: auto;" placeholder="补充说明" rows=3 class="form-control input-lg supplement" ng-model="supplement.' + schema.id + '"></textarea>');
-                            }
-                        } else {
-                            $supplement = $dom.find('.supplement');
-                            if ($supplement.length) {
-                                $supplement.remove();
-                            }
-                        }
+                        _htmlSupplement($dom, schema);
                     })(this);
                 } else if (/file/.test(schema.type)) {
                     (function(lib) {
                         var $button = $dom.find('li.file-picker button'),
-                            sNgClick, $supplement;
+                            sNgClick;
 
                         sNgClick = 'chooseFile(' + "'" + schema.id + "'," + schema.count + ')';
                         $button.attr('ng-click', sNgClick).html(schema.title);
-                        if (schema.supplement === 'Y') {
-                            $supplement = $dom.find('.supplement');
-                            if ($supplement.length === 0) {
-                                $dom.append('<textarea style="height: auto;" placeholder="补充说明" rows=3 class="form-control input-lg supplement" ng-model="supplement.' + schema.id + '"></textarea>');
-                            }
-                        } else {
-                            $supplement = $dom.find('.supplement');
-                            if ($supplement.length) {
-                                $supplement.remove();
-                            }
-                        }
+                        _htmlSupplement($dom, schema);
                     })(this);
                 }
             }

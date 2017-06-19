@@ -196,10 +196,13 @@ class member extends \site\fe\base {
 		}
 		if ($oNewMember = $rst[1]) {
 			/* 绑定当前站点用户 */
-			$modelWay->bindMember($oMschema->siteid, $oNewMember);
+			$cookieUser = $modelWay->bindMember($oMschema->siteid, $oNewMember);
 		} else {
 			throw new \Exception('程序异常：无法创建自定义用户');
 		}
+
+		//记录站点活跃数
+		$this->model('site\active')->add($oNewMember->siteid, $cookieUser, 0, 'creatMember');
 
 		return new \ResponseData($oNewMember);
 	}

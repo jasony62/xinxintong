@@ -115,9 +115,7 @@ ul{margin-top: 0;margin-bottom: 0;}
 }
 
 /* 小屏幕底部 */
-.row > .footer{padding:20px 25px 5px 10px;background-color: #fff;}
-.row > .footer > hr{margin-top: 35px;margin-bottom: 5px;}
-.row > .footer >p{color: #999;font-size:12px;text-align: center;}
+.row > .footer{padding:10px;background-color: #fff;overflow: hidden;}
 
 /* 右侧栏小工具 */
 .tms-tool-sidebar{position:fixed;right:0;width:60px;height:60px;cursor:pointer;}

@@ -106,8 +106,8 @@ ngApp.provider.controller('ctrlHome', ['$scope', '$http', '$uibModal', 'tmsFavor
     });
     listSites(5);
     listTemplates();
-    $scope.listApps(5);
-    $scope.listArticles(5);
+    $scope.listApps(12);
+    $scope.listArticles(12);
     $scope.listChannels();
 }]);
 ngApp.provider.controller('ctrlCarousel', function($scope) {

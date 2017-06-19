@@ -13,7 +13,7 @@ ngApp.provider.controller('ctrlHome', ['$scope', '$http', 'tmsFavor', 'tmsForwar
     $scope.siteId = siteId;
     $scope.page = page = {
         at: 1,
-        size: 5,
+        size: 12,
         j: function() {
             return '&page=' + this.at + '&size=' + this.size;
         }
@@ -42,7 +42,7 @@ ngApp.provider.controller('ctrlHome', ['$scope', '$http', 'tmsFavor', 'tmsForwar
             rsp.data.forEach(function(item,index) {
                 index < 3 ? $scope.c_prev_channels.push(item) : $scope.c_next_channels.push(item);
             });
-            width > 768 ? $scope.c_channels_matters = $scope.c_channels : $scope.c_channels_matters = $scope.c_prev_channels;
+            $scope.c_channels_matters = $scope.c_prev_channels;
             $scope.c_channels_matters.forEach(function(channel) {
                 $http.get('/rest/site/fe/matter/channel/mattersGet?site=' + siteId + '&id=' + channel.channel_id + '&' + page.j()).success(function(rsp) {
                     var chid = channel.channel_id, data = [];

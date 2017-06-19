@@ -136,7 +136,7 @@
                             <button class='btn btn-lg btn-primary  btn-gradient center-block' ng-click="moreMatters(c.channel_id)" ng-if="cTotal[c.channel_id]['total'] >= page.size">加载更多</button>
                         </div>
                     </uib-tab>
-                    <span uib-dropdown on-toggle="toggled(open)" class="visible-xs-block pull-right" ng-if="c_channels.length > 3" >
+                    <span uib-dropdown on-toggle="toggled(open)" class="pull-right" ng-if="c_channels.length > 3" >
                         <a href id="simple-dropdown" uib-dropdown-toggle>
                             <i class="glyphicon glyphicon-th-list"></i>
                         </a>
@@ -156,8 +156,6 @@
         <div class="footer">
             <a href="" class="pull-right" id='xs_gototop'>&nbsp;|&nbsp;回顶部</a>
             <a href="" class="pull-right" ng-if="site.home_qrcode_group">扫一扫加入群聊</a>
-            <hr />
-            <p>Copyright2014-2017 NEALSNC</p>
         </div>
     </div>
     <div id='md_gototop' class='tms-tool-sidebar tms-tool-backtop hidden-xs'>

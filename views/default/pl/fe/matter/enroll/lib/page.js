@@ -394,7 +394,7 @@ define(['wrap'], function(SchemaWrap) {
         appendSchema: function(schema, afterSchema) {
             return false;
         },
-        appendRecordList: function(app) {
+        appendRecordList: function(oApp) {
             var dataWrap = {
                 config: {
                     id: 'L' + (new Date() * 1),
@@ -402,7 +402,7 @@ define(['wrap'], function(SchemaWrap) {
                     dataScope: 'U',
                     onclick: '',
                 },
-                schemas: angular.copy(app.data_schemas)
+                schemas: angular.copy(oApp.data_schemas)
             };
 
             dataWrap.schemas.push({
@@ -410,6 +410,15 @@ define(['wrap'], function(SchemaWrap) {
                 type: '_enrollAt',
                 title: '登记时间'
             });
+
+            if (oApp.pages && oApp.pages.length) {
+                for (var i = 0, ii = oApp.pages.length; i < ii; i++) {
+                    if (oApp.pages[i].type === 'V') {
+                        dataWrap.config.onclick = oApp.pages[i].name;
+                        break;
+                    }
+                }
+            }
 
             this.data_schemas.push(dataWrap);
 
@@ -484,10 +493,23 @@ define(['wrap'], function(SchemaWrap) {
             return true;
         },
         updateSchema: function(oSchema, oBeforeState) {
-            var $html;
+            var $html, $wrap, $supplement;
 
             $html = $('<div>' + this.html + '</div>');
-            $html.find("[schema='" + oSchema.id + "']").find('label').html(oSchema.title);
+            $wrap = $html.find("[schema='" + oSchema.id + "']");
+            $wrap.find('label').html(oSchema.title);
+
+            if (oSchema.supplement) {
+                if (oSchema.supplement === 'Y') {
+                    $supplement = $wrap.find('.supplement');
+                    if ($supplement.length === 0) {
+                        $wrap.append('<p class="supplement" ng-bind="r.supplement.' + oSchema.id + '"></p>');
+                    }
+                } else {
+                    $wrap.find('.supplement').remove();
+                }
+            }
+
             this.html = $html.html();
 
             return true;

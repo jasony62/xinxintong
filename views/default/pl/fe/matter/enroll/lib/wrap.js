@@ -653,9 +653,6 @@ define([], function() {
     ValueWrap.prototype.htmlValue = function(schema) {
         var html;
         switch (schema.type) {
-            case 'name':
-            case 'mobile':
-            case 'email':
             case 'shorttext':
             case 'longtext':
             case 'member':
@@ -801,9 +798,6 @@ define([], function() {
         schemas.forEach(function(schema) {
             html += '<div wrap="value" class="wrap-inline wrap-splitline" schema="' + schema.id + '"><label>' + schema.title + '</label>';
             switch (schema.type) {
-                case 'name':
-                case 'email':
-                case 'mobile':
                 case 'shorttext':
                 case 'longtext':
                 case 'location':
@@ -833,6 +827,9 @@ define([], function() {
                 case '_enrollerHeadpic':
                     html += "<div><img ng-src='{{r.headimgurl}}'></div>";
                     break;
+            }
+            if (schema.supplement && schema.supplement === 'Y') {
+                html += '<p class="supplement" ng-bind="r.supplement.' + schema.id + '"></p>';
             }
             html += '</div>';
         });

@@ -41,7 +41,7 @@ body{font-family:Microsoft Yahei,Arial;}
 #schema-view .schema-options .option input[type=radio],#schema-view .schema-options .option input[type=checkbox]{vertical-align:middle;margin-top:0;}
 #schema-view .schema-options .option div[editable]{display:inline-block;vertical-align:middle;margin-left:8px;width:300px;}
 #schema-view .schema-options .option.entered{background:#f8f8f8;}
-#schema-view .schema-options .option button{position:absolute;top:50%;right:5px;margin-top:-10px;}
+#schema-view .schema-options .option .btn-group{position:absolute;top:50%;right:5px;margin-top:-10px;}
 #schema-view [editable]{cursor:text;}
 #schema-view .actions{margin-top:10px;padding-top:10px;border-top:1px dotted #ddd;}
 #schema-view .schema .description{word-wrap: break-word;}

@@ -92,6 +92,26 @@ define(['frame'], function(ngApp) {
                 $scope.saveTargets();
             });
         };
+        $scope.moveUpTarget = function(oTarget) {
+            var targets = $scope.aTargets,
+                index = targets.indexOf(oTarget);
+
+            if (index > 0) {
+                targets.splice(index, 1);
+                targets.splice(index - 1, 0, oTarget);
+                $scope.saveTargets();
+            }
+        };
+        $scope.moveDownTarget = function(oTarget) {
+            var targets = $scope.aTargets,
+                index = targets.indexOf(oTarget);
+
+            if (index < targets.length - 1) {
+                targets.splice(index, 1);
+                targets.splice(index + 1, 0, oTarget);
+                $scope.saveTargets();
+            }
+        };
         $scope.removeTarget = function(i) {
             $scope.aTargets.splice(i, 1);
             $scope.saveTargets();

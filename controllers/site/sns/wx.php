@@ -54,8 +54,7 @@ class wx extends \member_base {
 		/**
 		 * 消息已经收到，不处理
 		 */
-
-		if (!empty($msg['msgid']) && $modelLog->hasReceived($msg)) {
+		if ($modelLog->hasReceived($msg)) {
 			die('');
 		}
 

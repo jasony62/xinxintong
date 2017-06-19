@@ -188,38 +188,38 @@ ngApp.directive('tmsImageInput', ['$compile', '$q', function($compile, $q) {
             i = 0,
             j = 0,
             nextWxImage;
-        if (window.wx !== undefined && modifiedImgFields.length) {
-            nextWxImage = function() {
-                var imgField, img;
-                imgField = data[modifiedImgFields[i]];
-                img = imgField[j];
-                window.xxt.image.wxUpload($q.defer(), img).then(function(data) {
-                    if (j < imgField.length - 1) {
-                        /* next img*/
-                        j++;
-                        nextWxImage();
-                    } else if (i < modifiedImgFields.length - 1) {
-                        /* next field*/
-                        j = 0;
-                        i++;
-                        nextWxImage();
-                    } else {
-                        defer.resolve('ok');
-                    }
-                });
-            };
-            nextWxImage();
-        } else {
-            defer.resolve('ok');
-        }
+        // if (window.wx !== undefined && modifiedImgFields.length) {
+        //     nextWxImage = function() {
+        //         var imgField, img;
+        //         imgField = data[modifiedImgFields[i]];
+        //         img = imgField[j];
+        //         window.xxt.image.wxUpload($q.defer(), img).then(function(data) {
+        //             if (j < imgField.length - 1) {
+        //                 /* next img*/
+        //                 j++;
+        //                 nextWxImage();
+        //             } else if (i < modifiedImgFields.length - 1) {
+        //                 /* next field*/
+        //                 j = 0;
+        //                 i++;
+        //                 nextWxImage();
+        //             } else {
+        //                 defer.resolve('ok');
+        //             }
+        //         });
+        //     };
+        //     nextWxImage();
+        // } else {
+        defer.resolve('ok');
+        //}
         return defer.promise;
     };
     return {
         restrict: 'A',
         controller: ['$scope', '$timeout', function($scope, $timeout) {
-            $scope.beforeSubmit(function() {
-                return onSubmit($scope.data);
-            });
+            // $scope.beforeSubmit(function() {
+            //     return onSubmit($scope.data);
+            // });
             $scope.chooseImage = function(imgFieldName, count, from) {
                 if (imgFieldName !== null) {
                     modifiedImgFields.indexOf(imgFieldName) === -1 && modifiedImgFields.push(imgFieldName);
@@ -252,9 +252,9 @@ ngApp.directive('tmsImageInput', ['$compile', '$q', function($compile, $q) {
                     $timeout(function() {
                         for (i = 0, j = imgs.length; i < j; i++) {
                             img = imgs[i];
-                            if (window.wx !== undefined) {
-                                document.querySelector('ul[name="' + imgFieldName + '"] li:nth-last-child(2) img').setAttribute('src', img.imgSrc);
-                            }
+                            //if (window.wx !== undefined) {
+                            document.querySelector('ul[name="' + imgFieldName + '"] li:nth-last-child(2) img').setAttribute('src', img.imgSrc);
+                            //}
                         }
                         $scope.$broadcast('xxt.enroll.image.choose.done', imgFieldName);
                     });
@@ -404,6 +404,13 @@ ngApp.controller('ctrlInput', ['$scope', '$http', '$q', '$uibModal', '$timeout',
                     }
                 }
                 $scope.$broadcast('xxt.app.enroll.submit.done', rsp.data);
+            }
+        }, function(rsp) {
+            if (typeof rsp === 'string') {
+                $scope.$parent.errmsg = rsp;
+            } else {
+                $scope.$parent.errmsg = rsp.err_msg;
+                submitState.finish();
             }
         }, function(rsp) {
             if (typeof rsp === 'string') {

@@ -4,68 +4,125 @@
             <div ng-controller="ctrlCarousel">
                 <div uib-carousel active="active" interval="myInterval" no-wrap="noWrapSlides">
                     <div uib-slide ng-repeat="slide in slides" index="$index">
-                        <img ng-src="{{slide.picUrl}}" style="height:305px;margin:auto;">
+                        <img ng-src="{{slide.picUrl}}" >
                         <div class="carousel-caption"></div>
                     </div>
                 </div>
             </div>
         </div>
     </div>
-    <div class='row'>
-        <div class='col-md-12'>
+    <div class='row bgf'>
+        <div class='col-md-12 col-xs-12'>
             <div class="team-info">
                 <div class="team-img pull-left">
-                    <img class="img-circle" style="width:200px;height:200px" ng-src='{{site.heading_pic}}'>
+                    <img class="img-circle" ng-src='{{site.heading_pic}}'>
                 </div>
                 <div class="team-content pull-left">
-                    <div class="team-text">
-                        <h4 class="media-heading pull-left">{{site.name}}</h4>
+                    <div class="team-head">
+                        <h4 class="team-title pull-left">{{site.name}}</h4>
+                        <div class="team-handle pull-right">
+                            <button class="btn btn-primary" ng-click="contributeSite()">投稿</button>
+                            <button class="btn btn-warning" ng-click="subscribeSite()">关注</button>
+                        </div>
                     </div>
-                    <div class="team-summary">{{site.summary}}</div>
+                    <p class="team-summary">{{site.summary}}</p>
                 </div>
-                <div class="team-handle pull-left">
-                    <button class="btn btn-warning btn-custom" ng-click="subscribeSite()">关注</button>
-                    <button class="btn btn-primary btn-custom" ng-click="contributeSite()">投稿</button>
-                </div>
-                <span ng-mouseenter="hover=true" ng-mouseleave="hover=false" class="site_fe_home site_fe_home_icon xxt_scan"></span>
+                <span ng-mouseenter="hover=true"  class="site_fe_home site_fe_home_icon xxt_scan"></span>
             </div>
-            <div class="team-qrcode" ng-if="hover">
-                <img ng-src="{{entry.qrcode}}" class="qrcode" />
+            <div class="team-qrcode" ng-mouseleave="hover=false">
+                <img ng-if="hover" ng-src="{{entry.qrcode}}" class="qrcode" />
             </div>
         </div>
     </div>
     <div class='row'>
-        <div class='col-md-12 col-xs-12 main'>
-            <div class="col-md-8 col-xs-12">
+        <div class='col-md-12 col-xs-12'>
+            <div class="col-md-3 col-xs-12 bgfa">
+                <div class="mainSide hidden-xs" ng-repeat="r in channelArticles">
+                    <div class="mainSide-header">
+                        <span class="site_fe_home site_fe_home_icon xxt_guide"></span>
+                        <h3 class="inline-block">{{r.title}}</h3>
+                        <h6 class="inline-block pull-right">
+                            <a ng-href="{{r.url}}">更多<i class="glyphicon glyphicon-menu-right"></i></a>
+                        </h6>
+                    </div>
+                    <div class='madinSide-body'>
+                        <ul class="list-unstyled row">
+                            <li class="list-item" ng-repeat="m in r.data">
+                                <a ng-href="{{m.url}}">
+                                    <h4 class="inline-block" ng-bind="m.title"></h4>
+                                </a>
+                            </li>
+                        </ul>
+                    </div>
+                </div>
+                <div class="mainSide visible-xs-block">
+                    <uib-tabset active="0" class="row">
+                        <uib-tab index="$index" ng-repeat="r in channelArticles">
+                            <uib-tab-heading>{{r.title}}</uib-tab-heading>
+                            <ul class="list-unstyled row">
+                                <li class="list-item" ng-repeat="d in r.data">
+                                    <a ng-href="{{d.url}}">
+                                        <h4 class="inline-block" ng-bind="d.title"></h4>
+                                    </a>
+                                </li>
+                            </ul>
+                            <div class="text-center"><a ng-href="{{r.url}}">更 多</a></div>
+                        </uib-tab>
+                        <span uib-dropdown on-toggle="toggled(open)" class="pull-right" ng-if="channelArticles.length > 2">
+                            <a href id="simple-dropdown" uib-dropdown-toggle>
+                                <i class="glyphicon glyphicon-th-list"></i>
+                            </a>
+                            <ul class="dropdown-menu" uib-dropdown-menu aria-labelledby="simple-dropdown">
+                                <li ng-repeat="c in r_next_channels">
+                                  <a ng-href='{{c.url}}' target='_self'>
+                                        <h4 class="inline-block" ng-bind="c.title"></h4>
+                                    </a>
+                                </li>
+                            </ul>
+                        </span>
+                    </uib-tabset>
+                </div>
+            </div>
+            <div class="col-md-9 col-xs-12 bgf">
                 <uib-tabset active="0" class="row">
-                    <uib-tab index="$index" ng-repeat="c in c_channels">
+                    <uib-tab index="$index" ng-repeat="c in c_channels_matters">
                         <uib-tab-heading>{{c.title}}</uib-tab-heading>
                         <table class="table table-hover">
                             <tbody>
                                 <tr ng-repeat="m in cTotal[c.channel_id]['data']">
                                     <td>
-                                        <div class="media">
-                                            <div class="media-left">
-                                                <img class="media-object" ng-src='{{m.pic||m.thumbnail}}'>
+                                        <div class="media-item">
+                                            <div class="media-item-left pull-left">
+                                                <div class="media-item-img">
+                                                    <img class="media-object" ng-src='{{m.pic||m.thumbnail}}'>
+                                                </div>
                                             </div>
-                                            <div class="media-body">
+                                            <div class="media-item-body pull-left">
+                                                <div class='creater_name'>
+                                                    <a ng-href='/rest/site/home?site={{m.siteid}}'>
+                                                        <img class="img-circle" ng-src="{{site.heading_pic}}" alt="" style="width:12px;height:12px">
+                                                        <h6 class="inline pdl10">{{m.site_name}}</h6>
+                                                        <i class="glyphicon glyphicon-menu-right pull-right"></i>
+                                                    </a>
+                                                </div>
                                                 <h4 class="media-heading" ng-click="openMatter(m)">{{m.title}}</h4>
-                                                <div class="media-summary">{{m.summary}}</div>
+                                                <h5 class="media-summary">{{m.summary}}</h5>
                                                 <div class='attr clearfix'>
-                                                    <div class='put_at pull-right' ng-bind="m.create_at*1000|date:'yyyy-MM-dd'"></div>
-                                                    <div class="forward pull-right">
-                                                        <a href="" ng-click="forward(user,m)">
-                                                            <span class="site_fe_home site_fe_home_icon xxt_forward"></span>转发
-                                                        </a>
-                                                    </div>
-                                                    <div class="favor pull-right">
+                                                    <div class="favor pull-left">
                                                         <a href="" ng-click="favor(user,m)">
-                                                            <span class="site_fe_home site_fe_home_icon xxt_favor"></span>收藏
+                                                            <i class="glyphicon glyphicon-star-empty"></i>
+                                                            <h6 class="inline pdl10">收藏</h6>
                                                         </a>
                                                     </div>
-                                                    <div class='creater_name pull-right'>
-                                                        <a ng-href='/rest/site/home?site={{m.siteid}}'>
-                                                            <span class="site_fe_home site_fe_home_icon xxt_team"></span> {{m.site_name}}
+                                                    <div class="forward pull-left">
+                                                        <a href="" ng-click="forward(user,m)">
+                                                            <i class="glyphicon glyphicon-share"></i>
+                                                            <h6 class="inline pdl10">转发</h6>
+                                                        </a>
+                                                    </div>
+                                                    <div class='put_at pull-left'>
+                                                        <a href="">
+                                                            <h6 class="inline"ng-bind="m.create_at*1000|date:'yyyy-MM-dd'"></h6>
                                                         </a>
                                                     </div>
                                                 </div>
@@ -76,41 +133,44 @@
                             </tbody>
                         </table>
                         <div>
-                            <button class='btn btn-lg btn-primary  btn-gradient center-block' ng-click="moreMatters(c.channel_id)" ng-if="cTotal[c.channel_id]['total'] >= page.size">加 载 更 多</button>
+                            <button class='btn btn-lg btn-primary  btn-gradient center-block' ng-click="moreMatters(c.channel_id)" ng-if="cTotal[c.channel_id]['total'] >= page.size">加载更多</button>
                         </div>
                     </uib-tab>
+                    <span uib-dropdown on-toggle="toggled(open)" class="visible-xs-block pull-right" ng-if="c_channels.length > 3" >
+                        <a href id="simple-dropdown" uib-dropdown-toggle>
+                            <i class="glyphicon glyphicon-th-list"></i>
+                        </a>
+                        <ul class="dropdown-menu" uib-dropdown-menu aria-labelledby="simple-dropdown">
+                            <li ng-repeat="c in c_next_channels">
+                              <a ng-href="/rest/site/fe/matter?site={{c.siteid}}&id={{c.channel_id}}&type=channel" target='_self'>
+                                    <h4 class="inline-block" ng-bind="c.title"></h4>
+                                </a>
+                            </li>
+                        </ul>
+                    </span>
                 </uib-tabset>
             </div>
-            <aside id="aside" class="col-md-4 col-xs-12 pull-right">
-                <div class="mainSide" ng-repeat="r in r_channels">
-                    <div class="mainSide-header">
-                        <span class="site_fe_home site_fe_home_icon xxt_guide"></span>
-                        <h4>{{r.title}}</h4>
-                        <small class="pull-right">
-                            <a ng-href="/rest/site/fe/matter?site={{r.siteid}}&id={{r.channel_id}}&type=channel">更多<span class="site_fe_home site_fe_home_icon xxt_chevron-right"></span></a>
-                        </small>
-                    </div>
-                    <div class='madinSide-body'>
-                        <a class='list-group-item' ng-repeat="m in r._matters" ng-href="{{m.url}}">
-                            <span class="site_fe_home site_fe_home_icon xxt_line"></span>{{m.title}}
-                            <hr/>
-                        </a>
-                    </div>
-                </div>
-            </aside>
         </div>
     </div>
-    <div id='gototop' class='tms-switch tms-top'>
+    <div class="row visible-xs-block">
+        <div class="footer">
+            <a href="" class="pull-right" id='gototop'>&nbsp;|&nbsp;回顶部</a>
+            <a href="" class="pull-right" ng-if="site.home_qrcode_group">扫一扫加入群聊</a>
+            <hr />
+            <p>Copyright2014-2017 NEALSNC</p>
+        </div>
+    </div>
+    <div id='gototop' class='tms-tool-sidebar tms-tool-backtop hidden-xs'>
         <span class="site_fe_home site_fe_home_icon xxt_backTop"></span>
     </div>
-    <div class="tms-switch tms-qrcode" ng-if="site.home_qrcode_group">
+    <div class="tms-tool-sidebar tms-tool-qrcode hidden-xs" ng-if="site.home_qrcode_group">
         <span class="site_fe_home site_fe_home_icon xxt_talk_qrcode" ng-mouseenter="active=true" ng-mouseleave="active=false"></span>
-    </div>
-    <div id='gototalk' ng-if="site.home_qrcode_group">
-        <div class="talk-qrcodes">
-            <div class="talk-qrcode" ng-repeat="q in site.home_qrcode_group">
-                <span ng-bind="{{q.tip}}"></span>
-                <img class="qrcode" ng-src="{{q.picUrl}}" />
+        <div class="gotalk" ng-show="active">
+            <div class="talk-qrcodes" ng-if="site.home_qrcode_group">
+                <div class="talk-qrcode" ng-repeat="q in site.home_qrcode_group">
+                    <span ng-bind="{{q.tip}}"></span>
+                    <img class="qrcode" ng-src="{{q.picUrl}}" />
+                </div>
             </div>
         </div>
     </div>

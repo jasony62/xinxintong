@@ -5,20 +5,21 @@ window.xxt.image = {
     choose: function(deferred, from) {
         var promise, imgs = [];
         promise = deferred.promise;
-        if (window.wx !== undefined) {
-            window.wx.chooseImage({
-                success: function(res) {
-                    var i, img;
-                    for (i in res.localIds) {
-                        img = {
-                            imgSrc: res.localIds[i]
-                        };
-                        imgs.push(img);
-                    }
-                    deferred.resolve(imgs);
-                }
-            });
-        } else if (window.YixinJSBridge) {
+        // if (window.wx !== undefined) {
+        //     window.wx.chooseImage({
+        //         success: function(res) {
+        //             var i, img;
+        //             for (i in res.localIds) {
+        //                 img = {
+        //                     imgSrc: res.localIds[i]
+        //                 };
+        //                 imgs.push(img);
+        //             }
+        //             deferred.resolve(imgs);
+        //         }
+        //     });
+        // } else
+        if (window.YixinJSBridge) {
             window.YixinJSBridge.invoke(
                 'pickImage', {
                     type: from,

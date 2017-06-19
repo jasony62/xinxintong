@@ -8,8 +8,8 @@
     <title>
         <?php echo APP_TITLE;?>
     </title>
-    <link href="/static/css/bootstrap.min.css" rel="stylesheet">
-    <link href="/static/css/site.fe.css" rel="stylesheet">
+    <link href="/static/css/custom-bootstrap.min.css" rel="stylesheet">
+    <link href="/static/css/custom.site.fe.css" rel="stylesheet">
     <link href="<?php echo auto_version('/views/default/home.css');?>" rel="stylesheet">
 </head>
 
@@ -26,10 +26,10 @@
             </div>
             <div id='navbar-collapse-1' class='collapse navbar-collapse'>
                 <ul class='nav navbar-nav ng-cloak' ng-cloak>
-                    <li ng-class="{'active':subView==='home'}"><a href='' ng-click="shiftPage('home')">平台首页</a></li>
-                    <li ng-if="platform.is_show_site==='Y'" ng-class="{'active':subView==='site'}"><a href='' ng-click="shiftPage('site')">服务团队</a></li>
-                    <li ng-if="platform.is_show_template==='Y'" ng-class="{'active':subView==='template'}"><a href='' ng-click="shiftPage('template')">应用模版</a></li>
-                    <li ng-repeat="nav in platform.home_nav" class='nav-site'><a href="/rest/site/home?site={{nav.site.id}}" target='_self'>{{nav.title}}</a></li>
+                    <li ng-class="{'active':subView==='home'}"><a href='' ng-click="shiftPage('home')"><span>平台首页</span></a></li>
+                    <li ng-if="platform.is_show_site==='Y'" ng-class="{'active':subView==='site'}"><a href='' ng-click="shiftPage('site')"><span>服务团队</span></a></li>
+                    <li ng-if="platform.is_show_template==='Y'" ng-class="{'active':subView==='template'}"><a href='' ng-click="shiftPage('template')"><span>应用模版</span></a></li>
+                    <li ng-repeat="nav in platform.home_nav" class='nav-site'><a href="/rest/site/home?site={{nav.site.id}}" target='_self'><span>{{nav.title}}</span></a></li>
                 </ul>
                 <ul class='nav navbar-nav navbar-right ng-cloak' ng-cloak ng-if="!user.loginExpire">
                     <li><a href='/rest/site/fe/user/login?site=platform'>登录</a></li>
@@ -64,7 +64,7 @@
         </div>
     </nav>
     <div class="home" dynamic-html='page.html' auto-height></div>
-    <nav class="navbar navbar-inverse">
+    <nav class="navbar navbar-inverse hidden-xs">
         <div class="container">
             <div class="row"></div>
         </div>

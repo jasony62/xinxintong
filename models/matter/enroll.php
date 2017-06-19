@@ -269,12 +269,34 @@ class enroll_model extends app_base {
 		return $summary;
 	}
 	/**
+	 * 指定用户的行为报告
+	 */
+	public function reportByUser($oApp, $oUser) {
+
+		$result = new \stdClass;
+
+		/* 登记次数 */
+		$modelRec = $this->model('matter\enroll\record');
+		$records = $modelRec->byUser($oApp->id, $oUser, ['fields' => 'id']);
+		$result->enroll_num = count($records);
+
+		/* 发表评论次数 */
+		$modelRec = $this->model('matter\enroll\remark');
+		$remarks = $modelRec->byUser($oApp, $oUser, ['fields' => 'id']);
+		$result->remark_other_num = count($remarks);
+
+		return $result;
+	}
+	/**
 	 * 获得参加登记活动的用户的昵称
 	 *
 	 * @param object $oApp
 	 * @param object $oUser [uid,nickname]
 	 */
 	public function getUserNickname(&$oApp, $oUser) {
+		if (empty($oUser->uid)) {
+			return '';
+		}
 		$nickname = '';
 		$entryRule = $oApp->entry_rule;
 		if (isset($entryRule->anonymous) && $entryRule->anonymous === 'Y') {
@@ -312,23 +334,24 @@ class enroll_model extends app_base {
 					}
 				}
 			} else if (isset($entryRule->scope) && $entryRule->scope === 'sns') {
-				foreach ($entryRule->sns as $snsName => $rule) {
-					if ($snsName === 'wx') {
-						$modelWx = $this->model('sns\wx');
-						if (($wxConfig = $modelWx->bySite($oApp->siteid)) && $wxConfig->joined === 'Y') {
-							$snsSiteId = $oApp->siteid;
+				$modelAcnt = $this->model('site\user\account');
+				if ($siteUser = $modelAcnt->byId($oUser->uid)) {
+					foreach ($entryRule->sns as $snsName => $rule) {
+						if ($snsName === 'wx') {
+							$modelWx = $this->model('sns\wx');
+							if (($wxConfig = $modelWx->bySite($oApp->siteid)) && $wxConfig->joined === 'Y') {
+								$snsSiteId = $oApp->siteid;
+							} else {
+								$snsSiteId = 'platform';
+							}
 						} else {
-							$snsSiteId = 'platform';
+							$snsSiteId = $oApp->siteid;
 						}
-					} else {
-						$snsSiteId = $oApp->siteid;
-					}
-					$modelAcnt = $this->model('site\user\account');
-					$siteUser = $modelAcnt->byId($oUser->uid);
-					$modelSnsUser = $this->model('sns\\' . $snsName . '\fan');
-					if ($snsUser = $modelSnsUser->byOpenid($snsSiteId, $siteUser->{$snsName . '_openid'})) {
-						$nickname = $snsUser->nickname;
-						break;
+						$modelSnsUser = $this->model('sns\\' . $snsName . '\fan');
+						if ($snsUser = $modelSnsUser->byOpenid($snsSiteId, $siteUser->{$snsName . '_openid'})) {
+							$nickname = $snsUser->nickname;
+							break;
+						}
 					}
 				}
 			} else if (empty($entryRule->scope) || $entryRule->scope === 'none') {

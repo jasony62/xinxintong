@@ -373,13 +373,19 @@ class record_model extends \TMS_MODEL {
 	/**
 	 * 获得用户的登记清单
 	 */
-	public function &byUser($appId, &$oUser) {
-		$q = [
-			'*',
-			'xxt_enroll_record',
-			["state" => 1, "aid" => $appId, "userid" => $oUser->uid],
-		];
+	public function &byUser($appId, &$oUser, $options = []) {
+		$fields = isset($options['fields']) ? $options['fields'] : '*';
 
+		$userid = isset($oUser->uid) ? $oUser->uid : (isset($oUser->userid) ? $oUser->userid : '');
+		if (empty($userid)) {
+			return false;
+		}
+
+		$q = [
+			$fields,
+			'xxt_enroll_record',
+			["state" => 1, "aid" => $appId, "userid" => $userid],
+		];
 		$q2 = ['o' => 'enroll_at desc'];
 
 		$list = $this->query_objs_ss($q, $q2);
@@ -531,31 +537,25 @@ class record_model extends \TMS_MODEL {
 	/**
 	 * 登记清单
 	 *
-	 * 1、如果活动仅限会员报名，那么要叠加会员信息
-	 * 2、如果报名的表单中有扩展信息，那么要提取扩展信息
-	 *
-	 * $siteId
-	 * $aid
-	 * $options
+	 * @param object/string 登记活动/登记活动的id
+	 * @param object/array $options
 	 * --creater openid
 	 * --visitor openid
 	 * --page
 	 * --size
 	 * --kw 检索关键词
 	 * --by 检索字段
-	 * $criteria 登记数据过滤条件
+	 * @param object $criteria 登记数据过滤条件
 	 *
-	 *
-	 * return
-	 * [0] 数据列表
-	 * [1] 数据总条数
-	 * [2] 数据项的定义
+	 * @return object
+	 * records 数据列表
+	 * total 数据总条数
 	 */
-	public function find($oApp, $options = null, $criteria = null) {
+	public function byApp($oApp, $options = null, $criteria = null) {
 		if (is_string($oApp)) {
 			$oApp = $this->model('matter\enroll')->byId($oApp, ['cascaded' => 'N']);
 		}
-		if ($oApp === false) {
+		if (empty($oApp)) {
 			return false;
 		}
 		if ($options) {
@@ -723,47 +723,31 @@ class record_model extends \TMS_MODEL {
 		return $result;
 	}
 	/**
-	 * 活动报名名单
+	 * 活动登记人名单
 	 *
-	 * 1、如果活动仅限会员报名，那么要叠加会员信息
-	 * 2、如果报名的表单中有扩展信息，那么要提取扩展信息
-	 *
-	 * $mpid
-	 * $aid
-	 * $options
-	 * --creater openid
-	 * --visitor openid
-	 * --page
-	 * --size
+	 * @param object $oApp
+	 * @param object $options
 	 * --rid 轮次id
-	 * --kw 检索关键词
-	 * --by 检索字段
-	 *
 	 *
 	 * return
-	 * [0] 数据列表
-	 * [1] 数据总条数
-	 * [2] 数据项的定义
 	 */
-	public function participants($siteId, $appId, $options = null, $criteria = null) {
-		$app = new \stdClass;
-		$app->siteid = $siteId;
-		$app->id = $appId;
+	public function enrollerByApp($oApp, $options = null, $criteria = null) {
 		if ($options) {
 			is_array($options) && $options = (object) $options;
 			$rid = null;
 			if (!empty($options->rid)) {
-				if ($options->rid === 'ALL') {
+				if (strcasecmp($options->rid, 'all') === 0) {
 					$rid = null;
 				} else if (!empty($options->rid)) {
 					$rid = $options->rid;
 				}
-			} else if ($activeRound = \TMS_APP::M('matter\enroll\round')->getActive($app)) {
+			} else if ($activeRound = \TMS_APP::M('matter\enroll\round')->getActive($oApp)) {
 				$rid = $activeRound->rid;
 			}
 		}
+		$fields = isset($options->fields) ? $options->fields : 'enroll_key,userid';
 
-		$w = "state=1 and aid='$appId' and userid<>''";
+		$w = "state=1 and aid='{$oApp->id}' and userid<>''";
 
 		// 按轮次过滤
 		!empty($rid) && $w .= " and e.rid='$rid'";
@@ -804,13 +788,13 @@ class record_model extends \TMS_MODEL {
 
 		// 获得填写的登记数据
 		$q = [
-			'enroll_key,userid',
+			$fields,
 			"xxt_enroll_record e",
 			$w,
 		];
-		$participants = $this->query_objs_ss($q);
+		$enrollers = $this->query_objs_ss($q);
 
-		return $participants;
+		return $enrollers;
 	}
 	/**
 	 * 已删除的登记清单

@@ -62,7 +62,7 @@ class record extends \pl\fe\matter\base {
 
 		// 查询结果
 		$mdoelRec = $this->model('matter\enroll\record');
-		$result = $mdoelRec->find($oEnrollApp, $options, $criteria);
+		$result = $mdoelRec->byApp($oEnrollApp, $options, $criteria);
 		if (!empty($result->records)) {
 			$remarkables = [];
 			foreach ($oEnrollApp->dataSchemas as $oSchema) {
@@ -285,6 +285,44 @@ class record extends \pl\fe\matter\base {
 		return new \ResponseData($oNewRecord);
 	}
 	/**
+	 * 根据reocrd_data中的数据，修复record中的data字段
+	 */
+	public function repair_action($ek) {
+		if (false === ($user = $this->accountUser())) {
+			return new \ResponseTimeout();
+		}
+
+		$modelRec = $this->model('matter\enroll\record');
+		$oRecord = $modelRec->byId($ek);
+		if (false === $oRecord) {
+			return new \ParameterError();
+		}
+
+		$q = [
+			'schema_id,value',
+			'xxt_enroll_record_data',
+			['enroll_key' => $ek, 'state' => 1],
+		];
+		$schemaValues = $modelRec->query_objs_ss($q);
+
+		$oRecordData = new \stdClass;
+		foreach ($schemaValues as $schemaValue) {
+			if (strlen($schemaValue->value)) {
+				if ($jsonVal = json_decode($schemaValue->value)) {
+					$oRecordData->{$schemaValue->schema_id} = $jsonVal;
+				} else {
+					$oRecordData->{$schemaValue->schema_id} = $schemaValue->value;
+				}
+			}
+		}
+
+		$sRecordData = $modelRec->escape($modelRec->toJson($oRecordData));
+
+		$rst = $modelRec->update('xxt_enroll_record', ['data' => $sRecordData], ['enroll_key' => $ek]);
+
+		return new \ResponseData($rst);
+	}
+	/**
 	 * 删除一条登记信息
 	 */
 	public function remove_action($site, $app, $key) {
@@ -296,7 +334,6 @@ class record extends \pl\fe\matter\base {
 
 		// 记录操作日志
 		$app = $this->model('matter\enroll')->byId($app, ['cascaded' => 'N']);
-		$app->type = 'enroll';
 		$this->model('matter\log')->matterOp($site, $user, $app, 'remove', $key);
 
 		return new \ResponseData($rst);
@@ -625,17 +662,36 @@ class record extends \pl\fe\matter\base {
 
 		// 获得所有有效的登记记录
 		$modelRec2 = $this->model('matter\enroll\record');
+		$oEnrollApp = \TMS_APP::M('matter\enroll')->byId($app);
 		//选择对应轮次
 		$criteria = new \stdClass;
 		$criteria->record = new \stdClass;
 		$criteria->record->rid = new \stdClass;
 		$criteria->record->rid = $rid;
-		$records = $modelRec2->find($oApp, null, $criteria);
-		if ($records->total === 0) {
+		$result = $modelRec2->byApp($oApp, null, $criteria);
+		if ($result->total === 0) {
 			die('record empty');
 		}
-		$records = $records->records;
 
+		if (!empty($result->records)) {
+			$remarkables = [];
+			foreach ($oEnrollApp->dataSchemas as $oSchema) {
+				if (isset($oSchema->remarkable) && $oSchema->remarkable === 'Y') {
+					$remarkables[] = $oSchema->id;
+				}
+			}
+			if (count($remarkables)) {
+				foreach ($result->records as &$oRec) {
+					$modelRem = $this->model('matter\enroll\data');
+					$oRecordData = $modelRem->byRecord($oRec->enroll_key, ['schema' => $remarkables]);
+					$oRec->verbose = new \stdClass;
+					$oRec->verbose->data = $oRecordData;
+				}
+			}
+		}
+
+		$records = $result->records;
+		//print_r($records);die();
 		require_once TMS_APP_DIR . '/lib/PHPExcel.php';
 
 		// Create new PHPExcel object
@@ -657,33 +713,36 @@ class record extends \pl\fe\matter\base {
 
 		// 转换标题
 		$isTotal = []; //是否需要合计
-		$i = 0;
-		for ($a = 0, $ii = count($schemas); $a < $ii; $a++) {
-			$columnNum4 = $columnNum1; //列号
+		$columnNum4 = $columnNum1; //列号
+		for ($a = 0, $ii = count($schemas); $a < $ii; $a++) {			
 			$schema = $schemas[$a];
 			/* 跳过图片,描述说明和文件 */
 			if (in_array($schema->type, ['html'])) {
 				continue;
 			}
 			if (isset($schema->number) && $schema->number === 'Y') {
-				$isTotal[($i + $columnNum4)] = $schema->id;
+				$isTotal[$columnNum4] = $schema->id;
 			}
+			//var_dump($i,$columnNum4,$i+$columnNum4,$i + $columnNum4++,$columnNum4++);
+			$objActiveSheet->setCellValueByColumnAndRow($columnNum4++, 1, $schema->title);
 
-			$objActiveSheet->setCellValueByColumnAndRow($i + $columnNum4++, 1, $schema->title);
-			$i++;
+			if(isset($remarkables) && in_array($schema->id, $remarkables)){
+				$objActiveSheet->setCellValueByColumnAndRow($columnNum4++, 1, '评论数');
+			}
 		}
-		$objActiveSheet->setCellValueByColumnAndRow($i + $columnNum1++, 1, '昵称');
-		$objActiveSheet->setCellValueByColumnAndRow($i + $columnNum1++, 1, '备注');
-		$objActiveSheet->setCellValueByColumnAndRow($i + $columnNum1++, 1, '标签');
+
+		$objActiveSheet->setCellValueByColumnAndRow($columnNum4++, 1, '昵称');
+		$objActiveSheet->setCellValueByColumnAndRow($columnNum4++, 1, '备注');
+		$objActiveSheet->setCellValueByColumnAndRow($columnNum4++, 1, '标签');
 		// 记录分数
 		if ($oApp->scenario === 'voting') {
-			$objActiveSheet->setCellValueByColumnAndRow($i + $columnNum1++, 1, '总分数');
-			$objActiveSheet->setCellValueByColumnAndRow($i + $columnNum1++, 1, '平均分数');
+			$objActiveSheet->setCellValueByColumnAndRow($columnNum4++, 1, '总分数');
+			$objActiveSheet->setCellValueByColumnAndRow($columnNum4++, 1, '平均分数');
 			$titles[] = '总分数';
 			$titles[] = '平均分数';
 		}
 		if ($oApp->scenario === 'quiz') {
-			$objActiveSheet->setCellValueByColumnAndRow($i + $columnNum1++, 1, '总分');
+			$objActiveSheet->setCellValueByColumnAndRow($columnNum4++, 1, '总分');
 			$titles[] = '总分';
 		}
 		// 转换数据
@@ -700,7 +759,7 @@ class record extends \pl\fe\matter\base {
 			// 处理登记项
 			$data = $record->data;
 			$supplement = $record->supplement;
-			isset($record->score) && $score = $record->score;
+			$verbose=$record->verbose->data;
 			$i = 0;
 			for ($i2 = 0, $ii = count($schemas); $i2 < $ii; $i2++) {
 				$columnNum3 = $columnNum2; //列号
@@ -720,9 +779,14 @@ class record extends \pl\fe\matter\base {
 					if (isset($v0)) {
 						isset($score->{$schema->id}) && ($v0 .= ' (' . $score->{$schema->id} . '分)');
 						if (isset($schema->supplement) && $schema->supplement === 'Y') {
-							$v0 .= " (补充说明：" . $supplement->{$schema->id} . ")";
+							$v1=$v0;
+							$v1 .= ' (补充说明：' . (isset($supplement) && isset($supplement->{$schema->id}) ? $supplement->{$schema->id} : '') . ')';
 						}
-						$objActiveSheet->setCellValueExplicitByColumnAndRow($i + $columnNum3++, $rowIndex, $v0, \PHPExcel_Cell_DataType::TYPE_STRING);
+						$objActiveSheet->setCellValueExplicitByColumnAndRow($i + $columnNum3++, $rowIndex, $v1, \PHPExcel_Cell_DataType::TYPE_STRING);
+						if(isset($verbose->{$schema->id})){
+							$remark_num=$verbose->{$schema->id}->remark_num;
+							$objActiveSheet->setCellValueExplicitByColumnAndRow($i++ + $columnNum3++, $rowIndex, $remark_num, \PHPExcel_Cell_DataType::TYPE_STRING);
+						}
 					}
 					break;
 				case 'phase':
@@ -735,6 +799,10 @@ class record extends \pl\fe\matter\base {
 						}
 					}
 					empty($disposed) && $objActiveSheet->setCellValueByColumnAndRow($i + $columnNum3++, $rowIndex, $v);
+					if(isset($verbose->{$schema->id})){
+						$remark_num=$verbose->{$schema->id}->remark_num;
+						$objActiveSheet->setCellValueExplicitByColumnAndRow($i++ + $columnNum3++, $rowIndex, $remark_num, \PHPExcel_Cell_DataType::TYPE_STRING);
+					}
 					break;
 				case 'multiple':
 					$labels = [];
@@ -750,9 +818,13 @@ class record extends \pl\fe\matter\base {
 					$cellValue = implode(',', $labels);
 					isset($score->{$schema->id}) && $cellValue .= ' (' . $score->{$schema->id} . '分)';
 					if (isset($schema->supplement) && $schema->supplement === 'Y') {
-						$cellValue .= " (补充说明：" . $supplement->{$schema->id} . ")";
+						$cellValue .= ' (补充说明：' . (isset($supplement) && isset($supplement->{$schema->id}) ? $supplement->{$schema->id} : '') . ')';
 					}
 					$objActiveSheet->setCellValueByColumnAndRow($i + $columnNum3++, $rowIndex, $cellValue);
+					if(isset($verbose->{$schema->id})){
+						$remark_num=$verbose->{$schema->id}->remark_num;
+						$objActiveSheet->setCellValueExplicitByColumnAndRow($i++ + $columnNum3++, $rowIndex, $remark_num, \PHPExcel_Cell_DataType::TYPE_STRING);
+					}
 					break;
 				case 'score':
 					$labels = [];
@@ -762,24 +834,40 @@ class record extends \pl\fe\matter\base {
 						}
 					}
 					$objActiveSheet->setCellValueByColumnAndRow($i + $columnNum3++, $rowIndex, implode(' / ', $labels));
+					if(isset($verbose->{$schema->id})){
+						$remark_num=$verbose->{$schema->id}->remark_num;
+						$objActiveSheet->setCellValueExplicitByColumnAndRow($i++ + $columnNum3++, $rowIndex, $remark_num, \PHPExcel_Cell_DataType::TYPE_STRING);
+					}
 					break;
 				case 'image':
 					$v0 = '';
 					if (isset($schema->supplement) && $schema->supplement === 'Y') {
-						$v0 .= " (补充说明：" . $supplement->{$schema->id} . ")";
+						$v0 .= ' (补充说明：' . (isset($supplement) && isset($supplement->{$schema->id}) ? $supplement->{$schema->id} : '') . ')';
 					}
 					$objActiveSheet->setCellValueExplicitByColumnAndRow($i + $columnNum3++, $rowIndex, $v0, \PHPExcel_Cell_DataType::TYPE_STRING);
+					if(isset($verbose->{$schema->id})){
+						$remark_num=$verbose->{$schema->id}->remark_num;
+						$objActiveSheet->setCellValueExplicitByColumnAndRow($i++ + $columnNum3++, $rowIndex, $remark_num, \PHPExcel_Cell_DataType::TYPE_STRING);
+					}
 					break;
 				case 'file':
 					$v0 = '';
 					if (isset($schema->supplement) && $schema->supplement === 'Y') {
-						$v0 .= " (补充说明：" . $supplement->{$schema->id} . ")";
+						$v0 .= ' (补充说明：' . (isset($supplement) && isset($supplement->{$schema->id}) ? $supplement->{$schema->id} : '') . ')';
 					}
 					$objActiveSheet->setCellValueExplicitByColumnAndRow($i + $columnNum3++, $rowIndex, $v0, \PHPExcel_Cell_DataType::TYPE_STRING);
+					if(isset($verbose->{$schema->id})){
+						$remark_num=$verbose->{$schema->id}->remark_num;
+						$objActiveSheet->setCellValueExplicitByColumnAndRow($i++ + $columnNum3++, $rowIndex, $remark_num, \PHPExcel_Cell_DataType::TYPE_STRING);
+					}
 					break;
 				default:
 					isset($score->{$schema->id}) && $v .= ' (' . $score->{$schema->id} . '分)';
 					$objActiveSheet->setCellValueExplicitByColumnAndRow($i + $columnNum3++, $rowIndex, $v, \PHPExcel_Cell_DataType::TYPE_STRING);
+					if(isset($verbose->{$schema->id})){
+						$remark_num=$verbose->{$schema->id}->remark_num;
+						$objActiveSheet->setCellValueExplicitByColumnAndRow($i++ + $columnNum3++, $rowIndex, $remark_num, \PHPExcel_Cell_DataType::TYPE_STRING);
+					}
 					break;
 				}
 				$i++;
@@ -878,7 +966,7 @@ class record extends \pl\fe\matter\base {
 		}
 
 		// 获得所有有效的登记记录
-		$records = $this->model('matter\enroll\record')->find($enrollApp);
+		$records = $this->model('matter\enroll\record')->byApp($enrollApp);
 		if ($records->total === 0) {
 			die('record empty');
 		}
@@ -982,7 +1070,7 @@ class record extends \pl\fe\matter\base {
 			return new \ResponseData('没有匹配的数据项');
 		}
 		/* 获得数据 */
-		$records = $modelRec->find($fromApp);
+		$records = $modelRec->byApp($fromApp);
 		$countOfImport = 0;
 		if ($records->total > 0) {
 			foreach ($records->records as $record) {

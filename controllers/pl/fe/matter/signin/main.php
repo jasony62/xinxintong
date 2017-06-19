@@ -209,7 +209,7 @@ class main extends \pl\fe\matter\base {
 		$oNewApp->type = 'signin';
 
 		/* 记录和任务的关系 */
-		if ($oNewApp->mission_id) {
+		if (isset($oNewApp->mission_id)) {
 			$modelMis->addMatter($oUser, $oSite->id, $oMission->id, $oNewApp);
 		}
 		/* 创建缺省页面 */

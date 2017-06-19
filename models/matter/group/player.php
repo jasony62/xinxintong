@@ -339,13 +339,14 @@ class player_model extends \TMS_MODEL {
 	/**
 	 * 获得用户的登记
 	 */
-	public function &byUser($oApp, $userid) {
+	public function &byUser($oApp, $userid, $options = []) {
 		if (empty($userid)) {
 			return false;
 		}
 
+		$fields = isset($options['fields']) ? $options['fields'] : '*';
 		$q = [
-			'*',
+			$fields,
 			'xxt_group_player',
 			['state' => 1, 'aid' => $oApp->id, 'userid' => $userid],
 		];

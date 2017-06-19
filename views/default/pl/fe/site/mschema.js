@@ -3,7 +3,6 @@ define(['require'], function(require) {
     var ngApp = angular.module('app', ['ngRoute', 'ui.bootstrap', 'ui.tms', 'ui.xxt', 'service.matter']);
     ngApp.config(['srvSiteProvider', function(srvSiteProvider) {
         var siteId = location.search.match(/site=([^&]*)/)[1];
-        console.log(siteId);
         srvSiteProvider.config(siteId);
     }]);
     ngApp.factory('MemberSchema', function($q, http2) {
@@ -11,7 +10,18 @@ define(['require'], function(require) {
             this.siteId = siteId;
             this.baseUrl = '/rest/pl/fe/site/member/schema/';
         };
-        MemberSchema.prototype.get = function(own) {
+        MemberSchema.prototype.get = function(mschemaId) {
+            var deferred, url;
+            deferred = $q.defer();
+            url = this.baseUrl;
+            url += 'get?site=' + this.siteId;
+            url += '&mschema=' + mschemaId;
+            http2.get(url, function(rsp) {
+                deferred.resolve(rsp.data);
+            });
+            return deferred.promise;
+        };
+        MemberSchema.prototype.list = function(own) {
             var deferred, url;
             deferred = $q.defer();
             own === undefined && (own === 'N');
@@ -22,7 +32,7 @@ define(['require'], function(require) {
                 deferred.resolve(rsp.data);
             });
             return deferred.promise;
-        }
+        };
         MemberSchema.prototype.update = function(oSchema, updated) {
             var deferred, url;
             deferred = $q.defer();
@@ -51,37 +61,36 @@ define(['require'], function(require) {
         var service = {};
 
         srvSite.get().then(function(site) {
+            var entryMschemaId;
             $scope.site = site;
             service.memberSchema = new MemberSchema(site.id);
-            service.memberSchema.get('N').then(function(schemas) {
-                var entryMschemaId, oEntryMschema;
-                if (location.hash) {
-                    entryMschemaId = location.hash.substr(1);
-                }
-                schemas.forEach(function(schema) {
-                    shiftAttr(schema);
-                    $scope.schemas.push(schema);
-                    if (schema.id === entryMschemaId) {
-                        oEntryMschema = schema;
-                    }
+            if (location.hash) {
+                entryMschemaId = location.hash.substr(1);
+                service.memberSchema.get(entryMschemaId).then(function(oMschema) {
+                    shiftAttr(oMschema);
+                    $scope.schemas = [oMschema];
+                    $scope.chooseSchema(oMschema);
                 });
-                if ($scope.schemas.length === 0) {
-                    $scope.schemas.push({
-                        type: 'inner',
-                        valid: 'N',
-                        attrs: {
-                            mobile: ['0', '0', '0', '0', '0', '0', '0'],
-                            email: ['0', '0', '0', '0', '0', '0', '0'],
-                            name: ['0', '0', '0', '0', '0', '0', '0']
-                        }
+            } else {
+                service.memberSchema.list('N').then(function(schemas) {
+                    schemas.forEach(function(schema) {
+                        shiftAttr(schema);
+                        $scope.schemas.push(schema);
                     });
-                }
-                if (oEntryMschema) {
-                    $scope.chooseSchema(oEntryMschema);
-                } else if (schemas.length) {
+                    if ($scope.schemas.length === 0) {
+                        $scope.schemas.push({
+                            type: 'inner',
+                            valid: 'N',
+                            attrs: {
+                                mobile: ['0', '0', '0', '0', '0', '0', '0'],
+                                email: ['0', '0', '0', '0', '0', '0', '0'],
+                                name: ['0', '0', '0', '0', '0', '0', '0']
+                            }
+                        });
+                    }
                     $scope.chooseSchema(schemas[0]);
-                }
-            });
+                });
+            }
         });
         srvSite.snsList().then(function(data) {
             $scope.sns = data;

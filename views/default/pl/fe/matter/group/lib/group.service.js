@@ -600,21 +600,20 @@ provider('srvGroupApp', function() {
         return arr;
     };
     $scope.ok = function() {
-        var c, p, col;
-        p = {
+        var oNewPlayer;
+        oNewPlayer = {
             data: {},
             comment: $scope.player.comment,
             tags: $scope.player.aTags.join(','),
             round_id: $scope.player.round_id
         };
-        $scope.player.tags = p.tags;
+        //$scope.player.tags = oNewPlayer.tags;
         if ($scope.player.data) {
-            for (c in $scope.app.data_schemas) {
-                col = $scope.app.data_schemas[c];
-                p.data[col.id] = $scope.player.data[col.id];
-            }
+            $scope.app.data_schemas.forEach(function(oSchema) {
+                oNewPlayer.data[oSchema.id] = $scope.player.data[oSchema.id];
+            });
         }
-        $mi.close({ player: p, tags: $scope.aTags });
+        $mi.close({ player: oNewPlayer, tags: $scope.aTags });
     };
     $scope.cancel = function() {
         $mi.dismiss('cancel');

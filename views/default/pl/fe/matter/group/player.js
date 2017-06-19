@@ -111,7 +111,7 @@ define(['frame'], function(ngApp) {
             $scope.updateRound('targets');
         };
     }]);
-    ngApp.provider.controller('ctrlPlayers', ['$scope', 'srvGroupPlayer', function($scope, srvGroupPlayer) {
+    ngApp.provider.controller('ctrlPlayers', ['$scope', 'srvGroupApp', 'srvGroupPlayer', function($scope, srvGroupApp, srvGroupPlayer) {
         var players;
         $scope.players = players = [];
         srvGroupPlayer.init(players).then(function() {
@@ -132,6 +132,7 @@ define(['frame'], function(ngApp) {
         $scope.editPlayer = function(player) {
             srvGroupPlayer.edit(player).then(function(updated) {
                 srvGroupPlayer.update(player, updated.player);
+                srvGroupApp.update('tags');
             });
         };
         $scope.addPlayer = function() {

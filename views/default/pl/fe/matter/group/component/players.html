@@ -1,8 +1,8 @@
 <table class='table table-bordered'>
     <thead>
         <tr>
-            <th style='width:48px'>操作</th>
             <th style='width:48px'>序号</th>
+            <th style='width:48px'>操作</th>
             <th style='width:48px'>
                 <input type='checkbox' ng-true-value="'Y'" ng-false-value="'N'" ng-model="rows.allSelected" ng-change="selectAllRows(rows.allSelected)">
             </th>
@@ -17,12 +17,12 @@
     </thead>
     <tbody>
         <tr ng-repeat='p in players' class='player'>
+            <td>{{$index+1}}</td>
             <td>
                 <button class='btn btn-xs btn-default' ng-click='editPlayer(p)'>
                     <span class='glyphicon glyphicon-edit'></span>
                 </button>
             </td>
-            <td>{{$index+1}}</td>
             <td>
                 <input type='checkbox' ng-model="rows.selected[$index]" ng-change="selectPlayer(p)">
             </td>

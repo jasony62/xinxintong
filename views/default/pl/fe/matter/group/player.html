@@ -54,7 +54,7 @@
                     <button class='btn btn-default' ng-disabled="rows.players.length===0" ng-click="joinGroup(targetRound,rows.players)">移入分组</button>
                 </span>
             </div>
-            <button class='btn btn-default' ng-disabled="!app.sourceApp||!rounds.length" ng-click="execute()">进行分组</button>
+            <button class='btn btn-success' ng-disabled="!app.sourceApp||!rounds.length" ng-click="execute()">进行分组</button>
             <button class='btn btn-default' ng-click='export()'>导出结果</button>
             <button class='btn btn-danger pull-right' ng-click='empty()'>清空用户</button>
         </div>

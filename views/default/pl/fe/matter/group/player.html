@@ -156,9 +156,11 @@
             <div class='form-group'>
                 <label class="col-md-3 control-label">分组属性</label>
                 <div class="col-md-9">
-                    <select class="form-control" ng-model="rule.schema" ng-options="schema.title for schema in schemas">
-                        <option></option>
-                    </select>
+                    <div class='list-group'>
+                        <div class='list-group-item' ng-repeat="schema in schemas">
+                            <label class='checkbox-inline'><input type='checkbox' ng-model="schema._selected"> {{schema.title}}</label>
+                        </div>
+                    </div>
                 </div>
             </div>
         </form>

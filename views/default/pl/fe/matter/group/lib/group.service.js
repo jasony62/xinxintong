@@ -230,8 +230,14 @@ provider('srvGroupApp', function() {
                     $uibModal.open({
                         templateUrl: 'configRule.html',
                         controller: ['$uibModalInstance', '$scope', 'http2', function($mi, $scope, http2) {
-                            var rule, schemas;
-                            rule = angular.copy(oApp.group_rule);
+                            var groupRule, rule, schemas;
+
+                            groupRule = oApp.groupRule;
+                            rule = {
+                                count: groupRule.count,
+                                times: groupRule.times,
+                                schemas: []
+                            };
                             schemas = angular.copy(oApp.data_schemas);
                             $scope.schemas = [];
                             http2.get('/rest/pl/fe/matter/group/player/count?site=' + _siteId + '&app=' + _appId, function(rsp) {
@@ -244,10 +250,10 @@ provider('srvGroupApp', function() {
                             });
                             schemas.forEach(function(schema) {
                                 if (schema.type === 'single') {
-                                    $scope.schemas.push(schema);
-                                    if (rule.schema && rule.schema.id === schema.id) {
-                                        rule.schema = schema;
+                                    if (groupRule.schemas && groupRule.schemas.indexOf(schema.id) !== -1) {
+                                        schema._selected = true;
                                     }
+                                    $scope.schemas.push(schema);
                                 }
                             });
                             $scope.rule = rule;
@@ -255,6 +261,14 @@ provider('srvGroupApp', function() {
                                 $mi.dismiss();
                             };
                             $scope.ok = function() {
+                                if ($scope.schemas.length) {
+                                    $scope.rule.schemas = [];
+                                    $scope.schemas.forEach(function(oSchema) {
+                                        if (oSchema._selected) {
+                                            $scope.rule.schemas.push(oSchema.id);
+                                        }
+                                    });
+                                }
                                 $mi.close($scope.rule);
                             };
                         }],
@@ -266,7 +280,7 @@ provider('srvGroupApp', function() {
                             rsp.data.forEach(function(round) {
                                 _rounds.push(round);
                             });
-                            defer.resolve();
+                            defer.resolve(_rounds);
                         });
                     });
                 });

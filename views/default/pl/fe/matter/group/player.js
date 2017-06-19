@@ -20,7 +20,12 @@ define(['frame'], function(ngApp) {
             });
         };
         $scope.configRule = function() {
-            srvGroupRound.config();
+            srvGroupRound.config().then(function() {
+                $scope.activeRound = null;
+                srvGroupRound.list().then(function(rounds) {
+                    $scope.rounds = rounds;
+                });
+            });
         };
         $scope.emptyRule = function() {
             srvGroupRound.empty().then(function() {
@@ -92,10 +97,11 @@ define(['frame'], function(ngApp) {
             $scope.saveTargets();
         };
         $scope.labelTarget = function(target) {
-            var labels = [];
+            var schema, labels = [];
             angular.forEach(target, function(v, k) {
                 if (k !== '$$hashKey' && v && v.length) {
-                    labels.push(srvRecordConverter.value2Html(v, $scope.app._schemasById[k]));
+                    schema = $scope.app._schemasById[k];
+                    labels.push(schema.title + ':' + srvRecordConverter.value2Html(v, schema));
                 }
             });
             return labels.join(',');

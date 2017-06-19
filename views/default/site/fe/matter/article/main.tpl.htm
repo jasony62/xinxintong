@@ -64,7 +64,7 @@
                         <button class="btn btn-custom-default" ng-repeat="c in article.channels" ng-click="openChannel(c)" ng-bind="c.title"></button>
                         <button class="btn btn-custom-default" ng-repeat="t in article.tags" ng-click="searchByTag(t)" ng-bind="t.title"></button>
                     </div>
-                    <div id="attr" class="attr">
+                    <div id="attr" class="attr" ng-class="{'md-attr':width>768, 'xs-attr':width<768}">
                         <div class="tms-switch-siteuser pull-left">
                             <a href="" ng-click="siteUser(site.id)">
                                 <i class="glyphicon glyphicon-user"></i>

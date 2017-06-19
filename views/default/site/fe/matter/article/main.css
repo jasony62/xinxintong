@@ -18,12 +18,12 @@ html,body{height:100%;width:100%;position: relative;overflow: hidden;}
 .article .url{margin-top:20px}
 .article .behavior{padding:20px 10px 30px 10px;border-top:1px dashed #999;position: relative;}
 .behavior #attachment, .behavior #tag{margin-bottom: 20px;}
-.behavior #attr{position: absolute;bottom:0;right:0;overflow: hidden;}
+.behavior .md-attr{position: absolute;top:20px;right:0;}
 .btn-custom-default{margin-left: 0;margin-right:20px;border: 1px solid #2994d0;background-color: #fff;color: #2994d0;}
 .btn-custom-default:hover,.btn-custom-default:active,.btn-custom-default:focus{color: #fff;background-color: #2994d0;}
 @media screen and (max-width:768px){
   #title{font-size: 24px;font-weight: 500;padding-top: 10px;}
-  .behavior #attr{left: 0;}
+  .behavior .xs-attr{position: absolute;bottom:0;left: 0;}
   .behavior #attr > div{width: 33%;font-size: 21px;text-align: center;margin-right: 0px;}
   .behavior #attr h6{display: none;}
 }

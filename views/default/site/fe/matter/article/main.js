@@ -107,6 +107,9 @@ ngApp.filter('filesize', function() {
     };
 });
 ngApp.controller('ctrlMain', ['$scope', '$http', '$timeout', '$q', 'tmsDynaPage', 'tmsSubscribe', 'tmsSnsShare', 'tmsCoinPay', 'tmsFavor', 'tmsForward', 'tmsSiteUser', function($scope, $http, $timeout, $q, tmsDynaPage, tmsSubscribe, tmsSnsShare, tmsCoinPay, tmsFavor, tmsForward, tmsSiteUser) {
+    var width = angular.element(window).width();
+    $scope.width = width;
+
     function finish() {
         var eleLoading, eleStyle;
         eleLoading = document.querySelector('.loading');

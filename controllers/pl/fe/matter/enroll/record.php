@@ -714,7 +714,7 @@ class record extends \pl\fe\matter\base {
 		// 转换标题
 		$isTotal = []; //是否需要合计
 		$columnNum4 = $columnNum1; //列号
-		for ($a = 0, $ii = count($schemas); $a < $ii; $a++) {			
+		for ($a = 0, $ii = count($schemas); $a < $ii; $a++) {
 			$schema = $schemas[$a];
 			/* 跳过图片,描述说明和文件 */
 			if (in_array($schema->type, ['html'])) {
@@ -726,7 +726,7 @@ class record extends \pl\fe\matter\base {
 			//var_dump($i,$columnNum4,$i+$columnNum4,$i + $columnNum4++,$columnNum4++);
 			$objActiveSheet->setCellValueByColumnAndRow($columnNum4++, 1, $schema->title);
 
-			if(isset($remarkables) && in_array($schema->id, $remarkables)){
+			if (isset($remarkables) && in_array($schema->id, $remarkables)) {
 				$objActiveSheet->setCellValueByColumnAndRow($columnNum4++, 1, '评论数');
 			}
 		}
@@ -759,7 +759,7 @@ class record extends \pl\fe\matter\base {
 			// 处理登记项
 			$data = $record->data;
 			$supplement = $record->supplement;
-			$verbose=$record->verbose->data;
+			$oVerbose = isset($record->verbose) ? $record->verbose->data : false;
 			$i = 0;
 			for ($i2 = 0, $ii = count($schemas); $i2 < $ii; $i2++) {
 				$columnNum3 = $columnNum2; //列号
@@ -771,22 +771,20 @@ class record extends \pl\fe\matter\base {
 				}
 				switch ($schema->type) {
 				case 'single':
+					$cellValue = '';
 					foreach ($schema->ops as $op) {
 						if ($op->v === $v) {
-							$v0 = $op->l;
+							$cellValue = $op->l;
 						}
 					}
-					if (isset($v0)) {
-						isset($score->{$schema->id}) && ($v0 .= ' (' . $score->{$schema->id} . '分)');
-						if (isset($schema->supplement) && $schema->supplement === 'Y') {
-							$v1=$v0;
-							$v1 .= ' (补充说明：' . (isset($supplement) && isset($supplement->{$schema->id}) ? $supplement->{$schema->id} : '') . ')';
-						}
-						$objActiveSheet->setCellValueExplicitByColumnAndRow($i + $columnNum3++, $rowIndex, $v1, \PHPExcel_Cell_DataType::TYPE_STRING);
-						if(isset($verbose->{$schema->id})){
-							$remark_num=$verbose->{$schema->id}->remark_num;
-							$objActiveSheet->setCellValueExplicitByColumnAndRow($i++ + $columnNum3++, $rowIndex, $remark_num, \PHPExcel_Cell_DataType::TYPE_STRING);
-						}
+					isset($score->{$schema->id}) && ($cellValue .= ' (' . $score->{$schema->id} . '分)');
+					if (isset($schema->supplement) && $schema->supplement === 'Y') {
+						$cellValue .= ' (补充说明：' . (isset($supplement) && isset($supplement->{$schema->id}) ? $supplement->{$schema->id} : '') . ')';
+					}
+					$objActiveSheet->setCellValueExplicitByColumnAndRow($i + $columnNum3++, $rowIndex, $cellValue, \PHPExcel_Cell_DataType::TYPE_STRING);
+					if (isset($oVerbose->{$schema->id})) {
+						$remark_num = $oVerbose->{$schema->id}->remark_num;
+						$objActiveSheet->setCellValueExplicitByColumnAndRow($i++ + $columnNum3++, $rowIndex, $remark_num, \PHPExcel_Cell_DataType::TYPE_STRING);
 					}
 					break;
 				case 'phase':
@@ -799,8 +797,8 @@ class record extends \pl\fe\matter\base {
 						}
 					}
 					empty($disposed) && $objActiveSheet->setCellValueByColumnAndRow($i + $columnNum3++, $rowIndex, $v);
-					if(isset($verbose->{$schema->id})){
-						$remark_num=$verbose->{$schema->id}->remark_num;
+					if (isset($oVerbose->{$schema->id})) {
+						$remark_num = $oVerbose->{$schema->id}->remark_num;
 						$objActiveSheet->setCellValueExplicitByColumnAndRow($i++ + $columnNum3++, $rowIndex, $remark_num, \PHPExcel_Cell_DataType::TYPE_STRING);
 					}
 					break;
@@ -821,8 +819,8 @@ class record extends \pl\fe\matter\base {
 						$cellValue .= ' (补充说明：' . (isset($supplement) && isset($supplement->{$schema->id}) ? $supplement->{$schema->id} : '') . ')';
 					}
 					$objActiveSheet->setCellValueByColumnAndRow($i + $columnNum3++, $rowIndex, $cellValue);
-					if(isset($verbose->{$schema->id})){
-						$remark_num=$verbose->{$schema->id}->remark_num;
+					if (isset($oVerbose->{$schema->id})) {
+						$remark_num = $oVerbose->{$schema->id}->remark_num;
 						$objActiveSheet->setCellValueExplicitByColumnAndRow($i++ + $columnNum3++, $rowIndex, $remark_num, \PHPExcel_Cell_DataType::TYPE_STRING);
 					}
 					break;
@@ -834,8 +832,8 @@ class record extends \pl\fe\matter\base {
 						}
 					}
 					$objActiveSheet->setCellValueByColumnAndRow($i + $columnNum3++, $rowIndex, implode(' / ', $labels));
-					if(isset($verbose->{$schema->id})){
-						$remark_num=$verbose->{$schema->id}->remark_num;
+					if (isset($oVerbose->{$schema->id})) {
+						$remark_num = $oVerbose->{$schema->id}->remark_num;
 						$objActiveSheet->setCellValueExplicitByColumnAndRow($i++ + $columnNum3++, $rowIndex, $remark_num, \PHPExcel_Cell_DataType::TYPE_STRING);
 					}
 					break;
@@ -845,8 +843,8 @@ class record extends \pl\fe\matter\base {
 						$v0 .= ' (补充说明：' . (isset($supplement) && isset($supplement->{$schema->id}) ? $supplement->{$schema->id} : '') . ')';
 					}
 					$objActiveSheet->setCellValueExplicitByColumnAndRow($i + $columnNum3++, $rowIndex, $v0, \PHPExcel_Cell_DataType::TYPE_STRING);
-					if(isset($verbose->{$schema->id})){
-						$remark_num=$verbose->{$schema->id}->remark_num;
+					if (isset($oVerbose->{$schema->id})) {
+						$remark_num = $oVerbose->{$schema->id}->remark_num;
 						$objActiveSheet->setCellValueExplicitByColumnAndRow($i++ + $columnNum3++, $rowIndex, $remark_num, \PHPExcel_Cell_DataType::TYPE_STRING);
 					}
 					break;
@@ -856,16 +854,16 @@ class record extends \pl\fe\matter\base {
 						$v0 .= ' (补充说明：' . (isset($supplement) && isset($supplement->{$schema->id}) ? $supplement->{$schema->id} : '') . ')';
 					}
 					$objActiveSheet->setCellValueExplicitByColumnAndRow($i + $columnNum3++, $rowIndex, $v0, \PHPExcel_Cell_DataType::TYPE_STRING);
-					if(isset($verbose->{$schema->id})){
-						$remark_num=$verbose->{$schema->id}->remark_num;
+					if (isset($oVerbose->{$schema->id})) {
+						$remark_num = $oVerbose->{$schema->id}->remark_num;
 						$objActiveSheet->setCellValueExplicitByColumnAndRow($i++ + $columnNum3++, $rowIndex, $remark_num, \PHPExcel_Cell_DataType::TYPE_STRING);
 					}
 					break;
 				default:
 					isset($score->{$schema->id}) && $v .= ' (' . $score->{$schema->id} . '分)';
 					$objActiveSheet->setCellValueExplicitByColumnAndRow($i + $columnNum3++, $rowIndex, $v, \PHPExcel_Cell_DataType::TYPE_STRING);
-					if(isset($verbose->{$schema->id})){
-						$remark_num=$verbose->{$schema->id}->remark_num;
+					if (isset($oVerbose->{$schema->id})) {
+						$remark_num = $oVerbose->{$schema->id}->remark_num;
 						$objActiveSheet->setCellValueExplicitByColumnAndRow($i++ + $columnNum3++, $rowIndex, $remark_num, \PHPExcel_Cell_DataType::TYPE_STRING);
 					}
 					break;

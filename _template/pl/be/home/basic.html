@@ -61,7 +61,7 @@
                 </div>
             </div>
             <div class='col-md-9 col-xs-12'>
-                <div id="slider_extends" class="slider_extends bgf" ng-controller="ctrlSlider">
+                <div id="slider_extends" class="slider_extends bgf" ng-controller="ctrlSlider" ng-if="topArticles!=''">
                     <ul class="list-unstyled row" >
                         <li ng-mouseenter="selectTag($index)" class="slider_extend pull-left" ng-repeat="ta in topArticles" data-ng-init="load()">
                             <a ng-href="{{ta.url}}">

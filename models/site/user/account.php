@@ -208,7 +208,7 @@ class account_model extends \TMS_MODEL {
 		if ($persisted === true) {
 			$this->insert('xxt_site_account', $account, false);
 			//记录站点活跃数
-			$this->model('site\active')->add($siteid, $account, 0, 'access');
+			$this->model('site\active')->add($siteid, $account, 0, 'createSiteUser');
 		}
 
 		return $account;

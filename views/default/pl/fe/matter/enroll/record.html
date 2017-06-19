@@ -149,10 +149,10 @@
                             <td></td>
                             <td></td>
                             <td ng-if="app.multi_rounds==='Y'"></td>
-                            <td ng-repeat="schema in recordSchemas" ng-switch on="schema.type">
-                                <span ng-if="schema.number==='Y'">
-                                {{sum4Schema[schema.id]}}
-                            </span>
+                            <td ng-repeat="schema in recordSchemas2" ng-switch on="schema.type">
+                                <div ng-if="schema.format==='number'">
+                                    {{sum4SchemaAtPage[schema.id]}}/{{sum4Schema[schema.id]}}
+                                </div>
                             </td>
                             <td class='matched enroll' ng-repeat="schema in enrollDataSchemas"></td>
                             <td class='matched group' ng-repeat="schema in groupDataSchemas"></td>

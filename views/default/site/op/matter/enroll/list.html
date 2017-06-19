@@ -94,9 +94,9 @@
                         <td></td>
                         <td></td>
                         <td></td>
-                        <td ng-repeat="schema in recordSchemas" ng-switch on="schema.type">
-                            <div ng-if="schema.number==='Y'">
-                                {{sum4Schema[schema.id]}}
+                        <td ng-repeat="schema in recordSchemas2" ng-switch on="schema.type">
+                            <div ng-if="schema.format==='number'">
+                                {{sum4SchemaAtPage[schema.id]}}/{{sum4Schema[schema.id]}}
                             </div>
                         </td>
                         <td class='matched enroll' ng-repeat="schema in enrollDataSchemas"></td>

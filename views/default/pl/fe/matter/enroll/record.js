@@ -1,11 +1,32 @@
 define(['frame'], function(ngApp) {
     'use strict';
     ngApp.provider.controller('ctrlRecord', ['$scope', '$location', 'srvEnrollApp', 'srvEnrollRound', 'srvEnrollRecord', function($scope, $location, srvEnrollApp, srvEnlRnd, srvEnrollRecord) {
+        function fnSum4Schema() {
+            var sum4SchemaAtPage;
+            $scope.sum4SchemaAtPage = sum4SchemaAtPage = {};
+            if ($scope.numberSchemas.length) {
+                srvEnrollRecord.sum4Schema().then(function(result) {
+                    $scope.sum4Schema = result;
+                    for (var p in result) {
+                        if ($scope.records.length) {
+                            $scope.records.forEach(function(oRecord) {
+                                if (sum4SchemaAtPage[p]) {
+                                    sum4SchemaAtPage[p] += oRecord.data[p] ? parseInt(oRecord.data[p]) : 0;
+                                } else {
+                                    sum4SchemaAtPage[p] = oRecord.data[p] ? parseInt(oRecord.data[p]) : 0;
+                                }
+                            });
+                        } else {
+                            sum4SchemaAtPage[p] = 0;
+                        }
+                    }
+                });
+            }
+        }
         $scope.doSearch = function(pageNumber) {
             $scope.rows.reset();
-            srvEnrollRecord.search(pageNumber);
-            srvEnrollRecord.sum4Schema().then(function(result) {
-                $scope.sum4Schema = result;
+            srvEnrollRecord.search(pageNumber).then(function() {
+                fnSum4Schema();
             });
         };
         $scope.$on('search-tag.xxt.combox.done', function(event, aSelected) {
@@ -20,9 +41,7 @@ define(['frame'], function(ngApp) {
         $scope.filter = function() {
             srvEnrollRecord.filter().then(function() {
                 $scope.rows.reset();
-                srvEnrollRecord.sum4Schema().then(function(result) {
-                    $scope.sum4Schema = result;
-                });
+                fnSum4Schema();
             });
         };
         $scope.editRecord = function(record) {
@@ -111,7 +130,7 @@ define(['frame'], function(ngApp) {
                 if (schema.remarkable && schema.remarkable === 'Y') {
                     recordSchemas2.push({ type: 'remark', title: '评论数', id: schema.id });
                 }
-                if (schema.number && schema.number === 'Y') {
+                if (schema.format && schema.format === 'number') {
                     $scope.numberSchemas.push(schema);
                 }
             });

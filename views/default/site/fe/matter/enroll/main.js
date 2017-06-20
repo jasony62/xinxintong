@@ -127,6 +127,9 @@ ngApp.controller('ctrlMain', ['$scope', '$http', '$timeout', 'ls', 'tmsDynaPage'
     $scope.back = function() {
         history.back();
     };
+    $scope.historyLen = function() {
+        return history.length;
+    };
     $scope.closeWindow = function() {
         if (/MicroMessenger/i.test(navigator.userAgent)) {
             window.wx.closeWindow();

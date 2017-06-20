@@ -169,7 +169,7 @@ define(['main'], function(ngApp) {
             $scope.qrcodes = qrcodes;
         });
     }]);
-    ngApp.provider.controller('ctrlHomeChannel', ['$scope', 'http2', 'mattersgallery', 'noticebox', function($scope, http2, mattersgallery, noticebox) {
+    ngApp.provider.controller('ctrlHomeChannel', ['$scope', '$uibModal', 'http2', 'mattersgallery', 'noticebox', function($scope, $uibModal, http2, mattersgallery, noticebox) {
         $scope.doGroup = function(channel, group) {
             var url = '/rest/pl/fe/site/setting/page/updateHomeChannel';
             url += '?site=' + channel.siteid + '&id=' + channel.id;
@@ -191,7 +191,7 @@ define(['main'], function(ngApp) {
                 }],
                 backdrop: 'static'
             }).result.then(function(newChannel) {
-                channel.title = newChannel.title;
+                channel.display_name = newChannel.title;
                 var url = '/rest/pl/fe/site/setting/page/updateHomeChannel';
                 url += '?site=' + channel.siteid + '&id=' + channel.id;
                 http2.post(url, { display_name: channel.title }, function(rsp) {

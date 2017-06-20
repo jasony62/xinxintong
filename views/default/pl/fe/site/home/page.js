@@ -30,6 +30,13 @@ define(['main'], function(ngApp) {
                 }
             }
         };
+        $scope.update = function(name) {
+            if (window.confirm('勾选后，如果团队主页页面有更新将会自动覆盖现有主页页面，确定更新？')) {
+                var p = {};
+                p[name] = $scope.site[name];
+                http2.post('/rest/pl/fe/site/update?site=' + $scope.site.id, p, function(rsp) {});
+            }
+        };
         $scope.openPage = function(page) {
             var name = $scope.site[page + '_page_name'];
             if (name) {

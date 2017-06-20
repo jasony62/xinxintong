@@ -157,7 +157,7 @@ $sql = "create table if not exists xxt_platform(";
 $sql .= "id int not null auto_increment";
 $sql .= ",home_page_id int not null default 0"; // 平台主页
 $sql .= ",home_page_name varchar(13) not null default ''"; // 平台主页
-$sql .= ",autoup_homepage char(1) not null default 'N'"; // 是否自动更新主页页面
+$sql .= ",autoup_homepage char(1) not null default 'Y'"; // 是否自动更新主页页面
 $sql .= ",home_carousel text"; // 首页轮播
 $sql .= ",template_page_id int not null default 0"; // 平台模版库
 $sql .= ",template_page_name varchar(13) not null default ''"; // 平台模版库
@@ -208,7 +208,7 @@ $sql .= ',pic text';
 $sql .= ',summary varchar(240) not null';
 $sql .= ",score int not null default 0";
 $sql .= ",approved char(1) not null default 'N'"; // 是否批准推送到主页
-$sql .= ",weight int not null default 0"; 
+$sql .= ",weight int not null default 0";
 $sql .= ",primary key(id)) ENGINE=MyISAM DEFAULT CHARSET=utf8";
 if (!$mysqli->query($sql)) {
 	header('HTTP/1.0 500 Internal Server Error');

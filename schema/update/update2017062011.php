@@ -3,9 +3,9 @@ require_once '../../db.php';
 
 $sqls = array();
 //
-$sqls[] = "alter table xxt_site add autoup_homepage char(1) not null default 'N' after home_page_name";
+$sqls[] = "alter table xxt_site add autoup_homepage char(1) not null default 'Y' after home_page_name";
 //
-$sqls[] = "alter table xxt_platform add autoup_homepage char(1) not null default 'N' after home_page_name";
+$sqls[] = "alter table xxt_platform add autoup_homepage char(1) not null default 'Y' after home_page_name";
 //
 foreach ($sqls as $sql) {
 	if (!$mysqli->query($sql)) {

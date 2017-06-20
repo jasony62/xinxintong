@@ -1480,6 +1480,18 @@ define(['require', 'schema', 'page'], function(require, schemaLib, pageLib) {
             _ins.filter = function() {
                 return _ins._bFilter(srvEnlRnd);
             };
+            _ins.agree = function(oRecord, schemaId, value) {
+                var url, defer = $q.defer();
+                url = '/rest/site/op/matter/enroll/data/agree?ek=' + oRecord.enroll_key;
+                url += '&schema=' + schemaId;
+                url += '&value=' + value;
+                url += '&site=' + _siteId;
+                url += '&accessToken=' + _accessId
+                http2.get(url, function(rsp) {
+                    defer.resolve(rsp.data);
+                });
+                return defer.promise;
+            };
             _ins.remove = function(record) {
                 if (window.confirm('确认删除？')) {
                     http2.get('/rest/site/op/matter/enroll/record/remove?site=' + _siteId + '&app=' + _appId + '&accessToken=' + _accessId + '&ek=' + record.enroll_key, function(rsp) {

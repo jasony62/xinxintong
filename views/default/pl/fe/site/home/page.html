@@ -18,6 +18,9 @@
             <div class='form-group'>
                 <a href='' ng-click="editPage('home')">编辑页面</a>
                 <a href='' ng-click="resetPage('home')" ng-show="site.home_page_name.length">重置页面</a>
+                <p ng-show="site.home_page_name.length">
+                    <input type='checkbox' ng-true-value="'Y'" ng-false-value="'N'" ng-model="site.autoup_homepage" ng-change="update('autoup_homepage')" />自动更新
+                </p>
             </div>
             <div class="form-group" ng-if="state=='N'">
                 <button class='btn btn-default' ng-click="applyToHome()">允许团队主页公开访问</button>

@@ -343,7 +343,7 @@ class main extends \pl\fe\matter\base {
 		return new \ResponseData($app);
 	}
 	/**
-	 * 通过自定义用户定义创建登记活动
+	 * 通过通讯录联系人定义创建登记活动
 	 *
 	 * @param string $mschema schema's id
 	 *
@@ -511,13 +511,13 @@ class main extends \pl\fe\matter\base {
 		return new \ResponseData($oNewApp);
 	}
 	/**
-	 * 创建登记活动
+	 * 根据活动定义文件创建登记活动
 	 *
 	 * @param string $site site's id
 	 * @param string $mission mission's id
 	 *
 	 */
-	public function createByFile_action($site, $mission = null) {
+	public function createByConfig_action($site, $mission = null) {
 		if (false === ($user = $this->accountUser())) {
 			return new \ResponseTimeout();
 		}
@@ -852,39 +852,52 @@ class main extends \pl\fe\matter\base {
 		return new \ResponseData($app);
 	}
 	/**
-	 * 上传xlsx
-	 *
+	 * 为创建活动上传的xlsx
 	 */
-	protected function upload($site,$appId){
-		$files=$_FILES;
-		foreach ($files as $v1) {
-			if(preg_match('/\S+\.xlsx$/i', $v1['name'])){
-				$path="kcfinder/upload/$site/enroll_$appId";
-				mkdir($path,0755,true);
-				$v1['name']=\TMS_MODEL::toLocalEncoding($v1['name']);
-				$filename=$path.'/'.$v1['name'];
-				move_uploaded_file($v1['tmp_name'], $filename);		
-			}
+	public function uploadExcel4Create_action($site) {
+		if (false === ($oUser = $this->accountUser())) {
+			return new \ResponseTimeout();
 		}
-		return isset($filename) ? $filename : false;
+
+		if (defined('SAE_TMP_PATH')) {
+			return new \ResponseError('not support');
+		}
+
+		$modelFs = $this->model('fs/local', $site, '_resumable');
+		$dest = '/enroll_' . $site . '_' . $_POST['resumableFilename'];
+		$resumable = $this->model('fs/resumable', $site, $dest, $modelFs);
+
+		$resumable->handleRequest($_POST);
+
+		exit;
 	}
 	/**
 	 * 通过导入的Excel数据记录创建登记活动
 	 * 目前就是填空题
 	 */
-	public function createByExcel_action($site){
-		if (false === ($user = $this->accountUser())) {
+	public function createByExcel_action($site) {
+		if (false === ($oUser = $this->accountUser())) {
 			return new \ResponseTimeout();
 		}
+
+		$oExcelFile = $this->getPostJson();
+
+		if (defined('SAE_TMP_PATH')) {
+			return new \ResponseError('not support');
+		}
+
+		// 文件存储在本地
+		$modelFs = $this->model('fs/local', $site, '_resumable');
+		$fileUploaded = 'enroll_' . $site . '_' . $oExcelFile->name;
+		$filename = $modelFs->rootDir . '/' . $fileUploaded;
 
 		require_once TMS_APP_DIR . '/lib/PHPExcel.php';
 		$modelApp = $this->model('matter\enroll');
 		$modelApp->setOnlyWriteDbConn(true);
 		$appId = uniqid();
-		$filename=$this->upload($site,$appId);
-	
-		if(!file_exists($filename)){
-			return new \ResponseError('上传文件失败,请上传Excel2007（xlsx格式）的文件！');
+
+		if (!file_exists($filename)) {
+			return new \ResponseError('上传文件失败！');
 		}
 
 		$objPHPExcel = \PHPExcel_IOFactory::load($filename);
@@ -899,10 +912,10 @@ class main extends \pl\fe\matter\base {
 		 * 提取数据定义信息
 		 */
 		$schemasByCol = [];
-		$record=[];
+		$record = [];
 		for ($col = 0; $col < $highestColumnIndex; $col++) {
 			$colTitle = (string) $objWorksheet->getCellByColumnAndRow($col, 1)->getValue();
-			$data=new \stdClass;
+			$data = new \stdClass;
 			if ($colTitle === '备注') {
 				$schemasByCol[$col] = 'comment';
 			} else if ($colTitle === '标签') {
@@ -910,50 +923,46 @@ class main extends \pl\fe\matter\base {
 			} else if ($colTitle === '审核通过') {
 				$schemasByCol[$col] = 'verified';
 			} else if ($colTitle === '昵称') {
-				$schemasByCol[$col]=false;
+				$schemasByCol[$col] = false;
 			} else if (preg_match("/.*时间/", $colTitle)) {
-				$schemasByCol[$col]='submit_at';
+				$schemasByCol[$col] = 'submit_at';
 			} else if (preg_match("/姓名.*/", $colTitle)) {
-				$data->id=$this->getTopicId();
-				$data->title= $colTitle;
-				$data->type='shorttext';
-				$data->format='name';
-				$data->unique='N';
-				$data->_ver='1';
-				$schemasByCol[$col]['id']=$data->id;
+				$data->id = $this->getTopicId();
+				$data->title = $colTitle;
+				$data->type = 'shorttext';
+				$data->format = 'name';
+				$data->unique = 'N';
+				$data->_ver = '1';
+				$schemasByCol[$col]['id'] = $data->id;
 			} else if (preg_match("/手机.*/", $colTitle)) {
-				$data->id=$this->getTopicId();
-				$data->title= $colTitle;
-				$data->type='shorttext';
-				$data->format='mobile';
-				$data->unique='N';
-				$data->_ver='1';
-				$schemasByCol[$col]['id']=$data->id;
+				$data->id = $this->getTopicId();
+				$data->title = $colTitle;
+				$data->type = 'shorttext';
+				$data->format = 'mobile';
+				$data->unique = 'N';
+				$data->_ver = '1';
+				$schemasByCol[$col]['id'] = $data->id;
 			} else if (preg_match("/邮箱.*/", $colTitle)) {
-				$data->id=$this->getTopicId();
-				$data->title= $colTitle;
-				$data->type='shorttext';
-				$data->format='email';
-				$data->unique='N';
-				$data->_ver='1';
-				$schemasByCol[$col]['id']=$data->id;
+				$data->id = $this->getTopicId();
+				$data->title = $colTitle;
+				$data->type = 'shorttext';
+				$data->format = 'email';
+				$data->unique = 'N';
+				$data->_ver = '1';
+				$schemasByCol[$col]['id'] = $data->id;
 			} else {
-				$data->id=$this->getTopicId();
-				$data->title= $colTitle;
-				$data->type='shorttext';
-				$data->format='';
-				$data->unique='N';
-				$data->_ver='1';
-				$schemasByCol[$col]['id']=$data->id;
+				$data->id = $this->getTopicId();
+				$data->title = $colTitle;
+				$data->type = 'shorttext';
+				$data->format = '';
+				$data->unique = 'N';
+				$data->_ver = '1';
+				$schemasByCol[$col]['id'] = $data->id;
 			}
-			if(!empty((array)$data)){
-				$record[]=$data;
-			}  
+			if (!empty((array) $data)) {
+				$record[] = $data;
+			}
 		}
-		//获得标题
-		preg_match('/[\/\\\\]{0,1}[^\/\\\\]+\.xlsx$/', $filename, $matches);
-		$title0=$matches[0];
-		$title1=str_replace(['/','\\','.xlsx'], [], $title0);
 		/* 使用缺省模板 */
 		$config = $this->_getSysTemplate('common', 'simple');
 		$config->schema_include_mission_phases = 'N';
@@ -1002,57 +1011,58 @@ class main extends \pl\fe\matter\base {
 		$oSite = $this->model('site')->byId($site, ['fields' => 'id,heading_pic']);
 
 		$current = time();
-		$newapp = [];
+		$oNewApp = new \stdClass;
 		/*从站点或任务获得的信息*/
 		if (empty($mission)) {
-			$newapp['pic'] = $oSite->heading_pic;
-			$newapp['summary'] = '';
-			$newapp['use_mission_header'] = 'N';
-			$newapp['use_mission_footer'] = 'N';
-			$mission=null;
+			$oNewApp->pic = $oSite->heading_pic;
+			$oNewApp->summary = '';
+			$oNewApp->use_mission_header = 'N';
+			$oNewApp->use_mission_footer = 'N';
+			$mission = null;
 		} else {
 			$modelMis = $this->model('matter\mission');
 			$mission = $modelMis->byId($mission);
-			$newapp['pic'] = $mission->pic;
-			$newapp['summary'] = $mission->summary;
-			$newapp['mission_id'] = $mission->id;
-			$newapp['use_mission_header'] = 'Y';
-			$newapp['use_mission_footer'] = 'Y';
+			$oNewApp->pic = $mission->pic;
+			$oNewApp->summary = $mission->summary;
+			$oNewApp->mission_id = $mission->id;
+			$oNewApp->use_mission_header = 'Y';
+			$oNewApp->use_mission_footer = 'Y';
 		}
 		/* 添加页面 */
-		$this->_addPageByTemplate($user, $oSite, $mission, $appId, $config, null);
+		$this->_addPageByTemplate($oUser, $oSite, $mission, $appId, $config, null);
 		/* 登记数量限制 */
 		if (isset($config->count_limit)) {
-			$newapp['count_limit'] = $config->count_limit;
+			$oNewApp->count_limit = $config->count_limit;
 		}
 		if (isset($config->enrolled_entry_page)) {
-			$newapp['enrolled_entry_page'] = $config->enrolled_entry_page;
+			$oNewApp->enrolled_entry_page = $config->enrolled_entry_page;
 		}
 		/* 场景设置 */
 		if (isset($config->scenarioConfig)) {
 			$scenarioConfig = $config->scenarioConfig;
-			$newapp['scenario_config'] = json_encode($scenarioConfig);
+			$oNewApp->scenario_config = json_encode($scenarioConfig);
 		}
-		$newapp['scenario'] = 'common';
+		$oNewApp->scenario = 'common';
 		/* create app */
-		$newapp['id'] = $appId;
-		$newapp['siteid'] = $oSite->id;
-		$newapp['title'] = $title1;
-		$newapp['creater'] = $user->id;
-		$newapp['creater_src'] = $user->src;
-		$newapp['creater_name'] = $modelApp->escape($user->name);
-		$newapp['create_at'] = $current;
-		$newapp['modifier'] = $user->id;
-		$newapp['modifier_src'] = $user->src;
-		$newapp['modifier_name'] = $modelApp->escape($user->name);
-		$newapp['modify_at'] = $current;
-		$newapp['entry_rule'] = json_encode($entryRule);
-		$newapp['can_siteuser'] = 'Y';
-		$newapp['data_schemas'] = \TMS_MODEL::toJson($record);
+		$title = strtok($oExcelFile->name, '.');
+		$oNewApp->id = $appId;
+		$oNewApp->siteid = $oSite->id;
+		$oNewApp->title = $modelApp->escape($title);
+		$oNewApp->creater = $oUser->id;
+		$oNewApp->creater_src = $oUser->src;
+		$oNewApp->creater_name = $modelApp->escape($oUser->name);
+		$oNewApp->create_at = $current;
+		$oNewApp->modifier = $oUser->id;
+		$oNewApp->modifier_src = $oUser->src;
+		$oNewApp->modifier_name = $modelApp->escape($oUser->name);
+		$oNewApp->modify_at = $current;
+		$oNewApp->entry_rule = json_encode($entryRule);
+		$oNewApp->can_siteuser = 'Y';
+		$oNewApp->data_schemas = \TMS_MODEL::toJson($record);
 
-		$modelApp->insert('xxt_enroll', $newapp, false);
+		$modelApp->insert('xxt_enroll', $oNewApp, false);
+		$oNewApp->type = 'enroll';
 
-		$app = $modelApp->byId($appId);
 		/* 存放数据 */
 		$records2 = [];
 		for ($row = 2; $row <= $highestRow; $row++) {
@@ -1074,8 +1084,8 @@ class main extends \pl\fe\matter\base {
 					$record2->comment = $value;
 				} else if ($schema === 'tags') {
 					$record2->tags = $value;
-				}else if($schema === 'submit_at'){
-					$record2->submit_at=$value;
+				} else if ($schema === 'submit_at') {
+					$record2->submit_at = $value;
 				} else {
 					$data2->{$schema['id']} = $value;
 				}
@@ -1084,15 +1094,18 @@ class main extends \pl\fe\matter\base {
 			$records2[] = $record2;
 		}
 		/* 保存数据*/
-		$this->_persist($site,$appId,$records2);
+		$this->_persist($site, $appId, $records2);
 		/* 记录操作日志 */
-		$this->model('matter\log')->matterOp($oSite->id, $user, $app, 'C');
+		$this->model('matter\log')->matterOp($oSite->id, $oUser, $oNewApp, 'C');
 		/* 记录和任务的关系 */
 		if (isset($mission->id)) {
-			$modelMis->addMatter($user, $oSite->id, $mission->id, $app);
+			$modelMis->addMatter($oUser, $oSite->id, $mission->id, $oNewApp);
 		}
 
-		return new \ResponseData($app);
+		// 删除上传的文件
+		$modelFs->delete($fileUploaded);
+
+		return new \ResponseData($oNewApp);
 	}
 	/**
 	 * 保存数据
@@ -1151,10 +1164,10 @@ class main extends \pl\fe\matter\base {
 	 * 创建题目的id
 	 *
 	 */
-	protected function getTopicId(){
+	protected function getTopicId() {
 		list($usec, $sec) = explode(" ", microtime());
-		$microtime=((float)$usec)*1000000;
-		$id='s'.floor($microtime);
+		$microtime = ((float) $usec) * 1000000;
+		$id = 's' . floor($microtime);
 
 		return $id;
 	}

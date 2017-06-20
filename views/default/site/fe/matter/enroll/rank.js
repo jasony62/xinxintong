@@ -1,7 +1,7 @@
 'use strict';
 
 var ngApp = require('./main.js');
-ngApp.controller('ctrlRank', ['$scope', '$q', 'http2', 'ls', function($scope, $q, http2, LS) {
+ngApp.controller('ctrlRank', ['$scope', '$q', '$sce', 'http2', 'ls', function($scope, $q, $sce, http2, LS) {
     function list() {
         var defer = $q.defer();
         switch (oAppState.criteria.obj) {
@@ -96,6 +96,28 @@ ngApp.controller('ctrlRank', ['$scope', '$q', 'http2', 'ls', function($scope, $q
         $scope.records = [];
         $scope.remarks = [];
         $scope.doSearch(1);
+    };
+    $scope.value2Label = function(oRecord, schemaId) {
+        var value, val, schema, aVal, aLab = [];
+
+        value = oRecord.value;
+        if ((schema = $scope.app._schemasById[schemaId]) && value) {
+            if (val = value) {
+                if (schema.ops && schema.ops.length) {
+                    aVal = val.split(',');
+                    schema.ops.forEach(function(op) {
+                        aVal.indexOf(op.v) !== -1 && aLab.push(op.l);
+                    });
+                    val = aLab.join(',');
+                }
+            } else {
+                val = '';
+            }
+            if (oRecord.supplement) {
+                val += ' （' + oRecord.supplement + '）';
+            }
+        }
+        return $sce.trustAsHtml(val);
     };
     $scope.$on('xxt.app.enroll.ready', function(event, params) {
         oApp = params.app;

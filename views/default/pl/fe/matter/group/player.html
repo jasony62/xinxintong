@@ -54,7 +54,7 @@
                     <button class='btn btn-default' ng-disabled="rows.players.length===0" ng-click="joinGroup(targetRound,rows.players)">移入分组</button>
                 </span>
             </div>
-            <button class='btn btn-default' ng-disabled="!app.sourceApp||!rounds.length" ng-click="execute()">进行分组</button>
+            <button class='btn btn-success' ng-disabled="!app.sourceApp||!rounds.length" ng-click="execute()">进行分组</button>
             <button class='btn btn-default' ng-click='export()'>导出结果</button>
             <button class='btn btn-danger pull-right' ng-click='empty()'>清空用户</button>
         </div>
@@ -99,7 +99,7 @@
                     <div class='help-block'>人数</div>
                     <input type='text' class='form-control' ng-model='activeRound.times' tms-auto-update tms-wait=1000 tms-update="updateRound('times')">
                 </div>
-                <div class='checkbox'>
+                <div class='checkbox' ng-if="app.scenario==='extract'">
                     <label>
                         <input type='checkbox' ng-model='activeRound.autoplay' ng-true-value="'Y'" ng-false-value="'N'" ng-change="updateRound('autoplay')">自动抽取</label>
                 </div>
@@ -108,13 +108,22 @@
                         <tr>
                             <th style='width:80px'>抽取规则</th>
                             <th>抽取对象</th>
-                            <th style='width:48px'>操作</th>
+                            <th style='width:96px'></th>
+                            <th style='width:48px'></th>
                         </tr>
                     </thead>
                     <tbody>
                         <tr ng-repeat="t in aTargets">
                             <td>{{$index+1}}</td>
                             <td>{{labelTarget(t)}}</td>
+                            <td>
+                                <button class='btn btn-default btn-sm' ng-click="moveUpTarget(t)">
+                                    <span class='glyphicon glyphicon-arrow-up'></span>
+                                </button>
+                                <button class='btn btn-default btn-sm' ng-click="moveDownTarget(t)">
+                                    <span class='glyphicon glyphicon-arrow-down'></span>
+                                </button>
+                            </td>
                             <td>
                                 <button class='btn btn-default btn-sm' ng-click="removeTarget($index)">
                                     <span class='glyphicon glyphicon-remove'></span>
@@ -156,9 +165,12 @@
             <div class='form-group'>
                 <label class="col-md-3 control-label">分组属性</label>
                 <div class="col-md-9">
-                    <select class="form-control" ng-model="rule.schema" ng-options="schema.title for schema in schemas">
-                        <option></option>
-                    </select>
+                    <div class='list-group'>
+                        <div class='list-group-item' ng-repeat="schema in schemas">
+                            <label class='checkbox-inline'>
+                                <input type='checkbox' ng-model="schema._selected"> {{schema.title}}</label>
+                        </div>
+                    </div>
                 </div>
             </div>
         </form>

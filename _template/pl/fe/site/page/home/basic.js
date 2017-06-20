@@ -2,7 +2,8 @@ ngApp.provider.controller('ctrlHome', ['$scope', '$http', 'tmsFavor', 'tmsForwar
     var ls = location.search,
         siteId = ls.match(/site=([^&]*)/)[1],
         width = angular.element(window).width(),
-        page, entry, url;
+        page, entry, url, goTop;
+    width > 768 ? goTop = document.querySelector('#md_gototop') : goTop = document.querySelector('#xs_gototop');
     url = 'http://' + location.host + '/rest/site/home?site=' + siteId;
     $scope.entry = entry = {
         url: url,
@@ -12,7 +13,7 @@ ngApp.provider.controller('ctrlHome', ['$scope', '$http', 'tmsFavor', 'tmsForwar
     $scope.siteId = siteId;
     $scope.page = page = {
         at: 1,
-        size: 5,
+        size: 12,
         j: function() {
             return '&page=' + this.at + '&size=' + this.size;
         }
@@ -41,7 +42,7 @@ ngApp.provider.controller('ctrlHome', ['$scope', '$http', 'tmsFavor', 'tmsForwar
             rsp.data.forEach(function(item,index) {
                 index < 3 ? $scope.c_prev_channels.push(item) : $scope.c_next_channels.push(item);
             });
-            width > 768 ? $scope.c_channels_matters = $scope.c_channels : $scope.c_channels_matters = $scope.c_prev_channels;
+            $scope.c_channels_matters = $scope.c_prev_channels;
             $scope.c_channels_matters.forEach(function(channel) {
                 $http.get('/rest/site/fe/matter/channel/mattersGet?site=' + siteId + '&id=' + channel.channel_id + '&' + page.j()).success(function(rsp) {
                     var chid = channel.channel_id, data = [];
@@ -77,7 +78,8 @@ ngApp.provider.controller('ctrlHome', ['$scope', '$http', 'tmsFavor', 'tmsForwar
         event.stopPropagation();
 
         if (!user.loginExpire) {
-            tmsDynaPage.openPlugin('http://' + location.host + '/rest/site/fe/user/login?site=' + oMatter.siteid).then(function(data) {
+            angular.element('body').css('overflow-y', 'hidden');
+            tmsDynaPage.openPlugin('http://' + location.host + '/rest/site/fe/user/login?site=' + siteId).then(function(data) {
                 user.loginExpire = data.loginExpire;
                 tmsFavor.open(article);
             });
@@ -90,7 +92,8 @@ ngApp.provider.controller('ctrlHome', ['$scope', '$http', 'tmsFavor', 'tmsForwar
         event.stopPropagation();
 
         if (!user.loginExpire) {
-            tmsDynaPage.openPlugin('http://' + location.host + '/rest/site/fe/user/login?site=' + oMatter.siteid).then(function(data) {
+            angular.element('body').css('overflow-y', 'hidden');
+            tmsDynaPage.openPlugin('http://' + location.host + '/rest/site/fe/user/login?site=' + siteId).then(function(data) {
                 user.loginExpire = data.loginExpire;
                 tmsForward.open(article);
             });
@@ -101,7 +104,7 @@ ngApp.provider.controller('ctrlHome', ['$scope', '$http', 'tmsFavor', 'tmsForwar
     $scope.openMatter = function(matter) {
         location.href = matter.url;
     };
-    document.querySelector('#gototop').addEventListener('click', function() {
+    goTop.addEventListener('click', function() {
         document.querySelector('body').scrollTop = 0;
     });
     listTemplates();

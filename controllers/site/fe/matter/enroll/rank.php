@@ -106,9 +106,12 @@ class rank extends base {
 		if (count($records)) {
 			$modelRec = $this->model('matter\enroll\record');
 			foreach ($records as &$record) {
-				$oRec = $modelRec->byId($record->enroll_key, ['fields' => 'nickname']);
+				$oRec = $modelRec->byId($record->enroll_key, ['fields' => 'nickname,supplement']);
 				if ($oRec) {
 					$record->nickname = $oRec->nickname;
+					if (isset($oRec->supplement->{$record->schema_id})) {
+						$record->supplement = $oRec->supplement->{$record->schema_id};
+					}
 				}
 			}
 		}

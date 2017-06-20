@@ -20,7 +20,12 @@ define(['frame'], function(ngApp) {
             });
         };
         $scope.configRule = function() {
-            srvGroupRound.config();
+            srvGroupRound.config().then(function() {
+                $scope.activeRound = null;
+                srvGroupRound.list().then(function(rounds) {
+                    $scope.rounds = rounds;
+                });
+            });
         };
         $scope.emptyRule = function() {
             srvGroupRound.empty().then(function() {
@@ -87,15 +92,36 @@ define(['frame'], function(ngApp) {
                 $scope.saveTargets();
             });
         };
+        $scope.moveUpTarget = function(oTarget) {
+            var targets = $scope.aTargets,
+                index = targets.indexOf(oTarget);
+
+            if (index > 0) {
+                targets.splice(index, 1);
+                targets.splice(index - 1, 0, oTarget);
+                $scope.saveTargets();
+            }
+        };
+        $scope.moveDownTarget = function(oTarget) {
+            var targets = $scope.aTargets,
+                index = targets.indexOf(oTarget);
+
+            if (index < targets.length - 1) {
+                targets.splice(index, 1);
+                targets.splice(index + 1, 0, oTarget);
+                $scope.saveTargets();
+            }
+        };
         $scope.removeTarget = function(i) {
             $scope.aTargets.splice(i, 1);
             $scope.saveTargets();
         };
         $scope.labelTarget = function(target) {
-            var labels = [];
+            var schema, labels = [];
             angular.forEach(target, function(v, k) {
                 if (k !== '$$hashKey' && v && v.length) {
-                    labels.push(srvRecordConverter.value2Html(v, $scope.app._schemasById[k]));
+                    schema = $scope.app._schemasById[k];
+                    labels.push(schema.title + ':' + srvRecordConverter.value2Html(v, schema));
                 }
             });
             return labels.join(',');
@@ -105,7 +131,7 @@ define(['frame'], function(ngApp) {
             $scope.updateRound('targets');
         };
     }]);
-    ngApp.provider.controller('ctrlPlayers', ['$scope', 'srvGroupPlayer', function($scope, srvGroupPlayer) {
+    ngApp.provider.controller('ctrlPlayers', ['$scope', 'srvGroupApp', 'srvGroupPlayer', function($scope, srvGroupApp, srvGroupPlayer) {
         var players;
         $scope.players = players = [];
         srvGroupPlayer.init(players).then(function() {
@@ -126,6 +152,7 @@ define(['frame'], function(ngApp) {
         $scope.editPlayer = function(player) {
             srvGroupPlayer.edit(player).then(function(updated) {
                 srvGroupPlayer.update(player, updated.player);
+                srvGroupApp.update('tags');
             });
         };
         $scope.addPlayer = function() {

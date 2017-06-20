@@ -13,23 +13,15 @@ class home extends base {
 		$modelSite = $this->model('site');
 		$site = $modelSite->byId(
 			$site,
-			['fields' => 'id,name,home_page_name,autoup_homepage']
+			['fields' => 'id,name,home_page_id,home_page_name,autoup_homepage']
 		);
 		//自动更新主页页面
 		if($site->autoup_homepage === 'Y' && !empty($template)){
 			$template = $modelSite->escape($template);
-			/* 用户注册信息 */
-			$modelWay = $this->model('site\fe\way');
-			$siteUser = $modelWay->who($site->id);
-			$cookieRegUser = $modelWay->getCookieRegUser();
-			if ($cookieRegUser) {
-				if (isset($cookieRegUser->loginExpire)) {
-					$siteUser->unionid = $cookieRegUser->unionid;
-				}
-			}
 
 			$modelCode = \TMS_APP::M('code\page');
 			$home_page = $modelCode->lastPublishedByName($site->id, $site->home_page_name, ['fields' => 'id,create_at']);
+
 			$templateDirHtml = TMS_APP_TEMPLATE . '/pl/fe/site/page/home/' . $template . '.html';
 			$templateDirCss = TMS_APP_TEMPLATE . '/pl/fe/site/page/home/' . $template . '.css';
 			$templateDirJs = TMS_APP_TEMPLATE . '/pl/fe/site/page/home/' . $template . '.js';
@@ -39,17 +31,11 @@ class home extends base {
 
 			if($createAtTemplateHtml > $home_page->create_at || $createAtTemplateCss > $home_page->create_at || $createAtTemplateJs > $home_page->create_at) {
 				//更新主页页面
+				$current = time();
 				$data = $this->_makePage($site->id, 'home', $template);
-				$code = $this->model('code\page')->create($site->id, $siteUser->uid, $data);
-
-				$rst = $modelSite->update(
-					'xxt_site',
-					array(
-						'home_page_id' => $code->id,
-						'home_page_name' => $code->name,
-					),
-					"id='{$site->id}'"
-				);
+				$data['create_at'] = $current;
+				$data['modify_at'] = $current;
+				$rst = $this->model('code\page')->modify($site->{'home_page_id'}, $data);
 			}
 		}
 

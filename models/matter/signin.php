@@ -25,8 +25,11 @@ class signin_model extends app_base {
 		$url = 'http://' . APP_HTTP_HOST;
 		$url .= '/rest/site/fe/matter/signin';
 		if ($siteId === 'platform') {
-			$app = $this->byId($id, ['cascaded' => 'N']);
-			$url .= "?site={$app->siteid}&app=" . $id;
+			if ($oApp = $this->byId($id, ['cascaded' => 'N'])) {
+				$url .= "?site={$oApp->siteid}&app=" . $id;
+			} else {
+				$url = 'http://' . APP_HTTP_HOST . '/404.html';
+			}
 		} else {
 			$url .= "?site={$siteId}&app=" . $id;
 		}

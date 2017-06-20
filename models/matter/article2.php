@@ -20,15 +20,14 @@ class article2_model extends article_base {
 	 *
 	 */
 	public function getEntryUrl($siteId, $id) {
-		if (isset($_SERVER['HTTP_HOST'])) {
-			$url = "http://" . $_SERVER['HTTP_HOST'];
-		} else {
-			$url = '';
-		}
+		$url = "http://" . APP_HTTP_HOST;
 		$url .= "/rest/site/fe/matter";
 		if ($siteId === 'platform') {
-			$article = $this->byId($id);
-			$url .= "?site={$newArticle->siteid}&id={$id}&type=article";
+			if ($oArticle = $this->byId($id)) {
+				$url .= "?site={$oArticle->siteid}&id={$id}&type=article";
+			} else {
+				$url = "http://" . APP_HTTP_HOST;
+			}
 		} else {
 			$url .= "?site={$siteId}&id={$id}&type=article";
 		}

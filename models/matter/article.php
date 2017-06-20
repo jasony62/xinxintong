@@ -32,7 +32,7 @@ class article_model extends article_base {
 			$url .= '&tpl=' . ($article->custom_body === 'Y' ? 'cus' : 'std');
 
 		*/
-		$url = "http://" . $_SERVER['HTTP_HOST'];
+		$url = "http://" . APP_HTTP_HOST;
 		$url .= "/rest/site/fe/matter";
 		$url .= "?site={$runningMpid}&id={$id}&type=article";
 

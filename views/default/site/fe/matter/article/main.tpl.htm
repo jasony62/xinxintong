@@ -38,7 +38,7 @@
                 <h2 id="title" class="inline-block" ng-bind='article.title'></h2>
                 <div id="attribute">
                     <a class="siteName" ng-href="{{'/rest/site/home?site='+site.id}}">
-                        <h6 class="inline">{{article.creater_name}}</h6>
+                        <h6 class="inline">{{article.author}}</h6>
                     </a>
                     <h6 class="inline time" ng-bind="article.modify_at*1000|date:'yy-MM-dd'"></h6>
                     <h6 class="inline read">阅读 {{article.read_num}}</h6>

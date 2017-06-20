@@ -91,13 +91,15 @@
             <tbody>
                 <tr>
                     <th style='width:4em'>序号</th>
+                    <th>显示名称</th>
                     <th>频道名称</th>
                     <th>频道说明</th>
                     <th style='width:8em'>频道分组</th>
-                    <th style='width:7em'>操作</th>
+                    <th style='width:10em'>操作</th>
                 </tr>
                 <tr ng-repeat='c in channels'>
                     <td>{{$index+1}}</td>
+                    <td>{{c.display_name}}</td>
                     <td><a href='/rest/pl/fe/matter/channel?site={{site.id}}&id={{c.channel_id}}' target='_self'>{{c.title}}</a></td>
                     <td>{{c.summary}}</td>
                     <td>
@@ -108,6 +110,7 @@
                         </select>
                     </td>
                     <td>
+                        <button class='btn btn-xs btn-default' ng-click="edit(c)"><i class='glyphicon glyphicon-edit'></i></button>
                         <button class='btn btn-xs btn-danger' ng-click="remove(c,$index)"><i class='glyphicon glyphicon-remove'></i></button>
                         <button class='btn btn-xs btn-default' ng-click="up(c,$index)"><i class='glyphicon glyphicon-chevron-up'></i></button>
                         <button class='btn btn-xs btn-default' ng-click="down(c,$index)"><i class='glyphicon glyphicon-chevron-down'></i></button>
@@ -116,7 +119,7 @@
             </tbody>
             <tfoot>
                 <tr>
-                    <td colspan="5">
+                    <td colspan="6">
                         <button class='btn btn-default' ng-click="add()">添加主页频道</button>
                         <button class='btn btn-default' ng-click="create()">新建主页频道</button>
                     </td>
@@ -125,3 +128,19 @@
         </table>
     </div>
 </div>
+<script type="text/ng-template" id="editChannelTitle.html">
+    <div class="modal-header">
+        <button class="close" type="button" ng-click="cancel()">×</button>
+        <h5 class="modal-title ">修改加入中间栏的频道标题</h5>
+    </div>
+    <div class="modal-body ">
+        <div class='form-group'>
+            <label>频道中显示的标题<small>（建议控制在四个汉字）</small></label>
+            <input type='text' class='form-control' ng-model="channel.title">
+
+        </div>
+    </div>
+    <div class="modal-footer">
+        <button class="btn btn-success" ng-click="ok() ">确定</button>
+    </div>
+</script>

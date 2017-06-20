@@ -20,7 +20,7 @@ define(['main'], function(ngApp) {
                 var name = $scope.site[page + '_page_name'];
                 if (name && name.length) {
                     http2.get('/rest/pl/fe/site/pageReset?site=' + $scope.site.id + '&page=' + page, function(rsp) {
-                        /*location.href = '/rest/pl/fe/code?site=' + $scope.site.id + '&name=' + name;*/
+                        location.href = '/rest/pl/fe/code?site=' + $scope.site.id + '&name=' + name;
                     });
                 } else {
                     http2.get('/rest/pl/fe/site/pageCreate?site=' + $scope.site.id + '&page=' + page, function(rsp) {
@@ -169,7 +169,7 @@ define(['main'], function(ngApp) {
             $scope.qrcodes = qrcodes;
         });
     }]);
-    ngApp.provider.controller('ctrlHomeChannel', ['$scope', 'http2', 'mattersgallery', 'noticebox', function($scope, http2, mattersgallery, noticebox) {
+    ngApp.provider.controller('ctrlHomeChannel', ['$scope', '$uibModal', 'http2', 'mattersgallery', 'noticebox', function($scope, $uibModal, http2, mattersgallery, noticebox) {
         $scope.doGroup = function(channel, group) {
             var url = '/rest/pl/fe/site/setting/page/updateHomeChannel';
             url += '?site=' + channel.siteid + '&id=' + channel.id;
@@ -177,7 +177,28 @@ define(['main'], function(ngApp) {
                 noticebox.success('完成分组');
             });
         }
-
+        $scope.edit = function(channel) {
+            $uibModal.open({
+                templateUrl: 'editChannelTitle.html',
+                controller: ['$scope', '$uibModalInstance', function($scope2, $mi) {
+                    $scope2.channel = angular.copy(channel);
+                    $scope2.ok = function() {
+                        $mi.close($scope2.channel);
+                    };
+                    $scope2.cancel = function() {
+                        $mi.dismiss();
+                    };
+                }],
+                backdrop: 'static'
+            }).result.then(function(newChannel) {
+                channel.display_name = newChannel.title;
+                var url = '/rest/pl/fe/site/setting/page/updateHomeChannel';
+                url += '?site=' + channel.siteid + '&id=' + channel.id;
+                http2.post(url, { display_name: channel.title }, function(rsp) {
+                    noticebox.success('完成更新');
+                });
+            });
+        };
         function updateSeq() {
             var updated = {};
             $scope.channels.forEach(function(channel, index) {

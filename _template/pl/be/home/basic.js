@@ -1,5 +1,7 @@
 ngApp.provider.controller('ctrlHome', ['$scope', '$http', '$uibModal', 'tmsFavor', 'tmsForward', 'tmsDynaPage', function($scope, $http, $uibModal, tmsFavor, tmsForward, tmsDynaPage) {
-    var page, width = angular.element(window).width();
+    var page, goTop, width = angular.element(window).width();
+    $scope.width = width;
+    width > 768 ? goTop = document.querySelector('#md_gototop') : goTop = document.querySelector('#xs_gototop');
     $scope.page = page = {
         at: 1,
         size: 5,
@@ -55,7 +57,8 @@ ngApp.provider.controller('ctrlHome', ['$scope', '$http', '$uibModal', 'tmsFavor
         event.stopPropagation();
 
         if (!user.loginExpire) {
-            tmsDynaPage.openPlugin('http://' + location.host + '/rest/site/fe/user/login?site=' + oMatter.siteid).then(function(data) {
+            angular.element('body').css('overflow-y', 'hidden');
+            tmsDynaPage.openPlugin('http://' + location.host + '/rest/site/fe/user/login?site=' + article.siteid).then(function(data) {
                 user.loginExpire = data.loginExpire;
                 tmsFavor.open(article);
             });
@@ -69,7 +72,8 @@ ngApp.provider.controller('ctrlHome', ['$scope', '$http', '$uibModal', 'tmsFavor
         event.stopPropagation();
 
         if (!user.loginExpire) {
-            tmsDynaPage.openPlugin('http://' + location.host + '/rest/site/fe/user/login?site=' + oMatter.siteid).then(function(data) {
+            angular.element('body').css('overflow-y', 'hidden');
+            tmsDynaPage.openPlugin('http://' + location.host + '/rest/site/fe/user/login?site=' + article.siteid).then(function(data) {
                 user.loginExpire = data.loginExpire;
                 tmsForward.open(article);
             });
@@ -99,13 +103,13 @@ ngApp.provider.controller('ctrlHome', ['$scope', '$http', '$uibModal', 'tmsFavor
     $http.get('/rest/home/listMatterTop?type=article&page=1&size=3').success(function(rsp) {
         $scope.topArticles = rsp.data.matters;
     });
-    document.querySelector('#gototop').addEventListener('click', function() {
+    goTop.addEventListener('click', function() {
         document.querySelector('body').scrollTop = 0;
     });
     listSites(5);
     listTemplates();
-    $scope.listApps(5);
-    $scope.listArticles(5);
+    $scope.listApps(12);
+    $scope.listArticles(12);
     $scope.listChannels();
 }]);
 ngApp.provider.controller('ctrlCarousel', function($scope) {
@@ -125,19 +129,19 @@ ngApp.provider.controller('ctrlSlider',function($scope) {
         lis = document.querySelector('#slider_extends > ul').children,
         as = [meuns[0],meuns[1]];
     var stop = true, flag = true;
-    var json = [{ // 2
+    var json = [{
         width: 169,
         top: 40,
         left: -113,
         opacity: 80,
         z: 3
-    }, { // 3
+    }, {
         width: 225,
         top: 16,
         left: 75,
         opacity: 100,
         z: 5
-    }, { // 4
+    }, {
         width: 169,
         top: 40,
         left: 319,
@@ -216,12 +220,12 @@ ngApp.provider.controller('ctrlSlider',function($scope) {
     }
     function getStyle(obj,attr) {
         if(obj.currentStyle) {
-            return obj.currentStyle[attr];  // 返回传递过来的某个属性
+            return obj.currentStyle[attr];
         } else {
-            return window.getComputedStyle(obj,null)[attr];  // w3c 浏览器
+            return window.getComputedStyle(obj,null)[attr];
         }
     }
     $scope.load = function() {
-        change();
+        if($scope.width  < 768) {change();}
     }
 });

@@ -852,6 +852,313 @@ class main extends \pl\fe\matter\base {
 		return new \ResponseData($app);
 	}
 	/**
+	 * 上传xlsx
+	 *
+	 */
+	protected function upload($site,$appId){
+		$files=$_FILES;
+		foreach ($files as $v1) {
+			if(preg_match('/\S+\.xlsx$/i', $v1['name'])){
+				$path="kcfinder/upload/$site/enroll_$appId";
+				mkdir($path,0755,true);
+				$v1['name']=\TMS_MODEL::toLocalEncoding($v1['name']);
+				$filename=$path.'/'.$v1['name'];
+				move_uploaded_file($v1['tmp_name'], $filename);		
+			}
+		}
+		return isset($filename) ? $filename : false;
+	}
+	/**
+	 * 通过导入的Excel数据记录创建登记活动
+	 * 目前就是填空题
+	 */
+	public function createByExcel_action($site){
+		if (false === ($user = $this->accountUser())) {
+			return new \ResponseTimeout();
+		}
+
+		require_once TMS_APP_DIR . '/lib/PHPExcel.php';
+		$modelApp = $this->model('matter\enroll');
+		$modelApp->setOnlyWriteDbConn(true);
+		$appId = uniqid();
+		$filename=$this->upload($site,$appId);
+	
+		if(!file_exists($filename)){
+			return new \ResponseError('上传文件失败,请上传Excel2007（xlsx格式）的文件！');
+		}
+
+		$objPHPExcel = \PHPExcel_IOFactory::load($filename);
+		$objWorksheet = $objPHPExcel->getActiveSheet();
+		//xlsx 行号是数字
+		$highestRow = $objWorksheet->getHighestRow();
+		//xlsx 列的标识 eg：A,B,C,D,……,Z
+		$highestColumn = $objWorksheet->getHighestColumn();
+		//把最大的列换成数字
+		$highestColumnIndex = \PHPExcel_Cell::columnIndexFromString($highestColumn);
+		/**
+		 * 提取数据定义信息
+		 */
+		$schemasByCol = [];
+		$record=[];
+		for ($col = 0; $col < $highestColumnIndex; $col++) {
+			$colTitle = (string) $objWorksheet->getCellByColumnAndRow($col, 1)->getValue();
+			$data=new \stdClass;
+			if ($colTitle === '备注') {
+				$schemasByCol[$col] = 'comment';
+			} else if ($colTitle === '标签') {
+				$schemasByCol[$col] = 'tags';
+			} else if ($colTitle === '审核通过') {
+				$schemasByCol[$col] = 'verified';
+			} else if ($colTitle === '昵称') {
+				$schemasByCol[$col]=false;
+			} else if (preg_match("/.*时间/", $colTitle)) {
+				$schemasByCol[$col]='submit_at';
+			} else if (preg_match("/姓名.*/", $colTitle)) {
+				$data->id=$this->getTopicId();
+				$data->title= $colTitle;
+				$data->type='shorttext';
+				$data->format='name';
+				$data->unique='N';
+				$data->_ver='1';
+				$schemasByCol[$col]['id']=$data->id;
+			} else if (preg_match("/手机.*/", $colTitle)) {
+				$data->id=$this->getTopicId();
+				$data->title= $colTitle;
+				$data->type='shorttext';
+				$data->format='mobile';
+				$data->unique='N';
+				$data->_ver='1';
+				$schemasByCol[$col]['id']=$data->id;
+			} else if (preg_match("/邮箱.*/", $colTitle)) {
+				$data->id=$this->getTopicId();
+				$data->title= $colTitle;
+				$data->type='shorttext';
+				$data->format='email';
+				$data->unique='N';
+				$data->_ver='1';
+				$schemasByCol[$col]['id']=$data->id;
+			} else {
+				$data->id=$this->getTopicId();
+				$data->title= $colTitle;
+				$data->type='shorttext';
+				$data->format='';
+				$data->unique='N';
+				$data->_ver='1';
+				$schemasByCol[$col]['id']=$data->id;
+			}
+			if(!empty((array)$data)){
+				$record[]=$data;
+			}  
+		}
+		//获得标题
+		preg_match('/[\/\\\\]{0,1}[^\/\\\\]+\.xlsx$/', $filename, $matches);
+		$title0=$matches[0];
+		$title1=str_replace(['/','\\','.xlsx'], [], $title0);
+		/* 使用缺省模板 */
+		$config = $this->_getSysTemplate('common', 'simple');
+		$config->schema_include_mission_phases = 'N';
+
+		/* 修改模板的配置 */
+		$config->schema = [];
+		foreach ($config->pages as &$page) {
+			if ($page->type === 'I') {
+				$page->data_schemas = [];
+			} else if ($page->type === 'V') {
+				$page->data_schemas = [];
+			} else if ($page->type === 'L') {
+				$page->data_schemas = [];
+			}
+		}
+		foreach ($record as $newSchema) {
+			$config->schema[] = $newSchema;
+			foreach ($config->pages as &$page) {
+				if ($page->type === 'I') {
+					$newWrap = new \stdClass;
+					$newWrap->schema = $newSchema;
+					$wrapConfig = new \stdClass;
+					$wrapConfig->showname = 'label';
+					$wrapConfig->required = 'Y';
+					$newWrap->config = $wrapConfig;
+					$page->data_schemas[] = $newWrap;
+				} else if ($page->type === 'V') {
+					$newWrap = new \stdClass;
+					$newWrap->schema = $newSchema;
+					$wrapConfig = new \stdClass;
+					$newWrap->config = $wrapConfig;
+					$wrapConfig->id = "V1";
+					$wrapConfig->pattern = "record";
+					$wrapConfig->inline = "N";
+					$wrapConfig->splitLine = "Y";
+					$page->data_schemas[] = $newWrap;
+				}
+			}
+		}
+		/* 进入规则 */
+		$entryRule = $config->entryRule;
+		if (empty($entryRule)) {
+			return new \ResponseError('没有获得页面进入规则');
+		}
+
+		$oSite = $this->model('site')->byId($site, ['fields' => 'id,heading_pic']);
+
+		$current = time();
+		$newapp = [];
+		/*从站点或任务获得的信息*/
+		if (empty($mission)) {
+			$newapp['pic'] = $oSite->heading_pic;
+			$newapp['summary'] = '';
+			$newapp['use_mission_header'] = 'N';
+			$newapp['use_mission_footer'] = 'N';
+			$mission=null;
+		} else {
+			$modelMis = $this->model('matter\mission');
+			$mission = $modelMis->byId($mission);
+			$newapp['pic'] = $mission->pic;
+			$newapp['summary'] = $mission->summary;
+			$newapp['mission_id'] = $mission->id;
+			$newapp['use_mission_header'] = 'Y';
+			$newapp['use_mission_footer'] = 'Y';
+		}
+		/* 添加页面 */
+		$this->_addPageByTemplate($user, $oSite, $mission, $appId, $config, null);
+		/* 登记数量限制 */
+		if (isset($config->count_limit)) {
+			$newapp['count_limit'] = $config->count_limit;
+		}
+		if (isset($config->enrolled_entry_page)) {
+			$newapp['enrolled_entry_page'] = $config->enrolled_entry_page;
+		}
+		/* 场景设置 */
+		if (isset($config->scenarioConfig)) {
+			$scenarioConfig = $config->scenarioConfig;
+			$newapp['scenario_config'] = json_encode($scenarioConfig);
+		}
+		$newapp['scenario'] = 'common';
+		/* create app */
+		$newapp['id'] = $appId;
+		$newapp['siteid'] = $oSite->id;
+		$newapp['title'] = $title1;
+		$newapp['creater'] = $user->id;
+		$newapp['creater_src'] = $user->src;
+		$newapp['creater_name'] = $modelApp->escape($user->name);
+		$newapp['create_at'] = $current;
+		$newapp['modifier'] = $user->id;
+		$newapp['modifier_src'] = $user->src;
+		$newapp['modifier_name'] = $modelApp->escape($user->name);
+		$newapp['modify_at'] = $current;
+		$newapp['entry_rule'] = json_encode($entryRule);
+		$newapp['can_siteuser'] = 'Y';
+		$newapp['data_schemas'] = \TMS_MODEL::toJson($record);
+
+		$modelApp->insert('xxt_enroll', $newapp, false);
+
+		$app = $modelApp->byId($appId);
+		/* 存放数据 */
+		$records2 = [];
+		for ($row = 2; $row <= $highestRow; $row++) {
+			$record2 = new \stdClass;
+			$data2 = new \stdClass;
+			for ($col = 0; $col < $highestColumnIndex; $col++) {
+				$schema = $schemasByCol[$col];
+				if ($schema === false) {
+					continue;
+				}
+				$value = (string) $objWorksheet->getCellByColumnAndRow($col, $row)->getValue();
+				if ($schema === 'verified') {
+					if (in_array($value, ['Y', '是'])) {
+						$record2->verified = 'Y';
+					} else {
+						$record2->verified = 'N';
+					}
+				} else if ($schema === 'comment') {
+					$record2->comment = $value;
+				} else if ($schema === 'tags') {
+					$record2->tags = $value;
+				}else if($schema === 'submit_at'){
+					$record2->submit_at=$value;
+				} else {
+					$data2->{$schema['id']} = $value;
+				}
+			}
+			$record2->data = $data2;
+			$records2[] = $record2;
+		}
+		/* 保存数据*/
+		$this->_persist($site,$appId,$records2);
+		/* 记录操作日志 */
+		$this->model('matter\log')->matterOp($oSite->id, $user, $app, 'C');
+		/* 记录和任务的关系 */
+		if (isset($mission->id)) {
+			$modelMis->addMatter($user, $oSite->id, $mission->id, $app);
+		}
+
+		return new \ResponseData($app);
+	}
+	/**
+	 * 保存数据
+	 */
+	private function _persist($site, $appId, &$records) {
+		$current = time();
+		$modelApp = $this->model('matter\enroll');
+		$modelRec = $this->model('matter\enroll\record');
+		$enrollKeys = [];
+
+		foreach ($records as $record) {
+			$ek = $modelRec->genKey($site, $appId);
+
+			$r = array();
+			$r['aid'] = $appId;
+			$r['siteid'] = $site;
+			$r['enroll_key'] = $ek;
+			$r['enroll_at'] = $current;
+			$r['verified'] = isset($record->verified) ? $record->verified : 'N';
+			$r['comment'] = isset($record->comment) ? $record->comment : '';
+			if (isset($record->tags)) {
+				$r['tags'] = $record->tags;
+				$modelApp->updateTags($appId, $record->tags);
+			}
+			$id = $modelRec->insert('xxt_enroll_record', $r, true);
+			$r['id'] = $id;
+			/**
+			 * 登记数据
+			 */
+			if (isset($record->data)) {
+				//
+				$jsonData = $modelRec->toJson($record->data);
+				$modelRec->update('xxt_enroll_record', ['data' => $jsonData], "enroll_key='$ek'");
+				$enrollKeys[] = $ek;
+				//
+				foreach ($record->data as $n => $v) {
+					if (is_object($v) || is_array($v)) {
+						$v = json_encode($v);
+					}
+					if (count($v)) {
+						$cd = [
+							'aid' => $appId,
+							'enroll_key' => $ek,
+							'schema_id' => $n,
+							'value' => $v,
+						];
+						$modelRec->insert('xxt_enroll_record_data', $cd, false);
+					}
+				}
+			}
+		}
+
+		return $enrollKeys;
+	}
+	/**
+	 * 创建题目的id
+	 *
+	 */
+	protected function getTopicId(){
+		list($usec, $sec) = explode(" ", microtime());
+		$microtime=((float)$usec)*1000000;
+		$id='s'.floor($microtime);
+
+		return $id;
+	}
+	/**
 	 * 更新活动的属性信息
 	 *
 	 * @param string $site site'id

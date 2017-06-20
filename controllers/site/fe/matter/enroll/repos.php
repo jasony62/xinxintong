@@ -22,6 +22,7 @@ class repos extends base {
 		$options = new \stdClass;
 		$options->page = $page;
 		$options->size = $size;
+
 		!empty($criteria->keyword) && $options->keyword = $criteria->keyword;
 		!empty($criteria->rid) && $options->rid = $criteria->rid;
 		!empty($criteria->agreed) && $options->agreed = $criteria->agreed;

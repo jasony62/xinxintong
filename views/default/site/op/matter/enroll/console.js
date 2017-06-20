@@ -37,65 +37,66 @@ define(["require", "angular", "enrollService"], function(require, angular) {
         $scope.switchTo = function(view) {
             $location.path('/rest/site/op/matter/enroll/' + view);
         };
-        srvEnrollApp.opGet().then(function(data) {
-            var oApp = data.app;
-            // schemas
-            var recordSchemas = [],
-                recordSchemas2 = [],
-                remarkableSchemas = [],
-                enrollDataSchemas = [],
-                groupDataSchemas = [],
-                numberSchemas = [];
-            oApp.data_schemas.forEach(function(schema) {
-                if (schema.type !== 'html') {
-                    recordSchemas.push(schema);
-                    recordSchemas2.push(schema);
-                }
-                if (schema.remarkable && schema.remarkable === 'Y') {
-                    remarkableSchemas.push(schema);
-                    recordSchemas2.push({ type: 'remark', title: '评论数', id: schema.id });
-                }
-                if (schema.format && schema.format === 'number') {
-                    numberSchemas.push(schema);
-                }
-            });
-            $scope.recordSchemas = recordSchemas;
-            $scope.recordSchemas2 = recordSchemas2;
-            $scope.remarkableSchemas = remarkableSchemas;
-            $scope.numberSchemas = numberSchemas;
-            oApp._schemasFromEnrollApp.forEach(function(schema) {
-                if (schema.type !== 'html') {
-                    enrollDataSchemas.push(schema);
-                }
-            });
-            $scope.enrollDataSchemas = enrollDataSchemas;
-            oApp._schemasFromGroupApp.forEach(function(schema) {
-                if (schema.type !== 'html') {
-                    groupDataSchemas.push(schema);
-                }
-            });
-            $scope.app = oApp;
-            $scope.groupDataSchemas = groupDataSchemas;
-            /*上一次访问状态*/
-            if (window.localStorage) {
-                if (cachedStatus = window.localStorage.getItem("site.op.matter.enroll.console")) {
-                    cachedStatus = JSON.parse(cachedStatus);
-                    if (lastCachedStatus = cachedStatus[oApp.id]) {
-                        $scope.lastCachedStatus = angular.copy(lastCachedStatus);
-                    }
-                } else {
-                    cachedStatus = {};
-                }
-                $timeout(function() {
-                    !cachedStatus[oApp.id] && (cachedStatus[oApp.id] = {});
-                    cachedStatus[oApp.id].lastAt = parseInt((new Date() * 1) / 1000);
-                    window.localStorage.setItem("site.op.matter.enroll.console", JSON.stringify(cachedStatus));
-                }, 6000);
-            }
-            $scope.$broadcast('site.op.matter.enroll.app.ready', data);
-        });
         http2.get('/rest/site/fe/user/get?site=' + siteId, function(rsp) {
             $scope.user = rsp.data;
+            srvEnrollApp.opGet().then(function(data) {
+                var oApp = data.app;
+                // schemas
+                var recordSchemas = [],
+                    recordSchemas2 = [],
+                    remarkableSchemas = [],
+                    enrollDataSchemas = [],
+                    groupDataSchemas = [],
+                    numberSchemas = [];
+                oApp.data_schemas.forEach(function(schema) {
+                    if (schema.type !== 'html') {
+                        recordSchemas.push(schema);
+                        recordSchemas2.push(schema);
+                    }
+                    if (schema.remarkable && schema.remarkable === 'Y') {
+                        remarkableSchemas.push(schema);
+                        recordSchemas2.push({ type: 'remark', title: '评论数', id: schema.id });
+                        recordSchemas2.push({ type: 'agreed', title: '设置态度', id: schema.id });
+                    }
+                    if (schema.format && schema.format === 'number') {
+                        numberSchemas.push(schema);
+                    }
+                });
+                $scope.recordSchemas = recordSchemas;
+                $scope.recordSchemas2 = recordSchemas2;
+                $scope.remarkableSchemas = remarkableSchemas;
+                $scope.numberSchemas = numberSchemas;
+                oApp._schemasFromEnrollApp.forEach(function(schema) {
+                    if (schema.type !== 'html') {
+                        enrollDataSchemas.push(schema);
+                    }
+                });
+                $scope.enrollDataSchemas = enrollDataSchemas;
+                oApp._schemasFromGroupApp.forEach(function(schema) {
+                    if (schema.type !== 'html') {
+                        groupDataSchemas.push(schema);
+                    }
+                });
+                $scope.app = oApp;
+                $scope.groupDataSchemas = groupDataSchemas;
+                /*上一次访问状态*/
+                if (window.localStorage) {
+                    if (cachedStatus = window.localStorage.getItem("site.op.matter.enroll.console")) {
+                        cachedStatus = JSON.parse(cachedStatus);
+                        if (lastCachedStatus = cachedStatus[oApp.id]) {
+                            $scope.lastCachedStatus = angular.copy(lastCachedStatus);
+                        }
+                    } else {
+                        cachedStatus = {};
+                    }
+                    $timeout(function() {
+                        !cachedStatus[oApp.id] && (cachedStatus[oApp.id] = {});
+                        cachedStatus[oApp.id].lastAt = parseInt((new Date() * 1) / 1000);
+                        window.localStorage.setItem("site.op.matter.enroll.console", JSON.stringify(cachedStatus));
+                    }, 6000);
+                }
+                $scope.$broadcast('site.op.matter.enroll.app.ready', data);
+            });
         });
     }]);
     ngApp.controller('ctrlList', ['$scope', '$location', 'srvOpEnrollRecord', 'srvEnrollApp', function($scope, $location, srvOpEnrollRecord, srvEnrollApp) {
@@ -163,8 +164,32 @@ define(["require", "angular", "enrollService"], function(require, angular) {
                 fnSum4Schema();
             });
         };
-        $scope.removeRecord = function(record) {
-            srvOpEnrollRecord.remove(record);
+        $scope.setAgreed = function(oRecord, schemaId) {
+            srvOpEnrollRecord.agree(oRecord, schemaId, oRecord.verbose.data[schemaId].agreed);
+        };
+        $scope.removeRecord = function(event, oRecord) {
+            if ($scope.user.unionid) {
+                srvOpEnrollRecord.remove(oRecord);
+            } else if (event) {
+                var popoverEvt, target, fnClosePopover;
+                event.preventDefault();
+                event.stopPropagation();
+                target = event.target;
+                popoverEvt = document.createEvent("HTMLEvents");
+                popoverEvt.initEvent('show', true, false);
+                target.dispatchEvent(popoverEvt);
+                fnClosePopover = function() {
+                    popoverEvt = document.createEvent("HTMLEvents");
+                    popoverEvt.initEvent('hide', true, false);
+                    target.dispatchEvent(popoverEvt);
+                    if (execStatus.pendingByLogin && execStatus.pendingByLogin.name === 'removeRecord') {
+                        delete execStatus.pendingByLogin;
+                    }
+                    document.body.removeEventListener('click', fnClosePopover);
+                };
+                document.body.addEventListener('click', fnClosePopover);
+                execStatus.pendingByLogin = { name: 'removeRecord', args: [null, oRecord] };
+            }
         };
         $scope.batchVerify = function() {
             srvOpEnrollRecord.batchVerify($scope.rows);
@@ -207,14 +232,6 @@ define(["require", "angular", "enrollService"], function(require, angular) {
         $scope.criteria = {}; // 过滤条件
         $scope.records = []; // 登记记录
         $scope.tmsTableWrapReady = 'N';
-        $scope.$watch('app', function(app) {
-            if (!app) return;
-            srvOpEnrollRecord.init(app, $scope.page, $scope.criteria, $scope.records);
-            // schemas
-            $scope.tmsTableWrapReady = 'Y';
-            $scope.getRecords();
-            window.loading.finish();
-        });
         $scope.$watch('user', function(oUser) {
             if (!oUser) return;
             if (window.sessionStorage) {
@@ -227,6 +244,14 @@ define(["require", "angular", "enrollService"], function(require, angular) {
                     }
                 }
             }
+            $scope.$watch('app', function(app) {
+                if (!app) return;
+                srvOpEnrollRecord.init(app, $scope.page, $scope.criteria, $scope.records);
+                // schemas
+                $scope.tmsTableWrapReady = 'Y';
+                $scope.getRecords();
+                window.loading.finish();
+            });
         });
     }]);
     ngApp.controller('ctrlRecord', ['$scope', '$timeout', '$location', 'srvEnrollApp', 'srvEnrollRecord', 'srvRecordConverter', function($scope, $timeout, $location, srvEnrollApp, srvEnrollRecord, srvRecordConverter) {

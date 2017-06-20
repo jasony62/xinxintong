@@ -1,12 +1,42 @@
 angular.module('tmplshop.ui.xxt', ['ui.bootstrap']).
 service('templateShop', ['$uibModal', 'http2', '$q', function($uibModal, http2, $q) {
     this.choose = function(siteId, type, assignedScenario) {
+
         var deferred;
         deferred = $q.defer();
         $uibModal.open({
             templateUrl: '/static/template/templateShop.html?_=10',
             backdrop: 'static',
-            controller: ['$scope', '$uibModalInstance', function($scope, $mi) {
+            controller: ['$scope', '$uibModalInstance', '$timeout', function($scope, $mi, $timeout) {
+                function _excelLoader() {
+                    if (Resumable) {
+                        var ele, r;
+                        ele = document.getElementById('btnCreateByExcel');
+                        r = new Resumable({
+                            target: '/rest/pl/fe/matter/enroll/uploadExcel4Create?site=' + siteId,
+                            testChunks: false,
+                        });
+                        r.assignBrowse(ele);
+                        r.on('fileAdded', function(file, event) {
+                            r.upload();
+                        });
+                        r.on('complete', function() {
+                            var f, lastModified, posted;
+                            f = r.files.pop().file;
+                            lastModified = f.lastModified ? f.lastModified : (f.lastModifiedDate ? f.lastModifiedDate.getTime() : 0);
+                            posted = {
+                                name: f.name,
+                                size: f.size,
+                                type: f.type,
+                                lastModified: lastModified,
+                                uniqueIdentifier: f.uniqueIdentifier,
+                            };
+                            http2.post('/rest/pl/fe/matter/enroll/createByExcel?site=' + siteId, posted, function(rsp) {
+                                $mi.close({ source: 'file', app: rsp.data });
+                            });
+                        });
+                    }
+                }
                 $scope.source = 'platform';
                 $scope.criteria = {
                     scope: 'P'
@@ -117,15 +147,23 @@ service('templateShop', ['$uibModal', 'http2', '$q', function($uibModal, http2, 
                     var fReader;
                     fReader = new FileReader();
                     fReader.onload = function(evt) {
-                        var template;
+                        var template, url;
                         template = evt.target.result;
                         template = JSON.parse(template);
-                        $scope.$apply(function() {
-                            $scope.fileTemplate = template;
+                        url = '/rest/pl/fe/matter/enroll/createByConfig?site=' + siteId;
+                        http2.post(url, template, function(rsp) {
+                            $mi.close({ source: 'file', app: rsp.data });
                         });
                     };
                     fReader.readAsText(file);
                 };
+                $scope.$watch('source', function(source) {
+                    if (source === 'file') {
+                        $timeout(function() {
+                            _excelLoader();
+                        });
+                    }
+                });
                 /*系统模版*/
                 switch (type) {
                     case 'enroll':

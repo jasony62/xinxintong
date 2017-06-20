@@ -180,7 +180,7 @@ class data_model extends \TMS_MODEL {
 
 		$q2 = [];
 		// 排序规则
-		$q2['o'] = "submit_at desc";
+		$q2['o'] = "agreed desc,submit_at desc";
 		// 查询结果分页
 		if (!empty($page) && !empty($size)) {
 			$q2['r'] = ['o' => ($page - 1) * $size, 'l' => $size];

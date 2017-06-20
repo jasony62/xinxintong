@@ -74,6 +74,7 @@ $sql .= ',put_at int not null';
 $sql .= ",siteid varchar(32) not null";
 $sql .= ",channel_id int not null";
 $sql .= ",title varchar(70) not null default ''";
+$sql .= ",display_name varchar(70) not null default ''";
 $sql .= ',pic text';
 $sql .= ',summary varchar(240) not null';
 $sql .= ",seq int not null default 0";

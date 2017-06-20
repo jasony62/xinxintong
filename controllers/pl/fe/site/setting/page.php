@@ -89,7 +89,7 @@ class page extends \pl\fe\base {
 		return new \ResponseData('ok');
 	}
 	/**
-	 * 修改主页频道分组
+	 * 修改主页频道
 	 */
 	public function updateHomeChannel_action($site, $id) {
 		if (false === ($user = $this->accountUser())) {
@@ -97,10 +97,13 @@ class page extends \pl\fe\base {
 		}
 
 		$post = $this->getPostJson();
-		if (!empty($post->homeGroup)) {
-			$model = $this->model();
-			$homeGroup = $model->escape($post->homeGroup);
-			$model->update('xxt_site_home_channel', ['home_group' => $homeGroup], ['id' => $id]);
+		$model = $this->model();
+		$data = [];
+		!empty($post->homeGroup) && $data['home_group'] = $model->escape($post->homeGroup);
+		!empty($post->display_name) && $data['display_name'] = $model->escape($post->display_name);
+
+		if(!empty($data)){
+			$model->update('xxt_site_home_channel', $data, ['id' => $id]);
 		}
 
 		return new \ResponseData('ok');

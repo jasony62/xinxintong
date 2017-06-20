@@ -1007,7 +1007,7 @@ class record_model extends \TMS_MODEL {
 			}
 		}
 		foreach ($dataSchemas as $schema) {
-			if (isset($schema->number) && $schema->number === 'Y') {
+			if (isset($schema->format) && $schema->format === 'number') {
 				$q = [
 					'sum(value)',
 					'xxt_enroll_record_data',

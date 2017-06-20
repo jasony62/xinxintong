@@ -55,7 +55,7 @@ define(["require", "angular", "enrollService"], function(require, angular) {
                     remarkableSchemas.push(schema);
                     recordSchemas2.push({ type: 'remark', title: '评论数', id: schema.id });
                 }
-                if (schema.number && schema.number === 'Y') {
+                if (schema.format && schema.format === 'number') {
                     numberSchemas.push(schema);
                 }
             });
@@ -99,6 +99,28 @@ define(["require", "angular", "enrollService"], function(require, angular) {
         });
     }]);
     ngApp.controller('ctrlList', ['$scope', '$location', 'srvOpEnrollRecord', 'srvEnrollApp', function($scope, $location, srvOpEnrollRecord, srvEnrollApp) {
+        function fnSum4Schema() {
+            var sum4SchemaAtPage;
+            $scope.sum4SchemaAtPage = sum4SchemaAtPage = {};
+            if ($scope.numberSchemas.length) {
+                srvOpEnrollRecord.sum4Schema().then(function(result) {
+                    $scope.sum4Schema = result;
+                    for (var p in result) {
+                        if ($scope.records.length) {
+                            $scope.records.forEach(function(oRecord) {
+                                if (sum4SchemaAtPage[p]) {
+                                    sum4SchemaAtPage[p] += oRecord.data[p] ? parseInt(oRecord.data[p]) : 0;
+                                } else {
+                                    sum4SchemaAtPage[p] = oRecord.data[p] ? parseInt(oRecord.data[p]) : 0;
+                                }
+                            });
+                        } else {
+                            sum4SchemaAtPage[p] = 0;
+                        }
+                    }
+                });
+            }
+        }
         var execStatus = {};
         $scope.switchToRecord = function(event, oRecord) {
             if ($scope.user.unionid) {
@@ -137,9 +159,8 @@ define(["require", "angular", "enrollService"], function(require, angular) {
         };
         $scope.getRecords = function(pageNumber) {
             $scope.rows.reset();
-            srvOpEnrollRecord.search(pageNumber);
-            srvOpEnrollRecord.sum4Schema().then(function(result) {
-                $scope.sum4Schema = result;
+            srvOpEnrollRecord.search(pageNumber).then(function() {
+                fnSum4Schema();
             });
         };
         $scope.removeRecord = function(record) {
@@ -151,9 +172,7 @@ define(["require", "angular", "enrollService"], function(require, angular) {
         $scope.filter = function() {
             srvOpEnrollRecord.filter().then(function() {
                 $scope.rows.reset();
-                srvOpEnrollRecord.sum4Schema().then(function(result) {
-                    $scope.sum4Schema = result;
-                });
+                fnSum4Schema();
             });
         };
         $scope.countSelected = function() {
@@ -187,7 +206,6 @@ define(["require", "angular", "enrollService"], function(require, angular) {
         $scope.page = {}; // 分页条件
         $scope.criteria = {}; // 过滤条件
         $scope.records = []; // 登记记录
-        $scope.numberSchemas = []; // 数值型登记项
         $scope.tmsTableWrapReady = 'N';
         $scope.$watch('app', function(app) {
             if (!app) return;

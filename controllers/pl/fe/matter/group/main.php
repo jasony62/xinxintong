@@ -246,36 +246,47 @@ class main extends \pl\fe\matter\base {
 			return new \ResponseTimeout();
 		}
 
-		$rounds = array();
-		$rule = $this->getPostJson();
+		$modelGrp = $this->model('matter\group');
+		$oApp = $modelGrp->byId($app, ['cascaded' => 'N']);
+		if (false === $oApp) {
+			return new \ObjectNotFoundError();
+		}
+
 		$modelRnd = $this->model('matter\group\round');
-
 		// 清除现有分组结果
-		$modelRnd->update('xxt_group_player', ['round_id' => '', 'round_title' => ''], ['aid' => $app]);
-
+		$modelRnd->update('xxt_group_player', ['round_id' => '', 'round_title' => ''], ['aid' => $oApp->id]);
 		// 清除原有的规则
 		$modelRnd->delete(
 			'xxt_group_round',
-			["aid" => $app]
+			["aid" => $oApp->id]
 		);
-		/*create targets*/
-		$targets = array();
-		if (isset($rule->schema)) {
-			foreach ($rule->schema->ops as $op) {
-				$target = new \stdClass;
-				$target->{$rule->schema->id} = $op->v;
-				$targets[] = $target;
+
+		$targets = [];
+		$rule = $this->getPostJson();
+		if (!empty($rule->schemas)) {
+			/*create targets*/
+			$schemasForGroup = new \stdClass;
+			foreach ($oApp->dataSchemas as $schema) {
+				if (in_array($schema->id, $rule->schemas)) {
+					foreach ($schema->ops as $op) {
+						$target = new \stdClass;
+						$target->{$schema->id} = $op->v;
+						$targets[] = $target;
+					}
+				}
 			}
 		}
+
+		$rounds = [];
 		/*create round*/
 		if (isset($rule->count)) {
 			for ($i = 0; $i < $rule->count; $i++) {
-				$prototype = array(
+				$prototype = [
 					'title' => '分组' . ($i + 1),
 					'targets' => $targets,
 					'times' => $rule->times,
-				);
-				$round = $modelRnd->create($app, $prototype);
+				];
+				$round = $modelRnd->create($oApp->id, $prototype);
 				$round->targets = json_decode($round->targets);
 				$rounds[] = $round;
 			}
@@ -284,7 +295,7 @@ class main extends \pl\fe\matter\base {
 		$rst = $modelRnd->update(
 			'xxt_group',
 			['group_rule' => $modelRnd->toJson($rule)],
-			["id" => $app]
+			["id" => $oApp->id]
 		);
 
 		return new \ResponseData($rounds);

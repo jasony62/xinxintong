@@ -2,22 +2,22 @@
     <div id='page-view'>
         <!--pages -->
         <nav class='navbar navbar-default'>
-            <!--<div class='container'>-->
-            <ul class="nav navbar-nav" ng-show="app.pages.length<=3">
-                <li ng-class="{'active':p===ep}" ng-repeat="p in app.pages">
-                    <a href="" ng-click="choosePage(p)"><span><i class='fa fa-file-o'></i> {{p.title}}</span></a>
-                </li>
-            </ul>
-            <form class="navbar-form navbar-left" ng-show="app.pages.length>3">
-                <div class='form-group'>
-                    <select class='form-control' ng-options="p as p.title for p in app.pages" ng-model="ep"></select>
-                </div>
-            </form>
-            <ul class="navbar-form navbar-right">
-                <button class='btn btn-success' ng-click="save()">保存修改</button>
-                <button uib-popover-template="'pageSetting.html'" popover-append-to-body='true' popover-placement="left-top" popover-trigger="outsideClick" class="btn btn-default">高级设置 <span class="caret"></span></button>
-            </ul>
-            <!--</div>-->
+            <div class='container-fluid'>
+                <ul class="nav navbar-nav" ng-show="app.pages.length<=3">
+                    <li ng-class="{'active':p===ep}" ng-repeat="p in app.pages">
+                        <a href="" ng-click="choosePage(p)"><span><i class='fa fa-file-o'></i> {{p.title}}</span></a>
+                    </li>
+                </ul>
+                <form class="navbar-form navbar-left" ng-show="app.pages.length>3">
+                    <div class='form-group'>
+                        <select class='form-control' ng-options="p as p.title for p in app.pages" ng-model="ep"></select>
+                    </div>
+                </form>
+                <ul class="navbar-form navbar-right">
+                    <button class='btn btn-success' ng-click="save()">保存修改</button>
+                    <button uib-popover-template="'pageSetting.html'" popover-append-to-body='true' popover-placement="left-top" popover-trigger="outsideClick" class="btn btn-default">高级设置 <span class="caret"></span></button>
+                </ul>
+            </div>
         </nav>
         <!-- end pages -->
         <!-- one page-->
@@ -78,7 +78,8 @@
                     <div class='form-group' ng-include="wrapEditorHtml()"></div>
                     <div class='form-group'>
                         <button class='btn btn-default' ng-if="activeWrap.schema" ng-click="refreshWrap(activeWrap)">刷新页面元素</button>
-                        <button class='btn btn-default' ng-click="removeWrap()">隐藏</button>
+                        <button class='btn btn-default' ng-if="['input','value'].indexOf(activeWrap.type)!==-1" ng-click="removeWrap()">隐藏</button>
+                        <button class='btn btn-default' ng-if="['input','value'].indexOf(activeWrap.type)===-1" ng-click="removeWrap()">删除</button>
                     </div>
                     <div class='form-group'>
                         <div class='btn-group'>
@@ -115,6 +116,6 @@
             <button class='btn btn-block btn-default' ng-click="addPage()">添加页面</button>
             <hr>
             <button class='btn btn-block btn-default' ng-click="gotoCode()">编辑代码</button>
-            <div>
+        </div>
     </script>
-    </div>
+</div>

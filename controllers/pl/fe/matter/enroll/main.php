@@ -1662,9 +1662,14 @@ class main extends \pl\fe\matter\base {
 
 		/* schema */
 		$template->schema = json_decode($oApp->data_schemas);
-	
+		
 		/* pages */
-		$template->pages=$oApp->pages;
+		$pages=$oApp->pages;
+		foreach ($pages as &$rec) {
+			$rec->data_schemas=json_decode($rec->data_schemas);
+			$rec->act_schemas=json_decode($rec->act_schemas);
+		}
+		$template->pages=$pages;
  		
  		/* entry_rule */
  		$template->entryRule=$oApp->entry_rule;

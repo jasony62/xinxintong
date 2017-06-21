@@ -40,6 +40,7 @@ class page_model extends \TMS_MODEL {
 		$hc->siteid = $site->id;
 		$hc->channel_id = $channel->id;
 		$hc->title = $channel->title;
+		$hc->display_name = $channel->title;
 		$hc->summary = $channel->summary;
 		$hc->pic = $channel->pic;
 		$hc->seq = $maxSeq + 1;

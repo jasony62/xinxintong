@@ -758,6 +758,7 @@ class record extends \pl\fe\matter\base {
 			}
 			// 处理登记项
 			$data = $record->data;
+			!empty($record->score) && $score=$record->score;
 			$supplement = $record->supplement;
 			$oVerbose = isset($record->verbose) ? $record->verbose->data : false;
 			$i = 0;

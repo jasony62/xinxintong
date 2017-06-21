@@ -526,7 +526,7 @@ class main extends \pl\fe\matter\base {
 		$current = time();
 		$newapp = [];
 		$site = $this->model('site')->byId($site, ['fields' => 'id,heading_pic']);
-		
+
 		/* 从站点或任务获得的信息 */
 		if (empty($mission)) {
 			$newapp['pic'] = $site->heading_pic;
@@ -550,7 +550,6 @@ class main extends \pl\fe\matter\base {
 		if (isset($config->count_limit)) {
 			$newapp['count_limit'] = $config->count_limit;
 		}
-
 		if (!empty($config->pages) && !empty($config->entryRule)) {
 			$this->_addPageByTemplate($user, $site, $mission, $appId, $config, $customConfig);
 			/*进入规则*/
@@ -566,7 +565,6 @@ class main extends \pl\fe\matter\base {
 		} else {
 			$entryRule = $this->_addBlankPage($user, $site->id, $appId);
 		}
-
 		if (empty($entryRule)) {
 			return new \ResponseError('没有获得页面进入规则');
 		}
@@ -601,7 +599,7 @@ class main extends \pl\fe\matter\base {
 		if (isset($mission->id)) {
 			$modelMis->addMatter($user, $site->id, $mission->id, $app);
 		}
-		
+
 		return new \ResponseData($app);
 	}
 	/**
@@ -1452,7 +1450,6 @@ class main extends \pl\fe\matter\base {
 		 */
 		foreach ($pages as $page) {
 			$ap = $modelPage->add($user, $site->id, $app, (array) $page);
-
 			/**
 			 * 处理页面数据定义
 			 */
@@ -1500,7 +1497,6 @@ class main extends \pl\fe\matter\base {
 				$pageSchemas,
 				"aid='$app' and id={$ap->id}"
 			);
-
 			/* 填充页面 */
 			if (!empty($page->code)) {
 				$code = $page->code;

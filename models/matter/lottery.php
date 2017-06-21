@@ -22,11 +22,14 @@ class lottery_model extends app_base {
 	 *
 	 */
 	public function getEntryUrl($siteId, $id) {
-		$url = "http://" . $_SERVER['HTTP_HOST'];
+		$url = "http://" . APP_HTTP_HOST;
 		$url .= "/rest/site/fe/matter/lottery";
 		if ($siteId === 'platform') {
-			$app = $this->byId($id, ['cascaded' => 'N']);
-			$url .= "?site={$app->siteid}&app=" . $id;
+			if ($oApp = $this->byId($id, ['cascaded' => 'N'])) {
+				$url .= "?site={$oApp->siteid}&app=" . $id;
+			} else {
+				$url = "http://" . APP_HTTP_HOST . '/404.html';
+			}
 		} else {
 			$url .= "?site=$siteId&app=" . $id;
 		}

@@ -312,6 +312,7 @@ define(['require', 'schema', 'page'], function(require, schemaLib, pageLib) {
                     });
                     inapp.push({ name: 'repos', 'title': '所有数据页' });
                     inapp.push({ name: 'rank', 'title': '排行榜' });
+                    inapp.push({ name: 'score', 'title': '测验结果' });
 
                     return {
                         inapp: inapp,

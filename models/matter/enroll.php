@@ -33,7 +33,7 @@ class enroll_model extends app_base {
 					$url .= "/rest/site/fe/matter/enroll";
 					$url .= "?site={$oApp->siteid}&app=" . $id;
 				} else {
-					$url = '';
+					$url = 'http://' . APP_HTTP_HOST . '/404.html';
 				}
 			} else {
 				$url .= "/rest/site/fe/matter/enroll";

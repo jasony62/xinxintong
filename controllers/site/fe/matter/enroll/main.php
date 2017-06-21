@@ -51,6 +51,9 @@ class main extends base {
 		} elseif ($page === 'rank') {
 			\TPL::assign('title', '排行榜-' . $oApp->title);
 			\TPL::output('/site/fe/matter/enroll/rank');
+		} elseif ($page === 'score') {
+			\TPL::assign('title', '测验结果-' . $oApp->title);
+			\TPL::output('/site/fe/matter/enroll/score');
 		} else {
 			if (empty($page)) {
 				/* 计算打开哪个页面 */
@@ -65,6 +68,9 @@ class main extends base {
 			} else if ($oOpenPage->name === 'rank') {
 				\TPL::assign('title', '排行榜-' . $oApp->title);
 				\TPL::output('/site/fe/matter/enroll/rank');
+			} elseif ($oOpenPage->name === 'score') {
+				\TPL::assign('title', '测验结果-' . $oApp->title);
+				\TPL::output('/site/fe/matter/enroll/score');
 			} else if ($oOpenPage->type === 'I') {
 				\TPL::assign('title', $oOpenPage->title . '-' . $oApp->title);
 				\TPL::output('/site/fe/matter/enroll/input');
@@ -193,7 +199,13 @@ class main extends base {
 						}
 					}
 				} else {
-					$oOpenPage = $modelPage->byName($oApp->id, $oApp->enrolled_entry_page);
+					if ($oApp->enrolled_entry_page === 'score') {
+						$oOpenPage = new \stdClass;
+						$oOpenPage->name = $oApp->enrolled_entry_page;
+						$oOpenPage->type = '';
+					} else {
+						$oOpenPage = $modelPage->byName($oApp->id, $oApp->enrolled_entry_page);
+					}
 				}
 			}
 		}
@@ -282,7 +294,7 @@ class main extends base {
 		}
 
 		$modelRec = $this->model('matter\enroll\record');
-		if ($page !== 'repos' && $page !== 'remark' && $page !== 'rank') {
+		if (!in_array($page, ['repos', 'remark', 'rank', 'score'])) {
 			$oUserEnrolled = $modelRec->lastByUser($oApp, $oUser);
 			/* 自动登记???，解决之要打开了页面就登记？ */
 			if (!$oUserEnrolled && $oApp->can_autoenroll === 'Y' && $oOpenPage->autoenroll_onenter === 'Y') {
@@ -310,7 +322,8 @@ class main extends base {
 			if (empty($oOpenPage)) {
 				return new \ResponseError('页面不存在');
 			}
-			if ($oOpenPage->name !== 'repos' && $oOpenPage->name !== 'rank') {
+
+			if (!in_array($oOpenPage->name, ['repos', 'rank'])) {
 				$params['page'] = $oOpenPage;
 				/* 是否需要返回登记记录 */
 				if ($oOpenPage->type === 'I' && $newRecord === 'Y') {
@@ -347,7 +360,7 @@ class main extends base {
 						}
 					}
 				} else {
-					if (($oOpenPage->type === 'I' && $newRecord !== 'Y') || $page === 'remark' || $oOpenPage->type === 'V') {
+					if (($oOpenPage->type === 'I' && $newRecord !== 'Y') || $oOpenPage->type === 'V' || $oOpenPage->name === 'score') {
 						if (empty($ek)) {
 							if ($oApp->open_lastroll === 'Y' || $oOpenPage->type === 'V') {
 								/* 获得最后一条登记数据。记录有可能未进行过数据填写 */
@@ -355,19 +368,19 @@ class main extends base {
 									'fields' => '*',
 									'verbose' => 'Y',
 								];
-								$lastRecord = $modelRec->lastByUser($oApp, $oUser, $options);
-								$params['record'] = $lastRecord;
+								$oLastRecord = $modelRec->lastByUser($oApp, $oUser, $options);
+								$params['record'] = $oLastRecord;
 							}
 						} else {
-							$record = $modelRec->byId($ek, ['verbose' => 'Y']);
-							$params['record'] = $record;
+							$oRecord = $modelRec->byId($ek, ['verbose' => 'Y']);
+							$params['record'] = $oRecord;
 						}
 					}
 				}
 			}
-		} else if ($page === 'remark' && !empty($ek)) {
-			$record = $modelRec->byId($ek, ['verbose' => 'Y']);
-			$params['record'] = $record;
+		} else if (in_array($page, ['remark', 'score']) && !empty($ek)) {
+			$oRecord = $modelRec->byId($ek, ['verbose' => 'Y']);
+			$params['record'] = $oRecord;
 		}
 
 		return new \ResponseData($params);

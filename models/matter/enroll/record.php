@@ -226,6 +226,8 @@ class record_model extends \TMS_MODEL {
 							} elseif (!empty($lastSchemaValue) && ($lastSchemaValue->value == $treatedValue) && !empty($lastSchemaValue->score)) {
 								//有提交记录且没修改且已经评分
 								$quizScore = $lastSchemaValue->score;
+							} elseif ($treatedValue === $schema->answer) {
+								$quizScore = $schema->score;
 							} else {
 								$quizScore = 0;
 							}
@@ -1077,6 +1079,12 @@ class record_model extends \TMS_MODEL {
 			$oRecord->supplement = json_decode($oRecord->supplement);
 			if ($verbose === 'Y') {
 				$oRecord->verbose = $this->model('matter\enroll\data')->byRecord($oRecord->enroll_key);
+			}
+			if ($fields === '*' || false !== strpos($fields, 'supplement')) {
+				$oRecord->supplement = json_decode($oRecord->supplement);
+			}
+			if ($fields === '*' || false !== strpos($fields, 'score')) {
+				$oRecord->score = json_decode($oRecord->score);
 			}
 		}
 

@@ -10,7 +10,6 @@
     </title>
     <link rel="stylesheet" href="/static/css/custom-bootstrap.min.css">
     <link rel="stylesheet" href="/static/css/custom.site.fe.css">
-    <!-- <link href='/asset/css/site.fe.css?_=1' rel="stylesheet"> -->
     <link href="<?php echo auto_version('/views/default/site/fe/matter/article/main.css');?>" rel="stylesheet">
 </head>
 
@@ -22,7 +21,7 @@
             <div class="col-md-3 col-xs-12">
                 <div id='site'>
                     <a class="site-title" ng-href="{{'/rest/site/home?site='+site.id}}">
-                        <img class="pull-left img-circle" ng-src="{{site.heading_pic}}" >
+                        <img class="pull-left img-circle" ng-src="{{site.heading_pic}}">
                         <h4 class="inline-block pull-left" ng-bind="site.name"></h4>
                         <i class="glyphicon glyphicon-menu-right pull-right"></i>
                     </a>
@@ -37,9 +36,7 @@
             <div class="col-md-9 col-xs-12 bgf">
                 <h2 id="title" class="inline-block" ng-bind='article.title'></h2>
                 <div id="attribute">
-                    <a class="siteName" ng-href="{{'/rest/site/home?site='+site.id}}">
-                        <h6 class="inline">{{article.creater_name}}</h6>
-                    </a>
+                    <h6 class="inline">{{article.author}}</h6>
                     <h6 class="inline time" ng-bind="article.modify_at*1000|date:'yy-MM-dd'"></h6>
                     <h6 class="inline read">阅读 {{article.read_num}}</h6>
                 </div>

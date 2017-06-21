@@ -57,7 +57,6 @@ ngApp.provider.controller('ctrlHome', ['$scope', '$http', '$uibModal', 'tmsFavor
         event.stopPropagation();
 
         if (!user.loginExpire) {
-            angular.element('body').css('overflow-y', 'hidden');
             tmsDynaPage.openPlugin('http://' + location.host + '/rest/site/fe/user/login?site=' + article.siteid).then(function(data) {
                 user.loginExpire = data.loginExpire;
                 tmsFavor.open(article);
@@ -72,7 +71,6 @@ ngApp.provider.controller('ctrlHome', ['$scope', '$http', '$uibModal', 'tmsFavor
         event.stopPropagation();
 
         if (!user.loginExpire) {
-            angular.element('body').css('overflow-y', 'hidden');
             tmsDynaPage.openPlugin('http://' + location.host + '/rest/site/fe/user/login?site=' + article.siteid).then(function(data) {
                 user.loginExpire = data.loginExpire;
                 tmsForward.open(article);

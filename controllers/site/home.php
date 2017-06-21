@@ -9,12 +9,36 @@ class home extends base {
 	/**
 	 *
 	 */
-	public function index_action($site) {
+	public function index_action($site, $template = 'basic') {
 		$modelSite = $this->model('site');
 		$site = $modelSite->byId(
 			$site,
-			['fields' => 'name']
+			['fields' => 'id,name,home_page_id,home_page_name,autoup_homepage']
 		);
+		//自动更新主页页面
+		if($site->autoup_homepage === 'Y' && !empty($template)){
+			$template = $modelSite->escape($template);
+
+			$modelCode = \TMS_APP::M('code\page');
+			$home_page = $modelCode->lastPublishedByName($site->id, $site->home_page_name, ['fields' => 'id,create_at']);
+
+			$templateDirHtml = TMS_APP_TEMPLATE . '/pl/fe/site/page/home/' . $template . '.html';
+			$templateDirCss = TMS_APP_TEMPLATE . '/pl/fe/site/page/home/' . $template . '.css';
+			$templateDirJs = TMS_APP_TEMPLATE . '/pl/fe/site/page/home/' . $template . '.js';
+			$createAtTemplateHtml = filemtime($templateDirHtml);
+			$createAtTemplateCss = filemtime($templateDirCss);
+			$createAtTemplateJs = filemtime($templateDirJs);
+
+			if($createAtTemplateHtml > $home_page->create_at || $createAtTemplateCss > $home_page->create_at || $createAtTemplateJs > $home_page->create_at) {
+				//更新主页页面
+				$current = time();
+				$data = $this->_makePage($site->id, 'home', $template);
+				$data['create_at'] = $current;
+				$data['modify_at'] = $current;
+				$rst = $this->model('code\page')->modify($site->{'home_page_id'}, $data);
+			}
+		}
+
 		if ($site) {
 			\TPL::assign('title', $site->name);
 			\TPL::output('/site/home');
@@ -22,6 +46,19 @@ class home extends base {
 		} else {
 			$this->outputInfo('指定的对象不存在');
 		}
+	}
+	/**
+	 *
+	 */
+	private function &_makePage($site, $page, $template) {
+		$templateDir = TMS_APP_TEMPLATE . '/pl/fe/site/page/' . $page;
+		$data = array(
+			'html' => file_get_contents($templateDir . '/' . $template . '.html'),
+			'css' => file_get_contents($templateDir . '/' . $template . '.css'),
+			'js' => file_get_contents($templateDir . '/' . $template . '.js'),
+		);
+
+		return $data;
 	}
 	/**
 	 * 获得团队站点的定义

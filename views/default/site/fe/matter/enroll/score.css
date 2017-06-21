@@ -1,0 +1,7 @@
+html,body{height:100%;width:100%;background:#fefefe;font-family:Microsoft Yahei,Arial;}
+body{position:relative;font-size:16px;}
+.schema{border-bottom:1px dashed #aaa;padding:15px;}
+.schema:last-child{border-bottom:0;}
+.schema.fail{background:#eee;}
+.schema .answer{color:#66f;}
+.schema .glyphicon{color:red;}

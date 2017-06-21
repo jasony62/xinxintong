@@ -28,7 +28,7 @@ file_exists(dirname(__FILE__) . '/cus/app.php') && include_once dirname(__FILE__
  * 常量定义不允许被覆盖，需要检查常量是否已经被定义
  *********************************************/
 /**
- * 定义应用的标题
+ * 定义应用的主机名
  */
 !defined('APP_HTTP_HOST') && define('APP_HTTP_HOST', $_SERVER['HTTP_HOST']);
 /**

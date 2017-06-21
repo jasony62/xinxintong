@@ -2,7 +2,7 @@
     "scenario": "quiz",
     "pages": [{
         "name": "quiz",
-        "title": "考试页",
+        "title": "测验页",
         "type": "I",
         "data_schemas": [{
             "schema": {
@@ -93,11 +93,11 @@
             "id": "btnSubmit",
             "name": "submit",
             "label": "提交考卷",
-            "next": "result"
+            "next": "score"
         }]
     }, {
         "name": "result",
-        "title": "考试结果页",
+        "title": "测验结果页",
         "type": "V",
         "data_schemas": [{
             "config": {

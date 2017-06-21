@@ -22,11 +22,14 @@ class mission_model extends app_base {
 	 *
 	 */
 	public function getEntryUrl($siteId, $id) {
-		$url = "http://" . $_SERVER['HTTP_HOST'];
+		$url = "http://" . APP_HTTP_HOST;
 		$url .= "/rest/site/fe/matter/mission";
 		if ($siteId === 'platform') {
-			$oMission = $this->byId($id, ['cascaded' => 'N']);
-			$url .= "?site={$oMission->siteid}&mission=" . $id;
+			if ($oMission = $this->byId($id, ['cascaded' => 'N'])) {
+				$url .= "?site={$oMission->siteid}&mission=" . $id;
+			} else {
+				$url = "http://" . APP_HTTP_HOST;
+			}
 		} else {
 			$url .= "?site={$siteId}&mission=" . $id;
 		}

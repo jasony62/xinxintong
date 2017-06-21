@@ -545,11 +545,12 @@ class main extends \pl\fe\matter\base {
 		}
 		$appId = uniqid();
 		$customConfig=isset($config->customConfig) ? $config->customConfig : null;
-		empty($config->scenario) && $newapp['scenario'] = $scenario;
+		!empty($config->scenario) && $newapp['scenario'] = $config->scenario;
 		/* 登记数量限制 */
 		if (isset($config->count_limit)) {
 			$newapp['count_limit'] = $config->count_limit;
 		}
+
 		if (!empty($config->pages) && !empty($config->entryRule)) {
 			$this->_addPageByTemplate($user, $site, $mission, $appId, $config, $customConfig);
 			/*进入规则*/
@@ -1499,7 +1500,7 @@ class main extends \pl\fe\matter\base {
 			);
 			/* 填充页面 */
 			if (!empty($page->code)) {
-				$code = $page->code;
+				$code = (array)$page->code;
 				/* 页面存在动态信息 */
 				$matched = [];
 				$pattern = '/<!-- begin: generate by schema -->.*<!-- end: generate by schema -->/s';
@@ -1668,6 +1669,11 @@ class main extends \pl\fe\matter\base {
 		foreach ($pages as &$rec) {
 			$rec->data_schemas=json_decode($rec->data_schemas);
 			$rec->act_schemas=json_decode($rec->act_schemas);
+			$code=new \stdClass;
+			$code->css=$rec->css;
+			$code->js=$rec->js;
+			$code->html=$rec->html;
+			$rec->code=$code;
 		}
 		$template->pages=$pages;
  		

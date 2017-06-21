@@ -50,6 +50,13 @@ class group_model extends app_base {
 					$app->dataSchemas = [];
 				}
 			}
+			if ($fields === '*' || false !== strpos($fields, 'group_rule')) {
+				if (!empty($app->group_rule)) {
+					$app->groupRule = json_decode($app->group_rule);
+				} else {
+					$app->groupRule = new \stdClass;
+				}
+			}
 		}
 
 		return $app;
@@ -259,5 +266,15 @@ class group_model extends app_base {
 		$rounds = $this->model('matter\group\round')->byApp($app->id, $options);
 
 		return $rounds;
+	}
+	/**
+	 * 指定用户的行为报告
+	 */
+	public function reportByUser($oApp, $oUser) {
+		$modelPly = $this->model('matter\group\player');
+
+		$result = $modelPly->byUser($oApp, $oUser->userid, ['fields' => 'id,round_id,round_title']);
+
+		return $result;
 	}
 }

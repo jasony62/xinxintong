@@ -23,11 +23,11 @@ class contribute_model extends app_base {
 	 */
 	public function getEntryUrl($siteId, $id, $ver = 'NEW') {
 		if ($ver === 'OLD') {
-			$url = "http://" . $_SERVER['HTTP_HOST'];
+			$url = "http://" . APP_HTTP_HOST;
 			$url .= "/rest/app/contribute";
 			$url .= "?mpid=$siteId&entry=contribute," . $id;
 		} else {
-			$url = "http://" . $_SERVER['HTTP_HOST'];
+			$url = "http://" . APP_HTTP_HOST;
 			$url .= "/rest/site/fe/matter/contribute";
 			$url .= "?site={$siteId}&app={$id}";
 		}
@@ -66,9 +66,9 @@ class contribute_model extends app_base {
 			"c.siteid='$siteId' and c.cid='$appId' and role='$role'",
 		);
 
-		$q2['o']='id asc'; 
-		      
-		$acls = $this->query_objs_ss($q,$q2);
+		$q2['o'] = 'id asc';
+
+		$acls = $this->query_objs_ss($q, $q2);
 
 		return $acls;
 	}

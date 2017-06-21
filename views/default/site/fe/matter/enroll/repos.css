@@ -20,7 +20,7 @@ img{max-width:100%}
 #repos .record .bottom-bar{display:flex;}
 #repos .record .bottom-bar .datetime{flex:1;line-height:30px;font-size:.8rem;}
 #repos .record .remarks{font-size:.9em;border-top:1px dashed #ddd;padding:1rem 0 1rem 2rem;position:relative;}
-#repos .record .remarks:before{content:'推荐';position:absolute;left:50%;margin-left:-1em;top:-0.7em;color:#999;}
+#repos .record .remarks:before{content:'推荐评论';position:absolute;left:50%;margin-left:-1em;top:-0.7em;color:#999;}
 #repos .record .remarks .remark{margin-bottom:1em;}
 #repos .record .remarks .remark .bottom-bar>:first-child{flex:1;}
 #repos .record .remarks .remark .bottom-bar>:first-child:before{content:'\2014 \00A0';}

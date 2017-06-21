@@ -26,6 +26,11 @@ class site extends \site\fe\base {
 			return new \ObjectNotFoundError();
 		}
 
+		if (false === ($modelSite->isSubscribed($user->unionid, $target->id))) {
+			//行为增加站点活跃数
+			$this->model('site\active')->add($target->id, $user, 0, 'newSubscribeUser');
+		}
+
 		$modelSite->subscribe($user, $target);
 
 		return new \ResponseData('ok');

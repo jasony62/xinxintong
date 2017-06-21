@@ -16,9 +16,47 @@ class home extends TMS_CONTROLLER {
 	/**
 	 *
 	 */
-	public function index_action() {
+	public function index_action($template = 'basic') {
+		$modelPl = $this->model('platform');
+		$platform = $modelPl->get();
+		//自动更新主页页面
+		if($platform->autoup_homepage === 'Y' && !empty($template)){
+			$template = $modelPl->escape($template);
+			$modelCode = \TMS_APP::M('code\page');
+			$home_page = $modelCode->lastPublishedByName('platform', $platform->home_page_name, ['fields' => 'id,create_at']);
+			
+			$templateDirHtml = TMS_APP_TEMPLATE . '/pl/be/home/' . $template . '.html';
+			$templateDirCss = TMS_APP_TEMPLATE . '/pl/be/home/' . $template . '.css';
+			$templateDirJs = TMS_APP_TEMPLATE . '/pl/be/home/' . $template . '.js';
+			$createAtTemplateHtml = filemtime($templateDirHtml);
+			$createAtTemplateCss = filemtime($templateDirCss);
+			$createAtTemplateJs = filemtime($templateDirJs);
+
+			if($createAtTemplateHtml > $home_page->create_at || $createAtTemplateCss > $home_page->create_at || $createAtTemplateJs > $home_page->create_at) {
+				//更新主页页面
+				$current = time();
+				$data = $this->_makePage('home', $template);
+				$data['create_at'] = $current;
+				$data['modify_at'] = $current;
+				$rst = $this->model('code\page')->modify($platform->{'home_page_id'}, $data);
+			}
+		}
+
 		TPL::output('/home');
 		exit;
+	}
+	/**
+	 * 通过系统内置模板生成页面
+	 */
+	private function &_makePage($name, $template) {
+		$templateDir = TMS_APP_TEMPLATE . '/pl/be/' . $name;
+		$data = array(
+			'html' => file_get_contents($templateDir . '/' . $template . '.html'),
+			'css' => file_get_contents($templateDir . '/' . $template . '.css'),
+			'js' => file_get_contents($templateDir . '/' . $template . '.js'),
+		);
+
+		return $data;
 	}
 	/**
 	 *

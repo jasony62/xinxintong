@@ -281,10 +281,15 @@ class record_model extends \TMS_MODEL {
 	public function &byUser(&$oUser, &$oApp, $options = []) {
 		$fields = isset($options['fields']) ? $options['fields'] : '*';
 
+		$userid = isset($oUser->uid) ? $oUser->uid : (isset($oUser->userid) ? $oUser->userid : '');
+		if (empty($userid)) {
+			return false;
+		}
+
 		$q = [
 			$fields,
 			'xxt_signin_record',
-			["state" => 1, "aid" => $oApp->id, "userid" => $oUser->uid],
+			["state" => 1, "aid" => $oApp->id, "userid" => $userid],
 		];
 		if ($userRecord = $this->query_obj_ss($q)) {
 			$userRecord->data = empty($userRecord->data) ? new \stdClass : json_decode($userRecord->data);
@@ -699,5 +704,27 @@ class record_model extends \TMS_MODEL {
 		}
 
 		return $summary;
+	}
+	/**
+	 * 活动登记人名单
+	 *
+	 * @param object $oApp
+	 * @param object $options
+	 *
+	 */
+	public function enrollerByApp($oApp, $options = []) {
+		$fields = isset($options['fields']) ? $options['fields'] : 'enroll_key,userid';
+
+		$w = "state=1 and aid='{$oApp->id}' and userid<>''";
+
+		// 获得填写的登记数据
+		$q = [
+			$fields,
+			"xxt_signin_record",
+			$w,
+		];
+		$enrollers = $this->query_objs_ss($q);
+
+		return $enrollers;
 	}
 }

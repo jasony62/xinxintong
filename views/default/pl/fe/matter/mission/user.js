@@ -1,6 +1,6 @@
 define(['frame', 'enrollService', 'signinService'], function(ngApp) {
     'use strict';
-    ngApp.provider.controller('ctrlUser', ['$scope', '$uibModal', '$q', 'http2', function($scope, $uibModal, $q, http2) {
+    ngApp.provider.controller('ctrlUser', ['$scope', '$uibModal', '$q', 'http2', 'srvSite', function($scope, $uibModal, $q, http2, srvSite) {
         function submitMatterSeqs() {
             var deferred = $q.defer(),
                 matterSeqs = [];
@@ -35,10 +35,18 @@ define(['frame', 'enrollService', 'signinService'], function(ngApp) {
                     };
                     $scope2.$watch('data.appType', function(appType) {
                         if (appType) {
-                            var url = '/rest/pl/fe/matter/' + appType + '/list?mission=' + mission.id;
-                            http2.get(url, function(rsp) {
-                                $scope2.apps = rsp.data.apps;
-                            });
+                            if (appType === 'mschema') {
+                                srvSite.memberSchemaList(mission, true).then(function(aMemberSchemas) {
+                                    $scope2.apps = aMemberSchemas;
+                                });
+                            } else {
+
+                                var url = '/rest/pl/fe/matter/' + appType + '/list?mission=' + mission.id;
+                                http2.get(url, function(rsp) {
+                                    $scope2.apps = rsp.data.apps;
+                                });
+
+                            }
                         }
                     });
                 }],
@@ -147,21 +155,21 @@ define(['frame', 'enrollService', 'signinService'], function(ngApp) {
         $scope.del = _del = [];
         $scope.doAttend = function(isCheck) {
 
-            if(isCheck=='Y') {
+            if (isCheck == 'Y') {
                 _del = [];
                 var keys = [];
-                for(var i in $scope.recordsByApp) {
-                    (Object.keys($scope.recordsByApp[i])).forEach(function(item,index) {
+                for (var i in $scope.recordsByApp) {
+                    (Object.keys($scope.recordsByApp[i])).forEach(function(item, index) {
                         keys.push(item);
                     });
                 }
-                for(var i = $scope.showMatters.length-1; i >= 0; i--) {
-                    if(keys.indexOf($scope.showMatters[i].id) == -1) {
+                for (var i = $scope.showMatters.length - 1; i >= 0; i--) {
+                    if (keys.indexOf($scope.showMatters[i].id) == -1) {
                         _del.push($scope.showMatters[i]);
                         $scope.showMatters.splice(i, 1);
                     }
                 }
-            }else {
+            } else {
                 _del.forEach(function(item) {
                     $scope.showMatters.push(item);
                 });

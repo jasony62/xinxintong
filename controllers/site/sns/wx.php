@@ -414,8 +414,10 @@ class wx extends \member_base {
 				// 临时二维码，用完后就删除
 				$this->model()->delete('xxt_call_qrcode_wx', "id=$reply->id");
 			}
-			$r = $this->model('sns\reply\\' . $reply->matter_type, $call, $reply->matter_id, $reply->params);
-			$r->exec();
+			if (!empty($reply->matter_type) && !empty($reply->matter_id)) {
+				$r = $this->model('sns\reply\\' . $reply->matter_type, $call, $reply->matter_id, $reply->params);
+				$r->exec();
+			}
 		}
 	}
 }

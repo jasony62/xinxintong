@@ -312,6 +312,7 @@ define(['require', 'schema', 'page'], function(require, schemaLib, pageLib) {
                     });
                     inapp.push({ name: 'repos', 'title': '所有数据页' });
                     inapp.push({ name: 'rank', 'title': '排行榜' });
+                    inapp.push({ name: 'score', 'title': '测验结果' });
 
                     return {
                         inapp: inapp,
@@ -1479,6 +1480,18 @@ define(['require', 'schema', 'page'], function(require, schemaLib, pageLib) {
             };
             _ins.filter = function() {
                 return _ins._bFilter(srvEnlRnd);
+            };
+            _ins.agree = function(oRecord, schemaId, value) {
+                var url, defer = $q.defer();
+                url = '/rest/site/op/matter/enroll/data/agree?ek=' + oRecord.enroll_key;
+                url += '&schema=' + schemaId;
+                url += '&value=' + value;
+                url += '&site=' + _siteId;
+                url += '&accessToken=' + _accessId
+                http2.get(url, function(rsp) {
+                    defer.resolve(rsp.data);
+                });
+                return defer.promise;
             };
             _ins.remove = function(record) {
                 if (window.confirm('确认删除？')) {

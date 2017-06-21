@@ -24,6 +24,26 @@ class remark_model extends \TMS_MODEL {
 		return $oRemark;
 	}
 	/**
+	 *
+	 */
+	public function byUser($oApp, $oUser, $options = []) {
+		$fields = isset($options['fields']) ? $options['fields'] : '*';
+
+		$userid = isset($oUser->uid) ? $oUser->uid : (isset($oUser->userid) ? $oUser->userid : '');
+		if (empty($userid)) {
+			return false;
+		}
+
+		$q = [
+			$fields,
+			'xxt_enroll_record_remark',
+			['aid' => $oApp->id, 'userid' => $userid],
+		];
+		$remarks = $this->query_objs_ss($q);
+
+		return $remarks;
+	}
+	/**
 	 * 获得指定登记记录的评论
 	 */
 	public function listByRecord($oUser, $ek, $schemaId, $page = 1, $size = 10, $options = []) {
@@ -41,7 +61,10 @@ class remark_model extends \TMS_MODEL {
 		if (isset($options['agreed']) && $options['agreed'] === 'Y') {
 			$q[2] .= " and agreed='Y'";
 		}
-		$q2 = ['r' => ['o' => ($page - 1) * $size, 'l' => $size]];
+		$q2 = [
+			'o' => 'agreed desc,create_at desc',
+			'r' => ['o' => ($page - 1) * $size, 'l' => $size],
+		];
 		$aRemarks = $this->query_objs_ss($q, $q2);
 		if (count($aRemarks)) {
 			$fnHandlers = [];

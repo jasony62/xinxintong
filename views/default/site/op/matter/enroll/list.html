@@ -43,6 +43,14 @@
                             </div>
                             <div ng-switch-when="date">{{(r._data[schema.id]*1000)|date:'yy-MM-dd HH:mm'}}</div>
                             <div ng-switch-when="remark" ng-class="{unread:r.verbose.data[schema.id].last_remark_at>lastCachedStatus.lastAt}">{{r.verbose.data[schema.id].remark_num}}</div>
+                            <div ng-switch-when="agreed">
+                                <select class='form-control input-sm' ng-model="r.verbose.data[schema.id].agreed" ng-change="setAgreed(r,schema.id)">
+                                    <option value=''>不表态</option>
+                                    <option value='A'>接受</option>
+                                    <option value='Y'>推荐</option>
+                                    <option value='N'>屏蔽</option>
+                                </select>
+                            </div>
                             <div ng-switch-default ng-bind-html="r._data[schema.id]"></div>
                             <div ng-if="['single', 'multiple', 'image', 'file'].indexOf(schema.type)!==-1&&r.supplement[schema.id].length">(补充说明：{{r.supplement[schema.id]}})</div>
                         </td>
@@ -74,7 +82,7 @@
                         </td>
                         <td data-th='操作' class='span-cols-sm'>
                             <div class='hidden-xs'>
-                                <button class='btn btn-xs btn-danger' ng-click='removeRecord(r)'>
+                                <button uib-popover-template="'leadToLogin.html'" popover-placement="bottom-right" popover-trigger="show" class='btn btn-xs btn-danger' ng-click='removeRecord($event,r)'>
                                     <i class='glyphicon glyphicon-remove'></i>
                                 </button>
                                 <button uib-popover-template="'leadToLogin.html'" popover-placement="bottom-right" popover-trigger="show" class='btn btn-xs btn-default' ng-click="switchToRecord($event,r)">
@@ -82,7 +90,7 @@
                                 </button>
                             </div>
                             <div class='visible-xs'>
-                                <button class='btn btn-danger' ng-click='removeRecord(r)'>删除</button>
+                                <button uib-popover-template="'leadToLogin.html'" popover-placement="bottom-right" popover-trigger="show" class='btn btn-danger' ng-click='removeRecord($event,r)'>删除</button>
                                 <button uib-popover-template="'leadToLogin.html'" popover-placement="bottom-right" popover-trigger="show" class='btn btn-default pull-right' ng-click="switchToRecord($event,r)">修改</button>
                             </div>
                         </td>
@@ -94,9 +102,9 @@
                         <td></td>
                         <td></td>
                         <td></td>
-                        <td ng-repeat="schema in recordSchemas" ng-switch on="schema.type">
-                            <div ng-if="schema.number==='Y'">
-                                {{sum4Schema[schema.id]}}
+                        <td ng-repeat="schema in recordSchemas2" ng-switch on="schema.type">
+                            <div ng-if="schema.format==='number'">
+                                {{sum4SchemaAtPage[schema.id]}}/{{sum4Schema[schema.id]}}
                             </div>
                         </td>
                         <td class='matched enroll' ng-repeat="schema in enrollDataSchemas"></td>

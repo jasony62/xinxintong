@@ -7,6 +7,13 @@ class log_model extends TMS_MODEL {
 	 *
 	 */
 	public function log($mpid, $method, $data, $agent = '', $referer = '') {
+		if (empty($agent) && isset($_SERVER['HTTP_USER_AGENT'])) {
+			$agent = $_SERVER['HTTP_USER_AGENT'];
+		}
+		if (empty($referer) && isset($_SERVER['HTTP_REFERER'])) {
+			$referer = $_SERVER['HTTP_REFERER'];
+		}
+
 		$current = time();
 		$log = [];
 		$log['mpid'] = $mpid;

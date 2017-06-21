@@ -182,11 +182,9 @@ define(['require'], function(require) {
                                 location.href = '/rest/pl/fe/matter/enroll?site=' + site.id + '&id=' + rsp.data.id;
                             });
                         } else if (choice.source === 'file') {
-                            var url, data = choice.data;
-                            url = '/rest/pl/fe/matter/enroll/createByFile?site=' + site.id;
-                            http2.post(url, data, function(rsp) {
-                                location.href = '/rest/pl/fe/matter/enroll?site=' + site.id + '&id=' + rsp.data.id;
-                            });
+                            if (choice.app) {
+                                location.href = '/rest/pl/fe/matter/enroll?site=' + site.id + '&id=' + choice.app.id;
+                            }
                         }
                     } else {
                         var url;

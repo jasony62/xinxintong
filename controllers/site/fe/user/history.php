@@ -56,7 +56,9 @@ class history extends \site\fe\base {
 			$q[2] .= " and matter_type in (" . $matterType . ")";
 		}
 
-		$logs = $modelAct->query_objs_ss($q);
+		$q2 = ['o' => 'operate_at desc'];
+
+		$logs = $modelAct->query_objs_ss($q, $q2);
 		$result->apps = $logs;
 
 		return new \ResponseData($result);
@@ -73,7 +75,7 @@ class history extends \site\fe\base {
 		$q = [
 			'distinct mission_id,mission_title',
 			'xxt_log_user_matter',
-			"mission_id<>0",
+			"mission_id<>0 and user_last_op='Y'",
 		];
 
 		// 指定团队下的访问记录
@@ -101,6 +103,17 @@ class history extends \site\fe\base {
 		}
 
 		$logs = $modelAct->query_objs_ss($q);
+		if (count($logs)) {
+			$q[0] = 'max(operate_at)';
+			$w = $q[2];
+			foreach ($logs as &$log) {
+				$q[2] = $w . " and mission_id={$log->mission_id}";
+				$log->operate_at = (int) $modelAct->query_val_ss($q);
+			}
+			usort($logs, function ($mis1, $mis2) {
+				return $mis2->operate_at - $mis1->operate_at;
+			});
+		}
 
 		$result->missions = $logs;
 

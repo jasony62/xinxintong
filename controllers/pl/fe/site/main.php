@@ -259,10 +259,17 @@ class main extends \pl\fe\base {
 		if (false === ($oSite = $modelSite->byId($site))) {
 			return new \ObjectNotFoundError();
 		}
+
+		$filter = $this->getPostJson();
+		$options = [];
+		if(!empty($filter->nickname)){
+			$options['byNickname'] = $filter->nickname;
+		}
+
 		if ($category === 'client') {
-			$result = $modelSite->subscriber($oSite->id);
+			$result = $modelSite->subscriber($oSite->id, $page, $size, $options);
 		} else if ($category === 'friend') {
-			$result = $modelSite->friendBySite($oSite->id);
+			$result = $modelSite->friendBySite($oSite->id, $page, $size);
 		} else {
 			return new \ParameterError('category');
 		}

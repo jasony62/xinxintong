@@ -16,6 +16,7 @@ $sql .= ",site_id varchar(32) not null default ''"; // 父团队ID
 $sql .= ",state tinyint not null default 1"; // 1:正常, 0:停用
 $sql .= ",home_page_id int not null default 0"; // 团队主页
 $sql .= ",home_page_name varchar(13) not null default ''"; // 团队主页
+$sql .= ",autoup_homepage char(1) not null default 'Y'"; // 是否自动更新主页页面
 $sql .= ",home_carousel text"; // 首页轮播
 $sql .= ",home_qrcode_group text"; // 首页群二维码
 $sql .= ",header_page_id int not null default 0"; // 通用页头
@@ -73,6 +74,7 @@ $sql .= ',put_at int not null';
 $sql .= ",siteid varchar(32) not null";
 $sql .= ",channel_id int not null";
 $sql .= ",title varchar(70) not null default ''";
+$sql .= ",display_name varchar(70) not null default ''";
 $sql .= ',pic text';
 $sql .= ',summary varchar(240) not null';
 $sql .= ",seq int not null default 0";
@@ -415,6 +417,34 @@ $sql .= ",sync_at int not null"; // 数据的同步时间
 $sql .= ",name varchar(64) not null default ''";
 $sql .= ",type tinyint not null default 0"; // 0:自定义,1:岗位
 $sql .= ",extattr text"; //扩展属性
+$sql .= ",primary key(id)) ENGINE=MyISAM DEFAULT CHARSET=utf8";
+if (!$mysqli->query($sql)) {
+	header('HTTP/1.0 500 Internal Server Error');
+	echo 'database error: ' . $mysqli->error;
+}
+/**
+ * 站点活跃数表
+ */
+$sql = "create table if not exists xxt_site_active(";
+$sql .= "id int not null auto_increment";
+$sql .= ",siteid varchar(32) not null";
+$sql .= ",userid varchar(40) not null";
+$sql .= ",nickname varchar(255) not null";
+$sql .= ",user_active_sum int not null default 0"; //用户产生的活跃数总数
+$sql .= ",operation varchar(255) not null";
+$sql .= ",operation_active_sum int not null default 0"; //行为产生的活跃数总数
+$sql .= ",year int not null";
+$sql .= ",year_active_sum int not null default 0";
+$sql .= ",month int not null";
+$sql .= ",month_active_sum int not null default 0";
+$sql .= ",day int not null";
+$sql .= ",day_active_sum int not null default 0";
+$sql .= ",operation_at int not null";
+$sql .= ",active_last_op char(1) not null default 'Y'";
+$sql .= ",user_last_op char(1) not null default 'Y'";
+$sql .= ",operation_last_op char(1) not null default 'Y'";
+$sql .= ",active_one_num int not null default 0"; //单次增加的活跃数
+$sql .= ",active_sum int not null default 0"; //活跃数总数
 $sql .= ",primary key(id)) ENGINE=MyISAM DEFAULT CHARSET=utf8";
 if (!$mysqli->query($sql)) {
 	header('HTTP/1.0 500 Internal Server Error');

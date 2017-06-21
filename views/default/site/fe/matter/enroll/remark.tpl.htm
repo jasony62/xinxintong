@@ -56,12 +56,13 @@
                 <div class='input-group'>
                     <textarea class='form-control' ng-model="newRemark.content"></textarea>
                     <span class='input-group-btn' style='padding-left:15px'>
-                        <button class='btn btn-success'ng-click="addRemark()">发布</button>
+                        <button class='btn btn-success' ng-click="addRemark()">发布</button>
                     </span>
                 </div>
             </div>
             <div id='bottomActions' class='form-group'>
                 <div class='form-inline text-center'>
+                    <button class='btn btn-default' ng-if="historyLen()" ng-click="back()">返回</button>
                     <button class='btn btn-default' ng-click="gotoRecord()" ng-if="record.userid===user.uid">查看记录</button>
                 </div>
             </div>

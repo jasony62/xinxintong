@@ -226,6 +226,8 @@ class record_model extends \TMS_MODEL {
 							} elseif (!empty($lastSchemaValue) && ($lastSchemaValue->value == $treatedValue) && !empty($lastSchemaValue->score)) {
 								//有提交记录且没修改且已经评分
 								$quizScore = $lastSchemaValue->score;
+							} elseif ($treatedValue === $schema->answer) {
+								$quizScore = $schema->score;
 							} else {
 								$quizScore = 0;
 							}
@@ -373,13 +375,19 @@ class record_model extends \TMS_MODEL {
 	/**
 	 * 获得用户的登记清单
 	 */
-	public function &byUser($appId, &$oUser) {
-		$q = [
-			'*',
-			'xxt_enroll_record',
-			["state" => 1, "aid" => $appId, "userid" => $oUser->uid],
-		];
+	public function &byUser($appId, &$oUser, $options = []) {
+		$fields = isset($options['fields']) ? $options['fields'] : '*';
 
+		$userid = isset($oUser->uid) ? $oUser->uid : (isset($oUser->userid) ? $oUser->userid : '');
+		if (empty($userid)) {
+			return false;
+		}
+
+		$q = [
+			$fields,
+			'xxt_enroll_record',
+			["state" => 1, "aid" => $appId, "userid" => $userid],
+		];
 		$q2 = ['o' => 'enroll_at desc'];
 
 		$list = $this->query_objs_ss($q, $q2);
@@ -730,7 +738,7 @@ class record_model extends \TMS_MODEL {
 			is_array($options) && $options = (object) $options;
 			$rid = null;
 			if (!empty($options->rid)) {
-				if ($options->rid === 'ALL') {
+				if (strcasecmp($options->rid, 'all') === 0) {
 					$rid = null;
 				} else if (!empty($options->rid)) {
 					$rid = $options->rid;
@@ -739,6 +747,7 @@ class record_model extends \TMS_MODEL {
 				$rid = $activeRound->rid;
 			}
 		}
+		$fields = isset($options->fields) ? $options->fields : 'enroll_key,userid';
 
 		$w = "state=1 and aid='{$oApp->id}' and userid<>''";
 
@@ -781,13 +790,13 @@ class record_model extends \TMS_MODEL {
 
 		// 获得填写的登记数据
 		$q = [
-			'enroll_key,userid',
+			$fields,
 			"xxt_enroll_record e",
 			$w,
 		];
-		$participants = $this->query_objs_ss($q);
+		$enrollers = $this->query_objs_ss($q);
 
-		return $participants;
+		return $enrollers;
 	}
 	/**
 	 * 已删除的登记清单
@@ -1000,7 +1009,7 @@ class record_model extends \TMS_MODEL {
 			}
 		}
 		foreach ($dataSchemas as $schema) {
-			if (isset($schema->number) && $schema->number === 'Y') {
+			if (isset($schema->format) && $schema->format === 'number') {
 				$q = [
 					'sum(value)',
 					'xxt_enroll_record_data',
@@ -1070,6 +1079,12 @@ class record_model extends \TMS_MODEL {
 			$oRecord->supplement = json_decode($oRecord->supplement);
 			if ($verbose === 'Y') {
 				$oRecord->verbose = $this->model('matter\enroll\data')->byRecord($oRecord->enroll_key);
+			}
+			if ($fields === '*' || false !== strpos($fields, 'supplement')) {
+				$oRecord->supplement = json_decode($oRecord->supplement);
+			}
+			if ($fields === '*' || false !== strpos($fields, 'score')) {
+				$oRecord->score = json_decode($oRecord->score);
 			}
 		}
 

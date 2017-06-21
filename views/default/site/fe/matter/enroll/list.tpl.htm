@@ -42,10 +42,10 @@
                         </select>
                     </div>
                 </div>
-                <div class="form-group" ng-repeat="schema in dataSchemas" ng-if="['name','email','mobile','shorttext','longtext','location','single','multiple','phase'].indexOf(schema.type)!==-1">
+                <div class="form-group" ng-repeat="schema in dataSchemas" ng-if="['shorttext','longtext','location','single','multiple','phase'].indexOf(schema.type)!==-1">
                     <label class="col-md-3 control-label">{{schema.title}}</label>
                     <div class="col-md-9">
-                        <input type='text' class='form-control' ng-if="['name','email','mobile','shorttext','location'].indexOf(schema.type)!==-1" ng-model="criteria.data[schema.id]">
+                        <input type='text' class='form-control' ng-if="['shorttext','location'].indexOf(schema.type)!==-1" ng-model="criteria.data[schema.id]">
                         <textarea class='form-control' ng-if="'longtext'===schema.type" ng-model="criteria.data[schema.id]"></textarea>
                         <select class='form-control' ng-if="['single','phase'].indexOf(schema.type)!==-1" ng-model="criteria.data[schema.id]" ng-options="op.v as op.l for op in schema.ops">
                             <option></option>

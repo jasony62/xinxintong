@@ -5,6 +5,7 @@ require_once '../db.php';
  */
 $sql = 'create table if not exists xxt_tag(';
 $sql .= 'id int not null auto_increment';
+$sql .= ",siteid varchar(32) not null default ''";
 $sql .= ',mpid varchar(32) not null';
 $sql .= ',title varchar(255) not null';
 $sql .= ',primary key(id)';
@@ -17,7 +18,8 @@ if (!$mysqli->query($sql)) {
  * relation of tag and article.
  */
 $sql = 'create table if not exists xxt_article_tag(';
-$sql .= 'mpid varchar(32) not null';
+$sql .= "siteid varchar(32) not null default ''";
+$sql .= ',mpid varchar(32) not null';
 $sql .= ',res_id int not null';
 $sql .= ',tag_id int not null';
 $sql .= ",sub_type int not null default 0";

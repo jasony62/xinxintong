@@ -220,6 +220,7 @@ class page_model extends \TMS_MODEL {
 	 *
 	 */
 	public function &modify($id, $data) {
+		$this->setOnlyWriteDbConn(true);
 		$data = (array) $data;
 		foreach ($data as $n => $v) {
 			if (in_array($n, array('css', 'html', 'js'))) {

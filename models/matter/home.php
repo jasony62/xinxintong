@@ -246,7 +246,7 @@ class home_model extends \TMS_MODEL {
 		$fields = isset($options['fields']) ? $options['fields'] : '*';
 		if(strpos($fields, 'h.') === false && strpos($fields, 's.') === false){
 			$fields = str_replace(',',',h.',$fields);
-			$fields = 'h.'.$fields;
+			$fields = 'h.' . $fields . ',s.heading_pic';
 		}
 		$page = isset($options['page']) ? $options['page'] : ['at' => 1, 'size' => 8];
 

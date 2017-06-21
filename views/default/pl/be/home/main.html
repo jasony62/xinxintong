@@ -8,6 +8,9 @@
                     <td>
                         <a href='' ng-click="editPage('home')">编辑页面</a>
                         <a href='' ng-click="resetPage('home')" ng-show="platform.home_page_name">重置页面</a>
+                        <span ng-show="platform.home_page_name">&nbsp;&nbsp;
+                            <input type='checkbox' ng-true-value="'Y'" ng-false-value="'N'" ng-model="platform.autoup_homepage" ng-change="update('autoup_homepage')" />自动更新
+                        </span>
                     </td>
                 </tr>
                 <tr>

@@ -3,9 +3,9 @@
         <label>题目ID</label>
         <input class='form-control' type='text' ng-model='activeSchema.id' ng-change="updSchema(activeSchema)" readonly>
     </div>
-    <div class="form-group">
+    <div class="form-group" ng-if="'html'!==activeSchema.type">
         <label>填写提示</label>
-        <input class='form-control' type='text' ng-if="'html'!==activeSchema.type" ng-model='activeSchema.description' tms-auto-update tms-wait=1000 tms-update="updSchema(activeSchema)">
+        <textarea class='form-control' ng-model='activeSchema.description' tms-auto-update tms-wait=1000 tms-update="updSchema(activeSchema)"></textarea>
     </div>
     <div class="form-group" ng-show="activeSchema.type==='shorttext'">
         <label>填写限制</label>
@@ -35,9 +35,6 @@
             <option value='image'>上传图片</option>
             <option value='file'>上传文件</option>
             <option value='html'>描述说明</option>
-            <option value='name'>姓名</option>
-            <option value='mobile'>手机</option>
-            <option value='email'>邮箱</option>
             <option value='date'>日期</option>
             <option value='location'>上传位置</option>
             <option value='phase'>项目阶段</option>
@@ -80,11 +77,6 @@
     <div class="checkbox" ng-show="['name','mobile','email','shorttext'].indexOf(activeSchema.type)!==-1">
         <label>
             <input type='checkbox' ng-true-value="'Y'" ng-false-value="'N'" ng-model='activeSchema.unique' ng-change="updSchema(activeSchema)">唯一</label>
-    </div>
-    <!--老版本数值测试版本需要，测试完成后，对外发布时删除-->
-    <div class="checkbox" ng-show="'shorttext'===activeSchema.type">
-        <label>
-            <input type='checkbox' ng-true-value="'Y'" ng-false-value="'N'" ng-model='activeSchema.number' ng-change="updSchema(activeSchema,'number')">数值</label>
     </div>
     <div class="checkbox" ng-show="app.scenario==='quiz'">
         <label>

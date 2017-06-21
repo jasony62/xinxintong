@@ -261,13 +261,33 @@ define(['frame', 'schema', 'wrap'], function(ngApp, schemaLib, wrapLib) {
                 $scope.$broadcast('xxt.editable.add', newOp);
             });
         };
-        $scope.$on('title.xxt.editable.changed', function(e, schema) {
-            $scope.updSchema(schema);
-        });
+        $scope.moveUpOption = function(schema, op) {
+            var ops = schema.ops,
+                index = ops.indexOf(op);
+
+            if (index > 0) {
+                ops.splice(index, 1);
+                ops.splice(index - 1, 0, op);
+                $scope.updSchema(schema);
+            }
+        };
+        $scope.moveDownOption = function(schema, op) {
+            var ops = schema.ops,
+                index = ops.indexOf(op);
+
+            if (index < ops.length - 1) {
+                ops.splice(index, 1);
+                ops.splice(index + 1, 0, op);
+                $scope.updSchema(schema);
+            }
+        };
         $scope.removeOption = function(schema, op) {
             schema.ops.splice(schema.ops.indexOf(op), 1);
             $scope.updSchema(schema);
         };
+        $scope.$on('title.xxt.editable.changed', function(e, schema) {
+            $scope.updSchema(schema);
+        });
         // 回车添加选项
         $('body').on('keyup', function(evt) {
             if (evt.keyCode === 13) {

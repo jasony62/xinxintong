@@ -231,7 +231,7 @@
 <script type="text/ng-template" id="assignUserApp.html">
     <div class="modal-header">
         <button class="close" type="button" ng-click="cancel()">×</button>
-        <h5 class="modal-title">用户名单活动</h5>
+        <h5 class="modal-title">指定项目用户名单</h5>
     </div>
     <div class="modal-body">
         <form class="form-horizontal">
@@ -242,6 +242,8 @@
                         <input type='radio' value='enroll' ng-model="data.appType">报名活动</label>
                     <label class='radio-inline'>
                         <input type='radio' value='signin' ng-model="data.appType">签到活动</label>
+                    <label class='radio-inline'>
+                        <input type='radio' value='mschema' ng-model="data.appType">通讯录</label>
                 </div>
             </div>
             <div class='form-group'>

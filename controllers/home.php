@@ -84,7 +84,7 @@ class home extends TMS_CONTROLLER {
 		return $data;
 	}
 	/**
-	 * 获得系统内置模板的时间
+	 * 获得系统内置模板的修改时间
 	 */
 	private function &_getPageMTime($name, $template) {
 		$templateDir = TMS_APP_TEMPLATE . '/pl/be/' . $name;

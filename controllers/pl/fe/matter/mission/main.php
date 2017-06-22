@@ -26,33 +26,38 @@ class main extends \pl\fe\matter\base {
 	 * @param int $id
 	 */
 	public function get_action($id) {
-		if (false === ($user = $this->accountUser())) {
+		if (false === ($oUser = $this->accountUser())) {
 			return new \ResponseTimeout();
 		}
 		/* 检查权限 */
 		$modelAcl = $this->model('matter\mission\acl');
-		if (false === ($acl = $modelAcl->byCoworker($id, $user->id))) {
+		if (false === ($acl = $modelAcl->byCoworker($id, $oUser->id))) {
 			return new \ResponseError('项目不存在');
 		}
-		$mission = $this->model('matter\mission')->byId($id, ['cascaded' => 'header_page_name,footer_page_name']);
+		$oMission = $this->model('matter\mission')->byId($id, ['cascaded' => 'header_page_name,footer_page_name']);
 		/* 关联的用户名单活动 */
-		if ($mission->user_app_id) {
-			if ($mission->user_app_type === 'enroll') {
-				$mission->userApp = $this->model('matter\enroll')->byId($mission->user_app_id, ['cascaded' => 'N']);
-			} else if ($mission->user_app_type === 'signin') {
-				$mission->userApp = $this->model('matter\signin')->byId($mission->user_app_id, ['cascaded' => 'N']);
-			} else if ($mission->user_app_type === 'mschema') {
-				$mission->userApp = $this->model('site\user\memberschema')->byId($mission->user_app_id);
+		if ($oMission->user_app_id) {
+			if ($oMission->user_app_type === 'enroll') {
+				$oMission->userApp = $this->model('matter\enroll')->byId($oMission->user_app_id, ['cascaded' => 'N']);
+			} else if ($oMission->user_app_type === 'signin') {
+				$oMission->userApp = $this->model('matter\signin')->byId($oMission->user_app_id, ['cascaded' => 'N']);
+			} else if ($oMission->user_app_type === 'mschema') {
+				$oMission->userApp = $this->model('site\user\memberschema')->byId($oMission->user_app_id);
 			}
 		}
+
+		/* 汇总报告配置信息 */
+		$rpConfig = $this->model('matter\mission\report')->defaultConfigByUser($oUser, $oMission);
+		$oMission->reportConfig = $rpConfig;
+
 		/* 检查当前用户的角色 */
-		if ($user->id === $mission->creater) {
-			$mission->yourRole = 'O';
+		if ($oUser->id === $oMission->creater) {
+			$oMission->yourRole = 'O';
 		} else {
-			$mission->yourRole = $acl->coworker_role;
+			$oMission->yourRole = $acl->coworker_role;
 		}
 
-		return new \ResponseData($mission);
+		return new \ResponseData($oMission);
 	}
 	/**
 	 * 指定团队下当前用户可访问任务列表
@@ -61,7 +66,7 @@ class main extends \pl\fe\matter\base {
 	 * @param int $size
 	 */
 	public function list_action($site, $page = 1, $size = 20) {
-		if (false === ($user = $this->accountUser())) {
+		if (false === ($oUser = $this->accountUser())) {
 			return new \ResponseTimeout();
 		}
 
@@ -85,7 +90,7 @@ class main extends \pl\fe\matter\base {
 	 * @param int $size
 	 */
 	public function listByUser_action($page = 1, $size = 20) {
-		if (false === ($user = $this->accountUser())) {
+		if (false === ($oUser = $this->accountUser())) {
 			return new \ResponseTimeout();
 		}
 
@@ -101,7 +106,7 @@ class main extends \pl\fe\matter\base {
 			$options['byTitle'] = $modelMis->escape($filter->byTitle);
 		}
 
-		$result = $modelMis->byAcl($user, $options);
+		$result = $modelMis->byAcl($oUser, $options);
 
 		return new \ResponseData($result);
 	}
@@ -109,12 +114,12 @@ class main extends \pl\fe\matter\base {
 	 * 当前用户参与的所有项目所属的团队列表
 	 */
 	public function listSite_action() {
-		if (false === ($user = $this->accountUser())) {
+		if (false === ($oUser = $this->accountUser())) {
 			return new \ResponseTimeout();
 		}
 
 		$modelMis = $this->model('matter\mission');
-		$result = $modelMis->siteByAcl($user);
+		$result = $modelMis->siteByAcl($oUser);
 
 		return new \ResponseData($result);
 	}
@@ -124,7 +129,7 @@ class main extends \pl\fe\matter\base {
 	 * @param string $site site'id
 	 */
 	public function create_action($site) {
-		if (false === ($user = $this->accountUser())) {
+		if (false === ($oUser = $this->accountUser())) {
 			return new \ResponseTimeout();
 		}
 
@@ -138,23 +143,23 @@ class main extends \pl\fe\matter\base {
 		$mission = new \stdClass;
 		/*create empty mission*/
 		$mission->siteid = $site->id;
-		$mission->title = $modelSite->escape($user->name) . '的项目';
+		$mission->title = $modelSite->escape($oUser->name) . '的项目';
 		$mission->summary = '';
 		$mission->pic = $site->heading_pic;
-		$mission->creater = $user->id;
-		$mission->creater_src = $user->src;
-		$mission->creater_name = $modelSite->escape($user->name);
+		$mission->creater = $oUser->id;
+		$mission->creater_src = $oUser->src;
+		$mission->creater_name = $modelSite->escape($oUser->name);
 		$mission->create_at = $current;
-		$mission->modifier = $user->id;
-		$mission->modifier_src = $user->src;
-		$mission->modifier_name = $modelSite->escape($user->name);
+		$mission->modifier = $oUser->id;
+		$mission->modifier_src = $oUser->src;
+		$mission->modifier_name = $modelSite->escape($oUser->name);
 		$mission->modify_at = $current;
 		$mission->state = 1;
 		$mission->id = $modelMis->insert('xxt_mission', $mission, true);
 
 		/*记录操作日志*/
 		$mission = $modelMis->byId($mission->id);
-		$this->model('matter\log')->matterOp($site->id, $user, $mission, 'C');
+		$this->model('matter\log')->matterOp($site->id, $oUser, $mission, 'C');
 		/**
 		 * 建立缺省的ACL
 		 * @todo 是否应该挪到消息队列中实现
@@ -162,11 +167,11 @@ class main extends \pl\fe\matter\base {
 		$modelAcl = $this->model('matter\mission\acl');
 		/*任务的创建人加入ACL*/
 		$coworker = new \stdClass;
-		$coworker->id = $user->id;
-		$coworker->label = $user->name;
-		$modelAcl->add($user, $mission, $coworker, 'O');
+		$coworker->id = $oUser->id;
+		$coworker->label = $oUser->name;
+		$modelAcl->add($oUser, $mission, $coworker, 'O');
 		/*站点的系统管理员加入ACL*/
-		$modelAcl->addSiteAdmin($site->id, $user, null, $mission);
+		$modelAcl->addSiteAdmin($site->id, $oUser, null, $mission);
 
 		/*返回结果*/
 

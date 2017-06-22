@@ -93,7 +93,7 @@ ngApp.provider.controller('ctrlHome', ['$scope', '$http', '$uibModal', 'tmsFavor
                 url += '?site=' + item.siteid + '&id=' + item.matter_id;
                 url += '&page=1&size=5';
                 $http.get(url).success(function(rsp) {
-                    $scope.channelArticles.push({title: item.title,url: item.url,data:rsp.data});
+                    $scope.channelArticles.push({ title: item.title, url: item.url, data: rsp.data });
                 });
             });
         });
@@ -122,11 +122,12 @@ ngApp.provider.controller('ctrlCarousel', function($scope) {
         }
     });
 });
-ngApp.provider.controller('ctrlSlider',function($scope) {
+ngApp.provider.controller('ctrlSlider', function($scope) {
     var meuns = angular.element('#arrow').find('a'),
         lis = document.querySelector('#slider_extends > ul').children,
-        as = [meuns[0],meuns[1]];
-    var stop = true, flag = true;
+        as = [meuns[0], meuns[1]];
+    var stop = true,
+        flag = true;
     var json = [{
         width: 169,
         top: 40,
@@ -161,6 +162,7 @@ ngApp.provider.controller('ctrlSlider',function($scope) {
             }
         }
     }
+
     function change(flag) {
         if (flag) {
             json.unshift(json.pop());
@@ -179,51 +181,53 @@ ngApp.provider.controller('ctrlSlider',function($scope) {
             })
         }
     }
-    function animate(obj,json,fn) {
+
+    function animate(obj, json, fn) {
         clearInterval(obj.timer);
         obj.timer = setInterval(function() {
             var flag = true;
-            for(var attr in json){
+            for (var attr in json) {
                 var current = 0;
-                if(attr == "opacity") {
-                    current = Math.round(parseInt(getStyle(obj,attr)*100)) || 0;
+                if (attr == "opacity") {
+                    current = Math.round(parseInt(getStyle(obj, attr) * 100)) || 0;
                 } else {
-                    current = parseInt(getStyle(obj,attr));
+                    current = parseInt(getStyle(obj, attr));
                 }
                 // 目标位置就是  属性值
-                var step = ( json[attr] - current) / 10;
+                var step = (json[attr] - current) / 10;
                 step = step > 0 ? Math.ceil(step) : Math.floor(step);
                 //判断透明度
-                if(attr == "opacity") {
-                    if("opacity" in obj.style) {
-                        obj.style.opacity = (current + step) /100;
+                if (attr == "opacity") {
+                    if ("opacity" in obj.style) {
+                        obj.style.opacity = (current + step) / 100;
                     } else {
-                        obj.style.filter = "alpha(opacity = "+(current + step)* 10+")";
+                        obj.style.filter = "alpha(opacity = " + (current + step) * 10 + ")";
                     }
                 } else if (attr == "zIndex") {
                     obj.style.zIndex = json[attr];
                 } else {
-                    obj.style[attr] = current  + step + "px" ;
+                    obj.style[attr] = current + step + "px";
                 }
 
-                if(current != json[attr]) {
-                    flag =  false;
+                if (current != json[attr]) {
+                    flag = false;
                 }
             }
-            if(flag) {
+            if (flag) {
                 clearInterval(obj.timer);
-                if(fn) { fn();}
+                if (fn) { fn(); }
             }
-        },30)
+        }, 30)
     }
-    function getStyle(obj,attr) {
-        if(obj.currentStyle) {
+
+    function getStyle(obj, attr) {
+        if (obj.currentStyle) {
             return obj.currentStyle[attr];
         } else {
-            return window.getComputedStyle(obj,null)[attr];
+            return window.getComputedStyle(obj, null)[attr];
         }
     }
     $scope.load = function() {
-        if($scope.width  < 768) {change();}
+        if ($scope.width < 768) { change(); }
     }
 });

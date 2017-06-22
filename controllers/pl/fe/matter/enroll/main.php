@@ -533,6 +533,7 @@ class main extends \pl\fe\matter\base {
 			$newapp['summary'] = '';
 			$newapp['use_mission_header'] = 'N';
 			$newapp['use_mission_footer'] = 'N';
+			$mission=null;
 		} else {
 			$modelMis = $this->model('matter\mission');
 			$mission = $modelMis->byId($mission);
@@ -543,12 +544,13 @@ class main extends \pl\fe\matter\base {
 			$newapp['use_mission_footer'] = 'Y';
 		}
 		$appId = uniqid();
-
-		empty($config->scenario) && $newapp['scenario'] = $scenario;
+		$customConfig=isset($config->customConfig) ? $config->customConfig : null;
+		!empty($config->scenario) && $newapp['scenario'] = $config->scenario;
 		/* 登记数量限制 */
 		if (isset($config->count_limit)) {
 			$newapp['count_limit'] = $config->count_limit;
 		}
+
 		if (!empty($config->pages) && !empty($config->entryRule)) {
 			$this->_addPageByTemplate($user, $site, $mission, $appId, $config, $customConfig);
 			/*进入规则*/
@@ -587,6 +589,9 @@ class main extends \pl\fe\matter\base {
 		$modelApp = $this->model('matter\enroll');
 		$modelApp->setOnlyWriteDbConn(true);
 		$modelApp->insert('xxt_enroll', $newapp, false);
+		/* 保存数据 */
+		$records=$config->records;
+		$this->_persist($site->id,$appId,$records);
 
 		$app = $modelApp->byId($appId);
 		/* 记录操作日志 */
@@ -1495,7 +1500,7 @@ class main extends \pl\fe\matter\base {
 			);
 			/* 填充页面 */
 			if (!empty($page->code)) {
-				$code = $page->code;
+				$code = (array)$page->code;
 				/* 页面存在动态信息 */
 				$matched = [];
 				$pattern = '/<!-- begin: generate by schema -->.*<!-- end: generate by schema -->/s';
@@ -1648,20 +1653,49 @@ class main extends \pl\fe\matter\base {
 		if (false === ($user = $this->accountUser())) {
 			return new \ResponseTimeout();
 		}
-		$app = $this->model('matter\enroll')->byId($app);
 
+		$modelEnroll=\TMS_APP::M('matter\enroll');
+		$oApp = $modelEnroll->byId($app);
 		$template = new \stdClass;
 		/* setting */
-		!empty($app->scenario) && $template->scenario = $app->scenario;
-		$template->count_limit = $app->count_limit;
+		!empty($oApp->scenario) && $template->scenario = $oApp->scenario;
+		$template->count_limit = $oApp->count_limit;
 
 		/* schema */
-		$template->schema = json_decode($app->data_schemas);
+		$template->schema = json_decode($oApp->data_schemas);
+		
+		/* pages */
+		$pages=$oApp->pages;
+		foreach ($pages as &$rec) {
+			$rec->data_schemas=json_decode($rec->data_schemas);
+			$rec->act_schemas=json_decode($rec->act_schemas);
+			$code=new \stdClass;
+			$code->css=$rec->css;
+			$code->js=$rec->js;
+			$code->html=$rec->html;
+			$rec->code=$code;
+		}
+		$template->pages=$pages;
+ 		
+ 		/* entry_rule */
+ 		$template->entryRule=$oApp->entry_rule;
+
+		/* records */
+		$records=$modelEnroll->query_objs_ss([
+			'id,userid,openid,nickname,data',
+			'xxt_enroll_record',
+			['siteid'=>$site,'aid'=>$app]
+		]);
+
+		foreach ($records as &$rec) {
+			$rec->data=json_decode($rec->data);
+		}
+		$template->records=$records;
 
 		$template = \TMS_MODEL::toJson($template);
 		header("Cache-Control: public");
 		header("Content-Description: File Transfer");
-		header('Content-disposition: attachment; filename=' . $app->title . '.json');
+		header('Content-disposition: attachment; filename=' . $oApp->title . '.json');
 		header("Content-Type: text/plain");
 		header('Content-Length: ' . strlen($template));
 		die($template);

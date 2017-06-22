@@ -65,11 +65,11 @@
                     <ul class="list-unstyled row" >
                         <li ng-mouseenter="selectTag($index)" class="slider_extend pull-left" ng-repeat="ta in topArticles" data-ng-init="load()">
                             <a ng-href="{{ta.url}}">
-                                <div class="caption">
-                                    <h4 class="text-wrap">{{ta.title}}</h4>
+                                <div class="slider-caption">
+                                    <h4 class="slider-text-wrap">{{ta.title}}</h4>
                                 </div>
-                                <span class="mask"></span>
-                                <img class="img-responsive" ng-src="{{ta.pic}}" />
+                                <span class="slider-mask"></span>
+                                <img class="slider-img" ng-src="{{ta.pic}}" />
                             </a>
                         </li>
                     </ul>
@@ -78,7 +78,7 @@
                         <a href="javascript:;" class="next"><i class="glyphicon glyphicon-menu-right"></i></a>
                     </div>
                 </div>
-                <uib-tabset active="0" class="row bgf">
+                <uib-tabset active="0" class="row bgf" style="padding-bottom:10px">
                     <uib-tab index="0" ng-if="articles.length">
                         <uib-tab-heading>热门时讯</uib-tab-heading>
                         <table class="table table-hover">

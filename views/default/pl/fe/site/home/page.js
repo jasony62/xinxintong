@@ -198,10 +198,10 @@ define(['main'], function(ngApp) {
                 }],
                 backdrop: 'static'
             }).result.then(function(newChannel) {
-                channel.display_name = newChannel.title;
+                channel.display_name = newChannel.display_name;
                 var url = '/rest/pl/fe/site/setting/page/updateHomeChannel';
                 url += '?site=' + channel.siteid + '&id=' + channel.id;
-                http2.post(url, { display_name: channel.title }, function(rsp) {
+                http2.post(url, { display_name: channel.display_name }, function(rsp) {
                     noticebox.success('完成更新');
                 });
             });

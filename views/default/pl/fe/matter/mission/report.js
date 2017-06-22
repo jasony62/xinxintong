@@ -114,6 +114,26 @@ define(['frame'], function(ngApp) {
                 $scope.makeReport();
             });
         };
+        $scope.moveUp = function(matter, index) {
+            var apps;
+            if (index === 0) return;
+            apps = $scope.report.orderedApps;
+            apps.splice(index, 1);
+            apps.splice(index - 1, 0, matter);
+            //matter.seq--;
+            apps[index].seq++;
+            //submitMatterSeqs().then(function() {});
+        };
+        $scope.moveDown = function(matter, index) {
+            var apps;
+            apps = $scope.report.orderedApps;
+            if (index === apps.length - 1) return;
+            apps.splice(index, 1);
+            apps.splice(index + 1, 0, matter);
+            //matter.seq++;
+            apps[index].seq--;
+            //submitMatterSeqs().then(function() {});
+        };
         $scope.makeReport = function() {
             var oMission, url, params;
             oMission = $scope.mission;
@@ -143,25 +163,11 @@ define(['frame'], function(ngApp) {
                 });
             });
         };
-        $scope.moveUp = function(matter, index) {
-            var apps;
-            if (index === 0) return;
-            apps = $scope.report.orderedApps;
-            apps.splice(index, 1);
-            apps.splice(index - 1, 0, matter);
-            //matter.seq--;
-            apps[index].seq++;
-            //submitMatterSeqs().then(function() {});
-        };
-        $scope.moveDown = function(matter, index) {
-            var apps;
-            apps = $scope.report.orderedApps;
-            if (index === apps.length - 1) return;
-            apps.splice(index, 1);
-            apps.splice(index + 1, 0, matter);
-            //matter.seq++;
-            apps[index].seq--;
-            //submitMatterSeqs().then(function() {});
+        $scope.exportReport = function() {
+            var oMission, url;
+            oMission = $scope.mission;
+            url = '/rest/pl/fe/matter/mission/report/export?site=' + oMission.siteid + '&mission=' + oMission.id;
+            window.open(url);
         };
         // $scope.$on('matters.orderChanged', function(e, moved) {
         //     var apps, oldSeq, newSeq;
@@ -191,47 +197,9 @@ define(['frame'], function(ngApp) {
                 $scope.makeReport();
             }
         });
-        var _oResultSet, _del;
+        var _oResultSet;
         $scope.resultSet = _oResultSet = {};
         $scope.tmsTableWrapReady = 'N';
-        $scope.del = _del = [];
-        $scope.doAttend = function(isCheck) {
-            if (isCheck == 'Y') {
-                _del = [];
-                var keys = [];
-                for (var i in $scope.recordsByApp) {
-                    (Object.keys($scope.recordsByApp[i])).forEach(function(item, index) {
-                        keys.push(item);
-                    });
-                }
-                for (var i = $scope.showMatters.length - 1; i >= 0; i--) {
-                    if (keys.indexOf($scope.showMatters[i].id) == -1) {
-                        _del.push($scope.showMatters[i]);
-                        $scope.showMatters.splice(i, 1);
-                    }
-                }
-            } else {
-                _del.forEach(function(item) {
-                    $scope.showMatters.push(item);
-                });
-            }
-        }
-        $scope.doUserSearch = function() {
-            // srvMission.userList(_oResultSet).then(function(result) {
-            //     $scope.tmsTableWrapReady = 'Y';
-            // });
-        };
-        $scope.doUserFilter = function(isCacnel) {
-            _oResultSet.page.at = 1;
-            isCacnel === true && (_oResultSet.criteria.keyword = '');
-            $scope.doUserSearch();
-        };
-        $scope.doUserExport = function() {
-            var url;
-            url = '/rest/pl/fe/matter/mission/user/export';
-            url += '?site=' + $scope.mission.siteid + '&mission=' + $scope.mission.id;
-            window.open(url);
-        }
         $scope.chooseUser = function(user) {
             $scope.recordsByApp = {};
             $scope.activeUser = user;
@@ -287,8 +255,6 @@ define(['frame'], function(ngApp) {
         $scope.$watch('mission.userApp', function(userApp) {
             if (!userApp) {
                 _oResultSet.users && _oResultSet.users.splice(0, _oResultSet.users.length);
-            } else {
-                $scope.doUserSearch();
             }
         });
     }]);

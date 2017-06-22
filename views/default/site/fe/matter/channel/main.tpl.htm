@@ -8,7 +8,8 @@
     <title>
         <?php TPL::pt('title');?>
     </title>
-    <link href="/static/css/bootstrap.min.css" rel="stylesheet">
+    <link href="/static/css/custom-bootstrap.min.css" rel="stylesheet">
+    <link href="/static/css/custom.site.fe.css" rel="stylesheet">
     <link href='/views/default/site/fe/matter/channel/main.css?_=1' rel="stylesheet">
 </head>
 
@@ -20,22 +21,39 @@
         </select>
         <ul class='list-group' infinite-scroll="Matter.nextPage()" infinite-scroll-disabled="Matter.busy" infinite-scroll-distance="1">
             <li class='list-group-item' ng-repeat='m in Matter.matters' ng-click='open(m)'>
-                <div class='header clearfix'>
-                    <div class='create_at' ng-bind="m.add_at*1000|date:'yyyy-MM-dd'"></div>
-                    <div class='creater_name' ng-bind='m.creater_name' style='display:none'></div>
+                <div class="media-item-left pull-left">
+                    <div class="media-item-img">
+                        <img class="media-object" ng-src='{{m.pic}}'>
+                    </div>
                 </div>
-                <div class='content'>
-                    <div ng-if="channel.show_pic_in_page==='Y'" ng-class="{'heading_pic':channel.show_pic_in_page==='Y'}" style="{{'background-image:url('+m.pic+')'}}"></div>
-                    <div class='text'>
-                        <div class='title' ng-bind='m.title'></div>
-                        <div class='summary' ng-class="{'last-row':channel.matter_type!=='article'}" ng-bind='m.summary'></div>
+                <div class="media-item-body pull-left">
+                    <div class='creater_name'>
+                        <a ng-href='/rest/site/home?site={{siteInfo.id}}'>
+                            <img class="img-circle" ng-src="{{siteInfo.heading_pic}}" style="width:12px;height:12px">
+                            <h6 class="inline pdl10">{{siteInfo.name}}</h6>
+                            <i class="glyphicon glyphicon-menu-right pull-right"></i>
+                        </a>
+                    </div>
+                    <h4 class="media-heading" >{{m.title}}</h4>
+                    <h5 class="media-summary">{{m.summary}}</h5>
+                    <div class='attr clearfix'>
+                        <div class='put_at pull-left'>
+                            <a href="">
+                                <h6 class="inline" ng-bind="m.add_at*1000|date:'yyyy-MM-dd'"></h6>
+                            </a>
+                        </div>
+                        <div class="create_name">
+                            <a href="">
+                                <h6 class="inline" ng-bind="m.creater_name" style='display:none'></h6>
+                            </a>
+                        </div>
                     </div>
                 </div>
             </li>
         </ul>
     </div>
     <div class='form-group'>
-        <button class='btn btn-default btn-block' ng-disabled="Matter.end" ng-click="Matter.nextPage()">更多</button>
+        <button class='btn btn-default btn-block' style="margin-left:0" ng-disabled="Matter.end" ng-click="Matter.nextPage()">更多</button>
     </div>
     <script type="text/javascript">
     if (/MicroMessenger/i.test(navigator.userAgent)) {

@@ -1,17 +1,19 @@
 /* extend-slides */
 #slider_extends{margin-bottom:30px;}
-.slider_extend{width:31.82%;margin-right: 20px;}
+.slider_extend{width:31.79%;margin-right: 20px;}
 .slider_extend:last-child{margin-right:0;}
-.slider_extend > a{display:block;position:relative;}
-.slider_extend > a > .caption{z-index:999;width:100%;position:absolute;bottom:0;left:0;padding-left:10px;padding-right:10px;}
-.slider_extend > a > .caption > .text-wrap{width:100%;color:#fff;line-height:1;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden;}
-.slider_extend > a > .mask{width:100%;height:35%;background-color:#2f2933;opacity:0.7;position:absolute;top:65%;left:0;z-index:500;}
+.slider_extend > a{padding-top: 57.15%;display:block;position:relative;}
+.slider_extend > a > .slider-caption{z-index:999;width:100%;position:absolute;bottom:0;left:0;padding-left:10px;padding-right:10px;}
+.slider_extend > a > .slider-caption > .slider-text-wrap{width:100%;color:#fff;line-height:1.5;margin-top:5px;margin-bottom:5px;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden;}
+.slider_extend > a > .slider-mask{width:100%;height:40%;background-color:#2f2933;opacity:0.7;position:absolute;top:60%;left:0;z-index:500;}
 .slider_extend > a:hover > .mask{background-color:#2994d0;}
+.slider_extend > a > .slider-img{width:100%;height:100%;position: absolute;top:0;left:0;}
 @media screen and (max-width: 768px) {
   #slider_extends{margin-bottom:0px;height: 160px;position: relative;overflow: hidden;}
   .slider_extend{position: absolute;margin-right: 0px;top:0;left:0;}
   .arrow{min-height: 100%;opacity: 1;position: relative;top:50%;margin-top: -80px;z-index: 4;}
   .prev, .next{width: 20%;padding:10%;color: #fff;position: absolute;top:20%;z-index: 5;font-size:18px;text-align: center;}
   .next{right:5%;}
-  .slider_extend > a > .caption > .text-wrap{width:100%;color:#fff;display: block;margin-top:0;line-height:1;overflow:hidden;white-space: nowrap;text-overflow: ellipsis;}
+  .slider_extend > a > .slider-caption > .slider-text-wrap{width:100%;margin-bottom: 10px;margin-top: 10px;color:#fff;display: block;line-height:1;overflow:hidden;white-space: nowrap;text-overflow: ellipsis;}
+   .slider_extend > a > .slider-mask{height:30%;top:70%;}
 }

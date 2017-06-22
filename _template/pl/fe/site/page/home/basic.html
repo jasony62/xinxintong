@@ -84,9 +84,9 @@
                 </div>
             </div>
             <div class="col-md-9 col-xs-12 bgf">
-                <uib-tabset active="0" class="row">
+                <uib-tabset active="0" class="row" style="padding-bottom:10px">
                     <uib-tab index="$index" ng-repeat="c in c_channels_matters">
-                        <uib-tab-heading>{{c.title}}</uib-tab-heading>
+                        <uib-tab-heading>{{c.display_name}}</uib-tab-heading>
                         <table class="table table-hover">
                             <tbody>
                                 <tr class="media-item" ng-repeat="m in cTotal[c.channel_id]['data']" ng-click="openMatter(m)">

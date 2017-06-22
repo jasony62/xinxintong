@@ -30,8 +30,9 @@ ul{margin-top: 0;margin-bottom: 0;}
 /* nav */
 .navbar-default{border-bottom:1px ridge #ececec;}
 @media screen and (min-width:768px){.navbar-nav{margin:1% 0 0 45px;}}
+.navbar-collapse a > .nav-title{position: relative;font-size:18px;line-height: 1.667;}
 .navbar-collapse a > span{font-size:18px;line-height: 1.667;}
-.navbar-nav .active > a > span:after{content:' ';width: 80%;margin: 0 auto;position:absolute;left:0;right:0;bottom:0px;border-bottom:2px solid #2994d0;}
+.navbar-nav .active > a > .nav-title:after{content:' ';width: 100%;position:absolute;left:0;bottom:-5px;border-bottom:2px solid #2994d0;}
 .navbar-form{margin-top:0;margin-bottom: 0;}
 .dropdown-menu{padding:0px;}
 .dropdown-menu>li>a{padding:10px 20px 10px 40px;}

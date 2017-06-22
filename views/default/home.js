@@ -38,7 +38,7 @@ ngApp.directive('autoHeight', ['$window', function($window) {
         scope: {},
         link: function($scope, element, attrs) {
             var winowHeight = $window.innerHeight; //获取窗口高度
-            var headerHeight = 60;
+            var headerHeight = 52;
             var footerHeight = 50;
             element.css('min-height',
                 (winowHeight - headerHeight - footerHeight) + 'px');

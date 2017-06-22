@@ -135,6 +135,19 @@ class report extends \pl\fe\matter\base {
 		$result = $modelRep->userAndApp($users, $apps);
 
 		/*把result导出excel文件*/
+		require_once TMS_APP_DIR . '/lib/PHPExcel.php';
+
+		// Create new PHPExcel object
+		$objPHPExcel = new \PHPExcel();
+		// Set properties
+		$objPHPExcel->getProperties()->setCreator("信信通")
+			->setLastModifiedBy("信信通")
+			->setTitle($oMission->title)
+			->setSubject($oMission->title)
+			->setDescription($oMission->title);
+
+		$objActiveSheet = $objPHPExcel->getActiveSheet();
+		$objActiveSheet->setCellValueByColumnAndRow($columnNum1++, 1, '登记时间');
 		die('export report');
 		// 输出
 		// header('Content-Type: application/vnd.ms-excel');

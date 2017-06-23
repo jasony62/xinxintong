@@ -1,59 +1,19 @@
 'use strict';
-//////加载css
-//////    加载singin.css
 require('./signin.css');
-//////加载依赖
 var ngApp = require('./main.js');
+ngApp.oUtilSchema = require('../_module/schema.util.js');
+ngApp.oUtilSubmit = require('../_module/submit.util.js');
 ngApp.config(['$compileProvider', function($compileProvider) {
     $compileProvider.aHrefSanitizationWhitelist(/^\s*(https?|ftp|mailto|tel|file|sms|wxLocalResource):/);
 }]);
-ngApp.factory('Record', ['$http', '$q', function($http, $q) {
-    var Record, _ins;
-    Record = function() {};
-    Record.prototype.get = function(ek) {
-        var url, deferred;
-        deferred = $q.defer();
-        url = LS.j('record/get', 'site', 'aid');
-        ek && (url += '&ek=' + ek);
-        $http.get(url).success(function(rsp) {
-            if (rsp.err_code == 0) {
-                deferred.resolve(rsp.data);
-            }
-        });
-        return deferred.promise;
-    };
-    return {
-        ins: function() {
-            return _ins ? _ins : (new Record());
-        }
-    };
-}]);
 ngApp.factory('Input', ['$http', '$q', '$timeout', 'ls', function($http, $q, $timeout, LS) {
     var Input, _ins;
-
-    function isEmpty(schema, value) {
-        if (value === undefined) {
-            return true;
-        }
-        switch (schema.type) {
-            case 'multiple':
-                for (var p in value) {
-                    //至少有一个选项
-                    if (value[p] === true) {
-                        return false;
-                    }
-                }
-                return true;
-            default:
-                return value.length === 0;
-        }
-    };
     Input = function() {};
     Input.prototype.check = function(data, app, page) {
-        var dataSchemas, item, schema, value;
+        var dataSchemas, item, schema, value, sCheckResult;
         if (page.data_schemas && page.data_schemas.length) {
             dataSchemas = JSON.parse(page.data_schemas);
-            for (var i = dataSchemas.length - 1; i >= 0; i--) {
+            for (var i = 0, ii = dataSchemas.length; i < ii; i++) {
                 item = dataSchemas[i];
                 schema = item.schema;
                 //定义value
@@ -69,64 +29,10 @@ ngApp.factory('Input', ['$http', '$q', '$timeout', 'ls', function($http, $q, $ti
                     value = data[schema.id];
                 }
                 if (item.config.required === 'Y') {
-                    if (value === undefined || isEmpty(schema, value)) {
-                        return '请填写必填题目［' + schema.title + '］';
-                    }
+                    schema.required = 'Y';
                 }
-                if (value) {
-                    if (schema.type === 'mobile') {
-                        if (!/^(\+86|0086)?\s*1[3|4|5|7|8]\d{9}$/.test(value)) {
-                            return '题目［' + schema.title + '］只能填写手机号（11位数字）';
-                        }
-                    }
-                    if (schema.type === 'name') {
-                        if (value.length < 2) {
-                            return '题目［' + schema.title + '］请输入正确的姓名（不少于2个字符）';
-                        }
-                    }
-                    if (schema.type === 'email') {
-                        if (!/^\w+@\w+/.test(value)) {
-                            return '题目［' + schema.title + '］请输入正确的邮箱';
-                        }
-                    }
-                    //最终删掉 schema.number
-                    if (schema.number && schema.number === 'Y') {
-                        value = data[schema.id];
-                        if (!/^-{0,1}[0-9]+(.[0-9]+){0,1}$/.test(value)) {
-                            return '题目［' + schema.title + '］请输入数值';
-                        }
-                    }
-                    if (schema.format) {
-                        if (schema.format === 'number') {
-                            if (!/^-{0,1}[0-9]+(.[0-9]+){0,1}$/.test(value)) {
-                                return '题目［' + schema.title + '］请输入数值';
-                            }
-                        } else if (schema.format === 'name') {
-                            if (value.length < 2) {
-                                return '题目［' + schema.title + '］请输入正确的姓名（不少于2个字符）';
-                            }
-                        } else if (schema.format === 'mobile') {
-                            if (!/^(\+86|0086)?\s*1[3|4|5|7|8]\d{9}$/.test(value)) {
-                                return '题目［' + schema.title + '］请输入正确的手机号（11位数字）';
-                            }
-                        } else if (schema.format === 'email') {
-                            //1. 开头字母数字下划线 至少一个 ^\w+
-                            //2. 一个@
-                            //3.字母数字下划线 至少一个 \w+
-                            //4. 一个'.' 注意. 在增则中有意义需要转译  \.
-                            if (!/^\w+@\w+/.test(value)) {
-                                return '题目［' + schema.title + '］请输入正确的邮箱';
-                            }
-                        }
-                    }
-                }
-                if (/image|file/.test(schema.type)) {
-                    if (schema.count) {
-                        if (data[schema.id] && data[schema.id].length > schema.count) {
-                            app.subState = 1;
-                            return '［' + schema.title + '］超出上传数量（' + schema.count + '）限制';
-                        }
-                    }
+                if (true !== (sCheckResult = ngApp.oUtilSchema.checkValue(schema, value))) {
+                    return sCheckResult;
                 }
             }
         }
@@ -179,9 +85,9 @@ ngApp.factory('Input', ['$http', '$q', '$timeout', 'ls', function($http, $q, $ti
                         el.style.display = 'block';
                     }
                 }
-                defer.notify(httpCode);
+                defer.notify({ code: httpCode, content: content });
             } else {
-                defer.reject(content);
+                defer.reject({ code: httpCode, content: content });
             }
         });
         return defer.promise;
@@ -212,30 +118,30 @@ ngApp.directive('tmsImageInput', ['$compile', '$q', function($compile, $q) {
             i = 0,
             j = 0,
             nextWxImage;
-        if (window.wx !== undefined && modifiedImgFields.length) {
-            nextWxImage = function() {
-                var imgField, img;
-                imgField = data[modifiedImgFields[i]];
-                img = imgField[j];
-                window.xxt.image.wxUpload($q.defer(), img).then(function(data) {
-                    if (j < imgField.length - 1) {
-                        /* next img*/
-                        j++;
-                        nextWxImage();
-                    } else if (i < modifiedImgFields.length - 1) {
-                        /* next field*/
-                        j = 0;
-                        i++;
-                        nextWxImage();
-                    } else {
-                        defer.resolve('ok');
-                    }
-                });
-            };
-            nextWxImage();
-        } else {
-            defer.resolve('ok');
-        }
+        // if (window.wx !== undefined && modifiedImgFields.length) {
+        //     nextWxImage = function() {
+        //         var imgField, img;
+        //         imgField = data[modifiedImgFields[i]];
+        //         img = imgField[j];
+        //         window.xxt.image.wxUpload($q.defer(), img).then(function(data) {
+        //             if (j < imgField.length - 1) {
+        //                 /* next img*/
+        //                 j++;
+        //                 nextWxImage();
+        //             } else if (i < modifiedImgFields.length - 1) {
+        //                 /* next field*/
+        //                 j = 0;
+        //                 i++;
+        //                 nextWxImage();
+        //             } else {
+        //                 defer.resolve('ok');
+        //             }
+        //         });
+        //     };
+        //     nextWxImage();
+        // } else {
+        defer.resolve('ok');
+        //}
         return defer.promise;
     };
     return {
@@ -276,11 +182,11 @@ ngApp.directive('tmsImageInput', ['$compile', '$q', function($compile, $q) {
                     $timeout(function() {
                         for (i = 0, j = imgs.length; i < j; i++) {
                             img = imgs[i];
-                            if (window.wx !== undefined) {
-                                document.querySelector('ul[name="' + imgFieldName + '"] li:nth-last-child(2) img').setAttribute('src', img.imgSrc);
-                            }
+                            //if (window.wx !== undefined) {
+                            document.querySelector('ul[name="' + imgFieldName + '"] li:nth-last-child(2) img').setAttribute('src', img.imgSrc);
+                            //}
                         }
-                        $scope.$broadcast('xxt.enroll.image.choose.done', imgFieldName);
+                        $scope.$broadcast('xxt.signin.image.choose.done', imgFieldName);
                     });
                 });
             };
@@ -358,72 +264,15 @@ ngApp.directive('tmsFileInput', ['$q', function($q) {
                         });
                     }
                     $scope.$apply('data.' + fileFieldName);
-                    $scope.$broadcast('xxt.enroll.file.choose.done', fileFieldName);
+                    $scope.$broadcast('xxt.signin.file.choose.done', fileFieldName);
                 }, false);
                 ele.click();
             };
         }]
     }
 }]);
-ngApp.controller('ctrlSignin', ['$scope', '$http', 'Input', 'PG', 'ls', function($scope, $http, Input, PG, LS) {
-    var facInput, tasksOfOnReady, tasksOfBeforeSubmit;
-    tasksOfBeforeSubmit = [];
-    $scope.$watch('app', function(app) {
-        if (app) {
-            $scope.app.subState = 1;
-        }
-    });
-    facInput = Input.ins();
-    $scope.data = {
-        member: {}
-    };
-    $scope.beforeSubmit = function(fn) {
-        if (tasksOfBeforeSubmit.indexOf(fn) === -1) {
-            tasksOfBeforeSubmit.push(fn);
-        }
-    };
-    $scope.$on('xxt.app.signin.ready', function(event, params) {
-        if (params.record) {
-            var schemas = params.app.data_schemas,
-                mapSchema = {},
-                dataOfRecord = params.record.data,
-                p, value;
-            angular.forEach(schemas, function(def) {
-                mapSchema[def.id] = def;
-            });
-            dataOfRecord = params.record.data;
-            for (p in dataOfRecord) {
-                if (p === 'member') {
-                    $scope.data.member = angular.extend($scope.data.member, dataOfRecord.member);
-                } else if (dataOfRecord[p].length) {
-                    if (mapSchema[p] !== undefined) {
-                        if (mapSchema[p].type === 'image') {
-                            value = dataOfRecord[p].split(',');
-                            $scope.data[p] = [];
-                            for (var i in value) {
-                                $scope.data[p].push({
-                                    imgSrc: value[i]
-                                });
-                            }
-                        } else if (mapSchema[p].type === 'file') {
-                            value = JSON.parse(dataOfRecord[p]);
-                            $scope.data[p] = value;
-                        } else if (mapSchema[p].type === 'multiple') {
-                            value = dataOfRecord[p].split(',');
-                            $scope.data[p] = {};
-                            for (var i in value) $scope.data[p][value[i]] = true;
-                        } else {
-                            $scope.data[p] = dataOfRecord[p];
-                        }
-                    }
-                }
-            }
-            $scope.record = params.record;
-        }
-        /* 无论是否有登记记录都自动填写用户认证信息 */
-        PG.setMember(params.user, $scope.data.member);
-    });
-    var doSubmit = function(nextAction) {
+ngApp.controller('ctrlSignin', ['$scope', '$http', 'Input', 'ls', function($scope, $http, Input, LS) {
+    function doSubmit(nextAction) {
         var ek, btnSubmit;
         ek = $scope.record ? $scope.record.enroll_key : undefined;
         facInput.submit($scope.data, ek).then(function(rsp) {
@@ -454,32 +303,87 @@ ngApp.controller('ctrlSignin', ['$scope', '$http', 'Input', 'PG', 'ls', function
                         enroll_key: rsp.data.ek
                     }
                 }
-                $scope.app.subState = 1;
-                $scope.$broadcast('xxt.app.enroll.submit.done', rsp.data);
+                $scope.$broadcast('xxt.app.signin.submit.done', rsp.data);
             }
-        }, function(reason) {
-            $scope.app.subState = 1;
-            $scope.$parent.errmsg = reason;
-        });
-    };
-    var doTask = function(seq, nextAction) {
+        }, function(rsp) {
+            if (rsp && typeof rsp === 'string') {
+                $scope.$parent.errmsg = rsp;
+                return;
+            }
+            if (rsp && rsp.err_msg) {
+                $scope.$parent.errmsg = rsp.err_msg;
+                submitState.finish();
+                return;
+            }
+            $scope.$parent.errmsg = '网络异常，提交失败';
+            submitState.finish();
+        }, function(rsp) {});
+    }
+
+    function doTask(seq, nextAction) {
         var task = tasksOfBeforeSubmit[seq];
         task().then(function(rsp) {
             seq++;
             seq < tasksOfBeforeSubmit.length ? doTask(seq, nextAction) : doSubmit(nextAction);
         });
+    }
+
+    var facInput, submitState, tasksOfOnReady, tasksOfBeforeSubmit;
+    tasksOfBeforeSubmit = [];
+    facInput = Input.ins();
+    $scope.data = {
+        member: {}
+    };
+    $scope.supplement = {};
+    $scope.submitState = submitState = ngApp.oUtilSubmit.state;
+    $scope.beforeSubmit = function(fn) {
+        if (tasksOfBeforeSubmit.indexOf(fn) === -1) {
+            tasksOfBeforeSubmit.push(fn);
+        }
     };
     $scope.submit = function(event, nextAction) {
-        var checkResult, task, seq;
-        if ($scope.app.subState === 1) {
-            if (true === (checkResult = facInput.check($scope.data, $scope.app, $scope.page))) {
+        var sCheckResult, cacheKey, oApp, oRecord;
+        oApp = $scope.app;
+        oRecord = $scope.record;
+        if (!submitState.isRunning()) {
+            cacheKey = '/site/' + oApp.siteid + '/app/signin/' + oApp.id + '/record/' + (oRecord ? oRecord.enroll_key : '') + '/submit';
+            submitState.start(event, cacheKey);
+            if (true === (sCheckResult = facInput.check($scope.data, oApp, $scope.page))) {
                 tasksOfBeforeSubmit.length ? doTask(0, nextAction) : doSubmit(nextAction);
             } else {
-                $scope.$parent.errmsg = checkResult;
+                submitState.finish();
+                $scope.$parent.errmsg = sCheckResult;
             }
         }
     };
-    $scope.$watch('data.member.authid', function(nv) {
-        if (nv && nv.length) PG.setMember($scope.params, $scope.data.member);
+    $scope.$on('xxt.app.signin.ready', function(event, params) {
+        if (params.record) {
+            ngApp.oUtilSchema.loadRecord(params.app._schemasById, $scope.data, params.record.data);
+            $scope.record = params.record;
+        }
+        /* 恢复用户未提交的数据 */
+        if (window.localStorage) {
+            var cached = submitState.fromCache();
+            if (cached) {
+                if (cached.member) {
+                    delete cached.member;
+                }
+                angular.extend($scope.data, cached);
+                submitState.modified = true;
+            }
+        }
+        // 跟踪数据变化
+        $scope.$watch('data', function(nv, ov) {
+            if (nv !== ov) {
+                submitState.modified = true;
+            }
+        }, true);
+    });
+    var hasAutoFillMember = false;
+    $scope.$watch('data.member.schema_id', function(schemaId) {
+        if (false === hasAutoFillMember && schemaId && $scope.user) {
+            ngApp.oUtilSchema.autoFillMember($scope.user, $scope.data.member);
+            hasAutoFillMember = true;
+        }
     });
 }]);

@@ -23,12 +23,8 @@ define(['frame'], function(ngApp) {
             mediagallery.open($scope.siteId, options);
         };
         $scope.removePic = function() {
-            var nv = {
-                pic: ''
-            };
-            http2.post('/rest/pl/fe/matter/mission/setting/update?id=' + $scope.mission.id, nv, function() {
-                $scope.mission.pic = '';
-            });
+            $scope.mission.pic = '';
+            $scope.update('pic');
         };
         $scope.$on('xxt.tms-datepicker.change', function(event, data) {
             var prop;

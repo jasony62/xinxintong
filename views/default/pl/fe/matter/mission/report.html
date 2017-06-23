@@ -34,10 +34,10 @@
                     </tr>
                 </thead>
                 <tbody>
-                    <tr ng-repeat="user in report.users" ng-click="chooseUser(user)" ng-class="{info:user===activeUser}">
+                    <tr ng-repeat="user in report.users" ng-class="{info:user===activeUser}">
                         <td>{{$index+1}}</td>
-                        <td>{{user.nickname}}</td>
-                        <td ng-repeat="app in report.orderedApps" ng-switch on="app.type">
+                        <td ng-click="chooseUser(user)">{{user.nickname}}</td>
+                        <td ng-repeat="app in report.orderedApps" ng-switch on="app.type" ng-click="chooseUser(user,app)">
                             <div ng-switch-when="enroll">
                                 <div ng-if="user.data[$index].enroll_num">记录：{{user.data[$index].enroll_num}}</div>
                                 <div ng-if="user.data[$index].remark_other_num">评论：{{user.data[$index].remark_other_num}}</div>
@@ -57,8 +57,8 @@
         </div>
     </div>
     <div class='col-md-5' tms-flex-height top='144' bottom='15'>
-        <div class='list-group' dnd-list dataset='report.orderedApps' evt-prefix="matters">
-            <div class='list-group-item matter dndable' ng-repeat="matter in report.orderedApps" ng-switch on="matter.type" ng-mouseenter="entered=true" ng-mouseleave="entered=false">
+        <div id="userApps" class='list-group'>
+            <div class='list-group-item matter' ng-repeat="matter in report.orderedApps" ng-switch on="matter.type" ng-mouseenter="entered=true" ng-mouseleave="entered=false">
                 <div class='seq'>{{$index+1}}</div>
                 <div class='form-group'>
                     <div class='title' ng-bind="matter.title"></div>
@@ -73,12 +73,12 @@
                             <label>备注：</label><span>{{rec.comment}}</span></div>
                         <div ng-repeat="schema in enrollAppSchemas[matter.id]" ng-switch on="schema.type">
                             <label title="{{schema.title}}">{{schema.title}}：</label>
-                            <span ng-switch-when="image">
-                                            <img ng-repeat="img in rec._data[schema.id]" ng-src='{{img}}' />
-                                        </span>
-                            <span ng-switch-when="file">
-                                            <span ng-repeat='file in rec._data[schema.id]'>{{file.name}}</span>
-                            </span>
+                            <div ng-switch-when="image">
+                                <img ng-repeat="img in rec._data[schema.id]" ng-src='{{img}}' />
+                            </div>
+                            <div ng-switch-when="file">
+                                <span ng-repeat='file in rec._data[schema.id]'>{{file.name}}</span>
+                            </div>
                             <span ng-switch-when="date">{{(rec._data[schema.id]*1000)|date:'yy-MM-dd HH:mm'}}</span>
                             <span ng-switch-default ng-bind-html="rec._data[schema.id]"></span>
                         </div>
@@ -105,9 +105,10 @@
                     </div>
                 </div>
                 <button class='btn btn-default btn-sm' ng-click="gotoDetail(matter)">查看活动全部数据</button>
+                <button class='btn btn-default btn-sm' ng-click="moveUp(matter,$index)"><i class='glyphicon glyphicon-arrow-up'></i></button>
+                <button class='btn btn-default btn-sm' ng-click="moveDown(matter,$index)"><i class='glyphicon glyphicon-arrow-down'></i></button>
                 <div ng-if="entered" class='pull-right'>
-                    <button class='btn btn-default btn-sm' ng-click="moveUp(matter,$index)"><i class='glyphicon glyphicon-arrow-up'></i></button>
-                    <button class='btn btn-default btn-sm' ng-click="moveDown(matter,$index)"><i class='glyphicon glyphicon-arrow-down'></i></button>
+                    <button class='btn btn-default btn-sm' ng-click="removeUserApp(matter,$index)"><i class='glyphicon glyphicon-remove'></i></button>
                 </div>
             </div>
         </div>
@@ -124,7 +125,7 @@
                 <label class="col-md-3 control-label">活动类型</label>
                 <div class="col-md-9">
                     <label class='radio-inline'>
-                        <input type='radio' value='enroll' ng-model="data.appType">报名活动</label>
+                        <input type='radio' value='enroll' ng-model="data.appType">登记活动</label>
                     <label class='radio-inline'>
                         <input type='radio' value='signin' ng-model="data.appType">签到活动</label>
                     <label class='radio-inline'>
@@ -134,7 +135,7 @@
             <div class='form-group'>
                 <label class="col-md-3 control-label">目标活动</label>
                 <div class="col-md-9">
-                    <select class="form-control" ng-model="data.appId" ng-options="app.id as app.title for app in apps"></select>
+                    <select class="form-control" ng-model="data.appId" ng-options="app.id as app.title for app in apps" size=10></select>
                 </div>
             </div>
         </form>
@@ -146,19 +147,37 @@
 <script type="text/ng-template" id="chooseApps.html">
     <div class="modal-header">
         <button class="close" type="button" ng-click="cancel()">×</button>
-        <h5 class="modal-title">选择活动</h5>
+        <h5 class="modal-title">选择报告中包含的活动</h5>
     </div>
     <div class="modal-body">
-        <form class="form">
-            <div class='list-group' style='max-height:420px;overflow-y:auto'>
-                <div class='list-group-item' ng-repeat="matter in matters">
-                    <label class='checkbox-inline'>
-                        <input type='checkbox' ng-model="matter._selected"> <span>{{matter.title}}</span></label>
-                </div>
-            </div>
+        <form class="form-inline">
+            <select class='form-control' ng-model="criteria.mission_phase_id" ng-options="phase.phase_id as phase.title for phase in phases" ng-change="doSearch()">
+                <option value=''>所有阶段</option>
+            </select>
         </form>
+        <div style='max-height:420px;overflow-y:auto'>
+            <table class='table table-bordered'>
+                <thead>
+                    <tr>
+                        <th style='width:32px'>
+                            <input type='checkbox' ng-true-value="'Y'" ng-false-value="'N'" ng-model="rows.allSelected">
+                        </th>
+                        <th>项目活动</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr ng-repeat="matter in matters">
+                        <td>
+                            <input type='checkbox' ng-model="rows.selected[$index]">
+                        </td>
+                        <td><span>{{matter.title}}</span></td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
     </div>
     <div class="modal-footer">
+        <button class="btn btn-default" ng-click="cancel()">取消</button>
         <button class="btn btn-primary" ng-click="ok()">确定</button>
     </div>
 </script>

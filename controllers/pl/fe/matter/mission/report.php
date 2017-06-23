@@ -15,6 +15,7 @@ class report extends \pl\fe\matter\base {
 	}
 	/**
 	 * 获得项目汇总报告
+	 * 如果用户指定了查询参数，保存查询参数
 	 */
 	public function userAndApp_action($mission) {
 		if (false === ($oUser = $this->accountUser())) {
@@ -61,24 +62,56 @@ class report extends \pl\fe\matter\base {
 
 		/* 获得项目下的活动 */
 		if (empty($posted->apps)) {
-			$matters = $this->model('matter\mission\matter')->byMission($mission);
-			if (count($matters) === 0) {
-				return new \ParameterError('没有获得项目中活动');
-			}
-			$apps = [];
-			foreach ($matters as $oMatter) {
-				if (in_array($oMatter->type, ['enroll', 'signin', 'group'])) {
-					$apps[] = (object) ['id' => $oMatter->id, 'type' => $oMatter->type];
+			/* 汇总报告配置信息 */
+			$rpConfig = $this->model('matter\mission\report')->defaultConfigByUser($oUser, $oMission);
+			if (empty($rpConfig) || empty($rpConfig->include_apps)) {
+				/* 如果没有指定 */
+				$matters = $this->model('matter\mission\matter')->byMission($mission);
+				if (count($matters) === 0) {
+					return new \ParameterError('没有获得项目中活动');
 				}
+				$apps = [];
+				foreach ($matters as $oMatter) {
+					if (in_array($oMatter->type, ['enroll', 'signin', 'group'])) {
+						$apps[] = (object) ['id' => $oMatter->id, 'type' => $oMatter->type];
+					}
+				}
+			} else {
+				$apps = $rpConfig->include_apps;
 			}
 		} else {
 			$apps = $posted->apps;
+			/* 保留用户指定的查询参数 */
+			$modelRp = $this->model('matter\mission\report');
+			$modelRp->createConfig($oMission, $oUser, ['asDefault' => 'Y', 'includeApps' => $apps]);
 		}
 
 		$modelRep = $this->model('matter\mission\report');
 		$result = $modelRep->userAndApp($users, $apps);
 
 		return new \ResponseData($result);
+	}
+	/**
+	 * 更新项目报告配置
+	 */
+	public function configUpdate_action($mission) {
+		if (false === ($oUser = $this->accountUser())) {
+			return new \ResponseTimeout();
+		}
+
+		$modelMis = $this->model('matter\mission');
+		$oMission = $modelMis->byId($mission);
+		if ($oMission === false) {
+			return new \ObjectNotFoundError();
+		}
+
+		$posted = $this->getPostJson();
+		$apps = $posted->apps;
+		/* 保留用户指定的查询参数 */
+		$modelRp = $this->model('matter\mission\report');
+		$oNewConfig = $modelRp->createConfig($oMission, $oUser, ['asDefault' => 'Y', 'includeApps' => $apps]);
+
+		return new \ResponseData($oNewConfig);
 	}
 	/**
 	 * 导出项目汇总报告
@@ -121,10 +154,17 @@ class report extends \pl\fe\matter\base {
 			return new \ParameterError('没有获得项目中用户');
 		}
 
-		$matters = $this->model('matter\mission\matter')->byMission($mission);
-		if (count($matters) === 0) {
-			return new \ParameterError('没有获得项目中活动');
+		/* 汇总报告配置信息 */
+		$rpConfig = $this->model('matter\mission\report')->defaultConfigByUser($oUser, $oMission);
+		if (empty($rpConfig) || empty($rpConfig->include_apps)) {
+			$matters = $this->model('matter\mission\matter')->byMission($mission);
+			if (count($matters) === 0) {
+				return new \ParameterError('没有获得项目中活动');
+			}
+		} else {
+			$matters = $rpConfig->include_apps;
 		}
+
 		$apps = [];
 		foreach ($matters as $oMatter) {
 			if (in_array($oMatter->type, ['enroll', 'signin', 'group'])) {

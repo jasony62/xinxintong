@@ -31,7 +31,7 @@ class matter extends \pl\fe\matter\base {
 
 		$criteria = $this->getPostJson();
 		$options = [];
-		if (isset($criteria->mission_phase_id) && !empty($criteria->mission_phase_id) && $criteria->mission_phase_id !== "ALL") {
+		if (isset($criteria->mission_phase_id) && !empty($criteria->mission_phase_id) && strcasecmp($criteria->mission_phase_id, 'all') !== 0) {
 			$options['mission_phase_id'] = $criteria->mission_phase_id;
 		}
 

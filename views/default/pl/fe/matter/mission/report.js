@@ -1,16 +1,12 @@
 define(['frame'], function(ngApp) {
     'use strict';
-    ngApp.provider.controller('ctrlReport', ['$scope', '$uibModal', '$q', 'http2', 'srvSite', 'srvMission', 'srvRecordConverter', function($scope, $uibModal, $q, http2, srvSite, srvMission, srvRecordConverter) {
-        function submitMatterSeqs() {
-            var deferred = $q.defer(),
-                matterSeqs = [];
+    ngApp.provider.controller('ctrlReport', ['$scope', '$uibModal', '$q', '$timeout', 'http2', 'srvSite', 'srvMission', 'srvRecordConverter', function($scope, $uibModal, $q, $timeout, http2, srvSite, srvMission, srvRecordConverter) {
+        function configUserApps() {
+            var includeApps = [];
             $scope.report.orderedApps.forEach(function(matter) {
-                matterSeqs.push(matter._pk);
+                includeApps.push({ id: matter.id, type: matter.type });
             });
-            http2.post('/rest/pl/fe/matter/mission/matter/updateSeq?id=' + $scope.mission.id, matterSeqs, function(rsp) {
-                deferred.resolve(rsp.data);
-            });
-            return deferred.promise;
+            $scope.makeReport(includeApps);
         }
         $scope.assignUserApp = function() {
             var mission = $scope.mission;
@@ -72,57 +68,88 @@ define(['frame'], function(ngApp) {
             mission.user_app_type = '';
             $scope.update(['user_app_id', 'user_app_type']).then(function() {
                 delete mission.userApp;
+                http2.post('/rest/pl/fe/matter/mission/report/configUpdate?mission=' + mission.id, { apps: [] }, function(rsp) {
+                    mission.reportConfig.include_apps = [];
+                });
             });
         };
         $scope.chooseApps = function() {
             $uibModal.open({
                 templateUrl: 'chooseApps.html',
                 controller: ['$scope', '$uibModalInstance', function($scope2, $mi) {
+                    var oCriteria, oReportConfig, oIncludeApps = {};
+                    $scope2.criteria = oCriteria = {
+                        mission_phase_id: ''
+                    };
+                    if (oReportConfig = $scope.mission.reportConfig) {
+                        if (oReportConfig.include_apps) {
+                            oReportConfig.include_apps.forEach(function(oApp) {
+                                oIncludeApps[oApp.type + oApp.id] = true;
+                            });
+                        }
+                    }
+                    // 选中的记录
+                    $scope2.rows = {
+                        allSelected: 'N',
+                        selected: {},
+                        reset: function() {
+                            this.allSelected = 'N';
+                            this.selected = {};
+                        }
+                    };
+                    $scope2.$watch('rows.allSelected', function(checked) {
+                        var index = 0;
+                        if (checked === 'Y') {
+                            while (index < $scope2.matters.length) {
+                                $scope2.rows.selected[index++] = true;
+                            }
+                        } else if (checked === 'N') {
+                            $scope2.rows.selected = {};
+                        }
+                    });
+                    $scope2.doSearch = function() {
+                        $scope2.rows.reset();
+                        srvMission.matterList(oCriteria).then(function(matters) {
+                            $scope2.matters = matters;
+                            if (matters && matters.length) {
+                                matters.forEach(function(oMatter, index) {
+                                    if (oIncludeApps[oMatter.type + oMatter.id]) {
+                                        $scope2.rows.selected[index] = true;
+                                    }
+                                });
+                            }
+                        });
+                    };
                     $scope2.cancel = function() {
                         $mi.dismiss();
                     };
                     $scope2.ok = function() {
                         var selected = [];
-                        $scope2.matters.forEach(function(oMatter) {
-                            if (oMatter._selected) {
-                                selected.push(oMatter);
-                            }
-                        });
-                        $mi.close(selected);
-                    };
-                    srvMission.matterList().then(function(matters) {
-                        var targetAppsByPk;
-                        $scope2.matters = matters;
-                        if ($scope.targetApps && $scope.targetApps.length) {
-                            targetAppsByPk = {};
-                            $scope.targetApps.forEach(function(oApp) {
-                                targetAppsByPk[oApp.type + oApp.id] = oApp;
-                            });
-                            if (matters && matters.length) {
-                                matters.forEach(function(oMatter) {
-                                    if (targetAppsByPk[oMatter.type + oMatter.id]) {
-                                        oMatter._selected = true;
-                                    }
-                                });
+                        for (var i in $scope2.rows.selected) {
+                            if ($scope2.rows.selected[i]) {
+                                selected.push($scope2.matters[i]);
                             }
                         }
+                        $mi.close(selected);
+                    };
+                    http2.get('/rest/pl/fe/matter/mission/phase/list?mission=' + $scope.mission.id, function(rsp) {
+                        $scope2.phases = rsp.data;
                     });
+                    $scope2.doSearch();
                 }],
                 backdrop: 'static'
-            }).result.then(function(matters) {
-                $scope.targetApps = matters;
-                $scope.makeReport();
+            }).result.then(function(apps) {
+                $scope.makeReport(apps);
             });
         };
         $scope.moveUp = function(matter, index) {
-            var apps;
+            var apps, rpConfig;
             if (index === 0) return;
             apps = $scope.report.orderedApps;
             apps.splice(index, 1);
             apps.splice(index - 1, 0, matter);
-            //matter.seq--;
             apps[index].seq++;
-            //submitMatterSeqs().then(function() {});
+            configUserApps();
         };
         $scope.moveDown = function(matter, index) {
             var apps;
@@ -130,20 +157,25 @@ define(['frame'], function(ngApp) {
             if (index === apps.length - 1) return;
             apps.splice(index, 1);
             apps.splice(index + 1, 0, matter);
-            //matter.seq++;
             apps[index].seq--;
-            //submitMatterSeqs().then(function() {});
+            configUserApps();
         };
-        $scope.makeReport = function() {
+        $scope.removeUserApp = function(matter, index) {
+            var apps;
+            apps = $scope.report.orderedApps;
+            apps.splice(index, 1);
+            configUserApps();
+        };
+        $scope.makeReport = function(apps) {
             var oMission, url, params;
             oMission = $scope.mission;
             url = '/rest/pl/fe/matter/mission/report/userAndApp?site=' + oMission.siteid + '&mission=' + oMission.id;
             params = {
                 userSource: { id: oMission.user_app_id, type: oMission.user_app_type }
             };
-            if ($scope.targetApps && $scope.targetApps.length) {
+            if (apps && apps.length) {
                 params.apps = [];
-                $scope.targetApps.forEach(function(oApp) {
+                apps.forEach(function(oApp) {
                     params.apps.push({ id: oApp.id, type: oApp.type });
                 });
             }
@@ -160,6 +192,9 @@ define(['frame'], function(ngApp) {
                             _enrollAppSchemas[oMatter.id] = schemasById;
                         }
                     }
+                    if ($scope.mission.reportConfig) {
+
+                    }
                 });
             });
         };
@@ -169,25 +204,6 @@ define(['frame'], function(ngApp) {
             url = '/rest/pl/fe/matter/mission/report/export?site=' + oMission.siteid + '&mission=' + oMission.id;
             window.open(url);
         };
-        // $scope.$on('matters.orderChanged', function(e, moved) {
-        //     var apps, oldSeq, newSeq;
-        //     apps = $scope.report.orderedApps;
-        //     oldSeq = moved.seq;
-        //     newSeq = apps.indexOf(moved);
-        //     if (newSeq < oldSeq) {
-        //         moved.seq = newSeq;
-        //         for (var i = newSeq + 1; i <= oldSeq; i++) {
-        //             apps[i].seq++;
-        //         }
-        //         //submitMatterSeqs().then(function() {});
-        //     } else if (newSeq > oldSeq) {
-        //         for (var i = oldSeq; i < newSeq; i++) {
-        //             apps[i].seq--;
-        //         }
-        //         moved.seq = newSeq;
-        //         //submitMatterSeqs().then(function() {});
-        //     }
-        // });
         var _enrollAppSchemas;
         $scope.closeMatters = true;
         $scope.enrollAppSchemas = _enrollAppSchemas = {};
@@ -200,11 +216,11 @@ define(['frame'], function(ngApp) {
         var _oResultSet;
         $scope.resultSet = _oResultSet = {};
         $scope.tmsTableWrapReady = 'N';
-        $scope.chooseUser = function(user) {
+        $scope.chooseUser = function(oUser, oApp) {
             $scope.recordsByApp = {};
-            $scope.activeUser = user;
-            if (user.userid) {
-                srvMission.recordByUser(user).then(function(records) {
+            $scope.activeUser = oUser;
+            if (oUser.userid) {
+                srvMission.recordByUser(oUser).then(function(records) {
                     var recordsByApp = {};
                     if (records) {
                         if (records.enroll && records.enroll.length) {
@@ -231,6 +247,16 @@ define(['frame'], function(ngApp) {
                         }
                     }
                     $scope.recordsByApp = recordsByApp;
+                    $timeout(function() {
+                        var eleList, eleApp, index = $scope.report.orderedApps.indexOf(oApp);
+                        eleList = document.querySelector('#userApps');
+                        eleApp = eleList.children[index];
+                        eleList.parentNode.scrollTop = eleApp.offsetTop;
+                        eleApp.classList.add('blink');
+                        $timeout(function() {
+                            eleApp.classList.remove('blink');
+                        }, 1000);
+                    });
                 });
             }
         };

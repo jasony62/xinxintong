@@ -5,6 +5,79 @@ namespace matter\mission;
  */
 class report_model extends \TMS_MODEL {
 	/**
+	 * 获得用户保存的报告定义
+	 */
+	public function defaultConfigByUser($oCreater, $oMission, $options = []) {
+		$fields = isset($options['fields']) ? $options['fields'] : 'id,as_default,include_apps';
+		$q = [
+			$fields,
+			'xxt_mission_report',
+			['mission_id' => $oMission->id, 'creater' => $oCreater->id, 'as_default' => 'Y'],
+		];
+		$oConfig = $this->query_obj_ss($q);
+		if ($oConfig) {
+			if (isset($oConfig->include_apps)) {
+				$oConfig->include_apps = empty($oConfig->include_apps) ? new \stdClass : json_decode($oConfig->include_apps);
+			}
+		}
+
+		return $oConfig;
+	}
+	/**
+	 * 新建一个报告配置
+	 *
+	 * 默认替换已有的配置
+	 */
+	public function createConfig($oMission, $oCreater, $options = []) {
+		$includeApps = $options['includeApps'];
+		if (!is_array($includeApps)) {
+			$includeApps = [];
+		}
+
+		$asDefault = isset($options['asDefault']) ? $options['asDefault'] : 'Y';
+		if (!preg_match('/Y|N/', $asDefault)) {
+			$asDefault = 'N';
+		}
+
+		$oNewDefaultConfig = false;
+		if ($asDefault === 'Y') {
+			if ($oConfig = $this->defaultConfigByUser($oCreater, $oMission)) {
+				if ($oConfig->as_default === 'Y') {
+					$isReplaceDefault = isset($options['isReplaceDefault']) ? $options['isReplaceDefault'] : 'Y';
+					if ($isReplaceDefault === 'Y') {
+						$oNewDefaultConfig = $oConfig;
+					} else {
+						$this->update('xxt_mission_report', ['as_default' => 'N'], ['id' => $oConfig->id]);
+					}
+				}
+			}
+		}
+
+		if ($oNewDefaultConfig) {
+			$this->update(
+				'xxt_mission_report',
+				['include_apps' => $this->toJson($includeApps), 'create_at' => time()],
+				['id' => $oNewDefaultConfig->id]
+			);
+			$oNewDefaultConfig->include_apps = $includeApps;
+			$oNewConfig = $oNewDefaultConfig;
+		} else {
+			$oNewConfig = new \stdClass;
+			$oNewConfig->mission_id = $oMission->id;
+			$oNewConfig->siteid = $oMission->siteid;
+			$oNewConfig->creater = $oCreater->id;
+			$oNewConfig->creater_name = $oCreater->name;
+			$oNewConfig->create_at = time();
+			$oNewConfig->as_default = $asDefault;
+			$oNewConfig->include_apps = $this->toJson($includeApps);
+
+			$oNewConfig->id = $this->insert('xxt_mission_report', $oNewConfig, true);
+			$oNewConfig->include_apps = $includeApps;
+		}
+
+		return $oNewConfig;
+	}
+	/**
 	 * 生成用户在活动中的行为报告
 	 *
 	 * 统计内容

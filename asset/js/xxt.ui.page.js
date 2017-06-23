@@ -108,10 +108,12 @@ ngMod.service('tmsDynaPage', ['$q', function($q) {
             deferred.resolve();
         }
         return deferred.promise;
+        18810091009
     };
     this.openPlugin = function(content) {
-        var frag, wrap, frm, deferred = $q.defer();
-        angular.element('body').css('overflow-y', 'hidden');
+        var frag, wrap, frm, body, deferred = $q.defer();
+        body = document.getElementsByTagName('body')[0];
+        body.style.cssText="overflow-y:hidden";
         frag = document.createDocumentFragment();
         wrap = document.createElement('div');
         wrap.setAttribute('id', 'frmPlugin');
@@ -119,14 +121,14 @@ ngMod.service('tmsDynaPage', ['$q', function($q) {
         wrap.appendChild(frm);
         wrap.onclick = function() {
             wrap.parentNode.removeChild(wrap);
-            angular.element('body').css('overflow-y', 'auto');
+            body.style.cssText="overflow-y:auto";
         };
         frag.appendChild(wrap);
         document.body.appendChild(frag);
         if (content.indexOf('http') === 0) {
             window.onClosePlugin = function(result) {
                 wrap.parentNode.removeChild(wrap);
-                angular.element('body').css('overflow-y', 'auto');
+                body.style.cssText="overflow-y:auto";
                 deferred.resolve(result);
             };
             frm.setAttribute('src', content);

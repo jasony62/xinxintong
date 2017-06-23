@@ -176,19 +176,19 @@ class report extends \pl\fe\matter\base {
 
 		/*把result导出excel文件*/
 		require_once TMS_APP_DIR . '/lib/PHPExcel.php';
-		
+
 		// Create new PHPExcel object
 		$objPHPExcel = new \PHPExcel();
 		// Set properties
-		$objPHPExcel->getProperties()->setCreator("信信通")
-			->setLastModifiedBy("信信通")
+		$objPHPExcel->getProperties()->setCreator($oMission->creater_name)
+			->setLastModifiedBy($oMission->creater_name)
 			->setTitle($oMission->title)
 			->setSubject($oMission->title)
 			->setDescription($oMission->title);
 
 		$objActiveSheet = $objPHPExcel->getActiveSheet();
 		//第一行标题
-		$columnNum1=0;
+		$columnNum1 = 0;
 		$objActiveSheet->setCellValueByColumnAndRow($columnNum1++, 1, '序号');
 		$objActiveSheet->setCellValueByColumnAndRow($columnNum1++, 1, '用户');
 
@@ -196,35 +196,41 @@ class report extends \pl\fe\matter\base {
 			$objActiveSheet->setCellValueByColumnAndRow($columnNum1++, 1, $app->title);
 		}
 		//循环每条统计
-		$row=1;
-		$i=1;
+		$row = 1;
+		$i = 1;
 		foreach ($result->users as $rec) {
-			$columnNum2=0;
+			$columnNum2 = 0;
 			$objActiveSheet->setCellValueByColumnAndRow($columnNum2++, ++$row, $i++);
-			$objActiveSheet->setCellValueByColumnAndRow($columnNum2++, $row, !empty($rec->nickname) ? $rec->nickname : ('用户'.$rec->userid));
+			$objActiveSheet->setCellValueByColumnAndRow($columnNum2++, $row, !empty($rec->nickname) ? $rec->nickname : ('用户' . $rec->userid));
 			foreach ($rec->data as $v) {
-				if(is_object($v)){
-					if(isset($v->enroll_num)){
-						$content='记录：'.$v->enroll_num;
-						isset($v->remark_other_num) && $content.="\n 评论：".$v->remark_other_num;
-					}else if(isset($v->signin_num)){
-						$content='签到：'.$v->signin_num;
-						isset($v->late_num) && $content.="\n 迟到：".$v->late_num;
+				if (is_object($v)) {
+					if (isset($v->enroll_num)) {
+						$content = [];
+						if (!empty($v->enroll_num)) {
+							$content[] = '记录：' . $v->enroll_num;
+						}
+						if (!empty($v->remark_other_num)) {
+							$content[] = '评论：' . $v->remark_other_num;
+						}
+						$content = implode("\n ", $content);
+					} else if (isset($v->signin_num)) {
+						$content = '签到：' . $v->signin_num;
+						isset($v->late_num) && $content .= "\n 迟到：" . $v->late_num;
 					}
-				}else if(is_array($v)){
-					if(!empty($v[0]->round_title)){
-						$content='分组：'.$v[0]->round_title;
-					}else{
-						$content='分组：空';
+				} else if (is_array($v)) {
+					if (!empty($v[0]->round_title)) {
+						$content = '分组：' . $v[0]->round_title;
+					} else {
+						$content = '分组：空';
 					}
-				}else{
-					$content='';
+				} else {
+					$content = '';
 				}
 
 				$objActiveSheet->setCellValueByColumnAndRow($columnNum2++, $row, $content);
 			}
 		}
-	
+
 		// 输出
 		header('Content-Type: application/vnd.ms-excel');
 		header('Content-Disposition: attachment;filename="' . $oMission->title . '（汇总报告）.xlsx"');

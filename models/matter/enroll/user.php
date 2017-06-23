@@ -26,7 +26,7 @@ class user_model extends \TMS_MODEL {
 		$oNewUsr->siteid = $oApp->siteid;
 		$oNewUsr->aid = $oApp->id;
 		$oNewUsr->userid = $oUser->uid;
-		$oNewUsr->nickname = $oUser->nickname;
+		$oNewUsr->nickname = $this->escape($oUser->nickname);
 		foreach ($data as $k => $v) {
 			$oNewUsr->{$k} = $v;
 		}

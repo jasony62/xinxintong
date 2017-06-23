@@ -18,42 +18,46 @@ ngApp.provider.controller('ctrlHome', ['$scope', '$http', 'tmsFavor', 'tmsForwar
             return '&page=' + this.at + '&size=' + this.size;
         }
     }
+
     function listTemplates() {
         $http.get('/rest/site/home/listTemplate?site=' + siteId).success(function(rsp) {
             $scope.templates = rsp.data;
         });
-    };
+    }
     $scope.moreMatters = function(id) {
         $scope.cTotal[id].pageAt++;
         $scope.page.at = $scope.cTotal[id].pageAt;
         $http.get('/rest/site/fe/matter/channel/mattersGet?site=' + siteId + '&id=' + id + '&' + page.j()).success(function(rsp) {
-                var matterData = $scope.cTotal[id].data;
-                rsp.data.forEach(function(item) {
-                   matterData.push(item);
-                });
-                $scope.cTotal[id].data =  matterData;
-                $scope.cTotal[id].total = rsp.data.length;
+            var matterData = $scope.cTotal[id].data;
+            rsp.data.forEach(function(item) {
+                matterData.push(item);
+            });
+            $scope.cTotal[id].data = matterData;
+            $scope.cTotal[id].total = rsp.data.length;
         });
-    }
+    };
+
     function c_listChannels() {
         $scope.c_prev_channels = [], $scope.c_next_channels = [];
         $http.get('/rest/site/home/listChannel?site=' + siteId + '&homeGroup=C').success(function(rsp) {
             $scope.c_channels = rsp.data;
-            rsp.data.forEach(function(item,index) {
+            rsp.data.forEach(function(item, index) {
                 index < 3 ? $scope.c_prev_channels.push(item) : $scope.c_next_channels.push(item);
             });
             $scope.c_channels_matters = $scope.c_prev_channels;
             $scope.c_channels_matters.forEach(function(channel) {
                 $http.get('/rest/site/fe/matter/channel/mattersGet?site=' + siteId + '&id=' + channel.channel_id + '&' + page.j()).success(function(rsp) {
-                    var chid = channel.channel_id, data = [];
+                    var chid = channel.channel_id,
+                        data = [];
                     data.data = rsp.data;
                     data.total = rsp.data.length;
                     data.pageAt = $scope.page.at;
-                    $scope.cTotal[chid]=data;
+                    $scope.cTotal[chid] = data;
                 });
             });
         });
-    };
+    }
+
     function r_listChannels() {
         $scope.r_prev_channels = [], $scope.r_next_channels = [], $scope.channelArticles = [];
         $http.get('/rest/site/home/listChannel?site=' + siteId + '&homeGroup=R').success(function(rsp) {
@@ -62,7 +66,7 @@ ngApp.provider.controller('ctrlHome', ['$scope', '$http', 'tmsFavor', 'tmsForwar
                 index < 3 ? $scope.r_prev_channels.push(item) : $scope.r_next_channels.push(item);
             });
             width > 768 ? $scope.r_channels_matters = $scope.r_channels : $scope.r_channels_matters = $scope.r_channels_matters = $scope.r_prev_channels;
-            $scope.r_channels_matters.forEach(function(item,index) {
+            $scope.r_channels_matters.forEach(function(item, index) {
                 $http.get('/rest/site/fe/matter/channel/mattersGet?site=' + siteId + '&id=' + item.channel_id + '&page=1&size=5').success(function(rsp) {
                     $scope.channelArticles.push({
                         title: item.title,
@@ -73,7 +77,7 @@ ngApp.provider.controller('ctrlHome', ['$scope', '$http', 'tmsFavor', 'tmsForwar
             });
         });
     }
-    $scope.favor = function(user,article) {
+    $scope.favor = function(user, article) {
         event.preventDefault();
         event.stopPropagation();
 
@@ -85,8 +89,8 @@ ngApp.provider.controller('ctrlHome', ['$scope', '$http', 'tmsFavor', 'tmsForwar
         } else {
             tmsFavor.open(article);
         }
-    }
-    $scope.forward = function(user,article) {
+    };
+    $scope.forward = function(user, article) {
         event.preventDefault();
         event.stopPropagation();
 
@@ -98,7 +102,7 @@ ngApp.provider.controller('ctrlHome', ['$scope', '$http', 'tmsFavor', 'tmsForwar
         } else {
             tmsForward.open(article);
         }
-    }
+    };
     $scope.openMatter = function(matter) {
         location.href = matter.url;
     };

@@ -92,6 +92,28 @@ class report extends \pl\fe\matter\base {
 		return new \ResponseData($result);
 	}
 	/**
+	 * 更新项目报告配置
+	 */
+	public function configUpdate_action($mission) {
+		if (false === ($oUser = $this->accountUser())) {
+			return new \ResponseTimeout();
+		}
+
+		$modelMis = $this->model('matter\mission');
+		$oMission = $modelMis->byId($mission);
+		if ($oMission === false) {
+			return new \ObjectNotFoundError();
+		}
+
+		$posted = $this->getPostJson();
+		$apps = $posted->apps;
+		/* 保留用户指定的查询参数 */
+		$modelRp = $this->model('matter\mission\report');
+		$oNewConfig = $modelRp->createConfig($oMission, $oUser, ['asDefault' => 'Y', 'includeApps' => $apps]);
+
+		return new \ResponseData($oNewConfig);
+	}
+	/**
 	 * 导出项目汇总报告
 	 */
 	public function export_action($mission) {

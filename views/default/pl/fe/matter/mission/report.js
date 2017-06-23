@@ -274,7 +274,7 @@ define(['frame'], function(ngApp) {
                 default:
                     break;
             }
-            url += '?site=' + app.siteid;
+            url += '?site=' + $scope.mission.siteid;
             url += '&id=' + app.id;
             location.href = url;
         };

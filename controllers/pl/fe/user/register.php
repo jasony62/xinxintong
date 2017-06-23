@@ -30,6 +30,13 @@ class register extends \TMS_CONTROLLER {
 		$data = $this->getPostJson();
 		$modelAcnt = $this->model('account');
 
+		if (empty($data->email)) {
+			return new \ParameterError("注册的邮箱不允许为空");
+		}
+		if (empty($data->password)) {
+			return new \ParameterError("密码不允许为空");
+		}
+
 		$email = $data->email;
 		$nickname = empty($data->nickname) ? str_replace(strstr($email, '@'), '', $email) : $data->nickname;
 		$password = $data->password;

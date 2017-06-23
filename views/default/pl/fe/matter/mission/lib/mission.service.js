@@ -30,11 +30,12 @@ define(['require'], function(require) {
 
                     return _getMissionDeferred.promise;
                 },
-                matterList: function() {
+                matterList: function(oCriteria) {
                     var deferred, url;
                     deferred = $q.defer();
+                    !oCriteria && (oCriteria = {});
                     url = '/rest/pl/fe/matter/mission/matter/list?id=' + _missionId;
-                    http2.post(url, {}, function(rsp) {
+                    http2.post(url, oCriteria, function(rsp) {
                         deferred.resolve(rsp.data);
                     });
                     return deferred.promise;

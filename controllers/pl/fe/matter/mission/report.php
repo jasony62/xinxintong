@@ -175,13 +175,62 @@ class report extends \pl\fe\matter\base {
 		$result = $modelRep->userAndApp($users, $apps);
 
 		/*把result导出excel文件*/
-		die('export report');
+		require_once TMS_APP_DIR . '/lib/PHPExcel.php';
+		
+		// Create new PHPExcel object
+		$objPHPExcel = new \PHPExcel();
+		// Set properties
+		$objPHPExcel->getProperties()->setCreator("信信通")
+			->setLastModifiedBy("信信通")
+			->setTitle($oMission->title)
+			->setSubject($oMission->title)
+			->setDescription($oMission->title);
+
+		$objActiveSheet = $objPHPExcel->getActiveSheet();
+		//第一行标题
+		$columnNum1=0;
+		$objActiveSheet->setCellValueByColumnAndRow($columnNum1++, 1, '序号');
+		$objActiveSheet->setCellValueByColumnAndRow($columnNum1++, 1, '用户');
+
+		foreach ($result->orderedApps as $app) {
+			$objActiveSheet->setCellValueByColumnAndRow($columnNum1++, 1, $app->title);
+		}
+		//循环每条统计
+		$row=1;
+		$i=1;
+		foreach ($result->users as $rec) {
+			$columnNum2=0;
+			$objActiveSheet->setCellValueByColumnAndRow($columnNum2++, ++$row, $i++);
+			$objActiveSheet->setCellValueByColumnAndRow($columnNum2++, $row, !empty($rec->nickname) ? $rec->nickname : ('用户'.$rec->userid));
+			foreach ($rec->data as $v) {
+				if(is_object($v)){
+					if(isset($v->enroll_num)){
+						$content='记录：'.$v->enroll_num;
+						isset($v->remark_other_num) && $content.="\n 评论：".$v->remark_other_num;
+					}else if(isset($v->signin_num)){
+						$content='签到：'.$v->signin_num;
+						isset($v->late_num) && $content.="\n 迟到：".$v->late_num;
+					}
+				}else if(is_array($v)){
+					if(!empty($v[0]->round_title)){
+						$content='分组：'.$v[0]->round_title;
+					}else{
+						$content='分组：空';
+					}
+				}else{
+					$content='';
+				}
+
+				$objActiveSheet->setCellValueByColumnAndRow($columnNum2++, $row, $content);
+			}
+		}
+	
 		// 输出
-		// header('Content-Type: application/vnd.ms-excel');
-		// header('Content-Disposition: attachment;filename="' . $oMatter->title . '（汇总报告）.xlsx"');
-		// header('Cache-Control: max-age=0');
-		// $objWriter = \PHPExcel_IOFactory::createWriter($objPHPExcel, 'Excel2007');
-		// $objWriter->save('php://output');
-		// exit;
+		header('Content-Type: application/vnd.ms-excel');
+		header('Content-Disposition: attachment;filename="' . $oMission->title . '（汇总报告）.xlsx"');
+		header('Cache-Control: max-age=0');
+		$objWriter = \PHPExcel_IOFactory::createWriter($objPHPExcel, 'Excel2007');
+		$objWriter->save('php://output');
+		exit;
 	}
 }

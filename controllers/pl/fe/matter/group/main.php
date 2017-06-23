@@ -26,26 +26,29 @@ class main extends \pl\fe\matter\base {
 		if (false === ($user = $this->accountUser())) {
 			return new \ResponseTimeout();
 		}
-		$app = $this->model('matter\\group')->byId($app);
+		$oApp = $this->model('matter\\group')->byId($app);
+		if (false === $oApp) {
+			return new \ObjectNotFoundError();
+		}
 		/*所属项目*/
-		if ($app->mission_id) {
-			$app->mission = $this->model('matter\mission')->byId($app->mission_id, array('cascaded' => 'phase'));
+		if ($oApp->mission_id) {
+			$oApp->mission = $this->model('matter\mission')->byId($oApp->mission_id, array('cascaded' => 'phase'));
 		}
 		/*关联应用*/
-		if (!empty($app->source_app)) {
-			$sourceApp = json_decode($app->source_app);
+		if (!empty($oApp->source_app)) {
+			$sourceApp = json_decode($oApp->source_app);
 			if ($sourceApp->type === 'mschema') {
-				$app->sourceApp = $this->model('site\user\memberschema')->byId($sourceApp->id);
+				$oApp->sourceApp = $this->model('site\user\memberschema')->byId($sourceApp->id);
 			} else {
 				$options = array('cascaded' => 'N', 'fields' => 'siteid,id,title');
 				if ($sourceApp->type === 'wall') {
 					$options = 'siteid,id,title';
 				}
-				$app->sourceApp = $this->model('matter\\' . $sourceApp->type)->byId($sourceApp->id, $options);
+				$oApp->sourceApp = $this->model('matter\\' . $sourceApp->type)->byId($sourceApp->id, $options);
 			}
 		}
 
-		return new \ResponseData($app);
+		return new \ResponseData($oApp);
 	}
 	/**
 	 * 返回分组活动列表

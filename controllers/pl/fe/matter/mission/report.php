@@ -212,7 +212,11 @@ class report extends \pl\fe\matter\base {
 						isset($v->late_num) && $content.="\n 迟到：".$v->late_num;
 					}
 				}else if(is_array($v)){
-					isset($v[0]->round_title) && $content='分组：'.$v[0]->round_title;
+					if(!empty($v[0]->round_title)){
+						$content='分组：'.$v[0]->round_title;
+					}else{
+						$content='分组：空';
+					}
 				}else{
 					$content='';
 				}

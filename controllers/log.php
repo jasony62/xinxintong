@@ -27,7 +27,10 @@ class log extends TMS_CONTROLLER {
 			$siteid = '';
 		}
 
-		$this->model('log')->log($siteid, $data->src, $data->msg, $agent, $referer);
+		$src = isset($data->src) ? $data->src : '';
+		$msg = isset($data->msg) ? $data->msg : '';
+
+		$this->model('log')->log($siteid, $src, $msg, $agent, $referer);
 
 		return new \ResponseData('ok');
 	}

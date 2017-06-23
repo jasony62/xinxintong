@@ -36,9 +36,9 @@ class player_model extends \TMS_MODEL {
 		];
 		$player['enroll_at'] = isset($options['enroll_at']) ? $options['enroll_at'] : time();
 		isset($options['round_id']) && $player['round_id'] = $options['round_id'];
-		isset($options['round_title']) && $player['round_title'] = $options['round_title'];
-		isset($options['comment']) && $player['comment'] = $options['comment'];
-		isset($options['tags']) && $player['tags'] = $options['tags'];
+		isset($options['round_title']) && $player['round_title'] = $this->escape($options['round_title']);
+		isset($options['comment']) && $player['comment'] = $this->escape($options['comment']);
+		isset($options['tags']) && $player['tags'] = $this->escape($options['tags']);
 		isset($options['referrer']) && $player['referrer'] = $options['referrer'];
 
 		$this->insert('xxt_group_player', $player, false);

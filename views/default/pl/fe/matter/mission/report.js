@@ -207,10 +207,5 @@ define(['frame'], function(ngApp) {
             url += '&id=' + app.id;
             location.href = url;
         };
-        $scope.$watch('mission.userApp', function(userApp) {
-            if (!userApp) {
-                _oResultSet.users && _oResultSet.users.splice(0, _oResultSet.users.length);
-            }
-        });
     }]);
 });

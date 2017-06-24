@@ -33,6 +33,9 @@ class urltoken_model extends \TMS_MODEL {
 	 * 检查令牌是否有效
 	 */
 	public function checkAccessToken($accessToken) {
+		if (empty($accessToken)) {
+			return false;
+		}
 		$q = [
 			'expire_at',
 			'xxt_short_url_token',

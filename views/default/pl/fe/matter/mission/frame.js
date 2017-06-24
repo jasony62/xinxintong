@@ -41,7 +41,6 @@ define(['missionService', 'enrollService', 'signinService'], function() {
             .when('/rest/pl/fe/matter/mission/access', new RouteParam('access'))
             .when('/rest/pl/fe/matter/mission/matter', new RouteParam('matter'))
             .when('/rest/pl/fe/matter/mission/mschema', new RouteParam('mschema'))
-            .when('/rest/pl/fe/matter/mission/user', new RouteParam('user'))
             .when('/rest/pl/fe/matter/mission/report', new RouteParam('report'))
             .otherwise(new RouteParam('main'));
 

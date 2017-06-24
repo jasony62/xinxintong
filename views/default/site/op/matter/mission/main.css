@@ -1,0 +1,9 @@
+.ng-cloak{display:none;}
+#users img{height:48px;}
+#userApps .matter{position:relative;transition:background 1s;}
+#userApps .matter .seq{display:inline-block;width:2em;text-align:center;line-height:1.6em;font-size:.5em;position:absolute;top:0;left:-1em;background:#666;color:#fff;border-radius:1em;}
+#userApps .blink{background:#d9edf7;}
+#userApps .record>div{padding:.5em 0;border-bottom:1px dotted #ccc;}
+#userApps .record>div:last-child{border-bottom:0;}
+#userApps .record label{width:6em;overflow:hidden;vertical-align:bottom;white-space:nowrap;text-overflow:ellipsis;margin-right:1em;margin-bottom:0;}
+#userApps .record img{max-width:100%}

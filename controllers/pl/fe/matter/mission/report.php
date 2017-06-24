@@ -18,7 +18,7 @@ class report extends \pl\fe\matter\base {
 	 * 如果用户指定了查询参数，保存查询参数
 	 */
 	public function userAndApp_action($mission) {
-		if (false === ($oUser = $this->accountUser())) {
+		if (false === ($oLoginUser = $this->accountUser())) {
 			return new \ResponseTimeout();
 		}
 
@@ -63,7 +63,7 @@ class report extends \pl\fe\matter\base {
 		/* 获得项目下的活动 */
 		if (empty($posted->apps)) {
 			/* 汇总报告配置信息 */
-			$rpConfig = $this->model('matter\mission\report')->defaultConfigByUser($oUser, $oMission);
+			$rpConfig = $this->model('matter\mission\report')->defaultConfigByUser($oLoginUser, $oMission);
 			if (empty($rpConfig) || empty($rpConfig->include_apps)) {
 				/* 如果没有指定 */
 				$matters = $this->model('matter\mission\matter')->byMission($mission);
@@ -83,7 +83,7 @@ class report extends \pl\fe\matter\base {
 			$apps = $posted->apps;
 			/* 保留用户指定的查询参数 */
 			$modelRp = $this->model('matter\mission\report');
-			$modelRp->createConfig($oMission, $oUser, ['asDefault' => 'Y', 'includeApps' => $apps]);
+			$modelRp->createConfig($oMission, $oLoginUser, ['asDefault' => 'Y', 'includeApps' => $apps]);
 		}
 
 		$modelRep = $this->model('matter\mission\report');
@@ -114,10 +114,34 @@ class report extends \pl\fe\matter\base {
 		return new \ResponseData($oNewConfig);
 	}
 	/**
+	 * 获得指定用户在项目中的行为记录
+	 */
+	public function recordByUser_action($mission, $user) {
+		if (false === ($oUser = $this->accountUser())) {
+			return new \ResponseTimeout();
+		}
+
+		$result = new \stdClass;
+
+		$modelEnlRec = $this->model('matter\enroll\record');
+		$records = $modelEnlRec->byMission($mission, ['userid' => $user]);
+		$result->enroll = $records;
+
+		$modelSigRec = $this->model('matter\signin\record');
+		$records = $modelSigRec->byMission($mission, ['userid' => $user]);
+		$result->signin = $records;
+
+		$modelGrpRec = $this->model('matter\group\player');
+		$records = $modelGrpRec->byMission($mission, ['userid' => $user]);
+		$result->group = $records;
+
+		return new \ResponseData($result);
+	}
+	/**
 	 * 导出项目汇总报告
 	 */
 	public function export_action($mission) {
-		if (false === ($oUser = $this->accountUser())) {
+		if (false === ($oLoginUser = $this->accountUser())) {
 			return new \ResponseTimeout();
 		}
 
@@ -155,7 +179,7 @@ class report extends \pl\fe\matter\base {
 		}
 
 		/* 汇总报告配置信息 */
-		$rpConfig = $this->model('matter\mission\report')->defaultConfigByUser($oUser, $oMission);
+		$rpConfig = $this->model('matter\mission\report')->defaultConfigByUser($oLoginUser, $oMission);
 		if (empty($rpConfig) || empty($rpConfig->include_apps)) {
 			$matters = $this->model('matter\mission\matter')->byMission($mission);
 			if (count($matters) === 0) {

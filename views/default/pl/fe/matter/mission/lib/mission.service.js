@@ -30,6 +30,71 @@ define(['require'], function(require) {
 
                     return _getMissionDeferred.promise;
                 },
+                chooseApps: function(oMission) {
+                    return $uibModal.open({
+                        templateUrl: '/views/default/pl/fe/matter/mission/component/chooseApps.html?_=1',
+                        controller: ['$scope', '$uibModalInstance', function($scope2, $mi) {
+                            var oCriteria, oReportConfig, oIncludeApps = {};
+                            $scope2.mission = oMission;
+                            $scope2.criteria = oCriteria = {
+                                mission_phase_id: ''
+                            };
+                            if (oReportConfig = oMission.reportConfig) {
+                                if (oReportConfig.include_apps) {
+                                    oReportConfig.include_apps.forEach(function(oApp) {
+                                        oIncludeApps[oApp.type + oApp.id] = true;
+                                    });
+                                }
+                            }
+                            // 选中的记录
+                            $scope2.rows = {
+                                allSelected: 'N',
+                                selected: {},
+                                reset: function() {
+                                    this.allSelected = 'N';
+                                    this.selected = {};
+                                }
+                            };
+                            $scope2.$watch('rows.allSelected', function(checked) {
+                                var index = 0;
+                                if (checked === 'Y') {
+                                    while (index < $scope2.matters.length) {
+                                        $scope2.rows.selected[index++] = true;
+                                    }
+                                } else if (checked === 'N') {
+                                    $scope2.rows.selected = {};
+                                }
+                            });
+                            $scope2.doSearch = function() {
+                                $scope2.rows.reset();
+                                _self.matterList(oCriteria).then(function(matters) {
+                                    $scope2.matters = matters;
+                                    if (matters && matters.length) {
+                                        matters.forEach(function(oMatter, index) {
+                                            if (oIncludeApps[oMatter.type + oMatter.id]) {
+                                                $scope2.rows.selected[index] = true;
+                                            }
+                                        });
+                                    }
+                                });
+                            };
+                            $scope2.cancel = function() {
+                                $mi.dismiss();
+                            };
+                            $scope2.ok = function() {
+                                var selected = [];
+                                for (var i in $scope2.rows.selected) {
+                                    if ($scope2.rows.selected[i]) {
+                                        selected.push($scope2.matters[i]);
+                                    }
+                                }
+                                $mi.close(selected);
+                            };
+                            $scope2.doSearch();
+                        }],
+                        backdrop: 'static'
+                    }).result;
+                },
                 matterList: function(oCriteria) {
                     var deferred, url;
                     deferred = $q.defer();
@@ -91,7 +156,7 @@ define(['require'], function(require) {
                 recordByUser: function(user) {
                     var deferred = $q.defer();
                     if (user.userid) {
-                        http2.get('/rest/pl/fe/matter/mission/user/recordByUser?mission=' + _missionId + '&user=' + user.userid, function(rsp) {
+                        http2.get('/rest/pl/fe/matter/mission/report/recordByUser?mission=' + _missionId + '&user=' + user.userid, function(rsp) {
                             deferred.resolve(rsp.data);
                         });
                     } else {
@@ -112,10 +177,11 @@ define(['require'], function(require) {
         }];
     }).
     provider('srvOpMission', function() {
-        var _siteId, _missionId, _oMission, _getMissionDeferred;
-        this.config = function(siteId, missionId) {
+        var _siteId, _missionId, _accessId, _oMission, _getMissionDeferred;
+        this.config = function(siteId, missionId, accessId) {
             _siteId = siteId;
             _missionId = missionId;
+            _accessId = accessId;
         };
         this.$get = ['$q', '$uibModal', 'http2', 'noticebox', 'srvRecordConverter', function($q, $uibModal, http2, noticebox, srvRecordConverter) {
             var _self = {
@@ -125,7 +191,7 @@ define(['require'], function(require) {
                         return _getMissionDeferred.promise;
                     }
                     _getMissionDeferred = $q.defer();
-                    url = '/rest/site/op/matter/mission/get?site=' + _siteId + '&mission=' + _missionId;
+                    url = '/rest/site/op/matter/mission/get?site=' + _siteId + '&mission=' + _missionId + '&accessToken=' + _accessId;
                     http2.get(url, function(rsp) {
                         var userApp;
                         _oMission = rsp.data.mission;
@@ -140,58 +206,89 @@ define(['require'], function(require) {
 
                     return _getMissionDeferred.promise;
                 },
+                chooseApps: function(oMission) {
+                    return $uibModal.open({
+                        templateUrl: '/views/default/pl/fe/matter/mission/component/chooseApps.html?_=1',
+                        controller: ['$scope', '$uibModalInstance', function($scope2, $mi) {
+                            var oCriteria, oReportConfig, oIncludeApps = {};
+                            $scope2.criteria = oCriteria = {
+                                mission_phase_id: ''
+                            };
+                            if (oReportConfig = oMission.reportConfig) {
+                                if (oReportConfig.include_apps) {
+                                    oReportConfig.include_apps.forEach(function(oApp) {
+                                        oIncludeApps[oApp.type + oApp.id] = true;
+                                    });
+                                }
+                            }
+                            // 选中的记录
+                            $scope2.rows = {
+                                allSelected: 'N',
+                                selected: {},
+                                reset: function() {
+                                    this.allSelected = 'N';
+                                    this.selected = {};
+                                }
+                            };
+                            $scope2.$watch('rows.allSelected', function(checked) {
+                                var index = 0;
+                                if (checked === 'Y') {
+                                    while (index < $scope2.matters.length) {
+                                        $scope2.rows.selected[index++] = true;
+                                    }
+                                } else if (checked === 'N') {
+                                    $scope2.rows.selected = {};
+                                }
+                            });
+                            $scope2.doSearch = function() {
+                                $scope2.rows.reset();
+                                _self.matterList(oCriteria).then(function(matters) {
+                                    $scope2.matters = matters;
+                                    if (matters && matters.length) {
+                                        matters.forEach(function(oMatter, index) {
+                                            if (oIncludeApps[oMatter.type + oMatter.id]) {
+                                                $scope2.rows.selected[index] = true;
+                                            }
+                                        });
+                                    }
+                                });
+                            };
+                            $scope2.cancel = function() {
+                                $mi.dismiss();
+                            };
+                            $scope2.ok = function() {
+                                var selected = [];
+                                for (var i in $scope2.rows.selected) {
+                                    if ($scope2.rows.selected[i]) {
+                                        selected.push($scope2.matters[i]);
+                                    }
+                                }
+                                $mi.close(selected);
+                            };
+                            $scope2.doSearch();
+                        }],
+                        backdrop: 'static'
+                    }).result;
+                },
                 matterList: function() {
                     var deferred = $q.defer(),
                         url;
 
-                    url = '/rest/site/op/matter/mission/matterList?site=' + _siteId + '&mission=' + _missionId;
+                    url = '/rest/site/op/matter/mission/matterList?site=' + _siteId + '&mission=' + _missionId + '&accessToken=' + _accessId;
                     http2.get(url, function(rsp) {
                         deferred.resolve(rsp.data);
                     });
                     return deferred.promise;
                 },
-                userList: function(oResultSet) {
-                    var deferred = $q.defer(),
-                        url;
-
-                    if (Object.keys(oResultSet).length === 0) {
-                        angular.extend(oResultSet, {
-                            page: {
-                                at: 1,
-                                size: 30,
-                                j: function() {
-                                    return 'page=' + this.at + '&size=' + this.size;
-                                },
-                                offset: function() {
-                                    return (this.at - 1) * this.size;
-                                }
-                            },
-                            criteria: {},
-                            users: []
+                recordByUser: function(user) {
+                    var deferred = $q.defer();
+                    if (user.userid) {
+                        http2.get('/rest/site/op/matter/mission/report/recordByUser?site=' + _siteId + '&mission=' + _missionId + '&accessToken=' + _accessId + '&user=' + user.userid, function(rsp) {
+                            deferred.resolve(rsp.data);
                         });
+                    } else {
+                        alert('无法获得有效用户信息');
                     }
-
-                    _self.get().then(function(result) {
-                        var mission = result.mission;
-                        if (mission && mission.userApp) {
-                            srvRecordConverter.config(mission.userApp.data_schemas);
-                        }
-                    });
-
-                    url = '/rest/site/op/matter/mission/user/list?site=' + _siteId + '&mission=' + _missionId;
-                    url += '&' + oResultSet.page.j();
-                    http2.post(url, oResultSet.criteria, function(rsp) {
-                        var records = rsp.data.records;
-                        oResultSet.users.splice(0, oResultSet.users.length);
-                        if (records && records.length) {
-                            records.forEach(function(record) {
-                                srvRecordConverter.forTable(record);
-                                oResultSet.users.push(record);
-                            });
-                        }
-                        oResultSet.page.total = rsp.data.total;
-                        deferred.resolve(rsp.data);
-                    });
                     return deferred.promise;
                 },
             }

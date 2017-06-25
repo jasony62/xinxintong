@@ -78,24 +78,51 @@ class report extends \site\op\base {
 	/**
 	 * 获得指定用户在项目中的行为记录
 	 */
-	public function recordByUser_action($mission, $user) {
+	public function recordByUser_action($mission, $user, $app = '') {
 		if (!$this->checkAccessToken()) {
 			return new \InvalidAccessToken();
 		}
 
 		$result = new \stdClass;
+		if (empty($app)) {
+			$modelEnlRec = $this->model('matter\enroll\record');
+			$records = $modelEnlRec->byMission($mission, ['userid' => $user]);
+			$result->enroll = $records;
 
-		$modelEnlRec = $this->model('matter\enroll\record');
-		$records = $modelEnlRec->byMission($mission, ['userid' => $user]);
-		$result->enroll = $records;
+			$modelSigRec = $this->model('matter\signin\record');
+			$records = $modelSigRec->byMission($mission, ['userid' => $user]);
+			$result->signin = $records;
 
-		$modelSigRec = $this->model('matter\signin\record');
-		$records = $modelSigRec->byMission($mission, ['userid' => $user]);
-		$result->signin = $records;
-
-		$modelGrpRec = $this->model('matter\group\player');
-		$records = $modelGrpRec->byMission($mission, ['userid' => $user]);
-		$result->group = $records;
+			$modelGrpRec = $this->model('matter\group\player');
+			$records = $modelGrpRec->byMission($mission, ['userid' => $user]);
+			$result->group = $records;
+		} else {
+			list($appType, $appId) = explode(',', $app);
+			if (isset($appId) && isset($appType)) {
+				switch ($appType) {
+				case 'enroll':
+					$oUser = new \stdClass;
+					$oUser->userid = $user;
+					$modelEnlRec = $this->model('matter\enroll\record');
+					$result = $modelEnlRec->byUser($appId, $oUser);
+					break;
+				case 'signin':
+					$oApp = new \stdClass;
+					$oApp->id = $appId;
+					$oUser = new \stdClass;
+					$oUser->userid = $user;
+					$modelSigRec = $this->model('matter\signin\record');
+					$result = $modelSigRec->byUser($oUser, $oApp);
+					break;
+				case 'group':
+					$oApp = new \stdClass;
+					$oApp->id = $appId;
+					$modelGrpRec = $this->model('matter\group\player');
+					$result = $modelGrpRec->byUser($oApp, $user);
+					break;
+				}
+			}
+		}
 
 		return new \ResponseData($result);
 	}

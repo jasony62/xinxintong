@@ -10,7 +10,7 @@ define(['angular'], function(angular) {
         srvSiteProvider.config(_siteId);
         srvOpMissionProvider.config(_siteId, _missionId, _accessToken);
     }]);
-    ngApp.controller('ctrlMission', ['$scope', '$timeout', 'http2', 'srvSite', 'srvOpMission', 'srvRecordConverter', function($scope, $timeout, http2, srvSite, srvOpMission, srvRecordConverter) {
+    ngApp.controller('ctrlMission', ['$scope', '$uibModal', '$timeout', 'http2', 'srvSite', 'srvOpMission', 'srvRecordConverter', function($scope, $uibModal, $timeout, http2, srvSite, srvOpMission, srvRecordConverter) {
         function configUserApps() {
             var includeApps = [];
             $scope.report.orderedApps.forEach(function(matter) {
@@ -18,7 +18,7 @@ define(['angular'], function(angular) {
             });
             $scope.makeReport(includeApps);
         }
-        var _enrollAppSchemas;
+        var _enrollAppSchemas, _includeApps;
         $scope.enrollAppSchemas = _enrollAppSchemas = {};
         $scope.moveUp = function(matter, index) {
             var apps;
@@ -45,7 +45,8 @@ define(['angular'], function(angular) {
             configUserApps();
         };
         $scope.chooseApps = function() {
-            srvOpMission.chooseApps($scope.mission).then(function(apps) {
+            srvOpMission.chooseApps($scope.mission, _includeApps).then(function(apps) {
+                _includeApps = apps;
                 $scope.makeReport(apps);
             });
         };
@@ -82,44 +83,86 @@ define(['angular'], function(angular) {
             $scope.recordsByApp = {};
             $scope.activeUser = oUser;
             if (oUser.userid) {
-                srvOpMission.recordByUser(oUser).then(function(records) {
-                    var recordsByApp = {};
-                    if (records) {
-                        if (records.enroll && records.enroll.length) {
-                            recordsByApp.enroll = {};
-                            records.enroll.forEach(function(record) {
-                                srvRecordConverter.forTable(record, $scope.enrollAppSchemas[record.aid]);
-                                recordsByApp.enroll[record.aid] === undefined && (recordsByApp.enroll[record.aid] = []);
-                                recordsByApp.enroll[record.aid].push(record);
+                if ($scope.isSmallLayout) {
+                    if (oApp) {
+                        srvOpMission.recordByUser(oUser, oApp).then(function(result) {
+                            var processedRecords = [];
+                            switch (oApp.type) {
+                                case 'enroll':
+                                    if (result && result.length) {
+                                        var enrollAppSchemas = $scope.enrollAppSchemas[oApp.id];
+                                        result.forEach(function(record) {
+                                            srvRecordConverter.forTable(record, enrollAppSchemas);
+                                            processedRecords.push(record);
+                                        });
+                                    }
+                                    break;
+                                case 'signin':
+                                    processedRecords.push(result);
+                                    break;
+                                case 'group':
+                                    if (result && result.length) {
+                                        result.forEach(function(record) {
+                                            processedRecords.push(record);
+                                        });
+                                    }
+                                    break;
+                            }
+                            $uibModal.open({
+                                templateUrl: 'userAppRecord.html',
+                                controller: ['$scope', '$uibModalInstance', function($scope2, $mi) {
+                                    $scope2.app = oApp;
+                                    $scope2.records = processedRecords;
+                                    $scope2.enrollAppSchemas = $scope.enrollAppSchemas[oApp.id];
+                                    $scope2.cancel = function() {
+                                        $mi.dismiss();
+                                    };
+                                }],
+                                windowClass: 'auto-height full-width',
+                                backdrop: 'static'
                             });
-                        }
-                        if (records.signin && records.signin.length) {
-                            recordsByApp.signin = {};
-                            records.signin.forEach(function(record) {
-                                recordsByApp.signin[record.aid] === undefined && (recordsByApp.signin[record.aid] = []);
-                                recordsByApp.signin[record.aid].push(record);
-                            });
-                        }
-                        if (records.group && records.group.length) {
-                            recordsByApp.group = {};
-                            records.group.forEach(function(record) {
-                                recordsByApp.group[record.aid] === undefined && (recordsByApp.group[record.aid] = []);
-                                recordsByApp.group[record.aid].push(record);
-                            });
-                        }
+                        });
                     }
-                    $scope.recordsByApp = recordsByApp;
-                    $timeout(function() {
-                        var eleList, eleApp, index = $scope.report.orderedApps.indexOf(oApp);
-                        eleList = document.querySelector('#userApps');
-                        eleApp = eleList.children[index];
-                        eleList.parentNode.scrollTop = eleApp.offsetTop;
-                        eleApp.classList.add('blink');
+                } else {
+                    srvOpMission.recordByUser(oUser).then(function(records) {
+                        var recordsByApp = {};
+                        if (records) {
+                            if (records.enroll && records.enroll.length) {
+                                recordsByApp.enroll = {};
+                                records.enroll.forEach(function(record) {
+                                    srvRecordConverter.forTable(record, $scope.enrollAppSchemas[record.aid]);
+                                    recordsByApp.enroll[record.aid] === undefined && (recordsByApp.enroll[record.aid] = []);
+                                    recordsByApp.enroll[record.aid].push(record);
+                                });
+                            }
+                            if (records.signin && records.signin.length) {
+                                recordsByApp.signin = {};
+                                records.signin.forEach(function(record) {
+                                    recordsByApp.signin[record.aid] === undefined && (recordsByApp.signin[record.aid] = []);
+                                    recordsByApp.signin[record.aid].push(record);
+                                });
+                            }
+                            if (records.group && records.group.length) {
+                                recordsByApp.group = {};
+                                records.group.forEach(function(record) {
+                                    recordsByApp.group[record.aid] === undefined && (recordsByApp.group[record.aid] = []);
+                                    recordsByApp.group[record.aid].push(record);
+                                });
+                            }
+                        }
+                        $scope.recordsByApp = recordsByApp;
                         $timeout(function() {
-                            eleApp.classList.remove('blink');
-                        }, 1000);
+                            var eleList, eleApp, index = $scope.report.orderedApps.indexOf(oApp);
+                            eleList = document.querySelector('#userApps');
+                            eleApp = eleList.children[index];
+                            eleList.parentNode.scrollTop = eleApp.offsetTop;
+                            eleApp.classList.add('blink');
+                            $timeout(function() {
+                                eleApp.classList.remove('blink');
+                            }, 1000);
+                        });
                     });
-                });
+                }
             }
         };
         srvSite.get().then(function(oSite) {
@@ -130,6 +173,10 @@ define(['angular'], function(angular) {
             $scope.makeReport();
             window.loading.finish();
         });
+        $scope.isSmallLayout = false;
+        if (window.screen && window.screen.width < 992) {
+            $scope.isSmallLayout = true;
+        }
     }]);
     /*bootstrap*/
     require(['domReady!'], function(document) {

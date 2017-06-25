@@ -348,7 +348,7 @@ class record_model extends \TMS_MODEL {
 		if ($fields === '*' || false !== strpos($fields, 'score')) {
 			$oRecord->score = empty($oRecord->score) ? new \stdClass : json_decode($oRecord->score);
 		}
-		if ($verbose === 'Y') {
+		if ($verbose === 'Y' && isset($oRecord->enroll_key)) {
 			$oRecord->verbose = $this->model('matter\enroll\data')->byRecord($oRecord->enroll_key);
 		}
 		if (!empty($oRecord->rid)) {
@@ -441,6 +441,7 @@ class record_model extends \TMS_MODEL {
 	 */
 	public function &byUser($appId, &$oUser, $options = []) {
 		$fields = isset($options['fields']) ? $options['fields'] : '*';
+		$verbose = isset($options['verbose']) ? $options['verbose'] : 'N';
 
 		$userid = isset($oUser->uid) ? $oUser->uid : (isset($oUser->userid) ? $oUser->userid : '');
 		if (empty($userid)) {
@@ -454,9 +455,12 @@ class record_model extends \TMS_MODEL {
 		];
 		$q2 = ['o' => 'enroll_at desc'];
 
-		$list = $this->query_objs_ss($q, $q2);
+		$records = $this->query_objs_ss($q, $q2);
+		foreach ($records as $oRecord) {
+			$this->_processRecord($oRecord, $fields, $verbose);
+		}
 
-		return $list;
+		return $records;
 	}
 	/**
 	 * 获得登记轮次的清单

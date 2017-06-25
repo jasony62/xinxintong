@@ -1,9 +1,24 @@
 .ng-cloak{display:none;}
+
+/*users*/
 #users img{height:48px;}
+@media screen and (max-width:768px){
+	#users table thead{display:none;}
+	#users .table-bordered{background:#ddd;border:0;border-collapse:separate;-webkit-border-vertical-spacing:10px;}
+	#users .table-bordered>tbody>tr>td{background:#fff;display:block;position:relative;border:1px solid #ccc;border-top:0;border-bottom:1px dotted #eee;padding:0;}
+	#users .table-bordered>tbody>tr>td:first-child{border-top:1px solid #ccc;}
+	#users .table-bordered>tbody>tr>td:last-child{border-bottom:1px solid #ccc;}
+	#users .table-bordered>tbody>tr>td>div{display:inline-block;padding:.5em;padding-left:13em;min-height:2em;}
+	#users td:after{content:attr(data-th);display:inline-block;width:12em;background:#eee;padding:.5em;position:absolute;top:0;bottom:0;left:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;}
+	#users .table-bordered>tbody>tr>td.span-cols-sm>div{padding-left:1em;}
+	#users td.span-cols-sm:after{content:' ';display:inline-block;width:0;background:#fff;padding:0;position:absolute;top:0;bottom:0;left:0;}
+}
+
+/*user apps*/
 #userApps .matter{position:relative;transition:background 1s;}
 #userApps .matter .seq{display:inline-block;width:2em;text-align:center;line-height:1.6em;font-size:.5em;position:absolute;top:0;left:-1em;background:#666;color:#fff;border-radius:1em;}
 #userApps .blink{background:#d9edf7;}
 #userApps .record>div{padding:.5em 0;border-bottom:1px dotted #ccc;}
 #userApps .record>div:last-child{border-bottom:0;}
 #userApps .record label{width:6em;overflow:hidden;vertical-align:bottom;white-space:nowrap;text-overflow:ellipsis;margin-right:1em;margin-bottom:0;}
-#userApps .record img{max-width:100%}
+.record img{max-width:100%}

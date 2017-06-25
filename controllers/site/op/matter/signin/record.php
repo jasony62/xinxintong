@@ -44,7 +44,7 @@ class record extends \site\op\base {
 		!empty($rid) && $rid !== 'ALL' && $options['rid'] = $rid;
 
 		$mdoelRec = $this->model('matter\signin\record');
-		$result = $mdoelRec->find($app, $options, $criteria);
+		$result = $mdoelRec->byApp($app, $options, $criteria);
 
 		return new \ResponseData($result);
 	}

@@ -25,7 +25,7 @@ class player extends \pl\fe\matter\base {
 		$modelPlayer = $this->model('matter\group\player');
 
 		$app = $modelGrp->byId($app);
-		$result = $modelPlayer->find($site, $app);
+		$result = $modelPlayer->byApp($app);
 
 		return new \ResponseData($result);
 	}
@@ -42,7 +42,7 @@ class player extends \pl\fe\matter\base {
 
 		$app = $modelGrp->byId($app);
 		$schemas = json_decode($app->data_schemas);
-		$result = $modelPlayer->find($site, $app);
+		$result = $modelPlayer->byApp($app);
 		if ($result->total == 0) {
 			die('player empty');
 		}

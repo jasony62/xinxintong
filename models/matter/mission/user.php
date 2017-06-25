@@ -83,7 +83,7 @@ class user_model extends \TMS_MODEL {
 			}
 		} else if ($mission->user_app_type === 'signin') {
 			$modelRec = $this->model('matter\signin\record');
-			$result = $modelRec->find($mission->user_app_id, $options, $criteria);
+			$result = $modelRec->byApp($mission->user_app_id, $options, $criteria);
 			if (!empty($result->records)) {
 				/* 和登记活动关联的分组活动 */
 				$modelGrp = $this->model('matter\group');

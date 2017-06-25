@@ -206,7 +206,7 @@ define(['require'], function(require) {
 
                     return _getMissionDeferred.promise;
                 },
-                chooseApps: function(oMission) {
+                chooseApps: function(oMission, includeApps) {
                     return $uibModal.open({
                         templateUrl: '/views/default/pl/fe/matter/mission/component/chooseApps.html?_=1',
                         controller: ['$scope', '$uibModalInstance', function($scope2, $mi) {
@@ -214,12 +214,10 @@ define(['require'], function(require) {
                             $scope2.criteria = oCriteria = {
                                 mission_phase_id: ''
                             };
-                            if (oReportConfig = oMission.reportConfig) {
-                                if (oReportConfig.include_apps) {
-                                    oReportConfig.include_apps.forEach(function(oApp) {
-                                        oIncludeApps[oApp.type + oApp.id] = true;
-                                    });
-                                }
+                            if (includeApps) {
+                                includeApps.forEach(function(oApp) {
+                                    oIncludeApps[oApp.type + oApp.id] = true;
+                                });
                             }
                             // 选中的记录
                             $scope2.rows = {
@@ -280,15 +278,18 @@ define(['require'], function(require) {
                     });
                     return deferred.promise;
                 },
-                recordByUser: function(user) {
-                    var deferred = $q.defer();
-                    if (user.userid) {
-                        http2.get('/rest/site/op/matter/mission/report/recordByUser?site=' + _siteId + '&mission=' + _missionId + '&accessToken=' + _accessId + '&user=' + user.userid, function(rsp) {
-                            deferred.resolve(rsp.data);
-                        });
-                    } else {
+                recordByUser: function(oUser, oApp) {
+                    var url, deferred = $q.defer();
+                    if (!oUser.userid) {
                         alert('无法获得有效用户信息');
                     }
+                    url = '/rest/site/op/matter/mission/report/recordByUser';
+                    url += '?site=' + _siteId + '&mission=' + _missionId + '&accessToken=' + _accessId;
+                    url += '&user=' + oUser.userid;
+                    oApp && (url += '&app=' + oApp.type + ',' + oApp.id);
+                    http2.get(url, function(rsp) {
+                        deferred.resolve(rsp.data);
+                    });
                     return deferred.promise;
                 },
             }

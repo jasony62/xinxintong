@@ -534,7 +534,7 @@ class record_model extends \TMS_MODEL {
 	 * [1] 数据总条数
 	 * [2] 数据项的定义
 	 */
-	public function find($app, $options = null, $criteria = null) {
+	public function byApp($app, $options = null, $criteria = null) {
 		if (is_string($app)) {
 			$app = $this->model('matter\signin')->byId($app, ['cascaded' => 'Y']);
 		}

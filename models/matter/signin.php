@@ -69,23 +69,24 @@ class signin_model extends app_base {
 			}
 		}
 
-		if ($app = $this->query_obj_ss($q)) {
-			$app->type = 'signin';
-			if (isset($app->siteid) && isset($app->id)) {
-				$app->entryUrl = $this->getEntryUrl($app->siteid, $app->id);
+		if ($oApp = $this->query_obj_ss($q)) {
+			$oApp->type = 'signin';
+			if (isset($oApp->siteid) && isset($oApp->id)) {
+				$oApp->entryUrl = $this->getEntryUrl($oApp->siteid, $oApp->id);
+				$oApp->opUrl = $this->getOpUrl($oApp->siteid, $oApp->id);
 			}
-			if (isset($app->entry_rule)) {
-				$app->entry_rule = json_decode($app->entry_rule);
+			if (isset($oApp->entry_rule)) {
+				$oApp->entry_rule = json_decode($oApp->entry_rule);
 			}
 			if ($cascaded === 'Y') {
 				/* 页面 */
-				$app->pages = $this->model('matter\signin\page')->byApp($appId);
+				$oApp->pages = $this->model('matter\signin\page')->byApp($oApp->id);
 				/* 轮次 */
-				$app->rounds = $this->model('matter\signin\round')->byApp($appId, ['fields' => 'id,rid,title,start_at,end_at,late_at,state']);
+				$oApp->rounds = $this->model('matter\signin\round')->byApp($oApp->id, ['fields' => 'id,rid,title,start_at,end_at,late_at,state']);
 			}
 		}
 
-		return $app;
+		return $oApp;
 	}
 	/**
 	 * 返回签到活动列表

@@ -19,7 +19,6 @@ define(['require'], function(require) {
                         var userApp;
                         _oMission = rsp.data;
                         _oMission.extattrs = (_oMission.extattrs && _oMission.extattrs.length) ? JSON.parse(_oMission.extattrs) : {};
-                        _oMission.opUrl = 'http://' + location.host + '/rest/site/op/matter/mission?site=' + _oMission.siteid + '&mission=' + _oMission.id;
                         if (userApp = _oMission.userApp) {
                             if (userApp.data_schemas && angular.isString(userApp.data_schemas)) {
                                 userApp.data_schemas = JSON.parse(userApp.data_schemas);

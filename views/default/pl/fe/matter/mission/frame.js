@@ -105,7 +105,7 @@ define(['missionService', 'enrollService', 'signinService'], function() {
         });
     }]);
     ngApp.controller('ctrlOpUrl', ['$scope', 'http2', 'srvQuickEntry', '$timeout', function($scope, http2, srvQuickEntry, $timeout) {
-        var targetUrl, opEntry;
+        var targetUrl, host, opEntry;
         $scope.opEntry = opEntry = {};
         $timeout(function() {
             new ZeroClipboard(document.querySelectorAll('.text2Clipboard'));
@@ -113,9 +113,11 @@ define(['missionService', 'enrollService', 'signinService'], function() {
         $scope.$watch('mission', function(mission) {
             if (!mission) return;
             targetUrl = mission.opUrl;
+            host = targetUrl.match(/\/\/(\S+?)\//);
+            host = host.length === 2 ? host[1] : location.host;
             srvQuickEntry.get(targetUrl).then(function(entry) {
                 if (entry) {
-                    opEntry.url = 'http://' + location.host + '/q/' + entry.code;
+                    opEntry.url = 'http://' + host + '/q/' + entry.code;
                     opEntry.password = entry.password;
                     opEntry.code = entry.code;
                     opEntry.can_favor = entry.can_favor;
@@ -124,7 +126,7 @@ define(['missionService', 'enrollService', 'signinService'], function() {
         });
         $scope.makeOpUrl = function() {
             srvQuickEntry.add(targetUrl, $scope.mission.title).then(function(task) {
-                opEntry.url = 'http://' + location.host + '/q/' + task.code;
+                opEntry.url = 'http://' + host + '/q/' + task.code;
                 opEntry.code = task.code;
             });
         };

@@ -50,9 +50,25 @@ define(['frame'], function(ngApp) {
                 $scope.mschemasById[mschema.id] = mschema;
             });
         }, true);
+        $scope.addExclude = function() {
+            var rule = $scope.rule;
+            if (!rule.exclude) {
+                rule.exclude = [];
+            }
+            rule.exclude.push('');
+        };
+        $scope.removeExclude = function(index) {
+            $scope.rule.exclude.splice(index, 1);
+            $scope.configExclude();
+        };
+        $scope.configExclude = function() {
+            $scope.app.entry_rule.exclude = $scope.rule.exclude;
+            $scope.update('entry_rule');
+        };
         srvEnrollApp.get().then(function(app) {
             $scope.jumpPages = srvEnrollApp.jumpPages();
             $scope.rule.scope = app.entry_rule.scope || 'none';
+            $scope.rule.exclude = app.entry_rule.exclude;
             oEntryRule = app.entry_rule;
         }, true);
     }]);

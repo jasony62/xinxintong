@@ -225,7 +225,10 @@ define(['frame'], function(ngApp) {
         };
         $scope.makeInvite = function() {
             http2.get('/rest/pl/fe/matter/mission/coworker/makeInvite?mission=' + $scope.mission.id, function(rsp) {
-                var url = 'http://' + location.host + rsp.data;
+                var host, url;
+                host = $scope.mission.opUrl.match(/\/\/(\S+?)\//);
+                host = host.length === 2 ? host[1] : location.host;
+                url = 'http://' + host + rsp.data;
                 $scope.inviteURL = url;
                 $('#shareMission').trigger('show');
             });

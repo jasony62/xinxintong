@@ -34,13 +34,15 @@ define(['frame'], function(ngApp) {
         });
     }]);
     ngApp.provider.controller('ctrlOpUrl', ['$scope', 'srvQuickEntry', 'srvEnrollApp', function($scope, srvQuickEntry, srvEnrollApp) {
-        var targetUrl, opEntry;
+        var targetUrl, host, opEntry;
         $scope.opEntry = opEntry = {};
         srvEnrollApp.get().then(function(app) {
-            targetUrl = 'http://' + location.host + '/rest/site/op/matter/enroll?site=' + $scope.app.siteid + '&app=' + $scope.app.id;
+            targetUrl = $scope.app.opUrl;
+            host = targetUrl.match(/\/\/(\S+?)\//);
+            host = host.length === 2 ? host[1] : location.host;
             srvQuickEntry.get(targetUrl).then(function(entry) {
                 if (entry) {
-                    opEntry.url = 'http://' + location.host + '/q/' + entry.code;
+                    opEntry.url = 'http://' + host + '/q/' + entry.code;
                     opEntry.password = entry.password;
                     opEntry.code = entry.code;
                     opEntry.can_favor = entry.can_favor;
@@ -51,7 +53,7 @@ define(['frame'], function(ngApp) {
             srvQuickEntry.add(targetUrl, $scope.app.title).then(function(task) {
                 $scope.app.op_short_url_code = task.code;
                 srvEnrollApp.update('op_short_url_code');
-                opEntry.url = 'http://' + location.host + '/q/' + task.code;
+                opEntry.url = 'http://' + host + '/q/' + task.code;
                 opEntry.code = task.code;
             });
         };

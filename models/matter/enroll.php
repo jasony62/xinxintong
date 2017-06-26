@@ -76,6 +76,7 @@ class enroll_model extends app_base {
 			$app->type = 'enroll';
 			if (isset($app->siteid) && isset($app->id)) {
 				$app->entryUrl = $this->getEntryUrl($app->siteid, $app->id);
+				$app->opUrl = $this->getOpUrl($app->siteid, $app->id);
 			}
 			if (isset($app->entry_rule)) {
 				$app->entry_rule = json_decode($app->entry_rule);

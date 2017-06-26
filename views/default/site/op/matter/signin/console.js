@@ -26,8 +26,12 @@ define(["require", "angular", "signinService"], function(require, angular) {
         })();
     }]);
     ngApp.controller('ctrlApp', ['$scope', '$location', 'http2', 'srvSigninApp', function($scope, $location, http2, srvSigninApp) {
-        $scope.switchTo = function(view) {
-            $location.path('/rest/site/op/matter/signin/' + view);
+        $scope.switchParam = {};
+        $scope.switchTo = function(view, oRound) {
+            var url;
+            $scope.switchParam.round = oRound;
+            url = '/rest/site/op/matter/signin/' + view;
+            $location.path(url);
         };
         srvSigninApp.opGet().then(function(data) {
             var app = data.app,
@@ -148,12 +152,16 @@ define(["require", "angular", "signinService"], function(require, angular) {
                 $scope.rows.selected = {};
             }
         });
-        $scope.page = {}; // 分页条件
+        $scope.page = { byRound: '' }; // 分页条件
         $scope.criteria = {}; // 过滤条件
         $scope.records = []; // 登记记录
         $scope.tmsTableWrapReady = 'N';
         $scope.$watch('app', function(app) {
             if (!app) return;
+            if ($scope.switchParam.round) {
+                $scope.page.byRound = $scope.switchParam.round.rid;
+                delete $scope.switchParam.round;
+            }
             srvOpSigninRecord.init(app, $scope.page, $scope.criteria, $scope.records);
             $scope.tmsTableWrapReady = 'Y';
             $scope.getRecords();

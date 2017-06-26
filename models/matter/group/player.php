@@ -289,7 +289,10 @@ class player_model extends \TMS_MODEL {
 	 * [0] 数据列表
 	 * [1] 数据总条数
 	 */
-	public function find($siteId, &$oApp, $options = null) {
+	public function byApp(&$oApp, $options = null) {
+		if (is_string($oApp)) {
+			$oApp = $this->model('matter\group')->byId($oApp, ['cascaded' => 'N']);
+		}
 		if ($options) {
 			is_array($options) && $options = (object) $options;
 			$orderby = isset($options->orderby) ? $options->orderby : '';

@@ -26,7 +26,6 @@ class notice extends \pl\fe\matter\base {
 			return new \ResponseTimeout();
 		}
 
-		// $modelRec = $this->model('matter\signin');
 		$modelRec = $this->model('matter\group\player');
 		$site = $modelRec->escape($site);
 		$app = $modelRec->escape($app);
@@ -38,7 +37,7 @@ class notice extends \pl\fe\matter\base {
 			$app = $this->model('matter\group')->byId($app);
 			$options = new \stdClass;
 			$options->tags = $posted->tags;
-			$participants = $modelRec->find($site, $app, $options);
+			$participants = $modelRec->byApp($app, $options);
 		} else if (isset($posted->users)) {
 			// 直接指定
 			$participants = $posted->users;

@@ -7,16 +7,16 @@ class phase_model extends \TMS_MODEL {
 	/**
 	 *
 	 */
-	public function &byMission($missionId, $options = array()) {
+	public function &byMission($missionId, $options = []) {
 		$fields = isset($options['fields']) ? $options['fields'] : '*';
-		$q = array(
+		$q = [
 			$fields,
 			'xxt_mission_phase',
 			"mission_id='$missionId'",
-		);
-		$q2 = array(
+		];
+		$q2 = [
 			'o' => 'start_at',
-		);
+		];
 		$phases = $this->query_objs_ss($q, $q2);
 
 		return $phases;

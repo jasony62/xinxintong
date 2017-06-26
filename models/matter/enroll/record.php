@@ -336,6 +336,33 @@ class record_model extends \TMS_MODEL {
 		return $rst;
 	}
 	/**
+	 *
+	 */
+	private function _processRecord(&$oRecord, $fields, $verbose = 'Y') {
+		if ($fields === '*' || false !== strpos($fields, 'data')) {
+			$oRecord->data = empty($oRecord->data) ? new \stdClass : json_decode($oRecord->data);
+		}
+		if ($fields === '*' || false !== strpos($fields, 'supplement')) {
+			$oRecord->supplement = empty($oRecord->supplement) ? new \stdClass : json_decode($oRecord->supplement);
+		}
+		if ($fields === '*' || false !== strpos($fields, 'score')) {
+			$oRecord->score = empty($oRecord->score) ? new \stdClass : json_decode($oRecord->score);
+		}
+		if ($verbose === 'Y' && isset($oRecord->enroll_key)) {
+			$oRecord->verbose = $this->model('matter\enroll\data')->byRecord($oRecord->enroll_key);
+		}
+		if (!empty($oRecord->rid)) {
+			$oRecord->round = new \stdClass;
+			if ($round = $this->model('matter\enroll\round')->byId($oRecord->rid, ['fields' => 'title'])) {
+				$oRecord->round->title = $round->title;
+			} else {
+				$oRecord->round->title = '';
+			}
+		}
+
+		return $oRecord;
+	}
+	/**
 	 * 根据ID返回登记记录
 	 */
 	public function &byId($ek, $options = []) {
@@ -348,26 +375,63 @@ class record_model extends \TMS_MODEL {
 			['enroll_key' => $ek],
 		];
 		if ($oRecord = $this->query_obj_ss($q)) {
-			if ($fields === '*' || false !== strpos($fields, 'data')) {
-				$oRecord->data = json_decode($oRecord->data);
-			}
-			if ($fields === '*' || false !== strpos($fields, 'supplement')) {
-				$oRecord->supplement = json_decode($oRecord->supplement);
-			}
-			if ($fields === '*' || false !== strpos($fields, 'score')) {
-				$oRecord->score = json_decode($oRecord->score);
-			}
-			if ($verbose === 'Y') {
-				$oRecord->verbose = $this->model('matter\enroll\data')->byRecord($ek);
-			}
-			if (!empty($oRecord->rid)) {
-				$oRecord->round = new \stdClass;
-				if ($round = $this->model('matter\enroll\round')->byId($oRecord->rid, ['fields' => 'title'])) {
-					$oRecord->round->title = $round->title;
-				} else {
-					$oRecord->round->title = '';
-				}
-			}
+			$this->_processRecord($oRecord, $fields, $verbose);
+		}
+
+		return $oRecord;
+	}
+	/**
+	 * 获得指定用户最后一次登记记录
+	 *
+	 * 如果用户是注册用户，那么获得这个注册用户，在活动所属团队下，对应的所有站点用户账号填写的内容
+	 *
+	 * 如果设置轮次，只返回当前轮次的情况
+	 */
+	public function lastByUser($oApp, $oUser, $options = []) {
+		$fields = isset($options['fields']) ? $options['fields'] : '*';
+		$verbose = isset($options['verbose']) ? $options['verbose'] : 'N';
+
+		$q = [
+			$fields,
+			'xxt_enroll_record',
+			"siteid='{$oApp->siteid}' and aid='{$oApp->id}' and state=1",
+		];
+		/* 指定登记用户 */
+		//if (empty($oUser->unionid)) {
+		$q[2] .= " and userid='{$oUser->uid}'";
+		// } else {
+		// 	$modelAcnt = $this->model('site\user\account');
+		// 	$aSiteUsers = $modelAcnt->byUnionid($oUser->unionid, ['siteid' => $oApp->siteid, 'fields' => 'uid']);
+		// 	if (count($aSiteUsers) === 1) {
+		// 		$q[2] .= " and userid='{$aSiteUsers[0]->uid}'";
+		// 	} else {
+		// 		$q[2] .= " and userid in (";
+		// 		foreach ($aSiteUsers as $index => $aSiteUser) {
+		// 			if ($index > 0) {
+		// 				$q[2] .= ',';
+		// 			}
+		// 			$q[2] .= "'{$aSiteUser->uid}'";
+		// 		}
+		// 		$q[2] .= ")";
+		// 	}
+		// }
+
+		/* 指定登记轮次 */
+		if ($activeRound = $this->model('matter\enroll\round')->getActive($oApp)) {
+			$q[2] .= " and rid='$activeRound->rid'";
+		}
+
+		/* 登记的时间 */
+		$q2 = [
+			'o' => 'enroll_at desc',
+			'r' => ['o' => 0, 'l' => 1],
+		];
+
+		$records = $this->query_objs_ss($q, $q2);
+
+		$oRecord = count($records) === 1 ? $records[0] : false;
+		if ($oRecord) {
+			$this->_processRecord($oRecord, $fields, $verbose);
 		}
 
 		return $oRecord;
@@ -377,6 +441,7 @@ class record_model extends \TMS_MODEL {
 	 */
 	public function &byUser($appId, &$oUser, $options = []) {
 		$fields = isset($options['fields']) ? $options['fields'] : '*';
+		$verbose = isset($options['verbose']) ? $options['verbose'] : 'N';
 
 		$userid = isset($oUser->uid) ? $oUser->uid : (isset($oUser->userid) ? $oUser->userid : '');
 		if (empty($userid)) {
@@ -390,9 +455,12 @@ class record_model extends \TMS_MODEL {
 		];
 		$q2 = ['o' => 'enroll_at desc'];
 
-		$list = $this->query_objs_ss($q, $q2);
+		$records = $this->query_objs_ss($q, $q2);
+		foreach ($records as $oRecord) {
+			$this->_processRecord($oRecord, $fields, $verbose);
+		}
 
-		return $list;
+		return $records;
 	}
 	/**
 	 * 获得登记轮次的清单
@@ -1023,72 +1091,6 @@ class record_model extends \TMS_MODEL {
 		}
 
 		return $result;
-	}
-	/**
-	 * 获得指定用户最后一次登记记录
-	 *
-	 * 如果用户是注册用户，那么获得这个注册用户，在活动所属团队下，对应的所有站点用户账号填写的内容
-	 *
-	 * 如果设置轮次，只返回当前轮次的情况
-	 */
-	public function lastByUser($oApp, $oUser, $options = []) {
-		$fields = isset($options['fields']) ? $options['fields'] : '*';
-		$verbose = isset($options['verbose']) ? $options['verbose'] : 'N';
-
-		$q = [
-			$fields,
-			'xxt_enroll_record',
-			"siteid='{$oApp->siteid}' and aid='{$oApp->id}' and state=1",
-		];
-		/* 指定登记用户 */
-		//if (empty($oUser->unionid)) {
-		$q[2] .= " and userid='{$oUser->uid}'";
-		// } else {
-		// 	$modelAcnt = $this->model('site\user\account');
-		// 	$aSiteUsers = $modelAcnt->byUnionid($oUser->unionid, ['siteid' => $oApp->siteid, 'fields' => 'uid']);
-		// 	if (count($aSiteUsers) === 1) {
-		// 		$q[2] .= " and userid='{$aSiteUsers[0]->uid}'";
-		// 	} else {
-		// 		$q[2] .= " and userid in (";
-		// 		foreach ($aSiteUsers as $index => $aSiteUser) {
-		// 			if ($index > 0) {
-		// 				$q[2] .= ',';
-		// 			}
-		// 			$q[2] .= "'{$aSiteUser->uid}'";
-		// 		}
-		// 		$q[2] .= ")";
-		// 	}
-		// }
-
-		/* 指定登记轮次 */
-		if ($activeRound = $this->model('matter\enroll\round')->getActive($oApp)) {
-			$q[2] .= " and rid='$activeRound->rid'";
-		}
-
-		/* 登记的时间 */
-		$q2 = [
-			'o' => 'enroll_at desc',
-			'r' => ['o' => 0, 'l' => 1],
-		];
-
-		$records = $this->query_objs_ss($q, $q2);
-
-		$oRecord = count($records) === 1 ? $records[0] : false;
-		if ($oRecord) {
-			$oRecord->data = json_decode($oRecord->data);
-			$oRecord->supplement = json_decode($oRecord->supplement);
-			if ($verbose === 'Y') {
-				$oRecord->verbose = $this->model('matter\enroll\data')->byRecord($oRecord->enroll_key);
-			}
-			if ($fields === '*' || false !== strpos($fields, 'supplement')) {
-				$oRecord->supplement = json_decode($oRecord->supplement);
-			}
-			if ($fields === '*' || false !== strpos($fields, 'score')) {
-				$oRecord->score = json_decode($oRecord->score);
-			}
-		}
-
-		return $oRecord;
 	}
 	/**
 	 * 获得指定用户最后一次登记的key

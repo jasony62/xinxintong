@@ -16,7 +16,7 @@ class memberschema_model extends \TMS_MODEL {
 
 		$schemas = $this->query_objs_ss($q);
 		if (count($schemas)) {
-			$modelCp = $this->model('code\page');
+			//$modelCp = $this->model('code\page');
 			foreach ($schemas as &$schema) {
 				if ($schema->type === 'inner') {
 					if (isset($schema->siteid) && isset($schema->id)) {
@@ -26,14 +26,21 @@ class memberschema_model extends \TMS_MODEL {
 				if (!empty($schema->extattr)) {
 					$schema->extattr = json_decode($schema->extattr);
 				}
-				if (!empty($schema->page_code_name)) {
-					$page = $modelCp->lastPublishedByName(
-						$schema->siteid,
-						$schema->page_code_name,
-						['fields' => 'id,html,css,js']
-					);
-					$schema->page = $page;
-				}
+				// if (!empty($schema->page_code_name)) {
+				// 	$page = $modelCp->lastPublishedByName(
+				// 		$schema->siteid,
+				// 		$schema->page_code_name,
+				// 		['fields' => 'id,html,css,js']
+				// 	);
+				// 	$schema->page = $page;
+				// }
+				$templateDir = TMS_APP_TEMPLATE . '/pl/fe/site/memberschema';
+				$page = new \stdClass;
+				$page->html = file_get_contents($templateDir . '/basic.html');
+				$page->css = file_get_contents($templateDir . '/basic.css');
+				$page->js = file_get_contents($templateDir . '/basic.js');
+				$schema->page = $page;
+
 			}
 		}
 

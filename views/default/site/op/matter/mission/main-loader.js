@@ -21,9 +21,9 @@ window.loading = {
                 "ui-bootstrap": "/static/js/ui-bootstrap-tpls.min",
                 "ui-tms": "/static/js/ui-tms",
                 "ui-xxt": "/static/js/xxt.ui",
-                "xxt-page": "/static/js/xxt.ui.page",
                 "matterService": "/views/default/pl/fe/_module/matter.service",
                 "missionService": '/views/default/pl/fe/matter/mission/lib/mission.service',
+                "main": '/views/default/site/op/matter/mission/main',
             },
             shim: {
                 "angular": {
@@ -52,9 +52,7 @@ window.loading = {
         });
         require(['ui-tms'], function() {
             require(['missionService'], function() {
-                require(['xxt-page'], function(uiPage) {
-                    uiPage.bootstrap('/views/default/site/op/matter/mission/main.js');
-                });
+                require(['main']);
             });
         });
     }

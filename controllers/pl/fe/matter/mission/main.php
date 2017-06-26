@@ -34,7 +34,7 @@ class main extends \pl\fe\matter\base {
 		if (false === ($acl = $modelAcl->byCoworker($id, $oUser->id))) {
 			return new \ResponseError('项目不存在');
 		}
-		$oMission = $this->model('matter\mission')->byId($id, ['cascaded' => 'header_page_name,footer_page_name']);
+		$oMission = $this->model('matter\mission')->byId($id, ['cascaded' => 'header_page_name,footer_page_name,phase']);
 		/* 关联的用户名单活动 */
 		if ($oMission->user_app_id) {
 			if ($oMission->user_app_type === 'enroll') {

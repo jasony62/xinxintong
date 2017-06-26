@@ -122,6 +122,32 @@ class member extends \site\fe\base {
 		return new \ResponseData($params);
 	}
 	/**
+	 * 获得自定义用户的定义
+	 */
+	public function get_action($site, $schema) {
+
+		$oSchema = $this->model('site\user\memberschema')->byId($schema);
+		if ($oSchema === false) {
+			return new \ResponseError('指定的自定义用户定义不存在');
+		}
+		/* 已填写的用户信息 */
+		$modelMem = $this->model('site\user\member');
+		$oUser = $this->who;
+		$oMember = $modelMem->byUser($oUser->uid, ['schemas' => $schema]);
+		if (count($oMember) > 1) {
+			return new \ResponseError('数据错误，当前用户已经绑定多个联系人信息，请检查');
+		}
+		if (count($oMember) === 1) {
+			$oMember = $oMember[0];
+			if (!isset($oUser->members)) {
+				$oUser->members = new \stdClass;
+			}
+			$oUser->members->{$schema} = $oMember;
+		}
+
+		return new \ResponseData($oUser);
+	}
+	/**
 	 * 提交站点自定义用户信息
 	 * 站点自定义用户信息只能绑定到注册主访客账号
 	 *

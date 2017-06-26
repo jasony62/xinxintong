@@ -30,7 +30,7 @@ var LS = (function(fields) {
         j: j
     };
 })(['site', 'schema', 'debug']);
-var ngApp = angular.module('app', ['page.ui.xxt']);
+var ngApp = angular.module('app', ['ui.bootstrap', 'page.ui.xxt']);
 ngApp.config(['$controllerProvider', function($cp) {
     ngApp.provider = {
         controller: $cp.register
@@ -150,10 +150,12 @@ ngApp.controller('ctrlMember', ['$scope', '$http', '$timeout', '$q', 'tmsDynaPag
                 $scope.errmsg = rsp.err_msg;
                 return;
             }
-            var user = rsp.data;
-            $scope.user = user;
-            setMember(user);
-            deferred.resolve(user);
+            $http.get(LS.j('get', 'site', 'schema')).success(function(rsp) {
+                var user = rsp.data;
+                $scope.user = user;
+                setMember(user);
+                deferred.resolve(user);
+            });
         }).error(function(text) {
             $scope.errmsg = text;
             deferred.reject(text);
@@ -267,4 +269,8 @@ ngApp.controller('ctrlMember', ['$scope', '$http', '$timeout', '$q', 'tmsDynaPag
     }).error(function(content, httpCode) {
         $scope.errmsg = content;
     });
+    $scope.isSmallLayout = false;
+    if (window.screen && window.screen.width <= 768) {
+        $scope.isSmallLayout = true;
+    }
 }]);

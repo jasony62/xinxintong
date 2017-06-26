@@ -38,7 +38,7 @@ class notice extends \pl\fe\matter\base {
 			$options = [
 				'rid' => $rid,
 			];
-			$participants = $modelRec->find($app, $options, $criteria);
+			$participants = $modelRec->byApp($app, $options, $criteria);
 		} else if (isset($posted->users)) {
 			// 直接指定
 			$participants = $posted->users;

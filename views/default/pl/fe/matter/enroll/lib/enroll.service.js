@@ -334,11 +334,6 @@ define(['require', 'schema', 'page'], function(require, schemaLib, pageLib) {
                             entryRule.member === undefined && (entryRule.member = {});
                             entryRule.other === undefined && (entryRule.other = {});
                             entryRule.other.entry = '$memberschema';
-                            memberSchemas.forEach(function(ms) {
-                                entryRule.member[ms.id] = {
-                                    entry: defaultInputPage ? defaultInputPage.name : ''
-                                };
-                            });
                             break;
                         case 'sns':
                             entryRule.sns === undefined && (entryRule.sns = {});

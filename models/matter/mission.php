@@ -19,7 +19,7 @@ class mission_model extends app_base {
 		return 'mission';
 	}
 	/**
-	 *
+	 * 获得访问入口url
 	 */
 	public function getEntryUrl($siteId, $id) {
 		$url = "http://" . APP_HTTP_HOST;
@@ -50,6 +50,7 @@ class mission_model extends app_base {
 		if (($mission = $this->query_obj_ss($q))) {
 			$mission->type = 'mission';
 			$mission->entry_rule = isset($mission->entry_rule) ? json_decode($mission->entry_rule) : new \stdClass;
+			$mission->entryUrl = $this->getEntryUrl($mission->siteid, $mission->id);
 			if (!empty($cascaded)) {
 				$cascaded = explode(',', $cascaded);
 				$modelCode = \TMS_APP::M('code\page');

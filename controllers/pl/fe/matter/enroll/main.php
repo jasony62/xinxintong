@@ -23,33 +23,31 @@ class main extends \pl\fe\matter\base {
 	 * 返回一个登记活动
 	 */
 	public function get_action($site, $id) {
-		if (false === ($user = $this->accountUser())) {
+		if (false === ($oUser = $this->accountUser())) {
 			return new \ResponseTimeout();
 		}
 
 		$modelEnl = $this->model('matter\enroll');
-		$app = $modelEnl->byId($id);
+		if (false === ($oApp = $modelEnl->byId($id))) {
+			return new \ResponseError('指定的数据不存在');
+		}
 
 		/* channels */
-		$app->channels = $this->model('matter\channel')->byMatter($id, 'enroll');
-		/* acl */
-		$app->acl = $this->model('matter\acl')->byMatter($site, 'enroll', $id);
-		/* 登记通知接收人 */
-		$app->receiver = $this->model('matter\acl')->enrollReceiver($site, $id);
+		$oApp->channels = $this->model('matter\channel')->byMatter($id, 'enroll');
 		/* 所属项目 */
-		if ($app->mission_id) {
-			$app->mission = $this->model('matter\mission')->byId($app->mission_id, ['cascaded' => 'phase']);
+		if ($oApp->mission_id) {
+			$oApp->mission = $this->model('matter\mission')->byId($oApp->mission_id, ['cascaded' => 'phase']);
 		}
 		/* 关联登记活动 */
-		if ($app->enroll_app_id) {
-			$app->enrollApp = $modelEnl->byId($app->enroll_app_id);
+		if ($oApp->enroll_app_id) {
+			$oApp->enrollApp = $modelEnl->byId($oApp->enroll_app_id, ['cascaded' => 'N']);
 		}
 		/* 关联分组活动 */
-		if ($app->group_app_id) {
-			$app->groupApp = $this->model('matter\group')->byId($app->group_app_id);
+		if ($oApp->group_app_id) {
+			$oApp->groupApp = $this->model('matter\group')->byId($oApp->group_app_id);
 		}
 
-		return new \ResponseData($app);
+		return new \ResponseData($oApp);
 	}
 	/**
 	 * 返回登记活动列表
@@ -533,7 +531,7 @@ class main extends \pl\fe\matter\base {
 			$newapp['summary'] = '';
 			$newapp['use_mission_header'] = 'N';
 			$newapp['use_mission_footer'] = 'N';
-			$mission=null;
+			$mission = null;
 		} else {
 			$modelMis = $this->model('matter\mission');
 			$mission = $modelMis->byId($mission);
@@ -544,7 +542,7 @@ class main extends \pl\fe\matter\base {
 			$newapp['use_mission_footer'] = 'Y';
 		}
 		$appId = uniqid();
-		$customConfig=isset($config->customConfig) ? $config->customConfig : null;
+		$customConfig = isset($config->customConfig) ? $config->customConfig : null;
 		!empty($config->scenario) && $newapp['scenario'] = $config->scenario;
 		/* 登记数量限制 */
 		if (isset($config->count_limit)) {
@@ -590,8 +588,8 @@ class main extends \pl\fe\matter\base {
 		$modelApp->setOnlyWriteDbConn(true);
 		$modelApp->insert('xxt_enroll', $newapp, false);
 		/* 保存数据 */
-		$records=$config->records;
-		$this->_persist($site->id,$appId,$records);
+		$records = $config->records;
+		$this->_persist($site->id, $appId, $records);
 
 		$app = $modelApp->byId($appId);
 		/* 记录操作日志 */
@@ -1500,7 +1498,7 @@ class main extends \pl\fe\matter\base {
 			);
 			/* 填充页面 */
 			if (!empty($page->code)) {
-				$code = (array)$page->code;
+				$code = (array) $page->code;
 				/* 页面存在动态信息 */
 				$matched = [];
 				$pattern = '/<!-- begin: generate by schema -->.*<!-- end: generate by schema -->/s';
@@ -1654,7 +1652,7 @@ class main extends \pl\fe\matter\base {
 			return new \ResponseTimeout();
 		}
 
-		$modelEnroll=\TMS_APP::M('matter\enroll');
+		$modelEnroll = \TMS_APP::M('matter\enroll');
 		$oApp = $modelEnroll->byId($app);
 		$template = new \stdClass;
 		/* setting */
@@ -1663,34 +1661,34 @@ class main extends \pl\fe\matter\base {
 
 		/* schema */
 		$template->schema = json_decode($oApp->data_schemas);
-		
+
 		/* pages */
-		$pages=$oApp->pages;
+		$pages = $oApp->pages;
 		foreach ($pages as &$rec) {
-			$rec->data_schemas=json_decode($rec->data_schemas);
-			$rec->act_schemas=json_decode($rec->act_schemas);
-			$code=new \stdClass;
-			$code->css=$rec->css;
-			$code->js=$rec->js;
-			$code->html=$rec->html;
-			$rec->code=$code;
+			$rec->data_schemas = json_decode($rec->data_schemas);
+			$rec->act_schemas = json_decode($rec->act_schemas);
+			$code = new \stdClass;
+			$code->css = $rec->css;
+			$code->js = $rec->js;
+			$code->html = $rec->html;
+			$rec->code = $code;
 		}
-		$template->pages=$pages;
- 		
- 		/* entry_rule */
- 		$template->entryRule=$oApp->entry_rule;
+		$template->pages = $pages;
+
+		/* entry_rule */
+		$template->entryRule = $oApp->entry_rule;
 
 		/* records */
-		$records=$modelEnroll->query_objs_ss([
+		$records = $modelEnroll->query_objs_ss([
 			'id,userid,openid,nickname,data',
 			'xxt_enroll_record',
-			['siteid'=>$site,'aid'=>$app]
+			['siteid' => $site, 'aid' => $app],
 		]);
 
 		foreach ($records as &$rec) {
-			$rec->data=json_decode($rec->data);
+			$rec->data = json_decode($rec->data);
 		}
-		$template->records=$records;
+		$template->records = $records;
 
 		$template = \TMS_MODEL::toJson($template);
 		header("Cache-Control: public");

@@ -76,7 +76,7 @@ define(['frame'], function(ngApp) {
         $scope.opEntry = opEntry = {};
         srvSigninApp.get().then(function(app) {
             targetUrl = app.opUrl;
-            host = targetUrl.match(/\/\/(\w+)\//);
+            host = targetUrl.match(/\/\/(\S+?)\//);
             host = host.length === 2 ? host[1] : location.host;
             srvQuickEntry.get(targetUrl).then(function(entry) {
                 if (entry) {

@@ -113,7 +113,7 @@ define(['missionService', 'enrollService', 'signinService'], function() {
         $scope.$watch('mission', function(mission) {
             if (!mission) return;
             targetUrl = mission.opUrl;
-            host = targetUrl.match(/\/\/(\w+)\//);
+            host = targetUrl.match(/\/\/(\S+?)\//);
             host = host.length === 2 ? host[1] : location.host;
             srvQuickEntry.get(targetUrl).then(function(entry) {
                 if (entry) {

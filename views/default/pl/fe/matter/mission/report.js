@@ -74,76 +74,12 @@ define(['frame'], function(ngApp) {
             });
         };
         $scope.chooseApps = function() {
-            $uibModal.open({
-                templateUrl: 'chooseApps.html',
-                controller: ['$scope', '$uibModalInstance', function($scope2, $mi) {
-                    var oCriteria, oReportConfig, oIncludeApps = {};
-                    $scope2.criteria = oCriteria = {
-                        mission_phase_id: ''
-                    };
-                    if (oReportConfig = $scope.mission.reportConfig) {
-                        if (oReportConfig.include_apps) {
-                            oReportConfig.include_apps.forEach(function(oApp) {
-                                oIncludeApps[oApp.type + oApp.id] = true;
-                            });
-                        }
-                    }
-                    // 选中的记录
-                    $scope2.rows = {
-                        allSelected: 'N',
-                        selected: {},
-                        reset: function() {
-                            this.allSelected = 'N';
-                            this.selected = {};
-                        }
-                    };
-                    $scope2.$watch('rows.allSelected', function(checked) {
-                        var index = 0;
-                        if (checked === 'Y') {
-                            while (index < $scope2.matters.length) {
-                                $scope2.rows.selected[index++] = true;
-                            }
-                        } else if (checked === 'N') {
-                            $scope2.rows.selected = {};
-                        }
-                    });
-                    $scope2.doSearch = function() {
-                        $scope2.rows.reset();
-                        srvMission.matterList(oCriteria).then(function(matters) {
-                            $scope2.matters = matters;
-                            if (matters && matters.length) {
-                                matters.forEach(function(oMatter, index) {
-                                    if (oIncludeApps[oMatter.type + oMatter.id]) {
-                                        $scope2.rows.selected[index] = true;
-                                    }
-                                });
-                            }
-                        });
-                    };
-                    $scope2.cancel = function() {
-                        $mi.dismiss();
-                    };
-                    $scope2.ok = function() {
-                        var selected = [];
-                        for (var i in $scope2.rows.selected) {
-                            if ($scope2.rows.selected[i]) {
-                                selected.push($scope2.matters[i]);
-                            }
-                        }
-                        $mi.close(selected);
-                    };
-                    http2.get('/rest/pl/fe/matter/mission/phase/list?mission=' + $scope.mission.id, function(rsp) {
-                        $scope2.phases = rsp.data;
-                    });
-                    $scope2.doSearch();
-                }],
-                backdrop: 'static'
-            }).result.then(function(apps) {
+            srvMission.chooseApps($scope.mission).then(function(apps) {
                 $scope.makeReport(apps);
             });
         };
         $scope.moveUp = function(matter, index) {
-            var apps, rpConfig;
+            var apps;
             if (index === 0) return;
             apps = $scope.report.orderedApps;
             apps.splice(index, 1);
@@ -192,9 +128,6 @@ define(['frame'], function(ngApp) {
                             _enrollAppSchemas[oMatter.id] = schemasById;
                         }
                     }
-                    if ($scope.mission.reportConfig) {
-
-                    }
                 });
             });
         };
@@ -205,7 +138,6 @@ define(['frame'], function(ngApp) {
             window.open(url);
         };
         var _enrollAppSchemas;
-        $scope.closeMatters = true;
         $scope.enrollAppSchemas = _enrollAppSchemas = {};
         $scope.$watch('mission', function(mission) {
             if (!mission) return;
@@ -213,9 +145,6 @@ define(['frame'], function(ngApp) {
                 $scope.makeReport();
             }
         });
-        var _oResultSet;
-        $scope.resultSet = _oResultSet = {};
-        $scope.tmsTableWrapReady = 'N';
         $scope.chooseUser = function(oUser, oApp) {
             $scope.recordsByApp = {};
             $scope.activeUser = oUser;
@@ -274,14 +203,9 @@ define(['frame'], function(ngApp) {
                 default:
                     break;
             }
-            url += '?site=' + app.siteid;
+            url += '?site=' + $scope.mission.siteid;
             url += '&id=' + app.id;
             location.href = url;
         };
-        $scope.$watch('mission.userApp', function(userApp) {
-            if (!userApp) {
-                _oResultSet.users && _oResultSet.users.splice(0, _oResultSet.users.length);
-            }
-        });
     }]);
 });

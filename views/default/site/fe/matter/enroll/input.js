@@ -53,29 +53,7 @@ ngApp.factory('Input', ['$http', '$q', '$timeout', 'ls', function($http, $q, $ti
                     }
                 }
                 if (value) {
-                    if (schema.type === 'mobile') {
-                        if (!/^(\+86|0086)?\s*1[3|4|5|7|8]\d{9}$/.test(value)) {
-                            return '题目［' + schema.title + '］只能填写手机号（11位数字）';
-                        }
-                    }
-                    if (schema.type === 'name') {
-                        if (value.length < 2) {
-                            return '题目［' + schema.title + '］请输入正确的姓名（不少于2个字符）';
-                        }
-                    }
-                    if (schema.type === 'email') {
-                        if (!/^\w+@\w+/.test(value)) {
-                            return '题目［' + schema.title + '］请输入正确的邮箱';
-                        }
-                    }
-                    //最终删掉 schema.number
-                    if (schema.type === 'shorttext' && schema.number && schema.number === 'Y') {
-                        value = data[schema.id];
-                        if (!/^-{0,1}[0-9]+(.[0-9]+){0,1}$/.test(value)) {
-                            return '题目［' + schema.title + '］请输入数值';
-                        }
-                    }
-                    if (schema.format) {
+                    if (schema.type === 'shorttext' && schema.format) {
                         if (schema.format === 'number') {
                             if (!/^-{0,1}[0-9]+(.[0-9]+){0,1}$/.test(value)) {
                                 return '题目［' + schema.title + '］请输入数值';
@@ -89,11 +67,6 @@ ngApp.factory('Input', ['$http', '$q', '$timeout', 'ls', function($http, $q, $ti
                                 return '题目［' + schema.title + '］请输入正确的手机号（11位数字）';
                             }
                         } else if (schema.format === 'email') {
-                            //1. 开头字母数字下划线 至少一个 ^\w+
-                            //2. 一个@
-                            //3.字母数字下划线 至少一个 \w+
-                            //4. 一个'.' 注意. 在增则中有意义需要转译  \.
-                            //   /^\w+@\w+/
                             if (!/^\w+@\w+/.test(value)) {
                                 return '题目［' + schema.title + '］请输入正确的邮箱';
                             }
@@ -344,7 +317,7 @@ ngApp.directive('tmsFileInput', ['$q', 'ls', 'tmsDynaPage', function($q, LS, tms
     }
 }]);
 ngApp.controller('ctrlInput', ['$scope', '$http', '$q', '$uibModal', '$timeout', 'Input', 'ls', 'http2', function($scope, $http, $q, $uibModal, $timeout, Input, LS, http2) {
-    function setMember(user, member) {
+    function processMember(user, member) {
         var member2, eles;
         if (user && member && member.schema_id && user.members) {
             if (member2 = user.members[member.schema_id]) {
@@ -406,20 +379,18 @@ ngApp.controller('ctrlInput', ['$scope', '$http', '$q', '$uibModal', '$timeout',
                 $scope.$broadcast('xxt.app.enroll.submit.done', rsp.data);
             }
         }, function(rsp) {
-            if (typeof rsp === 'string') {
+            if (rsp && typeof rsp === 'string') {
                 $scope.$parent.errmsg = rsp;
-            } else {
+                return;
+            }
+            if (rsp && rsp.err_msg) {
                 $scope.$parent.errmsg = rsp.err_msg;
                 submitState.finish();
+                return;
             }
-        }, function(rsp) {
-            if (typeof rsp === 'string') {
-                $scope.$parent.errmsg = rsp;
-            } else {
-                $scope.$parent.errmsg = rsp.err_msg;
-                submitState.finish();
-            }
-        });
+            $scope.$parent.errmsg = '网络异常，提交失败';
+            submitState.finish();
+        }, function(rsp) {});
     }
 
     window.onbeforeunload = function() {
@@ -476,7 +447,7 @@ ngApp.controller('ctrlInput', ['$scope', '$http', '$q', '$uibModal', '$timeout',
         },
         _cacheKey: function() {
             var app = $scope.app;
-            return '/site/' + app.siteid + '/app/' + app.id + '/record/' + ($scope.record ? $scope.record.enroll_key : '') + '/unsubmit';
+            return '/site/' + app.siteid + '/app/enroll/' + app.id + '/record/' + ($scope.record ? $scope.record.enroll_key : '') + '/unsubmit';
         },
         cache: function() {
             if (window.localStorage) {
@@ -510,7 +481,6 @@ ngApp.controller('ctrlInput', ['$scope', '$http', '$q', '$uibModal', '$timeout',
             tasksOfBeforeSubmit.push(fn);
         }
     };
-    var hasSetMember = false;
     $scope.$on('xxt.app.enroll.ready', function(event, params) {
         var schemasById,
             dataOfRecord, p, value;
@@ -572,16 +542,17 @@ ngApp.controller('ctrlInput', ['$scope', '$http', '$q', '$uibModal', '$timeout',
         }, true);
         // 登录提示
         if (!params.user.unionid) {
-            var domTip = document.querySelector('#appLoginTip');
-            var evt = document.createEvent("HTMLEvents");
-            evt.initEvent("show", false, false);
-            domTip.dispatchEvent(evt);
+            //var domTip = document.querySelector('#appLoginTip');
+            //var evt = document.createEvent("HTMLEvents");
+            //evt.initEvent("show", false, false);
+            //domTip.dispatchEvent(evt);
         }
     });
+    var hasProcessMember = false;
     $scope.$watch('data.member.schema_id', function(schemaId) {
-        if (false === hasSetMember && schemaId && $scope.user) {
-            setMember($scope.user, $scope.data.member);
-            hasSetMember = true;
+        if (false === hasProcessMember && schemaId && $scope.user) {
+            processMember($scope.user, $scope.data.member);
+            hasProcessMember = true;
         }
     });
     $scope.submit = function(event, nextAction) {

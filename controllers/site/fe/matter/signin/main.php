@@ -138,22 +138,52 @@ class main extends base {
 		$params = [];
 
 		// 签到活动定义
-		$signinApp = $this->modelApp->byId($app, ['cascaded' => 'N']);
-		$params['app'] = &$signinApp;
+		$oApp = $this->modelApp->byId($app, ['cascaded' => 'N']);
+		$params['app'] = &$oApp;
 
 		// 当前访问用户的基本信息
 		$oUser = $this->who;
+
+		/* 补充联系人信息 */
+		if (isset($oApp->entry_rule->scope) && $oApp->entry_rule->scope === 'member') {
+			$modelMem = $this->model('site\user\member');
+			if (empty($oUser->unionid)) {
+				$aMembers = $modelMem->byUser($oUser->uid);
+				if (count($aMembers)) {
+					!isset($oUser->members) && $oUser->members = new \stdClass;
+					foreach ($aMembers as $oMember) {
+						if (isset($oApp->entry_rule->member->{$oMember->schema_id})) {
+							$oUser->members->{$oMember->schema_id} = $oMember;
+						}
+					}
+				}
+			} else {
+				$modelAcnt = $this->model('site\user\account');
+				$aUnionUsers = $modelAcnt->byUnionid($oUser->unionid, ['siteid' => $oApp->siteid, 'fields' => 'uid']);
+				foreach ($aUnionUsers as $oUnionUser) {
+					$aMembers = $modelMem->byUser($oUnionUser->uid);
+					if (count($aMembers)) {
+						!isset($oUser->members) && $oUser->members = new \stdClass;
+						foreach ($aMembers as $oMember) {
+							if (isset($oApp->entry_rule->member->{$oMember->schema_id})) {
+								$oUser->members->{$oMember->schema_id} = $oMember;
+							}
+						}
+					}
+				}
+			}
+		}
 		$params['user'] = $oUser;
 
 		// 当前轮次
-		$activeRound = $this->model('matter\signin\round')->getActive($site, $signinApp->id);
+		$activeRound = $this->model('matter\signin\round')->getActive($site, $oApp->id);
 		$params['activeRound'] = $activeRound;
 
 		// 打开哪个页面？
 		if (empty($page)) {
-			$oPage = $this->_defaultPage($signinApp, false, $activeRound);
+			$oPage = $this->_defaultPage($oApp, false, $activeRound);
 		} else {
-			$oPage = $this->model('matter\signin\page')->byName($signinApp->id, $page);
+			$oPage = $this->model('matter\signin\page')->byName($oApp->id, $page);
 		}
 		if (empty($oPage)) {
 			return new \ResponseError('页面不存在');
@@ -161,17 +191,17 @@ class main extends base {
 		$params['page'] = $oPage;
 
 		// 团队页面设置
-		if ($signinApp->use_site_header === 'Y' || $signinApp->use_site_footer === 'Y') {
+		if ($oApp->use_site_header === 'Y' || $oApp->use_site_footer === 'Y') {
 			$params['site'] = $this->model('site')->byId(
 				$site,
 				['cascaded' => 'header_page_name,footer_page_name']
 			);
 		}
 		// 项目页面设置
-		if ($signinApp->use_mission_header === 'Y' || $signinApp->use_mission_footer === 'Y') {
-			if ($signinApp->mission_id) {
+		if ($oApp->use_mission_header === 'Y' || $oApp->use_mission_footer === 'Y') {
+			if ($oApp->mission_id) {
 				$params['mission'] = $this->model('matter\mission')->byId(
-					$signinApp->mission_id,
+					$oApp->mission_id,
 					['cascaded' => 'header_page_name,footer_page_name']
 				);
 			}
@@ -185,14 +215,14 @@ class main extends base {
 				'cascaded' => 'Y',
 			];
 			$modelRec = $this->model('matter\signin\record');
-			if (false === ($oUserRecord = $modelRec->byUser($oUser, $signinApp, $options))) {
+			if (false === ($oUserRecord = $modelRec->byUser($oUser, $oApp, $options))) {
 				// 如果关联了报名记录，从报名记录中获得登记信息
-				if (!empty($signinApp->enroll_app_id)) {
-					$oUserRecord = $this->_recordByEnroll($signinApp, $oUser);
+				if (!empty($oApp->enroll_app_id)) {
+					$oUserRecord = $this->_recordByEnroll($oApp, $oUser);
 				}
 				/* 关联了分组活动 */
-				if (!empty($signinApp->group_app_id)) {
-					$oGrpApp = $this->model('matter\group')->byId($signinApp->group_app_id, ['cascaded' => 'N']);
+				if (!empty($oApp->group_app_id)) {
+					$oGrpApp = $this->model('matter\group')->byId($oApp->group_app_id, ['cascaded' => 'N']);
 					$oGrpPlayer = $this->model('matter\group\player')->byUser($oGrpApp, $oUser->uid);
 					if (count($oGrpPlayer) === 1) {
 						if (!empty($oGrpPlayer[0]->data)) {

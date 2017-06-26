@@ -40,8 +40,22 @@ class register extends \site\fe\base {
 	public function do_action() {
 		$user = $this->who;
 		$data = $this->getPostJson();
-		if (empty($data->uname) || empty($data->password)) {
-			return new \ResponseError("注册信息不完整");
+		if (empty($data->uname)) {
+			return new \ResponseError("登录账号不允许为空");
+		}
+		$uname = $data->uname;
+		$isValidUname = false;
+		if (1 === preg_match('/^[A-Za-z\d]+([-_.][A-Za-z\d]+)*@([A-Za-z\d]+[-.])+[A-Za-z\d]{2,4}$/', $uname)) {
+			$isValidUname = true;
+		} else if (1 === preg_match('/^1(3[0-9]|4[57]|5[0-35-9]|7[0135678]|8[0-9])\\d{8}$/', $uname)) {
+			$isValidUname = true;
+		}
+		if (false === $isValidUname) {
+			return new \ResponseError("请使用手机号或邮箱作为登录账号");
+		}
+		die('xxxxx');
+		if (empty($data->password)) {
+			return new \ResponseError("登录密码不允许为空");
 		}
 
 		$modelWay = $this->model('site\fe\way');
@@ -52,7 +66,6 @@ class register extends \site\fe\base {
 
 		$modelReg = $this->model('site\user\registration');
 		/* uname */
-		$uname = $data->uname;
 		/* password */
 		$password = $data->password;
 

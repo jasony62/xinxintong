@@ -10,6 +10,11 @@ class main extends \site\op\base {
 	 *
 	 */
 	public function index_action($mission) {
+		if (!$this->checkAccessToken()) {
+			header('HTTP/1.0 500 parameter error:accessToken is invalid.');
+			die('没有获得有效访问令牌！');
+		}
+
 		$mission = $this->model('matter\mission')->byId($mission);
 		if ($mission) {
 			\TPL::assign('title', $mission->title);
@@ -21,6 +26,10 @@ class main extends \site\op\base {
 	 *
 	 */
 	public function get_action($mission) {
+		if (!$this->checkAccessToken()) {
+			return new \InvalidAccessToken();
+		}
+
 		$params = [];
 		/* 项目定义 */
 		$modelMis = $this->model('matter\mission');
@@ -38,16 +47,6 @@ class main extends \site\op\base {
 		}
 
 		$params['mission'] = &$mission;
-		/* 页面定义 */
-		$templateDir = TMS_APP_TEMPLATE . '/site/op/matter/mission';
-		$templateName = $templateDir . '/basic';
-
-		$page = [
-			'html' => file_get_contents($templateName . '.html'),
-			'css' => file_get_contents($templateName . '.css'),
-			'js' => file_get_contents($templateName . '.js'),
-		];
-		$params['page'] = &$page;
 
 		return new \ResponseData($params);
 	}

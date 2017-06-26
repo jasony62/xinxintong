@@ -4,7 +4,7 @@ define(['frame'], function(ngApp) {
     ngApp.provider.controller('ctrlSetting', ['$scope', 'http2', '$uibModal', 'mediagallery', function($scope, http2, $uibModal, mediagallery) {
         $scope.$watch('mission', function(oMission) {
             if (!oMission) return;
-            $scope.entry = { url: 'http://' + location.host + '/rest/site/fe/matter/mission?site=' + oMission.siteid + '&mission=' + oMission.id }
+            $scope.entry = { url: oMission.entryUrl }
         });
         $scope.remove = function() {
             if (window.confirm('确定删除项目？')) {
@@ -23,12 +23,8 @@ define(['frame'], function(ngApp) {
             mediagallery.open($scope.siteId, options);
         };
         $scope.removePic = function() {
-            var nv = {
-                pic: ''
-            };
-            http2.post('/rest/pl/fe/matter/mission/setting/update?id=' + $scope.mission.id, nv, function() {
-                $scope.mission.pic = '';
-            });
+            $scope.mission.pic = '';
+            $scope.update('pic');
         };
         $scope.$on('xxt.tms-datepicker.change', function(event, data) {
             var prop;
@@ -175,9 +171,7 @@ define(['frame'], function(ngApp) {
         });
         $scope.$watch('mission', function(mission) {
             if (mission) {
-                http2.get('/rest/pl/fe/matter/mission/phase/list?mission=' + $scope.mission.id, function(rsp) {
-                    $scope.phases = rsp.data;
-                });
+                $scope.phases = mission.phases;
             }
         });
     }]);

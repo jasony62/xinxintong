@@ -37,6 +37,16 @@ class mission_model extends app_base {
 		return $url;
 	}
 	/**
+	 * 获得访问入口url
+	 */
+	public function getOpUrl($siteId, $id) {
+		$url = "http://" . APP_HTTP_HOST;
+		$url .= "/rest/site/op/matter/mission";
+		$url .= "?site={$siteId}&mission=" . $id;
+
+		return $url;
+	}
+	/**
 	 *
 	 */
 	public function &byId($id, $options = []) {
@@ -51,6 +61,7 @@ class mission_model extends app_base {
 			$mission->type = 'mission';
 			$mission->entry_rule = isset($mission->entry_rule) ? json_decode($mission->entry_rule) : new \stdClass;
 			$mission->entryUrl = $this->getEntryUrl($mission->siteid, $mission->id);
+			$mission->opUrl = $this->getOpUrl($mission->siteid, $mission->id);
 			if (!empty($cascaded)) {
 				$cascaded = explode(',', $cascaded);
 				$modelCode = \TMS_APP::M('code\page');

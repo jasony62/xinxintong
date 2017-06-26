@@ -28,7 +28,9 @@ class main extends \pl\fe\matter\base {
 		}
 
 		$modelEnl = $this->model('matter\enroll');
-		$oApp = $modelEnl->byId($id);
+		if (false === ($oApp = $modelEnl->byId($id))) {
+			return new \ResponseError('指定的数据不存在');
+		}
 
 		/* channels */
 		$oApp->channels = $this->model('matter\channel')->byMatter($id, 'enroll');

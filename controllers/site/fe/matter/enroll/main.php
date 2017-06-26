@@ -38,8 +38,16 @@ class main extends base {
 			$this->_requireSnsOAuth($site, $oApp);
 		}
 
-		// 检查进入规则
-		$this->checkEntryRule($oApp, true);
+		$skipEntryCheck = false;
+		if (!empty($page) && !empty($oApp->entry_rule->exclude)) {
+			if (in_array($page, $oApp->entry_rule->exclude)) {
+				$skipEntryCheck = true;
+			}
+		}
+		// 检查进入活动规则
+		if (!$skipEntryCheck) {
+			$this->checkEntryRule($oApp, true);
+		}
 
 		/* 返回登记活动页面 */
 		if ($page === 'repos') {

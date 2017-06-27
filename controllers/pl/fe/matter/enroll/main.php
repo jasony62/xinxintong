@@ -20,6 +20,71 @@ class main extends \pl\fe\matter\base {
 		exit;
 	}
 	/**
+	 * 填空转单选
+	 * $tid 题目Id
+	 */
+	public function inputToSingle_action($site,$id,$tid){
+		if (false === ($oUser = $this->accountUser())) {
+			return new \ResponseTimeout();
+		}
+
+		$modelEnl = $this->model('matter\enroll');
+		if (false === ($oApp = $modelEnl->byId($id))) {
+			return new \ResponseError('指定的数据不存在');
+		}
+
+		$records=$modelEnl->query_objs_ss(['id,schema_id,value','xxt_enroll_record_data',['aid'=>$id,'schema_id'=>$tid]]);
+		echo "<pre>";
+		//print_r($records);
+		$total=count($records);
+		for ($i=0; $i < $total; $i++) { 
+			for ($j=$i+1; $j <= $total-$i; $j++) { 
+				if(isset($records[$i]) && isset($records[$j]) && $records[$i]->value==$records[$j]->value){
+					unset($records[$j]);
+				}else{
+					continue;
+				}
+			}
+		}
+		
+		//添加选项
+		$n=1;
+		foreach ($records as $k => $v) {
+			$one['l']=$v->value;
+			$one['v']='v'.$n++;
+			$two[]=(object)$one;
+		}
+		//定义的更新
+		$dataSchemas=$oApp->dataSchemas;
+		
+		foreach ($dataSchemas as &$rec) {
+			if($rec->id==$tid){
+				$rec->type="single";
+				unset($rec->format);
+				$rec->ops=$two;
+			}
+		}
+		$d['data_schemas']=\TMS_MODEL::toJson($dataSchemas);
+		$modelEnl->update('xxt_enroll',$d,['id'=>$id]);
+		//页面的更新
+		$pages=$modelEnl->query_objs_ss(['id,data_schemas','xxt_enroll_page',['aid'=>$id]]);
+		foreach ($pages as &$page) {
+			$page->data_schemas=json_decode($page->data_schemas);
+			foreach ($page->data_schemas as &$v2) {			
+				if($v2->schema->id==$tid){
+					$v2->schema->type="single";
+					unset($v2->schema->format);
+					$v2->schema->ops=$two;
+				}
+			}
+			$d['data_schemas']=\TMS_MODEL::toJson($page->data_schemas);
+			$modelEnl->update('xxt_enroll_page',$d,['id'=>$page->id]);	
+		}
+	
+		//print_r($pages);
+		die('ok');
+	}
+	/**
 	 * 返回一个登记活动
 	 */
 	public function get_action($site, $id) {

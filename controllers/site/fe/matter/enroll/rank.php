@@ -51,6 +51,11 @@ class rank extends base {
 			$q[2] .= ' and like_other_num>0';
 			$q2 = ['o' => 'like_other_num desc,last_like_other_at'];
 			break;
+		case 'total_coin':
+			$q[0] .= ',user_total_coin';
+			$q[2] .= ' and user_total_coin>0';
+			$q2 = ['o' => 'user_total_coin desc,id'];
+			break;
 		}
 		$q2['r'] = ['o' => ($page - 1) * $size, 'l' => $size];
 

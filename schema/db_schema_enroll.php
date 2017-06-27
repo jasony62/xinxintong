@@ -297,6 +297,7 @@ $sql .= ",last_like_other_at int not null default 0"; // 最后一次对登记�
 $sql .= ",like_other_num int not null default 0"; // 对登记内容进行点赞的次数
 $sql .= ",last_like_other_remark_at int not null default 0"; // 最后一次对评论进行点赞的时间
 $sql .= ",like_other_remark_num int not null default 0"; // 对评论进行点赞的次数
+$sql .= ",user_total_coin int not null default 0"; // 用户在某个活动中的总分数
 $sql .= ",primary key(id)) ENGINE=MyISAM DEFAULT CHARSET=utf8";
 if (!$mysqli->query($sql)) {
 	header('HTTP/1.0 500 Internal Server Error');

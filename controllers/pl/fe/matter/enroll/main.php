@@ -33,8 +33,8 @@ class main extends \pl\fe\matter\base {
 			return new \ResponseError('指定的数据不存在');
 		}
 
-		$records=$modelEnl->query_objs_ss(['id,schema_id,value','xxt_enroll_record_data',['aid'=>$id,'schema_id'=>$tid]]);
-		echo "<pre>";
+		$records=$modelEnl->query_objs_ss(['id,enroll_key,schema_id,value','xxt_enroll_record_data',['aid'=>$id,'schema_id'=>$tid]]);
+		$records2=$records;		
 		//print_r($records);
 		$total=count($records);
 		for ($i=0; $i < $total; $i++) { 
@@ -49,11 +49,12 @@ class main extends \pl\fe\matter\base {
 		
 		//添加选项
 		$n=1;
-		foreach ($records as $k => $v) {
+		foreach ($records as $v) {
 			$one['l']=$v->value;
 			$one['v']='v'.$n++;
 			$two[]=(object)$one;
 		}
+		
 		//定义的更新
 		$dataSchemas=$oApp->dataSchemas;
 		
@@ -64,25 +65,26 @@ class main extends \pl\fe\matter\base {
 				$rec->ops=$two;
 			}
 		}
+		$result=$dataSchemas;
 		$d['data_schemas']=\TMS_MODEL::toJson($dataSchemas);
 		$modelEnl->update('xxt_enroll',$d,['id'=>$id]);
-		//页面的更新
-		$pages=$modelEnl->query_objs_ss(['id,data_schemas','xxt_enroll_page',['aid'=>$id]]);
-		foreach ($pages as &$page) {
-			$page->data_schemas=json_decode($page->data_schemas);
-			foreach ($page->data_schemas as &$v2) {			
-				if($v2->schema->id==$tid){
-					$v2->schema->type="single";
-					unset($v2->schema->format);
-					$v2->schema->ops=$two;
+
+		//数据的更新
+		foreach ($records2 as $v2) {
+			foreach ($two as $v3) {
+				if($v2->value===$v3->l){
+					$a['value']=$v3->v;
+					$modelEnl->update('xxt_enroll_record_data',$a,['id'=>$v2->id]);
+					$data=$modelEnl->query_obj_ss(['id,data','xxt_enroll_record',['aid'=>$id,'enroll_key'=>$v2->enroll_key]]);
+					$data->data=json_decode($data->data);
+					$data->data->{$v2->schema_id}=$v3->v;
+					$b['data']=\TMS_MODEL::toJson($data->data);
+					$modelEnl->update('xxt_enroll_record',$b,['id'=>$data->id]);
 				}
 			}
-			$d['data_schemas']=\TMS_MODEL::toJson($page->data_schemas);
-			$modelEnl->update('xxt_enroll_page',$d,['id'=>$page->id]);	
 		}
 	
-		//print_r($pages);
-		die('ok');
+		return new \ResponseData($result);
 	}
 	/**
 	 * 返回一个登记活动

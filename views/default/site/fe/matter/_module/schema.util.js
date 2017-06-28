@@ -81,8 +81,11 @@ utilSchema.loadRecord = function(schemasById, dataOfPage, dataOfRecord) {
                 dataOfRecord.member = JSON.parse(dataOfRecord.member);
             }
             dataOfPage.member = angular.extend(dataOfPage.member, dataOfRecord.member);
-        } else if (dataOfRecord[p].length) {
-            if (schemasById[p] !== undefined) {
+        } else if (schemasById[p] !== undefined) {
+            var schema = schemasById[p];
+            if (schema.type === 'score') {
+                dataOfPage[p] = dataOfRecord[p];
+            } else if (dataOfRecord[p].length) {
                 if (schemasById[p].type === 'image') {
                     value = dataOfRecord[p].split(',');
                     dataOfPage[p] = [];
@@ -92,7 +95,6 @@ utilSchema.loadRecord = function(schemasById, dataOfPage, dataOfRecord) {
                         });
                     }
                 } else if (schemasById[p].type === 'file') {
-                    value = JSON.parse(dataOfRecord[p]);
                     dataOfPage[p] = value;
                 } else if (schemasById[p].type === 'multiple') {
                     value = dataOfRecord[p].split(',');

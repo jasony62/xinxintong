@@ -5,32 +5,16 @@ require('../../../../../../asset/js/xxt.ui.image.js');
 require('../../../../../../asset/js/xxt.ui.geo.js');
 
 var ngApp = require('./main.js');
+ngApp.oUtilSchema = require('../_module/schema.util.js');
+ngApp.oUtilSubmit = require('../_module/submit.util.js');
 ngApp.config(['$compileProvider', function($compileProvider) {
     $compileProvider.aHrefSanitizationWhitelist(/^\s*(https?|ftp|mailto|tel|file|sms|wxLocalResource):/);
 }]);
 ngApp.factory('Input', ['$http', '$q', '$timeout', 'ls', function($http, $q, $timeout, LS) {
-    function isEmpty(schema, value) {
-        if (value === undefined) {
-            return true;
-        }
-        switch (schema.type) {
-            case 'multiple':
-                for (var p in value) {
-                    //至少有一个选项
-                    if (value[p] === true) {
-                        return false;
-                    }
-                }
-                return true;
-            default:
-                return value.length === 0;
-        }
-    }
-
     var Input, _ins;
     Input = function() {};
     Input.prototype.check = function(data, app, page) {
-        var dataSchemas, item, schema, value;
+        var dataSchemas, item, schema, value, sCheckResult;
         if (page.data_schemas && page.data_schemas.length) {
             dataSchemas = JSON.parse(page.data_schemas);
             for (var i = dataSchemas.length - 1; i >= 0; i--) {
@@ -48,37 +32,10 @@ ngApp.factory('Input', ['$http', '$q', '$timeout', 'ls', function($http, $q, $ti
                     value = data[schema.id];
                 }
                 if (item.config.required === 'Y') {
-                    if (value === undefined || isEmpty(schema, value)) {
-                        return '请填写必填题目［' + schema.title + '］';
-                    }
+                    schema.required = 'Y';
                 }
-                if (value) {
-                    if (schema.type === 'shorttext' && schema.format) {
-                        if (schema.format === 'number') {
-                            if (!/^-{0,1}[0-9]+(.[0-9]+){0,1}$/.test(value)) {
-                                return '题目［' + schema.title + '］请输入数值';
-                            }
-                        } else if (schema.format === 'name') {
-                            if (value.length < 2) {
-                                return '题目［' + schema.title + '］请输入正确的姓名（不少于2个字符）';
-                            }
-                        } else if (schema.format === 'mobile') {
-                            if (!/^(\+86|0086)?\s*1[3|4|5|7|8]\d{9}$/.test(value)) {
-                                return '题目［' + schema.title + '］请输入正确的手机号（11位数字）';
-                            }
-                        } else if (schema.format === 'email') {
-                            if (!/^\w+@\w+/.test(value)) {
-                                return '题目［' + schema.title + '］请输入正确的邮箱';
-                            }
-                        }
-                    }
-                }
-                if (/image|file/.test(schema.type)) {
-                    if (schema.count && schema.count != 0) {
-                        if (data[schema.id] && data[schema.id].length > schema.count) {
-                            return '题目［' + schema.title + '］超出上传数量（' + schema.count + '）限制';
-                        }
-                    }
+                if (true !== (sCheckResult = ngApp.oUtilSchema.checkValue(schema, value))) {
+                    return sCheckResult;
                 }
             }
         }
@@ -317,34 +274,6 @@ ngApp.directive('tmsFileInput', ['$q', 'ls', 'tmsDynaPage', function($q, LS, tms
     }
 }]);
 ngApp.controller('ctrlInput', ['$scope', '$http', '$q', '$uibModal', '$timeout', 'Input', 'ls', 'http2', function($scope, $http, $q, $uibModal, $timeout, Input, LS, http2) {
-    function processMember(user, member) {
-        var member2, eles;
-        if (user && member && member.schema_id && user.members) {
-            if (member2 = user.members[member.schema_id]) {
-                if (angular.isString(member2.extattr)) {
-                    if (member2.extattr.length) {
-                        member2.extattr = JSON.parse(member2.extattr);
-                    } else {
-                        member2.extattr = {};
-                    }
-                }
-                eles = document.querySelectorAll("[ng-model^='data.member']");
-                angular.forEach(eles, function(ele) {
-                    var attr;
-                    attr = ele.getAttribute('ng-model');
-                    attr = attr.replace('data.member.', '');
-                    attr = attr.split('.');
-                    if (attr.length == 2) {
-                        !member.extattr && (member.extattr = {});
-                        member.extattr[attr[1]] = member2.extattr[attr[1]];
-                    } else {
-                        member[attr[0]] = member2[attr[0]];
-                    }
-                });
-            }
-        }
-    }
-
     function doTask(seq, nextAction) {
         var task = tasksOfBeforeSubmit[seq];
         task().then(function(rsp) {
@@ -405,77 +334,7 @@ ngApp.controller('ctrlInput', ['$scope', '$http', '$q', '$uibModal', '$timeout',
         member: {},
     };
     $scope.supplement = {};
-    $scope.submitState = submitState = {
-        modified: false,
-        state: 'waiting',
-        start: function(event) {
-            var submitButton;
-            if (event) {
-                submitButton = event.target;
-                if (submitButton.tagName === 'BUTTON' || ((submitButton = submitButton.parentNode) && submitButton.tagName === 'BUTTON')) {
-                    if (/submit\(.*\)/.test(submitButton.getAttribute('ng-click'))) {
-                        var span;
-                        this.button = submitButton;
-                        span = submitButton.querySelector('span');
-                        span.setAttribute('data-label', span.innerHTML);
-                        span.innerHTML = '正在提交数据...';
-                        this.button.classList.add('submit-running');
-                    }
-                }
-            }
-            this.state = 'running';
-        },
-        finish: function() {
-            var cacheKey;
-            this.state = 'waiting';
-            this.modified = false;
-            if (this.button) {
-                var span;
-                span = this.button.querySelector('span');
-                span.innerHTML = span.getAttribute('data-label');
-                span.removeAttribute('data-label');
-                this.button.classList.remove('submit-running');
-                this.button = null;
-            }
-            if (window.localStorage) {
-                cacheKey = this._cacheKey();
-                window.localStorage.removeItem(cacheKey);
-            }
-        },
-        isRunning: function() {
-            return this.state === 'running';
-        },
-        _cacheKey: function() {
-            var app = $scope.app;
-            return '/site/' + app.siteid + '/app/enroll/' + app.id + '/record/' + ($scope.record ? $scope.record.enroll_key : '') + '/unsubmit';
-        },
-        cache: function() {
-            if (window.localStorage) {
-                var key, val;
-                key = this._cacheKey();
-                val = angular.copy($scope.data);
-                val._cacheAt = (new Date() * 1);
-                val = JSON.stringify(val);
-                window.localStorage.setItem(key, val);
-            }
-        },
-        fromCache: function(keep) {
-            if (window.localStorage) {
-                var key, val;
-                key = this._cacheKey();
-                val = window.localStorage.getItem(key);
-                if (!keep) window.localStorage.removeItem(key);
-                if (val) {
-                    val = JSON.parse(val);
-                    if (val._cacheAt && (val._cacheAt + 1800000) < (new Date() * 1)) {
-                        val = false;
-                    }
-                    delete val._cacheAt;
-                }
-            }
-            return val;
-        }
-    };
+    $scope.submitState = submitState = ngApp.oUtilSubmit.state;
     $scope.beforeSubmit = function(fn) {
         if (tasksOfBeforeSubmit.indexOf(fn) === -1) {
             tasksOfBeforeSubmit.push(fn);
@@ -488,39 +347,7 @@ ngApp.controller('ctrlInput', ['$scope', '$http', '$q', '$uibModal', '$timeout',
         $scope.schemasById = schemasById = params.app._schemasById;
         /* 用户已经登记过，恢复之前的数据 */
         if (params.record) {
-            dataOfRecord = params.record.data;
-            for (p in dataOfRecord) {
-                if (p === 'member') {
-                    if (angular.isString(dataOfRecord.member)) {
-                        dataOfRecord.member = JSON.parse(dataOfRecord.member);
-                    }
-                    $scope.data.member = angular.extend($scope.data.member, dataOfRecord.member);
-                } else if (undefined !== schemasById[p]) {
-                    var schema = schemasById[p];
-                    if (schema.type === 'score') { // is object
-                        $scope.data[p] = dataOfRecord[p];
-                    } else if (dataOfRecord[p].length) { // is string
-                        if (schema.type === 'image') {
-                            value = dataOfRecord[p].split(',');
-                            $scope.data[p] = [];
-                            for (var i in value) {
-                                $scope.data[p].push({
-                                    imgSrc: value[i]
-                                });
-                            }
-                        } else if (schema.type === 'file') {
-                            value = dataOfRecord[p];
-                            $scope.data[p] = value;
-                        } else if (schema.type === 'multiple') {
-                            value = dataOfRecord[p].split(',');
-                            $scope.data[p] = {};
-                            for (var i in value) $scope.data[p][value[i]] = true;
-                        } else {
-                            $scope.data[p] = dataOfRecord[p];
-                        }
-                    }
-                }
-            }
+            ngApp.oUtilSchema.loadRecord(params.app._schemasById, $scope.data, params.record.data);
             $scope.record = params.record;
         }
         /* 恢复用户未提交的数据 */
@@ -548,11 +375,11 @@ ngApp.controller('ctrlInput', ['$scope', '$http', '$q', '$uibModal', '$timeout',
             //domTip.dispatchEvent(evt);
         }
     });
-    var hasProcessMember = false;
+    var hasAutoFillMember = false;
     $scope.$watch('data.member.schema_id', function(schemaId) {
-        if (false === hasProcessMember && schemaId && $scope.user) {
-            processMember($scope.user, $scope.data.member);
-            hasProcessMember = true;
+        if (false === hasAutoFillMember && schemaId && $scope.user) {
+            ngApp.oUtilSchema.autoFillMember($scope.user, $scope.data.member);
+            hasAutoFillMember = true;
         }
     });
     $scope.submit = function(event, nextAction) {

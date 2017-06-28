@@ -28,12 +28,11 @@ define(['require', 'schema', 'page'], function(require, schemaLib, pageLib) {
                 at: 1,
                 size: 30,
                 orderBy: 'time',
-                byRound: '',
                 joinParams: function() {
                     var p;
                     p = '&page=' + this.at + '&size=' + this.size;
                     p += '&orderby=' + this.orderBy;
-                    p += '&rid=' + (this.byRound ? this.byRound : 'ALL');
+                    p += '&rid=' + (this.byRound ? this.byRound : 'all');
                     return p;
                 },
                 setTotal: function(total) {

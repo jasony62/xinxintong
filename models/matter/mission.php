@@ -47,7 +47,7 @@ class mission_model extends app_base {
 		return $url;
 	}
 	/**
-	 *
+	 * 获得项目定义
 	 */
 	public function &byId($id, $options = []) {
 		$fields = isset($options['fields']) ? $options['fields'] : '*';
@@ -57,27 +57,31 @@ class mission_model extends app_base {
 			$this->table(),
 			["id" => $id],
 		];
-		if (($mission = $this->query_obj_ss($q))) {
-			$mission->type = 'mission';
-			$mission->entry_rule = isset($mission->entry_rule) ? json_decode($mission->entry_rule) : new \stdClass;
-			$mission->entryUrl = $this->getEntryUrl($mission->siteid, $mission->id);
-			$mission->opUrl = $this->getOpUrl($mission->siteid, $mission->id);
+		if (($oMission = $this->query_obj_ss($q))) {
+			$oMission->type = 'mission';
+			if (isset($oMission->entry_rule)) {
+				$oMission->entry_rule = json_decode($oMission->entry_rule);
+			}
+			if (isset($oMission->siteid) && isset($oMission->id)) {
+				$oMission->entryUrl = $this->getEntryUrl($oMission->siteid, $oMission->id);
+				$oMission->opUrl = $this->getOpUrl($oMission->siteid, $oMission->id);
+			}
 			if (!empty($cascaded)) {
 				$cascaded = explode(',', $cascaded);
 				$modelCode = \TMS_APP::M('code\page');
 				foreach ($cascaded as $field) {
-					if ($field === 'header_page_name' && $mission->header_page_name) {
-						$mission->header_page = $modelCode->lastPublishedByName($mission->siteid, $mission->header_page_name, array('fields' => 'id,html,css,js'));
-					} else if ($field === 'footer_page_name' && $mission->footer_page_name) {
-						$mission->footer_page = $modelCode->lastPublishedByName($mission->siteid, $mission->footer_page_name, array('fields' => 'id,html,css,js'));
+					if ($field === 'header_page_name' && isset($oMission->header_page_name) && isset($oMission->siteid)) {
+						$oMission->header_page = $modelCode->lastPublishedByName($oMission->siteid, $oMission->header_page_name, ['fields' => 'id,html,css,js']);
+					} else if ($field === 'footer_page_name' && isset($oMission->footer_page_name) && isset($oMission->siteid)) {
+						$oMission->footer_page = $modelCode->lastPublishedByName($oMission->siteid, $oMission->footer_page_name, ['fields' => 'id,html,css,js']);
 					} else if ($field === 'phase') {
-						$mission->phases = \TMS_APP::M('matter\mission\phase')->byMission($id);
+						$oMission->phases = \TMS_APP::M('matter\mission\phase')->byMission($id);
 					}
 				}
 			}
 		}
 
-		return $mission;
+		return $oMission;
 	}
 	/**
 	 *

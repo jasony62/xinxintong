@@ -108,13 +108,18 @@ ngApp.controller('ctrlRecord', ['$scope', 'Record', 'ls', '$sce', function($scop
     });
 }]);
 ngApp.controller('ctrlView', ['$scope', '$timeout', 'ls', 'Record', function($scope, $timeout, LS, Record) {
-    $scope.$on('xxt.app.enroll.ready', function(event, params) {
-        if (!params.user.unionid) {
-            var domTip = document.querySelector('#appLoginTip');
-            var evt = document.createEvent("HTMLEvents");
-            evt.initEvent("show", false, false);
-            domTip.dispatchEvent(evt);
+    function fnDisableActions() {
+        var domActs, domAct;
+        if (domActs = document.querySelectorAll('button[ng-click]')) {
+            domActs.forEach(function(domAct) {
+                var ngClick = domAct.getAttribute('ng-click');
+                if (ngClick.indexOf('editRecord') === 0 || ngClick.indexOf('removeRecord') === 0) {
+                    domAct.style.display = 'none';
+                }
+            });
         }
+    }
+    $scope.$on('xxt.app.enroll.ready', function(event, params) {
         var oApp = params.app,
             dataSchemas = params.app.dataSchemas,
             aRemarkableSchemas = [],
@@ -137,17 +142,6 @@ ngApp.controller('ctrlView', ['$scope', '$timeout', 'ls', 'Record', function($sc
             }
         });
         /* disable actions */
-        var fnDisableActions = function() {
-            var domActs, domAct;
-            if (domActs = document.querySelectorAll('button[ng-click]')) {
-                domActs.forEach(function(domAct) {
-                    var ngClick = domAct.getAttribute('ng-click');
-                    if (ngClick.indexOf('editRecord') === 0 || ngClick.indexOf('removeRecord') === 0) {
-                        domAct.style.display = 'none';
-                    }
-                });
-            }
-        };
         if (oApp.end_at > 0 && parseInt(oApp.end_at) < (new Date() * 1) / 1000) {
             fnDisableActions();
         } else if ((oApp.can_cowork && oApp.can_cowork !== 'Y')) {
@@ -164,6 +158,12 @@ ngApp.controller('ctrlView', ['$scope', '$timeout', 'ls', 'Record', function($sc
                     domWrap.setAttribute('data-remark', num);
                 }
             });
+        }
+        if (!params.user.unionid) {
+            // var domTip = document.querySelector('#appLoginTip');
+            // var evt = document.createEvent("HTMLEvents");
+            // evt.initEvent("show", false, false);
+            // domTip.dispatchEvent(evt);
         }
     });
 }]);

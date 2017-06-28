@@ -19,6 +19,18 @@ define(['frame'], function(ngApp) {
         }, {
             name: 'site.matter.enroll.discuss.comment',
             desc: '用户A对活动评论',
+        }, {
+            name: 'site.matter.enroll.data.like',
+            desc: '用户A数据被点赞',
+        }, {
+            name: 'site.matter.enroll.data.other.like',
+            desc: '用户A点赞别人的数据',
+        }, {
+            name: 'site.matter.enroll.data.comment',
+            desc: '用户A数据被点评',
+        }, {
+            name: 'site.matter.enroll.data.other.comment',
+            desc: '用户A点评别人的数据',
         }];
         $scope.rules = {};
         actions.forEach(function(act) {
@@ -69,7 +81,7 @@ define(['frame'], function(ngApp) {
         };
         $scope.fetchLogs = function() {
             var url;
-            url = '/rest/pl/fe/matter/enroll/coin/logs??site=' + $scope.app.siteid + '&app=' + $scope.app.id;
+            url = '/rest/pl/fe/matter/enroll/coin/logs?site=' + $scope.app.siteid + '&app=' + $scope.app.id;
             http2.get(url, function(rsp) {
                 $scope.logs = rsp.data.logs;
             });

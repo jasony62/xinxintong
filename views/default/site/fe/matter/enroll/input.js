@@ -41,8 +41,8 @@ ngApp.factory('Input', ['$http', '$q', '$timeout', 'ls', function($http, $q, $ti
         }
         return true;
     };
-    Input.prototype.submit = function(ek, data, oSupplement) {
-        var defer, url, d, d2, posted;
+    Input.prototype.submit = function(ek, data, tags, oSupplement) {
+        var defer, url, d, d2, posted, tagsByScchema;
         defer = $q.defer();
         posted = angular.copy(data);
         if (Object.keys && Object.keys(posted.member).length === 0) {
@@ -59,7 +59,16 @@ ngApp.factory('Input', ['$http', '$q', '$timeout', 'ls', function($http, $q, $ti
                 }
             }
         }
-        $http.post(url, { data: posted, supplement: oSupplement }).success(function(rsp) {
+        tagsByScchema = {};
+        if (Object.keys && Object.keys(tags).length > 0) {
+            for (var schemaId in tags) {
+                tagsByScchema[schemaId] = [];
+                tags[schemaId].forEach(function(oTag) {
+                    tagsByScchema[schemaId].push(oTag.id);
+                });
+            }
+        }
+        $http.post(url, { data: posted, tag: tags, supplement: oSupplement }).success(function(rsp) {
             if (typeof rsp === 'string' || rsp.err_code != 0) {
                 defer.reject(rsp);
             } else {
@@ -285,7 +294,7 @@ ngApp.controller('ctrlInput', ['$scope', '$http', '$q', '$uibModal', '$timeout',
     function doSubmit(nextAction) {
         var ek, submitData;
         ek = $scope.record ? $scope.record.enroll_key : undefined;
-        facInput.submit(ek, $scope.data, $scope.supplement).then(function(rsp) {
+        facInput.submit(ek, $scope.data, $scope.tag, $scope.supplement).then(function(rsp) {
             var url;
             submitState.finish();
             if (nextAction === 'closeWindow') {
@@ -333,6 +342,7 @@ ngApp.controller('ctrlInput', ['$scope', '$http', '$q', '$uibModal', '$timeout',
     $scope.data = {
         member: {},
     };
+    $scope.tag = {};
     $scope.supplement = {};
     $scope.submitState = submitState = ngApp.oUtilSubmit.state;
     $scope.beforeSubmit = function(fn) {
@@ -394,6 +404,59 @@ ngApp.controller('ctrlInput', ['$scope', '$http', '$q', '$uibModal', '$timeout',
             }
         }
     };
+    $scope.tagRecordData = function(schemaId) {
+        var oApp, oSchema, tagsOfData;
+        oApp = $scope.app;
+        oSchema = oApp._schemasById[schemaId];
+        if (oSchema) {
+            tagsOfData = $scope.tag[schemaId];
+            $uibModal.open({
+                templateUrl: 'tagRecordData.html',
+                controller: ['$scope', '$uibModalInstance', function($scope2, $mi) {
+                    var model;
+                    $scope2.schema = oSchema;
+                    $scope2.apptags = oApp.dataTags;
+                    $scope2.model = model = {
+                        selected: []
+                    };
+                    if (tagsOfData) {
+                        tagsOfData.forEach(function(oTag) {
+                            var index;
+                            if (-1 !== (index = $scope2.apptags.indexOf(oTag))) {
+                                model.selected[$scope2.apptags.indexOf(oTag)] = true;
+                            }
+                        });
+                    }
+                    $scope2.createTag = function() {
+                        var newTags;
+                        if ($scope2.model.newtag) {
+                            newTags = $scope2.model.newtag.replace(/\s/, ',');
+                            newTags = newTags.split(',');
+                            http2.post('/rest/site/fe/matter/enroll/tag/create?site=' + $scope.app.siteid + '&app=' + $scope.app.id, newTags).then(function(rsp) {
+                                rsp.data.forEach(function(oNewTag) {
+                                    $scope2.apptags.push(oNewTag);
+                                });
+                            });
+                            $scope2.model.newtag = '';
+                        }
+                    };
+                    $scope2.cancel = function() { $mi.dismiss(); };
+                    $scope2.ok = function() {
+                        var tags = [];
+                        model.selected.forEach(function(selected, index) {
+                            if (selected) {
+                                tags.push($scope2.apptags[index]);
+                            }
+                        });
+                        $mi.close(tags);
+                    };
+                }],
+                backdrop: 'static',
+            }).result.then(function(tags) {
+                $scope.tag[schemaId] = tags;
+            });
+        }
+    };
     $scope.getMyLocation = function(prop) {
         window.xxt.geo.getAddress($http, $q.defer(), LS.p.site).then(function(data) {
             if (data.errmsg === 'ok') {
@@ -415,7 +478,6 @@ ngApp.controller('ctrlInput', ['$scope', '$http', '$q', '$uibModal', '$timeout',
                     $scope2.records = result.data.records;
                 });
             }],
-            windowClass: 'auto-height',
             backdrop: 'static',
         }).result.then(function(result) {
             $scope.data[schemaId] = result.selected.value;

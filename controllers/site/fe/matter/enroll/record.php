@@ -177,6 +177,12 @@ class record extends base {
 			return new \ResponseError($rst[1]);
 		}
 		/**
+		 * 提交填写项数据标签
+		 */
+		if (isset($posted->tag) && count(get_object_vars($posted->tag))) {
+			$rst = $modelRec->setTag($oUser, $oEnrollApp, $ek, $posted->tag);
+		}
+		/**
 		 * 提交补充说明
 		 */
 		if (isset($posted->supplement) && count(get_object_vars($posted->supplement))) {
@@ -513,26 +519,6 @@ class record extends base {
 		} else {
 			// 打开指定的登记记录
 			$record = $modelRec->byId($openedek, ['verbose' => 'Y']);
-		}
-
-		/** 互动数据？？？ */
-		if (!empty($openedek)) {
-			/*登记人信息*/
-			//$record->enroller = $oUser;
-			/*获得关联抽奖活动记录*/
-			// $ql = array(
-			// 	'award_title',
-			// 	'xxt_lottery_log',
-			// 	"enroll_key='$openedek'",
-			// );
-			// $lotteryResult = $this->model()->query_objs_ss($ql);
-			// if (!empty($lotteryResult)) {
-			// 	$lrs = array();
-			// 	foreach ($lotteryResult as $lr) {
-			// 		$lrs[] = $lr->award_title;
-			// 	}
-			// 	$record->data['lotteryResult'] = implode(',', $lrs);
-			// }
 		}
 
 		return new \ResponseData($record);

@@ -55,8 +55,8 @@ class enroll_model extends app_base {
 	}
 	/**
 	 *
-	 * $aid string
-	 * $cascaded array []
+	 * @param string $aid
+	 * @param array $options
 	 */
 	public function &byId($aid, $options = []) {
 		$fields = isset($options['fields']) ? $options['fields'] : '*';
@@ -72,52 +72,54 @@ class enroll_model extends app_base {
 			}
 		}
 
-		if ($app = $this->query_obj_ss($q)) {
-			$app->type = 'enroll';
-			if (isset($app->siteid) && isset($app->id)) {
-				$app->entryUrl = $this->getEntryUrl($app->siteid, $app->id);
-				$app->opUrl = $this->getOpUrl($app->siteid, $app->id);
+		if ($oApp = $this->query_obj_ss($q)) {
+			$oApp->type = 'enroll';
+			if (isset($oApp->siteid) && isset($oApp->id)) {
+				$oApp->entryUrl = $this->getEntryUrl($oApp->siteid, $oApp->id);
+				$oApp->opUrl = $this->getOpUrl($oApp->siteid, $oApp->id);
 			}
-			if (isset($app->entry_rule)) {
-				$app->entry_rule = json_decode($app->entry_rule);
+			if (isset($oApp->entry_rule)) {
+				$oApp->entry_rule = json_decode($oApp->entry_rule);
 			}
 			if ($fields === '*' || false !== strpos($fields, 'data_schemas')) {
-				if (!empty($app->data_schemas)) {
-					$app->dataSchemas = json_decode($app->data_schemas);
+				if (!empty($oApp->data_schemas)) {
+					$oApp->dataSchemas = json_decode($oApp->data_schemas);
 				} else {
-					$app->dataSchemas = [];
+					$oApp->dataSchemas = [];
 				}
 			}
 			if ($fields === '*' || false !== strpos($fields, 'scenario_config')) {
-				if (!empty($app->scenario_config)) {
-					$app->scenarioConfig = json_decode($app->scenario_config);
+				if (!empty($oApp->scenario_config)) {
+					$oApp->scenarioConfig = json_decode($oApp->scenario_config);
 				} else {
-					$app->scenarioConfig = new \stdClass;
+					$oApp->scenarioConfig = new \stdClass;
 				}
 			}
 			if ($fields === '*' || false !== strpos($fields, 'round_cron')) {
-				if (!empty($app->round_cron)) {
-					$app->roundCron = json_decode($app->round_cron);
+				if (!empty($oApp->round_cron)) {
+					$oApp->roundCron = json_decode($oApp->round_cron);
 				} else {
-					$app->roundCron = [];
+					$oApp->roundCron = [];
 				}
 			}
 			if ($fields === '*' || false !== strpos($fields, 'rp_config')) {
-				if (!empty($app->rp_config)) {
-					$app->rpConfig = json_decode($app->rp_config);
+				if (!empty($oApp->rp_config)) {
+					$oApp->rpConfig = json_decode($oApp->rp_config);
 				} else {
-					$app->rpConfig = new \stdClass;
+					$oApp->rpConfig = new \stdClass;
 				}
 			}
+			$oApp->dataTags = $this->model('matter\enroll\tag')->byApp($oApp);
+
 			$modelPage = $this->model('matter\enroll\page');
 			if ($cascaded === 'Y') {
-				$app->pages = $modelPage->byApp($aid);
+				$oApp->pages = $modelPage->byApp($aid);
 			} else {
-				$app->pages = $modelPage->byApp($aid, ['cascaded' => 'N', 'fields' => 'id,name,type,title']);
+				$oApp->pages = $modelPage->byApp($aid, ['cascaded' => 'N', 'fields' => 'id,name,type,title']);
 			}
 		}
 
-		return $app;
+		return $oApp;
 	}
 	/**
 	 * 返回登记活动列表
@@ -189,11 +191,11 @@ class enroll_model extends app_base {
 		}
 
 		$options = array('fields' => 'tags', 'cascaded' => 'N');
-		$app = $this->byId($aid, $options);
-		if (empty($app->tags)) {
+		$oApp = $this->byId($aid, $options);
+		if (empty($oApp->tags)) {
 			$this->update('xxt_enroll', ['tags' => $tags], ["id" => $aid]);
 		} else {
-			$existent = explode(',', $app->tags);
+			$existent = explode(',', $oApp->tags);
 			$checked = explode(',', $tags);
 			$updated = array();
 			foreach ($checked as $c) {
@@ -233,7 +235,7 @@ class enroll_model extends app_base {
 	 * 登记活动运行情况摘要
 	 *
 	 * @param string $siteId
-	 * @param string $appId
+	 * @param string $oAppId
 	 *
 	 * @return
 	 */

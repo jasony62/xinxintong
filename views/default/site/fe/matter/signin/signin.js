@@ -327,8 +327,12 @@ ngApp.controller('ctrlSignin', ['$scope', '$http', 'Input', 'ls', function($scop
             seq < tasksOfBeforeSubmit.length ? doTask(seq, nextAction) : doSubmit(nextAction);
         });
     }
+    window.onbeforeunload = function() {
+        // 保存未提交数据
+        submitState.modified && submitState.cache();
+    };
 
-    var facInput, submitState, tasksOfOnReady, tasksOfBeforeSubmit;
+    var facInput, submitState, tasksOfBeforeSubmit;
     tasksOfBeforeSubmit = [];
     facInput = Input.ins();
     $scope.data = {

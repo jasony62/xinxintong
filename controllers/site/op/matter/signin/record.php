@@ -41,7 +41,8 @@ class record extends \site\op\base {
 			'orderby' => $orderby,
 			'contain' => $contain,
 		);
-		!empty($rid) && $rid !== 'ALL' && $options['rid'] = $rid;
+
+		!empty($rid) && (strcasecmp($rid, 'all') !== 0) && $options['rid'] = $rid;
 
 		$mdoelRec = $this->model('matter\signin\record');
 		$result = $mdoelRec->byApp($app, $options, $criteria);

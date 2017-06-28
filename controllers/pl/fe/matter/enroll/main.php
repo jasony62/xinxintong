@@ -1277,7 +1277,7 @@ class main extends \pl\fe\matter\base {
 
 		$updated->modifier = $user->id;
 		$updated->modifier_src = $user->src;
-		$updated->modifier_name = $user->name;
+		$updated->modifier_name = $modelApp->escape($user->name);
 		$updated->modify_at = time();
 
 		$rst = $modelApp->update('xxt_enroll', $updated, ["id" => $app]);

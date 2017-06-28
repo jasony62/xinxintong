@@ -1,5 +1,6 @@
 <div id='access-view'>
-    <div class='col-md-4'>
+    <div class='col-md-6'>
+        <label>设置进入条件</label>
         <div class='radio'>
             <label>
                 <input type='radio' value='none' ng-model="rule.scope" ng-change="changeUserScope()">不限用户来源</label>
@@ -45,7 +46,7 @@
                 </tr>
             </tbody>
         </table>
-        <div>
+        <div ng-if="rule.scope==='member'">
             <button class='btn btn-default' ng-click="chooseMschema()">选择通讯录</button>
         </div>
         <table class='table table-bordered' ng-if="rule.scope==='sns'">
@@ -82,6 +83,26 @@
                 </tr>
             </tbody>
         </table>
+        <div ng-if="rule.scope!=='none'">
+            <hr>
+            <label>忽略进入条件页面</label>
+            <table class='table table-bordered'>
+                <tbody>
+                    <tr ng-repeat="page in rule.exclude">
+                        <td style='padding:0'>
+                            <select style='border:0' class='form-control' ng-model="rule.exclude[$index]" ng-options='page.name as page.title for page in jumpPages.inapp' ng-change="configExclude()">
+                            </select>
+                        </td>
+                        <td style="width:36px">
+                            <button class='btn btn-default btn-xs' ng-click="removeExclude($index)"><span class='glyphicon glyphicon-remove'></span></button>
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+            <div>
+                <button class='btn btn-default' ng-click="addExclude()">添加忽略进入条件页面</button>
+            </div>
+        </div>
         <hr>
         <div class='checkbox'>
             <label>
@@ -108,7 +129,7 @@
             </tbody>
         </table>
     </div>
-    <div class='col-md-4 hide'>
+    <div class='col-md-6 hide'>
         <div class='list-group'>
             <div class='list-group-item'>
                 支持通过微信公众号向填写人发送通知

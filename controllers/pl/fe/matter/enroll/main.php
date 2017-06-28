@@ -37,7 +37,12 @@ class main extends \pl\fe\matter\base {
 		
 		foreach ($records as $v1) {
 			$option[]=$v1->value;
-		}	
+		}
+
+		if(empty($option)){
+			return new \ResponseError('没有填空题的数据记录，无法获得选项！');
+		}
+
 		$option=array_unique($option);
 
 		//添加选项
@@ -62,6 +67,24 @@ class main extends \pl\fe\matter\base {
 		$result=$dataSchemas;
 		$d['data_schemas']=\TMS_MODEL::toJson($dataSchemas);
 		$modelEnl->update('xxt_enroll',$d,['id'=>$id]);
+
+		//页面的更新
+		$pages=$modelEnl->query_objs_ss(['id,data_schemas','xxt_enroll_page',['aid'=>$id]]);
+		foreach ($pages as &$page) {
+			$page->data_schemas=json_decode($page->data_schemas);
+			foreach ($page->data_schemas as &$v2) {			
+				if($v2->schema->id==$tid){
+					//$v2->schema->type="single";
+					if(isset($v2->schema->type)){
+						unset($v2->schema->type);
+					}
+					unset($v2->schema->format);
+					$v2->schema->ops=$two;
+				}
+			}
+			$d['data_schemas']=\TMS_MODEL::toJson($page->data_schemas);
+			$modelEnl->update('xxt_enroll_page',$d,['id'=>$page->id]);	
+		}
 	
 		return new \ResponseData($result);
 	}

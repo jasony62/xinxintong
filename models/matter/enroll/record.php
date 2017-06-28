@@ -317,13 +317,15 @@ class record_model extends \TMS_MODEL {
 	 * @param array $submitTag 用户提交的填写项标签
 	 */
 	public function setTag($oUser, &$oApp, $ek, $submitTag) {
+		$wholeTags = new \stdClass;
 		/*record data*/
 		foreach ($submitTag as $schemaId => $tags) {
 			/* 保证以字符串的格式存储标签id，便于以后检索 */
 			$jsonTags = [];
-			foreach ($tags as $tagId) {
-				$jsonTags[] = (string) $tagId;
+			foreach ($tags as $oTag) {
+				$jsonTags[] = (string) $oTag->id;
 			}
+			$wholeTags->{$schemaId} = $jsonTags;
 			$jsonTags = json_encode($jsonTags);
 			$rst = $this->update(
 				'xxt_enroll_record_data',
@@ -331,6 +333,12 @@ class record_model extends \TMS_MODEL {
 				['enroll_key' => $ek, 'schema_id' => $schemaId, 'state' => 1]
 			);
 		}
+
+		$rst = $this->update(
+			'xxt_enroll_record',
+			['data_tag' => $this->escape(json_encode($wholeTags))],
+			['enroll_key' => $ek, 'state' => 1]
+		);
 
 		return $rst;
 	}
@@ -368,8 +376,8 @@ class record_model extends \TMS_MODEL {
 		if ($fields === '*' || false !== strpos($fields, 'data')) {
 			$oRecord->data = empty($oRecord->data) ? new \stdClass : json_decode($oRecord->data);
 		}
-		if ($fields === '*' || false !== strpos($fields, 'tag')) {
-			$oRecord->tag = empty($oRecord->tag) ? [] : json_decode($oRecord->tag);
+		if ($fields === '*' || false !== strpos($fields, 'data_tag')) {
+			$oRecord->data_tag = empty($oRecord->data_tag) ? new \stdClass : json_decode($oRecord->data_tag);
 		}
 		if ($fields === '*' || false !== strpos($fields, 'supplement')) {
 			$oRecord->supplement = empty($oRecord->supplement) ? new \stdClass : json_decode($oRecord->supplement);

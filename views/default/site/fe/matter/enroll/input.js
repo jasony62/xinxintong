@@ -359,6 +359,7 @@ ngApp.controller('ctrlInput', ['$scope', '$http', '$q', '$uibModal', '$timeout',
         if (params.record) {
             ngApp.oUtilSchema.loadRecord(params.app._schemasById, $scope.data, params.record.data);
             $scope.record = params.record;
+            $scope.tag = params.record.data_tag;
         }
         /* 恢复用户未提交的数据 */
         if (window.localStorage) {

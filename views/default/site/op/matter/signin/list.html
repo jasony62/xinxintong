@@ -112,7 +112,7 @@
                             </ul>
                         </div>
                         <div class='form-group tms-keep-inline' ng-if='app.rounds'>
-                            <select class='form-control' ng-model='page.byRound' ng-options='r.rid as r.title for r in app.rounds' ng-change='doSearch(1)'>
+                            <select class='form-control' ng-model='page.byRound' ng-options='r.rid as r.title for r in app.rounds' ng-change='getRecords(1)'>
                                 <option value=>全部轮次</option>
                             </select>
                         </div>

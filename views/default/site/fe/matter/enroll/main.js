@@ -82,12 +82,7 @@ ngApp.controller('ctrlAppTip', ['$scope', '$interval', function($scope, $interva
     }, 1000);
 }]);
 ngApp.controller('ctrlMain', ['$scope', '$http', '$timeout', 'ls', 'tmsDynaPage', 'tmsSnsShare', 'tmsSiteUser', 'tmsFavor', function($scope, $http, $timeout, LS, tmsDynaPage, tmsSnsShare, tmsSiteUser, tmsFavor) {
-    var tasksOfOnReady = [];
-    $scope.errmsg = '';
-    $scope.closePreviewTip = function() {
-        $scope.preview = 'N';
-    };
-    var openAskFollow = function() {
+    function openAskFollow() {
         $http.get(LS.j('askFollow', 'site')).error(function(content) {
             var body, el;;
             body = document.body;
@@ -102,28 +97,27 @@ ngApp.controller('ctrlMain', ['$scope', '$http', '$timeout', 'ls', 'tmsDynaPage'
             el.setAttribute('src', LS.j('askFollow', 'site'));
             el.style.display = 'block';
         });
-    };
-    var PG = (function() {
-        return {
-            exec: function(task) {
-                var obj, fn, args, valid;
-                valid = true;
-                obj = $scope;
-                args = task.match(/\((.*?)\)/)[1].replace(/'|"/g, "").split(',');
-                angular.forEach(task.replace(/\(.*?\)/, '').split('.'), function(attr) {
-                    if (fn) obj = fn;
-                    if (!obj[attr]) {
-                        valid = false;
-                        return;
-                    }
-                    fn = obj[attr];
-                });
-                if (valid) {
-                    fn.apply(obj, args);
-                }
+    }
+
+    function execTask(task) {
+        var obj, fn, args, valid;
+        valid = true;
+        obj = $scope;
+        args = task.match(/\((.*?)\)/)[1].replace(/'|"/g, "").split(',');
+        angular.forEach(task.replace(/\(.*?\)/, '').split('.'), function(attr) {
+            if (fn) obj = fn;
+            if (!obj[attr]) {
+                valid = false;
+                return;
             }
-        };
-    })();
+            fn = obj[attr];
+        });
+        if (valid) {
+            fn.apply(obj, args);
+        }
+    }
+    var tasksOfOnReady = [];
+    $scope.errmsg = '';
     $scope.back = function() {
         history.back();
     };
@@ -186,7 +180,7 @@ ngApp.controller('ctrlMain', ['$scope', '$http', '$timeout', 'ls', 'tmsDynaPage'
     };
     $scope.onReady = function(task) {
         if ($scope.params) {
-            PG.exec(task);
+            execTask(task);
         } else {
             tasksOfOnReady.push(task);
         }

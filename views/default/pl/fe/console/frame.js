@@ -292,9 +292,18 @@ define(['require'], function(require) {
         };
         $scope.list = function() {
             $scope.siteType = 1;
-            var url = '/rest/pl/fe/site/list?_=' + (new Date() * 1);
-            http2.get(url, function(rsp) {
-                $scope.sites = rsp.data;
+            var url = '/rest/pl/fe/site/list';
+            http2.get(url + '?_=' + (new Date() * 1), function(rsp) {
+                if (rsp.data.length === 0) {
+                    http2.get('/rest/pl/fe/site/create', function(rsp) {
+                        http2.get(url + '?_=' + (new Date() * 1), function(rsp) {
+                            $scope.sites = rsp.data;
+                            frameState.sid = rsp.data[0].id;
+                        });
+                    });
+                } else {
+                    $scope.sites = rsp.data;
+                }
             });
         };
         $scope.list();

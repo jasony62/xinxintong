@@ -10,7 +10,7 @@
                     </tr>
                 </thead>
                 <tbody>
-                    <tr ng-repeat="round in summary" ng-class="{'info':round.active==='Y'}">
+                    <tr ng-repeat="round in summary" ng-class="{'info':round.active==='Y'}" ng-click="switchTo('list',round)">
                         <td data-th='轮次'>
                             <div>{{round.title}}</div>
                         </td>

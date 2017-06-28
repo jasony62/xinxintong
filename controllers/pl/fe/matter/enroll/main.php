@@ -20,10 +20,10 @@ class main extends \pl\fe\matter\base {
 		exit;
 	}
 	/**
-	 * 填空转单选
-	 * $tid 题目Id
+	 * 根据记录填空转单选
+	 * 返回题目定义
 	 */
-	public function inputToSingle_action($site,$id,$tid){
+	public function getOption_action($site,$id,$tid){
 		if (false === ($oUser = $this->accountUser())) {
 			return new \ResponseTimeout();
 		}
@@ -34,33 +34,27 @@ class main extends \pl\fe\matter\base {
 		}
 
 		$records=$modelEnl->query_objs_ss(['id,enroll_key,schema_id,value','xxt_enroll_record_data',['aid'=>$id,'schema_id'=>$tid]]);
-		$records2=$records;		
-		//print_r($records);
-		$total=count($records);
-		for ($i=0; $i < $total; $i++) { 
-			for ($j=$i+1; $j <= $total-$i; $j++) { 
-				if(isset($records[$i]) && isset($records[$j]) && $records[$i]->value==$records[$j]->value){
-					unset($records[$j]);
-				}else{
-					continue;
-				}
-			}
-		}
 		
+		foreach ($records as $v1) {
+			$option[]=$v1->value;
+		}	
+		$option=array_unique($option);
+
 		//添加选项
 		$n=1;
-		foreach ($records as $v) {
-			$one['l']=$v->value;
+		foreach ($option as $v) {
+			$one['l']=$v;
 			$one['v']='v'.$n++;
 			$two[]=(object)$one;
 		}
 		
-		//定义的更新
+		//题目定义的更新
 		$dataSchemas=$oApp->dataSchemas;
 		
 		foreach ($dataSchemas as &$rec) {
 			if($rec->id==$tid){
 				$rec->type="single";
+				$rec->supplement="Y";
 				unset($rec->format);
 				$rec->ops=$two;
 			}
@@ -68,23 +62,60 @@ class main extends \pl\fe\matter\base {
 		$result=$dataSchemas;
 		$d['data_schemas']=\TMS_MODEL::toJson($dataSchemas);
 		$modelEnl->update('xxt_enroll',$d,['id'=>$id]);
-
-		//数据的更新
-		foreach ($records2 as $v2) {
-			foreach ($two as $v3) {
-				if($v2->value===$v3->l){
-					$a['value']=$v3->v;
-					$modelEnl->update('xxt_enroll_record_data',$a,['id'=>$v2->id]);
-					$data=$modelEnl->query_obj_ss(['id,data','xxt_enroll_record',['aid'=>$id,'enroll_key'=>$v2->enroll_key]]);
-					$data->data=json_decode($data->data);
-					$data->data->{$v2->schema_id}=$v3->v;
-					$b['data']=\TMS_MODEL::toJson($data->data);
-					$modelEnl->update('xxt_enroll_record',$b,['id'=>$data->id]);
-				}
-			}
-		}
 	
 		return new \ResponseData($result);
+	}
+	/**
+	 * 填空题转单选时候数据的变更
+	 *
+	 */
+	public function changeSingleData_action($site, $id, $tid){
+		if (false === ($oUser = $this->accountUser())) {
+			return new \ResponseTimeout();
+		}
+
+		$modelEnl = \TMS_APP::M('matter\enroll');
+		$records=$modelEnl->query_objs_ss(['id,enroll_key,data','xxt_enroll_record',['siteid'=>$site,'aid'=>$id]]);
+
+		$data=$this->getPostJson();
+		$data_schemas=$data->data_schemas;
+		//对比定义和数据并更新
+		foreach ($records as &$record) {
+			$record->data=json_decode($record->data);
+			$supplement=array();
+			foreach ($data_schemas as $schema) {
+				if($schema->id==$tid){
+					if(isset($schema->supplement) && $schema->supplement==='Y'){
+						$flag=0;
+						//如果在这个选项里面
+						foreach($schema->ops as $v) {
+							if($v->l==$record->data->{$tid}){
+								$record->data->{$tid}=$v->v;
+								$flag=1;
+							}
+						}
+						//如果不在，就放到补充说明里边
+						if(empty($flag)){
+							$supplement[$tid]=$record->data->{$tid};
+							$d1['supplement']=$supplement[$tid];
+							unset($record->data->{$tid});
+						}
+						$d1['value']=$record->data->{$tid};
+						//更新数据
+						$modelEnl->update('xxt_enroll_record_data',$d1,['siteid'=>$site,'enroll_key'=>$record->enroll_key,'schema_id'=>$tid]);
+					}else{
+						return new \ResponseError('没有勾选单选题的补充说明，不能更新数据！');
+					}
+				}
+			}
+			$record->supplement=(object)$supplement;
+			!empty($supplement) && $d['supplement']=\TMS_MODEL::toJson($record->supplement);
+			$d['data']=\TMS_MODEL::toJson($record->data);
+			//更新数据
+			$modelEnl->update('xxt_enroll_record',$d,['id'=>$record->id]);
+		}
+
+		return new \ResponseData('ok');
 	}
 	/**
 	 * 返回一个登记活动

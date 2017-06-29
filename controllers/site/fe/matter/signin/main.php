@@ -257,7 +257,11 @@ class main extends base {
 			$signinRecord = new \stdClass;
 			foreach ($records as $record) {
 				if ($record->verified === 'Y') {
-					$signinRecord->data = json_decode($record->data);
+					if (is_string($record->data)) {
+						$signinRecord->data = json_decode($record->data);
+					} else {
+						$signinRecord->data = $record->data;
+					}
 					return $signinRecord;
 				}
 			}

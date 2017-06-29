@@ -184,6 +184,21 @@ define([], function() {
         }
     }
 
+    function _htmlTag($dom, schema) {
+        var $tags;
+        if (schema.cantag === 'Y') {
+            $tags = $dom.find('.tags');
+            if ($tags.length === 0) {
+                $dom.append('<p class="form-control tags" ng-click="tagRecordData(\'' + schema.id + '\')"><span class="tag" ng-repeat="t in tag[\'' + schema.id + '\']" ng-bind="t.label"></span></p>');
+            }
+        } else {
+            $tags = $dom.find('.tags');
+            if ($tags.length) {
+                $tags.remove();
+            }
+        }
+    }
+
     InputWrap.prototype.newRadio = function(schema, op, config, forEdit) {
         return _htmlRadio(schema, op, config, forEdit);
     };
@@ -417,6 +432,7 @@ define([], function() {
                     } else {
                         $input.removeAttr('required');
                     }
+                    _htmlTag($dom, schema);
                 } else if (/single|phase/.test(schema.type)) {
                     (function(lib) {
                         var html;
@@ -721,7 +737,7 @@ define([], function() {
         var config = oWrap.config,
             schema = oWrap.schema,
             $dom = $(domWrap),
-            $supplement;
+            $tags, $supplement;
 
         if (beforeSchema && schema.type !== beforeSchema.type) {
             $dom.html(this.embed(oWrap).html);
@@ -733,6 +749,17 @@ define([], function() {
             }
             config.inline === 'Y' ? $dom.addClass('wrap-inline') : $dom.removeClass('wrap-inline');
             config.splitLine === 'Y' ? $dom.addClass('wrap-splitline') : $dom.removeClass('wrap-splitline');
+        }
+        if (schema.cantag === 'Y') {
+            $tags = $dom.find('.tags');
+            if ($tags.length === 0) {
+                $dom.append('<p class="tags"><span class="tag" ng-repeat="t in Record.current.tag.' + schema.id + '" ng-bind="t.label"></span></p>');
+            }
+        } else {
+            $tags = $dom.find('.tags');
+            if ($tags.length) {
+                $tags.remove();
+            }
         }
         if (schema.supplement === 'Y') {
             $supplement = $dom.find('.supplement');

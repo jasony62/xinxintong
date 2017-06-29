@@ -7,7 +7,7 @@ class data_model extends \TMS_MODEL {
 	/**
 	 * 缺省返回的列
 	 */
-	const DEFAULT_FIELDS = 'id,value,supplement,enroll_key,schema_id,userid,submit_at,score,remark_num,last_remark_at,like_num,like_log,modify_log,agreed';
+	const DEFAULT_FIELDS = 'id,value,tag,supplement,enroll_key,schema_id,userid,submit_at,score,remark_num,last_remark_at,like_num,like_log,modify_log,agreed';
 	/**
 	 * 获得指定登记记录登记数据的详细信息
 	 */
@@ -20,11 +20,10 @@ class data_model extends \TMS_MODEL {
 			['enroll_key' => $ek, 'state' => 1],
 		];
 
-		if ($fields === '*' || false !== strpos($fields, 'like_log')) {
-			$fnHandler = function (&$oData) {
-				$oData->like_log = empty($oData->like_log) ? new \stdClass : json_decode($oData->like_log);
-			};
-		}
+		$fnHandler = function (&$oData) {
+			$oData->tag = empty($oData->tag) ? new \stdClass : json_decode($oData->tag);
+			$oData->like_log = empty($oData->like_log) ? new \stdClass : json_decode($oData->like_log);
+		};
 
 		if (isset($options['schema'])) {
 			if (is_array($options['schema'])) {

@@ -141,6 +141,7 @@ ngApp.controller('ctrlView', ['$scope', '$timeout', 'ls', 'Record', function($sc
                 }, true);
             }
         });
+        facRecord.current.tag = params.record.data_tag ? params.record.data_tag : {};
         /* disable actions */
         if (oApp.end_at > 0 && parseInt(oApp.end_at) < (new Date() * 1) / 1000) {
             fnDisableActions();

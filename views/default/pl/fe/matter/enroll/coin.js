@@ -12,25 +12,25 @@ define(['frame'], function(ngApp) {
             desc: '用户A分享活动给公众号好友',
         }, {
             name: 'site.matter.enroll.share.timeline',
-            desc: '用户A分享至朋友圈',
-        }, {
-            name: 'site.matter.enroll.discuss.like',
-            desc: '用户A对活动点赞',
-        }, {
-            name: 'site.matter.enroll.discuss.comment',
-            desc: '用户A对活动评论',
+            desc: '用户A分享活动至朋友圈',
+            //}, {
+            //    name: 'site.matter.enroll.discuss.like',
+            //    desc: '用户A对活动点赞',
+            //}, {
+            //    name: 'site.matter.enroll.discuss.comment',
+            //    desc: '用户A对活动评论',
         }, {
             name: 'site.matter.enroll.data.like',
-            desc: '用户A数据被点赞',
+            desc: '用户A填写数据被点赞',
         }, {
             name: 'site.matter.enroll.data.other.like',
-            desc: '用户A点赞别人的数据',
+            desc: '用户A点赞别人的填写数据',
         }, {
             name: 'site.matter.enroll.data.comment',
-            desc: '用户A数据被点评',
+            desc: '用户A填写数据被点评',
         }, {
             name: 'site.matter.enroll.data.other.comment',
-            desc: '用户A点评别人的数据',
+            desc: '用户A点评别人的填写数据',
         }];
         $scope.rules = {};
         actions.forEach(function(act) {

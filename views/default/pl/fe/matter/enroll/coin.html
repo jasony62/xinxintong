@@ -5,18 +5,20 @@
                 <uib-tab-heading>积分规则</uib-tab-heading>
                 <table class="table table-bordered table-striped">
                     <thead>
-                    <tr>
-                        <th>ID</th>
-                        <th>说明</th>
-                        <th>积分</th>
-                    </tr>
+                        <tr>
+                            <th>ID</th>
+                            <th>说明</th>
+                            <th>积分</th>
+                        </tr>
                     </thead>
                     <tbody>
-                    <tr ng-repeat="r in rules">
-                        <td ng-bind="r.act"></td>
-                        <td ng-bind="r.desc"></td>
-                        <td><input type='text' ng-model="r.actor_delta"></td>
-                    </tr>
+                        <tr ng-repeat="r in rules">
+                            <td ng-bind="r.act"></td>
+                            <td ng-bind="r.desc"></td>
+                            <td>
+                                <input type='text' ng-model="r.actor_delta">
+                            </td>
+                        </tr>
                     </tbody>
                 </table>
                 <button class='btn btn-success' ng-click="save()">保存</button>
@@ -26,21 +28,21 @@
                 <table class="table table-bordered table-striped">
                     <thead>
                         <tr>
+                            <th style='width:48px'>序号</th>
                             <th>时间</th>
                             <th>用户</th>
                             <th>获得积分原因</th>
                             <th>获得积分</th>
-                            <th>总积分</th>
-                            <th>活动获得总积分</th>
+                            <th>获得总积分</th>
                         </tr>
                     </thead>
                     <tbody>
                         <tr ng-repeat="log in logs">
+                            <td>{{$index+1}}</td>
                             <td>{{log.occur_at*1000|date:'yy-MM-dd hh:mm'}}</td>
                             <td>{{log.nickname}}</td>
                             <td>{{log.act}}</td>
                             <td>{{log.delta}}</td>
-                            <td>{{log.total}}</td>
                             <td>{{log.user_total_coin}}</td>
                         </tr>
                     </tbody>

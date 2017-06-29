@@ -79,13 +79,32 @@ define(['frame'], function(ngApp) {
                 });
             });
         };
+        var logs, page;
+        $scope.page = page = {
+            at: 1,
+            size: 12,
+            j: function() {
+                return '&page=' + this.at + '&size=' + this.size;
+            }
+        }
         $scope.fetchLogs = function() {
             var url;
-            url = '/rest/pl/fe/matter/enroll/coin/logs?site=' + $scope.app.siteid + '&app=' + $scope.app.id;
+            url = '/rest/pl/fe/matter/enroll/coin/logs?site=' + $scope.app.siteid + '&app=' + $scope.app.id + page.j();
             http2.get(url, function(rsp) {
-                $scope.logs = rsp.data.logs;
+                if(rsp.data.logs) {
+                    $scope.tabActive = 1;
+                    $scope.logs = logs = rsp.data.logs;
+                    $scope.page.total = rsp.data.total;
+                }
+
+                if(rsp.data.logs.length == 0) {
+                    $scope.tabActive = 0;
+                }
             });
         };
+        $scope.$watch('logs', function(nv) {
+            if(!nv) { $scope.tabActive = 3;}
+        });
         srvEnrollApp.get().then(function(app) {
             $scope.fetchRules();
             $scope.fetchLogs();

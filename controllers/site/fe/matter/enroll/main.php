@@ -243,13 +243,13 @@ class main extends base {
 	 * @param string $newRecord
 	 */
 	public function get_action($app, $rid = null, $page = null, $ek = null, $newRecord = null, $ignoretime = 'N', $cascaded = 'N') {
-		$params = [];
-
 		/* 登记活动定义 */
 		$oApp = $this->modelApp->byId($app, ['cascaded' => $cascaded]);
 		if ($oApp === false) {
 			return new \ResponseError('指定的登记活动不存在，请检查参数是否正确');
 		}
+
+		$params = [];
 		$params['app'] = &$oApp;
 
 		/* 当前访问用户的基本信息 */

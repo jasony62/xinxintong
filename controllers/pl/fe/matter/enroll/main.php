@@ -22,8 +22,8 @@ class main extends \pl\fe\matter\base {
 	/**
 	 * 根据记录填空转单选
 	 * 返回题目定义
-	 * id string appId 登记活动ID
-	 * tid string 题目ID
+	 * $id string appId 登记活动ID
+	 * $tid string 题目ID
 	 */
 	public function getOption_action($site,$id,$tid){
 		if (false === ($oUser = $this->accountUser())) {
@@ -92,8 +92,8 @@ class main extends \pl\fe\matter\base {
 	/**
 	 * 填空题转单选时候数据的变更
 	 * POST 传参
-	 * id string appId 登记活动ID
-	 * tid string 题目ID
+	 * $id string appId 登记活动ID
+	 * $tid string 题目ID
 	 */
 	public function changeSingleData_action($site, $id, $tid){
 		if (false === ($oUser = $this->accountUser())) {

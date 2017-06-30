@@ -188,7 +188,7 @@ define(['frame'], function(ngApp) {
         $scope.create = function() {
             var url = '/rest/pl/fe/matter/mission/create?site=' + $scope.frameState.sid;
             http2.get(url, function(rsp) {
-                location.href = '/rest/pl/fe/matter/mission?site=' + rsp.data.id + '&id=' + rsp.data.id;
+                location.href = '/rest/pl/fe/matter/mission?site=' + rsp.data.siteid + '&id=' + rsp.data.id;
             });
         };
         $scope.listSite = function() {

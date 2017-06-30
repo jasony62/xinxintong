@@ -493,21 +493,27 @@ define(['wrap'], function(SchemaWrap) {
             return true;
         },
         updateSchema: function(oSchema, oBeforeState) {
-            var $html, $wrap, $supplement;
+            var $html, $wrap, $tags, $supplement;
 
             $html = $('<div>' + this.html + '</div>');
             $wrap = $html.find("[schema='" + oSchema.id + "']");
             $wrap.find('label').html(oSchema.title);
 
-            if (oSchema.supplement) {
-                if (oSchema.supplement === 'Y') {
-                    $supplement = $wrap.find('.supplement');
-                    if ($supplement.length === 0) {
-                        $wrap.append('<p class="supplement" ng-bind="r.supplement.' + oSchema.id + '"></p>');
-                    }
-                } else {
-                    $wrap.find('.supplement').remove();
+            if (oSchema.cantag === 'Y') {
+                $tags = $wrap.find('.tags');
+                if ($tags.length === 0) {
+                    $wrap.append('<p class="tags"><span class="tag" ng-repeat="t in Record.current.tag.' + oSchema.id + '" ng-bind="t.label"></span></p>');
                 }
+            } else {
+                $wrap.find('.tags').remove();
+            }
+            if (oSchema.supplement === 'Y') {
+                $supplement = $wrap.find('.supplement');
+                if ($supplement.length === 0) {
+                    $wrap.append('<p class="supplement" ng-bind="r.supplement.' + oSchema.id + '"></p>');
+                }
+            } else {
+                $wrap.find('.supplement').remove();
             }
 
             this.html = $html.html();

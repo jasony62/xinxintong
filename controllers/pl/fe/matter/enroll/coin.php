@@ -37,14 +37,30 @@ class coin extends \pl\fe\matter\base {
 			return new \ResponseTimeout();
 		}
 
-		$modelLog = $this->model('site\coin\log');
-		$matter = new \stdClass;
-		$matter->id = $app;
-		$matter->type = 'enroll';
+		$result = new \stdClass;
+		$q = [
+			'cl.act,cl.occur_at,cl.userid,cl.nickname,cl.delta,cl.total,e.user_total_coin',
+			'xxt_coin_log cl,xxt_enroll_user e',
+			"cl.matter_type='enroll' and cl.matter_id='{$app}' and e.aid = cl.matter_id and e.userid = cl.userid",
+		];
+		/**
+		 * 分页数据
+		 */
+		$q2 = [
+			'o' => 'cl.occur_at desc,cl.id desc',
+			'r' => [
+				'o' => (($page - 1) * $size),
+				'l' => $size,
+			],
+		];
 
-		$logs = $modelLog->byMatter($matter, $page, $size);
+		$result->logs = $this->model()->query_objs_ss($q, $q2);
 
-		return new \ResponseData($logs);
+		$q[0] = 'count(*)';
+		$result->total = $this->model()->query_val_ss($q);
+
+
+		return new \ResponseData($result);
 	}
 	/**
 	 *

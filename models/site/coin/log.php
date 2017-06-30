@@ -12,9 +12,11 @@ class log_model extends \TMS_MODEL {
 	 * @param string $act 操作
 	 *
 	 */
-	public function award(&$matter, &$actor, $act) {
+	public function award(&$matter, &$actor, $act, $rules = []) {
 		$modelMat = $this->model('matter\\' . $matter->type . '\coin');
-		$rules = $modelMat->rulesByMatter($act, $matter);
+		if(empty($rules)){
+			$rules = $modelMat->rulesByMatter($act, $matter);
+		}
 		foreach ($rules as $rule) {
 			if ($rule->actor_delta) {
 				$this->award2User($matter, $actor, $act, (int) $rule->actor_delta);

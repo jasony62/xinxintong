@@ -1,5 +1,6 @@
 <?php
 require_once '../db.php';
+die('danger');
 /**
  * account
  */
@@ -39,17 +40,17 @@ $sql[] = 'drop table if exists xxt_coin_rule';
  */
 $sql[] = 'drop table if exists xxt_enroll';
 $sql[] = 'drop table if exists xxt_enroll_page';
-$sql[] = 'drop table if exists xxt_enroll_record_schema';
+//$sql[] = 'drop table if exists xxt_enroll_record_schema';
 $sql[] = 'drop table if exists xxt_enroll_round';
 $sql[] = 'drop table if exists xxt_enroll_receiver';
 $sql[] = 'drop table if exists xxt_enroll_record';
-$sql[] = 'drop table if exists xxt_enroll_signin_log';
+//$sql[] = 'drop table if exists xxt_enroll_signin_log';
 $sql[] = 'drop table if exists xxt_enroll_record_score';
 $sql[] = 'drop table if exists xxt_enroll_record_remark';
 $sql[] = 'drop table if exists xxt_enroll_record_data';
 $sql[] = 'drop table if exists xxt_enroll_record_stat';
-$sql[] = 'drop table if exists xxt_enroll_lottery_round';
-$sql[] = 'drop table if exists xxt_enroll_lottery';
+//$sql[] = 'drop table if exists xxt_enroll_lottery_round';
+//$sql[] = 'drop table if exists xxt_enroll_lottery';
 //
 $sql[] = 'drop table if exists xxt_signin';
 $sql[] = 'drop table if exists xxt_signin_round';

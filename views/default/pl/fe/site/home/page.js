@@ -69,7 +69,7 @@ define(['main'], function(ngApp) {
             };
             $scope.entry = entry;
         });
-        http2.get('/rest/pl/be/platform/get', function(rsp) {
+        /*http2.get('/rest/pl/be/platform/get', function(rsp) {
             if (rsp.data.home_nav) {
                 $scope.home_nav = rsp.data.home_nav;
                 $scope.home_nav.forEach(function(item) {
@@ -87,7 +87,7 @@ define(['main'], function(ngApp) {
                     $scope.state = 'Y';
                 }
             });
-        });
+        });*/
     }]);
     ngApp.provider.controller('ctrlHomeCarousel', ['$scope', 'http2', 'mediagallery', function($scope, http2, mediagallery) {
         function update(name) {

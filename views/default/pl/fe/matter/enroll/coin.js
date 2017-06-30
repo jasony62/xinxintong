@@ -12,13 +12,25 @@ define(['frame'], function(ngApp) {
             desc: '用户A分享活动给公众号好友',
         }, {
             name: 'site.matter.enroll.share.timeline',
-            desc: '用户A分享至朋友圈',
+            desc: '用户A分享活动至朋友圈',
+            //}, {
+            //    name: 'site.matter.enroll.discuss.like',
+            //    desc: '用户A对活动点赞',
+            //}, {
+            //    name: 'site.matter.enroll.discuss.comment',
+            //    desc: '用户A对活动评论',
         }, {
-            name: 'site.matter.enroll.discuss.like',
-            desc: '用户A对活动点赞',
+            name: 'site.matter.enroll.data.like',
+            desc: '用户A填写数据被点赞',
         }, {
-            name: 'site.matter.enroll.discuss.comment',
-            desc: '用户A对活动评论',
+            name: 'site.matter.enroll.data.other.like',
+            desc: '用户A点赞别人的填写数据',
+        }, {
+            name: 'site.matter.enroll.data.comment',
+            desc: '用户A填写数据被点评',
+        }, {
+            name: 'site.matter.enroll.data.other.comment',
+            desc: '用户A点评别人的填写数据',
         }];
         $scope.rules = {};
         actions.forEach(function(act) {
@@ -67,13 +79,32 @@ define(['frame'], function(ngApp) {
                 });
             });
         };
+        var logs, page;
+        $scope.page = page = {
+            at: 1,
+            size: 12,
+            j: function() {
+                return '&page=' + this.at + '&size=' + this.size;
+            }
+        }
         $scope.fetchLogs = function() {
             var url;
-            url = '/rest/pl/fe/matter/enroll/coin/logs??site=' + $scope.app.siteid + '&app=' + $scope.app.id;
+            url = '/rest/pl/fe/matter/enroll/coin/logs?site=' + $scope.app.siteid + '&app=' + $scope.app.id + page.j();
             http2.get(url, function(rsp) {
-                $scope.logs = rsp.data.logs;
+                if(rsp.data.logs) {
+                    $scope.tabActive = 1;
+                    $scope.logs = logs = rsp.data.logs;
+                    $scope.page.total = rsp.data.total;
+                }
+
+                if(rsp.data.logs.length == 0) {
+                    $scope.tabActive = 0;
+                }
             });
         };
+        $scope.$watch('logs', function(nv) {
+            if(!nv) { $scope.tabActive = 3;}
+        });
         srvEnrollApp.get().then(function(app) {
             $scope.fetchRules();
             $scope.fetchLogs();

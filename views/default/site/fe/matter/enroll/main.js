@@ -197,12 +197,17 @@ ngApp.controller('ctrlMain', ['$scope', '$http', '$timeout', 'ls', 'tmsDynaPage'
             oPage = params.page,
             oUser = params.user,
             schemasById = {},
+            tagsById = {},
             shareid, sharelink, shareby, summary;
 
         oApp.dataSchemas.forEach(function(schema) {
             schemasById[schema.id] = schema;
         });
         oApp._schemasById = schemasById;
+        oApp.dataTags.forEach(function(oTag) {
+            tagsById[oTag.id] = oTag;
+        });
+        oApp._tagsById = tagsById;
         $scope.params = params;
         $scope.site = oSite;
         $scope.mission = oMission;
@@ -210,6 +215,18 @@ ngApp.controller('ctrlMain', ['$scope', '$http', '$timeout', 'ls', 'tmsDynaPage'
         $scope.user = oUser;
         if (oApp.multi_rounds === 'Y') {
             $scope.activeRound = params.activeRound;
+        }
+        if (params.record) {
+            if (params.record.data_tag) {
+                for (var schemaId in params.record.data_tag) {
+                    var dataTags = params.record.data_tag[schemaId],
+                        converted = [];
+                    dataTags.forEach(function(tagId) {
+                        tagsById[tagId] && converted.push(tagsById[tagId]);
+                    });
+                    params.record.data_tag[schemaId] = converted;
+                }
+            }
         }
         /* 设置活动的当前链接 */
         shareid = oUser.uid + '_' + (new Date() * 1);

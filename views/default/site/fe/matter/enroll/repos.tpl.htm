@@ -50,6 +50,11 @@
                                     <option value>全部题目</option>
                                 </select>
                             </div>
+                            <div class='form-group' ng-if="dataTags">
+                                <select class='form-control' ng-model="criteria.label" ng-options="tag.id as tag.label for tag in dataTags" ng-change="shiftTag()" size='6'>
+                                    <option value>全部标签</option>
+                                </select>
+                            </div>
                         </form>
                     </div>
                 </div>

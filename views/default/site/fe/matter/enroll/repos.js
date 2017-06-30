@@ -89,6 +89,9 @@ ngApp.controller('ctrlRepos', ['$scope', 'http2', 'Round', '$sce', function($sco
     $scope.shiftSchema = function() {
         $scope.list4Schema();
     };
+    $scope.shiftTag = function() {
+        $scope.list4Schema();
+    };
     $scope.likeRecordData = function(oRecord) {
         var url;
         url = '/rest/site/fe/matter/enroll/record/like';
@@ -136,6 +139,7 @@ ngApp.controller('ctrlRepos', ['$scope', 'http2', 'Round', '$sce', function($sco
                 $scope.schemaCount++;
             }
         });
+        $scope.dataTags = oApp.dataTags;
         $scope.list4Schema();
         $scope.facRound = facRound = srvRound.ins(oApp);
         if (oApp.multi_rounds === 'Y') {

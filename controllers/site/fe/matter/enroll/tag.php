@@ -23,37 +23,4 @@ class tag extends base {
 
 		return new \ResponseData($newTags);
 	}
-	/**
-	 *
-	 */
-	public function useTags_action($site) {
-		$tagsPost = $this->getPostJson();
-		if(empty($tagsPost)){
-			return new \ResponseError('请检查参数是否正确');
-		}
-
-		$res = $this->model('matter\enroll\tag')->useTags($tagsPost);
-
-		return new \ResponseData($res);
-	}
-	/**
-	 *
-	 */
-	public function listTags_action($site, $app, $page = null, $size = null) {
-		/* 登记活动定义 */
-		$oApp = $this->model('matter\enroll')->byId($app, ['cascaded' => 'N']);
-		if ($oApp === false) {
-			return new \ResponseError('指定的登记活动不存在，请检查参数是否正确');
-		}
-		
-		$options = [];
-		if(!empty($page) && !empty($size)){
-			$options['at']['page'] = $page;
-			$options['at']['size'] = $size;
-		}
-
-		$tags = $this->model('matter\enroll\tag')->byApp($oApp, $options);
-
-		return new \ResponseData($tags);
-	}
 }

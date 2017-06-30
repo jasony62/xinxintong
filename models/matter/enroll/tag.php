@@ -36,21 +36,29 @@ class tag_model extends \TMS_MODEL {
 	public function add(&$oApp, $user, $data) {
 		$current = time();
 		$newTags = [];
+		$this->setOnlyWriteDbConn(true);
 		foreach ($data as $tagLabel) {
+			$tagLabel = $this->escape(trim($tagLabel));
+			$q = [
+				'label',
+				'xxt_enroll_record_tag',
+				"aid = '{$oApp->id}' and label = '$tagLabel'"
+			];
+			if ($labels = $this->query_obj_ss($q)) {
+				continue;
+			}
+			/*获取排序*/
+			$q[0] = 'max(seq)';
+			$q[2] = "aid = '{$oApp->id}'";
+			$seq = (int)$this->query_val_ss($q);
+			
 			$oNewTag = new \stdClass;
 			$oNewTag->siteid = $oApp->siteid;
 			$oNewTag->aid = $oApp->id;
 			$oNewTag->create_at = $current;
 			$oNewTag->creater = $user->uid;
-			$oNewTag->label = $this->escape($tagLabel);
+			$oNewTag->label = $tagLabel;
 			$oNewTag->scope = 'U';
-			/*获取排序*/
-			$q = [
-				'max(seq)',
-				'xxt_enroll_record_tag',
-				"aid = '{$oApp->id}'"
-			];
-			$seq = (int)$this->query_val_ss($q);
 			$oNewTag->seq = $seq + 1;
 			$oNewTag->id = $this->insert('xxt_enroll_record_tag', $oNewTag, true);
 
@@ -58,30 +66,5 @@ class tag_model extends \TMS_MODEL {
 		}
 
 		return $newTags;
-	}
-	/**
-	 * 使用标签
-	 *
-	 * @param object $tags
-	 */
-	public function useTags($tags) {
-		foreach ($tags as $tag) {
-			$q = [
-				'use_num',
-				'xxt_enroll_record_tag',
-				['id' => $tag]
-			];
-			$res = $this->query_obj_ss($q);
-			if($res === false){
-				continue;
-			}
-			if((int)$res->use_num > 0){
-				continue;
-			}
-
-			$this->update("update xxt_enroll_record_tag set use_num = use_num +1 where id= $tag");
-		}
-
-		return 'ok';
 	}
 }

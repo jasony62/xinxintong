@@ -54,6 +54,7 @@ class repos extends base {
 						$oRec->agreedRemarks = $agreedRemarks;
 					}
 				}
+				$oRec->tag = json_decode($oRec->tag);
 			}
 		}
 

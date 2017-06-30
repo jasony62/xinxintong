@@ -323,6 +323,7 @@ class record_model extends \TMS_MODEL {
 			/* 保证以字符串的格式存储标签id，便于以后检索 */
 			$jsonTags = [];
 			foreach ($tags as $oTag) {
+				$this->update("update xxt_enroll_record_tag set use_num = use_num+1 where id = $oTag->id");
 				$jsonTags[] = (string) $oTag->id;
 			}
 			$wholeTags->{$schemaId} = $jsonTags;
@@ -744,7 +745,7 @@ class record_model extends \TMS_MODEL {
 
 		// 查询参数
 		$q = [
-			'e.enroll_key,e.rid,e.enroll_at,e.tags,e.userid,e.nickname,e.wx_openid,e.yx_openid,e.qy_openid,e.headimgurl,e.verified,e.comment,e.data,e.supplement',
+			'e.enroll_key,e.rid,e.enroll_at,e.tags,e.userid,e.nickname,e.wx_openid,e.yx_openid,e.qy_openid,e.headimgurl,e.verified,e.comment,e.data,e.supplement,e.data_tag',
 			"xxt_enroll_record e",
 			$w,
 		];
@@ -764,6 +765,7 @@ class record_model extends \TMS_MODEL {
 		$roundsById = []; // 缓存轮次数据
 		if ($records = $this->query_objs_ss($q, $q2)) {
 			foreach ($records as &$rec) {
+				$rec->data_tag = json_decode($rec->data_tag);
 				$data = str_replace("\n", ' ', $rec->data);
 				$data = json_decode($data);
 				//测验场景

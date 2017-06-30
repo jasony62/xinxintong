@@ -169,12 +169,16 @@
             <div class='form-group'>
                 <div class='col-md-6 col-md-offset-2'>
                     <div class='bottom-bar'>
+                        <div ng-if="schema.cantag==='Y'&&record.data_tag[schema.id]!=''">
+                            <label>标签：</label>
+                            <span >{{record.data_tag[schema.id]}}</span>
+                        </div>
                         <div ng-if="schema.requireScore==='Y'">
                             <label>分数：</label>
                             <input type='text' class='form-control' ng-disabled="['single','multiple'].indexOf(schema.type)!==-1" ng-model="quizScore[schema.id]" style='width:64px'>
                         </div>
                         <div ng-if="schema.shareable==='Y'">
-                            <span>点赞 <span class='badge'>{{record.verbose[schema.id].like_num||0}}</span></span>
+                            <span>点赞<span class='badge'>{{record.verbose[schema.id].like_num||0}}</span></span>
                         </div>
                         <div ng-if="schema.remarkable==='Y'">
                             <button class='btn btn-default btn-sm' ng-click="switchSchemaRemarks(schema)"><span class='glyphicon glyphicon-comment'></span> <span class="badge">{{record.verbose[schema.id].remark_num||0}}</span></button>

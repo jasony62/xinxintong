@@ -54,7 +54,7 @@ class repos extends base {
 						$oRec->agreedRemarks = $agreedRemarks;
 					}
 				}
-				$oRec->tag = json_decode($oRec->tag);
+				$oRec->tag = empty($oRec->tag) ? new \stdClass : json_decode($oRec->tag);
 			}
 		}
 

@@ -765,7 +765,7 @@ class record_model extends \TMS_MODEL {
 		$roundsById = []; // 缓存轮次数据
 		if ($records = $this->query_objs_ss($q, $q2)) {
 			foreach ($records as &$rec) {
-				$rec->data_tag = json_decode($rec->data_tag);
+				$rec->data_tag = empty($rec->data_tag) ? new \stdClass : json_decode($rec->data_tag);
 				$data = str_replace("\n", ' ', $rec->data);
 				$data = json_decode($data);
 				//测验场景

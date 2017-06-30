@@ -65,8 +65,20 @@ class tag_model extends \TMS_MODEL {
 	 * @param object $oApp
 	 */
 	public function useTags($tags) {
-		$newTags = [];
-		foreach ($tags as $tag) {	
+		foreach ($tags as $tag) {
+			$q = [
+				'use_num',
+				'xxt_enroll_record_tag',
+				['id' => $tag]
+			];
+			$res = $this->query_obj_ss($q);
+			if($res === false){
+				continue;
+			}
+			if((int)$res->use_num > 0){
+				continue;
+			}
+
 			$this->update("update xxt_enroll_record_tag set use_num = use_num +1 where id= $tag");
 		}
 

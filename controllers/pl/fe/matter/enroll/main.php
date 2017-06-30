@@ -38,13 +38,10 @@ class main extends \pl\fe\matter\base {
 		foreach ($records as $v1) {
 			$option[]=$v1->value;
 		}
-
 		if(empty($option)){
 			return new \ResponseError('没有填空题的数据记录，无法获得选项！');
 		}
-
 		$option=array_unique($option);
-
 		//添加选项
 		$n=1;
 		foreach ($option as $v) {
@@ -54,8 +51,7 @@ class main extends \pl\fe\matter\base {
 		}
 		
 		//题目定义的更新
-		$dataSchemas=$oApp->dataSchemas;
-		
+		$dataSchemas=$oApp->dataSchemas;	
 		foreach ($dataSchemas as &$rec) {
 			if($rec->id==$tid){
 				$rec->type="single";
@@ -90,7 +86,7 @@ class main extends \pl\fe\matter\base {
 	}
 	/**
 	 * 填空题转单选时候数据的变更
-	 *
+	 * POST
 	 */
 	public function changeSingleData_action($site, $id, $tid){
 		if (false === ($oUser = $this->accountUser())) {
@@ -123,7 +119,7 @@ class main extends \pl\fe\matter\base {
 							$d1['supplement']=$supplement[$tid];
 							unset($record->data->{$tid});
 						}
-						$d1['value']=$record->data->{$tid};
+						$d1['value']=isset($record->data->{$tid}) ? $record->data->{$tid} : '';
 						//更新数据
 						$modelEnl->update('xxt_enroll_record_data',$d1,['siteid'=>$site,'enroll_key'=>$record->enroll_key,'schema_id'=>$tid]);
 					}else{

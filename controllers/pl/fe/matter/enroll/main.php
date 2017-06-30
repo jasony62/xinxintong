@@ -81,6 +81,9 @@ class main extends \pl\fe\matter\base {
 			$d['data_schemas']=\TMS_MODEL::toJson($page->data_schemas);
 			$modelEnl->update('xxt_enroll_page',$d,['id'=>$page->id]);	
 		}
+		//记录操作日志
+		$oApp->type='enroll';
+		$this->model('matter\log')->matterOp($site, $oUser, $oApp, 'U');
 	
 		return new \ResponseData($result);
 	}
@@ -94,6 +97,10 @@ class main extends \pl\fe\matter\base {
 		}
 
 		$modelEnl = \TMS_APP::M('matter\enroll');
+		if (false === ($oApp = $modelEnl->byId($id))) {
+			return new \ResponseError('指定的数据不存在');
+		}
+		
 		$records=$modelEnl->query_objs_ss(['id,enroll_key,data','xxt_enroll_record',['siteid'=>$site,'aid'=>$id]]);
 
 		$data=$this->getPostJson();
@@ -133,6 +140,10 @@ class main extends \pl\fe\matter\base {
 			//更新数据
 			$modelEnl->update('xxt_enroll_record',$d,['id'=>$record->id]);
 		}
+
+		//记录操作日志
+		$oApp->type='enroll';
+		$this->model('matter\log')->matterOp($site, $oUser, $oApp, 'U');
 
 		return new \ResponseData('ok');
 	}

@@ -15,7 +15,7 @@ class tag_model extends \TMS_MODEL {
 		$q = [
 			$fields,
 			'xxt_enroll_record_tag',
-			['aid' => $oApp]
+			['aid' => $oApp->id]
 		];
 		$q2['o'] = 'create_at desc';
 		if (isset($options['at'])) {
@@ -62,7 +62,7 @@ class tag_model extends \TMS_MODEL {
 	/**
 	 * 使用标签
 	 *
-	 * @param object $oApp
+	 * @param object $tags
 	 */
 	public function useTags($tags) {
 		foreach ($tags as $tag) {

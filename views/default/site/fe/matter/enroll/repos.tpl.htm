@@ -67,6 +67,9 @@
                             <p ng-switch-when="multiple"><span>{{value2Label(rec.value,rec.schema_id)}}</span></p>
                             <p ng-switch-when="image"><img ng-src="{{rec.value}}"></p>
                             <p ng-switch-default>{{rec.value}}</p>
+                            <p ng-if="schemas[rec.schema_id].cantag==='Y'" class='tags'>
+                                <span ng-repeat="t in rec[rec.schema_id].tag" ng-bind="t.label"></span>
+                            </p>
                             <p ng-if="schemas[rec.schema_id].supplement==='Y'" class='supplement'>{{rec.supplement}}</p>
                             <footer>{{rec.nickname||'匿名用户'}}</footer>
                         </blockquote>

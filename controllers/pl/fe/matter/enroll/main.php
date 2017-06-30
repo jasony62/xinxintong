@@ -121,7 +121,7 @@ class main extends \pl\fe\matter\base {
 						}
 						$d1['value']=isset($record->data->{$tid}) ? $record->data->{$tid} : '';
 						//更新数据
-						$modelEnl->update('xxt_enroll_record_data',$d1,['siteid'=>$site,'enroll_key'=>$record->enroll_key,'schema_id'=>$tid]);
+						$modelEnl->update('xxt_enroll_record_data',$d1,['enroll_key'=>$record->enroll_key,'schema_id'=>$tid]);
 					}else{
 						return new \ResponseError('没有勾选单选题的补充说明，不能更新数据！');
 					}

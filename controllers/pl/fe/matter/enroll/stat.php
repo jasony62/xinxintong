@@ -211,7 +211,7 @@ class stat extends \pl\fe\matter\base {
 				$textResult = $modelRec->list4Schema($oApp, $schema->id, ['rid' => $rid]);
 				if (!empty($textResult->records)) {
 					//数值型的饼图
-					if (isset($schema->number) && $schema->number === 'Y') {
+					if (isset($schema->format) && $schema->format === 'number') {
 						$data = [];
 						foreach ($textResult->records as $record) {
 							$schemaId = $schema->id;
@@ -222,6 +222,7 @@ class stat extends \pl\fe\matter\base {
 						if (empty($data)) {
 							continue;
 						}
+						
 						$graph = new \PieGraph($graphWidth, $graphHeight);
 						$graph->SetShadow();
 						$pie = new \PiePlot($data);
@@ -229,15 +230,18 @@ class stat extends \pl\fe\matter\base {
 						for ($i = 0, $l = count($data); $i < $l; $i++) {
 							$labels[] = $op = $data[$i] . '：%.1f%%';
 						}
-						$pie->value->SetFont(FF_CHINESE, FS_NORMAL);
+						$pie->value->SetFont(FF_SIMSUN, FS_NORMAL);
 						$graph->Add($pie);
 						$pie->ShowBorder();
 						$pie->setSliceColors(['#F7A35C', '#8085E9', '#90ED7D', '#7CB5EC', '#434348']);
 						$pie->SetColor(array(255, 255, 255));
+						foreach ($labels as &$rec) {
+							$rec=iconv("UTF-8","GB2312//IGNORE",$rec);
+						}
 						$pie->SetLabels($labels, 1);
 
 						//$graph->title->Set($schema->title);
-						//$graph->title->SetFont(FF_CHINESE, FS_NORMAL);
+						//$graph->title->SetFont(FF_SIMSUN, FS_NORMAL);
 
 						$graph->Stroke(_IMG_HANDLER);
 						ob_start(); // start buffering
@@ -371,11 +375,14 @@ class stat extends \pl\fe\matter\base {
 								$labels[] = '选项' . ($i + 1) . '：%.1f%%';
 							}
 						}
-						$pie->value->SetFont(FF_CHINESE, FS_NORMAL);
+						$pie->value->SetFont(FF_SIMSUN, FS_NORMAL);
 						$graph->Add($pie);
 						$pie->ShowBorder();
 						$pie->setSliceColors(['#F7A35C', '#8085E9', '#90ED7D', '#7CB5EC', '#434348']);
 						$pie->SetColor(array(255, 255, 255));
+						foreach ($labels as &$rec) {
+							$rec=iconv("UTF-8","GB2312//IGNORE",$rec);
+						}
 						$pie->SetLabels($labels, 1);
 					}
 				} else if ($schema->type === 'multiple') {
@@ -397,17 +404,20 @@ class stat extends \pl\fe\matter\base {
 					$bar = new \BarPlot($data);
 					$graph->Add($bar);
 					// Setup the titles
-					$graph->xaxis->title->Set("选项");
-					$graph->yaxis->title->Set("数量");
+					$graph->xaxis->title->Set(iconv("UTF-8","GB2312//IGNORE","选项"));
+					$graph->yaxis->title->Set(iconv("UTF-8","GB2312//IGNORE","数量"));
+					foreach ($labels as &$rec) {
+						$rec=iconv("UTF-8","GB2312//IGNORE",$rec);
+					}
 					$graph->xaxis->SetTickLabels($labels);
-					$graph->xaxis->SetFont(FF_CHINESE, FS_NORMAL);
+					$graph->xaxis->SetFont(FF_SIMSUN, FS_NORMAL);
 
-					$graph->yaxis->title->SetFont(FF_CHINESE, FS_NORMAL);
-					$graph->xaxis->title->SetFont(FF_CHINESE, FS_NORMAL);
+					$graph->yaxis->title->SetFont(FF_SIMSUN, FS_NORMAL);
+					$graph->xaxis->title->SetFont(FF_SIMSUN, FS_NORMAL);
 				}
 				if ($sum) {
 					//$graph->title->Set($item['title']);
-					//$graph->title->SetFont(FF_CHINESE, FS_NORMAL);
+					//$graph->title->SetFont(FF_SIMSUN, FS_NORMAL);
 
 					$graph->Stroke(_IMG_HANDLER);
 					ob_start(); // start buffering
@@ -460,7 +470,7 @@ class stat extends \pl\fe\matter\base {
 					$graph->SetTheme($theme_class);
 					$graph->img->SetAntiAliasing(false);
 					//$graph->title->Set($item['title']);
-					//$graph->title->SetFont(FF_CHINESE, FS_NORMAL);
+					//$graph->title->SetFont(FF_SIMSUN, FS_NORMAL);
 					$graph->SetBox(false);
 
 					$graph->img->SetAntiAliasing();
@@ -471,9 +481,12 @@ class stat extends \pl\fe\matter\base {
 
 					$graph->xgrid->Show();
 					$graph->xgrid->SetLineStyle("solid");
+					foreach ($labels as &$rec) {
+						$rec=iconv("UTF-8","GB2312//IGNORE",$rec);
+					}
 					$graph->xaxis->SetTickLabels($labels);
 					$graph->xgrid->SetColor('#E3E3E3');
-					$graph->xaxis->SetFont(FF_CHINESE, FS_NORMAL);
+					$graph->xaxis->SetFont(FF_SIMSUN, FS_NORMAL);
 
 					$p1 = new \LinePlot($data);
 					$graph->Add($p1);
@@ -618,7 +631,7 @@ class stat extends \pl\fe\matter\base {
 				$textResult = $modelRec->list4Schema($oApp, $schema->id, ['rid' => $rid]);
 				if (!empty($textResult->records)) {
 					//数值型的饼图
-					if (isset($schema->number) && $schema->number === 'Y') {
+					if (isset($schema->format) && $schema->format === 'number') {
 						$data = [];
 						foreach ($textResult->records as $record) {
 							$schemaId = $schema->id;
@@ -636,7 +649,7 @@ class stat extends \pl\fe\matter\base {
 						for ($i = 0, $l = count($data); $i < $l; $i++) {
 							$labels[] = $op = $data[$i] . '：%.1f%%';
 						}
-						$pie->value->SetFont(FF_CHINESE, FS_NORMAL);
+						$pie->value->SetFont(FF_SIMSUN, FS_NORMAL);
 						$graph->Add($pie);
 						$pie->ShowBorder();
 						$pie->setSliceColors(['#F7A35C', '#8085E9', '#90ED7D', '#7CB5EC', '#434348']);
@@ -644,7 +657,7 @@ class stat extends \pl\fe\matter\base {
 						$pie->SetLabels($labels, 1);
 
 						$graph->title->Set($schema->title);
-						$graph->title->SetFont(FF_CHINESE, FS_NORMAL);
+						$graph->title->SetFont(FF_SIMSUN, FS_NORMAL);
 
 						$graph->Stroke(_IMG_HANDLER);
 						ob_start(); // start buffering
@@ -766,7 +779,7 @@ class stat extends \pl\fe\matter\base {
 								$labels[] = '选项' . ($i + 1) . '：%.1f%%';
 							}
 						}
-						$pie->value->SetFont(FF_CHINESE, FS_NORMAL);
+						$pie->value->SetFont(FF_SIMSUN, FS_NORMAL);
 						$graph->Add($pie);
 						$pie->ShowBorder();
 						$pie->setSliceColors(['#F7A35C', '#8085E9', '#90ED7D', '#7CB5EC', '#434348']);
@@ -795,14 +808,14 @@ class stat extends \pl\fe\matter\base {
 					$graph->xaxis->title->Set("选项");
 					$graph->yaxis->title->Set("数量");
 					$graph->xaxis->SetTickLabels($labels);
-					$graph->xaxis->SetFont(FF_CHINESE, FS_NORMAL);
+					$graph->xaxis->SetFont(FF_SIMSUN, FS_NORMAL);
 
-					$graph->yaxis->title->SetFont(FF_CHINESE, FS_NORMAL);
-					$graph->xaxis->title->SetFont(FF_CHINESE, FS_NORMAL);
+					$graph->yaxis->title->SetFont(FF_SIMSUN, FS_NORMAL);
+					$graph->xaxis->title->SetFont(FF_SIMSUN, FS_NORMAL);
 				}
 				if ($sum) {
 					$graph->title->Set($item['title']);
-					$graph->title->SetFont(FF_CHINESE, FS_NORMAL);
+					$graph->title->SetFont(FF_SIMSUN, FS_NORMAL);
 
 					$graph->Stroke(_IMG_HANDLER);
 					ob_start(); // start buffering
@@ -846,7 +859,7 @@ class stat extends \pl\fe\matter\base {
 					$graph->SetTheme($theme_class);
 					$graph->img->SetAntiAliasing(false);
 					$graph->title->Set($item['title']);
-					$graph->title->SetFont(FF_CHINESE, FS_NORMAL);
+					$graph->title->SetFont(FF_SIMSUN, FS_NORMAL);
 					$graph->SetBox(false);
 
 					$graph->img->SetAntiAliasing();
@@ -859,7 +872,7 @@ class stat extends \pl\fe\matter\base {
 					$graph->xgrid->SetLineStyle("solid");
 					$graph->xaxis->SetTickLabels($labels);
 					$graph->xgrid->SetColor('#E3E3E3');
-					$graph->xaxis->SetFont(FF_CHINESE, FS_NORMAL);
+					$graph->xaxis->SetFont(FF_SIMSUN, FS_NORMAL);
 
 					$p1 = new \LinePlot($data);
 					$graph->Add($p1);

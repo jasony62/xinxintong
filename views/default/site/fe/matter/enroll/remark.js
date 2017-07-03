@@ -115,6 +115,15 @@ ngApp.controller('ctrlRemark', ['$scope', '$q', 'http2', '$sce', function($scope
             listRemarks().then(function(data) {
                 $scope.data = data.data;
                 $scope.remarks = data.remarks;
+                if ($scope.data) {
+                    if ($scope.data.tag) {
+                        $scope.data.tag.forEach(function(index, tagId) {
+                            if(oApp._tagsById[index]) {
+                                $scope.data.tag[tagId] = oApp._tagsById[index];
+                            }
+                        });
+                    }
+                }
             });
         }
     }, true);

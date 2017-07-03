@@ -27,7 +27,9 @@
                     <p ng-switch-when="multiple"><span>{{value2Label(filter.schema.id)}}</span></p>
                     <p ng-switch-when="image"><img ng-src="{{data.value}}"></p>
                     <p ng-switch-default>{{data.value}}</p>
-                    <p ng-if="filter.schema.cantag==='Y'" class='tags'>{{data.label}}</p>
+                    <p ng-if="filter.schema.cantag==='Y'" >
+                        <span class="tag" ng-repeat="t in data.tag" ng-bind="t.label"></span>
+                    </p>
                     <p ng-if="filter.schema.supplement==='Y'" class='supplement'>{{data.supplement}}</p>
                     <footer>{{record.nickname||'匿名用户'}}</footer>
                 </blockquote>

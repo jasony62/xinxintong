@@ -17,3 +17,4 @@ p{word-break:break-all;}
 #remarks .remark{border-bottom:1px solid #ddd;}
 #remarks .remark:last-child{border-bottom:0;}
 #remarks .remark>*{margin:1em 0;}
+.tag{background:#3af;padding:4px 6px;margin:4px;border-radius:2px;font-size:.8em;color:#fff;}

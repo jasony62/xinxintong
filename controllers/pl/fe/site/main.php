@@ -60,12 +60,11 @@ class main extends \pl\fe\base {
 	 * 不实际删除团队，只是打标记
 	 */
 	public function remove_action($site) {
-		$user = $this->accountUser();
-		if (false === $user) {
+		if (false === ($user = $this->accountUser())) {
 			return new \ResponseTimeout();
 		}
 
-		$log = \TMS_APP::M('matter\log');
+		$log = $this->model('matter\log');
 		/**
 		 * 做标记
 		 */
@@ -102,7 +101,7 @@ class main extends \pl\fe\base {
 		if (!empty($oFilter->byTitle)) {
 			$q[2] .= " and name like '%" . $model->escape($oFilter->byTitle) . "%'";
 		}
-		
+
 		$q2 = ['o' => 'create_at desc'];
 		$rst = $model->query_objs_ss($q, $q2);
 
@@ -191,7 +190,7 @@ class main extends \pl\fe\base {
 		if (!empty($filter->byTitle)) {
 			$options['byTitle'] = $modelSite->escape($filter->byTitle);
 		}
-		
+
 		$mySites = $modelSite->byUser($user->id, $options);
 
 		return new \ResponseData($mySites);
@@ -262,7 +261,7 @@ class main extends \pl\fe\base {
 
 		$filter = $this->getPostJson();
 		$options = [];
-		if(!empty($filter->nickname)){
+		if (!empty($filter->nickname)) {
 			$options['byNickname'] = $filter->nickname;
 		}
 
@@ -292,7 +291,7 @@ class main extends \pl\fe\base {
 			foreach ($mySites as $mySite) {
 				$mySiteIds[] = $mySite->id;
 			}
-		}else{
+		} else {
 			$mySiteIds[] = $site;
 		}
 		$result = $modelSite->matterByFriend($mySiteIds, ['page' => ['at' => $page, 'size' => $size]]);
@@ -306,21 +305,21 @@ class main extends \pl\fe\base {
 		$sns = array();
 
 		$modelWx = $this->model('sns\wx');
-		$wxOptions = ['fields' => 'joined,can_qrcode'];
+		$wxOptions = ['fields' => 'title,joined,can_qrcode '];
 		if (($wx = $modelWx->bySite($site, $wxOptions)) && $wx->joined === 'Y') {
 			$sns['wx'] = $wx;
 		} else if (($wx = $modelWx->bySite('platform', $wxOptions)) && $wx->joined === 'Y') {
 			$sns['wx'] = $wx;
 		}
 
-		$yxOptions = ['fields' => 'joined,can_qrcode'];
+		$yxOptions = ['fields' => 'title,joined,can_qrcode'];
 		if ($yx = $this->model('sns\yx')->bySite($site, $yxOptions)) {
 			if ($yx->joined === 'Y') {
 				$sns['yx'] = $yx;
 			}
 		}
 
-		if ($qy = $this->model('sns\qy')->bySite($site, ['fields' => 'joined'])) {
+		if ($qy = $this->model('sns\qy')->bySite($site, ['fields' => 'title,joined'])) {
 			if ($qy->joined === 'Y') {
 				$sns['qy'] = $qy;
 			}
@@ -339,16 +338,16 @@ class main extends \pl\fe\base {
 		if (false === ($user = $this->accountUser())) {
 			return new \ResponseTimeout();
 		}
-		
+
 		$modelSite = $this->model('site');
 		$modelSite->setOnlyWriteDbConn(true);
-		
+
 		$nv = $this->getPostJson();
 		foreach ($nv as $n => $v) {
 			if ($n === 'home_carousel') {
 				$nv->{$n} = json_encode($v);
-			}else if($n === 'home_qrcode_group') {
-				$nv->{$n} =  $modelSite->escape($modelSite->toJson($v));
+			} else if ($n === 'home_qrcode_group') {
+				$nv->{$n} = $modelSite->escape($modelSite->toJson($v));
 			}
 		}
 		$rst = $modelSite->update(

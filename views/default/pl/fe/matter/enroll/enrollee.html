@@ -1,0 +1,43 @@
+<div id='enroller-view' class="col-md-12">
+    <nav class='navbar navbar-default'>
+        <div class='container-fluid'>
+            <form class='navbar-form navbar-left'>
+                <select class='form-control' ng-model="criteria.mschema" ng-options="mschema.title for mschema in mschemas" ng-change="seachEnrollee()"></select>
+            </form>
+        </div>
+    </nav>
+    <div>
+        <table class='table table-bordered'>
+            <thead>
+                <tr>
+                    <th style='width:48px'>序号</th>
+                    <th ng-if='criteria.mschema.attr_name[0]==0'>姓名</th>
+                    <th ng-if='criteria.mschema.attr_mobile[0]==0'>手机号</th>
+                    <th ng-if='criteria.mschema.attr_email[0]==0'>电子邮件</th>
+                    <th ng-repeat='ea in criteria.mschema.extattr'>{{ea.label}}</th>
+                    <th>记录</th>
+                    <th>评论</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr ng-repeat='m in members'>
+                    <td>{{$index+1}}</td>
+                    <td ng-if='criteria.mschema.attr_name[0]==0'>{{m.name}}</td>
+                    <td ng-if="criteria.mschema.attr_mobile[0]==0">{{m.mobile}}</td>
+                    <td ng-if="criteria.mschema.attr_email[0]==0">{{m.email}}</td>
+                    <td ng-repeat='ea in criteria.mschema.extattr'>{{m.extattr[ea.id]}}</td>
+                    <td>
+                        <div ng-if="m.report.enroll_num">{{m.report.enroll_num}}</div>
+                    </td>
+                    <td>
+                        <div ng-if="m.report.remark_other_num">{{m.report.remark_other_num}}</div>
+                    </td>
+                </tr>
+            </tbody>
+        </table>
+        <div class='form-group form-inline'>
+            <span style='height:34px;line-height:34px'>总数：{{page.total}}</span>
+            <ul uib-pagination style='margin:0;cursor:pointer' class='pull-right' ng-if='page.total>page.size' boundary-links="true" total-items="page.total" max-size="7" items-per-page="page.size" rotate="false" ng-model="page.at" previous-text="&lsaquo;" next-text="&rsaquo;" first-text="&laquo;" last-text="&raquo;" ng-change="doSearch()"></ul>
+        </div>
+    </div>
+</div>

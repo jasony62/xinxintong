@@ -1,6 +1,12 @@
 <div id='viewSetting' class='col-md-12'>
     <div class='form-horizontal'>
         <div class='form-group'>
+            <label class='col-md-2 control-label'>公众号名称</label>
+            <div class='col-md-10'>
+                <input type='text' class='form-control' ng-model="wx.title" tms-auto-update tms-wait=1000 tms-update="update('title')">
+            </div>
+        </div>
+        <div class='form-group'>
             <label class='col-md-2 control-label'>Token</label>
             <div class='col-md-10'>
                 <input type='text' class='form-control' ng-model='wx.token' tms-auto-update tms-wait=1000 tms-update="update('token')">

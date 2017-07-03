@@ -75,8 +75,8 @@ class record extends base {
 		 * 检查是否存在匹配的登记记录
 		 */
 		if (!empty($oEnrollApp->enroll_app_id)) {
-			$matchApp = $modelEnl->byId($oEnrollApp->enroll_app_id);
-			if (empty($matchApp)) {
+			$oMatchApp = $modelEnl->byId($oEnrollApp->enroll_app_id, ['cascaded' => 'N']);
+			if (empty($oMatchApp)) {
 				return new \ParameterError('指定的登记匹配登记活动不存在');
 			}
 			/* 获得要检查的登记项 */
@@ -91,26 +91,26 @@ class record extends base {
 			}
 			/* 在指定的登记活动中检查数据 */
 			$modelMatchRec = $this->model('matter\enroll\record');
-			$matchedRecords = $modelMatchRec->byData($matchApp, $requireCheckedData);
+			$matchedRecords = $modelMatchRec->byData($oMatchApp, $requireCheckedData);
 			if (empty($matchedRecords)) {
-				return new \ParameterError('未在指定的登记活动［' . $matchApp->title . '］中找到与提交数据相匹配的记录');
+				return new \ParameterError('未在指定的登记活动［' . $oMatchApp->title . '］中找到与提交数据相匹配的记录');
 			}
 			$matchedRecord = $matchedRecords[0];
 			if ($matchedRecord->verified !== 'Y') {
-				return new \ParameterError('在指定的登记活动［' . $matchApp->title . '］中与提交数据匹配的记录未通过验证');
+				return new \ParameterError('在指定的登记活动［' . $oMatchApp->title . '］中与提交数据匹配的记录未通过验证');
 			}
 			/* 将匹配的登记记录数据作为提交的登记数据的一部分 */
 			$matchedData = $matchedRecords[0]->data;
-			foreach ($matchedData as $n => $v) {
-				!isset($enrolledData->{$n}) && $enrolledData->{$n} = $v;
+			foreach ($oMatchApp->dataSchemas as $oSchema) {
+				!isset($enrolledData->{$oSchema->id}) && $enrolledData->{$oSchema->id} = $matchedData->{$oSchema->id};
 			}
 		}
 		/**
 		 * 检查是否存在匹配的分组记录
 		 */
 		if (!empty($oEnrollApp->group_app_id)) {
-			$groupApp = $this->model('matter\group')->byId($oEnrollApp->group_app_id);
-			if (empty($groupApp)) {
+			$oGroupApp = $this->model('matter\group')->byId($oEnrollApp->group_app_id);
+			if (empty($oGroupApp)) {
 				return new \ParameterError('指定的登记匹配分组活动不存在');
 			}
 			/* 获得要检查的登记项 */
@@ -125,15 +125,15 @@ class record extends base {
 			}
 			/* 在指定的登记活动中检查数据 */
 			$modelMatchRec = $this->model('matter\group\player');
-			$groupRecords = $modelMatchRec->byData($groupApp, $requireCheckedData);
+			$groupRecords = $modelMatchRec->byData($oGroupApp, $requireCheckedData);
 			if (empty($groupRecords)) {
-				return new \ParameterError('未在指定的分组活动［' . $groupApp->title . '］中找到与提交数据相匹配的记录');
+				return new \ParameterError('未在指定的分组活动［' . $oGroupApp->title . '］中找到与提交数据相匹配的记录');
 			}
 			$groupRecord = $groupRecords[0];
 			/* 将匹配的登记记录数据作为提交的登记数据的一部分 */
 			$matchedData = $groupRecord->data;
-			foreach ($matchedData as $n => $v) {
-				!isset($enrolledData->{$n}) && $enrolledData->{$n} = $v;
+			foreach ($oGroupApp->dataSchemas as $oSchema) {
+				!isset($enrolledData->{$oSchema->id}) && $enrolledData->{$oSchema->id} = $matchedData->{$oSchema->id};
 			}
 			if (isset($groupRecord->round_id)) {
 				$enrolledData->_round_id = $groupRecord->round_id;
@@ -211,19 +211,19 @@ class record extends base {
 		$oEnrollUsr = $modelUsr->byId($oEnrollApp, $oUser->uid, ['fields' => 'id,nickname,last_enroll_at,enroll_num,user_total_coin']);
 		if (false === $oEnrollUsr) {
 			$inData = ['last_enroll_at' => time(), 'enroll_num' => 1];
-			if(!empty($rules)){
+			if (!empty($rules)) {
 				$inData['user_total_coin'] = 0;
 				foreach ($rules as $rule) {
-					$inData['user_total_coin'] = $inData['user_total_coin'] + (int)$rule->actor_delta;
+					$inData['user_total_coin'] = $inData['user_total_coin'] + (int) $rule->actor_delta;
 				}
 			}
 			$modelUsr->add($oEnrollApp, $oUser, $inData);
 		} else {
-			$upData = ['last_enroll_at' => time(), 'enroll_num' => (int)$oEnrollUsr->enroll_num + 1];
-			if(!empty($rules)){
-				$upData['user_total_coin'] = (int)$oEnrollUsr->user_total_coin;
+			$upData = ['last_enroll_at' => time(), 'enroll_num' => (int) $oEnrollUsr->enroll_num + 1];
+			if (!empty($rules)) {
+				$upData['user_total_coin'] = (int) $oEnrollUsr->user_total_coin;
 				foreach ($rules as $rule) {
-					$upData['user_total_coin'] = $upData['user_total_coin'] + (int)$rule->actor_delta;
+					$upData['user_total_coin'] = $upData['user_total_coin'] + (int) $rule->actor_delta;
 				}
 			}
 			$modelUsr->update(
@@ -294,7 +294,7 @@ class record extends base {
 			 * 检查登记数量
 			 */
 			if ($oApp->count_limit > 0) {
-				$records = $modelRec->byUser($oApp->id, $oUser);
+				$records = $modelRec->byUser($oApp, $oUser);
 				if (count($records) >= $oApp->count_limit) {
 					return [false, ['已经进行过' . count($records) . '次登记，不允再次登记']];
 				}
@@ -620,7 +620,7 @@ class record extends base {
 
 		$oApp = $this->model('matter\enroll')->byId($oRecordData->aid, ['fields' => 'id,siteid,title', 'cascaded' => 'N']);
 		$modelUsr = $this->model('matter\enroll\user');
-		if($incLikeNum > 0){
+		if ($incLikeNum > 0) {
 			/* 更新进行点赞的活动用户的积分奖励 */
 			$modelMat = $this->model('matter\enroll\coin');
 			$rulesOther = $modelMat->rulesByMatter('site.matter.enroll.data.other.like', $oApp);
@@ -632,19 +632,19 @@ class record extends base {
 		$oEnrollUsr = $modelUsr->byId($oApp, $oUser->uid, ['fields' => 'id,nickname,last_like_other_at,like_other_num,user_total_coin']);
 		if (false === $oEnrollUsr) {
 			$inData = ['last_like_other_at' => time(), 'like_other_num' => 1];
-			if(!empty($rulesOther)){
+			if (!empty($rulesOther)) {
 				$inData['user_total_coin'] = 0;
 				foreach ($rulesOther as $ruleOther) {
-					$inData['user_total_coin'] = $inData['user_total_coin'] + (int)$ruleOther->actor_delta;
+					$inData['user_total_coin'] = $inData['user_total_coin'] + (int) $ruleOther->actor_delta;
 				}
 			}
 			$modelUsr->add($oApp, $oUser, $inData);
 		} else {
 			$upData = ['last_like_other_at' => time(), 'like_other_num' => $oEnrollUsr->like_other_num + $incLikeNum];
-			if(!empty($rulesOther)){
-				$upData['user_total_coin'] = (int)$oEnrollUsr->user_total_coin;
+			if (!empty($rulesOther)) {
+				$upData['user_total_coin'] = (int) $oEnrollUsr->user_total_coin;
 				foreach ($rulesOther as $ruleOther) {
-					$upData['user_total_coin'] = $upData['user_total_coin'] + (int)$ruleOther->actor_delta;
+					$upData['user_total_coin'] = $upData['user_total_coin'] + (int) $ruleOther->actor_delta;
 				}
 			}
 			$modelUsr->update(
@@ -657,7 +657,7 @@ class record extends base {
 		/* 更新被点赞的活动用户的数据 */
 		$oEnrollUsr = $modelUsr->byId($oApp, $oRecordData->userid, ['fields' => 'id,userid,nickname,last_like_at,like_num,user_total_coin']);
 		if ($oEnrollUsr) {
-			if($incLikeNum > 0){
+			if ($incLikeNum > 0) {
 				$user = new \stdClass;
 				$user->uid = $oEnrollUsr->userid;
 				$user->nickname = $oEnrollUsr->nickname;
@@ -667,10 +667,10 @@ class record extends base {
 			}
 
 			$upData2 = ['last_like_at' => time(), 'like_num' => $oEnrollUsr->like_num + $incLikeNum];
-			if(!empty($rules)){
-				$upData2['user_total_coin'] = (int)$oEnrollUsr->user_total_coin;
+			if (!empty($rules)) {
+				$upData2['user_total_coin'] = (int) $oEnrollUsr->user_total_coin;
 				foreach ($rules as $rule) {
-					$upData2['user_total_coin'] = $upData2['user_total_coin'] + (int)$rule->actor_delta;
+					$upData2['user_total_coin'] = $upData2['user_total_coin'] + (int) $rule->actor_delta;
 				}
 			}
 			$modelUsr->update(

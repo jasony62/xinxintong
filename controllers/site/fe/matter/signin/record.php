@@ -83,7 +83,7 @@ class record extends base {
 		 * 检查签到数据是否在报名表中
 		 */
 		if (!empty($signinApp->enroll_app_id)) {
-			$enrollApp = $this->model('matter\enroll')->byId($signinApp->enroll_app_id);
+			$enrollApp = $this->model('matter\enroll')->byId($signinApp->enroll_app_id, ['cascaded' => 'N']);
 			if ($enrollApp) {
 				/*获得要检查的数据*/
 				$dataSchemas = json_decode($signinApp->data_schemas);

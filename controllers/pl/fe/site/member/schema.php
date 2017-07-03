@@ -33,6 +33,24 @@ class schema extends \pl\fe\base {
 		return new \ResponseData($schema);
 	}
 	/**
+	 * 返回指定通讯录的概况信息
+	 *
+	 * @param string $mschema 逗号分隔的通讯录id
+	 */
+	public function overview_action($mschema) {
+		if (false === ($oUser = $this->accountUser())) {
+			return new \ResponseTimeout();
+		}
+		$modelMs = $this->model('site\user\memberschema');
+		$result = new \stdClass;
+		$schemaIds = explode(',', $mschema);
+		foreach ($schemaIds as $schemaId) {
+			$result->{$schemaId} = $modelMs->overview($schemaId);
+		}
+
+		return new \ResponseData($result);
+	}
+	/**
 	 * 获得通讯录定义
 	 *
 	 * @param string $valid

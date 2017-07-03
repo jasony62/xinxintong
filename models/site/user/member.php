@@ -295,7 +295,6 @@ class member_model extends \TMS_MODEL {
 			];
 			/* 不是当前用户自己 */
 			!empty($member->id) && $q[2] .= " and id<>'{$member->id}'";
-
 			$members = $this->query_objs_ss($q);
 			if (count($members) > 0) {
 				if (empty($oMschema->title)) {

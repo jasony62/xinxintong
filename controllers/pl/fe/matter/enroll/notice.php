@@ -42,7 +42,7 @@ class notice extends \pl\fe\matter\base {
 			$options = [
 				'rid' => $rid,
 			];
-			$enrollers = $modelRec->enrollerByApp($oApp, $options, $criteria);
+			$enrollers = $modelRec->enrolleeByApp($oApp, $options, $criteria);
 		} else if (isset($posted->users)) {
 			// 直接指定
 			$enrollers = $posted->users;

@@ -1,21 +1,14 @@
 <div class="col-md-6">
-    <div class='form-group'>
-        <div class='list-group-item'>
-            <div ng-if="app.multi_rounds==='Y'">当前轮次：{{summary[0].title}}</div>
-            <div><span>打开次数：{{app.read_num}}</span>，<span ng-if="app.multi_rounds!=='Y'"><a href="" ng-click="switchTo('record')">填写数量：{{summary.total}}</a></span><span ng-if="app.multi_rounds==='Y'"><a href="/rest/pl/fe/matter/enroll/record?site={{app.siteid}}&id={{app.id}}">填写数量：{{summary[0].total}}</a></span></div>
-            <div><span>分享好友：{{app.share_friend_num}}</span>，<span>分享朋友圈：{{app.share_timeline_num}}</span></div>
-        </div>
-    </div>
     <div class="panel panel-default">
         <div class="panel-heading">填写链接</div>
         <div class="panel-body">
             <div class='form-group'>
                 <div class='input-group'>
                     <input class='form-control' readonly value="{{entry.url}}">
-                    <span class='input-group-btn'>
-                                    <button class='btn btn-default text2Clipboard' data-clipboard-text="{{entry.url}}">复制</button>
-                                    <a class='btn btn-default' ng-href="{{entry.url}}" target='_blank' title='打开'><i class='glyphicon glyphicon-open'></i></a>
-                                </span>
+                    <div class='input-group-btn'>
+                        <button class='btn btn-default text2Clipboard' data-clipboard-text="{{entry.url}}">复制</button>
+                        <a class='btn btn-default' ng-href="{{entry.url}}" target='_blank' title='打开'><i class='glyphicon glyphicon-open'></i></a>
+                    </div>
                 </div>
             </div>
             <div class="form-group compact" ng-if="app.entry_rule.scope!=='sns'||sns.qy.joined==='Y'">
@@ -43,10 +36,10 @@
             <div class='form-group'>
                 <div class='input-group'>
                     <input class='form-control' readonly value="{{opEntry.url}}">
-                    <span class='input-group-btn'>
-                                    <button class='btn btn-default text2Clipboard' data-clipboard-text="{{opEntry.url}}">复制</button>
-                                    <a class='btn btn-default' ng-href="{{opEntry.url}}" target='_blank' title='打开'><i class='glyphicon glyphicon-open'></i></a>
-                                </span>
+                    <div class='input-group-btn'>
+                        <button class='btn btn-default text2Clipboard' data-clipboard-text="{{opEntry.url}}">复制</button>
+                        <a class='btn btn-default' ng-href="{{opEntry.url}}" target='_blank' title='打开'><i class='glyphicon glyphicon-open'></i></a>
+                    </div>
                 </div>
             </div>
             <div class='form-group'>

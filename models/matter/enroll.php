@@ -234,16 +234,26 @@ class enroll_model extends app_base {
 	/**
 	 * 登记活动运行情况摘要
 	 *
-	 * @param string $siteId
-	 * @param string $oAppId
+	 * @param object $oApp
 	 *
 	 * @return
 	 */
 	public function &opData(&$oApp) {
 		$modelRnd = $this->model('matter\enroll\round');
-		$page = (object) ['num' => 1, 'size' => 5];
+		$modelRec = $this->model('matter\enroll\record');
+		$page = (object) ['num' => 1, 'size' => 3];
 		$result = $modelRnd->byApp($oApp, ['fields' => 'rid,title', 'page' => $page]);
 		$rounds = $result->rounds;
+		$mschemaIds = [];
+		if (!empty($oApp->entry_rule) && is_object($oApp->entry_rule)) {
+			if (!empty($oApp->entry_rule->member) && is_object($oApp->entry_rule->member)) {
+				foreach ($oApp->entry_rule->member as $mschemaId => $rule) {
+					if (!empty($rule->entry)) {
+						$mschemaIds[] = $mschemaId;
+					}
+				}
+			}
+		}
 		if (empty($rounds)) {
 			$summary = new \stdClass;
 			/* total */
@@ -253,43 +263,75 @@ class enroll_model extends app_base {
 				['aid' => $oApp->id, 'state' => 1],
 			];
 			$summary->total = $this->query_val_ss($q);
+			/* remark */
+			$q = [
+				'count(*)',
+				'xxt_enroll_record_remark',
+				['aid' => $oApp->id],
+			];
+			$summary->remark_total = $this->query_val_ss($q);
+			/* enrollee */
+			$enrollees = $modelRec->enrolleeByApp($oApp);
+			$summary->enrollee_num = count($enrollees);
+			/* member */
+			if (!empty($mschemaIds)) {
+				$summary->mschema = new \stdClass;
+				foreach ($mschemaIds as $mschemaId) {
+					$summary->mschema->{$mschemaId} = $this->_opByMschema($oApp->id, $mschemaId);
+				}
+			}
 		} else {
 			$summary = [];
-			$activeRound = $modelRnd->getActive($oApp);
-			foreach ($rounds as $round) {
+			$oActiveRound = $modelRnd->getActive($oApp);
+			foreach ($rounds as $oRound) {
+				if ($oActiveRound && $oRound->rid === $oActiveRound->rid) {
+					$oRound->active = 'Y';
+				}
 				/* total */
 				$q = [
 					'count(*)',
 					'xxt_enroll_record',
-					['aid' => $oApp->id, 'state' => 1, 'rid' => $round->rid],
+					['aid' => $oApp->id, 'state' => 1, 'rid' => $oRound->rid],
 				];
-				$round->total = $this->query_val_ss($q);
-				if ($activeRound && $round->rid === $activeRound->rid) {
-					$round->active = 'Y';
-				}
+				$oRound->total = $this->query_val_ss($q);
+				/* remark */
+				$q = [
+					'count(*)',
+					'xxt_enroll_record_remark',
+					['aid' => $oApp->id, 'rid' => $oRound->rid],
+				];
+				$oRound->remark_total = $this->query_val_ss($q);
+				/* enrollee */
+				$enrollees = $modelRec->enrolleeByApp($oApp, ['rid' => $oRound->rid]);
+				$oRound->enrollee_num = count($enrollees);
 
-				$summary[] = $round;
+				/* member */
+				if (!empty($mschemaIds)) {
+					$oRound->mschema = new \stdClass;
+					foreach ($mschemaIds as $mschemaId) {
+						$oRound->mschema->{$mschemaId} = $this->_opByMschema($oApp->id, $mschemaId, $oRound->rid);
+					}
+				}
+				$summary[] = $oRound;
 			}
 		}
 
 		return $summary;
 	}
 	/**
-	 * 指定用户的行为报告
+	 * 通讯录联系人登记情况
 	 */
-	public function reportByUser($oApp, $oUser) {
-
+	private function _opByMschema($appId, $mschemaId, $rid = null) {
 		$result = new \stdClass;
+		$q = [
+			'count(*)',
+			'xxt_site_member m',
+			"verified='Y' and forbidden='N' and schema_id=$mschemaId and exists(select 1 from xxt_enroll_record r where r.aid='{$appId}' and r.state=1 and r.userid=m.userid",
+		];
+		!empty($rid) && $q[2] .= " and rid='{$rid}'";
+		$q[2] .= ")";
 
-		/* 登记次数 */
-		$modelRec = $this->model('matter\enroll\record');
-		$records = $modelRec->byUser($oApp->id, $oUser, ['fields' => 'id']);
-		$result->enroll_num = count($records);
-
-		/* 发表评论次数 */
-		$modelRec = $this->model('matter\enroll\remark');
-		$remarks = $modelRec->byUser($oApp, $oUser, ['fields' => 'id']);
-		$result->remark_other_num = count($remarks);
+		$result->enrolled = $this->query_val_ss($q);
 
 		return $result;
 	}

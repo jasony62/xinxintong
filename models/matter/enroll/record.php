@@ -476,8 +476,11 @@ class record_model extends \TMS_MODEL {
 	}
 	/**
 	 * 获得用户的登记清单
+	 * @param object $oApp
+	 * @param object $oUser
+	 * @param array $options
 	 */
-	public function &byUser($appId, &$oUser, $options = []) {
+	public function &byUser(&$oApp, &$oUser, $options = []) {
 		$fields = isset($options['fields']) ? $options['fields'] : '*';
 		$verbose = isset($options['verbose']) ? $options['verbose'] : 'N';
 
@@ -489,8 +492,13 @@ class record_model extends \TMS_MODEL {
 		$q = [
 			$fields,
 			'xxt_enroll_record',
-			["state" => 1, "aid" => $appId, "userid" => $userid],
+			["state" => 1, "aid" => $oApp->id, "userid" => $userid],
 		];
+		if (!empty($options['rid'])) {
+			if (strcasecmp('all', $options['rid']) !== 0) {
+				$q[2]['rid'] = $options['rid'];
+			}
+		}
 		$q2 = ['o' => 'enroll_at desc'];
 
 		$records = $this->query_objs_ss($q, $q2);
@@ -840,7 +848,7 @@ class record_model extends \TMS_MODEL {
 	 *
 	 * return
 	 */
-	public function enrollerByApp($oApp, $options = null, $criteria = null) {
+	public function enrolleeByApp($oApp, $options = null, $criteria = null) {
 		if ($options) {
 			is_array($options) && $options = (object) $options;
 			$rid = null;
@@ -901,9 +909,9 @@ class record_model extends \TMS_MODEL {
 			"xxt_enroll_record e",
 			$w,
 		];
-		$enrollers = $this->query_objs_ss($q);
+		$enrollees = $this->query_objs_ss($q);
 
-		return $enrollers;
+		return $enrollees;
 	}
 	/**
 	 * 已删除的登记清单

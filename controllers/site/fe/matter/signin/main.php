@@ -251,18 +251,20 @@ class main extends base {
 	 */
 	private function _recordByEnroll(&$signinApp, &$user) {
 		$modelEnlRec = $this->model('matter\enroll\record');
-
-		$records = $modelEnlRec->byUser($signinApp->enroll_app_id, $user);
-		if (count($records)) {
-			$signinRecord = new \stdClass;
-			foreach ($records as $record) {
-				if ($record->verified === 'Y') {
-					if (is_string($record->data)) {
-						$signinRecord->data = json_decode($record->data);
-					} else {
-						$signinRecord->data = $record->data;
+		$oAssocApp = $this->model('matter\enroll')->byId($signinApp->enroll_app_id, ['cascaded' => 'N']);
+		if ($oAssocApp) {
+			$records = $modelEnlRec->byUser($oAssocApp, $user);
+			if (count($records)) {
+				$signinRecord = new \stdClass;
+				foreach ($records as $record) {
+					if ($record->verified === 'Y') {
+						if (is_string($record->data)) {
+							$signinRecord->data = json_decode($record->data);
+						} else {
+							$signinRecord->data = $record->data;
+						}
+						return $signinRecord;
 					}
-					return $signinRecord;
 				}
 			}
 		}

@@ -61,19 +61,20 @@ class remark extends base {
 		 * 发表评论的用户
 		 */
 		$current = time();
-		$remark = new \stdClass;
-		$remark->siteid = $oRecord->siteid;
-		$remark->aid = $oRecord->aid;
-		$remark->userid = $oUser->uid;
-		$remark->user_src = 'S';
-		$remark->nickname = $oUser->nickname;
-		$remark->enroll_key = $ek;
-		$remark->enroll_userid = $oRecord->userid;
-		$remark->schema_id = $schema;
-		$remark->create_at = $current;
-		$remark->content = $modelRec->escape($data->content);
+		$oRemark = new \stdClass;
+		$oRemark->siteid = $oRecord->siteid;
+		$oRemark->aid = $oRecord->aid;
+		$oRemark->rid = $oRecord->rid;
+		$oRemark->userid = $oUser->uid;
+		$oRemark->user_src = 'S';
+		$oRemark->nickname = $modelRec->escape($oUser->nickname);
+		$oRemark->enroll_key = $ek;
+		$oRemark->enroll_userid = $oRecord->userid;
+		$oRemark->schema_id = $schema;
+		$oRemark->create_at = $current;
+		$oRemark->content = $modelRec->escape($data->content);
 
-		$remark->id = $modelRec->insert('xxt_enroll_record_remark', $remark, true);
+		$oRemark->id = $modelRec->insert('xxt_enroll_record_remark', $oRemark, true);
 
 		$modelRec->update("update xxt_enroll_record set remark_num=remark_num+1 where enroll_key='$ek'");
 		if (isset($schema)) {
@@ -93,14 +94,14 @@ class remark extends base {
 			$inData = ['last_remark_other_at' => time(), 'remark_other_num' => 1];
 			$inData['user_total_coin'] = 0;
 			foreach ($rulesOther as $ruleOther) {
-				$inData['user_total_coin'] = $inData['user_total_coin'] + (int)$ruleOther->actor_delta;
+				$inData['user_total_coin'] = $inData['user_total_coin'] + (int) $ruleOther->actor_delta;
 			}
 			$modelUsr->add($oApp, $oUser, $inData);
 		} else {
 			$upData = ['last_remark_other_at' => time(), 'remark_other_num' => $oEnrollUsr->remark_other_num + 1];
 			$upData['user_total_coin'] = $oEnrollUsr->user_total_coin;
 			foreach ($rulesOther as $ruleOther) {
-				$upData['user_total_coin'] = $upData['user_total_coin'] + (int)$ruleOther->actor_delta;
+				$upData['user_total_coin'] = $upData['user_total_coin'] + (int) $ruleOther->actor_delta;
 			}
 			$modelUsr->update(
 				'xxt_enroll_user',
@@ -120,9 +121,9 @@ class remark extends base {
 			$modelCoin->award($oApp, $user, 'site.matter.enroll.data.comment', $rules);
 
 			$upData2 = ['last_remark_at' => time(), 'remark_num' => $oEnrollUsr->remark_num + 1];
-			$upData2['user_total_coin'] = (int)$oEnrollUsr->user_total_coin;
+			$upData2['user_total_coin'] = (int) $oEnrollUsr->user_total_coin;
 			foreach ($rules as $rule) {
-				$upData2['user_total_coin'] = $upData2['user_total_coin'] + (int)$rule->actor_delta;
+				$upData2['user_total_coin'] = $upData2['user_total_coin'] + (int) $rule->actor_delta;
 			}
 			$modelUsr->update(
 				'xxt_enroll_user',
@@ -131,9 +132,9 @@ class remark extends base {
 			);
 		}
 
-		$this->_notifyHasRemark($oApp, $oRecord, $remark);
+		$this->_notifyHasRemark($oApp, $oRecord, $oRemark);
 
-		return new \ResponseData($remark);
+		return new \ResponseData($oRemark);
 	}
 	/**
 	 * 通知评论登记记录事件

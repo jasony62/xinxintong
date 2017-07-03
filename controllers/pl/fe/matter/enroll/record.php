@@ -1157,23 +1157,24 @@ class record extends \pl\fe\matter\base {
 		/**
 		 * 发表评论的用户
 		 */
-		$remark = new \stdClass;
-		$remark->siteid = $oRecord->siteid;
-		$remark->aid = $oRecord->aid;
-		$remark->userid = $user->id;
-		$remark->user_src = 'P';
-		$remark->nickname = $user->name;
-		$remark->enroll_key = $ek;
-		$remark->enroll_userid = $oRecord->userid;
-		$remark->create_at = time();
-		$remark->content = $modelRec->escape($data->content);
+		$oRemark = new \stdClass;
+		$oRemark->siteid = $oRecord->siteid;
+		$oRemark->aid = $oRecord->aid;
+		$oRemark->rid = $oRecord->rid;
+		$oRemark->userid = $user->id;
+		$oRemark->user_src = 'P';
+		$oRemark->nickname = $user->name;
+		$oRemark->enroll_key = $ek;
+		$oRemark->enroll_userid = $oRecord->userid;
+		$oRemark->create_at = time();
+		$oRemark->content = $modelRec->escape($data->content);
 
-		$remark->id = $modelRec->insert('xxt_enroll_record_remark', $remark, true);
+		$oRemark->id = $modelRec->insert('xxt_enroll_record_remark', $oRemark, true);
 
 		$modelRec->update("update xxt_enroll_record set remark_num=remark_num+1 where enroll_key='$ek'");
 
 		//$this->_notifyHasRemark();
 
-		return new \ResponseData($remark);
+		return new \ResponseData($oRemark);
 	}
 }

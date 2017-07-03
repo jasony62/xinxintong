@@ -146,7 +146,8 @@ class report_model extends \TMS_MODEL {
 			foreach ($orderedApps as $index => $oApp) {
 				switch ($oApp->type) {
 				case 'enroll':
-					$oUser->data[] = $modelEnl->reportByUser($oApp, $oUser);
+					$modelEnlUsr = $this->model('matter\enroll\user');
+					$oUser->data[] = $modelEnlUsr->reportByUser($oApp, $oUser);
 					break;
 				case 'signin':
 					$oUser->data[] = $modelSig->reportByUser($oApp, $oUser);

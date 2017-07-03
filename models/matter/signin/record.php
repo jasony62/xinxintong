@@ -712,7 +712,7 @@ class record_model extends \TMS_MODEL {
 	 * @param object $options
 	 *
 	 */
-	public function enrollerByApp($oApp, $options = []) {
+	public function enrolleeByApp($oApp, $options = []) {
 		$fields = isset($options['fields']) ? $options['fields'] : 'enroll_key,userid';
 
 		$w = "state=1 and aid='{$oApp->id}' and userid<>''";
@@ -723,8 +723,8 @@ class record_model extends \TMS_MODEL {
 			"xxt_signin_record",
 			$w,
 		];
-		$enrollers = $this->query_objs_ss($q);
+		$enrollees = $this->query_objs_ss($q);
 
-		return $enrollers;
+		return $enrollees;
 	}
 }

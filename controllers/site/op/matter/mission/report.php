@@ -37,10 +37,10 @@ class report extends \site\op\base {
 		/* 获得用户 */
 		switch ($userSource->type) {
 		case 'enroll':
-			$users = $this->model('matter\enroll\record')->enrollerByApp($userSource, ['fields' => 'distinct userid,nickname', 'rid' => 'all']);
+			$users = $this->model('matter\enroll\record')->enrolleeByApp($userSource, ['fields' => 'distinct userid,nickname', 'rid' => 'all']);
 			break;
 		case 'signin':
-			$users = $this->model('matter\signin\record')->enrollerByApp($userSource, ['fields' => 'distinct userid,nickname']);
+			$users = $this->model('matter\signin\record')->enrolleeByApp($userSource, ['fields' => 'distinct userid,nickname']);
 			break;
 		case 'mschema':
 			$users = $this->model('site\user\member')->byMschema($userSource->id, ['fields' => 'userid,name,email,mobile']);
@@ -101,10 +101,12 @@ class report extends \site\op\base {
 			if (isset($appId) && isset($appType)) {
 				switch ($appType) {
 				case 'enroll':
+					$oApp = new \stdClass;
+					$oApp->id = $appId;
 					$oUser = new \stdClass;
 					$oUser->userid = $user;
 					$modelEnlRec = $this->model('matter\enroll\record');
-					$result = $modelEnlRec->byUser($appId, $oUser);
+					$result = $modelEnlRec->byUser($oApp, $oUser);
 					break;
 				case 'signin':
 					$oApp = new \stdClass;

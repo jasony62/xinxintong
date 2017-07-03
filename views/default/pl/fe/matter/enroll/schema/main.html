@@ -90,7 +90,7 @@
         <label>
             <input type='checkbox' ng-true-value="'Y'" ng-false-value="'N'" ng-model='activeSchema.supplement' ng-change="updSchema(activeSchema)">允许填写补充说明</label>
     </div>
-    <div class="checkbox" ng-show="['shorttext','longtext'].indexOf(activeSchema.type)!==-1">
+    <div class="checkbox" ng-show="['shorttext','longtext','image', 'file'].indexOf(activeSchema.type)!==-1">
         <label>
             <input type='checkbox' ng-true-value="'Y'" ng-false-value="'N'" ng-model='activeSchema.cantag' ng-change="updSchema(activeSchema)">允许用户给填写内容打标签</label>
     </div>

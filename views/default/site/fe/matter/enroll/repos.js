@@ -60,10 +60,10 @@ ngApp.controller('ctrlRepos', ['$scope', 'http2', 'Round', '$sce', function($sco
             $scope.repos = result.data.records;
             page.total = result.data.total;
             if ($scope.repos) {
-                $scope.repos.forEach(function(record){
+                $scope.repos.forEach(function(record) {
                     if (record.tag) {
                         record.tag.forEach(function(index, tagId) {
-                            if(oApp._tagsById[index]) {
+                            if (oApp._tagsById[index]) {
                                 record.tag[tagId] = oApp._tagsById[index];
                             }
                         });

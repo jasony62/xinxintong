@@ -37,7 +37,7 @@ class main extends \site\fe\matter\base {
 						$modelEnlRec = $this->model('matter\enroll\record');
 					}
 					$matter->records = [];
-					$records = $modelEnlRec->byUser($matter->id, $this->who);
+					$records = $modelEnlRec->byUser($matter, $this->who);
 					foreach ($records as $record) {
 						!empty($record->data) && $record->data = json_decode($record->data);
 						$matter->records[] = $record;

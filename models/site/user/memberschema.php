@@ -34,13 +34,12 @@ class memberschema_model extends \TMS_MODEL {
 				// 	);
 				// 	$schema->page = $page;
 				// }
-				$templateDir = TMS_APP_TEMPLATE . '/pl/fe/site/memberschema';
-				$page = new \stdClass;
-				$page->html = file_get_contents($templateDir . '/basic.html');
-				$page->css = file_get_contents($templateDir . '/basic.css');
-				$page->js = file_get_contents($templateDir . '/basic.js');
-				$schema->page = $page;
-
+				//$templateDir = TMS_APP_TEMPLATE . '/pl/fe/site/memberschema';
+				//$page = new \stdClass;
+				//$page->html = file_get_contents($templateDir . '/basic.html');
+				//$page->css = file_get_contents($templateDir . '/basic.css');
+				//$page->js = file_get_contents($templateDir . '/basic.js');
+				//$schema->page = $page;
 			}
 		}
 
@@ -50,11 +49,38 @@ class memberschema_model extends \TMS_MODEL {
 	 * 自定义用户信息
 	 */
 	public function &byId($id, $fields = '*') {
-		$api = $this->_queryBy("id='$id'");
+		$oMschema = $this->_queryBy("id='$id'");
 
-		$api = count($api) === 1 ? $api[0] : false;
+		$oMschema = count($oMschema) === 1 ? $oMschema[0] : false;
 
-		return $api;
+		return $oMschema;
+	}
+	/**
+	 * 通讯录概况
+	 */
+	public function overview($schemaId) {
+		$q = [
+			'id,title,require_invite,is_qy_fan,is_wx_fan,is_yx_fan,attr_mobile,attr_email,attr_name,extattr',
+			'xxt_site_member_schema',
+			['id' => $schemaId],
+		];
+		if ($oMschema = $this->query_obj_ss($q)) {
+			$oMschema->extattr = empty($oMschema->extattr) ? new \stdClass : json_decode($oMschema->extattr);
+			$count = new \stdClass;
+			$q = [
+				'count(*)',
+				'xxt_site_member',
+				['schema_id' => $schemaId, 'forbidden' => 'N', 'verified' => 'Y'],
+			];
+			$count->verified = $this->query_val_ss($q);
+
+			$q[2]['verified'] = 'N';
+			$count->unverified = $this->query_val_ss($q);
+
+			$oMschema->count = $count;
+		}
+
+		return $oMschema;
 	}
 	/**
 	 *

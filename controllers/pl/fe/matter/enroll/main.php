@@ -1711,8 +1711,8 @@ class main extends \pl\fe\matter\base {
 		}
 
 		$modelApp = $this->model('matter\enroll');
-		$app = $modelApp->byId($app);
-		$summary = $modelApp->opData($app);
+		$oApp = $modelApp->byId($app, ['cascaded' => 'N']);
+		$summary = $modelApp->opData($oApp);
 
 		return new \ResponseData($summary);
 	}

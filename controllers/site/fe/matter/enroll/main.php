@@ -33,6 +33,7 @@ class main extends base {
 		if ($oApp === false) {
 			$this->outputError('指定的登记活动不存在，请检查参数是否正确');
 		}
+
 		if (!$this->afterSnsOAuth()) {
 			/* 检查是否需要第三方社交帐号OAuth */
 			$this->_requireSnsOAuth($site, $oApp);
@@ -337,12 +338,15 @@ class main extends base {
 				if ($oOpenPage->type === 'I' && $newRecord === 'Y') {
 					/* 返回当前用户在关联活动中填写的数据 */
 					if (!empty($oApp->enroll_app_id)) {
-						$oAssocRec = $modelRec->byUser($oApp->enroll_app_id, $oUser);
-						if (count($oAssocRec) === 1) {
-							if (!empty($oAssocRec[0]->data)) {
-								$oAssocRecord = new \stdClass;
-								$oAssocRecord->data = json_decode($oAssocRec[0]->data);
-								$params['record'] = $oAssocRecord;
+						$oAssocApp = $this->model('matter\enroll')->byId($oApp->enroll_app_id, ['cascaded' => 'N']);
+						if ($oAssocApp) {
+							$oAssocRec = $modelRec->byUser($oAssocApp, $oUser);
+							if (count($oAssocRec) === 1) {
+								if (!empty($oAssocRec[0]->data)) {
+									$oAssocRecord = new \stdClass;
+									$oAssocRecord->data = json_decode($oAssocRec[0]->data);
+									$params['record'] = $oAssocRecord;
+								}
 							}
 						}
 					}

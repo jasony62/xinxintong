@@ -502,7 +502,7 @@ define(['wrap'], function(SchemaWrap) {
             if (oSchema.cantag === 'Y') {
                 $tags = $wrap.find('.tags');
                 if ($tags.length === 0) {
-                    $wrap.append('<p class="tags"><span class="tag" ng-repeat="t in Record.current.tag.' + oSchema.id + '" ng-bind="t.label"></span></p>');
+                    $wrap.append('<p class="tags"><span ne-repeat="r in Record.current"><span class="tag" ng-repeat="t in r.tag.' + oSchema.id + '" ng-bind="t.label"></span></span></p>');
                 }
             } else {
                 $wrap.find('.tags').remove();

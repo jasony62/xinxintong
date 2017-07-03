@@ -9,7 +9,7 @@ class tag extends base {
 	/**
 	 *
 	 */
-	public function create_action($app) {
+	public function create_action($site, $app) {
 		/* 登记活动定义 */
 		$oApp = $this->model('matter\enroll')->byId($app, ['cascaded' => 'N']);
 		if ($oApp === false) {
@@ -17,15 +17,9 @@ class tag extends base {
 		}
 
 		$posted = $this->getPostJson();
+		$user = $this->who;
 
-		$current = time();
-		$newTags = [];
-		foreach ($posted as $tagLabel) {
-			$oNewTag = new \stdClass;
-			$oNewTag->id = $current++;
-			$oNewTag->label = $tagLabel;
-			$newTags[] = $oNewTag;
-		}
+		$newTags = $this->model('matter\enroll\tag')->add($oApp, $user, $posted);
 
 		return new \ResponseData($newTags);
 	}

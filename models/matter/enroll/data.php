@@ -129,6 +129,7 @@ class data_model extends \TMS_MODEL {
 		$page = isset($options->page) ? $options->page : null;
 		$size = isset($options->size) ? $options->size : null;
 		$rid = isset($options->rid) ? $this->escape($options->rid) : null;
+		$tag = isset($options->tag) ? $this->escape($options->tag) : null;
 
 		$result = new \stdClass; // 返回的结果
 
@@ -175,6 +176,10 @@ class data_model extends \TMS_MODEL {
 			$q[2] .= " and (agreed<>'N' or userid='{$oUser->uid}')";
 		} else {
 			$q[2] .= " and agreed<>'N'";
+		}
+		/*限制标签*/
+		if (!empty($tag)) {
+			$q[2] .= " and tag like '%". '"' . $tag . '"' ."%'";
 		}
 
 		$q2 = [];

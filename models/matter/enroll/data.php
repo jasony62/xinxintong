@@ -179,7 +179,7 @@ class data_model extends \TMS_MODEL {
 		}
 		/*限制标签*/
 		if (!empty($tag)) {
-			$q[2] .= " and tag like '%". $tag ."%'";
+			$q[2] .= " and tag like '%". '"' . $tag . '"' ."%'";
 		}
 
 		$q2 = [];

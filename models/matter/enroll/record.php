@@ -19,7 +19,6 @@ class record_model extends \TMS_MODEL {
 		$record = [
 			'aid' => $oApp->id,
 			'siteid' => $oApp->siteid,
-			'mpid' => $oApp->siteid,
 			'enroll_at' => $enrollAt,
 			'first_enroll_at' => $enrollAt,
 			'enroll_key' => $ek,

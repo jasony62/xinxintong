@@ -21,7 +21,7 @@ class data_model extends \TMS_MODEL {
 		];
 
 		$fnHandler = function (&$oData) {
-			$oData->tag = empty($oData->tag) ? new \stdClass : json_decode($oData->tag);
+			$oData->tag = empty($oData->tag) ? [] : json_decode($oData->tag);
 			$oData->like_log = empty($oData->like_log) ? new \stdClass : json_decode($oData->like_log);
 		};
 
@@ -179,7 +179,7 @@ class data_model extends \TMS_MODEL {
 		}
 		/*限制标签*/
 		if (!empty($tag)) {
-			$q[2] .= " and tag like '%". '"' . $tag . '"' ."%'";
+			$q[2] .= " and tag like '%" . '"' . $tag . '"' . "%'";
 		}
 
 		$q2 = [];

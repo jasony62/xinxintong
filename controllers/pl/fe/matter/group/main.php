@@ -218,25 +218,36 @@ class main extends \pl\fe\matter\base {
 	 *
 	 */
 	public function update_action($site, $app) {
-		if (false === ($user = $this->accountUser())) {
+		if (false === ($oUser = $this->accountUser())) {
 			return new \ResponseTimeout();
 		}
 		$modelApp = $this->model('matter\group');
+		$oMatter = $modelApp->byId($app, 'id,title,summary,pic,scenario,start_at,end_at,mission_id,mission_phase_id');
 		$modelApp->setOnlyWriteDbConn(true);
 		/**
 		 * 处理数据
 		 */
-		$nv = $this->getPostJson();
-		$nv->modifier = $user->id;
-		$nv->modifier_src = $user->src;
-		$nv->modifier_name = $user->name;
-		$nv->modify_at = time();
+		$updated = $this->getPostJson();
+		foreach ($updated as $n => $v) {
+			if (in_array($n, ['title'])) {
+				$updated->{$n} = $modelApp->escape($v);
+			}
+			$oMatter->{$n} = $v;
+		}
 
-		$rst = $modelApp->update('xxt_group', $nv, ["id" => $app]);
-		/*记录操作日志*/
+		$updated->modifier = $oUser->id;
+		$updated->modifier_src = $oUser->src;
+		$updated->modifier_name = $oUser->name;
+		$updated->modify_at = time();
+
+		$rst = $modelApp->update('xxt_group', $updated, ["id" => $oMatter->id]);
 		if ($rst) {
-			$app = $modelApp->byId($app, 'id,title,summary,pic');
-			$this->model('matter\log')->matterOp($site, $user, $app, 'U');
+			// 更新项目中的素材信息
+			if ($oMatter->mission_id) {
+				$this->model('matter\mission')->updateMatter($oMatter->mission_id, $oMatter);
+			}
+			// 记录操作日志并更新信息
+			$this->model('matter\log')->matterOp($site, $oUser, $oMatter, 'U');
 		}
 
 		return new \ResponseData($rst);

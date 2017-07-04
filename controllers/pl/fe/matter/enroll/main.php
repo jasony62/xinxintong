@@ -1188,7 +1188,7 @@ class main extends \pl\fe\matter\base {
 
 		$posted = $this->getPostJson();
 		$modelApp = $this->model('matter\enroll');
-		$matter = $modelApp->byId($app, 'id,title,summary,pic');
+		$oMatter = $modelApp->byId($app, 'id,title,summary,pic,scenario,start_at,end_at,mission_id,mission_phase_id');
 
 		/* 处理数据 */
 		$updated = new \stdClass;
@@ -1206,6 +1206,7 @@ class main extends \pl\fe\matter\base {
 			} else {
 				$updated->{$n} = $v;
 			}
+			$oMatter->{$n} = $v;
 		}
 
 		$updated->modifier = $user->id;
@@ -1215,12 +1216,12 @@ class main extends \pl\fe\matter\base {
 
 		$rst = $modelApp->update('xxt_enroll', $updated, ["id" => $app]);
 		if ($rst) {
+			// 更新项目中的素材信息
+			if ($oMatter->mission_id) {
+				$this->model('matter\mission')->updateMatter($oMatter->mission_id, $oMatter);
+			}
 			// 记录操作日志并更新信息
-			isset($updated->title) && $matter->title = $updated->title;
-			isset($updated->summary) && $matter->summary = $updated->summary;
-			isset($updated->pic) && $matter->pic = $updated->pic;
-			isset($updated->scenario) && $matter->scenario = $updated->scenario;
-			$this->model('matter\log')->matterOp($site, $user, $matter, 'U');
+			$this->model('matter\log')->matterOp($site, $user, $oMatter, 'U');
 		}
 
 		return new \ResponseData($rst);

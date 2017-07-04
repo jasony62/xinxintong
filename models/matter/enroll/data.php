@@ -142,7 +142,7 @@ class data_model extends \TMS_MODEL {
 		if (empty($options->keyword)) {
 			$q[2] .= " and value<>''";
 		} else {
-			$q[2] .= " and value like '%" . $options->keyword . "%'";
+			$q[2] .= " and (value like '%" . $options->keyword . "%' or supplement like '%" . $options->keyword . "%')";
 		}
 		if (isset($options->schemas) && count($options->schemas)) {
 			$q[2] .= " and schema_id in(";

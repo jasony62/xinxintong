@@ -1,0 +1,37 @@
+<div id='tag-view' class="col-md-12">
+    <nav class="navbar-default navbar">
+        <div class="container-fluid">
+            <form class="navbar-form navbar-left">
+                <button class='btn btn-default' ng-click='addTag()'><i class='glyphicon glyphicon-plus'></i> <span>新增</span></button>
+            </form>
+        </div>
+    </nav>
+    <div class="form-group">
+        <div id="enrollRecords">
+            <table class="table table-bordered">
+                <thead>
+                    <tr>
+                        <th style='width:10em'>操作</th>
+                        <th style='width:4em'>序号</th>
+                        <th >标签内容</th>
+                        <th style='width:8em'>使用次数</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr ng-repeat="tag in tags">
+                        <td>
+
+                        </td>
+                        <td>{{(page.at-1)*page.size+$index+1}}</td>
+                        <td ng-bind="tag.content"></td>
+                        <td ng-bind="tag.number"></td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+        <div class='form-group form-inline'>
+            <span class="pull-left">总数：{{page.total}}</span>
+            <ul uib-pagination style="margin:0;vertical-align:bottom;cursor:pointer;pull-right" ng-show="page.total>page.size" boundary-links="true" total-items="page.total" max-size="7" items-per-page="page.size" rotate="false" ng-model="page.at" previous-text="&lsaquo;" next-text="&rsaquo;" first-text="&laquo;" last-text="&raquo;" ng-change="doSearch()"></ul>
+        </div>
+    </div>
+</div>

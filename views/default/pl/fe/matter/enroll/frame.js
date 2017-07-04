@@ -77,6 +77,7 @@ define(['require', 'enrollService'], function(require) {
             .when('/rest/pl/fe/matter/enroll/coin', new RouteParam('coin'))
             .when('/rest/pl/fe/matter/enroll/notice', new RouteParam('notice'))
             .when('/rest/pl/fe/matter/enroll/enrollee', new RouteParam('enrollee'))
+            .when('/rest/pl/fe/matter/enroll/tag', new RouteParam('tag'))
             .otherwise(new RouteParam('main'));
 
         $locationProvider.html5Mode(true);
@@ -127,6 +128,7 @@ define(['require', 'enrollService'], function(require) {
                 case 'remark':
                 case 'stat':
                 case 'enrollee':
+                case 'tag':
                     $scope.opened = 'data';
                     break;
                 case 'recycle':

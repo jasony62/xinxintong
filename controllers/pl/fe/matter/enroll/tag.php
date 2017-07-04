@@ -10,6 +10,13 @@ class tag extends \pl\fe\matter\base {
 	 *
 	 */
 	public function create_action($app) {
+		\TPL::output('/pl/fe/matter/enroll/tag');
+		exit;
+	}
+	/**
+	 *
+	 */
+	public function create_action($app) {
 		if (false === ($user = $this->accountUser())) {
 			return new \ResponseTimeout();
 		}

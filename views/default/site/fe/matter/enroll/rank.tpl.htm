@@ -62,7 +62,7 @@
                             <tr ng-repeat="u in users">
                                 <td class='hidden-xs'>{{(appState.page.at-1)*appState.page.size+$index+1}}</td>
                                 <td><span>{{u.nickname}}</span></td>
-                                <td><span>{{u[appState.criteria.orderby+'_num']}}</span></td>
+                                <td><span>{{u[appState.criteria.orderby+'_num']||u.user_total_coin}}</span></td>
                             </tr>
                         </tbody>
                     </table>

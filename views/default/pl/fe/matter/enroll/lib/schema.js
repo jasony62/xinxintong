@@ -57,7 +57,7 @@ define([], function() {
             editRecord: {
                 n: 'editRecord',
                 l: '修改登记',
-                scope: ['V', 'L']
+                scope: ['V']
             },
             removeRecord: {
                 n: 'removeRecord',

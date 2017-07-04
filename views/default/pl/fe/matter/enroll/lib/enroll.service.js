@@ -290,7 +290,8 @@ define(['require', 'schema', 'page'], function(require, schemaLib, pageLib) {
                     return defer.promise;
                 },
                 jumpPages: function() {
-                    var defaultInput, inapp = [],
+                    var defaultInput, all = [],
+                        otherwise = [],
                         exclude = [],
                         pages4NonMember = [{
                             name: '$memberschema',
@@ -306,22 +307,28 @@ define(['require', 'schema', 'page'], function(require, schemaLib, pageLib) {
                             name: page.name,
                             title: page.title
                         };
-                        inapp.push(newPage);
+                        all.push(newPage);
                         exclude.push(newPage);
-                        pages4NonMember.push(newPage);
-                        pages4Nonfan.push(newPage);
+                        if (page.type !== 'V') {
+                            otherwise.push(newPage);
+                            pages4NonMember.push(newPage);
+                            pages4Nonfan.push(newPage);
+                        }
                         page.type === 'I' && (defaultInput = newPage);
                     });
-                    inapp.push({ name: 'repos', 'title': '所有数据页' });
-                    inapp.push({ name: 'rank', 'title': '排行榜' });
-                    inapp.push({ name: 'score', 'title': '测验结果' });
+                    all.push({ name: 'repos', 'title': '所有数据页' });
+                    all.push({ name: 'rank', 'title': '排行榜' });
+                    all.push({ name: 'score', 'title': '测验结果' });
+                    otherwise.push({ name: 'repos', 'title': '所有数据页' });
+                    otherwise.push({ name: 'rank', 'title': '排行榜' });
                     exclude.push({ name: 'repos', 'title': '所有数据页' });
                     exclude.push({ name: 'remark', 'title': '评论页' });
                     exclude.push({ name: 'rank', 'title': '排行榜' });
                     exclude.push({ name: 'score', 'title': '测验结果' });
 
                     return {
-                        inapp: inapp,
+                        all: all,
+                        otherwise: otherwise,
                         exclude: exclude,
                         nonMember: pages4NonMember,
                         nonfan: pages4Nonfan,

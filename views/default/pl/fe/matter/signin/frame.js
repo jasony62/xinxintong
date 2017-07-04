@@ -35,7 +35,8 @@ define(['require', 'page', 'schema', 'signinService'], function(require, pageLib
             value: 'channel',
             title: '频道',
             url: '/rest/pl/fe/matter'
-        }]
+        }],
+        naming: { 'mission_phase': '项目阶段' }
     });
     ngApp.config(['$controllerProvider', '$routeProvider', '$locationProvider', '$compileProvider', '$uibTooltipProvider', 'srvSiteProvider', 'srvQuickEntryProvider', 'srvSigninAppProvider', 'srvSigninRoundProvider', 'srvSigninPageProvider', 'srvSigninRecordProvider', function($controllerProvider, $routeProvider, $locationProvider, $compileProvider, $uibTooltipProvider, srvSiteProvider, srvQuickEntryProvider, srvSigninAppProvider, srvSigninRoundProvider, srvSigninPageProvider, srvSigninRecordProvider) {
         var RouteParam = function(name) {
@@ -93,7 +94,8 @@ define(['require', 'page', 'schema', 'signinService'], function(require, pageLib
             srvQuickEntryProvider.setSiteId(siteId);
         })();
     }]);
-    ngApp.controller('ctrlFrame', ['$scope', 'srvSite', 'srvSigninApp', '$location', function($scope, srvSite, srvSigninApp, $location) {
+    ngApp.controller('ctrlFrame', ['$scope', 'cstApp', 'srvSite', 'srvSigninApp', '$location', function($scope, cstApp, srvSite, srvSigninApp, $location) {
+        $scope.cstApp = cstApp;
         $scope.opened = '';
         $scope.$on('$locationChangeSuccess', function(event, currentRoute) {
             var subView = currentRoute.match(/([^\/]+?)\?/);

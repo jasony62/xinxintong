@@ -78,9 +78,10 @@ class user_model extends \TMS_MODEL {
 		if (count($members)) {
 			foreach ($members as &$oMember) {
 				$oMember->extattr = empty($oMember->extattr) ? new \stdClass : json_decode($oMember->extattr);
-				$oEnrollee = new \stdClass;
-				$oEnrollee->userid = $oMember->userid;
-				$oMember->report = $this->reportByUser($oApp, $oEnrollee);
+				//$oEnrollee = new \stdClass;
+				//$oEnrollee->userid = $oMember->userid;
+				//$oMember->report = $this->reportByUser($oApp, $oEnrollee);
+				$oMember->user = $this->byId($oApp, $oMember->userid, ['fields' => 'nickname,last_enroll_at,enroll_num,last_remark_at,remark_num,last_like_at,like_num,last_like_remark_at,like_remark_num,last_remark_other_at,remark_other_num,last_like_other_at,like_other_num,last_like_other_remark_at,like_other_remark_num,user_total_coin']);
 			}
 		}
 		$result->members = $members;
@@ -120,7 +121,6 @@ class user_model extends \TMS_MODEL {
 	 * 指定用户的行为报告
 	 */
 	public function reportByUser($oApp, $oUser) {
-
 		$result = new \stdClass;
 
 		/* 登记次数 */

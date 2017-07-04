@@ -291,6 +291,7 @@ define(['require', 'schema', 'page'], function(require, schemaLib, pageLib) {
                 },
                 jumpPages: function() {
                     var defaultInput, inapp = [],
+                        exclude = [],
                         pages4NonMember = [{
                             name: '$memberschema',
                             title: '提示填写联系人信息'
@@ -306,6 +307,7 @@ define(['require', 'schema', 'page'], function(require, schemaLib, pageLib) {
                             title: page.title
                         };
                         inapp.push(newPage);
+                        exclude.push(newPage);
                         pages4NonMember.push(newPage);
                         pages4Nonfan.push(newPage);
                         page.type === 'I' && (defaultInput = newPage);
@@ -313,9 +315,14 @@ define(['require', 'schema', 'page'], function(require, schemaLib, pageLib) {
                     inapp.push({ name: 'repos', 'title': '所有数据页' });
                     inapp.push({ name: 'rank', 'title': '排行榜' });
                     inapp.push({ name: 'score', 'title': '测验结果' });
+                    exclude.push({ name: 'repos', 'title': '所有数据页' });
+                    exclude.push({ name: 'remark', 'title': '评论页' });
+                    exclude.push({ name: 'rank', 'title': '排行榜' });
+                    exclude.push({ name: 'score', 'title': '测验结果' });
 
                     return {
                         inapp: inapp,
+                        exclude: exclude,
                         nonMember: pages4NonMember,
                         nonfan: pages4Nonfan,
                         defaultInput: defaultInput

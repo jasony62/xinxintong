@@ -299,7 +299,6 @@ class main extends \pl\fe\matter\base {
 		$app = $modelApp->byId($newaid, ['cascaded' => 'N']);
 
 		/* 记录操作日志 */
-		$app->type = 'signin';
 		$this->model('matter\log')->matterOp($site, $oUser, $app, 'C');
 
 		/* 记录和任务的关系 */
@@ -323,29 +322,32 @@ class main extends \pl\fe\matter\base {
 		}
 
 		$modelApp = $this->model('matter\signin');
-		$matter = $modelApp->byId($app, ['fields' => 'id,title,summary,pic', 'cascaded' => 'N']);
+		$oMatter = $modelApp->byId($app, ['fields' => 'id,title,summary,pic,start_at,end_at,mission_id,mission_phase_id', 'cascaded' => 'N']);
 		/**
 		 * 处理数据
 		 */
-		$nv = $this->getPostJson();
-		foreach ($nv as $n => $v) {
+		$updated = $this->getPostJson();
+		foreach ($updated as $n => $v) {
 			if (in_array($n, ['entry_rule', 'data_schemas'])) {
-				$nv->{$n} = $modelApp->escape($modelApp->toJson($v));
+				$updated->{$n} = $modelApp->escape($modelApp->toJson($v));
 			} else if (in_array($n, ['title', 'summary'])) {
-				$nv->{$n} = $modelApp->escape($v);
+				$updated->{$n} = $modelApp->escape($v);
 			}
+			$oMatter->{$n} = $v;
 		}
-		$nv->modifier = $oUser->id;
-		$nv->modifier_src = $oUser->src;
-		$nv->modifier_name = $oUser->name;
-		$nv->modify_at = time();
 
-		if ($rst = $modelApp->update('xxt_signin', $nv, ["id" => $app])) {
-			/*记录操作日志*/
-			isset($nv->title) && $matter->title = $nv->title;
-			isset($nv->summary) && $matter->summary = $nv->summary;
-			isset($nv->pic) && $matter->pic = $nv->pic;
-			$this->model('matter\log')->matterOp($site, $oUser, $matter, 'U');
+		$updated->modifier = $oUser->id;
+		$updated->modifier_src = $oUser->src;
+		$updated->modifier_name = $oUser->name;
+		$updated->modify_at = time();
+
+		if ($rst = $modelApp->update('xxt_signin', $updated, ["id" => $app])) {
+			// 更新项目中的素材信息
+			if ($oMatter->mission_id) {
+				$this->model('matter\mission')->updateMatter($oMatter->mission_id, $oMatter);
+			}
+			// 记录操作日志并更新信息
+			$this->model('matter\log')->matterOp($site, $oUser, $oMatter, 'U');
 		}
 
 		return new \ResponseData($rst);

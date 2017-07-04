@@ -276,19 +276,11 @@ define(['frame'], function(ngApp) {
                 url += '/list?mission=' + $scope.mission.id;
                 scenario !== undefined && (url += '&scenario=' + scenario);
             }
-
             http2.post(url, { mission_phase_id: pid }, function(rsp) {
-                $scope.indicators = [];
                 if (/article/.test($scope.matterType)) {
                     $scope.matters = rsp.data.articles;
-                    if (rsp.data.total == 0) {
-                        indicators.article && $scope.indicators.push(indicators.article);
-                    }
                 } else if (/enroll|voting|registration|group_week_report|quiz|common|signin|group/.test($scope.matterType)) {
                     $scope.matters = rsp.data.apps;
-                    if (rsp.data.total == 0) {
-                        indicators[$scope.matterType] && $scope.indicators.push(indicators[$scope.matterType]);
-                    }
                 } else {
                     $scope.matters = rsp.data;
                 }
@@ -304,10 +296,6 @@ define(['frame'], function(ngApp) {
             if (/enroll|registration|voting|group_week_report|quiz|common/.test($scope.matterType)) {
                 $scope.matter_scenario = $scope.matterType;
             }
-            $scope.mission = nv;
-            http2.get('/rest/pl/fe/matter/mission/phase/list?mission=' + $scope.mission.id, function(rsp) {
-                $scope.phases = rsp.data;
-            });
         });
     }]);
 });

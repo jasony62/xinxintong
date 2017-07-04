@@ -18,7 +18,7 @@ class matter extends \pl\fe\matter\base {
 	 *
 	 * @param int $id
 	 */
-	public function list_action($id, $matterType = null) {
+	public function list_action($id, $matterType = null, $verbose = 'Y') {
 		if (false === ($oUser = $this->accountUser())) {
 			return new \ResponseTimeout();
 		}
@@ -35,7 +35,7 @@ class matter extends \pl\fe\matter\base {
 			$options['mission_phase_id'] = $criteria->mission_phase_id;
 		}
 
-		$matters = $this->model('matter\mission\matter')->byMission($id, $matterType, $options);
+		$matters = $this->model('matter\mission\matter')->byMission($id, $matterType, $options, $verbose);
 
 		return new \ResponseData($matters);
 	}
@@ -73,12 +73,16 @@ class matter extends \pl\fe\matter\base {
 		$matter = $this->getPostJson();
 
 		$modelMis = $this->model('matter\mission');
-		if ($app = $this->model('matter\\' . $matter->type)->byId($matter->id, ['fields' => 'siteid,id,title', 'cascaded' => 'N'])) {
-			$app->type = $matter->type;
-			$modelMis->addMatter($oUser, $site, $id, $app);
+		if ($matter->type === 'enroll') {
+			$app = $this->model('matter\enroll')->byId($matter->id, ['fields' => 'siteid,id,title,scenario,start_at,end_at', 'cascaded' => 'N']);
 		} else {
-			return new \ResponseError('指定的素材不存在');
+			$app = $this->model('matter\\' . $matter->type)->byId($matter->id, ['fields' => 'siteid,id,title', 'cascaded' => 'N']);
 		}
+		if (!$app) {
+			return new \ObjectNotFoundError();
+		}
+
+		$modelMis->addMatter($oUser, $site, $id, $app);
 
 		$mission = $modelMis->byId($id, ['cascaded' => 'phase']);
 

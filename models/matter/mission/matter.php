@@ -20,9 +20,8 @@ class matter_model extends \TMS_MODEL {
 	/**
 	 * 获得项目下的所有素材
 	 */
-	public function &byMission($missionId, $matterType = null, $options = []) {
-		$matters = [];
-		$fields = isset($options['fields']) ? $options['fields'] : 'id,matter_id,matter_type,is_public,seq,create_at';
+	public function &byMission($missionId, $matterType = null, $options = [], $verbose = 'Y') {
+		$fields = isset($options['fields']) ? $options['fields'] : 'id,matter_id,matter_title,matter_type,is_public,seq,create_at,start_at,end_at,scenario,phase_id';
 
 		$q = [
 			$fields,
@@ -34,7 +33,8 @@ class matter_model extends \TMS_MODEL {
 		$q2 = ['o' => 'seq,create_at desc'];
 		$mms = $this->query_objs_ss($q, $q2);
 
-		if (count($mms)) {
+		if ($verbose === 'Y' && count($mms)) {
+			$matters = [];
 			$modelByType = new \stdClass;
 			foreach ($mms as &$mm) {
 				if (isset($modelByType->{$mm->matter_type})) {
@@ -45,7 +45,7 @@ class matter_model extends \TMS_MODEL {
 				if (in_array($mm->matter_type, ['enroll', 'signin', 'group'])) {
 					$fields = 'siteid,id,title,summary,pic,create_at,creater_name,data_schemas,op_short_url_code';
 					if (in_array($mm->matter_type, ['enroll'])) {
-						$fields .= ',rp_short_url_code';
+						$fields .= ',rp_short_url_code,start_at,end_at';
 					}
 					if (in_array($mm->matter_type, ['enroll', 'group'])) {
 						$fields .= ',scenario';
@@ -56,9 +56,9 @@ class matter_model extends \TMS_MODEL {
 					$fields = 'siteid,id,title,summary,pic,create_at,creater_name';
 					$options2 = ['fields' => $fields, 'cascaded' => 'N'];
 				}
-				
-				if(isset($options['mission_phase_id'])) {
-					$options2['where'] = array('mission_phase_id' => $options['mission_phase_id']);	
+
+				if (isset($options['mission_phase_id'])) {
+					$options2['where'] = array('mission_phase_id' => $options['mission_phase_id']);
 				}
 
 				if ($matter = $modelMat->byId($mm->matter_id, $options2)) {
@@ -81,8 +81,9 @@ class matter_model extends \TMS_MODEL {
 					$matters[] = $matter;
 				}
 			}
+			return $matters;
 		}
 
-		return $matters;
+		return $mms;
 	}
 }

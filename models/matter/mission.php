@@ -179,17 +179,41 @@ class mission_model extends app_base {
 		$relation = array(
 			'siteid' => $siteId,
 			'mission_id' => $missionId,
+			'phase_id' => isset($matter->mission_phase_id) ? $matter->mission_phase_id : '',
 			'matter_id' => $matter->id,
 			'matter_type' => $matter->type,
-			'matter_title' => $matter->title,
+			'matter_title' => $this->escape($matter->title),
+			'scenario' => isset($matter->scenario) ? $matter->scenario : '',
+			'start_at' => isset($matter->start_at) ? $matter->start_at : 0,
+			'end_at' => isset($matter->end_at) ? $matter->end_at : 0,
 			'creater' => $user->id,
-			'creater_name' => $user->name,
+			'creater_name' => $this->escape($user->name),
 			'creater_src' => $user->src,
 			'create_at' => time(),
 		);
 		$this->insert('xxt_mission_matter', $relation, false);
 
 		return true;
+	}
+	/**
+	 * 更新项目中的素材信息
+	 */
+	public function updateMatter($missionId, $matter) {
+
+		$relation = [
+			'matter_title' => $this->escape($matter->title),
+			'phase_id' => isset($matter->mission_phase_id) ? $matter->mission_phase_id : '',
+			'scenario' => isset($matter->scenario) ? $matter->scenario : '',
+			'start_at' => isset($matter->start_at) ? $matter->start_at : 0,
+			'end_at' => isset($matter->end_at) ? $matter->end_at : 0,
+		];
+		$rst = $this->update(
+			'xxt_mission_matter',
+			$relation,
+			['mission_id' => $missionId, 'matter_id' => $matter->id, 'matter_type' => $matter->type]
+		);
+
+		return $rst;
 	}
 	/**
 	 * 从项目中删除素材

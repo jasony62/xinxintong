@@ -318,11 +318,12 @@ class record_model extends \TMS_MODEL {
 	public function setTag($oUser, &$oApp, $ek, $submitTag) {
 		$wholeTags = new \stdClass;
 		/*record data*/
+		$tagUseNums = [];
 		foreach ($submitTag as $schemaId => $tags) {
 			/* 保证以字符串的格式存储标签id，便于以后检索 */
 			$jsonTags = [];
 			foreach ($tags as $oTag) {
-				$this->update("update xxt_enroll_record_tag set use_num = use_num+1 where id = $oTag->id");
+				$tagUseNums[] = $oTag->id;
 				$jsonTags[] = (string) $oTag->id;
 			}
 			$wholeTags->{$schemaId} = $jsonTags;
@@ -332,6 +333,20 @@ class record_model extends \TMS_MODEL {
 				['tag' => $this->escape($jsonTags)],
 				['enroll_key' => $ek, 'schema_id' => $schemaId, 'state' => 1]
 			);
+		}
+
+		/*处理标签使用数量*/
+		$tagUseNums = array_unique($tagUseNums);
+		foreach ($tagUseNums as $tagId) {
+			$tagId = (int)$tagId;
+			/*获取标签在同一个活动中被多少条数据使用*/
+			$q = [
+				'count(*)',
+				'xxt_enroll_record_data',
+				"aid = '$oApp->id' and tag like '%" . '"' . $tagId . '"' . "%'"
+			];
+			$num = (int)$this->query_val_ss($q);
+			$this->update("update xxt_enroll_record_tag set use_num = $num where id = $tagId");
 		}
 
 		$rst = $this->update(

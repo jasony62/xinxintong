@@ -24,37 +24,35 @@
         </nav>
     </div>
     <div class="col-md-7" tms-flex-height top='144' bottom='15'>
-        <div style='overflow-x:auto'>
-            <table class='table table-bordered table-hover' style="table-layout:fixed;">
-                <thead>
-                    <tr>
-                        <th style="width:4em">序号</th>
-                        <th style="width:8em">用户</th>
-                        <th style="width:8em" ng-repeat="app in report.orderedApps">{{app.title}}</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    <tr ng-repeat="user in report.users" ng-class="{info:user===activeUser}">
-                        <td>{{$index+1}}</td>
-                        <td ng-click="chooseUser(user)">{{user.nickname}}</td>
-                        <td ng-repeat="app in report.orderedApps" ng-switch on="app.type" ng-click="chooseUser(user,app)">
-                            <div ng-switch-when="enroll">
-                                <div ng-if="user.data[$index].enroll_num">记录：{{user.data[$index].enroll_num}}</div>
-                                <div ng-if="user.data[$index].remark_other_num">评论：{{user.data[$index].remark_other_num}}</div>
-                            </div>
-                            <div ng-switch-when="signin" ng-if="user.data[$index]">
-                                <div>签到：{{user.data[$index].signin_num}}</div>
-                                <div ng-if="user.data[$index].late_num" style='color:red'>迟到：{{user.data[$index].late_num}}</div>
-                            </div>
-                            <div ng-switch-when="group" ng-if="user.data[$index]">
-                                <div ng-repeat="rnd in user.data[$index]">分组：{{rnd.round_title||'空'}}</div>
-                            </div>
-                            <div ng-switch-default>{{user.data[$index]}}</div>
-                        </td>
-                    </tr>
-                </tbody>
-            </table>
-        </div>
+        <table class='table table-bordered table-hover' style="table-layout:fixed;">
+            <thead>
+                <tr>
+                    <th style="width:4em">序号</th>
+                    <th style="width:8em">用户</th>
+                    <th style="width:8em" ng-repeat="app in report.orderedApps">{{app.title}}</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr ng-repeat="user in report.users" ng-class="{info:user===activeUser}">
+                    <td>{{$index+1}}</td>
+                    <td ng-click="chooseUser(user)">{{user.nickname}}</td>
+                    <td ng-repeat="app in report.orderedApps" ng-switch on="app.type" ng-click="chooseUser(user,app)">
+                        <div ng-switch-when="enroll">
+                            <div ng-if="user.data[$index].enroll_num">记录：{{user.data[$index].enroll_num}}</div>
+                            <div ng-if="user.data[$index].remark_other_num">评论：{{user.data[$index].remark_other_num}}</div>
+                        </div>
+                        <div ng-switch-when="signin" ng-if="user.data[$index]">
+                            <div>签到：{{user.data[$index].signin_num}}</div>
+                            <div ng-if="user.data[$index].late_num" style='color:red'>迟到：{{user.data[$index].late_num}}</div>
+                        </div>
+                        <div ng-switch-when="group" ng-if="user.data[$index]">
+                            <div ng-repeat="rnd in user.data[$index]">分组：{{rnd.round_title||'空'}}</div>
+                        </div>
+                        <div ng-switch-default>{{user.data[$index]}}</div>
+                    </td>
+                </tr>
+            </tbody>
+        </table>
     </div>
     <div class='col-md-5' tms-flex-height top='144' bottom='15'>
         <div id="userApps" class='list-group'>

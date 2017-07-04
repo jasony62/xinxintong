@@ -45,7 +45,8 @@ define(['require'], function() {
             { v: 'registration', l: '报名' },
             { v: 'signin', l: '签到' },
             { v: 'wall', l: '信息墙' }
-        ]
+        ],
+        naming: { 'mission_phase': '项目阶段' }
     });
     ngApp.config(['$controllerProvider', '$routeProvider', '$locationProvider', '$compileProvider', 'srvQuickEntryProvider', 'srvSiteProvider', 'srvGroupAppProvider', 'srvGroupRoundProvider', function($controllerProvider, $routeProvider, $locationProvider, $compileProvider, srvQuickEntryProvider, srvSiteProvider, srvGroupAppProvider, srvGroupRoundProvider) {
         var RouteParam = function(name) {
@@ -86,7 +87,8 @@ define(['require'], function() {
             srvQuickEntryProvider.setSiteId(siteId);
         })();
     }]);
-    ngApp.controller('ctrlApp', ['$scope', 'srvSite', 'srvGroupApp', '$location', function($scope, srvSite, srvGroupApp, $location) {
+    ngApp.controller('ctrlApp', ['$scope', 'cstApp', 'srvSite', 'srvGroupApp', '$location', function($scope, cstApp, srvSite, srvGroupApp, $location) {
+        $scope.cstApp = cstApp;
         $scope.$on('$locationChangeSuccess', function(event, currentRoute) {
             var subView = currentRoute.match(/([^\/]+?)\?/);
             $scope.subView = subView[1] === 'group' ? 'player' : subView[1];

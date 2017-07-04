@@ -16,10 +16,11 @@
         </ul>
     </div>
 </div>
-<div class='col-md-4'>
+<div class='col-md-8'>
     <div class='aspect'>
         <div class='alert alert-info'>项目活动</div>
-        <ul class='status-group'>
-        </ul>
+        <div ng-repeat="matter in matters" style='line-height:2em'>
+            <span ng-if="matter.start_at==0" class='text-muted'>未指定开始时间</span><span ng-if="matter.start_at>0">{{matter.start_at*1000|date:'MM-dd HH:mm'}}</span> - <span ng-if="matter.end_at==0" class='text-muted'>未指定结束时间</span><span ng-if="matter.end_at>0">{{matter.end_at*1000|date:'MM-dd HH:mm'}}</span>，<span>{{matter.matter_title}}</span>
+        </div>
     </div>
 </div>

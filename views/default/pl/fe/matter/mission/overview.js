@@ -20,5 +20,12 @@ define(['frame'], function(ngApp) {
                 }
             }
         });
+        $scope.$watch('mission', function(oMission) {
+            var url;
+            url = '/rest/pl/fe/matter/mission/matter/list?id=' + oMission.id + '&verbose=N';
+            http2.post(url, {}, function(rsp) {
+                $scope.matters = rsp.data;
+            });
+        });
     }]);
 });

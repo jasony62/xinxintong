@@ -39,7 +39,8 @@ define(['require', 'enrollService'], function(require) {
         alertMsg: {
             'schema.duplicated': '不允许重复添加登记项',
             'require.mission.phase': '请先指定项目的阶段'
-        }
+        },
+        naming: { 'mission_phase': '项目阶段' }
     });
     ngApp.config(['$controllerProvider', '$routeProvider', '$locationProvider', '$compileProvider', '$uibTooltipProvider', 'srvSiteProvider', 'srvQuickEntryProvider', 'srvEnrollAppProvider', 'srvEnrollRoundProvider', 'srvEnrollPageProvider', 'srvEnrollRecordProvider', function($controllerProvider, $routeProvider, $locationProvider, $compileProvider, $uibTooltipProvider, srvSiteProvider, srvQuickEntryProvider, srvEnrollAppProvider, srvEnrollRoundProvider, srvEnrollPageProvider, srvEnrollRecordProvider) {
         var RouteParam = function(name, baseURL) {
@@ -99,7 +100,8 @@ define(['require', 'enrollService'], function(require) {
             srvQuickEntryProvider.setSiteId(siteId);
         })();
     }]);
-    ngApp.controller('ctrlFrame', ['$scope', 'srvSite', 'srvEnrollApp', 'templateShop', '$location', function($scope, srvSite, srvEnrollApp, templateShop, $location) {
+    ngApp.controller('ctrlFrame', ['$scope', 'cstApp', 'srvSite', 'srvEnrollApp', 'templateShop', '$location', function($scope, cstApp, srvSite, srvEnrollApp, templateShop, $location) {
+        $scope.cstApp = cstApp;
         $scope.scenarioNames = {
             'common': '通用登记',
             'registration': '报名',

@@ -54,6 +54,16 @@ class enroll_model extends app_base {
 		return $url;
 	}
 	/**
+	 * 登记活动的统计报告链接
+	 */
+	public function getRpUrl($siteId, $id) {
+		$url = 'http://' . APP_HTTP_HOST;
+		$url .= '/rest/site/op/matter/enroll/report';
+		$url .= "?site={$siteId}&app=" . $id;
+
+		return $url;
+	}
+	/**
 	 *
 	 * @param string $aid
 	 * @param array $options
@@ -77,6 +87,7 @@ class enroll_model extends app_base {
 			if (isset($oApp->siteid) && isset($oApp->id)) {
 				$oApp->entryUrl = $this->getEntryUrl($oApp->siteid, $oApp->id);
 				$oApp->opUrl = $this->getOpUrl($oApp->siteid, $oApp->id);
+				$oApp->rpUrl = $this->getRpUrl($oApp->siteid, $oApp->id);
 			}
 			if (isset($oApp->entry_rule)) {
 				$oApp->entry_rule = json_decode($oApp->entry_rule);

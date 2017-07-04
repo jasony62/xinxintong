@@ -18,7 +18,7 @@ class report extends \site\op\base {
 		$oApp = $this->model('matter\enroll')->byId($app, ['cascaded' => 'N']);
 
 		\TPL::assign('title', $oApp->title);
-		\TPL::output('/site/op/matter/enroll/console');
+		\TPL::output('/site/op/matter/enroll/report');
 		exit;
 	}
 	/**

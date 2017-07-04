@@ -29,11 +29,27 @@ class tag_model extends \TMS_MODEL {
 		return $tags;
 	}
 	/**
+	 * 
+	 */
+	public function byId($tagId, $options = []) {
+		$fields = isset($options['fields']) ? $options['fields'] : '*';
+
+		$q = [
+			$fields,
+			'xxt_enroll_record_tag',
+			['id' => $tagId]
+		];
+
+		$tag = $this->query_obj_ss($q);
+
+		return $tag;
+	}
+	/**
 	 * 添加登记活动的填写项标签
 	 *
 	 * @param object $oApp
 	 */
-	public function add(&$oApp, $user, $data) {
+	public function add(&$oApp, $user, $data, $scope = 'U') {
 		$current = time();
 		$newTags = [];
 		$this->setOnlyWriteDbConn(true);
@@ -58,7 +74,7 @@ class tag_model extends \TMS_MODEL {
 			$oNewTag->create_at = $current;
 			$oNewTag->creater = $user->uid;
 			$oNewTag->label = $tagLabel;
-			$oNewTag->scope = 'U';
+			$oNewTag->scope = $scope;
 			$oNewTag->seq = $seq + 1;
 			$oNewTag->id = $this->insert('xxt_enroll_record_tag', $oNewTag, true);
 
@@ -66,5 +82,45 @@ class tag_model extends \TMS_MODEL {
 		}
 
 		return $newTags;
+	}
+	/**
+	 * 修改活动的填写项标签
+	 *
+	 */
+	public function updateTag(&$tag, $user, $data) {
+		$current = time();
+		$this->setOnlyWriteDbConn(true);
+
+		$newTags = new \stdClass;
+		!empty(trim($data->label)) && $newTags->label = $this->escape($data->label);
+
+		if (isset($data->seq) && $data->seq === 'U') {
+			$q = [
+				'id,min(seq) seq',
+				'xxt_enroll_record_tag',
+				"aid = '$tag->aid' and seq > $tagId->seq"
+			];
+			if ($min = $this->query_obj_ss($q)) {
+				$this->update('xxt_enroll_record_tag', ['seq' => $min->seq], ['id' => $tag->id]);
+				$this->update('xxt_enroll_record_tag', ['seq' => $tag->seq], ['id' => $min->id]);
+			}
+		}
+		if (isset($data->seq) && $data->seq === 'D') {
+			$q = [
+				'id,max(seq) seq',
+				'xxt_enroll_record_tag',
+				"aid = '$tag->aid' and seq < $tagId->seq"
+			];
+			if ($max = $this->query_obj_ss($q)) {
+				$this->update('xxt_enroll_record_tag', ['seq' => $max->seq], ['id' => $tag->id]);
+				$this->update('xxt_enroll_record_tag', ['seq' => $tag->seq], ['id' => $max->id]);
+			}
+		}
+
+		if(!empty($newTags)){
+			$rst = $this->update('xxt_enroll_record_tag', $newTags, ['id' => $tagId]);
+		}
+
+		return 'ok';
 	}
 }

@@ -15,8 +15,10 @@
             <li class='status' ng-repeat="mschema in status.user.member">通信录【<span ng-bind="mschema.title"></span>】中通过审核的联系人可以参与，已通过审核有<span ng-bind="mschema.count.verified"></span>人，未通过审核有<span ng-bind="mschema.count.unverified"></span>人，<span ng-if="mschema.is_wx_fan==='Y'">填写人可以通过公众号接收通知</span><span ng-if="mschema.is_wx_fan==='N'">填写人不可以通过公众号接收通知</span></li>
         </ul>
     </div>
+</div>
+<div class='col-md-4'>
     <div class='aspect'>
-        <div class='alert alert-info'>资料和活动</div>
+        <div class='alert alert-info'>项目活动</div>
         <ul class='status-group'>
         </ul>
     </div>

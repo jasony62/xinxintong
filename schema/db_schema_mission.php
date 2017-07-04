@@ -82,6 +82,8 @@ $sql .= ",create_at int not null";
 $sql .= ",matter_id varchar(40) not null";
 $sql .= ",matter_type varchar(20)";
 $sql .= ",matter_title varchar(70) not null";
+$sql .= ",start_at int not null default 0";
+$sql .= ",end_at int not null default 0";
 $sql .= ",is_public char(1) not null default 'Y'"; // 是否为公开素材
 $sql .= ",seq int not null default 65535"; // 素材在项目中的排列顺序
 $sql .= ",primary key(id)) ENGINE=MyISAM DEFAULT CHARSET=utf8";

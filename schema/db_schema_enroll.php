@@ -256,22 +256,6 @@ if (!$mysqli->query($sql)) {
 	echo 'database error: ' . $mysqli->error;
 }
 /**
- * 登记活动内容点赞（should be remove）
- */
-$sql = "create table if not exists xxt_enroll_record_score(";
-$sql .= "id int not null auto_increment";
-$sql .= ",enroll_key varchar(32) not null";
-$sql .= ",userid varchar(40) not null default ''";
-$sql .= ",nickname varchar(255) not null default ''";
-$sql .= ",create_at int not null";
-$sql .= ",score int not null default 0";
-$sql .= ",schema_id varchar(40) not null default ''"; // 针对某条登记记录的某个登记项的点赞
-$sql .= ",primary key(id)) ENGINE=MyISAM DEFAULT CHARSET=utf8";
-if (!$mysqli->query($sql)) {
-	header('HTTP/1.0 500 Internal Server Error');
-	echo 'database error: ' . $mysqli->error;
-}
-/**
  * 登记活动的参与人及行为汇总，包含：登记人和评论人
  */
 $sql = "create table if not exists xxt_enroll_user(";
@@ -343,6 +327,8 @@ $sql .= ",state tinyint not null default 1"; //0:删除,1:配置,2:运行
 $sql .= ",title varchar(255) not null default ''";
 $sql .= ",summary varchar(240) not null default ''";
 $sql .= ",pic text"; // 分享或生成链接时的图片
+$sql .= ",start_at int not null default 0"; // 开始时间
+$sql .= ",end_at int not null default 0"; // 结束时间
 $sql .= ",category_tags text"; // 素材分类标签
 $sql .= ",mission_id int not null default 0"; // 所属项目
 $sql .= ",mission_phase_id varchar(13) not null default ''"; // 所属项目阶段
@@ -505,6 +491,8 @@ $sql .= ",state tinyint not null default 1"; //0:删除,1:配置,2:运行
 $sql .= ",title varchar(255) not null default ''";
 $sql .= ",summary varchar(240) not null default ''";
 $sql .= ",pic text"; // 分享或生成链接时的图片
+$sql .= ",start_at int not null default 0"; // 开始时间
+$sql .= ",end_at int not null default 0"; // 结束时间
 $sql .= ",category_tags text"; // 素材分类标签
 $sql .= ",mission_id int not null default 0"; // 所属项目
 $sql .= ",mission_phase_id varchar(13) not null default ''"; // 所属项目阶段

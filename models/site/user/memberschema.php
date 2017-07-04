@@ -34,12 +34,12 @@ class memberschema_model extends \TMS_MODEL {
 				// 	);
 				// 	$schema->page = $page;
 				// }
-				//$templateDir = TMS_APP_TEMPLATE . '/pl/fe/site/memberschema';
-				//$page = new \stdClass;
-				//$page->html = file_get_contents($templateDir . '/basic.html');
-				//$page->css = file_get_contents($templateDir . '/basic.css');
-				//$page->js = file_get_contents($templateDir . '/basic.js');
-				//$schema->page = $page;
+				$templateDir = TMS_APP_TEMPLATE . '/pl/fe/site/memberschema';
+				$page = new \stdClass;
+				$page->html = file_get_contents($templateDir . '/basic.html');
+				$page->css = file_get_contents($templateDir . '/basic.css');
+				$page->js = file_get_contents($templateDir . '/basic.js');
+				$schema->page = $page;
 			}
 		}
 

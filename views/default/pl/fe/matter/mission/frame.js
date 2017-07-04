@@ -15,7 +15,8 @@ define(['missionService', 'enrollService', 'signinService'], function() {
             'signin': '签到',
             'split': '分组',
             'wall': '信息墙'
-        }
+        },
+        naming: { 'phase': '项目阶段' }
     });
     ngApp.config(['$controllerProvider', '$routeProvider', '$locationProvider', '$compileProvider', '$uibTooltipProvider', 'srvSiteProvider', 'srvMissionProvider', 'srvQuickEntryProvider', function($controllerProvider, $routeProvider, $locationProvider, $compileProvider, $uibTooltipProvider, srvSiteProvider, srvMissionProvider, srvQuickEntryProvider) {
         var RouteParam = function(name) {
@@ -42,6 +43,7 @@ define(['missionService', 'enrollService', 'signinService'], function() {
             .when('/rest/pl/fe/matter/mission/matter', new RouteParam('matter'))
             .when('/rest/pl/fe/matter/mission/mschema', new RouteParam('mschema'))
             .when('/rest/pl/fe/matter/mission/report', new RouteParam('report'))
+            .when('/rest/pl/fe/matter/mission/overview', new RouteParam('overview'))
             .otherwise(new RouteParam('main'));
 
         $locationProvider.html5Mode(true);
@@ -60,8 +62,9 @@ define(['missionService', 'enrollService', 'signinService'], function() {
             srvMissionProvider.config(siteId, missionId);
         })();
     }]);
-    ngApp.controller('ctrlFrame', ['$scope', '$location', 'srvSite', 'srvMission', function($scope, $location, srvSite, srvMission) {
+    ngApp.controller('ctrlFrame', ['$scope', '$location', 'cstApp', 'srvSite', 'srvMission', function($scope, $location, cstApp, srvSite, srvMission) {
         $scope.subView = '';
+        $scope.cstApp = cstApp;
         $scope.update = function(name) {
             var modifiedData = {};
             if (angular.isObject(name)) {

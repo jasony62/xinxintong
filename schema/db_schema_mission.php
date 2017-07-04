@@ -6,7 +6,6 @@ require_once '../db.php';
 $sql = "create table if not exists xxt_mission (";
 $sql .= "id int not null auto_increment";
 $sql .= ",siteid varchar(32) not null";
-$sql .= ",mpid varchar(32) not null default ''"; // should remove
 $sql .= ",title varchar(70) not null";
 $sql .= ",summary varchar(240) not null";
 $sql .= ",pic text";
@@ -19,8 +18,6 @@ $sql .= ",modifier_name varchar(255) not null default ''";
 $sql .= ",modifier_src char(1)"; // should remove
 $sql .= ',modify_at int not null';
 $sql .= ",state tinyint not null default 1"; //0:stop,1:normal
-$sql .= ",access_control char(1) not null default 'N'";
-$sql .= ",authapis text";
 $sql .= ",start_at int not null default 0"; // 开始时间
 $sql .= ",end_at int not null default 0"; // 结束时间
 $sql .= ",header_page_name varchar(13) not null default ''"; // 通用页头
@@ -71,7 +68,6 @@ if (!$mysqli->query($sql)) {
  */
 $sql = "create table if not exists xxt_mission_matter(";
 $sql .= "id int not null auto_increment";
-$sql .= ",mpid varchar(32) not null default ''";
 $sql .= ",siteid varchar(32) not null";
 $sql .= ",mission_id int not null";
 $sql .= ",phase_id varchar(13) not null default ''";
@@ -82,6 +78,9 @@ $sql .= ",create_at int not null";
 $sql .= ",matter_id varchar(40) not null";
 $sql .= ",matter_type varchar(20)";
 $sql .= ",matter_title varchar(70) not null";
+$sql .= ",scenario varchar(255) not null default ''";
+$sql .= ",start_at int not null default 0";
+$sql .= ",end_at int not null default 0";
 $sql .= ",is_public char(1) not null default 'Y'"; // 是否为公开素材
 $sql .= ",seq int not null default 65535"; // 素材在项目中的排列顺序
 $sql .= ",primary key(id)) ENGINE=MyISAM DEFAULT CHARSET=utf8";

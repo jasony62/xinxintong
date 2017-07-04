@@ -364,6 +364,7 @@ class main extends \pl\fe\matter\base {
 			$dataSchema->type = 'member';
 			$dataSchema->title = '邮箱';
 			$dataSchema->schema_id = $oMschema->id;
+			$dataSchema->required = 'Y';
 			$dataSchema->unique = 'Y';
 			$dataSchema->_ver = '1';
 			$newDataSchemas[] = $dataSchema;
@@ -374,6 +375,7 @@ class main extends \pl\fe\matter\base {
 			$dataSchema->type = 'member';
 			$dataSchema->title = '手机';
 			$dataSchema->schema_id = $oMschema->id;
+			$dataSchema->required = 'Y';
 			$dataSchema->unique = 'Y';
 			$dataSchema->_ver = '1';
 			$newDataSchemas[] = $dataSchema;
@@ -384,6 +386,7 @@ class main extends \pl\fe\matter\base {
 			$dataSchema->type = 'member';
 			$dataSchema->title = '姓名';
 			$dataSchema->schema_id = $oMschema->id;
+			$dataSchema->required = 'Y';
 			$dataSchema->unique = 'N';
 			$dataSchema->_ver = '1';
 			$newDataSchemas[] = $dataSchema;
@@ -395,6 +398,7 @@ class main extends \pl\fe\matter\base {
 				$dataSchema->type = 'member';
 				$dataSchema->title = $extattr->label;
 				$dataSchema->schema_id = $oMschema->id;
+				$dataSchema->required = 'Y';
 				$dataSchema->unique = 'N';
 				$dataSchema->_ver = '1';
 				$newDataSchemas[] = $dataSchema;
@@ -438,7 +442,6 @@ class main extends \pl\fe\matter\base {
 					$newWrap->schema = $newSchema;
 					$wrapConfig = new \stdClass;
 					$wrapConfig->showname = 'label';
-					$wrapConfig->required = 'Y';
 					$newWrap->config = $wrapConfig;
 					$page->data_schemas[] = $newWrap;
 				} else if ($page->type === 'V') {
@@ -733,6 +736,7 @@ class main extends \pl\fe\matter\base {
 			$newSchema = clone $protoSchema;
 			$newSchema->id = $recordSchema->id;
 			$newSchema->title = $recordSchema->title;
+			$newSchema->required = 'Y';
 			$newSchema->ops = [];
 			foreach ($records as $index => $record) {
 				if (empty($record->data->{$recordSchema->id})) {
@@ -768,7 +772,6 @@ class main extends \pl\fe\matter\base {
 					$newWrap->schema = $newSchema;
 					$wrapConfig = new \stdClass;
 					$wrapConfig->showname = 'label';
-					$wrapConfig->required = 'Y';
 					$newWrap->config = $wrapConfig;
 					$page->data_schemas[] = $newWrap;
 				} else if ($page->type === 'V') {
@@ -933,6 +936,7 @@ class main extends \pl\fe\matter\base {
 				$data->id = $this->getTopicId();
 				$data->title = $colTitle;
 				$data->type = 'shorttext';
+				$data->required = 'Y';
 				$data->format = 'name';
 				$data->unique = 'N';
 				$data->_ver = '1';
@@ -941,6 +945,7 @@ class main extends \pl\fe\matter\base {
 				$data->id = $this->getTopicId();
 				$data->title = $colTitle;
 				$data->type = 'shorttext';
+				$data->required = 'Y';
 				$data->format = 'mobile';
 				$data->unique = 'N';
 				$data->_ver = '1';
@@ -949,6 +954,7 @@ class main extends \pl\fe\matter\base {
 				$data->id = $this->getTopicId();
 				$data->title = $colTitle;
 				$data->type = 'shorttext';
+				$data->required = 'Y';
 				$data->format = 'email';
 				$data->unique = 'N';
 				$data->_ver = '1';
@@ -957,6 +963,7 @@ class main extends \pl\fe\matter\base {
 				$data->id = $this->getTopicId();
 				$data->title = $colTitle;
 				$data->type = 'shorttext';
+				$data->required = 'Y';
 				$data->format = '';
 				$data->unique = 'N';
 				$data->_ver = '1';
@@ -989,7 +996,7 @@ class main extends \pl\fe\matter\base {
 					$newWrap->schema = $newSchema;
 					$wrapConfig = new \stdClass;
 					$wrapConfig->showname = 'label';
-					$wrapConfig->required = 'Y';
+
 					$newWrap->config = $wrapConfig;
 					$page->data_schemas[] = $newWrap;
 				} else if ($page->type === 'V') {

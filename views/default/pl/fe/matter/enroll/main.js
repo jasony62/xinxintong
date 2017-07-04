@@ -41,6 +41,9 @@ define(['frame'], function(ngApp) {
         $scope.$watch('app.dataSchemas', function(dataSchemas) {
             if (!dataSchemas) return;
             dataSchemas.forEach(function(oSchema) {
+                if (oSchema.required === 'Y') {
+                    status.schema.required++;
+                }
                 if (oSchema.shareable === 'Y') {
                     status.schema.shareable++;
                 }

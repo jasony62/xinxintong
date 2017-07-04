@@ -9,20 +9,20 @@
                 "id": "c1",
                 "title": "信息1",
                 "type": "shorttext",
-                "format": "name"
+                "format": "name",
+                "required": "Y"
             },
             "config": {
-                "required": "N",
                 "showname": "label"
             }
         }, {
             "schema": {
                 "id": "c2",
                 "title": "信息2",
-                "type": "longtext"
+                "type": "longtext",
+                "required": "Y"
             },
             "config": {
-                "required": "N",
                 "showname": "label"
             }
         }],
@@ -47,7 +47,8 @@
                 "id": "c1",
                 "title": "信息1",
                 "type": "shorttext",
-                "format": "name"
+                "format": "name",
+                "required": "Y"
             }
         }, {
             "config": {
@@ -59,7 +60,8 @@
             "schema": {
                 "id": "c2",
                 "title": "信息2",
-                "type": "longtext"
+                "type": "longtext",
+                "required": "Y"
             }
         }, {
             "config": {
@@ -90,11 +92,13 @@
         "id": "c1",
         "title": "信息1",
         "type": "shorttext",
-        "format": "name"
+        "format": "name",
+        "required": "Y"
     }, {
         "id": "c2",
         "title": "信息2",
-        "type": "longtext"
+        "type": "longtext",
+        "required": "Y"
     }],
     "scenarioConfig": {
         "can_rounds": "D"

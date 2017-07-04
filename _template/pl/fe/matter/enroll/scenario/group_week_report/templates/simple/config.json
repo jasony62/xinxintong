@@ -9,30 +9,30 @@
                 "id": "c1",
                 "title": "任务名称",
                 "type": "shorttext",
-                "format": "name"
+                "format": "name",
+                "required": "Y"
             },
             "config": {
-                "required": "N",
                 "showname": "label"
             }
         }, {
             "schema": {
                 "id": "c2",
                 "title": "本周情况",
-                "type": "longtext"
+                "type": "longtext",
+                "required": "Y"
             },
             "config": {
-                "required": "N",
                 "showname": "label"
             }
         }, {
             "schema": {
                 "id": "c3",
                 "title": "下周计划",
-                "type": "longtext"
+                "type": "longtext",
+                "required": "Y"
             },
             "config": {
-                "required": "N",
                 "showname": "label"
             }
         }],
@@ -63,16 +63,19 @@
                 "title": "任务名称",
                 "type": "shorttext",
                 "format": "name",
+                "required": "Y",
                 "unique": "N"
             }, {
                 "id": "c2",
                 "title": "本周情况",
                 "type": "longtext",
+                "required": "Y",
                 "unique": "N"
             }, {
                 "id": "c3",
                 "title": "下周计划",
                 "type": "longtext",
+                "required": "Y",
                 "unique": "N"
             }, {
                 "id": "enrollAt",
@@ -91,15 +94,18 @@
         "id": "c1",
         "title": "任务名称",
         "type": "shorttext",
-        "format": "name"
+        "format": "name",
+        "required": "Y"
     }, {
         "id": "c2",
         "title": "本周情况",
-        "type": "longtext"
+        "type": "longtext",
+        "required": "Y"
     }, {
         "id": "c3",
         "title": "下周计划",
-        "type": "longtext"
+        "type": "longtext",
+        "required": "Y"
     }],
     "scenarioConfig": {
         "can_period": "D",

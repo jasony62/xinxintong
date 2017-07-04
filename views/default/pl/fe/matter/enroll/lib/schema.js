@@ -87,6 +87,7 @@ define([], function() {
             var schema = angular.copy(base);
 
             schema.id = (proto && proto.id) ? proto.id : 's' + (new Date() * 1);
+            schema.required = type === 'html' ? 'N' : 'Y';
             schema.type = type;
             if (prefab[type]) {
                 var countOfType = 0;

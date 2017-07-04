@@ -11,20 +11,27 @@
             <table class="table table-bordered">
                 <thead>
                     <tr>
-                        <th style='width:10em'>操作</th>
-                        <th style='width:4em'>序号</th>
-                        <th >标签内容</th>
-                        <th style='width:8em'>使用次数</th>
+                        <th style='width:50px'>序号</th>
+                        <th style="width:100px">创建时间</th>
+                        <th style="width:100px">来源</th>
+                        <th class="custom-col row">标签内容</th>
+                        <th style='width:100px'>使用次数</th>
+                        <th style='width:140px'>操作</th>
                     </tr>
                 </thead>
                 <tbody>
                     <tr ng-repeat="tag in tags">
-                        <td>
-
-                        </td>
                         <td>{{(page.at-1)*page.size+$index+1}}</td>
+                        <td>{{(tag.enroll_at*1000)|date:'MM-dd HH:mm'}}</td>
+                        <td>{{scopeNames[tag.scope]}}</td>
                         <td ng-bind="tag.content"></td>
                         <td ng-bind="tag.number"></td>
+                        <td>
+                            <button class="btn btn-xs btn-default" ng-click="edit(tag, $index)"><i class="glyphicon glyphicon-edit"></i></button>
+                            <button class="btn btn-xs btn-danger" ng-click="remove(tag, $index)"><i class="glyphicon glyphicon-remove"></i></button>
+                            <button class="btn btn-xs btn-default" ng-click="up(tag, $index)"><i class="glyphicon glyphicon-chevron-up"></i></button>
+                            <button class='btn btn-xs btn-default' ng-click="down(tag,$index)"><i class='glyphicon glyphicon-chevron-down'></i></button>
+                        </td>
                     </tr>
                 </tbody>
             </table>

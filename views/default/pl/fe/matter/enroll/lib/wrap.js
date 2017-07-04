@@ -483,6 +483,7 @@ define([], function() {
                         sNgClick = 'chooseImage(' + "'" + schema.id + "'," + schema.count + ')';
                         $button.attr('ng-click', sNgClick);
                         _htmlSupplement($dom, schema);
+                        _htmlTag($dom, schema);
                     })(this);
                 } else if (/file/.test(schema.type)) {
                     (function(lib) {
@@ -492,6 +493,7 @@ define([], function() {
                         sNgClick = 'chooseFile(' + "'" + schema.id + "'," + schema.count + ')';
                         $button.attr('ng-click', sNgClick).html(schema.title);
                         _htmlSupplement($dom, schema);
+                        _htmlTag($dom, schema);
                     })(this);
                 }
             }

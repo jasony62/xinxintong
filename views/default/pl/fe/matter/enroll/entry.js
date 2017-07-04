@@ -74,6 +74,50 @@ define(['frame'], function(ngApp) {
             srvQuickEntry.update(opEntry.code, { can_favor: opEntry.can_favor });
         };
     }]);
+    ngApp.provider.controller('ctrlRpUrl', ['$scope', 'srvQuickEntry', 'srvEnrollApp', function($scope, srvQuickEntry, srvEnrollApp) {
+        var targetUrl, host, rpEntry;
+        $scope.rpEntry = rpEntry = {};
+        srvEnrollApp.get().then(function(app) {
+            targetUrl = $scope.app.rpUrl;
+            host = targetUrl.match(/\/\/(\S+?)\//);
+            host = host.length === 2 ? host[1] : location.host;
+            srvQuickEntry.get(targetUrl).then(function(entry) {
+                if (entry) {
+                    rpEntry.url = 'http://' + host + '/q/' + entry.code;
+                    rpEntry.password = entry.password;
+                    rpEntry.code = entry.code;
+                    rpEntry.can_favor = entry.can_favor;
+                }
+            });
+        });
+        $scope.makeOpUrl = function() {
+            srvQuickEntry.add(targetUrl, $scope.app.title).then(function(task) {
+                $scope.app.rp_short_url_code = task.code;
+                srvEnrollApp.update('rp_short_url_code');
+                rpEntry.url = 'http://' + host + '/q/' + task.code;
+                rpEntry.code = task.code;
+            });
+        };
+        $scope.closeOpUrl = function() {
+            srvQuickEntry.remove(targetUrl).then(function(task) {
+                rpEntry.url = '';
+                rpEntry.code = '';
+                rpEntry.can_favor = 'N';
+                rpEntry.password = '';
+                $scope.app.rp_short_url_code = '';
+                srvEnrollApp.update('rp_short_url_code');
+            });
+        };
+        $scope.configOpUrl = function(event, prop) {
+            event.preventDefault();
+            srvQuickEntry.config(targetUrl, {
+                password: rpEntry.password
+            });
+        };
+        $scope.updCanFavor = function() {
+            srvQuickEntry.update(rpEntry.code, { can_favor: rpEntry.can_favor });
+        };
+    }]);
     /**
      * 微信二维码
      */

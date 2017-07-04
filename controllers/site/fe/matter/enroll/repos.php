@@ -27,6 +27,7 @@ class repos extends base {
 		!empty($criteria->rid) && $options->rid = $criteria->rid;
 		!empty($criteria->agreed) && $options->agreed = $criteria->agreed;
 		!empty($criteria->owner) && $options->owner = $criteria->owner;
+		!empty($criteria->tag) && $options->tag = $criteria->tag;
 		if (empty($criteria->schema)) {
 			$options->schemas = [];
 			foreach ($oApp->dataSchemas as $dataSchema) {
@@ -53,6 +54,7 @@ class repos extends base {
 						$oRec->agreedRemarks = $agreedRemarks;
 					}
 				}
+				$oRec->tag = empty($oRec->tag) ? [] : json_decode($oRec->tag);
 			}
 		}
 

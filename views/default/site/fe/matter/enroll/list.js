@@ -75,10 +75,28 @@ ngApp.controller('ctrlRecords', ['$scope', '$uibModal', 'Record', 'ls', '$sce', 
             } else {
                 $scope.records = $scope.records.concat(records);
             }
+            if ($scope.records) {
+                $scope.records.forEach(function(record){
+                    if (record.data_tag) {
+                        for (var schemaId in record.data_tag) {
+                            var dataTags = record.data_tag[schemaId],
+                                converted = [];
+                            dataTags.forEach(function(tagId) {
+                                oApp._tagsById[tagId] && converted.push(oApp._tagsById[tagId]);
+                            });
+                            record.data_tag[schemaId] = converted;
+                        }
+                    }
+                    record.tag = record.data_tag ? record.data_tag : {};
+                    _records.push(record);
+                });
+                facRecord.current = _records;
+            }
         });
     }
     var facRecord, options,
         oApp = $scope.app,
+        _records = [],
         oCurrentCriteria = {};
 
     options = {
@@ -90,7 +108,7 @@ ngApp.controller('ctrlRecords', ['$scope', '$uibModal', 'Record', 'ls', '$sce', 
     };
     $scope.options = options;
     $scope.fetch = fnFetch;
-    facRecord = Record.ins();
+    $scope.Record = facRecord = Record.ins();
     $scope.value2Label = function(record, schemaId) {
         var val, i, j, s, aVal, aLab = [];
         if (oApp._schemasById && record.data) {

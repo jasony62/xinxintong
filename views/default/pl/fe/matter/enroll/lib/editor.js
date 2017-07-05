@@ -369,7 +369,6 @@ define(['wrap'], function(wrapLib) {
             } else {
                 _activeWrap = false;
             }
-
             return _activeWrap;
         },
         selectWrap: function(domWrap) {

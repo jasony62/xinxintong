@@ -201,31 +201,33 @@ define(['frame', 'schema', 'page', 'editor'], function(ngApp, schemaLib, pageLib
             $scope.setActiveWrap(domWrap);
         };
         $scope.removeWrap = function() {
-            var wrapType = $scope.activeWrap.type,
+            var activeWrap = $scope.activeWrap,
+                wrapType = activeWrap.type,
                 schema;
 
             if (/input|value/.test(wrapType)) {
                 if (schema = $scope.activeWrap.schema) {
-                    if ($scope.ep.type === 'L') {
-                        console.log($scope.activeWrap);
+                    if ($scope.ep.type === 'L' && activeWrap.list && activeWrap.list.config) {
+                        editorProxy.removeWrap(activeWrap);
+                        $scope.setActiveWrap(null);
                     } else {
                         $scope.removeSchema(schema).then(function() {
-                            editorProxy.removeWrap($scope.activeWrap);
+                            editorProxy.removeWrap(activeWrap);
                             $scope.setActiveWrap(null);
                         });
                     }
                 } else {
-                    editorProxy.removeWrap($scope.activeWrap);
+                    editorProxy.removeWrap(activeWrap);
                     $scope.setActiveWrap(null);
                 }
             } else if (/radio|checkbox|score/.test(wrapType)) {
                 var optionSchema;
-                schema = editorProxy.optionSchemaByDom($scope.activeWrap.dom, $scope.app);
+                schema = editorProxy.optionSchemaByDom(activeWrap.dom, $scope.app);
                 optionSchema = schema[1];
                 schema = schema[0];
                 schema.ops.splice(schema.ops.indexOf(optionSchema), 1);
                 // 更新当前页面
-                editorProxy.removeWrap($scope.activeWrap);
+                editorProxy.removeWrap(activeWrap);
                 // 更新其它页面
                 $scope.$emit('xxt.matter.enroll.app.data_schemas.modified', {
                     originator: $scope.ep,
@@ -233,7 +235,7 @@ define(['frame', 'schema', 'page', 'editor'], function(ngApp, schemaLib, pageLib
                 });
                 $scope.setActiveWrap(null);
             } else if (/button|text|records/.test(wrapType)) {
-                editorProxy.removeWrap($scope.activeWrap);
+                editorProxy.removeWrap(activeWrap);
                 $scope.setActiveWrap(null);
             }
         };
@@ -559,7 +561,7 @@ define(['frame', 'schema', 'page', 'editor'], function(ngApp, schemaLib, pageLib
                     }
                 }
             }
-            $scope.updWrap('config', 'schemas');
+            $scope.updWrap();
         };
         $scope.updWrap = function() {
             editorProxy.modifySchema($scope.activeWrap);

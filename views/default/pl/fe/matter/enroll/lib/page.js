@@ -397,7 +397,7 @@ define(['wrap'], function(SchemaWrap) {
         appendRecordList: function(oApp) {
             var dataWrap = {
                 config: {
-                    id: 'L' + (new Date() * 1),
+                    id: 'L' + (new Date * 1),
                     pattern: 'records',
                     dataScope: 'U',
                     onclick: '',
@@ -444,6 +444,7 @@ define(['wrap'], function(SchemaWrap) {
                     schemaInList = listWrap.schemas[j];
                     if (schema.id === schemaInList.id) {
                         return {
+                            list: listWrap,
                             schema: schemaInList
                         };
                     }

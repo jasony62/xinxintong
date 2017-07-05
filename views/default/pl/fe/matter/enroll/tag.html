@@ -3,7 +3,7 @@
         <div class="container-fluid">
             <form class="navbar-form navbar-left">
                 <div class='input-group'>
-                    <input class='form-control' ng-model="model.newtag">
+                    <input class='form-control' ng-model="newtag">
                     <div class='input-group-btn'>
                         <button class='btn btn-default' ng-click="createTag()"><span class='glyphicon glyphicon-plus'></span></button>
                     </div>
@@ -27,23 +27,25 @@
                 <tbody>
                     <tr ng-repeat="tag in tags">
                         <td>{{(page.at-1)*page.size+$index+1}}</td>
-                        <td>{{(tag.enroll_at*1000)|date:'MM-dd HH:mm'}}</td>
+                        <td>{{(tag.create_at*1000)|date:'MM-dd HH:mm'}}</td>
                         <td>{{scopeNames[tag.scope]}}</td>
-                        <td><input type='text' ng-model="tag.content"></td>
-                        <td ng-bind="tag.number"></td>
+                        <td><input type='text' class='form-control' size='40'  ng-model='tag.label' tms-auto-update tms-wait=1000 tms-update="modify(tag)"></td>
+                        <td ng-bind="tag.use_num"></td>
                         <td>
-                            <button class="btn btn-xs btn-danger" ng-click="remove(tag, $index)"><i class="glyphicon glyphicon-remove"></i></button>
-                            <button class="btn btn-xs btn-default" ng-click="up(tag, $index)"><i class="glyphicon glyphicon-chevron-up"></i></button>
-                            <button class='btn btn-xs btn-default' ng-click="down(tag,$index)"><i class='glyphicon glyphicon-chevron-down'></i></button>
+                            <button class="btn btn-xs btn-danger" ng-click="removeTag(tag)"><i class="glyphicon glyphicon-remove"></i></button>
+                            <button class="btn btn-xs btn-default" ng-click="upTag(tag, $index)"><i class="glyphicon glyphicon-chevron-up"></i></button>
+                            <button class='btn btn-xs btn-default' ng-click="downTag(tag, $index)"><i class='glyphicon glyphicon-chevron-down'></i></button>
                         </td>
                     </tr>
                 </tbody>
             </table>
         </div>
         <div class='form-group form-inline'>
-            <button class='btn btn-success' ng-click="save()">保存</button>
-            <span class="pull-right">总数：{{page.total}}</span>
-            <ul uib-pagination style="margin:0;vertical-align:bottom;cursor:pointer;pull-right" ng-show="page.total>page.size" boundary-links="true" total-items="page.total" max-size="7" items-per-page="page.size" rotate="false" ng-model="page.at" previous-text="&lsaquo;" next-text="&rsaquo;" first-text="&laquo;" last-text="&raquo;" ng-change="doSearch()"></ul>
+            <button class="pull-left btn btn-success"  ng-click="save()">保存</button>
+            <div class="pull-right">
+                <span style="margin-right:20px;line-height:2;">总数：{{page.total}}</span>
+                <ul uib-pagination style="margin:0;vertical-align:bottom;cursor:pointer;" ng-show="page.total>page.size" boundary-links="true" total-items="page.total" max-size="7" items-per-page="page.size" rotate="false" ng-model="page.at" previous-text="&lsaquo;" next-text="&rsaquo;" first-text="&laquo;" last-text="&raquo;" ng-change="doSearch()"></ul>
+            </div>
         </div>
     </div>
 </div>

@@ -44,19 +44,19 @@ define(['frame'], function(ngApp) {
             }
         };
         $scope.modify = function(tag) {
-            update(tag, {label:tag.label});
+            $scope.update(tag, {label:tag.label});
         }
         $scope.upTag = function(tag, index) {
             if (index === 0) return;
             $scope.tags.splice(index, 1);
             $scope.tags.splice(--index, 0, tag);
-            update(tag, {seq: 'U'});
+            $scope.update(tag, {seq: 'U'});
         };
         $scope.downTag = function(tag, index) {
             if (index === $scope.tags.length - 1)  return;
             $scope.tags.splice(index, 1);
             $scope.tags.splice(++index, 0, tag);
-            update(tag, {seq: 'D'});
+            $scope.update(tag, {seq: 'D'});
         };
         $scope.update = function(tag, args) {
             $http.post('/rest/pl/fe/matter/enroll/tag/update?tag=' + tag.id, args).then(function(rsp) {

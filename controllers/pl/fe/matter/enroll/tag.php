@@ -10,7 +10,7 @@ class tag extends \pl\fe\matter\base {
 	 *
 	 */
 	public function index_action($app) {
-		\TPL::output('/pl/fe/matter/enroll/tag');
+		\TPL::output('/pl/fe/matter/enroll/frame');
 		exit;
 	}
 	/**

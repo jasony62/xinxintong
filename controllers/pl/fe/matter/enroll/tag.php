@@ -16,6 +16,29 @@ class tag extends \pl\fe\matter\base {
 	/**
 	 *
 	 */
+	public function get_action($app, $page, $size) {
+		if (false === ($oUser = $this->accountUser())) {
+			return new \ResponseTimeout();
+		}
+
+		$modelEnl = $this->model('matter\enroll');
+		if (false === ($oApp = $modelEnl->byId($app, ['fields' => 'id', 'cascaded' => 'N']))) {
+			return new \ResponseError('指定的数据不存在');
+		}
+
+		$options = [];
+		if(!empty($page) && !empty($size)){
+			$options['at']['page'] = $page;
+			$options['at']['size'] = $size;
+		}
+
+		$tags = $this->model('matter\enroll\tag')->byApp($oApp, $options);
+
+		return new \ResponseData($tags);
+	}
+	/**
+	 *
+	 */
 	public function create_action($app) {
 		if (false === ($user = $this->accountUser())) {
 			return new \ResponseTimeout();

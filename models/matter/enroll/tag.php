@@ -17,7 +17,7 @@ class tag_model extends \TMS_MODEL {
 			'xxt_enroll_record_tag',
 			['aid' => $oApp->id]
 		];
-		$q2['o'] = 'create_at desc';
+		$q2['o'] = 'seq asc';
 		if (isset($options['at'])) {
 			$page = $options['at']['page'];
 			$size = $options['at']['size'];

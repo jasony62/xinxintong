@@ -93,7 +93,6 @@ define([], function() {
             },
             schema: schema,
         };
-        oWrap.config.required = 'html' === schema.type ? 'N' : 'Y';
         if (/single|multiple|phase/.test(schema.type)) {
             oWrap.config.align = 'V';
             if (/single|phase/.test(schema.type)) {
@@ -112,7 +111,7 @@ define([], function() {
 
         html = '<li class="' + cls + '" wrap="radio"';
         forEdit && (html += ' contenteditable="false"');
-        config.required === 'Y' && (html += 'required');
+        schema.required === 'Y' && (html += 'required');
         html += '><label';
         if (config.align === 'H') html += ' class="radio-inline"';
         html += '><input type="radio" name="' + schema.id + '"';
@@ -137,7 +136,7 @@ define([], function() {
 
         html = '<li class="' + cls + '" wrap="checkbox"';
         forEdit && (html += ' contenteditable="false"');
-        config.required === 'Y' && (html += 'required');
+        schema.required === 'Y' && (html += 'required');
         html += '><label';
         if (config.align === 'H') html += ' class="checkbox-inline"';
         html += '><input type="checkbox" name="' + schema.id + '"';
@@ -156,7 +155,7 @@ define([], function() {
         index = schema.ops.indexOf(op);
         html = '<li class="score" wrap="score" opvalue="' + op.v + '"';
         forEdit && (html += ' contenteditable="false"');
-        config.required === 'Y' && (html += 'required');
+        schema.required === 'Y' && (html += 'required');
         html += '><div><label'
         forEdit && (html += ' contenteditable="true"');
         html += '>' + op.l + '</label></div>';
@@ -234,7 +233,7 @@ define([], function() {
 
         if (!onlyChildren) {
             html2 = '<select class="form-control input-lg" ng-model="data.' + schema.id + '"';
-            config.required === 'Y' && (html2 += 'required=""');
+            schema.required === 'Y' && (html2 += 'required=""');
             html2 += ' title="' + schema.title + '">\r\n';
             html = html2 + html + '\r\n</select>';
         }
@@ -296,7 +295,7 @@ define([], function() {
                     html += '<input type="text" ng-model="data.' + schema.id + '"';
                     html += ' title="' + schema.title + '"';
                     config.showname === 'placeholder' && (html += ' placeholder="' + schema.title + '"');
-                    config.required === 'Y' && (html += 'required=""');
+                    schema.required === 'Y' && (html += 'required=""');
                     html += ' class="form-control">';
                     html += '<span class="input-group-btn">';
                     html += '<button class="btn btn-default" ng-click="' + 'dataBySchema(\'' + schema.id + '\')' + '">查找</button>';
@@ -305,7 +304,7 @@ define([], function() {
                 } else {
                     html += '<input type="text" ng-model="data.' + schema.id + '" title="' + schema.title + '"';
                     config.showname === 'placeholder' && (html += ' placeholder="' + schema.title + '"');
-                    config.required === 'Y' && (html += 'required=""');
+                    schema.required === 'Y' && (html += 'required=""');
                     schema.type === 'member' && (html += 'ng-init="data.member.schema_id=' + schema.schema_id + '"');
                     html += ' class="form-control input-lg"';
                     forEdit && (html += ' readonly');
@@ -318,13 +317,13 @@ define([], function() {
                 html += '<div wrap="date" ng-bind="data.' + schema.id + '*1000|date:\'yy-MM-dd HH:mm\'"';
                 html += ' title="' + schema.title + '"';
                 html += ' placeholder="' + schema.title + '"';
-                config.required === 'Y' && (html += 'required=""');
+                schema.required === 'Y' && (html += 'required=""');
                 html += ' class="form-control input-lg"></div>';
                 break;
             case 'longtext':
                 html += '<textarea style="height:auto" ng-model="data.' + schema.id + '" title="' + schema.title + '"';
                 config.showname === 'placeholder' && (html += ' placeholder="' + schema.title + '"');
-                config.required === 'Y' && (html += 'required=""');
+                schema.required === 'Y' && (html += 'required=""');
                 html += ' class="form-control" rows="3"';
                 forEdit && (html += ' readonly');
                 html += '></textarea>';
@@ -373,7 +372,7 @@ define([], function() {
                 html += '<input type="text" ng-model="data.' + schema.id + '"';
                 html += ' title="' + schema.title + '"';
                 html += ' placeholder="' + schema.title + '"';
-                config.required === 'Y' && (html += 'required=""');
+                schema.required === 'Y' && (html += 'required=""');
                 html += ' class="form-control">';
                 html += '<span class="input-group-btn">';
                 html += '<button class="btn btn-default" ng-click="' + 'getMyLocation(\'' + schema.id + '\')' + '">定位</button>';
@@ -427,7 +426,7 @@ define([], function() {
                         $label.addClass('sr-only');
                         $input.attr('placeholder', schema.title);
                     }
-                    if (config.required === 'Y') {
+                    if (schema.required === 'Y') {
                         $input.attr('required', '');
                     } else {
                         $input.removeAttr('required');

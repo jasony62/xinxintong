@@ -31,9 +31,6 @@ ngApp.factory('Input', ['$http', '$q', '$timeout', 'ls', function($http, $q, $ti
                 } else {
                     value = data[schema.id];
                 }
-                if (item.config.required === 'Y') {
-                    schema.required = 'Y';
-                }
                 if (true !== (sCheckResult = ngApp.oUtilSchema.checkValue(schema, value))) {
                     return sCheckResult;
                 }

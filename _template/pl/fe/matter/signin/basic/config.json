@@ -9,22 +9,22 @@
                 "id": "name",
                 "title": "名称",
                 "type": "shorttext",
+                "required": "Y",
                 "format": "name"
             },
             "config": {
                 "showname": "label",
-                "required": "Y"
             }
         }, {
             "schema": {
                 "id": "mobile",
                 "title": "手机",
                 "type": "shorttext",
+                "required": "Y",
                 "format": "mobile"
             },
             "config": {
-                "showname": "label",
-                "required": "Y"
+                "showname": "label"
             }
         }],
         "act_schemas": [{
@@ -48,6 +48,7 @@
                 "id": "name",
                 "title": "名称",
                 "type": "shorttext",
+                "required": "Y",
                 "format": "name"
             }
         }, {
@@ -61,6 +62,7 @@
                 "id": "mobile",
                 "title": "手机",
                 "type": "shorttext",
+                "required": "Y",
                 "format": "mobile"
             }
         }],
@@ -85,6 +87,7 @@
                 "id": "name",
                 "title": "名称",
                 "type": "shorttext",
+                "required": "Y",
                 "format": "name"
             }
         }, {
@@ -98,6 +101,7 @@
                 "id": "mobile",
                 "title": "手机",
                 "type": "shorttext",
+                "required": "Y",
                 "format": "mobile"
             }
         }],
@@ -116,11 +120,13 @@
         "id": "name",
         "title": "名称",
         "type": "shorttext",
+        "required": "Y",
         "format": "name"
     }, {
         "id": "mobile",
         "title": "手机",
         "type": "shorttext",
+        "required": "Y",
         "format": "mobile"
     }],
     "entryRule": {

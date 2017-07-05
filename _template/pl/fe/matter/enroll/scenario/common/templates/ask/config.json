@@ -9,12 +9,12 @@
                 "id": "c1",
                 "title": "请填写您的问题",
                 "type": "longtext",
+                "required": "Y",
                 "remarkable": "Y",
                 "shareable": "Y",
                 "unique": "Y"
             },
             "config": {
-                "required": "Y",
                 "showname": "placeholder"
             }
         }],
@@ -34,6 +34,7 @@
         "id": "c1",
         "title": "请填写您的问题",
         "type": "longtext",
+        "required": "Y",
         "remarkable": "Y",
         "shareable": "Y",
         "unique": "Y"

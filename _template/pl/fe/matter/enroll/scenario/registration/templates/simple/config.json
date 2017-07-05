@@ -9,10 +9,10 @@
                 "id": "name",
                 "title": "姓名",
                 "type": "shorttext",
+                "required": "Y",
                 "format": "name"
             },
             "config": {
-                "required": "Y",
                 "showname": "placeholder"
             }
         }, {
@@ -20,10 +20,10 @@
                 "id": "mobile",
                 "title": "手机",
                 "type": "shorttext",
+                "required": "Y",
                 "format": "mobile"
             },
             "config": {
-                "required": "Y",
                 "showname": "placeholder"
             }
         }, {
@@ -31,10 +31,10 @@
                 "id": "email",
                 "title": "邮箱",
                 "type": "shorttext",
+                "required": "Y",
                 "format": "email"
             },
             "config": {
-                "required": "Y",
                 "showname": "placeholder"
             }
         }, {
@@ -42,20 +42,20 @@
                 "id": "c1",
                 "title": "登记信息1",
                 "type": "shorttext",
+                "required": "N",
                 "format": ""
             },
             "config": {
-                "required": "N",
                 "showname": "placeholder"
             }
         }, {
             "schema": {
                 "id": "c2",
                 "title": "登记信息2",
+                "required": "N",
                 "type": "longtext"
             },
             "config": {
-                "required": "N",
                 "showname": "placeholder"
             }
         }],
@@ -80,6 +80,7 @@
                 "id": "name",
                 "title": "姓名",
                 "type": "shorttext",
+                "required": "Y",
                 "format": "name"
             }
         }, {
@@ -93,6 +94,7 @@
                 "id": "mobile",
                 "title": "手机",
                 "type": "shorttext",
+                "required": "Y",
                 "format": "mobile"
             }
         }, {
@@ -106,6 +108,7 @@
                 "id": "email",
                 "title": "邮箱",
                 "type": "shorttext",
+                "required": "Y",
                 "format": "email"
             }
         }, {
@@ -119,6 +122,7 @@
                 "id": "c1",
                 "title": "登记信息1",
                 "type": "shorttext",
+                "required": "N",
                 "format": ""
             }
         }, {
@@ -131,7 +135,8 @@
             "schema": {
                 "id": "c2",
                 "title": "登记信息2",
-                "type": "longtext"
+                "type": "longtext",
+                "required": "N"
             }
         }, {
             "config": {
@@ -162,26 +167,31 @@
         "id": "name",
         "title": "姓名",
         "type": "shorttext",
+        "required": "Y",
         "format": "name"
     }, {
         "id": "mobile",
         "title": "手机",
         "type": "shorttext",
+        "required": "Y",
         "format": "mobile"
     }, {
         "id": "email",
         "title": "邮箱",
         "type": "shorttext",
+        "required": "Y",
         "format": "email"
     }, {
         "id": "c1",
         "title": "登记信息1",
         "type": "shorttext",
+        "required": "N",
         "format": ""
     }, {
         "id": "c2",
         "title": "登记信息2",
-        "type": "longtext"
+        "type": "longtext",
+        "required": "N"
     }],
     "scenarioConfig": {
         "can_rounds": "D"

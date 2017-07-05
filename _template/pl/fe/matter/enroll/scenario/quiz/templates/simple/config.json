@@ -10,12 +10,12 @@
                 "title": "题目1",
                 "type": "shorttext",
                 "format": "",
+                "required": "Y",
                 "requireScore": "Y",
                 "answer": "参考答案1",
                 "score": 10
             },
             "config": {
-                "required": "N",
                 "showname": "placeholder"
             }
         }, {
@@ -23,6 +23,7 @@
                 "id": "c1002",
                 "title": "题目2",
                 "type": "single",
+                "required": "Y",
                 "requireScore": "Y",
                 "answer": "v3",
                 "score": 10,
@@ -41,7 +42,6 @@
                 }]
             },
             "config": {
-                "required": "N",
                 "showname": "label",
                 "component": "R",
                 "align": "V"
@@ -51,6 +51,7 @@
                 "id": "c1003",
                 "title": "题目3",
                 "type": "multiple",
+                "required": "Y",
                 "requireScore": "Y",
                 "answer": "v1,v2",
                 "score": 10,
@@ -70,7 +71,6 @@
                 }]
             },
             "config": {
-                "required": "N",
                 "showname": "label",
                 "component": "R",
                 "align": "V"
@@ -80,12 +80,12 @@
                 "id": "c1004",
                 "title": "题目4",
                 "type": "longtext",
+                "required": "Y",
                 "requireScore": "Y",
                 "answer": "参考答案4",
                 "score": 20
             },
             "config": {
-                "required": "N",
                 "showname": "placeholder"
             }
         }],
@@ -111,6 +111,7 @@
                 "title": "题目1",
                 "type": "shorttext",
                 "format": "",
+                "required": "Y",
                 "requireScore": "Y",
                 "answer": "参考答案1",
                 "score": 10
@@ -126,6 +127,7 @@
                 "id": "c1002",
                 "title": "题目2",
                 "type": "single",
+                "required": "Y",
                 "requireScore": "Y",
                 "answer": "v3",
                 "score": 10,
@@ -154,6 +156,7 @@
                 "id": "c1003",
                 "title": "题目3",
                 "type": "multiple",
+                "required": "Y",
                 "requireScore": "Y",
                 "answer": "v1,v2",
                 "score": 10,
@@ -183,6 +186,7 @@
                 "id": "c1004",
                 "title": "题目4",
                 "type": "longtext",
+                "required": "Y",
                 "requireScore": "Y",
                 "answer": "参考答案4",
                 "score": 20
@@ -198,6 +202,7 @@
         "id": "c1001",
         "title": "问题1",
         "type": "shorttext",
+        "required": "Y",
         "format": "",
         "requireScore": "Y",
         "answer": "答案1",
@@ -206,6 +211,7 @@
         "id": "c1002",
         "title": "问题2",
         "type": "single",
+        "required": "Y",
         "requireScore": "Y",
         "answer": "v3",
         "score": 10,
@@ -226,6 +232,7 @@
         "id": "c1003",
         "title": "问题3",
         "type": "multiple",
+        "required": "Y",
         "requireScore": "Y",
         "answer": "v1,v2",
         "score": 10,
@@ -247,6 +254,7 @@
         "id": "c1004",
         "title": "问题4",
         "type": "longtext",
+        "required": "Y",
         "requireScore": "Y",
         "answer": "参考答案4",
         "score": 20

@@ -319,12 +319,39 @@ class record_model extends \TMS_MODEL {
 		$wholeTags = new \stdClass;
 		/*record data*/
 		foreach ($submitTag as $schemaId => $tags) {
+			/*题目中对应的标签*/
+			$tagOlds = [];
+			$q = [
+				'tag',
+				'xxt_enroll_record_data',
+				['enroll_key' => $ek, 'schema_id' => $schemaId, 'state' => 1]
+			];
+			if ($tagOld = $this->query_obj_ss($q)) {
+				!empty($tagOld->tag) && $tagOlds = json_decode($tagOld->tag);
+			}
+
 			/* 保证以字符串的格式存储标签id，便于以后检索 */
 			$jsonTags = [];
+			$tagAdd = [];//对比上一次新增的标签
 			foreach ($tags as $oTag) {
-				$this->update("update xxt_enroll_record_tag set use_num = use_num+1 where id = $oTag->id");
+				if (($key = array_search($oTag->id, $tagOlds)) === false) {
+					$tagAdd[] = $oTag->id;
+				}else{
+					/*如果有剩余的标签说明是对比上一次本次不使用的标签，其使用数量应该减 1*/
+					unset($tagOlds[$key]);
+				}
+
 				$jsonTags[] = (string) $oTag->id;
 			}
+			if(!empty($tagAdd)){
+				$updateAddWhere = "(" . implode(',', $tagAdd) . ")";
+				$this->update("update xxt_enroll_record_tag set use_num = use_num +1 where id in $updateAddWhere");
+			}
+			if(!empty($tagOlds)){
+				$updateDelWhere = "(" . implode(',', $tagOlds) . ")";
+				$this->update("update xxt_enroll_record_tag set use_num = use_num -1 where id in $updateDelWhere");
+			}
+
 			$wholeTags->{$schemaId} = $jsonTags;
 			$jsonTags = json_encode($jsonTags);
 			$rst = $this->update(

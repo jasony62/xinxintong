@@ -206,10 +206,14 @@ define(['frame', 'schema', 'page', 'editor'], function(ngApp, schemaLib, pageLib
 
             if (/input|value/.test(wrapType)) {
                 if (schema = $scope.activeWrap.schema) {
-                    $scope.removeSchema(schema).then(function() {
-                        editorProxy.removeWrap($scope.activeWrap);
-                        $scope.setActiveWrap(null);
-                    });
+                    if ($scope.ep.type === 'L') {
+                        console.log($scope.activeWrap);
+                    } else {
+                        $scope.removeSchema(schema).then(function() {
+                            editorProxy.removeWrap($scope.activeWrap);
+                            $scope.setActiveWrap(null);
+                        });
+                    }
                 } else {
                     editorProxy.removeWrap($scope.activeWrap);
                     $scope.setActiveWrap(null);
@@ -531,13 +535,15 @@ define(['frame', 'schema', 'page', 'editor'], function(ngApp, schemaLib, pageLib
     ngApp.provider.controller('ctrlRecordListWrap', ['$scope', '$timeout', function($scope, $timeout) {
         var listSchemas = $scope.activeWrap.schemas,
             chooseState = {};
-        $scope.appSchemas = $scope.app.data_schemas;
         $scope.otherSchemas = [{
             id: 'enrollAt',
             type: '_enrollAt',
             title: '登记时间'
         }];
-        angular.forEach(listSchemas, function(schema) {
+        $scope.app.dataSchemas.forEach(function(schema) {
+            chooseState[schema.id] = false;
+        });
+        listSchemas.forEach(function(schema) {
             chooseState[schema.id] = true;
         });
         $scope.chooseState = chooseState;

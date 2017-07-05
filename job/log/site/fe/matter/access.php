@@ -66,9 +66,30 @@ class access extends \TMS_MODEL {
 				$modelCoin->award($matter, $user, 'site.matter.article.read');
 			}
 		} else if ($type === 'enroll') {
+			$matter = $this->model('matter\enroll')->byId($id);
+			$modelMat = $this->model('matter\enroll\coin');
+			$rules = $modelMat->rulesByMatter('site.matter.enroll.read', $matter);
 			$modelCoin = $this->model('site\coin\log');
-			if ($matter = $this->model('matter\enroll')->byId($id)) {
-				$modelCoin->award($matter, $user, 'site.matter.enroll.read');
+			$modelCoin->award($matter, $user, 'site.matter.enroll.read', $rules);
+			/* 更新活动用户数据 */
+			$modelUsr = $this->model('matter\enroll\user');
+			$oEnrollUsr = $modelUsr->byId($matter, $user->uid, ['fields' => 'id,nickname,last_enroll_at,enroll_num,user_total_coin']);
+			if (false === $oEnrollUsr) {
+				$inData = ['last_enroll_at' => time(), 'enroll_num' => 1];
+				$inData['user_total_coin'] = 0;
+				foreach ($rules as $rule) {
+					$inData['user_total_coin'] = $inData['user_total_coin'] + (int) $rule->actor_delta;
+				}
+				
+				$modelUsr->add($matter, $user, $inData);
+			} else {
+				$upData = ['last_enroll_at' => time(), 'enroll_num' => (int) $oEnrollUsr->enroll_num + 1];
+				$upData['user_total_coin'] = (int) $oEnrollUsr->user_total_coin;
+				foreach ($rules as $rule) {
+					$upData['user_total_coin'] = $upData['user_total_coin'] + (int) $rule->actor_delta;
+				}
+				
+				$modelUsr->update('xxt_enroll_user', $upData, ['id' => $oEnrollUsr->id]);
 			}
 		}
 	}

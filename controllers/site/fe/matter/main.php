@@ -182,9 +182,31 @@ class main extends \site\fe\matter\base {
 			$matter = $this->model('matter\article2')->byId($id);
 			$modelCoin->award($matter, $user, 'site.matter.article.read');
 		} else if ($type === 'enroll') {
-			$modelCoin = $this->model('site\coin\log');
 			$matter = $this->model('matter\enroll')->byId($id);
-			$modelCoin->award($matter, $user, 'site.matter.enroll.read');
+			$modelMat = $this->model('matter\enroll\coin');
+			$rules = $modelMat->rulesByMatter('site.matter.enroll.read', $matter);
+			$modelCoin = $this->model('site\coin\log');
+			$modelCoin->award($matter, $user, 'site.matter.enroll.read', $rules);
+			/* 更新活动用户数据 */
+			$modelUsr = $this->model('matter\enroll\user');
+			$oEnrollUsr = $modelUsr->byId($matter, $user->uid, ['fields' => 'id,nickname,last_enroll_at,enroll_num,user_total_coin']);
+			if (false === $oEnrollUsr) {
+				$inData = ['last_enroll_at' => time(), 'enroll_num' => 1];
+				$inData['user_total_coin'] = 0;
+				foreach ($rules as $rule) {
+					$inData['user_total_coin'] = $inData['user_total_coin'] + (int) $rule->actor_delta;
+				}
+				
+				$modelUsr->add($matter, $user, $inData);
+			} else {
+				$upData = ['last_enroll_at' => time(), 'enroll_num' => (int) $oEnrollUsr->enroll_num + 1];
+				$upData['user_total_coin'] = (int) $oEnrollUsr->user_total_coin;
+				foreach ($rules as $rule) {
+					$upData['user_total_coin'] = $upData['user_total_coin'] + (int) $rule->actor_delta;
+				}
+				
+				$modelUsr->update('xxt_enroll_user', $upData, ['id' => $oEnrollUsr->id]);
+			}
 		}
 
 		return $logid;
@@ -270,9 +292,31 @@ class main extends \site\fe\matter\base {
 			$matter = $this->model('matter\article2')->byId($id);
 			$modelCoin->award($matter, $user, 'site.matter.article.share.' . ['F' => 'friend', 'T' => 'timeline'][$shareto]);
 		} else if ($type === 'enroll') {
-			$modelCoin = $this->model('site\coin\log');
 			$matter = $this->model('matter\enroll')->byId($id);
-			$modelCoin->award($matter, $user, 'site.matter.enroll.share.' . ['F' => 'friend', 'T' => 'timeline'][$shareto]);
+			$modelMat = $this->model('matter\enroll\coin');
+			$rules = $modelMat->rulesByMatter('site.matter.enroll.share.' . ['F' => 'friend', 'T' => 'timeline'][$shareto], $matter);
+			$modelCoin = $this->model('site\coin\log');
+			$modelCoin->award($matter, $user, 'site.matter.enroll.share.' . ['F' => 'friend', 'T' => 'timeline'][$shareto], $rules);
+			/* 更新活动用户数据 */
+			$modelUsr = $this->model('matter\enroll\user');
+			$oEnrollUsr = $modelUsr->byId($matter, $user->uid, ['fields' => 'id,nickname,last_enroll_at,enroll_num,user_total_coin']);
+			if (false === $oEnrollUsr) {
+				$inData = ['last_enroll_at' => time(), 'enroll_num' => 1];
+				$inData['user_total_coin'] = 0;
+				foreach ($rules as $rule) {
+					$inData['user_total_coin'] = $inData['user_total_coin'] + (int) $rule->actor_delta;
+				}
+
+				$modelUsr->add($matter, $user, $inData);
+			} else {
+				$upData = ['last_enroll_at' => time(), 'enroll_num' => (int) $oEnrollUsr->enroll_num + 1];
+				$upData['user_total_coin'] = (int) $oEnrollUsr->user_total_coin;
+				foreach ($rules as $rule) {
+					$upData['user_total_coin'] = $upData['user_total_coin'] + (int) $rule->actor_delta;
+				}
+				
+				$modelUsr->update('xxt_enroll_user', $upData, ['id' => $oEnrollUsr->id]);
+			}
 		}
 
 		return new \ResponseData('ok');

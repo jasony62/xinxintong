@@ -1,14 +1,14 @@
 <div ng-controller="ctrlRecordListWrap">
     <div class="form-group">
         <label>数据范围</label>
-        <select class='form-control' ng-model="activeWrap.config.dataScope" ng-change="updWrap('config','dataScope')">
+        <select class='form-control' ng-model="activeWrap.config.dataScope" ng-change="updWrap()">
             <option value='U'>当前用户</option>
             <option value='A'>整个活动</option>
         </select>
     </div>
     <div class="form-group">
         <label>选中后跳转到页面</label>
-        <select class='form-control' ng-model="activeWrap.config.onclick" ng-change="updWrap('config','onclick')">
+        <select class='form-control' ng-model="activeWrap.config.onclick" ng-change="updWrap()">
             <option value=''>不跳转</option>
             <option value='{{p.name}}' ng-repeat='p in app.pages'>{{p.title}}</option>
         </select>

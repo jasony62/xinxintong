@@ -378,10 +378,10 @@ define(['wrap'], function(SchemaWrap) {
     var protoListPage = {
         _arrange: function(mapOfAppSchemas) {
             if (this.data_schemas.length) {
-                angular.forEach(this.data_schemas, function(item) {
+                this.data_schemas.forEach(function(item) {
                     if (item.config && item.config.pattern === 'records') {
                         var listSchemas = [];
-                        angular.forEach(item.schemas, function(schema) {
+                        item.schemas.forEach(function(schema) {
                             listSchemas.push(mapOfAppSchemas[schema.id] ? mapOfAppSchemas[schema.id] : schema);
                         });
                         item.schemas = listSchemas;

@@ -73,6 +73,7 @@ class tag_model extends \TMS_MODEL {
 			$oNewTag->aid = $oApp->id;
 			$oNewTag->create_at = $current;
 			$oNewTag->creater = $user->uid;
+			$oNewTag->creater_src = $user->creater_src;
 			$oNewTag->label = $tagLabel;
 			$oNewTag->scope = $scope;
 			$oNewTag->seq = $seq + 1;

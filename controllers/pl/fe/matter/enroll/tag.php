@@ -16,7 +16,7 @@ class tag extends \pl\fe\matter\base {
 	/**
 	 *
 	 */
-	public function get_action($app, $page, $size) {
+	public function get_action($app, $page = '', $size = '') {
 		if (false === ($oUser = $this->accountUser())) {
 			return new \ResponseTimeout();
 		}
@@ -32,9 +32,15 @@ class tag extends \pl\fe\matter\base {
 			$options['at']['size'] = $size;
 		}
 
-		$tags = $this->model('matter\enroll\tag')->byApp($oApp, $options);
+		$modelTag = $this->model('matter\enroll\tag');
+		$tags = $modelTag->byApp($oApp, $options);
+		$options2 = ['fields' => 'count(*) as total'];
+		$total = $modelTag->byApp($oApp, $options2);
 
-		return new \ResponseData($tags);
+		$data = new \stdClass;
+		$data->data = $tags;
+		$data->total = $total[0]->total;
+		return new \ResponseData($data);
 	}
 	/**
 	 *
@@ -51,8 +57,10 @@ class tag extends \pl\fe\matter\base {
 		}
 
 		$posted = $this->getPostJson();
-
-		$newTags = $this->model('matter\enroll\tag')->add($oApp, $user, $posted, 'I');
+		$oUser = new \stdClass;
+		$oUser->uid = $user->id;
+		$oUser->creater_src = 'P';
+		$newTags = $this->model('matter\enroll\tag')->add($oApp, $oUser, $posted, 'I');
 
 		return new \ResponseData($newTags);
 	}

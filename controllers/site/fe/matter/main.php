@@ -182,9 +182,21 @@ class main extends \site\fe\matter\base {
 			$matter = $this->model('matter\article2')->byId($id);
 			$modelCoin->award($matter, $user, 'site.matter.article.read');
 		} else if ($type === 'enroll') {
-			$modelCoin = $this->model('site\coin\log');
 			$matter = $this->model('matter\enroll')->byId($id);
-			$modelCoin->award($matter, $user, 'site.matter.enroll.read');
+			$modelMat = $this->model('matter\enroll\coin');
+			$rules = $modelMat->rulesByMatter('site.matter.enroll.read', $matter);
+			$modelCoin = $this->model('site\coin\log');
+			$modelCoin->award($matter, $user, 'site.matter.enroll.read', $rules);
+			/* 更新活动用户数据 */
+			$modelUsr = $this->model('matter\enroll\user');
+			$oEnrollUsr = $modelUsr->byId($matter, $user->uid, ['fields' => 'id,user_total_coin']);
+			$upData = [];
+			$upData['user_total_coin'] = (int) $oEnrollUsr->user_total_coin;
+			foreach ($rules as $rule) {
+				$upData['user_total_coin'] = $upData['user_total_coin'] + (int) $rule->actor_delta;
+			}
+			
+			$modelUsr->update('xxt_enroll_user', $upData, ['id' => $oEnrollUsr->id]);
 		}
 
 		return $logid;

@@ -17,7 +17,7 @@ class tag_model extends \TMS_MODEL {
 			'xxt_enroll_record_tag',
 			['aid' => $oApp->id]
 		];
-		$q2['o'] = 'seq asc';
+		$q2['o'] = 'seq desc';
 		if (isset($options['at'])) {
 			$page = $options['at']['page'];
 			$size = $options['at']['size'];
@@ -92,27 +92,31 @@ class tag_model extends \TMS_MODEL {
 		$current = time();
 		$this->setOnlyWriteDbConn(true);
 
-		$newTags = new \stdClass;
-		!empty(trim($data->label)) && $newTags->label = $this->escape($data->label);
+		$newTags = [];
+		!empty($data->label) && $newTags['label'] = $this->escape(trim($data->label));
 
 		if (isset($data->seq) && $data->seq === 'U') {
 			$q = [
-				'id,min(seq) seq',
+				'id,seq',
 				'xxt_enroll_record_tag',
 				"aid = '$tag->aid' and seq > $tag->seq"
 			];
-			if ($min = $this->query_obj_ss($q)) {
+			$q2 = ['o' => 'seq asc'];
+			if ($mins = $this->query_objs_ss($q,$q2)) {
+				$min = $mins[0];
 				$this->update('xxt_enroll_record_tag', ['seq' => $min->seq], ['id' => $tag->id]);
 				$this->update('xxt_enroll_record_tag', ['seq' => $tag->seq], ['id' => $min->id]);
 			}
 		}
 		if (isset($data->seq) && $data->seq === 'D') {
 			$q = [
-				'id,max(seq) seq',
+				'id,seq',
 				'xxt_enroll_record_tag',
 				"aid = '$tag->aid' and seq < $tag->seq"
 			];
-			if ($max = $this->query_obj_ss($q)) {
+			$q2 = ['o' => 'seq desc'];
+			if ($maxs = $this->query_objs_ss($q,$q2)) {
+				$max = $maxs[0];
 				$this->update('xxt_enroll_record_tag', ['seq' => $max->seq], ['id' => $tag->id]);
 				$this->update('xxt_enroll_record_tag', ['seq' => $tag->seq], ['id' => $max->id]);
 			}

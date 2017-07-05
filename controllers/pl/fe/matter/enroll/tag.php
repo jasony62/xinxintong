@@ -38,7 +38,7 @@ class tag extends \pl\fe\matter\base {
 		$total = $modelTag->byApp($oApp, $options2);
 
 		$data = new \stdClass;
-		$data->data = $tags;
+		$data->tags = (object)$tags;
 		$data->total = $total[0]->total;
 		return new \ResponseData($data);
 	}

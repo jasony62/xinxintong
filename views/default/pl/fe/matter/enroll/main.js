@@ -41,6 +41,9 @@ define(['frame'], function(ngApp) {
         $scope.$watch('app.dataSchemas', function(dataSchemas) {
             if (!dataSchemas) return;
             dataSchemas.forEach(function(oSchema) {
+                if (oSchema.required === 'Y') {
+                    status.schema.required++;
+                }
                 if (oSchema.shareable === 'Y') {
                     status.schema.shareable++;
                 }
@@ -52,7 +55,7 @@ define(['frame'], function(ngApp) {
         $scope.$watch('app.pages', function(pages) {
             if (!pages) return;
             var pagesByName = {};
-            pages.forEach(function(oPage) {
+            srvEnrollApp.jumpPages().all.forEach(function(oPage) {
                 pagesByName[oPage.name] = oPage;
             });
             status.page.whenEnrolled = pagesByName[$scope.app.enrolled_entry_page];

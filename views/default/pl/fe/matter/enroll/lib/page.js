@@ -95,7 +95,7 @@ define(['wrap'], function(SchemaWrap) {
          * 添加题目的html
          */
         _appendWrap: function(tag, attrs, html, afterWrap) {
-            var newDomWrap, $html, $lastInputWrap;
+            var newDomWrap, $html, $lastInputWrap, $btnWrap;
 
             $html = $('<div>' + this.html + '</div>');
             newDomWrap = $(document.createElement(tag)).attr(attrs).html(html);
@@ -109,8 +109,14 @@ define(['wrap'], function(SchemaWrap) {
                 // 加到最后一个题目后面
                 $lastInputWrap.after(newDomWrap);
             } else {
-                // 加在文档的最后
-                $html.append(newDomWrap);
+                // 加在按钮的前面
+                $btnWrap = $html.find("[wrap='button']:first");
+                if ($btnWrap.length) {
+                    $btnWrap.before(newDomWrap);
+                } else {
+                    // 加在文档的最后
+                    $html.append(newDomWrap);
+                }
             }
 
             this.html = $html.html();
@@ -224,7 +230,7 @@ define(['wrap'], function(SchemaWrap) {
          * 添加题目的html
          */
         _appendWrap: function(tag, attrs, html, afterWrap) {
-            var $html, domNewWrap, $lastInputWrap;
+            var $html, domNewWrap, $lastInputWrap, $btnWrap;
 
             $html = $('<div>' + this.html + '</div>');
             domNewWrap = $(document.createElement(tag)).attr(attrs).html(html);
@@ -237,7 +243,14 @@ define(['wrap'], function(SchemaWrap) {
             if ($lastInputWrap.length) {
                 $lastInputWrap.after(domNewWrap);
             } else {
-                $html.append(domNewWrap);
+                // 加在按钮的前面
+                $btnWrap = $html.find("[wrap='button']:first");
+                if ($btnWrap.length) {
+                    $btnWrap.before(domNewWrap);
+                } else {
+                    // 加在文档的最后
+                    $html.append(domNewWrap);
+                }
             }
 
             this.html = $html.html();

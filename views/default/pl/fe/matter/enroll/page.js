@@ -129,11 +129,9 @@ define(['frame', 'schema', 'page', 'editor'], function(ngApp, schemaLib, pageLib
             var domWrap = editorProxy.appendButton(btn);
             $scope.setActiveWrap(domWrap);
         };
-        $scope.newList = function(pattern) {
+        $scope.newList = function() {
             var domWrap;
-            if (pattern === 'records') {
-                domWrap = $scope.ep.appendRecordList($scope.app);
-            }
+            domWrap = editorProxy.appendRecordList($scope.app);
             $scope.setActiveWrap(domWrap);
         };
         $scope.removeActiveWrap = function() {

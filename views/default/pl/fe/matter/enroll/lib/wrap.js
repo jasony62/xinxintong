@@ -881,8 +881,11 @@ define([], function() {
             wrap: 'records',
             class: 'form-group'
         };
-
-        return this.append('div', attrs, html);
+        return {
+            tag: 'div',
+            attrs: attrs,
+            html: html
+        };
     };
     RecordsWrap.prototype.modify = function(domWrap, oWrap) {
         var html, attrs = {},
@@ -979,8 +982,11 @@ define([], function() {
             } else if (['editRecord', 'removeRecord', 'remarkRecord'].indexOf(schema.name) !== -1) {
                 attrs['ng-controller'] = 'ctrlRecord';
             }
-
-            return this.append('div', attrs, tmplBtn(action, schema.label));
+            return {
+                tag: 'div',
+                attrs: attrs,
+                html: tmplBtn(action, schema.label)
+            };
         } else if (schema.name === 'sendInvite') {
             var html;
             action = "send($event,'" + schema.accept + "'";
@@ -993,7 +999,11 @@ define([], function() {
             attrs.class += "  input-group input-group-lg";
             attrs['ng-controller'] = 'ctrlInvite';
 
-            return this.append('div', attrs, html);
+            return {
+                tag: 'div',
+                attrs: attrs,
+                html: html
+            };
         }
     };
     ButtonWrap.prototype.modify = function(dowWrap, oWrap) {

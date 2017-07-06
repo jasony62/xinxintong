@@ -394,36 +394,6 @@ define(['wrap'], function(SchemaWrap) {
         appendSchema: function(schema, afterSchema) {
             return false;
         },
-        appendRecordList: function(oApp) {
-            var dataWrap = {
-                config: {
-                    id: 'L' + (new Date * 1),
-                    pattern: 'records',
-                    dataScope: 'U',
-                    onclick: '',
-                },
-                schemas: angular.copy(oApp.data_schemas)
-            };
-
-            dataWrap.schemas.push({
-                id: 'enrollAt',
-                type: '_enrollAt',
-                title: '登记时间'
-            });
-
-            if (oApp.pages && oApp.pages.length) {
-                for (var i = 0, ii = oApp.pages.length; i < ii; i++) {
-                    if (oApp.pages[i].type === 'V') {
-                        dataWrap.config.onclick = oApp.pages[i].name;
-                        break;
-                    }
-                }
-            }
-
-            this.data_schemas.push(dataWrap);
-
-            return SchemaWrap.records.embed(dataWrap);
-        },
         wrapByList: function(config) {
             for (var i = this.data_schemas.length - 1; i >= 0; i--) {
                 if (this.data_schemas[i].config.id === config.id) {

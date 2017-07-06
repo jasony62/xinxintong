@@ -184,7 +184,16 @@ define(['frame', 'schema', 'page', 'editor'], function(ngApp, schemaLib, pageLib
                     schema: schema
                 });
                 $scope.setActiveWrap(null);
-            } else if (/button|text|records/.test(wrapType)) {
+            } else if (/records/.test(wrapType)) {
+                editorProxy.removeWrap(activeWrap);
+                for (var i = $scope.ep.data_schemas.length - 1; i >= 0; i--) {
+                    if ($scope.ep.data_schemas[i].config.id === activeWrap.config.id) {
+                        $scope.ep.data_schemas.splice(i, 1);
+                        break;
+                    }
+                }
+                $scope.setActiveWrap(null);
+            } else if (/button|text/.test(wrapType)) {
                 editorProxy.removeWrap(activeWrap);
                 $scope.setActiveWrap(null);
             }

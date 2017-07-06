@@ -528,9 +528,9 @@ define(['wrap'], function(wrapLib) {
                         if ($listWrap.length && $listWrap.attr('wrap') === 'records') {
                             config.id = $listWrap.attr('id');
                         }
-                        _page.removeValue(config, oWrap.schema);
+                        _page.removeSchema(config, oWrap.schema);
                     } else {
-                        _page.removeValue(config);
+                        _page.removeSchema(config);
                     }
                 }
             } else if (/records/.test(wrapType)) {

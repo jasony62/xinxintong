@@ -318,6 +318,21 @@ define(['wrap'], function(SchemaWrap) {
 
             return false;
         },
+        removeSchema: function(schema) {
+            var found = false,
+                $html = $('<div>' + this.html + '</div>');
+
+            $html.find("[schema='" + schema.id + "']").remove();
+            this.html = $html.html();
+            for (var i = this.data_schemas.length - 1; i >= 0; i--) {
+                if (this.data_schemas[i].schema.id === schema.id) {
+                    this.data_schemas.splice(i, 1);
+                    found = true;
+                    break;
+                }
+            }
+            return found;
+        },
         /**
          * 整理题目，使得页面中的schema和应用中的schema是同一个对象
          */
@@ -355,34 +370,6 @@ define(['wrap'], function(SchemaWrap) {
             }
             return false;
         },
-        removeValue: function(config) {
-            // 从查看页中删除题目
-            for (var i = this.data_schemas.length - 1; i >= 0; i--) {
-                if (this.data_schemas[i].id === config.id) {
-                    return this.data_schemas.splice(i, 1);
-                }
-            }
-
-            return false;
-        },
-        /**
-         * 从页面中删除题目
-         */
-        removeSchema: function(schema) {
-            var found = false,
-                $html = $('<div>' + this.html + '</div>');
-
-            $html.find("[schema='" + schema.id + "']").remove();
-            this.html = $html.html();
-            for (var i = this.data_schemas.length - 1; i >= 0; i--) {
-                if (this.data_schemas[i].schema.id === schema.id) {
-                    this.data_schemas.splice(i, 1);
-                    found = true;
-                    break;
-                }
-            }
-            return found;
-        },
     };
     protoViewPage = angular.extend({}, protoPage, protoViewPage);
     /**
@@ -403,9 +390,6 @@ define(['wrap'], function(SchemaWrap) {
             } else if (angular.isObject(this.data_schemas)) {
                 this.data_schemas = [];
             }
-        },
-        appendSchema: function(schema, afterSchema) {
-            return false;
         },
         wrapByList: function(config) {
             for (var i = this.data_schemas.length - 1; i >= 0; i--) {
@@ -436,44 +420,22 @@ define(['wrap'], function(SchemaWrap) {
 
             return false;
         },
-        removeValue: function(config, schema) {
-            // 从列表中删除题目
-            var i, j, list;
-            for (i = this.data_schemas.length - 1; i >= 0; i--) {
-                list = this.data_schemas[i];
-                if (list.config.id === config.id) {
-                    for (j = list.schemas.length - 1; j >= 0; j--) {
-                        if (list.schemas[j].id === schema.id) {
-                            return list.schemas.splice(j, 1);
-                        }
-                    }
-                }
-            }
+        appendSchema: function(oSchema, oAfterSchema) {
+            var valueHtml, $pageHtml, listWrap, $listHtml, $lastValueWrap;
 
-            return false;
-        },
-        /**
-         * 从页面中删除题目
-         */
-        removeSchema: function(schema) {
-            // 清除页面内容
-            var $html = $('<div>' + this.html + '</div>'),
-                list;
+            $pageHtml = $('<div>' + this.html + '</div>');
+            valueHtml = SchemaWrap.records._htmlValue(oSchema);
 
-            $html.find("[schema='" + schema.id + "']").remove();
-            this.html = $html.html();
-            // 清除数据定义中的项
             for (var i = this.data_schemas.length - 1; i >= 0; i--) {
-                list = this.data_schemas[i];
-                if (list.schemas) {
-                    for (var j = list.schemas.length - 1; j >= 0; j--) {
-                        if (list.schemas[j].id === schema.id) {
-                            list.schemas.splice(j, 1);
-                            break;
-                        }
-                    }
+                listWrap = this.data_schemas[i];
+                $listHtml = $pageHtml.find("[id='" + listWrap.config.id + "']>ul>li[ng-repeat]");
+                if ($listHtml.length) {
+                    $listHtml.append(valueHtml);
+                    listWrap.schemas.push(oSchema);
                 }
             }
+            this.html = $pageHtml.html();
+
             return true;
         },
         updateSchema: function(oSchema, oBeforeState) {
@@ -502,6 +464,27 @@ define(['wrap'], function(SchemaWrap) {
 
             this.html = $html.html();
 
+            return true;
+        },
+        removeSchema: function(schema) {
+            // 清除页面内容
+            var $html = $('<div>' + this.html + '</div>'),
+                list;
+
+            $html.find("[schema='" + schema.id + "']").remove();
+            this.html = $html.html();
+            // 清除数据定义中的项
+            for (var i = this.data_schemas.length - 1; i >= 0; i--) {
+                list = this.data_schemas[i];
+                if (list.schemas) {
+                    for (var j = list.schemas.length - 1; j >= 0; j--) {
+                        if (list.schemas[j].id === schema.id) {
+                            list.schemas.splice(j, 1);
+                            break;
+                        }
+                    }
+                }
+            }
             return true;
         },
     };

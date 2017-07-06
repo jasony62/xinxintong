@@ -77,6 +77,7 @@ class tag_model extends \TMS_MODEL {
 			$oNewTag->label = $tagLabel;
 			$oNewTag->scope = $scope;
 			$oNewTag->seq = $seq + 1;
+			$oNewTag->use_num = 0;
 			$oNewTag->id = $this->insert('xxt_enroll_record_tag', $oNewTag, true);
 
 			$newTags[] = $oNewTag;

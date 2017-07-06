@@ -45,7 +45,7 @@ class tag extends \pl\fe\matter\base {
 	/**
 	 *
 	 */
-	public function create_action($app) {
+	public function create_action($app, $scope = 'U') {
 		if (false === ($user = $this->accountUser())) {
 			return new \ResponseTimeout();
 		}
@@ -60,7 +60,7 @@ class tag extends \pl\fe\matter\base {
 		$oUser = new \stdClass;
 		$oUser->uid = $user->id;
 		$oUser->creater_src = 'P';
-		$newTags = $this->model('matter\enroll\tag')->add($oApp, $oUser, $posted, 'I');
+		$newTags = $this->model('matter\enroll\tag')->add($oApp, $oUser, $posted, $scope);
 
 		return new \ResponseData($newTags);
 	}

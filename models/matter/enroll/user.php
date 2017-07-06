@@ -14,6 +14,9 @@ class user_model extends \TMS_MODEL {
 			'xxt_enroll_user',
 			['aid' => $oApp->id, 'userid' => $userid],
 		];
+		if(!empty($options['rid'])){
+			$q[2]['rid'] = $options['rid'];
+		}
 		$oUser = $this->query_obj_ss($q);
 
 		return $oUser;

@@ -3,9 +3,9 @@ define(['frame'], function(ngApp) {
     ngApp.provider.controller('ctrlTag',['$scope', '$http', 'srvEnrollApp', 'noticebox', function($scope, $http, srvEnrollApp, noticebox){
         var page;
         $scope.scopeNames = {
-            'U': '参与者',
-            'I': '发起人',
-            'P': '管理者'
+            'S': '参与者',
+            'P': '发起人',
+            'O': '管理者'
         };
         $scope.page = page = {
             at: 1,

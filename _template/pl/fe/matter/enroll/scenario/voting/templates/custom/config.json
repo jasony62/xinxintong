@@ -9,6 +9,7 @@
                 "id": "c1001",
                 "title": "投票项1",
                 "type": "multiple",
+                "required": "Y",
                 "ops": [{
                     "v": "v1",
                     "l": "选项1",
@@ -28,7 +29,6 @@
                 }]
             },
             "config": {
-                "required": "Y",
                 "showname": "label",
                 "component": "R",
                 "align": "V"
@@ -55,6 +55,7 @@
                 "id": "c1001",
                 "title": "投票项1",
                 "type": "multiple",
+                "required": "Y",
                 "ops": [{
                     "v": "v1",
                     "l": "非常同意",
@@ -89,6 +90,7 @@
         "id": "c1001",
         "title": "投票项1",
         "type": "multiple",
+        "required": "Y",
         "ops": [{
             "v": "v1",
             "l": "选项1",

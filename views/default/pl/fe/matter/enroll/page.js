@@ -97,36 +97,6 @@ define(['frame', 'schema', 'page', 'editor'], function(ngApp, schemaLib, pageLib
      * page editor
      */
     ngApp.provider.controller('ctrlPageEdit', ['$scope', '$q', '$timeout', 'cstApp', 'mediagallery', 'mattersgallery', function($scope, $q, $timeout, cstApp, mediagallery, mattersgallery) {
-        function addInputSchema(addedSchema) {
-            var deferred = $q.defer(),
-                domNewWrap;
-
-            // 在当前页面上添加新登记项
-            domNewWrap = editorProxy.appendSchema(addedSchema);
-
-            $scope.setActiveWrap(domNewWrap);
-            // 页面滚动到新元素
-            editorProxy.scroll(domNewWrap);
-            deferred.resolve();
-
-            return deferred.promise;
-        }
-
-        function removeSchema(removedSchema) {
-            var deferred = $q.defer();
-
-            if (editorProxy.removeSchema(removedSchema)) {
-                if ($scope.activeWrap && removedSchema.id === $scope.activeWrap.schema.id) {
-                    $scope.setActiveWrap(null);
-                }
-                deferred.resolve(removedSchema);
-            } else {
-                deferred.resolve(removedSchema);
-            }
-
-            return deferred.promise;
-        }
-
         var tinymceEditor;
         $scope.activeWrap = false;
         $scope.setActiveWrap = function(domWrap) {
@@ -141,26 +111,6 @@ define(['frame', 'schema', 'page', 'editor'], function(ngApp, schemaLib, pageLib
             }
             return url;
         };
-        // 创建了新的schema
-        $scope.$on('xxt.matter.enroll.app.data_schemas.created', function(event, newSchema) {
-            var newWrap;
-            if ($scope.ep.type === 'I') {
-                addInputSchema(newSchema).then(function() {
-                    $scope.$broadcast('xxt.matter.enroll.page.data_schemas.added', newSchema, 'app');
-                });
-            }
-            $scope.app.pages.forEach(function(page) {
-                if (page.type === 'V') {
-                    // 更新内存的数据
-                    page.appendSchema(newSchema);
-                }
-            });
-        });
-        $scope.$on('xxt.matter.enroll.page.data_schemas.requestAdd', function(event, addedSchema) {
-            addInputSchema(addedSchema).then(function() {
-                $scope.$broadcast('xxt.matter.enroll.page.data_schemas.added', addedSchema, 'page');
-            });
-        });
         $scope.refreshWrap = function(wrap) {
             if ('phase' === wrap.schema.type) {
                 // 更新项目阶段
@@ -175,20 +125,6 @@ define(['frame', 'schema', 'page', 'editor'], function(ngApp, schemaLib, pageLib
             }
             editorProxy.modifySchema(wrap);
         };
-        $scope.removeSchema = function(removedSchema) {
-            var deferred = $q.defer();
-            removeSchema(removedSchema).then(function() {
-                /* 通知应用删除登记项 */
-                $scope.$broadcast('xxt.matter.enroll.page.data_schemas.removed', removedSchema);
-                deferred.resolve();
-            });
-            return deferred.promise;
-        };
-        $scope.$on('xxt.matter.enroll.page.data_schemas.requestRemove', function(event, removedSchema) {
-            removeSchema(removedSchema).then(function() {
-                $scope.$broadcast('xxt.matter.enroll.page.data_schemas.removed', removedSchema);
-            });
-        });
         $scope.newButton = function(btn) {
             var domWrap = editorProxy.appendButton(btn);
             $scope.setActiveWrap(domWrap);
@@ -200,28 +136,26 @@ define(['frame', 'schema', 'page', 'editor'], function(ngApp, schemaLib, pageLib
             }
             $scope.setActiveWrap(domWrap);
         };
-        $scope.removeWrap = function() {
-            var wrapType = $scope.activeWrap.type,
+        $scope.removeActiveWrap = function() {
+            var activeWrap = $scope.activeWrap,
+                wrapType = activeWrap.type,
                 schema;
 
             if (/input|value/.test(wrapType)) {
-                if (schema = $scope.activeWrap.schema) {
-                    $scope.removeSchema(schema).then(function() {
-                        editorProxy.removeWrap($scope.activeWrap);
-                        $scope.setActiveWrap(null);
-                    });
-                } else {
-                    editorProxy.removeWrap($scope.activeWrap);
-                    $scope.setActiveWrap(null);
+                editorProxy.removeWrap(activeWrap);
+                if (/I|V/.test($scope.ep.type)) {
+                    schema = activeWrap.schema
+                    $scope.$broadcast('xxt.matter.enroll.page.data_schemas.removed', schema);
                 }
+                $scope.setActiveWrap(null);
             } else if (/radio|checkbox|score/.test(wrapType)) {
                 var optionSchema;
-                schema = editorProxy.optionSchemaByDom($scope.activeWrap.dom, $scope.app);
+                schema = editorProxy.optionSchemaByDom(activeWrap.dom, $scope.app);
                 optionSchema = schema[1];
                 schema = schema[0];
                 schema.ops.splice(schema.ops.indexOf(optionSchema), 1);
                 // 更新当前页面
-                editorProxy.removeWrap($scope.activeWrap);
+                editorProxy.removeWrap(activeWrap);
                 // 更新其它页面
                 $scope.$emit('xxt.matter.enroll.app.data_schemas.modified', {
                     originator: $scope.ep,
@@ -229,7 +163,7 @@ define(['frame', 'schema', 'page', 'editor'], function(ngApp, schemaLib, pageLib
                 });
                 $scope.setActiveWrap(null);
             } else if (/button|text|records/.test(wrapType)) {
-                editorProxy.removeWrap($scope.activeWrap);
+                editorProxy.removeWrap(activeWrap);
                 $scope.setActiveWrap(null);
             }
         };
@@ -387,70 +321,124 @@ define(['frame', 'schema', 'page', 'editor'], function(ngApp, schemaLib, pageLib
         });
     }]);
     /**
-     * 在当前编辑页面中选择应用的登记项
+     * input
      */
-    ngApp.provider.controller('ctrlAppSchemas4Input', ['$scope', function($scope) {
-        var pageSchemas = $scope.ep.data_schemas,
-            appSchemas = $scope.app.data_schemas,
-            chooseState = {};
+    ngApp.provider.controller('ctrlAppSchemas4IV', ['$scope', function($scope) {
+        var chooseState = {};
 
-        appSchemas.forEach(function(schema) {
+        $scope.app.data_schemas.forEach(function(schema) {
             chooseState[schema.id] = false;
         });
-        pageSchemas.forEach(function(dataWrap) {
-            if (dataWrap.schema) {
-                chooseState[dataWrap.schema.id] = true;
-            } else {
-                console.error('page[' + $scope.ep.name + '] schema not exist', dataWrap);
-            }
-        });
-        $scope.appSchemas = appSchemas;
+        if ($scope.ep.type === 'I') {
+            $scope.ep.data_schemas.forEach(function(dataWrap) {
+                if (dataWrap.schema) {
+                    chooseState[dataWrap.schema.id] = true;
+                }
+            });
+        } else if ($scope.ep.type === 'V') {
+            $scope.otherSchemas = [{
+                id: 'enrollAt',
+                type: '_enrollAt',
+                title: '填写时间'
+            }];
+            $scope.ep.data_schemas.forEach(function(config) {
+                config.schema && config.schema.id && (chooseState[config.schema.id] = true);
+            });
+            chooseState['enrollAt'] === undefined && (chooseState['enrollAt'] = false);
+        }
         $scope.chooseState = chooseState;
         $scope.choose = function(schema) {
+            $scope.ep.$$modified = true;
             if (chooseState[schema.id]) {
-                $scope.$emit('xxt.matter.enroll.page.data_schemas.requestAdd', schema);
+                var ia, sibling, domNewWrap;
+                ia = $scope.app.dataSchemas.indexOf(schema);
+                if (ia === 0) {
+                    sibling = $scope.app.dataSchemas[++ia];
+                    while (ia < $scope.app.dataSchemas.length && !chooseState[sibling.id]) {
+                        sibling = $scope.app.dataSchemas[++ia];
+                    }
+                    domNewWrap = editorProxy.appendSchema(schema, sibling, true);
+                } else {
+                    sibling = $scope.app.dataSchemas[--ia];
+                    while (ia > 0 && !chooseState[sibling.id]) {
+                        sibling = $scope.app.dataSchemas[--ia];
+                    }
+                    if (chooseState[sibling.id]) {
+                        domNewWrap = editorProxy.appendSchema(schema, sibling);
+                    } else {
+                        ia = $scope.app.dataSchemas.indexOf(schema);
+                        sibling = $scope.app.dataSchemas[++ia];
+                        while (ia < $scope.app.dataSchemas.length && !chooseState[sibling.id]) {
+                            sibling = $scope.app.dataSchemas[++ia];
+                        }
+                        domNewWrap = editorProxy.appendSchema(schema, sibling, true);
+                    }
+                }
+                $scope.setActiveWrap(domNewWrap);
+                editorProxy.scroll(domNewWrap);
             } else {
-                $scope.$emit('xxt.matter.enroll.page.data_schemas.requestRemove', schema);
+                if (editorProxy.removeSchema(schema)) {
+                    if ($scope.activeWrap && schema.id === $scope.activeWrap.schema.id) {
+                        $scope.setActiveWrap(null);
+                    }
+                }
             }
         };
         $scope.$on('xxt.matter.enroll.page.data_schemas.removed', function(event, removedSchema) {
             chooseState[removedSchema.id] = false;
-        });
-        $scope.$on('xxt.matter.enroll.page.data_schemas.added', function(event, addedSchema) {
-            chooseState[addedSchema.id] = true;
         });
     }]);
     /**
-     * view
+     * record list wrap controller
      */
-    ngApp.provider.controller('ctrlAppSchemas4View', ['$scope', function($scope) {
-        var pageSchemas = $scope.ep.data_schemas,
+    ngApp.provider.controller('ctrlRecordListWrap', ['$scope', '$timeout', function($scope, $timeout) {
+        var listSchemas = $scope.activeWrap.schemas,
             chooseState = {};
-
-        $scope.appSchemas = $scope.app.data_schemas;
-        $scope.appSchemas.forEach(function(schema) {
-            chooseState[schema.id] = false;
-        });
         $scope.otherSchemas = [{
             id: 'enrollAt',
             type: '_enrollAt',
-            title: '登记时间'
+            title: '填写时间'
         }];
-        pageSchemas.forEach(function(config) {
-            config.schema && config.schema.id && (chooseState[config.schema.id] = true);
+        $scope.app.dataSchemas.forEach(function(schema) {
+            chooseState[schema.id] = false;
         });
-        chooseState['enrollAt'] === undefined && (chooseState['enrollAt'] = false);
+        listSchemas.forEach(function(schema) {
+            chooseState[schema.id] = true;
+        });
         $scope.chooseState = chooseState;
+        /* 在处理activeSchema中提交 */
         $scope.choose = function(schema) {
+            $scope.ep.$$modified = true;
             if (chooseState[schema.id]) {
-                editorProxy.appendSchema(schema);
+                var ia, ibl, brother, domNewWrap;
+                ia = $scope.app.dataSchemas.indexOf(schema);
+                if (ia === 0) {
+                    listSchemas.splice(0, 0, schema);
+                } else {
+                    brother = $scope.app.dataSchemas[--ia];
+                    while (ia > 0 && !chooseState[brother.id]) {
+                        brother = $scope.app.dataSchemas[--ia];
+                    }
+                    for (var ibl = listSchemas.length - 1; ibl >= 0; ibl--) {
+                        if (listSchemas[ibl].id === brother.id) {
+                            break;
+                        }
+                    }
+                    listSchemas.splice(ibl + 1, 0, schema);
+                }
             } else {
-                $scope.$emit('xxt.matter.enroll.page.data_schemas.requestRemove', schema);
+                for (var i = listSchemas.length - 1; i >= 0; i--) {
+                    if (schema.id === listSchemas[i].id) {
+                        listSchemas.splice(i, 1);
+                        break;
+                    }
+                }
             }
+            $scope.updWrap();
         };
-        $scope.$on('xxt.matter.enroll.page.data_schemas.removed', function(event, removedSchema) {
-            chooseState[removedSchema.id] = false;
-        });
+        $scope.updWrap = function() {
+            editorProxy.modifySchema($scope.activeWrap);
+        };
     }]);
     /**
      * 登记项编辑
@@ -521,48 +509,6 @@ define(['frame', 'schema', 'page', 'editor'], function(ngApp, schemaLib, pageLib
      * value wrap controller
      */
     ngApp.provider.controller('ctrlValueWrap', ['$scope', function($scope) {
-        $scope.updWrap = function() {
-            editorProxy.modifySchema($scope.activeWrap);
-        };
-    }]);
-    /**
-     * record list wrap controller
-     */
-    ngApp.provider.controller('ctrlRecordListWrap', ['$scope', '$timeout', function($scope, $timeout) {
-        var listSchemas = $scope.activeWrap.schemas,
-            chooseState = {};
-        $scope.appSchemas = $scope.app.data_schemas;
-        $scope.otherSchemas = [{
-            id: 'enrollAt',
-            type: '_enrollAt',
-            title: '登记时间'
-        }];
-        angular.forEach(listSchemas, function(schema) {
-            chooseState[schema.id] = true;
-        });
-        $scope.chooseState = chooseState;
-        /* 在处理activeSchema中提交 */
-        $scope.choose = function(schema) {
-            if (chooseState[schema.id]) {
-                listSchemas.push(schema);
-            } else {
-                for (var i = listSchemas.length - 1; i >= 0; i--) {
-                    if (schema.id === listSchemas[i].id) {
-                        listSchemas.splice(i, 1);
-                        break;
-                    }
-                }
-            }
-            $scope.updWrap('config', 'schemas');
-        };
-        $scope.updWrap = function() {
-            editorProxy.modifySchema($scope.activeWrap);
-        };
-    }]);
-    /**
-     * round list wrap
-     */
-    ngApp.provider.controller('ctrlRoundListWrap', ['$scope', function($scope) {
         $scope.updWrap = function() {
             editorProxy.modifySchema($scope.activeWrap);
         };

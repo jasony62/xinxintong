@@ -68,9 +68,9 @@
     </div>
     <div class="checkbox" ng-if="'html'!==activeSchema.type">
         <label>
-            <input type='checkbox' ng-true-value="'Y'" ng-false-value="'N'" ng-model='activeConfig.required' ng-change="updConfig('required')">必填</label>
+            <input type='checkbox' ng-true-value="'Y'" ng-false-value="'N'" ng-model='activeSchema.required' ng-change="updSchema(activeSchema)">必填</label>
     </div>
-    <div class="checkbox" ng-show="['name','mobile','email','shorttext'].indexOf(activeSchema.type)!==-1">
+    <div class="checkbox" ng-show="['shorttext'].indexOf(activeSchema.type)!==-1">
         <label>
             <input type='checkbox' ng-true-value="'Y'" ng-false-value="'N'" ng-model='activeSchema.unique' ng-change="updSchema(activeSchema)">唯一</label>
     </div>

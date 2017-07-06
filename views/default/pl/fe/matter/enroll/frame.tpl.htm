@@ -59,7 +59,7 @@
                 </li>
                 <li>
                     <a href='' ng-click="opened=opened==='data'?false:'data';switchTo('record')">数据 <span class="caret"></span></a>
-                    <ul class="nav nav-tabs nav-stacked" ng-style="{'height':opened==='data'?'168px':'0'}">
+                    <ul class="nav nav-tabs nav-stacked" ng-style="{'height':opened==='data'?'210px':'0'}">
                         <li ng-class="{'active':subView==='record'}">
                             <a href='' ng-click="switchTo('record')">详细数据</a>
                         </li>
@@ -71,6 +71,9 @@
                         </li>
                         <li ng-class="{'active':subView==='enrollee'}">
                             <a href='' ng-click="switchTo('enrollee')">填写人</a>
+                        </li>
+                        <li ng-class="{'active':subView==='tag'}">
+                            <a href='' ng-click="switchTo('tag')">标签</a>
                         </li>
                     </ul>
                 </li>

@@ -60,7 +60,7 @@ define(['frame'], function(ngApp) {
         };
         $scope.update = function(tag, args) {
             $http.post('/rest/pl/fe/matter/enroll/tag/update?tag=' + tag.id, args).then(function(rsp) {
-                console.log(rsp.data);
+                noticebox.success('完成保存');
             });
         }
         srvEnrollApp.get().then(function(app) {

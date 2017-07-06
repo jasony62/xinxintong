@@ -41,7 +41,6 @@
             </table>
         </div>
         <div class='form-group form-inline'>
-            <button class="pull-left btn btn-success"  ng-click="save()">保存</button>
             <div class="pull-right">
                 <span style="margin-right:20px;line-height:2;">总数：{{page.total}}</span>
                 <ul uib-pagination style="margin:0;vertical-align:bottom;cursor:pointer;" ng-show="page.total>page.size" boundary-links="true" total-items="page.total" max-size="7" items-per-page="page.size" rotate="false" ng-model="page.at" previous-text="&lsaquo;" next-text="&rsaquo;" first-text="&laquo;" last-text="&raquo;" ng-change="doSearch()"></ul>

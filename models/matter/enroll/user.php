@@ -14,8 +14,17 @@ class user_model extends \TMS_MODEL {
 			'xxt_enroll_user',
 			['aid' => $oApp->id, 'userid' => $userid],
 		];
-		if(!empty($options['rid'])){
+		if(isset($options['rid'])){
 			$q[2]['rid'] = $options['rid'];
+		}else{
+			/* 获得所属轮次 */
+			$modelRun = $this->model('matter\enroll\round');
+			if ($activeRound = $modelRun->getActive($oApp)) {
+				$rid = $activeRound->rid;
+			}else{
+				$rid = '';
+			}
+			$q[2]['rid'] = $rid;
 		}
 		$oUser = $this->query_obj_ss($q);
 
@@ -52,6 +61,7 @@ class user_model extends \TMS_MODEL {
 		$q2 = [
 			'o' => 'last_enroll_at desc',
 			'r' => ['o' => ($page - 1) * $size, 'l' => $size],
+			'g' => 'userid'
 		];
 		$users = $this->query_objs_ss($q, $q2);
 		$result->users = $users;
@@ -110,6 +120,7 @@ class user_model extends \TMS_MODEL {
 		$q2 = [
 			'o' => 'last_remark_other_at desc',
 			'r' => ['o' => ($page - 1) * $size, 'l' => $size],
+			'g' => 'userid'
 		];
 		$users = $this->query_objs_ss($q, $q2);
 		$result->users = $users;

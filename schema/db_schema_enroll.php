@@ -267,27 +267,19 @@ $sql .= ",userid varchar(40) not null default ''";
 $sql .= ",nickname varchar(255) not null default ''";
 $sql .= ",last_enroll_at int not null default 0"; // 最后一次登记时间
 $sql .= ",enroll_num int not null default 0"; // 登记记录的条数
-$sql .= ",enroll_round_num int not null default 0"; // 每个轮次登记记录的条数
 $sql .= ",last_remark_at int not null default 0"; // 最后一次获得评价的时间
 $sql .= ",remark_num int not null default 0"; // 获得的评价条数
-$sql .= ",remark_round_num int not null default 0"; // 获得每个轮次的评价条数
 $sql .= ",last_like_at int not null default 0"; // 登记内容最后一次获得点赞的时间
 $sql .= ",like_num int not null default 0"; // 登记内容获得点赞的次数
-$sql .= ",like_round_num int not null default 0"; // 每个轮次登记内容获得点赞的次数
 $sql .= ",last_like_remark_at int not null default 0"; // 评论最后一次获得点赞的时间
 $sql .= ",like_remark_num int not null default 0"; // 评论获得点赞的次数
-$sql .= ",like_remark_round_num int not null default 0"; // 每个轮次评论获得点赞的次数
 $sql .= ",last_remark_other_at int not null default 0"; // 最后一次发表评价的时间
 $sql .= ",remark_other_num int not null default 0"; // 发表的评价条数
-$sql .= ",remark_other_round_num int not null default 0"; // 每轮次发表的评价条数
 $sql .= ",last_like_other_at int not null default 0"; // 最后一次对登记内容进行点赞的时间
 $sql .= ",like_other_num int not null default 0"; // 对登记内容进行点赞的次数
-$sql .= ",like_other_round_num int not null default 0"; // 对登记内容进行点赞的次数
 $sql .= ",last_like_other_remark_at int not null default 0"; // 最后一次对评论进行点赞的时间
 $sql .= ",like_other_remark_num int not null default 0"; // 对评论进行点赞的次数
-$sql .= ",like_other_remark_round_num int not null default 0"; // 对评论进行点赞的次数
 $sql .= ",user_total_coin int not null default 0"; // 用户在某个活动中的总分数
-$sql .= ",user_total_round_coin int not null default 0"; // 用户在某个活动中的总分数
 $sql .= ",primary key(id)) ENGINE=MyISAM DEFAULT CHARSET=utf8";
 if (!$mysqli->query($sql)) {
 	header('HTTP/1.0 500 Internal Server Error');

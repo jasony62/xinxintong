@@ -188,64 +188,30 @@ class main extends \site\fe\matter\base {
 			$modelCoin = $this->model('site\coin\log');
 			$modelCoin->award($matter, $user, 'site.matter.enroll.read', $rules);
 
-			/* 更新活动用户数据 */
-			$modelRun = $this->model('matter\enroll\round');
 			/* 获得所属轮次 */
+			$modelRun = $this->model('matter\enroll\round');
 			if ($activeRound = $modelRun->getActive($matter)) {
 				$rid = $activeRound->rid;
+			}else{
+				$rid = '';
 			}
 
+			/* 更新活动用户数据 */
 			$modelUsr = $this->model('matter\enroll\user');
-			$options =  ['fields' => 'id,nickname,last_enroll_at,enroll_num,enroll_round_num,user_total_coin,user_total_round_coin,rid'];
+			$options =  ['fields' => 'id,nickname,last_enroll_at,enroll_num,user_total_coin,rid'];
+			$options['rid'] = $rid;
 			$oEnrollUsr = $modelUsr->byId($matter, $user->uid, $options);
 			if (false === $oEnrollUsr) {
-				$inData = ['last_enroll_at' => time(), 'enroll_num' => 1];
+				$inData = ['last_enroll_at' => time()];
 				$inData['user_total_coin'] = 0;
 				foreach ($rules as $rule) {
 					$inData['user_total_coin'] = $inData['user_total_coin'] + (int) $rule->actor_delta;
 				}
-				
-				if(!empty($rid)){
-					$inData['rid'] = $rid;
-					$inData['enroll_round_num'] = 1;
-					$inData['user_total_round_coin'] = $inData['user_total_coin'];
-				}
+
+				$inData['rid'] = $rid;
 				$modelUsr->add($matter, $user, $inData);
-			} elseif($oEnrollUsr && !empty($rid)) {
-				/*如果有轮次查询对应轮次的用户行为日志*/
-				$options['rid'] = $rid;
-				$oEnrollUsrRound = $modelUsr->byId($matter, $user->uid, $options);
-				/*是否有当前轮次的行为日志*/
-				if($oEnrollUsrRound === false){
-					$inDataR = ['last_enroll_at' => time(), 'enroll_num' => (int)$oEnrollUsr->enroll_num +1];
-					$inDataR['user_total_coin'] = (int) $oEnrollUsr->user_total_coin;
-					$ruleNum = 0;
-					foreach ($rules as $rule) {
-						$ruleNum = $ruleNum + (int) $rule->actor_delta;
-					}
-
-					$inDataR['user_total_coin'] = $inDataR['user_total_coin'] + $ruleNum;
-					$inDataR['rid'] = $rid;
-					$inDataR['enroll_round_num'] = 1;
-					$inDataR['user_total_round_coin'] = $ruleNum;
-					$modelUsr->add($matter, $user, $inDataR);
-				}else{
-					$upDataR = ['last_enroll_at' => time(), 'enroll_num' => (int)$oEnrollUsr->enroll_num +1];
-					$upDataR['user_total_coin'] = (int) $oEnrollUsr->user_total_coin;
-					$ruleNum = 0;
-					foreach ($rules as $rule) {
-						$ruleNum = $ruleNum + (int) $rule->actor_delta;
-					}
-
-					$upDataR['user_total_coin'] = $upDataR['user_total_coin'] + $ruleNum;
-					$upDataR['enroll_round_num'] = (int)$oEnrollUsrRound->enroll_round_num +1;
-					$upDataR['user_total_round_coin'] = (int)$oEnrollUsrRound->user_total_round_coin + $ruleNum;
-					
-					$modelUsr->update('xxt_enroll_user', $upDataR, ['id' => $oEnrollUsrRound->id]);
-					
-				}
 			} else {
-				$upData = ['last_enroll_at' => time(), 'enroll_num' => (int) $oEnrollUsr->enroll_num + 1];
+				$upData = ['last_enroll_at' => time()];
 				$upData['user_total_coin'] = (int) $oEnrollUsr->user_total_coin;
 				foreach ($rules as $rule) {
 					$upData['user_total_coin'] = $upData['user_total_coin'] + (int) $rule->actor_delta;
@@ -343,19 +309,29 @@ class main extends \site\fe\matter\base {
 			$rules = $modelMat->rulesByMatter('site.matter.enroll.share.' . ['F' => 'friend', 'T' => 'timeline'][$shareto], $matter);
 			$modelCoin = $this->model('site\coin\log');
 			$modelCoin->award($matter, $user, 'site.matter.enroll.share.' . ['F' => 'friend', 'T' => 'timeline'][$shareto], $rules);
+			
+			/* 获得所属轮次 */
+			$modelRun = $this->model('matter\enroll\round');
+			if ($activeRound = $modelRun->getActive($matter)) {
+				$rid = $activeRound->rid;
+			}else{
+				$rid = '';
+			}
+
 			/* 更新活动用户数据 */
 			$modelUsr = $this->model('matter\enroll\user');
-			$oEnrollUsr = $modelUsr->byId($matter, $user->uid, ['fields' => 'id,nickname,last_enroll_at,enroll_num,user_total_coin']);
+			$oEnrollUsr = $modelUsr->byId($matter, $user->uid, ['fields' => 'id,nickname,last_enroll_at,enroll_num,user_total_coin', 'rid' => $rid]);
 			if (false === $oEnrollUsr) {
-				$inData = ['last_enroll_at' => time(), 'enroll_num' => 1];
+				$inData = ['last_enroll_at' => time()];
 				$inData['user_total_coin'] = 0;
 				foreach ($rules as $rule) {
 					$inData['user_total_coin'] = $inData['user_total_coin'] + (int) $rule->actor_delta;
 				}
 
+				$inData['rid'] = $rid;
 				$modelUsr->add($matter, $user, $inData);
 			} else {
-				$upData = ['last_enroll_at' => time(), 'enroll_num' => (int) $oEnrollUsr->enroll_num + 1];
+				$upData = ['last_enroll_at' => time()];
 				$upData['user_total_coin'] = (int) $oEnrollUsr->user_total_coin;
 				foreach ($rules as $rule) {
 					$upData['user_total_coin'] = $upData['user_total_coin'] + (int) $rule->actor_delta;

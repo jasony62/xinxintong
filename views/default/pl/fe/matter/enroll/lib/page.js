@@ -49,23 +49,25 @@ define(['wrap'], function(SchemaWrap) {
         /**
          * 调整题目在页面中的位置
          */
-        moveSchema: function(moved, prev) {
-            var movedWrap = this.wrapBySchema(moved),
-                prevWrap, $html, $movedHtml, $prevHtml;
+        moveSchema: function(oMovedSchema, oPrevSchema) {
+            var movedWrap, prevWrap, $html, $movedHtml, $prevHtml;
 
-            this.data_schemas.splice(this.data_schemas.indexOf(movedWrap), 1);
-            $html = $('<div>' + this.html + '</div>');
-            $movedHtml = $html.find('[schema=' + moved.id + ']');
-            if (prev) {
-                prevWrap = this.wrapBySchema(prev);
-                this.data_schemas.splice(this.data_schemas.indexOf(prevWrap), 0, movedWrap);
-                $prevHtml = $html.find("[schema='" + prev.id + "']");
-                $prevHtml.after($movedHtml);
-            } else {
-                this.data_schemas.splice(0, 0, movedWrap);
-                $($html.find('[schema]').get(0)).before($movedHtml);
+            if (/I|V/.test(this.type)) {
+                movedWrap = this.wrapBySchema(oMovedSchema);
+                this.data_schemas.splice(this.data_schemas.indexOf(movedWrap), 1);
+                $html = $('<div>' + this.html + '</div>');
+                $movedHtml = $html.find('[schema=' + oMovedSchema.id + ']');
+                if (oPrevSchema) {
+                    prevWrap = this.wrapBySchema(oPrevSchema);
+                    this.data_schemas.splice(this.data_schemas.indexOf(prevWrap), 0, movedWrap);
+                    $prevHtml = $html.find("[schema='" + oPrevSchema.id + "']");
+                    $prevHtml.after($movedHtml);
+                } else {
+                    this.data_schemas.splice(0, 0, movedWrap);
+                    $($html.find('[schema]').get(0)).before($movedHtml);
+                }
+                this.html = $html.html();
             }
-            this.html = $html.html();
         },
         /**
          * 根据按钮项获得按钮项的包裹对象
@@ -361,7 +363,6 @@ define(['wrap'], function(SchemaWrap) {
                     return this.data_schemas[i];
                 }
             }
-
             return false;
         },
         /**
@@ -466,6 +467,41 @@ define(['wrap'], function(SchemaWrap) {
             }
             return true;
         },
+        moveSchema: function(oMovedSchema, oPrevSchema) {
+            var $html, listSchemas, $moved, $list;
+            $html = $('<div>' + this.html + '</div>');
+            for (var i = this.data_schemas.length - 1; i >= 0; i--) {
+                $list = $html.find("[id=" + this.data_schemas[i].config.id + "]");
+                if ($list.length === 1) {
+                    listSchemas = this.data_schemas[i].schemas;
+                    for (var j = listSchemas.length - 1; j >= 0; j--) {
+                        if (listSchemas[j].id === oMovedSchema.id) {
+                            listSchemas.splice(j, 1);
+                            $moved = $list.find("[schema='" + oMovedSchema.id + "']");
+                            $moved.remove();
+                            break;
+                        }
+                    }
+                    if ($moved && oPrevSchema) {
+                        for (var j = listSchemas.length - 1; j >= 0; j--) {
+                            if (listSchemas[j].id === oPrevSchema.id) {
+                                listSchemas.splice(j + 1, 0, oMovedSchema);
+                                $list.find("[schema='" + oPrevSchema.id + "']").after($moved);
+                                break;
+                            }
+                        }
+                    } else {
+                        listSchemas.splice(0, 0, oMovedSchema);
+                        $list.find("[schema]:first").before($moved);
+                    }
+                }
+            }
+            if ($moved) {
+                this.html = $html.html();
+                return true;
+            }
+            return false;
+        }
     };
     protoListPage = angular.extend({}, protoPage, protoListPage);
 

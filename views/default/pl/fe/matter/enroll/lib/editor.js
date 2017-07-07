@@ -62,6 +62,9 @@ define(['wrap'], function(wrapLib) {
                         newDomWrap = dom.add(body, name, attrs, html);
                     }
                 }
+            } else if (attrs.wrap && attrs.wrap === 'button') {
+                /*加在文档的最后*/
+                newDomWrap = dom.add(body, name, attrs, html);
             } else {
                 var $btnWrap = $(body).find("[wrap='button']");
                 if ($btnWrap.length) {
@@ -467,39 +470,46 @@ define(['wrap'], function(wrapLib) {
             return [schema, schemaOption];
         },
         appendButton: function(btn) {
-            var oWrap = {
-                    id: 'act' + (new Date() * 1),
-                    name: btn.n,
-                    label: btn.l,
-                    next: ''
-                },
-                domNewWrap;
-
-            domNewWrap = wrapLib.button.embed(oWrap);
+            var oWrap, wrapParam;
+            oWrap = {
+                id: 'act' + (new Date() * 1),
+                name: btn.n,
+                label: btn.l,
+                next: ''
+            };
             _page.act_schemas.push(oWrap);
+            wrapParam = wrapLib.button.embed(oWrap);
 
-            return domNewWrap;
+            return _appendWrap(wrapParam.tag, wrapParam.attrs, wrapParam.html);
         },
-        appendRecordList: function(app) {
-            var dataWrap = {
+        appendRecordList: function(oApp) {
+            var dataWrap, wrapParam;
+            dataWrap = {
                 config: {
-                    id: 'L' + (new Date() * 1),
+                    id: 'L' + (new Date * 1),
                     pattern: 'records',
                     dataScope: 'U',
                     onclick: '',
                 },
-                schemas: angular.copy(app.data_schemas)
+                schemas: angular.copy(oApp.data_schemas)
             };
-
             dataWrap.schemas.push({
                 id: 'enrollAt',
                 type: '_enrollAt',
-                title: '登记时间'
+                title: '填写时间'
             });
-
+            if (oApp.pages && oApp.pages.length) {
+                for (var i = 0, ii = oApp.pages.length; i < ii; i++) {
+                    if (oApp.pages[i].type === 'V') {
+                        dataWrap.config.onclick = oApp.pages[i].name;
+                        break;
+                    }
+                }
+            }
             _page.data_schemas.push(dataWrap);
+            wrapParam = wrapLib.records.embed(dataWrap);
 
-            return wrapLib.records.embed(dataWrap);
+            return _appendWrap(wrapParam.tag, wrapParam.attrs, wrapParam.html);
         },
         removeWrap: function(oWrap) {
             var wrapType = oWrap.type,
@@ -518,9 +528,9 @@ define(['wrap'], function(wrapLib) {
                         if ($listWrap.length && $listWrap.attr('wrap') === 'records') {
                             config.id = $listWrap.attr('id');
                         }
-                        _page.removeValue(config, oWrap.schema);
+                        _page.removeSchema(config, oWrap.schema);
                     } else {
-                        _page.removeValue(config);
+                        _page.removeSchema(config);
                     }
                 }
             } else if (/records/.test(wrapType)) {

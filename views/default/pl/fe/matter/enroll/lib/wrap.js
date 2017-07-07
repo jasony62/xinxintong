@@ -696,12 +696,6 @@ define([], function() {
             case '_enrollAt':
                 html = "<div>{{Record.current.enroll_at*1000|date:'yy-MM-dd HH:mm'}}</div>";
                 break;
-            case '_enrollerNickname':
-                html = "<div>{{Record.current.enroller.nickname}}</div>";
-                break;
-            case '_enrollerHeadpic':
-                html = "<div><img ng-src='{{Record.current.enroller.headimgurl}}'></div>";
-                break;
         }
 
         return html;
@@ -816,8 +810,44 @@ define([], function() {
      */
     var RecordsWrap = function() {};
     RecordsWrap.prototype = Object.create(Wrap.prototype);
+    RecordsWrap.prototype._htmlValue = function(oSchema) {
+        var html;
+        html = '<div wrap="value" class="wrap-inline wrap-splitline" schema="' + oSchema.id + '" schema-type="' + oSchema.type + '"><label>' + oSchema.title + '</label>';
+        switch (oSchema.type) {
+            case 'shorttext':
+            case 'longtext':
+            case 'location':
+            case 'member':
+                html += '<div>{{r.data.' + oSchema.id + '}}</div>';
+                break;
+            case 'date':
+                html += '<div><span ng-if="r.data.' + oSchema.id + '">{{r.data.' + oSchema.id + '*1000|date:"yy-MM-dd HH:mm"}}</span></div>';
+                break;
+            case 'single':
+            case 'phase':
+            case 'multiple':
+                html += '<div ng-bind-html="' + "value2Label(r,'" + oSchema.id + "')" + '"></div>'
+                break;
+            case 'score':
+                html += '<div ng-bind-html="' + "score2Html(r,'" + oSchema.id + "')" + '"></div>';
+                break;
+            case 'image':
+                html += '<ul><li ng-repeat="img in r.data.' + oSchema.id + '.split(\',\')"><img ng-src="{{img}}"></li></ul>';
+                break;
+            case '_enrollAt':
+                html += "<div>{{r.enroll_at*1000|date:'yy-MM-dd HH:mm'}}</div>";
+                break;
+        }
+        if (oSchema.supplement && oSchema.supplement === 'Y') {
+            html += '<p class="supplement" ng-bind="r.supplement.' + oSchema.id + '"></p>';
+        }
+        html += '</div>';
+
+        return html;
+    };
     RecordsWrap.prototype._htmlRecords = function(dataWrap) {
-        var config = dataWrap.config,
+        var _this = this,
+            config = dataWrap.config,
             schemas = dataWrap.schemas,
             html, onclick;
 
@@ -825,43 +855,8 @@ define([], function() {
         onclick = config.onclick.length ? " ng-click=\"gotoPage($event,'" + config.onclick + "',r.enroll_key)\"" : '';
         html += '<li class="list-group-item text-center actions"><div class="btn-group"><button class="btn btn-default" ng-click="openFilter()">筛选</button><button class="btn btn-default" ng-click="resetFilter()"><span class="glyphicon glyphicon-remove"></span></button></div></li>';
         html += '<li class="list-group-item" ng-repeat="r in records"' + onclick + '>';
-        schemas.forEach(function(schema) {
-            html += '<div wrap="value" class="wrap-inline wrap-splitline" schema="' + schema.id + '"><label>' + schema.title + '</label>';
-            switch (schema.type) {
-                case 'shorttext':
-                case 'longtext':
-                case 'location':
-                case 'member':
-                    html += '<div>{{r.data.' + schema.id + '}}</div>';
-                    break;
-                case 'date':
-                    html += '<div><span ng-if="r.data.' + schema.id + '">{{r.data.' + schema.id + '*1000|date:"yy-MM-dd HH:mm"}}</span></div>';
-                    break;
-                case 'single':
-                case 'phase':
-                case 'multiple':
-                    html += '<div ng-bind-html="' + "value2Label(r,'" + schema.id + "')" + '"></div>'
-                    break;
-                case 'score':
-                    html += '<div ng-bind-html="' + "score2Html(r,'" + schema.id + "')" + '"></div>';
-                    break;
-                case 'image':
-                    html += '<ul><li ng-repeat="img in r.data.' + schema.id + '.split(\',\')"><img ng-src="{{img}}"></li></ul>';
-                    break;
-                case '_enrollAt':
-                    html += "<div>{{r.enroll_at*1000|date:'yy-MM-dd HH:mm'}}</div>";
-                    break;
-                case '_enrollerNickname':
-                    html += "<div>{{r.nickname}}</div>";
-                    break;
-                case '_enrollerHeadpic':
-                    html += "<div><img ng-src='{{r.headimgurl}}'></div>";
-                    break;
-            }
-            if (schema.supplement && schema.supplement === 'Y') {
-                html += '<p class="supplement" ng-bind="r.supplement.' + schema.id + '"></p>';
-            }
-            html += '</div>';
+        schemas.forEach(function(oSchema) {
+            html += _this._htmlValue(oSchema);
         });
         html += "</li>";
         html += '<li class="list-group-item text-center actions"><div class="btn-group"><button class="btn btn-default" ng-click="openFilter()">筛选</button><button class="btn btn-default" ng-click="resetFilter()"><span class="glyphicon glyphicon-remove"></span></button></div><button class="btn btn-default" ng-click="fetch()" ng-if="options.page.total>records.length">更多</button></li>';
@@ -881,8 +876,11 @@ define([], function() {
             wrap: 'records',
             class: 'form-group'
         };
-
-        return this.append('div', attrs, html);
+        return {
+            tag: 'div',
+            attrs: attrs,
+            html: html
+        };
     };
     RecordsWrap.prototype.modify = function(domWrap, oWrap) {
         var html, attrs = {},
@@ -979,8 +977,11 @@ define([], function() {
             } else if (['editRecord', 'removeRecord', 'remarkRecord'].indexOf(schema.name) !== -1) {
                 attrs['ng-controller'] = 'ctrlRecord';
             }
-
-            return this.append('div', attrs, tmplBtn(action, schema.label));
+            return {
+                tag: 'div',
+                attrs: attrs,
+                html: tmplBtn(action, schema.label)
+            };
         } else if (schema.name === 'sendInvite') {
             var html;
             action = "send($event,'" + schema.accept + "'";
@@ -993,7 +994,11 @@ define([], function() {
             attrs.class += "  input-group input-group-lg";
             attrs['ng-controller'] = 'ctrlInvite';
 
-            return this.append('div', attrs, html);
+            return {
+                tag: 'div',
+                attrs: attrs,
+                html: html
+            };
         }
     };
     ButtonWrap.prototype.modify = function(dowWrap, oWrap) {

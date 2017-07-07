@@ -95,7 +95,7 @@ define(['wrap'], function(SchemaWrap) {
          * 添加题目的html
          */
         _appendWrap: function(tag, attrs, html, afterWrap) {
-            var newDomWrap, $html, $lastInputWrap;
+            var newDomWrap, $html, $lastInputWrap, $btnWrap;
 
             $html = $('<div>' + this.html + '</div>');
             newDomWrap = $(document.createElement(tag)).attr(attrs).html(html);
@@ -109,8 +109,14 @@ define(['wrap'], function(SchemaWrap) {
                 // 加到最后一个题目后面
                 $lastInputWrap.after(newDomWrap);
             } else {
-                // 加在文档的最后
-                $html.append(newDomWrap);
+                // 加在按钮的前面
+                $btnWrap = $html.find("[wrap='button']:first");
+                if ($btnWrap.length) {
+                    $btnWrap.before(newDomWrap);
+                } else {
+                    // 加在文档的最后
+                    $html.append(newDomWrap);
+                }
             }
 
             this.html = $html.html();
@@ -224,7 +230,7 @@ define(['wrap'], function(SchemaWrap) {
          * 添加题目的html
          */
         _appendWrap: function(tag, attrs, html, afterWrap) {
-            var $html, domNewWrap, $lastInputWrap;
+            var $html, domNewWrap, $lastInputWrap, $btnWrap;
 
             $html = $('<div>' + this.html + '</div>');
             domNewWrap = $(document.createElement(tag)).attr(attrs).html(html);
@@ -237,7 +243,14 @@ define(['wrap'], function(SchemaWrap) {
             if ($lastInputWrap.length) {
                 $lastInputWrap.after(domNewWrap);
             } else {
-                $html.append(domNewWrap);
+                // 加在按钮的前面
+                $btnWrap = $html.find("[wrap='button']:first");
+                if ($btnWrap.length) {
+                    $btnWrap.before(domNewWrap);
+                } else {
+                    // 加在文档的最后
+                    $html.append(domNewWrap);
+                }
             }
 
             this.html = $html.html();
@@ -305,6 +318,21 @@ define(['wrap'], function(SchemaWrap) {
 
             return false;
         },
+        removeSchema: function(schema) {
+            var found = false,
+                $html = $('<div>' + this.html + '</div>');
+
+            $html.find("[schema='" + schema.id + "']").remove();
+            this.html = $html.html();
+            for (var i = this.data_schemas.length - 1; i >= 0; i--) {
+                if (this.data_schemas[i].schema.id === schema.id) {
+                    this.data_schemas.splice(i, 1);
+                    found = true;
+                    break;
+                }
+            }
+            return found;
+        },
         /**
          * 整理题目，使得页面中的schema和应用中的schema是同一个对象
          */
@@ -342,34 +370,6 @@ define(['wrap'], function(SchemaWrap) {
             }
             return false;
         },
-        removeValue: function(config) {
-            // 从查看页中删除题目
-            for (var i = this.data_schemas.length - 1; i >= 0; i--) {
-                if (this.data_schemas[i].id === config.id) {
-                    return this.data_schemas.splice(i, 1);
-                }
-            }
-
-            return false;
-        },
-        /**
-         * 从页面中删除题目
-         */
-        removeSchema: function(schema) {
-            var found = false,
-                $html = $('<div>' + this.html + '</div>');
-
-            $html.find("[schema='" + schema.id + "']").remove();
-            this.html = $html.html();
-            for (var i = this.data_schemas.length - 1; i >= 0; i--) {
-                if (this.data_schemas[i].schema.id === schema.id) {
-                    this.data_schemas.splice(i, 1);
-                    found = true;
-                    break;
-                }
-            }
-            return found;
-        },
     };
     protoViewPage = angular.extend({}, protoPage, protoViewPage);
     /**
@@ -390,39 +390,6 @@ define(['wrap'], function(SchemaWrap) {
             } else if (angular.isObject(this.data_schemas)) {
                 this.data_schemas = [];
             }
-        },
-        appendSchema: function(schema, afterSchema) {
-            return false;
-        },
-        appendRecordList: function(oApp) {
-            var dataWrap = {
-                config: {
-                    id: 'L' + (new Date * 1),
-                    pattern: 'records',
-                    dataScope: 'U',
-                    onclick: '',
-                },
-                schemas: angular.copy(oApp.data_schemas)
-            };
-
-            dataWrap.schemas.push({
-                id: 'enrollAt',
-                type: '_enrollAt',
-                title: '登记时间'
-            });
-
-            if (oApp.pages && oApp.pages.length) {
-                for (var i = 0, ii = oApp.pages.length; i < ii; i++) {
-                    if (oApp.pages[i].type === 'V') {
-                        dataWrap.config.onclick = oApp.pages[i].name;
-                        break;
-                    }
-                }
-            }
-
-            this.data_schemas.push(dataWrap);
-
-            return SchemaWrap.records.embed(dataWrap);
         },
         wrapByList: function(config) {
             for (var i = this.data_schemas.length - 1; i >= 0; i--) {
@@ -453,44 +420,22 @@ define(['wrap'], function(SchemaWrap) {
 
             return false;
         },
-        removeValue: function(config, schema) {
-            // 从列表中删除题目
-            var i, j, list;
-            for (i = this.data_schemas.length - 1; i >= 0; i--) {
-                list = this.data_schemas[i];
-                if (list.config.id === config.id) {
-                    for (j = list.schemas.length - 1; j >= 0; j--) {
-                        if (list.schemas[j].id === schema.id) {
-                            return list.schemas.splice(j, 1);
-                        }
-                    }
-                }
-            }
+        appendSchema: function(oSchema, oAfterSchema) {
+            var valueHtml, $pageHtml, listWrap, $listHtml, $lastValueWrap;
 
-            return false;
-        },
-        /**
-         * 从页面中删除题目
-         */
-        removeSchema: function(schema) {
-            // 清除页面内容
-            var $html = $('<div>' + this.html + '</div>'),
-                list;
+            $pageHtml = $('<div>' + this.html + '</div>');
+            valueHtml = SchemaWrap.records._htmlValue(oSchema);
 
-            $html.find("[schema='" + schema.id + "']").remove();
-            this.html = $html.html();
-            // 清除数据定义中的项
             for (var i = this.data_schemas.length - 1; i >= 0; i--) {
-                list = this.data_schemas[i];
-                if (list.schemas) {
-                    for (var j = list.schemas.length - 1; j >= 0; j--) {
-                        if (list.schemas[j].id === schema.id) {
-                            list.schemas.splice(j, 1);
-                            break;
-                        }
-                    }
+                listWrap = this.data_schemas[i];
+                $listHtml = $pageHtml.find("[id='" + listWrap.config.id + "']>ul>li[ng-repeat]");
+                if ($listHtml.length) {
+                    $listHtml.append(valueHtml);
+                    listWrap.schemas.push(oSchema);
                 }
             }
+            this.html = $pageHtml.html();
+
             return true;
         },
         updateSchema: function(oSchema, oBeforeState) {
@@ -519,6 +464,27 @@ define(['wrap'], function(SchemaWrap) {
 
             this.html = $html.html();
 
+            return true;
+        },
+        removeSchema: function(schema) {
+            // 清除页面内容
+            var $html = $('<div>' + this.html + '</div>'),
+                list;
+
+            $html.find("[schema='" + schema.id + "']").remove();
+            this.html = $html.html();
+            // 清除数据定义中的项
+            for (var i = this.data_schemas.length - 1; i >= 0; i--) {
+                list = this.data_schemas[i];
+                if (list.schemas) {
+                    for (var j = list.schemas.length - 1; j >= 0; j--) {
+                        if (list.schemas[j].id === schema.id) {
+                            list.schemas.splice(j, 1);
+                            break;
+                        }
+                    }
+                }
+            }
             return true;
         },
     };

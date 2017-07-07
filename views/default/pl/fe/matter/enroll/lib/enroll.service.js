@@ -9,7 +9,7 @@ define(['require', 'schema', 'page'], function(require, schemaLib, pageLib) {
             // schemas
             if (this._oApp._schemasById === undefined) {
                 var schemasById = {};
-                this._oApp.data_schemas.forEach(function(schema) {
+                this._oApp.dataSchemas.forEach(function(schema) {
                     schemasById[schema.id] = schema;
                 });
                 this._oApp._schemasById = schemasById;
@@ -134,7 +134,7 @@ define(['require', 'schema', 'page'], function(require, schemaLib, pageLib) {
                 }
             }
             method(data);
-            data.data_schemas.forEach(function(schema) {
+            data.dataSchemas.forEach(function(schema) {
                 schemaLib._upgrade(schema);
             });
             data.pages.forEach(function(page) {
@@ -180,7 +180,7 @@ define(['require', 'schema', 'page'], function(require, schemaLib, pageLib) {
                 groupDataSchemas = [],
                 canFilteredSchemas = [];
 
-            app.data_schemas.forEach(function(schema) {
+            app.dataSchemas.forEach(function(schema) {
                 mapOfSchemaByType[schema.type] === undefined && (mapOfSchemaByType[schema.type] = []);
                 mapOfSchemaByType[schema.type].push(schema.id);
                 mapOfSchemaById[schema.id] = schema;
@@ -264,16 +264,16 @@ define(['require', 'schema', 'page'], function(require, schemaLib, pageLib) {
 
                     angular.isString(names) && (names = [names]);
                     names.forEach(function(name) {
-                        if (name === 'tags') {
+                        if (name === 'data_schemas') {
+                            modifiedData['data_schemas'] = _oApp.dataSchemas;
+                        } else if (name === 'tags') {
                             modifiedData.tags = _oApp.tags.join(',');
                         } else {
-                            modifiedData[name] = _oApp[name]; //_oApp  登记活动包  哪里传过来的？
+                            modifiedData[name] = _oApp[name];
                         }
                     });
-
                     url = '/rest/pl/fe/matter/enroll/update?site=' + _siteId + '&app=' + _appId;
                     http2.post(url, modifiedData, function(rsp) {
-                        //noticebox.success('完成保存');
                         defer.resolve(rsp.data);
                     });
                     return defer.promise;
@@ -1327,7 +1327,7 @@ define(['require', 'schema', 'page'], function(require, schemaLib, pageLib) {
                     controller: ['$scope', '$uibModalInstance', function($scope2, $mi) {
                         var canUseSchemas = {},
                             config;
-                        _ins._oApp.data_schemas.forEach(function(schema) {
+                        _ins._oApp.dataSchemas.forEach(function(schema) {
                             if (/shorttext|longtext/.test(schema.type)) {
                                 canUseSchemas[schema.id] = schema;
                             }
@@ -1639,7 +1639,7 @@ define(['require', 'schema', 'page'], function(require, schemaLib, pageLib) {
                 groupDataSchemas = [],
                 canFilteredSchemas = [];
 
-            app.data_schemas.forEach(function(schema) {
+            app.dataSchemas.forEach(function(schema) {
                 mapOfSchemaByType[schema.type] === undefined && (mapOfSchemaByType[schema.type] = []);
                 mapOfSchemaByType[schema.type].push(schema.id);
                 mapOfSchemaById[schema.id] = schema;

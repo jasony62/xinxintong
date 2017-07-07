@@ -392,7 +392,9 @@ define(['frame', 'schema', 'page', 'editor'], function(ngApp, schemaLib, pageLib
             }
         };
         $scope.$on('xxt.matter.enroll.page.data_schemas.removed', function(event, removedSchema) {
-            chooseState[removedSchema.id] = false;
+            if (removedSchema && removedSchema.id) {
+                chooseState[removedSchema.id] = false;
+            }
         });
     }]);
     /**

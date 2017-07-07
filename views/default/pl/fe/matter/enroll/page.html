@@ -27,17 +27,16 @@
                 <!-- toggle schema in pages -->
                 <div class='list-group-item' ng-if="ep.type==='I'" ng-controller="ctrlAppSchemas4IV">
                     <div class='list-group'>
-                        <div class='list-group-item schema' ng-repeat="s in app.data_schemas">
+                        <div class='list-group-item schema' ng-repeat="s in app.dataSchemas">
                             <span ng-bind="s.title"></span>
                             <span class='schema-switch'>
                             <input type='checkbox' bs-switch switch-size="mini" data-on-text="显" data-off-text="隐" ng-model="chooseState[s.id]" ng-change="choose(s)">
                         </span>
                         </div>
                     </div>
-                    <a class='btn btn-default btn-block' href="/rest/pl/fe/matter/enroll/schema?site={{app.siteid}}&id={{app.id}}">修改登记项</a>
                 </div>
                 <div class='list-group-item' ng-if="ep.type==='V'" ng-controller="ctrlAppSchemas4IV">
-                    <div class='list-group-item' ng-repeat="s in app.data_schemas">
+                    <div class='list-group-item' ng-repeat="s in app.dataSchemas">
                         <span ng-bind-html="s.title"></span>
                         <span class='schema-switch'>
                         <input type='checkbox' bs-switch switch-size="mini" data-on-text="显" data-off-text="隐" ng-model="chooseState[s.id]" ng-change="choose(s)">

@@ -5,8 +5,9 @@ define(['frame', 'schema', 'wrap'], function(ngApp, schemaLib, wrapLib) {
      */
     ngApp.provider.controller('ctrlSchema', ['$scope', 'cstApp', 'srvEnrollPage', 'srvEnrollApp', function($scope, cstApp, srvEnrollPage, srvEnrollApp) {
         function _appendSchema(newSchema, afterSchema) {
-            var afterIndex;
-            if ($scope.app._schemasById[newSchema.id]) {
+            var oApp, afterIndex;
+            oApp = $scope.app;
+            if (oApp._schemasById[newSchema.id]) {
                 alert(cstApp.alertMsg['schema.duplicated']);
                 return;
             }
@@ -14,16 +15,16 @@ define(['frame', 'schema', 'wrap'], function(ngApp, schemaLib, wrapLib) {
                 afterSchema = $scope.activeSchema;
             }
             if (afterSchema) {
-                afterIndex = $scope.app.data_schemas.indexOf(afterSchema);
-                $scope.app.data_schemas.splice(afterIndex + 1, 0, newSchema);
+                afterIndex = oApp.dataSchemas.indexOf(afterSchema);
+                oApp.dataSchemas.splice(afterIndex + 1, 0, newSchema);
             } else {
-                $scope.app.data_schemas.push(newSchema);
+                oApp.dataSchemas.push(newSchema);
             }
-            $scope.app._schemasById[newSchema.id] = newSchema;
+            oApp._schemasById[newSchema.id] = newSchema;
             srvEnrollApp.update('data_schemas').then(function() {
-                $scope.app.pages.forEach(function(page) {
-                    if (page.appendSchema(newSchema, afterSchema)) {
-                        srvEnrollPage.update(page, ['data_schemas', 'html']);
+                oApp.pages.forEach(function(oPage) {
+                    if (oPage.appendSchema(newSchema, afterSchema)) {
+                        srvEnrollPage.update(oPage, ['data_schemas', 'html']);
                     }
                 });
             });
@@ -33,25 +34,29 @@ define(['frame', 'schema', 'wrap'], function(ngApp, schemaLib, wrapLib) {
             var pages = $scope.app.pages,
                 l = pages.length;
 
+            function _removeSchemaFromApp(oApp, removedSchema) {
+                oApp.dataSchemas.splice(oApp.dataSchemas.indexOf(removedSchema), 1);
+                delete oApp._schemasById[removedSchema.id];
+                srvEnrollApp.update('data_schemas');
+            }
+
             (function removeSchemaFromPage(index) {
-                var page = pages[index];
-                if (page.removeSchema(removedSchema)) {
-                    srvEnrollPage.update(page, ['data_schemas', 'html']).then(function() {
+                var oApp, oPage;
+                oApp = $scope.app;
+                oPage = pages[index];
+                if (oPage.removeSchema(removedSchema)) {
+                    srvEnrollPage.update(oPage, ['data_schemas', 'html']).then(function() {
                         if (++index < l) {
                             removeSchemaFromPage(index);
                         } else {
-                            $scope.app.data_schemas.splice($scope.app.data_schemas.indexOf(removedSchema), 1);
-                            delete $scope.app._schemasById[removedSchema.id];
-                            srvEnrollApp.update('data_schemas');
+                            _removeSchemaFromApp(oApp, removedSchema);
                         }
                     });
                 } else {
                     if (++index < l) {
                         removeSchemaFromPage(index);
                     } else {
-                        $scope.app.data_schemas.splice($scope.app.data_schemas.indexOf(removedSchema), 1);
-                        delete $scope.app._schemasById[removedSchema.id];
-                        srvEnrollApp.update('data_schemas');
+                        _removeSchemaFromApp(oApp, removedSchema);
                     }
                 }
             })(0);
@@ -116,7 +121,8 @@ define(['frame', 'schema', 'wrap'], function(ngApp, schemaLib, wrapLib) {
         $scope.copySchema = function(schema) {
             var newSchema = angular.copy(schema);
 
-            newSchema.id = 's' + (new Date() * 1);
+            newSchema.id = 's' + (new Date * 1);
+            newSchema.title += '-2';
             _appendSchema(newSchema, schema);
         };
         $scope.removeSchema = function(removedSchema) {
@@ -154,9 +160,9 @@ define(['frame', 'schema', 'wrap'], function(ngApp, schemaLib, wrapLib) {
             srvEnrollApp.update('data_schemas').then(function() {
                 var app = $scope.app;
                 if (app.__schemasOrderConsistent === 'Y') {
-                    var i = app.data_schemas.indexOf(moved),
+                    var i = app.dataSchemas.indexOf(moved),
                         prevSchema;
-                    if (i > 0) prevSchema = app.data_schemas[i - 1];
+                    if (i > 0) prevSchema = app.dataSchemas[i - 1];
                     app.pages.forEach(function(page) {
                         page.moveSchema(moved, prevSchema);
                         srvEnrollPage.update(page, ['data_schemas', 'html']);
@@ -179,8 +185,8 @@ define(['frame', 'schema', 'wrap'], function(ngApp, schemaLib, wrapLib) {
             angular.forEach($scope.data, function(data, key) {
                 !$scope.activeSchema.answer && ($scope.activeSchema.answer = []);
                 var i = $scope.activeSchema.answer.indexOf(key);
-                //如果key 在answer中 data为false，则去掉
-                //    如果不在answer中，data为true ，则添加
+                // 如果key 在answer中 data为false，则去掉
+                // 如果不在answer中，data为true ，则添加
                 if (i !== -1 && data === false) {
                     $scope.activeSchema.answer.splice(i, 1);
                 } else if (i === -1 && data === true) {
@@ -205,7 +211,7 @@ define(['frame', 'schema', 'wrap'], function(ngApp, schemaLib, wrapLib) {
             }
         };
         $scope.upSchema = function(schema) {
-            var schemas = $scope.app.data_schemas,
+            var schemas = $scope.app.dataSchemas,
                 index = schemas.indexOf(schema);
 
             if (index > 0) {
@@ -215,7 +221,7 @@ define(['frame', 'schema', 'wrap'], function(ngApp, schemaLib, wrapLib) {
             }
         };
         $scope.downSchema = function(schema) {
-            var schemas = $scope.app.data_schemas,
+            var schemas = $scope.app.dataSchemas,
                 index = schemas.indexOf(schema);
 
             if (index < schemas.length - 1) {

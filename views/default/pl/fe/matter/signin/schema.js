@@ -70,7 +70,8 @@ define(['frame', 'schema', 'wrap'], function(ngApp, schemaLib, wrapLib) {
             var newSchema = angular.copy(schema),
                 afterIndex;
 
-            newSchema.id = 'c' + (new Date() * 1);
+            newSchema.id = 'c' + (new Date * 1);
+            newSchema.title += '-2';
             afterIndex = $scope.app.data_schemas.indexOf(schema);
             $scope.app.data_schemas.splice(afterIndex + 1, 0, newSchema);
 

@@ -60,8 +60,9 @@ define(['require', 'schema', 'wrap'], function(require, schemaLib, wrapLib) {
      */
     ngMod.controller('ctrlSchemaList', ['$scope', '$timeout', '$sce', 'cstApp', 'srvEnrollSchema', function($scope, $timeout, $sce, cstApp, srvEnrollSchema) {
         $scope.activeSchema = null;
+        $scope.cstApp = cstApp;
         $scope.newSchema = function(type) {
-            var newSchema, mission;
+            var newSchema, mission, oProto;
 
             if (type === 'phase') {
                 mission = $scope.app.mission;
@@ -69,8 +70,9 @@ define(['require', 'schema', 'wrap'], function(require, schemaLib, wrapLib) {
                     alert(cstApp.alertMsg['require.mission.phase']);
                     return;
                 }
+                oProto = { title: cstApp.naming.mission_phase };
             }
-            newSchema = schemaLib.newSchema(type, $scope.app);
+            newSchema = schemaLib.newSchema(type, $scope.app, oProto);
             $scope._appendSchema(newSchema);
         };
         $scope.newMember = function(ms, schema) {

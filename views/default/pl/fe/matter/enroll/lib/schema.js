@@ -29,15 +29,6 @@ define([], function() {
             _ver: 1
         },
         prefab = {
-            'name': {
-                title: '姓名'
-            },
-            'mobile': {
-                title: '手机'
-            },
-            'email': {
-                title: '邮箱'
-            },
             'phase': {
                 title: '项目阶段'
             }

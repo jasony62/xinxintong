@@ -160,18 +160,17 @@ define(['require', 'enrollService', 'enrollSchema', 'enrollPage'], function(requ
         srvSite.get().then(function(oSite) {
             $scope.site = oSite;
         });
-        srvSite.snsList().then(function(oSns) {
-            $scope.sns = oSns;
-        });
-        srvEnrollApp.get().then(function(app) {
-            var oApp = app,
-                tagById = {};
+        srvEnrollApp.get().then(function(oApp) {
+            var tagById = {};
             oApp.dataTags.forEach(function(tag) {
                 tagById[tag.id] = tag;
             });
             oApp._tagsById = tagById;
             oApp.__schemasOrderConsistent = 'Y'; //页面上登记项显示顺序与定义顺序一致
             $scope.app = oApp;
+            srvSite.snsList().then(function(oSns) {
+                $scope.sns = oSns;
+            });
             srvSite.memberSchemaList(oApp.mission).then(function(aMemberSchemas) {
                 $scope.memberSchemas = aMemberSchemas;
             });

@@ -128,13 +128,13 @@ define(['require', 'page', 'schema', 'signinService', 'enrollSchema', 'enrollPag
         srvSite.snsList().then(function(aSns) {
             $scope.sns = aSns;
         });
-        srvSite.memberSchemaList().then(function(aMemberSchemas) {
-            $scope.memberSchemas = aMemberSchemas;
-        });
         $scope.mapOfAppSchemas = {};
         srvSigninApp.get().then(function(app) {
             $scope.app = app;
             app.__schemasOrderConsistent = 'Y'; //页面上登记项显示顺序与定义顺序一致
+            srvSite.memberSchemaList(app.mission).then(function(aMemberSchemas) {
+                $scope.memberSchemas = aMemberSchemas;
+            });
         });
     }]);
     /***/

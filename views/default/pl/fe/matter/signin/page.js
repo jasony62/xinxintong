@@ -81,7 +81,7 @@ define(['frame', 'schema', 'page', 'editor'], function(ngApp, schemaLib, pageLib
                 }
                 if (i === -1) return;
             }
-            $scope.ep = page;
+            return $scope.ep = page;
         };
         $scope.cleanPage = function() {
             $scope.ep.html = '';

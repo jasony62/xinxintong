@@ -203,6 +203,7 @@ define(['require', 'schema', 'wrap', 'editor'], function(require, schemaLib, wra
         // 切换编辑的页面
         $scope.$watch('ep', function(newPage) {
             if (!newPage) return;
+            bNoticePageShifted = true;
             $scope.setActiveWrap(null);
             // page's content
             if (tinymceEditor) {
@@ -263,7 +264,6 @@ define(['require', 'schema', 'wrap', 'editor'], function(require, schemaLib, wra
         }
         $scope.chooseState = chooseState;
         $scope.choose = function(schema) {
-            $scope.ep.$$modified = true;
             if (chooseState[schema.id]) {
                 var ia, sibling, domNewWrap;
                 ia = $scope.app.dataSchemas.indexOf(schema);
@@ -398,7 +398,6 @@ define(['require', 'schema', 'wrap', 'editor'], function(require, schemaLib, wra
         $scope.chooseState = chooseState;
         /* 在处理activeSchema中提交 */
         $scope.choose = function(schema) {
-            $scope.ep.$$modified = true;
             if (chooseState[schema.id]) {
                 var ia, ibl, brother, domNewWrap;
                 ia = $scope.app.dataSchemas.indexOf(schema);

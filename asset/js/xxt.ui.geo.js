@@ -2,7 +2,7 @@
 window.xxt === undefined && (window.xxt = {});
 window.xxt.geo = {
     options: {},
-    getAddress: function($http, deferred, siteId) {
+    getAddress: function(http2, deferred, siteId) {
         var promise;
         promise = deferred.promise;
         if (window.wx) {
@@ -12,19 +12,13 @@ window.xxt.geo = {
                     url += '?site=' + siteId;
                     url += '&lat=' + res.latitude;
                     url += '&lng=' + res.longitude;
-                    $http.get(url).success(function(rsp) {
-                        if (rsp.err_code === 0) {
-                            deferred.resolve({
-                                errmsg: 'ok',
-                                lat: res.latitude,
-                                lng: res.longitude,
-                                address: rsp.data.address
-                            });
-                        } else {
-                            deferred.resolve({
-                                errmsg: rsp.err_msg
-                            });
-                        }
+                    http2.get(url).then(function(rsp) {
+                        deferred.resolve({
+                            errmsg: 'ok',
+                            lat: res.latitude,
+                            lng: res.longitude,
+                            address: rsp.data.address
+                        });
                     });
                 }
             });
@@ -39,19 +33,13 @@ window.xxt.geo = {
                             url += '?site=' + siteId;
                             url += '&lat=' + position.coords.latitude;
                             url += '&lng=' + position.coords.longitude;
-                            $http.get(url).success(function(rsp) {
-                                if (rsp.err_code === 0) {
-                                    deferred.resolve({
-                                        errmsg: 'ok',
-                                        lat: position.coords.latitude,
-                                        lng: position.coords.longitude,
-                                        address: rsp.data.address
-                                    });
-                                } else {
-                                    deferred.resolve({
-                                        errmsg: rsp.err_msg
-                                    });
-                                }
+                            http2.get(url).then(function(rsp) {
+                                deferred.resolve({
+                                    errmsg: 'ok',
+                                    lat: position.coords.latitude,
+                                    lng: position.coords.longitude,
+                                    address: rsp.data.address
+                                });
                             });
                         }, function() {
                             deferred.resolve({

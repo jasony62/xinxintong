@@ -6,8 +6,8 @@ footer{margin:0 -15px -15px -15px;}
 ul{margin:0;padding:0;list-style:none}
 li{margin:0;padding:0}
 .list-group{margin-bottom: 0px;}
-#errmsg{display:block;opacity:0;height:0;overflow:hidden;width:300px;position:fixed;top:0;left:50%;margin:0 0 0 -150px;text-align:center;transition:opacity 1s;z-index:-1;word-break:break-all}
-#errmsg.active{opacity:1;height:auto;z-index:999}
+#notice{display:block;opacity:0;height:0;overflow:hidden;width:300px;position:fixed;top:0;left:50%;margin:0 0 0 -150px;text-align:center;transition:opacity 1s;z-index:-1;word-break:break-all}
+#notice.active{opacity:1;height:auto;z-index:999}
 
 /* score schema */
 li[wrap=score]{padding:4px 4px 4px 0;}

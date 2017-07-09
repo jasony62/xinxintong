@@ -20,9 +20,9 @@ utilSubmit.state = {
             }
         }
         this.state = 'running';
-        this._cacheKey = cacheKey ? cacheKey : (new Date() * 1);
+        this._cacheKey = cacheKey ? cacheKey : (new Date * 1);
     },
-    finish: function() {
+    finish: function(keep) {
         this.state = 'waiting';
         this.modified = false;
         if (this.button) {
@@ -33,19 +33,19 @@ utilSubmit.state = {
             this.button.classList.remove('submit-running');
             this.button = null;
         }
-        if (window.localStorage) {
+        if (window.localStorage && !keep) {
             window.localStorage.removeItem(this._cacheKey);
         }
     },
     isRunning: function() {
         return this.state === 'running';
     },
-    cache: function() {
+    cache: function(cachedData) {
         if (window.localStorage) {
             var key, val;
             key = this._cacheKey;
-            val = angular.copy($scope.data);
-            val._cacheAt = (new Date() * 1);
+            val = angular.copy(cachedData);
+            val._cacheAt = (new Date * 1);
             val = JSON.stringify(val);
             window.localStorage.setItem(key, val);
         }
@@ -58,7 +58,7 @@ utilSubmit.state = {
             if (!keep) window.localStorage.removeItem(key);
             if (val) {
                 val = JSON.parse(val);
-                if (val._cacheAt && (val._cacheAt + 1800000) < (new Date() * 1)) {
+                if (val._cacheAt && (val._cacheAt + 1800000) < (new Date * 1)) {
                     val = false;
                 }
                 delete val._cacheAt;

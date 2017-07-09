@@ -122,18 +122,18 @@ define(['require', 'page', 'schema', 'signinService', 'enrollSchema', 'enrollPag
         $scope.update = function(props) {
             srvSigninApp.update(props);
         };
+        $scope.mapOfAppSchemas = {};
         srvSite.get().then(function(oSite) {
             $scope.site = oSite;
         });
-        srvSite.snsList().then(function(aSns) {
-            $scope.sns = aSns;
-        });
-        $scope.mapOfAppSchemas = {};
-        srvSigninApp.get().then(function(app) {
-            $scope.app = app;
-            app.__schemasOrderConsistent = 'Y'; //页面上登记项显示顺序与定义顺序一致
-            srvSite.memberSchemaList(app.mission).then(function(aMemberSchemas) {
-                $scope.memberSchemas = aMemberSchemas;
+        srvSite.snsList().then(function(oSns) {
+            $scope.sns = oSns;
+            srvSigninApp.get().then(function(app) {
+                $scope.app = app;
+                app.__schemasOrderConsistent = 'Y'; //页面上登记项显示顺序与定义顺序一致
+                srvSite.memberSchemaList(app.mission).then(function(aMemberSchemas) {
+                    $scope.memberSchemas = aMemberSchemas;
+                });
             });
         });
     }]);

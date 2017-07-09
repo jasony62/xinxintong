@@ -403,16 +403,16 @@ define([], function() {
             html: html
         };
     };
-    //老元素 ，新配置，老schema
-    InputWrap.prototype.modify = function(domWrap, dataWrap, beforeSchema) {
+    InputWrap.prototype.modify = function(domWrap, dataWrap, oBeforeSchema) {
         var $dom, $label, $input, config = dataWrap.config,
             oSchema = dataWrap.schema;
 
         $dom = $(domWrap);
         if (dataWrap.type === 'input') {
-            if (beforeSchema && (oSchema.type !== beforeSchema.type || (oSchema.type === 'shorttext' && oSchema.history === 'Y'))) {
-                //从新生成容器内的内容
-                $dom.html(this.embed(dataWrap).html);
+            if (oBeforeSchema && (oSchema.type !== oBeforeSchema.type || (oSchema.type === 'shorttext' && oSchema.history === 'Y'))) {
+                var embeded = this.embed(dataWrap);
+                $dom.attr(embeded.attrs);
+                $dom.html(embeded.html);
             } else {
                 $label = $dom.children('label');
                 $label.html(oSchema.title);
@@ -512,7 +512,7 @@ define([], function() {
                 $label.find('span').html(oSchema.ops[0].l);
             }
         } else if ('html' === dataWrap.type) {
-            if (beforeSchema && oSchema.type !== beforeSchema.type) {
+            if (oBeforeSchema && oSchema.type !== oBeforeSchema.type) {
                 $dom.html(this.embed(dataWrap));
             } else {
                 $dom.html(oSchema.content);
@@ -738,14 +738,16 @@ define([], function() {
             }
         }
     };
-    ValueWrap.prototype.modify = function(domWrap, oWrap, beforeSchema) {
+    ValueWrap.prototype.modify = function(domWrap, oWrap, oBeforeSchema) {
         var config = oWrap.config,
             oSchema = oWrap.schema,
             $dom = $(domWrap),
             $tags, $supplement;
 
-        if (beforeSchema && oSchema.type !== beforeSchema.type) {
-            $dom.html(this.embed(oWrap).html);
+        if (oBeforeSchema && oSchema.type !== oBeforeSchema.type) {
+            var embeded = this.embed(oWrap);
+            $dom.attr(embeded.attrs);
+            $dom.html(embeded.html);
         } else {
             if (oSchema.type === 'html') {
                 $dom.html(oSchema.content);

@@ -21,7 +21,7 @@ define(['frame'], function(ngApp) {
             srvEnrollApp.changeUserScope($scope.rule.scope, $scope.sns, $scope.memberSchemas, $scope.jumpPages.defaultInput);
         };
         $scope.chooseMschema = function() {
-            srvSite.chooseMschema().then(function(result) {
+            srvSite.chooseMschema($scope.app.mission).then(function(result) {
                 var rule = {};
                 if (!oEntryRule.member[result.chosen.id]) {
                     if ($scope.jumpPages.defaultInput) {

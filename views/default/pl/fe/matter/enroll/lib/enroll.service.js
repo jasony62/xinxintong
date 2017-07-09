@@ -91,54 +91,38 @@ define(['require', 'schema', 'page'], function(require, schemaLib, pageLib) {
                 });
             }
         };
-        this._bGet = function(data, method) {
-            data.tags = (!data.tags || data.tags.length === 0) ? [] : data.tags.split(',');
-            data.entry_rule === null && (data.entry_rule = {});
-            data.entry_rule.scope === undefined && (data.entry_rule.scope = 'none');
-            try {
-                data.data_schemas = data.data_schemas && data.data_schemas.length ? JSON.parse(data.data_schemas) : [];
-            } catch (e) {
-                console.log('data invalid', e, data.data_schemas);
-                data.data_schemas = [];
-            }
-            if (data.enrollApp && data.enrollApp.data_schemas) {
+        this._bGet = function(oEnrollApp, method) {
+            oEnrollApp.tags = (!oEnrollApp.tags || oEnrollApp.tags.length === 0) ? [] : oEnrollApp.tags.split(',');
+            if (oEnrollApp.groupApp && oEnrollApp.groupApp.data_schemas) {
+                var groupAppDS = oEnrollApp.groupApp.data_schemas;
                 try {
-                    data.enrollApp.data_schemas = data.enrollApp.data_schemas && data.enrollApp.data_schemas.length ? JSON.parse(data.enrollApp.data_schemas) : [];
+                    oEnrollApp.groupApp.data_schemas = groupAppDS && groupAppDS.length ? JSON.parse(groupAppDS) : [];
                 } catch (e) {
-                    console.log('data invalid', e, data.enrollApp.data_schemas);
-                    data.enrollApp.data_schemas = [];
+                    oEnrollApp.groupApp.data_schemas = [];
                 }
-            }
-            if (data.groupApp && data.groupApp.data_schemas) {
-                var groupAppDS = data.groupApp.data_schemas;
-                try {
-                    data.groupApp.data_schemas = groupAppDS && groupAppDS.length ? JSON.parse(groupAppDS) : [];
-                } catch (e) {
-                    data.groupApp.data_schemas = [];
-                }
-                if (data.groupApp.rounds && data.groupApp.rounds.length) {
+                if (oEnrollApp.groupApp.rounds && oEnrollApp.groupApp.rounds.length) {
                     var roundDS = {
                             id: '_round_id',
                             type: 'single',
                             title: '分组名称',
                         },
                         ops = [];
-                    data.groupApp.rounds.forEach(function(round) {
+                    oEnrollApp.groupApp.rounds.forEach(function(round) {
                         ops.push({
                             v: round.round_id,
                             l: round.title
                         });
                     });
                     roundDS.ops = ops;
-                    data.groupApp.data_schemas.splice(0, 0, roundDS);
+                    oEnrollApp.groupApp.data_schemas.splice(0, 0, roundDS);
                 }
             }
-            method(data);
-            data.dataSchemas.forEach(function(schema) {
-                schemaLib._upgrade(schema);
+            method(oEnrollApp);
+            oEnrollApp.dataSchemas.forEach(function(oSchema) {
+                schemaLib._upgrade(oSchema, oEnrollApp);
             });
-            data.pages.forEach(function(page) {
-                pageLib.enhance(page, data._schemasById);
+            oEnrollApp.pages.forEach(function(oPage) {
+                pageLib.enhance(oPage, oEnrollApp._schemasById);
             });
         };
         this._bFilter = function(srvEnlRnd) {
@@ -190,8 +174,8 @@ define(['require', 'schema', 'page'], function(require, schemaLib, pageLib) {
                 }
             });
             // 关联的报名登记项
-            if (app.enrollApp && app.enrollApp.data_schemas) {
-                app.enrollApp.data_schemas.forEach(function(item) {
+            if (app.enrollApp && app.enrollApp.dataSchemas) {
+                app.enrollApp.dataSchemas.forEach(function(item) {
                     if (mapOfUnionSchemaById[item.id] === undefined) {
                         mapOfUnionSchemaById[item.id] = item;
                         enrollDataSchemas.push(item);
@@ -600,61 +584,6 @@ define(['require', 'schema', 'page'], function(require, schemaLib, pageLib) {
                             });
                         });
                     });
-                },
-            };
-            return _self;
-        }];
-    }).provider('srvEnrollSchema', function() {
-        var _siteId, _appId;
-
-        this.config = function(siteId, appId) {
-            _siteId = siteId;
-            _appId = appId;
-        };
-        this.$get = ['$uibModal', '$q', function($uibModal, $q) {
-            var _self = {
-                add: function(newSchema, afterIndex) {},
-                remove: function(removedSchema) {},
-                makePagelet: function(schema) {
-                    var deferred = $q.defer();
-                    $uibModal.open({
-                        templateUrl: '/views/default/pl/fe/matter/enroll/component/pagelet.html',
-                        controller: ['$scope', '$uibModalInstance', 'mediagallery', function($scope2, $mi, mediagallery) {
-                            var tinymceEditor;
-                            $scope2.reset = function() {
-                                tinymceEditor.setContent('');
-                            };
-                            $scope2.ok = function() {
-                                var html = tinymceEditor.getContent();
-                                tinymceEditor.remove();
-                                $mi.close({
-                                    html: html
-                                });
-                            };
-                            $scope2.cancel = function() {
-                                tinymceEditor.remove();
-                                $mi.dismiss();
-                            };
-                            $scope2.$on('tinymce.multipleimage.open', function(event, callback) {
-                                var options = {
-                                    callback: callback,
-                                    multiple: true,
-                                    setshowname: true
-                                };
-                                mediagallery.open($scope2.app.siteid, options);
-                            });
-                            $scope2.$on('tinymce.instance.init', function(event, editor) {
-                                var page;
-                                tinymceEditor = editor;
-                                editor.setContent(schema.content);
-                            });
-                        }],
-                        size: 'lg',
-                        backdrop: 'static'
-                    }).result.then(function(result) {
-                        deferred.resolve(result);
-                    });
-                    return deferred.promise;
                 },
             };
             return _self;
@@ -1649,8 +1578,8 @@ define(['require', 'schema', 'page'], function(require, schemaLib, pageLib) {
                 }
             });
             // 关联的报名登记项
-            if (app.enrollApp && app.enrollApp.data_schemas) {
-                app.enrollApp.data_schemas.forEach(function(item) {
+            if (app.enrollApp && app.enrollApp.dataSchemas) {
+                app.enrollApp.dataSchemas.forEach(function(item) {
                     if (mapOfUnionSchemaById[item.id] === undefined) {
                         mapOfUnionSchemaById[item.id] = item;
                         enrollDataSchemas.push(item);

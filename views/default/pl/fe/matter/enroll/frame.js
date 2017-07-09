@@ -1,6 +1,6 @@
-define(['require', 'enrollService'], function(require) {
+define(['require', 'enrollService', 'enrollSchema', 'enrollPage'], function(require) {
     'use strict';
-    var ngApp = angular.module('app', ['ngRoute', 'frapontillo.bootstrap-switch', 'ui.tms', 'tmplshop.ui.xxt', 'service.matter', 'service.enroll', 'tinymce.enroll', 'ui.xxt']);
+    var ngApp = angular.module('app', ['ngRoute', 'frapontillo.bootstrap-switch', 'ui.tms', 'tmplshop.ui.xxt', 'service.matter', 'service.enroll', 'schema.enroll', 'page.enroll', 'tinymce.enroll', 'ui.xxt']);
     ngApp.constant('cstApp', {
         notifyMatter: [{
             value: 'tmplmsg',
@@ -160,26 +160,21 @@ define(['require', 'enrollService'], function(require) {
         srvSite.get().then(function(oSite) {
             $scope.site = oSite;
         });
-        srvSite.snsList().then(function(aSns) {
-            $scope.sns = aSns;
-        });
-        srvSite.memberSchemaList().then(function(aMemberSchemas) {
-            $scope.memberSchemas = aMemberSchemas;
+        srvSite.snsList().then(function(oSns) {
+            $scope.sns = oSns;
         });
         srvEnrollApp.get().then(function(app) {
             var oApp = app,
-                schemaById = {},
                 tagById = {};
-            oApp.dataSchemas.forEach(function(schema) {
-                schemaById[schema.id] = schema;
-            });
-            oApp._schemasById = schemaById;
             oApp.dataTags.forEach(function(tag) {
                 tagById[tag.id] = tag;
             });
             oApp._tagsById = tagById;
+            oApp.__schemasOrderConsistent = 'Y'; //页面上登记项显示顺序与定义顺序一致
             $scope.app = oApp;
-            app.__schemasOrderConsistent = 'Y'; //页面上登记项显示顺序与定义顺序一致
+            srvSite.memberSchemaList(oApp.mission).then(function(aMemberSchemas) {
+                $scope.memberSchemas = aMemberSchemas;
+            });
         });
     }]);
     /***/

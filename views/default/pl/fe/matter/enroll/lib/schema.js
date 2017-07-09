@@ -91,7 +91,7 @@ define([], function() {
             schema.type = type;
             if (prefab[type]) {
                 var countOfType = 0;
-                app.data_schemas.forEach(function(schema) {
+                app.dataSchemas.forEach(function(schema) {
                     if (schema.type === type) {
                         countOfType++;
                     }
@@ -109,7 +109,7 @@ define([], function() {
                     }
                 }
             } else {
-                schema.title = (proto && proto.title) ? proto.title : ('登记项' + (app.data_schemas.length + 1));
+                schema.title = (proto && proto.title) ? proto.title : ('登记项' + (app.dataSchemas.length + 1));
                 if (type === 'single' || type === 'multiple') {
                     schema.ops = protoOps(type);
                 } else if (type === 'image' || type === 'file') {
@@ -188,10 +188,13 @@ define([], function() {
 
             return newOp;
         },
-        _upgrade: function(schema) {
-            if (schema._ver === undefined) {
-                schema.unique = 'N';
-                schema._ver = 1;
+        _upgrade: function(oSchema, oApp) {
+            if (oSchema._ver === undefined) {
+                oSchema.unique = 'N';
+                oSchema._ver = 1;
+            }
+            if (!oSchema.fromApp) {
+                delete oSchema.requireCheck;
             }
         }
     }

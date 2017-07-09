@@ -1,4 +1,4 @@
-<div id='schema-view' ng-controller="ctrlList">
+<div id='schema-view' ng-controller="ctrlSchemaList">
     <div class='schema-proto col-md-3 hidden-xs' tms-flex-height top='72' bottom='0'>
         <!--create schema-->
         <div class='form-group list-group-item'>
@@ -10,7 +10,7 @@
             <div class='flexrow'>
                 <button class='btn btn-default' ng-click="newSchema('single')">单选题</button>
                 <button class='btn btn-default' ng-click="newSchema('multiple')">多选题</button>
-                <button class='btn btn-default' ng-click="newSchema('phase')" ng-if="app.mission_id">项目阶段</button>
+                <button class='btn btn-default' ng-click="newSchema('phase')" ng-if="app.mission_id">{{cstApp.naming.mission_phase}}</button>
             </div>
             <div class='flexrow'>
                 <button class='btn btn-default' ng-click="newSchema('image')">上传图片</button>
@@ -42,7 +42,7 @@
                 </div>
             </div>
             <div class='form-group' ng-if="app.enroll_app_id">
-                <button class='btn btn-default' ng-click="newByOtherApp(s,app.enrollApp)" ng-repeat="s in app.enrollApp.data_schemas">{{s.title}}</button>
+                <button class='btn btn-default' ng-click="newByOtherApp(s,app.enrollApp)" ng-repeat="s in app.enrollApp.dataSchemas">{{s.title}}</button>
             </div>
             <div ng-if="app.enroll_app_id" class='help-block'>需要和［<span>{{app.enrollApp.title}}</span>］的登记内容匹配的题目</div>
         </div>
@@ -135,7 +135,7 @@
     <div class='flexrow'>
         <button class='btn btn-default' ng-click="newSchema('single')">单选题</button>
         <button class='btn btn-default' ng-click="newSchema('multiple')">多选题</button>
-        <button class='btn btn-default' ng-click="newSchema('phase')">项目阶段</button>
+        <button class='btn btn-default' ng-click="newSchema('phase')">{{cstApp.naming.mission_phase}}</button>
     </div>
     <div class='flexrow'>
         <button class='btn btn-default' ng-click="newSchema('image')">上传图片</button>

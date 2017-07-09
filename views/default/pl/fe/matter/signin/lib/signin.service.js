@@ -107,54 +107,32 @@ define(['require', 'schema', 'page'], function(require, schemaLib, pageLib) {
                 });
             }
         };
-        this._bGet = function(data, method) {
-            data.tags = (!data.tags || data.tags.length === 0) ? [] : data.tags.split(',');
-            data.entry_rule === null && (data.entry_rule = {});
-            data.entry_rule.scope === undefined && (data.entry_rule.scope = 'none');
-            try {
-                data.data_schemas = data.data_schemas && data.data_schemas.length ? JSON.parse(data.data_schemas) : [];
-            } catch (e) {
-                console.log('data invalid', e, data.data_schemas);
-                data.data_schemas = [];
-            }
-            if (data.enrollApp && data.enrollApp.data_schemas) {
-                try {
-                    data.enrollApp.data_schemas = data.enrollApp.data_schemas && data.enrollApp.data_schemas.length ? JSON.parse(data.enrollApp.data_schemas) : [];
-                } catch (e) {
-                    console.log('data invalid', e, data.enrollApp.data_schemas);
-                    data.enrollApp.data_schemas = [];
-                }
-            }
-            if (data.groupApp && data.groupApp.data_schemas) {
-                var groupAppDS = data.groupApp.data_schemas;
-                try {
-                    data.groupApp.data_schemas = groupAppDS && groupAppDS.length ? JSON.parse(groupAppDS) : [];
-                } catch (e) {
-                    data.groupApp.data_schemas = [];
-                }
-                if (data.groupApp.rounds && data.groupApp.rounds.length) {
+        this._bGet = function(oSigninApp, method) {
+            oSigninApp.tags = (!oSigninApp.tags || oSigninApp.tags.length === 0) ? [] : oSigninApp.tags.split(',');
+            if (oSigninApp.groupApp && oSigninApp.groupApp.dataSchemas) {
+                if (oSigninApp.groupApp.rounds && oSigninApp.groupApp.rounds.length) {
                     var roundDS = {
                             id: '_round_id',
                             type: 'single',
                             title: '分组名称',
                         },
                         ops = [];
-                    data.groupApp.rounds.forEach(function(round) {
+                    oSigninApp.groupApp.rounds.forEach(function(round) {
                         ops.push({
                             v: round.round_id,
                             l: round.title
                         });
                     });
                     roundDS.ops = ops;
-                    data.groupApp.data_schemas.splice(0, 0, roundDS);
+                    oSigninApp.groupApp.dataSchemas.splice(0, 0, roundDS);
                 }
             }
-            method(data);
-            data.data_schemas.forEach(function(schema) {
-                schemaLib._upgrade(schema);
+            method(oSigninApp);
+            oSigninApp.dataSchemas.forEach(function(oSchema) {
+                schemaLib._upgrade(oSchema, oSigninApp);
             });
-            data.pages.forEach(function(page) {
-                pageLib.enhance(page, data._schemasById);
+            oSigninApp.pages.forEach(function(page) {
+                pageLib.enhance(page, oSigninApp._schemasById);
             });
         };
         this._bFilter = function() {
@@ -213,7 +191,7 @@ define(['require', 'schema', 'page'], function(require, schemaLib, pageLib) {
                 groupDataSchemas = [],
                 canFilteredSchemas = [];
 
-            app.data_schemas.forEach(function(schema) {
+            app.dataSchemas.forEach(function(schema) {
                 mapOfSchemaByType[schema.type] === undefined && (mapOfSchemaByType[schema.type] = []);
                 mapOfSchemaByType[schema.type].push(schema.id);
                 mapOfSchemaById[schema.id] = schema;
@@ -222,8 +200,8 @@ define(['require', 'schema', 'page'], function(require, schemaLib, pageLib) {
                 }
             });
             // 关联的报名登记项
-            if (app.enrollApp && app.enrollApp.data_schemas) {
-                app.enrollApp.data_schemas.forEach(function(item) {
+            if (app.enrollApp && app.enrollApp.dataSchemas) {
+                app.enrollApp.dataSchemas.forEach(function(item) {
                     if (mapOfSchemaById[item.id] === undefined) {
                         mapOfSchemaById[item.id] = item;
                         enrollDataSchemas.push(item);
@@ -231,7 +209,7 @@ define(['require', 'schema', 'page'], function(require, schemaLib, pageLib) {
                 });
             }
             // 关联的分组登记项
-            if (app.groupApp && app.groupApp.data_schemas) {
+            if (app.groupApp && app.groupApp.dataSchemas) {
                 app.groupApp.dataSchemas.forEach(function(item) {
                     if (mapOfSchemaById[item.id] === undefined) {
                         mapOfSchemaById[item.id] = item;
@@ -239,7 +217,6 @@ define(['require', 'schema', 'page'], function(require, schemaLib, pageLib) {
                     }
                 });
             }
-
 
             app._schemasByType = mapOfSchemaByType;
             app._schemasById = mapOfSchemaById;
@@ -310,7 +287,9 @@ define(['require', 'schema', 'page'], function(require, schemaLib, pageLib) {
 
                     angular.isString(names) && (names = [names]);
                     names.forEach(function(name) {
-                        if (name === 'tags') {
+                        if (name === 'data_schemas') {
+                            modifiedData.data_schemas = app.dataSchemas;
+                        } else if (name === 'tags') {
                             modifiedData.tags = app.tags.join(',');
                         } else {
                             modifiedData[name] = app[name];
@@ -318,7 +297,6 @@ define(['require', 'schema', 'page'], function(require, schemaLib, pageLib) {
                     });
                     url = '/rest/pl/fe/matter/signin/update?site=' + siteId + '&app=' + appId;
                     http2.post(url, modifiedData, function(rsp) {
-                        //noticebox.success('完成保存');
                         defer.resolve(rsp.data);
                     });
                     return defer.promise;
@@ -509,7 +487,7 @@ define(['require', 'schema', 'page'], function(require, schemaLib, pageLib) {
                         _this.update('enroll_app_id').then(function(rsp) {
                             var url = '/rest/pl/fe/matter/enroll/get?site=' + siteId + '&id=' + app.enroll_app_id;
                             http2.get(url, function(rsp) {
-                                rsp.data.data_schemas = JSON.parse(rsp.data.data_schemas);
+                                rsp.data.data_schemas = rsp.data.dataSchemas;
                                 app.enrollApp = rsp.data;
                             });
                             for (var i = app.data_schemas.length - 1; i > 0; i--) {
@@ -572,8 +550,6 @@ define(['require', 'schema', 'page'], function(require, schemaLib, pageLib) {
                                         title: '分组名称',
                                     },
                                     ops = [];
-                                //分组活动删除导入来源，groupApp.data_schemas为空字符串 , JSON.parse(''),splice()报错
-                                groupApp.data_schemas = groupApp.data_schemas ? JSON.parse(groupApp.data_schemas) : [];
                                 groupApp.rounds.forEach(function(round) {
                                     ops.push({
                                         v: round.round_id,
@@ -581,7 +557,7 @@ define(['require', 'schema', 'page'], function(require, schemaLib, pageLib) {
                                     });
                                 });
                                 roundDS.ops = ops;
-                                groupApp.data_schemas.splice(0, 0, roundDS);
+                                groupApp.dataSchemas.splice(0, 0, roundDS);
                                 app.groupApp = groupApp;
                             });
                         });
@@ -1189,7 +1165,7 @@ define(['require', 'schema', 'page'], function(require, schemaLib, pageLib) {
     }).controller('ctrlSigninEdit', ['$scope', '$uibModalInstance', 'record', 'srvSigninApp', 'srvSigninRecord', function($scope, $mi, record, srvSigninApp, srvSigninRecord) {
         srvSigninApp.get().then(function(app) {
             if (record.data) {
-                app.data_schemas.forEach(function(col) {
+                app.dataSchemas.forEach(function(col) {
                     if (record.data[col.id]) {
                         srvSigninRecord.convertRecord4Edit(col, record.data);
                     }

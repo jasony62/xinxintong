@@ -166,7 +166,6 @@ define(['wrap'], function(SchemaWrap) {
         updateSchema: function(oSchema, oBeforeState) {
             var $html, $dom, wrap;
 
-            //this是page 对象
             $html = $('<div>' + this.html + '</div>');
             if ($dom = $html.find("[schema='" + oSchema.id + "']")) {
                 if (wrap = this.wrapBySchema(oSchema)) {

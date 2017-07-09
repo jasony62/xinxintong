@@ -454,9 +454,9 @@ define(['wrap'], function(wrapLib) {
                 schemaOptionId = domWrap.getAttribute('opvalue');
             }
 
-            for (var i = app.data_schemas.length - 1; i >= 0; i--) {
-                if (schemaId === app.data_schemas[i].id) {
-                    schema = app.data_schemas[i];
+            for (var i = app.dataSchemas.length - 1; i >= 0; i--) {
+                if (schemaId === app.dataSchemas[i].id) {
+                    schema = app.dataSchemas[i];
                     for (var j = schema.ops.length - 1; j >= 0; j--) {
                         if (schema.ops[j].v === schemaOptionId) {
                             schemaOption = schema.ops[j];

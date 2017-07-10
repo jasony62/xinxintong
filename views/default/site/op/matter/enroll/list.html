@@ -10,6 +10,7 @@
                         <th>登记时间</th>
                         <th ng-if="app.multi_rounds==='Y'">登记轮次</th>
                         <th>审核通过</th>
+                        <th>用户昵称</th>
                         <th ng-repeat="schema in recordSchemas2">{{schema.title}}</th>
                         <th ng-repeat="schema in enrollDataSchemas">{{schema.title}}</th>
                         <th ng-repeat="schema in groupDataSchemas">{{schema.title}}</th>
@@ -33,6 +34,9 @@
                         </td>
                         <td data-th='审核通过'>
                             <div ng-class="{'notice':r.verified==='N'}">{{r.verified}}</div>
+                        </td>
+                        <td data-th='用户昵称' >
+                            <div>{{r.nickname}}</div>
                         </td>
                         <td data-th='{{schema.title}}' ng-repeat="schema in recordSchemas2" ng-switch on="schema.type">
                             <div ng-switch-when="image">

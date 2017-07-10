@@ -203,7 +203,6 @@ define(['require', 'schema', 'wrap', 'editor'], function(require, schemaLib, wra
         // 切换编辑的页面
         $scope.$watch('ep', function(newPage) {
             if (!newPage) return;
-            bNoticePageShifted = true;
             $scope.setActiveWrap(null);
             // page's content
             if (tinymceEditor) {

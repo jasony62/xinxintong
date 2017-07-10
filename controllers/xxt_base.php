@@ -320,7 +320,8 @@ class xxt_base extends TMS_CONTROLLER {
 					$msg['data'][$p->pname] = array('value' => $value, 'color' => '#173177');
 				}
 			}
-			$mpproxy = $this->model('sns\\wx', $mpid);
+			$config = $this->model('sns\wx')->bySite($mpid);
+			$mpproxy = $this->model('sns\\wx\\proxy', $config);
 			$rst = $mpproxy->messageTemplateSend($msg);
 			if ($rst[0] === false) {
 				return $rst;

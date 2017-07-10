@@ -76,7 +76,7 @@ ngApp.controller('ctrlRecords', ['$scope', '$uibModal', 'Record', 'ls', '$sce', 
                 $scope.records = $scope.records.concat(records);
             }
             if ($scope.records) {
-                $scope.records.forEach(function(record){
+                $scope.records.forEach(function(record) {
                     if (record.data_tag) {
                         for (var schemaId in record.data_tag) {
                             var dataTags = record.data_tag[schemaId],
@@ -94,10 +94,8 @@ ngApp.controller('ctrlRecords', ['$scope', '$uibModal', 'Record', 'ls', '$sce', 
             }
         });
     }
-    var facRecord, options,
-        oApp = $scope.app,
-        _records = [],
-        oCurrentCriteria = {};
+    var facRecord, options, oApp, oActiveRound, oCurrentCriteria,
+        _records = [];
 
     options = {
         owner: '',
@@ -169,12 +167,22 @@ ngApp.controller('ctrlRecords', ['$scope', '$uibModal', 'Record', 'ls', '$sce', 
     };
     $scope.resetFilter = function() {
         oCurrentCriteria = {};
+        if (oActiveRound) {
+            oCurrentCriteria.record = { rid: oActiveRound.rid };
+        }
         fnFetch(1);
     };
-    $scope.$watch('options.owner', function(nv) {
-        if (nv) {
-            $scope.fetch(1);
+    $scope.$on('xxt.app.enroll.ready', function(event, params) {
+        oApp = params.app;
+        if (params.activeRound) {
+            oActiveRound = params.activeRound;
+            oCurrentCriteria = { record: { rid: oActiveRound.rid } };
         }
+        $scope.$watch('options.owner', function(nv) {
+            if (nv) {
+                $scope.fetch(1);
+            }
+        });
     });
 }]);
 ngApp.controller('ctrlList', ['$scope', function($scope) {}]);

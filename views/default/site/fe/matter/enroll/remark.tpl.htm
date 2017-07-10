@@ -15,58 +15,60 @@
 <body ng-app='app' ng-controller='ctrlMain'>
     <header ng-if="app.use_site_header==='Y'" dynamic-html="site.header_page.html"></header>
     <header ng-if="app.use_mission_header==='Y'" dynamic-html="mission.header_page.html"></header>
-    <div ng-cloak class='ng-cloak app'>
-        <div class='container' ng-controller="ctrlRemark">
-            <div class='form-group' ng-if="remarkableSchemas.length">
-                <select class='form-control' ng-options="rs.title for rs in remarkableSchemas" ng-model="filter.schema"></select>
-            </div>
-            <div id='recordData'>
-                <div class='title'>{{filter.schema.title}}</div>
-                <blockquote ng-switch on="filter.schema.type">
-                    <p ng-switch-when="single"><span>{{value2Label(filter.schema.id)}}</span></p>
-                    <p ng-switch-when="multiple"><span>{{value2Label(filter.schema.id)}}</span></p>
-                    <p ng-switch-when="image"><img ng-src="{{data.value}}"></p>
-                    <p ng-switch-default>{{data.value}}</p>
-                    <p ng-if="filter.schema.cantag==='Y'" >
-                        <span class="tag" ng-repeat="t in data.tag" ng-bind="t.label"></span>
-                    </p>
-                    <p ng-if="filter.schema.supplement==='Y'" class='supplement'>{{data.supplement}}</p>
-                    <footer>{{record.nickname||'匿名用户'}}</footer>
-                </blockquote>
-                <div class='bottom-bar'>
-                    <div class='datetime'>{{record.enroll_at*1000|date:'MM-dd HH:mm'}}</div>
-                    <button class='btn btn-default btn-sm' ng-click="likeRecordData(record)"><span class='glyphicon' ng-class="{'glyphicon-heart':data.like_log[user.uid],'glyphicon-heart-empty':!data.like_log[user.uid]}"></span>&nbsp;<span ng-bind="data.like_num"></span></button>
+    <div ng-cloak class='ng-cloak app' ng-controller="ctrlRemark">
+        <div class='container'>
+            <div class='row'>
+                <div class='form-group' ng-if="remarkableSchemas.length">
+                    <select class='form-control' ng-options="rs.title for rs in remarkableSchemas" ng-model="filter.schema"></select>
                 </div>
-            </div>
-            <div id='remarks'>
-                <div class='remarkList'>
-                    <div class='remark' ng-repeat="remark in remarks">
-                        <div>
-                            <span ng-if="remark.agreed==='Y'" class="label label-success">推荐</span>
-                            <span ng-if="remark.agreed==='N'" class="label label-danger">屏蔽</span>
-                        </div>
-                        <blockquote>
-                            <p>{{remark.content}}</p>
-                            <footer>{{remark.nickname}}
-                            </footer>
-                        </blockquote>
-                        <div class='bottom-bar'>
-                            <div class='datetime'>{{remark.create_at*1000|date:'MM-dd HH:mm'}}</div>
-                            <button class='btn btn-default btn-sm' ng-click="likeRemark(remark)"><span class='glyphicon' ng-class="{'glyphicon-heart':remark.like_log[user.uid],'glyphicon-heart-empty':!remark.like_log[user.uid]}"></span>&nbsp;<span ng-bind="remark.like_num"></span></button>
-                        </div>
+                <div id='recordData'>
+                    <div class='title'>{{filter.schema.title}}</div>
+                    <blockquote ng-switch on="filter.schema.type">
+                        <p ng-switch-when="single"><span>{{value2Label(filter.schema.id)}}</span></p>
+                        <p ng-switch-when="multiple"><span>{{value2Label(filter.schema.id)}}</span></p>
+                        <p ng-switch-when="image"><img ng-src="{{data.value}}"></p>
+                        <p ng-switch-default>{{data.value}}</p>
+                        <p ng-if="filter.schema.cantag==='Y'">
+                            <span class="tag" ng-repeat="t in data.tag" ng-bind="t.label"></span>
+                        </p>
+                        <p ng-if="filter.schema.supplement==='Y'" class='supplement'>{{data.supplement}}</p>
+                        <footer>{{record.nickname||'匿名用户'}}</footer>
+                    </blockquote>
+                    <div class='bottom-bar'>
+                        <div class='datetime'>{{record.enroll_at*1000|date:'MM-dd HH:mm'}}</div>
+                        <button class='btn btn-default btn-sm' ng-click="likeRecordData(record)"><span class='glyphicon' ng-class="{'glyphicon-heart':data.like_log[user.uid],'glyphicon-heart-empty':!data.like_log[user.uid]}"></span>&nbsp;<span ng-bind="data.like_num"></span></button>
                     </div>
                 </div>
-                <div class='input-group'>
-                    <textarea class='form-control' ng-model="newRemark.content"></textarea>
-                    <span class='input-group-btn' style='padding-left:15px'>
+                <div id='remarks'>
+                    <div class='remarkList'>
+                        <div class='remark' ng-repeat="remark in remarks">
+                            <div>
+                                <span ng-if="remark.agreed==='Y'" class="label label-success">推荐</span>
+                                <span ng-if="remark.agreed==='N'" class="label label-danger">屏蔽</span>
+                            </div>
+                            <blockquote>
+                                <p>{{remark.content}}</p>
+                                <footer>{{remark.nickname}}
+                                </footer>
+                            </blockquote>
+                            <div class='bottom-bar'>
+                                <div class='datetime'>{{remark.create_at*1000|date:'MM-dd HH:mm'}}</div>
+                                <button class='btn btn-default btn-sm' ng-click="likeRemark(remark)"><span class='glyphicon' ng-class="{'glyphicon-heart':remark.like_log[user.uid],'glyphicon-heart-empty':!remark.like_log[user.uid]}"></span>&nbsp;<span ng-bind="remark.like_num"></span></button>
+                            </div>
+                        </div>
+                    </div>
+                    <div class='input-group'>
+                        <textarea class='form-control' ng-model="newRemark.content"></textarea>
+                        <span class='input-group-btn' style='padding-left:15px'>
                         <button class='btn btn-success' ng-click="addRemark()">发布</button>
                     </span>
+                    </div>
                 </div>
-            </div>
-            <div id='bottomActions' class='form-group'>
-                <div class='form-inline text-center'>
-                    <button class='btn btn-default' ng-if="historyLen()" ng-click="back()">返回</button>
-                    <button class='btn btn-default' ng-click="gotoRecord()" ng-if="record.userid===user.uid">查看记录</button>
+                <div id='bottomActions' class='form-group'>
+                    <div class='form-inline text-center'>
+                        <button class='btn btn-default' ng-if="historyLen()" ng-click="back()">返回</button>
+                        <button class='btn btn-default' ng-click="gotoRecord()" ng-if="record.userid===user.uid">查看记录</button>
+                    </div>
                 </div>
             </div>
         </div>

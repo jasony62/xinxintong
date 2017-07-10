@@ -320,7 +320,7 @@ class xxt_base extends TMS_CONTROLLER {
 					$msg['data'][$p->pname] = array('value' => $value, 'color' => '#173177');
 				}
 			}
-			$mpproxy = $this->model('mpproxy/wx', $mpid);
+			$mpproxy = $this->model('sns\\wx', $mpid);
 			$rst = $mpproxy->messageTemplateSend($msg);
 			if ($rst[0] === false) {
 				return $rst;
@@ -328,7 +328,12 @@ class xxt_base extends TMS_CONTROLLER {
 			$msgid = $rst[1]->msgid;
 		} else {
 			/*如果不是微信号，将模板消息转换文本消息*/
-			$mpa = $this->model('mp\mpaccount')->byId($mpid, 'mpsrc');
+			$model=$this->model('matter\log');
+			$user=$model->query_obj_ss([
+				'ufrom',
+				'xxt_site_account',
+				"siteid='$mpid' and (wx_openid='$openid' or yx_openid='$openid' or qy_openid='$openid')"
+			]);
 			$txt = array();
 			$txt[] = $tmpl->title;
 			if ($tmpl->params) {
@@ -338,7 +343,7 @@ class xxt_base extends TMS_CONTROLLER {
 				}
 			}
 			if (!empty($url)) {
-				if ($mpa->mpsrc === 'yx') {
+				if (isset($user->ufrom) && $user->ufrom === 'yx') {
 					$txt[] = '查看详情：\n' . $url;
 				} else {
 					$txt[] = " <a href='" . $url . "'>查看详情</a>";
@@ -365,7 +370,7 @@ class xxt_base extends TMS_CONTROLLER {
 			'create_at' => time(),
 			'msgid' => $msgid,
 		);
-		$this->model()->insert('xxt_log_tmplmsg', $log, false);
+		$model->insert('xxt_log_tmplmsg', $log, false);
 
 		return array(true);
 	}

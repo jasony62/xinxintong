@@ -364,7 +364,7 @@ class xxt_base extends TMS_CONTROLLER {
 					"content" => $txt,
 				),
 			);
-			$this->sendByOpenid($mpid, $openid, $msg);
+			$this->sendByOpenid($mpid, $openid, $msg, $user->ufrom);
 			$msg['template_id'] = 0;
 			$msgid = 0;
 		}

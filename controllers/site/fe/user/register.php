@@ -53,6 +53,9 @@ class register extends \site\fe\base {
 		if (false === $isValidUname) {
 			return new \ResponseError("请使用手机号或邮箱作为登录账号");
 		}
+		if (empty($data->nickname)) {
+			return new \ParameterError("账号昵称不允许为空");
+		}
 		if (empty($data->password)) {
 			return new \ResponseError("登录密码不允许为空");
 		}

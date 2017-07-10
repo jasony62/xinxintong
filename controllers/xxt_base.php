@@ -313,6 +313,7 @@ class xxt_base extends TMS_CONTROLLER {
 		/*模板定义*/
 		is_object($data) && $data = (array) $data;
 		$tmpl = $this->model('matter\tmplmsg')->byId($tmplmsgId, array('cascaded' => 'Y'));
+		$model=$this->model('matter\log');
 		/*发送消息*/
 		if (!empty($tmpl->templateid)) {
 			/*只有微信号才有模板消息ID*/
@@ -336,7 +337,6 @@ class xxt_base extends TMS_CONTROLLER {
 			$msgid = $rst[1]->msgid;
 		} else {
 			/*如果不是微信号，将模板消息转换文本消息*/
-			$model=$this->model('matter\log');
 			$user=$model->query_obj_ss([
 				'ufrom',
 				'xxt_site_account',

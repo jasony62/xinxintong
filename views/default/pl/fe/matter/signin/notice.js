@@ -26,13 +26,13 @@ define(['frame'], function(ngApp) {
         };
         $scope.choose = 'N';
         $scope.fail = function(isCheck) {
-            if(isCheck == 'Y') {
-                $scope.records.forEach(function(item,index) {
-                    if(!(item.noticeStatus.indexOf('failed') < 0)) {
-                        $scope.records.splice(item,index);
+            if (isCheck == 'Y') {
+                $scope.records.forEach(function(item, index) {
+                    if (!(item.noticeStatus.indexOf('failed') < 0)) {
+                        $scope.records.splice(item, index);
                     }
                 });
-            }else {
+            } else {
                 $scope.detail($scope.batchId);
             }
         }
@@ -40,7 +40,7 @@ define(['frame'], function(ngApp) {
             var recordSchemas;
             if (!app) return;
             recordSchemas = [];
-            app.data_schemas.forEach(function(schema) {
+            app.dataSchemas.forEach(function(schema) {
                 if (schema.type !== 'html') {
                     recordSchemas.push(schema);
                 }

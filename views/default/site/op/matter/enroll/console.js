@@ -48,7 +48,7 @@ define(["require", "angular", "enrollService"], function(require, angular) {
                     enrollDataSchemas = [],
                     groupDataSchemas = [],
                     numberSchemas = [];
-                oApp.data_schemas.forEach(function(schema) {
+                oApp.dataSchemas.forEach(function(schema) {
                     if (schema.type !== 'html') {
                         recordSchemas.push(schema);
                         recordSchemas2.push(schema);
@@ -352,7 +352,7 @@ define(["require", "angular", "enrollService"], function(require, angular) {
                 oApp = app;
                 oBeforeRecord = data;
                 if (oBeforeRecord.data) {
-                    oApp.data_schemas.forEach(function(schema) {
+                    oApp.dataSchemas.forEach(function(schema) {
                         if (oBeforeRecord.data[schema.id]) {
                             srvRecordConverter.forEdit(schema, oBeforeRecord.data);
                         }
@@ -370,7 +370,7 @@ define(["require", "angular", "enrollService"], function(require, angular) {
                 }
                 /* 点评数据 */
                 var remarkableSchemas = [];
-                oApp.data_schemas.forEach(function(schema) {
+                oApp.dataSchemas.forEach(function(schema) {
                     if (schema.remarkable === 'Y') {
                         schema._open = false;
                         oBeforeRecord.verbose && oBeforeRecord.verbose[schema.id] && (schema.summary = oBeforeRecord.verbose[schema.id]);
@@ -658,9 +658,8 @@ define(["require", "angular", "enrollService"], function(require, angular) {
             var app, stat = {};
 
             app = rsp.data.app;
-            app.data_schemas = JSON.parse(app.data_schemas);
             srvRecordConverter.config(app.data_schemas);
-            app.data_schemas.forEach(function(schema) {
+            app.dataSchemas.forEach(function(schema) {
                 if (rsp.data.stat[schema.id]) {
                     rsp.data.stat[schema.id]._schema = schema;
                     stat[schema.id] = rsp.data.stat[schema.id];

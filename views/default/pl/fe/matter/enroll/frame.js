@@ -1,6 +1,6 @@
-define(['require', 'enrollService'], function(require) {
+define(['require', 'enrollService', 'enrollSchema', 'enrollPage'], function(require) {
     'use strict';
-    var ngApp = angular.module('app', ['ngRoute', 'frapontillo.bootstrap-switch', 'ui.tms', 'tmplshop.ui.xxt', 'service.matter', 'service.enroll', 'tinymce.enroll', 'ui.xxt']);
+    var ngApp = angular.module('app', ['ngRoute', 'frapontillo.bootstrap-switch', 'ui.tms', 'tmplshop.ui.xxt', 'service.matter', 'service.enroll', 'schema.enroll', 'page.enroll', 'tinymce.enroll', 'ui.xxt']);
     ngApp.constant('cstApp', {
         notifyMatter: [{
             value: 'tmplmsg',
@@ -78,6 +78,7 @@ define(['require', 'enrollService'], function(require) {
             .when('/rest/pl/fe/matter/enroll/coin', new RouteParam('coin'))
             .when('/rest/pl/fe/matter/enroll/notice', new RouteParam('notice'))
             .when('/rest/pl/fe/matter/enroll/enrollee', new RouteParam('enrollee'))
+            .when('/rest/pl/fe/matter/enroll/tag', new RouteParam('tag'))
             .otherwise(new RouteParam('main'));
 
         $locationProvider.html5Mode(true);
@@ -129,6 +130,7 @@ define(['require', 'enrollService'], function(require) {
                 case 'remark':
                 case 'stat':
                 case 'enrollee':
+                case 'tag':
                     $scope.opened = 'data';
                     break;
                 case 'recycle':
@@ -158,26 +160,20 @@ define(['require', 'enrollService'], function(require) {
         srvSite.get().then(function(oSite) {
             $scope.site = oSite;
         });
-        srvSite.snsList().then(function(aSns) {
-            $scope.sns = aSns;
-        });
-        srvSite.memberSchemaList().then(function(aMemberSchemas) {
-            $scope.memberSchemas = aMemberSchemas;
-        });
-        srvEnrollApp.get().then(function(app) {
-            var oApp = app,
-                schemaById = {},
-                tagById = {};
-            oApp.dataSchemas.forEach(function(schema) {
-                schemaById[schema.id] = schema;
+        srvSite.snsList().then(function(oSns) {
+            $scope.sns = oSns;
+            srvEnrollApp.get().then(function(oApp) {
+                var tagById = {};
+                oApp.dataTags.forEach(function(tag) {
+                    tagById[tag.id] = tag;
+                });
+                oApp._tagsById = tagById;
+                oApp.__schemasOrderConsistent = 'Y'; //页面上登记项显示顺序与定义顺序一致
+                $scope.app = oApp;
+                srvSite.memberSchemaList(oApp.mission).then(function(aMemberSchemas) {
+                    $scope.memberSchemas = aMemberSchemas;
+                });
             });
-            oApp._schemasById = schemaById;
-            oApp.dataTags.forEach(function(tag) {
-                tagById[tag.id] = tag;
-            });
-            oApp._tagsById = tagById;
-            $scope.app = oApp;
-            app.__schemasOrderConsistent = 'Y'; //页面上登记项显示顺序与定义顺序一致
         });
     }]);
     /***/

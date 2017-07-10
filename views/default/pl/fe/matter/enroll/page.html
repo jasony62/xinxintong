@@ -25,19 +25,18 @@
             <!--page schemas-->
             <div class='col-md-3 page-schemas' tms-flex-height top='145' bottom='72'>
                 <!-- toggle schema in pages -->
-                <div class='list-group-item' ng-if="ep.type==='I'" ng-controller="ctrlAppSchemas4Input">
+                <div class='list-group-item' ng-if="ep.type==='I'" ng-controller="ctrlAppSchemas4IV">
                     <div class='list-group'>
-                        <div class='list-group-item schema' ng-repeat="s in appSchemas">
+                        <div class='list-group-item schema' ng-repeat="s in app.dataSchemas">
                             <span ng-bind="s.title"></span>
                             <span class='schema-switch'>
                             <input type='checkbox' bs-switch switch-size="mini" data-on-text="显" data-off-text="隐" ng-model="chooseState[s.id]" ng-change="choose(s)">
                         </span>
                         </div>
                     </div>
-                    <a class='btn btn-default btn-block' href="/rest/pl/fe/matter/enroll/schema?site={{app.siteid}}&id={{app.id}}">修改登记项</a>
                 </div>
-                <div class='list-group-item' ng-if="ep.type==='V'" ng-controller="ctrlAppSchemas4View">
-                    <div class='list-group-item' ng-repeat="s in appSchemas">
+                <div class='list-group-item' ng-if="ep.type==='V'" ng-controller="ctrlAppSchemas4IV">
+                    <div class='list-group-item' ng-repeat="s in app.dataSchemas">
                         <span ng-bind-html="s.title"></span>
                         <span class='schema-switch'>
                         <input type='checkbox' bs-switch switch-size="mini" data-on-text="显" data-off-text="隐" ng-model="chooseState[s.id]" ng-change="choose(s)">
@@ -51,7 +50,7 @@
                     </div>
                 </div>
                 <div class='list-group-item' ng-if="ep.type==='L'">
-                    <button class='btn btn-default' ng-click="newList('records')">登记项列表</button>
+                    <button class='btn btn-default' ng-click="newList()">记录列表</button>
                 </div>
                 <!-- end toggle schema in pages -->
                 <!-- create button wrap -->
@@ -78,8 +77,8 @@
                     <div class='form-group' ng-include="wrapEditorHtml()"></div>
                     <div class='form-group'>
                         <button class='btn btn-default' ng-if="activeWrap.schema" ng-click="refreshWrap(activeWrap)">刷新页面元素</button>
-                        <button class='btn btn-default' ng-if="['input','value'].indexOf(activeWrap.type)!==-1&&ep.type!=='L'" ng-click="removeWrap()">隐藏</button>
-                        <button class='btn btn-default' ng-if="['input','value'].indexOf(activeWrap.type)===-1" ng-click="removeWrap()">删除</button>
+                        <button class='btn btn-default' ng-if="['input','value'].indexOf(activeWrap.type)!==-1" ng-click="removeActiveWrap()">隐藏</button>
+                        <button class='btn btn-default' ng-if="['input','value'].indexOf(activeWrap.type)===-1" ng-click="removeActiveWrap()">删除</button>
                     </div>
                     <div class='form-group'>
                         <div class='btn-group'>

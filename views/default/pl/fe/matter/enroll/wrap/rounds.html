@@ -1,7 +1,0 @@
-<div ng-controller="ctrlRoundListWrap">
-    <select class='form-control' ng-model="activeWrap.config.onclick" ng-change="updWrap('config','onclick')">
-        <option value=''>不跳转</option>
-        <option value='{{p.name}}' ng-repeat='p in app.pages'>{{p.title}}</option>
-    </select>
-    <div class='help-block'>选中后跳转到页面</div>
-</div>

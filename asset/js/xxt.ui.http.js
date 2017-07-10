@@ -60,7 +60,13 @@ ngMod.service('http2', ['$rootScope', '$http', '$timeout', '$q', '$sce', '$compi
             }
             if (rsp.err_code != 0) {
                 if (options.autoNotice) {
-                    createAlert(rsp.err_msg, 'warning');
+                    var errmsg;
+                    if (angular.isString(rsp.err_msg)) {
+                        errmsg = rsp.err_msg;
+                    } else {
+                        errmsg = JSON.stringify(rsp.err_msg);
+                    }
+                    createAlert(errmsg, 'warning');
                 }
                 if (options.autoBreak) return;
             }
@@ -112,7 +118,13 @@ ngMod.service('http2', ['$rootScope', '$http', '$timeout', '$q', '$sce', '$compi
             }
             if (rsp.err_code != 0) {
                 if (options.autoNotice) {
-                    createAlert(rsp.err_msg, 'warning');
+                    var errmsg;
+                    if (angular.isString(rsp.err_msg)) {
+                        errmsg = rsp.err_msg;
+                    } else {
+                        errmsg = JSON.stringify(rsp.err_msg);
+                    }
+                    createAlert(errmsg, 'warning');
                 }
                 if (options.autoBreak) return;
             }

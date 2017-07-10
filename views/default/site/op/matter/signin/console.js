@@ -38,7 +38,7 @@ define(["require", "angular", "signinService"], function(require, angular) {
                 recordSchemas = [],
                 enrollDataSchemas = [],
                 groupDataSchemas = [];
-            app.data_schemas.forEach(function(schema) {
+            app.dataSchemas.forEach(function(schema) {
                 if (schema.type !== 'html') {
                     recordSchemas.push(schema);
                 }
@@ -248,7 +248,7 @@ define(["require", "angular", "signinService"], function(require, angular) {
                 oApp = app;
                 oBeforeRecord = data;
                 if (oBeforeRecord.data) {
-                    oApp.data_schemas.forEach(function(schema) {
+                    oApp.dataSchemas.forEach(function(schema) {
                         if (oBeforeRecord.data[schema.id]) {
                             srvRecordConverter.forEdit(schema, oBeforeRecord.data);
                         }

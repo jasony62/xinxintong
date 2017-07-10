@@ -59,8 +59,13 @@ class mission_model extends app_base {
 		];
 		if (($oMission = $this->query_obj_ss($q))) {
 			$oMission->type = 'mission';
-			if (isset($oMission->entry_rule)) {
-				$oMission->entry_rule = json_decode($oMission->entry_rule);
+			if ($fields === '*' || false !== strpos($fields, 'entry_rule')) {
+				if (empty($oMission->entry_rule)) {
+					$oMission->entry_rule = new \stdClass;
+					$oMission->entry_rule->scope = 'none';
+				} else {
+					$oMission->entry_rule = json_decode($oMission->entry_rule);
+				}
 			}
 			if (isset($oMission->siteid) && isset($oMission->id)) {
 				$oMission->entryUrl = $this->getEntryUrl($oMission->siteid, $oMission->id);
@@ -68,14 +73,14 @@ class mission_model extends app_base {
 			}
 			if (!empty($cascaded)) {
 				$cascaded = explode(',', $cascaded);
-				$modelCode = \TMS_APP::M('code\page');
+				$modelCode = $this->model('code\page');
 				foreach ($cascaded as $field) {
 					if ($field === 'header_page_name' && isset($oMission->header_page_name) && isset($oMission->siteid)) {
 						$oMission->header_page = $modelCode->lastPublishedByName($oMission->siteid, $oMission->header_page_name, ['fields' => 'id,html,css,js']);
 					} else if ($field === 'footer_page_name' && isset($oMission->footer_page_name) && isset($oMission->siteid)) {
 						$oMission->footer_page = $modelCode->lastPublishedByName($oMission->siteid, $oMission->footer_page_name, ['fields' => 'id,html,css,js']);
 					} else if ($field === 'phase') {
-						$oMission->phases = \TMS_APP::M('matter\mission\phase')->byMission($id);
+						$oMission->phases = $this->model('matter\mission\phase')->byMission($id);
 					}
 				}
 			}

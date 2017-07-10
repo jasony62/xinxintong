@@ -3,7 +3,6 @@ define(['frame'], function(ngApp) {
     ngApp.provider.controller('ctrlAccess', ['$scope', '$uibModal', 'http2', 'srvSite', function($scope, $uibModal, http2, srvSite) {
         var oEntryRule;
         $scope.rule = {};
-        $scope.reset = function() {};
         $scope.changeUserScope = function() {
             switch (oEntryRule.scope) {
                 case 'member':
@@ -11,6 +10,11 @@ define(['frame'], function(ngApp) {
                     break;
                 case 'sns':
                     oEntryRule.sns === undefined && (oEntryRule.sns = {});
+                    Object.keys($scope.sns).forEach(function(snsName) {
+                        if (oEntryRule.sns[snsName] === undefined) {
+                            oEntryRule.sns[snsName] = { entry: 'Y' };
+                        }
+                    });
                     break;
                 default:
             }
@@ -38,8 +42,9 @@ define(['frame'], function(ngApp) {
                 $scope.update('entry_rule');
             }
         };
-        srvSite.snsList().then(function(aSns) {
-            $scope.sns = aSns;
+        srvSite.snsList().then(function(oSns) {
+            $scope.sns = oSns;
+            $scope.snsCount = Object.keys(oSns).length;
         });
         $scope.$watch('mission', function(oMission) {
             if (!oMission) return;

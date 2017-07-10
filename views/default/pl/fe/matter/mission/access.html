@@ -8,7 +8,7 @@
             <label>
                 <input type='radio' value='member' ng-model="rule.scope" ng-change="changeUserScope()">限通讯录联系人访问</label>
         </div>
-        <div class='radio' ng-if="sns">
+        <div class='radio' ng-if="snsCount>0">
             <label>
                 <input type='radio' value='sns' ng-model="rule.scope" ng-change="changeUserScope()">限公众号关注用户访问</label>
         </div>
@@ -29,7 +29,7 @@
         <div ng-if="rule.scope==='member'">
             <button class='btn btn-default' ng-click="chooseMschema()">选择通讯录</button>
         </div>
-        <table class='table table-bordered' ng-if="rule.scope==='sns'">
+        <table class='table table-bordered' ng-if="rule.scope==='sns'&&snsCount>1">
             <tbody>
                 <tr ng-if="sns.wx">
                     <td>微信公众号关注用户</td>
@@ -54,7 +54,5 @@
                 </tr>
             </tbody>
         </table>
-        <hr>
-        <button class='btn btn-block btn-success' ng-click="reset()">重置规则</button>
     </div>
 </div>

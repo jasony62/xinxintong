@@ -274,7 +274,7 @@ directive('tinymce', function($timeout) {
                 forced_root_block: 'div',
                 valid_elements: "*[*]",
                 relative_urls: false,
-                content_css: '/static/css/bootstrap.min.css,/static/css/tinymce.css?v=' + (new Date() * 1),
+                content_css: '/static/css/bootstrap.min.css,/static/css/tinymce.css?v=' + (new Date * 1),
                 setup: _setup,
                 save_onsavecallback: function() {
                     $timeout(function() {

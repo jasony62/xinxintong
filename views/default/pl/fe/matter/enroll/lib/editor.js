@@ -7,18 +7,26 @@ define(['wrap'], function(wrapLib) {
         _editor = null,
         _page = null;
 
-    function _appendWrap(name, attrs, html) {
-        var dom, body, newDomWrap, selection, $activeWrap, $upmost;
+    function _appendWrap(name, attrs, html, oSiblingSchema, insertBefore) {
+        var dom, body, newDomWrap, selection, $siblingWrap, $upmost;
 
         dom = _editor.dom;
         body = _editor.getBody();
-        $activeWrap = $(body).find('[wrap].active');
-        if ($activeWrap && $activeWrap.length) {
-            /*如果有活动状态的wrap，加在这个wrap之后*/
-            $upmost = $activeWrap.parents('[wrap]');
-            $upmost = $upmost.length === 0 ? $activeWrap : $($upmost.get($upmost.length - 1));
+        if (oSiblingSchema) {
+            $siblingWrap = $(body).find('[schema=' + oSiblingSchema.id + ']');
+        }
+        if ($siblingWrap && $siblingWrap.length) {
+            /*如果指定了兄弟wrap，加在这个wrap之后*/
+            $upmost = $siblingWrap.parents('[wrap]');
+            $upmost = $upmost.length === 0 ? $siblingWrap : $($upmost.get($upmost.length - 1));
             newDomWrap = dom.create(name, attrs, html);
-            dom.insertAfter(newDomWrap, $upmost[0]);
+            if (insertBefore) {
+                if ($upmost[0].parentNode) {
+                    $upmost[0].parentNode.insertBefore(newDomWrap, $upmost[0]);
+                }
+            } else {
+                dom.insertAfter(newDomWrap, $upmost[0]);
+            }
         } else {
             if (attrs.wrap && attrs.wrap === 'input') {
                 var $inputWrap = $(body).find("[wrap='input']");
@@ -27,8 +35,15 @@ define(['wrap'], function(wrapLib) {
                     newDomWrap = dom.create(name, attrs, html);
                     dom.insertAfter(newDomWrap, $inputWrap[$inputWrap.length - 1]);
                 } else {
-                    /*加在文档的最后*/
-                    newDomWrap = dom.add(body, name, attrs, html);
+                    var $btnWrap = $(body).find("[wrap='button']");
+                    if ($btnWrap.length) {
+                        /*加在第一个按钮的前面*/
+                        newDomWrap = dom.create(name, attrs, html);
+                        $btnWrap[0].parentNode.insertBefore(newDomWrap, $btnWrap[0]);
+                    } else {
+                        /*加在文档的最后*/
+                        newDomWrap = dom.add(body, name, attrs, html);
+                    }
                 }
             } else if (attrs.wrap && attrs.wrap === 'value') {
                 var $valueWrap = $(body).find("[wrap='value']");
@@ -37,19 +52,36 @@ define(['wrap'], function(wrapLib) {
                     newDomWrap = dom.create(name, attrs, html);
                     dom.insertAfter(newDomWrap, $valueWrap[$valueWrap.length - 1]);
                 } else {
+                    var $btnWrap = $(body).find("[wrap='button']");
+                    if ($btnWrap.length) {
+                        /*加在第一个按钮的前面*/
+                        newDomWrap = dom.create(name, attrs, html);
+                        $btnWrap[0].parentNode.insertBefore(newDomWrap, $btnWrap[0]);
+                    } else {
+                        /*加在文档的最后*/
+                        newDomWrap = dom.add(body, name, attrs, html);
+                    }
+                }
+            } else if (attrs.wrap && attrs.wrap === 'button') {
+                /*加在文档的最后*/
+                newDomWrap = dom.add(body, name, attrs, html);
+            } else {
+                var $btnWrap = $(body).find("[wrap='button']");
+                if ($btnWrap.length) {
+                    /*加在第一个按钮的前面*/
+                    newDomWrap = dom.create(name, attrs, html);
+                    $btnWrap[0].parentNode.insertBefore(newDomWrap, $btnWrap[0]);
+                } else {
                     /*加在文档的最后*/
                     newDomWrap = dom.add(body, name, attrs, html);
                 }
-            } else {
-                /*加在文档的最后*/
-                newDomWrap = dom.add(body, name, attrs, html);
             }
         }
 
         _editor.fire('change');
 
         return newDomWrap;
-    };
+    }
     return {
         load: function(editor, page) {
             var html;
@@ -115,7 +147,7 @@ define(['wrap'], function(wrapLib) {
 
             return html;
         },
-        appendSchema: function(newSchema) {
+        appendSchema: function(newSchema, oSiblingSchema, insertBefore) {
             var oNewWrap, domNewWrap;
             if (_page.type === 'I') {
                 var wrapParam;
@@ -124,7 +156,7 @@ define(['wrap'], function(wrapLib) {
                 _page.data_schemas.push(oNewWrap);
 
                 wrapParam = wrapLib.input.embed(oNewWrap, true);
-                domNewWrap = _appendWrap(wrapParam.tag, wrapParam.attrs, wrapParam.html);
+                domNewWrap = _appendWrap(wrapParam.tag, wrapParam.attrs, wrapParam.html, oSiblingSchema, insertBefore);
             } else if (_page.type === 'V') {
                 var wrapParam;
 
@@ -132,7 +164,7 @@ define(['wrap'], function(wrapLib) {
                 _page.data_schemas.push(oNewWrap);
 
                 wrapParam = wrapLib.value.embed(oNewWrap);
-                domNewWrap = _appendWrap(wrapParam.tag, wrapParam.attrs, wrapParam.html);
+                domNewWrap = _appendWrap(wrapParam.tag, wrapParam.attrs, wrapParam.html, oSiblingSchema, insertBefore);
             }
 
             return domNewWrap;
@@ -369,7 +401,6 @@ define(['wrap'], function(wrapLib) {
             } else {
                 _activeWrap = false;
             }
-
             return _activeWrap;
         },
         selectWrap: function(domWrap) {
@@ -423,9 +454,9 @@ define(['wrap'], function(wrapLib) {
                 schemaOptionId = domWrap.getAttribute('opvalue');
             }
 
-            for (var i = app.data_schemas.length - 1; i >= 0; i--) {
-                if (schemaId === app.data_schemas[i].id) {
-                    schema = app.data_schemas[i];
+            for (var i = app.dataSchemas.length - 1; i >= 0; i--) {
+                if (schemaId === app.dataSchemas[i].id) {
+                    schema = app.dataSchemas[i];
                     for (var j = schema.ops.length - 1; j >= 0; j--) {
                         if (schema.ops[j].v === schemaOptionId) {
                             schemaOption = schema.ops[j];
@@ -439,39 +470,46 @@ define(['wrap'], function(wrapLib) {
             return [schema, schemaOption];
         },
         appendButton: function(btn) {
-            var oWrap = {
-                    id: 'act' + (new Date() * 1),
-                    name: btn.n,
-                    label: btn.l,
-                    next: ''
-                },
-                domNewWrap;
-
-            domNewWrap = wrapLib.button.embed(oWrap);
+            var oWrap, wrapParam;
+            oWrap = {
+                id: 'act' + (new Date() * 1),
+                name: btn.n,
+                label: btn.l,
+                next: ''
+            };
             _page.act_schemas.push(oWrap);
+            wrapParam = wrapLib.button.embed(oWrap);
 
-            return domNewWrap;
+            return _appendWrap(wrapParam.tag, wrapParam.attrs, wrapParam.html);
         },
-        appendRecordList: function(app) {
-            var dataWrap = {
+        appendRecordList: function(oApp) {
+            var dataWrap, wrapParam;
+            dataWrap = {
                 config: {
-                    id: 'L' + (new Date() * 1),
+                    id: 'L' + (new Date * 1),
                     pattern: 'records',
                     dataScope: 'U',
                     onclick: '',
                 },
-                schemas: angular.copy(app.data_schemas)
+                schemas: angular.copy(oApp.data_schemas)
             };
-
             dataWrap.schemas.push({
                 id: 'enrollAt',
                 type: '_enrollAt',
-                title: '登记时间'
+                title: '填写时间'
             });
-
+            if (oApp.pages && oApp.pages.length) {
+                for (var i = 0, ii = oApp.pages.length; i < ii; i++) {
+                    if (oApp.pages[i].type === 'V') {
+                        dataWrap.config.onclick = oApp.pages[i].name;
+                        break;
+                    }
+                }
+            }
             _page.data_schemas.push(dataWrap);
+            wrapParam = wrapLib.records.embed(dataWrap);
 
-            return wrapLib.records.embed(dataWrap);
+            return _appendWrap(wrapParam.tag, wrapParam.attrs, wrapParam.html);
         },
         removeWrap: function(oWrap) {
             var wrapType = oWrap.type,
@@ -490,9 +528,9 @@ define(['wrap'], function(wrapLib) {
                         if ($listWrap.length && $listWrap.attr('wrap') === 'records') {
                             config.id = $listWrap.attr('id');
                         }
-                        _page.removeValue(config, oWrap.schema);
+                        _page.removeSchema(config, oWrap.schema);
                     } else {
-                        _page.removeValue(config);
+                        _page.removeSchema(config);
                     }
                 }
             } else if (/records/.test(wrapType)) {
@@ -517,18 +555,20 @@ define(['wrap'], function(wrapLib) {
             return $domRemoved[0];
         },
         /**
-         * 从当前编辑页面上删除（不显示）登记项
+         * 从当前编辑页面上隐藏登记项
          */
         removeSchema: function(removedSchema) {
-            var pageSchemas = _page.data_schemas,
-                $domRemoved;
+            var pageSchemas, $domRemoved;
 
-            for (var i = pageSchemas.length - 1; i >= 0; i--) {
-                if (removedSchema.id === pageSchemas[i].schema.id) {
-                    $domRemoved = $(_editor.getBody()).find("[schema='" + removedSchema.id + "']");
-                    $domRemoved.remove();
-                    pageSchemas.splice(i, 1);
-                    return $domRemoved[0];
+            if (/I|V/.test(_page.type)) {
+                pageSchemas = _page.data_schemas;
+                for (var i = pageSchemas.length - 1; i >= 0; i--) {
+                    if (removedSchema.id === pageSchemas[i].schema.id) {
+                        $domRemoved = $(_editor.getBody()).find("[schema='" + removedSchema.id + "']");
+                        $domRemoved.remove();
+                        pageSchemas.splice(i, 1);
+                        return $domRemoved[0];
+                    }
                 }
             }
 

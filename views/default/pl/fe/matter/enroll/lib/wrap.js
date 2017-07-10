@@ -403,39 +403,49 @@ define([], function() {
             html: html
         };
     };
-    //老元素 ，新配置，老schema
-    InputWrap.prototype.modify = function(domWrap, dataWrap, beforeSchema) {
+    InputWrap.prototype.modify = function(domWrap, dataWrap, oBeforeSchema) {
         var $dom, $label, $input, config = dataWrap.config,
-            schema = dataWrap.schema;
+            oSchema = dataWrap.schema;
 
-        $dom = $(domWrap); //？
+        $dom = $(domWrap);
         if (dataWrap.type === 'input') {
-            if (beforeSchema && (schema.type !== beforeSchema.type || (schema.type === 'shorttext' && schema.history === 'Y'))) {
-                //从新生成容器内的内容
-                $dom.html(this.embed(dataWrap).html);
+            if (oBeforeSchema && (oSchema.type !== oBeforeSchema.type || (oSchema.type === 'shorttext' && oSchema.history === 'Y'))) {
+                var embeded = this.embed(dataWrap);
+                $dom.attr(embeded.attrs);
+                $dom.html(embeded.html);
             } else {
                 $label = $dom.children('label');
-                $label.html(schema.title);
+                $label.html(oSchema.title);
 
-                if (/shorttext|longtext|member|date|location/.test(schema.type)) {
+                if (oSchema.description && oSchema.description.length) {
+                    if (!$dom.find('[class="description"]').length) {
+                        $('<div class="description">' + oSchema.description + '</div>').insertAfter($dom.find('label')[0])
+                    } else {
+                        $dom.find('[class="description"]').html(oSchema.description);
+                    }
+                } else {
+                    $dom.find('[class="description"]').remove();
+                }
+
+                if (/shorttext|longtext|member|date|location/.test(oSchema.type)) {
                     $input = $dom.find('input,select,textarea');
                     if (config.showname === 'label') {
                         $label.removeClass('sr-only');
                         $input.removeAttr('placeholder');
                     } else {
                         $label.addClass('sr-only');
-                        $input.attr('placeholder', schema.title);
+                        $input.attr('placeholder', oSchema.title);
                     }
-                    if (schema.required === 'Y') {
+                    if (oSchema.required === 'Y') {
                         $input.attr('required', '');
                     } else {
                         $input.removeAttr('required');
                     }
-                    _htmlTag($dom, schema);
-                } else if (/single|phase/.test(schema.type)) {
+                    _htmlTag($dom, oSchema);
+                } else if (/single|phase/.test(oSchema.type)) {
                     (function(lib) {
                         var html;
-                        if (schema.ops) {
+                        if (oSchema.ops) {
                             if (config.component === 'R') {
                                 if ($dom.children('ul').length) {
                                     html = lib._htmlSingleRadio(dataWrap, false, true);
@@ -454,58 +464,58 @@ define([], function() {
                                 }
                             }
                         }
-                        _htmlSupplement($dom, schema);
+                        _htmlSupplement($dom, oSchema);
                     })(this);
-                } else if ('multiple' === schema.type) {
+                } else if ('multiple' === oSchema.type) {
                     (function(lib) {
                         var html;
-                        if (schema.ops) {
+                        if (oSchema.ops) {
                             html = lib._htmlMultiple(dataWrap, false, true);
                             $dom.children('ul').html(html);
                         }
-                        _htmlSupplement($dom, schema);
+                        _htmlSupplement($dom, oSchema);
                     })(this);
-                } else if ('score' === schema.type) {
+                } else if ('score' === oSchema.type) {
                     (function(lib) {
                         var html, wrapSchema;
-                        if (schema.ops && schema.ops.length > 0) {
+                        if (oSchema.ops && oSchema.ops.length > 0) {
                             html = lib._htmlScoreItem(dataWrap);
                             $dom.children('ul').remove();
                             $dom.append(html);
                         }
                     })(this);
-                } else if (/image/.test(schema.type)) {
+                } else if (/image/.test(oSchema.type)) {
                     (function(lib) {
                         var $button = $dom.find('li.img-picker button'),
                             sNgClick;
 
-                        sNgClick = 'chooseImage(' + "'" + schema.id + "'," + schema.count + ')';
+                        sNgClick = 'chooseImage(' + "'" + oSchema.id + "'," + oSchema.count + ')';
                         $button.attr('ng-click', sNgClick);
-                        _htmlSupplement($dom, schema);
-                        _htmlTag($dom, schema);
+                        _htmlSupplement($dom, oSchema);
+                        _htmlTag($dom, oSchema);
                     })(this);
-                } else if (/file/.test(schema.type)) {
+                } else if (/file/.test(oSchema.type)) {
                     (function(lib) {
                         var $button = $dom.find('li.file-picker button'),
                             sNgClick;
 
-                        sNgClick = 'chooseFile(' + "'" + schema.id + "'," + schema.count + ')';
-                        $button.attr('ng-click', sNgClick).html(schema.title);
-                        _htmlSupplement($dom, schema);
-                        _htmlTag($dom, schema);
+                        sNgClick = 'chooseFile(' + "'" + oSchema.id + "'," + oSchema.count + ')';
+                        $button.attr('ng-click', sNgClick).html(oSchema.title);
+                        _htmlSupplement($dom, oSchema);
+                        _htmlTag($dom, oSchema);
                     })(this);
                 }
             }
         } else if (/radio|checkbox/.test(dataWrap.type)) {
-            if (schema.ops && schema.ops.length === 1) {
+            if (oSchema.ops && oSchema.ops.length === 1) {
                 $label = $dom.find('label');
-                $label.find('span').html(schema.ops[0].l);
+                $label.find('span').html(oSchema.ops[0].l);
             }
         } else if ('html' === dataWrap.type) {
-            if (beforeSchema && schema.type !== beforeSchema.type) {
+            if (oBeforeSchema && oSchema.type !== oBeforeSchema.type) {
                 $dom.html(this.embed(dataWrap));
             } else {
-                $dom.html(schema.content);
+                $dom.html(oSchema.content);
             }
         }
     };
@@ -696,12 +706,6 @@ define([], function() {
             case '_enrollAt':
                 html = "<div>{{Record.current.enroll_at*1000|date:'yy-MM-dd HH:mm'}}</div>";
                 break;
-            case '_enrollerNickname':
-                html = "<div>{{Record.current.enroller.nickname}}</div>";
-                break;
-            case '_enrollerHeadpic':
-                html = "<div><img ng-src='{{Record.current.enroller.headimgurl}}'></div>";
-                break;
         }
 
         return html;
@@ -734,27 +738,38 @@ define([], function() {
             }
         }
     };
-    ValueWrap.prototype.modify = function(domWrap, oWrap, beforeSchema) {
+    ValueWrap.prototype.modify = function(domWrap, oWrap, oBeforeSchema) {
         var config = oWrap.config,
-            schema = oWrap.schema,
+            oSchema = oWrap.schema,
             $dom = $(domWrap),
             $tags, $supplement;
 
-        if (beforeSchema && schema.type !== beforeSchema.type) {
-            $dom.html(this.embed(oWrap).html);
+        if (oBeforeSchema && oSchema.type !== oBeforeSchema.type) {
+            var embeded = this.embed(oWrap);
+            $dom.attr(embeded.attrs);
+            $dom.html(embeded.html);
         } else {
-            if (schema.type === 'html') {
-                $dom.html(schema.content);
+            if (oSchema.type === 'html') {
+                $dom.html(oSchema.content);
             } else {
-                $dom.find('label').html(schema.title);
+                $dom.find('label').html(oSchema.title);
             }
             config.inline === 'Y' ? $dom.addClass('wrap-inline') : $dom.removeClass('wrap-inline');
             config.splitLine === 'Y' ? $dom.addClass('wrap-splitline') : $dom.removeClass('wrap-splitline');
         }
-        if (schema.cantag === 'Y') {
+        if (oSchema.description && oSchema.description.length) {
+            if (!$dom.find('[class="description"]').length) {
+                $('<div class="description">' + oSchema.description + '</div>').insertAfter($dom.find('label')[0])
+            } else {
+                $dom.find('[class="description"]').html(oSchema.description);
+            }
+        } else {
+            $dom.find('[class="description"]').remove();
+        }
+        if (oSchema.cantag === 'Y') {
             $tags = $dom.find('.tags');
             if ($tags.length === 0) {
-                $dom.append('<p class="tags"><span class="tag" ng-repeat="t in Record.current.tag.' + schema.id + '" ng-bind="t.label"></span></p>');
+                $dom.append('<p class="tags"><span class="tag" ng-repeat="t in Record.current.tag.' + oSchema.id + '" ng-bind="t.label"></span></p>');
             }
         } else {
             $tags = $dom.find('.tags');
@@ -762,10 +777,10 @@ define([], function() {
                 $tags.remove();
             }
         }
-        if (schema.supplement === 'Y') {
+        if (oSchema.supplement === 'Y') {
             $supplement = $dom.find('.supplement');
             if ($supplement.length === 0) {
-                $dom.append('<p class="supplement" ng-bind="Record.current.supplement.' + schema.id + '"></p>');
+                $dom.append('<p class="supplement" ng-bind="Record.current.supplement.' + oSchema.id + '"></p>');
             }
         } else {
             $supplement = $dom.find('.supplement');
@@ -774,24 +789,26 @@ define([], function() {
             }
         }
     };
-    ValueWrap.prototype.dataByDom = function(domWrap, page) {
+    ValueWrap.prototype.dataByDom = function(domWrap, oPage) {
         var $wrap = $(domWrap),
             wrapId = $wrap.attr('id');
 
-        if (page) {
+        if (oPage) {
             if (wrapId) {
-                return page.wrapById(wrapId);
+                return oPage.wrapById(wrapId);
             } else {
-                var data = page.wrapBySchema({
-                    id: $wrap.attr('schema')
-                });
-                if (data.config === undefined) {
-                    data.config = {
-                        inline: $wrap.hasClass('wrap-inline') ? 'Y' : 'N',
-                        splitLine: $wrap.hasClass('wrap-splitline') ? 'Y' : 'N'
-                    };
+                var schemaId, data;
+                schemaId = $wrap.attr('schema');
+                if (schemaId) {
+                    data = oPage.wrapBySchema({ id: schemaId });
+                    if (data.config === undefined) {
+                        data.config = {
+                            inline: $wrap.hasClass('wrap-inline') ? 'Y' : 'N',
+                            splitLine: $wrap.hasClass('wrap-splitline') ? 'Y' : 'N'
+                        };
+                    }
+                    return data;
                 }
-                return data;
             }
         } else {
             return {
@@ -814,8 +831,44 @@ define([], function() {
      */
     var RecordsWrap = function() {};
     RecordsWrap.prototype = Object.create(Wrap.prototype);
+    RecordsWrap.prototype._htmlValue = function(oSchema) {
+        var html;
+        html = '<div wrap="value" class="wrap-inline wrap-splitline" schema="' + oSchema.id + '" schema-type="' + oSchema.type + '"><label>' + oSchema.title + '</label>';
+        switch (oSchema.type) {
+            case 'shorttext':
+            case 'longtext':
+            case 'location':
+            case 'member':
+                html += '<div>{{r.data.' + oSchema.id + '}}</div>';
+                break;
+            case 'date':
+                html += '<div><span ng-if="r.data.' + oSchema.id + '">{{r.data.' + oSchema.id + '*1000|date:"yy-MM-dd HH:mm"}}</span></div>';
+                break;
+            case 'single':
+            case 'phase':
+            case 'multiple':
+                html += '<div ng-bind-html="' + "value2Label(r,'" + oSchema.id + "')" + '"></div>'
+                break;
+            case 'score':
+                html += '<div ng-bind-html="' + "score2Html(r,'" + oSchema.id + "')" + '"></div>';
+                break;
+            case 'image':
+                html += '<ul><li ng-repeat="img in r.data.' + oSchema.id + '.split(\',\')"><img ng-src="{{img}}"></li></ul>';
+                break;
+            case '_enrollAt':
+                html += "<div>{{r.enroll_at*1000|date:'yy-MM-dd HH:mm'}}</div>";
+                break;
+        }
+        if (oSchema.supplement && oSchema.supplement === 'Y') {
+            html += '<p class="supplement" ng-bind="r.supplement.' + oSchema.id + '"></p>';
+        }
+        html += '</div>';
+
+        return html;
+    };
     RecordsWrap.prototype._htmlRecords = function(dataWrap) {
-        var config = dataWrap.config,
+        var _this = this,
+            config = dataWrap.config,
             schemas = dataWrap.schemas,
             html, onclick;
 
@@ -823,43 +876,8 @@ define([], function() {
         onclick = config.onclick.length ? " ng-click=\"gotoPage($event,'" + config.onclick + "',r.enroll_key)\"" : '';
         html += '<li class="list-group-item text-center actions"><div class="btn-group"><button class="btn btn-default" ng-click="openFilter()">筛选</button><button class="btn btn-default" ng-click="resetFilter()"><span class="glyphicon glyphicon-remove"></span></button></div></li>';
         html += '<li class="list-group-item" ng-repeat="r in records"' + onclick + '>';
-        schemas.forEach(function(schema) {
-            html += '<div wrap="value" class="wrap-inline wrap-splitline" schema="' + schema.id + '"><label>' + schema.title + '</label>';
-            switch (schema.type) {
-                case 'shorttext':
-                case 'longtext':
-                case 'location':
-                case 'member':
-                    html += '<div>{{r.data.' + schema.id + '}}</div>';
-                    break;
-                case 'date':
-                    html += '<div><span ng-if="r.data.' + schema.id + '">{{r.data.' + schema.id + '*1000|date:"yy-MM-dd HH:mm"}}</span></div>';
-                    break;
-                case 'single':
-                case 'phase':
-                case 'multiple':
-                    html += '<div ng-bind-html="' + "value2Label(r,'" + schema.id + "')" + '"></div>'
-                    break;
-                case 'score':
-                    html += '<div ng-bind-html="' + "score2Html(r,'" + schema.id + "')" + '"></div>';
-                    break;
-                case 'image':
-                    html += '<ul><li ng-repeat="img in r.data.' + schema.id + '.split(\',\')"><img ng-src="{{img}}"></li></ul>';
-                    break;
-                case '_enrollAt':
-                    html += "<div>{{r.enroll_at*1000|date:'yy-MM-dd HH:mm'}}</div>";
-                    break;
-                case '_enrollerNickname':
-                    html += "<div>{{r.nickname}}</div>";
-                    break;
-                case '_enrollerHeadpic':
-                    html += "<div><img ng-src='{{r.headimgurl}}'></div>";
-                    break;
-            }
-            if (schema.supplement && schema.supplement === 'Y') {
-                html += '<p class="supplement" ng-bind="r.supplement.' + schema.id + '"></p>';
-            }
-            html += '</div>';
+        schemas.forEach(function(oSchema) {
+            html += _this._htmlValue(oSchema);
         });
         html += "</li>";
         html += '<li class="list-group-item text-center actions"><div class="btn-group"><button class="btn btn-default" ng-click="openFilter()">筛选</button><button class="btn btn-default" ng-click="resetFilter()"><span class="glyphicon glyphicon-remove"></span></button></div><button class="btn btn-default" ng-click="fetch()" ng-if="options.page.total>records.length">更多</button></li>';
@@ -879,8 +897,11 @@ define([], function() {
             wrap: 'records',
             class: 'form-group'
         };
-
-        return this.append('div', attrs, html);
+        return {
+            tag: 'div',
+            attrs: attrs,
+            html: html
+        };
     };
     RecordsWrap.prototype.modify = function(domWrap, oWrap) {
         var html, attrs = {},
@@ -977,8 +998,11 @@ define([], function() {
             } else if (['editRecord', 'removeRecord', 'remarkRecord'].indexOf(schema.name) !== -1) {
                 attrs['ng-controller'] = 'ctrlRecord';
             }
-
-            return this.append('div', attrs, tmplBtn(action, schema.label));
+            return {
+                tag: 'div',
+                attrs: attrs,
+                html: tmplBtn(action, schema.label)
+            };
         } else if (schema.name === 'sendInvite') {
             var html;
             action = "send($event,'" + schema.accept + "'";
@@ -991,7 +1015,11 @@ define([], function() {
             attrs.class += "  input-group input-group-lg";
             attrs['ng-controller'] = 'ctrlInvite';
 
-            return this.append('div', attrs, html);
+            return {
+                tag: 'div',
+                attrs: attrs,
+                html: html
+            };
         }
     };
     ButtonWrap.prototype.modify = function(dowWrap, oWrap) {
@@ -1028,34 +1056,6 @@ define([], function() {
         }
     };
     /**
-     * user wrap class
-     */
-    var UserWrap = function() {};
-    UserWrap.prototype = Object.create(Wrap.prototype);
-    UserWrap.prototype.embed = function(page, config) {
-        if (config.nickname === true) {
-            html = "<label>昵称</label><div>{{User.nickname}}</div>";
-            this.append(page, 'div', {
-                wrap: 'value',
-                class: 'form-group'
-            }, html);
-        }
-        if (config.headpic === true) {
-            html = '<label>头像</label><div><img ng-src="{{User.headimgurl}}"></div>';
-            this.append(page, 'div', {
-                wrap: 'value',
-                class: 'form-group'
-            }, html);
-        }
-        if (config.rankByFollower === true) {
-            html = '<label>邀请用户排名</label><div tms-exec="onReady(\'Statistic.rankByFollower()\')">{{Statistic.result.rankByFollower.rank}}</div>';
-            this.append(page, 'div', {
-                wrap: 'value',
-                class: 'form-group'
-            }, html);
-        }
-    };
-    /**
      *
      */
     return {
@@ -1068,16 +1068,16 @@ define([], function() {
         setEditor: function(editor) {
             _editor = editor;
         },
-        setPage: function(page) {
-            _page = page;
+        setPage: function(oPage) {
+            _page = oPage;
         },
-        dataByDom: function(domWrap, page) {
+        dataByDom: function(domWrap, oPage) {
             var wrapType = $(domWrap).attr('wrap'),
                 dataWrap;
             if (!this[wrapType]) {
                 return false;
             }
-            dataWrap = this[wrapType].dataByDom(domWrap, page);
+            dataWrap = this[wrapType].dataByDom(domWrap, oPage);
 
             return dataWrap;
         }

@@ -16,7 +16,7 @@
             <option value='html'>描述说明</option>
             <option value='date'>日期</option>
             <option value='location'>上传位置</option>
-            <option value='phase'>项目阶段</option>
+            <option value='phase'>{{cstApp.naming.mission_phase}}</option>
             <option value='member'>通讯录联系人</option>
         </select>
     </div>
@@ -28,17 +28,17 @@
         <label>填写限制</label>
         <div class='radio' style='margin-top:0'>
             <label class="checkbox-inline">
-                <input type='radio' value="" name="format" ng-model='activeSchema.format' ng-change="updSchema(activeSchema,'format')">不限</label>
+                <input type='radio' value="" name="format" ng-model='activeSchema.format' ng-change="updSchema(activeSchema)">不限</label>
         </div>
         <div class='radio'>
             <label class="checkbox-inline">
-                <input type='radio' value="number" name="format" ng-model='activeSchema.format' ng-change="updSchema(activeSchema,'format')">数值</label>
+                <input type='radio' value="number" name="format" ng-model='activeSchema.format' ng-change="updSchema(activeSchema)">数值</label>
             <label class="checkbox-inline">
-                <input type='radio' value="name" name="format" ng-model='activeSchema.format' ng-change="updSchema(activeSchema,'format')">姓名</label>
+                <input type='radio' value="name" name="format" ng-model='activeSchema.format' ng-change="updSchema(activeSchema)">姓名</label>
             <label class="checkbox-inline">
-                <input type='radio' value="mobile" name="format" ng-model='activeSchema.format' ng-change="updSchema(activeSchema,'format')">手机</label>
+                <input type='radio' value="mobile" name="format" ng-model='activeSchema.format' ng-change="updSchema(activeSchema)">手机</label>
             <label class="checkbox-inline">
-                <input type='radio' value="email" name="format" ng-model='activeSchema.format' ng-change="updSchema(activeSchema,'format')">邮箱</label>
+                <input type='radio' value="email" name="format" ng-model='activeSchema.format' ng-change="updSchema(activeSchema)">邮箱</label>
         </div>
     </div>
     <div class="form-group" ng-if="activeSchema.type==='member'">
@@ -135,7 +135,7 @@
         <ul class="form-group list-unstyled" ng-if="activeSchema.type==='multiple'">
             <li class="checkbox" wrap="checkbox" ng-repeat="op in activeSchema.ops">
                 <label>
-                    <input type="checkbox" ng-model="data[op.v]" ng-change="updSchemaMultiple(activeSchema,data[op.v])" /><span>{{op.l}}</span></label>
+                    <input type="checkbox" ng-model="data[op.v]" ng-change="updSchemaMultiple(activeSchema)" /><span>{{op.l}}</span></label>
             </li>
         </ul>
     </div>

@@ -88,14 +88,25 @@ class remark extends base {
 		$rulesOther = $modelMat->rulesByMatter('site.matter.enroll.data.other.comment', $oApp);
 		$modelCoin = $this->model('site\coin\log');
 		$modelCoin->award($oApp, $oUser, 'site.matter.enroll.data.other.comment', $rulesOther);
+
+		/* 获得所属轮次 */
+		$modelRun = $this->model('matter\enroll\round');
+		if ($activeRound = $modelRun->getActive($oApp)) {
+			$rid = $activeRound->rid;
+		}else{
+			$rid = '';
+		}
+
 		/* 更新发起评论的活动用户数据 */
-		$oEnrollUsr = $modelUsr->byId($oApp, $oUser->uid, ['fields' => 'id,nickname,last_remark_other_at,remark_other_num,user_total_coin']);
+		$oEnrollUsr = $modelUsr->byId($oApp, $oUser->uid, ['fields' => 'id,nickname,last_remark_other_at,remark_other_num,user_total_coin', 'rid' => $rid]);
 		if (false === $oEnrollUsr) {
 			$inData = ['last_remark_other_at' => time(), 'remark_other_num' => 1];
 			$inData['user_total_coin'] = 0;
 			foreach ($rulesOther as $ruleOther) {
 				$inData['user_total_coin'] = $inData['user_total_coin'] + (int) $ruleOther->actor_delta;
 			}
+
+			$inData['rid'] = $rid;
 			$modelUsr->add($oApp, $oUser, $inData);
 		} else {
 			$upData = ['last_remark_other_at' => time(), 'remark_other_num' => $oEnrollUsr->remark_other_num + 1];
@@ -111,7 +122,7 @@ class remark extends base {
 		}
 
 		/* 更新被评论的活动用户数据 */
-		$oEnrollUsr = $modelUsr->byId($oApp, $oRecord->userid, ['fields' => 'id,userid,nickname,last_remark_at,remark_num,user_total_coin']);
+		$oEnrollUsr = $modelUsr->byId($oApp, $oRecord->userid, ['fields' => 'id,userid,nickname,last_remark_at,remark_num,user_total_coin', 'rid' => $rid]);
 		if ($oEnrollUsr) {
 			/* 更新被点评的活动用户的积分奖励 */
 			$user = new \stdClass;

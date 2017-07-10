@@ -71,19 +71,31 @@ class access extends \TMS_MODEL {
 			$rules = $modelMat->rulesByMatter('site.matter.enroll.read', $matter);
 			$modelCoin = $this->model('site\coin\log');
 			$modelCoin->award($matter, $user, 'site.matter.enroll.read', $rules);
+
+			/* 获得所属轮次 */
+			$modelRun = $this->model('matter\enroll\round');
+			if ($activeRound = $modelRun->getActive($matter)) {
+				$rid = $activeRound->rid;
+			}else{
+				$rid = '';
+			}
+
 			/* 更新活动用户数据 */
 			$modelUsr = $this->model('matter\enroll\user');
-			$oEnrollUsr = $modelUsr->byId($matter, $user->uid, ['fields' => 'id,nickname,last_enroll_at,enroll_num,user_total_coin']);
+			$options =  ['fields' => 'id,nickname,last_enroll_at,enroll_num,user_total_coin,rid'];
+			$options['rid'] = $rid;
+			$oEnrollUsr = $modelUsr->byId($matter, $user->uid, $options);
 			if (false === $oEnrollUsr) {
-				$inData = ['last_enroll_at' => time(), 'enroll_num' => 1];
+				$inData = ['last_enroll_at' => time()];
 				$inData['user_total_coin'] = 0;
 				foreach ($rules as $rule) {
 					$inData['user_total_coin'] = $inData['user_total_coin'] + (int) $rule->actor_delta;
 				}
-				
+
+				$inData['rid'] = $rid;
 				$modelUsr->add($matter, $user, $inData);
 			} else {
-				$upData = ['last_enroll_at' => time(), 'enroll_num' => (int) $oEnrollUsr->enroll_num + 1];
+				$upData = ['last_enroll_at' => time()];
 				$upData['user_total_coin'] = (int) $oEnrollUsr->user_total_coin;
 				foreach ($rules as $rule) {
 					$upData['user_total_coin'] = $upData['user_total_coin'] + (int) $rule->actor_delta;

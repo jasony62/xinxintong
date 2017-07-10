@@ -11,7 +11,7 @@ ngApp.controller('ctrlReg', ['$scope', 'http2', function($scope, http2) {
     })();
     $scope.register = function() {
         http2.post('/rest/pl/fe/user/register/do', {
-            email: $scope.email,
+            uname: $scope.uname,
             password: $scope.password,
             nickname: $scope.nickname,
         }, function(rsp) {

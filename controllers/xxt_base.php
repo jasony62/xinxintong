@@ -250,8 +250,15 @@ class xxt_base extends TMS_CONTROLLER {
 	 */
 	public function sendByOpenid($mpid, $openid, $message, $openid_src = null) {
 		if (empty($openid_src)) {
-			$mpa = $this->model('mp\mpaccount')->getApis($mpid);
-			$mpproxy = $this->model('mpproxy/' . $mpa->mpsrc, $mpid);
+			$user=$model->query_obj_ss([
+				'ufrom',
+				'xxt_site_account',
+				"siteid='$mpid' and (wx_openid='$openid' or yx_openid='$openid' or qy_openid='$openid')"
+			]);
+			$mpa = $this->model("sns\\".$user->ufrom)->bySite($mpid);
+			$mpproxy = $this->model('sns\\'.$user->ufrom.'\\proxy', $mpa);
+			$mpa->yx_p2p = $mpa->can_p2p;
+			$mpa->mpsrc = $user->ufrom;
 		} else {
 			switch ($openid_src) {
 			case 'yx':
@@ -320,7 +327,7 @@ class xxt_base extends TMS_CONTROLLER {
 					$msg['data'][$p->pname] = array('value' => $value, 'color' => '#173177');
 				}
 			}
-			$config = $this->model('sns\wx')->bySite($mpid);
+			$config = $this->model('sns\\wx')->bySite($mpid);
 			$mpproxy = $this->model('sns\\wx\\proxy', $config);
 			$rst = $mpproxy->messageTemplateSend($msg);
 			if ($rst[0] === false) {

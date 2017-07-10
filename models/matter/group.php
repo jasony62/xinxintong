@@ -40,7 +40,7 @@ class group_model extends app_base {
 		if ($app = $this->query_obj_ss($q)) {
 			$app->type = 'group';
 			if ($cascaded === 'Y') {
-				$rounds = \TMS_APP::M('matter\group\round')->byApp($aid);
+				$rounds = $this->model('matter\group\round')->byApp($aid);
 				$app->rounds = $rounds;
 			}
 			if ($fields === '*' || false !== strpos($fields, 'data_schemas')) {

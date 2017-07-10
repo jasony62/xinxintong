@@ -1,4 +1,4 @@
-<div id='schema-view' ng-controller="ctrlList">
+<div id='schema-view' ng-controller="ctrlSchemaList">
     <div class='col-md-3' tms-flex-height top='72' bottom='0'>
         <!--create schema-->
         <div class='form-group list-group-item'>
@@ -41,7 +41,7 @@
                 </div>
             </div>
             <div class='form-group' ng-if="app.enroll_app_id">
-                <button class='btn btn-default' ng-click="newByOtherApp(s,app.enrollApp)" ng-repeat="s in app.enrollApp.data_schemas">{{s.title}}</button>
+                <button class='btn btn-default' ng-click="newByOtherApp(s,app.enrollApp)" ng-repeat="s in app.enrollApp.dataSchemas">{{s.title}}</button>
             </div>
             <div ng-if="app.enroll_app_id" class='help-block'>需要和［<span>{{app.enrollApp.title}}</span>］的登记内容匹配的登记项</div>
         </div>
@@ -60,7 +60,7 @@
                 </div>
             </div>
             <div class='form-group' ng-if="app.group_app_id">
-                <button class='btn btn-default' ng-click="newByOtherApp(s,app.groupApp)" ng-repeat="s in app.groupApp.data_schemas">{{s.title}}</button>
+                <button class='btn btn-default' ng-click="newByOtherApp(s,app.groupApp)" ng-repeat="s in app.groupApp.dataSchemas">{{s.title}}</button>
             </div>
             <div ng-if="app.group_app_id" class='help-block'>需要和［<span>{{app.groupApp.title}}</span>］的分组内容匹配的题目</div>
         </div>
@@ -69,7 +69,7 @@
     <!-- schema list -->
     <div class='col-md-6' tms-flex-height top='72' bottom='0'>
         <div dnd-list dataset='appSchemas' evt-prefix="schemas" class='schemas'>
-            <div data-schema-index="{{$index}}" class='dndable schema' ng-class="schema.type" ng-repeat="schema in appSchemas">
+            <div data-schema-index="{{$index}}" class='dndable schema' ng-class="schema.type" ng-repeat="schema in app.dataSchemas">
                 <div class='title' ng-if="schema.type!=='html'" ng-click="chooseSchema($event,schema)">
                     <div editable prop='title' obj='schema' evt-prefix='title' no-remove="Y" style="min-height:34px;"></div>
                 </div>
@@ -77,7 +77,7 @@
                 <div class='actions'>
                     <button class='btn btn-sm btn-default' ng-if="'html'===schema.type" ng-click="makePagelet(schema)"><span class='glyphicon glyphicon-pencil'> 编辑</span></button>
                     <button class="btn btn-default btn-sm" ng-if="['single','phase','multiple'].indexOf(schema.type)!==-1" ng-click="addOption(schema)">添加选项</button>
-                    <button class="btn btn-default btn-sm" ng-click="copySchema(schema)">复制登记项</button>
+                    <button class="btn btn-sm btn-default" ng-click="copySchema(schema)">复制登记项</button>
                     <button class='btn btn-sm btn-default' ng-click="upSchema(schema)"><span class='glyphicon glyphicon-arrow-up'></span></button>
                     <button class='btn btn-sm btn-default' ng-click="downSchema(schema)"><span class='glyphicon glyphicon-arrow-down'></span></button>
                     <button class='btn btn-sm btn-default' ng-click="removeSchema(schema)"><span class='glyphicon glyphicon-trash'></span></button>

@@ -356,9 +356,9 @@ define(['frame'], function(ngApp) {
         }
         srvEnrollApp.get().then(function(app) {
             var url;
-            srvRecordConverter.config(app.data_schemas);
+            srvRecordConverter.config(app.dataSchemas);
             $scope.markSchemas = [{ title: "昵称", id: "nickname" }];
-            app.data_schemas.forEach(function(schema) {
+            app.dataSchemas.forEach(function(schema) {
                 if (['multiple', 'score', 'image', 'location', 'file', 'date'].indexOf(schema.type) === -1) {
                     $scope.markSchemas.push(schema);
                 }
@@ -369,7 +369,7 @@ define(['frame'], function(ngApp) {
             url += '&rid=' + (rid ? rid : '');
             http2.get(url, function(rsp) {
                 var stat = {};
-                app.data_schemas.forEach(function(schema) {
+                app.dataSchemas.forEach(function(schema) {
                     if (rsp.data[schema.id]) {
                         rsp.data[schema.id]._schema = schema;
                         stat[schema.id] = rsp.data[schema.id];

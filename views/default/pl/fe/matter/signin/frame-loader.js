@@ -9,6 +9,8 @@ require.config({
     waitSeconds: 0,
     paths: {
         "domReady": '/static/js/domReady',
+        "enrollSchema": '/views/default/pl/fe/matter/enroll/lib/enroll.schema',
+        "enrollPage": '/views/default/pl/fe/matter/enroll/lib/enroll.page',
         "signinService": '/views/default/pl/fe/matter/signin/lib/signin.service',
         "frame": '/views/default/pl/fe/matter/signin/frame',
         "page": '/views/default/pl/fe/matter/enroll/lib/page',

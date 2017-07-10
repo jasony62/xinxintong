@@ -18,7 +18,7 @@ class tag extends base {
 
 		$posted = $this->getPostJson();
 		$user = $this->who;
-
+		$user->creater_src = 'S';
 		$newTags = $this->model('matter\enroll\tag')->add($oApp, $user, $posted);
 
 		return new \ResponseData($newTags);

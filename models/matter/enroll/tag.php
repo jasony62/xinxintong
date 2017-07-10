@@ -17,7 +17,7 @@ class tag_model extends \TMS_MODEL {
 			'xxt_enroll_record_tag',
 			['aid' => $oApp->id]
 		];
-		$q2['o'] = 'create_at desc';
+		$q2['o'] = 'seq desc';
 		if (isset($options['at'])) {
 			$page = $options['at']['page'];
 			$size = $options['at']['size'];
@@ -29,11 +29,27 @@ class tag_model extends \TMS_MODEL {
 		return $tags;
 	}
 	/**
+	 * 
+	 */
+	public function byId($tagId, $options = []) {
+		$fields = isset($options['fields']) ? $options['fields'] : '*';
+
+		$q = [
+			$fields,
+			'xxt_enroll_record_tag',
+			['id' => $tagId]
+		];
+
+		$tag = $this->query_obj_ss($q);
+
+		return $tag;
+	}
+	/**
 	 * 添加登记活动的填写项标签
 	 *
 	 * @param object $oApp
 	 */
-	public function add(&$oApp, $user, $data) {
+	public function add(&$oApp, $user, $data, $scope = 'U') {
 		$current = time();
 		$newTags = [];
 		$this->setOnlyWriteDbConn(true);
@@ -57,14 +73,60 @@ class tag_model extends \TMS_MODEL {
 			$oNewTag->aid = $oApp->id;
 			$oNewTag->create_at = $current;
 			$oNewTag->creater = $user->uid;
+			$oNewTag->creater_src = $user->creater_src;
 			$oNewTag->label = $tagLabel;
-			$oNewTag->scope = 'U';
+			$oNewTag->scope = $scope;
 			$oNewTag->seq = $seq + 1;
+			$oNewTag->use_num = 0;
 			$oNewTag->id = $this->insert('xxt_enroll_record_tag', $oNewTag, true);
 
 			$newTags[] = $oNewTag;
 		}
 
 		return $newTags;
+	}
+	/**
+	 * 修改活动的填写项标签
+	 *
+	 */
+	public function updateTag(&$tag, $user, $data) {
+		$current = time();
+		$this->setOnlyWriteDbConn(true);
+
+		$newTags = [];
+		!empty($data->label) && $newTags['label'] = $this->escape(trim($data->label));
+
+		if (isset($data->seq) && $data->seq === 'U') {
+			$q = [
+				'id,seq',
+				'xxt_enroll_record_tag',
+				"aid = '$tag->aid' and seq > $tag->seq"
+			];
+			$q2 = ['o' => 'seq asc'];
+			if ($mins = $this->query_objs_ss($q,$q2)) {
+				$min = $mins[0];
+				$this->update('xxt_enroll_record_tag', ['seq' => $min->seq], ['id' => $tag->id]);
+				$this->update('xxt_enroll_record_tag', ['seq' => $tag->seq], ['id' => $min->id]);
+			}
+		}
+		if (isset($data->seq) && $data->seq === 'D') {
+			$q = [
+				'id,seq',
+				'xxt_enroll_record_tag',
+				"aid = '$tag->aid' and seq < $tag->seq"
+			];
+			$q2 = ['o' => 'seq desc'];
+			if ($maxs = $this->query_objs_ss($q,$q2)) {
+				$max = $maxs[0];
+				$this->update('xxt_enroll_record_tag', ['seq' => $max->seq], ['id' => $tag->id]);
+				$this->update('xxt_enroll_record_tag', ['seq' => $tag->seq], ['id' => $max->id]);
+			}
+		}
+
+		if(!empty($newTags)){
+			$rst = $this->update('xxt_enroll_record_tag', $newTags, ['id' => $tag->id]);
+		}
+
+		return 'ok';
 	}
 }

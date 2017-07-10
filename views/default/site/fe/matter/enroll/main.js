@@ -117,7 +117,14 @@ ngApp.controller('ctrlMain', ['$scope', '$http', '$timeout', 'ls', 'tmsDynaPage'
         }
     }
     var tasksOfOnReady = [];
-    $scope.errmsg = '';
+    // 消息提醒
+    $scope.notice = {
+        msg: '',
+        set: function(msg, type) {
+            this.msg = msg;
+            this.type = type || 'error'
+        }
+    };
     $scope.back = function() {
         history.back();
     };
@@ -184,6 +191,9 @@ ngApp.controller('ctrlMain', ['$scope', '$http', '$timeout', 'ls', 'tmsDynaPage'
         } else {
             tasksOfOnReady.push(task);
         }
+    };
+    $scope.save = function() {
+        $scope.$broadcast('xxt.app.enroll.save');
     };
     $http.get(LS.j('get', 'site', 'app', 'rid', 'page', 'ek', 'newRecord')).success(function(rsp) {
         if (rsp.err_code !== 0) {

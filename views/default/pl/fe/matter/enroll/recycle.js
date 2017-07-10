@@ -21,7 +21,7 @@ define(['frame'], function(ngApp) {
             var recordSchemas = [],
                 enrollDataSchemas = [],
                 groupDataSchemas = [];
-            app.data_schemas.forEach(function(schema) {
+            app.dataSchemas.forEach(function(schema) {
                 if (schema.type !== 'html') {
                     recordSchemas.push(schema);
                 }

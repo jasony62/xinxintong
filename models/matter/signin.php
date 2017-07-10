@@ -68,15 +68,26 @@ class signin_model extends app_base {
 				$q[2][$key] = $value;
 			}
 		}
-
 		if ($oApp = $this->query_obj_ss($q)) {
 			$oApp->type = 'signin';
 			if (isset($oApp->siteid) && isset($oApp->id)) {
 				$oApp->entryUrl = $this->getEntryUrl($oApp->siteid, $oApp->id);
 				$oApp->opUrl = $this->getOpUrl($oApp->siteid, $oApp->id);
 			}
-			if (isset($oApp->entry_rule)) {
-				$oApp->entry_rule = json_decode($oApp->entry_rule);
+			if ($fields === '*' || false !== strpos($fields, 'entry_rule')) {
+				if (empty($oApp->entry_rule)) {
+					$oApp->entry_rule = new \stdClass;
+					$oApp->entry_rule->scope = 'none';
+				} else {
+					$oApp->entry_rule = json_decode($oApp->entry_rule);
+				}
+			}
+			if ($fields === '*' || false !== strpos($fields, 'data_schemas')) {
+				if (!empty($oApp->data_schemas)) {
+					$oApp->dataSchemas = json_decode($oApp->data_schemas);
+				} else {
+					$oApp->dataSchemas = [];
+				}
 			}
 			if ($cascaded === 'Y') {
 				/* 页面 */

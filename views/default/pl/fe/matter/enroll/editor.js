@@ -4,7 +4,7 @@ define(['frame'], function(ngApp) {
         function _afterGetApp(app) {
             if (oRecord.data) {
                 srvRecordConverter.forTable(oRecord, app._schemasById);
-                app.data_schemas.forEach(function(schema) {
+                app.dataSchemas.forEach(function(schema) {
                     if (oRecord.data[schema.id]) {
                         srvRecordConverter.forEdit(schema, oRecord.data);
                     }

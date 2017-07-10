@@ -131,14 +131,16 @@ ngApp.controller('ctrlView', ['$scope', '$timeout', 'ls', 'Record', function($sc
             if (oSchema.remarkable && oSchema.remarkable === 'Y') {
                 aRemarkableSchemas.push(oSchema);
                 var domWrap = document.querySelector('[schema=' + oSchema.id + ']');
-                domWrap.classList.add('remarkable');
-                domWrap.addEventListener('click', function() {
-                    var url = LS.j('', 'site', 'app');
-                    url += '&ek=' + oRecord.enroll_key;
-                    url += '&schema=' + oSchema.id;
-                    url += '&page=remark';
-                    location.href = url;
-                }, true);
+                if (domWrap) {
+                    domWrap.classList.add('remarkable');
+                    domWrap.addEventListener('click', function() {
+                        var url = LS.j('', 'site', 'app');
+                        url += '&ek=' + oRecord.enroll_key;
+                        url += '&schema=' + oSchema.id;
+                        url += '&page=remark';
+                        location.href = url;
+                    }, true);
+                }
             }
         });
         facRecord.current.tag = params.record.data_tag ? params.record.data_tag : {};

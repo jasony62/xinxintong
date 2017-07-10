@@ -346,11 +346,14 @@ define(['wrap'], function(SchemaWrap) {
         _arrange: function(mapOfAppSchemas) {
             if (this.data_schemas.length) {
                 this.data_schemas.forEach(function(item) {
-                    var listSchemas = [];
-                    item.schemas.forEach(function(schema) {
-                        listSchemas.push(mapOfAppSchemas[schema.id] ? mapOfAppSchemas[schema.id] : schema);
-                    });
-                    item.schemas = listSchemas;
+                    // todo 处理异常数据的情况，应该在保存数据的时候做检查
+                    if (item && item.schemas) {
+                        var listSchemas = [];
+                        item.schemas.forEach(function(schema) {
+                            listSchemas.push(mapOfAppSchemas[schema.id] ? mapOfAppSchemas[schema.id] : schema);
+                        });
+                        item.schemas = listSchemas;
+                    }
                 });
             } else if (angular.isObject(this.data_schemas)) {
                 this.data_schemas = [];

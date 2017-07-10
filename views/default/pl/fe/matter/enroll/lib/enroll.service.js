@@ -93,13 +93,7 @@ define(['require', 'schema', 'page'], function(require, schemaLib, pageLib) {
         };
         this._bGet = function(oEnrollApp, method) {
             oEnrollApp.tags = (!oEnrollApp.tags || oEnrollApp.tags.length === 0) ? [] : oEnrollApp.tags.split(',');
-            if (oEnrollApp.groupApp && oEnrollApp.groupApp.data_schemas) {
-                var groupAppDS = oEnrollApp.groupApp.data_schemas;
-                try {
-                    oEnrollApp.groupApp.data_schemas = groupAppDS && groupAppDS.length ? JSON.parse(groupAppDS) : [];
-                } catch (e) {
-                    oEnrollApp.groupApp.data_schemas = [];
-                }
+            if (oEnrollApp.groupApp && oEnrollApp.groupApp.dataSchemas) {
                 if (oEnrollApp.groupApp.rounds && oEnrollApp.groupApp.rounds.length) {
                     var roundDS = {
                             id: '_round_id',
@@ -114,7 +108,7 @@ define(['require', 'schema', 'page'], function(require, schemaLib, pageLib) {
                         });
                     });
                     roundDS.ops = ops;
-                    oEnrollApp.groupApp.data_schemas.splice(0, 0, roundDS);
+                    oEnrollApp.groupApp.dataSchemas.splice(0, 0, roundDS);
                 }
             }
             method(oEnrollApp);
@@ -135,7 +129,7 @@ define(['require', 'schema', 'page'], function(require, schemaLib, pageLib) {
                 backdrop: 'static',
                 resolve: {
                     dataSchemas: function() {
-                        return that._oApp.data_schemas;
+                        return that._oApp.dataSchemas;
                     },
                     criteria: function() {
                         return angular.copy(that._oCriteria);
@@ -183,8 +177,8 @@ define(['require', 'schema', 'page'], function(require, schemaLib, pageLib) {
                 });
             }
             // 关联的分组活动的登记项
-            if (app.groupApp && app.groupApp.data_schemas) {
-                app.groupApp.data_schemas.forEach(function(item) {
+            if (app.groupApp && app.groupApp.dataSchemas) {
+                app.groupApp.dataSchemas.forEach(function(item) {
                     if (mapOfUnionSchemaById[item.id] === undefined) {
                         mapOfUnionSchemaById[item.id] = item;
                         groupDataSchemas.push(item);

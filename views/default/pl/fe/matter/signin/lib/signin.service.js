@@ -17,7 +17,7 @@ define(['require', 'schema', 'page'], function(require, schemaLib, pageLib) {
             // schemas
             if (this._oApp._schemasById === undefined) {
                 var schemasById = {};
-                this._oApp.data_schemas.forEach(function(schema) {
+                this._oApp.dataSchemas.forEach(function(schema) {
                     schemasById[schema.id] = schema;
                 });
                 this._oApp._schemasById = schemasById;
@@ -145,7 +145,7 @@ define(['require', 'schema', 'page'], function(require, schemaLib, pageLib) {
                 backdrop: 'static',
                 resolve: {
                     dataSchemas: function() {
-                        return that._oApp.data_schemas;
+                        return that._oApp.dataSchemas;
                     },
                     criteria: function() {
                         return angular.copy(that._oCriteria);

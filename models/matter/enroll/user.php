@@ -14,18 +14,13 @@ class user_model extends \TMS_MODEL {
 			'xxt_enroll_user',
 			['aid' => $oApp->id, 'userid' => $userid],
 		];
+
 		if(isset($options['rid'])){
 			$q[2]['rid'] = $options['rid'];
 		}else{
-			/* 获得所属轮次 */
-			$modelRun = $this->model('matter\enroll\round');
-			if ($activeRound = $modelRun->getActive($oApp)) {
-				$rid = $activeRound->rid;
-			}else{
-				$rid = '';
-			}
-			$q[2]['rid'] = $rid;
+			$q[2]['rid'] = 'ALL';
 		}
+
 		$oUser = $this->query_obj_ss($q);
 
 		return $oUser;
@@ -56,12 +51,11 @@ class user_model extends \TMS_MODEL {
 		$q = [
 			$fields,
 			"xxt_enroll_user",
-			"aid='{$oApp->id}' and enroll_num>0",
+			"aid='{$oApp->id}' and enroll_num>0 and rid = 'ALL'",
 		];
 		$q2 = [
 			'o' => 'last_enroll_at desc',
 			'r' => ['o' => ($page - 1) * $size, 'l' => $size],
-			'g' => 'userid'
 		];
 		$users = $this->query_objs_ss($q, $q2);
 		$result->users = $users;
@@ -115,12 +109,11 @@ class user_model extends \TMS_MODEL {
 		$q = [
 			$fields,
 			"xxt_enroll_user",
-			"aid='{$oApp->id}' and remark_other_num>0",
+			"aid='{$oApp->id}' and remark_other_num>0 and rid = 'ALL'",
 		];
 		$q2 = [
 			'o' => 'last_remark_other_at desc',
 			'r' => ['o' => ($page - 1) * $size, 'l' => $size],
-			'g' => 'userid'
 		];
 		$users = $this->query_objs_ss($q, $q2);
 		$result->users = $users;

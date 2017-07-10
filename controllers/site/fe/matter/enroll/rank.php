@@ -22,39 +22,39 @@ class rank extends base {
 		$q = [
 			'userid,nickname',
 			'xxt_enroll_user',
-			"aid='{$oApp->id}'",
+			"aid='{$oApp->id}' and rid = 'ALL'",
 		];
 
 		switch ($oCriteria->orderby) {
 		case 'enroll':
-			$q[0] .= ',sum(enroll_num) as enroll_num';
+			$q[0] .= ',enroll_num';
 			$q[2] .= ' and enroll_num>0';
-			$q2 = ['o' => 'enroll_num desc,last_enroll_at', 'g' => 'userid'];
+			$q2 = ['o' => 'enroll_num desc,last_enroll_at'];
 			break;
 		case 'remark':
-			$q[0] .= ',sum(remark_num) as remark_num';
+			$q[0] .= ',remark_num';
 			$q[2] .= ' and remark_num>0';
-			$q2 = ['o' => 'remark_num desc,last_remark_at', 'g' => 'userid'];
+			$q2 = ['o' => 'remark_num desc,last_remark_at'];
 			break;
 		case 'like':
-			$q[0] .= ',sum(like_num) as like_num';
+			$q[0] .= ',like_num';
 			$q[2] .= ' and like_num>0';
-			$q2 = ['o' => 'like_num desc,last_like_at', 'g' => 'userid'];
+			$q2 = ['o' => 'like_num desc,last_like_at'];
 			break;
 		case 'remark_other':
-			$q[0] .= ',sum(remark_other_num) as remark_other_num';
+			$q[0] .= ',remark_other_num';
 			$q[2] .= ' and remark_other_num>0';
-			$q2 = ['o' => 'remark_other_num desc,last_remark_other_at', 'g' => 'userid'];
+			$q2 = ['o' => 'remark_other_num desc,last_remark_other_at'];
 			break;
 		case 'like_other':
-			$q[0] .= ',sum(like_other_num) as like_other_num';
+			$q[0] .= ',like_other_num';
 			$q[2] .= ' and like_other_num>0';
-			$q2 = ['o' => 'like_other_num desc,last_like_other_at', 'g' => 'userid'];
+			$q2 = ['o' => 'like_other_num desc,last_like_other_at'];
 			break;
 		case 'total_coin':
-			$q[0] .= ',sum(user_total_coin) as user_total_coin';
+			$q[0] .= ',user_total_coin';
 			$q[2] .= ' and user_total_coin>0';
-			$q2 = ['o' => 'user_total_coin desc,id', 'g' => 'userid'];
+			$q2 = ['o' => 'user_total_coin desc,id'];
 			break;
 		}
 		$q2['r'] = ['o' => ($page - 1) * $size, 'l' => $size];

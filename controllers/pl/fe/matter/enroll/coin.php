@@ -41,9 +41,9 @@ class coin extends \pl\fe\matter\base {
 		$model = $this->model();
 		$app = $model->escape($app);
 		$q = [
-			'cl.id,cl.act,cl.occur_at,cl.userid,cl.nickname,cl.delta,cl.total,sum(e.user_total_coin) as user_total_coin',
+			'cl.act,cl.occur_at,cl.userid,cl.nickname,cl.delta,cl.total,e.user_total_coin',
 			'xxt_coin_log cl,xxt_enroll_user e',
-			"cl.matter_type='enroll' and cl.matter_id='$app' and e.aid = cl.matter_id and e.userid = cl.userid",
+			"cl.matter_type='enroll' and cl.matter_id='{$app}' and e.aid = cl.matter_id and e.userid = cl.userid and e.rid = 'ALL'",
 		];
 		/**
 		 * 分页数据
@@ -54,13 +54,12 @@ class coin extends \pl\fe\matter\base {
 				'o' => (($page - 1) * $size),
 				'l' => $size,
 			],
-			'g' => 'cl.id'
 		];
 
 		$result->logs = $model->query_objs_ss($q, $q2);
 
 		$q[0] = 'count(*)';
-		$result->total = $this->model()->query_val_ss($q);
+		$result->total = $model->query_val_ss($q);
 
 
 		return new \ResponseData($result);

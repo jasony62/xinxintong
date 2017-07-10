@@ -72,7 +72,29 @@ class access extends \TMS_MODEL {
 			$modelCoin = $this->model('site\coin\log');
 			$modelCoin->award($matter, $user, 'site.matter.enroll.read', $rules);
 
-			/* 获得所属轮次 */
+			/* 更新活动用户总数据 */
+			$modelUsr = $this->model('matter\enroll\user');
+			$oEnrollUsrALL = $modelUsr->byId($matter, $user->uid, ['fields' => 'id,nickname,last_enroll_at,user_total_coin', 'rid' => 'ALL']);
+			if (false === $oEnrollUsrALL) {
+				$inDataALL = ['last_enroll_at' => time()];
+				$inDataALL['user_total_coin'] = 0;
+				foreach ($rules as $rule) {
+					$inDataALL['user_total_coin'] = $inDataALL['user_total_coin'] + (int) $rule->actor_delta;
+				}
+
+				$inDataALL['rid'] = 'ALL';
+				$modelUsr->add($matter, $user, $inDataALL);
+			} else {
+				$upDataALL = ['last_enroll_at' => time()];
+				$upDataALL['user_total_coin'] = (int) $oEnrollUsrALL->user_total_coin;
+				foreach ($rules as $rule) {
+					$upDataALL['user_total_coin'] = $upDataALL['user_total_coin'] + (int) $rule->actor_delta;
+				}
+				
+				$modelUsr->update('xxt_enroll_user', $upDataALL, ['id' => $oEnrollUsrALL->id]);
+			}
+			
+			/* 修改所属轮次的数据 */
 			$modelRun = $this->model('matter\enroll\round');
 			if ($activeRound = $modelRun->getActive($matter)) {
 				$rid = $activeRound->rid;
@@ -81,10 +103,7 @@ class access extends \TMS_MODEL {
 			}
 
 			/* 更新活动用户数据 */
-			$modelUsr = $this->model('matter\enroll\user');
-			$options =  ['fields' => 'id,nickname,last_enroll_at,enroll_num,user_total_coin,rid'];
-			$options['rid'] = $rid;
-			$oEnrollUsr = $modelUsr->byId($matter, $user->uid, $options);
+			$oEnrollUsr = $modelUsr->byId($matter, $user->uid, ['fields' => 'id,nickname,last_enroll_at,user_total_coin', 'rid' => $rid]);
 			if (false === $oEnrollUsr) {
 				$inData = ['last_enroll_at' => time()];
 				$inData['user_total_coin'] = 0;

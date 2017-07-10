@@ -374,7 +374,7 @@ class xxt_base extends TMS_CONTROLLER {
 			'openid' => $openid,
 			'tmplmsg_id' => $tmplmsgId,
 			'template_id' => $msg['template_id'],
-			'data' => $this->model()->escape(json_encode($msg)),
+			'data' => $model->escape(json_encode($msg)),
 			'create_at' => time(),
 			'msgid' => $msgid,
 		);

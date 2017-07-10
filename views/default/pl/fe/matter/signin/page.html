@@ -8,7 +8,7 @@
                 </li>
             </ul>
             <ul class="navbar-form navbar-right">
-                <button class='btn btn-success' ng-click="save()">保存修改</button>
+                <button class='btn' ng-class="ep.$$modified?'btn-success':'btn-default'" ng-click="save()">保存修改</button>
                 <button uib-popover-template="'pageSetting.html'" popover-placement="bottom" popover-title="页面设置" popover-trigger="outsideClick" class="btn btn-default">页面设置 <span class="caret"></span></button>
             </ul>
         </div>

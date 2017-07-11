@@ -53,21 +53,26 @@ ngApp.controller('ctrlRepos', ['$scope', 'http2', 'Round', '$sce', function($sco
         var url;
         if (pageAt) {
             page.at = pageAt;
+        } else {
+            page.at++;
+        }
+        if (page.at == 1) {
+            $scope.repos = [];
         }
         url = '/rest/site/fe/matter/enroll/repos/list4Schema?site=' + oApp.siteid + '&app=' + oApp.id;
         url += '&page=' + page.at + '&size=' + page.size;
         http2.post(url, criteria).then(function(result) {
-            $scope.repos = result.data.records;
             page.total = result.data.total;
             if ($scope.repos) {
-                $scope.repos.forEach(function(record) {
-                    if (record.tag) {
-                        record.tag.forEach(function(index, tagId) {
+                result.data.records.forEach(function(oRecord) {
+                    if (oRecord.tag) {
+                        oRecord.tag.forEach(function(index, tagId) {
                             if (oApp._tagsById[index]) {
-                                record.tag[tagId] = oApp._tagsById[index];
+                                oRecord.tag[tagId] = oApp._tagsById[index];
                             }
                         });
                     }
+                    $scope.repos.push(oRecord);
                 });
             }
         });
@@ -88,20 +93,20 @@ ngApp.controller('ctrlRepos', ['$scope', 'http2', 'Round', '$sce', function($sco
                 })
             });
         } else {
-            $scope.list4Schema();
+            $scope.list4Schema(1);
         }
     };
     $scope.shiftAgreed = function() {
-        $scope.list4Schema();
+        $scope.list4Schema(1);
     };
     $scope.shiftOwner = function() {
-        $scope.list4Schema();
+        $scope.list4Schema(1);
     };
     $scope.shiftSchema = function() {
-        $scope.list4Schema();
+        $scope.list4Schema(1);
     };
     $scope.shiftTag = function() {
-        $scope.list4Schema();
+        $scope.list4Schema(1);
     };
     $scope.likeRecordData = function(oRecord) {
         var url;
@@ -151,7 +156,7 @@ ngApp.controller('ctrlRepos', ['$scope', 'http2', 'Round', '$sce', function($sco
             }
         });
         $scope.dataTags = oApp.dataTags;
-        $scope.list4Schema();
+        $scope.list4Schema(1);
         $scope.facRound = facRound = srvRound.ins(oApp);
         if (oApp.multi_rounds === 'Y') {
             facRound.list().then(function(result) {

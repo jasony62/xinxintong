@@ -250,8 +250,15 @@ class xxt_base extends TMS_CONTROLLER {
 	 */
 	public function sendByOpenid($mpid, $openid, $message, $openid_src = null) {
 		if (empty($openid_src)) {
-			$mpa = $this->model('mp\mpaccount')->getApis($mpid);
-			$mpproxy = $this->model('mpproxy/' . $mpa->mpsrc, $mpid);
+			$user=$model->query_obj_ss([
+				'ufrom',
+				'xxt_site_account',
+				"siteid='$mpid' and (wx_openid='$openid' or yx_openid='$openid' or qy_openid='$openid')"
+			]);
+			$mpa = $this->model("sns\\".$user->ufrom)->bySite($mpid);
+			$mpproxy = $this->model('sns\\'.$user->ufrom.'\\proxy', $mpa);
+			$mpa->yx_p2p = $mpa->can_p2p;
+			$mpa->mpsrc = $user->ufrom;
 		} else {
 			switch ($openid_src) {
 			case 'yx':
@@ -306,6 +313,7 @@ class xxt_base extends TMS_CONTROLLER {
 		/*模板定义*/
 		is_object($data) && $data = (array) $data;
 		$tmpl = $this->model('matter\tmplmsg')->byId($tmplmsgId, array('cascaded' => 'Y'));
+		$model=$this->model('matter\log');
 		/*发送消息*/
 		if (!empty($tmpl->templateid)) {
 			/*只有微信号才有模板消息ID*/
@@ -320,7 +328,8 @@ class xxt_base extends TMS_CONTROLLER {
 					$msg['data'][$p->pname] = array('value' => $value, 'color' => '#173177');
 				}
 			}
-			$mpproxy = $this->model('mpproxy/wx', $mpid);
+			$config = $this->model('sns\\wx')->bySite($mpid);
+			$mpproxy = $this->model('sns\\wx\\proxy', $config);
 			$rst = $mpproxy->messageTemplateSend($msg);
 			if ($rst[0] === false) {
 				return $rst;
@@ -328,7 +337,11 @@ class xxt_base extends TMS_CONTROLLER {
 			$msgid = $rst[1]->msgid;
 		} else {
 			/*如果不是微信号，将模板消息转换文本消息*/
-			$mpa = $this->model('mp\mpaccount')->byId($mpid, 'mpsrc');
+			$user=$model->query_obj_ss([
+				'ufrom',
+				'xxt_site_account',
+				"siteid='$mpid' and (wx_openid='$openid' or yx_openid='$openid' or qy_openid='$openid')"
+			]);
 			$txt = array();
 			$txt[] = $tmpl->title;
 			if ($tmpl->params) {
@@ -338,7 +351,7 @@ class xxt_base extends TMS_CONTROLLER {
 				}
 			}
 			if (!empty($url)) {
-				if ($mpa->mpsrc === 'yx') {
+				if (isset($user->ufrom) && $user->ufrom === 'yx') {
 					$txt[] = '查看详情：\n' . $url;
 				} else {
 					$txt[] = " <a href='" . $url . "'>查看详情</a>";
@@ -351,7 +364,7 @@ class xxt_base extends TMS_CONTROLLER {
 					"content" => $txt,
 				),
 			);
-			$this->sendByOpenid($mpid, $openid, $msg);
+			$this->sendByOpenid($mpid, $openid, $msg, $user->ufrom);
 			$msg['template_id'] = 0;
 			$msgid = 0;
 		}
@@ -361,11 +374,11 @@ class xxt_base extends TMS_CONTROLLER {
 			'openid' => $openid,
 			'tmplmsg_id' => $tmplmsgId,
 			'template_id' => $msg['template_id'],
-			'data' => $this->model()->escape(json_encode($msg)),
+			'data' => $model->escape(json_encode($msg)),
 			'create_at' => time(),
 			'msgid' => $msgid,
 		);
-		$this->model()->insert('xxt_log_tmplmsg', $log, false);
+		$model->insert('xxt_log_tmplmsg', $log, false);
 
 		return array(true);
 	}

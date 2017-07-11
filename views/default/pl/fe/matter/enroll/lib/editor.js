@@ -434,6 +434,8 @@ define(['wrap'], function(wrapLib) {
                 this.setActiveWrap($active.find('[wrap]').get(0));
             }
 
+            _editor.fire('change')
+
             return _activeWrap;
         },
         optionSchemaByDom: function(domWrap, app) {
@@ -552,6 +554,8 @@ define(['wrap'], function(wrapLib) {
 
             this.html = _editor.getContent();
 
+            _editor.fire('change');
+
             return $domRemoved[0];
         },
         /**
@@ -567,6 +571,7 @@ define(['wrap'], function(wrapLib) {
                         $domRemoved = $(_editor.getBody()).find("[schema='" + removedSchema.id + "']");
                         $domRemoved.remove();
                         pageSchemas.splice(i, 1);
+                        _editor.fire('change');
                         return $domRemoved[0];
                     }
                 }

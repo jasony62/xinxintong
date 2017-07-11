@@ -308,6 +308,10 @@ ngApp.controller('ctrlMain', ['$scope', '$http', '$timeout', 'ls', 'tmsDynaPage'
         if (oApp.can_siteuser === 'Y') {
             tmsSiteUser.showSwitch(oApp.siteid, true);
         }
+        $scope.isSmallLayout = false;
+        if (window.screen && window.screen.width < 992) {
+            $scope.isSmallLayout = true;
+        }
         $timeout(function() {
             $scope.$broadcast('xxt.app.enroll.ready', params);
         });

@@ -125,8 +125,8 @@ class account_model extends TMS_MODEL {
 	/**
 	 * email valid and existed?
 	 */
-	public function check_email($email) {
-		return $this->query_value('1', self::TABLE_A, "email='$email'");
+	public function checkUname($uname) {
+		return $this->query_value('1', self::TABLE_A, "email='$uname'");
 	}
 	/**
 	 * record last login information.

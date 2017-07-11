@@ -59,8 +59,22 @@ define(['frame', 'schema', 'page', 'editor'], function(ngApp, schemaLib, pageLib
             return srvSigninPage.update(page, names);
         };
         $scope.delPage = function() {
-            if (window.confirm('确定删除页面？')) {
-                $('body').click();
+            var oPage, oActSchema, bUserd;
+            $('body').click();
+            for (var i = $scope.app.pages.length - 1; i >= 0; i--) {
+                oPage = $scope.app.pages[i];
+                for (var j = oPage.act_schemas.length - 1; j >= 0; j--) {
+                    oActSchema = oPage.act_schemas[j];
+                    if (oActSchema.next === $scope.ep.name) {
+                        bUserd = true;
+                        break;
+                    }
+                }
+                if (bUserd) break;
+            }
+            if (bUserd) {
+                alert('页面已经被【' + oPage.title + '/' + oActSchema.label + '】使用，不能删除');
+            } else if (window.confirm('确定删除页面【' + $scope.ep.title + '】？')) {
                 srvSigninPage.remove($scope.ep).then(function() {
                     $scope.app.pages.splice($scope.app.pages.indexOf($scope.ep), 1);
                     if ($scope.app.pages.length) {

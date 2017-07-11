@@ -22,7 +22,7 @@ class rank extends base {
 		$q = [
 			'userid,nickname',
 			'xxt_enroll_user',
-			"aid='{$oApp->id}'",
+			"aid='{$oApp->id}' and rid = 'ALL'",
 		];
 
 		switch ($oCriteria->orderby) {

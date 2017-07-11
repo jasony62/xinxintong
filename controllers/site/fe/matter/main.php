@@ -187,19 +187,50 @@ class main extends \site\fe\matter\base {
 			$rules = $modelMat->rulesByMatter('site.matter.enroll.read', $matter);
 			$modelCoin = $this->model('site\coin\log');
 			$modelCoin->award($matter, $user, 'site.matter.enroll.read', $rules);
-			/* 更新活动用户数据 */
+
+			/* 更新活动用户总数据 */
 			$modelUsr = $this->model('matter\enroll\user');
-			$oEnrollUsr = $modelUsr->byId($matter, $user->uid, ['fields' => 'id,nickname,last_enroll_at,enroll_num,user_total_coin']);
+			$oEnrollUsrALL = $modelUsr->byId($matter, $user->uid, ['fields' => 'id,nickname,last_enroll_at,user_total_coin', 'rid' => 'ALL']);
+			if (false === $oEnrollUsrALL) {
+				$inDataALL = ['last_enroll_at' => time()];
+				$inDataALL['user_total_coin'] = 0;
+				foreach ($rules as $rule) {
+					$inDataALL['user_total_coin'] = $inDataALL['user_total_coin'] + (int) $rule->actor_delta;
+				}
+
+				$inDataALL['rid'] = 'ALL';
+				$modelUsr->add($matter, $user, $inDataALL);
+			} else {
+				$upDataALL = ['last_enroll_at' => time()];
+				$upDataALL['user_total_coin'] = (int) $oEnrollUsrALL->user_total_coin;
+				foreach ($rules as $rule) {
+					$upDataALL['user_total_coin'] = $upDataALL['user_total_coin'] + (int) $rule->actor_delta;
+				}
+				
+				$modelUsr->update('xxt_enroll_user', $upDataALL, ['id' => $oEnrollUsrALL->id]);
+			}
+			
+			/* 修改所属轮次的数据 */
+			$modelRun = $this->model('matter\enroll\round');
+			if ($activeRound = $modelRun->getActive($matter)) {
+				$rid = $activeRound->rid;
+			}else{
+				$rid = '';
+			}
+
+			/* 更新活动用户数据 */
+			$oEnrollUsr = $modelUsr->byId($matter, $user->uid, ['fields' => 'id,nickname,last_enroll_at,user_total_coin', 'rid' => $rid]);
 			if (false === $oEnrollUsr) {
-				$inData = ['last_enroll_at' => time(), 'enroll_num' => 1];
+				$inData = ['last_enroll_at' => time()];
 				$inData['user_total_coin'] = 0;
 				foreach ($rules as $rule) {
 					$inData['user_total_coin'] = $inData['user_total_coin'] + (int) $rule->actor_delta;
 				}
 
+				$inData['rid'] = $rid;
 				$modelUsr->add($matter, $user, $inData);
 			} else {
-				$upData = ['last_enroll_at' => time(), 'enroll_num' => (int) $oEnrollUsr->enroll_num + 1];
+				$upData = ['last_enroll_at' => time()];
 				$upData['user_total_coin'] = (int) $oEnrollUsr->user_total_coin;
 				foreach ($rules as $rule) {
 					$upData['user_total_coin'] = $upData['user_total_coin'] + (int) $rule->actor_delta;
@@ -297,25 +328,56 @@ class main extends \site\fe\matter\base {
 			$rules = $modelMat->rulesByMatter('site.matter.enroll.share.' . ['F' => 'friend', 'T' => 'timeline'][$shareto], $matter);
 			$modelCoin = $this->model('site\coin\log');
 			$modelCoin->award($matter, $user, 'site.matter.enroll.share.' . ['F' => 'friend', 'T' => 'timeline'][$shareto], $rules);
-			/* 更新活动用户数据 */
+			
+			/* 获得所属轮次 */
+			$modelRun = $this->model('matter\enroll\round');
+			if ($activeRound = $modelRun->getActive($matter)) {
+				$rid = $activeRound->rid;
+			}else{
+				$rid = '';
+			}
+
+			/* 更新活动用户轮次数据 */
 			$modelUsr = $this->model('matter\enroll\user');
-			$oEnrollUsr = $modelUsr->byId($matter, $user->uid, ['fields' => 'id,nickname,last_enroll_at,enroll_num,user_total_coin']);
+			$oEnrollUsr = $modelUsr->byId($matter, $user->uid, ['fields' => 'id,nickname,last_enroll_at,user_total_coin', 'rid' => $rid]);
 			if (false === $oEnrollUsr) {
-				$inData = ['last_enroll_at' => time(), 'enroll_num' => 1];
+				$inData = ['last_enroll_at' => time()];
 				$inData['user_total_coin'] = 0;
 				foreach ($rules as $rule) {
 					$inData['user_total_coin'] = $inData['user_total_coin'] + (int) $rule->actor_delta;
 				}
 
+				$inData['rid'] = $rid;
 				$modelUsr->add($matter, $user, $inData);
 			} else {
-				$upData = ['last_enroll_at' => time(), 'enroll_num' => (int) $oEnrollUsr->enroll_num + 1];
+				$upData = ['last_enroll_at' => time()];
 				$upData['user_total_coin'] = (int) $oEnrollUsr->user_total_coin;
 				foreach ($rules as $rule) {
 					$upData['user_total_coin'] = $upData['user_total_coin'] + (int) $rule->actor_delta;
 				}
 
 				$modelUsr->update('xxt_enroll_user', $upData, ['id' => $oEnrollUsr->id]);
+			}
+
+			/* 更新活动用户总数据 */
+			$oEnrollUsrALL = $modelUsr->byId($matter, $user->uid, ['fields' => 'id,nickname,last_enroll_at,user_total_coin', 'rid' => 'ALL']);
+			if (false === $oEnrollUsrALL) {
+				$inDataALL = ['last_enroll_at' => time()];
+				$inDataALL['user_total_coin'] = 0;
+				foreach ($rules as $rule) {
+					$inDataALL['user_total_coin'] = $inDataALL['user_total_coin'] + (int) $rule->actor_delta;
+				}
+
+				$inDataALL['rid'] = 'ALL';
+				$modelUsr->add($matter, $user, $inDataALL);
+			} else {
+				$upDataALL = ['last_enroll_at' => time()];
+				$upDataALL['user_total_coin'] = (int) $oEnrollUsrALL->user_total_coin;
+				foreach ($rules as $rule) {
+					$upDataALL['user_total_coin'] = $upDataALL['user_total_coin'] + (int) $rule->actor_delta;
+				}
+				
+				$modelUsr->update('xxt_enroll_user', $upDataALL, ['id' => $oEnrollUsrALL->id]);
 			}
 		}
 

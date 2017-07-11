@@ -69,6 +69,7 @@ define(["require", "angular", "enrollService"], function(require, angular) {
                 $scope.recordSchemas = recordSchemas;
                 $scope.recordSchemas2 = recordSchemas2;
                 $scope.remarkableSchemas = remarkableSchemas;
+                $scope.imageSchemas = imageSchemas;
                 $scope.numberSchemas = numberSchemas;
                 oApp._schemasFromEnrollApp.forEach(function(schema) {
                     if (schema.type !== 'html') {

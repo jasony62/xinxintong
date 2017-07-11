@@ -75,7 +75,7 @@
                         </td>
                         <td data-th='{{schema.title}}' ng-repeat="schema in enrollDataSchemas" ng-switch on="schema.type">
                             <div ng-switch-when="image">
-                                <img ng-repeat="img in r._data[schema.id]" ng-src='{{img}}' />
+                                <img ng-repeat="img in r._data[schema.id]" ng-src='{{img}}' ng-if="bShowImage" />
                             </div>
                             <div ng-switch-when="file">
                                 <span ng-repeat='file in r._data[schema.id]'><a href='{{file.url}}' target="_blank">{{file.name}}</a></span>
@@ -85,7 +85,7 @@
                         </td>
                         <td data-th='{{schema.title}}' ng-repeat="schema in groupDataSchemas" ng-switch on="schema.type">
                             <div ng-switch-when="image">
-                                <img ng-repeat="img in r._data[schema.id]" ng-src='{{img}}' />
+                                <img ng-repeat="img in r._data[schema.id]" ng-src='{{img}}' ng-if="bShowImage" />
                             </div>
                             <div ng-switch-when="file">
                                 <span ng-repeat='file in r._data[schema.id]'><a href='{{file.url}}' target="_blank">{{file.name}}</a></span>

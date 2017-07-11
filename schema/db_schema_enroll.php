@@ -262,6 +262,7 @@ $sql = "create table if not exists xxt_enroll_user(";
 $sql .= "id int not null auto_increment";
 $sql .= ",siteid varchar(32) not null";
 $sql .= ",aid varchar(40) not null";
+$sql .= ",rid varchar(13) not null default ''";
 $sql .= ",userid varchar(40) not null default ''";
 $sql .= ",nickname varchar(255) not null default ''";
 $sql .= ",last_enroll_at int not null default 0"; // 最后一次登记时间

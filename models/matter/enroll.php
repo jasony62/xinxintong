@@ -206,7 +206,7 @@ class enroll_model extends app_base {
 			$tags = implode(',', $tags);
 		}
 
-		$options = array('fields' => 'tags', 'cascaded' => 'N');
+		$options = array('fields' => 'id,tags', 'cascaded' => 'N');
 		$oApp = $this->byId($aid, $options);
 		if (empty($oApp->tags)) {
 			$this->update('xxt_enroll', ['tags' => $tags], ["id" => $aid]);

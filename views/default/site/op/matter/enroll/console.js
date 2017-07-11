@@ -228,6 +228,7 @@ define(["require", "angular", "enrollService"], function(require, angular) {
                 $scope.rows.selected = {};
             }
         });
+        $scope.bShowImage = false;
         $scope.page = {}; // 分页条件
         $scope.criteria = {}; // 过滤条件
         $scope.records = []; // 登记记录

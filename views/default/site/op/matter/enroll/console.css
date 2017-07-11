@@ -1,7 +1,8 @@
-body{font-family:"HSimHei","Microsoft YaHei";margin-bottom:70px;}
+body{font-family:"HSimHei","Microsoft YaHei";margin:51px 0;}
 td img{max-width:100%;}
 .tms-keep-inline{display:inline-block;}
 #record{margin-bottom:60px;}
+#list table{margin-bottom:0;}
 #list table img{max-width:96px;}
 #list .unread{display:inline-block;position:relative;}
 #list .unread:before{content:' ';background:red;height:8px;width:8px;border-radius:4px;position:absolute;right:-.8em;}

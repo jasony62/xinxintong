@@ -71,8 +71,8 @@ class main extends \pl\fe\matter\base {
 		 */
 		$w = "a.custom_body='Y' and a.siteid='$site' and a.state=1 and finished='Y'";
 		/*按名称过滤*/
-		if(!empty($options->byTitle)){
-			$w .= " and a.title like '%". $model->escape($options->byTitle) ."%'";
+		if (!empty($options->byTitle)) {
+			$w .= " and a.title like '%" . $model->escape($options->byTitle) . "%'";
 		}
 		/**
 		 * 按频道过滤
@@ -336,7 +336,7 @@ class main extends \pl\fe\matter\base {
 			return new \ResponseTimeout();
 		}
 		$model = $this->model();
-		$matter = $this->model('matter\article2')->byId($id, 'id,title,summary,pic');
+		$matter = $this->model('matter\article')->byId($id, 'id,title,summary,pic');
 		$matter->type = 'custom';
 
 		$rst = $model->update(
@@ -367,7 +367,7 @@ class main extends \pl\fe\matter\base {
 			return new \ResponseTimeout();
 		}
 
-		$model = $this->model('matter\article2');
+		$model = $this->model('matter\article');
 		$custom = $model->byId($id, 'id,title,summary,pic');
 		if (false === $custom) {
 			return new \ResponseError('数据已经被彻底删除，无法恢复');

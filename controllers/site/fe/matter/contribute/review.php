@@ -20,7 +20,7 @@ class review extends base {
 	 */
 	public function articleList_action($site, $entry) {
 		/* 当前用户负责审核的文稿 */
-		$myArticles = $this->model('matter\article2')->byReviewer($site, $this->who->uid, $entry, 'R', '*', true);
+		$myArticles = $this->model('matter\article')->byReviewer($site, $this->who->uid, $entry, 'R', '*', true);
 		if (!empty($myArticles)) {
 			foreach ($myArticles as $a) {
 				/* 文稿当前的处理人 */

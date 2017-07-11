@@ -28,7 +28,7 @@ class main extends \site\fe\matter\base {
 		switch ($type) {
 		case 'article':
 		case 'custom':
-			$modelArticle = $this->model('matter\article2');
+			$modelArticle = $this->model('matter\article');
 			$article = $modelArticle->byId($id, 'title');
 			if ($article) {
 				\TPL::assign('title', $article->title);
@@ -179,7 +179,7 @@ class main extends \site\fe\matter\base {
 		 */
 		if ($type === 'article') {
 			$modelCoin = $this->model('site\coin\log');
-			$matter = $this->model('matter\article2')->byId($id);
+			$matter = $this->model('matter\article')->byId($id);
 			$modelCoin->award($matter, $user, 'site.matter.article.read');
 		} else if ($type === 'enroll') {
 			$matter = $this->model('matter\enroll')->byId($id);
@@ -196,7 +196,7 @@ class main extends \site\fe\matter\base {
 				foreach ($rules as $rule) {
 					$inData['user_total_coin'] = $inData['user_total_coin'] + (int) $rule->actor_delta;
 				}
-				
+
 				$modelUsr->add($matter, $user, $inData);
 			} else {
 				$upData = ['last_enroll_at' => time(), 'enroll_num' => (int) $oEnrollUsr->enroll_num + 1];
@@ -204,7 +204,7 @@ class main extends \site\fe\matter\base {
 				foreach ($rules as $rule) {
 					$upData['user_total_coin'] = $upData['user_total_coin'] + (int) $rule->actor_delta;
 				}
-				
+
 				$modelUsr->update('xxt_enroll_user', $upData, ['id' => $oEnrollUsr->id]);
 			}
 		}
@@ -224,7 +224,7 @@ class main extends \site\fe\matter\base {
 	 */
 	public function logShare_action($shareid, $site, $id, $type, $title, $shareto, $shareby = '') {
 		//header('Access-Control-Allow-Origin:*');
-		
+
 		$model = $this->model();
 		$shareid = $model->escape($shareid);
 		$site = $model->escape($site);
@@ -289,7 +289,7 @@ class main extends \site\fe\matter\base {
 		 */
 		if ($type === 'article') {
 			$modelCoin = $this->model('site\coin\log');
-			$matter = $this->model('matter\article2')->byId($id);
+			$matter = $this->model('matter\article')->byId($id);
 			$modelCoin->award($matter, $user, 'site.matter.article.share.' . ['F' => 'friend', 'T' => 'timeline'][$shareto]);
 		} else if ($type === 'enroll') {
 			$matter = $this->model('matter\enroll')->byId($id);
@@ -314,7 +314,7 @@ class main extends \site\fe\matter\base {
 				foreach ($rules as $rule) {
 					$upData['user_total_coin'] = $upData['user_total_coin'] + (int) $rule->actor_delta;
 				}
-				
+
 				$modelUsr->update('xxt_enroll_user', $upData, ['id' => $oEnrollUsr->id]);
 			}
 		}

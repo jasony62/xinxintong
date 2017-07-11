@@ -20,10 +20,6 @@ constant('matterTypes', [{
     title: '链接',
     url: '/rest/pl/fe/matter'
 }, {
-    value: 'addressbook',
-    title: '通讯录',
-    url: '/rest/pl/fe/matter'
-}, {
     value: 'enroll',
     title: '登记活动',
     url: '/rest/pl/fe/matter'

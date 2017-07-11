@@ -5,7 +5,6 @@ require_once '../db.php';
  */
 $sql = "create table if not exists xxt_wall(";
 $sql .= "id varchar(32) not null";
-$sql .= ",mpid varchar(32) not null default ''";
 $sql .= ",siteid varchar(32) not null default ''";
 $sql .= ",creater varchar(40) not null";
 $sql .= ",creater_name varchar(255) not null default ''";
@@ -41,7 +40,6 @@ if (!$mysqli->query($sql)) {
  */
 $sql = "create table if not exists xxt_wall_page(";
 $sql .= "id int not null auto_increment";
-$sql .= ",mpid varchar(32) not null default ''";
 $sql .= ",siteid varchar(32) not null default ''";
 $sql .= ",wid varchar(32) not null"; //wall
 $sql .= ",creater varchar(40) not null default ''";
@@ -63,7 +61,6 @@ if (!$mysqli->query($sql)) {
  */
 $sql = "create table if not exists xxt_wall_enroll(";
 $sql .= "id int not null auto_increment";
-$sql .= ",mpid varchar(32) not null default ''";
 $sql .= ",siteid varchar(32) not null default ''";
 $sql .= ",wid varchar(32) not null";
 $sql .= ",userid varchar(40) not null default ''";
@@ -89,7 +86,6 @@ if (!$mysqli->query($sql)) {
  */
 $sql = "create table if not exists xxt_wall_log(";
 $sql .= "id int not null auto_increment";
-$sql .= ",mpid varchar(32) not null default ''";
 $sql .= ",siteid varchar(32) not null default ''";
 $sql .= ",wid varchar(32) not null";
 $sql .= ",openid varchar(255) not null";

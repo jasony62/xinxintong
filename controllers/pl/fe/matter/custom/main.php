@@ -404,10 +404,12 @@ class main extends \pl\fe\matter\base {
 		$pageid = $modelPage->copy($user->id, $copied->page_id, $target->page_id);
 
 		if ($target->page_id === 0) {
-			$this->_update($id, array('page_id' => $pageid));
+			$this->_update($id, ['page_id' => $pageid]);
 		}
 
-		return new \ResponseData($pageid);
+		$oTargetPage = $modelPage->byId($pageid);
+
+		return new \ResponseData($oTargetPage);
 	}
 	/**
 	 * 更新图文信息并记录操作日志
@@ -428,7 +430,6 @@ class main extends \pl\fe\matter\base {
 		);
 		/*记录操作日志*/
 		$article = $this->model('matter\article')->byId($id, 'id,title,summary,pic');
-		$article->type = 'custom';
 		$this->model('matter\log')->matterOp($siteId, $user, $article, 'U');
 
 		return $rst;

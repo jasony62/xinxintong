@@ -1,12 +1,20 @@
 define(['frame'], function(ngApp) {
     'use strict';
     ngApp.provider.controller('ctrlEnrollee', ['$scope', 'http2', function($scope, http2) {
-        var mschemas, oCriteria;
+        var mschemas, oCriteria, page;
         $scope.mschemas = mschemas = [];
         $scope.criteria = oCriteria = {};
+        $scope.page = page = {
+            at: 1,
+            size: 20,
+            j: function() {
+                return '&page=' + this.at + '&size=' + this.size;
+            }
+        }
         $scope.seachEnrollee = function() {
-            http2.post('/rest/pl/fe/matter/enroll/user/byMschema?site=' + $scope.app.siteid + '&app=' + $scope.app.id + '&mschema=' + oCriteria.mschema.id, {}, function(rsp) {
+            http2.post('/rest/pl/fe/matter/enroll/user/byMschema?site=' + $scope.app.siteid + '&app=' + $scope.app.id + '&mschema=' + oCriteria.mschema.id + page.j(), {}, function(rsp) {
                 $scope.members = rsp.data.members;
+                $scope.page.total = rsp.data.total;
             });
         };
         $scope.$watch('app.entry_rule', function(oRule) {

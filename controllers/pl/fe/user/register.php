@@ -22,44 +22,50 @@ class register extends \TMS_CONTROLLER {
 	}
 	/**
 	 * 用户注册
-	 *
-	 * @param string $email
-	 * @param string $password
 	 */
 	public function do_action() {
 		$data = $this->getPostJson();
 		$modelAcnt = $this->model('account');
 
-		if (empty($data->email)) {
-			return new \ParameterError("注册的邮箱不允许为空");
+		if (empty($data->uname)) {
+			return new \ParameterError("登录账号不允许为空");
+		}
+		$uname = $data->uname;
+		$isValidUname = false;
+		if (1 === preg_match('/^\S+@(\S+[-.])+\S{2,4}$/', $uname)) {
+			$isValidUname = true;
+		} else if (1 === preg_match('/^1(3[0-9]|4[57]|5[0-35-9]|7[0135678]|8[0-9])\\d{8}$/', $uname)) {
+			$isValidUname = true;
+		}
+		if (false === $isValidUname) {
+			return new \ResponseError("请使用手机号或邮箱作为登录账号");
 		}
 		if (empty($data->password)) {
-			return new \ParameterError("密码不允许为空");
+			return new \ParameterError("登录密码不允许为空");
+		}
+		if (empty($data->nickname)) {
+			return new \ParameterError("账号昵称不允许为空");
 		}
 
-		$email = $data->email;
-		$nickname = empty($data->nickname) ? str_replace(strstr($email, '@'), '', $email) : $data->nickname;
+		$nickname = $data->nickname;
 		$password = $data->password;
-		// check
-		if (strlen($email) == 0 || strlen($nickname) == 0 || strlen($password) == 0) {
-			return new \ParameterError("注册失败，参数不完整。");
-		}
-		// email existed?
-		if ($modelAcnt->check_email($email)) {
+
+		// uname existed?
+		if ($modelAcnt->checkUname($uname)) {
 			return new \DataExistedError('注册失败，注册账号已经存在。');
 		}
 		//
 		$fromip = $this->client_ip();
-		$account = $modelAcnt->register($email, $password, $nickname, $fromip);
+		$oAccount = $modelAcnt->register($uname, $password, $nickname, $fromip);
 
 		/* cookie中保留注册信息 */
 		$modelWay = $this->model('site\fe\way');
-		$registration = new \stdClass;
-		$registration->unionid = $account->uid;
-		$registration->uname = $email;
-		$registration->nickname = $account->nickname;
-		$cookieRegUser = $modelWay->shiftRegUser($registration, false);
+		$oRegistration = new \stdClass;
+		$oRegistration->unionid = $oAccount->uid;
+		$oRegistration->uname = $uname;
+		$oRegistration->nickname = $oAccount->nickname;
+		$cookieRegUser = $modelWay->shiftRegUser($oRegistration, false);
 
-		return new \ResponseData($account);
+		return new \ResponseData($oAccount);
 	}
 }

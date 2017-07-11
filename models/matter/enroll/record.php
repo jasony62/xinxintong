@@ -324,7 +324,7 @@ class record_model extends \TMS_MODEL {
 			$q = [
 				'tag',
 				'xxt_enroll_record_data',
-				['enroll_key' => $ek, 'schema_id' => $schemaId, 'state' => 1]
+				['enroll_key' => $ek, 'schema_id' => $schemaId, 'state' => 1],
 			];
 			if ($tagOld = $this->query_obj_ss($q)) {
 				!empty($tagOld->tag) && $tagOlds = json_decode($tagOld->tag);
@@ -332,22 +332,22 @@ class record_model extends \TMS_MODEL {
 
 			/* 保证以字符串的格式存储标签id，便于以后检索 */
 			$jsonTags = [];
-			$tagAdd = [];//对比上一次新增的标签
+			$tagAdd = []; //对比上一次新增的标签
 			foreach ($tags as $oTag) {
 				if (($key = array_search($oTag->id, $tagOlds)) === false) {
 					$tagAdd[] = $oTag->id;
-				}else{
+				} else {
 					/*如果有剩余的标签说明是对比上一次本次不使用的标签，其使用数量应该减 1*/
 					unset($tagOlds[$key]);
 				}
 
 				$jsonTags[] = (string) $oTag->id;
 			}
-			if(!empty($tagAdd)){
+			if (!empty($tagAdd)) {
 				$updateAddWhere = "(" . implode(',', $tagAdd) . ")";
 				$this->update("update xxt_enroll_record_tag set use_num = use_num +1 where id in $updateAddWhere");
 			}
-			if(!empty($tagOlds)){
+			if (!empty($tagOlds)) {
 				$updateDelWhere = "(" . implode(',', $tagOlds) . ")";
 				$this->update("update xxt_enroll_record_tag set use_num = use_num -1 where id in $updateDelWhere");
 			}
@@ -714,14 +714,12 @@ class record_model extends \TMS_MODEL {
 		// 指定登记活动下的登记记录
 		$w = "e.state=1 and e.aid='{$oApp->id}'";
 
-		// 指定了轮次
-
+		// 指定轮次，或者当前激活轮次
 		if (!empty($criteria->record->rid)) {
 			if (strcasecmp('all', $criteria->record->rid) !== 0) {
 				$rid = $criteria->record->rid;
 			}
 		} else if ($activeRound = $this->model('matter\enroll\round')->getActive($oApp)) {
-			/* 如果未指定就显示当前轮次 */
 			$rid = $activeRound->rid;
 		}
 		!empty($rid) && $w .= " and e.rid='$rid'";

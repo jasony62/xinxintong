@@ -106,6 +106,9 @@ class member extends \site\fe\base {
 		/* 已填写的用户信息 */
 		$modelMem = $this->model('site\user\member');
 		$oUser = $this->who;
+		if (isset($oUser->members) && isset($oUser->members->{$schema})) {
+			unset($oUser->members->{$schema});
+		}
 		$oMember = $modelMem->byUser($oUser->uid, ['schemas' => $schema]);
 		if (count($oMember) > 1) {
 			return new \ResponseError('数据错误，当前用户已经绑定多个联系人信息，请检查');

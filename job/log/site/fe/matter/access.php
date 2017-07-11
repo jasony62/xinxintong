@@ -62,7 +62,7 @@ class access extends \TMS_MODEL {
 		 */
 		if ($type === 'article') {
 			$modelCoin = $this->model('site\coin\log');
-			if ($matter = $this->model('matter\article2')->byId($id)) {
+			if ($matter = $this->model('matter\article')->byId($id)) {
 				$modelCoin->award($matter, $user, 'site.matter.article.read');
 			}
 		} else if ($type === 'enroll') {
@@ -119,7 +119,7 @@ class access extends \TMS_MODEL {
 				foreach ($rules as $rule) {
 					$upData['user_total_coin'] = $upData['user_total_coin'] + (int) $rule->actor_delta;
 				}
-				
+
 				$modelUsr->update('xxt_enroll_user', $upData, ['id' => $oEnrollUsr->id]);
 			}
 		}

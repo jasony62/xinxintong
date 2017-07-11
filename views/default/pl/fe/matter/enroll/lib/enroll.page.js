@@ -4,7 +4,7 @@ define(['require', 'schema', 'wrap', 'editor'], function(require, schemaLib, wra
     /**
      * page editor
      */
-    ngMod.controller('ctrlPageEdit', ['$scope', '$q', '$timeout', 'cstApp', 'mediagallery', 'mattersgallery', function($scope, $q, $timeout, cstApp, mediagallery, mattersgallery) {
+    ngMod.controller('ctrlPageEdit', ['$scope', 'cstApp', 'mediagallery', 'mattersgallery', function($scope, cstApp, mediagallery, mattersgallery) {
         var tinymceEditor;
         $scope.activeWrap = false;
         $scope.setActiveWrap = function(domWrap) {
@@ -143,6 +143,7 @@ define(['require', 'schema', 'wrap', 'editor'], function(require, schemaLib, wra
                 });
                 if (html !== $scope.ep.html) {
                     status.htmlChanged = true;
+                    $scope.ep.$$modified = true;
                 }
             }
             if (status.schemaChanged === true) {
@@ -201,8 +202,8 @@ define(['require', 'schema', 'wrap', 'editor'], function(require, schemaLib, wra
             mediagallery.open($scope.app.siteid, options);
         });
         // 切换编辑的页面
-        $scope.$watch('ep', function(newPage) {
-            if (!newPage) return;
+        $scope.$watch('ep', function(oNewPage) {
+            if (!oNewPage) return;
             $scope.setActiveWrap(null);
             // page's content
             if (tinymceEditor) {
@@ -213,14 +214,14 @@ define(['require', 'schema', 'wrap', 'editor'], function(require, schemaLib, wra
                         html: tinymceEditor.getContent()
                     });
                 }
-                editorProxy.load(tinymceEditor, newPage);
+                editorProxy.load(tinymceEditor, oNewPage);
             }
             // page's buttons
             var buttons = {},
                 button, btnName;
             for (btnName in schemaLib.buttons) {
                 button = schemaLib.buttons[btnName];
-                if (button.scope && button.scope.indexOf(newPage.type) !== -1) {
+                if (button.scope && button.scope.indexOf(oNewPage.type) !== -1) {
                     buttons[btnName] = button;
                 }
             }

@@ -13,7 +13,7 @@
                 "format": "name"
             },
             "config": {
-                "showname": "label",
+                "showname": "label"
             }
         }, {
             "schema": {

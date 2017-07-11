@@ -14,7 +14,7 @@
                     </div>
                 </form>
                 <ul class="navbar-form navbar-right">
-                    <button class='btn btn-success' ng-click="save()">保存修改</button>
+                    <button class='btn' ng-class="ep.$$modified?'btn-success':'btn-default'" ng-click="save()">保存修改</button>
                     <button uib-popover-template="'pageSetting.html'" popover-append-to-body='true' popover-placement="left-top" popover-trigger="outsideClick" class="btn btn-default">高级设置 <span class="caret"></span></button>
                 </ul>
             </div>
@@ -77,8 +77,8 @@
                     <div class='form-group' ng-include="wrapEditorHtml()"></div>
                     <div class='form-group'>
                         <button class='btn btn-default' ng-if="activeWrap.schema" ng-click="refreshWrap(activeWrap)">刷新页面元素</button>
-                        <button class='btn btn-default' ng-if="['input','value'].indexOf(activeWrap.type)!==-1" ng-click="removeActiveWrap()">隐藏</button>
-                        <button class='btn btn-default' ng-if="['input','value'].indexOf(activeWrap.type)===-1" ng-click="removeActiveWrap()">删除</button>
+                        <button class='btn btn-default' ng-if="['input','value','radio','checkbox','score'].indexOf(activeWrap.type)!==-1" ng-click="removeActiveWrap()">隐藏</button>
+                        <button class='btn btn-default' ng-if="['input','value','radio','checkbox','score'].indexOf(activeWrap.type)===-1" ng-click="removeActiveWrap()">删除</button>
                     </div>
                     <div class='form-group'>
                         <div class='btn-group'>

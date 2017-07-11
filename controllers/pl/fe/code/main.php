@@ -14,19 +14,25 @@ class main extends \pl\fe\base {
 		return $rule_action;
 	}
 	/**
-	 * 检索页面
+	 * 页面
 	 */
-	public function index_action($site, $name) {
+	public function index_action() {
 		if (false === ($user = $this->accountUser())) {
 			return new \ResponseTimeout();
 		}
-		if (!empty($name)) {
-			$page = $this->model('code\page')->lastByName($site, $name);
-			\TPL::assign('page', $page);
-			$this->view_action('/code/page');
-		} else {
-			$this->view_action('/code/main');
+		\TPL::output('/pl/fe/code/page');
+		exit;
+	}
+	/**
+	 * 数据
+	 */
+	public function get_action($site, $name) {
+		if (false === ($user = $this->accountUser())) {
+			return new \ResponseTimeout();
 		}
+		$page = $this->model('code\page')->lastByName($site, $name);
+
+		return new \ResponseData($page);
 	}
 	/**
 	 * 创建新页面

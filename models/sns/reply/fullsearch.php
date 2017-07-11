@@ -19,7 +19,7 @@ class fullsearch_model extends MultiArticleReply {
 		$siteId = $this->call['siteid'];
 		$page = 1;
 		$limit = 10;
-		$matters = \TMS_APP::model('matter\article2')->fullsearch_its($siteId, $this->keyword, $page, $limit);
+		$matters = \TMS_APP::model('matter\article')->fullsearch_its($siteId, $this->keyword, $page, $limit);
 		return $matters;
 	}
 }

@@ -43,7 +43,7 @@
                 <div class="headpic" ng-if="article.hide_pic!=='Y'">
                     <img ng-src="{{article.pic}}">
                 </div>
-                <div id="content" class="content" dynamic-html='article.body'></div>
+                <div id="content" class="content wrap" dynamic-html='article.body'></div>
                 <p class="url" ng-if="article.url">
                     <a ng-href="{{article.url}}" target="_self">阅读原文</a>
                 </p>

@@ -21,9 +21,6 @@ class inner_model extends Reply {
 	 */
 	public function exec($doResponse = true) {
 		switch ($this->innerId) {
-		case 1:
-			$this->addressbookReply();
-			break;
 		case 3:
 			$this->translateReply();
 			break;
@@ -34,57 +31,6 @@ class inner_model extends Reply {
 			$tr = \TMS_APP::model('reply\text', $this->call, "指定的内置回复($this->innerId)不存在", false);
 			$tr->exec();
 		}
-	}
-	/**
-	 * 通讯录查询
-	 */
-	private function addressbookReply() {
-		$siteId = $this->call['siteid'];
-		$text = $this->call['data'];
-
-		if (isset($this->command)) {
-			// from textcall
-			preg_match('/(?<=' . $this->command . ').+/', $text, $matches);
-			$abbr = trim($matches[0]);
-		} else {
-			// from othercall
-			$abbr = $text;
-		}
-
-		if (empty($abbr)) {
-			$r = '请输入联系人的姓名或拼音缩写。';
-		} else {
-			/**
-			 * todo 有多个通讯录怎么办？
-			 */
-			$result = \TMS_APP::model('matter\addressbook')->getPersonByAb($siteId, null, $abbr);
-			$contacts = $result->objects;
-			$r = '找到(' . count($contacts) . ')个联系人';
-			foreach ($contacts as $contact) {
-				$r .= "\n\n姓名：" . $contact->name;
-				if (!empty($contact->email)) {
-					$r .= "\n邮件：" . $contact->email;
-				}
-
-				if ($depts = \TMS_APP::model('matter\addressbook')->getDeptByPerson($contact->id)) {
-					foreach ($depts as $dept) {
-						if (!empty($dept->name)) {
-							$r .= "\n部门：" . $dept->name;
-						}
-
-					}
-				}
-				$phones = explode(',', $contact->tels);
-				foreach ($phones as $phone) {
-					if (!empty($phone)) {
-						$r .= "\n电话：" . $phone;
-					}
-
-				}
-			}
-		}
-		$tr = \TMS_APP::model('reply\text', $this->call, $r, false);
-		$tr->exec();
 	}
 	/**
 	 * 翻译

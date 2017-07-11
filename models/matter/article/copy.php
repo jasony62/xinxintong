@@ -12,7 +12,7 @@ class copy_model extends \TMS_MODEL {
 	 *
 	 */
 	public function forward($id, $aTargetSites, $oUser, $fromSiteId = null) {
-		$modelArt = $this->model('matter\article2');
+		$modelArt = $this->model('matter\article');
 		$modelArt->setOnlyWriteDbConn(true);
 		$modelLog = $this->model('matter\log');
 		$modelTag = $this->model('tag');

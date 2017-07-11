@@ -13,6 +13,7 @@ define(['require', 'angular'], function(require, angular) {
         $scope.register = function() {
             $http.post('/rest/site/fe/user/register/do?site=' + siteId, {
                 uname: $scope.uname,
+                nickname: $scope.nickname,
                 password: $scope.password
             }).success(function(rsp) {
                 if (rsp.err_code != 0) {

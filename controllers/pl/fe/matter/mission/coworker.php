@@ -96,6 +96,7 @@ class coworker extends \pl\fe\matter\base {
 	}
 	/**
 	 * 删除项目的合作人
+	 * 如果被删除的是团队管理员，修改用户的角色
 	 *
 	 * @param int $mission mission's id
 	 */
@@ -104,10 +105,22 @@ class coworker extends \pl\fe\matter\base {
 			return new \ResponseTimeout();
 		}
 
-		$rst = $this->model()->delete(
-			'xxt_mission_acl',
-			"mission_id='$mission' and coworker='$coworker'"
-		);
+		$modelMis = $this->model('matter\mission');
+		$oMission = $modelMis->byId($mission, ['cascaded' => 'N']);
+
+		$modelAdm = $this->model('site\admin');
+		if ($modelAdm->byUid($oMission->siteid, $coworker)) {
+			$rst = $modelMis->update(
+				'xxt_mission_acl',
+				['coworker_role' => 'A'],
+				"mission_id='$mission' and coworker='$coworker' and coworker_role='C'"
+			);
+		} else {
+			$rst = $modelMis->delete(
+				'xxt_mission_acl',
+				"mission_id='$mission' and coworker='$coworker' and coworker_role='C'"
+			);
+		}
 
 		return new \ResponseData($rst);
 	}
@@ -212,19 +225,19 @@ class coworker extends \pl\fe\matter\base {
 		if (false === ($user = $this->accountUser())) {
 			return new \ResponseTimeout();
 		}
-		
+
 		$modelMis = $this->model('matter\mission');
-		$mission = $modelMis->byId($mission);
-		if($user->id !== $mission->creater){
+		$oMission = $modelMis->byId($mission);
+		if ($user->id !== $oMission->creater) {
 			return new \ResponseError('只有创建者才有此权限');
 		}
 
 		$label = $modelMis->escape($label);
-		$account =$this->model('account')->getAccountByAuthedId($label);
-		if (!$account) {
+		$oNewOwner = $this->model('account')->getAccountByAuthedId($label);
+		if (!$oNewOwner) {
 			return new \ResponseError('指定的账号不是注册账号，请先注册！');
 		}
-		if($account->uid === $mission->creater){
+		if ($oNewOwner->uid === $oMission->creater) {
 			return new \ResponseError('用户已是项目创建者');
 		}
 
@@ -234,44 +247,55 @@ class coworker extends \pl\fe\matter\base {
 		$nv->modifier_src = $user->src;
 		$nv->modifier_name = $modelMis->escape($user->name);
 		$nv->modify_at = time();
-		$nv->creater = $account->uid;
-		$nv->creater_name = $account->nickname;
+		$nv->creater = $oNewOwner->uid;
+		$nv->creater_name = $oNewOwner->nickname;
 		$rst = $modelMis->update(
 			'xxt_mission',
 			$nv,
-			"id='$mission->id'"
+			"id='$oMission->id'"
 		);
-		if($rst){
+		if ($rst) {
 			//修改原作者作为管理员的权限
-			$modelMis->update(
-				'xxt_mission_acl',
-				['coworker_role' => 'C'],
-				["mission_id" => $mission->id, "coworker" => $mission->creater, "last_invite" => 'Y']
-			);
-
+			if ($this->model('site\admin')->byUid($oMission->siteid, $oMission->creater)) {
+				$modelMis->update(
+					'xxt_mission_acl',
+					['coworker_role' => 'A'],
+					['mission_id' => $oMission->id, 'coworker_role' => 'O', "last_invite" => 'Y']
+				);
+			} else {
+				$modelMis->update(
+					'xxt_mission_acl',
+					['coworker_role' => 'C'],
+					['mission_id' => $oMission->id, 'coworker_role' => 'O', "last_invite" => 'Y']
+				);
+			}
 			$modelAcl = $this->model('matter\mission\acl');
-			$acl = $modelAcl->byCoworker($mission->id, $account->uid);
+			$acl = $modelAcl->byCoworker($oMission->id, $oNewOwner->uid);
 			if (!$acl) {
 				/*加入ACL*/
-				$missionNew = $modelMis->escape($mission);
-				$missionNew->creater = $account->uid;
-				$missionNew->creater_name = $account->nickname;
+				$oMission->creater = $oNewOwner->uid;
+				$oMission->creater_name = $oNewOwner->nickname;
 				$coworker = new \stdClass;
-				$coworker->id = $account->uid;
-				$coworker->label = $account->nickname;
-				$modelAcl->add($user, $missionNew, $coworker, 'O');
-			}else{
+				$coworker->id = $oNewOwner->uid;
+				$coworker->label = $oNewOwner->nickname;
+				$modelAcl->add($user, $oMission, $coworker, 'O');
+			} else {
 				//修改原作者作为管理员的权限
 				$modelMis->update(
 					'xxt_mission_acl',
-					['coworker_role' => 'O', 'creater' => $account->uid, 'creater_name' => $account->nickname],
-					["mission_id" => $mission->id, "coworker" => $account->uid, "last_invite" => 'Y']
+					['coworker_role' => 'O'],
+					["mission_id" => $oMission->id, "coworker" => $oNewOwner->uid, "last_invite" => 'Y']
 				);
 			}
-			
+
+			$modelMis->update(
+				'xxt_mission_acl',
+				['creater' => $oNewOwner->uid, 'creater_name' => $modelMis->escape($oNewOwner->nickname)],
+				['mission_id' => $oMission->id]
+			);
+
 			/*记录操作日志*/
-			$mission->type = 'mission';
-			$this->model('matter\log')->matterOp($site, $user, $mission, 'transfer');
+			$this->model('matter\log')->matterOp($site, $user, $oMission, 'transfer');
 		}
 
 		return new \ResponseData($rst);

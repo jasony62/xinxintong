@@ -45,6 +45,7 @@ define(["require", "angular", "enrollService"], function(require, angular) {
                 var recordSchemas = [],
                     recordSchemas2 = [],
                     remarkableSchemas = [],
+                    imageSchemas = [],
                     enrollDataSchemas = [],
                     groupDataSchemas = [],
                     numberSchemas = [];
@@ -52,6 +53,9 @@ define(["require", "angular", "enrollService"], function(require, angular) {
                     if (schema.type !== 'html') {
                         recordSchemas.push(schema);
                         recordSchemas2.push(schema);
+                    }
+                    if (schema.type === 'image') {
+                        imageSchemas.push(schema);
                     }
                     if (schema.remarkable && schema.remarkable === 'Y') {
                         remarkableSchemas.push(schema);

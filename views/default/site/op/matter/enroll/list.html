@@ -11,7 +11,7 @@
                     </ul>
                 </div>
                 <button class='btn btn-default' ng-click="filter()">筛选</button>
-                <label class='checkbox-inline' style='color:red'>
+                <label class='checkbox-inline' style='color:red' ng-if="imageSchemas.length">
                     <input type='checkbox' ng-model="bShowImage"> 显示图片</label>
             </form>
         </nav>

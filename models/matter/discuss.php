@@ -12,35 +12,35 @@ class discuss_model extends \TMS_MODEL {
 	public function vote($threadKey, &$user, &$result) {
 		list($matterType, $matterId) = explode(',', $threadKey);
 		switch ($matterType) {
-			case 'article':
-				$matter = $this->model('matter\article2')->byId($matterId, ['fields' => 'siteid,mission_id,id,title,entry,creater']);
-				$this->_logVote($matter, $user);
-				// 行为积分
-				if ($result->first) {
-					$coinUser = new \stdClass;
-					$coinUser->uid = $user->key;
-					$coinUser->nickname = $user->name;
-					$modelCoin = $this->model('site\coin\log');
-					$modelCoin->award($matter, $coinUser, 'site.matter.article.discuss.like');
-				}
-				break;
-			case 'enroll':
-				$matter = $this->model('matter\enroll')->byId($matterId, ['cascaded' => 'N', 'fields' => 'siteid,mission_id,id,title']);
-				$this->_logVote($matter, $user);
-				// 行为积分
-				if ($result->first) {
-					$coinUser = new \stdClass;
-					$coinUser->uid = $user->key;
-					$coinUser->nickname = $user->name;
-					$modelCoin = $this->model('site\coin\log');
-					$modelCoin->award($matter, $coinUser, 'site.matter.enroll.discuss.like');
-				}
-				break;
-			case 'template';
-				//修改模板的点赞数量
-				$this->model()->update('update xxt_template set score='.$result->likes.' where id=' . $matterId);
-				
-				break;
+		case 'article':
+			$matter = $this->model('matter\article')->byId($matterId, ['fields' => 'siteid,mission_id,id,title,entry,creater']);
+			$this->_logVote($matter, $user);
+			// 行为积分
+			if ($result->first) {
+				$coinUser = new \stdClass;
+				$coinUser->uid = $user->key;
+				$coinUser->nickname = $user->name;
+				$modelCoin = $this->model('site\coin\log');
+				$modelCoin->award($matter, $coinUser, 'site.matter.article.discuss.like');
+			}
+			break;
+		case 'enroll':
+			$matter = $this->model('matter\enroll')->byId($matterId, ['cascaded' => 'N', 'fields' => 'siteid,mission_id,id,title']);
+			$this->_logVote($matter, $user);
+			// 行为积分
+			if ($result->first) {
+				$coinUser = new \stdClass;
+				$coinUser->uid = $user->key;
+				$coinUser->nickname = $user->name;
+				$modelCoin = $this->model('site\coin\log');
+				$modelCoin->award($matter, $coinUser, 'site.matter.enroll.discuss.like');
+			}
+			break;
+		case 'template';
+			//修改模板的点赞数量
+			$this->model()->update('update xxt_template set score=' . $result->likes . ' where id=' . $matterId);
+
+			break;
 		}
 	}
 	/**
@@ -78,7 +78,7 @@ class discuss_model extends \TMS_MODEL {
 		list($matterType, $matterId) = explode(',', $threadKey);
 		switch ($matterType) {
 		case 'article':
-			$matter = $this->model('matter\article2')->byId($matterId, ['fields' => 'siteid,id,title,entry,creater']);
+			$matter = $this->model('matter\article')->byId($matterId, ['fields' => 'siteid,id,title,entry,creater']);
 			$this->_logComment($matter, $user);
 			// 行为积分
 			$coinUser = new \stdClass;

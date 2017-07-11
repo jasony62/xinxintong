@@ -545,11 +545,7 @@ class menu extends \pl\be\base {
 				/**
 				 * matter as link.
 				 */
-				if ($button->matter_type === 'article') {
-					$url = $this->model('matter\article2')->getEntryUrl($site, $button->matter_id);
-				} else {
-					$url = $this->model('matter\\' . $button->matter_type)->getEntryUrl($site, $button->matter_id);
-				}
+				$url = $this->model('matter\\' . $button->matter_type)->getEntryUrl($site, $button->matter_id);
 				$formatted['url'] = $url;
 			} else {
 				throw new MenuInvalidException("菜单【{$button->menu_name}】的链接不允许为空。");

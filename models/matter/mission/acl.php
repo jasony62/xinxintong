@@ -23,7 +23,7 @@ class acl_model extends \TMS_MODEL {
 			"mission_id='$missionId' and last_invite = 'Y'",
 		];
 		if ($excludeOwner === 'Y') {
-			$q[2] .= " and creater<>coworker";
+			$q[2] .= " and coworker_role<>'O'";
 		}
 		if ($excludeAdmin === 'Y') {
 			$q[2] .= " and coworker_role<>'A'";
@@ -139,7 +139,9 @@ class acl_model extends \TMS_MODEL {
 		/*加入ACL*/
 		foreach ($coworkers as $coworker) {
 			foreach ($missions as $mission) {
-				$this->add($inviter, $mission, $coworker, 'A');
+				if ($coworker->id !== $inviter->id) {
+					$this->add($inviter, $mission, $coworker, 'A');
+				}
 			}
 		}
 

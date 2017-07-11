@@ -43,8 +43,22 @@ define(['frame', 'editor'], function(ngApp, editorProxy) {
         };
         //@todo 应该检查页面是否已经被使用
         $scope.delPage = function() {
+            var oPage, oActSchema, bUserd;
             $('body').click();
-            if (window.confirm('确定删除页面【' + $scope.ep.title + '】？')) {
+            for (var i = $scope.app.pages.length - 1; i >= 0; i--) {
+                oPage = $scope.app.pages[i];
+                for (var j = oPage.act_schemas.length - 1; j >= 0; j--) {
+                    oActSchema = oPage.act_schemas[j];
+                    if (oActSchema.next === $scope.ep.name) {
+                        bUserd = true;
+                        break;
+                    }
+                }
+                if (bUserd) break;
+            }
+            if (bUserd) {
+                alert('页面已经被【' + oPage.title + '/' + oActSchema.label + '】使用，不能删除');
+            } else if (window.confirm('确定删除页面【' + $scope.ep.title + '】？')) {
                 srvEnrollPage.remove($scope.ep).then(function(pages) {
                     $scope.choosePage(pages.length ? pages[0] : null);
                 });

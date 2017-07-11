@@ -25,7 +25,7 @@ define(['frame'], function(ngApp) {
         });
         //去代码页面
         $scope.gotoCode = function(page) {
-            window.open('/rest/code?pid=' + page.code_id, '_self');
+            window.open('/rest/pl/fe/code?site=' + page.siteid + '&name=' + page.code_name, '_self');
         };
         //重置页面
         $scope.resetCode = function(page) {

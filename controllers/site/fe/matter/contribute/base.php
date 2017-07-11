@@ -18,7 +18,7 @@ class base extends \site\fe\matter\base {
 	 * 单篇文章
 	 */
 	protected function &getArticle($site, $id) {
-		$articleModel = $this->model('matter\article2');
+		$articleModel = $this->model('matter\article');
 		$article = $articleModel->byId($id);
 		$article->disposer = $articleModel->disposer($id);
 		/**
@@ -82,7 +82,7 @@ class base extends \site\fe\matter\base {
 		/**
 		 * 记录日志
 		 */
-		$articleModel = $this->model('matter\article2');
+		$articleModel = $this->model('matter\article');
 		$disposer = $articleModel->disposer($id);
 		if ((isset($posted->backTo) && $posted->backTo === 'I') || $disposer->seq == 1) {
 			// 退回给投稿人
@@ -116,27 +116,27 @@ class base extends \site\fe\matter\base {
 		$reply .= $article->title;
 		$reply .= '】已退回。退回原因【' . $msg . '】，请修改后再次送审。';
 
-		if($member=$this->model("site\user\member")->byId($mid)){
-			$account=$this->model("site\user\account")->byId($member->userid);
-			if($account){
-				$arr=array();
+		if ($member = $this->model("site\user\member")->byId($mid)) {
+			$account = $this->model("site\user\account")->byId($member->userid);
+			if ($account) {
+				$arr = array();
 
-				if(!empty($account->wx_openid)){
-					$arr['wx']=$account->wx_openid;
+				if (!empty($account->wx_openid)) {
+					$arr['wx'] = $account->wx_openid;
 				}
-				if(!empty($account->yx_openid)){
-					$arr['yx']=$account->yx_openid;
+				if (!empty($account->yx_openid)) {
+					$arr['yx'] = $account->yx_openid;
 				}
-				if(!empty($account->qy_openid)){				
-					$arr['qy']=$account->qy_openid;
+				if (!empty($account->qy_openid)) {
+					$arr['qy'] = $account->qy_openid;
 				}
 
-				if(empty($arr)){
+				if (empty($arr)) {
 					return new \ResponseError("用户没有绑定易信、微信和企业号！");
-				}else{
-					$snsUser=new \stdClass;				
-					foreach ($arr as $snsName=>$openid) {
-						$snsUser->openid=$openid;
+				} else {
+					$snsUser = new \stdClass;
+					foreach ($arr as $snsName => $openid) {
+						$snsUser->openid = $openid;
 						if ($snsName === 'yx') {
 							$reply .= "查看详情：\n" . $url;
 						} else {
@@ -147,15 +147,15 @@ class base extends \site\fe\matter\base {
 							"text" => array(
 								"content" => $reply,
 							),
-						);		
-						$this->notify($site, $snsName, $snsUser, $message);			
+						);
+						$this->notify($site, $snsName, $snsUser, $message);
 					}
 					return new \ResponseData('ok');
 				}
-			}else{
+			} else {
 				return new \ResponseError("找不到注册用户！");
 			}
-		}else{
+		} else {
 			return new \ResponseError("找不到认证用户！");
 		}
 	}
@@ -167,7 +167,7 @@ class base extends \site\fe\matter\base {
 	 * $phase 处理的阶段
 	 */
 	public function articleForward_action($site, $id, $phase, $mid) {
-		$model = $this->model('matter\article2');
+		$model = $this->model('matter\article');
 		$article = $model->byId($id);
 
 		$modelCtrb = $this->model('matter\contribute');
@@ -181,27 +181,27 @@ class base extends \site\fe\matter\base {
 		 */
 		$url = $this->articleReviewUrl($site, $id);
 		//通过member的userid 找到account绑定的openid 再发送信息
-		if($member=$this->model('site\user\member')->byId($mid)){
-			$account=$this->model('site\user\account')->byId($member->userid);
-			if($account){
-				$arr=array();
-				
-				if(!empty($account->wx_openid)){
-					$arr['wx']=$account->wx_openid;
-				} 
-				if(!empty($account->yx_openid)){
-					$arr['yx']=$account->yx_openid;
+		if ($member = $this->model('site\user\member')->byId($mid)) {
+			$account = $this->model('site\user\account')->byId($member->userid);
+			if ($account) {
+				$arr = array();
+
+				if (!empty($account->wx_openid)) {
+					$arr['wx'] = $account->wx_openid;
 				}
-				if(!empty($account->qy_openid)){				
-					$arr['qy']=$account->qy_openid;
+				if (!empty($account->yx_openid)) {
+					$arr['yx'] = $account->yx_openid;
 				}
-			
-				if(empty($arr)){
+				if (!empty($account->qy_openid)) {
+					$arr['qy'] = $account->qy_openid;
+				}
+
+				if (empty($arr)) {
 					return new \ResponseError("用户没有绑定易信、微信和企业号！");
-				}else{
-					$snsUser=new \stdClass;
+				} else {
+					$snsUser = new \stdClass;
 					foreach ($arr as $snsName => $openid) {
-						$snsUser->openid=$openid;
+						$snsUser->openid = $openid;
 						$msg = '投稿活动【' . $c->title . '】有一篇新稿件，';
 						if ($snsName === 'yx') {
 							$msg .= "请处理：\n" . $url;
@@ -218,10 +218,10 @@ class base extends \site\fe\matter\base {
 					}
 					return new \ResponseData('ok');
 				}
-			}else{
+			} else {
 				return new \ResponseError("找不到注册用户！");
 			}
-		}else{
+		} else {
 			return new \ResponseError("找不到认证用户！");
 		}
 	}
@@ -232,7 +232,7 @@ class base extends \site\fe\matter\base {
 	 * $id 文章ID
 	 */
 	public function articleInitiateUrl($site, $id) {
-		$model = $this->model('matter\article2');
+		$model = $this->model('matter\article');
 		$article = $model->byId($id);
 
 		$modelCtrb = $this->model('matter\contribute');
@@ -254,7 +254,7 @@ class base extends \site\fe\matter\base {
 	 * $id 文章ID
 	 */
 	public function articleReviewUrl($site, $id) {
-		$model = $this->model('matter\article2');
+		$model = $this->model('matter\article');
 		$article = $model->byId($id);
 
 		$modelCtrb = $this->model('matter\contribute');

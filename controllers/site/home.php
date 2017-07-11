@@ -16,10 +16,10 @@ class home extends base {
 			['fields' => 'id,name,home_page_id,home_page_name,autoup_homepage']
 		);
 		//自动更新主页页面
-		if($site->autoup_homepage === 'Y' && !empty($template)){
+		if ($site->autoup_homepage === 'Y' && !empty($template)) {
 			$template = $modelSite->escape($template);
 
-			$modelCode = \TMS_APP::M('code\page');
+			$modelCode = $this->model('code\page');
 			$home_page = $modelCode->lastPublishedByName($site->id, $site->home_page_name, ['fields' => 'id,create_at']);
 
 			$templateDirHtml = TMS_APP_TEMPLATE . '/pl/fe/site/page/home/' . $template . '.html';
@@ -29,7 +29,7 @@ class home extends base {
 			$createAtTemplateCss = filemtime($templateDirCss);
 			$createAtTemplateJs = filemtime($templateDirJs);
 
-			if($createAtTemplateHtml > $home_page->create_at || $createAtTemplateCss > $home_page->create_at || $createAtTemplateJs > $home_page->create_at) {
+			if ($home_page === false || ($createAtTemplateHtml > $home_page->create_at || $createAtTemplateCss > $home_page->create_at || $createAtTemplateJs > $home_page->create_at)) {
 				//更新主页页面
 				$current = time();
 				$data = $this->_makePage($site->id, 'home', $template);

@@ -78,7 +78,7 @@ class way_model extends \TMS_MODEL {
 	 * 如果不是注册状态，查找当前站点下的访客账号中是否有已经和公众号关联的主账号
 	 */
 	private function _bindSiteSnsUser($siteId, $snsName, $snsUser, $cookieUser, $cookieRegUser = false) {
-		$modelSiteUser = \TMS_App::M('site\user\account');
+		$modelSiteUser = $this->model('site\user\account');
 
 		if ($cookieRegUser) {
 			/* 已登录状态，切换到注册账号的主访客账号 */

@@ -44,7 +44,7 @@ class user_model extends \TMS_MODEL {
 	/**
 	 * 活动中提交过数据的用户
 	 */
-	public function enrolleeByApp($oApp, $page = 1, $size = 30, $options = []) {
+	public function enrolleeByApp($oApp, $page = '', $size = '', $options = []) {
 		$fields = isset($options['fields']) ? $options['fields'] : '*';
 
 		$result = new \stdClass;
@@ -55,8 +55,10 @@ class user_model extends \TMS_MODEL {
 		];
 		$q2 = [
 			'o' => 'last_enroll_at desc',
-			'r' => ['o' => ($page - 1) * $size, 'l' => $size],
 		];
+		if(!empty($page) && !empty($size)){
+			$q2['r'] = ['o' => ($page - 1) * $size, 'l' => $size];
+		}
 		$users = $this->query_objs_ss($q, $q2);
 		$result->users = $users;
 

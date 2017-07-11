@@ -29,7 +29,7 @@ class main extends \site\fe\matter\base {
 		$model = $this->model();
 		$user = $this->who;
 
-		$modelArticle = $this->model('matter\article2');
+		$modelArticle = $this->model('matter\article');
 		$article = $modelArticle->byId($id);
 		if (false === $article) {
 			return new \ObjectNotFoundError();
@@ -105,7 +105,7 @@ class main extends \site\fe\matter\base {
 	 *
 	 */
 	public function list_action($site, $tagid, $page = 1, $size = 10) {
-		$model = $this->model('matter\article2');
+		$model = $this->model('matter\article');
 
 		$user = $this->who;
 
@@ -124,7 +124,7 @@ class main extends \site\fe\matter\base {
 	 * $scope 分数
 	 */
 	public function score_action($site, $id, $score = 1) {
-		$modelArt = $this->model('matter\article2');
+		$modelArt = $this->model('matter\article');
 		$article = $modelArt->byId($id);
 		$user = $this->who;
 		if ($modelArt->praised($user, $id)) {
@@ -302,7 +302,7 @@ class main extends \site\fe\matter\base {
 		/**
 		 * 访问控制
 		 */
-		$modelArticle = $this->model('matter\article2');
+		$modelArticle = $this->model('matter\article');
 		$article = $modelArticle->byId($articleid);
 		if (isset($article->access_control) && $article->access_control === 'Y') {
 			$this->accessControl($site, $articleid, $article->authapis, $user->uid, $article);

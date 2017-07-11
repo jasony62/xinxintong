@@ -148,7 +148,6 @@ define(['frame'], function(ngApp) {
             if (window.confirm('确定删除：' + title + '？')) {
                 switch (type) {
                     case 'article':
-                    case 'addressbook':
                         url += type + '/remove?id=' + id + '&site=' + $scope.mission.siteid;
                         break;
                     case 'enroll':

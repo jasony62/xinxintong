@@ -53,8 +53,8 @@ class main extends \pl\fe\matter\base {
 		 */
 		$w = "a.custom_body='N' and a.state=1 and finished='Y'";
 		/*按名称过滤*/
-		if(!empty($options->byTitle)){
-			$w .= " and a.title like '%". $model->escape($options->byTitle) ."%'";
+		if (!empty($options->byTitle)) {
+			$w .= " and a.title like '%" . $model->escape($options->byTitle) . "%'";
 		}
 		/**
 		 * 按项目过滤
@@ -167,7 +167,7 @@ class main extends \pl\fe\matter\base {
 			/**
 			 * 处理每个图文的附件信息
 			 */
-			$modelArt = $this->model('matter\article2');
+			$modelArt = $this->model('matter\article');
 			foreach ($articles as &$a) {
 				$ids[] = $a->id;
 				$map[$a->id] = &$a;
@@ -203,7 +203,7 @@ class main extends \pl\fe\matter\base {
 			return new \ResponseTimeout();
 		}
 
-		$modelAct = $this->model('matter\article2');
+		$modelAct = $this->model('matter\article');
 		$article = $modelAct->byId($id);
 		if ($article === false) {
 			return new \ObjectNotFoundError();
@@ -344,7 +344,7 @@ class main extends \pl\fe\matter\base {
 		}
 
 		$sites = $this->getPostJson();
-		$modelArt = $this->model('matter\article2');
+		$modelArt = $this->model('matter\article');
 		$modelArt->setOnlyWriteDbConn(true);
 		$modelLog = $this->model('matter\log');
 		$modelTag = $this->model('tag');
@@ -458,7 +458,7 @@ class main extends \pl\fe\matter\base {
 		}
 
 		$model = $this->model();
-		$article = $this->model('matter\article2')->byId($id, ['fields' => 'from_mode,siteid,id,title,summary,pic']);
+		$article = $this->model('matter\article')->byId($id, ['fields' => 'from_mode,siteid,id,title,summary,pic']);
 		if ($article === false) {
 			return new \ObjectNotFoundError();
 		}

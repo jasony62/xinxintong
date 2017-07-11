@@ -255,7 +255,7 @@ class initiate extends base {
 	 * 当前用户文稿
 	 */
 	public function articleList_action($site, $entry) {
-		$articleModel = $this->model('matter\article2');
+		$articleModel = $this->model('matter\article');
 		$user = $this->who;
 		$app = $this->_entryApp($entry);
 		if ($member = $this->_initiatorMember($app)) {
@@ -334,7 +334,7 @@ class initiate extends base {
 			$this->model('matter\channel')->addMatter($channelId, array('id' => $id, 'type' => 'article'), $member->id, $member->name, 'M');
 		}
 
-		$article = $this->model('matter\article2')->byId($id);
+		$article = $this->model('matter\article')->byId($id);
 
 		return new \ResponseData($article);
 	}

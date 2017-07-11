@@ -14,11 +14,7 @@ ngApp.controller('ctrlSite', ['$scope', '$location', 'http2', function($scope, $
 ngApp.controller('ctrlConsole', ['$scope', '$uibModal', 'http2', 'templateShop', function($scope, $uibModal, http2, templateShop) {
     function searchMatters(append) {
         var url;
-        if ($scope.matterType === 'addressbook') {
-            url = '/rest/pl/fe/matter/' + $scope.matterType + '/get?site=' + $scope.siteId + page.j();
-        } else {
-            url = '/rest/pl/fe/matter/' + $scope.matterType + '/list?site=' + $scope.siteId + page.j();
-        }
+        url = '/rest/pl/fe/matter/' + $scope.matterType + '/list?site=' + $scope.siteId + page.j();
         url += '&_=' + (new Date() * 1);
         switch ($scope.matterType) {
             case 'channel':
@@ -43,13 +39,20 @@ ngApp.controller('ctrlConsole', ['$scope', '$uibModal', 'http2', 'templateShop',
                         $scope.matters = rsp.data.articles;
                     }
                     page.total = rsp.data.total;
-                } else if (/enroll|signin|group|wall|contribute/.test($scope.matterType)) {
+                } else if (/enroll|signin|group|contribute/.test($scope.matterType)) {
                     if (append) {
-                        $scope.matters = $scope.matters.concat(rsp.data.apps||rsp.data);
+                        $scope.matters = $scope.matters.concat(rsp.data.apps || []);
                     } else {
-                        $scope.matters = rsp.data.apps || rsp.data;
+                        $scope.matters = rsp.data.apps || [];
                     }
                     page.total = rsp.data.total;
+                } else if (/wall/.test($scope.matterType)) {
+                    if (append) {
+                        $scope.matters = $scope.matters.concat(rsp.data);
+                    } else {
+                        $scope.matters = rsp.data;
+                    }
+                    page.total = rsp.data.length;
                 } else if (/custom/.test($scope.matterType)) {
                     if (append) {
                         $scope.matters = $scope.matters.concat(rsp.data.customs);
@@ -94,7 +97,6 @@ ngApp.controller('ctrlConsole', ['$scope', '$uibModal', 'http2', 'templateShop',
             case 'lottery':
             case 'contribute':
             case 'link':
-            case 'addressbook':
             case 'merchant':
             case 'wall':
                 location.href = url + '?id=' + id + '&site=' + $scope.siteId;
@@ -148,7 +150,7 @@ ngApp.controller('ctrlConsole', ['$scope', '$uibModal', 'http2', 'templateShop',
         if (window.confirm('确定删除：' + title + '？')) {
             switch (type) {
                 case 'article':
-                case 'addressbook':
+                case 'link':
                     url += type + '/remove?id=' + id + '&site=' + $scope.siteId;
                     break;
                 case 'enroll':
@@ -350,14 +352,7 @@ ngApp.controller('ctrlConsole', ['$scope', '$uibModal', 'http2', 'templateShop',
             location.href = '/rest/pl/fe/matter/wall?site=' + $scope.siteId + '&id=' + rsp.data;
         });
     };
-    $scope.addAddressbook = function() {
-        http2.get('/rest/pl/fe/matter/addressbook/create?site=' + $scope.siteId, function(rsp) {
-            location.href = '/rest/pl/fe/matter/addressbook?site=' + $scope.siteId + '&id=' + rsp.data;
-
-        });
-    };
     http2.get('/rest/pl/fe/site/console/recent?site=' + $scope.siteId + '&_=' + (new Date() * 1), function(rsp) {
         $scope.matters = rsp.data.matters;
-        //$scope.page.total = rsp.data.total;
     });
 }]);

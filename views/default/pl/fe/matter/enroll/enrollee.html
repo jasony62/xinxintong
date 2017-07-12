@@ -4,7 +4,7 @@
             <form class='navbar-form navbar-left'>
                 <select class='form-control' ng-if="rule.scope=='member'" ng-model="criteria.mschema" ng-options="mschema.title for mschema in mschemas" ng-change="searchEnrollee()"></select>
                 <select class='form-control' ng-if="rounds.length>0" ng-model="criteria.rid" ng-change="searchRound(criteria.rid)">
-                    <option value=''>全部</option>
+                    <option value='ALL'>全部</option>
                     <option value="{{rnd.rid}}" ng-repeat="rnd in rounds">{{rnd.title}}</option>
                 </select>
                 <div class='btn-group' ng-if="rule.scope==='sns'|| criteria.mschema.sns=='Y'">

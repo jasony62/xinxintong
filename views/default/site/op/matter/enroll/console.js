@@ -45,6 +45,7 @@ define(["require", "angular", "enrollService"], function(require, angular) {
                 var recordSchemas = [],
                     recordSchemas2 = [],
                     remarkableSchemas = [],
+                    imageSchemas = [],
                     enrollDataSchemas = [],
                     groupDataSchemas = [],
                     numberSchemas = [];
@@ -52,6 +53,9 @@ define(["require", "angular", "enrollService"], function(require, angular) {
                     if (schema.type !== 'html') {
                         recordSchemas.push(schema);
                         recordSchemas2.push(schema);
+                    }
+                    if (schema.type === 'image') {
+                        imageSchemas.push(schema);
                     }
                     if (schema.remarkable && schema.remarkable === 'Y') {
                         remarkableSchemas.push(schema);
@@ -65,6 +69,7 @@ define(["require", "angular", "enrollService"], function(require, angular) {
                 $scope.recordSchemas = recordSchemas;
                 $scope.recordSchemas2 = recordSchemas2;
                 $scope.remarkableSchemas = remarkableSchemas;
+                $scope.imageSchemas = imageSchemas;
                 $scope.numberSchemas = numberSchemas;
                 oApp._schemasFromEnrollApp.forEach(function(schema) {
                     if (schema.type !== 'html') {
@@ -228,6 +233,7 @@ define(["require", "angular", "enrollService"], function(require, angular) {
                 $scope.rows.selected = {};
             }
         });
+        $scope.bShowImage = false;
         $scope.page = {}; // 分页条件
         $scope.criteria = {}; // 过滤条件
         $scope.records = []; // 登记记录

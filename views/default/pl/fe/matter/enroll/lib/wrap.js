@@ -958,6 +958,11 @@ define([], function() {
                 return 'submit' + PrefabActSchema._args(schema);
             }
         },
+        save: {
+            act: function(schema) {
+                return 'save' + PrefabActSchema._args(schema);
+            }
+        },
         remarkRecord: {
             act: function(schema) {
                 return 'remarkRecord' + PrefabActSchema._args(schema);

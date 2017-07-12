@@ -12,7 +12,8 @@ class relay_model {
 	}
 
 	public function exec() {
-		$relay = \TMS_APP::model('mp\relay')->byId($this->relayId);
+		$snsSrc = $this->call['src'];
+		$relay = $this->model('sns\\' . $snsSrc . '\\relay')->byId($this->relayId);
 		/**
 		 * 公众平台发过来的原始数据
 		 */

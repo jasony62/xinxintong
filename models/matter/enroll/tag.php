@@ -10,12 +10,15 @@ class tag_model extends \TMS_MODEL {
 	 * @param object $oApp
 	 */
 	public function byApp($oApp, $options = []) {
-		$fields = isset($options['fields']) ? $options['fields'] : '*';
+		if (empty($oApp->id)) {
+			return [];
+		}
 
+		$fields = isset($options['fields']) ? $options['fields'] : '*';
 		$q = [
 			$fields,
 			'xxt_enroll_record_tag',
-			['aid' => $oApp->id]
+			['aid' => $oApp->id],
 		];
 		$q2['o'] = 'seq desc';
 		if (isset($options['at'])) {
@@ -29,7 +32,7 @@ class tag_model extends \TMS_MODEL {
 		return $tags;
 	}
 	/**
-	 * 
+	 *
 	 */
 	public function byId($tagId, $options = []) {
 		$fields = isset($options['fields']) ? $options['fields'] : '*';
@@ -37,7 +40,7 @@ class tag_model extends \TMS_MODEL {
 		$q = [
 			$fields,
 			'xxt_enroll_record_tag',
-			['id' => $tagId]
+			['id' => $tagId],
 		];
 
 		$tag = $this->query_obj_ss($q);
@@ -58,7 +61,7 @@ class tag_model extends \TMS_MODEL {
 			$q = [
 				'label',
 				'xxt_enroll_record_tag',
-				"aid = '{$oApp->id}' and label = '$tagLabel'"
+				"aid = '{$oApp->id}' and label = '$tagLabel'",
 			];
 			if ($labels = $this->query_obj_ss($q)) {
 				continue;
@@ -66,8 +69,8 @@ class tag_model extends \TMS_MODEL {
 			/*获取排序*/
 			$q[0] = 'max(seq)';
 			$q[2] = "aid = '{$oApp->id}'";
-			$seq = (int)$this->query_val_ss($q);
-			
+			$seq = (int) $this->query_val_ss($q);
+
 			$oNewTag = new \stdClass;
 			$oNewTag->siteid = $oApp->siteid;
 			$oNewTag->aid = $oApp->id;
@@ -100,10 +103,10 @@ class tag_model extends \TMS_MODEL {
 			$q = [
 				'id,seq',
 				'xxt_enroll_record_tag',
-				"aid = '$tag->aid' and seq > $tag->seq"
+				"aid = '$tag->aid' and seq > $tag->seq",
 			];
 			$q2 = ['o' => 'seq asc'];
-			if ($mins = $this->query_objs_ss($q,$q2)) {
+			if ($mins = $this->query_objs_ss($q, $q2)) {
 				$min = $mins[0];
 				$this->update('xxt_enroll_record_tag', ['seq' => $min->seq], ['id' => $tag->id]);
 				$this->update('xxt_enroll_record_tag', ['seq' => $tag->seq], ['id' => $min->id]);
@@ -113,17 +116,17 @@ class tag_model extends \TMS_MODEL {
 			$q = [
 				'id,seq',
 				'xxt_enroll_record_tag',
-				"aid = '$tag->aid' and seq < $tag->seq"
+				"aid = '$tag->aid' and seq < $tag->seq",
 			];
 			$q2 = ['o' => 'seq desc'];
-			if ($maxs = $this->query_objs_ss($q,$q2)) {
+			if ($maxs = $this->query_objs_ss($q, $q2)) {
 				$max = $maxs[0];
 				$this->update('xxt_enroll_record_tag', ['seq' => $max->seq], ['id' => $tag->id]);
 				$this->update('xxt_enroll_record_tag', ['seq' => $tag->seq], ['id' => $max->id]);
 			}
 		}
 
-		if(!empty($newTags)){
+		if (!empty($newTags)) {
 			$rst = $this->update('xxt_enroll_record_tag', $newTags, ['id' => $tag->id]);
 		}
 

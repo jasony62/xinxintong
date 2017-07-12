@@ -329,6 +329,10 @@ ngApp.controller('ctrlInput', ['$scope', '$q', '$uibModal', '$timeout', 'Input',
     $scope.$on('xxt.app.enroll.save', function() {
         _localSave();
     });
+    $scope.save = function(event, nextAction) {
+        _localSave();
+        $scope.gotoPage(event, nextAction);
+    };
     $scope.$on('xxt.app.enroll.ready', function(event, params) {
         var schemasById,
             dataOfRecord, p, value;
@@ -359,6 +363,19 @@ ngApp.controller('ctrlInput', ['$scope', '$q', '$uibModal', '$timeout', 'Input',
                 submitState.modified = true;
             }
         }, true);
+        // 如果页面上有保存按钮，隐藏内置的保存按钮
+        if (params.page && params.page.act_schemas) {
+            var actSchemas = JSON.parse(params.page.act_schemas);
+            for (var i = actSchemas.length - 1; i >= 0; i--) {
+                if (actSchemas[i].name === 'save') {
+                    var domSave = document.querySelector('.tms-switch-save');
+                    if (domSave) {
+                        domSave.style.display = 'none';
+                    }
+                    break;
+                }
+            }
+        }
         // 登录提示
         if (!params.user.unionid) {
             //var domTip = document.querySelector('#appLoginTip');

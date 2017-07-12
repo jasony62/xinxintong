@@ -187,12 +187,14 @@ class import extends \pl\fe\matter\base {
 					$treatedValue = new \stdClass;
 					$values = explode('/', $value);
 					foreach ($values as $value) {
-						list($label, $score) = explode(':', $value);
-						$label = trim($label);
-						foreach ($schema->ops as $op) {
-							if ($op->l === $label) {
-								$treatedValue->{$op->v} = trim($score);
-								break;
+						if (!empty($value) && strpos($value, ':')) {
+							list($label, $score) = explode(':', $value);
+							$label = trim($label);
+							foreach ($schema->ops as $op) {
+								if ($op->l === $label) {
+									$treatedValue->{$op->v} = trim($score);
+									break;
+								}
 							}
 						}
 					}

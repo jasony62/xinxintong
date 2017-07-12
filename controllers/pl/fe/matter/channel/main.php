@@ -46,19 +46,19 @@ class main extends \pl\fe\matter\base {
 		$q = [
 			'*',
 			'xxt_channel',
-			"siteid = '". $modelChn->escape($site) ."' and state = 1",
+			"siteid = '" . $modelChn->escape($site) . "' and state = 1",
 		];
-		if(!empty($acceptType)){
+		if (!empty($acceptType)) {
 			$acceptType = ['', $acceptType];
 			$acceptType = "('";
 			$acceptType .= implode("','", $v);
 			$acceptType .= "')";
 			$q[2] .= " and matter_type in $acceptType";
 		}
-		if(!empty($options->byTitle)){
-			$q[2] .= " and title like '%". $modelChn->escape($options->byTitle) ."%'";
+		if (!empty($options->byTitle)) {
+			$q[2] .= " and title like '%" . $modelChn->escape($options->byTitle) . "%'";
 		}
-		
+
 		$q2['o'] = 'create_at desc';
 		$channels = $modelChn->query_objs_ss($q, $q2);
 		/* 获得子资源 */
@@ -66,7 +66,7 @@ class main extends \pl\fe\matter\base {
 			foreach ($channels as $c) {
 				$c->type = 'channel';
 			}
-			if($cascade == 'Y'){
+			if ($cascade == 'Y') {
 				$modelAcl = $this->model('acl');
 				foreach ($channels as $c) {
 					$c->url = $modelChn->getEntryUrl($site, $c->id);
@@ -96,12 +96,12 @@ class main extends \pl\fe\matter\base {
 		$channel['creater'] = $user->id;
 		$channel['create_at'] = $current;
 		$channel['creater_src'] = 'A';
-		$channel['creater_name'] = $user->name;
+		$channel['creater_name'] = $modelCh->escape($user->name);
 		$channel['modifier'] = $user->id;
 		$channel['modifier_src'] = 'A';
-		$channel['modifier_name'] = $user->name;
+		$channel['modifier_name'] = $modelCh->escape($user->name);
 		$channel['modify_at'] = $current;
-		$channel['title'] = isset($posted->title) ? $posted->title : '新频道';
+		$channel['title'] = isset($posted->title) ? $modelCh->escape($posted->title) : '新频道';
 		$channel['matter_type'] = '';
 
 		$id = $modelCh->insert('xxt_channel', $channel, true);
@@ -131,7 +131,7 @@ class main extends \pl\fe\matter\base {
 		$updated = new \stdClass;
 		$posted = $this->getPostJson();
 		foreach ($posted as $k => $v) {
-			if (in_array($k, ['title', 'summary'])) {
+			if (in_array($k, ['title', 'summary', 'fixed_title'])) {
 				$updatedHomeCh[$k] = $updated->{$k} = $modelCh->escape($v);
 			}if ($k === 'pic') {
 				$updatedHomeCh[$k] = $updated->{$k} = $v;
@@ -143,7 +143,7 @@ class main extends \pl\fe\matter\base {
 		$current = time();
 		$updated->modifier = $user->id;
 		$updated->modifier_src = 'A';
-		$updated->modifier_name = $user->name;
+		$updated->modifier_name = $modelCh->escape($user->name);
 		$updated->modify_at = $current;
 
 		$rst = $modelCh->update('xxt_channel',

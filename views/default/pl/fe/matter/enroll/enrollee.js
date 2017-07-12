@@ -3,6 +3,13 @@ define(['frame'], function(ngApp) {
     ngApp.provider.controller('ctrlEnrollee', ['$scope', 'http2', 'srvEnrollRecord', function($scope, http2, srvEnrollRecord) {
         var mschemas, oCriteria, page;
         $scope.mschemas = mschemas = [];
+        $scope.page = page = {
+            at: 1,
+            size: 20,
+            j: function() {
+                return '&page=' + this.at + '&size=' + this.size;
+            }
+        };
         $scope.criteria = oCriteria = {
             allSelected: 'N',
             selected: {},
@@ -27,15 +34,9 @@ define(['frame'], function(ngApp) {
         $scope.notify = function(isBatch) {
             srvEnrollRecord.notify(isBatch ? $scope.criteria : undefined);
         };
-        $scope.page = page = {
-            at: 1,
-            size: 20,
-            j: function() {
-                return '&page=' + this.at + '&size=' + this.size;
-            }
-        };
         $scope.seachEnrollee = function() {
             http2.post('/rest/pl/fe/matter/enroll/user/byMschema?site=' + $scope.app.siteid + '&app=' + $scope.app.id + '&mschema=' + oCriteria.mschema.id + page.j(), {}, function(rsp) {
+                srvEnrollRecord.init($scope.app, $scope.page, $scope.criteria, rsp.data.members);
                 $scope.members = rsp.data.members;
                 $scope.page.total = rsp.data.total;
             });

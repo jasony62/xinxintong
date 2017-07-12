@@ -7,9 +7,6 @@ define(['main'], function(ngApp) {
 			} else {
 				$scope.matterTypes = matterTypes.slice(0, matterTypes.length - 1);
 			}
-			if (call.matter && /text/i.test(call.matter.type)) {
-				call.matter.title = call.matter.content;
-			}
 			$scope.editing = call;
 		};
 		$scope.setReply = function() {

@@ -240,50 +240,28 @@ define(['require', 'schema', 'wrap', 'editor'], function(require, schemaLib, wra
      * input
      */
     ngMod.controller('ctrlAppSchemas4IV', ['$scope', function($scope) {
-        var chooseState = {};
-
-        $scope.app.dataSchemas.forEach(function(schema) {
-            chooseState[schema.id] = false;
-        });
-        if ($scope.ep.type === 'I') {
-            $scope.ep.data_schemas.forEach(function(dataWrap) {
-                if (dataWrap.schema) {
-                    chooseState[dataWrap.schema.id] = true;
-                }
-            });
-        } else if ($scope.ep.type === 'V') {
-            $scope.otherSchemas = [{
-                id: 'enrollAt',
-                type: '_enrollAt',
-                title: '填写时间'
-            }];
-            $scope.ep.data_schemas.forEach(function(config) {
-                config.schema && config.schema.id && (chooseState[config.schema.id] = true);
-            });
-            chooseState['enrollAt'] === undefined && (chooseState['enrollAt'] = false);
-        }
-        $scope.chooseState = chooseState;
+        var oChooseState;
         $scope.choose = function(schema) {
-            if (chooseState[schema.id]) {
+            if (oChooseState[schema.id]) {
                 var ia, sibling, domNewWrap;
                 ia = $scope.app.dataSchemas.indexOf(schema);
                 if (ia === 0) {
                     sibling = $scope.app.dataSchemas[++ia];
-                    while (ia < $scope.app.dataSchemas.length && !chooseState[sibling.id]) {
+                    while (ia < $scope.app.dataSchemas.length && !oChooseState[sibling.id]) {
                         sibling = $scope.app.dataSchemas[++ia];
                     }
                     domNewWrap = editorProxy.appendSchema(schema, sibling, true);
                 } else {
                     sibling = $scope.app.dataSchemas[--ia];
-                    while (ia > 0 && !chooseState[sibling.id]) {
+                    while (ia > 0 && !oChooseState[sibling.id]) {
                         sibling = $scope.app.dataSchemas[--ia];
                     }
-                    if (chooseState[sibling.id]) {
+                    if (oChooseState[sibling.id]) {
                         domNewWrap = editorProxy.appendSchema(schema, sibling);
                     } else {
                         ia = $scope.app.dataSchemas.indexOf(schema);
                         sibling = $scope.app.dataSchemas[++ia];
-                        while (ia < $scope.app.dataSchemas.length && !chooseState[sibling.id]) {
+                        while (ia < $scope.app.dataSchemas.length && !oChooseState[sibling.id]) {
                             sibling = $scope.app.dataSchemas[++ia];
                         }
                         domNewWrap = editorProxy.appendSchema(schema, sibling, true);
@@ -301,7 +279,33 @@ define(['require', 'schema', 'wrap', 'editor'], function(require, schemaLib, wra
         };
         $scope.$on('xxt.matter.enroll.page.data_schemas.removed', function(event, removedSchema) {
             if (removedSchema && removedSchema.id) {
-                chooseState[removedSchema.id] = false;
+                oChooseState[removedSchema.id] = false;
+            }
+        });
+        $scope.$watch('ep', function(oPage) {
+            if (oPage) {
+                oChooseState = {};
+                $scope.app.dataSchemas.forEach(function(schema) {
+                    oChooseState[schema.id] = false;
+                });
+                if ($scope.ep.type === 'I') {
+                    $scope.ep.data_schemas.forEach(function(dataWrap) {
+                        if (dataWrap.schema) {
+                            oChooseState[dataWrap.schema.id] = true;
+                        }
+                    });
+                } else if ($scope.ep.type === 'V') {
+                    $scope.otherSchemas = [{
+                        id: 'enrollAt',
+                        type: '_enrollAt',
+                        title: '填写时间'
+                    }];
+                    $scope.ep.data_schemas.forEach(function(config) {
+                        config.schema && config.schema.id && (oChooseState[config.schema.id] = true);
+                    });
+                    oChooseState['enrollAt'] === undefined && (oChooseState['enrollAt'] = false);
+                }
+                $scope.chooseState = oChooseState;
             }
         });
     }]);
@@ -433,15 +437,29 @@ define(['require', 'schema', 'wrap', 'editor'], function(require, schemaLib, wra
      * button wrap
      */
     ngMod.controller('ctrlButtonWrap', ['$scope', function($scope) {
-        var schema = $scope.activeWrap.schema;
+        var oActiveSchema, appPages, nextPages;
 
+        oActiveSchema = $scope.activeWrap.schema;
+        appPages = $scope.app.pages;
+        $scope.nextPages = nextPages = [];
+        if ($scope.buttons[oActiveSchema.name].next) {
+            appPages.forEach(function(oPage) {
+                if ($scope.buttons[oActiveSchema.name].next.indexOf(oPage.type) !== -1) {
+                    nextPages.push({ name: oPage.name, title: oPage.title });
+                }
+            });
+        } else {
+            appPages.forEach(function(oPage) {
+                nextPages.push({ name: oPage.name, title: oPage.title });
+            });
+        }
         $scope.chooseType = function() {
-            schema.label = $scope.buttons[schema.name].l;
-            schema.next = '';
-            if (['addRecord', 'editRecord', 'removeRecord'].indexOf(schema.name) !== -1) {
-                for (var i = 0, ii = $scope.app.pages.length; i < ii; i++) {
-                    if ($scope.app.pages[i].type === 'I') {
-                        schema.next = $scope.app.pages[i].name;
+            oActiveSchema.label = $scope.buttons[oActiveSchema.name].l;
+            oActiveSchema.next = '';
+            if (['addRecord', 'editRecord', 'removeRecord'].indexOf(oActiveSchema.name) !== -1) {
+                for (var i = 0, ii = appPages.length; i < ii; i++) {
+                    if (appPages[i].type === 'I') {
+                        oActiveSchema.next = appPages[i].name;
                         break;
                     }
                 }
@@ -449,7 +467,7 @@ define(['require', 'schema', 'wrap', 'editor'], function(require, schemaLib, wra
             }
             editorProxy.modifyButton($scope.activeWrap);
         };
-        $scope.updWrap = function(obj, prop) {
+        $scope.updWrap = function() {
             editorProxy.modifyButton($scope.activeWrap);
         };
     }]);

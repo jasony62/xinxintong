@@ -2,9 +2,7 @@
 namespace matter;
 
 require_once dirname(__FILE__) . '/article_base.php';
-/**
- * 旧版本不要了！！！
- */
+
 class article_model extends article_base {
 	/**
 	 *
@@ -21,20 +19,18 @@ class article_model extends article_base {
 	/**
 	 *
 	 */
-	public function getEntryUrl($runningMpid, $id, $openid = null) {
-		/*$url = "http://" . $_SERVER['HTTP_HOST'];
-			$url .= "/rest/mi/matter";
-			$url .= "?mpid=$runningMpid&id=$id&type=article";
-			!empty($openid) && $url .= "&openid=$openid";
-
-			$article = $this->byId($id, 'custom_body');
-
-			$url .= '&tpl=' . ($article->custom_body === 'Y' ? 'cus' : 'std');
-
-		*/
+	public function getEntryUrl($siteId, $id) {
 		$url = "http://" . APP_HTTP_HOST;
 		$url .= "/rest/site/fe/matter";
-		$url .= "?site={$runningMpid}&id={$id}&type=article";
+		if ($siteId === 'platform') {
+			if ($oArticle = $this->byId($id)) {
+				$url .= "?site={$oArticle->siteid}&id={$id}&type=article";
+			} else {
+				$url = "http://" . APP_HTTP_HOST;
+			}
+		} else {
+			$url .= "?site={$siteId}&id={$id}&type=article";
+		}
 
 		return $url;
 	}
@@ -49,12 +45,6 @@ class article_model extends article_base {
 			$this->table(),
 			["id" => $id],
 		];
-		if (isset($options['where'])) {
-			foreach ($options['where'] as $key => $value) {
-				$q[2][$key] = $value;
-			}
-		}
-
 		if ($matter = $this->query_obj_ss($q)) {
 			$matter->type = $this->getTypeName();
 			$matter->entryUrl = $this->getEntryUrl($matter->siteid, $id);
@@ -65,11 +55,11 @@ class article_model extends article_base {
 	/**
 	 *
 	 */
-	public function &byCreater($mpid, $creater, $fields = '*', $cascade = false) {
+	public function &byCreater($site, $creater, $fields = '*', $cascade = false) {
 		$q = array(
 			$fields,
 			'xxt_article',
-			"mpid='$mpid' and creater='$creater' and state=1");
+			"siteid='$site' and creater='$creater' and state=1");
 		$q2 = array('o' => 'modify_at desc');
 
 		$articles = $this->query_objs_ss($q, $q2);
@@ -85,18 +75,19 @@ class article_model extends article_base {
 	/**
 	 * 根据投稿来源
 	 */
-	public function &byEntry($mpid, $entry, $creater, $fields = '*', $cascade = false) {
+	public function &byEntry($site, $entry, $creater, $fields = '*', $cascade = false) {
 		$q = array(
 			$fields,
 			'xxt_article',
-			"mpid='$mpid' and entry='$entry' and creater='$creater' and state=1");
+			"siteid='$site' and entry='$entry' and creater='$creater' and state=1");
 		$q2 = array('o' => 'modify_at desc');
 
 		$articles = $this->query_objs_ss($q, $q2);
 
 		if (!empty($articles) && $cascade) {
+			$modelChn = \TMS_APP::M('matter\channel');
 			foreach ($articles as &$a) {
-				$a->channels = \TMS_APP::M('matter\channel')->byMatter($a->id, 'article');
+				$a->channels = $modelChn->byMatter($a->id, 'article');
 			}
 		}
 
@@ -107,33 +98,42 @@ class article_model extends article_base {
 	 * $entry 指定的投稿活动
 	 * $phase
 	 */
-	public function &byReviewer($mid, $entry, $phase, $fields = '*', $cascade = false) {
-		$q = array(
-			'a.*',
-			'xxt_article a',
-			"a.entry='$entry' and exists(select 1 from xxt_article_review_log l where a.id=l.article_id and l.mid='$mid' and phase='R')",
-		);
-		$q2 = array('o' => 'a.create_at desc');
-
-		$articles = $this->query_objs_ss($q, $q2);
-		if (!empty($articles) && $cascade) {
-			foreach ($articles as &$a) {
-				$a->disposer = $this->disposer($a->id);
+	public function &byReviewer($siteId, $userid, $entry, $phase, $fields = '*', $cascade = false) {
+		$members = \TMS_APP::M('site\user\member')->byUser($userid, array('fields' => 'id'));
+		if (!empty($members)) {
+			$mids = array();
+			foreach ($members as $member) {
+				$mids[] = $member->id;
 			}
-		}
+			$mids = implode(',', $mids);
+			$q = array(
+				'a.*',
+				'xxt_article a',
+				"a.entry='$entry' and exists(select 1 from xxt_article_review_log l where a.id=l.article_id and l.mid in($mids) and phase='R')",
+			);
+			$q2 = array('o' => 'a.create_at desc');
 
+			$articles = $this->query_objs_ss($q, $q2);
+			if (!empty($articles) && $cascade) {
+				foreach ($articles as &$a) {
+					$a->disposer = $this->disposer($a->id);
+				}
+			}
+		} else {
+			$articles = false;
+		}
 		return $articles;
 	}
 	/**
 	 * 获得审核通过的文稿
 	 *
-	 * $mpid
+	 * $site
 	 */
-	public function &getApproved($mpid, $entry = null, $page = 1, $size = 30) {
+	public function &getApproved($site, $entry = null, $page = 1, $size = 30) {
 		$q = array(
 			'a.*',
 			'xxt_article a',
-			"a.mpid='$mpid' and a.approved='Y' and state=1",
+			"a.siteid='$site' and a.approved='Y' and state=1",
 		);
 		!empty($entry) && $q[2] .= " and a.entry='$entry'";
 
@@ -148,8 +148,8 @@ class article_model extends article_base {
 	 * todo 应该用抽象类的机制处理
 	 */
 	public function &getMatters($id) {
-		$article = $this->byId($id, "id,mpid,title,author,summary,pic,body,url");
-		$article->type = 'article';
+		$article = $this->byId($id, "id,siteid,title,author,summary,pic,body,url");
+		$newArticle->type = 'article';
 		$articles = array($article);
 
 		return $articles;
@@ -158,8 +158,8 @@ class article_model extends article_base {
 	 * 返回进行推送的消息格式
 	 */
 	public function &getArticles($id) {
-		$article = $this->byId($id, 'id,mpid,title,author,summary,pic,body,url');
-		$article->type = 'article';
+		$article = $this->byId($id, 'id,siteid,title,author,summary,pic,body,url');
+		$newArticle->type = 'article';
 		$articles = array($article);
 
 		return $articles;
@@ -174,18 +174,15 @@ class article_model extends article_base {
 	/**
 	 * 当前访问用户是否已经点了赞
 	 */
-	public function praised($user, $article_id) {
+	public function praised(&$user, $articleId) {
 		$q = array(
-			'id,score,openid,nickname',
+			'id,score,userid,nickname',
 			'xxt_article_score',
-			"article_id='$article_id' and vid='$user->vid'",
+			['article_id' => $articleId, 'userid' => $user->uid],
 		);
 		$log = $this->query_obj_ss($q);
 		if ($log) {
 			$updated = array();
-			if (empty($log->openid) && !empty($user->openid)) {
-				$updated['openid'] = $user->openid;
-			}
 			if (empty($log->nickname) && !empty($user->nickname)) {
 				$updated['nickname'] = $user->nickname;
 			}
@@ -206,7 +203,7 @@ class article_model extends article_base {
 		$q = array(
 			'r.*',
 			'xxt_article_remark r',
-			"r.article_id='$articleId'",
+			['r.article_id' => $articleId],
 		);
 
 		if (!$range) {
@@ -217,7 +214,7 @@ class article_model extends article_base {
 				$q2 = array('o' => 'r.create_at desc');
 				$remarks = $this->query_objs_ss($q, $q2);
 			} else {
-				$q[2] .= " and id='$remarkId'";
+				$q[2]['id'] = $remarkId;
 				$remarks = $this->query_obj_ss($q);
 			}
 			return $remarks;
@@ -258,9 +255,9 @@ class article_model extends article_base {
 	/**
 	 * 按条件查找单图文
 	 */
-	public function find($mpid, $user, $page = 1, $size = 10, $options) {
+	public function find($site, $user, $page = 1, $size = 10, $options) {
 		$s = "a.id,a.title,a.modify_at,a.author,a.summary,a.pic,a.url";
-		$w = "a.mpid='$mpid' and a.state=1 and finished='Y'";
+		$w = "a.siteid='$site' and a.state=1 and finished='Y'";
 		if (empty($options->tag)) {
 			$q = array(
 				$s,
@@ -270,7 +267,7 @@ class article_model extends article_base {
 		} else {
 			/* 按标签过滤 */
 			is_array($options->tag) && $options->tag = implode(',', $options->tag);
-			$w .= " and a.mpid=at.mpid and a.id=at.res_id and at.tag_id in($options->tag)";
+			$w .= " and a.siteid=at.siteid and a.id=at.res_id and at.tag_id in($options->tag)";
 			$q = array(
 				$s,
 				'xxt_article a,xxt_article_tag at',
@@ -292,10 +289,10 @@ class article_model extends article_base {
 	/**
 	 * 全文检索单图文，将符合条件的结果组成多图文
 	 */
-	public function fullsearch_its($mpid, $keyword, $page = 1, $limit = 5) {
-		$s = "id,mpid,title,author,summary,pic,body,url,'article' type";
+	public function fullsearch_its($site, $keyword, $page = 1, $limit = 5) {
+		$s = "id,siteid,title,author,summary,pic,body,url,'article' type";
 		$f = 'xxt_article';
-		$w = "mpid='$mpid' and state=1 and approved='Y' and can_fullsearch='Y'";
+		$w = "siteid='$site' and state=1 and approved='Y' and can_fullsearch='Y'";
 		$w .= " and (title like '%$keyword%'";
 		$w .= "or summary like '%$keyword%'";
 		$w .= "or body like '%$keyword%')";
@@ -380,16 +377,16 @@ class article_model extends article_base {
 	/**
 	 * 审核记录
 	 *
-	 * $mpid
+	 * $site
 	 * $id article'id
 	 * $mid member's id
 	 * $phase
 	 */
-	public function forward($mpid, $id, $mid, $phase, $remark = '') {
+	public function forward($site, $id, $mid, $phase, $remark = '') {
 		$q = array(
 			'*',
 			'xxt_article_review_log',
-			"mpid='$mpid' and article_id='$id'",
+			"siteid='$site' and article_id='$id'",
 		);
 		$q2 = array(
 			'o' => 'seq desc',
@@ -405,22 +402,15 @@ class article_model extends article_base {
 			);
 		}
 
-		$member = \TMS_APP::M('user/member')->byId($mid);
-		if (!empty($meber->name)) {
-			$disposerName = $member->name;
-		} else {
-			$fan = \TMS_APP::M('user/fans')->byId($member->fid);
-			$disposerName = $fan->nickname;
-		}
-
+		$member = \TMS_APP::M('site\user\member')->byId($mid);
 		$seq = empty($last) ? 1 : $last->seq + 1;
 
 		$newlog = array(
-			'mpid' => $mpid,
+			'siteid' => $site,
 			'article_id' => $id,
 			'seq' => $seq,
 			'mid' => $mid,
-			'disposer_name' => $disposerName,
+			'disposer_name' => $member->name,
 			'send_at' => time(),
 			'state' => 'P',
 			'phase' => $phase,

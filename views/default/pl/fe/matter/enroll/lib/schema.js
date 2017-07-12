@@ -40,15 +40,23 @@ define([], function() {
                 l: '提交信息',
                 scope: ['I']
             },
+            save: {
+                n: 'save',
+                l: '保存信息',
+                scope: ['I'],
+                next: ['I']
+            },
             addRecord: {
                 n: 'addRecord',
                 l: '新增登记',
-                scope: ['V', 'L']
+                scope: ['V', 'L'],
+                next: ['I']
             },
             editRecord: {
                 n: 'editRecord',
                 l: '修改登记',
-                scope: ['V']
+                scope: ['V'],
+                next: ['I']
             },
             removeRecord: {
                 n: 'removeRecord',

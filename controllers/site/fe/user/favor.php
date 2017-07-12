@@ -41,7 +41,7 @@ class favor extends \site\fe\base {
 		$result = new \stdClass;
 		if (count($logs)) {
 			foreach ($logs as $log) {
-				$matter = $this->model('matter\\' . $log->matter_type)->byId($log->matter_id, ['fields' => 'siteid,title,summary,pic']);
+				$matter = $this->model('matter\\' . $log->matter_type)->byId($log->matter_id, ['fields' => 'id,siteid,title,summary,pic']);
 				$log->data = $matter;
 				$result->matters[] = $log;
 			}

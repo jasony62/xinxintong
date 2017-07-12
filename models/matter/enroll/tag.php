@@ -11,9 +11,9 @@ class tag_model extends \TMS_MODEL {
 	 */
 	public function byApp($oApp, $options = []) {
 		if (empty($oApp->id)) {
-			return []
+			return [];
 		}
-		
+
 		$fields = isset($options['fields']) ? $options['fields'] : '*';
 		$q = [
 			$fields,

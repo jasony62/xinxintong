@@ -66,7 +66,7 @@ class access extends \TMS_MODEL {
 				$modelCoin->award($matter, $user, 'site.matter.article.read');
 			}
 		} else if ($type === 'enroll') {
-			$matter = $this->model('matter\enroll')->byId($id);
+			$matter = $this->model('matter\enroll')->byId($id, ['cascaded' => 'N']);
 			$modelMat = $this->model('matter\enroll\coin');
 			$rules = $modelMat->rulesByMatter('site.matter.enroll.read', $matter);
 			$modelCoin = $this->model('site\coin\log');

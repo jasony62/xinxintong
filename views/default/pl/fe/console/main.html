@@ -205,7 +205,7 @@
                 <tbody>
                     <tr ng-repeat='m in missions'>
                         <td>{{$index+1}}</td>
-                        <td>{{m.site_name}}\{{m.title}}</td>
+                        <td><span ng-if="!frameState.sid">{{m.site_name}}\</span>{{m.title}}</td>
                         <td>{{m.creater_name}}</td>
                         <td>{{m.create_at*1000|date:'yy-MM-dd HH:mm'}}</td>
                         <td>

@@ -1720,6 +1720,9 @@ class main extends \pl\fe\matter\base {
 
 		$modelApp = $this->model('matter\enroll');
 		$oApp = $modelApp->byId($app, ['cascaded' => 'N']);
+		if (false === $oApp) {
+			return new \ObjectNotFoundError();
+		}
 		$summary = $modelApp->opData($oApp);
 
 		return new \ResponseData($summary);

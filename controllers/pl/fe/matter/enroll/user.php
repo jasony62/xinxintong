@@ -16,7 +16,7 @@ class user extends \pl\fe\matter\base {
 	/**
 	 * 提交过登记记录的用户
 	 */
-	public function enrollee_action($app, $page = 1, $size = 30) {
+	public function enrollee_action($app, $rid = '', $page = 1, $size = 30) {
 		if (false === ($oUser = $this->accountUser())) {
 			return new \ResponseTimeout();
 		}
@@ -28,14 +28,16 @@ class user extends \pl\fe\matter\base {
 		}
 
 		$modelUsr = $this->model('matter\enroll\user');
-		$result = $modelUsr->enrolleeByApp($oApp, $page, $size);
+		$options = [];
+		!empty($rid) && $options['rid'] = $rid;
+		$result = $modelUsr->enrolleeByApp($oApp, $page, $size, $options);
 
 		return new \ResponseData($result);
 	}
 	/**
 	 * 根据通讯录返回用户完成情况
 	 */
-	public function byMschema_action($app, $mschema) {
+	public function byMschema_action($app, $mschema, $rid = '', $page = 1, $size = 30) {
 		if (false === ($oUser = $this->accountUser())) {
 			return new \ResponseTimeout();
 		}
@@ -53,7 +55,9 @@ class user extends \pl\fe\matter\base {
 		}
 
 		$modelUsr = $this->model('matter\enroll\user');
-		$result = $modelUsr->enrolleeByMschema($oApp, $oMschema);
+		$options = [];
+		!empty($rid) && $options['rid'] = $rid;
+		$result = $modelUsr->enrolleeByMschema($oApp, $oMschema, $page, $size, $options);
 
 		return new \ResponseData($result);
 	}
@@ -97,11 +101,14 @@ class user extends \pl\fe\matter\base {
 			if (false === $oMschema) {
 				return new \ObjectNotFoundError();
 			}
-
-			$result = $modelUsr->enrolleeByMschema($oApp, $oMschema);
+			$options = [];
+			!empty($rid) && $options['rid'] = $rid;
+			$result = $modelUsr->enrolleeByMschema($oApp, $oMschema, $page='', $size='', $options);
 			$data = $result->members;
 		}else{
-			$result = $modelUsr->enrolleeByApp($oApp);
+			$options = [];
+			!empty($rid) && $options['rid'] = $rid;
+			$result = $modelUsr->enrolleeByApp($oApp, $page='', $size='', $options);
 			$data = $result->users;
 		}
 		

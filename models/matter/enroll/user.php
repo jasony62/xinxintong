@@ -51,8 +51,13 @@ class user_model extends \TMS_MODEL {
 		$q = [
 			$fields,
 			"xxt_enroll_user",
-			"aid='{$oApp->id}' and enroll_num>0 and rid = 'ALL'",
+			"aid='{$oApp->id}' and enroll_num>0",
 		];
+		if(!empty($options['rid'])){
+			$q[2] .= " and rid = '" . $this->escape($options['rid']) . "'";
+		}else{
+			$q[2] .= " and rid = 'ALL'";
+		}
 		$q2 = [
 			'o' => 'last_enroll_at desc',
 		];
@@ -71,7 +76,7 @@ class user_model extends \TMS_MODEL {
 	/**
 	 * 活动中提交过数据的用户
 	 */
-	public function enrolleeByMschema($oApp, $oMschema, $page = 1, $size = 30, $options = []) {
+	public function enrolleeByMschema($oApp, $oMschema, $page = '', $size = '', $options = []) {
 		$fields = isset($options['fields']) ? $options['fields'] : 'userid,email,mobile,name,extattr';
 
 		$result = new \stdClass;
@@ -81,16 +86,21 @@ class user_model extends \TMS_MODEL {
 			['schema_id' => $oMschema->id, 'verified' => 'Y', 'forbidden' => 'N'],
 		];
 		$q2 = [
-			'r' => ['o' => ($page - 1) * $size, 'l' => $size],
+			'o' => 'create_at desc',
 		];
+		if(!empty($page) && !empty($size)){
+			$q2['r'] = ['o' => ($page - 1) * $size, 'l' => $size];
+		}
 		$members = $this->query_objs_ss($q, $q2);
 		if (count($members)) {
+			$sel = ['fields' => 'nickname,last_enroll_at,enroll_num,last_remark_at,remark_num,last_like_at,like_num,last_like_remark_at,like_remark_num,last_remark_other_at,remark_other_num,last_like_other_at,like_other_num,last_like_other_remark_at,like_other_remark_num,user_total_coin'];
+			!empty($options['rid']) && $sel['rid'] = $this->escape($options['rid']);
 			foreach ($members as &$oMember) {
 				$oMember->extattr = empty($oMember->extattr) ? new \stdClass : json_decode($oMember->extattr);
 				//$oEnrollee = new \stdClass;
 				//$oEnrollee->userid = $oMember->userid;
 				//$oMember->report = $this->reportByUser($oApp, $oEnrollee);
-				$oMember->user = $this->byId($oApp, $oMember->userid, ['fields' => 'nickname,last_enroll_at,enroll_num,last_remark_at,remark_num,last_like_at,like_num,last_like_remark_at,like_remark_num,last_remark_other_at,remark_other_num,last_like_other_at,like_other_num,last_like_other_remark_at,like_other_remark_num,user_total_coin']);
+				$oMember->user = $this->byId($oApp, $oMember->userid, $sel);
 			}
 		}
 		$result->members = $members;

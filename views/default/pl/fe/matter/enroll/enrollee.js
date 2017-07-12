@@ -55,6 +55,9 @@ define(['frame'], function(ngApp) {
                     var schemaId, oMschema;
                     for (schemaId in rsp.data) {
                         oMschema = rsp.data[schemaId];
+                        if(oMschema.is_qy_fan=='Y'||oMschema.is_yx_fan=='Y'||oMschema.is_wx_fan=='Y') {
+                            oMschema.sns = 'Y';
+                        }
                         mschemas.push(oMschema);
                     }
                     if (mschemas.length) {

@@ -148,9 +148,6 @@ class main extends \pl\fe\matter\base {
 			return new \ResponseError('没有获得页面进入规则');
 		}
 		if (isset($oMisEntryRule)) {
-			if(!isset($oEntryRule->scope)){
-				$oEntryRule->scope = 'none';
-			}
 			if (isset($oMisEntryRule->scope) && $oMisEntryRule->scope !== 'none') {
 				$oEntryRule->scope = $oMisEntryRule->scope;
 				switch ($oEntryRule->scope) {
@@ -179,6 +176,9 @@ class main extends \pl\fe\matter\base {
 					break;
 				}
 			}
+		}
+		if(!isset($oEntryRule->scope)){
+			$oEntryRule->scope = 'none';
 		}
 		/* 登记数量限制 */
 		if (isset($config->count_limit)) {

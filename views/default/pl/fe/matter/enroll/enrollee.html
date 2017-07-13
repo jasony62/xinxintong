@@ -4,10 +4,10 @@
             <form class='navbar-form navbar-left'>
                 <select class='form-control' ng-if="rule.scope=='member'" ng-model="criteria.mschema" ng-options="mschema.title for mschema in mschemas" ng-change="searchEnrollee()"></select>
                 <select class='form-control' ng-if="rounds.length>0" ng-model="criteria.rid" ng-change="searchRound(criteria.rid)">
-                    <option value='ALL'>全部</option>
+                    <option value=''>全部轮次</option>
                     <option value="{{rnd.rid}}" ng-repeat="rnd in rounds">{{rnd.title}}</option>
                 </select>
-                <div class='btn-group' ng-if="rule.scope==='sns'|| criteria.mschema.sns=='Y'">
+                <div class='btn-group'>
                     <button type='button' class='btn btn-default dropdown-toggle' data-toggle='dropdown'>选中记录 <i class='caret'></i></button>
                     <ul class='dropdown-menu' role='menu'>
                         <li><a href='' ng-click="notify()">发送信息</a></li>
@@ -16,7 +16,7 @@
                 <div class='btn-group'>
                     <button type='button' class='btn btn-default dropdown-toggle' data-toggle='dropdown'>全部记录 <i class='caret'></i></button>
                     <ul class='dropdown-menu' role='menu'>
-                        <li><a href='' ng-if="rule.scope==='sns' || criteria.mschema.sns=='Y'" ng-click="notify()">发送信息</a></li>
+                        <li><a href='' ng-click="notify()">发送信息</a></li>
                         <li><a href='' ng-click="export()">导出数据</a></li>
                     </ul>
                 </div>
@@ -38,6 +38,9 @@
                     <th>记录</th>
                     <th>评论</th>
                     <th>积分</th>
+                    <th>是否关联微信</th>
+                    <th>是否关联易信</th>
+                    <th>是否关联微企</th>
                 </tr>
             </thead>
             <tbody>
@@ -61,6 +64,9 @@
                         <div ng-if='m.user.user_total_coin'>{{m.user.user_total_coin}}</div>
                         <div ng-if='m.user_total_coin'>{{m.user_total_coin}}</div>
                     </td>
+                    <td ></td>
+                    <td ></td>
+                    <td ></td>
                 </tr>
             </tbody>
         </table>

@@ -11,7 +11,7 @@ define(['frame'], function(ngApp) {
             }
         };
         $scope.criteria = oCriteria = {
-            rid: 'ALL',
+            rid: '',
             allSelected: 'N',
             selected: {},
             reset: function() {
@@ -38,17 +38,13 @@ define(['frame'], function(ngApp) {
             });
         };
         $scope.searchEnrollee = function() {
-            var ruleScope = Object.keys($scope.rule);
-            if(ruleScope.indexOf('scope')!= -1 && $scope.rule.scope === 'member') {
+            if($scope.rule.scope === 'member') {
                 var mschemaIds = Object.keys($scope.rule.member);
                 if (mschemaIds.length) {
                     http2.get('/rest/pl/fe/site/member/schema/overview?site=' + $scope.app.siteid + '&mschema=' + mschemaIds.join(','), function(rsp) {
                         var schemaId, oMschema;
                         for (schemaId in rsp.data) {
                             oMschema = rsp.data[schemaId];
-                            if(oMschema.is_qy_fan=='Y'||oMschema.is_yx_fan=='Y'||oMschema.is_wx_fan=='Y') {
-                                oMschema.sns = 'Y';
-                            }
                             mschemas.push(oMschema);
                         }
                         if (mschemas.length) {
@@ -89,7 +85,7 @@ define(['frame'], function(ngApp) {
             }
         });
         $scope.$watch('criteria.rid', function(nv) {
-            if(!$scope.rule) return;
+            if(!nv) return;
             $scope.searchEnrollee();
         });
     }]);

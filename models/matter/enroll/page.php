@@ -15,9 +15,9 @@ class page_model extends \TMS_MODEL {
 		$ep = $this->query_obj_ss($q);
 		if ($ep) {
 			if ($published === 'Y') {
-				$code = \TMS_APP::model('code\page')->lastPublishedByName($ep->siteid, $ep->code_name);
+				$code = $this->model('code\page')->lastPublishedByName($ep->siteid, $ep->code_name);
 			} else {
-				$code = \TMS_APP::model('code\page')->lastByName($ep->siteid, $ep->code_name);
+				$code = $this->model('code\page')->lastByName($ep->siteid, $ep->code_name);
 			}
 			$ep->html = $code->html;
 			$ep->css = $code->css;
@@ -45,9 +45,9 @@ class page_model extends \TMS_MODEL {
 
 			if ($ep = $this->query_obj_ss($q)) {
 				if ($published === 'Y') {
-					$code = \TMS_APP::model('code\page')->lastPublishedByName($ep->siteid, $ep->code_name);
+					$code = $this->model('code\page')->lastPublishedByName($ep->siteid, $ep->code_name);
 				} else {
-					$code = \TMS_APP::model('code\page')->lastByName($ep->siteid, $ep->code_name);
+					$code = $this->model('code\page')->lastByName($ep->siteid, $ep->code_name);
 				}
 				$ep->html = $code->html;
 				$ep->css = $code->css;
@@ -74,7 +74,7 @@ class page_model extends \TMS_MODEL {
 		$q2 = array('o' => 'seq,create_at');
 		$eps = $this->query_objs_ss($q, $q2);
 		if ($cascaded === 'Y' && !empty($eps)) {
-			$modelCode = \TMS_APP::model('code\page');
+			$modelCode = $this->model('code\page');
 			$pages = array();
 			foreach ($eps as &$ep) {
 				if ($published === 'Y') {

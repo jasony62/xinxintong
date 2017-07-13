@@ -493,7 +493,7 @@ define(['wrap'], function(wrapLib) {
                     dataScope: 'U',
                     onclick: '',
                 },
-                schemas: angular.copy(oApp.data_schemas)
+                schemas: angular.copy(oApp.dataSchemas)
             };
             dataWrap.schemas.push({
                 id: 'enrollAt',

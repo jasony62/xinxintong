@@ -67,7 +67,7 @@ class user_model extends \TMS_MODEL {
 		$users = $this->query_objs_ss($q, $q2);
 		$result->users = $users;
 
-		$q[0] = 'count(eu.*)';
+		$q[0] = 'count(*)';
 		$total = (int) $this->query_val_ss($q);
 		$result->total = $total;
 

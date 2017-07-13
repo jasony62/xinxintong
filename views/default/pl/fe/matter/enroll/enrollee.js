@@ -85,7 +85,7 @@ define(['frame'], function(ngApp) {
             }
         });
         $scope.$watch('criteria.rid', function(nv) {
-            if(!nv) return;
+            if(!$scope.rule) return;
             $scope.searchEnrollee();
         });
     }]);

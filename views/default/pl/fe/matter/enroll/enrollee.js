@@ -59,6 +59,7 @@ define(['frame'], function(ngApp) {
                 }
             } else {
                 http2.get('/rest/pl/fe/matter/enroll/user/enrollee?app=' + $scope.app.id + '&rid=' + oCriteria.rid + page.j(), function(rsp) {
+                    srvEnrollRecord.init($scope.app, $scope.page, $scope.criteria, rsp.data.users);
                     $scope.members = rsp.data.users;
                     $scope.page.total = rsp.data.total;
                 });

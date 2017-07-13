@@ -64,9 +64,15 @@
                         <div ng-if='m.user.user_total_coin'>{{m.user.user_total_coin}}</div>
                         <div ng-if='m.user_total_coin'>{{m.user_total_coin}}</div>
                     </td>
-                    <td ></td>
-                    <td ></td>
-                    <td ></td>
+                    <td>
+                        <div ng-show="m.wx_openid">已关联</div>
+                    </td>
+                    <td>
+                        <div ng-show="m.yx_openid">已关联</div>
+                    </td>
+                    <td>
+                        <div ng-show="m.qy_openid">已关联</div>
+                    </td>
                 </tr>
             </tbody>
         </table>

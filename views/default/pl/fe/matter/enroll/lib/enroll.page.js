@@ -34,7 +34,50 @@ define(['require', 'schema', 'wrap', 'editor'], function(require, schemaLib, wra
             editorProxy.modifySchema(wrap);
         };
         $scope.newButton = function(btn) {
-            var domWrap = editorProxy.appendButton(btn);
+            var oSchema, domWrap, pages;
+            oSchema = angular.copy(btn);
+            pages = $scope.app.pages;
+            switch (oSchema.n) {
+                case 'submit':
+                    var oFirstViewPage;
+                    for (var i = pages.length - 1; i >= 0; i--) {
+                        if (pages[i].type === 'V') {
+                            oFirstViewPage = pages[i];
+                            break;
+                        }
+                    }
+                    if (oFirstViewPage) {
+                        oSchema.next = oFirstViewPage.name;
+                    } else {
+                        var oFirstListPage;
+                        for (var i = pages.length - 1; i >= 0; i--) {
+                            if (pages[i].type === 'L') {
+                                oFirstListPage = pages[i];
+                                break;
+                            }
+                        }
+                        if (oFirstListPage) {
+                            oSchema.next = oFirstListPage.name;
+                        }
+                    }
+                    break;
+                case 'addRecord':
+                case 'editRecord':
+                    var oFirstInputPage;
+                    for (var i = pages.length - 1; i >= 0; i--) {
+                        if (pages[i].type === 'I') {
+                            oFirstInputPage = pages[i];
+                            break;
+                        }
+                    }
+                    if (oFirstInputPage) {
+                        oSchema.next = oFirstInputPage.name;
+                    }
+                    break;
+                default:
+                    oSchema.next = '';
+            }
+            domWrap = editorProxy.appendButton(oSchema);
             $scope.setActiveWrap(domWrap);
         };
         $scope.newList = function() {

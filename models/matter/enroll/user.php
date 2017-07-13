@@ -45,21 +45,21 @@ class user_model extends \TMS_MODEL {
 	 * 活动中提交过数据的用户
 	 */
 	public function enrolleeByApp($oApp, $page = '', $size = '', $options = []) {
-		$fields = isset($options['fields']) ? $options['fields'] : '*';
+		$fields = isset($options['fields']) ? $options['fields'] : 'eu.*';
 
 		$result = new \stdClass;
 		$q = [
-			$fields,
-			"xxt_enroll_user",
-			"aid='{$oApp->id}' and enroll_num>0",
+			$fields . ',a.wx_openid,a.yx_openid,a.qy_openid',
+			"xxt_enroll_user eu,xxt_site_account a",
+			"eu.aid='{$oApp->id}' and eu.enroll_num>0 and eu.userid = a.uid",
 		];
 		if(!empty($options['rid'])){
-			$q[2] .= " and rid = '" . $this->escape($options['rid']) . "'";
+			$q[2] .= " and eu.rid = '" . $this->escape($options['rid']) . "'";
 		}else{
-			$q[2] .= " and rid = 'ALL'";
+			$q[2] .= " and eu.rid = 'ALL'";
 		}
 		$q2 = [
-			'o' => 'last_enroll_at desc',
+			'o' => 'eu.last_enroll_at desc',
 		];
 		if(!empty($page) && !empty($size)){
 			$q2['r'] = ['o' => ($page - 1) * $size, 'l' => $size];
@@ -67,7 +67,7 @@ class user_model extends \TMS_MODEL {
 		$users = $this->query_objs_ss($q, $q2);
 		$result->users = $users;
 
-		$q[0] = 'count(*)';
+		$q[0] = 'count(eu.*)';
 		$total = (int) $this->query_val_ss($q);
 		$result->total = $total;
 
@@ -77,16 +77,16 @@ class user_model extends \TMS_MODEL {
 	 * 活动中提交过数据的用户
 	 */
 	public function enrolleeByMschema($oApp, $oMschema, $page = '', $size = '', $options = []) {
-		$fields = isset($options['fields']) ? $options['fields'] : 'userid,email,mobile,name,extattr';
+		$fields = isset($options['fields']) ? $options['fields'] : 'm.userid,m.email,m.mobile,m.name,m.extattr';
 
 		$result = new \stdClass;
 		$q = [
-			$fields,
-			"xxt_site_member",
-			['schema_id' => $oMschema->id, 'verified' => 'Y', 'forbidden' => 'N'],
+			$fields . ',a.wx_openid,a.yx_openid,a.qy_openid',
+			"xxt_site_member m,xxt_site_account a",
+			"m.schema_id = $oMschema->id and m.verified = 'Y' and m.forbidden = 'N' and a.uid = m.userid"
 		];
 		$q2 = [
-			'o' => 'create_at desc',
+			'o' => 'm.create_at desc',
 		];
 		if(!empty($page) && !empty($size)){
 			$q2['r'] = ['o' => ($page - 1) * $size, 'l' => $size];

@@ -45,28 +45,45 @@ class user_model extends \TMS_MODEL {
 	 * 活动中提交过数据的用户
 	 */
 	public function enrolleeByApp($oApp, $page = '', $size = '', $options = []) {
-		$fields = isset($options['fields']) ? $options['fields'] : 'eu.*';
+		$fields = isset($options['fields']) ? $options['fields'] : '*';
 
 		$result = new \stdClass;
 		$q = [
-			$fields . ',a.wx_openid,a.yx_openid,a.qy_openid',
-			"xxt_enroll_user eu,xxt_site_account a",
-			"eu.aid='{$oApp->id}' and eu.enroll_num>0 and eu.userid = a.uid",
+			$fields,
+			"xxt_enroll_user",
+			"aid='{$oApp->id}' and enroll_num>0",
 		];
 		if(!empty($options['rid'])){
-			$q[2] .= " and eu.rid = '" . $this->escape($options['rid']) . "'";
+			$q[2] .= " and rid = '" . $this->escape($options['rid']) . "'";
 		}else{
-			$q[2] .= " and eu.rid = 'ALL'";
+			$q[2] .= " and rid = 'ALL'";
 		}
 		$q2 = [
-			'o' => 'eu.last_enroll_at desc',
+			'o' => 'last_enroll_at desc',
 		];
 		if(!empty($page) && !empty($size)){
 			$q2['r'] = ['o' => ($page - 1) * $size, 'l' => $size];
 		}
-		$users = $this->query_objs_ss($q, $q2);
-		$result->users = $users;
+		if ($users = $this->query_objs_ss($q, $q2)) {
+			foreach ($users as $user) {
+				$p = [
+					'wx_openid,yx_openid,qy_openid',
+					"xxt_site_account",
+					"uid = '{$user->userid}'",
+				];
+				if ($openid = $this->query_obj_ss($p)) {
+					$user->wx_openid = $openid->wx_openid;
+					$user->yx_openid = $openid->yx_openid;
+					$user->qy_openid = $openid->qy_openid;
+				}else{
+					$user->wx_openid = '';
+					$user->yx_openid = '';
+					$user->qy_openid = '';
+				}
+			}
+		}
 
+		$result->users = $users;
 		$q[0] = 'count(*)';
 		$total = (int) $this->query_val_ss($q);
 		$result->total = $total;

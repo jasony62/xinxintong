@@ -563,8 +563,10 @@ class main extends \pl\fe\matter\base {
 			$this->_addPageByTemplate($user, $site, $mission, $appId, $config, $customConfig);
 			/*进入规则*/
 			$entryRule = $config->entryRule;
-			if(!isset($entryRule->scope)){
-				$entryRule->scope = 'none';
+			if(!empty($entryRule)){
+				if(!isset($entryRule->scope)){
+					$entryRule->scope = 'none';
+				}
 			}
 			if (isset($config->enrolled_entry_page)) {
 				$newapp['enrolled_entry_page'] = $config->enrolled_entry_page;
@@ -1709,7 +1711,7 @@ class main extends \pl\fe\matter\base {
 
 		/* records */
 		$records = $modelEnroll->query_objs_ss([
-			'id,userid,nickname,data',
+			'id,userid,wx_openid,yx_openid,qy_openid,nickname,data',
 			'xxt_enroll_record',
 			['siteid' => $site, 'aid' => $app],
 		]);

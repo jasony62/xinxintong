@@ -24,10 +24,6 @@ xxtMatters.constant('matterTypes', [{
     title: '登记活动',
     url: '/rest/mp/matter'
 }, {
-    value: 'enrollsignin',
-    title: '登记活动签到',
-    url: '/rest/mp/matter'
-}, {
     value: 'lottery',
     title: '抽奖活动',
     url: '/rest/mp/matter'

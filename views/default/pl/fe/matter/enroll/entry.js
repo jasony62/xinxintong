@@ -34,7 +34,7 @@ define(['frame'], function(ngApp) {
         var targetUrl, host, opEntry;
         $scope.opEntry = opEntry = {};
         srvEnrollApp.get().then(function(app) {
-            targetUrl = $scope.app.opUrl;
+            targetUrl = app.opUrl;
             host = targetUrl.match(/\/\/(\S+?)\//);
             host = host.length === 2 ? host[1] : location.host;
             srvQuickEntry.get(targetUrl).then(function(entry) {
@@ -78,7 +78,7 @@ define(['frame'], function(ngApp) {
         var targetUrl, host, rpEntry;
         $scope.rpEntry = rpEntry = {};
         srvEnrollApp.get().then(function(app) {
-            targetUrl = $scope.app.rpUrl;
+            targetUrl = app.rpUrl;
             host = targetUrl.match(/\/\/(\S+?)\//);
             host = host.length === 2 ? host[1] : location.host;
             srvQuickEntry.get(targetUrl).then(function(entry) {

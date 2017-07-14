@@ -111,9 +111,10 @@ ngApp.controller('ctrlMain', ['$scope', '$http', '$timeout', '$q', 'tmsDynaPage'
     $scope.width = width;
 
     function finish() {
-        var eleLoading, eleStyle;
-        eleLoading = document.querySelector('.loading');
-        eleLoading.parentNode.removeChild(eleLoading);
+        var eleLoading;
+        if (eleLoading = document.querySelector('.loading')) {
+            eleLoading.parentNode.removeChild(eleLoading);
+        }
     }
 
     function articleLoaded() {
@@ -201,8 +202,8 @@ ngApp.controller('ctrlMain', ['$scope', '$http', '$timeout', '$q', 'tmsDynaPage'
             }
             if (!document.querySelector('.tms-switch-favor')) {
                 tmsFavor.showSwitch($scope.user, oArticle);
-            }else {
-                $scope.favor = function(user,article) {
+            } else {
+                $scope.favor = function(user, article) {
                     event.preventDefault();
                     event.stopPropagation();
 
@@ -218,8 +219,8 @@ ngApp.controller('ctrlMain', ['$scope', '$http', '$timeout', '$q', 'tmsDynaPage'
             }
             if (!document.querySelector('.tms-switch-forward')) {
                 tmsForward.showSwitch($scope.user, oArticle);
-            }else {
-                $scope.forward = function(user,article) {
+            } else {
+                $scope.forward = function(user, article) {
                     event.preventDefault();
                     event.stopPropagation();
 
@@ -241,7 +242,7 @@ ngApp.controller('ctrlMain', ['$scope', '$http', '$timeout', '$q', 'tmsDynaPage'
             if (oArticle.can_siteuser === 'Y') {
                 if (!document.querySelector('.tms-switch-siteuser')) {
                     tmsSiteUser.showSwitch(oArticle.siteid, true);
-                }else {
+                } else {
                     $scope.siteUser = function(id) {
                         event.preventDefault();
                         event.stopPropagation();
@@ -260,6 +261,7 @@ ngApp.controller('ctrlMain', ['$scope', '$http', '$timeout', '$q', 'tmsDynaPage'
             $scope.dataReady = 'Y';
             deferred.resolve();
         }).error(function(content, httpCode) {
+            finish();
             if (httpCode === 401) {
                 tmsDynaPage.openPlugin(content).then(function() {
                     loadArticle().then(articleLoaded);

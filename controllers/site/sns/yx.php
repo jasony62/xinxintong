@@ -334,26 +334,6 @@ class yx extends \member_base {
 			}
 
 			switch ($reply->matter_type) {
-			case 'enrollsignin': //登记活动签到
-				$r = $this->model('sns\reply\enrollsignin', $call, $reply->matter_id, false);
-				$r2 = $r->exec();
-				if ($r2['matter_type'] === 'enroll') {
-					$message = $this->model('matter\\' . 'enroll')->forCustomPush($mpid, $r2['matter_id']);
-				} else if ($r2['matter_type'] === 'joinwall') {
-					$r = new $this->model('sns\reply\joinwall', $call, $r2['matter_id']);
-					$tip = $r->exec(false);
-					if (!empty($tip)) {
-						$message = array(
-							"msgtype" => "text",
-							"text" => array(
-								"content" => $tip,
-							),
-						);
-					}
-				} else {
-					$message = $this->model('matter\\' . $r2['matter_type'])->forCustomPush($mpid, $r2['matter_id']);
-				}
-				break;
 			case 'joinwall': // 加入信息墙
 				$r = $this->model('sns\reply\joinwall', $call, $reply->matter_id);
 				$tip = $r->exec(false);

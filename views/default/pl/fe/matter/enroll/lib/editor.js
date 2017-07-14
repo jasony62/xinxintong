@@ -474,10 +474,10 @@ define(['wrap'], function(wrapLib) {
         appendButton: function(btn) {
             var oWrap, wrapParam;
             oWrap = {
-                id: 'act' + (new Date() * 1),
+                id: 'act' + (new Date * 1),
                 name: btn.n,
                 label: btn.l,
-                next: ''
+                next: btn.next || ''
             };
             _page.act_schemas.push(oWrap);
             wrapParam = wrapLib.button.embed(oWrap);
@@ -493,7 +493,7 @@ define(['wrap'], function(wrapLib) {
                     dataScope: 'U',
                     onclick: '',
                 },
-                schemas: angular.copy(oApp.data_schemas)
+                schemas: angular.copy(oApp.dataSchemas)
             };
             dataWrap.schemas.push({
                 id: 'enrollAt',

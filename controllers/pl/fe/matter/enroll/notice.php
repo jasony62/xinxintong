@@ -65,7 +65,7 @@ class notice extends \pl\fe\matter\base {
 			$receivers = [];
 			foreach ($oUsers as $oUser) {
 				$receiver = new \stdClass;
-				$receiver->assoc_with = $oUser->enroll_key;
+				isset($oUser->enroll_key) && $receiver->assoc_with = $oUser->enroll_key;
 				$receiver->userid = $oUser->userid;
 				$receivers[] = $receiver;
 			}

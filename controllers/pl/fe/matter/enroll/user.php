@@ -172,9 +172,21 @@ class user extends \pl\fe\matter\base {
 					}
 				}
 
-				$objActiveSheet->setCellValueByColumnAndRow($columnNum2++, $rowIndex, $record->user->enroll_num);
-				$objActiveSheet->setCellValueByColumnAndRow($columnNum2++, $rowIndex, $record->user->remark_other_num);
-				$objActiveSheet->setCellValueByColumnAndRow($columnNum2++, $rowIndex, $record->user->user_total_coin);
+				if(isset($record->user->enroll_num)){
+					$objActiveSheet->setCellValueByColumnAndRow($columnNum2++, $rowIndex, $record->user->enroll_num);
+				}else{
+					$objActiveSheet->setCellValueByColumnAndRow($columnNum2++, $rowIndex, '');
+				}
+				if(isset($record->user->remark_other_num)){
+					$objActiveSheet->setCellValueByColumnAndRow($columnNum2++, $rowIndex, $record->user->remark_other_num);
+				}else{
+					$objActiveSheet->setCellValueByColumnAndRow($columnNum2++, $rowIndex, '');
+				}
+				if(isset($record->user->user_total_coin)){
+					$objActiveSheet->setCellValueByColumnAndRow($columnNum2++, $rowIndex, $record->user->user_total_coin);
+				}else{
+					$objActiveSheet->setCellValueByColumnAndRow($columnNum2++, $rowIndex, '');
+				}
 			}
 		}else{
 			// 转换标题

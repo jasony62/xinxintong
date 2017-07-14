@@ -17,9 +17,26 @@ class fullsearch_model extends MultiArticleReply {
 
 	protected function loadMatters() {
 		$siteId = $this->call['siteid'];
+		$model=\TMS_APP::model('matter\article');
 		$page = 1;
 		$limit = 10;
-		$matters = \TMS_APP::model('matter\article')->fullsearch_its($siteId, $this->keyword, $page, $limit);
+		$matters = $model->fullsearch_its($siteId, $this->keyword, $page, $limit);
+		foreach ($matters as &$matter) {
+			$matter->entryURL = $model->getEntryUrl($this->call['siteid'], $matter->id);
+		}
 		return $matters;
+	}
+
+	/**
+	 * 生成回复消息
+	 */
+	public function exec() {
+		$matters = $this->loadMatters();
+		if(empty($matters)){
+			$r=$this->textResponse("找不到包含【".$this->keyword."】的文章，请尝试更换关键词继续搜索。");
+		}else{
+			$r = $this->cardResponse($matters);
+		}
+		die($r);
 	}
 }

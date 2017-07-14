@@ -8,17 +8,13 @@
                     <option value="{{rnd.rid}}" ng-repeat="rnd in rounds">{{rnd.title}}</option>
                 </select>
                 <div class='btn-group'>
-                    <button type='button' class='btn btn-default dropdown-toggle' data-toggle='dropdown'>选中记录 <i class='caret'></i></button>
-                    <ul class='dropdown-menu' role='menu'>
-                        <li><a href='' ng-click="notify(true)">发送信息</a></li>
-                    </ul>
+                    <button type='button' class='btn btn-default' ng-click="notify(true)">给选中用户发消息</button>
                 </div>
                 <div class='btn-group'>
-                    <button type='button' class='btn btn-default dropdown-toggle' data-toggle='dropdown'>全部记录 <i class='caret'></i></button>
-                    <ul class='dropdown-menu' role='menu'>
-                        <li><a href='' ng-click="notify(true)">发送信息</a></li>
-                        <li><a href='' ng-click="export()">导出数据</a></li>
-                    </ul>
+                    <button type='button' class='btn btn-default' ng-click="notify(true)">给全部用户发消息</button>
+                </div>
+                <div class='btn-group'>
+                    <button type='button' class='btn btn-default' ng-click="export()">导出数据</button>
                 </div>
             </form>
 

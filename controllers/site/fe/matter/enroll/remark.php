@@ -35,6 +35,7 @@ class remark extends base {
 	}
 	/**
 	 * 给指定的登记记录的添加评论
+	 * 进行评论操作的用户需满足进入活动规则的条件
 	 */
 	public function add_action($ek, $schema = '') {
 		$data = $this->getPostJson();
@@ -93,7 +94,7 @@ class remark extends base {
 		$modelRun = $this->model('matter\enroll\round');
 		if ($activeRound = $modelRun->getActive($oApp)) {
 			$rid = $activeRound->rid;
-		}else{
+		} else {
 			$rid = '';
 		}
 

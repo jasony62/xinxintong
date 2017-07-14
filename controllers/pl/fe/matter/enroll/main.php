@@ -177,6 +177,9 @@ class main extends \pl\fe\matter\base {
 				}
 			}
 		}
+		if(!isset($oEntryRule->scope)){
+			$oEntryRule->scope = 'none';
+		}
 		/* 登记数量限制 */
 		if (isset($config->count_limit)) {
 			$oNewApp->count_limit = $config->count_limit;
@@ -298,6 +301,10 @@ class main extends \pl\fe\matter\base {
 		$newapp['template_id'] = $template->id;
 		$newapp['template_version'] = $template->version;
 		$newapp['can_siteuser'] = 'Y';
+		/* 进入规则 */
+		$entryRule = new \stdClass;
+		$entryRule->scope = 'none';
+		$newapp['entry_rule'] = json_encode($entryRule);
 
 		$modelApp->insert('xxt_enroll', $newapp, false);
 
@@ -556,6 +563,11 @@ class main extends \pl\fe\matter\base {
 			$this->_addPageByTemplate($user, $site, $mission, $appId, $config, $customConfig);
 			/*进入规则*/
 			$entryRule = $config->entryRule;
+			if(!empty($entryRule)){
+				if(!isset($entryRule->scope)){
+					$entryRule->scope = 'none';
+				}
+			}
 			if (isset($config->enrolled_entry_page)) {
 				$newapp['enrolled_entry_page'] = $config->enrolled_entry_page;
 			}
@@ -566,6 +578,11 @@ class main extends \pl\fe\matter\base {
 			}
 		} else {
 			$entryRule = $this->_addBlankPage($user, $site->id, $appId);
+			if (!empty($entryRule)) {
+				if(!isset($entryRule['scope'])){
+					$entryRule['scope'] = 'none';
+				}
+			}
 		}
 		if (empty($entryRule)) {
 			return new \ResponseError('没有获得页面进入规则');
@@ -792,6 +809,9 @@ class main extends \pl\fe\matter\base {
 		if (empty($entryRule)) {
 			return new \ResponseError('没有获得页面进入规则');
 		}
+		if(!isset($entryRule->scope)){
+			$entryRule->scope = 'none';
+		}
 
 		$site = $this->model('site')->byId($site, ['fields' => 'id,heading_pic']);
 		$copied = $modelApp->byId($app);
@@ -1016,6 +1036,9 @@ class main extends \pl\fe\matter\base {
 		$entryRule = $config->entryRule;
 		if (empty($entryRule)) {
 			return new \ResponseError('没有获得页面进入规则');
+		}
+		if(!isset($entryRule->scope)){
+			$entryRule->scope = 'none';
 		}
 
 		$oSite = $this->model('site')->byId($site, ['fields' => 'id,heading_pic']);
@@ -1688,7 +1711,7 @@ class main extends \pl\fe\matter\base {
 
 		/* records */
 		$records = $modelEnroll->query_objs_ss([
-			'id,userid,openid,nickname,data',
+			'id,userid,wx_openid,yx_openid,qy_openid,nickname,data',
 			'xxt_enroll_record',
 			['siteid' => $site, 'aid' => $app],
 		]);

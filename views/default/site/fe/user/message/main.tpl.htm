@@ -15,11 +15,14 @@
         <div class='loading-indicator'><i></i></div>
     </div>
     <div class="container ng-cloak" ng-controller="ctrlMain" ng-cloak>
-        <nav class='navbar navbar-default'>
-            <div class='container-fluid'>
-                <div class="navbar-header">
-                    <a class='navbar-brand' href='/rest/site/home?site={{site.id}}' target='_self'>{{site.name}}</a>
-                </div>
+        <nav class='navbar navbar-default navbar-fixed-top'>
+            <div class='container-fluid text-right'>
+                <p class="navbar-text">
+                    <a class='navbar-link' href='/rest/home' target='_self'>
+                        <?php echo APP_TITLE;?> &nbsp;
+                        <span class='glyphicon glyphicon-menu-right'></span>
+                    </a>
+                </p>
             </div>
         </nav>
         <div class='row'>
@@ -48,6 +51,7 @@
             </div>
         </div>
     </div>
+
     <script src="/static/js/require.js" defer async data-main="/views/default/site/fe/user/message/main-loader.js?_=1"></script>
 </body>
 

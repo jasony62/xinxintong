@@ -403,6 +403,19 @@ class main extends base {
 		return new \ResponseData($params);
 	}
 	/**
+	 * 获得用户执行操作规则的状态
+	 */
+	public function actionRule_action($app) {
+		$oApp = $this->modelApp->byId($app, ['cascaded' => 'N']);
+		if ($oApp === false) {
+			return new \ResponseError('指定的登记活动不存在，请检查参数是否正确');
+		}
+
+		$oActionRule = $this->checkActionRule($oApp);
+
+		return new \ResponseData($oActionRule);
+	}
+	/**
 	 * 获得指定坐标对应的地址名称
 	 *
 	 * 没有指定位置信息时通过日志获取当前用户最后一次发送的位置

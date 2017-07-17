@@ -38,11 +38,6 @@ class remark extends base {
 	 * 进行评论操作的用户需满足进入活动规则的条件
 	 */
 	public function add_action($ek, $schema = '') {
-		$data = $this->getPostJson();
-		if (empty($data->content)) {
-			return new \ResponseError('评论内容不允许为空');
-		}
-
 		$modelRec = $this->model('matter\enroll\record');
 		$oRecord = $modelRec->byId($ek);
 		if (false === $oRecord) {
@@ -52,6 +47,16 @@ class remark extends base {
 		$oApp = $modelEnl->byId($oRecord->aid, ['cascaded' => 'N']);
 		if (false === $oApp) {
 			return new \ObjectNotFoundError();
+		}
+		/* 操作规则 */
+		$oActionRule = $this->checkActionRule($oApp);
+		if (isset($oActionRule->passed) && $oActionRule->passed === 'N') {
+			return new \ComplianceError('用户身份不符合进入规则，无法发表评论');
+		}
+
+		$data = $this->getPostJson();
+		if (empty($data->content)) {
+			return new \ResponseError('评论内容不允许为空');
 		}
 
 		$oUser = $this->who;

@@ -186,6 +186,10 @@ class base extends \site\fe\matter\base {
 						}
 					}
 				}
+				if ($result->passed === 'N') {
+					$result->scope = 'member';
+					$result->member = $oEntryRule->member;
+				}
 			} else if ($oEntryRule->scope === 'sns') {
 				foreach ($oEntryRule->sns as $snsName => $rule) {
 					if (isset($oUser->sns->{$snsName})) {
@@ -209,6 +213,10 @@ class base extends \site\fe\matter\base {
 							}
 						}
 					}
+				}
+				if ($result->passed === 'N') {
+					$result->scope = 'sns';
+					$result->sns = $oEntryRule->sns;
 				}
 			}
 		}

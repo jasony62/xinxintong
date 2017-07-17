@@ -1,6 +1,6 @@
 define(['frame'], function(ngApp) {
     'use strict';
-    ngApp.provider.controller('ctrlEnrollee', ['$scope', 'http2', 'srvEnrollRecord', function($scope, http2, srvEnrollRecord) {
+    ngApp.provider.controller('ctrlEnrollee', ['$scope', 'http2', 'srvEnrollRecord', '$q', function($scope, http2, srvEnrollRecord, $q) {
         var mschemas, oCriteria, rounds, page;
         $scope.mschemas = mschemas = [];
         $scope.page = page = {
@@ -11,7 +11,6 @@ define(['frame'], function(ngApp) {
             }
         };
         $scope.criteria = oCriteria = {
-            rid: '',
             allSelected: 'N',
             selected: {},
             reset: function() {
@@ -33,47 +32,72 @@ define(['frame'], function(ngApp) {
             srvEnrollRecord.notify(isBatch ? $scope.criteria : undefined);
         };
         $scope.fetchRound = function() {
+            var defer = $q.defer();
             http2.get('/rest/pl/fe/matter/enroll/round/list?site=' + $scope.app.siteid + '&app=' + $scope.app.id + page.j(), function(rsp) {
-                $scope.rounds = rounds = rsp.data.rounds;
+                defer.resolve(rsp.data.rounds);
             });
+            return defer.promise;
         };
         $scope.searchEnrollee = function() {
             if($scope.rule.scope === 'member') {
                 var mschemaIds = Object.keys($scope.rule.member);
                 if (mschemaIds.length) {
-                    http2.get('/rest/pl/fe/site/member/schema/overview?site=' + $scope.app.siteid + '&mschema=' + mschemaIds.join(','), function(rsp) {
-                        var schemaId, oMschema;
-                        for (schemaId in rsp.data) {
-                            oMschema = rsp.data[schemaId];
-                            mschemas.push(oMschema);
-                        }
-                        if (mschemas.length) {
-                            oCriteria.mschema = mschemas[0];
-                            http2.post('/rest/pl/fe/matter/enroll/user/byMschema?site=' + $scope.app.siteid + '&app=' + $scope.app.id + '&mschema=' + oCriteria.mschema.id + '&rid=' + oCriteria.rid +page.j(), {}, function(rsp) {
-                                srvEnrollRecord.init($scope.app, $scope.page, $scope.criteria, rsp.data.members);
-                                $scope.members = rsp.data.members;
-                                $scope.page.total = rsp.data.total;
+                    function _mschema (mschema) {
+                        http2.post('/rest/pl/fe/matter/enroll/user/byMschema?site=' + $scope.app.siteid + '&app=' + $scope.app.id + '&mschema=' + mschema.id + '&rid=' + oCriteria.rid +page.j(), {}, function(rsp) {
+                            srvEnrollRecord.init($scope.app, $scope.page, $scope.criteria, rsp.data.members);
+                            $scope.members = rsp.data.members;
+                            rsp.data.members.forEach(function(member) {
+                                if(member.tmplmsg) {
+                                    member._tmpStatus = member.tmplmsg.status.split(':');
+                                    member._tmpStatus[0] = member._tmpStatus[0] === 'success' ? '成功' : '失败';
+                                }
                             });
-                        }
-                    });
+                            $scope.members = rsp.data.members;
+                            $scope.page.total = rsp.data.total;
+                        });
+                    }
+                    if(oCriteria.mschema) {
+                        _mschema(oCriteria.mschema);
+                    }else {
+                        http2.get('/rest/pl/fe/site/member/schema/overview?site=' + $scope.app.siteid + '&mschema=' + mschemaIds.join(','), function(rsp) {
+                            var schemaId, oMschema;
+                            for (schemaId in rsp.data) {
+                                oMschema = rsp.data[schemaId];
+                                mschemas.push(oMschema);
+                            }
+                            if (mschemas.length) {
+                                oCriteria.mschema = mschemas[0];
+                                _mschema(oCriteria.mschema);
+                            }
+                        });
+                    }
                 }
             } else {
                 http2.get('/rest/pl/fe/matter/enroll/user/enrollee?app=' + $scope.app.id + '&rid=' + oCriteria.rid + page.j(), function(rsp) {
                     srvEnrollRecord.init($scope.app, $scope.page, $scope.criteria, rsp.data.users);
+                    rsp.data.users.forEach(function(user) {
+                        if(user.tmplmsg) {
+                            user._tmpStatus = user.tmplmsg.status.split(':');
+                            user._tmpStatus[0] = user._tmpStatus[0] === 'success' ? '成功' : '失败';
+                        }
+                    });
+                    console.log(rsp.data.users);
                     $scope.members = rsp.data.users;
                     $scope.page.total = rsp.data.total;
                 });
             }
         };
-        $scope.$watch('app.scenarioConfig', function(oConfig) {
-            if(!oConfig) return;
-            $scope.config = oConfig;
-            oConfig.can_rounds == 'Y' && $scope.fetchRound();
-        });
         $scope.$watch('app.entry_rule', function(oRule) {
             if (!oRule) return;
             $scope.rule = oRule;
-            $scope.searchEnrollee();
+            $scope.fetchRound().then(function(data) {
+                $scope.rounds = rounds = data;
+                if(rounds.length > 0) {
+                    oCriteria.rid = '';
+                }else {
+                    $scope.searchEnrollee();
+                }
+            });
         });
         $scope.$watch('criteria.allSelected', function(nv) {
             var index = 0;

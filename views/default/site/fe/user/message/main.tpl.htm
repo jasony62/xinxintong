@@ -8,6 +8,7 @@
     <title>我的站内消息</title>
     <link href="/static/css/bootstrap.min.css" rel="stylesheet">
     <link href='/static/css/site.fe.css?_=1' rel="stylesheet">
+    <link href='/views/default/site/fe/user/message/main.css?_=2' rel="stylesheet">
 </head>
 
 <body>
@@ -29,9 +30,11 @@
             <div class='col-md-12'>
                 <nav class="navbar navbar-default">
                     <div class="container-fluid">
-                        <form class="navbar-form navbar-left">
-                            <label class="radio-inline"><input type="radio" name="filterOptions" value="all" ng-model="message.type">全部消息</label>
-                            <label class="radio-inline"><input type="radio" name="filterOptions" value="unclose" ng-model="message.type">未读消息</label>
+                        <form class="nav navbar-form navbar-left">
+                            <div class="form-group">
+                                <label class="radio-inline "><input type="radio" name="filterOptions" value="all" ng-model="message.type">全部消息</label>
+                                <label class="radio-inline "><input type="radio" name="filterOptions" value="unclose" ng-model="message.type">未读消息</label>
+                            </div>
                         </form>
                     </div>
                 </nav>

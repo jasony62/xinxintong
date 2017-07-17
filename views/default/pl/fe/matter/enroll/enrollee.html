@@ -7,24 +7,20 @@
                     <option value=''>全部轮次</option>
                     <option value="{{rnd.rid}}" ng-repeat="rnd in rounds">{{rnd.title}}</option>
                 </select>
-                <div class='btn-group'>
-                    <button type='button' class='btn btn-default' ng-click="notify(true)">给选中用户发消息</button>
-                </div>
-                <div class='btn-group'>
-                    <button type='button' class='btn btn-default' ng-click="notify(true)">给全部用户发消息</button>
-                </div>
-                <div class='btn-group'>
-                    <button type='button' class='btn btn-default' ng-click="export()">导出数据</button>
-                </div>
+                <button type='button' class='btn btn-default' ng-click="notify(true)">给选中用户发消息</button>
+                <button type='button' class='btn btn-default' ng-click="notify(false)">给全部用户发消息</button>
+                <button type='button' class='btn btn-default' ng-click="export()">导出数据</button>
+                <button type='button' class='btn btn-default' ng-click="searchEnrollee()">刷新数据</button>
             </form>
-
         </div>
     </nav>
     <div>
         <table class='table table-bordered'>
             <thead>
                 <tr>
-                    <th><input type='checkbox' ng-true-value="'Y'" ng-false-value="'N'" ng-model="criteria.allSelected"></th>
+                    <th>
+                        <input type='checkbox' ng-true-value="'Y'" ng-false-value="'N'" ng-model="criteria.allSelected">
+                    </th>
                     <th style='width:48px'>序号</th>
                     <th ng-if="rule.scope!=='member'">姓名</th>
                     <th ng-if='criteria.mschema.attr_name[0]==0'>姓名</th>
@@ -43,7 +39,9 @@
             </thead>
             <tbody>
                 <tr ng-repeat='m in members'>
-                    <td><input type='checkbox' ng-model="criteria.selected[$index]"></td>
+                    <td>
+                        <input type='checkbox' ng-model="criteria.selected[$index]">
+                    </td>
                     <td>{{$index+1}}</td>
                     <td ng-if="rule.scope!=='member'">{{m.nickname}}</td>
                     <td ng-if='criteria.mschema.attr_name[0]==0'>{{m.name}}</td>
@@ -62,17 +60,21 @@
                         <div ng-if='m.user.user_total_coin'>{{m.user.user_total_coin}}</div>
                         <div ng-if='m.user_total_coin'>{{m.user_total_coin}}</div>
                     </td>
-                    <td>
+                    <td ng-if="sns.wx.joined=='Y'">
                         <div ng-show="m.wx_openid">已关联</div>
                     </td>
-                    <td>
+                    <td ng-if="sns.yx.joined=='Y'">
                         <div ng-show="m.yx_openid">已关联</div>
                     </td>
-                    <td>
+                    <td ng-if="sns.qy.joined=='Y'">
                         <div ng-show="m.qy_openid">已关联</div>
                     </td>
-                    <td ng-if="m.tmplmsg">{{(m.tmplmsg.create_at*1000)|date: 'yy-MM-dd HH:mm'}}</td>
-                    <td ng-if="m.tmplmsg">{{m._tmpStatus[0]}}</td>
+                    <td>
+                        <div ng-if="m.tmplmsg.create_at">{{m.tmplmsg.create_at*1000|date: 'yy-MM-dd HH:mm'}}</div>
+                    </td>
+                    <td>
+                        <div ng-if="m.tmplmsg">{{m._tmpStatus[0]}}</div>
+                    </td>
                 </tr>
             </tbody>
         </table>

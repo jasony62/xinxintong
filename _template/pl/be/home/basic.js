@@ -23,7 +23,7 @@ ngApp.provider.controller('ctrlHome', ['$scope', '$http', '$uibModal', 'tmsFavor
         });
     }
     $scope.moreMatters = function(matterType) {
-        $scope.page.size = $scope.page.size + 5;
+        $scope.page.size = $scope.page.size + 7;
         switch (matterType) {
             case 'article':
                 $scope.listArticles($scope.page.size);

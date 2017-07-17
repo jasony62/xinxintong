@@ -28,7 +28,7 @@ class inner_model extends Reply {
 			$this->fullsearchReply();
 			break;
 		default:
-			$tr = $this->model('sns\reply\text', $this->call, "指定的内置回复($this->innerId)不存在", false);
+			$tr = \TMS_APP::M('sns\reply\text', $this->call, "指定的内置回复($this->innerId)不存在", false);
 			$tr->exec();
 		}
 	}
@@ -58,7 +58,7 @@ class inner_model extends Reply {
 			$c .= "\n$result->src";
 			$c .= "\n$result->dst";
 		}
-		$tr = $this->model('sns\reply\text', $this->call, $c, false);
+		$tr = \TMS_APP::M('sns\reply\text', $this->call, $c, false);
 		$tr->exec();
 	}
 	/**
@@ -79,11 +79,11 @@ class inner_model extends Reply {
 		}
 		if (empty($keywords)) {
 			$r = '请输入检索关键字。';
-			$tr = $this->model('sns\reply\text', $this->call, $r, false);
+			$tr = \TMS_APP::M('sns\reply\text', $this->call, $r, false);
 			$tr->exec();
 		}
 		// 获得符合条件的最多5条单图文组合成多图文
-		$tr = $this->model('sns\reply\fullsearch', $this->call, $keywords);
+		$tr = \TMS_APP::M('sns\reply\fullsearch', $this->call, $keywords);
 		$tr->exec();
 	}
 }

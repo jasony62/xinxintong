@@ -138,7 +138,7 @@ ngApp.controller('ctrlMember', ['$scope', '$http', '$timeout', '$q', 'tmsDynaPag
     $scope.errmsg = '';
     $scope.infomsg = '';
     $scope.loginUser = {};
-    $scope.subView = 'register';
+    $scope.subView = 'login';
     $scope.debug = LS.p.debug;
     $scope.switchSubView = function(name) {
         $scope.subView = name;

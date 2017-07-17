@@ -46,6 +46,13 @@ define(['frame'], function(ngApp) {
                         http2.post('/rest/pl/fe/matter/enroll/user/byMschema?site=' + $scope.app.siteid + '&app=' + $scope.app.id + '&mschema=' + mschema.id + '&rid=' + oCriteria.rid +page.j(), {}, function(rsp) {
                             srvEnrollRecord.init($scope.app, $scope.page, $scope.criteria, rsp.data.members);
                             $scope.members = rsp.data.members;
+                            rsp.data.members.forEach(function(member) {
+                                if(member.tmplmsg) {
+                                    member._tmpStatus = member.tmplmsg.status.split(':');
+                                    member._tmpStatus[0] = member._tmpStatus[0] === 'success' ? '成功' : '失败';
+                                }
+                            });
+                            $scope.members = rsp.data.members;
                             $scope.page.total = rsp.data.total;
                         });
                     }
@@ -68,6 +75,13 @@ define(['frame'], function(ngApp) {
             } else {
                 http2.get('/rest/pl/fe/matter/enroll/user/enrollee?app=' + $scope.app.id + '&rid=' + oCriteria.rid + page.j(), function(rsp) {
                     srvEnrollRecord.init($scope.app, $scope.page, $scope.criteria, rsp.data.users);
+                    rsp.data.users.forEach(function(user) {
+                        if(user.tmplmsg) {
+                            user._tmpStatus = user.tmplmsg.status.split(':');
+                            user._tmpStatus[0] = user._tmpStatus[0] === 'success' ? '成功' : '失败';
+                        }
+                    });
+                    console.log(rsp.data.users);
                     $scope.members = rsp.data.users;
                     $scope.page.total = rsp.data.total;
                 });

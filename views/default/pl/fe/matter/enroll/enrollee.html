@@ -37,8 +37,8 @@
                     <th ng-if="sns.wx.joined=='Y'">是否关联微信</th>
                     <th ng-if="sns.yx.joined=='Y'">是否关联易信</th>
                     <th ng-if="sns.qy.joined=='Y'">是否关联微企</th>
-                    <th>发送时间</th>
-                    <th>发送结果</th>
+                    <th>最后一次通知发送时间</th>
+                    <th>最后一次通知发送结果</th>
                 </tr>
             </thead>
             <tbody>
@@ -71,8 +71,8 @@
                     <td>
                         <div ng-show="m.qy_openid">已关联</div>
                     </td>
-                    <td></td>
-                    <td></td>
+                    <td ng-if="m.tmplmsg">{{(m.tmplmsg.create_at*1000)|date: 'yy-MM-dd HH:mm'}}</td>
+                    <td ng-if="m.tmplmsg">{{m._tmpStatus[0]}}</td>
                 </tr>
             </tbody>
         </table>

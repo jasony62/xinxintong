@@ -250,18 +250,107 @@ class main extends \pl\fe\matter\base {
 	/**
 	 * 复制信息墙
 	 */
-	public function copy_action($app){
+	public function copy_action($site, $app, $mission = null){
 		if (false === ($user = $this->accountUser())) {
 			return new \ResponseTimeout();
 		}
 
 		$modelWall = $this->model('matter\wall');
-		if (($app = $modelWall->byId($app)) === false) {
+		if (($oApp = $modelWall->byId($app)) === false) {
 			return new \ResponseError('指定的信息墙不存在');
 		}
-		/*page*/
-		$page = $this->model('matter\wall\page')->
+		/*pages*/
+		$modelPage = $this->model('matter\wall\page');
+		$modelCode = $this->model('code\page');
+		$oPages = [];
+		$oPage = $modelPage->byType('op', $oApp->id);
+		if (is_array($oPage)) {
+			$oPages = array_merge($oPages, $oPage);
+		} else {
+			$oPages[] = $oPage;
+		}
 
+		/*copy*/
+		$newWall = new \stdClass;
+		$wid = uniqid();
+		$newWall->id = $wid;
+		$newWall->siteid = $modelWall->escape($site);
+		$newWall->creater = $user->id;
+		$newWall->creater_name = $user->name;
+		$newWall->create_at = time();
+		$newWall->title = $modelWall->escape($oApp->title) . '(副本)';
+		$newWall->pic = $oApp->pic;
+		$newWall->summary = $modelWall->escape($oApp->summary);
+		$newWall->join_reply = $modelWall->escape($oApp->join_reply);
+		$newWall->quit_reply = $modelWall->escape($oApp->quit_reply);
+		$newWall->quit_cmd = $modelWall->escape($oApp->quit_cmd);
+		$newWall->entry_css = $modelWall->escape($oApp->entry_css);
+		$newWall->body_css = $modelWall->escape($oApp->body_css);
+		$newWall->skip_approve = $oApp->skip_approve;
+		$newWall->push_others = $oApp->push_others;
+		$newWall->entry_ele  = $modelWall->escape($oApp->entry_ele );
 
+		$modelWall->insert('xxt_wall', $newWall, false);
+		
+		/* 记录操作日志 */
+		$newWall->type = 'wall';
+		$this->model('matter\log')->matterOp($newWall->siteid, $user, $newWall, 'C');
+
+		/* 记录和任务的关系 */
+		if (!empty($mission)) {
+			$modelMis = $this->model('matter\mission');
+			if($mission = $modelMis->byId($mission)) {
+				$modelMis->addMatter($user, $newWall->siteid, $mission->id, $newWall);
+			}else{
+				return new \ResponseError('指定的项目不存在');
+			}
+		}
+
+		/*复制页面*/
+		if (empty($oPages)) {
+			$wp = [
+				'name' => '信息墙大屏幕',
+				'title' => '信息墙大屏幕',
+				'type' => 'op',
+				'seq' => 1,
+				'templateDir' => TMS_APP_TEMPLATE . '/site/op/matter/wall/',
+			];
+			$newPage = $modelPage->add($site, $wp, $newWall->id);
+			$templateDir = $wp['templateDir'];
+			$data = array(
+				'html' => file_get_contents($templateDir . 'basic.html'),
+				'css' => file_get_contents($templateDir . 'basic.css'),
+				'js' => file_get_contents($templateDir . 'basic.js'),
+			);
+			$modelCode->modify($newPage->code_id, $data);
+		}else{
+			foreach ($oPages as $oPage) {
+				$wp = [
+					'name' => $modelPage->escape($oPage->name),
+					'title' => $modelPage->escape($oPage->title),
+					'type' => $oPage->type,
+					'seq' => $oPage->seq,
+				];
+				$newPage = $modelPage->add($site, $wp, $newWall->id);
+				$data = array(
+					'html' => $oPage->html,
+					'css' => $oPage->css,
+					'js' => $oPage->js,
+				);
+				$modelCode->modify($newPage->code_id, $data);
+				if (!empty($oPage->ext_js)) {
+					foreach ($oPage->ext_js as $js) {
+						$this->insert('xxt_code_external', array('code_id' => $newPage->code_id, 'type' => 'J', 'url' => $js->url), false);
+					}
+				}
+				if (!empty($oPage->ext_css)) {
+					foreach ($oPage->ext_css as $css) {
+						$this->insert('xxt_code_external', array('code_id' => $newPage->code_id, 'type' => 'C', 'url' => $css->url), false);
+					}
+				}
+			}
+		}
+
+		return new \ResponseData($wid);
 	}
 }

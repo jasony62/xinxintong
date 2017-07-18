@@ -247,4 +247,21 @@ class main extends \pl\fe\matter\base {
 		$objWriter->save('php://output');
 		exit;
 	}
+	/**
+	 * 复制信息墙
+	 */
+	public function copy_action($app){
+		if (false === ($user = $this->accountUser())) {
+			return new \ResponseTimeout();
+		}
+
+		$modelWall = $this->model('matter\wall');
+		if (($app = $modelWall->byId($app)) === false) {
+			return new \ResponseError('指定的信息墙不存在');
+		}
+		/*page*/
+		$page = $this->model('matter\wall\page')->
+
+
+	}
 }

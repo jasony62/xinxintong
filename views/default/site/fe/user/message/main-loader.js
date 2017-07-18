@@ -21,9 +21,6 @@ window.loading = {
                 "angular": "/static/js/angular.min",
                 "angular-sanitize": "/static/js/angular-sanitize.min",
                 "ui-bootstrap": "/static/js/ui-bootstrap-tpls.min",
-                "ui-tms": "/static/js/ui-tms",
-                "xxt-ui": "/static/js/xxt.ui",
-                "service-matter": "/views/default/pl/fe/_module/matter.service",
                 "main": "/views/default/site/fe/user/message/main",
             },
             shim: {
@@ -43,9 +40,7 @@ window.loading = {
                 require(['angular'], function() {
                     require(['angular-sanitize'], function() {
                         require(['ui-bootstrap'], function() {
-                            require(['ui-tms', 'xxt-ui', 'service-matter'], function() {
-                                require(['main'], function() {});
-                            })
+                            require(['main'], function() {});
                         });
                     });
                 });

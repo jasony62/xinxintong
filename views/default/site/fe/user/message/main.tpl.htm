@@ -39,12 +39,14 @@
                     </div>
                 </nav>
                 <div class='list-group'>
-                    <div class='list-group-item log' ng-repeat="log in notice.logs" ng-mouseenter="entered=true" ng-mouseleave="entered=false">
-                        <div>{{log._message}}</div>
-                        <div ng-if="!entered">{{log.batch.create_at*1000|date:'M月d日'}}</div>
-                        <div ng-if="entered">
-                            <button class='btn btn-default btn-sm' ng-click="closeNotice(log)"><span class='glyphicon glyphicon-ok'></span></button>
+                    <div class='list-group-item log' ng-repeat="log in logs" >
+                        <div class="pull-left">{{log.batch.create_at*1000|date:'M月d日'}}</div>
+                        <div class="pull-left">{{log._message}}</div>
+                        <div class="pull-right">
+                            <div ng-if="log.close_at=='0'" class='btn btn-default btn-sm' ng-click="closeNotice(log)"><span class='glyphicon glyphicon-ok'></span></div>
+                            <div ng-if="log.close_at!='0'" class='badge'>已读</div>
                         </div>
+
                     </div>
                 </div>
                 <div class='form-group form-inline'>

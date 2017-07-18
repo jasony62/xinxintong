@@ -345,7 +345,7 @@ ngApp.controller('ctrlMain', ['$scope', '$http', '$timeout', '$q', function($sco
         member: {}
     };
     $scope.CustomConfig = {};
-    $scope.gotoPage = function(event, page, ek, rid, fansOnly, newRecord) {};
+    $scope.gotoPage = function(event, page, ek, rid, newRecord) {};
     $scope.addRecord = function(event) {};
     $scope.editRecord = function(event, page) {};
     $scope.likeRecord = function(event) {};

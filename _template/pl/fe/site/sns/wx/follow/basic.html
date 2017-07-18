@@ -1,11 +1,13 @@
 <div ng-controller="ctrlFollow">
-	<div id='tip'>
-		<p>感谢关注</p>
-		<p><?php echo empty($this->site)? '' : $this->site->name;?></p>
-		<hr/>
-	</div>
-	<div id='qrcode'>
-		<img ng-src="{{qrcode}}"/>
-		<p>长按二维码关注公众号</p>
-	</div>
+    <div id='tip'>
+        <p>感谢关注</p>
+        <p>
+            <?php echo empty($this->site)? '' : $this->site->name;?>
+        </p>
+        <hr/>
+    </div>
+    <div id='qrcode'>
+        <img ng-src="{{qrcode}}" />
+        <p>长按二维码关注公众号</p>
+    </div>
 </div>

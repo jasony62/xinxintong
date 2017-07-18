@@ -102,6 +102,8 @@ define(['require', 'schema', 'wrap'], function(require, schemaLib, wrapLib) {
 
             newSchema.id = 's' + (new Date * 1);
             newSchema.title += '-2';
+            delete newSchema.fromApp;
+            delete newSchema.requireCheck;
             $scope._appendSchema(newSchema, schema);
         };
         $scope.makePagelet = function(schema) {

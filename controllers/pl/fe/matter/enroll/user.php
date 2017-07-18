@@ -31,6 +31,25 @@ class user extends \pl\fe\matter\base {
 		$options = [];
 		!empty($rid) && $options['rid'] = $rid;
 		$result = $modelUsr->enrolleeByApp($oApp, $page, $size, $options);
+		/*查询有openid的用户发送消息的情况*/
+		if(count($result->users)){
+			foreach ($result->users as $user) {
+				$q = [
+					'd.tmplmsg_id,d.status,b.create_at',
+					'xxt_log_tmplmsg_detail d,xxt_log_tmplmsg_batch b',
+					"d.userid = '{$user->userid}' and d.batch_id = b.id and b.send_from = 'enroll:" . $user->aid . "'"
+				];
+				$q2 = [
+					'r' => ['o' => 0, 'l' => 1],
+					'o' => 'b.create_at desc'
+				];
+				if ($tmplmsg = $modelUsr->query_objs_ss($q, $q2)) {
+					$user->tmplmsg = $tmplmsg[0];
+				}else{
+					$user->tmplmsg = new \stdClass;
+				}
+			}
+		}
 
 		return new \ResponseData($result);
 	}
@@ -58,6 +77,25 @@ class user extends \pl\fe\matter\base {
 		$options = [];
 		!empty($rid) && $options['rid'] = $rid;
 		$result = $modelUsr->enrolleeByMschema($oApp, $oMschema, $page, $size, $options);
+		/*查询有openid的用户发送消息的情况*/
+		if(count($result->members)){
+			foreach ($result->members as $member) {
+				$q = [
+					'd.tmplmsg_id,d.status,b.create_at',
+					'xxt_log_tmplmsg_detail d,xxt_log_tmplmsg_batch b',
+					"d.userid = '{$member->userid}' and d.batch_id = b.id and b.send_from = 'enroll:" . $oApp->id . "'"
+				];
+				$q2 = [
+					'r' => ['o' => 0, 'l' => 1],
+					'o' => 'b.create_at desc'
+				];
+				if ($tmplmsg = $modelUsr->query_objs_ss($q, $q2)) {
+					$member->tmplmsg = $tmplmsg[0];
+				}else{
+					$member->tmplmsg = new \stdClass;
+				}
+			}
+		}
 
 		return new \ResponseData($result);
 	}

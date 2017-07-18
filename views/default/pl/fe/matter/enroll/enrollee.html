@@ -3,32 +3,24 @@
         <div class='container-fluid'>
             <form class='navbar-form navbar-left'>
                 <select class='form-control' ng-if="rule.scope=='member'" ng-model="criteria.mschema" ng-options="mschema.title for mschema in mschemas" ng-change="searchEnrollee()"></select>
-                <select class='form-control' ng-if="rounds.length>0" ng-model="criteria.rid" ng-change="searchRound(criteria.rid)">
+                <select class='form-control' ng-if="rounds.length>0" ng-model="criteria.rid">
                     <option value=''>全部轮次</option>
                     <option value="{{rnd.rid}}" ng-repeat="rnd in rounds">{{rnd.title}}</option>
                 </select>
-                <div class='btn-group'>
-                    <button type='button' class='btn btn-default dropdown-toggle' data-toggle='dropdown'>选中记录 <i class='caret'></i></button>
-                    <ul class='dropdown-menu' role='menu'>
-                        <li><a href='' ng-click="notify(true)">发送信息</a></li>
-                    </ul>
-                </div>
-                <div class='btn-group'>
-                    <button type='button' class='btn btn-default dropdown-toggle' data-toggle='dropdown'>全部记录 <i class='caret'></i></button>
-                    <ul class='dropdown-menu' role='menu'>
-                        <li><a href='' ng-click="notify(true)">发送信息</a></li>
-                        <li><a href='' ng-click="export()">导出数据</a></li>
-                    </ul>
-                </div>
+                <button type='button' class='btn btn-default' ng-click="notify(true)">给选中用户发消息</button>
+                <button type='button' class='btn btn-default' ng-click="notify(false)">给全部用户发消息</button>
+                <button type='button' class='btn btn-default' ng-click="export()">导出数据</button>
+                <button type='button' class='btn btn-default' ng-click="searchEnrollee()">刷新数据</button>
             </form>
-
         </div>
     </nav>
     <div>
         <table class='table table-bordered'>
             <thead>
                 <tr>
-                    <th><input type='checkbox' ng-true-value="'Y'" ng-false-value="'N'" ng-model="criteria.allSelected"></th>
+                    <th>
+                        <input type='checkbox' ng-true-value="'Y'" ng-false-value="'N'" ng-model="criteria.allSelected">
+                    </th>
                     <th style='width:48px'>序号</th>
                     <th ng-if="rule.scope!=='member'">姓名</th>
                     <th ng-if='criteria.mschema.attr_name[0]==0'>姓名</th>
@@ -38,14 +30,18 @@
                     <th>记录</th>
                     <th>评论</th>
                     <th>积分</th>
-                    <th>是否关联微信</th>
-                    <th>是否关联易信</th>
-                    <th>是否关联微企</th>
+                    <th ng-if="sns.wx.joined=='Y'">是否关联微信</th>
+                    <th ng-if="sns.yx.joined=='Y'">是否关联易信</th>
+                    <th ng-if="sns.qy.joined=='Y'">是否关联微企</th>
+                    <th>最后一次通知发送时间</th>
+                    <th>最后一次通知发送结果</th>
                 </tr>
             </thead>
             <tbody>
                 <tr ng-repeat='m in members'>
-                    <td><input type='checkbox' ng-model="criteria.selected[$index]"></td>
+                    <td>
+                        <input type='checkbox' ng-model="criteria.selected[$index]">
+                    </td>
                     <td>{{$index+1}}</td>
                     <td ng-if="rule.scope!=='member'">{{m.nickname}}</td>
                     <td ng-if='criteria.mschema.attr_name[0]==0'>{{m.name}}</td>
@@ -64,21 +60,27 @@
                         <div ng-if='m.user.user_total_coin'>{{m.user.user_total_coin}}</div>
                         <div ng-if='m.user_total_coin'>{{m.user_total_coin}}</div>
                     </td>
-                    <td>
+                    <td ng-if="sns.wx.joined=='Y'">
                         <div ng-show="m.wx_openid">已关联</div>
                     </td>
-                    <td>
+                    <td ng-if="sns.yx.joined=='Y'">
                         <div ng-show="m.yx_openid">已关联</div>
                     </td>
-                    <td>
+                    <td ng-if="sns.qy.joined=='Y'">
                         <div ng-show="m.qy_openid">已关联</div>
+                    </td>
+                    <td>
+                        <div ng-if="m.tmplmsg.create_at">{{m.tmplmsg.create_at*1000|date: 'yy-MM-dd HH:mm'}}</div>
+                    </td>
+                    <td>
+                        <div ng-if="m.tmplmsg">{{m._tmpStatus[0]}}</div>
                     </td>
                 </tr>
             </tbody>
         </table>
         <div class='form-group form-inline'>
             <span style='height:34px;line-height:34px'>总数：{{page.total}}</span>
-            <ul uib-pagination style='margin:0;cursor:pointer' class='pull-right' ng-if='page.total>page.size' boundary-links="true" total-items="page.total" max-size="7" items-per-page="page.size" rotate="false" ng-model="page.at" previous-text="&lsaquo;" next-text="&rsaquo;" first-text="&laquo;" last-text="&raquo;" ng-change="doSearch()"></ul>
+            <ul uib-pagination style='margin:0;cursor:pointer' class='pull-right' ng-if='page.total>page.size' boundary-links="true" total-items="page.total" max-size="7" items-per-page="page.size" rotate="false" ng-model="page.at" previous-text="&lsaquo;" next-text="&rsaquo;" first-text="&laquo;" last-text="&raquo;" ng-change="searchEnrollee()"></ul>
         </div>
     </div>
 </div>

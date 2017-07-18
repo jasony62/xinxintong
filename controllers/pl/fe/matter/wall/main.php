@@ -289,6 +289,15 @@ class main extends \pl\fe\matter\base {
 		$newWall->skip_approve = $oApp->skip_approve;
 		$newWall->push_others = $oApp->push_others;
 		$newWall->entry_ele  = $modelWall->escape($oApp->entry_ele );
+		/* 记录和任务的关系 */
+		if (!empty($mission)) {
+			$modelMis = $this->model('matter\mission');
+			if($mission = $modelMis->byId($mission)) {
+				$newWall->mission_id = $mission->id;
+			}else{
+				return new \ResponseError('指定的项目不存在');
+			}
+		}
 
 		$modelWall->insert('xxt_wall', $newWall, false);
 		
@@ -297,13 +306,8 @@ class main extends \pl\fe\matter\base {
 		$this->model('matter\log')->matterOp($newWall->siteid, $user, $newWall, 'C');
 
 		/* 记录和任务的关系 */
-		if (!empty($mission)) {
-			$modelMis = $this->model('matter\mission');
-			if($mission = $modelMis->byId($mission)) {
-				$modelMis->addMatter($user, $newWall->siteid, $mission->id, $newWall);
-			}else{
-				return new \ResponseError('指定的项目不存在');
-			}
+		if (isset($mission->id)) {
+			$modelMis->addMatter($user, $newWall->siteid, $mission->id, $newWall);
 		}
 
 		/*复制页面*/
@@ -352,5 +356,11 @@ class main extends \pl\fe\matter\base {
 		}
 
 		return new \ResponseData($wid);
+	}
+	/**
+	 * 删除信息墙
+	 */
+	public function remove_action($app){
+
 	}
 }

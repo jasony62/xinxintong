@@ -11,7 +11,7 @@ define(['require', 'angular'], function(require, angular) {
         };
         $scope.page = page = {
             at: 1,
-            size: 1,
+            size: 15,
             j: function() {
                 return '&page=' + this.at + '&size=' + this.size;
             }

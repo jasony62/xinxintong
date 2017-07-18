@@ -29,7 +29,11 @@ class message extends \site\fe\base {
 				["userid" => $user->unionid],
 			];
 			$q2 = ['o' => 'id desc'];
-
+			// 查询结果分页
+			if (!empty($page) && !empty($size)) {
+				$q2['r'] = ['o' => ($page - 1) * $size, 'l' => $size];
+			}
+			
 			$logs = $modelTmplBat->query_objs_ss($q, $q2);
 			$result = new \stdClass;
 			foreach ($logs as &$log) {
@@ -64,6 +68,10 @@ class message extends \site\fe\base {
 				['userid' => $user->unionid, 'close_at' => 0, 'send_to' => $sendTo],
 			];
 			$q2 = ['o' => 'id desc'];
+			// 查询结果分页
+			if (!empty($page) && !empty($size)) {
+				$q2['r'] = ['o' => ($page - 1) * $size, 'l' => $size];
+			}
 
 			$logs = $modelTmplBat->query_objs_ss($q, $q2);
 			$result = new \stdClass;

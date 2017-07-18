@@ -27,13 +27,13 @@
             </div>
         </nav>
         <div class='row'>
-            <div class='col-md-12'>
+            <div class='col-md-12 user-notice'>
                 <nav class="navbar navbar-default">
                     <div class="container-fluid">
                         <form class="nav navbar-form navbar-left">
                             <div class="form-group">
-                                <label class="radio-inline "><input type="radio" name="filterOptions" value="all" ng-model="message.type">全部消息</label>
-                                <label class="radio-inline "><input type="radio" name="filterOptions" value="unclose" ng-model="message.type">未读消息</label>
+                                <label class="radio-inline"><input type="radio" name="filterOptions" value="all" ng-model="filter.type">全部消息</label>
+                                <label class="radio-inline"><input type="radio" name="filterOptions" value="part" ng-model="filter.type">未读消息</label>
                             </div>
                         </form>
                     </div>

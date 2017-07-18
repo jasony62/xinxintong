@@ -133,7 +133,9 @@ class record extends base {
 			/* 将匹配的登记记录数据作为提交的登记数据的一部分 */
 			$matchedData = $groupRecord->data;
 			foreach ($oGroupApp->dataSchemas as $oSchema) {
-				!isset($enrolledData->{$oSchema->id}) && $enrolledData->{$oSchema->id} = $matchedData->{$oSchema->id};
+				if (!isset($enrolledData->{$oSchema->id}) && isset($matchedData->{$oSchema->id})) {
+					$enrolledData->{$oSchema->id} = $matchedData->{$oSchema->id};
+				}
 			}
 			if (isset($groupRecord->round_id)) {
 				$enrolledData->_round_id = $groupRecord->round_id;
@@ -210,7 +212,7 @@ class record extends base {
 		$modelRun = $this->model('matter\enroll\round');
 		if ($activeRound = $modelRun->getActive($oEnrollApp)) {
 			$rid = $activeRound->rid;
-		}else{
+		} else {
 			$rid = '';
 		}
 		/* 更新活动用户轮次数据 */
@@ -670,7 +672,7 @@ class record extends base {
 		$modelRun = $this->model('matter\enroll\round');
 		if ($activeRound = $modelRun->getActive($oApp)) {
 			$rid = $activeRound->rid;
-		}else{
+		} else {
 			$rid = '';
 		}
 

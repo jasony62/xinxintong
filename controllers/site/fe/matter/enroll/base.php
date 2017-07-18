@@ -22,7 +22,6 @@ class base extends \site\fe\matter\base {
 	/**
 	 * 检查登记活动进入规则
 	 *
-	 * @param string $siteId
 	 * @param object $oApp
 	 * @param boolean $redirect
 	 *
@@ -134,5 +133,94 @@ class base extends \site\fe\matter\base {
 		}
 
 		return $page;
+	}
+	/**
+	 * 检查登记活动操作规则
+	 *
+	 * @param object $oApp
+	 *
+	 * @return object
+	 *
+	 */
+	protected function checkActionRule($oApp) {
+		$result = new \stdClass;
+		$result->passed = 'N';
+
+		$oUser = $this->who;
+		$oEntryRule = $oApp->entry_rule;
+		if (isset($oEntryRule->scope)) {
+			if ($oEntryRule->scope === 'none') {
+				/* 没有限制 */
+				$result->passed = 'Y';
+			} else if ($oEntryRule->scope === 'member') {
+				/* 限自定义用户访问 */
+				foreach ($oEntryRule->member as $schemaId => $rule) {
+					if (!empty($rule->entry)) {
+						/* 检查用户的信息是否完整，是否已经通过审核 */
+						$modelMem = $this->model('site\user\member');
+						if (empty($oUser->unionid)) {
+							$aMembers = $modelMem->byUser($oUser->uid, ['schemas' => $schemaId]);
+							if (count($aMembers) === 1) {
+								$oMember = $aMembers[0];
+								if ($oMember->verified === 'Y') {
+									$result->passed = 'Y';
+									break;
+								}
+							}
+						} else {
+							$modelAcnt = $this->model('site\user\account');
+							$aUnionUsers = $modelAcnt->byUnionid($oUser->unionid, ['siteid' => $oApp->siteid, 'fields' => 'uid']);
+							foreach ($aUnionUsers as $oUnionUser) {
+								$aMembers = $modelMem->byUser($oUnionUser->uid, ['schemas' => $schemaId]);
+								if (count($aMembers) === 1) {
+									$oMember = $aMembers[0];
+									if ($oMember->verified === 'Y') {
+										$result->passed = 'Y';
+										break;
+									}
+								}
+							}
+							if ($result->passed === 'Y') {
+								break;
+							}
+						}
+					}
+				}
+				if ($result->passed === 'N') {
+					$result->scope = 'member';
+					$result->member = $oEntryRule->member;
+				}
+			} else if ($oEntryRule->scope === 'sns') {
+				foreach ($oEntryRule->sns as $snsName => $rule) {
+					if (isset($oUser->sns->{$snsName})) {
+						// 检查用户对应的公众号
+						if ($snsName === 'wx') {
+							$modelWx = $this->model('sns\wx');
+							if (($wxConfig = $modelWx->bySite($oApp->siteid)) && $wxConfig->joined === 'Y') {
+								$snsSiteId = $oApp->siteid;
+							} else {
+								$snsSiteId = 'platform';
+							}
+						} else {
+							$snsSiteId = $oApp->siteid;
+						}
+						// 检查用户是否已经关注
+						if ($snsUser = $oUser->sns->{$snsName}) {
+							$modelSnsUser = $this->model('sns\\' . $snsName . '\fan');
+							if ($modelSnsUser->isFollow($snsSiteId, $snsUser->openid)) {
+								$result->passed = 'Y';
+								break;
+							}
+						}
+					}
+				}
+				if ($result->passed === 'N') {
+					$result->scope = 'sns';
+					$result->sns = $oEntryRule->sns;
+				}
+			}
+		}
+
+		return $result;
 	}
 }

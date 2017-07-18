@@ -81,22 +81,46 @@ ngApp.controller('ctrlAppTip', ['$scope', '$interval', function($scope, $interva
         }
     }, 1000);
 }]);
-ngApp.controller('ctrlMain', ['$scope', '$http', '$timeout', 'ls', 'tmsDynaPage', 'tmsSnsShare', 'tmsSiteUser', 'tmsFavor', function($scope, $http, $timeout, LS, tmsDynaPage, tmsSnsShare, tmsSiteUser, tmsFavor) {
-    function openAskFollow() {
-        $http.get(LS.j('askFollow', 'site')).error(function(content) {
-            var body, el;;
-            body = document.body;
-            el = document.createElement('iframe');
-            el.setAttribute('id', 'frmPopup');
-            el.height = body.clientHeight;
-            body.scrollTop = 0;
-            body.appendChild(el);
-            window.closeAskFollow = function() {
-                el.style.display = 'none';
-            };
-            el.setAttribute('src', LS.j('askFollow', 'site'));
-            el.style.display = 'block';
+ngApp.controller('ctrlMain', ['$scope', '$q', '$http', '$timeout', 'ls', 'tmsDynaPage', 'tmsSnsShare', 'tmsSiteUser', 'tmsFavor', function($scope, $q, $http, $timeout, LS, tmsDynaPage, tmsSnsShare, tmsSiteUser, tmsFavor) {
+    function refreshActionRule() {
+        var url, defer;
+        defer = $q.defer();
+        url = LS.j('actionRule', 'site', 'app');
+        $http.get(url).success(function(rsp) {
+            $scope.params.actionRule = rsp.data;
+            defer.resolve(rsp.data);
         });
+        return defer.promise;
+    }
+
+    function openPlugin(url, fnCallback) {
+        var body, elWrap, elIframe;
+        body = document.body;
+        elWrap = document.createElement('div');
+        elWrap.setAttribute('id', 'frmPlugin');
+        elWrap.height = body.clientHeight;
+        elIframe = document.createElement('iframe');
+        elWrap.appendChild(elIframe);
+        body.scrollTop = 0;
+        body.appendChild(elWrap);
+        window.onClosePlugin = function() {
+            if (fnCallback) {
+                fnCallback().then(function(data) {
+                    elWrap.parentNode.removeChild(elWrap);
+                });
+            } else {
+                elWrap.parentNode.removeChild(elWrap);
+            }
+        };
+        elWrap.onclick = function() {
+            onClosePlugin();
+        };
+        if (url) {
+            elIframe.setAttribute('src', url);
+        } else {
+
+        }
+        elWrap.style.display = 'block';
     }
 
     function execTask(task) {
@@ -138,27 +162,45 @@ ngApp.controller('ctrlMain', ['$scope', '$http', '$timeout', 'ls', 'tmsDynaPage'
             window.YixinJSBridge.call('closeWebView');
         }
     };
+    $scope.askFollowSns = function() {
+        var url;
+        if ($scope.app.entry_rule && $scope.app.entry_rule.scope === 'sns') {
+            url = LS.j('askFollow', 'site');
+            url += '&sns=' + Object.keys($scope.app.entry_rule.sns).join(',');
+            openPlugin(url, refreshActionRule);
+        }
+    };
+    $scope.askBecomeMember = function() {
+        var url, mschemaIds;
+        if ($scope.app.entry_rule && $scope.app.entry_rule.scope === 'member') {
+            mschemaIds = Object.keys($scope.app.entry_rule.member);
+            if (mschemaIds.length === 1) {
+                url = '/rest/site/fe/user/member?site=' + $scope.app.siteid;
+                url += '&schema=' + mschemaIds[0];
+            } else if (mschemaIds.length > 1) {
+                url = '/rest/site/fe/user/memberschema?site=' + $scope.app.siteid;
+                url += '&schema=' + mschemaIds.join(',');
+            }
+            openPlugin(url, refreshActionRule);
+        }
+    };
     $scope.addRecord = function(event, page) {
         if (page) {
-            $scope.gotoPage(event, page, null, null, false, 'Y');
+            $scope.gotoPage(event, page, null, null, 'Y');
         } else {
             for (var i in $scope.app.pages) {
                 var oPage = $scope.app.pages[i];
                 if (oPage.type === 'I') {
-                    $scope.gotoPage(event, oPage.name, null, null, false, 'Y');
+                    $scope.gotoPage(event, oPage.name, null, null, 'Y');
                     break;
                 }
             }
         }
     };
-    $scope.gotoPage = function(event, page, ek, rid, fansOnly, newRecord) {
+    $scope.gotoPage = function(event, page, ek, rid, newRecord) {
         if (event) {
             event.preventDefault();
             event.stopPropagation();
-        }
-        if (fansOnly && !$scope.User.fan) {
-            openAskFollow();
-            return;
         }
         var url = LS.j('', 'site', 'app');
         if (ek !== undefined && ek !== null && ek.length) {

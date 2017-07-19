@@ -301,10 +301,6 @@ class main extends \pl\fe\matter\base {
 
 		$modelWall->insert('xxt_wall', $newWall, false);
 		
-		/* 记录操作日志 */
-		$newWall->type = 'wall';
-		$this->model('matter\log')->matterOp($newWall->siteid, $user, $newWall, 'C');
-
 		/* 记录和任务的关系 */
 		if (isset($mission->id)) {
 			$modelMis->addMatter($user, $newWall->siteid, $mission->id, $newWall);
@@ -355,12 +351,71 @@ class main extends \pl\fe\matter\base {
 			}
 		}
 
+		/* 记录操作日志 */
+		$newWall->type = 'wall';
+		$this->model('matter\log')->matterOp($newWall->siteid, $user, $newWall, 'C');
+
 		return new \ResponseData($wid);
 	}
 	/**
 	 * 删除信息墙
 	 */
-	public function remove_action($app){
+	public function remove_action($site, $app){
+		if (false === ($user = $this->accountUser())) {
+			return new \ResponseTimeout();
+		}
 
+		$modelWall = $this->model('matter\wall');
+		if (($oApp = $modelWall->byId($app)) === false) {
+			return new \ResponseError('指定的信息墙不存在');
+		}
+
+		if ($oApp->creater !== $user->id) {
+			return new \ResponseError('没有删除数据的权限');
+		}
+		/* 删除和任务的关联 */
+		if ($oApp->mission_id) {
+			$this->model('matter\mission')->removeMatter($oApp->id, 'wall');
+		}
+
+		$q = [
+			'count(*)',
+			'xxt_wall_enroll',
+			['wid' => $oApp->id]
+		];
+		$userNum = (int)$modelWall->query_val_ss($q);
+		/*打标记*/
+		if($userNum > 0 ){
+			$res = $modelWall->update('xxt_wall_enroll', ['close_at' => time()], ['wid' => $oApp->id]);
+			$res = $modelWall->update('xxt_wall', ['state' => 0], ['id' => $oApp->id]);
+			/* 记录操作日志 */
+			$this->model('matter\log')->matterOp($site, $user, $oApp, 'Recycle');
+		}else{
+			/*删除信息墙*/
+			$rst = $modelWall->delete('xxt_wall_log', "wid='$oApp->id'");
+			$d = [
+				'code_id',
+				'xxt_wall_page',
+				['wid' => $oApp->id]
+			];
+			if($pages = $modelWall->query_objs_ss($d)) {
+				$pages2 = [];
+				foreach ($pages as $page) {
+					$pages2[] = $page->code_id;
+				}
+				$pages2 = implode(',', $pages2);
+				
+				$rst = $modelWall->delete('xxt_code_page', "id in ($pages2)");
+				$rst = $modelWall->delete('xxt_code_external', "code_id in ($pages2)");
+				$rst = $modelWall->delete('xxt_wall_page', "Wid='$oApp->id'");
+			}
+
+			$rst = $modelWall->delete('xxt_wall', "id='$oApp->id'");
+
+			/* 记录操作日志 */
+			$this->model('matter\log')->matterOp($site, $user, $oApp, 'D');
+		}
+
+		return new \ResponseData($rst);
 	}
 }

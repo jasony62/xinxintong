@@ -134,18 +134,13 @@ ngApp.controller('ctrlMain', ['$scope', '$http', '$timeout', 'ls', 'tmsDynaPage'
     $scope.closePreviewTip = function() {
         $scope.preview = 'N';
     };
-    var openAskFollow = function() {};
     $scope.closeWindow = function() {};
     $scope.addRecord = function(event, page) {
-        page ? $scope.gotoPage(event, page, null, null, false, 'Y') : alert('没有指定登记编辑页');
+        page ? $scope.gotoPage(event, page, null, null, 'Y') : alert('没有指定登记编辑页');
     };
-    $scope.gotoPage = function(event, page, ek, rid, fansOnly, newRecord) {
+    $scope.gotoPage = function(event, page, ek, rid, newRecord) {
         event.preventDefault();
         event.stopPropagation();
-        if (fansOnly && !$scope.User.fan) {
-            openAskFollow();
-            return;
-        }
         var url = LS.j('', 'site', 'app');
         if (ek !== undefined && ek !== null && ek.length) {
             url += '&ek=' + ek;

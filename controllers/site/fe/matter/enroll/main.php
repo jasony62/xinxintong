@@ -249,6 +249,7 @@ class main extends base {
 		if ($oApp === false) {
 			return new \ResponseError('指定的登记活动不存在，请检查参数是否正确');
 		}
+		unset($oApp->data_schemas);
 
 		$params = [];
 		$params['app'] = &$oApp;
@@ -280,6 +281,10 @@ class main extends base {
 			}
 		}
 		$params['user'] = $oUser;
+
+		/* 操作规则 */
+		$oActionRule = $this->checkActionRule($oApp);
+		$params['actionRule'] = $oActionRule;
 
 		/* 站点页面设置 */
 		if ($oApp->use_site_header === 'Y' || $oApp->use_site_footer === 'Y') {
@@ -396,6 +401,19 @@ class main extends base {
 		}
 
 		return new \ResponseData($params);
+	}
+	/**
+	 * 获得用户执行操作规则的状态
+	 */
+	public function actionRule_action($app) {
+		$oApp = $this->modelApp->byId($app, ['cascaded' => 'N']);
+		if ($oApp === false) {
+			return new \ResponseError('指定的登记活动不存在，请检查参数是否正确');
+		}
+
+		$oActionRule = $this->checkActionRule($oApp);
+
+		return new \ResponseData($oActionRule);
 	}
 	/**
 	 * 获得指定坐标对应的地址名称

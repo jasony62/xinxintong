@@ -31,6 +31,7 @@ class main extends \pl\fe\matter\base {
 		if (false === ($oApp = $modelEnl->byId($id))) {
 			return new \ResponseError('指定的数据不存在');
 		}
+		unset($oApp->data_schemas);
 
 		/* channels */
 		$oApp->channels = $this->model('matter\channel')->byMatter($id, 'enroll');
@@ -177,7 +178,7 @@ class main extends \pl\fe\matter\base {
 				}
 			}
 		}
-		if(!isset($oEntryRule->scope)){
+		if (!isset($oEntryRule->scope)) {
 			$oEntryRule->scope = 'none';
 		}
 		/* 登记数量限制 */
@@ -563,8 +564,8 @@ class main extends \pl\fe\matter\base {
 			$this->_addPageByTemplate($user, $site, $mission, $appId, $config, $customConfig);
 			/*进入规则*/
 			$entryRule = $config->entryRule;
-			if(!empty($entryRule)){
-				if(!isset($entryRule->scope)){
+			if (!empty($entryRule)) {
+				if (!isset($entryRule->scope)) {
 					$entryRule->scope = 'none';
 				}
 			}
@@ -579,7 +580,7 @@ class main extends \pl\fe\matter\base {
 		} else {
 			$entryRule = $this->_addBlankPage($user, $site->id, $appId);
 			if (!empty($entryRule)) {
-				if(!isset($entryRule['scope'])){
+				if (!isset($entryRule['scope'])) {
 					$entryRule['scope'] = 'none';
 				}
 			}
@@ -809,7 +810,7 @@ class main extends \pl\fe\matter\base {
 		if (empty($entryRule)) {
 			return new \ResponseError('没有获得页面进入规则');
 		}
-		if(!isset($entryRule->scope)){
+		if (!isset($entryRule->scope)) {
 			$entryRule->scope = 'none';
 		}
 
@@ -1037,7 +1038,7 @@ class main extends \pl\fe\matter\base {
 		if (empty($entryRule)) {
 			return new \ResponseError('没有获得页面进入规则');
 		}
-		if(!isset($entryRule->scope)){
+		if (!isset($entryRule->scope)) {
 			$entryRule->scope = 'none';
 		}
 

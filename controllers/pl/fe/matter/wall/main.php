@@ -66,13 +66,13 @@ class main extends \pl\fe\matter\base {
 			$q = [
 				'*',
 				'xxt_wall',
-				"mission_id = " . $modelWall->escape($mission),
+				"state = 1 and mission_id = " . $modelWall->escape($mission),
 			];
 		} else {
 			$q = [
 				'*',
 				'xxt_wall',
-				"siteid = '" . $modelWall->escape($site) . "'",
+				"state = 1 and siteid = '" . $modelWall->escape($site) . "'",
 			];
 		}
 
@@ -387,8 +387,8 @@ class main extends \pl\fe\matter\base {
 		$userNum = (int)$modelWall->query_val_ss($q);
 		/*打标记*/
 		if($userNum > 0 ){
-			$res = $modelWall->update('xxt_wall_enroll', ['close_at' => time()], ['wid' => $oApp->id]);
-			$res = $modelWall->update('xxt_wall', ['state' => 0], ['id' => $oApp->id]);
+			$rst = $modelWall->update('xxt_wall_enroll', ['close_at' => time()], ['wid' => $oApp->id]);
+			$rst = $modelWall->update('xxt_wall', ['state' => 0], ['id' => $oApp->id]);
 			/* 记录操作日志 */
 			$this->model('matter\log')->matterOp($site, $user, $oApp, 'Recycle');
 		}else{
@@ -416,6 +416,35 @@ class main extends \pl\fe\matter\base {
 			/* 记录操作日志 */
 			$this->model('matter\log')->matterOp($site, $user, $oApp, 'D');
 		}
+
+		return new \ResponseData($rst);
+	}
+	/**
+	 * 恢复被删除的信息墙
+	 */
+	public function restore_action($site, $id) {
+		if (false === ($user = $this->accountUser())) {
+			return new \ResponseTimeout();
+		}
+
+		$modelWall = $this->model('matter\wall');
+		if (false === ($app = $modelWall->byId($id, 'id,title,summary,pic,mission_id'))) {
+			return new \ResponseError('数据已经被彻底删除，无法恢复');
+		}
+		if ($app->mission_id) {
+			$modelMis = $this->model('matter\mission');
+			$modelMis->addMatter($user, $site, $app->mission_id, $app);
+		}
+
+		/* 恢复数据 */
+		$rst = $modelWall->update(
+			'xxt_wall',
+			['state' => 1],
+			["id" => $app->id]
+		);
+
+		/* 记录操作日志 */
+		$this->model('matter\log')->matterOp($site, $user, $app, 'Restore');
 
 		return new \ResponseData($rst);
 	}

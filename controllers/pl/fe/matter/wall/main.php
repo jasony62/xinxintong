@@ -303,6 +303,7 @@ class main extends \pl\fe\matter\base {
 		
 		/* 记录和任务的关系 */
 		if (isset($mission->id)) {
+			$newWall->type = 'wall';
 			$modelMis->addMatter($user, $newWall->siteid, $mission->id, $newWall);
 		}
 
@@ -355,7 +356,7 @@ class main extends \pl\fe\matter\base {
 		$newWall->type = 'wall';
 		$this->model('matter\log')->matterOp($newWall->siteid, $user, $newWall, 'C');
 
-		return new \ResponseData($wid);
+		return new \ResponseData($newWall);
 	}
 	/**
 	 * 删除信息墙

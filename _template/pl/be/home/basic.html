@@ -83,7 +83,7 @@
                         <uib-tab-heading>热门时讯</uib-tab-heading>
                         <table class="table table-hover">
                             <tbody>
-                                <tr ng-repeat="a in articles[0]" ng-click="openMatter(a)">
+                                <tr ng-repeat="a in articles" ng-click="openMatter(a)">
                                     <td>
                                         <div class="media-item">
                                             <div class="media-item-left pull-left">
@@ -127,14 +127,14 @@
                             </tbody>
                         </table>
                         <div>
-                            <button class='btn btn-lg btn-primary  btn-gradient center-block' ng-click="moreMatters('article')" ng-if="articles.total>articles[0].length">加载更多</button>
+                            <button class='btn btn-lg btn-primary  btn-gradient center-block' ng-click="moreMatters('article')" ng-if="articles.total>articles.length">加载更多</button>
                         </div>
                     </uib-tab>
                     <uib-tab index="1" ng-if="sites.length">
                         <uib-tab-heading>推荐团队</uib-tab-heading>
                         <table class="table table-hover">
                             <tbody>
-                                <tr ng-repeat="s in sites[0]">
+                                <tr ng-repeat="s in sites">
                                     <td>
                                         <div class="media-item">
                                             <div class="media-item-left pull-left">
@@ -166,14 +166,14 @@
                             </tbody>
                         </table>
                         <div>
-                            <button class='btn btn-lg btn-primary  btn-gradient center-block' ng-click="moreMatters('site')" ng-if="sites.total>sites[0].length">加载更多</button>
+                            <button class='btn btn-lg btn-primary  btn-gradient center-block' ng-click="moreMatters('site')" ng-if="sites.total>sites.length">加载更多</button>
                         </div>
                     </uib-tab>
                     <uib-tab index="2" ng-if="apps.length">
                         <uib-tab-heading>推荐活动</uib-tab-heading>
                         <table class="table table-hover">
                             <tbody>
-                                <tr ng-repeat="a in apps[0]">
+                                <tr ng-repeat="a in apps">
                                     <td>
                                         <div class="media-item">
                                             <div class="media-item-left pull-left">
@@ -205,7 +205,7 @@
                             </tbody>
                         </table>
                         <div>
-                            <button class='btn btn-lg btn-primary  btn-gradient center-block' ng-click="moreMatters('app')" ng-if="apps.total>apps[0].length">加载更多</button>
+                            <button class='btn btn-lg btn-primary  btn-gradient center-block' ng-click="moreMatters('app')" ng-if="apps.total>apps.length">加载更多</button>
                         </div>
                     </uib-tab>
                     <uib-tab index="3" ng-if="templates.length">

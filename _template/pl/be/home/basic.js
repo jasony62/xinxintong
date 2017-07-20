@@ -44,6 +44,7 @@ ngApp.provider.controller('ctrlHome', ['$scope', '$http', '$uibModal', 'tmsFavor
     };
     $scope.listApps = function(number) {
         var _apps = [];
+        $scope.page.size = number;
         $http.get('/rest/home/listApp' + '?page=1' + '&size=' + number).success(function(rsp) {
             if(rsp.data.matters.length) {
                 _apps.push(rsp.data.matters);
@@ -54,6 +55,7 @@ ngApp.provider.controller('ctrlHome', ['$scope', '$http', '$uibModal', 'tmsFavor
     };
     $scope.listArticles = function(number) {
         var _articles = [];
+        $scope.page.size = number;
         $http.get('/rest/home/listArticle' + '?page=1' + '&size=' + number).success(function(rsp) {
             if(rsp.data.matters.length) {
                 _articles.push(rsp.data.matters);

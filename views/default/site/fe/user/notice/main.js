@@ -10,11 +10,14 @@ define(['require', 'angular'], function(require, angular) {
                 var deferred = $q.defer(),
                     portName = type == 'all' ? 'list' : 'uncloseList';
                 $http.get(_baseUrl + '/' + portName + '?site=' + siteId + '&' + oPage.j()).success(function(rsp) {
-                    rsp.data.logs.forEach(function(log) {
-                        log._noticeStatus = log.status.split(':');
-                        log._noticeStatus[0] = log._noticeStatus[0] === 'success' ? '成功' : '失败';
-                    });
-                    deferred.resolve(rsp.data);
+                    if(rsp.data !== null) {
+                        rsp.data.logs.forEach(function(log) {
+                            log._noticeStatus = log.status.split(':');
+                            log._noticeStatus[0] = log._noticeStatus[0] === 'success' ? '成功' : '失败';
+                        });
+                        deferred.resolve(rsp.data);
+                    }
+
                 });
                 return deferred.promise;
             }

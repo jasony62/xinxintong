@@ -29,11 +29,6 @@ class plbatch_model extends \TMS_MODEL {
 			return true;
 		}
 
-		$mapOfUsers = [];
-		foreach ($receivers as $receiver) {
-			$mapOfUsers[$receiver->userid] = $receiver;
-		}
-
 		$modelTmpl = $this->model('matter\tmplmsg');
 		$tmpl = $modelTmpl->byId($tmplmsgId, ['cascaded' => 'Y']);
 
@@ -58,7 +53,7 @@ class plbatch_model extends \TMS_MODEL {
 
 		// 创建发送批次
 		empty($options['remark']) && $options['remark'] = implode("\n", $txtTmplMsg);
-		$batch = $this->_create($siteId, $tmpl, $params, count($mapOfUsers), $options);
+		$batch = $this->_create($siteId, $tmpl, $params, count($receivers), $options);
 
 		// 消息发送日志
 		$log = [
@@ -67,8 +62,8 @@ class plbatch_model extends \TMS_MODEL {
 			'tmplmsg_id' => $tmplmsgId,
 		];
 
-		foreach ($mapOfUsers as $userid => $user) {
-			$log['userid'] = $userid;
+		foreach ($receivers as $user) {
+			$log['userid'] = isset($user->userid) ? $user->userid : '';
 
 			/* 平台应用内消息 */
 			$log['data'] = $modelTmpl->escape($modelTmpl->toJson($txtTmplMsg));

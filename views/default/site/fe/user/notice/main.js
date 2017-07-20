@@ -6,16 +6,14 @@ define(['require', 'angular'], function(require, angular) {
     ngApp.service('srvNotice', ['$http', '$q', function($http, $q) {
         var _baseUrl = '/rest/site/fe/user/notice';
         return {
-            list: function(oPage) {
-                var deferred = $q.defer();
-                $http.get(_baseUrl + '/list?site=' + siteId + '&' + oPage.j()).success(function(rsp) {
-                    deferred.resolve(rsp.data);
-                });
-                return deferred.promise;
-            },
-            uncloseList: function(oPage) {
-                var deferred = $q.defer();
-                $http.get(_baseUrl + '/uncloseList?site=' + siteId + '&' + oPage.j()).success(function(rsp) {
+            list: function(type, oPage) {
+                var deferred = $q.defer(),
+                    portName = type == 'all' ? 'list' : 'uncloseList';
+                $http.get(_baseUrl + '/' + portName + '?site=' + siteId + '&' + oPage.j()).success(function(rsp) {
+                    rsp.data.logs.forEach(function(log) {
+                        log._noticeStatus = log.status.split(':');
+                        log._noticeStatus[0] = log._noticeStatus[0] === 'success' ? '成功' : '失败';
+                    });
                     deferred.resolve(rsp.data);
                 });
                 return deferred.promise;
@@ -23,41 +21,48 @@ define(['require', 'angular'], function(require, angular) {
         }
     }]);
     ngApp.controller('ctrlMain', ['$scope', '$http', 'srvNotice', function($scope, $http, srvNotice) {
-        var oPage, aLogs, oFilter;
+        var oPage, oFilter;
         $scope.oPage = oPage = {
-            at: 0,
+            at: 1,
             size: 10,
             j: function() {
                 return 'page=' + this.at + '&size=' + this.size;
             }
         };
         $scope.oFilter = oFilter = {
-            type: 'part'
-        }
-        $scope.logs = aLogs = [];
-        $scope.close = function(id) {
-            var url = '/rest/site/fe/user/notice/close?site=' + siteId + '&id=' + id;
-
-        }
-        $scope.more = function() {
-            oPage.at++;
-            var data = oFilter.type == 'all' ? srvNotice.list(oPage) : srvNotice.uncloseList(oPage);
-            data.then(function(result) {
-                result.logs.forEach(function(log) {
-                    log._noticeStatus = log.status.split(':');
-                    log._noticeStatus[0] = log._noticeStatus[0] === 'success' ? '成功' : '失败';
-                    aLogs.push(log);
-                });
-                oPage.total = result.total;
+            type: 'all'
+        };
+        $scope.closeNotice = function(log) {
+            var url = '/rest/site/fe/user/notice/close?site=' + siteId + '&id=' + log.id;
+            $http.get(url).success(function(rsp) {
+                var index = $scope.logs.indexOf(log);
+                $scope.logs.splice(index, 1);
+                $scope.oPage.total--;
             });
         };
+        function searchNotices(append) {
+            srvNotice.list(oFilter.type, oPage).then(function(result) {
+                if(append) {
+                    $scope.logs = $scope.logs.concat(result.logs);
+                }else {
+                    $scope.logs = result.logs;
+                }
+                oPage.total = result.total;
+            });
+        }
+        $scope.more = function() {
+            $scope.oPage.at++;
+            searchNotices(true);
+        }
         $http.get('/rest/site/fe/get?site=' + siteId).success(function(rsp) {
             $scope.site = rsp.data;
             window.loading.finish();
         });
-        $scope.$watch('oFilter', function(nv) {
+        $scope.$watch('oFilter.type', function(nv) {
             if(!nv) return;
-            $scope.more();
+            oPage.at = 1;
+            oPage.total = 0;
+            searchNotices(false);
         });
     }]);
     /* bootstrap angular app */

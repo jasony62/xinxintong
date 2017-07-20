@@ -26,21 +26,28 @@
             </div>
         </nav>
         <div class='row'>
-            <nav class="navbar navbar-default">
-                <div class="container-fluid">
-                    <form class="nav navbar-form navbar-left">
-                        <div class="form-group">
-                            <label class="radio-inline"><input type="radio" name="filterOptions" value="all" ng-model="oFilter.type">全部消息</label>
-                            <label class="radio-inline"><input type="radio" name="filterOptions" value="part" ng-model="oFilter.type">未读消息</label>
+            <div class="col-md-12">
+                <nav class="navbar navbar-default">
+                    <div class="container-fluid">
+                        <form class="nav navbar-form navbar-left">
+                            <div class="form-group">
+                                <label class="radio-inline"><input type="radio" name="filterOptions" value="all" ng-model="oFilter.type">全部消息</label>
+                                <label class="radio-inline"><input type="radio" name="filterOptions" value="part" ng-model="oFilter.type">未读消息</label>
+                            </div>
+                        </form>
+                    </div>
+                </nav>
+                <div class='list-group'>
+                    <div class='list-group-item log' ng-repeat="log in logs">
+                        <div class='pull-left'>{{log.batch.create_at*1000|date:'yy-MM-dd HH:mm'}}</div>
+                        <div class='pull-left'>
+                            <div class='pull-left item' ng-repeat="item in log.data" ng-bind-html="item"></div>
                         </div>
-                    </form>
-                </div>
-            </nav>
-            <div class='col-md-12 log' ng-repeat="log in logs">
-                <div class='thumbnail'>
-                    <div class='create_at'>{{log.batch.create_at*1000|date:'yy-MM-dd HH:mm'}}</div>
-                    <div class='data'>
-                        <div ng-repeat="item in log.data" ng-bind-html="item"></div>
+                        <div class='pull-right' ng-if="oFilter.type=='part'">
+                            <div  class='btn btn-default btn-sm' ng-click="closeNotice(log)">
+                                <span class='glyphicon glyphicon-ok'></span>
+                            </div>
+                        </div>
                     </div>
                 </div>
             </div>

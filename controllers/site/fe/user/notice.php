@@ -19,6 +19,9 @@ class notice extends \site\fe\base {
 	 */
 	public function list_action($site, $page = 1, $size = 10) {
 		$user = $this->who;
+		if (!isset($user->unionid)) {
+			return new \ResponseError('请登录后再进行该操作');
+		}
 
 		$q = [
 			'id,batch_id,data,status',
@@ -55,6 +58,9 @@ class notice extends \site\fe\base {
 	 */
 	public function uncloseList_action($site, $page = 1, $size = 10) {
 		$user = $this->who;
+		if (!isset($user->unionid)) {
+			return new \ResponseError('请登录后再进行该操作');
+		}
 
 		$modelTmplBat = $this->model('matter\tmplmsg\batch');
 
@@ -91,6 +97,10 @@ class notice extends \site\fe\base {
 	 */
 	public function close_action($site, $id) {
 		$user = $this->who;
+		if (!isset($user->unionid)) {
+			return new \ResponseError('请登录后再进行该操作');
+		}
+
 		$model = $this->model();
 		$q = [
 			'*',
@@ -107,5 +117,25 @@ class notice extends \site\fe\base {
 		$rst = $model->update('xxt_log_tmplmsg_detail', ['close_at' => time()], ['id' => $id]);
 
 		return new \ResponseData($rst);
+	}
+	/**
+	 *
+	 */
+	public function count_action($site) {
+		$user = $this->who;
+		if (!isset($user->unionid)) {
+			return new \ResponseError('请登录后再进行该操作');
+		}
+
+		$model = $this->model();
+		$q = [
+			'count(*)',
+			'xxt_log_tmplmsg_detail',
+			['siteid' => $site, 'userid' => $user->uid, 'close_at' => 0],
+		];
+
+		$count = $model->query_val_ss($q);
+
+		return new \ResponseData($count);
 	}
 }

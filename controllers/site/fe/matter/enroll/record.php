@@ -48,6 +48,15 @@ class record extends base {
 			die('登记活动不存在');
 		}
 
+		$modelRnd=\TMS_APP::M('matter\enroll\round');
+		$rnd=$modelRnd->getActive($oEnrollApp);
+		$now=time();
+		if(empty($rnd)){
+			return new \ResponseError('找不到当前登记活动的轮次。');
+		}else if(!empty($rnd) && $rnd->end_at<$now){
+			return new \ResponseError('当前活动轮次已结束，不能提交、修改、保存和删除！');
+		}
+
 		$oUser = $this->who;
 
 		// 当前访问用户的基本信息
@@ -788,6 +797,17 @@ class record extends base {
 	 */
 	public function remove_action($site, $app, $ek) {
 		$modelRec = $this->model('matter\enroll\record');
+		$modelApp=\TMS_APP::M('matter\enroll');
+		$modelRnd=\TMS_APP::M('matter\enroll\round');
+		$oApp=$modelApp->byId($app, ['cascaded' => 'N']);
+		$rnd=$modelRnd->getActive($oApp);
+		$now=time();
+
+		if(empty($rnd)){
+			return new \ResponseError('找不到当前登记活动的轮次。');
+		}else if(!empty($rnd) && $rnd->end_at<$now){
+			return new \ResponseError('当前活动轮次已结束，不能提交、修改、保存和删除！');
+		}
 
 		$rst = $modelRec->removeByUser($site, $app, $ek);
 

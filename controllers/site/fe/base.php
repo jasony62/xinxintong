@@ -289,14 +289,15 @@ class base extends \site\base {
 					$css = $page->css;
 					$js = $page->js;
 			*/
-			$protocol = isset($_SERVER['SERVER_PROTOCOL']) ? $_SERVER['SERVER_PROTOCOL'] : 'HTTP/1.0';
-			header($protocol . ' 401 Unauthorized');
-			header('Cache-Control:no-cache,must-revalidate,no-store');
-			header('Pragma:no-cache');
-			header("Expires:-1");
-			\TPL::assign('follow_ele', empty($html) ? '请关注公众号' : $html);
-			\TPL::assign('follow_css', empty($css) ? '' : $css);
-			\TPL::output('follow');
+			//$protocol = isset($_SERVER['SERVER_PROTOCOL']) ? $_SERVER['SERVER_PROTOCOL'] : 'HTTP/1.0';
+			//header($protocol . ' 401 Unauthorized');
+			//header('Cache-Control:no-cache,must-revalidate,no-store');
+			//header('Pragma:no-cache');
+			//header("Expires:-1");
+			//\TPL::assign('follow_ele', empty($html) ? '请关注公众号' : $html);
+			//\TPL::assign('follow_css', empty($css) ? '' : $css);
+			//\TPL::output('follow');
+			\TPL::output('/site/fe/user/follow');
 			exit;
 		}
 

@@ -17,11 +17,20 @@ define(['frame'], function(ngApp) {
             })
         };
         $scope.openMatter = function(matter, subView) {
-            var url = '/rest/pl/fe/matter/' + (matter.matter_type || matter.type);
+            var type, id;
+            if($scope.frameState.sid == '') {
+                type = matter.matter_type;
+                id = matter.matter_id;
+            } else {
+                type = matter.type;
+                id = matter.id;
+            }
+
+            var url = '/rest/pl/fe/matter/' + type;
             if (subView) {
                 url += '/' + subView;
             }
-            url += '?id=' + (matter.matter_id || matter.id) + '&site=' + matter.siteid;
+            url += '?id=' + id + '&site=' + matter.siteid;
             location.href = url;
         };
         $scope.setHome = function(site) {
@@ -42,9 +51,8 @@ define(['frame'], function(ngApp) {
                     url += type + '/copy?id=' + id + '&site=' + siteid;
                     break;
                 case 'enroll':
-                    url += 'enroll/copy?app=' + id + '&site=' + siteid;
-                    break;
                 case 'signin':
+                case 'wall':
                 case 'group':
                     url += type + '/copy?app=' + id + '&site=' + siteid;
                     break;

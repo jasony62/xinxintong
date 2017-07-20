@@ -125,11 +125,15 @@ class qrcode extends \pl\fe\base {
 	 * $id
 	 */
 	public function update_action($site, $id) {
+		if (false === ($user = $this->accountUser())) {
+			return new \ResponseTimeout();
+		}
+
 		$nv = $this->getPostJson();
 		$rst = $this->model()->update(
 			'xxt_call_qrcode_yx',
 			$nv,
-			"siteid='$site' and id=$id"
+			['siteid' => $site, 'id' => $id]
 		);
 		return new \ResponseData($rst);
 	}
@@ -151,55 +155,15 @@ class qrcode extends \pl\fe\base {
 	 * 只要做了扫描，二维码就失效（删除掉）
 	 */
 	public function createOneOff_action($site, $matter_type, $matter_id) {
-		$yx = $this->model('sns\yx')->bySite($site);
-
-		if ($yx->can_qrcode === 'N') {
-			return new \ResponseError('公众号还没有开通场景二维码接口');
+		if (false === ($user = $this->accountUser())) {
+			return new \ResponseTimeout();
 		}
 
-		$scene_id = mt_rand(100001, mt_getrandmax());
-		while (true) {
-			$q = array(
-				'count(*)',
-				'xxt_call_qrcode_yx',
-				"siteid='$site' and expire_at<>0 and scene_id=$scene_id",
-			);
-			if (1 === (int) $this->model()->query_val_ss($q)) {
-				$scene_id = mt_rand(100001, mt_getrandmax());
-			} else {
-				break;
-			}
-		}
-		/**
-		 * 获去二维码
-		 */
-		$proxy = $this->model('sns\yx\proxy', $yx);
-		$rst = $proxy->qrcodeCreate($scene_id);
+		$rst = $this->model('sns\yx\call\qrcode')->createOneOff($site, $matter_type, $matter_id);
 		if ($rst[0] === false) {
 			return new \ResponseError($rst[1]);
 		}
-		$qrcode = $rst[1];
 
-		/*用于代码调试*/
-		// $qrcode = new \stdClass;
-		// $qrcode->scene_id = $scene_id;
-		// $qrcode->expire_seconds = 300;
-		// $qrcode->pic = 'http://qrcode.xxt.com';
-		/**
-		 * 保存数据并返回
-		 */
-		$current = time();
-		$d['siteid'] = $site;
-		$d['name'] = '';
-		$d['scene_id'] = $qrcode->scene_id;
-		$d['create_at'] = $current;
-		$d['expire_at'] = $current + $qrcode->expire_seconds - 30;
-		$d['matter_type'] = $matter_type;
-		$d['matter_id'] = $matter_id;
-		$d['pic'] = $qrcode->pic;
-
-		$d['id'] = $this->model()->insert('xxt_call_qrcode_yx', $d, true);
-
-		return new \ResponseData((object) $d);
+		return new \ResponseData($rst[1]);
 	}
 }

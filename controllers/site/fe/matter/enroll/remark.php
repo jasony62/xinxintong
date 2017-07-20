@@ -91,8 +91,11 @@ class remark extends base {
 
 		/* 更新进行点评的活动用户的积分奖励 */
 		$modelMat = $this->model('matter\enroll\coin');
+		$modelMat->setOnlyWriteDbConn(true);
 		$rulesOther = $modelMat->rulesByMatter('site.matter.enroll.data.other.comment', $oApp);
+
 		$modelCoin = $this->model('site\coin\log');
+		$modelCoin->setOnlyWriteDbConn(true);
 		$modelCoin->award($oApp, $oUser, 'site.matter.enroll.data.other.comment', $rulesOther);
 
 		/* 获得所属轮次 */

@@ -69,6 +69,9 @@ class notice extends \site\fe\base {
 		$logs = $modelTmplBat->query_objs_ss($q, $q2);
 		$result = new \stdClass;
 		foreach ($logs as &$log) {
+			if (!empty($log->data)) {
+				$log->data = json_decode($log->data);
+			}
 			$batch = $modelTmplBat->byId($log->batch_id);
 			$log->batch = $batch;
 		}

@@ -63,14 +63,16 @@ class plbatch_model extends \TMS_MODEL {
 		];
 
 		foreach ($receivers as $user) {
-			$log['userid'] = isset($user->userid) ? $user->userid : '';
-
 			/* 平台应用内消息 */
-			$log['data'] = $modelTmpl->escape($modelTmpl->toJson($txtTmplMsg));
-			$log['send_to'] = 'pl';
-			$log['openid'] = '';
-			$modelTmpl->insert('xxt_log_tmplmsg_pldetail', $log, false);
-
+			if (isset($user->userid)) {
+				$log['userid'] = $user->userid;
+				$log['data'] = $modelTmpl->escape($modelTmpl->toJson($txtTmplMsg));
+				$log['send_to'] = 'pl';
+				$log['openid'] = '';
+				$modelTmpl->insert('xxt_log_tmplmsg_pldetail', $log, false);
+			} else {
+				$log['userid'] = '';
+			}
 			/* 微信公众号用户 */
 			if (!empty($user->wx_openid)) {
 				if (!empty($tmpl->templateid)) {
@@ -102,7 +104,6 @@ class plbatch_model extends \TMS_MODEL {
 					$rst = $this->_sendTxtByOpenid($siteId, $user->wx_openid, 'wx', $txtTmplMsg, $log);
 				}
 			}
-
 			/* 微信企业号用户，将模板消息转换文本消息 */
 			if (!empty($user->qy_openid)) {
 				$log['openid'] = $user->qy_openid;
@@ -113,7 +114,6 @@ class plbatch_model extends \TMS_MODEL {
 
 				$rst = $this->_sendTxtByOpenid($siteId, $user->qy_openid, 'qy', $txtTmplMsg, $log);
 			}
-
 			/* 易信用户，将模板消息转换文本消息 */
 			if (!empty($user->yx_openid)) {
 				$log['openid'] = $user->yx_openid;

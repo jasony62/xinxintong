@@ -88,6 +88,7 @@ class remark extends base {
 		}
 
 		$modelUsr = $this->model('matter\enroll\user');
+		$modelUsr->setOnlyWriteDbConn(true);
 
 		/* 更新进行点评的活动用户的积分奖励 */
 		$modelMat = $this->model('matter\enroll\coin');
@@ -314,6 +315,7 @@ class remark extends base {
 		$oApp->siteid = $this->siteId;
 		$oApp->id = $oRemark->aid;
 		$modelUsr = $this->model('matter\enroll\user');
+		$modelUsr->setOnlyWriteDbConn(true);
 		/* 更新进行点赞的活动用户的数据 */
 		$oEnrollUsr = $modelUsr->byId($oApp, $this->who->uid, ['fields' => 'id,nickname,last_like_other_remark_at,like_other_remark_num']);
 		if (false === $oEnrollUsr) {

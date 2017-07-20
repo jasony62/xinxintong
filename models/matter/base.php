@@ -36,6 +36,8 @@ class base_model extends \TMS_MODEL {
 		case 'joinwall':
 			$q = ['id,title', 'xxt_wall', ["id" => $id]];
 			break;
+		case 'mschems':
+			$q = ['id,title', 'xxt_site_member_schema', ["id" => $id]];
 		default:
 			$table = 'xxt_' . $type;
 			$q = ['id,title', $table, ["id" => $id]];

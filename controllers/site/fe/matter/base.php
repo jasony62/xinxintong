@@ -68,7 +68,7 @@ class base extends \site\fe\base {
 			 * 将跳转信息保存在cookie中
 			 */
 			$targetUrl = $this->model()->encrypt($targetUrl, 'ENCODE', $siteId);
-			$this->mySetCookie("_{$siteId}_mauth_t", $targetUrl, time() + 600);
+			$this->mySetCookie("_{$siteId}_mauth_t", $targetUrl, time() + 300);
 			$this->redirect($authUrl);
 		}
 	}

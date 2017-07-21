@@ -810,10 +810,11 @@ class record extends base {
 		$rnd=$modelRnd->getActive($oApp);
 		$now=time();
 
-		if(empty($rnd)){
-			return new \ResponseError('找不到当前登记活动的轮次。');
-		}else if(!empty($rnd) && $rnd->end_at<$now){
-			return new \ResponseError('当前活动轮次已结束，不能提交、修改、保存和删除！');
+		//判断活动是否添加了轮次
+		if($oApp->multi_rounds=='Y'){
+			if(empty($rnd) || (!empty($rnd) && $rnd->end_at<$now)){
+				return new \ResponseError('当前活动轮次已结束，不能提交、修改、保存和删除！');
+			}
 		}
 
 		$rst = $modelRec->removeByUser($site, $app, $ek);

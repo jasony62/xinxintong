@@ -10,7 +10,7 @@ define(['require', 'angular'], function(require, angular) {
                 var deferred = $q.defer(),
                     portName = type == 'all' ? 'list' : 'uncloseList';
                 $http.get(_baseUrl + '/' + portName + '?site=' + siteId + '&' + oPage.j()).success(function(rsp) {
-                    if(rsp.data !== null) {
+                    if (rsp.data !== null) {
                         rsp.data.logs.forEach(function(log) {
                             log._noticeStatus = log.status.split(':');
                             log._noticeStatus[0] = log._noticeStatus[0] === 'success' ? '成功' : '失败';
@@ -33,7 +33,7 @@ define(['require', 'angular'], function(require, angular) {
             }
         };
         $scope.oFilter = oFilter = {
-            type: 'all'
+            type: 'part'
         };
         $scope.closeNotice = function(log) {
             var url = '/rest/site/fe/user/notice/close?site=' + siteId + '&id=' + log.id;
@@ -43,11 +43,12 @@ define(['require', 'angular'], function(require, angular) {
                 $scope.oPage.total--;
             });
         };
+
         function searchNotices(append) {
             srvNotice.list(oFilter.type, oPage).then(function(result) {
-                if(append) {
+                if (append) {
                     $scope.logs = $scope.logs.concat(result.logs);
-                }else {
+                } else {
                     $scope.logs = result.logs;
                 }
                 oPage.total = result.total;
@@ -62,7 +63,7 @@ define(['require', 'angular'], function(require, angular) {
             window.loading.finish();
         });
         $scope.$watch('oFilter.type', function(nv) {
-            if(!nv) return;
+            if (!nv) return;
             oPage.at = 1;
             oPage.total = 0;
             searchNotices(false);

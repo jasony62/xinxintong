@@ -38,6 +38,7 @@ class base_model extends \TMS_MODEL {
 			break;
 		case 'mschema':
 			$q = ['id,title', 'xxt_site_member_schema', ["id" => $id]];
+			break;
 		default:
 			$table = 'xxt_' . $type;
 			$q = ['id,title', $table, ["id" => $id]];

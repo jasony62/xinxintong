@@ -31,8 +31,10 @@
                     <div class="container-fluid">
                         <form class="nav navbar-form navbar-left">
                             <div class="form-group">
-                                <label class="radio-inline"><input type="radio" name="filterOptions" value="all" ng-model="oFilter.type">全部消息</label>
-                                <label class="radio-inline"><input type="radio" name="filterOptions" value="part" ng-model="oFilter.type">未读消息</label>
+                                <label class="radio-inline">
+                                    <input type="radio" name="filterOptions" value="part" ng-model="oFilter.type">未读消息</label>
+                                <label class="radio-inline">
+                                    <input type="radio" name="filterOptions" value="all" ng-model="oFilter.type">全部消息</label>
                             </div>
                         </form>
                     </div>
@@ -44,7 +46,7 @@
                             <div class='pull-left item' ng-repeat="item in log.data" ng-bind-html="item"></div>
                         </div>
                         <div class='pull-right' ng-if="oFilter.type=='part'">
-                            <div  class='btn btn-default btn-sm' ng-click="closeNotice(log)">
+                            <div class='btn btn-default btn-sm' ng-click="closeNotice(log)">
                                 <span class='glyphicon glyphicon-ok'></span>
                             </div>
                         </div>

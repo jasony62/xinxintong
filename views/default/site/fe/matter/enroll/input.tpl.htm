@@ -20,6 +20,7 @@
     <div ng-cloak class='app ng-cloak'>
         <div id='notice' class='alert' ng-class="{'active':notice.msg,'alert-danger':notice.type==='error','alert-success':notice.type==='success'}" ng-click="notice.msg=''" ng-bind='notice.msg'></div>
         <div class='container'>
+            <center><div class="alert" id='rest_time' ng-controller='rest_time'></div></center>
             <div class='row' ng-controller='ctrlInput'>
                 <form name='enroll' novalidate dynamic-html="page.html">
                 </form>

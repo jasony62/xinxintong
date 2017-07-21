@@ -130,15 +130,20 @@ abstract class Reply {
  */
 abstract class MultiArticleReply extends Reply {
 	/**
-	 * articles belong to (article/news/channel)
+	 * 素材ID
 	 */
 	protected $set_id;
 	/**
+	 * 素材参数
+	 */
+	protected $params;
+	/**
 	 *
 	 */
-	public function __construct($call, $set_id) {
+	public function __construct($call, $set_id, $params = null) {
 		parent::__construct($call);
 		$this->set_id = $set_id;
+		$this->params = $params;
 	}
 	/**
 	 * 生成回复消息

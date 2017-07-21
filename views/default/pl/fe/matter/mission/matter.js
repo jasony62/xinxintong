@@ -175,6 +175,7 @@ define(['frame'], function(ngApp) {
                 case 'enroll':
                 case 'signin':
                 case 'group':
+                case 'wall':
                     url += type + '/copy?app=' + id + '&site=' + $scope.mission.siteid + '&mission=' + $scope.mission.id;
                     break;
             }

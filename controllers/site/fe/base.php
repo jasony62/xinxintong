@@ -311,10 +311,13 @@ class base extends \site\base {
 	 * @param string $snsName
 	 *
 	 */
-	protected function snsFollow($siteId, $snsName, $matter = null) {
+	protected function snsFollow($siteId, $snsName, $oMatter = null, $sceneId = null) {
 		$followUrl = '/rest/site/fe/user/follow?site=' . $siteId . '&sns=' . $snsName;
-		if (!empty($matter)) {
-			$followUrl .= '&matter=' . $matter->type . ',' . $matter->id;
+
+		if (!empty($sceneId)) {
+			$followUrl .= '&sceneid=' . $sceneId;
+		} else if (!empty($oMatter)) {
+			$followUrl .= '&matter=' . $oMatter->type . ',' . $oMatter->id;
 		}
 
 		$this->redirect($followUrl);
@@ -322,8 +325,8 @@ class base extends \site\base {
 	/**
 	 * 返回全局的邀请关注页面
 	 */
-	public function askFollow_action($site, $snsName) {
-		$this->askFollow($site, $snsName);
+	public function askFollow_action($site, $sns) {
+		$this->askFollow($site, $sns);
 	}
 	/**
 	 * 微信jssdk包

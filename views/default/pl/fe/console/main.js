@@ -51,9 +51,8 @@ define(['frame'], function(ngApp) {
                     url += type + '/copy?id=' + id + '&site=' + siteid;
                     break;
                 case 'enroll':
-                    url += 'enroll/copy?app=' + id + '&site=' + siteid;
-                    break;
                 case 'signin':
+                case 'wall':
                 case 'group':
                     url += type + '/copy?app=' + id + '&site=' + siteid;
                     break;

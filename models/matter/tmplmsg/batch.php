@@ -82,59 +82,59 @@ class batch_model extends \TMS_MODEL {
 			$log['userid'] = $userid;
 			isset($user->assoc_with) && $log['assoc_with'] = $user->assoc_with;
 
-			if (empty($user->wx_openid) && empty($user->qy_openid) && empty($user->yx_openid)) {
-				$log['status'] = 'failed:无法获得用户的公众号身份';
-				$modelTmpl->insert('xxt_log_tmplmsg_detail', $log, false);
-			} else {
-				if (!empty($user->wx_openid)) {
-					if (!empty($tmpl->templateid)) {
-						/* 发送微信模板消息 */
-						$wxTmplMsg['touser'] = $user->wx_openid;
-						$log['openid'] = $user->wx_openid;
-						$log['data'] = $modelTmpl->escape($modelTmpl->toJson($wxTmplMsg));
-						if (!isset($snsConfig)) {
-							$snsConfig = $this->model('sns\wx')->bySite($tmpl->siteid);
-							$wxProxy = $this->model('sns\wx\proxy', $snsConfig);
-						}
-						$rst = $wxProxy->messageTemplateSend($wxTmplMsg);
-						if ($rst[0] === false) {
-							$log['status'] = 'failed:' . $rst[1];
-						} else {
-							$log['msgid'] = $rst[1]->msgid;
-						}
-						$modelTmpl->insert('xxt_log_tmplmsg_detail', $log, false);
+			/* 平台应用内消息 */
+			$log['data'] = $modelTmpl->escape($modelTmpl->toJson($txtTmplMsg));
+			$log['openid'] = '';
+			$modelTmpl->insert('xxt_log_tmplmsg_detail', $log, false);
+
+			if (!empty($user->wx_openid)) {
+				if (!empty($tmpl->templateid)) {
+					/* 发送微信模板消息 */
+					$wxTmplMsg['touser'] = $user->wx_openid;
+					$log['openid'] = $user->wx_openid;
+					$log['data'] = $modelTmpl->escape($modelTmpl->toJson($wxTmplMsg));
+					if (!isset($snsConfig)) {
+						$snsConfig = $this->model('sns\wx')->bySite($tmpl->siteid);
+						$wxProxy = $this->model('sns\wx\proxy', $snsConfig);
+					}
+					$rst = $wxProxy->messageTemplateSend($wxTmplMsg);
+					if ($rst[0] === false) {
+						$log['status'] = 'failed:' . $rst[1];
 					} else {
-						$log['openid'] = $user->wx_openid;
-						$wxTxtTmplMsg = $txtTmplMsg;
-						if (!empty($url)) {
-							$wxTxtTmplMsg[] = " <a href='" . $url . "'>查看详情</a>";
-						}
-						$log['data'] = $modelTmpl->escape($modelTmpl->toJson($wxTxtTmplMsg));
-
-						$rst = $this->_sendTxtByOpenid($siteId, $user->wx_openid, 'wx', $wxTxtTmplMsg, $log);
+						$log['msgid'] = $rst[1]->msgid;
 					}
-				}
-				/* 易信用户，将模板消息转换文本消息 */
-				if (!empty($user->qy_openid)) {
-					$log['openid'] = $user->qy_openid;
-					$qyTxtTmplMsg = $txtTmplMsg;
+					$modelTmpl->insert('xxt_log_tmplmsg_detail', $log, false);
+				} else {
+					$log['openid'] = $user->wx_openid;
+					$wxTxtTmplMsg = $txtTmplMsg;
 					if (!empty($url)) {
-						$qyTxtTmplMsg[] = " <a href='" . $url . "'>查看详情</a>";
+						$wxTxtTmplMsg[] = " <a href='" . $url . "'>查看详情</a>";
 					}
-					$log['data'] = $modelTmpl->escape($modelTmpl->toJson($qyTxtTmplMsg));
+					$log['data'] = $modelTmpl->escape($modelTmpl->toJson($wxTxtTmplMsg));
 
-					$rst = $this->_sendTxtByOpenid($siteId, $user->qy_openid, 'qy', $qyTxtTmplMsg, $log);
+					$rst = $this->_sendTxtByOpenid($siteId, $user->wx_openid, 'wx', $wxTxtTmplMsg, $log);
 				}
-				if (!empty($user->yx_openid)) {
-					$log['openid'] = $user->yx_openid;
-					$yxTxtTmplMsg = $txtTmplMsg;
-					if (!empty($url)) {
-						$yxTxtTmplMsg[] = '查看详情：\n' . $url;
-					}
-					$log['data'] = $modelTmpl->escape($modelTmpl->toJson($yxTxtTmplMsg));
+			}
+			/* 易信用户，将模板消息转换文本消息 */
+			if (!empty($user->qy_openid)) {
+				$log['openid'] = $user->qy_openid;
+				$qyTxtTmplMsg = $txtTmplMsg;
+				if (!empty($url)) {
+					$qyTxtTmplMsg[] = " <a href='" . $url . "'>查看详情</a>";
+				}
+				$log['data'] = $modelTmpl->escape($modelTmpl->toJson($qyTxtTmplMsg));
 
-					$rst = $this->_sendTxtByOpenid($siteId, $user->yx_openid, 'yx', $yxTxtTmplMsg, $log);
+				$rst = $this->_sendTxtByOpenid($siteId, $user->qy_openid, 'qy', $qyTxtTmplMsg, $log);
+			}
+			if (!empty($user->yx_openid)) {
+				$log['openid'] = $user->yx_openid;
+				$yxTxtTmplMsg = $txtTmplMsg;
+				if (!empty($url)) {
+					$yxTxtTmplMsg[] = '查看详情：\n' . $url;
 				}
+				$log['data'] = $modelTmpl->escape($modelTmpl->toJson($yxTxtTmplMsg));
+
+				$rst = $this->_sendTxtByOpenid($siteId, $user->yx_openid, 'yx', $yxTxtTmplMsg, $log);
 			}
 		}
 	}

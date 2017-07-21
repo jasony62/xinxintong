@@ -60,7 +60,7 @@ class memberschema_model extends \TMS_MODEL {
 	 */
 	public function overview($schemaId) {
 		$q = [
-			'id,title,require_invite,is_qy_fan,is_wx_fan,is_yx_fan,attr_mobile,attr_email,attr_name,extattr',
+			'id,mission_id,title,require_invite,is_qy_fan,is_wx_fan,is_yx_fan,attr_mobile,attr_email,attr_name,extattr',
 			'xxt_site_member_schema',
 			['id' => $schemaId],
 		];

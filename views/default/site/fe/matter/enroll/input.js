@@ -10,6 +10,49 @@ ngApp.oUtilSubmit = require('../_module/submit.util.js');
 ngApp.config(['$compileProvider', function($compileProvider) {
     $compileProvider.aHrefSanitizationWhitelist(/^\s*(https?|ftp|mailto|tel|file|sms|wxLocalResource):/);
 }]);
+ngApp.controller('rest_time',['$scope','$timeout','ls','$http',function($scope,$timeout,LS,$http){
+    var rest_time=document.querySelector("#rest_time");
+    var SysSecond ; 
+    
+    function getQueryString(name) { 
+        var reg = new RegExp("(^|&)" + name + "=([^&]*)(&|$)", "i"); 
+        var r = window.location.search.substr(1).match(reg); 
+        if (r != null) return unescape(r[2]); return null; 
+    } 
+    var url = LS.j('get', 'site', 'app');
+    url += '&ek=' + getQueryString('ek');
+    url += '&page=enroll';
+    //console.log(url);
+    $http.get(url).then(function (response) {
+        var app=response.data.data.app;
+        //判断是否启用轮次
+        if(app.multi_rounds=='Y'){
+            var activeRound=response.data.data.activeRound;
+            var end_at=activeRound.end_at;
+            var now=Math.floor(Date.parse(new Date())/1000);
+            SysSecond=end_at-now;
+            if(SysSecond<0){
+                SysSecond=0;
+            }
+            var InterValObj = window.setInterval(SetRemainTime, 1000); //间隔函数，1秒执行
+            //将时间减去1秒，计算天、时、分、秒 
+            function SetRemainTime() { 
+                if (SysSecond > 0) { 
+                    SysSecond = SysSecond - 1; 
+                    var second = Math.floor(SysSecond % 60);             // 计算秒     
+                    var minite = Math.floor((SysSecond / 60) % 60);      //计算分 
+                    var hour = Math.floor((SysSecond / 3600) % 24);      //计算小时 
+                    var day = Math.floor((SysSecond / 3600) / 24);        //计算天 
+                    rest_time.innerHTML="距离本轮次【"+app.title+"】结束还有：<b style=color:red>"+day + "</b>天<b style=color:red>" + hour + "</b>小时<b style=color:red>" + minite + "</b>分<b style=color:red>" + second + "</b>秒"; 
+                } else {//剩余时间小于或等于0的时候，就停止间隔函数 
+                    window.clearInterval(InterValObj); 
+                    rest_time.innerHTML="<p>本轮次【"+app.title+"】已结束。</p>";
+                } 
+            }
+            SetRemainTime(); 
+        }
+    });
+}]);
 ngApp.factory('Input', ['$q', '$timeout', 'ls', 'http2', function($q, $timeout, LS, http2) {
     var Input, _ins;
     Input = function() {};

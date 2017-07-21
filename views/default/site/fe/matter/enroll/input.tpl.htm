@@ -19,7 +19,7 @@
     <div id="appLoginTip" uib-popover-template="'appLoginTip.html'" uib-popover="" popover-placement="bottom" popover-trigger="show" popover-append-to-body="true"></div>
     <div ng-cloak class='app ng-cloak'>
         <div id='notice' class='alert' ng-class="{'active':notice.msg,'alert-danger':notice.type==='error','alert-success':notice.type==='success'}" ng-click="notice.msg=''" ng-bind='notice.msg'></div>
-        <div class='container'>
+        <div id='enroll' class='container'>
             <div class='row' ng-controller='ctrlInput'>
                 <form name='enroll' novalidate dynamic-html="page.html">
                 </form>
@@ -87,6 +87,8 @@
     <script src="/static/js/angular-sanitize.min.js"></script>
     <script src="/static/js/ui-bootstrap-tpls.min.js"></script>
     <script src="<?php echo auto_version('/bundles/default/site/fe/matter/enroll/input.js');?>"></script>
+    <div class="tms-switch tms-switch-repos" ng-click="gotoPage($event,'repos')" ng-if="app.can_repos==='Y'"></div>
+    <div class="tms-switch tms-switch-rank" ng-click="gotoPage($event,'rank')" ng-if="app.can_rank==='Y'"></div>
     <div class="tms-switch tms-switch-save" ng-click="save()"></div>
 </body>
 

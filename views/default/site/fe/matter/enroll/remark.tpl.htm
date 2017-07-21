@@ -19,7 +19,15 @@
         <div class='container'>
             <div class='row'>
                 <div class='form-group' ng-if="remarkableSchemas.length">
-                    <select class='form-control' ng-options="rs.title for rs in remarkableSchemas" ng-model="filter.schema"></select>
+                    <div class='input-group'>
+                        <div class='input-group-btn' ng-if="historyLen()">
+                            <button class='btn btn-default' ng-click="back()">返回</button>
+                        </div>
+                        <select class='form-control' ng-options="rs.title for rs in remarkableSchemas" ng-model="filter.schema"></select>
+                        <div class='input-group-btn'>
+                            <button class='btn btn-default' ng-click="gotoRecord()" ng-if="record.userid===user.uid">查看记录</button>
+                        </div>
+                    </div>
                 </div>
                 <div id='recordData'>
                     <div class='title'>{{filter.schema.title}}</div>
@@ -68,12 +76,6 @@
                     </span>
                     </div>
                 </div>
-                <div id='bottomActions' class='form-group'>
-                    <div class='form-inline text-center'>
-                        <button class='btn btn-default' ng-if="historyLen()" ng-click="back()">返回</button>
-                        <button class='btn btn-default' ng-click="gotoRecord()" ng-if="record.userid===user.uid">查看记录</button>
-                    </div>
-                </div>
             </div>
         </div>
     </div>
@@ -87,6 +89,8 @@
     <script src="/static/js/angular-sanitize.min.js"></script>
     <script src="/static/js/ui-bootstrap-tpls.min.js"></script>
     <script src="<?php echo auto_version('/bundles/default/site/fe/matter/enroll/remark.js');?>"></script>
+    <div class="tms-switch tms-switch-repos" ng-click="gotoPage($event,'repos')"></div>
+    <div class="tms-switch tms-switch-rank" ng-click="gotoPage($event,'rank')"></div>
 </body>
 
 </html>

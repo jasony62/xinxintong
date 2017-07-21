@@ -57,6 +57,7 @@
                                     </select>
                                 </div>
                             </form>
+                            <button class='btn btn-default' ng-click="addRecord($event)"><span class='glyphicon glyphicon-pencil'></span></button>
                         </div>
                     </div>
                 </div>
@@ -103,9 +104,6 @@
                 </div>
             </div>
         </div>
-        <div id='reposActions' class='form-inline text-center'>
-            <button class='btn btn-default btn-lg' ng-click="addRecord($event)">&nbsp;&nbsp;<span class='glyphicon glyphicon-plus'></span>&nbsp;&nbsp;</button>
-        </div>
     </div>
     <footer ng-if="app.use_mission_footer==='Y'" dynamic-html="mission.footer_page.html"></footer>
     <footer ng-if="app.use_site_footer==='Y'" dynamic-html="site.footer_page.html"></footer>
@@ -117,6 +115,7 @@
     <script src="/static/js/angular-sanitize.min.js"></script>
     <script src="/static/js/ui-bootstrap-tpls.min.js"></script>
     <script src="<?php echo auto_version('/bundles/default/site/fe/matter/enroll/repos.js');?>"></script>
+    <div class="tms-switch tms-switch-rank" ng-click="gotoPage($event,'rank')"></div>
 </body>
 
 </html>

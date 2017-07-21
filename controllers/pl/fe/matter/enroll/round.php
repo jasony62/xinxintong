@@ -57,7 +57,7 @@ class round extends \pl\fe\matter\base {
 		$posted = $this->getPostJson();
 
 		if(isset($posted->start_at) && isset($posted->end_at) && $posted->start_at>$posted->end_at){
-			return new \ResponseError('添加失败，本轮次的开始时间不能大于结束时间！');
+			return new \ResponseError('添加失败，本轮次的开始时间不能晚于结束时间！');
 		}
 
 		$rst = $modelRnd->create($oApp, $posted, $user);
@@ -92,7 +92,7 @@ class round extends \pl\fe\matter\base {
 		$posted = $this->getPostJson();
 
 		if(isset($posted->start_at) && isset($posted->end_at) && $posted->start_at>$posted->end_at){
-			return new \ResponseError('更新失败，本轮次的开始时间不能大于结束时间！');
+			return new \ResponseError('更新失败，本轮次的开始时间不能晚于结束时间！');
 		}
 		/* 指定了开始时间的轮次，自动指定为启用状态 */
 		if ((int) $oRound->start_at > 0 && (int) $posted->start_at === 0) {

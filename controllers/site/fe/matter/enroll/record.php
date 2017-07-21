@@ -47,14 +47,15 @@ class record extends base {
 			header('HTTP/1.0 500 parameter error:app dosen\'t exist.');
 			die('登记活动不存在');
 		}
-
-		$modelRnd=\TMS_APP::M('matter\enroll\round');
-		$rnd=$modelRnd->getActive($oEnrollApp);
-		$now=time();
-		if(empty($rnd)){
-			return new \ResponseError('找不到当前登记活动的轮次。');
-		}else if(!empty($rnd) && $rnd->end_at<$now){
-			return new \ResponseError('当前活动轮次已结束，不能提交、修改、保存和删除！');
+		//判断活动是否添加了轮次
+		if($oEnrollApp->multi_rounds=='Y'){
+			$modelRnd=\TMS_APP::M('matter\enroll\round');
+			$rnd=$modelRnd->getActive($oEnrollApp);
+			$now=time();
+		
+			if(empty($rnd) || (!empty($rnd) && $rnd->end_at<$now)){
+				return new \ResponseError('当前活动轮次已结束，不能提交、修改、保存和删除！');
+			}
 		}
 
 		$oUser = $this->who;

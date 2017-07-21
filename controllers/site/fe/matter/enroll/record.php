@@ -47,6 +47,16 @@ class record extends base {
 			header('HTTP/1.0 500 parameter error:app dosen\'t exist.');
 			die('登记活动不存在');
 		}
+		//判断活动是否添加了轮次
+		if($oEnrollApp->multi_rounds=='Y'){
+			$modelRnd=\TMS_APP::M('matter\enroll\round');
+			$rnd=$modelRnd->getActive($oEnrollApp);
+			$now=time();
+		
+			if(empty($rnd) || (!empty($rnd) && $rnd->end_at<$now)){
+				return new \ResponseError('当前活动轮次已结束，不能提交、修改、保存和删除！');
+			}
+		}
 
 		$oUser = $this->who;
 
@@ -794,6 +804,18 @@ class record extends base {
 	 */
 	public function remove_action($site, $app, $ek) {
 		$modelRec = $this->model('matter\enroll\record');
+		$modelApp=\TMS_APP::M('matter\enroll');
+		$modelRnd=\TMS_APP::M('matter\enroll\round');
+		$oApp=$modelApp->byId($app, ['cascaded' => 'N']);
+		$rnd=$modelRnd->getActive($oApp);
+		$now=time();
+
+		//判断活动是否添加了轮次
+		if($oApp->multi_rounds=='Y'){
+			if(empty($rnd) || (!empty($rnd) && $rnd->end_at<$now)){
+				return new \ResponseError('当前活动轮次已结束，不能提交、修改、保存和删除！');
+			}
+		}
 
 		$rst = $modelRec->removeByUser($site, $app, $ek);
 

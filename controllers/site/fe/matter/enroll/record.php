@@ -47,14 +47,13 @@ class record extends base {
 			header('HTTP/1.0 500 parameter error:app dosen\'t exist.');
 			die('登记活动不存在');
 		}
-		//判断活动是否添加了轮次
-		if($oEnrollApp->multi_rounds=='Y'){
-			$modelRnd=\TMS_APP::M('matter\enroll\round');
-			$rnd=$modelRnd->getActive($oEnrollApp);
-			$now=time();
-		
-			if(empty($rnd) || (!empty($rnd) && $rnd->end_at<$now)){
-				return new \ResponseError('当前活动轮次已结束，不能提交、修改、保存和删除！');
+		// 判断活动是否添加了轮次
+		if ($oEnrollApp->multi_rounds == 'Y') {
+			$modelRnd = $this->model('matter\enroll\round');
+			$oActiveRnd = $modelRnd->getActive($oEnrollApp);
+			$now = time();
+			if (empty($oActiveRnd) || (!empty($oActiveRnd) && $oActiveRnd->end_at < $now)) {
+				return new \ResponseError('当前活动轮次已结束，不能提交、修改、保存或删除！');
 			}
 		}
 
@@ -803,20 +802,23 @@ class record extends base {
 	 * @param string $app
 	 */
 	public function remove_action($site, $app, $ek) {
-		$modelRec = $this->model('matter\enroll\record');
-		$modelApp=\TMS_APP::M('matter\enroll');
-		$modelRnd=\TMS_APP::M('matter\enroll\round');
-		$oApp=$modelApp->byId($app, ['cascaded' => 'N']);
-		$rnd=$modelRnd->getActive($oApp);
-		$now=time();
+		$modelApp = $this->model('matter\enroll');
+		$oApp = $modelApp->byId($app, ['cascaded' => 'N']);
+		if ($oApp === false) {
+			return new \ObjectNotFoundError();
+		}
 
-		//判断活动是否添加了轮次
-		if($oApp->multi_rounds=='Y'){
-			if(empty($rnd) || (!empty($rnd) && $rnd->end_at<$now)){
-				return new \ResponseError('当前活动轮次已结束，不能提交、修改、保存和删除！');
+		// 判断活动是否添加了轮次
+		if ($oApp->multi_rounds == 'Y') {
+			$modelRnd = $this->model('matter\enroll\round');
+			$oActiveRnd = $modelRnd->getActive($oApp);
+			$now = time();
+			if (empty($oActiveRnd) || (!empty($oActiveRnd) && $oActiveRnd->end_at < $now)) {
+				return new \ResponseError('当前活动轮次已结束，不能提交、修改、保存或删除！');
 			}
 		}
 
+		$modelRec = $this->model('matter\enroll\record');
 		$rst = $modelRec->removeByUser($site, $app, $ek);
 
 		return new \ResponseData($rst);

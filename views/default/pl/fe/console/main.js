@@ -18,7 +18,7 @@ define(['frame'], function(ngApp) {
         };
         $scope.openMatter = function(matter, subView) {
             var type, id;
-            if($scope.frameState.sid == '') {
+            if ($scope.frameState.sid == '') {
                 type = matter.matter_type;
                 id = matter.matter_id;
             } else {

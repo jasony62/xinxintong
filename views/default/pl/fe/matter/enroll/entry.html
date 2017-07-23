@@ -1,6 +1,6 @@
 <div class="col-md-6">
     <div class="panel panel-default">
-        <div class="panel-heading">填写链接</div>
+        <div class="panel-heading">进入活动链接</div>
         <div class="panel-body">
             <div class='form-group'>
                 <div class='input-group'>
@@ -27,6 +27,32 @@
             </div>
             <div class='form-group compact' ng-if="app.entry_rule.scope==='sns'&&sns.yx.can_qrcode==='Y'">
                 <label>易信二维码</label>
+            </div>
+        </div>
+    </div>
+    <div class="panel panel-default" ng-if="app.entry_rule.exclude.indexOf('repos')!==-1">
+        <div class="panel-heading">进入共享数据页链接</div>
+        <div class="panel-body">
+            <div class='form-group'>
+                <div class='input-group'>
+                    <input class='form-control' readonly value="{{entry.url}}&page=repos">
+                    <div class='input-group-btn'>
+                        <a class='btn btn-default' ng-href="{{entry.url}}&page=repos" target='_blank' title='打开'><i class='glyphicon glyphicon-open'></i></a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="panel panel-default" ng-if="app.entry_rule.exclude.indexOf('rank')!==-1">
+        <div class="panel-heading">进入排行榜页链接</div>
+        <div class="panel-body">
+            <div class='form-group'>
+                <div class='input-group'>
+                    <input class='form-control' readonly value="{{entry.url}}&page=rank">
+                    <div class='input-group-btn'>
+                        <a class='btn btn-default' ng-href="{{entry.url}}&page=rank" target='_blank' title='打开'><i class='glyphicon glyphicon-open'></i></a>
+                    </div>
+                </div>
             </div>
         </div>
     </div>

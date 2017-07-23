@@ -22,6 +22,7 @@ div[wrap=filter] .detail .actions .btn{border-radius:0}
 .tms-switch:nth-last-of-type(3){bottom:120px;}
 .tms-switch:nth-last-of-type(4){bottom:176px;}
 .tms-switch:nth-last-of-type(5){bottom:236px;}
+.tms-switch-back:before{content:'返回';}
 .tms-switch-save:before{content:'保存';}
 .tms-switch-rank:before{content:'排行';}
 .tms-switch-repos:before{content:'共享';}

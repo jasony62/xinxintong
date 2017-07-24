@@ -32,6 +32,8 @@ class main extends \pl\fe\matter\base {
 			return new \ResponseError('指定的数据不存在');
 		}
 		unset($oApp->data_schemas);
+		unset($oApp->round_cron);
+		unset($oApp->rp_config);
 
 		/* channels */
 		$oApp->channels = $this->model('matter\channel')->byMatter($id, 'enroll');

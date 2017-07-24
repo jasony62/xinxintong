@@ -25,7 +25,7 @@
                             <button class='btn btn-default' ng-if="criteria.keyword" ng-click="criteria.keyword='';list4Schema(1)"><span class='glyphicon glyphicon-remove'></span></button>
                             <button class='btn btn-default' ng-click="list4Schema(1)"><span class='glyphicon glyphicon-search'></span></button>
                             <button id='advCriteriaSwitch' class="btn btn-default" ng-click="status.opened=!status.opened">
-                                <span class='glyphicon glyphicon-chevron-right' ng-class="{'opened':status.opened}"></span>
+                                <span class='glyphicon glyphicon-filter' ng-class="{'opened':status.opened}"></span>
                             </button>
                             <form id='advCriteria' ng-if='status.opened' ng-click="clickAdvCriteria($event)">
                                 <div class='form-group' ng-if='rounds.length'>

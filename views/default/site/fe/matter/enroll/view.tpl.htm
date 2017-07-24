@@ -43,6 +43,8 @@
             </div>
         </div>
     </script>
+    <div class="tms-switch tms-switch-repos" ng-click="gotoPage($event,'repos')" ng-if="app.can_repos==='Y'"></div>
+    <div class="tms-switch tms-switch-rank" ng-click="gotoPage($event,'rank')" ng-if="app.can_rank==='Y'"></div>
 </body>
 
 </html>

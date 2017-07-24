@@ -8,6 +8,7 @@ require_once dirname(__FILE__) . '/base.php';
 class relay_model {
 
 	public function __construct($call, $relayId) {
+		$this->call = $call;
 		$this->relayId = $relayId;
 	}
 

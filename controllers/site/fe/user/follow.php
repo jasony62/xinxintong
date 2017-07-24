@@ -36,10 +36,11 @@ class follow extends \site\fe\base {
 	 *
 	 * @param string $site
 	 * @param string $sns
-	 * @param string $matter
+	 * @param string $matter 指定素材对应的场景二维码
+	 * @param string $sceneid 指定场景二维码
 	 *
 	 */
-	public function pageGet_action($site, $sns, $matter = null) {
+	public function pageGet_action($site, $sns, $matter = null, $sceneid = null) {
 		$siteId = $site;
 		$modelSns = $this->model('sns\\' . $sns);
 		/* 公众号配置信息 */
@@ -63,7 +64,11 @@ class follow extends \site\fe\base {
 			'user' => $this->who,
 		];
 		/* 访问素材信息 */
-		if (!empty($matter)) {
+		if (!empty($sceneid)) {
+			$modelQrcode = $this->model('sns\\' . $sns . '\\call\qrcode');
+			$qrcode = $modelQrcode->bySceneId($site, $sceneid);
+			$param['matterQrcode'] = $qrcode;
+		} else if (!empty($matter)) {
 			$matter = explode(',', $matter);
 			if (count($matter) === 2) {
 				/* 素材的url */

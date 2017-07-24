@@ -156,11 +156,16 @@ ngApp.controller('ctrlConsole', ['$scope', '$uibModal', 'http2', 'templateShop',
                 case 'enroll':
                 case 'signin':
                 case 'group':
+                case 'wall':
                     url += type + '/remove?app=' + id + '&site=' + $scope.siteId;
                     break;
                 case 'news':
                 case 'channel':
                     url += type + '/delete?site=' + $scope.siteId + '&id=' + id;
+                    break;
+                default:
+                    alert('指定素材不支持删除');
+                    return;
             }
             http2.get(url, function(rsp) {
                 $scope.matters.splice($scope.matters.indexOf(matter), 1);
@@ -178,8 +183,7 @@ ngApp.controller('ctrlConsole', ['$scope', '$uibModal', 'http2', 'templateShop',
                 url += type + '/copy?id=' + id + '&site=' + $scope.siteId;
                 break;
             case 'enroll':
-                url += 'enroll/copy?app=' + id + '&site=' + $scope.siteId;
-                break;
+            case 'wall':
             case 'signin':
             case 'group':
                 url += type + '/copy?app=' + id + '&site=' + $scope.siteId;

@@ -1,8 +1,9 @@
 define(["angular"], function(angular) {
     'use strict';
-    var siteId, sns, matter, ngApp;
+    var siteId, sns, sceneid, matter, ngApp;
     siteId = location.search.match(/site=([^&]*)/)[1];
     sns = location.search.match(/sns=([^&]*)/)[1];
+    sceneid = location.search.match(/sceneid=([^&]*)/) ? location.search.match(/sceneid=([^&]*)/)[1] : '';
     matter = location.search.match(/matter=([^&]*)/) ? location.search.match(/matter=([^&]*)/)[1] : '';
     ngApp = angular.module('app', ['page.ui.xxt', 'http.ui.xxt']);
     ngApp.config(['$controllerProvider', function($cp) {
@@ -11,8 +12,14 @@ define(["angular"], function(angular) {
         };
     }]);
     ngApp.controller('ctrlMain', ['$scope', 'tmsDynaPage', 'http2', function($scope, tmsDynaPage, http2) {
-        var params;
-        http2.get('/rest/site/fe/user/follow/pageGet?site=' + siteId + '&sns=' + sns + '&matter=' + matter).then(function(rsp) {
+        var url, params;
+        url = '/rest/site/fe/user/follow/pageGet?site=' + siteId + '&sns=' + sns;
+        if (sceneid) {
+            url += '&sceneid=' + sceneid;
+        } else if (matter) {
+            url += '&matter=' + matter;
+        }
+        http2.get(url).then(function(rsp) {
             params = rsp.data;
             $scope.snsConfig = params.snsConfig;
             $scope.user = params.user;

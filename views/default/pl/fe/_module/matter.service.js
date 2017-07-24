@@ -105,17 +105,16 @@ provider('srvSite', function() {
                 }
                 return defer.promise;
             },
-            memberSchemaList: function(oMission, onlyMission) {
+            memberSchemaList: function(oMatter, bOnlyMatter) {
                 var url, defer = $q.defer();
                 if (_aMemberSchemas) {
                     defer.resolve(_aMemberSchemas);
                 } else {
                     url = '/rest/pl/fe/site/member/schema/list?valid=Y&site=' + _siteId;
-                    if (oMission && oMission.id) {
-                        if (onlyMission) {
-                            url += '&mission=' + oMission.id;
-                        } else {
-                            url += '&mission=0,' + oMission.id;
+                    if (oMatter && oMatter.id) {
+                        url += '&matter=' + oMatter.id + ',' + oMatter.type;
+                        if (bOnlyMatter) {
+                            url += '&onlyMatter=Y';
                         }
                     }
                     http2.get(url, function(rsp) {
@@ -159,13 +158,13 @@ provider('srvSite', function() {
                 }
                 return defer.promise;
             },
-            chooseMschema: function(oMission) {
+            chooseMschema: function(oMatter) {
                 var _this = this;
                 return $uibModal.open({
                     templateUrl: '/views/default/pl/fe/_module/chooseMschema.html?_=1',
                     resolve: {
                         mschemas: function() {
-                            return _this.memberSchemaList(oMission);
+                            return _this.memberSchemaList(oMatter);
                         }
                     },
                     controller: ['$scope', '$uibModalInstance', 'mschemas', function($scope2, $mi, mschemas) {
@@ -178,10 +177,11 @@ provider('srvSite', function() {
                             var url, proto;
                             url = '/rest/pl/fe/site/member/schema/create?site=' + _siteId;
                             proto = { valid: 'Y' };
-                            if (oMission && oMission.id) {
-                                proto.mission_id = oMission.id;
-                                if (oMission.title) {
-                                    proto.title = oMission.title + '-' + '通讯录';
+                            if (oMatter && oMatter.id) {
+                                proto.matter_id = oMatter.id;
+                                proto.matter_type = oMatter.type;
+                                if (oMatter.title) {
+                                    proto.title = oMatter.title + '-' + '通讯录';
                                 }
                             }
                             http2.post(url, proto, function(rsp) {

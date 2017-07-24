@@ -3,7 +3,7 @@ body{position:relative;font-size:16px;}
 img{max-width:100%}
 
 /*criteria*/
-#advCriteriaSwitch span.opened{transform:rotate(90deg);}
+#advCriteriaSwitch span.opened{}
 #advCriteria{position:absolute;top:100%;right:0;margin-top:1px;width:300px;background:#fff;padding:1rem;border:1px solid #ccc;border-top:0;z-index:1000;}
 #advCriteria .form-control{float:none;}
 #advCriteria .form-group{display:block;}

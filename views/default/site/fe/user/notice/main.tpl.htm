@@ -43,7 +43,7 @@
                     <div class='list-group-item log' ng-repeat="log in logs">
                         <div class='pull-left'>{{log.batch.create_at*1000|date:'yy-MM-dd HH:mm'}}</div>
                         <div class='pull-left'>
-                            <div class='pull-left item' ng-repeat="item in log.data" ng-bind-html="item"></div>
+                            <div class='pull-left item' ng-bind-html="log.remark"></div>
                         </div>
                         <div class='pull-right' ng-if="oFilter.type=='part'">
                             <div class='btn btn-default btn-sm' ng-click="closeNotice(log)">

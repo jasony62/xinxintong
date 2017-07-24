@@ -80,6 +80,9 @@ define(['missionService', 'enrollService', 'signinService'], function() {
             if (nextRoute.indexOf('/mission?') !== -1) {
                 event.preventDefault();
             }
+            if (nextRoute.split('?')[0] !== currentRoute.split('?')[0]) {
+                $location.hash('');
+            }
         });
         $scope.$on('$locationChangeSuccess', function(event, currentRoute) {
             var subView = currentRoute.match(/([^\/]+?)\?/);

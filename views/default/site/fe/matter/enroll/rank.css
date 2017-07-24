@@ -1,0 +1,7 @@
+html,body{background:#efefef;margin-bottom:0;}
+@media screen and (max-width:719px){
+	body{margin-bottom:0;}
+}
+body{position:relative;font-size:16px;}
+#rank{background:#fff;margin-bottom:64px;}
+#rank .table{margin-bottom:0;}

@@ -1,49 +1,53 @@
-<div id='tag-view' class="col-md-12">
-    <nav class="navbar-default navbar">
-        <div class="container-fluid">
-            <form class="navbar-form navbar-left">
-                <div class='input-group'>
-                    <input class='form-control' ng-model="newtag">
-                    <div class='input-group-btn'>
-                        <button class='btn btn-default' ng-click="createTag()"><span class='glyphicon glyphicon-plus'></span></button>
+<div id='tag-view'>
+    <div class='col-md-6'>
+        <nav class="navbar-default navbar">
+            <div class="container-fluid">
+                <form class="navbar-form navbar-left">
+                    <div class='input-group'>
+                        <input class='form-control' ng-model="newtag" placeholder="输入逗号分隔的新标签">
+                        <div class='input-group-btn'>
+                            <button class='btn btn-default' ng-click="createTag()"><span class='glyphicon glyphicon-plus'></span></button>
+                        </div>
                     </div>
+                </form>
+            </div>
+        </nav>
+        <div class="form-group">
+            <div id="enrollRecords">
+                <table class="table table-bordered">
+                    <thead>
+                        <tr>
+                            <th style='width:50px'>序号</th>
+                            <th style="width:100px">创建时间</th>
+                            <th style="width:80px">来源</th>
+                            <th class="custom-col row">标签内容</th>
+                            <th style='width:80px'>使用次数</th>
+                            <th style='width:98px'>操作</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr ng-repeat="tag in tags">
+                            <td>{{(page.at-1)*page.size+$index+1}}</td>
+                            <td>{{(tag.create_at*1000)|date:'MM-dd HH:mm'}}</td>
+                            <td>{{scopeNames[tag.creater_src]}}</td>
+                            <td>
+                                <input type='text' class='form-control' size='40' ng-model='tag.label' tms-auto-update tms-wait=1000 tms-update="modify(tag)">
+                            </td>
+                            <td ng-bind="tag.use_num"></td>
+                            <td>
+                                <button class="btn btn-xs btn-danger" ng-click="removeTag(tag)"><i class="glyphicon glyphicon-remove"></i></button>
+                                <button class="btn btn-xs btn-default" ng-click="upTag(tag, $index)"><i class="glyphicon glyphicon-chevron-up"></i></button>
+                                <button class='btn btn-xs btn-default' ng-click="downTag(tag, $index)"><i class='glyphicon glyphicon-chevron-down'></i></button>
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+            <div class='form-group form-inline'>
+                <div class="pull-right">
+                    <span style="margin-right:20px;line-height:2;">总数：{{page.total}}</span>
+                    <ul uib-pagination style="margin:0;vertical-align:bottom;cursor:pointer;" ng-show="page.total>page.size" boundary-links="true" total-items="page.total" max-size="7" items-per-page="page.size" rotate="false" ng-model="page.at" previous-text="&lsaquo;" next-text="&rsaquo;" first-text="&laquo;" last-text="&raquo;" ng-change="doSearch()"></ul>
                 </div>
-            </form>
-        </div>
-    </nav>
-    <div class="form-group">
-        <div id="enrollRecords">
-            <table class="table table-bordered">
-                <thead>
-                    <tr>
-                        <th style='width:50px'>序号</th>
-                        <th style="width:100px">创建时间</th>
-                        <th style="width:100px">来源</th>
-                        <th class="custom-col row">标签内容</th>
-                        <th style='width:100px'>使用次数</th>
-                        <th style='width:140px'>操作</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    <tr ng-repeat="tag in tags">
-                        <td>{{(page.at-1)*page.size+$index+1}}</td>
-                        <td>{{(tag.create_at*1000)|date:'MM-dd HH:mm'}}</td>
-                        <td>{{scopeNames[tag.creater_src]}}</td>
-                        <td><input type='text' class='form-control' size='40'  ng-model='tag.label' tms-auto-update tms-wait=1000 tms-update="modify(tag)"></td>
-                        <td ng-bind="tag.use_num"></td>
-                        <td>
-                            <button class="btn btn-xs btn-danger" ng-click="removeTag(tag)"><i class="glyphicon glyphicon-remove"></i></button>
-                            <button class="btn btn-xs btn-default" ng-click="upTag(tag, $index)"><i class="glyphicon glyphicon-chevron-up"></i></button>
-                            <button class='btn btn-xs btn-default' ng-click="downTag(tag, $index)"><i class='glyphicon glyphicon-chevron-down'></i></button>
-                        </td>
-                    </tr>
-                </tbody>
-            </table>
-        </div>
-        <div class='form-group form-inline'>
-            <div class="pull-right">
-                <span style="margin-right:20px;line-height:2;">总数：{{page.total}}</span>
-                <ul uib-pagination style="margin:0;vertical-align:bottom;cursor:pointer;" ng-show="page.total>page.size" boundary-links="true" total-items="page.total" max-size="7" items-per-page="page.size" rotate="false" ng-model="page.at" previous-text="&lsaquo;" next-text="&rsaquo;" first-text="&laquo;" last-text="&raquo;" ng-change="doSearch()"></ul>
             </div>
         </div>
     </div>

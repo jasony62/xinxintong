@@ -221,4 +221,39 @@ class base extends \site\fe\matter\base {
 
 		return $result;
 	}
+	/**
+	 * 返回全局的邀请关注页面（覆盖基类的方法）
+	 */
+	public function askFollow_action($site, $sns) {
+		$referer = isset($_SERVER['HTTP_REFERER']) ? $_SERVER['HTTP_REFERER'] : null;
+		if (isset($referer)) {
+			$oParams = new \stdClass;
+			$urlQuery = parse_url($referer, PHP_URL_QUERY);
+			$urlQuery = explode('&', $urlQuery);
+			foreach ($urlQuery as $param) {
+				list($k, $v) = explode('=', $param);
+				$oParams->{$k} = $v;
+			}
+			if (isset($oParams->app)) {
+				$oMatter = new \stdClass;
+				$oMatter->id = $oParams->app;
+				$oMatter->type = 'enroll';
+				unset($oParams->app);
+				if (isset($oParams->site)) {
+					unset($oParams->site);
+				}
+				$rst = $this->model('sns\\' . $sns . '\call\qrcode')->createOneOff($site, 'enroll', $oMatter->id, $oParams);
+				if ($rst[0] === false) {
+					$this->snsFollow($site, $sns, $oMatter);
+				} else {
+					$sceneId = $rst[1]->scene_id;
+					$this->snsFollow($site, $sns, false, $sceneId);
+				}
+			} else {
+				$this->askFollow($site, $sns);
+			}
+		} else {
+			$this->askFollow($site, $sns);
+		}
+	}
 }

@@ -23,7 +23,7 @@ class notice extends \pl\fe\base {
 			return new \ResponseTimeout();
 		}
 
-		$modelTmplBat = $this->model('matter\tmplmsg\batch');
+		$modelTmplBat = $this->model('matter\tmplmsg\plbatch');
 
 		$q = [
 			'*',

@@ -33,8 +33,12 @@ define(['frame'], function(ngApp) {
                 }
             });
         };
-        $scope.editMschema = function(mschemaId) {
-            location.href = '/rest/pl/fe?view=main&scope=user&sid=' + $scope.mission.siteid + '&mschema=' + mschemaId;
+        $scope.editMschema = function(oMschema) {
+            if (oMschema.matter_id === $scope.mission.id) {
+                location.href = '/rest/pl/fe/matter/mission/mschema?site=' + $scope.mission.siteid + '&id=' + $scope.mission.id + '#' + oMschema.id;
+            } else {
+                location.href = '/rest/pl/fe?view=main&scope=user&sid=' + $scope.mission.siteid + '&mschema=' + oMschema.id;
+            }
         };
         $scope.removeMschema = function(mschemaId) {
             if (oEntryRule.member[mschemaId]) {

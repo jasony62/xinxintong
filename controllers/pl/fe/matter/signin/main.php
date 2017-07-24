@@ -27,21 +27,24 @@ class main extends \pl\fe\matter\base {
 			return new \ResponseTimeout();
 		}
 
-		$app = $this->model('matter\signin')->byId($id);
+		$oApp = $this->model('matter\signin')->byId($id);
+		if (false === $oApp) {
+			return new \ObjectNotFoundError();
+		}
 		/*关联登记活动*/
-		if ($app->enroll_app_id) {
-			$app->enrollApp = $this->model('matter\enroll')->byId($app->enroll_app_id, ['cascaded' => 'N']);
+		if ($oApp->enroll_app_id) {
+			$oApp->enrollApp = $this->model('matter\enroll')->byId($oApp->enroll_app_id, ['cascaded' => 'N']);
 		}
 		/*关联分组活动*/
-		if ($app->group_app_id) {
-			$app->groupApp = $this->model('matter\group')->byId($app->group_app_id);
+		if ($oApp->group_app_id) {
+			$oApp->groupApp = $this->model('matter\group')->byId($oApp->group_app_id);
 		}
 		/*所属项目*/
-		if ($app->mission_id) {
-			$app->mission = $this->model('matter\mission')->byId($app->mission_id, ['cascaded' => 'phase']);
+		if ($oApp->mission_id) {
+			$oApp->mission = $this->model('matter\mission')->byId($oApp->mission_id, ['cascaded' => 'phase']);
 		}
 
-		return new \ResponseData($app);
+		return new \ResponseData($oApp);
 	}
 	/**
 	 * 返回签到活动列表

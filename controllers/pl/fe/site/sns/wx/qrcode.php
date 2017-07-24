@@ -137,61 +137,12 @@ class qrcode extends \pl\fe\base {
 			return new \ResponseTimeout();
 		}
 
-		$modelWx = $this->model('sns\wx');
-		$snsSiteId = $site;
-		if (false === ($wxConfig = $modelWx->bySite($snsSiteId)) || $wxConfig->joined !== 'Y') {
-			$snsSiteId = 'platform';
-			$wxConfig = $modelWx->bySite($snsSiteId);
-		}
-
-		if ($wxConfig->can_qrcode === 'N') {
-			return new \ResponseError('公众号还没有开通场景二维码接口');
-		}
-
-		// 清除过期的二维码
-		$current = time();
-		$modelWx->delete('xxt_call_qrcode_wx', "expire_at<>0 and expire_at<=$current");
-
-		// 生成场景ID
-		$scene_id = mt_rand(100001, mt_getrandmax());
-		while (true) {
-			$q = array(
-				'count(*)',
-				'xxt_call_qrcode_wx',
-				"siteid='$site' and expire_at<>0 and scene_id=$scene_id",
-			);
-			if (1 === (int) $modelWx->query_val_ss($q)) {
-				$scene_id = mt_rand(100001, mt_getrandmax());
-			} else {
-				break;
-			}
-		}
-		/**
-		 * 获取二维码
-		 */
-		$proxy = $this->model('sns\wx\proxy', $wxConfig);
-		$rst = $proxy->qrcodeCreate($scene_id);
+		$rst = $this->model('sns\wx\call\qrcode')->createOneOff($site, $matter_type, $matter_id);
 		if ($rst[0] === false) {
 			return new \ResponseError($rst[1]);
 		}
-		$qrcode = $rst[1];
 
-		/**
-		 * 保存数据并返回
-		 */
-		$current = time();
-		$d['siteid'] = $snsSiteId;
-		$d['name'] = '';
-		$d['scene_id'] = $qrcode->scene_id;
-		$d['create_at'] = $current;
-		$d['expire_at'] = $current + $qrcode->expire_seconds - 30;
-		$d['matter_type'] = $matter_type;
-		$d['matter_id'] = $matter_id;
-		$d['pic'] = $qrcode->pic;
-
-		$d['id'] = $modelWx->insert('xxt_call_qrcode_wx', $d, true);
-
-		return new \ResponseData((object) $d);
+		return new \ResponseData($rst[1]);
 	}
 	/**
 	 * 更新的基本信息
@@ -209,7 +160,7 @@ class qrcode extends \pl\fe\base {
 		$rst = $this->model()->update(
 			'xxt_call_qrcode_wx',
 			$nv,
-			"siteid='$site' and id=$id"
+			['siteid' => $site, 'id' => $id]
 		);
 		return new \ResponseData($rst);
 	}

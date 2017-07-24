@@ -47,6 +47,15 @@ class record extends base {
 			header('HTTP/1.0 500 parameter error:app dosen\'t exist.');
 			die('登记活动不存在');
 		}
+		// 判断活动是否添加了轮次
+		if ($oEnrollApp->multi_rounds == 'Y') {
+			$modelRnd = $this->model('matter\enroll\round');
+			$oActiveRnd = $modelRnd->getActive($oEnrollApp);
+			$now = time();
+			if (empty($oActiveRnd) || (!empty($oActiveRnd) && $oActiveRnd->end_at < $now)) {
+				return new \ResponseError('当前活动轮次已结束，不能提交、修改、保存或删除！');
+			}
+		}
 
 		$oUser = $this->who;
 
@@ -164,8 +173,10 @@ class record extends base {
 			$rst = $modelRec->setData($oUser, $oEnrollApp, $ek, $enrolledData, $submitkey, true);
 			/* 登记提交的积分奖励 */
 			$modelMat = $this->model('matter\enroll\coin');
+			$modelMat->setOnlyWriteDbConn(true);
 			$rules = $modelMat->rulesByMatter('site.matter.enroll.submit', $oEnrollApp);
 			$modelCoin = $this->model('site\coin\log');
+			$modelCoin->setOnlyWriteDbConn(true);
 			$modelCoin->award($oEnrollApp, $oUser, 'site.matter.enroll.submit', $rules);
 		} else {
 			/* 重新插入新提交的数据 */
@@ -217,6 +228,7 @@ class record extends base {
 		}
 		/* 更新活动用户轮次数据 */
 		$modelUsr = $this->model('matter\enroll\user');
+		$modelUsr->setOnlyWriteDbConn(true);
 		$oEnrollUsr = $modelUsr->byId($oEnrollApp, $oUser->uid, ['fields' => 'id,nickname,last_enroll_at,enroll_num,user_total_coin', 'rid' => $rid]);
 		if (false === $oEnrollUsr) {
 			$inData = ['last_enroll_at' => time(), 'enroll_num' => 1];
@@ -660,11 +672,14 @@ class record extends base {
 
 		$oApp = $this->model('matter\enroll')->byId($oRecordData->aid, ['cascaded' => 'N']);
 		$modelUsr = $this->model('matter\enroll\user');
+		$modelUsr->setOnlyWriteDbConn(true);
 		if ($incLikeNum > 0) {
 			/* 更新进行点赞的活动用户的积分奖励 */
 			$modelMat = $this->model('matter\enroll\coin');
+			$modelMat->setOnlyWriteDbConn(true);
 			$rulesOther = $modelMat->rulesByMatter('site.matter.enroll.data.other.like', $oApp);
 			$modelCoin = $this->model('site\coin\log');
+			$modelCoin->setOnlyWriteDbConn(true);
 			$modelCoin->award($oApp, $oUser, 'site.matter.enroll.data.other.like', $rulesOther);
 		}
 
@@ -787,8 +802,23 @@ class record extends base {
 	 * @param string $app
 	 */
 	public function remove_action($site, $app, $ek) {
-		$modelRec = $this->model('matter\enroll\record');
+		$modelApp = $this->model('matter\enroll');
+		$oApp = $modelApp->byId($app, ['cascaded' => 'N']);
+		if ($oApp === false) {
+			return new \ObjectNotFoundError();
+		}
 
+		// 判断活动是否添加了轮次
+		if ($oApp->multi_rounds == 'Y') {
+			$modelRnd = $this->model('matter\enroll\round');
+			$oActiveRnd = $modelRnd->getActive($oApp);
+			$now = time();
+			if (empty($oActiveRnd) || (!empty($oActiveRnd) && $oActiveRnd->end_at < $now)) {
+				return new \ResponseError('当前活动轮次已结束，不能提交、修改、保存或删除！');
+			}
+		}
+
+		$modelRec = $this->model('matter\enroll\record');
 		$rst = $modelRec->removeByUser($site, $app, $ek);
 
 		return new \ResponseData($rst);

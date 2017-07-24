@@ -170,7 +170,7 @@ define(['require', 'enrollService', 'enrollSchema', 'enrollPage'], function(requ
                 oApp._tagsById = tagById;
                 oApp.__schemasOrderConsistent = 'Y'; //页面上登记项显示顺序与定义顺序一致
                 $scope.app = oApp;
-                srvSite.memberSchemaList(oApp.mission).then(function(aMemberSchemas) {
+                srvSite.memberSchemaList(oApp).then(function(aMemberSchemas) {
                     $scope.memberSchemas = aMemberSchemas;
                 });
             });

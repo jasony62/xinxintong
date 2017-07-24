@@ -11,16 +11,19 @@ class home extends base {
 	 */
 	public function index_action($site, $template = 'basic') {
 		$modelSite = $this->model('site');
-		$site = $modelSite->byId(
+		$oSite = $modelSite->byId(
 			$site,
 			['fields' => 'id,name,home_page_id,home_page_name,autoup_homepage']
 		);
+		if (false === $oSite) {
+			$this->outputInfo('指定的对象不存在');
+		}
 		//自动更新主页页面
-		if ($site->autoup_homepage === 'Y' && !empty($template)) {
+		if ($oSite->autoup_homepage === 'Y' && !empty($template)) {
 			$template = $modelSite->escape($template);
 
 			$modelCode = $this->model('code\page');
-			$home_page = $modelCode->lastPublishedByName($site->id, $site->home_page_name, ['fields' => 'id,create_at']);
+			$home_page = $modelCode->lastPublishedByName($oSite->id, $oSite->home_page_name, ['fields' => 'id,create_at']);
 
 			$templateDirHtml = TMS_APP_TEMPLATE . '/pl/fe/site/page/home/' . $template . '.html';
 			$templateDirCss = TMS_APP_TEMPLATE . '/pl/fe/site/page/home/' . $template . '.css';
@@ -32,20 +35,16 @@ class home extends base {
 			if ($home_page === false || ($createAtTemplateHtml > $home_page->create_at || $createAtTemplateCss > $home_page->create_at || $createAtTemplateJs > $home_page->create_at)) {
 				//更新主页页面
 				$current = time();
-				$data = $this->_makePage($site->id, 'home', $template);
+				$data = $this->_makePage($oSite->id, 'home', $template);
 				$data['create_at'] = $current;
 				$data['modify_at'] = $current;
-				$rst = $this->model('code\page')->modify($site->{'home_page_id'}, $data);
+				$rst = $this->model('code\page')->modify($oSite->{'home_page_id'}, $data);
 			}
 		}
 
-		if ($site) {
-			\TPL::assign('title', $site->name);
-			\TPL::output('/site/home');
-			exit;
-		} else {
-			$this->outputInfo('指定的对象不存在');
-		}
+		\TPL::assign('title', $oSite->name);
+		\TPL::output('/site/home');
+		exit;
 	}
 	/**
 	 *

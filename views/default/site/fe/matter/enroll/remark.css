@@ -1,6 +1,8 @@
 html,body{height:100%;width:100%;background:#efefef;font-family:Microsoft Yahei,Arial;}
 body{position:relative;font-size:16px;}
 img{max-width:100%}
+button.option{padding:0;}
+.dropdown-menu>li>a{padding-left:20px;}
 .glyphicon-heart{color:red;}
 .bottom-bar{display:flex;}
 .bottom-bar .datetime{color:#777;flex:1;line-height:30px;font-size:.8em;}
@@ -8,11 +10,11 @@ p{word-break:break-all;}
 
 /*record*/
 #recordData{padding:0 1rem 1rem;background:#eee;}
-#recordData .title{margin:.5rem -1rem;background:#ddd;padding:.5rem 1rem;border-bottom:3px ridge #ccc;}
+#recordData .title{margin:0 -1rem .5rem -1rem;background:#ddd;padding:.5rem 1rem;border-bottom:3px ridge #ccc;}
 #recordData blockquote{border-left:5px solid #999;}
 
 /*remark*/
-#remarks{position:relative;background:#fff;padding:1rem;margin-top:1rem;margin-bottom:15px;}
+#remarks{position:relative;background:#fff;padding:1rem;margin-top:1rem;margin-bottom:64px;}
 #remarks:before{content:'评论';position:absolute;left:50%;margin-left:-1em;top:-1em;font-size:.7em;color:#eee;padding:.2em 1em;background:#666;border-radius:1em;}
 #remarks .remark{border-bottom:1px solid #ddd;}
 #remarks .remark:last-child{border-bottom:0;}

@@ -16,7 +16,7 @@
     <header ng-if="app.use_site_header==='Y'" dynamic-html="site.header_page.html"></header>
     <header ng-if="app.use_mission_header==='Y'" dynamic-html="mission.header_page.html"></header>
     <div ng-cloak class='ng-cloak app'>
-        <div class='container' ng-controller="ctrlRank">
+        <div id='rank' class='container' ng-controller="ctrlRank">
             <div class='row'>
                 <div class='col-xs-4'>
                     <select class='form-control' ng-model="appState.criteria.obj">
@@ -49,7 +49,7 @@
                 </div>
             </div>
             <div class='row'>
-                <div class='col-md-12' ng-switch on="appState.criteria.obj">
+                <div ng-switch on="appState.criteria.obj">
                     <table class='table table-striped' ng-switch-when="user">
                         <thead>
                             <tr>
@@ -136,6 +136,7 @@
     <script src="/static/js/angular-sanitize.min.js"></script>
     <script src="/static/js/ui-bootstrap-tpls.min.js"></script>
     <script src="<?php echo auto_version('/bundles/default/site/fe/matter/enroll/rank.js');?>"></script>
+    <div class="tms-switch tms-switch-repos" ng-click="gotoPage($event,'repos')"></div>
 </body>
 
 </html>

@@ -54,17 +54,24 @@ class schema extends \pl\fe\base {
 	 * 获得通讯录定义
 	 *
 	 * @param string $valid
-	 * @param int $mission_id 逗号分隔的项目id，团队通讯录的项目id为0，“0,123”代表团队通讯录和项目123的通讯录
+	 * @param string $matter 逗号分隔的素材id和type，例如：123,mission
+	 * @param string $withSite 是否包含团队下的通讯录
 	 *
 	 */
-	public function list_action($valid = null, $mission = 0) {
+	public function list_action($valid = null, $matter = null, $onlyMatter = 'N') {
 		if (false === ($oUser = $this->accountUser())) {
 			return new \ResponseTimeout();
 		}
 		$modelSchema = $this->model('site\user\memberschema');
 
 		$options = [];
-		$options['mission'] = $mission;
+		$options['onlyMatter'] = $onlyMatter;
+
+		if (isset($matter)) {
+			$oMatter = new \stdClass;
+			list($oMatter->id, $oMatter->type) = explode(',', $matter);
+			$options['matter'] = $oMatter;
+		}
 
 		$schemas = $modelSchema->bySite($this->siteId, $valid, $options);
 
@@ -151,7 +158,8 @@ class schema extends \pl\fe\base {
 		$oCode = $this->_pageCreate($oUser);
 		$oNewMschema = new \stdClass;
 		$oNewMschema->siteid = $this->siteId;
-		$oNewMschema->mission_id = isset($oConfig->mission_id) ? $oConfig->mission_id : 0;
+		$oNewMschema->matter_id = isset($oConfig->matter_id) ? $oConfig->matter_id : '';
+		$oNewMschema->matter_type = isset($oConfig->matter_type) ? $oConfig->matter_type : '';
 		$oNewMschema->title = isset($oConfig->title) ? $oConfig->title : '新通讯录';
 		$oNewMschema->type = 'inner';
 		$oNewMschema->valid = (isset($oConfig->valid) && $oConfig->valid === 'Y') ? 'Y' : 'N';

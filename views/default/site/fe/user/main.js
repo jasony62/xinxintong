@@ -91,6 +91,9 @@ define(['require', 'angular'], function(require, angular) {
                     http2.get('/rest/site/fe/user/favor/count?site=' + siteId).then(function(rsp) {
                         $scope.count.favor = rsp.data;
                     });
+                    http2.get('/rest/site/fe/user/notice/count?site=' + siteId).then(function(rsp) {
+                        $scope.count.notice = rsp.data;
+                    });
                     /*上一次访问状态*/
                     if (window.localStorage) {
                         if (cachedStatus = window.localStorage.getItem("site.fe.user.main")) {

@@ -44,7 +44,7 @@ class log_model extends \TMS_MODEL {
 		$q = [
 			'*',
 			'xxt_coin_log',
-			"userid='$userid' and last_row='Y'",
+			['userid' => $userid, 'last_row' => 'Y'],
 		];
 		$log = $this->query_obj_ss($q);
 

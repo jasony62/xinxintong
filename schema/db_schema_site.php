@@ -304,7 +304,8 @@ if (!$mysqli->query($sql)) {
 $sql = "create table if not exists xxt_site_member_schema(";
 $sql .= "id int not null auto_increment";
 $sql .= ",siteid varchar(32) not null";
-$sql .= ",mission_id int not null default 0"; // 所属项目
+$sql .= ",matter_id varchar(40) not null default ''"; // 所属素材
+$sql .= ",matter_type varchar(20) not null default ''"; // 所属素材
 $sql .= ",title varchar(50) not null";
 $sql .= ",creater varchar(40) not null";
 $sql .= ",create_at int not null";

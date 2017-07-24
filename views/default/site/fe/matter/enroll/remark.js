@@ -2,7 +2,7 @@
 require('./remark.css');
 
 var ngApp = require('./main.js');
-ngApp.controller('ctrlRemark', ['$scope', '$q', 'http2', '$sce', function($scope, $q, http2, $sce) {
+ngApp.controller('ctrlRemark', ['$scope', '$q', 'http2', '$sce', '$uibModal', function($scope, $q, http2, $sce, $uibModal) {
     function listRemarks() {
         var url, defer = $q.defer();
         url = '/rest/site/fe/matter/enroll/remark/list?site=' + oApp.siteid + '&ek=' + ek;
@@ -21,7 +21,7 @@ ngApp.controller('ctrlRemark', ['$scope', '$q', 'http2', '$sce', function($scope
         });
         return defer.promise;
     }
-    var oApp, ek, schemaId;
+    var oApp, aRemarkable, oFilter, ek, schemaId;
     ek = location.search.match(/[\?&]ek=([^&]*)/)[1];
     if (location.search.match(/[\?&]schema=[^&]*/)) {
         schemaId = location.search.match(/[\?&]schema=([^&]*)/)[1];
@@ -29,7 +29,24 @@ ngApp.controller('ctrlRemark', ['$scope', '$q', 'http2', '$sce', function($scope
         schemaId = null;
     }
     $scope.newRemark = {};
-    $scope.filter = {};
+    $scope.filter = oFilter = {};
+    $scope.openOptions = function() {
+        $uibModal.open({
+            templateUrl: 'options.html',
+            controller: ['$scope', '$uibModalInstance', function($scope2, $mi) {
+                $scope2.remarkableSchemas = aRemarkable;
+                $scope2.data = {};
+                $scope2.data.schema = oFilter.schema;
+                $scope2.cancel = function() { $mi.dismiss(); };
+                $scope2.ok = function() {
+                    $mi.close($scope2.data);
+                };
+            }],
+            backdrop: 'static',
+        }).result.then(function(data) {
+            oFilter.schema = data.schema;
+        });
+    };
     $scope.addRemark = function() {
         var url;
         url = '/rest/site/fe/matter/enroll/remark/add?site=' + oApp.siteid + '&ek=' + ek;
@@ -90,10 +107,11 @@ ngApp.controller('ctrlRemark', ['$scope', '$q', 'http2', '$sce', function($scope
         }
         return $sce.trustAsHtml(val);
     };
-
+    $scope.bRequireOption = true;
     $scope.$on('xxt.app.enroll.ready', function(event, params) {
-        var oSchema, aRemarkable = [];
+        var oSchema;
         oApp = params.app;
+        aRemarkable = [];
         $scope.record = params.record;
         for (var i = 0, ii = oApp.dataSchemas.length; i < ii; i++) {
             if (oApp.dataSchemas[i].remarkable && oApp.dataSchemas[i].remarkable === 'Y') {
@@ -104,11 +122,14 @@ ngApp.controller('ctrlRemark', ['$scope', '$q', 'http2', '$sce', function($scope
             }
         }
         if (oSchema) {
-            $scope.filter.schema = oSchema;
+            oFilter.schema = oSchema;
         } else if (aRemarkable.length) {
-            $scope.filter.schema = aRemarkable[0];
+            oFilter.schema = aRemarkable[0];
         }
         $scope.remarkableSchemas = aRemarkable;
+        if (aRemarkable.length <= 1 && $scope.record.userid !== $scope.user.uid) {
+            $scope.bRequireOption = false;
+        }
     });
     $scope.$watch('filter', function(nv) {
         if (nv && nv.schema) {
@@ -118,7 +139,7 @@ ngApp.controller('ctrlRemark', ['$scope', '$q', 'http2', '$sce', function($scope
                 if ($scope.data) {
                     if ($scope.data.tag) {
                         $scope.data.tag.forEach(function(index, tagId) {
-                            if(oApp._tagsById[index]) {
+                            if (oApp._tagsById[index]) {
                                 $scope.data.tag[tagId] = oApp._tagsById[index];
                             }
                         });

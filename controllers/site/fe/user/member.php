@@ -42,6 +42,19 @@ class member extends \site\fe\base {
 			$oMschema2->type = 'mschema';
 			$oMschema2->id = $schema;
 
+			/* 保存页面来源 */
+			if (empty($this->myGetCookie("_{$oSchema->siteid}_mauth_t"))) {
+				if (isset($_SERVER['HTTP_REFERER'])) {
+					$referer = $_SERVER['HTTP_REFERER'];
+					if (!empty($referer) && !in_array($referer, array('/'))) {
+						if (false === strpos($referer, '/fe/user/member')) {
+							$referer = $modelSiteUser->encrypt($referer, 'ENCODE', $oSchema->siteid);
+							$this->mySetCookie("_{$oSchema->siteid}_mauth_t", $referer, time() + 600);
+						}
+					}
+				}
+			}
+
 			if ($oSchema->is_wx_fan === 'Y') {
 				if (empty($siteUser->wx_openid)) {
 					$this->snsFollow($oSchema->siteid, 'wx', $oMschema2);

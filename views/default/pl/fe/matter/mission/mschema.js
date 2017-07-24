@@ -1,6 +1,6 @@
 define(['frame'], function(ngApp) {
     'use strict';
-    ngApp.provider.controller('ctrlMschema', ['$scope', '$uibModal', 'http2', 'srvSite', function($scope, $uibModal, http2, srvSite) {
+    ngApp.provider.controller('ctrlMschema', ['$scope', '$location', '$uibModal', 'http2', 'srvSite', function($scope, $location, $uibModal, http2, srvSite) {
         function listInvite(oSchema) {
             http2.get('/rest/pl/fe/site/member/invite/list?schema=' + oSchema.id, function(rsp) {
                 $scope.invites = rsp.data.invites;
@@ -32,6 +32,7 @@ define(['frame'], function(ngApp) {
                     keyword: '',
                     searchBy: $scope.searchBys[0].v
                 };
+                $location.hash(mschema.id);
                 $scope.doSearch(1);
                 listInvite(mschema);
             }
@@ -209,9 +210,19 @@ define(['frame'], function(ngApp) {
         $scope.$watch('mission', function(oMission) {
             if (!oMission) return;
             srvSite.memberSchemaList(oMission, true).then(function(aMemberSchemas) {
+                var hashMschemaId = $location.hash();
                 $scope.mschemas = aMemberSchemas;
                 if ($scope.mschemas.length) {
-                    selected.mschema = $scope.mschemas[0];
+                    if (hashMschemaId) {
+                        for (var i = $scope.mschemas.length - 1; i >= 0; i--) {
+                            if ($scope.mschemas[i].id === hashMschemaId) {
+                                selected.mschema = $scope.mschemas[i];
+                                break;
+                            }
+                        }
+                    } else {
+                        selected.mschema = $scope.mschemas[0];
+                    }
                     $scope.chooseMschema();
                 }
             });

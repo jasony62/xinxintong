@@ -15,14 +15,17 @@ div[wrap=filter] .detail .actions .btn{border-radius:0}
 
 /*switch*/
 
-.tms-switch{position:fixed;right:15px;width:48px;height:48px;background:rgba(192,192,192,0.5);border-radius:4px;color:#666;font-size:24px;line-height:48px;text-align:center;cursor:pointer;}
+.tms-switch{position:fixed;right:15px;width:48px;height:48px;background:rgba(192,192,192,0.5);border-radius:4px;color:#666;font-size:24px;line-height:48px;text-align:center;cursor:pointer;z-index:1050;}
 .tms-switch:before{font-size:0.7em;}
 .tms-switch:nth-last-of-type(1){bottom:8px;}
 .tms-switch:nth-last-of-type(2){bottom:64px;}
 .tms-switch:nth-last-of-type(3){bottom:120px;}
 .tms-switch:nth-last-of-type(4){bottom:176px;}
 .tms-switch:nth-last-of-type(5){bottom:236px;}
+.tms-switch-back:before{content:'返回';}
 .tms-switch-save:before{content:'保存';}
+.tms-switch-rank:before{content:'排行';}
+.tms-switch-repos:before{content:'共享';}
 .tms-switch-favor:before{content:'收藏';}
 .tms-switch-favor.favored{background:rgba(132,255,192,0.5);}
 .tms-switch-coinpay:before{content:'打赏';}

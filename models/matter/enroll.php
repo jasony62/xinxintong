@@ -19,25 +19,28 @@ class enroll_model extends app_base {
 		return 'enroll';
 	}
 	/**
-	 * @param string $ver 为了兼容老版本，迁移后应该去掉
+	 *
 	 */
-	public function getEntryUrl($siteId, $id, $ver = 'NEW') {
+	public function getEntryUrl($siteId, $id, $oParams = null) {
 		$url = 'http://' . APP_HTTP_HOST;
 
-		if ($ver === 'OLD') {
-			$url .= "/rest/app/enroll";
-			$url .= "?mpid={$siteId}&aid=" . $id;
-		} else {
-			if ($siteId === 'platform') {
-				if ($oApp = $this->byId($id, ['cascaded' => 'N'])) {
-					$url .= "/rest/site/fe/matter/enroll";
-					$url .= "?site={$oApp->siteid}&app=" . $id;
-				} else {
-					$url = 'http://' . APP_HTTP_HOST . '/404.html';
-				}
-			} else {
+		if ($siteId === 'platform') {
+			if ($oApp = $this->byId($id, ['cascaded' => 'N'])) {
 				$url .= "/rest/site/fe/matter/enroll";
-				$url .= "?site={$siteId}&app=" . $id;
+				$url .= "?site={$oApp->siteid}&app=" . $id;
+			} else {
+				$url = 'http://' . APP_HTTP_HOST . '/404.html';
+			}
+		} else {
+			$url .= "/rest/site/fe/matter/enroll";
+			$url .= "?site={$siteId}&app=" . $id;
+		}
+
+		if (isset($oParams) && is_object($oParams)) {
+			foreach ($oParams as $k => $v) {
+				if (is_string($v)) {
+					$url .= '&' . $k . '=' . $v;
+				}
 			}
 		}
 

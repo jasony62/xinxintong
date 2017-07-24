@@ -2,7 +2,12 @@
     <nav class='navbar navbar-default'>
         <div class='container-fluid'>
             <form class='navbar-form navbar-left'>
-                <select class='form-control' ng-if="rule.scope=='member'" ng-model="criteria.mschema" ng-options="mschema.title for mschema in mschemas" ng-change="searchEnrollee()"></select>
+                <div class='input-group' ng-if="rule.scope=='member'">
+                    <select class='form-control' ng-model="criteria.mschema" ng-options="mschema.title for mschema in mschemas" ng-change="searchEnrollee()"></select>
+                    <div class='input-group-btn'>
+                        <a class='btn btn-default' href='' target='_self' ng-click="gotoMschema(criteria.mschema)"><span class='glyphicon glyphicon-edit'></span></a>
+                    </div>
+                </div>
                 <select class='form-control' ng-if="rounds.length>0" ng-model="criteria.rid">
                     <option value=''>全部轮次</option>
                     <option value="{{rnd.rid}}" ng-repeat="rnd in rounds">{{rnd.title}}</option>

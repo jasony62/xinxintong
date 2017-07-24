@@ -60,7 +60,7 @@ class memberschema_model extends \TMS_MODEL {
 	 */
 	public function overview($schemaId) {
 		$q = [
-			'id,title,require_invite,is_qy_fan,is_wx_fan,is_yx_fan,attr_mobile,attr_email,attr_name,extattr',
+			'id,matter_id,matter_type,title,require_invite,is_qy_fan,is_wx_fan,is_yx_fan,attr_mobile,attr_email,attr_name,extattr',
 			'xxt_site_member_schema',
 			['id' => $schemaId],
 		];
@@ -83,11 +83,14 @@ class memberschema_model extends \TMS_MODEL {
 		return $oMschema;
 	}
 	/**
+	 * 获得团队下的通讯录
 	 *
 	 * @param string $siteId
 	 * @param string $valid [null|Y|N]
 	 */
 	public function &bySite($siteId, $valid = null, $options = []) {
+		$onlyMatter = isset($options['onlyMatter']) ? $options['onlyMatter'] : 'Y';
+
 		$siteId = $this->escape($siteId);
 		$where = "siteid='$siteId'";
 
@@ -98,9 +101,23 @@ class memberschema_model extends \TMS_MODEL {
 				$where .= " and valid='N'";
 			}
 		}
-
-		if (isset($options['mission'])) {
-			$where .= ' and mission_id in (' . $options['mission'] . ')';
+		if (isset($options['matter'])) {
+			$oMatter = $options['matter'];
+			if ($onlyMatter === 'Y') {
+				$where .= ' and (matter_id = \'' . $oMatter->id . '\' and matter_type=\'' . $oMatter->type . '\')';
+			} else {
+				$oMatter = $this->model('matter\\' . $oMatter->type)->byId($oMatter->id, ['cascaded' => 'N']);
+				$where .= ' and (';
+				$where .= ' (matter_id = \'' . $oMatter->id . '\' and matter_type=\'' . $oMatter->type . '\')';
+				$where .= ' or matter_id=\'\''; // 团队下的通讯录
+				if ($oMatter->type !== 'mission' && !empty($oMatter->mission_id)) {
+					$where .= ' or (matter_id=\'' . $oMatter->mission_id . '\' and matter_type=\'mission\')'; // 项目下的通讯录
+				}
+				$where .= ')';
+			}
+		} else {
+			/* 直接属于团队下的通讯录 */
+			$where .= ' and matter_id = \'\'';
 		}
 
 		if (isset($options['atUserHome'])) {
@@ -197,7 +214,7 @@ class memberschema_model extends \TMS_MODEL {
 	 *
 	 */
 	public function getEntryUrl($siteId, $mschemaId) {
-		$url = "http://" . $_SERVER['HTTP_HOST'];
+		$url = "http://" . APP_HTTP_HOST;
 		$url .= '/rest/site/fe/user/member';
 		$url .= "?site={$siteId}&schema={$mschemaId}";
 

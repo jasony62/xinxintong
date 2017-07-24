@@ -21,7 +21,7 @@ define(['frame'], function(ngApp) {
             srvSigninApp.changeUserScope($scope.rule.scope, $scope.sns, $scope.memberSchemas, $scope.jumpPages.defaultInput);
         };
         $scope.chooseMschema = function() {
-            srvSite.chooseMschema().then(function(result) {
+            srvSite.chooseMschema($scope.app).then(function(result) {
                 var rule = {};
                 if (!oEntryRule.member[result.chosen.id]) {
                     if ($scope.jumpPages.defaultInput) {
@@ -34,8 +34,16 @@ define(['frame'], function(ngApp) {
                 }
             });
         };
-        $scope.editMschema = function(mschemaId) {
-            location.href = '/rest/pl/fe?view=main&scope=user&sid=' + $scope.app.siteid + '&mschema=' + mschemaId;
+        $scope.editMschema = function(oMschema) {
+            if (oMschema.matter_id) {
+                if (oMschema.matter_type === 'mission') {
+                    location.href = '/rest/pl/fe/matter/mission/mschema?id=' + oMschema.matter_id + '&site=' + $scope.app.siteid + '#' + oMschema.id;
+                } else {
+                    location.href = '/rest/pl/fe/site/mschema?site=' + $scope.app.siteid + '#' + oMschema.id;
+                }
+            } else {
+                location.href = '/rest/pl/fe?view=main&scope=user&sid=' + $scope.app.siteid + '#' + oMschema.id;
+            }
         };
         $scope.removeMschema = function(mschemaId) {
             if (oEntryRule.member[mschemaId]) {

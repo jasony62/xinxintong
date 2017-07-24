@@ -128,10 +128,10 @@ define(['require', 'page', 'schema', 'signinService', 'enrollSchema', 'enrollPag
         });
         srvSite.snsList().then(function(oSns) {
             $scope.sns = oSns;
-            srvSigninApp.get().then(function(app) {
-                $scope.app = app;
-                app.__schemasOrderConsistent = 'Y'; //页面上登记项显示顺序与定义顺序一致
-                srvSite.memberSchemaList(app.mission).then(function(aMemberSchemas) {
+            srvSigninApp.get().then(function(oApp) {
+                $scope.app = oApp;
+                oApp.__schemasOrderConsistent = 'Y'; //页面上登记项显示顺序与定义顺序一致
+                srvSite.memberSchemaList(oApp).then(function(aMemberSchemas) {
                     $scope.memberSchemas = aMemberSchemas;
                 });
             });

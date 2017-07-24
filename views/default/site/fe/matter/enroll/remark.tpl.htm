@@ -18,11 +18,23 @@
     <div ng-cloak class='ng-cloak app' ng-controller="ctrlRemark">
         <div class='container'>
             <div class='row'>
-                <div class='form-group' ng-if="remarkableSchemas.length">
-                    <select class='form-control' ng-options="rs.title for rs in remarkableSchemas" ng-model="filter.schema"></select>
-                </div>
                 <div id='recordData'>
-                    <div class='title'>{{filter.schema.title}}</div>
+                    <div class='title'>
+                        <div class="btn-group pull-right" uib-dropdown ng-if="bRequireOption">
+                            <button class="option" uib-dropdown-toggle>
+                                <span class="glyphicon glyphicon-option-vertical"></span>
+                            </button>
+                            <ul class="dropdown-menu" uib-dropdown-menu>
+                                <li>
+                                    <a href='' ng-click="gotoRecord()" ng-if="record.userid===user.uid">查看记录</a>
+                                </li>
+                                <li>
+                                    <a href='' ng-click="openOptions()" nh-if="remarkableSchemas.length">查看其他题目</a>
+                                </li>
+                            </ul>
+                        </div>
+                        <span>{{filter.schema.title}}</span>
+                    </div>
                     <blockquote ng-switch on="filter.schema.type">
                         <p ng-switch-when="single"><span>{{value2Label(filter.schema.id)}}</span></p>
                         <p ng-switch-when="multiple"><span>{{value2Label(filter.schema.id)}}</span></p>
@@ -63,15 +75,9 @@
                     </div>
                     <div class='input-group' ng-if="params.actionRule.passed==='Y'">
                         <textarea class='form-control' ng-model="newRemark.content"></textarea>
-                        <span class='input-group-btn' style='padding-left:15px'>
-                        <button class='btn btn-success' ng-click="addRemark()">发布</button>
-                    </span>
-                    </div>
-                </div>
-                <div id='bottomActions' class='form-group'>
-                    <div class='form-inline text-center'>
-                        <button class='btn btn-default' ng-if="historyLen()" ng-click="back()">返回</button>
-                        <button class='btn btn-default' ng-click="gotoRecord()" ng-if="record.userid===user.uid">查看记录</button>
+                        <div class='input-group-btn' style='padding-left:15px'>
+                            <button class='btn btn-success' ng-click="addRemark()">发布</button>
+                        </div>
                     </div>
                 </div>
             </div>
@@ -82,11 +88,26 @@
     <div class="loading">
         <div class='loading-indicator'><i></i></div>
     </div>
+    <script type="text/ng-template" id="options.html">
+        <div class="modal-body">
+            <div class='form-group' ng-if="remarkableSchemas.length">
+                <label>选择当前记录的其他题目</label>
+                <select class='form-control' ng-options="rs.title for rs in remarkableSchemas" ng-model="data.schema"></select>
+            </div>
+        </div>
+        <div class="modal-footer">
+            <button class="btn btn-default" ng-click="cancel()">关闭</button>
+            <button class="btn btn-default" ng-click="ok()">完成</button>
+        </div>
+    </script>
     <script src="/static/js/xxt.ui.error.js"></script>
     <script src="/static/js/angular.min.js"></script>
     <script src="/static/js/angular-sanitize.min.js"></script>
     <script src="/static/js/ui-bootstrap-tpls.min.js"></script>
     <script src="<?php echo auto_version('/bundles/default/site/fe/matter/enroll/remark.js');?>"></script>
+    <div class="tms-switch tms-switch-back" ng-click="back()" ng-if="historyLen()"></div>
+    <div class="tms-switch tms-switch-repos" ng-click="gotoPage($event,'repos')"></div>
+    <div class="tms-switch tms-switch-rank" ng-click="gotoPage($event,'rank')"></div>
 </body>
 
 </html>

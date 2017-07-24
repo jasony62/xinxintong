@@ -1,4 +1,5 @@
 'use strict';
+require('./rank.css');
 
 var ngApp = require('./main.js');
 ngApp.controller('ctrlRank', ['$scope', '$q', '$sce', 'http2', 'ls', function($scope, $q, $sce, http2, LS) {

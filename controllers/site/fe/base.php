@@ -165,7 +165,7 @@ class base extends \site\base {
 	 * $state OAuth回调时携带的参数
 	 */
 	protected function snsOAuth(&$snsConfig, $snsName) {
-		$ruri = "http://" . $_SERVER['HTTP_HOST'] . $_SERVER['REQUEST_URI'];
+		$ruri = 'http://' . APP_HTTP_HOST . $_SERVER['REQUEST_URI'];
 
 		switch ($snsName) {
 		case 'qy':
@@ -203,17 +203,19 @@ class base extends \site\base {
 	protected function snsOAuthUserByCode($site, $code, $snsName) {
 		$modelSns = $this->model('sns\\' . $snsName);
 		$snsConfig = $modelSns->bySite($site);
-		if ($snsConfig === false || $snsConfig->joined !== 'Y') {
+		if (($snsConfig === false || $snsConfig->joined !== 'Y') && $snsName === 'wx') {
 			$snsConfig = $modelSns->bySite('platform');
+		}
+		if ($snsConfig === false) {
+			return false;
 		}
 		$snsProxy = $this->model('sns\\' . $snsName . '\proxy', $snsConfig);
 		$rst = $snsProxy->getOAuthUser($code);
 		if ($rst[0] === false) {
-			$this->model('log')->log($site, 'snsOAuthUserByCode', 'xxt oauth2 failed: ' . $rst[1]);
+			$this->model('log')->log($site, 'snsOAuthUserByCode', 'xxt oauth2 failed: ' . $rst[1], null, $_SERVER['REQUEST_URI']);
 			$snsUser = false;
 		} else {
 			$snsUser = $rst[1];
-
 		}
 
 		return $snsUser;
@@ -311,10 +313,13 @@ class base extends \site\base {
 	 * @param string $snsName
 	 *
 	 */
-	protected function snsFollow($siteId, $snsName, $matter = null) {
+	protected function snsFollow($siteId, $snsName, $oMatter = null, $sceneId = null) {
 		$followUrl = '/rest/site/fe/user/follow?site=' . $siteId . '&sns=' . $snsName;
-		if (!empty($matter)) {
-			$followUrl .= '&matter=' . $matter->type . ',' . $matter->id;
+
+		if (!empty($sceneId)) {
+			$followUrl .= '&sceneid=' . $sceneId;
+		} else if (!empty($oMatter)) {
+			$followUrl .= '&matter=' . $oMatter->type . ',' . $oMatter->id;
 		}
 
 		$this->redirect($followUrl);
@@ -322,8 +327,8 @@ class base extends \site\base {
 	/**
 	 * 返回全局的邀请关注页面
 	 */
-	public function askFollow_action($site, $snsName) {
-		$this->askFollow($site, $snsName);
+	public function askFollow_action($site, $sns) {
+		$this->askFollow($site, $sns);
 	}
 	/**
 	 * 微信jssdk包

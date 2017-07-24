@@ -76,6 +76,7 @@ class round_model extends \TMS_MODEL {
 			'title' => empty($props->title) ? '' : $this->escape($props->title),
 			'state' => isset($props->state) ? $props->state : 0,
 			'start_at' => empty($props->start_at) ? 0 : $props->start_at,
+			'end_at' => empty($props->end_at) ? 0 : $props->end_at,
 		];
 		$this->insert('xxt_enroll_round', $round, false);
 

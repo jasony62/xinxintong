@@ -50,6 +50,14 @@
         <label>
             <input type='checkbox' ng-true-value="'Y'" ng-false-value="'N'" ng-model="app.can_siteuser" ng-change="update('can_siteuser')">开放用户主页</label>
     </div>
+    <div class='checkbox'>
+        <label>
+            <input type='checkbox' ng-true-value="'Y'" ng-false-value="'N'" ng-model="app.can_repos" ng-change="update('can_repos')">开放共享页</label>
+    </div>
+    <div class='checkbox'>
+        <label>
+            <input type='checkbox' ng-true-value="'Y'" ng-false-value="'N'" ng-model="app.can_rank" ng-change="update('can_rank')">开放排行页</label>
+    </div>
     <hr>
     <button class='btn btn-default btn-block' ng-click="shareAsTemplate()">生成模版</button>
     <button class='btn btn-default btn-block' ng-click="exportAsTemplate()">导出模版</button>

@@ -14,7 +14,7 @@ class log_model extends \TMS_MODEL {
 	 */
 	public function award(&$matter, &$actor, $act, $rules = []) {
 		$modelMat = $this->model('matter\\' . $matter->type . '\coin');
-		if(empty($rules)){
+		if (empty($rules)) {
 			$rules = $modelMat->rulesByMatter($act, $matter);
 		}
 		foreach ($rules as $rule) {
@@ -36,7 +36,7 @@ class log_model extends \TMS_MODEL {
 		$q = [
 			'*',
 			'xxt_coin_log',
-			"userid='$userid' and last_row='Y'",
+			['userid' => $userid, 'last_row' => 'Y'],
 		];
 		$log = $this->query_obj_ss($q);
 

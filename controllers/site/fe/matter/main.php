@@ -179,17 +179,21 @@ class main extends \site\fe\matter\base {
 		 */
 		if ($type === 'article') {
 			$modelCoin = $this->model('site\coin\log');
+			$modelCoin->setOnlyWriteDbConn(true);
 			$matter = $this->model('matter\article')->byId($id);
 			$modelCoin->award($matter, $user, 'site.matter.article.read');
 		} else if ($type === 'enroll') {
 			$matter = $this->model('matter\enroll')->byId($id, ['cascaded' => 'N']);
 			$modelMat = $this->model('matter\enroll\coin');
+			$modelMat->setOnlyWriteDbConn(true);
 			$rules = $modelMat->rulesByMatter('site.matter.enroll.read', $matter);
 			$modelCoin = $this->model('site\coin\log');
+			$modelCoin->setOnlyWriteDbConn(true);
 			$modelCoin->award($matter, $user, 'site.matter.enroll.read', $rules);
 
 			/* 更新活动用户总数据 */
 			$modelUsr = $this->model('matter\enroll\user');
+			$modelUsr->setOnlyWriteDbConn(true);
 			$oEnrollUsrALL = $modelUsr->byId($matter, $user->uid, ['fields' => 'id,nickname,last_enroll_at,user_total_coin', 'rid' => 'ALL']);
 			if (false === $oEnrollUsrALL) {
 				$inDataALL = ['last_enroll_at' => time()];
@@ -339,6 +343,7 @@ class main extends \site\fe\matter\base {
 
 			/* 更新活动用户轮次数据 */
 			$modelUsr = $this->model('matter\enroll\user');
+			$modelUsr->setOnlyWriteDbConn(true);
 			$oEnrollUsr = $modelUsr->byId($matter, $user->uid, ['fields' => 'id,nickname,last_enroll_at,user_total_coin', 'rid' => $rid]);
 			if (false === $oEnrollUsr) {
 				$inData = ['last_enroll_at' => time()];

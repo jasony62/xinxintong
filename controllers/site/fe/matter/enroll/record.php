@@ -52,7 +52,7 @@ class record extends base {
 			$modelRnd = $this->model('matter\enroll\round');
 			$oActiveRnd = $modelRnd->getActive($oEnrollApp);
 			$now = time();
-			if (empty($oActiveRnd) || (!empty($oActiveRnd) && $oActiveRnd->end_at!=0 && $oActiveRnd->end_at < $now)) {
+			if (empty($oActiveRnd) || (!empty($oActiveRnd) && ($oActiveRnd->end_at!=0) && $oActiveRnd->end_at < $now)) {
 				return new \ResponseError('当前活动轮次已结束，不能提交、修改、保存或删除！');
 			}
 		}
@@ -813,7 +813,7 @@ class record extends base {
 			$modelRnd = $this->model('matter\enroll\round');
 			$oActiveRnd = $modelRnd->getActive($oApp);
 			$now = time();
-			if (empty($oActiveRnd) || (!empty($oActiveRnd) && $oActiveRnd->end_at!=0 && $oActiveRnd->end_at < $now)) {
+			if (empty($oActiveRnd) || (!empty($oActiveRnd) && ($oActiveRnd->end_at!=0) && $oActiveRnd->end_at < $now)) {
 				return new \ResponseError('当前活动轮次已结束，不能提交、修改、保存或删除！');
 			}
 		}

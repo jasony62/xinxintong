@@ -52,16 +52,16 @@ class main extends base {
 
 		/* 返回登记活动页面 */
 		if ($page === 'repos') {
-			\TPL::assign('title', '所有数据-' . $oApp->title);
+			\TPL::assign('title', $oApp->title);
 			\TPL::output('/site/fe/matter/enroll/repos');
 		} elseif ($page === 'remark') {
-			\TPL::assign('title', '评论-' . $oApp->title);
+			\TPL::assign('title', $oApp->title);
 			\TPL::output('/site/fe/matter/enroll/remark');
 		} elseif ($page === 'rank') {
-			\TPL::assign('title', '排行榜-' . $oApp->title);
+			\TPL::assign('title', $oApp->title);
 			\TPL::output('/site/fe/matter/enroll/rank');
 		} elseif ($page === 'score') {
-			\TPL::assign('title', '测验结果-' . $oApp->title);
+			\TPL::assign('title', $oApp->title);
 			\TPL::output('/site/fe/matter/enroll/score');
 		} else {
 			if (empty($page)) {
@@ -72,22 +72,22 @@ class main extends base {
 			}
 			empty($oOpenPage) && $this->outputError('没有可访问的页面');
 			if ($oOpenPage->name === 'repos') {
-				\TPL::assign('title', '所有数据-' . $oApp->title);
+				\TPL::assign('title', $oApp->title);
 				\TPL::output('/site/fe/matter/enroll/repos');
 			} else if ($oOpenPage->name === 'rank') {
-				\TPL::assign('title', '排行榜-' . $oApp->title);
+				\TPL::assign('title', $oApp->title);
 				\TPL::output('/site/fe/matter/enroll/rank');
 			} elseif ($oOpenPage->name === 'score') {
-				\TPL::assign('title', '测验结果-' . $oApp->title);
+				\TPL::assign('title', $oApp->title);
 				\TPL::output('/site/fe/matter/enroll/score');
 			} else if ($oOpenPage->type === 'I') {
-				\TPL::assign('title', $oOpenPage->title . '-' . $oApp->title);
+				\TPL::assign('title', $oApp->title);
 				\TPL::output('/site/fe/matter/enroll/input');
 			} else if ($oOpenPage->type === 'V') {
-				\TPL::assign('title', $oOpenPage->title . '-' . $oApp->title);
+				\TPL::assign('title', $oApp->title);
 				\TPL::output('/site/fe/matter/enroll/view');
 			} else if ($oOpenPage->type === 'L') {
-				\TPL::assign('title', $oOpenPage->title . '-' . $oApp->title);
+				\TPL::assign('title', $oApp->title);
 				\TPL::output('/site/fe/matter/enroll/list');
 			}
 		}

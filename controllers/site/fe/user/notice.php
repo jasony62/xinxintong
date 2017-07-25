@@ -40,7 +40,14 @@ class notice extends \site\fe\base {
 					$log->data = json_decode($log->data);
 				}
 				if ($log->batch_id) {
-					$log->batch = $modelBat->byId($log->batch_id, ['fields' => 'create_at,remark']);
+					if ($log->batch = $modelBat->byId($log->batch_id, ['fields' => 'create_at,remark,params'])) {
+						if(!empty($log->batch->params)){
+							$log->batch->params = json_decode($log->batch->params);
+							if(!empty($log->batch->params->url)){
+								$log->batch->remark .= "\n<a href = " . $log->batch->params->url . ">查看详情</a>";
+							}
+						}
+					}
 				}
 			}
 		}
@@ -78,7 +85,14 @@ class notice extends \site\fe\base {
 			if (!empty($log->data)) {
 				$log->data = json_decode($log->data);
 			}
-			$batch = $modelTmplBat->byId($log->batch_id);
+			if ($batch = $modelTmplBat->byId($log->batch_id)) {
+				if(!empty($batch->params)){
+					$batch->params = json_decode($batch->params);
+					if(!empty($batch->params->url)){
+						$batch->remark .= "\n<a href = " . $batch->params->url . ">查看详情</a>";
+					}
+				}
+			}
 			$log->batch = $batch;
 		}
 		$result->logs = $logs;

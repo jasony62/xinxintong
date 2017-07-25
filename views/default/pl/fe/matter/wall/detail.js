@@ -3,7 +3,7 @@ define(['frame'], function(ngApp) {
     /**
      * app setting controller
      */
-    ngApp.provider.controller('ctrlDetail', ['$scope', 'mediagallery', 'srvWallApp', function($scope, mediagallery, srvWallApp) {
+    ngApp.provider.controller('ctrlDetail', ['$scope', 'http2', 'mediagallery', 'srvWallApp', function($scope, http2, mediagallery, srvWallApp) {
         (function() {
             new ZeroClipboard(document.querySelectorAll('.text2Clipboard'));
         })();
@@ -15,6 +15,15 @@ define(['frame'], function(ngApp) {
         $scope.end = function() {
             $scope.wall.active = 'N';
             $scope.update('active');
+        };
+        $scope.del = function() {
+            var vcode;
+            vcode = prompt('如果此信息墙中没有用户，删除后不可恢复！若要继续请输入信息墙名称');
+            if (vcode === $scope.wall.title) {
+                http2.get('/rest/pl/fe/matter/wall/remove?site=' + $scope.wall.siteid + '&app=' + $scope.wall.id, function(rsp) {
+                   location.href = '/rest/pl/fe';
+                });
+            }
         };
         $scope.setPic = function() {
             var options = {

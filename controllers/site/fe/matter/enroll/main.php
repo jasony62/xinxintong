@@ -250,6 +250,8 @@ class main extends base {
 			return new \ResponseError('指定的登记活动不存在，请检查参数是否正确');
 		}
 		unset($oApp->data_schemas);
+		unset($oApp->round_cron);
+		unset($oApp->rp_config);
 
 		$params = [];
 		$params['app'] = &$oApp;

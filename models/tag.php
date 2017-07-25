@@ -195,4 +195,81 @@ class tag_model extends TMS_MODEL {
 
 		return true;
 	}
+	/**
+	 * 保存标签
+	 */
+	public function save2($site, $user, $resId, $resType, $subType, $tags){
+		$current = time();
+		if (!empty($tags)) {
+			$addTags = [];
+			foreach ($tags as $tag) {
+				if (!isset($tag->id)) {
+					/**
+					 * 标签是否已经存在？
+					 */
+					$q = array(
+						'id',
+						'xxt_tag',
+						"(mpid='$site' or siteid='$site') and title='$tag->title'",
+					);
+					if (!($tag_id = $this->query_obj_ss($q))) {
+						$seq = $this->getSeqMax($site);
+						/**
+						 * 不存在，创建新标签
+						 */
+						
+						$tag_id = $this->insert('xxt_tag',
+							array(
+								'siteid' => $site,
+								'mpid' => $site,
+								'creater' => $user->id,
+								'creater_name' => $user->name,
+								'creater_at' => $current,
+								'title' => $tag->title,
+								'seq' => $seq + 1,
+							),
+							true
+						);
+						$tag->id = (string)$tag_id;
+					}else{
+						$tag->id = (string)$tag_id->id;
+					}
+				}
+				$addTags[] = $tag->id;
+			}
+			if(empty($addTags)){
+				return 'ok';
+			}
+			$addTags = array_unique($addTags);
+			$addTags = json_encode($addTags);//需要保证id是字符串
+			//记录活动标签
+			if($subType === 'content'){
+				$this->update(
+						'xxt_' . $resType,
+						['matter_cont_tag' => $addTags],
+						['id' => $resId]
+					);
+			}elseif($subType === 'management'){
+				$this->update(
+						'xxt_' . $resType,
+						['matter_mg_tag' => $addTags],
+						['id' => $resId]
+					);
+			}
+		}
+	}
+	/**
+	 * 获取当前团队中最大排序
+	 */
+	private function getSeqMax($site){
+		$q = [
+			'max(seq)',
+			'xxt_tag',
+			"siteid = $site or mpid = $site"
+		];
+
+		$seq = (int)$this->query_val_ss($q);
+
+		return $seq;
+	}
 }

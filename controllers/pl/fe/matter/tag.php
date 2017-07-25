@@ -17,4 +17,23 @@ class tag extends \pl\fe\base {
 
 		return new \ResponseData($tags);
 	}
+	/**
+	 * 添加内容的标签
+	 *  @param string $resType 素材类型
+	 *  @param string $resId 素材id
+	 *  @param string $subType 标签类型
+	 */
+	public function add_action($site, $resId, $resType, $subType = 1) {
+		if (false === ($user = $this->accountUser())) {
+			return new \ResponseTimeout();
+		}
+
+		$tags = $this->getPostJson();
+
+		$model = $this->model('tag');
+		$model->setOnlyWriteDbConn(true);
+		$model->save2($site, $user, $resId, $resType, $subType, $tags);
+
+		return new \ResponseData('ok');
+	}
 }

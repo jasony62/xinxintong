@@ -166,7 +166,7 @@
         <div class="gotalk" ng-show="active">
             <div class="talk-qrcodes" ng-if="site.home_qrcode_group">
                 <div class="talk-qrcode" ng-repeat="q in site.home_qrcode_group">
-                    <span ng-bind="{{q.tip}}"></span>
+                    <span ng-bind="q.tip"></span>
                     <img class="qrcode" ng-src="{{q.picUrl}}" />
                 </div>
             </div>

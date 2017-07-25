@@ -26,7 +26,7 @@
                         </tr>
                     </thead>
                     <tbody>
-                        <tr ng-repeat="tag in tags">
+                        <tr ng-repeat="tag in tags" ng-click="list4Schema($event,tag)" style="cursor: pointer;">
                             <td>{{(page.at-1)*page.size+$index+1}}</td>
                             <td>{{(tag.create_at*1000)|date:'MM-dd HH:mm'}}</td>
                             <td>{{scopeNames[tag.creater_src]}}</td>
@@ -48,6 +48,36 @@
                     <span style="margin-right:20px;line-height:2;">总数：{{page.total}}</span>
                     <ul uib-pagination style="margin:0;vertical-align:bottom;cursor:pointer;" ng-show="page.total>page.size" boundary-links="true" total-items="page.total" max-size="7" items-per-page="page.size" rotate="false" ng-model="page.at" previous-text="&lsaquo;" next-text="&rsaquo;" first-text="&laquo;" last-text="&raquo;" ng-change="doSearch()"></ul>
                 </div>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-6">
+        <div class='form-group'>
+            <div class='records'>
+                <div class='record' ng-repeat="rec in records">
+                    <div>
+                        <span ng-if="schemaCount>1" class="label label-default">{{schemas[rec.schema_id].title}}</span>
+                    </div>
+                    <blockquote ng-switch on="schemas[rec.schema_id].type" ng-click="gotoRemark(rec)">
+                        <p ng-switch-when="single"><span>{{value2Label(rec.value,rec.schema_id)}}</span></p>
+                        <p ng-switch-when="multiple"><span>{{value2Label(rec.value,rec.schema_id)}}</span></p>
+                        <p ng-switch-when="image"><img ng-src="{{rec.value}}"></p>
+                        <p ng-switch-default>{{rec.value}}</p>
+                        <p ng-if="schemas[rec.schema_id].cantag==='Y'" class='tags'>
+                            <span class="tag" ng-repeat="t in rec.tag">{{t.label}}</span>
+                        </p>
+                        <p ng-if="schemas[rec.schema_id].supplement==='Y'" class='supplement'>{{rec.supplement}}</p>
+                        <footer>{{rec.nickname||'匿名用户'}}</footer>
+                    </blockquote>
+                    <div class='bottom-bar'>
+                        <div class='datetime text-muted'>{{rec.submit_at*1000|date:'MM-dd HH:mm'}}</div>
+                    </div>
+                    </div>
+                </div>
+            </div>
+            <div class='form-group form-inline'>
+                <span style="float:left;margin-right:20px;line-height:2;">总数：{{oPage.total}}</span>
+                <ul uib-pagination style="float:right;margin:0;vertical-align:bottom;cursor:pointer;" ng-show="oPage.total>oPage.size" boundary-links="true" total-items="oPage.total" max-size="7" items-per-page="oPage.size" rotate="false" ng-model="oPage.at" previous-text="&lsaquo;" next-text="&rsaquo;" first-text="&laquo;" last-text="&raquo;" ng-change="list4Schema()"></ul>
             </div>
         </div>
     </div>

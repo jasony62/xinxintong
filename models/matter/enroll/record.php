@@ -1082,8 +1082,7 @@ class record_model extends \TMS_MODEL {
 		// 处理获得的数据
 		if ($records = $this->query_objs_ss($q, $q2)) {
 			//如果是数值型计算合计值
-			$data_schemas = json_decode($oApp->data_schemas);
-			foreach ($data_schemas as $data_schema) {
+			foreach ($oApp->dataSchemas as $data_schema) {
 				//判断是否是数值型
 				if ($data_schema->id === $schemaId && isset($data_schema->number) && $data_schema->number === 'Y') {
 					$p = [

@@ -27,7 +27,7 @@ class tag extends \pl\fe\matter\base {
 		}
 
 		$options = [];
-		if(!empty($page) && !empty($size)){
+		if (!empty($page) && !empty($size)) {
 			$options['at']['page'] = $page;
 			$options['at']['size'] = $size;
 		}
@@ -78,7 +78,7 @@ class tag extends \pl\fe\matter\base {
 		}
 
 		$posted = $this->getPostJson();
-		if(empty($posted)) {
+		if (empty($posted)) {
 			return new \ResponseData('ok');
 		}
 
@@ -89,7 +89,7 @@ class tag extends \pl\fe\matter\base {
 	/**
 	 * 删除标签
 	 */
-	public function remove_action($tag){
+	public function remove_action($tag) {
 		if (false === ($user = $this->accountUser())) {
 			return new \ResponseTimeout();
 		}
@@ -99,7 +99,7 @@ class tag extends \pl\fe\matter\base {
 			return new \ResponseError('指定的标签不存在，请检查参数是否正确');
 		}
 
-		if((int)$tag->use_num > 0){
+		if ((int) $tag->use_num > 0) {
 			return new \ResponseError('标签已被使用');
 		}
 

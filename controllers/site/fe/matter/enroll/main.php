@@ -342,7 +342,7 @@ class main extends base {
 			if (!in_array($oOpenPage->name, ['repos', 'rank'])) {
 				$params['page'] = $oOpenPage;
 				/* 是否需要返回登记记录 */
-				if ($oOpenPage->type === 'I' && $newRecord === 'Y') {
+				if ($oOpenPage->type === 'I' && ($newRecord === 'Y' || empty($ek))) {
 					/* 返回当前用户在关联活动中填写的数据 */
 					if (!empty($oApp->enroll_app_id)) {
 						$oAssocApp = $this->model('matter\enroll')->byId($oApp->enroll_app_id, ['cascaded' => 'N']);

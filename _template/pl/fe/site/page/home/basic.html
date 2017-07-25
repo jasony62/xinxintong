@@ -155,7 +155,7 @@
     <div class="row visible-xs-block">
         <div class="footer">
             <a href="" class="pull-right" id='xs_gototop'>回顶部</a>
-            <a href="" class="pull-right" ng-if="site.home_qrcode_group">扫一扫加入群聊&nbsp;|&nbsp;</a>
+            <a href="" class="pull-right" ng-if="site.home_qrcode_group" style="display:none">扫一扫加入群聊&nbsp;|&nbsp;</a>
         </div>
     </div>
     <div id='md_gototop' class='tms-tool-sidebar tms-tool-backtop hidden-xs'>
@@ -166,7 +166,7 @@
         <div class="gotalk" ng-show="active">
             <div class="talk-qrcodes" ng-if="site.home_qrcode_group">
                 <div class="talk-qrcode" ng-repeat="q in site.home_qrcode_group">
-                    <span ng-bind="{{q.tip}}"></span>
+                    <span ng-bind="q.tip"></span>
                     <img class="qrcode" ng-src="{{q.picUrl}}" />
                 </div>
             </div>

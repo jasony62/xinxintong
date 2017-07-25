@@ -29,7 +29,7 @@
 .xxt_talk_qrcode{width:60px;height:60px;top:0;left:0;background-position:-142px -368px;}
 #gototalk:after{content:'';width:0;height:0;position:fixed;bottom:140px;right:60px;border-top:16px solid transparent;border-left:11px solid #4a9dce;border-bottom:16px solid transparent;}
 .talk-qrcodes{height:auto;position:fixed;right:70px;bottom:60px;}
-.talk-qrcode{width:110px;height:auto;font-size:12px;line-height:1.5;color:#fff;border-bottom:1px dashed #fff;padding-bottom:10px;text-align:center;background-color:#4a9dce;}
+.talk-qrcode{width:106px;height:auto;font-size:12px;line-height:1.5;color:#fff;border-bottom:1px dashed #fff;padding:5px 0;text-align:center;background-color:#4a9dce;}
 .talk-qrcode:last-child{border-bottom:none;}
 
 /*template/matter*/

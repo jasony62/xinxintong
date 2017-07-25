@@ -7,17 +7,10 @@ require_once dirname(__FILE__) . '/base.php';
  */
 class signin_model extends MultiArticleReply {
 	/**
-	 * 素材参数
-	 */
-	private $params;
-	/**
 	 *
 	 */
 	public function __construct($call, $matterId, $params = null) {
 		parent::__construct($call, $matterId);
-		if (!empty($params)) {
-			$this->params = json_decode($params);
-		}
 	}
 	/**
 	 *

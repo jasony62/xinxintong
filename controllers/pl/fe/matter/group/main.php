@@ -30,6 +30,7 @@ class main extends \pl\fe\matter\base {
 		if (false === $oApp) {
 			return new \ObjectNotFoundError();
 		}
+
 		/*所属项目*/
 		if ($oApp->mission_id) {
 			$oApp->mission = $this->model('matter\mission')->byId($oApp->mission_id, array('cascaded' => 'phase'));
@@ -57,7 +58,6 @@ class main extends \pl\fe\matter\base {
 		if (false === ($user = $this->accountUser())) {
 			return new \ResponseTimeout();
 		}
-
 		$post = $this->getPostJson();
 		$result = ['apps' => null, 'total' => 0];
 		$model = $this->model();

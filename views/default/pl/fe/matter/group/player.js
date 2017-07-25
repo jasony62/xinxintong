@@ -19,6 +19,20 @@ define(['frame'], function(ngApp) {
                 }
             });
         };
+        $scope.gotoSourceApp = function() {
+            var oSourceApp;
+            if ($scope.app.sourceApp) {
+                oSourceApp = $scope.app.sourceApp;
+                switch (oSourceApp.type) {
+                    case 'enroll':
+                        location.href = '/rest/pl/fe/matter/enroll?site=' + oSourceApp.siteid + '&id=' + oSourceApp.id;
+                        break;
+                    case 'signin':
+                        location.href = '/rest/pl/fe/matter/signin?site=' + oSourceApp.siteid + '&id=' + oSourceApp.id;
+                        break;
+                }
+            }
+        };
         $scope.configRule = function() {
             srvGroupRound.config().then(function() {
                 $scope.activeRound = null;

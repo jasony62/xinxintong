@@ -7,33 +7,35 @@ require_once dirname(__FILE__) . '/base.php';
  */
 class signin_model extends MultiArticleReply {
 	/**
-	 * 素材参数
-	 */
-	private $params;
-	/**
 	 *
 	 */
 	public function __construct($call, $matterId, $params = null) {
 		parent::__construct($call, $matterId);
-		if (!empty($params)) {
-			$this->params = json_decode($params);
-		}
 	}
 	/**
 	 *
 	 */
 	protected function loadMatters() {
-		$app = \TMS_APP::M('matter\base')->getCardInfoById('signin', $this->set_id);
+		$oApp = \TMS_APP::M('matter\base')->getCardInfoById('signin', $this->set_id);
 		$modelApp = \TMS_APP::M('matter\signin');
 		if (empty($this->params)) {
-			$app->entryURL = $modelApp->getEntryUrl($this->call['siteid'], $this->set_id);
+			$oApp->entryURL = $modelApp->getEntryUrl($this->call['siteid'], $this->set_id);
 		} else {
 			/* 指定了签到对应的轮次 */
-			$signinRound = \TMS_APP::M('matter\signin\round')->byId($this->params->round, ['fields' => 'title']);
-			$app->entryURL = $modelApp->getEntryUrl($this->call['siteid'], $this->set_id, $this->params->round);
-			$app->title .= '-' . $signinRound->title;
+			if (is_string($this->params)) {
+				$oParams = json_decode($this->params);
+			} else if (is_object($this->params)) {
+				$oParams = $this->params;
+			}
+			if (isset($oParams) && !empty($oParams->round)) {
+				$oSigninRnd = \TMS_APP::M('matter\signin\round')->byId($oParams->round, ['fields' => 'title']);
+				$oApp->entryURL = $modelApp->getEntryUrl($this->call['siteid'], $this->set_id, $this->oParams->round);
+				$oApp->title .= '-' . $oSigninRnd->title;
+			} else {
+				$oApp->entryURL = $modelApp->getEntryUrl($this->call['siteid'], $this->set_id);
+			}
 		}
 
-		return [$app];
+		return [$oApp];
 	}
 }

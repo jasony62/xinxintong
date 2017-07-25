@@ -564,8 +564,6 @@ define(['require', 'schema', 'page'], function(require, schemaLib, pageLib) {
                                         title: '分组名称',
                                     },
                                     ops = [];
-                                //分组活动删除导入来源，groupApp.data_schemas为空字符串 , JSON.parse(''),splice()报错
-                                groupApp.data_schemas = groupApp.data_schemas ? JSON.parse(groupApp.data_schemas) : [];
                                 groupApp.rounds.forEach(function(round) {
                                     ops.push({
                                         v: round.round_id,
@@ -573,7 +571,7 @@ define(['require', 'schema', 'page'], function(require, schemaLib, pageLib) {
                                     });
                                 });
                                 roundDS.ops = ops;
-                                groupApp.data_schemas.splice(0, 0, roundDS);
+                                groupApp.dataSchemas.splice(0, 0, roundDS);
                                 _oApp.groupApp = groupApp;
                             });
                         });
@@ -1088,10 +1086,10 @@ define(['require', 'schema', 'page'], function(require, schemaLib, pageLib) {
                             Object.keys(rows.selected).forEach(function(key) {
                                 if (rows.selected[key] === true) {
                                     var rec = _ins._aRecords[key];
-                                    if(Object.keys(rec).indexOf('enroll_key') !== -1) {
+                                    if (Object.keys(rec).indexOf('enroll_key') !== -1) {
                                         targetAndMsg.users.push({ userid: rec.userid, enroll_key: rec.enroll_key });
-                                    }else {
-                                        targetAndMsg.users.push({ userid: rec.userid});
+                                    } else {
+                                        targetAndMsg.users.push({ userid: rec.userid });
                                     }
                                 }
                             });
@@ -1293,7 +1291,7 @@ define(['require', 'schema', 'page'], function(require, schemaLib, pageLib) {
                     if (config.schemas.length) {
                         for (var p in rows.selected) {
                             if (rows.selected[p] === true) {
-                                eks.push(_aRecords[p].enroll_key);
+                                eks.push(_ins._aRecords[p].enroll_key);
                             }
                         }
                         if (eks.length) {

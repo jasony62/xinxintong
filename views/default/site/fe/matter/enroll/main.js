@@ -203,7 +203,7 @@ ngApp.controller('ctrlMain', ['$scope', '$q', '$http', '$timeout', 'ls', 'tmsDyn
             event.stopPropagation();
         }
         var url = LS.j('', 'site', 'app');
-        if (ek !== undefined && ek !== null && ek.length) {
+        if (ek) {
             url += '&ek=' + ek;
         }
         rid !== undefined && rid !== null && rid.length && (url += '&rid=' + rid);
@@ -286,7 +286,7 @@ ngApp.controller('ctrlMain', ['$scope', '$q', '$http', '$timeout', 'ls', 'tmsDyn
         sharelink += "&shareby=" + shareid;
         if (oPage && oPage.share_page && oPage.share_page === 'Y') {
             sharelink += '&page=' + oPage.name;
-            params.record && (sharelink += '&ek=' + params.record.enroll_key);
+            params.record && params.record.enroll_key && (sharelink += '&ek=' + params.record.enroll_key);
             if (!(/iphone|ipad/i.test(navigator.userAgent))) {
                 /*ios下操作无效，且导致微信jssdk失败*/
                 if (window.history && window.history.replaceState) {

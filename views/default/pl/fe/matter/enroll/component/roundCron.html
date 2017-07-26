@@ -34,7 +34,7 @@
                     </div>
                 </td>
                 <td>
-                    <select class='form-control' ng-model="rule.wday" ng-disabled="rule.period!=='W'">
+                     <p>开始：<select class='form-control' ng-model="rule.wday" ng-disabled="rule.period!=='W'">
                         <option value=''>忽略</option>
                         <option value='1'>周一</option>
                         <option value='2'>周二</option>
@@ -43,7 +43,17 @@
                         <option value='5'>周五</option>
                         <option value='6'>周六</option>
                         <option value='0'>周日</option>
-                    </select>
+                    </select></p>
+                    <p>结束：<select class='form-control' ng-model="rule.end_wday" ng-disabled="rule.period!=='W'">
+                        <option value=''>忽略</option>
+                        <option value='1'>周一</option>
+                        <option value='2'>周二</option>
+                        <option value='3'>周三</option>
+                        <option value='4'>周四</option>
+                        <option value='5'>周五</option>
+                        <option value='6'>周六</option>
+                        <option value='0'>周日</option>
+                    </select></p>
                 </td>
                 <td>
                     <select class='form-control' ng-model='rule.mday' ng-options="m for m in mdays" ng-disabled="rule.period!=='M'">

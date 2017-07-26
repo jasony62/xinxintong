@@ -56,12 +56,16 @@
                     </select></p>
                 </td>
                 <td>
-                    <select class='form-control' ng-model='rule.mday' ng-options="m for m in mdays" ng-disabled="rule.period!=='M'">
+                    <p>开始：<select class='form-control' ng-model='rule.mday' ng-options="m for m in mdays" ng-disabled="rule.period!=='M'">
                         <option value=''>忽略</option>
-                    </select>
+                    </select></p>
+                    <p>结束：<select class='form-control' ng-model='rule.end_mday' ng-options="m for m in mdays" ng-disabled="rule.period!=='M'">
+                        <option value=''>忽略</option>
+                    </select></p>
                 </td>
                 <td>
-                    <input type='text' class='form-control' ng-model="rule.hour">
+                    <p>开始：<input type='text' class='form-control' ng-model="rule.hour"></p>
+                    <p>结束：<input type='text' class='form-control' ng-model="rule.end_hour"></p>
                 </td>
                 <td>
                     <input type='checkbox' ng-true-value="'Y'" ng-false-value="'N'" ng-model="rule.enabled">

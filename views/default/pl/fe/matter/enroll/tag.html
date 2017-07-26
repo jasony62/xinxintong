@@ -51,7 +51,7 @@
             </div>
         </div>
     </div>
-    <div class="col-md-6">
+    <div class="col-md-6" ng-if="records.length">
         <div class='form-group'>
             <div class='records'>
                 <div class='record' ng-repeat="rec in records">
@@ -59,19 +59,16 @@
                         <span ng-if="schemaCount>1" class="label label-default">{{schemas[rec.schema_id].title}}</span>
                     </div>
                     <blockquote ng-switch on="schemas[rec.schema_id].type" ng-click="gotoRemark(rec)">
-                        <p ng-switch-when="single"><span>{{value2Label(rec.value,rec.schema_id)}}</span></p>
-                        <p ng-switch-when="multiple"><span>{{value2Label(rec.value,rec.schema_id)}}</span></p>
                         <p ng-switch-when="image"><img ng-src="{{rec.value}}"></p>
                         <p ng-switch-default>{{rec.value}}</p>
                         <p ng-if="schemas[rec.schema_id].cantag==='Y'" class='tags'>
                             <span class="tag" ng-repeat="t in rec.tag">{{t.label}}</span>
                         </p>
-                        <p ng-if="schemas[rec.schema_id].supplement==='Y'" class='supplement'>{{rec.supplement}}</p>
-                        <footer>{{rec.nickname||'匿名用户'}}</footer>
+                        <footer>
+                            <span>{{rec.nickname||'匿名用户'}}</span>
+                            <span class="pull-right text-muted">{{rec.submit_at*1000|date:'MM-dd HH:mm'}}</span>
+                        </footer>
                     </blockquote>
-                    <div class='bottom-bar'>
-                        <div class='datetime text-muted'>{{rec.submit_at*1000|date:'MM-dd HH:mm'}}</div>
-                    </div>
                     </div>
                 </div>
             </div>

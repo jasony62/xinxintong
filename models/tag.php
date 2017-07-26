@@ -196,67 +196,43 @@ class tag_model extends TMS_MODEL {
 		return true;
 	}
 	/**
-	 * 保存标签
+	 * 创建标签
 	 */
-	public function save2($site, $user, $resId, $resType, $subType, $tags){
+	public function create($site, $user, $tags){
 		$current = time();
+		$newTags = [];
 		if (!empty($tags)) {
-			$addTags = [];
 			foreach ($tags as $tag) {
-				if (!isset($tag->id)) {
-					/**
-					 * 标签是否已经存在？
-					 */
-					$q = array(
-						'id',
-						'xxt_tag',
-						"(mpid='$site' or siteid='$site') and title='$tag->title'",
-					);
-					if (!($tag_id = $this->query_obj_ss($q))) {
-						$seq = $this->getSeqMax($site);
-						/**
-						 * 不存在，创建新标签
-						 */
-						
-						$tag_id = $this->insert('xxt_tag',
-							array(
-								'siteid' => $site,
-								'mpid' => $site,
-								'creater' => $user->id,
-								'creater_name' => $user->name,
-								'creater_at' => $current,
-								'title' => $tag->title,
-								'seq' => $seq + 1,
-							),
-							true
-						);
-						$tag->id = (string)$tag_id;
-					}else{
-						$tag->id = (string)$tag_id->id;
-					}
+				/**
+				 * 标签是否已经存在？
+				 */
+				$q = array(
+					'id',
+					'xxt_tag',
+					"(mpid='$site' or siteid='$site') and title='$tag->title'",
+				);
+				if ($tag_id = $this->query_val_ss($q)) {
+					continue;
 				}
-				$addTags[] = $tag->id;
-			}
-			if(empty($addTags)){
-				return 'ok';
-			}
-			$addTags = array_unique($addTags);
-			$addTags = json_encode($addTags);//需要保证id是字符串
-			//记录活动标签
-			if($subType === 'content'){
-				$this->update(
-						'xxt_' . $resType,
-						['matter_cont_tag' => $addTags],
-						['id' => $resId]
-					);
-			}elseif($subType === 'management'){
-				$this->update(
-						'xxt_' . $resType,
-						['matter_mg_tag' => $addTags],
-						['id' => $resId]
-					);
+				$seq = $this->getSeqMax($site);
+				/**
+				 * 不存在，创建新标签
+				 */
+				$inData = new \stdClass;
+				$inData->siteid = $site;
+				$inData->mpid = $site;
+				$inData->creater = $user->id;
+				$inData->creater_name = $user->name;
+				$inData->creater_at = $current;
+				$inData->title = $tag->title;
+				$inData->seq = $seq + 1;
+
+				$inData->id = $this->insert('xxt_tag', $inData, true);
+				$newTags[] = $inData;
 			}
 		}
+
+		return $newTags;
 	}
 	/**
 	 * 获取当前团队中最大排序
@@ -271,5 +247,94 @@ class tag_model extends TMS_MODEL {
 		$seq = (int)$this->query_val_ss($q);
 
 		return $seq;
+	}
+	/**
+	 * 素材添加标签
+	 */
+	public function save2($site, $user, &$matter, $subType, $tags){
+		$current = time();
+		$rst = false;
+		$addTags = [];
+		if (!empty($tags)) {
+			/*记录标签使用数*/
+			if($subType === 'C'){
+				$tagOld = $matter->matter_cont_tag;
+			}elseif($subType === 'M'){
+				$tagOld = $matter->matter_mg_tag;
+			}
+			if(!empty($tagOld)){
+				$tagOld = json_decode($tagOld);
+			}else{
+				$tagOld = [];
+			}
+
+			$tagNew = [];
+			foreach ($tags as $tag) {
+				if($key = array_search($tag->id, $tagOld)){
+					unset($tagOld[$key]);
+				}else{
+					$tagNew[] = $tag->id;
+				}
+
+				$addTags[] = (string)$tag->id;
+			}
+			//删除的标签
+			if(!empty($tagOld)){
+				foreach ($tagOld as $tag) {
+					$this->update("update xxt_tag set sum = sum - 1 where id = " . $tag->id);
+				}
+			}
+			//增加的标签
+			if(!empty($tagNew)){
+				foreach ($tagNew as $tag) {
+					$this->update("update xxt_tag set sum = sum + 1 where id = " . $tag->id);
+				}
+			}
+
+			$addTags = json_encode($addTags);
+			//记录活动标签
+			switch ($matter->type) {
+				case 'wall':
+					$upData = [];
+					break;
+				default:
+					$upData = [];
+					$upData['modifier'] = $user->id;
+					$upData['modifier_name'] = $user->name;
+					$upData['modifier_src'] = $user->src;
+					$upData['modifier_at'] = $current;
+					break;
+			}
+			if($subType === 'C'){
+				$upData['matter_cont_tag'] = $addTags;
+			}elseif($subType === 'M'){
+				$upData['matter_mg_tag'] = $addTags;
+			}
+
+			$rst = $this->update('xxt_' . $matter->type, $upData, ['id' => $matter->id]);
+		}
+
+		return $addTags;
+	}
+	/**
+	 * 获得团队内所有的标签
+	 */
+	public function bySite($site, $options = []){
+		$fields = empty($options['fields']) ? '*' : $options['fields'];
+		$q = [
+			$fields,
+			'xxt_tag',
+			"siteid = '$site' or mpid = '$site'"
+		];
+		$q2 = ['o' => 'seq desc,creater_at desc'];
+		if(!empty($options['at']['page'] && !empty($options['at']['size']))){
+			$page = $options['at']['page'];
+			$size = $options['at']['size'];
+			$q2['r'] = ['o' => ($page - 1) * $size, 'l' => $size];
+		}
+
+		$tags = $this->query_objs_ss($q, $q2);
+
+		return $tags;
 	}
 }

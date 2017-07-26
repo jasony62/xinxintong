@@ -11,17 +11,15 @@ div[wrap=filter] .detail{background:#ccc}
 div[wrap=filter] .detail .options .label{display:inline-block;margin:.5em;padding-top:.3em;font-size:100%}
 div[wrap=filter] .detail .actions .btn{border-radius:0}
 
-/*discuss switch*/
-
 /*switch*/
-
 .tms-switch{position:fixed;right:15px;width:48px;height:48px;background:rgba(192,192,192,0.5);border-radius:4px;color:#666;font-size:24px;line-height:48px;text-align:center;cursor:pointer;z-index:1050;}
 .tms-switch:before{font-size:0.7em;}
 .tms-switch:nth-last-of-type(1){bottom:8px;}
 .tms-switch:nth-last-of-type(2){bottom:64px;}
 .tms-switch:nth-last-of-type(3){bottom:120px;}
 .tms-switch:nth-last-of-type(4){bottom:176px;}
-.tms-switch:nth-last-of-type(5){bottom:236px;}
+.tms-switch:nth-last-of-type(5){bottom:232px;}
+.tms-switch:nth-last-of-type(6){bottom:288px;}
 .tms-switch-back:before{content:'返回';}
 .tms-switch-save:before{content:'保存';}
 .tms-switch-rank:before{content:'排行';}
@@ -34,11 +32,12 @@ div[wrap=filter] .detail .actions .btn{border-radius:0}
 @media screen and (max-width:719px){
 	body{margin-bottom:64px;}
 	.tms-switch{bottom:8px;}
-	.tms-switch:nth-last-of-type(1){right:16px;bottom:8px;}
-	.tms-switch:nth-last-of-type(2){right:72px;bottom:8px;}
-	.tms-switch:nth-last-of-type(3){right:128px;bottom:8px;}
-	.tms-switch:nth-last-of-type(4){right:184px;bottom:8px;}
-	.tms-switch:nth-last-of-type(5){right:244px;bottom:8px;}
+	.tms-switch:nth-last-of-type(1){right:8px;bottom:8px;}
+	.tms-switch:nth-last-of-type(2){right:64px;bottom:8px;}
+	.tms-switch:nth-last-of-type(3){right:120px;bottom:8px;}
+	.tms-switch:nth-last-of-type(4){right:176px;bottom:8px;}
+	.tms-switch:nth-last-of-type(5){right:232px;bottom:8px;}
+	.tms-switch:nth-last-of-type(6){right:288px;bottom:8px;}
 }
 #frmPlugin{position:absolute;top:0;bottom:0;left:0;right:0;width:100%;height:100%;border:none;z-index:999;box-sizing:border-box;padding-bottom:48px;background:#fff;}
 #frmPlugin iframe{width:100%;height:100%;border:0;}

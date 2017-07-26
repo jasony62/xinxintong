@@ -56,7 +56,7 @@
             <div class='records'>
                 <div class='record' ng-repeat="rec in records">
                     <div>
-                        <span ng-if="schemaCount>1" class="label label-default">{{schemas[rec.schema_id].title}}</span>
+                        <span class="label label-default">{{schemas[rec.schema_id].title}}</span>
                     </div>
                     <blockquote ng-switch on="schemas[rec.schema_id].type" ng-click="gotoRemark(rec)">
                         <p ng-switch-when="image"><img ng-src="{{rec.value}}"></p>

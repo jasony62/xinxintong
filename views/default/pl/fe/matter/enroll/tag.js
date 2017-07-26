@@ -16,7 +16,6 @@ define(['frame'], function(ngApp) {
         };
         $scope.oPage = oPage = {at: 1, size: 12};
         $scope.schemas = schemas = {};
-        $scope.schemaCount = 0;
         $scope.createTag = function() {
             var newTags;
             if ($scope.newtag) {
@@ -90,10 +89,7 @@ define(['frame'], function(ngApp) {
         srvEnrollApp.get().then(function(app) {
             $scope.app = app;
             app.dataSchemas.forEach(function(schema) {
-                if (schema.shareable && schema.shareable === 'Y') {
-                    schemas[schema.id] = schema;
-                    $scope.schemaCount++;
-                }
+                schemas[schema.id] = schema;
             });
             $scope.doSearch();
         });

@@ -126,12 +126,36 @@ define(['frame'], function(ngApp) {
         $scope.removeImage = function(field, index) {
             field.splice(index, 1);
         };
-        $scope.chooseFile = function(fieldName) {
-            var data = oRecord.data;
-            srvEnrollRecord.chooseFile(fieldName).then(function(file) {
-                !data[fieldName] && (data[fieldName] = []);
-                data[fieldName].push(file);
+        $scope.chooseFile = function(fileFieldName) {
+            var r;
+            r = new Resumable({
+                target: '/rest/site/fe/matter/enroll/record/uploadFile?site=' + site + '&app=' + id,
+                testChunks: false,
+                chunkSize: 512 * 1024
             });
+            var data = oRecord.data;
+            var ele = document.createElement('input');
+            ele.setAttribute('type', 'file');
+            ele.addEventListener('change', function(evt) {
+                var i, cnt, f;
+                cnt = evt.target.files.length;
+                for (i = 0; i < cnt; i++) {
+                    f = evt.target.files[i];
+                    r.addFile(f);
+                    $scope.$apply(function() {
+                        data[fileFieldName] === undefined && (data[fileFieldName] = []);
+                        data[fileFieldName].push({
+                            uniqueIdentifier: r.files[r.files.length - 1].uniqueIdentifier,
+                            name: f.name,
+                            size: f.size,
+                            type: f.type,
+                            url: ''
+                        });
+                    });
+                }
+                ele = null;
+            }, true);
+            ele.click();
         };
         $scope.removeFile = function(field, index) {
             field.splice(index, 1);
@@ -180,6 +204,8 @@ define(['frame'], function(ngApp) {
             srvEnrollRecord.agreeRemark(oRemark.id, oRemark.agreed).then(function() {});
         };
         var ek = $location.search().ek,
+            site = $location.search().site,
+            id = $location.search().id,
             schemaRemarks;
 
         $scope.newRemark = {};

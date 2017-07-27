@@ -210,11 +210,7 @@ define(['frame'], function(ngApp) {
                 templateUrl: 'tagMatterData.html',
                 controller: ['$scope', '$uibModalInstance', function($scope2, $mi) {
                     var model;
-                    var apptags2 = [];
                     $scope2.apptags = oTags;
-                    $scope2.apptags.forEach(function(oTag2) {
-                       apptags2.push(oTag2.id);
-                    });
 
                     if(subType === 'C'){
                         tagsOfData = oApp.matter_cont_tag;
@@ -229,8 +225,8 @@ define(['frame'], function(ngApp) {
                     if (tagsOfData) {
                         tagsOfData.forEach(function(oTag) {
                             var index;
-                            if (-1 !== (index = apptags2.indexOf(oTag))) {
-                                model.selected[apptags2.indexOf(oTag)] = true;
+                            if (-1 !== (index = $scope2.apptags.indexOf(oTag))) {
+                                model.selected[$scope2.apptags.indexOf(oTag)] = true;
                             }
                         });
                     }

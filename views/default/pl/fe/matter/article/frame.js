@@ -106,6 +106,24 @@ define(['require'], function() {
                     domain: editing.siteid
                 };
             }
+            if($scope.editing.matter_cont_tag !== ''){
+                $scope.editing.matter_cont_tag.forEach(function(cTag,index){
+                    $scope.oTag.forEach(function(oTag){
+                        if(oTag.id === cTag){
+                            $scope.editing.matter_cont_tag[index] = oTag;
+                        }
+                    });
+                });
+            }
+            if($scope.editing.matter_mg_tag !== ''){
+                $scope.editing.matter_mg_tag.forEach(function(cTag,index){
+                    $scope.oTag.forEach(function(oTag){
+                        if(oTag.id === cTag){
+                            $scope.editing.matter_mg_tag[index] = oTag;
+                        }
+                    });
+                });
+            }
         });
         window.onbeforeunload = function(e) {
             if (!editing.pic && !editing.thumbnail) {

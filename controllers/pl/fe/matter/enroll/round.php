@@ -38,6 +38,42 @@ class round extends \pl\fe\matter\base {
 		return new \ResponseData($result);
 	}
 	/**
+	 * 获取设置定时轮次的时间
+	 * 
+	 * @param string $app
+	 *
+	 */
+	public function getCron_action(){
+		if (false === ($user = $this->accountUser())) {
+			return new \ResponseTimeout();
+		}
+
+		$modelRnd = $this->model('matter\enroll\round');
+		$a=[
+			'enabled'=>'Y',
+			'end_hour'=>'9',
+			'end_mday'=>'',
+			'end_wday'=>'4',
+			'hour'=>'8',
+			'mday'=>'',
+			'period'=>'W',
+			'wday'=>'3'
+		];
+		
+		$c=new \stdClass;
+		$c->roundCron[]=(object)$a;
+		//$posted = $this->getPostJson();
+		$posted=$c;
+		if(empty($posted->roundCron)){
+			return new \ResponseError('请先设置定时规则！');
+		}
+
+		$rules=$posted->roundCron;
+		$rst=$modelRnd->byCron($rules);
+
+		return new \ResponseData($rst);
+	}
+	/**
 	 * 添加轮次
 	 *
 	 * @param string $app

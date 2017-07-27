@@ -27,7 +27,7 @@ class tag extends \pl\fe\base {
 			$options['at']['page'] = $page;
 			$options['at']['size'] = $size;
 		}
-		$tags = $this->model('tag')->bySite($site);
+		$tags = $this->model('tag')->bySite($site, $options);
 
 		return new \ResponseData($tags);
 	}
@@ -64,7 +64,7 @@ class tag extends \pl\fe\base {
 		$model = $this->model('tag');
 		$model->setOnlyWriteDbConn(true);
 		$q = [
-			'id,siteid,title,summary,pic,matter_cont_tag,matter_mg_tag',
+			"id,siteid,title,summary,pic,matter_cont_tag,matter_mg_tag,'$resType' type",
 			'xxt_' . $resType,
 			['id' => $resId, 'state' => 1]
 		];
@@ -84,7 +84,8 @@ class tag extends \pl\fe\base {
 		}
 		$this->model('matter\log')->matterOp($matter->siteid, $user, $matter, 'bindMatterTags:' . $subType, $data);
 
-		return new \ResponseData($rst);
+		!empty($addTags) && $addTags = json_decode($addTags);
+		return new \ResponseData($addTags);
 	}
 	/**
 	 * 删除某一个标签

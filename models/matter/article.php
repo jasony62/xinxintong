@@ -46,6 +46,8 @@ class article_model extends article_base {
 			["id" => $id],
 		];
 		if ($matter = $this->query_obj_ss($q)) {
+			!empty($matter->matter_cont_tag) && $matter->matter_cont_tag = json_decode($matter->matter_cont_tag);
+			!empty($matter->matter_mg_tag) && $matter->matter_mg_tag = json_decode($matter->matter_mg_tag);
 			$matter->type = $this->getTypeName();
 			$matter->entryUrl = $this->getEntryUrl($matter->siteid, $id);
 		}

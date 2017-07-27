@@ -209,7 +209,7 @@ class tag_model extends TMS_MODEL {
 				$q = array(
 					'id',
 					'xxt_tag',
-					"(mpid='$site' or siteid='$site') and title='$tag->title'",
+					"(mpid='$site' or siteid='$site') and title='$tag'",
 				);
 				if ($tag_id = $this->query_val_ss($q)) {
 					continue;
@@ -223,8 +223,8 @@ class tag_model extends TMS_MODEL {
 				$inData->mpid = $site;
 				$inData->creater = $user->id;
 				$inData->creater_name = $user->name;
-				$inData->creater_at = $current;
-				$inData->title = $tag->title;
+				$inData->create_at = $current;
+				$inData->title = $tag;
 				$inData->seq = $seq + 1;
 
 				$inData->id = $this->insert('xxt_tag', $inData, true);
@@ -241,7 +241,7 @@ class tag_model extends TMS_MODEL {
 		$q = [
 			'max(seq)',
 			'xxt_tag',
-			"siteid = $site or mpid = $site"
+			"siteid = '$site' or mpid = '$site'"
 		];
 
 		$seq = (int)$this->query_val_ss($q);
@@ -270,24 +270,23 @@ class tag_model extends TMS_MODEL {
 
 			$tagNew = [];
 			foreach ($tags as $tag) {
-				if($key = array_search($tag->id, $tagOld)){
+				if(false !== ($key = array_search($tag->id, $tagOld))){
 					unset($tagOld[$key]);
 				}else{
 					$tagNew[] = $tag->id;
 				}
-
-				$addTags[] = (string)$tag->id;
+				$addTags[] = $tag->id;
 			}
 			//删除的标签
 			if(!empty($tagOld)){
 				foreach ($tagOld as $tag) {
-					$this->update("update xxt_tag set sum = sum - 1 where id = " . $tag->id);
+					$this->update("update xxt_tag set sum = sum - 1 where id = " . $tag);
 				}
 			}
 			//增加的标签
 			if(!empty($tagNew)){
 				foreach ($tagNew as $tag) {
-					$this->update("update xxt_tag set sum = sum + 1 where id = " . $tag->id);
+					$this->update("update xxt_tag set sum = sum + 1 where id = " . $tag);
 				}
 			}
 
@@ -302,7 +301,7 @@ class tag_model extends TMS_MODEL {
 					$upData['modifier'] = $user->id;
 					$upData['modifier_name'] = $user->name;
 					$upData['modifier_src'] = $user->src;
-					$upData['modifier_at'] = $current;
+					$upData['modify_at'] = $current;
 					break;
 			}
 			if($subType === 'C'){
@@ -326,11 +325,13 @@ class tag_model extends TMS_MODEL {
 			'xxt_tag',
 			"siteid = '$site' or mpid = '$site'"
 		];
-		$q2 = ['o' => 'seq desc,creater_at desc'];
-		if(!empty($options['at']['page'] && !empty($options['at']['size']))){
-			$page = $options['at']['page'];
-			$size = $options['at']['size'];
-			$q2['r'] = ['o' => ($page - 1) * $size, 'l' => $size];
+		$q2 = ['o' => 'seq desc,create_at desc'];
+		if(isset($options['at'])){
+			if(!empty($options['at']['page'] && !empty($options['at']['size']))){
+				$page = $options['at']['page'];
+				$size = $options['at']['size'];
+				$q2['r'] = ['o' => ($page - 1) * $size, 'l' => $size];
+			}
 		}
 
 		$tags = $this->query_objs_ss($q, $q2);

@@ -88,6 +88,9 @@ define(['require'], function() {
         srvSite.get().then(function(oSite) {
             $scope.site = oSite;
         });
+        srvSite.tagList().then(function(oTag) {
+            $scope.oTag = oTag;
+        });
         srvApp.get().then(function(editing) {
             $scope.editing = editing;
             !editing.attachments && (editing.attachments = []);

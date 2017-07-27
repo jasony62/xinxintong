@@ -13,7 +13,7 @@
                 <th style='width:5em'>星期几</th>
                 <th style='width:5em'>日期 (1 - 28)</th>
                 <th style='width:3em'>小时 (0 - 23)</th>
-                <th style='width:4em'>最近的轮次</th>
+                <th style='width:3em'>最近轮次</th>
                 <th style='width:4em'>启用</th>
                 <th style='width:4em'>操作</th>
             </tr>
@@ -35,7 +35,7 @@
                     </div>
                 </td>
                 <td>
-                     <p>开始：<select class='form-control' ng-model="rule.wday" ng-disabled="rule.period!=='W'">
+                     <p>开始：<select class='form-control' ng-model="rule.wday" ng-disabled="rule.period!=='W'" ng-blur="blur(rule)">
                         <option value=''>忽略</option>
                         <option value='1'>周一</option>
                         <option value='2'>周二</option>
@@ -45,7 +45,7 @@
                         <option value='6'>周六</option>
                         <option value='0'>周日</option>
                     </select></p>
-                    <p>结束：<select class='form-control' ng-model="rule.end_wday" ng-disabled="rule.period!=='W'">
+                    <p>结束：<select class='form-control' ng-model="rule.end_wday" ng-disabled="rule.period!=='W'" ng-blur="blur(rule)">
                         <option value=''>忽略</option>
                         <option value='1'>周一</option>
                         <option value='2'>周二</option>
@@ -57,19 +57,19 @@
                     </select></p>
                 </td>
                 <td>
-                    <p>开始：<select class='form-control' ng-model='rule.mday' ng-options="m for m in mdays" ng-disabled="rule.period!=='M'">
+                    <p>开始：<select class='form-control' ng-model='rule.mday' ng-options="m for m in mdays" ng-disabled="rule.period!=='M'" ng-blur="blur(rule)">
                         <option value=''>忽略</option>
                     </select></p>
-                    <p>结束：<select class='form-control' ng-model='rule.end_mday' ng-options="m for m in mdays" ng-disabled="rule.period!=='M'">
+                    <p>结束：<select class='form-control' ng-model='rule.end_mday' ng-options="m for m in mdays" ng-disabled="rule.period!=='M'" ng-blur="blur(rule)">
                         <option value=''>忽略</option>
                     </select></p>
                 </td>
                 <td>
-                    <p>开始：<input type='text' class='form-control' ng-model="rule.hour"></p>
-                    <p>结束：<input type='text' class='form-control' ng-model="rule.end_hour"></p>
+                    <p>开始：<input type='text' class='form-control' ng-model="rule.hour" ng-blur="blur(rule)"></p>
+                    <p>结束：<input type='text' class='form-control' ng-model="rule.end_hour" ng-blur="blur(rule)"></p>
                 </td>
                 <td>
-                    <div class="round" id="round{{$index}}">hehe</div>
+                    <div class="round" id="round{{$index}}"><p>开始时间：{{rule.case.start}}</p>结束时间：{{rule.case.end}}</div>
                 </td>
                 <td>
                     <input type='checkbox' ng-true-value="'Y'" ng-false-value="'N'" ng-model="rule.enabled">

@@ -49,26 +49,14 @@ class round extends \pl\fe\matter\base {
 		}
 
 		$modelRnd = $this->model('matter\enroll\round');
-		$a=[
-			'enabled'=>'Y',
-			'end_hour'=>'9',
-			'end_mday'=>'',
-			'end_wday'=>'4',
-			'hour'=>'8',
-			'mday'=>'',
-			'period'=>'W',
-			'wday'=>'3'
-		];
-		
-		$c=new \stdClass;
-		$c->roundCron[]=(object)$a;
-		//$posted = $this->getPostJson();
-		$posted=$c;
+
+		$posted = $this->getPostJson();
+	
 		if(empty($posted->roundCron)){
 			return new \ResponseError('请先设置定时规则！');
 		}
 
-		$rules=$posted->roundCron;
+		$rules[]=$posted->roundCron;
 		$rst=$modelRnd->byCron($rules);
 
 		return new \ResponseData($rst);

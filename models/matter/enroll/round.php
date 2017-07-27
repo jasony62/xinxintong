@@ -331,6 +331,11 @@ class round_model extends \TMS_MODEL {
 				$end_month=$month;
 				$end_year=$year;
 			}
+			!isset($end_hour) && $end_hour=0;
+			!isset($end_month) && $end_month=$month;
+			!isset($end_year) && $end_year=$year;
+			!isset($end_mday) && $end_mday=$mday+1;
+			
 			$startAt = mktime($hour, 0, 0, $month, $mday, $year);
 			$endAt=mktime($end_hour, 0, 0, $end_month, $end_mday, $end_year);
 			// 记录活动的轮次生成时间
@@ -496,6 +501,11 @@ class round_model extends \TMS_MODEL {
 				$end_month=$month;
 				$end_year=$year;
 			}
+			!isset($end_hour) && $end_hour=0;
+			!isset($end_month) && $end_month=$month;
+			!isset($end_year) && $end_year=$year;
+			!isset($end_mday) && $end_mday=$mday+1;
+
 			$startAt = mktime($hour, 0, 0, $month, $mday, $year);
 			$endAt=mktime($end_hour, 0, 0, $end_month, $end_mday, $end_year);
 			// 记录活动的轮次生成时间
@@ -519,7 +529,9 @@ class round_model extends \TMS_MODEL {
 		$newRound = new \stdClass;
 		$newRound->title = '轮次-' . $latestLabel;
 		$newRound->start_at = $latest;
+		$newRound->start = date('Y-m-d H:i',$latest);
 		$newRound->end_at = $endAt;
+		$newRound->end=date('Y-m-d H:i',$endAt);
 		$newRound->state = 1;
 
 		return $newRound;

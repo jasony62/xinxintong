@@ -140,11 +140,15 @@
         <div class='tile'>
             <div class='form-group compact'>
                 <label>内容标签（可选）</label>
-                <p class="form-control tags" ng-click="tagRecordData('C')"><!-- ngRepeat: t in tag['c1'] --></p>
+                <p class="form-control" ng-click="tagRecordData('C')">
+                    <span class="tag" ng-repeat="t in editing.matter_cont_tag" ng-bind="t.title"></span>
+                </p>
             </div>
             <div class='form-group'>
                 <label class='help-block'>管理标签（可选）</label>
-                <p class="form-control tags" ng-click="tagRecordData('M')"><!-- ngRepeat: t in tag['c1'] --></p>
+                <p class="form-control" ng-click="tagRecordData('M')">
+                    <span class="tag" ng-repeat="t in editing.matter_mg_tag" ng-bind="t.title"></span>
+                </p>
             </div>
         </div>
         <div class='tile'>

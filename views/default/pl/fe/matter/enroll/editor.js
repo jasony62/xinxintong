@@ -126,6 +126,16 @@ define(['frame'], function(ngApp) {
         $scope.removeImage = function(field, index) {
             field.splice(index, 1);
         };
+        $scope.chooseFile = function(fieldName) {
+            var data = oRecord.data;
+            srvEnrollRecord.chooseFile(fieldName).then(function(file) {
+                !data[fieldName] && (data[fieldName] = []);
+                data[fieldName].push(file);
+            });
+        };
+        $scope.removeFile = function(field, index) {
+            field.splice(index, 1);
+        }
         $scope.$on('tag.xxt.combox.done', function(event, aSelected) {
             var aNewTags = [];
             for (var i in aSelected) {

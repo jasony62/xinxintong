@@ -1159,6 +1159,35 @@ define(['require', 'schema', 'page'], function(require, schemaLib, pageLib) {
                 }
                 return defer.promise;
             };
+            _ins.chooseFile = function(fieldName) {
+                var defer = $q.defer();
+                if(fieldName !== null) {
+                    var ele = document.createElement('input');
+                    ele.setAttribute('type', 'file');
+                    ele.addEventListener('change', function(evt) {
+                        var i, cnt, f;
+                        cnt = evt.target.files.length;
+                        for (i = 0; i < cnt; i++) {
+                            f = evt.target.files[i];
+                            r.addFile(f);
+                            $scope.$apply(function() {
+                                $scope.data[fileFieldName] === undefined && ($scope.data[fileFieldName] = []);
+                                $scope.data[fileFieldName].push({
+                                    uniqueIdentifier: r.files[r.files.length - 1].uniqueIdentifier,
+                                    name: f.name,
+                                    size: f.size,
+                                    type: f.type,
+                                    url: ''
+                                });
+                                $scope.$broadcast('xxt.enroll.file.choose.done', fileFieldName);
+                            });
+                        }
+                        ele = null;
+                    }, false);
+                    ele.click();
+                }
+                return defer.promise;
+            };
             _ins.syncByEnroll = function(record) {
                 var url;
 

@@ -250,7 +250,7 @@ class round_model extends \TMS_MODEL {
 				$hour = empty($rule->hour) ? 0 : (int) $rule->hour;
 				$end_hour = empty($rule->end_hour) ? 0 : (int) $rule->end_hour;
 				//算出结束的日期
-				if($rule->mday>=$rule->end_mday){
+				if($rule->mday==$rule->end_mday){
 					if($hour<$end_hour){
 						$end_month=$month;
 						$end_year=$year;
@@ -262,6 +262,14 @@ class round_model extends \TMS_MODEL {
 							$end_month=1;
 							$end_year=$year+1;
 						}
+					}
+				}else if($rule->mday > $rule->end_mday){
+					if($month < 12){
+						$end_month=$month+1;
+						$end_year=$year;
+					}else{
+						$end_month=1;
+						$end_year=$year+1;
 					}
 				}else{
 					$end_month=$month;
@@ -294,12 +302,14 @@ class round_model extends \TMS_MODEL {
 				}
 				$rule->end_wday=empty($rule->end_wday) ? 0 : $rule->end_wday;
 				$end_hour = empty($rule->end_hour) ? 0 : (int) $rule->end_hour;
-				if($rule->wday>=$rule->end_wday){
+				if($rule->wday==$rule->end_wday){
 					if($hour<$end_hour){
 						$end_mday=$mday+((int)$rule->end_wday-(int)$rule->wday);
 					}else{
 						$end_mday=$mday+7-((int)$rule->wday-(int)$rule->end_wday);
 					}
+				}else if($rule->wday > $rule->end_wday){
+					$end_mday=$mday+7-((int)$rule->wday-(int)$rule->end_wday);
 				}else{
 					$end_mday=$mday+((int)$rule->end_wday-(int)$rule->wday);
 				}			
@@ -405,7 +415,7 @@ class round_model extends \TMS_MODEL {
 				$hour = empty($rule->hour) ? 0 : (int) $rule->hour;
 				$end_hour = empty($rule->end_hour) ? 0 : (int) $rule->end_hour;
 				//算出结束的日期
-				if($rule->mday>=$rule->end_mday){
+				if($rule->mday==$rule->end_mday){
 					if($hour<$end_hour){
 						$end_month=$month;
 						$end_year=$year;
@@ -417,6 +427,14 @@ class round_model extends \TMS_MODEL {
 							$end_month=1;
 							$end_year=$year+1;
 						}
+					}
+				}else if($rule->mday > $rule->end_mday){
+					if($month < 12){
+						$end_month=$month+1;
+						$end_year=$year;
+					}else{
+						$end_month=1;
+						$end_year=$year+1;
 					}
 				}else{
 					$end_month=$month;
@@ -449,12 +467,14 @@ class round_model extends \TMS_MODEL {
 				}
 				$rule->end_wday=empty($rule->end_wday) ? 0 : $rule->end_wday;
 				$end_hour = empty($rule->end_hour) ? 0 : (int) $rule->end_hour;
-				if($rule->wday>=$rule->end_wday){
+				if($rule->wday==$rule->end_wday){
 					if($hour<$end_hour){
 						$end_mday=$mday+((int)$rule->end_wday-(int)$rule->wday);
 					}else{
 						$end_mday=$mday+7-((int)$rule->wday-(int)$rule->end_wday);
 					}
+				}else if($rule->wday > $rule->end_wday){
+					$end_mday=$mday+7-((int)$rule->wday-(int)$rule->end_wday);
 				}else{
 					$end_mday=$mday+((int)$rule->end_wday-(int)$rule->wday);
 				}			

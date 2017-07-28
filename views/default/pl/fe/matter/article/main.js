@@ -254,9 +254,9 @@ define(['frame'], function(ngApp) {
                         var url = '/rest/pl/fe/matter/tag/add?site=' + oApp.siteid + '&resId=' + oApp.id + '&resType=' + oApp.type + '&subType=' + subType;
                         http2.post(url, addMatterTag, function(rsp) {
                             if(subType === 'C'){
-                                $scope.editing.matter_cont_tag = rsp.data;
+                                $scope.editing.matter_cont_tag = addMatterTag;
                             }else{
-                                $scope.editing.matter_mg_tag = rsp.data;
+                                $scope.editing.matter_mg_tag = addMatterTag;
                             }
                         });
                         $mi.close();

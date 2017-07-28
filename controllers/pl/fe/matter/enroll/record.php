@@ -239,7 +239,9 @@ class record extends \pl\fe\matter\base {
 		/* 记录登记数据 */
 		if (isset($record->data)) {
 			$score = isset($record->quizScore) ? $record->quizScore : null;
-			$modelRec->setData(null, $oApp, $ek, $record->data, '', false, $score);
+			$userRecode = new \stdClass;
+			$userRecode->uid = $record->userid;
+			$modelRec->setData($userRecode, $oApp, $ek, $record->data, '', false, $score);
 		} else if (isset($record->quizScore)) {
 			/* 只修改登记项的分值 */
 			$oAfterScore = new \stdClass;
@@ -723,7 +725,6 @@ class record extends \pl\fe\matter\base {
 			if (isset($schema->format) && $schema->format === 'number') {
 				$isTotal[$columnNum4] = $schema->id;
 			}
-			//var_dump($i,$columnNum4,$i+$columnNum4,$i + $columnNum4++,$columnNum4++);
 			$objActiveSheet->setCellValueByColumnAndRow($columnNum4++, 1, $schema->title);
 
 			if (isset($remarkables) && in_array($schema->id, $remarkables)) {

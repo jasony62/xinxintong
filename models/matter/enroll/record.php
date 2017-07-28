@@ -115,10 +115,10 @@ class record_model extends \TMS_MODEL {
 					break;
 				case 'file':
 					if (is_array($submitVal)) {
-						if (isset($submitVal[0]->uniqueIdentifier)) {
-							/* 新上传的文件 */
-							$treatedValue = [];
-							foreach ($submitVal as $file) {
+						$treatedValue = [];
+						foreach ($submitVal as $file) {
+							if (isset($file->uniqueIdentifier)) {
+								/* 新上传的文件 */
 								if (defined('SAE_TMP_PATH')) {
 									$fsAli = $this->model('fs/alioss', $siteId);
 									$dest = '/' . $oApp->id . '/' . $submitkey . '_' . $file->name;
@@ -144,10 +144,10 @@ class record_model extends \TMS_MODEL {
 								unset($file->uniqueIdentifier);
 								$file->url = $fileUploaded2;
 								$treatedValue[] = $file;
+							} else {
+								/* 已经上传过的文件 */
+								$treatedValue[] = $file;
 							}
-						} else {
-							/* 已经上传过的文件 */
-							$treatedValue = $submitVal;
 						}
 						$dbData->{$schemaId} = $treatedValue;
 					} else {

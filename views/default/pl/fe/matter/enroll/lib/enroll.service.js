@@ -1159,7 +1159,6 @@ define(['require', 'schema', 'page'], function(require, schemaLib, pageLib) {
                 }
                 return defer.promise;
             };
-
             _ins.syncByEnroll = function(record) {
                 var url;
 

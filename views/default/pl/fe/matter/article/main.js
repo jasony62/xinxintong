@@ -275,12 +275,6 @@ define(['frame'], function(ngApp) {
         };
         $scope.$watch('editing', function(editing) {
             if (!editing) return;
-            http2.get('/rest/pl/fe/matter/tag/list?site=' + $scope.editing.siteid + '&resType=article&subType=0', function(rsp) {
-                $scope.tags = rsp.data;
-            });
-            http2.get('/rest/pl/fe/matter/tag/list?site=' + $scope.editing.siteid + '&resType=article&subType=1', function(rsp) {
-                $scope.tags2 = rsp.data;
-            });
             if (tinymceEditor) {
                 tinymceEditor.setContent(editing.body);
             }

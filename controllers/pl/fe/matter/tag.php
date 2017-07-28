@@ -63,8 +63,16 @@ class tag extends \pl\fe\base {
 
 		$model = $this->model('tag');
 		$model->setOnlyWriteDbConn(true);
+		switch($resType){
+			case 'article':
+				$fields = "id,siteid,title,summary,pic,matter_cont_tag,matter_mg_tag,'$resType' type";
+				break;
+			default:
+				$fields = "id,siteid,title,summary,pic,matter_mg_tag,'$resType' type";
+				break;
+		}
 		$q = [
-			"id,siteid,title,summary,pic,matter_cont_tag,matter_mg_tag,'$resType' type",
+			$fields,
 			'xxt_' . $resType,
 			['id' => $resId, 'state' => 1]
 		];

@@ -203,7 +203,7 @@ define(['frame'], function(ngApp) {
             }
         };
         $scope.tagRecordData = function(subType) {
-            var oApp, oTags;
+            var oApp, oTags, tagsOfData;
             oApp = $scope.editing;
             oTags = $scope.oTag;
             $uibModal.open({
@@ -237,7 +237,7 @@ define(['frame'], function(ngApp) {
                             newTags = newTags.split(',');
                             http2.post('/rest/pl/fe/matter/tag/create?site=' + oApp.siteid, newTags, function(rsp) {
                                 rsp.data.forEach(function(oNewTag) {
-                                    $scope2.apptags.unshift(oNewTag);
+                                    $scope2.apptags.push(oNewTag);
                                 });
                             });
                             $scope2.model.newtag = '';

@@ -330,11 +330,13 @@ class round_model extends \TMS_MODEL {
 				}
 				$end_month=$month;
 				$end_year=$year;
+			}else{
+				isset($rule->hour) && $hour=(int) $rule->hour;
+				$end_hour = empty($rule->end_hour) ? 0 : (int) $rule->end_hour;
+				$end_month=$month;
+				$end_year=$year;
+				$end_mday=$mday+1;
 			}
-			!isset($end_hour) && $end_hour=0;
-			!isset($end_month) && $end_month=$month;
-			!isset($end_year) && $end_year=$year;
-			!isset($end_mday) && $end_mday=$mday+1;
 			
 			$startAt = mktime($hour, 0, 0, $month, $mday, $year);
 			$endAt=mktime($end_hour, 0, 0, $end_month, $end_mday, $end_year);
@@ -500,12 +502,14 @@ class round_model extends \TMS_MODEL {
 				}
 				$end_month=$month;
 				$end_year=$year;
+			}else{
+				isset($rule->hour) && $hour=(int) $rule->hour;
+				$end_hour = empty($rule->end_hour) ? 0 : (int) $rule->end_hour;
+				$end_month=$month;
+				$end_year=$year;
+				$end_mday=$mday+1;
 			}
-			!isset($end_hour) && $end_hour=0;
-			!isset($end_month) && $end_month=$month;
-			!isset($end_year) && $end_year=$year;
-			!isset($end_mday) && $end_mday=$mday+1;
-
+			
 			$startAt = mktime($hour, 0, 0, $month, $mday, $year);
 			$endAt=mktime($end_hour, 0, 0, $end_month, $end_mday, $end_year);
 			// 记录活动的轮次生成时间

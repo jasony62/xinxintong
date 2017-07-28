@@ -1,7 +1,7 @@
 define(['frame'], function(ngApp) {
     'use strict';
     ngApp.provider.controller('ctrlTag',['$scope', '$http', 'srvEnrollApp', 'noticebox', function($scope, $http, srvEnrollApp, noticebox){
-        var page;
+        var page, oPage, schemas;
         $scope.scopeNames = {
             'S': '参与者',
             'P': '发起人',
@@ -14,13 +14,14 @@ define(['frame'], function(ngApp) {
                 return '&page=' + this.at + '&size=' + this.size;
             }
         };
+        $scope.oPage = oPage = {at: 1, size: 12};
+        $scope.schemas = schemas = {};
         $scope.createTag = function() {
             var newTags;
             if ($scope.newtag) {
                 newTags = $scope.newtag.replace(/\s/, ',');
                 newTags = newTags.split(',');
                 $http.post('/rest/pl/fe/matter/enroll/tag/create?app=' + $scope.app.id, newTags).then(function(rsp) {
-                    console.log(rsp.data);
                     rsp.data.data.forEach(function(oNewTag) {
                         $scope.tags.push(oNewTag);
                     });
@@ -32,6 +33,28 @@ define(['frame'], function(ngApp) {
             $http.get('/rest/pl/fe/matter/enroll/tag/get?app=' + $scope.app.id + page.j()).then(function(rsp) {
                 $scope.tags = rsp.data.data.tags;
                 $scope.page.total = rsp.data.data.total;
+            });
+        };
+        $scope.list4Schema = function(event, tag) {
+            event.preventDefault();
+            event.stopPropagation();
+            var url;
+            url = '/rest/pl/fe/matter/enroll/data/list4Schema?site=' + $scope.app.siteid + '&app=' + $scope.app.id;
+            url += '&page=' + oPage.at + '&size=' + oPage.size;
+            $http.post(url, {tag:tag.id}).then(function(result) {
+                if(result.data.data.records) {
+                    result.data.data.records.forEach(function(oRecord) {
+                        if (oRecord.tag) {
+                            oRecord.tag.forEach(function(index, tagId) {
+                                if ($scope.app._tagsById[index]) {
+                                    oRecord.tag[tagId] = $scope.app._tagsById[index];
+                                }
+                            });
+                        }
+                    });
+                }
+                $scope.records = result.data.data.records;
+                oPage.total = result.data.data.total;
             });
         };
         $scope.removeTag = function(tag) {
@@ -64,6 +87,10 @@ define(['frame'], function(ngApp) {
             });
         }
         srvEnrollApp.get().then(function(app) {
+            $scope.app = app;
+            app.dataSchemas.forEach(function(schema) {
+                schemas[schema.id] = schema;
+            });
             $scope.doSearch();
         });
     }]);

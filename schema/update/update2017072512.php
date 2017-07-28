@@ -40,4 +40,18 @@ foreach($articles as $article){
 	}
 }
 
+$sqlTag = "select tag_id,count(tag_id) sum from xxt_article_tag group by tag_id";
+$rstTag = $mysqli->query($sqlTag);
+$tagsSum = [];
+while ( $obj = $rstTag->fetch_object()) {
+	$tagsSum[] = $obj;
+}
+
+foreach ($tagsSum as $tag) {
+	$sql5 = "update xxt_tag set sum = $tag->sum where id = $tag->tag_id";
+	if (!$mysqli->query($sql5)) {
+		header('HTTP/1.0 500 Internal Server Error');
+		echo 'database error: ' . $mysqli->error;
+	}
+}
 echo "end update " . __FILE__ . PHP_EOL;

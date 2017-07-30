@@ -1,19 +1,21 @@
 <style>
-    th{text-align:center;}
+th {
+    text-align: center;
+}
 </style>
 <div class="modal-header">
     <button class="close" type="button" ng-click="cancel()">×</button>
-    <h5 class="modal-title ">在指定的时间自动生成轮次，并作为轮次的开始时间</h5>
+    <h5 class="modal-title ">系统将在指定的时间自动生成轮次，并作为轮次的开始时间</h5>
 </div>
 <div class="modal-body ">
     <table class='table table-bordered'>
         <thead>
             <tr>
-                <th style='width:4em'>周期</th>
-                <th style='width:5em'>星期几</th>
-                <th style='width:5em'>日期 (1 - 28)</th>
-                <th style='width:3em'>小时 (0 - 23)</th>
-                <th style='width:3em'>最近轮次</th>
+                <th style='width:6em'>周期</th>
+                <th style='width:10em'>星期几</th>
+                <th style='width:10em'>日期 (1 - 28)</th>
+                <th style='width:10em'>小时 (0 - 23)</th>
+                <th>最近轮次</th>
                 <th style='width:4em'>启用</th>
                 <th style='width:4em'>操作</th>
             </tr>
@@ -35,41 +37,72 @@
                     </div>
                 </td>
                 <td>
-                     <p>开始：<select class='form-control' ng-model="rule.wday" ng-disabled="rule.period!=='W'" ng-blur="blur(rule)">
-                        <option value=''>忽略</option>
-                        <option value='1'>周一</option>
-                        <option value='2'>周二</option>
-                        <option value='3'>周三</option>
-                        <option value='4'>周四</option>
-                        <option value='5'>周五</option>
-                        <option value='6'>周六</option>
-                        <option value='0'>周日</option>
-                    </select></p>
-                    <p>结束：<select class='form-control' ng-model="rule.end_wday" ng-disabled="rule.period!=='W'" ng-blur="blur(rule)">
-                        <option value=''>忽略</option>
-                        <option value='1'>周一</option>
-                        <option value='2'>周二</option>
-                        <option value='3'>周三</option>
-                        <option value='4'>周四</option>
-                        <option value='5'>周五</option>
-                        <option value='6'>周六</option>
-                        <option value='0'>周日</option>
-                    </select></p>
+                    <div class='form-inline'>
+                        <div class='form-group'>
+                            <label>开始：</label>
+                            <select class='form-control' ng-model="rule.wday" ng-disabled="rule.period!=='W'" ng-blur="blur(rule)">
+                                <option value=''>忽略</option>
+                                <option value='1'>周一</option>
+                                <option value='2'>周二</option>
+                                <option value='3'>周三</option>
+                                <option value='4'>周四</option>
+                                <option value='5'>周五</option>
+                                <option value='6'>周六</option>
+                                <option value='0'>周日</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div class='form-inline'>
+                        <div class='form-group'>
+                            <label>结束：</label>
+                            <select class='form-control' ng-model="rule.end_wday" ng-disabled="rule.period!=='W'" ng-blur="blur(rule)">
+                                <option value=''>忽略</option>
+                                <option value='1'>周一</option>
+                                <option value='2'>周二</option>
+                                <option value='3'>周三</option>
+                                <option value='4'>周四</option>
+                                <option value='5'>周五</option>
+                                <option value='6'>周六</option>
+                                <option value='0'>周日</option>
+                            </select>
+                        </div>
+                    </div>
                 </td>
                 <td>
-                    <p>开始：<select class='form-control' ng-model='rule.mday' ng-options="m for m in mdays" ng-disabled="rule.period!=='M'" ng-blur="blur(rule)">
-                        <option value=''>忽略</option>
-                    </select></p>
-                    <p>结束：<select class='form-control' ng-model='rule.end_mday' ng-options="m for m in mdays" ng-disabled="rule.period!=='M'" ng-blur="blur(rule)">
-                        <option value=''>忽略</option>
-                    </select></p>
+                    <div class='form-inline'>
+                        <div class='form-group'>
+                            <label>开始：</label>
+                            <select class='form-control' ng-model='rule.mday' ng-options="m for m in mdays" ng-disabled="rule.period!=='M'" ng-blur="blur(rule)">
+                                <option value=''>忽略</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div class='form-inline'>
+                        <div class='form-group'>
+                            <label>结束：</label>
+                            <select class='form-control' ng-model='rule.end_mday' ng-options="m for m in mdays" ng-disabled="rule.period!=='M'" ng-blur="blur(rule)">
+                                <option value=''>忽略</option>
+                            </select>
+                        </div>
+                    </div>
                 </td>
                 <td>
-                    <p>开始：<input type='text' class='form-control' ng-model="rule.hour" ng-blur="blur(rule)"></p>
-                    <p>结束：<input type='text' class='form-control' ng-model="rule.end_hour" ng-blur="blur(rule)"></p>
+                    <div class='form-inline'>
+                        <div class='form-group'>
+                            <label>开始：</label>
+                            <input type='text' class='form-control' style='width:4em' ng-model="rule.hour" ng-blur="blur(rule)">
+                        </div>
+                    </div>
+                    <div class='form-inline'>
+                        <div class='form-group'>
+                            <label>结束：</label>
+                            <input type='text' class='form-control' style='width:4em' ng-model="rule.end_hour" ng-blur="blur(rule)">
+                        </div>
+                    </div>
                 </td>
                 <td>
-                    <div class="round" id="round{{$index}}"><p>开始时间：{{rule.case.start}}</p>结束时间：{{rule.case.end}}</div>
+                    <div class="round" id="round{{$index}}">
+                        <p>开始时间：{{rule.case.start}}</p>结束时间：{{rule.case.end}}</div>
                 </td>
                 <td>
                     <input type='checkbox' ng-true-value="'Y'" ng-false-value="'N'" ng-model="rule.enabled">

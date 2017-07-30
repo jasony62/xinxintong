@@ -745,9 +745,10 @@ define(['require', 'schema', 'page'], function(require, schemaLib, pageLib) {
                     var defer = $q.defer();
                     srvEnrollApp.get().then(function(oApp) {
                         $uibModal.open({
-                            templateUrl: '/views/default/pl/fe/matter/enroll/component/roundCron.html?_=1',
+                            templateUrl: '/views/default/pl/fe/matter/enroll/component/roundCron.html?_=2',
+                            size: 'lg',
                             backdrop: 'static',
-                            controller: ['$scope', '$uibModalInstance','http2', function($scope, $mi, $http2) {
+                            controller: ['$scope', '$uibModalInstance', 'http2', function($scope, $mi, $http2) {
                                 var cron;
                                 $scope.mdays = [];
                                 while ($scope.mdays.length < 28) {
@@ -765,14 +766,14 @@ define(['require', 'schema', 'page'], function(require, schemaLib, pageLib) {
                                         rule.mday = '';
                                     }
                                 };
-                                $scope.blur=function(rule){
-                                    var index=cron.indexOf(rule);
-                                    var div=document.querySelector('#round'+index);
+                                $scope.blur = function(rule) {
+                                    var index = cron.indexOf(rule);
+                                    var div = document.querySelector('#round' + index);
                                     var html;
-                                    $http2.post('/rest/pl/fe/matter/enroll/round/getcron',{roundCron:rule},function(rsp){
-                                        html='<p>开始时间：'+rsp.data.start+'</p>结束时间：'+rsp.data.end;
-                                        div.innerHTML=html;
-                                        cron[index].case=rsp.data;
+                                    $http2.post('/rest/pl/fe/matter/enroll/round/getcron', { roundCron: rule }, function(rsp) {
+                                        html = '<p>开始时间：' + rsp.data.start + '</p>结束时间：' + rsp.data.end;
+                                        div.innerHTML = html;
+                                        cron[index].case = rsp.data;
                                     });
                                 };
                                 $scope.add = function() {

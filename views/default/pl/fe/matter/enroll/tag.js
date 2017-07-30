@@ -35,9 +35,11 @@ define(['frame'], function(ngApp) {
                 $scope.page.total = rsp.data.data.total;
             });
         };
-        $scope.list4Schema = function(event, tag) {
+        $scope.list4Schema = function(event, i, tag) {
             event.preventDefault();
             event.stopPropagation();
+
+            $scope.focus = i;
             var url;
             url = '/rest/pl/fe/matter/enroll/data/list4Schema?site=' + $scope.app.siteid + '&app=' + $scope.app.id;
             url += '&page=' + oPage.at + '&size=' + oPage.size;

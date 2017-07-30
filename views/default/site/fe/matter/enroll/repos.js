@@ -65,6 +65,9 @@ ngApp.controller('ctrlRepos', ['$scope', 'http2', 'Round', '$sce', function($sco
             page.total = result.data.total;
             if ($scope.repos) {
                 result.data.records.forEach(function(oRecord) {
+                    if(schemas[oRecord.schema_id].type=='file') {
+                        oRecord.value = angular.fromJson(oRecord.value);
+                    }
                     if (oRecord.tag) {
                         oRecord.tag.forEach(function(index, tagId) {
                             if (oApp._tagsById[index]) {

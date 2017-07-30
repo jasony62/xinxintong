@@ -16,12 +16,16 @@
     float: left
 }
 
+#recordEditor ul.list-group {
+    position: relative;
+}
+
 #recordEditor ul.img-tiles li.img-thumbnail img {
     display: inline-block;
     position: absolute
 }
 
-#recordEditor ul.img-tiles li.img-thumbnail button {
+#recordEditor ul.img-tiles li.img-thumbnail button, #recordEditor ul.list-group button {
     position: absolute;
     top: 0;
     right: 0
@@ -151,13 +155,28 @@
                         </li>
                     </ul>
                     <div ng-switch-when="file">
-                        <div ng-repeat="file in record.data[schema.id]">
-                            <span><a ng-href="{{file.url}}" target="_blank">{{file.name}}</a></span>
-                            <video ng-if="file.type.indexOf('video')===0" style="width:100%;" controls="controls">
-                                <source src="{{file.url}}" type="{{file.type}}" />
-                            </video>
-                            <img ng-if="file.type.indexOf('image')===0" ng-src='{{file.url}}' style="width:100%" />
-                        </div>
+                        <ul class="list-group" ng-repeat="file in record.data[schema.id]">
+                            <li class="list-group-item" ng-if="file.type.indexOf('video')===0">
+                                <span><a ng-href="{{file.url}}" target="_blank">{{file.name}}</a></span>
+                                <video controls="controls" style="width:100%;">
+                                    <source src="{{file.url}}" type="{{file.type}}"/>
+                                </video>
+                            </li>
+                            <li class="list-group-item" ng-if="file.type.indexOf('audio')===0">
+                                <span><a ng-href="{{file.url}}" target="_blank">{{file.name}}</a></span>
+                                <audio controls="controls" style="width:100%;">
+                                    <source src="{{file.url}}" type="{{file.type}}" title="{{file.name}}"/>
+                                </audio>
+                            </li>
+                            <li class="list-group-item" ng-if="file.type.indexOf('image')===0">
+                                <img  ng-src='{{file.url}}' style="width:100%" title="{{file.name}}"/>
+                            </li>
+                            <li class="list-group-item" ng-if="file.type.indexOf('video')===-1&&file.type.indexOf('audio')===-1&&file.type.indexOf('image')===-1">
+                                <span><a ng-href="{{file.url}}" target="_blank">{{file.name}}</a></span>
+                            </li>
+                            <button class="btn btn-default btn-xs" ng-click="removeFile(record.data[schema.id],$index)"><span class="glyphicon glyphicon-remove"></span></button>
+                        </ul>
+                        <button class="btn btn-default" ng-click="chooseFile(schema.id)">上传文件</button>
                     </div>
                     <div ng-switch-when='date'>
                         <tms-datepicker class='tms-datepicker' tms-title='时间' tms-obj="rnd" tms-date="record.data[schema.id]" tms-state="signinAt"></tms-datepicker>

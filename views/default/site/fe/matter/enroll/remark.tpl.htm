@@ -38,7 +38,21 @@
                     <blockquote ng-switch on="filter.schema.type">
                         <p ng-switch-when="single"><span>{{value2Label(filter.schema.id)}}</span></p>
                         <p ng-switch-when="multiple"><span>{{value2Label(filter.schema.id)}}</span></p>
-                        <p ng-switch-when="image"><img ng-src="{{data.value}}"></p>
+                        <ul ng-switch-when="image">
+                            <li ng-repeat="img in data.value.split(',')"><img ng-src="{{img}}" /></li>
+                        </ul>
+                        <div ng-switch-when="file">
+                            <div ng-repeat="file in data.value">
+                                <p><a ng-href="{{file.url}}" target="_blank">{{file.name}}</a></p>
+                                <video ng-if="file.type.indexOf('video')===0" style="width:40%;" controls="controls">
+                                    <source src="{{file.url}}" type="{{file.type}}" />
+                                </video>
+                                <audio ng-if="file.type.indexOf('audio')===0" controls="controls">
+                                    <source src="{{file.url}}" type="{{file.type}}" />
+                                </audio>
+                                <img ng-if="file.type.indexOf('image')===0" ng-src='{{file.url}}' style="width:40%" />
+                            </div>
+                        </div>
                         <p ng-switch-default>{{data.value}}</p>
                         <p ng-if="filter.schema.cantag==='Y'">
                             <span class="tag" ng-repeat="t in data.tag" ng-bind="t.label"></span>

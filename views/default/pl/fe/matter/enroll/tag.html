@@ -26,7 +26,7 @@
                         </tr>
                     </thead>
                     <tbody>
-                        <tr ng-repeat="tag in tags" ng-click="list4Schema($event,tag)" style="cursor: pointer;">
+                        <tr ng-repeat="tag in tags" ng-click="list4Schema($event,$index,tag)" style="cursor: pointer;" ng-class="{'active': $index==focus}">
                             <td>{{(page.at-1)*page.size+$index+1}}</td>
                             <td>{{(tag.create_at*1000)|date:'MM-dd HH:mm'}}</td>
                             <td>{{scopeNames[tag.creater_src]}}</td>

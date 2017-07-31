@@ -209,6 +209,7 @@ class player extends \pl\fe\matter\base {
 	 */
 	private function &_importByMschema($groupId, $mschemaId, $sync = 'N') {
 		$modelGrp = $this->model('matter\group');
+		$modelGrp->setOnlyWriteDbConn(true);
 		$modelPly = $this->model('matter\group\player');
 		$modelMsc = $this->model('site\user\memberschema');
 
@@ -302,7 +303,8 @@ class player extends \pl\fe\matter\base {
 	 */
 	private function &_importByEnroll($site, $app, $byApp, $sync = 'N') {
 		$modelGrp = $this->model('matter\group');
-		$modelPlayer = $this->model('matter\group\player');
+		$modelGrp->setOnlyWriteDbConn(true);
+		$modelPly = $this->model('matter\group\player');
 		$modelEnl = $this->model('matter\enroll');
 
 		$sourceApp = $modelEnl->byId($byApp, ['fields' => 'data_schemas', 'cascaded' => 'N']);
@@ -314,10 +316,10 @@ class player extends \pl\fe\matter\base {
 				'source_app' => '{"id":"' . $byApp . '","type":"enroll"}',
 				'data_schemas' => $sourceApp->data_schemas,
 			],
-			"id='$app'"
+			['id' => $app]
 		);
 		/* 清空已有分组数据 */
-		$modelPlayer->clean($app, true);
+		$modelPly->clean($app, true);
 		/* 获取所有登记数据 */
 		$modelRec = $this->model('matter\enroll\record');
 		$q = [
@@ -339,8 +341,8 @@ class player extends \pl\fe\matter\base {
 				$user->yx_openid = $record->yx_openid;
 				$user->qy_openid = $record->qy_openid;
 				$user->headimgurl = $record->headimgurl;
-				$modelPlayer->enroll($site, $objGrp, $user, ['enroll_key' => $ek, 'enroll_at' => $record->enroll_at]);
-				$modelPlayer->setData($site, $objGrp, $ek, $record->data);
+				$modelPly->enroll($site, $objGrp, $user, ['enroll_key' => $ek, 'enroll_at' => $record->enroll_at]);
+				$modelPly->setData($site, $objGrp, $ek, $record->data);
 			}
 		}
 
@@ -353,7 +355,8 @@ class player extends \pl\fe\matter\base {
 	private function &_importBySignin($site, $app, &$params) {
 		$byApp = $params->app;
 		$modelGrp = $this->model('matter\group');
-		$modelPlayer = $this->model('matter\group\player');
+		$modelGrp->setOnlyWriteDbConn(true);
+		$modelPly = $this->model('matter\group\player');
 		$modelSignin = $this->model('matter\signin');
 
 		$sourceApp = $modelSignin->byId($byApp, ['fields' => 'data_schemas,enroll_app_id', 'cascaded' => 'N']);
@@ -380,10 +383,10 @@ class player extends \pl\fe\matter\base {
 				'source_app' => '{"id":"' . $byApp . '","type":"signin"}',
 				'data_schemas' => $sourceDataSchemas,
 			],
-			"id='$app'"
+			['id' => $app]
 		);
 		/* 清空已有数据 */
-		$modelPlayer->clean($app, true);
+		$modelPly->clean($app, true);
 		/* 获取数据 */
 		$modelRec = $this->model('matter\signin\record');
 		$q = [
@@ -405,8 +408,8 @@ class player extends \pl\fe\matter\base {
 				$user->yx_openid = $record->yx_openid;
 				$user->qy_openid = $record->qy_openid;
 				$user->headimgurl = $record->headimgurl;
-				$modelPlayer->enroll($site, $objGrp, $user, ['enroll_key' => $ek, 'enroll_at' => $record->enroll_at]);
-				$modelPlayer->setData($site, $objGrp, $ek, $record->data);
+				$modelPly->enroll($site, $objGrp, $user, ['enroll_key' => $ek, 'enroll_at' => $record->enroll_at]);
+				$modelPly->setData($site, $objGrp, $ek, $record->data);
 			}
 		}
 
@@ -418,7 +421,8 @@ class player extends \pl\fe\matter\base {
 	 */
 	private function &_importByWall($site, $app, $byApp, $onlySpeaker) {
 		$modelGrp = $this->model('matter\group');
-		$modelPlayer = $this->model('matter\group\player');
+		$modelGrp->setOnlyWriteDbConn(true);
+		$modelPly = $this->model('matter\group\player');
 		$modelWall = $this->model('matter\wall');
 
 		$sourceApp = $modelWall->byId($byApp, ['fields' => 'data_schemas']);
@@ -430,10 +434,10 @@ class player extends \pl\fe\matter\base {
 				'source_app' => '{"id":"' . $byApp . '","type":"wall"}',
 				'data_schemas' => $sourceApp->data_schemas,
 			],
-			"id='$app'"
+			['id' => $app]
 		);
 		/* 清空已有分组数据 */
-		$modelPlayer->clean($app, true);
+		$modelPly->clean($app, true);
 		//获取所有用户数据
 		$u = array(
 			'*',
@@ -458,11 +462,11 @@ class player extends \pl\fe\matter\base {
 				$user->qy_openid = $wallUser->qy_openid;
 				$user->headimgurl = $wallUser->headimgurl;
 				if (empty($wallUser->enroll_key)) {
-					$ek = $modelPlayer->genKey($site, $app);
+					$ek = $modelPly->genKey($site, $app);
 					$wallUser->enroll_key = $ek;
 				}
-				$modelPlayer->enroll($site, $objGrp, $user, ['enroll_key' => $wallUser->enroll_key, 'enroll_at' => $wallUser->join_at]);
-				$modelPlayer->setData($site, $objGrp, $wallUser->enroll_key, $wallUser->data);
+				$modelPly->enroll($site, $objGrp, $user, ['enroll_key' => $wallUser->enroll_key, 'enroll_at' => $wallUser->join_at]);
+				$modelPly->setData($site, $objGrp, $wallUser->enroll_key, $wallUser->data);
 			}
 		}
 
@@ -579,7 +583,7 @@ class player extends \pl\fe\matter\base {
 		}
 		$wallUsers = $this->model()->query_objs_ss($u);
 
-		$modelPlayer = $this->model('matter\group\player');
+		$modelPly = $this->model('matter\group\player');
 		if (!empty($wallUsers)) {
 			foreach ($wallUsers as $wallUser) {
 				$wallUser->data = empty($wallUser->data) ? '' : json_decode($wallUser->data);
@@ -590,13 +594,13 @@ class player extends \pl\fe\matter\base {
 				$user->yx_openid = $wallUser->yx_openid;
 				$user->qy_openid = $wallUser->qy_openid;
 				$user->headimgurl = $wallUser->headimgurl;
-				if ($modelPlayer->byId($objGrp->id, $wallUser->enroll_key, ['cascaded' => 'N'])) {
+				if ($modelPly->byId($objGrp->id, $wallUser->enroll_key, ['cascaded' => 'N'])) {
 					// 已经同步过的用户
-					$modelPlayer->setData($siteId, $objGrp, $wallUser->enroll_key, $wallUser->data);
+					$modelPly->setData($siteId, $objGrp, $wallUser->enroll_key, $wallUser->data);
 				} else {
 					// 新用户
-					$modelPlayer->enroll($siteId, $objGrp, $user, ['enroll_key' => $wallUser->enroll_key, 'enroll_at' => $wallUser->join_at]);
-					$modelPlayer->setData($siteId, $objGrp, $wallUser->enroll_key, $wallUser->data);
+					$modelPly->enroll($siteId, $objGrp, $user, ['enroll_key' => $wallUser->enroll_key, 'enroll_at' => $wallUser->join_at]);
+					$modelPly->setData($siteId, $objGrp, $wallUser->enroll_key, $wallUser->data);
 				}
 			}
 		}
@@ -608,7 +612,7 @@ class player extends \pl\fe\matter\base {
 	 */
 	private function _syncRecord($siteId, &$objGrp, &$records, &$modelRec) {
 		$cnt = 0;
-		$modelPlayer = $this->model('matter\group\player');
+		$modelPly = $this->model('matter\group\player');
 		if (!empty($records)) {
 			$options = ['cascaded' => 'Y'];
 			foreach ($records as $record) {
@@ -621,18 +625,18 @@ class player extends \pl\fe\matter\base {
 					$user->yx_openid = $record->yx_openid;
 					$user->qy_openid = $record->qy_openid;
 					$user->headimgurl = $record->headimgurl;
-					if ($modelPlayer->byId($objGrp->id, $record->enroll_key, ['cascaded' => 'N'])) {
+					if ($modelPly->byId($objGrp->id, $record->enroll_key, ['cascaded' => 'N'])) {
 						// 已经同步过的用户
-						$modelPlayer->setData($siteId, $objGrp, $record->enroll_key, $record->data);
+						$modelPly->setData($siteId, $objGrp, $record->enroll_key, $record->data);
 					} else {
 						// 新用户
-						$modelPlayer->enroll($siteId, $objGrp, $user, ['enroll_key' => $record->enroll_key, 'enroll_at' => $record->enroll_at]);
-						$modelPlayer->setData($siteId, $objGrp, $record->enroll_key, $record->data);
+						$modelPly->enroll($siteId, $objGrp, $user, ['enroll_key' => $record->enroll_key, 'enroll_at' => $record->enroll_at]);
+						$modelPly->setData($siteId, $objGrp, $record->enroll_key, $record->data);
 					}
 					$cnt++;
 				} else {
 					// 删除用户
-					if ($modelPlayer->remove($objGrp->id, $record->enroll_key, true)) {
+					if ($modelPly->remove($objGrp->id, $record->enroll_key, true)) {
 						$cnt++;
 					}
 				}
@@ -654,10 +658,10 @@ class player extends \pl\fe\matter\base {
 		$posted = $this->getPostJson();
 		$current = time();
 		$modelGrp = $this->model('matter\group');
-		$modelPlayer = $this->model('matter\group\player');
+		$modelPly = $this->model('matter\group\player');
 
 		$app = $modelGrp->byId($app);
-		$ek = $modelPlayer->genKey($site, $app->id);
+		$ek = $modelPly->genKey($site, $app->id);
 		/**
 		 * 分组用户登记数据
 		 */
@@ -684,8 +688,8 @@ class player extends \pl\fe\matter\base {
 			$player->round_title = $round->title;
 		}
 
-		$modelPlayer->enroll($site, $app, $user, $player);
-		$result = $modelPlayer->setData($site, $app, $ek, $posted->data);
+		$modelPly->enroll($site, $app, $user, $player);
+		$result = $modelPly->setData($site, $app, $ek, $posted->data);
 		if (false === $result[0]) {
 			return new \ResponseError($result[1]);
 		}
@@ -707,7 +711,7 @@ class player extends \pl\fe\matter\base {
 
 		$player = $this->getPostJson();
 		$modelGrp = $this->model('matter\group');
-		$modelPlayer = $this->model('matter\group\player');
+		$modelPly = $this->model('matter\group\player');
 
 		$app = $modelGrp->byId($app);
 
@@ -729,17 +733,17 @@ class player extends \pl\fe\matter\base {
 				$record->round_title = $round->title;
 			}
 		}
-		$modelPlayer->update(
+		$modelPly->update(
 			'xxt_group_player',
 			$record,
 			["aid" => $app->id, "enroll_key" => $ek]
 		);
 		/* 更新登记数据 */
-		$result = $modelPlayer->setData($site, $app, $ek, $player->data);
+		$result = $modelPly->setData($site, $app, $ek, $player->data);
 		if (false === $result[0]) {
 			return new \ResponseError($result[1]);
 		}
-		$player = $modelPlayer->byId($app->id, $ek);
+		$player = $modelPly->byId($app->id, $ek);
 
 		/* 记录操作日志 */
 		$this->model('matter\log')->matterOp($site, $user, $app, 'update', $player);

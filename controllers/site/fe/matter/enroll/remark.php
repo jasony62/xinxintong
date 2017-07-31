@@ -37,7 +37,7 @@ class remark extends base {
 	 * 给指定的登记记录的添加评论
 	 * 进行评论操作的用户需满足进入活动规则的条件
 	 */
-	public function add_action($ek, $schema = '') {
+	public function add_action($ek, $schema = '', $remark = '') {
 		$modelRec = $this->model('matter\enroll\record');
 		$oRecord = $modelRec->byId($ek);
 		if (false === $oRecord) {
@@ -76,7 +76,8 @@ class remark extends base {
 		$oRemark->nickname = $modelRec->escape($oUser->nickname);
 		$oRemark->enroll_key = $ek;
 		$oRemark->enroll_userid = $oRecord->userid;
-		$oRemark->schema_id = $schema;
+		$oRemark->schema_id = $modelRec->escape($schema);
+		$oRemark->remark_id = $modelRec->escape($remark);
 		$oRemark->create_at = $current;
 		$oRemark->content = $modelRec->escape($data->content);
 

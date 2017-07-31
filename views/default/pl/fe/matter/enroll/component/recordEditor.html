@@ -25,7 +25,8 @@
     position: absolute
 }
 
-#recordEditor ul.img-tiles li.img-thumbnail button, #recordEditor ul.list-group button {
+#recordEditor ul.img-tiles li.img-thumbnail button,
+#recordEditor ul.list-group button {
     position: absolute;
     top: 0;
     right: 0
@@ -159,17 +160,17 @@
                             <li class="list-group-item" ng-if="file.type.indexOf('video')===0">
                                 <span><a ng-href="{{file.url}}" target="_blank">{{file.name}}</a></span>
                                 <video controls="controls" style="width:100%;">
-                                    <source src="{{file.url}}" type="{{file.type}}"/>
+                                    <source src="{{file.url}}" type="{{file.type}}" />
                                 </video>
                             </li>
                             <li class="list-group-item" ng-if="file.type.indexOf('audio')===0">
                                 <span><a ng-href="{{file.url}}" target="_blank">{{file.name}}</a></span>
                                 <audio controls="controls" style="width:100%;">
-                                    <source src="{{file.url}}" type="{{file.type}}" title="{{file.name}}"/>
+                                    <source src="{{file.url}}" type="{{file.type}}" title="{{file.name}}" />
                                 </audio>
                             </li>
                             <li class="list-group-item" ng-if="file.type.indexOf('image')===0">
-                                <img  ng-src='{{file.url}}' style="width:100%" title="{{file.name}}"/>
+                                <img ng-src='{{file.url}}' style="width:100%" title="{{file.name}}" />
                             </li>
                             <li class="list-group-item" ng-if="file.type.indexOf('video')===-1&&file.type.indexOf('audio')===-1&&file.type.indexOf('image')===-1">
                                 <span><a ng-href="{{file.url}}" target="_blank">{{file.name}}</a></span>
@@ -197,7 +198,7 @@
                             <input type='text' class='form-control' ng-disabled="['single','multiple'].indexOf(schema.type)!==-1" ng-model="quizScore[schema.id]" style='width:64px'>
                         </div>
                         <div ng-if="schema.shareable==='Y'">
-                            <span>点赞<span class='badge'>{{record.verbose[schema.id].like_num||0}}</span></span>
+                            <span>赞同<span class='badge'>{{record.verbose[schema.id].like_num||0}}</span></span>
                         </div>
                         <div ng-if="schema.remarkable==='Y'">
                             <button class='btn btn-default btn-sm' ng-click="switchSchemaRemarks(schema)"><span class='glyphicon glyphicon-comment'></span> <span class="badge">{{record.verbose[schema.id].remark_num||0}}</span></button>
@@ -222,7 +223,7 @@
                         </blockquote>
                         <div class='bottom-bar'>
                             <div class='datetime'>{{remark.create_at*1000|date:'MM-dd HH:mm'}}</div>
-                            <span>点赞 <span class='badge'>{{remark.like_num}}</span></span>
+                            <span>赞同 <span class='badge'>{{remark.like_num}}</span></span>
                             <select class='form-control input-sm' style='width:7em' ng-change="agreeRemark(remark)" ng-model="remark.agreed">
                                 <option value=''>未表态</option>
                                 <option value='Y'>推荐</option>

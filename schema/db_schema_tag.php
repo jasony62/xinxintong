@@ -13,6 +13,7 @@ $sql .= ",create_at int not null default 0";
 $sql .= ',title varchar(255) not null';
 $sql .= ',sum int not null default 0';
 $sql .= ',seq int not null default 1';
+$sql .= ",sub_type char(1) not null default 'M'";
 $sql .= ',primary key(id)';
 $sql .= ',UNIQUE KEY `tag` (mpid,title)) ENGINE=MyISAM DEFAULT CHARSET=utf8';
 if (!$mysqli->query($sql)) {

@@ -198,23 +198,26 @@ class tag_model extends TMS_MODEL {
 	/**
 	 * 创建标签
 	 */
-	public function create($site, $user, $tags){
+	public function create($site, $user, $tags, $subType = 'M'){
 		$current = time();
 		$newTags = [];
+		$site = $this->escape($site);
+		$subType = $this->escape($subType);
 		if (!empty($tags)) {
 			foreach ($tags as $tag) {
+				$tag = $this->escape($tag);
 				/**
 				 * 标签是否已经存在？
 				 */
 				$q = array(
 					'id',
 					'xxt_tag',
-					"(mpid='$site' or siteid='$site') and title='$tag'",
+					"(mpid='$site' or siteid='$site') and title='$tag' and sub_type = '$subType'",
 				);
 				if ($tag_id = $this->query_val_ss($q)) {
 					continue;
 				}
-				$seq = $this->getSeqMax($site);
+				$seq = $this->getSeqMax($site, $subType);
 				/**
 				 * 不存在，创建新标签
 				 */
@@ -226,6 +229,7 @@ class tag_model extends TMS_MODEL {
 				$inData->create_at = $current;
 				$inData->title = $tag;
 				$inData->seq = $seq + 1;
+				$inData->sub_type = $subType;
 
 				$inData->id = $this->insert('xxt_tag', $inData, true);
 				$newTags[] = $inData;
@@ -237,11 +241,11 @@ class tag_model extends TMS_MODEL {
 	/**
 	 * 获取当前团队中最大排序
 	 */
-	private function getSeqMax($site){
+	private function getSeqMax($site, $subType){
 		$q = [
 			'max(seq)',
 			'xxt_tag',
-			"siteid = '$site' or mpid = '$site'"
+			"(siteid = '$site' or mpid = '$site') and sub_type = '$subType'"
 		];
 
 		$seq = (int)$this->query_val_ss($q);
@@ -316,12 +320,15 @@ class tag_model extends TMS_MODEL {
 	/**
 	 * 获得团队内所有的标签
 	 */
-	public function bySite($site, $options = []){
+	public function bySite($site, $subType = 'M', $options = []){
 		$fields = empty($options['fields']) ? '*' : $options['fields'];
+
+		$site = $this->escape($site);
+		$subType = $this->escape($subType);
 		$q = [
 			$fields,
 			'xxt_tag',
-			"siteid = '$site' or mpid = '$site'"
+			"(siteid = '$site' or mpid = '$site') and sub_type = '$subType'"
 		];
 		$q2 = ['o' => 'seq desc,create_at desc'];
 		if(isset($options['at'])){

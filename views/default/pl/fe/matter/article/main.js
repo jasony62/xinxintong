@@ -205,7 +205,11 @@ define(['frame'], function(ngApp) {
         $scope.tagRecordData = function(subType) {
             var oApp, oTags, tagsOfData;
             oApp = $scope.editing;
-            oTags = $scope.oTag;
+            if(subType === 'C'){
+                oTags = $scope.oTagC;
+            }else{
+                oTags = $scope.oTag;
+            }
             $uibModal.open({
                 templateUrl: 'tagMatterData.html',
                 controller: ['$scope', '$uibModalInstance', function($scope2, $mi) {
@@ -235,7 +239,7 @@ define(['frame'], function(ngApp) {
                         if ($scope2.model.newtag) {
                             newTags = $scope2.model.newtag.replace(/\s/, ',');
                             newTags = newTags.split(',');
-                            http2.post('/rest/pl/fe/matter/tag/create?site=' + oApp.siteid, newTags, function(rsp) {
+                            http2.post('/rest/pl/fe/matter/tag/create?site=' + oApp.siteid + '&subType=' + subType, newTags, function(rsp) {
                                 rsp.data.forEach(function(oNewTag) {
                                     $scope2.apptags.push(oNewTag);
                                 });

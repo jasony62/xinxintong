@@ -105,12 +105,13 @@ provider('srvSite', function() {
                 }
                 return defer.promise;
             },
-            tagList: function() {
+            tagList: function(subType) {
+                var subType = arguments[0] ? arguments[0] : 'M';
                 var defer = $q.defer();
                 if (_oTag) {
                     defer.resolve(_oTag);
                 } else {
-                    http2.get('/rest/pl/fe/matter/tag/listTags?site=' + _siteId, function(rsp) {
+                    http2.get('/rest/pl/fe/matter/tag/listTags?site=' + _siteId + '&subType=' + subType, function(rsp) {
                         _oTag = rsp.data;
                         defer.resolve(_oTag);
                     });

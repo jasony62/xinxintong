@@ -20,14 +20,14 @@ class tag extends \pl\fe\base {
 	/**
 	 * 获得已有的标签
 	 */
-	public function listTags_action($site, $page = null, $size = null) {
+	public function listTags_action($site, $subType = 'M', $page = null, $size = null) {
 		$options = [];
 		if(!empty($page) && !empty($size)){
 			$options['at'] = [];
 			$options['at']['page'] = $page;
 			$options['at']['size'] = $size;
 		}
-		$tags = $this->model('tag')->bySite($site, $options);
+		$tags = $this->model('tag')->bySite($site, $subType, $options);
 
 		return new \ResponseData($tags);
 	}
@@ -35,9 +35,9 @@ class tag extends \pl\fe\base {
 	 *  创建标签
 	 *  @param string $resType 素材类型
 	 *  @param string $resId 素材id
-	 *  @param string $subType 标签类型
+	 *  @param string $subType 标签类型 'C' 内容标签 'M'管理标签
 	 */
-	public function create_action($site) {
+	public function create_action($site, $subType = 'M') {
 		if (false === ($user = $this->accountUser())) {
 			return new \ResponseTimeout();
 		}
@@ -46,7 +46,7 @@ class tag extends \pl\fe\base {
 
 		$model = $this->model('tag');
 		$model->setOnlyWriteDbConn(true);
-		$newTags = $model->create($site, $user, $tags);
+		$newTags = $model->create($site, $user, $tags, $subType);
 
 		return new \ResponseData($newTags);
 	}
@@ -63,6 +63,8 @@ class tag extends \pl\fe\base {
 
 		$model = $this->model('tag');
 		$model->setOnlyWriteDbConn(true);
+		$site = $model->escape($site);
+		$subType = $model->escape($subType);
 		switch($resType){
 			case 'article':
 				$fields = "id,siteid,title,summary,pic,matter_cont_tag,matter_mg_tag,'$resType' type";
@@ -74,7 +76,7 @@ class tag extends \pl\fe\base {
 		$q = [
 			$fields,
 			'xxt_' . $resType,
-			['id' => $resId, 'state' => 1]
+			"id = '$resId' and state <> 0"
 		];
 		if (false === ($matter = $model->query_obj_ss($q))) {
 			return new \ResponseError('指定的活动不存在或已删除！');

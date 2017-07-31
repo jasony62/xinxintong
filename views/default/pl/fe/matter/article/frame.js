@@ -91,6 +91,9 @@ define(['require'], function() {
         srvSite.tagList().then(function(oTag) {
             $scope.oTag = oTag;
         });
+        srvSite.tagList('C').then(function(oTag) {
+            $scope.oTagC = oTag;
+        });
         srvApp.get().then(function(editing) {
             $scope.editing = editing;
             !editing.attachments && (editing.attachments = []);
@@ -108,7 +111,7 @@ define(['require'], function() {
             }
             if($scope.editing.matter_cont_tag !== ''){
                 $scope.editing.matter_cont_tag.forEach(function(cTag,index){
-                    $scope.oTag.forEach(function(oTag){
+                    $scope.oTagC.forEach(function(oTag){
                         if(oTag.id === cTag){
                             $scope.editing.matter_cont_tag[index] = oTag;
                         }

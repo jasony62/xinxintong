@@ -59,6 +59,9 @@ class mission_model extends app_base {
 		];
 		if (($oMission = $this->query_obj_ss($q))) {
 			$oMission->type = 'mission';
+			if(!empty($oMission->matter_mg_tag)){
+				$oMission->matter_mg_tag = json_decode($oMission->matter_mg_tag);
+			}
 			if ($fields === '*' || false !== strpos($fields, 'entry_rule')) {
 				if (empty($oMission->entry_rule)) {
 					$oMission->entry_rule = new \stdClass;

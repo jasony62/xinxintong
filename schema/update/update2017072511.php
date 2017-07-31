@@ -17,6 +17,8 @@ $sqls[] = "alter table xxt_enroll add matter_mg_tag varchar(255) not null defaul
 $sqls[] = "alter table xxt_signin add matter_mg_tag varchar(255) not null default ''";
 
 $sqls[] = "alter table xxt_group add matter_mg_tag varchar(255) not null default ''";
+
+$sqls[] = "alter table xxt_mission add matter_mg_tag varchar(255) not null default ''";
 //
 foreach ($sqls as $sql) {
 	if (!$mysqli->query($sql)) {

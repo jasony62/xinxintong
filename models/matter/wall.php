@@ -24,6 +24,9 @@ class wall_model extends app_base {
 		];
 		if ($w = $this->query_obj_ss($q)) {
 			$w->type = 'wall';
+			if(!empty($w->matter_mg_tag)){
+				$w->matter_mg_tag = json_decode($w->matter_mg_tag);
+			}
 		}
 
 		return $w;

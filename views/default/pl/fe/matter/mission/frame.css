@@ -23,6 +23,7 @@ form .form-group:last-child{margin-bottom:0;}
 #viewMatter .thumbnail .operator{flex:1;}
 .thumbnail .actions{border-top:1px solid #ddd;padding-top:.5em;}
 #viewMatter .thumbnail .actions-top{position:absolute;top:.5em;right:.5em;}
+.tag {background: #337ab7;padding: 3px 6px;margin: 4px;border-radius: 4px;color: #fff;}
 
 /*indicator*/
 #viewMatter .thumbnail.indicator{flex-direction:row;align-items:center;background:#f8f8f8;}

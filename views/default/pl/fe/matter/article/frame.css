@@ -17,3 +17,4 @@ div.mce-tinymce .mce-menubtn.mce-fixed-width span{width:auto;}
 .mce-btn-has-text button span{vertical-align:baseline;}
 .mce-ico.mce-i-save:before{color:green;}
 .mce-disabled .mce-ico.mce-i-save:before{color:#555;}
+.tag {background: #337ab7;padding: 3px 6px;margin: 4px;border-radius: 4px;color: #fff;}

@@ -156,7 +156,9 @@ define(['require', 'enrollService', 'enrollSchema', 'enrollPage'], function(requ
                 location.href = '/rest/pl/fe/template/enroll?site=' + template.siteid + '&id=' + template.id;
             });
         };
-
+        srvSite.tagList().then(function(oTag) {
+            $scope.oTag = oTag;
+        });
         srvSite.get().then(function(oSite) {
             $scope.site = oSite;
         });
@@ -169,6 +171,15 @@ define(['require', 'enrollService', 'enrollSchema', 'enrollPage'], function(requ
                 });
                 oApp._tagsById = tagById;
                 oApp.__schemasOrderConsistent = 'Y'; //页面上登记项显示顺序与定义顺序一致
+                if(oApp.matter_mg_tag !== ''){
+                     oApp.matter_mg_tag.forEach(function(cTag,index){
+                        $scope.oTag.forEach(function(oTag){
+                            if(oTag.id === cTag){
+                                oApp.matter_mg_tag[index] = oTag;
+                            }
+                        });
+                    });
+                }
                 $scope.app = oApp;
                 srvSite.memberSchemaList(oApp).then(function(aMemberSchemas) {
                     $scope.memberSchemas = aMemberSchemas;

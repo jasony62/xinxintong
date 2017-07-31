@@ -100,7 +100,19 @@ define(['require'], function() {
         srvSite.get().then(function(oSite) {
             $scope.site = oSite;
         });
+        srvSite.tagList().then(function(oTag) {
+            $scope.oTag = oTag;
+        });
         srvGroupApp.get().then(function(app) {
+            if(app.matter_mg_tag !== ''){
+                 app.matter_mg_tag.forEach(function(cTag,index){
+                    $scope.oTag.forEach(function(oTag){
+                        if(oTag.id === cTag){
+                            app.matter_mg_tag[index] = oTag;
+                        }
+                    });
+                });
+            }
             $scope.app = app;
         });
     }]);

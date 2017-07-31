@@ -78,7 +78,7 @@ if (!$mysqli->query($sql)) {
 $sql = "create table if not exists xxt_enroll_page(";
 $sql .= "id int not null auto_increment";
 $sql .= ",siteid varchar(32) not null";
-$sql .= ",mpid varchar(32) not null default ''";
+$sql .= ",mpid varchar(32) not null default ''"; // should be removed
 $sql .= ",aid varchar(40) not null";
 $sql .= ",creater varchar(40) not null default ''";
 $sql .= ",create_at int not null";
@@ -109,7 +109,7 @@ $sql .= "id int not null auto_increment";
 $sql .= ",siteid varchar(32) not null";
 $sql .= ",rid varchar(13) not null";
 $sql .= ",aid varchar(40) not null";
-$sql .= ",mpid varchar(32) not null default ''";
+$sql .= ",mpid varchar(32) not null default ''"; // should be removed
 $sql .= ",creater varchar(40) not null default ''";
 $sql .= ",create_at int not null";
 $sql .= ",start_at int not null"; // 轮次开始时间

@@ -8,6 +8,9 @@ ngApp.controller('ctrlRemark', ['$scope', '$q', 'http2', '$sce', '$uibModal', fu
         url = '/rest/site/fe/matter/enroll/remark/list?site=' + oApp.siteid + '&ek=' + ek;
         url += '&schema=' + $scope.filter.schema.id;
         http2.get(url).then(function(rsp) {
+            if(oFilter.schema.type=='file') {
+                rsp.data.data.value = angular.fromJson(rsp.data.data.value);
+            }
             defer.resolve(rsp.data)
         });
         return defer.promise;

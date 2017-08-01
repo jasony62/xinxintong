@@ -72,6 +72,71 @@ class rank extends base {
 	/**
 	 *
 	 */
+	public function groupByApp_action($app) {
+		$oApp = $this->model('matter\enroll')->byId($app, ['cascaded' => 'N']);
+		if ($oApp === false) {
+			return new \ObjectNotFoundError();
+		}
+
+		foreach ($oApp->dataSchemas as $oSchema) {
+			if ($oSchema->id === '_round_id') {
+				$userGroups = $oSchema->ops;
+			}
+		}
+		if (empty($userGroups)) {
+			return new \ObjectNotFoundError();
+		}
+
+		$oCriteria = $this->getPostJson();
+		if (empty($oCriteria->orderby)) {
+			return new \ParameterError();
+		}
+
+		/* 获取分组的数据 */
+		$modelUsr = $this->model('matter\enroll\user');
+		foreach ($userGroups as &$userGroup) {
+			$sql = 'select ';
+			switch ($oCriteria->orderby) {
+			case 'enroll':
+				$sql .= 'sum(enroll_num)';
+				break;
+			case 'remark':
+				$sql .= 'sum(remark_num)';
+				break;
+			case 'like':
+				$sql .= 'sum(like_num)';
+				break;
+			case 'remark_other':
+				$sql .= 'sum(remark_other_num)';
+				break;
+			case 'like_other':
+				$sql .= 'sum(like_other_num)';
+				break;
+			case 'total_coin':
+				$sql .= 'sum(user_total_coin)';
+				break;
+			}
+			$sql .= ' from xxt_enroll_user where aid=\'' . $oApp->id . '\' and rid=\'ALL\'';
+			$sql .= ' and group_id=\'' . $userGroup->v . '\'';
+			$userGroup->id = $userGroup->v;
+			$userGroup->title = $userGroup->l;
+			unset($userGroup->v);
+			unset($userGroup->l);
+			$userGroup->num = (int) $modelUsr->query_value($sql);
+		}
+		/* 对分组数据进行排讯 */
+		usort($userGroups, function ($a, $b) {
+			return $b->num - $a->num;
+		});
+
+		$result = new \stdClass;
+		$result->groups = $userGroups;
+
+		return new \ResponseData($result);
+	}
+	/**
+	 *
+	 */
 	public function dataByApp_action($app, $page = 1, $size = 10) {
 		$oApp = $this->model('matter\enroll')->byId($app, ['cascaded' => 'N']);
 		if ($oApp === false) {

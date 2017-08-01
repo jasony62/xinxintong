@@ -115,7 +115,7 @@ ngApp.controller('ctrlRecords', ['$scope', '$uibModal', 'Record', 'ls', '$sce', 
         eWrap = document.querySelectorAll('.list-group-item[ng-repeat]');
         eWrap.forEach(function(item) {
             eSpread = document.createElement('i');
-            eSpread.classList.add( 'cus-glyphicon', 'glyphicon-menu-down');
+            eSpread.classList.add('cus-glyphicon', 'glyphicon-menu-down');
             eSpread.addEventListener('click', function(event) {
                 event.preventDefault();
                 event.stopPropagation();
@@ -161,9 +161,24 @@ ngApp.controller('ctrlRecords', ['$scope', '$uibModal', 'Record', 'ls', '$sce', 
     $scope.openFilter = function() {
         $uibModal.open({
             templateUrl: 'filter.html',
-            controller: ['$scope', '$uibModalInstance', 'Round', function($scope2, $mi, Round) {
-                var facRound;
-                $scope2.dataSchemas = $scope.app.dataSchemas;
+            resolve: {
+                oApp: function() {
+                    return $scope.app;
+                },
+                oOptions: function() {
+                    return $scope.options;
+                }
+            },
+            controller: ['$scope', '$uibModalInstance', 'Round', 'oApp', 'oOptions', function($scope2, $mi, Round, oApp, oOptions) {
+                var facRound, aFilterSchemas;
+                $scope2.filterSchemas = aFilterSchemas = [];
+                oApp.dataSchemas.forEach(function(oSchema) {
+                    if (['shorttext', 'longtext', 'location', 'single', 'multiple', 'phase'].indexOf(oSchema.type) !== -1) {
+                        if (oOptions.owner && oOptions.owner === 'G' && oSchema.id === '_round_id') {} else {
+                            aFilterSchemas.push(oSchema);
+                        }
+                    }
+                });
                 $scope2.criteria = oCurrentCriteria;
                 $scope2.cancel = function() {
                     $mi.dismiss();

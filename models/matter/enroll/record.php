@@ -23,6 +23,7 @@ class record_model extends \TMS_MODEL {
 			'first_enroll_at' => $enrollAt,
 			'enroll_key' => $ek,
 			'userid' => empty($oUser->uid) ? '' : $oUser->uid,
+			'group_id' => empty($oUser->group_id) ? '' : $oUser->group_id,
 			'referrer' => $referrer,
 		];
 		/* 记录所属轮次 */
@@ -248,6 +249,7 @@ class record_model extends \TMS_MODEL {
 					'enroll_key' => $ek,
 					'submit_at' => $submitAt,
 					'userid' => isset($oUser->uid) ? $oUser->uid : '',
+					'group_id' => isset($oUser->group_id) ? $oUser->group_id : '',
 					'schema_id' => $schemaId,
 					'value' => $this->escape($treatedValue),
 				];
@@ -267,6 +269,7 @@ class record_model extends \TMS_MODEL {
 					$schemaValue = [
 						'submit_at' => $submitAt,
 						'userid' => isset($oUser->uid) ? $oUser->uid : '',
+						'group_id' => isset($oUser->group_id) ? $oUser->group_id : '',
 						'value' => $this->escape($treatedValue),
 						'modify_log' => $this->toJson($valueModifyLogs),
 					];
@@ -284,10 +287,10 @@ class record_model extends \TMS_MODEL {
 			}
 		}
 		/* 更新在登记记录上记录数据 */
-		$recordUpdated = [];
-		$recordUpdated['data'] = $this->escape($this->toJson($dbData));
+		$oRecordUpdated = [];
+		$oRecordUpdated['data'] = $this->escape($this->toJson($dbData));
 		if ($oApp->scenario === 'quiz') {
-			$recordUpdated['score'] = $this->escape($this->toJson($oRecordScore));
+			$oRecordUpdated['score'] = $this->escape($this->toJson($oRecordScore));
 		}
 		/* 记录提交日志 */
 		if ($firstSubmit === false) {
@@ -300,10 +303,10 @@ class record_model extends \TMS_MODEL {
 			$newSubmitLog->submitAt = $oRecord->enroll_at;
 			$newSubmitLog->userid = $oRecord->userid;
 			$recordSubmitLogs[] = $newSubmitLog;
-			$recordUpdated['submit_log'] = json_encode($recordSubmitLogs);
+			$oRecordUpdated['submit_log'] = json_encode($recordSubmitLogs);
 		}
 
-		$this->update('xxt_enroll_record', $recordUpdated, ['enroll_key' => $ek]);
+		$this->update('xxt_enroll_record', $oRecordUpdated, ['enroll_key' => $ek]);
 
 		return [true, $dbData];
 	}

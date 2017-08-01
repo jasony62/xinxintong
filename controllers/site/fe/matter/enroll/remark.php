@@ -60,9 +60,19 @@ class remark extends base {
 		}
 
 		$oUser = $this->who;
+		if (!empty($oApp->group_app_id)) {
+			$modelUsr = $this->model('matter\enroll\user');
+			$options = ['fields' => 'group_id'];
+			if (!empty($oRecord->rid)) {
+				$options['rid'] = $oRecord->rid;
+			}
+			$oEnrollee = $modelUsr->byId($oApp, $oUser->uid, $options);
+			if ($oEnrollee) {
+				$oUser->group_id = $oEnrollee->group_id;
+			}
+		}
 		$userNickname = $modelEnl->getUserNickname($oApp, $oUser);
 		$oUser->nickname = $userNickname;
-
 		/**
 		 * 发表评论的用户
 		 */
@@ -72,9 +82,11 @@ class remark extends base {
 		$oRemark->aid = $oRecord->aid;
 		$oRemark->rid = $oRecord->rid;
 		$oRemark->userid = $oUser->uid;
+		$oRemark->group_id = isset($oUser->group_id) ? $oUser->group_id : '';
 		$oRemark->user_src = 'S';
 		$oRemark->nickname = $modelRec->escape($oUser->nickname);
 		$oRemark->enroll_key = $ek;
+		$oRemark->enroll_group_id = $oRecord->group_id;
 		$oRemark->enroll_userid = $oRecord->userid;
 		$oRemark->schema_id = $modelRec->escape($schema);
 		$oRemark->remark_id = $modelRec->escape($remark);

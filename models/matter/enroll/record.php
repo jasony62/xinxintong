@@ -726,7 +726,10 @@ class record_model extends \TMS_MODEL {
 			$rid = $activeRound->rid;
 		}
 		!empty($rid) && $w .= " and e.rid='$rid'";
-
+		/* 根据用户分组过滤 */
+		if (!empty($options->userGroup)) {
+			$w .= " and e.group_id='{$options->userGroup}'";
+		}
 		// 根据填写人筛选（填写端列表页需要）
 		if (!empty($creater)) {
 			$w .= " and e.userid='$creater'";

@@ -623,8 +623,12 @@ class record extends base {
 	 *
 	 */
 	public function list_action($site, $app, $owner = 'U', $orderby = 'time', $page = 1, $size = 30) {
-		$oUser = $this->who;
+		$oApp = $this->model('matter\enroll')->byId($app, ['cascaded' => 'N']);
+		if (false === $oApp) {
+			return new \ObjectNotFoundError();
+		}
 
+		$oUser = $this->who;
 		// 登记数据过滤条件
 		$oCriteria = $this->getPostJson();
 
@@ -637,6 +641,14 @@ class record extends base {
 		case 'A':
 			$options = array();
 			break;
+		case 'G':
+			$modelUsr = $this->model('matter\enroll\user');
+			$options = ['fields' => 'group_id'];
+			$oEnrollee = $modelUsr->byId($oApp, $oUser->uid, $options);
+			$options = array(
+				'userGroup' => isset($oEnrollee->group_id) ? $oEnrollee->group_id : '',
+			);
+			break;
 		default:
 			$options = array(
 				'creater' => $oUser->uid,
@@ -647,7 +659,6 @@ class record extends base {
 		$options['size'] = $size;
 		$options['orderby'] = $orderby;
 
-		$oApp = $this->model('matter\enroll')->byId($app, ['cascaded' => 'N']);
 		$modelRec = $this->model('matter\enroll\record');
 
 		$rst = $modelRec->byApp($oApp, $options, $oCriteria);

@@ -89,7 +89,7 @@ class signin_model extends app_base {
 					$oApp->dataSchemas = [];
 				}
 			}
-			if (!empty($oApp->matter_mg_tag)) {
+			if(!empty($oApp->matter_mg_tag)){
 				$oApp->matter_mg_tag = json_decode($oApp->matter_mg_tag);
 			}
 			if ($cascaded === 'Y') {
@@ -236,6 +236,18 @@ class signin_model extends app_base {
 	 *
 	 * 1、如果活动仅限会员报名，那么要叠加会员信息
 	 * 2、如果报名的表单中有扩展信息，那么要提取扩展信息
+	 *
+	 * $mpid
+	 * $aid
+	 * $options
+	 * --creater openid
+	 * --visitor openid
+	 * --page
+	 * --size
+	 * --rid 轮次id
+	 * --kw 检索关键词
+	 * --by 检索字段
+	 *
 	 *
 	 * return
 	 * [0] 数据列表

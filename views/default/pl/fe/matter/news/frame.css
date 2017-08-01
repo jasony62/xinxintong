@@ -11,3 +11,4 @@ div.mce-tinymce.mce-container.mce-panel{margin-top:0;border:1px solid #ccc;}
 div.mce-tinymce.mce-container.mce-panel.mce-fullscreen{margin-top:51px}
 div.mce-tinymce div.mce-edit-area{border:0!important;border-top:1px solid #ccc!important;}
 div.mce-tinymce .mce-menubtn.mce-fixed-width span{width:auto;}
+.tag {background: #337ab7;padding: 3px 6px;margin: 4px;border-radius: 4px;color: #fff;}

@@ -20,5 +20,9 @@ li .wrap-inline:last-child{border-bottom:0;}
 [wrap=value] .supplement{font-style:italic;margin-top:1em;}
 .tag{background:#3af;padding:4px 6px;margin:4px;border-radius:2px;font-size:.8em;color:#fff;}
 
+[wrap=records]>.list-group .list-group-item[ng-repeat] > div:nth-child(3) ~ div{display: none;}
+[wrap=records]>.list-group .spread.list-group-item[ng-repeat] > div:nth-child(3) ~ div{display: block;}
+.cus-glyphicon{font-size:20px;display: inline-block;font-family: 'Glyphicons Halflings';font-style: normal;font-weight: 400;line-height: 1;position: absolute;bottom:15px;right:20px;}
+.spread .glyphicon-menu-down{transform: rotate(180deg);}
 /* auth */
 #frmPopup{position:absolute;top:0;left:0;right:0;bottom:0;border:none;width:100%;z-index:999;box-sizing:border-box;}

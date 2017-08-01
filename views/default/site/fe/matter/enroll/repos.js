@@ -39,11 +39,12 @@ ngApp.factory('Round', ['http2', '$q', function(http2, $q) {
     };
 }]);
 ngApp.controller('ctrlRepos', ['$scope', 'http2', 'Round', '$sce', function($scope, http2, srvRound, $sce) {
-    var oApp, facRound, page, criteria, schemas;
+    var oApp, facRound, page, criteria, schemas, userGroups;
     $scope.schemaCount = 0;
     $scope.page = page = { at: 1, size: 12 };
     $scope.criteria = criteria = { owner: 'all' };
     $scope.schemas = schemas = {};
+    $scope.userGroups = userGroups = [];
     $scope.repos = [];
     $scope.clickAdvCriteria = function(event) {
         event.preventDefault();
@@ -65,6 +66,9 @@ ngApp.controller('ctrlRepos', ['$scope', 'http2', 'Round', '$sce', function($sco
             page.total = result.data.total;
             if ($scope.repos) {
                 result.data.records.forEach(function(oRecord) {
+                    if (schemas[oRecord.schema_id].type == 'file') {
+                        oRecord.value = angular.fromJson(oRecord.value);
+                    }
                     if (oRecord.tag) {
                         oRecord.tag.forEach(function(index, tagId) {
                             if (oApp._tagsById[index]) {
@@ -97,6 +101,9 @@ ngApp.controller('ctrlRepos', ['$scope', 'http2', 'Round', '$sce', function($sco
         }
     };
     $scope.shiftAgreed = function() {
+        $scope.list4Schema(1);
+    };
+    $scope.shiftUserGroup = function() {
         $scope.list4Schema(1);
     };
     $scope.shiftOwner = function() {
@@ -153,6 +160,11 @@ ngApp.controller('ctrlRepos', ['$scope', 'http2', 'Round', '$sce', function($sco
             if (schema.shareable && schema.shareable === 'Y') {
                 schemas[schema.id] = schema;
                 $scope.schemaCount++;
+            }
+            if (schema.id === '_round_id' && schema.ops && schema.ops.length) {
+                schema.ops.forEach(function(op) {
+                    userGroups.push(op);
+                });
             }
         });
         $scope.dataTags = oApp.dataTags;

@@ -6,7 +6,6 @@ require_once '../db.php';
 $sql = "create table if not exists xxt_enroll(";
 $sql .= "id varchar(40) not null";
 $sql .= ",siteid varchar(32) not null";
-$sql .= ",mpid varchar(32) not null default ''";
 $sql .= ",creater varchar(40) not null default ''";
 $sql .= ",creater_name varchar(255) not null default ''"; //from account or fans
 $sql .= ",creater_src char(1)"; //A:accouont|F:fans
@@ -66,6 +65,7 @@ $sql .= ",template_version varchar(10) not null default ''"; //模板版本号
 $sql .= ",op_short_url_code char(4) not null default ''"; // 运营管理页面的短链接编码
 $sql .= ",rp_short_url_code char(4) not null default ''"; // 统计报告页面的短链接编码
 $sql .= ",rp_config text"; // 统计报告页面用户选择的标识信息
+$sql .= ",matter_mg_tag varchar(255) not null default ''";
 $sql .= ",primary key(id)) ENGINE=MyISAM DEFAULT CHARSET=utf8";
 if (!$mysqli->query($sql)) {
 	header('HTTP/1.0 500 Internal Server Error');
@@ -77,7 +77,6 @@ if (!$mysqli->query($sql)) {
 $sql = "create table if not exists xxt_enroll_page(";
 $sql .= "id int not null auto_increment";
 $sql .= ",siteid varchar(32) not null";
-$sql .= ",mpid varchar(32) not null default ''";
 $sql .= ",aid varchar(40) not null";
 $sql .= ",creater varchar(40) not null default ''";
 $sql .= ",create_at int not null";
@@ -86,7 +85,6 @@ $sql .= ",title varchar(70) not null default ''";
 $sql .= ",name varchar(20) not null default ''";
 $sql .= ",code_id int not null default 0"; // from xxt_code_page
 $sql .= ",code_name varchar(13) not null default ''"; // from xxt_code_page
-$sql .= ",check_entry_rule char(1) not null default 'N'"; // should be removed
 $sql .= ",share_page char(1) not null default 'Y'"; // 分享时分享当前页还是分享活动，缺省分享活动
 $sql .= ",share_summary varchar(240)"; // 分享时的摘要字段
 $sql .= ",autoenroll_onenter char(1) not null default 'N'"; // 进入时自动登记
@@ -108,7 +106,6 @@ $sql .= "id int not null auto_increment";
 $sql .= ",siteid varchar(32) not null";
 $sql .= ",rid varchar(13) not null";
 $sql .= ",aid varchar(40) not null";
-$sql .= ",mpid varchar(32) not null default ''";
 $sql .= ",creater varchar(40) not null default ''";
 $sql .= ",create_at int not null";
 $sql .= ",start_at int not null"; // 轮次开始时间
@@ -127,11 +124,8 @@ if (!$mysqli->query($sql)) {
 $sql = "create table if not exists xxt_enroll_receiver(";
 $sql .= "id int not null auto_increment";
 $sql .= ",siteid varchar(32) not null";
-$sql .= ",mpid varchar(32) not null default ''"; // should remove
 $sql .= ",aid varchar(40) not null";
 $sql .= ",join_at int not null default 0"; // 加入时间
-$sql .= ",identity varchar(100) not null"; // should remove
-$sql .= ",idsrc char(2) not null default ''"; // should remove
 $sql .= ",userid varchar(40) not null default ''";
 $sql .= ",nickname varchar(255) not null default ''";
 $sql .= ",sns_user text"; // 社交账号信息
@@ -148,6 +142,7 @@ $sql .= "id int not null auto_increment";
 $sql .= ",aid varchar(40) not null";
 $sql .= ",siteid varchar(32) not null default ''";
 $sql .= ",rid varchar(13) not null default ''";
+$sql .= ",group_id varchar(32) not null default ''"; // 用户分组id
 $sql .= ",userid varchar(40) not null default ''";
 $sql .= ",nickname varchar(255) not null default ''";
 $sql .= ",wx_openid varchar(255) not null default ''";
@@ -183,6 +178,7 @@ $sql = "create table if not exists xxt_enroll_record_data(";
 $sql .= "id int not null auto_increment";
 $sql .= ",aid varchar(40) not null";
 $sql .= ",rid varchar(13) not null default ''";
+$sql .= ",group_id varchar(32) not null default ''"; // 用户分组id
 $sql .= ",enroll_key varchar(32) not null";
 $sql .= ",submit_at int not null default 0"; // 数据的提交时间，和modify_log中的数据对应
 $sql .= ",userid varchar(40) not null default ''";
@@ -229,14 +225,17 @@ $sql .= "id int not null auto_increment";
 $sql .= ",siteid varchar(32) not null";
 $sql .= ",aid varchar(40) not null";
 $sql .= ",rid varchar(13) not null default ''";
+$sql .= ",enroll_group_id varchar(32) not null default ''"; // 被评论内容所属的用户分组id
 $sql .= ",enroll_key varchar(32) not null";
 $sql .= ",enroll_userid varchar(40) not null default ''"; // 提交登记记录的人
+$sql .= ",group_id varchar(32) not null default ''"; // 发表评论的人所属用户分组id
 $sql .= ",userid varchar(40) not null default ''"; // 发表评论的人
 $sql .= ",user_src char(1) not null default 'S'"; // 用户来源团队用户账号（Platform）或个人用户账号（Site）；没用了，userid已经统一了
 $sql .= ",nickname varchar(255) not null default ''";
 $sql .= ",create_at int";
 $sql .= ",content text";
 $sql .= ",schema_id varchar(40) not null default ''"; // 针对某条登记记录的某个登记项的评论
+$sql .= ",remark_id int not null default 0"; // 是对哪条评论进行的评论
 $sql .= ",like_log longtext"; // 点赞日志 {userid:likeAt}
 $sql .= ",like_num int not null default 0"; // 点赞数
 $sql .= ",agreed char(1) not null default ''"; // 是否赞同（Y：推荐，N：屏蔽，A(ccept)：接受）
@@ -253,6 +252,7 @@ $sql .= "id int not null auto_increment";
 $sql .= ",siteid varchar(32) not null";
 $sql .= ",aid varchar(40) not null";
 $sql .= ",rid varchar(13) not null default ''";
+$sql .= ",group_id varchar(32) not null default ''"; // 用户分组id
 $sql .= ",userid varchar(40) not null default ''";
 $sql .= ",nickname varchar(255) not null default ''";
 $sql .= ",last_enroll_at int not null default 0"; // 最后一次登记时间
@@ -333,6 +333,7 @@ $sql .= ",extattrs text"; //扩展属性
 $sql .= ",tags text";
 $sql .= ",op_short_url_code char(4) not null default ''"; // 运营管理页面的短链接编码
 $sql .= ",notify_submit char(1) not null default 'N'"; // 是否发送提交事件通知
+$sql .= ",matter_mg_tag varchar(255) not null default ''";
 $sql .= ",primary key(id)) ENGINE=MyISAM DEFAULT CHARSET=utf8";
 if (!$mysqli->query($sql)) {
 	header('HTTP/1.0 500 Internal Server Error');
@@ -501,6 +502,7 @@ $sql .= ",use_mission_header char(1) not null default 'Y'"; // 使用项目页�
 $sql .= ",use_mission_footer char(1) not null default 'Y'"; // 使用项目页脚
 $sql .= ",extattrs text"; //扩展属性
 $sql .= ",op_short_url_code char(4) not null default ''"; // 运营管理页面的短链接编码
+$sql .= ",matter_mg_tag varchar(255) not null default ''";
 $sql .= ",primary key(id)) ENGINE=MyISAM DEFAULT CHARSET=utf8";
 if (!$mysqli->query($sql)) {
 	header('HTTP/1.0 500 Internal Server Error');

@@ -117,6 +117,11 @@ class enroll_model extends app_base {
 			if ($fields === '*' || false !== strpos($fields, 'round_cron')) {
 				if (!empty($oApp->round_cron)) {
 					$oApp->roundCron = json_decode($oApp->round_cron);
+					$modelRnd=\TMS_APP::M('matter\enroll\round');
+					foreach ($oApp->roundCron as &$rec) {
+						$rules[0]=$rec;
+						$rec->case=$modelRnd->byCron($rules);
+					}
 				} else {
 					$oApp->roundCron = [];
 				}
@@ -127,6 +132,9 @@ class enroll_model extends app_base {
 				} else {
 					$oApp->rpConfig = new \stdClass;
 				}
+			}
+			if(!empty($oApp->matter_mg_tag)){
+				$oApp->matter_mg_tag = json_decode($oApp->matter_mg_tag);
 			}
 			$oApp->dataTags = $this->model('matter\enroll\tag')->byApp($oApp);
 

@@ -62,6 +62,8 @@ $sql .= ",from_mode char(1) not null default 'O'"; // 素材来源类型O:origin
 $sql .= ",from_siteid varchar(32) not null default ''";
 $sql .= ",from_site_name varchar(50) not null default ''";
 $sql .= ",from_id int not null default 0";
+$sql .= ",matter_cont_tag varchar(255) not null default ''";
+$sql .= ",matter_mg_tag varchar(255) not null default ''";
 $sql .= ",primary key(id)) ENGINE=MyISAM DEFAULT CHARSET=utf8";
 if (!$mysqli->query($sql)) {
 	header('HTTP/1.0 500 Internal Server Error');
@@ -299,6 +301,7 @@ $sql .= ",empty_reply_id varchar(40) not null default ''";
 $sql .= ",read_num int not null default 0"; // 阅读数
 $sql .= ",share_friend_num int not null default 0"; // 分享给好友数
 $sql .= ",share_timeline_num int not null default 0"; // 分享朋友圈数
+$sql .= ",matter_mg_tag varchar(255) not null default ''";
 $sql .= ",primary key(id)) ENGINE=MyISAM DEFAULT CHARSET=utf8";
 if (!$mysqli->query($sql)) {
 	header('HTTP/1.0 500 Internal Server Error');

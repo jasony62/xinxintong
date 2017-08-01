@@ -55,9 +55,8 @@ class player_model extends \TMS_MODEL {
 		// 处理后的登记记录
 		$dbData = new \stdClass;
 
-		$schemas = json_decode($app->data_schemas);
 		$schemasById = [];
-		foreach ($schemas as $schema) {
+		foreach ($app->dataSchemas as $schema) {
 			$schemasById[$schema->id] = $schema;
 		}
 

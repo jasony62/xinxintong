@@ -15,16 +15,16 @@ define(['frame'], function(ngApp) {
             desc: '用户A分享活动至朋友圈',
             //}, {
             //    name: 'site.matter.enroll.discuss.like',
-            //    desc: '用户A对活动点赞',
+            //    desc: '用户A对活动赞同',
             //}, {
             //    name: 'site.matter.enroll.discuss.comment',
             //    desc: '用户A对活动评论',
         }, {
             name: 'site.matter.enroll.data.like',
-            desc: '用户A填写数据被点赞',
+            desc: '用户A填写数据被赞同',
         }, {
             name: 'site.matter.enroll.data.other.like',
-            desc: '用户A点赞别人的填写数据',
+            desc: '用户A赞同别人的填写数据',
         }, {
             name: 'site.matter.enroll.data.comment',
             desc: '用户A填写数据被点评',

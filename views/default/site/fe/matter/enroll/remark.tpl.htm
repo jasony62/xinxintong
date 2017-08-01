@@ -38,7 +38,21 @@
                     <blockquote ng-switch on="filter.schema.type">
                         <p ng-switch-when="single"><span>{{value2Label(filter.schema.id)}}</span></p>
                         <p ng-switch-when="multiple"><span>{{value2Label(filter.schema.id)}}</span></p>
-                        <p ng-switch-when="image"><img ng-src="{{data.value}}"></p>
+                        <ul ng-switch-when="image">
+                            <li ng-repeat="img in data.value.split(',')"><img ng-src="{{img}}" /></li>
+                        </ul>
+                        <div ng-switch-when="file">
+                            <div ng-repeat="file in data.value">
+                                <p><a ng-href="{{file.url}}" target="_blank">{{file.name}}</a></p>
+                                <video ng-if="file.type.indexOf('video')===0" style="width:40%;" controls="controls">
+                                    <source src="{{file.url}}" type="{{file.type}}" />
+                                </video>
+                                <audio ng-if="file.type.indexOf('audio')===0" controls="controls">
+                                    <source src="{{file.url}}" type="{{file.type}}" />
+                                </audio>
+                                <img ng-if="file.type.indexOf('image')===0" ng-src='{{file.url}}' style="width:40%" />
+                            </div>
+                        </div>
                         <p ng-switch-default>{{data.value}}</p>
                         <p ng-if="filter.schema.cantag==='Y'">
                             <span class="tag" ng-repeat="t in data.tag" ng-bind="t.label"></span>
@@ -48,24 +62,25 @@
                     </blockquote>
                     <div class='bottom-bar'>
                         <div class='datetime'>{{record.enroll_at*1000|date:'MM-dd HH:mm'}}</div>
-                        <button class='btn btn-default btn-sm' ng-click="likeRecordData(record)"><span class='glyphicon' ng-class="{'glyphicon-heart':data.like_log[user.uid],'glyphicon-heart-empty':!data.like_log[user.uid]}"></span>&nbsp;<span ng-bind="data.like_num"></span></button>
+                        <button class='btn btn-default btn-sm' ng-click="likeRecordData(record)"><span class='glyphicon' ng-class="{'glyphicon-heart':data.like_log[user.uid],'glyphicon-heart-empty':!data.like_log[user.uid]}"></span>&nbsp;<span ng-bind="data.like_num"></span></button>&nbsp;&nbsp;&nbsp;
+                        <button ng-if="params.actionRule.passed==='Y'" class='btn btn-default btn-sm' ng-click="writeRemark()"><span class="glyphicon glyphicon-share-alt"></span></button>
                     </div>
                 </div>
                 <div id='remarks'>
                     <div class='remarkList'>
-                        <div class='remark' ng-repeat="remark in remarks">
+                        <div id="remark-{{remark.id}}" class='remark' ng-repeat="remark in remarks">
                             <div>
                                 <span ng-if="remark.agreed==='Y'" class="label label-success">推荐</span>
                                 <span ng-if="remark.agreed==='N'" class="label label-danger">屏蔽</span>
                             </div>
                             <blockquote>
-                                <p>{{remark.content}}</p>
-                                <footer>{{remark.nickname}}
-                                </footer>
+                                <p dynamic-html="remark.content"></p>
+                                <footer>{{remark.nickname}}</footer>
                             </blockquote>
                             <div class='bottom-bar'>
                                 <div class='datetime'>{{remark.create_at*1000|date:'MM-dd HH:mm'}}</div>
-                                <button class='btn btn-default btn-sm' ng-click="likeRemark(remark)"><span class='glyphicon' ng-class="{'glyphicon-heart':remark.like_log[user.uid],'glyphicon-heart-empty':!remark.like_log[user.uid]}"></span>&nbsp;<span ng-bind="remark.like_num"></span></button>
+                                <button class='btn btn-default btn-sm' ng-click="likeRemark(remark)"><span class='glyphicon' ng-class="{'glyphicon-heart':remark.like_log[user.uid],'glyphicon-heart-empty':!remark.like_log[user.uid]}"></span>&nbsp;<span ng-bind="remark.like_num"></span></button>&nbsp;&nbsp;&nbsp;
+                                <button ng-if="params.actionRule.passed==='Y'" class='btn btn-default btn-sm' ng-click="writeRemark(remark)"><span class='glyphicon glyphicon-share-alt'></span></button>
                             </div>
                         </div>
                     </div>
@@ -73,10 +88,10 @@
                         <div class='alert alert-info' ng-switch-when="sns">需要<a href='' class='alert-link' ng-click="askFollowSns()">关注公众号</a>后才能发表评论</div>
                         <div class='alert alert-info' ng-switch-when="member">需要<a href='' class='alert-link' ng-click="askBecomeMember()">填写联系人信息</a>后才能发表评论</div>
                     </div>
-                    <div class='input-group' ng-if="params.actionRule.passed==='Y'">
-                        <textarea class='form-control' ng-model="newRemark.content"></textarea>
-                        <div class='input-group-btn' style='padding-left:15px'>
-                            <button class='btn btn-success' ng-click="addRemark()">发布</button>
+                    <div class='input-group' ng-if="params.actionRule.passed==='Y'" ng-click="writeRemark()">
+                        <p class='form-control'>添加评论</p>
+                        <div class='input-group-btn'>
+                            <button class='btn btn-default'><span class="glyphicon glyphicon-share-alt"></span></button>
                         </div>
                     </div>
                 </div>
@@ -98,6 +113,15 @@
         <div class="modal-footer">
             <button class="btn btn-default" ng-click="cancel()">关闭</button>
             <button class="btn btn-default" ng-click="ok()">完成</button>
+        </div>
+    </script>
+    <script type="text/ng-template" id="writeRemark.html">
+        <div class="modal-body">
+            <textarea class='form-control' rows=8 placeholder='请输入评论内容' autofocus ng-model="data.content"></textarea>
+        </div>
+        <div class="modal-footer">
+            <button class="btn btn-default" ng-click="cancel()">取消</button>
+            <button class="btn btn-primary" ng-click="ok()">提交评论</button>
         </div>
     </script>
     <script src="/static/js/xxt.ui.error.js"></script>

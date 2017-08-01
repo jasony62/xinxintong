@@ -33,6 +33,7 @@
                 <th class='text-center'>名称</th>
                 <th class='text-center' style='width:4em'>状态</th>
                 <th class='text-center' style='width:8em'>开始时间</th>
+                <th class='text-center' style='width:8em'>结束时间</th>
                 <th style='width:4em'>操作</th>
             </tr>
         </thead>
@@ -44,6 +45,9 @@
                 </td>
                 <td>
                     <span ng-if="r.start_at>0">{{r.start_at*1000|date:'yy-MM-dd HH:mm'}}</span>
+                </td>
+                <td>
+                    <span ng-if="r.end_at>0">{{r.end_at*1000|date:'yy-MM-dd HH:mm'}}</span>
                 </td>
                 <td>
                     <button class='btn btn-default btn-xs' ng-click='edit(r)'>

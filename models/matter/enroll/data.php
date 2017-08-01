@@ -169,6 +169,10 @@ class data_model extends \TMS_MODEL {
 		if (!empty($options->agreed) && $options->agreed === 'Y') {
 			$q[2] .= " and agreed='Y'";
 		}
+		/* 根据用户分组进行筛选 */
+		if (!empty($options->userGroup)) {
+			$q[2] .= " and group_id='{$options->userGroup}'";
+		}
 		/* 限制填写用户 */
 		if (!empty($options->owner) && strcasecmp($options->owner, 'all') !== 0) {
 			$q[2] .= " and userid='{$options->owner}'";

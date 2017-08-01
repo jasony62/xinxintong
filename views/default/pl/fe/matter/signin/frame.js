@@ -126,9 +126,21 @@ define(['require', 'page', 'schema', 'signinService', 'enrollSchema', 'enrollPag
         srvSite.get().then(function(oSite) {
             $scope.site = oSite;
         });
+        srvSite.tagList().then(function(oTag) {
+            $scope.oTag = oTag;
+        });
         srvSite.snsList().then(function(oSns) {
             $scope.sns = oSns;
             srvSigninApp.get().then(function(oApp) {
+                if(oApp.matter_mg_tag !== ''){
+                     oApp.matter_mg_tag.forEach(function(cTag,index){
+                        $scope.oTag.forEach(function(oTag){
+                            if(oTag.id === cTag){
+                                oApp.matter_mg_tag[index] = oTag;
+                            }
+                        });
+                    });
+                }
                 $scope.app = oApp;
                 oApp.__schemasOrderConsistent = 'Y'; //页面上登记项显示顺序与定义顺序一致
                 srvSite.memberSchemaList(oApp).then(function(aMemberSchemas) {

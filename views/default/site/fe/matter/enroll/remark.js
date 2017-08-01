@@ -2,13 +2,13 @@
 require('./remark.css');
 
 var ngApp = require('./main.js');
-ngApp.controller('ctrlRemark', ['$scope', '$q', 'http2', '$sce', '$uibModal', function($scope, $q, http2, $sce, $uibModal) {
+ngApp.controller('ctrlRemark', ['$scope', '$q', '$timeout', 'http2', '$sce', '$uibModal', function($scope, $q, $timeout, http2, $sce, $uibModal) {
     function listRemarks() {
         var url, defer = $q.defer();
         url = '/rest/site/fe/matter/enroll/remark/list?site=' + oApp.siteid + '&ek=' + ek;
         url += '&schema=' + $scope.filter.schema.id;
         http2.get(url).then(function(rsp) {
-            if(oFilter.schema.type=='file') {
+            if (oFilter.schema.type == 'file') {
                 rsp.data.data.value = angular.fromJson(rsp.data.data.value);
             }
             defer.resolve(rsp.data)
@@ -24,6 +24,17 @@ ngApp.controller('ctrlRemark', ['$scope', '$q', 'http2', '$sce', '$uibModal', fu
         });
         return defer.promise;
     }
+
+    function addRemark(content, oRemark) {
+        var url;
+        url = '/rest/site/fe/matter/enroll/remark/add?site=' + oApp.siteid + '&ek=' + ek;
+        url += '&schema=' + $scope.filter.schema.id;
+        if (oRemark) {
+            url += '&remark=' + oRemark.id;
+        }
+        return http2.post(url, { content: content });
+    }
+
     var oApp, aRemarkable, oFilter, ek, schemaId;
     ek = location.search.match(/[\?&]ek=([^&]*)/)[1];
     if (location.search.match(/[\?&]schema=[^&]*/)) {
@@ -50,15 +61,6 @@ ngApp.controller('ctrlRemark', ['$scope', '$q', 'http2', '$sce', '$uibModal', fu
             oFilter.schema = data.schema;
         });
     };
-    $scope.addRemark = function() {
-        var url;
-        url = '/rest/site/fe/matter/enroll/remark/add?site=' + oApp.siteid + '&ek=' + ek;
-        url += '&schema=' + $scope.filter.schema.id;
-        http2.post(url, $scope.newRemark).then(function(rsp) {
-            $scope.remarks.push(rsp.data);
-            $scope.newRemark.content = '';
-        });
-    };
     $scope.likeRemark = function(oRemark) {
         var url;
         url = '/rest/site/fe/matter/enroll/remark/like';
@@ -67,6 +69,43 @@ ngApp.controller('ctrlRemark', ['$scope', '$q', 'http2', '$sce', '$uibModal', fu
         http2.get(url).then(function(rsp) {
             oRemark.like_log = rsp.data.like_log;
             oRemark.like_num = rsp.data.like_num;
+        });
+    };
+    $scope.writeRemark = function(oUpperRemark) {
+        $uibModal.open({
+            templateUrl: 'writeRemark.html',
+            controller: ['$scope', '$uibModalInstance', function($scope2, $mi) {
+                $scope2.data = {};
+                $scope2.cancel = function() { $mi.dismiss(); };
+                $scope2.ok = function() {
+                    $mi.close($scope2.data);
+                };
+            }],
+            backdrop: 'static',
+        }).result.then(function(data) {
+            addRemark(data.content, oUpperRemark).then(function(rsp) {
+                var oNewRemark;
+                oNewRemark = rsp.data;
+                oNewRemark.content = oNewRemark.content.replace(/\\n/g, '<br/>');
+                if (oUpperRemark) {
+                    oNewRemark.content = '<a href="" ng-click="gotoUpper(' + oUpperRemark.id + ')">回复 ' + oUpperRemark.nickname + ' 的评论：</a><br/>' + oNewRemark.content;
+                }
+                $scope.remarks.splice(0, 0, oNewRemark);
+                $timeout(function() {
+                    var elRemark, parentNode, offsetTop;
+                    elRemark = document.querySelector('#remark-' + oNewRemark.id);
+                    parentNode = elRemark.parentNode;
+                    while (parentNode && parentNode.tagName !== 'BODY') {
+                        offsetTop += parentNode.offsetTop;
+                        parentNode = parentNode.parentNode;
+                    }
+                    document.body.scrollTop = offsetTop - 40;
+                    elRemark.classList.add('blink');
+                    $timeout(function() {
+                        elRemark.classList.remove('blink');
+                    }, 1000);
+                });
+            });
         });
     };
     $scope.likeRecordData = function() {
@@ -79,6 +118,21 @@ ngApp.controller('ctrlRemark', ['$scope', '$q', 'http2', '$sce', '$uibModal', fu
             $scope.data.like_log = rsp.data.like_log;
             $scope.data.like_num = rsp.data.like_num;
         });
+    };
+    $scope.gotoUpper = function(upperId) {
+        var elRemark, offsetTop, parentNode;
+        elRemark = document.querySelector('#remark-' + upperId);
+        offsetTop = elRemark.offsetTop;
+        parentNode = elRemark.parentNode;
+        while (parentNode && parentNode.tagName !== 'BODY') {
+            offsetTop += parentNode.offsetTop;
+            parentNode = parentNode.parentNode;
+        }
+        document.body.scrollTop = offsetTop - 40;
+        elRemark.classList.add('blink');
+        $timeout(function() {
+            elRemark.classList.remove('blink');
+        }, 1000);
     };
     $scope.gotoRecord = function() {
         var oPage;
@@ -137,8 +191,20 @@ ngApp.controller('ctrlRemark', ['$scope', '$q', 'http2', '$sce', '$uibModal', fu
     $scope.$watch('filter', function(nv) {
         if (nv && nv.schema) {
             listRemarks().then(function(data) {
-                $scope.data = data.data;
-                $scope.remarks = data.remarks;
+                var oRemark, oUpperRemark, oRemarks = {};
+                if (data.remarks && data.remarks.length) {
+                    for (var i = data.remarks.length - 1; i >= 0; i--) {
+                        oRemark = data.remarks[i];
+                        if (oRemark.content) {
+                            oRemark.content = oRemark.content.replace(/\n/g, '<br/>');
+                        }
+                        if (oRemark.remark_id !== '0') {
+                            oUpperRemark = oRemarks[oRemark.remark_id];
+                            oRemark.content = '<a href="" ng-click="gotoUpper(' + oRemark.remark_id + ')">回复 ' + oUpperRemark.nickname + ' 的评论：</a><br/>' + oRemark.content;
+                        }
+                        oRemarks[oRemark.id] = oRemark;
+                    }
+                }
                 if ($scope.data) {
                     if ($scope.data.tag) {
                         $scope.data.tag.forEach(function(index, tagId) {
@@ -148,6 +214,8 @@ ngApp.controller('ctrlRemark', ['$scope', '$q', 'http2', '$sce', '$uibModal', fu
                         });
                     }
                 }
+                $scope.data = data.data;
+                $scope.remarks = data.remarks;
             });
         }
     }, true);

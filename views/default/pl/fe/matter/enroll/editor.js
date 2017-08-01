@@ -211,7 +211,6 @@ define(['frame'], function(ngApp) {
                     });
                 }
                 ele = null;
-                defer.resolve();
             }, true);
             ele.click();
         };

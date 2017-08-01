@@ -51,7 +51,7 @@ class tag extends \pl\fe\base {
 		return new \ResponseData($newTags);
 	}
 	/**
-	 *  添加标签
+	 *   给素材添加标签
 	 *  @param string $resType 素材类型
 	 *  @param string $resId 素材id
 	 *  @param string $subType 标签类型 M(管理),C(内容)
@@ -65,6 +65,7 @@ class tag extends \pl\fe\base {
 		$model->setOnlyWriteDbConn(true);
 		$site = $model->escape($site);
 		$subType = $model->escape($subType);
+		$resId = $model->escape($resId);
 		switch($resType){
 			case 'article':
 				$fields = "id,siteid,title,summary,pic,matter_cont_tag,matter_mg_tag,'$resType' type";

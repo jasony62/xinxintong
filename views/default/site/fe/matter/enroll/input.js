@@ -90,7 +90,7 @@ ngApp.directive('tmsImageInput', ['$compile', '$q', function($compile, $q) {
         var html;
         html = "<div class='form-group'><button class='btn btn-default btn-lg btn-block' ng-click=\"chooseImage(null,null,'camera')\">拍照</button></div>";
         html += "<div class='form-group'><button class='btn btn-default btn-lg btn-block' ng-click=\"chooseImage(null,null,'album')\">相册</button></div>";
-        html = __util.makeDialog('pickImageFrom', {
+        html = window.__util.makeDialog('pickImageFrom', {
             body: html
         });
         $compile(html)(scope);

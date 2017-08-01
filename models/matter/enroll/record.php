@@ -28,8 +28,8 @@ class record_model extends \TMS_MODEL {
 		];
 		/* 记录所属轮次 */
 		$modelRun = $this->model('matter\enroll\round');
-		if ($activeRound = $modelRun->getActive($oApp)) {
-			$record['rid'] = $activeRound->rid;
+		if ($oActiveRound = $modelRun->getActive($oApp)) {
+			$record['rid'] = $oActiveRound->rid;
 		}
 		/* 登记用户昵称 */
 		if (isset($options['nickname'])) {

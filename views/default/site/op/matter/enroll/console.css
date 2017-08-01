@@ -28,7 +28,7 @@ ul{padding-left:0;}
 ul{padding-left:0}
 ul.img-tiles li{position:relative;display:inline-block;overflow:hidden;width:80px;height:80px;margin:0px;padding:0px;float:left}
 ul.img-tiles li.img-thumbnail img{display:inline-block;position:absolute}
-ul.img-tiles li.img-thumbnail button{position:absolute;top:0;right:0}
+ul.img-tiles li.img-thumbnail button,#record ul.list-group button{position:absolute;top:0;right:0}
 ul.img-tiles li.img-picker button{position:auto;width:100%;height:100%}
 ul.img-tiles li.img-picker button span{font-size:36px}
 
@@ -37,6 +37,7 @@ ul.img-tiles li.img-picker button span{font-size:36px}
 #record ul.img-tiles li{position:relative;display:inline-block;overflow:hidden;width:80px;height:80px;margin:0px;padding:0px;float:left}
 #record ul.img-tiles li.img-thumbnail img{display:inline-block;position:absolute}
 #record ul.img-tiles li.img-thumbnail button{position:absolute;top:0;right:0}
+#record ul.list-group {position: relative;}
 #record ul.img-tiles li.img-picker button{position:auto;width:100%;height:100%}
 #record ul.img-tiles li.img-picker button span{font-size:36px}
 #record .accordion-toggle{text-decoration:none;display:block;}

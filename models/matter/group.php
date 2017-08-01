@@ -57,6 +57,9 @@ class group_model extends app_base {
 					$app->groupRule = new \stdClass;
 				}
 			}
+			if(!empty($app->matter_mg_tag)){
+				$app->matter_mg_tag = json_decode($app->matter_mg_tag);
+			}
 		}
 
 		return $app;

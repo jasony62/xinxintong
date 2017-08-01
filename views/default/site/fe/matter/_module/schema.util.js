@@ -94,8 +94,6 @@ utilSchema.loadRecord = function(schemasById, dataOfPage, dataOfRecord) {
                             imgSrc: value[i]
                         });
                     }
-                } else if (schemasById[p].type === 'file') {
-                    dataOfPage[p] = value;
                 } else if (schemasById[p].type === 'multiple') {
                     value = dataOfRecord[p].split(',');
                     dataOfPage[p] = {};

@@ -205,7 +205,7 @@ class record extends \pl\fe\matter\base {
 	 * @param string $app
 	 * @param $ek record's key
 	 */
-	public function update_action($app, $ek) {
+	public function update_action($site, $app, $ek) {
 		if (false === ($user = $this->accountUser())) {
 			return new \ResponseTimeout();
 		}
@@ -239,9 +239,8 @@ class record extends \pl\fe\matter\base {
 		/* 记录登记数据 */
 		if (isset($record->data)) {
 			$score = isset($record->quizScore) ? $record->quizScore : null;
-			$userRecode = new \stdClass;
-			$userRecode->uid = $record->userid;
-			$modelRec->setData($userRecode, $oApp, $ek, $record->data, '', false, $score);
+			$userSite = $this->model('site\fe\way')->who($site);
+			$modelRec->setData($userSite, $oApp, $ek, $record->data, '', false, $score);
 		} else if (isset($record->quizScore)) {
 			/* 只修改登记项的分值 */
 			$oAfterScore = new \stdClass;

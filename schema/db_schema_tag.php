@@ -7,7 +7,13 @@ $sql = 'create table if not exists xxt_tag(';
 $sql .= 'id int not null auto_increment';
 $sql .= ",siteid varchar(32) not null default ''";
 $sql .= ',mpid varchar(32) not null';
+$sql .= ",creater varchar(40) not null default ''";
+$sql .= ",creater_name varchar(255) not null default ''";
+$sql .= ",create_at int not null default 0";
 $sql .= ',title varchar(255) not null';
+$sql .= ',sum int not null default 0';
+$sql .= ',seq int not null default 1';
+$sql .= ",sub_type char(1) not null default 'M'";
 $sql .= ',primary key(id)';
 $sql .= ',UNIQUE KEY `tag` (mpid,title)) ENGINE=MyISAM DEFAULT CHARSET=utf8';
 if (!$mysqli->query($sql)) {

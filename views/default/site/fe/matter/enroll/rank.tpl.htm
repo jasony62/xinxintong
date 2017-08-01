@@ -21,6 +21,7 @@
                 <div class='col-xs-4'>
                     <select class='form-control' ng-model="appState.criteria.obj">
                         <option value='user'>用户</option>
+                        <option value='group' ng-if="app.group_app_id">用户分组</option>
                         <option value='data'>提交内容</option>
                         <option value='remark'>内容评论</option>
                     </select>
@@ -32,6 +33,16 @@
                     </div>
                 </div>
                 <div class='col-xs-5' ng-if="appState.criteria.obj==='user'">
+                    <select class='form-control' ng-model="appState.criteria.orderby" ng-change="changeCriteria()">
+                        <option value='enroll'>提交记录数量</option>
+                        <option value='remark'>获得评论数量</option>
+                        <option value='like'>获得点赞数量</option>
+                        <option value='remark_other'>发表评论数量</option>
+                        <option value='like_other'>进行点赞数量</option>
+                        <option value='total_coin'>积分</option>
+                    </select>
+                </div>
+                <div class='col-xs-5' ng-if="appState.criteria.obj==='group'">
                     <select class='form-control' ng-model="appState.criteria.orderby" ng-change="changeCriteria()">
                         <option value='enroll'>提交记录数量</option>
                         <option value='remark'>获得评论数量</option>
@@ -63,6 +74,22 @@
                                 <td class='hidden-xs'>{{(appState.page.at-1)*appState.page.size+$index+1}}</td>
                                 <td><span>{{u.nickname}}</span></td>
                                 <td><span>{{u[appState.criteria.orderby+'_num']||u.user_total_coin}}</span></td>
+                            </tr>
+                        </tbody>
+                    </table>
+                    <table class='table table-striped' ng-switch-when="group">
+                        <thead>
+                            <tr>
+                                <th class='hidden-xs' style='width:3em'></th>
+                                <th>分组</th>
+                                <th style='width:3em'></th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr ng-repeat="g in groups">
+                                <td class='hidden-xs'>{{$index+1}}</td>
+                                <td><span>{{g.title}}</span></td>
+                                <td><span>{{g.num}}</span></td>
                             </tr>
                         </tbody>
                     </table>

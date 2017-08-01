@@ -27,15 +27,19 @@ class main extends \pl\fe\matter\base {
 		}
 
 		$modelNews = $this->model('matter\news');
-		$n = $modelNews->byId($id);
-		$n->uid = $user->id;
-		if ($n->empty_reply_type && $n->empty_reply_id) {
-			$n->emptyReply = $this->model('matter\base')->getMatterInfoById($n->empty_reply_type, $n->empty_reply_id);
-		}
+		if ($n = $modelNews->byId($id)) {
+			if(!empty($n->matter_mg_tag)){
+				$n->matter_mg_tag = json_decode($n->matter_mg_tag);
+			}
+			$n->uid = $user->id;
+			if ($n->empty_reply_type && $n->empty_reply_id) {
+				$n->emptyReply = $this->model('matter\base')->getMatterInfoById($n->empty_reply_type, $n->empty_reply_id);
+			}
 
-		if ($cascade === 'Y') {
-			$n->matters = $modelNews->getMatters($n->id);
-			$n->acl = $this->model('acl')->byMatter($site, 'news', $n->id);
+			if ($cascade === 'Y') {
+				$n->matters = $modelNews->getMatters($n->id);
+				$n->acl = $this->model('acl')->byMatter($site, 'news', $n->id);
+			}
 		}
 
 		return new \ResponseData($n);

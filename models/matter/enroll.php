@@ -133,6 +133,9 @@ class enroll_model extends app_base {
 					$oApp->rpConfig = new \stdClass;
 				}
 			}
+			if(!empty($oApp->matter_mg_tag)){
+				$oApp->matter_mg_tag = json_decode($oApp->matter_mg_tag);
+			}
 			$oApp->dataTags = $this->model('matter\enroll\tag')->byApp($oApp);
 
 			$modelPage = $this->model('matter\enroll\page');

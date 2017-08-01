@@ -1,5 +1,5 @@
 (function() {
-    ngApp.provider.controller('ctrlSetting', ['$scope', 'http2', 'mediagallery', function($scope, http2, mediagallery) {
+    ngApp.provider.controller('ctrlSetting', ['$scope', 'http2', 'mediagallery', '$uibModal', function($scope, http2, mediagallery, $uibModal) {
         window.onbeforeunload = function(e) {
             var message;
             if ($scope.modified) {
@@ -62,6 +62,69 @@
                     window.open('/rest/pl/fe/code?site=' + $scope.siteId + '&name=' + app.page_code_name, '_self');
                 });
             }
+        };
+        $scope.tagRecordData = function(subType) {
+            var oApp, oTags, tagsOfData;
+            oApp = $scope.app;
+            oTags = $scope.oTag;
+            $uibModal.open({
+                templateUrl: 'tagMatterData.html',
+                controller: ['$scope', '$uibModalInstance', function($scope2, $mi) {
+                    var model;
+                    $scope2.apptags = oTags;
+
+                    if(subType === 'C'){
+                        tagsOfData = oApp.matter_cont_tag;
+                        $scope2.tagTitle = '内容标签';
+                    }else{
+                        tagsOfData = oApp.matter_mg_tag;
+                        $scope2.tagTitle = '管理标签';
+                    }
+                    $scope2.model = model = {
+                        selected: []
+                    };
+                    if (tagsOfData) {
+                        tagsOfData.forEach(function(oTag) {
+                            var index;
+                            if (-1 !== (index = $scope2.apptags.indexOf(oTag))) {
+                                model.selected[$scope2.apptags.indexOf(oTag)] = true;
+                            }
+                        });
+                    }
+                    $scope2.createTag = function() {
+                        var newTags;
+                        if ($scope2.model.newtag) {
+                            newTags = $scope2.model.newtag.replace(/\s/, ',');
+                            newTags = newTags.split(',');
+                            http2.post('/rest/pl/fe/matter/tag/create?site=' + oApp.siteid, newTags, function(rsp) {
+                                rsp.data.forEach(function(oNewTag) {
+                                    $scope2.apptags.push(oNewTag);
+                                });
+                            });
+                            $scope2.model.newtag = '';
+                        }
+                    };
+                    $scope2.cancel = function() { $mi.dismiss(); };
+                    $scope2.ok = function() {
+                        var addMatterTag = [];
+                        model.selected.forEach(function(selected, index) {
+                            if (selected) {
+                                addMatterTag.push($scope2.apptags[index]);
+                            }
+                        });
+                        var url = '/rest/pl/fe/matter/tag/add?site=' + oApp.siteid + '&resId=' + oApp.id + '&resType=lottery' + '&subType=' + subType;
+                        http2.post(url, addMatterTag, function(rsp) {
+                            if(subType === 'C'){
+                                $scope.app.matter_cont_tag = addMatterTag;
+                            }else{
+                                $scope.app.matter_mg_tag = addMatterTag;
+                            }
+                        });
+                        $mi.close();
+                    };
+                }],
+                backdrop: 'static',
+            });
         };
     }]);
     ngApp.provider.controller('ctrlCanPlayTask', ['$scope', 'http2', function($scope, http2) {

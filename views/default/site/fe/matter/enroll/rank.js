@@ -11,6 +11,11 @@ ngApp.controller('ctrlRank', ['$scope', '$q', '$sce', 'http2', 'ls', function($s
                     defer.resolve(rsp.data)
                 });
                 break;
+            case 'group':
+                http2.post('/rest/site/fe/matter/enroll/rank/groupByApp?site=' + oApp.siteid + '&app=' + oApp.id, oAppState.criteria).then(function(rsp) {
+                    defer.resolve(rsp.data)
+                });
+                break;
             case 'data':
                 http2.post('/rest/site/fe/matter/enroll/rank/dataByApp?site=' + oApp.siteid + '&app=' + oApp.id, oAppState.criteria).then(function(rsp) {
                     defer.resolve(rsp.data)
@@ -72,6 +77,13 @@ ngApp.controller('ctrlRank', ['$scope', '$q', '$sce', 'http2', 'ls', function($s
                         });
                     }
                     break;
+                case 'group':
+                    if (data.groups) {
+                        data.groups.forEach(function(group) {
+                            $scope.groups.push(group);
+                        });
+                    }
+                    break;
                 case 'data':
                     if (data.records) {
                         data.records.forEach(function(record) {
@@ -94,6 +106,7 @@ ngApp.controller('ctrlRank', ['$scope', '$q', '$sce', 'http2', 'ls', function($s
     };
     $scope.changeCriteria = function() {
         $scope.users = [];
+        $scope.groups = [];
         $scope.records = [];
         $scope.remarks = [];
         $scope.doSearch(1);
@@ -126,6 +139,9 @@ ngApp.controller('ctrlRank', ['$scope', '$q', '$sce', 'http2', 'ls', function($s
             if (oNew && oOld && oNew !== oOld) {
                 switch (oNew) {
                     case 'user':
+                        oAppState.criteria.orderby = 'enroll';
+                        break;
+                    case 'group':
                         oAppState.criteria.orderby = 'enroll';
                         break;
                     case 'data':

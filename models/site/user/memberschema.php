@@ -34,12 +34,24 @@ class memberschema_model extends \TMS_MODEL {
 				// 	);
 				// 	$schema->page = $page;
 				// }
+				$oPage = new \stdClass;
 				$templateDir = TMS_APP_TEMPLATE . '/pl/fe/site/memberschema';
-				$page = new \stdClass;
-				$page->html = file_get_contents($templateDir . '/basic.html');
-				$page->css = file_get_contents($templateDir . '/basic.css');
-				$page->js = file_get_contents($templateDir . '/basic.js');
-				$schema->page = $page;
+				if (file_exists($templateDir . '/basic.html')) {
+					$oPage->html = file_get_contents($templateDir . '/basic.html');
+				} else {
+					$oPage->html = file_get_contents(TMS_APP_TEMPLATE_DEFAULT . '/pl/fe/site/memberschema/basic.html');
+				}
+				if (file_exists($templateDir . '/basic.css')) {
+					$oPage->css = file_get_contents($templateDir . '/basic.css');
+				} else {
+					$oPage->css = file_get_contents(TMS_APP_TEMPLATE_DEFAULT . '/pl/fe/site/memberschema/basic.css');
+				}
+				if (file_exists($templateDir . '/basic.js')) {
+					$oPage->js = file_get_contents($templateDir . '/basic.js');
+				} else {
+					$oPage->js = file_get_contents(TMS_APP_TEMPLATE_DEFAULT . '/pl/fe/site/memberschema/basic.js');
+				}
+				$schema->page = $oPage;
 			}
 		}
 

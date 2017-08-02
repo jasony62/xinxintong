@@ -115,6 +115,11 @@ class signin_model extends app_base {
 		if (!empty($options['byTitle'])) {
 			$q[2] .= " and title like '%" . $this->escape($options['byTitle']) . "%'";
 		}
+		if(!empty($options['byTags'])){
+			foreach($options['byTags'] as $tag){
+				$q[2] .= " and matter_mg_tag like '%" . $this->escape($tag->id) . "%'";
+			}
+		}
 		if ($onlySns === 'Y') {
 			$q[2] .= " and entry_rule like '%\"scope\":\"sns\"%'";
 		}

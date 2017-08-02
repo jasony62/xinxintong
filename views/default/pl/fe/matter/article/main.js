@@ -202,62 +202,73 @@ define(['frame'], function(ngApp) {
                 });
             }
         };
-        $scope.$on('tag.xxt.combox.done', function(event, aSelected) {
-            var aNewTags = [];
-            angular.forEach(aSelected, function(selected) {
-                var existing = false;
-                angular.forEach($scope.editing.tags, function(tag) {
-                    if (selected.title === tag.title) {
-                        existing = true;
+        $scope.tagRecordData = function(subType) {
+            var oApp, oTags, tagsOfData;
+            oApp = $scope.editing;
+            if(subType === 'C'){
+                oTags = $scope.oTagC;
+            }else{
+                oTags = $scope.oTag;
+            }
+            $uibModal.open({
+                templateUrl: 'tagMatterData.html',
+                controller: ['$scope', '$uibModalInstance', function($scope2, $mi) {
+                    var model;
+                    $scope2.apptags = oTags;
+
+                    if(subType === 'C'){
+                        tagsOfData = oApp.matter_cont_tag;
+                        $scope2.tagTitle = '内容标签';
+                    }else{
+                        tagsOfData = oApp.matter_mg_tag;
+                        $scope2.tagTitle = '管理标签';
                     }
-                });
-                !existing && aNewTags.push(selected);
-            });
-            http2.post('/rest/pl/fe/matter/article/tag/add?site=' + $scope.editing.siteid + '&id=' + $scope.editing.id, aNewTags, function(rsp) {
-                $scope.editing.tags = $scope.editing.tags.concat(aNewTags);
-            });
-        });
-        $scope.$on('tag.xxt.combox.add', function(event, newTag) {
-            var oNewTag = {
-                title: newTag
-            };
-            http2.post('/rest/pl/fe/matter/article/tag/add?site=' + $scope.editing.siteid + '&id=' + $scope.editing.id, [oNewTag], function(rsp) {
-                $scope.editing.tags.push(oNewTag);
-            });
-        });
-        $scope.$on('tag.xxt.combox.del', function(event, removed) {
-            http2.post('/rest/pl/fe/matter/article/tag/remove?site=' + $scope.editing.siteid + '&id=' + $scope.editing.id, [removed], function(rsp) {
-                $scope.editing.tags.splice($scope.editing.tags.indexOf(removed), 1);
-            });
-        });
-        $scope.$on('tag2.xxt.combox.done', function(event, aSelected) {
-            var aNewTags = [];
-            angular.forEach(aSelected, function(selected) {
-                var existing = false;
-                angular.forEach($scope.editing.tags2, function(tag) {
-                    if (selected.title === tag.title) {
-                        existing = true;
+                    $scope2.model = model = {
+                        selected: []
+                    };
+                    if (tagsOfData) {
+                        tagsOfData.forEach(function(oTag) {
+                            var index;
+                            if (-1 !== (index = $scope2.apptags.indexOf(oTag))) {
+                                model.selected[$scope2.apptags.indexOf(oTag)] = true;
+                            }
+                        });
                     }
-                });
-                !existing && aNewTags.push(selected);
+                    $scope2.createTag = function() {
+                        var newTags;
+                        if ($scope2.model.newtag) {
+                            newTags = $scope2.model.newtag.replace(/\s/, ',');
+                            newTags = newTags.split(',');
+                            http2.post('/rest/pl/fe/matter/tag/create?site=' + oApp.siteid + '&subType=' + subType, newTags, function(rsp) {
+                                rsp.data.forEach(function(oNewTag) {
+                                    $scope2.apptags.push(oNewTag);
+                                });
+                            });
+                            $scope2.model.newtag = '';
+                        }
+                    };
+                    $scope2.cancel = function() { $mi.dismiss(); };
+                    $scope2.ok = function() {
+                        var addMatterTag = [];
+                        model.selected.forEach(function(selected, index) {
+                            if (selected) {
+                                addMatterTag.push($scope2.apptags[index]);
+                            }
+                        });
+                        var url = '/rest/pl/fe/matter/tag/add?site=' + oApp.siteid + '&resId=' + oApp.id + '&resType=' + oApp.type + '&subType=' + subType;
+                        http2.post(url, addMatterTag, function(rsp) {
+                            if(subType === 'C'){
+                                $scope.editing.matter_cont_tag = addMatterTag;
+                            }else{
+                                $scope.editing.matter_mg_tag = addMatterTag;
+                            }
+                        });
+                        $mi.close();
+                    };
+                }],
+                backdrop: 'static',
             });
-            http2.post('/rest/pl/fe/matter/article/tag/add2?site=' + $scope.editing.siteid + '&id=' + $scope.editing.id, aNewTags, function(rsp) {
-                $scope.editing.tags2 = $scope.editing.tags2.concat(aNewTags);
-            });
-        });
-        $scope.$on('tag2.xxt.combox.add', function(event, newTag) {
-            var oNewTag = {
-                title: newTag
-            };
-            http2.post('/rest/pl/fe/matter/article/tag/add2?site=' + $scope.editing.siteid + '&id=' + $scope.editing.id, [oNewTag], function(rsp) {
-                $scope.editing.tags2.push(oNewTag);
-            });
-        });
-        $scope.$on('tag2.xxt.combox.del', function(event, removed) {
-            http2.post('/rest/pl/fe/matter/article/tag/remove2?site=' + $scope.editing.siteid + '&id=' + $scope.editing.id, [removed], function(rsp) {
-                $scope.editing.tags2.splice($scope.editing.tags2.indexOf(removed), 1);
-            });
-        });
+        };
         $scope.delAttachment = function(index, att) {
             http2.get('/rest/pl/fe/matter/article/attachment/del?site=' + $scope.editing.siteid + '&id=' + att.id, function success(rsp) {
                 $scope.editing.attachments.splice(index, 1);
@@ -268,12 +279,6 @@ define(['frame'], function(ngApp) {
         };
         $scope.$watch('editing', function(editing) {
             if (!editing) return;
-            http2.get('/rest/pl/fe/matter/tag/list?site=' + $scope.editing.siteid + '&resType=article&subType=0', function(rsp) {
-                $scope.tags = rsp.data;
-            });
-            http2.get('/rest/pl/fe/matter/tag/list?site=' + $scope.editing.siteid + '&resType=article&subType=1', function(rsp) {
-                $scope.tags2 = rsp.data;
-            });
             if (tinymceEditor) {
                 tinymceEditor.setContent(editing.body);
             }

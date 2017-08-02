@@ -95,7 +95,19 @@ define(['missionService', 'enrollService', 'signinService'], function() {
         srvSite.get().then(function(oSite) {
             $scope.site = oSite;
         });
+        srvSite.tagList().then(function(oTag) {
+            $scope.oTag = oTag;
+        });
         srvMission.get().then(function(mission) {
+            if(mission.matter_mg_tag !== ''){
+                 mission.matter_mg_tag.forEach(function(cTag,index){
+                    $scope.oTag.forEach(function(oTag){
+                        if(oTag.id === cTag){
+                            mission.matter_mg_tag[index] = oTag;
+                        }
+                    });
+                });
+            }
             $scope.mission = mission;
             if (location.href.indexOf('/mission?') !== -1) {
                 srvMission.matterCount().then(function(count) {

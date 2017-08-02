@@ -41,6 +41,8 @@ class record extends base {
 			die('参数错误！');
 		}
 
+		$bSubmitNewRecord = empty($ek); // 是否为提交新纪录
+
 		// 应用的定义
 		$modelEnl = $this->model('matter\enroll');
 		if (false === ($oEnrollApp = $modelEnl->byId($app, ['cascaded' => 'N']))) {
@@ -52,12 +54,12 @@ class record extends base {
 			$modelRnd = $this->model('matter\enroll\round');
 			$oActiveRnd = $modelRnd->getActive($oEnrollApp);
 			$now = time();
-			if (empty($oActiveRnd) || (!empty($oActiveRnd) && ($oActiveRnd->end_at!=0) && $oActiveRnd->end_at < $now)) {
+			if (empty($oActiveRnd) || (!empty($oActiveRnd) && ($oActiveRnd->end_at != 0) && $oActiveRnd->end_at < $now)) {
 				return new \ResponseError('当前活动轮次已结束，不能提交、修改、保存或删除！');
 			}
 		}
 
-		$oUser = $this->who;
+		$oUser = clone $this->who;
 
 		// 当前访问用户的基本信息
 		$userNickname = $modelEnl->getUserNickname($oEnrollApp, $oUser);
@@ -146,8 +148,9 @@ class record extends base {
 					$enrolledData->{$oSchema->id} = $matchedData->{$oSchema->id};
 				}
 			}
+			/* 所属分组id */
 			if (isset($groupRecord->round_id)) {
-				$enrolledData->_round_id = $groupRecord->round_id;
+				$oUser->group_id = $enrolledData->_round_id = $groupRecord->round_id;
 			}
 		}
 		/**
@@ -163,10 +166,10 @@ class record extends base {
 		/**
 		 * 提交登记数据
 		 */
-		$updatedEnrollRec = [];
+		$oUpdatedEnrollRec = [];
 		$modelRec = $this->model('matter\enroll\record');
 		$modelRec->setOnlyWriteDbConn(true);
-		if (empty($ek)) {
+		if ($bSubmitNewRecord) {
 			/* 插入登记数据 */
 			$ek = $modelRec->enroll($oEnrollApp, $oUser, ['nickname' => $oUser->nickname]);
 			/* 处理自定义信息 */
@@ -183,9 +186,9 @@ class record extends base {
 			$rst = $modelRec->setData($oUser, $oEnrollApp, $ek, $enrolledData, $submitkey);
 			if ($rst[0] === true) {
 				/* 已经登记，更新原先提交的数据，只要进行更新操作就设置为未审核通过的状态 */
-				$updatedEnrollRec['enroll_at'] = time();
-				$updatedEnrollRec['userid'] = $oUser->uid;
-				$updatedEnrollRec['verified'] = 'N';
+				$oUpdatedEnrollRec['enroll_at'] = time();
+				$oUpdatedEnrollRec['userid'] = $oUser->uid;
+				$oUpdatedEnrollRec['verified'] = 'N';
 			}
 		}
 		if (false === $rst[0]) {
@@ -204,20 +207,23 @@ class record extends base {
 			$rst = $modelRec->setSupplement($oUser, $oEnrollApp, $ek, $posted->supplement);
 		}
 		if (isset($matchedRecord)) {
-			$updatedEnrollRec['matched_enroll_key'] = $matchedRecord->enroll_key;
+			$oUpdatedEnrollRec['matched_enroll_key'] = $matchedRecord->enroll_key;
 		}
 		if (isset($groupRecord)) {
-			$updatedEnrollRec['group_enroll_key'] = $groupRecord->enroll_key;
+			$oUpdatedEnrollRec['group_enroll_key'] = $groupRecord->enroll_key;
 		}
-		if (count($updatedEnrollRec)) {
+		if (count($oUpdatedEnrollRec)) {
 			$modelRec->update(
 				'xxt_enroll_record',
-				$updatedEnrollRec,
+				$oUpdatedEnrollRec,
 				"enroll_key='$ek'"
 			);
 		}
 		/* 记录操作日志 */
 		$this->_logSubmit($oEnrollApp, $ek);
+		/* 登记用户行为及积分 */
+		$modelUsr = $this->model('matter\enroll\user');
+		$modelUsr->setOnlyWriteDbConn(true);
 
 		/* 获得所属轮次 */
 		$modelRun = $this->model('matter\enroll\round');
@@ -227,9 +233,7 @@ class record extends base {
 			$rid = '';
 		}
 		/* 更新活动用户轮次数据 */
-		$modelUsr = $this->model('matter\enroll\user');
-		$modelUsr->setOnlyWriteDbConn(true);
-		$oEnrollUsr = $modelUsr->byId($oEnrollApp, $oUser->uid, ['fields' => 'id,nickname,last_enroll_at,enroll_num,user_total_coin', 'rid' => $rid]);
+		$oEnrollUsr = $modelUsr->byId($oEnrollApp, $oUser->uid, ['fields' => 'id,nickname,group_id,last_enroll_at,enroll_num,user_total_coin', 'rid' => $rid]);
 		if (false === $oEnrollUsr) {
 			$inData = ['last_enroll_at' => time(), 'enroll_num' => 1];
 			if (!empty($rules)) {
@@ -238,15 +242,22 @@ class record extends base {
 					$inData['user_total_coin'] = $inData['user_total_coin'] + (int) $rule->actor_delta;
 				}
 			}
-
 			$inData['rid'] = $rid;
 			$modelUsr->add($oEnrollApp, $oUser, $inData);
 		} else {
-			$upData = ['last_enroll_at' => time(), 'enroll_num' => (int) $oEnrollUsr->enroll_num + 1];
-			if (!empty($rules)) {
-				$upData['user_total_coin'] = (int) $oEnrollUsr->user_total_coin;
-				foreach ($rules as $rule) {
-					$upData['user_total_coin'] = $upData['user_total_coin'] + (int) $rule->actor_delta;
+			$upData = ['last_enroll_at' => time()];
+			if (isset($oUser->group_id)) {
+				if ($oEnrollUsr->group_id !== $oUser->group_id) {
+					$upData['group_id'] = $oUser->group_id;
+				}
+			}
+			if ($bSubmitNewRecord) {
+				$upData['enroll_num'] = (int) $oEnrollUsr->enroll_num + 1;
+				if (!empty($rules)) {
+					$upData['user_total_coin'] = (int) $oEnrollUsr->user_total_coin;
+					foreach ($rules as $rule) {
+						$upData['user_total_coin'] = $upData['user_total_coin'] + (int) $rule->actor_delta;
+					}
 				}
 			}
 			$modelUsr->update(
@@ -255,9 +266,8 @@ class record extends base {
 				['id' => $oEnrollUsr->id]
 			);
 		}
-
 		/* 更新活动用户总数据 */
-		$oEnrollUsrALL = $modelUsr->byId($oEnrollApp, $oUser->uid, ['fields' => 'id,nickname,last_enroll_at,enroll_num,user_total_coin', 'rid' => 'ALL']);
+		$oEnrollUsrALL = $modelUsr->byId($oEnrollApp, $oUser->uid, ['fields' => 'id,nickname,group_id,last_enroll_at,enroll_num,user_total_coin', 'rid' => 'ALL']);
 		if (false === $oEnrollUsrALL) {
 			$inDataALL = ['last_enroll_at' => time(), 'enroll_num' => 1];
 			if (!empty($rules)) {
@@ -266,15 +276,22 @@ class record extends base {
 					$inDataALL['user_total_coin'] = $inDataALL['user_total_coin'] + (int) $rule->actor_delta;
 				}
 			}
-
 			$inDataALL['rid'] = 'ALL';
 			$modelUsr->add($oEnrollApp, $oUser, $inDataALL);
 		} else {
-			$upDataALL = ['last_enroll_at' => time(), 'enroll_num' => (int) $oEnrollUsrALL->enroll_num + 1];
-			if (!empty($rules)) {
-				$upDataALL['user_total_coin'] = (int) $oEnrollUsrALL->user_total_coin;
-				foreach ($rules as $rule) {
-					$upDataALL['user_total_coin'] = $upDataALL['user_total_coin'] + (int) $rule->actor_delta;
+			$upDataALL = ['last_enroll_at' => time()];
+			if (isset($oUser->group_id)) {
+				if ($oEnrollUsrALL->group_id !== $oUser->group_id) {
+					$upDataALL['group_id'] = $oUser->group_id;
+				}
+			}
+			if ($bSubmitNewRecord) {
+				$upDataALL['enroll_num'] = (int) $oEnrollUsrALL->enroll_num + 1;
+				if (!empty($rules)) {
+					$upDataALL['user_total_coin'] = (int) $oEnrollUsrALL->user_total_coin;
+					foreach ($rules as $rule) {
+						$upDataALL['user_total_coin'] = $upDataALL['user_total_coin'] + (int) $rule->actor_delta;
+					}
 				}
 			}
 			$modelUsr->update(
@@ -283,7 +300,6 @@ class record extends base {
 				['id' => $oEnrollUsrALL->id]
 			);
 		}
-
 		/**
 		 * 通知登记活动事件接收人
 		 */
@@ -607,8 +623,12 @@ class record extends base {
 	 *
 	 */
 	public function list_action($site, $app, $owner = 'U', $orderby = 'time', $page = 1, $size = 30) {
-		$oUser = $this->who;
+		$oApp = $this->model('matter\enroll')->byId($app, ['cascaded' => 'N']);
+		if (false === $oApp) {
+			return new \ObjectNotFoundError();
+		}
 
+		$oUser = $this->who;
 		// 登记数据过滤条件
 		$oCriteria = $this->getPostJson();
 
@@ -621,6 +641,14 @@ class record extends base {
 		case 'A':
 			$options = array();
 			break;
+		case 'G':
+			$modelUsr = $this->model('matter\enroll\user');
+			$options = ['fields' => 'group_id'];
+			$oEnrollee = $modelUsr->byId($oApp, $oUser->uid, $options);
+			$options = array(
+				'userGroup' => isset($oEnrollee->group_id) ? $oEnrollee->group_id : '',
+			);
+			break;
 		default:
 			$options = array(
 				'creater' => $oUser->uid,
@@ -631,7 +659,6 @@ class record extends base {
 		$options['size'] = $size;
 		$options['orderby'] = $orderby;
 
-		$oApp = $this->model('matter\enroll')->byId($app, ['cascaded' => 'N']);
 		$modelRec = $this->model('matter\enroll\record');
 
 		$rst = $modelRec->byApp($oApp, $options, $oCriteria);
@@ -813,7 +840,7 @@ class record extends base {
 			$modelRnd = $this->model('matter\enroll\round');
 			$oActiveRnd = $modelRnd->getActive($oApp);
 			$now = time();
-			if (empty($oActiveRnd) || (!empty($oActiveRnd) && ($oActiveRnd->end_at!=0) && $oActiveRnd->end_at < $now)) {
+			if (empty($oActiveRnd) || (!empty($oActiveRnd) && ($oActiveRnd->end_at != 0) && $oActiveRnd->end_at < $now)) {
 				return new \ResponseError('当前活动轮次已结束，不能提交、修改、保存或删除！');
 			}
 		}

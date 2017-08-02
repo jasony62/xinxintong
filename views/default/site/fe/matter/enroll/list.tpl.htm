@@ -42,7 +42,7 @@
                         </select>
                     </div>
                 </div>
-                <div class="form-group" ng-repeat="schema in dataSchemas" ng-if="['shorttext','longtext','location','single','multiple','phase'].indexOf(schema.type)!==-1">
+                <div class="form-group" ng-repeat="schema in filterSchemas">
                     <label class="col-md-3 control-label">{{schema.title}}</label>
                     <div class="col-md-9">
                         <input type='text' class='form-control' placeholder='输入筛选条件' ng-if="['shorttext','longtext','location'].indexOf(schema.type)!==-1" ng-model="criteria.data[schema.id]">
@@ -69,6 +69,7 @@
     <script src="/static/js/angular-sanitize.min.js"></script>
     <script src="/static/js/ui-bootstrap-tpls.min.js"></script>
     <script src="<?php echo auto_version('/bundles/default/site/fe/matter/enroll/list.js');?>"></script>
+    <div class="tms-switch tms-switch-task" ng-click="showUserTask($event)" ng-if="app.user_task"></div>
     <div class="tms-switch tms-switch-repos" ng-click="gotoPage($event,'repos')" ng-if="app.can_repos==='Y'"></div>
     <div class="tms-switch tms-switch-rank" ng-click="gotoPage($event,'rank')" ng-if="app.can_rank==='Y'"></div>
 </body>

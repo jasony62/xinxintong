@@ -30,6 +30,7 @@ $sql .= ",last_sync_at int not null default 0"; // 最后同步的时间
 $sql .= ",source_app varchar(255) not null default ''"; // 关联的登记或签到活动
 $sql .= ",data_schemas text";
 $sql .= ",state tinyint not null default 1"; //0:stop,1:normal
+$sql .= ",matter_mg_tag varchar(255) not null default ''";
 $sql .= ",primary key(id)) ENGINE=MyISAM DEFAULT CHARSET=utf8";
 if (!$mysqli->query($sql)) {
 	header('HTTP/1.0 500 Internal Server Error');

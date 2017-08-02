@@ -54,7 +54,19 @@ class main extends \site\fe\matter\base {
 			}
 		}
 		/* 单图文所属的标签 */
-		$article->tags = $modelArticle->tags($id);
+		$tags = [];
+		if(!empty($article->matter_cont_tag)){
+			foreach ($article->matter_cont_tag as $key => $tagId) {
+				$T = [
+					'id,title',
+					'xxt_tag',
+					['id' => $tagId]
+				];
+				$tag = $model->query_obj_ss($T);
+				$tags[] = $tag;
+			}
+		}
+		$article->tags = $tags;
 		if ($article->has_attachment === 'Y') {
 			$article->attachments = $model->query_objs_ss(
 				array(

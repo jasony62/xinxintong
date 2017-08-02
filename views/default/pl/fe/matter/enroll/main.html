@@ -70,6 +70,23 @@
     <button class='btn btn-default btn-block hide' ng-click="applyToHome()">申请发布到平台主页</button>
     <hr>
     <button class='btn btn-default btn-block' ng-click="remove()">删除活动</button>
+    <hr>
+    <div class='form-group'>
+        <label>要求每用户至少填写记录条数（0或空代表无限制）</label>
+        <input type='text' class='form-control' ng-model='app.userTask.minEnrollNum' tms-auto-update tms-wait=1000 tms-update="update('userTask')">
+    </div>
+    <div class='form-group'>
+        <label>要求每用户至少发表评论条数（0或空代表无限制）</label>
+        <input type='text' class='form-control' ng-model='app.userTask.minRemarkNum' tms-auto-update tms-wait=1000 tms-update="update('userTask')">
+    </div>
+    <div class='form-group'>
+        <label>要求每用户至少赞同的条数（0或空代表无限制）</label>
+        <input type='text' class='form-control' ng-model='app.userTask.minLikeNum' tms-auto-update tms-wait=1000 tms-update="update('userTask')">
+    </div>
+    <div class='form-group'>
+        <label>要求每用户最多赞同的条数（0或空代表无限制）</label>
+        <input type='text' class='form-control' ng-model='app.userTask.maxLikeNum' tms-auto-update tms-wait=1000 tms-update="update('userTask')">
+    </div>
 </div>
 <div class="col-md-4 overview">
     <div class='aspect'>

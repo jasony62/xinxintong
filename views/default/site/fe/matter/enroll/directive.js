@@ -1,7 +1,7 @@
 'use strict';
 
-var __util = {};
-__util.makeDialog = function(id, html) {
+window.__util = {};
+window.__util.makeDialog = function(id, html) {
     var dlg, mask;
 
     mask = document.createElement('div');
@@ -169,3 +169,58 @@ ngMod.directive('flexImg', function() {
         }
     }
 });
+ngMod.service('srvUserTask', ['$http', 'tmsModal', function($http, tmsModal) {
+    this.open = function(oApp) {
+        var oUserTask, template;
+        template = '<div class="modal-body">';
+        if (oApp.summary) {
+            template += '<div class="form-group">活动说明：' + oApp.summary + '</div>';
+        }
+        oUserTask = oApp.userTask;
+        template += '<table class="table table-bordered">';
+        template += '<thead><tr><th>任务</th><th>要求</th><th>完成</th></tr></thead>';
+        template += '<tbody>';
+        if (oUserTask.minEnrollNum && parseInt(oUserTask.minEnrollNum) > 0) {
+            template += '<tr>';
+            template += '<td>至少填写记录条数</td>';
+            template += '<td>' + oUserTask.minEnrollNum + '</td>';
+            template += '<td>{{enrollee.enroll_num}}</td>';
+            template += '</tr>';
+        }
+        if (oUserTask.minRemarkNum && parseInt(oUserTask.minRemarkNum) > 0) {
+            template += '<tr>';
+            template += '<td>至少发表评论条数</td>';
+            template += '<td>' + oUserTask.minRemarkNum + '</td>';
+            template += '<td>{{enrollee.remark_other_num}}</td>';
+            template += '</tr>';
+        }
+        if (oUserTask.minLikeNum && parseInt(oUserTask.minLikeNum) > 0) {
+            template += '<tr>';
+            template += '<td>对记录至少发表赞同的条数</td>';
+            template += '<td>' + oUserTask.minLikeNum + '</td>';
+            template += '<td>{{enrollee.like_other_num}}</td>';
+            template += '</tr>';
+        }
+        if (oUserTask.maxLikeNum && parseInt(oUserTask.maxLikeNum) > 0) {
+            template += '<tr>';
+            template += '<td>对记录最多发表赞同的条数</td>';
+            template += '<td>' + oUserTask.maxLikeNum + '</td>';
+            template += '<td>{{enrollee.like_other_num}}</td>';
+            template += '</tr>';
+        }
+        template += '</tbody></table>';
+        template += '</div>';
+        template += '<div class="modal-footer"><button class="btn btn-default" ng-click="cancel()">关闭任务说明</button></div>';
+        tmsModal.open({
+            template: template,
+            controller: ['$scope', '$tmsModalInstance', function($scope2, $mi) {
+                $http.get('/rest/site/fe/matter/enroll/user/task?site=' + oApp.siteid + '&app=' + oApp.id).success(function(rsp) {
+                    $scope2.enrollee = rsp.data;
+                });
+                $scope2.cancel = function() {
+                    $mi.dismiss();
+                };
+            }]
+        });
+    };
+}]);

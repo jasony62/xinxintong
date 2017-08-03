@@ -106,7 +106,7 @@ class main extends \pl\fe\matter\base {
 			$options['byTitle'] = $modelMis->escape($filter->byTitle);
 		}
 		if (!empty($filter->byTags)) {
-			$options['byTags'] = $modelMis->escape($filter->byTags);
+			$options['byTags'] = $filter->byTags;
 		}
 
 		$result = $modelMis->byAcl($oUser, $options);

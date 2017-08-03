@@ -116,7 +116,7 @@ define(['main'], function(ngApp) {
                         id: 'send_time',
                         name: '发送时间'
                     }, {
-                        id: 'enroll_userid',
+                        id: 'enroll_user',
                         name: '内容提交人'
                     }];
                     $scope2.data = data;

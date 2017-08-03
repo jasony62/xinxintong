@@ -24,10 +24,7 @@ div[wrap=filter] .detail .actions .btn{border-radius:0}
 .tms-switch-save:before{content:'保存';}
 .tms-switch-rank:before{content:'排行';}
 .tms-switch-repos:before{content:'共享';}
-.tms-switch-favor:before{content:'收藏';}
-.tms-switch-favor.favored{background:rgba(132,255,192,0.5);}
 .tms-switch-coinpay:before{content:'打赏';}
-.tms-switch-siteuser:before{content:'我';}
 .tms-discuss-switch{position:fixed;bottom:48px;right:15px;width:48px;height:48px;background:rgba(192,192,192,0.5);border-radius:4px;color:#666;font-size:24px;line-height:48px;text-align:center;}
 @media screen and (max-width:719px){
 	body{margin-bottom:64px;}

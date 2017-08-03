@@ -346,9 +346,37 @@ ngApp.controller('ctrlMain', ['$scope', '$q', '$http', '$timeout', 'ls', 'tmsDyn
         if (tasksOfOnReady.length) {
             angular.forEach(tasksOfOnReady, PG.exec);
         }
-        tmsFavor.showSwitch($scope.user, oApp);
+        if (!document.querySelector('.tms-switch-favor')) {
+            tmsFavor.showSwitch($scope.user, oApp);
+        }else {
+            $scope.favor = function(user, article) {
+                event.preventDefault();
+                event.stopPropagation();
+
+                if (!user.loginExpire) {
+                    tmsDynaPage.openPlugin('http://' + location.host + '/rest/site/fe/user/login?site=' + article.siteid).then(function(data) {
+                        user.loginExpire = data.loginExpire;
+                        tmsFavor.open(article);
+                    });
+                } else {
+                    tmsFavor.open(article);
+                }
+            }
+        }
         if (oApp.can_siteuser === 'Y') {
-            tmsSiteUser.showSwitch(oApp.siteid, true);
+            if (!document.querySelector('.tms-switch-siteuser')) {
+                tmsSiteUser.showSwitch(oApp.siteid, true);
+            } else {
+                $scope.siteUser = function(id) {
+                    event.preventDefault();
+                    event.stopPropagation();
+
+                    var url = 'http://' + location.host;
+                    url += '/rest/site/fe/user';
+                    url += "?site=" + id;
+                    location.href = url;
+                }
+            }
         }
         $scope.isSmallLayout = false;
         if (window.screen && window.screen.width < 992) {

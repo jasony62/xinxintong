@@ -113,8 +113,8 @@ define(['main'], function(ngApp) {
                         id: 'summary',
                         name: '摘要'
                     }, {
-                        id: 'send_time',
-                        name: '发送时间'
+                        id: 'enroll_at',
+                        name: '提交时间'
                     }, {
                         id: 'enroll_user',
                         name: '内容提交人'

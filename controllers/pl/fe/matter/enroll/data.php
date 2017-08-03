@@ -65,8 +65,8 @@ class data extends \pl\fe\matter\base {
 			if ($mapping->src === 'matter') {
 				if (isset($oApp->{$mapping->id})) {
 					$value = $oApp->{$mapping->id};
-				}else if($mapping->id=='send_time'){
-					$value = date('Y-m-d H:i:s');
+				}else if($mapping->id=='enroll_at'){
+					$value = date('Y-m-d H:i:s',$oRecord->enroll_at);
 				}else if($mapping->id=='enroll_user'){
 					$value = $oRecord->nickname;
 				}

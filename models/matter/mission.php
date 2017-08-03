@@ -134,14 +134,19 @@ class mission_model extends app_base {
 		$limit = isset($options['limit']) ? $options['limit'] : (object) array('page' => 1, 'size' => 20);
 		$q = [
 			$fields,
-			'xxt_mission_acl mission,xxt_site site',
-			"mission.coworker='{$user->id}' and mission.state=1 and mission.last_invite='Y' and mission.siteid=site.id",
+			'xxt_mission_acl mission,xxt_site site,xxt_mission m',
+			"mission.coworker='{$user->id}' and mission.state=1 and mission.last_invite='Y' and mission.siteid=site.id and mission.mission_id = m.id and m.state=1",
 		];
 		if (isset($options['bySite'])) {
 			$q[2] .= " and mission.siteid='{$options['bySite']}'";
 		}
 		if (isset($options['byTitle'])) {
 			$q[2] .= " and mission.title like '%{$options['byTitle']}%'";
+		}
+		if(!empty($options['byTags'])){
+			foreach($options['byTags'] as $tag){
+				$q[2] .= " and m.matter_mg_tag like '%" . $this->escape($tag->id) . "%'";
+			}
 		}
 		$q2 = [
 			'o' => 'mission.invite_at desc',

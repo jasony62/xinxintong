@@ -63,6 +63,11 @@ class main extends \pl\fe\matter\base {
 		if (!empty($options->byTitle)) {
 			$q[2] .= " and title like '%". $modelNews->escape($options->byTitle) ."%'";
 		}
+		if(!empty($options->byTags)){
+			foreach($options->byTags as $tag){
+				$q[2] .= " and matter_mg_tag like '%" . $modelNews->escape($tag->id) . "%'";
+			}
+		}
 		$q2['o'] = 'create_at desc';
 		$news = $modelNews->query_objs_ss($q, $q2);
 		/**

@@ -184,6 +184,13 @@
                                 </span>
                             </div>
                         </div>
+                        <div class='form-group' ng-if="frameState.sid != ''">
+                            <label>按标签筛选：</label>
+                            <div class="form-control" style="width: 300px" ng-click="matterTags('M')">
+                                <span class='tag' ng-repeat="t in filter2.byTags" ng-bind="t.title" ></span>
+                            </div>
+                            <button class='btn btn-default' ng-click="cleanFilterTag()"><span class='glyphicon glyphicon-remove'></span></button>
+                        </div>
                     </form>
                     <form class='nav navbar-form pull-right'>
                         <button ng-if="frameState.sid!=''" class="btn btn-default" ng-click='create()'><i class='glyphicon glyphicon-plus'></i> <span>新建</span></button>
@@ -264,6 +271,13 @@
                                     <button class='btn btn-default' ng-click="cleanFilter()"><span class='glyphicon glyphicon-remove'></span></button>
                                     </span>
                                 </div>
+                            </div>
+                            <div class='form-group' ng-if="frameState.sid != ''">
+                                <label>按标签筛选：</label>
+                                <div class="form-control" style="width: 300px" ng-click="matterTags('M')">
+                                    <span class='tag' ng-repeat="t in filter2.byTags" ng-bind="t.title" ></span>
+                                </div>
+                                <button class='btn btn-default' ng-click="cleanFilterTag()"><span class='glyphicon glyphicon-remove'></span></button>
                             </div>
                         </form>
                         <form class='nav navbar-form pull-right'>
@@ -352,6 +366,13 @@
                                     <button class='btn btn-default' ng-click="cleanFilter()"><span class='glyphicon glyphicon-remove'></button>
                                 </span>
                             </div>
+                        </div>
+                        <div class='form-group' ng-if="frameState.sid != ''">
+                            <label>按标签筛选：</label>
+                            <div class="form-control" style="width: 300px" ng-click="matterTags('M')">
+                                <span class='tag' ng-repeat="t in filter2.byTags" ng-bind="t.title" ></span>
+                            </div>
+                            <button class='btn btn-default' ng-click="cleanFilterTag()"><span class='glyphicon glyphicon-remove'></span></button>
                         </div>
                     </form>
                     <form class='nav navbar-form pull-right'>
@@ -742,5 +763,22 @@
     </div>
     <div class="modal-footer">
         <button class="btn btn-success" ng-click="ok() ">确定</button>
+    </div>
+</script>
+<script type="text/ng-template" id="tagMatterData.html">
+    <div class="modal-header">
+        <h5 class="modal-title">活动管理标签</h5>
+    </div>
+    <div class="modal-body">
+        <div class='list-group' style='max-height:300px;overflow-y:auto'>
+            <div class='list-group-item' ng-repeat="tag in apptags">
+                <label class='checkbox-inline'>
+                    <input type='checkbox' ng-model="model.selected[$index]"> {{tag.title}}</label>
+            </div>
+        </div>
+    </div>
+    <div class="modal-footer">
+        <button class="btn btn-default" ng-click="cancel()">关闭</button>
+        <button class="btn btn-primary" ng-click="ok()">选择标签</button>
     </div>
 </script>

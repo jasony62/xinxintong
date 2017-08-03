@@ -112,6 +112,12 @@ define(['main'], function(ngApp) {
                     }, {
                         id: 'summary',
                         name: '摘要'
+                    }, {
+                        id: 'send_time',
+                        name: '发送时间'
+                    }, {
+                        id: 'enroll_userid',
+                        name: '内容提交人'
                     }];
                     $scope2.data = data;
                     $scope2.changeSrcProp = function() {

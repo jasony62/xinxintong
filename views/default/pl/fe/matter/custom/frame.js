@@ -1,5 +1,5 @@
-var ngApp = angular.module('app', ['ngRoute', 'ui.tms', 'ui.xxt', 'tmplshop.ui.xxt', 'channel.fe.pl']);
-ngApp.config(['$routeProvider', '$locationProvider', function($routeProvider, $locationProvider) {
+var ngApp = angular.module('app', ['ngRoute', 'ui.tms', 'ui.xxt', 'tmplshop.ui.xxt', 'channel.fe.pl', 'service.matter']);
+ngApp.config(['$routeProvider', '$locationProvider', 'srvSiteProvider', function($routeProvider, $locationProvider, srvSiteProvider) {
     $routeProvider.when('/rest/pl/fe/matter/custom', {
         templateUrl: '/views/default/pl/fe/matter/custom/setting.html?_=2',
         controller: 'ctrlSetting',
@@ -8,14 +8,46 @@ ngApp.config(['$routeProvider', '$locationProvider', function($routeProvider, $l
         controller: 'ctrlSetting'
     });
     $locationProvider.html5Mode(true);
+    //设置服务参数
+    (function() {
+        var siteId;
+        ls = location.search;
+        siteId = ls.match(/[\?&]site=([^&]*)/)[1];
+        //
+        srvSiteProvider.config(siteId);
+    })();
 }]);
-ngApp.controller('ctrlCustom', ['$scope', '$location', 'http2', function($scope, $location, http2) {
+ngApp.controller('ctrlCustom', ['$scope', '$location', 'http2', 'srvSite', function($scope, $location, http2, srvSite) {
     var ls = $location.search();
     $scope.id = ls.id;
     $scope.siteId = ls.site;
+    srvSite.tagList().then(function(oTag) {
+        $scope.oTag = oTag;
+    });
+    srvSite.tagList('C').then(function(oTag) {
+        $scope.oTagC = oTag;
+    });
     http2.get('/rest/pl/fe/matter/custom/get?site=' + $scope.siteId + '&id=' + $scope.id, function(rsp) {
         var url;
         $scope.editing = rsp.data;
+        if($scope.editing.matter_cont_tag !== ''){
+            $scope.editing.matter_cont_tag.forEach(function(cTag,index){
+                $scope.oTagC.forEach(function(oTag){
+                    if(oTag.id === cTag){
+                        $scope.editing.matter_cont_tag[index] = oTag;
+                    }
+                });
+            });
+        }
+        if($scope.editing.matter_mg_tag !== ''){
+            $scope.editing.matter_mg_tag.forEach(function(cTag,index){
+                $scope.oTag.forEach(function(oTag){
+                    if(oTag.id === cTag){
+                        $scope.editing.matter_mg_tag[index] = oTag;
+                    }
+                });
+            });
+        }
         url = 'http://' + location.host + '/rest/site/fe/matter?site=' + ls.site + '&id=' + ls.id + '&type=custom';
         $scope.entry = {
             url: url,
@@ -23,7 +55,7 @@ ngApp.controller('ctrlCustom', ['$scope', '$location', 'http2', function($scope,
         };
     });
 }]);
-ngApp.controller('ctrlSetting', ['$scope', 'http2', 'mediagallery', 'templateShop', function($scope, http2, mediagallery, templateShop) {
+ngApp.controller('ctrlSetting', ['$scope', 'http2', 'mediagallery', 'templateShop', '$uibModal', function($scope, http2, mediagallery, templateShop, $uibModal) {
     var modifiedData = {};
     $scope.modified = false;
     $scope.back = function() {
@@ -114,37 +146,73 @@ ngApp.controller('ctrlSetting', ['$scope', 'http2', 'mediagallery', 'templateSho
             $scope.$root.infomsg = '成功';
         });
     };
-    $scope.$on('tag.xxt.combox.done', function(event, aSelected) {
-        var aNewTags = [];
-        angular.forEach(aSelected, function(selected) {
-            var existing = false;
-            angular.forEach($scope.editing.tags, function(tag) {
-                if (selected.title === tag.title) {
-                    existing = true;
+    $scope.tagMatter = function(subType) {
+        var oApp, oTags, tagsOfData;
+        oApp = $scope.editing;
+        if(subType === 'C'){
+            oTags = $scope.oTagC;
+        }else{
+            oTags = $scope.oTag;
+        }
+        $uibModal.open({
+            templateUrl: 'tagMatterData.html',
+            controller: ['$scope', '$uibModalInstance', function($scope2, $mi) {
+                var model;
+                $scope2.apptags = oTags;
+
+                if(subType === 'C'){
+                    tagsOfData = oApp.matter_cont_tag;
+                    $scope2.tagTitle = '内容标签';
+                }else{
+                    tagsOfData = oApp.matter_mg_tag;
+                    $scope2.tagTitle = '管理标签';
                 }
-            });
-            !existing && aNewTags.push(selected);
+                $scope2.model = model = {
+                    selected: []
+                };
+                if (tagsOfData) {
+                    tagsOfData.forEach(function(oTag) {
+                        var index;
+                        if (-1 !== (index = $scope2.apptags.indexOf(oTag))) {
+                            model.selected[$scope2.apptags.indexOf(oTag)] = true;
+                        }
+                    });
+                }
+                $scope2.createTag = function() {
+                    var newTags;
+                    if ($scope2.model.newtag) {
+                        newTags = $scope2.model.newtag.replace(/\s/, ',');
+                        newTags = newTags.split(',');
+                        http2.post('/rest/pl/fe/matter/tag/create?site=' + oApp.siteid + '&subType=' + subType, newTags, function(rsp) {
+                            rsp.data.forEach(function(oNewTag) {
+                                $scope2.apptags.push(oNewTag);
+                            });
+                        });
+                        $scope2.model.newtag = '';
+                    }
+                };
+                $scope2.cancel = function() { $mi.dismiss(); };
+                $scope2.ok = function() {
+                    var addMatterTag = [];
+                    model.selected.forEach(function(selected, index) {
+                        if (selected) {
+                            addMatterTag.push($scope2.apptags[index]);
+                        }
+                    });
+                    var url = '/rest/pl/fe/matter/tag/add?site=' + oApp.siteid + '&resId=' + oApp.id + '&resType=' + oApp.type + '&subType=' + subType;
+                    http2.post(url, addMatterTag, function(rsp) {
+                        if(subType === 'C'){
+                            $scope.editing.matter_cont_tag = addMatterTag;
+                        }else{
+                            $scope.editing.matter_mg_tag = addMatterTag;
+                        }
+                    });
+                    $mi.close();
+                };
+            }],
+            backdrop: 'static',
         });
-        http2.post('/rest/pl/fe/matter/custom/tag/add?site=' + $scope.siteId + '&id=' + $scope.id, aNewTags, function(rsp) {
-            $scope.editing.tags = $scope.editing.tags.concat(aNewTags);
-        });
-    });
-    $scope.$on('tag.xxt.combox.add', function(event, newTag) {
-        var oNewTag = {
-            title: newTag
-        };
-        http2.post('/rest/pl/fe/matter/custom/tag/add?site=' + $scope.siteId + '&id=' + $scope.id, [oNewTag], function(rsp) {
-            $scope.editing.tags.push(oNewTag);
-        });
-    });
-    $scope.$on('tag.xxt.combox.del', function(event, removed) {
-        http2.post('/rest/pl/fe/matter/custom/tag/remove?site=' + $scope.siteId + '&id=' + $scope.id, [removed], function(rsp) {
-            $scope.editing.tags.splice($scope.editing.tags.indexOf(removed), 1);
-        });
-    });
-    http2.get('/rest/pl/fe/matter/tag/list?site=' + $scope.siteId + '&resType=article&subType=0', function(rsp) {
-        $scope.tags = rsp.data;
-    });
+    };
     (function() {
         new ZeroClipboard(document.querySelectorAll('.text2Clipboard'));
     })();

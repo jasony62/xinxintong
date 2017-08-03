@@ -74,6 +74,12 @@ class main extends \pl\fe\matter\base {
 		if (!empty($options->byTitle)) {
 			$w .= " and a.title like '%" . $model->escape($options->byTitle) . "%'";
 		}
+		if (!empty($options->byTags)) {
+			foreach ($options->byTags as $tag) {
+				$w .= " and a.matter_mg_tag like '%" . $model->escape($tag->id) . "%'";
+			}
+		}
+
 		/**
 		 * 按频道过滤
 		 */
@@ -186,6 +192,7 @@ class main extends \pl\fe\matter\base {
 			"a.siteid='$site' and a.state=1 and a.id=$id",
 		);
 		if (($article = $this->model()->query_obj_ss($q)) && $cascade === 'Y') {
+			$article->type = 'custom';
 			/**
 			 * channels
 			 */
@@ -193,9 +200,10 @@ class main extends \pl\fe\matter\base {
 			/**
 			 * tags
 			 */
-			$modelTag = $this->model('tag');
-			$article->tags = $modelTag->tagsByRes($article->id, 'article', 0);
-			$article->tags2 = $modelTag->tagsByRes($article->id, 'article', 1);
+			!empty($article->matter_cont_tag) && $article->matter_cont_tag = json_decode($article->matter_cont_tag);
+			!empty($article->matter_mg_tag) && $article->matter_mg_tag = json_decode($article->matter_mg_tag);
+			$article->tags = $article->matter_cont_tag;
+			$article->tags2 = $article->matter_mg_tag;
 			/**
 			 * acl
 			 */

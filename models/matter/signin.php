@@ -89,6 +89,9 @@ class signin_model extends app_base {
 					$oApp->dataSchemas = [];
 				}
 			}
+			if(!empty($oApp->matter_mg_tag)){
+				$oApp->matter_mg_tag = json_decode($oApp->matter_mg_tag);
+			}
 			if ($cascaded === 'Y') {
 				/* 页面 */
 				$oApp->pages = $this->model('matter\signin\page')->byApp($oApp->id);

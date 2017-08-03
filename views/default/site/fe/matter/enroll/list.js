@@ -91,6 +91,9 @@ ngApp.controller('ctrlRecords', ['$scope', '$uibModal', 'Record', 'ls', '$sce', 
                     _records.push(record);
                 });
                 facRecord.current = _records;
+                angular.element(document).ready(function() {
+                    $scope.showFolder();
+                });
             }
         });
     }
@@ -107,6 +110,20 @@ ngApp.controller('ctrlRecords', ['$scope', '$uibModal', 'Record', 'ls', '$sce', 
     $scope.options = options;
     $scope.fetch = fnFetch;
     $scope.Record = facRecord = Record.ins();
+    $scope.showFolder = function() {
+        var eSpread, eWrap;
+        eWrap = document.querySelectorAll('.list-group-item[ng-repeat]');
+        eWrap.forEach(function(item) {
+            eSpread = document.createElement('i');
+            eSpread.classList.add('cus-glyphicon', 'glyphicon-menu-down');
+            eSpread.addEventListener('click', function(event) {
+                event.preventDefault();
+                event.stopPropagation();
+                angular.element(item).toggleClass('spread');
+            }, true);
+            item.appendChild(eSpread);
+        });
+    }
     $scope.value2Label = function(record, schemaId) {
         var val, i, j, s, aVal, aLab = [];
         if (oApp._schemasById && record.data) {
@@ -144,9 +161,24 @@ ngApp.controller('ctrlRecords', ['$scope', '$uibModal', 'Record', 'ls', '$sce', 
     $scope.openFilter = function() {
         $uibModal.open({
             templateUrl: 'filter.html',
-            controller: ['$scope', '$uibModalInstance', 'Round', function($scope2, $mi, Round) {
-                var facRound;
-                $scope2.dataSchemas = $scope.app.dataSchemas;
+            resolve: {
+                oApp: function() {
+                    return $scope.app;
+                },
+                oOptions: function() {
+                    return $scope.options;
+                }
+            },
+            controller: ['$scope', '$uibModalInstance', 'Round', 'oApp', 'oOptions', function($scope2, $mi, Round, oApp, oOptions) {
+                var facRound, aFilterSchemas;
+                $scope2.filterSchemas = aFilterSchemas = [];
+                oApp.dataSchemas.forEach(function(oSchema) {
+                    if (['shorttext', 'longtext', 'location', 'single', 'multiple', 'phase'].indexOf(oSchema.type) !== -1) {
+                        if (oOptions.owner && oOptions.owner === 'G' && oSchema.id === '_round_id') {} else {
+                            aFilterSchemas.push(oSchema);
+                        }
+                    }
+                });
                 $scope2.criteria = oCurrentCriteria;
                 $scope2.cancel = function() {
                     $mi.dismiss();

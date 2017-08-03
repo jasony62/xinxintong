@@ -27,6 +27,7 @@ class repos extends base {
 		!empty($criteria->rid) && $options->rid = $criteria->rid;
 		!empty($criteria->agreed) && $options->agreed = $criteria->agreed;
 		!empty($criteria->owner) && $options->owner = $criteria->owner;
+		!empty($criteria->userGroup) && $options->userGroup = $criteria->userGroup;
 		!empty($criteria->tag) && $options->tag = $criteria->tag;
 		if (empty($criteria->schema)) {
 			$options->schemas = [];

@@ -668,6 +668,7 @@ class main extends \pl\fe\matter\base {
 		$oNewApp->multi_rounds = $copied->multi_rounds;
 		$oNewApp->data_schemas = $modelApp->escape($copied->data_schemas);
 		$oNewApp->entry_rule = json_encode($copied->entry_rule);
+		$oNewApp->enrolled_entry_page = $copied->enrolled_entry_page;
 		$oNewApp->extattrs = $copied->extattrs;
 		$oNewApp->can_siteuser = 'Y';
 
@@ -1230,11 +1231,13 @@ class main extends \pl\fe\matter\base {
 				$updated->{$n} = $modelApp->escape($v);
 			} else if (in_array($n, ['entry_rule', 'data_schemas'])) {
 				$updated->{$n} = $modelApp->escape($modelApp->toJson($v));
+			} else if ($n === 'userTask') {
+				$updated->user_task = $modelApp->escape($modelApp->toJson($v));
 			} else if ($n === 'scenarioConfig') {
 				$updated->scenario_config = $modelApp->escape($modelApp->toJson($v));
 			} else if ($n === 'roundCron') {
-				$rst=$this->checkCron($v);
-				if($rst[0]===false){
+				$rst = $this->checkCron($v);
+				if ($rst[0] === false) {
 					return new \ResponseError($rst[1]);
 				}
 				$updated->round_cron = $modelApp->escape($modelApp->toJson($v));
@@ -1265,28 +1268,28 @@ class main extends \pl\fe\matter\base {
 	}
 	/**
 	 * 检查传入的定时规则
-	 * 
+	 *
 	 * @param object $rules
 	 */
-	protected function checkCron(&$rules){
+	protected function checkCron(&$rules) {
 		foreach ($rules as $k => $rule) {
 			switch ($rule->period) {
-				//1-28 日期
-				case 'M':
-					if(empty($rule->mday)){return [false,'请设置定时轮次每月的开始日期！'];}
-					if(empty($rule->end_mday)){return [false,'请设置定时轮次每月的结束日期！'];}
-					if($rule->hour==""){return [false,'请设置定时轮次每月开始日期的几点开始！'];} 
-					break;
-				// 0-6 周几
-				case 'W':
-					if($rule->wday==""){return [false,'请设置定时轮次每周几开始！'];}
-					if($rule->end_wday==""){return [false,'请设置定时轮次每周几结束！'];}
-					if($rule->hour==""){return [false,'请设置定时轮次每周几的几点开始！'];}
-					break;
-				// 0-23 几点
-				default:
-					if($rule->hour==""){return [false,'请设置定时轮次每天的几点开始！'];}
-					break;
+			//1-28 日期
+			case 'M':
+				if (empty($rule->mday)) {return [false, '请设置定时轮次每月的开始日期！'];}
+				if (empty($rule->end_mday)) {return [false, '请设置定时轮次每月的结束日期！'];}
+				if ($rule->hour == "") {return [false, '请设置定时轮次每月开始日期的几点开始！'];}
+				break;
+			// 0-6 周几
+			case 'W':
+				if ($rule->wday == "") {return [false, '请设置定时轮次每周几开始！'];}
+				if ($rule->end_wday == "") {return [false, '请设置定时轮次每周几结束！'];}
+				if ($rule->hour == "") {return [false, '请设置定时轮次每周几的几点开始！'];}
+				break;
+			// 0-23 几点
+			default:
+				if ($rule->hour == "") {return [false, '请设置定时轮次每天的几点开始！'];}
+				break;
 			}
 		}
 

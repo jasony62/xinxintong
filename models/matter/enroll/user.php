@@ -15,9 +15,9 @@ class user_model extends \TMS_MODEL {
 			['aid' => $oApp->id, 'userid' => $userid],
 		];
 
-		if(isset($options['rid'])){
+		if (isset($options['rid'])) {
 			$q[2]['rid'] = $options['rid'];
-		}else{
+		} else {
 			$q[2]['rid'] = 'ALL';
 		}
 
@@ -33,6 +33,7 @@ class user_model extends \TMS_MODEL {
 		$oNewUsr->siteid = $oApp->siteid;
 		$oNewUsr->aid = $oApp->id;
 		$oNewUsr->userid = $oUser->uid;
+		$oNewUsr->group_id = empty($oUser->group_id) ? '' : $oUser->group_id;
 		$oNewUsr->nickname = $this->escape($oUser->nickname);
 		foreach ($data as $k => $v) {
 			$oNewUsr->{$k} = $v;
@@ -53,15 +54,15 @@ class user_model extends \TMS_MODEL {
 			"xxt_enroll_user",
 			"aid='{$oApp->id}' and enroll_num>0",
 		];
-		if(!empty($options['rid'])){
+		if (!empty($options['rid'])) {
 			$q[2] .= " and rid = '" . $this->escape($options['rid']) . "'";
-		}else{
+		} else {
 			$q[2] .= " and rid = 'ALL'";
 		}
 		$q2 = [
 			'o' => 'last_enroll_at desc',
 		];
-		if(!empty($page) && !empty($size)){
+		if (!empty($page) && !empty($size)) {
 			$q2['r'] = ['o' => ($page - 1) * $size, 'l' => $size];
 		}
 		if ($users = $this->query_objs_ss($q, $q2)) {
@@ -75,7 +76,7 @@ class user_model extends \TMS_MODEL {
 					$user->wx_openid = $openid->wx_openid;
 					$user->yx_openid = $openid->yx_openid;
 					$user->qy_openid = $openid->qy_openid;
-				}else{
+				} else {
 					$user->wx_openid = '';
 					$user->yx_openid = '';
 					$user->qy_openid = '';
@@ -100,12 +101,12 @@ class user_model extends \TMS_MODEL {
 		$q = [
 			$fields . ',a.wx_openid,a.yx_openid,a.qy_openid',
 			"xxt_site_member m,xxt_site_account a",
-			"m.schema_id = $oMschema->id and m.verified = 'Y' and m.forbidden = 'N' and a.uid = m.userid"
+			"m.schema_id = $oMschema->id and m.verified = 'Y' and m.forbidden = 'N' and a.uid = m.userid",
 		];
 		$q2 = [
 			'o' => 'm.create_at desc',
 		];
-		if(!empty($page) && !empty($size)){
+		if (!empty($page) && !empty($size)) {
 			$q2['r'] = ['o' => ($page - 1) * $size, 'l' => $size];
 		}
 		$members = $this->query_objs_ss($q, $q2);

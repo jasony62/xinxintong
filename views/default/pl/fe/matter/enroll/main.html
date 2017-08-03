@@ -17,6 +17,12 @@
         <label>活动说明</label>
         <textarea type='text' class='form-control' ng-model="app.summary" tms-auto-update tms-wait=1000 tms-update="update('summary')"></textarea>
     </div>
+    <div class='form-group'>
+        <label class='help-block'>管理标签（可选）</label>
+        <p class="form-control" ng-click="tagRecordData('M')">
+            <span class="tag" ng-repeat="t in app.matter_mg_tag" ng-bind="t.title"></span>
+        </p>
+    </div>
     <div class='form-group' ng-if="!app.mission">
         <button class='btn btn-success' ng-click="assignMission()">指定项目</button>
     </div>
@@ -64,6 +70,23 @@
     <button class='btn btn-default btn-block hide' ng-click="applyToHome()">申请发布到平台主页</button>
     <hr>
     <button class='btn btn-default btn-block' ng-click="remove()">删除活动</button>
+    <hr>
+    <div class='form-group'>
+        <label>要求每用户至少填写记录条数（0或空代表无限制）</label>
+        <input type='text' class='form-control' ng-model='app.userTask.minEnrollNum' tms-auto-update tms-wait=1000 tms-update="update('userTask')">
+    </div>
+    <div class='form-group'>
+        <label>要求每用户至少发表评论条数（0或空代表无限制）</label>
+        <input type='text' class='form-control' ng-model='app.userTask.minRemarkNum' tms-auto-update tms-wait=1000 tms-update="update('userTask')">
+    </div>
+    <div class='form-group'>
+        <label>要求每用户至少赞同的条数（0或空代表无限制）</label>
+        <input type='text' class='form-control' ng-model='app.userTask.minLikeNum' tms-auto-update tms-wait=1000 tms-update="update('userTask')">
+    </div>
+    <div class='form-group'>
+        <label>要求每用户最多赞同的条数（0或空代表无限制）</label>
+        <input type='text' class='form-control' ng-model='app.userTask.maxLikeNum' tms-auto-update tms-wait=1000 tms-update="update('userTask')">
+    </div>
 </div>
 <div class="col-md-4 overview">
     <div class='aspect'>
@@ -132,3 +155,28 @@
         </div>
     </div>
 </div>
+<script type="text/ng-template" id="tagMatterData.html">
+    <div class="modal-header">
+        <h5 class="modal-title">打标签 - {{tagTitle}}</h5>
+    </div>
+    <div class="modal-body">
+        <div class='list-group' style='max-height:300px;overflow-y:auto'>
+            <div class='list-group-item' ng-repeat="tag in apptags">
+                <label class='checkbox-inline'>
+                    <input type='checkbox' ng-model="model.selected[$index]"> {{tag.title}}</label>
+            </div>
+        </div>
+        <div class='form-group'>
+            <div class='input-group'>
+                <input class='form-control' ng-model="model.newtag">
+                <div class='input-group-btn'>
+                    <button class='btn btn-default' ng-click="createTag()"><span class='glyphicon glyphicon-plus'></span></button>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="modal-footer">
+        <button class="btn btn-default" ng-click="cancel()">关闭</button>
+        <button class="btn btn-primary" ng-click="ok()">设置标签</button>
+    </div>
+</script>

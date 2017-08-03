@@ -49,6 +49,9 @@ class lottery_model extends app_base {
 		$q = array($fields, 'xxt_lottery', "id='$lid'");
 		if ($lot = $this->query_obj_ss($q)) {
 			$lot->type = 'lottery';
+			if(!empty($lot->matter_mg_tag)){
+				$lot->matter_mg_tag = json_decode($lot->matter_mg_tag);
+			}
 			if (in_array('award', $cascaded)) {
 				$lot->awards = $this->getAwards($lid);
 			}

@@ -49,6 +49,9 @@ define(['require', 'wallService'], function(require) {
         srvSite.get().then(function(oSite) {
             $scope.site = oSite;
         });
+        srvSite.tagList().then(function(oTag) {
+            $scope.oTag = oTag;
+        });
         $scope.update = function(names) {
             srvWallApp.update(names);
         };
@@ -90,6 +93,15 @@ define(['require', 'wallService'], function(require) {
             return deferred.promise;
         };
         srvWallApp.get().then(function(oWall) {
+            if(oWall.matter_mg_tag !== ''){
+                 oWall.matter_mg_tag.forEach(function(cTag,index){
+                    $scope.oTag.forEach(function(oTag){
+                        if(oTag.id === cTag){
+                            oWall.matter_mg_tag[index] = oTag;
+                        }
+                    });
+                });
+            }
             $scope.wall = oWall;
         });
     }]);

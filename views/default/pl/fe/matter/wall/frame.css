@@ -6,6 +6,7 @@ body{background:#f8f8f8;padding:71px 0;}
 .tile>.form-group,.tile>.checkbox{padding:8px;background:#fff;border-radius:4px;}
 .tile>.form-group.compact{margin-bottom:0;}
 .tile>.form-group:last-child{margin-bottom:0;}
+.tag {background: #337ab7;padding: 3px 6px;margin: 4px;border-radius: 4px;color: #fff;}
 
 /*app-view*/
 #app-view .pages .container-fluid{padding-bottom:8px;}

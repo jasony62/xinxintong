@@ -1,6 +1,8 @@
 html,body{height:100%;width:100%;background:#efefef;font-family:Microsoft Yahei,Arial;}
 body{position:relative;font-size:16px;}
 img{max-width:100%}
+blockquote{font-size:16px;}
+blockquote p{line-height:1.5;}
 button.option{padding:0;}
 .dropdown-menu>li>a{padding-left:20px;}
 .glyphicon-heart{color:red;}
@@ -16,7 +18,9 @@ p{word-break:break-all;}
 /*remark*/
 #remarks{position:relative;background:#fff;padding:1rem;margin-top:1rem;margin-bottom:64px;}
 #remarks:before{content:'评论';position:absolute;left:50%;margin-left:-1em;top:-1em;font-size:.7em;color:#eee;padding:.2em 1em;background:#666;border-radius:1em;}
-#remarks .remark{border-bottom:1px solid #ddd;}
+#remarks .remark{border-bottom:1px solid #ddd;transition:background 1s;}
 #remarks .remark:last-child{border-bottom:0;}
 #remarks .remark>*{margin:1em 0;}
+#remarks .remark.blink{background:#d9edf7;}
+#remarks .remarkList{margin-bottom:30px;}
 .tag{background:#3af;padding:4px 6px;margin:4px;border-radius:2px;font-size:.8em;color:#fff;}

@@ -81,7 +81,7 @@ ngApp.controller('ctrlAppTip', ['$scope', '$interval', function($scope, $interva
         }
     }, 1000);
 }]);
-ngApp.controller('ctrlMain', ['$scope', '$q', '$http', '$timeout', 'ls', 'tmsDynaPage', 'tmsSnsShare', 'tmsSiteUser', 'tmsFavor', function($scope, $q, $http, $timeout, LS, tmsDynaPage, tmsSnsShare, tmsSiteUser, tmsFavor) {
+ngApp.controller('ctrlMain', ['$scope', '$q', '$http', '$timeout', 'srvUserTask', 'ls', 'tmsDynaPage', 'tmsSnsShare', 'tmsSiteUser', 'tmsFavor', function($scope, $q, $http, $timeout, srvUserTask, LS, tmsDynaPage, tmsSnsShare, tmsSiteUser, tmsFavor) {
     function refreshActionRule() {
         var url, defer;
         defer = $q.defer();
@@ -117,8 +117,6 @@ ngApp.controller('ctrlMain', ['$scope', '$q', '$http', '$timeout', 'ls', 'tmsDyn
         };
         if (url) {
             elIframe.setAttribute('src', url);
-        } else {
-
         }
         elWrap.style.display = 'block';
     }
@@ -196,6 +194,9 @@ ngApp.controller('ctrlMain', ['$scope', '$q', '$http', '$timeout', 'ls', 'tmsDyn
                 }
             }
         }
+    };
+    $scope.showUserTask = function() {
+        srvUserTask.open($scope.app);
     };
     $scope.gotoPage = function(event, page, ek, rid, newRecord) {
         if (event) {

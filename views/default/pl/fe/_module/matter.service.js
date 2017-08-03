@@ -1,6 +1,6 @@
 angular.module('service.matter', ['ngSanitize', 'ui.xxt']).
 provider('srvSite', function() {
-    var _siteId, _oSite, _aSns, _aMemberSchemas;
+    var _siteId, _oSite, _aSns, _aMemberSchemas, _oTag;
     this.config = function(siteId) {
         _siteId = siteId;
     };
@@ -101,6 +101,19 @@ provider('srvSite', function() {
                     http2.get('/rest/pl/fe/site/snsList?site=' + _siteId, function(rsp) {
                         _aSns = rsp.data;
                         defer.resolve(_aSns);
+                    });
+                }
+                return defer.promise;
+            },
+            tagList: function(subType) {
+                var subType = arguments[0] ? arguments[0] : 'M';
+                var defer = $q.defer();
+                if (_oTag) {
+                    defer.resolve(_oTag);
+                } else {
+                    http2.get('/rest/pl/fe/matter/tag/listTags?site=' + _siteId + '&subType=' + subType, function(rsp) {
+                        _oTag = rsp.data;
+                        defer.resolve(_oTag);
                     });
                 }
                 return defer.promise;

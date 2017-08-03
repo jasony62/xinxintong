@@ -6,6 +6,7 @@ $sqls = array();
 $sqls[] = "alter table xxt_channel add matter_mg_tag varchar(255) not null default ''";
 $sqls[] = "alter table xxt_link add matter_mg_tag varchar(255) not null default ''";
 $sqls[] = "alter table xxt_contribute add matter_mg_tag varchar(255) not null default ''";
+$sqls[] = "alter table xxt_text add matter_mg_tag varchar(255) not null default ''";
 //
 foreach ($sqls as $sql) {
 	if (!$mysqli->query($sql)) {

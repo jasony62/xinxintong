@@ -72,6 +72,9 @@ class tag extends \pl\fe\base {
 				$resType = 'article';
 				$fields = "id,siteid,title,summary,pic,matter_cont_tag,matter_mg_tag,'$resType' type";
 				break;
+			case 'text':
+				$fields = "id,siteid,title,matter_mg_tag,'$resType' type";
+				break;
 			default:
 				$fields = "id,siteid,title,summary,pic,matter_mg_tag,'$resType' type";
 				break;

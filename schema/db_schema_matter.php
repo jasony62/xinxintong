@@ -269,6 +269,7 @@ $sql .= ",public_visible char(1) not null default 'N'";
 $sql .= ",state tinyint not null default 1"; //0:stop,1:normal
 $sql .= ",content text";
 $sql .= ",title text";
+$sql .= ",matter_mg_tag varchar(255) not null default ''";
 $sql .= ",primary key(id)) ENGINE=MyISAM DEFAULT CHARSET=utf8";
 if (!$mysqli->query($sql)) {
 	header('HTTP/1.0 500 Internal Server Error');

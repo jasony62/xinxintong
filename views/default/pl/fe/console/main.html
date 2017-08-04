@@ -186,10 +186,14 @@
                         </div>
                         <div class='form-group' ng-if="frameState.sid != ''">
                             <label>按标签筛选：</label>
-                            <div class="form-control" style="width: 300px" ng-click="matterTags('M')">
-                                <span class='tag' ng-repeat="t in filter2.byTags" ng-bind="t.title"></span>
+                            <div class='input-group'>
+                                <div class="form-control" style="width:120px" ng-click="matterTags('M')">
+                                    <span class='tag' ng-repeat="t in filter2.byTags" ng-bind="t.title"></span>
+                                </div>
+                                <div class='input-group-btn'>
+                                    <button class='btn btn-default' ng-click="cleanFilterTag()"><span class='glyphicon glyphicon-remove'></span></button>
+                                </div>
                             </div>
-                            <button class='btn btn-default' ng-click="cleanFilterTag()"><span class='glyphicon glyphicon-remove'></span></button>
                         </div>
                     </form>
                     <form class='nav navbar-form pull-right'>
@@ -373,10 +377,14 @@
                         </div>
                         <div class='form-group' ng-if="frameState.sid != ''">
                             <label>按标签筛选：</label>
-                            <div class="form-control" style="width: 300px" ng-click="matterTags('M')">
-                                <span class='tag' ng-repeat="t in filter2.byTags" ng-bind="t.title"></span>
+                            <div class='input-group'>
+                                <div class="form-control" style="width:120px" ng-click="matterTags('M')">
+                                    <span class='tag' ng-repeat="t in filter2.byTags" ng-bind="t.title"></span>
+                                </div>
+                                <div class='input-group-btn'>
+                                    <button class='btn btn-default' ng-click="cleanFilterTag()"><span class='glyphicon glyphicon-remove'></span></button>
+                                </div>
                             </div>
-                            <button class='btn btn-default' ng-click="cleanFilterTag()"><span class='glyphicon glyphicon-remove'></span></button>
                         </div>
                     </form>
                     <form class='nav navbar-form pull-right'>

@@ -13,6 +13,37 @@
         <p class='form-control-static'><label>创建人：</label><span>{{editing.creater_name}}</span></p>
     </div>
     <div class='form-group'>
+        <label>管理标签（可选）</label>
+        <p class="form-control" ng-click="tagMatter('M')">
+            <span class="tag" ng-repeat="t in editing.matter_mg_tag" ng-bind="t.title"></span>
+        </p>
+    </div>
+    <div class='form-group'>
         <textarea class='form-control' ng-model='editing.title' tms-auto-update tms-wait=1000 tms-update="update('title')" rows='20'></textarea>
     </div>
 </div>
+<script type="text/ng-template" id="tagMatterData.html">
+    <div class="modal-header">
+        <h5 class="modal-title">打标签 - {{tagTitle}}</h5>
+    </div>
+    <div class="modal-body">
+        <div class='list-group' style='max-height:300px;overflow-y:auto'>
+            <div class='list-group-item' ng-repeat="tag in apptags">
+                <label class='checkbox-inline'>
+                    <input type='checkbox' ng-model="model.selected[$index]"> {{tag.title}}</label>
+            </div>
+        </div>
+        <div class='form-group'>
+            <div class='input-group'>
+                <input class='form-control' ng-model="model.newtag">
+                <div class='input-group-btn'>
+                    <button class='btn btn-default' ng-click="createTag()"><span class='glyphicon glyphicon-plus'></span></button>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="modal-footer">
+        <button class="btn btn-default" ng-click="cancel()">关闭</button>
+        <button class="btn btn-primary" ng-click="ok()">设置标签</button>
+    </div>
+</script>

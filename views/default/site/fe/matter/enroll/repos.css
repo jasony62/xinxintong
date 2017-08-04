@@ -1,7 +1,7 @@
 html,body{height:100%;width:100%;font-family:Microsoft Yahei,Arial;}
 body{position:relative;font-size:16px;}
 img{max-width:100%}
-.app{margin-bottom:64px;padding:15px;}
+.app{margin-bottom:64px;padding-top:15px;}
 header{margin:-15px -15px 0 -15px;}
 footer{margin:0 -15px -15px -15px;}
 

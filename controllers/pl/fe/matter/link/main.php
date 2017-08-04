@@ -34,6 +34,8 @@ class main extends \pl\fe\matter\base {
 			"siteid='$site' and id='$id' and state=1",
 		);
 		if ($link = $model->query_obj_ss($q)) {
+			$link->type = 'link';
+			!empty($link->matter_mg_tag) && $link->matter_mg_tag = json_decode($link->matter_mg_tag);
 			/**
 			 * params
 			 */
@@ -75,6 +77,11 @@ class main extends \pl\fe\matter\base {
 		);
 		if(!empty($options->byTitle)){
 			$q[2] .= " and title like '%". $model->escape($options->byTitle) ."%'";
+		}
+		if (!empty($options->byTags)) {
+			foreach ($options->byTags as $tag) {
+				$q[2] .= " and matter_mg_tag like '%" . $model->escape($tag->id) . "%'";
+			}
 		}
 		$q2['o'] = 'create_at desc';
 		$links = $model->query_objs_ss($q, $q2);

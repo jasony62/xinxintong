@@ -10,11 +10,29 @@
     </title>
     <link href="/static/css/bootstrap.min.css" rel="stylesheet">
     <link href='/static/css/site.fe.css?_=2' rel="stylesheet">
+    <link href='/static/css/site.fe.enroll.css?_=1' rel="stylesheet">
 </head>
 
 <body>
     <header ng-if="app.use_site_header==='Y'" dynamic-html="site.header_page.html"></header>
     <header ng-if="app.use_mission_header==='Y'" dynamic-html="mission.header_page.html"></header>
+    <nav class='navbar navbar-default main-navbar'>
+        <div class='container'>
+            <div class="navbar-header">
+                <a href="" class="navbar-brand">
+                    <i class="glyphicon glyphicon-edit visible-lg-inline"></i><span>数据共享</span>
+                </a>
+            </div>
+            <ul class="nav navbar-nav navbar-right">
+                <li class="pull-left">
+                    <a href="" ng-click="favor(user, app)" class="tms-switch-favor"><i class="glyphicon glyphicon-star-empty"></i><span class="visible-lg-inline">收藏</span></a>
+                </li>
+                <li class="pull-left">
+                    <a href="" ng-click="siteUser(app.siteid)" class="tms-switch-siteuser"><i class="glyphicon glyphicon-user"></i><span class="visible-lg-inline">我的</span></a>
+                </li>
+            </ul>
+        </div>
+    </nav>
     <div ng-cloak class='ng-cloak app' ng-controller="ctrlRepos">
         <div class='container'>
             <div class='row'>

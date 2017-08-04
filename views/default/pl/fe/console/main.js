@@ -171,7 +171,7 @@ define(['frame'], function(ngApp) {
             $scope.list();
         }, true);
     }]);
-    ngApp.provider.controller('ctrlMission', ['$scope', 'http2', function($scope, http2) {
+    ngApp.provider.controller('ctrlMission', ['$scope', 'http2', '$uibModal', function($scope, http2, $uibModal) {
         var page, filter, filter2, t = (new Date() * 1);
         $scope.page = page = {
             at: 1,
@@ -218,16 +218,23 @@ define(['frame'], function(ngApp) {
         $scope.cleanFilter = function() {
             filter.byTitle = filter2.byTitle = '';
         };
+        $scope.cleanFilterTag = function() {
+            filter.byTags = filter2.byTags = '';
+        };
         $scope.$watch('frameState.sid', function(nv) {
             angular.extend(filter, { bySite: nv });
+            $scope.getMatterTag();
         });
         $scope.$watch('filter', function(nv) {
             if (!nv) return;
             $scope.list();
         }, true);
+        $scope.matterTags = function() {
+            $scope.matterTagsFram(filter, filter2);
+        };
         $scope.listSite();
     }]);
-    ngApp.provider.controller('ctrlActivity', ['$scope', '$location', 'http2', 'cstApp', function($scope, $location, http2, cstApp) {
+    ngApp.provider.controller('ctrlActivity', ['$scope', '$location', 'http2', 'cstApp', '$uibModal', function($scope, $location, http2, cstApp, $uibModal) {
         var lsearch, filter, filter2, page;
         if (window.localStorage) {
             $scope.$watch('filter', function(nv) {
@@ -249,7 +256,7 @@ define(['frame'], function(ngApp) {
         }
         $scope.filter = filter;
         $scope.filter2 = filter2 = {};
-        if (filter.byType) { filter2.byTitle = filter.byTitle }
+        if (filter.byType) { filter2.byTitle = filter.byTitle; filter2.byTags = filter.byTags }
         $scope.scenarioNames = cstApp.scenarioNames;
         $scope.changeMatter = function(type) {
             filter.byType = type;
@@ -280,7 +287,7 @@ define(['frame'], function(ngApp) {
                 } else {
                     url2 = '/rest/pl/fe/matter/' + filter.byType + '/list?site=' + filter.bySite + '&' + page.j() + '&_=' + t;
                 }
-                http2.post(url2, { byTitle: filter.byTitle }, function(rsp) {
+                http2.post(url2, { byTitle: filter.byTitle, byTags: filter.byTags}, function(rsp) {
                     if (rsp.data.apps === null) {
                         $scope.matters = [];
                     } else {
@@ -296,13 +303,20 @@ define(['frame'], function(ngApp) {
         $scope.cleanFilter = function() {
             filter.byTitle = filter2.byTitle = '';
         };
+        $scope.cleanFilterTag = function() {
+            filter.byTags = filter2.byTags = '';
+        };
         $scope.$watch('frameState.sid', function(nv) {
             angular.extend(filter, { bySite: nv });
+            $scope.getMatterTag();
         });
         $scope.$watch('filter', function(nv) {
             if (!nv) return;
             $scope.list();
         }, true);
+        $scope.matterTags = function() {
+            $scope.matterTagsFram(filter, filter2);
+        };
     }]);
     ngApp.provider.controller('ctrlInfo', ['$scope', '$uibModal', 'http2', function($scope, $uibModal, http2) {
         var page, filter, filter2;
@@ -322,7 +336,7 @@ define(['frame'], function(ngApp) {
         }
         $scope.filter = filter;
         $scope.filter2 = filter2 = {};
-        if (filter.byType) { filter2.byTitle = filter.byTitle }
+        if (filter.byType) { filter2.byTitle = filter.byTitle; filter2.byTags = filter.byTags }
         $scope.changeMatter = function(type) {
             filter.byType = type;
         };
@@ -345,7 +359,7 @@ define(['frame'], function(ngApp) {
                 });
             } else {
                 filter.byType == 'channel' ? url2 += '&cascade=N' : url2;
-                http2.post(url2, { byTitle: filter.byTitle }, function(rsp) {
+                http2.post(url2, { byTitle: filter.byTitle, byTags: filter.byTags }, function(rsp) {
                     switch (filter.byType) {
                         case 'article':
                             $scope.matters = rsp.data.articles;
@@ -371,11 +385,18 @@ define(['frame'], function(ngApp) {
         };
         $scope.$watch('frameState.sid', function(nv) {
             angular.extend(filter, { bySite: nv });
+            $scope.getMatterTag();
         });
         $scope.$watch('filter', function(nv) {
             if (!nv) return;
             $scope.list();
         }, true);
+        $scope.matterTags = function() {
+            $scope.matterTagsFram(filter, filter2);
+        };
+        $scope.cleanFilterTag = function() {
+            filter.byTags = filter2.byTags = '';
+        };
     }]);
     ngApp.provider.controller('ctrlUser', ['$scope', 'http2', function($scope, http2) {}]);
     ngApp.provider.controller('ctrlMember', ['$scope', '$location', '$uibModal', 'http2', function($scope, $location, $uibModal, http2) {

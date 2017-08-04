@@ -80,11 +80,16 @@ class main extends \pl\fe\matter\base {
 		if ($onlySns === 'Y') {
 			$q[2] .= " and entry_rule like '%\"scope\":\"sns\"%'";
 		}
-		if (isset($filter->byTitle)) {
+		if (!empty($filter->byTitle)) {
 			$q[2] .= " and title like '%" . $modelApp->escape($filter->byTitle) . "%'";
 		}
 		if (isset($filter->mission_phase_id) && !empty($filter->mission_phase_id) && $filter->mission_phase_id !== "ALL") {
 			$q[2] .= " and mission_phase_id = '" . $modelApp->escape($filter->mission_phase_id) . "'";
+		}
+		if(!empty($filter->byTags)){
+			foreach($filter->byTags as $tag){
+				$q[2] .= " and matter_mg_tag like '%" . $modelApp->escape($tag->id) . "%'";
+			}
 		}
 
 		$q2['o'] = 'a.modify_at desc';

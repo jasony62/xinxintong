@@ -64,6 +64,9 @@ class main extends \pl\fe\matter\base {
 			if (!empty($post->byTitle)) {
 				$options['byTitle'] = $post->byTitle;
 			}
+			if(!empty($post->byTags)){
+				$options['byTags'] = $post->byTags;
+			}
 			$result = $model->bySite($site, $page, $size, $onlySns, $options);
 		} else {
 			$options = [];

@@ -67,8 +67,13 @@ class tag extends \pl\fe\base {
 		$subType = $model->escape($subType);
 		$resId = $model->escape($resId);
 		switch($resType){
+			case 'custom':
 			case 'article':
+				$resType = 'article';
 				$fields = "id,siteid,title,summary,pic,matter_cont_tag,matter_mg_tag,'$resType' type";
+				break;
+			case 'text':
+				$fields = "id,siteid,title,matter_mg_tag,'$resType' type";
 				break;
 			default:
 				$fields = "id,siteid,title,summary,pic,matter_mg_tag,'$resType' type";

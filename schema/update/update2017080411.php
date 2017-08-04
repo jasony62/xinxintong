@@ -5,7 +5,6 @@ $sqls = array();
 //
 $sqls[] = "DROP TABLE xxt_article_tag;";
 $sqls[] = "alter table xxt_tag drop column mpid";
-$sqls[] = "DROP TRIGGER testref12";
 //
 foreach ($sqls as $sql) {
 	if (!$mysqli->query($sql)) {

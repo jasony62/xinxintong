@@ -187,7 +187,7 @@
                         <div class='form-group' ng-if="frameState.sid != ''">
                             <label>按标签筛选：</label>
                             <div class="form-control" style="width: 300px" ng-click="matterTags('M')">
-                                <span class='tag' ng-repeat="t in filter2.byTags" ng-bind="t.title" ></span>
+                                <span class='tag' ng-repeat="t in filter2.byTags" ng-bind="t.title"></span>
                             </div>
                             <button class='btn btn-default' ng-click="cleanFilterTag()"><span class='glyphicon glyphicon-remove'></span></button>
                         </div>
@@ -233,59 +233,63 @@
         </div>
     </div>
     <div id='activities' ng-controller="ctrlActivity" ng-switch-when="activity">
-        <div class='col-md-12'>
-            <nav class='navbar navbar-default'>
-                <div class='container-fluid'>
-                    <div class="navbar-header">
-                        <button type="button" class="navbar-toggle collapsed" ng-click="isNavCollapsed.activity=!isNavCollapsed.activity">
-                            <span class="sr-only">Toggle navigation</span>
-                            <span class="icon-bar"></span>
-                            <span class="icon-bar"></span>
-                            <span class="icon-bar"></span>
-                        </button>
-                    </div>
-                    <div class='collapse navbar-collapse' uib-collapse="isNavCollapsed.activity">
-                        <ul class='nav navbar-nav'>
-                            <li ng-class="{'active':filter.byType==='enroll'}"><a href='' ng-click="changeMatter('enroll')">登记活动</a></li>
-                            <li ng-class="{'active':filter.byType==='signin'}"><a href='' ng-click="changeMatter('signin')">签到活动</a></li>
-                            <li ng-class="{'active':filter.byType==='group'}"><a href='' ng-click="changeMatter('group')">分组活动</a></li>
-                            <li ng-class="{'active':filter.byType==='lottery'}"><a href='' ng-click="changeMatter('lottery')">抽奖活动</a></li>
-                            <li ng-class="{'active':filter.byType==='wall'}"><a href='' ng-click="changeMatter('wall')">信息墙</a></li>
-                        </ul>
-                        <form class='nav navbar-form pull-left'>
-                            <div class="form-group" ng-if="filter.byType==='enroll'">
-                                <select class='form-control' ng-model="filter.scenario">
-                                    <option value=''>全部场景</option>
-                                    <option value='common'>通用登记</option>
-                                    <option value='registration'>报名</option>
-                                    <option value='voting'>投票</option>
-                                    <option value='group_week_report'>周报</option>
-                                    <option value='quiz'>测验</option>
-                                </select>
-                            </div>
-                            <div class='form-group'>
-                                <div class='input-group'>
-                                    <input type='input' class='form-control' placeholder='按名称筛选' ng-model='filter2.byTitle'>
-                                    <span class='input-group-btn'>
-                                        <button class='btn btn-default' ng-click="doFilter()"><span class='glyphicon glyphicon-search'></span></button>
-                                    <button class='btn btn-default' ng-click="cleanFilter()"><span class='glyphicon glyphicon-remove'></span></button>
-                                    </span>
-                                </div>
-                            </div>
-                            <div class='form-group' ng-if="frameState.sid != ''">
-                                <label>按标签筛选：</label>
-                                <div class="form-control" style="width: 300px" ng-click="matterTags('M')">
-                                    <span class='tag' ng-repeat="t in filter2.byTags" ng-bind="t.title" ></span>
-                                </div>
-                                <button class='btn btn-default' ng-click="cleanFilterTag()"><span class='glyphicon glyphicon-remove'></span></button>
-                            </div>
-                        </form>
-                        <form class='nav navbar-form pull-right'>
-                            <button uib-popover-template="'addActivity.html'" popover-placement="bottom-right" popover-append-to-body='true' popover-trigger="outsideClick" popover-title="新建" class='btn btn-default'><i class='glyphicon glyphicon-plus'></i> <span>新建</span></button>
-                        </form>
-                    </div>
+        <nav class='navbar navbar-default'>
+            <div class='container-fluid'>
+                <div class="navbar-header">
+                    <button type="button" class="navbar-toggle collapsed" ng-click="isNavCollapsed.activity=!isNavCollapsed.activity">
+                        <span class="sr-only">Toggle navigation</span>
+                        <span class="icon-bar"></span>
+                        <span class="icon-bar"></span>
+                        <span class="icon-bar"></span>
+                    </button>
                 </div>
-            </nav>
+                <div class='collapse navbar-collapse' uib-collapse="isNavCollapsed.activity">
+                    <ul class='nav navbar-nav'>
+                        <li ng-class="{'active':filter.byType==='enroll'}"><a href='' ng-click="changeMatter('enroll')">登记活动</a></li>
+                        <li ng-class="{'active':filter.byType==='signin'}"><a href='' ng-click="changeMatter('signin')">签到活动</a></li>
+                        <li ng-class="{'active':filter.byType==='group'}"><a href='' ng-click="changeMatter('group')">分组活动</a></li>
+                        <li ng-class="{'active':filter.byType==='lottery'}"><a href='' ng-click="changeMatter('lottery')">抽奖活动</a></li>
+                        <li ng-class="{'active':filter.byType==='wall'}"><a href='' ng-click="changeMatter('wall')">信息墙</a></li>
+                    </ul>
+                    <form class='nav navbar-form pull-left'>
+                        <div class="form-group" ng-if="filter.byType==='enroll'">
+                            <select class='form-control' ng-model="filter.scenario">
+                                <option value=''>全部场景</option>
+                                <option value='common'>通用登记</option>
+                                <option value='registration'>报名</option>
+                                <option value='voting'>投票</option>
+                                <option value='group_week_report'>周报</option>
+                                <option value='quiz'>测验</option>
+                            </select>
+                        </div>
+                        <div class='form-group'>
+                            <div class='input-group'>
+                                <input type='input' class='form-control' placeholder='按名称筛选' ng-model='filter2.byTitle'>
+                                <div class='input-group-btn'>
+                                    <button class='btn btn-default' ng-click="doFilter()"><span class='glyphicon glyphicon-search'></span></button>
+                                    <button class='btn btn-default' ng-click="cleanFilter()"><span class='glyphicon glyphicon-remove'></span></button>
+                                </div>
+                            </div>
+                        </div>
+                        <div class='form-group' ng-if="frameState.sid != ''">
+                            <label>按标签筛选：</label>
+                            <div class='input-group'>
+                                <div class="form-control" style="width:120px" ng-click="matterTags('M')">
+                                    <span class='tag' ng-repeat="t in filter2.byTags" ng-bind="t.title"></span>
+                                </div>
+                                <div class='input-group-btn'>
+                                    <button class='btn btn-default' ng-click="cleanFilterTag()"><span class='glyphicon glyphicon-remove'></span></button>
+                                </div>
+                            </div>
+                        </div>
+                    </form>
+                    <form class='nav navbar-form pull-right'>
+                        <button uib-popover-template="'addActivity.html'" popover-placement="bottom-right" popover-append-to-body='true' popover-trigger="outsideClick" popover-title="新建" class='btn btn-default'><i class='glyphicon glyphicon-plus'></i> <span>新建</span></button>
+                    </form>
+                </div>
+            </div>
+        </nav>
+        <div class='col-md-12'>
             <table class='table table-bordered'>
                 <thead>
                     <tr>
@@ -370,7 +374,7 @@
                         <div class='form-group' ng-if="frameState.sid != ''">
                             <label>按标签筛选：</label>
                             <div class="form-control" style="width: 300px" ng-click="matterTags('M')">
-                                <span class='tag' ng-repeat="t in filter2.byTags" ng-bind="t.title" ></span>
+                                <span class='tag' ng-repeat="t in filter2.byTags" ng-bind="t.title"></span>
                             </div>
                             <button class='btn btn-default' ng-click="cleanFilterTag()"><span class='glyphicon glyphicon-remove'></span></button>
                         </div>

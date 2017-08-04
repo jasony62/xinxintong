@@ -109,6 +109,11 @@ define(['require'], function(require) {
         http2.get(url, function(rsp) {
             $scope.loginUser = rsp.data;
         });
+        $scope.getMatterTag = function() {
+            http2.get('/rest/pl/fe/matter/tag/listTags?site=' + $scope.frameState.sid, function(rsp) {
+                $scope.tagsMatter = rsp.data;
+            });
+        }
         $scope.closeNotice = function(log) {
             srvUserNotice.closeNotice(log).then(function(rsp) {
                 $scope.notice.logs.splice($scope.notice.logs.indexOf(log), 1);
@@ -304,6 +309,42 @@ define(['require'], function(require) {
                 } else {
                     $scope.sites = rsp.data;
                 }
+            });
+        };
+        $scope.matterTagsFram = function(filter, filter2) {
+            var oTags, tagsOfData;
+            tagsOfData = filter2.byTags;
+            oTags = $scope.tagsMatter;
+            $uibModal.open({
+                templateUrl: 'tagMatterData.html',
+                controller: ['$scope', '$uibModalInstance', function($scope2, $mi) {
+                    var model;
+                    $scope2.apptags = oTags;
+                    $scope2.model = model = {
+                        selected: []
+                    };
+                    if (tagsOfData) {
+                        tagsOfData.forEach(function(oTag) {
+                            var index;
+                            if (-1 !== (index = $scope2.apptags.indexOf(oTag))) {
+                                model.selected[$scope2.apptags.indexOf(oTag)] = true;
+                            }
+                        });
+                    }
+                    $scope2.cancel = function() { $mi.dismiss(); };
+                    $scope2.ok = function() {
+                        var addMatterTag = [];
+                        model.selected.forEach(function(selected, index) {
+                            if (selected) {
+                                addMatterTag.push($scope2.apptags[index]);
+                            }
+                        });
+                        filter2.byTags = addMatterTag;
+                        angular.extend(filter, filter2);
+                        $mi.close();
+                    };
+                }],
+                backdrop: 'static',
             });
         };
         $scope.list();

@@ -26,6 +26,7 @@ hr{margin:5px 0;}
 .friend-matter{padding:15px;}
 .media-object{width:96px;height:96px;}
 .actions{border-top:1px solid #ddd;margin-top:8px;padding-top:8px;}
+.tag {background: #337ab7;padding: 3px 6px;margin: 4px;border-radius: 4px;color: #fff;}
 
 /*
 .modal.in .modal-dialog{-webkit-transform:translate(-50%,-50%);-moz-transform:translate(-50%,-50%);transform:translate(-50%,50%);}

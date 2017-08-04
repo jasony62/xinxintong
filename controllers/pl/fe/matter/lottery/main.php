@@ -70,6 +70,11 @@ class main extends \pl\fe\matter\base {
 		if(!empty($post->byTitle)){
 			$q[2] .= " and title like '%". $model->escape($post->byTitle) ."%'";
 		}
+		if(!empty($post->byTags)){
+			foreach($post->byTags as $tag){
+				$q[2] .= " and matter_mg_tag like '%" . $model->escape($tag->id) . "%'";
+			}
+		}
 		$q2['o'] = 'create_at desc';
 
 		$apps = $model->query_objs_ss($q, $q2);

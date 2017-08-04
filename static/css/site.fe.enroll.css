@@ -1,0 +1,13 @@
+.container{position: relative;}
+.navbar{margin-top: 15px;}
+.navbar-default{background-color: #2994D0;border-bottom: none;}
+.navbar-default .navbar-nav > li > a, .navbar-default .navbar-brand{color: #fff;}
+.glyphicon{top:2px;margin-right: 10px;}
+.navbar-brand{height: 55px;padding:17.5px 15px;}
+.main-navbar .navbar-brand:hover{color: #fff;}
+@media screen and (min-width: 768px){.navbar-nav>li>a {padding: 17.5px 30px;font-size:18px;line-height: 1;}}
+@media screen and (max-width: 768px){
+  .navbar-brand{width: 100%;text-align: center;}
+  .navbar-nav{margin: 8px 0;position: absolute;top:0;right: 0;}
+  .nav > li > a{padding:10px 10px;}
+}

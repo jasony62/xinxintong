@@ -56,6 +56,11 @@ class main extends \pl\fe\matter\base {
 		if (!empty($options->byTitle)) {
 			$w .= " and a.title like '%" . $model->escape($options->byTitle) . "%'";
 		}
+		if(!empty($options->byTags)){
+			foreach($options->byTags as $tag){
+				$w .= " and a.matter_mg_tag like '%" . $model->escape($tag->id) . "%'";
+			}
+		}
 		/**
 		 * 按项目过滤
 		 */

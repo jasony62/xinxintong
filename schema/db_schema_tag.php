@@ -6,7 +6,6 @@ require_once '../db.php';
 $sql = 'create table if not exists xxt_tag(';
 $sql .= 'id int not null auto_increment';
 $sql .= ",siteid varchar(32) not null default ''";
-$sql .= ',mpid varchar(32) not null';
 $sql .= ",creater varchar(40) not null default ''";
 $sql .= ",creater_name varchar(255) not null default ''";
 $sql .= ",create_at int not null default 0";

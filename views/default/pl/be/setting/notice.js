@@ -113,11 +113,23 @@ define(['main'], function(ngApp) {
                         id: 'summary',
                         name: '摘要'
                     }, {
-                        id: 'enroll_at',
+                        id: 'submit_at',
                         name: '提交时间'
                     }, {
-                        id: 'enroll_user',
-                        name: '内容提交人'
+                        id: 'remark_at',
+                        name: '评论时间'
+                    }, {
+                        id: 'submit_mask_at',
+                        name: '提交内容被屏蔽操作时间'
+                    }, {
+                        id: 'submit_recommend_at',
+                        name: '提交内容被推荐操作时间'
+                    }, {
+                        id: 'remark_mask_at',
+                        name: '评论内容被屏蔽操作时间'
+                    }, {
+                        id: 'remark_recommend_at',
+                        name: '评论内容被推荐操作时间'
                     }];
                     $scope2.data = data;
                     $scope2.changeSrcProp = function() {

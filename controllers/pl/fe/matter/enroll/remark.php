@@ -219,8 +219,10 @@ class remark extends \pl\fe\matter\base {
 			$oRemark=$modelRem->query_obj_ss(['*','xxt_enroll_record_remark',['id'=>$posted->remark]]);
 			$modelEnl = $this->model('matter\enroll');
 			$oApp = $modelEnl->byId($oRemark->aid, ['cascaded' => 'N']);
+			$modelRec = $this->model('matter\enroll\record');
+			$oRecord = $modelRec->byId($oRemark->enroll_key);
 			$oRemark->enroll_nickname=$modelRem->query_val_ss(['uname','xxt_site_account',['siteid'=>$oRemark->siteid,'uid'=>$oRemark->enroll_userid]]);
-			$this->_notifyAgree($oApp, $oRemark, $name);
+			$this->_notifyAgree($oApp, $oRecord, $oRemark, $name);
 		}
 		
 		foreach ($remarkIds as $id) {
@@ -236,7 +238,7 @@ class remark extends \pl\fe\matter\base {
 	/**
 	 * 给发评论的人发送通知
 	 */
-	private function _notifyAgree($oApp, $oRemark, $tmplName) {
+	private function _notifyAgree($oApp, $oRecord, $oRemark, $tmplName) {
 		/* 模板消息参数 */
 		$notice = $this->model('site\notice')->byName($oApp->siteid, $tmplName);
 		if ($notice === false) {
@@ -246,7 +248,7 @@ class remark extends \pl\fe\matter\base {
 		if (!isset($tmplConfig->tmplmsg)) {
 			return false;
 		}
-
+		$at=array('submit_mask_at','submit_recommend_at','remark_mask_at','remark_recommend_at');
 		$params = new \stdClass;
 		foreach ($tmplConfig->tmplmsg->params as $param) {
 			if (!isset($tmplConfig->mapping->{$param->pname})) {
@@ -256,10 +258,12 @@ class remark extends \pl\fe\matter\base {
 			if ($mapping->src === 'matter') {
 				if (isset($oApp->{$mapping->id})) {
 					$value = $oApp->{$mapping->id};
-				}else if($mapping->id=='send_time'){
+				}else if(in_array($mapping->id, $at)){
 					$value = date('Y-m-d H:i:s');
-				}else if($mapping->id=='enroll_user'){
-					$value = $oRemark->enroll_nickname;
+				}else if($mapping->id=='submit_at'){
+					$value = date('Y-m-d H:i:s',$oRecord->enroll_at);
+				}else if($mapping->id=='remark_at'){
+					$value = date('Y-m-d H:i:s',$oRemark->create_at);
 				}
 			} else if ($mapping->src === 'text') {
 				$value = $mapping->name;
@@ -286,6 +290,11 @@ class remark extends \pl\fe\matter\base {
 		$receiver = new \stdClass;
 		$receiver->assoc_with = $oRemark->enroll_key;
 		$receiver->userid = $oRemark->userid;
+
+		/*判断是否是同一个人*/
+		if($creater->uid==$receiver->userid){
+			return false;
+		}
 
 		/* 给用户发通知消息 */
 		$modelTmplBat = $this->model('matter\tmplmsg\batch');

@@ -55,7 +55,7 @@ class data extends \pl\fe\matter\base {
 		if (!isset($tmplConfig->tmplmsg)) {
 			return false;
 		}
-
+		$at=array('submit_mask_at','submit_recommend_at','remark_mask_at','remark_recommend_at');
 		$params = new \stdClass;
 		foreach ($tmplConfig->tmplmsg->params as $param) {
 			if (!isset($tmplConfig->mapping->{$param->pname})) {
@@ -65,10 +65,12 @@ class data extends \pl\fe\matter\base {
 			if ($mapping->src === 'matter') {
 				if (isset($oApp->{$mapping->id})) {
 					$value = $oApp->{$mapping->id};
-				}else if($mapping->id=='enroll_at'){
+				}else if(in_array($mapping->id, $at)){
+					$value = date('Y-m-d H:i:s');
+				}else if($mapping->id=='submit_at'){
 					$value = date('Y-m-d H:i:s',$oRecord->enroll_at);
-				}else if($mapping->id=='enroll_user'){
-					$value = $oRecord->nickname;
+				}else if($mapping->id=='remark_at'){
+					$value = date('Y-m-d H:i:s');
 				}
 			} else if ($mapping->src === 'text') {
 				$value = $mapping->name;
@@ -96,6 +98,11 @@ class data extends \pl\fe\matter\base {
 		$receiver->assoc_with = $oRecord->enroll_key;
 		$receiver->userid = $oRecord->userid;
 
+		/*判断是否是同一个人*/
+		if($creater->uid==$receiver->userid){
+			return false;
+		}
+		
 		/* 给用户发通知消息 */
 		$modelTmplBat = $this->model('matter\tmplmsg\batch');
 		$modelTmplBat->send($oRecord->siteid, $tmplConfig->msgid, $creater, [$receiver], $params, ['send_from' => 'enroll:' . $oRecord->aid . ':' . $oRecord->enroll_key]);

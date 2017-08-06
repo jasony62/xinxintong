@@ -7,17 +7,6 @@ require_once dirname(dirname(__FILE__)) . '/base.php';
  */
 class tag extends \pl\fe\base {
 	/**
-	 * 根据资源类型获得已有的标签
-	 *
-	 * @param string $resType
-	 * @param int 标签的分类
-	 */
-	public function list_action($site, $resType, $subType = 0) {
-		$tags = $this->model('tag')->get_tags($site, $resType, $subType);
-
-		return new \ResponseData($tags);
-	}
-	/**
 	 * 获得已有的标签
 	 */
 	public function listTags_action($site, $subType = 'M', $page = null, $size = null) {

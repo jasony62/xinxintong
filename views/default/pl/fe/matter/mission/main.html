@@ -36,6 +36,12 @@
                         </div>
                     </div>
                 </div>
+                <div class='form-group'>
+                    <label>管理标签（可选）</label>
+                    <p class="form-control" ng-click="tagMatter('M')">
+                        <span class="tag" ng-repeat="t in mission.matter_mg_tag" ng-bind="t.title"></span>
+                    </p>
+                </div>
             </div>
             <div class='col-md-4'>
                 <div class='form-group'>
@@ -55,12 +61,6 @@
                 <div class='form-group'>
                     <label>扩展属性2</label>
                     <input type="text" class="form-control" ng-model="mission.extattrs.attr2" tms-auto-update tms-wait=1000 tms-update="update('extattrs')">
-                </div>
-                <div class='form-group'>
-                    <label>管理标签（可选）</label>
-                    <p class="form-control" ng-click="tagRecordData('M')">
-                        <span class="tag" ng-repeat="t in mission.matter_mg_tag" ng-bind="t.title"></span>
-                    </p>
                 </div>
             </div>
         </div>
@@ -151,128 +151,128 @@
                 </div>
             </div>
         </div>
-        <script type="text/ng-template" id="shareMission.html">
-            <div id="shareMission">
-                <div class='form-group'>
-                    <div class='help-block'>链接有效期30分钟</div>
-                    <div class='form-control' style='height:auto;word-break:break-all'>{{inviteURL}}</div>
-                </div>
-                <div class='form-group'>
-                    <button class='btn btn-default' ng-click="closeInvite()">关闭</button>
-                </div>
-                <div>
-        </script>
-        <script type="text/ng-template" id="myCoworker.html">
-            <div id="myCoworker">
-                <div class='list-group' style="max-height:205px;overflow-y:auto">
-                    <a href='' class='list-group-item' ng-repeat="c in myCoworkers" ng-click="chooseMyCoworker(c)">
-                        <span>{{c.account.nickname}}</span><span>（{{c.coworker_label}}）</span>
-                    </a>
-                </div>
-                <button class='btn btn-default' ng-click="closeMyCoworkers()">关闭</button>
-                <div>
-        </script>
-        </div>
-        <div>
-            <nav class='navbar navbar-default tms-panel-heading'>
-                <div class='container-fluid'>
-                    <p class="navbar-text">分享设置</p>
-                </div>
-            </nav>
-            <div class='tms-panel-body'>
-                <div class='col-md-6'>
-                    <div class='form-group hide'>
-                        <label>用户参与链接</label>
-                        <div class='input-group'>
-                            <input class='form-control' readonly value="{{entry.url}}">
-                            <span class='input-group-btn'>
+    </div>
+    <div>
+        <nav class='navbar navbar-default tms-panel-heading'>
+            <div class='container-fluid'>
+                <p class="navbar-text">分享设置</p>
+            </div>
+        </nav>
+        <div class='tms-panel-body'>
+            <div class='col-md-6'>
+                <div class='form-group hide'>
+                    <label>用户参与链接</label>
+                    <div class='input-group'>
+                        <input class='form-control' readonly value="{{entry.url}}">
+                        <span class='input-group-btn'>
                             <button class='btn btn-default text2Clipboard' data-clipboard-text="{{entry.url}}">复制</button>
                             <a class='btn btn-default' ng-href="{{entry.url}}" target='_blank' title='打开'><i class='glyphicon glyphicon-open'></i></a>
                         </span>
-                        </div>
                     </div>
-                    <form ng-controller="ctrlOpUrl">
-                        <div class='form-group'>
-                            <label>结果展示页面</label>
-                            <div class='input-group'>
-                                <input class='form-control' readonly value="{{opEntry.url}}">
-                                <span class='input-group-btn'>
+                </div>
+                <form ng-controller="ctrlOpUrl">
+                    <div class='form-group'>
+                        <label>结果展示页面</label>
+                        <div class='input-group'>
+                            <input class='form-control' readonly value="{{opEntry.url}}">
+                            <span class='input-group-btn'>
                                 <button class='btn btn-default text2Clipboard' data-clipboard-text="{{opEntry.url}}">复制</button>
                                 <a class='btn btn-default' ng-href="{{opEntry.url}}" target='_blank' title='打开'><i class='glyphicon glyphicon-open'></i></a>
                             </span>
-                            </div>
                         </div>
-                        <div class='form-group'>
-                            <button class='btn btn-default' ng-if="!opEntry.url" ng-click="makeOpUrl()">生成</button>
-                            <button class='btn btn-default' ng-if="opEntry.url" ng-click="closeOpUrl()">关闭</button>
-                            <button uib-popover-template="'opUrlPasswd.html'" popover-append-to-body='true' popover-placement="bottom" popover-title="访问密码" popover-trigger="outsideClick" type="button" class="btn btn-default" class='btn btn-default' ng-if="opEntry.url">密码 <span class="caret"></span></button>
-                        </div>
-                        <div class='form-group' ng-if="opEntry.url">
-                            <label class='checkbox-inline'>
-                                <input type='checkbox' ng-true-value="'Y'" ng-false-value="'N'" ng-model="opEntry.can_favor" ng-change="updCanFavor()">支持收藏</label>
-                            <p class='help-block'>分享链接有效期1小时，设置【支持收藏】后，用户可收藏本链接，避免有效期限制</p>
-                        </div>
-                    </form>
-                </div>
-            </div>
-            <script type="text/ng-template" id="opUrlPasswd.html">
-                <div id="opUrlPasswd">
+                    </div>
                     <div class='form-group'>
-                        <div class='input-group'>
-                            <input class='form-control' ng-model="opEntry.password">
-                            <span class='input-group-btn'>
+                        <button class='btn btn-default' ng-if="!opEntry.url" ng-click="makeOpUrl()">生成</button>
+                        <button class='btn btn-default' ng-if="opEntry.url" ng-click="closeOpUrl()">关闭</button>
+                        <button uib-popover-template="'opUrlPasswd.html'" popover-append-to-body='true' popover-placement="bottom" popover-title="访问密码" popover-trigger="outsideClick" type="button" class="btn btn-default" class='btn btn-default' ng-if="opEntry.url">密码 <span class="caret"></span></button>
+                    </div>
+                    <div class='form-group' ng-if="opEntry.url">
+                        <label class='checkbox-inline'>
+                            <input type='checkbox' ng-true-value="'Y'" ng-false-value="'N'" ng-model="opEntry.can_favor" ng-change="updCanFavor()">支持收藏</label>
+                        <p class='help-block'>分享链接有效期1小时，设置【支持收藏】后，用户可收藏本链接，避免有效期限制</p>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+    <div>
+        <nav class='navbar navbar-default tms-panel-heading'>
+            <div class='container-fluid'>
+                <p class="navbar-text">其它设置</p>
+            </div>
+        </nav>
+        <div class='tms-panel-body'>
+            <div class='col-md-6'>
+                <table class='table table-bordered' style='margin:0'>
+                    <tr>
+                        <td>给项目中的所有活动和资料添加页眉</td>
+                        <td>
+                            <div class="btn-group">
+                                <button type="button" class="btn btn-sm btn-default" ng-click="makePagelet('header')">制作</button>
+                                <button type="button" class="btn btn-sm btn-default dropdown-toggle" data-toggle="dropdown">
+                                    <span class="caret"></span>
+                                    <span class="sr-only">Toggle Dropdown</span>
+                                </button>
+                                <ul class="dropdown-menu" role="menu">
+                                    <li><a href='' ng-click="codePage($event,'header')">编码</a></li>
+                                </ul>
+                            </div>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td>给项目中的所有活动和资料添加页脚</td>
+                        <td>
+                            <div class="btn-group">
+                                <button type="button" class="btn btn-sm btn-default" ng-click="makePagelet('footer')">制作</button>
+                                <button type="button" class="btn btn-sm btn-default dropdown-toggle" data-toggle="dropdown">
+                                    <span class="caret"></span>
+                                    <span class="sr-only">Toggle Dropdown</span>
+                                </button>
+                                <ul class="dropdown-menu" role="menu">
+                                    <li><a href='' ng-click="codePage($event,'footer')">编码</a></li>
+                                </ul>
+                            </div>
+                        </td>
+                    </tr>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+<script type="text/ng-template" id="shareMission.html">
+    <div id="shareMission">
+        <div class='form-group'>
+            <div class='help-block'>链接有效期30分钟</div>
+            <div class='form-control' style='height:auto;word-break:break-all'>{{inviteURL}}</div>
+        </div>
+        <div class='form-group'>
+            <button class='btn btn-default' ng-click="closeInvite()">关闭</button>
+        </div>
+        <div>
+</script>
+<script type="text/ng-template" id="myCoworker.html">
+    <div id="myCoworker">
+        <div class='list-group' style="max-height:205px;overflow-y:auto">
+            <a href='' class='list-group-item' ng-repeat="c in myCoworkers" ng-click="chooseMyCoworker(c)">
+                        <span>{{c.account.nickname}}</span><span>（{{c.coworker_label}}）</span>
+                    </a>
+        </div>
+        <button class='btn btn-default' ng-click="closeMyCoworkers()">关闭</button>
+        <div>
+</script>
+<script type="text/ng-template" id="opUrlPasswd.html">
+    <div id="opUrlPasswd">
+        <div class='form-group'>
+            <div class='input-group'>
+                <input class='form-control' ng-model="opEntry.password">
+                <span class='input-group-btn'>
                             <button class='btn btn-default' ng-click="configOpUrl($event,'password')">设置</button>
                         </span>
-                        </div>
-                    </div>
-                    <div>
-            </script>
             </div>
-            <div>
-                <nav class='navbar navbar-default tms-panel-heading'>
-                    <div class='container-fluid'>
-                        <p class="navbar-text">其它设置</p>
-                    </div>
-                </nav>
-                <div class='tms-panel-body'>
-                    <div class='col-md-6'>
-                        <table class='table table-bordered' style='margin:0'>
-                            <tr>
-                                <td>给项目中的所有活动和资料添加页眉</td>
-                                <td>
-                                    <div class="btn-group">
-                                        <button type="button" class="btn btn-sm btn-default" ng-click="makePagelet('header')">制作</button>
-                                        <button type="button" class="btn btn-sm btn-default dropdown-toggle" data-toggle="dropdown">
-                                            <span class="caret"></span>
-                                            <span class="sr-only">Toggle Dropdown</span>
-                                        </button>
-                                        <ul class="dropdown-menu" role="menu">
-                                            <li><a href='' ng-click="codePage($event,'header')">编码</a></li>
-                                        </ul>
-                                    </div>
-                                </td>
-                            </tr>
-                            <tr>
-                                <td>给项目中的所有活动和资料添加页脚</td>
-                                <td>
-                                    <div class="btn-group">
-                                        <button type="button" class="btn btn-sm btn-default" ng-click="makePagelet('footer')">制作</button>
-                                        <button type="button" class="btn btn-sm btn-default dropdown-toggle" data-toggle="dropdown">
-                                            <span class="caret"></span>
-                                            <span class="sr-only">Toggle Dropdown</span>
-                                        </button>
-                                        <ul class="dropdown-menu" role="menu">
-                                            <li><a href='' ng-click="codePage($event,'footer')">编码</a></li>
-                                        </ul>
-                                    </div>
-                                </td>
-                            </tr>
-                        </table>
-                    </div>
-                </div>
-            </div>
-            </div>
-<script type="text/ng-template" id="tagMatterData.html">
+        </div>
+        <div>
+</script>
+<script type="text/ng-template" id="tagMatter.html">
     <div class="modal-header">
         <h5 class="modal-title">打标签 - {{tagTitle}}</h5>
     </div>

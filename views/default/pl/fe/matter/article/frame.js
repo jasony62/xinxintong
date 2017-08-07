@@ -101,27 +101,19 @@ define(['require'], function() {
                 url: editing.entryUrl,
                 qrcode: '/rest/site/fe/matter/article/qrcode?site=' + $scope.editing.siteid + '&url=' + encodeURIComponent(editing.entryUrl),
             };
-            // 用户评论
-            if (editing.can_discuss === 'Y') {
-                $scope.discussParams = {
-                    title: editing.title,
-                    threadKey: 'article,' + editing.id,
-                    domain: editing.siteid
-                };
-            }
-            if($scope.editing.matter_cont_tag !== ''){
-                $scope.editing.matter_cont_tag.forEach(function(cTag,index){
-                    $scope.oTagC.forEach(function(oTag){
-                        if(oTag.id === cTag){
+            if ($scope.editing.matter_cont_tag !== '') {
+                $scope.editing.matter_cont_tag.forEach(function(cTag, index) {
+                    $scope.oTagC.forEach(function(oTag) {
+                        if (oTag.id === cTag) {
                             $scope.editing.matter_cont_tag[index] = oTag;
                         }
                     });
                 });
             }
-            if($scope.editing.matter_mg_tag !== ''){
-                $scope.editing.matter_mg_tag.forEach(function(cTag,index){
-                    $scope.oTag.forEach(function(oTag){
-                        if(oTag.id === cTag){
+            if ($scope.editing.matter_mg_tag !== '') {
+                $scope.editing.matter_mg_tag.forEach(function(cTag, index) {
+                    $scope.oTag.forEach(function(oTag) {
+                        if (oTag.id === cTag) {
                             $scope.editing.matter_mg_tag[index] = oTag;
                         }
                     });

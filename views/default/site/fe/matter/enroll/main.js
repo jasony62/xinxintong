@@ -11,6 +11,7 @@ if (/MicroMessenger/i.test(navigator.userAgent) && window.signPackage && window.
 }
 
 require('./directive.css');
+require('./main.css');
 
 require('../../../../../../asset/js/xxt.ui.http.js');
 require('../../../../../../asset/js/xxt.ui.page.js');
@@ -349,7 +350,7 @@ ngApp.controller('ctrlMain', ['$scope', '$q', '$http', '$timeout', 'srvUserTask'
         }
         if (!document.querySelector('.tms-switch-favor')) {
             tmsFavor.showSwitch($scope.user, oApp);
-        }else {
+        } else {
             $scope.favor = function(user, article) {
                 event.preventDefault();
                 event.stopPropagation();

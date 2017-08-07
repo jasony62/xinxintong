@@ -1,5 +1,5 @@
 (function() {
-	ngApp.provider.controller('ctrlSetting', ['$scope', '$location', 'http2', 'mediagallery', function($scope, $location, http2, mediagallery) {
+	ngApp.provider.controller('ctrlSetting', ['$scope', '$location', 'http2', 'mediagallery', '$uibModal', function($scope, $location, http2, mediagallery, $uibModal) {
 		var tinymceEditor;
 		$scope.run = function() {
 			$scope.app.state = 2;
@@ -25,6 +25,69 @@
 				$scope.app.pic = '';
 			});
 		};
+		$scope.tagMatter = function(subType) {
+	        var oApp, oTags, tagsOfData;
+	        oApp = $scope.app;
+	        oTags = $scope.oTag;
+	        $uibModal.open({
+	            templateUrl: 'tagMatterData.html',
+	            controller: ['$scope', '$uibModalInstance', function($scope2, $mi) {
+	                var model;
+	                $scope2.apptags = oTags;
+
+	                if(subType === 'C'){
+	                    tagsOfData = oApp.matter_cont_tag;
+	                    $scope2.tagTitle = '内容标签';
+	                }else{
+	                    tagsOfData = oApp.matter_mg_tag;
+	                    $scope2.tagTitle = '管理标签';
+	                }
+	                $scope2.model = model = {
+	                    selected: []
+	                };
+	                if (tagsOfData) {
+	                    tagsOfData.forEach(function(oTag) {
+	                        var index;
+	                        if (-1 !== (index = $scope2.apptags.indexOf(oTag))) {
+	                            model.selected[$scope2.apptags.indexOf(oTag)] = true;
+	                        }
+	                    });
+	                }
+	                $scope2.createTag = function() {
+	                    var newTags;
+	                    if ($scope2.model.newtag) {
+	                        newTags = $scope2.model.newtag.replace(/\s/, ',');
+	                        newTags = newTags.split(',');
+	                        http2.post('/rest/pl/fe/matter/tag/create?site=' + oApp.siteid, newTags, function(rsp) {
+	                            rsp.data.forEach(function(oNewTag) {
+	                                $scope2.apptags.push(oNewTag);
+	                            });
+	                        });
+	                        $scope2.model.newtag = '';
+	                    }
+	                };
+	                $scope2.cancel = function() { $mi.dismiss(); };
+	                $scope2.ok = function() {
+	                    var addMatterTag = [];
+	                    model.selected.forEach(function(selected, index) {
+	                        if (selected) {
+	                            addMatterTag.push($scope2.apptags[index]);
+	                        }
+	                    });
+	                    var url = '/rest/pl/fe/matter/tag/add?site=' + oApp.siteid + '&resId=' + oApp.id + '&resType=' + oApp.type + '&subType=' + subType;
+	                    http2.post(url, addMatterTag, function(rsp) {
+	                        if(subType === 'C'){
+	                            $scope.app.matter_cont_tag = addMatterTag;
+	                        }else{
+	                            $scope.app.matter_mg_tag = addMatterTag;
+	                        }
+	                    });
+	                    $mi.close();
+	                };
+	            }],
+	            backdrop: 'static',
+	        });
+	    };
 		$scope.$on('sub-channel.xxt.combox.done', function(event, data) {
 			var app = $scope.app;
 			app.params.subChannels === undefined && (app.params.subChannels = []);

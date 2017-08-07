@@ -1,7 +1,8 @@
-html,body{background:#efefef;margin-bottom:0;}
+html,body{margin-bottom:0;}
 @media screen and (max-width:719px){
 	body{margin-bottom:0;}
 }
 body{position:relative;font-size:16px;}
-#rank{background:#fff;margin-bottom:64px;}
+header {margin: -15px -15px 0 -15px;}
+#rank{background:#fff;margin-bottom:64px;padding:15px;}
 #rank .table{margin-bottom:0;}

@@ -7,6 +7,7 @@ body{font-family:"Microsoft Yahei","Helvetica Neue",Helvetica,Arial,sans-serif;b
 .form-group{padding:8px;background:#fff;border-radius:4px;}
 .help-block{margin-bottom:0;}
 .tile .form-group:last-child{margin-bottom:0;}
+.tag {background: #337ab7;padding: 3px 6px;margin: 4px;border-radius: 4px;color: #fff;}
 div.mce-tinymce.mce-container.mce-panel{margin-top:0;border:1px solid #ccc;}
 div.mce-tinymce.mce-container.mce-panel.mce-fullscreen{margin-top:51px}
 div.mce-tinymce div.mce-edit-area{border:0!important;border-top:1px solid #ccc!important;}

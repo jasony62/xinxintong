@@ -27,15 +27,15 @@ div[wrap=filter] .detail .actions .btn{border-radius:0}
 .tms-switch-repos:before{content:'共享';}
 .tms-switch-coinpay:before{content:'打赏';}
 .tms-discuss-switch{position:fixed;bottom:48px;right:15px;width:48px;height:48px;background:rgba(192,192,192,0.5);border-radius:4px;color:#666;font-size:24px;line-height:48px;text-align:center;}
-@media screen and (max-width:719px){
+@media screen and (max-width:768px){
 	body{margin-bottom:64px;}
-	.tms-switch{bottom:8px;}
-	.tms-switch:nth-last-of-type(1){right:8px;bottom:8px;}
-	.tms-switch:nth-last-of-type(2){right:64px;bottom:8px;}
-	.tms-switch:nth-last-of-type(3){right:120px;bottom:8px;}
-	.tms-switch:nth-last-of-type(4){right:176px;bottom:8px;}
-	.tms-switch:nth-last-of-type(5){right:232px;bottom:8px;}
-	.tms-switch:nth-last-of-type(6){right:288px;bottom:8px;}
+	.tms-switch{cursor: pointer;width:70px;height:40px;border:1px solid #2994d0;background:none;border-radius: 21px;line-height: 30px;}
+	.tms-switch:nth-last-of-type(1){right:8px;bottom:25px;}
+	.tms-switch:nth-last-of-type(2){right:85px;bottom:25px;}
+	.tms-switch:nth-last-of-type(3){right:165px;bottom:25px;}
+	.tms-switch:nth-last-of-type(4){right:176px;bottom:25px;}
+	.tms-switch:nth-last-of-type(5){right:232px;bottom:25px;}
+	.tms-switch:nth-last-of-type(6){right:288px;bottom:25px;}
 }
 #frmPlugin{position:absolute;top:0;bottom:0;left:0;right:0;width:100%;height:100%;border:none;z-index:1060;box-sizing:border-box;padding-bottom:48px;background:#fff;}
 #frmPlugin iframe{width:100%;height:100%;border:0;}

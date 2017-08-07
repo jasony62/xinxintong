@@ -155,5 +155,13 @@ ngApp.controller('ctrlRank', ['$scope', '$q', '$sce', 'http2', 'ls', function($s
             }
         });
         $scope.changeCriteria();
+        if(params.app.use_site_footer==='Y') {
+            var height = angular.element(document.querySelector('footer'))[0].offsetHeight;
+            var a = document.getElementsByClassName('tms-switch');
+            var c = height - 20;
+            for(var i = 0; i < a.length; i++) {
+                a[i].style.marginBottom = c + 'px';
+            }
+        }
     });
 }]);

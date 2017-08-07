@@ -282,6 +282,7 @@ ngApp.controller('ctrlMain', ['$scope', '$q', '$http', '$timeout', 'srvUserTask'
                 }
             }
         }
+
         /* 设置活动的当前链接 */
         shareid = oUser.uid + '_' + (new Date() * 1);
         sharelink = 'http://' + location.host + LS.j('', 'site', 'app', 'rid', 'newRecord');

@@ -74,6 +74,12 @@ class main extends \pl\fe\matter\base {
 		if (!empty($options->byTitle)) {
 			$w .= " and a.title like '%" . $model->escape($options->byTitle) . "%'";
 		}
+		if (!empty($options->byTags)) {
+			foreach ($options->byTags as $tag) {
+				$w .= " and a.matter_mg_tag like '%" . $model->escape($tag->id) . "%'";
+			}
+		}
+
 		/**
 		 * 按频道过滤
 		 */
@@ -86,57 +92,26 @@ class main extends \pl\fe\matter\base {
 		 * 按标签过滤
 		 */
 		!isset($options->order) && $options->order = '';
-		if (empty($options->tag) && empty($options->tag2)) {
-			$q = array(
-				$s,
-				'xxt_article a',
-				$w,
-			);
-			switch ($options->order) {
-			case 'title':
-				$q2['o'] = 'CONVERT(a.title USING gbk ) COLLATE gbk_chinese_ci';
-				break;
-			case 'read':
-				$q2['o'] = 'a.read_num desc';
-				break;
-			case 'share_friend':
-				$q2['o'] = 'a.share_friend_num desc';
-				break;
-			case 'share_timeline':
-				$q2['o'] = 'a.share_timeline_num desc';
-				break;
-			default:
-				$q2['o'] = 'a.modify_at desc';
-			}
-		} else {
-			/**
-			 * 按标签过滤
-			 */
-			$w .= " and a.siteid=at.siteid and a.id=at.res_id";
-			$tags = implode(',', array_merge($options->tag, $options->tag2));
-			$w .= " and at.tag_id in($tags)";
-			$q = array(
-				$s,
-				'xxt_article a,xxt_article_tag at',
-				$w,
-			);
-			$q2['g'] = 'a.id';
-			switch ($options->order) {
-			case 'title':
-				$q2['o'] = 'count(*),CONVERT(a.title USING gbk ) COLLATE gbk_chinese_ci';
-				break;
-			case 'read':
-				$q2['o'] = 'a.read_num desc';
-				break;
-			case 'share_friend':
-				$q2['o'] = 'a.share_friend_num desc';
-				break;
-			case 'share_timeline':
-				$q2['o'] = 'a.share_timeline_num desc';
-				break;
-			default:
-				$q2['o'] = 'a.modify_at desc';
-			}
+		$q = array(
+			$s,
+			'xxt_article a',
+			$w,
+		);
+		switch ($options->order) {
+		case 'title':
+			$q2['o'] = 'CONVERT(a.title USING gbk ) COLLATE gbk_chinese_ci';
+			break;
+		case 'read':
+			$q2['o'] = 'a.read_num desc';
+			break;
+		case 'share_friend':
+			$q2['o'] = 'a.share_friend_num desc';
+			break;
+		case 'share_timeline':
+			$q2['o'] = 'a.share_timeline_num desc';
+			break;
+		default:
+			$q2['o'] = 'a.modify_at desc';
 		}
 		/**
 		 * limit
@@ -156,14 +131,6 @@ class main extends \pl\fe\matter\base {
 				$ids[] = $a->id;
 				$map[$a->id] = &$a;
 				$a->type = 'custom';
-			}
-			$rels = $this->model('tag')->tagsByRes($ids, 'article', 0);
-			foreach ($rels as $aid => &$tags) {
-				$map[$aid]->tags = $tags;
-			}
-			$rels = $this->model('tag')->tagsByRes($ids, 'article', 1);
-			foreach ($rels as $aid => &$tags) {
-				$map[$aid]->tags2 = $tags;
 			}
 
 			return new \ResponseData(array('customs' => $articles, 'total' => $total));
@@ -186,6 +153,7 @@ class main extends \pl\fe\matter\base {
 			"a.siteid='$site' and a.state=1 and a.id=$id",
 		);
 		if (($article = $this->model()->query_obj_ss($q)) && $cascade === 'Y') {
+			$article->type = 'custom';
 			/**
 			 * channels
 			 */
@@ -193,9 +161,10 @@ class main extends \pl\fe\matter\base {
 			/**
 			 * tags
 			 */
-			$modelTag = $this->model('tag');
-			$article->tags = $modelTag->tagsByRes($article->id, 'article', 0);
-			$article->tags2 = $modelTag->tagsByRes($article->id, 'article', 1);
+			!empty($article->matter_cont_tag) && $article->matter_cont_tag = json_decode($article->matter_cont_tag);
+			!empty($article->matter_mg_tag) && $article->matter_mg_tag = json_decode($article->matter_mg_tag);
+			$article->tags = $article->matter_cont_tag;
+			$article->tags2 = $article->matter_mg_tag;
 			/**
 			 * acl
 			 */

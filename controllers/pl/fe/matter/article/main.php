@@ -88,75 +88,35 @@ class main extends \pl\fe\matter\base {
 		 * 按标签过滤
 		 */
 		!isset($options->order) && $options->order = '';
-		if (empty($options->tag) && empty($options->tag2)) {
-			$q = array(
-				$s,
-				'xxt_article a',
-				$w,
-			);
-			switch ($options->order) {
-			case 'title':
-				$q2['o'] = 'CONVERT(a.title USING gbk ) COLLATE gbk_chinese_ci';
-				break;
-			case 'read':
-				$q2['o'] = 'a.read_num desc';
-				break;
-			case 'share_friend':
-				$q2['o'] = 'a.share_friend_num desc';
-				break;
-			case 'share_timeline':
-				$q2['o'] = 'a.share_timeline_num desc';
-				break;
-			case 'like':
-				$q2['o'] = 'a.score desc';
-				break;
-			case 'remark':
-				$q2['o'] = 'a.remark_num desc';
-				break;
-			case 'download':
-				$q2['o'] = 'a.download_num desc';
-				break;
-			default:
-				$q2['o'] = 'a.modify_at desc';
-			}
-		} else {
-			/**
-			 * 按标签过滤
-			 */
-			$w .= " and a.mpid=at.mpid and a.id=at.res_id";
-			$tags = implode(',', array_merge($options->tag, $options->tag2));
-			$w .= " and at.tag_id in($tags)";
-			$q = array(
-				$s,
-				'xxt_article a,xxt_article_tag at',
-				$w,
-			);
-			$q2['g'] = 'a.id';
-			switch ($options->order) {
-			case 'title':
-				$q2['o'] = 'count(*),CONVERT(a.title USING gbk ) COLLATE gbk_chinese_ci';
-				break;
-			case 'read':
-				$q2['o'] = 'a.read_num desc';
-				break;
-			case 'share_friend':
-				$q2['o'] = 'a.share_friend_num desc';
-				break;
-			case 'share_timeline':
-				$q2['o'] = 'a.share_timeline_num desc';
-				break;
-			case 'like':
-				$q2['o'] = 'a.score desc';
-				break;
-			case 'remark':
-				$q2['o'] = 'a.remark_num desc';
-				break;
-			case 'download':
-				$q2['o'] = 'a.download_num desc';
-				break;
-			default:
-				$q2['o'] = 'a.modify_at desc';
-			}
+		$q = array(
+			$s,
+			'xxt_article a',
+			$w,
+		);
+		switch ($options->order) {
+		case 'title':
+			$q2['o'] = 'CONVERT(a.title USING gbk ) COLLATE gbk_chinese_ci';
+			break;
+		case 'read':
+			$q2['o'] = 'a.read_num desc';
+			break;
+		case 'share_friend':
+			$q2['o'] = 'a.share_friend_num desc';
+			break;
+		case 'share_timeline':
+			$q2['o'] = 'a.share_timeline_num desc';
+			break;
+		case 'like':
+			$q2['o'] = 'a.score desc';
+			break;
+		case 'remark':
+			$q2['o'] = 'a.remark_num desc';
+			break;
+		case 'download':
+			$q2['o'] = 'a.download_num desc';
+			break;
+		default:
+			$q2['o'] = 'a.modify_at desc';
 		}
 		/**
 		 * limit
@@ -180,17 +140,6 @@ class main extends \pl\fe\matter\base {
 				 * 获得每个图文的url
 				 */
 				$a->url = $modelArt->getEntryUrl($a->siteid, $a->id);
-			}
-			/**
-			 * 获得每个图文的tag
-			 */
-			$rels = $this->model('tag')->tagsByRes($ids, 'article', 0);
-			foreach ($rels as $aid => &$tags) {
-				$map[$aid]->tags = $tags;
-			}
-			$rels = $this->model('tag')->tagsByRes($ids, 'article', 1);
-			foreach ($rels as $aid => &$tags) {
-				$map[$aid]->tags2 = $tags;
 			}
 
 			return new \ResponseData(array('articles' => $articles, 'total' => $total));
@@ -218,10 +167,6 @@ class main extends \pl\fe\matter\base {
 		if ($cascade === 'Y') {
 			/* channels */
 			$article->channels = $this->model('matter\channel')->byMatter($id, 'article');
-			/* tags */
-			$modelTag = $this->model('tag');
-			$article->tags = $modelTag->tagsByRes($article->id, 'article', 0);
-			$article->tags2 = $modelTag->tagsByRes($article->id, 'article', 1);
 			/* acl */
 			$article->acl = $this->model('acl')->byMatter($article->siteid, 'article', $id);
 			/* attachments */

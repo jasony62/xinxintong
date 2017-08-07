@@ -104,20 +104,20 @@ define(['frame'], function(ngApp) {
                 });
             }
         };
-        $scope.tagRecordData = function(subType) {
+        $scope.tagMatter = function(subType) {
             var oApp, oTags, tagsOfData;
             oApp = $scope.mission;
             oTags = $scope.oTag;
             $uibModal.open({
-                templateUrl: 'tagMatterData.html',
+                templateUrl: 'tagMatter.html',
                 controller: ['$scope', '$uibModalInstance', function($scope2, $mi) {
                     var model;
                     $scope2.apptags = oTags;
 
-                    if(subType === 'C'){
+                    if (subType === 'C') {
                         tagsOfData = oApp.matter_cont_tag;
                         $scope2.tagTitle = '内容标签';
-                    }else{
+                    } else {
                         tagsOfData = oApp.matter_mg_tag;
                         $scope2.tagTitle = '管理标签';
                     }
@@ -155,9 +155,9 @@ define(['frame'], function(ngApp) {
                         });
                         var url = '/rest/pl/fe/matter/tag/add?site=' + oApp.siteid + '&resId=' + oApp.id + '&resType=' + oApp.type + '&subType=' + subType;
                         http2.post(url, addMatterTag, function(rsp) {
-                            if(subType === 'C'){
+                            if (subType === 'C') {
                                 $scope.mission.matter_cont_tag = addMatterTag;
-                            }else{
+                            } else {
                                 $scope.mission.matter_mg_tag = addMatterTag;
                             }
                         });

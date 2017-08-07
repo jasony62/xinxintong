@@ -7,17 +7,6 @@ require_once dirname(dirname(__FILE__)) . '/base.php';
  */
 class tag extends \pl\fe\base {
 	/**
-	 * 根据资源类型获得已有的标签
-	 *
-	 * @param string $resType
-	 * @param int 标签的分类
-	 */
-	public function list_action($site, $resType, $subType = 0) {
-		$tags = $this->model('tag')->get_tags($site, $resType, $subType);
-
-		return new \ResponseData($tags);
-	}
-	/**
 	 * 获得已有的标签
 	 */
 	public function listTags_action($site, $subType = 'M', $page = null, $size = null) {
@@ -67,8 +56,13 @@ class tag extends \pl\fe\base {
 		$subType = $model->escape($subType);
 		$resId = $model->escape($resId);
 		switch($resType){
+			case 'custom':
 			case 'article':
+				$resType = 'article';
 				$fields = "id,siteid,title,summary,pic,matter_cont_tag,matter_mg_tag,'$resType' type";
+				break;
+			case 'text':
+				$fields = "id,siteid,title,matter_mg_tag,'$resType' type";
 				break;
 			default:
 				$fields = "id,siteid,title,summary,pic,matter_mg_tag,'$resType' type";

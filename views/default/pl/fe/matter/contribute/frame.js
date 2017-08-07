@@ -70,6 +70,9 @@ ngApp.controller('ctrlApp', ['$scope', '$location', '$q', 'http2', function($sco
 		modifiedData[name] = $scope.app[name];
 		$scope.modified = true;
 	};
+	http2.get('/rest/pl/fe/matter/tag/listTags?site=' + $scope.siteId, function(rsp) {
+        $scope.oTag = rsp.data;
+    });
 	http2.get('/rest/pl/fe/matter/contribute/get?site=' + $scope.siteId + '&app=' + $scope.id, function(rsp) {
 		var app = rsp.data;
 		app.params = app.params ? JSON.parse(app.params) : {};
@@ -92,6 +95,15 @@ ngApp.controller('ctrlApp', ['$scope', '$location', '$q', 'http2', function($sco
 				});
 			}
 			$scope.channels = channels;
+			if(app.matter_mg_tag !== ''){
+	            app.matter_mg_tag.forEach(function(cTag,index){
+	                $scope.oTag.forEach(function(oTag){
+	                    if(oTag.id === cTag){
+	                        app.matter_mg_tag[index] = oTag;
+	                    }
+	                });
+	            });
+	        }
 			$scope.app = app;
 		});
 	});

@@ -21,6 +21,7 @@ class main extends \pl\fe\matter\base {
 
 		$modelChn = $this->model('matter\channel');
 		if ($channel = $modelChn->byId($id)) {
+			!empty($channel->matter_mg_tag) && $channel->matter_mg_tag = json_decode($channel->matter_mg_tag);
 			$channel->matters = $modelChn->getMatters($id, $channel, $site);
 			$channel->acl = $this->model('acl')->byMatter($site, 'channel', $id);
 		}
@@ -57,6 +58,11 @@ class main extends \pl\fe\matter\base {
 		}
 		if (!empty($options->byTitle)) {
 			$q[2] .= " and title like '%" . $modelChn->escape($options->byTitle) . "%'";
+		}
+		if (!empty($options->byTags)) {
+			foreach ($options->byTags as $tag) {
+				$q[2] .= " and matter_mg_tag like '%" . $modelChn->escape($tag->id) . "%'";
+			}
 		}
 
 		$q2['o'] = 'create_at desc';

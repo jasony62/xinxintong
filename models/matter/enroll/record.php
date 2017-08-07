@@ -441,6 +441,9 @@ class record_model extends \TMS_MODEL {
 			'xxt_enroll_record',
 			['enroll_key' => $ek],
 		];
+		if (isset($options['state'])) {
+			$q[2]['state'] = $options['state'];
+		}
 		if ($oRecord = $this->query_obj_ss($q)) {
 			$this->_processRecord($oRecord, $fields, $verbose);
 		}

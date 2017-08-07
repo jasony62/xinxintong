@@ -33,7 +33,7 @@ class user extends \pl\fe\matter\base {
 		$result = $modelUsr->enrolleeByApp($oApp, $page, $size, $options);
 		/*查询有openid的用户发送消息的情况*/
 		if(count($result->users)){
-			foreach ($result->users as $user) {
+			foreach ($result->users as &$user) {
 				$q = [
 					'd.tmplmsg_id,d.status,b.create_at',
 					'xxt_log_tmplmsg_detail d,xxt_log_tmplmsg_batch b',
@@ -48,6 +48,7 @@ class user extends \pl\fe\matter\base {
 				}else{
 					$user->tmplmsg = new \stdClass;
 				}
+				$user->task=$oApp->userTask;
 			}
 		}
 

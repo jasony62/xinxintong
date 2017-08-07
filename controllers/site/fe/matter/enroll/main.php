@@ -391,14 +391,14 @@ class main extends base {
 								$params['record'] = $oLastRecord;
 							}
 						} else {
-							$oRecord = $modelRec->byId($ek, ['verbose' => 'Y']);
+							$oRecord = $modelRec->byId($ek, ['verbose' => 'Y', 'state' => 1]);
 							$params['record'] = $oRecord;
 						}
 					}
 				}
 			}
 		} else if (in_array($page, ['remark', 'score']) && !empty($ek)) {
-			$oRecord = $modelRec->byId($ek, ['verbose' => 'Y']);
+			$oRecord = $modelRec->byId($ek, ['verbose' => 'Y', 'state' => 1]);
 			$params['record'] = $oRecord;
 		}
 

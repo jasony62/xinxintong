@@ -40,9 +40,9 @@
                     <th ng-if="sns.qy.joined=='Y'">是否关联微企</th>
                     <th>最后一次通知发送时间</th>
                     <th>最后一次通知发送结果</th>
-                    <th>至少填写记录条数</th>
-                    <th>至少发表评论条数</th>
-                    <th>至少赞同的条数</th>
+                    <th>要求每用户至少填写记录条数</th>
+                    <th>要求每用户至少发表评论条数</th>
+                    <th>要求每用户至少赞同的条数</th>
                 </tr>
             </thead>
             <tbody>
@@ -84,13 +84,13 @@
                         <div ng-if="m.tmplmsg">{{m._tmpStatus[0]}}</div>
                     </td>
                     <td>
-                        <div ng-if="m.tmplmsg">{{m._tmpStatus[0]}}</div>
+                        <div ng-if="m.task.minEnrollNum">{{m.task.minEnrollNum}}</div>
                     </td>
                     <td>
-                        <div ng-if="m.tmplmsg">{{m._tmpStatus[0]}}</div>
+                        <div ng-if="m.task.minRemarkNum">{{m.task.minRemarkNum}}</div>
                     </td>
                     <td>
-                        <div ng-if="m.tmplmsg">{{m._tmpStatus[0]}}</div>
+                        <div ng-if="m.task.minLikeNum">{{m.task.minLikeNum}}</div>
                     </td>
                 </tr>
             </tbody>

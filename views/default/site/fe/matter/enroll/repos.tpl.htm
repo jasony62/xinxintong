@@ -15,7 +15,7 @@
 <body>
     <header ng-if="app.use_site_header==='Y'" dynamic-html="site.header_page.html"></header>
     <header ng-if="app.use_mission_header==='Y'" dynamic-html="mission.header_page.html"></header>
-    <nav class='navbar navbar-default main-navbar'>
+    <nav class='navbar navbar-default main-navbar row'>
         <div class='container'>
             <div class="navbar-header">
                 <a href="" class="navbar-brand">
@@ -151,7 +151,7 @@
     <script src="/static/js/angular-sanitize.min.js"></script>
     <script src="/static/js/ui-bootstrap-tpls.min.js"></script>
     <script src="<?php echo auto_version('/bundles/default/site/fe/matter/enroll/repos.js');?>"></script>
-    <div class="tms-switch tms-switch-rank" ng-click="gotoPage($event,'rank')"></div>
+    <div class="tms-switch tms-switch-rank"  ng-click="gotoPage($event,'rank')"></div>
 </body>
 
 </html>

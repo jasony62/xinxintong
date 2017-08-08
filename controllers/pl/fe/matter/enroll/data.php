@@ -54,7 +54,7 @@ class data extends \pl\fe\matter\base {
 		if (!isset($tmplConfig->tmplmsg)) {
 			return false;
 		}
-		$at=array('submit_mask_at','submit_recommend_at','remark_mask_at','remark_recommend_at');
+		
 		$params = new \stdClass;
 		foreach ($tmplConfig->tmplmsg->params as $param) {
 			if (!isset($tmplConfig->mapping->{$param->pname})) {
@@ -64,11 +64,7 @@ class data extends \pl\fe\matter\base {
 			if ($mapping->src === 'matter') {
 				if (isset($oApp->{$mapping->id})) {
 					$value = $oApp->{$mapping->id};
-				}else if(in_array($mapping->id, $at)){
-					$value = date('Y-m-d H:i:s');
-				}else if($mapping->id=='submit_at'){
-					$value = date('Y-m-d H:i:s',$oRecord->enroll_at);
-				}else if($mapping->id=='remark_at'){
+				}else if($mapping->id==='event_at'){
 					$value = date('Y-m-d H:i:s');
 				}
 			} else if ($mapping->src === 'text') {

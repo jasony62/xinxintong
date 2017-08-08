@@ -202,24 +202,24 @@ define(['frame'], function(ngApp) {
                 });
             }
         };
-        $scope.tagRecordData = function(subType) {
+        $scope.tagMatter = function(subType) {
             var oApp, oTags, tagsOfData;
             oApp = $scope.editing;
-            if(subType === 'C'){
+            if (subType === 'C') {
                 oTags = $scope.oTagC;
-            }else{
+            } else {
                 oTags = $scope.oTag;
             }
             $uibModal.open({
-                templateUrl: 'tagMatterData.html',
+                templateUrl: 'tagMatter.html',
                 controller: ['$scope', '$uibModalInstance', function($scope2, $mi) {
                     var model;
                     $scope2.apptags = oTags;
 
-                    if(subType === 'C'){
+                    if (subType === 'C') {
                         tagsOfData = oApp.matter_cont_tag;
                         $scope2.tagTitle = '内容标签';
-                    }else{
+                    } else {
                         tagsOfData = oApp.matter_mg_tag;
                         $scope2.tagTitle = '管理标签';
                     }
@@ -257,9 +257,9 @@ define(['frame'], function(ngApp) {
                         });
                         var url = '/rest/pl/fe/matter/tag/add?site=' + oApp.siteid + '&resId=' + oApp.id + '&resType=' + oApp.type + '&subType=' + subType;
                         http2.post(url, addMatterTag, function(rsp) {
-                            if(subType === 'C'){
+                            if (subType === 'C') {
                                 $scope.editing.matter_cont_tag = addMatterTag;
-                            }else{
+                            } else {
                                 $scope.editing.matter_mg_tag = addMatterTag;
                             }
                         });
@@ -314,12 +314,9 @@ define(['frame'], function(ngApp) {
                 });
             });
         });
-        //更改缩略图
+        // 更改缩略图
         $scope.$watch('editing.title', function(title, oldTitle) {
-            //如果数据不为空，
-            // 如果图片为空 ，且 标题第一个字发生变化 则更改缩略图
-            //且上一个
-            if ($scope.editing) {
+            if ($scope.editing && title && oldTitle) {
                 if (!$scope.editing.pic && title.slice(0, 1) != oldTitle.slice(0, 1)) {
                     $timeout(function() {
                         tmsThumbnail.thumbnail($scope.editing);

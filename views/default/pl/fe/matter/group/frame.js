@@ -104,10 +104,10 @@ define(['require'], function() {
             $scope.oTag = oTag;
         });
         srvGroupApp.get().then(function(app) {
-            if(app.matter_mg_tag !== ''){
-                 app.matter_mg_tag.forEach(function(cTag,index){
-                    $scope.oTag.forEach(function(oTag){
-                        if(oTag.id === cTag){
+            if (app.matter_mg_tag !== '') {
+                app.matter_mg_tag.forEach(function(cTag, index) {
+                    $scope.oTag.forEach(function(oTag) {
+                        if (oTag.id === cTag) {
                             app.matter_mg_tag[index] = oTag;
                         }
                     });

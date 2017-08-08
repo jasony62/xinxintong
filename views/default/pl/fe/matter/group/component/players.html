@@ -7,6 +7,7 @@
                 <input type='checkbox' ng-true-value="'Y'" ng-false-value="'N'" ng-model="rows.allSelected" ng-change="selectAllRows(rows.allSelected)">
             </th>
             <th style='width:120px' ng-if="null===activeRound">分组</th>
+            <th style='width:4em'>组长</th>
             <th class='custom-col {{schema.type}}' ng-repeat="schema in app._schemasById" title="{{schema.ops}}">{{schema.title}}</th>
             <th style='width:140px' ng-if="app.tags.length">标签</th>
             <th style='width:140px'>备注</th>
@@ -27,6 +28,7 @@
                 <input type='checkbox' ng-model="rows.selected[$index]" ng-change="selectPlayer(p)">
             </td>
             <td ng-if="null===activeRound">{{p.round_title}}</td>
+            <td>{{p.is_leader==='Y'?'是':'否'}}</td>
             <td ng-repeat="schema in app._schemasById">
                 <span ng-if="schema.type!=='image'&&schema.type!=='file'&&schema.type!=='date'" ng-bind-html="p._data[schema.id]"></span>
                 <span ng-if="schema.type==='image'">

@@ -600,17 +600,18 @@ provider('srvGroupApp', function() {
         return arr;
     };
     $scope.ok = function() {
-        var oNewPlayer;
+        var oNewPlayer, oScopePlayer;
+        oScopePlayer = $scope.player;
         oNewPlayer = {
             data: {},
-            comment: $scope.player.comment,
-            tags: $scope.player.aTags.join(','),
-            round_id: $scope.player.round_id
+            is_leader: oScopePlayer.is_leader,
+            comment: oScopePlayer.comment,
+            tags: oScopePlayer.aTags.join(','),
+            round_id: oScopePlayer.round_id
         };
-        //$scope.player.tags = oNewPlayer.tags;
-        if ($scope.player.data) {
+        if (oScopePlayer.data) {
             $scope.app.data_schemas.forEach(function(oSchema) {
-                oNewPlayer.data[oSchema.id] = $scope.player.data[oSchema.id];
+                oNewPlayer.data[oSchema.id] = oScopePlayer.data[oSchema.id];
             });
         }
         $mi.close({ player: oNewPlayer, tags: $scope.aTags });

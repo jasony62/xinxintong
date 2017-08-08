@@ -1,6 +1,6 @@
 html,body{height:auto;width:100%;font-family:Microsoft Yahei,Arial;}
 body{position:relative;font-size:16px;padding:15px;}
-.app{margin-top: 15px;margin-bottom:64px;}
+.app{margin-top: 15px;}
 img{max-width:100%}
 header{margin:-15px -15px 0 -15px;}
 footer{margin:0 -15px -15px -15px;}
@@ -19,7 +19,7 @@ p{word-break:break-all;}
 #recordData blockquote{border-left:5px solid #999;}
 
 /*remark*/
-#remarks{position:relative;background:#fff;padding:1rem;margin-top:1rem;margin-bottom:64px;}
+#remarks{position:relative;background:#fff;margin-top:1rem;}
 #remarks:before{content:'评论';position:absolute;left:50%;margin-left:-1em;top:-1em;font-size:.7em;color:#eee;padding:.2em 1em;background:#666;border-radius:1em;}
 #remarks .remark{border-bottom:1px solid #ddd;transition:background 1s;}
 #remarks .remark:last-child{border-bottom:0;}

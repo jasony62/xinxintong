@@ -15,15 +15,11 @@ class copy_model extends \TMS_MODEL {
 		$modelArt = $this->model('matter\article');
 		$modelArt->setOnlyWriteDbConn(true);
 		$modelLog = $this->model('matter\log');
-		$modelTag = $this->model('tag');
 		$modelChn = $this->model('matter\channel');
 		$modelChn->setOnlyWriteDbConn(true);
 
 		$copied = $modelArt->byId($id);
 		empty($fromSiteId) && $fromSiteId = $copied->siteid;
-
-		/*获取原图文的内容标签*/
-		$tags = $modelTag->tagsByRes($copied->id, 'article', 0);
 		/*获取元图文的团队名称*/
 		$fromSite = $this->model('site')->byId($fromSiteId, ['fields' => 'name']);
 		$current = time();
@@ -66,14 +62,6 @@ class copy_model extends \TMS_MODEL {
 			}
 			$newArticle->id = $modelArt->insert('xxt_article', $newArticle, true);
 
-			/*建立图文和内容标签之间的关系*/
-			if (!empty($tags)) {
-				foreach ($tags as $tag) {
-					//此操作如果放在循环外，第二次循环会出现$tag->id，因为在save方法中被加上了
-					unset($tag->id);
-				}
-				$modelTag->save($targetSiteId, $newArticle->id, 'article', 0, $tags, null);
-			}
 			$newArticle->type = 'article';
 
 			/* 放入指定的频道 */

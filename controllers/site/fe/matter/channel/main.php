@@ -48,13 +48,9 @@ class main extends \site\fe\matter\base {
 		$modelChannel = $this->model('matter\channel');
 		$site = $modelChannel->escape($site);
 		$matters = $modelChannel->getMattersNoLimit($id, $user->uid, $params);
-		$tagModel = $this->model('tag');
 		foreach ($matters as &$m) {
 			$matterModel = \TMS_APP::M('matter\\' . $m->type);
 			$m->url = $matterModel->getEntryUrl($site, $m->id);
-			if ($m->type === 'article') {
-				$m->tags = $tagModel->tagsByRes($m->id, 'article');
-			}
 		}
 
 		return new \ResponseData($matters);

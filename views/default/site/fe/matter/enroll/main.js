@@ -11,6 +11,7 @@ if (/MicroMessenger/i.test(navigator.userAgent) && window.signPackage && window.
 }
 
 require('./directive.css');
+require('./main.css');
 
 require('../../../../../../asset/js/xxt.ui.http.js');
 require('../../../../../../asset/js/xxt.ui.page.js');
@@ -281,6 +282,7 @@ ngApp.controller('ctrlMain', ['$scope', '$q', '$http', '$timeout', 'srvUserTask'
                 }
             }
         }
+
         /* 设置活动的当前链接 */
         shareid = oUser.uid + '_' + (new Date() * 1);
         sharelink = 'http://' + location.host + LS.j('', 'site', 'app', 'rid', 'newRecord');
@@ -349,7 +351,7 @@ ngApp.controller('ctrlMain', ['$scope', '$q', '$http', '$timeout', 'srvUserTask'
         }
         if (!document.querySelector('.tms-switch-favor')) {
             tmsFavor.showSwitch($scope.user, oApp);
-        }else {
+        } else {
             $scope.favor = function(user, article) {
                 event.preventDefault();
                 event.stopPropagation();

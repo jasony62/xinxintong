@@ -113,7 +113,7 @@ define(['require'], function(require) {
             http2.get('/rest/pl/fe/matter/tag/listTags?site=' + $scope.frameState.sid, function(rsp) {
                 $scope.tagsMatter = rsp.data;
             });
-        }
+        };
         $scope.closeNotice = function(log) {
             srvUserNotice.closeNotice(log).then(function(rsp) {
                 $scope.notice.logs.splice($scope.notice.logs.indexOf(log), 1);

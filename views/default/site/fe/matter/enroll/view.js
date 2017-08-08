@@ -126,6 +126,11 @@ ngApp.controller('ctrlView', ['$scope', '$timeout', 'ls', 'Record', function($sc
             oRecord, facRecord;
 
         facRecord = Record.ins(oApp);
+        if (!params.record) {
+            fnDisableActions();
+            alert('访问的数据不存在，请检查链接是否有效');
+            return;
+        }
         facRecord.current = oRecord = params.record;
         dataSchemas.forEach(function(oSchema) {
             if (oSchema.remarkable && oSchema.remarkable === 'Y') {

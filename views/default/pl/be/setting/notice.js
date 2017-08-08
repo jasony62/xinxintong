@@ -112,6 +112,9 @@ define(['main'], function(ngApp) {
                     }, {
                         id: 'summary',
                         name: '摘要'
+                    }, {
+                        id: 'event_at',
+                        name: '事件发生时间'
                     }];
                     $scope2.data = data;
                     $scope2.changeSrcProp = function() {

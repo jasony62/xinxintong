@@ -1,7 +1,6 @@
-html,body{background:#efefef;margin-bottom:0;}
-@media screen and (max-width:719px){
-	body{margin-bottom:0;}
-}
-body{position:relative;font-size:16px;}
-#rank{background:#fff;margin-bottom:64px;}
+html,body{height:100%;width:100%;font-family:Microsoft Yahei,Arial;}
+body{position:relative;font-size:16px;padding:15px;}
+.app{margin-top: 15px;margin-bottom:64px;background:#fff;}
+header {margin: -15px -15px 0 -15px;}
+footer{margin:0 -15px -15px -15px;}
 #rank .table{margin-bottom:0;}

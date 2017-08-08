@@ -33,16 +33,17 @@
                     <th ng-if='criteria.mschema.attr_email[0]==0'>电子邮件</th>
                     <th ng-repeat='ea in criteria.mschema.extattr'>{{ea.label}}</th>
                     <th>记录</th>
+                    <th>要求每用户至少填写记录条数</th>
                     <th>评论</th>
+                    <th>要求每用户至少发表评论条数</th>
+                    <th>点赞</th>
+                    <th>要求每用户至少赞同的条数</th>
                     <th>积分</th>
                     <th ng-if="sns.wx.joined=='Y'">是否关联微信</th>
                     <th ng-if="sns.yx.joined=='Y'">是否关联易信</th>
                     <th ng-if="sns.qy.joined=='Y'">是否关联微企</th>
                     <th>最后一次通知发送时间</th>
-                    <th>最后一次通知发送结果</th>
-                    <th>要求每用户至少填写记录条数</th>
-                    <th>要求每用户至少发表评论条数</th>
-                    <th>要求每用户至少赞同的条数</th>
+                    <th>最后一次通知发送结果</th>                                      
                 </tr>
             </thead>
             <tbody>
@@ -61,8 +62,21 @@
                         <div ng-if='m.enroll_num'>{{m.enroll_num}}</div>
                     </td>
                     <td>
+                        <div ng-if="m.task.minEnrollNum">{{m.task.minEnrollNum}}</div>
+                    </td>
+                    <td>
                         <div ng-if='m.user.remark_other_num'>{{m.user.remark_other_num}}</div>
                         <div ng-if='m.remark_other_num'>{{m.remark_other_num}}</div>
+                    </td>
+                    <td>
+                        <div ng-if="m.task.minRemarkNum">{{m.task.minRemarkNum}}</div>
+                    </td>
+                    <td>
+                        <div ng-if='m.user.like_other_num'>{{m.user.like_other_num}}</div>
+                        <div ng-if='m.like_other_num'>{{m.like_other_num}}</div>
+                    </td>
+                    <td>
+                        <div ng-if="m.task.minLikeNum">{{m.task.minLikeNum}}</div>
                     </td>
                     <td>
                         <div ng-if='m.user.user_total_coin'>{{m.user.user_total_coin}}</div>
@@ -82,16 +96,7 @@
                     </td>
                     <td>
                         <div ng-if="m.tmplmsg">{{m._tmpStatus[0]}}</div>
-                    </td>
-                    <td>
-                        <div ng-if="m.task.minEnrollNum">{{m.task.minEnrollNum}}</div>
-                    </td>
-                    <td>
-                        <div ng-if="m.task.minRemarkNum">{{m.task.minRemarkNum}}</div>
-                    </td>
-                    <td>
-                        <div ng-if="m.task.minLikeNum">{{m.task.minLikeNum}}</div>
-                    </td>
+                    </td>                                     
                 </tr>
             </tbody>
         </table>

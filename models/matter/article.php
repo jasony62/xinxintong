@@ -167,13 +167,6 @@ class article_model extends article_base {
 		return $articles;
 	}
 	/**
-	 * 获得文章的标签
-	 */
-	public function &tags($id) {
-		$tags = $this->M('tag')->tagsByRes($id, 'article');
-		return $tags;
-	}
-	/**
 	 * 当前访问用户是否已经点了赞
 	 */
 	public function praised(&$user, $articleId) {

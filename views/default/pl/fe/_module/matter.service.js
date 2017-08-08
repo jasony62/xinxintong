@@ -215,6 +215,101 @@ provider('srvSite', function() {
         };
     }];
 }).
+provider('srvTag', function() {
+    var _siteId;
+    this.config = function(siteId) {
+        _siteId = siteId;
+    };
+    this.$get = ['$q', '$uibModal', 'http2', function($q, $uibModal, http2) {
+        return {
+            _tagMatter : function(matter, oTags, subType) {
+                var oApp, oTags, tagsOfData, template;
+                oApp = matter;
+                template = '<div class="modal-header">';
+                template += '<h5 class="modal-title">打标签 - {{tagTitle}}</h5>';
+                template += '</div>';
+                template += '<div class="modal-body">';
+                template += '<div class=\'list-group\' style=\'max-height:300px;overflow-y:auto\'>';
+                template += '<div class=\'list-group-item\' ng-repeat="tag in apptags">';
+                template += '<label class=\'checkbox-inline\'>';
+                template += '<input type=\'checkbox\' ng-model="model.selected[$index]"> {{tag.title}}</label>';
+                template += '</div>';
+                template += '</div>';
+                template += '<div class=\'form-group\'>';
+                template += '<div class=\'input-group\'>';
+                template += '<input class=\'form-control\' ng-model="model.newtag">';
+                template += '<div class=\'input-group-btn\'>';
+                template += '<button class=\'btn btn-default\' ng-click="createTag()"><span class=\'glyphicon glyphicon-plus\'></span></button>';
+                template += '</div>';
+                template += '</div>';
+                template += '</div>';
+                template += '</div>';
+                template += '<div class="modal-footer">';
+                template += '<button class="btn btn-default" ng-click="cancel()">关闭</button>';
+                template += '<button class="btn btn-primary" ng-click="ok()">设置标签</button>';
+                template += '</div>';
+                $uibModal.open({
+                    template: template,
+                    controller: ['$scope', '$uibModalInstance', function($scope2, $mi) {
+                        var model;
+                        $scope2.apptags = oTags;
+
+                        if (subType === 'C') {
+                            tagsOfData = oApp.matter_cont_tag;
+                            $scope2.tagTitle = '内容标签';
+                        } else {
+                            tagsOfData = oApp.matter_mg_tag;
+                            $scope2.tagTitle = '管理标签';
+                        }
+                        $scope2.model = model = {
+                            selected: []
+                        };
+                        if (tagsOfData) {
+                            tagsOfData.forEach(function(oTag) {
+                                var index;
+                                if (-1 !== (index = $scope2.apptags.indexOf(oTag))) {
+                                    model.selected[$scope2.apptags.indexOf(oTag)] = true;
+                                }
+                            });
+                        }
+                        $scope2.createTag = function() {
+                            var newTags;
+                            if ($scope2.model.newtag) {
+                                newTags = $scope2.model.newtag.replace(/\s/, ',');
+                                newTags = newTags.split(',');
+                                http2.post('/rest/pl/fe/matter/tag/create?site=' + oApp.siteid + '&subType=' + subType, newTags, function(rsp) {
+                                    rsp.data.forEach(function(oNewTag) {
+                                        $scope2.apptags.push(oNewTag);
+                                    });
+                                });
+                                $scope2.model.newtag = '';
+                            }
+                        };
+                        $scope2.cancel = function() { $mi.dismiss(); };
+                        $scope2.ok = function() {
+                            var addMatterTag = [];
+                            model.selected.forEach(function(selected, index) {
+                                if (selected) {
+                                    addMatterTag.push($scope2.apptags[index]);
+                                }
+                            });
+                            var url = '/rest/pl/fe/matter/tag/add?site=' + oApp.siteid + '&resId=' + oApp.id + '&resType=' + oApp.type + '&subType=' + subType;
+                            http2.post(url, addMatterTag, function(rsp) {
+                                if (subType === 'C') {
+                                    matter.matter_cont_tag = addMatterTag;
+                                } else {
+                                    matter.matter_mg_tag = addMatterTag;
+                                }
+                            });
+                            $mi.close();
+                        };
+                    }],
+                    backdrop: 'static',
+                });
+            }
+        };
+    }];
+}).
 provider('srvQuickEntry', function() {
     var siteId;
     this.setSiteId = function(id) {

@@ -297,11 +297,8 @@ class main extends \pl\fe\matter\base {
 		$modelArt = $this->model('matter\article');
 		$modelArt->setOnlyWriteDbConn(true);
 		$modelLog = $this->model('matter\log');
-		$modelTag = $this->model('tag');
 
 		$copied = $modelArt->byId($id);
-		/*获取原图文的内容标签*/
-		$tags = $modelTag->tagsByRes($copied->id, 'article', 0);
 		/*获取元图文的团队名称*/
 		$fromSite = $this->model('site')->byId($site, ['fields' => 'name']);
 		$current = time();
@@ -320,6 +317,7 @@ class main extends \pl\fe\matter\base {
 		$article->hide_pic = $copied->hide_pic;
 		$article->url = $copied->url;
 		$article->can_siteuser = $copied->can_siteuser;
+		$article->matter_cont_tag = empty($copied->matter_cont_tag)? '' : json_encode($copied->matter_cont_tag);
 		$article->from_siteid = $modelArt->escape($site);
 		$article->from_site_name = $modelArt->escape($fromSite->name);
 		$article->from_id = $modelArt->escape($id);
@@ -347,13 +345,6 @@ class main extends \pl\fe\matter\base {
 				$modelMis = $this->model('matter\mission');
 				$modelMis->addMatter($user, $site, $mission, $article);
 			}
-			/*建立图文和内容标签之间的关系*/
-			if (!empty($tags)) {
-				foreach ($tags as $tag) {
-					unset($tag->id);
-				}
-				$this->model('tag')->save($site, $article->id, 'article', 0, $tags, null);
-			}
 
 		} else {
 			if ($mode === 'D') {
@@ -375,14 +366,6 @@ class main extends \pl\fe\matter\base {
 				}
 
 				$article->id = $modelArt->insert('xxt_article', $article, true);
-				/*建立图文和内容标签之间的关系*/
-				if (!empty($tags)) {
-					foreach ($tags as $tag) {
-//此操作如果放在循环外，第二次循环会出现$tag->id，因为在save方法中被加上了
-						unset($tag->id);
-					}
-					$modelTag->save($siteid, $article->id, 'article', 0, $tags, null);
-				}
 
 				/* 记录操作日志 */
 				$article->type = 'article';

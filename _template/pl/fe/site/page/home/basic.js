@@ -24,6 +24,12 @@ ngApp.provider.controller('ctrlHome', ['$scope', '$http', 'tmsFavor', 'tmsForwar
             $scope.templates = rsp.data;
         });
     }
+
+    function tagMatters() {
+        $http.get('/rest/pl/fe/matter/tag/listTags?site=' + siteId + '&subType=C').success(function(rsp) {
+            $scope.oTagsC = rsp.data;
+        });
+    };
     $scope.moreMatters = function(id) {
         $scope.cTotal[id].pageAt++;
         $scope.page.at = $scope.cTotal[id].pageAt;
@@ -52,6 +58,19 @@ ngApp.provider.controller('ctrlHome', ['$scope', '$http', 'tmsFavor', 'tmsForwar
                     data.data = rsp.data;
                     data.total = rsp.data.length;
                     data.pageAt = $scope.page.at;
+                    if(data.total > 0){
+                        data.data.forEach(function(matter, index1) {
+                            if(matter.matter_cont_tag != '' && matter.matter_cont_tag != undefined){
+                                matter.matter_cont_tag.forEach(function(mTag, index2) {
+                                    $scope.oTagsC.forEach(function(oTag) {
+                                        if (oTag.id === mTag) {
+                                            matter.matter_cont_tag[index2] = oTag;
+                                        }
+                                    });
+                                });
+                            }
+                        });
+                    }
                     $scope.cTotal[chid] = data;
                 });
             });
@@ -109,6 +128,7 @@ ngApp.provider.controller('ctrlHome', ['$scope', '$http', 'tmsFavor', 'tmsForwar
     goTop.addEventListener('click', function() {
         document.querySelector('body').scrollTop = 0;
     });
+    tagMatters();
     listTemplates();
     c_listChannels();
     r_listChannels();

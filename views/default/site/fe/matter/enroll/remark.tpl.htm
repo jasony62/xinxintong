@@ -15,7 +15,7 @@
 <body ng-app='app' ng-controller='ctrlMain'>
     <header ng-if="app.use_site_header==='Y'" dynamic-html="site.header_page.html"></header>
     <header ng-if="app.use_mission_header==='Y'" dynamic-html="mission.header_page.html"></header>
-    <nav class='navbar navbar-default main-navbar'>
+    <nav class='navbar navbar-default main-navbar row'>
         <div class='container'>
             <div class="navbar-header">
                 <a href="" class="navbar-brand">
@@ -46,7 +46,7 @@
                                     <a href='' ng-click="gotoRecord()" ng-if="record.userid===user.uid">查看记录</a>
                                 </li>
                                 <li>
-                                    <a href='' ng-click="openOptions()" nh-if="remarkableSchemas.length">查看其他题目</a>
+                                    <a href='' ng-click="openOptions()" ng-if="remarkableSchemas.length">查看其他题目</a>
                                 </li>
                             </ul>
                         </div>

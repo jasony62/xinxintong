@@ -26,7 +26,13 @@ class user extends \pl\fe\matter\base {
 		if (false === $oApp) {
 			return new \ObjectNotFoundError();
 		}
-
+		if(!empty($oApp->group_app_id)){
+			foreach ($oApp->dataSchemas as $schema) {
+				if($schema->id=='_round_id'){
+					$ops=$schema->ops;
+				}
+			}
+		}
 		$modelUsr = $this->model('matter\enroll\user');
 		$options = [];
 		!empty($rid) && $options['rid'] = $rid;
@@ -49,9 +55,16 @@ class user extends \pl\fe\matter\base {
 					$user->tmplmsg = new \stdClass;
 				}
 				$user->task=$oApp->userTask;
+				if(isset($ops) && $user->group_id){
+					foreach ($ops as $v) {
+						if($v->v==$user->group_id){
+							$user->group=$v;
+						}
+					}
+				}
 			}
 		}
-
+		
 		return new \ResponseData($result);
 	}
 	/**

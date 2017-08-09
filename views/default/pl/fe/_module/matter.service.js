@@ -223,7 +223,8 @@ provider('srvTag', function() {
     this.$get = ['$q', '$uibModal', 'http2', function($q, $uibModal, http2) {
         return {
             _tagMatter : function(matter, oTags, subType) {
-                var oApp, oTags, tagsOfData, template;
+                var oApp, oTags, tagsOfData, template, defer;
+                defer = $q.defer();
                 oApp = matter;
                 template = '<div class="modal-header">';
                 template += '<h5 class="modal-title">打标签 - {{tagTitle}}</h5>';
@@ -285,7 +286,7 @@ provider('srvTag', function() {
                                 $scope2.model.newtag = '';
                             }
                         };
-                        $scope2.cancel = function() { $mi.dismiss(); };
+                        $scope2.cancel = function() { $mi.dismiss(); defer.resolve();};
                         $scope2.ok = function() {
                             var addMatterTag = [];
                             model.selected.forEach(function(selected, index) {
@@ -302,10 +303,12 @@ provider('srvTag', function() {
                                 }
                             });
                             $mi.close();
+                            defer.resolve();
                         };
                     }],
                     backdrop: 'static',
                 });
+                return defer.promise;
             }
         };
     }];

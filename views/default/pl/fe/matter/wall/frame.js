@@ -1,7 +1,7 @@
 define(['require', 'wallService'], function(require) {
     'use strict';
     var ngApp = angular.module('app', ['ngRoute', 'ui.tms', 'ui.xxt', 'ui.bootstrap', 'service.matter', 'service.wall']);
-    ngApp.config(['$controllerProvider', '$routeProvider', '$locationProvider', '$compileProvider', 'srvSiteProvider', 'srvWallAppProvider', function($controllerProvider, $routeProvider, $locationProvider, $compileProvider, srvSiteProvider, srvWallAppProvider) {
+    ngApp.config(['$controllerProvider', '$routeProvider', '$locationProvider', '$compileProvider', 'srvSiteProvider', 'srvWallAppProvider', 'srvTagProvider', function($controllerProvider, $routeProvider, $locationProvider, $compileProvider, srvSiteProvider, srvWallAppProvider, srvTagProvider) {
         var RouteParam = function(name) {
             var baseURL = '/views/default/pl/fe/matter/wall/';
             this.templateUrl = baseURL + name + '.html?_=' + (new Date() * 1);
@@ -36,6 +36,7 @@ define(['require', 'wallService'], function(require) {
             siteId = ls.match(/[\?&]site=([^&]*)/)[1];
             wallId = ls.match(/[\?&]id=([^&]*)/)[1];
             srvSiteProvider.config(siteId);
+            srvTagProvider.config(siteId);
             //
             srvWallAppProvider.config(siteId, wallId);
         })();

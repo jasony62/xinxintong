@@ -164,7 +164,7 @@ ngApp.controller('ctrlMain', ['$scope', 'http2', 'mediagallery', '$uibModal', 's
         var oTags;
         oTags = $scope.oTag;
         srvTag._tagMatter($scope.editing, oTags, subType);
-    }
+    };
     $scope.$watch('editing.urlsrc', function(nv) {
         switch (nv) {
             case '1':

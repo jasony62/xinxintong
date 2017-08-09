@@ -29,7 +29,7 @@
             var oTags;
             oTags = $scope.oTag;
             srvTag._tagMatter($scope.app, oTags, subType);
-        }
+        };
 		$scope.$on('sub-channel.xxt.combox.done', function(event, data) {
 			var app = $scope.app;
 			app.params.subChannels === undefined && (app.params.subChannels = []);

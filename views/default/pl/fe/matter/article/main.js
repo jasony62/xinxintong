@@ -210,7 +210,7 @@ define(['frame'], function(ngApp) {
                 oTags = $scope.oTag;
             }
             srvTag._tagMatter($scope.editing, oTags, subType);
-        }
+        };
         $scope.delAttachment = function(index, att) {
             http2.get('/rest/pl/fe/matter/article/attachment/del?site=' + $scope.editing.siteid + '&id=' + att.id, function success(rsp) {
                 $scope.editing.attachments.splice(index, 1);

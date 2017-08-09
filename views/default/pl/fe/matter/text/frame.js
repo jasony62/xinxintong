@@ -59,7 +59,7 @@ ngApp.controller('ctrlSetting', ['$scope', 'http2', '$uibModal', 'srvTag', funct
         var oTags;
         oTags = $scope.oTag;
         srvTag._tagMatter($scope.editing, oTags, subType);
-    }
+    };
 	$scope.doSearch = function() {
 		var url = '/rest/pl/fe/matter/text/list?site=' + $scope.siteId,
 			params = {};

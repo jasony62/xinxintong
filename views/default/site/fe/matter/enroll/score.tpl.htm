@@ -34,37 +34,39 @@
     </nav>
     <div ng-cloak class='ng-cloak app'>
         <div class='container' ng-controller="ctrlScore">
-            <table class='table table-bordered'>
-                <tr>
-                    <td>总分</td>
-                    <td>{{record.score.sum}}</td>
-                </tr>
-            </table>
-            <div class="schema" ng-class="{fail:record.score[schema.id]==='0'}" ng-repeat="schema in quizSchemas" ng-switch on="schema.type">
-                <label><span>{{schema.title}}</span>&nbsp;&nbsp;<span>({{schema.score}}分)</span></label>
-                <div ng-switch-when="single">
-                    <dl>
-                        <dd ng-repeat="op in schema.ops">
-                            <span ng-class="{'answer':op.v===schema.answer}">{{op.l}}</span>
-                            <span ng-if="op.v===record.data[schema.id]" class='glyphicon' ng-class="{'glyphicon-ok':op.v===schema.answer,'glyphicon-remove':op.v!==schema.answer}"></span>
-                        </dd>
-                    </dl>
-                    <p class='user-answer'>你的回答：<span>{{value2Label(schema.id)}}</span></p>
+            <div class='row'>
+                <table class='table table-bordered'>
+                    <tr>
+                        <td>总分</td>
+                        <td>{{record.score.sum}}</td>
+                    </tr>
+                </table>
+                <div class="schema" ng-class="{fail:record.score[schema.id]==='0'}" ng-repeat="schema in quizSchemas" ng-switch on="schema.type">
+                    <label><span>{{schema.title}}</span>&nbsp;&nbsp;<span>({{schema.score}}分)</span></label>
+                    <div ng-switch-when="single">
+                        <dl>
+                            <dd ng-repeat="op in schema.ops">
+                                <span ng-class="{'answer':op.v===schema.answer}">{{op.l}}</span>
+                                <span ng-if="op.v===record.data[schema.id]" class='glyphicon' ng-class="{'glyphicon-ok':op.v===schema.answer,'glyphicon-remove':op.v!==schema.answer}"></span>
+                            </dd>
+                        </dl>
+                        <p class='user-answer'>你的回答：<span>{{value2Label(schema.id)}}</span></p>
+                    </div>
+                    <div ng-switch-when="multiple">
+                        <dl>
+                            <dd ng-repeat="op in schema.ops">
+                                <span ng-class="{'answer':schema.answer.indexOf(op.v)!==-1}">{{op.l}}</span>
+                                <span ng-if="record.data[schema.id].indexOf(op.v)!==-1" class='glyphicon' ng-class="schema.answer.indexOf(op.v)===-1?'glyphicon-remove':'glyphicon-ok'"></span>
+                            </dd>
+                        </dl>
+                        <p class='user-answer'>你的回答：<span>{{value2Label(schema.id)}}</span></p>
+                    </div>
+                    <div ng-switch-default>
+                        <p class='answer'>答案：{{schema.answer}}</p>
+                        <p class='user-answer'>你的回答：<span>{{record.data[schema.id]}}</span></p>
+                    </div>
+                    <p class='user-score'>你的得分：<span>{{record.score[schema.id]}}</span></p>
                 </div>
-                <div ng-switch-when="multiple">
-                    <dl>
-                        <dd ng-repeat="op in schema.ops">
-                            <span ng-class="{'answer':schema.answer.indexOf(op.v)!==-1}">{{op.l}}</span>
-                            <span ng-if="record.data[schema.id].indexOf(op.v)!==-1" class='glyphicon' ng-class="schema.answer.indexOf(op.v)===-1?'glyphicon-remove':'glyphicon-ok'"></span>
-                        </dd>
-                    </dl>
-                    <p class='user-answer'>你的回答：<span>{{value2Label(schema.id)}}</span></p>
-                </div>
-                <div ng-switch-default>
-                    <p class='answer'>答案：{{schema.answer}}</p>
-                    <p class='user-answer'>你的回答：<span>{{record.data[schema.id]}}</span></p>
-                </div>
-                <p class='user-score'>你的得分：<span>{{record.score[schema.id]}}</span></p>
             </div>
         </div>
     </div>
@@ -78,6 +80,9 @@
     <script src="/static/js/angular-sanitize.min.js"></script>
     <script src="/static/js/ui-bootstrap-tpls.min.js"></script>
     <script src="<?php echo auto_version('/bundles/default/site/fe/matter/enroll/score.js');?>"></script>
+    <div class="tms-switch tms-switch-task" ng-click="showUserTask($event)" ng-if="app.user_task"></div>
+    <div class="tms-switch tms-switch-repos" ng-click="gotoPage($event,'repos')" ng-if="app.can_repos==='Y'"></div>
+    <div class="tms-switch tms-switch-rank" ng-click="gotoPage($event,'rank')" ng-if="app.can_rank==='Y'"></div>
 </body>
 
 </html>

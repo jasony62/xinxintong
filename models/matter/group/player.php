@@ -312,7 +312,7 @@ class player_model extends \TMS_MODEL {
 			}
 		}
 		$q = [
-			'e.enroll_key,e.enroll_at,e.comment,e.tags,e.data,e.nickname,e.wx_openid,e.yx_openid,e.qy_openid,e.headimgurl,e.userid,e.round_id,e.round_title',
+			'e.enroll_key,e.enroll_at,e.comment,e.tags,e.data,e.nickname,e.is_leader,e.wx_openid,e.yx_openid,e.qy_openid,e.headimgurl,e.userid,e.round_id,e.round_title',
 			"xxt_group_player e",
 			$w,
 		];

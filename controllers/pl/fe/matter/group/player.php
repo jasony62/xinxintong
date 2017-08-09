@@ -717,6 +717,9 @@ class player extends \pl\fe\matter\base {
 
 		/* 更新记录数据 */
 		$record = new \stdClass;
+		if (isset($player->is_leader)) {
+			$record->is_leader = $player->is_leader === 'Y' ? 'Y' : 'N';
+		}
 		if (isset($player->comment)) {
 			$record->comment = $player->comment;
 		}

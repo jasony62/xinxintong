@@ -161,5 +161,5 @@ ngApp.controller('ctrlSetting', ['$scope', 'http2', 'mattersgallery', '$uibModal
 	$scope.tagMatter = function(subType){
         var oTags = $scope.oTag;
         srvTag._tagMatter($scope.editing, oTags, subType);
-    }
+    };
 }]);

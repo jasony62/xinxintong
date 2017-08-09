@@ -231,7 +231,7 @@ ngApp.controller('ctrlMain', ['$scope', 'http2', 'mattersgallery', 'noticebox', 
         var oTags;
         oTags = $scope.oTag;
         srvTag._tagMatter($scope.editing, oTags, subType);
-    }
+    };
     $scope.$watch('editing', function(nv) {
         if (!nv) return;
         arrangeMatters();

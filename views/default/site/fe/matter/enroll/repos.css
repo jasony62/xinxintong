@@ -1,7 +1,7 @@
-html,body{height:100%;width:100%;font-family:Microsoft Yahei,Arial;}
+html,body{height:auto;width:100%;font-family:Microsoft Yahei,Arial;}
 body{position:relative;font-size:16px;padding:15px;}
 img{max-width:100%}
-.app{margin-bottom:64px;margin-top:15px;}
+.app{margin-top:15px;}
 header{margin:-15px -15px 0 -15px;}
 footer{margin:0 -15px -15px -15px;}
 
@@ -13,7 +13,7 @@ footer{margin:0 -15px -15px -15px;}
 #advCriteria .form-group:last-child{margin-bottom:0;}
 
 /*record*/
-#repos{background:#fff;padding:1rem;margin-bottom:64px;}
+#repos{background:#fff;padding:1rem 0;}
 #repos p{word-break:break-all;}
 #repos .record .glyphicon-heart{color:red;}
 #repos .record{border-bottom:1px solid #ddd;}

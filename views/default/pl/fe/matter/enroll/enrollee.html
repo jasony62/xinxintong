@@ -32,18 +32,19 @@
                     <th ng-if='criteria.mschema.attr_mobile[0]==0'>手机号</th>
                     <th ng-if='criteria.mschema.attr_email[0]==0'>电子邮件</th>
                     <th ng-repeat='ea in criteria.mschema.extattr'>{{ea.label}}</th>
+                    <th ng-if="app.group_app_id">分组</th>
                     <th>记录</th>
-                    <th>要求每用户至少填写记录条数</th>
+                    <th>要求记录数</th>
                     <th>评论</th>
-                    <th>要求每用户至少发表评论条数</th>
+                    <th>要求评论数</th>
                     <th>点赞</th>
-                    <th>要求每用户至少赞同的条数</th>
+                    <th>要求赞同数</th>
                     <th>积分</th>
                     <th ng-if="sns.wx.joined=='Y'">是否关联微信</th>
                     <th ng-if="sns.yx.joined=='Y'">是否关联易信</th>
                     <th ng-if="sns.qy.joined=='Y'">是否关联微企</th>
                     <th>最后一次通知发送时间</th>
-                    <th>最后一次通知发送结果</th>                                      
+                    <th>最后一次通知发送结果</th>
                 </tr>
             </thead>
             <tbody>
@@ -57,6 +58,9 @@
                     <td ng-if='criteria.mschema.attr_mobile[0]==0'>{{m.mobile}}</td>
                     <td ng-if='criteria.mschema.attr_email[0]==0'>{{m.email}}</td>
                     <td ng-repeat='ea in criteria.mschema.extattr'>{{m.extattr[ea.id]}}</td>
+                    <td ng-if='app.group_app_id'>
+                        <div ng-if='m.group'>{{m.group.l}}</div>
+                    </td>
                     <td>
                         <div ng-if='m.user.enroll_num'>{{m.user.enroll_num}}</div>
                         <div ng-if='m.enroll_num'>{{m.enroll_num}}</div>
@@ -96,7 +100,7 @@
                     </td>
                     <td>
                         <div ng-if="m.tmplmsg">{{m._tmpStatus[0]}}</div>
-                    </td>                                     
+                    </td>
                 </tr>
             </tbody>
         </table>

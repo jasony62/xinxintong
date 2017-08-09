@@ -536,6 +536,7 @@ $sql .= ",wx_openid varchar(255) not null default ''";
 $sql .= ",yx_openid varchar(255) not null default ''";
 $sql .= ",qy_openid varchar(255) not null default ''";
 $sql .= ",headimgurl varchar(255) not null default ''";
+$sql .= ",is_leader char(1) not null default 'N'"; // 是否为组长
 $sql .= ",enroll_key varchar(32) not null";
 $sql .= ",enroll_at int not null"; // 填写报名信息时间
 $sql .= ",tags text";

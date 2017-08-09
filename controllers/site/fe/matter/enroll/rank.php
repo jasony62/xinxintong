@@ -142,7 +142,17 @@ class rank extends base {
 		if ($oApp === false) {
 			return new \ObjectNotFoundError();
 		}
-
+		if (!empty($oApp->group_app_id)) {
+			foreach ($oApp->dataSchemas as $oSchema) {
+				if ($oSchema->id === '_round_id') {
+					$aAssocGroups = [];
+					foreach ($oSchema->ops as $op) {
+						$aAssocGroups[$op->v] = $op->l;
+					}
+					break;
+				}
+			}
+		}
 		$oCriteria = $this->getPostJson();
 		if (empty($oCriteria->orderby)) {
 			return new \ParameterError();
@@ -153,6 +163,9 @@ class rank extends base {
 			'xxt_enroll_record_data',
 			"aid='{$oApp->id}'",
 		];
+		if (!empty($aAssocGroups)) {
+			$q[0] .= ',group_id';
+		}
 		if (isset($oCriteria->agreed) && $oCriteria->agreed === 'Y') {
 			$q[2] .= " and agreed='Y'";
 		}
@@ -182,6 +195,9 @@ class rank extends base {
 					if (isset($oRec->supplement->{$record->schema_id})) {
 						$record->supplement = $oRec->supplement->{$record->schema_id};
 					}
+				}
+				if (!empty($aAssocGroups) && !empty($record->group_id)) {
+					$record->group_title = isset($aAssocGroups[$record->group_id]) ? $aAssocGroups[$record->group_id] : '';
 				}
 			}
 		}

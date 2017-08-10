@@ -1,7 +1,7 @@
 define(['frame'], function(ngApp) {
     'use strict';
     ngApp.provider.controller('ctrlMain', ['$scope', function($scope) {}]);
-    ngApp.provider.controller('ctrlSetting', ['$scope', 'http2', '$uibModal', 'mediagallery', function($scope, http2, $uibModal, mediagallery) {
+    ngApp.provider.controller('ctrlSetting', ['$scope', 'http2', '$uibModal', 'mediagallery', 'srvTag', function($scope, http2, $uibModal, mediagallery, srvTag) {
         $scope.$watch('mission', function(oMission) {
             if (!oMission) return;
             $scope.entry = { url: oMission.entryUrl }
@@ -104,68 +104,10 @@ define(['frame'], function(ngApp) {
                 });
             }
         };
-        $scope.tagMatter = function(subType) {
-            var oApp, oTags, tagsOfData;
-            oApp = $scope.mission;
+        $scope.tagMatter = function(subType){
+            var oTags;
             oTags = $scope.oTag;
-            $uibModal.open({
-                templateUrl: 'tagMatter.html',
-                controller: ['$scope', '$uibModalInstance', function($scope2, $mi) {
-                    var model;
-                    $scope2.apptags = oTags;
-
-                    if (subType === 'C') {
-                        tagsOfData = oApp.matter_cont_tag;
-                        $scope2.tagTitle = '内容标签';
-                    } else {
-                        tagsOfData = oApp.matter_mg_tag;
-                        $scope2.tagTitle = '管理标签';
-                    }
-                    $scope2.model = model = {
-                        selected: []
-                    };
-                    if (tagsOfData) {
-                        tagsOfData.forEach(function(oTag) {
-                            var index;
-                            if (-1 !== (index = $scope2.apptags.indexOf(oTag))) {
-                                model.selected[$scope2.apptags.indexOf(oTag)] = true;
-                            }
-                        });
-                    }
-                    $scope2.createTag = function() {
-                        var newTags;
-                        if ($scope2.model.newtag) {
-                            newTags = $scope2.model.newtag.replace(/\s/, ',');
-                            newTags = newTags.split(',');
-                            http2.post('/rest/pl/fe/matter/tag/create?site=' + oApp.siteid, newTags, function(rsp) {
-                                rsp.data.forEach(function(oNewTag) {
-                                    $scope2.apptags.push(oNewTag);
-                                });
-                            });
-                            $scope2.model.newtag = '';
-                        }
-                    };
-                    $scope2.cancel = function() { $mi.dismiss(); };
-                    $scope2.ok = function() {
-                        var addMatterTag = [];
-                        model.selected.forEach(function(selected, index) {
-                            if (selected) {
-                                addMatterTag.push($scope2.apptags[index]);
-                            }
-                        });
-                        var url = '/rest/pl/fe/matter/tag/add?site=' + oApp.siteid + '&resId=' + oApp.id + '&resType=' + oApp.type + '&subType=' + subType;
-                        http2.post(url, addMatterTag, function(rsp) {
-                            if (subType === 'C') {
-                                $scope.mission.matter_cont_tag = addMatterTag;
-                            } else {
-                                $scope.mission.matter_mg_tag = addMatterTag;
-                            }
-                        });
-                        $mi.close();
-                    };
-                }],
-                backdrop: 'static',
-            });
+            srvTag._tagMatter($scope.mission, oTags, subType);
         };
     }]);
     ngApp.provider.controller('ctrlPhase', ['$scope', 'http2', 'noticebox', function($scope, http2, noticebox) {

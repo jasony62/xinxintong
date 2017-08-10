@@ -1,5 +1,5 @@
 define(['frame'], function(ngApp) {
-    ngApp.provider.controller('ctrlMain', ['$scope', '$uibModal', 'http2', 'noticebox', 'mattersgallery', 'mediagallery', 'noticebox', 'srvApp', 'cstApp', 'tmsThumbnail', '$timeout', function($scope, $uibModal, http2, noticebox, mattersgallery, mediagallery, noticebox, srvApp, cstApp, tmsThumbnail, $timeout) {
+    ngApp.provider.controller('ctrlMain', ['$scope', '$uibModal', 'http2', 'noticebox', 'mattersgallery', 'mediagallery', 'noticebox', 'srvApp', 'cstApp', 'tmsThumbnail', '$timeout', 'srvTag', function($scope, $uibModal, http2, noticebox, mattersgallery, mediagallery, noticebox, srvApp, cstApp, tmsThumbnail, $timeout, srvTag) {
         (function() {
             new ZeroClipboard(document.querySelectorAll('.text2Clipboard'));
         })();
@@ -124,6 +124,40 @@ define(['frame'], function(ngApp) {
                 }
             }, options);
         };
+        var insertLink = function(data) {
+            var editor, dom, html;
+            if (data.url.length > 0) {
+                editor = tinymce.get('body1');
+                dom = editor.dom;
+                html = dom.createHTML('p', {},
+                    dom.createHTML('a', {
+                            style: 'display:block',
+                            href: data.url,
+                        }, dom.encode(data.text)));
+                editor.insertContent('<p>&nbsp;</p>' + html + '<p>&nbsp;</p>');
+            }
+        }
+        $scope.embedLink = function() {
+            $uibModal.open({
+                templateUrl: 'insertMedia.html',
+                controller: ['$uibModalInstance', '$scope', function($mi, $scope) {
+                    $scope.embedType = 'link';
+                    $scope.data = {
+                        url: '',
+                        text: ''
+                    };
+                    $scope.cancel = function() {
+                        $mi.dismiss()
+                    };
+                    $scope.ok = function() {
+                        $mi.close($scope.data)
+                    };
+                }],
+                backdrop: 'static',
+            }).result.then(function(data) {
+                insertLink(data);
+            });
+        }
         var insertVideo = function(url) {
             var editor, dom, html;
             if (url.length > 0) {
@@ -139,7 +173,8 @@ define(['frame'], function(ngApp) {
                             'source', {
                                 src: url,
                                 type: "video/mp4",
-                            })
+                            }
+                        )
                     )
                 );
                 editor.insertContent('<p>&nbsp;</p>' + html + '<p>&nbsp;</p>');
@@ -149,6 +184,7 @@ define(['frame'], function(ngApp) {
             $uibModal.open({
                 templateUrl: 'insertMedia.html',
                 controller: ['$uibModalInstance', '$scope', function($mi, $scope) {
+                    $scope.embedType = 'video';
                     $scope.data = {
                         url: ''
                     };
@@ -177,97 +213,33 @@ define(['frame'], function(ngApp) {
             }
         };
         $scope.embedAudio = function() {
-            if ($scope.mpaccount._env.SAE) {
-                $uibModal.open({
-                    templateUrl: 'insertMedia.html',
-                    controller: ['$uibModalInstance', '$scope', function($mi, $scope) {
-                        $scope.data = {
-                            url: ''
-                        };
-                        $scope.cancel = function() {
-                            $mi.dismiss()
-                        };
-                        $scope.ok = function() {
-                            $mi.close($scope.data)
-                        };
-                    }],
-                    backdrop: 'static',
-                }).result.then(function(data) {
-                    insertAudio(data.url);
-                });
-            } else {
-                $scope.$broadcast('mediagallery.open', {
-                    mediaType: '音频',
-                    callback: insertAudio
-                });
-            }
+            $uibModal.open({
+                templateUrl: 'insertMedia.html',
+                controller: ['$uibModalInstance', '$scope', function($mi, $scope) {
+                    $scope.embedType = 'audio';
+                    $scope.data = {
+                        url: ''
+                    };
+                    $scope.cancel = function() {
+                        $mi.dismiss()
+                    };
+                    $scope.ok = function() {
+                        $mi.close($scope.data)
+                    };
+                }],
+                backdrop: 'static',
+            }).result.then(function(data) {
+                insertAudio(data.url);
+            });
         };
-        $scope.tagMatter = function(subType) {
-            var oApp, oTags, tagsOfData;
-            oApp = $scope.editing;
+        $scope.tagMatter = function(subType){
+            var oTags;
             if (subType === 'C') {
                 oTags = $scope.oTagC;
             } else {
                 oTags = $scope.oTag;
             }
-            $uibModal.open({
-                templateUrl: 'tagMatter.html',
-                controller: ['$scope', '$uibModalInstance', function($scope2, $mi) {
-                    var model;
-                    $scope2.apptags = oTags;
-
-                    if (subType === 'C') {
-                        tagsOfData = oApp.matter_cont_tag;
-                        $scope2.tagTitle = '内容标签';
-                    } else {
-                        tagsOfData = oApp.matter_mg_tag;
-                        $scope2.tagTitle = '管理标签';
-                    }
-                    $scope2.model = model = {
-                        selected: []
-                    };
-                    if (tagsOfData) {
-                        tagsOfData.forEach(function(oTag) {
-                            var index;
-                            if (-1 !== (index = $scope2.apptags.indexOf(oTag))) {
-                                model.selected[$scope2.apptags.indexOf(oTag)] = true;
-                            }
-                        });
-                    }
-                    $scope2.createTag = function() {
-                        var newTags;
-                        if ($scope2.model.newtag) {
-                            newTags = $scope2.model.newtag.replace(/\s/, ',');
-                            newTags = newTags.split(',');
-                            http2.post('/rest/pl/fe/matter/tag/create?site=' + oApp.siteid + '&subType=' + subType, newTags, function(rsp) {
-                                rsp.data.forEach(function(oNewTag) {
-                                    $scope2.apptags.push(oNewTag);
-                                });
-                            });
-                            $scope2.model.newtag = '';
-                        }
-                    };
-                    $scope2.cancel = function() { $mi.dismiss(); };
-                    $scope2.ok = function() {
-                        var addMatterTag = [];
-                        model.selected.forEach(function(selected, index) {
-                            if (selected) {
-                                addMatterTag.push($scope2.apptags[index]);
-                            }
-                        });
-                        var url = '/rest/pl/fe/matter/tag/add?site=' + oApp.siteid + '&resId=' + oApp.id + '&resType=' + oApp.type + '&subType=' + subType;
-                        http2.post(url, addMatterTag, function(rsp) {
-                            if (subType === 'C') {
-                                $scope.editing.matter_cont_tag = addMatterTag;
-                            } else {
-                                $scope.editing.matter_mg_tag = addMatterTag;
-                            }
-                        });
-                        $mi.close();
-                    };
-                }],
-                backdrop: 'static',
-            });
+            srvTag._tagMatter($scope.editing, oTags, subType);
         };
         $scope.delAttachment = function(index, att) {
             http2.get('/rest/pl/fe/matter/article/attachment/del?site=' + $scope.editing.siteid + '&id=' + att.id, function success(rsp) {

@@ -86,7 +86,11 @@ ngApp.controller('ctrlRank', ['$scope', '$q', '$sce', 'http2', 'ls', function($s
                     break;
                 case 'data':
                     if (data.records) {
+                        console.log(data.records);
                         data.records.forEach(function(record) {
+                            if (oApp._schemasById[record.schema_id].type == 'file') {
+                                record.value = angular.fromJson(record.value);
+                            }
                             record._agreed = oAgreedLabel[record.agreed] || '';
                             $scope.records.push(record);
                         });

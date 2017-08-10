@@ -117,6 +117,7 @@
                                 <th style='width:4em'></th>
                                 <th>提交内容</th>
                                 <th style='width:6em'>用户</th>
+                                <th style='width:6em' ng-if="app.group_app_id">分组</th>
                                 <th style='width:3em'></th>
                                 <th style='width:2em'></th>
                             </tr>
@@ -139,6 +140,7 @@
                                     <span ng-switch-default>{{rec.value}}</span>
                                 </td>
                                 <td><span>{{rec.nickname}}</span></td>
+                                <td ng-if="app.group_app_id"><span>{{rec.group_title}}</span></td>
                                 <td class='text-right'><span>{{rec[appState.criteria.orderby+'_num']}}</span></td>
                                 <td><span class='glyphicon glyphicon-menu-right'></span></td>
                             </tr>

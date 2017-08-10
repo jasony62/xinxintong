@@ -124,6 +124,40 @@ define(['frame'], function(ngApp) {
                 }
             }, options);
         };
+        var insertLink = function(data) {
+            var editor, dom, html;
+            if (data.url.length > 0) {
+                editor = tinymce.get('body1');
+                dom = editor.dom;
+                html = dom.createHTML('p', {},
+                    dom.createHTML('a', {
+                            style: 'display:block',
+                            href: data.url,
+                        }, dom.encode(data.text)));
+                editor.insertContent('<p>&nbsp;</p>' + html + '<p>&nbsp;</p>');
+            }
+        }
+        $scope.embedLink = function() {
+            $uibModal.open({
+                templateUrl: 'insertMedia.html',
+                controller: ['$uibModalInstance', '$scope', function($mi, $scope) {
+                    $scope.embedType = 'link';
+                    $scope.data = {
+                        url: '',
+                        text: ''
+                    };
+                    $scope.cancel = function() {
+                        $mi.dismiss()
+                    };
+                    $scope.ok = function() {
+                        $mi.close($scope.data)
+                    };
+                }],
+                backdrop: 'static',
+            }).result.then(function(data) {
+                insertLink(data);
+            });
+        }
         var insertVideo = function(url) {
             var editor, dom, html;
             if (url.length > 0) {
@@ -139,7 +173,8 @@ define(['frame'], function(ngApp) {
                             'source', {
                                 src: url,
                                 type: "video/mp4",
-                            })
+                            }
+                        )
                     )
                 );
                 editor.insertContent('<p>&nbsp;</p>' + html + '<p>&nbsp;</p>');
@@ -149,6 +184,7 @@ define(['frame'], function(ngApp) {
             $uibModal.open({
                 templateUrl: 'insertMedia.html',
                 controller: ['$uibModalInstance', '$scope', function($mi, $scope) {
+                    $scope.embedType = 'video';
                     $scope.data = {
                         url: ''
                     };
@@ -177,30 +213,24 @@ define(['frame'], function(ngApp) {
             }
         };
         $scope.embedAudio = function() {
-            if ($scope.mpaccount._env.SAE) {
-                $uibModal.open({
-                    templateUrl: 'insertMedia.html',
-                    controller: ['$uibModalInstance', '$scope', function($mi, $scope) {
-                        $scope.data = {
-                            url: ''
-                        };
-                        $scope.cancel = function() {
-                            $mi.dismiss()
-                        };
-                        $scope.ok = function() {
-                            $mi.close($scope.data)
-                        };
-                    }],
-                    backdrop: 'static',
-                }).result.then(function(data) {
-                    insertAudio(data.url);
-                });
-            } else {
-                $scope.$broadcast('mediagallery.open', {
-                    mediaType: '音频',
-                    callback: insertAudio
-                });
-            }
+            $uibModal.open({
+                templateUrl: 'insertMedia.html',
+                controller: ['$uibModalInstance', '$scope', function($mi, $scope) {
+                    $scope.embedType = 'audio';
+                    $scope.data = {
+                        url: ''
+                    };
+                    $scope.cancel = function() {
+                        $mi.dismiss()
+                    };
+                    $scope.ok = function() {
+                        $mi.close($scope.data)
+                    };
+                }],
+                backdrop: 'static',
+            }).result.then(function(data) {
+                insertAudio(data.url);
+            });
         };
         $scope.tagMatter = function(subType){
             var oTags;

@@ -48,7 +48,7 @@ define(['require'], function() {
         ],
         naming: { 'mission_phase': '项目阶段' }
     });
-    ngApp.config(['$controllerProvider', '$routeProvider', '$locationProvider', '$compileProvider', 'srvQuickEntryProvider', 'srvSiteProvider', 'srvGroupAppProvider', 'srvGroupRoundProvider', function($controllerProvider, $routeProvider, $locationProvider, $compileProvider, srvQuickEntryProvider, srvSiteProvider, srvGroupAppProvider, srvGroupRoundProvider) {
+    ngApp.config(['$controllerProvider', '$routeProvider', '$locationProvider', '$compileProvider', 'srvQuickEntryProvider', 'srvSiteProvider', 'srvGroupAppProvider', 'srvGroupRoundProvider', 'srvTagProvider', function($controllerProvider, $routeProvider, $locationProvider, $compileProvider, srvQuickEntryProvider, srvSiteProvider, srvGroupAppProvider, srvGroupRoundProvider, srvTagProvider) {
         var RouteParam = function(name) {
             var baseURL = '/views/default/pl/fe/matter/group/';
             this.templateUrl = baseURL + name + '.html?_=' + (new Date() * 1);
@@ -82,6 +82,7 @@ define(['require'], function() {
             appId = ls.match(/[\?&]id=([^&]*)/)[1];
             //
             srvSiteProvider.config(siteId);
+            srvTagProvider.config(siteId);
             srvGroupAppProvider.config(siteId, appId);
             srvGroupRoundProvider.config(siteId, appId);
             srvQuickEntryProvider.setSiteId(siteId);

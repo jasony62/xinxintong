@@ -232,6 +232,7 @@ class record extends base {
 		} else {
 			$rid = '';
 		}
+		
 		/* 更新活动用户轮次数据 */
 		$oEnrollUsr = $modelUsr->byId($oEnrollApp, $oUser->uid, ['fields' => 'id,nickname,group_id,last_enroll_at,enroll_num,user_total_coin', 'rid' => $rid]);
 		if (false === $oEnrollUsr) {
@@ -294,6 +295,20 @@ class record extends base {
 					}
 				}
 			}
+			//更新分数
+			$users=$modelUsr->query_objs_ss([
+				'id,score',
+				'xxt_enroll_user',
+				"siteid='$oEnrollApp->siteid' and aid='$oEnrollApp->id' and userid='$oUser->uid' and rid !='ALL'"
+			]);
+			$total['sum']=0;
+			foreach ($users as $v) {
+				if(!empty($v->score)){
+					$v->score=json_decode($v->score);
+					$total['sum']+=$v->score->sum;
+				}
+			}
+			$upDataALL['score']=json_encode($total);
 			$modelUsr->update(
 				'xxt_enroll_user',
 				$upDataALL,

@@ -296,6 +296,14 @@ class record_model extends \TMS_MODEL {
 				}
 			}
 		}
+		//更新xxt_enroll_user的score字段
+		$d['rid']=$oRecord->rid;
+		$d['siteid']=$oApp->siteid;
+		$d['aid']=$oApp->id;
+		$d['userid']=$oRecord->userid;
+		$d['group_id']=$oRecord->group_id;
+		$d['nickname']=$oRecord->nickname;
+
 		/* 更新在登记记录上记录数据 */
 		$oRecordUpdated = [];
 		$oRecordUpdated['data'] = $this->escape($this->toJson($dbData));
@@ -304,6 +312,17 @@ class record_model extends \TMS_MODEL {
 		}
 		if(count($score)>1){
 			$oRecordUpdated['score'] = $this->escape($this->toJson($score));
+			$d['score']=$oRecordUpdated['score'];
+		}
+		$row=$this->query_obj_ss([
+			'id',
+			'xxt_enroll_user',
+			['siteid'=>$oApp->siteid,'aid'=>$oApp->id,'rid'=>$oRecord->rid,'userid'=>$oRecord->userid]
+		]);
+		if(empty($row)){
+			$this->insert('xxt_enroll_user',$d);
+		}else{
+			$this->update('xxt_enroll_user',$d,['id'=>$row->id]);
 		}
 		/* 记录提交日志 */
 		if ($firstSubmit === false) {

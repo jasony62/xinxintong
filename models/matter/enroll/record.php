@@ -77,9 +77,8 @@ class record_model extends \TMS_MODEL {
 		$siteId = $oApp->siteid;
 		$dbData = new \stdClass; // 处理后的保存到数据库中的登记记录
 		$schemasById = []; // 方便获取登记项定义
-
 		foreach ($oApp->dataSchemas as $schema) {
-			isset($schema->id) && $schemasById[$schema->id] = $schema;
+			$schemasById[$schema->id] = $schema;
 		}
 
 		/* 处理提交的数据，进行格式转换等操作 */

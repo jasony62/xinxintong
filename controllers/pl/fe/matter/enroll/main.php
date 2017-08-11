@@ -53,61 +53,6 @@ class main extends \pl\fe\matter\base {
 		return new \ResponseData($oApp);
 	}
 	/**
-	 * 返回一个登记活动用于显示列表
-	 */
-	public function getForList_action($site, $id) {
-		if (false === ($oUser = $this->accountUser())) {
-			return new \ResponseTimeout();
-		}
-
-		$modelEnl = $this->model('matter\enroll');
-		if (false === ($oApp = $modelEnl->byId($id))) {
-			return new \ResponseError('指定的数据不存在');
-		}
-		unset($oApp->data_schemas);
-		unset($oApp->round_cron);
-		unset($oApp->rp_config);
-
-		$dataSchemas=array();
-		foreach ($oApp->dataSchemas as $k=>$v) {
-			//是数值型填空题
-			if(isset($v->type) && ($v->type=='shorttext') && ($v->format=='number')){
-				$newSchema['type']='label';
-				$newSchema['score_id']=$v->id;
-				$newSchema['title']=$v->title.'的分数';			
-				//这一个是题目下一个插入分数
-				if(isset($dataSchemas[$k]->type) && $dataSchemas[$k]->type!='label'){
-					$dataSchemas[]=$v;
-					array_splice($dataSchemas,$k+1,0,[(object)$newSchema]);
-				//这个不是题目 插入题目在插入分数	
-				}else{
-					$dataSchemas[]=$v;
-					$dataSchemas[]=(object)$newSchema;
-				}
-			//不是数值型填空题			
-			}else{
-				$dataSchemas[]=$v;
-			}		
-		}
-		$oApp->dataSchemas=$dataSchemas;
-		/* channels */
-		$oApp->channels = $this->model('matter\channel')->byMatter($id, 'enroll');
-		/* 所属项目 */
-		if ($oApp->mission_id) {
-			$oApp->mission = $this->model('matter\mission')->byId($oApp->mission_id, ['cascaded' => 'phase']);
-		}
-		/* 关联登记活动 */
-		if ($oApp->enroll_app_id) {
-			$oApp->enrollApp = $modelEnl->byId($oApp->enroll_app_id, ['cascaded' => 'N']);
-		}
-		/* 关联分组活动 */
-		if ($oApp->group_app_id) {
-			$oApp->groupApp = $this->model('matter\group')->byId($oApp->group_app_id);
-		}
-
-		return new \ResponseData($oApp);
-	}
-	/**
 	 * 返回登记活动列表
 	 * @param string $onlySns 是否仅查询进入规则为仅限关注用户访问的活动列表
 	 */

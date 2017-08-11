@@ -120,7 +120,7 @@
                 </div>
             </div>
         </div>
-        <div ng-repeat="schema in app.dataSchemas" ng-if="schema.type!=='html' && schema.type!=='label'">
+        <div ng-repeat="schema in app.dataSchemas" ng-if="schema.type!=='html'">
             <div class="form-group">
                 <label class='form-label col-md-2'>{{schema.title}}</label>
                 <div ng-switch on="schema.type" class='col-md-6'>
@@ -137,9 +137,6 @@
                                 <input type="checkbox" name="{{schema.id}}" ng-model="record.data[schema.id][op.v]" /><span>{{op.l}}</span></label>
                         </li>
                     </ul>
-                    <div ng-switch-when="label" stype="display:none;">
-
-                    </div>
                     <div ng-switch-when="score">
                         <div ng-repeat="op in schema.ops">
                             <div>{{op.l}}</div>

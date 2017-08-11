@@ -710,7 +710,7 @@ class record extends \pl\fe\matter\base {
 		if ($oApp->multi_rounds === 'Y') {
 			$objActiveSheet->setCellValueByColumnAndRow($columnNum1++, 1, '登记轮次');
 		}
-		//echo "<pre>";print_r($records);print_r($remarkables);die();
+
 		// 转换标题
 		$isTotal = []; //是否需要合计
 		$columnNum4 = $columnNum1; //列号

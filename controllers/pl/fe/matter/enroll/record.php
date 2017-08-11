@@ -710,7 +710,7 @@ class record extends \pl\fe\matter\base {
 		if ($oApp->multi_rounds === 'Y') {
 			$objActiveSheet->setCellValueByColumnAndRow($columnNum1++, 1, '登记轮次');
 		}
-		//echo "<pre>";print_r($schemas);print_r($records);die();
+		//echo "<pre>";print_r($records);print_r($remarkables);die();
 		// 转换标题
 		$isTotal = []; //是否需要合计
 		$columnNum4 = $columnNum1; //列号
@@ -854,6 +854,7 @@ class record extends \pl\fe\matter\base {
 					$objActiveSheet->setCellValueExplicitByColumnAndRow($i + $columnNum3++, $rowIndex, $v, \PHPExcel_Cell_DataType::TYPE_STRING);
 					break;
 				}
+				$one=$i+$columnNum3;
 				//分数
 				if(isset($score->{$schema->id})){
 					$objActiveSheet->setCellValueExplicitByColumnAndRow($i++ + $columnNum3++, $rowIndex, $score->{$schema->id}, \PHPExcel_Cell_DataType::TYPE_STRING);
@@ -865,7 +866,11 @@ class record extends \pl\fe\matter\base {
 					} else {
 						$remark_num = 0;
 					}
-					$objActiveSheet->setCellValueExplicitByColumnAndRow($i++ + $columnNum3++, $rowIndex, $remark_num, \PHPExcel_Cell_DataType::TYPE_STRING);
+					$two=$i+$columnNum3;
+					$col=($two-$one>=2) ? ($two-1) : $two;
+					$objActiveSheet->setCellValueExplicitByColumnAndRow($col, $rowIndex, $remark_num, \PHPExcel_Cell_DataType::TYPE_STRING);
+					$i++;
+					$columnNum3++;
 				}
 				$i++;
 			}

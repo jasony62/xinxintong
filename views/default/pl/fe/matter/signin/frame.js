@@ -38,7 +38,7 @@ define(['require', 'page', 'schema', 'signinService', 'enrollSchema', 'enrollPag
         }],
         naming: { 'mission_phase': '项目阶段' }
     });
-    ngApp.config(['$controllerProvider', '$routeProvider', '$locationProvider', '$compileProvider', '$uibTooltipProvider', 'srvSiteProvider', 'srvQuickEntryProvider', 'srvSigninAppProvider', 'srvSigninRoundProvider', 'srvSigninPageProvider', 'srvSigninRecordProvider', function($controllerProvider, $routeProvider, $locationProvider, $compileProvider, $uibTooltipProvider, srvSiteProvider, srvQuickEntryProvider, srvSigninAppProvider, srvSigninRoundProvider, srvSigninPageProvider, srvSigninRecordProvider) {
+    ngApp.config(['$controllerProvider', '$routeProvider', '$locationProvider', '$compileProvider', '$uibTooltipProvider', 'srvSiteProvider', 'srvQuickEntryProvider', 'srvSigninAppProvider', 'srvSigninRoundProvider', 'srvSigninPageProvider', 'srvSigninRecordProvider', 'srvTagProvider', function($controllerProvider, $routeProvider, $locationProvider, $compileProvider, $uibTooltipProvider, srvSiteProvider, srvQuickEntryProvider, srvSigninAppProvider, srvSigninRoundProvider, srvSigninPageProvider, srvSigninRecordProvider, srvTagProvider) {
         var RouteParam = function(name) {
             var baseURL = '/views/default/pl/fe/matter/signin/';
             this.templateUrl = baseURL + name + '.html?_=' + ((new Date()) * 1);
@@ -80,6 +80,7 @@ define(['require', 'page', 'schema', 'signinService', 'enrollSchema', 'enrollPag
             siteId = ls.match(/[\?&]site=([^&]*)/)[1];
             appId = ls.match(/[\?&]id=([^&]*)/)[1];
             srvSiteProvider.config(siteId);
+            srvTagProvider.config(siteId);
             //
             srvSigninAppProvider.config(siteId, appId);
             //

@@ -18,7 +18,7 @@ define(['missionService', 'enrollService', 'signinService'], function() {
         },
         naming: { 'phase': '项目阶段' }
     });
-    ngApp.config(['$controllerProvider', '$routeProvider', '$locationProvider', '$compileProvider', '$uibTooltipProvider', 'srvSiteProvider', 'srvMissionProvider', 'srvQuickEntryProvider', function($controllerProvider, $routeProvider, $locationProvider, $compileProvider, $uibTooltipProvider, srvSiteProvider, srvMissionProvider, srvQuickEntryProvider) {
+    ngApp.config(['$controllerProvider', '$routeProvider', '$locationProvider', '$compileProvider', '$uibTooltipProvider', 'srvSiteProvider', 'srvMissionProvider', 'srvQuickEntryProvider', 'srvTagProvider', function($controllerProvider, $routeProvider, $locationProvider, $compileProvider, $uibTooltipProvider, srvSiteProvider, srvMissionProvider, srvQuickEntryProvider, srvTagProvider) {
         var RouteParam = function(name) {
             var baseURL = '/views/default/pl/fe/matter/mission/';
             this.templateUrl = baseURL + name + '.html?_=' + ((new Date()) * 1);
@@ -58,6 +58,7 @@ define(['missionService', 'enrollService', 'signinService'], function() {
             missionId = ls.match(/[\?&]id=([^&]*)/)[1];
             //
             srvSiteProvider.config(siteId);
+            srvTagProvider.config(siteId);
             srvQuickEntryProvider.setSiteId(siteId);
             srvMissionProvider.config(siteId, missionId);
         })();

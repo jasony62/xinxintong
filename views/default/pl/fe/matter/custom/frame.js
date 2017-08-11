@@ -1,5 +1,5 @@
 var ngApp = angular.module('app', ['ngRoute', 'ui.tms', 'ui.xxt', 'tmplshop.ui.xxt', 'channel.fe.pl', 'service.matter']);
-ngApp.config(['$routeProvider', '$locationProvider', 'srvSiteProvider', function($routeProvider, $locationProvider, srvSiteProvider) {
+ngApp.config(['$routeProvider', '$locationProvider', 'srvSiteProvider', 'srvTagProvider', function($routeProvider, $locationProvider, srvSiteProvider, srvTagProvider) {
     $routeProvider.when('/rest/pl/fe/matter/custom', {
         templateUrl: '/views/default/pl/fe/matter/custom/setting.html?_=2',
         controller: 'ctrlSetting',
@@ -15,6 +15,7 @@ ngApp.config(['$routeProvider', '$locationProvider', 'srvSiteProvider', function
         siteId = ls.match(/[\?&]site=([^&]*)/)[1];
         //
         srvSiteProvider.config(siteId);
+        srvTagProvider.config(siteId);
     })();
 }]);
 ngApp.controller('ctrlCustom', ['$scope', '$location', 'http2', 'srvSite', function($scope, $location, http2, srvSite) {
@@ -55,7 +56,7 @@ ngApp.controller('ctrlCustom', ['$scope', '$location', 'http2', 'srvSite', funct
         };
     });
 }]);
-ngApp.controller('ctrlSetting', ['$scope', 'http2', 'mediagallery', 'templateShop', '$uibModal', function($scope, http2, mediagallery, templateShop, $uibModal) {
+ngApp.controller('ctrlSetting', ['$scope', 'http2', 'mediagallery', 'templateShop', '$uibModal', 'srvTag', function($scope, http2, mediagallery, templateShop, $uibModal, srvTag) {
     var modifiedData = {};
     $scope.modified = false;
     $scope.back = function() {
@@ -146,72 +147,14 @@ ngApp.controller('ctrlSetting', ['$scope', 'http2', 'mediagallery', 'templateSho
             $scope.$root.infomsg = '成功';
         });
     };
-    $scope.tagMatter = function(subType) {
-        var oApp, oTags, tagsOfData;
-        oApp = $scope.editing;
-        if(subType === 'C'){
+    $scope.tagMatter = function(subType){
+        var oTags;
+        if (subType === 'C') {
             oTags = $scope.oTagC;
-        }else{
+        } else {
             oTags = $scope.oTag;
         }
-        $uibModal.open({
-            templateUrl: 'tagMatterData.html',
-            controller: ['$scope', '$uibModalInstance', function($scope2, $mi) {
-                var model;
-                $scope2.apptags = oTags;
-
-                if(subType === 'C'){
-                    tagsOfData = oApp.matter_cont_tag;
-                    $scope2.tagTitle = '内容标签';
-                }else{
-                    tagsOfData = oApp.matter_mg_tag;
-                    $scope2.tagTitle = '管理标签';
-                }
-                $scope2.model = model = {
-                    selected: []
-                };
-                if (tagsOfData) {
-                    tagsOfData.forEach(function(oTag) {
-                        var index;
-                        if (-1 !== (index = $scope2.apptags.indexOf(oTag))) {
-                            model.selected[$scope2.apptags.indexOf(oTag)] = true;
-                        }
-                    });
-                }
-                $scope2.createTag = function() {
-                    var newTags;
-                    if ($scope2.model.newtag) {
-                        newTags = $scope2.model.newtag.replace(/\s/, ',');
-                        newTags = newTags.split(',');
-                        http2.post('/rest/pl/fe/matter/tag/create?site=' + oApp.siteid + '&subType=' + subType, newTags, function(rsp) {
-                            rsp.data.forEach(function(oNewTag) {
-                                $scope2.apptags.push(oNewTag);
-                            });
-                        });
-                        $scope2.model.newtag = '';
-                    }
-                };
-                $scope2.cancel = function() { $mi.dismiss(); };
-                $scope2.ok = function() {
-                    var addMatterTag = [];
-                    model.selected.forEach(function(selected, index) {
-                        if (selected) {
-                            addMatterTag.push($scope2.apptags[index]);
-                        }
-                    });
-                    var url = '/rest/pl/fe/matter/tag/add?site=' + oApp.siteid + '&resId=' + oApp.id + '&resType=' + oApp.type + '&subType=' + subType;
-                    http2.post(url, addMatterTag, function(rsp) {
-                        if(subType === 'C'){
-                            $scope.editing.matter_cont_tag = addMatterTag;
-                        }else{
-                            $scope.editing.matter_mg_tag = addMatterTag;
-                        }
-                    });
-                    $mi.close();
-                };
-            }],
-            backdrop: 'static',
-        });
+        srvTag._tagMatter($scope.editing, oTags, subType);
     };
     (function() {
         new ZeroClipboard(document.querySelectorAll('.text2Clipboard'));

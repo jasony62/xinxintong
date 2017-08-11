@@ -1,5 +1,5 @@
-ngApp = angular.module('app', ['ngRoute', 'ui.bootstrap', 'ui.tms', 'ui.xxt']);
-ngApp.config(['$controllerProvider', '$routeProvider', '$locationProvider', function($controllerProvider, $routeProvider, $locationProvider) {
+ngApp = angular.module('app', ['ngRoute', 'ui.bootstrap', 'ui.tms', 'ui.xxt', 'service.matter']);
+ngApp.config(['$controllerProvider', '$routeProvider', '$locationProvider', 'srvTagProvider', function($controllerProvider, $routeProvider, $locationProvider, srvTagProvider) {
     ngApp.provider = {
         controller: $controllerProvider.register
     };
@@ -89,6 +89,14 @@ ngApp.config(['$controllerProvider', '$routeProvider', '$locationProvider', func
         }
     });
     $locationProvider.html5Mode(true);
+    //设置服务参数
+    (function() {
+        var ls, siteId;
+        ls = location.search;
+        siteId = ls.match(/[\?&]site=([^&]*)/)[1];
+        //
+        srvTagProvider.config(siteId);
+    })();
 }]);
 ngApp.controller('ctrlApp', ['$scope', '$location', '$q', 'http2', function($scope, $location, $q, http2) {
     var ls = $location.search(),

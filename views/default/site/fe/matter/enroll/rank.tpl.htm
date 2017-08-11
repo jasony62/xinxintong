@@ -134,7 +134,21 @@
                                         <span>{{value2Label(rec,rec.schema_id)}}</span>
                                     </div>
                                     <div ng-switch-when="image">
-                                        <img ng-src='{{rec.value}}' style='width:128px' />
+                                        <ul>
+                                            <li ng-repeat="img in rec.value.split(',')"><img ng-src="{{img}}" style='width:128px'/></li>
+                                        </ul>
+                                    </div>
+                                    <div ng-switch-when="file">
+                                        <div ng-repeat="file in rec.value">
+                                            <p><a ng-href="{{file.url}}" target="_blank">{{file.name}}</a></p>
+                                            <video ng-if="file.type.indexOf('video')===0" style="width:40%;" controls="controls">
+                                                <source src="{{file.url}}" type="{{file.type}}" />
+                                            </video>
+                                            <audio ng-if="file.type.indexOf('audio')===0" controls="controls">
+                                                <source src="{{file.url}}" type="{{file.type}}" />
+                                            </audio>
+                                            <img ng-if="file.type.indexOf('image')===0" ng-src='{{file.url}}' style="width:40%" />
+                                        </div>
                                     </div>
                                     <span ng-switch-when="date">{{(rec.value*1000)|date:'yy-MM-dd HH:mm'}}</span>
                                     <span ng-switch-default>{{rec.value}}</span>

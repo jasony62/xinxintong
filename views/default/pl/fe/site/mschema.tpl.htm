@@ -59,6 +59,7 @@
                             <button class='btn btn-default' ng-click='addExtattr(s)'>增加信息项</button>
                             <button class='btn btn-default hide' ng-if="choosedSchema.type==='inner'" ng-click='gotoCode()'>定制填写页面</button>
                             <button class='btn btn-default hide' ng-if="choosedSchema.type==='inner'" ng-click='resetCode()'>重置填写页面</button>
+                            <button class='btn btn-default' ng-click='importSchema()'>导入通讯录</button>
                         </div>
                     </div>
                 </div>
@@ -203,6 +204,33 @@
         <div class="modal-footer">
             <button class="btn btn-danger pull-left" ng-if='canRemove' ng-click="remove()">删除</button>
             <button class="btn btn-success" ng-click="ok()">保存</button>
+        </div>
+    </script>
+    <script type="text/ng-template" id="importSchema.html">
+        <div class="modal-header">
+            <button class="close" ng-click="close()">×</button>
+            <h5 class="modal-title">导入通讯录</h5>
+        </div>
+        <div class="modal-body">
+            <form class="form-horizontal record-editor">
+                <div class='form-group'>
+                    <label class="col-md-3 control-label">提示</label>
+                    <div class="col-md-9">
+                        <p>******************</p>
+                    </div>
+                </div>
+                <div class='form-group'>
+                    <label class="col-md-3 control-label">通讯录</label>
+
+                    <div class="col-md-9">
+                        <select class="form-control" ng-model="data.app" ng-options="app.title for app in apps">
+                        </select>
+                    </div>
+                </div>
+            </form>
+        </div>
+        <div class="modal-footer">
+            <button class="btn btn-primary" ng-click="ok()">确定</button>
         </div>
     </script>
     <script src="/static/js/angular.min.js"></script>

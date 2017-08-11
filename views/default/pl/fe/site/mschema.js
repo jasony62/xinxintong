@@ -277,6 +277,56 @@ define(['require'], function(require) {
                 });
             }
         };
+        $scope.importSchema = function() {
+            $uibModal.open({
+                templateUrl: 'importSchema.html',
+                windowClass: 'auto-height',
+                controller: ['$scope', '$uibModalInstance', function($scope2, $mi) {
+                    $scope2.data = {
+                        app: '',
+                        appType: 'enroll'
+                    };
+                    $scope2.$watch('data.appType', function(newValus) {
+                        var url;
+                        if (newValus === 'enroll') {
+                            url = '/rest/pl/fe/matter/enroll/list?page=1&size=999&site=' + $scope.siteId;
+                            delete $scope2.data.includeEnroll;
+
+                        } else if (newValus === 'signin') {
+                            url = '/rest/pl/fe/matter/signin/list?page=1&size=999&site=' + $scope.siteId;
+                            $scope2.data.includeEnroll = 'Y';
+                        }
+                        url += '&onlySns=Y';
+                        http2.get(url, function(rsp) {
+                            $scope2.apps = rsp.data.apps;
+                        });
+                    });
+                    $scope2.close = function() {
+                        $mi.dismiss();
+                    };
+                    $scope2.ok = function() {
+                        if ($scope2.data) {
+                            $mi.close($scope2.data);
+                        } else {
+                            $mi.dismiss();
+                        }
+                    };
+                }]
+            }).result.then(function(data) {
+                var params;
+                if (data.app) {
+                    params = {
+                        app: data.app.id,
+                        appType: data.appType,
+                    };
+                    data.appType === 'signin' && (params.includeEnroll = data.includeEnroll);
+                    http2.post('/rest/pl/fe/matter/wall/users/import?site=' + $scope.siteId + '&app=' + $scope.id, params, function(rsp) {
+                        $scope.wall.sourceApp = data.app;
+                        $scope.doSearch();
+                    });
+                }
+            });
+        };
     }]);
     /**
      * 微信场景二维码

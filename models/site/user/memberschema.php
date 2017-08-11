@@ -61,6 +61,7 @@ class memberschema_model extends \TMS_MODEL {
 	 * 自定义用户信息
 	 */
 	public function &byId($id, $fields = '*') {
+		$id = $this->escape($id);
 		$oMschema = $this->_queryBy("id='$id'");
 
 		$oMschema = count($oMschema) === 1 ? $oMschema[0] : false;

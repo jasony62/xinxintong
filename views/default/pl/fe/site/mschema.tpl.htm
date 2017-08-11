@@ -208,29 +208,19 @@
     </script>
     <script type="text/ng-template" id="importSchema.html">
         <div class="modal-header">
-            <button class="close" ng-click="close()">×</button>
-            <h5 class="modal-title">导入通讯录</h5>
+            <h5 class="modal-title">导入通讯录用户</h5>
         </div>
         <div class="modal-body">
-            <form class="form-horizontal record-editor">
-                <div class='form-group'>
-                    <label class="col-md-3 control-label">提示</label>
-                    <div class="col-md-9">
-                        <p>******************</p>
-                    </div>
+            <div class='list-group' style='max-height:300px;overflow-y:auto'>
+                <div class='list-group-item' ng-repeat="impschema in importSchemas">
+                    <label class='checkbox-inline'>
+                        <input type='checkbox' ng-model="model.selected[$index]"> {{impschema.title}}</label>
                 </div>
-                <div class='form-group'>
-                    <label class="col-md-3 control-label">通讯录</label>
-
-                    <div class="col-md-9">
-                        <select class="form-control" ng-model="data.app" ng-options="app.title for app in apps">
-                        </select>
-                    </div>
-                </div>
-            </form>
+            </div>
         </div>
         <div class="modal-footer">
-            <button class="btn btn-primary" ng-click="ok()">确定</button>
+            <button class="btn btn-default" ng-click="cancel()">关闭</button>
+            <button class="btn btn-primary" ng-click="ok()">设置标签</button>
         </div>
     </script>
     <script src="/static/js/angular.min.js"></script>

@@ -78,6 +78,68 @@ class schema extends \pl\fe\base {
 		return new \ResponseData($schemas);
 	}
 	/**
+	 * 获得此通讯录有权导入的通讯录
+	 * @return [type] [description]
+	 */
+	public function listImportSchema_action($site, $id){
+		if (false === ($oUser = $this->accountUser())) {
+			return new \ResponseTimeout();
+		}
+
+		$modelSchema = $this->model('site\user\memberschema');
+		if (($schema = $modelSchema->byId($id, "id,matter_id,matter_type,type")) === false) {
+			return new \ResponseError('请检查参数设置');
+		}
+		//如果是项目通讯录从项目下的活动通讯录和项目所属团队通讯录中导入用户
+		if($schema->matter_type === 'mission' && $schema->matter_id !== ''){
+			$qm = [
+				'ms.id,ms.title,ms.matter_id,ms.matter_type,ms.create_at',
+				'xxt_mission_matter m,xxt_site_member_schema ms',
+				"m.mission_id = $schema->matter_id and ms.matter_type = m.matter_type and ms.matter_id = m.matter_id"
+			];
+			$qm2 = ['o' => 'ms.create_at desc'];
+
+			$schemaMatter = $modelSchema->query_objs_ss($qm, $qm2);
+		} else if($schema->matter_type !== '' && $schema->matter_id !== '') {
+			//查询项目的通讯录
+			$qm = [
+				'ms.id,ms.title,ms.matter_id,ms.matter_type,ms.create_at',
+				'xxt_mission_matter m,xxt_site_member_schema ms',
+				"m.matter_id = '$schema->matter_id' and m.matter_type = '$schema->matter_type' and ms.matter_id = m.mission_id and ms.matter_type = 'mission'"
+			];
+			$qm2 = ['o' => 'ms.create_at desc'];
+
+			$schemaMatter = $modelSchema->query_objs_ss($qm, $qm2);
+		} else {
+			//团队下的所有活动和项目通讯录
+			$qm = [
+				'id,title,matter_id,matter_type,create_at',
+				'xxt_site_member_schema',
+				"siteid = '$site' and matter_id <> ''"
+			];
+			$qm2 = ['o' => 'create_at desc'];
+			$schemaMatter = $modelSchema->query_objs_ss($qm, $qm2);
+		}
+		//获取所在团队的所有通讯录
+		$qs = [
+			'id,title,matter_id,matter_type,create_at',
+			'xxt_site_member_schema',
+			"siteid = '$site' and matter_id = '' and id <> $id"
+		];
+		$qs2 = ['o' => 'create_at desc'];
+		$schemaSite = $modelSchema->query_objs_ss($qs, $qs2);
+
+		$schemas = array_merge($schemaMatter,$schemaSite);
+		//依照时间排序
+		$sortAt = [];
+		foreach($schemas as $key => $val){  
+		    $sortAt[$key] = $val->create_at;
+		}  
+		array_multisort($sortAt,SORT_DESC,$schemas);  
+
+		return new \ResponseData($schemas);
+	}
+	/**
 	 *
 	 */
 	public function update_action($id = null) {

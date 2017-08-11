@@ -1,11 +1,12 @@
 var ngApp = angular.module('app', ['ngRoute', 'ui.bootstrap', 'ui.tms', 'ui.xxt', 'service.matter']);
-ngApp.config(['$routeProvider', '$locationProvider', 'srvSiteProvider', function($routeProvider, $locationProvider, srvSiteProvider) {
+ngApp.config(['$routeProvider', '$locationProvider', 'srvSiteProvider', 'srvTagProvider', function($routeProvider, $locationProvider, srvSiteProvider, srvTagProvider) {
     $routeProvider.otherwise({
         templateUrl: '/views/default/pl/fe/matter/channel/main.html?_=2',
         controller: 'ctrlMain'
     });
     var siteId = location.search.match(/[\?&]site=([^&]*)/)[1];
     srvSiteProvider.config(siteId);
+    srvTagProvider.config(siteId);
     $locationProvider.html5Mode(true);
 }]);
 ngApp.controller('ctrlChannel', ['$scope', '$location', 'http2', 'srvSite', function($scope, $location, http2, srvSite) {
@@ -32,7 +33,7 @@ ngApp.controller('ctrlChannel', ['$scope', '$location', 'http2', 'srvSite', func
         $scope.entryUrl = 'http://' + location.host + '/rest/site/fe/matter?site=' + $scope.siteId + '&id=' + $scope.id + '&type=channel';
     });
 }]);
-ngApp.controller('ctrlMain', ['$scope', 'http2', 'mattersgallery', 'noticebox', '$uibModal', function($scope, http2, mattersgallery, noticebox, $uibModal) {
+ngApp.controller('ctrlMain', ['$scope', 'http2', 'mattersgallery', 'noticebox', '$uibModal', 'srvTag', function($scope, http2, mattersgallery, noticebox, $uibModal, srvTag) {
     var modifiedData = {};
     $scope.modified = false;
     $scope.matterTypes = [{
@@ -226,68 +227,10 @@ ngApp.controller('ctrlMain', ['$scope', 'http2', 'mattersgallery', 'noticebox', 
             }
         }
     };
-    $scope.tagMatter = function(subType) {
-        var oApp, oTags, tagsOfData;
-        oApp = $scope.editing;
+    $scope.tagMatter = function(subType){
+        var oTags;
         oTags = $scope.oTag;
-        $uibModal.open({
-            templateUrl: 'tagMatterData.html',
-            controller: ['$scope', '$uibModalInstance', function($scope2, $mi) {
-                var model;
-                $scope2.apptags = oTags;
-
-                if(subType === 'C'){
-                    tagsOfData = oApp.matter_cont_tag;
-                    $scope2.tagTitle = '内容标签';
-                }else{
-                    tagsOfData = oApp.matter_mg_tag;
-                    $scope2.tagTitle = '管理标签';
-                }
-                $scope2.model = model = {
-                    selected: []
-                };
-                if (tagsOfData) {
-                    tagsOfData.forEach(function(oTag) {
-                        var index;
-                        if (-1 !== (index = $scope2.apptags.indexOf(oTag))) {
-                            model.selected[$scope2.apptags.indexOf(oTag)] = true;
-                        }
-                    });
-                }
-                $scope2.createTag = function() {
-                    var newTags;
-                    if ($scope2.model.newtag) {
-                        newTags = $scope2.model.newtag.replace(/\s/, ',');
-                        newTags = newTags.split(',');
-                        http2.post('/rest/pl/fe/matter/tag/create?site=' + oApp.siteid, newTags, function(rsp) {
-                            rsp.data.forEach(function(oNewTag) {
-                                $scope2.apptags.push(oNewTag);
-                            });
-                        });
-                        $scope2.model.newtag = '';
-                    }
-                };
-                $scope2.cancel = function() { $mi.dismiss(); };
-                $scope2.ok = function() {
-                    var addMatterTag = [];
-                    model.selected.forEach(function(selected, index) {
-                        if (selected) {
-                            addMatterTag.push($scope2.apptags[index]);
-                        }
-                    });
-                    var url = '/rest/pl/fe/matter/tag/add?site=' + oApp.siteid + '&resId=' + oApp.id + '&resType=' + oApp.type + '&subType=' + subType;
-                    http2.post(url, addMatterTag, function(rsp) {
-                        if(subType === 'C'){
-                            $scope.editing.matter_cont_tag = addMatterTag;
-                        }else{
-                            $scope.editing.matter_mg_tag = addMatterTag;
-                        }
-                    });
-                    $mi.close();
-                };
-            }],
-            backdrop: 'static',
-        });
+        srvTag._tagMatter($scope.editing, oTags, subType);
     };
     $scope.$watch('editing', function(nv) {
         if (!nv) return;

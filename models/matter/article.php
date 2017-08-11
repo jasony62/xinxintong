@@ -310,7 +310,7 @@ class article_model extends article_base {
 		     * 返回全部检索内容
 	*/
 	public function &search_all($site, $keyword) {
-		$s = "id,mpid,title,author,summary,pic,body,url,read_num,create_at,has_attachment,download_num,'article' type";
+		$s = "id,mpid,title,author,summary,pic,body,url,read_num,create_at,has_attachment,download_num,'article' type,matter_cont_tag";
 		$f = 'xxt_article';
 		$w = "siteid='$site' and state=1 and approved='Y' and can_fullsearch='Y'";
 		$w .= " and (title like '%$keyword%'";
@@ -326,8 +326,12 @@ class article_model extends article_base {
 		$articles = json_decode($articles, 1);
 
 		//内容标签
-		$q3 = "select * from xxt_article_tag t left join xxt_tag g on t.tag_id=g.id where t.mpid='$site' and t.sub_type=0";
-		$tag_content = $this->query_objs($q3);
+		$q3 = [
+			'id,title',
+			'xxt_tag',
+			['siteid' => $site, 'sub_type' => 'C']
+		];
+		$tagSiteCs = $this->query_objs_ss($q3);
 
 		//频道标签
 		$q4 = "select m.matter_id,m.channel_id,c.siteid,c.title from xxt_channel_matter m left join xxt_channel c on m.channel_id=c.id where c.siteid='$site' and m.matter_type='article' ";
@@ -337,9 +341,14 @@ class article_model extends article_base {
 		$b = array();
 		foreach ($articles as $k => $v) {
 			$a = array();
-			foreach ($tag_content as $kc => $vc) {
-				if ($v['id'] == $vc->res_id) {
-					$a['content'][] = $vc->title;
+			if(!empty($v['matter_cont_tag'])){
+				$v['matter_cont_tag'] = json_decode($v['matter_cont_tag']);
+				foreach ($v['matter_cont_tag'] as $tagMatterC) {
+					foreach ($tagSiteCs as $tagSiteC) {
+						if ($tagMatterC == $tagSiteC->id) {
+							$a['content'][] = $tagSiteC->title;
+						}
+					}
 				}
 			}
 			foreach ($tag_channel as $kl => $vl) {

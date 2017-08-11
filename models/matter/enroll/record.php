@@ -719,6 +719,14 @@ class record_model extends \TMS_MODEL {
 		if (empty($oApp)) {
 			return false;
 		}
+		$dataSchemas=$oApp->dataSchemas;
+		$flag=false;
+		foreach ($dataSchemas as $v) {
+			if($v->type=='shorttext' && $v->format=='number'){
+				$flag=true;
+				break;
+			}
+		}
 		if ($options) {
 			is_array($options) && $options = (object) $options;
 			$creater = isset($options->creater) ? $options->creater : null;
@@ -804,7 +812,7 @@ class record_model extends \TMS_MODEL {
 			$w,
 		];
 		//测验场景
-		if ($oApp->scenario === 'quiz') {
+		if ($oApp->scenario === 'quiz' || $flag) {
 			$q[0] .= ',e.score';
 		}
 
@@ -823,7 +831,7 @@ class record_model extends \TMS_MODEL {
 				$data = str_replace("\n", ' ', $rec->data);
 				$data = json_decode($data);
 				//测验场景
-				if ($oApp->scenario === 'quiz' && !empty($rec->score)) {
+				if (($oApp->scenario === 'quiz' || $flag) && !empty($rec->score)) {
 					$score = str_replace("\n", ' ', $rec->score);
 					$score = json_decode($score);
 

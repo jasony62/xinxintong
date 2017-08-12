@@ -3,7 +3,7 @@ require_once '../../db.php';
 
 $sqls = array();
 //
-$sqls[] = "ALTER TABLE  `xxt_enroll_user` ADD  `score` TEXT CHARACTER SET utf8 COLLATE utf8_general_ci NULL COMMENT  '得分'";
+$sqls[] = "ALTER TABLE xxt_enroll_user add score float default 0 COMMENT '得分'";
 //
 foreach ($sqls as $sql) {
 	if (!$mysqli->query($sql)) {

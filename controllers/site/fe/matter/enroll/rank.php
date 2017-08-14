@@ -135,7 +135,7 @@ class rank extends base {
 		return new \ResponseData($result);
 	}
 	/**
-	 *
+	 * 登记内容排行榜
 	 */
 	public function dataByApp_action($app, $page = 1, $size = 10) {
 		$oApp = $this->model('matter\enroll')->byId($app, ['cascaded' => 'N']);
@@ -161,7 +161,7 @@ class rank extends base {
 		$q = [
 			'value,enroll_key,schema_id,agreed',
 			'xxt_enroll_record_data',
-			"aid='{$oApp->id}'",
+			"aid='{$oApp->id}' and state=1",
 		];
 		if (!empty($aAssocGroups)) {
 			$q[0] .= ',group_id';

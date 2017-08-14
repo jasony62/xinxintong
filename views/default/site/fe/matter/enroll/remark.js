@@ -8,8 +8,11 @@ ngApp.controller('ctrlRemark', ['$scope', '$q', '$timeout', 'http2', '$sce', '$u
         url = '/rest/site/fe/matter/enroll/remark/list?site=' + oApp.siteid + '&ek=' + ek;
         url += '&schema=' + $scope.filter.schema.id;
         http2.get(url).then(function(rsp) {
-            if (oFilter.schema.type == 'file') {
-                rsp.data.data.value = angular.fromJson(rsp.data.data.value);
+            var oRecordData;
+            if (oRecordData = rsp.data.data) {
+                if (oFilter.schema.type == 'file') {
+                    oRecordData.value = angular.fromJson(oRecordData.value);
+                }
             }
             defer.resolve(rsp.data)
         });

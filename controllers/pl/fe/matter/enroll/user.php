@@ -62,6 +62,11 @@ class user extends \pl\fe\matter\base {
 						}
 					}
 				}
+				if(!empty($user->score)){
+					$user->score=json_decode($user->score);
+				}else{
+					$user->score= new \stdClass;
+				}
 			}
 		}
 		

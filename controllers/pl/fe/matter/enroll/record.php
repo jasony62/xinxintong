@@ -255,10 +255,20 @@ class record extends \pl\fe\matter\base {
 		}
 		$modelEnl->update('xxt_enroll_record', $updated, ['enroll_key' => $ek]);
 		/* 记录登记数据 */
+		$flag=false;
 		if (isset($record->data)) {
 			$score = isset($record->quizScore) ? $record->quizScore : null;
 			$userSite = $this->model('site\fe\way')->who($site);
 			$modelRec->setData($userSite, $oApp, $ek, $record->data, '', false, $score);
+			$dataSchemas=$oApp->dataSchemas;
+			foreach ($dataSchemas as $v1) {
+				foreach ($record->data as $k2=>$v2) {
+					if(($v1->type=='shorttext') && ($v1->format == 'number') && ($v1->id ==$k2)){
+						$flag=true;
+						break;
+					}
+				}
+			}
 		} else if (isset($record->quizScore)) {
 			/* 只修改登记项的分值 */
 			$oAfterScore = new \stdClass;
@@ -285,6 +295,39 @@ class record extends \pl\fe\matter\base {
 			$newScore = $modelRec->toJson($oAfterScore);
 			//更新record表
 			$modelRec->update('xxt_enroll_record', ['score' => $newScore], ['aid' => $app, 'enroll_key' => $ek, 'state' => 1]);
+		}
+		
+		if($flag){
+			/* 更新活动用户轮次数据 */
+			$modelUsr = $this->model('matter\enroll\user');
+			$modelUsr->setOnlyWriteDbConn(true);
+			$result=$modelRec->byId($ek);
+			if (isset($result->score->sum)) {
+				$upData['score'] = $result->score->sum;
+			}
+			$modelUsr->update(
+				'xxt_enroll_user',
+				$upData,
+				['siteid'=>$site,'aid'=>$result->aid,'rid'=>$result->rid,'userid'=>$result->userid]
+			);
+			/* 更新用户获得的分数 */
+			$users = $modelUsr->query_objs_ss([
+				'id,score',
+				'xxt_enroll_user',
+				"siteid='$site' and aid='$result->aid' and userid='$result->userid' and rid !='ALL'",
+			]);
+			$total = 0;
+			foreach ($users as $v) {
+				if (!empty($v->score)) {
+					$total += (float) $v->score;
+				}
+			}
+			$upDataALL['score'] = $total;
+			$modelUsr->update(
+				'xxt_enroll_user',
+				$upDataALL,
+				['siteid'=>$site,'aid'=>$result->aid,'rid'=>'ALL','userid'=>$result->userid]
+			);	
 		}
 
 		/* 更新登记项数据的轮次 */

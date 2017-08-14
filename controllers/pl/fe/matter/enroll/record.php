@@ -65,9 +65,13 @@ class record extends \pl\fe\matter\base {
 		$result = $mdoelRec->byApp($oEnrollApp, $options, $criteria);
 		if (!empty($result->records)) {
 			$remarkables = [];
+			$flag=false;
 			foreach ($oEnrollApp->dataSchemas as $oSchema) {
 				if (isset($oSchema->remarkable) && $oSchema->remarkable === 'Y') {
 					$remarkables[] = $oSchema->id;
+				}
+				if($oSchema->type=='shorttext' && $oSchema->format=='number'){
+					$flag=true;
 				}
 			}
 			if (count($remarkables)) {
@@ -78,8 +82,22 @@ class record extends \pl\fe\matter\base {
 					$oRec->verbose->data = $oRecordData;
 				}
 			}
+			if($flag){
+				foreach ($result->records as &$oRec) {
+					$one=$mdoelRec->query_obj_ss([
+						'id,score',
+						'xxt_enroll_record',
+						['siteid'=>$site,'enroll_key'=>$oRec->enroll_key]
+					]);
+					if(count($one)){
+						$oRec->score=json_decode($one->score);
+					}else{
+						$oRec->score= new \stdClass;
+					}
+				}
+			}
 		}
-
+		
 		return new \ResponseData($result);
 	}
 	/**

@@ -202,6 +202,7 @@ class user extends \pl\fe\matter\base {
 			$objActiveSheet->setCellValueByColumnAndRow($columnNum1++, 1, '记录');
 			$objActiveSheet->setCellValueByColumnAndRow($columnNum1++, 1, '评论');
 			$objActiveSheet->setCellValueByColumnAndRow($columnNum1++, 1, '积分');
+			$objActiveSheet->setCellValueByColumnAndRow($columnNum1++, 1, '得分');
 
 			// 转换数据
 			for ($j = 0; $j < count($data); $j++) {
@@ -244,6 +245,11 @@ class user extends \pl\fe\matter\base {
 				}else{
 					$objActiveSheet->setCellValueByColumnAndRow($columnNum2++, $rowIndex, '');
 				}
+				if(isset($record->user->score)){
+					$objActiveSheet->setCellValueByColumnAndRow($columnNum2++, $rowIndex, $record->user->score);
+				}else{
+					$objActiveSheet->setCellValueByColumnAndRow($columnNum2++, $rowIndex, '');
+				}
 			}
 		}else{
 			// 转换标题
@@ -251,6 +257,7 @@ class user extends \pl\fe\matter\base {
 			$objActiveSheet->setCellValueByColumnAndRow($columnNum1++, 1, '记录');
 			$objActiveSheet->setCellValueByColumnAndRow($columnNum1++, 1, '评论');
 			$objActiveSheet->setCellValueByColumnAndRow($columnNum1++, 1, '积分');
+			$objActiveSheet->setCellValueByColumnAndRow($columnNum1++, 1, '得分');
 			// 转换数据
 			for ($j = 0; $j < count($data); $j++) {
 				$record = $data[$j];
@@ -262,6 +269,7 @@ class user extends \pl\fe\matter\base {
 				$objActiveSheet->setCellValueByColumnAndRow($columnNum2++, $rowIndex, $record->enroll_num);
 				$objActiveSheet->setCellValueByColumnAndRow($columnNum2++, $rowIndex, $record->remark_other_num);
 				$objActiveSheet->setCellValueByColumnAndRow($columnNum2++, $rowIndex, $record->user_total_coin);
+				$objActiveSheet->setCellValueByColumnAndRow($columnNum2++, $rowIndex, $record->score);
 			}
 		}
 

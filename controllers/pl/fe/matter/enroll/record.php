@@ -255,20 +255,10 @@ class record extends \pl\fe\matter\base {
 		}
 		$modelEnl->update('xxt_enroll_record', $updated, ['enroll_key' => $ek]);
 		/* 记录登记数据 */
-		$flag=false;
 		if (isset($record->data)) {
 			$score = isset($record->quizScore) ? $record->quizScore : null;
 			$userSite = $this->model('site\fe\way')->who($site);
 			$modelRec->setData($userSite, $oApp, $ek, $record->data, '', false, $score);
-			$dataSchemas=$oApp->dataSchemas;
-			foreach ($dataSchemas as $v1) {
-				foreach ($record->data as $k2=>$v2) {
-					if(($v1->type=='shorttext') && ($v1->format == 'number') && ($v1->id ==$k2)){
-						$flag=true;
-						break;
-					}
-				}
-			}
 		} else if (isset($record->quizScore)) {
 			/* 只修改登记项的分值 */
 			$oAfterScore = new \stdClass;
@@ -296,11 +286,31 @@ class record extends \pl\fe\matter\base {
 			//更新record表
 			$modelRec->update('xxt_enroll_record', ['score' => $newScore], ['aid' => $app, 'enroll_key' => $ek, 'state' => 1]);
 		}
-		
-		if($flag){
-			/* 更新活动用户轮次数据 */
+		//数值型填空题
+		if(isset($record->score)){
+			$dataSchemas=$oApp->dataSchemas;
 			$modelUsr = $this->model('matter\enroll\user');
 			$modelUsr->setOnlyWriteDbConn(true);
+			$d['sum']=0;
+			foreach ($dataSchemas as &$schema) {
+				if(isset($record->score->{$schema->id})){
+					$d[$schema->id]=$record->score->{$schema->id};
+					$modelUsr->update('xxt_enroll_record_data', ['score' => $record->score->{$schema->id}], ['enroll_key' => $ek, 'schema_id' => $schema->id, 'state' => 1]);
+					$d['sum']+=$d[$schema->id];
+					//权重保留2位小数
+					$value=$modelUsr->query_val_ss(['value','xxt_enroll_record_data',['enroll_key' => $ek, 'schema_id' => $schema->id, 'state' => 1]]);
+					if(!empty($value)){
+						$schema->weight=round($record->score->{$schema->id}/$value,2);
+					}
+				}
+			}
+			$newScore = $modelRec->toJson($d);
+			$newSchemas=$modelRec->toJson($dataSchemas);
+			//更新定义
+			$modelRec->update('xxt_enroll',['data_schemas'=>$newSchemas],['id'=>$app,'siteid'=>$site]);
+			//更新record表
+			$modelRec->update('xxt_enroll_record', ['score' => $newScore], ['aid' => $app, 'enroll_key' => $ek, 'state' => 1]);
+			//更新enroll_user表
 			$result=$modelRec->byId($ek);
 			if (isset($result->score->sum)) {
 				$upData['score'] = $result->score->sum;

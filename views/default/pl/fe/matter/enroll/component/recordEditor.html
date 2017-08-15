@@ -183,6 +183,7 @@
                         <tms-datepicker class='tms-datepicker' tms-title='时间' tms-obj="rnd" tms-date="record.data[schema.id]" tms-state="signinAt"></tms-datepicker>
                     </div>
                     <input type='text' class='form-control' ng-switch-default ng-model="record.data[schema.id]">
+                    <span ng-if="record.score[schema.id]"> 得分<font ng-if="record.data[schema.id]!=0">(权重{{record.score[schema.id]/record.data[schema.id]|number:2}})</font> <input type='text' class='form-control' ng-model="record.score[schema.id]"> </span>
                     <textarea ng-if="schema.supplement==='Y'" class='form-control' ng-model="record.supplement[schema.id]" rows="3"></textarea>
                 </div>
             </div>

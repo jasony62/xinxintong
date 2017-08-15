@@ -690,6 +690,65 @@ class record extends base {
 		return new \ResponseData($rst);
 	}
 	/**
+	 *
+	 *
+	 * 列出填写人名单列表
+	 *
+	 *
+	 */
+	public function actorList_action($site, $app, $orderby='id', $page=1, $size=30) {
+		$modelEnl=$this->model('matter\enroll');
+		$oApp = $modelEnl->byId($app, ['cascaded' => 'N']);
+		if (false === $oApp) {
+			return new \ObjectNotFoundError();
+		}
+		//参与者列表
+		$modelRnd=$this->model('matter\enroll\round');
+		$rnd=$modelRnd->getActive($oApp);
+		$rid=!empty($rnd) ? $rnd->rid : '';
+
+		$q1=[
+			'*',
+			'xxt_enroll_user',
+			['siteid'=>$site, 'aid'=>$app, 'rid'=>$rid]
+		];
+		$q2['o']="$orderby desc";
+		$q2['r']=['o' => ($page - 1) * $size, 'l' => $size];
+		if($users=$modelEnl->query_objs_ss($q1,$q2)){
+			foreach ($users as &$user) {
+				//公众号的信息
+				$sns=$modelEnl->query_obj_ss([
+					'assoc_id,wx_openid,yx_openid,qy_openid,uname,headimgurl,ufrom,uid,unionid',
+					'xxt_site_account',
+					['siteid'=>$site,'uid'=>$user->userid]
+				]);
+				$user->sns=$sns;
+				//通信录的信息
+				$addressbook=$modelEnl->query_objs_ss([
+					'*',
+					'xxt_site_member',
+					['siteid'=>$site,'userid'=>$user->userid]
+				]);
+				foreach ($addressbook as &$v) {
+					if(isset($v->schema_id)){
+						$v->schema_name=$modelEnl->query_val_ss(['title','xxt_site_member_schema',['id'=>$v->schema_id]]);
+					}
+					if($v->extattr){
+						$v->extattr=json_decode($v->extattr);
+					}
+				}
+				$user->addressbook=$addressbook;
+			}
+		}
+
+		$result=new \stdClass;
+		$result->records=$users;
+		$q1[0]='count(*)';
+		$result->total=$modelEnl->query_val_ss($q1);
+
+		return new \ResponseData($result);	
+	}
+	/**
 	 * 点赞登记记录中的某一个题
 	 *
 	 * @param string $ek

@@ -297,17 +297,9 @@ class record extends \pl\fe\matter\base {
 					$d[$schema->id]=$record->score->{$schema->id};
 					$modelUsr->update('xxt_enroll_record_data', ['score' => $record->score->{$schema->id}], ['enroll_key' => $ek, 'schema_id' => $schema->id, 'state' => 1]);
 					$d['sum']+=$d[$schema->id];
-					//权重保留2位小数
-					$value=$modelUsr->query_val_ss(['value','xxt_enroll_record_data',['enroll_key' => $ek, 'schema_id' => $schema->id, 'state' => 1]]);
-					if(!empty($value)){
-						$schema->weight=round($record->score->{$schema->id}/$value,2);
-					}
 				}
 			}
 			$newScore = $modelRec->toJson($d);
-			$newSchemas=$modelRec->toJson($dataSchemas);
-			//更新定义
-			$modelRec->update('xxt_enroll',['data_schemas'=>$newSchemas],['id'=>$app,'siteid'=>$site]);
 			//更新record表
 			$modelRec->update('xxt_enroll_record', ['score' => $newScore], ['aid' => $app, 'enroll_key' => $ek, 'state' => 1]);
 			//更新enroll_user表

@@ -294,10 +294,17 @@ define(['require'], function(require) {
                         var schemas = [];
                         model.selected.forEach(function(selected, index) {
                             if (selected) {
-                                schemas.push($scope2.importSchemas[index]);
+                                schemas.push($scope2.importSchemas[index].id);
                             }
                         });
-console.log(schemas);
+                        
+                        if(schemas.length > 0) {
+                            http2.post('/rest/pl/fe/site/member/schema/importSchema?site=' + $scope.site.id + '&id=' + $scope.choosedSchema.id, schemas, function(rsp) {
+                                
+                                console.log(rsp);
+                            });
+                        }
+
                         $mi.close();
                     };
                 }],

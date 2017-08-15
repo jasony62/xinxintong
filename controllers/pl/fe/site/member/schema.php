@@ -81,63 +81,98 @@ class schema extends \pl\fe\base {
 	 * 获得此通讯录有权导入的通讯录
 	 * @return [type] [description]
 	 */
-	public function listImportSchema_action($site, $id){
+	public function listImportSchema_action($site, $id) {
 		if (false === ($oUser = $this->accountUser())) {
 			return new \ResponseTimeout();
 		}
 
 		$modelSchema = $this->model('site\user\memberschema');
-		if (($schema = $modelSchema->byId($id, "id,matter_id,matter_type,type")) === false) {
-			return new \ResponseError('请检查参数设置');
-		}
-		//如果是项目通讯录从项目下的活动通讯录和项目所属团队通讯录中导入用户
-		if($schema->matter_type === 'mission' && $schema->matter_id !== ''){
-			$qm = [
-				'ms.id,ms.title,ms.matter_id,ms.matter_type,ms.create_at',
-				'xxt_mission_matter m,xxt_site_member_schema ms',
-				"m.mission_id = $schema->matter_id and ms.matter_type = m.matter_type and ms.matter_id = m.matter_id"
-			];
-			$qm2 = ['o' => 'ms.create_at desc'];
-
-			$schemaMatter = $modelSchema->query_objs_ss($qm, $qm2);
-		} else if($schema->matter_type !== '' && $schema->matter_id !== '') {
-			//查询项目的通讯录
-			$qm = [
-				'ms.id,ms.title,ms.matter_id,ms.matter_type,ms.create_at',
-				'xxt_mission_matter m,xxt_site_member_schema ms',
-				"m.matter_id = '$schema->matter_id' and m.matter_type = '$schema->matter_type' and ms.matter_id = m.mission_id and ms.matter_type = 'mission'"
-			];
-			$qm2 = ['o' => 'ms.create_at desc'];
-
-			$schemaMatter = $modelSchema->query_objs_ss($qm, $qm2);
-		} else {
-			//团队下的所有活动和项目通讯录
-			$qm = [
-				'id,title,matter_id,matter_type,create_at',
-				'xxt_site_member_schema',
-				"siteid = '$site' and matter_id <> ''"
-			];
-			$qm2 = ['o' => 'create_at desc'];
-			$schemaMatter = $modelSchema->query_objs_ss($qm, $qm2);
-		}
-		//获取所在团队的所有通讯录
-		$qs = [
-			'id,title,matter_id,matter_type,create_at',
-			'xxt_site_member_schema',
-			"siteid = '$site' and matter_id = '' and id <> $id"
-		];
-		$qs2 = ['o' => 'create_at desc'];
-		$schemaSite = $modelSchema->query_objs_ss($qs, $qs2);
-
-		$schemas = array_merge($schemaMatter,$schemaSite);
-		//依照时间排序
-		$sortAt = [];
-		foreach($schemas as $key => $val){  
-		    $sortAt[$key] = $val->create_at;
-		}  
-		array_multisort($sortAt,SORT_DESC,$schemas);  
+		$schemas = $modelSchema->importSchema($site, $id);
 
 		return new \ResponseData($schemas);
+	}
+	/**
+	 * 导入选中通讯录
+	 * $id 要导入的通讯录id
+	 */
+	public function importSchema_action($site, $id) {
+		if (false === ($oUser = $this->accountUser())) {
+			return new \ResponseTimeout();
+		}
+
+		$schemas = $this->getPostJson();
+		if(empty($schemas)){
+			return new \ResponseData($schemas);
+		}
+
+		$model = $this->model();
+		$model->setOnlyWriteDbConn(true);
+		//查询被导入的通讯录中已有的用户
+		$q = [
+			'userid',
+			'xxt_site_member',
+			['schema_id' => $id]
+		];
+		$usersOld = $model->query_vals_ss($q);
+
+		//获取所有即将导入的用户
+		$schemas = '(' . implode(',', $schemas) . ')';
+		$q = [
+			'userid,unionid,create_at,identity,name,mobile,mobile_verified,email,email_verified,extattr,depts,tags,verified,forbidden,invite_code',
+			'xxt_site_member',
+			"schema_id in $schemas"
+		];
+		$q2 = ['o' => 'create_at desc,id desc'];
+		$usersAll = $model->query_objs_ss($q,$q2);
+		if(empty($usersAll)){
+			return new \ResponseError('没有要导入的用户');
+		}
+
+		//去除重复的userid，如果有重复的留下时间最大的
+		$usersAll2 = [];
+		$usersAllNew = [];//去重后的所有用户
+		foreach ($usersAll as $user) {
+			if(!in_array($user->userid, $usersAll2)){
+				$usersAll2[] = $user->userid;
+				$usersAllNew[] = $user;
+			}
+		}
+
+		//留下通讯录中导入之前已有的重复用户
+		foreach ($usersOld as $key => $userO) {
+			if(!in_array($userO, $usersAll2)) {
+				unset($usersOld[$key]);
+			}
+		}
+
+		//从通讯录中删除重复的userid
+		$site = $model->escape($site);
+		$id = $model->escape($id);
+		if(!empty($usersOld)){
+			$usersOld = "('" . implode("','", $usersOld) . "')";
+			$model->delete('xxt_site_member', "siteid = '$site' and schema_id = $id and userid in $usersOld");
+		}
+
+		//导入数据
+		$create_at = time();
+		$column = "siteid,schema_id,modify_at,userid,unionid,create_at,identity,name,mobile,mobile_verified,email,email_verified,extattr,depts,tags,verified,forbidden,invite_code";
+
+		//分批次插入数据每批插入50条数据
+		$usersGroup = array_chunk($usersAllNew, 50);
+		foreach ($usersGroup as $groups) {
+			$value = "";
+			foreach ($groups as $group) {
+				$group = (array)$model->escape($group);
+				$groupValue = array_values($group);
+				$value .= ",('$site',$id,$create_at,'" . implode("','", $groupValue) . "')";
+			}
+			$value = substr($value, 1);
+
+			$model->insert("insert into xxt_site_member ($column) values $value");
+		}
+
+		$total = count($usersAllNew);
+		return new \ResponseData($total);
 	}
 	/**
 	 *

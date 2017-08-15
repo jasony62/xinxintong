@@ -300,8 +300,7 @@ define(['require'], function(require) {
                         
                         if(schemas.length > 0) {
                             http2.post('/rest/pl/fe/site/member/schema/importSchema?site=' + $scope.site.id + '&id=' + $scope.choosedSchema.id, schemas, function(rsp) {
-                                
-                                console.log(rsp);
+                                alert('本次共导入  ' + rsp.data + '  个用户');
                             });
                         }
 

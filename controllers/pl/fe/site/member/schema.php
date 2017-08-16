@@ -87,7 +87,29 @@ class schema extends \pl\fe\base {
 		}
 
 		$modelSchema = $this->model('site\user\memberschema');
-		$schemas = $modelSchema->importSchema($site, $id);
+		$schema = $modelSchema->byId($id);
+		if($schema === false){
+			return new \ResponseError('请检查参数设置');
+		}
+		if($schema->matter_id === ''){
+			return new \ResponseData([]);
+		}
+		
+		$options = [];
+		$options['onlyMatter'] = 'N';
+		$oMatter = new \stdClass;
+		$oMatter->id = $schema->matter_id;
+		$oMatter->type = $schema->matter_type;
+		$options['matter'] = $oMatter;
+		$options['fields'] = 'id,title,matter_id,matter_type,create_at,type';
+
+		if ($schemas = $modelSchema->bySite($site, null, $options)) {
+			foreach ($schemas as $key => $schema) {
+				if($schema->id == $id){
+					array_splice($schemas, $key, 1);
+				}
+			}
+		}
 
 		return new \ResponseData($schemas);
 	}

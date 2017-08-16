@@ -729,12 +729,24 @@ class record extends base {
 					'xxt_site_member',
 					['siteid'=>$site,'userid'=>$user->userid]
 				]);
+			
 				foreach ($addressbook as &$v) {
 					if(isset($v->schema_id)){
-						$v->schema_name=$modelEnl->query_val_ss(['title','xxt_site_member_schema',['id'=>$v->schema_id]]);
+						$v->schema=$modelEnl->query_obj_ss(['id,title,extattr','xxt_site_member_schema',['id'=>$v->schema_id]]);
 					}
-					if($v->extattr){
-						$v->extattr=json_decode($v->extattr);
+					$extattr=json_decode($v->extattr);
+					if(!empty((array) $extattr)){
+						$v->schema->extattr=json_decode($v->schema->extattr);
+						$attr=array();
+						foreach ($v->schema->extattr as $v2) {
+							if(isset($extattr->{$v2->id})){
+								$attr['id']=$v2->id;
+								$attr['title']=$v2->label;
+								$attr['value']=$extattr->{$v2->id};
+								$extattr->attr[]=(object) $attr;
+							}
+						}
+						$v->extattr=$extattr;
 					}
 				}
 				$user->addressbook=$addressbook;

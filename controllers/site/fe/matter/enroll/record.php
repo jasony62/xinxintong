@@ -696,26 +696,53 @@ class record extends base {
 	 *
 	 *
 	 */
-	public function actorList_action($site, $app, $orderby='id', $page=1, $size=30) {
+	public function actorList_action($site, $app, $owner='U', $orderby='id', $page=1, $size=30) {
 		$modelEnl=$this->model('matter\enroll');
 		$oApp = $modelEnl->byId($app, ['cascaded' => 'N']);
 		if (false === $oApp) {
 			return new \ObjectNotFoundError();
 		}
+		$oUser = $this->who;
 		//参与者列表
 		$modelRnd=$this->model('matter\enroll\round');
 		$rnd=$modelRnd->getActive($oApp);
 		$rid=!empty($rnd) ? $rnd->rid : '';
-
+		
+		switch ($owner) {
+			case 'G':
+				$modelUsr = $this->model('matter\enroll\user');
+				$options = ['fields' => 'group_id'];
+				$oEnrollee = $modelUsr->byId($oApp, $oUser->uid, $options);
+				$group_id=isset($oEnrollee->group_id) ? $oEnrollee->group_id : '';
+				break;
+			default:
+				break;
+		}
+		
 		$q1=[
 			'*',
 			'xxt_enroll_user',
 			['siteid'=>$site, 'aid'=>$app, 'rid'=>$rid]
 		];
-		$q2['o']="$orderby desc";
+		isset($group_id) && $q1[2]['group_id']=$group_id;
+		$q2['o']="$orderby asc";
 		$q2['r']=['o' => ($page - 1) * $size, 'l' => $size];
 		if($users=$modelEnl->query_objs_ss($q1,$q2)){
 			foreach ($users as &$user) {
+				//添加分组信息
+				$dataSchemas=$oApp->dataSchemas;
+				foreach ($dataSchemas as $value) {
+					if($value->id=='_round_id'){
+						$ops=$value->ops;
+					}
+				}
+				if($ops && $user->group_id){
+					foreach ($ops as $p) {
+						if($user->group_id==$p->v){
+							$user->group=$p;
+						}
+					}
+				}
 				//公众号的信息
 				$sns=$modelEnl->query_obj_ss([
 					'assoc_id,wx_openid,yx_openid,qy_openid,uname,headimgurl,ufrom,uid,unionid',

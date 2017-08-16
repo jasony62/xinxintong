@@ -718,7 +718,7 @@ class record extends base {
 			default:
 				break;
 		}
-		
+
 		$q1=[
 			'*',
 			'xxt_enroll_user',
@@ -736,7 +736,7 @@ class record extends base {
 						$ops=$value->ops;
 					}
 				}
-				if($ops && $user->group_id){
+				if(isset($ops) && $user->group_id){
 					foreach ($ops as $p) {
 						if($user->group_id==$p->v){
 							$user->group=$p;

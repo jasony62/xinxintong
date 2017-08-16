@@ -91,17 +91,16 @@ class schema extends \pl\fe\base {
 		if($schema === false){
 			return new \ResponseError('请检查参数设置');
 		}
-		if($schema->matter_id === ''){
-			return new \ResponseData([]);
-		}
 		
 		$options = [];
 		$options['onlyMatter'] = 'N';
-		$oMatter = new \stdClass;
-		$oMatter->id = $schema->matter_id;
-		$oMatter->type = $schema->matter_type;
-		$options['matter'] = $oMatter;
 		$options['fields'] = 'id,title,matter_id,matter_type,create_at,type';
+		if(!empty($schema->matter_id)){
+			$oMatter = new \stdClass;
+			$oMatter->id = $schema->matter_id;
+			$oMatter->type = $schema->matter_type;
+			$options['matter'] = $oMatter;
+		}
 
 		if ($schemas = $modelSchema->bySite($site, null, $options)) {
 			foreach ($schemas as $key => $schema) {

@@ -745,7 +745,7 @@ class record extends base {
 				}
 				//公众号的信息
 				$sns=$modelEnl->query_obj_ss([
-					'assoc_id,wx_openid,yx_openid,qy_openid,uname,headimgurl,ufrom,uid,unionid',
+					'assoc_id,wx_openid,yx_openid,qy_openid,uname,headimgurl,ufrom,uid,unionid,nickname',
 					'xxt_site_account',
 					['siteid'=>$site,'uid'=>$user->userid]
 				]);

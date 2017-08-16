@@ -95,7 +95,7 @@ class schema extends \pl\fe\base {
 	 * 导入选中通讯录
 	 * $id 要导入的通讯录id
 	 */
-	public function importSchema_action($site, $id) {
+	public function importSchema_action($site, $id, $rounds = 0) {
 		if (false === ($oUser = $this->accountUser())) {
 			return new \ResponseTimeout();
 		}
@@ -138,19 +138,21 @@ class schema extends \pl\fe\base {
 			}
 		}
 
-		//留下通讯录中导入之前已有的重复用户
-		foreach ($usersOld as $key => $userO) {
-			if(!in_array($userO, $usersAll2)) {
-				unset($usersOld[$key]);
+		if($rounds == 0){
+			//留下通讯录中导入之前已有的重复用户
+			foreach ($usersOld as $key => $userO) {
+				if(!in_array($userO, $usersAll2)) {
+					unset($usersOld[$key]);
+				}
 			}
-		}
 
-		//从通讯录中删除重复的userid
-		$site = $model->escape($site);
-		$id = $model->escape($id);
-		if(!empty($usersOld)){
-			$usersOld = "('" . implode("','", $usersOld) . "')";
-			$model->delete('xxt_site_member', "siteid = '$site' and schema_id = $id and userid in $usersOld");
+			//从通讯录中删除重复的userid
+			$site = $model->escape($site);
+			$id = $model->escape($id);
+			if(!empty($usersOld)){
+				$usersOld = "('" . implode("','", $usersOld) . "')";
+				$model->delete('xxt_site_member', "siteid = '$site' and schema_id = $id and userid in $usersOld");
+			}
 		}
 
 		//导入数据
@@ -159,20 +161,43 @@ class schema extends \pl\fe\base {
 
 		//分批次插入数据每批插入50条数据
 		$usersGroup = array_chunk($usersAllNew, 50);
-		foreach ($usersGroup as $groups) {
-			$value = "";
-			foreach ($groups as $group) {
-				$group = (array)$model->escape($group);
-				$groupValue = array_values($group);
-				$value .= ",('$site',$id,$create_at,'" . implode("','", $groupValue) . "')";
-			}
-			$value = substr($value, 1);
+		$groupLength = count($usersGroup);
+		if($rounds > 0 && $rounds < $groupLength){
+			$i = $rounds;
+		}elseif($rounds >= $groupLength){
+			$importGroup = new \stdClass;
+			$importGroup->group = $rounds;
+			$importGroup->plan = count($usersAllNew);
+			$importGroup->total = count($usersAllNew);
+			$importGroup->state = 'end';
+			return new \ResponseData($importGroup);
+		}else{
+			$i = 0;
+		}
+		$groups = $usersGroup[$i];
+		$value = "";
+		foreach ($groups as $group) {
+			$group = (array)$model->escape($group);
+			$groupValue = array_values($group);
+			$value .= ",('$site',$id,$create_at,'" . implode("','", $groupValue) . "')";
+		}
+		$value = substr($value, 1);
 
-			$model->insert("insert into xxt_site_member ($column) values $value");
+		$model->insert("insert into xxt_site_member ($column) values $value");
+
+		$plan = (int)$i * 50 + count($usersGroup[$i]);
+		$total = count($usersAllNew);
+		$importGroup = new \stdClass;
+		$importGroup->group = $i;
+		$importGroup->plan = $plan;
+		$importGroup->total = $total;
+		if($plan == $total){
+			$importGroup->state = 'end';
+		}else{
+			$importGroup->state = 'continue';
 		}
 
-		$total = count($usersAllNew);
-		return new \ResponseData($total);
+		return new \ResponseData($importGroup);
 	}
 	/**
 	 *

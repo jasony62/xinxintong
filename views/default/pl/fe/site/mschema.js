@@ -280,7 +280,7 @@ define(['require'], function(require) {
         $scope.importSchema = function() {
             $uibModal.open({
                 templateUrl: 'importSchema.html',
-                controller: ['$scope', '$uibModalInstance', function($scope2, $mi) {
+                controller: ['$scope', '$uibModalInstance', '$q', 'noticebox', function($scope2, $mi, $q, noticebox) {
                     http2.get('/rest/pl/fe/site/member/schema/listImportSchema?site=' + $scope.site.id + '&id=' + $scope.choosedSchema.id, function(rsp) {
                         $scope2.importSchemas = rsp.data;
                     });
@@ -299,12 +299,24 @@ define(['require'], function(require) {
                         });
                         
                         if(schemas.length > 0) {
-                            http2.post('/rest/pl/fe/site/member/schema/importSchema?site=' + $scope.site.id + '&id=' + $scope.choosedSchema.id, schemas, function(rsp) {
-                                alert('本次共导入  ' + rsp.data + '  个用户');
-                            });
+                            $scope2.importSchemaPost(schemas, 0);
+                            $mi.close();
                         }
 
-                        $mi.close();
+                    };
+                    $scope2.importSchemaPost = function(schemas, rounds) {
+                        var defer = $q.defer();
+                        http2.post('/rest/pl/fe/site/member/schema/importSchema?site=' + $scope.site.id + '&id=' + $scope.choosedSchema.id + '&rounds=' + rounds, schemas, function(rsp) {
+                            if(rsp.data.state !== 'end'){
+                                var group = parseInt(rsp.data.group) + 1;
+                                noticebox.success('已导入用户' + rsp.data.plan + '/' + rsp.data.total);
+                                $scope2.importSchemaPost(schemas, group);
+                            }else{
+                                defer.resolve(rsp.data);
+                                noticebox.success('已导入用户' + rsp.data.plan + '/' + rsp.data.total);
+                                return defer.promise;
+                            }
+                        });
                     };
                 }],
                 backdrop: 'static',

@@ -194,6 +194,7 @@ class record extends base {
 		if (false === $rst[0]) {
 			return new \ResponseError($rst[1]);
 		}
+		$oSubmitedEnrollRec = $rst[1]; // 包含data和score
 		/**
 		 * 提交填写项数据标签
 		 */
@@ -232,6 +233,7 @@ class record extends base {
 		} else {
 			$rid = '';
 		}
+
 		/* 更新活动用户轮次数据 */
 		$oEnrollUsr = $modelUsr->byId($oEnrollApp, $oUser->uid, ['fields' => 'id,nickname,group_id,last_enroll_at,enroll_num,user_total_coin', 'rid' => $rid]);
 		if (false === $oEnrollUsr) {
@@ -243,6 +245,9 @@ class record extends base {
 				}
 			}
 			$inData['rid'] = $rid;
+			if (isset($oSubmitedEnrollRec->score->sum)) {
+				$inData['score'] = $oSubmitedEnrollRec->score->sum;
+			}
 			$modelUsr->add($oEnrollApp, $oUser, $inData);
 		} else {
 			$upData = ['last_enroll_at' => time()];
@@ -259,6 +264,9 @@ class record extends base {
 						$upData['user_total_coin'] = $upData['user_total_coin'] + (int) $rule->actor_delta;
 					}
 				}
+			}
+			if (isset($oSubmitedEnrollRec->score->sum)) {
+				$upData['score'] = $oSubmitedEnrollRec->score->sum;
 			}
 			$modelUsr->update(
 				'xxt_enroll_user',
@@ -294,6 +302,20 @@ class record extends base {
 					}
 				}
 			}
+
+			/* 更新用户获得的分数 */
+			$users = $modelUsr->query_objs_ss([
+				'id,score',
+				'xxt_enroll_user',
+				"siteid='$oEnrollApp->siteid' and aid='$oEnrollApp->id' and userid='$oUser->uid' and rid !='ALL'",
+			]);
+			$total = 0;
+			foreach ($users as $v) {
+				if (!empty($v->score)) {
+					$total += (float) $v->score;
+				}
+			}
+			$upDataALL['score'] = $total;
 			$modelUsr->update(
 				'xxt_enroll_user',
 				$upDataALL,
@@ -464,7 +486,7 @@ class record extends base {
 				if ($mapping->src === 'matter') {
 					if (isset($oApp->{$mapping->id})) {
 						$value = $oApp->{$mapping->id};
-					}else if($mapping->id==='event_at'){
+					} else if ($mapping->id === 'event_at') {
 						$value = date('Y-m-d H:i:s');
 					}
 				} else if ($mapping->src === 'text') {

@@ -233,4 +233,81 @@ class memberschema_model extends \TMS_MODEL {
 
 		return $url;
 	}
+	/**
+	 * 获取此通讯录有权导入的其它通讯录
+	 */
+	public function importSchema($site, $id) {
+		if (($schema = $this->byId($id, "id,matter_id,matter_type,type")) === false) {
+			return new \ResponseError('请检查参数设置');
+		}
+
+		$site = $this->escape($site);
+		$id = $this->escape($id);
+		//如果是项目通讯录从项目下的活动通讯录和项目所属团队通讯录中导入用户
+		if($schema->matter_type === 'mission' && $schema->matter_id !== ''){
+			$qm = [
+				'ms.id,ms.title,ms.matter_id,ms.matter_type,ms.create_at',
+				'xxt_mission_matter m,xxt_site_member_schema ms',
+				"m.mission_id = $schema->matter_id and ms.matter_type = m.matter_type and ms.matter_id = m.matter_id"
+			];
+			$qm2 = ['o' => 'ms.create_at desc'];
+			$schemaMissionMatter = $this->query_objs_ss($qm, $qm2);
+			//项目本身其它的通讯录
+			$qmi = [
+				'id,title,matter_id,matter_type,create_at',
+				'xxt_site_member_schema',
+				"matter_type = 'mission' and matter_id = '$schema->matter_id' and id <> $id"
+			];
+			$qmi2 = ['o' => 'create_at desc'];
+			$schemaMission = $this->query_objs_ss($qmi, $qmi2);
+
+			$schemaMatter = array_merge($schemaMissionMatter, $schemaMission);
+		} else if($schema->matter_type !== '' && $schema->matter_id !== '') {
+			//查询活动所属项目的通讯录
+			$qm = [
+				'ms.id,ms.title,ms.matter_id,ms.matter_type,ms.create_at',
+				'xxt_mission_matter m,xxt_site_member_schema ms',
+				"m.matter_id = '$schema->matter_id' and m.matter_type = '$schema->matter_type' and ms.matter_id = m.mission_id and ms.matter_type = 'mission'"
+			];
+			$qm2 = ['o' => 'ms.create_at desc'];
+			$schemaMissionMatter = $this->query_objs_ss($qm, $qm2);
+			//查询活动其它通讯录
+			$qma = [
+				'id,title,matter_id,matter_type,create_at',
+				'xxt_site_member_schema',
+				"matter_id = '$schema->matter_id' and matter_type = '$schema->matter_type' and id <> $id"
+			];
+			$qma2 = ['o' => 'create_at desc'];
+			$schemaApp = $this->query_objs_ss($qma, $qma2);
+
+			$schemaMatter = array_merge($schemaMissionMatter, $schemaApp);
+		} else {
+			//团队下的所有活动和项目通讯录
+			$qm = [
+				'id,title,matter_id,matter_type,create_at',
+				'xxt_site_member_schema',
+				"siteid = '$site' and matter_id <> ''"
+			];
+			$qm2 = ['o' => 'create_at desc'];
+			$schemaMatter = $this->query_objs_ss($qm, $qm2);
+		}
+		//获取所在团队的所有通讯录
+		$qs = [
+			'id,title,matter_id,matter_type,create_at',
+			'xxt_site_member_schema',
+			"siteid = '$site' and matter_id = '' and id <> $id"
+		];
+		$qs2 = ['o' => 'create_at desc'];
+		$schemaSite = $this->query_objs_ss($qs, $qs2);
+
+		$schemas = array_merge($schemaMatter,$schemaSite);
+		//依照时间排序
+		$sortAt = [];
+		foreach($schemas as $key => $val){  
+		    $sortAt[$key] = $val->create_at;
+		}  
+		array_multisort($sortAt,SORT_DESC,$schemas);
+
+		return $schemas;
+	}
 }

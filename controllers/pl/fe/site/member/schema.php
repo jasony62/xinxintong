@@ -87,34 +87,14 @@ class schema extends \pl\fe\base {
 		}
 
 		$modelSchema = $this->model('site\user\memberschema');
-		$schema = $modelSchema->byId($id);
-		if($schema === false){
-			return new \ResponseError('请检查参数设置');
-		}
-		
-		$options = [];
-		$options['onlyMatter'] = 'N';
-		$options['fields'] = 'id,title,matter_id,matter_type,create_at,type';
-		if(!empty($schema->matter_id)){
-			$oMatter = new \stdClass;
-			$oMatter->id = $schema->matter_id;
-			$oMatter->type = $schema->matter_type;
-			$options['matter'] = $oMatter;
-		}
-
-		if ($schemas = $modelSchema->bySite($site, null, $options)) {
-			foreach ($schemas as $key => $schema) {
-				if($schema->id == $id){
-					array_splice($schemas, $key, 1);
-				}
-			}
-		}
+		$schemas = $modelSchema->importSchema($site, $id);
 
 		return new \ResponseData($schemas);
 	}
 	/**
 	 * 导入选中通讯录
 	 * $id 要导入的通讯录id
+	 * $rounds 进度批次
 	 */
 	public function importSchema_action($site, $id, $rounds = 0) {
 		if (false === ($oUser = $this->accountUser())) {
@@ -123,7 +103,7 @@ class schema extends \pl\fe\base {
 
 		$schemas = $this->getPostJson();
 		if(empty($schemas)){
-			return new \ResponseData($schemas);
+			return new \ResponseError('请选择要导入的通讯录');
 		}
 
 		$model = $this->model();

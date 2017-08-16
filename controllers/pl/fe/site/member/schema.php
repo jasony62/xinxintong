@@ -115,7 +115,6 @@ class schema extends \pl\fe\base {
 	/**
 	 * 导入选中通讯录
 	 * $id 要导入的通讯录id
-	 * $rounds 进度批次
 	 */
 	public function importSchema_action($site, $id, $rounds = 0) {
 		if (false === ($oUser = $this->accountUser())) {
@@ -124,7 +123,7 @@ class schema extends \pl\fe\base {
 
 		$schemas = $this->getPostJson();
 		if(empty($schemas)){
-			return new \ResponseError('请选择要导入的通讯录');
+			return new \ResponseData($schemas);
 		}
 
 		$model = $this->model();

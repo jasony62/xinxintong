@@ -15,7 +15,7 @@ class token_model extends \TMS_MODEL {
 	 *
 	 * @return string 任务码
 	 */
-	public function makeTask($siteId, &$creater, $name, &$params, $validity) {
+	public function makeTask($siteId, &$oCreater, $name, &$params, $validity) {
 		/**
 		 * 生成任务码
 		 */
@@ -37,8 +37,8 @@ class token_model extends \TMS_MODEL {
 			'siteid' => $siteId,
 			'code' => $code,
 			'name' => $name,
-			'creater' => $creater->id,
-			'creater_name' => $creater->name,
+			'creater' => $oCreater->id,
+			'creater_name' => $this->escape($oCreater->name),
 			'create_at' => $current,
 			'expire_at' => $current + $validity,
 		];

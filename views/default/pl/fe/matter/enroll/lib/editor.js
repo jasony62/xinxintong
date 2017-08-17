@@ -389,10 +389,10 @@ define(['wrap'], function(wrapLib) {
             }
             if (domWrap) {
                 wrapType = $(domWrap).attr('wrap');
-                chooseScope = $(domWrap).attr('enroll-records-owner');
+                chooseScope = $(domWrap).attr('enroll-records-type');
                 _activeWrap = {
                     type: wrapType,
-                    chooseScope: chooseScope=='U'?'records':'users',
+                    chooseScope: chooseScope=='records'?'records':'users',
                     dom: domWrap,
                     upmost: /body/i.test(domWrap.parentNode.tagName),
                     downmost: /button|value|radio|checkbox/.test(wrapType),
@@ -492,6 +492,7 @@ define(['wrap'], function(wrapLib) {
                 config: {
                     id: 'L' + (new Date * 1),
                     pattern: 'records',
+                    type: 'records',
                     dataScope: 'U',
                     onclick: '',
                 },
@@ -521,6 +522,7 @@ define(['wrap'], function(wrapLib) {
                 config: {
                     id: 'L' + (new Date * 1),
                     pattern: 'records',
+                    type: 'users',
                     dataScope: 'A',
                     onclick: ''
                 },
@@ -531,7 +533,6 @@ define(['wrap'], function(wrapLib) {
                     if (oMschema && oMschema.length) {
                         dataWrap.config.mschemaId = oMschema[1].id;
                         dataWrap.schemas = oMschema[1]._mschemas;
-                        console.log(dataWrap.schemas);
                         dataWrap.schemas.push({
                             id: 'schema_title',
                             title: '所属通讯录',

@@ -177,8 +177,8 @@ provider('srvSite', function() {
                                             title: ea.label,
                                         });
                                         mschemas.push({
-                                            id: 'ea.id',
-                                            title: 'ea.label',
+                                            id: ea.id,
+                                            title: ea.label,
                                             type: 'address'
                                         });
                                     };

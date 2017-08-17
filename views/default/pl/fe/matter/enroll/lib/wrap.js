@@ -905,7 +905,7 @@ define([], function() {
             'ng-controller': 'ctrlRecords',
             'enroll-records': 'Y',
             'enroll-records-owner': dataWrap.config.dataScope,
-            'enroll-records-type': dataWrap.config.dataScope=='U'?'records':'users',
+            'enroll-records-type': dataWrap.config.type=='records'?'records':'users',
             'enroll-records-mschema': mschemaId,
             wrap: 'records',
             class: 'form-group'

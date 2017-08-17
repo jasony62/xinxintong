@@ -441,12 +441,16 @@ define(['require', 'schema', 'wrap', 'editor'], function(require, schemaLib, wra
     ngMod.controller('ctrlRecordListWrap', ['$scope', '$timeout', function($scope, $timeout) {
         var listSchemas = $scope.activeWrap.schemas,
             config = $scope.activeWrap.config,
-            chooseState = {};
+            chooseState = {},
+            filter;
         $scope.otherSchemas = [{
             id: 'enrollAt',
             type: '_enrollAt',
             title: '填写时间'
         }];
+        $scope.filter = filter = {
+            id: ''
+        };
         if($scope.activeWrap.chooseScope=='users') {
             $scope.mschemas = listSchemas;
         }
@@ -487,13 +491,9 @@ define(['require', 'schema', 'wrap', 'editor'], function(require, schemaLib, wra
             $scope.updWrap();
         };
         $scope.updWrap = function() {
-            /*if($scope.activeWrap.chooseScope=='users'&& $scope.app.entry_rule.scope=='member') {
-                $scope.memberSchemas.forEach(function(item) {
-                    if(config.mschemaId === item.id) {
-                        $scope.activeWrap.schemas = item._mschemas;
-                    }
-                });
-            }*/
+            if($scope.activeWrap.chooseScope=='users'&& $scope.app.entry_rule.scope=='member') {
+                config.mschemaId = filter.id;
+            }
             editorProxy.modifySchema($scope.activeWrap);
         };
     }]);

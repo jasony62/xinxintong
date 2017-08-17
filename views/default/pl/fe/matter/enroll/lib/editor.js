@@ -530,15 +530,11 @@ define(['wrap'], function(wrapLib) {
             };
             switch(oApp.entry_rule.scope) {
                 case 'member':
-                    if (oMschema && oMschema.length) {
-                        dataWrap.config.mschemaId = oMschema[1].id;
-                        dataWrap.schemas = oMschema[1]._mschemas;
-                        dataWrap.schemas.push({
-                            id: 'schema_title',
-                            title: '所属通讯录',
-                            type: 'address'
-                        })
-                    }
+                    dataWrap.schemas.push({
+                        id: 'schema_title',
+                        title: '所属通讯录',
+                        type: 'address'
+                    });
                     break;
                 case 'sns':
                     dataWrap.schemas.push({

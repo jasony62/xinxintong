@@ -31,8 +31,13 @@
                 <input type='radio' value="" name="format" ng-model='activeSchema.format' ng-change="updSchema(activeSchema)">不限</label>
         </div>
         <div class='radio'>
-            <label class="checkbox-inline">
+             <label class="checkbox-inline">
                 <input type='radio' value="number" name="format" ng-model='activeSchema.format' ng-change="updSchema(activeSchema)">数值</label>
+             <label class='checkbox-inline' ng-if='activeSchema.format==="number"'>
+                权重 <input type='number' step="0.01" value="{{activeSchema.weight}}" name="weight" ng-model='activeSchema.weight' ng-change="updSchema(activeSchema)"  placeholder="请输入数字">
+            </label>
+        </div>
+        <div class='radio'>
             <label class="checkbox-inline">
                 <input type='radio' value="name" name="format" ng-model='activeSchema.format' ng-change="updSchema(activeSchema)">姓名</label>
             <label class="checkbox-inline">

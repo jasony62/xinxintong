@@ -40,6 +40,7 @@
                     <th>点赞</th>
                     <th>要求赞同数</th>
                     <th>积分</th>
+                    <th>得分</th>
                     <th ng-if="sns.wx.joined=='Y'">是否关联微信</th>
                     <th ng-if="sns.yx.joined=='Y'">是否关联易信</th>
                     <th ng-if="sns.qy.joined=='Y'">是否关联微企</th>
@@ -85,6 +86,9 @@
                     <td>
                         <div ng-if='m.user.user_total_coin'>{{m.user.user_total_coin}}</div>
                         <div ng-if='m.user_total_coin'>{{m.user_total_coin}}</div>
+                    </td>
+                    <td>
+                        <div ng-if='m.score'>{{m.score.sum}}</div> 
                     </td>
                     <td ng-if="sns.wx.joined=='Y'">
                         <div ng-show="m.wx_openid">已关联</div>

@@ -692,7 +692,6 @@ class record extends \pl\fe\matter\base {
 		}
 
 		$records = $result->records;
-		//print_r($records);die();
 		require_once TMS_APP_DIR . '/lib/PHPExcel.php';
 
 		// Create new PHPExcel object
@@ -715,17 +714,24 @@ class record extends \pl\fe\matter\base {
 		// 转换标题
 		$isTotal = []; //是否需要合计
 		$columnNum4 = $columnNum1; //列号
+		$flag=false;
 		for ($a = 0, $ii = count($schemas); $a < $ii; $a++) {
 			$schema = $schemas[$a];
 			/* 跳过图片,描述说明和文件 */
 			if (in_array($schema->type, ['html'])) {
 				continue;
 			}
+
 			if (isset($schema->format) && $schema->format === 'number') {
 				$isTotal[$columnNum4] = $schema->id;
 			}
+
 			$objActiveSheet->setCellValueByColumnAndRow($columnNum4++, 1, $schema->title);
 
+			if (isset($schema->format) && $schema->format === 'number') {
+				$flag=true;
+				$objActiveSheet->setCellValueByColumnAndRow($columnNum4++, 1, '加权得分');
+			}
 			if (isset($remarkables) && in_array($schema->id, $remarkables)) {
 				$objActiveSheet->setCellValueByColumnAndRow($columnNum4++, 1, '评论数');
 			}
@@ -741,7 +747,7 @@ class record extends \pl\fe\matter\base {
 			$titles[] = '总分数';
 			$titles[] = '平均分数';
 		}
-		if ($oApp->scenario === 'quiz') {
+		if ($oApp->scenario === 'quiz' || $flag) {
 			$objActiveSheet->setCellValueByColumnAndRow($columnNum4++, 1, '总分');
 			$titles[] = '总分';
 		}
@@ -840,18 +846,31 @@ class record extends \pl\fe\matter\base {
 					!empty($v) && $v = date('y-m-j H:i', $v);
 					$objActiveSheet->setCellValueExplicitByColumnAndRow($i + $columnNum3++, $rowIndex, $v, \PHPExcel_Cell_DataType::TYPE_STRING);
 					break;
+				case 'shorttext':
+					$objActiveSheet->setCellValueExplicitByColumnAndRow($i + $columnNum3++, $rowIndex, $v, \PHPExcel_Cell_DataType::TYPE_STRING);
+					break;
 				default:
 					isset($score->{$schema->id}) && $v .= ' (' . $score->{$schema->id} . '分)';
 					$objActiveSheet->setCellValueExplicitByColumnAndRow($i + $columnNum3++, $rowIndex, $v, \PHPExcel_Cell_DataType::TYPE_STRING);
 					break;
 				}
+				$one=$i+$columnNum3;
+				//分数
+				if(isset($score->{$schema->id})){
+					$objActiveSheet->setCellValueExplicitByColumnAndRow($i++ + $columnNum3++, $rowIndex, $score->{$schema->id}, \PHPExcel_Cell_DataType::TYPE_STRING);
+				}
+				//评论数
 				if (isset($remarkables) && in_array($schema->id, $remarkables)) {
 					if (isset($oVerbose->{$schema->id})) {
 						$remark_num = $oVerbose->{$schema->id}->remark_num;
 					} else {
 						$remark_num = 0;
 					}
-					$objActiveSheet->setCellValueExplicitByColumnAndRow($i++ + $columnNum3++, $rowIndex, $remark_num, \PHPExcel_Cell_DataType::TYPE_STRING);
+					$two=$i+$columnNum3;
+					$col=($two-$one>=2) ? ($two-1) : $two;
+					$objActiveSheet->setCellValueExplicitByColumnAndRow($col, $rowIndex, $remark_num, \PHPExcel_Cell_DataType::TYPE_STRING);
+					$i++;
+					$columnNum3++;
 				}
 				$i++;
 			}
@@ -867,7 +886,7 @@ class record extends \pl\fe\matter\base {
 				$objActiveSheet->setCellValueByColumnAndRow($i + $columnNum2++, $rowIndex, sprintf('%.2f', $record->_average));
 			}
 			// 记录测验分数
-			if ($oApp->scenario === 'quiz') {
+			if ($oApp->scenario === 'quiz' || $flag) {
 				$objActiveSheet->setCellValueByColumnAndRow($i + $columnNum2++, $rowIndex, $score->sum . '分');
 			}
 		}

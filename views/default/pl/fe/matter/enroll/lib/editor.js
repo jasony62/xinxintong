@@ -383,14 +383,16 @@ define(['wrap'], function(wrapLib) {
             return status;
         },
         setActiveWrap: function(domWrap) {
-            var wrapType;
+            var wrapType,chooseScope;
             if (_activeWrap) {
                 _activeWrap.dom.classList.remove('active');
             }
             if (domWrap) {
                 wrapType = $(domWrap).attr('wrap');
+                chooseScope = $(domWrap).attr('enroll-records-owner');
                 _activeWrap = {
                     type: wrapType,
+                    chooseScope: chooseScope=='U'?'records':'users',
                     dom: domWrap,
                     upmost: /body/i.test(domWrap.parentNode.tagName),
                     downmost: /button|value|radio|checkbox/.test(wrapType),
@@ -507,6 +509,46 @@ define(['wrap'], function(wrapLib) {
                         break;
                     }
                 }
+            }
+            _page.data_schemas.push(dataWrap);
+            wrapParam = wrapLib.records.embed(dataWrap);
+
+            return _appendWrap(wrapParam.tag, wrapParam.attrs, wrapParam.html);
+        },
+        appendUserList: function(oApp, oMschema) {
+            var dataWrap, wrapParam;
+            dataWrap = {
+                config: {
+                    id: 'L' + (new Date * 1),
+                    pattern: 'records',
+                    dataScope: 'A',
+                    onclick: ''
+                },
+                schemas: []
+            };
+            switch(oApp.entry_rule.scope) {
+                case 'member':
+                    if (oMschema && oMschema.length) {
+                        dataWrap.config.mschemaId = oMschema[0].id;
+                        dataWrap.schemas = oMschema[0]._mschemas;
+                        dataWrap.schemas.push({
+                            id: 'address_name',
+                            title: '所属通讯录',
+                            type: 'address'
+                        })
+                    }
+                    break;
+                case 'sns':
+                    dataWrap.schemas.push({
+                        id: 'nickname',
+                        title: '昵称',
+                        type: 'sns'
+                    },{
+                        id: 'heading_url',
+                        title: '头像',
+                        type: 'sns'
+                    });
+                    break;
             }
             _page.data_schemas.push(dataWrap);
             wrapParam = wrapLib.records.embed(dataWrap);

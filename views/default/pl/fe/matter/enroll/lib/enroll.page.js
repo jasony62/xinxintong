@@ -85,6 +85,15 @@ define(['require', 'schema', 'wrap', 'editor'], function(require, schemaLib, wra
             domWrap = editorProxy.appendRecordList($scope.app);
             $scope.setActiveWrap(domWrap);
         };
+        $scope.enrolleeList = function() {
+            var enrolleeWrap;
+            if($scope.app.entry_rule.scope=='member') {
+                enrolleeWrap = editorProxy.appendUserList($scope.app, $scope.memberSchemas);
+            } else {
+                enrolleeWrap = editorProxy.appendUserList($scope.app);
+            }
+            $scope.setActiveWrap(enrolleeWrap);
+        }
         $scope.removeActiveWrap = function() {
             var activeWrap = $scope.activeWrap,
                 wrapType = activeWrap.type,
@@ -328,6 +337,7 @@ define(['require', 'schema', 'wrap', 'editor'], function(require, schemaLib, wra
         $scope.$watch('ep', function(oPage) {
             if (oPage) {
                 oChooseState = {};
+                if(!$scope.app) return;
                 $scope.app.dataSchemas.forEach(function(schema) {
                     oChooseState[schema.id] = false;
                 });
@@ -426,7 +436,7 @@ define(['require', 'schema', 'wrap', 'editor'], function(require, schemaLib, wra
         };
     }]);
     /**
-     * record list wrap 
+     * record list wrap
      */
     ngMod.controller('ctrlRecordListWrap', ['$scope', '$timeout', function($scope, $timeout) {
         var listSchemas = $scope.activeWrap.schemas,
@@ -436,6 +446,9 @@ define(['require', 'schema', 'wrap', 'editor'], function(require, schemaLib, wra
             type: '_enrollAt',
             title: '填写时间'
         }];
+        if($scope.activeWrap.chooseScope=='users') {
+            $scope.mschemas = listSchemas;
+        }
         $scope.app.dataSchemas.forEach(function(schema) {
             chooseState[schema.id] = false;
         });

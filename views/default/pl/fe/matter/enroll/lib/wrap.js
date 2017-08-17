@@ -839,6 +839,8 @@ define([], function() {
             case 'longtext':
             case 'location':
             case 'member':
+            case 'sns':
+            case 'address':
                 html += '<div>{{r.data.' + oSchema.id + '}}</div>';
                 break;
             case 'date':
@@ -887,13 +889,16 @@ define([], function() {
     };
     RecordsWrap.prototype.embed = function(dataWrap) {
         if (!dataWrap.schemas && dataWrap.schemas.length === 0) return false;
-        var html, attrs;
+        var html, attrs, mschemaId;
         html = this._htmlRecords(dataWrap);
+        mschemaId = Object.keys(dataWrap.config).indexOf('mschemaId') == -1 ? '' : dataWrap.config.mschemaId;
         attrs = {
             id: dataWrap.config.id,
             'ng-controller': 'ctrlRecords',
             'enroll-records': 'Y',
             'enroll-records-owner': dataWrap.config.dataScope,
+            'enroll-records-type': dataWrap.config.dataScope=='U'?'records':'users',
+            'enroll-records-mschema': mschemaId,
             wrap: 'records',
             class: 'form-group'
         };
@@ -904,11 +909,14 @@ define([], function() {
         };
     };
     RecordsWrap.prototype.modify = function(domWrap, oWrap) {
-        var html, attrs = {},
+        var html, mschemaId, attrs = {},
             $wrap = $(domWrap),
             config = oWrap.config;
 
         attrs['enroll-records-owner'] = config.dataScope;
+        if(Object.keys(oWrap.config).indexOf('mschemaId') !== -1) {
+            attrs['enroll-records-mschema'] = config.mschemaId;
+        }
         $wrap.attr(attrs);
         $wrap.children('ul').remove();
         html = this._htmlRecords(oWrap);

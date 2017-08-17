@@ -113,8 +113,8 @@ ngApp.controller('ctrlRecords', ['$scope', '$uibModal', 'Record', 'ls', '$sce', 
         page: { at: 1, size: 12 },
         j: function() {
             var params = 'owner=' + this.owner + '&page=' + this.page.at + '&size=' + this.page.size;
-            if(id.length) {
-                return params + '&schema_id=' + id;
+            if(this.id.length) {
+                return params + '&schema_id=' + this.id;
             } else {
                 return params;
             }

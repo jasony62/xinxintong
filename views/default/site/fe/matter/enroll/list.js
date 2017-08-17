@@ -31,7 +31,7 @@ ngApp.factory('Record', ['http2', '$q', 'ls', function(http2, $q, LS) {
     Record.prototype.list = function(options, oCriteria) {
         var deferred = $q.defer(),
             url;
-        url = LS.j('record/list', 'site', 'app');
+        options.type=='records'?url = LS.j('record/list', 'site', 'app'):url = LS.j('record/enrolleelist', 'site', 'app');;
         url += '&' + options.j();
         http2.post(url, oCriteria ? oCriteria : {}).then(function(rsp) {
             var records, record;
@@ -58,6 +58,12 @@ ngApp.directive('enrollRecords', function() {
         link: function(scope, ele, attrs) {
             if (scope.options && attrs.enrollRecordsOwner && attrs.enrollRecordsOwner.length) {
                 scope.options.owner = attrs.enrollRecordsOwner;
+            }
+            if (scope.options && attrs.enrollRecordsType && attrs.enrollRecordsType.length) {
+                scope.options.type = attrs.enrollRecordsType;
+            }
+            if (scope.options && attrs.enrollRecordsMschema && attrs.enrollRecordsMschema.length) {
+                scope.options.id = attrs.enrollRecordsMschema;
             }
         }
     }
@@ -101,10 +107,17 @@ ngApp.controller('ctrlRecords', ['$scope', '$uibModal', 'Record', 'ls', '$sce', 
         _records = [];
 
     options = {
+        type: '',
+        id: '',
         owner: '',
         page: { at: 1, size: 12 },
         j: function() {
-            return 'owner=' + this.owner + '&page=' + this.page.at + '&size=' + this.page.size;
+            var params = 'owner=' + this.owner + '&page=' + this.page.at + '&size=' + this.page.size;
+            if(id.length) {
+                return params + '&schema_id=' + id;
+            } else {
+                return params;
+            }
         }
     };
     $scope.options = options;

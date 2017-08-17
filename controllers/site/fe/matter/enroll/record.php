@@ -696,7 +696,7 @@ class record extends base {
 	 *
 	 *
 	 */
-	public function actorList_action($site, $app, $owner='U', $orderby='id', $page=1, $size=30) {
+	public function enrolleeList_action($site, $app, $owner='U',$schema_id, $page=1, $size=30) {
 		$modelEnl=$this->model('matter\enroll');
 		$oApp = $modelEnl->byId($app, ['cascaded' => 'N']);
 		if (false === $oApp) {
@@ -707,7 +707,7 @@ class record extends base {
 		$modelRnd=$this->model('matter\enroll\round');
 		$rnd=$modelRnd->getActive($oApp);
 		$rid=!empty($rnd) ? $rnd->rid : '';
-		
+		//全部或分组
 		switch ($owner) {
 			case 'G':
 				$modelUsr = $this->model('matter\enroll\user');
@@ -718,14 +718,15 @@ class record extends base {
 			default:
 				break;
 		}
-
+		//设定范围
+		$entry=$oApp->entry_rule->scope;
 		$q1=[
 			'*',
 			'xxt_enroll_user',
 			['siteid'=>$site, 'aid'=>$app, 'rid'=>$rid]
 		];
 		isset($group_id) && $q1[2]['group_id']=$group_id;
-		$q2['o']="$orderby asc";
+		$q2['o']="id asc";
 		$q2['r']=['o' => ($page - 1) * $size, 'l' => $size];
 		if($users=$modelEnl->query_objs_ss($q1,$q2)){
 			foreach ($users as &$user) {
@@ -743,40 +744,54 @@ class record extends base {
 						}
 					}
 				}
-				//公众号的信息
-				$sns=$modelEnl->query_obj_ss([
-					'assoc_id,wx_openid,yx_openid,qy_openid,uname,headimgurl,ufrom,uid,unionid,nickname',
-					'xxt_site_account',
-					['siteid'=>$site,'uid'=>$user->userid]
-				]);
-				$user->sns=$sns;
-				//通信录的信息
-				$addressbook=$modelEnl->query_objs_ss([
-					'*',
-					'xxt_site_member',
-					['siteid'=>$site,'userid'=>$user->userid]
-				]);
+				switch ($entry) {
+					case 'member':
+						//通信录的信息
+						if(empty($schema_id)){
+							return new \ResponseError('传入的通信录ID参数不能为空！');
+						}
+						
+						$addressbook=$modelEnl->query_obj_ss([
+							'*',
+							'xxt_site_member',
+							['siteid'=>$site,'userid'=>$user->userid,'schema_id'=>$schema_id]
+						]);
 			
-				foreach ($addressbook as &$v) {
-					if(isset($v->schema_id)){
-						$v->schema=$modelEnl->query_obj_ss(['id,title,extattr','xxt_site_member_schema',['id'=>$v->schema_id]]);
-					}
-					$extattr=json_decode($v->extattr);
-					if(!empty((array) $extattr)){
-						$v->schema->extattr=json_decode($v->schema->extattr);
-						$attr=array();
-						foreach ($v->schema->extattr as $v2) {
-							if(isset($extattr->{$v2->id})){
-								$attr['id']=$v2->id;
-								$attr['title']=$v2->label;
-								$attr['value']=$extattr->{$v2->id};
-								$extattr->attr[]=(object) $attr;
+						if($addressbook) {
+							if(isset($schema_id)){
+								$schema=$modelEnl->query_obj_ss(['id,title,extattr','xxt_site_member_schema',['id'=>$schema_id]]);
+							}
+							$extattr=json_decode($addressbook->extattr);
+							$addressbook->schema=$schema;
+							if(!empty((array) $extattr)){
+								$schema->extattr=json_decode($schema->extattr);
+								$attr=array();
+								foreach ($schema->extattr as $v2) {
+									if(isset($extattr->{$v2->id})){
+										$attr['id']=$v2->id;
+										$attr['title']=$v2->label;
+										$attr['value']=$extattr->{$v2->id};
+										$extattr->attr[]=(object) $attr;
+									}
+								}
+							$addressbook->extattr=$extattr;
 							}
 						}
-						$v->extattr=$extattr;
-					}
+						$user->mschema=$addressbook;
+						break;
+					case 'sns':
+						//公众号的信息
+						$sns=$modelEnl->query_obj_ss([
+							'assoc_id,wx_openid,yx_openid,qy_openid,uname,headimgurl,ufrom,uid,unionid,nickname',
+							'xxt_site_account',
+							['siteid'=>$site,'uid'=>$user->userid]
+						]);
+						$user->sns=$sns;
+						break;
+					default:
+						# code...
+						break;
 				}
-				$user->addressbook=$addressbook;
 			}
 		}
 

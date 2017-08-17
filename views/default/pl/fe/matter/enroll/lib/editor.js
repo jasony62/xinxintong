@@ -529,8 +529,9 @@ define(['wrap'], function(wrapLib) {
             switch(oApp.entry_rule.scope) {
                 case 'member':
                     if (oMschema && oMschema.length) {
-                        dataWrap.config.mschemaId = oMschema[0].id;
-                        dataWrap.schemas = oMschema[0]._mschemas;
+                        dataWrap.config.mschemaId = oMschema[1].id;
+                        dataWrap.schemas = oMschema[1]._mschemas;
+                        console.log(dataWrap.schemas);
                         dataWrap.schemas.push({
                             id: 'schema_title',
                             title: '所属通讯录',

@@ -440,6 +440,7 @@ define(['require', 'schema', 'wrap', 'editor'], function(require, schemaLib, wra
      */
     ngMod.controller('ctrlRecordListWrap', ['$scope', '$timeout', function($scope, $timeout) {
         var listSchemas = $scope.activeWrap.schemas,
+            config = $scope.activeWrap.config,
             chooseState = {};
         $scope.otherSchemas = [{
             id: 'enrollAt',
@@ -486,6 +487,13 @@ define(['require', 'schema', 'wrap', 'editor'], function(require, schemaLib, wra
             $scope.updWrap();
         };
         $scope.updWrap = function() {
+            /*if($scope.activeWrap.chooseScope=='users'&& $scope.app.entry_rule.scope=='member') {
+                $scope.memberSchemas.forEach(function(item) {
+                    if(config.mschemaId === item.id) {
+                        $scope.activeWrap.schemas = item._mschemas;
+                    }
+                });
+            }*/
             editorProxy.modifySchema($scope.activeWrap);
         };
     }]);

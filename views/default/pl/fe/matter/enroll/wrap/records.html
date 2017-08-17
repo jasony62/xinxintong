@@ -16,7 +16,7 @@
     </div>
     <div class="form-group" ng-if="activeWrap.chooseScope==='users'&&app.entry_rule.scope==='member'">
         <label>选择通讯录</label>
-        <select class='form-control' ng-model="activeWrap.config.mschemaId" ng-options='ms.id as ms.title for ms in memberSchemas' ng-change="updWrap()">
+        <select class='form-control' ng-model="activeWrap.config.mschemaId" ng-options='ms.id as ms.title for ms in memberSchemas'>
         </select>
     </div>
     <div class='list-group' style='max-height:300px;overflow-y:auto;min-width:240px;' >

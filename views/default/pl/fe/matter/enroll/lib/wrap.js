@@ -841,6 +841,9 @@ define([], function() {
             case 'sns':
                 html += '<div>{{r.sns.' + oSchema.id + '}}</div>'
                 break;
+            case 'headimgurl':
+                html += '<div><img ng-src="{{r.sns.oSchema.id}}"/></div>'
+                break;
             case 'shorttext':
             case 'longtext':
             case 'location':

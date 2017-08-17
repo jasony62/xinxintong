@@ -127,14 +127,16 @@ ngApp.controller('ctrlRecords', ['$scope', '$uibModal', 'Record', 'ls', '$sce', 
         var eSpread, eWrap;
         eWrap = document.querySelectorAll('.list-group-item[ng-repeat]');
         eWrap.forEach(function(item) {
-            eSpread = document.createElement('i');
-            eSpread.classList.add('cus-glyphicon', 'glyphicon-menu-down');
-            eSpread.addEventListener('click', function(event) {
-                event.preventDefault();
-                event.stopPropagation();
-                angular.element(item).toggleClass('spread');
-            }, true);
-            item.appendChild(eSpread);
+            if(item.children.length > 3) {
+                eSpread = document.createElement('i');
+                eSpread.classList.add('cus-glyphicon', 'glyphicon-menu-down');
+                eSpread.addEventListener('click', function(event) {
+                    event.preventDefault();
+                    event.stopPropagation();
+                    angular.element(item).toggleClass('spread');
+                }, true);
+                item.appendChild(eSpread);
+            }
         });
     }
     $scope.value2Label = function(record, schemaId) {

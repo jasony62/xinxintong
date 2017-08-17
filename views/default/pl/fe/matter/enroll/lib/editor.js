@@ -532,7 +532,7 @@ define(['wrap'], function(wrapLib) {
                         dataWrap.config.mschemaId = oMschema[0].id;
                         dataWrap.schemas = oMschema[0]._mschemas;
                         dataWrap.schemas.push({
-                            id: 'address_name',
+                            id: 'schema_title',
                             title: '所属通讯录',
                             type: 'address'
                         })
@@ -544,7 +544,7 @@ define(['wrap'], function(wrapLib) {
                         title: '昵称',
                         type: 'sns'
                     },{
-                        id: 'heading_url',
+                        id: 'headimgurl',
                         title: '头像',
                         type: 'sns'
                     });

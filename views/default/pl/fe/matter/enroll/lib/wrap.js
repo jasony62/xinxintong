@@ -835,12 +835,17 @@ define([], function() {
         var html;
         html = '<div wrap="value" class="wrap-inline wrap-splitline" schema="' + oSchema.id + '" schema-type="' + oSchema.type + '"><label>' + oSchema.title + '</label>';
         switch (oSchema.type) {
+            case 'address':
+                html += '<div>{{r.mschema.' + oSchema.id + '}}</div>'
+                break;
+            case 'sns':
+                html += '<div>{{r.sns.' + oSchema.id + '}}</div>'
+                break;
             case 'shorttext':
             case 'longtext':
             case 'location':
             case 'member':
             case 'sns':
-            case 'address':
                 html += '<div>{{r.data.' + oSchema.id + '}}</div>';
                 break;
             case 'date':

@@ -835,6 +835,9 @@ define([], function() {
         var html;
         html = '<div wrap="value" class="wrap-inline wrap-splitline" schema="' + oSchema.id + '" schema-type="' + oSchema.type + '"><label>' + oSchema.title + '</label>';
         switch (oSchema.type) {
+            case 'enrollee':
+                html += '<div>{{r.' + oSchema.id + '}}</div>';
+                break;
             case 'address':
                 html += '<div>{{r.mschema.' + oSchema.id + '}}</div>';
                 break;

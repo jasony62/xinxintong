@@ -490,10 +490,15 @@ define(['require', 'schema', 'wrap', 'editor'], function(require, schemaLib, wra
        enrollee list wrap
      */
     ngMod.controller('ctrlEnrolleeListWrap', ['$scope', '$timeout', function($scope, $timeout) {
-        var listSchemas = [],
+        var listSchemas = $scope.activeWrap.schemas,
             memberSchemas = $scope.memberSchemas,
             config = $scope.activeWrap.config,
             chooseState = {};
+        $scope.otherMschemas = [{
+            id: 'group.l',
+            title: '所属分组',
+            type: 'enrollee'
+        }];
         if($scope.app.entry_rule.scope=='sns') {
             $scope.mschemas = [{
                 id: 'nickname',
@@ -505,52 +510,38 @@ define(['require', 'schema', 'wrap', 'editor'], function(require, schemaLib, wra
                 type: 'sns'
             }]
         }else{
-            if($scope.activeWrap.config.mschemaId!==''){
-                memberSchemas.forEach(function(item) {
-                    if(item.id == $scope.activeWrap.config.mschemaId) {
-                        for(var i = item._mschemas.length-1; i>=0; i--) {
-                            if(item._mschemas[i].id=='schema_title') {
-                                break;
-                            }else{
-                                item._mschemas.push({
-                                    id: 'schema_title',
-                                    type: 'address',
-                                    title: '所属通讯录'
-                                });
-                                break;
-                            }
-                        }
-                        $scope.mschemas = item._mschemas;
-                    }
-                });
-                $scope.mschemas.forEach(function(ms) {
-                    listSchemas.push(ms);
-                });
-                $scope.activeWrap.schemas = listSchemas;
-            }
-        }
-        $scope.doFilter = function(id) {
-            for(var i = 0, ii = memberSchemas.length; i < ii; i++) {
-                if(memberSchemas[i].id == id) {
-                    for(var k = memberSchemas[i]._mschemas, j = k.length - 1; j >= 0; j--) {
-                        if(k[j].id == 'schema_title') {
-                            break;
-                        }else {
-                            k.push({
-                                id: 'schema_title',
-                                type: 'address',
-                                title: '所属通讯录'
-                            });
-                            break;
-                        }
-                    }
-                    config.mschemaId = id;
-                    $scope.activeWrap.schemas = memberSchemas[i]._mschemas;
-                    $scope.activeWrap.dom.classList.remove('active');
-                    $scope.mschemas = listSchemas = [];
+            for(var i=$scope.otherMschemas.length-1; i>=0; i--) {
+                if($scope.otherMschemas[i].id == 'schema_title') {
+                    break;
+                }else {
+                    $scope.otherMschemas.push({
+                        id: 'schema_title',
+                        title: '所属通讯录',
+                        type: 'address'
+                    });
                     break;
                 }
             }
+            if($scope.activeWrap.config.mschemaId!==''){
+                $scope.mschemas = [];
+                memberSchemas.forEach(function(item) {
+                    if(item.id == $scope.activeWrap.config.mschemaId) {
+                        $scope.mschemas = item._mschemas;
+                    }
+                });
+            }
+        }
+        $scope.doFilter = function(id) {
+            memberSchemas.forEach(function(item) {
+                if(item.id == id) {
+                    config.mschemaId = id;
+                    $scope.activeWrap.schemas = $scope.otherMschemas;
+                    item._mschemas.forEach(function(ms) {
+                        $scope.activeWrap.schemas.unshift(ms);
+                        $scope.activeWrap.dom.classList.remove('active');
+                    });
+                }
+            });
             $scope.updWrap();
         }
         listSchemas.forEach(function(schema) {

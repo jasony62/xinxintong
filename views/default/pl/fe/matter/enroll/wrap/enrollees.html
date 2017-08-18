@@ -20,5 +20,11 @@
                 <input type='checkbox' bs-switch switch-size="mini" data-on-text="显" data-off-text="隐" ng-model="chooseState[s.id]" ng-change="choose(s)">
             </span>
         </div>
+        <div class='list-group-item' ng-repeat="s in otherMschemas">
+            <span ng-bind="s.title"></span>
+            <span class='schema-switch'>
+                <input type='checkbox' bs-switch switch-size="mini" data-on-text="显" data-off-text="隐" ng-model="chooseState[s.id]" ng-change="choose(s)">
+            </span>
+        </div>
     </div>
 </div>

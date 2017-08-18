@@ -836,13 +836,13 @@ define([], function() {
         html = '<div wrap="value" class="wrap-inline wrap-splitline" schema="' + oSchema.id + '" schema-type="' + oSchema.type + '"><label>' + oSchema.title + '</label>';
         switch (oSchema.type) {
             case 'address':
-                html += '<div>{{r.mschema.' + oSchema.id + '}}</div>'
+                html += '<div>{{r.mschema.' + oSchema.id + '}}</div>';
                 break;
             case 'sns':
-                html += '<div>{{r.sns.' + oSchema.id + '}}</div>'
+                html += '<div>{{r.sns.' + oSchema.id + '}}</div>';
                 break;
             case 'headimgurl':
-                html += '<div><img ng-src="{{r.sns.oSchema.id}}"/></div>'
+                html += '<div><img ng-src="{{r.sns.oSchema.id}}"/></div>';
                 break;
             case 'shorttext':
             case 'longtext':

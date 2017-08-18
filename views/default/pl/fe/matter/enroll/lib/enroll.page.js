@@ -454,6 +454,9 @@ define(['require', 'schema', 'wrap', 'editor'], function(require, schemaLib, wra
         if($scope.activeWrap.chooseScope=='users') {
             $scope.mschemas = listSchemas;
         }
+        $scope.doFilter = function(id) {
+
+        }
         $scope.app.dataSchemas.forEach(function(schema) {
             chooseState[schema.id] = false;
         });
@@ -492,7 +495,23 @@ define(['require', 'schema', 'wrap', 'editor'], function(require, schemaLib, wra
         };
         $scope.updWrap = function() {
             if($scope.activeWrap.chooseScope=='users'&& $scope.app.entry_rule.scope=='member') {
-                config.mschemaId = filter.id;
+                var schema_id = {
+                    id: 'schema_id',
+                    title: '所属通讯录',
+                    type: 'address'
+                }
+                $scope.memberSchemas.forEach(function(item) {
+                    if(item.id==filter.id) {
+                        item._mschemas.forEach(function(m) {
+                            listSchemas.unshift(m);
+                        });
+                        if(JSON.stringify(item._mschemas).indexOf(JSON.stringify(schema_id))==-1) {
+                            item._mschemas.push(schema_id);
+                        }
+                        config.mschemaId = filter.id;
+                        $scope.activeWrap.schemas = item._mschemas;
+                    }
+                });
             }
             editorProxy.modifySchema($scope.activeWrap);
         };

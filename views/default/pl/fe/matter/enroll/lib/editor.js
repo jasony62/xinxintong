@@ -530,11 +530,7 @@ define(['wrap'], function(wrapLib) {
             };
             switch(oApp.entry_rule.scope) {
                 case 'member':
-                    dataWrap.schemas.push({
-                        id: 'schema_title',
-                        title: '所属通讯录',
-                        type: 'address'
-                    });
+                    dataWrap.config.mschemaId = '';
                     break;
                 case 'sns':
                     dataWrap.schemas.push({

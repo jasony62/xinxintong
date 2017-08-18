@@ -441,21 +441,38 @@ define(['require', 'schema', 'wrap', 'editor'], function(require, schemaLib, wra
     ngMod.controller('ctrlRecordListWrap', ['$scope', '$timeout', function($scope, $timeout) {
         var listSchemas = $scope.activeWrap.schemas,
             config = $scope.activeWrap.config,
-            chooseState = {},
-            filter;
+            chooseState = {};
         $scope.otherSchemas = [{
             id: 'enrollAt',
             type: '_enrollAt',
             title: '填写时间'
         }];
-        $scope.filter = filter = {
-            id: ''
-        };
-        if($scope.activeWrap.chooseScope=='users') {
+        if($scope.app.entry_rule.scope=='users') {
             $scope.mschemas = listSchemas;
         }
         $scope.doFilter = function(id) {
-
+            var memberSchemas = $scope.memberSchemas;
+            for(var i = 0, ii = memberSchemas.length; i < ii; i++) {
+                if(memberSchemas[i].id == id) {
+                    for(var k = memberSchemas[i]._mschemas, j = k.length - 1, jj = 0; j > jj; j--) {
+                        if(k[j].id == 'schema_id') {
+                            break;
+                        }else {
+                            k.push({
+                                id: 'schema_id',
+                                type: 'address',
+                                title: '所属通讯录'
+                            });
+                            break;
+                        }
+                    }
+                    config.mschemaId = id;
+                    $scope.activeWrap.schemas = memberSchemas[i]._mschemas;
+                    $scope.mschemas = listSchemas = memberSchemas[i]._mschemas;
+                    break;
+                }
+            }
+            $scope.updWrap();
         }
         $scope.app.dataSchemas.forEach(function(schema) {
             chooseState[schema.id] = false;
@@ -494,25 +511,6 @@ define(['require', 'schema', 'wrap', 'editor'], function(require, schemaLib, wra
             $scope.updWrap();
         };
         $scope.updWrap = function() {
-            if($scope.activeWrap.chooseScope=='users'&& $scope.app.entry_rule.scope=='member') {
-                var schema_id = {
-                    id: 'schema_id',
-                    title: '所属通讯录',
-                    type: 'address'
-                }
-                $scope.memberSchemas.forEach(function(item) {
-                    if(item.id==filter.id) {
-                        item._mschemas.forEach(function(m) {
-                            listSchemas.unshift(m);
-                        });
-                        if(JSON.stringify(item._mschemas).indexOf(JSON.stringify(schema_id))==-1) {
-                            item._mschemas.push(schema_id);
-                        }
-                        config.mschemaId = filter.id;
-                        $scope.activeWrap.schemas = item._mschemas;
-                    }
-                });
-            }
             editorProxy.modifySchema($scope.activeWrap);
         };
     }]);

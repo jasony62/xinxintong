@@ -16,7 +16,7 @@
     </div>
     <div class="form-group" ng-if="activeWrap.chooseScope==='users'&&app.entry_rule.scope==='member'">
         <label>通讯录范围</label>
-        <select class='form-control' ng-model="filter.id" ng-change='updWrap()'>
+        <select class='form-control' ng-model="activeWrap.config.mschemaId" ng-change="doFilter(activeWrap.config.mschemaId)">
             <option value=''>请选择</option>
             <option value='{{ms.id}}' ng-repeat='ms in memberSchemas'>{{ms.title}}</option>
         </select>

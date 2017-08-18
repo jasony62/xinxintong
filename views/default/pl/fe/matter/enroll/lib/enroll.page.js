@@ -490,7 +490,7 @@ define(['require', 'schema', 'wrap', 'editor'], function(require, schemaLib, wra
        enrollee list wrap
      */
     ngMod.controller('ctrlEnrolleeListWrap', ['$scope', '$timeout', function($scope, $timeout) {
-        var listSchemas = $scope.activeWrap.schemas,
+        var listSchemas = [],
             memberSchemas = $scope.memberSchemas,
             config = $scope.activeWrap.config,
             chooseState = {};
@@ -505,10 +505,14 @@ define(['require', 'schema', 'wrap', 'editor'], function(require, schemaLib, wra
                 type: 'sns'
             }]
         }else{
-            $scope.mschemas = [];
             if($scope.activeWrap.config.mschemaId!==''){
-                $scope.activeWrap.schemas.forEach(function(schema) {
-                    $scope.mschemas.push(schema);
+                memberSchemas.forEach(function(item) {
+                    if(item.id == $scope.activeWrap.config.mschemaId) {
+                        $scope.mschemas = item._mschemas;
+                    }
+                });
+                $scope.mschemas.forEach(function(ms) {
+                    listSchemas.push(ms);
                 });
             }
         }
@@ -536,7 +540,7 @@ define(['require', 'schema', 'wrap', 'editor'], function(require, schemaLib, wra
             }
             $scope.updWrap();
         }
-        listSchemas.forEach(function(schema) {
+        $scope.listSchemas.forEach(function(schema) {
             chooseState[schema.id] = true;
         });
         $scope.chooseState = chooseState;

@@ -905,9 +905,9 @@ define([], function() {
             'ng-controller': 'ctrlRecords',
             'enroll-records': 'Y',
             'enroll-records-owner': dataWrap.config.dataScope,
-            'enroll-records-type': dataWrap.config.type=='records'?'records':'users',
+            'enroll-records-type': dataWrap.config.type=='records'?'records':'enrollees',
             'enroll-records-mschema': mschemaId,
-            wrap: 'records',
+            wrap: dataWrap.config.type=='records'?'records':'enrollees',
             class: 'form-group'
         };
         return {
@@ -1095,6 +1095,7 @@ define([], function() {
         dataByDom: function(domWrap, oPage) {
             var wrapType = $(domWrap).attr('wrap'),
                 dataWrap;
+            if(wrapType=='enrollees'){wrapType = 'records'};
             if (!this[wrapType]) {
                 return false;
             }

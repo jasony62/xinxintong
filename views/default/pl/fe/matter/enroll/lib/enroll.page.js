@@ -508,12 +508,25 @@ define(['require', 'schema', 'wrap', 'editor'], function(require, schemaLib, wra
             if($scope.activeWrap.config.mschemaId!==''){
                 memberSchemas.forEach(function(item) {
                     if(item.id == $scope.activeWrap.config.mschemaId) {
+                        for(var i = item._mschemas.length-1; i>=0; i--) {
+                            if(item._mschemas[i].id=='schema_title') {
+                                break;
+                            }else{
+                                item._mschemas.push({
+                                    id: 'schema_title',
+                                    type: 'address',
+                                    title: '所属通讯录'
+                                });
+                                break;
+                            }
+                        }
                         $scope.mschemas = item._mschemas;
                     }
                 });
                 $scope.mschemas.forEach(function(ms) {
                     listSchemas.push(ms);
                 });
+                $scope.activeWrap.schemas = listSchemas;
             }
         }
         $scope.doFilter = function(id) {
@@ -540,7 +553,7 @@ define(['require', 'schema', 'wrap', 'editor'], function(require, schemaLib, wra
             }
             $scope.updWrap();
         }
-        $scope.listSchemas.forEach(function(schema) {
+        listSchemas.forEach(function(schema) {
             chooseState[schema.id] = true;
         });
         $scope.chooseState = chooseState;

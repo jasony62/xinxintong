@@ -539,6 +539,7 @@ define(['require', 'schema', 'wrap', 'editor'], function(require, schemaLib, wra
                     item._mschemas.forEach(function(ms) {
                         $scope.activeWrap.schemas.unshift(ms);
                         $scope.activeWrap.dom.classList.remove('active');
+                        $scope.mschemas = listSchemas = [];
                     });
                 }
             });

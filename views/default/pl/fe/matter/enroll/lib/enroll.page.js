@@ -440,7 +440,6 @@ define(['require', 'schema', 'wrap', 'editor'], function(require, schemaLib, wra
      */
     ngMod.controller('ctrlRecordListWrap', ['$scope', '$timeout', function($scope, $timeout) {
         var listSchemas = $scope.activeWrap.schemas,
-            config = $scope.activeWrap.config,
             chooseState = {};
         $scope.otherSchemas = [{
             id: 'enrollAt',
@@ -506,37 +505,22 @@ define(['require', 'schema', 'wrap', 'editor'], function(require, schemaLib, wra
                 type: 'sns'
             }]
         }else{
+            $scope.mschemas = [];
             if($scope.activeWrap.config.mschemaId!==''){
-                memberSchemas.forEach(function(item) {
-                    if($scope.activeWrap.config.mschemaId==item.id) {
-                        $scope.mschemas = item._mschemas;
-                        /*break;*/
-                    }
+                $scope.activeWrap.schemas.forEach(function(schema) {
+                    $scope.mschemas.push(schema);
                 });
-                if(!listSchemas.length) {
-                    $scope.mschemas.forEach(function(m) {
-                        listSchemas.push(m);
-                    });
-                }else {
-                    listSchemas.forEach(function(l) {
-                        $scope.mschemas.forEach(function(m) {
-                            if(l.id!=m.id) {
-                                listSchemas.push(m);
-                            }
-                        });
-                    });
-                }
             }
         }
         $scope.doFilter = function(id) {
             for(var i = 0, ii = memberSchemas.length; i < ii; i++) {
                 if(memberSchemas[i].id == id) {
                     for(var k = memberSchemas[i]._mschemas, j = k.length - 1; j >= 0; j--) {
-                        if(k[j].id == 'schema_id') {
+                        if(k[j].id == 'schema_title') {
                             break;
                         }else {
                             k.push({
-                                id: 'schema_id',
+                                id: 'schema_title',
                                 type: 'address',
                                 title: '所属通讯录'
                             });

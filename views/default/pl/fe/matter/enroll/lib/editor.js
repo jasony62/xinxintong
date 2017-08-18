@@ -223,7 +223,7 @@ define(['wrap'], function(wrapLib) {
             } else if (_page.type === 'L') {
                 if (wrap.type === 'value') {
                     wrapLib.value.modify(wrap.dom, wrap);
-                } else if (wrap.type === 'records') {
+                } else if (wrap.type === 'records' || wrap.type=='enrollees') {
                     wrapLib.records.modify(wrap.dom, wrap);
                 }
             }
@@ -383,14 +383,16 @@ define(['wrap'], function(wrapLib) {
             return status;
         },
         setActiveWrap: function(domWrap) {
-            var wrapType;
+            var wrapType,dataType;
             if (_activeWrap) {
                 _activeWrap.dom.classList.remove('active');
             }
             if (domWrap) {
                 wrapType = $(domWrap).attr('wrap');
+                dataType = $(domWrap).attr('enroll-records-type');
                 _activeWrap = {
                     type: wrapType,
+                    dataType: dataType=='records'?'records':'enrollees',
                     dom: domWrap,
                     upmost: /body/i.test(domWrap.parentNode.tagName),
                     downmost: /button|value|radio|checkbox/.test(wrapType),
@@ -490,6 +492,7 @@ define(['wrap'], function(wrapLib) {
                 config: {
                     id: 'L' + (new Date * 1),
                     pattern: 'records',
+                    type: 'records',
                     dataScope: 'U',
                     onclick: '',
                 },
@@ -507,6 +510,39 @@ define(['wrap'], function(wrapLib) {
                         break;
                     }
                 }
+            }
+            _page.data_schemas.push(dataWrap);
+            wrapParam = wrapLib.records.embed(dataWrap);
+
+            return _appendWrap(wrapParam.tag, wrapParam.attrs, wrapParam.html);
+        },
+        appendEnrollee: function(oApp, oMschema) {
+            var dataWrap, wrapParam;
+            dataWrap = {
+                config: {
+                    id: 'L' + (new Date * 1),
+                    pattern: 'records',
+                    type: 'enrollees',
+                    dataScope: 'A',
+                    onclick: ''
+                },
+                schemas: []
+            };
+            switch(oApp.entry_rule.scope) {
+                case 'member':
+                    dataWrap.config.mschemaId = '';
+                    break;
+                case 'sns':
+                    dataWrap.schemas.push({
+                        id: 'nickname',
+                        title: '昵称',
+                        type: 'sns'
+                    },{
+                        id: 'headimgurl',
+                        title: '头像',
+                        type: 'sns'
+                    });
+                    break;
             }
             _page.data_schemas.push(dataWrap);
             wrapParam = wrapLib.records.embed(dataWrap);

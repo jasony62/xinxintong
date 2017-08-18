@@ -85,6 +85,15 @@ define(['require', 'schema', 'wrap', 'editor'], function(require, schemaLib, wra
             domWrap = editorProxy.appendRecordList($scope.app);
             $scope.setActiveWrap(domWrap);
         };
+        $scope.enrolleeList = function() {
+            var enrolleeWrap;
+            if($scope.app.entry_rule.scope=='member') {
+                enrolleeWrap = editorProxy.appendEnrollee($scope.app, $scope.memberSchemas);
+            } else {
+                enrolleeWrap = editorProxy.appendEnrollee($scope.app);
+            }
+            $scope.setActiveWrap(enrolleeWrap);
+        }
         $scope.removeActiveWrap = function() {
             var activeWrap = $scope.activeWrap,
                 wrapType = activeWrap.type,
@@ -111,7 +120,7 @@ define(['require', 'schema', 'wrap', 'editor'], function(require, schemaLib, wra
                     schema: schema
                 });
                 $scope.setActiveWrap(null);
-            } else if (/records/.test(wrapType)) {
+            } else if (/records|enrollees/.test(wrapType)) {
                 editorProxy.removeWrap(activeWrap);
                 for (var i = $scope.ep.data_schemas.length - 1; i >= 0; i--) {
                     if ($scope.ep.data_schemas[i].config.id === activeWrap.config.id) {
@@ -328,6 +337,7 @@ define(['require', 'schema', 'wrap', 'editor'], function(require, schemaLib, wra
         $scope.$watch('ep', function(oPage) {
             if (oPage) {
                 oChooseState = {};
+                if(!$scope.app) return;
                 $scope.app.dataSchemas.forEach(function(schema) {
                     oChooseState[schema.id] = false;
                 });
@@ -426,7 +436,7 @@ define(['require', 'schema', 'wrap', 'editor'], function(require, schemaLib, wra
         };
     }]);
     /**
-     * record list wrap 
+     * record list wrap
      */
     ngMod.controller('ctrlRecordListWrap', ['$scope', '$timeout', function($scope, $timeout) {
         var listSchemas = $scope.activeWrap.schemas,
@@ -454,6 +464,97 @@ define(['require', 'schema', 'wrap', 'editor'], function(require, schemaLib, wra
                     brother = $scope.app.dataSchemas[--ia];
                     while (ia > 0 && !chooseState[brother.id]) {
                         brother = $scope.app.dataSchemas[--ia];
+                    }
+                    for (var ibl = listSchemas.length - 1; ibl >= 0; ibl--) {
+                        if (listSchemas[ibl].id === brother.id) {
+                            break;
+                        }
+                    }
+                    listSchemas.splice(ibl + 1, 0, schema);
+                }
+            } else {
+                for (var i = listSchemas.length - 1; i >= 0; i--) {
+                    if (schema.id === listSchemas[i].id) {
+                        listSchemas.splice(i, 1);
+                        break;
+                    }
+                }
+            }
+            $scope.updWrap();
+        };
+        $scope.updWrap = function() {
+            editorProxy.modifySchema($scope.activeWrap);
+        };
+    }]);
+    /*
+       enrollee list wrap
+     */
+    ngMod.controller('ctrlEnrolleeListWrap', ['$scope', '$timeout', function($scope, $timeout) {
+        var listSchemas = [],
+            memberSchemas = $scope.memberSchemas,
+            config = $scope.activeWrap.config,
+            chooseState = {};
+        if($scope.app.entry_rule.scope=='sns') {
+            $scope.mschemas = [{
+                id: 'nickname',
+                title: '昵称',
+                type: 'sns'
+            },{
+                id: 'headimgurl',
+                title: '头像',
+                type: 'sns'
+            }]
+        }else{
+            if($scope.activeWrap.config.mschemaId!==''){
+                memberSchemas.forEach(function(item) {
+                    if(item.id == $scope.activeWrap.config.mschemaId) {
+                        $scope.mschemas = item._mschemas;
+                    }
+                });
+                $scope.mschemas.forEach(function(ms) {
+                    listSchemas.push(ms);
+                });
+            }
+        }
+        $scope.doFilter = function(id) {
+            for(var i = 0, ii = memberSchemas.length; i < ii; i++) {
+                if(memberSchemas[i].id == id) {
+                    for(var k = memberSchemas[i]._mschemas, j = k.length - 1; j >= 0; j--) {
+                        if(k[j].id == 'schema_title') {
+                            break;
+                        }else {
+                            k.push({
+                                id: 'schema_title',
+                                type: 'address',
+                                title: '所属通讯录'
+                            });
+                            break;
+                        }
+                    }
+                    config.mschemaId = id;
+                    $scope.activeWrap.schemas = memberSchemas[i]._mschemas;
+                    $scope.activeWrap.dom.classList.remove('active');
+                    $scope.mschemas = listSchemas = [];
+                    break;
+                }
+            }
+            $scope.updWrap();
+        }
+        $scope.listSchemas.forEach(function(schema) {
+            chooseState[schema.id] = true;
+        });
+        $scope.chooseState = chooseState;
+        /* 在处理activeSchema中提交 */
+        $scope.choose = function(schema) {
+            if (chooseState[schema.id]) {
+                var ia, ibl, brother, domNewWrap;
+                ia = $scope.mschemas.indexOf(schema);
+                if (ia === 0) {
+                    listSchemas.splice(0, 0, schema);
+                } else {
+                    brother = $scope.mschemas[--ia];
+                    while (ia > 0 && !chooseState[brother.id]) {
+                        brother = $scope.mschemas[--ia];
                     }
                     for (var ibl = listSchemas.length - 1; ibl >= 0; ibl--) {
                         if (listSchemas[ibl].id === brother.id) {

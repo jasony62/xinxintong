@@ -14,7 +14,7 @@
             <option value='{{p.name}}' ng-repeat='p in app.pages'>{{p.title}}</option>
         </select>
     </div>
-    <div class='list-group' style='max-height:300px;overflow-y:auto;min-width:240px;'>
+    <div class='list-group' style='max-height:300px;overflow-y:auto;min-width:240px;' >
         <div class='list-group-item' ng-repeat="s in app.dataSchemas">
             <span ng-bind="s.title"></span>
             <span class='schema-switch'>

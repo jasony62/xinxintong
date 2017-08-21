@@ -141,11 +141,23 @@ class user extends \pl\fe\matter\base {
 		}
 
 		// 登记活动
-		if (false === ($oApp = $this->model('matter\enroll')->byId($app, ['fields' => 'siteid,id,title,entry_rule', 'cascaded' => 'N']))) {
+		if (false === ($oApp = $this->model('matter\enroll')->byId($app, ['fields' => 'siteid,id,title,entry_rule,user_task,group_app_id,data_schemas', 'cascaded' => 'N']))) {
 			return new \ParameterError();
 		}
-
 		$modelUsr = $this->model('matter\enroll\user');
+		//判断关联公众号
+		$road=['wx','qy','yx'];
+		$sns=new \stdClass;
+		foreach ($road as $v) {
+			$arr=array();
+			$config=$modelUsr->query_obj_ss(['joined','xxt_site_'.$v,['siteid'=>$site]]);
+			if(!empty($config->joined)){
+				$arr['joined']=$config->joined;
+				$sns->{$v}=(object)$arr;
+			}
+		}
+		$oApp->sns=$sns;
+
 		if(!empty($mschema)){
 			$modelEnl = $this->model('site\user\memberschema');
 			$mschema = $modelEnl->escape($mschema);
@@ -162,6 +174,54 @@ class user extends \pl\fe\matter\base {
 			!empty($rid) && $options['rid'] = $rid;
 			$result = $modelUsr->enrolleeByApp($oApp, $page='', $size='', $options);
 			$data = $result->users;
+		}
+		
+		foreach ($data as &$user) {
+			//添加openid
+			$p=[
+				'wx_openid,yx_openid,qy_openid',
+				"xxt_site_account",
+				"uid = '{$user->userid}'",
+			];
+			if ($openid = $modelUsr->query_obj_ss($p)) {
+				$user->wx_openid = $openid->wx_openid;
+				$user->yx_openid = $openid->yx_openid;
+				$user->qy_openid = $openid->qy_openid;
+			} else {
+				$user->wx_openid = '';
+				$user->yx_openid = '';
+				$user->qy_openid = '';
+			}
+			//添加模板消息 用户任务 和 分组
+			$q = [
+				'd.tmplmsg_id,d.status,b.create_at',
+				'xxt_log_tmplmsg_detail d,xxt_log_tmplmsg_batch b',
+				"d.userid = '{$user->userid}' and d.batch_id = b.id and b.send_from = 'enroll:" . $oApp->id . "'"
+			];
+			$q2 = [
+				'r' => ['o' => 0, 'l' => 1],
+				'o' => 'b.create_at desc'
+			];
+			if ($tmplmsg = $modelUsr->query_objs_ss($q, $q2)) {
+				$user->tmplmsg = $tmplmsg[0];
+			}else{
+				$user->tmplmsg = new \stdClass;
+			}
+			$user->task=$oApp->userTask;
+			foreach ($oApp->dataSchemas as $v1) {
+				if($v1->id=='_round_id'){
+					$ops=$v1->ops;
+				}
+			}
+			if(isset($ops)){
+				foreach ($ops as $v) {
+					if(isset($user->group_id) && $v->v==$user->group_id){
+						$user->group=$v;
+					}else if(isset($user->user->group_id) && $v->v==$user->user->group_id){
+						$user->group=$v;
+					}
+				}
+			}
 		}
 		
 		require_once TMS_APP_DIR . '/lib/PHPExcel.php';
@@ -194,10 +254,28 @@ class user extends \pl\fe\matter\base {
 					$objActiveSheet->setCellValueByColumnAndRow($columnNum1++, 1, $extattr->label);
 				}
 			}
+			if(!empty($oApp->group_app_id)){
+				$objActiveSheet->setCellValueByColumnAndRow($columnNum1++, 1, '分组');
+			}
 			$objActiveSheet->setCellValueByColumnAndRow($columnNum1++, 1, '记录');
+			$objActiveSheet->setCellValueByColumnAndRow($columnNum1++, 1, '要求记录数');
 			$objActiveSheet->setCellValueByColumnAndRow($columnNum1++, 1, '评论');
+			$objActiveSheet->setCellValueByColumnAndRow($columnNum1++, 1, '要求评论数');
+			$objActiveSheet->setCellValueByColumnAndRow($columnNum1++, 1, '点赞');
+			$objActiveSheet->setCellValueByColumnAndRow($columnNum1++, 1, '要求赞同数');
 			$objActiveSheet->setCellValueByColumnAndRow($columnNum1++, 1, '积分');
 			$objActiveSheet->setCellValueByColumnAndRow($columnNum1++, 1, '得分');
+			if(isset($sns->wx->joined) && $sns->wx->joined==='Y'){
+				$objActiveSheet->setCellValueByColumnAndRow($columnNum1++, 1, '是否关联微信');
+			}
+			if(isset($sns->yx->joined) && $sns->yx->joined==='Y'){
+				$objActiveSheet->setCellValueByColumnAndRow($columnNum1++, 1, '是否关联易信');
+			}
+			if(isset($sns->qy->joined) && $sns->qy->joined==='Y'){
+				$objActiveSheet->setCellValueByColumnAndRow($columnNum1++, 1, '是否关联微企');
+			}
+			$objActiveSheet->setCellValueByColumnAndRow($columnNum1++, 1, '最后一次通知发送时间');
+			$objActiveSheet->setCellValueByColumnAndRow($columnNum1++, 1, '最后一次通知发送结果');
 
 			// 转换数据
 			for ($j = 0; $j < count($data); $j++) {
@@ -225,16 +303,23 @@ class user extends \pl\fe\matter\base {
 					}
 				}
 
+				if(!empty($oApp->group_app_id)){
+					$objActiveSheet->setCellValueByColumnAndRow($columnNum2++, $rowIndex, empty($record->group) ? '' : $record->group->l);
+				}
 				if(isset($record->user->enroll_num)){
 					$objActiveSheet->setCellValueByColumnAndRow($columnNum2++, $rowIndex, $record->user->enroll_num);
 				}else{
 					$objActiveSheet->setCellValueByColumnAndRow($columnNum2++, $rowIndex, '');
 				}
+				$objActiveSheet->setCellValueByColumnAndRow($columnNum2++, $rowIndex, isset($record->task->minEnrollNum) ? $record->task->minEnrollNum : '');
 				if(isset($record->user->remark_other_num)){
 					$objActiveSheet->setCellValueByColumnAndRow($columnNum2++, $rowIndex, $record->user->remark_other_num);
 				}else{
 					$objActiveSheet->setCellValueByColumnAndRow($columnNum2++, $rowIndex, '');
 				}
+				$objActiveSheet->setCellValueByColumnAndRow($columnNum2++, $rowIndex, isset($record->task->minRemarkNum) ? $record->task->minRemarkNum : '');
+				$objActiveSheet->setCellValueByColumnAndRow($columnNum2++, $rowIndex, $record->user->like_other_num);
+				$objActiveSheet->setCellValueByColumnAndRow($columnNum2++, $rowIndex, isset($record->task->minLikeNum) ? $record->task->minLikeNum : '');
 				if(isset($record->user->user_total_coin)){
 					$objActiveSheet->setCellValueByColumnAndRow($columnNum2++, $rowIndex, $record->user->user_total_coin);
 				}else{
@@ -245,14 +330,43 @@ class user extends \pl\fe\matter\base {
 				}else{
 					$objActiveSheet->setCellValueByColumnAndRow($columnNum2++, $rowIndex, '');
 				}
+				if(isset($sns->wx->joined) && $sns->wx->joined==='Y'){
+					$objActiveSheet->setCellValueByColumnAndRow($columnNum2++, $rowIndex, !empty($record->wx_openid) ? "已关联" : "");
+				}
+				if(isset($sns->yx->joined) && $sns->yx->joined==='Y'){
+					$objActiveSheet->setCellValueByColumnAndRow($columnNum2++, $rowIndex, !empty($record->yx_openid) ? "已关联" : "");
+				}
+				if(isset($sns->qy->joined) && $sns->qy->joined==='Y'){
+					$objActiveSheet->setCellValueByColumnAndRow($columnNum2++, $rowIndex, !empty($record->qy_openid) ? "已关联" : "");
+				}
+				$objActiveSheet->setCellValueByColumnAndRow($columnNum2++, $rowIndex, isset($record->tmplmsg->create_at) ? date('Y-m-d H:i:s') : "");
+				$objActiveSheet->setCellValueByColumnAndRow($columnNum2++, $rowIndex, isset($record->tmplmsg->status) ? $record->tmplmsg->status : "");
 			}
 		}else{
 			// 转换标题
 			$objActiveSheet->setCellValueByColumnAndRow($columnNum1++, 1, '昵称');
+			if(!empty($oApp->group_app_id)){
+				$objActiveSheet->setCellValueByColumnAndRow($columnNum1++, 1, '分组');
+			}
 			$objActiveSheet->setCellValueByColumnAndRow($columnNum1++, 1, '记录');
+			$objActiveSheet->setCellValueByColumnAndRow($columnNum1++, 1, '要求记录数');
 			$objActiveSheet->setCellValueByColumnAndRow($columnNum1++, 1, '评论');
+			$objActiveSheet->setCellValueByColumnAndRow($columnNum1++, 1, '要求评论数');
+			$objActiveSheet->setCellValueByColumnAndRow($columnNum1++, 1, '点赞');
+			$objActiveSheet->setCellValueByColumnAndRow($columnNum1++, 1, '要求赞同数');
 			$objActiveSheet->setCellValueByColumnAndRow($columnNum1++, 1, '积分');
 			$objActiveSheet->setCellValueByColumnAndRow($columnNum1++, 1, '得分');
+			if(isset($sns->wx->joined) && $sns->wx->joined==='Y'){
+				$objActiveSheet->setCellValueByColumnAndRow($columnNum1++, 1, '是否关联微信');
+			}
+			if(isset($sns->yx->joined) && $sns->yx->joined==='Y'){
+				$objActiveSheet->setCellValueByColumnAndRow($columnNum1++, 1, '是否关联易信');
+			}
+			if(isset($sns->qy->joined) && $sns->qy->joined==='Y'){
+				$objActiveSheet->setCellValueByColumnAndRow($columnNum1++, 1, '是否关联微企');
+			}
+			$objActiveSheet->setCellValueByColumnAndRow($columnNum1++, 1, '最后一次通知发送时间');
+			$objActiveSheet->setCellValueByColumnAndRow($columnNum1++, 1, '最后一次通知发送结果');
 			// 转换数据
 			for ($j = 0; $j < count($data); $j++) {
 				$record = $data[$j];
@@ -261,10 +375,28 @@ class user extends \pl\fe\matter\base {
 
 				$objActiveSheet->setCellValueByColumnAndRow($columnNum2++, $rowIndex, $j+1);
 				$objActiveSheet->setCellValueByColumnAndRow($columnNum2++, $rowIndex, $record->nickname);
+				if(!empty($oApp->group_app_id)){
+					$objActiveSheet->setCellValueByColumnAndRow($columnNum2++, $rowIndex, empty($record->group) ? '' : $record->group->l);
+				}
 				$objActiveSheet->setCellValueByColumnAndRow($columnNum2++, $rowIndex, $record->enroll_num);
+				$objActiveSheet->setCellValueByColumnAndRow($columnNum2++, $rowIndex, isset($record->task->minEnrollNum) ? $record->task->minEnrollNum : '');
 				$objActiveSheet->setCellValueByColumnAndRow($columnNum2++, $rowIndex, $record->remark_other_num);
+				$objActiveSheet->setCellValueByColumnAndRow($columnNum2++, $rowIndex, isset($record->task->minRemarkNum) ? $record->task->minRemarkNum : '');
+				$objActiveSheet->setCellValueByColumnAndRow($columnNum2++, $rowIndex, $record->like_other_num);
+				$objActiveSheet->setCellValueByColumnAndRow($columnNum2++, $rowIndex, isset($record->task->minLikeNum) ? $record->task->minLikeNum : '');
 				$objActiveSheet->setCellValueByColumnAndRow($columnNum2++, $rowIndex, $record->user_total_coin);
 				$objActiveSheet->setCellValueByColumnAndRow($columnNum2++, $rowIndex, $record->score);
+				if(isset($sns->wx->joined) && $sns->wx->joined==='Y'){
+					$objActiveSheet->setCellValueByColumnAndRow($columnNum2++, $rowIndex, !empty($record->wx_openid) ? "已关联" : "");
+				}
+				if(isset($sns->yx->joined) && $sns->yx->joined==='Y'){
+					$objActiveSheet->setCellValueByColumnAndRow($columnNum2++, $rowIndex, !empty($record->yx_openid) ? "已关联" : "");
+				}
+				if(isset($sns->qy->joined) && $sns->qy->joined==='Y'){
+					$objActiveSheet->setCellValueByColumnAndRow($columnNum2++, $rowIndex, !empty($record->qy_openid) ? "已关联" : "");
+				}
+				$objActiveSheet->setCellValueByColumnAndRow($columnNum2++, $rowIndex, isset($record->tmplmsg->create_at) ? date('Y-m-d H:i:s') : "");
+				$objActiveSheet->setCellValueByColumnAndRow($columnNum2++, $rowIndex, isset($record->tmplmsg->status) ? $record->tmplmsg->status : "");
 			}
 		}
 

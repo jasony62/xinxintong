@@ -84,13 +84,16 @@ define(['frame'], function(ngApp) {
             updated.verified = oRecord.verified;
             updated.rid = oRecord.rid;
             updated.userid = oRecord.userid;
-
+        
             if (oRecord.enroll_key) {
                 if (!angular.equals(oRecord.data, oBeforeRecord.data)) {
                     updated.data = oRecord.data;
                 }
                 if (!angular.equals(oRecord.supplement, oBeforeRecord.supplement)) {
                     updated.supplement = oRecord.supplement;
+                }
+                if (!angular.equals(oRecord.score, oBeforeRecord.score)) {
+                    updated.score = oRecord.score;
                 }
                 if (!angular.equals(oQuizScore, oBeforeQuizScore)) {
                     updated.quizScore = oQuizScore;

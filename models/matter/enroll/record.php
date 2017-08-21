@@ -802,8 +802,16 @@ class record_model extends \TMS_MODEL {
 			"xxt_enroll_record e",
 			$w,
 		];
-		//测验场景
-		if ($oApp->scenario === 'quiz') {
+		//数值型的填空题
+		$flag=false;
+		foreach ($oApp->dataSchemas as $schema){
+			if($schema->type=='shorttext' && $schema->format=='number'){
+				$flag=true;
+				break;
+			}
+		}
+		//测验场景或数值填空题共用score字段
+		if ($oApp->scenario === 'quiz' || $flag) {
 			$q[0] .= ',e.score';
 		}
 
@@ -821,8 +829,8 @@ class record_model extends \TMS_MODEL {
 				$rec->data_tag = empty($rec->data_tag) ? new \stdClass : json_decode($rec->data_tag);
 				$data = str_replace("\n", ' ', $rec->data);
 				$data = json_decode($data);
-				//测验场景
-				if ($oApp->scenario === 'quiz' && !empty($rec->score)) {
+				//测验场景或数值填空题共用score字段
+				if (($oApp->scenario === 'quiz' || $flag) && !empty($rec->score)) {
 					$score = str_replace("\n", ' ', $rec->score);
 					$score = json_decode($score);
 

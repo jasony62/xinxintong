@@ -62,11 +62,6 @@ class user extends \pl\fe\matter\base {
 						}
 					}
 				}
-				if(!empty($user->score)){
-					$user->score=json_decode($user->score);
-				}else{
-					$user->score= new \stdClass;
-				}
 			}
 		}
 		
@@ -330,7 +325,11 @@ class user extends \pl\fe\matter\base {
 				}else{
 					$objActiveSheet->setCellValueByColumnAndRow($columnNum2++, $rowIndex, '');
 				}
-				$objActiveSheet->setCellValueByColumnAndRow($columnNum2++, $rowIndex, $record->user->score);
+				if(isset($record->user->score)){
+					$objActiveSheet->setCellValueByColumnAndRow($columnNum2++, $rowIndex, $record->user->score);
+				}else{
+					$objActiveSheet->setCellValueByColumnAndRow($columnNum2++, $rowIndex, '');
+				}
 				if(isset($sns->wx->joined) && $sns->wx->joined==='Y'){
 					$objActiveSheet->setCellValueByColumnAndRow($columnNum2++, $rowIndex, !empty($record->wx_openid) ? "已关联" : "");
 				}

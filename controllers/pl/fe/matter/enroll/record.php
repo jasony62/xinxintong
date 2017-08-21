@@ -65,9 +65,13 @@ class record extends \pl\fe\matter\base {
 		$result = $mdoelRec->byApp($oEnrollApp, $options, $criteria);
 		if (!empty($result->records)) {
 			$remarkables = [];
+			$flag=false;
 			foreach ($oEnrollApp->dataSchemas as $oSchema) {
 				if (isset($oSchema->remarkable) && $oSchema->remarkable === 'Y') {
 					$remarkables[] = $oSchema->id;
+				}
+				if($oSchema->type=='shorttext' && $oSchema->format=='number'){
+					$flag=true;
 				}
 			}
 			if (count($remarkables)) {
@@ -78,8 +82,22 @@ class record extends \pl\fe\matter\base {
 					$oRec->verbose->data = $oRecordData;
 				}
 			}
+			if($flag){
+				foreach ($result->records as &$oRec) {
+					$one=$mdoelRec->query_obj_ss([
+						'id,score',
+						'xxt_enroll_record',
+						['siteid'=>$site,'enroll_key'=>$oRec->enroll_key]
+					]);
+					if(count($one)){
+						$oRec->score=json_decode($one->score);
+					}else{
+						$oRec->score= new \stdClass;
+					}
+				}
+			}
 		}
-
+		
 		return new \ResponseData($result);
 	}
 	/**
@@ -267,6 +285,51 @@ class record extends \pl\fe\matter\base {
 			$newScore = $modelRec->toJson($oAfterScore);
 			//更新record表
 			$modelRec->update('xxt_enroll_record', ['score' => $newScore], ['aid' => $app, 'enroll_key' => $ek, 'state' => 1]);
+		}
+		//数值型填空题
+		if(isset($record->score)){
+			$dataSchemas=$oApp->dataSchemas;
+			$modelUsr = $this->model('matter\enroll\user');
+			$modelUsr->setOnlyWriteDbConn(true);
+			$d['sum']=0;
+			foreach ($dataSchemas as &$schema) {
+				if(isset($record->score->{$schema->id})){
+					$d[$schema->id]=$record->score->{$schema->id};
+					$modelUsr->update('xxt_enroll_record_data', ['score' => $record->score->{$schema->id}], ['enroll_key' => $ek, 'schema_id' => $schema->id, 'state' => 1]);
+					$d['sum']+=$d[$schema->id];
+				}
+			}
+			$newScore = $modelRec->toJson($d);
+			//更新record表
+			$modelRec->update('xxt_enroll_record', ['score' => $newScore], ['aid' => $app, 'enroll_key' => $ek, 'state' => 1]);
+			//更新enroll_user表
+			$result=$modelRec->byId($ek);
+			if (isset($result->score->sum)) {
+				$upData['score'] = $result->score->sum;
+			}
+			$modelUsr->update(
+				'xxt_enroll_user',
+				$upData,
+				['siteid'=>$site,'aid'=>$result->aid,'rid'=>$result->rid,'userid'=>$result->userid]
+			);
+			/* 更新用户获得的分数 */
+			$users = $modelUsr->query_objs_ss([
+				'id,score',
+				'xxt_enroll_user',
+				"siteid='$site' and aid='$result->aid' and userid='$result->userid' and rid !='ALL'",
+			]);
+			$total = 0;
+			foreach ($users as $v) {
+				if (!empty($v->score)) {
+					$total += (float) $v->score;
+				}
+			}
+			$upDataALL['score'] = $total;
+			$modelUsr->update(
+				'xxt_enroll_user',
+				$upDataALL,
+				['siteid'=>$site,'aid'=>$result->aid,'rid'=>'ALL','userid'=>$result->userid]
+			);	
 		}
 
 		/* 更新登记项数据的轮次 */

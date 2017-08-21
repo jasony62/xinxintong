@@ -36,7 +36,7 @@
             <a class='list-group-item' href="/rest/site/fe/user/notice?site={{site.id}}">我的通知<span class="badge" ng-bind="count.notice"></span>
             </a>
             <a class='list-group-item' href="/rest/site/fe/user/history?site={{site.id}}">最近浏览</a>
-            <a href='' class='list-group-item' ng-click="userSetting=!userSetting">
+            <a href='' class='list-group-item' ng-click="toggleUserSetting($event)">
                 <span>个人设置</span>
                 <div ng-if="userSetting">
                     <hr>

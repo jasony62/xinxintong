@@ -534,13 +534,13 @@ define(['require', 'schema', 'wrap', 'editor'], function(require, schemaLib, wra
         $scope.doFilter = function(id) {
             memberSchemas.forEach(function(item) {
                 if(item.id == id) {
+                    $scope.activeWrap.schemas = [];
                     config.mschemaId = id;
                     $scope.activeWrap.schemas = $scope.otherMschemas;
-                    item._mschemas.forEach(function(ms) {
-                        $scope.activeWrap.schemas.unshift(ms);
-                        $scope.activeWrap.dom.classList.remove('active');
-                        $scope.mschemas = listSchemas = [];
-                    });
+                    for(var i = item._mschemas.length - 1; i >= 0; i--) {
+                        $scope.activeWrap.schemas.splice(0, 0, item._mschemas[i]);
+                    }
+                    $scope.mschemas = listSchemas = [];
                 }
             });
             $scope.updWrap();

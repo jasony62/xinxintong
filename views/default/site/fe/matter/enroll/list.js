@@ -31,7 +31,7 @@ ngApp.factory('Record', ['http2', '$q', 'ls', function(http2, $q, LS) {
     Record.prototype.list = function(options, oCriteria) {
         var deferred = $q.defer(),
             url;
-        options.type=='records'?url = LS.j('record/list', 'site', 'app'):url = LS.j('record/enrolleelist', 'site', 'app');;
+        options.type == 'records' ? url = LS.j('record/list', 'site', 'app') : url = LS.j('user/list', 'site', 'app');;
         url += '&' + options.j();
         http2.post(url, oCriteria ? oCriteria : {}).then(function(rsp) {
             var records, record;
@@ -113,7 +113,7 @@ ngApp.controller('ctrlRecords', ['$scope', '$uibModal', 'Record', 'ls', '$sce', 
         page: { at: 1, size: 12 },
         j: function() {
             var params = 'owner=' + this.owner + '&page=' + this.page.at + '&size=' + this.page.size;
-            if(this.id.length) {
+            if (this.id.length) {
                 return params + '&schema_id=' + this.id;
             } else {
                 return params;
@@ -127,7 +127,7 @@ ngApp.controller('ctrlRecords', ['$scope', '$uibModal', 'Record', 'ls', '$sce', 
         var eSpread, eWrap;
         eWrap = document.querySelectorAll('.list-group-item[ng-repeat]');
         eWrap.forEach(function(item) {
-            if(item.children.length > 3) {
+            if (item.children.length > 3) {
                 eSpread = document.createElement('i');
                 eSpread.classList.add('cus-glyphicon', 'glyphicon-menu-down');
                 eSpread.addEventListener('click', function(event) {

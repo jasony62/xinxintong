@@ -102,7 +102,7 @@ class schema extends \pl\fe\base {
 		}
 
 		$schemas = $this->getPostJson();
-		if(empty($schemas)){
+		if (empty($schemas)) {
 			return new \ResponseError('请选择要导入的通讯录');
 		}
 
@@ -112,7 +112,7 @@ class schema extends \pl\fe\base {
 		$q = [
 			'userid',
 			'xxt_site_member',
-			['schema_id' => $id]
+			['schema_id' => $id],
 		];
 		$usersOld = $model->query_vals_ss($q);
 
@@ -121,28 +121,28 @@ class schema extends \pl\fe\base {
 		$q = [
 			'userid,unionid,create_at,identity,name,mobile,mobile_verified,email,email_verified,extattr,depts,tags,verified,forbidden,invite_code',
 			'xxt_site_member',
-			"schema_id in $schemas"
+			"forbidden='N' and schema_id in $schemas",
 		];
 		$q2 = ['o' => 'create_at desc,id desc'];
-		$usersAll = $model->query_objs_ss($q,$q2);
-		if(empty($usersAll)){
+		$usersAll = $model->query_objs_ss($q, $q2);
+		if (empty($usersAll)) {
 			return new \ResponseError('没有要导入的用户');
 		}
 
 		//去除重复的userid，如果有重复的留下时间最大的
 		$usersAll2 = [];
-		$usersAllNew = [];//去重后的所有用户
+		$usersAllNew = []; //去重后的所有用户
 		foreach ($usersAll as $user) {
-			if(!in_array($user->userid, $usersAll2)){
+			if (!in_array($user->userid, $usersAll2)) {
 				$usersAll2[] = $user->userid;
 				$usersAllNew[] = $user;
 			}
 		}
 
-		if($rounds == 0){
+		if ($rounds == 0) {
 			//留下通讯录中导入之前已有的重复用户
 			foreach ($usersOld as $key => $userO) {
-				if(!in_array($userO, $usersAll2)) {
+				if (!in_array($userO, $usersAll2)) {
 					unset($usersOld[$key]);
 				}
 			}
@@ -150,7 +150,7 @@ class schema extends \pl\fe\base {
 			//从通讯录中删除重复的userid
 			$site = $model->escape($site);
 			$id = $model->escape($id);
-			if(!empty($usersOld)){
+			if (!empty($usersOld)) {
 				$usersOld = "('" . implode("','", $usersOld) . "')";
 				$model->delete('xxt_site_member', "siteid = '$site' and schema_id = $id and userid in $usersOld");
 			}
@@ -163,22 +163,22 @@ class schema extends \pl\fe\base {
 		//分批次插入数据每批插入50条数据
 		$usersGroup = array_chunk($usersAllNew, 50);
 		$groupLength = count($usersGroup);
-		if($rounds > 0 && $rounds < $groupLength){
+		if ($rounds > 0 && $rounds < $groupLength) {
 			$i = $rounds;
-		}elseif($rounds >= $groupLength){
+		} elseif ($rounds >= $groupLength) {
 			$importGroup = new \stdClass;
 			$importGroup->group = $rounds;
 			$importGroup->plan = count($usersAllNew);
 			$importGroup->total = count($usersAllNew);
 			$importGroup->state = 'end';
 			return new \ResponseData($importGroup);
-		}else{
+		} else {
 			$i = 0;
 		}
 		$groups = $usersGroup[$i];
 		$value = "";
 		foreach ($groups as $group) {
-			$group = (array)$model->escape($group);
+			$group = (array) $model->escape($group);
 			$groupValue = array_values($group);
 			$value .= ",('$site',$id,$create_at,'" . implode("','", $groupValue) . "')";
 		}
@@ -186,15 +186,15 @@ class schema extends \pl\fe\base {
 
 		$model->insert("insert into xxt_site_member ($column) values $value");
 
-		$plan = (int)$i * 50 + count($usersGroup[$i]);
+		$plan = (int) $i * 50 + count($usersGroup[$i]);
 		$total = count($usersAllNew);
 		$importGroup = new \stdClass;
 		$importGroup->group = $i;
 		$importGroup->plan = $plan;
 		$importGroup->total = $total;
-		if($plan == $total){
+		if ($plan == $total) {
 			$importGroup->state = 'end';
-		}else{
+		} else {
 			$importGroup->state = 'continue';
 		}
 

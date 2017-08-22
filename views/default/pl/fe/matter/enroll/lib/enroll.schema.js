@@ -166,6 +166,18 @@ define(['require', 'schema', 'wrap'], function(require, schemaLib, wrapLib) {
         };
         var timerOfUpdate = null;
         $scope.updSchema = function(oSchema, oBeforeState) {
+            if (oSchema.format === 'number') {
+                if (oSchema.weight === undefined) {
+                    oSchema.weight = 1;
+                } else {
+                    if (false === /^\d+\.?\d*$/.test(oSchema.weight)) {
+                        oSchema.weight = 1;
+                    } else if (/\.$/.test(oSchema.weight)) {
+                        // 这样会导致无法输入“点”
+                        //oSchema.weight = oSchema.weight.slice(0, -1);
+                    }
+                }
+            }
             $scope.app.pages.forEach(function(oPage) {
                 oPage.updateSchema(oSchema, oBeforeState);
             });

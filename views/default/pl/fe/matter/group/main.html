@@ -22,13 +22,16 @@
     <div class='form-group' ng-if="app.mission">
         <label>所属项目</label>
         <div class="input-group">
-            <input class='form-control' title="{{app.mission.title}}" value="{{app.mission.title}}" readonly="">
-            <span class="input-group-btn">
-                    <button class="btn btn-default" type="button" ng-click="quitMission()">
-                        <span class='glyphicon glyphicon-remove'></span>
-            </button>
-            </span></div>
-
+            <input class='form-control' title="{{app.mission.title}}" value="{{app.mission.title}}" readonly>
+            <div class="input-group-btn">
+                <button class="btn btn-default" type="button" ng-click="quitMission()" title='删除项目'>
+                    <span class='glyphicon glyphicon-remove'></span>
+                </button>
+                <a class="btn btn-default" href='/rest/pl/fe/matter/mission?site={{app.siteid}}&id={{app.mission.id}}' target='_self' title='查看项目'>
+                    <span class='glyphicon glyphicon-new-window'></span>
+                </a>
+            </div>
+        </div>
     </div>
     <div class='form-group' ng-if="app.mission.multi_phase==='Y'">
         <label>{{cstApp.naming.mission_phase}}</label>
@@ -66,7 +69,8 @@
                     <button uib-popover-template="'opUrlPasswd.html'" popover-append-to-body='true' popover-placement="bottom" popover-title="访问密码" popover-trigger="outsideClick" type="button" class="btn btn-default" class='btn btn-default' ng-if="opEntry.url">密码 <span class="caret"></span></button>
                 </div>
                 <div class='form-group' ng-if="opEntry.url">
-                    <label class='checkbox-inline'><input type='checkbox' ng-true-value="'Y'" ng-false-value="'N'" ng-model="opEntry.can_favor" ng-change="updCanFavor()">支持收藏</label>
+                    <label class='checkbox-inline'>
+                        <input type='checkbox' ng-true-value="'Y'" ng-false-value="'N'" ng-model="opEntry.can_favor" ng-change="updCanFavor()">支持收藏</label>
                     <p class='help-block'>分享链接有效期1小时，设置【支持收藏】后，用户可收藏本链接，避免有效期限制</p>
                 </div>
                 <div class='form-group' ng-if="opEntry.url.length">

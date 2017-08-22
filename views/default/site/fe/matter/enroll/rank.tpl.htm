@@ -57,6 +57,7 @@
                         <option value='remark_other'>发表评论数量</option>
                         <option value='like_other'>进行点赞数量</option>
                         <option value='total_coin'>积分</option>
+                        <option value='score'>得分</option>
                     </select>
                 </div>
                 <div class='col-xs-5' ng-if="appState.criteria.obj==='group'">
@@ -67,6 +68,7 @@
                         <option value='remark_other'>发表评论数量</option>
                         <option value='like_other'>进行点赞数量</option>
                         <option value='total_coin'>积分</option>
+                        <option value='score'>得分</option>
                     </select>
                 </div>
                 <div class='col-xs-5' ng-if="appState.criteria.obj==='data'">
@@ -90,7 +92,7 @@
                             <tr ng-repeat="u in users">
                                 <td class='hidden-xs'>{{(appState.page.at-1)*appState.page.size+$index+1}}</td>
                                 <td><span>{{u.nickname}}</span></td>
-                                <td><span>{{u[appState.criteria.orderby+'_num']||u.user_total_coin}}</span></td>
+                                <td><span>{{u[appState.criteria.orderby+'_num']||u.user_total_coin||u.score}}</span></td>
                             </tr>
                         </tbody>
                     </table>

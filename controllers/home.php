@@ -23,11 +23,11 @@ class home extends TMS_CONTROLLER {
 		$modelCode = \TMS_APP::M('code\page');
 		$template = $modelPl->escape($template);
 		//自动更新主页页面
-		if($platform->autoup_homepage === 'Y' && !empty($template)){
+		if ($platform->autoup_homepage === 'Y' && !empty($template)) {
 			$home_page = $modelCode->lastPublishedByName('platform', $platform->home_page_name, ['fields' => 'id,create_at']);
 			$templatePageMTimes = $this->_getPageMTime('home', $template);
 
-			if($templatePageMTimes['upAtHtml'] > $home_page->create_at || $templatePageMTimes['upAtCss'] > $home_page->create_at || $templatePageMTimes['upAtJs'] > $home_page->create_at) {
+			if ($templatePageMTimes['upAtHtml'] > $home_page->create_at || $templatePageMTimes['upAtCss'] > $home_page->create_at || $templatePageMTimes['upAtJs'] > $home_page->create_at) {
 				//更新主页页面
 				$data = $this->_makePage('home', $template);
 				$data['create_at'] = $current;
@@ -37,11 +37,11 @@ class home extends TMS_CONTROLLER {
 			$home_page = '';
 			$data = '';
 		}
-		if($platform->autoup_sitepage === 'Y' && !empty($template)){
+		if ($platform->autoup_sitepage === 'Y' && !empty($template)) {
 			$site_page = $modelCode->lastPublishedByName('platform', $platform->site_page_name, ['fields' => 'id,create_at']);
 			$templatePageMTimes = $this->_getPageMTime('site', $template);
 
-			if($templatePageMTimes['upAtHtml'] > $site_page->create_at || $templatePageMTimes['upAtCss'] > $site_page->create_at || $templatePageMTimes['upAtJs'] > $site_page->create_at) {
+			if ($templatePageMTimes['upAtHtml'] > $site_page->create_at || $templatePageMTimes['upAtCss'] > $site_page->create_at || $templatePageMTimes['upAtJs'] > $site_page->create_at) {
 				//更新主页页面
 				$data = $this->_makePage('site', $template);
 				$data['create_at'] = $current;
@@ -51,11 +51,11 @@ class home extends TMS_CONTROLLER {
 			$site_page = '';
 			$data = '';
 		}
-		if($platform->autoup_templatepage === 'Y' && !empty($template)){
+		if ($platform->autoup_templatepage === 'Y' && !empty($template)) {
 			$template_page = $modelCode->lastPublishedByName('platform', $platform->template_page_name, ['fields' => 'id,create_at']);
 			$templatePageMTimes = $this->_getPageMTime('template', $template);
 
-			if($templatePageMTimes['upAtHtml'] > $template_page->create_at || $templatePageMTimes['upAtCss'] > $template_page->create_at || $templatePageMTimes['upAtJs'] > $template_page->create_at) {
+			if ($templatePageMTimes['upAtHtml'] > $template_page->create_at || $templatePageMTimes['upAtCss'] > $template_page->create_at || $templatePageMTimes['upAtJs'] > $template_page->create_at) {
 				//更新主页页面
 				$data = $this->_makePage('template', $template);
 				$data['create_at'] = $current;
@@ -73,8 +73,11 @@ class home extends TMS_CONTROLLER {
 	 * 通过系统内置模板生成页面
 	 */
 	private function &_makePage($name, $template) {
-		$templateDir = TMS_APP_TEMPLATE . '/pl/be/' . $name;
-		
+		if (file_exists(TMS_APP_TEMPLATE . '/pl/be/' . $name)) {
+			$templateDir = TMS_APP_TEMPLATE . '/pl/be/' . $name;
+		} else {
+			$templateDir = TMS_APP_TEMPLATE_DEFAULT . '/pl/be/' . $name;
+		}
 		$data = array(
 			'html' => file_get_contents($templateDir . '/' . $template . '.html'),
 			'css' => file_get_contents($templateDir . '/' . $template . '.css'),
@@ -87,8 +90,11 @@ class home extends TMS_CONTROLLER {
 	 * 获得系统内置模板的修改时间
 	 */
 	private function &_getPageMTime($name, $template) {
-		$templateDir = TMS_APP_TEMPLATE . '/pl/be/' . $name;
-
+		if (file_exists(TMS_APP_TEMPLATE . '/pl/be/' . $name)) {
+			$templateDir = TMS_APP_TEMPLATE . '/pl/be/' . $name;
+		} else {
+			$templateDir = TMS_APP_TEMPLATE_DEFAULT . '/pl/be/' . $name;
+		}
 		$templatePageMTimes = array(
 			'upAtHtml' => filemtime($templateDir . '/' . $template . '.html'),
 			'upAtCss' => filemtime($templateDir . '/' . $template . '.css'),
@@ -125,8 +131,8 @@ class home extends TMS_CONTROLLER {
 		$modelHome = $this->model('site\home');
 
 		$options = [];
-		$options['page']['at']=$page;
-		$options['page']['size']=$size;
+		$options['page']['at'] = $page;
+		$options['page']['size'] = $size;
 		$result = $modelHome->atHome($options);
 		if ($result->total) {
 			$modelWay = $this->model('site\fe\way');
@@ -160,8 +166,8 @@ class home extends TMS_CONTROLLER {
 		$modelHome = $this->model('matter\home');
 
 		$options = [];
-		$options['page']['at']=$page;
-		$options['page']['size']=$size;
+		$options['page']['at'] = $page;
+		$options['page']['size'] = $size;
 		$result = $modelHome->atHome($options);
 		if (count($result->matters)) {
 			foreach ($result->matters as &$matter) {
@@ -178,8 +184,8 @@ class home extends TMS_CONTROLLER {
 		$modelHome = $this->model('matter\home');
 
 		$options = [];
-		$options['page']['at']=$page;
-		$options['page']['size']=$size;
+		$options['page']['at'] = $page;
+		$options['page']['size'] = $size;
 		$result = $modelHome->atHomeChannel($options);
 		if (count($result->matters)) {
 			foreach ($result->matters as &$matter) {
@@ -196,8 +202,8 @@ class home extends TMS_CONTROLLER {
 		$modelHome = $this->model('matter\home');
 
 		$options = [];
-		$options['page']['at']=$page;
-		$options['page']['size']=$size;
+		$options['page']['at'] = $page;
+		$options['page']['size'] = $size;
 		$result = $modelHome->atHomeArticle($options);
 		if (count($result->matters)) {
 			foreach ($result->matters as &$matter) {
@@ -213,9 +219,9 @@ class home extends TMS_CONTROLLER {
 	public function listMatterTop_action($type = 'article', $page = 1, $size = 3) {
 		$modelHome = $this->model('matter\home');
 		$options = [];
-		$options['page']['at']=$page;
-		$options['page']['size']=$size;
-		$options['type']=$type;
+		$options['page']['at'] = $page;
+		$options['page']['size'] = $size;
+		$options['type'] = $type;
 		$result = $modelHome->atHomeTop($options);
 		if (count($result->matters)) {
 			foreach ($result->matters as &$matter) {

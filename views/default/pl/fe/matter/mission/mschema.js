@@ -41,7 +41,7 @@ define(['frame'], function(ngApp) {
             var url, proto;
             if ($scope.mission && $scope.mission.siteid) {
                 url = '/rest/pl/fe/site/member/schema/create?site=' + $scope.mission.siteid;
-                proto = { valid: 'Y', mission_id: $scope.mission.id, title: $scope.mission.title + '-通讯录' + ($scope.mschemas.length + 1) };
+                proto = { valid: 'Y', matter_id: $scope.mission.id, matter_type: $scope.mission.type, title: $scope.mission.title + '-通讯录' + ($scope.mschemas.length + 1) };
                 http2.post(url, proto, function(rsp) {
                     $scope.mschemas.push(rsp.data);
                     selected.mschema = rsp.data;

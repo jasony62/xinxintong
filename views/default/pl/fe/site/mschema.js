@@ -277,6 +277,51 @@ define(['require'], function(require) {
                 });
             }
         };
+        $scope.importSchema = function() {
+            $uibModal.open({
+                templateUrl: 'importSchema.html',
+                controller: ['$scope', '$uibModalInstance', '$q', 'noticebox', function($scope2, $mi, $q, noticebox) {
+                    http2.get('/rest/pl/fe/site/member/schema/listImportSchema?site=' + $scope.site.id + '&id=' + $scope.choosedSchema.id, function(rsp) {
+                        $scope2.importSchemas = rsp.data;
+                    });
+                    
+                    var model;
+                    $scope2.model = model = {
+                        selected: []
+                    };
+                    $scope2.cancel = function() { $mi.dismiss(); };
+                    $scope2.ok = function() {
+                        var schemas = [];
+                        model.selected.forEach(function(selected, index) {
+                            if (selected) {
+                                schemas.push($scope2.importSchemas[index].id);
+                            }
+                        });
+                        
+                        if(schemas.length > 0) {
+                            $scope2.importSchemaPost(schemas, 0);
+                            $mi.close();
+                        }
+
+                    };
+                    $scope2.importSchemaPost = function(schemas, rounds) {
+                        var defer = $q.defer();
+                        http2.post('/rest/pl/fe/site/member/schema/importSchema?site=' + $scope.site.id + '&id=' + $scope.choosedSchema.id + '&rounds=' + rounds, schemas, function(rsp) {
+                            if(rsp.data.state !== 'end'){
+                                var group = parseInt(rsp.data.group) + 1;
+                                noticebox.success('已导入用户' + rsp.data.plan + '/' + rsp.data.total);
+                                $scope2.importSchemaPost(schemas, group);
+                            }else{
+                                defer.resolve(rsp.data);
+                                noticebox.success('已导入用户' + rsp.data.plan + '/' + rsp.data.total);
+                                return defer.promise;
+                            }
+                        });
+                    };
+                }],
+                backdrop: 'static',
+            })
+        };
     }]);
     /**
      * 微信场景二维码

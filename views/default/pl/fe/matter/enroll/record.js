@@ -121,6 +121,7 @@ define(['frame'], function(ngApp) {
             var recordSchemas = [],
                 recordSchemas2 = [],
                 enrollDataSchemas = [],
+                flag=false,
                 groupDataSchemas = [];
             app.dataSchemas.forEach(function(schema) {
                 if (schema.type !== 'html') {
@@ -132,8 +133,12 @@ define(['frame'], function(ngApp) {
                 }
                 if (schema.format && schema.format === 'number') {
                     $scope.numberSchemas.push(schema);
+                    recordSchemas2.push({ type: 'score', title: '得分', id: schema.id });
+                    flag=true;
                 }
             });
+           
+            $scope.flag=flag;
             $scope.recordSchemas = recordSchemas;
             $scope.recordSchemas2 = recordSchemas2;
             app._schemasFromEnrollApp.forEach(function(schema) {

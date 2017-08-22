@@ -51,6 +51,7 @@
                 </div>
                 <div class='list-group-item' ng-if="ep.type==='L'">
                     <button class='btn btn-default' ng-click="newList()">记录列表</button>
+                    <button class='btn btn-default' ng-click="enrolleeList()" ng-if="app.entry_rule.scope!=='none'">填写人列表</button>
                 </div>
                 <!-- end toggle schema in pages -->
                 <!-- create button wrap -->

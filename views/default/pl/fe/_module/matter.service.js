@@ -133,11 +133,16 @@ provider('srvSite', function() {
                     http2.get(url, function(rsp) {
                         _aMemberSchemas = rsp.data;
                         _aMemberSchemas.forEach(function(ms) {
-                            var schemas = [];
+                            var schemas = [], mschemas = [];
                             if (ms.attr_name[0] === '0') {
                                 schemas.push({
                                     id: 'member.name',
                                     title: '姓名',
+                                });
+                                mschemas.push({
+                                    id: 'name',
+                                    title: '姓名',
+                                    type: 'address'
                                 });
                             }
                             if (ms.attr_mobile[0] === '0') {
@@ -145,11 +150,21 @@ provider('srvSite', function() {
                                     id: 'member.mobile',
                                     title: '手机',
                                 });
+                                mschemas.push({
+                                    id: 'mobile',
+                                    title: '手机',
+                                    type: 'address'
+                                });
                             }
                             if (ms.attr_email[0] === '0') {
                                 schemas.push({
                                     id: 'member.email',
                                     title: '邮箱',
+                                });
+                                mschemas.push({
+                                    id: 'email',
+                                    title: '邮箱',
+                                    type: 'address'
                                 });
                             }
                             (function() {
@@ -161,10 +176,16 @@ provider('srvSite', function() {
                                             id: 'member.extattr.' + ea.id,
                                             title: ea.label,
                                         });
+                                        mschemas.push({
+                                            id: ea.id,
+                                            title: ea.label,
+                                            type: 'address'
+                                        });
                                     };
                                 }
                             })();
                             ms._schemas = schemas;
+                            ms._mschemas = mschemas;
                         });
                         defer.resolve(_aMemberSchemas);
                     });

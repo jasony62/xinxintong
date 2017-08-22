@@ -49,18 +49,26 @@ define(['require', 'angular'], function(require, angular) {
 
         var cachedStatus, lastCachedStatus;
         $scope.count = {};
+        $scope.userSetting = false;
+        $scope.toggleUserSetting = function(event) {
+            event.preventDefault();
+            event.stopPropagation();
+            if (event.target.classList.contains('list-group-item')) {
+                $scope.userSetting = !$scope.userSetting;
+            }
+        };
         $scope.changeNickname = function() {
             var data = {};
             data.nickname = $scope.user.nickname;
             userService.changeNickname(data).then(function() {
-                alert('ok');
+                alert('修改成功');
             });
         };
         $scope.changePwd = function() {
             var data = {};
             data.password = $scope.user.password;
             userService.changePwd(data).then(function() {
-                alert('ok');
+                alert('修改成功');
             });
         };
         $scope.logout = function() {

@@ -19,11 +19,14 @@
     <div class='form-group' ng-if="app.mission">
         <label>所属项目</label>
         <div class="input-group">
-            <input class='form-control' title="{{app.mission.title}}" value="{{app.mission.title}}" readonly="">
+            <input class='form-control' title="{{app.mission.title}}" value="{{app.mission.title}}" readonly>
             <div class="input-group-btn">
-                <button class="btn btn-default" type="button" ng-click="quitMission()">
+                <button class="btn btn-default" type="button" ng-click="quitMission()" title='删除项目'>
                     <span class='glyphicon glyphicon-remove'></span>
                 </button>
+                <a class="btn btn-default" href='/rest/pl/fe/matter/mission?site={{app.siteid}}&id={{app.mission.id}}' target='_self' title='查看项目'>
+                    <span class='glyphicon glyphicon-new-window'></span>
+                </a>
             </div>
         </div>
     </div>

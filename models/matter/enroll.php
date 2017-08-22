@@ -359,10 +359,10 @@ class enroll_model extends app_base {
 		$result = new \stdClass;
 		$q = [
 			'count(*)',
-			'xxt_site_member m',
-			"verified='Y' and forbidden='N' and schema_id=$mschemaId and exists(select 1 from xxt_enroll_record r where r.aid='{$appId}' and r.state=1 and r.userid=m.userid",
+			'xxt_site_member',
+			"verified='Y' and forbidden='N' and schema_id=$mschemaId and userid in (select r.userid from xxt_enroll_record r where r.aid='{$appId}' and r.state=1 ",
 		];
-		!empty($rid) && $q[2] .= " and rid='{$rid}'";
+		!empty($rid) && $q[2] .= " and r.rid='{$rid}'";
 		$q[2] .= ")";
 
 		$result->enrolled = $this->query_val_ss($q);

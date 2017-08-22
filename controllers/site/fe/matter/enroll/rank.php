@@ -56,6 +56,11 @@ class rank extends base {
 			$q[2] .= ' and user_total_coin>0';
 			$q2 = ['o' => 'user_total_coin desc,id'];
 			break;
+		case 'score':
+			$q[0] .= ',score';
+			$q[2] .= ' and score>0';
+			$q2 = ['o' => 'score desc,id'];
+			break;
 		}
 		$q2['r'] = ['o' => ($page - 1) * $size, 'l' => $size];
 
@@ -114,6 +119,9 @@ class rank extends base {
 				break;
 			case 'total_coin':
 				$sql .= 'sum(user_total_coin)';
+				break;
+			case 'score':
+				$sql .= 'sum(score)';
 				break;
 			}
 			$sql .= ' from xxt_enroll_user where aid=\'' . $oApp->id . '\' and rid=\'ALL\'';

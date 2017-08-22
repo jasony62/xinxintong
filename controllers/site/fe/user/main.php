@@ -31,6 +31,10 @@ class main extends \site\fe\base {
 	 */
 	public function changeNickname_action() {
 		$data = $this->getPostJson();
+		if (empty($data->nickname)) {
+			return new \ResponseError('新昵称不能为空');
+		}
+
 		$user = $this->who;
 
 		/* 更新注册用户信息 */
@@ -63,6 +67,10 @@ class main extends \site\fe\base {
 	 */
 	public function changePwd_action() {
 		$data = $this->getPostJson();
+		if (empty($data->password)) {
+			return new \ResponseError('新口令不能为空');
+		}
+
 		$user = $this->who;
 
 		$modelUsr = $this->model('site\user\account');

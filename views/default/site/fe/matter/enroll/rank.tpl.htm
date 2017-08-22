@@ -137,7 +137,7 @@
                                     </div>
                                     <div ng-switch-when="image">
                                         <ul>
-                                            <li ng-repeat="img in rec.value.split(',')"><img ng-src="{{img}}" style='width:128px'/></li>
+                                            <li ng-repeat="img in rec.value.split(',')"><img ng-src="{{img}}" style='width:128px' /></li>
                                         </ul>
                                     </div>
                                     <div ng-switch-when="file">
@@ -198,7 +198,7 @@
     <script src="/static/js/angular-sanitize.min.js"></script>
     <script src="/static/js/ui-bootstrap-tpls.min.js"></script>
     <script src="<?php echo auto_version('/bundles/default/site/fe/matter/enroll/rank.js');?>"></script>
-    <div class="tms-switch tms-switch-repos" ng-click="gotoPage($event,'repos')"></div>
+    <div class="tms-switch tms-switch-repos" ng-click="gotoPage($event,'repos')" ng-if="app.can_repos==='Y'"></div>
 </body>
 
 </html>

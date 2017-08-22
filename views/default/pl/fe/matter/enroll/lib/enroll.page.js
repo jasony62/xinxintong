@@ -85,6 +85,15 @@ define(['require', 'schema', 'wrap', 'editor'], function(require, schemaLib, wra
             domWrap = editorProxy.appendRecordList($scope.app);
             $scope.setActiveWrap(domWrap);
         };
+        $scope.enrolleeList = function() {
+            var enrolleeWrap;
+            if($scope.app.entry_rule.scope=='member') {
+                enrolleeWrap = editorProxy.appendEnrollee($scope.app, $scope.memberSchemas);
+            } else {
+                enrolleeWrap = editorProxy.appendEnrollee($scope.app);
+            }
+            $scope.setActiveWrap(enrolleeWrap);
+        }
         $scope.removeActiveWrap = function() {
             var activeWrap = $scope.activeWrap,
                 wrapType = activeWrap.type,
@@ -111,7 +120,7 @@ define(['require', 'schema', 'wrap', 'editor'], function(require, schemaLib, wra
                     schema: schema
                 });
                 $scope.setActiveWrap(null);
-            } else if (/records/.test(wrapType)) {
+            } else if (/records|enrollees/.test(wrapType)) {
                 editorProxy.removeWrap(activeWrap);
                 for (var i = $scope.ep.data_schemas.length - 1; i >= 0; i--) {
                     if ($scope.ep.data_schemas[i].config.id === activeWrap.config.id) {
@@ -328,6 +337,7 @@ define(['require', 'schema', 'wrap', 'editor'], function(require, schemaLib, wra
         $scope.$watch('ep', function(oPage) {
             if (oPage) {
                 oChooseState = {};
+                if(!$scope.app) return;
                 $scope.app.dataSchemas.forEach(function(schema) {
                     oChooseState[schema.id] = false;
                 });
@@ -426,7 +436,7 @@ define(['require', 'schema', 'wrap', 'editor'], function(require, schemaLib, wra
         };
     }]);
     /**
-     * record list wrap 
+     * record list wrap
      */
     ngMod.controller('ctrlRecordListWrap', ['$scope', '$timeout', function($scope, $timeout) {
         var listSchemas = $scope.activeWrap.schemas,
@@ -454,6 +464,102 @@ define(['require', 'schema', 'wrap', 'editor'], function(require, schemaLib, wra
                     brother = $scope.app.dataSchemas[--ia];
                     while (ia > 0 && !chooseState[brother.id]) {
                         brother = $scope.app.dataSchemas[--ia];
+                    }
+                    for (var ibl = listSchemas.length - 1; ibl >= 0; ibl--) {
+                        if (listSchemas[ibl].id === brother.id) {
+                            break;
+                        }
+                    }
+                    listSchemas.splice(ibl + 1, 0, schema);
+                }
+            } else {
+                for (var i = listSchemas.length - 1; i >= 0; i--) {
+                    if (schema.id === listSchemas[i].id) {
+                        listSchemas.splice(i, 1);
+                        break;
+                    }
+                }
+            }
+            $scope.updWrap();
+        };
+        $scope.updWrap = function() {
+            editorProxy.modifySchema($scope.activeWrap);
+        };
+    }]);
+    /*
+       enrollee list wrap
+     */
+    ngMod.controller('ctrlEnrolleeListWrap', ['$scope', '$timeout', function($scope, $timeout) {
+        var listSchemas = $scope.activeWrap.schemas,
+            memberSchemas = $scope.memberSchemas,
+            config = $scope.activeWrap.config,
+            chooseState = {};
+        $scope.otherMschemas = [{
+            id: 'group.l',
+            title: '所属分组',
+            type: 'enrollee'
+        }];
+        if($scope.app.entry_rule.scope=='sns') {
+            $scope.mschemas = [{
+                id: 'nickname',
+                title: '昵称',
+                type: 'sns'
+            },{
+                id: 'headimgurl',
+                title: '头像',
+                type: 'sns'
+            }]
+        }else{
+            for(var i=$scope.otherMschemas.length-1; i>=0; i--) {
+                if($scope.otherMschemas[i].id == 'schema_title') {
+                    break;
+                }else {
+                    $scope.otherMschemas.push({
+                        id: 'schema_title',
+                        title: '所属通讯录',
+                        type: 'address'
+                    });
+                    break;
+                }
+            }
+            if($scope.activeWrap.config.mschemaId!==''){
+                $scope.mschemas = [];
+                memberSchemas.forEach(function(item) {
+                    if(item.id == $scope.activeWrap.config.mschemaId) {
+                        $scope.mschemas = item._mschemas;
+                    }
+                });
+            }
+        }
+        $scope.doFilter = function(id) {
+            memberSchemas.forEach(function(item) {
+                if(item.id == id) {
+                    $scope.activeWrap.schemas = [];
+                    config.mschemaId = id;
+                    $scope.activeWrap.schemas = $scope.otherMschemas;
+                    for(var i = item._mschemas.length - 1; i >= 0; i--) {
+                        $scope.activeWrap.schemas.splice(0, 0, item._mschemas[i]);
+                    }
+                    $scope.mschemas = listSchemas = [];
+                }
+            });
+            $scope.updWrap();
+        }
+        listSchemas.forEach(function(schema) {
+            chooseState[schema.id] = true;
+        });
+        $scope.chooseState = chooseState;
+        /* 在处理activeSchema中提交 */
+        $scope.choose = function(schema) {
+            if (chooseState[schema.id]) {
+                var ia, ibl, brother, domNewWrap;
+                ia = $scope.mschemas.indexOf(schema);
+                if (ia === 0) {
+                    listSchemas.splice(0, 0, schema);
+                } else {
+                    brother = $scope.mschemas[--ia];
+                    while (ia > 0 && !chooseState[brother.id]) {
+                        brother = $scope.mschemas[--ia];
                     }
                     for (var ibl = listSchemas.length - 1; ibl >= 0; ibl--) {
                         if (listSchemas[ibl].id === brother.id) {

@@ -835,10 +835,23 @@ define([], function() {
         var html;
         html = '<div wrap="value" class="wrap-inline wrap-splitline" schema="' + oSchema.id + '" schema-type="' + oSchema.type + '"><label>' + oSchema.title + '</label>';
         switch (oSchema.type) {
+            case 'enrollee':
+                html += '<div>{{r.' + oSchema.id + '}}</div>';
+                break;
+            case 'address':
+                html += '<div>{{r.mschema.' + oSchema.id + '}}</div>';
+                break;
+            case 'sns':
+                html += '<div>{{r.sns.' + oSchema.id + '}}</div>';
+                break;
+            case 'headimgurl':
+                html += '<div><img ng-src="{{r.sns.oSchema.id}}"/></div>';
+                break;
             case 'shorttext':
             case 'longtext':
             case 'location':
             case 'member':
+            case 'sns':
                 html += '<div>{{r.data.' + oSchema.id + '}}</div>';
                 break;
             case 'date':
@@ -887,14 +900,17 @@ define([], function() {
     };
     RecordsWrap.prototype.embed = function(dataWrap) {
         if (!dataWrap.schemas && dataWrap.schemas.length === 0) return false;
-        var html, attrs;
+        var html, attrs, mschemaId;
         html = this._htmlRecords(dataWrap);
+        mschemaId = Object.keys(dataWrap.config).indexOf('mschemaId') == -1 ? '' : dataWrap.config.mschemaId;
         attrs = {
             id: dataWrap.config.id,
             'ng-controller': 'ctrlRecords',
             'enroll-records': 'Y',
             'enroll-records-owner': dataWrap.config.dataScope,
-            wrap: 'records',
+            'enroll-records-type': dataWrap.config.type=='records'?'records':'enrollees',
+            'enroll-records-mschema': mschemaId,
+            wrap: dataWrap.config.type=='records'?'records':'enrollees',
             class: 'form-group'
         };
         return {
@@ -904,11 +920,14 @@ define([], function() {
         };
     };
     RecordsWrap.prototype.modify = function(domWrap, oWrap) {
-        var html, attrs = {},
+        var html, mschemaId, attrs = {},
             $wrap = $(domWrap),
             config = oWrap.config;
 
         attrs['enroll-records-owner'] = config.dataScope;
+        if(Object.keys(oWrap.config).indexOf('mschemaId') !== -1) {
+            attrs['enroll-records-mschema'] = config.mschemaId;
+        }
         $wrap.attr(attrs);
         $wrap.children('ul').remove();
         html = this._htmlRecords(oWrap);
@@ -1079,6 +1098,7 @@ define([], function() {
         dataByDom: function(domWrap, oPage) {
             var wrapType = $(domWrap).attr('wrap'),
                 dataWrap;
+            if(wrapType=='enrollees'){wrapType = 'records'};
             if (!this[wrapType]) {
                 return false;
             }

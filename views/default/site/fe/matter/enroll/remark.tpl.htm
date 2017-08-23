@@ -147,8 +147,8 @@
     <script src="/static/js/ui-bootstrap-tpls.min.js"></script>
     <script src="<?php echo auto_version('/bundles/default/site/fe/matter/enroll/remark.js');?>"></script>
     <div class="tms-switch tms-switch-back" ng-click="back()" ng-if="historyLen()"></div>
-    <div class="tms-switch tms-switch-repos" ng-click="gotoPage($event,'repos')"></div>
-    <div class="tms-switch tms-switch-rank" ng-click="gotoPage($event,'rank')"></div>
+    <div class="tms-switch tms-switch-repos" ng-click="gotoPage($event,'repos')" ng-if="app.can_repos==='Y'"></div>
+    <div class="tms-switch tms-switch-rank" ng-click="gotoPage($event,'rank')" ng-if="app.can_rank==='Y'"></div>
 </body>
 
 </html>

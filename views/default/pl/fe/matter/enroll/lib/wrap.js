@@ -123,7 +123,10 @@ define([], function() {
         forEdit && (html += ' disabled');
         html += '><span ';
         forEdit && (html += 'contenteditable="true"');
-        html += '>' + op.l + '</span></label></li>';
+        html += '>' + op.l + '</span></label>';
+        html += '<div class="desc"';
+        if(op.desc && op.desc.length) html += ' ng-bind=op.desc>';
+        html += '</div></li>';
 
         return html;
     }

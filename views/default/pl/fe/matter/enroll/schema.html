@@ -98,8 +98,8 @@
                 <div class='title' ng-if="schema.type!=='html'" ng-click="chooseSchema($event,schema)">
                     <div editable prop='title' obj='schema' evt-prefix='title' no-remove="Y" style="min-height:34px;"></div>
                 </div>
-                <div class="description" ng-if="'html'!==schema.type&&schema.description.length">
-                    <span ng-bind="schema.description"></span>
+                <div class="description" ng-if="'html'!==schema.type&&schema.description">
+                    <span ng-bind-html="trustAsHtml(schema,'description')"></span>
                 </div>
                 <div ng-include="schemaHtml(schema)"></div>
                 <div class='actions hidden-xs'>

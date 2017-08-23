@@ -197,7 +197,7 @@ class record_model extends \TMS_MODEL {
 			// 计算题目的得分
 			if (isset($schemasById[$schemaId])) {
 				$schema = $schemasById[$schemaId];
-				if ($schema->type == 'shorttext' && $schema->format == 'number') {
+				if ($schema->type == 'shorttext' && isset($schema->format) && $schema->format == 'number') {
 					$oRecordScore->{$schemaId} = $treatedValue * $schema->weight;
 					$oRecordScore->sum += $oRecordScore->{$schemaId};
 				}
@@ -802,16 +802,17 @@ class record_model extends \TMS_MODEL {
 			"xxt_enroll_record e",
 			$w,
 		];
+
 		//数值型的填空题
-		$flag=false;
-		foreach ($oApp->dataSchemas as $schema){
-			if($schema->type=='shorttext' && $schema->format=='number'){
-				$flag=true;
+		$bRequireScore = false;
+		foreach ($oApp->dataSchemas as $schema) {
+			if ($schema->type == 'shorttext' && isset($schema->format) && $schema->format == 'number') {
+				$bRequireScore = true;
 				break;
 			}
 		}
 		//测验场景或数值填空题共用score字段
-		if ($oApp->scenario === 'quiz' || $flag) {
+		if ($oApp->scenario === 'quiz' || $bRequireScore) {
 			$q[0] .= ',e.score';
 		}
 
@@ -830,7 +831,7 @@ class record_model extends \TMS_MODEL {
 				$data = str_replace("\n", ' ', $rec->data);
 				$data = json_decode($data);
 				//测验场景或数值填空题共用score字段
-				if (($oApp->scenario === 'quiz' || $flag) && !empty($rec->score)) {
+				if (($oApp->scenario === 'quiz' || $bRequireScore) && !empty($rec->score)) {
 					$score = str_replace("\n", ' ', $rec->score);
 					$score = json_decode($score);
 

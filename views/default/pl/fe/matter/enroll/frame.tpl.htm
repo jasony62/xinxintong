@@ -73,12 +73,12 @@
                             <a href='' ng-click="switchTo('enrollee')">填写人</a>
                         </li>
                         <li ng-class="{'active':subView==='tag'}">
-                            <a href='' ng-click="switchTo('tag')">标签</a>
+                            <a href='' ng-click="switchTo('tag')">内容标签</a>
                         </li>
                     </ul>
                 </li>
                 <li>
-                    <a href='' ng-click="opened=opened==='other'?false:'other'">其他 <span class="caret"></span></a>
+                    <a href='' ng-click="opened=opened==='other'?false:'other';switchTo('log')">其他 <span class="caret"></span></a>
                     <ul class="nav nav-tabs nav-stacked" ng-style="{'height':opened==='other'?'168px':'0'}">
                         <li ng-class="{'active':subView==='recycle'}">
                             <a href='' ng-click="switchTo('recycle')">回收站</a>

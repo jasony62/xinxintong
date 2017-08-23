@@ -230,14 +230,16 @@ class remark extends base {
 				continue;
 			}
 			$mapping = $tmplConfig->mapping->{$param->pname};
-			if ($mapping->src === 'matter') {
-				if (isset($oApp->{$mapping->id})) {
-					$value = $oApp->{$mapping->id};
-				}else if($mapping->id==='event_at'){
-					$value = date('Y-m-d H:i:s');
+			if (isset($mapping->src)) {
+				if ($mapping->src === 'matter') {
+					if (isset($oApp->{$mapping->id})) {
+						$value = $oApp->{$mapping->id};
+					} else if ($mapping->id === 'event_at') {
+						$value = date('Y-m-d H:i:s');
+					}
+				} else if ($mapping->src === 'text') {
+					$value = $mapping->name;
 				}
-			} else if ($mapping->src === 'text') {
-				$value = $mapping->name;
 			}
 			!isset($value) && $value = '';
 			$params->{$param->pname} = $value;

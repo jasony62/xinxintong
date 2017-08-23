@@ -1,68 +1,100 @@
 {
-    "common": {
+    "common":
+    {
         "title": "通用登记",
         "name": "common",
         "description": "向多人收集数据",
-        "templates": {
-            "simple": {
+        "templates":
+        {
+            "simple":
+            {
                 "title": "简单",
                 "name": "simple",
                 "description": "简单快速"
             },
-            "ask": {
+            "ask":
+            {
                 "title": "问答库",
                 "name": "ask",
                 "description": "在线问答库"
             }
         }
     },
-    "group_week_report": {
+    "group_week_report":
+    {
         "title": "团队周报",
         "name": "group_week_report",
         "description": "多人共同填写周报",
-        "templates": {
-            "simple": {
+        "templates":
+        {
+            "simple":
+            {
                 "title": "简单",
                 "name": "simple",
                 "description": "简单快速"
             }
         }
     },
-    "registration": {
+    "registration":
+    {
         "title": "登记报名",
         "name": "registration",
         "description": "报名信息收集",
-        "templates": {
-            "simple": {
+        "templates":
+        {
+            "simple":
+            {
                 "title": "简单",
                 "name": "simple",
                 "description": "简单快速"
             }
         }
     },
-    "voting": {
+    "voting":
+    {
         "title": "投票",
         "name": "voting",
         "description": "投票信息收集",
-        "templates": {
-            "simple": {
+        "templates":
+        {
+            "simple":
+            {
                 "title": "简单",
                 "name": "simple",
                 "description": "简单快速"
             },
-            "custom": {
+            "custom":
+            {
                 "title": "定制",
                 "name": "custom",
                 "description": "自有定制展示内容"
             }
         }
     },
-    "quiz": {
+    "quiz":
+    {
         "title": "测验",
         "name": "quiz",
         "description": "测验信息收集",
-        "templates": {
-            "simple": {
+        "templates":
+        {
+            "simple":
+            {
+                "title": "简单",
+                "name": "simple",
+                "description": "简单快速"
+            }
+        }
+    },
+    "score_sheet":
+    {
+        "title": "记分表",
+        "name": "score_sheet",
+        "description": "记录得分",
+        "templates":
+        {
+            "simple":
+            {
                 "title": "简单",
                 "name": "simple",
                 "description": "简单快速"

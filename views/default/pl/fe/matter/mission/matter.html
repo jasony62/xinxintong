@@ -18,6 +18,7 @@
                         <option value='voting'>投票</option>
                         <option value='group_week_report'>周报</option>
                         <option value='quiz'>测验</option>
+                        <option value='score_sheet'>记分表</option>
                     </select>
                 </div>
                 <div class='form-group' ng-if="matterType!==''">
@@ -106,6 +107,7 @@
             <button class='btn btn-default' ng-click="addMatter('voting')">问卷活动</button>
             <button class='btn btn-default' ng-click="addMatter('quiz')">测验活动</button>
             <button class='btn btn-default' ng-click="addEnroll('group_week_report')">团队周报</button>
+            <button class='btn btn-default' ng-click="addEnroll('score_sheet')">记分表</button>
             <button class='btn btn-default' ng-click="addEnroll('common')">通用登记</button>
         </div>
         <div class='form-group'>

@@ -162,6 +162,33 @@
                             </tr>
                         </tbody>
                     </table>
+                    <ul ng-switch-when="data">
+                        <li class='hidden-xs'>
+                            <div class='col-md-2'>序号</div>
+                            <!-- <span >状态</span> -->
+                            <div class='col-md-10'>
+                                <span class='col-md-3'>用户</span>
+                                <span class='col-md-7'>提交内容</span>
+                                <span class='col-md-2'>数量</span>
+                            </div>
+                        </li>
+                        <li>
+                            <div class='col-md-2 col-xs-2'>1</div>
+                            <div class='col-md-10 hidden-xs'>
+                                <span class='col-md-3 '>用户（用户分组）</span>
+                                <span class='col-md-7'>内容</span>
+                                <span class='col-md-2'>数量</span>
+                            </div>
+                            <div class='col-xs-10 visible-xs'>
+                                <span class='col-xs-12'>
+                                    <span class='col-xs-10'>用户（用户分组）</span>
+                                    <span class='col-xs-2 pull-right'>29</span>
+                                </span>
+                                <span class='col-xs-12'>内容</span>
+
+                            </div>
+                        </li>
+                    </ul>
                     <table class='table table-striped' ng-switch-when="remark">
                         <thead>
                             <tr>

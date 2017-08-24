@@ -12,6 +12,7 @@ define(['missionService', 'enrollService', 'signinService'], function() {
             'voting': '投票',
             'quiz': '测验',
             'group_week_report': '周报',
+            'score_sheet': '记分表',
             'signin': '签到',
             'split': '分组',
             'wall': '信息墙'
@@ -100,10 +101,10 @@ define(['missionService', 'enrollService', 'signinService'], function() {
             $scope.oTag = oTag;
         });
         srvMission.get().then(function(mission) {
-            if(mission.matter_mg_tag !== ''){
-                 mission.matter_mg_tag.forEach(function(cTag,index){
-                    $scope.oTag.forEach(function(oTag){
-                        if(oTag.id === cTag){
+            if (mission.matter_mg_tag !== '') {
+                mission.matter_mg_tag.forEach(function(cTag, index) {
+                    $scope.oTag.forEach(function(oTag) {
+                        if (oTag.id === cTag) {
                             mission.matter_mg_tag[index] = oTag;
                         }
                     });

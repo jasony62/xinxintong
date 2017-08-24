@@ -47,7 +47,11 @@ class record extends base {
 		} else {
 			$templateDir = $this->getTemplateDir($scenario, $template);
 			$data = $this->getData($templateDir);
-			$record = $data->records[0];
+			if (empty($data->records)) {
+				$record = new \stdClass;
+			} else {
+				$record = $data->records[0];
+			}
 		}
 
 		return new \ResponseData($record);

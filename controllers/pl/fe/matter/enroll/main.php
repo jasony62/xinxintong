@@ -86,8 +86,8 @@ class main extends \pl\fe\matter\base {
 		if (isset($filter->mission_phase_id) && !empty($filter->mission_phase_id) && $filter->mission_phase_id !== "ALL") {
 			$q[2] .= " and mission_phase_id = '" . $modelApp->escape($filter->mission_phase_id) . "'";
 		}
-		if(!empty($filter->byTags)){
-			foreach($filter->byTags as $tag){
+		if (!empty($filter->byTags)) {
+			foreach ($filter->byTags as $tag) {
 				$q[2] .= " and matter_mg_tag like '%" . $modelApp->escape($tag->id) . "%'";
 			}
 		}
@@ -191,6 +191,12 @@ class main extends \pl\fe\matter\base {
 		/* 登记数量限制 */
 		if (isset($config->count_limit)) {
 			$oNewApp->count_limit = $config->count_limit;
+		}
+		if (isset($config->can_repos)) {
+			$oNewApp->can_repos = $config->repos;
+		}
+		if (isset($config->can_rank)) {
+			$oNewApp->can_rank = $config->can_rank;
 		}
 		if (isset($config->enrolled_entry_page)) {
 			$oNewApp->enrolled_entry_page = $config->enrolled_entry_page;

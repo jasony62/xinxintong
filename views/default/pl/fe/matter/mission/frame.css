@@ -23,7 +23,7 @@ form .form-group:last-child{margin-bottom:0;}
 #viewMatter .thumbnail .operator{flex:1;}
 .thumbnail .actions{border-top:1px solid #ddd;padding-top:.5em;}
 #viewMatter .thumbnail .actions-top{position:absolute;top:.5em;right:.5em;}
-.tag {background: #337ab7;padding: 3px 6px;margin: 4px;border-radius: 4px;color: #fff;}
+.tag{background:#337ab7;padding:3px 6px;margin:4px;border-radius:4px;color:#fff;}
 
 /*indicator*/
 #viewMatter .thumbnail.indicator{flex-direction:row;align-items:center;background:#f8f8f8;}
@@ -36,13 +36,14 @@ form .form-group:last-child{margin-bottom:0;}
 #viewMatter .registration:after{content:'报名';position:absolute;top:-8px;left:-8px;background:#0000ff;padding:2px 4px;font-size:60%;color:#fff;border-radius:4px;}
 #viewMatter .voting:after{content:'投票';position:absolute;top:-8px;left:-8px;background:#0000ff;padding:2px 4px;font-size:60%;color:#fff;border-radius:4px;}
 #viewMatter .group_week_report:after{content:'周报';position:absolute;top:-8px;left:-8px;background:#0000ff;padding:2px 4px;font-size:60%;color:#fff;border-radius:4px;}
+#viewMatter .score_sheet:after{content:'记分表';position:absolute;top:-8px;left:-8px;background:#0000ff;padding:2px 4px;font-size:60%;color:#fff;border-radius:4px;}
 #viewMatter .signin:after{content:'签到';position:absolute;top:-8px;left:-8px;background:#0000cc;padding:2px 4px;font-size:60%;color:#fff;border-radius:4px;}
 #viewMatter .group:after{content:'分组';position:absolute;top:-8px;left:-8px;background:#000099;padding:2px 4px;font-size:60%;color:#fff;border-radius:4px;}
 #viewMatter .split:after{content:'分组';position:absolute;top:-8px;left:-8px;background:#000099;padding:2px 4px;font-size:60%;color:#fff;border-radius:4px;}
 
 /*report*/
 #viewReport img{height:48px;}
-#viewReport .matter{position:relative;transition: background 1s;}
+#viewReport .matter{position:relative;transition:background 1s;}
 #viewReport .matter .seq{display:inline-block;width:2em;text-align:center;line-height:1.6em;font-size:.5em;position:absolute;top:0;left:-1em;background:#666;color:#fff;border-radius:1em;}
 #viewReport .blink{background:#d9edf7;}
 #viewReport .record>div{padding:.5em 0;border-bottom:1px dotted #ccc;}

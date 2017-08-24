@@ -1,0 +1,174 @@
+{
+    "scenario": "score_sheet",
+    "pages": [
+    {
+        "name": "enroll",
+        "title": "记分页",
+        "type": "I",
+        "data_schemas": [
+        {
+            "schema":
+            {
+                "id": "s1001",
+                "title": "记分项1",
+                "type": "shorttext",
+                "required": "Y",
+                "format": "number",
+                "weight": 1
+            },
+            "config":
+            {
+                "showname": "label",
+                "component": "R",
+                "align": "V"
+            }
+        },
+        {
+            "schema":
+            {
+                "id": "s1002",
+                "title": "记分项2",
+                "type": "shorttext",
+                "required": "Y",
+                "format": "number",
+                "weight": 1
+            },
+            "config":
+            {
+                "showname": "label",
+                "component": "R",
+                "align": "V"
+            }
+        },
+        {
+            "schema":
+            {
+                "id": "s1003",
+                "title": "记分项3",
+                "type": "shorttext",
+                "required": "Y",
+                "format": "number",
+                "weight": 1
+            },
+            "config":
+            {
+                "showname": "label",
+                "component": "R",
+                "align": "V"
+            }
+        }],
+        "act_schemas": [
+        {
+            "id": "btnSubmit",
+            "name": "submit",
+            "label": "提交记分",
+            "next": "result"
+        }]
+    },
+    {
+        "name": "result",
+        "title": "记分结果页",
+        "type": "V",
+        "data_schemas": [
+        {
+            "config":
+            {
+                "id": "s1",
+                "pattern": "record",
+                "inline": "N",
+                "splitLine": "Y"
+            },
+            "schema":
+            {
+                "id": "s1001",
+                "title": "记分项1",
+                "type": "shorttext",
+                "required": "Y",
+                "format": "number",
+                "weight": 1
+            }
+        },
+        {
+            "config":
+            {
+                "id": "s2",
+                "pattern": "record",
+                "inline": "N",
+                "splitLine": "Y"
+            },
+            "schema":
+            {
+                "id": "s1002",
+                "title": "记分项2",
+                "type": "shorttext",
+                "required": "Y",
+                "format": "number",
+                "weight": 1
+            }
+        },
+        {
+            "config":
+            {
+                "id": "s3",
+                "pattern": "record",
+                "inline": "N",
+                "splitLine": "Y"
+            },
+            "schema":
+            {
+                "id": "s1003",
+                "title": "记分项3",
+                "type": "shorttext",
+                "required": "Y",
+                "format": "number",
+                "weight": 1
+            }
+        }],
+        "act_schemas": [
+        {
+            "id": "act1",
+            "name": "editRecord",
+            "label": "修改记分",
+            "next": "score"
+        }]
+    }],
+    "schema": [
+    {
+        "id": "s1001",
+        "title": "记分项1",
+        "type": "shorttext",
+        "required": "Y",
+        "format": "number",
+        "weight": 1
+    },
+    {
+        "id": "s1002",
+        "title": "记分项2",
+        "type": "shorttext",
+        "required": "Y",
+        "format": "number",
+        "weight": 1
+    },
+    {
+        "id": "s1003",
+        "title": "记分项3",
+        "type": "shorttext",
+        "required": "Y",
+        "format": "number",
+        "weight": 1
+    }],
+    "scenarioConfig":
+    {
+        "can_rounds": "Y"
+    },
+    "entryRule":
+    {
+        "otherwise":
+        {
+            "entry": "enroll"
+        }
+    },
+    "multi_rounds": "N",
+    "can_rank": "Y",
+    "enrolled_entry_page": "result"
+}

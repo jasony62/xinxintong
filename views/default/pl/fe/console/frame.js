@@ -23,7 +23,8 @@ define(['require'], function(require) {
             'registration': '报名',
             'voting': '投票',
             'quiz': '测验',
-            'group_week_report': '周报'
+            'group_week_report': '周报',
+            'score_sheet': '记分表'
         }
     });
     ngApp.config(['$controllerProvider', '$provide', '$routeProvider', '$locationProvider', '$compileProvider', '$uibTooltipProvider', function($controllerProvider, $provide, $routeProvider, $locationProvider, $compileProvider, $uibTooltipProvider) {

@@ -21,8 +21,18 @@ ngApp.controller('ctrlRank', ['$scope', '$q', '$sce', 'http2', 'ls', function($s
                     defer.resolve(rsp.data)
                 });
                 break;
+            case 'data-rec':
+                http2.post('/rest/site/fe/matter/enroll/rank/dataByApp?site=' + oApp.siteid + '&app=' + oApp.id, {agreed:'Y',obj:'data-rec',orderby:oAppState.criteria.orderby}).then(function(rsp) {
+                    defer.resolve(rsp.data)
+                });
+                break;
             case 'remark':
                 http2.post('/rest/site/fe/matter/enroll/rank/remarkByApp?site=' + oApp.siteid + '&app=' + oApp.id, oAppState.criteria).then(function(rsp) {
+                    defer.resolve(rsp.data)
+                });
+                break;
+            case 'remark-rec':
+                http2.post('/rest/site/fe/matter/enroll/rank/remarkByApp?site=' + oApp.siteid + '&app=' + oApp.id, {agreed:'Y',obj:'remrak-rec',orderby:''}).then(function(rsp) {
                     defer.resolve(rsp.data)
                 });
                 break;
@@ -47,7 +57,8 @@ ngApp.controller('ctrlRank', ['$scope', '$q', '$sce', 'http2', 'ls', function($s
             criteria: {
                 obj: 'user',
                 orderby: 'enroll',
-                agreed: 'all'
+                agreed: 'all',
+                rnd: 'all'
             },
             page: {
                 at: 1,
@@ -95,11 +106,30 @@ ngApp.controller('ctrlRank', ['$scope', '$q', '$sce', 'http2', 'ls', function($s
                         });
                     }
                     break;
+                case 'data-rec':
+                    if (data.records) {
+                        data.records.forEach(function(record) {
+                            if (oApp._schemasById[record.schema_id].type == 'file') {
+                                record.value = angular.fromJson(record.value);
+                            }
+                            record._agreed = oAgreedLabel[record.agreed] || '';
+                            $scope.recordsRec.push(record);
+                        });
+                    }
+                    break;
                 case 'remark':
                     if (data.remarks) {
                         data.remarks.forEach(function(remark) {
                             remark._agreed = oAgreedLabel[remark.agreed] || '';
                             $scope.remarks.push(remark);
+                        });
+                    }
+                    break;
+                case 'remark-rec':
+                    if (data.remarks) {
+                        data.remarks.forEach(function(remark) {
+                            remark._agreed = oAgreedLabel[remark.agreed] || '';
+                            $scope.remarksRec.push(remark);
                         });
                     }
                     break;
@@ -111,7 +141,9 @@ ngApp.controller('ctrlRank', ['$scope', '$q', '$sce', 'http2', 'ls', function($s
         $scope.users = [];
         $scope.groups = [];
         $scope.records = [];
+        $scope.recordsRec = [];
         $scope.remarks = [];
+        $scope.remarksRec = [];
         $scope.doSearch(1);
     };
     $scope.value2Label = function(oRecord, schemaId) {
@@ -138,6 +170,13 @@ ngApp.controller('ctrlRank', ['$scope', '$q', '$sce', 'http2', 'ls', function($s
     };
     $scope.$on('xxt.app.enroll.ready', function(event, params) {
         oApp = params.app;
+        var remarkable, activeRound, dataSchemas = oApp.dataSchemas;
+        for(var i = dataSchemas.length-1; i >= 0; i--) {
+            if(Object.keys(dataSchemas[i]).indexOf('remarkable') !== -1 && dataSchemas[i].remarkable=='Y') {
+                $scope.isRemark = true;
+            }
+            break;
+        }
         $scope.$watch('appState.criteria.obj', function(oNew, oOld) {
             if (oNew && oOld && oNew !== oOld) {
                 switch (oNew) {
@@ -150,7 +189,13 @@ ngApp.controller('ctrlRank', ['$scope', '$q', '$sce', 'http2', 'ls', function($s
                     case 'data':
                         oAppState.criteria.orderby = 'remark';
                         break;
+                    case 'data-rec':
+                        oAppState.criteria.orderby = 'remark';
+                        break;
                     case 'remark':
+                        oAppState.criteria.orderby = '';
+                        break;
+                    case 'remark-rec':
                         oAppState.criteria.orderby = '';
                         break;
                 }

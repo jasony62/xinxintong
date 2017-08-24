@@ -39,14 +39,15 @@ class main extends \site\fe\matter\base {
 					$matter->records = [];
 					$records = $modelEnlRec->byUser($matter, $this->who);
 					foreach ($records as $record) {
-						!empty($record->data) && $record->data = json_decode($record->data);
 						$matter->records[] = $record;
 					}
 				} else if ($matter->type === 'signin') {
 					if (!isset($modelSigRec)) {
 						$modelSigRec = $this->model('matter\signin\record');
 					}
-					$matter->record = $modelSigRec->byUser($this->who, $matter->siteid, $matter);
+					$oApp = new \stdClass;
+					$oApp->id = $matter->siteid;
+					$matter->record = $modelSigRec->byUser($this->who, $oApp);
 				} else if ($matter->type === 'group') {
 					if (!isset($modelGrpRec)) {
 						$modelGrpRec = $this->model('matter\group\player');

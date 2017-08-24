@@ -3,10 +3,10 @@
         <input type='radio' name='{{schema.id}}'>
         <div editable prop='l' obj='op' state="{{schema.id}}" data-index="{{$index}}" evt-prefix='option' no-remove='Y'></div>
         <div class="desc" ng-if="'html'!==op.type&&op.desc">
-            <span ng-bind-html="trustAsHtml(op,'desc')"></span>
+            <span ng-bind-html="trustAsHtml(op, 'desc')"></span>
         </div>
         <div class='btn-group' ng-if='enter'>
-            <button class='btn btn-default btn-xs' ng-click="editOption(op,'desc')"><span class='glyphicon glyphicon-edit'></span></button>
+            <button class='btn btn-default btn-xs' ng-click="editOption(schema, op,'desc')"><span class='glyphicon glyphicon-edit'></span></button>
             <button class='btn btn-default btn-xs' ng-click="moveUpOption(schema,op)"><span class='glyphicon glyphicon-arrow-up'></span></button>
             <button class='btn btn-default btn-xs' ng-click="moveDownOption(schema,op)"><span class='glyphicon glyphicon-arrow-down'></span></button>
             <button class='btn btn-default btn-xs' ng-click="removeOption(schema,op)"><span class='glyphicon glyphicon-remove'></span></button>

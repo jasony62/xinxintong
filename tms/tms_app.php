@@ -162,7 +162,7 @@ class TMS_APP {
 		if (isset($access_rule)) {
 			if (isset($access_rule['rule_type']) && ($access_rule['rule_type'] == 'white')) {
 				if ((!$access_rule['actions']) || (!in_array($__action, $access_rule['actions']))) {
-					self::_authenticate($obj_controller);
+					self::_authenticate($obj_controller, $path);
 				}
 			} else if (isset($access_rule['actions']) && in_array($__action, $access_rule['actions'])) {
 				// 非白就是黑名单
@@ -384,7 +384,7 @@ class TMS_APP {
 	 * @param object $oController 要调用的controller
 	 *
 	 */
-	private static function _authenticate($oController = null) {
+	private static function _authenticate($oController = null, $path = '') {
 		/**
 		 * 如果指定了controller，优先使用controller定义的认证方法
 		 */
@@ -394,6 +394,22 @@ class TMS_APP {
 					return true;
 				}
 				self::_request_api($oController->authenticateURL());
+			}
+			if (method_exists($oController, 'passWallUser')) {
+				if (true === $oController->passWallUser($path)) {
+					return true;
+				}
+				/**
+				 * 返回结果
+				 */
+				$response = new stdClass;
+				$response->err_code = 111;
+				$response->err_msg = '没有访问权限';
+				$response->data = null;
+				$response = json_encode($response);
+				header('Content-type: application/json');
+				header('Cache-Control: no-cache');
+				die($response);
 			}
 		}
 		/**

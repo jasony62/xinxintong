@@ -166,11 +166,11 @@ class TMS_APP {
 				}
 			} else if (isset($access_rule['actions']) && in_array($__action, $access_rule['actions'])) {
 				// 非白就是黑名单
-				self::_authenticate($obj_controller);
+				self::_authenticate($obj_controller, $path);
 			}
 		} else {
 			// 不指定就都检查
-			self::_authenticate($obj_controller);
+			self::_authenticate($obj_controller, $path);
 		}
 		/**
 		 * parameters
@@ -395,8 +395,8 @@ class TMS_APP {
 				}
 				self::_request_api($oController->authenticateURL());
 			}
-			if (method_exists($oController, 'passWallUser')) {
-				if (true === $oController->passWallUser($path)) {
+			if (method_exists($oController, 'accessControlUser')) {
+				if (true === $oController->accessControlUser($path)) {
 					return true;
 				}
 				/**

@@ -8,8 +8,11 @@ class base extends \TMS_CONTROLLER {
 	 *
 	 */
 	public function get_access_rule() {
-		$rule_action['rule_type'] = 'white';
-		$rule_action['actions'][] = 'hello';
+		$rule_action['rule_type'] = 'yellow';
+		$rule_action['actions'][] = 'index';
+		$rule_action['actions'][] = 'update';
+		//跳过访问控制的素材
+		$rule_action['passMatter'] =[];
 
 		return $rule_action;
 	}
@@ -121,5 +124,51 @@ class base extends \TMS_CONTROLLER {
 		// outputs image directly into browser, as PNG stream
 		//@ob_clean();
 		\QRcode::png($url);
+	}
+	/**
+	 * 素材访问控制
+	 */
+	public function accessControlUser($path) {
+		$modelWay = \TMS_APP::M('site\fe\way');
+		if (($user = $modelWay->getCookieRegUser()) === false) {
+			return new \ResponseTimeout();
+		}
+
+		$site = !empty($_GET['site'])? $_GET['site'] : '';
+
+		$path = explode('/', strstr($path, 'fe'));
+		if(empty($path[1])){
+			return true;
+		}
+
+		$pass = false;
+		$modelSite = \TMS_APP::M('site\admin');
+		$site = $modelSite->escape($site);
+		if ($siteUser = $modelSite->byUid($site, $user->unionid)) {
+			$pass = true;
+		}
+
+		if($pass === false && $path[1] === 'matter'){
+			$matter_id = $_GET['id'];
+			$matter_type = $path[2];
+			/*检查此素材是否在项目中*/
+			$q = [
+				'mission_id',
+				'xxt_mission_matter',
+				['matter_id' => $matter_id, 'matter_type' => $matter_type],
+			];
+			if ($mission = $modelSite->query_obj_ss($q)) {
+				$q2 = [
+					'id',
+					'xxt_mission_acl',
+					['mission_id' => $mission->mission_id, 'coworker' => $user->unionid, 'state' => 1],
+				];
+				if($missionUser = $modelSite->query_obj_ss($q2)){
+					$pass = true;
+				}
+			}
+		}
+		
+		return $pass;
 	}
 }

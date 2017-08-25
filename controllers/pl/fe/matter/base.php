@@ -59,37 +59,4 @@ class base extends \pl\fe\base {
 
 		return new \ResponseData($reads);
 	}
-	/**
-	 * 素材访问控制
-	 */
-	public function passWallUser($path) {
-		// $modelWay = \TMS_APP::M('site\fe\way');
-		// if (($user = $modelWay->getCookieRegUser()) === false) {
-		// 	return new \ResponseTimeout();
-		// }
-		
-		var_dump(explode('/', strstr($path, 'matter'))[1], $_GET);
-		
-
-		$pass = false;
-		// $modelSite = $this->model('site\admin');
-		// $site = $modelSite->escape($site);
-		// if ($siteUser = $modelSite->byUid($site, $user->unionid)) {
-		// 	$pass = true;
-		// }
-
-		// /*检查素材是否属于项目*/
-		// if($pass === false && !empty($matter->mission_id)){
-		// 	$q = [
-		// 		'id',
-		// 		'xxt_mission_acl',
-		// 		['mission_id' => $matter->mission_id, 'coworker' => $user->unionid, 'state' => 1],
-		// 	];
-		// 	if($missionUser = $modelSite->query_obj_ss($q)){
-		// 		$pass = true;
-		// 	}
-		// }
-
-		return $pass;
-	}
 }

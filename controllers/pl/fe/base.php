@@ -137,7 +137,7 @@ class base extends \TMS_CONTROLLER {
 		$site = !empty($_GET['site'])? $_GET['site'] : '';
 
 		$path = explode('/', strstr($path, 'fe'));
-		if(empty($path[1])){
+		if(empty($path[1]) || empty($site)){
 			return true;
 		}
 

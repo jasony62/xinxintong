@@ -61,7 +61,11 @@ define(['frame'], function(ngApp) {
                     return;
             }
             http2.get(url, function(rsp) {
-                location.href = '/rest/pl/fe/matter/' + type + '?site=' + rsp.data.siteid + '&id=' + rsp.data.id;
+                if (type === 'enroll') {
+                    location.href = '/rest/pl/fe/matter/enroll/preview?site=' + rsp.data.siteid + '&id=' + rsp.data.id;
+                } else {
+                    location.href = '/rest/pl/fe/matter/' + type + '?site=' + rsp.data.siteid + '&id=' + rsp.data.id;
+                }
             });
         };
         $scope.$on('fromCtrlRecentStickTop', function(event, data) {
@@ -256,7 +260,10 @@ define(['frame'], function(ngApp) {
         }
         $scope.filter = filter;
         $scope.filter2 = filter2 = {};
-        if (filter.byType) { filter2.byTitle = filter.byTitle; filter2.byTags = filter.byTags }
+        if (filter.byType) {
+            filter2.byTitle = filter.byTitle;
+            filter2.byTags = filter.byTags
+        }
         $scope.scenarioNames = cstApp.scenarioNames;
         $scope.changeMatter = function(type) {
             filter.byType = type;
@@ -287,7 +294,7 @@ define(['frame'], function(ngApp) {
                 } else {
                     url2 = '/rest/pl/fe/matter/' + filter.byType + '/list?site=' + filter.bySite + '&' + page.j() + '&_=' + t;
                 }
-                http2.post(url2, { byTitle: filter.byTitle, byTags: filter.byTags}, function(rsp) {
+                http2.post(url2, { byTitle: filter.byTitle, byTags: filter.byTags }, function(rsp) {
                     if (rsp.data.apps === null) {
                         $scope.matters = [];
                     } else {
@@ -336,7 +343,10 @@ define(['frame'], function(ngApp) {
         }
         $scope.filter = filter;
         $scope.filter2 = filter2 = {};
-        if (filter.byType) { filter2.byTitle = filter.byTitle; filter2.byTags = filter.byTags }
+        if (filter.byType) {
+            filter2.byTitle = filter.byTitle;
+            filter2.byTags = filter.byTags
+        }
         $scope.changeMatter = function(type) {
             filter.byType = type;
         };

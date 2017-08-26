@@ -56,42 +56,7 @@ define(['frame'], function(ngApp) {
             });
         };
         $scope.addEnroll = function(assignedScenario) {
-            templateShop.choose($scope.mission.siteid, 'enroll', assignedScenario).then(function(choice) {
-                var url, config = {
-                    proto: {}
-                };
-                if (assignedScenario === 'registration') {
-                    config.proto.title = $scope.mission.title + '-报名';
-                } else if (assignedScenario === 'voting') {
-                    config.proto.title = $scope.mission.title + '-投票';
-                } else if (assignedScenario === 'group_week_report') {
-                    config.proto.title = $scope.mission.title + '-周报';
-                } else if (assignedScenario === 'score_sheet') {
-                    config.proto.title = $scope.mission.title + '-记分表';
-                } else if (assignedScenario === 'quiz') {
-                    config.proto.title = $scope.mission.title + '-测验';
-                } else if (assignedScenario === 'common') {
-                    config.proto.title = $scope.mission.title + '-登记';
-                }
-                if (choice) {
-                    var data = choice.data;
-                    if (choice.source === 'share') {
-                        url = '/rest/pl/fe/matter/enroll/createByOther?site=' + $scope.mission.siteid + '&mission=' + $scope.mission.id + '&template=' + data.id;
-                    } else if (choice.source === 'platform') {
-                        url = '/rest/pl/fe/matter/enroll/create?site=' + $scope.mission.siteid + '&mission=' + $scope.mission.id;
-                        url += '&scenario=' + data.scenario.name;
-                        url += '&template=' + data.template.name;
-                        if (data.simpleSchema && data.simpleSchema.length) {
-                            config.simpleSchema = data.simpleSchema;
-                        }
-                    }
-                } else {
-                    url = '/rest/pl/fe/matter/enroll/create?site=' + $scope.mission.siteid + '&mission=' + $scope.mission.id;
-                }
-                http2.post(url, config, function(rsp) {
-                    location.href = '/rest/pl/fe/matter/enroll?site=' + $scope.mission.siteid + '&id=' + rsp.data.id;
-                });
-            });
+            location.href = '/rest/pl/fe/matter/enroll/shop?site=' + $scope.mission.siteid + '&mission=' + $scope.mission.id + '&scenario=' + (assignedScenario || '');
         };
         $scope.addSignin = function() {
             var url = '/rest/pl/fe/matter/signin/create?site=' + $scope.mission.siteid + '&mission=' + $scope.mission.id,

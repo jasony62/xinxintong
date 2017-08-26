@@ -79,7 +79,7 @@ define(['require', 'enrollService', 'enrollSchema', 'enrollPage'], function(requ
             .when('/rest/pl/fe/matter/enroll/notice', new RouteParam('notice'))
             .when('/rest/pl/fe/matter/enroll/enrollee', new RouteParam('enrollee'))
             .when('/rest/pl/fe/matter/enroll/tag', new RouteParam('tag'))
-            .otherwise(new RouteParam('main'));
+            .otherwise(new RouteParam('entry'));
 
         $locationProvider.html5Mode(true);
 

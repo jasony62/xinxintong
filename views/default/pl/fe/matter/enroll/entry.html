@@ -185,9 +185,6 @@
             <label class='checkbox-inline'>
                 <input type='checkbox' ng-true-value="'Y'" ng-false-value="'N'" ng-model="app.notify_submit" ng-change="update('notify_submit')">用户提交填写内容时通知</label>
         </div>
-        <div class='form-group'>
-            <button class='btn btn-default' ng-click="addMe()">把我加入接收人（接收应用内消息）</button>
-        </div>
         <div class="form-group" ng-if="sns.qy.joined==='Y'">
             <button class='btn btn-default' ng-click='chooseQy()'>选择微信企业号用户加入接收人</button>
         </div>

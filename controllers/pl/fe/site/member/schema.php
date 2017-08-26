@@ -55,7 +55,7 @@ class schema extends \pl\fe\base {
 	 *
 	 * @param string $valid
 	 * @param string $matter 逗号分隔的素材id和type，例如：123,mission
-	 * @param string $withSite 是否包含团队下的通讯录
+	 * @param string $onlyMatter
 	 *
 	 */
 	public function list_action($valid = null, $matter = null, $onlyMatter = 'N') {

@@ -240,17 +240,6 @@ define(['frame'], function(ngApp) {
                 $scope.qrcodeShown = false;
             }
         };
-        $scope.addMe = function() {
-            var url;
-            url = '/rest/pl/fe/matter/enroll/receiver/addMe';
-            url += '?site=' + $scope.app.siteid;
-            url += '&app=' + $scope.app.id;
-            http2.get(url, function(rsp) {
-                http2.get(baseURL + 'list?site=' + $scope.app.siteid + '&app=' + $scope.app.id, function(rsp) {
-                    $scope.receivers = rsp.data;
-                });
-            });
-        };
         $scope.remove = function(receiver) {
             http2.get(baseURL + 'remove?site=' + $scope.app.siteid + '&app=' + $scope.app.id + '&receiver=' + receiver.id, function(rsp) {
                 $scope.receivers.splice($scope.receivers.indexOf(receiver), 1);

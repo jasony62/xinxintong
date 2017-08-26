@@ -21,7 +21,7 @@ define(['frame'], function(ngApp) {
                 });
             }
         };
-        $scope.tagMatter = function(subType){
+        $scope.tagMatter = function(subType) {
             var oTags;
             oTags = $scope.oTag;
             srvTag._tagMatter($scope.app, oTags, subType);
@@ -87,17 +87,6 @@ define(['frame'], function(ngApp) {
                 $("#yxQrcode").trigger('hide');
                 $scope.qrcodeShown = false;
             }
-        };
-        $scope.addMe = function() {
-            var url;
-            url = '/rest/pl/fe/matter/signin/receiver/addMe';
-            url += '?site=' + $scope.app.siteid;
-            url += '&app=' + $scope.app.id;
-            http2.get(url, function(rsp) {
-                http2.get(baseURL + 'list?site=' + $scope.app.siteid + '&app=' + $scope.app.id, function(rsp) {
-                    $scope.receivers = rsp.data;
-                });
-            });
         };
         $scope.remove = function(receiver) {
             http2.get(baseURL + 'remove?site=' + $scope.app.siteid + '&app=' + $scope.app.id + '&receiver=' + receiver.userid, function(rsp) {

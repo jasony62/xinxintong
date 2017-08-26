@@ -304,7 +304,7 @@
                         <th style='width:140px'>创建人</th>
                         <th style='width:120px'>创建时间</th>
                         <th style='width:64px'>置顶</th>
-                        <th style='width:290px'>操作</th>
+                        <th style='width:240px'>操作</th>
                     </tr>
                 </thead>
                 <tbody>
@@ -324,11 +324,10 @@
                                 <button class='btn btn-sm btn-default' ng-click="copyMatter($event,m)">复制</button>
                             </span>
                             <span ng-switch-when="enroll">
-                                <button class='btn btn-sm btn-default' ng-click="openMatter(m,'main')">定义</button>
+                                <button class='btn btn-sm btn-default' ng-click="openMatter(m,'preview')">预览</button>
                                 <button class='btn btn-sm btn-default' ng-click="openMatter(m,'entry')">设置</button>
                                 <button class='btn btn-sm btn-default hidden-xs' ng-click="openMatter(m,'record')">数据</button>
                                 <button class='btn btn-sm btn-default hidden-xs' ng-click="copyMatter($event,m)">复制</button>
-                                <a ng-if="m.op_short_url_code" href="/q/{{m.op_short_url_code}}" target='_self' class='btn btn-sm btn-default'>汇总结果</a>
                             </span>
                             <span ng-switch-when="signin">
                                 <button class='btn btn-sm btn-default' ng-click="openMatter(m,'main')">定义</button>

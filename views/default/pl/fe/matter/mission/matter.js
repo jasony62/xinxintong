@@ -15,35 +15,6 @@ define(['frame'], function(ngApp) {
             })
 
         };
-        var indicators = {
-            registration: {
-                title: '在线报名',
-                handler: function() {
-                    $scope.addEnroll('registration');
-                }
-            },
-            signin: {
-                title: '签到',
-                handler: function() {
-                    $scope.addSignin();
-                }
-            },
-            group: {
-                title: '分组',
-                handler: function() {
-                    $scope.addGroup();
-                }
-            },
-            voting: {
-                title: '投票',
-                handler: function() {
-                    $scope.addEnroll('voting');
-                }
-            },
-        };
-        $scope.addByIndicator = function(indicator) {
-            indicator.handler();
-        };
         $scope.addArticle = function() {
             var url = '/rest/pl/fe/matter/article/create?mission=' + $scope.mission.id,
                 config = {

@@ -61,7 +61,7 @@ class main extends \pl\fe\matter\base {
 			return new \ResponseTimeout();
 		}
 
-		$filter = $this->getPostJson();
+		$oFilter = $this->getPostJson();
 		$result = ['apps' => null, 'total' => 0];
 		$modelApp = $this->model('matter\enroll');
 		$q = [
@@ -80,14 +80,14 @@ class main extends \pl\fe\matter\base {
 		if ($onlySns === 'Y') {
 			$q[2] .= " and entry_rule like '%\"scope\":\"sns\"%'";
 		}
-		if (!empty($filter->byTitle)) {
-			$q[2] .= " and title like '%" . $modelApp->escape($filter->byTitle) . "%'";
+		if (!empty($oFilter->byTitle)) {
+			$q[2] .= " and title like '%" . $modelApp->escape($oFilter->byTitle) . "%'";
 		}
-		if (isset($filter->mission_phase_id) && !empty($filter->mission_phase_id) && $filter->mission_phase_id !== "ALL") {
-			$q[2] .= " and mission_phase_id = '" . $modelApp->escape($filter->mission_phase_id) . "'";
+		if (isset($oFilter->mission_phase_id) && !empty($oFilter->mission_phase_id) && $oFilter->mission_phase_id !== "ALL") {
+			$q[2] .= " and mission_phase_id = '" . $modelApp->escape($oFilter->mission_phase_id) . "'";
 		}
-		if (!empty($filter->byTags)) {
-			foreach ($filter->byTags as $tag) {
+		if (!empty($oFilter->byTags)) {
+			foreach ($oFilter->byTags as $tag) {
 				$q[2] .= " and matter_mg_tag like '%" . $modelApp->escape($tag->id) . "%'";
 			}
 		}
@@ -96,8 +96,9 @@ class main extends \pl\fe\matter\base {
 		$q2['r']['o'] = ($page - 1) * $size;
 		$q2['r']['l'] = $size;
 		if ($apps = $modelApp->query_objs_ss($q, $q2)) {
-			foreach ($apps as &$app) {
-				$app->url = $modelApp->getEntryUrl($app->siteid, $app->id);
+			foreach ($apps as &$oApp) {
+				$oApp->url = $modelApp->getEntryUrl($oApp->siteid, $oApp->id);
+				$oApp->opData = $modelApp->opData($oApp, true);
 			}
 			$result['apps'] = $apps;
 			$q[0] = 'count(*)';
@@ -1895,7 +1896,7 @@ class main extends \pl\fe\matter\base {
 	 * @param string $app app'id
 	 *
 	 */
-	public function summary_action($site, $app) {
+	public function opData_action($site, $app) {
 		if (false === ($user = $this->accountUser())) {
 			return new \ResponseTimeout();
 		}
@@ -1905,8 +1906,8 @@ class main extends \pl\fe\matter\base {
 		if (false === $oApp) {
 			return new \ObjectNotFoundError();
 		}
-		$summary = $modelApp->opData($oApp);
+		$opData = $modelApp->opData($oApp);
 
-		return new \ResponseData($summary);
+		return new \ResponseData($opData);
 	}
 }

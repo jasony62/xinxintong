@@ -64,7 +64,7 @@ class main extends \pl\fe\matter\base {
 			if (!empty($post->byTitle)) {
 				$options['byTitle'] = $post->byTitle;
 			}
-			if(!empty($post->byTags)){
+			if (!empty($post->byTags)) {
 				$options['byTags'] = $post->byTags;
 			}
 			$result = $model->bySite($site, $page, $size, $onlySns, $options);
@@ -83,10 +83,13 @@ class main extends \pl\fe\matter\base {
 		if (strlen($cascaded) && count($result->apps)) {
 			$cascaded = explode(',', $cascaded);
 			$modelRnd = $this->model('matter\signin\round');
-			foreach ($result->apps as &$app) {
+			foreach ($result->apps as &$oApp) {
 				if (in_array('round', $cascaded)) {
 					/* 轮次 */
-					$app->rounds = $modelRnd->byApp($app->id, ['fields' => 'id,rid,title,start_at,end_at,late_at']);
+					$oApp->rounds = $modelRnd->byApp($oApp->id, ['fields' => 'id,rid,title,start_at,end_at,late_at']);
+				}
+				if (in_array('opData', $cascaded)) {
+					$oApp->opData = $model->opData($oApp, true);
 				}
 			}
 		}

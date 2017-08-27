@@ -1176,6 +1176,7 @@ class record_model extends \TMS_MODEL {
 				$rid = $activeRound->rid;
 			}
 		}
+		/* 每道题目的合计 */
 		foreach ($dataSchemas as $schema) {
 			if (isset($schema->format) && $schema->format === 'number') {
 				$q = [
@@ -1185,10 +1186,56 @@ class record_model extends \TMS_MODEL {
 				];
 				$rid !== 'ALL' && !empty($rid) && $q[2]['rid'] = $rid;
 
-				$sum = (int) $this->query_val_ss($q);
-				$result->{$schema->id} = $sum;
+				$sum = $this->query_val_ss($q);
+				$sum = number_format($sum, 2);
+				$result->{$schema->id} = (float) $sum;
 			}
 		}
+
+		return $result;
+	}
+	/**
+	 * 计算指定登记项所有记录的合计
+	 */
+	public function score4Schema($oApp, $rid = 'ALL') {
+		if (empty($oApp->data_schemas)) {
+			return false;
+		}
+
+		$result = new \stdClass;
+		$dataSchemas = isset($oApp->dataSchemas) ? $oApp->dataSchemas : json_decode($oApp->data_schemas);
+		if (empty($rid)) {
+			if ($activeRound = $this->model('matter\enroll\round')->getActive($oApp)) {
+				$rid = $activeRound->rid;
+			}
+		}
+		/* 每道题目的得分 */
+		foreach ($dataSchemas as $oSchema) {
+			if ((isset($oSchema->requireScore) && $oSchema->requireScore === 'Y') || (isset($oSchema->format) && $oSchema->format === 'number')) {
+				$q = [
+					'sum(score)',
+					'xxt_enroll_record_data',
+					['aid' => $oApp->id, 'schema_id' => $oSchema->id, 'state' => 1],
+				];
+				$rid !== 'ALL' && !empty($rid) && $q[2]['rid'] = $rid;
+
+				$sum = $this->query_val_ss($q);
+				$sum = number_format($sum, 2);
+				$result->{$oSchema->id} = (float) $sum;
+			}
+		}
+
+		/*所有题的得分合计*/
+		$q = [
+			'sum(score)',
+			'xxt_enroll_record_data',
+			['aid' => $oApp->id, 'state' => 1],
+		];
+		$rid !== 'ALL' && !empty($rid) && $q[2]['rid'] = $rid;
+
+		$sum = $this->query_val_ss($q);
+		$sum = number_format($sum, 2);
+		$result->sum = (float) $sum;
 
 		return $result;
 	}

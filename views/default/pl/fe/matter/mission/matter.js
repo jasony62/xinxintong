@@ -140,24 +140,11 @@ define(['frame'], function(ngApp) {
                 url += '&_=' + (new Date() * 1);
 
                 http2.get(url, function(rsp) {
-                    var typeCount = {};
                     angular.forEach(rsp.data, function(matter) {
                         matter._operator = matter.modifier_name || matter.creater_name;
                         matter._operateAt = matter.modifiy_at || matter.create_at;
-                        if (matter.type === 'enroll') {
-                            typeCount[matter.scenario] ? typeCount[matter.scenario]++ : (typeCount[matter.scenario] = 1);
-                        } else {
-                            typeCount[matter.type] ? typeCount[matter.type]++ : (typeCount[matter.type] = 1);
-                        }
                     });
                     $scope.matters = rsp.data;
-                    $scope.indicators = [];
-                    if (matterType === '') {
-                        !typeCount.registration && $scope.indicators.push(indicators.registration);
-                        !typeCount.signin && $scope.indicators.push(indicators.signin);
-                        !typeCount.group && $scope.indicators.push(indicators.group);
-                        !typeCount.voting && $scope.indicators.push(indicators.voting);
-                    }
                 });
             } else {
                 var scenario;
@@ -175,17 +162,10 @@ define(['frame'], function(ngApp) {
                 scenario !== undefined && (url += '&scenario=' + scenario);
                 url += '&_=' + (new Date() * 1);
                 http2.post(url, { byTitle: $scope.filter2.byTitle }, function(rsp) {
-                    $scope.indicators = [];
                     if (/article/.test(matterType)) {
                         $scope.matters = rsp.data.articles;
-                        if (rsp.data.total == 0) {
-                            indicators.article && $scope.indicators.push(indicators.article);
-                        }
                     } else if (/enroll|voting|registration|group_week_report|quiz|score_sheet|common|signin|group/.test(matterType)) {
                         $scope.matters = rsp.data.apps;
-                        if (rsp.data.total == 0) {
-                            indicators[matterType] && $scope.indicators.push(indicators[matterType]);
-                        }
                     } else {
                         $scope.matters = rsp.data;
                     }

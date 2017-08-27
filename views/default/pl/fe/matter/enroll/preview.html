@@ -39,16 +39,16 @@
                 <div ng-switch-when="M">每月{{rule.mday}}日{{rule.hour}}点生成填写轮次 <span class='glyphicon' ng-class="rule.enabled==='Y'?'glyphicon-ok':'glyphicon-ban-circle'"></span>
                 </div>
             </li>
-            <li class='status' ng-if="app.multi_rounds==='Y'"><span>当前轮次：{{summary.title}}</span></li>
+            <li class='status' ng-if="app.multi_rounds==='Y'"><span>当前轮次：{{opData.title}}</span></li>
         </ul>
     </div>
     <div class='aspect'>
         <div class='alert alert-info'>4、填写记录</div>
         <ul class='status-group'>
-            <li class='status' ng-if="app.multi_rounds==='Y'">轮次：{{summary.title}}</li>
-            <li class='status'>已有<span ng-bind="summary.enrollee_num"></span>人，提交<span ng-bind="summary.total"></span>条记录</li>
-            <li class='status' ng-repeat="mschema in status.user.member">通信录【<span ng-bind="mschema.title"></span>】中已有<span ng-bind="summary.mschema[mschema.id].enrolled"></span>人提交记录，<span>{{mschema.count.verified-summary.mschema[mschema.id].enrolled}}</span>人未提交记录</li>
-            <li class='status'>已有<span ng-bind="summary.remark_total"></span>条评论</li>
+            <li class='status' ng-if="app.multi_rounds==='Y'">轮次：{{opData.title}}</li>
+            <li class='status'>已有<span ng-bind="opData.enrollee_num"></span>人，提交<span ng-bind="opData.total"></span>条记录</li>
+            <li class='status' ng-repeat="mschema in status.user.member">通信录【<span ng-bind="mschema.title"></span>】中已有<span ng-bind="opData.mschema[mschema.id].enrolled"></span>人提交记录，<span>{{mschema.count.verified-opData.mschema[mschema.id].enrolled}}</span>人未提交记录</li>
+            <li class='status'>已有<span ng-bind="opData.remark_total"></span>条评论</li>
         </ul>
     </div>
     <div class='aspect'>

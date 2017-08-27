@@ -294,6 +294,9 @@ define(['frame'], function(ngApp) {
                 } else {
                     url2 = '/rest/pl/fe/matter/' + filter.byType + '/list?site=' + filter.bySite + '&' + page.j() + '&_=' + t;
                 }
+                if (filter.byType === 'signin') {
+                    url2 += '&cascaded=opData';
+                }
                 http2.post(url2, { byTitle: filter.byTitle, byTags: filter.byTags }, function(rsp) {
                     if (rsp.data.apps === null) {
                         $scope.matters = [];

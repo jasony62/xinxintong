@@ -132,11 +132,11 @@ define(['require', 'enrollService', 'enrollSchema', 'enrollPage'], function(requ
                 case 'remark':
                 case 'stat':
                 case 'enrollee':
+                case 'log':
                 case 'tag':
                     $scope.opened = 'data';
                     break;
                 case 'recycle':
-                case 'log':
                 case 'coin':
                 case 'notice':
                 case 'overview':

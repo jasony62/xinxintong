@@ -141,11 +141,9 @@ define(['frame'], function(ngApp) {
                 $scope.admins = rsp.data;
             });
         });
-        srvEnrollApp.summary().then(function(data) {
+        srvEnrollApp.opData().then(function(data) {
             if (data.length) {
-                $scope.summary = data[0];
-            } else {
-                $scope.summary = data;
+                $scope.opData = data[0];
             }
         });
     }]);

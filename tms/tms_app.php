@@ -402,14 +402,7 @@ class TMS_APP {
 				/**
 				 * 返回结果
 				 */
-				$response = new stdClass;
-				$response->err_code = 111;
-				$response->err_msg = '没有访问权限';
-				$response->data = null;
-				$response = json_encode($response);
-				header('Content-type: application/json');
-				header('Cache-Control: no-cache');
-				die($response);
+				die('没有访问权限');
 			}
 		}
 		/**

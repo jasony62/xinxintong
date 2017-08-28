@@ -152,12 +152,18 @@ class base extends \TMS_CONTROLLER {
 			$matter_id = $_GET['id'];
 			$matter_type = $path[2];
 			/*检查此素材是否在项目中*/
-			$q = [
-				'mission_id',
-				'xxt_mission_matter',
-				['matter_id' => $matter_id, 'matter_type' => $matter_type],
-			];
-			if ($mission = $modelSite->query_obj_ss($q)) {
+			if($matter_type !== 'mission'){
+				$q = [
+					'mission_id',
+					'xxt_mission_matter',
+					['matter_id' => $matter_id, 'matter_type' => $matter_type],
+				];
+				$mission = $modelSite->query_obj_ss($q);
+			}else{
+				$mission = new \stdClass;
+				$mission->mission_id = $matter_id;
+			}
+			if ($mission) {
 				$q2 = [
 					'id',
 					'xxt_mission_acl',

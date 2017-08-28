@@ -8,7 +8,7 @@ class base extends \TMS_CONTROLLER {
 	 *
 	 */
 	public function get_access_rule() {
-		$rule_action['rule_type'] = 'yellow';
+		$rule_action['rule_type'] = 'black';
 		$rule_action['actions'][] = 'index';
 		$rule_action['actions'][] = 'update';
 		//跳过访问控制的素材

@@ -38,7 +38,7 @@ ngApp.factory('Round', ['http2', '$q', function(http2, $q) {
         }
     };
 }]);
-ngApp.controller('ctrlRank', ['$scope', '$q', '$sce', 'http2', 'ls', 'Round', function($scope, $q, $sce, http2, LS, srvRound) {
+ngApp.controller('ctrlRank', ['$scope', '$q', '$sce', 'http2', 'ls', 'Round', '$uibModal', function($scope, $q, $sce, http2, LS, srvRound, $uibModal) {
     function list() {
         var defer = $q.defer();
         switch (oAppState.criteria.obj) {
@@ -182,6 +182,44 @@ ngApp.controller('ctrlRank', ['$scope', '$q', '$sce', 'http2', 'ls', 'Round', fu
         $scope.remarksRec = [];
         $scope.doSearch(1);
     };
+    $scope.doRound = function(rid) {
+        if (rid == 'more') {
+            $scope.moreRounds();
+        } else {
+            $scope.changeCriteria();
+        }
+    };
+    $scope.moreRounds = function() {
+        $uibModal.open({
+            templateUrl: 'moreRound.html',
+            backdrop: 'static',
+            controller: ['$scope', '$uibModalInstance', 'Round', function($scope2, $mi, srvRound) {
+                $scope2.facRound = srvRound.ins(oApp);
+                $scope2.pageOfRound = $scope2.facRound.oPage;
+                $scope2.moreCriteria = {
+                    rid: 'ALL'
+                }
+                $scope2.doSearchRound = function() {
+                    if (oApp.multi_rounds === 'Y') {
+                        $scope2.facRound.list().then(function(result) {
+                            $scope2.activeRound = result.active;
+                            $scope2.rounds = result.rounds;
+                        });
+                    }
+                };
+                $scope2.cancel = function() {
+                    $mi.dismiss();
+                };
+                $scope2.ok = function() {
+                    $mi.close($scope2.moreCriteria.rid);
+                }
+                $scope2.doSearchRound();
+            }]
+        }).result.then(function(result) {
+            $scope.appState.criteria.round = result;
+            $scope.changeCriteria();
+        });
+    }
     $scope.value2Label = function(oRecord, schemaId) {
         var value, val, schema, aVal, aLab = [];
 
@@ -203,13 +241,6 @@ ngApp.controller('ctrlRank', ['$scope', '$q', '$sce', 'http2', 'ls', 'Round', fu
             }
         }
         return $sce.trustAsHtml(val);
-    };
-    $scope.doRound = function(rid) {
-        if (rid == 'more') {
-            $scope.moreRounds();
-        } else {
-            $scope.changeCriteria();
-        }
     };
     $scope.$on('xxt.app.enroll.ready', function(event, params) {
         oApp = params.app;

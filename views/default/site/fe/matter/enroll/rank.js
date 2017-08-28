@@ -2,7 +2,43 @@
 require('./rank.css');
 
 var ngApp = require('./main.js');
-ngApp.controller('ctrlRank', ['$scope', '$q', '$sce', 'http2', 'ls', function($scope, $q, $sce, http2, LS) {
+ngApp.factory('Round', ['http2', '$q', function(http2, $q) {
+    var Round, _ins;
+    Round = function(oApp) {
+        this.oApp = oApp;
+        this.oPage = {
+            at: 1,
+            size: 10,
+            j: function() {
+                return '&page=' + this.at + '&size=' + this.size;
+            }
+        };
+    };
+    Round.prototype.list = function() {
+        var _this = this,
+            deferred = $q.defer(),
+            url;
+
+        url = '/rest/site/fe/matter/enroll/round/list?site=' + this.oApp.siteid + '&app=' + this.oApp.id;
+        url += this.oPage.j();
+        http2.get(url).then(function(rsp) {
+            if (rsp.err_code != 0) {
+                alert(rsp.data);
+                return;
+            }
+            _this.oPage.total = rsp.data.total;
+            deferred.resolve(rsp.data);
+        });
+        return deferred.promise;
+    };
+    return {
+        ins: function(oApp) {
+            _ins = _ins ? _ins : new Round(oApp);
+            return _ins;
+        }
+    };
+}]);
+ngApp.controller('ctrlRank', ['$scope', '$q', '$sce', 'http2', 'ls', 'Round', '$uibModal', function($scope, $q, $sce, http2, LS, srvRound, $uibModal) {
     function list() {
         var defer = $q.defer();
         switch (oAppState.criteria.obj) {
@@ -21,8 +57,18 @@ ngApp.controller('ctrlRank', ['$scope', '$q', '$sce', 'http2', 'ls', function($s
                     defer.resolve(rsp.data)
                 });
                 break;
+            case 'data-rec':
+                http2.post('/rest/site/fe/matter/enroll/rank/dataByApp?site=' + oApp.siteid + '&app=' + oApp.id, {agreed:'Y',obj:'data-rec',orderby:oAppState.criteria.orderby,round:oAppState.criteria.round}).then(function(rsp) {
+                    defer.resolve(rsp.data)
+                });
+                break;
             case 'remark':
                 http2.post('/rest/site/fe/matter/enroll/rank/remarkByApp?site=' + oApp.siteid + '&app=' + oApp.id, oAppState.criteria).then(function(rsp) {
+                    defer.resolve(rsp.data)
+                });
+                break;
+            case 'remark-rec':
+                http2.post('/rest/site/fe/matter/enroll/rank/remarkByApp?site=' + oApp.siteid + '&app=' + oApp.id, {agreed:'Y',obj:'remrak-rec',orderby:'',round:oAppState.criteria.round}).then(function(rsp) {
                     defer.resolve(rsp.data)
                 });
                 break;
@@ -47,7 +93,8 @@ ngApp.controller('ctrlRank', ['$scope', '$q', '$sce', 'http2', 'ls', function($s
             criteria: {
                 obj: 'user',
                 orderby: 'enroll',
-                agreed: 'all'
+                agreed: 'all',
+                round: 'ALL'
             },
             page: {
                 at: 1,
@@ -95,11 +142,30 @@ ngApp.controller('ctrlRank', ['$scope', '$q', '$sce', 'http2', 'ls', function($s
                         });
                     }
                     break;
+                case 'data-rec':
+                    if (data.records) {
+                        data.records.forEach(function(record) {
+                            if (oApp._schemasById[record.schema_id].type == 'file') {
+                                record.value = angular.fromJson(record.value);
+                            }
+                            record._agreed = oAgreedLabel[record.agreed] || '';
+                            $scope.recordsRec.push(record);
+                        });
+                    }
+                    break;
                 case 'remark':
                     if (data.remarks) {
                         data.remarks.forEach(function(remark) {
                             remark._agreed = oAgreedLabel[remark.agreed] || '';
                             $scope.remarks.push(remark);
+                        });
+                    }
+                    break;
+                case 'remark-rec':
+                    if (data.remarks) {
+                        data.remarks.forEach(function(remark) {
+                            remark._agreed = oAgreedLabel[remark.agreed] || '';
+                            $scope.remarksRec.push(remark);
                         });
                     }
                     break;
@@ -111,9 +177,49 @@ ngApp.controller('ctrlRank', ['$scope', '$q', '$sce', 'http2', 'ls', function($s
         $scope.users = [];
         $scope.groups = [];
         $scope.records = [];
+        $scope.recordsRec = [];
         $scope.remarks = [];
+        $scope.remarksRec = [];
         $scope.doSearch(1);
     };
+    $scope.doRound = function(rid) {
+        if (rid == 'more') {
+            $scope.moreRounds();
+        } else {
+            $scope.changeCriteria();
+        }
+    };
+    $scope.moreRounds = function() {
+        $uibModal.open({
+            templateUrl: 'moreRound.html',
+            backdrop: 'static',
+            controller: ['$scope', '$uibModalInstance', 'Round', function($scope2, $mi, srvRound) {
+                $scope2.facRound = srvRound.ins(oApp);
+                $scope2.pageOfRound = $scope2.facRound.oPage;
+                $scope2.moreCriteria = {
+                    rid: 'ALL'
+                }
+                $scope2.doSearchRound = function() {
+                    if (oApp.multi_rounds === 'Y') {
+                        $scope2.facRound.list().then(function(result) {
+                            $scope2.activeRound = result.active;
+                            $scope2.rounds = result.rounds;
+                        });
+                    }
+                };
+                $scope2.cancel = function() {
+                    $mi.dismiss();
+                };
+                $scope2.ok = function() {
+                    $mi.close($scope2.moreCriteria.rid);
+                }
+                $scope2.doSearchRound();
+            }]
+        }).result.then(function(result) {
+            $scope.appState.criteria.round = result;
+            $scope.changeCriteria();
+        });
+    }
     $scope.value2Label = function(oRecord, schemaId) {
         var value, val, schema, aVal, aLab = [];
 
@@ -138,6 +244,13 @@ ngApp.controller('ctrlRank', ['$scope', '$q', '$sce', 'http2', 'ls', function($s
     };
     $scope.$on('xxt.app.enroll.ready', function(event, params) {
         oApp = params.app;
+        var remarkable, activeRound, facRound, dataSchemas = oApp.dataSchemas;
+        for(var i = dataSchemas.length-1; i >= 0; i--) {
+            if(Object.keys(dataSchemas[i]).indexOf('remarkable') !== -1 && dataSchemas[i].remarkable=='Y') {
+                $scope.isRemark = true;
+            }
+            break;
+        }
         $scope.$watch('appState.criteria.obj', function(oNew, oOld) {
             if (oNew && oOld && oNew !== oOld) {
                 switch (oNew) {
@@ -150,13 +263,27 @@ ngApp.controller('ctrlRank', ['$scope', '$q', '$sce', 'http2', 'ls', function($s
                     case 'data':
                         oAppState.criteria.orderby = 'remark';
                         break;
+                    case 'data-rec':
+                        oAppState.criteria.orderby = 'remark';
+                        break;
                     case 'remark':
+                        oAppState.criteria.orderby = '';
+                        break;
+                    case 'remark-rec':
                         oAppState.criteria.orderby = '';
                         break;
                 }
                 $scope.changeCriteria();
             }
         });
+        $scope.facRound = facRound = srvRound.ins(oApp);
+        if (oApp.multi_rounds === 'Y') {
+            facRound.list().then(function(result) {
+                $scope.activeRound = result.active;
+                $scope.checkedRound = result.checked;
+                $scope.rounds = result.rounds;
+            });
+        }
         $scope.changeCriteria();
     });
 }]);

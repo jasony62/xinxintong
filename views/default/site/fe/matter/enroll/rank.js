@@ -58,7 +58,7 @@ ngApp.controller('ctrlRank', ['$scope', '$q', '$sce', 'http2', 'ls', 'Round', '$
                 });
                 break;
             case 'data-rec':
-                http2.post('/rest/site/fe/matter/enroll/rank/dataByApp?site=' + oApp.siteid + '&app=' + oApp.id, {agreed:'Y',obj:'data-rec',orderby:oAppState.criteria.orderby,round:oAppState.criteria.round}).then(function(rsp) {
+                http2.post('/rest/site/fe/matter/enroll/rank/dataByApp?site=' + oApp.siteid + '&app=' + oApp.id, { agreed: 'Y', obj: 'data-rec', orderby: oAppState.criteria.orderby, round: oAppState.criteria.round }).then(function(rsp) {
                     defer.resolve(rsp.data)
                 });
                 break;
@@ -68,7 +68,7 @@ ngApp.controller('ctrlRank', ['$scope', '$q', '$sce', 'http2', 'ls', 'Round', '$
                 });
                 break;
             case 'remark-rec':
-                http2.post('/rest/site/fe/matter/enroll/rank/remarkByApp?site=' + oApp.siteid + '&app=' + oApp.id, {agreed:'Y',obj:'remrak-rec',orderby:'',round:oAppState.criteria.round}).then(function(rsp) {
+                http2.post('/rest/site/fe/matter/enroll/rank/remarkByApp?site=' + oApp.siteid + '&app=' + oApp.id, { agreed: 'Y', obj: 'remrak-rec', orderby: '', round: oAppState.criteria.round }).then(function(rsp) {
                     defer.resolve(rsp.data)
                 });
                 break;
@@ -245,8 +245,8 @@ ngApp.controller('ctrlRank', ['$scope', '$q', '$sce', 'http2', 'ls', 'Round', '$
     $scope.$on('xxt.app.enroll.ready', function(event, params) {
         oApp = params.app;
         var remarkable, activeRound, facRound, dataSchemas = oApp.dataSchemas;
-        for(var i = dataSchemas.length-1; i >= 0; i--) {
-            if(Object.keys(dataSchemas[i]).indexOf('remarkable') !== -1 && dataSchemas[i].remarkable=='Y') {
+        for (var i = dataSchemas.length - 1; i >= 0; i--) {
+            if (Object.keys(dataSchemas[i]).indexOf('remarkable') !== -1 && dataSchemas[i].remarkable == 'Y') {
                 $scope.isRemark = true;
             }
             break;

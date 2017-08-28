@@ -132,45 +132,6 @@ class receiver extends \pl\fe\matter\base {
 		return new \ResponseData($rst);
 	}
 	/**
-	 * 添加自定义用户作为登记活动事件接收人
-	 *
-	 * @param string $site
-	 * @param string $app
-	 *
-	 */
-	public function addMe_action($app) {
-		if (false === ($loginUser = $this->accountUser())) {
-			return new \ResponseTimeout();
-		}
-
-		$modelApp = $this->model('matter\enroll');
-		$modelRev = $this->model('matter\enroll\receiver');
-		$oApp = $modelApp->byId($app, ['cascaded' => 'Y']);
-		if (false === $oApp) {
-			return new \ObjectNotFoundError();
-		}
-		if ($modelRev->isUserJoined($oApp->id, $loginUser->id)) {
-			return new \ResponseError('已经是接收人');
-		}
-
-		$rst = $modelRev->insert(
-			'xxt_enroll_receiver',
-			[
-				'siteid' => $oApp->siteid,
-				'aid' => $oApp->id,
-				'join_at' => time(),
-				'userid' => $loginUser->id,
-				'nickname' => $modelRev->escape($loginUser->name),
-			],
-			true
-		);
-
-		/* 记录操作日志 */
-		$this->model('matter\log')->matterOp($oApp->siteid, $loginUser, $oApp, 'addReceiver');
-
-		return new \ResponseData($rst);
-	}
-	/**
 	 * 获取企业号关注用户
 	 */
 	public function qyMem_action($site, $page, $size) {

@@ -41,7 +41,7 @@ define(['require', 'enrollService'], function(require) {
             'require.mission.phase': '请先指定项目的阶段'
         }
     });
-    ngApp.config(['$controllerProvider', '$routeProvider', '$locationProvider', '$compileProvider', '$uibTooltipProvider', 'srvSiteProvider', 'srvQuickEntryProvider', 'srvEnrollAppProvider', 'srvEnrollRoundProvider', 'srvEnrollPageProvider', 'srvEnrollRecordProvider', 'srvTempAppProvider',  'srvTempPageProvider', 'srvTempRecordProvider', function($controllerProvider, $routeProvider, $locationProvider, $compileProvider, $uibTooltipProvider, srvSiteProvider, srvQuickEntryProvider, srvEnrollAppProvider, srvEnrollRoundProvider, srvEnrollPageProvider, srvEnrollRecordProvider, srvTempAppProvider, srvTempPageProvider, srvTempRecordProvider) {
+    ngApp.config(['$controllerProvider', '$routeProvider', '$locationProvider', '$compileProvider', '$uibTooltipProvider', 'srvSiteProvider', 'srvQuickEntryProvider', 'srvEnrollAppProvider', 'srvEnrollRoundProvider', 'srvEnrollPageProvider', 'srvEnrollRecordProvider', 'srvTempAppProvider', 'srvTempPageProvider', 'srvTempRecordProvider', function($controllerProvider, $routeProvider, $locationProvider, $compileProvider, $uibTooltipProvider, srvSiteProvider, srvQuickEntryProvider, srvEnrollAppProvider, srvEnrollRoundProvider, srvEnrollPageProvider, srvEnrollRecordProvider, srvTempAppProvider, srvTempPageProvider, srvTempRecordProvider) {
         var RouteParam = function(name, baseURL) {
             !baseURL && (baseURL = '/views/default/pl/fe/site/template/enroll/');
             this.templateUrl = baseURL + name + '.html?_=' + (new Date() * 1);
@@ -78,7 +78,7 @@ define(['require', 'enrollService'], function(require) {
             ls = location.search;
             siteId = ls.match(/[\?&]site=([^&]*)/)[1];
             appId = ls.match(/[\?&]id=([^&]*)/)[1];
-            if(ls.match(/[\?&]vid=([^&]*)/)){
+            if (ls.match(/[\?&]vid=([^&]*)/)) {
                 vId = ls.match(/[\?&]vid=([^&]*)/)[1];
             }
 
@@ -100,7 +100,9 @@ define(['require', 'enrollService'], function(require) {
             'common': '通用登记',
             'registration': '报名',
             'voting': '投票',
+            'quiz': '测验',
             'group_week_report': '周报'
+            'score_sheet': '记分表'
         };
         $scope.viewNames = {
             'publish': '发布预览',

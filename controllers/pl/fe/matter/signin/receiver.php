@@ -52,7 +52,7 @@ class receiver extends \pl\fe\matter\base {
 		if (false === ($user = $this->accountUser())) {
 			return new \ResponseTimeout();
 		}
-		
+
 		$model = $this->model('matter\signin');
 		$signin = $model->byId($app, array('cascaded' => 'Y'));
 		$rst = $model->delete(
@@ -128,45 +128,6 @@ class receiver extends \pl\fe\matter\base {
 		}
 		/* 记录操作日志 */
 		$this->model('matter\log')->matterOp($site, $u, $oApp, 'C');
-
-		return new \ResponseData($rst);
-	}
-	/**
-	 * 添加自定义用户作为登记活动事件接收人
-	 *
-	 * @param string $site
-	 * @param string $app
-	 *
-	 */
-	public function addMe_action($app) {
-		if (false === ($loginUser = $this->accountUser())) {
-			return new \ResponseTimeout();
-		}
-
-		$modelApp = $this->model('matter\signin');
-		$modelRev = $this->model('matter\signin\receiver');
-		$oApp = $modelApp->byId($app, ['cascaded' => 'Y']);
-		if (false === $oApp) {
-			return new \ObjectNotFoundError();
-		}
-		if ($modelRev->isUserJoined($oApp->id, $loginUser->id)) {
-			return new \ResponseError('已经是接收人');
-		}
-
-		$rst = $modelRev->insert(
-			'xxt_signin_receiver',
-			[
-				'siteid' => $oApp->siteid,
-				'aid' => $oApp->id,
-				'join_at' => time(),
-				'userid' => $loginUser->id,
-				'nickname' => $modelRev->escape($loginUser->name),
-			],
-			true
-		);
-
-		/* 记录操作日志 */
-		$this->model('matter\log')->matterOp($oApp->siteid, $loginUser, $oApp, 'addReceiver');
 
 		return new \ResponseData($rst);
 	}

@@ -56,40 +56,7 @@ define(['frame'], function(ngApp) {
             });
         };
         $scope.addEnroll = function(assignedScenario) {
-            templateShop.choose($scope.mission.siteid, 'enroll', assignedScenario).then(function(choice) {
-                var url, config = {
-                    proto: {}
-                };
-                if (assignedScenario === 'registration') {
-                    config.proto.title = $scope.mission.title + '-报名';
-                } else if (assignedScenario === 'voting') {
-                    config.proto.title = $scope.mission.title + '-投票';
-                } else if (assignedScenario === 'group_week_report') {
-                    config.proto.title = $scope.mission.title + '-周报';
-                } else if (assignedScenario === 'quiz') {
-                    config.proto.title = $scope.mission.title + '-测验';
-                } else if (assignedScenario === 'common') {
-                    config.proto.title = $scope.mission.title + '-登记';
-                }
-                if (choice) {
-                    var data = choice.data;
-                    if (choice.source === 'share') {
-                        url = '/rest/pl/fe/matter/enroll/createByOther?site=' + $scope.mission.siteid + '&mission=' + $scope.mission.id + '&template=' + data.id;
-                    } else if (choice.source === 'platform') {
-                        url = '/rest/pl/fe/matter/enroll/create?site=' + $scope.mission.siteid + '&mission=' + $scope.mission.id;
-                        url += '&scenario=' + data.scenario.name;
-                        url += '&template=' + data.template.name;
-                        if (data.simpleSchema && data.simpleSchema.length) {
-                            config.simpleSchema = data.simpleSchema;
-                        }
-                    }
-                } else {
-                    url = '/rest/pl/fe/matter/enroll/create?site=' + $scope.mission.siteid + '&mission=' + $scope.mission.id;
-                }
-                http2.post(url, config, function(rsp) {
-                    location.href = '/rest/pl/fe/matter/enroll?site=' + $scope.mission.siteid + '&id=' + rsp.data.id;
-                });
-            });
+            location.href = '/rest/pl/fe/matter/enroll/shop?site=' + $scope.mission.siteid + '&mission=' + $scope.mission.id + '&scenario=' + (assignedScenario || '');
         };
         $scope.addSignin = function() {
             var url = '/rest/pl/fe/matter/signin/create?site=' + $scope.mission.siteid + '&mission=' + $scope.mission.id,
@@ -114,7 +81,7 @@ define(['frame'], function(ngApp) {
             });
         };
         $scope.addMatter = function(matterType) {
-            if (/quiz|voting|registration|group_week_report|common/.test(matterType)) {
+            if (/quiz|voting|registration|group_week_report|score_sheet|common/.test(matterType)) {
                 $scope.addEnroll(matterType);
             } else {
                 $scope['add' + matterType[0].toUpperCase() + matterType.substr(1)]();
@@ -227,7 +194,7 @@ define(['frame'], function(ngApp) {
                 if ('enroll' === matterType) {
                     url += 'enroll';
                     scenario = '';
-                } else if (/registration|voting|group_week_report|quiz|common/.test(matterType)) {
+                } else if (/registration|voting|group_week_report|quiz|score_sheet|common/.test(matterType)) {
                     url += 'enroll'
                     scenario = $scope.matterType;
                 } else {
@@ -243,7 +210,7 @@ define(['frame'], function(ngApp) {
                         if (rsp.data.total == 0) {
                             indicators.article && $scope.indicators.push(indicators.article);
                         }
-                    } else if (/enroll|voting|registration|group_week_report|quiz|common|signin|group/.test(matterType)) {
+                    } else if (/enroll|voting|registration|group_week_report|quiz|score_sheet|common|signin|group/.test(matterType)) {
                         $scope.matters = rsp.data.apps;
                         if (rsp.data.total == 0) {
                             indicators[matterType] && $scope.indicators.push(indicators[matterType]);
@@ -267,7 +234,7 @@ define(['frame'], function(ngApp) {
                 if ('enroll' === $scope.matterType) {
                     url += 'enroll';
                     scenario = '';
-                } else if (/registration|voting|group_week_report|quiz|common/.test($scope.matterType)) {
+                } else if (/registration|voting|group_week_report|quiz|score_sheet|common/.test($scope.matterType)) {
                     url += 'enroll'
                     scenario = $scope.matterType;
                 } else {
@@ -279,7 +246,7 @@ define(['frame'], function(ngApp) {
             http2.post(url, { mission_phase_id: pid }, function(rsp) {
                 if (/article/.test($scope.matterType)) {
                     $scope.matters = rsp.data.articles;
-                } else if (/enroll|voting|registration|group_week_report|quiz|common|signin|group/.test($scope.matterType)) {
+                } else if (/enroll|voting|registration|group_week_report|quiz|score_sheet|common|signin|group/.test($scope.matterType)) {
                     $scope.matters = rsp.data.apps;
                 } else {
                     $scope.matters = rsp.data;
@@ -293,7 +260,7 @@ define(['frame'], function(ngApp) {
             });
             if (!nv) return;
             $scope.matterType = location.hash ? location.hash.substr(1) : '';
-            if (/enroll|registration|voting|group_week_report|quiz|common/.test($scope.matterType)) {
+            if (/enroll|registration|voting|group_week_report|quiz|score_sheet|common/.test($scope.matterType)) {
                 $scope.matter_scenario = $scope.matterType;
             }
         });

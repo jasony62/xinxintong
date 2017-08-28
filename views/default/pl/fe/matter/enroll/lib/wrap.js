@@ -123,7 +123,9 @@ define([], function() {
         forEdit && (html += ' disabled');
         html += '><span ';
         forEdit && (html += 'contenteditable="true"');
-        html += '>' + op.l + '</span></label></li>';
+        html += '>' + op.l + '</span></label>';
+        if(op.desc && op.desc.length) html += '<div class="desc">'+ op.desc +'</div>';
+        html += '</li>';
 
         return html;
     }
@@ -144,7 +146,9 @@ define([], function() {
         forEdit && (html += ' disabled');
         html += '><span ';
         forEdit && (html += 'contenteditable="true"');
-        html += '>' + op.l + '</span></label></li>';
+        html += '>' + op.l + '</span></label>';
+        if(op.desc && op.desc.length) html += '<div class="desc">'+ op.desc +'</div>';
+        html += '</li>';
 
         return html;
     }
@@ -163,7 +167,9 @@ define([], function() {
         for (var num = schema.range[0]; num <= schema.range[1]; num++) {
             html += "<div ng-class=\"{'in':lessScore('" + schema.id + "'," + index + "," + num + ")}\" ng-click=\"score('" + schema.id + "'," + index + "," + num + ")\">" + num + "</div>";
         }
-        html += '</div></li>';
+        html += '</div>';
+        if(op.desc && op.desc.length) html += '<div class="desc">'+ op.desc +'</div>';
+        html += '</li>';
 
         return html;
     }

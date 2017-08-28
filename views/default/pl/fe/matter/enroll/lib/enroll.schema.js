@@ -294,6 +294,16 @@ define(['require', 'schema', 'wrap'], function(require, schemaLib, wrapLib) {
                 $scope.$broadcast('xxt.editable.add', newOp);
             });
         };
+        $scope.editOption = function(schema, op, prop) {
+            prop = prop || 'content';
+            srvEnrollSchema.makePagelet(op[prop] || '').then(function(result) {
+                if (prop === 'content') {
+                    schema.title = $(result.html).text();
+                }
+                op[prop] = result.html;
+                $scope.updSchema(schema);
+            });
+        };
         $scope.moveUpOption = function(schema, op) {
             var ops = schema.ops,
                 index = ops.indexOf(op);

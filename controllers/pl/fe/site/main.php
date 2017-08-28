@@ -10,8 +10,11 @@ class main extends \pl\fe\base {
 	 *
 	 */
 	public function get_access_rule() {
-		$rule_action['rule_type'] = 'white';
-		$rule_action['actions'] = [];
+		$rule_action['rule_type'] = 'black';
+		$rule_action['actions'][] = 'index';
+		$rule_action['actions'][] = 'get';
+		$rule_action['actions'][] = 'update';
+		$rule_action['actions'][] = 'remove';
 
 		return $rule_action;
 	}

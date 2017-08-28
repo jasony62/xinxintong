@@ -12,8 +12,7 @@ class base extends \TMS_CONTROLLER {
 		$rule_action['actions'][] = 'index';
 		$rule_action['actions'][] = 'get';
 		$rule_action['actions'][] = 'update';
-		//跳过访问控制的素材
-		$rule_action['passMatter'] =[];
+		$rule_action['actions'][] = 'remove';
 
 		return $rule_action;
 	}

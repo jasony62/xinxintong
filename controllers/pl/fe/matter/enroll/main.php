@@ -764,7 +764,7 @@ class main extends \pl\fe\matter\base {
 		$modelApp->setOnlyWriteDbConn(true);
 		$modelCode = $this->model('code\page');
 
-		$copied = $modelApp->byId($app);
+		$oCopied = $modelApp->byId($app);
 		/**
 		 * 获得的基本信息
 		 */
@@ -780,17 +780,17 @@ class main extends \pl\fe\matter\base {
 		$oNewApp->modifier_src = $oUser->src;
 		$oNewApp->modifier_name = $modelApp->escape($oUser->name);
 		$oNewApp->modify_at = $current;
-		$oNewApp->title = $modelApp->escape($copied->title) . '（副本）';
-		$oNewApp->pic = $copied->pic;
-		$oNewApp->summary = $modelApp->escape($copied->summary);
-		$oNewApp->scenario = $copied->scenario;
-		$oNewApp->scenario_config = $copied->scenario_config;
-		$oNewApp->count_limit = $copied->count_limit;
-		$oNewApp->multi_rounds = $copied->multi_rounds;
-		$oNewApp->data_schemas = $modelApp->escape($copied->data_schemas);
-		$oNewApp->entry_rule = json_encode($copied->entry_rule);
-		$oNewApp->enrolled_entry_page = $copied->enrolled_entry_page;
-		$oNewApp->extattrs = $copied->extattrs;
+		$oNewApp->title = $modelApp->escape($oCopied->title) . '（副本）';
+		$oNewApp->pic = $oCopied->pic;
+		$oNewApp->summary = $modelApp->escape($oCopied->summary);
+		$oNewApp->scenario = $oCopied->scenario;
+		$oNewApp->scenario_config = $oCopied->scenario_config;
+		$oNewApp->count_limit = $oCopied->count_limit;
+		$oNewApp->multi_rounds = $oCopied->multi_rounds;
+		$oNewApp->data_schemas = $modelApp->escape($oCopied->data_schemas);
+		$oNewApp->entry_rule = json_encode($oCopied->entry_rule);
+		$oNewApp->enrolled_entry_page = $oCopied->enrolled_entry_page;
+		$oNewApp->extattrs = $oCopied->extattrs;
 		$oNewApp->can_siteuser = 'Y';
 
 		/* 所属项目 */
@@ -806,9 +806,9 @@ class main extends \pl\fe\matter\base {
 		/**
 		 * 复制自定义页面
 		 */
-		if (count($copied->pages)) {
+		if (count($oCopied->pages)) {
 			$modelPage = $this->model('matter\enroll\page');
-			foreach ($copied->pages as $ep) {
+			foreach ($oCopied->pages as $ep) {
 				$oNewPage = $modelPage->add($oUser, $oNewApp->siteid, $oNewApp->id);
 				$rst = $modelPage->update(
 					'xxt_enroll_page',
@@ -834,7 +834,7 @@ class main extends \pl\fe\matter\base {
 
 		$oNewApp->type = 'enroll';
 		/* 记录操作日志 */
-		$this->model('matter\log')->matterOp($oNewApp->siteid, $oUser, $oNewApp, 'C');
+		$this->model('matter\log')->matterOp($oNewApp->siteid, $oUser, $oNewApp, 'C', (object) ['id' => $oCopied->id, 'title' => $oCopied->title]);
 
 		/* 记录和任务的关系 */
 		if (isset($mission)) {

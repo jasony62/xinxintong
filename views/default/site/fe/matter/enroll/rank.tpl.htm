@@ -35,6 +35,17 @@
     <div ng-cloak class='ng-cloak app'>
         <div id='rank' class='container' ng-controller="ctrlRank">
             <div class='row'>
+                <div class="col-xs-3" ng-if="rounds.length">
+                    <div class='btn-group'>
+                        <select class='form-control' title='登记轮次'  ng-model='appState.criteria.round' ng-change="doRound(appState.criteria.round)">
+                            <option value='ALL'>全部</option>
+                            <option ng-if="checkedRound" value='{{checkedRound.rid}}'>选中轮次（{{checkedRound.title}}）</option>
+                            <option ng-if="activeRound" value='{{activeRound.rid}}'>启用轮次（{{activeRound.title}}）</option>
+                            <option value="{{rnd.rid}}" ng-repeat="rnd in rounds">{{rnd.title}}</option>
+                            <option value="more">更多</option>
+                        </select>
+                    </div>
+                </div>
                 <div class='col-xs-4'>
                     <select class='form-control' ng-model="appState.criteria.obj">
                         <option value='user'>用户</option>

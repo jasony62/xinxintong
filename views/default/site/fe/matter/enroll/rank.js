@@ -2,7 +2,43 @@
 require('./rank.css');
 
 var ngApp = require('./main.js');
-ngApp.controller('ctrlRank', ['$scope', '$q', '$sce', 'http2', 'ls', function($scope, $q, $sce, http2, LS) {
+ngApp.factory('Round', ['http2', '$q', function(http2, $q) {
+    var Round, _ins;
+    Round = function(oApp) {
+        this.oApp = oApp;
+        this.oPage = {
+            at: 1,
+            size: 10,
+            j: function() {
+                return '&page=' + this.at + '&size=' + this.size;
+            }
+        };
+    };
+    Round.prototype.list = function() {
+        var _this = this,
+            deferred = $q.defer(),
+            url;
+
+        url = '/rest/site/fe/matter/enroll/round/list?site=' + this.oApp.siteid + '&app=' + this.oApp.id;
+        url += this.oPage.j();
+        http2.get(url).then(function(rsp) {
+            if (rsp.err_code != 0) {
+                alert(rsp.data);
+                return;
+            }
+            _this.oPage.total = rsp.data.total;
+            deferred.resolve(rsp.data);
+        });
+        return deferred.promise;
+    };
+    return {
+        ins: function(oApp) {
+            _ins = _ins ? _ins : new Round(oApp);
+            return _ins;
+        }
+    };
+}]);
+ngApp.controller('ctrlRank', ['$scope', '$q', '$sce', 'http2', 'ls', 'Round', function($scope, $q, $sce, http2, LS, srvRound) {
     function list() {
         var defer = $q.defer();
         switch (oAppState.criteria.obj) {
@@ -22,7 +58,7 @@ ngApp.controller('ctrlRank', ['$scope', '$q', '$sce', 'http2', 'ls', function($s
                 });
                 break;
             case 'data-rec':
-                http2.post('/rest/site/fe/matter/enroll/rank/dataByApp?site=' + oApp.siteid + '&app=' + oApp.id, {agreed:'Y',obj:'data-rec',orderby:oAppState.criteria.orderby}).then(function(rsp) {
+                http2.post('/rest/site/fe/matter/enroll/rank/dataByApp?site=' + oApp.siteid + '&app=' + oApp.id, {agreed:'Y',obj:'data-rec',orderby:oAppState.criteria.orderby,round:oAppState.criteria.round}).then(function(rsp) {
                     defer.resolve(rsp.data)
                 });
                 break;
@@ -32,7 +68,7 @@ ngApp.controller('ctrlRank', ['$scope', '$q', '$sce', 'http2', 'ls', function($s
                 });
                 break;
             case 'remark-rec':
-                http2.post('/rest/site/fe/matter/enroll/rank/remarkByApp?site=' + oApp.siteid + '&app=' + oApp.id, {agreed:'Y',obj:'remrak-rec',orderby:''}).then(function(rsp) {
+                http2.post('/rest/site/fe/matter/enroll/rank/remarkByApp?site=' + oApp.siteid + '&app=' + oApp.id, {agreed:'Y',obj:'remrak-rec',orderby:'',round:oAppState.criteria.round}).then(function(rsp) {
                     defer.resolve(rsp.data)
                 });
                 break;
@@ -58,7 +94,7 @@ ngApp.controller('ctrlRank', ['$scope', '$q', '$sce', 'http2', 'ls', function($s
                 obj: 'user',
                 orderby: 'enroll',
                 agreed: 'all',
-                rnd: 'all'
+                round: 'ALL'
             },
             page: {
                 at: 1,
@@ -168,9 +204,16 @@ ngApp.controller('ctrlRank', ['$scope', '$q', '$sce', 'http2', 'ls', function($s
         }
         return $sce.trustAsHtml(val);
     };
+    $scope.doRound = function(rid) {
+        if (rid == 'more') {
+            $scope.moreRounds();
+        } else {
+            $scope.changeCriteria();
+        }
+    };
     $scope.$on('xxt.app.enroll.ready', function(event, params) {
         oApp = params.app;
-        var remarkable, activeRound, dataSchemas = oApp.dataSchemas;
+        var remarkable, activeRound, facRound, dataSchemas = oApp.dataSchemas;
         for(var i = dataSchemas.length-1; i >= 0; i--) {
             if(Object.keys(dataSchemas[i]).indexOf('remarkable') !== -1 && dataSchemas[i].remarkable=='Y') {
                 $scope.isRemark = true;
@@ -202,6 +245,14 @@ ngApp.controller('ctrlRank', ['$scope', '$q', '$sce', 'http2', 'ls', function($s
                 $scope.changeCriteria();
             }
         });
+        $scope.facRound = facRound = srvRound.ins(oApp);
+        if (oApp.multi_rounds === 'Y') {
+            facRound.list().then(function(result) {
+                $scope.activeRound = result.active;
+                $scope.checkedRound = result.checked;
+                $scope.rounds = result.rounds;
+            });
+        }
         $scope.changeCriteria();
     });
 }]);

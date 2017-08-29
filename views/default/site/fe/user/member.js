@@ -246,6 +246,12 @@ ngApp.controller('ctrlMember', ['$scope', '$http', '$timeout', '$q', 'tmsDynaPag
                 $scope.attrs['extattrs'] = attr;
             } else if (attr && attr[0] === '0') {
                 $scope.attrs[name] = true;
+                var schemaId = $scope.schema.id;
+                if(attr[5] === '1' && typeof($scope.user.members) !='undefined' && typeof($scope.user.members[schemaId]) != 'undefined' && $scope.user.members[schemaId].verified === 'Y'){
+                    $scope.attrs[name + '_identity'] = true;
+                }else{
+                    $scope.attrs[name + '_identity'] = false;
+                }
             } else {
                 $scope.attrs[name] = false;
             }

@@ -4,7 +4,7 @@ define(['require', 'schema', 'wrap', 'editor'], function(require, schemaLib, wra
     /**
      * page editor
      */
-    ngMod.controller('ctrlPageEdit', ['$scope', 'cstApp', 'mediagallery', 'mattersgallery', function($scope, cstApp, mediagallery, mattersgallery) {
+    ngMod.controller('ctrlPageEdit', ['$scope', 'cstApp', 'mediagallery', 'srvSite', function($scope, cstApp, mediagallery, srvSite) {
         var tinymceEditor;
         $scope.activeWrap = false;
         $scope.setActiveWrap = function(domWrap) {
@@ -145,7 +145,7 @@ define(['require', 'schema', 'wrap', 'editor'], function(require, schemaLib, wra
             if ($scope.app.mission) {
                 options.mission = $scope.app.mission;
             }
-            mattersgallery.open($scope.app.siteid, function(matters, type) {
+            srvSite.openGallery(options).then(function(result) {
                 var dom = tinymceEditor.dom,
                     style = "cursor:pointer",
                     fn, domMatter, sibling;
@@ -156,8 +156,8 @@ define(['require', 'schema', 'wrap', 'editor'], function(require, schemaLib, wra
                         sibling = sibling.parentNode;
                     }
                     // 加到当前选中元素的后面
-                    matters.forEach(function(matter) {
-                        fn = "openMatter('" + matter.id + "','" + type + "')";
+                    result.matters.forEach(function(matter) {
+                        fn = "openMatter('" + matter.id + "','" + result.type + "')";
                         domMatter = dom.create('div', {
                             'wrap': 'matter',
                             'class': 'form-group',
@@ -169,8 +169,8 @@ define(['require', 'schema', 'wrap', 'editor'], function(require, schemaLib, wra
                     });
                 } else {
                     // 加到页面的结尾
-                    matters.forEach(function(matter) {
-                        fn = "openMatter('" + matter.id + "','" + type + "')";
+                    result.matters.forEach(function(matter) {
+                        fn = "openMatter('" + matter.id + "','" + result.type + "')";
                         domMatter = dom.add(tinymceEditor.getBody(), 'div', {
                             'wrap': 'matter',
                             'class': 'form-group',
@@ -180,7 +180,7 @@ define(['require', 'schema', 'wrap', 'editor'], function(require, schemaLib, wra
                         }, dom.encode(matter.title)));
                     });
                 }
-            }, options);
+            })
         };
         $scope.$on('tinymce.content.change', function(event, changedNode) {
             var status, html;

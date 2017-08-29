@@ -5,7 +5,7 @@ provider('srvGroupApp', function() {
         _siteId = siteId;
         _appId = appId;
     };
-    this.$get = ['$q', '$uibModal', 'http2', 'noticebox', 'mattersgallery', 'srvSite', function($q, $uibModal, http2, noticebox, mattersgallery, srvSite) {
+    this.$get = ['$q', '$uibModal', 'http2', 'noticebox', 'srvSite', function($q, $uibModal, http2, noticebox, srvSite) {
         return {
             cached: function() {
                 return _oApp;

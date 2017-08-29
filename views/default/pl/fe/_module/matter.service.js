@@ -65,6 +65,7 @@ provider('srvSite', function() {
                     templateUrl: '/static/template/mattersgallery2.html?_=8',
                     controller: ['$scope', '$http', '$uibModalInstance', function($scope, $http, $mi) {
                         var fields = ['id', 'title'];
+                        $scope.filter = {};
                         $scope.matterTypes = options.matterTypes;
                         $scope.singleMatter = options.singleMatter;
                         $scope.p = {};
@@ -126,6 +127,21 @@ provider('srvSite', function() {
                                 }
                             });
                         };
+                        $scope.doFilter = function() {
+                            if (!$scope.p.matterType) return;
+                            var matter = $scope.p.matterType,
+                                url = matter.url,
+                                params = {};
+                            params.byTitle = $scope.filter.byTitle;
+                            url += '/' + matter.value;
+                            url += '/list?site=' + _siteId + '&_=' + (new Date() * 1);
+                            $http.post(url, params).success(function(rsp) {
+                                $scope.matters = rsp.data;
+                            });
+                        };
+                        $scope.cleanFilter = function() {
+                            $scope.filter.byTitle = '';
+                        }
                         $scope.ok = function() {
                             $mi.close([$scope.aChecked, $scope.p.matterType ? $scope.p.matterType.value : 'article']);
                         };

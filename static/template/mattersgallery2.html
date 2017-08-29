@@ -4,7 +4,7 @@
         <input type='checkbox' ng-model="p.sameMission" ng-disabled="p.onlySameMission" ng-true-value="'Y'" ng-false-value="'N'" ng-change="doSearch()">同一项目内</label>
     <div class="form-inline" style='display:inline-block;margin-left:20px'>
         <div class='input-group'>
-            <input type='input' class='form-control' placeholder='按名称筛选' ng-model='filter2.byTitle'>
+            <input type='input' class='form-control' placeholder='按名称筛选' ng-model='filter.byTitle'>
             <span class='input-group-btn'>
                 <button class='btn btn-default' ng-click="doFilter()"><span class='glyphicon glyphicon-search'></button>
                 <button class='btn btn-default' ng-click="cleanFilter()"><span class='glyphicon glyphicon-remove'></button>

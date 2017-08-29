@@ -315,7 +315,7 @@
                     <tr ng-repeat='m in matters'>
                         <td data-th='序号' class='hidden-xs'><span>{{$index+1}}</span></td>
                         <td data-th='场景' ng-if="filter.byType=='enroll'"><span>{{scenarioNames[m.matter_scenario||m.scenario]}}</span></td>
-                        <td data-th='名称'><span>{{m.matter_title||m.title}}</span></td>
+                        <td data-th='名称' ng-click="openMatter(m)" style='cursor:pointer;'><span>{{m.matter_title||m.title}}</span></td>
                         <td data-th='签到轮次' ng-if="filter.byType =='signin'"><span>{{m.opData[0].title}}</span></td>
                         <td data-th='记录数' ng-if="filter.byType =='enroll'" ng-click="openMatter(m,'record')" title='点击查看详细数据' style='cursor:pointer;'><span>{{m.opData[0].total}}</span></td>
                         <td data-th='记录数' ng-if="filter.byType =='signin'" ng-click="openMatter(m,'record')" title='点击查看详细数据' style='cursor:pointer;'><span>{{m.opData[0].total}}</span></td>

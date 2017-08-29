@@ -21,8 +21,8 @@
         </select>
     </div>
     <div class="form-group" ng-if="'html'!==activeSchema.type">
-        <label>填写提示</label>
-        <textarea class='form-control' ng-model='activeSchema.description' tms-auto-update tms-wait=1000 tms-update="updSchema(activeSchema)"></textarea>
+        <label>填写说明</label>
+        <button class='btn btn-default' ng-click="makePagelet(activeSchema,'description')">编辑</button>
     </div>
     <div class="form-group" ng-show="activeSchema.type==='shorttext'">
         <label>填写限制</label>

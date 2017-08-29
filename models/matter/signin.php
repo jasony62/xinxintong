@@ -89,7 +89,7 @@ class signin_model extends app_base {
 					$oApp->dataSchemas = [];
 				}
 			}
-			if(!empty($oApp->matter_mg_tag)){
+			if (!empty($oApp->matter_mg_tag)) {
 				$oApp->matter_mg_tag = json_decode($oApp->matter_mg_tag);
 			}
 			if ($cascaded === 'Y') {
@@ -115,8 +115,8 @@ class signin_model extends app_base {
 		if (!empty($options['byTitle'])) {
 			$q[2] .= " and title like '%" . $this->escape($options['byTitle']) . "%'";
 		}
-		if(!empty($options['byTags'])){
-			foreach($options['byTags'] as $tag){
+		if (!empty($options['byTags'])) {
+			foreach ($options['byTags'] as $tag) {
 				$q[2] .= " and matter_mg_tag like '%" . $this->escape($tag->id) . "%'";
 			}
 		}
@@ -313,11 +313,57 @@ class signin_model extends app_base {
 	/**
 	 *
 	 */
-	public function &opData(&$app) {
-		$mdoelRec = $this->model('matter\signin\record');
-		$summary = $mdoelRec->summary($app->siteid, $app->id);
+	public function &opData(&$oApp, $onlyActiveRound = false) {
+		$modelRnd = $this->model('matter\signin\round');
+		$opData = [];
 
-		return $summary;
+		if ($onlyActiveRound) {
+			$oActiveRound = $modelRnd->getActive($oApp->siteid, $oApp->id, ['fields' => 'rid,title,start_at,end_at,late_at']);
+			if ($oActiveRound) {
+				$rounds = [$oActiveRound];
+			}
+		} else {
+			$rounds = $modelRnd->byApp($oApp->id, ['fields' => 'rid,title,start_at,end_at,late_at']);
+		}
+
+		if (empty($rounds)) {
+			return $opData;
+		}
+		if (!isset($oActiveRound)) {
+			$oActiveRound = $modelRnd->getActive($oApp->siteid, $oApp->id, ['fields' => 'rid,title,start_at,end_at,late_at']);
+		}
+
+		foreach ($rounds as $oRound) {
+			/* total */
+			$q = [
+				'count(*)',
+				'xxt_signin_log',
+				['aid' => $oApp->id, 'state' => 1, 'rid' => $oRound->rid],
+			];
+			$oRound->total = $this->query_val_ss($q);
+			/* late */
+			if ($oRound->total) {
+				if ($oRound->late_at) {
+					$q = [
+						'count(*)',
+						'xxt_signin_log',
+						"aid='" . $this->escape($oApp->id) . "' and rid='{$oRound->rid}' and state=1 and signin_at>" . ((int) $oRound->late_at + 59),
+					];
+					$oRound->late = $this->query_val_ss($q);
+				} else {
+					$oRound->late = 0;
+				}
+			} else {
+				$oRound->late = 0;
+			}
+			if ($oActiveRound && $oRound->rid === $oActiveRound->rid) {
+				$oRound->active = 'Y';
+			}
+
+			$opData[] = $oRound;
+		}
+
+		return $opData;
 	}
 	/**
 	 * 指定用户的行为报告

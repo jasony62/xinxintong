@@ -34,16 +34,16 @@
                     <th ng-repeat='ea in criteria.mschema.extattr'>{{ea.label}}</th>
                     <th ng-if="app.group_app_id">分组</th>
                     <th>记录</th>
-                    <th>要求记录数</th>
+                    <th ng-if="app.userTask.minEnrollNum>0">要求记录数</th>
                     <th>评论</th>
-                    <th>要求评论数</th>
+                    <th ng-if="app.userTask.minRemarkNum>0">要求评论数</th>
                     <th>点赞</th>
-                    <th>要求赞同数</th>
+                    <th ng-if="app.userTask.minLikeNum>0">要求赞同数</th>
                     <th>积分</th>
                     <th>得分</th>
-                    <th ng-if="sns.wx.joined=='Y'">是否关联微信</th>
-                    <th ng-if="sns.yx.joined=='Y'">是否关联易信</th>
-                    <th ng-if="sns.qy.joined=='Y'">是否关联微企</th>
+                    <th ng-if="sns.wx.joined=='Y'">已关联微信</th>
+                    <th ng-if="sns.yx.joined=='Y'">已关联易信</th>
+                    <th ng-if="sns.qy.joined=='Y'">已关联微企</th>
                     <th>最后一次通知发送时间</th>
                     <th>最后一次通知发送结果</th>
                 </tr>
@@ -66,38 +66,38 @@
                         <div ng-if='m.user.enroll_num'>{{m.user.enroll_num}}</div>
                         <div ng-if='m.enroll_num'>{{m.enroll_num}}</div>
                     </td>
-                    <td>
-                        <div ng-if="m.task.minEnrollNum">{{m.task.minEnrollNum}}</div>
+                    <td ng-if="app.userTask.minEnrollNum>0">
+                        <div>{{app.userTask.minEnrollNum}}</div>
                     </td>
                     <td>
                         <div ng-if='m.user.remark_other_num'>{{m.user.remark_other_num}}</div>
                         <div ng-if='m.remark_other_num'>{{m.remark_other_num}}</div>
                     </td>
-                    <td>
-                        <div ng-if="m.task.minRemarkNum">{{m.task.minRemarkNum}}</div>
+                    <td ng-if="app.userTask.minRemarkNum>0">
+                        <div>{{app.userTask.minRemarkNum}}</div>
                     </td>
                     <td>
                         <div ng-if='m.user.like_other_num'>{{m.user.like_other_num}}</div>
                         <div ng-if='m.like_other_num'>{{m.like_other_num}}</div>
                     </td>
-                    <td>
-                        <div ng-if="m.task.minLikeNum">{{m.task.minLikeNum}}</div>
+                    <td ng-if="app.userTask.minLikeNum>0">
+                        <div>{{app.userTask.minLikeNum>0}}</div>
                     </td>
                     <td>
                         <div ng-if='m.user.user_total_coin'>{{m.user.user_total_coin}}</div>
                         <div ng-if='m.user_total_coin'>{{m.user_total_coin}}</div>
                     </td>
                     <td>
-                        <div ng-if='m.score'>{{m.score}}</div> 
+                        <div ng-if='m.score'>{{m.score}}</div>
                     </td>
                     <td ng-if="sns.wx.joined=='Y'">
-                        <div ng-show="m.wx_openid">已关联</div>
+                        <div ng-show="m.wx_openid">是</div>
                     </td>
                     <td ng-if="sns.yx.joined=='Y'">
-                        <div ng-show="m.yx_openid">已关联</div>
+                        <div ng-show="m.yx_openid">是</div>
                     </td>
                     <td ng-if="sns.qy.joined=='Y'">
-                        <div ng-show="m.qy_openid">已关联</div>
+                        <div ng-show="m.qy_openid">是</div>
                     </td>
                     <td>
                         <div ng-if="m.tmplmsg.create_at">{{m.tmplmsg.create_at*1000|date: 'yy-MM-dd HH:mm'}}</div>

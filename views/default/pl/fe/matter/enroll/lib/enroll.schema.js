@@ -10,7 +10,7 @@ define(['require', 'schema', 'wrap'], function(require, schemaLib, wrapLib) {
         };
         this.$get = ['$uibModal', '$q', function($uibModal, $q) {
             var _self = {
-                makePagelet: function(schema) {
+                makePagelet: function(content) {
                     var deferred = $q.defer();
                     $uibModal.open({
                         templateUrl: '/views/default/pl/fe/matter/enroll/component/pagelet.html',
@@ -36,12 +36,12 @@ define(['require', 'schema', 'wrap'], function(require, schemaLib, wrapLib) {
                                     multiple: true,
                                     setshowname: true
                                 };
-                                mediagallery.open($scope2.app.siteid, options);
+                                mediagallery.open(_siteId, options);
                             });
                             $scope2.$on('tinymce.instance.init', function(event, editor) {
                                 var page;
                                 tinymceEditor = editor;
-                                editor.setContent(schema.content);
+                                editor.setContent(content);
                             });
                         }],
                         size: 'lg',
@@ -106,10 +106,13 @@ define(['require', 'schema', 'wrap'], function(require, schemaLib, wrapLib) {
             delete newSchema.requireCheck;
             $scope._appendSchema(newSchema, schema);
         };
-        $scope.makePagelet = function(schema) {
-            srvEnrollSchema.makePagelet(schema).then(function(result) {
-                schema.title = $(result.html).text();
-                schema.content = result.html;
+        $scope.makePagelet = function(schema, prop) {
+            prop = prop || 'content';
+            srvEnrollSchema.makePagelet(schema[prop] || '').then(function(result) {
+                if (prop === 'content') {
+                    schema.title = $(result.html).text();
+                }
+                schema[prop] = result.html;
                 $scope.updSchema(schema);
             });
         };
@@ -289,6 +292,16 @@ define(['require', 'schema', 'wrap'], function(require, schemaLib, wrapLib) {
             }
             $timeout(function() {
                 $scope.$broadcast('xxt.editable.add', newOp);
+            });
+        };
+        $scope.editOption = function(schema, op, prop) {
+            prop = prop || 'content';
+            srvEnrollSchema.makePagelet(op[prop] || '').then(function(result) {
+                if (prop === 'content') {
+                    schema.title = $(result.html).text();
+                }
+                op[prop] = result.html;
+                $scope.updSchema(schema);
             });
         };
         $scope.moveUpOption = function(schema, op) {

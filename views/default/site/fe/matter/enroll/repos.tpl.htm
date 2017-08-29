@@ -151,7 +151,7 @@
     <script src="/static/js/angular-sanitize.min.js"></script>
     <script src="/static/js/ui-bootstrap-tpls.min.js"></script>
     <script src="<?php echo auto_version('/bundles/default/site/fe/matter/enroll/repos.js');?>"></script>
-    <div class="tms-switch tms-switch-rank"  ng-click="gotoPage($event,'rank')"></div>
+    <div class="tms-switch tms-switch-rank" ng-click="gotoPage($event,'rank')" ng-if="app.can_rank==='Y'"></div>
 </body>
 
 </html>

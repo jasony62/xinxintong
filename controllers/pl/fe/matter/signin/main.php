@@ -64,7 +64,7 @@ class main extends \pl\fe\matter\base {
 			if (!empty($post->byTitle)) {
 				$options['byTitle'] = $post->byTitle;
 			}
-			if(!empty($post->byTags)){
+			if (!empty($post->byTags)) {
 				$options['byTags'] = $post->byTags;
 			}
 			$result = $model->bySite($site, $page, $size, $onlySns, $options);
@@ -83,10 +83,13 @@ class main extends \pl\fe\matter\base {
 		if (strlen($cascaded) && count($result->apps)) {
 			$cascaded = explode(',', $cascaded);
 			$modelRnd = $this->model('matter\signin\round');
-			foreach ($result->apps as &$app) {
+			foreach ($result->apps as &$oApp) {
 				if (in_array('round', $cascaded)) {
 					/* 轮次 */
-					$app->rounds = $modelRnd->byApp($app->id, ['fields' => 'id,rid,title,start_at,end_at,late_at']);
+					$oApp->rounds = $modelRnd->byApp($oApp->id, ['fields' => 'id,rid,title,start_at,end_at,late_at']);
+				}
+				if (in_array('opData', $cascaded)) {
+					$oApp->opData = $model->opData($oApp, true);
 				}
 			}
 		}
@@ -247,7 +250,7 @@ class main extends \pl\fe\matter\base {
 		$modelApp->setOnlyWriteDbConn(true);
 		$modelCode = $this->model('code\page');
 
-		$copied = $modelApp->byId($app);
+		$oCopied = $modelApp->byId($app);
 		/**
 		 * 获得的基本信息
 		 */
@@ -263,11 +266,11 @@ class main extends \pl\fe\matter\base {
 		$oNewApp['modifier_src'] = $oUser->src;
 		$oNewApp['modifier_name'] = $modelApp->escape($oUser->name);
 		$oNewApp['modify_at'] = $current;
-		$oNewApp['title'] = $modelApp->escape($copied->title) . '（副本）';
-		$oNewApp['pic'] = $copied->pic;
-		$oNewApp['summary'] = $modelApp->escape($copied->summary);
-		$oNewApp['data_schemas'] = $modelApp->escape($copied->data_schemas);
-		$oNewApp['entry_rule'] = json_encode($copied->entry_rule);
+		$oNewApp['title'] = $modelApp->escape($oCopied->title) . '（副本）';
+		$oNewApp['pic'] = $oCopied->pic;
+		$oNewApp['summary'] = $modelApp->escape($oCopied->summary);
+		$oNewApp['data_schemas'] = $modelApp->escape($oCopied->data_schemas);
+		$oNewApp['entry_rule'] = json_encode($oCopied->entry_rule);
 		if (!empty($mission)) {
 			$oNewApp['mission_id'] = $mission;
 		}
@@ -276,9 +279,9 @@ class main extends \pl\fe\matter\base {
 		/**
 		 * 复制自定义页面
 		 */
-		if (count($copied->pages)) {
+		if (count($oCopied->pages)) {
 			$modelPage = $this->model('matter\signin\page');
-			foreach ($copied->pages as $ep) {
+			foreach ($oCopied->pages as $ep) {
 				$newPage = $modelPage->add($oUser, $site, $newaid);
 				$rst = $modelPage->update(
 					'xxt_signin_page',
@@ -305,7 +308,7 @@ class main extends \pl\fe\matter\base {
 		$app = $modelApp->byId($newaid, ['cascaded' => 'N']);
 
 		/* 记录操作日志 */
-		$this->model('matter\log')->matterOp($site, $oUser, $app, 'C');
+		$this->model('matter\log')->matterOp($site, $oUser, $app, 'C', (object) ['id' => $oCopied->id, 'title' => $oCopied->title]);
 
 		/* 记录和任务的关系 */
 		if (isset($mission)) {

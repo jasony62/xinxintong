@@ -33,14 +33,11 @@
             </div>
             <div class='form-group' ng-if="app.enroll_app_id">
                 <div class="input-group">
-                    <input class='form-control' value="{{app.enrollApp.title}}" title="{{app.enrollApp.title}}" readonly="">
+                    <input class='form-control' value="{{app.enrollApp.title}}" title="{{app.enrollApp.title}}" readonly>
                     <div class="input-group-btn">
-                        <button class="btn btn-default" type="button" ng-click="cancelEnrollApp()">
+                        <button class="btn btn-default" ng-click="cancelEnrollApp()">
                             <span class='glyphicon glyphicon-remove'></span>
                         </button>
-                        <a class="btn btn-default" href='/rest/pl/fe/matter/enroll?site={{app.siteid}}&id={{app.enrollApp.id}}' target='_self' title='查看项目'>
-                            <span class='glyphicon glyphicon-new-window'></span>
-                        </a>
                     </div>
                 </div>
             </div>
@@ -55,14 +52,11 @@
             </div>
             <div class='form-group' ng-if="app.group_app_id">
                 <div class="input-group">
-                    <input class='form-control' title="{{app.groupApp.title}}" value="{{app.groupApp.title}}" readonly="">
+                    <input class='form-control' title="{{app.groupApp.title}}" value="{{app.groupApp.title}}" readonly>
                     <div class="input-group-btn">
-                        <button class="btn btn-default" type="button" ng-click="cancelGroupApp()">
+                        <button class="btn btn-default" ng-click="cancelGroupApp()">
                             <span class='glyphicon glyphicon-remove'></span>
                         </button>
-                        <a class="btn btn-default" href='/rest/pl/fe/matter/group?site={{app.siteid}}&id={{app.groupApp.id}}' target='_self' title='查看项目'>
-                            <span class='glyphicon glyphicon-new-window'></span>
-                        </a>
                     </div>
                 </div>
             </div>
@@ -98,8 +92,8 @@
                 <div class='title' ng-if="schema.type!=='html'" ng-click="chooseSchema($event,schema)">
                     <div editable prop='title' obj='schema' evt-prefix='title' no-remove="Y" style="min-height:34px;"></div>
                 </div>
-                <div class="description" ng-if="'html'!==schema.type&&schema.description.length">
-                    <span ng-bind="schema.description"></span>
+                <div class="description" ng-if="'html'!==schema.type&&schema.description">
+                    <span ng-bind-html="trustAsHtml(schema,'description')"></span>
                 </div>
                 <div ng-include="schemaHtml(schema)"></div>
                 <div class='actions hidden-xs'>

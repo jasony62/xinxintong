@@ -96,7 +96,7 @@ define(['frame', 'schema', 'page', 'editor'], function(ngApp, schemaLib, pageLib
     /**
      * page editor
      */
-    ngApp.provider.controller('ctrlPageEdit', ['$scope', '$q', '$timeout', 'cstApp', 'mediagallery', 'mattersgallery', function($scope, $q, $timeout, cstApp, mediagallery, mattersgallery) {
+    ngApp.provider.controller('ctrlPageEdit', ['$scope', '$q', '$timeout', 'cstApp', 'mediagallery', 'srvSite', function($scope, $q, $timeout, cstApp, mediagallery, srvSite) {
         function addInputSchema(addedSchema) {
             var deferred = $q.defer(),
                 domNewWrap;
@@ -246,9 +246,11 @@ define(['frame', 'schema', 'page', 'editor'], function(ngApp, schemaLib, pageLib
             if ($scope.app.mission) {
                 options.mission = $scope.app.mission;
             }
-            mattersgallery.open($scope.app.siteid, function(matters, type) {
+            srvSite.openGallery(options).then(function(result) {
                 var dom = tinymceEditor.dom,
                     style = "cursor:pointer",
+                    matters = result.matters,
+                    type = result.type,
                     fn, domMatter, sibling;
 
                 if ($scope.activeWrap) {
@@ -281,7 +283,7 @@ define(['frame', 'schema', 'page', 'editor'], function(ngApp, schemaLib, pageLib
                         }, dom.encode(matter.title)));
                     });
                 }
-            }, options);
+            });
         };
         $scope.$on('tinymce.content.change', function(event, changedNode) {
             var status, html;

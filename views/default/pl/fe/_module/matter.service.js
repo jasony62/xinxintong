@@ -101,6 +101,7 @@ provider('srvSite', function() {
                                 params = {};
 
                             page && ($scope.page.at = page);
+                            params.byTitle = $scope.filter.byTitle ? $scope.filter.byTitle : '';
                             url += '/' + matter.value;
                             url += '/list?site=' + _siteId + '&page=' + $scope.page.at + '&size=' + $scope.page.size + '&fields=' + fields;
                             /*指定登记活动场景*/
@@ -125,18 +126,6 @@ provider('srvSite', function() {
                                     $scope.matters = rsp.data;
                                     $scope.page.total = $scope.matters.length;
                                 }
-                            });
-                        };
-                        $scope.doFilter = function() {
-                            if (!$scope.p.matterType) return;
-                            var matter = $scope.p.matterType,
-                                url = matter.url,
-                                params = {};
-                            params.byTitle = $scope.filter.byTitle;
-                            url += '/' + matter.value;
-                            url += '/list?site=' + _siteId + '&_=' + (new Date() * 1);
-                            $http.post(url, params).success(function(rsp) {
-                                $scope.matters = rsp.data;
                             });
                         };
                         $scope.cleanFilter = function() {

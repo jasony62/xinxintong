@@ -1,4 +1,4 @@
-<div id='record-view' class="col-md-12">
+<div class="col-md-12">
     <!-- actions -->
     <nav class='navbar navbar-default hidden-xs'>
         <div class='container-fluid'>
@@ -72,7 +72,7 @@
                         <th style='width:100px'>登记时间</th>
                         <th style='width:100px' ng-if="app.multi_rounds==='Y'">登记轮次</th>
                         <th class='custom-col row' ng-repeat="schema in recordSchemas2">{{schema.title}}</th>
-                        <th ng-if="app.scenario==='quiz' || flag">总分</th>
+                        <th ng-if="bRequireScore">总得分</th>
                         <th class='custom-col matched enroll' ng-repeat="schema in enrollDataSchemas">{{schema.title}}</th>
                         <th class='custom-col matched group' ng-repeat="schema in groupDataSchemas">{{schema.title}}</th>
                         <th style='width:80px'>审核通过</th>
@@ -107,10 +107,9 @@
                             <span ng-switch-when="remark">{{r.verbose.data[schema.id].remark_num}}</span>
                             <span ng-switch-when="score">{{r.score[schema.id]}}</span>
                             <span ng-switch-default ng-bind-html="r._data[schema.id]"></span>
-                            <span ng-if="schema.requireScore==='Y'">（得分: <span ng-class="{'bg-danger':!r.score[schema.id]}" ng-bind-html="r.score[schema.id]?r.score[schema.id]:'未评分'"></span>）</span>
                             <p ng-if="['single', 'multiple', 'image', 'file'].indexOf(schema.type)!==-1&&r.supplement[schema.id].length">(补充说明：{{r.supplement[schema.id]}})</p>
                         </td>
-                        <td ng-if="app.scenario==='quiz' || flag" ng-bind="r.score.sum"></td>
+                        <td ng-if="bRequireScore" ng-bind="r.score.sum"></td>
                         <td class='matched enroll' ng-repeat="schema in enrollDataSchemas" ng-switch on="schema.type">
                             <div ng-switch-when="image">
                                 <img ng-repeat="img in r._data[schema.id]" ng-src='{{img}}' />
@@ -141,7 +140,7 @@
                         </td>
                     </tr>
                 </tbody>
-                <tfoot ng-if="numberSchemas.length">
+                <tfoot ng-if="bRequireSum||bRequireScore">
                     <tr>
                         <td>合计</td>
                         <td></td>
@@ -149,12 +148,19 @@
                         <td></td>
                         <td></td>
                         <td ng-if="app.multi_rounds==='Y'"></td>
-                        <td ng-repeat="schema in recordSchemas2" ng-switch on="schema.type">
+                        <td ng-repeat="schema in recordSchemas2">
                             <div ng-if="schema.format==='number'">
                                 {{sum4SchemaAtPage[schema.id]}}/{{sum4Schema[schema.id]}}
                             </div>
+                            <div ng-if="schema.type==='score'">
+                                {{score4SchemaAtPage[schema.id]}}/{{score4Schema[schema.id]}}
+                            </div>
                         </td>
-                        <td></td>
+                        <td>
+                            <div ng-if="bRequireScore">
+                                {{score4Schema.sum}}
+                            </div>
+                        </td>
                         <td class='matched enroll' ng-repeat="schema in enrollDataSchemas"></td>
                         <td class='matched group' ng-repeat="schema in groupDataSchemas"></td>
                         <td></td>

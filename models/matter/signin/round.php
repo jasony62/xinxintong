@@ -59,10 +59,11 @@ class round_model extends \TMS_MODEL {
 	 * @param string $appId
 	 *
 	 */
-	public function getActive($siteId, $appId) {
+	public function getActive($siteId, $appId, $options = []) {
+		$fields = isset($options['fields']) ? $options['fields'] : '*';
 		$current = time();
 		$q = [
-			'*',
+			$fields,
 			'xxt_signin_round',
 			"aid='$appId'",
 		];

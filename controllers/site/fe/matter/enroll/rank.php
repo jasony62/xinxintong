@@ -19,11 +19,19 @@ class rank extends base {
 		if (empty($oCriteria->orderby)) {
 			return new \ParameterError();
 		}
+		$modelUsr = $this->model('matter\enroll\user');
+		
 		$q = [
 			'userid,nickname',
 			'xxt_enroll_user',
-			"aid='{$oApp->id}' and rid = 'ALL'",
+			"aid='{$oApp->id}'",
 		];
+		if(!empty($oCriteria->round) && $oCriteria->round !== 'ALL'){
+			$round = $modelUsr->escape($oCriteria->round);
+		}else{
+			$round = 'ALL';
+		}
+		$q[2] .= " and rid = '$round'";
 
 		switch ($oCriteria->orderby) {
 		case 'enroll':
@@ -64,7 +72,6 @@ class rank extends base {
 		}
 		$q2['r'] = ['o' => ($page - 1) * $size, 'l' => $size];
 
-		$modelUsr = $this->model('matter\enroll\user');
 		$result = new \stdClass;
 		$users = $modelUsr->query_objs_ss($q, $q2);
 		$result->users = $users;
@@ -161,10 +168,12 @@ class rank extends base {
 				}
 			}
 		}
+
 		$oCriteria = $this->getPostJson();
 		if (empty($oCriteria->orderby)) {
 			return new \ParameterError();
 		}
+		$modelData = $this->model('matter\enroll\data');
 
 		$q = [
 			'value,enroll_key,schema_id,agreed',
@@ -176,6 +185,10 @@ class rank extends base {
 		}
 		if (isset($oCriteria->agreed) && $oCriteria->agreed === 'Y') {
 			$q[2] .= " and agreed='Y'";
+		}
+		if(!empty($oCriteria->round) && $oCriteria->round !== 'ALL'){
+			$round = $modelData->escape($oCriteria->round);
+			$q[2] .= " and rid='$round'";
 		}
 		switch ($oCriteria->orderby) {
 		case 'remark':
@@ -191,7 +204,6 @@ class rank extends base {
 		}
 
 		$q2['r'] = ['o' => ($page - 1) * $size, 'l' => $size];
-		$modelData = $this->model('matter\enroll\data');
 		$result = new \stdClass;
 		$records = $modelData->query_objs_ss($q, $q2);
 		if (count($records)) {
@@ -226,6 +238,7 @@ class rank extends base {
 		}
 
 		$oCriteria = $this->getPostJson();
+		$modelRem = $this->model('matter\enroll\remark');
 
 		$q = [
 			'id,userid,nickname,content,enroll_key,schema_id,like_num,agreed',
@@ -235,12 +248,15 @@ class rank extends base {
 		if (isset($oCriteria->agreed) && $oCriteria->agreed === 'Y') {
 			$q[2] .= " and agreed='Y'";
 		}
+		if(!empty($oCriteria->round) && $oCriteria->round !== 'ALL'){
+			$round = $modelRem->escape($oCriteria->round);
+			$q[2] .= " and rid='$round'";
+		}
 		$q2 = [
 			'o' => 'like_num desc,create_at',
 			'r' => ['o' => ($page - 1) * $size, 'l' => $size],
 		];
 
-		$modelRem = $this->model('matter\enroll\remark');
 		$result = new \stdClass;
 		$remarks = $modelRem->query_objs_ss($q, $q2);
 		$result->remarks = $remarks;

@@ -219,7 +219,7 @@ class member_model extends \TMS_MODEL {
 			$oNewMember->extattr = '{}';
 		}
 		/* 验证状态 */
-		$oNewMember->verified = isset($oNewMember->verified)? $oNewMember->verified : $oMschema->auto_verified;
+		$oNewMember->verified = isset($oNewMember->verified) ? $oNewMember->verified : $oMschema->auto_verified;
 		$oNewMember->modify_at = time();
 
 		$this->update('xxt_site_member', $oNewMember, ['id' => $memberId]);

@@ -37,7 +37,7 @@ angular.module('service.article', ['ui.bootstrap', 'ui.xxt']).provider('srvLog',
     this.setAppId = function(id) {
         articleId = id;
     };
-    this.$get = ['$q', 'http2', 'noticebox', 'mattersgallery', function($q, http2, noticebox, mattersgallery) {
+    this.$get = ['$q', 'http2', 'noticebox', 'srvSite', function($q, http2, noticebox, srvSite) {
         return {
             get: function() {
                 var defer = $q.defer(),
@@ -72,14 +72,21 @@ angular.module('service.article', ['ui.bootstrap', 'ui.xxt']).provider('srvLog',
             assignMission: function() {
                 var _this = this,
                     defer = $q.defer();
-                mattersgallery.open(siteId, function(missions) {
+                srvSite.openGallery({
+                    matterTypes: [{
+                        value: 'mission',
+                        title: '项目',
+                        url: '/rest/pl/fe/matter'
+                    }],
+                    singleMatter: true
+                }).then(function(missions) {
                     var matter;
-                    if (missions.length === 1) {
+                    if (missions.matters.length === 1) {
                         matter = {
                             id: articleId,
                             type: 'article'
                         };
-                        http2.post('/rest/pl/fe/matter/mission/matter/add?site=' + siteId + '&id=' + missions[0].id, matter, function(rsp) {
+                        http2.post('/rest/pl/fe/matter/mission/matter/add?site=' + siteId + '&id=' + missions.matters[0].id, matter, function(rsp) {
                             var mission = rsp.data,
                                 updatedFields = ['mission_id'];
 
@@ -98,13 +105,6 @@ angular.module('service.article', ['ui.bootstrap', 'ui.xxt']).provider('srvLog',
                             });
                         });
                     }
-                }, {
-                    matterTypes: [{
-                        value: 'mission',
-                        title: '项目',
-                        url: '/rest/pl/fe/matter'
-                    }],
-                    singleMatter: true
                 });
                 return defer.promise;
             },

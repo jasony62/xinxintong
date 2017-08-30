@@ -1,5 +1,5 @@
 ngApp = angular.module('app', ['ngRoute', 'ui.tms', 'ui.xxt','ui.bootstrap', 'service.matter']);
-ngApp.config(['$routeProvider', '$locationProvider', 'srvTagProvider', function($routeProvider, $locationProvider, srvTagProvider) {
+ngApp.config(['$routeProvider', '$locationProvider', 'srvTagProvider', 'srvSiteProvider', function($routeProvider, $locationProvider, srvTagProvider, srvSiteProvider) {
 	$routeProvider.when('/rest/pl/fe/matter/news', {
 		templateUrl: '/views/default/pl/fe/matter/news/setting.html?_=2',
 		controller: 'ctrlSetting',
@@ -15,6 +15,7 @@ ngApp.config(['$routeProvider', '$locationProvider', 'srvTagProvider', function(
         siteId = ls.match(/[\?&]site=([^&]*)/)[1];
         //
         srvTagProvider.config(siteId);
+        srvSiteProvider.config(siteId);
     })();
 }]);
 ngApp.directive('sortable', function() {
@@ -62,7 +63,7 @@ ngApp.controller('ctrlNews', ['$scope', '$location', 'http2', function($scope, $
 		$scope.entryUrl = 'http://' + location.host + '/rest/site/fe/matter?site=' + $scope.siteId + '&id=' + $scope.id + '&type=news';
 	});
 }]);
-ngApp.controller('ctrlSetting', ['$scope', 'http2', 'mattersgallery', '$uibModal', 'srvTag', function($scope, http2, mattersgallery, $uibModal, srvTag) {
+ngApp.controller('ctrlSetting', ['$scope', 'http2', 'srvSite', '$uibModal', 'srvTag', function($scope, http2, srvSite, $uibModal, srvTag) {
 
 	var modifiedData = {};
 	$scope.modified = false;
@@ -105,38 +106,39 @@ ngApp.controller('ctrlSetting', ['$scope', 'http2', 'mattersgallery', '$uibModal
 		modifiedData[name] = $scope.editing[name];
 	};
 	$scope.assign = function() {
-		mattersgallery.open($scope.siteId, function(matters, type) {
-			for (var i in matters) {
-				matters[i].type = type;
-			}
-			$scope.editing.matters = $scope.editing.matters.concat(matters);
-			updateMatters();
-		}, {
-			matterTypes: $scope.matterTypes,
-			hasParent: false,
-			singleMatter: false
-		});
+        srvSite.openGallery({
+          matterTypes: $scope.matterTypes,
+          hasParent: false,
+          singleMatter: false
+        }).then(function(result) {
+          for (var i in result.matters) {
+            result.matters[i].type = result.type;
+          }
+          $scope.editing.matters = $scope.editing.matters.concat(result.matters);
+          updateMatters();
+        });
 	};
 	$scope.removeMatter = function(index) {
 		$scope.editing.matters.splice(index, 1);
 		updateMatters();
 	};
 	$scope.setEmptyReply = function() {
-		mattersgallery.open($scope.siteId, function(matters, type) {
-			if (matters.length === 1) {
-				var p = {
-					mt: type,
-					mid: matters[0].id
-				};
-				http2.post('/rest/pl/fe/matter/news/setEmptyReply?site=' + $scope.siteId + '&id=' + $scope.editing.id, p, function(rsp) {
-					$scope.editing.emptyReply = matters[0];
-				});
-			}
-		}, {
-			matterTypes: $scope.matterTypes,
-			hasParent: false,
-			singleMatter: true
-		});
+        srvSite.openGallery({
+          matterTypes: $scope.matterTypes,
+          hasParent: false,
+          singleMatter: true
+        }).then(function(result) {
+          var matters = result.matters, type = result.type;
+          if (matters.length === 1) {
+            var p = {
+              mt: type,
+              mid: matters[0].id
+            };
+            http2.post('/rest/pl/fe/matter/news/setEmptyReply?site=' + $scope.siteId + '&id=' + $scope.editing.id, p, function(rsp) {
+              $scope.editing.emptyReply = matters[0];
+            });
+          }
+        });
 	};
 	$scope.removeEmptyReply = function() {
 		var p = {

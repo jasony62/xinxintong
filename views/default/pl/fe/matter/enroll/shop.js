@@ -144,7 +144,7 @@ define(['require'], function(require) {
             });
         };
         $scope.choosePage = function() {
-            var elSimulator, page;
+            var elSimulator, page, config;
             elSimulator = document.querySelector('#simulator');
             config = {};
             page = $scope.result.selectedPage.name;

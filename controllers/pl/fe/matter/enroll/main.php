@@ -1382,7 +1382,7 @@ class main extends \pl\fe\matter\base {
 				$this->model('matter\mission')->updateMatter($oMatter->mission_id, $oMatter);
 			}
 			// 记录操作日志并更新信息
-			$this->model('matter\log')->matterOp($site, $user, $oMatter, 'U');
+			$this->model('matter\log')->matterOp($site, $user, $oMatter, 'U', $updated);
 		}
 
 		return new \ResponseData($rst);

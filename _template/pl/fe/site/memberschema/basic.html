@@ -53,11 +53,11 @@
         </div>
         <div class='form-group' ng-if="attrs.mobile">
             <label>手机号</label>
-            <input type='text' required="" ng-model="member.mobile" placeholder='手机号' class='form-control input-lg'>
+            <input type='text' required="" ng-model="member.mobile" placeholder='手机号' class='form-control input-lg' ng-readonly="attrs.mobile_identity">
         </div>
         <div class='form-group' ng-if="attrs.email">
             <label>邮箱</label>
-            <input type='text' required="" ng-model="member.email" placeholder='邮箱' class='form-control input-lg'>
+            <input type='text' required="" ng-model="member.email" placeholder='邮箱' class='form-control input-lg' ng-readonly="attrs.email_identity === true">
         </div>
         <div class='form-group' ng-repeat="ea in attrs.extattrs">
             <label>{{ea.label}}</label>

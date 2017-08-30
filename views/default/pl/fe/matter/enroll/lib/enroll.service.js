@@ -15,7 +15,8 @@ define(['require', 'schema', 'page'], function(require, schemaLib, pageLib) {
                 this._oApp._schemasById = schemasById;
             }
             // pagination
-            this._oPage = angular.extend({
+            this._oPage = oPage;
+            angular.extend(this._oPage, {
                 at: 1,
                 size: 30,
                 orderBy: 'time',
@@ -34,7 +35,7 @@ define(['require', 'schema', 'page'], function(require, schemaLib, pageLib) {
                         this.numbers.push(i);
                     }
                 }
-            }, oPage);
+            });
             // criteria
             this._oCriteria = oCriteria;
             angular.extend(this._oCriteria, {

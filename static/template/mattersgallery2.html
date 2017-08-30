@@ -1,18 +1,21 @@
 <div class="modal-header">
     <select class='form-control' ng-if='matterTypes&&matterTypes.length>0' style='display:inline-block;width:120px' ng-model='p.matterType' ng-options='t.title for t in matterTypes'></select>
-    <label class='checkbox-inline' ng-if="mission"><input type='checkbox' ng-model="p.sameMission" ng-true-value="'Y'" ng-false-value="'N'" ng-change="doSearch()">同一项目内</label>
+    <label class='checkbox-inline' ng-if="mission">
+        <input type='checkbox' ng-model="p.sameMission" ng-disabled="p.onlySameMission" ng-true-value="'Y'" ng-false-value="'N'" ng-change="doSearch()">同一项目内</label>
     <ul uib-pagination style="margin:0;vertical-align:bottom;cursor:pointer" ng-show="['mission','article','enroll','contribute'].indexOf(p.matterType.value)!==-1&&page.total>page.size" boundary-links="true" total-items="page.total" max-size="7" items-per-page="page.size" rotate="false" ng-model="page.at" previous-text="&lsaquo;" next-text="&rsaquo;" first-text="&laquo;" last-text="&raquo;" ng-change="doSearch()"></ul>
     <button class="close" type="button" ng-click="cancel()">&times;</button>
 </div>
 <div class="modal-body">
     <ul class="list-group">
         <li class="list-group-item" ng-repeat="m in matters">
-        <div class="checkbox" style="margin:0" ng-if='!singleMatter'>
-            <label><input type="checkbox" ng-checked="aChecked.indexOf(m)!==-1" ng-click="doCheck(m)">{{m.title}}</label>
-        </div>
-        <div class="radio" style="margin:0" ng-if='singleMatter'>
-            <label><input type="radio" ng-checked="aChecked.indexOf(m)!==-1" ng-click="doCheck(m)">{{m.title}}</label>
-        </div>
+            <div class="checkbox" style="margin:0" ng-if='!singleMatter'>
+                <label>
+                    <input type="checkbox" ng-checked="aChecked.indexOf(m)!==-1" ng-click="doCheck(m)">{{m.title}}</label>
+            </div>
+            <div class="radio" style="margin:0" ng-if='singleMatter'>
+                <label>
+                    <input type="radio" ng-checked="aChecked.indexOf(m)!==-1" ng-click="doCheck(m)">{{m.title}}</label>
+            </div>
         </li>
     </ul>
 </div>

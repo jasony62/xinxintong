@@ -272,12 +272,10 @@ class enroll_model extends app_base {
 	 *
 	 * @return
 	 */
-	public function &opData(&$oApp) {
+	public function &opData(&$oApp, $onlyActiveRound = false) {
+		$modelUsr = $this->model('matter\enroll\user');
 		$modelRnd = $this->model('matter\enroll\round');
-		$modelRec = $this->model('matter\enroll\record');
-		$page = (object) ['num' => 1, 'size' => 3];
-		$result = $modelRnd->byApp($oApp, ['fields' => 'rid,title', 'page' => $page]);
-		$rounds = $result->rounds;
+
 		$mschemaIds = [];
 		if (!empty($oApp->entry_rule) && is_object($oApp->entry_rule)) {
 			if (!empty($oApp->entry_rule->member) && is_object($oApp->entry_rule->member)) {
@@ -288,36 +286,48 @@ class enroll_model extends app_base {
 				}
 			}
 		}
-		if (empty($rounds)) {
-			$summary = new \stdClass;
+
+		if ($onlyActiveRound) {
+			if ($oActiveRound = $modelRnd->getActive($oApp)) {
+				$recentRounds[] = $oActiveRound;
+			}
+		} else {
+			$page = (object) ['num' => 1, 'size' => 3];
+			$result = $modelRnd->byApp($oApp, ['fields' => 'rid,title', 'page' => $page]);
+			$recentRounds = $result->rounds;
+		}
+
+		if (empty($recentRounds)) {
+			$oRound = new \stdClass;
 			/* total */
 			$q = [
 				'count(*)',
 				'xxt_enroll_record',
 				['aid' => $oApp->id, 'state' => 1],
 			];
-			$summary->total = $this->query_val_ss($q);
+			$oRound->total = $this->query_val_ss($q);
 			/* remark */
 			$q = [
 				'count(*)',
 				'xxt_enroll_record_remark',
 				['aid' => $oApp->id],
 			];
-			$summary->remark_total = $this->query_val_ss($q);
+			$oRound->remark_total = $this->query_val_ss($q);
 			/* enrollee */
-			$enrollees = $modelRec->enrolleeByApp($oApp);
-			$summary->enrollee_num = count($enrollees);
+			$oEnrollees = $modelUsr->enrolleeByApp($oApp);
+			$oRound->enrollee_num = $oEnrollees->total;
 			/* member */
 			if (!empty($mschemaIds)) {
-				$summary->mschema = new \stdClass;
+				$oRound->mschema = new \stdClass;
 				foreach ($mschemaIds as $mschemaId) {
-					$summary->mschema->{$mschemaId} = $this->_opByMschema($oApp->id, $mschemaId);
+					$oRound->mschema->{$mschemaId} = $this->_opByMschema($oApp->id, $mschemaId);
 				}
 			}
+			$summary[] = $oRound;
 		} else {
 			$summary = [];
 			$oActiveRound = $modelRnd->getActive($oApp);
-			foreach ($rounds as $oRound) {
+			foreach ($recentRounds as $oRound) {
 				if ($oActiveRound && $oRound->rid === $oActiveRound->rid) {
 					$oRound->active = 'Y';
 				}
@@ -336,8 +346,8 @@ class enroll_model extends app_base {
 				];
 				$oRound->remark_total = $this->query_val_ss($q);
 				/* enrollee */
-				$enrollees = $modelRec->enrolleeByApp($oApp, ['rid' => $oRound->rid]);
-				$oRound->enrollee_num = count($enrollees);
+				$oEnrollees = $modelUsr->enrolleeByApp($oApp, '', '', ['rid' => $oRound->rid]);
+				$oRound->enrollee_num = $oEnrollees->total;
 
 				/* member */
 				if (!empty($mschemaIds)) {

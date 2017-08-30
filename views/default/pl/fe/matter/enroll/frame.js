@@ -79,7 +79,7 @@ define(['require', 'enrollService', 'enrollSchema', 'enrollPage'], function(requ
             .when('/rest/pl/fe/matter/enroll/notice', new RouteParam('notice'))
             .when('/rest/pl/fe/matter/enroll/enrollee', new RouteParam('enrollee'))
             .when('/rest/pl/fe/matter/enroll/tag', new RouteParam('tag'))
-            .otherwise(new RouteParam('main'));
+            .otherwise(new RouteParam('preview'));
 
         $locationProvider.html5Mode(true);
 
@@ -109,12 +109,13 @@ define(['require', 'enrollService', 'enrollSchema', 'enrollPage'], function(requ
             'registration': '报名',
             'voting': '投票',
             'quiz': '测验',
-            'group_week_report': '周报'
+            'group_week_report': '周报',
+            'score_sheet': '记分表'
         };
         $scope.opened = '';
         $scope.$on('$locationChangeSuccess', function(event, currentRoute) {
             var subView = currentRoute.match(/([^\/]+?)\?/);
-            $scope.subView = subView[1] === 'enroll' ? 'entry' : subView[1];
+            $scope.subView = subView[1] === 'enroll' ? 'preview' : subView[1];
             switch ($scope.subView) {
                 case 'main':
                 case 'page':
@@ -131,11 +132,11 @@ define(['require', 'enrollService', 'enrollSchema', 'enrollPage'], function(requ
                 case 'remark':
                 case 'stat':
                 case 'enrollee':
+                case 'log':
                 case 'tag':
                     $scope.opened = 'data';
                     break;
                 case 'recycle':
-                case 'log':
                 case 'coin':
                 case 'notice':
                 case 'overview':
@@ -172,10 +173,10 @@ define(['require', 'enrollService', 'enrollSchema', 'enrollPage'], function(requ
                 });
                 oApp._tagsById = tagById;
                 oApp.__schemasOrderConsistent = 'Y'; //页面上登记项显示顺序与定义顺序一致
-                if(oApp.matter_mg_tag !== ''){
-                     oApp.matter_mg_tag.forEach(function(cTag,index){
-                        $scope.oTag.forEach(function(oTag){
-                            if(oTag.id === cTag){
+                if (oApp.matter_mg_tag !== '') {
+                    oApp.matter_mg_tag.forEach(function(cTag, index) {
+                        $scope.oTag.forEach(function(oTag) {
+                            if (oTag.id === cTag) {
                                 oApp.matter_mg_tag[index] = oTag;
                             }
                         });

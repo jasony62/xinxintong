@@ -59,6 +59,106 @@ provider('srvSite', function() {
                 });
                 return defer.promise;
             },
+            openGallery: function(options) {
+                var defer = $q.defer();
+                $uibModal.open({
+                    templateUrl: '/static/template/mattersgallery2.html?_=8',
+                    controller: ['$scope', '$http', '$uibModalInstance', function($scope, $http, $mi) {
+                        var fields = ['id', 'title'];
+                        $scope.matterTypes = options.matterTypes;
+                        $scope.singleMatter = options.singleMatter;
+                        $scope.p = {};
+                        if ($scope.matterTypes && $scope.matterTypes.length) {
+                            $scope.p.matterType = $scope.matterTypes[0];
+                        }
+                        if (options.mission) {
+                            $scope.mission = options.mission;
+                            $scope.p.sameMission = 'Y';
+                            $scope.p.onlySameMission = options.onlySameMission || false;
+                        }
+                        $scope.page = {
+                            at: 1,
+                            size: 10
+                        };
+                        $scope.aChecked = [];
+                        $scope.doCheck = function(matter) {
+                            if ($scope.singleMatter) {
+                                $scope.aChecked = [matter];
+                            } else {
+                                var i = $scope.aChecked.indexOf(matter);
+                                if (i === -1) {
+                                    $scope.aChecked.push(matter);
+                                } else {
+                                    $scope.aChecked.splice(i, 1);
+                                }
+                            }
+                        };
+                        $scope.doSearch = function(page) {
+                            if (!$scope.p.matterType) return;
+                            var matter = $scope.p.matterType,
+                                url = matter.url,
+                                params = {};
+
+                            page && ($scope.page.at = page);
+                            url += '/' + matter.value;
+                            url += '/list?site=' + _siteId + '&page=' + $scope.page.at + '&size=' + $scope.page.size + '&fields=' + fields;
+                            /*指定登记活动场景*/
+                            if (matter.value === 'enroll' && matter.scenario) {
+                                url += '&scenario=' + matter.scenario;
+                            }
+                            /*同一个项目*/
+                            if ($scope.p.sameMission === 'Y') {
+                                url += '&mission=' + $scope.mission.id;
+                            }
+                            $http.post(url, params).success(function(rsp) {
+                                if (/article/.test(matter.value)) {
+                                    $scope.matters = rsp.data.articles;
+                                    $scope.page.total = rsp.data.total;
+                                } else if (/enroll|signin|group|contribute/.test(matter.value)) {
+                                    $scope.matters = rsp.data.apps;
+                                    $scope.page.total = rsp.data.total;
+                                } else if (/mission/.test(matter.value)) {
+                                    $scope.matters = rsp.data.missions;
+                                    $scope.page.total = rsp.data.total;
+                                } else {
+                                    $scope.matters = rsp.data;
+                                    $scope.page.total = $scope.matters.length;
+                                }
+                            });
+                        };
+                        $scope.ok = function() {
+                            $mi.close([$scope.aChecked, $scope.p.matterType ? $scope.p.matterType.value : 'article']);
+                        };
+                        $scope.cancel = function() {
+                            $mi.dismiss('cancel');
+                        };
+                        $scope.createMatter = function() {
+                            if ($scope.p.matterType.value === 'article') {
+                                $http.get('/rest/pl/fe/matter/article/create?site=' + _siteId).success(function(rsp) {
+                                    $mi.close([
+                                        [rsp.data], 'article'
+                                    ]);
+                                });
+                            } else if ($scope.p.matterType.value === 'channel') {
+                                $http.get('/rest/pl/fe/matter/channel/create?site=' + _siteId).success(function(rsp) {
+                                    $mi.close([
+                                        [rsp.data], 'channel'
+                                    ]);
+                                });
+                            }
+                        };
+                        $scope.$watch('p.matterType', function(nv) {
+                            $scope.doSearch();
+                        });
+                    }],
+                    size: 'lg',
+                    backdrop: 'static',
+                    windowClass: 'auto-height mattersgallery'
+                }).result.then(function(result) {
+                    defer.resolve({ matters: result[0], type: result[1] });
+                });
+                return defer.promise;
+            },
             publicList: function() {
                 var defer = $q.defer();
                 http2.get('/rest/pl/fe/site/publicList', function(rsp) {
@@ -133,7 +233,8 @@ provider('srvSite', function() {
                     http2.get(url, function(rsp) {
                         _aMemberSchemas = rsp.data;
                         _aMemberSchemas.forEach(function(ms) {
-                            var schemas = [], mschemas = [];
+                            var schemas = [],
+                                mschemas = [];
                             if (ms.attr_name[0] === '0') {
                                 schemas.push({
                                     id: 'member.name',
@@ -307,8 +408,10 @@ provider('srvTag', function() {
                                 $scope2.model.newtag = '';
                             }
                         };
-                        $scope2.cancel = function() { $mi.dismiss();
-                            defer.resolve(); };
+                        $scope2.cancel = function() {
+                            $mi.dismiss();
+                            defer.resolve();
+                        };
                         $scope2.ok = function() {
                             var addMatterTag = [];
                             model.selected.forEach(function(selected, index) {

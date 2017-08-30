@@ -660,52 +660,6 @@ class record_model extends \TMS_MODEL {
 		return $result;
 	}
 	/**
-	 * 签到情况统计
-	 */
-	public function &summary($siteId, $appId) {
-		$summary = [];
-
-		$modelRnd = \TMS_APP::M('matter\signin\round');
-		$rounds = $modelRnd->byApp($appId, ['fields' => 'rid,title,start_at,end_at,late_at']);
-
-		if (empty($rounds)) {
-
-		} else {
-			$activeRound = $modelRnd->getActive($siteId, $appId);
-			foreach ($rounds as $round) {
-				/* total */
-				$q = [
-					'count(*)',
-					'xxt_signin_log',
-					['aid' => $appId, 'state' => 1, 'rid' => $round->rid],
-				];
-				$round->total = $this->query_val_ss($q);
-				/* late */
-				if ($round->total) {
-					if ($round->late_at) {
-						$q = [
-							'count(*)',
-							'xxt_signin_log',
-							"aid='" . $this->escape($appId) . "' and rid='{$round->rid}' and state=1 and signin_at>" . ((int) $round->late_at + 59),
-						];
-						$round->late = $this->query_val_ss($q);
-					} else {
-						$round->late = 0;
-					}
-				} else {
-					$round->late = 0;
-				}
-				if ($activeRound && $round->rid === $activeRound->rid) {
-					$round->active = 'Y';
-				}
-
-				$summary[] = $round;
-			}
-		}
-
-		return $summary;
-	}
-	/**
 	 * 活动登记人名单
 	 *
 	 * @param object $oApp

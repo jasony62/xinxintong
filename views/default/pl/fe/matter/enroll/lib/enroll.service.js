@@ -485,9 +485,9 @@ define(['require', 'schema', 'page'], function(require, schemaLib, pageLib) {
                     });
                     return defer.promise;
                 },
-                summary: function() {
+                opData: function() {
                     var deferred = $q.defer(),
-                        url = '/rest/pl/fe/matter/enroll/summary';
+                        url = '/rest/pl/fe/matter/enroll/opData';
                     url += '?site=' + _siteId;
                     url += '&app=' + _appId;
                     http2.get(url, function(rsp) {
@@ -1340,6 +1340,23 @@ define(['require', 'schema', 'page'], function(require, schemaLib, pageLib) {
                 defer = $q.defer();
 
                 url = '/rest/pl/fe/matter/enroll/record/sum4Schema';
+                url += '?site=' + _siteId;
+                url += '&app=' + _appId;
+                url += '&rid=' + params.criteria.record.rid;
+
+                http2.get(url, function(rsp) {
+                    defer.resolve(rsp.data);
+                })
+                return defer.promise;
+            };
+            _ins.score4Schema = function(rid) {
+                var url,
+                    params = {
+                        criteria: _ins._oCriteria
+                    }
+                defer = $q.defer();
+
+                url = '/rest/pl/fe/matter/enroll/record/score4Schema';
                 url += '?site=' + _siteId;
                 url += '&app=' + _appId;
                 url += '&rid=' + params.criteria.record.rid;

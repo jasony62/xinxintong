@@ -73,7 +73,17 @@ class rank extends base {
 		$q2['r'] = ['o' => ($page - 1) * $size, 'l' => $size];
 
 		$result = new \stdClass;
-		$users = $modelUsr->query_objs_ss($q, $q2);
+		if (($users = $modelUsr->query_objs_ss($q, $q2)) && !empty($oApp->group_app_id)) {
+			foreach ($users as $user) {
+				$q = [
+					'round_id,round_title',
+					'xxt_group_player',
+					['aid' => $oApp->group_app_id, 'userid' => $user->userid],
+				];
+				$userGroup = $modelUsr->query_obj_ss($q);
+				$user->group = $userGroup;
+			}
+		}
 		$result->users = $users;
 
 		$q[0] = 'count(*)';

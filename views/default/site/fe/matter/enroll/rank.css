@@ -1,6 +1,14 @@
-html,body{height:auto;width:100%;font-family:Microsoft Yahei,Arial;}
-body{position:relative;font-size:16px;padding:15px;}
-.app{margin-top:15px;margin-bottom:64px;background:#fff;}
+html,body{height:auto;width:100%;font-family:Microsoft Yahei,Arial;background-color: #f5f5f5;}
+body{position:relative;font-size:16px;padding:15px 0;}
+.app{margin-bottom:64px;}
+.filter, .result{background-color:#fff;}
+@media screen and (min-width:768px){
+  .filter{margin-top: 10px;padding:20px 0 40px;}
+}
+@media screen and (max-width:768px){
+  .filter{padding-top:5px;margin-bottom: 10px;}
+}
+.filter
 .app ul{list-style:none;margin:0;padding:0;}
 header{margin:-15px -15px 0 -15px;}
 footer{margin:0 -15px -15px -15px;}

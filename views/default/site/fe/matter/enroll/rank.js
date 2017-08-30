@@ -248,8 +248,9 @@ ngApp.controller('ctrlRank', ['$scope', '$q', '$sce', 'http2', 'ls', 'Round', '$
         for (var i = dataSchemas.length - 1; i >= 0; i--) {
             if (Object.keys(dataSchemas[i]).indexOf('remarkable') !== -1 && dataSchemas[i].remarkable == 'Y') {
                 $scope.isRemark = true;
+                break;
             }
-            break;
+
         }
         $scope.$watch('appState.criteria.obj', function(oNew, oOld) {
             if (oNew && oOld && oNew !== oOld) {

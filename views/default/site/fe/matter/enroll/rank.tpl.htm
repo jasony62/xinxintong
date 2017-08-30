@@ -15,7 +15,7 @@
 <body ng-app='app' ng-controller='ctrlMain'>
     <header ng-if="app.use_site_header==='Y'" dynamic-html="site.header_page.html"></header>
     <header ng-if="app.use_mission_header==='Y'" dynamic-html="mission.header_page.html"></header>
-    <nav class='navbar navbar-default main-navbar row'>
+    <nav class='navbar navbar-default main-navbar'>
         <div class='container'>
             <div class="navbar-header">
                 <a href="" class="navbar-brand">
@@ -32,21 +32,20 @@
             </ul>
         </div>
     </nav>
-    <div ng-cloak class='ng-cloak app'>
-        <div id='rank' class='container' ng-controller="ctrlRank">
-            <div class='row'>
-                <div class="col-xs-3" ng-if="rounds.length">
+    <div ng-cloak class='ng-cloak container'>
+        <div id='rank' class='app' ng-controller="ctrlRank">
+            <div class='row filter'>
+                <div class="col-md-2 col-xs-4" ng-if="rounds.length">
                     <div class='btn-group'>
                         <select class='form-control' title='登记轮次' ng-model='appState.criteria.round' ng-change="doRound(appState.criteria.round)">
-                            <option value='ALL'>全部</option>
-                            <option ng-if="checkedRound" value='{{checkedRound.rid}}'>选中轮次（{{checkedRound.title}}）</option>
+                            <option value='ALL'>全部轮次</option>
                             <option ng-if="activeRound" value='{{activeRound.rid}}'>启用轮次（{{activeRound.title}}）</option>
                             <option value="{{rnd.rid}}" ng-repeat="rnd in rounds">{{rnd.title}}</option>
                             <option value="more" ng-if="rounds.length > 10">更多</option>
                         </select>
                     </div>
                 </div>
-                <div class='col-xs-4'>
+                <div class='col-md-2 col-xs-4'>
                     <select class='form-control' ng-model="appState.criteria.obj">
                         <option value='user'>用户</option>
                         <option value='group' ng-if="app.group_app_id">用户分组</option>
@@ -56,7 +55,7 @@
                         <option value='remark-rec' ng-if="isRemark">内容评论-推荐</option>
                     </select>
                 </div>
-                <div class='col-xs-5' ng-if="appState.criteria.obj==='user'">
+                <div class='col-md-3 col-xs-4' ng-if="appState.criteria.obj==='user'">
                     <select class='form-control' ng-model="appState.criteria.orderby" ng-change="changeCriteria()">
                         <option value='enroll'>提交记录数量</option>
                         <option value='remark'>获得评论数量</option>
@@ -67,7 +66,7 @@
                         <option value='score'>得分</option>
                     </select>
                 </div>
-                <div class='col-xs-5' ng-if="appState.criteria.obj==='group'">
+                <div class='col-md-3 col-xs-4' ng-if="appState.criteria.obj==='group'">
                     <select class='form-control' ng-model="appState.criteria.orderby" ng-change="changeCriteria()">
                         <option value='enroll'>提交记录数量</option>
                         <option value='remark'>获得评论数量</option>
@@ -78,14 +77,14 @@
                         <option value='score'>得分</option>
                     </select>
                 </div>
-                <div class='col-xs-5' ng-if="appState.criteria.obj==='data'||appState.criteria.obj==='data-rec'">
+                <div class='col-md-3 col-xs-4' ng-if="appState.criteria.obj==='data'||appState.criteria.obj==='data-rec'">
                     <select class='form-control' ng-model="appState.criteria.orderby" ng-change="changeCriteria()">
                         <option value='remark'>获得评论数量</option>
                         <option value='like'>获得点赞数量</option>
                     </select>
                 </div>
             </div>
-            <div class='row'>
+            <div class='row result'>
                 <div ng-switch on="appState.criteria.obj">
                     <table class='table table-striped' ng-switch-when="user">
                         <thead>
@@ -217,33 +216,6 @@
                             </tr>
                         </tbody>
                     </table>
-                    <ul ng-switch-when="data">
-                        <li class='hidden-xs'>
-                            <div class='col-md-2'>序号</div>
-                            <!-- <span >状态</span> -->
-                            <div class='col-md-10'>
-                                <span class='col-md-3'>用户</span>
-                                <span class='col-md-7'>提交内容</span>
-                                <span class='col-md-2'>数量</span>
-                            </div>
-                        </li>
-                        <li>
-                            <div class='col-md-2 col-xs-2'>1</div>
-                            <div class='col-md-10 hidden-xs'>
-                                <span class='col-md-3 '>用户（用户分组）</span>
-                                <span class='col-md-7'>内容</span>
-                                <span class='col-md-2'>数量</span>
-                            </div>
-                            <div class='col-xs-10 visible-xs'>
-                                <span class='col-xs-12'>
-                                    <span class='col-xs-10'>用户（用户分组）</span>
-                                    <span class='col-xs-2 pull-right'>29</span>
-                                </span>
-                                <span class='col-xs-12'>内容</span>
-
-                            </div>
-                        </li>
-                    </ul>
                     <table class='table table-striped' ng-switch-when="remark">
                         <thead>
                             <tr>

@@ -61,7 +61,7 @@
             <tr ng-repeat='m in matters'>
                 <td>{{$index+1}}</td>
                 <td ng-if="matterType==='enroll'">{{scenarioNames[m.scenario||m.type]}}</td>
-                <td>{{m.title}}</td>
+                <td ng-click="openMatter(m)" style='cursor:pointer;'>{{m.title}}</td>
                 <td data-th='签到轮次' ng-if="matterType=='signin'"><span>{{m.opData[0].title}}</span></td>
                 <td data-th='记录数' ng-if="matterType=='enroll'" ng-click="openMatter(m,'record')" title='点击查看详细数据' style='cursor:pointer;'><span>{{m.opData[0].total}}</span></td>
                 <td data-th='记录数' ng-if="matterType=='signin'" ng-click="openMatter(m,'record')" title='点击查看详细数据' style='cursor:pointer;'><span>{{m.opData[0].total}}</span></td>

@@ -278,7 +278,12 @@ class member extends \site\fe\base {
 		}
 
 		/* 更新用户信息 */
-		$modelMem->modify($oMschema, $found->id, $member);
+		$member->verified = $found->verified;
+		$member->identity = $found->identity;
+		$rst = $modelMem->modify($oMschema, $found->id, $member);
+		if($rst[0] === false){
+			return new \ResponseError($rst[1]);
+		}
 		$found = $modelMem->byId($found->id);
 
 		/* 绑定当前站点用户 */

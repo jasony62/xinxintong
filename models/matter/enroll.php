@@ -273,7 +273,7 @@ class enroll_model extends app_base {
 	 * @return
 	 */
 	public function &opData(&$oApp, $onlyActiveRound = false) {
-		$modelRec = $this->model('matter\enroll\record');
+		$modelUsr = $this->model('matter\enroll\user');
 		$modelRnd = $this->model('matter\enroll\round');
 
 		$mschemaIds = [];
@@ -314,8 +314,8 @@ class enroll_model extends app_base {
 			];
 			$oRound->remark_total = $this->query_val_ss($q);
 			/* enrollee */
-			$enrollees = $modelRec->enrolleeByApp($oApp);
-			$oRound->enrollee_num = count($enrollees);
+			$oEnrollees = $modelUsr->enrolleeByApp($oApp);
+			$oRound->enrollee_num = $oEnrollees->total;
 			/* member */
 			if (!empty($mschemaIds)) {
 				$oRound->mschema = new \stdClass;
@@ -346,8 +346,8 @@ class enroll_model extends app_base {
 				];
 				$oRound->remark_total = $this->query_val_ss($q);
 				/* enrollee */
-				$enrollees = $modelRec->enrolleeByApp($oApp, ['rid' => $oRound->rid]);
-				$oRound->enrollee_num = count($enrollees);
+				$oEnrollees = $modelUsr->enrolleeByApp($oApp, '', '', ['rid' => $oRound->rid]);
+				$oRound->enrollee_num = $oEnrollees->total;
 
 				/* member */
 				if (!empty($mschemaIds)) {

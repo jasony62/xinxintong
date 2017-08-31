@@ -130,6 +130,7 @@ provider('srvSite', function() {
                         };
                         $scope.cleanFilter = function() {
                             $scope.filter.byTitle = '';
+                            $scope.doSearch();
                         }
                         $scope.ok = function() {
                             $mi.close([$scope.aChecked, $scope.p.matterType ? $scope.p.matterType.value : 'article']);

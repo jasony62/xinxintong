@@ -118,7 +118,7 @@
                             </tr>
                         </tbody>
                     </table>
-                    <table class='table table-striped' ng-switch-when="data">
+                    <!-- <table class='table table-striped' ng-switch-when="data">
                         <thead>
                             <tr>
                                 <th class='hidden-xs' style='width:3em'></th>
@@ -165,7 +165,50 @@
                                 <td><span class='glyphicon glyphicon-menu-right'></span></td>
                             </tr>
                         </tbody>
-                    </table>
+                    </table> -->
+                    <ul ng-switch-when="data">
+                        <li class='hidden-xs' style='text-align:center'>
+                            <div class='col-md-1'>序号</div>
+                            <div class='col-md-7'>提交内容</div>
+                            <div class='col-md-3'>用户</div>
+                            <div class='col-md-1'>数量</div>
+                            <!-- <div class='col-md-1'>进入</div> -->
+                        </li>
+                        <li ng-repeat="rec in records" ng-click="gotoRemark(rec.enroll_key,rec.schema_id)" style='text-align:center'>
+                            <div class='col-md-1'>{{(appState.page.at-1)*appState.page.size+$index+1}}</div>
+                            <div class='col-md-7' ng-switch on="app._schemasById[rec.schema_id].type">
+                                <div ng-switch-when="single">
+                                    <span>{{value2Label(rec,rec.schema_id)}}</span>
+                                </div>
+                                <div ng-switch-when="multiple">
+                                    <span>{{value2Label(rec,rec.schema_id)}}</span>
+                                </div>
+                                <div ng-switch-when="image">
+                                    <ul>
+                                        <li ng-repeat="img in rec.value.split(',')"><img ng-src="{{img}}" style='width:128px' /></li>
+                                    </ul>
+                                </div>
+                                <div ng-switch-when="file">
+                                    <div ng-repeat="file in rec.value">
+                                        <p><a ng-href="{{file.url}}" target="_blank">{{file.name}}</a></p>
+                                        <video ng-if="file.type.indexOf('video')===0" style="width:40%;" controls="controls">
+                                            <source src="{{file.url}}" type="{{file.type}}" />
+                                        </video>
+                                        <audio ng-if="file.type.indexOf('audio')===0" controls="controls">
+                                            <source src="{{file.url}}" type="{{file.type}}" />
+                                        </audio>
+                                        <img ng-if="file.type.indexOf('image')===0" ng-src='{{file.url}}' style="width:40%" />
+                                    </div>
+                                </div>
+                                <span ng-switch-when="date">{{(rec.value*1000)|date:'yy-MM-dd HH:mm'}}</span>
+                                <span ng-switch-default>{{rec.value}}</span>
+                            </div>
+                            <div class='col-md-3'><span>{{rec.nickname}}</span>-<span ng-if="app.group_app_id">{{rec.group_title}}</span></div>
+
+                            <div class='col-md-1'><span>{{rec[appState.criteria.orderby+'_num']}}</span></div>
+                            <div ><span class='glyphicon glyphicon-menu-right'></span></div>
+                        </li>
+                    </ul>
                     <table class='table table-striped' ng-switch-when="data-rec">
                         <thead>
                             <tr>

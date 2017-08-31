@@ -120,6 +120,7 @@ ngApp.controller('ctrlRank', ['$scope', '$q', '$sce', 'http2', 'ls', 'Round', '$
                 case 'user':
                     if (data.users) {
                         data.users.forEach(function(user) {
+                            user.headimgurl = user.headimgurl ? user.headimgurl : '/static/img/avatar.png';
                             $scope.users.push(user);
                         });
                     }

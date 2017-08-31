@@ -1,17 +1,29 @@
 html,body{height:auto;width:100%;font-family:Microsoft Yahei,Arial;background-color: #f5f5f5;}
-body{position:relative;font-size:16px;padding:15px 0;}
-.app{margin-bottom:64px;}
-.filter, .result{background-color:#fff;}
-.col-xs-4 .form-control:focus{box-shadow: none;}
-@media screen and (min-width:768px){
-  .filter{margin-top: 10px;padding:20px 0 40px;}
-}
+body{position:relative;font-size:14px;padding:15px 0;}
+ol,ul{list-style:none;margin:0;padding:0;overflow:hidden;}
+ul > li{padding:10px 0;text-align:center;line-height:1.8;position:relative;overflow:hidden;}
+.app{margin-bottom:64px;color:#333;}
+.app > .filter{margin-top: 10px;padding:20px 0 40px;background-color:#fff;}
+ .filter > .col-xs-4 .form-control{font-size:16px;}
+.filter > .col-xs-4 .form-control:focus{box-shadow: none;}
+.app > .result{background-color: #fff;padding:0 9px;}
+.result > div > ul > li:nth-child(1){height:50px;line-height:50px;background-color:#2994D0;color:#fff;}
+.user-info{color:#666;text-align:left;margin-left: 10px;}
+.headimg{width:20px;height:20px;border-radius:50%;border:1px solid red;}
 @media screen and (max-width:768px){
-  .filter{margin-bottom: 10px;}
-  .filter .col-xs-4{padding-left:0;padding-right:0;}
-  .col-xs-4 .form-control{padding-right:0;padding-left:10px;border:none;border-radius:0;}
+  .app > .filter{margin-bottom: 10px;margin-top: 0;padding:0;}
+  .filter > .col-xs-4 .form-control{padding-right:0;padding-left:10px;border:none;border-radius:0;font-size:14px;}
+  div[class*="col-xs"]{padding-left:0;padding-right:0;}
+  .col-xs-12{margin-top:5px;margin-bottom:-5px;}
 }
-.app ul{list-style:none;margin:0;padding:0;}
 header{margin:-15px -15px 0 -15px;}
 footer{margin:0 -15px -15px -15px;}
-#rank .table{margin-bottom:0;}
+/* 小图标以及各颜色值 */
+.custom{position: absolute;}
+.custom-entry{top:10px;right:-5px;}
+.number{display:inline-block;width:22px;height:22px;line-height:22px;color: #fff;text-align:center;border-radius:50%;}
+.first{background-color:#FFF046;}
+.second{background-color:#D0D0D0;}
+.third{background-color:#FCB231;}
+.other{background-color:#2994d0;}
+.text-color{color:#999999;font-size:14px;}

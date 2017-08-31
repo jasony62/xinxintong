@@ -713,7 +713,7 @@ class record extends \pl\fe\matter\base {
 		}
 
 		// 登记活动
-		$oApp = $this->model('matter\enroll')->byId($app, ['fields' => 'siteid,id,title,data_schemas,scenario,enroll_app_id,group_app_id,multi_rounds', 'cascaded' => 'N']);
+		$oApp = $this->model('matter\enroll')->byId($app, ['fields' => 'siteid,id,title,data_schemas,assigned_nickname,scenario,enroll_app_id,group_app_id,multi_rounds', 'cascaded' => 'N']);
 		$schemas = $oApp->dataSchemas;
 
 		// 关联的登记活动
@@ -798,6 +798,10 @@ class record extends \pl\fe\matter\base {
 		$aNumberSum = []; // 数值型题目的合计
 		$aScoreSum = []; // 题目的分数合计
 		$columnNum4 = $columnNum1; //列号
+		$bRequireNickname = true;
+		if ((isset($oApp->assignedNickname->valid) && $oApp->assignedNickname->valid !== 'Y') || isset($oApp->assignedNickname->schema->id)) {
+			$bRequireNickname = false;
+		}
 		$bRequireSum = false;
 		$bRequireScore = false;
 		for ($a = 0, $ii = count($schemas); $a < $ii; $a++) {
@@ -822,8 +826,9 @@ class record extends \pl\fe\matter\base {
 				$objActiveSheet->setCellValueByColumnAndRow($columnNum4++, 1, '评论数');
 			}
 		}
-
-		$objActiveSheet->setCellValueByColumnAndRow($columnNum4++, 1, '昵称');
+		if ($bRequireNickname) {
+			$objActiveSheet->setCellValueByColumnAndRow($columnNum4++, 1, '昵称');
+		}
 		$objActiveSheet->setCellValueByColumnAndRow($columnNum4++, 1, '备注');
 		$objActiveSheet->setCellValueByColumnAndRow($columnNum4++, 1, '标签');
 		// 记录分数
@@ -959,7 +964,9 @@ class record extends \pl\fe\matter\base {
 				$i++;
 			}
 			// 昵称
-			$objActiveSheet->setCellValueByColumnAndRow($i + $columnNum2++, $rowIndex, $oRecord->nickname);
+			if ($bRequireNickname) {
+				$objActiveSheet->setCellValueByColumnAndRow($i + $columnNum2++, $rowIndex, $oRecord->nickname);
+			}
 			// 备注
 			$objActiveSheet->setCellValueByColumnAndRow($i + $columnNum2++, $rowIndex, $oRecord->comment);
 			// 标签

@@ -1350,6 +1350,8 @@ class main extends \pl\fe\matter\base {
 				$updated->{$n} = $modelApp->escape($v);
 			} else if (in_array($n, ['entry_rule', 'data_schemas'])) {
 				$updated->{$n} = $modelApp->escape($modelApp->toJson($v));
+			} else if ($n === 'assignedNickname') {
+				$updated->assigned_nickname = $modelApp->escape($modelApp->toJson($v));
 			} else if ($n === 'userTask') {
 				$updated->user_task = $modelApp->escape($modelApp->toJson($v));
 			} else if ($n === 'scenarioConfig') {

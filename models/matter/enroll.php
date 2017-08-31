@@ -107,6 +107,13 @@ class enroll_model extends app_base {
 					$oApp->dataSchemas = [];
 				}
 			}
+			if ($fields === '*' || false !== strpos($fields, 'assigned_nickname')) {
+				if (!empty($oApp->assigned_nickname)) {
+					$oApp->assignedNickname = json_decode($oApp->assigned_nickname);
+				} else {
+					$oApp->assignedNickname = new \stdClass;
+				}
+			}
 			if ($fields === '*' || false !== strpos($fields, 'user_task')) {
 				if (!empty($oApp->user_task)) {
 					$oApp->userTask = json_decode($oApp->user_task);

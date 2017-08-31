@@ -61,10 +61,6 @@ class record extends base {
 
 		$oUser = clone $this->who;
 
-		// 当前访问用户的基本信息
-		$userNickname = $modelEnl->getUserNickname($oEnrollApp, $oUser);
-		$oUser->nickname = $userNickname;
-
 		/* 记录数据提交日志，跟踪提交特殊数据失败的问题 */
 		$rawPosted = file_get_contents("php://input");
 		$this->model('log')->log('trace', 'enroll-submit-' . $oUser->uid, $rawPosted);
@@ -75,6 +71,13 @@ class record extends base {
 			$enrolledData = $posted->data;
 		} else {
 			$enrolledData = $posted;
+		}
+		if ($oEnrollApp->assignedNickname->valid === 'Y' && isset($oEnrollApp->assignedNickname->schema->id)) {
+			$oUser->nickname = empty($enrolledData->{$oEnrollApp->assignedNickname->schema->id}) ? '' : $enrolledData->{$oEnrollApp->assignedNickname->schema->id};
+		} else {
+			// 当前访问用户的基本信息
+			$userNickname = $modelEnl->getUserNickname($oEnrollApp, $oUser);
+			$oUser->nickname = $userNickname;
 		}
 
 		// 检查是否允许登记
@@ -228,8 +231,8 @@ class record extends base {
 
 		/* 获得所属轮次 */
 		$modelRun = $this->model('matter\enroll\round');
-		if ($activeRound = $modelRun->getActive($oEnrollApp)) {
-			$rid = $activeRound->rid;
+		if ($oActiveRnd = $modelRun->getActive($oEnrollApp)) {
+			$rid = $oActiveRnd->rid;
 		} else {
 			$rid = '';
 		}
@@ -250,7 +253,11 @@ class record extends base {
 			}
 			$modelUsr->add($oEnrollApp, $oUser, $inData);
 		} else {
-			$upData = ['last_enroll_at' => time()];
+			$upData = [];
+			if ($oEnrollUsr->nickname !== $oUser->nickname) {
+				$upData['nickname'] = $oUser->nickname;
+			}
+			$upData['last_enroll_at'] = time();
 			if (isset($oUser->group_id)) {
 				if ($oEnrollUsr->group_id !== $oUser->group_id) {
 					$upData['group_id'] = $oUser->group_id;
@@ -287,7 +294,11 @@ class record extends base {
 			$inDataALL['rid'] = 'ALL';
 			$modelUsr->add($oEnrollApp, $oUser, $inDataALL);
 		} else {
-			$upDataALL = ['last_enroll_at' => time()];
+			$upDataALL = [];
+			if ($oEnrollUsrALL->nickname !== $oUser->nickname) {
+				$upDataALL['nickname'] = $oUser->nickname;
+			}
+			$upDataALL['last_enroll_at'] = time();
 			if (isset($oUser->group_id)) {
 				if ($oEnrollUsrALL->group_id !== $oUser->group_id) {
 					$upDataALL['group_id'] = $oUser->group_id;
@@ -304,15 +315,15 @@ class record extends base {
 			}
 
 			/* 更新用户获得的分数 */
-			$users = $modelUsr->query_objs_ss([
+			$enrollees = $modelUsr->query_objs_ss([
 				'id,score',
 				'xxt_enroll_user',
 				"siteid='$oEnrollApp->siteid' and aid='$oEnrollApp->id' and userid='$oUser->uid' and rid !='ALL'",
 			]);
 			$total = 0;
-			foreach ($users as $v) {
-				if (!empty($v->score)) {
-					$total += (float) $v->score;
+			foreach ($enrollees as $oEnrollee) {
+				if (!empty($oEnrollee->score)) {
+					$total += (float) $oEnrollee->score;
 				}
 			}
 			$upDataALL['score'] = $total;

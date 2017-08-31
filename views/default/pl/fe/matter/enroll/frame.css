@@ -62,8 +62,9 @@ body{font-family:Microsoft Yahei,Arial;}
 #record-view table img{max-width:96px;}
 #enrollRecords th{text-align:center;}
 #enrollRecords td span.signin_late{color:red;}
-#record-view #enrollRecords .matched.enroll{background:yellow;}
-#record-view #enrollRecords .matched.group{background:lightgreen;}
+#enrollRecords .nickname{background:lightblue;}
+#enrollRecords .matched.enroll{background:yellow;}
+#enrollRecords .matched.group{background:lightgreen;}
 .tag{background:#3af;padding:4px 6px;margin:4px;border-radius:2px;font-size:.8em;color:#fff;}
 
 /* main.html */

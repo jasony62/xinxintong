@@ -22,52 +22,52 @@ class rank extends base {
 		$modelUsr = $this->model('matter\enroll\user');
 		
 		$q = [
-			'userid,nickname',
-			'xxt_enroll_user',
-			"aid='{$oApp->id}'",
+			'u.userid,u.nickname,a.headimgurl',
+			'xxt_enroll_user u left join xxt_site_account a on u.userid = a.uid and u.siteid = a.siteid',
+			"u.aid='{$oApp->id}'",
 		];
 		if(!empty($oCriteria->round) && $oCriteria->round !== 'ALL'){
 			$round = $modelUsr->escape($oCriteria->round);
 		}else{
 			$round = 'ALL';
 		}
-		$q[2] .= " and rid = '$round'";
+		$q[2] .= " and u.rid = '$round'";
 
 		switch ($oCriteria->orderby) {
 		case 'enroll':
-			$q[0] .= ',enroll_num';
-			$q[2] .= ' and enroll_num>0';
-			$q2 = ['o' => 'enroll_num desc,last_enroll_at'];
+			$q[0] .= ',u.enroll_num';
+			$q[2] .= ' and u.enroll_num>0';
+			$q2 = ['o' => 'u.enroll_num desc,u.last_enroll_at'];
 			break;
 		case 'remark':
-			$q[0] .= ',remark_num';
-			$q[2] .= ' and remark_num>0';
-			$q2 = ['o' => 'remark_num desc,last_remark_at'];
+			$q[0] .= ',u.remark_num';
+			$q[2] .= ' and u.remark_num>0';
+			$q2 = ['o' => 'u.remark_num desc,u.last_remark_at'];
 			break;
 		case 'like':
-			$q[0] .= ',like_num';
-			$q[2] .= ' and like_num>0';
-			$q2 = ['o' => 'like_num desc,last_like_at'];
+			$q[0] .= ',u.like_num';
+			$q[2] .= ' and u.like_num>0';
+			$q2 = ['o' => 'u.like_num desc,u.last_like_at'];
 			break;
 		case 'remark_other':
-			$q[0] .= ',remark_other_num';
-			$q[2] .= ' and remark_other_num>0';
-			$q2 = ['o' => 'remark_other_num desc,last_remark_other_at'];
+			$q[0] .= ',u.remark_other_num';
+			$q[2] .= ' and u.remark_other_num>0';
+			$q2 = ['o' => 'u.remark_other_num desc,u.last_remark_other_at'];
 			break;
 		case 'like_other':
-			$q[0] .= ',like_other_num';
-			$q[2] .= ' and like_other_num>0';
-			$q2 = ['o' => 'like_other_num desc,last_like_other_at'];
+			$q[0] .= ',u.like_other_num';
+			$q[2] .= ' and u.like_other_num>0';
+			$q2 = ['o' => 'u.like_other_num desc,u.last_like_other_at'];
 			break;
 		case 'total_coin':
-			$q[0] .= ',user_total_coin';
-			$q[2] .= ' and user_total_coin>0';
-			$q2 = ['o' => 'user_total_coin desc,id'];
+			$q[0] .= ',u.user_total_coin';
+			$q[2] .= ' and u.user_total_coin>0';
+			$q2 = ['o' => 'u.user_total_coin desc,u.id'];
 			break;
 		case 'score':
-			$q[0] .= ',score';
-			$q[2] .= ' and score>0';
-			$q2 = ['o' => 'score desc,id'];
+			$q[0] .= ',u.score';
+			$q[2] .= ' and u.score>0';
+			$q2 = ['o' => 'u.score desc,u.id'];
 			break;
 		}
 		$q2['r'] = ['o' => ($page - 1) * $size, 'l' => $size];
@@ -186,30 +186,30 @@ class rank extends base {
 		$modelData = $this->model('matter\enroll\data');
 
 		$q = [
-			'value,enroll_key,schema_id,agreed',
-			'xxt_enroll_record_data',
-			"aid='{$oApp->id}' and state=1",
+			'd.value,d.enroll_key,d.schema_id,d.agreed,a.headimgurl',
+			"xxt_enroll_record_data d left join xxt_site_account a on d.userid = a.uid and a.siteid = '{$oApp->siteid}'",
+			"d.aid='{$oApp->id}' and d.state=1",
 		];
 		if (!empty($aAssocGroups)) {
-			$q[0] .= ',group_id';
+			$q[0] .= ',d.group_id';
 		}
 		if (isset($oCriteria->agreed) && $oCriteria->agreed === 'Y') {
-			$q[2] .= " and agreed='Y'";
+			$q[2] .= " and d.agreed='Y'";
 		}
 		if(!empty($oCriteria->round) && $oCriteria->round !== 'ALL'){
 			$round = $modelData->escape($oCriteria->round);
-			$q[2] .= " and rid='$round'";
+			$q[2] .= " and d.rid='$round'";
 		}
 		switch ($oCriteria->orderby) {
 		case 'remark':
-			$q[0] .= ',remark_num';
-			$q[2] .= ' and remark_num>0';
-			$q2 = ['o' => 'remark_num desc,last_remark_at'];
+			$q[0] .= ',d.remark_num';
+			$q[2] .= ' and d.remark_num>0';
+			$q2 = ['o' => 'd.remark_num desc,d.last_remark_at'];
 			break;
 		case 'like':
-			$q[0] .= ',like_num';
-			$q[2] .= ' and like_num>0';
-			$q2 = ['o' => 'like_num desc,submit_at'];
+			$q[0] .= ',d.like_num';
+			$q[2] .= ' and d.like_num>0';
+			$q2 = ['o' => 'd.like_num desc,d.submit_at'];
 			break;
 		}
 
@@ -251,19 +251,19 @@ class rank extends base {
 		$modelRem = $this->model('matter\enroll\remark');
 
 		$q = [
-			'id,userid,nickname,content,enroll_key,schema_id,like_num,agreed',
-			'xxt_enroll_record_remark',
-			"aid='{$oApp->id}' and like_num>0",
+			'r.id,r.userid,r.nickname,r.content,r.enroll_key,r.schema_id,r.like_num,r.agreed,a.headimgurl',
+			"xxt_enroll_record_remark r left join xxt_site_account a on r.userid = a.uid and a.siteid = '{$oApp->siteid}'",
+			"r.aid='{$oApp->id}' and r.like_num>0",
 		];
 		if (isset($oCriteria->agreed) && $oCriteria->agreed === 'Y') {
-			$q[2] .= " and agreed='Y'";
+			$q[2] .= " and r.agreed='Y'";
 		}
 		if(!empty($oCriteria->round) && $oCriteria->round !== 'ALL'){
 			$round = $modelRem->escape($oCriteria->round);
-			$q[2] .= " and rid='$round'";
+			$q[2] .= " and r.rid='$round'";
 		}
 		$q2 = [
-			'o' => 'like_num desc,create_at',
+			'o' => 'r.like_num desc,r.create_at',
 			'r' => ['o' => ($page - 1) * $size, 'l' => $size],
 		];
 

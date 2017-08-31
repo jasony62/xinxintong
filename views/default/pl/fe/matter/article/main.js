@@ -1,5 +1,5 @@
 define(['frame'], function(ngApp) {
-    ngApp.provider.controller('ctrlMain', ['$scope', '$uibModal', 'http2', 'noticebox', 'mattersgallery', 'mediagallery', 'noticebox', 'srvApp', 'cstApp', 'tmsThumbnail', '$timeout', 'srvTag', function($scope, $uibModal, http2, noticebox, mattersgallery, mediagallery, noticebox, srvApp, cstApp, tmsThumbnail, $timeout, srvTag) {
+    ngApp.provider.controller('ctrlMain', ['$scope', '$uibModal', 'http2', 'noticebox', 'srvSite', 'mediagallery', 'noticebox', 'srvApp', 'cstApp', 'tmsThumbnail', '$timeout', 'srvTag', function($scope, $uibModal, http2, noticebox, srvSite, mediagallery, noticebox, srvApp, cstApp, tmsThumbnail, $timeout, srvTag) {
         (function() {
             new ZeroClipboard(document.querySelectorAll('.text2Clipboard'));
         })();
@@ -82,7 +82,7 @@ define(['frame'], function(ngApp) {
             if ($scope.editing.mission) {
                 options.mission = $scope.editing.mission;
             }
-            mattersgallery.open($scope.editing.siteid, function(matters, type) {
+            srvSite.openGallery(options).then(function(result) {
                 var editor = tinymce.get('body1'),
                     dom = editor.dom,
                     selection = editor.selection,
@@ -96,8 +96,8 @@ define(['frame'], function(ngApp) {
                         while (sibling.parentNode !== editor.getBody()) {
                             sibling = sibling.parentNode;
                         }
-                        angular.forEach(matters, function(matter) {
-                            fn = "openMatter($event,'" + matter.id + "','" + type + "')";
+                        angular.forEach(result.matters, function(matter) {
+                            fn = "openMatter($event,'" + matter.id + "','" + result.type + "')";
                             domMatter = dom.create('p', {
                                 'wrap': 'matter'
                             }, dom.createHTML('span', {
@@ -109,8 +109,8 @@ define(['frame'], function(ngApp) {
                         });
                     } else {
                         /*没有选中页面上的元素*/
-                        angular.forEach(matters, function(matter) {
-                            fn = "openMatter($event,'" + matter.id + "','" + type + "')";
+                        angular.forEach(result.matters, function(matter) {
+                            fn = "openMatter($event,'" + matter.id + "','" + result.type + "')";
                             domMatter = dom.add(editor.getBody(), 'p', {
                                 'wrap': 'matter'
                             }, dom.createHTML('span', {
@@ -122,7 +122,7 @@ define(['frame'], function(ngApp) {
                     }
                     editor.focus();
                 }
-            }, options);
+            });
         };
         var insertLink = function(data) {
             var editor, dom, html;

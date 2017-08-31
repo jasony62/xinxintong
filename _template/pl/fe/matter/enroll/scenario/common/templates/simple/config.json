@@ -1,114 +1,139 @@
 {
     "scenario": "common",
-    "pages": [{
+    "pages": [
+    {
         "name": "enroll",
         "title": "填写信息页",
         "type": "I",
-        "data_schemas": [{
-            "schema": {
+        "data_schemas": [
+        {
+            "schema":
+            {
                 "id": "c1",
                 "title": "信息1",
                 "type": "shorttext",
                 "format": "name",
                 "required": "Y"
             },
-            "config": {
+            "config":
+            {
                 "showname": "label"
             }
-        }, {
-            "schema": {
+        },
+        {
+            "schema":
+            {
                 "id": "c2",
                 "title": "信息2",
                 "type": "longtext",
                 "required": "Y"
             },
-            "config": {
+            "config":
+            {
                 "showname": "label"
             }
         }],
-        "act_schemas": [{
+        "act_schemas": [
+        {
             "id": "btnSubmit",
             "name": "submit",
             "label": "提交信息",
             "next": "result"
         }]
-    }, {
+    },
+    {
         "name": "result",
         "title": "查看结果页",
         "type": "V",
-        "data_schemas": [{
-            "config": {
+        "data_schemas": [
+        {
+            "config":
+            {
                 "id": "V4",
                 "pattern": "record",
                 "inline": "N",
                 "splitLine": "Y"
             },
-            "schema": {
+            "schema":
+            {
                 "id": "c1",
                 "title": "信息1",
                 "type": "shorttext",
                 "format": "name",
                 "required": "Y"
             }
-        }, {
-            "config": {
+        },
+        {
+            "config":
+            {
                 "id": "V5",
                 "pattern": "record",
                 "inline": "N",
                 "splitLine": "Y"
             },
-            "schema": {
+            "schema":
+            {
                 "id": "c2",
                 "title": "信息2",
                 "type": "longtext",
                 "required": "Y"
             }
-        }, {
-            "config": {
+        },
+        {
+            "config":
+            {
                 "id": "V6",
                 "pattern": "record",
                 "inline": "N",
                 "splitLine": "Y"
             },
-            "schema": {
+            "schema":
+            {
                 "id": "enrollAt",
                 "title": "填写时间",
                 "type": "_enrollAt"
             }
         }],
-        "act_schemas": [{
+        "act_schemas": [
+        {
             "id": "act2",
             "name": "editRecord",
             "label": "修改登记",
             "next": "enroll"
-        }, {
+        },
+        {
             "id": "act3",
             "name": "removeRecord",
             "label": "删除登记",
             "next": "enroll"
         }]
     }],
-    "schema": [{
+    "schema": [
+    {
         "id": "c1",
         "title": "信息1",
         "type": "shorttext",
         "format": "name",
         "required": "Y"
-    }, {
+    },
+    {
         "id": "c2",
         "title": "信息2",
         "type": "longtext",
         "required": "Y"
     }],
-    "scenarioConfig": {
+    "scenarioConfig":
+    {
         "can_rounds": "D"
     },
-    "entryRule": {
-        "otherwise": {
+    "entryRule":
+    {
+        "otherwise":
+        {
             "entry": "enroll"
         }
     },
-    "count_limit": "0",
+    "count_limit": "1",
     "multi_rounds": "Y",
     "enrolled_entry_page": "result",
     "schema_include_mission_phases": "Y"

@@ -142,7 +142,7 @@ angular.module('ui.tms', ['ngSanitize']).service('noticebox', ['$timeout', funct
             }
             if (rsp.err_code != 0) {
                 if (options.autoNotice) {
-                    noticebox.error($sce.trustAsHtml(rsp.err_msg));
+                    noticebox.error($sce.trustAsHtml(angular.isArray(rsp.err_msg) ? rsp.err_msg.join('<br>') : rsp.err_msg));
                 }
                 if (options.autoBreak) return;
             }

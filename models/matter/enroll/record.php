@@ -520,6 +520,7 @@ class record_model extends \TMS_MODEL {
 	}
 	/**
 	 * 获得用户的登记清单
+	 *
 	 * @param object $oApp
 	 * @param object $oUser
 	 * @param array $options
@@ -541,6 +542,10 @@ class record_model extends \TMS_MODEL {
 		if (!empty($options['rid'])) {
 			if (strcasecmp('all', $options['rid']) !== 0) {
 				$q[2]['rid'] = $options['rid'];
+			}
+		} else {
+			if ($oActiveRnd = $this->model('matter\enroll\round')->getActive($oApp)) {
+				$q[2]['rid'] = $oActiveRnd->rid;
 			}
 		}
 		$q2 = ['o' => 'enroll_at desc'];

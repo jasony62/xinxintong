@@ -168,6 +168,7 @@
             "entry": "enroll"
         }
     },
+    "count_limit": "1",
     "multi_rounds": "N",
     "can_rank": "Y",
     "enrolled_entry_page": "result"

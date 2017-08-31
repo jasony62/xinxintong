@@ -33,7 +33,7 @@ ngApp.controller('ctrlChannel', ['$scope', '$location', 'http2', 'srvSite', func
         $scope.entryUrl = 'http://' + location.host + '/rest/site/fe/matter?site=' + $scope.siteId + '&id=' + $scope.id + '&type=channel';
     });
 }]);
-ngApp.controller('ctrlMain', ['$scope', 'http2', 'mattersgallery', 'noticebox', '$uibModal', 'srvTag', function($scope, http2, mattersgallery, noticebox, $uibModal, srvTag) {
+ngApp.controller('ctrlMain', ['$scope', 'http2', 'srvSite', 'noticebox', '$uibModal', 'srvTag', function($scope, http2, srvSite, noticebox, $uibModal, srvTag) {
     var modifiedData = {};
     $scope.modified = false;
     $scope.matterTypes = [{
@@ -128,17 +128,17 @@ ngApp.controller('ctrlMain', ['$scope', 'http2', 'mattersgallery', 'noticebox', 
     };
     $scope.setFixed = function(pos, clean) {
         if (!clean) {
-            mattersgallery.open($scope.siteId, function(matters, type) {
-                if (matters.length === 1) {
+            srvSite.openGallery({
+                matterTypes: $scope.matterTypes,
+                singleMatter: true
+            }).then(function(result) {
+                if (result.matters.length === 1) {
                     var params = {
-                        t: type,
-                        id: matters[0].id
+                        t: result.type,
+                        id: result.matters[0].id
                     };
                     postFixed(pos, params);
                 }
-            }, {
-                matterTypes: $scope.matterTypes,
-                singleMatter: true
             });
         } else {
             var params = {
@@ -149,20 +149,20 @@ ngApp.controller('ctrlMain', ['$scope', 'http2', 'mattersgallery', 'noticebox', 
         }
     };
     $scope.addMatter = function() {
-        mattersgallery.open($scope.siteId, function(matters, type) {
+        srvSite.openGallery({
+            matterTypes: $scope.matterTypes
+        }).then(function(result) {
             var relations;
-            if (matters && matters.length) {
-                matters.forEach(function(matter) {
-                    matter.type = type;
+            if (result.matters && result.matters.length) {
+                result.matters.forEach(function(matter) {
+                    matter.type = result.type;
                 });
-                relations = { matter: matters };
+                relations = { matter: result.matters };
                 http2.post('/rest/pl/fe/matter/channel/addMatter?site=' + $scope.siteId + '&channel=' + $scope.editing.id, relations, function(rsp) {
                     $scope.editing.matters = rsp.data;
                     arrangeMatters();
                 });
             }
-        }, {
-            matterTypes: $scope.matterTypes,
         });
     };
     $scope.createArticle = function() {

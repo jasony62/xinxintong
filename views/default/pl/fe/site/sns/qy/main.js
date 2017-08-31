@@ -1,7 +1,7 @@
 define(['require'], function(require) {
     'use strict';
-    var ngApp = angular.module('app', ['ngRoute', 'ui.bootstrap', 'ui.tms', 'ui.xxt']);
-    ngApp.config(['$locationProvider', '$controllerProvider', '$routeProvider', '$provide', function($lp, $cp, $rp, $provide) {
+    var ngApp = angular.module('app', ['ngRoute', 'ui.bootstrap', 'ui.tms', 'ui.xxt', 'service.matter']);
+    ngApp.config(['$locationProvider', '$controllerProvider', '$routeProvider', '$provide', 'srvSiteProvider', function($lp, $cp, $rp, $provide, srvSiteProvider) {
         var RouteParam = function(name) {
             var baseURL = '/views/default/pl/fe/site/sns/qy/';
             this.templateUrl = baseURL + name + '.html?_=' + (new Date() * 1);
@@ -16,6 +16,8 @@ define(['require'], function(require) {
                 }
             };
         };
+        var siteId = location.search.match(/site=([^&]*)/)[1];
+        srvSiteProvider.config(siteId);
         ngApp.provider = {
             controller: $cp.register,
             service: $provide.service

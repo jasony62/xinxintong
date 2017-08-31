@@ -39,7 +39,7 @@
                     <div class='btn-group'>
                         <select class='form-control' title='登记轮次' ng-model='appState.criteria.round' ng-change="doRound(appState.criteria.round)">
                             <option value='ALL'>全部轮次</option>
-                            <option ng-if="activeRound" value='{{activeRound.rid}}'>启用轮次（{{activeRound.title}}）</option>
+                            <option ng-if="activeRound" value='{{activeRound.rid}}'>启用（{{activeRound.title}}）</option>
                             <option value="{{rnd.rid}}" ng-repeat="rnd in rounds">{{rnd.title}}</option>
                             <option value="more" ng-if="rounds.length > 10">更多</option>
                         </select>

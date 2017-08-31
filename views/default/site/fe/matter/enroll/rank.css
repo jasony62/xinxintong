@@ -2,13 +2,15 @@ html,body{height:auto;width:100%;font-family:Microsoft Yahei,Arial;background-co
 body{position:relative;font-size:16px;padding:15px 0;}
 .app{margin-bottom:64px;}
 .filter, .result{background-color:#fff;}
+.col-xs-4 .form-control:focus{box-shadow: none;}
 @media screen and (min-width:768px){
   .filter{margin-top: 10px;padding:20px 0 40px;}
 }
 @media screen and (max-width:768px){
-  .filter{padding-top:5px;margin-bottom: 10px;}
+  .filter{margin-bottom: 10px;}
+  .filter .col-xs-4{padding-left:0;padding-right:0;}
+  .col-xs-4 .form-control{padding-right:0;padding-left:10px;border:none;border-radius:0;}
 }
-.filter
 .app ul{list-style:none;margin:0;padding:0;}
 header{margin:-15px -15px 0 -15px;}
 footer{margin:0 -15px -15px -15px;}

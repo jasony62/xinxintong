@@ -72,7 +72,7 @@ class record extends base {
 		} else {
 			$enrolledData = $posted;
 		}
-		if ($oEnrollApp->assignedNickname->valid === 'Y' && isset($oEnrollApp->assignedNickname->schema->id)) {
+		if ((isset($oEnrollApp->assignedNickname->valid) && $oEnrollApp->assignedNickname->valid === 'Y') && isset($oEnrollApp->assignedNickname->schema->id)) {
 			$oUser->nickname = empty($enrolledData->{$oEnrollApp->assignedNickname->schema->id}) ? '' : $enrolledData->{$oEnrollApp->assignedNickname->schema->id};
 		} else {
 			// 当前访问用户的基本信息

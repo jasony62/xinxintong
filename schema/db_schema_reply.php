@@ -292,18 +292,22 @@ echo 'finish reply.' . PHP_EOL;
 /**
  * 定时消息推送
  */
-$sql = "create table if not exists xxt_timer_push(";
+$sql = "create table if not exists xxt_timer_task(";
 $sql .= 'id int not null auto_increment';
-$sql .= ",mpid varchar(32) not null default ''";
 $sql .= ",siteid varchar(32) not null default ''";
 $sql .= ",enabled char(1) not null default 'Y'";
 $sql .= ',matter_type varchar(20) not null';
 $sql .= ",matter_id varchar(40) not null";
+$sql .= ",pattern char(1) not null default ''";
 $sql .= ",min int not null default -1";
 $sql .= ",hour int not null default -1";
 $sql .= ",mday int not null default -1";
 $sql .= ",mon int not null default -1";
 $sql .= ",wday int not null default -1";
+$sql .= ",left_count int not null default 1"; // 任务过期时间
+$sql .= ",task_model varchar(20) not null default ''"; // 执行任务的对象
+$sql .= ",task_arguments text"; // 执行任务的参数
+$sql .= ",task_expire_at int not null default 0"; // 任务过期时间
 $sql .= ",primary key(id)) ENGINE=MyISAM DEFAULT CHARSET=utf8";
 if (!$mysqli->query($sql)) {
 	header('HTTP/1.0 500 Internal Server Error');

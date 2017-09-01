@@ -234,7 +234,7 @@ define(['frame'], function(ngApp) {
                 var oConfig;
                 oConfig = {
                     matter: { id: $scope.app.id, type: 'enroll' },
-                    task: { model: 'report' }
+                    task: { model: model }
                 }
                 http2.post('/rest/pl/fe/matter/timer/create?site=' + $scope.app.siteid, oConfig, function(rsp) {
                     oOneTask.state = 'Y';
@@ -243,6 +243,13 @@ define(['frame'], function(ngApp) {
                     ['pattern', 'min', 'hour', 'wday', 'mday', 'mon', 'left_count', 'enabled'].forEach(function(prop) {
                         oOneTask.task[prop] = '' + rsp.data[prop];
                     });
+                    $scope.$watch('timerTask.' + model, function(oUpdTask, oOldTask) {
+                        if (oUpdTask && oUpdTask.task) {
+                            if (!angular.equals(oUpdTask.task, oOldTask.task)) {
+                                oUpdTask.modified = true;
+                            }
+                        }
+                    }, true);
                 });
             } else {
                 http2.get('/rest/pl/fe/matter/timer/remove?site=' + $scope.app.siteid + '&id=' + oOneTask.taskId, function(rsp) {
@@ -274,7 +281,7 @@ define(['frame'], function(ngApp) {
                     ['pattern', 'min', 'hour', 'wday', 'mday', 'mon', 'left_count', 'enabled'].forEach(function(prop) {
                         oTimerTask[oTask.task_model].task[prop] = oTask[prop];
                     });
-                    $scope.$watch('timerTask.report', function(oUpdTask, oOldTask) {
+                    $scope.$watch('timerTask.' + oTask.task_model, function(oUpdTask, oOldTask) {
                         if (oUpdTask && oUpdTask.task) {
                             if (!angular.equals(oUpdTask.task, oOldTask.task)) {
                                 oUpdTask.modified = true;

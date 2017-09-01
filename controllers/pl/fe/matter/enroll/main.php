@@ -390,47 +390,48 @@ class main extends \pl\fe\matter\base {
 
 		/* 创建活动 */
 		$newaid = uniqid();
-		$newapp = array();
+		$oNewApp = new \stdClass;
 		if (empty($mission)) {
-			$newapp['pic'] = $template->pic;
-			$newapp['summary'] = $template->summary;
-			$newapp['use_mission_header'] = 'N';
-			$newapp['use_mission_footer'] = 'N';
+			$oNewApp->pic = $template->pic;
+			$oNewApp->summary = $template->summary;
+			$oNewApp->use_mission_header = 'N';
+			$oNewApp->use_mission_footer = 'N';
 		} else {
 			$modelMis = $this->model('matter\mission');
 			$mission = $modelMis->byId($mission);
-			$newapp['pic'] = $mission->pic;
-			$newapp['summary'] = $mission->summary;
-			$newapp['mission_id'] = $mission->id;
-			$newapp['use_mission_header'] = 'Y';
-			$newapp['use_mission_footer'] = 'Y';
+			$oNewApp->pic = $mission->pic;
+			$oNewApp->summary = $mission->summary;
+			$oNewApp->mission_id = $mission->id;
+			$oNewApp->use_mission_header = 'Y';
+			$oNewApp->use_mission_footer = 'Y';
 		}
-		$newapp['title'] = empty($oCustomConfig->proto->title) ? $template->title : $oCustomConfig->proto->title;
-		$newapp['siteid'] = $site;
-		$newapp['id'] = $newaid;
-		$newapp['creater'] = $user->id;
-		$newapp['creater_src'] = $user->src;
-		$newapp['creater_name'] = $user->name;
-		$newapp['create_at'] = $current;
-		$newapp['modifier'] = $user->id;
-		$newapp['modifier_src'] = $user->src;
-		$newapp['modifier_name'] = $user->name;
-		$newapp['modify_at'] = $current;
-		$newapp['scenario'] = $template->scenario;
-		$newapp['scenario_config'] = $template->scenario_config;
-		$newapp['multi_rounds'] = $template->multi_rounds;
-		$newapp['data_schemas'] = $modelApp->escape($template->data_schemas);
-		$newapp['open_lastroll'] = $template->open_lastroll;
-		$newapp['enrolled_entry_page'] = $template->enrolled_entry_page;
-		$newapp['template_id'] = $template->id;
-		$newapp['template_version'] = $template->version;
-		$newapp['can_siteuser'] = 'Y';
+		$oNewApp->title = empty($oCustomConfig->proto->title) ? $template->title : $oCustomConfig->proto->title;
+		$oNewApp->siteid = $site;
+		$oNewApp->id = $newaid;
+		$oNewApp->creater = $user->id;
+		$oNewApp->creater_src = $user->src;
+		$oNewApp->creater_name = $user->name;
+		$oNewApp->create_at = $current;
+		$oNewApp->modifier = $user->id;
+		$oNewApp->modifier_src = $user->src;
+		$oNewApp->modifier_name = $user->name;
+		$oNewApp->modify_at = $current;
+		$oNewApp->scenario = $template->scenario;
+		$oNewApp->scenario_config = $template->scenario_config;
+		$oNewApp->multi_rounds = $template->multi_rounds;
+		$oNewApp->data_schemas = $modelApp->escape($template->data_schemas);
+		$oNewApp->open_lastroll = $template->open_lastroll;
+		$oNewApp->enrolled_entry_page = $template->enrolled_entry_page;
+		$oNewApp->template_id = $template->id;
+		$oNewApp->template_version = $template->version;
+		$oNewApp->can_siteuser = 'Y';
 		/* 进入规则 */
-		$entryRule = new \stdClass;
-		$entryRule->scope = 'none';
-		$newapp['entry_rule'] = json_encode($entryRule);
+		$oEntryRule = new \stdClass;
+		$oEntryRule->scope = 'none';
+		$oNewApp->entry_rule = json_encode($oEntryRule);
 
 		$modelApp->insert('xxt_enroll', $newapp, false);
+		$oNewApp->type = 'enroll';
 
 		/* 复制自定义页面 */
 		if ($template->pages) {
@@ -450,17 +451,13 @@ class main extends \pl\fe\matter\base {
 				$modelCode->modify($newPage->code_id, $data);
 			}
 		}
-
-		$app = $modelApp->byId($newaid, ['cascaded' => 'N']);
-
 		/* 记录操作日志 */
-		$this->model('matter\log')->matterOp($site, $user, $app, 'C');
+		$this->model('matter\log')->matterOp($site, $user, $oNewApp, 'C');
 
 		/* 记录和任务的关系 */
 		if (isset($mission->id)) {
-			$modelMis->addMatter($user, $site, $mission->id, $app);
+			$modelMis->addMatter($user, $site, $mission->id, $oNewApp);
 		}
-
 		/* 支付积分 */
 		if ($template->coin) {
 			$modelCoin = $this->model('pl\coin\log');
@@ -469,7 +466,7 @@ class main extends \pl\fe\matter\base {
 		}
 		/* 更新模板使用情况数据 */
 
-		return new \ResponseData($app);
+		return new \ResponseData($oNewApp);
 	}
 	/**
 	 * 通过通讯录联系人定义创建登记活动
@@ -656,31 +653,31 @@ class main extends \pl\fe\matter\base {
 
 		$config = $this->getPostJson();
 		$current = time();
-		$newapp = [];
+		$oNewApp = new \stdClass;
 		$site = $this->model('site')->byId($site, ['fields' => 'id,heading_pic']);
 
 		/* 从站点或任务获得的信息 */
 		if (empty($mission)) {
-			$newapp['pic'] = $site->heading_pic;
-			$newapp['summary'] = '';
-			$newapp['use_mission_header'] = 'N';
-			$newapp['use_mission_footer'] = 'N';
+			$oNewApp->pic = $site->heading_pic;
+			$oNewApp->summary = '';
+			$oNewApp->use_mission_header = 'N';
+			$oNewApp->use_mission_footer = 'N';
 			$mission = null;
 		} else {
 			$modelMis = $this->model('matter\mission');
 			$mission = $modelMis->byId($mission);
-			$newapp['pic'] = $mission->pic;
-			$newapp['summary'] = $mission->summary;
-			$newapp['mission_id'] = $mission->id;
-			$newapp['use_mission_header'] = 'Y';
-			$newapp['use_mission_footer'] = 'Y';
+			$oNewApp->pic = $mission->pic;
+			$oNewApp->summary = $mission->summary;
+			$oNewApp->mission_id = $mission->id;
+			$oNewApp->use_mission_header = 'Y';
+			$oNewApp->use_mission_footer = 'Y';
 		}
 		$appId = uniqid();
 		$oCustomConfig = isset($config->customConfig) ? $config->customConfig : null;
-		!empty($config->scenario) && $newapp['scenario'] = $config->scenario;
+		!empty($config->scenario) && $oNewApp->scenario = $config->scenario;
 		/* 登记数量限制 */
 		if (isset($config->count_limit)) {
-			$newapp['count_limit'] = $config->count_limit;
+			$oNewApp->count_limit = $config->count_limit;
 		}
 
 		if (!empty($config->pages) && !empty($config->entryRule)) {
@@ -693,12 +690,12 @@ class main extends \pl\fe\matter\base {
 				}
 			}
 			if (isset($config->enrolled_entry_page)) {
-				$newapp['enrolled_entry_page'] = $config->enrolled_entry_page;
+				$oNewApp->enrolled_entry_page = $config->enrolled_entry_page;
 			}
 			/*场景设置*/
 			if (isset($config->scenarioConfig)) {
 				$scenarioConfig = $config->scenarioConfig;
-				$newapp['scenario_config'] = json_encode($scenarioConfig);
+				$oNewApp->scenario_config = json_encode($scenarioConfig);
 			}
 		} else {
 			$entryRule = $this->_addBlankPage($user, $site->id, $appId);
@@ -713,37 +710,38 @@ class main extends \pl\fe\matter\base {
 		}
 
 		/* create app */
-		$newapp['id'] = $appId;
-		$newapp['siteid'] = $site->id;
-		$newapp['title'] = empty($oCustomConfig->proto->title) ? '新登记活动' : $oCustomConfig->proto->title;
-		$newapp['creater'] = $user->id;
-		$newapp['creater_src'] = $user->src;
-		$newapp['creater_name'] = $user->name;
-		$newapp['create_at'] = $current;
-		$newapp['modifier'] = $user->id;
-		$newapp['modifier_src'] = $user->src;
-		$newapp['modifier_name'] = $user->name;
-		$newapp['modify_at'] = $current;
-		$newapp['entry_rule'] = json_encode($entryRule);
-		$newapp['can_siteuser'] = 'Y';
-		isset($config) && $newapp['data_schemas'] = \TMS_MODEL::toJson($config->schema);
+		$oNewApp->id = $appId;
+		$oNewApp->siteid = $site->id;
+		$oNewApp->title = empty($oCustomConfig->proto->title) ? '新登记活动' : $oCustomConfig->proto->title;
+		$oNewApp->creater = $user->id;
+		$oNewApp->creater_src = $user->src;
+		$oNewApp->creater_name = $user->name;
+		$oNewApp->create_at = $current;
+		$oNewApp->modifier = $user->id;
+		$oNewApp->modifier_src = $user->src;
+		$oNewApp->modifier_name = $user->name;
+		$oNewApp->modify_at = $current;
+		$oNewApp->entry_rule = json_encode($entryRule);
+		$oNewApp->can_siteuser = 'Y';
+		isset($config) && $oNewApp->data_schemas = \TMS_MODEL::toJson($config->schema);
 
 		$modelApp = $this->model('matter\enroll');
 		$modelApp->setOnlyWriteDbConn(true);
 		$modelApp->insert('xxt_enroll', $newapp, false);
+		$oNewApp->type = 'enroll';
+
 		/* 保存数据 */
 		$records = $config->records;
 		$this->_persist($site->id, $appId, $records);
 
-		$app = $modelApp->byId($appId);
 		/* 记录操作日志 */
-		$this->model('matter\log')->matterOp($site->id, $user, $app, 'C');
+		$this->model('matter\log')->matterOp($site->id, $user, $oNewApp, 'C');
 		/* 记录和任务的关系 */
 		if (isset($mission->id)) {
-			$modelMis->addMatter($user, $site->id, $mission->id, $app);
+			$modelMis->addMatter($user, $site->id, $mission->id, $oNewApp);
 		}
 
-		return new \ResponseData($app);
+		return new \ResponseData($oNewApp);
 	}
 	/**
 	 *
@@ -938,69 +936,69 @@ class main extends \pl\fe\matter\base {
 			$entryRule->scope = 'none';
 		}
 
-		$site = $this->model('site')->byId($site, ['fields' => 'id,heading_pic']);
+		$oSite = $this->model('site')->byId($site, ['fields' => 'id,heading_pic']);
 		$copied = $modelApp->byId($app);
 
 		$current = time();
 		$appId = uniqid();
-		$newapp = [];
+		$oNewApp = new \stdClass;
 		/*从站点或任务获得的信息*/
 		if (empty($mission)) {
-			$newapp['pic'] = $site->heading_pic;
-			$newapp['summary'] = '';
-			$newapp['use_mission_header'] = 'N';
-			$newapp['use_mission_footer'] = 'N';
+			$oNewApp->pic = $oSite->heading_pic;
+			$oNewApp->summary = '';
+			$oNewApp->use_mission_header = 'N';
+			$oNewApp->use_mission_footer = 'N';
 		} else {
 			$modelMis = $this->model('matter\mission');
 			$mission = $modelMis->byId($mission);
-			$newapp['pic'] = $mission->pic;
-			$newapp['summary'] = $mission->summary;
-			$newapp['mission_id'] = $mission->id;
-			$newapp['use_mission_header'] = 'Y';
-			$newapp['use_mission_footer'] = 'Y';
+			$oNewApp->pic = $mission->pic;
+			$oNewApp->summary = $mission->summary;
+			$oNewApp->mission_id = $mission->id;
+			$oNewApp->use_mission_header = 'Y';
+			$oNewApp->use_mission_footer = 'Y';
 		}
 		/* 添加页面 */
-		$this->_addPageByTemplate($user, $site, $mission, $appId, $config, null);
+		$this->_addPageByTemplate($user, $oSite, $mission, $appId, $config, null);
 		/* 登记数量限制 */
 		if (isset($config->count_limit)) {
-			$newapp['count_limit'] = $config->count_limit;
+			$oNewApp->count_limit = $config->count_limit;
 		}
 		if (isset($config->enrolled_entry_page)) {
-			$newapp['enrolled_entry_page'] = $config->enrolled_entry_page;
+			$oNewApp->enrolled_entry_page = $config->enrolled_entry_page;
 		}
 		/* 场景设置 */
 		if (isset($config->scenarioConfig)) {
 			$scenarioConfig = $config->scenarioConfig;
-			$newapp['scenario_config'] = json_encode($scenarioConfig);
+			$oNewApp->scenario_config = json_encode($scenarioConfig);
 		}
-		$newapp['scenario'] = $oCustomConfig->proto->scenario;
+		$oNewApp->scenario = $oCustomConfig->proto->scenario;
 		/* create app */
-		$newapp['id'] = $appId;
-		$newapp['siteid'] = $site->id;
-		$newapp['title'] = empty($oCustomConfig->proto->title) ? '新登记活动' : $oCustomConfig->proto->title;
-		$newapp['creater'] = $user->id;
-		$newapp['creater_src'] = $user->src;
-		$newapp['creater_name'] = $modelApp->escape($user->name);
-		$newapp['create_at'] = $current;
-		$newapp['modifier'] = $user->id;
-		$newapp['modifier_src'] = $user->src;
-		$newapp['modifier_name'] = $modelApp->escape($user->name);
-		$newapp['modify_at'] = $current;
-		$newapp['entry_rule'] = json_encode($entryRule);
-		$newapp['can_siteuser'] = 'Y';
-		$newapp['data_schemas'] = \TMS_MODEL::toJson($config->schema);
+		$oNewApp->id = $appId;
+		$oNewApp->siteid = $oSite->id;
+		$oNewApp->title = empty($oCustomConfig->proto->title) ? '新登记活动' : $oCustomConfig->proto->title;
+		$oNewApp->creater = $user->id;
+		$oNewApp->creater_src = $user->src;
+		$oNewApp->creater_name = $modelApp->escape($user->name);
+		$oNewApp->create_at = $current;
+		$oNewApp->modifier = $user->id;
+		$oNewApp->modifier_src = $user->src;
+		$oNewApp->modifier_name = $modelApp->escape($user->name);
+		$oNewApp->modify_at = $current;
+		$oNewApp->entry_rule = json_encode($entryRule);
+		$oNewApp->can_siteuser = 'Y';
+		$oNewApp->data_schemas = \TMS_MODEL::toJson($config->schema);
 
 		$modelApp->insert('xxt_enroll', $newapp, false);
+		$oNewApp->type = 'enroll';
 
-		$app = $modelApp->byId($appId);
 		/* 记录操作日志 */
-		$this->model('matter\log')->matterOp($site->id, $user, $app, 'C');
+		$this->model('matter\log')->matterOp($oSite->id, $user, $oNewApp, 'C');
 		/* 记录和任务的关系 */
 		if (isset($mission->id)) {
-			$modelMis->addMatter($user, $site->id, $mission->id, $app);
+			$modelMis->addMatter($user, $oSite->id, $mission->id, $oNewApp);
 		}
 
-		return new \ResponseData($app);
+		return new \ResponseData($oNewApp);
 	}
 	/**
 	 * 为创建活动上传的xlsx
@@ -1352,6 +1350,8 @@ class main extends \pl\fe\matter\base {
 				$updated->{$n} = $modelApp->escape($v);
 			} else if (in_array($n, ['entry_rule', 'data_schemas'])) {
 				$updated->{$n} = $modelApp->escape($modelApp->toJson($v));
+			} else if ($n === 'assignedNickname') {
+				$updated->assigned_nickname = $modelApp->escape($modelApp->toJson($v));
 			} else if ($n === 'userTask') {
 				$updated->user_task = $modelApp->escape($modelApp->toJson($v));
 			} else if ($n === 'scenarioConfig') {
@@ -1382,7 +1382,7 @@ class main extends \pl\fe\matter\base {
 				$this->model('matter\mission')->updateMatter($oMatter->mission_id, $oMatter);
 			}
 			// 记录操作日志并更新信息
-			$this->model('matter\log')->matterOp($site, $user, $oMatter, 'U');
+			$this->model('matter\log')->matterOp($site, $user, $oMatter, 'U', $updated);
 		}
 
 		return new \ResponseData($rst);

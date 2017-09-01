@@ -88,9 +88,39 @@ define(['frame', 'editor'], function(ngApp, editorProxy) {
                 }
             });
         });
-        //@todo 提交前如何检查数据的一致性？所有的页面都需要保存吗？
+        // @todo 提交前如何检查数据的一致性？所有的页面都需要保存吗？
+        // 如果页面中有添加记录的操作，活动的限制填写数量应该为0或者大于1
         $scope.save = function() {
-            srvEnrollApp.update('data_schemas').then(function() {
+            var updatedAppProps = ['data_schemas'],
+                bCanAddRecord = false,
+                oAppPage;
+
+            for (var i = $scope.app.pages.length - 1; i >= 0; i--) {
+                oAppPage = $scope.app.pages[i];
+                if (oAppPage.type === 'V') {
+                    if (oAppPage.act_schemas && oAppPage.act_schemas.length) {
+                        for (var j = oAppPage.act_schemas.length - 1; j >= 0; j--) {
+                            if (oAppPage.act_schemas[j].name === 'addRecord') {
+                                bCanAddRecord = true;
+                                break;
+                            }
+                        }
+                    }
+                }
+                if (bCanAddRecord) break;
+            }
+            if (bCanAddRecord) {
+                if ($scope.app.count_limit == 1) {
+                    $scope.app.count_limit = 0;
+                    updatedAppProps.push('count_limit');
+                }
+            } else {
+                if ($scope.app.count_limit != 1) {
+                    $scope.app.count_limit = 1;
+                    updatedAppProps.push('count_limit');
+                }
+            }
+            srvEnrollApp.update(updatedAppProps).then(function() {
                 $scope.app.pages.forEach(function(page) {
                     $scope.updPage(page, ['data_schemas', 'act_schemas', 'html']);
                 });

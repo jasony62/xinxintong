@@ -68,13 +68,13 @@
                             <input type='checkbox' ng-true-value="'Y'" ng-false-value="'N'" ng-model="rows.allSelected">
                         </th>
                         <th style='width:40px'></th>
-                        <th style='width:140px'>用户昵称</th>
+                        <th style='width:140px' ng-if="bRequireNickname">用户昵称</th>
                         <th style='width:100px'>登记时间</th>
                         <th style='width:100px' ng-if="app.multi_rounds==='Y'">登记轮次</th>
-                        <th class='custom-col row' ng-repeat="schema in recordSchemas2">{{schema.title}}</th>
+                        <th class='custom-col row' ng-repeat="schema in recordSchemas2" ng-class="{'nickname':schema.id===app.assignedNickname.schema.id}">{{schema.title}}</th>
                         <th ng-if="bRequireScore">总得分</th>
-                        <th class='custom-col matched enroll' ng-repeat="schema in enrollDataSchemas">{{schema.title}}</th>
-                        <th class='custom-col matched group' ng-repeat="schema in groupDataSchemas">{{schema.title}}</th>
+                        <th class='custom-col matched enroll' ng-repeat="schema in enrollDataSchemas" ng-class="{'nickname':schema.id===app.assignedNickname.schema.id}">{{schema.title}}</th>
+                        <th class='custom-col matched group' ng-repeat="schema in groupDataSchemas" ng-class="{'nickname':schema.id===app.assignedNickname.schema.id}">{{schema.title}}</th>
                         <th style='width:80px'>审核通过</th>
                         <th style='width:140px' ng-if="app.tags.length">标签</th>
                         <th style='width:140px'>备注</th>
@@ -93,7 +93,7 @@
                             <input type='checkbox' ng-model="rows.selected[$index]">
                         </td>
                         <td>{{(page.at-1)*page.size+$index+1}}</td>
-                        <td>{{r.nickname}}</td>
+                        <td ng-if="bRequireNickname">{{r.nickname}}</td>
                         <td>{{(r.enroll_at*1000)|date:'MM-dd HH:mm'}}</td>
                         <td ng-if="app.multi_rounds==='Y'">{{r.round.title}}</td>
                         <td ng-repeat="schema in recordSchemas2" ng-switch on="schema.type">

@@ -1,203 +1,249 @@
 {
     "scenario": "registration",
-    "pages": [{
+    "pages": [
+    {
         "name": "enroll",
         "title": "填写页",
         "type": "I",
-        "data_schemas": [{
-            "schema": {
+        "data_schemas": [
+        {
+            "schema":
+            {
                 "id": "name",
                 "title": "姓名",
                 "type": "shorttext",
                 "required": "Y",
                 "format": "name"
             },
-            "config": {
+            "config":
+            {
                 "showname": "placeholder"
             }
-        }, {
-            "schema": {
+        },
+        {
+            "schema":
+            {
                 "id": "mobile",
                 "title": "手机",
                 "type": "shorttext",
                 "required": "Y",
                 "format": "mobile"
             },
-            "config": {
+            "config":
+            {
                 "showname": "placeholder"
             }
-        }, {
-            "schema": {
+        },
+        {
+            "schema":
+            {
                 "id": "email",
                 "title": "邮箱",
                 "type": "shorttext",
                 "required": "Y",
                 "format": "email"
             },
-            "config": {
+            "config":
+            {
                 "showname": "placeholder"
             }
-        }, {
-            "schema": {
+        },
+        {
+            "schema":
+            {
                 "id": "c1",
                 "title": "登记信息1",
                 "type": "shorttext",
                 "required": "N",
                 "format": ""
             },
-            "config": {
+            "config":
+            {
                 "showname": "placeholder"
             }
-        }, {
-            "schema": {
+        },
+        {
+            "schema":
+            {
                 "id": "c2",
                 "title": "登记信息2",
                 "required": "N",
                 "type": "longtext"
             },
-            "config": {
+            "config":
+            {
                 "showname": "placeholder"
             }
         }],
-        "act_schemas": [{
+        "act_schemas": [
+        {
             "id": "btnSubmit",
             "name": "submit",
             "label": "提交信息",
             "next": "result"
         }]
-    }, {
+    },
+    {
         "name": "result",
         "title": "填写结果页",
         "type": "V",
-        "data_schemas": [{
-            "config": {
+        "data_schemas": [
+        {
+            "config":
+            {
                 "id": "V1",
                 "pattern": "record",
                 "inline": "N",
                 "splitLine": "Y"
             },
-            "schema": {
+            "schema":
+            {
                 "id": "name",
                 "title": "姓名",
                 "type": "shorttext",
                 "required": "Y",
                 "format": "name"
             }
-        }, {
-            "config": {
+        },
+        {
+            "config":
+            {
                 "id": "V2",
                 "pattern": "record",
                 "inline": "N",
                 "splitLine": "Y"
             },
-            "schema": {
+            "schema":
+            {
                 "id": "mobile",
                 "title": "手机",
                 "type": "shorttext",
                 "required": "Y",
                 "format": "mobile"
             }
-        }, {
-            "config": {
+        },
+        {
+            "config":
+            {
                 "id": "V3",
                 "pattern": "record",
                 "inline": "N",
                 "splitLine": "Y"
             },
-            "schema": {
+            "schema":
+            {
                 "id": "email",
                 "title": "邮箱",
                 "type": "shorttext",
                 "required": "Y",
                 "format": "email"
             }
-        }, {
-            "config": {
+        },
+        {
+            "config":
+            {
                 "id": "V4",
                 "pattern": "record",
                 "inline": "N",
                 "splitLine": "Y"
             },
-            "schema": {
+            "schema":
+            {
                 "id": "c1",
                 "title": "登记信息1",
                 "type": "shorttext",
                 "required": "N",
                 "format": ""
             }
-        }, {
-            "config": {
+        },
+        {
+            "config":
+            {
                 "id": "V5",
                 "pattern": "record",
                 "inline": "N",
                 "splitLine": "Y"
             },
-            "schema": {
+            "schema":
+            {
                 "id": "c2",
                 "title": "登记信息2",
                 "type": "longtext",
                 "required": "N"
             }
-        }, {
-            "config": {
+        },
+        {
+            "config":
+            {
                 "id": "V6",
                 "pattern": "record",
                 "inline": "N",
                 "splitLine": "Y"
             },
-            "schema": {
+            "schema":
+            {
                 "id": "enrollAt",
                 "title": "登记时间",
                 "type": "_enrollAt"
             }
         }],
-        "act_schemas": [{
+        "act_schemas": [
+        {
             "id": "act2",
             "name": "editRecord",
             "label": "修改登记",
             "next": "enroll"
-        }, {
+        },
+        {
             "id": "act3",
             "name": "removeRecord",
             "label": "删除登记",
             "next": "enroll"
         }]
     }],
-    "schema": [{
+    "schema": [
+    {
         "id": "name",
         "title": "姓名",
         "type": "shorttext",
         "required": "Y",
         "format": "name"
-    }, {
+    },
+    {
         "id": "mobile",
         "title": "手机",
         "type": "shorttext",
         "required": "Y",
         "format": "mobile"
-    }, {
+    },
+    {
         "id": "email",
         "title": "邮箱",
         "type": "shorttext",
         "required": "Y",
         "format": "email"
-    }, {
+    },
+    {
         "id": "c1",
         "title": "登记信息1",
         "type": "shorttext",
         "required": "N",
         "format": ""
-    }, {
+    },
+    {
         "id": "c2",
         "title": "登记信息2",
         "type": "longtext",
         "required": "N"
     }],
-    "scenarioConfig": {
+    "scenarioConfig":
+    {
         "can_rounds": "D"
     },
-    "entryRule": {
-        "otherwise": {
+    "entryRule":
+    {
+        "otherwise":
+        {
             "entry": "enroll"
         }
     },

@@ -65,6 +65,7 @@ provider('srvSite', function() {
                     templateUrl: '/static/template/mattersgallery2.html?_=8',
                     controller: ['$scope', '$http', '$uibModalInstance', function($scope, $http, $mi) {
                         var fields = ['id', 'title'];
+                        $scope.filter = {};
                         $scope.matterTypes = options.matterTypes;
                         $scope.singleMatter = options.singleMatter;
                         $scope.p = {};
@@ -100,6 +101,7 @@ provider('srvSite', function() {
                                 params = {};
 
                             page && ($scope.page.at = page);
+                            params.byTitle = $scope.filter.byTitle ? $scope.filter.byTitle : '';
                             url += '/' + matter.value;
                             url += '/list?site=' + _siteId + '&page=' + $scope.page.at + '&size=' + $scope.page.size + '&fields=' + fields;
                             /*指定登记活动场景*/
@@ -126,6 +128,10 @@ provider('srvSite', function() {
                                 }
                             });
                         };
+                        $scope.cleanFilter = function() {
+                            $scope.filter.byTitle = '';
+                            $scope.doSearch();
+                        }
                         $scope.ok = function() {
                             $mi.close([$scope.aChecked, $scope.p.matterType ? $scope.p.matterType.value : 'article']);
                         };

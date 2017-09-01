@@ -1,22 +1,22 @@
 define(['main'], function(ngApp) {
 	'use strict';
-	ngApp.provider.controller('ctrlText', ['$scope', 'http2', 'matterTypes', 'mattersgallery', function($scope, http2, matterTypes, mattersgallery) {
+	ngApp.provider.controller('ctrlText', ['$scope', 'http2', 'matterTypes', 'srvSite', function($scope, http2, matterTypes, srvSite) {
 		var editCall = function(call) {
 			$scope.editing = call;
 		};
 		$scope.create = function() {
-			mattersgallery.open($scope.siteId, function(matters, type) {
-				if (matters.length === 1) {
-					matters[0].type = type;
-					http2.post('/rest/pl/fe/site/sns/yx/text/create?site=' + $scope.siteId, matters[0], function(rsp) {
+			srvSite.openGallery({
+				matterTypes: matterTypes,
+				hasParent: false,
+				singleMatter: true
+			}).then(function(result) {
+				if (result.matters.length === 1) {
+					result.matters[0].type = result.type;
+					http2.post('/rest/pl/fe/site/sns/yx/text/create?site=' + $scope.siteId, result.matters[0], function(rsp) {
 						$scope.calls.splice(0, 0, rsp.data);
 						$scope.edit($scope.calls[0]);
 					});
 				}
-			}, {
-				matterTypes: matterTypes,
-				hasParent: false,
-				singleMatter: true
 			});
 		};
 		$scope.remove = function() {
@@ -49,23 +49,23 @@ define(['main'], function(ngApp) {
 			http2.post('/rest/pl/fe/site/sns/yx/text/update?site=' + $scope.siteId + '&id=' + $scope.editing.id, p);
 		};
 		$scope.setReply = function() {
-			mattersgallery.open($scope.siteId, function(matters, type) {
-				if (matters.length === 1) {
-					var p = {
-						rt: type,
-						rid: matters[0].id
-					};
-					http2.post('/rest/pl/fe/site/sns/yx/text/setreply?site=' + $scope.siteId + '&id=' + $scope.editing.id, p, function(rsp) {
-						if (/text/i.test(matters[0].type)) {
-							matters[0].title = matters[0].content;
-						}
-						$scope.editing.matter = matters[0];
-					});
-				}
-			}, {
+			srvSite.openGallery({
 				matterTypes: matterTypes,
 				hasParent: false,
 				singleMatter: true
+			}).then(function(result) {
+				if (result.matters.length === 1) {
+					var p = {
+						rt: result.type,
+						rid: result.matters[0].id
+					};
+					http2.post('/rest/pl/fe/site/sns/yx/text/setreply?site=' + $scope.siteId + '&id=' + $scope.editing.id, p, function(rsp) {
+						if (/text/i.test(result.matters[0].type)) {
+							result.matters[0].title = result.matters[0].content;
+						}
+						$scope.editing.matter = result.matters[0];
+					});
+				}
 			});
 		};
 		http2.get('/rest/pl/fe/site/sns/yx/text/list?site=' + $scope.siteId + '&cascade=n', function(rsp) {

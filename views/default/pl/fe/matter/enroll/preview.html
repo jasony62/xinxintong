@@ -9,7 +9,8 @@
             <li class='status' ng-if="app.group_app_id">已经和分组活动【<span ng-bind="app.groupApp.title"></span>】关联</li>
             <li class='status'>填写完成后进入【<span ng-bind="status.page.submitAfter.title"></span>】</li>
             <li class='status'>填写过再次进入活动，打开【<span ng-bind='status.page.whenEnrolled.title'></span>】</li>
-            <li class='status'>填写人可填写多条记录 <span class='glyphicon' ng-class="status.page.addRecord==='Y'?'glyphicon-ok':'glyphicon-ban-circle'"></span></li>
+            <li class='status' ng-if="app.count_limit">填写人可填写【<span ng-bind="app.count_limit"></span>】条记录</li>
+            <li class='status' ng-if="app.count_limit==0">填写人可填写多条记录</li>
             <li class='status'>允许填写人删除提交后的数据 <span class='glyphicon' ng-class="status.page.removeRecord==='Y'?'glyphicon-ok':'glyphicon-ban-circle'"></span></li>
             <li class='status'>填写人可以查看填写的历史记录 <span class='glyphicon' ng-class="status.page.browseHistory==='Y'?'glyphicon-ok':'glyphicon-ban-circle'"></span></li>
             <li class='status'>填写人可以评论其他人填写的数据 <span class='glyphicon glyphicon-ok'></span>，可以评论的题目有<span ng-bind="status.schema.remarkable"></span>道</li>

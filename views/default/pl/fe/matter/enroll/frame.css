@@ -58,12 +58,12 @@ body{font-family:Microsoft Yahei,Arial;}
 #pageEdit .mce-tinymce .mce-menubtn.mce-fixed-width span{width:auto;}
 
 /*record-view*/
-#record-view{position:absolute;top:0px;bottom:0;left:30px;right:30px;}
-#record-view table img{max-width:96px;}
+#enrollRecords table img{max-width:96px;}
 #enrollRecords th{text-align:center;}
 #enrollRecords td span.signin_late{color:red;}
-#record-view #enrollRecords .matched.enroll{background:yellow;}
-#record-view #enrollRecords .matched.group{background:lightgreen;}
+#enrollRecords .nickname{background:lightblue;}
+#enrollRecords .matched.enroll{background:yellow;}
+#enrollRecords .matched.group{background:lightgreen;}
 .tag{background:#3af;padding:4px 6px;margin:4px;border-radius:2px;font-size:.8em;color:#fff;}
 
 /* main.html */
@@ -71,7 +71,7 @@ body{font-family:Microsoft Yahei,Arial;}
 #chooseUser{overflow:auto;}
 #chooseUser .table{margin-bottom:15px;}
 #chooseUser .table>tbody>tr>td{padding:3px;vertical-align:middle;}
-#chooseUser > .clearfix{padding-left:15px;}
+#chooseUser>.clearfix{padding-left:15px;}
 
 /*overview*/
 .overview .status-group{margin:0 0 20px 0;padding-left:20px;}

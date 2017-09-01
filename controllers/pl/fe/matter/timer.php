@@ -7,8 +7,6 @@ require_once dirname(dirname(__FILE__)) . '/base.php';
  */
 class timer extends \pl\fe\base {
 
-	private $meterial; // 素材
-
 	public function get_access_rule() {
 		$rule_action['rule_type'] = 'white';
 		$rule_action['actions'][] = 'hello';
@@ -16,112 +14,118 @@ class timer extends \pl\fe\base {
 		return $rule_action;
 	}
 	/**
-	 * 事件的类型
+	 *
 	 */
-	protected function getCallType() {
-		return 'Timer';
-	}
-	/**
-	 * get all text call.
-	 */
-	public function index_action() {
-		\TPL::output('/mp/reply/timer');
-		exit;
-	}
-	/**
-	 * get all text call.
-	 */
-	public function get_action($site) {
-		$modelTimer = $this->model('matter\timer');
-		$timers = $modelTimer->bySite($site);
-
-		foreach ($timers as &$timer) {
-			$timer->matter = $modelTimer->getMatterInfoById($timer->matter_type, $timer->matter_id);
+	public function get_action($task) {
+		if (false === ($oUser = $this->accountUser())) {
+			return new \ResponseTimeout();
 		}
 
-		return new \ResponseData($timers);
+		$modelTim = $this->model('matter\timer');
+		$oTask = $modelTim->byId($task);
+
+		return new \ResponseData($oTask);
 	}
 	/**
-	 * 添加定时推送
+	 *
+	 */
+	public function byMatter_action($type, $id) {
+		if (false === ($oUser = $this->accountUser())) {
+			return new \ResponseTimeout();
+		}
+
+		$modelTim = $this->model('matter\timer');
+		$tasks = $modelTim->byMatter($type, $id);
+
+		return new \ResponseData($tasks);
+	}
+	/**
+	 * 添加定时任务
 	 */
 	public function create_action($site) {
-		$matter = $this->getPostJson();
+		if (false === ($oUser = $this->accountUser())) {
+			return new \ResponseTimeout();
+		}
+		$oConfig = $this->getPostJson();
 
-		$timer = new \stdClass;
-		$timer->matter_type = $matter->type;
-		$timer->matter_id = $matter->id;
-		$timer->siteid = $site;
+		$oTimer = new \stdClass;
+		$oTimer->matter_type = $oConfig->matter->type;
+		$oTimer->matter_id = $oConfig->matter->id;
+		$oTimer->siteid = $site;
+		$oTimer->enabled = 'N';
 
-		$modelTimer = $this->model('matter\timer');
-		$id = $modelTimer->insert('xxt_timer_push', $timer, true);
+		$oTimer->task_model = $oConfig->task->model;
+		!empty($oConfig->task->arguments) && $oTimer->task_arguments = $oConfig->task->arguments;
+		$oTimer->task_expire_at = isset($oTimer->expireAt) ? $oTimer->expireAt : 0;
 
-		$timer = $modelTimer->byId($id);
+		if (isset($oConfig->timer)) {
+			isset($oConfig->timer->min) && $oTimer->min = $oConfig->timer->min;
+			isset($oConfig->timer->hour) && $oTimer->hour = $oConfig->timer->hour;
+			isset($oConfig->timer->mday) && $oTimer->mday = $oConfig->timer->mday;
+			isset($oConfig->timer->mon) && $oTimer->mon = $oConfig->timer->mon;
+			isset($oConfig->timer->wday) && $oTimer->wday = $oConfig->timer->wday;
+			isset($oConfig->timer->lelf_count) && $oTimer->left_count = $oConfig->timer->left_count;
+		} else {
+			$oTimer->min = $oTimer->hour = $oTimer->mday = $oTimer->mon = $oTimer->wday = -1;
+			$oTimer->left_count = 1;
+		}
 
-		$timer->matter = $modelTimer->getMatterInfoById($matter->type, $matter->id);
+		$modelTim = $this->model('matter\timer');
+		$oTimer->id = $modelTim->insert('xxt_timer_task', $oTimer, true);
 
-		return new \ResponseData($timer);
+		return new \ResponseData($oTimer);
 	}
 	/**
-	 * 删除文本命令
-	 */
-	public function delete_action($id) {
-		$rsp = $this->model()->delete('xxt_timer_push', ['id' => $id]);
-
-		return new \ResponseData($rsp);
-	}
-	/**
-	 * 更新属性信息
-	 *
-	 * $id
-	 * $nv array 0:name,1:value
+	 * 更新定时任务属性信息
 	 */
 	public function update_action($site, $id) {
-		$nv = $this->getPostJson();
+		if (false === ($oUser = $this->accountUser())) {
+			return new \ResponseTimeout();
+		}
 
-		foreach ($nv as $n => $v) {
-			if (in_array($n, array('min', 'hour', 'mday', 'mon', 'wday'))) {
-				$v === '忽略' && $nv->{$n} = -1;
-			}
+		$oNewUpdate = $this->getPostJson();
+
+		/* 计算定时时间模式 */
+		if (empty($oNewUpdate->pattern)) {
+			return new \ParameterError('没有指定定时任务时间周期');
+		}
+		$pattern = $oNewUpdate->pattern;
+
+		/* 时间规则 */
+		switch ($pattern) {
+		case 'Y': // year
+			$oNewUpdate->wday = -1;
+			break;
+		case 'M': // month
+			$oNewUpdate->mon = -1;
+			$oNewUpdate->wday = -1;
+			break;
+		case 'W': // week
+			$oNewUpdate->mon = -1;
+			$oNewUpdate->mday = -1;
+			break;
+		default:
+			return new \ParameterError('指定了不支持的定时任务时间周期【' . $pattern . '】');
 		}
 
 		$rst = $this->model()->update(
-			'xxt_timer_push',
-			(array) $nv,
+			'xxt_timer_task',
+			$oNewUpdate,
 			['siteid' => $site, 'id' => $id]
 		);
 
-		return new \ResponseData($rst);
+		return new \ResponseData($oNewUpdate);
 	}
 	/**
-	 * 指定文本项的回复素材
+	 * 删除定时任务
 	 */
-	public function setreply_action($site, $id) {
-		$reply = $this->getPostJson();
+	public function remove_action($id) {
+		if (false === ($oUser = $this->accountUser())) {
+			return new \ResponseTimeout();
+		}
 
-		$rst = $this->model()->update(
-			'xxt_timer_push',
-			array(
-				'matter_type' => $reply->rt,
-				'matter_id' => $reply->rid,
-			),
-			['siteid' => $site, 'id' => $id]
-		);
+		$rsp = $this->model()->delete('xxt_timer_task', ['id' => $id]);
 
-		return new \ResponseData($rst);
-	}
-	/**
-	 * 获得执行日志
-	 */
-	public function logGet_action($taskid) {
-		$q = array(
-			'*',
-			'xxt_log_timer',
-			['task_id' => $taskid]
-		);
-		$q2 = array('o' => 'occur_at desc');
-
-		$logs = $this->model()->query_objs_ss($q, $q2);
-
-		return new \ResponseData($logs);
+		return new \ResponseData($rsp);
 	}
 }

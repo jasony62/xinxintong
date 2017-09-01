@@ -194,9 +194,21 @@ class member_model extends \TMS_MODEL {
 			if ($oMschema->attr_mobile[4] === '1') {
 				/*检查手机号*/
 			}
-			$oNewMember->identity = $oNewMember->mobile;
+			$identity = $oNewMember->mobile;
+			if (isset($oNewMember->verified) && $oNewMember->verified === 'Y') {
+				if (isset($oNewMember->identity) && $oNewMember->identity !== $identity) {
+					return [false, '通讯录信息已通过审核，不可更改唯一标识(手机号)'];
+				}
+			}
+			$oNewMember->identity = $identity;
 		} else if ($oMschema->attr_email[5] === '1' && isset($oNewMember->email)) {
-			$oNewMember->identity = $oNewMember->email;
+			$identity = $oNewMember->email;
+			if (isset($oNewMember->verified) && $oNewMember->verified === 'Y') {
+				if (isset($oNewMember->identity) && $oNewMember->identity !== $identity) {
+					return [false, '通讯录信息已通过审核，不可更改唯一标识(邮箱)'];
+				}
+			}
+			$oNewMember->identity = $identity;
 		}
 		/**
 		 * 扩展属性
@@ -207,7 +219,7 @@ class member_model extends \TMS_MODEL {
 			$oNewMember->extattr = '{}';
 		}
 		/* 验证状态 */
-		$oNewMember->verified = $oMschema->auto_verified;
+		$oNewMember->verified = isset($oNewMember->verified) ? $oNewMember->verified : $oMschema->auto_verified;
 		$oNewMember->modify_at = time();
 
 		$this->update('xxt_site_member', $oNewMember, ['id' => $memberId]);
@@ -318,7 +330,7 @@ class member_model extends \TMS_MODEL {
 			!empty($member->id) && $q[2] .= " and id<>'{$member->id}'";
 
 			$members = $this->query_objs_ss($q);
-			if (count($members) > 1) {
+			if (count($members) > 0) {
 				if (empty($oMschema->title)) {
 					return '邮箱已经存在，不允许重复登记！';
 				} else {

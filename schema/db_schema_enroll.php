@@ -45,6 +45,7 @@ $sql .= ",can_cowork char(1) not null default 'N'"; // 是否支持多人修改�
 $sql .= ",can_autoenroll char(1) not null default 'N'"; // 是否支持自动登记
 $sql .= ",can_invite char(1) not null default 'N'"; // 是否支持邀请 should be removed
 $sql .= ",remark_notice char(1) not null default 'N'"; // 支持评论提醒
+$sql .= ",assigned_nickname text"; // 填写题目中指定填写人昵称{"valid":"Y","schema":{"id":"xxxxxx"}}
 $sql .= ",tags text"; // 登记记录标签
 $sql .= ",category_tags text"; // 素材分类标签
 $sql .= ",enroll_app_id varchar(40) not null default ''"; // 关联的登记活动

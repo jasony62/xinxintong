@@ -176,7 +176,7 @@ define(['main'], function(ngApp) {
             $scope.qrcodes = qrcodes;
         });
     }]);
-    ngApp.provider.controller('ctrlHomeChannel', ['$scope', '$uibModal', 'http2', 'mattersgallery', 'noticebox', function($scope, $uibModal, http2, mattersgallery, noticebox) {
+    ngApp.provider.controller('ctrlHomeChannel', ['$scope', '$uibModal', 'http2', 'srvSite', 'noticebox', function($scope, $uibModal, http2, srvSite, noticebox) {
         $scope.doGroup = function(channel, group) {
             var url = '/rest/pl/fe/site/setting/page/updateHomeChannel';
             url += '?site=' + channel.siteid + '&id=' + channel.id;
@@ -231,15 +231,15 @@ define(['main'], function(ngApp) {
                 }],
                 singleMatter: true
             };
-            mattersgallery.open($scope.site.id, function(channels) {
+            srvSite.openGallery(options).then(function(channels) {
                 var channel;
-                if (channels && channels.length) {
-                    channel = channels[0];
+                if (channels && channels.matters.length) {
+                    channel = channels.matters[0];
                     http2.post('/rest/pl/fe/site/setting/page/addHomeChannel?site=' + $scope.site.id, channel, function(rsp) {
                         $scope.channels.push(rsp.data);
                     });
                 }
-            }, options);
+            });
         };
         $scope.remove = function(homeChannel, index) {
             if (window.confirm('确定删除主页上的频道？')) {

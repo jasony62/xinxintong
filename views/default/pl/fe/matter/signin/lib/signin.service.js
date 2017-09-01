@@ -245,7 +245,7 @@ define(['require', 'schema', 'page'], function(require, schemaLib, pageLib) {
             appId = app;
             accessId = access;
         }
-        this.$get = ['$q', 'http2', 'noticebox', 'mattersgallery', '$uibModal', function($q, http2, noticebox, mattersgallery, $uibModal) {
+        this.$get = ['$q', 'http2', 'noticebox', 'srvSite', '$uibModal', function($q, http2, noticebox, srvSite, $uibModal) {
             var _ins = new BasesrvSigninRecord();
             return {
                 get: function() {
@@ -331,14 +331,21 @@ define(['require', 'schema', 'page'], function(require, schemaLib, pageLib) {
                 },
                 assignMission: function() {
                     var _this = this;
-                    mattersgallery.open(siteId, function(missions) {
+                    srvSite.openGallery({
+                        matterTypes: [{
+                            value: 'mission',
+                            title: '项目',
+                            url: '/rest/pl/fe/matter'
+                        }],
+                        singleMatter: true
+                    }).then(function(missions) {
                         var matter;
-                        if (missions.length === 1) {
+                        if (missions.matters.length === 1) {
                             matter = {
                                 id: appId,
                                 type: 'signin'
                             };
-                            http2.post('/rest/pl/fe/matter/mission/matter/add?site=' + siteId + '&id=' + missions[0].id, matter, function(rsp) {
+                            http2.post('/rest/pl/fe/matter/mission/matter/add?site=' + siteId + '&id=' + missions.matters[0].id, matter, function(rsp) {
                                 var mission = rsp.data,
                                     updatedFields = ['mission_id'];
 
@@ -355,14 +362,7 @@ define(['require', 'schema', 'page'], function(require, schemaLib, pageLib) {
                                 _this.update(updatedFields);
                             });
                         }
-                    }, {
-                        matterTypes: [{
-                            value: 'mission',
-                            title: '项目',
-                            url: '/rest/pl/fe/matter'
-                        }],
-                        singleMatter: true
-                    });
+                    })
                 },
                 quitMission: function() {
                     var _this = this,

@@ -4,7 +4,7 @@ define(['require', 'schema', 'wrap', 'editor'], function(require, schemaLib, wra
     /**
      * page editor
      */
-    ngMod.controller('ctrlPageEdit', ['$scope', 'cstApp', 'mediagallery', 'mattersgallery', function($scope, cstApp, mediagallery, mattersgallery) {
+    ngMod.controller('ctrlPageEdit', ['$scope', 'cstApp', 'mediagallery', 'srvSite', function($scope, cstApp, mediagallery, srvSite) {
         var tinymceEditor;
         $scope.activeWrap = false;
         $scope.setActiveWrap = function(domWrap) {
@@ -87,7 +87,7 @@ define(['require', 'schema', 'wrap', 'editor'], function(require, schemaLib, wra
         };
         $scope.enrolleeList = function() {
             var enrolleeWrap;
-            if($scope.app.entry_rule.scope=='member') {
+            if ($scope.app.entry_rule.scope == 'member') {
                 enrolleeWrap = editorProxy.appendEnrollee($scope.app, $scope.memberSchemas);
             } else {
                 enrolleeWrap = editorProxy.appendEnrollee($scope.app);
@@ -145,7 +145,7 @@ define(['require', 'schema', 'wrap', 'editor'], function(require, schemaLib, wra
             if ($scope.app.mission) {
                 options.mission = $scope.app.mission;
             }
-            mattersgallery.open($scope.app.siteid, function(matters, type) {
+            srvSite.openGallery(options).then(function(result) {
                 var dom = tinymceEditor.dom,
                     style = "cursor:pointer",
                     fn, domMatter, sibling;
@@ -156,8 +156,8 @@ define(['require', 'schema', 'wrap', 'editor'], function(require, schemaLib, wra
                         sibling = sibling.parentNode;
                     }
                     // 加到当前选中元素的后面
-                    matters.forEach(function(matter) {
-                        fn = "openMatter('" + matter.id + "','" + type + "')";
+                    result.matters.forEach(function(matter) {
+                        fn = "openMatter('" + matter.id + "','" + result.type + "')";
                         domMatter = dom.create('div', {
                             'wrap': 'matter',
                             'class': 'form-group',
@@ -169,8 +169,8 @@ define(['require', 'schema', 'wrap', 'editor'], function(require, schemaLib, wra
                     });
                 } else {
                     // 加到页面的结尾
-                    matters.forEach(function(matter) {
-                        fn = "openMatter('" + matter.id + "','" + type + "')";
+                    result.matters.forEach(function(matter) {
+                        fn = "openMatter('" + matter.id + "','" + result.type + "')";
                         domMatter = dom.add(tinymceEditor.getBody(), 'div', {
                             'wrap': 'matter',
                             'class': 'form-group',
@@ -180,7 +180,7 @@ define(['require', 'schema', 'wrap', 'editor'], function(require, schemaLib, wra
                         }, dom.encode(matter.title)));
                     });
                 }
-            }, options);
+            })
         };
         $scope.$on('tinymce.content.change', function(event, changedNode) {
             var status, html;
@@ -337,7 +337,7 @@ define(['require', 'schema', 'wrap', 'editor'], function(require, schemaLib, wra
         $scope.$watch('ep', function(oPage) {
             if (oPage) {
                 oChooseState = {};
-                if(!$scope.app) return;
+                if (!$scope.app) return;
                 $scope.app.dataSchemas.forEach(function(schema) {
                     oChooseState[schema.id] = false;
                 });
@@ -499,21 +499,21 @@ define(['require', 'schema', 'wrap', 'editor'], function(require, schemaLib, wra
             title: '所属分组',
             type: 'enrollee'
         }];
-        if($scope.app.entry_rule.scope=='sns') {
+        if ($scope.app.entry_rule.scope == 'sns') {
             $scope.mschemas = [{
                 id: 'nickname',
                 title: '昵称',
                 type: 'sns'
-            },{
+            }, {
                 id: 'headimgurl',
                 title: '头像',
                 type: 'sns'
             }]
-        }else{
-            for(var i=$scope.otherMschemas.length-1; i>=0; i--) {
-                if($scope.otherMschemas[i].id == 'schema_title') {
+        } else {
+            for (var i = $scope.otherMschemas.length - 1; i >= 0; i--) {
+                if ($scope.otherMschemas[i].id == 'schema_title') {
                     break;
-                }else {
+                } else {
                     $scope.otherMschemas.push({
                         id: 'schema_title',
                         title: '所属通讯录',
@@ -522,10 +522,10 @@ define(['require', 'schema', 'wrap', 'editor'], function(require, schemaLib, wra
                     break;
                 }
             }
-            if($scope.activeWrap.config.mschemaId!==''){
+            if ($scope.activeWrap.config.mschemaId !== '') {
                 $scope.mschemas = [];
                 memberSchemas.forEach(function(item) {
-                    if(item.id == $scope.activeWrap.config.mschemaId) {
+                    if (item.id == $scope.activeWrap.config.mschemaId) {
                         $scope.mschemas = item._mschemas;
                     }
                 });
@@ -533,11 +533,11 @@ define(['require', 'schema', 'wrap', 'editor'], function(require, schemaLib, wra
         }
         $scope.doFilter = function(id) {
             memberSchemas.forEach(function(item) {
-                if(item.id == id) {
+                if (item.id == id) {
                     $scope.activeWrap.schemas = [];
                     config.mschemaId = id;
                     $scope.activeWrap.schemas = $scope.otherMschemas;
-                    for(var i = item._mschemas.length - 1; i >= 0; i--) {
+                    for (var i = item._mschemas.length - 1; i >= 0; i--) {
                         $scope.activeWrap.schemas.splice(0, 0, item._mschemas[i]);
                     }
                     $scope.mschemas = listSchemas = [];

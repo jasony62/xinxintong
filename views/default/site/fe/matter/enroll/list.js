@@ -31,7 +31,7 @@ ngApp.factory('Record', ['http2', '$q', 'ls', function(http2, $q, LS) {
     Record.prototype.list = function(options, oCriteria) {
         var deferred = $q.defer(),
             url;
-        options.type == 'records' ? url = LS.j('record/list', 'site', 'app') : url = LS.j('user/list', 'site', 'app');;
+        options.type == 'enrollees' ? url = LS.j('user/list', 'site', 'app') : url = LS.j('record/list', 'site', 'app');
         url += '&' + options.j();
         http2.post(url, oCriteria ? oCriteria : {}).then(function(rsp) {
             var records, record;

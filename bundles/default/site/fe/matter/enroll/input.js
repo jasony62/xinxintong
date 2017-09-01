@@ -1,7 +1,5159 @@
-!function(t){function e(r){if(n[r])return n[r].exports;var o=n[r]={i:r,l:!1,exports:{}};return t[r].call(o.exports,o,o.exports,e),o.l=!0,o.exports}var n={};e.m=t,e.c=n,e.i=function(t){return t},e.d=function(t,n,r){e.o(t,n)||Object.defineProperty(t,n,{configurable:!1,enumerable:!0,get:r})},e.n=function(t){var n=t&&t.__esModule?function(){return t.default}:function(){return t};return e.d(n,"a",n),n},e.o=function(t,e){return Object.prototype.hasOwnProperty.call(t,e)},e.p="",e(e.s=76)}([function(t,e,n){(function(e){function n(t,e){var n=t[1]||"",o=t[3];if(!o)return n;if(e){var i=r(o);return[n].concat(o.sources.map(function(t){return"/*# sourceURL="+o.sourceRoot+t+" */"})).concat([i]).join("\n")}return[n].join("\n")}function r(t){return"/*# sourceMappingURL=data:application/json;charset=utf-8;base64,"+new e(JSON.stringify(t)).toString("base64")+" */"}t.exports=function(t){var e=[];return e.toString=function(){return this.map(function(e){var r=n(e,t);return e[2]?"@media "+e[2]+"{"+r+"}":r}).join("")},e.i=function(t,n){"string"==typeof t&&(t=[[null,t,""]]);for(var r={},o=0;o<this.length;o++){var i=this[o][0];"number"==typeof i&&(r[i]=!0)}for(o=0;o<t.length;o++){var a=t[o];"number"==typeof a[0]&&r[a[0]]||(n&&!a[2]?a[2]=n:n&&(a[2]="("+a[2]+") and ("+n+")"),e.push(a))}},e}}).call(e,n(4).Buffer)},function(t,e,n){function r(t,e){for(var n=0;n<t.length;n++){var r=t[n],o=h[r.id];if(o){o.refs++;for(var i=0;i<o.parts.length;i++)o.parts[i](r.parts[i]);for(;i<r.parts.length;i++)o.parts.push(l(r.parts[i],e))}else{for(var a=[],i=0;i<r.parts.length;i++)a.push(l(r.parts[i],e));h[r.id]={id:r.id,refs:1,parts:a}}}}function o(t){for(var e=[],n={},r=0;r<t.length;r++){var o=t[r],i=o[0],a=o[1],s=o[2],c=o[3],u={css:a,media:s,sourceMap:c};n[i]?n[i].parts.push(u):e.push(n[i]={id:i,parts:[u]})}return e}function i(t,e){var n=m(t.insertInto);if(!n)throw new Error("Couldn't find a style target. This probably means that the value for the 'insertInto' parameter is invalid.");var r=y[y.length-1];if("top"===t.insertAt)r?r.nextSibling?n.insertBefore(e,r.nextSibling):n.appendChild(e):n.insertBefore(e,n.firstChild),y.push(e);else{if("bottom"!==t.insertAt)throw new Error("Invalid value for parameter 'insertAt'. Must be 'top' or 'bottom'.");n.appendChild(e)}}function a(t){t.parentNode.removeChild(t);var e=y.indexOf(t);e>=0&&y.splice(e,1)}function s(t){var e=document.createElement("style");return t.attrs.type="text/css",u(e,t.attrs),i(t,e),e}function c(t){var e=document.createElement("link");return t.attrs.type="text/css",t.attrs.rel="stylesheet",u(e,t.attrs),i(t,e),e}function u(t,e){Object.keys(e).forEach(function(n){t.setAttribute(n,e[n])})}function l(t,e){var n,r,o;if(e.singleton){var i=b++;n=v||(v=s(e)),r=d.bind(null,n,i,!1),o=d.bind(null,n,i,!0)}else t.sourceMap&&"function"==typeof URL&&"function"==typeof URL.createObjectURL&&"function"==typeof URL.revokeObjectURL&&"function"==typeof Blob&&"function"==typeof btoa?(n=c(e),r=p.bind(null,n,e),o=function(){a(n),n.href&&URL.revokeObjectURL(n.href)}):(n=s(e),r=f.bind(null,n),o=function(){a(n)});return r(t),function(e){if(e){if(e.css===t.css&&e.media===t.media&&e.sourceMap===t.sourceMap)return;r(t=e)}else o()}}function d(t,e,n,r){var o=n?"":r.css;if(t.styleSheet)t.styleSheet.cssText=x(e,o);else{var i=document.createTextNode(o),a=t.childNodes;a[e]&&t.removeChild(a[e]),a.length?t.insertBefore(i,a[e]):t.appendChild(i)}}function f(t,e){var n=e.css,r=e.media;if(r&&t.setAttribute("media",r),t.styleSheet)t.styleSheet.cssText=n;else{for(;t.firstChild;)t.removeChild(t.firstChild);t.appendChild(document.createTextNode(n))}}function p(t,e,n){var r=n.css,o=n.sourceMap,i=void 0===e.convertToAbsoluteUrls&&o;(e.convertToAbsoluteUrls||i)&&(r=w(r)),o&&(r+="\n/*# sourceMappingURL=data:application/json;base64,"+btoa(unescape(encodeURIComponent(JSON.stringify(o))))+" */");var a=new Blob([r],{type:"text/css"}),s=t.href;t.href=URL.createObjectURL(a),s&&URL.revokeObjectURL(s)}var h={},g=function(t){var e;return function(){return void 0===e&&(e=t.apply(this,arguments)),e}}(function(){return window&&document&&document.all&&!window.atob}),m=function(t){var e={};return function(n){return void 0===e[n]&&(e[n]=t.call(this,n)),e[n]}}(function(t){return document.querySelector(t)}),v=null,b=0,y=[],w=n(7);t.exports=function(t,e){if("undefined"!=typeof DEBUG&&DEBUG&&"object"!=typeof document)throw new Error("The style-loader cannot be used in a non-browser environment");e=e||{},e.attrs="object"==typeof e.attrs?e.attrs:{},void 0===e.singleton&&(e.singleton=g()),void 0===e.insertInto&&(e.insertInto="head"),void 0===e.insertAt&&(e.insertAt="bottom");var n=o(t);return r(n,e),function(t){for(var i=[],a=0;a<n.length;a++){var s=n[a],c=h[s.id];c.refs--,i.push(c)}if(t){r(o(t),e)}for(var a=0;a<i.length;a++){var c=i[a];if(0===c.refs){for(var u=0;u<c.parts.length;u++)c.parts[u]();delete h[c.id]}}}};var x=function(){var t=[];return function(e,n){return t[e]=n,t.filter(Boolean).join("\n")}}()},function(module,exports,__webpack_require__){"use strict";var ngMod=angular.module("page.ui.xxt",[]);ngMod.directive("dynamicHtml",["$compile",function(t){return{restrict:"EA",replace:!0,link:function(e,n,r){e.$watch(r.dynamicHtml,function(r){r&&r.length&&(n.html(r),t(n.contents())(e))})}}}]),ngMod.service("tmsDynaPage",["$q",function($q){this.loadCss=function(t){var e,n;e=document.createElement("style"),e.innerHTML=t,n=document.querySelector("head"),n.appendChild(e)},this.loadExtCss=function(t){var e,n;e=document.createElement("link"),e.href=t,e.rel="stylesheet",n=document.querySelector("head"),n.appendChild(e)},this.loadJs=function(ngApp,js){!function(ngApp){eval(js)}(ngApp)},this.loadScript=function(t){var e,n,r=$q.defer();return n=function(){var o;o=document.createElement("script"),o.src=t[e],o.onload=function(){e++,e<t.length?n():r.resolve()},document.body.appendChild(o)},t&&(angular.isString(t)&&(t=[t]),t.length&&(e=0,n())),r.promise},this.loadExtJs=function(t,e){var n,r=this,o=$q.defer(),i=e.ext_js.length;return n=function(n){var a;a=document.createElement("script"),a.src=n.url,a.onload=function(){0===--i&&(e.js&&e.js.length&&r.loadJs(t,e.js),o.resolve())},document.body.appendChild(a)},e.ext_js&&e.ext_js.length&&e.ext_js.forEach(n),o.promise},this.loadCode=function(t,e){var n=this,r=$q.defer();return e.ext_css&&e.ext_css.length&&e.ext_css.forEach(function(t){n.loadExtCss(t.url)}),e.css&&e.css.length&&this.loadCss(e.css),e.ext_js&&e.ext_js.length?n.loadExtJs(t,e).then(function(){r.resolve()}):(e.js&&e.js.length&&n.loadJs(t,e.js),r.resolve()),r.promise},this.openPlugin=function(t){var e,n,r,o,i=$q.defer();return o=document.getElementsByTagName("body")[0],o.style.cssText="overflow-y:hidden",e=document.createDocumentFragment(),n=document.createElement("div"),n.setAttribute("id","frmPlugin"),r=document.createElement("iframe"),n.appendChild(r),n.onclick=function(){n.parentNode.removeChild(n),o.style.cssText="overflow-y:auto"},e.appendChild(n),document.body.appendChild(e),0===t.indexOf("http")?(window.onClosePlugin=function(t){n.parentNode.removeChild(n),o.style.cssText="overflow-y:auto",i.resolve(t)},r.setAttribute("src",t)):r.contentDocument&&r.contentDocument.body&&(r.contentDocument.body.innerHTML=t),i.promise}}])},function(t,e,n){"use strict";function r(t){var e=t.length;if(e%4>0)throw new Error("Invalid string. Length must be a multiple of 4");return"="===t[e-2]?2:"="===t[e-1]?1:0}function o(t){return 3*t.length/4-r(t)}function i(t){var e,n,o,i,a,s,c=t.length;a=r(t),s=new d(3*c/4-a),o=a>0?c-4:c;var u=0;for(e=0,n=0;e<o;e+=4,n+=3)i=l[t.charCodeAt(e)]<<18|l[t.charCodeAt(e+1)]<<12|l[t.charCodeAt(e+2)]<<6|l[t.charCodeAt(e+3)],s[u++]=i>>16&255,s[u++]=i>>8&255,s[u++]=255&i;return 2===a?(i=l[t.charCodeAt(e)]<<2|l[t.charCodeAt(e+1)]>>4,s[u++]=255&i):1===a&&(i=l[t.charCodeAt(e)]<<10|l[t.charCodeAt(e+1)]<<4|l[t.charCodeAt(e+2)]>>2,s[u++]=i>>8&255,s[u++]=255&i),s}function a(t){return u[t>>18&63]+u[t>>12&63]+u[t>>6&63]+u[63&t]}function s(t,e,n){for(var r,o=[],i=e;i<n;i+=3)r=(t[i]<<16)+(t[i+1]<<8)+t[i+2],o.push(a(r));return o.join("")}function c(t){for(var e,n=t.length,r=n%3,o="",i=[],a=0,c=n-r;a<c;a+=16383)i.push(s(t,a,a+16383>c?c:a+16383));return 1===r?(e=t[n-1],o+=u[e>>2],o+=u[e<<4&63],o+="=="):2===r&&(e=(t[n-2]<<8)+t[n-1],o+=u[e>>10],o+=u[e>>4&63],o+=u[e<<2&63],o+="="),i.push(o),i.join("")}e.byteLength=o,e.toByteArray=i,e.fromByteArray=c;for(var u=[],l=[],d="undefined"!=typeof Uint8Array?Uint8Array:Array,f="ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/",p=0,h=f.length;p<h;++p)u[p]=f[p],l[f.charCodeAt(p)]=p;l["-".charCodeAt(0)]=62,l["_".charCodeAt(0)]=63},function(t,e,n){"use strict";(function(t){function r(){return i.TYPED_ARRAY_SUPPORT?2147483647:1073741823}function o(t,e){if(r()<e)throw new RangeError("Invalid typed array length");return i.TYPED_ARRAY_SUPPORT?(t=new Uint8Array(e),t.__proto__=i.prototype):(null===t&&(t=new i(e)),t.length=e),t}function i(t,e,n){if(!(i.TYPED_ARRAY_SUPPORT||this instanceof i))return new i(t,e,n);if("number"==typeof t){if("string"==typeof e)throw new Error("If encoding is specified then the first argument must be a string");return u(this,t)}return a(this,t,e,n)}function a(t,e,n,r){if("number"==typeof e)throw new TypeError('"value" argument must not be a number');return"undefined"!=typeof ArrayBuffer&&e instanceof ArrayBuffer?f(t,e,n,r):"string"==typeof e?l(t,e,n):p(t,e)}function s(t){if("number"!=typeof t)throw new TypeError('"size" argument must be a number');if(t<0)throw new RangeError('"size" argument must not be negative')}function c(t,e,n,r){return s(e),e<=0?o(t,e):void 0!==n?"string"==typeof r?o(t,e).fill(n,r):o(t,e).fill(n):o(t,e)}function u(t,e){if(s(e),t=o(t,e<0?0:0|h(e)),!i.TYPED_ARRAY_SUPPORT)for(var n=0;n<e;++n)t[n]=0;return t}function l(t,e,n){if("string"==typeof n&&""!==n||(n="utf8"),!i.isEncoding(n))throw new TypeError('"encoding" must be a valid string encoding');var r=0|m(e,n);t=o(t,r);var a=t.write(e,n);return a!==r&&(t=t.slice(0,a)),t}function d(t,e){var n=e.length<0?0:0|h(e.length);t=o(t,n);for(var r=0;r<n;r+=1)t[r]=255&e[r];return t}function f(t,e,n,r){if(e.byteLength,n<0||e.byteLength<n)throw new RangeError("'offset' is out of bounds");if(e.byteLength<n+(r||0))throw new RangeError("'length' is out of bounds");return e=void 0===n&&void 0===r?new Uint8Array(e):void 0===r?new Uint8Array(e,n):new Uint8Array(e,n,r),i.TYPED_ARRAY_SUPPORT?(t=e,t.__proto__=i.prototype):t=d(t,e),t}function p(t,e){if(i.isBuffer(e)){var n=0|h(e.length);return t=o(t,n),0===t.length?t:(e.copy(t,0,0,n),t)}if(e){if("undefined"!=typeof ArrayBuffer&&e.buffer instanceof ArrayBuffer||"length"in e)return"number"!=typeof e.length||K(e.length)?o(t,0):d(t,e);if("Buffer"===e.type&&Z(e.data))return d(t,e.data)}throw new TypeError("First argument must be a string, Buffer, ArrayBuffer, Array, or array-like object.")}function h(t){if(t>=r())throw new RangeError("Attempt to allocate Buffer larger than maximum size: 0x"+r().toString(16)+" bytes");return 0|t}function g(t){return+t!=t&&(t=0),i.alloc(+t)}function m(t,e){if(i.isBuffer(t))return t.length;if("undefined"!=typeof ArrayBuffer&&"function"==typeof ArrayBuffer.isView&&(ArrayBuffer.isView(t)||t instanceof ArrayBuffer))return t.byteLength;"string"!=typeof t&&(t=""+t);var n=t.length;if(0===n)return 0;for(var r=!1;;)switch(e){case"ascii":case"latin1":case"binary":return n;case"utf8":case"utf-8":case void 0:return z(t).length;case"ucs2":case"ucs-2":case"utf16le":case"utf-16le":return 2*n;case"hex":return n>>>1;case"base64":return G(t).length;default:if(r)return z(t).length;e=(""+e).toLowerCase(),r=!0}}function v(t,e,n){var r=!1;if((void 0===e||e<0)&&(e=0),e>this.length)return"";if((void 0===n||n>this.length)&&(n=this.length),n<=0)return"";if(n>>>=0,e>>>=0,n<=e)return"";for(t||(t="utf8");;)switch(t){case"hex":return U(this,e,n);case"utf8":case"utf-8":return R(this,e,n);case"ascii":return T(this,e,n);case"latin1":case"binary":return B(this,e,n);case"base64":return P(this,e,n);case"ucs2":case"ucs-2":case"utf16le":case"utf-16le":return I(this,e,n);default:if(r)throw new TypeError("Unknown encoding: "+t);t=(t+"").toLowerCase(),r=!0}}function b(t,e,n){var r=t[e];t[e]=t[n],t[n]=r}function y(t,e,n,r,o){if(0===t.length)return-1;if("string"==typeof n?(r=n,n=0):n>2147483647?n=2147483647:n<-2147483648&&(n=-2147483648),n=+n,isNaN(n)&&(n=o?0:t.length-1),n<0&&(n=t.length+n),n>=t.length){if(o)return-1;n=t.length-1}else if(n<0){if(!o)return-1;n=0}if("string"==typeof e&&(e=i.from(e,r)),i.isBuffer(e))return 0===e.length?-1:w(t,e,n,r,o);if("number"==typeof e)return e&=255,i.TYPED_ARRAY_SUPPORT&&"function"==typeof Uint8Array.prototype.indexOf?o?Uint8Array.prototype.indexOf.call(t,e,n):Uint8Array.prototype.lastIndexOf.call(t,e,n):w(t,[e],n,r,o);throw new TypeError("val must be string, number or Buffer")}function w(t,e,n,r,o){function i(t,e){return 1===a?t[e]:t.readUInt16BE(e*a)}var a=1,s=t.length,c=e.length;if(void 0!==r&&("ucs2"===(r=String(r).toLowerCase())||"ucs-2"===r||"utf16le"===r||"utf-16le"===r)){if(t.length<2||e.length<2)return-1;a=2,s/=2,c/=2,n/=2}var u;if(o){var l=-1;for(u=n;u<s;u++)if(i(t,u)===i(e,-1===l?0:u-l)){if(-1===l&&(l=u),u-l+1===c)return l*a}else-1!==l&&(u-=u-l),l=-1}else for(n+c>s&&(n=s-c),u=n;u>=0;u--){for(var d=!0,f=0;f<c;f++)if(i(t,u+f)!==i(e,f)){d=!1;break}if(d)return u}return-1}function x(t,e,n,r){n=Number(n)||0;var o=t.length-n;r?(r=Number(r))>o&&(r=o):r=o;var i=e.length;if(i%2!=0)throw new TypeError("Invalid hex string");r>i/2&&(r=i/2);for(var a=0;a<r;++a){var s=parseInt(e.substr(2*a,2),16);if(isNaN(s))return a;t[n+a]=s}return a}function _(t,e,n,r){return W(z(e,t.length-n),t,n,r)}function k(t,e,n,r){return W(J(e),t,n,r)}function E(t,e,n,r){return k(t,e,n,r)}function S(t,e,n,r){return W(G(e),t,n,r)}function A(t,e,n,r){return W(H(e,t.length-n),t,n,r)}function P(t,e,n){return 0===e&&n===t.length?V.fromByteArray(t):V.fromByteArray(t.slice(e,n))}function R(t,e,n){n=Math.min(t.length,n);for(var r=[],o=e;o<n;){var i=t[o],a=null,s=i>239?4:i>223?3:i>191?2:1;if(o+s<=n){var c,u,l,d;switch(s){case 1:i<128&&(a=i);break;case 2:c=t[o+1],128==(192&c)&&(d=(31&i)<<6|63&c)>127&&(a=d);break;case 3:c=t[o+1],u=t[o+2],128==(192&c)&&128==(192&u)&&(d=(15&i)<<12|(63&c)<<6|63&u)>2047&&(d<55296||d>57343)&&(a=d);break;case 4:c=t[o+1],u=t[o+2],l=t[o+3],128==(192&c)&&128==(192&u)&&128==(192&l)&&(d=(15&i)<<18|(63&c)<<12|(63&u)<<6|63&l)>65535&&d<1114112&&(a=d)}}null===a?(a=65533,s=1):a>65535&&(a-=65536,r.push(a>>>10&1023|55296),a=56320|1023&a),r.push(a),o+=s}return C(r)}function C(t){var e=t.length;if(e<=Q)return String.fromCharCode.apply(String,t);for(var n="",r=0;r<e;)n+=String.fromCharCode.apply(String,t.slice(r,r+=Q));return n}function T(t,e,n){var r="";n=Math.min(t.length,n);for(var o=e;o<n;++o)r+=String.fromCharCode(127&t[o]);return r}function B(t,e,n){var r="";n=Math.min(t.length,n);for(var o=e;o<n;++o)r+=String.fromCharCode(t[o]);return r}function U(t,e,n){var r=t.length;(!e||e<0)&&(e=0),(!n||n<0||n>r)&&(n=r);for(var o="",i=e;i<n;++i)o+=F(t[i]);return o}function I(t,e,n){for(var r=t.slice(e,n),o="",i=0;i<r.length;i+=2)o+=String.fromCharCode(r[i]+256*r[i+1]);return o}function M(t,e,n){if(t%1!=0||t<0)throw new RangeError("offset is not uint");if(t+e>n)throw new RangeError("Trying to access beyond buffer length")}function $(t,e,n,r,o,a){if(!i.isBuffer(t))throw new TypeError('"buffer" argument must be a Buffer instance');if(e>o||e<a)throw new RangeError('"value" argument is out of bounds');if(n+r>t.length)throw new RangeError("Index out of range")}function L(t,e,n,r){e<0&&(e=65535+e+1);for(var o=0,i=Math.min(t.length-n,2);o<i;++o)t[n+o]=(e&255<<8*(r?o:1-o))>>>8*(r?o:1-o)}function Y(t,e,n,r){e<0&&(e=4294967295+e+1);for(var o=0,i=Math.min(t.length-n,4);o<i;++o)t[n+o]=e>>>8*(r?o:3-o)&255}function O(t,e,n,r,o,i){if(n+r>t.length)throw new RangeError("Index out of range");if(n<0)throw new RangeError("Index out of range")}function D(t,e,n,r,o){return o||O(t,e,n,4,3.4028234663852886e38,-3.4028234663852886e38),X.write(t,e,n,r,23,4),n+4}function j(t,e,n,r,o){return o||O(t,e,n,8,1.7976931348623157e308,-1.7976931348623157e308),X.write(t,e,n,r,52,8),n+8}function N(t){if(t=q(t).replace(tt,""),t.length<2)return"";for(;t.length%4!=0;)t+="=";return t}function q(t){return t.trim?t.trim():t.replace(/^\s+|\s+$/g,"")}function F(t){return t<16?"0"+t.toString(16):t.toString(16)}function z(t,e){e=e||1/0;for(var n,r=t.length,o=null,i=[],a=0;a<r;++a){if((n=t.charCodeAt(a))>55295&&n<57344){if(!o){if(n>56319){(e-=3)>-1&&i.push(239,191,189);continue}if(a+1===r){(e-=3)>-1&&i.push(239,191,189);continue}o=n;continue}if(n<56320){(e-=3)>-1&&i.push(239,191,189),o=n;continue}n=65536+(o-55296<<10|n-56320)}else o&&(e-=3)>-1&&i.push(239,191,189);if(o=null,n<128){if((e-=1)<0)break;i.push(n)}else if(n<2048){if((e-=2)<0)break;i.push(n>>6|192,63&n|128)}else if(n<65536){if((e-=3)<0)break;i.push(n>>12|224,n>>6&63|128,63&n|128)}else{if(!(n<1114112))throw new Error("Invalid code point");if((e-=4)<0)break;i.push(n>>18|240,n>>12&63|128,n>>6&63|128,63&n|128)}}return i}function J(t){for(var e=[],n=0;n<t.length;++n)e.push(255&t.charCodeAt(n));return e}function H(t,e){for(var n,r,o,i=[],a=0;a<t.length&&!((e-=2)<0);++a)n=t.charCodeAt(a),r=n>>8,o=n%256,i.push(o),i.push(r);return i}function G(t){return V.toByteArray(N(t))}function W(t,e,n,r){for(var o=0;o<r&&!(o+n>=e.length||o>=t.length);++o)e[o+n]=t[o];return o}function K(t){return t!==t}/*!
+/******/ (function(modules) { // webpackBootstrap
+/******/ 	// The module cache
+/******/ 	var installedModules = {};
+/******/
+/******/ 	// The require function
+/******/ 	function __webpack_require__(moduleId) {
+/******/
+/******/ 		// Check if module is in cache
+/******/ 		if(installedModules[moduleId]) {
+/******/ 			return installedModules[moduleId].exports;
+/******/ 		}
+/******/ 		// Create a new module (and put it into the cache)
+/******/ 		var module = installedModules[moduleId] = {
+/******/ 			i: moduleId,
+/******/ 			l: false,
+/******/ 			exports: {}
+/******/ 		};
+/******/
+/******/ 		// Execute the module function
+/******/ 		modules[moduleId].call(module.exports, module, module.exports, __webpack_require__);
+/******/
+/******/ 		// Flag the module as loaded
+/******/ 		module.l = true;
+/******/
+/******/ 		// Return the exports of the module
+/******/ 		return module.exports;
+/******/ 	}
+/******/
+/******/
+/******/ 	// expose the modules object (__webpack_modules__)
+/******/ 	__webpack_require__.m = modules;
+/******/
+/******/ 	// expose the module cache
+/******/ 	__webpack_require__.c = installedModules;
+/******/
+/******/ 	// identity function for calling harmony imports with the correct context
+/******/ 	__webpack_require__.i = function(value) { return value; };
+/******/
+/******/ 	// define getter function for harmony exports
+/******/ 	__webpack_require__.d = function(exports, name, getter) {
+/******/ 		if(!__webpack_require__.o(exports, name)) {
+/******/ 			Object.defineProperty(exports, name, {
+/******/ 				configurable: false,
+/******/ 				enumerable: true,
+/******/ 				get: getter
+/******/ 			});
+/******/ 		}
+/******/ 	};
+/******/
+/******/ 	// getDefaultExport function for compatibility with non-harmony modules
+/******/ 	__webpack_require__.n = function(module) {
+/******/ 		var getter = module && module.__esModule ?
+/******/ 			function getDefault() { return module['default']; } :
+/******/ 			function getModuleExports() { return module; };
+/******/ 		__webpack_require__.d(getter, 'a', getter);
+/******/ 		return getter;
+/******/ 	};
+/******/
+/******/ 	// Object.prototype.hasOwnProperty.call
+/******/ 	__webpack_require__.o = function(object, property) { return Object.prototype.hasOwnProperty.call(object, property); };
+/******/
+/******/ 	// __webpack_public_path__
+/******/ 	__webpack_require__.p = "";
+/******/
+/******/ 	// Load entry module and return exports
+/******/ 	return __webpack_require__(__webpack_require__.s = 76);
+/******/ })
+/************************************************************************/
+/******/ ([
+/* 0 */
+/***/ (function(module, exports, __webpack_require__) {
+
+/* WEBPACK VAR INJECTION */(function(Buffer) {/*
+	MIT License http://www.opensource.org/licenses/mit-license.php
+	Author Tobias Koppers @sokra
+*/
+// css base code, injected by the css-loader
+module.exports = function(useSourceMap) {
+	var list = [];
+
+	// return the list of modules as css string
+	list.toString = function toString() {
+		return this.map(function (item) {
+			var content = cssWithMappingToString(item, useSourceMap);
+			if(item[2]) {
+				return "@media " + item[2] + "{" + content + "}";
+			} else {
+				return content;
+			}
+		}).join("");
+	};
+
+	// import a list of modules into the list
+	list.i = function(modules, mediaQuery) {
+		if(typeof modules === "string")
+			modules = [[null, modules, ""]];
+		var alreadyImportedModules = {};
+		for(var i = 0; i < this.length; i++) {
+			var id = this[i][0];
+			if(typeof id === "number")
+				alreadyImportedModules[id] = true;
+		}
+		for(i = 0; i < modules.length; i++) {
+			var item = modules[i];
+			// skip already imported module
+			// this implementation is not 100% perfect for weird media query combinations
+			//  when a module is imported multiple times with different media queries.
+			//  I hope this will never occur (Hey this way we have smaller bundles)
+			if(typeof item[0] !== "number" || !alreadyImportedModules[item[0]]) {
+				if(mediaQuery && !item[2]) {
+					item[2] = mediaQuery;
+				} else if(mediaQuery) {
+					item[2] = "(" + item[2] + ") and (" + mediaQuery + ")";
+				}
+				list.push(item);
+			}
+		}
+	};
+	return list;
+};
+
+function cssWithMappingToString(item, useSourceMap) {
+	var content = item[1] || '';
+	var cssMapping = item[3];
+	if (!cssMapping) {
+		return content;
+	}
+
+	if (useSourceMap) {
+		var sourceMapping = toComment(cssMapping);
+		var sourceURLs = cssMapping.sources.map(function (source) {
+			return '/*# sourceURL=' + cssMapping.sourceRoot + source + ' */'
+		});
+
+		return [content].concat(sourceURLs).concat([sourceMapping]).join('\n');
+	}
+
+	return [content].join('\n');
+}
+
+// Adapted from convert-source-map (MIT)
+function toComment(sourceMap) {
+  var base64 = new Buffer(JSON.stringify(sourceMap)).toString('base64');
+  var data = 'sourceMappingURL=data:application/json;charset=utf-8;base64,' + base64;
+
+  return '/*# ' + data + ' */';
+}
+
+/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(4).Buffer))
+
+/***/ }),
+/* 1 */
+/***/ (function(module, exports, __webpack_require__) {
+
+/*
+	MIT License http://www.opensource.org/licenses/mit-license.php
+	Author Tobias Koppers @sokra
+*/
+var stylesInDom = {},
+	memoize = function(fn) {
+		var memo;
+		return function () {
+			if (typeof memo === "undefined") memo = fn.apply(this, arguments);
+			return memo;
+		};
+	},
+	isOldIE = memoize(function() {
+		// Test for IE <= 9 as proposed by Browserhacks
+		// @see http://browserhacks.com/#hack-e71d8692f65334173fee715c222cb805
+		// Tests for existence of standard globals is to allow style-loader 
+		// to operate correctly into non-standard environments
+		// @see https://github.com/webpack-contrib/style-loader/issues/177
+		return window && document && document.all && !window.atob;
+	}),
+	getElement = (function(fn) {
+		var memo = {};
+		return function(selector) {
+			if (typeof memo[selector] === "undefined") {
+				memo[selector] = fn.call(this, selector);
+			}
+			return memo[selector]
+		};
+	})(function (styleTarget) {
+		return document.querySelector(styleTarget)
+	}),
+	singletonElement = null,
+	singletonCounter = 0,
+	styleElementsInsertedAtTop = [],
+	fixUrls = __webpack_require__(7);
+
+module.exports = function(list, options) {
+	if(typeof DEBUG !== "undefined" && DEBUG) {
+		if(typeof document !== "object") throw new Error("The style-loader cannot be used in a non-browser environment");
+	}
+
+	options = options || {};
+	options.attrs = typeof options.attrs === "object" ? options.attrs : {};
+
+	// Force single-tag solution on IE6-9, which has a hard limit on the # of <style>
+	// tags it will allow on a page
+	if (typeof options.singleton === "undefined") options.singleton = isOldIE();
+
+	// By default, add <style> tags to the <head> element
+	if (typeof options.insertInto === "undefined") options.insertInto = "head";
+
+	// By default, add <style> tags to the bottom of the target
+	if (typeof options.insertAt === "undefined") options.insertAt = "bottom";
+
+	var styles = listToStyles(list);
+	addStylesToDom(styles, options);
+
+	return function update(newList) {
+		var mayRemove = [];
+		for(var i = 0; i < styles.length; i++) {
+			var item = styles[i];
+			var domStyle = stylesInDom[item.id];
+			domStyle.refs--;
+			mayRemove.push(domStyle);
+		}
+		if(newList) {
+			var newStyles = listToStyles(newList);
+			addStylesToDom(newStyles, options);
+		}
+		for(var i = 0; i < mayRemove.length; i++) {
+			var domStyle = mayRemove[i];
+			if(domStyle.refs === 0) {
+				for(var j = 0; j < domStyle.parts.length; j++)
+					domStyle.parts[j]();
+				delete stylesInDom[domStyle.id];
+			}
+		}
+	};
+};
+
+function addStylesToDom(styles, options) {
+	for(var i = 0; i < styles.length; i++) {
+		var item = styles[i];
+		var domStyle = stylesInDom[item.id];
+		if(domStyle) {
+			domStyle.refs++;
+			for(var j = 0; j < domStyle.parts.length; j++) {
+				domStyle.parts[j](item.parts[j]);
+			}
+			for(; j < item.parts.length; j++) {
+				domStyle.parts.push(addStyle(item.parts[j], options));
+			}
+		} else {
+			var parts = [];
+			for(var j = 0; j < item.parts.length; j++) {
+				parts.push(addStyle(item.parts[j], options));
+			}
+			stylesInDom[item.id] = {id: item.id, refs: 1, parts: parts};
+		}
+	}
+}
+
+function listToStyles(list) {
+	var styles = [];
+	var newStyles = {};
+	for(var i = 0; i < list.length; i++) {
+		var item = list[i];
+		var id = item[0];
+		var css = item[1];
+		var media = item[2];
+		var sourceMap = item[3];
+		var part = {css: css, media: media, sourceMap: sourceMap};
+		if(!newStyles[id])
+			styles.push(newStyles[id] = {id: id, parts: [part]});
+		else
+			newStyles[id].parts.push(part);
+	}
+	return styles;
+}
+
+function insertStyleElement(options, styleElement) {
+	var styleTarget = getElement(options.insertInto)
+	if (!styleTarget) {
+		throw new Error("Couldn't find a style target. This probably means that the value for the 'insertInto' parameter is invalid.");
+	}
+	var lastStyleElementInsertedAtTop = styleElementsInsertedAtTop[styleElementsInsertedAtTop.length - 1];
+	if (options.insertAt === "top") {
+		if(!lastStyleElementInsertedAtTop) {
+			styleTarget.insertBefore(styleElement, styleTarget.firstChild);
+		} else if(lastStyleElementInsertedAtTop.nextSibling) {
+			styleTarget.insertBefore(styleElement, lastStyleElementInsertedAtTop.nextSibling);
+		} else {
+			styleTarget.appendChild(styleElement);
+		}
+		styleElementsInsertedAtTop.push(styleElement);
+	} else if (options.insertAt === "bottom") {
+		styleTarget.appendChild(styleElement);
+	} else {
+		throw new Error("Invalid value for parameter 'insertAt'. Must be 'top' or 'bottom'.");
+	}
+}
+
+function removeStyleElement(styleElement) {
+	styleElement.parentNode.removeChild(styleElement);
+	var idx = styleElementsInsertedAtTop.indexOf(styleElement);
+	if(idx >= 0) {
+		styleElementsInsertedAtTop.splice(idx, 1);
+	}
+}
+
+function createStyleElement(options) {
+	var styleElement = document.createElement("style");
+	options.attrs.type = "text/css";
+
+	attachTagAttrs(styleElement, options.attrs);
+	insertStyleElement(options, styleElement);
+	return styleElement;
+}
+
+function createLinkElement(options) {
+	var linkElement = document.createElement("link");
+	options.attrs.type = "text/css";
+	options.attrs.rel = "stylesheet";
+
+	attachTagAttrs(linkElement, options.attrs);
+	insertStyleElement(options, linkElement);
+	return linkElement;
+}
+
+function attachTagAttrs(element, attrs) {
+	Object.keys(attrs).forEach(function (key) {
+		element.setAttribute(key, attrs[key]);
+	});
+}
+
+function addStyle(obj, options) {
+	var styleElement, update, remove;
+
+	if (options.singleton) {
+		var styleIndex = singletonCounter++;
+		styleElement = singletonElement || (singletonElement = createStyleElement(options));
+		update = applyToSingletonTag.bind(null, styleElement, styleIndex, false);
+		remove = applyToSingletonTag.bind(null, styleElement, styleIndex, true);
+	} else if(obj.sourceMap &&
+		typeof URL === "function" &&
+		typeof URL.createObjectURL === "function" &&
+		typeof URL.revokeObjectURL === "function" &&
+		typeof Blob === "function" &&
+		typeof btoa === "function") {
+		styleElement = createLinkElement(options);
+		update = updateLink.bind(null, styleElement, options);
+		remove = function() {
+			removeStyleElement(styleElement);
+			if(styleElement.href)
+				URL.revokeObjectURL(styleElement.href);
+		};
+	} else {
+		styleElement = createStyleElement(options);
+		update = applyToTag.bind(null, styleElement);
+		remove = function() {
+			removeStyleElement(styleElement);
+		};
+	}
+
+	update(obj);
+
+	return function updateStyle(newObj) {
+		if(newObj) {
+			if(newObj.css === obj.css && newObj.media === obj.media && newObj.sourceMap === obj.sourceMap)
+				return;
+			update(obj = newObj);
+		} else {
+			remove();
+		}
+	};
+}
+
+var replaceText = (function () {
+	var textStore = [];
+
+	return function (index, replacement) {
+		textStore[index] = replacement;
+		return textStore.filter(Boolean).join('\n');
+	};
+})();
+
+function applyToSingletonTag(styleElement, index, remove, obj) {
+	var css = remove ? "" : obj.css;
+
+	if (styleElement.styleSheet) {
+		styleElement.styleSheet.cssText = replaceText(index, css);
+	} else {
+		var cssNode = document.createTextNode(css);
+		var childNodes = styleElement.childNodes;
+		if (childNodes[index]) styleElement.removeChild(childNodes[index]);
+		if (childNodes.length) {
+			styleElement.insertBefore(cssNode, childNodes[index]);
+		} else {
+			styleElement.appendChild(cssNode);
+		}
+	}
+}
+
+function applyToTag(styleElement, obj) {
+	var css = obj.css;
+	var media = obj.media;
+
+	if(media) {
+		styleElement.setAttribute("media", media)
+	}
+
+	if(styleElement.styleSheet) {
+		styleElement.styleSheet.cssText = css;
+	} else {
+		while(styleElement.firstChild) {
+			styleElement.removeChild(styleElement.firstChild);
+		}
+		styleElement.appendChild(document.createTextNode(css));
+	}
+}
+
+function updateLink(linkElement, options, obj) {
+	var css = obj.css;
+	var sourceMap = obj.sourceMap;
+
+	/* If convertToAbsoluteUrls isn't defined, but sourcemaps are enabled
+	and there is no publicPath defined then lets turn convertToAbsoluteUrls
+	on by default.  Otherwise default to the convertToAbsoluteUrls option
+	directly
+	*/
+	var autoFixUrls = options.convertToAbsoluteUrls === undefined && sourceMap;
+
+	if (options.convertToAbsoluteUrls || autoFixUrls){
+		css = fixUrls(css);
+	}
+
+	if(sourceMap) {
+		// http://stackoverflow.com/a/26603875
+		css += "\n/*# sourceMappingURL=data:application/json;base64," + btoa(unescape(encodeURIComponent(JSON.stringify(sourceMap)))) + " */";
+	}
+
+	var blob = new Blob([css], { type: "text/css" });
+
+	var oldSrc = linkElement.href;
+
+	linkElement.href = URL.createObjectURL(blob);
+
+	if(oldSrc)
+		URL.revokeObjectURL(oldSrc);
+}
+
+
+/***/ }),
+/* 2 */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+
+var ngMod = angular.module('page.ui.xxt', []);
+ngMod.directive('dynamicHtml', ['$compile', function($compile) {
+    return {
+        restrict: 'EA',
+        replace: true,
+        link: function(scope, ele, attrs) {
+            scope.$watch(attrs.dynamicHtml, function(html) {
+                if (html && html.length) {
+                    ele.html(html);
+                    $compile(ele.contents())(scope);
+                }
+            });
+        }
+    };
+}]);
+ngMod.service('tmsDynaPage', ['$q', function($q) {
+    this.loadCss = function(css) {
+        var style, head;
+        style = document.createElement('style');
+        style.innerHTML = css;
+        head = document.querySelector('head');
+        head.appendChild(style);
+    };
+    this.loadExtCss = function(url) {
+        var link, head;
+        link = document.createElement('link');
+        link.href = url;
+        link.rel = 'stylesheet';
+        head = document.querySelector('head');
+        head.appendChild(link);
+    };
+    this.loadJs = function(ngApp, js) {
+        (function(ngApp) {
+            eval(js);
+        })(ngApp);
+    };
+    this.loadScript = function(urls) {
+        var index, fnLoad, deferred = $q.defer();
+        fnLoad = function() {
+            var script;
+            script = document.createElement('script');
+            script.src = urls[index];
+            script.onload = function() {
+                index++;
+                if (index < urls.length) {
+                    fnLoad();
+                } else {
+                    deferred.resolve();
+                }
+            };
+            document.body.appendChild(script);
+        };
+        if (urls) {
+            angular.isString(urls) && (urls = [urls]);
+            if (urls.length) {
+                index = 0;
+                fnLoad();
+            }
+        }
+
+        return deferred.promise;
+    };
+    this.loadExtJs = function(ngApp, code) {
+        var _self = this,
+            deferred = $q.defer(),
+            jslength = code.ext_js.length,
+            loadScript2;
+        loadScript2 = function(js) {
+            var script;
+            script = document.createElement('script');
+            script.src = js.url;
+            script.onload = function() {
+                jslength--;
+                if (jslength === 0) {
+                    if (code.js && code.js.length) {
+                        _self.loadJs(ngApp, code.js);
+                    }
+                    deferred.resolve();
+                }
+            };
+            document.body.appendChild(script);
+        };
+        if (code.ext_js && code.ext_js.length) {
+            code.ext_js.forEach(loadScript2);
+        }
+        return deferred.promise;
+    };
+    this.loadCode = function(ngApp, code) {
+        var _self = this,
+            deferred = $q.defer();
+        if (code.ext_css && code.ext_css.length) {
+            code.ext_css.forEach(function(css) {
+                _self.loadExtCss(css.url);
+            });
+        }
+        if (code.css && code.css.length) {
+            this.loadCss(code.css);
+        }
+        if (code.ext_js && code.ext_js.length) {
+            _self.loadExtJs(ngApp, code).then(function() {
+                deferred.resolve();
+            });
+        } else {
+            if (code.js && code.js.length) {
+                _self.loadJs(ngApp, code.js);
+            }
+            deferred.resolve();
+        }
+        return deferred.promise;
+        18810091009
+    };
+    this.openPlugin = function(content) {
+        var frag, wrap, frm, body, deferred = $q.defer();
+        body = document.getElementsByTagName('body')[0];
+        body.style.cssText="overflow-y:hidden";
+        frag = document.createDocumentFragment();
+        wrap = document.createElement('div');
+        wrap.setAttribute('id', 'frmPlugin');
+        frm = document.createElement('iframe');
+        wrap.appendChild(frm);
+        wrap.onclick = function() {
+            wrap.parentNode.removeChild(wrap);
+            body.style.cssText="overflow-y:auto";
+        };
+        frag.appendChild(wrap);
+        document.body.appendChild(frag);
+        if (content.indexOf('http') === 0) {
+            window.onClosePlugin = function(result) {
+                wrap.parentNode.removeChild(wrap);
+                body.style.cssText="overflow-y:auto";
+                deferred.resolve(result);
+            };
+            frm.setAttribute('src', content);
+        } else {
+            if (frm.contentDocument && frm.contentDocument.body) {
+                frm.contentDocument.body.innerHTML = content;
+            }
+        }
+        return deferred.promise;
+    };
+}]);
+
+
+/***/ }),
+/* 3 */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+
+
+exports.byteLength = byteLength
+exports.toByteArray = toByteArray
+exports.fromByteArray = fromByteArray
+
+var lookup = []
+var revLookup = []
+var Arr = typeof Uint8Array !== 'undefined' ? Uint8Array : Array
+
+var code = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/'
+for (var i = 0, len = code.length; i < len; ++i) {
+  lookup[i] = code[i]
+  revLookup[code.charCodeAt(i)] = i
+}
+
+revLookup['-'.charCodeAt(0)] = 62
+revLookup['_'.charCodeAt(0)] = 63
+
+function placeHoldersCount (b64) {
+  var len = b64.length
+  if (len % 4 > 0) {
+    throw new Error('Invalid string. Length must be a multiple of 4')
+  }
+
+  // the number of equal signs (place holders)
+  // if there are two placeholders, than the two characters before it
+  // represent one byte
+  // if there is only one, then the three characters before it represent 2 bytes
+  // this is just a cheap hack to not do indexOf twice
+  return b64[len - 2] === '=' ? 2 : b64[len - 1] === '=' ? 1 : 0
+}
+
+function byteLength (b64) {
+  // base64 is 4/3 + up to two characters of the original data
+  return b64.length * 3 / 4 - placeHoldersCount(b64)
+}
+
+function toByteArray (b64) {
+  var i, j, l, tmp, placeHolders, arr
+  var len = b64.length
+  placeHolders = placeHoldersCount(b64)
+
+  arr = new Arr(len * 3 / 4 - placeHolders)
+
+  // if there are placeholders, only get up to the last complete 4 chars
+  l = placeHolders > 0 ? len - 4 : len
+
+  var L = 0
+
+  for (i = 0, j = 0; i < l; i += 4, j += 3) {
+    tmp = (revLookup[b64.charCodeAt(i)] << 18) | (revLookup[b64.charCodeAt(i + 1)] << 12) | (revLookup[b64.charCodeAt(i + 2)] << 6) | revLookup[b64.charCodeAt(i + 3)]
+    arr[L++] = (tmp >> 16) & 0xFF
+    arr[L++] = (tmp >> 8) & 0xFF
+    arr[L++] = tmp & 0xFF
+  }
+
+  if (placeHolders === 2) {
+    tmp = (revLookup[b64.charCodeAt(i)] << 2) | (revLookup[b64.charCodeAt(i + 1)] >> 4)
+    arr[L++] = tmp & 0xFF
+  } else if (placeHolders === 1) {
+    tmp = (revLookup[b64.charCodeAt(i)] << 10) | (revLookup[b64.charCodeAt(i + 1)] << 4) | (revLookup[b64.charCodeAt(i + 2)] >> 2)
+    arr[L++] = (tmp >> 8) & 0xFF
+    arr[L++] = tmp & 0xFF
+  }
+
+  return arr
+}
+
+function tripletToBase64 (num) {
+  return lookup[num >> 18 & 0x3F] + lookup[num >> 12 & 0x3F] + lookup[num >> 6 & 0x3F] + lookup[num & 0x3F]
+}
+
+function encodeChunk (uint8, start, end) {
+  var tmp
+  var output = []
+  for (var i = start; i < end; i += 3) {
+    tmp = (uint8[i] << 16) + (uint8[i + 1] << 8) + (uint8[i + 2])
+    output.push(tripletToBase64(tmp))
+  }
+  return output.join('')
+}
+
+function fromByteArray (uint8) {
+  var tmp
+  var len = uint8.length
+  var extraBytes = len % 3 // if we have 1 byte left, pad 2 bytes
+  var output = ''
+  var parts = []
+  var maxChunkLength = 16383 // must be multiple of 3
+
+  // go through the array every three bytes, we'll deal with trailing stuff later
+  for (var i = 0, len2 = len - extraBytes; i < len2; i += maxChunkLength) {
+    parts.push(encodeChunk(uint8, i, (i + maxChunkLength) > len2 ? len2 : (i + maxChunkLength)))
+  }
+
+  // pad the end with zeros, but make sure to not forget the extra bytes
+  if (extraBytes === 1) {
+    tmp = uint8[len - 1]
+    output += lookup[tmp >> 2]
+    output += lookup[(tmp << 4) & 0x3F]
+    output += '=='
+  } else if (extraBytes === 2) {
+    tmp = (uint8[len - 2] << 8) + (uint8[len - 1])
+    output += lookup[tmp >> 10]
+    output += lookup[(tmp >> 4) & 0x3F]
+    output += lookup[(tmp << 2) & 0x3F]
+    output += '='
+  }
+
+  parts.push(output)
+
+  return parts.join('')
+}
+
+
+/***/ }),
+/* 4 */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+/* WEBPACK VAR INJECTION */(function(global) {/*!
  * The buffer module from node.js, for the browser.
  *
  * @author   Feross Aboukhadijeh <feross@feross.org> <http://feross.org>
  * @license  MIT
  */
-var V=n(3),X=n(5),Z=n(6);e.Buffer=i,e.SlowBuffer=g,e.INSPECT_MAX_BYTES=50,i.TYPED_ARRAY_SUPPORT=void 0!==t.TYPED_ARRAY_SUPPORT?t.TYPED_ARRAY_SUPPORT:function(){try{var t=new Uint8Array(1);return t.__proto__={__proto__:Uint8Array.prototype,foo:function(){return 42}},42===t.foo()&&"function"==typeof t.subarray&&0===t.subarray(1,1).byteLength}catch(t){return!1}}(),e.kMaxLength=r(),i.poolSize=8192,i._augment=function(t){return t.__proto__=i.prototype,t},i.from=function(t,e,n){return a(null,t,e,n)},i.TYPED_ARRAY_SUPPORT&&(i.prototype.__proto__=Uint8Array.prototype,i.__proto__=Uint8Array,"undefined"!=typeof Symbol&&Symbol.species&&i[Symbol.species]===i&&Object.defineProperty(i,Symbol.species,{value:null,configurable:!0})),i.alloc=function(t,e,n){return c(null,t,e,n)},i.allocUnsafe=function(t){return u(null,t)},i.allocUnsafeSlow=function(t){return u(null,t)},i.isBuffer=function(t){return!(null==t||!t._isBuffer)},i.compare=function(t,e){if(!i.isBuffer(t)||!i.isBuffer(e))throw new TypeError("Arguments must be Buffers");if(t===e)return 0;for(var n=t.length,r=e.length,o=0,a=Math.min(n,r);o<a;++o)if(t[o]!==e[o]){n=t[o],r=e[o];break}return n<r?-1:r<n?1:0},i.isEncoding=function(t){switch(String(t).toLowerCase()){case"hex":case"utf8":case"utf-8":case"ascii":case"latin1":case"binary":case"base64":case"ucs2":case"ucs-2":case"utf16le":case"utf-16le":return!0;default:return!1}},i.concat=function(t,e){if(!Z(t))throw new TypeError('"list" argument must be an Array of Buffers');if(0===t.length)return i.alloc(0);var n;if(void 0===e)for(e=0,n=0;n<t.length;++n)e+=t[n].length;var r=i.allocUnsafe(e),o=0;for(n=0;n<t.length;++n){var a=t[n];if(!i.isBuffer(a))throw new TypeError('"list" argument must be an Array of Buffers');a.copy(r,o),o+=a.length}return r},i.byteLength=m,i.prototype._isBuffer=!0,i.prototype.swap16=function(){var t=this.length;if(t%2!=0)throw new RangeError("Buffer size must be a multiple of 16-bits");for(var e=0;e<t;e+=2)b(this,e,e+1);return this},i.prototype.swap32=function(){var t=this.length;if(t%4!=0)throw new RangeError("Buffer size must be a multiple of 32-bits");for(var e=0;e<t;e+=4)b(this,e,e+3),b(this,e+1,e+2);return this},i.prototype.swap64=function(){var t=this.length;if(t%8!=0)throw new RangeError("Buffer size must be a multiple of 64-bits");for(var e=0;e<t;e+=8)b(this,e,e+7),b(this,e+1,e+6),b(this,e+2,e+5),b(this,e+3,e+4);return this},i.prototype.toString=function(){var t=0|this.length;return 0===t?"":0===arguments.length?R(this,0,t):v.apply(this,arguments)},i.prototype.equals=function(t){if(!i.isBuffer(t))throw new TypeError("Argument must be a Buffer");return this===t||0===i.compare(this,t)},i.prototype.inspect=function(){var t="",n=e.INSPECT_MAX_BYTES;return this.length>0&&(t=this.toString("hex",0,n).match(/.{2}/g).join(" "),this.length>n&&(t+=" ... ")),"<Buffer "+t+">"},i.prototype.compare=function(t,e,n,r,o){if(!i.isBuffer(t))throw new TypeError("Argument must be a Buffer");if(void 0===e&&(e=0),void 0===n&&(n=t?t.length:0),void 0===r&&(r=0),void 0===o&&(o=this.length),e<0||n>t.length||r<0||o>this.length)throw new RangeError("out of range index");if(r>=o&&e>=n)return 0;if(r>=o)return-1;if(e>=n)return 1;if(e>>>=0,n>>>=0,r>>>=0,o>>>=0,this===t)return 0;for(var a=o-r,s=n-e,c=Math.min(a,s),u=this.slice(r,o),l=t.slice(e,n),d=0;d<c;++d)if(u[d]!==l[d]){a=u[d],s=l[d];break}return a<s?-1:s<a?1:0},i.prototype.includes=function(t,e,n){return-1!==this.indexOf(t,e,n)},i.prototype.indexOf=function(t,e,n){return y(this,t,e,n,!0)},i.prototype.lastIndexOf=function(t,e,n){return y(this,t,e,n,!1)},i.prototype.write=function(t,e,n,r){if(void 0===e)r="utf8",n=this.length,e=0;else if(void 0===n&&"string"==typeof e)r=e,n=this.length,e=0;else{if(!isFinite(e))throw new Error("Buffer.write(string, encoding, offset[, length]) is no longer supported");e|=0,isFinite(n)?(n|=0,void 0===r&&(r="utf8")):(r=n,n=void 0)}var o=this.length-e;if((void 0===n||n>o)&&(n=o),t.length>0&&(n<0||e<0)||e>this.length)throw new RangeError("Attempt to write outside buffer bounds");r||(r="utf8");for(var i=!1;;)switch(r){case"hex":return x(this,t,e,n);case"utf8":case"utf-8":return _(this,t,e,n);case"ascii":return k(this,t,e,n);case"latin1":case"binary":return E(this,t,e,n);case"base64":return S(this,t,e,n);case"ucs2":case"ucs-2":case"utf16le":case"utf-16le":return A(this,t,e,n);default:if(i)throw new TypeError("Unknown encoding: "+r);r=(""+r).toLowerCase(),i=!0}},i.prototype.toJSON=function(){return{type:"Buffer",data:Array.prototype.slice.call(this._arr||this,0)}};var Q=4096;i.prototype.slice=function(t,e){var n=this.length;t=~~t,e=void 0===e?n:~~e,t<0?(t+=n)<0&&(t=0):t>n&&(t=n),e<0?(e+=n)<0&&(e=0):e>n&&(e=n),e<t&&(e=t);var r;if(i.TYPED_ARRAY_SUPPORT)r=this.subarray(t,e),r.__proto__=i.prototype;else{var o=e-t;r=new i(o,void 0);for(var a=0;a<o;++a)r[a]=this[a+t]}return r},i.prototype.readUIntLE=function(t,e,n){t|=0,e|=0,n||M(t,e,this.length);for(var r=this[t],o=1,i=0;++i<e&&(o*=256);)r+=this[t+i]*o;return r},i.prototype.readUIntBE=function(t,e,n){t|=0,e|=0,n||M(t,e,this.length);for(var r=this[t+--e],o=1;e>0&&(o*=256);)r+=this[t+--e]*o;return r},i.prototype.readUInt8=function(t,e){return e||M(t,1,this.length),this[t]},i.prototype.readUInt16LE=function(t,e){return e||M(t,2,this.length),this[t]|this[t+1]<<8},i.prototype.readUInt16BE=function(t,e){return e||M(t,2,this.length),this[t]<<8|this[t+1]},i.prototype.readUInt32LE=function(t,e){return e||M(t,4,this.length),(this[t]|this[t+1]<<8|this[t+2]<<16)+16777216*this[t+3]},i.prototype.readUInt32BE=function(t,e){return e||M(t,4,this.length),16777216*this[t]+(this[t+1]<<16|this[t+2]<<8|this[t+3])},i.prototype.readIntLE=function(t,e,n){t|=0,e|=0,n||M(t,e,this.length);for(var r=this[t],o=1,i=0;++i<e&&(o*=256);)r+=this[t+i]*o;return o*=128,r>=o&&(r-=Math.pow(2,8*e)),r},i.prototype.readIntBE=function(t,e,n){t|=0,e|=0,n||M(t,e,this.length);for(var r=e,o=1,i=this[t+--r];r>0&&(o*=256);)i+=this[t+--r]*o;return o*=128,i>=o&&(i-=Math.pow(2,8*e)),i},i.prototype.readInt8=function(t,e){return e||M(t,1,this.length),128&this[t]?-1*(255-this[t]+1):this[t]},i.prototype.readInt16LE=function(t,e){e||M(t,2,this.length);var n=this[t]|this[t+1]<<8;return 32768&n?4294901760|n:n},i.prototype.readInt16BE=function(t,e){e||M(t,2,this.length);var n=this[t+1]|this[t]<<8;return 32768&n?4294901760|n:n},i.prototype.readInt32LE=function(t,e){return e||M(t,4,this.length),this[t]|this[t+1]<<8|this[t+2]<<16|this[t+3]<<24},i.prototype.readInt32BE=function(t,e){return e||M(t,4,this.length),this[t]<<24|this[t+1]<<16|this[t+2]<<8|this[t+3]},i.prototype.readFloatLE=function(t,e){return e||M(t,4,this.length),X.read(this,t,!0,23,4)},i.prototype.readFloatBE=function(t,e){return e||M(t,4,this.length),X.read(this,t,!1,23,4)},i.prototype.readDoubleLE=function(t,e){return e||M(t,8,this.length),X.read(this,t,!0,52,8)},i.prototype.readDoubleBE=function(t,e){return e||M(t,8,this.length),X.read(this,t,!1,52,8)},i.prototype.writeUIntLE=function(t,e,n,r){if(t=+t,e|=0,n|=0,!r){$(this,t,e,n,Math.pow(2,8*n)-1,0)}var o=1,i=0;for(this[e]=255&t;++i<n&&(o*=256);)this[e+i]=t/o&255;return e+n},i.prototype.writeUIntBE=function(t,e,n,r){if(t=+t,e|=0,n|=0,!r){$(this,t,e,n,Math.pow(2,8*n)-1,0)}var o=n-1,i=1;for(this[e+o]=255&t;--o>=0&&(i*=256);)this[e+o]=t/i&255;return e+n},i.prototype.writeUInt8=function(t,e,n){return t=+t,e|=0,n||$(this,t,e,1,255,0),i.TYPED_ARRAY_SUPPORT||(t=Math.floor(t)),this[e]=255&t,e+1},i.prototype.writeUInt16LE=function(t,e,n){return t=+t,e|=0,n||$(this,t,e,2,65535,0),i.TYPED_ARRAY_SUPPORT?(this[e]=255&t,this[e+1]=t>>>8):L(this,t,e,!0),e+2},i.prototype.writeUInt16BE=function(t,e,n){return t=+t,e|=0,n||$(this,t,e,2,65535,0),i.TYPED_ARRAY_SUPPORT?(this[e]=t>>>8,this[e+1]=255&t):L(this,t,e,!1),e+2},i.prototype.writeUInt32LE=function(t,e,n){return t=+t,e|=0,n||$(this,t,e,4,4294967295,0),i.TYPED_ARRAY_SUPPORT?(this[e+3]=t>>>24,this[e+2]=t>>>16,this[e+1]=t>>>8,this[e]=255&t):Y(this,t,e,!0),e+4},i.prototype.writeUInt32BE=function(t,e,n){return t=+t,e|=0,n||$(this,t,e,4,4294967295,0),i.TYPED_ARRAY_SUPPORT?(this[e]=t>>>24,this[e+1]=t>>>16,this[e+2]=t>>>8,this[e+3]=255&t):Y(this,t,e,!1),e+4},i.prototype.writeIntLE=function(t,e,n,r){if(t=+t,e|=0,!r){var o=Math.pow(2,8*n-1);$(this,t,e,n,o-1,-o)}var i=0,a=1,s=0;for(this[e]=255&t;++i<n&&(a*=256);)t<0&&0===s&&0!==this[e+i-1]&&(s=1),this[e+i]=(t/a>>0)-s&255;return e+n},i.prototype.writeIntBE=function(t,e,n,r){if(t=+t,e|=0,!r){var o=Math.pow(2,8*n-1);$(this,t,e,n,o-1,-o)}var i=n-1,a=1,s=0;for(this[e+i]=255&t;--i>=0&&(a*=256);)t<0&&0===s&&0!==this[e+i+1]&&(s=1),this[e+i]=(t/a>>0)-s&255;return e+n},i.prototype.writeInt8=function(t,e,n){return t=+t,e|=0,n||$(this,t,e,1,127,-128),i.TYPED_ARRAY_SUPPORT||(t=Math.floor(t)),t<0&&(t=255+t+1),this[e]=255&t,e+1},i.prototype.writeInt16LE=function(t,e,n){return t=+t,e|=0,n||$(this,t,e,2,32767,-32768),i.TYPED_ARRAY_SUPPORT?(this[e]=255&t,this[e+1]=t>>>8):L(this,t,e,!0),e+2},i.prototype.writeInt16BE=function(t,e,n){return t=+t,e|=0,n||$(this,t,e,2,32767,-32768),i.TYPED_ARRAY_SUPPORT?(this[e]=t>>>8,this[e+1]=255&t):L(this,t,e,!1),e+2},i.prototype.writeInt32LE=function(t,e,n){return t=+t,e|=0,n||$(this,t,e,4,2147483647,-2147483648),i.TYPED_ARRAY_SUPPORT?(this[e]=255&t,this[e+1]=t>>>8,this[e+2]=t>>>16,this[e+3]=t>>>24):Y(this,t,e,!0),e+4},i.prototype.writeInt32BE=function(t,e,n){return t=+t,e|=0,n||$(this,t,e,4,2147483647,-2147483648),t<0&&(t=4294967295+t+1),i.TYPED_ARRAY_SUPPORT?(this[e]=t>>>24,this[e+1]=t>>>16,this[e+2]=t>>>8,this[e+3]=255&t):Y(this,t,e,!1),e+4},i.prototype.writeFloatLE=function(t,e,n){return D(this,t,e,!0,n)},i.prototype.writeFloatBE=function(t,e,n){return D(this,t,e,!1,n)},i.prototype.writeDoubleLE=function(t,e,n){return j(this,t,e,!0,n)},i.prototype.writeDoubleBE=function(t,e,n){return j(this,t,e,!1,n)},i.prototype.copy=function(t,e,n,r){if(n||(n=0),r||0===r||(r=this.length),e>=t.length&&(e=t.length),e||(e=0),r>0&&r<n&&(r=n),r===n)return 0;if(0===t.length||0===this.length)return 0;if(e<0)throw new RangeError("targetStart out of bounds");if(n<0||n>=this.length)throw new RangeError("sourceStart out of bounds");if(r<0)throw new RangeError("sourceEnd out of bounds");r>this.length&&(r=this.length),t.length-e<r-n&&(r=t.length-e+n);var o,a=r-n;if(this===t&&n<e&&e<r)for(o=a-1;o>=0;--o)t[o+e]=this[o+n];else if(a<1e3||!i.TYPED_ARRAY_SUPPORT)for(o=0;o<a;++o)t[o+e]=this[o+n];else Uint8Array.prototype.set.call(t,this.subarray(n,n+a),e);return a},i.prototype.fill=function(t,e,n,r){if("string"==typeof t){if("string"==typeof e?(r=e,e=0,n=this.length):"string"==typeof n&&(r=n,n=this.length),1===t.length){var o=t.charCodeAt(0);o<256&&(t=o)}if(void 0!==r&&"string"!=typeof r)throw new TypeError("encoding must be a string");if("string"==typeof r&&!i.isEncoding(r))throw new TypeError("Unknown encoding: "+r)}else"number"==typeof t&&(t&=255);if(e<0||this.length<e||this.length<n)throw new RangeError("Out of range index");if(n<=e)return this;e>>>=0,n=void 0===n?this.length:n>>>0,t||(t=0);var a;if("number"==typeof t)for(a=e;a<n;++a)this[a]=t;else{var s=i.isBuffer(t)?t:z(new i(t,r).toString()),c=s.length;for(a=0;a<n-e;++a)this[a+e]=s[a%c]}return this};var tt=/[^+\/0-9A-Za-z-_]/g}).call(e,n(8))},function(t,e){e.read=function(t,e,n,r,o){var i,a,s=8*o-r-1,c=(1<<s)-1,u=c>>1,l=-7,d=n?o-1:0,f=n?-1:1,p=t[e+d];for(d+=f,i=p&(1<<-l)-1,p>>=-l,l+=s;l>0;i=256*i+t[e+d],d+=f,l-=8);for(a=i&(1<<-l)-1,i>>=-l,l+=r;l>0;a=256*a+t[e+d],d+=f,l-=8);if(0===i)i=1-u;else{if(i===c)return a?NaN:1/0*(p?-1:1);a+=Math.pow(2,r),i-=u}return(p?-1:1)*a*Math.pow(2,i-r)},e.write=function(t,e,n,r,o,i){var a,s,c,u=8*i-o-1,l=(1<<u)-1,d=l>>1,f=23===o?Math.pow(2,-24)-Math.pow(2,-77):0,p=r?0:i-1,h=r?1:-1,g=e<0||0===e&&1/e<0?1:0;for(e=Math.abs(e),isNaN(e)||e===1/0?(s=isNaN(e)?1:0,a=l):(a=Math.floor(Math.log(e)/Math.LN2),e*(c=Math.pow(2,-a))<1&&(a--,c*=2),e+=a+d>=1?f/c:f*Math.pow(2,1-d),e*c>=2&&(a++,c/=2),a+d>=l?(s=0,a=l):a+d>=1?(s=(e*c-1)*Math.pow(2,o),a+=d):(s=e*Math.pow(2,d-1)*Math.pow(2,o),a=0));o>=8;t[n+p]=255&s,p+=h,s/=256,o-=8);for(a=a<<o|s,u+=o;u>0;t[n+p]=255&a,p+=h,a/=256,u-=8);t[n+p-h]|=128*g}},function(t,e){var n={}.toString;t.exports=Array.isArray||function(t){return"[object Array]"==n.call(t)}},function(t,e){t.exports=function(t){var e="undefined"!=typeof window&&window.location;if(!e)throw new Error("fixUrls requires window.location");if(!t||"string"!=typeof t)return t;var n=e.protocol+"//"+e.host,r=n+e.pathname.replace(/\/[^\/]*$/,"/");return t.replace(/url\s*\(((?:[^)(]|\((?:[^)(]+|\([^)(]*\))*\))*)\)/gi,function(t,e){var o=e.trim().replace(/^"(.*)"$/,function(t,e){return e}).replace(/^'(.*)'$/,function(t,e){return e});if(/^(#|data:|http:\/\/|https:\/\/|file:\/\/\/)/i.test(o))return t;var i;return i=0===o.indexOf("//")?o:0===o.indexOf("/")?n+o:r+o.replace(/^\.\//,""),"url("+JSON.stringify(i)+")"})}},function(t,e){var n;n=function(){return this}();try{n=n||Function("return this")()||(0,eval)("this")}catch(t){"object"==typeof window&&(n=window)}t.exports=n},function(t,e,n){"use strict";angular.module("modal.ui.xxt",[]).service("tmsModal",["$rootScope","$compile","$q","$controller",function(t,e,n,r){this.open=function(o){var i,a=n.defer(),s=n.defer(),c={result:a.promise,closed:s.promise,close:function(t){document.body.removeChild(f[0]),a.resolve(t)},dismiss:function(t){document.body.removeChild(f[0]),s.resolve(t)}};i=t.$new(!0),o.controller&&r(o.controller,{$scope:i,$tmsModalInstance:c});var u,l,d,f;return u=angular.element("<div></div>"),u.attr({class:"modal-content","ng-style":"{'z-index':1060}"}).append(o.template),l=angular.element("<div></div>"),l.attr({class:"modal-dialog"}).append(u),d=angular.element("<div></div>"),d.attr({class:"modal-backdrop","ng-style":"{'z-index':1040}"}),f=angular.element("<div></div>"),f.attr({class:"modal","ng-style":"{'z-index':1050}",tabindex:-1}).append(l).append(d),e(f)(i),document.body.appendChild(f[0]),c}}])},function(t,e,n){var r=n(13);"string"==typeof r&&(r=[[t.i,r,""]]);n(1)(r,{});r.locals&&(t.exports=r.locals)},function(module,exports,__webpack_require__){"use strict";var ngMod=angular.module("snsshare.ui.xxt",[]);ngMod.service("tmsSnsShare",["$http",function($http){function setWxShare(t,e,n,r,o){window.wx.onMenuShareTimeline({title:o.descAsTitle?n:t,link:e,imgUrl:r,success:function(){try{o.logger&&o.logger("T")}catch(t){alert("share failed:"+t.message)}},cancel:function(){}}),window.wx.onMenuShareAppMessage({title:t,desc:n,link:e,imgUrl:r,success:function(){try{o.logger&&o.logger("F")}catch(t){alert("share failed:"+t.message)}},cancel:function(){}})}function setYxShare(t,e,n,r,o){var i={img_url:r,link:e,title:t,desc:n};window.YixinJSBridge.on("menu:share:appmessage",function(t){try{o.logger&&o.logger("F")}catch(t){alert("share failed:"+t.message)}window.YixinJSBridge.invoke("sendAppMessage",i,function(t){})}),window.YixinJSBridge.on("menu:share:timeline",function(t){try{o.logger&&o.logger("T")}catch(t){alert("share failed:"+t.message)}window.YixinJSBridge.invoke("shareTimeline",i,function(t){})})}this.config=function(t){this.options=t},this.set=function(title,link,desc,img,fnOther){var _this=this;if(img&&-1===img.indexOf("http")&&(img="http://"+location.host+img),/MicroMessenger/i.test(navigator.userAgent)){var script;script=document.createElement("script"),script.src="http://res.wx.qq.com/open/js/jweixin-1.0.0.js",script.onload=function(){var xhr,url;xhr=new XMLHttpRequest,url="/rest/site/fe/wxjssdksignpackage?site="+_this.options.siteId+"&url="+encodeURIComponent(location.href.split("#")[0]),xhr.open("GET",url,!0),xhr.onreadystatechange=function(){if(4==xhr.readyState)if(xhr.status>=200&&xhr.status<400){var signPackage;try{eval("("+xhr.responseText+")"),signPackage&&(signPackage.debug=!1,signPackage.jsApiList=_this.options.jsApiList,wx.config(signPackage),setWxShare(title,link,desc,img,_this.options))}catch(t){alert("local error:"+t.toString())}}else alert("http error:"+xhr.statusText)},xhr.send()},document.body.appendChild(script)}else/Yixin/i.test(navigator.userAgent)?void 0===window.YixinJSBridge?document.addEventListener("YixinJSBridgeReady",function(){setYxShare(title,link,desc,img,_this.options)},!1):setYxShare(title,link,desc,img,_this.options):fnOther&&"function"==typeof fnOther&&fnOther(title,link,desc,img)}}])},function(t,e,n){"use strict";n(10),n(2),n(9),angular.module("favor.ui.xxt",["page.ui.xxt","modal.ui.xxt"]).service("tmsFavor",["$rootScope","$http","$q","tmsDynaPage","tmsModal",function(t,e,n,r,o){function i(t){var r,o;return o=n.defer(),r="/rest/site/fe/user/favor/byUser",r+="?site="+t.siteid,r+="&id="+t.id,r+="&type="+t.type,e.get(r).success(function(t){o.resolve(t.data)}),o.promise}function a(t){var r,o;return o=n.defer(),r="/rest/site/fe/user/favor/add",r+="?site="+t.siteid,r+="&id="+t.id,r+="&type="+t.type,e.get(r).success(function(t){o.resolve(t.data)}),o.promise}function s(t){var r,o;return o=n.defer(),r="/rest/site/fe/user/favor/remove",r+="?site="+t.siteid,r+="&id="+t.id,r+="&type="+t.type,e.get(r).success(function(t){o.resolve(t.data)}),o.promise}function c(t){var r,o;return o=n.defer(),r="/rest/pl/fe/site/favor/sitesByUser?site="+t.siteid+"&id="+t.id+"&type="+t.type+"&_="+1*new Date,e.get(r).success(function(t){0==t.err_code&&o.resolve(t.data)}),o.promise}function u(t,r){var o,i;return i=n.defer(),o="/rest/pl/fe/site/favor/add?id="+t.id+"&type="+t.type,e.post(o,r).success(function(t){i.resolve(t.data)}),i.promise}function l(t,r){var o,i;return i=n.defer(),o="/rest/pl/fe/site/favor/remove?id="+t.id+"&type="+t.type,e.post(o,r).success(function(t){i.resolve(t.data)}),i.promise}this.open=function(t){var n;n='<div class="modal-header"><span class="modal-title">指定收藏位置</span></div>',n+='<div class="modal-body">',n+='<div class="checkbox">',n+="<label>",n+="<input type='checkbox' ng-true-value=\"'Y'\" ng-false-value=\"'N'\" ng-model='person._selected'>",n+="<span>个人账户</span>",n+="<span ng-if=\"person._favored==='Y'\">（已收藏）</span>",n+="</label>",n+="</div>",n+='<div class="checkbox" ng-repeat="site in mySites">',n+="<label>",n+="<input type='checkbox' ng-true-value=\"'Y'\" ng-false-value=\"'N'\" ng-model='site._selected'>",n+="<span>{{site.name}}</span>",n+="<span ng-if=\"site._favored==='Y'\">（已收藏）</span>",n+="</label>",n+="</div>",n+='<div ng-if="mySites.length===0"><a href="" ng-click="createSite()">创建</a>团队进行收藏，方便团队内共享信息</div>',n+="</div>",n+='<div class="modal-footer"><button class="btn btn-default" ng-click="cancel()">关闭</button><button class="btn btn-success" ng-click="ok()">确定</button></div>',o.open({template:n,controller:["$scope","$tmsModalInstance",function(n,r){i(t).then(function(t){n.person={_favored:t?"Y":"N"},n.person._selected=n.person._favored}),c(t).then(function(t){var e=t;e.forEach(function(t){t._selected=t._favored}),n.mySites=e}),n.createSite=function(){e.get("/rest/pl/fe/site/create").success(function(t){var e=t.data;e._favored=e._selected="N",n.mySites=[e]})},n.ok=function(){var t;t={person:n.person,mySites:n.mySites},r.close(t)},n.cancel=function(){r.dismiss()}}]}).result.then(function(e){var n,r;if(n=e.person,n&&n._selected!==n._favored&&("Y"===n._selected?a(t):s(t)),r=e.mySites){var o=[],i=[];r.forEach(function(t){t._selected!==t._favored&&("Y"===t._selected?o.push(t.id):i.push(t.id))}),o.length&&u(t,o),i.length&&l(t,i)}})},this.showSwitch=function(e,n){var o,i=this;o=document.createElement("div"),o.classList.add("tms-switch","tms-switch-favor"),o.addEventListener("click",function(o){o.preventDefault(),o.stopPropagation(),t.$apply(function(){e.loginExpire?i.open(n):r.openPlugin("http://"+location.host+"/rest/site/fe/user/login?site="+n.siteid).then(function(t){e.loginExpire=t.loginExpire,i.open(n)})})},!0),document.body.appendChild(o)}}])},function(t,e,n){e=t.exports=n(0)(void 0),e.push([t.i,".modal{display:block;overflow:hidden;outline:0;overflow-x:hidden;overflow-y:auto;opacity:1}.modal,.modal-backdrop{position:fixed;top:0;right:0;bottom:0;left:0}.modal-backdrop{background-color:#000;opacity:.5}.modal-dialog{z-index:1055;margin:0;position:relative;width:auto;margin:10px}.modal-content{position:relative;background-color:#fff;-webkit-background-clip:padding-box;background-clip:padding-box;border:1px solid #999;border:1px solid rgba(0,0,0,.2);border-radius:6px;outline:0;-webkit-box-shadow:0 3px 9px rgba(0,0,0,.5);box-shadow:0 3px 9px rgba(0,0,0,.5)}.modal-header{padding:15px;border-bottom:1px solid #e5e5e5}.modal-header .close{margin-top:-2px}.modal-title{margin:0;line-height:1.42857143}.modal-body{position:relative;padding:15px}.modal-footer{padding:15px;text-align:right;border-top:1px solid #e5e5e5}button.close{-webkit-appearance:none;padding:0;cursor:pointer;background:0 0;border:0}.close{float:right;font-size:21px;font-weight:700;line-height:1;color:#000;text-shadow:0 1px 0 #fff;filter:alpha(opacity=20);opacity:.2}@media (min-width:768px){.modal-dialog{width:600px;margin:30px auto}.modal-content{-webkit-box-shadow:0 5px 15px rgba(0,0,0,.5);box-shadow:0 5px 15px rgba(0,0,0,.5)}}",""])},function(t,e,n){"use strict";function r(t,e){var n,r,o;n=document.createDocumentFragment(),r=document.createElement("div"),r.setAttribute("id","frmPlugin"),o=document.createElement("iframe"),r.appendChild(o),r.onclick=function(){r.parentNode.removeChild(r)},n.appendChild(r),document.body.appendChild(n),0===t.indexOf("http")?(window.onClosePlugin=function(){r.parentNode.removeChild(r),e&&e()},o.setAttribute("src",t)):o.contentDocument&&o.contentDocument.body&&(o.contentDocument.body.innerHTML=t)}angular.module("coinpay.ui.xxt",[]).service("tmsCoinPay",function(){this.showSwitch=function(t,e){var n;n=document.createElement("div"),n.classList.add("tms-switch","tms-switch-coinpay"),n.addEventListener("click",function(n){n.preventDefault(),n.stopPropagation();var o="http://"+location.host;o+="/rest/site/fe/coin/pay",o+="?site="+t,o+="&matter="+e,r(o)},!0),document.body.appendChild(n)}})},function(t,e,n){"use strict";function r(t,e){var n,r,o;n=document.createDocumentFragment(),r=document.createElement("div"),r.setAttribute("id","frmPlugin"),o=document.createElement("iframe"),r.appendChild(o),r.onclick=function(){r.parentNode.removeChild(r)},n.appendChild(r),document.body.appendChild(n),0===t.indexOf("http")?(window.onClosePlugin=function(){r.parentNode.removeChild(r),e&&e()},o.setAttribute("src",t)):o.contentDocument&&o.contentDocument.body&&(o.contentDocument.body.innerHTML=t)}angular.module("siteuser.ui.xxt",[]).service("tmsSiteUser",function(){this.showSwitch=function(t,e){var n;n=document.createElement("div"),n.classList.add("tms-switch","tms-switch-siteuser"),n.addEventListener("click",function(n){n.preventDefault(),n.stopPropagation();var o="http://"+location.host;o+="/rest/site/fe/user",o+="?site="+t,e?location.href=o:r(o)},!0),document.body.appendChild(n)}})},function(t,e,n){e=t.exports=n(0)(void 0),e.push([t.i,'.dialog.mask{position:fixed;background:rgba(0,0,0,.3);top:0;left:0;bottom:0;right:0;overflow:auto;z-index:1060}.dialog.dlg{position:absolute;background:#fff;left:0;right:0;bottom:0;margin:15px}.dialog .dlg-body,.dialog .dlg-header{padding:15px 15px 0}.dialog .dlg-footer{text-align:right;padding:15px}.dialog .dlg-footer button{border-radius:0}div[wrap=filter] .detail{background:#ccc}div[wrap=filter] .detail .options .label{display:inline-block;margin:.5em;padding-top:.3em;font-size:100%}div[wrap=filter] .detail .actions .btn{border-radius:0}.tms-switch{position:fixed;right:15px;width:70px;box-shadow:0 2px 6px rgba(18,27,32,.425);height:35px;color:#2994d0;background:#f8fcfe;border-radius:21px;font-size:24px;line-height:27px;text-align:center;cursor:pointer;z-index:1050}.tms-switch:before{font-size:.7em}.tms-switch:last-of-type{bottom:8px}.tms-switch:nth-last-of-type(2){bottom:64px}.tms-switch:nth-last-of-type(3){bottom:120px}.tms-switch:nth-last-of-type(4){bottom:176px}.tms-switch:nth-last-of-type(5){bottom:232px}.tms-switch:nth-last-of-type(6){bottom:288px}.tms-switch-back:before{content:"\\8FD4\\56DE"}.tms-switch-task:before{content:"\\4EFB\\52A1"}.tms-switch-save:before{content:"\\4FDD\\5B58"}.tms-switch-rank:before{content:"\\6392\\884C"}.tms-switch-repos:before{content:"\\5171\\4EAB"}.tms-switch-coinpay:before{content:"\\6253\\8D4F"}.tms-discuss-switch{position:fixed;bottom:48px;right:15px;width:48px;height:48px;background:hsla(0,0%,75%,.5);border-radius:4px;color:#666;font-size:24px;line-height:48px;text-align:center}@media screen and (max-width:768px){body{margin-bottom:60px}.tms-switch:last-of-type{right:8px;bottom:10px}.tms-switch:nth-last-of-type(2){right:85px;bottom:10px}.tms-switch:nth-last-of-type(3){right:165px;bottom:10px}.tms-switch:nth-last-of-type(4){right:176px;bottom:10px}.tms-switch:nth-last-of-type(5){right:232px;bottom:10px}.tms-switch:nth-last-of-type(6){right:288px;bottom:10px}}#frmPlugin{position:absolute;top:0;bottom:0;left:0;right:0;width:100%;height:100%;border:none;z-index:1060;box-sizing:border-box;padding-bottom:48px;background:#fff}#frmPlugin iframe{width:100%;height:100%;border:0}#frmPlugin:after{content:"\\5173\\95ED";position:absolute;width:100px;text-align:center;left:50%;margin-left:-50px;bottom:4px;padding:5px 6px 3px;border:1px solid #ccc;border-radius:4px}div[wrap]>.description{word-wrap:break-word}',""])},function(t,e,n){var r=n(16);"string"==typeof r&&(r=[[t.i,r,""]]);n(1)(r,{});r.locals&&(t.exports=r.locals)},function(t,e,n){"use strict";window.__util={},window.__util.makeDialog=function(t,e){var n,r;return r=document.createElement("div"),r.setAttribute("id",t),r.classList.add("dialog","mask"),n="<div class='dialog dlg'>",e.header&&e.header.length&&(n+="<div class='dlg-header'>"+e.header+"</div>"),n+="<div class='dlg-body'>"+e.body+"</div>",e.footer&&e.footer.length&&(n+="<div class='dlg-footer'>"+e.footer+"</div>"),n+="</div>",r.innerHTML=n,document.body.appendChild(r),r.children};var r=angular.module("directive.enroll",[]);r.directive("tmsDate",["$compile",function(t){return{restrict:"A",scope:{value:"=tmsDateValue"},controller:["$scope",function(t){t.close=function(){var e;e=document.querySelector("#"+t.dialogID),document.body.removeChild(e),t.opened=!1},t.ok=function(){var e;e=new Date,e.setTime(0),e.setFullYear(t.data.year),e.setMonth(t.data.month-1),e.setDate(t.data.date),e.setHours(t.data.hour),e.setMinutes(t.data.minute),t.value=parseInt(e.getTime()/1e3),t.close()}}],link:function(e,n,r){var o,i,a,s;void 0===e.value&&(e.value=1*new Date/1e3),i=new Date,i.setTime(1e3*e.value),e.options={years:[2014,2015,2016,2017],months:[1,2,3,4,5,6,7,8,9,10,11,12],dates:[1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20,21,22,23,24,25,26,27,28,29,30,31],hours:[0,1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20,21,22,23],minutes:[0,5,10,15,20,25,30,35,40,45,50,55]},a=5*Math.round(i.getMinutes()/5),e.data={year:i.getFullYear(),month:i.getMonth()+1,date:i.getDate(),hour:i.getHours(),minute:a},-1===e.options.minutes.indexOf(a)&&e.options.minutes.push(a),s='<div class="form-group"><select class="form-control" ng-model="data.year" ng-options="y for y in options.years"></select></div>',s+='<div class="form-group"><select class="form-control" ng-model="data.month" ng-options="m for m in options.months"></select></div>',s+='<div class="form-group"><select class="form-control" ng-model="data.date" ng-options="d for d in options.dates"></select></div>',s+='<div class="form-group"><select class="form-control" ng-model="data.hour" ng-options="h for h in options.hours"></select></div>',s+='<div class="form-group"><select class="form-control" ng-model="data.minute" ng-options="mi for mi in options.minutes"></select></div>',o=function(n){if(n.preventDefault(),n.stopPropagation(),!e.opened){var r,o;o="_dlg-"+1*new Date,r={header:"",body:s,footer:'<button class="btn btn-default" ng-click="close()">关闭</button><button class="btn btn-success" ng-click="ok()">确定</button>'},r=__util.makeDialog(o,r),e.opened=!0,e.dialogID=o,t(r)(e)}},n[0].querySelector("[ng-bind]").addEventListener("click",o)}}}]),r.directive("tmsCheckboxGroup",function(){return{restrict:"A",link:function(t,e,n){var r,o,i,a;n.tmsCheckboxGroup&&n.tmsCheckboxGroup.length&&(r=n.tmsCheckboxGroup,n.tmsCheckboxGroupModel&&n.tmsCheckboxGroupModel.length&&(o=n.tmsCheckboxGroupModel,n.tmsCheckboxGroupUpper&&n.tmsCheckboxGroupUpper.length&&(a=n.tmsCheckboxGroupUpper,i=document.querySelectorAll("[name="+r+"]"),t.$watch(o+"."+r,function(t){var e;e=0,angular.forEach(t,function(t,n){t&&e++}),e>=a?[].forEach.call(i,function(t){void 0===t.checked?!t.classList.contains("checked")&&t.setAttribute("disabled",!0):!t.checked&&(t.disabled=!0)}):[].forEach.call(i,function(t){void 0===t.checked?t.removeAttribute("disabled"):t.disabled=!1})},!0))))}}}),r.directive("flexImg",function(){return{restrict:"A",replace:!0,template:"<img ng-src='{{img.imgSrc}}'>",link:function(t,e,n){angular.element(e).on("load",function(){var t,e,n=this.clientWidth,r=this.clientHeight;n>r?(t=n/r*80,angular.element(this).css({height:"100%",width:t+"px",top:"0",left:"50%","margin-left":-1*t/2+"px"})):(e=r/n*80,angular.element(this).css({width:"100%",height:e+"px",left:"0",top:"50%","margin-top":-1*e/2+"px"}))})}}}),r.service("srvUserTask",["$http","tmsModal",function(t,e){this.open=function(n){var r,o;o='<div class="modal-body">',n.summary&&(o+='<div class="form-group">活动说明：'+n.summary+"</div>"),r=n.userTask,o+='<table class="table table-bordered">',o+="<thead><tr><th>任务</th><th>要求</th><th>完成</th></tr></thead>",o+="<tbody>",r.minEnrollNum&&parseInt(r.minEnrollNum)>0&&(o+="<tr>",o+="<td>至少填写记录条数</td>",o+="<td>"+r.minEnrollNum+"</td>",o+="<td>{{enrollee.enroll_num}}</td>",o+="</tr>"),r.minRemarkNum&&parseInt(r.minRemarkNum)>0&&(o+="<tr>",o+="<td>至少发表评论条数</td>",o+="<td>"+r.minRemarkNum+"</td>",o+="<td>{{enrollee.remark_other_num}}</td>",o+="</tr>"),r.minLikeNum&&parseInt(r.minLikeNum)>0&&(o+="<tr>",o+="<td>对记录至少发表赞同的条数</td>",o+="<td>"+r.minLikeNum+"</td>",o+="<td>{{enrollee.like_other_num}}</td>",o+="</tr>"),r.maxLikeNum&&parseInt(r.maxLikeNum)>0&&(o+="<tr>",o+="<td>对记录最多发表赞同的条数</td>",o+="<td>"+r.maxLikeNum+"</td>",o+="<td>{{enrollee.like_other_num}}</td>",o+="</tr>"),o+="</tbody></table>",o+="</div>",o+='<div class="modal-footer"><button class="btn btn-default" ng-click="cancel()">关闭任务说明</button></div>',e.open({template:o,controller:["$scope","$tmsModalInstance",function(e,r){t.get("/rest/site/fe/matter/enroll/user/task?site="+n.siteid+"&app="+n.id).success(function(t){e.enrollee=t.data}),e.cancel=function(){r.dismiss()}}]})}}])},function(t,e,n){"use strict";angular.module("http.ui.xxt",[]).service("http2",["$rootScope","$http","$timeout","$q","$sce","$compile",function(t,e,n,r,o,i){function a(e,n,r){var a;return a=angular.element("<div></div>"),a.attr({class:"tms-notice alert alert-"+(n||"info"),"ng-style":"{'z-index':1040}"}).html(o.trustAsHtml(e)),r||a[0].addEventListener("click",function(){document.body.removeChild(a[0])},!0),i(a)(t),document.body.appendChild(a[0]),a[0]}function s(t){t&&document.body.removeChild(t)}this.get=function(t,o){var i,c,u=r.defer();return o=angular.extend({headers:{accept:"application/json"},autoBreak:!0,autoNotice:!0,showProgress:!0,showProgressDelay:500,showProgressText:"正在获取数据..."},o),!0===o.showProgress&&(c=n(function(){c=null,i=a(o.showProgressText,"info")},o.showProgressDelay)),e.get(t,o).success(function(t){if(!0===o.showProgress&&(c&&n.cancel(c),i&&(s(i),i=null)),angular.isString(t))return void(o.autoNotice&&a(t,"warning"));if(0!=t.err_code){if(o.autoNotice){var e;e=angular.isString(t.err_msg)?t.err_msg:JSON.stringify(t.err_msg),a(e,"warning")}if(o.autoBreak)return}u.resolve(t)}).error(function(t,e){!0===o.showProgress&&(c&&n.cancel(c),i&&(s(i),i=null)),a(null===t?"网络不可用":t,"danger")}),u.promise},this.post=function(t,o,i){var c,u,l=r.defer();return i=angular.extend({headers:{accept:"application/json"},autoBreak:!0,autoNotice:!0,showProgress:!0,showProgressDelay:500,showProgressText:"正在获取数据..."},i),!0===i.showProgress&&(u=n(function(){u=null,c=a(i.showProgressText,"info")},i.showProgressDelay)),e.post(t,o,i).success(function(t){if(!0===i.showProgress&&(u&&n.cancel(u),c&&(s(c),c=null)),angular.isString(t))return void(i.autoNotice&&(a(t,"warning"),c=null));if(0!=t.err_code){if(i.autoNotice){var e;e=angular.isString(t.err_msg)?t.err_msg:JSON.stringify(t.err_msg),a(e,"warning")}if(i.autoBreak)return}l.resolve(t)}).error(function(t,e){!0===i.showProgress&&(u&&n.cancel(u),c&&(s(c),c=null)),a(null===t?"网络不可用":t,"danger")}),l.promise}}])},function(t,e,n){e=t.exports=n(0)(void 0),e.push([t.i,".container{position:relative}.navbar-default{background-color:#2994d0;border-bottom:none}.navbar-default .navbar-brand,.navbar-default .navbar-nav>li>a{color:#fff}.glyphicon{top:2px;margin-right:10px}.navbar-brand{height:55px;padding:17.5px 15px}.main-navbar .navbar-brand:hover{color:#fff}@media screen and (min-width:768px){.navbar-nav>li>a{padding:17.5px 30px;font-size:18px;line-height:1}}@media screen and (max-width:768px){.navbar-brand{width:100%;text-align:center}.navbar-brand>.icon-note{display:inline-block;width:124px;text-overflow:ellipsis;overflow:hidden;white-space:nowrap}.navbar-nav{margin:8px 0;position:absolute;top:0;right:0}.nav>li>a{padding:10px}}",""])},function(t,e,n){var r=n(20);"string"==typeof r&&(r=[[t.i,r,""]]);n(1)(r,{});r.locals&&(t.exports=r.locals)},function(t,e,n){"use strict";n(11),/MicroMessenger/i.test(navigator.userAgent)&&window.signPackage&&window.wx?window.wx.ready(function(){window.wx.showOptionMenu()}):/YiXin/i.test(navigator.userAgent)&&document.addEventListener("YixinJSBridgeReady",function(){YixinJSBridge.call("showOptionMenu")},!1),n(17),n(21),n(19),n(2),n(15),n(12),n(14),n(18);var r=angular.module("app",["ngSanitize","ui.bootstrap","http.ui.xxt","page.ui.xxt","snsshare.ui.xxt","directive.enroll","siteuser.ui.xxt","favor.ui.xxt"]);r.provider("ls",function(){var t={};this.params=function(e){var n;return n=location.search,angular.forEach(e,function(e){var r,o;o=new RegExp(e+"=([^&]*)"),r=n.match(o),t[e]=r?r[1]:""}),t},this.$get=function(){return{p:t,j:function(e){var n=1,r=arguments.length,o="/rest/site/fe/matter/enroll",i=[];for(e&&e.length&&(o+="/"+e);n<r;n++)i.push(arguments[n]+"="+t[arguments[n]]);return i.length&&(o+="?"+i.join("&")),o}}}}),r.config(["$controllerProvider","$uibTooltipProvider","lsProvider",function(t,e,n){r.provider={controller:t.register},e.setTriggers({show:"hide"}),n.params(["site","app","rid","page","ek","preview","newRecord","ignoretime"])}]),r.controller("ctrlAppTip",["$scope","$interval",function(t,e){var n;t.autoCloseTime=6,t.domId="",t.closeTip=function(){var e=document.querySelector(t.domId),n=document.createEvent("HTMLEvents");n.initEvent("hide",!1,!1),e.dispatchEvent(n)},n=e(function(){0===--t.autoCloseTime&&(e.cancel(n),t.closeTip())},1e3)}]),r.controller("ctrlMain",["$scope","$q","$http","$timeout","srvUserTask","ls","tmsDynaPage","tmsSnsShare","tmsSiteUser","tmsFavor",function(t,e,n,o,i,a,s,c,u,l){function d(){var r,o;return o=e.defer(),r=a.j("actionRule","site","app"),n.get(r).success(function(e){t.params.actionRule=e.data,o.resolve(e.data)}),o.promise}function f(t,e){var n,r,o;n=document.body,r=document.createElement("div"),r.setAttribute("id","frmPlugin"),r.height=n.clientHeight,o=document.createElement("iframe"),r.appendChild(o),n.scrollTop=0,n.appendChild(r),window.onClosePlugin=function(){e?e().then(function(t){r.parentNode.removeChild(r)}):r.parentNode.removeChild(r)},r.onclick=function(){onClosePlugin()},t&&o.setAttribute("src",t),r.style.display="block"}function p(e){var n,r,o,i;i=!0,n=t,o=e.match(/\((.*?)\)/)[1].replace(/'|"/g,"").split(","),angular.forEach(e.replace(/\(.*?\)/,"").split("."),function(t){if(r&&(n=r),!n[t])return void(i=!1);r=n[t]}),i&&r.apply(n,o)}var h=[];t.notice={msg:"",set:function(t,e){this.msg=t,this.type=e||"error"}},t.back=function(){history.back()},t.historyLen=function(){return history.length},t.closeWindow=function(){/MicroMessenger/i.test(navigator.userAgent)?window.wx.closeWindow():/YiXin/i.test(navigator.userAgent)&&window.YixinJSBridge.call("closeWebView")},t.askFollowSns=function(){var e;t.app.entry_rule&&"sns"===t.app.entry_rule.scope&&(e=a.j("askFollow","site"),e+="&sns="+Object.keys(t.app.entry_rule.sns).join(","),f(e,d))},t.askBecomeMember=function(){var e,n;t.app.entry_rule&&"member"===t.app.entry_rule.scope&&(n=Object.keys(t.app.entry_rule.member),1===n.length?(e="/rest/site/fe/user/member?site="+t.app.siteid,e+="&schema="+n[0]):n.length>1&&(e="/rest/site/fe/user/memberschema?site="+t.app.siteid,e+="&schema="+n.join(",")),f(e,d))},t.addRecord=function(e,n){if(n)t.gotoPage(e,n,null,null,"Y");else for(var r in t.app.pages){var o=t.app.pages[r];if("I"===o.type){t.gotoPage(e,o.name,null,null,"Y");break}}},t.showUserTask=function(){i.open(t.app)},t.gotoPage=function(t,e,n,r,o){t&&(t.preventDefault(),t.stopPropagation());var i=a.j("","site","app");n&&(i+="&ek="+n),void 0!==r&&null!==r&&r.length&&(i+="&rid="+r),void 0!==e&&null!==e&&e.length&&(i+="&page="+e),void 0!==o&&"Y"===o&&(i+="&newRecord=Y"),/remark|repos/.test(e)?location=i:location.replace(i)},t.openMatter=function(t,e,n,r){var o="/rest/site/fe/matter?site="+a.p.site+"&id="+t+"&type="+e;n?location.replace(o):!1===r?location.href=o:window.open(o)},t.onReady=function(e){t.params?p(e):h.push(e)},t.save=function(){t.$broadcast("xxt.app.enroll.save")},n.get(a.j("get","site","app","rid","page","ek","newRecord")).success(function(e){if(0!==e.err_code)return void(t.errmsg=e.err_msg);var i,d,f,p=e.data,g=p.site,m=p.app,v=p.mission,b=p.page,y=p.user,w={},x={};if(m.dataSchemas.forEach(function(t){w[t.id]=t}),m._schemasById=w,m.dataTags.forEach(function(t){x[t.id]=t}),m._tagsById=x,t.params=p,t.site=g,t.mission=v,t.app=m,t.user=y,"Y"===m.multi_rounds&&(t.activeRound=p.activeRound),p.record&&p.record.data_tag)for(var _ in p.record.data_tag){var k=p.record.data_tag[_],E=[];k.forEach(function(t){x[t]&&E.push(x[t])}),p.record.data_tag[_]=E}i=y.uid+"_"+1*new Date,d="http://"+location.host+a.j("","site","app","rid","newRecord"),d+="&shareby="+i,b&&b.share_page&&"Y"===b.share_page&&(d+="&page="+b.name,p.record&&p.record.enroll_key&&(d+="&ek="+p.record.enroll_key),/iphone|ipad/i.test(navigator.userAgent)||window.history&&window.history.replaceState&&window.history.replaceState({},m.title,d)),/MicroMessenger|Yixin/i.test(navigator.userAgent)&&(f=m.summary,b&&b.share_summary&&b.share_summary.length&&p.record&&(f=p.record.data[b.share_summary]),window.shareCounter=0,c.config({siteId:m.siteid,logger:function(t){var e;e="/rest/site/fe/matter/logShare",e+="?shareid="+i,e+="&site="+m.siteid,e+="&id="+m.id,e+="&type=enroll",e+="&title="+m.title,e+="&shareby="+i,e+="&shareto="+t,n.get(e),window.shareCounter++,"Y"===m.can_autoenroll&&"Y"===b.autoenroll_onshare&&n.get(a.j("emptyGet","site","app")+"&once=Y"),window.onshare&&window.onshare(window.shareCounter)},jsApiList:["hideOptionMenu","onMenuShareTimeline","onMenuShareAppMessage","chooseImage","uploadImage","getLocation"]}),c.set(m.title,d,f,m.pic)),"Y"===m.use_site_header&&g&&g.header_page&&s.loadCode(r,g.header_page),"Y"===m.use_mission_header&&v&&v.header_page&&s.loadCode(r,v.header_page),"Y"===m.use_mission_footer&&v&&v.footer_page&&s.loadCode(r,v.footer_page),"Y"===m.use_site_footer&&g&&g.footer_page&&s.loadCode(r,g.footer_page),p.page&&s.loadCode(r,p.page).then(function(){t.page=p.page}),h.length&&angular.forEach(h,PG.exec),document.querySelector(".tms-switch-favor")?t.favor=function(t,e){event.preventDefault(),event.stopPropagation(),t.loginExpire?l.open(e):s.openPlugin("http://"+location.host+"/rest/site/fe/user/login?site="+e.siteid).then(function(n){t.loginExpire=n.loginExpire,l.open(e)})}:l.showSwitch(t.user,m),"Y"===m.can_siteuser&&(document.querySelector(".tms-switch-siteuser")?t.siteUser=function(t){event.preventDefault(),event.stopPropagation();var e="http://"+location.host;e+="/rest/site/fe/user",e+="?site="+t,location.href=e}:u.showSwitch(m.siteid,!0)),t.isSmallLayout=!1,window.screen&&window.screen.width<992&&(t.isSmallLayout=!0),o(function(){t.$broadcast("xxt.app.enroll.ready",p)});var S;(S=document.querySelector(".loading"))&&S.parentNode.removeChild(S),n.post("/rest/site/fe/matter/logAccess?site="+m.siteid+"&id="+m.id+"&type=enroll&title="+m.title+"&shareby=",{search:location.search.replace("?",""),referer:document.referrer})}).error(function(e,n){if(401===n){var r=document.createElement("iframe");r.setAttribute("id","frmPopup"),r.onload=function(){this.height=document.querySelector("body").clientHeight},document.body.appendChild(r),0===e.indexOf("http")?(window.onAuthSuccess=function(){r.style.display="none"},r.setAttribute("src",e),r.style.display="block"):r.contentDocument&&r.contentDocument.body&&(r.contentDocument.body.innerHTML=e,r.style.display="block")}else t.errmsg=e})}]),t.exports=r},function(t,e,n){"use strict";void 0===window.xxt&&(window.xxt={}),window.xxt.geo={options:{},getAddress:function(t,e,n){var r;if(r=e.promise,window.wx)window.wx.getLocation({success:function(r){var o="/rest/site/fe/matter/enroll/locationGet";o+="?site="+n,o+="&lat="+r.latitude,o+="&lng="+r.longitude,t.get(o).then(function(t){e.resolve({errmsg:"ok",lat:r.latitude,lng:r.longitude,address:t.data.address})})}});else try{var o=window.navigator;if(null!==o){var i=o.geolocation;null!==i?i.getCurrentPosition(function(r){var o="/rest/site/fe/matter/enroll/locationGet";o+="?site="+n,o+="&lat="+r.coords.latitude,o+="&lng="+r.coords.longitude,t.get(o).then(function(t){e.resolve({errmsg:"ok",lat:r.coords.latitude,lng:r.coords.longitude,address:t.data.address})})},function(){e.resolve({errmsg:"获取地理位置失败"})}):e.resolve({errmsg:"无法获取地理位置"})}else e.resolve({errmsg:"无法获取地理位置"})}catch(t){alert("exception:"+t.message)}return r}}},function(t,e,n){"use strict";void 0===window.xxt&&(window.xxt={}),window.xxt.image={options:{},choose:function(t,e){var n,r=[];if(n=t.promise,window.YixinJSBridge)window.YixinJSBridge.invoke("pickImage",{type:e,quality:100},function(e){var n;e.data&&e.data.length&&(n={imgSrc:"data:"+e.mime+";base64,"+e.data},r.push(n)),t.resolve(r)});else{var o=document.createElement("input");o.setAttribute("type","file"),o.addEventListener("change",function(e){var n,i,a,s;for(i=e.target.files.length,n=0;n<i;n++){a=e.target.files[n],s={".jp":"image/jpeg",".pn":"image/png",".gi":"image/gif"}[a.name.match(/\.(\w){2}/g)[0]||".jp"],a.type2=a.type||s;var c=new FileReader;c.onload=function(e){return function(n){var i={};i.imgSrc=n.target.result.replace(/^.+(,)/,"data:"+e.type2+";base64,"),r.push(i),document.body.removeChild(o),t.resolve(r)}}(a),c.readAsDataURL(a)}},!1),o.style.opacity=0,document.body.appendChild(o),o.click()}return n},wxUpload:function(t,e){var n;return n=t.promise,0===e.imgSrc.indexOf("weixin://")||0===e.imgSrc.indexOf("wxLocalResource://")?window.wx.uploadImage({localId:e.imgSrc,isShowProgressTips:1,success:function(n){e.serverId=n.serverId,t.resolve(e)}}):t.resolve(e),n}}},,,,,,,function(t,e,n){"use strict";var r={};r.isEmpty=function(t,e){if(void 0===e)return!0;switch(t.type){case"multiple":for(var n in e)if(!0===e[n])return!1;return!0;default:return 0===e.length}},r.checkRequire=function(t,e){return void 0!==e&&!this.isEmpty(t,e)||"请填写必填题目［"+t.title+"］"},r.checkFormat=function(t,e){if("number"===t.format){if(!/^-{0,1}[0-9]+(.[0-9]+){0,1}$/.test(e))return"题目［"+t.title+"］请输入数值"}else if("name"===t.format){if(e.length<2)return"题目［"+t.title+"］请输入正确的姓名（不少于2个字符）"}else if("mobile"===t.format){if(!/^1(3[0-9]|4[57]|5[0-35-9]|7[0135678]|8[0-9])\d{8}$/.test(e))return"题目［"+t.title+"］请输入正确的手机号（11位数字）"}else if("email"===t.format&&!/^[A-Za-z\d]+([-_.][A-Za-z\d]+)*@([A-Za-z\d]+[-.])+[A-Za-z\d]{2,4}$/.test(e))return"题目［"+t.title+"］请输入正确的邮箱";return!0},r.checkCount=function(t,e){return!(void 0!==t.count&&e.length>t.count)||"［"+t.title+"］超出上传数量（"+t.count+"）限制"},r.checkValue=function(t,e){var n;if(t.required&&"Y"===t.required&&!0!==(n=this.checkRequire(t,e)))return n;if(e){if("shorttext"===t.type&&t.format&&!0!==(n=this.checkFormat(t,e)))return n;if(/image|file/.test(t.type)&&t.count&&!0!==(n=this.checkCount(t,e)))return n}return!0},r.loadRecord=function(t,e,n){if(!n)return!1;var r,o;for(r in n)if("member"===r)angular.isString(n.member)&&(n.member=JSON.parse(n.member)),e.member=angular.extend(e.member,n.member);else if(void 0!==t[r]){var i=t[r];if("score"===i.type)e[r]=n[r];else if(n[r].length)if("image"===t[r].type){o=n[r].split(","),e[r]=[];for(var a in o)e[r].push({imgSrc:o[a]})}else if("multiple"===t[r].type){o=n[r].split(","),e[r]={};for(var a in o)e[r][o[a]]=!0}else e[r]=n[r]}return!0},r.autoFillMember=function(t,e){var n,r;t&&e&&e.schema_id&&t.members&&(n=t.members[e.schema_id])&&(angular.isString(n.extattr)&&(n.extattr.length?n.extattr=JSON.parse(n.extattr):n.extattr={}),r=document.querySelectorAll("[ng-model^='data.member']"),angular.forEach(r,function(t){var r;r=t.getAttribute("ng-model"),r=r.replace("data.member.",""),r=r.split("."),2==r.length?(!e.extattr&&(e.extattr={}),e.extattr[r[1]]=n.extattr[r[1]]):e[r[0]]=n[r[0]]}))},t.exports=r},function(t,e,n){"use strict";var r={};r.state={modified:!1,state:"waiting",_cacheKey:!1,start:function(t,e){var n;if(t&&(n=t.target,("BUTTON"===n.tagName||(n=n.parentNode)&&"BUTTON"===n.tagName)&&/submit\(.*\)/.test(n.getAttribute("ng-click")))){var r;this.button=n,r=n.querySelector("span"),r.setAttribute("data-label",r.innerHTML),r.innerHTML="正在提交数据...",this.button.classList.add("submit-running")}this.state="running",this._cacheKey=e||1*new Date},finish:function(t){if(this.state="waiting",this.modified=!1,this.button){var e;e=this.button.querySelector("span"),e.innerHTML=e.getAttribute("data-label"),e.removeAttribute("data-label"),this.button.classList.remove("submit-running"),this.button=null}window.localStorage&&!t&&window.localStorage.removeItem(this._cacheKey)},isRunning:function(){return"running"===this.state},cache:function(t){if(window.localStorage){var e,n;e=this._cacheKey,n=angular.copy(t),n._cacheAt=1*new Date,n=JSON.stringify(n),window.localStorage.setItem(e,n)}},fromCache:function(t){if(window.localStorage){var e,n;e=this._cacheKey,n=window.localStorage.getItem(e),t||window.localStorage.removeItem(e),n&&(n=JSON.parse(n),n._cacheAt&&n._cacheAt+18e5<1*new Date&&(n=!1),delete n._cacheAt)}return n}},t.exports=r},,,function(t,e,n){"use strict";n(62),n(24),n(23);var r=n(22);r.oUtilSchema=n(31),r.oUtilSubmit=n(32),r.config(["$compileProvider",function(t){t.aHrefSanitizationWhitelist(/^\s*(https?|ftp|mailto|tel|file|sms|wxLocalResource):/)}]),r.factory("Input",["$q","$timeout","ls","http2",function(t,e,n,o){var i,a;return i=function(){},i.prototype.check=function(t,e,n){var o,i,a,s,c;if(n.data_schemas&&n.data_schemas.length){o=JSON.parse(n.data_schemas);for(var u=o.length-1;u>=0;u--){if(i=o[u],a=i.schema,0===a.id.indexOf("member.")){var l=a.id.substr(7);-1===l.indexOf(".")?s=t.member[l]:(l=l.split("."),s=t.member.extattr[l[1]])}else s=t[a.id];if(!0!==(c=r.oUtilSchema.checkValue(a,s)))return c}}return!0},i.prototype.submit=function(e,r,i,a){var s,c,u,l,d,f;s=t.defer(),d=angular.copy(r),Object.keys&&0===Object.keys(d.member).length&&delete d.member,c=n.j("record/submit","site","app"),e&&e.length&&(c+="&ek="+e);for(var p in d)if(u=d[p],angular.isArray(u)&&u.length&&void 0!==u[0].imgSrc&&void 0!==u[0].serverId)for(var h in u)l=u[h],delete l.imgSrc;if(f={},Object.keys&&Object.keys(i).length>0)for(var g in i)f[g]=[],i[g].forEach(function(t){f[g].push(t.id)});return o.post(c,{data:d,tag:i,supplement:a},{autoBreak:!1}).then(function(t){0==t.err_code?s.resolve(t):s.reject(t)}),s.promise},{ins:function(){return a||(a=new i),a}}}]),r.directive("tmsImageInput",["$compile","$q",function(t,e){var n,r;return n=[],r=function(e){var n;n="<div class='form-group'><button class='btn btn-default btn-lg btn-block' ng-click=\"chooseImage(null,null,'camera')\">拍照</button></div>",n+="<div class='form-group'><button class='btn btn-default btn-lg btn-block' ng-click=\"chooseImage(null,null,'album')\">相册</button></div>",n=window.__util.makeDialog("pickImageFrom",{body:n}),t(n)(e)},function(t){var n=e.defer();return n.resolve("ok"),n.promise},{restrict:"A",controller:["$scope","$timeout",function(t,o){t.chooseImage=function(i,a,s){if(null!==i&&(-1===n.indexOf(i)&&n.push(i),void 0===t.data[i]&&(t.data[i]=[]),null!==a&&t.data[i].length===a&&0!=a))return void t.$parent.notice.set("最多允许上传"+a+"张图片");if(window.YixinJSBridge){if(void 0===s)return t.cachedImgFieldName=i,void r(t);i=t.cachedImgFieldName,t.cachedImgFieldName=null,angular.element("#pickImageFrom").remove()}window.xxt.image.choose(e.defer(),s).then(function(e){var n,r,a,s;n=t.$root.$$phase,"$digest"===n||"$apply"===n?t.data[i]=t.data[i].concat(e):t.$apply(function(){t.data[i]=t.data[i].concat(e)}),o(function(){for(r=0,a=e.length;r<a;r++)s=e[r],document.querySelector('ul[name="'+i+'"] li:nth-last-child(2) img').setAttribute("src",s.imgSrc);t.$broadcast("xxt.enroll.image.choose.done",i)})})},t.removeImage=function(t,e){t.splice(e,1)}}]}}]),r.directive("tmsFileInput",["$q","ls","tmsDynaPage",function(t,e,n){var r,o;return n.loadScript(["/static/js/resumable.js"]).then(function(){r=new Resumable({target:e.j("record/uploadFile","site","app"),testChunks:!1,chunkSize:524288})}),o=function(e){var n;return n=t.defer(),r.files&&0!==r.files.length||n.resolve("empty"),r.on("progress",function(){var t,n;n=r.progress();var t=e.$root.$$phase;"$digest"===t||"$apply"===t?e.progressOfUploadFile=Math.ceil(100*n):e.$apply(function(){e.progressOfUploadFile=Math.ceil(100*n)})}),r.on("complete",function(){var t=e.$root.$$phase;"$digest"===t||"$apply"===t?e.progressOfUploadFile="完成":e.$apply(function(){e.progressOfUploadFile="完成"}),r.cancel(),n.resolve("ok")}),r.upload(),n.promise},{restrict:"A",controller:["$scope",function(t){t.progressOfUploadFile=0,t.beforeSubmit(function(){return o(t)}),t.chooseFile=function(e,n,o){var i=document.createElement("input");i.setAttribute("type","file"),void 0!==o&&i.setAttribute("accept",o),i.addEventListener("change",function(n){var o,a,s;for(a=n.target.files.length,o=0;o<a;o++)s=n.target.files[o],r.addFile(s),t.$apply(function(){void 0===t.data[e]&&(t.data[e]=[]),t.data[e].push({uniqueIdentifier:r.files[r.files.length-1].uniqueIdentifier,name:s.name,size:s.size,type:s.type,url:""}),t.$broadcast("xxt.enroll.file.choose.done",e)});i=null},!0),i.click()}}]}}]),r.controller("ctrlInput",["$scope","$q","$uibModal","$timeout","Input","ls","http2",function(t,e,n,o,i,a,s){function c(t,e){(0,f[t])().then(function(n){t++,t<f.length?c(t,e):u(e)})}function u(e){var n;n=t.record?t.record.enroll_key:void 0,d.submit(n,t.data,t.tag,t.supplement).then(function(r){var o;p.finish(),"closeWindow"===e?t.closeWindow():"_autoForward"===e?(o=a.j("","site","app"),location.replace(o)):e&&e.length?(o=a.j("","site","app"),o+="&page="+e,o+="&ek="+r.data,location.replace(o)):(void 0===n&&(t.record={enroll_key:r.data}),t.$broadcast("xxt.app.enroll.submit.done",r.data))},function(t){p.finish()})}function l(){p.start(null,h),p.cache(t.data),p.finish(!0),t.$parent.notice.set("保存成功，关闭页面后，再次打开时自动恢复当前数据","success")}window.onbeforeunload=function(t){var e;if(p.modified)return e="已经修改的内容还没有保存，确定离开？",t=t||window.event,t&&(t.returnValue=e),e};var d,f,p,h;f=[],d=i.ins(),t.data={member:{}},t.tag={},t.supplement={},t.submitState=p=r.oUtilSubmit.state,t.beforeSubmit=function(t){-1===f.indexOf(t)&&f.push(t)},t.$on("xxt.app.enroll.save",function(){l()}),t.save=function(e,n){l(),t.gotoPage(e,n)},t.$on("xxt.app.enroll.ready",function(e,n){if(h="xxt.app.enroll:"+n.app.id+".user:"+n.user.uid+".cacheKey",t.schemasById=n.app._schemasById,n.record&&(r.oUtilSchema.loadRecord(n.app._schemasById,t.data,n.record.data),t.record=n.record,n.record.data_tag&&(t.tag=n.record.data_tag)),window.localStorage){p._cacheKey=h;var o=p.fromCache(h);o&&(o.member&&delete o.member,angular.extend(t.data,o),p.modified=!0)}if(t.$watch("data",function(t,e){t!==e&&(p.modified=!0)},!0),n.page&&n.page.act_schemas)for(var i=JSON.parse(n.page.act_schemas),a=i.length-1;a>=0;a--)if("save"===i[a].name){var s=document.querySelector(".tms-switch-save");s&&(s.style.display="none");break}n.user.unionid});var g=!1;t.$watch("data.member.schema_id",function(e){!1===g&&e&&t.user&&(r.oUtilSchema.autoFillMember(t.user,t.data.member),g=!0)}),t.submit=function(e,n){var r;p.isRunning()||(p.start(e,h),!0===(r=d.check(t.data,t.app,t.page))?f.length?c(0,n):u(n):(p.finish(),t.$parent.notice.set(r)))},t.tagRecordData=function(e){var r,o,i;r=t.app,(o=r._schemasById[e])&&(i=t.tag[e],n.open({templateUrl:"tagRecordData.html",controller:["$scope","$uibModalInstance",function(e,n){var a;e.schema=o,e.apptags=r.dataTags,e.model=a={selected:[]},i&&i.forEach(function(t){-1!==e.apptags.indexOf(t)&&(a.selected[e.apptags.indexOf(t)]=!0)}),e.createTag=function(){var n;e.model.newtag&&(n=e.model.newtag.replace(/\s/,","),n=n.split(","),s.post("/rest/site/fe/matter/enroll/tag/create?site="+t.app.siteid+"&app="+t.app.id,n).then(function(t){t.data.forEach(function(t){e.apptags.push(t)})}),e.model.newtag="")},e.cancel=function(){n.dismiss()},e.ok=function(){var t=[];a.selected.forEach(function(n,r){n&&t.push(e.apptags[r])}),n.close(t)}}],backdrop:"static"}).result.then(function(n){t.tag[e]=n}))},t.getMyLocation=function(n){window.xxt.geo.getAddress(s,e.defer(),a.p.site).then(function(e){t.data[n]=e.address})},t.dataBySchema=function(e){var r=t.app;n.open({templateUrl:"dataBySchema.html",controller:["$scope","$uibModalInstance",function(t,n){t.data={},t.cancel=function(){n.dismiss()},t.ok=function(){n.close(t.data)},s.get("/rest/site/fe/matter/enroll/repos/dataBySchema?site="+r.siteid+"&app="+r.id+"&schema="+e).then(function(e){t.records=e.data.records})}],backdrop:"static"}).result.then(function(n){t.data[e]=n.selected.value})},t.score=function(e,n,r){var o=t.schemasById[e],i=o.ops[n];void 0===t.data[e]&&(t.data[e]={},o.ops.forEach(function(e){t.data[o.id][e.v]=0})),t.data[e][i.v]=r},t.lessScore=function(e,n,r){if(!t.schemasById)return!1;var o=t.schemasById[e],i=o.ops[n];return void 0!==t.data[e]&&t.data[e][i.v]>=r}}])},,,,,,,,,,,,,,,function(t,e,n){e=t.exports=n(0)(void 0),e.push([t.i,"body,html{font-family:Microsoft Yahei,Arial;width:100%;height:auto}body{position:relative;font-size:16px;padding:15px}.app{margin-top:15px}img{max-width:100%}header{margin:-15px -15px 0}footer{margin:0 -15px -15px}ul{list-style:none}li,ul{margin:0;padding:0}.list-group{margin-bottom:0}#notice{display:block;opacity:0;height:0;overflow:hidden;width:300px;position:fixed;top:0;left:50%;margin:0 0 0 -150px;text-align:center;transition:opacity 1s;z-index:-1;word-break:break-all}#notice.active{opacity:1;height:auto;z-index:999}li[wrap=score]{padding:4px 4px 4px 0}li[wrap=score] label{padding:3px;font-weight:400}li[wrap=score]>.number{display:inline-block;margin-top:6px;border:1px solid #ccc}li[wrap=score]>.number>div{display:inline-block;width:48px;padding:4px;margin:4px;text-align:center;border-bottom:1px dotted #ddd}li[wrap=score]>.number>.in{background:#3b9}ul.img-tiles li{position:relative;display:inline-block;overflow:hidden;width:80px;height:80px;margin:0;padding:0;float:left}ul.img-tiles li.img-thumbnail img{display:inline-block;position:absolute;max-width:none}ul.img-tiles li.img-thumbnail button{position:absolute;top:0;right:0}ul.img-tiles li.img-picker button{position:auto;width:100%;height:100%}ul.img-tiles li.img-picker button span{font-size:36px}div[wrap].wrap-splitline{padding-bottom:.5em;border-bottom:1px solid #fff}div[wrap].wrap-inline>*{display:inline-block;vertical-align:middle;margin:0 1em 0 0}div[wrap].wrap-inline>label{width:6em;overflow:hidden;white-space:nowrap;text-overflow:ellipsis}div[wrap=matter]>span{cursor:pointer;text-decoration:underline}.tag{background:#3af;padding:4px 6px;margin:4px;border-radius:2px;font-size:.8em;color:#fff}#frmPopup{position:absolute;top:0;left:0;right:0;bottom:0;border:none;width:100%;z-index:999;box-sizing:border-box}",""])},,,,,,,,,,,,function(t,e,n){var r=n(50);"string"==typeof r&&(r=[[t.i,r,""]]);n(1)(r,{});r.locals&&(t.exports=r.locals)},,,,,,,,,,,,,,function(t,e,n){t.exports=n(35)}]);
+/* eslint-disable no-proto */
+
+
+
+var base64 = __webpack_require__(3)
+var ieee754 = __webpack_require__(5)
+var isArray = __webpack_require__(6)
+
+exports.Buffer = Buffer
+exports.SlowBuffer = SlowBuffer
+exports.INSPECT_MAX_BYTES = 50
+
+/**
+ * If `Buffer.TYPED_ARRAY_SUPPORT`:
+ *   === true    Use Uint8Array implementation (fastest)
+ *   === false   Use Object implementation (most compatible, even IE6)
+ *
+ * Browsers that support typed arrays are IE 10+, Firefox 4+, Chrome 7+, Safari 5.1+,
+ * Opera 11.6+, iOS 4.2+.
+ *
+ * Due to various browser bugs, sometimes the Object implementation will be used even
+ * when the browser supports typed arrays.
+ *
+ * Note:
+ *
+ *   - Firefox 4-29 lacks support for adding new properties to `Uint8Array` instances,
+ *     See: https://bugzilla.mozilla.org/show_bug.cgi?id=695438.
+ *
+ *   - Chrome 9-10 is missing the `TypedArray.prototype.subarray` function.
+ *
+ *   - IE10 has a broken `TypedArray.prototype.subarray` function which returns arrays of
+ *     incorrect length in some situations.
+
+ * We detect these buggy browsers and set `Buffer.TYPED_ARRAY_SUPPORT` to `false` so they
+ * get the Object implementation, which is slower but behaves correctly.
+ */
+Buffer.TYPED_ARRAY_SUPPORT = global.TYPED_ARRAY_SUPPORT !== undefined
+  ? global.TYPED_ARRAY_SUPPORT
+  : typedArraySupport()
+
+/*
+ * Export kMaxLength after typed array support is determined.
+ */
+exports.kMaxLength = kMaxLength()
+
+function typedArraySupport () {
+  try {
+    var arr = new Uint8Array(1)
+    arr.__proto__ = {__proto__: Uint8Array.prototype, foo: function () { return 42 }}
+    return arr.foo() === 42 && // typed array instances can be augmented
+        typeof arr.subarray === 'function' && // chrome 9-10 lack `subarray`
+        arr.subarray(1, 1).byteLength === 0 // ie10 has broken `subarray`
+  } catch (e) {
+    return false
+  }
+}
+
+function kMaxLength () {
+  return Buffer.TYPED_ARRAY_SUPPORT
+    ? 0x7fffffff
+    : 0x3fffffff
+}
+
+function createBuffer (that, length) {
+  if (kMaxLength() < length) {
+    throw new RangeError('Invalid typed array length')
+  }
+  if (Buffer.TYPED_ARRAY_SUPPORT) {
+    // Return an augmented `Uint8Array` instance, for best performance
+    that = new Uint8Array(length)
+    that.__proto__ = Buffer.prototype
+  } else {
+    // Fallback: Return an object instance of the Buffer class
+    if (that === null) {
+      that = new Buffer(length)
+    }
+    that.length = length
+  }
+
+  return that
+}
+
+/**
+ * The Buffer constructor returns instances of `Uint8Array` that have their
+ * prototype changed to `Buffer.prototype`. Furthermore, `Buffer` is a subclass of
+ * `Uint8Array`, so the returned instances will have all the node `Buffer` methods
+ * and the `Uint8Array` methods. Square bracket notation works as expected -- it
+ * returns a single octet.
+ *
+ * The `Uint8Array` prototype remains unmodified.
+ */
+
+function Buffer (arg, encodingOrOffset, length) {
+  if (!Buffer.TYPED_ARRAY_SUPPORT && !(this instanceof Buffer)) {
+    return new Buffer(arg, encodingOrOffset, length)
+  }
+
+  // Common case.
+  if (typeof arg === 'number') {
+    if (typeof encodingOrOffset === 'string') {
+      throw new Error(
+        'If encoding is specified then the first argument must be a string'
+      )
+    }
+    return allocUnsafe(this, arg)
+  }
+  return from(this, arg, encodingOrOffset, length)
+}
+
+Buffer.poolSize = 8192 // not used by this implementation
+
+// TODO: Legacy, not needed anymore. Remove in next major version.
+Buffer._augment = function (arr) {
+  arr.__proto__ = Buffer.prototype
+  return arr
+}
+
+function from (that, value, encodingOrOffset, length) {
+  if (typeof value === 'number') {
+    throw new TypeError('"value" argument must not be a number')
+  }
+
+  if (typeof ArrayBuffer !== 'undefined' && value instanceof ArrayBuffer) {
+    return fromArrayBuffer(that, value, encodingOrOffset, length)
+  }
+
+  if (typeof value === 'string') {
+    return fromString(that, value, encodingOrOffset)
+  }
+
+  return fromObject(that, value)
+}
+
+/**
+ * Functionally equivalent to Buffer(arg, encoding) but throws a TypeError
+ * if value is a number.
+ * Buffer.from(str[, encoding])
+ * Buffer.from(array)
+ * Buffer.from(buffer)
+ * Buffer.from(arrayBuffer[, byteOffset[, length]])
+ **/
+Buffer.from = function (value, encodingOrOffset, length) {
+  return from(null, value, encodingOrOffset, length)
+}
+
+if (Buffer.TYPED_ARRAY_SUPPORT) {
+  Buffer.prototype.__proto__ = Uint8Array.prototype
+  Buffer.__proto__ = Uint8Array
+  if (typeof Symbol !== 'undefined' && Symbol.species &&
+      Buffer[Symbol.species] === Buffer) {
+    // Fix subarray() in ES2016. See: https://github.com/feross/buffer/pull/97
+    Object.defineProperty(Buffer, Symbol.species, {
+      value: null,
+      configurable: true
+    })
+  }
+}
+
+function assertSize (size) {
+  if (typeof size !== 'number') {
+    throw new TypeError('"size" argument must be a number')
+  } else if (size < 0) {
+    throw new RangeError('"size" argument must not be negative')
+  }
+}
+
+function alloc (that, size, fill, encoding) {
+  assertSize(size)
+  if (size <= 0) {
+    return createBuffer(that, size)
+  }
+  if (fill !== undefined) {
+    // Only pay attention to encoding if it's a string. This
+    // prevents accidentally sending in a number that would
+    // be interpretted as a start offset.
+    return typeof encoding === 'string'
+      ? createBuffer(that, size).fill(fill, encoding)
+      : createBuffer(that, size).fill(fill)
+  }
+  return createBuffer(that, size)
+}
+
+/**
+ * Creates a new filled Buffer instance.
+ * alloc(size[, fill[, encoding]])
+ **/
+Buffer.alloc = function (size, fill, encoding) {
+  return alloc(null, size, fill, encoding)
+}
+
+function allocUnsafe (that, size) {
+  assertSize(size)
+  that = createBuffer(that, size < 0 ? 0 : checked(size) | 0)
+  if (!Buffer.TYPED_ARRAY_SUPPORT) {
+    for (var i = 0; i < size; ++i) {
+      that[i] = 0
+    }
+  }
+  return that
+}
+
+/**
+ * Equivalent to Buffer(num), by default creates a non-zero-filled Buffer instance.
+ * */
+Buffer.allocUnsafe = function (size) {
+  return allocUnsafe(null, size)
+}
+/**
+ * Equivalent to SlowBuffer(num), by default creates a non-zero-filled Buffer instance.
+ */
+Buffer.allocUnsafeSlow = function (size) {
+  return allocUnsafe(null, size)
+}
+
+function fromString (that, string, encoding) {
+  if (typeof encoding !== 'string' || encoding === '') {
+    encoding = 'utf8'
+  }
+
+  if (!Buffer.isEncoding(encoding)) {
+    throw new TypeError('"encoding" must be a valid string encoding')
+  }
+
+  var length = byteLength(string, encoding) | 0
+  that = createBuffer(that, length)
+
+  var actual = that.write(string, encoding)
+
+  if (actual !== length) {
+    // Writing a hex string, for example, that contains invalid characters will
+    // cause everything after the first invalid character to be ignored. (e.g.
+    // 'abxxcd' will be treated as 'ab')
+    that = that.slice(0, actual)
+  }
+
+  return that
+}
+
+function fromArrayLike (that, array) {
+  var length = array.length < 0 ? 0 : checked(array.length) | 0
+  that = createBuffer(that, length)
+  for (var i = 0; i < length; i += 1) {
+    that[i] = array[i] & 255
+  }
+  return that
+}
+
+function fromArrayBuffer (that, array, byteOffset, length) {
+  array.byteLength // this throws if `array` is not a valid ArrayBuffer
+
+  if (byteOffset < 0 || array.byteLength < byteOffset) {
+    throw new RangeError('\'offset\' is out of bounds')
+  }
+
+  if (array.byteLength < byteOffset + (length || 0)) {
+    throw new RangeError('\'length\' is out of bounds')
+  }
+
+  if (byteOffset === undefined && length === undefined) {
+    array = new Uint8Array(array)
+  } else if (length === undefined) {
+    array = new Uint8Array(array, byteOffset)
+  } else {
+    array = new Uint8Array(array, byteOffset, length)
+  }
+
+  if (Buffer.TYPED_ARRAY_SUPPORT) {
+    // Return an augmented `Uint8Array` instance, for best performance
+    that = array
+    that.__proto__ = Buffer.prototype
+  } else {
+    // Fallback: Return an object instance of the Buffer class
+    that = fromArrayLike(that, array)
+  }
+  return that
+}
+
+function fromObject (that, obj) {
+  if (Buffer.isBuffer(obj)) {
+    var len = checked(obj.length) | 0
+    that = createBuffer(that, len)
+
+    if (that.length === 0) {
+      return that
+    }
+
+    obj.copy(that, 0, 0, len)
+    return that
+  }
+
+  if (obj) {
+    if ((typeof ArrayBuffer !== 'undefined' &&
+        obj.buffer instanceof ArrayBuffer) || 'length' in obj) {
+      if (typeof obj.length !== 'number' || isnan(obj.length)) {
+        return createBuffer(that, 0)
+      }
+      return fromArrayLike(that, obj)
+    }
+
+    if (obj.type === 'Buffer' && isArray(obj.data)) {
+      return fromArrayLike(that, obj.data)
+    }
+  }
+
+  throw new TypeError('First argument must be a string, Buffer, ArrayBuffer, Array, or array-like object.')
+}
+
+function checked (length) {
+  // Note: cannot use `length < kMaxLength()` here because that fails when
+  // length is NaN (which is otherwise coerced to zero.)
+  if (length >= kMaxLength()) {
+    throw new RangeError('Attempt to allocate Buffer larger than maximum ' +
+                         'size: 0x' + kMaxLength().toString(16) + ' bytes')
+  }
+  return length | 0
+}
+
+function SlowBuffer (length) {
+  if (+length != length) { // eslint-disable-line eqeqeq
+    length = 0
+  }
+  return Buffer.alloc(+length)
+}
+
+Buffer.isBuffer = function isBuffer (b) {
+  return !!(b != null && b._isBuffer)
+}
+
+Buffer.compare = function compare (a, b) {
+  if (!Buffer.isBuffer(a) || !Buffer.isBuffer(b)) {
+    throw new TypeError('Arguments must be Buffers')
+  }
+
+  if (a === b) return 0
+
+  var x = a.length
+  var y = b.length
+
+  for (var i = 0, len = Math.min(x, y); i < len; ++i) {
+    if (a[i] !== b[i]) {
+      x = a[i]
+      y = b[i]
+      break
+    }
+  }
+
+  if (x < y) return -1
+  if (y < x) return 1
+  return 0
+}
+
+Buffer.isEncoding = function isEncoding (encoding) {
+  switch (String(encoding).toLowerCase()) {
+    case 'hex':
+    case 'utf8':
+    case 'utf-8':
+    case 'ascii':
+    case 'latin1':
+    case 'binary':
+    case 'base64':
+    case 'ucs2':
+    case 'ucs-2':
+    case 'utf16le':
+    case 'utf-16le':
+      return true
+    default:
+      return false
+  }
+}
+
+Buffer.concat = function concat (list, length) {
+  if (!isArray(list)) {
+    throw new TypeError('"list" argument must be an Array of Buffers')
+  }
+
+  if (list.length === 0) {
+    return Buffer.alloc(0)
+  }
+
+  var i
+  if (length === undefined) {
+    length = 0
+    for (i = 0; i < list.length; ++i) {
+      length += list[i].length
+    }
+  }
+
+  var buffer = Buffer.allocUnsafe(length)
+  var pos = 0
+  for (i = 0; i < list.length; ++i) {
+    var buf = list[i]
+    if (!Buffer.isBuffer(buf)) {
+      throw new TypeError('"list" argument must be an Array of Buffers')
+    }
+    buf.copy(buffer, pos)
+    pos += buf.length
+  }
+  return buffer
+}
+
+function byteLength (string, encoding) {
+  if (Buffer.isBuffer(string)) {
+    return string.length
+  }
+  if (typeof ArrayBuffer !== 'undefined' && typeof ArrayBuffer.isView === 'function' &&
+      (ArrayBuffer.isView(string) || string instanceof ArrayBuffer)) {
+    return string.byteLength
+  }
+  if (typeof string !== 'string') {
+    string = '' + string
+  }
+
+  var len = string.length
+  if (len === 0) return 0
+
+  // Use a for loop to avoid recursion
+  var loweredCase = false
+  for (;;) {
+    switch (encoding) {
+      case 'ascii':
+      case 'latin1':
+      case 'binary':
+        return len
+      case 'utf8':
+      case 'utf-8':
+      case undefined:
+        return utf8ToBytes(string).length
+      case 'ucs2':
+      case 'ucs-2':
+      case 'utf16le':
+      case 'utf-16le':
+        return len * 2
+      case 'hex':
+        return len >>> 1
+      case 'base64':
+        return base64ToBytes(string).length
+      default:
+        if (loweredCase) return utf8ToBytes(string).length // assume utf8
+        encoding = ('' + encoding).toLowerCase()
+        loweredCase = true
+    }
+  }
+}
+Buffer.byteLength = byteLength
+
+function slowToString (encoding, start, end) {
+  var loweredCase = false
+
+  // No need to verify that "this.length <= MAX_UINT32" since it's a read-only
+  // property of a typed array.
+
+  // This behaves neither like String nor Uint8Array in that we set start/end
+  // to their upper/lower bounds if the value passed is out of range.
+  // undefined is handled specially as per ECMA-262 6th Edition,
+  // Section 13.3.3.7 Runtime Semantics: KeyedBindingInitialization.
+  if (start === undefined || start < 0) {
+    start = 0
+  }
+  // Return early if start > this.length. Done here to prevent potential uint32
+  // coercion fail below.
+  if (start > this.length) {
+    return ''
+  }
+
+  if (end === undefined || end > this.length) {
+    end = this.length
+  }
+
+  if (end <= 0) {
+    return ''
+  }
+
+  // Force coersion to uint32. This will also coerce falsey/NaN values to 0.
+  end >>>= 0
+  start >>>= 0
+
+  if (end <= start) {
+    return ''
+  }
+
+  if (!encoding) encoding = 'utf8'
+
+  while (true) {
+    switch (encoding) {
+      case 'hex':
+        return hexSlice(this, start, end)
+
+      case 'utf8':
+      case 'utf-8':
+        return utf8Slice(this, start, end)
+
+      case 'ascii':
+        return asciiSlice(this, start, end)
+
+      case 'latin1':
+      case 'binary':
+        return latin1Slice(this, start, end)
+
+      case 'base64':
+        return base64Slice(this, start, end)
+
+      case 'ucs2':
+      case 'ucs-2':
+      case 'utf16le':
+      case 'utf-16le':
+        return utf16leSlice(this, start, end)
+
+      default:
+        if (loweredCase) throw new TypeError('Unknown encoding: ' + encoding)
+        encoding = (encoding + '').toLowerCase()
+        loweredCase = true
+    }
+  }
+}
+
+// The property is used by `Buffer.isBuffer` and `is-buffer` (in Safari 5-7) to detect
+// Buffer instances.
+Buffer.prototype._isBuffer = true
+
+function swap (b, n, m) {
+  var i = b[n]
+  b[n] = b[m]
+  b[m] = i
+}
+
+Buffer.prototype.swap16 = function swap16 () {
+  var len = this.length
+  if (len % 2 !== 0) {
+    throw new RangeError('Buffer size must be a multiple of 16-bits')
+  }
+  for (var i = 0; i < len; i += 2) {
+    swap(this, i, i + 1)
+  }
+  return this
+}
+
+Buffer.prototype.swap32 = function swap32 () {
+  var len = this.length
+  if (len % 4 !== 0) {
+    throw new RangeError('Buffer size must be a multiple of 32-bits')
+  }
+  for (var i = 0; i < len; i += 4) {
+    swap(this, i, i + 3)
+    swap(this, i + 1, i + 2)
+  }
+  return this
+}
+
+Buffer.prototype.swap64 = function swap64 () {
+  var len = this.length
+  if (len % 8 !== 0) {
+    throw new RangeError('Buffer size must be a multiple of 64-bits')
+  }
+  for (var i = 0; i < len; i += 8) {
+    swap(this, i, i + 7)
+    swap(this, i + 1, i + 6)
+    swap(this, i + 2, i + 5)
+    swap(this, i + 3, i + 4)
+  }
+  return this
+}
+
+Buffer.prototype.toString = function toString () {
+  var length = this.length | 0
+  if (length === 0) return ''
+  if (arguments.length === 0) return utf8Slice(this, 0, length)
+  return slowToString.apply(this, arguments)
+}
+
+Buffer.prototype.equals = function equals (b) {
+  if (!Buffer.isBuffer(b)) throw new TypeError('Argument must be a Buffer')
+  if (this === b) return true
+  return Buffer.compare(this, b) === 0
+}
+
+Buffer.prototype.inspect = function inspect () {
+  var str = ''
+  var max = exports.INSPECT_MAX_BYTES
+  if (this.length > 0) {
+    str = this.toString('hex', 0, max).match(/.{2}/g).join(' ')
+    if (this.length > max) str += ' ... '
+  }
+  return '<Buffer ' + str + '>'
+}
+
+Buffer.prototype.compare = function compare (target, start, end, thisStart, thisEnd) {
+  if (!Buffer.isBuffer(target)) {
+    throw new TypeError('Argument must be a Buffer')
+  }
+
+  if (start === undefined) {
+    start = 0
+  }
+  if (end === undefined) {
+    end = target ? target.length : 0
+  }
+  if (thisStart === undefined) {
+    thisStart = 0
+  }
+  if (thisEnd === undefined) {
+    thisEnd = this.length
+  }
+
+  if (start < 0 || end > target.length || thisStart < 0 || thisEnd > this.length) {
+    throw new RangeError('out of range index')
+  }
+
+  if (thisStart >= thisEnd && start >= end) {
+    return 0
+  }
+  if (thisStart >= thisEnd) {
+    return -1
+  }
+  if (start >= end) {
+    return 1
+  }
+
+  start >>>= 0
+  end >>>= 0
+  thisStart >>>= 0
+  thisEnd >>>= 0
+
+  if (this === target) return 0
+
+  var x = thisEnd - thisStart
+  var y = end - start
+  var len = Math.min(x, y)
+
+  var thisCopy = this.slice(thisStart, thisEnd)
+  var targetCopy = target.slice(start, end)
+
+  for (var i = 0; i < len; ++i) {
+    if (thisCopy[i] !== targetCopy[i]) {
+      x = thisCopy[i]
+      y = targetCopy[i]
+      break
+    }
+  }
+
+  if (x < y) return -1
+  if (y < x) return 1
+  return 0
+}
+
+// Finds either the first index of `val` in `buffer` at offset >= `byteOffset`,
+// OR the last index of `val` in `buffer` at offset <= `byteOffset`.
+//
+// Arguments:
+// - buffer - a Buffer to search
+// - val - a string, Buffer, or number
+// - byteOffset - an index into `buffer`; will be clamped to an int32
+// - encoding - an optional encoding, relevant is val is a string
+// - dir - true for indexOf, false for lastIndexOf
+function bidirectionalIndexOf (buffer, val, byteOffset, encoding, dir) {
+  // Empty buffer means no match
+  if (buffer.length === 0) return -1
+
+  // Normalize byteOffset
+  if (typeof byteOffset === 'string') {
+    encoding = byteOffset
+    byteOffset = 0
+  } else if (byteOffset > 0x7fffffff) {
+    byteOffset = 0x7fffffff
+  } else if (byteOffset < -0x80000000) {
+    byteOffset = -0x80000000
+  }
+  byteOffset = +byteOffset  // Coerce to Number.
+  if (isNaN(byteOffset)) {
+    // byteOffset: it it's undefined, null, NaN, "foo", etc, search whole buffer
+    byteOffset = dir ? 0 : (buffer.length - 1)
+  }
+
+  // Normalize byteOffset: negative offsets start from the end of the buffer
+  if (byteOffset < 0) byteOffset = buffer.length + byteOffset
+  if (byteOffset >= buffer.length) {
+    if (dir) return -1
+    else byteOffset = buffer.length - 1
+  } else if (byteOffset < 0) {
+    if (dir) byteOffset = 0
+    else return -1
+  }
+
+  // Normalize val
+  if (typeof val === 'string') {
+    val = Buffer.from(val, encoding)
+  }
+
+  // Finally, search either indexOf (if dir is true) or lastIndexOf
+  if (Buffer.isBuffer(val)) {
+    // Special case: looking for empty string/buffer always fails
+    if (val.length === 0) {
+      return -1
+    }
+    return arrayIndexOf(buffer, val, byteOffset, encoding, dir)
+  } else if (typeof val === 'number') {
+    val = val & 0xFF // Search for a byte value [0-255]
+    if (Buffer.TYPED_ARRAY_SUPPORT &&
+        typeof Uint8Array.prototype.indexOf === 'function') {
+      if (dir) {
+        return Uint8Array.prototype.indexOf.call(buffer, val, byteOffset)
+      } else {
+        return Uint8Array.prototype.lastIndexOf.call(buffer, val, byteOffset)
+      }
+    }
+    return arrayIndexOf(buffer, [ val ], byteOffset, encoding, dir)
+  }
+
+  throw new TypeError('val must be string, number or Buffer')
+}
+
+function arrayIndexOf (arr, val, byteOffset, encoding, dir) {
+  var indexSize = 1
+  var arrLength = arr.length
+  var valLength = val.length
+
+  if (encoding !== undefined) {
+    encoding = String(encoding).toLowerCase()
+    if (encoding === 'ucs2' || encoding === 'ucs-2' ||
+        encoding === 'utf16le' || encoding === 'utf-16le') {
+      if (arr.length < 2 || val.length < 2) {
+        return -1
+      }
+      indexSize = 2
+      arrLength /= 2
+      valLength /= 2
+      byteOffset /= 2
+    }
+  }
+
+  function read (buf, i) {
+    if (indexSize === 1) {
+      return buf[i]
+    } else {
+      return buf.readUInt16BE(i * indexSize)
+    }
+  }
+
+  var i
+  if (dir) {
+    var foundIndex = -1
+    for (i = byteOffset; i < arrLength; i++) {
+      if (read(arr, i) === read(val, foundIndex === -1 ? 0 : i - foundIndex)) {
+        if (foundIndex === -1) foundIndex = i
+        if (i - foundIndex + 1 === valLength) return foundIndex * indexSize
+      } else {
+        if (foundIndex !== -1) i -= i - foundIndex
+        foundIndex = -1
+      }
+    }
+  } else {
+    if (byteOffset + valLength > arrLength) byteOffset = arrLength - valLength
+    for (i = byteOffset; i >= 0; i--) {
+      var found = true
+      for (var j = 0; j < valLength; j++) {
+        if (read(arr, i + j) !== read(val, j)) {
+          found = false
+          break
+        }
+      }
+      if (found) return i
+    }
+  }
+
+  return -1
+}
+
+Buffer.prototype.includes = function includes (val, byteOffset, encoding) {
+  return this.indexOf(val, byteOffset, encoding) !== -1
+}
+
+Buffer.prototype.indexOf = function indexOf (val, byteOffset, encoding) {
+  return bidirectionalIndexOf(this, val, byteOffset, encoding, true)
+}
+
+Buffer.prototype.lastIndexOf = function lastIndexOf (val, byteOffset, encoding) {
+  return bidirectionalIndexOf(this, val, byteOffset, encoding, false)
+}
+
+function hexWrite (buf, string, offset, length) {
+  offset = Number(offset) || 0
+  var remaining = buf.length - offset
+  if (!length) {
+    length = remaining
+  } else {
+    length = Number(length)
+    if (length > remaining) {
+      length = remaining
+    }
+  }
+
+  // must be an even number of digits
+  var strLen = string.length
+  if (strLen % 2 !== 0) throw new TypeError('Invalid hex string')
+
+  if (length > strLen / 2) {
+    length = strLen / 2
+  }
+  for (var i = 0; i < length; ++i) {
+    var parsed = parseInt(string.substr(i * 2, 2), 16)
+    if (isNaN(parsed)) return i
+    buf[offset + i] = parsed
+  }
+  return i
+}
+
+function utf8Write (buf, string, offset, length) {
+  return blitBuffer(utf8ToBytes(string, buf.length - offset), buf, offset, length)
+}
+
+function asciiWrite (buf, string, offset, length) {
+  return blitBuffer(asciiToBytes(string), buf, offset, length)
+}
+
+function latin1Write (buf, string, offset, length) {
+  return asciiWrite(buf, string, offset, length)
+}
+
+function base64Write (buf, string, offset, length) {
+  return blitBuffer(base64ToBytes(string), buf, offset, length)
+}
+
+function ucs2Write (buf, string, offset, length) {
+  return blitBuffer(utf16leToBytes(string, buf.length - offset), buf, offset, length)
+}
+
+Buffer.prototype.write = function write (string, offset, length, encoding) {
+  // Buffer#write(string)
+  if (offset === undefined) {
+    encoding = 'utf8'
+    length = this.length
+    offset = 0
+  // Buffer#write(string, encoding)
+  } else if (length === undefined && typeof offset === 'string') {
+    encoding = offset
+    length = this.length
+    offset = 0
+  // Buffer#write(string, offset[, length][, encoding])
+  } else if (isFinite(offset)) {
+    offset = offset | 0
+    if (isFinite(length)) {
+      length = length | 0
+      if (encoding === undefined) encoding = 'utf8'
+    } else {
+      encoding = length
+      length = undefined
+    }
+  // legacy write(string, encoding, offset, length) - remove in v0.13
+  } else {
+    throw new Error(
+      'Buffer.write(string, encoding, offset[, length]) is no longer supported'
+    )
+  }
+
+  var remaining = this.length - offset
+  if (length === undefined || length > remaining) length = remaining
+
+  if ((string.length > 0 && (length < 0 || offset < 0)) || offset > this.length) {
+    throw new RangeError('Attempt to write outside buffer bounds')
+  }
+
+  if (!encoding) encoding = 'utf8'
+
+  var loweredCase = false
+  for (;;) {
+    switch (encoding) {
+      case 'hex':
+        return hexWrite(this, string, offset, length)
+
+      case 'utf8':
+      case 'utf-8':
+        return utf8Write(this, string, offset, length)
+
+      case 'ascii':
+        return asciiWrite(this, string, offset, length)
+
+      case 'latin1':
+      case 'binary':
+        return latin1Write(this, string, offset, length)
+
+      case 'base64':
+        // Warning: maxLength not taken into account in base64Write
+        return base64Write(this, string, offset, length)
+
+      case 'ucs2':
+      case 'ucs-2':
+      case 'utf16le':
+      case 'utf-16le':
+        return ucs2Write(this, string, offset, length)
+
+      default:
+        if (loweredCase) throw new TypeError('Unknown encoding: ' + encoding)
+        encoding = ('' + encoding).toLowerCase()
+        loweredCase = true
+    }
+  }
+}
+
+Buffer.prototype.toJSON = function toJSON () {
+  return {
+    type: 'Buffer',
+    data: Array.prototype.slice.call(this._arr || this, 0)
+  }
+}
+
+function base64Slice (buf, start, end) {
+  if (start === 0 && end === buf.length) {
+    return base64.fromByteArray(buf)
+  } else {
+    return base64.fromByteArray(buf.slice(start, end))
+  }
+}
+
+function utf8Slice (buf, start, end) {
+  end = Math.min(buf.length, end)
+  var res = []
+
+  var i = start
+  while (i < end) {
+    var firstByte = buf[i]
+    var codePoint = null
+    var bytesPerSequence = (firstByte > 0xEF) ? 4
+      : (firstByte > 0xDF) ? 3
+      : (firstByte > 0xBF) ? 2
+      : 1
+
+    if (i + bytesPerSequence <= end) {
+      var secondByte, thirdByte, fourthByte, tempCodePoint
+
+      switch (bytesPerSequence) {
+        case 1:
+          if (firstByte < 0x80) {
+            codePoint = firstByte
+          }
+          break
+        case 2:
+          secondByte = buf[i + 1]
+          if ((secondByte & 0xC0) === 0x80) {
+            tempCodePoint = (firstByte & 0x1F) << 0x6 | (secondByte & 0x3F)
+            if (tempCodePoint > 0x7F) {
+              codePoint = tempCodePoint
+            }
+          }
+          break
+        case 3:
+          secondByte = buf[i + 1]
+          thirdByte = buf[i + 2]
+          if ((secondByte & 0xC0) === 0x80 && (thirdByte & 0xC0) === 0x80) {
+            tempCodePoint = (firstByte & 0xF) << 0xC | (secondByte & 0x3F) << 0x6 | (thirdByte & 0x3F)
+            if (tempCodePoint > 0x7FF && (tempCodePoint < 0xD800 || tempCodePoint > 0xDFFF)) {
+              codePoint = tempCodePoint
+            }
+          }
+          break
+        case 4:
+          secondByte = buf[i + 1]
+          thirdByte = buf[i + 2]
+          fourthByte = buf[i + 3]
+          if ((secondByte & 0xC0) === 0x80 && (thirdByte & 0xC0) === 0x80 && (fourthByte & 0xC0) === 0x80) {
+            tempCodePoint = (firstByte & 0xF) << 0x12 | (secondByte & 0x3F) << 0xC | (thirdByte & 0x3F) << 0x6 | (fourthByte & 0x3F)
+            if (tempCodePoint > 0xFFFF && tempCodePoint < 0x110000) {
+              codePoint = tempCodePoint
+            }
+          }
+      }
+    }
+
+    if (codePoint === null) {
+      // we did not generate a valid codePoint so insert a
+      // replacement char (U+FFFD) and advance only 1 byte
+      codePoint = 0xFFFD
+      bytesPerSequence = 1
+    } else if (codePoint > 0xFFFF) {
+      // encode to utf16 (surrogate pair dance)
+      codePoint -= 0x10000
+      res.push(codePoint >>> 10 & 0x3FF | 0xD800)
+      codePoint = 0xDC00 | codePoint & 0x3FF
+    }
+
+    res.push(codePoint)
+    i += bytesPerSequence
+  }
+
+  return decodeCodePointsArray(res)
+}
+
+// Based on http://stackoverflow.com/a/22747272/680742, the browser with
+// the lowest limit is Chrome, with 0x10000 args.
+// We go 1 magnitude less, for safety
+var MAX_ARGUMENTS_LENGTH = 0x1000
+
+function decodeCodePointsArray (codePoints) {
+  var len = codePoints.length
+  if (len <= MAX_ARGUMENTS_LENGTH) {
+    return String.fromCharCode.apply(String, codePoints) // avoid extra slice()
+  }
+
+  // Decode in chunks to avoid "call stack size exceeded".
+  var res = ''
+  var i = 0
+  while (i < len) {
+    res += String.fromCharCode.apply(
+      String,
+      codePoints.slice(i, i += MAX_ARGUMENTS_LENGTH)
+    )
+  }
+  return res
+}
+
+function asciiSlice (buf, start, end) {
+  var ret = ''
+  end = Math.min(buf.length, end)
+
+  for (var i = start; i < end; ++i) {
+    ret += String.fromCharCode(buf[i] & 0x7F)
+  }
+  return ret
+}
+
+function latin1Slice (buf, start, end) {
+  var ret = ''
+  end = Math.min(buf.length, end)
+
+  for (var i = start; i < end; ++i) {
+    ret += String.fromCharCode(buf[i])
+  }
+  return ret
+}
+
+function hexSlice (buf, start, end) {
+  var len = buf.length
+
+  if (!start || start < 0) start = 0
+  if (!end || end < 0 || end > len) end = len
+
+  var out = ''
+  for (var i = start; i < end; ++i) {
+    out += toHex(buf[i])
+  }
+  return out
+}
+
+function utf16leSlice (buf, start, end) {
+  var bytes = buf.slice(start, end)
+  var res = ''
+  for (var i = 0; i < bytes.length; i += 2) {
+    res += String.fromCharCode(bytes[i] + bytes[i + 1] * 256)
+  }
+  return res
+}
+
+Buffer.prototype.slice = function slice (start, end) {
+  var len = this.length
+  start = ~~start
+  end = end === undefined ? len : ~~end
+
+  if (start < 0) {
+    start += len
+    if (start < 0) start = 0
+  } else if (start > len) {
+    start = len
+  }
+
+  if (end < 0) {
+    end += len
+    if (end < 0) end = 0
+  } else if (end > len) {
+    end = len
+  }
+
+  if (end < start) end = start
+
+  var newBuf
+  if (Buffer.TYPED_ARRAY_SUPPORT) {
+    newBuf = this.subarray(start, end)
+    newBuf.__proto__ = Buffer.prototype
+  } else {
+    var sliceLen = end - start
+    newBuf = new Buffer(sliceLen, undefined)
+    for (var i = 0; i < sliceLen; ++i) {
+      newBuf[i] = this[i + start]
+    }
+  }
+
+  return newBuf
+}
+
+/*
+ * Need to make sure that buffer isn't trying to write out of bounds.
+ */
+function checkOffset (offset, ext, length) {
+  if ((offset % 1) !== 0 || offset < 0) throw new RangeError('offset is not uint')
+  if (offset + ext > length) throw new RangeError('Trying to access beyond buffer length')
+}
+
+Buffer.prototype.readUIntLE = function readUIntLE (offset, byteLength, noAssert) {
+  offset = offset | 0
+  byteLength = byteLength | 0
+  if (!noAssert) checkOffset(offset, byteLength, this.length)
+
+  var val = this[offset]
+  var mul = 1
+  var i = 0
+  while (++i < byteLength && (mul *= 0x100)) {
+    val += this[offset + i] * mul
+  }
+
+  return val
+}
+
+Buffer.prototype.readUIntBE = function readUIntBE (offset, byteLength, noAssert) {
+  offset = offset | 0
+  byteLength = byteLength | 0
+  if (!noAssert) {
+    checkOffset(offset, byteLength, this.length)
+  }
+
+  var val = this[offset + --byteLength]
+  var mul = 1
+  while (byteLength > 0 && (mul *= 0x100)) {
+    val += this[offset + --byteLength] * mul
+  }
+
+  return val
+}
+
+Buffer.prototype.readUInt8 = function readUInt8 (offset, noAssert) {
+  if (!noAssert) checkOffset(offset, 1, this.length)
+  return this[offset]
+}
+
+Buffer.prototype.readUInt16LE = function readUInt16LE (offset, noAssert) {
+  if (!noAssert) checkOffset(offset, 2, this.length)
+  return this[offset] | (this[offset + 1] << 8)
+}
+
+Buffer.prototype.readUInt16BE = function readUInt16BE (offset, noAssert) {
+  if (!noAssert) checkOffset(offset, 2, this.length)
+  return (this[offset] << 8) | this[offset + 1]
+}
+
+Buffer.prototype.readUInt32LE = function readUInt32LE (offset, noAssert) {
+  if (!noAssert) checkOffset(offset, 4, this.length)
+
+  return ((this[offset]) |
+      (this[offset + 1] << 8) |
+      (this[offset + 2] << 16)) +
+      (this[offset + 3] * 0x1000000)
+}
+
+Buffer.prototype.readUInt32BE = function readUInt32BE (offset, noAssert) {
+  if (!noAssert) checkOffset(offset, 4, this.length)
+
+  return (this[offset] * 0x1000000) +
+    ((this[offset + 1] << 16) |
+    (this[offset + 2] << 8) |
+    this[offset + 3])
+}
+
+Buffer.prototype.readIntLE = function readIntLE (offset, byteLength, noAssert) {
+  offset = offset | 0
+  byteLength = byteLength | 0
+  if (!noAssert) checkOffset(offset, byteLength, this.length)
+
+  var val = this[offset]
+  var mul = 1
+  var i = 0
+  while (++i < byteLength && (mul *= 0x100)) {
+    val += this[offset + i] * mul
+  }
+  mul *= 0x80
+
+  if (val >= mul) val -= Math.pow(2, 8 * byteLength)
+
+  return val
+}
+
+Buffer.prototype.readIntBE = function readIntBE (offset, byteLength, noAssert) {
+  offset = offset | 0
+  byteLength = byteLength | 0
+  if (!noAssert) checkOffset(offset, byteLength, this.length)
+
+  var i = byteLength
+  var mul = 1
+  var val = this[offset + --i]
+  while (i > 0 && (mul *= 0x100)) {
+    val += this[offset + --i] * mul
+  }
+  mul *= 0x80
+
+  if (val >= mul) val -= Math.pow(2, 8 * byteLength)
+
+  return val
+}
+
+Buffer.prototype.readInt8 = function readInt8 (offset, noAssert) {
+  if (!noAssert) checkOffset(offset, 1, this.length)
+  if (!(this[offset] & 0x80)) return (this[offset])
+  return ((0xff - this[offset] + 1) * -1)
+}
+
+Buffer.prototype.readInt16LE = function readInt16LE (offset, noAssert) {
+  if (!noAssert) checkOffset(offset, 2, this.length)
+  var val = this[offset] | (this[offset + 1] << 8)
+  return (val & 0x8000) ? val | 0xFFFF0000 : val
+}
+
+Buffer.prototype.readInt16BE = function readInt16BE (offset, noAssert) {
+  if (!noAssert) checkOffset(offset, 2, this.length)
+  var val = this[offset + 1] | (this[offset] << 8)
+  return (val & 0x8000) ? val | 0xFFFF0000 : val
+}
+
+Buffer.prototype.readInt32LE = function readInt32LE (offset, noAssert) {
+  if (!noAssert) checkOffset(offset, 4, this.length)
+
+  return (this[offset]) |
+    (this[offset + 1] << 8) |
+    (this[offset + 2] << 16) |
+    (this[offset + 3] << 24)
+}
+
+Buffer.prototype.readInt32BE = function readInt32BE (offset, noAssert) {
+  if (!noAssert) checkOffset(offset, 4, this.length)
+
+  return (this[offset] << 24) |
+    (this[offset + 1] << 16) |
+    (this[offset + 2] << 8) |
+    (this[offset + 3])
+}
+
+Buffer.prototype.readFloatLE = function readFloatLE (offset, noAssert) {
+  if (!noAssert) checkOffset(offset, 4, this.length)
+  return ieee754.read(this, offset, true, 23, 4)
+}
+
+Buffer.prototype.readFloatBE = function readFloatBE (offset, noAssert) {
+  if (!noAssert) checkOffset(offset, 4, this.length)
+  return ieee754.read(this, offset, false, 23, 4)
+}
+
+Buffer.prototype.readDoubleLE = function readDoubleLE (offset, noAssert) {
+  if (!noAssert) checkOffset(offset, 8, this.length)
+  return ieee754.read(this, offset, true, 52, 8)
+}
+
+Buffer.prototype.readDoubleBE = function readDoubleBE (offset, noAssert) {
+  if (!noAssert) checkOffset(offset, 8, this.length)
+  return ieee754.read(this, offset, false, 52, 8)
+}
+
+function checkInt (buf, value, offset, ext, max, min) {
+  if (!Buffer.isBuffer(buf)) throw new TypeError('"buffer" argument must be a Buffer instance')
+  if (value > max || value < min) throw new RangeError('"value" argument is out of bounds')
+  if (offset + ext > buf.length) throw new RangeError('Index out of range')
+}
+
+Buffer.prototype.writeUIntLE = function writeUIntLE (value, offset, byteLength, noAssert) {
+  value = +value
+  offset = offset | 0
+  byteLength = byteLength | 0
+  if (!noAssert) {
+    var maxBytes = Math.pow(2, 8 * byteLength) - 1
+    checkInt(this, value, offset, byteLength, maxBytes, 0)
+  }
+
+  var mul = 1
+  var i = 0
+  this[offset] = value & 0xFF
+  while (++i < byteLength && (mul *= 0x100)) {
+    this[offset + i] = (value / mul) & 0xFF
+  }
+
+  return offset + byteLength
+}
+
+Buffer.prototype.writeUIntBE = function writeUIntBE (value, offset, byteLength, noAssert) {
+  value = +value
+  offset = offset | 0
+  byteLength = byteLength | 0
+  if (!noAssert) {
+    var maxBytes = Math.pow(2, 8 * byteLength) - 1
+    checkInt(this, value, offset, byteLength, maxBytes, 0)
+  }
+
+  var i = byteLength - 1
+  var mul = 1
+  this[offset + i] = value & 0xFF
+  while (--i >= 0 && (mul *= 0x100)) {
+    this[offset + i] = (value / mul) & 0xFF
+  }
+
+  return offset + byteLength
+}
+
+Buffer.prototype.writeUInt8 = function writeUInt8 (value, offset, noAssert) {
+  value = +value
+  offset = offset | 0
+  if (!noAssert) checkInt(this, value, offset, 1, 0xff, 0)
+  if (!Buffer.TYPED_ARRAY_SUPPORT) value = Math.floor(value)
+  this[offset] = (value & 0xff)
+  return offset + 1
+}
+
+function objectWriteUInt16 (buf, value, offset, littleEndian) {
+  if (value < 0) value = 0xffff + value + 1
+  for (var i = 0, j = Math.min(buf.length - offset, 2); i < j; ++i) {
+    buf[offset + i] = (value & (0xff << (8 * (littleEndian ? i : 1 - i)))) >>>
+      (littleEndian ? i : 1 - i) * 8
+  }
+}
+
+Buffer.prototype.writeUInt16LE = function writeUInt16LE (value, offset, noAssert) {
+  value = +value
+  offset = offset | 0
+  if (!noAssert) checkInt(this, value, offset, 2, 0xffff, 0)
+  if (Buffer.TYPED_ARRAY_SUPPORT) {
+    this[offset] = (value & 0xff)
+    this[offset + 1] = (value >>> 8)
+  } else {
+    objectWriteUInt16(this, value, offset, true)
+  }
+  return offset + 2
+}
+
+Buffer.prototype.writeUInt16BE = function writeUInt16BE (value, offset, noAssert) {
+  value = +value
+  offset = offset | 0
+  if (!noAssert) checkInt(this, value, offset, 2, 0xffff, 0)
+  if (Buffer.TYPED_ARRAY_SUPPORT) {
+    this[offset] = (value >>> 8)
+    this[offset + 1] = (value & 0xff)
+  } else {
+    objectWriteUInt16(this, value, offset, false)
+  }
+  return offset + 2
+}
+
+function objectWriteUInt32 (buf, value, offset, littleEndian) {
+  if (value < 0) value = 0xffffffff + value + 1
+  for (var i = 0, j = Math.min(buf.length - offset, 4); i < j; ++i) {
+    buf[offset + i] = (value >>> (littleEndian ? i : 3 - i) * 8) & 0xff
+  }
+}
+
+Buffer.prototype.writeUInt32LE = function writeUInt32LE (value, offset, noAssert) {
+  value = +value
+  offset = offset | 0
+  if (!noAssert) checkInt(this, value, offset, 4, 0xffffffff, 0)
+  if (Buffer.TYPED_ARRAY_SUPPORT) {
+    this[offset + 3] = (value >>> 24)
+    this[offset + 2] = (value >>> 16)
+    this[offset + 1] = (value >>> 8)
+    this[offset] = (value & 0xff)
+  } else {
+    objectWriteUInt32(this, value, offset, true)
+  }
+  return offset + 4
+}
+
+Buffer.prototype.writeUInt32BE = function writeUInt32BE (value, offset, noAssert) {
+  value = +value
+  offset = offset | 0
+  if (!noAssert) checkInt(this, value, offset, 4, 0xffffffff, 0)
+  if (Buffer.TYPED_ARRAY_SUPPORT) {
+    this[offset] = (value >>> 24)
+    this[offset + 1] = (value >>> 16)
+    this[offset + 2] = (value >>> 8)
+    this[offset + 3] = (value & 0xff)
+  } else {
+    objectWriteUInt32(this, value, offset, false)
+  }
+  return offset + 4
+}
+
+Buffer.prototype.writeIntLE = function writeIntLE (value, offset, byteLength, noAssert) {
+  value = +value
+  offset = offset | 0
+  if (!noAssert) {
+    var limit = Math.pow(2, 8 * byteLength - 1)
+
+    checkInt(this, value, offset, byteLength, limit - 1, -limit)
+  }
+
+  var i = 0
+  var mul = 1
+  var sub = 0
+  this[offset] = value & 0xFF
+  while (++i < byteLength && (mul *= 0x100)) {
+    if (value < 0 && sub === 0 && this[offset + i - 1] !== 0) {
+      sub = 1
+    }
+    this[offset + i] = ((value / mul) >> 0) - sub & 0xFF
+  }
+
+  return offset + byteLength
+}
+
+Buffer.prototype.writeIntBE = function writeIntBE (value, offset, byteLength, noAssert) {
+  value = +value
+  offset = offset | 0
+  if (!noAssert) {
+    var limit = Math.pow(2, 8 * byteLength - 1)
+
+    checkInt(this, value, offset, byteLength, limit - 1, -limit)
+  }
+
+  var i = byteLength - 1
+  var mul = 1
+  var sub = 0
+  this[offset + i] = value & 0xFF
+  while (--i >= 0 && (mul *= 0x100)) {
+    if (value < 0 && sub === 0 && this[offset + i + 1] !== 0) {
+      sub = 1
+    }
+    this[offset + i] = ((value / mul) >> 0) - sub & 0xFF
+  }
+
+  return offset + byteLength
+}
+
+Buffer.prototype.writeInt8 = function writeInt8 (value, offset, noAssert) {
+  value = +value
+  offset = offset | 0
+  if (!noAssert) checkInt(this, value, offset, 1, 0x7f, -0x80)
+  if (!Buffer.TYPED_ARRAY_SUPPORT) value = Math.floor(value)
+  if (value < 0) value = 0xff + value + 1
+  this[offset] = (value & 0xff)
+  return offset + 1
+}
+
+Buffer.prototype.writeInt16LE = function writeInt16LE (value, offset, noAssert) {
+  value = +value
+  offset = offset | 0
+  if (!noAssert) checkInt(this, value, offset, 2, 0x7fff, -0x8000)
+  if (Buffer.TYPED_ARRAY_SUPPORT) {
+    this[offset] = (value & 0xff)
+    this[offset + 1] = (value >>> 8)
+  } else {
+    objectWriteUInt16(this, value, offset, true)
+  }
+  return offset + 2
+}
+
+Buffer.prototype.writeInt16BE = function writeInt16BE (value, offset, noAssert) {
+  value = +value
+  offset = offset | 0
+  if (!noAssert) checkInt(this, value, offset, 2, 0x7fff, -0x8000)
+  if (Buffer.TYPED_ARRAY_SUPPORT) {
+    this[offset] = (value >>> 8)
+    this[offset + 1] = (value & 0xff)
+  } else {
+    objectWriteUInt16(this, value, offset, false)
+  }
+  return offset + 2
+}
+
+Buffer.prototype.writeInt32LE = function writeInt32LE (value, offset, noAssert) {
+  value = +value
+  offset = offset | 0
+  if (!noAssert) checkInt(this, value, offset, 4, 0x7fffffff, -0x80000000)
+  if (Buffer.TYPED_ARRAY_SUPPORT) {
+    this[offset] = (value & 0xff)
+    this[offset + 1] = (value >>> 8)
+    this[offset + 2] = (value >>> 16)
+    this[offset + 3] = (value >>> 24)
+  } else {
+    objectWriteUInt32(this, value, offset, true)
+  }
+  return offset + 4
+}
+
+Buffer.prototype.writeInt32BE = function writeInt32BE (value, offset, noAssert) {
+  value = +value
+  offset = offset | 0
+  if (!noAssert) checkInt(this, value, offset, 4, 0x7fffffff, -0x80000000)
+  if (value < 0) value = 0xffffffff + value + 1
+  if (Buffer.TYPED_ARRAY_SUPPORT) {
+    this[offset] = (value >>> 24)
+    this[offset + 1] = (value >>> 16)
+    this[offset + 2] = (value >>> 8)
+    this[offset + 3] = (value & 0xff)
+  } else {
+    objectWriteUInt32(this, value, offset, false)
+  }
+  return offset + 4
+}
+
+function checkIEEE754 (buf, value, offset, ext, max, min) {
+  if (offset + ext > buf.length) throw new RangeError('Index out of range')
+  if (offset < 0) throw new RangeError('Index out of range')
+}
+
+function writeFloat (buf, value, offset, littleEndian, noAssert) {
+  if (!noAssert) {
+    checkIEEE754(buf, value, offset, 4, 3.4028234663852886e+38, -3.4028234663852886e+38)
+  }
+  ieee754.write(buf, value, offset, littleEndian, 23, 4)
+  return offset + 4
+}
+
+Buffer.prototype.writeFloatLE = function writeFloatLE (value, offset, noAssert) {
+  return writeFloat(this, value, offset, true, noAssert)
+}
+
+Buffer.prototype.writeFloatBE = function writeFloatBE (value, offset, noAssert) {
+  return writeFloat(this, value, offset, false, noAssert)
+}
+
+function writeDouble (buf, value, offset, littleEndian, noAssert) {
+  if (!noAssert) {
+    checkIEEE754(buf, value, offset, 8, 1.7976931348623157E+308, -1.7976931348623157E+308)
+  }
+  ieee754.write(buf, value, offset, littleEndian, 52, 8)
+  return offset + 8
+}
+
+Buffer.prototype.writeDoubleLE = function writeDoubleLE (value, offset, noAssert) {
+  return writeDouble(this, value, offset, true, noAssert)
+}
+
+Buffer.prototype.writeDoubleBE = function writeDoubleBE (value, offset, noAssert) {
+  return writeDouble(this, value, offset, false, noAssert)
+}
+
+// copy(targetBuffer, targetStart=0, sourceStart=0, sourceEnd=buffer.length)
+Buffer.prototype.copy = function copy (target, targetStart, start, end) {
+  if (!start) start = 0
+  if (!end && end !== 0) end = this.length
+  if (targetStart >= target.length) targetStart = target.length
+  if (!targetStart) targetStart = 0
+  if (end > 0 && end < start) end = start
+
+  // Copy 0 bytes; we're done
+  if (end === start) return 0
+  if (target.length === 0 || this.length === 0) return 0
+
+  // Fatal error conditions
+  if (targetStart < 0) {
+    throw new RangeError('targetStart out of bounds')
+  }
+  if (start < 0 || start >= this.length) throw new RangeError('sourceStart out of bounds')
+  if (end < 0) throw new RangeError('sourceEnd out of bounds')
+
+  // Are we oob?
+  if (end > this.length) end = this.length
+  if (target.length - targetStart < end - start) {
+    end = target.length - targetStart + start
+  }
+
+  var len = end - start
+  var i
+
+  if (this === target && start < targetStart && targetStart < end) {
+    // descending copy from end
+    for (i = len - 1; i >= 0; --i) {
+      target[i + targetStart] = this[i + start]
+    }
+  } else if (len < 1000 || !Buffer.TYPED_ARRAY_SUPPORT) {
+    // ascending copy from start
+    for (i = 0; i < len; ++i) {
+      target[i + targetStart] = this[i + start]
+    }
+  } else {
+    Uint8Array.prototype.set.call(
+      target,
+      this.subarray(start, start + len),
+      targetStart
+    )
+  }
+
+  return len
+}
+
+// Usage:
+//    buffer.fill(number[, offset[, end]])
+//    buffer.fill(buffer[, offset[, end]])
+//    buffer.fill(string[, offset[, end]][, encoding])
+Buffer.prototype.fill = function fill (val, start, end, encoding) {
+  // Handle string cases:
+  if (typeof val === 'string') {
+    if (typeof start === 'string') {
+      encoding = start
+      start = 0
+      end = this.length
+    } else if (typeof end === 'string') {
+      encoding = end
+      end = this.length
+    }
+    if (val.length === 1) {
+      var code = val.charCodeAt(0)
+      if (code < 256) {
+        val = code
+      }
+    }
+    if (encoding !== undefined && typeof encoding !== 'string') {
+      throw new TypeError('encoding must be a string')
+    }
+    if (typeof encoding === 'string' && !Buffer.isEncoding(encoding)) {
+      throw new TypeError('Unknown encoding: ' + encoding)
+    }
+  } else if (typeof val === 'number') {
+    val = val & 255
+  }
+
+  // Invalid ranges are not set to a default, so can range check early.
+  if (start < 0 || this.length < start || this.length < end) {
+    throw new RangeError('Out of range index')
+  }
+
+  if (end <= start) {
+    return this
+  }
+
+  start = start >>> 0
+  end = end === undefined ? this.length : end >>> 0
+
+  if (!val) val = 0
+
+  var i
+  if (typeof val === 'number') {
+    for (i = start; i < end; ++i) {
+      this[i] = val
+    }
+  } else {
+    var bytes = Buffer.isBuffer(val)
+      ? val
+      : utf8ToBytes(new Buffer(val, encoding).toString())
+    var len = bytes.length
+    for (i = 0; i < end - start; ++i) {
+      this[i + start] = bytes[i % len]
+    }
+  }
+
+  return this
+}
+
+// HELPER FUNCTIONS
+// ================
+
+var INVALID_BASE64_RE = /[^+\/0-9A-Za-z-_]/g
+
+function base64clean (str) {
+  // Node strips out invalid characters like \n and \t from the string, base64-js does not
+  str = stringtrim(str).replace(INVALID_BASE64_RE, '')
+  // Node converts strings with length < 2 to ''
+  if (str.length < 2) return ''
+  // Node allows for non-padded base64 strings (missing trailing ===), base64-js does not
+  while (str.length % 4 !== 0) {
+    str = str + '='
+  }
+  return str
+}
+
+function stringtrim (str) {
+  if (str.trim) return str.trim()
+  return str.replace(/^\s+|\s+$/g, '')
+}
+
+function toHex (n) {
+  if (n < 16) return '0' + n.toString(16)
+  return n.toString(16)
+}
+
+function utf8ToBytes (string, units) {
+  units = units || Infinity
+  var codePoint
+  var length = string.length
+  var leadSurrogate = null
+  var bytes = []
+
+  for (var i = 0; i < length; ++i) {
+    codePoint = string.charCodeAt(i)
+
+    // is surrogate component
+    if (codePoint > 0xD7FF && codePoint < 0xE000) {
+      // last char was a lead
+      if (!leadSurrogate) {
+        // no lead yet
+        if (codePoint > 0xDBFF) {
+          // unexpected trail
+          if ((units -= 3) > -1) bytes.push(0xEF, 0xBF, 0xBD)
+          continue
+        } else if (i + 1 === length) {
+          // unpaired lead
+          if ((units -= 3) > -1) bytes.push(0xEF, 0xBF, 0xBD)
+          continue
+        }
+
+        // valid lead
+        leadSurrogate = codePoint
+
+        continue
+      }
+
+      // 2 leads in a row
+      if (codePoint < 0xDC00) {
+        if ((units -= 3) > -1) bytes.push(0xEF, 0xBF, 0xBD)
+        leadSurrogate = codePoint
+        continue
+      }
+
+      // valid surrogate pair
+      codePoint = (leadSurrogate - 0xD800 << 10 | codePoint - 0xDC00) + 0x10000
+    } else if (leadSurrogate) {
+      // valid bmp char, but last char was a lead
+      if ((units -= 3) > -1) bytes.push(0xEF, 0xBF, 0xBD)
+    }
+
+    leadSurrogate = null
+
+    // encode utf8
+    if (codePoint < 0x80) {
+      if ((units -= 1) < 0) break
+      bytes.push(codePoint)
+    } else if (codePoint < 0x800) {
+      if ((units -= 2) < 0) break
+      bytes.push(
+        codePoint >> 0x6 | 0xC0,
+        codePoint & 0x3F | 0x80
+      )
+    } else if (codePoint < 0x10000) {
+      if ((units -= 3) < 0) break
+      bytes.push(
+        codePoint >> 0xC | 0xE0,
+        codePoint >> 0x6 & 0x3F | 0x80,
+        codePoint & 0x3F | 0x80
+      )
+    } else if (codePoint < 0x110000) {
+      if ((units -= 4) < 0) break
+      bytes.push(
+        codePoint >> 0x12 | 0xF0,
+        codePoint >> 0xC & 0x3F | 0x80,
+        codePoint >> 0x6 & 0x3F | 0x80,
+        codePoint & 0x3F | 0x80
+      )
+    } else {
+      throw new Error('Invalid code point')
+    }
+  }
+
+  return bytes
+}
+
+function asciiToBytes (str) {
+  var byteArray = []
+  for (var i = 0; i < str.length; ++i) {
+    // Node's code seems to be doing this and not & 0x7F..
+    byteArray.push(str.charCodeAt(i) & 0xFF)
+  }
+  return byteArray
+}
+
+function utf16leToBytes (str, units) {
+  var c, hi, lo
+  var byteArray = []
+  for (var i = 0; i < str.length; ++i) {
+    if ((units -= 2) < 0) break
+
+    c = str.charCodeAt(i)
+    hi = c >> 8
+    lo = c % 256
+    byteArray.push(lo)
+    byteArray.push(hi)
+  }
+
+  return byteArray
+}
+
+function base64ToBytes (str) {
+  return base64.toByteArray(base64clean(str))
+}
+
+function blitBuffer (src, dst, offset, length) {
+  for (var i = 0; i < length; ++i) {
+    if ((i + offset >= dst.length) || (i >= src.length)) break
+    dst[i + offset] = src[i]
+  }
+  return i
+}
+
+function isnan (val) {
+  return val !== val // eslint-disable-line no-self-compare
+}
+
+/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(8)))
+
+/***/ }),
+/* 5 */
+/***/ (function(module, exports) {
+
+exports.read = function (buffer, offset, isLE, mLen, nBytes) {
+  var e, m
+  var eLen = nBytes * 8 - mLen - 1
+  var eMax = (1 << eLen) - 1
+  var eBias = eMax >> 1
+  var nBits = -7
+  var i = isLE ? (nBytes - 1) : 0
+  var d = isLE ? -1 : 1
+  var s = buffer[offset + i]
+
+  i += d
+
+  e = s & ((1 << (-nBits)) - 1)
+  s >>= (-nBits)
+  nBits += eLen
+  for (; nBits > 0; e = e * 256 + buffer[offset + i], i += d, nBits -= 8) {}
+
+  m = e & ((1 << (-nBits)) - 1)
+  e >>= (-nBits)
+  nBits += mLen
+  for (; nBits > 0; m = m * 256 + buffer[offset + i], i += d, nBits -= 8) {}
+
+  if (e === 0) {
+    e = 1 - eBias
+  } else if (e === eMax) {
+    return m ? NaN : ((s ? -1 : 1) * Infinity)
+  } else {
+    m = m + Math.pow(2, mLen)
+    e = e - eBias
+  }
+  return (s ? -1 : 1) * m * Math.pow(2, e - mLen)
+}
+
+exports.write = function (buffer, value, offset, isLE, mLen, nBytes) {
+  var e, m, c
+  var eLen = nBytes * 8 - mLen - 1
+  var eMax = (1 << eLen) - 1
+  var eBias = eMax >> 1
+  var rt = (mLen === 23 ? Math.pow(2, -24) - Math.pow(2, -77) : 0)
+  var i = isLE ? 0 : (nBytes - 1)
+  var d = isLE ? 1 : -1
+  var s = value < 0 || (value === 0 && 1 / value < 0) ? 1 : 0
+
+  value = Math.abs(value)
+
+  if (isNaN(value) || value === Infinity) {
+    m = isNaN(value) ? 1 : 0
+    e = eMax
+  } else {
+    e = Math.floor(Math.log(value) / Math.LN2)
+    if (value * (c = Math.pow(2, -e)) < 1) {
+      e--
+      c *= 2
+    }
+    if (e + eBias >= 1) {
+      value += rt / c
+    } else {
+      value += rt * Math.pow(2, 1 - eBias)
+    }
+    if (value * c >= 2) {
+      e++
+      c /= 2
+    }
+
+    if (e + eBias >= eMax) {
+      m = 0
+      e = eMax
+    } else if (e + eBias >= 1) {
+      m = (value * c - 1) * Math.pow(2, mLen)
+      e = e + eBias
+    } else {
+      m = value * Math.pow(2, eBias - 1) * Math.pow(2, mLen)
+      e = 0
+    }
+  }
+
+  for (; mLen >= 8; buffer[offset + i] = m & 0xff, i += d, m /= 256, mLen -= 8) {}
+
+  e = (e << mLen) | m
+  eLen += mLen
+  for (; eLen > 0; buffer[offset + i] = e & 0xff, i += d, e /= 256, eLen -= 8) {}
+
+  buffer[offset + i - d] |= s * 128
+}
+
+
+/***/ }),
+/* 6 */
+/***/ (function(module, exports) {
+
+var toString = {}.toString;
+
+module.exports = Array.isArray || function (arr) {
+  return toString.call(arr) == '[object Array]';
+};
+
+
+/***/ }),
+/* 7 */
+/***/ (function(module, exports) {
+
+
+/**
+ * When source maps are enabled, `style-loader` uses a link element with a data-uri to
+ * embed the css on the page. This breaks all relative urls because now they are relative to a
+ * bundle instead of the current page.
+ *
+ * One solution is to only use full urls, but that may be impossible.
+ *
+ * Instead, this function "fixes" the relative urls to be absolute according to the current page location.
+ *
+ * A rudimentary test suite is located at `test/fixUrls.js` and can be run via the `npm test` command.
+ *
+ */
+
+module.exports = function (css) {
+  // get current location
+  var location = typeof window !== "undefined" && window.location;
+
+  if (!location) {
+    throw new Error("fixUrls requires window.location");
+  }
+
+	// blank or null?
+	if (!css || typeof css !== "string") {
+	  return css;
+  }
+
+  var baseUrl = location.protocol + "//" + location.host;
+  var currentDir = baseUrl + location.pathname.replace(/\/[^\/]*$/, "/");
+
+	// convert each url(...)
+	/*
+	This regular expression is just a way to recursively match brackets within
+	a string.
+
+	 /url\s*\(  = Match on the word "url" with any whitespace after it and then a parens
+	   (  = Start a capturing group
+	     (?:  = Start a non-capturing group
+	         [^)(]  = Match anything that isn't a parentheses
+	         |  = OR
+	         \(  = Match a start parentheses
+	             (?:  = Start another non-capturing groups
+	                 [^)(]+  = Match anything that isn't a parentheses
+	                 |  = OR
+	                 \(  = Match a start parentheses
+	                     [^)(]*  = Match anything that isn't a parentheses
+	                 \)  = Match a end parentheses
+	             )  = End Group
+              *\) = Match anything and then a close parens
+          )  = Close non-capturing group
+          *  = Match anything
+       )  = Close capturing group
+	 \)  = Match a close parens
+
+	 /gi  = Get all matches, not the first.  Be case insensitive.
+	 */
+	var fixedCss = css.replace(/url\s*\(((?:[^)(]|\((?:[^)(]+|\([^)(]*\))*\))*)\)/gi, function(fullMatch, origUrl) {
+		// strip quotes (if they exist)
+		var unquotedOrigUrl = origUrl
+			.trim()
+			.replace(/^"(.*)"$/, function(o, $1){ return $1; })
+			.replace(/^'(.*)'$/, function(o, $1){ return $1; });
+
+		// already a full url? no change
+		if (/^(#|data:|http:\/\/|https:\/\/|file:\/\/\/)/i.test(unquotedOrigUrl)) {
+		  return fullMatch;
+		}
+
+		// convert the url to a full url
+		var newUrl;
+
+		if (unquotedOrigUrl.indexOf("//") === 0) {
+		  	//TODO: should we add protocol?
+			newUrl = unquotedOrigUrl;
+		} else if (unquotedOrigUrl.indexOf("/") === 0) {
+			// path should be relative to the base url
+			newUrl = baseUrl + unquotedOrigUrl; // already starts with '/'
+		} else {
+			// path should be relative to current directory
+			newUrl = currentDir + unquotedOrigUrl.replace(/^\.\//, ""); // Strip leading './'
+		}
+
+		// send back the fixed url(...)
+		return "url(" + JSON.stringify(newUrl) + ")";
+	});
+
+	// send back the fixed css
+	return fixedCss;
+};
+
+
+/***/ }),
+/* 8 */
+/***/ (function(module, exports) {
+
+var g;
+
+// This works in non-strict mode
+g = (function() {
+	return this;
+})();
+
+try {
+	// This works if eval is allowed (see CSP)
+	g = g || Function("return this")() || (1,eval)("this");
+} catch(e) {
+	// This works if the window reference is available
+	if(typeof window === "object")
+		g = window;
+}
+
+// g can still be undefined, but nothing to do about it...
+// We return undefined, instead of nothing here, so it's
+// easier to handle this case. if(!global) { ...}
+
+module.exports = g;
+
+
+/***/ }),
+/* 9 */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+
+var ngMod = angular.module('modal.ui.xxt', []);
+ngMod.service('tmsModal', ['$rootScope', '$compile', '$q', '$controller', function($rootScope, $compile, $q, $controller) {
+    this.open = function(modalOptions) {
+        var modalResultDeferred = $q.defer(),
+            modalClosedDeferred = $q.defer();
+
+        var modalInstance = {
+            result: modalResultDeferred.promise,
+            closed: modalClosedDeferred.promise,
+            close: function(result) {
+                document.body.removeChild(modalDomEl[0]);
+                modalResultDeferred.resolve(result);
+            },
+            dismiss: function(reason) {
+                document.body.removeChild(modalDomEl[0]);
+                modalClosedDeferred.resolve(reason);
+            }
+        };
+
+        var modalScope;
+        modalScope = $rootScope.$new(true);
+        if (modalOptions.controller) {
+            $controller(modalOptions.controller, { $scope: modalScope, $tmsModalInstance: modalInstance });
+        }
+
+        var contentDomEl, dialogDomEl, backdropDomEl, modalDomEl;
+        /* content */
+        contentDomEl = angular.element('<div></div>');
+        contentDomEl.attr({
+            'class': 'modal-content',
+            'ng-style': '{\'z-index\':1060}'
+        }).append(modalOptions.template);
+
+        /* dialog */
+        dialogDomEl = angular.element('<div></div>');
+        dialogDomEl.attr({
+            'class': 'modal-dialog'
+        }).append(contentDomEl);
+
+        /* backdrop */
+        backdropDomEl = angular.element('<div></div>');
+        backdropDomEl.attr({
+            'class': 'modal-backdrop',
+            'ng-style': '{\'z-index\':1040}'
+        });
+
+        /* modal */
+        modalDomEl = angular.element('<div></div>');
+        modalDomEl.attr({
+            'class': 'modal',
+            'ng-style': '{\'z-index\':1050}',
+            'tabindex': -1
+        }).append(dialogDomEl).append(backdropDomEl);
+
+        $compile(modalDomEl)(modalScope);
+        document.body.appendChild(modalDomEl[0]);
+
+        return modalInstance;
+    };
+}]);
+
+
+/***/ }),
+/* 10 */
+/***/ (function(module, exports, __webpack_require__) {
+
+// style-loader: Adds some css to the DOM by adding a <style> tag
+
+// load the styles
+var content = __webpack_require__(13);
+if(typeof content === 'string') content = [[module.i, content, '']];
+// add the styles to the DOM
+var update = __webpack_require__(1)(content, {});
+if(content.locals) module.exports = content.locals;
+// Hot Module Replacement
+if(false) {
+	// When the styles change, update the <style> tags
+	if(!content.locals) {
+		module.hot.accept("!!../../node_modules/css-loader/index.js!./xxt.ui.modal.css", function() {
+			var newContent = require("!!../../node_modules/css-loader/index.js!./xxt.ui.modal.css");
+			if(typeof newContent === 'string') newContent = [[module.id, newContent, '']];
+			update(newContent);
+		});
+	}
+	// When the module is disposed, remove the <style> tags
+	module.hot.dispose(function() { update(); });
+}
+
+/***/ }),
+/* 11 */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+ 
+ var ngMod = angular.module('snsshare.ui.xxt', []);
+ ngMod.service('tmsSnsShare', ['$http', function($http) {
+     function setWxShare(title, link, desc, img, options) {
+         var _this = this;
+         window.wx.onMenuShareTimeline({
+             title: options.descAsTitle ? desc : title,
+             link: link,
+             imgUrl: img,
+             success: function() {
+                 try {
+                     options.logger && options.logger('T');
+                 } catch (ex) {
+                     alert('share failed:' + ex.message);
+                 }
+             },
+             cancel: function() {}
+         });
+         window.wx.onMenuShareAppMessage({
+             title: title,
+             desc: desc,
+             link: link,
+             imgUrl: img,
+             success: function() {
+                 try {
+                     options.logger && options.logger('F');
+                 } catch (ex) {
+                     alert('share failed:' + ex.message);
+                 }
+             },
+             cancel: function() {}
+         });
+     }
+
+     function setYxShare(title, link, desc, img, options) {
+         var _this = this,
+             shareData = {
+                 'img_url': img,
+                 'link': link,
+                 'title': title,
+                 'desc': desc
+             };
+
+         window.YixinJSBridge.on('menu:share:appmessage', function(argv) {
+             try {
+                 options.logger && options.logger('F');
+             } catch (ex) {
+                 alert('share failed:' + ex.message);
+             }
+             window.YixinJSBridge.invoke('sendAppMessage', shareData, function(res) {});
+         });
+         window.YixinJSBridge.on('menu:share:timeline', function(argv) {
+             try {
+                 options.logger && options.logger('T');
+             } catch (ex) {
+                 alert('share failed:' + ex.message);
+             }
+             window.YixinJSBridge.invoke('shareTimeline', shareData, function(res) {});
+         });
+     }
+
+     this.config = function(options) {
+         this.options = options;
+     };
+     this.set = function(title, link, desc, img, fnOther) {
+         var _this = this;
+         // 将图片的相对地址改为绝对地址
+         img && img.indexOf('http') === -1 && (img = 'http://' + location.host + img);
+         if (/MicroMessenger/i.test(navigator.userAgent)) {
+             var script;
+             script = document.createElement('script');
+             script.src = 'http://res.wx.qq.com/open/js/jweixin-1.0.0.js';
+             script.onload = function() {
+                 var xhr, url;
+                 xhr = new XMLHttpRequest();
+                 url = "/rest/site/fe/wxjssdksignpackage?site=" + _this.options.siteId + "&url=" + encodeURIComponent(location.href.split('#')[0]);
+                 xhr.open('GET', url, true);
+                 xhr.onreadystatechange = function() {
+                     if (xhr.readyState == 4) {
+                         if (xhr.status >= 200 && xhr.status < 400) {
+                             var signPackage;
+                             try {
+                                 eval("(" + xhr.responseText + ')');
+                                 if (signPackage) {
+                                     signPackage.debug = false;
+                                     signPackage.jsApiList = _this.options.jsApiList;
+                                     wx.config(signPackage);
+                                     setWxShare(title, link, desc, img, _this.options);
+                                 }
+                             } catch (e) {
+                                 alert('local error:' + e.toString());
+                             }
+                         } else {
+                             alert('http error:' + xhr.statusText);
+                         }
+                     };
+                 }
+                 xhr.send();
+             };
+             document.body.appendChild(script);
+         } else if (/Yixin/i.test(navigator.userAgent)) {
+             if (window.YixinJSBridge === undefined) {
+                 document.addEventListener('YixinJSBridgeReady', function() {
+                     setYxShare(title, link, desc, img, _this.options);
+                 }, false);
+             } else {
+                 setYxShare(title, link, desc, img, _this.options);
+             }
+         } else if (fnOther && typeof fnOther === 'function') {
+             fnOther(title, link, desc, img);
+         }
+     };
+ }]);
+
+
+/***/ }),
+/* 12 */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+
+__webpack_require__(10);
+
+__webpack_require__(2);
+__webpack_require__(9);
+
+var ngMod = angular.module('favor.ui.xxt', ['page.ui.xxt', 'modal.ui.xxt']);
+ngMod.service('tmsFavor', ['$rootScope', '$http', '$q', 'tmsDynaPage', 'tmsModal', function($rootScope, $http, $q, tmsDynaPage, tmsModal) {
+    function byPerson(oMatter) {
+        var url, defer;
+        defer = $q.defer();
+        url = '/rest/site/fe/user/favor/byUser';
+        url += "?site=" + oMatter.siteid;
+        url += "&id=" + oMatter.id;
+        url += "&type=" + oMatter.type;
+        $http.get(url).success(function(rsp) {
+            defer.resolve(rsp.data);
+        });
+        return defer.promise;
+    }
+
+    function favorByPerson(oMatter) {
+        var url, defer;
+        defer = $q.defer();
+        url = '/rest/site/fe/user/favor/add';
+        url += "?site=" + oMatter.siteid;
+        url += "&id=" + oMatter.id;
+        url += "&type=" + oMatter.type;
+        $http.get(url).success(function(rsp) {
+            defer.resolve(rsp.data);
+        });
+        return defer.promise;
+    }
+
+    function unfavorByPerson(oMatter) {
+        var url, defer;
+        defer = $q.defer();
+        url = '/rest/site/fe/user/favor/remove';
+        url += "?site=" + oMatter.siteid;
+        url += "&id=" + oMatter.id;
+        url += "&type=" + oMatter.type;
+        $http.get(url).success(function(rsp) {
+            defer.resolve(rsp.data);
+        });
+        return defer.promise;
+    }
+
+    function bySite(oMatter) {
+        var url, defer;
+        defer = $q.defer();
+        url = '/rest/pl/fe/site/favor/sitesByUser?site=' + oMatter.siteid + '&id=' + oMatter.id + '&type=' + oMatter.type + '&_=' + (new Date() * 1);
+        $http.get(url).success(function(rsp) {
+            if (rsp.err_code != 0) {
+                return;
+            }
+            defer.resolve(rsp.data);
+        });
+        return defer.promise;
+    }
+
+    function favorBySite(oMatter, $aTargetSiteIds) {
+        var url, defer;
+        defer = $q.defer();
+        url = '/rest/pl/fe/site/favor/add?id=' + oMatter.id + '&type=' + oMatter.type;
+        $http.post(url, $aTargetSiteIds).success(function(rsp) {
+            defer.resolve(rsp.data);
+        });
+        return defer.promise;
+    }
+
+    function unfavorBySite(oMatter, $aTargetSiteIds) {
+        var url, defer;
+        defer = $q.defer();
+        url = '/rest/pl/fe/site/favor/remove?id=' + oMatter.id + '&type=' + oMatter.type;
+        $http.post(url, $aTargetSiteIds).success(function(rsp) {
+            defer.resolve(rsp.data);
+        });
+        return defer.promise;
+    }
+
+    this.open = function(oMatter) {
+        var template;
+        template = '<div class="modal-header"><span class="modal-title">指定收藏位置</span></div>';
+        template += '<div class="modal-body">';
+        template += '<div class="checkbox">';
+        template += '<label>';
+        template += '<input type=\'checkbox\' ng-true-value="\'Y\'" ng-false-value="\'N\'" ng-model=\'person._selected\'>';
+        template += '<span>个人账户</span>';
+        template += '<span ng-if="person._favored===\'Y\'">（已收藏）</span>';
+        template += '</label>';
+        template += '</div>';
+        template += '<div class="checkbox" ng-repeat="site in mySites">';
+        template += '<label>';
+        template += '<input type=\'checkbox\' ng-true-value="\'Y\'" ng-false-value="\'N\'" ng-model=\'site._selected\'>';
+        template += '<span>{{site.name}}</span>';
+        template += '<span ng-if="site._favored===\'Y\'">（已收藏）</span>';
+        template += '</label>';
+        template += '</div>'
+        template += '<div ng-if="mySites.length===0"><a href="" ng-click="createSite()">创建</a>团队进行收藏，方便团队内共享信息</div>';
+        template += '</div>';
+        template += '<div class="modal-footer"><button class="btn btn-default" ng-click="cancel()">关闭</button><button class="btn btn-success" ng-click="ok()">确定</button></div>';
+        tmsModal.open({
+            template: template,
+            controller: ['$scope', '$tmsModalInstance', function($scope2, $mi) {
+                byPerson(oMatter).then(function(log) {
+                    $scope2.person = {
+                        _favored: log ? 'Y' : 'N'
+                    };
+                    $scope2.person._selected = $scope2.person._favored;
+                });
+                bySite(oMatter).then(function(sites) {
+                    var mySites = sites;
+                    mySites.forEach(function(site) {
+                        site._selected = site._favored;
+                    });
+                    $scope2.mySites = mySites;
+                });
+                $scope2.createSite = function() {
+                    $http.get('/rest/pl/fe/site/create').success(function(rsp) {
+                        var site = rsp.data;
+                        site._favored = site._selected = 'N';
+                        $scope2.mySites = [site];
+                    })
+                };
+                $scope2.ok = function() {
+                    var result;
+                    result = {
+                        person: $scope2.person,
+                        mySites: $scope2.mySites
+                    }
+                    $mi.close(result);
+                };
+                $scope2.cancel = function() {
+                    $mi.dismiss();
+                };
+            }]
+        }).result.then(function(result) {
+            var url, oPerson, mySites;
+            oPerson = result.person;
+            if (oPerson && oPerson._selected !== oPerson._favored) {
+                if (oPerson._selected === 'Y') {
+                    favorByPerson(oMatter);
+                } else {
+                    unfavorByPerson(oMatter);
+                }
+            }
+            mySites = result.mySites;
+            if (mySites) {
+                var favored = [],
+                    unfavored = [];
+                mySites.forEach(function(site) {
+                    if (site._selected !== site._favored) {
+                        if (site._selected === 'Y') {
+                            favored.push(site.id);
+                        } else {
+                            unfavored.push(site.id);
+                        }
+                    }
+                });
+                if (favored.length) {
+                    favorBySite(oMatter, favored);
+                }
+                if (unfavored.length) {
+                    unfavorBySite(oMatter, unfavored);
+                }
+            }
+        });
+    };
+    this.showSwitch = function(oUser, oMatter) {
+        var _this = this,
+            eSwitch;
+        eSwitch = document.createElement('div');
+        eSwitch.classList.add('tms-switch', 'tms-switch-favor');
+        eSwitch.addEventListener('click', function(event) {
+            event.preventDefault();
+            event.stopPropagation();
+            $rootScope.$apply(function() {
+                if (!oUser.loginExpire) {
+                    tmsDynaPage.openPlugin('http://' + location.host + '/rest/site/fe/user/login?site=' + oMatter.siteid).then(function(data) {
+                        oUser.loginExpire = data.loginExpire;
+                        _this.open(oMatter);
+                    });
+                } else {
+                    _this.open(oMatter);
+                }
+            })
+        }, true);
+        document.body.appendChild(eSwitch);
+    };
+}]);
+
+
+/***/ }),
+/* 13 */
+/***/ (function(module, exports, __webpack_require__) {
+
+exports = module.exports = __webpack_require__(0)(undefined);
+// imports
+
+
+// module
+exports.push([module.i, ".modal {\r\n    display: block;\r\n    overflow: hidden;\r\n    position: fixed;\r\n    top: 0;\r\n    right: 0;\r\n    bottom: 0;\r\n    left: 0;\r\n    outline: 0;\r\n    opacity: 1;\r\n    overflow-x: hidden;\r\n    overflow-y: auto;\r\n    opacity: 1;\r\n}\r\n\r\n.modal-backdrop {\r\n    position: fixed;\r\n    top: 0;\r\n    right: 0;\r\n    bottom: 0;\r\n    left: 0;\r\n    background-color: #000;\r\n    opacity: .5;\r\n}\r\n\r\n.modal-dialog {\r\n    position: relative;\r\n    z-index: 1055;\r\n    margin: 0;\r\n    position: relative;\r\n    width: auto;\r\n    margin: 10px;\r\n}\r\n\r\n.modal-content {\r\n    position: relative;\r\n    background-color: #fff;\r\n    -webkit-background-clip: padding-box;\r\n    background-clip: padding-box;\r\n    border: 1px solid #999;\r\n    border: 1px solid rgba(0, 0, 0, .2);\r\n    border-radius: 6px;\r\n    outline: 0;\r\n    -webkit-box-shadow: 0 3px 9px rgba(0, 0, 0, .5);\r\n    box-shadow: 0 3px 9px rgba(0, 0, 0, .5);\r\n}\r\n\r\n.modal-header {\r\n    padding: 15px;\r\n    border-bottom: 1px solid #e5e5e5;\r\n}\r\n\r\n.modal-header .close {\r\n    margin-top: -2px;\r\n}\r\n\r\n.modal-title {\r\n    margin: 0;\r\n    line-height: 1.42857143;\r\n}\r\n\r\n.modal-body {\r\n    position: relative;\r\n    padding: 15px;\r\n}\r\n\r\n.modal-footer {\r\n    padding: 15px;\r\n    text-align: right;\r\n    border-top: 1px solid #e5e5e5;\r\n}\r\n\r\nbutton.close {\r\n    -webkit-appearance: none;\r\n    padding: 0;\r\n    cursor: pointer;\r\n    background: 0 0;\r\n    border: 0;\r\n}\r\n\r\n.close {\r\n    float: right;\r\n    font-size: 21px;\r\n    font-weight: 700;\r\n    line-height: 1;\r\n    color: #000;\r\n    text-shadow: 0 1px 0 #fff;\r\n    filter: alpha(opacity=20);\r\n    opacity: .2;\r\n}\r\n\r\n@media (min-width:768px) {\r\n    .modal-dialog {\r\n        width: 600px;\r\n        margin: 30px auto;\r\n    }\r\n    .modal-content {\r\n        -webkit-box-shadow: 0 5px 15px rgba(0, 0, 0, .5);\r\n        box-shadow: 0 5px 15px rgba(0, 0, 0, .5);\r\n    }\r\n}\r\n", ""]);
+
+// exports
+
+
+/***/ }),
+/* 14 */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+
+
+function openPlugin(content, cb) {
+    var frag, wrap, frm;
+    frag = document.createDocumentFragment();
+    wrap = document.createElement('div');
+    wrap.setAttribute('id', 'frmPlugin');
+    frm = document.createElement('iframe');
+    wrap.appendChild(frm);
+    wrap.onclick = function() {
+        wrap.parentNode.removeChild(wrap);
+    };
+    frag.appendChild(wrap);
+    document.body.appendChild(frag);
+    if (content.indexOf('http') === 0) {
+        window.onClosePlugin = function() {
+            wrap.parentNode.removeChild(wrap);
+            cb && cb();
+        };
+        frm.setAttribute('src', content);
+    } else {
+        if (frm.contentDocument && frm.contentDocument.body) {
+            frm.contentDocument.body.innerHTML = content;
+        }
+    }
+}
+
+var ngMod = angular.module('coinpay.ui.xxt', []);
+ngMod.service('tmsCoinPay', function() {
+    this.showSwitch = function(siteId, matter) {
+        var eSwitch;
+        eSwitch = document.createElement('div');
+        eSwitch.classList.add('tms-switch', 'tms-switch-coinpay');
+        eSwitch.addEventListener('click', function(event) {
+            event.preventDefault();
+            event.stopPropagation();
+            var url = 'http://' + location.host;
+            url += '/rest/site/fe/coin/pay';
+            url += "?site=" + siteId;
+            url += "&matter=" + matter;
+            openPlugin(url);
+        }, true);
+        document.body.appendChild(eSwitch);
+    }
+});
+
+
+/***/ }),
+/* 15 */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+
+
+function openPlugin(content, cb) {
+    var frag, wrap, frm;
+    frag = document.createDocumentFragment();
+    wrap = document.createElement('div');
+    wrap.setAttribute('id', 'frmPlugin');
+    frm = document.createElement('iframe');
+    wrap.appendChild(frm);
+    wrap.onclick = function() {
+        wrap.parentNode.removeChild(wrap);
+    };
+    frag.appendChild(wrap);
+    document.body.appendChild(frag);
+    if (content.indexOf('http') === 0) {
+        window.onClosePlugin = function() {
+            wrap.parentNode.removeChild(wrap);
+            cb && cb();
+        };
+        frm.setAttribute('src', content);
+    } else {
+        if (frm.contentDocument && frm.contentDocument.body) {
+            frm.contentDocument.body.innerHTML = content;
+        }
+    }
+}
+
+var ngMod = angular.module('siteuser.ui.xxt', []);
+ngMod.service('tmsSiteUser', function() {
+    this.showSwitch = function(siteId, redirect) {
+        var eSwitch;
+        eSwitch = document.createElement('div');
+        eSwitch.classList.add('tms-switch', 'tms-switch-siteuser');
+        eSwitch.addEventListener('click', function(event) {
+            event.preventDefault();
+            event.stopPropagation();
+            var url = 'http://' + location.host;
+            url += '/rest/site/fe/user';
+            url += "?site=" + siteId;
+            if (redirect) {
+                location.href = url;
+            } else {
+                openPlugin(url);
+            }
+        }, true);
+        document.body.appendChild(eSwitch);
+    }
+});
+
+
+/***/ }),
+/* 16 */
+/***/ (function(module, exports, __webpack_require__) {
+
+exports = module.exports = __webpack_require__(0)(undefined);
+// imports
+
+
+// module
+exports.push([module.i, "/*dialog*/\r\n.dialog.mask{position:fixed;background:rgba(0,0,0,0.3);top:0;left:0;bottom:0;right:0;overflow:auto;z-index:1060}\r\n.dialog.dlg{position:absolute;background:#fff;left:0;right:0;bottom:0;margin:15px}\r\n.dialog .dlg-header{padding:15px 15px 0 15px}\r\n.dialog .dlg-body{padding:15px 15px 0 15px}\r\n.dialog .dlg-footer{text-align:right;padding:15px}\r\n.dialog .dlg-footer button{border-radius:0}\r\n\r\n/*filter*/\r\ndiv[wrap=filter] .detail{background:#ccc}\r\ndiv[wrap=filter] .detail .options .label{display:inline-block;margin:.5em;padding-top:.3em;font-size:100%}\r\ndiv[wrap=filter] .detail .actions .btn{border-radius:0}\r\n\r\n/*switch*/\r\n.tms-switch{position:fixed;right:15px;width:70px;box-shadow:0px 2px 6px rgba(18,27,32,0.425);height:35px;color: #2994d0;background:#f8fcfe;border-radius:21px;font-size:24px;line-height:27px;text-align:center;cursor:pointer;z-index:1050;}\r\n.tms-switch:before{font-size:0.7em;}\r\n.tms-switch:nth-last-of-type(1){bottom:8px;}\r\n.tms-switch:nth-last-of-type(2){bottom:64px;}\r\n.tms-switch:nth-last-of-type(3){bottom:120px;}\r\n.tms-switch:nth-last-of-type(4){bottom:176px;}\r\n.tms-switch:nth-last-of-type(5){bottom:232px;}\r\n.tms-switch:nth-last-of-type(6){bottom:288px;}\r\n.tms-switch-back:before{content:'\\8FD4\\56DE';}\r\n.tms-switch-task:before{content:'\\4EFB\\52A1';}\r\n.tms-switch-save:before{content:'\\4FDD\\5B58';}\r\n.tms-switch-rank:before{content:'\\6392\\884C';}\r\n.tms-switch-repos:before{content:'\\5171\\4EAB';}\r\n.tms-switch-coinpay:before{content:'\\6253\\8D4F';}\r\n.tms-discuss-switch{position:fixed;bottom:48px;right:15px;width:48px;height:48px;background:rgba(192,192,192,0.5);border-radius:4px;color:#666;font-size:24px;line-height:48px;text-align:center;}\r\n@media screen and (max-width:768px){\r\n\tbody{margin-bottom:60px;}\r\n\t.tms-switch:nth-last-of-type(1){right:8px;bottom:10px;}\r\n\t.tms-switch:nth-last-of-type(2){right:85px;bottom:10px;}\r\n\t.tms-switch:nth-last-of-type(3){right:165px;bottom:10px;}\r\n\t.tms-switch:nth-last-of-type(4){right:176px;bottom:10px;}\r\n\t.tms-switch:nth-last-of-type(5){right:232px;bottom:10px;}\r\n\t.tms-switch:nth-last-of-type(6){right:288px;bottom:10px;}\r\n}\r\n#frmPlugin{position:absolute;top:0;bottom:0;left:0;right:0;width:100%;height:100%;border:none;z-index:1060;box-sizing:border-box;padding-bottom:48px;background:#fff;}\r\n#frmPlugin iframe{width:100%;height:100%;border:0;}\r\n#frmPlugin:after{content:'\\5173\\95ED';position:absolute;width:100px;text-align:center;left:50%;margin-left:-50px;bottom:4px;padding:5px 6px 3px;border:1px solid #ccc;border-radius:4px;}\r\n\r\n/*input list view*/\r\ndiv[wrap]>.description{word-wrap:break-word;}", ""]);
+
+// exports
+
+
+/***/ }),
+/* 17 */
+/***/ (function(module, exports, __webpack_require__) {
+
+// style-loader: Adds some css to the DOM by adding a <style> tag
+
+// load the styles
+var content = __webpack_require__(16);
+if(typeof content === 'string') content = [[module.i, content, '']];
+// add the styles to the DOM
+var update = __webpack_require__(1)(content, {});
+if(content.locals) module.exports = content.locals;
+// Hot Module Replacement
+if(false) {
+	// When the styles change, update the <style> tags
+	if(!content.locals) {
+		module.hot.accept("!!../../../../../../node_modules/css-loader/index.js!./directive.css", function() {
+			var newContent = require("!!../../../../../../node_modules/css-loader/index.js!./directive.css");
+			if(typeof newContent === 'string') newContent = [[module.id, newContent, '']];
+			update(newContent);
+		});
+	}
+	// When the module is disposed, remove the <style> tags
+	module.hot.dispose(function() { update(); });
+}
+
+/***/ }),
+/* 18 */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+
+
+window.__util = {};
+window.__util.makeDialog = function(id, html) {
+    var dlg, mask;
+
+    mask = document.createElement('div');
+    mask.setAttribute('id', id);
+    mask.classList.add('dialog', 'mask');
+
+    dlg = "<div class='dialog dlg'>";
+    html.header && html.header.length && (dlg += "<div class='dlg-header'>" + html.header + "</div>");
+    dlg += "<div class='dlg-body'>" + html.body + "</div>";
+    html.footer && html.footer.length && (dlg += "<div class='dlg-footer'>" + html.footer + "</div>");
+    dlg += "</div>";
+
+    mask.innerHTML = dlg;
+
+    document.body.appendChild(mask);
+
+    return mask.children;
+};
+
+var ngMod = angular.module('directive.enroll', []);
+ngMod.directive('tmsDate', ['$compile', function($compile) {
+    return {
+        restrict: 'A',
+        scope: {
+            value: '=tmsDateValue'
+        },
+        controller: ['$scope', function($scope) {
+            $scope.close = function() {
+                var mask;
+                mask = document.querySelector('#' + $scope.dialogID);
+                document.body.removeChild(mask);
+                $scope.opened = false;
+            };
+            $scope.ok = function() {
+                var dtObject;
+                dtObject = new Date();
+                dtObject.setTime(0);
+                dtObject.setFullYear($scope.data.year);
+                dtObject.setMonth($scope.data.month - 1);
+                dtObject.setDate($scope.data.date);
+                dtObject.setHours($scope.data.hour);
+                dtObject.setMinutes($scope.data.minute);
+                $scope.value = parseInt(dtObject.getTime() / 1000);
+                $scope.close();
+            };
+        }],
+        link: function(scope, elem, attrs) {
+            var fnOpenPicker, dtObject, dtMinute, htmlBody;
+            scope.value === undefined && (scope.value = (new Date() * 1) / 1000);
+            dtObject = new Date();
+            dtObject.setTime(scope.value * 1000);
+            scope.options = {
+                years: [2014, 2015, 2016, 2017],
+                months: [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12],
+                dates: [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25, 26, 27, 28, 29, 30, 31],
+                hours: [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23],
+                minutes: [0, 5, 10, 15, 20, 25, 30, 35, 40, 45, 50, 55],
+            };
+            dtMinute = Math.round(dtObject.getMinutes() / 5) * 5;
+            scope.data = {
+                year: dtObject.getFullYear(),
+                month: dtObject.getMonth() + 1,
+                date: dtObject.getDate(),
+                hour: dtObject.getHours(),
+                minute: dtMinute
+            };
+            scope.options.minutes.indexOf(dtMinute) === -1 && scope.options.minutes.push(dtMinute);
+            htmlBody = '<div class="form-group"><select class="form-control" ng-model="data.year" ng-options="y for y in options.years"></select></div>';
+            htmlBody += '<div class="form-group"><select class="form-control" ng-model="data.month" ng-options="m for m in options.months"></select></div>';
+            htmlBody += '<div class="form-group"><select class="form-control" ng-model="data.date" ng-options="d for d in options.dates"></select></div>';
+            htmlBody += '<div class="form-group"><select class="form-control" ng-model="data.hour" ng-options="h for h in options.hours"></select></div>';
+            htmlBody += '<div class="form-group"><select class="form-control" ng-model="data.minute" ng-options="mi for mi in options.minutes"></select></div>';
+            fnOpenPicker = function(event) {
+                event.preventDefault();
+                event.stopPropagation();
+                if (scope.opened) return;
+                var html, id;
+                id = '_dlg-' + (new Date() * 1);
+                html = {
+                    header: '',
+                    body: htmlBody,
+                    footer: '<button class="btn btn-default" ng-click="close()">关闭</button><button class="btn btn-success" ng-click="ok()">确定</button>'
+                };
+                html = __util.makeDialog(id, html);
+                scope.opened = true;
+                scope.dialogID = id;
+                $compile(html)(scope);
+            };
+            elem[0].querySelector('[ng-bind]').addEventListener('click', fnOpenPicker);
+        }
+    }
+}]);
+ngMod.directive('tmsCheckboxGroup', function() {
+    return {
+        restrict: 'A',
+        link: function(scope, elem, attrs) {
+            var groupName, model, options, upper;
+            if (attrs.tmsCheckboxGroup && attrs.tmsCheckboxGroup.length) {
+                groupName = attrs.tmsCheckboxGroup;
+                if (attrs.tmsCheckboxGroupModel && attrs.tmsCheckboxGroupModel.length) {
+                    model = attrs.tmsCheckboxGroupModel;
+                    if (attrs.tmsCheckboxGroupUpper && attrs.tmsCheckboxGroupUpper.length) {
+                        upper = attrs.tmsCheckboxGroupUpper;
+                        options = document.querySelectorAll('[name=' + groupName + ']');
+                        scope.$watch(model + '.' + groupName, function(data) {
+                            var cnt;
+                            cnt = 0;
+                            angular.forEach(data, function(v, p) {
+                                v && cnt++;
+                            });
+                            if (cnt >= upper) {
+                                [].forEach.call(options, function(el) {
+                                    if (el.checked === undefined) {
+                                        !el.classList.contains('checked') && el.setAttribute('disabled', true);
+                                    } else {
+                                        !el.checked && (el.disabled = true);
+                                    }
+                                });
+                            } else {
+                                [].forEach.call(options, function(el) {
+                                    if (el.checked === undefined) {
+                                        el.removeAttribute('disabled');
+                                    } else {
+                                        el.disabled = false;
+                                    }
+                                });
+                            }
+                        }, true);
+                    }
+                }
+            }
+        }
+    };
+});
+ngMod.directive('flexImg', function() {
+    return {
+        restrict: 'A',
+        replace: true,
+        template: "<img ng-src='{{img.imgSrc}}'>",
+        link: function(scope, elem, attrs) {
+            angular.element(elem).on('load', function() {
+                var w = this.clientWidth,
+                    h = this.clientHeight,
+                    sw, sh;
+                if (w > h) {
+                    sw = w / h * 80;
+                    angular.element(this).css({
+                        'height': '100%',
+                        'width': sw + 'px',
+                        'top': '0',
+                        'left': '50%',
+                        'margin-left': (-1 * sw / 2) + 'px'
+                    });
+                } else {
+                    sh = h / w * 80;
+                    angular.element(this).css({
+                        'width': '100%',
+                        'height': sh + 'px',
+                        'left': '0',
+                        'top': '50%',
+                        'margin-top': (-1 * sh / 2) + 'px'
+                    });
+                }
+            })
+        }
+    }
+});
+ngMod.service('srvUserTask', ['$http', 'tmsModal', function($http, tmsModal) {
+    this.open = function(oApp) {
+        var oUserTask, template;
+        template = '<div class="modal-body">';
+        if (oApp.summary) {
+            template += '<div class="form-group">活动说明：' + oApp.summary + '</div>';
+        }
+        oUserTask = oApp.userTask;
+        template += '<table class="table table-bordered">';
+        template += '<thead><tr><th>任务</th><th>要求</th><th>完成</th></tr></thead>';
+        template += '<tbody>';
+        if (oUserTask.minEnrollNum && parseInt(oUserTask.minEnrollNum) > 0) {
+            template += '<tr>';
+            template += '<td>至少填写记录条数</td>';
+            template += '<td>' + oUserTask.minEnrollNum + '</td>';
+            template += '<td>{{enrollee.enroll_num}}</td>';
+            template += '</tr>';
+        }
+        if (oUserTask.minRemarkNum && parseInt(oUserTask.minRemarkNum) > 0) {
+            template += '<tr>';
+            template += '<td>至少发表评论条数</td>';
+            template += '<td>' + oUserTask.minRemarkNum + '</td>';
+            template += '<td>{{enrollee.remark_other_num}}</td>';
+            template += '</tr>';
+        }
+        if (oUserTask.minLikeNum && parseInt(oUserTask.minLikeNum) > 0) {
+            template += '<tr>';
+            template += '<td>对记录至少发表赞同的条数</td>';
+            template += '<td>' + oUserTask.minLikeNum + '</td>';
+            template += '<td>{{enrollee.like_other_num}}</td>';
+            template += '</tr>';
+        }
+        if (oUserTask.maxLikeNum && parseInt(oUserTask.maxLikeNum) > 0) {
+            template += '<tr>';
+            template += '<td>对记录最多发表赞同的条数</td>';
+            template += '<td>' + oUserTask.maxLikeNum + '</td>';
+            template += '<td>{{enrollee.like_other_num}}</td>';
+            template += '</tr>';
+        }
+        template += '</tbody></table>';
+        template += '</div>';
+        template += '<div class="modal-footer"><button class="btn btn-default" ng-click="cancel()">关闭任务说明</button></div>';
+        tmsModal.open({
+            template: template,
+            controller: ['$scope', '$tmsModalInstance', function($scope2, $mi) {
+                $http.get('/rest/site/fe/matter/enroll/user/task?site=' + oApp.siteid + '&app=' + oApp.id).success(function(rsp) {
+                    $scope2.enrollee = rsp.data;
+                });
+                $scope2.cancel = function() {
+                    $mi.dismiss();
+                };
+            }]
+        });
+    };
+}]);
+
+/***/ }),
+/* 19 */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+
+var ngMod = angular.module('http.ui.xxt', []);
+ngMod.service('http2', ['$rootScope', '$http', '$timeout', '$q', '$sce', '$compile', function($rootScope, $http, $timeout, $q, $sce, $compile) {
+    function createAlert(msg, type, keep) {
+        var alertDomEl;
+        /* backdrop */
+        alertDomEl = angular.element('<div></div>');
+        alertDomEl.attr({
+            'class': 'tms-notice alert alert-' + (type ? type : 'info'),
+            'ng-style': '{\'z-index\':1040}'
+        }).html($sce.trustAsHtml(msg));
+        if (!keep) {
+            alertDomEl[0].addEventListener('click', function() {
+                document.body.removeChild(alertDomEl[0]);
+            }, true);
+        }
+        $compile(alertDomEl)($rootScope);
+        document.body.appendChild(alertDomEl[0]);
+
+        return alertDomEl[0];
+    }
+
+    function removeAlert(alertDomEl) {
+        if (alertDomEl) {
+            document.body.removeChild(alertDomEl);
+        }
+    }
+
+    this.get = function(url, options) {
+        var _alert, _timer, _defer = $q.defer();
+        options = angular.extend({
+            'headers': {
+                'accept': 'application/json'
+            },
+            'autoBreak': true,
+            'autoNotice': true,
+            'showProgress': true,
+            'showProgressDelay': 500,
+            'showProgressText': '正在获取数据...',
+        }, options);
+        if (options.showProgress === true) {
+            _timer = $timeout(function() {
+                _timer = null;
+                _alert = createAlert(options.showProgressText, 'info');
+            }, options.showProgressDelay);
+        }
+        $http.get(url, options).success(function(rsp) {
+            if (options.showProgress === true) {
+                _timer && $timeout.cancel(_timer);
+                if (_alert) {
+                    removeAlert(_alert);
+                    _alert = null;
+                }
+            }
+            if (angular.isString(rsp)) {
+                if (options.autoNotice) {
+                    createAlert(rsp, 'warning');
+                }
+                return;
+            }
+            if (rsp.err_code != 0) {
+                if (options.autoNotice) {
+                    var errmsg;
+                    if (angular.isString(rsp.err_msg)) {
+                        errmsg = rsp.err_msg;
+                    } else {
+                        errmsg = JSON.stringify(rsp.err_msg);
+                    }
+                    createAlert(errmsg, 'warning');
+                }
+                if (options.autoBreak) return;
+            }
+            _defer.resolve(rsp);
+        }).error(function(data, status) {
+            if (options.showProgress === true) {
+                _timer && $timeout.cancel(_timer);
+                if (_alert) {
+                    removeAlert(_alert);
+                    _alert = null;
+                }
+            }
+            createAlert(data === null ? '网络不可用' : data, 'danger');
+        });
+        return _defer.promise;
+    };
+    this.post = function(url, posted, options) {
+        var _alert, _timer, _defer = $q.defer();
+        options = angular.extend({
+            'headers': {
+                'accept': 'application/json'
+            },
+            'autoBreak': true,
+            'autoNotice': true,
+            'showProgress': true,
+            'showProgressDelay': 500,
+            'showProgressText': '正在获取数据...',
+        }, options);
+        if (options.showProgress === true) {
+            _timer = $timeout(function() {
+                _timer = null;
+                _alert = createAlert(options.showProgressText, 'info');
+            }, options.showProgressDelay);
+        }
+        $http.post(url, posted, options).success(function(rsp) {
+            if (options.showProgress === true) {
+                _timer && $timeout.cancel(_timer);
+                if (_alert) {
+                    removeAlert(_alert);
+                    _alert = null;
+                }
+            }
+            if (angular.isString(rsp)) {
+                if (options.autoNotice) {
+                    createAlert(rsp, 'warning');
+                    _alert = null;
+                }
+                return;
+            }
+            if (rsp.err_code != 0) {
+                if (options.autoNotice) {
+                    var errmsg;
+                    if (angular.isString(rsp.err_msg)) {
+                        errmsg = rsp.err_msg;
+                    } else {
+                        errmsg = JSON.stringify(rsp.err_msg);
+                    }
+                    createAlert(errmsg, 'warning');
+                }
+                if (options.autoBreak) return;
+            }
+            _defer.resolve(rsp);
+        }).error(function(data, status) {
+            if (options.showProgress === true) {
+                _timer && $timeout.cancel(_timer);
+                if (_alert) {
+                    removeAlert(_alert);
+                    _alert = null;
+                }
+            }
+            createAlert(data === null ? '网络不可用' : data, 'danger');
+        });
+        return _defer.promise;
+    };
+}]);
+
+
+/***/ }),
+/* 20 */
+/***/ (function(module, exports, __webpack_require__) {
+
+exports = module.exports = __webpack_require__(0)(undefined);
+// imports
+
+
+// module
+exports.push([module.i, ".container{position: relative;}\r\n.navbar-default{background-color: #2994D0;border-bottom: none;}\r\n.navbar-default .navbar-nav > li > a, .navbar-default .navbar-brand{color: #fff;}\r\n.glyphicon{top:2px;margin-right: 10px;}\r\n.navbar-brand{height: 55px;padding:17.5px 15px;}\r\n.main-navbar .navbar-brand:hover{color: #fff;}\r\n@media screen and (min-width: 768px){.navbar-nav>li>a {padding: 17.5px 30px;font-size:18px;line-height: 1;}}\r\n@media screen and (max-width: 768px){\r\n  .navbar-brand{width: 100%;text-align: center;}\r\n  .navbar-brand > .icon-note{display: inline-block;width: 124px;text-overflow:ellipsis;overflow: hidden;white-space: nowrap;}\r\n  .navbar-nav{margin: 8px 0;position: absolute;top:0;right: 0;}\r\n  .nav > li > a{padding:10px 10px;}\r\n}", ""]);
+
+// exports
+
+
+/***/ }),
+/* 21 */
+/***/ (function(module, exports, __webpack_require__) {
+
+// style-loader: Adds some css to the DOM by adding a <style> tag
+
+// load the styles
+var content = __webpack_require__(20);
+if(typeof content === 'string') content = [[module.i, content, '']];
+// add the styles to the DOM
+var update = __webpack_require__(1)(content, {});
+if(content.locals) module.exports = content.locals;
+// Hot Module Replacement
+if(false) {
+	// When the styles change, update the <style> tags
+	if(!content.locals) {
+		module.hot.accept("!!../../../../../../node_modules/css-loader/index.js!./main.css", function() {
+			var newContent = require("!!../../../../../../node_modules/css-loader/index.js!./main.css");
+			if(typeof newContent === 'string') newContent = [[module.id, newContent, '']];
+			update(newContent);
+		});
+	}
+	// When the module is disposed, remove the <style> tags
+	module.hot.dispose(function() { update(); });
+}
+
+/***/ }),
+/* 22 */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+
+__webpack_require__(11);
+if (/MicroMessenger/i.test(navigator.userAgent) && window.signPackage && window.wx) {
+    window.wx.ready(function() {
+        window.wx.showOptionMenu();
+    });
+} else if (/YiXin/i.test(navigator.userAgent)) {
+    document.addEventListener('YixinJSBridgeReady', function() {
+        YixinJSBridge.call('showOptionMenu');
+    }, false);
+}
+
+__webpack_require__(17);
+__webpack_require__(21);
+
+__webpack_require__(19);
+__webpack_require__(2);
+__webpack_require__(15);
+__webpack_require__(12);
+__webpack_require__(14);
+
+__webpack_require__(18);
+
+var ngApp = angular.module('app', ['ngSanitize', 'ui.bootstrap', 'http.ui.xxt', 'page.ui.xxt', 'snsshare.ui.xxt', 'directive.enroll', 'siteuser.ui.xxt', 'favor.ui.xxt']);
+ngApp.provider('ls', function() {
+    var _baseUrl = '/rest/site/fe/matter/enroll',
+        _params = {};
+
+    this.params = function(params) {
+        var ls;
+        ls = location.search;
+        angular.forEach(params, function(q) {
+            var match, pattern;
+            pattern = new RegExp(q + '=([^&]*)');
+            match = ls.match(pattern);
+            _params[q] = match ? match[1] : '';
+        });
+        return _params;
+    };
+
+    this.$get = function() {
+        return {
+            p: _params,
+            j: function(method) {
+                var i = 1,
+                    l = arguments.length,
+                    url = _baseUrl,
+                    _this = this,
+                    search = [];
+                method && method.length && (url += '/' + method);
+                for (; i < l; i++) {
+                    search.push(arguments[i] + '=' + _params[arguments[i]]);
+                };
+                search.length && (url += '?' + search.join('&'));
+                return url;
+            }
+        };
+    };
+});
+ngApp.config(['$controllerProvider', '$uibTooltipProvider', 'lsProvider', function($cp, $uibTooltipProvider, lsProvider) {
+    ngApp.provider = {
+        controller: $cp.register
+    };
+    $uibTooltipProvider.setTriggers({ 'show': 'hide' });
+    lsProvider.params(['site', 'app', 'rid', 'page', 'ek', 'preview', 'newRecord', 'ignoretime']);
+}]);
+ngApp.controller('ctrlAppTip', ['$scope', '$interval', function($scope, $interval) {
+    var timer;
+    $scope.autoCloseTime = 6;
+    $scope.domId = '';
+    $scope.closeTip = function() {
+        var domTip = document.querySelector($scope.domId);
+        var evt = document.createEvent("HTMLEvents");
+        evt.initEvent("hide", false, false);
+        domTip.dispatchEvent(evt);
+    };
+    timer = $interval(function() {
+        $scope.autoCloseTime--;
+        if ($scope.autoCloseTime === 0) {
+            $interval.cancel(timer);
+            $scope.closeTip();
+        }
+    }, 1000);
+}]);
+ngApp.controller('ctrlMain', ['$scope', '$q', '$http', '$timeout', 'srvUserTask', 'ls', 'tmsDynaPage', 'tmsSnsShare', 'tmsSiteUser', 'tmsFavor', function($scope, $q, $http, $timeout, srvUserTask, LS, tmsDynaPage, tmsSnsShare, tmsSiteUser, tmsFavor) {
+    function refreshActionRule() {
+        var url, defer;
+        defer = $q.defer();
+        url = LS.j('actionRule', 'site', 'app');
+        $http.get(url).success(function(rsp) {
+            $scope.params.actionRule = rsp.data;
+            defer.resolve(rsp.data);
+        });
+        return defer.promise;
+    }
+
+    function openPlugin(url, fnCallback) {
+        var body, elWrap, elIframe;
+        body = document.body;
+        elWrap = document.createElement('div');
+        elWrap.setAttribute('id', 'frmPlugin');
+        elWrap.height = body.clientHeight;
+        elIframe = document.createElement('iframe');
+        elWrap.appendChild(elIframe);
+        body.scrollTop = 0;
+        body.appendChild(elWrap);
+        window.onClosePlugin = function() {
+            if (fnCallback) {
+                fnCallback().then(function(data) {
+                    elWrap.parentNode.removeChild(elWrap);
+                });
+            } else {
+                elWrap.parentNode.removeChild(elWrap);
+            }
+        };
+        elWrap.onclick = function() {
+            onClosePlugin();
+        };
+        if (url) {
+            elIframe.setAttribute('src', url);
+        }
+        elWrap.style.display = 'block';
+    }
+
+    function execTask(task) {
+        var obj, fn, args, valid;
+        valid = true;
+        obj = $scope;
+        args = task.match(/\((.*?)\)/)[1].replace(/'|"/g, "").split(',');
+        angular.forEach(task.replace(/\(.*?\)/, '').split('.'), function(attr) {
+            if (fn) obj = fn;
+            if (!obj[attr]) {
+                valid = false;
+                return;
+            }
+            fn = obj[attr];
+        });
+        if (valid) {
+            fn.apply(obj, args);
+        }
+    }
+    var tasksOfOnReady = [];
+    // 消息提醒
+    $scope.notice = {
+        msg: '',
+        set: function(msg, type) {
+            this.msg = msg;
+            this.type = type || 'error'
+        }
+    };
+    $scope.back = function() {
+        history.back();
+    };
+    $scope.historyLen = function() {
+        return history.length;
+    };
+    $scope.closeWindow = function() {
+        if (/MicroMessenger/i.test(navigator.userAgent)) {
+            window.wx.closeWindow();
+        } else if (/YiXin/i.test(navigator.userAgent)) {
+            window.YixinJSBridge.call('closeWebView');
+        }
+    };
+    $scope.askFollowSns = function() {
+        var url;
+        if ($scope.app.entry_rule && $scope.app.entry_rule.scope === 'sns') {
+            url = LS.j('askFollow', 'site');
+            url += '&sns=' + Object.keys($scope.app.entry_rule.sns).join(',');
+            openPlugin(url, refreshActionRule);
+        }
+    };
+    $scope.askBecomeMember = function() {
+        var url, mschemaIds;
+        if ($scope.app.entry_rule && $scope.app.entry_rule.scope === 'member') {
+            mschemaIds = Object.keys($scope.app.entry_rule.member);
+            if (mschemaIds.length === 1) {
+                url = '/rest/site/fe/user/member?site=' + $scope.app.siteid;
+                url += '&schema=' + mschemaIds[0];
+            } else if (mschemaIds.length > 1) {
+                url = '/rest/site/fe/user/memberschema?site=' + $scope.app.siteid;
+                url += '&schema=' + mschemaIds.join(',');
+            }
+            openPlugin(url, refreshActionRule);
+        }
+    };
+    $scope.addRecord = function(event, page) {
+        if (page) {
+            $scope.gotoPage(event, page, null, null, 'Y');
+        } else {
+            for (var i in $scope.app.pages) {
+                var oPage = $scope.app.pages[i];
+                if (oPage.type === 'I') {
+                    $scope.gotoPage(event, oPage.name, null, null, 'Y');
+                    break;
+                }
+            }
+        }
+    };
+    $scope.showUserTask = function() {
+        srvUserTask.open($scope.app);
+    };
+    $scope.gotoPage = function(event, page, ek, rid, newRecord) {
+        if (event) {
+            event.preventDefault();
+            event.stopPropagation();
+        }
+        var url = LS.j('', 'site', 'app');
+        if (ek) {
+            url += '&ek=' + ek;
+        }
+        rid !== undefined && rid !== null && rid.length && (url += '&rid=' + rid);
+        page !== undefined && page !== null && page.length && (url += '&page=' + page);
+        newRecord !== undefined && newRecord === 'Y' && (url += '&newRecord=Y');
+        if (/remark|repos/.test(page)) {
+            location = url;
+        } else {
+            location.replace(url);
+        }
+    };
+    $scope.openMatter = function(id, type, replace, newWindow) {
+        var url = '/rest/site/fe/matter?site=' + LS.p.site + '&id=' + id + '&type=' + type;
+        if (replace) {
+            location.replace(url);
+        } else {
+            if (newWindow === false) {
+                location.href = url;
+            } else {
+                window.open(url);
+            }
+        }
+    };
+    $scope.onReady = function(task) {
+        if ($scope.params) {
+            execTask(task);
+        } else {
+            tasksOfOnReady.push(task);
+        }
+    };
+    $scope.save = function() {
+        $scope.$broadcast('xxt.app.enroll.save');
+    };
+    $http.get(LS.j('get', 'site', 'app', 'rid', 'page', 'ek', 'newRecord')).success(function(rsp) {
+        if (rsp.err_code !== 0) {
+            $scope.errmsg = rsp.err_msg;
+            return;
+        }
+        var params = rsp.data,
+            oSite = params.site,
+            oApp = params.app,
+            oMission = params.mission,
+            oPage = params.page,
+            oUser = params.user,
+            schemasById = {},
+            tagsById = {},
+            shareid, sharelink, shareby, summary;
+
+        oApp.dataSchemas.forEach(function(schema) {
+            schemasById[schema.id] = schema;
+        });
+        oApp._schemasById = schemasById;
+        oApp.dataTags.forEach(function(oTag) {
+            tagsById[oTag.id] = oTag;
+        });
+        oApp._tagsById = tagsById;
+        $scope.params = params;
+        $scope.site = oSite;
+        $scope.mission = oMission;
+        $scope.app = oApp;
+        $scope.user = oUser;
+        if (oApp.multi_rounds === 'Y') {
+            $scope.activeRound = params.activeRound;
+        }
+        if (params.record) {
+            if (params.record.data_tag) {
+                for (var schemaId in params.record.data_tag) {
+                    var dataTags = params.record.data_tag[schemaId],
+                        converted = [];
+                    dataTags.forEach(function(tagId) {
+                        tagsById[tagId] && converted.push(tagsById[tagId]);
+                    });
+                    params.record.data_tag[schemaId] = converted;
+                }
+            }
+        }
+
+        /* 设置活动的当前链接 */
+        shareid = oUser.uid + '_' + (new Date() * 1);
+        sharelink = 'http://' + location.host + LS.j('', 'site', 'app', 'rid', 'newRecord');
+        sharelink += "&shareby=" + shareid;
+        if (oPage && oPage.share_page && oPage.share_page === 'Y') {
+            sharelink += '&page=' + oPage.name;
+            params.record && params.record.enroll_key && (sharelink += '&ek=' + params.record.enroll_key);
+            if (!(/iphone|ipad/i.test(navigator.userAgent))) {
+                /*ios下操作无效，且导致微信jssdk失败*/
+                if (window.history && window.history.replaceState) {
+                    window.history.replaceState({}, oApp.title, sharelink);
+                }
+            }
+        }
+        /* 设置分享 */
+        if (/MicroMessenger|Yixin/i.test(navigator.userAgent)) {
+            summary = oApp.summary;
+            if (oPage && oPage.share_summary && oPage.share_summary.length && params.record) {
+                summary = params.record.data[oPage.share_summary];
+            }
+            /* 分享次数计数器 */
+            window.shareCounter = 0;
+            tmsSnsShare.config({
+                siteId: oApp.siteid,
+                logger: function(shareto) {
+                    var url;
+                    url = "/rest/site/fe/matter/logShare";
+                    url += "?shareid=" + shareid;
+                    url += "&site=" + oApp.siteid;
+                    url += "&id=" + oApp.id;
+                    url += "&type=enroll";
+                    url += "&title=" + oApp.title;
+                    url += "&shareby=" + shareid;
+                    url += "&shareto=" + shareto;
+                    $http.get(url);
+                    window.shareCounter++;
+                    if (oApp.can_autoenroll === 'Y' && oPage.autoenroll_onshare === 'Y') {
+                        $http.get(LS.j('emptyGet', 'site', 'app') + '&once=Y');
+                    }
+                    window.onshare && window.onshare(window.shareCounter);
+                },
+                jsApiList: ['hideOptionMenu', 'onMenuShareTimeline', 'onMenuShareAppMessage', 'chooseImage', 'uploadImage', 'getLocation']
+            });
+            tmsSnsShare.set(oApp.title, sharelink, summary, oApp.pic);
+        }
+
+        if (oApp.use_site_header === 'Y' && oSite && oSite.header_page) {
+            tmsDynaPage.loadCode(ngApp, oSite.header_page);
+        }
+        if (oApp.use_mission_header === 'Y' && oMission && oMission.header_page) {
+            tmsDynaPage.loadCode(ngApp, oMission.header_page);
+        }
+        if (oApp.use_mission_footer === 'Y' && oMission && oMission.footer_page) {
+            tmsDynaPage.loadCode(ngApp, oMission.footer_page);
+        }
+        if (oApp.use_site_footer === 'Y' && oSite && oSite.footer_page) {
+            tmsDynaPage.loadCode(ngApp, oSite.footer_page);
+        }
+        if (params.page) {
+            tmsDynaPage.loadCode(ngApp, params.page).then(function() {
+                $scope.page = params.page;
+            });
+        }
+        if (tasksOfOnReady.length) {
+            angular.forEach(tasksOfOnReady, PG.exec);
+        }
+        if (!document.querySelector('.tms-switch-favor')) {
+            tmsFavor.showSwitch($scope.user, oApp);
+        } else {
+            $scope.favor = function(user, article) {
+                event.preventDefault();
+                event.stopPropagation();
+
+                if (!user.loginExpire) {
+                    tmsDynaPage.openPlugin('http://' + location.host + '/rest/site/fe/user/login?site=' + article.siteid).then(function(data) {
+                        user.loginExpire = data.loginExpire;
+                        tmsFavor.open(article);
+                    });
+                } else {
+                    tmsFavor.open(article);
+                }
+            }
+        }
+        if (oApp.can_siteuser === 'Y') {
+            if (!document.querySelector('.tms-switch-siteuser')) {
+                tmsSiteUser.showSwitch(oApp.siteid, true);
+            } else {
+                $scope.siteUser = function(id) {
+                    event.preventDefault();
+                    event.stopPropagation();
+
+                    var url = 'http://' + location.host;
+                    url += '/rest/site/fe/user';
+                    url += "?site=" + id;
+                    location.href = url;
+                }
+            }
+        }
+        $scope.isSmallLayout = false;
+        if (window.screen && window.screen.width < 992) {
+            $scope.isSmallLayout = true;
+        }
+        $timeout(function() {
+            $scope.$broadcast('xxt.app.enroll.ready', params);
+        });
+        //
+        var eleLoading;
+        if (eleLoading = document.querySelector('.loading')) {
+            eleLoading.parentNode.removeChild(eleLoading);
+        }
+        //
+        $http.post('/rest/site/fe/matter/logAccess?site=' + oApp.siteid + '&id=' + oApp.id + '&type=enroll&title=' + oApp.title + '&shareby=', {
+            search: location.search.replace('?', ''),
+            referer: document.referrer
+        });
+    }).error(function(content, httpCode) {
+        if (httpCode === 401) {
+            var el = document.createElement('iframe');
+            el.setAttribute('id', 'frmPopup');
+            el.onload = function() {
+                this.height = document.querySelector('body').clientHeight;
+            };
+            document.body.appendChild(el);
+            if (content.indexOf('http') === 0) {
+                window.onAuthSuccess = function() {
+                    el.style.display = 'none';
+                };
+                el.setAttribute('src', content);
+                el.style.display = 'block';
+            } else {
+                if (el.contentDocument && el.contentDocument.body) {
+                    el.contentDocument.body.innerHTML = content;
+                    el.style.display = 'block';
+                }
+            }
+        } else {
+            $scope.errmsg = content;
+        }
+    });
+}]);
+module.exports = ngApp;
+
+/***/ }),
+/* 23 */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+
+window.xxt === undefined && (window.xxt = {});
+window.xxt.geo = {
+    options: {},
+    getAddress: function(http2, deferred, siteId) {
+        var promise;
+        promise = deferred.promise;
+        if (window.wx) {
+            window.wx.getLocation({
+                success: function(res) {
+                    var url = '/rest/site/fe/matter/enroll/locationGet';
+                    url += '?site=' + siteId;
+                    url += '&lat=' + res.latitude;
+                    url += '&lng=' + res.longitude;
+                    http2.get(url).then(function(rsp) {
+                        deferred.resolve({
+                            errmsg: 'ok',
+                            lat: res.latitude,
+                            lng: res.longitude,
+                            address: rsp.data.address
+                        });
+                    });
+                }
+            });
+        } else {
+            try {
+                var nav = window.navigator;
+                if (nav !== null) {
+                    var geoloc = nav.geolocation;
+                    if (geoloc !== null) {
+                        geoloc.getCurrentPosition(function(position) {
+                            var url = '/rest/site/fe/matter/enroll/locationGet';
+                            url += '?site=' + siteId;
+                            url += '&lat=' + position.coords.latitude;
+                            url += '&lng=' + position.coords.longitude;
+                            http2.get(url).then(function(rsp) {
+                                deferred.resolve({
+                                    errmsg: 'ok',
+                                    lat: position.coords.latitude,
+                                    lng: position.coords.longitude,
+                                    address: rsp.data.address
+                                });
+                            });
+                        }, function() {
+                            deferred.resolve({
+                                errmsg: '获取地理位置失败'
+                            })
+                        });
+                    } else {
+                        deferred.resolve({
+                            errmsg: "无法获取地理位置"
+                        });
+                    }
+                } else {
+                    deferred.resolve({
+                        errmsg: "无法获取地理位置"
+                    });
+                }
+            } catch (e) {
+                alert('exception:' + e.message);
+            }
+        }
+        return promise;
+    },
+};
+
+
+/***/ }),
+/* 24 */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+
+window.xxt === undefined && (window.xxt = {});
+window.xxt.image = {
+    options: {},
+    choose: function(deferred, from) {
+        var promise, imgs = [];
+        promise = deferred.promise;
+        // if (window.wx !== undefined) {
+        //     window.wx.chooseImage({
+        //         success: function(res) {
+        //             var i, img;
+        //             for (i in res.localIds) {
+        //                 img = {
+        //                     imgSrc: res.localIds[i]
+        //                 };
+        //                 imgs.push(img);
+        //             }
+        //             deferred.resolve(imgs);
+        //         }
+        //     });
+        // } else
+        if (window.YixinJSBridge) {
+            window.YixinJSBridge.invoke(
+                'pickImage', {
+                    type: from,
+                    quality: 100
+                },
+                function(result) {
+                    var img;
+                    if (result.data && result.data.length) {
+                        img = {
+                            imgSrc: 'data:' + result.mime + ';base64,' + result.data
+                        };
+                        imgs.push(img);
+                    }
+                    deferred.resolve(imgs);
+                });
+        } else {
+            var ele = document.createElement('input');
+            ele.setAttribute('type', 'file');
+            ele.addEventListener('change', function(evt) {
+                var i, cnt, f, type;
+                cnt = evt.target.files.length;
+                for (i = 0; i < cnt; i++) {
+                    f = evt.target.files[i];
+                    type = {
+                        ".jp": "image/jpeg",
+                        ".pn": "image/png",
+                        ".gi": "image/gif"
+                    }[f.name.match(/\.(\w){2}/g)[0] || ".jp"];
+                    f.type2 = f.type || type;
+                    var reader = new FileReader();
+                    reader.onload = (function(theFile) {
+                        return function(e) {
+                            var img = {};
+                            img.imgSrc = e.target.result.replace(/^.+(,)/, "data:" + theFile.type2 + ";base64,");
+                            imgs.push(img);
+                            document.body.removeChild(ele);
+                            deferred.resolve(imgs);
+                        };
+                    })(f);
+                    reader.readAsDataURL(f);
+                }
+            }, false);
+            ele.style.opacity = 0;
+            document.body.appendChild(ele);
+            ele.click();
+        }
+        return promise;
+    },
+    wxUpload: function(deferred, img) {
+        var promise;
+        promise = deferred.promise;
+        if (0 === img.imgSrc.indexOf('weixin://') || 0 === img.imgSrc.indexOf('wxLocalResource://')) {
+            window.wx.uploadImage({
+                localId: img.imgSrc,
+                isShowProgressTips: 1,
+                success: function(res) {
+                    img.serverId = res.serverId;
+                    deferred.resolve(img);
+                }
+            });
+        } else {
+            deferred.resolve(img);
+        }
+        return promise;
+    }
+};
+
+
+/***/ }),
+/* 25 */,
+/* 26 */,
+/* 27 */,
+/* 28 */,
+/* 29 */,
+/* 30 */,
+/* 31 */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+
+var utilSchema = {};
+utilSchema.isEmpty = function(oSchema, value) {
+    if (value === undefined) {
+        return true;
+    }
+    switch (oSchema.type) {
+        case 'multiple':
+            for (var p in value) {
+                //至少有一个选项
+                if (value[p] === true) {
+                    return false;
+                }
+            }
+            return true;
+        default:
+            return value.length === 0;
+    }
+};
+utilSchema.checkRequire = function(oSchema, value) {
+    if (value === undefined || this.isEmpty(oSchema, value)) {
+        return '请填写必填题目［' + oSchema.title + '］';
+    }
+    return true;
+};
+utilSchema.checkFormat = function(oSchema, value) {
+    if (oSchema.format === 'number') {
+        if (!/^-{0,1}[0-9]+(.[0-9]+){0,1}$/.test(value)) {
+            return '题目［' + oSchema.title + '］请输入数值';
+        }
+    } else if (oSchema.format === 'name') {
+        if (value.length < 2) {
+            return '题目［' + oSchema.title + '］请输入正确的姓名（不少于2个字符）';
+        }
+    } else if (oSchema.format === 'mobile') {
+        if (!/^1(3[0-9]|4[57]|5[0-35-9]|7[0135678]|8[0-9])\d{8}$/.test(value)) {
+            return '题目［' + oSchema.title + '］请输入正确的手机号（11位数字）';
+        }
+    } else if (oSchema.format === 'email') {
+        if (!/^[A-Za-z\d]+([-_.][A-Za-z\d]+)*@([A-Za-z\d]+[-.])+[A-Za-z\d]{2,4}$/.test(value)) {
+            return '题目［' + oSchema.title + '］请输入正确的邮箱';
+        }
+    }
+    return true;
+};
+utilSchema.checkCount = function(oSchema, value) {
+    if (oSchema.count !== undefined && value.length > oSchema.count) {
+        return '［' + oSchema.title + '］超出上传数量（' + oSchema.count + '）限制';
+    }
+    return true;
+};
+utilSchema.checkValue = function(oSchema, value) {
+    var sCheckResult;
+    if (oSchema.required && oSchema.required === 'Y') {
+        if (true !== (sCheckResult = this.checkRequire(oSchema, value))) {
+            return sCheckResult;
+        }
+    }
+    if (value) {
+        if (oSchema.type === 'shorttext' && oSchema.format) {
+            if (true !== (sCheckResult = this.checkFormat(oSchema, value))) {
+                return sCheckResult;
+            }
+        }
+        if (/image|file/.test(oSchema.type) && oSchema.count) {
+            if (true !== (sCheckResult = this.checkCount(oSchema, value))) {
+                return sCheckResult;
+            }
+        }
+    }
+    return true;
+};
+utilSchema.loadRecord = function(schemasById, dataOfPage, dataOfRecord) {
+    if (!dataOfRecord) return false;
+
+    var p, value;
+    for (p in dataOfRecord) {
+        if (p === 'member') {
+            /* 提交的数据覆盖自动填写的联系人数据 */
+            if (angular.isString(dataOfRecord.member)) {
+                dataOfRecord.member = JSON.parse(dataOfRecord.member);
+            }
+            dataOfPage.member = angular.extend(dataOfPage.member, dataOfRecord.member);
+        } else if (schemasById[p] !== undefined) {
+            var schema = schemasById[p];
+            if (schema.type === 'score') {
+                dataOfPage[p] = dataOfRecord[p];
+            } else if (dataOfRecord[p].length) {
+                if (schemasById[p].type === 'image') {
+                    value = dataOfRecord[p].split(',');
+                    dataOfPage[p] = [];
+                    for (var i in value) {
+                        dataOfPage[p].push({
+                            imgSrc: value[i]
+                        });
+                    }
+                } else if (schemasById[p].type === 'multiple') {
+                    value = dataOfRecord[p].split(',');
+                    dataOfPage[p] = {};
+                    for (var i in value) dataOfPage[p][value[i]] = true;
+                } else {
+                    dataOfPage[p] = dataOfRecord[p];
+                }
+            }
+        }
+    }
+    return true;
+};
+utilSchema.autoFillMember = function(user, member) {
+    var member2, eles;
+    if (user && member && member.schema_id && user.members) {
+        if (member2 = user.members[member.schema_id]) {
+            if (angular.isString(member2.extattr)) {
+                if (member2.extattr.length) {
+                    member2.extattr = JSON.parse(member2.extattr);
+                } else {
+                    member2.extattr = {};
+                }
+            }
+            eles = document.querySelectorAll("[ng-model^='data.member']");
+            angular.forEach(eles, function(ele) {
+                var attr;
+                attr = ele.getAttribute('ng-model');
+                attr = attr.replace('data.member.', '');
+                attr = attr.split('.');
+                if (attr.length == 2) {
+                    !member.extattr && (member.extattr = {});
+                    member.extattr[attr[1]] = member2.extattr[attr[1]];
+                } else {
+                    member[attr[0]] = member2[attr[0]];
+                }
+            });
+        }
+    }
+};
+module.exports = utilSchema;
+
+
+/***/ }),
+/* 32 */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+
+var utilSubmit = {};
+utilSubmit.state = {
+    modified: false,
+    state: 'waiting',
+    _cacheKey: false,
+    start: function(event, cacheKey) {
+        var submitButton;
+        if (event) {
+            submitButton = event.target;
+            if (submitButton.tagName === 'BUTTON' || ((submitButton = submitButton.parentNode) && submitButton.tagName === 'BUTTON')) {
+                if (/submit\(.*\)/.test(submitButton.getAttribute('ng-click'))) {
+                    var span;
+                    this.button = submitButton;
+                    span = submitButton.querySelector('span');
+                    span.setAttribute('data-label', span.innerHTML);
+                    span.innerHTML = '正在提交数据...';
+                    this.button.classList.add('submit-running');
+                }
+            }
+        }
+        this.state = 'running';
+        this._cacheKey = cacheKey ? cacheKey : (new Date * 1);
+    },
+    finish: function(keep) {
+        this.state = 'waiting';
+        this.modified = false;
+        if (this.button) {
+            var span;
+            span = this.button.querySelector('span');
+            span.innerHTML = span.getAttribute('data-label');
+            span.removeAttribute('data-label');
+            this.button.classList.remove('submit-running');
+            this.button = null;
+        }
+        if (window.localStorage && !keep) {
+            window.localStorage.removeItem(this._cacheKey);
+        }
+    },
+    isRunning: function() {
+        return this.state === 'running';
+    },
+    cache: function(cachedData) {
+        if (window.localStorage) {
+            var key, val;
+            key = this._cacheKey;
+            val = angular.copy(cachedData);
+            val._cacheAt = (new Date * 1);
+            val = JSON.stringify(val);
+            window.localStorage.setItem(key, val);
+        }
+    },
+    fromCache: function(keep) {
+        if (window.localStorage) {
+            var key, val;
+            key = this._cacheKey;
+            val = window.localStorage.getItem(key);
+            if (!keep) window.localStorage.removeItem(key);
+            if (val) {
+                val = JSON.parse(val);
+                if (val._cacheAt && (val._cacheAt + 1800000) < (new Date * 1)) {
+                    val = false;
+                }
+                delete val._cacheAt;
+            }
+        }
+        return val;
+    }
+};
+module.exports = utilSubmit;
+
+
+/***/ }),
+/* 33 */,
+/* 34 */,
+/* 35 */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+
+__webpack_require__(62);
+
+__webpack_require__(24);
+__webpack_require__(23);
+
+var ngApp = __webpack_require__(22);
+ngApp.oUtilSchema = __webpack_require__(31);
+ngApp.oUtilSubmit = __webpack_require__(32);
+ngApp.config(['$compileProvider', function($compileProvider) {
+    $compileProvider.aHrefSanitizationWhitelist(/^\s*(https?|ftp|mailto|tel|file|sms|wxLocalResource):/);
+}]);
+ngApp.factory('Input', ['$q', '$timeout', 'ls', 'http2', function($q, $timeout, LS, http2) {
+    var Input, _ins;
+    Input = function() {};
+    Input.prototype.check = function(data, app, page) {
+        var dataSchemas, item, schema, value, sCheckResult;
+        if (page.data_schemas && page.data_schemas.length) {
+            dataSchemas = JSON.parse(page.data_schemas);
+            for (var i = dataSchemas.length - 1; i >= 0; i--) {
+                item = dataSchemas[i];
+                schema = item.schema;
+                if (schema.id.indexOf('member.') === 0) {
+                    var memberSchema = schema.id.substr(7);
+                    if (memberSchema.indexOf('.') === -1) {
+                        value = data.member[memberSchema];
+                    } else {
+                        memberSchema = memberSchema.split('.');
+                        value = data.member.extattr[memberSchema[1]];
+                    }
+                } else {
+                    value = data[schema.id];
+                }
+                if (true !== (sCheckResult = ngApp.oUtilSchema.checkValue(schema, value))) {
+                    return sCheckResult;
+                }
+            }
+        }
+        return true;
+    };
+    Input.prototype.submit = function(ek, data, tags, oSupplement) {
+        var defer, url, d, d2, posted, tagsByScchema;
+        defer = $q.defer();
+        posted = angular.copy(data);
+        if (Object.keys && Object.keys(posted.member).length === 0) {
+            delete posted.member;
+        }
+        url = LS.j('record/submit', 'site', 'app');
+        ek && ek.length && (url += '&ek=' + ek);
+        for (var i in posted) {
+            d = posted[i];
+            if (angular.isArray(d) && d.length && d[0].imgSrc !== undefined && d[0].serverId !== undefined) {
+                for (var j in d) {
+                    d2 = d[j];
+                    delete d2.imgSrc;
+                }
+            }
+        }
+        tagsByScchema = {};
+        if (Object.keys && Object.keys(tags).length > 0) {
+            for (var schemaId in tags) {
+                tagsByScchema[schemaId] = [];
+                tags[schemaId].forEach(function(oTag) {
+                    tagsByScchema[schemaId].push(oTag.id);
+                });
+            }
+        }
+        http2.post(url, { data: posted, tag: tags, supplement: oSupplement }, { autoBreak: false }).then(function(rsp) {
+            if (rsp.err_code == 0) {
+                defer.resolve(rsp);
+            } else {
+                defer.reject(rsp);
+            }
+        });
+        return defer.promise;
+    };
+    return {
+        ins: function() {
+            if (!_ins) {
+                _ins = new Input();
+            }
+            return _ins;
+        }
+    }
+}]);
+ngApp.directive('tmsImageInput', ['$compile', '$q', function($compile, $q) {
+    var modifiedImgFields, openPickFrom, onSubmit;
+    modifiedImgFields = [];
+    openPickFrom = function(scope) {
+        var html;
+        html = "<div class='form-group'><button class='btn btn-default btn-lg btn-block' ng-click=\"chooseImage(null,null,'camera')\">拍照</button></div>";
+        html += "<div class='form-group'><button class='btn btn-default btn-lg btn-block' ng-click=\"chooseImage(null,null,'album')\">相册</button></div>";
+        html = window.__util.makeDialog('pickImageFrom', {
+            body: html
+        });
+        $compile(html)(scope);
+    };
+    onSubmit = function(data) {
+        var defer = $q.defer(),
+            i = 0,
+            j = 0,
+            nextWxImage;
+        // if (window.wx !== undefined && modifiedImgFields.length) {
+        //     nextWxImage = function() {
+        //         var imgField, img;
+        //         imgField = data[modifiedImgFields[i]];
+        //         img = imgField[j];
+        //         window.xxt.image.wxUpload($q.defer(), img).then(function(data) {
+        //             if (j < imgField.length - 1) {
+        //                 /* next img*/
+        //                 j++;
+        //                 nextWxImage();
+        //             } else if (i < modifiedImgFields.length - 1) {
+        //                 /* next field*/
+        //                 j = 0;
+        //                 i++;
+        //                 nextWxImage();
+        //             } else {
+        //                 defer.resolve('ok');
+        //             }
+        //         });
+        //     };
+        //     nextWxImage();
+        // } else {
+        defer.resolve('ok');
+        //}
+        return defer.promise;
+    };
+    return {
+        restrict: 'A',
+        controller: ['$scope', '$timeout', function($scope, $timeout) {
+            // $scope.beforeSubmit(function() {
+            //     return onSubmit($scope.data);
+            // });
+            $scope.chooseImage = function(imgFieldName, count, from) {
+                if (imgFieldName !== null) {
+                    modifiedImgFields.indexOf(imgFieldName) === -1 && modifiedImgFields.push(imgFieldName);
+                    $scope.data[imgFieldName] === undefined && ($scope.data[imgFieldName] = []);
+                    if (count !== null && $scope.data[imgFieldName].length === count && count != 0) {
+                        $scope.$parent.notice.set('最多允许上传' + count + '张图片');
+                        return;
+                    }
+                }
+                if (window.YixinJSBridge) {
+                    if (from === undefined) {
+                        $scope.cachedImgFieldName = imgFieldName;
+                        openPickFrom($scope);
+                        return;
+                    }
+                    imgFieldName = $scope.cachedImgFieldName;
+                    $scope.cachedImgFieldName = null;
+                    angular.element('#pickImageFrom').remove();
+                }
+                window.xxt.image.choose($q.defer(), from).then(function(imgs) {
+                    var phase, i, j, img;
+                    phase = $scope.$root.$$phase;
+                    if (phase === '$digest' || phase === '$apply') {
+                        $scope.data[imgFieldName] = $scope.data[imgFieldName].concat(imgs);
+                    } else {
+                        $scope.$apply(function() {
+                            $scope.data[imgFieldName] = $scope.data[imgFieldName].concat(imgs);
+                        });
+                    }
+                    $timeout(function() {
+                        for (i = 0, j = imgs.length; i < j; i++) {
+                            img = imgs[i];
+                            document.querySelector('ul[name="' + imgFieldName + '"] li:nth-last-child(2) img').setAttribute('src', img.imgSrc);
+                        }
+                        $scope.$broadcast('xxt.enroll.image.choose.done', imgFieldName);
+                    });
+                });
+            };
+            $scope.removeImage = function(imgField, index) {
+                imgField.splice(index, 1);
+            };
+        }]
+    }
+}]);
+ngApp.directive('tmsFileInput', ['$q', 'ls', 'tmsDynaPage', function($q, LS, tmsDynaPage) {
+    var r, onSubmit;
+    tmsDynaPage.loadScript(['/static/js/resumable.js']).then(function() {
+        r = new Resumable({
+            target: LS.j('record/uploadFile', 'site', 'app'),
+            testChunks: false,
+            chunkSize: 512 * 1024
+        });
+    });
+    onSubmit = function($scope) {
+        var defer;
+        defer = $q.defer();
+        if (!r.files || r.files.length === 0)
+            defer.resolve('empty');
+        r.on('progress', function() {
+            var phase, p;
+            p = r.progress();
+            var phase = $scope.$root.$$phase;
+            if (phase === '$digest' || phase === '$apply') {
+                $scope.progressOfUploadFile = Math.ceil(p * 100);
+            } else {
+                $scope.$apply(function() {
+                    $scope.progressOfUploadFile = Math.ceil(p * 100);
+                });
+            }
+        });
+        r.on('complete', function() {
+            var phase = $scope.$root.$$phase;
+            if (phase === '$digest' || phase === '$apply') {
+                $scope.progressOfUploadFile = '完成';
+            } else {
+                $scope.$apply(function() {
+                    $scope.progressOfUploadFile = '完成';
+                });
+            }
+            r.cancel();
+            defer.resolve('ok');
+        });
+        r.upload();
+        return defer.promise;
+    };
+    return {
+        restrict: 'A',
+        controller: ['$scope', function($scope) {
+            $scope.progressOfUploadFile = 0;
+            $scope.beforeSubmit(function() {
+                return onSubmit($scope);
+            });
+            $scope.chooseFile = function(fileFieldName, count, accept) {
+                var ele = document.createElement('input');
+                ele.setAttribute('type', 'file');
+                accept !== undefined && ele.setAttribute('accept', accept);
+                ele.addEventListener('change', function(evt) {
+                    var i, cnt, f;
+                    cnt = evt.target.files.length;
+                    for (i = 0; i < cnt; i++) {
+                        f = evt.target.files[i];
+                        r.addFile(f);
+                        $scope.$apply(function() {
+                            $scope.data[fileFieldName] === undefined && ($scope.data[fileFieldName] = []);
+                            $scope.data[fileFieldName].push({
+                                uniqueIdentifier: r.files[r.files.length - 1].uniqueIdentifier,
+                                name: f.name,
+                                size: f.size,
+                                type: f.type,
+                                url: ''
+                            });
+                            $scope.$broadcast('xxt.enroll.file.choose.done', fileFieldName);
+                        });
+                    }
+                    ele = null;
+                }, true);
+                ele.click();
+            };
+        }]
+    }
+}]);
+ngApp.controller('ctrlInput', ['$scope', '$q', '$uibModal', '$timeout', 'Input', 'ls', 'http2', function($scope, $q, $uibModal, $timeout, Input, LS, http2) {
+    function doTask(seq, nextAction) {
+        var task = tasksOfBeforeSubmit[seq];
+        task().then(function(rsp) {
+            seq++;
+            seq < tasksOfBeforeSubmit.length ? doTask(seq, nextAction) : doSubmit(nextAction);
+        });
+    }
+
+    function doSubmit(nextAction) {
+        var ek, submitData;
+        ek = $scope.record ? $scope.record.enroll_key : undefined;
+        facInput.submit(ek, $scope.data, $scope.tag, $scope.supplement).then(function(rsp) {
+            var url;
+            submitState.finish();
+            if (nextAction === 'closeWindow') {
+                $scope.closeWindow();
+            } else if (nextAction === '_autoForward') {
+                // 根据指定的进入规则自动跳转到对应页面
+                url = LS.j('', 'site', 'app');
+                location.replace(url);
+            } else if (nextAction && nextAction.length) {
+                url = LS.j('', 'site', 'app');
+                url += '&page=' + nextAction;
+                url += '&ek=' + rsp.data;
+                location.replace(url);
+            } else {
+                if (ek === undefined) {
+                    $scope.record = {
+                        enroll_key: rsp.data
+                    }
+                }
+                $scope.$broadcast('xxt.app.enroll.submit.done', rsp.data);
+            }
+        }, function(rsp) {
+            // reject
+            submitState.finish();
+        });
+    }
+
+    function _localSave() {
+        submitState.start(null, StateCacheKey);
+        submitState.cache($scope.data);
+        submitState.finish(true);
+        $scope.$parent.notice.set('保存成功，关闭页面后，再次打开时自动恢复当前数据', 'success');
+    }
+
+    window.onbeforeunload = function(e) {
+        var message;
+        if (submitState.modified) {
+            message = '已经修改的内容还没有保存，确定离开？';
+            e = e || window.event;
+            if (e) {
+                e.returnValue = message;
+            }
+            return message;
+        }
+    };
+
+    var facInput, tasksOfBeforeSubmit, submitState, StateCacheKey;
+    tasksOfBeforeSubmit = [];
+    facInput = Input.ins();
+    $scope.data = {
+        member: {},
+    };
+    $scope.tag = {};
+    $scope.supplement = {};
+    $scope.submitState = submitState = ngApp.oUtilSubmit.state;
+    $scope.beforeSubmit = function(fn) {
+        if (tasksOfBeforeSubmit.indexOf(fn) === -1) {
+            tasksOfBeforeSubmit.push(fn);
+        }
+    };
+    $scope.$on('xxt.app.enroll.save', function() {
+        _localSave();
+    });
+    $scope.save = function(event, nextAction) {
+        _localSave();
+        $scope.gotoPage(event, nextAction);
+    };
+    $scope.$on('xxt.app.enroll.ready', function(event, params) {
+        var schemasById,
+            dataOfRecord, p, value;
+
+        StateCacheKey = 'xxt.app.enroll:' + params.app.id + '.user:' + params.user.uid + '.cacheKey';
+        $scope.schemasById = schemasById = params.app._schemasById;
+        /* 用户已经登记过，恢复之前的数据 */
+        if (params.record) {
+            ngApp.oUtilSchema.loadRecord(params.app._schemasById, $scope.data, params.record.data);
+            $scope.record = params.record;
+            if (params.record.data_tag) {
+                $scope.tag = params.record.data_tag;
+            }
+        }
+        /* 恢复用户未提交的数据 */
+        if (window.localStorage) {
+            submitState._cacheKey = StateCacheKey;
+            var cached = submitState.fromCache(StateCacheKey);
+            if (cached) {
+                if (cached.member) {
+                    delete cached.member;
+                }
+                angular.extend($scope.data, cached);
+                submitState.modified = true;
+            }
+        }
+        // 跟踪数据变化
+        $scope.$watch('data', function(nv, ov) {
+            if (nv !== ov) {
+                submitState.modified = true;
+            }
+        }, true);
+        // 如果页面上有保存按钮，隐藏内置的保存按钮
+        if (params.page && params.page.act_schemas) {
+            var actSchemas = JSON.parse(params.page.act_schemas);
+            for (var i = actSchemas.length - 1; i >= 0; i--) {
+                if (actSchemas[i].name === 'save') {
+                    var domSave = document.querySelector('.tms-switch-save');
+                    if (domSave) {
+                        domSave.style.display = 'none';
+                    }
+                    break;
+                }
+            }
+        }
+        // 登录提示
+        if (!params.user.unionid) {
+            //var domTip = document.querySelector('#appLoginTip');
+            //var evt = document.createEvent("HTMLEvents");
+            //evt.initEvent("show", false, false);
+            //domTip.dispatchEvent(evt);
+        }
+    });
+    var hasAutoFillMember = false;
+    $scope.$watch('data.member.schema_id', function(schemaId) {
+        if (false === hasAutoFillMember && schemaId && $scope.user) {
+            ngApp.oUtilSchema.autoFillMember($scope.user, $scope.data.member);
+            hasAutoFillMember = true;
+        }
+    });
+    $scope.submit = function(event, nextAction) {
+        var checkResult;
+        if (!submitState.isRunning()) {
+            submitState.start(event, StateCacheKey);
+            if (true === (checkResult = facInput.check($scope.data, $scope.app, $scope.page))) {
+                tasksOfBeforeSubmit.length ? doTask(0, nextAction) : doSubmit(nextAction);
+            } else {
+                submitState.finish();
+                $scope.$parent.notice.set(checkResult);
+            }
+        }
+    };
+    $scope.tagRecordData = function(schemaId) {
+        var oApp, oSchema, tagsOfData;
+        oApp = $scope.app;
+        oSchema = oApp._schemasById[schemaId];
+        if (oSchema) {
+            tagsOfData = $scope.tag[schemaId];
+            $uibModal.open({
+                templateUrl: 'tagRecordData.html',
+                controller: ['$scope', '$uibModalInstance', function($scope2, $mi) {
+                    var model;
+                    $scope2.schema = oSchema;
+                    $scope2.apptags = oApp.dataTags;
+                    $scope2.model = model = {
+                        selected: []
+                    };
+                    if (tagsOfData) {
+                        tagsOfData.forEach(function(oTag) {
+                            var index;
+                            if (-1 !== (index = $scope2.apptags.indexOf(oTag))) {
+                                model.selected[$scope2.apptags.indexOf(oTag)] = true;
+                            }
+                        });
+                    }
+                    $scope2.createTag = function() {
+                        var newTags;
+                        if ($scope2.model.newtag) {
+                            newTags = $scope2.model.newtag.replace(/\s/, ',');
+                            newTags = newTags.split(',');
+                            http2.post('/rest/site/fe/matter/enroll/tag/create?site=' + $scope.app.siteid + '&app=' + $scope.app.id, newTags).then(function(rsp) {
+                                rsp.data.forEach(function(oNewTag) {
+                                    $scope2.apptags.push(oNewTag);
+                                });
+                            });
+                            $scope2.model.newtag = '';
+                        }
+                    };
+                    $scope2.cancel = function() { $mi.dismiss(); };
+                    $scope2.ok = function() {
+                        var tags = [];
+                        model.selected.forEach(function(selected, index) {
+                            if (selected) {
+                                tags.push($scope2.apptags[index]);
+                            }
+                        });
+                        $mi.close(tags);
+                    };
+                }],
+                backdrop: 'static',
+            }).result.then(function(tags) {
+                $scope.tag[schemaId] = tags;
+            });
+        }
+    };
+    $scope.getMyLocation = function(prop) {
+        window.xxt.geo.getAddress(http2, $q.defer(), LS.p.site).then(function(data) {
+            $scope.data[prop] = data.address;
+        });
+    };
+    $scope.dataBySchema = function(schemaId) {
+        var app = $scope.app;
+        $uibModal.open({
+            templateUrl: 'dataBySchema.html',
+            controller: ['$scope', '$uibModalInstance', function($scope2, $mi) {
+                $scope2.data = {};
+                $scope2.cancel = function() { $mi.dismiss(); };
+                $scope2.ok = function() { $mi.close($scope2.data); };
+                http2.get('/rest/site/fe/matter/enroll/repos/dataBySchema?site=' + app.siteid + '&app=' + app.id + '&schema=' + schemaId).then(function(result) {
+                    $scope2.records = result.data.records;
+                });
+            }],
+            backdrop: 'static',
+        }).result.then(function(result) {
+            $scope.data[schemaId] = result.selected.value;
+        });
+    };
+    $scope.score = function(schemaId, opIndex, number) {
+        var schema = $scope.schemasById[schemaId],
+            op = schema.ops[opIndex];
+
+        if ($scope.data[schemaId] === undefined) {
+            $scope.data[schemaId] = {};
+            schema.ops.forEach(function(op) {
+                $scope.data[schema.id][op.v] = 0;
+            });
+        }
+
+        $scope.data[schemaId][op.v] = number;
+    };
+    $scope.lessScore = function(schemaId, opIndex, number) {
+        if (!$scope.schemasById) return false;
+
+        var schema = $scope.schemasById[schemaId],
+            op = schema.ops[opIndex];
+
+        if ($scope.data[schemaId] === undefined) {
+            return false;
+        }
+
+        return $scope.data[schemaId][op.v] >= number;
+    };
+}]);
+
+/***/ }),
+/* 36 */,
+/* 37 */,
+/* 38 */,
+/* 39 */,
+/* 40 */,
+/* 41 */,
+/* 42 */,
+/* 43 */,
+/* 44 */,
+/* 45 */,
+/* 46 */,
+/* 47 */,
+/* 48 */,
+/* 49 */,
+/* 50 */
+/***/ (function(module, exports, __webpack_require__) {
+
+exports = module.exports = __webpack_require__(0)(undefined);
+// imports
+
+
+// module
+exports.push([module.i, "html,body{font-family:Microsoft Yahei,Arial;width:100%;height:auto;}\r\nbody{position:relative;font-size:16px;padding:15px;}\r\n.app{margin-top:15px;}\r\nimg{max-width:100%}\r\nheader{margin:-15px -15px 0 -15px;}\r\nfooter{margin:0 -15px -15px -15px;}\r\nul{margin:0;padding:0;list-style:none}\r\nli{margin:0;padding:0}\r\n.list-group{margin-bottom:0px;}\r\n#notice{display:block;opacity:0;height:0;overflow:hidden;width:300px;position:fixed;top:0;left:50%;margin:0 0 0 -150px;text-align:center;transition:opacity 1s;z-index:-1;word-break:break-all}\r\n#notice.active{opacity:1;height:auto;z-index:999}\r\n\r\n/* score schema */\r\nli[wrap=score]{padding:4px 4px 4px 0;}\r\nli[wrap=score] label{padding:3px;font-weight:400;}\r\nli[wrap=score]>.number{display:inline-block;margin-top:6px;border:1px solid #CCC;}\r\nli[wrap=score]>.number>div{display:inline-block;width:48px;padding:4px 4px;margin:4px 4px;text-align:center;border-bottom:1px dotted #ddd}\r\nli[wrap=score]>.number>.in{background:#33bb99;}\r\n\r\n/* img tiles */\r\nul.img-tiles li{position:relative;display:inline-block;overflow:hidden;width:80px;height:80px;margin:0px;padding:0px;float:left}\r\nul.img-tiles li.img-thumbnail img{display:inline-block;position:absolute;max-width:none}\r\nul.img-tiles li.img-thumbnail button{position:absolute;top:0;right:0}\r\nul.img-tiles li.img-picker button{position:auto;width:100%;height:100%}\r\nul.img-tiles li.img-picker button span{font-size:36px}\r\n\r\n/* default form style*/\r\ndiv[wrap].wrap-splitline{padding-bottom:0.5em;border-bottom:1px solid #fff;}\r\ndiv[wrap].wrap-inline>*{display:inline-block;vertical-align:middle;margin:0 1em 0 0;}\r\ndiv[wrap].wrap-inline>label{width:6em;overflow:hidden;white-space:nowrap;text-overflow:ellipsis;}\r\ndiv[wrap=matter]>span{cursor:pointer;text-decoration:underline;}\r\n.tag{background:#3af;padding:4px 6px;margin:4px;border-radius:2px;font-size:.8em;color:#fff;}\r\n\r\n/* auth */\r\n#frmPopup{position:absolute;top:0;left:0;right:0;bottom:0;border:none;width:100%;z-index:999;box-sizing:border-box;}", ""]);
+
+// exports
+
+
+/***/ }),
+/* 51 */,
+/* 52 */,
+/* 53 */,
+/* 54 */,
+/* 55 */,
+/* 56 */,
+/* 57 */,
+/* 58 */,
+/* 59 */,
+/* 60 */,
+/* 61 */,
+/* 62 */
+/***/ (function(module, exports, __webpack_require__) {
+
+// style-loader: Adds some css to the DOM by adding a <style> tag
+
+// load the styles
+var content = __webpack_require__(50);
+if(typeof content === 'string') content = [[module.i, content, '']];
+// add the styles to the DOM
+var update = __webpack_require__(1)(content, {});
+if(content.locals) module.exports = content.locals;
+// Hot Module Replacement
+if(false) {
+	// When the styles change, update the <style> tags
+	if(!content.locals) {
+		module.hot.accept("!!../../../../../../node_modules/css-loader/index.js!./input.css", function() {
+			var newContent = require("!!../../../../../../node_modules/css-loader/index.js!./input.css");
+			if(typeof newContent === 'string') newContent = [[module.id, newContent, '']];
+			update(newContent);
+		});
+	}
+	// When the module is disposed, remove the <style> tags
+	module.hot.dispose(function() { update(); });
+}
+
+/***/ }),
+/* 63 */,
+/* 64 */,
+/* 65 */,
+/* 66 */,
+/* 67 */,
+/* 68 */,
+/* 69 */,
+/* 70 */,
+/* 71 */,
+/* 72 */,
+/* 73 */,
+/* 74 */,
+/* 75 */,
+/* 76 */
+/***/ (function(module, exports, __webpack_require__) {
+
+module.exports = __webpack_require__(35);
+
+
+/***/ })
+/******/ ]);

@@ -143,6 +143,7 @@ ngApp.controller('ctrlRank', ['$scope', '$q', '$sce', 'http2', 'ls', 'Round', '$
                             $scope.records.push(record);
                         });
                     }
+                    console.log($scope.records);
                     break;
                 case 'data-rec':
                     if (data.records) {
@@ -247,6 +248,7 @@ ngApp.controller('ctrlRank', ['$scope', '$q', '$sce', 'http2', 'ls', 'Round', '$
         }
         return $sce.trustAsHtml(val);
     };
+
     $scope.$on('xxt.app.enroll.ready', function(event, params) {
         oApp = params.app;
         var remarkable, activeRound, facRound, dataSchemas = oApp.dataSchemas;
@@ -255,7 +257,6 @@ ngApp.controller('ctrlRank', ['$scope', '$q', '$sce', 'http2', 'ls', 'Round', '$
                 $scope.isRemark = true;
                 break;
             }
-
         }
         $scope.$watch('appState.criteria.obj', function(oNew, oOld) {
             if (oNew && oOld && oNew !== oOld) {

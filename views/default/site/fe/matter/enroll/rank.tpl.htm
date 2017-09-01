@@ -153,7 +153,10 @@
                                 </div>
                                 <div ng-switch-when="image">
                                     <ul>
-                                        <li ng-repeat="img in rec.value.split(',')"><img ng-src="{{img}}" style='width:128px' /></li>
+                                        <li ng-repeat="img in rec.value.split(',')" class='img-type'>
+                                            <img ng-src="{{img}}" />
+                                            <span ng-if="app._schemasById[rec.schema_id].supplement=='Y'">{{rec.supplement}}</span>
+                                        </li>
                                     </ul>
                                 </div>
                                 <div ng-switch-when="file">

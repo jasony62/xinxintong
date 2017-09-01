@@ -74,14 +74,21 @@ class rank extends base {
 
 		$result = new \stdClass;
 		if (($users = $modelUsr->query_objs_ss($q, $q2)) && !empty($oApp->group_app_id)) {
-			foreach ($users as $user) {
-				$q = [
-					'round_id,round_title',
-					'xxt_group_player',
-					['aid' => $oApp->group_app_id, 'userid' => $user->userid],
-				];
-				$userGroup = $modelUsr->query_obj_ss($q);
-				$user->group = $userGroup;
+			$q = [
+				'userid,round_id,round_title',
+				'xxt_group_player',
+				['aid' => $oApp->group_app_id],
+			];
+			if ($userGroups = $modelUsr->query_objs_ss($q)) {
+				$userGroups2 = new \stdClass;
+				foreach ($userGroups as $userGroup) {
+					$userGroups2->{$userGroup->userid} = new \stdClass;
+					$userGroups2->{$userGroup->userid}->round_id = $userGroup->round_id;
+					$userGroups2->{$userGroup->userid}->round_title = $userGroup->round_title;
+				}
+				foreach ($users as $user) {
+					$user->group = $userGroups2->{$user->userid};
+				}
 			}
 		}
 		$result->users = $users;
@@ -269,6 +276,24 @@ class rank extends base {
 
 		$result = new \stdClass;
 		$remarks = $modelRem->query_objs_ss($q, $q2);
+		if($remarks && !empty($oApp->group_app_id)){
+			$q = [
+				'userid,round_id,round_title',
+				'xxt_group_player',
+				['aid' => $oApp->group_app_id],
+			];
+			if ($userGroups = $modelRem->query_objs_ss($q)) {
+				$userGroups2 = new \stdClass;
+				foreach ($userGroups as $userGroup) {
+					$userGroups2->{$userGroup->userid} = new \stdClass;
+					$userGroups2->{$userGroup->userid}->round_id = $userGroup->round_id;
+					$userGroups2->{$userGroup->userid}->round_title = $userGroup->round_title;
+				}
+				foreach ($remarks as $remark) {
+					$remark->group = $userGroups2->{$remark->userid};
+				}
+			}
+		}
 		$result->remarks = $remarks;
 
 		$q[0] = 'count(*)';

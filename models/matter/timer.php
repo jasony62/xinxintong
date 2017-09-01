@@ -51,18 +51,22 @@ class timer_model extends base_model {
 	 * 获得当前时间段要执行的任务
 	 */
 	public function tasksByTime() {
+		$min = (int) date('i'); // 0-59
 		$hour = date('G');
 		$mday = date('j'); // 1-31
 		$wday = date('N'); // 1-7
+		$mon = date('n'); // 1-23
 
 		$q = [
 			'*',
 			'xxt_timer_task',
-			"enabled='Y'",
+			"enabled='Y' and left_count>0",
 		];
+		$q[2] .= " and (min=-1 or min=$min)";
 		$q[2] .= " and (hour=-1 or hour=$hour)";
 		$q[2] .= " and (mday=-1 or mday=$mday)";
 		$q[2] .= " and (wday=-1 or wday=$wday)";
+		$q[2] .= " and (mon=-1 or mon=$mon)";
 
 		$schedules = $this->query_objs_ss($q);
 

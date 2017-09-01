@@ -138,6 +138,7 @@ ngApp.controller('ctrlRank', ['$scope', '$q', '$sce', 'http2', 'ls', 'Round', '$
                             if (oApp._schemasById[record.schema_id].type == 'file') {
                                 record.value = angular.fromJson(record.value);
                             }
+                            record.headimgurl = record.headimgurl ? record.headimgurl : '/static/img/avatar.png';
                             record._agreed = oAgreedLabel[record.agreed] || '';
                             $scope.records.push(record);
                         });
@@ -149,6 +150,7 @@ ngApp.controller('ctrlRank', ['$scope', '$q', '$sce', 'http2', 'ls', 'Round', '$
                             if (oApp._schemasById[record.schema_id].type == 'file') {
                                 record.value = angular.fromJson(record.value);
                             }
+                            record.headimgurl = record.headimgurl ? record.headimgurl : '/static/img/avatar.png';
                             record._agreed = oAgreedLabel[record.agreed] || '';
                             $scope.recordsRec.push(record);
                         });
@@ -157,6 +159,7 @@ ngApp.controller('ctrlRank', ['$scope', '$q', '$sce', 'http2', 'ls', 'Round', '$
                 case 'remark':
                     if (data.remarks) {
                         data.remarks.forEach(function(remark) {
+                            remark.headimgurl = remark.headimgurl ? remark.headimgurl : '/static/img/avatar.png';
                             remark._agreed = oAgreedLabel[remark.agreed] || '';
                             $scope.remarks.push(remark);
                         });
@@ -165,6 +168,7 @@ ngApp.controller('ctrlRank', ['$scope', '$q', '$sce', 'http2', 'ls', 'Round', '$
                 case 'remark-rec':
                     if (data.remarks) {
                         data.remarks.forEach(function(remark) {
+                            remark.headimgurl = remark.headimgurl ? remark.headimgurl : '/static/img/avatar.png';
                             remark._agreed = oAgreedLabel[remark.agreed] || '';
                             $scope.remarksRec.push(remark);
                         });

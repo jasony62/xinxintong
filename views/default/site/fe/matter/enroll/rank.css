@@ -1,19 +1,27 @@
 html,body{height:auto;width:100%;font-family:Microsoft Yahei,Arial;background-color: #f5f5f5;}
 body{position:relative;font-size:14px;padding:15px 0;}
 ol,ul{list-style:none;margin:0;padding:0;overflow:hidden;}
-ul > li{padding:10px 0;text-align:center;line-height:1.8;position:relative;overflow:hidden;}
+ul > li{text-align:center;line-height:1.8;position:relative;overflow:hidden;}
 .app{margin-bottom:64px;color:#333;}
 .app > .filter{margin-top: 10px;padding:20px 0 40px;background-color:#fff;}
  .filter > .col-xs-4 .form-control{font-size:16px;}
 .filter > .col-xs-4 .form-control:focus{box-shadow: none;}
-.app > .result{background-color: #fff;padding:0 9px;}
-.result > div > ul > li:nth-child(1){height:50px;line-height:50px;background-color:#2994D0;color:#fff;}
-.user-info{color:#666;text-align:left;margin-left: 10px;}
-.headimg{width:20px;height:20px;border-radius:50%;border:1px solid red;}
+.app > .result{background-color: #fff;padding:0 10px;}
+.result > div> ul > li:nth-child(1){height:50px;line-height:50px;background-color:#2994D0;color:#fff;}
+.result > div > ul > li.record{padding:10px 0;border-bottom:2px solid #f5f5f5;}
+.user-info{color:#666;text-align:left;}
+.headimg{width:25px;height:25px;border-radius:50%;}
+.r-box{width:40px;height:40px;color:#fff;background-color:#F51A1A;position:absolute;top:0;left:0;}
+.r-box:before{content:'';width:0;height:0;position:absolute;top:0;left:0;border-top: 20px solid #fff;border-right:20px solid transparent;}
+.r-box:after{content:'';width:0;height:0;position:absolute;bottom:0;right:0;border-bottom: 40px solid #fff;border-left:40px solid transparent;}
+.r-text{position: absolute;top:6px;left:2px;font-size:12px;color: #fff;transform: rotate(-45deg);}
 @media screen and (max-width:768px){
   .app > .filter{margin-bottom: 10px;margin-top: 0;padding:0;}
-  .filter > .col-xs-4 .form-control{padding-right:0;padding-left:10px;border:none;border-radius:0;font-size:14px;}
-  div[class*="col-xs"]{padding-left:0;padding-right:0;}
+  .filter > .col-xs-4, .filter > .col-xs-6{padding-left:0;padding-right:0;}
+  .filter .form-control{padding-right:0;padding-left:10px;border:none;border-radius:0;font-size:14px;}
+  /* div[class*="col-xs"]{padding-left:0;padding-right:0;} */
+  .app > .result{background-color:#f5f5f5;padding:0;}
+  .result > div > ul > li.record{padding:20px 10px;margin-bottom:10px;background-color:#fff;border-bottom:none;}
   .col-xs-12{margin-top:5px;margin-bottom:-5px;}
 }
 header{margin:-15px -15px 0 -15px;}
@@ -21,9 +29,15 @@ footer{margin:0 -15px -15px -15px;}
 /* 小图标以及各颜色值 */
 .custom{position: absolute;}
 .custom-entry{top:10px;right:-5px;}
-.number{display:inline-block;width:22px;height:22px;line-height:22px;color: #fff;text-align:center;border-radius:50%;}
+.custom-md-like{top:5px;left:85px;}
+.index-num{display:inline-block;width:20px;height:20px;line-height:20px;color: #fff;text-align:center;border-radius:50%;}
 .first{background-color:#FFF046;}
 .second{background-color:#D0D0D0;}
 .third{background-color:#FCB231;}
+.index-img{display:inline-block;width:26px;height:36px;background:url('/static/img/site_fe_enroll.png') no-repeat;}
+.firstImg{background-position: -43px -29px;}
+.secondImg{background-position: -44px -143px;}
+.thirdImg{background-position: -43px -256px;}
 .other{background-color:#2994d0;}
 .text-color{color:#999999;font-size:14px;}
+.like-color{width:16px;height:16px;color:#fff;font-size:12px;line-height:1.4;background-color:#F51A1A;}

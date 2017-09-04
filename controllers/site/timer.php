@@ -10,23 +10,25 @@ class timer extends base {
 	 * 执行定时任务
 	 */
 	public function exec_action() {
-		/**
-		 * 查找匹配的定时任务
-		 */
-		$modelTimer = $this->model('matter\timer');
-		$tasks = $modelTimer->tasksByTime();
-		/**
-		 * 记录日志
-		 */
+		/* 查找匹配的定时任务 */
+		$modelTim = $this->model('matter\timer');
+		$tasks = $modelTim->tasksByTime();
+
 		foreach ($tasks as $oTask) {
+			/* 执行任务 */
 			$rsp = $oTask->model->exec($oTask->matter, isset($oTask->arguments) ? $oTask->arguments : null);
-			$log = [
+
+			/* 记录日志 */
+			$oLog = [
 				'siteid' => $oTask->siteid,
 				'task_id' => $oTask->id,
 				'occur_at' => time(),
-				'result' => $rsp[0] ? 'true' : (is_string($rsp[1]) ? $rsp[1] : $modelTimer->toJson($rsp[1])),
+				'result' => $rsp[0] ? 'true' : (is_string($rsp[1]) ? $rsp[1] : $modelTim->toJson($rsp[1])),
 			];
-			$modelTimer->insert('xxt_log_timer', $log, true);
+			$modelTim->insert('xxt_log_timer', $oLog, true);
+
+			/* 更新任务状态 */
+			$modelTim->update('update xxt_timer_task set left_count=left_count-1 where id=' . $oTask->id);
 		}
 
 		return new \ResponseData(count($tasks));

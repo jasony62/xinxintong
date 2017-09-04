@@ -223,6 +223,7 @@ define(['frame'], function(ngApp) {
         var oTimerTask;
         $scope.timerTask = oTimerTask = {
             report: {
+                modified: false,
                 state: 'N'
             },
         };
@@ -233,15 +234,22 @@ define(['frame'], function(ngApp) {
                 var oConfig;
                 oConfig = {
                     matter: { id: $scope.app.id, type: 'enroll' },
-                    task: { model: 'report' }
+                    task: { model: model }
                 }
                 http2.post('/rest/pl/fe/matter/timer/create?site=' + $scope.app.siteid, oConfig, function(rsp) {
                     oOneTask.state = 'Y';
                     oOneTask.taskId = rsp.data.id;
                     oOneTask.task = {};
                     ['pattern', 'min', 'hour', 'wday', 'mday', 'mon', 'left_count', 'enabled'].forEach(function(prop) {
-                        oOneTask.task[prop] = rsp.data[prop];
+                        oOneTask.task[prop] = '' + rsp.data[prop];
                     });
+                    $scope.$watch('timerTask.' + model, function(oUpdTask, oOldTask) {
+                        if (oUpdTask && oUpdTask.task) {
+                            if (!angular.equals(oUpdTask.task, oOldTask.task)) {
+                                oUpdTask.modified = true;
+                            }
+                        }
+                    }, true);
                 });
             } else {
                 http2.get('/rest/pl/fe/matter/timer/remove?site=' + $scope.app.siteid + '&id=' + oOneTask.taskId, function(rsp) {
@@ -251,11 +259,16 @@ define(['frame'], function(ngApp) {
                 });
             }
         };
-        $scope.updateTimerTask = function(model) {
+        $scope.saveTimerTask = function(model) {
             var oOneTask;
             oOneTask = oTimerTask[model];
             if (oOneTask.state === 'Y') {
-                http2.post('/rest/pl/fe/matter/timer/update?site=' + $scope.app.siteid + '&id=' + oOneTask.taskId, oOneTask.task, function(rsp) {});
+                http2.post('/rest/pl/fe/matter/timer/update?site=' + $scope.app.siteid + '&id=' + oOneTask.taskId, oOneTask.task, function(rsp) {
+                    ['min', 'hour', 'wday', 'mday', 'mon', 'left_count'].forEach(function(prop) {
+                        oOneTask.task[prop] = '' + rsp.data[prop];
+                    });
+                    oOneTask.modified = false;
+                });
             }
         };
         srvEnrollApp.get().then(function(app) {
@@ -268,6 +281,13 @@ define(['frame'], function(ngApp) {
                     ['pattern', 'min', 'hour', 'wday', 'mday', 'mon', 'left_count', 'enabled'].forEach(function(prop) {
                         oTimerTask[oTask.task_model].task[prop] = oTask[prop];
                     });
+                    $scope.$watch('timerTask.' + oTask.task_model, function(oUpdTask, oOldTask) {
+                        if (oUpdTask && oUpdTask.task) {
+                            if (!angular.equals(oUpdTask.task, oOldTask.task)) {
+                                oUpdTask.modified = true;
+                            }
+                        }
+                    }, true);
                 });
             });
         });

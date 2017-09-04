@@ -1,4 +1,4 @@
-angular.module('service.matter', ['ngSanitize', 'ui.xxt']).
+angular.module('service.matter', ['ngSanitize', 'ui.bootstrap', 'ui.tms']).
 provider('srvSite', function() {
     var _siteId, _oSite, _aSns, _aMemberSchemas, _oTag;
     this.config = function(siteId) {

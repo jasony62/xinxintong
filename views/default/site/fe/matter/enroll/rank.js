@@ -182,6 +182,9 @@ ngApp.controller('ctrlRank', ['$scope', '$q', '$sce', 'http2', 'ls', 'Round', '$
                     break;
             }
             oAppState.page.total = data.total;
+            angular.element(document).ready(function() {
+                $scope.showFolder();
+            });
         });
     };
     $scope.changeCriteria = function() {
@@ -253,7 +256,24 @@ ngApp.controller('ctrlRank', ['$scope', '$q', '$sce', 'http2', 'ls', 'Round', '$
         }
         return $sce.trustAsHtml(val);
     };
-
+    $scope.showFolder = function() {
+        var strLen, strBox, strContent, lastEle;
+        strBox = document.querySelectorAll('.content');
+        strBox.forEach(function(str) {
+            strContent = str.innerHTML;
+            if(str.innerHTML.length >= 35) {
+                str.innerHTML = strContent.substr(0,35)+ '...';
+                lastEle = str.parentNode.parentNode.lastElementChild;
+                lastEle.classList.remove('hidden');
+                lastEle.addEventListener('click', function(event) {
+                    event.preventDefault();
+                    event.stopPropagation();
+                    str.innerHTML = strContent;
+                    lastEle.classList.add('hidden');
+                });
+            }
+        });
+    }
     $scope.$on('xxt.app.enroll.ready', function(event, params) {
         oApp = params.app;
         var remarkable, activeRound, facRound, dataSchemas = oApp.dataSchemas;

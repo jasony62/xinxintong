@@ -135,6 +135,9 @@ ngApp.controller('ctrlRank', ['$scope', '$q', '$sce', 'http2', 'ls', 'Round', '$
                 case 'data':
                     if (data.records) {
                         data.records.forEach(function(record) {
+                            if (oApp._schemasById[record.schema_id].type == 'image') {
+                                record.value = record.value.split(',');
+                            }
                             if (oApp._schemasById[record.schema_id].type == 'file') {
                                 record.value = angular.fromJson(record.value);
                             }
@@ -143,11 +146,13 @@ ngApp.controller('ctrlRank', ['$scope', '$q', '$sce', 'http2', 'ls', 'Round', '$
                             $scope.records.push(record);
                         });
                     }
-                    console.log($scope.records);
                     break;
                 case 'data-rec':
                     if (data.records) {
                         data.records.forEach(function(record) {
+                            if (oApp._schemasById[record.schema_id].type == 'image') {
+                                record.value = record.value.split(',');
+                            }
                             if (oApp._schemasById[record.schema_id].type == 'file') {
                                 record.value = angular.fromJson(record.value);
                             }

@@ -115,7 +115,7 @@ class review extends base {
 		/**
 		 * 发送通知
 		 */
-		/*$url = 'http://' . $_SERVER['HTTP_HOST'];
+		/*$url = 'http://' . APP_HTTP_HOST;
 			$url .= '/rest/app/contribute/initiate/article';
 			$url .= "?siteid=$siteid";
 			$url .= "&entry=$article->entry";

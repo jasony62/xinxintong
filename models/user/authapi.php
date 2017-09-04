@@ -85,7 +85,7 @@ class authapi_model extends TMS_MODEL {
 		$r = $authapi->entry_statement;
 		if (false !== strpos($r, '{{authapi}}')) {
 			// auth page's url
-			$url = "http://" . $_SERVER['HTTP_HOST'];
+			$url = "http://" . APP_HTTP_HOST;
 			$url .= $authapi->url;
 			$url .= "?mpid=$mpid&authid=$authid&openid=$openid";
 			// require auth reply
@@ -105,7 +105,7 @@ class authapi_model extends TMS_MODEL {
 		$r = $authapi->notpass_statement;
 		if (false !== strpos($r, '{{authapi}}')) {
 			// auth page's url
-			$url = "http://" . $_SERVER['HTTP_HOST'];
+			$url = "http://" . APP_HTTP_HOST;
 			$url .= $authapi->url;
 			$url .= "?mpid=$runningMpid&authid=$authid";
 			if (!empty($openid)) {
@@ -126,7 +126,7 @@ class authapi_model extends TMS_MODEL {
 		$r = $authapi->acl_statement;
 		if (false !== strpos($r, '{{authapi}}')) {
 			// auth page's url
-			$url = "http://" . $_SERVER['HTTP_HOST'];
+			$url = "http://" . APP_HTTP_HOST;
 			$url .= $authapi->url;
 			$url .= "?mpid=$runningMpid&authid=$authid";
 			if (!empty($openid)) {

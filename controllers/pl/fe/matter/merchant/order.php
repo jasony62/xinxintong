@@ -149,7 +149,7 @@ class order extends \pl\fe\matter\base {
 				$data[$k] = $v;
 			}
 			/**/
-			$url = 'http://' . $_SERVER['HTTP_HOST'] . "/rest/site/fe/matter/merchant/order";
+			$url = 'http://' . APP_HTTP_HOST . "/rest/site/fe/matter/merchant/order";
 			$url .= "?site=" . $siteId;
 			$url .= "&shop=" . $order->sid;
 			$url .= "&order=" . $order->id;

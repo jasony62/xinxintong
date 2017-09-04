@@ -23,7 +23,7 @@ class TMS_CONTROLLER {
 	protected function getRequestUrl() {
 		$url[] = strtolower(strtok($_SERVER['SERVER_PROTOCOL'], '/'));
 		$url[] = '://';
-		$url[] = $_SERVER['HTTP_HOST'];
+		$url[] = APP_HTTP_HOST;
 		$url[] = $_SERVER['REQUEST_URI'];
 
 		return implode('', $url);
@@ -35,7 +35,7 @@ class TMS_CONTROLLER {
 		if (false !== strpos($path, 'http')) {
 			$url = $path;
 		} else {
-			$url = 'http://' . $_SERVER['HTTP_HOST'];
+			$url = 'http://' . APP_HTTP_HOST;
 			$url .= $path;
 		}
 		header("Location: $url");

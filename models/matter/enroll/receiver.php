@@ -77,21 +77,10 @@ class receiver_model extends \TMS_MODEL {
 	 * @param string $ek
 	 *
 	 */
-	public function notify($oApp, $eventName, $options = [], $receivers = []) {
-		if (empty($receivers)) {
-			$receivers = $this->byApp($oApp->siteid, $oApp->id);
-			if (count($receivers) === 0) {
-				return [false, '没有指定事件接收人'];
-			}
-			/* 发送消息 */
-			foreach ($receivers as &$oReceiver) {
-				if (!empty($oReceiver->sns_user)) {
-					$snsUser = json_decode($oReceiver->sns_user);
-					if (isset($snsUser->src) && isset($snsUser->openid)) {
-						$oReceiver->{$snsUser->src . '_openid'} = $snsUser->openid;
-					}
-				}
-			}
+	public function notify($oApp, $eventName, $options = []) {
+		$receivers = $this->byApp($oApp->siteid, $oApp->id);
+		if (count($receivers) === 0) {
+			return [false, '没有指定事件接收人'];
 		}
 
 		/* 模板消息参数 */
@@ -124,6 +113,16 @@ class receiver_model extends \TMS_MODEL {
 		}
 		if (!empty($options['noticeURL'])) {
 			$oParams->url = $options['noticeURL'];
+		}
+
+		/* 发送消息 */
+		foreach ($receivers as &$oReceiver) {
+			if (!empty($oReceiver->sns_user)) {
+				$snsUser = json_decode($oReceiver->sns_user);
+				if (isset($snsUser->src) && isset($snsUser->openid)) {
+					$oReceiver->{$snsUser->src . '_openid'} = $snsUser->openid;
+				}
+			}
 		}
 
 		$modelTmplBat = $this->model('matter\tmplmsg\plbatch');

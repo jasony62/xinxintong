@@ -126,7 +126,7 @@ ngApp.controller('ctrlRecords', ['$scope', '$uibModal', 'Record', 'ls', '$sce', 
     $scope.showFolder = function() {
         var eSpread, eWrap;
         eWrap = document.querySelectorAll('.list-group-item[ng-repeat]');
-        eWrap.forEach(function(item) {
+        angular.forEach(eWrap, function(item) {
             if (item.children.length > 3) {
                 eSpread = document.createElement('i');
                 eSpread.classList.add('cus-glyphicon', 'glyphicon-menu-down');

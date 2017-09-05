@@ -180,7 +180,7 @@
                                 </div>
                                 <div ng-switch-when="date"><span class='content'>{{(rec.value*1000)|date:'yy-MM-dd HH:mm'}}</span></div>
                                 <div ng-switch-default><span class='content'>{{rec.value}}</span></div>
-                                <div class='text-right text-color visible-xs hidden'>展开&nbsp;&nbsp;<span class='glyphicon glyphicon-menu-down'></span></div>
+                                <div class='text-right text-color visible-xs hidden' ng-click='showStr($event)'>展开&nbsp;&or;</div>
                             </div>
                             <div class='col-md-3 hidden-xs'>
                                 <span>{{rec.nickname}}</span><span ng-if="app.group_app_id">-{{rec.group_title}}</span>

@@ -251,28 +251,28 @@ ngApp.controller('ctrlRank', ['$scope', '$q', '$sce', 'http2', 'ls', 'Round', '$
                 val = '';
             }
             if (oRecord.supplement) {
-                val += ' （' + oRecord.supplement + '）';
+                val += '(' + oRecord.supplement + ')';
             }
         }
         return $sce.trustAsHtml(val);
     };
     $scope.showFolder = function() {
-        var strLen, strBox, strContent, lastEle;
+        var strBox, lastEle;
         strBox = document.querySelectorAll('.content');
-        strBox.forEach(function(str) {
-            strContent = str.innerHTML;
-            if(str.innerHTML.length >= 35) {
-                str.innerHTML = strContent.substr(0,35)+ '...';
+        angular.forEach(strBox, function(str) {
+            if(str.offsetHeight >= 43) {
                 lastEle = str.parentNode.parentNode.lastElementChild;
                 lastEle.classList.remove('hidden');
-                lastEle.addEventListener('click', function(event) {
-                    event.preventDefault();
-                    event.stopPropagation();
-                    str.innerHTML = strContent;
-                    lastEle.classList.add('hidden');
-                });
+                str.classList.add('text-cut');
             }
         });
+    }
+    $scope.showStr = function(event) {
+        event.preventDefault();
+        event.stopPropagation();
+        var checkEle = event.target.previousElementSibling.lastElementChild;
+        checkEle.classList.remove('text-cut');
+        event.target.classList.add('hidden');
     }
     $scope.$on('xxt.app.enroll.ready', function(event, params) {
         oApp = params.app;

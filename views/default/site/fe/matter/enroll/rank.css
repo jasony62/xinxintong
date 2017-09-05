@@ -23,6 +23,7 @@ ul > li{text-align:center;line-height:1.8;position:relative;overflow:hidden;}
 .mask{width:100%;height:15%;margin-bottom:0;position:absolute;left:0;bottom:0;background-color:#2f2933;opacity:0.6;}
 .tip{position:absolute;bottom:1px;right:5px;color:#fff;font-size:14px;}
 .tip > .glyphicon{top:1px;margin-right:5px;}
+.text-cut{overflow:hidden;text-overflow:ellipsis;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient: vertical;}
 @media screen and (max-width:768px){
   .app > .filter{margin-bottom: 10px;margin-top: 0;padding:0;}
   .filter > .col-xs-4, .filter > .col-xs-6{padding-left:0;padding-right:0;}

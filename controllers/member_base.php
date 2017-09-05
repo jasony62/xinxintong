@@ -201,7 +201,7 @@ class member_base extends xxt_base {
 		 */
 		if (count($aAuthapis) === 1) {
 			$authapi = $this->model('user/authapi')->byId($aAuthapis[0], 'authid,url');
-			strpos($authapi->url, 'http') === false && $authUrl = 'http://' . $_SERVER['HTTP_HOST'];
+			strpos($authapi->url, 'http') === false && $authUrl = 'http://' . APP_HTTP_HOST;
 			$authUrl .= $authapi->url;
 			$authUrl .= "?mpid=$mpid";
 			!empty($openid) && $authUrl .= "&openid=$openid";
@@ -210,7 +210,7 @@ class member_base extends xxt_base {
 			/**
 			 * 让用户选择通过那个认证接口进行认证
 			 */
-			$authUrl = 'http://' . $_SERVER['HTTP_HOST'] . '/rest/member/authoptions';
+			$authUrl = 'http://' . APP_HTTP_HOST . '/rest/member/authoptions';
 			$authUrl .= "?mpid=$mpid";
 			!empty($openid) && $authUrl .= "&openid=$ooid";
 			$authUrl .= "&authids=" . implode(',', $aAuthapis);
@@ -395,8 +395,7 @@ class member_base extends xxt_base {
 		/**
 		 * 如果公众号开放了OAuth接口，通过OAuth获得openid
 		 */
-		$httpHost = $_SERVER['HTTP_HOST'];
-		//$httpHost = str_replace('www.', '', $_SERVER['HTTP_HOST']);
+		$httpHost = APP_HTTP_HOST;
 		$ruri = "http://$httpHost" . $_SERVER['REQUEST_URI'];
 
 		$app = $this->model('mp\mpaccount')->byId($mpid, 'mpsrc');

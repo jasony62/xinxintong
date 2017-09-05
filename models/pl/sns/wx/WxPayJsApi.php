@@ -41,7 +41,7 @@ class WxPayJsApi_model {
 		//通过code获得openid
 		if (!isset($_GET['code'])) {
 			//触发微信返回code码
-			$baseUrl = urlencode('http://' . $_SERVER['HTTP_HOST'] . $_SERVER['PHP_SELF'] . $_SERVER['QUERY_STRING']);
+			$baseUrl = urlencode('http://' . APP_HTTP_HOST . $_SERVER['PHP_SELF'] . $_SERVER['QUERY_STRING']);
 			$url = $this->__CreateOauthUrlForCode($baseUrl);
 			Header("Location: $url");
 			exit();
@@ -143,7 +143,7 @@ class WxPayJsApi_model {
 		$getData = $this->data;
 		$data = array();
 		$data["appid"] = $wxPayConfig->APPID;
-		$data["url"] = "http://" . $_SERVER['HTTP_HOST'] . $_SERVER['REQUEST_URI'];
+		$data["url"] = "http://" . APP_HTTP_HOST . $_SERVER['REQUEST_URI'];
 		$time = time();
 		$data["timestamp"] = "$time";
 		$data["noncestr"] = "1234568";

@@ -9,6 +9,15 @@ provider('srvSite', function() {
             getSiteId: function() {
                 return _siteId;
             },
+            getLoginUser: function() {
+                var defer, url;
+                defer = $q.defer();
+                url = '/rest/pl/fe/user/get?_=' + (new Date * 1);
+                http2.get(url, function(rsp) {
+                    defer.resolve(rsp.data);
+                });
+                return defer.promise;
+            },
             get: function() {
                 var defer = $q.defer();
                 if (_oSite) {

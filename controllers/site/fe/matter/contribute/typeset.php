@@ -10,7 +10,7 @@ class typeset extends base {
 	 *
 	 */
 	public function afterOAuth($mpid, $entry, $openid = null) {
-		$myUrl = 'http://' . $_SERVER['HTTP_HOST'] . "/rest/app/contribute/typeset?mpid=$mpid&entry=$entry";
+		$myUrl = 'http://' . APP_HTTP_HOST . "/rest/app/contribute/typeset?mpid=$mpid&entry=$entry";
 		$this->getCurrentUserInfo($mpid, $myUrl);
 
 		$this->view_action('/app/contribute/typeset/list');

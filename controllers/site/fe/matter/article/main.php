@@ -55,12 +55,12 @@ class main extends \site\fe\matter\base {
 		}
 		/* 单图文所属的标签 */
 		$tags = [];
-		if(!empty($article->matter_cont_tag)){
+		if (!empty($article->matter_cont_tag)) {
 			foreach ($article->matter_cont_tag as $key => $tagId) {
 				$T = [
 					'id,title',
 					'xxt_tag',
-					['id' => $tagId]
+					['id' => $tagId],
 				];
 				$tag = $model->query_obj_ss($T);
 				$tags[] = $tag;
@@ -279,7 +279,7 @@ class main extends \site\fe\matter\base {
 		 * @todo 应该改为模版消息实现
 		 */
 		if (!empty($receivers)) {
-			$url = 'http://' . $_SERVER['HTTP_HOST'] . "/rest/mi/matter?mpid=$siteId&id=$id&tpl=std";
+			$url = 'http://' . APP_HTTP_HOST . "/rest/mi/matter?mpid=$siteId&id=$id&tpl=std";
 			$text = urlencode($remark->nickname);
 			$text .= urlencode('对【');
 			$text .= '<a href="' . $url . '">';

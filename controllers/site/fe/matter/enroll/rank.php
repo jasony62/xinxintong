@@ -20,15 +20,15 @@ class rank extends base {
 			return new \ParameterError();
 		}
 		$modelUsr = $this->model('matter\enroll\user');
-		
+
 		$q = [
 			'u.userid,u.nickname,a.headimgurl',
 			'xxt_enroll_user u left join xxt_site_account a on u.userid = a.uid and u.siteid = a.siteid',
 			"u.aid='{$oApp->id}'",
 		];
-		if(!empty($oCriteria->round) && $oCriteria->round !== 'ALL'){
+		if (!empty($oCriteria->round) && $oCriteria->round !== 'ALL') {
 			$round = $modelUsr->escape($oCriteria->round);
-		}else{
+		} else {
 			$round = 'ALL';
 		}
 		$q[2] .= " and u.rid = '$round'";
@@ -203,7 +203,7 @@ class rank extends base {
 		if (isset($oCriteria->agreed) && $oCriteria->agreed === 'Y') {
 			$q[2] .= " and d.agreed='Y'";
 		}
-		if(!empty($oCriteria->round) && $oCriteria->round !== 'ALL'){
+		if (!empty($oCriteria->round) && $oCriteria->round !== 'ALL') {
 			$round = $modelData->escape($oCriteria->round);
 			$q[2] .= " and d.rid='$round'";
 		}
@@ -265,7 +265,7 @@ class rank extends base {
 		if (isset($oCriteria->agreed) && $oCriteria->agreed === 'Y') {
 			$q[2] .= " and r.agreed='Y'";
 		}
-		if(!empty($oCriteria->round) && $oCriteria->round !== 'ALL'){
+		if (!empty($oCriteria->round) && $oCriteria->round !== 'ALL') {
 			$round = $modelRem->escape($oCriteria->round);
 			$q[2] .= " and r.rid='$round'";
 		}
@@ -276,7 +276,7 @@ class rank extends base {
 
 		$result = new \stdClass;
 		$remarks = $modelRem->query_objs_ss($q, $q2);
-		if($remarks && !empty($oApp->group_app_id)){
+		if ($remarks && !empty($oApp->group_app_id)) {
 			$q = [
 				'userid,round_id,round_title',
 				'xxt_group_player',

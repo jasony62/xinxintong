@@ -120,6 +120,7 @@ ngApp.controller('ctrlRank', ['$scope', '$q', '$sce', 'http2', 'ls', 'Round', '$
                 case 'user':
                     if (data.users) {
                         data.users.forEach(function(user) {
+                            user.headimgurl = user.headimgurl ? user.headimgurl : '/static/img/avatar.png';
                             $scope.users.push(user);
                         });
                     }
@@ -134,9 +135,13 @@ ngApp.controller('ctrlRank', ['$scope', '$q', '$sce', 'http2', 'ls', 'Round', '$
                 case 'data':
                     if (data.records) {
                         data.records.forEach(function(record) {
+                            if (oApp._schemasById[record.schema_id].type == 'image') {
+                                record.value = record.value.split(',');
+                            }
                             if (oApp._schemasById[record.schema_id].type == 'file') {
                                 record.value = angular.fromJson(record.value);
                             }
+                            record.headimgurl = record.headimgurl ? record.headimgurl : '/static/img/avatar.png';
                             record._agreed = oAgreedLabel[record.agreed] || '';
                             $scope.records.push(record);
                         });
@@ -145,9 +150,13 @@ ngApp.controller('ctrlRank', ['$scope', '$q', '$sce', 'http2', 'ls', 'Round', '$
                 case 'data-rec':
                     if (data.records) {
                         data.records.forEach(function(record) {
+                            if (oApp._schemasById[record.schema_id].type == 'image') {
+                                record.value = record.value.split(',');
+                            }
                             if (oApp._schemasById[record.schema_id].type == 'file') {
                                 record.value = angular.fromJson(record.value);
                             }
+                            record.headimgurl = record.headimgurl ? record.headimgurl : '/static/img/avatar.png';
                             record._agreed = oAgreedLabel[record.agreed] || '';
                             $scope.recordsRec.push(record);
                         });
@@ -156,6 +165,7 @@ ngApp.controller('ctrlRank', ['$scope', '$q', '$sce', 'http2', 'ls', 'Round', '$
                 case 'remark':
                     if (data.remarks) {
                         data.remarks.forEach(function(remark) {
+                            remark.headimgurl = remark.headimgurl ? remark.headimgurl : '/static/img/avatar.png';
                             remark._agreed = oAgreedLabel[remark.agreed] || '';
                             $scope.remarks.push(remark);
                         });
@@ -164,6 +174,7 @@ ngApp.controller('ctrlRank', ['$scope', '$q', '$sce', 'http2', 'ls', 'Round', '$
                 case 'remark-rec':
                     if (data.remarks) {
                         data.remarks.forEach(function(remark) {
+                            remark.headimgurl = remark.headimgurl ? remark.headimgurl : '/static/img/avatar.png';
                             remark._agreed = oAgreedLabel[remark.agreed] || '';
                             $scope.remarksRec.push(remark);
                         });
@@ -171,6 +182,9 @@ ngApp.controller('ctrlRank', ['$scope', '$q', '$sce', 'http2', 'ls', 'Round', '$
                     break;
             }
             oAppState.page.total = data.total;
+            angular.element(document).ready(function() {
+                $scope.showFolder();
+            });
         });
     };
     $scope.changeCriteria = function() {
@@ -237,19 +251,37 @@ ngApp.controller('ctrlRank', ['$scope', '$q', '$sce', 'http2', 'ls', 'Round', '$
                 val = '';
             }
             if (oRecord.supplement) {
-                val += ' （' + oRecord.supplement + '）';
+                val += '(' + oRecord.supplement + ')';
             }
         }
         return $sce.trustAsHtml(val);
     };
+    $scope.showFolder = function() {
+        var strBox, lastEle;
+        strBox = document.querySelectorAll('.content');
+        angular.forEach(strBox, function(str) {
+            if(str.offsetHeight >= 43) {
+                lastEle = str.parentNode.parentNode.lastElementChild;
+                lastEle.classList.remove('hidden');
+                str.classList.add('text-cut');
+            }
+        });
+    }
+    $scope.showStr = function(event) {
+        event.preventDefault();
+        event.stopPropagation();
+        var checkEle = event.target.previousElementSibling.lastElementChild;
+        checkEle.classList.remove('text-cut');
+        event.target.classList.add('hidden');
+    }
     $scope.$on('xxt.app.enroll.ready', function(event, params) {
         oApp = params.app;
         var remarkable, activeRound, facRound, dataSchemas = oApp.dataSchemas;
         for (var i = dataSchemas.length - 1; i >= 0; i--) {
             if (Object.keys(dataSchemas[i]).indexOf('remarkable') !== -1 && dataSchemas[i].remarkable == 'Y') {
                 $scope.isRemark = true;
+                break;
             }
-            break;
         }
         $scope.$watch('appState.criteria.obj', function(oNew, oOld) {
             if (oNew && oOld && oNew !== oOld) {

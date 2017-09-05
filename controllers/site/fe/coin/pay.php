@@ -89,7 +89,7 @@ class pay extends \site\fe\base {
 			return new \ResponseError("请在指定页面进行操作", 1);
 		}
 		$referer = $_SERVER['HTTP_REFERER'];
-		$host = $_SERVER['HTTP_HOST'];
+		$host = APP_HTTP_HOST;
 		if (!preg_match('#' . $host . '\/rest\/site\/fe\/coin\/pay#', $referer)) {
 			return new \ResponseError("请在指定页面进行操作", 2);
 		}

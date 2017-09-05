@@ -31,7 +31,7 @@ ngApp.factory('Record', ['http2', '$q', 'ls', function(http2, $q, LS) {
     Record.prototype.list = function(options, oCriteria) {
         var deferred = $q.defer(),
             url;
-        options.type == 'records' ? url = LS.j('record/list', 'site', 'app') : url = LS.j('user/list', 'site', 'app');;
+        url = LS.j(options.type == 'enrollees' ? 'user/list' : 'record/list', 'site', 'app');
         url += '&' + options.j();
         http2.post(url, oCriteria ? oCriteria : {}).then(function(rsp) {
             var records, record;
@@ -126,7 +126,7 @@ ngApp.controller('ctrlRecords', ['$scope', '$uibModal', 'Record', 'ls', '$sce', 
     $scope.showFolder = function() {
         var eSpread, eWrap;
         eWrap = document.querySelectorAll('.list-group-item[ng-repeat]');
-        eWrap.forEach(function(item) {
+        angular.forEach(eWrap, function(item) {
             if (item.children.length > 3) {
                 eSpread = document.createElement('i');
                 eSpread.classList.add('cus-glyphicon', 'glyphicon-menu-down');

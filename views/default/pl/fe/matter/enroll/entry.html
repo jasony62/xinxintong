@@ -269,7 +269,7 @@
                             <option value='31'>31号</option>
                         </select>
                         <select class='form-control' ng-model="timerTask.report.task.wday" ng-if="timerTask.report.task.pattern==='W'">
-                            <option value='-1'>每日</option>
+                            <option value='-1'>每天</option>
                             <option value='1'>周一</option>
                             <option value='2'>周二</option>
                             <option value='3'>周三</option>
@@ -278,7 +278,7 @@
                             <option value='6'>周六</option>
                             <option value='0'>周日</option>
                         </select>
-                        <select class='form-control' ng-model="timerTask.report.task.mon">
+                        <select class='form-control' ng-model="timerTask.report.task.hour">
                             <option value='-1'>每小时</option>
                             <option value='0'>0点</option>
                             <option value='1'>1点</option>
@@ -327,6 +327,7 @@
                         <div class='form-group'>
                             <label style='font-weight:normal;'>剩余执行次数 </label>
                             <select class='form-control' ng-model="timerTask.report.task.left_count">
+                                <option value='0'>0次</option>
                                 <option value='1'>1次</option>
                                 <option value='2'>2次</option>
                                 <option value='3'>3次</option>
@@ -342,7 +343,7 @@
                             <label>
                                 <input type='checkbox' ng-model="timerTask.report.task.enabled" ng-true-value="'Y'" ng-false-value="'N'"> 定时规则生效</label>
                         </div>
-                        <button class='btn btn-default' ng-click="updateTimerTask('report')">保存</button>
+                        <button class='btn' ng-class="timerTask.report.modified?'btn-success':'btn-default'" ng-disabled="!timerTask.report.modified" ng-click="saveTimerTask('report')">保存</button>
                     </div>
                 </div>
             </div>

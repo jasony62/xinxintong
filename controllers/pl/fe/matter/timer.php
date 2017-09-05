@@ -66,7 +66,10 @@ class timer extends \pl\fe\base {
 			isset($oConfig->timer->wday) && $oTimer->wday = $oConfig->timer->wday;
 			isset($oConfig->timer->lelf_count) && $oTimer->left_count = $oConfig->timer->left_count;
 		} else {
-			$oTimer->min = $oTimer->hour = $oTimer->mday = $oTimer->mon = $oTimer->wday = -1;
+			$oTimer->pattern = 'W';
+			$oTimer->mday = $oTimer->mon = $oTimer->wday = -1;
+			$oTimer->min = 0;
+			$oTimer->hour = 8;
 			$oTimer->left_count = 1;
 		}
 

@@ -198,7 +198,8 @@ class record_model extends \TMS_MODEL {
 			if (isset($schemasById[$schemaId])) {
 				$schema = $schemasById[$schemaId];
 				if ($schema->type == 'shorttext' && isset($schema->format) && $schema->format == 'number') {
-					$oRecordScore->{$schemaId} = $treatedValue * $schema->weight;
+					$weight = isset($schema->weight) ? $schema->weight : 1;
+					$oRecordScore->{$schemaId} = $treatedValue * $weight;
 					$oRecordScore->sum += $oRecordScore->{$schemaId};
 				}
 				/* 计算题目的分数。只支持对单选题和多选题自动打分 */

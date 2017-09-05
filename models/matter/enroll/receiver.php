@@ -85,7 +85,7 @@ class receiver_model extends \TMS_MODEL {
 
 		/* 模板消息参数 */
 		$oParams = new \stdClass;
-		$oNotice = $this->model('site\notice')->byName($oApp->siteid, $eventName);
+		$oNotice = $this->model('site\notice')->byName($oApp->siteid, $eventName, ['onlySite' => false]);
 		if ($oNotice === false) {
 			return [false, '没有指定事件的模板消息1'];
 		}

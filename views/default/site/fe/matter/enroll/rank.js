@@ -77,32 +77,6 @@ ngApp.controller('ctrlRank', ['$scope', '$q', '$sce', 'http2', 'ls', 'Round', '$
     }
     var oApp, oAppState, oAgreedLabel;
     oAgreedLabel = { 'Y': '推荐', 'N': '屏蔽', 'A': '' };
-    /* 恢复上一次访问的状态 */
-    if (window.localStorage) {
-        $scope.$watch('appState', function(nv) {
-            if (nv) {
-                window.localStorage.setItem("site.fe.matter.enroll.rank.appState", JSON.stringify(nv));
-            }
-        }, true);
-        if (oAppState = window.localStorage.getItem("site.fe.matter.enroll.rank.appState")) {
-            oAppState = JSON.parse(oAppState);
-        }
-    }
-    if (!oAppState) {
-        oAppState = {
-            criteria: {
-                obj: 'user',
-                orderby: 'enroll',
-                agreed: 'all',
-                round: 'ALL'
-            },
-            page: {
-                at: 1,
-                size: 12
-            }
-        };
-    }
-    $scope.appState = oAppState;
     $scope.gotoRemark = function(ek, schemaId, remarkId) {
         var url = LS.j('', 'site', 'app');
         url += '&ek=' + ek;
@@ -116,10 +90,12 @@ ngApp.controller('ctrlRank', ['$scope', '$q', '$sce', 'http2', 'ls', 'Round', '$
             oAppState.page.at = pageAt;
         }
         list().then(function(data) {
+            var oSchema;
             switch (oAppState.criteria.obj) {
                 case 'user':
                     if (data.users) {
                         data.users.forEach(function(user) {
+                            user.headimgurl = user.headimgurl ? user.headimgurl : '/static/img/avatar.png';
                             $scope.users.push(user);
                         });
                     }
@@ -134,28 +110,40 @@ ngApp.controller('ctrlRank', ['$scope', '$q', '$sce', 'http2', 'ls', 'Round', '$
                 case 'data':
                     if (data.records) {
                         data.records.forEach(function(record) {
-                            if (oApp._schemasById[record.schema_id].type == 'file') {
-                                record.value = angular.fromJson(record.value);
+                            if (oSchema = oApp._schemasById[record.schema_id]) {
+                                if (oSchema.type == 'image') {
+                                    record.value = record.value.split(',');
+                                } else if (oSchema.type == 'file') {
+                                    record.value = angular.fromJson(record.value);
+                                }
+                                record.headimgurl = record.headimgurl ? record.headimgurl : '/static/img/avatar.png';
+                                record._agreed = oAgreedLabel[record.agreed] || '';
+                                $scope.records.push(record);
                             }
-                            record._agreed = oAgreedLabel[record.agreed] || '';
-                            $scope.records.push(record);
                         });
                     }
                     break;
                 case 'data-rec':
                     if (data.records) {
                         data.records.forEach(function(record) {
-                            if (oApp._schemasById[record.schema_id].type == 'file') {
-                                record.value = angular.fromJson(record.value);
+                            if (oSchema = oApp._schemasById[record.schema_id]) {
+                                if (oSchema.type == 'image') {
+                                    record.value = record.value.split(',');
+                                }
+                                if (oSchema.type == 'file') {
+                                    record.value = angular.fromJson(record.value);
+                                }
+                                record.headimgurl = record.headimgurl ? record.headimgurl : '/static/img/avatar.png';
+                                record._agreed = oAgreedLabel[record.agreed] || '';
+                                $scope.recordsRec.push(record);
                             }
-                            record._agreed = oAgreedLabel[record.agreed] || '';
-                            $scope.recordsRec.push(record);
                         });
                     }
                     break;
                 case 'remark':
                     if (data.remarks) {
                         data.remarks.forEach(function(remark) {
+                            remark.headimgurl = remark.headimgurl ? remark.headimgurl : '/static/img/avatar.png';
                             remark._agreed = oAgreedLabel[remark.agreed] || '';
                             $scope.remarks.push(remark);
                         });
@@ -164,6 +152,7 @@ ngApp.controller('ctrlRank', ['$scope', '$q', '$sce', 'http2', 'ls', 'Round', '$
                 case 'remark-rec':
                     if (data.remarks) {
                         data.remarks.forEach(function(remark) {
+                            remark.headimgurl = remark.headimgurl ? remark.headimgurl : '/static/img/avatar.png';
                             remark._agreed = oAgreedLabel[remark.agreed] || '';
                             $scope.remarksRec.push(remark);
                         });
@@ -171,6 +160,9 @@ ngApp.controller('ctrlRank', ['$scope', '$q', '$sce', 'http2', 'ls', 'Round', '$
                     break;
             }
             oAppState.page.total = data.total;
+            angular.element(document).ready(function() {
+                $scope.showFolder();
+            });
         });
     };
     $scope.changeCriteria = function() {
@@ -237,20 +229,69 @@ ngApp.controller('ctrlRank', ['$scope', '$q', '$sce', 'http2', 'ls', 'Round', '$
                 val = '';
             }
             if (oRecord.supplement) {
-                val += ' （' + oRecord.supplement + '）';
+                val += '(' + oRecord.supplement + ')';
             }
         }
         return $sce.trustAsHtml(val);
     };
+    $scope.showFolder = function() {
+        var strBox, lastEle;
+        strBox = document.querySelectorAll('.content');
+        angular.forEach(strBox, function(str) {
+            if (str.offsetHeight >= 43) {
+                lastEle = str.parentNode.parentNode.lastElementChild;
+                lastEle.classList.remove('hidden');
+                str.classList.add('text-cut');
+            }
+        });
+    }
+    $scope.showStr = function(event) {
+        event.preventDefault();
+        event.stopPropagation();
+        var checkEle = event.target.previousElementSibling.lastElementChild;
+        checkEle.classList.remove('text-cut');
+        event.target.classList.add('hidden');
+    }
     $scope.$on('xxt.app.enroll.ready', function(event, params) {
         oApp = params.app;
         var remarkable, activeRound, facRound, dataSchemas = oApp.dataSchemas;
         for (var i = dataSchemas.length - 1; i >= 0; i--) {
             if (Object.keys(dataSchemas[i]).indexOf('remarkable') !== -1 && dataSchemas[i].remarkable == 'Y') {
                 $scope.isRemark = true;
+                break;
             }
-            break;
         }
+        /* 恢复上一次访问的状态 */
+        if (window.localStorage) {
+            $scope.$watch('appState', function(nv) {
+                if (nv) {
+                    window.localStorage.setItem("site.fe.matter.enroll.rank.appState", JSON.stringify(nv));
+                }
+            }, true);
+            if (oAppState = window.localStorage.getItem("site.fe.matter.enroll.rank.appState")) {
+                oAppState = JSON.parse(oAppState);
+                if (oAppState.criteria.obj === 'group') {
+                    if (!oApp.group_app_id) {
+                        oAppState = null;
+                    }
+                }
+            }
+        }
+        if (!oAppState) {
+            oAppState = {
+                criteria: {
+                    obj: 'user',
+                    orderby: 'enroll',
+                    agreed: 'all',
+                    round: 'ALL'
+                },
+                page: {
+                    at: 1,
+                    size: 12
+                }
+            };
+        }
+        $scope.appState = oAppState;
         $scope.$watch('appState.criteria.obj', function(oNew, oOld) {
             if (oNew && oOld && oNew !== oOld) {
                 switch (oNew) {

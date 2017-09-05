@@ -64,7 +64,7 @@ ngApp.controller('ctrlRepos', ['$scope', 'http2', 'Round', '$sce', function($sco
         url += '&page=' + page.at + '&size=' + page.size;
         http2.post(url, criteria).then(function(result) {
             page.total = result.data.total;
-            if ($scope.repos) {
+            if (result.data.records) {
                 result.data.records.forEach(function(oRecord) {
                     if (schemas[oRecord.schema_id].type == 'file') {
                         oRecord.value = angular.fromJson(oRecord.value);

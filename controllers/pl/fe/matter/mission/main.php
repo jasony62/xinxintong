@@ -127,7 +127,7 @@ class main extends \pl\fe\matter\base {
 		return new \ResponseData($result);
 	}
 	/**
-	 * 新建任务
+	 * 新建项目
 	 *
 	 * @param string $site site'id
 	 */
@@ -136,6 +136,8 @@ class main extends \pl\fe\matter\base {
 			return new \ResponseTimeout();
 		}
 
+		$oProto = $this->getPostJson();
+
 		$current = time();
 		$modelSite = $this->model('site');
 		$modelMis = $this->model('matter\mission');
@@ -143,26 +145,29 @@ class main extends \pl\fe\matter\base {
 
 		$site = $modelSite->byId($site, ['fields' => 'id,heading_pic']);
 
-		$mission = new \stdClass;
+		$oNewMis = new \stdClass;
+
 		/*create empty mission*/
-		$mission->siteid = $site->id;
-		$mission->title = $modelSite->escape($oUser->name) . '的项目';
-		$mission->summary = '';
-		$mission->pic = $site->heading_pic;
-		$mission->creater = $oUser->id;
-		$mission->creater_src = $oUser->src;
-		$mission->creater_name = $modelSite->escape($oUser->name);
-		$mission->create_at = $current;
-		$mission->modifier = $oUser->id;
-		$mission->modifier_src = $oUser->src;
-		$mission->modifier_name = $modelSite->escape($oUser->name);
-		$mission->modify_at = $current;
-		$mission->state = 1;
-		$mission->id = $modelMis->insert('xxt_mission', $mission, true);
+		$oNewMis->siteid = $site->id;
+		$oNewMis->title = isset($oProto->title) ? $modelSite->escape($oProto->title) : $modelSite->escape($oUser->name) . '的项目';
+		$oNewMis->summary = isset($oProto->summary) ? $modelSite->escape($oProto->summary) : '';
+		$oNewMis->pic = isset($oProto->pic) ? $modelSite->escape($oProto->pic) : $site->heading_pic;
+		$oNewMis->start_at = isset($oProto->start_at) ? $modelSite->escape($oProto->start_at) : 0;
+		$oNewMis->end_at = isset($oProto->end_at) ? $modelSite->escape($oProto->end_at) : 0;
+		$oNewMis->creater = $oUser->id;
+		$oNewMis->creater_src = $oUser->src;
+		$oNewMis->creater_name = $modelSite->escape($oUser->name);
+		$oNewMis->create_at = $current;
+		$oNewMis->modifier = $oUser->id;
+		$oNewMis->modifier_src = $oUser->src;
+		$oNewMis->modifier_name = $modelSite->escape($oUser->name);
+		$oNewMis->modify_at = $current;
+		$oNewMis->state = 1;
+		$oNewMis->id = $modelMis->insert('xxt_mission', $oNewMis, true);
 
 		/*记录操作日志*/
-		$mission = $modelMis->byId($mission->id);
-		$this->model('matter\log')->matterOp($site->id, $oUser, $mission, 'C');
+		$oNewMis->type = 'mission';
+		$this->model('matter\log')->matterOp($site->id, $oUser, $oNewMis, 'C');
 		/**
 		 * 建立缺省的ACL
 		 * @todo 是否应该挪到消息队列中实现
@@ -172,13 +177,11 @@ class main extends \pl\fe\matter\base {
 		$coworker = new \stdClass;
 		$coworker->id = $oUser->id;
 		$coworker->label = $oUser->name;
-		$modelAcl->add($oUser, $mission, $coworker, 'O');
+		$modelAcl->add($oUser, $oNewMis, $coworker, 'O');
 		/*站点的系统管理员加入ACL*/
-		$modelAcl->addSiteAdmin($site->id, $oUser, null, $mission);
+		$modelAcl->addSiteAdmin($site->id, $oUser, null, $oNewMis);
 
-		/*返回结果*/
-
-		return new \ResponseData($mission);
+		return new \ResponseData($oNewMis);
 	}
 	/**
 	 * 更新任务设置

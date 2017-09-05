@@ -114,7 +114,7 @@ class entry extends \site\fe\base {
 			 * 获得用户信息
 			 */
 			$entry = 'contribute,' . $c->id;
-			$myUrl = 'http://' . $_SERVER['HTTP_HOST'] . "/rest/site/fe/matter/contribute/initiate?site=$site&entry=$entry";
+			$myUrl = 'http://' . APP_HTTP_HOST . "/rest/site/fe/matter/contribute/initiate?site=$site&entry=$entry";
 			/**
 			 * 提示在PC端完成
 			 */

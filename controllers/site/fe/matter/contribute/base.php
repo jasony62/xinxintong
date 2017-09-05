@@ -106,7 +106,7 @@ class base extends \site\fe\matter\base {
 		 * 发送通知
 		 */
 		$article = $articleModel->byId($id);
-		$url = 'http://' . $_SERVER['HTTP_HOST'];
+		$url = 'http://' . APP_HTTP_HOST;
 		$url .= '/rest/site/fe/matter/contribute/initiate/article';
 		$url .= "?site=$site";
 		$url .= "&entry=$article->entry";
@@ -239,7 +239,7 @@ class base extends \site\fe\matter\base {
 		$entry = explode(',', $article->entry);
 		$c = $modelCtrb->byId($entry[1]);
 
-		$url = 'http://' . $_SERVER['HTTP_HOST'];
+		$url = 'http://' . APP_HTTP_HOST;
 		$url .= '/rest/site/fe/matter/contribute/initiate/article';
 		$url .= "?site=$site";
 		$url .= "&entry=$article->entry";
@@ -261,7 +261,7 @@ class base extends \site\fe\matter\base {
 		$entry = explode(',', $article->entry);
 		$c = $modelCtrb->byId($entry[1]);
 
-		$url = 'http://' . $_SERVER['HTTP_HOST'];
+		$url = 'http://' . APP_HTTP_HOST;
 		$url .= '/rest/site/fe/matter/contribute/review/article';
 		$url .= "?site=$site";
 		$url .= "&entry=$article->entry";

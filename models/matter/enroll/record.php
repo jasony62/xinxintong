@@ -198,7 +198,8 @@ class record_model extends \TMS_MODEL {
 			if (isset($schemasById[$schemaId])) {
 				$schema = $schemasById[$schemaId];
 				if ($schema->type == 'shorttext' && isset($schema->format) && $schema->format == 'number') {
-					$oRecordScore->{$schemaId} = $treatedValue * $schema->weight;
+					$weight = isset($schema->weight) ? $schema->weight : 1;
+					$oRecordScore->{$schemaId} = $treatedValue * $weight;
 					$oRecordScore->sum += $oRecordScore->{$schemaId};
 				}
 				/* 计算题目的分数。只支持对单选题和多选题自动打分 */
@@ -520,6 +521,7 @@ class record_model extends \TMS_MODEL {
 	}
 	/**
 	 * 获得用户的登记清单
+	 *
 	 * @param object $oApp
 	 * @param object $oUser
 	 * @param array $options
@@ -541,6 +543,10 @@ class record_model extends \TMS_MODEL {
 		if (!empty($options['rid'])) {
 			if (strcasecmp('all', $options['rid']) !== 0) {
 				$q[2]['rid'] = $options['rid'];
+			}
+		} else {
+			if ($oActiveRnd = $this->model('matter\enroll\round')->getActive($oApp)) {
+				$q[2]['rid'] = $oActiveRnd->rid;
 			}
 		}
 		$q2 = ['o' => 'enroll_at desc'];

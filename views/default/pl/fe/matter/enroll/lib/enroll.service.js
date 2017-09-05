@@ -16,7 +16,7 @@ define(['require', 'schema', 'page'], function(require, schemaLib, pageLib) {
             }
             // pagination
             this._oPage = oPage;
-            angular.extend(this._oPage, {
+            var proto = angular.extend({
                 at: 1,
                 size: 30,
                 orderBy: 'time',
@@ -35,7 +35,9 @@ define(['require', 'schema', 'page'], function(require, schemaLib, pageLib) {
                         this.numbers.push(i);
                     }
                 }
-            });
+            }, oPage);
+
+            angular.extend(this._oPage, proto);
             // criteria
             this._oCriteria = oCriteria;
             angular.extend(this._oCriteria, {
@@ -200,7 +202,7 @@ define(['require', 'schema', 'page'], function(require, schemaLib, pageLib) {
             _appId = appId;
             _accessId = accessId;
         };
-        this.$get = ['$q', '$uibModal', 'http2', 'noticebox', 'mattersgallery', function($q, $uibModal, http2, noticebox, mattersgallery) {
+        this.$get = ['$q', '$uibModal', 'http2', 'noticebox', 'srvSite', function($q, $uibModal, http2, noticebox, srvSite) {
             var _ins = new BaseSrvEnrollRecord();
             var _self = {
                 get: function() {
@@ -343,14 +345,21 @@ define(['require', 'schema', 'page'], function(require, schemaLib, pageLib) {
                 },
                 assignMission: function() {
                     var defer = $q.defer();
-                    mattersgallery.open(_siteId, function(missions) {
+                    srvSite.openGallery({
+                        matterTypes: [{
+                            value: 'mission',
+                            title: '项目',
+                            url: '/rest/pl/fe/matter'
+                        }],
+                        singleMatter: true
+                    }).then(function(missions) {
                         var matter;
-                        if (missions.length === 1) {
+                        if (missions.matters.length === 1) {
                             matter = {
                                 id: _appId,
                                 type: 'enroll'
                             };
-                            http2.post('/rest/pl/fe/matter/mission/matter/add?site=' + _siteId + '&id=' + missions[0].id, matter, function(rsp) {
+                            http2.post('/rest/pl/fe/matter/mission/matter/add?site=' + _siteId + '&id=' + missions.matters[0].id, matter, function(rsp) {
                                 var mission = rsp.data,
                                     updatedFields = ['mission_id'];
 
@@ -369,13 +378,6 @@ define(['require', 'schema', 'page'], function(require, schemaLib, pageLib) {
                                 });
                             });
                         }
-                    }, {
-                        matterTypes: [{
-                            value: 'mission',
-                            title: '项目',
-                            url: '/rest/pl/fe/matter'
-                        }],
-                        singleMatter: true
                     });
                     return defer.promise;
                 },

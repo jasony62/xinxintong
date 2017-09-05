@@ -1,11 +1,14 @@
 {
     "scenario": "common",
-    "pages": [{
+    "pages": [
+    {
         "name": "enroll",
         "title": "填写问题页",
         "type": "I",
-        "data_schemas": [{
-            "schema": {
+        "data_schemas": [
+        {
+            "schema":
+            {
                 "id": "c1",
                 "title": "请填写您的问题",
                 "type": "longtext",
@@ -14,23 +17,27 @@
                 "shareable": "Y",
                 "unique": "Y"
             },
-            "config": {
+            "config":
+            {
                 "showname": "placeholder"
             }
         }],
-        "act_schemas": [{
+        "act_schemas": [
+        {
             "id": "btnSubmit",
             "name": "submit",
             "label": "提交问题",
             "next": "repos"
-        }, {
+        },
+        {
             "id": "actGotoRepos",
             "name": "gotoPage",
             "label": "查看全部问题",
             "next": "repos"
         }]
     }],
-    "schema": [{
+    "schema": [
+    {
         "id": "c1",
         "title": "请填写您的问题",
         "type": "longtext",
@@ -39,11 +46,14 @@
         "shareable": "Y",
         "unique": "Y"
     }],
-    "scenarioConfig": {
+    "scenarioConfig":
+    {
         "can_rounds": "D"
     },
-    "entryRule": {
-        "otherwise": {
+    "entryRule":
+    {
+        "otherwise":
+        {
             "entry": "enroll"
         }
     },

@@ -1,6 +1,6 @@
 define(['main'], function(ngApp) {
 	'use strict';
-	ngApp.provider.controller('ctrlMenu', ['$scope', 'http2', 'matterTypes', '$timeout', 'mattersgallery', function($scope, http2, matterTypes, $timeout, mattersgallery) {
+	ngApp.provider.controller('ctrlMenu', ['$scope', 'http2', 'matterTypes', '$timeout', 'srvSite', function($scope, http2, matterTypes, $timeout, srvSite) {
 		$scope.matterTypes = matterTypes;
 		var setPublishState = function(state) {
 			for (var i in $scope.menu) {
@@ -84,11 +84,15 @@ define(['main'], function(ngApp) {
 			});
 		};
 		$scope.setReply = function() {
-			mattersgallery.open($scope.siteId, function(aSelected, matterType) {
-				if (aSelected.length === 1) {
+			srvSite.openGallery({
+				matterTypes: $scope.matterTypes,
+				hasParent: false,
+				singleMatter: true
+			}).then(function(result) {
+				if (result.matters.length === 1) {
 					var p = {
-						matter_type: matterType,
-						matter_id: aSelected[0].id
+						matter_type: result.type,
+						matter_id: result.matters[0].id
 					};
 					http2.post('/rest/pl/fe/site/sns/wx/menu/setreply?site=' + $scope.siteId + '&k=' + $scope.editing.menu_key, p, function(rsp) {
 						if (rsp.data.menu_key) {
@@ -99,10 +103,6 @@ define(['main'], function(ngApp) {
 						$scope.edit($scope.editing);
 					});
 				}
-			}, {
-				matterTypes: $scope.matterTypes,
-				hasParent: false,
-				singleMatter: true
 			});
 		};
 		$scope.update = function(name) {

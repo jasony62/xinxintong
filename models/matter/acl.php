@@ -483,7 +483,7 @@ class acl_model extends app_base {
 				"id=$schemaId and valid='Y'",
 			);
 			if ($url = $this->query_val_ss($q)) {
-				false === strpos($url, 'http') && $url = 'http://' . $_SERVER['HTTP_HOST'] . $url;
+				false === strpos($url, 'http') && $url = 'http://' . APP_HTTP_HOST . $url;
 				$url .= "/checkAcl?site=$siteId&schema=$schemaId&uid=$identity";
 				$ch = curl_init($url);
 				curl_setopt($ch, CURLOPT_HEADER, 0);

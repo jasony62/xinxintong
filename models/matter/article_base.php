@@ -18,7 +18,7 @@ abstract class article_base extends base_model {
 		$ma = array();
 		foreach ($matters as $m) {
 			if (!empty($m->pic) && stripos($m->pic, 'http') === false) {
-				$pic = 'http://' . $_SERVER['HTTP_HOST'] . $m->pic;
+				$pic = 'http://' . APP_HTTP_HOST . $m->pic;
 			} else {
 				$pic = $m->pic;
 			}
@@ -55,7 +55,7 @@ abstract class article_base extends base_model {
 			}
 
 			if (!empty($a->pic) && stripos($a->pic, 'http') === false) {
-				$pic = 'http://' . $_SERVER['HTTP_HOST'] . $a->pic;
+				$pic = 'http://' . APP_HTTP_HOST . $a->pic;
 			} else {
 				$pic = $a->pic;
 			}
@@ -81,7 +81,7 @@ abstract class article_base extends base_model {
 	 *
 	 */
 	public function getEntryUrl($siteId, $id) {
-		$url = "http://" . $_SERVER['HTTP_HOST'];
+		$url = "http://" . APP_HTTP_HOST;
 		$url .= "/rest/site/fe/matter";
 		if ($siteId === 'platform') {
 			$matter = $this->byId($id);

@@ -174,6 +174,7 @@ define(['frame'], function(ngApp) {
                 }
             });
 
+            $scope.bRequireNickname = app.assignedNickname.valid !== 'Y' || !app.assignedNickname.schema;
             $scope.bRequireSum = bRequireSum;
             $scope.bRequireScore = bRequireScore;
             $scope.recordSchemas = recordSchemas;

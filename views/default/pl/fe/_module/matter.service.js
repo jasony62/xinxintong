@@ -1,4 +1,4 @@
-angular.module('service.matter', ['ngSanitize', 'ui.xxt']).
+angular.module('service.matter', ['ngSanitize', 'ui.bootstrap', 'ui.tms']).
 provider('srvSite', function() {
     var _siteId, _oSite, _aSns, _aMemberSchemas, _oTag;
     this.config = function(siteId) {
@@ -8,6 +8,15 @@ provider('srvSite', function() {
         return {
             getSiteId: function() {
                 return _siteId;
+            },
+            getLoginUser: function() {
+                var defer, url;
+                defer = $q.defer();
+                url = '/rest/pl/fe/user/get?_=' + (new Date * 1);
+                http2.get(url, function(rsp) {
+                    defer.resolve(rsp.data);
+                });
+                return defer.promise;
             },
             get: function() {
                 var defer = $q.defer();
@@ -65,6 +74,7 @@ provider('srvSite', function() {
                     templateUrl: '/static/template/mattersgallery2.html?_=8',
                     controller: ['$scope', '$http', '$uibModalInstance', function($scope, $http, $mi) {
                         var fields = ['id', 'title'];
+                        $scope.filter = {};
                         $scope.matterTypes = options.matterTypes;
                         $scope.singleMatter = options.singleMatter;
                         $scope.p = {};
@@ -100,6 +110,7 @@ provider('srvSite', function() {
                                 params = {};
 
                             page && ($scope.page.at = page);
+                            params.byTitle = $scope.filter.byTitle ? $scope.filter.byTitle : '';
                             url += '/' + matter.value;
                             url += '/list?site=' + _siteId + '&page=' + $scope.page.at + '&size=' + $scope.page.size + '&fields=' + fields;
                             /*指定登记活动场景*/
@@ -126,6 +137,10 @@ provider('srvSite', function() {
                                 }
                             });
                         };
+                        $scope.cleanFilter = function() {
+                            $scope.filter.byTitle = '';
+                            $scope.doSearch();
+                        }
                         $scope.ok = function() {
                             $mi.close([$scope.aChecked, $scope.p.matterType ? $scope.p.matterType.value : 'article']);
                         };

@@ -15,7 +15,7 @@
                         <span class="caret"></span>
                     </button>
                     <ul class="dropdown-menu" uib-dropdown-menu>
-                        <li ng-if="app.group_app_id"><a href='' ng-click="chooseOrderby('group')"><span class='glyphicon' ng-class="criteria.orderby==='group'?'glyphicon-check':'glyphicon-unchecked'"></span> 分组名称</a></li>
+                        <li ng-if="app.group_app_id"><a href='' ng-click="chooseOrderby('group')"><span class='glyphicon' ng-class="criteria.orderby==='group_id'?'glyphicon-check':'glyphicon-unchecked'"></span> 分组名称</a></li>
                         <li><a href='' ng-click="chooseOrderby('record_num')"><span class='glyphicon' ng-class="criteria.orderby==='record_num'?'glyphicon-check':'glyphicon-unchecked'"></span> 记录数</a></li>
                         <li><a href='' ng-click="chooseOrderby('remark_num')"><span class='glyphicon' ng-class="criteria.orderby==='remark_num'?'glyphicon-check':'glyphicon-unchecked'"></span> 评论数</a></li>
                         <li><a href='' ng-click="chooseOrderby('like_num')"><span class='glyphicon' ng-class="criteria.orderby==='like_num'?'glyphicon-check':'glyphicon-unchecked'"></span> 赞同数</a></li>

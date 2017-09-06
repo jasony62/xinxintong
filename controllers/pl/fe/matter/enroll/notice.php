@@ -31,7 +31,7 @@ class notice extends \pl\fe\matter\base {
 			return new \ObjectNotFountError();
 		}
 
-		$modelRec = $this->model('matter\enroll\record');
+		$modelRec = $this->model('matter\enroll\user');
 		$site = $modelRec->escape($site);
 		$posted = $this->getPostJson();
 		$params = $posted->message;
@@ -43,7 +43,8 @@ class notice extends \pl\fe\matter\base {
 			$options = [
 				'rid' => $rid,
 			];
-			$enrollers = $modelRec->enrolleeByApp($oApp, $options, $criteria);
+			$enrollUsers = $modelRec->enrolleeByApp($oApp, '', '', $options);
+			$enrollers = $enrollUsers->users;
 		} else if (isset($posted->users)) {
 			// 直接指定
 			$enrollers = $posted->users;

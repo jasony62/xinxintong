@@ -31,7 +31,6 @@ define(['frame'], function(ngApp) {
         };
         $scope.criteria = oCriteria = {
             orderby: 'enroll_num',
-            agreed: 'all',
             allSelected: 'N',
             selected: {},
             rid: '',
@@ -57,13 +56,6 @@ define(['frame'], function(ngApp) {
         $scope.notify = function(isBatch) {
             srvEnrollRecord.notify(isBatch ? $scope.criteria : undefined);
         };
-        $scope.fetchRound = function() {
-            var defer = $q.defer();
-            http2.get('/rest/pl/fe/matter/enroll/round/list?site=' + $scope.app.siteid + '&app=' + $scope.app.id + page.j(), function(rsp) {
-                defer.resolve(rsp.data.rounds);
-            });
-            return defer.promise;
-        };
         $scope.gotoMschema = function(oMschema) {
             if (oMschema.matter_id) {
                 if (oMschema.matter_type === 'mission') {
@@ -81,6 +73,9 @@ define(['frame'], function(ngApp) {
                 controller: ['$scope', '$uibModalInstance', function($scope2, $mi) {
                     $scope2.app = $scope.app;
                     $scope2.criteria = oCriteria;
+                    http2.get('/rest/pl/fe/matter/enroll/round/list?site=' + $scope.app.siteid + '&app=' + $scope.app.id + page.j(), function(rsp) {
+                        $scope2.rounds = rsp.data.rounds;
+                    });
                     $scope2.ok = function() {
                         $mi.close($scope2.criteria);
                     };
@@ -131,14 +126,7 @@ define(['frame'], function(ngApp) {
                     });
                 }
             }
-            $scope.fetchRound().then(function(data) {
-                $scope.rounds = rounds = data;
-                if (rounds.length > 0) {
-                    oCriteria.rid = '';
-                } else {
-                    $scope.searchEnrollee(1);
-                }
-            });
+            $scope.searchEnrollee(1);
         });
         $scope.$watch('criteria.allSelected', function(nv) {
             var index = 0;
@@ -149,10 +137,6 @@ define(['frame'], function(ngApp) {
             } else if (nv == 'N') {
                 $scope.criteria.selected = {};
             }
-        });
-        $scope.$watch('criteria.rid', function(nv) {
-            if (!$scope.rule) return;
-            $scope.searchEnrollee(1);
         });
     }]);
 });

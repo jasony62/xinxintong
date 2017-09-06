@@ -30,7 +30,7 @@ define(['frame'], function(ngApp) {
             }
         };
         $scope.criteria = oCriteria = {
-            orderby: 'record_num',
+            orderby: 'enroll_num',
             agreed: 'all',
             allSelected: 'N',
             selected: {},

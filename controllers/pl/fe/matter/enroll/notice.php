@@ -39,6 +39,7 @@ class notice extends \pl\fe\matter\base {
 		if (isset($posted->criteria)) {
 			// 筛选条件
 			$criteria = $posted->criteria;
+			!empty($criteria->rid) && $rid = $modelRec->escape($criteria->rid);
 			$options = [
 				'rid' => $rid,
 			];

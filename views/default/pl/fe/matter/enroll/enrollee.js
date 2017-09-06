@@ -1,9 +1,9 @@
 define(['frame'], function(ngApp) {
     'use strict';
-    ngApp.provider.controller('ctrlEnrollee', ['$scope', 'http2', 'srvEnrollRecord', '$q', function($scope, http2, srvEnrollRecord, $q) {
+    ngApp.provider.controller('ctrlEnrollee', ['$scope', 'http2', 'srvEnrollRecord', '$q', '$uibModal', function($scope, http2, srvEnrollRecord, $q, $uibModal) {
         function _searchByMschema(mschema) {
             if (mschema) {
-                http2.post('/rest/pl/fe/matter/enroll/user/byMschema?site=' + $scope.app.siteid + '&app=' + $scope.app.id + '&mschema=' + mschema.id + '&rid=' + oCriteria.rid + page.j(), {}, function(rsp) {
+                http2.post('/rest/pl/fe/matter/enroll/user/byMschema?site=' + $scope.app.siteid + '&app=' + $scope.app.id + '&mschema=' + mschema.id + page.j(), oCriteria, function(rsp) {
                     srvEnrollRecord.init($scope.app, $scope.page, $scope.criteria, rsp.data.members);
                     $scope.members = rsp.data.members;
                     rsp.data.members.forEach(function(member) {
@@ -30,6 +30,8 @@ define(['frame'], function(ngApp) {
             }
         };
         $scope.criteria = oCriteria = {
+            orderby: 'record_num',
+            agreed: 'all',
             allSelected: 'N',
             selected: {},
             rid: '',
@@ -37,6 +39,10 @@ define(['frame'], function(ngApp) {
                 this.allSelected = 'N';
                 this.selected = {};
             }
+        };
+        $scope.chooseOrderby = function(orderby) {
+            oCriteria.orderby = orderby;
+            $scope.searchEnrollee(1);
         };
         $scope.export = function() {
             var url = '/rest/pl/fe/matter/enroll/user/export?site=' + $scope.app.siteid;
@@ -69,12 +75,34 @@ define(['frame'], function(ngApp) {
                 location.href = '/rest/pl/fe?view=main&scope=user&sid=' + $scope.app.siteid + '&mschema=' + oMschema.id;
             }
         };
-        $scope.searchEnrollee = function() {
+        $scope.filter = function() {
+            $uibModal.open({
+                templateUrl: '/views/default/pl/fe/matter/enroll/component/enrolleeFilter.html?_=1',
+                controller: ['$scope', '$uibModalInstance', function($scope2, $mi) {
+                    $scope2.app = $scope.app;
+                    $scope2.criteria = oCriteria;
+                    $scope2.ok = function() {
+                        $mi.close($scope2.criteria);
+                    };
+                    $scope2.cancel = function() {
+                        $mi.dismiss();
+                    };
+                }],
+                windowClass: 'auto-height',
+                backdrop: 'static',
+            }).result.then(function(oCriteria) {
+                $scope.searchEnrollee(1);
+            });
+        }
+        $scope.searchEnrollee = function(pageAt) {
+            if (pageAt) {
+                page.at = pageAt;
+            }
+
             if ($scope.rule.scope === 'member') {
                 _searchByMschema(oCriteria.mschema);
-
             } else {
-                http2.get('/rest/pl/fe/matter/enroll/user/enrollee?app=' + $scope.app.id + '&rid=' + oCriteria.rid + page.j(), function(rsp) {
+                http2.post('/rest/pl/fe/matter/enroll/user/enrollee?app=' + $scope.app.id + page.j(), oCriteria, function(rsp) {
                     srvEnrollRecord.init($scope.app, $scope.page, $scope.criteria, rsp.data.users);
                     rsp.data.users.forEach(function(user) {
                         if (user.tmplmsg && user.tmplmsg.status) {
@@ -108,7 +136,7 @@ define(['frame'], function(ngApp) {
                 if (rounds.length > 0) {
                     oCriteria.rid = '';
                 } else {
-                    $scope.searchEnrollee();
+                    $scope.searchEnrollee(1);
                 }
             });
         });
@@ -124,7 +152,7 @@ define(['frame'], function(ngApp) {
         });
         $scope.$watch('criteria.rid', function(nv) {
             if (!$scope.rule) return;
-            $scope.searchEnrollee();
+            $scope.searchEnrollee(1);
         });
     }]);
 });

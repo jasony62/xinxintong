@@ -8,6 +8,21 @@
                         <a class='btn btn-default' href='' target='_self' ng-click="gotoMschema(criteria.mschema)"><span class='glyphicon glyphicon-edit'></span></a>
                     </div>
                 </div>
+                <button class='btn btn-default' ng-click='filter()' ng-if="app.groupApp||app.multi_rounds=='Y'"><i class='glyphicon glyphicon-filter'></i> <span>筛选</span></button>
+                <div class="btn-group" uib-dropdown>
+                    <button type="button" class="btn btn-default dropdown-toggle" uib-dropdown-toggle>
+                        排序
+                        <span class="caret"></span>
+                    </button>
+                    <ul class="dropdown-menu" uib-dropdown-menu>
+                        <li ng-if="app.group_app_id"><a href='' ng-click="chooseOrderby('group')"><span class='glyphicon' ng-class="criteria.orderby==='group'?'glyphicon-check':'glyphicon-unchecked'"></span> 分组名称</a></li>
+                        <li><a href='' ng-click="chooseOrderby('record_num')"><span class='glyphicon' ng-class="criteria.orderby==='record_num'?'glyphicon-check':'glyphicon-unchecked'"></span> 记录数</a></li>
+                        <li><a href='' ng-click="chooseOrderby('remark_num')"><span class='glyphicon' ng-class="criteria.orderby==='remark_num'?'glyphicon-check':'glyphicon-unchecked'"></span> 评论数</a></li>
+                        <li><a href='' ng-click="chooseOrderby('like_num')"><span class='glyphicon' ng-class="criteria.orderby==='like_num'?'glyphicon-check':'glyphicon-unchecked'"></span> 赞同数</a></li>
+                        <li><a href='' ng-click="chooseOrderby('total_coin')"><span class='glyphicon' ng-class="criteria.orderby==='total_coin'?'glyphicon-check':'glyphicon-unchecked'"></span> 积分数</a></li>
+                        <li><a href='' ng-click="chooseOrderby('score')"><span class='glyphicon' ng-class="criteria.orderby==='score'?'glyphicon-check':'glyphicon-unchecked'"></span> 得分数</a></li>
+                    </ul>
+                </div>
                 <select class='form-control' ng-if="rounds.length>0" ng-model="criteria.rid">
                     <option value=''>全部轮次</option>
                     <option value="{{rnd.rid}}" ng-repeat="rnd in rounds">{{rnd.title}}</option>

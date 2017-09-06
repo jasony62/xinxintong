@@ -1,0 +1,34 @@
+<div class="modal-header">
+    <button class="close" type="button" ng-click="cancel()">×</button>
+    <h5 class="modal-title">筛选条件</h5>
+</div>
+<div class="modal-body">
+    <form class="form-horizontal">
+        <!-- <div class="form-group" ng-if="rounds.length">
+            <label class="col-md-3 control-label">轮次</label>
+            <div class="col-md-9">
+                <select class='form-control' ng-model="criteria.rid" size=5>
+                    <option value=''>全部轮次</option>
+                    <option ng-if="activeRound" value='{{activeRound.rid}}'>当前轮次（{{activeRound.title}}）</option>
+                    <option value="{{rnd.rid}}" ng-repeat="rnd in rounds" ng-if="!rnd._isActive">{{rnd.title}}</option>
+                </select>
+                <div ng-show="pageOfRound.total>pageOfRound.size">
+                    <span style='line-height:34px'>总数：{{pageOfRound.total}}</span>
+                    <ul uib-pagination style="margin:0;vertical-align:bottom;cursor:pointer" boundary-links="true" total-items="pageOfRound.total" max-size="5" items-per-page="pageOfRound.size" rotate="false" ng-model="pageOfRound.at" previous-text="&lsaquo;" next-text="&rsaquo;" first-text="&laquo;" last-text="&raquo;" ng-change="doSearchRound()"></ul>
+                </div>
+            </div>
+        </div> -->
+        <div class="form-group" ng-if="app.groupApp">
+            <label class="col-md-3 control-label">分组名称</label>
+            <div class="col-md-9">
+                <select class='form-control' ng-model="criteria.group" ng-options="round.aid as round.title for round in app.groupApp.rounds">
+                    <option></option>
+                </select>
+            </div>
+        </div>
+    </form>
+</div>
+<div class="modal-footer">
+    <button class="btn btn-default" ng-click="cancel()">关闭</button>
+    <button class="btn btn-primary" ng-click="ok()">确定</button>
+</div>

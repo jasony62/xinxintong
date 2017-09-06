@@ -73,15 +73,26 @@ define(['frame'], function(ngApp) {
                 controller: ['$scope', '$uibModalInstance', function($scope2, $mi) {
                     $scope2.app = $scope.app;
                     $scope2.criteria = oCriteria;
-                    http2.get('/rest/pl/fe/matter/enroll/round/list?site=' + $scope.app.siteid + '&app=' + $scope.app.id + page.j(), function(rsp) {
-                        $scope2.rounds = rsp.data.rounds;
-                    });
+                    $scope2.page = {
+                        at: 1,
+                        size: 5,
+                        j: function() {
+                            return '&page=' + this.at + '&size=' + this.size;
+                        }
+                    };
+                    $scope2.doSearchRound = function() {
+                        http2.get('/rest/pl/fe/matter/enroll/round/list?site=' + $scope.app.siteid + '&app=' + $scope.app.id + $scope2.page.j(), function(rsp) {
+                            $scope2.rounds = rsp.data.rounds;
+                            $scope2.page.total = rsp.data.total;
+                        });
+                    }
                     $scope2.ok = function() {
                         $mi.close($scope2.criteria);
                     };
                     $scope2.cancel = function() {
                         $mi.dismiss();
                     };
+                    $scope2.doSearchRound();
                 }],
                 windowClass: 'auto-height',
                 backdrop: 'static',

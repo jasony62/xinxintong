@@ -23,20 +23,21 @@ class remind_model extends \TMS_MODEL {
 			$params->url = $noticeURL;
 
 			/*处理要发送的填写人*/
-			$modelRec = $this->model('matter\enroll\record');
-			$options = [
-				'rid' => '',
-			];
-			$oUsers = $modelRec->enrolleeByApp($oMatter, $options);
-			if (count($oUsers) === 0) {
-				return [false, '没有填写人'];
+			if ($activeRound = $this->model('matter\enroll\round')->getActive($oMatter)) {
+				$rid = $activeRound->rid;
+			}else{
+				$rid = 'ALL';
 			}
-			$receivers = [];
-			foreach ($oUsers as $oUser) {
-				$receiver = new \stdClass;
-				$receiver->assoc_with = $oUser->enroll_key;
-				$receiver->userid = $oUser->userid;
-				$receivers[] = $receiver;
+			$modelRec = $this->model('matter\enroll\user');
+			$options = [
+				'rid' => $rid,
+				'fields' => 'userid',
+				'cascaded' => 'N',
+			];
+			$enrollUsers = $modelRec->enrolleeByApp($oMatter, '', '', $options);
+			$receivers = $enrollUsers->users;
+			if (count($receivers) === 0) {
+				return [false, '没有填写人'];
 			}
 
 			/*获取模板消息id*/

@@ -23,10 +23,6 @@
                         <li ng-if="app.group_app_id"><a href='' ng-click="chooseOrderby('group_id')"><span class='glyphicon' ng-class="criteria.orderby==='group_id'?'glyphicon-check':'glyphicon-unchecked'"></span> 分组名称</a></li>
                     </ul>
                 </div>
-                <!-- <select class='form-control' ng-if="rounds.length>0" ng-model="criteria.rid">
-                    <option value=''>全部轮次</option>
-                    <option value="{{rnd.rid}}" ng-repeat="rnd in rounds">{{rnd.title}}</option>
-                </select> -->
                 <button type='button' class='btn btn-default' ng-click="notify(true)">给选中用户发消息</button>
                 <button type='button' class='btn btn-default' ng-click="notify(false)">给全部用户发消息</button>
                 <button type='button' class='btn btn-default' ng-click="export()">导出数据</button>

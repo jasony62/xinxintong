@@ -59,9 +59,15 @@ class user_model extends \TMS_MODEL {
 		} else {
 			$q[2] .= " and rid = 'ALL'";
 		}
-		$q2 = [
-			'o' => 'last_enroll_at desc',
-		];
+		if (!empty($options['byGroup'])) {
+			$q[2] .= " and group_id = '" . $this->escape($options['byGroup']) . "'";
+		}
+
+		if (!empty($options['orderby'])) {
+			$q2 = ['o' => $options['orderby'] . ' desc'];
+		}else{
+			$q2 = ['o' => 'last_enroll_at desc'];
+		}
 		if (!empty($page) && !empty($size)) {
 			$q2['r'] = ['o' => ($page - 1) * $size, 'l' => $size];
 		}

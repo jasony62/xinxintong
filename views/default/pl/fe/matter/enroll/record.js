@@ -54,6 +54,9 @@ define(['frame'], function(ngApp) {
             event.stopPropagation();
         };
         $scope.shiftOrderBy = function() {
+            if($scope.criteria.order.orderby=='total_score') {
+                $scope.criteria.order.schemaId = ''
+            }
             $scope.doSearch(1);
         }
         $scope.doSearch = function(pageNumber) {

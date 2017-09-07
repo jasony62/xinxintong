@@ -47,19 +47,19 @@
             <form id='advCriteria' ng-if='status.opened' ng-click="clickAdvCriteria($event)">
                 <div class='form-group'>
                     <select class='form-control' ng-model="criteria.order.orderby" size='5'>
-                        <option value>全部数据项</option>
+                        <option value=>全部数据项</option>
                         <option value='remark_num'>评论数</option>
                         <option value='like_num'>赞同数</option>
                         <option ng-if="app.scenario=='quiz'|| app.scenario=='score_sheet'" value='score'>得分</option>
-                        <option ng-if="app.scenario=='quiz'|| app.scenario=='score_sheet'" value='total_score'>总得分</option>
+                        <option ng-if="app.scenario=='quiz'|| app.scenario=='score_sheet'" value='total_score' ng-click="shiftOrderBy()">总得分</option>
                     </select>
                 </div>
                 <div class='form-group' ng-if="recordSchemas.length>1&&criteria.order.orderby!=='total_score'">
-                    <select class='form-control' ng-model="criteria.order.schemaId" ng-options="schema.id as schema.title for schema in recordSchemas" ng-change="shiftOrderBy()" size='6'>
-                        <option value>全部题目</option>
+                    <select class='form-control' ng-model="criteria.order.schemaId" ng-change="shiftOrderBy()" ng-options="schema.id as schema.title for schema in recordSchemas"size='6'>
+                        <option value=>全部题目</option>
+                        <!-- <option value="{{schema.id}}" ng-if="criteria.order.orderby!=='total_score'" ng-repeat="schema in recordSchemas">{{schema.title}}</option> -->
                     </select>
                 </div>
-
             </form>
             <form class='navbar-form navbar-right'>
                 <div class='form-group'>

@@ -49,6 +49,13 @@ define(['frame'], function(ngApp) {
                 });
             }
         }
+        $scope.clickAdvCriteria = function(event) {
+            event.preventDefault();
+            event.stopPropagation();
+        };
+        $scope.shiftOrderBy = function() {
+            $scope.doSearch(1);
+        }
         $scope.doSearch = function(pageNumber) {
             $scope.rows.reset();
             srvEnrollRecord.search(pageNumber).then(function() {

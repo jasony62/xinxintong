@@ -8,6 +8,9 @@
                     <combox evt-prefix='search-tag' readonly='true' existing='criteria.tags' options='app.tags'></combox>
                 </div>
                 <button class='btn btn-default' ng-click='filter()'><i class='glyphicon glyphicon-filter'></i> <span>筛选</span></button>
+                <button id='advCriteriaSwitch' class="btn btn-default" ng-click="status.opened=!status.opened">
+                    <span ng-class="{'opened':status.opened}">排序 <span class="caret"></span></span>
+                </button>
                 <div class="btn-group">
                     <button type="button" ng-disabled="!countSelected()" class="btn btn-default dropdown-toggle" data-toggle="dropdown">选中记录 <i class="caret"></i></button>
                     <ul class="dropdown-menu">
@@ -40,6 +43,23 @@
                         <li><a href="" ng-click="importByOther()">从其他活动导入记录</a></li>
                     </ul>
                 </div>
+            </form>
+            <form id='advCriteria' ng-if='status.opened' ng-click="clickAdvCriteria($event)">
+                <div class='form-group'>
+                    <select class='form-control' ng-model="criteria.orderby.orderby" size='5'>
+                        <option value>全部数据项</option>
+                        <option value='remark_num'>评论数</option>
+                        <option value='like_num'>赞同数</option>
+                        <option ng-if="app.scenario=='quiz'|| app.scenario=='score_sheet'" value='score'>得分</option>
+                        <option ng-if="app.scenario=='quiz'|| app.scenario=='score_sheet'" value='total_score'>总得分</option>
+                    </select>
+                </div>
+                <div class='form-group' ng-if="recordSchemas.length>1&&criteria.orderby.orderby!=='total_score'">
+                    <select class='form-control' ng-model="criteria.orderby.schemaId" ng-options="schema.id as schema.title for schema in recordSchemas" ng-change="shiftOrderBy()" size='6'>
+                        <option value>全部题目</option>
+                    </select>
+                </div>
+
             </form>
             <form class='navbar-form navbar-right'>
                 <div class='form-group'>

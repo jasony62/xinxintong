@@ -46,7 +46,7 @@
             </form>
             <form id='advCriteria' ng-if='status.opened' ng-click="clickAdvCriteria($event)">
                 <div class='form-group'>
-                    <select class='form-control' ng-model="criteria.orderby.orderby" size='5'>
+                    <select class='form-control' ng-model="criteria.order.orderby" size='5'>
                         <option value>全部数据项</option>
                         <option value='remark_num'>评论数</option>
                         <option value='like_num'>赞同数</option>
@@ -54,8 +54,8 @@
                         <option ng-if="app.scenario=='quiz'|| app.scenario=='score_sheet'" value='total_score'>总得分</option>
                     </select>
                 </div>
-                <div class='form-group' ng-if="recordSchemas.length>1&&criteria.orderby.orderby!=='total_score'">
-                    <select class='form-control' ng-model="criteria.orderby.schemaId" ng-options="schema.id as schema.title for schema in recordSchemas" ng-change="shiftOrderBy()" size='6'>
+                <div class='form-group' ng-if="recordSchemas.length>1&&criteria.order.orderby!=='total_score'">
+                    <select class='form-control' ng-model="criteria.order.schemaId" ng-options="schema.id as schema.title for schema in recordSchemas" ng-change="shiftOrderBy()" size='6'>
                         <option value>全部题目</option>
                     </select>
                 </div>

@@ -54,7 +54,7 @@
                         <option ng-if="app.scenario=='quiz'|| app.scenario=='score_sheet'" value='sum' ng-click="shiftOrderBy()">总得分</option>
                     </select>
                 </div>
-                <div class='form-group' ng-if="recordSchemas.length>1&&criteria.order.orderby!=='total_score'">
+                <div class='form-group' ng-if="recordSchemas.length>1&&criteria.order.orderby!=='sum'">
                     <select class='form-control' ng-model="criteria.order.schemaId" ng-change="shiftOrderBy()" ng-options="schema.id as schema.title for schema in recordSchemas"size='6'>
                         <option value=>全部题目</option>
                     </select>

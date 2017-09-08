@@ -134,7 +134,7 @@ class main extends \pl\fe\matter\base {
 		/*create app*/
 		$newapp['id'] = $appId;
 		$newapp['siteid'] = $site->id;
-		$newapp['title'] = empty($customConfig->proto->title) ? '新分组活动' : $customConfig->proto->title;
+		$newapp['title'] = empty($customConfig->proto->title) ? '新分组活动' : $this->escapse($customConfig->proto->title);
 		$newapp['scenario'] = $scenario;
 		$newapp['creater'] = $user->id;
 		$newapp['creater_src'] = $user->src;
@@ -258,7 +258,7 @@ class main extends \pl\fe\matter\base {
 		return new \ResponseData($rst);
 	}
 	/**
-	 * 删除所有分组
+	 * 更新分组规则
 	 */
 	public function configRule_action($site, $app) {
 		if (false === ($user = $this->accountUser())) {

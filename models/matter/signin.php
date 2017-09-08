@@ -468,4 +468,172 @@ class signin_model extends app_base {
 
 		return $nickname;
 	}
+	/**
+	 * 创建一个空的签到活动
+	 *
+	 * @param string $site site's id
+	 * @param string $mission mission's id
+	 *
+	 */
+	public function createByMission($oUser, $oSite, $oMission, $template = 'basic', $oCustomConfig = null) {
+		/* 模板信息 */
+		$templateDir = TMS_APP_TEMPLATE . '/pl/fe/matter/signin/' . $template;
+		$oTemplateConfig = file_get_contents($templateDir . '/config.json');
+		$oTemplateConfig = preg_replace('/\t|\r|\n/', '', $oTemplateConfig);
+		$oTemplateConfig = json_decode($oTemplateConfig);
+		if (JSON_ERROR_NONE !== json_last_error()) {
+			return new \ResponseError('解析模板数据错误：' . json_last_error_msg());
+		}
+		if (empty($oTemplateConfig->entryRule)) {
+			return new \ResponseError('没有获得页面进入规则');
+		}
+
+		$oNewApp = new \stdClass;
+		if (!empty($oTemplateConfig->schema)) {
+			$oNewApp->data_schemas = $this->toJson($oTemplateConfig->schema);
+		}
+
+		$current = time();
+		$appId = uniqid();
+
+		/* 从项目中获得定义 */
+		$title = empty($oCustomConfig->proto->title) ? '新签到活动' : $this->escape($oCustomConfig->proto->title);
+		$oNewApp->title = $title;
+		$oNewApp->summary = $this->escape($oMission->summary);
+		$oNewApp->pic = $oMission->pic;
+		$oNewApp->mission_id = $oMission->id;
+		$oNewApp->use_mission_header = 'Y';
+		$oNewApp->use_mission_footer = 'Y';
+
+		/* 进入规则 */
+		$oEntryRule = $oTemplateConfig->entryRule;
+		$oMisEntryRule = $oMission->entry_rule;
+		if (isset($oMisEntryRule->scope) && $oMisEntryRule->scope !== 'none') {
+			$oEntryRule->scope = $oMisEntryRule->scope;
+			switch ($oEntryRule->scope) {
+			case 'member':
+				if (isset($oMisEntryRule->member)) {
+					$oEntryRule->member = $oMisEntryRule->member;
+					foreach ($oEntryRule->member as &$oRule) {
+						$oRule->entry = isset($oEntryRule->otherwise->entry) ? $oEntryRule->otherwise->entry : '';
+					}
+					$oEntryRule->other = new \stdClass;
+					$oEntryRule->other->entry = '$memberschema';
+				}
+				break;
+			case 'sns':
+				$oEntryRule->sns = new \stdClass;
+				if (isset($oMisEntryRule->sns)) {
+					foreach ($oMisEntryRule->sns as $snsName => $oRule) {
+						if (isset($oRule->entry) && $oRule->entry === 'Y') {
+							$oEntryRule->sns->{$snsName} = new \stdClass;
+							$oEntryRule->sns->{$snsName}->entry = isset($oEntryRule->otherwise->entry) ? $oEntryRule->otherwise->entry : '';
+						}
+					}
+					$oEntryRule->other = new \stdClass;
+					$oEntryRule->other->entry = '$mpfollow';
+				}
+				break;
+			}
+		}
+		/* 关联的报名名单 */
+		if (isset($oCustomConfig->proto->enrollApp)) {
+			$oNewApp->enroll_app_id = $oCustomConfig->proto->enrollApp->id;
+		}
+
+		/*create app*/
+		$oNewApp->siteid = $oSite->id;
+		$oNewApp->id = $appId;
+		$oNewApp->creater = $oUser->id;
+		$oNewApp->creater_src = $oUser->src;
+		$oNewApp->creater_name = $this->escape($oUser->name);
+		$oNewApp->create_at = $current;
+		$oNewApp->modifier = $oUser->id;
+		$oNewApp->modifier_src = $oUser->src;
+		$oNewApp->modifier_name = $this->escape($oUser->name);
+		$oNewApp->modify_at = $current;
+		$oNewApp->entry_rule = $this->toJson($oEntryRule);
+
+		/*任务码*/
+		$entryUrl = $this->getOpUrl($oSite->id, $appId);
+		$code = $this->model('q\url')->add($oUser, $oSite->id, $entryUrl, $oNewApp->title);
+		$oNewApp->op_short_url_code = $code;
+
+		$this->insert('xxt_signin', $oNewApp, false);
+		$oNewApp->type = 'signin';
+
+		/* 记录和任务的关系 */
+		$this->model('matter\mission')->addMatter($oUser, $oSite->id, $oMission->id, $oNewApp);
+		/* 创建缺省页面 */
+		$this->_addPageByTemplate($oUser, $oSite->id, $oNewApp, $oTemplateConfig);
+		/* 创建缺省轮次 */
+		$this->_addFirstRound($oUser, $oSite->id, $oNewApp);
+
+		/* 记录操作日志 */
+		$this->model('matter\log')->matterOp($oSite->id, $oUser, $oNewApp, 'C');
+
+		return $oNewApp;
+	}
+	/**
+	 * 根据模板生成页面
+	 *
+	 * @param string $app
+	 * @param string $scenario scenario's name
+	 * @param string $template template's name
+	 */
+	private function &_addPageByTemplate(&$oUser, $siteId, &$app, &$templateConfig) {
+		$pages = $templateConfig->pages;
+		if (empty($pages)) {
+			return false;
+		}
+		/* 创建页面 */
+		$templateDir = TMS_APP_TEMPLATE . $templateConfig->path;
+		$modelPage = $this->model('matter\signin\page');
+		$modelCode = $this->model('code\page');
+		foreach ($pages as $page) {
+			$ap = $modelPage->add($oUser, $siteId, $app->id, $page);
+			$data = [
+				'html' => file_get_contents($templateDir . '/' . $page->name . '.html'),
+				'css' => file_get_contents($templateDir . '/' . $page->name . '.css'),
+				'js' => file_get_contents($templateDir . '/' . $page->name . '.js'),
+			];
+			$modelCode->modify($ap->code_id, $data);
+			/*页面关联的定义*/
+			$pageSchemas = [];
+			$pageSchemas['data_schemas'] = isset($page->data_schemas) ? \TMS_MODEL::toJson($page->data_schemas) : '[]';
+			$pageSchemas['act_schemas'] = isset($page->act_schemas) ? \TMS_MODEL::toJson($page->act_schemas) : '[]';
+			$rst = $modelPage->update(
+				'xxt_signin_page',
+				$pageSchemas,
+				"aid='{$app->id}' and id={$ap->id}"
+			);
+		}
+
+		return $pages;
+	}
+	/**
+	 * 添加第一个轮次
+	 *
+	 * @param string $app
+	 */
+	private function &_addFirstRound(&$oUser, $siteId, &$app) {
+		$modelRnd = $this->model('matter\signin\round');
+
+		$roundId = uniqid();
+		$round = [
+			'siteid' => $siteId,
+			'aid' => $app->id,
+			'rid' => $roundId,
+			'creater' => $oUser->id,
+			'create_at' => time(),
+			'title' => '第1轮',
+			'state' => 1,
+		];
+
+		$modelRnd->insert('xxt_signin_round', $round, false);
+
+		$round = (object) $round;
+
+		return $round;
+	}
 }

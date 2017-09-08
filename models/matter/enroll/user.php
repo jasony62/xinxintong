@@ -47,6 +47,7 @@ class user_model extends \TMS_MODEL {
 	 */
 	public function enrolleeByApp($oApp, $page = '', $size = '', $options = []) {
 		$fields = isset($options['fields']) ? $options['fields'] : '*';
+		$cascaded = isset($options['cascaded']) ? $options['cascaded'] : 'Y';
 
 		$result = new \stdClass;
 		$q = [
@@ -59,27 +60,35 @@ class user_model extends \TMS_MODEL {
 		} else {
 			$q[2] .= " and rid = 'ALL'";
 		}
-		$q2 = [
-			'o' => 'last_enroll_at desc',
-		];
+		if (!empty($options['byGroup'])) {
+			$q[2] .= " and group_id = '" . $this->escape($options['byGroup']) . "'";
+		}
+
+		if (!empty($options['orderby'])) {
+			$q2 = ['o' => $options['orderby'] . ' desc'];
+		}else{
+			$q2 = ['o' => 'last_enroll_at desc'];
+		}
 		if (!empty($page) && !empty($size)) {
 			$q2['r'] = ['o' => ($page - 1) * $size, 'l' => $size];
 		}
 		if ($users = $this->query_objs_ss($q, $q2)) {
-			foreach ($users as $user) {
-				$p = [
-					'wx_openid,yx_openid,qy_openid',
-					"xxt_site_account",
-					"uid = '{$user->userid}'",
-				];
-				if ($openid = $this->query_obj_ss($p)) {
-					$user->wx_openid = $openid->wx_openid;
-					$user->yx_openid = $openid->yx_openid;
-					$user->qy_openid = $openid->qy_openid;
-				} else {
-					$user->wx_openid = '';
-					$user->yx_openid = '';
-					$user->qy_openid = '';
+			if ($cascaded === 'Y') {
+				foreach ($users as $user) {
+					$p = [
+						'wx_openid,yx_openid,qy_openid',
+						"xxt_site_account",
+						"uid = '{$user->userid}'",
+					];
+					if ($openid = $this->query_obj_ss($p)) {
+						$user->wx_openid = $openid->wx_openid;
+						$user->yx_openid = $openid->yx_openid;
+						$user->qy_openid = $openid->qy_openid;
+					} else {
+						$user->wx_openid = '';
+						$user->yx_openid = '';
+						$user->qy_openid = '';
+					}
 				}
 			}
 		}

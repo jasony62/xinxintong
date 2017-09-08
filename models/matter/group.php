@@ -57,7 +57,7 @@ class group_model extends app_base {
 					$app->groupRule = new \stdClass;
 				}
 			}
-			if(!empty($app->matter_mg_tag)){
+			if (!empty($app->matter_mg_tag)) {
 				$app->matter_mg_tag = json_decode($app->matter_mg_tag);
 			}
 		}
@@ -279,5 +279,54 @@ class group_model extends app_base {
 		$result = $modelPly->byUser($oApp, $oUser->userid, ['fields' => 'id,round_id,round_title']);
 
 		return $result;
+	}
+	/**
+	 * 创建分组活动
+	 */
+	public function createByMission($oUser, $oSite, $oMission, $scenario = 'split', $oCustomConfig = null) {
+		$current = time();
+		$oNewApp = new \stdClass;
+		$appId = uniqid();
+
+		$oNewApp->title = empty($oCustomConfig->proto->title) ? '新分组活动' : $this->escape($oCustomConfig->proto->title);
+		$oNewApp->summary = $this->escape($oMission->summary);
+		$oNewApp->pic = $oMission->pic;
+		$oNewApp->mission_id = $oMission->id;
+		$oNewApp->use_mission_header = 'Y';
+		$oNewApp->use_mission_footer = 'Y';
+
+		/* 指定了用户来源 */
+		if (isset($oCustomConfig->proto->sourceApp)) {
+			$oSourceApp = $oCustomConfig->proto->sourceApp;
+			if (!empty($oSourceApp->id) && !empty($oSourceApp->type)) {
+				if (in_array($oSourceApp->type, ['enroll', 'signin', 'wall', 'mschema'])) {
+					$oNewApp->source_app = json_encode(['id' => $oSourceApp->id, 'type' => $oSourceApp->type]);
+				}
+			}
+		}
+
+		/*create app*/
+		$oNewApp->id = $appId;
+		$oNewApp->siteid = $oSite->id;
+		$oNewApp->scenario = $scenario;
+		$oNewApp->creater = $oUser->id;
+		$oNewApp->creater_src = $oUser->src;
+		$oNewApp->creater_name = $this->escape($oUser->name);
+		$oNewApp->create_at = $current;
+		$oNewApp->modifier = $oUser->id;
+		$oNewApp->modifier_src = $oUser->src;
+		$oNewApp->modifier_name = $this->escape($oUser->name);
+		$oNewApp->modify_at = $current;
+		$this->insert('xxt_group', $oNewApp, false);
+		$oNewApp->type = 'group';
+
+		/*记录操作日志*/
+		$this->model('matter\log')->matterOp($oSite->id, $oUser, $oNewApp, 'C');
+
+		/*记录和项目的关系*/
+		$modelMis = $this->model('matter\mission');
+		$modelMis->addMatter($oUser, $oSite->id, $oMission->id, $oNewApp);
+
+		return $oNewApp;
 	}
 }

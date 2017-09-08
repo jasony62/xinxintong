@@ -27,9 +27,12 @@
                     <div class='title h5' ng-bind="matter.title"></div>
                     <div class='list-group' ng-switch-when="enroll">
                         <div class='list-group-item record' ng-repeat="rec in matter.records">
-                            <div><label>登记时间：</label>{{rec.enroll_at*1000|date:'yy-MM-dd HH:mm'}}</div>
-                            <div><label>审核通过：</label>{{rec.verified}}</div>
-                            <div><label>备注：</label>{{rec.comment}}</div>
+                            <div>
+                                <label>登记时间：</label>{{rec.enroll_at*1000|date:'yy-MM-dd HH:mm'}}</div>
+                            <div>
+                                <label>审核通过：</label>{{rec.verified}}</div>
+                            <div>
+                                <label>备注：</label>{{rec.comment}}</div>
                             <div ng-repeat="schema in matter.dataSchemas" ng-switch on="schema.type">
                                 <label title="{{schema.title}}">{{schema.title}}：</label>
                                 <span ng-switch-when="image" class='image'>
@@ -45,17 +48,22 @@
                     </div>
                     <div class='list-group' ng-switch-when="signin" ng-if="matter.record">
                         <div class='list-group-item record'>
-                            <div><label>审核通过：</label>{{matter.record.verified}}</div>
-                            <div><label>备注：</label>{{matter.record.comment}}</div>
-                            <div><label>签到次数：</label>{{matter.record.signin_num}}</div>
+                            <div>
+                                <label>审核通过：</label>{{matter.record.verified}}</div>
+                            <div>
+                                <label>备注：</label>{{matter.record.comment}}</div>
+                            <div>
+                                <label>签到次数：</label>{{matter.record.signin_num}}</div>
                             <div ng-repeat="rnd in matter.rounds">
-                                <div><label title="{{rnd.title}}">{{rnd.title}}：</label><span ng-if="matter.record.signin_log[rnd.rid]" ng-class="{'signin_late':matter.record._signinLate[rnd.rid]}">{{matter.record.signin_log[rnd.rid]*1000|date:'yy-MM-dd HH:mm'}}</span></div>
+                                <div>
+                                    <label title="{{rnd.title}}">{{rnd.title}}：</label><span ng-if="matter.record.signin_log[rnd.rid]" ng-class="{'signin_late':matter.record._signinLate[rnd.rid]}">{{matter.record.signin_log[rnd.rid]*1000|date:'yy-MM-dd HH:mm'}}</span></div>
                             </div>
                         </div>
                     </div>
                     <div class='list-group' ng-switch-when="group">
                         <div class='list-group-item' ng-repeat="rec in matter.records">
-                            <div><label>所属分组：</label>{{rec.round_title}}</div>
+                            <div>
+                                <label>所属分组：</label>{{rec.round_title}}</div>
                         </div>
                     </div>
                     <button class='btn btn-default btn-sm' ng-click="gotoMatter(matter)">打开</button>
@@ -63,6 +71,10 @@
             </div>
         </div>
     </div>
+    <script src="/static/js/xxt.ui.error.js"></script>
+    <script src="/static/js/angular.min.js"></script>
+    <script src="/static/js/angular-sanitize.min.js"></script>
+    <script src="/static/js/ui-bootstrap-tpls.min.js"></script>
     <script src="/static/js/require.js" defer async data-main="/views/default/site/fe/matter/mission/main-loader.js?_=12"></script>
 </body>
 

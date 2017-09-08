@@ -94,19 +94,19 @@ class main extends \pl\fe\matter\base {
 			return new \ResponseTimeout();
 		}
 
-		$filter = $this->getPostJson();
+		$oFilter = $this->getPostJson();
 		$modelMis = $this->model('matter\mission');
 		$options = [
 			'limit' => (object) ['page' => $page, 'size' => $size],
 		];
-		if (!empty($filter->bySite)) {
-			$options['bySite'] = $modelMis->escape($filter->bySite);
+		if (!empty($oFilter->bySite)) {
+			$options['bySite'] = $modelMis->escape($oFilter->bySite);
 		}
-		if (!empty($filter->byTitle)) {
-			$options['byTitle'] = $modelMis->escape($filter->byTitle);
+		if (!empty($oFilter->byTitle)) {
+			$options['byTitle'] = $modelMis->escape($oFilter->byTitle);
 		}
-		if (!empty($filter->byTags)) {
-			$options['byTags'] = $filter->byTags;
+		if (!empty($oFilter->byTags)) {
+			$options['byTags'] = $oFilter->byTags;
 		}
 
 		$result = $modelMis->byAcl($oUser, $options);

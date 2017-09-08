@@ -23,14 +23,9 @@ class remind_model extends \TMS_MODEL {
 			$params->url = $noticeURL;
 
 			/*处理要发送的填写人*/
-			if ($activeRound = $this->model('matter\enroll\round')->getActive($oMatter)) {
-				$rid = $activeRound->rid;
-			}else{
-				$rid = 'ALL';
-			}
 			$modelRec = $this->model('matter\enroll\user');
 			$options = [
-				'rid' => $rid,
+				'rid' => 'ALL',
 				'fields' => 'userid',
 				'cascaded' => 'N',
 			];

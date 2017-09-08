@@ -45,6 +45,10 @@ define(['require', 'schema', 'page'], function(require, schemaLib, pageLib) {
                     rid: '',
                     verified: ''
                 },
+                order: {
+                    orderby: '',
+                    schemaId: ''
+                },
                 tags: [],
                 data: {},
                 keyword: ''

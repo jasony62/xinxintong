@@ -16,11 +16,7 @@ window.loading = {
             waitSeconds: 0,
             paths: {
                 "domReady": '/static/js/domReady',
-                "angular": "/static/js/angular.min",
-                "angular-sanitize": "/static/js/angular-sanitize.min",
-                "ui-bootstrap": "/static/js/ui-bootstrap-tpls.min",
-                "ui-xxt": "/static/js/xxt.ui",
-                "tmsSiteuser": "/static/js/xxt.ui.siteuser",
+                "ui-tms": "/static/js/ui-tms",
                 "matterService": "/views/default/pl/fe/_module/matter.service",
                 "main": "/views/default/site/fe/matter/mission/main",
             },
@@ -30,18 +26,14 @@ window.loading = {
                 },
             },
             urlArgs: function(id, url) {
-                if (/domReady|angular/.test(id)) {
+                if (/domReady/.test(id)) {
                     return '';
                 }
                 return "?bust=" + (timestamp * 1);
             }
         });
-        require(['angular'], function() {
-            require(['angular-sanitize'], function() {
-                require(['ui-bootstrap', 'ui-xxt'], function() {
-                    require(['main'], function() {});
-                })
-            })
+        require(['ui-tms'], function() {
+            require(['main'], function() {});
         });
     }
 };

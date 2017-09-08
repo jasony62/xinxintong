@@ -143,15 +143,15 @@ class main extends \pl\fe\matter\base {
 		$modelMis = $this->model('matter\mission');
 		$modelMis->setOnlyWriteDbConn(true);
 
-		$site = $modelSite->byId($site, ['fields' => 'id,heading_pic']);
+		$oSite = $modelSite->byId($site, ['fields' => 'id,heading_pic']);
 
 		$oNewMis = new \stdClass;
 
-		/*create empty mission*/
-		$oNewMis->siteid = $site->id;
+		/* basic */
+		$oNewMis->siteid = $oSite->id;
 		$oNewMis->title = isset($oProto->title) ? $modelSite->escape($oProto->title) : $modelSite->escape($oUser->name) . '的项目';
 		$oNewMis->summary = isset($oProto->summary) ? $modelSite->escape($oProto->summary) : '';
-		$oNewMis->pic = isset($oProto->pic) ? $modelSite->escape($oProto->pic) : $site->heading_pic;
+		$oNewMis->pic = isset($oProto->pic) ? $modelSite->escape($oProto->pic) : $oSite->heading_pic;
 		$oNewMis->start_at = isset($oProto->start_at) ? $modelSite->escape($oProto->start_at) : 0;
 		$oNewMis->end_at = isset($oProto->end_at) ? $modelSite->escape($oProto->end_at) : 0;
 		$oNewMis->creater = $oUser->id;
@@ -163,11 +163,30 @@ class main extends \pl\fe\matter\base {
 		$oNewMis->modifier_name = $modelSite->escape($oUser->name);
 		$oNewMis->modify_at = $current;
 		$oNewMis->state = 1;
-		$oNewMis->id = $modelMis->insert('xxt_mission', $oNewMis, true);
+		/* entry rule */
+		if (isset($oProto->entryRule)) {
+			$oMisEntryRule = new \stdClass;
+			$oMisEntryRule->scope = isset($oProto->entryRule->scope) ? $oProto->entryRule->scope : 'none';
+			if ($oMisEntryRule->scope === 'member' && !empty($oProto->entryRule->mschemas)) {
+				$oMisEntryRule->member = new \stdClass;
+				foreach ($oProto->entryRule->mschemas as $oMschema) {
+					$oMisEntryRule->member->{$oMschema->id} = (object) ['entry' => ''];
+				}
+			} else if ($oMisEntryRule->scope === 'sns' && isset($oProto->entryRule->sns)) {
+				$oMisEntryRule->sns = new \stdClass;
+				foreach ($oProto->entryRule->sns as $snsName => $valid) {
+					if ($valid === 'Y') {
+						$oMisEntryRule->sns->{$snsName} = (object) ['entry' => 'Y'];
+					}
+				}
+			}
+			$oNewMis->entry_rule = json_encode($oMisEntryRule);
+		}
 
+		$oNewMis->id = $modelMis->insert('xxt_mission', $oNewMis, true);
 		/*记录操作日志*/
 		$oNewMis->type = 'mission';
-		$this->model('matter\log')->matterOp($site->id, $oUser, $oNewMis, 'C');
+		$this->model('matter\log')->matterOp($oSite->id, $oUser, $oNewMis, 'C');
 		/**
 		 * 建立缺省的ACL
 		 * @todo 是否应该挪到消息队列中实现
@@ -179,7 +198,67 @@ class main extends \pl\fe\matter\base {
 		$coworker->label = $oUser->name;
 		$modelAcl->add($oUser, $oNewMis, $coworker, 'O');
 		/*站点的系统管理员加入ACL*/
-		$modelAcl->addSiteAdmin($site->id, $oUser, null, $oNewMis);
+		$modelAcl->addSiteAdmin($oSite->id, $oUser, null, $oNewMis);
+
+		isset($oMisEntryRule) && $oNewMis->entry_rule = $oMisEntryRule;
+		/* create apps */
+		if (isset($oProto->app)) {
+			$oAppProto = $oProto->app;
+			if (isset($oAppProto->enroll->create) && $oAppProto->enroll->create === 'Y') {
+				/* 在项目下创建报名活动 */
+				$modelEnl = $this->model('matter\enroll');
+				$modelEnl->setOnlyWriteDbConn(true);
+				$oEnlConfig = new \stdClass;
+				$oEnlConfig->proto = new \stdClass;
+				$oEnlConfig->proto->title = $oNewMis->title . '-报名';
+				$oEnlConfig->proto->summary = $oNewMis->summary;
+				$oNewEnlApp = $modelEnl->createByMission($oUser, $oSite, $oNewMis, 'registration', 'simple', $oEnlConfig);
+			}
+			if (isset($oAppProto->signin->create) && $oAppProto->signin->create === 'Y') {
+				/* 在项目下创建报名活动 */
+				$modelSig = $this->model('matter\signin');
+				$modelSig->setOnlyWriteDbConn(true);
+				$oSigConfig = new \stdClass;
+				$oSigConfig->proto = new \stdClass;
+				$oSigConfig->proto->title = $oNewMis->title . '-签到';
+				if (isset($oAppProto->signin->enrollApp) && $oAppProto->signin->enrollApp === 'Y' && isset($oNewEnlApp)) {
+					$oSigConfig->proto->enrollApp = $oNewEnlApp;
+				}
+				$oNewSigApp = $modelSig->createByMission($oUser, $oSite, $oNewMis, 'basic', $oSigConfig);
+			}
+			if (isset($oAppProto->group->create) && $oAppProto->group->create === 'Y') {
+				/* 在项目下创建报名活动 */
+				$modelGrp = $this->model('matter\group');
+				$modelGrp->setOnlyWriteDbConn(true);
+				$oGrpConfig = new \stdClass;
+				$oGrpConfig->proto = new \stdClass;
+				$oGrpConfig->proto->title = $oNewMis->title . '-分组';
+				/* 分组用户数据源 */
+				if (isset($oAppProto->group->source)) {
+					if ($oAppProto->group->source === 'enroll' && isset($oNewEnlApp)) {
+						$oGrpConfig->proto->sourceApp = (object) ['id' => $oNewEnlApp->id, 'type' => 'enroll'];
+					} else if ($oAppProto->group->source === 'signin' && isset($oNewSigApp)) {
+						$oGrpConfig->proto->sourceApp = (object) ['id' => $oNewSigApp->id, 'type' => 'signin'];
+
+					}
+				}
+				$oNewGrpApp = $modelGrp->createByMission($oUser, $oSite, $oNewMis, 'split', $oGrpConfig);
+			}
+			/* 项目的用户名单应用 */
+			if (isset($oProto->userApp)) {
+				$oUserApp = $oProto->userApp;
+				if ($oUserApp === 'mschema' && isset($oMisEntryRule) && $oMisEntryRule->scope === 'member' && !empty($oProto->entryRule->mschemas)) {
+					$oMschema = $oProto->entryRule->mschemas[0];
+					$modelMis->update('xxt_mission', ['user_app_id' => $oMschema->id, 'user_app_type' => 'mschema'], ['id' => $oNewMis->id]);
+				} else if ($oUserApp === 'enroll' && isset($oNewEnlApp)) {
+					$modelMis->update('xxt_mission', ['user_app_id' => $oNewEnlApp->id, 'user_app_type' => 'enroll'], ['id' => $oNewMis->id]);
+				} else if ($oUserApp === 'signin' && isset($oNewSigApp)) {
+					$modelMis->update('xxt_mission', ['user_app_id' => $oNewSigApp->id, 'user_app_type' => 'signin'], ['id' => $oNewMis->id]);
+				} else if ($oUserApp === 'group' && isset($oNewGrpApp)) {
+					$modelMis->update('xxt_mission', ['user_app_id' => $oNewGrpApp->id, 'user_app_type' => 'group'], ['id' => $oNewMis->id]);
+				}
+			}
+		}
 
 		return new \ResponseData($oNewMis);
 	}

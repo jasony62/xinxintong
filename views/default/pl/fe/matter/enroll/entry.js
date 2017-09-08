@@ -226,6 +226,10 @@ define(['frame'], function(ngApp) {
                 modified: false,
                 state: 'N'
             },
+            remind: {
+                modified: false,
+                state: 'N'
+            },
         };
         $scope.shiftTimerTask = function(model) {
             var oOneTask;

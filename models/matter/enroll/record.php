@@ -828,7 +828,17 @@ class record_model extends \TMS_MODEL {
 			$q2['r'] = ['o' => ($page - 1) * $size, 'l' => $size];
 		}
 		// 查询结果排序
-		$q2['o'] = 'e.enroll_at desc';
+		if (!empty($criteria->order->orderby) && !empty($criteria->order->schemaId)) {
+			$schemaId = $criteria->order->schemaId;
+			$orderby = $criteria->order->orderby;
+			$q[1] .= ",xxt_enroll_record_data d";
+			$q[2] .= " and e.enroll_key = d.enroll_key and d.schema_id = '$schemaId'";
+			$q2['o'] = 'd.' . $orderby . ' desc';
+		} elseif (!empty($criteria->order->orderby) && $criteria->order->orderby === 'sum') {
+			$q2['o'] = 'e.score desc';
+		} else {
+			$q2['o'] = 'e.enroll_at desc';
+		}
 		/* 处理获得的数据 */
 		$roundsById = []; // 缓存轮次数据
 		if ($records = $this->query_objs_ss($q, $q2)) {

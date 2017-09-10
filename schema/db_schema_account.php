@@ -3,9 +3,11 @@ require_once '../db.php';
 // platform account
 $sql = "create table if not exists account (";
 $sql .= "uid varchar(40) not null comment '用户的UID'";
+$sql .= "from_siteid varchar(32) not null default '' comment '从哪个团队发起的注册id'";
 $sql .= ",authed_from varchar(20) default 'xxt' comment '哪个第三方应用'";
 $sql .= ",authed_id varchar(255) default null comment '在第三方应用中的标识'";
 $sql .= ",nickname varchar(50) default null";
+$sql .= ",headimgurl varchar(255) not null default ''";
 $sql .= ",email varchar(255) default null";
 $sql .= ",password varchar(64) default null";
 $sql .= ",salt varchar(32) default null";

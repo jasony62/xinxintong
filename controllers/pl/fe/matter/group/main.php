@@ -69,8 +69,8 @@ class main extends \pl\fe\matter\base {
 		if (!empty($post->byTitle)) {
 			$q[2] .= " and title like '%" . $model->escape($post->byTitle) . "%'";
 		}
-		if(!empty($post->byTags)){
-			foreach($post->byTags as $tag){
+		if (!empty($post->byTags)) {
+			foreach ($post->byTags as $tag) {
 				$q[2] .= " and matter_mg_tag like '%" . $model->escape($tag->id) . "%'";
 			}
 		}
@@ -134,7 +134,7 @@ class main extends \pl\fe\matter\base {
 		/*create app*/
 		$newapp['id'] = $appId;
 		$newapp['siteid'] = $site->id;
-		$newapp['title'] = empty($customConfig->proto->title) ? '新分组活动' : $customConfig->proto->title;
+		$newapp['title'] = empty($customConfig->proto->title) ? '新分组活动' : $this->escapse($customConfig->proto->title);
 		$newapp['scenario'] = $scenario;
 		$newapp['creater'] = $user->id;
 		$newapp['creater_src'] = $user->src;
@@ -176,7 +176,7 @@ class main extends \pl\fe\matter\base {
 		$modelApp->setOnlyWriteDbConn(true);
 		$modelCode = $this->model('code\page');
 
-		$copied = $modelApp->byId($app);
+		$oCopied = $modelApp->byId($app);
 		/**
 		 * 获得的基本信息
 		 */
@@ -192,12 +192,12 @@ class main extends \pl\fe\matter\base {
 		$newapp['modifier_src'] = $user->src;
 		$newapp['modifier_name'] = $modelApp->escape($user->name);
 		$newapp['modify_at'] = $current;
-		$newapp['title'] = $modelApp->escape($copied->title) . '（副本）';
-		$newapp['pic'] = $copied->pic;
-		$newapp['summary'] = $modelApp->escape($copied->summary);
-		$newapp['scenario'] = $copied->scenario;
-		$newapp['data_schemas'] = $modelApp->escape($copied->data_schemas);
-		$newapp['group_rule'] = $modelApp->escape($copied->group_rule);
+		$newapp['title'] = $modelApp->escape($oCopied->title) . '（副本）';
+		$newapp['pic'] = $oCopied->pic;
+		$newapp['summary'] = $modelApp->escape($oCopied->summary);
+		$newapp['scenario'] = $oCopied->scenario;
+		$newapp['data_schemas'] = $modelApp->escape($oCopied->data_schemas);
+		$newapp['group_rule'] = $modelApp->escape($oCopied->group_rule);
 		if (!empty($mission)) {
 			$newapp['mission_id'] = $mission;
 		}
@@ -206,7 +206,7 @@ class main extends \pl\fe\matter\base {
 		$app = $modelApp->byId($newaid, ['cascaded' => 'N']);
 
 		/* 记录操作日志 */
-		$this->model('matter\log')->matterOp($site, $user, $app, 'C');
+		$this->model('matter\log')->matterOp($site, $user, $app, 'C', (object) ['id' => $oCopied->id, 'title' => $oCopied->title]);
 
 		/* 记录和任务的关系 */
 		if (isset($mission)) {
@@ -258,7 +258,7 @@ class main extends \pl\fe\matter\base {
 		return new \ResponseData($rst);
 	}
 	/**
-	 * 删除所有分组
+	 * 更新分组规则
 	 */
 	public function configRule_action($site, $app) {
 		if (false === ($user = $this->accountUser())) {

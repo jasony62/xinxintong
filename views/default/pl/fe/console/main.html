@@ -207,16 +207,18 @@
                     <tr>
                         <th style='width:48px'>序号</th>
                         <th>名称</th>
+                        <th style='width:74px'>活动数量</th>
                         <th style='width:140px'>创建人</th>
                         <th style='width:120px'>创建时间</th>
                         <th style='width:64px'>置顶</th>
-                        <th style='width:180px'>操作</th>
+                        <th style='width:113px'>操作</th>
                     </tr>
                 </thead>
                 <tbody>
                     <tr ng-repeat='m in missions'>
                         <td>{{$index+1}}</td>
-                        <td><span ng-if="!frameState.sid">{{m.site_name}}\</span>{{m.title}}</td>
+                        <td ng-click="open(m,'report')" style='cursor:pointer;'><span ng-if="!frameState.sid">{{m.site_name}}\</span>{{m.title}}</td>
+                        <td>{{m.matter.num}}</td>
                         <td>{{m.creater_name}}</td>
                         <td>{{m.create_at*1000|date:'yy-MM-dd HH:mm'}}</td>
                         <td>
@@ -225,7 +227,6 @@
                         <td>
                             <button class='btn btn-sm btn-default' ng-click="open(m,'main')">定义</button>
                             <button class='btn btn-sm btn-default' ng-click="open(m,'matter')">活动</button>
-                            <button class='btn btn-sm btn-default' ng-click="open(m,'report')">数据</button>
                         </td>
                     </tr>
                 </tbody>
@@ -301,17 +302,26 @@
                         <th style='width:48px'>序号</th>
                         <th ng-if="filter.byType =='enroll'" style='width:90px'>场景</th>
                         <th>名称</th>
+                        <th ng-if="filter.byType =='signin'" style='width:80px'>签到轮次</th>
+                        <th ng-if="filter.byType =='enroll'||filter.byType =='signin'" style='width:64px'>记录数</th>
+                        <th ng-if="filter.byType =='enroll'" style='width:64px'>填写人</th>
+                        <th ng-if="filter.byType =='enroll'" style='width:64px'>评论数</th>
                         <th style='width:140px'>创建人</th>
                         <th style='width:120px'>创建时间</th>
                         <th style='width:64px'>置顶</th>
-                        <th style='width:290px'>操作</th>
+                        <th style='width:170px'>操作</th>
                     </tr>
                 </thead>
                 <tbody>
                     <tr ng-repeat='m in matters'>
                         <td data-th='序号' class='hidden-xs'><span>{{$index+1}}</span></td>
                         <td data-th='场景' ng-if="filter.byType=='enroll'"><span>{{scenarioNames[m.matter_scenario||m.scenario]}}</span></td>
-                        <td data-th='名称'><span>{{m.matter_title||m.title}}</span></td>
+                        <td data-th='名称' ng-click="openMatter(m)" style='cursor:pointer;'><span>{{m.matter_title||m.title}}</span></td>
+                        <td data-th='签到轮次' ng-if="filter.byType =='signin'"><span>{{m.opData[0].title}}</span></td>
+                        <td data-th='记录数' ng-if="filter.byType =='enroll'" ng-click="openMatter(m,'record')" title='点击查看详细数据' style='cursor:pointer;'><span>{{m.opData[0].total}}</span></td>
+                        <td data-th='记录数' ng-if="filter.byType =='signin'" ng-click="openMatter(m,'record')" title='点击查看详细数据' style='cursor:pointer;'><span>{{m.opData[0].total}}</span></td>
+                        <td data-th='填写人' ng-if="filter.byType =='enroll'" ng-click="openMatter(m,'enrollee')" title='点击查看详细数据' style='cursor:pointer;'><span>{{m.opData[0].enrollee_num}}</span></td>
+                        <td data-th='评论数' ng-if="filter.byType =='enroll'" ng-click="openMatter(m,'remark')" title='点击查看详细数据' style='cursor:pointer;'><span>{{m.opData[0].remark_total}}</span></td>
                         <td data-th='创建人'><span>{{m.operator_name||m.creater_name}}</span></td>
                         <td data-th='创建时间'><span>{{(m.operate_at||m.create_at)*1000|date:'yy-MM-dd HH:mm'}}</span></td>
                         <td data-th='置顶' class='hidden-xs'>
@@ -324,16 +334,13 @@
                                 <button class='btn btn-sm btn-default' ng-click="copyMatter($event,m)">复制</button>
                             </span>
                             <span ng-switch-when="enroll">
-                                <button class='btn btn-sm btn-default' ng-click="openMatter(m,'main')">定义</button>
-                                <button class='btn btn-sm btn-default' ng-click="openMatter(m,'entry')">设置</button>
-                                <button class='btn btn-sm btn-default hidden-xs' ng-click="openMatter(m,'record')">数据</button>
+                                <button class='btn btn-sm btn-default' ng-click="openMatter(m,'preview')">预览</button>
+                                <button class='btn btn-sm btn-default' ng-click="openMatter(m,'entry')">发放</button>
                                 <button class='btn btn-sm btn-default hidden-xs' ng-click="copyMatter($event,m)">复制</button>
-                                <a ng-if="m.op_short_url_code" href="/q/{{m.op_short_url_code}}" target='_self' class='btn btn-sm btn-default'>汇总结果</a>
                             </span>
                             <span ng-switch-when="signin">
-                                <button class='btn btn-sm btn-default' ng-click="openMatter(m,'main')">定义</button>
-                                <button class='btn btn-sm btn-default' ng-click="openMatter(m,'entry')">设置</button>
-                                <button class='btn btn-sm btn-default' ng-click="openMatter(m,'record')">数据</button>
+                                <button class='btn btn-sm btn-default' ng-click="openMatter(m,'preview')">预览</button>
+                                <button class='btn btn-sm btn-default' ng-click="openMatter(m,'entry')">发放</button>
                                 <button class='btn btn-sm btn-default' ng-click="copyMatter($event,m)">复制</button>
                             </span>
                             <span ng-switch-when="wall">

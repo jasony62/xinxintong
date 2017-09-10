@@ -165,41 +165,7 @@ define(['require'], function(require) {
                 });
             },
             addEnroll: function(site, scenario) {
-                templateShop.choose(site.id, 'enroll', scenario).then(function(choice) {
-                    if (choice) {
-                        if (choice.source === 'share') {
-                            var url, data = choice.data;
-                            url = '/rest/pl/fe/matter/enroll/createByOther?site=' + site.id + '&template=' + data.id;
-                            http2.get(url, function(rsp) {
-                                location.href = '/rest/pl/fe/matter/enroll?site=' + site.id + '&id=' + rsp.data.id;
-                            });
-                        } else if (choice.source === 'platform') {
-                            var url, config, data = choice.data;
-                            url = '/rest/pl/fe/matter/enroll/create?site=' + site.id;
-                            config = {};
-                            if (data) {
-                                url += '&scenario=' + data.scenario.name;
-                                url += '&template=' + data.template.name;
-                                if (data.simpleSchema && data.simpleSchema.length) {
-                                    config.simpleSchema = data.simpleSchema;
-                                }
-                            }
-                            http2.post(url, config, function(rsp) {
-                                location.href = '/rest/pl/fe/matter/enroll?site=' + site.id + '&id=' + rsp.data.id;
-                            });
-                        } else if (choice.source === 'file') {
-                            if (choice.app) {
-                                location.href = '/rest/pl/fe/matter/enroll?site=' + site.id + '&id=' + choice.app.id;
-                            }
-                        }
-                    } else {
-                        var url;
-                        url = '/rest/pl/fe/matter/enroll/create?site=' + site.id;
-                        http2.post(url, {}, function(rsp) {
-                            location.href = '/rest/pl/fe/matter/enroll?site=' + site.id + '&id=' + rsp.data.id;
-                        });
-                    }
-                });
+                location.href = '/rest/pl/fe/matter/enroll/shop?site=' + site.id + '&scenario=' + (scenario || '');
             },
             addSignin: function(site) {
                 http2.get('/rest/pl/fe/matter/signin/create?site=' + site.id, function(rsp) {
@@ -247,6 +213,7 @@ define(['require'], function(require) {
         };
 
         function addMatter(site, matterType, scenario) {
+            $('body').click();
             var fnName = 'add' + matterType[0].toUpperCase() + matterType.substr(1);
             _fns[fnName].call(_fns, site, scenario);
         }

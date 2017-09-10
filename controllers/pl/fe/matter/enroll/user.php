@@ -34,8 +34,11 @@ class user extends \pl\fe\matter\base {
 			}
 		}
 		$modelUsr = $this->model('matter\enroll\user');
+		$post = $this->getPostJson();
 		$options = [];
-		!empty($rid) && $options['rid'] = $rid;
+		!empty($post->orderby) && $options['orderby'] = $post->orderby;
+		!empty($post->byGroup) && $options['byGroup'] = $post->byGroup;
+		!empty($post->rid) && $options['rid'] = $post->rid;
 		$result = $modelUsr->enrolleeByApp($oApp, $page, $size, $options);
 		/*查询有openid的用户发送消息的情况*/
 		if (count($result->users)) {

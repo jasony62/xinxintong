@@ -1,12 +1,12 @@
 angular.module('tmplshop.ui.xxt', ['ui.bootstrap']).
 service('templateShop', ['$uibModal', 'http2', '$q', function($uibModal, http2, $q) {
     this.choose = function(siteId, type, assignedScenario) {
-
         var deferred;
         deferred = $q.defer();
         $uibModal.open({
             templateUrl: '/static/template/templateShop.html?_=10',
             backdrop: 'static',
+            //size: 'lg',
             controller: ['$scope', '$uibModalInstance', '$timeout', function($scope, $mi, $timeout) {
                 function _excelLoader() {
                     if (Resumable) {

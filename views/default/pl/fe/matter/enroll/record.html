@@ -1,4 +1,4 @@
-<div id='record-view' class="col-md-12">
+<div class="col-md-12">
     <!-- actions -->
     <nav class='navbar navbar-default hidden-xs'>
         <div class='container-fluid'>
@@ -8,6 +8,9 @@
                     <combox evt-prefix='search-tag' readonly='true' existing='criteria.tags' options='app.tags'></combox>
                 </div>
                 <button class='btn btn-default' ng-click='filter()'><i class='glyphicon glyphicon-filter'></i> <span>筛选</span></button>
+                <button id='advCriteriaSwitch' class="btn btn-default" ng-click="status.opened=!status.opened">
+                    <span ng-class="{'opened':status.opened}">排序 <span class="caret"></span></span>
+                </button>
                 <div class="btn-group">
                     <button type="button" ng-disabled="!countSelected()" class="btn btn-default dropdown-toggle" data-toggle="dropdown">选中记录 <i class="caret"></i></button>
                     <ul class="dropdown-menu">
@@ -41,6 +44,22 @@
                     </ul>
                 </div>
             </form>
+            <form id='advCriteria' ng-if='status.opened' ng-click="clickAdvCriteria($event)">
+                <div class='form-group'>
+                    <select class='form-control' ng-model="criteria.order.orderby" size='5'>
+                        <option value=>全部数据项</option>
+                        <option value='remark_num'>评论数</option>
+                        <option value='like_num'>赞同数</option>
+                        <option ng-if="app.scenario=='quiz'|| app.scenario=='score_sheet'" value='score'>得分</option>
+                        <option ng-if="app.scenario=='quiz'|| app.scenario=='score_sheet'" value='sum' ng-click="shiftOrderBy()">总得分</option>
+                    </select>
+                </div>
+                <div class='form-group' ng-if="recordSchemas.length>1&&criteria.order.orderby!=='sum'">
+                    <select class='form-control' ng-model="criteria.order.schemaId" ng-change="shiftOrderBy()" ng-options="schema.id as schema.title for schema in recordSchemas"size='6'>
+                        <option value=>全部题目</option>
+                    </select>
+                </div>
+            </form>
             <form class='navbar-form navbar-right'>
                 <div class='form-group'>
                     <div class='input-group'>
@@ -68,13 +87,13 @@
                             <input type='checkbox' ng-true-value="'Y'" ng-false-value="'N'" ng-model="rows.allSelected">
                         </th>
                         <th style='width:40px'></th>
-                        <th style='width:140px'>用户昵称</th>
+                        <th style='width:140px' ng-if="bRequireNickname">用户昵称</th>
                         <th style='width:100px'>登记时间</th>
                         <th style='width:100px' ng-if="app.multi_rounds==='Y'">登记轮次</th>
-                        <th class='custom-col row' ng-repeat="schema in recordSchemas2">{{schema.title}}</th>
-                        <th ng-if="app.scenario==='quiz' || flag">总分</th>
-                        <th class='custom-col matched enroll' ng-repeat="schema in enrollDataSchemas">{{schema.title}}</th>
-                        <th class='custom-col matched group' ng-repeat="schema in groupDataSchemas">{{schema.title}}</th>
+                        <th class='custom-col row' ng-repeat="schema in recordSchemas2" ng-class="{'nickname':schema.id===app.assignedNickname.schema.id}">{{schema.title}}</th>
+                        <th ng-if="bRequireScore">总得分</th>
+                        <th class='custom-col matched enroll' ng-repeat="schema in enrollDataSchemas" ng-class="{'nickname':schema.id===app.assignedNickname.schema.id}">{{schema.title}}</th>
+                        <th class='custom-col matched group' ng-repeat="schema in groupDataSchemas" ng-class="{'nickname':schema.id===app.assignedNickname.schema.id}">{{schema.title}}</th>
                         <th style='width:80px'>审核通过</th>
                         <th style='width:140px' ng-if="app.tags.length">标签</th>
                         <th style='width:140px'>备注</th>
@@ -93,7 +112,7 @@
                             <input type='checkbox' ng-model="rows.selected[$index]">
                         </td>
                         <td>{{(page.at-1)*page.size+$index+1}}</td>
-                        <td>{{r.nickname}}</td>
+                        <td ng-if="bRequireNickname">{{r.nickname}}</td>
                         <td>{{(r.enroll_at*1000)|date:'MM-dd HH:mm'}}</td>
                         <td ng-if="app.multi_rounds==='Y'">{{r.round.title}}</td>
                         <td ng-repeat="schema in recordSchemas2" ng-switch on="schema.type">
@@ -107,10 +126,9 @@
                             <span ng-switch-when="remark">{{r.verbose.data[schema.id].remark_num}}</span>
                             <span ng-switch-when="score">{{r.score[schema.id]}}</span>
                             <span ng-switch-default ng-bind-html="r._data[schema.id]"></span>
-                            <span ng-if="schema.requireScore==='Y'">（得分: <span ng-class="{'bg-danger':!r.score[schema.id]}" ng-bind-html="r.score[schema.id]?r.score[schema.id]:'未评分'"></span>）</span>
                             <p ng-if="['single', 'multiple', 'image', 'file'].indexOf(schema.type)!==-1&&r.supplement[schema.id].length">(补充说明：{{r.supplement[schema.id]}})</p>
                         </td>
-                        <td ng-if="app.scenario==='quiz' || flag" ng-bind="r.score.sum"></td>
+                        <td ng-if="bRequireScore" ng-bind="r.score.sum"></td>
                         <td class='matched enroll' ng-repeat="schema in enrollDataSchemas" ng-switch on="schema.type">
                             <div ng-switch-when="image">
                                 <img ng-repeat="img in r._data[schema.id]" ng-src='{{img}}' />
@@ -141,7 +159,7 @@
                         </td>
                     </tr>
                 </tbody>
-                <tfoot ng-if="numberSchemas.length">
+                <tfoot ng-if="bRequireSum||bRequireScore">
                     <tr>
                         <td>合计</td>
                         <td></td>
@@ -149,12 +167,19 @@
                         <td></td>
                         <td></td>
                         <td ng-if="app.multi_rounds==='Y'"></td>
-                        <td ng-repeat="schema in recordSchemas2" ng-switch on="schema.type">
+                        <td ng-repeat="schema in recordSchemas2">
                             <div ng-if="schema.format==='number'">
                                 {{sum4SchemaAtPage[schema.id]}}/{{sum4Schema[schema.id]}}
                             </div>
+                            <div ng-if="schema.type==='score'">
+                                {{score4SchemaAtPage[schema.id]}}/{{score4Schema[schema.id]}}
+                            </div>
                         </td>
-                        <td></td>
+                        <td>
+                            <div ng-if="bRequireScore">
+                                {{score4Schema.sum}}
+                            </div>
+                        </td>
                         <td class='matched enroll' ng-repeat="schema in enrollDataSchemas"></td>
                         <td class='matched group' ng-repeat="schema in groupDataSchemas"></td>
                         <td></td>

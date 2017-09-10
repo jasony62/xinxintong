@@ -79,7 +79,7 @@ define(['require', 'enrollService', 'enrollSchema', 'enrollPage'], function(requ
             .when('/rest/pl/fe/matter/enroll/notice', new RouteParam('notice'))
             .when('/rest/pl/fe/matter/enroll/enrollee', new RouteParam('enrollee'))
             .when('/rest/pl/fe/matter/enroll/tag', new RouteParam('tag'))
-            .otherwise(new RouteParam('main'));
+            .otherwise(new RouteParam('preview'));
 
         $locationProvider.html5Mode(true);
 
@@ -115,7 +115,7 @@ define(['require', 'enrollService', 'enrollSchema', 'enrollPage'], function(requ
         $scope.opened = '';
         $scope.$on('$locationChangeSuccess', function(event, currentRoute) {
             var subView = currentRoute.match(/([^\/]+?)\?/);
-            $scope.subView = subView[1] === 'enroll' ? 'entry' : subView[1];
+            $scope.subView = subView[1] === 'enroll' ? 'preview' : subView[1];
             switch ($scope.subView) {
                 case 'main':
                 case 'page':
@@ -132,11 +132,11 @@ define(['require', 'enrollService', 'enrollSchema', 'enrollPage'], function(requ
                 case 'remark':
                 case 'stat':
                 case 'enrollee':
+                case 'log':
                 case 'tag':
                     $scope.opened = 'data';
                     break;
                 case 'recycle':
-                case 'log':
                 case 'coin':
                 case 'notice':
                 case 'overview':

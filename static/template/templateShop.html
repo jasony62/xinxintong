@@ -9,10 +9,6 @@
     height: 128px;
 }
 </style>
-<div class="modal-header">
-    <button class="close" type="button" ng-click="cancel()">×</button>
-    <h5 class="modal-title">选择模板</h5>
-</div>
 <div class="modal-body">
     <ul class="nav nav-tabs" style="margin-bottom:15px;">
         <li ng-class="{'active':source==='platform'}"><a ng-click="switchSource('platform')">系统模板</a></li>
@@ -91,7 +87,8 @@
         <!-- end file -->
     </div>
 </div>
-<div class="modal-footer" ng-if="source!=='file'">
+<div class="modal-footer">
+    <button class="btn btn-default" ng-click="cancel()">关闭</button>
     <button class="btn btn-default" ng-click="blank()">不使用模版创建</button>
-    <button class="btn btn-success" ng-click="ok()">使用模版创建</button>
+    <button ng-if="source!=='file'" class="btn btn-success" ng-click="ok()">使用模版创建</button>
 </div>

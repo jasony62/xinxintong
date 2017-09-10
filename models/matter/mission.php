@@ -59,7 +59,7 @@ class mission_model extends app_base {
 		];
 		if (($oMission = $this->query_obj_ss($q))) {
 			$oMission->type = 'mission';
-			if(!empty($oMission->matter_mg_tag)){
+			if (!empty($oMission->matter_mg_tag)) {
 				$oMission->matter_mg_tag = json_decode($oMission->matter_mg_tag);
 			}
 			if ($fields === '*' || false !== strpos($fields, 'entry_rule')) {
@@ -143,8 +143,8 @@ class mission_model extends app_base {
 		if (isset($options['byTitle'])) {
 			$q[2] .= " and mission.title like '%{$options['byTitle']}%'";
 		}
-		if(!empty($options['byTags'])){
-			foreach($options['byTags'] as $tag){
+		if (!empty($options['byTags'])) {
+			foreach ($options['byTags'] as $tag) {
 				$q[2] .= " and m.matter_mg_tag like '%" . $this->escape($tag->id) . "%'";
 			}
 		}
@@ -154,6 +154,20 @@ class mission_model extends app_base {
 		];
 
 		if ($missions = $this->query_objs_ss($q, $q2)) {
+			/* 项目下活动的数量 */
+			foreach ($missions as &$oMission) {
+				$qMatterNum = ['select matter_type,count(*) matter_num from xxt_mission_matter where mission_id=' . $oMission->id . ' group by matter_type'];
+				$matterNums = $this->query_objs($qMatterNum);
+				$oMatterNums = new \stdClass;
+				$oMatterNums->num = 0;
+				foreach ($matterNums as $oMn) {
+					$oMatterNums->{$oMn->matter_type} = (int) $oMn->matter_num;
+					if (!in_array($oMn->matter_type, ['article', 'news', 'channel', 'link'])) {
+						$oMatterNums->num += $oMatterNums->{$oMn->matter_type};
+					}
+				}
+				$oMission->matter = $oMatterNums;
+			}
 			$q[0] = 'count(*)';
 			$total = (int) $this->query_val_ss($q);
 			$result = ['missions' => $missions, 'total' => $total];

@@ -1,0 +1,216 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <meta charset="UTF-8">
+    <meta content="width=device-width,user-scalable=no,initial-scale=1.0" name="viewport">
+    <base href="/" />
+    <title>登记活动——新建</title>
+    <link href="/static/css/bootstrap.min.css" rel="stylesheet">
+    <link href="/static/css/tms.css?_=2" rel="stylesheet">
+    <link href="/static/css/pl.fe.css" rel="stylesheet">
+    <link href="/views/default/pl/fe/matter/enroll/shop.css?_=1" rel="stylesheet">
+</head>
+
+<body ng-controller='ctrlMain' ng-cloak class='ng-cloak'>
+    <div class='pl-layout'>
+        <!--logo+侧边栏-->
+        <div class='pl-layout-leftnav'>
+            <!--logo-->
+            <div class='pl-layout-leftnav-header'>
+                <a href='/rest/home' target='_self'>
+                    <?php echo APP_TITLE;?>
+                </a>
+            </div>
+            <!--侧边栏-->
+            <ul class="nav nav-tabs nav-stacked">
+            </ul>
+        </div>
+        <!--导航+主体内容-->
+        <div class='pl-layout-main pl-layout-main-topnav'>
+            <nav class="navbar navbar-default pl-navbar-fixed-top">
+                <div class='container-fluid'>
+                    <nav class='nav navbar-nav tms-breadcrumb'>
+                        <li><a href="/rest/pl/fe?view=main&scope=activity&type=enroll&sid={{site.id}}" target='_self'>个人工作台</a></li>
+                        <li ng-if="result.proto.mission"><a href="/rest/pl/fe/matter/mission?site={{site.id}}&id={{result.proto.mission.id}}" target='_self' title="{{result.proto.mission.title}}">{{result.proto.mission.title}}</a></li>
+                    </nav>
+                    <div class='text-right'>
+                        <button ng-if="source!=='file'" class="btn btn-success navbar-btn" ng-click="doCreate()"><span class='glyphicon glyphicon-plus'></span> 确定创建活动</button>
+                    </div>
+                </div>
+            </nav>
+            <div class='container-fluid'>
+                <div class="row">
+                    <div class='col-md-12'>
+                        <ul class="nav nav-tabs" style="margin-bottom:15px;">
+                            <li ng-class="{'active':source==='platform'}"><a ng-click="switchSource('platform')">系统模板</a></li>
+                            <li ng-class="{'active':source==='share'}"><a ng-click="switchSource('share')">共享模板</a></li>
+                            <li ng-class="{'active':source==='file'}"><a ng-click="switchSource('file')">导入文件</a></li>
+                        </ul>
+                        <div ng-switch on="source">
+                            <!-- platform -->
+                            <div id='platformBoard' ng-switch-when="platform" ng-controller="ctrlSysTemplate">
+                                <div class='row'>
+                                    <div class='col-md-3 options'>
+                                        <div class='form-group'>
+                                            <label>场景</label>
+                                            <select class='form-control' ng-disabled="fixedScenario" ng-model='result.scenario' ng-options='s as s.title for s in templates2' ng-change='chooseScenario()'></select>
+                                            <p class='help-block' ng-bind="result.scenario.description"></p>
+                                        </div>
+                                        <div class='form-group'>
+                                            <label>模板</label>
+                                            <select class='form-control' ng-model='result.template' ng-options='t.title for t in result.scenario.templates' ng-change='chooseTemplate()'></select>
+                                            <p class='help-block' ng-bind="result.template.description"></p>
+                                        </div>
+                                        <div class='form-group'>
+                                            <label>页面预览</label>
+                                            <select id='selectedPage' class='form-control' ng-model='result.selectedPage' ng-options='p.title for p in pages' ng-change='choosePage()'></select>
+                                        </div>
+                                    </div>
+                                    <div class='col-md-5 text-center pages'>
+                                        <iframe id='simulator' src=""></iframe>
+                                    </div>
+                                    <div class='col-md-4 props'>
+                                        <div class='form-group'>
+                                            <label>活动名称</label>
+                                            <input class='form-control' ng-model='result.proto.title'>
+                                        </div>
+                                        <div class='form-group'>
+                                            <label>活动说明</label>
+                                            <textarea class='form-control' ng-model='result.proto.summary'></textarea>
+                                        </div>
+                                        <div class='form-group' ng-if="result.proto.mission">
+                                            <label>所属项目</label>
+                                            <input class='form-control' title="{{result.proto.mission.title}}" value="{{result.proto.mission.title}}" readonly>
+                                        </div>
+                                        <div class='form-group'>
+                                            <label>参与用户</label>
+                                            <div class='radio' style='margin-top:0;'>
+                                                <label>
+                                                    <input type='radio' value='none' ng-model="result.proto.scope">不限用户来源</label>
+                                            </div>
+                                            <div class='radio'>
+                                                <label>
+                                                    <input type='radio' value='sns' ng-model="result.proto.scope">限公众号关注用户访问</label>
+                                            </div>
+                                            <div class='radio' style='margin-bottom:0;'>
+                                                <label>
+                                                    <input type='radio' value='member' ng-model="result.proto.scope">限通讯录联系人访问 <span class='glyphicon glyphicon-question-sign' uib-tooltip='通讯录支持自定义用户信息并提供审核机制，并且可以在不同活动中重复使用'></span></label>
+                                            </div>
+                                        </div>
+                                        <div class='list-group' ng-if="result.proto.scope==='member'">
+                                            <div class='list-group-item' ng-repeat="mschema in result.proto.mschemas">
+                                                <span>{{mschema.title}}</span>
+                                                <button class='btn btn-default btn-xs pull-right' ng-click="removeMschema(mschema)"><span class='glyphicon glyphicon-remove'></span></button>
+                                            </div>
+                                            <button class='btn btn-success btn-block' ng-click="chooseMschema()"><span class='glyphicon glyphicon-plus'></span> 选择通讯录</button>
+                                        </div>
+                                        <hr>
+                                        <div class='checkbox'>
+                                            <label>
+                                                <input type='checkbox' ng-true-value="'Y'" ng-false-value="'N'" ng-model="result.proto.can_repos">开放共享页 <span class='glyphicon glyphicon-question-sign' uib-tooltip='设置后参与活动的用户可以查看活动中其他用户提交的数据。可查看的题目需设置为【共享内容】'></span></label>
+                                        </div>
+                                        <div class='checkbox'>
+                                            <label>
+                                                <input type='checkbox' ng-true-value="'Y'" ng-false-value="'N'" ng-model="result.proto.can_rank">开放排行页 <span class='glyphicon glyphicon-question-sign' uib-tooltip='设置后参与活动的用户可以查看提交记录数、发表评论数、得分和积分等数据的个人或分组排行情况'></span></label>
+                                        </div>
+                                        <div class='checkbox'>
+                                            <label>
+                                                <input type='checkbox' ng-true-value="'Y'" ng-false-value="'D'" ng-model="result.scenarioConfig.can_rounds">按轮次登记 <span class='glyphicon glyphicon-question-sign' uib-tooltip='支持按轮次进行数据登记，每个轮次可以指定开始和结束时间'></span></label>
+                                        </div>
+                                        <hr>
+                                        <div class='form-group' ng-if="!result.proto.groupApp">
+                                            <button class='btn btn-default btn-block' ng-disabled="!result.proto.mission" ng-click="assignGroupApp()">指定分组匹配名单 <span class='glyphicon glyphicon-question-sign' uib-tooltip='指定同一个项目中的分组活动后，用户填写数据时需要提供和分组活动中匹配分组信息，例如：组号等，系统支持按照分组提交记录进行筛选和记分等功能'></span></button>
+                                        </div>
+                                        <div class='form-group' ng-if="result.proto.groupApp">
+                                            <div class="input-group">
+                                                <input class='form-control' title="{{result.proto.groupApp.title}}" value="{{result.proto.groupApp.title}}" readonly>
+                                                <div class="input-group-btn">
+                                                    <button class="btn btn-default" type="button" ng-click="result.proto.groupApp=null">
+                                                        <span class='glyphicon glyphicon-remove'></span>
+                                                    </button>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div class='form-group' ng-if="!result.proto.enrollApp">
+                                            <button class='btn btn-default btn-block' ng-disabled="!result.proto.mission" ng-click="assignEnrollApp()">指定登记匹配名单 <span class='glyphicon glyphicon-question-sign' uib-tooltip='指定同一个项目的登记活动后，用户填写数据时需要提供和登记活动中匹配信息'></span></button>
+                                        </div>
+                                        <div class='form-group' ng-if="result.proto.enrollApp">
+                                            <div class="input-group">
+                                                <input class='form-control' value="{{result.proto.enrollApp.title}}" title="{{result.proto.enrollApp.title}}" readonly>
+                                                <div class="input-group-btn">
+                                                    <button class="btn btn-default" type="button" ng-click="result.proto.enrollApp=null">
+                                                        <span class='glyphicon glyphicon-remove'></span>
+                                                    </button>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            <!-- end platform -->
+                            <!-- share -->
+                            <div id='shareBoard' ng-switch-when="share" ng-controller="ctrlUserTemplate">
+                                <div class='row'>
+                                    <div class='col-md-12'>
+                                        <div class='form-inline'>
+                                            <div class='form-group' style='margin-bottom:15px'>
+                                                <label class='radio-inline'>
+                                                    <input type='radio' name='templateScope' value='P' ng-model='criteria.scope' ng-change='searchTemplate()'>平台模板</label>
+                                                <label class='radio-inline'>
+                                                    <input type='radio' name='templateScope' value='S' ng-model='criteria.scope' ng-change='searchBySite()'>团队模板</label>
+                                                <label class='radio-inline'>
+                                                    <input type='radio' name='templateScope' value='U' ng-model='criteria.scope' ng-change='searchShare2Me()'>共享给我的模板</label>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class='row'>
+                                    <div class='col-md-6' ng-repeat='t in templates'>
+                                        <div class='thumbnail'>
+                                            <label class='radio-inline'>
+                                                <input type='radio' name='template' value='{{$index}}' ng-model='data.choose' ng-change='choose(t)'><span ng-bind='t.title'></span></label>
+                                            <div ng-bind='t.summary'></div>
+                                            <div>需要支出积分：<span ng-bind='t.coin'></span></div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            <!-- end share -->
+                            <!-- share -->
+                            <div id='fileBoard' ng-switch-when="file">
+                                <div class='row'>
+                                    <div class='col-md-12'>
+                                        <div class='form-group'>
+                                            <button id="btnCreateByExcel" class='btn btn-default'>选择Excel文件创建活动</button>
+                                            <p class='help-block'>仅支持Excel2007格式（xlsx）的文件</p>
+                                        </div>
+                                        <div class='form-group'>
+                                            <label>选择从其他活动导出活动定义文件创建活动</label>
+                                            <input type="file" class='form-control' onchange="chooseFile(this.files[0])">
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            <!-- end file -->
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <script src="/static/js/xxt.ui.error.js"></script>
+    <script src="/static/js/jquery.min.js"></script>
+    <script src="/static/js/bootstrap.min.js"></script>
+    <script src="/static/js/angular.min.js"></script>
+    <script src="/static/js/angular-route.min.js"></script>
+    <script src="/static/js/angular-sanitize.min.js"></script>
+    <script src="/static/js/ui-bootstrap-tpls.min.js"></script>
+    <script src="/static/js/resumable.js"></script>
+    <script src="/static/js/ui-tms.js?_=4"></script>
+    <script src="/static/js/xxt.ui.js?_=4"></script>
+    <script src="/views/default/pl/fe/_module/matter.service.js?_=1"></script>
+    <script src="/static/js/require.js" data-main="/views/default/pl/fe/matter/enroll/shop-loader.js?_=1"></script>
+</body>
+
+</html>

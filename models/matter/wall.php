@@ -24,7 +24,7 @@ class wall_model extends app_base {
 		];
 		if ($w = $this->query_obj_ss($q)) {
 			$w->type = 'wall';
-			if(!empty($w->matter_mg_tag)){
+			if (!empty($w->matter_mg_tag)) {
 				$w->matter_mg_tag = json_decode($w->matter_mg_tag);
 			}
 		}
@@ -551,7 +551,7 @@ class wall_model extends app_base {
 				if (!empty($groupUsers)) {
 					$message['touser'] = implode('|', $groupUsers);
 					if ($msg['type'] === 'text') {
-						$joinUrl = 'http://' . $_SERVER['HTTP_HOST'] . "/rest/app/wall?wid=$wid";
+						$joinUrl = 'http://' . APP_HTTP_HOST . "/rest/app/wall?wid=$wid";
 						$message['text']['content'] = $txt . "（<a href='$joinUrl'>参与讨论</a>）";
 					}
 					$this->send2Qyuser($site, $message);
@@ -592,7 +592,7 @@ class wall_model extends app_base {
 	 *
 	 */
 	public function getEntryUrl($runningSiteId, $id) {
-		$url = "http://" . $_SERVER['HTTP_HOST'];
+		$url = "http://" . APP_HTTP_HOST;
 		$url .= "/rest/site/fe/matter/wall";
 		$url .= "?site=$runningSiteId&app=" . $id;
 

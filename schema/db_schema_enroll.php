@@ -45,6 +45,7 @@ $sql .= ",can_cowork char(1) not null default 'N'"; // 是否支持多人修改�
 $sql .= ",can_autoenroll char(1) not null default 'N'"; // 是否支持自动登记
 $sql .= ",can_invite char(1) not null default 'N'"; // 是否支持邀请 should be removed
 $sql .= ",remark_notice char(1) not null default 'N'"; // 支持评论提醒
+$sql .= ",assigned_nickname text"; // 填写题目中指定填写人昵称{"valid":"Y","schema":{"id":"xxxxxx"}}
 $sql .= ",tags text"; // 登记记录标签
 $sql .= ",category_tags text"; // 素材分类标签
 $sql .= ",enroll_app_id varchar(40) not null default ''"; // 关联的登记活动
@@ -268,6 +269,7 @@ $sql .= ",like_other_num int not null default 0"; // 对登记内容进行点赞
 $sql .= ",last_like_other_remark_at int not null default 0"; // 最后一次对评论进行点赞的时间
 $sql .= ",like_other_remark_num int not null default 0"; // 对评论进行点赞的次数
 $sql .= ",user_total_coin int not null default 0"; // 用户在某个活动中的总分数
+$sql .= ",score float default 0 COMMENT '得分'"; //
 $sql .= ",primary key(id)) ENGINE=MyISAM DEFAULT CHARSET=utf8";
 if (!$mysqli->query($sql)) {
 	header('HTTP/1.0 500 Internal Server Error');

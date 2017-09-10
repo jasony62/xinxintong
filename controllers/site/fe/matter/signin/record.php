@@ -226,6 +226,8 @@ class record extends base {
 		if (count($existentMember)) {
 			$memberId = $existentMember[0]->id;
 			$member->id = $memberId;
+			$member->verified = $existentMember[0]->verified;
+			$member->identity = $existentMember[0]->identity;
 			$rst = $modelMem->modify($oMschema, $memberId, $member);
 		} else {
 			$rst = $modelMem->createByApp($oMschema, $user->uid, $member);

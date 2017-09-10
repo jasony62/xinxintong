@@ -39,7 +39,7 @@
                             <a href='' ng-click="switchTo('page')">修改页面</a>
                         </li>
                         <li ng-class="{'active':subView==='preview'}">
-                            <a href='' ng-click="switchTo('preview')">页面预览</a>
+                            <a href='' ng-click="switchTo('preview')">活动预览</a>
                         </li>
                     </ul>
                 </li>
@@ -59,7 +59,7 @@
                 </li>
                 <li>
                     <a href='' ng-click="opened=opened==='data'?false:'data';switchTo('record')">数据 <span class="caret"></span></a>
-                    <ul class="nav nav-tabs nav-stacked" ng-style="{'height':opened==='data'?'210px':'0'}">
+                    <ul class="nav nav-tabs nav-stacked" ng-style="{'height':opened==='data'?'252px':'0'}">
                         <li ng-class="{'active':subView==='record'}">
                             <a href='' ng-click="switchTo('record')">详细数据</a>
                         </li>
@@ -72,6 +72,9 @@
                         <li ng-class="{'active':subView==='enrollee'}">
                             <a href='' ng-click="switchTo('enrollee')">填写人</a>
                         </li>
+                        <li ng-class="{'active':subView==='log'}">
+                            <a href='' ng-click="switchTo('log')">运行日志</a>
+                        </li>
                         <li ng-class="{'active':subView==='tag'}">
                             <a href='' ng-click="switchTo('tag')">内容标签</a>
                         </li>
@@ -79,12 +82,9 @@
                 </li>
                 <li>
                     <a href='' ng-click="opened=opened==='other'?false:'other';switchTo('log')">其他 <span class="caret"></span></a>
-                    <ul class="nav nav-tabs nav-stacked" ng-style="{'height':opened==='other'?'168px':'0'}">
+                    <ul class="nav nav-tabs nav-stacked" ng-style="{'height':opened==='other'?'126px':'0'}">
                         <li ng-class="{'active':subView==='recycle'}">
                             <a href='' ng-click="switchTo('recycle')">回收站</a>
-                        </li>
-                        <li ng-class="{'active':subView==='log'}">
-                            <a href='' ng-click="switchTo('log')">运行日志</a>
                         </li>
                         <li ng-class="{'active':subView==='notice'}">
                             <a href='' ng-click="switchTo('notice')">通知记录</a>

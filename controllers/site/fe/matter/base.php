@@ -34,7 +34,7 @@ class base extends \site\fe\base {
 		 */
 		if (count($aMemberSchemas) === 1) {
 			$schema = $this->model('site\user\memberschema')->byId($aMemberSchemas[0], 'id,url');
-			strpos($schema->url, 'http') === false && $authUrl = 'http://' . $_SERVER['HTTP_HOST'];
+			strpos($schema->url, 'http') === false && $authUrl = 'http://' . APP_HTTP_HOST;
 			$authUrl .= $schema->url;
 			$authUrl .= "?site=$siteId";
 			$authUrl .= "&schema=" . $aMemberSchemas[0];
@@ -42,7 +42,7 @@ class base extends \site\fe\base {
 			/**
 			 * 让用户选择通过那个认证接口进行认证
 			 */
-			$authUrl = 'http://' . $_SERVER['HTTP_HOST'] . '/rest/site/fe/user/memberschema';
+			$authUrl = 'http://' . APP_HTTP_HOST . '/rest/site/fe/user/memberschema';
 			$authUrl .= "?site=$siteId";
 			$authUrl .= "&schema=" . implode(',', $aMemberSchemas);
 		}

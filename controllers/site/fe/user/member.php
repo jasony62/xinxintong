@@ -278,7 +278,12 @@ class member extends \site\fe\base {
 		}
 
 		/* 更新用户信息 */
-		$modelMem->modify($oMschema, $found->id, $member);
+		$member->verified = $found->verified;
+		$member->identity = $found->identity;
+		$rst = $modelMem->modify($oMschema, $found->id, $member);
+		if ($rst[0] === false) {
+			return new \ResponseError($rst[1]);
+		}
 		$found = $modelMem->byId($found->id);
 
 		/* 绑定当前站点用户 */
@@ -342,7 +347,7 @@ class member extends \site\fe\base {
 		$i['data'] = json_encode(array($site, $email));
 		$this->model()->insert('xxt_access_token', $i);
 
-		$url = "http://" . $_SERVER['HTTP_HOST'];
+		$url = "http://" . APP_HTTP_HOST;
 		$url .= "/rest/member/auth/emailpassed?token=$access_token";
 
 		$content = "<p>欢迎关注【" . $mp->name . "】</p>";

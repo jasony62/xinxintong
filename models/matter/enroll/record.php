@@ -198,7 +198,8 @@ class record_model extends \TMS_MODEL {
 			if (isset($schemasById[$schemaId])) {
 				$schema = $schemasById[$schemaId];
 				if ($schema->type == 'shorttext' && isset($schema->format) && $schema->format == 'number') {
-					$oRecordScore->{$schemaId} = $treatedValue * $schema->weight;
+					$weight = isset($schema->weight) ? $schema->weight : 1;
+					$oRecordScore->{$schemaId} = $treatedValue * $weight;
 					$oRecordScore->sum += $oRecordScore->{$schemaId};
 				}
 				/* 计算题目的分数。只支持对单选题和多选题自动打分 */
@@ -520,6 +521,7 @@ class record_model extends \TMS_MODEL {
 	}
 	/**
 	 * 获得用户的登记清单
+	 *
 	 * @param object $oApp
 	 * @param object $oUser
 	 * @param array $options
@@ -541,6 +543,10 @@ class record_model extends \TMS_MODEL {
 		if (!empty($options['rid'])) {
 			if (strcasecmp('all', $options['rid']) !== 0) {
 				$q[2]['rid'] = $options['rid'];
+			}
+		} else {
+			if ($oActiveRnd = $this->model('matter\enroll\round')->getActive($oApp)) {
+				$q[2]['rid'] = $oActiveRnd->rid;
 			}
 		}
 		$q2 = ['o' => 'enroll_at desc'];
@@ -822,7 +828,17 @@ class record_model extends \TMS_MODEL {
 			$q2['r'] = ['o' => ($page - 1) * $size, 'l' => $size];
 		}
 		// 查询结果排序
-		$q2['o'] = 'e.enroll_at desc';
+		if (!empty($criteria->order->orderby) && !empty($criteria->order->schemaId)) {
+			$schemaId = $criteria->order->schemaId;
+			$orderby = $criteria->order->orderby;
+			$q[1] .= ",xxt_enroll_record_data d";
+			$q[2] .= " and e.enroll_key = d.enroll_key and d.schema_id = '$schemaId'";
+			$q2['o'] = 'd.' . $orderby . ' desc';
+		} elseif (!empty($criteria->order->orderby) && $criteria->order->orderby === 'sum') {
+			$q2['o'] = 'e.score desc';
+		} else {
+			$q2['o'] = 'e.enroll_at desc';
+		}
 		/* 处理获得的数据 */
 		$roundsById = []; // 缓存轮次数据
 		if ($records = $this->query_objs_ss($q, $q2)) {
@@ -1176,6 +1192,7 @@ class record_model extends \TMS_MODEL {
 				$rid = $activeRound->rid;
 			}
 		}
+		/* 每道题目的合计 */
 		foreach ($dataSchemas as $schema) {
 			if (isset($schema->format) && $schema->format === 'number') {
 				$q = [
@@ -1185,10 +1202,56 @@ class record_model extends \TMS_MODEL {
 				];
 				$rid !== 'ALL' && !empty($rid) && $q[2]['rid'] = $rid;
 
-				$sum = (int) $this->query_val_ss($q);
-				$result->{$schema->id} = $sum;
+				$sum = $this->query_val_ss($q);
+				$sum = number_format($sum, 2);
+				$result->{$schema->id} = (float) $sum;
 			}
 		}
+
+		return $result;
+	}
+	/**
+	 * 计算指定登记项所有记录的合计
+	 */
+	public function score4Schema($oApp, $rid = 'ALL') {
+		if (empty($oApp->data_schemas)) {
+			return false;
+		}
+
+		$result = new \stdClass;
+		$dataSchemas = isset($oApp->dataSchemas) ? $oApp->dataSchemas : json_decode($oApp->data_schemas);
+		if (empty($rid)) {
+			if ($activeRound = $this->model('matter\enroll\round')->getActive($oApp)) {
+				$rid = $activeRound->rid;
+			}
+		}
+		/* 每道题目的得分 */
+		foreach ($dataSchemas as $oSchema) {
+			if ((isset($oSchema->requireScore) && $oSchema->requireScore === 'Y') || (isset($oSchema->format) && $oSchema->format === 'number')) {
+				$q = [
+					'sum(score)',
+					'xxt_enroll_record_data',
+					['aid' => $oApp->id, 'schema_id' => $oSchema->id, 'state' => 1],
+				];
+				$rid !== 'ALL' && !empty($rid) && $q[2]['rid'] = $rid;
+
+				$sum = $this->query_val_ss($q);
+				$sum = number_format($sum, 2);
+				$result->{$oSchema->id} = (float) $sum;
+			}
+		}
+
+		/*所有题的得分合计*/
+		$q = [
+			'sum(score)',
+			'xxt_enroll_record_data',
+			['aid' => $oApp->id, 'state' => 1],
+		];
+		$rid !== 'ALL' && !empty($rid) && $q[2]['rid'] = $rid;
+
+		$sum = $this->query_val_ss($q);
+		$sum = number_format($sum, 2);
+		$result->sum = (float) $sum;
 
 		return $result;
 	}

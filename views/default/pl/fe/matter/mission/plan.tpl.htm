@@ -1,0 +1,247 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <meta charset="UTF-8">
+    <base href="/" />
+    <title>项目——新建</title>
+    <link href="/static/css/bootstrap.min.css" rel="stylesheet">
+    <link href="/static/css/tms.css?_=2" rel="stylesheet">
+    <link href="/static/css/pl.fe.css?_=1" rel="stylesheet">
+    <link href="/views/default/pl/fe/matter/mission/plan.css?_=1" rel="stylesheet">
+</head>
+
+<body ng-controller='ctrlMain' ng-cloak class='ng-cloak'>
+    <div class="pl-layout">
+        <!--logo+侧边栏-->
+        <div class="pl-layout-leftnav">
+            <!--logo-->
+            <div class='pl-layout-leftnav-header'>
+                <a href='/rest/home' target='_self'>
+                    <?php echo APP_TITLE;?>
+                </a>
+            </div>
+            <!--侧边栏-->
+            <ul class="nav nav-tabs nav-stacked">
+            </ul>
+        </div>
+        <!--导航+主体内容-->
+        <div class="pl-layout-main pl-layout-main-topnav">
+            <nav class="navbar navbar-default pl-navbar-fixed-top">
+                <div class="contaienr-fluid">
+                    <div class="navbar-header">
+                        <button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target='#navbar-collapse-1'>
+                            <span class="sr-only">Toggle navigation</span>
+                            <span class="icon-bar"></span>
+                            <span class="icon-bar"></span>
+                            <span class="icon-bar"></span>
+                        </button>
+                    </div>
+                    <div class='collapse navbar-collapse' id='navbar-collapse-1'>
+                        <nav class='nav navbar-nav tms-breadcrumb'>
+                            <li><a href="/rest/pl/fe?view=main&scope=mission&sid={{site.id}}" target='_self'>个人工作台</a></li>
+                            <li ng-if="site.yourRole"><a href="/rest/pl/fe/site/home?site={{site.id}}" target='_self'>{{site.name}}</a></li>
+                            <li ng-if="!site.yourRole"><a href="javascript:void(0)" style='color:#777;cursor:default;'>{{site.name}}</a></li>
+                        </nav>
+                    </div>
+                </div>
+            </nav>
+            <div class='container-fluid'>
+                <div class='row'>
+                    <div class='col-md-6 col-md-offset-3'>
+                        <!--basic-->
+                        <div class='form-group'>
+                            <label>名称：最多35个汉字，70个英文字符</label>
+                            <input type="text" class="form-control" ng-model='proto.title'>
+                        </div>
+                        <div class='form-group'>
+                            <label>摘要：最多120个汉字，240个英文字符</label>
+                            <textarea class='form-control' ng-model="proto.summary" rows='3'></textarea>
+                        </div>
+                        <div class='form-group'>
+                            <label>头图（可选）：建议尺寸：900像素 * 500像素</label>
+                            <div style="width:182px;border:1px solid #CCC">
+                                <div style="height:100px;text-align:center;padding-top:32px" ng-if="!proto.pic">
+                                    <button class='btn btn-default' ng-click='setPic();'>
+                                        <span class='glyphicon glyphicon-picture'></span>选择图片</button>
+                                </div>
+                                <div style='position:relative' ng-if="proto.pic" ng-mouseenter='hover=true' ng-mouseleave='hover=false'>
+                                    <img name='pic' ng-src='{{proto.pic}}' width='180px' />
+                                    <button class='btn btn-default btn-sm' style='position:absolute;top:2px;left:2px' ng-if='hover' ng-click='setPic();'>
+                                        <span class='glyphicon glyphicon-picture'></span>
+                                    </button>
+                                    <button class='btn btn-default btn-sm' style='position:absolute;top:2px;right:2px' ng-if='hover' ng-click='removePic();'>
+                                        <span class='glyphicon glyphicon-trash'></span>
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                        <div class='row'>
+                            <div class='col-md-6'>
+                                <div class='form-group'>
+                                    <label>开始时间（可选）</label>
+                                    <tms-datepicker class='tms-datepicker' tms-title='开始时间' tms-date='proto.start_at' tms-state='proto.start_at' tms-mask="y,m,d"></tms-datepicker>
+                                </div>
+                            </div>
+                            <div class='col-md-6'>
+                                <div class='form-group'>
+                                    <label>结束时间（可选）</label>
+                                    <tms-datepicker class='tms-datepicker' tms-title='结束时间' tms-date='proto.end_at' tms-state='proto.end_at' tms-mask="y,m,d,23,59"></tms-datepicker>
+                                </div>
+                            </div>
+                        </div>
+                        <!--basic-->
+                        <hr>
+                        <!--activity-->
+                        <div>
+                            <label class='checkbox-inline'>
+                                <input type='checkbox' ng-true-value="'Y'" ng-false-value="'N'" ng-model="proto.app.enroll.create"> 生成【报名活动】</label>
+                            <label class='checkbox-inline'>
+                                <input type='checkbox' ng-true-value="'Y'" ng-false-value="'N'" ng-model="proto.app.signin.create"> 生成【签到活动】</label>
+                            <label class='checkbox-inline'>
+                                <input type='checkbox' ng-true-value="'Y'" ng-false-value="'N'" ng-model="proto.app.group.create"> 生成【分组活动】</label>
+                        </div>
+                        <div class='checkbox'>
+                            <label>
+                                <input type='checkbox' ng-true-value="'Y'" ng-false-value="'N'" ng-model="proto.app.signin.enrollApp" ng-disabled="proto.app.enroll.create!=='Y'||proto.app.signin.create!=='Y'"> 【签到活动】用户来源于【报名活动】</label>
+                        </div>
+                        <div>
+                            <div class='radio'>
+                                <label>
+                                    <input type='radio' value='' ng-model="proto.app.group.source"> 不指定用【分组活动】进行分组的活动</label>
+                            </div>
+                            <div class='radio'>
+                                <label>
+                                    <input type='radio' value='enroll' ng-model="proto.app.group.source" ng-disabled="proto.app.enroll.create!=='Y'"> 用【分组活动】对【报名活动】中的用户进行分组</label>
+                            </div>
+                            <div class='radio'>
+                                <label>
+                                    <input type='radio' value='signin' ng-model="proto.app.group.source" ng-disabled="proto.app.signin.create!=='Y'"> 用【分组活动】对【签到活动】中的用户进行分组</label>
+                            </div>
+                        </div>
+                        <div class='help-block'>创建项目后，还可根据需要创建其他活动</div>
+                        <hr class='hide'>
+                        <div class='form-group hide'>
+                            <table class='table table-bordered' style='margin:0'>
+                                <tr>
+                                    <td>给项目中的所有活动和资料添加页眉</td>
+                                    <td>
+                                        <div class="btn-group">
+                                            <button type="button" class="btn btn-sm btn-default" ng-click="makePagelet('header')">制作</button>
+                                            <button type="button" class="btn btn-sm btn-default dropdown-toggle" data-toggle="dropdown">
+                                                <span class="caret"></span>
+                                                <span class="sr-only">Toggle Dropdown</span>
+                                            </button>
+                                            <ul class="dropdown-menu" role="menu">
+                                                <li><a href='' ng-click="codePage($event,'header')">编码</a></li>
+                                            </ul>
+                                        </div>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td>给项目中的所有活动和资料添加页脚</td>
+                                    <td>
+                                        <div class="btn-group">
+                                            <button type="button" class="btn btn-sm btn-default" ng-click="makePagelet('footer')">制作</button>
+                                            <button type="button" class="btn btn-sm btn-default dropdown-toggle" data-toggle="dropdown">
+                                                <span class="caret"></span>
+                                                <span class="sr-only">Toggle Dropdown</span>
+                                            </button>
+                                            <ul class="dropdown-menu" role="menu">
+                                                <li><a href='' ng-click="codePage($event,'footer')">编码</a></li>
+                                            </ul>
+                                        </div>
+                                    </td>
+                                </tr>
+                            </table>
+                        </div>
+                        <!--activity-->
+                        <hr>
+                        <!--user-->
+                        <div class='form-group'>
+                            <label>参与用户</label>
+                            <div class='radio' style='margin-top:0;'>
+                                <label>
+                                    <input type='radio' value='none' ng-model="proto.entryRule.scope">不限用户来源</label>
+                            </div>
+                            <div class='radio'>
+                                <label>
+                                    <input type='radio' value='sns' ng-model="proto.entryRule.scope">限公众号关注用户访问</label>
+                            </div>
+                            <div class='radio' style='margin-bottom:0;'>
+                                <label>
+                                    <input type='radio' value='member' ng-model="proto.entryRule.scope">限通讯录联系人访问 <span class='glyphicon glyphicon-question-sign' uib-tooltip='通讯录支持自定义用户信息并提供审核机制，并且可以在不同活动中重复使用'></span></label>
+                            </div>
+                        </div>
+                        <div class='list-group' ng-if="proto.entryRule.scope==='member'">
+                            <div class='list-group-item' ng-repeat="mschema in proto.entryRule.mschemas">
+                                <span>{{mschema.title}}</span>
+                                <button class='btn btn-default btn-xs pull-right' ng-click="removeMschema(mschema)"><span class='glyphicon glyphicon-remove'></span></button>
+                            </div>
+                            <button class='btn btn-success btn-block' ng-click="chooseMschema()"><span class='glyphicon glyphicon-plus'></span> 选择通讯录</button>
+                        </div>
+                        <div ng-if="proto.entryRule.scope==='sns'&&snsCount>=1">
+                            <div class='checkbox' ng-if="sns.wx">
+                                <label>
+                                    <input type='checkbox' ng-true-value="'Y'" ng-false-value="" ng-model='proto.entryRule.sns.wx'>微信公众号关注用户</label>
+                            </div>
+                            <div class='checkbox' ng-if="sns.qy">
+                                <label>
+                                    <input type='checkbox' ng-true-value="'Y'" ng-false-value="" ng-model='proto.entryRule.sns.qy'>微信企业号关注用户</label>
+                            </div>
+                            <div class='checkbox' ng-if="sns.yx">
+                                <label>
+                                    <input type='checkbox' ng-true-value="'Y'" ng-false-value="" ng-model='proto.entryRule.sns.yx'>易信公众号关注用户</label>
+                            </div>
+                        </div>
+                        <hr>
+                        <p class='help-block'>指定项目用户名单，可集中查看一个用户在多个活动中的数据</p>
+                        <div class='radio'>
+                            <label>
+                                <input type='radio' value='' ng-model="proto.userApp"> 不指定项目用户名单</label>
+                        </div>
+                        <div class='radio'>
+                            <label>
+                                <input type='radio' value='mschema' ng-model="proto.userApp" ng-disabled="!proto.entryRule.mschemas.length"> 将指定的【通讯录】作为项目用户名单</label>
+                        </div>
+                        <div class='radio'>
+                            <label>
+                                <input type='radio' value='enroll' ng-model="proto.userApp" ng-disabled="proto.app.enroll.create!=='Y'"> 将生成的【报名活动】作为项目用户名单</label>
+                        </div>
+                        <div class='radio'>
+                            <label>
+                                <input type='radio' value='signin' ng-model="proto.userApp" ng-disabled="proto.app.signin.create!=='Y'"> 将生成的【签到活动】作为项目用户名单</label>
+                        </div>
+                        <div class='radio'>
+                            <label>
+                                <input type='radio' value='group' ng-model="proto.userApp" ng-disabled="proto.app.group.create!=='Y'"> 将生成的【分组活动】作为项目用户名单</label>
+                        </div>
+                        <!--user-->
+                        <!--receiver-->
+                        <div class='hide'>
+                            <p>作为通知事件接收人</p>
+                            <p>若项目周期长，活动多，可以设置项目阶段，项目通知中只包含当前阶段包含的内容</p>
+                        </div>
+                        <hr>
+                        <div class='form-group'>
+                            <button class="btn btn-success btn-block" ng-click="doCreate()"><span class='glyphicon glyphicon-plus'></span> 确定创建项目</button>
+                        </div>
+                    </div>
+                    <!--receiver-->
+                </div>
+            </div>
+        </div>
+    </div>
+    </div>
+    <script src="/static/js/jquery.min.js"></script>
+    <script src="/static/js/angular.min.js"></script>
+    <script src="/static/js/angular-route.min.js"></script>
+    <script src="/static/js/angular-sanitize.min.js"></script>
+    <script src="/static/js/ui-bootstrap-tpls.min.js"></script>
+    <script src="/static/js/ui-tms.js?_=1"></script>
+    <script src="/static/js/xxt.ui.js?_=1"></script>
+    <script src="/views/default/pl/fe/_module/matter.service.js?_=1"></script>
+    <script src="/static/js/require.js" data-main="/views/default/pl/fe/matter/mission/plan-loader.js?_=2"></script>
+</body>
+
+</html>

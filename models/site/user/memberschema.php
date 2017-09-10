@@ -153,7 +153,7 @@ class memberschema_model extends \TMS_MODEL {
 		$r = $authapi->entry_statement;
 		if (false !== strpos($r, '{{authapi}}')) {
 			// auth page's url
-			$url = "http://" . $_SERVER['HTTP_HOST'];
+			$url = "http://" . APP_HTTP_HOST;
 			$url .= $authapi->url;
 			$url .= "?mpid=$mpid&authid=$authid&openid=$openid";
 			// require auth reply
@@ -173,7 +173,7 @@ class memberschema_model extends \TMS_MODEL {
 		$r = $authapi->notpass_statement;
 		if (false !== strpos($r, '{{authapi}}')) {
 			// auth page's url
-			$url = "http://" . $_SERVER['HTTP_HOST'];
+			$url = "http://" . APP_HTTP_HOST;
 			$url .= $authapi->url;
 			$url .= "?mpid=$runningMpid&authid=$authid";
 			if (!empty($openid)) {
@@ -194,7 +194,7 @@ class memberschema_model extends \TMS_MODEL {
 		$r = $authapi->acl_statement;
 		if (false !== strpos($r, '{{authapi}}')) {
 			// auth page's url
-			$url = "http://" . $_SERVER['HTTP_HOST'];
+			$url = "http://" . APP_HTTP_HOST;
 			$url .= $authapi->url;
 			$url .= "?mpid=$runningMpid&authid=$authid";
 			if (!empty($openid)) {
@@ -244,11 +244,11 @@ class memberschema_model extends \TMS_MODEL {
 		$site = $this->escape($site);
 		$id = $this->escape($id);
 		//如果是项目通讯录从项目下的活动通讯录和项目所属团队通讯录中导入用户
-		if($schema->matter_type === 'mission' && $schema->matter_id !== ''){
+		if ($schema->matter_type === 'mission' && $schema->matter_id !== '') {
 			$qm = [
 				'ms.id,ms.title,ms.matter_id,ms.matter_type,ms.create_at',
 				'xxt_mission_matter m,xxt_site_member_schema ms',
-				"m.mission_id = $schema->matter_id and ms.matter_type = m.matter_type and ms.matter_id = m.matter_id"
+				"m.mission_id = $schema->matter_id and ms.matter_type = m.matter_type and ms.matter_id = m.matter_id",
 			];
 			$qm2 = ['o' => 'ms.create_at desc'];
 			$schemaMissionMatter = $this->query_objs_ss($qm, $qm2);
@@ -256,18 +256,18 @@ class memberschema_model extends \TMS_MODEL {
 			$qmi = [
 				'id,title,matter_id,matter_type,create_at',
 				'xxt_site_member_schema',
-				"matter_type = 'mission' and matter_id = '$schema->matter_id' and id <> $id"
+				"matter_type = 'mission' and matter_id = '$schema->matter_id' and id <> $id",
 			];
 			$qmi2 = ['o' => 'create_at desc'];
 			$schemaMission = $this->query_objs_ss($qmi, $qmi2);
 
 			$schemaMatter = array_merge($schemaMissionMatter, $schemaMission);
-		} else if($schema->matter_type !== '' && $schema->matter_id !== '') {
+		} else if ($schema->matter_type !== '' && $schema->matter_id !== '') {
 			//查询活动所属项目的通讯录
 			$qm = [
 				'ms.id,ms.title,ms.matter_id,ms.matter_type,ms.create_at',
 				'xxt_mission_matter m,xxt_site_member_schema ms',
-				"m.matter_id = '$schema->matter_id' and m.matter_type = '$schema->matter_type' and ms.matter_id = m.mission_id and ms.matter_type = 'mission'"
+				"m.matter_id = '$schema->matter_id' and m.matter_type = '$schema->matter_type' and ms.matter_id = m.mission_id and ms.matter_type = 'mission'",
 			];
 			$qm2 = ['o' => 'ms.create_at desc'];
 			$schemaMissionMatter = $this->query_objs_ss($qm, $qm2);
@@ -275,7 +275,7 @@ class memberschema_model extends \TMS_MODEL {
 			$qma = [
 				'id,title,matter_id,matter_type,create_at',
 				'xxt_site_member_schema',
-				"matter_id = '$schema->matter_id' and matter_type = '$schema->matter_type' and id <> $id"
+				"matter_id = '$schema->matter_id' and matter_type = '$schema->matter_type' and id <> $id",
 			];
 			$qma2 = ['o' => 'create_at desc'];
 			$schemaApp = $this->query_objs_ss($qma, $qma2);
@@ -286,7 +286,7 @@ class memberschema_model extends \TMS_MODEL {
 			$qm = [
 				'id,title,matter_id,matter_type,create_at',
 				'xxt_site_member_schema',
-				"siteid = '$site' and matter_id <> ''"
+				"siteid = '$site' and matter_id <> ''",
 			];
 			$qm2 = ['o' => 'create_at desc'];
 			$schemaMatter = $this->query_objs_ss($qm, $qm2);
@@ -295,18 +295,18 @@ class memberschema_model extends \TMS_MODEL {
 		$qs = [
 			'id,title,matter_id,matter_type,create_at',
 			'xxt_site_member_schema',
-			"siteid = '$site' and matter_id = '' and id <> $id"
+			"siteid = '$site' and matter_id = '' and id <> $id",
 		];
 		$qs2 = ['o' => 'create_at desc'];
 		$schemaSite = $this->query_objs_ss($qs, $qs2);
 
-		$schemas = array_merge($schemaMatter,$schemaSite);
+		$schemas = array_merge($schemaMatter, $schemaSite);
 		//依照时间排序
 		$sortAt = [];
-		foreach($schemas as $key => $val){  
-		    $sortAt[$key] = $val->create_at;
-		}  
-		array_multisort($sortAt,SORT_DESC,$schemas);
+		foreach ($schemas as $key => $val) {
+			$sortAt[$key] = $val->create_at;
+		}
+		array_multisort($sortAt, SORT_DESC, $schemas);
 
 		return $schemas;
 	}

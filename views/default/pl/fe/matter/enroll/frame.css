@@ -35,7 +35,7 @@ body{font-family:Microsoft Yahei,Arial;}
 #schema-view .schema.html:after{content:'描述说明';position:absolute;top:0;right:0;background:#999;padding:2px 4px;font-size:60%;color:#fff;border-top-right-radius:2px;}
 #schema-view .schema .title{height:38px;line-height:38px;margin-bottom:5px;overflow:hidden;white-space:nowrap;cursor:move;}
 #schema-view .schema .title div[editable]{display:inline-block;width:320px;}
-#schema-view .schema-options .option{position:relative;cursor:move;height:38px;line-height:38px;overflow:hidden;white-space:nowrap;}
+#schema-view .schema-options .option{position:relative;cursor:move;height:auto;line-height:38px;overflow:hidden;white-space:nowrap;}
 #schema-view .schema-options .option input[type=radio],#schema-view .schema-options .option input[type=checkbox]{vertical-align:middle;margin-top:0;}
 #schema-view .schema-options .option div[editable]{display:inline-block;vertical-align:middle;margin-left:8px;width:300px;}
 #schema-view .schema-options .option.entered{background:#f8f8f8;}
@@ -58,12 +58,12 @@ body{font-family:Microsoft Yahei,Arial;}
 #pageEdit .mce-tinymce .mce-menubtn.mce-fixed-width span{width:auto;}
 
 /*record-view*/
-#record-view{position:absolute;top:0px;bottom:0;left:30px;right:30px;}
-#record-view table img{max-width:96px;}
+#enrollRecords table img{max-width:96px;}
 #enrollRecords th{text-align:center;}
 #enrollRecords td span.signin_late{color:red;}
-#record-view #enrollRecords .matched.enroll{background:yellow;}
-#record-view #enrollRecords .matched.group{background:lightgreen;}
+#enrollRecords .nickname{background:lightblue;}
+#enrollRecords .matched.enroll{background:yellow;}
+#enrollRecords .matched.group{background:lightgreen;}
 .tag{background:#3af;padding:4px 6px;margin:4px;border-radius:2px;font-size:.8em;color:#fff;}
 
 /* main.html */
@@ -71,9 +71,16 @@ body{font-family:Microsoft Yahei,Arial;}
 #chooseUser{overflow:auto;}
 #chooseUser .table{margin-bottom:15px;}
 #chooseUser .table>tbody>tr>td{padding:3px;vertical-align:middle;}
-#chooseUser > .clearfix{padding-left:15px;}
+#chooseUser>.clearfix{padding-left:15px;}
 
 /*overview*/
 .overview .status-group{margin:0 0 20px 0;padding-left:20px;}
 .overview .status-group .status{line-height:2em;border-bottom:1px dotted #bce8f1;}
 .overview .status-group .status:last-child{border-bottom:0}
+
+/*criteria*/
+#advCriteriaSwitch span.opened{}
+#advCriteria{position:absolute;top:100%;left:0;margin-top:1px;width:300px;background:#fff;padding:1rem;border:1px solid #ccc;border-top:0;z-index:1000;}
+#advCriteria .form-control{float:none;}
+#advCriteria .form-group{display:block;}
+#advCriteria .form-group:last-child{margin-bottom:0;}

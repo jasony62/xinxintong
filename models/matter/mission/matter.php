@@ -44,8 +44,11 @@ class matter_model extends \TMS_MODEL {
 				}
 				if (in_array($mm->matter_type, ['enroll', 'signin', 'group'])) {
 					$fields = 'siteid,id,title,summary,pic,create_at,creater_name,data_schemas,op_short_url_code';
+					if (in_array($mm->matter_type, ['enroll', 'signin'])) {
+						$fields .= ',start_at,end_at';
+					}
 					if (in_array($mm->matter_type, ['enroll'])) {
-						$fields .= ',rp_short_url_code,start_at,end_at';
+						$fields .= ',rp_short_url_code';
 					}
 					if (in_array($mm->matter_type, ['enroll', 'group'])) {
 						$fields .= ',scenario';

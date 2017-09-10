@@ -203,6 +203,7 @@ class main extends \pl\fe\matter\base {
 		$oNewApp->creater_src = $oUser->src;
 		$oNewApp->creater_name = $modelApp->escape($oUser->name);
 		$oNewApp->create_at = $current;
+		$oNewApp->start_at = $current;
 		$oNewApp->modifier = $oUser->id;
 		$oNewApp->modifier_src = $oUser->src;
 		$oNewApp->modifier_name = $modelApp->escape($oUser->name);
@@ -262,6 +263,7 @@ class main extends \pl\fe\matter\base {
 		$oNewApp['creater_src'] = $oUser->src;
 		$oNewApp['creater_name'] = $modelApp->escape($oUser->name);
 		$oNewApp['create_at'] = $current;
+		$oNewApp['start_at'] = $current;
 		$oNewApp['modifier'] = $oUser->id;
 		$oNewApp['modifier_src'] = $oUser->src;
 		$oNewApp['modifier_name'] = $modelApp->escape($oUser->name);

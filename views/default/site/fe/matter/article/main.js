@@ -179,6 +179,12 @@ ngApp.controller('ctrlMain', ['$scope', '$http', '$timeout', '$q', 'tmsDynaPage'
                 sharelink += '&type=article';
                 sharelink += '&id=' + id;
                 sharelink += "&shareby=" + shareid;
+                if (!(/iphone|ipad/i.test(navigator.userAgent))) {
+                    /*ios下操作无效，且导致微信jssdk失败*/
+                    if (window.history && window.history.replaceState) {
+                        window.history.replaceState({}, oArticle.title, sharelink);
+                    }
+                }
                 tmsSnsShare.config({
                     siteId: siteId,
                     logger: function(shareto) {
@@ -194,6 +200,7 @@ ngApp.controller('ctrlMain', ['$scope', '$http', '$timeout', '$q', 'tmsDynaPage'
                     },
                     jsApiList: ['hideOptionMenu', 'onMenuShareTimeline', 'onMenuShareAppMessage']
                 });
+
                 tmsSnsShare.set(oArticle.title, sharelink, oArticle.summary, oArticle.pic);
             }
 

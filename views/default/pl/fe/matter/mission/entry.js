@@ -17,7 +17,6 @@ define(['frame'], function(ngApp) {
             host = targetUrl.match(/\/\/(\S+?)\//);
             host = host.length === 2 ? host[1] : location.host;
             srvQuickEntry.get(targetUrl).then(function(entry) {
-            	console.log(entry);
                 if (entry) {
                     opEntry.url = 'http://' + host + '/q/' + entry.code;
                     opEntry.password = entry.password;
@@ -26,7 +25,6 @@ define(['frame'], function(ngApp) {
                 }
             });
             $scope.mission = mission;
-            console.log($scope);
         });
         $timeout(function() {
             new ZeroClipboard(document.querySelectorAll('.text2Clipboard'));

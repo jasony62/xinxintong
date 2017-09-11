@@ -120,8 +120,10 @@ define(['frame'], function(ngApp) {
                     return;
                 }else if($scope.mission.user_app_type === 'enroll'){
                     url += '&matter_type=enrollreceiver';
+                }else if($scope.mission.user_app_type === 'signin'){
+                    url += '&matter_type=signinreceiver';
                 }else{
-                    alert('暂时不支持除登记活动以外的应用');
+                    alert('暂时不支持除此应用类型');
                     return;
                 }
                 url += '&matter_id=' + $scope.mission.user_app_id;
@@ -206,7 +208,7 @@ define(['frame'], function(ngApp) {
         $scope.shiftTimerTask = function(model) {
             var oOneTask;
             oOneTask = oTimerTask[model];
-            if(model === 'remind' && $scope.mission.user_app_id == ''){
+            if($scope.mission.user_app_id == ''){
                 oOneTask.state = 'N';
                 alert('没有指定用户名单应用');
                 return;

@@ -1,5 +1,20 @@
 body{font-family:Microsoft Yahei,Arial;background:#fafafa;}
 .ng-cloak{display:none;}
+.main-navbar{margin-bottom:20px;}
+.navbar-default{background-color:#2994D0;border-bottom:none;}
+.navbar-default .navbar-nav > li > a,.navbar-default .navbar-brand{color:#fff;}
+.glyphicon{top:2px;margin-right:10px;}
+.navbar-brand{height:55px;padding:17.5px 15px;}
+.main-navbar .navbar-brand:hover{color:#fff;}
+@media screen and (min-width:768px){
+	.navbar-nav>li>a{padding:17.5px 30px;font-size:18px;line-height:1;}
+}
+@media screen and (max-width:768px){
+	.navbar-brand{width:100%;text-align:center;}
+	.navbar-brand > .icon-note{display:inline-block;width:124px;text-overflow:ellipsis;overflow:hidden;white-space:nowrap;}
+	.navbar-nav{margin:8px 0;position:absolute;top:0;right:0;}
+	.nav > li > a{padding:10px 10px;}
+}
 
 /*loading*/
 @keyframes loadingRunning{
@@ -44,12 +59,6 @@ body{font-family:Microsoft Yahei,Arial;background:#fafafa;}
 .track .row>div{margin-bottom:8px;}
 .track hr{margin:0 0 16px;}
 .track a{color:#333;}
-
-/* switch */
-.tms-switch{position:fixed;right:15px;width:48px;height:48px;background:rgba(192,192,192,0.5);border-radius:4px;color:#666;font-size:24px;line-height:48px;text-align:center;cursor:pointer;}
-.tms-switch:before{font-size:0.7em;}
-.tms-switch:nth-of-type(2){bottom:8px;}
-.tms-switch-siteuser:before{content:'我';}
 
 /*record*/
 .record>div{padding:.5em 0;border-bottom:1px dotted #ccc;}

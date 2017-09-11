@@ -8,6 +8,15 @@ require(['matterService'], function() {
         var mattersByTime, orderedTimes;
         mattersByTime = {};
         orderedTimes = [];
+        $scope.siteUser = function() {
+            event.preventDefault();
+            event.stopPropagation();
+
+            var url = 'http://' + location.host;
+            url += '/rest/site/fe/user';
+            url += "?site=" + siteId;
+            location.href = url;
+        }
         $scope.gotoMatter = function(matter) {
             if (matter.entryUrl) {
                 location.href = matter.entryUrl;

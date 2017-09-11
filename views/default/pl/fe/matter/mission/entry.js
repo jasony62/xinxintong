@@ -54,9 +54,51 @@ define(['frame'], function(ngApp) {
         };
 	}]);
     ngApp.provider.controller('ctrlReceiver', ['$scope', 'http2', '$interval', '$uibModal', 'srvMission', 'srvSite', function($scope, http2, $interval, $uibModal, srvMission, srvSite) {
-        var baseURL = '/rest/pl/fe/matter/enroll/receiver/';
+        var baseURL;
+        srvMission.get().then(function(mission) {
+            if (mission.matter_mg_tag !== '') {
+                mission.matter_mg_tag.forEach(function(cTag, index) {
+                    $scope.oTag.forEach(function(oTag) {
+                        if (oTag.id === cTag) {
+                            mission.matter_mg_tag[index] = oTag;
+                        }
+                    });
+                });
+            }
+            if($scope.mission.user_app_type === 'enroll'){
+                baseURL = '/rest/pl/fe/matter/enroll/receiver/';
+            }else if($scope.mission.user_app_type === 'signin'){
+                baseURL = '/rest/pl/fe/matter/signin/receiver/';
+            }
+            $scope.mission = mission;
+            listReceivers(mission);
+            http2.get('/rest/pl/fe/matter/timer/byMatter?site=' + mission.siteid + '&type=mission&id=' + mission.id, function(rsp) {
+                rsp.data.forEach(function(oTask) {
+                    oTimerTask[oTask.task_model].state = 'Y';
+                    oTimerTask[oTask.task_model].taskId = oTask.id;
+                    oTimerTask[oTask.task_model].task = {};
+                    ['pattern', 'min', 'hour', 'wday', 'mday', 'mon', 'left_count', 'enabled'].forEach(function(prop) {
+                        oTimerTask[oTask.task_model].task[prop] = oTask[prop];
+                    });
+                    $scope.$watch('timerTask.' + oTask.task_model, function(oUpdTask, oOldTask) {
+                        if (oUpdTask && oUpdTask.task) {
+                            if (!angular.equals(oUpdTask.task, oOldTask.task)) {
+                                oUpdTask.modified = true;
+                            }
+                        }
+                    }, true);
+                });
+            });
+        });
+        srvSite.get().then(function(oSite) {
+            $scope.site = oSite;
+        });
+        srvSite.snsList().then(function(oSns) {
+            $scope.sns = oSns;
+        });
+
         function listReceivers(app) {
-            http2.get(baseURL + 'list?site=' + app.siteid + '&app=' + app.id, function(rsp) {
+            http2.get(baseURL + 'list?site=' + app.siteid + '&app=' + app.user_app_id, function(rsp) {
                 var map = { wx: '微信', yx: '易信', qy: '企业号' };
                 rsp.data.forEach(function(receiver) {
                     if (receiver.sns_user) {
@@ -72,9 +114,17 @@ define(['frame'], function(ngApp) {
         $scope.qrcode = function(snsName) {
             if ($scope.qrcodeShown === false) {
                 var url = '/rest/pl/fe/site/sns/' + snsName + '/qrcode/createOneOff';
-                url += '?site=' + $scope.app.siteid;
-                url += '&matter_type=enrollreceiver';
-                url += '&matter_id=' + $scope.app.id;
+                url += '?site=' + $scope.mission.siteid;
+                if ($scope.mission.user_app_id == '') {
+                    alert('没有指定用户名单应用');
+                    return;
+                }else if($scope.mission.user_app_type === 'enroll'){
+                    url += '&matter_type=enrollreceiver';
+                }else{
+                    alert('暂时不支持除登记活动以外的应用');
+                    return;
+                }
+                url += '&matter_id=' + $scope.mission.user_app_id;
                 http2.get(url, function(rsp) {
                     var qrcode = rsp.data,
                         eleQrcode = $("#" + snsName + "Qrcode");
@@ -96,7 +146,7 @@ define(['frame'], function(ngApp) {
                                     (function() {
                                         var fnCheckReceiver;
                                         fnCheckReceiver = $interval(function() {
-                                            http2.get('/rest/pl/fe/matter/enroll/receiver/afterJoin?site=' + $scope.app.siteid + '&app=' + $scope.app.id + '&timestamp=' + qrcode.create_at, function(rsp) {
+                                            http2.get('/rest/pl/fe/matter/enroll/receiver/afterJoin?site=' + $scope.mission.siteid + '&app=' + $scope.mission.user_app_id + '&timestamp=' + qrcode.create_at, function(rsp) {
                                                 if (rsp.data.length) {
                                                     $interval.cancel(fnCheckReceiver);
                                                     $scope.receivers = $scope.receivers.concat(rsp.data);
@@ -110,27 +160,35 @@ define(['frame'], function(ngApp) {
                     })();
                 });
             } else {
+                if ($scope.mission.user_app_id == '') {
+                    alert('没有指定用户名单应用');
+                    return;
+                }
                 $("#yxQrcode").trigger('hide');
                 $scope.qrcodeShown = false;
             }
         };
         $scope.remove = function(receiver) {
-            http2.get(baseURL + 'remove?site=' + $scope.app.siteid + '&app=' + $scope.app.id + '&receiver=' + receiver.id, function(rsp) {
+            http2.get(baseURL + 'remove?site=' + $scope.mission.siteid + '&app=' + $scope.mission.user_app_id + '&receiver=' + receiver.id, function(rsp) {
                 $scope.receivers.splice($scope.receivers.indexOf(receiver), 1);
             });
         };
         $scope.chooseQy = function() {
+            if ($scope.mission.user_app_id == '') {
+                alert('没有指定用户名单应用');
+                return;
+            }
             $uibModal.open({
                 templateUrl: 'chooseUser.html',
                 controller: 'ctrlChooseUser',
             }).result.then(function(data) {
-                var app = $scope.app,
+                var mission = $scope.mission,
                     url;
-                url = '/rest/pl/fe/matter/enroll/receiver/add';
-                url += '?site=' + app.siteid;
-                url += '&app=' + app.id;
+                url = baseURL + 'add';
+                url += '?site=' + mission.siteid;
+                url += '&app=' + mission.user_app_id;
                 http2.post(url, data, function(rsp) {
-                    listReceivers(app);
+                    listReceivers(mission);
                 });
             })
         };
@@ -150,7 +208,7 @@ define(['frame'], function(ngApp) {
             oOneTask = oTimerTask[model];
             if(model === 'remind' && $scope.mission.user_app_id == ''){
                 oOneTask.state = 'N';
-                alert('没有制定用户名单应用');
+                alert('没有指定用户名单应用');
                 return;
             }
             if (oOneTask.state === 'Y') {
@@ -194,39 +252,85 @@ define(['frame'], function(ngApp) {
                 });
             }
         };
-        srvMission.get().then(function(mission) {
-            if (mission.matter_mg_tag !== '') {
-                mission.matter_mg_tag.forEach(function(cTag, index) {
-                    $scope.oTag.forEach(function(oTag) {
-                        if (oTag.id === cTag) {
-                            mission.matter_mg_tag[index] = oTag;
-                        }
-                    });
+    }]);
+    ngApp.provider.controller('ctrlChooseUser', ['$scope', '$uibModalInstance', 'http2', 'srvMission', function($scope, $mi, http2, srvMission) {
+        $scope.page = {
+            at: 1,
+            size: 15,
+            total: 0,
+            param: function() {
+                return 'page=' + this.at + '&size=' + this.size;
+            }
+        };
+        console.log($scope);
+        $scope.search = function(name) {
+            var url;
+            if($scope.mission.user_app_type === 'enroll'){
+                url = '/rest/pl/fe/matter/enroll/receiver/qymem';
+            }else if($scope.mission.user_app_type === 'signin'){
+                url = '/rest/pl/fe/matter/signin/receiver/qymem';
+            }
+            url += '?site=' + $scope.mission.siteid;
+            url += '&' + $scope.page.param();
+            http2.post(url, { keyword: name }, function(rsp) {
+                $scope.users = rsp.data.data;
+                $scope.page.total = rsp.data.total;
+            });
+        }
+        $scope.doSearch = function(page, name) {
+            var url;
+            page && ($scope.page.at = page);
+            if($scope.mission.user_app_type === 'enroll'){
+                url = '/rest/pl/fe/matter/enroll/receiver/qymem';
+            }else if($scope.mission.user_app_type === 'signin'){
+                url = '/rest/pl/fe/matter/signin/receiver/qymem';
+            }
+            url += '?site=' + $scope.mission.siteid;
+            url += '&' + $scope.page.param();
+            if (name) {
+                http2.post(url, { keyword: name }, function(rsp) {
+                    $scope.users = rsp.data.data;
+                    $scope.page.total = rsp.data.total;
+                })
+            } else {
+                http2.get(url, function(rsp) {
+                    $scope.users = rsp.data.data;
+                    $scope.page.total = rsp.data.total;
                 });
             }
-            listReceivers(mission);
-            http2.get('/rest/pl/fe/matter/timer/byMatter?site=' + mission.siteid + '&type=mission&id=' + mission.id, function(rsp) {
-                rsp.data.forEach(function(oTask) {
-                    oTimerTask[oTask.task_model].state = 'Y';
-                    oTimerTask[oTask.task_model].taskId = oTask.id;
-                    oTimerTask[oTask.task_model].task = {};
-                    ['pattern', 'min', 'hour', 'wday', 'mday', 'mon', 'left_count', 'enabled'].forEach(function(prop) {
-                        oTimerTask[oTask.task_model].task[prop] = oTask[prop];
-                    });
-                    $scope.$watch('timerTask.' + oTask.task_model, function(oUpdTask, oOldTask) {
-                        if (oUpdTask && oUpdTask.task) {
-                            if (!angular.equals(oUpdTask.task, oOldTask.task)) {
-                                oUpdTask.modified = true;
-                            }
-                        }
-                    }, true);
-                });
-            });
+        }
+        $scope.selected = [];
+        var updateSelected = function(action, option) {
+            if (action == 'add') {
+                $scope.selected.push(option);
+
+            }
+            if (action == 'remove') {
+                angular.forEach($scope.selected, function(item, index) {
+                    if (item.uid == option.uid) {
+                        $scope.selected.splice(index, 1);
+                    }
+                })
+            }
+        }
+        $scope.updateSelection = function($event, data) {
+            var checkbox = $event.target;
+            var action = (checkbox.checked ? 'add' : 'remove');
+            var option = {
+                nickname: data.nickname,
+                uid: data.userid
+            };
+            updateSelected(action, option);
+        }
+        $scope.ok = function() {
+            $mi.close($scope.selected);
+        };
+        $scope.cancel = function() {
+            $mi.dismiss();
+        };
+        srvMission.get().then(function(mission) {
             $scope.mission = mission;
-        });
-        srvSite.get().then(function(oSite) {
-            $scope.site = oSite;
-            console.log($scope.site);
+            $scope.doSearch(1);
         });
     }]);
 })

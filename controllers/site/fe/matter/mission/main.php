@@ -33,7 +33,7 @@ class main extends \site\fe\matter\base {
 		$mattersByUser = [];
 		$mattersByMis = $modelMis->byMission($mission, null, ['is_public' => 'Y']);
 		if (count($mattersByMis)) {
-			foreach ($mattersByMis as &$oMatter) {
+			foreach ($mattersByMis as $oMatter) {
 				if (!in_array($oMatter->type, ['enroll', 'signin', 'article'])) {
 					continue;
 				}
@@ -55,7 +55,7 @@ class main extends \site\fe\matter\base {
 						$modelSigRec = $this->model('matter\signin\record');
 					}
 					$oApp = new \stdClass;
-					$oApp->id = $oMatter->siteid;
+					$oApp->id = $oMatter->id;
 					$oMatter->record = $modelSigRec->byUser($this->who, $oApp);
 				}
 

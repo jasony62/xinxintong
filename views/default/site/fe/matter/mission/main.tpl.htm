@@ -75,19 +75,14 @@
                                 <div ng-switch-when="A">！本活动已于<span style='color:orangered;'>{{matter.end_at*1000|date:'MM-dd HH:mm'}}</span>结束</div>
                             </div>
                         </div>
-                        <div class='list-group' ng-switch-when="signin" ng-if="matter.record">
-                            <div class='list-group-item record'>
-                                <div>
-                                    <label>审核通过：</label><span ng-bind="matter.record.verified"></span></div>
-                                <div>
-                                    <label>备注：</label><span ng-bind="matter.record.comment"></span></div>
-                                <div>
-                                    <label>签到次数：</label><span ng-bind="matter.record.signin_num"></span></div>
-                                <div ng-repeat="rnd in matter.rounds">
-                                    <div>
-                                        <label title="{{rnd.title}}">{{rnd.title} } ：
-                                        </label><span ng-if="matter.record.signin_log[rnd.rid]" ng-class="{'signin_late':matter.record._signinLate[rnd.rid]}" ng-bind="matter.record.signin_log[rnd.rid]*1000|date:'yy-MM-dd HH:mm'"></span></div>
-                                </div>
+                        <div class='row' ng-switch-when="signin" ng-if="matter.record">
+                            <div class='col-xs-12'>
+                                <label>签到次数</label>
+                                <div ng-bind="matter.record.signin_num"></div>
+                            </div>
+                            <div class='col-xs-6' ng-repeat="rnd in matter.rounds">
+                                <label title="{{rnd.title}}">{{rnd.title}}</label>
+                                <div ng-if="matter.record.signin_log[rnd.rid]" ng-class="{'signin_late':matter.record._signinLate[rnd.rid]}" ng-bind="matter.record.signin_log[rnd.rid]*1000|date:'yy-MM-dd HH:mm'"></div>
                             </div>
                         </div>
                         <hr>

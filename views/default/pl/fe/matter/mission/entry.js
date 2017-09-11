@@ -53,4 +53,180 @@ define(['frame'], function(ngApp) {
             srvQuickEntry.update(opEntry.code, { can_favor: opEntry.can_favor });
         };
 	}]);
+    ngApp.provider.controller('ctrlReceiver', ['$scope', 'http2', '$interval', '$uibModal', 'srvMission', 'srvSite', function($scope, http2, $interval, $uibModal, srvMission, srvSite) {
+        var baseURL = '/rest/pl/fe/matter/enroll/receiver/';
+        function listReceivers(app) {
+            http2.get(baseURL + 'list?site=' + app.siteid + '&app=' + app.id, function(rsp) {
+                var map = { wx: '微信', yx: '易信', qy: '企业号' };
+                rsp.data.forEach(function(receiver) {
+                    if (receiver.sns_user) {
+                        receiver.snsUser = JSON.parse(receiver.sns_user);
+                        map[receiver.snsUser.src] && (receiver.snsUser.snsName = map[receiver.snsUser.src]);
+                    }
+                });
+                $scope.receivers = rsp.data;
+            });
+        }
+
+        $scope.qrcodeShown = false;
+        $scope.qrcode = function(snsName) {
+            if ($scope.qrcodeShown === false) {
+                var url = '/rest/pl/fe/site/sns/' + snsName + '/qrcode/createOneOff';
+                url += '?site=' + $scope.app.siteid;
+                url += '&matter_type=enrollreceiver';
+                url += '&matter_id=' + $scope.app.id;
+                http2.get(url, function(rsp) {
+                    var qrcode = rsp.data,
+                        eleQrcode = $("#" + snsName + "Qrcode");
+                    eleQrcode.trigger('show');
+                    $scope.qrcodeURL = qrcode.pic;
+                    $scope.qrcodeShown = true;
+                    (function() {
+                        var fnCheckQrcode, url2;
+                        url2 = '/rest/pl/fe/site/sns/' + snsName + '/qrcode/get';
+                        url2 += '?site=' + qrcode.siteid;
+                        url2 += '&id=' + rsp.data.id;
+                        url2 += '&cascaded=N';
+                        fnCheckQrcode = $interval(function() {
+                            http2.get(url2, function(rsp) {
+                                if (rsp.data == false) {
+                                    $interval.cancel(fnCheckQrcode);
+                                    eleQrcode.trigger('hide');
+                                    $scope.qrcodeShown = false;
+                                    (function() {
+                                        var fnCheckReceiver;
+                                        fnCheckReceiver = $interval(function() {
+                                            http2.get('/rest/pl/fe/matter/enroll/receiver/afterJoin?site=' + $scope.app.siteid + '&app=' + $scope.app.id + '&timestamp=' + qrcode.create_at, function(rsp) {
+                                                if (rsp.data.length) {
+                                                    $interval.cancel(fnCheckReceiver);
+                                                    $scope.receivers = $scope.receivers.concat(rsp.data);
+                                                }
+                                            });
+                                        }, 2000);
+                                    })();
+                                }
+                            });
+                        }, 2000);
+                    })();
+                });
+            } else {
+                $("#yxQrcode").trigger('hide');
+                $scope.qrcodeShown = false;
+            }
+        };
+        $scope.remove = function(receiver) {
+            http2.get(baseURL + 'remove?site=' + $scope.app.siteid + '&app=' + $scope.app.id + '&receiver=' + receiver.id, function(rsp) {
+                $scope.receivers.splice($scope.receivers.indexOf(receiver), 1);
+            });
+        };
+        $scope.chooseQy = function() {
+            $uibModal.open({
+                templateUrl: 'chooseUser.html',
+                controller: 'ctrlChooseUser',
+            }).result.then(function(data) {
+                var app = $scope.app,
+                    url;
+                url = '/rest/pl/fe/matter/enroll/receiver/add';
+                url += '?site=' + app.siteid;
+                url += '&app=' + app.id;
+                http2.post(url, data, function(rsp) {
+                    listReceivers(app);
+                });
+            })
+        };
+        var oTimerTask;
+        $scope.timerTask = oTimerTask = {
+            report: {
+                modified: false,
+                state: 'N'
+            },
+            remind: {
+                modified: false,
+                state: 'N'
+            },
+        };
+        $scope.shiftTimerTask = function(model) {
+            var oOneTask;
+            oOneTask = oTimerTask[model];
+            if(model === 'remind' && $scope.mission.user_app_id == ''){
+                oOneTask.state = 'N';
+                alert('没有制定用户名单应用');
+                return;
+            }
+            if (oOneTask.state === 'Y') {
+                var oConfig;
+                oConfig = {
+                    matter: { id: $scope.mission.id, type: 'mission' },
+                    task: { model: model }
+                }
+                http2.post('/rest/pl/fe/matter/timer/create?site=' + $scope.mission.siteid, oConfig, function(rsp) {
+                    oOneTask.state = 'Y';
+                    oOneTask.taskId = rsp.data.id;
+                    oOneTask.task = {};
+                    ['pattern', 'min', 'hour', 'wday', 'mday', 'mon', 'left_count', 'enabled'].forEach(function(prop) {
+                        oOneTask.task[prop] = '' + rsp.data[prop];
+                    });
+                    $scope.$watch('timerTask.' + model, function(oUpdTask, oOldTask) {
+                        if (oUpdTask && oUpdTask.task) {
+                            if (!angular.equals(oUpdTask.task, oOldTask.task)) {
+                                oUpdTask.modified = true;
+                            }
+                        }
+                    }, true);
+                });
+            } else {
+                http2.get('/rest/pl/fe/matter/timer/remove?site=' + $scope.mission.siteid + '&id=' + oOneTask.taskId, function(rsp) {
+                    oOneTask.state = 'N';
+                    delete oOneTask.taskId;
+                    delete oOneTask.task;
+                });
+            }
+        };
+        $scope.saveTimerTask = function(model) {
+            var oOneTask;
+            oOneTask = oTimerTask[model];
+            if (oOneTask.state === 'Y') {
+                http2.post('/rest/pl/fe/matter/timer/update?site=' + $scope.mission.siteid + '&id=' + oOneTask.taskId, oOneTask.task, function(rsp) {
+                    ['min', 'hour', 'wday', 'mday', 'mon', 'left_count'].forEach(function(prop) {
+                        oOneTask.task[prop] = '' + rsp.data[prop];
+                    });
+                    oOneTask.modified = false;
+                });
+            }
+        };
+        srvMission.get().then(function(mission) {
+            if (mission.matter_mg_tag !== '') {
+                mission.matter_mg_tag.forEach(function(cTag, index) {
+                    $scope.oTag.forEach(function(oTag) {
+                        if (oTag.id === cTag) {
+                            mission.matter_mg_tag[index] = oTag;
+                        }
+                    });
+                });
+            }
+            listReceivers(mission);
+            http2.get('/rest/pl/fe/matter/timer/byMatter?site=' + mission.siteid + '&type=mission&id=' + mission.id, function(rsp) {
+                rsp.data.forEach(function(oTask) {
+                    oTimerTask[oTask.task_model].state = 'Y';
+                    oTimerTask[oTask.task_model].taskId = oTask.id;
+                    oTimerTask[oTask.task_model].task = {};
+                    ['pattern', 'min', 'hour', 'wday', 'mday', 'mon', 'left_count', 'enabled'].forEach(function(prop) {
+                        oTimerTask[oTask.task_model].task[prop] = oTask[prop];
+                    });
+                    $scope.$watch('timerTask.' + oTask.task_model, function(oUpdTask, oOldTask) {
+                        if (oUpdTask && oUpdTask.task) {
+                            if (!angular.equals(oUpdTask.task, oOldTask.task)) {
+                                oUpdTask.modified = true;
+                            }
+                        }
+                    }, true);
+                });
+            });
+            $scope.mission = mission;
+        });
+        srvSite.get().then(function(oSite) {
+            $scope.site = oSite;
+            console.log($scope.site);
+        });
+    }]);
 })

@@ -46,6 +46,7 @@ define(['missionService', 'enrollService', 'signinService'], function() {
             .when('/rest/pl/fe/matter/mission/mschema', new RouteParam('mschema'))
             .when('/rest/pl/fe/matter/mission/report', new RouteParam('report'))
             .when('/rest/pl/fe/matter/mission/overview', new RouteParam('overview'))
+            .when('/rest/pl/fe/matter/mission/notice', new RouteParam('notice'))
             .otherwise(new RouteParam('main'));
 
         $locationProvider.html5Mode(true);

@@ -294,6 +294,7 @@ define(['frame'], function(ngApp) {
                     }, true);
                 });
             });
+        console.log($scope);
         });
     }]);
     ngApp.provider.controller('ctrlChooseUser', ['$scope', '$uibModalInstance', 'http2', 'srvEnrollApp', function($scope, $mi, http2, srvEnrollApp) {

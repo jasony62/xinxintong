@@ -1,19 +1,30 @@
 define(['frame'], function(ngApp) {
     'use strict';
-    ngApp.provider.controller('ctrlNotice', ['$scope', 'srvTmplmsgNotice', 'srvEnrollNotice', 'srvRecordConverter', function($scope, srvTmplmsgNotice, srvEnrollNotice, srvRecordConverter) {
+    ngApp.provider.controller('ctrlNotice', ['$scope', 'http2', 'srvTmplmsgNotice', 'srvRecordConverter', function($scope, http2, srvTmplmsgNotice, srvRecordConverter) {
         var oBatchPage, aBatches;
         $scope.tmsTableWrapReady = 'N';
         $scope.oBatchPage = oBatchPage = {};
         $scope.batches = aBatches = [];
         $scope.detail = function(batch) {
+            var url;
             $scope.batchId = batch;
-            srvEnrollNotice.detail(batch).then(function(result) {
-                var records, noticeStatus;
+            if($scope.mission.user_app_type === 'enroll'){
+                url = '/rest/pl/fe/matter/enroll/notice/logList?batch=' + batch.id;
+            }else if($scope.mission.user_app_type === 'signin'){
+                url = '/rest/pl/fe/matter/signin/notice/logList?batch=' + batch.id;
+            }else{
+                alert('暂不支持此名单应用');
+                return;
+            }
+            http2.get(url, function(rsp) {
+                var records, noticeStatus, result;
+                result = rsp.data;
+
+                console.log(result);
                 $scope.logs = result.logs;
                 if (result.records && result.records.length) {
                     records = result.records;
                     records.forEach(function(record) {
-                        srvRecordConverter.forTable(record, $scope.app._unionSchemasById);
                         if (noticeStatus = record.noticeStatus) {
                             record._noticeStatus = noticeStatus.split(':');
                             record._noticeStatus[0] = record._noticeStatus[0] === 'success' ? '成功' : '失败';
@@ -22,7 +33,7 @@ define(['frame'], function(ngApp) {
                     $scope.records = records;
                 }
                 $scope.activeBatch = batch;
-            })
+            });
         };
         $scope.choose = 'N';
         $scope.fail = function(isCheck) {
@@ -36,19 +47,18 @@ define(['frame'], function(ngApp) {
                 $scope.detail($scope.batchId);
             }
         }
-        $scope.$watch('app', function(app) {
-            var recordSchemas;
-            if (!app) return;
-            recordSchemas = [];
-            app.dataSchemas.forEach(function(schema) {
-                if (schema.type !== 'html') {
-                    recordSchemas.push(schema);
-                }
-            });
-            srvTmplmsgNotice.init('enroll:' + app.id, oBatchPage, aBatches);
+        $scope.$watch('mission', function(mission) {
+            if (!mission) return;
+            if(mission.user_app_type === 'enroll'){
+                srvTmplmsgNotice.init('enroll:' + mission.user_app_id, oBatchPage, aBatches);
+            }else if(mission.user_app_type === 'signin'){
+                srvTmplmsgNotice.init('signin:' + mission.user_app_id, oBatchPage, aBatches);
+            }else{
+                return;
+            }
+            
             srvTmplmsgNotice.list();
             $scope.tmsTableWrapReady = 'Y';
-            $scope.recordSchemas = recordSchemas;
         });
     }]);
 });

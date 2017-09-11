@@ -20,9 +20,63 @@ class main extends \site\fe\matter\base {
 	 */
 	public function get_action($mission) {
 		/* 检查权限??? */
-		$mission = $this->model('matter\mission')->byId($mission, ['fields' => 'id,title,summary,pic']);
+		$oMission = $this->model('matter\mission')->byId($mission, ['fields' => 'id,title,summary,pic']);
 
-		return new \ResponseData($mission);
+		return new \ResponseData($oMission);
+	}
+	/**
+	 * 获得用户在项目中的行为记录
+	 */
+	public function userTrack_action($mission) {
+		$modelMis = $this->model('matter\mission\matter');
+
+		$mattersByUser = [];
+		$mattersByMis = $modelMis->byMission($mission, null, ['is_public' => 'Y']);
+		if (count($mattersByMis)) {
+			foreach ($mattersByMis as &$oMatter) {
+				if (!in_array($oMatter->type, ['enroll', 'signin', 'article'])) {
+					continue;
+				}
+				if ($oMatter->type === 'enroll') {
+					if (!isset($modelEnlUsr)) {
+						$modelEnlUsr = $this->model('matter\enroll\user');
+					}
+					$oUser = $modelEnlUsr->byId($oMatter, $this->who->uid);
+
+					/* 清除不必要的数据 */
+					unset($oUser->siteid);
+					unset($oUser->aid);
+					unset($oUser->userid);
+					unset($oUser->id);
+
+					$oMatter->user = $oUser;
+				} else if ($oMatter->type === 'signin') {
+					if (!isset($modelSigRec)) {
+						$modelSigRec = $this->model('matter\signin\record');
+					}
+					$oApp = new \stdClass;
+					$oApp->id = $oMatter->siteid;
+					$oMatter->record = $modelSigRec->byUser($this->who, $oApp);
+				}
+
+				/* 清理不必要的数据 */
+				unset($oMatter->siteid);
+				unset($oMatter->data_schemas);
+				unset($oMatter->pages);
+				unset($oMatter->create_at);
+				unset($oMatter->creater_name);
+				unset($oMatter->dataTags);
+				unset($oMatter->opUrl);
+				unset($oMatter->op_short_url_code);
+				unset($oMatter->rpUrl);
+				unset($oMatter->rp_short_url_code);
+				unset($oMatter->is_public);
+
+				$mattersByUser[] = $oMatter;
+			}
+		}
+
+		return new \ResponseData($mattersByUser);
 	}
 	/**
 	 * 获得用户在项目中的行为记录

@@ -4,26 +4,61 @@ require(['matterService'], function() {
     siteId = location.search.match('site=([^&]*)')[1];
     missionId = location.search.match('mission=([^&]*)')[1];
     ngApp = angular.module('app', ['service.matter']);
-    ngApp.controller('ctrlMain', ['$scope', '$http', 'srvRecordConverter', function($scope, $http, srvRecordConverter) {
+    ngApp.controller('ctrlMain', ['$scope', '$http', function($scope, $http) {
+        var mattersByTime, orderedTimes;
+        mattersByTime = {};
+        orderedTimes = [];
         $scope.gotoMatter = function(matter) {
             if (matter.entryUrl) {
                 location.href = matter.entryUrl;
             }
         };
-        $http.get('/rest/site/fe/matter/mission/recordList?site=' + siteId + '&mission=' + missionId).success(function(rsp) {
+        $http.get('/rest/site/fe/matter/mission/get?site=' + siteId + '&mission=' + missionId).success(function(rsp) {
+            $scope.mission = rsp.data;
+        });
+        $http.get('/rest/site/fe/matter/mission/userTrack?site=' + siteId + '&mission=' + missionId).success(function(rsp) {
             rsp.data.forEach(function(matter) {
-                if (matter.type === 'enroll') {
-                    matter.dataSchemas = {};
-                    JSON.parse(matter.data_schemas).forEach(function(schema) {
-                        if (schema.type !== 'html') {
-                            matter.dataSchemas[schema.id] = schema;
-                        }
-                    });
-                    if (matter.records && matter.records.length) {
-                        matter.records.forEach(function(record) {
-                            srvRecordConverter.forTable(record, matter.dataSchemas);
-                        });
+                if (matter.start_at) {
+                    if (!mattersByTime[matter.start_at]) {
+                        orderedTimes.push(matter.start_at);
+                        mattersByTime[matter.start_at] = [matter];
+                    } else {
+                        mattersByTime[matter.start_at].push(matter);
                     }
+                } else {
+                    mattersByTime['0'] ? mattersByTime['0'].push(matter) : mattersByTime['0'] = [matter];
+                }
+                if (matter.type === 'enroll') {
+                    var oIndicator = {};
+                    if (/quiz|score_sheet/.test(matter)) {
+                        oIndicator.score = true;
+                    }
+                    if (matter.dataSchemas) {
+                        for (var i = matter.dataSchemas.length - 1; i >= 0; i--) {
+                            if (matter.dataSchemas[i].remarkable && matter.dataSchemas[i].remarkable === 'Y') {
+                                oIndicator.remark = oIndicator.like = true;
+                                break;
+                            }
+                        }
+                    }
+                    if (matter.can_coin && matter.can_coin === 'Y') {
+                        oIndicator.coin = true;
+                    }
+                    if (matter.end_submit_at > 0) {
+                        if (matter.end_submit_at * 1000 > (new Date * 1)) {
+                            oIndicator.end_submit = 'A';
+                        } else {
+                            oIndicator.end_submit = 'B';
+                        }
+                    }
+                    if (matter.end_at > 0) {
+                        if (matter.end_at * 1000 > (new Date * 1)) {
+                            oIndicator.end = 'A';
+                        } else {
+                            oIndicator.end = 'B';
+                        }
+                    }
+                    matter.indicator = oIndicator;
                 } else if (matter.type === 'signin') {
                     if (matter.record.signin_log) {
                         matter.rounds.forEach(function(round) {
@@ -37,7 +72,9 @@ require(['matterService'], function() {
                     }
                 }
             });
-            $scope.matters = rsp.data;
+            orderedTimes.sort();
+            $scope.times = orderedTimes;
+            $scope.matters = mattersByTime;
         });
         /* end app loading */
         window.loading.finish();

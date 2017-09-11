@@ -39,6 +39,7 @@ $sql .= ",multi_rounds char(1) not null default 'N'"; // 支持轮次
 $sql .= ",notify_submit char(1) not null default 'N'"; // 是否发送提交事件通知
 $sql .= ",can_repos char(1) not null default 'N'"; // 打开共享页
 $sql .= ",can_rank char(1) not null default 'N'"; // 打开排行页
+$sql .= ",can_coin char(1) not null default 'N'"; // 是否支持积分
 $sql .= ",can_discuss char(1) not null default 'N'"; // 支持对登记活动进行评论 should be removed
 $sql .= ",can_coinpay char(1) not null default 'N'"; // 是否可以进行打赏
 $sql .= ",can_siteuser char(1) not null default 'N'"; // 是否可以进入用户主页

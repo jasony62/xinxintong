@@ -48,7 +48,7 @@ class matter_model extends \TMS_MODEL {
 						$fields .= ',start_at,end_at';
 					}
 					if (in_array($mm->matter_type, ['enroll'])) {
-						$fields .= ',rp_short_url_code';
+						$fields .= ',end_submit_at,rp_short_url_code,can_coin';
 					}
 					if (in_array($mm->matter_type, ['enroll', 'group'])) {
 						$fields .= ',scenario';
@@ -64,26 +64,27 @@ class matter_model extends \TMS_MODEL {
 					$options2['where'] = array('mission_phase_id' => $options['mission_phase_id']);
 				}
 
-				if ($matter = $modelMat->byId($mm->matter_id, $options2)) {
+				if ($oMatter = $modelMat->byId($mm->matter_id, $options2)) {
 					/* 是否开放了运营者链接 */
-					if (isset($options['op_short_url_code']) && $options['op_short_url_code'] === true && empty($matter->op_short_url_code)) {
+					if (isset($options['op_short_url_code']) && $options['op_short_url_code'] === true && empty($oMatter->op_short_url_code)) {
 						continue;
 					}
 					if (isset($options['is_public']) && $options['is_public'] !== $mm->is_public) {
 						continue;
 					}
-					$matter->_pk = $mm->id;
-					$matter->is_public = $mm->is_public;
-					$matter->seq = $mm->seq;
+					$oMatter->_pk = $mm->id;
+					$oMatter->is_public = $mm->is_public;
+					$oMatter->seq = $mm->seq;
 					if ($mm->matter_type === 'signin') {
 						if (!isset($modelSigRnd)) {
 							$modelSigRnd = $this->model('matter\signin\round');
 						}
-						$matter->rounds = $modelSigRnd->byApp($matter->id);
+						$oMatter->rounds = $modelSigRnd->byApp($oMatter->id);
 					}
-					$matters[] = $matter;
+					$matters[] = $oMatter;
 				}
 			}
+
 			return $matters;
 		}
 

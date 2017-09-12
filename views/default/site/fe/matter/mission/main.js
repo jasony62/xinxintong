@@ -38,7 +38,7 @@ require(['matterService'], function() {
                     mattersByTime['0'] ? mattersByTime['0'].push(matter) : mattersByTime['0'] = [matter];
                 }
                 if (matter.type === 'enroll') {
-                    var oIndicator = {};
+                    var oIndicator = { state: 'running' };
                     if (/quiz|score_sheet/.test(matter)) {
                         oIndicator.score = true;
                     }
@@ -53,18 +53,26 @@ require(['matterService'], function() {
                     if (matter.can_coin && matter.can_coin === 'Y') {
                         oIndicator.coin = true;
                     }
-                    if (matter.end_submit_at > 0) {
-                        if (matter.end_submit_at * 1000 > (new Date * 1)) {
-                            oIndicator.end_submit = 'A';
-                        } else {
-                            oIndicator.end_submit = 'B';
+                    /* 时间状态 */
+                    if (matter.start_at * 1000 > (new Date * 1)) {
+                        oIndicator.state = 'pending';
+                    } else {
+
+                        if (matter.end_at > 0) {
+                            if (matter.end_at * 1000 > (new Date * 1)) {
+                                oIndicator.end = 'R';
+                            } else {
+                                oIndicator.end = 'E';
+                                oIndicator.state = 'end';
+                            }
                         }
-                    }
-                    if (matter.end_at > 0) {
-                        if (matter.end_at * 1000 > (new Date * 1)) {
-                            oIndicator.end = 'A';
-                        } else {
-                            oIndicator.end = 'B';
+                        if ((!oIndicator.end || oIndicator.end === 'R') && matter.end_submit_at > 0) {
+                            if (matter.end_submit_at * 1000 > (new Date * 1)) {
+                                oIndicator.end_submit = 'R';
+                            } else {
+                                oIndicator.end_submit = 'E';
+                                oIndicator.state = 'end-submit';
+                            }
                         }
                     }
                     matter.indicator = oIndicator;
@@ -82,6 +90,7 @@ require(['matterService'], function() {
                 }
             });
             orderedTimes.sort();
+            $scope.currentTime = parseInt((new Date * 1) / 1000);
             $scope.times = orderedTimes;
             $scope.matters = mattersByTime;
         });

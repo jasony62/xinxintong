@@ -51,6 +51,7 @@ body{font-family:Microsoft Yahei,Arial;background:#fafafa;}
 .timeline{position:relative;padding-top:4px;}
 .timeline .date,.timeline .time{white-space:nowrap;}
 .timeline:after{content:'';display:block;position:absolute;width:16px;height:16px;top:50%;margin-top:-8px;background:lightgreen;border-radius:8px;right:-8px;}
+.timeline.pending:after{background:lightgray;}
 
 /*track*/
 .track{padding:8px 16px 16px;}

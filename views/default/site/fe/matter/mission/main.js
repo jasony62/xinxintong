@@ -27,7 +27,7 @@ require(['matterService'], function() {
         });
         $http.get('/rest/site/fe/matter/mission/userTrack?site=' + siteId + '&mission=' + missionId).success(function(rsp) {
             rsp.data.forEach(function(matter) {
-                if (matter.start_at) {
+                if (matter.start_at > 0) {
                     if (!mattersByTime[matter.start_at]) {
                         orderedTimes.push(matter.start_at);
                         mattersByTime[matter.start_at] = [matter];

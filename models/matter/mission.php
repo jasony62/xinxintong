@@ -156,7 +156,7 @@ class mission_model extends app_base {
 		if ($missions = $this->query_objs_ss($q, $q2)) {
 			/* 项目下活动的数量 */
 			foreach ($missions as &$oMission) {
-				$qMatterNum = ['select matter_type,count(*) matter_num from xxt_mission_matter where mission_id=' . $oMission->id . ' group by matter_type'];
+				$qMatterNum = ['select matter_type,count(*) matter_num from xxt_mission_matter where mission_id=' . $oMission->mission_id . ' group by matter_type'];
 				$matterNums = $this->query_objs($qMatterNum);
 				$oMatterNums = new \stdClass;
 				$oMatterNums->num = 0;

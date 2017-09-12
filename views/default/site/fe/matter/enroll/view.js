@@ -150,7 +150,7 @@ ngApp.controller('ctrlView', ['$scope', '$timeout', 'ls', 'Record', function($sc
         });
         facRecord.current.tag = params.record.data_tag ? params.record.data_tag : {};
         /* disable actions */
-        if (oApp.end_at > 0 && parseInt(oApp.end_at) < (new Date() * 1) / 1000) {
+        if (oApp.end_submit_at > 0 && parseInt(oApp.end_submit_at) < (new Date * 1) / 1000) {
             fnDisableActions();
         } else if ((oApp.can_cowork && oApp.can_cowork !== 'Y')) {
             if (params.user.uid !== oRecord.userid) {

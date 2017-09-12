@@ -388,6 +388,9 @@ class record extends base {
 		if (!empty($oApp->end_at) && $oApp->end_at < $current) {
 			return [false, ['活动已经结束，不允许修改数据']];
 		}
+		if (!empty($oApp->end_submit_at) && $oApp->end_submit_at < $current) {
+			return [false, ['活动提交时间已经结束，不允许修改数据']];
+		}
 
 		$modelRec = $this->model('matter\enroll\record');
 		if (empty($ek)) {

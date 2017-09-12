@@ -254,6 +254,18 @@ ngApp.directive('tmsFileInput', ['$q', 'ls', 'tmsDynaPage', function($q, LS, tms
     }
 }]);
 ngApp.controller('ctrlInput', ['$scope', '$q', '$uibModal', '$timeout', 'Input', 'ls', 'http2', function($scope, $q, $uibModal, $timeout, Input, LS, http2) {
+    function fnDisableActions() {
+        var domActs, domAct;
+        if (domActs = document.querySelectorAll('button[ng-click]')) {
+            domActs.forEach(function(domAct) {
+                var ngClick = domAct.getAttribute('ng-click');
+                if (ngClick.indexOf('submit') === 0) {
+                    domAct.style.display = 'none';
+                }
+            });
+        }
+    }
+
     function doTask(seq, nextAction) {
         var task = tasksOfBeforeSubmit[seq];
         task().then(function(rsp) {
@@ -377,6 +389,10 @@ ngApp.controller('ctrlInput', ['$scope', '$q', '$uibModal', '$timeout', 'Input',
                     break;
                 }
             }
+        }
+        if (params.app.end_submit_at > 0 && parseInt(params.app.end_submit_at) < (new Date * 1) / 1000) {
+            fnDisableActions();
+            $scope.$parent.notice.set('活动提交数据时间已经结束，不能提交数据');
         }
         // 登录提示
         if (!params.user.unionid) {

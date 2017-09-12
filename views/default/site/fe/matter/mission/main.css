@@ -6,6 +6,7 @@ body{font-family:Microsoft Yahei,Arial;background:#fafafa;}
 .glyphicon{top:2px;margin-right:10px;}
 .navbar-brand{height:55px;padding:17.5px 15px;}
 .main-navbar .navbar-brand:hover{color:#fff;}
+.main-navbar .tms-switch-siteuser{font-size:18px;}
 @media screen and (min-width:768px){
 	.navbar-nav>li>a{padding:17.5px 30px;font-size:18px;line-height:1;}
 }

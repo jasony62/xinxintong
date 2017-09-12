@@ -1,18 +1,10 @@
 define(['frame'], function(ngApp) {
     'use strict';
-    ngApp.provider.controller('ctrlEntry', ['$scope', 'http2', 'srvMission', 'srvQuickEntry', '$timeout', function($scope, http2, srvMission, srvQuickEntry, $timeout) {
+    ngApp.provider.controller('ctrlEntry', ['$scope', 'http2', 'srvQuickEntry', '$timeout', function($scope, http2, srvQuickEntry, $timeout) {
         var targetUrl, host, opEntry;
         $scope.opEntry = opEntry = {};
-		srvMission.get().then(function(mission) {
-            if (mission.matter_mg_tag !== '') {
-                mission.matter_mg_tag.forEach(function(cTag, index) {
-                    $scope.oTag.forEach(function(oTag) {
-                        if (oTag.id === cTag) {
-                            mission.matter_mg_tag[index] = oTag;
-                        }
-                    });
-                });
-            }
+        $scope.$watch('mission', function(mission) {
+            if (!mission) return;
             targetUrl = mission.opUrl;
             host = targetUrl.match(/\/\/(\S+?)\//);
             host = host.length === 2 ? host[1] : location.host;
@@ -24,7 +16,6 @@ define(['frame'], function(ngApp) {
                     opEntry.can_favor = entry.can_favor;
                 }
             });
-            $scope.mission = mission;
         });
         $timeout(function() {
             new ZeroClipboard(document.querySelectorAll('.text2Clipboard'));
@@ -53,24 +44,15 @@ define(['frame'], function(ngApp) {
             srvQuickEntry.update(opEntry.code, { can_favor: opEntry.can_favor });
         };
 	}]);
-    ngApp.provider.controller('ctrlReceiver', ['$scope', 'http2', '$interval', '$uibModal', 'srvMission', 'srvSite', function($scope, http2, $interval, $uibModal, srvMission, srvSite) {
+    ngApp.provider.controller('ctrlReceiver', ['$scope', 'http2', '$interval', '$uibModal', 'srvSite', function($scope, http2, $interval, $uibModal, srvSite) {
         var baseURL;
-        srvMission.get().then(function(mission) {
-            if (mission.matter_mg_tag !== '') {
-                mission.matter_mg_tag.forEach(function(cTag, index) {
-                    $scope.oTag.forEach(function(oTag) {
-                        if (oTag.id === cTag) {
-                            mission.matter_mg_tag[index] = oTag;
-                        }
-                    });
-                });
-            }
-            if($scope.mission.user_app_type === 'enroll'){
+        $scope.$watch('mission', function(mission) {
+            if (!mission) return;
+            if(mission.user_app_type === 'enroll'){
                 baseURL = '/rest/pl/fe/matter/enroll/receiver/';
-            }else if($scope.mission.user_app_type === 'signin'){
+            }else if(mission.user_app_type === 'signin'){
                 baseURL = '/rest/pl/fe/matter/signin/receiver/';
             }
-            $scope.mission = mission;
             listReceivers(mission);
             http2.get('/rest/pl/fe/matter/timer/byMatter?site=' + mission.siteid + '&type=mission&id=' + mission.id, function(rsp) {
                 rsp.data.forEach(function(oTask) {
@@ -264,7 +246,6 @@ define(['frame'], function(ngApp) {
                 return 'page=' + this.at + '&size=' + this.size;
             }
         };
-        console.log($scope);
         $scope.search = function(name) {
             var url;
             if($scope.mission.user_app_type === 'enroll'){

@@ -19,8 +19,6 @@ define(['frame'], function(ngApp) {
             http2.get(url, function(rsp) {
                 var records, noticeStatus, result;
                 result = rsp.data;
-
-                console.log(result);
                 $scope.logs = result.logs;
                 if (result.records && result.records.length) {
                     records = result.records;

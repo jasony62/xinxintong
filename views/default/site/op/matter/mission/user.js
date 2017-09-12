@@ -1,47 +1,20 @@
 require(['matterService'], function() {
     'use strict';
-    var _siteId, _missionId, _accessToken;
-    _siteId = location.search.match('site=([^&]*)')[1];
-    _missionId = location.search.match('mission=([^&]*)')[1];
-    _accessToken = location.search.match('accessToken=([^&]*)')[1];
+    var ls, _siteId, _missionId, _userId, _accessToken;
+    ls = location.search;
+    _siteId = ls.match('site=([^&]*)')[1];
+    _missionId = ls.match('mission=([^&]*)')[1];
+    _userId = ls.match('user=([^&]*)')[1];
+    _accessToken = ls.match('accessToken=([^&]*)')[1];
 
     var ngApp = angular.module('app', ['ui.tms', 'service.matter', 'service.mission']);
     ngApp.config(['srvOpMissionProvider', function(srvOpMissionProvider) {
         srvOpMissionProvider.config(_siteId, _missionId, _accessToken);
     }]);
-    ngApp.controller('ctrlMain', ['$scope', '$uibModal', 'http2', 'srvOpMission', function($scope, $uibModal, http2, srvMission) {
-        $scope.chooseUser = function() {
-            $uibModal.open({
-                templateUrl: 'chooseUser.html',
-                backdrop: 'static',
-                controller: ['$scope', '$uibModalInstance', function($scope2, $mi) {
-                    var url;
-                    url = '/rest/site/op/matter/mission/report/userList?site=' + _siteId + '&mission=' + _missionId + '&accessToken=' + _accessToken;
-                    http2.get(url, function(rsp) {
-                        $scope2.users = rsp.data;
-                    });
-                    $scope2.chosen = {};
-                    $scope2.cancel = function() {
-                        $mi.dismiss();
-                    };
-                    $scope2.ok = function() {
-                        if ($scope2.chosen.index !== undefined) {
-                            $mi.close($scope2.users[$scope2.chosen.index]);
-                        }
-                    }
-                }]
-            }).result.then(function(oUser) {
-                if (oUser && oUser.userid) {
-                    location.href = '/rest/site/op/matter/mission/user?site=' + _siteId + '&mission=' + _missionId + '&user=' + oUser.userid + '&accessToken=' + _accessToken;
-                }
-            });
-        };
-
+    ngApp.controller('ctrlMain', ['$scope', 'http2', 'srvOpMission', function($scope, http2, srvMission) {
         srvMission.get().then(function(result) {
             $scope.mission = result.mission;
-            var url;
-            url = '/rest/site/op/matter/mission/report/matterList?site=' + _siteId + '&mission=' + _missionId + '&accessToken=' + _accessToken;
-            http2.get(url, function(rsp) {
+            http2.get('/rest/site/op/matter/mission/report/userTrack?site=' + _siteId + '&mission=' + _missionId + '&user=' + _userId + '&accessToken=' + _accessToken, function(rsp) {
                 var mattersByTime, orderedTimes;
                 mattersByTime = {};
                 orderedTimes = [];
@@ -95,7 +68,18 @@ require(['matterService'], function() {
                             }
                         }
                         matter.indicator = oIndicator;
-                    } else if (matter.type === 'signin') {}
+                    } else if (matter.type === 'signin') {
+                        if (matter.record.signin_log) {
+                            matter.rounds.forEach(function(round) {
+                                var record = matter.record,
+                                    signinLog = record.signin_log;
+                                record._signinLate = {};
+                                if (signinLog && signinLog[round.rid]) {
+                                    record._signinLate[round.rid] = round.late_at && round.late_at < signinLog[round.rid] - 60;
+                                }
+                            });
+                        }
+                    }
                 });
                 orderedTimes.sort();
                 $scope.currentTime = parseInt((new Date * 1) / 1000);

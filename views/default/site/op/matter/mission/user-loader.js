@@ -19,7 +19,7 @@ window.loading = {
                 "ui-tms": "/static/js/ui-tms",
                 "matterService": "/views/default/pl/fe/_module/matter.service",
                 "missionService": '/views/default/pl/fe/matter/mission/lib/mission.service',
-                "main": "/views/default/site/op/matter/mission/main",
+                "main": "/views/default/site/op/matter/mission/user",
             },
             urlArgs: function(id, url) {
                 if (/domReady/.test(id)) {

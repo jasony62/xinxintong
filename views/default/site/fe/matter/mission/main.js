@@ -5,9 +5,6 @@ require(['matterService'], function() {
     missionId = location.search.match('mission=([^&]*)')[1];
     ngApp = angular.module('app', ['service.matter']);
     ngApp.controller('ctrlMain', ['$scope', '$http', function($scope, $http) {
-        var mattersByTime, orderedTimes;
-        mattersByTime = {};
-        orderedTimes = [];
         $scope.siteUser = function() {
             event.preventDefault();
             event.stopPropagation();
@@ -26,6 +23,9 @@ require(['matterService'], function() {
             $scope.mission = rsp.data;
         });
         $http.get('/rest/site/fe/matter/mission/userTrack?site=' + siteId + '&mission=' + missionId).success(function(rsp) {
+            var mattersByTime, orderedTimes;
+            mattersByTime = {};
+            orderedTimes = [];
             rsp.data.forEach(function(matter) {
                 if (matter.start_at > 0) {
                     if (!mattersByTime[matter.start_at]) {

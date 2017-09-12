@@ -17,16 +17,10 @@ define(['frame'], function(ngApp) {
             })
         };
         $scope.openMatter = function(matter, subView) {
-            var type, id;
-            if ($scope.frameState.sid == '') {
-                type = matter.matter_type;
-                id = matter.matter_id;
-            } else {
-                type = matter.type;
-                id = matter.id;
-            }
-
-            var url = '/rest/pl/fe/matter/' + type;
+            var type, id, url;
+            type = matter.matter_type || matter.type;
+            id = matter.matter_id || matter.id;
+            url = '/rest/pl/fe/matter/' + type;
             if (subView) {
                 url += '/' + subView;
             }

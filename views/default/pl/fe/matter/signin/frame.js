@@ -66,6 +66,7 @@ define(['require', 'page', 'schema', 'signinService', 'enrollSchema', 'enrollPag
             .when('/rest/pl/fe/matter/signin/access', new RouteParam('access'))
             .when('/rest/pl/fe/matter/signin/preview', new RouteParam('preview'))
             .when('/rest/pl/fe/matter/signin/notice', new RouteParam('notice'))
+            .when('/rest/pl/fe/matter/signin/coin', new RouteParam('coin'))
             .otherwise(new RouteParam('entry'));
 
         $locationProvider.html5Mode(true);
@@ -105,12 +106,19 @@ define(['require', 'page', 'schema', 'signinService', 'enrollSchema', 'enrollPag
                 case 'main':
                 case 'page':
                 case 'schema':
+                case 'preview':
                     $scope.opened = 'edit';
                     break;
                 case 'access':
-                case 'preview':
                 case 'entry':
                     $scope.opened = 'publish';
+                    break;
+                case 'record':
+                    $scope.opened = 'data';
+                    break;
+                case 'coin':
+                case 'notice':
+                    $scope.opened = 'other';
                     break;
                 default:
                     $scope.opened = '';
@@ -133,10 +141,10 @@ define(['require', 'page', 'schema', 'signinService', 'enrollSchema', 'enrollPag
         srvSite.snsList().then(function(oSns) {
             $scope.sns = oSns;
             srvSigninApp.get().then(function(oApp) {
-                if(oApp.matter_mg_tag !== ''){
-                     oApp.matter_mg_tag.forEach(function(cTag,index){
-                        $scope.oTag.forEach(function(oTag){
-                            if(oTag.id === cTag){
+                if (oApp.matter_mg_tag !== '') {
+                    oApp.matter_mg_tag.forEach(function(cTag, index) {
+                        $scope.oTag.forEach(function(oTag) {
+                            if (oTag.id === cTag) {
                                 oApp.matter_mg_tag[index] = oTag;
                             }
                         });

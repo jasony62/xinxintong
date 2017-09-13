@@ -327,6 +327,7 @@ $sql .= ",mission_id int not null default 0"; // 所属项目
 $sql .= ",mission_phase_id varchar(13) not null default ''"; // 所属项目阶段
 $sql .= ",entry_rule text"; // 进入规则
 $sql .= ",data_schemas text";
+$sql .= ",assigned_nickname text"; // 填写题目中指定填写人昵称{"valid":"Y","schema":{"id":"xxxxxx"}}
 $sql .= ",use_site_header char(1) not null default 'Y'"; // 使用站点页眉
 $sql .= ",use_site_footer char(1) not null default 'Y'"; // 使用站点页脚
 $sql .= ",use_mission_header char(1) not null default 'Y'"; // 使用项目页眉

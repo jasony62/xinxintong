@@ -30,6 +30,7 @@ $sql .= ",user_total_coin int not null default 0"; // 用户在某个活动中�
 $sql .= ",primary key(id)) ENGINE=MyISAM DEFAULT CHARSET=utf8";
 //
 $sqls[] = $sql;
+$sqls[] = "ALTER TABLE xxt_signin add assigned_nickname text after data_schemas";
 //
 foreach ($sqls as $sql) {
 	if (!$mysqli->query($sql)) {

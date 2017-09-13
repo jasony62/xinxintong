@@ -64,12 +64,12 @@ class record_model extends \TMS_MODEL {
 	public function &signin(&$oUser, $oApp, $signinData = null) {
 		$modelRnd = $this->model('matter\signin\round');
 		$modelLog = $this->model('matter\signin\log');
-		$state = new \stdClass;
+		$oSigninState = new \stdClass;
 
 		if ($record = $this->byUser($oUser, $oApp)) {
 			// 已经登记过，不需要再登记
 			$ek = $record->enroll_key;
-			$state->enrolled = true;
+			$oSigninState->enrolled = true;
 		} else if ($signinData && ($records = $this->byData($oApp, $signinData)) && count($records) === 1) {
 			// 已经有手工添加的记录，不需要再登记
 			$ek = $records[0]->enroll_key;
@@ -78,24 +78,29 @@ class record_model extends \TMS_MODEL {
 				['userid' => $oUser->uid, 'nickname' => $this->escape($oUser->nickname)],
 				"enroll_key='$ek' and state=1"
 			);
-			$state->enrolled = true;
+			$oSigninState->enrolled = true;
 		} else {
 			// 没有登记过，先登记
 			$ek = $this->enroll($oApp, $oUser);
-			$state->enrolled = false;
+			$oSigninState->enrolled = false;
 		}
 		/**
 		 * 执行签到，在每个轮次上只能进行一次签到，第一次签到后再提交也不会更改签到时间等信息
 		 */
-		$activeRound = $modelRnd->getActive($oApp->siteid, $oApp->id);
-		if ($singinLog = $modelLog->byRecord($ek, $activeRound->rid)) {
+		$oActiveRnd = $modelRnd->getActive($oApp->siteid, $oApp->id);
+		if ($oSinginLog = $modelLog->byRecord($ek, $oActiveRnd->rid)) {
 			/* 登记记录有对应的签到记录 */
-			$state->signed = true;
-			if (empty($singinLog->userid) || empty($singinLog->nickname)) {
+			$oSigninState->signed = true;
+			if (!empty($oActiveRnd->late_at)) {
+				$oSigninState->late = $oSinginLog->signin_at + 60 > $oActiveRnd->late_at;
+			} else {
+				$oSigninState->late = false;
+			}
+			if (empty($oSinginLog->userid) || empty($oSinginLog->nickname)) {
 				$this->update(
 					'xxt_signin_log',
 					['userid' => $oUser->uid, 'nickname' => $this->escape($oUser->nickname)],
-					"enroll_key='$ek' and rid='{$activeRound->rid}' and state=1"
+					['enroll_key' => $ek, 'rid' => $oActiveRnd->rid, 'state' => 1]
 				);
 			}
 		} else {
@@ -106,7 +111,7 @@ class record_model extends \TMS_MODEL {
 				[
 					'siteid' => $oApp->siteid,
 					'aid' => $oApp->id,
-					'rid' => $activeRound->rid,
+					'rid' => $oActiveRnd->rid,
 					'enroll_key' => $ek,
 					'userid' => $oUser->uid,
 					'nickname' => $this->escape($oUser->nickname),
@@ -117,19 +122,24 @@ class record_model extends \TMS_MODEL {
 			// 记录签到摘要
 			$record = $this->byId($ek);
 			$signinLog = $record->signin_log;
-			$signinLog->{$activeRound->rid} = $signinAt;
+			$signinLog->{$oActiveRnd->rid} = $signinAt;
 			$signinLog = $this->toJson($signinLog);
 			// 更新状态
 			$sql = "update xxt_signin_record set signin_at=$signinAt,signin_num=signin_num+1,signin_log='$signinLog'";
 			$sql .= " where aid='{$oApp->id}' and enroll_key='$ek'";
 			$rst = $this->update($sql);
 
-			$state->signed = false;
+			$oSigninState->signed = false;
+			if (!empty($oActiveRnd->late_at)) {
+				$oSigninState->late = $signinAt + 60 > $oActiveRnd->late_at;
+			} else {
+				$oSigninState->late = false;
+			}
 		}
 
-		$state->ek = $ek;
+		$oSigninState->ek = $ek;
 
-		return $state;
+		return $oSigninState;
 	}
 	/**
 	 * 检查用户在指定轮次是否已经签到

@@ -49,19 +49,26 @@ class record extends base {
 			die('签到活动不存在');
 		}
 
-		$oUser = $this->who;
-		$userNickname = $modelApp->getUserNickname($oSigninApp, $oUser);
-		$oUser->nickname = $userNickname;
+		$oUser = clone $this->who;
 
 		/**
 		 * 提交的数据
 		 */
-		$signinData = $this->getPostJson();
+		$oSigninData = $this->getPostJson();
+		/**
+		 * 签到用户昵称
+		 */
+		if ((isset($oSigninApp->assignedNickname->valid) && $oSigninApp->assignedNickname->valid === 'Y') && isset($oSigninApp->assignedNickname->schema->id)) {
+			$oUser->nickname = empty($oSigninData->{$oSigninApp->assignedNickname->schema->id}) ? '' : $oSigninData->{$oSigninApp->assignedNickname->schema->id};
+		} else {
+			$userNickname = $modelApp->getUserNickname($oSigninApp, $oUser);
+			$oUser->nickname = $userNickname;
+		}
 		/**
 		 * 包含用户身份信息
 		 */
-		if (isset($signinData->member) && isset($signinData->member->schema_id)) {
-			$member = clone $signinData->member;
+		if (isset($oSigninData->member) && isset($oSigninData->member->schema_id)) {
+			$member = clone $oSigninData->member;
 			$rst = $this->_submitMember($site, $member, $oUser);
 			if ($rst[0] === false) {
 				return new \ParameterError($rst[1]);
@@ -72,10 +79,10 @@ class record extends base {
 		 */
 		$modelRec = $this->model('matter\signin\record');
 		$modelRec->setOnlyWriteDbConn(true);
-		$oSignState = $modelRec->signin($oUser, $oSigninApp, $signinData);
+		$oSignState = $modelRec->signin($oUser, $oSigninApp, $oSigninData);
 		// 保存签到登记数据
 		empty($submitkey) && $submitkey = $oUser->uid;
-		$rst = $modelRec->setData($site, $oSigninApp, $oSignState->ek, $signinData, $submitkey);
+		$rst = $modelRec->setData($site, $oSigninApp, $oSignState->ek, $oSigninData, $submitkey);
 		if (false === $rst[0]) {
 			return new \ResponseError($rst[1]);
 		}
@@ -90,7 +97,7 @@ class record extends base {
 				$requireCheckedData = new \stdClass;
 				foreach ($dataSchemas as $dataSchema) {
 					if (isset($dataSchema->requireCheck) && $dataSchema->requireCheck === 'Y') {
-						$requireCheckedData->{$dataSchema->id} = isset($signinData->{$dataSchema->id}) ? $signinData->{$dataSchema->id} : '';
+						$requireCheckedData->{$dataSchema->id} = isset($oSigninData->{$dataSchema->id}) ? $oSigninData->{$dataSchema->id} : '';
 					}
 				}
 				if ($oSigninApp->mission_phase_id) {
@@ -108,10 +115,10 @@ class record extends base {
 					if ($enrollRecord->verified === 'Y') {
 						$enrollData = $enrollRecords[0]->data;
 						foreach ($enrollData as $n => $v) {
-							!isset($signinData->{$n}) && $signinData->{$n} = $v;
+							!isset($oSigninData->{$n}) && $oSigninData->{$n} = $v;
 						}
 						// 记录报名数据
-						$modelRec->setData($site, $oSigninApp, $oSignState->ek, $signinData, $submitkey);
+						$modelRec->setData($site, $oSigninApp, $oSignState->ek, $oSigninData, $submitkey);
 						// 记录验证状态
 						$modelRec->update(
 							'xxt_signin_record',
@@ -155,7 +162,7 @@ class record extends base {
 			foreach ($dataSchemas as $dataSchema) {
 				if (isset($dataSchema->requireCheck) && $dataSchema->requireCheck === 'Y') {
 					if (isset($dataSchema->fromApp) && $dataSchema->fromApp === $oSigninApp->group_app_id) {
-						$requireCheckedData->{$dataSchema->id} = isset($signinData->{$dataSchema->id}) ? $signinData->{$dataSchema->id} : '';
+						$requireCheckedData->{$dataSchema->id} = isset($oSigninData->{$dataSchema->id}) ? $oSigninData->{$dataSchema->id} : '';
 					}
 				}
 			}
@@ -169,31 +176,66 @@ class record extends base {
 			/* 将匹配的登记记录数据作为提交的登记数据的一部分 */
 			$matchedData = $groupRecord->data;
 			foreach ($matchedData as $n => $v) {
-				!isset($signinData->{$n}) && $signinData->{$n} = $v;
+				!isset($oSigninData->{$n}) && $oSigninData->{$n} = $v;
 			}
 			if (isset($groupRecord->round_id)) {
-				$signinData->_round_id = $groupRecord->round_id;
+				$oSigninData->_round_id = $groupRecord->round_id;
 			}
 		}
 		/* 记录操作日志 */
 		$this->_logSubmit($oSigninApp, $oSignState->ek);
 
-		/* 更新项目用户信息 */
-		if (!empty($oSigninApp->mission_id) && false === $oSignState->signed) {
-			$modelMisUsr = $this->model('matter\mission\user');
-			$modelMisUsr->setOnlyWriteDbConn(true);
-			$oMission = new \stdClass;
-			$oMission->siteid = $oSigninApp->siteid;
-			$oMission->id = $oSigninApp->mission_id;
-			$oMisUsr = $modelMisUsr->byId($oMission, $this->who->uid, ['fields' => 'id,nickname,last_signin_at,signin_num']);
-			if (false === $oMisUsr) {
-				$modelMisUsr->add($oMission, $this->who, ['last_signin_at' => time(), 'signin_num' => 1]);
+		/**
+		 * 当前轮次签到
+		 */
+		if (false === $oSignState->signed) {
+			/**
+			 * 发放签到积分
+			 */
+			$modelCoin = $this->model('matter\signin\coin');
+			$modelCoin->setOnlyWriteDbConn(true);
+			$modelClog = $this->model('site\coin\log');
+			$modelClog->setOnlyWriteDbConn(true);
+			if ($oSignState->late) {
+				$coinEvent = 'site.matter.signin.submit.late';
 			} else {
-				$modelMisUsr->update(
-					'xxt_mission_user',
-					['last_signin_at' => time(), 'signin_num' => $oMisUsr->signin_num + 1],
-					['id' => $oMisUsr->id]
-				);
+				$coinEvent = 'site.matter.signin.submit.ontime';
+			}
+			$aCoinRules = $modelCoin->rulesByMatter($coinEvent, $oSigninApp);
+			$modelClog->award($oSigninApp, $oUser, $coinEvent, $aCoinRules);
+			/**
+			 * 更新项目用户信息
+			 */
+			if (!empty($oSigninApp->mission_id)) {
+				$modelMisUsr = $this->model('matter\mission\user');
+				$modelMisUsr->setOnlyWriteDbConn(true);
+				$oMission = new \stdClass;
+				$oMission->siteid = $oSigninApp->siteid;
+				$oMission->id = $oSigninApp->mission_id;
+				$oMisUsr = $modelMisUsr->byId($oMission, $oUser->uid, ['fields' => 'id,nickname,last_signin_at,signin_num,user_total_coin']);
+				if (false === $oMisUsr) {
+					$aNewMisUser = ['last_signin_at' => time(), 'signin_num' => 1];
+					if (!empty($aCoinRules)) {
+						$aNewMisUser['user_total_coin'] = 0;
+						foreach ($aCoinRules as $rule) {
+							$aNewMisUser['user_total_coin'] = $aNewMisUser['user_total_coin'] + (int) $rule->actor_delta;
+						}
+					}
+					$modelMisUsr->add($oMission, $oUser, $aNewMisUser);
+				} else {
+					$aUpdMisUser = ['last_signin_at' => time(), 'signin_num' => $oMisUsr->signin_num + 1];
+					if (!empty($aCoinRules)) {
+						$aUpdMisUser['user_total_coin'] = (int) $oMisUsr->user_total_coin;
+						foreach ($aCoinRules as $rule) {
+							$aUpdMisUser['user_total_coin'] = $aUpdMisUser['user_total_coin'] + (int) $rule->actor_delta;
+						}
+					}
+					$modelMisUsr->update(
+						'xxt_mission_user',
+						$aUpdMisUser,
+						['id' => $oMisUsr->id]
+					);
+				}
 			}
 		}
 		/**

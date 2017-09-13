@@ -1,16 +1,16 @@
 <?php
-namespace matter\enroll;
+namespace matter\signin;
 /**
  *
  */
 class coin_model extends \TMS_MODEL {
 	/**
-	 * 返回登记活动对应的积分规则
+	 * 返回签到活动对应的积分规则
 	 *
 	 * @param
 	 */
 	public function &rulesByMatter($act, $oApp) {
-		$q = ['*', 'xxt_coin_rule', "matter_type='enroll' and act='$act' and "];
+		$q = ['*', 'xxt_coin_rule', "matter_type='signin' and act='$act' and "];
 
 		$w = "(";
 		$w .= "matter_filter='*'";

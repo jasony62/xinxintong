@@ -152,7 +152,7 @@ class group_model extends app_base {
 		return true;
 	}
 	/**
-	 *
+	 * 进行分组
 	 */
 	public function execute($appId) {
 		$app = \TMS_APP::M('matter\group')->byId($appId);

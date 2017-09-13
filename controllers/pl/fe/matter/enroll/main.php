@@ -49,6 +49,24 @@ class main extends \pl\fe\matter\base {
 		if ($oApp->group_app_id) {
 			$oApp->groupApp = $this->model('matter\group')->byId($oApp->group_app_id);
 		}
+		/* 指定分组活动访问 */
+		if ($oApp->entry_rule->scope === 'group') {
+			if (isset($oApp->entry_rule->group)) {
+				$oRuleApp = $oApp->entry_rule->group;
+				if (!empty($oRuleApp->id)) {
+					$oGroupApp = $this->model('matter\group')->byId($oRuleApp->id, ['fields' => 'title', 'cascaded' => 'N']);
+					if ($oGroupApp) {
+						$oRuleApp->title = $oGroupApp->title;
+						if (!empty($oRuleApp->round->id)) {
+							$oGroupRnd = $this->model('matter\group\round')->byId($oRuleApp->round->id, ['fields' => 'title']);
+							if ($oGroupRnd) {
+								$oRuleApp->round->title = $oGroupRnd->title;
+							}
+						}
+					}
+				}
+			}
+		}
 
 		return new \ResponseData($oApp);
 	}
@@ -1348,15 +1366,25 @@ class main extends \pl\fe\matter\base {
 
 		$posted = $this->getPostJson();
 		$modelApp = $this->model('matter\enroll');
-		$oMatter = $modelApp->byId($app, 'id,title,summary,pic,scenario,start_at,end_at,mission_id,mission_phase_id');
+		$oApp = $modelApp->byId($app, 'id,title,summary,pic,scenario,start_at,end_at,mission_id,mission_phase_id');
 
 		/* 处理数据 */
 		$updated = new \stdClass;
 		foreach ($posted as $n => $v) {
 			if (in_array($n, ['title', 'summary'])) {
 				$updated->{$n} = $modelApp->escape($v);
-			} else if (in_array($n, ['entry_rule', 'data_schemas'])) {
-				$updated->{$n} = $modelApp->escape($modelApp->toJson($v));
+			} else if ($n === 'data_schemas') {
+				$updated->data_schemas = $modelApp->escape($modelApp->toJson($v));
+			} else if ($n === 'entry_rule') {
+				if ($v->scope === 'group') {
+					if (isset($v->group->title)) {
+						unset($v->group->title);
+					}
+					if (isset($v->group->round->title)) {
+						unset($v->group->round->title);
+					}
+				}
+				$updated->entry_rule = $modelApp->escape($modelApp->toJson($v));
 			} else if ($n === 'assignedNickname') {
 				$updated->assigned_nickname = $modelApp->escape($modelApp->toJson($v));
 			} else if ($n === 'userTask') {
@@ -1374,7 +1402,7 @@ class main extends \pl\fe\matter\base {
 			} else {
 				$updated->{$n} = $v;
 			}
-			$oMatter->{$n} = $v;
+			$oApp->{$n} = $v;
 		}
 
 		$updated->modifier = $user->id;
@@ -1385,11 +1413,11 @@ class main extends \pl\fe\matter\base {
 		$rst = $modelApp->update('xxt_enroll', $updated, ["id" => $app]);
 		if ($rst) {
 			// 更新项目中的素材信息
-			if ($oMatter->mission_id) {
-				$this->model('matter\mission')->updateMatter($oMatter->mission_id, $oMatter);
+			if ($oApp->mission_id) {
+				$this->model('matter\mission')->updateMatter($oApp->mission_id, $oApp);
 			}
 			// 记录操作日志并更新信息
-			$this->model('matter\log')->matterOp($site, $user, $oMatter, 'U', $updated);
+			$this->model('matter\log')->matterOp($site, $user, $oApp, 'U', $updated);
 		}
 
 		return new \ResponseData($rst);

@@ -1,7 +1,7 @@
 define(['frame'], function(ngApp) {
     'use strict';
     ngApp.provider.controller('ctrlAccess', ['$scope', '$uibModal', 'http2', 'srvSite', 'srvEnrollApp', function($scope, $uibModal, http2, srvSite, srvEnrollApp) {
-        var oEntryRule;
+        var _oApp, _oEntryRule;
         $scope.rule = {};
         $scope.isInputPage = function(pageName) {
             if (!$scope.app) {
@@ -23,16 +23,53 @@ define(['frame'], function(ngApp) {
         $scope.chooseMschema = function() {
             srvSite.chooseMschema($scope.app).then(function(result) {
                 var rule = {};
-                if (!oEntryRule.member[result.chosen.id]) {
+                if (!_oEntryRule.member[result.chosen.id]) {
                     if ($scope.jumpPages.defaultInput) {
                         rule.entry = $scope.jumpPages.defaultInput.name;
                     } else {
                         rule.entry = '';
                     }
-                    oEntryRule.member[result.chosen.id] = rule;
+                    _oEntryRule.member[result.chosen.id] = rule;
                     $scope.update('entry_rule');
                 }
             });
+        };
+        $scope.chooseGroupApp = function() {
+            $uibModal.open({
+                templateUrl: 'chooseGroupApp.html',
+                controller: ['$scope', '$uibModalInstance', function($scope2, $mi) {
+                    $scope2.app = _oApp;
+                    $scope2.data = {
+                        app: null,
+                        round: null
+                    };
+                    _oApp.mission && ($scope2.data.sameMission = 'Y');
+                    $scope2.cancel = function() {
+                        $mi.dismiss();
+                    };
+                    $scope2.ok = function() {
+                        $mi.close($scope2.data);
+                    };
+                    var url = '/rest/pl/fe/matter/group/list?site=' + _oApp.siteid + '&size=999&cascaded=Y';
+                    _oApp.mission && (url += '&mission=' + _oApp.mission.id);
+                    http2.get(url, function(rsp) {
+                        $scope2.apps = rsp.data.apps;
+                    });
+                }],
+                backdrop: 'static'
+            }).result.then(function(result) {
+                if (result.app) {
+                    _oEntryRule.group = { id: result.app.id, title: result.app.title };
+                    if (result.round) {
+                        _oEntryRule.group.round = { id: result.round.round_id, title: result.round.title };
+                    }
+                    $scope.update('entry_rule');
+                }
+            });
+        };
+        $scope.removeGroupApp = function() {
+            delete _oEntryRule.group;
+            $scope.update('entry_rule');
         };
         $scope.editMschema = function(oMschema) {
             if (oMschema.matter_id) {
@@ -46,8 +83,8 @@ define(['frame'], function(ngApp) {
             }
         };
         $scope.removeMschema = function(mschemaId) {
-            if (oEntryRule.member[mschemaId]) {
-                delete oEntryRule.member[mschemaId];
+            if (_oEntryRule.member[mschemaId]) {
+                delete _oEntryRule.member[mschemaId];
                 $scope.update('entry_rule');
             }
         };
@@ -77,7 +114,8 @@ define(['frame'], function(ngApp) {
             $scope.jumpPages = srvEnrollApp.jumpPages();
             $scope.rule.scope = app.entry_rule.scope || 'none';
             $scope.rule.exclude = app.entry_rule.exclude;
-            oEntryRule = app.entry_rule;
+            _oEntryRule = app.entry_rule;
+            _oApp = app;
         }, true);
     }]);
 });

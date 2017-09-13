@@ -107,6 +107,7 @@ class remark extends base {
 		$modelMat = $this->model('matter\enroll\coin');
 		$modelMat->setOnlyWriteDbConn(true);
 		$rulesOther = $modelMat->rulesByMatter('site.matter.enroll.data.other.comment', $oApp);
+		$rulesOwner = $modelMat->rulesByMatter('site.matter.enroll.data.comment', $oApp);
 
 		$modelCoin = $this->model('site\coin\log');
 		$modelCoin->setOnlyWriteDbConn(true);
@@ -174,12 +175,11 @@ class remark extends base {
 			$user = new \stdClass;
 			$user->uid = $oEnrollUsr->userid;
 			$user->nickname = $oEnrollUsr->nickname;
-			$rules = $modelMat->rulesByMatter('site.matter.enroll.data.comment', $oApp);
-			$modelCoin->award($oApp, $user, 'site.matter.enroll.data.comment', $rules);
+			$modelCoin->award($oApp, $user, 'site.matter.enroll.data.comment', $rulesOwner);
 
 			$upData2 = ['last_remark_at' => time(), 'remark_num' => $oEnrollUsr->remark_num + 1];
 			$upData2['user_total_coin'] = (int) $oEnrollUsr->user_total_coin;
-			foreach ($rules as $rule) {
+			foreach ($rulesOwner as $rule) {
 				$upData2['user_total_coin'] = $upData2['user_total_coin'] + (int) $rule->actor_delta;
 			}
 			$modelUsr->update(
@@ -192,11 +192,9 @@ class remark extends base {
 		$oEnrollUsrALL = $modelUsr->byId($oApp, $oRecord->userid, ['fields' => 'id,userid,nickname,last_remark_at,remark_num,user_total_coin', 'rid' => 'ALL']);
 		if ($oEnrollUsrALL) {
 			/* 更新被点评的活动用户的积分奖励 */
-			$rules = $modelMat->rulesByMatter('site.matter.enroll.data.comment', $oApp);
-
 			$upData2 = ['last_remark_at' => time(), 'remark_num' => $oEnrollUsrALL->remark_num + 1];
 			$upData2['user_total_coin'] = (int) $oEnrollUsrALL->user_total_coin;
-			foreach ($rules as $rule) {
+			foreach ($rulesOwner as $rule) {
 				$upData2['user_total_coin'] = $upData2['user_total_coin'] + (int) $rule->actor_delta;
 			}
 			$modelUsr->update(
@@ -204,6 +202,51 @@ class remark extends base {
 				$upData2,
 				['id' => $oEnrollUsrALL->id]
 			);
+		}
+		/**
+		 * 更新项目用户数据
+		 */
+		if (!empty($oApp->mission_id)) {
+			$modelMisUsr = $this->model('matter\mission\user');
+			$modelMisUsr->setOnlyWriteDbConn(true);
+			$oMission = new \stdClass;
+			$oMission->siteid = $oApp->siteid;
+			$oMission->id = $oApp->mission_id;
+			/* 更新发起评论的活动用户总数据 */
+			$oMisUsr = $modelMisUsr->byId($oMission, $oUser->uid, ['fields' => 'id,nickname,last_remark_other_at,remark_other_num,user_total_coin']);
+			if (false === $oMisUsr) {
+				$aNewMisUser = ['last_remark_other_at' => time(), 'remark_other_num' => 1];
+				$aNewMisUser['user_total_coin'] = 0;
+				foreach ($rulesOther as $ruleOther) {
+					$aNewMisUser['user_total_coin'] = $aNewMisUser['user_total_coin'] + (int) $ruleOther->actor_delta;
+				}
+				$modelMisUsr->add($oMission, $oUser, $aNewMisUser);
+			} else {
+				$aUpdMisUsr = ['last_remark_other_at' => time(), 'remark_other_num' => $oMisUsr->remark_other_num + 1];
+				$aUpdMisUsr['user_total_coin'] = $oMisUsr->user_total_coin;
+				foreach ($rulesOther as $ruleOther) {
+					$aUpdMisUsr['user_total_coin'] = $aUpdMisUsr['user_total_coin'] + (int) $ruleOther->actor_delta;
+				}
+				$modelMisUsr->update(
+					'xxt_mission_user',
+					$aUpdMisUsr,
+					['id' => $oMisUsr->id]
+				);
+			}
+			/* 更新被评论的活动用户总数据 */
+			$oMisUsr = $modelMisUsr->byId($oMission, $oRecord->userid, ['fields' => 'id,userid,nickname,last_remark_at,remark_num,user_total_coin', 'rid' => 'ALL']);
+			if ($oMisUsr) {
+				$oUpdMisUser = ['last_remark_at' => time(), 'remark_num' => $oMisUsr->remark_num + 1];
+				$oUpdMisUser['user_total_coin'] = (int) $oMisUsr->user_total_coin;
+				foreach ($rulesOwner as $rule) {
+					$oUpdMisUser['user_total_coin'] = $oUpdMisUser['user_total_coin'] + (int) $rule->actor_delta;
+				}
+				$modelMisUsr->update(
+					'xxt_mission_user',
+					$oUpdMisUser,
+					['id' => $oMisUsr->id]
+				);
+			}
 		}
 
 		$this->_notifyHasRemark($oApp, $oRecord, $oRemark);
@@ -309,6 +352,11 @@ class remark extends base {
 			return new \ObjectNotFoundError();
 		}
 
+		$modelEnl = $this->model('matter\enroll');
+		$oApp = $modelEnl->byId($oRemark->aid, ['cascaded' => 'N']);
+		if (false === $oApp) {
+			return new \ObjectNotFoundError();
+		}
 		$oLikeLog = $oRemark->like_log;
 
 		$oUser = $this->who;
@@ -328,9 +376,6 @@ class remark extends base {
 			['id' => $oRemark->id]
 		);
 
-		$oApp = new \stdClass;
-		$oApp->siteid = $this->siteId;
-		$oApp->id = $oRemark->aid;
 		$modelUsr = $this->model('matter\enroll\user');
 		$modelUsr->setOnlyWriteDbConn(true);
 		/* 更新进行点赞的活动用户的数据 */
@@ -352,6 +397,35 @@ class remark extends base {
 				['last_like_remark_at' => time(), 'like_remark_num' => $oEnrollUsr->like_remark_num + $incLikeNum],
 				['id' => $oEnrollUsr->id]
 			);
+		}
+		/**
+		 * 更新项目用户数据
+		 */
+		if (!empty($oApp->mission_id)) {
+			$modelMisUsr = $this->model('matter\mission\user');
+			$modelMisUsr->setOnlyWriteDbConn(true);
+			$oMission = new \stdClass;
+			$oMission->siteid = $oApp->siteid;
+			$oMission->id = $oApp->mission_id;
+			$oMisUsr = $modelMisUsr->byId($oMission, $this->who->uid, ['fields' => 'id,nickname,last_like_other_remark_at,like_other_remark_num']);
+			if (false === $oMisUsr) {
+				$modelMisUsr->add($oMission, $this->who, ['last_like_other_remark_at' => time(), 'like_other_remark_num' => 1]);
+			} else {
+				$modelMisUsr->update(
+					'xxt_mission_user',
+					['last_like_other_remark_at' => time(), 'like_other_remark_num' => $oMisUsr->like_other_remark_num + $incLikeNum],
+					['id' => $oMisUsr->id]
+				);
+			}
+			/* 更新被点赞的活动用户的数据 */
+			$oMisUsr = $modelMisUsr->byId($oMission, $this->who->uid, ['fields' => 'id,nickname,last_like_remark_at,like_remark_num']);
+			if ($oMisUsr) {
+				$modelMisUsr->update(
+					'xxt_mission_user',
+					['last_like_remark_at' => time(), 'like_remark_num' => $oMisUsr->like_remark_num + $incLikeNum],
+					['id' => $oMisUsr->id]
+				);
+			}
 		}
 
 		return new \ResponseData(['like_log' => $oLikeLog, 'like_num' => $likeNum]);

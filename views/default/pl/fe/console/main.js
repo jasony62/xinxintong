@@ -17,16 +17,10 @@ define(['frame'], function(ngApp) {
             })
         };
         $scope.openMatter = function(matter, subView) {
-            var type, id;
-            if ($scope.frameState.sid == '') {
-                type = matter.matter_type;
-                id = matter.matter_id;
-            } else {
-                type = matter.type;
-                id = matter.id;
-            }
-
-            var url = '/rest/pl/fe/matter/' + type;
+            var type, id, url;
+            type = matter.matter_type || matter.type;
+            id = matter.matter_id || matter.id;
+            url = '/rest/pl/fe/matter/' + type;
             if (subView) {
                 url += '/' + subView;
             }
@@ -186,28 +180,11 @@ define(['frame'], function(ngApp) {
         };
         $scope.filter = filter = {};
         $scope.filter2 = filter2 = {};
-        $scope.missionAddMatter = function() {
-            var target = $('#missionAddMatter');
-            if (target.data('popover') === 'Y') {
-                target.trigger('hide').data('popover', 'N');
-            } else {
-                target.trigger('show').data('popover', 'Y');
-            }
-        };
         $scope.open = function(mission, subView) {
             location.href = '/rest/pl/fe/matter/mission/' + subView + '?site=' + mission.siteid + '&id=' + mission.mission_id;
         };
         $scope.create = function() {
-            var url = '/rest/pl/fe/matter/mission/create?site=' + $scope.frameState.sid;
-            http2.get(url, function(rsp) {
-                location.href = '/rest/pl/fe/matter/mission?site=' + rsp.data.siteid + '&id=' + rsp.data.id;
-            });
-        };
-        $scope.listSite = function() {
-            var url = '/rest/pl/fe/matter/mission/listSite?_=' + t;
-            http2.get(url, function(rsp) {
-                $scope.missionSites = rsp.data.sites;
-            });
+            location.href = '/rest/pl/fe/matter/mission/plan?site=' + $scope.frameState.sid;
         };
         $scope.list = function() {
             var url = '/rest/pl/fe/matter/mission/listByUser?_=' + t + '&' + page.j();
@@ -225,18 +202,17 @@ define(['frame'], function(ngApp) {
         $scope.cleanFilterTag = function() {
             filter.byTags = filter2.byTags = '';
         };
-        $scope.$watch('frameState.sid', function(nv) {
-            angular.extend(filter, { bySite: nv });
-            $scope.getMatterTag();
-        });
-        $scope.$watch('filter', function(nv) {
-            if (!nv) return;
-            $scope.list();
-        }, true);
         $scope.matterTags = function() {
             $scope.matterTagsFram(filter, filter2);
         };
-        $scope.listSite();
+        $scope.$watch('frameState.sid', function(nv) {
+            angular.extend(filter, { bySite: nv });
+            $scope.getMatterTag();
+            $scope.$watch('filter', function(nv) {
+                if (!nv) return;
+                $scope.list();
+            }, true);
+        });
     }]);
     ngApp.provider.controller('ctrlActivity', ['$scope', '$location', 'http2', 'cstApp', '$uibModal', function($scope, $location, http2, cstApp, $uibModal) {
         var lsearch, filter, filter2, page;

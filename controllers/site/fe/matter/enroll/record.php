@@ -334,6 +334,52 @@ class record extends base {
 			);
 		}
 		/**
+		 * 更新项目用户数据
+		 */
+		if (!empty($oEnrollApp->mission_id)) {
+			$modelMisUsr = $this->model('matter\mission\user');
+			$modelMisUsr->setOnlyWriteDbConn(true);
+			$oMission = new \stdClass;
+			$oMission->siteid = $oEnrollApp->siteid;
+			$oMission->id = $oEnrollApp->mission_id;
+			$oMisUsr = $modelMisUsr->byId($oMission, $oUser->uid, ['fields' => 'id,nickname,group_id,last_enroll_at,enroll_num,user_total_coin']);
+			if (false === $oMisUsr) {
+				$aNewMisUser = ['last_enroll_at' => time(), 'enroll_num' => 1];
+				if (!empty($rules)) {
+					$aNewMisUser['user_total_coin'] = 0;
+					foreach ($rules as $rule) {
+						$aNewMisUser['user_total_coin'] = $aNewMisUser['user_total_coin'] + (int) $rule->actor_delta;
+					}
+				}
+				$modelMisUsr->add($oMission, $oUser, $aNewMisUser);
+			} else {
+				$aUpdMisUser = [];
+				if ($oMisUsr->nickname !== $oUser->nickname) {
+					$aUpdMisUser['nickname'] = $oUser->nickname;
+				}
+				$aUpdMisUser['last_enroll_at'] = time();
+				if (isset($oUser->group_id)) {
+					if ($oMisUsr->group_id !== $oUser->group_id) {
+						$aUpdMisUser['group_id'] = $oUser->group_id;
+					}
+				}
+				if ($bSubmitNewRecord) {
+					$aUpdMisUser['enroll_num'] = (int) $oMisUsr->enroll_num + 1;
+					if (!empty($rules)) {
+						$aUpdMisUser['user_total_coin'] = (int) $oMisUsr->user_total_coin;
+						foreach ($rules as $rule) {
+							$aUpdMisUser['user_total_coin'] = $aUpdMisUser['user_total_coin'] + (int) $rule->actor_delta;
+						}
+					}
+				}
+				$modelMisUsr->update(
+					'xxt_mission_user',
+					$aUpdMisUser,
+					['id' => $oMisUsr->id]
+				);
+			}
+		}
+		/**
 		 * 通知登记活动事件接收人
 		 */
 		if ($oEnrollApp->notify_submit === 'Y') {
@@ -387,6 +433,9 @@ class record extends base {
 		}
 		if (!empty($oApp->end_at) && $oApp->end_at < $current) {
 			return [false, ['活动已经结束，不允许修改数据']];
+		}
+		if (!empty($oApp->end_submit_at) && $oApp->end_submit_at < $current) {
+			return [false, ['活动提交时间已经结束，不允许修改数据']];
 		}
 
 		$modelRec = $this->model('matter\enroll\record');
@@ -818,14 +867,13 @@ class record extends base {
 				$user->uid = $oEnrollUsr->userid;
 				$user->nickname = $oEnrollUsr->nickname;
 				/* 更新被点赞的活动用户的积分奖励 */
-				$rules = $modelMat->rulesByMatter('site.matter.enroll.data.like', $oApp);
-				$modelCoin->award($oApp, $user, 'site.matter.enroll.data.like', $rules);
+				$rulesOwner = $modelMat->rulesByMatter('site.matter.enroll.data.like', $oApp);
+				$modelCoin->award($oApp, $user, 'site.matter.enroll.data.like', $rulesOwner);
 			}
-
 			$upData2 = ['last_like_at' => time(), 'like_num' => $oEnrollUsr->like_num + $incLikeNum];
-			if (!empty($rules)) {
+			if (!empty($rulesOwner)) {
 				$upData2['user_total_coin'] = (int) $oEnrollUsr->user_total_coin;
-				foreach ($rules as $rule) {
+				foreach ($rulesOwner as $rule) {
 					$upData2['user_total_coin'] = $upData2['user_total_coin'] + (int) $rule->actor_delta;
 				}
 			}
@@ -838,15 +886,14 @@ class record extends base {
 		/* 更新被点赞的活动用户的总数据 */
 		$oEnrollUsrALL = $modelUsr->byId($oApp, $oRecordData->userid, ['fields' => 'id,userid,nickname,last_like_at,like_num,user_total_coin', 'rid' => 'ALL']);
 		if ($oEnrollUsrALL) {
-			if ($incLikeNum > 0) {
+			if ($incLikeNum > 0 && !isset($rulesOwner)) {
 				/* 更新被点赞的活动用户的积分奖励 */
-				$rules = $modelMat->rulesByMatter('site.matter.enroll.data.like', $oApp);
+				$rulesOwner = $modelMat->rulesByMatter('site.matter.enroll.data.like', $oApp);
 			}
-
 			$upDataALL2 = ['last_like_at' => time(), 'like_num' => $oEnrollUsrALL->like_num + $incLikeNum];
-			if (!empty($rules)) {
+			if (!empty($rulesOwner)) {
 				$upDataALL2['user_total_coin'] = (int) $oEnrollUsrALL->user_total_coin;
-				foreach ($rules as $rule) {
+				foreach ($rulesOwner as $rule) {
 					$upDataALL2['user_total_coin'] = $upDataALL2['user_total_coin'] + (int) $rule->actor_delta;
 				}
 			}
@@ -855,6 +902,60 @@ class record extends base {
 				$upDataALL2,
 				['id' => $oEnrollUsrALL->id]
 			);
+		}
+		/**
+		 * 更新项目用户数据
+		 */
+		if (!empty($oApp->mission_id)) {
+			$modelMisUsr = $this->model('matter\mission\user');
+			$modelMisUsr->setOnlyWriteDbConn(true);
+			$oMission = new \stdClass;
+			$oMission->siteid = $oApp->siteid;
+			$oMission->id = $oApp->mission_id;
+			/* 更新进行点赞的活动用户的总数据 */
+			$oMisUser = $modelMisUsr->byId($oMission, $oUser->uid, ['fields' => 'id,nickname,last_like_other_at,like_other_num,user_total_coin']);
+			if (false === $oMisUser) {
+				$aNewMisUsr = ['last_like_other_at' => time(), 'like_other_num' => $incLikeNum];
+				if (!empty($rulesOther)) {
+					$aNewMisUsr['user_total_coin'] = 0;
+					foreach ($rulesOther as $ruleOther) {
+						$aNewMisUsr['user_total_coin'] = $aNewMisUsr['user_total_coin'] + (int) $ruleOther->actor_delta;
+					}
+				}
+				$modelMisUsr->add($oMission, $oUser, $aNewMisUsr);
+			} else {
+				$aUpdMisUsr = ['last_like_other_at' => time(), 'like_other_num' => $oMisUser->like_other_num + $incLikeNum];
+				if (!empty($rulesOther)) {
+					$aUpdMisUsr['user_total_coin'] = (int) $oMisUser->user_total_coin;
+					foreach ($rulesOther as $ruleOther) {
+						$aUpdMisUsr['user_total_coin'] = $aUpdMisUsr['user_total_coin'] + (int) $ruleOther->actor_delta;
+					}
+				}
+				$modelMisUsr->update(
+					'xxt_mission_user',
+					$aUpdMisUsr,
+					['id' => $oMisUser->id]
+				);
+			}
+			/* 更新被点赞的活动用户的总数据 */
+			$oMisUser = $modelMisUsr->byId($oMission, $oRecordData->userid, ['fields' => 'id,userid,nickname,last_like_at,like_num,user_total_coin']);
+			if ($oMisUser) {
+				if ($incLikeNum > 0 && !isset($rulesOwner)) {
+					$rulesOwner = $modelMat->rulesByMatter('site.matter.enroll.data.like', $oApp);
+				}
+				$aUpdMisUsr = ['last_like_at' => time(), 'like_num' => $oMisUser->like_num + $incLikeNum];
+				if (!empty($rulesOwner)) {
+					$aUpdMisUsr['user_total_coin'] = (int) $oMisUser->user_total_coin;
+					foreach ($rulesOwner as $rule) {
+						$aUpdMisUsr['user_total_coin'] = $aUpdMisUsr['user_total_coin'] + (int) $rule->actor_delta;
+					}
+				}
+				$modelMisUsr->update(
+					'xxt_mission_user',
+					$aUpdMisUsr,
+					['id' => $oMisUser->id]
+				);
+			}
 		}
 
 		return new \ResponseData(['like_log' => $oLikeLog, 'like_num' => $likeNum]);

@@ -9,7 +9,7 @@
         <?php TPL::pt('title');?>
     </title>
     <link href="/static/css/bootstrap.min.css" rel="stylesheet">
-    <link href="/views/default/site/op/matter/mission/main.css?_=2" rel="stylesheet">
+    <link href="/views/default/site/op/matter/mission/user.css?_=1" rel="stylesheet">
 </head>
 
 <body ng-controller="ctrlMain">
@@ -24,17 +24,41 @@
                     <div class='thumbnail track' ng-class="matter.indicator.state">
                         <div class='title' ng-bind="matter.title"></div>
                         <div class='row' ng-switch-when="enroll">
-                            <div class='col-xs-6'>
-                                <label>用户数量</label>
-                                <div ng-bind="matter.opData[0].enrollee_num||0"></div>
-                            </div>
-                            <div class='col-xs-6'>
+                            <div class='col-xs-12'>
                                 <label>记录数量</label>
-                                <div ng-bind="matter.opData[0].total||0"></div>
+                                <div ng-bind="matter.user.enroll_num||0"></div>
+                            </div>
+                            <div class='col-xs-6' ng-if="matter.indicator.score">
+                                <label>得分</label>
+                                <div ng-bind="matter.user.score||0"></div>
+                            </div>
+                            <div class='col-xs-6' ng-if="matter.indicator.score">
+                                <label>得分排名</label>
+                                <div ng-bind="matter.user.rank.score||0"></div>
+                            </div>
+                            <div class='col-xs-6' ng-if="matter.indicator.coin">
+                                <label>积分</label>
+                                <div ng-bind="matter.user.user_total_coin||0"></div>
+                            </div>
+                            <div class='col-xs-6' ng-if="matter.indicator.coin">
+                                <label>积分排名</label>
+                                <div ng-bind="matter.user.rank.user_total_coin||0"></div>
                             </div>
                             <div class='col-xs-6' ng-if="matter.indicator.remark">
-                                <label>评论数量</label>
-                                <div ng-bind="matter.opData[0].remark_total||0"></div>
+                                <label>获得评论</label>
+                                <div ng-bind="matter.user.remark_num||0"></div>
+                            </div>
+                            <div class='col-xs-6' ng-if="matter.indicator.remark">
+                                <label>发表评论</label>
+                                <div ng-bind="matter.user.remark_other_num||0"></div>
+                            </div>
+                            <div class='col-xs-6' ng-if="matter.indicator.like">
+                                <label>获得赞同</label>
+                                <div ng-bind="matter.user.like_num||0"></div>
+                            </div>
+                            <div class='col-xs-6' ng-if="matter.indicator.like">
+                                <label>表示赞同</label>
+                                <div ng-bind="matter.user.like_other_num||0"></div>
                             </div>
                             <div class='col-xs-12' ng-if="matter.indicator.end_submit" ng-switch on="matter.indicator.end_submit">
                                 <div ng-switch-when="R">！本活动将于<span style='color:orangered;'>{{matter.end_submit_at*1000|date:'MM-dd HH:mm'}}</span>停止提交</div>
@@ -46,15 +70,14 @@
                             </div>
                         </div>
                         <div class='row' ng-switch-when="signin">
-                            <div ng-repeat="rnd in matter.opData">
-                                <div class='col-xs-6'>
-                                    <label ng-bind="rnd.title"></label>
-                                    <div ng-bind="rnd.total"></div>
-                                </div>
-                                <div class='col-xs-6'>
-                                    <label>迟到数量</label>
-                                    <div ng-bind="rnd.late"></div>
-                                </div>
+                            <div class='col-xs-12'>
+                                <label>签到次数</label>
+                                <div ng-bind="matter.record.signin_num||0"></div>
+                            </div>
+                            <div class='col-xs-6' ng-repeat="rnd in matter.rounds">
+                                <label title="{{rnd.title}}">{{rnd.title}}</label>
+                                <div ng-if="matter.record.signin_log[rnd.rid]" ng-class="{'signin_late':matter.record._signinLate[rnd.rid]}" ng-bind="matter.record.signin_log[rnd.rid]*1000|date:'yy-MM-dd HH:mm'"></div>
+                                <div ng-if="!matter.record.signin_log[rnd.rid]">未签到</div>
                             </div>
                         </div>
                     </div>
@@ -62,11 +85,6 @@
             </div>
         </div>
     </div>
-    <nav class="navbar navbar-default navbar-fixed-bottom" ng-if="mission.userApp">
-        <form class="navbar-form navbar-right">
-            <button class='btn btn-default' ng-click="chooseUser()">用户详情 <span class='caret'></span></button>
-        </form>
-    </nav>
     <script type="text/ng-template" id="chooseUser.html">
         <div class="modal-body ">
             <div class="radio" ng-repeat="user in users">
@@ -83,7 +101,7 @@
     <script src="/static/js/angular.min.js"></script>
     <script src="/static/js/angular-sanitize.min.js"></script>
     <script src="/static/js/ui-bootstrap-tpls.min.js"></script>
-    <script src="/static/js/require.js" defer async data-main="/views/default/site/op/matter/mission/main-loader.js?_=1"></script>
+    <script src="/static/js/require.js" defer async data-main="/views/default/site/op/matter/mission/user-loader.js?_=1"></script>
 </body>
 
 </html>

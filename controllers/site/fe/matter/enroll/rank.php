@@ -87,7 +87,7 @@ class rank extends base {
 					$userGroups2->{$userGroup->userid}->round_title = $userGroup->round_title;
 				}
 				foreach ($users as $user) {
-					$user->group = $userGroups2->{$user->userid};
+					$user->group = isset($userGroups2->{$user->userid})? $userGroups2->{$user->userid} : new \stdClass;
 				}
 			}
 		}

@@ -99,29 +99,29 @@ define(['missionService', 'enrollService', 'signinService'], function() {
         });
         srvSite.tagList().then(function(oTag) {
             $scope.oTag = oTag;
-        });
-        srvMission.get().then(function(mission) {
-            if (mission.matter_mg_tag !== '') {
-                mission.matter_mg_tag.forEach(function(cTag, index) {
-                    $scope.oTag.forEach(function(oTag) {
-                        if (oTag.id === cTag) {
-                            mission.matter_mg_tag[index] = oTag;
+            srvMission.get().then(function(mission) {
+                if (mission.matter_mg_tag !== '') {
+                    mission.matter_mg_tag.forEach(function(cTag, index) {
+                        $scope.oTag.forEach(function(oTag) {
+                            if (oTag.id === cTag) {
+                                mission.matter_mg_tag[index] = oTag;
+                            }
+                        });
+                    });
+                }
+                $scope.mission = mission;
+                if (location.href.indexOf('/mission?') !== -1) {
+                    srvMission.matterCount().then(function(count) {
+                        if (count) {
+                            $location.path('/rest/pl/fe/matter/mission/matter').search({ id: mission.id, site: mission.siteid });
+                            $location.replace();
+                        } else {
+                            $location.path('/rest/pl/fe/matter/mission/main').search({ id: mission.id, site: mission.siteid });
+                            $location.replace();
                         }
                     });
-                });
-            }
-            $scope.mission = mission;
-            if (location.href.indexOf('/mission?') !== -1) {
-                srvMission.matterCount().then(function(count) {
-                    if (count) {
-                        $location.path('/rest/pl/fe/matter/mission/matter').search({ id: mission.id, site: mission.siteid });
-                        $location.replace();
-                    } else {
-                        $location.path('/rest/pl/fe/matter/mission/main').search({ id: mission.id, site: mission.siteid });
-                        $location.replace();
-                    }
-                });
-            }
+                }
+            });
         });
     }]);
     ngApp.controller('ctrlOpUrl', ['$scope', 'http2', 'srvQuickEntry', '$timeout', function($scope, http2, srvQuickEntry, $timeout) {

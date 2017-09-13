@@ -28,6 +28,7 @@ class main extends \site\fe\matter\base {
 	 * 获得用户在项目中的行为记录
 	 */
 	public function userTrack_action($mission) {
+		$oUser = $this->who;
 		$modelMis = $this->model('matter\mission\matter');
 
 		$mattersByUser = [];
@@ -38,18 +39,41 @@ class main extends \site\fe\matter\base {
 					continue;
 				}
 				if ($oMatter->type === 'enroll') {
+					/* 用户身份是否匹配活动进入规则 */
+					if (isset($oMatter->entry_rule->scope) && $oMatter->entry_rule->scope === 'group') {
+						$bMatched = false;
+						$oEntryRule = $oMatter->entry_rule;
+						if (isset($oEntryRule->group->id)) {
+							$oGroupApp = $oEntryRule->group;
+							$oGroupUsr = $this->model('matter\group\player')->byUser($oGroupApp, $oUser->uid, ['fields' => 'round_id,round_title']);
+							if (count($oGroupUsr)) {
+								$oGroupUsr = $oGroupUsr[0];
+								if (isset($oGroupApp->round->id)) {
+									if ($oGroupUsr->round_id === $oGroupApp->round->id) {
+										$bMatched = true;
+									}
+								} else {
+									$bMatched = true;
+								}
+							}
+						}
+						if (false === $bMatched) {
+							continue;
+						}
+					}
+
 					if (!isset($modelEnlUsr)) {
 						$modelEnlUsr = $this->model('matter\enroll\user');
 					}
-					$oUser = $modelEnlUsr->byId($oMatter, $this->who->uid);
+					$oUserData = $modelEnlUsr->byId($oMatter, $this->who->uid);
 
 					/* 清除不必要的数据 */
-					unset($oUser->siteid);
-					unset($oUser->aid);
-					unset($oUser->userid);
-					unset($oUser->id);
+					unset($oUserData->siteid);
+					unset($oUserData->aid);
+					unset($oUserData->userid);
+					unset($oUserData->id);
 
-					$oMatter->user = $oUser;
+					$oMatter->user = $oUserData;
 				} else if ($oMatter->type === 'signin') {
 					if (!isset($modelSigRec)) {
 						$modelSigRec = $this->model('matter\signin\record');

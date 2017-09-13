@@ -22,11 +22,13 @@ class main extends \pl\fe\matter\base {
 	/**
 	 * 返回一个分组活动
 	 */
-	public function get_action($site, $app) {
+	public function get_action($site, $app = null, $id = null) {
 		if (false === ($user = $this->accountUser())) {
 			return new \ResponseTimeout();
 		}
-		$oApp = $this->model('matter\\group')->byId($app);
+
+		$app = isset($app) ? $app : $id;
+		$oApp = $this->model('matter\group')->byId($app);
 		if (false === $oApp) {
 			return new \ObjectNotFoundError();
 		}

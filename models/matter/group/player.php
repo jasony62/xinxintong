@@ -300,20 +300,25 @@ class player_model extends \TMS_MODEL {
 			$kw = isset($options->kw) ? $options->kw : null;
 			$by = isset($options->by) ? $options->by : null;
 		}
+		if (isset($options->fields)) {
+			$fields = $options->fields;
+		} else {
+			$fields = 'enroll_key,enroll_at,comment,tags,data,userid,nickname,is_leader,wx_openid,yx_openid,qy_openid,headimgurl,round_id,round_title';
+		}
 		$result = new \stdClass; // 返回的结果
 		$result->total = 0;
 		/* 数据过滤条件 */
-		$w = "e.state=1 and e.aid='{$oApp->id}'";
+		$w = "state=1 and aid='{$oApp->id}'";
 		/*tags*/
 		if (!empty($options->tags)) {
 			$aTags = explode(',', $options->tags);
 			foreach ($aTags as $tag) {
-				$w .= "and concat(',',e.tags,',') like '%,$tag,%'";
+				$w .= "and concat(',',tags,',') like '%,$tag,%'";
 			}
 		}
 		$q = [
-			'e.enroll_key,e.enroll_at,e.comment,e.tags,e.data,e.nickname,e.is_leader,e.wx_openid,e.yx_openid,e.qy_openid,e.headimgurl,e.userid,e.round_id,e.round_title',
-			"xxt_group_player e",
+			$fields,
+			'xxt_group_player',
 			$w,
 		];
 		/* 分页参数 */
@@ -323,11 +328,15 @@ class player_model extends \TMS_MODEL {
 			];
 		}
 		/* 排序 */
-		$q2['o'] = 'e.enroll_at desc';
+		$q2['o'] = 'enroll_at desc';
 		if ($players = $this->query_objs_ss($q, $q2)) {
 			/* record data */
-			foreach ($players as &$player) {
-				$player->data = json_decode($player->data);
+			if ($fields === '*' || false !== strpos($fields, 'data')) {
+				foreach ($players as &$player) {
+					if (isset($player->data)) {
+						$player->data = json_decode($player->data);
+					}
+				}
 			}
 			$result->players = $players;
 			/* total */

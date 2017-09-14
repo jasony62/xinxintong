@@ -1,4 +1,5 @@
-body{font-family:Microsoft Yahei,Arial;background:#fafafa;}
+body{font-family:Microsoft Yahei,Arial;}
+body>.container{background:#fafafa;}
 .ng-cloak{display:none;}
 .main-navbar{margin-bottom:20px;}
 .navbar-default{background-color:#2994D0;border-bottom:none;}
@@ -7,6 +8,8 @@ body{font-family:Microsoft Yahei,Arial;background:#fafafa;}
 .navbar-brand{height:55px;padding:17.5px 15px;}
 .main-navbar .navbar-brand:hover{color:#fff;}
 .main-navbar .tms-switch-siteuser{font-size:18px;}
+.form-inline .form-control{display:inline-block;width:auto;vertical-align:middle;}
+nav form label{font-weight:normal;}
 @media screen and (min-width:768px){
 	.navbar-nav>li>a{padding:17.5px 30px;font-size:18px;line-height:1;}
 }

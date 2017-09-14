@@ -350,7 +350,7 @@ class player_model extends \TMS_MODEL {
 	/**
 	 * 获得用户的登记
 	 */
-	public function &byUser($oApp, $userid, $options = []) {
+	public function byUser($oApp, $userid, $options = []) {
 		if (empty($userid)) {
 			return false;
 		}
@@ -364,6 +364,13 @@ class player_model extends \TMS_MODEL {
 		$q2 = ['o' => 'enroll_at desc'];
 
 		$list = $this->query_objs_ss($q, $q2);
+		if (isset($options['onlyOne']) && $options['onlyOne'] === true) {
+			if (count($list)) {
+				return $list[0];
+			} else {
+				return false;
+			}
+		}
 
 		return $list;
 	}
@@ -498,9 +505,10 @@ class player_model extends \TMS_MODEL {
 	/**
 	 * 指定分组内的用户
 	 */
-	public function &byRound($appId, $rid = null) {
+	public function &byRound($appId, $rid = null, $options = []) {
+		$fields = isset($options['fields']) ? $options['fields'] : '*';
 		$q = [
-			'*',
+			$fields,
 			'xxt_group_player',
 			"aid='$appId' and state=1",
 		];
@@ -510,9 +518,12 @@ class player_model extends \TMS_MODEL {
 			$q[2] .= " and round_id<>0";
 		}
 		$q2 = ['o' => 'round_id,draw_at'];
+
 		if ($players = $this->query_objs_ss($q, $q2)) {
-			foreach ($players as &$player) {
-				$player->data = json_decode($player->data);
+			if ($fields === '*' || false !== strpos($fields, 'data')) {
+				foreach ($players as &$player) {
+					$player->data = json_decode($player->data);
+				}
 			}
 		}
 

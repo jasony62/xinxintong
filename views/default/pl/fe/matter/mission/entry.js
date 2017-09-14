@@ -43,14 +43,28 @@ define(['frame'], function(ngApp) {
         $scope.updCanFavor = function() {
             srvQuickEntry.update(opEntry.code, { can_favor: opEntry.can_favor });
         };
-	}]);
+    }]);
     ngApp.provider.controller('ctrlReceiver', ['$scope', 'http2', '$interval', '$uibModal', 'srvSite', function($scope, http2, $interval, $uibModal, srvSite) {
+        function listReceivers(app) {
+            if (baseURL) {
+                http2.get(baseURL + 'list?site=' + app.siteid + '&app=' + app.user_app_id, function(rsp) {
+                    var map = { wx: '微信', yx: '易信', qy: '企业号' };
+                    rsp.data.forEach(function(receiver) {
+                        if (receiver.sns_user) {
+                            receiver.snsUser = JSON.parse(receiver.sns_user);
+                            map[receiver.snsUser.src] && (receiver.snsUser.snsName = map[receiver.snsUser.src]);
+                        }
+                    });
+                    $scope.receivers = rsp.data;
+                });
+            }
+        }
         var baseURL;
         $scope.$watch('mission', function(mission) {
             if (!mission) return;
-            if(mission.user_app_type === 'enroll'){
+            if (mission.user_app_type === 'enroll') {
                 baseURL = '/rest/pl/fe/matter/enroll/receiver/';
-            }else if(mission.user_app_type === 'signin'){
+            } else if (mission.user_app_type === 'signin') {
                 baseURL = '/rest/pl/fe/matter/signin/receiver/';
             }
             listReceivers(mission);
@@ -79,19 +93,6 @@ define(['frame'], function(ngApp) {
             $scope.sns = oSns;
         });
 
-        function listReceivers(app) {
-            http2.get(baseURL + 'list?site=' + app.siteid + '&app=' + app.user_app_id, function(rsp) {
-                var map = { wx: '微信', yx: '易信', qy: '企业号' };
-                rsp.data.forEach(function(receiver) {
-                    if (receiver.sns_user) {
-                        receiver.snsUser = JSON.parse(receiver.sns_user);
-                        map[receiver.snsUser.src] && (receiver.snsUser.snsName = map[receiver.snsUser.src]);
-                    }
-                });
-                $scope.receivers = rsp.data;
-            });
-        }
-
         $scope.qrcodeShown = false;
         $scope.qrcode = function(snsName) {
             if ($scope.qrcodeShown === false) {
@@ -100,11 +101,11 @@ define(['frame'], function(ngApp) {
                 if ($scope.mission.user_app_id == '') {
                     alert('没有指定用户名单应用');
                     return;
-                }else if($scope.mission.user_app_type === 'enroll'){
+                } else if ($scope.mission.user_app_type === 'enroll') {
                     url += '&matter_type=enrollreceiver';
-                }else if($scope.mission.user_app_type === 'signin'){
+                } else if ($scope.mission.user_app_type === 'signin') {
                     url += '&matter_type=signinreceiver';
-                }else{
+                } else {
                     alert('暂时不支持除此应用类型');
                     return;
                 }
@@ -190,7 +191,7 @@ define(['frame'], function(ngApp) {
         $scope.shiftTimerTask = function(model) {
             var oOneTask;
             oOneTask = oTimerTask[model];
-            if($scope.mission.user_app_id == ''){
+            if ($scope.mission.user_app_id == '') {
                 oOneTask.state = 'N';
                 alert('没有指定用户名单应用');
                 return;
@@ -248,9 +249,9 @@ define(['frame'], function(ngApp) {
         };
         $scope.search = function(name) {
             var url;
-            if($scope.mission.user_app_type === 'enroll'){
+            if ($scope.mission.user_app_type === 'enroll') {
                 url = '/rest/pl/fe/matter/enroll/receiver/qymem';
-            }else if($scope.mission.user_app_type === 'signin'){
+            } else if ($scope.mission.user_app_type === 'signin') {
                 url = '/rest/pl/fe/matter/signin/receiver/qymem';
             }
             url += '?site=' + $scope.mission.siteid;
@@ -263,9 +264,9 @@ define(['frame'], function(ngApp) {
         $scope.doSearch = function(page, name) {
             var url;
             page && ($scope.page.at = page);
-            if($scope.mission.user_app_type === 'enroll'){
+            if ($scope.mission.user_app_type === 'enroll') {
                 url = '/rest/pl/fe/matter/enroll/receiver/qymem';
-            }else if($scope.mission.user_app_type === 'signin'){
+            } else if ($scope.mission.user_app_type === 'signin') {
                 url = '/rest/pl/fe/matter/signin/receiver/qymem';
             }
             url += '?site=' + $scope.mission.siteid;

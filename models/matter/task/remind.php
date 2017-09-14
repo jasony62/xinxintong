@@ -12,7 +12,7 @@ class remind_model extends \TMS_MODEL {
 	public function exec($oMatter, $arguments = null) {
 		$timerArgument = new \stdClass;
 
-		if($oMatter->type === 'mission'){
+		if ($oMatter->type === 'mission') {
 			$modelMission = $this->model('matter\mission');
 			$mission = $modelMission->byId($oMatter->id);
 			if (false === $mission) {
@@ -36,9 +36,9 @@ class remind_model extends \TMS_MODEL {
 
 			/* 获得活动的进入链接 */
 			$params = new \stdClass;
-			if(isset($timerArgument->url)){
+			if (isset($timerArgument->url)) {
 				$params->url = $timerArgument->url;
-			}else{
+			} else {
 				$params->url = $oMatter->entryUrl;
 			}
 
@@ -62,7 +62,7 @@ class remind_model extends \TMS_MODEL {
 			}
 			$oTmplConfig = $this->model('matter\tmplmsg\config')->byId($oNotice->tmplmsg_config_id);
 			$tmplmsgId = $oTmplConfig->msgid;
-			if(empty($tmplmsgId)){
+			if (empty($tmplmsgId)) {
 				return [false, '没有指定事件的模板消息2'];
 			}
 

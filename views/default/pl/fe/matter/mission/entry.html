@@ -40,13 +40,10 @@
             </div>
         </div>
     </div>
-    <div class='col-md-6' ng-if="mission.user_app_type == 'enroll'">
+    <div class='col-md-6'>
         <div ng-controller="ctrlReceiver">
             <div class='form-group'>
                 <p><i class="glyphicon glyphicon-bell"></i> 事件提醒</p>
-            </div>
-            <div class="form-group" ng-if="sns.qy.joined==='Y'">
-                <button class='btn btn-default' ng-click='chooseQy()'>选择微信企业号用户加入接收人</button>
             </div>
             <div class='form-group' ng-if="sns.wx.joined==='Y'&&sns.wx.can_qrcode==='Y'">
                 <button id='wxQrcode' uib-popover-template="'joinQrcode.html'" popover-trigger="show" popover-placement="bottom" class="btn btn-default" ng-click="qrcode('wx')">微信公众号用户扫码作为接收人 <span class="caret"></span></button>

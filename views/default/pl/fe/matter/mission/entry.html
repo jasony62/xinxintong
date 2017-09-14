@@ -40,13 +40,10 @@
             </div>
         </div>
     </div>
-    <div class='col-md-6' ng-if="mission.user_app_type == 'enroll'">
+    <div class='col-md-6'>
         <div ng-controller="ctrlReceiver">
             <div class='form-group'>
                 <p><i class="glyphicon glyphicon-bell"></i> 事件提醒</p>
-            </div>
-            <div class="form-group" ng-if="sns.qy.joined==='Y'">
-                <button class='btn btn-default' ng-click='chooseQy()'>选择微信企业号用户加入接收人</button>
             </div>
             <div class='form-group' ng-if="sns.wx.joined==='Y'&&sns.wx.can_qrcode==='Y'">
                 <button id='wxQrcode' uib-popover-template="'joinQrcode.html'" popover-trigger="show" popover-placement="bottom" class="btn btn-default" ng-click="qrcode('wx')">微信公众号用户扫码作为接收人 <span class="caret"></span></button>
@@ -208,7 +205,7 @@
                     </div>
                 </div>
             </div>
-            <div>
+            <div ng-if="mission.user_app_type == 'enroll'">
                 <div class='checkbox'>
                     <label class='checkbox-inline' uib-tooltip='定时将包含【活动进入链接】消息发送给所有填写人'>
                         <input type='checkbox' ng-true-value="'Y'" ng-false-value="'N'" ng-model="timerTask.remind.state" ng-change="shiftTimerTask('remind')">定时向所有填写人发送活动提醒 <span class='glyphicon glyphicon-question-sign'></span></label>
@@ -357,50 +354,6 @@
         <script type="text/ng-template" id="joinQrcode.html">
             <div style="width:200px">
                 <img ng-src="{{qrcodeURL}}" style="width:100%">
-            </div>
-        </script>
-        <script type="text/ng-template" id="chooseUser.html">
-            <div class="modal-header">
-                <button class="close" type="button" ng-click="cancel()">×</button>
-                <span class="modal-title h5">选择管理员</span>
-            </div>
-            <div id="chooseUser" class="modal-body">
-                <form class="form-inline form-group">
-                    <div class="form-group">
-                        <input type="text" class="form-control" ng-model='nickname' placeholder="请输入昵称">
-                        <button type="submit" class="btn btn-default" ng-click='search(nickname)'>搜索</button>
-                    </div>
-                </form>
-                <table class='table table-bordered'>
-                    <thead>
-                        <tr>
-                            <th>操作</th>
-                            <th>成员名称</th>
-                            <th>用户ID</th>
-                            <th>电话</th>
-                            <th>邮箱</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        <tr ng-repeat="u in users">
-                            <td>
-                                <input type="checkbox" ng-click="updateSelection($event,u)">
-                            </td>
-                            <td ng-bind="u.nickname"></td>
-                            <td ng-bind="u.openid"></td>
-                            <td ng-bind="u.mobile"></td>
-                            <td ng-bind="u.email"></td>
-                        </tr>
-                    </tbody>
-                </table>
-                <div class='clearfix'>
-                    <span>总数：{{page.total}}</span>
-                    <ul uib-pagination style="margin:0;vertical-align:middle;cursor:pointer" class="pull-right" ng-show="page.total>page.size" boundary-links="true" total-items="page.total" max-size="7" items-per-page="page.size" rotate="false" ng-model="page.at" previous-text="&lsaquo;" next-text="&rsaquo;" first-text="&laquo;" last-text="&raquo;" ng-change="doSearch(page.at,nickname)">
-                    </ul>
-                </div>
-            </div>
-            <div class="modal-footer">
-                <button class="btn btn-primary" ng-click="ok()">确定</button>
             </div>
         </script>
     </div>

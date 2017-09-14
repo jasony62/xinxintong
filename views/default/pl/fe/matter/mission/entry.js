@@ -45,14 +45,9 @@ define(['frame'], function(ngApp) {
         };
 	}]);
     ngApp.provider.controller('ctrlReceiver', ['$scope', 'http2', '$interval', '$uibModal', 'srvSite', function($scope, http2, $interval, $uibModal, srvSite) {
-        var baseURL;
+        var baseURL = '/rest/pl/fe/matter/mission/receiver/';
         $scope.$watch('mission', function(mission) {
             if (!mission) return;
-            if(mission.user_app_type === 'enroll'){
-                baseURL = '/rest/pl/fe/matter/enroll/receiver/';
-            }else if(mission.user_app_type === 'signin'){
-                baseURL = '/rest/pl/fe/matter/signin/receiver/';
-            }
             listReceivers(mission);
             http2.get('/rest/pl/fe/matter/timer/byMatter?site=' + mission.siteid + '&type=mission&id=' + mission.id, function(rsp) {
                 rsp.data.forEach(function(oTask) {
@@ -80,8 +75,8 @@ define(['frame'], function(ngApp) {
         });
 
         function listReceivers(app) {
-            http2.get(baseURL + 'list?site=' + app.siteid + '&app=' + app.user_app_id, function(rsp) {
-                var map = { wx: '微信', yx: '易信', qy: '企业号' };
+            http2.get(baseURL + 'list?site=' + app.siteid + '&app=' + app.id, function(rsp) {
+                var map = { wx: '微信', yx: '易信'};
                 rsp.data.forEach(function(receiver) {
                     if (receiver.sns_user) {
                         receiver.snsUser = JSON.parse(receiver.sns_user);
@@ -97,18 +92,8 @@ define(['frame'], function(ngApp) {
             if ($scope.qrcodeShown === false) {
                 var url = '/rest/pl/fe/site/sns/' + snsName + '/qrcode/createOneOff';
                 url += '?site=' + $scope.mission.siteid;
-                if ($scope.mission.user_app_id == '') {
-                    alert('没有指定用户名单应用');
-                    return;
-                }else if($scope.mission.user_app_type === 'enroll'){
-                    url += '&matter_type=enrollreceiver';
-                }else if($scope.mission.user_app_type === 'signin'){
-                    url += '&matter_type=signinreceiver';
-                }else{
-                    alert('暂时不支持除此应用类型');
-                    return;
-                }
-                url += '&matter_id=' + $scope.mission.user_app_id;
+                url += '&matter_type=missionreceiver';
+                url += '&matter_id=' + $scope.mission.id;
                 http2.get(url, function(rsp) {
                     var qrcode = rsp.data,
                         eleQrcode = $("#" + snsName + "Qrcode");
@@ -130,7 +115,7 @@ define(['frame'], function(ngApp) {
                                     (function() {
                                         var fnCheckReceiver;
                                         fnCheckReceiver = $interval(function() {
-                                            http2.get('/rest/pl/fe/matter/enroll/receiver/afterJoin?site=' + $scope.mission.siteid + '&app=' + $scope.mission.user_app_id + '&timestamp=' + qrcode.create_at, function(rsp) {
+                                            http2.get('/rest/pl/fe/matter/mission/receiver/afterJoin?site=' + $scope.mission.siteid + '&app=' + $scope.mission.id + '&timestamp=' + qrcode.create_at, function(rsp) {
                                                 if (rsp.data.length) {
                                                     $interval.cancel(fnCheckReceiver);
                                                     $scope.receivers = $scope.receivers.concat(rsp.data);
@@ -144,37 +129,14 @@ define(['frame'], function(ngApp) {
                     })();
                 });
             } else {
-                if ($scope.mission.user_app_id == '') {
-                    alert('没有指定用户名单应用');
-                    return;
-                }
                 $("#yxQrcode").trigger('hide');
                 $scope.qrcodeShown = false;
             }
         };
         $scope.remove = function(receiver) {
-            http2.get(baseURL + 'remove?site=' + $scope.mission.siteid + '&app=' + $scope.mission.user_app_id + '&receiver=' + receiver.id, function(rsp) {
+            http2.get(baseURL + 'remove?site=' + $scope.mission.siteid + '&app=' + $scope.mission.id + '&receiver=' + receiver.id, function(rsp) {
                 $scope.receivers.splice($scope.receivers.indexOf(receiver), 1);
             });
-        };
-        $scope.chooseQy = function() {
-            if ($scope.mission.user_app_id == '') {
-                alert('没有指定用户名单应用');
-                return;
-            }
-            $uibModal.open({
-                templateUrl: 'chooseUser.html',
-                controller: 'ctrlChooseUser',
-            }).result.then(function(data) {
-                var mission = $scope.mission,
-                    url;
-                url = baseURL + 'add';
-                url += '?site=' + mission.siteid;
-                url += '&app=' + mission.user_app_id;
-                http2.post(url, data, function(rsp) {
-                    listReceivers(mission);
-                });
-            })
         };
         var oTimerTask;
         $scope.timerTask = oTimerTask = {
@@ -236,84 +198,5 @@ define(['frame'], function(ngApp) {
                 });
             }
         };
-    }]);
-    ngApp.provider.controller('ctrlChooseUser', ['$scope', '$uibModalInstance', 'http2', 'srvMission', function($scope, $mi, http2, srvMission) {
-        $scope.page = {
-            at: 1,
-            size: 15,
-            total: 0,
-            param: function() {
-                return 'page=' + this.at + '&size=' + this.size;
-            }
-        };
-        $scope.search = function(name) {
-            var url;
-            if($scope.mission.user_app_type === 'enroll'){
-                url = '/rest/pl/fe/matter/enroll/receiver/qymem';
-            }else if($scope.mission.user_app_type === 'signin'){
-                url = '/rest/pl/fe/matter/signin/receiver/qymem';
-            }
-            url += '?site=' + $scope.mission.siteid;
-            url += '&' + $scope.page.param();
-            http2.post(url, { keyword: name }, function(rsp) {
-                $scope.users = rsp.data.data;
-                $scope.page.total = rsp.data.total;
-            });
-        }
-        $scope.doSearch = function(page, name) {
-            var url;
-            page && ($scope.page.at = page);
-            if($scope.mission.user_app_type === 'enroll'){
-                url = '/rest/pl/fe/matter/enroll/receiver/qymem';
-            }else if($scope.mission.user_app_type === 'signin'){
-                url = '/rest/pl/fe/matter/signin/receiver/qymem';
-            }
-            url += '?site=' + $scope.mission.siteid;
-            url += '&' + $scope.page.param();
-            if (name) {
-                http2.post(url, { keyword: name }, function(rsp) {
-                    $scope.users = rsp.data.data;
-                    $scope.page.total = rsp.data.total;
-                })
-            } else {
-                http2.get(url, function(rsp) {
-                    $scope.users = rsp.data.data;
-                    $scope.page.total = rsp.data.total;
-                });
-            }
-        }
-        $scope.selected = [];
-        var updateSelected = function(action, option) {
-            if (action == 'add') {
-                $scope.selected.push(option);
-
-            }
-            if (action == 'remove') {
-                angular.forEach($scope.selected, function(item, index) {
-                    if (item.uid == option.uid) {
-                        $scope.selected.splice(index, 1);
-                    }
-                })
-            }
-        }
-        $scope.updateSelection = function($event, data) {
-            var checkbox = $event.target;
-            var action = (checkbox.checked ? 'add' : 'remove');
-            var option = {
-                nickname: data.nickname,
-                uid: data.userid
-            };
-            updateSelected(action, option);
-        }
-        $scope.ok = function() {
-            $mi.close($scope.selected);
-        };
-        $scope.cancel = function() {
-            $mi.dismiss();
-        };
-        srvMission.get().then(function(mission) {
-            $scope.mission = mission;
-            $scope.doSearch(1);
-        });
     }]);
 })

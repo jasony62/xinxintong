@@ -25,6 +25,22 @@ class main extends \site\op\base {
 	/**
 	 *
 	 */
+	public function user_action($mission) {
+		if (!$this->checkAccessToken()) {
+			header('HTTP/1.0 500 parameter error:accessToken is invalid.');
+			die('没有获得有效访问令牌！');
+		}
+
+		$mission = $this->model('matter\mission')->byId($mission);
+		if ($mission) {
+			\TPL::assign('title', $mission->title);
+		}
+		\TPL::output('site/op/matter/mission/user');
+		exit;
+	}
+	/**
+	 *
+	 */
 	public function get_action($mission) {
 		if (!$this->checkAccessToken()) {
 			return new \InvalidAccessToken();

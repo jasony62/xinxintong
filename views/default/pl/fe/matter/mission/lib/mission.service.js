@@ -1,5 +1,5 @@
 define(['require'], function(require) {
-    angular.module('service.mission', ['ui.tms', 'ui.xxt', 'service.matter']).
+    angular.module('service.mission', ['ui.tms', 'service.matter']).
     provider('srvMission', function() {
         var _siteId, _missionId, _oMission, _getMissionDeferred;
         this.config = function(siteId, missionId) {

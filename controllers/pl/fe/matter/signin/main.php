@@ -333,18 +333,23 @@ class main extends \pl\fe\matter\base {
 		}
 
 		$modelApp = $this->model('matter\signin');
-		$oMatter = $modelApp->byId($app, ['fields' => 'id,title,summary,pic,start_at,end_at,mission_id,mission_phase_id', 'cascaded' => 'N']);
+		$oApp = $modelApp->byId($app, ['fields' => 'id,title,summary,pic,start_at,end_at,mission_id,mission_phase_id', 'cascaded' => 'N']);
 		/**
 		 * 处理数据
 		 */
-		$updated = $this->getPostJson();
-		foreach ($updated as $n => $v) {
+		$posted = $this->getPostJson();
+		$updated = new \stdClass;
+		foreach ($posted as $n => $v) {
 			if (in_array($n, ['entry_rule', 'data_schemas'])) {
 				$updated->{$n} = $modelApp->escape($modelApp->toJson($v));
+			} else if ($n === 'assignedNickname') {
+				$updated->assigned_nickname = $modelApp->escape($modelApp->toJson($v));
 			} else if (in_array($n, ['title', 'summary'])) {
 				$updated->{$n} = $modelApp->escape($v);
+			} else {
+				$updated->{$n} = $v;
 			}
-			$oMatter->{$n} = $v;
+			$oApp->{$n} = $v;
 		}
 
 		$updated->modifier = $oUser->id;
@@ -352,13 +357,13 @@ class main extends \pl\fe\matter\base {
 		$updated->modifier_name = $oUser->name;
 		$updated->modify_at = time();
 
-		if ($rst = $modelApp->update('xxt_signin', $updated, ["id" => $app])) {
+		if ($rst = $modelApp->update('xxt_signin', $updated, ["id" => $oApp->id])) {
 			// 更新项目中的素材信息
-			if ($oMatter->mission_id) {
-				$this->model('matter\mission')->updateMatter($oMatter->mission_id, $oMatter);
+			if ($oApp->mission_id) {
+				$this->model('matter\mission')->updateMatter($oApp->mission_id, $oApp);
 			}
 			// 记录操作日志并更新信息
-			$this->model('matter\log')->matterOp($site, $oUser, $oMatter, 'U');
+			$this->model('matter\log')->matterOp($site, $oUser, $oApp, 'U');
 		}
 
 		return new \ResponseData($rst);

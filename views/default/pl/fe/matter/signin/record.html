@@ -71,11 +71,11 @@
                         <th style='width:40px'>
                             <input type='checkbox' ng-true-value="'Y'" ng-false-value="'N'" ng-model="rows.allSelected">
                         </th>
-                        <th style='width:100px'>昵称</th>
+                        <th style='width:100px' ng-if="bRequireNickname">昵称</th>
                         <th style='width:100px'>登记时间</th>
-                        <th class='custom-col signin' ng-repeat="c in recordSchemas">{{c.title}}</th>
-                        <th class='custom-col enroll' ng-repeat="c in enrollDataSchemas">{{c.title}}</th>
-                        <th class='custom-col group' ng-repeat="c in groupDataSchemas">{{c.title}}</th>
+                        <th class='custom-col signin' ng-repeat="c in recordSchemas" ng-class="{'nickname':schema.id===app.assignedNickname.schema.id}">{{c.title}}</th>
+                        <th class='custom-col enroll' ng-repeat="c in enrollDataSchemas" ng-class="{'nickname':schema.id===app.assignedNickname.schema.id}">{{c.title}}</th>
+                        <th class='custom-col group' ng-repeat="c in groupDataSchemas" ng-class="{'nickname':schema.id===app.assignedNickname.schema.id}">{{c.title}}</th>
                         <th style='width:75px'>验证通过</th>
                         <th ng-if="page.byRound" style='width:100px'>签到时间</th>
                         <th ng-if="!page.byRound" style='width:75px'>签到次数</th>
@@ -99,7 +99,7 @@
                         <td>
                             <input type='checkbox' ng-model="rows.selected[$index]">
                         </td>
-                        <td>{{r.nickname}}</td>
+                        <td ng-if="bRequireNickname">{{r.nickname}}</td>
                         <td>{{(r.enroll_at*1000)|date:'MM-dd HH:mm'}}</td>
                         <td class='signin' ng-repeat="schema in recordSchemas" ng-switch on="schema.type">
                             <span ng-switch-when="image">

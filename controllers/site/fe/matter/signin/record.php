@@ -44,24 +44,31 @@ class record extends base {
 		}
 
 		$modelApp = $this->model('matter\signin');
-		if (false === ($signinApp = $modelApp->byId($app, ['cascaded' => 'N']))) {
+		if (false === ($oSigninApp = $modelApp->byId($app, ['cascaded' => 'N']))) {
 			header('HTTP/1.0 500 parameter error:app dosen\'t exist.');
 			die('签到活动不存在');
 		}
 
-		$oUser = $this->who;
-		$userNickname = $modelApp->getUserNickname($signinApp, $oUser);
-		$oUser->nickname = $userNickname;
+		$oUser = clone $this->who;
 
 		/**
 		 * 提交的数据
 		 */
-		$signinData = $this->getPostJson();
+		$oSigninData = $this->getPostJson();
+		/**
+		 * 签到用户昵称
+		 */
+		if ((isset($oSigninApp->assignedNickname->valid) && $oSigninApp->assignedNickname->valid === 'Y') && isset($oSigninApp->assignedNickname->schema->id)) {
+			$oUser->nickname = empty($oSigninData->{$oSigninApp->assignedNickname->schema->id}) ? '' : $oSigninData->{$oSigninApp->assignedNickname->schema->id};
+		} else {
+			$userNickname = $modelApp->getUserNickname($oSigninApp, $oUser);
+			$oUser->nickname = $userNickname;
+		}
 		/**
 		 * 包含用户身份信息
 		 */
-		if (isset($signinData->member) && isset($signinData->member->schema_id)) {
-			$member = clone $signinData->member;
+		if (isset($oSigninData->member) && isset($oSigninData->member->schema_id)) {
+			$member = clone $oSigninData->member;
 			$rst = $this->_submitMember($site, $member, $oUser);
 			if ($rst[0] === false) {
 				return new \ParameterError($rst[1]);
@@ -72,30 +79,30 @@ class record extends base {
 		 */
 		$modelRec = $this->model('matter\signin\record');
 		$modelRec->setOnlyWriteDbConn(true);
-		$signState = $modelRec->signin($oUser, $signinApp, $signinData);
+		$oSignState = $modelRec->signin($oUser, $oSigninApp, $oSigninData);
 		// 保存签到登记数据
 		empty($submitkey) && $submitkey = $oUser->uid;
-		$rst = $modelRec->setData($site, $signinApp, $signState->ek, $signinData, $submitkey);
+		$rst = $modelRec->setData($site, $oSigninApp, $oSignState->ek, $oSigninData, $submitkey);
 		if (false === $rst[0]) {
 			return new \ResponseError($rst[1]);
 		}
 		/**
 		 * 检查签到数据是否在报名表中
 		 */
-		if (!empty($signinApp->enroll_app_id)) {
-			$enrollApp = $this->model('matter\enroll')->byId($signinApp->enroll_app_id, ['cascaded' => 'N']);
+		if (!empty($oSigninApp->enroll_app_id)) {
+			$enrollApp = $this->model('matter\enroll')->byId($oSigninApp->enroll_app_id, ['cascaded' => 'N']);
 			if ($enrollApp) {
 				/*获得要检查的数据*/
-				$dataSchemas = json_decode($signinApp->data_schemas);
+				$dataSchemas = json_decode($oSigninApp->data_schemas);
 				$requireCheckedData = new \stdClass;
 				foreach ($dataSchemas as $dataSchema) {
 					if (isset($dataSchema->requireCheck) && $dataSchema->requireCheck === 'Y') {
-						$requireCheckedData->{$dataSchema->id} = isset($signinData->{$dataSchema->id}) ? $signinData->{$dataSchema->id} : '';
+						$requireCheckedData->{$dataSchema->id} = isset($oSigninData->{$dataSchema->id}) ? $oSigninData->{$dataSchema->id} : '';
 					}
 				}
-				if ($signinApp->mission_phase_id) {
+				if ($oSigninApp->mission_phase_id) {
 					/* 需要匹配项目阶段 */
-					$requireCheckedData->phase = $signinApp->mission_phase_id;
+					$requireCheckedData->phase = $oSigninApp->mission_phase_id;
 				}
 				/* 在指定的登记活动中检查数据 */
 				$modelEnrollRec = $this->model('matter\enroll\record');
@@ -108,35 +115,35 @@ class record extends base {
 					if ($enrollRecord->verified === 'Y') {
 						$enrollData = $enrollRecords[0]->data;
 						foreach ($enrollData as $n => $v) {
-							!isset($signinData->{$n}) && $signinData->{$n} = $v;
+							!isset($oSigninData->{$n}) && $oSigninData->{$n} = $v;
 						}
 						// 记录报名数据
-						$modelRec->setData($site, $signinApp, $signState->ek, $signinData, $submitkey);
+						$modelRec->setData($site, $oSigninApp, $oSignState->ek, $oSigninData, $submitkey);
 						// 记录验证状态
 						$modelRec->update(
 							'xxt_signin_record',
 							['verified' => 'Y', 'verified_enroll_key' => $enrollRecord->enroll_key],
-							"enroll_key='{$signState->ek}'"
+							"enroll_key='{$oSignState->ek}'"
 						);
-						$signState->verified = 'Y';
+						$oSignState->verified = 'Y';
 						// 返回指定的验证成功页
-						if (isset($signinApp->entry_rule->success->entry)) {
-							$signState->forword = $signinApp->entry_rule->success->entry;
+						if (isset($oSigninApp->entry_rule->success->entry)) {
+							$oSignState->forword = $oSigninApp->entry_rule->success->entry;
 						}
 					}
 				}
-				if (!isset($signState->verified)) {
+				if (!isset($oSignState->verified)) {
 					/**
 					 * 没有在报名表中找到对应的记录
 					 */
 					$modelRec->update(
 						'xxt_signin_record',
 						['verified' => 'N', 'verified_enroll_key' => ''],
-						"enroll_key='{$signState->ek}'"
+						"enroll_key='{$oSignState->ek}'"
 					);
-					$signState->verified = 'N';
-					if (isset($signinApp->entry_rule->fail->entry)) {
-						$signState->forword = $signinApp->entry_rule->fail->entry;
+					$oSignState->verified = 'N';
+					if (isset($oSigninApp->entry_rule->fail->entry)) {
+						$oSignState->forword = $oSigninApp->entry_rule->fail->entry;
 					}
 				}
 			}
@@ -144,18 +151,18 @@ class record extends base {
 		/**
 		 * 检查是否存在匹配的分组记录
 		 */
-		if (!empty($signinApp->group_app_id)) {
-			$groupApp = $this->model('matter\group')->byId($signinApp->group_app_id);
+		if (!empty($oSigninApp->group_app_id)) {
+			$groupApp = $this->model('matter\group')->byId($oSigninApp->group_app_id);
 			if (empty($groupApp)) {
 				return new \ParameterError('指定的登记匹配分组活动不存在');
 			}
 			/* 获得要检查的登记项 */
 			$requireCheckedData = new \stdClass;
-			$dataSchemas = json_decode($signinApp->data_schemas);
+			$dataSchemas = json_decode($oSigninApp->data_schemas);
 			foreach ($dataSchemas as $dataSchema) {
 				if (isset($dataSchema->requireCheck) && $dataSchema->requireCheck === 'Y') {
-					if (isset($dataSchema->fromApp) && $dataSchema->fromApp === $signinApp->group_app_id) {
-						$requireCheckedData->{$dataSchema->id} = isset($signinData->{$dataSchema->id}) ? $signinData->{$dataSchema->id} : '';
+					if (isset($dataSchema->fromApp) && $dataSchema->fromApp === $oSigninApp->group_app_id) {
+						$requireCheckedData->{$dataSchema->id} = isset($oSigninData->{$dataSchema->id}) ? $oSigninData->{$dataSchema->id} : '';
 					}
 				}
 			}
@@ -169,23 +176,76 @@ class record extends base {
 			/* 将匹配的登记记录数据作为提交的登记数据的一部分 */
 			$matchedData = $groupRecord->data;
 			foreach ($matchedData as $n => $v) {
-				!isset($signinData->{$n}) && $signinData->{$n} = $v;
+				!isset($oSigninData->{$n}) && $oSigninData->{$n} = $v;
 			}
 			if (isset($groupRecord->round_id)) {
-				$signinData->_round_id = $groupRecord->round_id;
+				$oSigninData->_round_id = $groupRecord->round_id;
 			}
 		}
-
 		/* 记录操作日志 */
-		$this->_logSubmit($signinApp, $signState->ek);
+		$this->_logSubmit($oSigninApp, $oSignState->ek);
+
+		/**
+		 * 当前轮次签到
+		 */
+		if (false === $oSignState->signed) {
+			/**
+			 * 发放签到积分
+			 */
+			$modelCoin = $this->model('matter\signin\coin');
+			$modelCoin->setOnlyWriteDbConn(true);
+			$modelClog = $this->model('site\coin\log');
+			$modelClog->setOnlyWriteDbConn(true);
+			if ($oSignState->late) {
+				$coinEvent = 'site.matter.signin.submit.late';
+			} else {
+				$coinEvent = 'site.matter.signin.submit.ontime';
+			}
+			$aCoinRules = $modelCoin->rulesByMatter($coinEvent, $oSigninApp);
+			$modelClog->award($oSigninApp, $oUser, $coinEvent, $aCoinRules);
+			/**
+			 * 更新项目用户信息
+			 */
+			if (!empty($oSigninApp->mission_id)) {
+				$modelMisUsr = $this->model('matter\mission\user');
+				$modelMisUsr->setOnlyWriteDbConn(true);
+				$oMission = new \stdClass;
+				$oMission->siteid = $oSigninApp->siteid;
+				$oMission->id = $oSigninApp->mission_id;
+				$oMisUsr = $modelMisUsr->byId($oMission, $oUser->uid, ['fields' => 'id,nickname,last_signin_at,signin_num,user_total_coin']);
+				if (false === $oMisUsr) {
+					$aNewMisUser = ['last_signin_at' => time(), 'signin_num' => 1];
+					if (!empty($aCoinRules)) {
+						$aNewMisUser['user_total_coin'] = 0;
+						foreach ($aCoinRules as $rule) {
+							$aNewMisUser['user_total_coin'] = $aNewMisUser['user_total_coin'] + (int) $rule->actor_delta;
+						}
+					}
+					$modelMisUsr->add($oMission, $oUser, $aNewMisUser);
+				} else {
+					$aUpdMisUser = ['last_signin_at' => time(), 'signin_num' => $oMisUsr->signin_num + 1];
+					if (!empty($aCoinRules)) {
+						$aUpdMisUser['user_total_coin'] = (int) $oMisUsr->user_total_coin;
+						foreach ($aCoinRules as $rule) {
+							$aUpdMisUser['user_total_coin'] = $aUpdMisUser['user_total_coin'] + (int) $rule->actor_delta;
+						}
+					}
+					$modelMisUsr->update(
+						'xxt_mission_user',
+						$aUpdMisUser,
+						['id' => $oMisUsr->id]
+					);
+				}
+			}
+		}
 		/**
 		 * 通知登记活动事件接收人
 		 */
-		if ($signinApp->notify_submit === 'Y') {
-			$this->_notifyReceivers($signinApp, $signState->ek);
+		if ($oSigninApp->notify_submit === 'Y') {
+			$this->_notifyReceivers($oSigninApp, $oSignState->ek);
 		}
 
-		return new \ResponseData($signState);
+		return new \ResponseData($oSignState);
 	}
 	/**
 	 * 记录用户提交日志

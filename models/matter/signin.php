@@ -89,6 +89,13 @@ class signin_model extends app_base {
 					$oApp->dataSchemas = [];
 				}
 			}
+			if ($fields === '*' || false !== strpos($fields, 'assigned_nickname')) {
+				if (!empty($oApp->assigned_nickname)) {
+					$oApp->assignedNickname = json_decode($oApp->assigned_nickname);
+				} else {
+					$oApp->assignedNickname = new \stdClass;
+				}
+			}
 			if (!empty($oApp->matter_mg_tag)) {
 				$oApp->matter_mg_tag = json_decode($oApp->matter_mg_tag);
 			}

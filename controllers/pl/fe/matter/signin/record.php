@@ -445,7 +445,7 @@ class record extends \pl\fe\matter\base {
 		$modelApp = $this->model('matter\signin');
 		$signinApp = $modelApp->byId(
 			$app,
-			['fields' => 'id,title,data_schemas,enroll_app_id,tags', 'cascaded' => 'Y']
+			['fields' => 'id,title,data_schemas,assigned_nickname,enroll_app_id,tags', 'cascaded' => 'Y']
 		);
 		$schemas = json_decode($signinApp->data_schemas);
 		if (!empty($round)) {

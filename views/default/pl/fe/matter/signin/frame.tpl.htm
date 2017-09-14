@@ -27,7 +27,7 @@
             <ul class="nav nav-tabs nav-stacked">
                 <li>
                     <a href='' ng-click="opened=opened==='edit'?false:'edit';switchTo('schema')">编辑 <span class="caret"></span></a>
-                    <ul class="nav nav-tabs nav-stacked" ng-style="{'height':opened==='edit'?'126px':'0'}">
+                    <ul class="nav nav-tabs nav-stacked" ng-style="{'height':opened==='edit'?'168px':'0'}">
                         <li ng-class="{'active':subView==='main'}">
                             <a href='' ng-click="switchTo('main')">活动定义</a>
                         </li>
@@ -37,27 +37,40 @@
                         <li ng-class="{'active':subView==='page'}">
                             <a href='' ng-click="switchTo('page')">修改页面</a>
                         </li>
+                        <li ng-class="{'active':subView==='preview'}">
+                            <a href='' ng-click="switchTo('preview')">预览</a>
+                        </li>
                     </ul>
                 </li>
                 <li ng-class="{'active':subView==='publish'}">
                     <a href='' ng-click="opened=opened==='publish'?false:'publish';switchTo('entry')">发布 <span class="caret"></span></a>
-                    <ul class="nav nav-tabs nav-stacked" ng-style="{'height':opened==='publish'?'126px':'0'}">
+                    <ul class="nav nav-tabs nav-stacked" ng-style="{'height':opened==='publish'?'84px':'0'}">
                         <li ng-class="{'active':subView==='access'}">
                             <a href='' ng-click="switchTo('access')">指定用户</a>
-                        </li>
-                        <li ng-class="{'active':subView==='preview'}">
-                            <a href='' ng-click="switchTo('preview')">预览</a>
                         </li>
                         <li ng-class="{'active':subView==='entry'}">
                             <a href='' ng-click="switchTo('entry')">发放入口</a>
                         </li>
                     </ul>
                 </li>
-                <li ng-class="{'active':subView==='record'}">
-                    <a href='' ng-click="opened='';switchTo('record')">数据详情</a>
+                <li>
+                    <a href='' ng-click="opened=opened==='data'?false:'data';switchTo('record')">记录 <span class="caret"></span></a>
+                    <ul class="nav nav-tabs nav-stacked" ng-style="{'height':opened==='data'?'42px':'0'}">
+                        <li ng-class="{'active':subView==='record'}">
+                            <a href='' ng-click="opened='';switchTo('record')">数据详情</a>
+                        </li>
+                    </ul>
                 </li>
-                <li ng-class="{'active':subView==='notice'}">
-                    <a href='' ng-click="opened='';switchTo('notice')">通知记录</a>
+                <li>
+                    <a href='' ng-click="opened=opened==='other'?false:'other';switchTo('coin')">其他 <span class="caret"></span></a>
+                    <ul class="nav nav-tabs nav-stacked" ng-style="{'height':opened==='other'?'84px':'0'}">
+                        <li ng-class="{'active':subView==='coin'}">
+                            <a href='' ng-click="switchTo('coin')">用户积分</a>
+                        </li>
+                        <li ng-class="{'active':subView==='notice'}">
+                            <a href='' ng-click="switchTo('notice')">通知记录</a>
+                        </li>
+                    </ul>
                 </li>
             </ul>
         </div>

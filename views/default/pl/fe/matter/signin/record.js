@@ -109,6 +109,7 @@ define(['frame'], function(ngApp) {
             });
             $scope.groupDataSchemas = groupDataSchemas;
             $scope.tmsTableWrapReady = 'Y';
+            $scope.bRequireNickname = app.assignedNickname.valid !== 'Y' || !app.assignedNickname.schema;
             $scope.doSearch();
         });
     }]);

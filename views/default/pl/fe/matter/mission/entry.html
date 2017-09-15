@@ -205,7 +205,7 @@
                     </div>
                 </div>
             </div>
-            <div ng-if="mission.user_app_type == 'enroll'">
+            <div ng-if="mission.user_app_type == 'enroll' || mission.user_app_type == 'group'">
                 <div class='checkbox'>
                     <label class='checkbox-inline' uib-tooltip='定时将包含【活动进入链接】消息发送给所有填写人'>
                         <input type='checkbox' ng-true-value="'Y'" ng-false-value="'N'" ng-model="timerTask.remind.state" ng-change="shiftTimerTask('remind')">定时向所有填写人发送活动提醒 <span class='glyphicon glyphicon-question-sign'></span></label>

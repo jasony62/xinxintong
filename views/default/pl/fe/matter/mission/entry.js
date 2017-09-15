@@ -46,6 +46,18 @@ define(['frame'], function(ngApp) {
 	}]);
     ngApp.provider.controller('ctrlReceiver', ['$scope', 'http2', '$interval', '$uibModal', 'srvSite', function($scope, http2, $interval, $uibModal, srvSite) {
         var baseURL = '/rest/pl/fe/matter/mission/receiver/';
+        function listReceivers(app) {
+            http2.get(baseURL + 'list?site=' + app.siteid + '&app=' + app.id, function(rsp) {
+                var map = { wx: '微信', yx: '易信'};
+                rsp.data.forEach(function(receiver) {
+                    if (receiver.sns_user) {
+                        receiver.snsUser = JSON.parse(receiver.sns_user);
+                        map[receiver.snsUser.src] && (receiver.snsUser.snsName = map[receiver.snsUser.src]);
+                    }
+                });
+                $scope.receivers = rsp.data;
+            });
+        }
         $scope.$watch('mission', function(mission) {
             if (!mission) return;
             listReceivers(mission);
@@ -73,20 +85,6 @@ define(['frame'], function(ngApp) {
         srvSite.snsList().then(function(oSns) {
             $scope.sns = oSns;
         });
-
-        function listReceivers(app) {
-            http2.get(baseURL + 'list?site=' + app.siteid + '&app=' + app.id, function(rsp) {
-                var map = { wx: '微信', yx: '易信'};
-                rsp.data.forEach(function(receiver) {
-                    if (receiver.sns_user) {
-                        receiver.snsUser = JSON.parse(receiver.sns_user);
-                        map[receiver.snsUser.src] && (receiver.snsUser.snsName = map[receiver.snsUser.src]);
-                    }
-                });
-                $scope.receivers = rsp.data;
-            });
-        }
-
         $scope.qrcodeShown = false;
         $scope.qrcode = function(snsName) {
             if ($scope.qrcodeShown === false) {

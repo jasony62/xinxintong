@@ -67,6 +67,10 @@ class record extends base {
 
 		// 提交的数据
 		$posted = $this->getPostJson();
+		if (empty($posted) || count(get_object_vars($posted)) === 0) {
+			return new \ResponseError('没有提交有效数据');
+		}
+
 		if (isset($posted->data)) {
 			$enrolledData = $posted->data;
 		} else {

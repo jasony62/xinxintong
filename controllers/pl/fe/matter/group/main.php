@@ -22,11 +22,13 @@ class main extends \pl\fe\matter\base {
 	/**
 	 * 返回一个分组活动
 	 */
-	public function get_action($site, $app) {
+	public function get_action($site, $app = null, $id = null) {
 		if (false === ($user = $this->accountUser())) {
 			return new \ResponseTimeout();
 		}
-		$oApp = $this->model('matter\\group')->byId($app);
+
+		$app = isset($app) ? $app : $id;
+		$oApp = $this->model('matter\group')->byId($app);
 		if (false === $oApp) {
 			return new \ObjectNotFoundError();
 		}
@@ -54,15 +56,15 @@ class main extends \pl\fe\matter\base {
 	/**
 	 * 返回分组活动列表
 	 */
-	public function list_action($site = null, $mission = null, $page = 1, $size = 30) {
+	public function list_action($site = null, $mission = null, $page = 1, $size = 30, $cascaded = 'N') {
 		if (false === ($user = $this->accountUser())) {
 			return new \ResponseTimeout();
 		}
 		$post = $this->getPostJson();
 		$result = ['apps' => null, 'total' => 0];
-		$model = $this->model();
+		$model = $this->model('matter\group');
 		$q = [
-			"*,'group' type",
+			"*",
 			'xxt_group',
 			"state<>0",
 		];
@@ -90,6 +92,13 @@ class main extends \pl\fe\matter\base {
 		$q2['r']['o'] = ($page - 1) * $size;
 		$q2['r']['l'] = $size;
 		if ($apps = $model->query_objs_ss($q, $q2)) {
+			if ($cascaded === 'Y') {
+				$modelGrpRnd = $this->model('matter\group\round');
+				foreach ($apps as &$oApp) {
+					$rounds = $modelGrpRnd->byApp($oApp->id);
+					$oApp->rounds = $rounds;
+				}
+			}
 			$result['apps'] = $apps;
 			$q[0] = 'count(*)';
 			$total = (int) $model->query_val_ss($q);

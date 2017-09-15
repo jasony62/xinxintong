@@ -177,7 +177,7 @@ class base extends \site\fe\matter\base {
 
 		$oUser = $this->who;
 		$oEntryRule = $oApp->entry_rule;
-		if (!isset($oEntryRule->scope) || $oEntryRule->scope === 'none') {
+		if (!isset($oEntryRule->scope) || $oEntryRule->scope === 'none' || $oEntryRule->scope === 'group') {
 			/* 没有限制 */
 			$result->passed = 'Y';
 		} else if ($oEntryRule->scope === 'member') {

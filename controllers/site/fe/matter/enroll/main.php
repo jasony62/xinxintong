@@ -402,6 +402,25 @@ class main extends base {
 			$params['record'] = $oRecord;
 		}
 
+		/**
+		 * 获得当前用户所属的分组，是否为组长，及同组成员
+		 */
+		if (!empty($oApp->entry_rule->group->id)) {
+			$modelGrpUsr = $this->model('matter\group\player');
+			$oGrpApp = (object) ['id' => $oApp->entry_rule->group->id];
+			$oGrpUsr = $modelGrpUsr->byUser($oGrpApp, $oUser->uid, ['fields' => 'is_leader,round_id,round_title,userid,nickname', 'onlyOne' => true]);
+			if (count($oGrpUsr)) {
+				$others = $modelGrpUsr->byRound($oGrpApp->id, $oGrpUsr->round_id, ['fields' => 'is_leader,userid,nickname']);
+				$params['groupUser'] = $oGrpUsr;
+				$params['groupOthers'] = [];
+				foreach ($others as $other) {
+					if ($other->userid !== $oGrpUsr->userid) {
+						$params['groupOthers'][] = $other;
+					}
+				}
+			}
+		}
+
 		return new \ResponseData($params);
 	}
 	/**

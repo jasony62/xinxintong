@@ -50,7 +50,7 @@ class main extends \pl\fe\matter\base {
 			$oApp->groupApp = $this->model('matter\group')->byId($oApp->group_app_id);
 		}
 		/* 指定分组活动访问 */
-		if ($oApp->entry_rule->scope === 'group') {
+		if (isset($oApp->entry_rule->scope) && $oApp->entry_rule->scope === 'group') {
 			if (isset($oApp->entry_rule->group)) {
 				$oRuleApp = $oApp->entry_rule->group;
 				if (!empty($oRuleApp->id)) {

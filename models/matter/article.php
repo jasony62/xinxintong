@@ -151,7 +151,6 @@ class article_model extends article_base {
 	 */
 	public function &getMatters($id) {
 		$article = $this->byId($id, "id,siteid,title,author,summary,pic,body,url");
-		$newArticle->type = 'article';
 		$articles = array($article);
 
 		return $articles;
@@ -161,7 +160,6 @@ class article_model extends article_base {
 	 */
 	public function &getArticles($id) {
 		$article = $this->byId($id, 'id,siteid,title,author,summary,pic,body,url');
-		$newArticle->type = 'article';
 		$articles = array($article);
 
 		return $articles;

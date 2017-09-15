@@ -40,11 +40,13 @@ define(['missionService', 'enrollService', 'signinService'], function() {
         };
         $routeProvider
             .when('/rest/pl/fe/matter/mission/main', new RouteParam('main'))
+            .when('/rest/pl/fe/matter/mission/entry', new RouteParam('entry'))
             .when('/rest/pl/fe/matter/mission/access', new RouteParam('access'))
             .when('/rest/pl/fe/matter/mission/matter', new RouteParam('matter'))
             .when('/rest/pl/fe/matter/mission/mschema', new RouteParam('mschema'))
             .when('/rest/pl/fe/matter/mission/report', new RouteParam('report'))
             .when('/rest/pl/fe/matter/mission/overview', new RouteParam('overview'))
+            .when('/rest/pl/fe/matter/mission/notice', new RouteParam('notice'))
             .otherwise(new RouteParam('main'));
 
         $locationProvider.html5Mode(true);
@@ -99,74 +101,30 @@ define(['missionService', 'enrollService', 'signinService'], function() {
         });
         srvSite.tagList().then(function(oTag) {
             $scope.oTag = oTag;
-        });
-        srvMission.get().then(function(mission) {
-            if (mission.matter_mg_tag !== '') {
-                mission.matter_mg_tag.forEach(function(cTag, index) {
-                    $scope.oTag.forEach(function(oTag) {
-                        if (oTag.id === cTag) {
-                            mission.matter_mg_tag[index] = oTag;
+            srvMission.get().then(function(mission) {
+                if (mission.matter_mg_tag !== '') {
+                    mission.matter_mg_tag.forEach(function(cTag, index) {
+                        $scope.oTag.forEach(function(oTag) {
+                            if (oTag.id === cTag) {
+                                mission.matter_mg_tag[index] = oTag;
+                            }
+                        });
+                    });
+                }
+                $scope.mission = mission;
+                if (location.href.indexOf('/mission?') !== -1) {
+                    srvMission.matterCount().then(function(count) {
+                        if (count) {
+                            $location.path('/rest/pl/fe/matter/mission/matter').search({ id: mission.id, site: mission.siteid });
+                            $location.replace();
+                        } else {
+                            $location.path('/rest/pl/fe/matter/mission/main').search({ id: mission.id, site: mission.siteid });
+                            $location.replace();
                         }
                     });
-                });
-            }
-            $scope.mission = mission;
-            if (location.href.indexOf('/mission?') !== -1) {
-                srvMission.matterCount().then(function(count) {
-                    if (count) {
-                        $location.path('/rest/pl/fe/matter/mission/matter').search({ id: mission.id, site: mission.siteid });
-                        $location.replace();
-                    } else {
-                        $location.path('/rest/pl/fe/matter/mission/main').search({ id: mission.id, site: mission.siteid });
-                        $location.replace();
-                    }
-                });
-            }
-        });
-    }]);
-    ngApp.controller('ctrlOpUrl', ['$scope', 'http2', 'srvQuickEntry', '$timeout', function($scope, http2, srvQuickEntry, $timeout) {
-        var targetUrl, host, opEntry;
-        $scope.opEntry = opEntry = {};
-        $timeout(function() {
-            new ZeroClipboard(document.querySelectorAll('.text2Clipboard'));
-        });
-        $scope.$watch('mission', function(mission) {
-            if (!mission) return;
-            targetUrl = mission.opUrl;
-            host = targetUrl.match(/\/\/(\S+?)\//);
-            host = host.length === 2 ? host[1] : location.host;
-            srvQuickEntry.get(targetUrl).then(function(entry) {
-                if (entry) {
-                    opEntry.url = 'http://' + host + '/q/' + entry.code;
-                    opEntry.password = entry.password;
-                    opEntry.code = entry.code;
-                    opEntry.can_favor = entry.can_favor;
                 }
             });
         });
-        $scope.makeOpUrl = function() {
-            srvQuickEntry.add(targetUrl, $scope.mission.title).then(function(task) {
-                opEntry.url = 'http://' + host + '/q/' + task.code;
-                opEntry.code = task.code;
-            });
-        };
-        $scope.closeOpUrl = function() {
-            srvQuickEntry.remove(targetUrl).then(function(task) {
-                opEntry.url = '';
-                opEntry.code = '';
-                opEntry.can_favor = 'N';
-                opEntry.password = '';
-            });
-        };
-        $scope.configOpUrl = function(event, prop) {
-            event.preventDefault();
-            srvQuickEntry.config(targetUrl, {
-                password: opEntry.password
-            });
-        };
-        $scope.updCanFavor = function() {
-            srvQuickEntry.update(opEntry.code, { can_favor: opEntry.can_favor });
-        };
     }]);
     /*bootstrap*/
     require(['domReady!'], function(document) {

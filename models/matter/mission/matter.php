@@ -48,7 +48,7 @@ class matter_model extends \TMS_MODEL {
 						$fields .= ',start_at,end_at';
 					}
 					if (in_array($mm->matter_type, ['enroll'])) {
-						$fields .= ',end_submit_at,rp_short_url_code,can_coin';
+						$fields .= ',end_submit_at,rp_short_url_code,can_coin,entry_rule';
 					}
 					if (in_array($mm->matter_type, ['enroll', 'group'])) {
 						$fields .= ',scenario';

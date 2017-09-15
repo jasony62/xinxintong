@@ -21,7 +21,7 @@ class main extends \pl\fe\matter\base {
 		exit;
 	}
 	/**
-	 * 获得指定的任务
+	 * 获得指定的项目
 	 *
 	 * @param int $id
 	 */
@@ -37,7 +37,9 @@ class main extends \pl\fe\matter\base {
 		$oMission = $this->model('matter\mission')->byId($id, ['cascaded' => 'header_page_name,footer_page_name,phase']);
 		/* 关联的用户名单活动 */
 		if ($oMission->user_app_id) {
-			if ($oMission->user_app_type === 'enroll') {
+			if ($oMission->user_app_type === 'group') {
+				$oMission->userApp = $this->model('matter\group')->byId($oMission->user_app_id, ['cascaded' => 'N']);
+			} else if ($oMission->user_app_type === 'enroll') {
 				$oMission->userApp = $this->model('matter\enroll')->byId($oMission->user_app_id, ['cascaded' => 'N']);
 			} else if ($oMission->user_app_type === 'signin') {
 				$oMission->userApp = $this->model('matter\signin')->byId($oMission->user_app_id, ['cascaded' => 'N']);

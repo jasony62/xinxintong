@@ -5,7 +5,7 @@
     <meta charset="utf-8">
     <meta content="width=device-width,user-scalable=no,initial-scale=1.0" name="viewport">
     <base href="/" />
-    <title>我参与的项目</title>
+    <title>项目活动</title>
     <link href="/static/css/bootstrap.min.css" rel="stylesheet">
     <link href='/static/css/site.fe.css?_=1' rel="stylesheet">
     <link href="/views/default/site/fe/matter/mission/main.css?_=2" rel="stylesheet">
@@ -103,7 +103,14 @@
                 </div>
             </div>
         </div>
-    </div>
+        <nav style='margin-bottom:20px;' ng-if="groupUsers.length&&mission.groupUser.is_leader==='Y'">
+            <form class='form-inline'>
+                <div>
+                    <label>查看【{{mission.groupUser.round_title}}】成员</label>
+                    <select class='form-control' ng-model="criteria.groupUser" ng-options="usr.nickname for usr in groupUsers" ng-change="shiftGroupUser(criteria.groupUser)"></select>
+                </div>
+            </form>
+        </nav>
     </div>
     <script src="/static/js/xxt.ui.error.js"></script>
     <script src="/static/js/angular.min.js"></script>

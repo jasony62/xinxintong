@@ -453,7 +453,7 @@ class enroll_model extends app_base {
 						}
 					}
 				}
-			} else if (empty($entryRule->scope) || $entryRule->scope === 'none') {
+			} else if (empty($entryRule->scope) || $entryRule->scope === 'none' || $entryRule->scope === 'group') {
 				/* 不限制用户访问来源 */
 				$nickname = empty($oUser->nickname) ? '' : $oUser->nickname;
 			}

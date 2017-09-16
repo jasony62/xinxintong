@@ -203,11 +203,65 @@ nav form label {
     border-radius: 20px
 }
 
-#times {
+#cardPills {
+    margin-bottom: 20px;
+}
+
+.nav-pills>li>a, .nav-pills>li>a:focus, .nav-pills>li>a:hover, .nav-pills>li.active>a, .nav-pills>li.active>a:focus, .nav-pills>li.active>a:hover {
+    background: #fff;
+    border: 1px solid #009900;
+    color: darkgreen;
+    margin: 0 4px;
+}
+
+.nav-pills>li.active>a, .nav-pills>li.active>a:focus, .nav-pills>li.active>a:hover {
+    background: lightgreen;
+}
+
+.nav-justified>li {
+    display: table-cell;
+    width: 1%;
+}
+
+.nav-justified>li:first-child>a {
+    margin-left: 0;
+}
+
+.nav-justified>li:last-child>a {
+    margin-right: 0;
+}
+
+.thumbnail {
+    padding: 8px 16px;
+}
+
+.thumbnail label {
+    font-weight: normal;
+    color: #aaa;
+    margin: 0;
+}
+
+.thumbnail .title {
+    margin-bottom: 8px;
+}
+
+.thumbnail .row>div {
+    margin-bottom: 8px;
+}
+
+.thumbnail hr {
+    margin: 0 0 8px;
+}
+
+.thumbnail a {
+    color: #333;
+}
+
+#cards .row {
     position: relative;
 }
 
-#times:before {
+#cards .row:before {
     content: '';
     display: block;
     position: absolute;
@@ -242,32 +296,61 @@ nav form label {
     right: -8px;
 }
 
-.timeline.pending:after {
-    background: lightgray;
-}
-
-.track {
-    padding: 8px 16px;
-}
-
-.track label {
-    font-weight: normal;
+.nickname, .group {
+    display: inline-block;
     color: #aaa;
-    margin: 0;
 }
 
-.track .title {
-    margin-bottom: 8px;
+.remark_num, .like_num {
+    display: table-cell;
+    width: 1%;
+    text-align: center;
 }
 
-.track .row>div {
-    margin-bottom: 8px;
+.recommend img, .recommend video, .recommend audio {
+    max-width: 100%;
 }
 
-.track hr {
-    margin: 0 0 16px;
+.doc .summary, .recommend .value {
+    color: #999;
 }
 
-.track a {
-    color: #333;
+#rank .index>div {
+    padding-top: 8px;
+    padding-bottom: 8px;
+    background: #fff;
+    border: 1px solid #009900;
+    border-radius: 16px;
+    position: relative;
+    margin-left: 12px;
+}
+
+#rank .user {
+    padding: 8px 16px;
+    border-left: 2px solid #009900;
+    margin-bottom: 20px;
+    background:#fff;
+}
+
+#rank {
+    index
+}
+
+#rank>div {
+    counter-increment: index;
+}
+
+#rank .index>div:before {
+    content: counter(index);
+    display: block;
+    position: absolute;
+    width: 24px;
+    height: 24px;
+    top: 0%;
+    margin-top: -12px;
+    background: lightgreen;
+    border: 1px solid #009900;
+    border-radius: 12px;
+    left: -12px;
+    color: #009900;
 }

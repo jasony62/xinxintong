@@ -14,6 +14,13 @@ class main extends \site\fe\matter\base {
 		exit;
 	}
 	/**
+	 *
+	 */
+	public function board_action() {
+		\TPL::output('/site/fe/matter/mission/board');
+		exit;
+	}
+	/**
 	 * 获得指定的任务
 	 *
 	 * @param int $id

@@ -19,6 +19,11 @@ class matter_model extends \TMS_MODEL {
 	}
 	/**
 	 * 获得项目下的所有素材
+	 *
+	 * @param int $missionId
+	 * @param mixed $matterType string/array
+	 * @param array $options
+	 *
 	 */
 	public function &byMission($missionId, $matterType = null, $options = [], $verbose = 'Y') {
 		$fields = isset($options['fields']) ? $options['fields'] : 'id,matter_id,matter_title,matter_type,is_public,seq,create_at,start_at,end_at,scenario,phase_id';

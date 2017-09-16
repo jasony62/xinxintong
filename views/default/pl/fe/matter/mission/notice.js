@@ -12,8 +12,9 @@ define(['frame'], function(ngApp) {
                 url = '/rest/pl/fe/matter/enroll/notice/logList?batch=' + batch.id;
             }else if($scope.mission.user_app_type === 'signin'){
                 url = '/rest/pl/fe/matter/signin/notice/logList?batch=' + batch.id;
+            }else if($scope.mission.user_app_type === 'group'){
+                url = '/rest/pl/fe/matter/group/notice/logList?aid=' + $scope.mission.user_app_id +'&batch=' + batch.id;
             }else{
-                alert('暂不支持此名单应用');
                 return;
             }
             http2.get(url, function(rsp) {
@@ -51,6 +52,8 @@ define(['frame'], function(ngApp) {
                 srvTmplmsgNotice.init('enroll:' + mission.user_app_id, oBatchPage, aBatches);
             }else if(mission.user_app_type === 'signin'){
                 srvTmplmsgNotice.init('signin:' + mission.user_app_id, oBatchPage, aBatches);
+            }else if(mission.user_app_type === 'group'){
+                srvTmplmsgNotice.init('group:' + mission.user_app_id, oBatchPage, aBatches);
             }else{
                 return;
             }

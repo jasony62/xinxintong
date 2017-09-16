@@ -74,6 +74,51 @@ class remind_model extends \TMS_MODEL {
 			$modelTmplBat->send($oMatter->siteid, $tmplmsgId, $creater, $receivers, $params, ['send_from' => 'enroll:' . $oMatter->id]);
 		}
 
+		if ($oMatter->type === 'group') {
+			$modelGroup = $this->model('matter\group');
+			$oMatter = $modelGroup->byId($oMatter->id, ['cascaded' => 'N']);
+			if (false === $oMatter) {
+				return [false, '指定的活动不存在'];
+			}
+
+			/* 获得活动的进入链接 */
+			$params = new \stdClass;
+			if(isset($timerArgument->url)){
+				$params->url = $timerArgument->url;
+			}else{
+				$params->url = '';
+			}
+
+			/*处理要发送的填写人*/
+			$q = [
+				'distinct userid,enroll_key assoc_with',
+				'xxt_group_player',
+				['state' => 1, 'aid' => $oMatter->id],
+			];
+			$receivers = $modelGroup->query_objs_ss($q);
+			if (count($receivers) === 0) {
+				return [false, '没有填写人'];
+			}
+
+			/*获取模板消息id*/
+			$oNotice = $this->model('site\notice')->byName($oMatter->siteid, 'timer.group.remind', ['onlySite' => false]);
+			if ($oNotice === false) {
+				return [false, '没有指定事件的模板消息1'];
+			}
+			$oTmplConfig = $this->model('matter\tmplmsg\config')->byId($oNotice->tmplmsg_config_id);
+			$tmplmsgId = $oTmplConfig->msgid;
+			if(empty($tmplmsgId)){
+				return [false, '没有指定事件的模板消息2'];
+			}
+
+			$modelTmplBat = $this->model('matter\tmplmsg\batch');
+			$creater = new \stdClass;
+			$creater->uid = 'timer.group.remind';
+			$creater->name = 'timer';
+			$creater->src = 'pl';
+			$modelTmplBat->send($oMatter->siteid, $tmplmsgId, $creater, $receivers, $params, ['send_from' => 'group:' . $oMatter->id]);
+		}
+
 		return [true];
 	}
 }

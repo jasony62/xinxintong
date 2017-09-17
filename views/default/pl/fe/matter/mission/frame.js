@@ -42,7 +42,8 @@ define(['missionService', 'enrollService', 'signinService'], function() {
             .when('/rest/pl/fe/matter/mission/main', new RouteParam('main'))
             .when('/rest/pl/fe/matter/mission/entry', new RouteParam('entry'))
             .when('/rest/pl/fe/matter/mission/access', new RouteParam('access'))
-            .when('/rest/pl/fe/matter/mission/matter', new RouteParam('matter'))
+            .when('/rest/pl/fe/matter/mission/app', new RouteParam('app'))
+            .when('/rest/pl/fe/matter/mission/doc', new RouteParam('doc'))
             .when('/rest/pl/fe/matter/mission/mschema', new RouteParam('mschema'))
             .when('/rest/pl/fe/matter/mission/report', new RouteParam('report'))
             .when('/rest/pl/fe/matter/mission/overview', new RouteParam('overview'))
@@ -91,6 +92,27 @@ define(['missionService', 'enrollService', 'signinService'], function() {
         $scope.$on('$locationChangeSuccess', function(event, currentRoute) {
             var subView = currentRoute.match(/([^\/]+?)\?/);
             $scope.subView = subView[1] === 'mission' ? 'main' : subView[1];
+            switch ($scope.subView) {
+                case 'main':
+                case 'access':
+                    $scope.opened = 'rule';
+                    break;
+                case 'app':
+                case 'doc':
+                    $scope.opened = 'task';
+                    break;
+                case 'mschema':
+                    $scope.opened = 'user';
+                    break;
+                case 'report':
+                    $scope.opened = 'result';
+                    break;
+                case 'notice':
+                    $scope.opened = 'other';
+                    break;
+                default:
+                    $scope.opened = '';
+            }
         });
         $scope.switchTo = function(subView) {
             var url = '/rest/pl/fe/matter/mission/' + subView;

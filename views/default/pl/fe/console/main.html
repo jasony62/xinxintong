@@ -207,18 +207,24 @@
                     <tr>
                         <th style='width:48px'>序号</th>
                         <th>名称</th>
-                        <th style='width:74px'>活动数量</th>
+                        <th style='width:74px'>报名活动</th>
+                        <th style='width:74px'>签到活动</th>
+                        <th style='width:74px'>分组活动</th>
+                        <th style='width:74px'>全部活动</th>
                         <th style='width:140px'>创建人</th>
                         <th style='width:120px'>创建时间</th>
                         <th style='width:64px'>置顶</th>
-                        <th style='width:113px'>操作</th>
+                        <th style='width:64px'>操作</th>
                     </tr>
                 </thead>
                 <tbody>
                     <tr ng-repeat='m in missions'>
                         <td>{{$index+1}}</td>
-                        <td ng-click="open(m,'report')" style='cursor:pointer;'><span ng-if="!frameState.sid">{{m.site_name}}\</span>{{m.title}}</td>
-                        <td>{{m.matter.num}}</td>
+                        <td ng-click="open(m,'report')"><span ng-if="!frameState.sid">{{m.site_name}}\</span>{{m.title}}</td>
+                        <td ng-click="openMission(m,'matter','enroll','registration')">{{m.matter.enroll.registration||0}}</td>
+                        <td ng-click="openMission(m,'matter','signin')">{{m.matter.signin||0}}</td>
+                        <td ng-click="openMission(m,'matter','group')">{{m.matter.group.split||0}}</td>
+                        <td ng-click="openMission(m,'matter')">{{m.matter.num||0}}</td>
                         <td>{{m.creater_name}}</td>
                         <td>{{m.create_at*1000|date:'yy-MM-dd HH:mm'}}</td>
                         <td>
@@ -226,7 +232,6 @@
                         </td>
                         <td>
                             <button class='btn btn-sm btn-default' ng-click="open(m,'main')">定义</button>
-                            <button class='btn btn-sm btn-default' ng-click="open(m,'matter')">活动</button>
                         </td>
                     </tr>
                 </tbody>
@@ -316,7 +321,7 @@
                     <tr ng-repeat='m in matters'>
                         <td data-th='序号' class='hidden-xs'><span>{{$index+1}}</span></td>
                         <td data-th='场景' ng-if="filter.byType=='enroll'"><span>{{scenarioNames[m.matter_scenario||m.scenario]}}</span></td>
-                        <td data-th='名称' ng-click="openMatter(m)" style='cursor:pointer;'><span>{{m.matter_title||m.title}}</span></td>
+                        <td data-th='名称' ng-click="openMatter(m)"><span>{{m.matter_title||m.title}}</span></td>
                         <td data-th='签到轮次' ng-if="filter.byType =='signin'"><span>{{m.opData[0].title}}</span></td>
                         <td data-th='记录数' ng-if="filter.byType =='enroll'" ng-click="openMatter(m,'record')" title='点击查看详细数据' style='cursor:pointer;'><span>{{m.opData[0].total}}</span></td>
                         <td data-th='记录数' ng-if="filter.byType =='signin'" ng-click="openMatter(m,'record')" title='点击查看详细数据' style='cursor:pointer;'><span>{{m.opData[0].total}}</span></td>

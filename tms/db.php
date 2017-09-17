@@ -354,6 +354,15 @@ class TMS_DB {
 							$clause .= implode("','", $v);
 							$clause .= "')";
 							$clauses[] = $clause;
+						} else if (is_object($v)) {
+							if (isset($v->op) && isset($v->pat)) {
+								switch ($v->op) {
+								case 'like':
+									$clause = $k . " like '" . $v->pat . "'";
+									$clauses[] = $clause;
+									break;
+								}
+							}
 						} else {
 							$clauses[] = $k . "=" . $v;
 						}

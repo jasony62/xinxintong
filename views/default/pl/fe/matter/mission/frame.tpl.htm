@@ -23,13 +23,56 @@
             </div>
             <!--侧边栏-->
             <ul class="nav nav-tabs nav-stacked">
-                <li ng-class="{'active':subView==='main'}"><a href='' ng-click="switchTo('main')">项目定义</a></li>
+                <li>
+                    <a href='' ng-click="opened=opened==='rule'?false:'rule';switchTo('main')">定义 <span class="caret"></span></a>
+                    <ul class="nav nav-tabs nav-stacked" ng-style="{'height':opened==='rule'?'84px':'0'}">
+                        <li ng-class="{'active':subView==='main'}">
+                            <a href='' ng-click="switchTo('main')">项目定义</a>
+                        </li>
+                        <li ng-class="{'active':subView==='access'}">
+                            <a href='' ng-click="switchTo('access')">进入规则</a>
+                        </li>
+                    </ul>
+                </li>
+                <li>
+                    <a href='' ng-click="opened=opened==='task'?false:'task';switchTo('app')">任务 <span class="caret"></span></a>
+                    <ul class="nav nav-tabs nav-stacked" ng-style="{'height':opened==='task'?'84px':'0'}">
+                        <li ng-class="{'active':subView==='app'}">
+                            <a href='' ng-click="switchTo('app')">活动</a>
+                        </li>
+                        <li ng-class="{'active':subView==='doc'}">
+                            <a href='' ng-click="switchTo('doc')">资料</a>
+                        </li>
+                    </ul>
+                </li>
+                <li>
+                    <a href='' ng-click="opened=opened==='user'?false:'user';switchTo('mschema')">用户 <span class="caret"></span></a>
+                    <ul class="nav nav-tabs nav-stacked" ng-style="{'height':opened==='user'?'84px':'0'}">
+                        <li ng-class="{'active':subView==='mschema'}">
+                            <a href='' ng-click="switchTo('mschema')">通讯录</a>
+                        </li>
+                        <li ng-class="{'active':subView==='enrollee'}">
+                            <a href='' ng-click="switchTo('enrollee')">参与人</a>
+                        </li>
+                    </ul>
+                </li>
+                <li>
+                    <a href='' ng-click="opened=opened==='result'?false:'result';switchTo('report')">数据 <span class="caret"></span></a>
+                    <ul class="nav nav-tabs nav-stacked" ng-style="{'height':opened==='result'?'42px':'0'}">
+                        <li ng-class="{'active':subView==='report'}">
+                            <a href='' ng-click="switchTo('report')">汇总报告</a>
+                        </li>
+                    </ul>
+                </li>
+                <li>
+                    <a href='' ng-click="opened=opened==='other'?false:'other';switchTo('notice')">其他 <span class="caret"></span></a>
+                    <ul class="nav nav-tabs nav-stacked" ng-style="{'height':opened==='other'?'42px':'0'}">
+                        <li ng-class="{'active':subView==='notice'}">
+                            <a href='' ng-click="switchTo('notice')">通知记录</a>
+                        </li>
+                    </ul>
+                </li>
                 <li ng-class="{'active':subView==='entry'}"><a href='' ng-click="switchTo('entry')">发放入口</a></li>
-                <li ng-class="{'active':subView==='mschema'}"><a href='' ng-click="switchTo('mschema')">通讯录</a></li>
-                <li ng-class="{'active':subView==='access'}"><a href='' ng-click="switchTo('access')">进入规则</a></li>
-                <li ng-class="{'active':subView==='matter'}"><a href='' ng-click="switchTo('matter')">资料活动</a></li>
-                <li ng-class="{'active':subView==='report'}"><a href='' ng-click="switchTo('report')">汇总报告</a></li>
-                <li ng-class="{'active':subView==='notice'}"><a href='' ng-click="switchTo('notice')">通知记录</a></li>
             </ul>
         </div>
         <!--导航+主体内容-->

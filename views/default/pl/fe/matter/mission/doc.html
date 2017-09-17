@@ -1,0 +1,63 @@
+<div id='viewMatter' class="col-md-12">
+    <nav class="navbar navbar-default">
+        <div class='container-fluid'>
+            <ul class="nav navbar-nav">
+                <li ng-class="{'active':matterType===''}"><a href='#' ng-click="matterType=''">全部</a></li>
+                <li ng-class="{'active':matterType==='article'}"><a href='#article' ng-click="matterType='article'">图文</a></li>
+            </ul>
+            <form class='nav navbar-form pull-left'>
+                <div class='form-group'>
+                    <div class='input-group'>
+                        <input type='input' class='form-control' placeholder='按名称筛选' ng-model='criteria.byTitle'>
+                        <span class='input-group-btn'>
+                            <button class='btn btn-default' ng-click="list()"><span class='glyphicon glyphicon-search'></button>
+                            <button class='btn btn-default' ng-click="criteria.byTitle='';list()"><span class='glyphicon glyphicon-remove'></button>
+                        </span>
+                    </div>
+                </div>
+                <div class='form-group' ng-if="mission.phases.length">
+                    <select class="form-control" ng-model="criteria.pid" ng-change="doSearch(criteria.pid)">
+                        <option value="ALL">全部{{cstApp.naming.phase}}</option>
+                        <option value="{{phs.phase_id}}" ng-repeat="phs in phases">{{phs.title}}</option>
+                    </select>
+                </div>
+            </form>
+            <form class="navbar-form navbar-right">
+                <button uib-popover-template="'addMatter.html'" popover-placement="bottom" popover-append-to-body='true' popover-trigger="outsideClick" popover-title="添加素材" class='btn btn-default'><i class='glyphicon glyphicon-plus'></i> <span>新建</span> <i class='caret'></i></button>
+            </form>
+        </div>
+    </nav>
+    <table class='table table-bordered'>
+        <thead>
+            <tr>
+                <th style='width:48px'>序号</th>
+                <th>名称</th>
+                <th style='width:140px'>创建人</th>
+                <th style='width:120px'>创建时间</th>
+                <th style='width:220px'>操作</th>
+            </tr>
+        </thead>
+        <tbody>
+            <tr ng-repeat='m in matters'>
+                <td>{{$index+1}}</td>
+                <td ng-click="openMatter(m)" style='cursor:pointer;'>{{m.title}}</td>
+                <td>{{m._operator||m.creater_name||m.modifier_name}}</td>
+                <td>{{(m._operateAt||m.modify_at||m.create_at)*1000|date:'yy-MM-dd HH:mm'}}</td>
+                <td>
+                    <div>
+                        <button class='btn btn-sm btn-default' ng-click="openMatter(m,'main')">进入</button>
+                        <button class='btn btn-sm btn-default' ng-click="copyMatter($event,m)">复制</button>
+                        <button class='btn btn-sm btn-default' ng-if="m.type!= 'wall'" ng-click="removeMatter($event,m)">删除</button>
+                    </div>
+                </td>
+            </tr>
+        </tbody>
+    </table>
+</div>
+<script type="text/ng-template" id="addMatter.html">
+    <div id="addMatter">
+        <div class='form-group'>
+            <button class='btn btn-default' ng-click="addMatter('article')">单图文</button>
+        </div>
+    </div>
+</script>

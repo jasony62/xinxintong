@@ -9,7 +9,7 @@ ngApp.provider.controller('ctrlHome', ['$scope', '$http', '$uibModal', 'tmsFavor
             return '&page=' + this.at + '&size=' + this.size;
         }
     }
-    $scope.moreMatters = function(matterType) {
+    $scope.moreMatters = function(matterType, matter) {
         $scope.page.at = $scope.page.at + 1;
         switch (matterType) {
             case 'article':
@@ -21,6 +21,8 @@ ngApp.provider.controller('ctrlHome', ['$scope', '$http', '$uibModal', 'tmsFavor
             case 'site':
                 $scope.listApps();
                 break;
+            case 'channel':
+                $scope.listChannelsMatters(matter);
         }
     };
     $scope.openMatter = function(matter) {
@@ -84,7 +86,20 @@ ngApp.provider.controller('ctrlHome', ['$scope', '$http', '$uibModal', 'tmsFavor
         url += '?site=' + item.siteid + '&id=' + item.matter_id;
         url += '&page=' +  $scope.page.at + '&size=1';
         $http.get(url).success(function(rsp) {
-            _channelMatters.push({ title: item.title, data: rsp.data, total:rap.data.total});
+            if($scope.page.at==1) {
+                _channelMatters.push({ title: item.title, siteid: item.siteid, matter_id: item.matter_id, data: rsp.data.matters, total:rsp.data.total});
+            }
+            if($scope.page.at > 1) {
+                if(rsp.data.matters.length) {
+                     _channelMatters.forEach(function(channel) {
+                    if(channel.matter_id==item.matter_id) {
+                            rsp.data.matters.forEach(function(matter) {
+                                channel.data.push(matter);
+                            })
+                        }
+                    });
+                }
+            }
             $scope.channelMatters = _channelMatters;
         });
     };
@@ -130,7 +145,7 @@ ngApp.provider.controller('ctrlHome', ['$scope', '$http', '$uibModal', 'tmsFavor
                 url += '?site=' + item.siteid + '&id=' + item.matter_id;
                 url += '&page=1&size=5';
                 $http.get(url).success(function(rsp) {
-                    $scope.channelArticles.push({ title: item.title, url: item.url, data: rsp.data });
+                    $scope.channelArticles.push({ title: item.title, url: item.url, data: rsp.data.matters });
                 });
             });
         });

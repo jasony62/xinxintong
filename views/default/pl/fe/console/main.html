@@ -220,7 +220,7 @@
                 <tbody>
                     <tr ng-repeat='m in missions'>
                         <td>{{$index+1}}</td>
-                        <td ng-click="open(m,'report')"><span ng-if="!frameState.sid">{{m.site_name}}\</span>{{m.title}}</td>
+                        <td ng-click="openMission(m,'report')"><span ng-if="!frameState.sid">{{m.site_name}}\</span>{{m.title}}</td>
                         <td ng-click="openMission(m,'matter','enroll','registration')">{{m.matter.enroll.registration||0}}</td>
                         <td ng-click="openMission(m,'matter','signin')">{{m.matter.signin||0}}</td>
                         <td ng-click="openMission(m,'matter','group')">{{m.matter.group.split||0}}</td>
@@ -231,7 +231,7 @@
                             <button class='btn btn-sm btn-default' title='置顶' ng-click="stickTop(m)">置顶</button>
                         </td>
                         <td>
-                            <button class='btn btn-sm btn-default' ng-click="open(m,'main')">定义</button>
+                            <button class='btn btn-sm btn-default' ng-click="openMission(m,'main')">定义</button>
                         </td>
                     </tr>
                 </tbody>

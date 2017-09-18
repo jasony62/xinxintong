@@ -45,6 +45,7 @@ define(['missionService', 'enrollService', 'signinService'], function() {
             .when('/rest/pl/fe/matter/mission/app', new RouteParam('app'))
             .when('/rest/pl/fe/matter/mission/doc', new RouteParam('doc'))
             .when('/rest/pl/fe/matter/mission/mschema', new RouteParam('mschema'))
+            .when('/rest/pl/fe/matter/mission/enrollee', new RouteParam('enrollee'))
             .when('/rest/pl/fe/matter/mission/report', new RouteParam('report'))
             .when('/rest/pl/fe/matter/mission/overview', new RouteParam('overview'))
             .when('/rest/pl/fe/matter/mission/notice', new RouteParam('notice'))
@@ -95,15 +96,15 @@ define(['missionService', 'enrollService', 'signinService'], function() {
             switch ($scope.subView) {
                 case 'main':
                 case 'access':
+                case 'mschema':
                     $scope.opened = 'rule';
                     break;
                 case 'app':
                 case 'doc':
+                case 'entry':
                     $scope.opened = 'task';
                     break;
-                case 'mschema':
-                    $scope.opened = 'user';
-                    break;
+                case 'enrollee':
                 case 'report':
                     $scope.opened = 'result';
                     break;
@@ -137,7 +138,7 @@ define(['missionService', 'enrollService', 'signinService'], function() {
                 if (location.href.indexOf('/mission?') !== -1) {
                     srvMission.matterCount().then(function(count) {
                         if (count) {
-                            $location.path('/rest/pl/fe/matter/mission/matter').search({ id: mission.id, site: mission.siteid });
+                            $location.path('/rest/pl/fe/matter/mission/app').search({ id: mission.id, site: mission.siteid });
                             $location.replace();
                         } else {
                             $location.path('/rest/pl/fe/matter/mission/main').search({ id: mission.id, site: mission.siteid });

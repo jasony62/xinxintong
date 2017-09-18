@@ -209,12 +209,17 @@ class record extends base {
 			if (!empty($oSigninApp->mission_id)) {
 				$modelMisUsr = $this->model('matter\mission\user');
 				$modelMisUsr->setOnlyWriteDbConn(true);
-				$oMission = new \stdClass;
-				$oMission->siteid = $oSigninApp->siteid;
-				$oMission->id = $oSigninApp->mission_id;
-				$oMisUsr = $modelMisUsr->byId($oMission, $oUser->uid, ['fields' => 'id,nickname,last_signin_at,signin_num,user_total_coin']);
+				$oMission = $this->model('matter\mission')->byId($oEnrollApp->mission_id, ['fields' => 'siteid,id,user_app_type,user_app_id']);
+				if ($oMission->user_app_type === 'group') {
+					$oMisUsrGrpApp = (object) ['id' => $oMission->user_app_id];
+					$oMisGrpUser = $this->model('matter\group\player')->byUser($oMisUsrGrpApp, $oUser->uid, ['onlyOne' => true, 'round_id']);
+				}
+				$oMisUsr = $modelMisUsr->byId($oMission, $oUser->uid, ['fields' => 'id,nickname,group_id,last_signin_at,signin_num,user_total_coin']);
 				if (false === $oMisUsr) {
 					$aNewMisUser = ['last_signin_at' => time(), 'signin_num' => 1];
+					if (!empty($oMisGrpUser->round_id)) {
+						$aNewMisUser['group_id'] = $oMisGrpUser->round_id;
+					}
 					if (!empty($aCoinRules)) {
 						$aNewMisUser['user_total_coin'] = 0;
 						foreach ($aCoinRules as $rule) {
@@ -224,6 +229,14 @@ class record extends base {
 					$modelMisUsr->add($oMission, $oUser, $aNewMisUser);
 				} else {
 					$aUpdMisUser = ['last_signin_at' => time(), 'signin_num' => $oMisUsr->signin_num + 1];
+					if ($oMisUsr->nickname !== $oUser->nickname) {
+						$aUpdMisUser['nickname'] = $oUser->nickname;
+					}
+					if (isset($oMisGrpUser->round_id)) {
+						if ($oMisUsr->group_id !== $oMisGrpUser->round_id) {
+							$aUpdMisUser['group_id'] = $oMisGrpUser->round_id;
+						}
+					}
 					if (!empty($aCoinRules)) {
 						$aUpdMisUser['user_total_coin'] = (int) $oMisUsr->user_total_coin;
 						foreach ($aCoinRules as $rule) {

@@ -45,7 +45,7 @@ class report extends \pl\fe\matter\base {
 		switch ($userSource->type) {
 		case 'group':
 			$users = $this->model('matter\group\player')->byApp($userSource, (object) ['fields' => 'userid,nickname']);
-			$users = $users->players;
+			$users = isset($users->players) ? $users->players : [];
 			break;
 		case 'enroll':
 			$users = $this->model('matter\enroll\record')->enrolleeByApp($userSource, ['fields' => 'distinct userid,nickname', 'rid' => 'all']);

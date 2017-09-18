@@ -114,6 +114,7 @@ th{text-align:center;}
 						<td>{{m.put_at*1000|date:'yy-MM-dd HH:mm'}}</td>
 						<td>
 							<span>{{m.approved}}</span>
+							<span>{{channelAddr[m.home_group]}}</span>
 							<button class='btn btn-xs btn-default pull-right' ng-if="m.approved==='Y'" ng-click="pullHome(m)">撤销</button>
 						</td>
 						<td>
@@ -217,8 +218,12 @@ th{text-align:center;}
 		</div>
 		<div class="modal-body">
 		</div>
-		<div class="modal-footer">
+		<div class="modal-footer" ng-if="filter.category!=='channel'">
 		    <button class="btn btn-success" ng-click="ok()">发布到主页</button>
+		</div>
+		<div class="modal-footer" ng-if="filter.category==='channel'">
+		    <button class="btn btn-success" ng-click="toMiddle()">发布到主页中间</button>
+		    <button class="btn btn-success" ng-click="toRight()">发布到主页右侧</button>
 		</div>
 	</script>
 </div>

@@ -261,7 +261,7 @@ nav form label {
     position: relative;
 }
 
-#cards .row:before {
+#docs:before, #recommends:before {
     content: '';
     display: block;
     position: absolute;
@@ -323,13 +323,14 @@ nav form label {
     border-radius: 16px;
     position: relative;
     margin-left: 12px;
+    max-width: 6em;
 }
 
 #rank .user {
     padding: 8px 16px;
     border-left: 2px solid #009900;
     margin-bottom: 20px;
-    background:#fff;
+    background: #fff;
 }
 
 #rank {

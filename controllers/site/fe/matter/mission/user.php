@@ -49,9 +49,9 @@ class user extends \site\fe\matter\base {
 				}
 				/* group */
 				if (!empty($oUser->group_id)) {
-					$oGrpRnd = $modelGrpRnd->byId($oUser->group_id, ['fields' => 'round_title']);
+					$oGrpRnd = $modelGrpRnd->byId($oUser->group_id, ['fields' => 'title']);
 					if ($oGrpRnd) {
-						$oUser->group = (object) ['id' => $oEnlUser->group_id, 'title' => $oGrpRnd->round_title];
+						$oUser->group = (object) ['id' => $oUser->group_id, 'title' => $oGrpRnd->title];
 					}
 				} else if (isset($oMisUsrGrpApp)) {
 					$oGrpUsr = $modelGrpUsr->byUser($oMisUsrGrpApp, $oUser->userid, ['fields' => 'round_id,round_title', 'onlyOne' => true]);

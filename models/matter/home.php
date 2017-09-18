@@ -185,10 +185,11 @@ class home_model extends \TMS_MODEL {
 	/**
 	 * 推送到主页
 	 */
-	public function pushHome($applicationId) {
+	public function pushHome($applicationId, $homeGroup = 'C') {
+		$homeGroup = $this->escape($homeGroup);
 		$rst = $this->update(
 			'xxt_home_matter',
-			['approved' => 'Y'],
+			['approved' => 'Y', 'home_group' => $homeGroup],
 			["id" => $applicationId]
 		);
 
@@ -288,6 +289,10 @@ class home_model extends \TMS_MODEL {
 			'xxt_home_matter h, xxt_site s',
 			"h.approved='Y' and h.matter_type='channel' and h.siteid = s.id and s.state=1 ",
 		];
+		if (!empty($options['byHGroup'])) {
+			$homeGroup = $this->escape($options['byHGroup']);
+			$q[2] .= " and h.home_group = '{$homeGroup}'";
+		}
 
 		$q2 = [
 			'r' => ['o' => ($page['at'] - 1) * $page['size'], 'l' => $page['size']],

@@ -3,7 +3,7 @@
         <div class='container-fluid'>
             <ul class="nav navbar-nav">
                 <li ng-class="{'active':matterType===''}"><a href='#' ng-click="matterType=''">全部</a></li>
-                <li ng-class="{'active':matterType==='article'}"><a href='#article' ng-click="matterType='article'">{{cstApp.matterNames.article}}</a></li>
+                <li ng-class="{'active':matterType==='article'}"><a href='#article' ng-click="matterType='article'">{{cstApp.matterNames.doc.article}}</a></li>
             </ul>
             <form class='nav navbar-form pull-left'>
                 <div class='form-group'>
@@ -22,7 +22,7 @@
                     </select>
                 </div>
             </form>
-            <form class="navbar-form navbar-right">
+            <form class="navbar-form navbar-right" ng-if="matterType">
                 <button class='btn btn-default' ng-click="addMatter()"><i class='glyphicon glyphicon-plus'></i> <span>新建</span></button>
             </form>
         </div>

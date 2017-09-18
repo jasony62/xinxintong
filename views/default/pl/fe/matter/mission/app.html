@@ -3,10 +3,7 @@
         <div class='container-fluid'>
             <ul class="nav navbar-nav">
                 <li ng-class="{'active':matterType===''}"><a href='#' ng-click="matterType=''">全部</a></li>
-                <li ng-class="{'active':matterType==='enroll'}"><a href='#enroll' ng-click="matterType='enroll'">登记活动</a></li>
-                <li ng-class="{'active':matterType==='signin'}"><a href='#signin' ng-click="matterType='signin'">签到</a></li>
-                <li ng-class="{'active':matterType==='group'}"><a href='#group' ng-click="matterType='group'">分组</a></li>
-                <li ng-class="{'active':matterType==='wall'}"><a href='#wall' ng-click="matterType='wall'">信息墙</a></li>
+                <li ng-class="{'active':matterType===app}" ng-repeat="app in cstApp.matterNames.appOrder"><a href='#{{app}}'>{{cstApp.matterNames.app[app]}}</a></li>
             </ul>
             <form class='nav navbar-form pull-left'>
                 <div class="form-group" ng-if="matterType==='enroll'">
@@ -30,7 +27,7 @@
                     </select>
                 </div>
             </form>
-            <form class="navbar-form navbar-right">
+            <form class="navbar-form navbar-right" ng-if="matterType">
                 <button class='btn btn-default' ng-click="addMatter()"><i class='glyphicon glyphicon-plus'></i> <span>新建</span></button>
             </form>
         </div>

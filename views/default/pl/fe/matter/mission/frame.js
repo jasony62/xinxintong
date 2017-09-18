@@ -6,11 +6,17 @@ define(['missionService', 'enrollService', 'signinService'], function() {
         innerlink: [],
         alertMsg: {},
         matterNames: {
-            'article': '图文',
-            'enroll': '登记',
-            'signin': '签到',
-            'group': '分组',
-            'wall': '信息墙',
+            doc: {
+                'article': '图文'
+            },
+            docOrder: ['article'],
+            app: {
+                'enroll': '登记',
+                'signin': '签到',
+                'group': '分组',
+                'wall': '信息墙',
+            },
+            appOrder: ['enroll', 'signin', 'group', 'wall']
         },
         scenarioNames: {
             enroll: {
@@ -22,7 +28,6 @@ define(['missionService', 'enrollService', 'signinService'], function() {
                 'score_sheet': '记分表',
             },
             group: {
-                'signin': '签到',
                 'split': '分组',
                 'wall': '信息墙'
             }

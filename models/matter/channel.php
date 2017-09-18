@@ -334,7 +334,6 @@ class channel_model extends article_base {
 			$data = new \stdClass;
 			$data->matters = $matters;
 			$data->total = $total;
-			
 			return $data;
 		} else {
 			$q1 = [

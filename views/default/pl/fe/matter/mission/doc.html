@@ -3,7 +3,7 @@
         <div class='container-fluid'>
             <ul class="nav navbar-nav">
                 <li ng-class="{'active':matterType===''}"><a href='#' ng-click="matterType=''">全部</a></li>
-                <li ng-class="{'active':matterType==='article'}"><a href='#article' ng-click="matterType='article'">图文</a></li>
+                <li ng-class="{'active':matterType==='article'}"><a href='#article' ng-click="matterType='article'">{{cstApp.matterNames.article}}</a></li>
             </ul>
             <form class='nav navbar-form pull-left'>
                 <div class='form-group'>
@@ -23,7 +23,7 @@
                 </div>
             </form>
             <form class="navbar-form navbar-right">
-                <button uib-popover-template="'addMatter.html'" popover-placement="bottom" popover-append-to-body='true' popover-trigger="outsideClick" popover-title="添加素材" class='btn btn-default'><i class='glyphicon glyphicon-plus'></i> <span>新建</span> <i class='caret'></i></button>
+                <button class='btn btn-default' ng-click="addMatter()"><i class='glyphicon glyphicon-plus'></i> <span>新建</span></button>
             </form>
         </div>
     </nav>
@@ -34,7 +34,7 @@
                 <th>名称</th>
                 <th style='width:140px'>创建人</th>
                 <th style='width:120px'>创建时间</th>
-                <th style='width:220px'>操作</th>
+                <th style='width:166px'>操作</th>
             </tr>
         </thead>
         <tbody>
@@ -54,10 +54,3 @@
         </tbody>
     </table>
 </div>
-<script type="text/ng-template" id="addMatter.html">
-    <div id="addMatter">
-        <div class='form-group'>
-            <button class='btn btn-default' ng-click="addMatter('article')">单图文</button>
-        </div>
-    </div>
-</script>

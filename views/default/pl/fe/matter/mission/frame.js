@@ -1,21 +1,31 @@
 define(['missionService', 'enrollService', 'signinService'], function() {
     'use strict';
-    var ngApp = angular.module('app', ['ngRoute', 'ui.tms', 'ui.xxt', 'tmplshop.ui.xxt', 'tinymce.ui.xxt', 'service.matter', 'service.mission', 'service.enroll', 'service.signin']);
+    var ngApp = angular.module('app', ['ngRoute', 'ui.tms', 'ui.xxt', 'tinymce.ui.xxt', 'service.matter', 'service.mission', 'service.enroll', 'service.signin']);
     ngApp.constant('cstApp', {
         notifyMatter: [],
         innerlink: [],
         alertMsg: {},
-        scenarioNames: {
-            'article': '单图文',
-            'common': '通用登记',
-            'registration': '报名',
-            'voting': '投票',
-            'quiz': '测验',
-            'group_week_report': '周报',
-            'score_sheet': '记分表',
+        matterNames: {
+            'article': '图文',
+            'enroll': '登记',
             'signin': '签到',
-            'split': '分组',
-            'wall': '信息墙'
+            'group': '分组',
+            'wall': '信息墙',
+        },
+        scenarioNames: {
+            enroll: {
+                'common': '通用登记',
+                'registration': '报名',
+                'voting': '投票',
+                'quiz': '测验',
+                'group_week_report': '周报',
+                'score_sheet': '记分表',
+            },
+            group: {
+                'signin': '签到',
+                'split': '分组',
+                'wall': '信息墙'
+            }
         },
         naming: { 'phase': '项目阶段' }
     });

@@ -56,9 +56,10 @@ define(['frame'], function(ngApp) {
                 location.href = '/rest/pl/fe/matter/group/main?site=' + _oMission.siteid + '&id=' + rsp.data.id;
             });
         };
-        $scope.addMatter = function(matterType) {
-            if (/quiz|voting|registration|group_week_report|score_sheet|common/.test(matterType)) {
-                $scope.addEnroll(matterType);
+        $scope.addMatter = function() {
+            var matterType = $scope.matterType;
+            if (matterType === 'enroll') {
+                $scope.addEnroll($scope.matterScenario);
             } else {
                 $scope['add' + matterType[0].toUpperCase() + matterType.substr(1)]();
             }
@@ -101,6 +102,8 @@ define(['frame'], function(ngApp) {
         $scope.chooseScenario = function(scenario) {
             if (scenario) {
                 $location.hash('enroll,' + scenario);
+            } else {
+                $location.hash('enroll');
             }
         };
         $scope.list = function() {

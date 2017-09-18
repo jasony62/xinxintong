@@ -20,7 +20,9 @@ define(['frame'], function(ngApp) {
                 location.href = '/rest/pl/fe/matter/article?id=' + rsp.data.id + '&site=' + _oMission.siteid;
             });
         };
-        $scope.addMatter = function(matterType) {
+        $scope.addMatter = function() {
+            var matterType;
+            matterType = $scope.matterType;
             $scope['add' + matterType[0].toUpperCase() + matterType.substr(1)]();
         };
         $scope.openMatter = function(matter, subView) {

@@ -9,24 +9,6 @@ ngApp.provider.controller('ctrlHome', ['$scope', '$http', '$uibModal', 'tmsFavor
             return '&page=' + this.at + '&size=' + this.size;
         }
     }
-
-    var _sites = [];
-    function listSites() {
-        $http.get('/rest/home/listSite' + '?page=' + $scope.page.at + '&size=10').success(function(rsp) {
-           if(rsp.data.sites.length) {
-                rsp.data.sites.forEach(function(item) {
-                    _sites.push(item);
-                });
-                $scope.sites = _sites;
-                $scope.sites.total = rsp.data.total;
-           }
-        });
-    }
-    function listTemplates() {
-        $http.get('/rest/home/listTemplate').success(function(rsp) {
-            $scope.templates = rsp.data;
-        });
-    }
     $scope.moreMatters = function(matterType) {
         $scope.page.at = $scope.page.at + 1;
         switch (matterType) {
@@ -44,7 +26,23 @@ ngApp.provider.controller('ctrlHome', ['$scope', '$http', '$uibModal', 'tmsFavor
     $scope.openMatter = function(matter) {
         location.href = matter.url;
     };
-
+    var _sites = [];
+    function listSites() {
+        $http.get('/rest/home/listSite' + '?page=' + $scope.page.at + '&size=10').success(function(rsp) {
+           if(rsp.data.sites.length) {
+                rsp.data.sites.forEach(function(item) {
+                    _sites.push(item);
+                });
+                $scope.sites = _sites;
+                $scope.sites.total = rsp.data.total;
+           }
+        });
+    };
+    function listTemplates() {
+        $http.get('/rest/home/listTemplate').success(function(rsp) {
+            $scope.templates = rsp.data;
+        });
+    };
     var _apps = [];
     $scope.listApps = function() {
         $http.get('/rest/home/listApp' + '?page=' + $scope.page.at + '&size=10').success(function(rsp) {
@@ -57,7 +55,6 @@ ngApp.provider.controller('ctrlHome', ['$scope', '$http', '$uibModal', 'tmsFavor
             }
         });
     };
-
     var _articles = [];
     $scope.listArticles = function() {
         $http.get('/rest/home/listArticle' + '?page=' + $scope.page.at + '&size=10').success(function(rsp) {
@@ -98,14 +95,14 @@ ngApp.provider.controller('ctrlHome', ['$scope', '$http', '$uibModal', 'tmsFavor
             tmsForward.open(article);
         }
     }
-    $scope.listChannels = function() {
+    $scope.listChannels2 = function() {
         $scope.channelArticles = [], $scope.h_prev_channels = [], $scope.h_next_channels = [];
-        $http.get('/rest/home/listChannel').success(function(rsp) {
-            $scope.channels = rsp.data.matters;
+        $http.get('/rest/home/listChannel?homeGroup=r').success(function(rsp) {
+            $scope.channels2 = rsp.data.matters;
             rsp.data.matters.forEach(function(item, index) {
                 index < 3 ? $scope.h_prev_channels.push(item) : $scope.h_next_channels.push(item);
             });
-            width > 768 ? $scope.h_channels_matters = $scope.channels : $scope.h_channels_matters = $scope.h_prev_channels;
+            width > 768 ? $scope.h_channels_matters = $scope.channels2 : $scope.h_channels_matters = $scope.h_prev_channels;
             $scope.h_channels_matters.forEach(function(item, index) {
                 var url;
                 url = '/rest/site/fe/matter/channel/mattersGet';
@@ -127,7 +124,7 @@ ngApp.provider.controller('ctrlHome', ['$scope', '$http', '$uibModal', 'tmsFavor
     listTemplates();
     $scope.listApps(12);
     $scope.listArticles(12);
-    $scope.listChannels();
+    $scope.listChannels2();
 }]);
 ngApp.provider.controller('ctrlCarousel', function($scope) {
     $scope.myInterval = 5000;

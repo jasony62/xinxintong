@@ -10,7 +10,7 @@ class report_model extends \TMS_MODEL {
 	 * @param
 	 */
 	public function exec($oMatter, $arguments = null) {
-		if($oMatter->type === 'mission'){
+		if ($oMatter->type === 'mission') {
 			$modelMission = $this->model('matter\mission');
 			$mission = $modelMission->byId($oMatter->id);
 			if (false === $mission) {

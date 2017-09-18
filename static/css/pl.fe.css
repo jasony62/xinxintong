@@ -2,8 +2,9 @@
 .pl-layout .pl-layout-leftnav{flex-shrink:0;width:90px;background:#333;}
 .pl-layout .pl-layout-leftnav-header a{font-size:120%;color:#fff;text-decoration:none;border-radius:0;width:100%;text-overflow:ellipsis;white-space:nowrap;overflow:hidden;}
 .pl-layout .pl-layout-leftnav .nav-tabs{border-bottom:0;}
-.pl-layout .pl-layout-leftnav .nav-tabs .nav-tabs{background:#444;}
+.pl-layout .pl-layout-leftnav .nav-tabs .nav-tabs{background:#555;}
 .pl-layout .pl-layout-leftnav .nav-tabs ul{transition:all .2s linear;overflow:hidden;}
+.pl-layout .pl-layout-leftnav>.nav-stacked>li{border-bottom:1px solid #666;}
 .pl-layout .pl-layout-leftnav .nav>li>a{color:#fff;text-decoration:none;border-radius:0;}
 .pl-layout .pl-layout-leftnav .nav>li.active>a,.pl-layout .pl-layout-leftnav .nav>li.active>a:focus{color:#666;background:#fff;}
 .pl-layout .pl-layout-leftnav .nav>li>a:hover{color:#fff;background:#666;border:1px solid transparent;}

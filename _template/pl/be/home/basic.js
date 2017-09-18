@@ -67,6 +67,27 @@ ngApp.provider.controller('ctrlHome', ['$scope', '$http', '$uibModal', 'tmsFavor
             }
         });
     };
+    var _channelMatters = [];
+    $scope.listChannels1 = function() {
+        $http.get('/rest/home/listChannel?homeGroup=c').success(function(rsp) {
+            $scope.channels1 = rsp.data.matters;
+            if(rsp.data.matters.length) {
+                rsp.data.matters.forEach(function(item) {
+                    $scope.listChannelsMatters(item);
+                });
+            }
+        });
+    };
+    $scope.listChannelsMatters = function(item) {
+        var url;
+        url = '/rest/site/fe/matter/channel/mattersGet';
+        url += '?site=' + item.siteid + '&id=' + item.matter_id;
+        url += '&page=' +  $scope.page.at + '&size=1';
+        $http.get(url).success(function(rsp) {
+            _channelMatters.push({ title: item.title, data: rsp.data, total:rap.data.total});
+            $scope.channelMatters = _channelMatters;
+        });
+    };
     $scope.favor = function(user, article) {
         article.type = article.matter_type;
         event.preventDefault();
@@ -120,10 +141,11 @@ ngApp.provider.controller('ctrlHome', ['$scope', '$http', '$uibModal', 'tmsFavor
     goTop.addEventListener('click', function() {
         document.querySelector('body').scrollTop = 0;
     });
-    listSites(5);
+    listSites();
     listTemplates();
-    $scope.listApps(12);
-    $scope.listArticles(12);
+    $scope.listApps();
+    $scope.listArticles();
+    $scope.listChannels1();
     $scope.listChannels2();
 }]);
 ngApp.provider.controller('ctrlCarousel', function($scope) {

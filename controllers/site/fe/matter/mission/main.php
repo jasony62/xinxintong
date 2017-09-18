@@ -40,7 +40,7 @@ class main extends \site\fe\matter\base {
 			$modelGrpUsr = $this->model('matter\group\player');
 			$oGrpApp = (object) ['id' => $oMission->user_app_id];
 			$oGrpUsr = $modelGrpUsr->byUser($oGrpApp, $oUser->uid, ['fields' => 'is_leader,round_id,round_title,userid,nickname', 'onlyOne' => true]);
-			if (count($oGrpUsr)) {
+			if ($oGrpUsr) {
 				$others = $modelGrpUsr->byRound($oMission->user_app_id, $oGrpUsr->round_id, ['fields' => 'is_leader,userid,nickname']);
 				$oMission->groupUser = $oGrpUsr;
 				$oMission->groupOthers = [];

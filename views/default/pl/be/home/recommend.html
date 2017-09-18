@@ -102,6 +102,7 @@ th{text-align:center;}
 						<th>提交人</th>
 						<th>提交时间</th>
 						<th style='width:96px'>出现在主页</th>
+						<th style='width:96px'>出现位置</th>
 						<th style='width:56px'></th>
 					</tr>
 				</thead>
@@ -114,9 +115,9 @@ th{text-align:center;}
 						<td>{{m.put_at*1000|date:'yy-MM-dd HH:mm'}}</td>
 						<td>
 							<span>{{m.approved}}</span>
-							<span>{{channelAddr[m.home_group]}}</span>
 							<button class='btn btn-xs btn-default pull-right' ng-if="m.approved==='Y'" ng-click="pullHome(m)">撤销</button>
 						</td>
+						<td><span ng-if="m.approved==='Y'">{{channelAddr[m.home_group]}}</span></td>
 						<td>
 							<button class='btn btn-xs btn-default' ng-click="preview(m)">查看</button>
 						</td>

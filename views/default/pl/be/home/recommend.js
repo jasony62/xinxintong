@@ -51,7 +51,7 @@ define(['frame'], function(ngApp) {
 		};
 		$scope.channelAddr = {
 			c: '中间',
-			r: '右边'
+			r: '右侧'
 		}
 		$scope.searchMatter = function() {
 			var url = '/rest/pl/be/home/recommend/listMatter?category=' + $scope.criteria.category;
@@ -65,10 +65,10 @@ define(['frame'], function(ngApp) {
 				templateUrl: 'previewMatter.html',
 				controller: ['$scope', '$uibModalInstance', function($scope2, $mi) {
 					$scope2.filter = $scope.criteria;
-					$scope.toMiddle = function() {
+					$scope2.toMiddle = function() {
 						$mi.close({'home_group':'c'});
 					}
-					$scope.toRight = function() {
+					$scope2.toRight = function() {
 						$mi.close({'home_group':'r'});
 					}
 					$scope2.cancel = function() {

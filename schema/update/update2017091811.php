@@ -3,7 +3,7 @@ require_once '../../db.php';
 
 $sqls = array();
 //
-$sqls[] = "ALTER TABLE xxt_home_matter add home_group char(1) not null default 'C'";
+$sqls[] = "ALTER TABLE xxt_home_matter add home_group char(1) not null default ''";
 //
 foreach ($sqls as $sql) {
 	if (!$mysqli->query($sql)) {

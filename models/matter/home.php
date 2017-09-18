@@ -185,13 +185,15 @@ class home_model extends \TMS_MODEL {
 	/**
 	 * 推送到主页
 	 */
-	public function pushHome($applicationId, $homeGroup = 'C') {
-		$homeGroup = $this->escape($homeGroup);
-		$rst = $this->update(
+	public function pushHome($applicationId, $homeGroup = '') {
+		$data = [
 			'xxt_home_matter',
-			['approved' => 'Y', 'home_group' => $homeGroup],
+			['approved' => 'Y'],
 			["id" => $applicationId]
-		);
+		];
+		!empty($homeGroup) && $data[1]['home_group'] = $this->escape($homeGroup);
+		
+		$rst = $this->update($data);
 
 		return $rst;
 	}

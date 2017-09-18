@@ -454,8 +454,19 @@ class enroll_model extends app_base {
 					}
 				}
 			} else if (empty($entryRule->scope) || $entryRule->scope === 'none' || $entryRule->scope === 'group') {
-				/* 不限制用户访问来源 */
-				$nickname = empty($oUser->nickname) ? '' : $oUser->nickname;
+				if (!empty($oApp->mission_id)) {
+					/* 从项目中获得用户昵称 */
+					$oMission = (object) ['id' => $oApp->mission_id];
+					$modelMisUsr = $this->model('matter\mission\user');
+					$oMisUsr = $modelMisUsr->byId($oMission, $oUser->uid, ['fields' => 'nickname']);
+					if ($oMisUsr) {
+						$nickname = $oMisUsr->nickname;
+					} else {
+						$nickname = empty($oUser->nickname) ? '' : $oUser->nickname;
+					}
+				} else {
+					$nickname = empty($oUser->nickname) ? '' : $oUser->nickname;
+				}
 			}
 		}
 

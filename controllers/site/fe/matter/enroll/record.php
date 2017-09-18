@@ -77,9 +77,10 @@ class record extends base {
 			$enrolledData = $posted;
 		}
 		if ((isset($oEnrollApp->assignedNickname->valid) && $oEnrollApp->assignedNickname->valid === 'Y') && isset($oEnrollApp->assignedNickname->schema->id)) {
+			/* 从登记内容中获取昵称 */
 			$oUser->nickname = empty($enrolledData->{$oEnrollApp->assignedNickname->schema->id}) ? '' : $enrolledData->{$oEnrollApp->assignedNickname->schema->id};
 		} else {
-			// 当前访问用户的基本信息
+			/* 当前访问用户的基本信息 */
 			$userNickname = $modelEnl->getUserNickname($oEnrollApp, $oUser);
 			$oUser->nickname = $userNickname;
 		}

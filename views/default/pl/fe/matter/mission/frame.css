@@ -1,4 +1,5 @@
-body{margin-bottom:50px;}
+body{margin-bottom:50px;background:#fafafa;}
+table{background:#fff;}
 .navbar-nav.tms-breadcrumb>li>a{padding-left:0;padding-right:0;color:#428bca;}
 .navbar-nav.tms-breadcrumb>li:last-child>a{color:#777;}
 .navbar-nav.tms-breadcrumb>li+li>a:before{content:'/\00a0';padding-left:5px;color:#ccc;}

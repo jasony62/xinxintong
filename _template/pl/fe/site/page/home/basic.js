@@ -34,8 +34,8 @@ ngApp.provider.controller('ctrlHome', ['$scope', '$http', 'tmsFavor', 'tmsForwar
         $scope.cTotal[id].pageAt++;
         $scope.page.at = $scope.cTotal[id].pageAt;
         $http.get('/rest/site/fe/matter/channel/mattersGet?site=' + siteId + '&id=' + id + '&' + page.j()).success(function(rsp) {
-            var matterData = $scope.cTotal[id].data;
-            rsp.data.forEach(function(item) {
+            var matterData = $scope.cTotal[id].data.matters;
+            rsp.data.matters.forEach(function(item) {
                 matterData.push(item);
             });
             $scope.cTotal[id].data = matterData;
@@ -55,7 +55,7 @@ ngApp.provider.controller('ctrlHome', ['$scope', '$http', 'tmsFavor', 'tmsForwar
                 $http.get('/rest/site/fe/matter/channel/mattersGet?site=' + siteId + '&id=' + channel.channel_id + '&' + page.j()).success(function(rsp) {
                     var chid = channel.channel_id,
                         data = [];
-                    data.data = rsp.data;
+                    data.data = rsp.data.matters;
                     data.total = rsp.data.length;
                     data.pageAt = $scope.page.at;
                     if(data.total > 0){
@@ -90,7 +90,7 @@ ngApp.provider.controller('ctrlHome', ['$scope', '$http', 'tmsFavor', 'tmsForwar
                     $scope.channelArticles.push({
                         title: item.title,
                         url: '/rest/site/fe/matter?site=' + item.siteid + '&id=' + item.channel_id + '&type=channel',
-                        data: rsp.data
+                        data: rsp.data.matters
                     });
                 });
             });

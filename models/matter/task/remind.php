@@ -16,44 +16,45 @@ class remind_model extends \TMS_MODEL {
 			if (false === $oMatter) {
 				return [false, '指定的活动不存在'];
 			}
-			if (empty($oMatter->user_app_id)) {
-				return [false, '项目未指定用户名单应用'];
-			}
 
 			/* 获得活动的进入链接 */
 			$params = new \stdClass;
 			$params->url = $oMatter->entryUrl;
 
 			/* 获得用户 */
-			switch ($oMatter->user_app_type) {
-			case 'group':
-				$q = [
-					'distinct userid,enroll_key assoc_with',
-					'xxt_group_player',
-					['state' => 1, 'aid' => $oMatter->user_app_id],
-				];
-				$receivers = $modelMission->query_objs_ss($q);
-				break;
-			case 'enroll':
-				$matterEnroll = new \stdClass;
-				$matterEnroll->id = $oMatter->user_app_id;
-				$modelRec = $this->model('matter\enroll\user');
-				$options = [
-					'rid' => 'ALL',
-					'fields' => 'userid',
-					'cascaded' => 'N',
-				];
-				$enrollUsers = $modelRec->enrolleeByApp($matterEnroll, '', '', $options);
-				$receivers = $enrollUsers->users;
-				break;
-			case 'signin':
-				$matterSignin = new \stdClass;
-				$matterSignin->id = $oMatter->user_app_id;
-				$receivers = $this->model('matter\signin\record')->enrolleeByApp($matterSignin, ['fields' => 'distinct userid,enroll_key assoc_with']);
-				break;
-			case 'mschema':
-				$receivers = $this->model('site\user\member')->byMschema($oMatter->user_app_id, ['fields' => 'userid']);
-				break;
+			if (empty($oMatter->user_app_id)) {
+				$receivers = $this->model('matter\mission\user')->enrolleeByMission($oMatter, ['fields' => 'distinct userid']);
+			} else {	
+				switch ($oMatter->user_app_type) {
+				case 'group':
+					$q = [
+						'distinct userid,enroll_key assoc_with',
+						'xxt_group_player',
+						['state' => 1, 'aid' => $oMatter->user_app_id],
+					];
+					$receivers = $modelMission->query_objs_ss($q);
+					break;
+				case 'enroll':
+					$matterEnroll = new \stdClass;
+					$matterEnroll->id = $oMatter->user_app_id;
+					$modelRec = $this->model('matter\enroll\user');
+					$options = [
+						'rid' => 'ALL',
+						'fields' => 'userid',
+						'cascaded' => 'N',
+					];
+					$enrollUsers = $modelRec->enrolleeByApp($matterEnroll, '', '', $options);
+					$receivers = $enrollUsers->users;
+					break;
+				case 'signin':
+					$matterSignin = new \stdClass;
+					$matterSignin->id = $oMatter->user_app_id;
+					$receivers = $this->model('matter\signin\record')->enrolleeByApp($matterSignin, ['fields' => 'distinct userid,enroll_key assoc_with']);
+					break;
+				case 'mschema':
+					$receivers = $this->model('site\user\member')->byMschema($oMatter->user_app_id, ['fields' => 'userid']);
+					break;
+				}
 			}
 			if (empty($receivers)) {
 				return [false, '没有填写人'];

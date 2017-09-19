@@ -8,15 +8,7 @@ define(['frame'], function(ngApp) {
         $scope.detail = function(batch) {
             var url;
             $scope.batchId = batch;
-            if($scope.mission.user_app_type === 'enroll'){
-                url = '/rest/pl/fe/matter/enroll/notice/logList?batch=' + batch.id;
-            }else if($scope.mission.user_app_type === 'signin'){
-                url = '/rest/pl/fe/matter/signin/notice/logList?batch=' + batch.id;
-            }else if($scope.mission.user_app_type === 'group'){
-                url = '/rest/pl/fe/matter/group/notice/logList?aid=' + $scope.mission.user_app_id +'&batch=' + batch.id;
-            }else{
-                return;
-            }
+            url = '/rest/pl/fe/matter/mission/notice/logList?batch=' + batch.id;
             http2.get(url, function(rsp) {
                 var records, noticeStatus, result;
                 result = rsp.data;
@@ -48,16 +40,7 @@ define(['frame'], function(ngApp) {
         }
         $scope.$watch('mission', function(mission) {
             if (!mission) return;
-            if(mission.user_app_type === 'enroll'){
-                srvTmplmsgNotice.init('enroll:' + mission.user_app_id, oBatchPage, aBatches);
-            }else if(mission.user_app_type === 'signin'){
-                srvTmplmsgNotice.init('signin:' + mission.user_app_id, oBatchPage, aBatches);
-            }else if(mission.user_app_type === 'group'){
-                srvTmplmsgNotice.init('group:' + mission.user_app_id, oBatchPage, aBatches);
-            }else{
-                return;
-            }
-            
+            srvTmplmsgNotice.init('mission:' + mission.id, oBatchPage, aBatches);
             srvTmplmsgNotice.list();
             $scope.tmsTableWrapReady = 'Y';
         });

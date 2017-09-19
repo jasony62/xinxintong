@@ -567,6 +567,7 @@ class enroll_model extends app_base {
 		$oNewApp->creater_src = $oUser->src;
 		$oNewApp->creater_name = $this->escape($oUser->name);
 		$oNewApp->create_at = $current;
+		$oNewApp->start_at = $current;
 		$oNewApp->modifier = $oUser->id;
 		$oNewApp->modifier_src = $oUser->src;
 		$oNewApp->modifier_name = $this->escape($oUser->name);

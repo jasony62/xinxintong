@@ -41,67 +41,69 @@
                     <div class='date' ng-bind="time*1000|date:'MM-dd'"></div>
                     <div class='time' ng-bind="time*1000|date:'HH:mm'"></div>
                 </div>
-                <div class='col-xs-10' ng-repeat="matter in matters[time]" ng-switch on="matter.type">
-                    <div class='thumbnail track' ng-class="matter.indicator.state">
-                        <div class='title' ng-bind="matter.title"></div>
-                        <div class='row' ng-switch-when="enroll">
-                            <div class='col-xs-12'>
-                                <label>记录数量</label>
-                                <div ng-bind="matter.user.enroll_num||0"></div>
+                <div class='col-xs-10'>
+                    <div ng-repeat="matter in matters[time]" ng-switch on="matter.type">
+                        <div class='thumbnail track' ng-class="matter.indicator.state">
+                            <div class='title' ng-bind="matter.title"></div>
+                            <div class='row' ng-switch-when="enroll">
+                                <div class='col-xs-12'>
+                                    <label>记录数量</label>
+                                    <div ng-bind="matter.user.enroll_num||0"></div>
+                                </div>
+                                <div class='col-xs-6' ng-if="matter.indicator.score">
+                                    <label>得分</label>
+                                    <div ng-bind="matter.user.score||0"></div>
+                                </div>
+                                <div class='col-xs-6' ng-if="matter.indicator.score">
+                                    <label>得分排名</label>
+                                    <div ng-bind="matter.user.rank.score||0"></div>
+                                </div>
+                                <div class='col-xs-6' ng-if="matter.indicator.coin">
+                                    <label>积分</label>
+                                    <div ng-bind="matter.user.user_total_coin||0"></div>
+                                </div>
+                                <div class='col-xs-6' ng-if="matter.indicator.coin">
+                                    <label>积分排名</label>
+                                    <div ng-bind="matter.user.rank.user_total_coin||0"></div>
+                                </div>
+                                <div class='col-xs-6' ng-if="matter.indicator.remark">
+                                    <label>获得评论</label>
+                                    <div ng-bind="matter.user.remark_num||0"></div>
+                                </div>
+                                <div class='col-xs-6' ng-if="matter.indicator.remark">
+                                    <label>发表评论</label>
+                                    <div ng-bind="matter.user.remark_other_num||0"></div>
+                                </div>
+                                <div class='col-xs-6' ng-if="matter.indicator.like">
+                                    <label>获得赞同</label>
+                                    <div ng-bind="matter.user.like_num||0"></div>
+                                </div>
+                                <div class='col-xs-6' ng-if="matter.indicator.like">
+                                    <label>表示赞同</label>
+                                    <div ng-bind="matter.user.like_other_num||0"></div>
+                                </div>
+                                <div class='col-xs-12' ng-if="matter.indicator.end_submit" ng-switch on="matter.indicator.end_submit">
+                                    <div ng-switch-when="R">！本活动将于<span style='color:orangered;'>{{matter.end_submit_at*1000|date:'MM-dd HH:mm'}}</span>停止提交</div>
+                                    <div ng-switch-when="E">！本活动已于<span style='color:orangered;'>{{matter.end_submit_at*1000|date:'MM-dd HH:mm'}}</span>停止提交</div>
+                                </div>
+                                <div class='col-xs-12' ng-if="matter.indicator.end" ng-switch on="matter.indicator.end">
+                                    <div ng-switch-when="R">！本活动将于<span style='color:orangered;'>{{matter.end_at*1000|date:'MM-dd HH:mm'}}</span>结束</div>
+                                    <div ng-switch-when="E">！本活动已于<span style='color:orangered;'>{{matter.end_at*1000|date:'MM-dd HH:mm'}}</span>结束</div>
+                                </div>
                             </div>
-                            <div class='col-xs-6' ng-if="matter.indicator.score">
-                                <label>得分</label>
-                                <div ng-bind="matter.user.score||0"></div>
+                            <div class='row' ng-switch-when="signin" ng-if="matter.record">
+                                <div class='col-xs-12'>
+                                    <label>签到次数</label>
+                                    <div ng-bind="matter.record.signin_num"></div>
+                                </div>
+                                <div class='col-xs-6' ng-repeat="rnd in matter.rounds">
+                                    <label title="{{rnd.title}}">{{rnd.title}}</label>
+                                    <div ng-if="matter.record.signin_log[rnd.rid]" ng-class="{'signin_late':matter.record._signinLate[rnd.rid]}" ng-bind="matter.record.signin_log[rnd.rid]*1000|date:'yy-MM-dd HH:mm'"></div>
+                                </div>
                             </div>
-                            <div class='col-xs-6' ng-if="matter.indicator.score">
-                                <label>得分排名</label>
-                                <div ng-bind="matter.user.rank.score||0"></div>
-                            </div>
-                            <div class='col-xs-6' ng-if="matter.indicator.coin">
-                                <label>积分</label>
-                                <div ng-bind="matter.user.user_total_coin||0"></div>
-                            </div>
-                            <div class='col-xs-6' ng-if="matter.indicator.coin">
-                                <label>积分排名</label>
-                                <div ng-bind="matter.user.rank.user_total_coin||0"></div>
-                            </div>
-                            <div class='col-xs-6' ng-if="matter.indicator.remark">
-                                <label>获得评论</label>
-                                <div ng-bind="matter.user.remark_num||0"></div>
-                            </div>
-                            <div class='col-xs-6' ng-if="matter.indicator.remark">
-                                <label>发表评论</label>
-                                <div ng-bind="matter.user.remark_other_num||0"></div>
-                            </div>
-                            <div class='col-xs-6' ng-if="matter.indicator.like">
-                                <label>获得赞同</label>
-                                <div ng-bind="matter.user.like_num||0"></div>
-                            </div>
-                            <div class='col-xs-6' ng-if="matter.indicator.like">
-                                <label>表示赞同</label>
-                                <div ng-bind="matter.user.like_other_num||0"></div>
-                            </div>
-                            <div class='col-xs-12' ng-if="matter.indicator.end_submit" ng-switch on="matter.indicator.end_submit">
-                                <div ng-switch-when="R">！本活动将于<span style='color:orangered;'>{{matter.end_submit_at*1000|date:'MM-dd HH:mm'}}</span>停止提交</div>
-                                <div ng-switch-when="E">！本活动已于<span style='color:orangered;'>{{matter.end_submit_at*1000|date:'MM-dd HH:mm'}}</span>停止提交</div>
-                            </div>
-                            <div class='col-xs-12' ng-if="matter.indicator.end" ng-switch on="matter.indicator.end">
-                                <div ng-switch-when="R">！本活动将于<span style='color:orangered;'>{{matter.end_at*1000|date:'MM-dd HH:mm'}}</span>结束</div>
-                                <div ng-switch-when="E">！本活动已于<span style='color:orangered;'>{{matter.end_at*1000|date:'MM-dd HH:mm'}}</span>结束</div>
-                            </div>
+                            <hr>
+                            <a href='' class='' ng-click="gotoMatter(matter)">进入查看</a>
                         </div>
-                        <div class='row' ng-switch-when="signin" ng-if="matter.record">
-                            <div class='col-xs-12'>
-                                <label>签到次数</label>
-                                <div ng-bind="matter.record.signin_num"></div>
-                            </div>
-                            <div class='col-xs-6' ng-repeat="rnd in matter.rounds">
-                                <label title="{{rnd.title}}">{{rnd.title}}</label>
-                                <div ng-if="matter.record.signin_log[rnd.rid]" ng-class="{'signin_late':matter.record._signinLate[rnd.rid]}" ng-bind="matter.record.signin_log[rnd.rid]*1000|date:'yy-MM-dd HH:mm'"></div>
-                            </div>
-                        </div>
-                        <hr>
-                        <a href='' class='' ng-click="gotoMatter(matter)">进入查看</a>
                     </div>
                 </div>
             </div>

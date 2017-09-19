@@ -15,7 +15,7 @@ define(['frame'], function(ngApp) {
                 controller: ['$scope', '$uibModalInstance', function($scope2, $mi) {
                     $scope2.data = {
                         appId: '',
-                        appType: 'enroll'
+                        appType: 'group'
                     };
                     $scope2.cancel = function() {
                         $mi.dismiss();
@@ -179,12 +179,13 @@ define(['frame'], function(ngApp) {
                     $timeout(function() {
                         var eleList, eleApp, index = $scope.report.orderedApps.indexOf(oApp);
                         eleList = document.querySelector('#userApps');
-                        eleApp = eleList.children[index];
-                        eleList.parentNode.scrollTop = eleApp.offsetTop;
-                        eleApp.classList.add('blink');
-                        $timeout(function() {
-                            eleApp.classList.remove('blink');
-                        }, 1000);
+                        if (eleApp = eleList.children[index]) {
+                            eleList.parentNode.scrollTop = eleApp.offsetTop;
+                            eleApp.classList.add('blink');
+                            $timeout(function() {
+                                eleApp.classList.remove('blink');
+                            }, 1000);
+                        }
                     });
                 });
             }

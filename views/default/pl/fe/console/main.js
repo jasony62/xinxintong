@@ -180,8 +180,17 @@ define(['frame'], function(ngApp) {
         };
         $scope.filter = filter = {};
         $scope.filter2 = filter2 = {};
-        $scope.open = function(mission, subView) {
-            location.href = '/rest/pl/fe/matter/mission/' + subView + '?site=' + mission.siteid + '&id=' + mission.mission_id;
+        $scope.openMission = function(mission, subView, matterType, scenario) {
+            var url;
+            url = '/rest/pl/fe/matter/mission/' + subView + '?site=' + mission.siteid + '&id=' + mission.mission_id;
+            if (subView === 'matter') {
+                if (scenario) {
+                    url += '#' + scenario;
+                } else if (matterType) {
+                    url += '#' + matterType;
+                }
+            }
+            location.href = url;
         };
         $scope.create = function() {
             location.href = '/rest/pl/fe/matter/mission/plan?site=' + $scope.frameState.sid;

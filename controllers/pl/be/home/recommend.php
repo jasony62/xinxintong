@@ -57,10 +57,10 @@ class recommend extends \pl\be\base {
 	/**
 	 * 素材加入到主页
 	 */
-	public function pushMatter_action($application) {
+	public function pushMatter_action($application, $homeGroup = '') {
 		$modelHome = $this->model('matter\home');
 
-		$rst = $modelHome->pushHome($application);
+		$rst = $modelHome->pushHome($application, $homeGroup);
 
 		return new \ResponseData($rst);
 	}

@@ -1,0 +1,47 @@
+<div class="col-md-12">
+    <div id='notice-view'>
+        <div class="col-md-12 form-group checkbox">
+            <label ng-if="records.length">
+                <input type="checkbox" ng-model="choose" ng-true-value="'Y'" ng-false-value="'N'" ng-click="fail(choose)">仅展示失败记录
+            </label>
+        </div>
+        <div class='col-md-4'>
+            <div class='list-group'>
+                <div class='list-group-item' ng-class="{'active':batch===activeBatch}" ng-repeat="batch in batches" ng-click="detail(batch)">
+                    <div>{{batch.create_at*1000|date:'yy-MM-dd HH:mm'}}</div>
+                    <div>{{batch.remark}}</div>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-8">
+            <div tms-flex-height top='72' bottom='135' class='form-group'>
+                <div id='enrollRecords' tms-table-wrap ready='tmsTableWrapReady'>
+                    <table class='table table-bordered'>
+                        <thead>
+                        <tr>
+                            <th style='width:40px'></th>
+                            <th style="width:40px">发送结果</th>
+                            <th style='width:140px'>失败原因</th>
+                            <th style='width:140px'>用户昵称</th>
+                            <th style='width:100px'>登记时间</th>
+                            <th style='width:4em'>审核通过</th>
+                            <th style='width:140px'>备注</th>
+                        </tr>
+                        </thead>
+                        <tbody>
+                        <tr ng-repeat='r in records' class='record'>
+                            <td>{{$index+1}}</td>
+                            <td>{{r._noticeStatus[0]}}</td>
+                            <td style='color:red'>{{r._noticeStatus[1]}}</td>
+                            <td>{{r.nickname}}</td>
+                            <td>{{(r.enroll_at*1000)|date:'MM-dd HH:mm'}}</td>
+                            <td>{{r.verified}}</td>
+                            <td>{{r.comment}}</td>
+                        </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

@@ -259,7 +259,7 @@
                                             <div class="media-item-body pull-left">
                                                 <div class='creater_name'>
                                                     <a ng-href='/rest/site/home?site={{a.siteid}}'>
-                                                        <img class="img-circle" ng-src="{{a.heading_pic}}" alt="" style="width:12px;height:12px">
+                                                        <img class="img-circle" ng-src="{{a.pic}}" alt="" style="width:12px;height:12px">
                                                         <h6 class="inline pdl10">{{a.site_name}}</h6>
                                                         <i class="glyphicon glyphicon-menu-right pull-right"></i>
                                                     </a>
@@ -281,7 +281,7 @@
                                                     </div>
                                                     <div class='put_at pull-left'>
                                                         <a href="">
-                                                            <h6 class="inline"ng-bind="a.put_at*1000|date:'yyyy-MM-dd'"></h6>
+                                                            <h6 class="inline"ng-bind="a.create_at*1000|date:'yyyy-MM-dd'"></h6>
                                                         </a>
                                                     </div>
                                                 </div>

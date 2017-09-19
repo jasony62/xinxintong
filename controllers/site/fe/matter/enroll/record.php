@@ -77,9 +77,10 @@ class record extends base {
 			$enrolledData = $posted;
 		}
 		if ((isset($oEnrollApp->assignedNickname->valid) && $oEnrollApp->assignedNickname->valid === 'Y') && isset($oEnrollApp->assignedNickname->schema->id)) {
+			/* 从登记内容中获取昵称 */
 			$oUser->nickname = empty($enrolledData->{$oEnrollApp->assignedNickname->schema->id}) ? '' : $enrolledData->{$oEnrollApp->assignedNickname->schema->id};
 		} else {
-			// 当前访问用户的基本信息
+			/* 当前访问用户的基本信息 */
 			$userNickname = $modelEnl->getUserNickname($oEnrollApp, $oUser);
 			$oUser->nickname = $userNickname;
 		}
@@ -195,6 +196,7 @@ class record extends base {
 				/* 已经登记，更新原先提交的数据，只要进行更新操作就设置为未审核通过的状态 */
 				$oUpdatedEnrollRec['enroll_at'] = time();
 				$oUpdatedEnrollRec['userid'] = $oUser->uid;
+				$oUpdatedEnrollRec['nickname'] = $oUser->nickname;
 				$oUpdatedEnrollRec['verified'] = 'N';
 			}
 		}
@@ -343,12 +345,17 @@ class record extends base {
 		if (!empty($oEnrollApp->mission_id)) {
 			$modelMisUsr = $this->model('matter\mission\user');
 			$modelMisUsr->setOnlyWriteDbConn(true);
-			$oMission = new \stdClass;
-			$oMission->siteid = $oEnrollApp->siteid;
-			$oMission->id = $oEnrollApp->mission_id;
+			$oMission = $this->model('matter\mission')->byId($oEnrollApp->mission_id, ['fields' => 'siteid,id,user_app_type,user_app_id']);
+			if ($oMission->user_app_type === 'group') {
+				$oMisUsrGrpApp = (object) ['id' => $oMission->user_app_id];
+				$oMisGrpUser = $this->model('matter\group\player')->byUser($oMisUsrGrpApp, $oUser->uid, ['onlyOne' => true, 'round_id']);
+			}
 			$oMisUsr = $modelMisUsr->byId($oMission, $oUser->uid, ['fields' => 'id,nickname,group_id,last_enroll_at,enroll_num,user_total_coin']);
 			if (false === $oMisUsr) {
 				$aNewMisUser = ['last_enroll_at' => time(), 'enroll_num' => 1];
+				if (!empty($oMisGrpUser->round_id)) {
+					$aNewMisUser['group_id'] = $oMisGrpUser->round_id;
+				}
 				if (!empty($rules)) {
 					$aNewMisUser['user_total_coin'] = 0;
 					foreach ($rules as $rule) {
@@ -357,14 +364,13 @@ class record extends base {
 				}
 				$modelMisUsr->add($oMission, $oUser, $aNewMisUser);
 			} else {
-				$aUpdMisUser = [];
+				$aUpdMisUser = ['last_enroll_at' => time()];
 				if ($oMisUsr->nickname !== $oUser->nickname) {
 					$aUpdMisUser['nickname'] = $oUser->nickname;
 				}
-				$aUpdMisUser['last_enroll_at'] = time();
-				if (isset($oUser->group_id)) {
-					if ($oMisUsr->group_id !== $oUser->group_id) {
-						$aUpdMisUser['group_id'] = $oUser->group_id;
+				if (isset($oMisGrpUser->round_id)) {
+					if ($oMisUsr->group_id !== $oMisGrpUser->round_id) {
+						$aUpdMisUser['group_id'] = $oMisGrpUser->round_id;
 					}
 				}
 				if ($bSubmitNewRecord) {

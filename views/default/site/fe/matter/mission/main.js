@@ -84,9 +84,10 @@ require(['matterService'], function() {
                 $scope.matters = mattersByTime;
             });
         }
+        
         var _oMission, _oCriteria;
+        $scope.siteid = siteId;
         $scope.criteria = _oCriteria = {};
-
         $scope.siteUser = function() {
             var url;
             url = 'http://' + location.host;

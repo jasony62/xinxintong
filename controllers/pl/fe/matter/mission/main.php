@@ -86,7 +86,7 @@ class main extends \pl\fe\matter\base {
 		return new \ResponseData($result);
 	}
 	/**
-	 * 当前用户可访问任务列表
+	 * 当前用户可访问项目列表
 	 *
 	 * @param int $page
 	 * @param int $size

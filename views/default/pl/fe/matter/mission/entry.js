@@ -43,24 +43,8 @@ define(['frame'], function(ngApp) {
         $scope.updCanFavor = function() {
             srvQuickEntry.update(opEntry.code, { can_favor: opEntry.can_favor });
         };
-	}]);
-    ngApp.provider.controller('ctrlReceiver', ['$scope', 'http2', '$interval', '$uibModal', 'srvSite', function($scope, http2, $interval, $uibModal, srvSite) {
-        var baseURL = '/rest/pl/fe/matter/mission/receiver/';
-        function listReceivers(app) {
-            http2.get(baseURL + 'list?site=' + app.siteid + '&app=' + app.id, function(rsp) {
-                var map = { wx: '微信', yx: '易信'};
-                rsp.data.forEach(function(receiver) {
-                    if (receiver.sns_user) {
-                        receiver.snsUser = JSON.parse(receiver.sns_user);
-                        map[receiver.snsUser.src] && (receiver.snsUser.snsName = map[receiver.snsUser.src]);
-                    }
-                });
-                $scope.receivers = rsp.data;
-            });
-        }
         $scope.$watch('mission', function(mission) {
             if (!mission) return;
-            listReceivers(mission);
             http2.get('/rest/pl/fe/matter/timer/byMatter?site=' + mission.siteid + '&type=mission&id=' + mission.id, function(rsp) {
                 rsp.data.forEach(function(oTask) {
                     oTimerTask[oTask.task_model].state = 'Y';
@@ -79,6 +63,83 @@ define(['frame'], function(ngApp) {
                 });
             });
         });
+        var oTimerTask;
+        $scope.timerTask = oTimerTask = {
+            report: {
+                modified: false,
+                state: 'N'
+            },
+            remind: {
+                modified: false,
+                state: 'N'
+            },
+        };
+        $scope.shiftTimerTask = function(model) {
+            var oOneTask;
+            oOneTask = oTimerTask[model];
+            if ($scope.mission.user_app_id == '') {
+                oOneTask.state = 'N';
+                alert('没有指定用户名单应用');
+                return;
+            }
+            if (oOneTask.state === 'Y') {
+                var oConfig;
+                oConfig = {
+                    matter: { id: $scope.mission.id, type: 'mission' },
+                    task: { model: model }
+                }
+                http2.post('/rest/pl/fe/matter/timer/create?site=' + $scope.mission.siteid, oConfig, function(rsp) {
+                    oOneTask.state = 'Y';
+                    oOneTask.taskId = rsp.data.id;
+                    oOneTask.task = {};
+                    ['pattern', 'min', 'hour', 'wday', 'mday', 'mon', 'left_count', 'enabled'].forEach(function(prop) {
+                        oOneTask.task[prop] = '' + rsp.data[prop];
+                    });
+                    $scope.$watch('timerTask.' + model, function(oUpdTask, oOldTask) {
+                        if (oUpdTask && oUpdTask.task) {
+                            if (!angular.equals(oUpdTask.task, oOldTask.task)) {
+                                oUpdTask.modified = true;
+                            }
+                        }
+                    }, true);
+                });
+            } else {
+                http2.get('/rest/pl/fe/matter/timer/remove?site=' + $scope.mission.siteid + '&id=' + oOneTask.taskId, function(rsp) {
+                    oOneTask.state = 'N';
+                    delete oOneTask.taskId;
+                    delete oOneTask.task;
+                });
+            }
+        };
+        $scope.saveTimerTask = function(model) {
+            var oOneTask;
+            oOneTask = oTimerTask[model];
+            if (oOneTask.state === 'Y') {
+                http2.post('/rest/pl/fe/matter/timer/update?site=' + $scope.mission.siteid + '&id=' + oOneTask.taskId, oOneTask.task, function(rsp) {
+                    ['min', 'hour', 'wday', 'mday', 'mon', 'left_count'].forEach(function(prop) {
+                        oOneTask.task[prop] = '' + rsp.data[prop];
+                    });
+                    oOneTask.modified = false;
+                });
+            }
+        };
+    }]);
+    ngApp.provider.controller('ctrlReceiver', ['$scope', 'http2', '$interval', '$uibModal', 'srvSite', function($scope, http2, $interval, $uibModal, srvSite) {
+        var baseURL = '/rest/pl/fe/matter/mission/receiver/';
+
+        function listReceivers(app) {
+            http2.get(baseURL + 'list?site=' + app.siteid + '&app=' + app.id, function(rsp) {
+                var map = { wx: '微信', yx: '易信' };
+                rsp.data.forEach(function(receiver) {
+                    if (receiver.sns_user) {
+                        receiver.snsUser = JSON.parse(receiver.sns_user);
+                        map[receiver.snsUser.src] && (receiver.snsUser.snsName = map[receiver.snsUser.src]);
+                    }
+                });
+                $scope.receivers = rsp.data;
+            });
+        }
+
         srvSite.get().then(function(oSite) {
             $scope.site = oSite;
         });
@@ -136,65 +197,9 @@ define(['frame'], function(ngApp) {
                 $scope.receivers.splice($scope.receivers.indexOf(receiver), 1);
             });
         };
-        var oTimerTask;
-        $scope.timerTask = oTimerTask = {
-            report: {
-                modified: false,
-                state: 'N'
-            },
-            remind: {
-                modified: false,
-                state: 'N'
-            },
-        };
-        $scope.shiftTimerTask = function(model) {
-            var oOneTask;
-            oOneTask = oTimerTask[model];
-            if($scope.mission.user_app_id == ''){
-                oOneTask.state = 'N';
-                alert('没有指定用户名单应用');
-                return;
-            }
-            if (oOneTask.state === 'Y') {
-                var oConfig;
-                oConfig = {
-                    matter: { id: $scope.mission.id, type: 'mission' },
-                    task: { model: model }
-                }
-                http2.post('/rest/pl/fe/matter/timer/create?site=' + $scope.mission.siteid, oConfig, function(rsp) {
-                    oOneTask.state = 'Y';
-                    oOneTask.taskId = rsp.data.id;
-                    oOneTask.task = {};
-                    ['pattern', 'min', 'hour', 'wday', 'mday', 'mon', 'left_count', 'enabled'].forEach(function(prop) {
-                        oOneTask.task[prop] = '' + rsp.data[prop];
-                    });
-                    $scope.$watch('timerTask.' + model, function(oUpdTask, oOldTask) {
-                        if (oUpdTask && oUpdTask.task) {
-                            if (!angular.equals(oUpdTask.task, oOldTask.task)) {
-                                oUpdTask.modified = true;
-                            }
-                        }
-                    }, true);
-                });
-            } else {
-                http2.get('/rest/pl/fe/matter/timer/remove?site=' + $scope.mission.siteid + '&id=' + oOneTask.taskId, function(rsp) {
-                    oOneTask.state = 'N';
-                    delete oOneTask.taskId;
-                    delete oOneTask.task;
-                });
-            }
-        };
-        $scope.saveTimerTask = function(model) {
-            var oOneTask;
-            oOneTask = oTimerTask[model];
-            if (oOneTask.state === 'Y') {
-                http2.post('/rest/pl/fe/matter/timer/update?site=' + $scope.mission.siteid + '&id=' + oOneTask.taskId, oOneTask.task, function(rsp) {
-                    ['min', 'hour', 'wday', 'mday', 'mon', 'left_count'].forEach(function(prop) {
-                        oOneTask.task[prop] = '' + rsp.data[prop];
-                    });
-                    oOneTask.modified = false;
-                });
-            }
-        };
+        $scope.$watch('mission', function(mission) {
+            if (!mission) return;
+            listReceivers(mission);
+        });
     }]);
 })

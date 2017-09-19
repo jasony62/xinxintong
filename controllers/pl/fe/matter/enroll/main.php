@@ -224,13 +224,20 @@ class main extends \pl\fe\matter\base {
 		if (empty($oEntryRule)) {
 			return new \ResponseError('没有获得页面进入规则');
 		}
-		if (!empty($oCustomConfig->proto->scope)) {
-			$oEntryRule->scope = $oCustomConfig->proto->scope;
+		if (!empty($oCustomConfig->proto->entryRule->scope)) {
+			$oProtoEntryRule = $oCustomConfig->proto->entryRule;
+			$oEntryRule->scope = $oProtoEntryRule->scope;
 			switch ($oEntryRule->scope) {
+			case 'group':
+				if (!empty($oProtoEntryRule->group->id) && !empty($oProtoEntryRule->group->round->id)) {
+					$oEntryRule->group = (object) ['id' => $oProtoEntryRule->group->id];
+					$oEntryRule->group->round = (object) ['id' => $oProtoEntryRule->group->round->id];
+				}
+				break;
 			case 'member':
-				if (isset($oCustomConfig->proto->mschemas)) {
+				if (isset($oProtoEntryRule->mschemas)) {
 					$oEntryRule->member = new \stdClass;
-					foreach ($oCustomConfig->proto->mschemas as $oMschema) {
+					foreach ($oProtoEntryRule as $oMschema) {
 						$oRule = new \stdClass;
 						$oRule->entry = isset($oEntryRule->otherwise->entry) ? $oEntryRule->otherwise->entry : '';
 						$oEntryRule->member->{$oMschema->id} = $oRule;
@@ -243,8 +250,8 @@ class main extends \pl\fe\matter\base {
 				$oRule = new \stdClass;
 				$oRule->entry = isset($oEntryRule->otherwise->entry) ? $oEntryRule->otherwise->entry : '';
 				$oSns = new \stdClass;
-				if (isset($oCustomConfig->proto->sns)) {
-					foreach ($oCustomConfig->proto->sns as $snsName => $oRule2) {
+				if (isset($oProtoEntryRule->sns)) {
+					foreach ($oProtoEntryRule->sns as $snsName => $oRule2) {
 						if (isset($oRule2->entry) && $oRule2->entry === 'Y') {
 							$oSns->{$snsName} = $oRule;
 						}

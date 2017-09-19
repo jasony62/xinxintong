@@ -10,9 +10,9 @@ class record_model extends \TMS_MODEL {
 	 * @param object $app
 	 * @param object $oUser [uid,nickname]
 	 */
-	public function enroll(&$oApp, $oUser = null, $options = []) {
-		$referrer = isset($options['referrer']) ? $options['referrer'] : '';
-		$enrollAt = isset($options['enrollAt']) ? $options['enrollAt'] : time();
+	public function enroll(&$oApp, $oUser = null, $aOptions = []) {
+		$referrer = isset($aOptions['referrer']) ? $aOptions['referrer'] : '';
+		$enrollAt = isset($aOptions['enrollAt']) ? $aOptions['enrollAt'] : time();
 
 		$ek = $this->genKey($oApp->siteid, $oApp->id);
 
@@ -32,10 +32,10 @@ class record_model extends \TMS_MODEL {
 			$record['rid'] = $oActiveRound->rid;
 		}
 		/* 登记用户昵称 */
-		if (isset($options['nickname'])) {
-			$record['nickname'] = $this->escape($options['nickname']);
+		if (isset($aOptions['nickname'])) {
+			$record['nickname'] = $this->escape($aOptions['nickname']);
 		} else {
-			$nickname = $this->model('matter\enroll')->getUserNickname($oApp, $oUser, $options);
+			$nickname = $this->model('matter\enroll')->getUserNickname($oApp, $oUser, $aOptions);
 			$record['nickname'] = $this->escape($nickname);
 		}
 		/* 登记用户的社交账号信息 */
@@ -445,17 +445,17 @@ class record_model extends \TMS_MODEL {
 	/**
 	 * 根据ID返回登记记录
 	 */
-	public function &byId($ek, $options = []) {
-		$fields = isset($options['fields']) ? $options['fields'] : '*';
-		$verbose = isset($options['verbose']) ? $options['verbose'] : 'N';
+	public function &byId($ek, $aOptions = []) {
+		$fields = isset($aOptions['fields']) ? $aOptions['fields'] : '*';
+		$verbose = isset($aOptions['verbose']) ? $aOptions['verbose'] : 'N';
 
 		$q = [
 			$fields,
 			'xxt_enroll_record',
 			['enroll_key' => $ek],
 		];
-		if (isset($options['state'])) {
-			$q[2]['state'] = $options['state'];
+		if (isset($aOptions['state'])) {
+			$q[2]['state'] = $aOptions['state'];
 		}
 		if ($oRecord = $this->query_obj_ss($q)) {
 			$this->_processRecord($oRecord, $fields, $verbose);
@@ -470,9 +470,9 @@ class record_model extends \TMS_MODEL {
 	 *
 	 * 如果设置轮次，只返回当前轮次的情况
 	 */
-	public function lastByUser($oApp, $oUser, $options = []) {
-		$fields = isset($options['fields']) ? $options['fields'] : '*';
-		$verbose = isset($options['verbose']) ? $options['verbose'] : 'N';
+	public function lastByUser($oApp, $oUser, $aOptions = []) {
+		$fields = isset($aOptions['fields']) ? $aOptions['fields'] : '*';
+		$verbose = isset($aOptions['verbose']) ? $aOptions['verbose'] : 'N';
 
 		$q = [
 			$fields,
@@ -524,11 +524,11 @@ class record_model extends \TMS_MODEL {
 	 *
 	 * @param object $oApp
 	 * @param object $oUser
-	 * @param array $options
+	 * @param array $aOptions
 	 */
-	public function &byUser(&$oApp, &$oUser, $options = []) {
-		$fields = isset($options['fields']) ? $options['fields'] : '*';
-		$verbose = isset($options['verbose']) ? $options['verbose'] : 'N';
+	public function &byUser(&$oApp, &$oUser, $aOptions = []) {
+		$fields = isset($aOptions['fields']) ? $aOptions['fields'] : '*';
+		$verbose = isset($aOptions['verbose']) ? $aOptions['verbose'] : 'N';
 
 		$userid = isset($oUser->uid) ? $oUser->uid : (isset($oUser->userid) ? $oUser->userid : '');
 		if (empty($userid)) {
@@ -540,9 +540,9 @@ class record_model extends \TMS_MODEL {
 			'xxt_enroll_record',
 			["state" => 1, "aid" => $oApp->id, "userid" => $userid],
 		];
-		if (!empty($options['rid'])) {
-			if (strcasecmp('all', $options['rid']) !== 0) {
-				$q[2]['rid'] = $options['rid'];
+		if (!empty($aOptions['rid'])) {
+			if (strcasecmp('all', $aOptions['rid']) !== 0) {
+				$q[2]['rid'] = $aOptions['rid'];
 			}
 		} else {
 			if ($oActiveRnd = $this->model('matter\enroll\round')->getActive($oApp)) {
@@ -563,8 +563,8 @@ class record_model extends \TMS_MODEL {
 	 *
 	 * @param string $roundId
 	 */
-	public function &byRound($roundId, $options = []) {
-		$fields = isset($options['fields']) ? $options['fields'] : '*';
+	public function &byRound($roundId, $aOptions = []) {
+		$fields = isset($aOptions['fields']) ? $aOptions['fields'] : '*';
 		if ($fields === 'count(*)') {
 			$q = [
 				'count(*)',
@@ -593,8 +593,8 @@ class record_model extends \TMS_MODEL {
 	 *
 	 * @param int $missionId
 	 */
-	public function &byMission($missionId, $options) {
-		$fields = isset($options['fields']) ? $options['fields'] : '*';
+	public function &byMission($missionId, $aOptions) {
+		$fields = isset($aOptions['fields']) ? $aOptions['fields'] : '*';
 		$q = [
 			$fields,
 			'xxt_enroll_record r',
@@ -602,8 +602,8 @@ class record_model extends \TMS_MODEL {
 		$missionId = $this->escape($missionId);
 		$where = "state=1 and exists(select 1 from xxt_enroll e where r.aid=e.id and e.mission_id={$missionId})";
 
-		if (isset($options['userid'])) {
-			$where .= " and userid='" . $this->escape($options['userid']) . "'";
+		if (isset($aOptions['userid'])) {
+			$where .= " and userid='" . $this->escape($aOptions['userid']) . "'";
 		}
 		$q[2] = $where;
 
@@ -623,8 +623,8 @@ class record_model extends \TMS_MODEL {
 	 *
 	 * 不是所有的字段都检查，只检查字符串类型
 	 */
-	public function &byData(&$oApp, &$data, $options = []) {
-		$fields = isset($options['fields']) ? $options['fields'] : '*';
+	public function &byData(&$oApp, &$data, $aOptions = []) {
+		$fields = isset($aOptions['fields']) ? $aOptions['fields'] : '*';
 		$records = false;
 
 		// 查找条件
@@ -704,7 +704,7 @@ class record_model extends \TMS_MODEL {
 	 * 登记清单
 	 *
 	 * @param object/string 登记活动/登记活动的id
-	 * @param object/array $options
+	 * @param object/array $aOptions
 	 * --creater openid
 	 * --visitor openid
 	 * --page

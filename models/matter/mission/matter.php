@@ -19,16 +19,28 @@ class matter_model extends \TMS_MODEL {
 	}
 	/**
 	 * 获得项目下的所有素材
+	 *
+	 * @param int $missionId
+	 * @param mixed $matterType string/array
+	 * @param array $options
+	 *
 	 */
-	public function &byMission($missionId, $matterType = null, $options = [], $verbose = 'Y') {
-		$fields = isset($options['fields']) ? $options['fields'] : 'id,matter_id,matter_title,matter_type,is_public,seq,create_at,start_at,end_at,scenario,phase_id';
+	public function &byMission($missionId, $matterType = null, $aOptions = [], $verbose = 'Y') {
+		$fields = isset($aOptions['fields']) ? $aOptions['fields'] : 'id,matter_id,matter_title,matter_type,is_public,seq,create_at,start_at,end_at,scenario,phase_id';
 
 		$q = [
 			$fields,
 			'xxt_mission_matter',
 			["mission_id" => $missionId],
 		];
+
+		/* 按类型过滤 */
 		!empty($matterType) && $q[2]['matter_type'] = $matterType;
+
+		/* 按名称过滤 */
+		if (!empty($aOptions['byTitle'])) {
+			$q[2]["matter_title"] = (object) ['op' => 'like', 'pat' => '%' . $aOptions['byTitle'] . '%'];
+		}
 
 		$q2 = ['o' => 'seq,create_at desc'];
 		$mms = $this->query_objs_ss($q, $q2);

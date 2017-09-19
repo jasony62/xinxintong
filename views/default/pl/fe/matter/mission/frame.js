@@ -1,21 +1,36 @@
 define(['missionService', 'enrollService', 'signinService'], function() {
     'use strict';
-    var ngApp = angular.module('app', ['ngRoute', 'ui.tms', 'ui.xxt', 'tmplshop.ui.xxt', 'tinymce.ui.xxt', 'service.matter', 'service.mission', 'service.enroll', 'service.signin']);
+    var ngApp = angular.module('app', ['ngRoute', 'ui.tms', 'ui.xxt', 'tinymce.ui.xxt', 'service.matter', 'service.mission', 'service.enroll', 'service.signin']);
     ngApp.constant('cstApp', {
         notifyMatter: [],
         innerlink: [],
         alertMsg: {},
+        matterNames: {
+            doc: {
+                'article': '图文'
+            },
+            docOrder: ['article'],
+            app: {
+                'enroll': '登记',
+                'signin': '签到',
+                'group': '分组',
+                'wall': '信息墙',
+            },
+            appOrder: ['enroll', 'signin', 'group', 'wall']
+        },
         scenarioNames: {
-            'article': '单图文',
-            'common': '通用登记',
-            'registration': '报名',
-            'voting': '投票',
-            'quiz': '测验',
-            'group_week_report': '周报',
-            'score_sheet': '记分表',
-            'signin': '签到',
-            'split': '分组',
-            'wall': '信息墙'
+            enroll: {
+                'common': '通用登记',
+                'registration': '报名',
+                'voting': '投票',
+                'quiz': '测验',
+                'group_week_report': '周报',
+                'score_sheet': '记分表',
+            },
+            group: {
+                'split': '分组',
+                'wall': '信息墙'
+            }
         },
         naming: { 'phase': '项目阶段' }
     });
@@ -42,8 +57,10 @@ define(['missionService', 'enrollService', 'signinService'], function() {
             .when('/rest/pl/fe/matter/mission/main', new RouteParam('main'))
             .when('/rest/pl/fe/matter/mission/entry', new RouteParam('entry'))
             .when('/rest/pl/fe/matter/mission/access', new RouteParam('access'))
-            .when('/rest/pl/fe/matter/mission/matter', new RouteParam('matter'))
+            .when('/rest/pl/fe/matter/mission/app', new RouteParam('app'))
+            .when('/rest/pl/fe/matter/mission/doc', new RouteParam('doc'))
             .when('/rest/pl/fe/matter/mission/mschema', new RouteParam('mschema'))
+            .when('/rest/pl/fe/matter/mission/enrollee', new RouteParam('enrollee'))
             .when('/rest/pl/fe/matter/mission/report', new RouteParam('report'))
             .when('/rest/pl/fe/matter/mission/overview', new RouteParam('overview'))
             .when('/rest/pl/fe/matter/mission/notice', new RouteParam('notice'))
@@ -91,6 +108,27 @@ define(['missionService', 'enrollService', 'signinService'], function() {
         $scope.$on('$locationChangeSuccess', function(event, currentRoute) {
             var subView = currentRoute.match(/([^\/]+?)\?/);
             $scope.subView = subView[1] === 'mission' ? 'main' : subView[1];
+            switch ($scope.subView) {
+                case 'main':
+                case 'access':
+                case 'mschema':
+                    $scope.opened = 'rule';
+                    break;
+                case 'app':
+                case 'doc':
+                case 'entry':
+                    $scope.opened = 'task';
+                    break;
+                case 'enrollee':
+                case 'report':
+                    $scope.opened = 'result';
+                    break;
+                case 'notice':
+                    $scope.opened = 'other';
+                    break;
+                default:
+                    $scope.opened = '';
+            }
         });
         $scope.switchTo = function(subView) {
             var url = '/rest/pl/fe/matter/mission/' + subView;
@@ -115,7 +153,7 @@ define(['missionService', 'enrollService', 'signinService'], function() {
                 if (location.href.indexOf('/mission?') !== -1) {
                     srvMission.matterCount().then(function(count) {
                         if (count) {
-                            $location.path('/rest/pl/fe/matter/mission/matter').search({ id: mission.id, site: mission.siteid });
+                            $location.path('/rest/pl/fe/matter/mission/app').search({ id: mission.id, site: mission.siteid });
                             $location.replace();
                         } else {
                             $location.path('/rest/pl/fe/matter/mission/main').search({ id: mission.id, site: mission.siteid });

@@ -13,20 +13,20 @@
                 <input type='radio' value='sns' ng-model="rule.scope" ng-change="changeUserScope()">限公众号关注用户访问</label>
         </div>
         <hr>
-        <table class='table table-bordered' ng-if="rule.scope==='member'">
-            <tbody>
-                <tr ng-repeat="(msid,erm) in mission.entry_rule.member">
-                    <td><span>{{mschemasById[msid]?mschemasById[msid].title:'通讯录不存在'}}</span></td>
-                    <td>
-                        <button class='btn btn-default btn-xs' ng-click="editMschema(mschemasById[msid])"><span class='glyphicon glyphicon-edit'></span></button>
-                    </td>
-                    <td>
-                        <button class='btn btn-default btn-xs' ng-click="removeMschema(msid)"><span class='glyphicon glyphicon-remove'></span></button>
-                    </td>
-                </tr>
-            </tbody>
-        </table>
         <div ng-if="rule.scope==='member'">
+            <table class='table table-bordered'>
+                <tbody>
+                    <tr ng-repeat="(msid,erm) in mission.entry_rule.member">
+                        <td><span>{{mschemasById[msid]?mschemasById[msid].title:'通讯录不存在'}}</span></td>
+                        <td>
+                            <button class='btn btn-default btn-xs' ng-click="editMschema(mschemasById[msid])"><span class='glyphicon glyphicon-edit'></span></button>
+                        </td>
+                        <td>
+                            <button class='btn btn-default btn-xs' ng-click="removeMschema(msid)"><span class='glyphicon glyphicon-remove'></span></button>
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
             <button class='btn btn-default' ng-click="chooseMschema()">选择通讯录</button>
         </div>
         <table class='table table-bordered' ng-if="rule.scope==='sns'&&snsCount>1">

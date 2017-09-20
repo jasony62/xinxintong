@@ -1,0 +1,98 @@
+<div id='enrollee-view' class="col-md-12">
+    <style>
+    #enrollee-view th {
+        line-height: 1em;
+    }
+
+    #enrollee-view th .glyphicon {
+        color: #ccc;
+    }
+
+    #enrollee-view th .glyphicon.active {
+        color: #09f;
+    }
+    </style>
+    <div>
+        <table class='table table-bordered'>
+            <thead>
+                <tr>
+                    <th style='width:32px'>
+                        <input type='checkbox' ng-true-value="'Y'" ng-false-value="'N'" ng-model="criteria.allSelected">
+                    </th>
+                    <th style='width:48px'>序号</th>
+                    <th uib-popover-template="'filterByNickname.html'" popover-placement="bottom" popover-append-to-body="true" popover-trigger="show" ng-click="filter.show($event)">
+                        <div>姓名 <span class='glyphicon glyphicon-filter' ng-class="{'active':criteria.filter.by==='nickname'}"></span></div>
+                    </th>
+                    <th ng-click="chooseOrderBy('group_id')">
+                        <div>分组 <span class='glyphicon glyphicon-arrow-down' ng-class="{'active':criteria.orderBy==='group_id'}"></span></div>
+                    </th>
+                    <th style='width:64px' ng-click="chooseOrderBy('user_total_coin')">
+                        <div>积分 <span class='glyphicon glyphicon-arrow-down' ng-class="{'active':criteria.orderBy==='user_total_coin'}"></span></div>
+                    </th>
+                    <th style='width:64px' ng-click="chooseOrderBy('enroll_num')">
+                        <div style='line-height:1em'>记录 <span class='glyphicon glyphicon-arrow-down' ng-class="{'active':criteria.orderBy==='enroll_num'}"></span></div>
+                    </th>
+                    <th style='width:96px' ng-click="chooseOrderBy('last_enroll_at')">
+                        <div>最近填写 <span class='glyphicon glyphicon-arrow-down' ng-class="{'active':criteria.orderBy==='last_enroll_at'}"></span></div>
+                    </th>
+                    <th style='width:64px' ng-click="chooseOrderBy('remark_other_num')">
+                        <div>评论 <span class='glyphicon glyphicon-arrow-down' ng-class="{'active':criteria.orderBy==='remark_other_num'}"></span></div>
+                    </th>
+                    <th style='width:96px' ng-click="chooseOrderBy('last_remark_other_at')">
+                        <div>最近评论 <span class='glyphicon glyphicon-arrow-down' ng-class="{'active':criteria.orderBy==='last_remark_other_at'}"></span></div>
+                    </th>
+                    <th style='width:64px' ng-click="chooseOrderBy('like_other_num')">
+                        <div>点赞 <span class='glyphicon glyphicon-arrow-down' ng-class="{'active':criteria.orderBy==='like_other_num'}"></span></div>
+                    </th>
+                    <th style='width:96px' ng-click="chooseOrderBy('last_remark_like_at')">
+                        <div>最近点赞 <span class='glyphicon glyphicon-arrow-down' ng-class="{'active':criteria.orderBy==='last_remark_like_at'}"></span></div>
+                    </th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr ng-repeat='enrollee in enrollees'>
+                    <td>
+                        <input type='checkbox' ng-model="criteria.selected[$index]">
+                    </td>
+                    <td>{{$index+1}}</td>
+                    <td>{{enrollee.nickname}}</td>
+                    <td>{{enrollee.group.title}}</td>
+                    <td>
+                        <div>{{enrollee.user_total_coin}}</div>
+                    </td>
+                    <td>
+                        <div>{{enrollee.enroll_num}}</div>
+                    </td>
+                    <td>
+                        <div>{{enrollee.last_enroll_at}}</div>
+                    </td>
+                    <td>
+                        <div>{{enrollee.remark_other_num}}</div>
+                    </td>
+                    <td>
+                        <div>{{enrollee.last_remark_other_at}}</div>
+                    </td>
+                    <td>
+                        <div>{{enrollee.like_other_num}}</div>
+                    </td>
+                    <td>
+                        <div>{{enrollee.last_like_other_at}}</div>
+                    </td>
+                </tr>
+            </tbody>
+        </table>
+    </div>
+    <script type="text/ng-template" id="filterByNickname.html">
+        <div class="form-group">
+            <div class='input-group'>
+                <input type="text" ng-model="filter.keyword" class="form-control">
+                <div class="input-group-btn">
+                    <button class='btn btn-default' ng-click="filter.keyword=''"><span class='glyphicon glyphicon-remove'></span></button>
+                </div>
+            </div>
+        </div>
+        <button class='btn btn-default' ng-click="filter.close()">关闭</button>
+        <button class='btn btn-default' ng-click="filter.cancel()">取消筛选</button>
+        <button class='btn btn-default' ng-click="filter.exec('nickname')">按姓名筛选</button>
+    </script>
+</div>

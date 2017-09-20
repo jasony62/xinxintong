@@ -64,6 +64,19 @@ ngApp.controller('ctrlRemark', ['$scope', '$q', '$timeout', 'http2', '$sce', '$u
             oFilter.schema = data.schema;
         });
     };
+    $scope.recommend = function(oRecData, value) {
+        var url;
+        if (oRecData.agreed !== value) {
+            url = '/rest/site/fe/matter/enroll/record/recommend';
+            url += '?site=' + oApp.siteid;
+            url += '&ek=' + $scope.record.enroll_key;
+            url += '&schema=' + schemaId;
+            url += '&value=' + value;
+            http2.get(url).then(function(rsp) {
+                oRecData.agreed = value;
+            });
+        }
+    };
     $scope.likeRemark = function(oRemark) {
         var url;
         url = '/rest/site/fe/matter/enroll/remark/like';
@@ -189,6 +202,14 @@ ngApp.controller('ctrlRemark', ['$scope', '$q', '$timeout', 'http2', '$sce', '$u
         $scope.remarkableSchemas = aRemarkable;
         if (aRemarkable.length <= 1 && $scope.record.userid !== $scope.user.uid) {
             $scope.bRequireOption = false;
+        }
+        var groupOthersById;
+        if (params.groupOthers && params.groupOthers.length) {
+            groupOthersById = {};
+            params.groupOthers.forEach(function(oOther) {
+                groupOthersById[oOther.userid] = oOther;
+            });
+            $scope.groupOthers = groupOthersById;
         }
     });
     $scope.$watch('filter', function(nv) {

@@ -33,25 +33,62 @@ define(['require'], function(require) {
             $scope.$broadcast('doCreate.shop');
         };
     }]);
-    ngApp.controller('ctrlSysTemplate', ['$scope', '$location', 'http2', 'srvSite', function($scope, $location, http2, srvSite) {
-        var assignedScenario;
+    ngApp.controller('ctrlSysTemplate', ['$scope', '$location', '$uibModal', 'http2', 'srvSite', function($scope, $location, $uibModal, http2, srvSite) {
+        var assignedScenario, _oProto, _oEntryRule;
 
         assignedScenario = $location.search().scenario;
         $scope.result = {
             proto: {
-                scope: '',
-                mschemas: []
+                entryRule: {
+                    scope: '',
+                    mschemas: [],
+                }
             }
         };
+        $scope.proto = _oProto = $scope.result.proto;
+        $scope.entryRule = _oEntryRule = _oProto.entryRule;
         $scope.chooseMschema = function() {
             srvSite.chooseMschema().then(function(result) {
                 var oChosen = result.chosen;
-                $scope.result.proto.mschemas.push({ id: oChosen.id, title: oChosen.title });
+                _oEntryRule.mschemas.push({ id: oChosen.id, title: oChosen.title });
             });
         };
         $scope.removeMschema = function(oMschema) {
-            var mschemas = $scope.result.proto.mschemas;
+            var mschemas = _oEntryRule.mschemas;
             mschemas.splice(mschemas.indexOf(oMschema), 1);
+        };
+        $scope.chooseGroupApp = function() {
+            $uibModal.open({
+                templateUrl: 'chooseGroupApp.html',
+                controller: ['$scope', '$uibModalInstance', function($scope2, $mi) {
+                    $scope2.data = {
+                        app: null,
+                        round: null
+                    };
+                    $scope2.cancel = function() {
+                        $mi.dismiss();
+                    };
+                    $scope2.ok = function() {
+                        $mi.close($scope2.data);
+                    };
+                    var url = '/rest/pl/fe/matter/group/list?site=' + siteId + '&size=999&cascaded=Y';
+                    url += '&mission=' + missionId;
+                    http2.get(url, function(rsp) {
+                        $scope2.apps = rsp.data.apps;
+                    });
+                }],
+                backdrop: 'static'
+            }).result.then(function(result) {
+                if (result.app) {
+                    _oEntryRule.group = { id: result.app.id, title: result.app.title };
+                    if (result.round) {
+                        _oEntryRule.group.round = { id: result.round.round_id, title: result.round.title };
+                    }
+                }
+            });
+        };
+        $scope.removeGroupApp = function() {
+            delete _oEntryRule.group;
         };
         $scope.assignGroupApp = function() {
             srvSite.openGallery({
@@ -61,14 +98,14 @@ define(['require'], function(require) {
                     url: '/rest/pl/fe/matter'
                 }],
                 singleMatter: true,
-                mission: $scope.result.proto.mission,
+                mission: _oProto.mission,
                 onlySameMission: true
             }).then(function(result) {
                 var oGroupApp, oChosen;
                 if (result.matters.length === 1) {
                     oChosen = result.matters[0];
                     oGroupApp = { id: oChosen.id, title: oChosen.title };
-                    $scope.result.proto.groupApp = oGroupApp;
+                    _oProto.groupApp = oGroupApp;
                 }
             });
         };
@@ -80,14 +117,14 @@ define(['require'], function(require) {
                     url: '/rest/pl/fe/matter'
                 }],
                 singleMatter: true,
-                mission: $scope.result.proto.mission,
+                mission: _oProto.mission,
                 onlySameMission: true
             }).then(function(result) {
                 var oEnrollApp, oChosen;
                 if (result.matters.length === 1) {
                     oChosen = result.matters[0];
                     oEnrollApp = { id: oChosen.id, title: oChosen.title };
-                    $scope.result.proto.enrollApp = oEnrollApp;
+                    _oProto.enrollApp = oEnrollApp;
                 }
             });
         };
@@ -179,9 +216,9 @@ define(['require'], function(require) {
             $scope.snsCount = Object.keys(oSns).length;
             if (!missionId) {
                 if ($scope.snsCount) {
-                    $scope.result.proto.scope = 'sns';
+                    _oEntryRule.scope = 'sns';
                 } else {
-                    $scope.result.proto.scope = 'none';
+                    _oEntryRule.scope = 'none';
                 }
             }
         });
@@ -189,8 +226,8 @@ define(['require'], function(require) {
             http2.get('/rest/pl/fe/matter/mission/get?site=' + siteId + '&id=' + missionId, function(rsp) {
                 var oMission;
                 oMission = rsp.data;
-                $scope.result.proto.mission = { id: oMission.id, title: oMission.title };
-                $scope.result.proto.scope = oMission.entry_rule.scope || 'none';
+                _oProto.mission = { id: oMission.id, title: oMission.title };
+                _oEntryRule.scope = oMission.entry_rule.scope || 'none';
                 if ('member' === oMission.entry_rule.scope) {
                     srvSite.memberSchemaList(oMission).then(function(aMemberSchemas) {
                         var oMschemasById = {};
@@ -198,24 +235,24 @@ define(['require'], function(require) {
                             oMschemasById[mschema.id] = mschema;
                         });
                         Object.keys(oMission.entry_rule.member).forEach(function(mschemaId) {
-                            $scope.result.proto.mschemas.push({ id: mschemaId, title: oMschemasById[mschemaId].title });
+                            _oEntryRule.mschemas.push({ id: mschemaId, title: oMschemasById[mschemaId].title });
                         });
                     });
                 } else if ('sns' === oMission.entry_rule.scope) {
                     $scope.result.proto.sns = oMission.entry_rule.sns;
                 }
                 if (assignedScenario === 'registration') {
-                    $scope.result.proto.title = oMission.title + '-报名';
+                    _oProto.title = oMission.title + '-报名';
                 } else if (assignedScenario === 'voting') {
-                    $scope.result.proto.title = oMission.title + '-投票';
+                    _oProto.title = oMission.title + '-投票';
                 } else if (assignedScenario === 'group_week_report') {
-                    $scope.result.proto.title = oMission.title + '-周报';
+                    _oProto.title = oMission.title + '-周报';
                 } else if (assignedScenario === 'score_sheet') {
-                    $scope.result.proto.title = oMission.title + '-记分表';
+                    _oProto.title = oMission.title + '-记分表';
                 } else if (assignedScenario === 'quiz') {
-                    $scope.result.proto.title = oMission.title + '-测验';
-                } else if (assignedScenario === 'common') {
-                    $scope.result.proto.title = oMission.title + '-登记';
+                    _oProto.title = oMission.title + '-测验';
+                } else if (assignedScenario === 'common' || assignedScenario === '') {
+                    _oProto.title = oMission.title + '-登记';
                 }
             });
         }

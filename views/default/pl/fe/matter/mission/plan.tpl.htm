@@ -108,7 +108,7 @@
                         <div>
                             <div class='radio'>
                                 <label>
-                                    <input type='radio' value='' ng-model="proto.app.group.source"> 不指定用【分组活动】进行分组的活动</label>
+                                    <input type='radio' value='' ng-model="proto.app.group.source"> 不指定用【分组活动】进行用户分组的活动</label>
                             </div>
                             <div class='radio'>
                                 <label>
@@ -119,7 +119,7 @@
                                     <input type='radio' value='signin' ng-model="proto.app.group.source" ng-disabled="proto.app.signin.create!=='Y'"> 用【分组活动】对【签到活动】中的用户进行分组</label>
                             </div>
                         </div>
-                        <div class='help-block'>创建项目后，还可根据需要创建其他活动</div>
+                        <div class='help-block'>创建项目后，还可创建更多活动</div>
                         <hr class='hide'>
                         <div class='form-group hide'>
                             <table class='table table-bordered' style='margin:0'>
@@ -162,36 +162,36 @@
                             <label>参与用户</label>
                             <div class='radio' style='margin-top:0;'>
                                 <label>
-                                    <input type='radio' value='none' ng-model="proto.entryRule.scope">不限用户来源</label>
+                                    <input type='radio' value='none' ng-model="entryRule.scope">不限用户来源</label>
                             </div>
                             <div class='radio'>
                                 <label>
-                                    <input type='radio' value='sns' ng-model="proto.entryRule.scope">限公众号关注用户访问</label>
+                                    <input type='radio' value='sns' ng-model="entryRule.scope">限公众号<span ng-if="snsNames.length===1">【{{sns[snsNames[0]].title}}】</span>关注用户访问</label>
                             </div>
                             <div class='radio' style='margin-bottom:0;'>
                                 <label>
-                                    <input type='radio' value='member' ng-model="proto.entryRule.scope">限通讯录联系人访问 <span class='glyphicon glyphicon-question-sign' uib-tooltip='通讯录支持自定义用户信息并提供审核机制，并且可以在不同活动中重复使用'></span></label>
+                                    <input type='radio' value='member' ng-model="entryRule.scope">限通讯录联系人访问 <span class='glyphicon glyphicon-question-sign' uib-tooltip='通讯录支持自定义用户信息并提供审核机制，并且可以在不同活动中重复使用'></span></label>
                             </div>
                         </div>
-                        <div class='list-group' ng-if="proto.entryRule.scope==='member'">
-                            <div class='list-group-item' ng-repeat="mschema in proto.entryRule.mschemas">
+                        <div class='list-group' ng-if="entryRule.scope==='member'">
+                            <div class='list-group-item' ng-repeat="mschema in entryRule.mschemas">
                                 <span>{{mschema.title}}</span>
                                 <button class='btn btn-default btn-xs pull-right' ng-click="removeMschema(mschema)"><span class='glyphicon glyphicon-remove'></span></button>
                             </div>
                             <button class='btn btn-success btn-block' ng-click="chooseMschema()"><span class='glyphicon glyphicon-plus'></span> 选择通讯录</button>
                         </div>
-                        <div ng-if="proto.entryRule.scope==='sns'&&snsCount>=1">
+                        <div ng-if="entryRule.scope==='sns'&&snsNames.length>1">
                             <div class='checkbox' ng-if="sns.wx">
                                 <label>
-                                    <input type='checkbox' ng-true-value="'Y'" ng-false-value="" ng-model='proto.entryRule.sns.wx'>微信公众号关注用户</label>
-                            </div>
-                            <div class='checkbox' ng-if="sns.qy">
-                                <label>
-                                    <input type='checkbox' ng-true-value="'Y'" ng-false-value="" ng-model='proto.entryRule.sns.qy'>微信企业号关注用户</label>
+                                    <input type='checkbox' ng-true-value="'Y'" ng-false-value="" ng-model='entryRule.sns.wx'>微信公众号【{{sns.wx.title}}】关注用户</label>
                             </div>
                             <div class='checkbox' ng-if="sns.yx">
                                 <label>
-                                    <input type='checkbox' ng-true-value="'Y'" ng-false-value="" ng-model='proto.entryRule.sns.yx'>易信公众号关注用户</label>
+                                    <input type='checkbox' ng-true-value="'Y'" ng-false-value="" ng-model='entryRule.sns.yx'>易信公众号【{{sns.yx.title}}】关注用户</label>
+                            </div>
+                            <div class='checkbox' ng-if="sns.qy">
+                                <label>
+                                    <input type='checkbox' ng-true-value="'Y'" ng-false-value="" ng-model='entryRule.sns.qy'>微信企业号【{{sns.qy.title}}】关注用户</label>
                             </div>
                         </div>
                         <hr>
@@ -202,7 +202,7 @@
                         </div>
                         <div class='radio'>
                             <label>
-                                <input type='radio' value='mschema' ng-model="proto.userApp" ng-disabled="!proto.entryRule.mschemas.length"> 将指定的【通讯录】作为项目用户名单</label>
+                                <input type='radio' value='mschema' ng-model="proto.userApp" ng-disabled="!entryRule.mschemas.length"> 将指定的【通讯录】作为项目用户名单</label>
                         </div>
                         <div class='radio'>
                             <label>

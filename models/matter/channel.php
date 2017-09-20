@@ -328,6 +328,13 @@ class channel_model extends article_base {
 					!empty($matter->matter_mg_tag) && $matter->matter_mg_tag = json_decode($matter->matter_mg_tag);
 				}
 			}
+			$q1[0] = 'count(*)';
+			$total = (int) $this->query_val_ss($q1);
+
+			$data = new \stdClass;
+			$data->matters = $matters;
+			$data->total = $total;
+			return $data;
 		} else {
 			$q1 = [
 				'cm.create_at,cm.matter_type,cm.matter_id',
@@ -345,7 +352,8 @@ class channel_model extends article_base {
 			}
 			$matters = []; // 可用的素材
 			$simpleMatters = $this->query_objs_ss($q1, $q2);
-
+			$q1[0] = 'count(*)';
+			$total = (int) $this->query_val_ss($q1);
 			foreach ($simpleMatters as $sm) {
 				/* 检查素材是否可用 */
 				$valid = true;
@@ -391,8 +399,12 @@ class channel_model extends article_base {
 				}
 				$matters[] = $fullMatter;
 			}
+
+			$data = new \stdClass;
+			$data->matters = $matters;
+			$data->total = $total;
+			return $data;
 		}
-		return $matters;
 	}
 	/**
 	 * 频道中增加素材

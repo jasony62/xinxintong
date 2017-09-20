@@ -38,7 +38,7 @@ define(['main'], function(ngApp) {
             return defer.promise;
         };
     }]);
-    ngApp.provider.controller('ctrlNotice', ['$scope', 'http2', '$uibModal', 'serNotice', function($scope, http2, $uibModal, serNotice) {
+    ngApp.provider.controller('ctrlNotice', ['$scope', 'http2', '$uibModal', 'serNotice', 'noticebox', function($scope, http2, $uibModal, serNotice, noticebox) {
         var setMappingPropName = function() {
             angular.forEach($scope.config.mapping, function(pair, tmplProp) {
                 var mm = $scope.config.mapping;
@@ -159,6 +159,7 @@ define(['main'], function(ngApp) {
             serNotice.setup(notice, posted).then(function(config) {
                 $scope.config = $scope.editing.tmplmsgConfig = config;
                 setMappingPropName();
+                noticebox.success('保存成功');
             });
         };
         $scope.clean = function() {

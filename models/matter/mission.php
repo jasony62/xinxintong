@@ -129,13 +129,13 @@ class mission_model extends app_base {
 	 *
 	 * @param object $user
 	 */
-	public function &byAcl(&$user, $options = array()) {
+	public function &byAcl(&$oUser, $options = []) {
 		$fields = 'mission.*,site.name site_name';
-		$limit = isset($options['limit']) ? $options['limit'] : (object) array('page' => 1, 'size' => 20);
+		$limit = isset($options['limit']) ? $options['limit'] : (object) ['page' => 1, 'size' => 20];
 		$q = [
 			$fields,
 			'xxt_mission_acl mission,xxt_site site,xxt_mission m',
-			"mission.coworker='{$user->id}' and mission.state=1 and mission.last_invite='Y' and mission.siteid=site.id and mission.mission_id = m.id and m.state=1",
+			"mission.coworker='{$oUser->id}' and mission.state=1 and mission.last_invite='Y' and mission.siteid=site.id and mission.mission_id = m.id and m.state=1",
 		];
 		if (isset($options['bySite'])) {
 			$q[2] .= " and mission.siteid='{$options['bySite']}'";
@@ -156,14 +156,37 @@ class mission_model extends app_base {
 		if ($missions = $this->query_objs_ss($q, $q2)) {
 			/* 项目下活动的数量 */
 			foreach ($missions as &$oMission) {
-				$qMatterNum = ['select matter_type,count(*) matter_num from xxt_mission_matter where mission_id=' . $oMission->mission_id . ' group by matter_type'];
+				$qMatterNum = ['select matter_type,scenario,count(*) matter_num from xxt_mission_matter where mission_id=' . $oMission->mission_id . ' group by matter_type,scenario'];
 				$matterNums = $this->query_objs($qMatterNum);
 				$oMatterNums = new \stdClass;
 				$oMatterNums->num = 0;
 				foreach ($matterNums as $oMn) {
-					$oMatterNums->{$oMn->matter_type} = (int) $oMn->matter_num;
-					if (!in_array($oMn->matter_type, ['article', 'news', 'channel', 'link'])) {
-						$oMatterNums->num += $oMatterNums->{$oMn->matter_type};
+					switch ($oMn->matter_type) {
+					case 'enroll':
+						if (!isset($oMatterNums->enroll)) {
+							$oMatterNums->enroll = new \stdClass;
+							$oMatterNums->enroll->num = 0;
+						}
+						if (!empty($oMn->scenario)) {
+							$oMatterNums->enroll->{$oMn->scenario} = (int) $oMn->matter_num;
+						}
+						$oMatterNums->enroll->num += (int) $oMn->matter_num;
+						break;
+					case 'group':
+						if (!isset($oMatterNums->group)) {
+							$oMatterNums->group = new \stdClass;
+							$oMatterNums->group->num = 0;
+						}
+						if (!empty($oMn->scenario)) {
+							$oMatterNums->group->{$oMn->scenario} = (int) $oMn->matter_num;
+						}
+						$oMatterNums->group->num += (int) $oMn->matter_num;
+						break;
+					default:
+						$oMatterNums->{$oMn->matter_type} = (int) $oMn->matter_num;
+					}
+					if (!in_array($oMn->matter_type, ['news', 'channel', 'link'])) {
+						$oMatterNums->num += (int) $oMn->matter_num;
 					}
 				}
 				$oMission->matter = $oMatterNums;

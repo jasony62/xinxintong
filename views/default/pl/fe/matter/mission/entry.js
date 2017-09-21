@@ -77,11 +77,6 @@ define(['frame'], function(ngApp) {
         $scope.shiftTimerTask = function(model) {
             var oOneTask;
             oOneTask = oTimerTask[model];
-            if ($scope.mission.user_app_id == '') {
-                oOneTask.state = 'N';
-                alert('没有指定用户名单应用');
-                return;
-            }
             if (oOneTask.state === 'Y') {
                 var oConfig;
                 oConfig = {
@@ -126,7 +121,6 @@ define(['frame'], function(ngApp) {
     }]);
     ngApp.provider.controller('ctrlReceiver', ['$scope', 'http2', '$interval', '$uibModal', 'srvSite', function($scope, http2, $interval, $uibModal, srvSite) {
         var baseURL = '/rest/pl/fe/matter/mission/receiver/';
-
         function listReceivers(app) {
             http2.get(baseURL + 'list?site=' + app.siteid + '&app=' + app.id, function(rsp) {
                 var map = { wx: '微信', yx: '易信' };

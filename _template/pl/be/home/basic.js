@@ -84,7 +84,7 @@ ngApp.provider.controller('ctrlHome', ['$scope', '$http', '$uibModal', 'tmsFavor
         var url;
         url = '/rest/site/fe/matter/channel/mattersGet';
         url += '?site=' + item.siteid + '&id=' + item.matter_id;
-        url += '&page=' +  $scope.page.at + '&size=1';
+        url += '&page=' +  $scope.page.at + '&size=10';
         $http.get(url).success(function(rsp) {
             if($scope.page.at==1) {
                 _channelMatters.push({ title: item.title, siteid: item.siteid, matter_id: item.matter_id, data: rsp.data.matters, total:rsp.data.total});

@@ -127,36 +127,49 @@ class mission_model extends app_base {
 	/**
 	 * 根据用户和访问控制列表返回任务
 	 *
-	 * @param object $user
+	 * @param object $oUser
 	 */
-	public function &byAcl(&$oUser, $options = []) {
-		$fields = 'mission.*,site.name site_name';
-		$limit = isset($options['limit']) ? $options['limit'] : (object) ['page' => 1, 'size' => 20];
+	public function &byAcl(&$oUser, $aOptions = []) {
+		$fields = isset($aOptions['fields']) ? $aOptions['fields'] : '*';
+		$limit = isset($aOptions['limit']) ? $aOptions['limit'] : (object) ['page' => 1, 'size' => 20];
 		$q = [
 			$fields,
-			'xxt_mission_acl mission,xxt_site site,xxt_mission m',
-			"mission.coworker='{$oUser->id}' and mission.state=1 and mission.last_invite='Y' and mission.siteid=site.id and mission.mission_id = m.id and m.state=1",
+			'xxt_mission m',
+			"m.state=1 and exists(select 1 from xxt_mission_acl a where a.coworker='{$oUser->id}' and a.last_invite='Y' and a.mission_id=m.id)",
 		];
-		if (isset($options['bySite'])) {
-			$q[2] .= " and mission.siteid='{$options['bySite']}'";
+		if (isset($aOptions['bySite'])) {
+			$q[2] .= " and m.siteid='{$aOptions['bySite']}'";
 		}
-		if (isset($options['byTitle'])) {
-			$q[2] .= " and mission.title like '%{$options['byTitle']}%'";
+		if (isset($aOptions['byTitle'])) {
+			$q[2] .= " and m.title like '%{$aOptions['byTitle']}%'";
 		}
-		if (!empty($options['byTags'])) {
-			foreach ($options['byTags'] as $tag) {
+		if (isset($aOptions['byStar']) && $aOptions['byStar'] === 'Y') {
+			$q[2] .= " and exists(select 1 from xxt_account_topmatter t where t.matter_type='mission' and t.matter_id=m.id and userid='{$oUser->id}')";
+		}
+		if (!empty($aOptions['byTags'])) {
+			foreach ($aOptions['byTags'] as $tag) {
 				$q[2] .= " and m.matter_mg_tag like '%" . $this->escape($tag->id) . "%'";
 			}
 		}
 		$q2 = [
-			'o' => 'mission.invite_at desc',
+			'o' => 'm.create_at desc',
 			'r' => ['o' => ($limit->page - 1) * $limit->size, 'l' => $limit->size],
 		];
 
 		if ($missions = $this->query_objs_ss($q, $q2)) {
-			/* 项目下活动的数量 */
-			foreach ($missions as &$oMission) {
-				$qMatterNum = ['select matter_type,scenario,count(*) matter_num from xxt_mission_matter where mission_id=' . $oMission->mission_id . ' group by matter_type,scenario'];
+			foreach ($missions as $oMission) {
+				$oMission->type = 'mission';
+				/* 项目是否已经星标 */
+				$qStar = [
+					'id',
+					'xxt_account_topmatter',
+					['matter_id' => $oMission->id, 'matter_type' => 'mission', 'userid' => $oUser->id],
+				];
+				if ($oStar = $this->query_obj_ss($qStar)) {
+					$oMission->star = $oStar->id;
+				}
+				/* 项目下活动的数量 */
+				$qMatterNum = ['select matter_type,scenario,count(*) matter_num from xxt_mission_matter where mission_id=' . $oMission->id . ' group by matter_type,scenario'];
 				$matterNums = $this->query_objs($qMatterNum);
 				$oMatterNums = new \stdClass;
 				$oMatterNums->num = 0;
@@ -279,8 +292,8 @@ class mission_model extends app_base {
 	/**
 	 *
 	 */
-	public function &byMatter($siteId, $matterId, $matterType, $options = array()) {
-		$fields = isset($options['fields']) ? $options['fields'] : '*';
+	public function &byMatter($siteId, $matterId, $matterType, $aOptions = array()) {
+		$fields = isset($aOptions['fields']) ? $aOptions['fields'] : '*';
 
 		$q = array(
 			$fields,

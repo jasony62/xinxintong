@@ -53,36 +53,34 @@ class main extends \pl\fe\matter\base {
 	 *
 	 */
 	public function list_action($site = null, $mission = null) {
-		if (false === ($user = $this->accountUser())) {
+		if (false === ($oUser = $this->accountUser())) {
 			return new \ResponseTimeout();
 		}
 		if (empty($site) && empty($mission)) {
 			return new \ParameterError();
 		}
 
-		$post = $this->getPostJson();
+		$oPosted = $this->getPostJson();
 		$modelWall = $this->model('matter\wall');
+		$q = [
+			'*',
+			'xxt_wall w',
+		];
 		if (!empty($mission)) {
-			$q = [
-				'*',
-				'xxt_wall',
-				"state = 1 and mission_id = " . $modelWall->escape($mission),
-			];
+			$q[2] = "state = 1 and mission_id = " . $modelWall->escape($mission);
 		} else {
-			$q = [
-				'*',
-				'xxt_wall',
-				"state = 1 and siteid = '" . $modelWall->escape($site) . "'",
-			];
+			$q[2] = "state = 1 and siteid = '" . $modelWall->escape($site) . "'";
 		}
-
-		if(!empty($post->byTitle)){
-			$q[2] .= " and title like '%". $modelWall->escape($post->byTitle) ."%'";
+		if (!empty($oPosted->byTitle)) {
+			$q[2] .= " and title like '%" . $modelWall->escape($oPosted->byTitle) . "%'";
 		}
-		if(!empty($post->byTags)){
-			foreach($post->byTags as $tag){
+		if (!empty($oPosted->byTags)) {
+			foreach ($oPosted->byTags as $tag) {
 				$q[2] .= " and matter_mg_tag like '%" . $modelWall->escape($tag->id) . "%'";
 			}
+		}
+		if (isset($oPosted->byStar) && $oPosted->byStar === 'Y') {
+			$q[2] .= " and exists(select 1 from xxt_account_topmatter t where t.matter_type='wall' and t.matter_id=w.id and userid='{$oUser->id}')";
 		}
 		$q2['o'] = 'create_at desc';
 
@@ -97,7 +95,7 @@ class main extends \pl\fe\matter\base {
 			}
 		}
 
-		return new \ResponseData($walls);
+		return new \ResponseData(['apps' => $walls, 'total' => count($walls)]);
 	}
 	/**
 	 * 创建一个信息墙
@@ -255,7 +253,7 @@ class main extends \pl\fe\matter\base {
 	/**
 	 * 复制信息墙
 	 */
-	public function copy_action($site, $app, $mission = null){
+	public function copy_action($site, $app, $mission = null) {
 		if (false === ($user = $this->accountUser())) {
 			return new \ResponseTimeout();
 		}
@@ -293,19 +291,19 @@ class main extends \pl\fe\matter\base {
 		$newWall->body_css = $modelWall->escape($oApp->body_css);
 		$newWall->skip_approve = $oApp->skip_approve;
 		$newWall->push_others = $oApp->push_others;
-		$newWall->entry_ele  = $modelWall->escape($oApp->entry_ele );
+		$newWall->entry_ele = $modelWall->escape($oApp->entry_ele);
 		/* 记录和任务的关系 */
 		if (!empty($mission)) {
 			$modelMis = $this->model('matter\mission');
-			if($mission = $modelMis->byId($mission)) {
+			if ($mission = $modelMis->byId($mission)) {
 				$newWall->mission_id = $mission->id;
-			}else{
+			} else {
 				return new \ResponseError('指定的项目不存在');
 			}
 		}
 
 		$modelWall->insert('xxt_wall', $newWall, false);
-		
+
 		/* 记录和任务的关系 */
 		if (isset($mission->id)) {
 			$newWall->type = 'wall';
@@ -329,7 +327,7 @@ class main extends \pl\fe\matter\base {
 				'js' => file_get_contents($templateDir . 'basic.js'),
 			);
 			$modelCode->modify($newPage->code_id, $data);
-		}else{
+		} else {
 			foreach ($oPages as $oPage) {
 				$wp = [
 					'name' => $modelPage->escape($oPage->name),
@@ -366,7 +364,7 @@ class main extends \pl\fe\matter\base {
 	/**
 	 * 删除信息墙
 	 */
-	public function remove_action($site, $app){
+	public function remove_action($site, $app) {
 		if (false === ($user = $this->accountUser())) {
 			return new \ResponseTimeout();
 		}
@@ -387,30 +385,30 @@ class main extends \pl\fe\matter\base {
 		$q = [
 			'count(*)',
 			'xxt_wall_enroll',
-			['wid' => $oApp->id]
+			['wid' => $oApp->id],
 		];
-		$userNum = (int)$modelWall->query_val_ss($q);
+		$userNum = (int) $modelWall->query_val_ss($q);
 		/*打标记*/
-		if($userNum > 0 ){
+		if ($userNum > 0) {
 			$rst = $modelWall->update('xxt_wall_enroll', ['close_at' => time()], ['wid' => $oApp->id]);
 			$rst = $modelWall->update('xxt_wall', ['state' => 0], ['id' => $oApp->id]);
 			/* 记录操作日志 */
 			$this->model('matter\log')->matterOp($site, $user, $oApp, 'Recycle');
-		}else{
+		} else {
 			/*删除信息墙*/
 			$rst = $modelWall->delete('xxt_wall_log', "wid='$oApp->id'");
 			$d = [
 				'code_id',
 				'xxt_wall_page',
-				['wid' => $oApp->id]
+				['wid' => $oApp->id],
 			];
-			if($pages = $modelWall->query_objs_ss($d)) {
+			if ($pages = $modelWall->query_objs_ss($d)) {
 				$pages2 = [];
 				foreach ($pages as $page) {
 					$pages2[] = $page->code_id;
 				}
 				$pages2 = implode(',', $pages2);
-				
+
 				$rst = $modelWall->delete('xxt_code_page', "id in ($pages2)");
 				$rst = $modelWall->delete('xxt_code_external', "code_id in ($pages2)");
 				$rst = $modelWall->delete('xxt_wall_page', "Wid='$oApp->id'");

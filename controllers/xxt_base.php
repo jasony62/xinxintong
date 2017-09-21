@@ -250,13 +250,13 @@ class xxt_base extends TMS_CONTROLLER {
 	 */
 	public function sendByOpenid($mpid, $openid, $message, $openid_src = null) {
 		if (empty($openid_src)) {
-			$user=$model->query_obj_ss([
+			$user = $model->query_obj_ss([
 				'ufrom',
 				'xxt_site_account',
-				"siteid='$mpid' and (wx_openid='$openid' or yx_openid='$openid' or qy_openid='$openid')"
+				"siteid='$mpid' and (wx_openid='$openid' or yx_openid='$openid' or qy_openid='$openid')",
 			]);
-			$mpa = $this->model("sns\\".$user->ufrom)->bySite($mpid);
-			$mpproxy = $this->model('sns\\'.$user->ufrom.'\\proxy', $mpa);
+			$mpa = $this->model("sns\\" . $user->ufrom)->bySite($mpid);
+			$mpproxy = $this->model('sns\\' . $user->ufrom . '\\proxy', $mpa);
 			$mpa->yx_p2p = $mpa->can_p2p;
 			$mpa->mpsrc = $user->ufrom;
 		} else {
@@ -313,7 +313,7 @@ class xxt_base extends TMS_CONTROLLER {
 		/*模板定义*/
 		is_object($data) && $data = (array) $data;
 		$tmpl = $this->model('matter\tmplmsg')->byId($tmplmsgId, array('cascaded' => 'Y'));
-		$model=$this->model('matter\log');
+		$model = $this->model('matter\log');
 		/*发送消息*/
 		if (!empty($tmpl->templateid)) {
 			/*只有微信号才有模板消息ID*/
@@ -337,10 +337,10 @@ class xxt_base extends TMS_CONTROLLER {
 			$msgid = $rst[1]->msgid;
 		} else {
 			/*如果不是微信号，将模板消息转换文本消息*/
-			$user=$model->query_obj_ss([
+			$user = $model->query_obj_ss([
 				'ufrom',
 				'xxt_site_account',
-				"siteid='$mpid' and (wx_openid='$openid' or yx_openid='$openid' or qy_openid='$openid')"
+				"siteid='$mpid' and (wx_openid='$openid' or yx_openid='$openid' or qy_openid='$openid')",
 			]);
 			$txt = array();
 			$txt[] = $tmpl->title;
@@ -687,41 +687,6 @@ class xxt_base extends TMS_CONTROLLER {
 	 */
 	public function askFollow_action($mpid) {
 		$this->askFollow($mpid);
-	}
-	/**
-	 * 获得公众号的公共配置信息
-	 *
-	 * $runningMpid 当前正在运行的公众号
-	 */
-	public function getMpSetting($runningMpid) {
-		$q = array(
-			'can_article_remark,header_page_id,footer_page_id',
-			'xxt_mpsetting',
-			"mpid='$runningMpid'",
-		);
-		$setting = $this->model()->query_obj_ss($q);
-
-		$mp = $this->model('mp\mpaccount')->byId($runningMpid, 'parent_mpid');
-		if (!empty($mp->parent_mpid)) {
-			$q = array(
-				'can_article_remark,header_page_id,footer_page_id',
-				'xxt_mpsetting',
-				"mpid='$mp->parent_mpid'",
-			);
-			$psetting = $this->model()->query_obj_ss($q);
-			$setting->header_page_id === '0' && $psetting->header_page_id !== '0' && $setting->header_page_id = $psetting->header_page_id;
-			$setting->footer_page_id === '0' && $psetting->footer_page_id !== '0' && $setting->footer_page_id = $psetting->footer_page_id;
-			$setting->can_article_remark === 'N' && $psetting->can_article_remark === 'Y' && $setting->can_article_remark = 'Y';
-		}
-
-		if ($setting->header_page_id !== '0') {
-			$setting->header_page = $this->model('code\page')->byId($setting->header_page_id);
-		}
-		if ($setting->footer_page_id) {
-			$setting->footer_page = $this->model('code\page')->byId($setting->footer_page_id);
-		}
-
-		return $setting;
 	}
 	/**
 	 * 记录访问日志

@@ -261,18 +261,15 @@ class main extends \site\fe\matter\base {
 		 */
 		$mid = null;
 		if ($r->access_control) {
-			$aAuthapis = explode(',', $r->authapis);
-			if ($members = $this->getCookieMember($site, $aAuthapis)) {
-				$mid = $members[0]->mid;
-			}
-
+			die('unsupported');
 		}
 
-		$fan = $this->getCookieOAuthUser($site);
+		//$fan = $this->getCookieOAuthUser($site);
 
-		$myAwards = $model->getLog($app, $mid, $fan->openid, true);
+		//$myAwards = $model->getLog($app, $mid, $fan->openid, true);
 
-		return new \ResponseData($myAwards);
+		//return new \ResponseData($myAwards);
+		return new \ResponseData([]);
 	}
 	/**
 	 * 抽取奖品

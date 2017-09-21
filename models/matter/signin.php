@@ -112,23 +112,26 @@ class signin_model extends app_base {
 	/**
 	 * 返回签到活动列表
 	 */
-	public function &bySite($siteId, $page = null, $size = null, $onlySns = 'N', $options = []) {
+	public function &bySite($siteId, $page = null, $size = null, $onlySns = 'N', $aOptions = []) {
 		$result = new \stdClass;
 		$q = [
-			"*,'signin' type",
-			'xxt_signin',
+			"*",
+			'xxt_signin s',
 			"state<>0 and siteid='$siteId'",
 		];
-		if (!empty($options['byTitle'])) {
-			$q[2] .= " and title like '%" . $this->escape($options['byTitle']) . "%'";
+		if (!empty($aOptions['byTitle'])) {
+			$q[2] .= " and title like '%" . $this->escape($aOptions['byTitle']) . "%'";
 		}
-		if (!empty($options['byTags'])) {
-			foreach ($options['byTags'] as $tag) {
+		if (!empty($aOptions['byTags'])) {
+			foreach ($aOptions['byTags'] as $tag) {
 				$q[2] .= " and matter_mg_tag like '%" . $this->escape($tag->id) . "%'";
 			}
 		}
 		if ($onlySns === 'Y') {
 			$q[2] .= " and entry_rule like '%\"scope\":\"sns\"%'";
+		}
+		if (isset($aOptions['byStar'])) {
+			$q[2] .= " and exists(select 1 from xxt_account_topmatter t where t.matter_type='signin' and t.matter_id=s.id and userid='{$aOptions['byStar']}')";
 		}
 		$q2['o'] = 'modify_at desc';
 		if ($page && $size) {
@@ -136,6 +139,23 @@ class signin_model extends app_base {
 			$q2['r']['l'] = $size;
 		}
 		$result->apps = $this->query_objs_ss($q, $q2);
+		if (count($result->apps)) {
+			foreach ($result->apps as $oApp) {
+				$oApp->type = 'signin';
+				/* 是否已经星标 */
+				if ($aOptions['user']) {
+					$oUser = $aOptions['user'];
+					$qStar = [
+						'id',
+						'xxt_account_topmatter',
+						['matter_id' => $oApp->id, 'matter_type' => 'signin', 'userid' => $oUser->id],
+					];
+					if ($oStar = $this->query_obj_ss($qStar)) {
+						$oApp->star = $oStar->id;
+					}
+				}
+			}
+		}
 		if ($page && $size) {
 			$q[0] = 'count(*)';
 			$total = (int) $this->query_val_ss($q);
@@ -149,7 +169,7 @@ class signin_model extends app_base {
 	/**
 	 * 返回签到活动列表
 	 */
-	public function &byMission($mission, $options = [], $page = null, $size = null) {
+	public function &byMission($mission, $aOptions = [], $page = null, $size = null) {
 		$mission = $this->escape($mission);
 		$result = new \stdClass;
 		$q = [
@@ -157,15 +177,15 @@ class signin_model extends app_base {
 			'xxt_signin',
 			"state<>0 and mission_id='$mission'",
 		];
-		if (isset($options['where'])) {
-			foreach ($options['where'] as $key => $value) {
+		if (isset($aOptions['where'])) {
+			foreach ($aOptions['where'] as $key => $value) {
 				$key = $this->escape($key);
 				$value = $this->escape($value);
 				$q[2] .= " and " . $key . " = '" . $value . "'";
 			}
 		}
-		if (!empty($options['byTitle'])) {
-			$q[2] .= " and title like '%" . $this->escape($options['byTitle']) . "%'";
+		if (!empty($aOptions['byTitle'])) {
+			$q[2] .= " and title like '%" . $this->escape($aOptions['byTitle']) . "%'";
 		}
 		$q2['o'] = 'modify_at desc';
 		if ($page && $size) {
@@ -186,10 +206,10 @@ class signin_model extends app_base {
 	/**
 	 * 返回和登记活动关联的签到活动
 	 */
-	public function &byEnrollApp($enrollAppId, $options = []) {
-		$fields = isset($options['fields']) ? $options['fields'] : '*';
-		$cascaded = isset($options['cascaded']) ? $options['cascaded'] : 'Y';
-		$mapRounds = isset($options['mapRounds']) ? $options['mapRounds'] : 'N';
+	public function &byEnrollApp($enrollAppId, $aOptions = []) {
+		$fields = isset($aOptions['fields']) ? $aOptions['fields'] : '*';
+		$cascaded = isset($aOptions['cascaded']) ? $aOptions['cascaded'] : 'Y';
+		$mapRounds = isset($aOptions['mapRounds']) ? $aOptions['mapRounds'] : 'N';
 
 		$q = [
 			$fields,
@@ -202,8 +222,8 @@ class signin_model extends app_base {
 		if (count($apps) && $cascaded === 'Y') {
 			$modelRnd = \TMS_APP::M('matter\signin\round');
 			foreach ($apps as &$app) {
-				$options = $mapRounds === 'Y' ? ['mapRounds' => 'Y'] : [];
-				$rounds = $modelRnd->byApp($app->id, $options);
+				$aOptions = $mapRounds === 'Y' ? ['mapRounds' => 'Y'] : [];
+				$rounds = $modelRnd->byApp($app->id, $aOptions);
 				$app->rounds = $rounds;
 			}
 		}

@@ -49,94 +49,7 @@ class main extends \pl\fe\base {
 		return new \ResponseData($matters);
 	}
 	/**
-	 * 当前用户可见的所有公众号
-	 */
-	public function mpaccounts_action($pmpid = null, $asparent = 'N') {
-		/**
-		 * 当前用户是公众号的创建人或者被授权人
-		 */
-		$uid = \TMS_CLIENT::get_client_uid();
-
-		$w = "a.asparent='$asparent' and a.state=1 and (a.creater='$uid'
-            or exists(
-                select 1
-                from xxt_mpadministrator ma
-                where a.mpid=ma.mpid and ma.uid='$uid'
-            )
-            or exists(
-                select 1
-                from xxt_mppermission p
-                where a.mpid=p.mpid and p.uid='$uid'
-            ))" . (empty($pmpid) ? '' : " and parent_mpid='$pmpid'");
-		$q = array(
-			'parent_mpid,mpid,asparent,name,create_at,yx_joined,wx_joined,qy_joined',
-			'xxt_mpaccount a',
-			$w,
-		);
-		$q2 = array('o' => 'create_at desc');
-
-		$mps = $this->model()->query_objs_ss($q, $q2);
-
-		return new \ResponseData($mps);
-	}
-	/**
-	 * create an mp account basic information.
-	 *
-	 * $name
-	 * $pmpid parent mp id.
-	 * $asparent
-	 */
-	public function createmp_action($name = '新公众账号', $pmpid = '', $asparent = 'N') {
-		if ($asparent === 'Y') {
-			$d['token'] = uniqid();
-		}
-
-		$d['name'] = $name;
-		$d['asparent'] = $asparent;
-		$d['parent_mpid'] = $pmpid;
-		$mpid = $this->model('mp\mpaccount')->create($d);
-
-		return new \ResponseData($mpid);
-	}
-	/**
-	 * 删除公众号
-	 *
-	 * 不删除数据，只是打标记
-	 *
-	 * 1、如果是子公众号，在已经开通的情况下不允许删除
-	 * 2、如果是父公众号，在子账号已经开通的情况下不允许删除，否则将账号群及其下的子账号群一并删除
-	 */
-	public function removemp_action($mpid) {
-		$act = $this->model('mp\mpaccount')->byId($mpid);
-		if ($act->asparent === 'N') {
-			if ($act->yx_joined === 'Y' || $act->wx_joined === 'Y') {
-				return new \ResponseError('公众号已经开通，不允许删除！');
-			}
-
-		} else {
-			$q = array(
-				'count(*)',
-				'xxt_mpaccount',
-				"parent_mpid='$mpid' and (yx_joined='Y' or wx_joined='Y')",
-			);
-			if ((int) $this->model()->query_val_ss($q) > 0) {
-				return new \ResponseError('公众号群下的子公众号已经开通，不允许删除！');
-			}
-
-		}
-		/**
-		 * 做标记
-		 */
-		$rst = $this->model()->update(
-			'xxt_mpaccount',
-			array('state' => 0),
-			"mpid='$mpid' or parent_mpid='$mpid'"
-		);
-
-		return new \ResponseData($rst);
-	}
-	/**
-	 * 个人工作台素材置顶
+	 * 个人工作台素材星标
 	 *
 	 * @param int $id 是日志记录的ID
 	 */
@@ -165,11 +78,11 @@ class main extends \pl\fe\base {
 		$matter->type = $matterType;
 		$model->matterOp($site, $user, $matter, 'top');
 
-		$q = array(
+		$q = [
 			'matter_id,matter_type,matter_title',
 			'xxt_log_matter_op',
 			['siteid' => $site, 'matter_id' => $matterId, 'matter_type' => $matterType, 'user_last_op' => 'Y', 'operator' => $user->id],
-		);
+		];
 
 		$one = $model->query_obj_ss($q);
 
@@ -239,13 +152,13 @@ class main extends \pl\fe\base {
 	 * 删除置顶
 	 */
 	public function delTop_action($site, $id, $type) {
-		if (false === ($user = $this->accountUser())) {
+		if (false === ($oUser = $this->accountUser())) {
 			return new \ResponseTimeout();
 		}
 
 		$rst = $this->model()->delete(
 			'xxt_account_topmatter',
-			"siteid='$site' and userid='$user->id' and matter_id='$id' and matter_type='$type'"
+			['siteid' => $site, 'userid' => $oUser->id, 'matter_id' => $id, 'matter_type' => $type]
 		);
 
 		return new \ResponseData($rst);

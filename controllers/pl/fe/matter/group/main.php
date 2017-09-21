@@ -57,51 +57,62 @@ class main extends \pl\fe\matter\base {
 	 * 返回分组活动列表
 	 */
 	public function list_action($site = null, $mission = null, $page = 1, $size = 30, $cascaded = 'N') {
-		if (false === ($user = $this->accountUser())) {
+		if (false === ($oUser = $this->accountUser())) {
 			return new \ResponseTimeout();
 		}
-		$post = $this->getPostJson();
-		$result = ['apps' => null, 'total' => 0];
-		$model = $this->model('matter\group');
+		$oPosted = $this->getPostJson();
+		$modelGrp = $this->model('matter\group');
 		$q = [
 			"*",
-			'xxt_group',
+			'xxt_group g',
 			"state<>0",
 		];
-		if (!empty($post->byTitle)) {
-			$q[2] .= " and title like '%" . $model->escape($post->byTitle) . "%'";
+		if (!empty($oPosted->byTitle)) {
+			$q[2] .= " and title like '%" . $modelGrp->escape($oPosted->byTitle) . "%'";
 		}
-		if (!empty($post->byTags)) {
-			foreach ($post->byTags as $tag) {
-				$q[2] .= " and matter_mg_tag like '%" . $model->escape($tag->id) . "%'";
+		if (!empty($oPosted->byTags)) {
+			foreach ($oPosted->byTags as $tag) {
+				$q[2] .= " and matter_mg_tag like '%" . $modelGrp->escape($tag->id) . "%'";
 			}
 		}
 		if (empty($mission)) {
-			$site = $model->escape($site);
+			$site = $modelGrp->escape($site);
 			$q[2] .= " and siteid='$site'";
 		} else {
-			$mission = $model->escape($mission);
+			$mission = $modelGrp->escape($mission);
 			$q[2] .= " and mission_id='$mission'";
-			//按项目阶段筛选
-			if (isset($post->mission_phase_id) && !empty($post->mission_phase_id) && $post->mission_phase_id !== "ALL") {
-				$mission_phase_id = $model->escape($post->mission_phase_id);
+			/* 按项目阶段筛选 */
+			if (isset($oPosted->mission_phase_id) && !empty($oPosted->mission_phase_id) && $oPosted->mission_phase_id !== "ALL") {
+				$mission_phase_id = $modelGrp->escape($oPosted->mission_phase_id);
 				$q[2] .= " and mission_phase_id='$mission_phase_id'";
 			}
 		}
+		if (isset($oPosted->byStar) && $oPosted->byStar === 'Y') {
+			$q[2] .= " and exists(select 1 from xxt_account_topmatter t where t.matter_type='group' and t.matter_id=g.id and userid='{$oUser->id}')";
+		}
+
 		$q2['o'] = 'modify_at desc';
 		$q2['r']['o'] = ($page - 1) * $size;
 		$q2['r']['l'] = $size;
-		if ($apps = $model->query_objs_ss($q, $q2)) {
-			if ($cascaded === 'Y') {
-				$modelGrpRnd = $this->model('matter\group\round');
-				foreach ($apps as &$oApp) {
+
+		$result = ['apps' => null, 'total' => 0];
+
+		if ($apps = $modelGrp->query_objs_ss($q, $q2)) {
+			$modelGrpRnd = $this->model('matter\group\round');
+			foreach ($apps as &$oApp) {
+				$oApp->type = 'group';
+				if ($cascaded === 'Y') {
 					$rounds = $modelGrpRnd->byApp($oApp->id);
 					$oApp->rounds = $rounds;
 				}
 			}
 			$result['apps'] = $apps;
+		}
+		if ($page == 1) {
+			$result['total'] = count($apps) > 0 ? count($apps) : 0;
+		} else {
 			$q[0] = 'count(*)';
-			$total = (int) $model->query_val_ss($q);
+			$total = (int) $modelGrp->query_val_ss($q);
 			$result['total'] = $total;
 		}
 

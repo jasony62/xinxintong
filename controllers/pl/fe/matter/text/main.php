@@ -27,32 +27,35 @@ class main extends \pl\fe\matter\base {
 		}
 
 		$model = $this->model();
-		$post = $this->getPostJson();
+		$oPosted = $this->getPostJson();
 
 		$q = [
 			$fields,
-			'xxt_text',
-			"siteid = '". $model->escape($site) ."' and state = 1"
+			'xxt_text t',
+			"siteid = '" . $model->escape($site) . "' and state = 1",
 		];
-		if (!empty($post->byTitle)) {
-			$q[2] .= " and title like '%". $model->escape($post->byTitle) ."%'";
+		if (!empty($oPosted->byTitle)) {
+			$q[2] .= " and title like '%" . $model->escape($oPosted->byTitle) . "%'";
 		}
-		if (!empty($post->byTags)) {
-			foreach ($post->byTags as $tag) {
-				$q[2] .= " and matter_mg_tag like '%". $model->escape($tag->id) ."%'";
+		if (!empty($oPosted->byTags)) {
+			foreach ($oPosted->byTags as $tag) {
+				$q[2] .= " and matter_mg_tag like '%" . $model->escape($tag->id) . "%'";
 			}
+		}
+		if (isset($oPosted->byStar) && $oPosted->byStar === 'Y') {
+			$q[2] .= " and exists(select 1 from xxt_account_topmatter s where s.matter_type='text' and s.matter_id=t.id and s.userid='{$oUser->id}')";
 		}
 
 		$q2['o'] = 'create_at desc';
 		$texts = $model->query_objs_ss($q, $q2);
-		if($texts){
+		if ($texts) {
 			foreach ($texts as $text) {
 				!empty($text->matter_mg_tag) && $text->matter_mg_tag = json_decode($text->matter_mg_tag);
 				$text->type = 'text';
 			}
 		}
 
-		return new \ResponseData($texts);
+		return new \ResponseData(['docs' => $texts, 'total' => count($texts)]);
 	}
 	/**
 	 * 创建文本素材

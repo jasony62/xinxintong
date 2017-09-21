@@ -43,7 +43,6 @@ class main extends \pl\fe\matter\base {
 	/**
 	 * 获得可见的图文列表
 	 *
-	 * $id article's id
 	 * $page
 	 * $size
 	 * post options
@@ -54,28 +53,31 @@ class main extends \pl\fe\matter\base {
 	 *
 	 */
 	public function list_action($site, $page = 1, $size = 30) {
-		if (!($options = $this->getPostJson())) {
-			$options = new \stdClass;
+		if (false === ($oUser = $this->accountUser())) {
+			return new \ResponseTimeout();
 		}
 
-		$uid = \TMS_CLIENT::get_client_uid();
+		if (!($oOptions = $this->getPostJson())) {
+			$oOptions = new \stdClass;
+		}
+
 		$model = $this->model();
 		$site = $model->escape($site);
 		/**
 		 * select fields
 		 */
-		$s = "a.id,a.siteid,a.title,a.summary,a.create_at,a.modify_at,a.approved,a.creater,a.creater_name,a.creater_src,'$uid' uid";
+		$s = "a.id,a.siteid,a.title,a.summary,a.create_at,a.modify_at,a.approved,a.creater,a.creater_name,a.creater_src,'$oUser->id' uid";
 		$s .= ",a.read_num,a.score,a.remark_num,a.share_friend_num,a.share_timeline_num,a.download_num";
 		/**
 		 * where
 		 */
 		$w = "a.custom_body='Y' and a.siteid='$site' and a.state=1 and finished='Y'";
 		/*按名称过滤*/
-		if (!empty($options->byTitle)) {
-			$w .= " and a.title like '%" . $model->escape($options->byTitle) . "%'";
+		if (!empty($oOptions->byTitle)) {
+			$w .= " and a.title like '%" . $model->escape($oOptions->byTitle) . "%'";
 		}
-		if (!empty($options->byTags)) {
-			foreach ($options->byTags as $tag) {
+		if (!empty($oOptions->byTags)) {
+			foreach ($oOptions->byTags as $tag) {
 				$w .= " and a.matter_mg_tag like '%" . $model->escape($tag->id) . "%'";
 			}
 		}
@@ -83,21 +85,25 @@ class main extends \pl\fe\matter\base {
 		/**
 		 * 按频道过滤
 		 */
-		if (!empty($options->channel)) {
-			is_array($options->channel) && $options->channel = implode(',', $options->channel);
-			$whichChannel = "exists (select 1 from xxt_channel_matter c where a.id = c.matter_id and c.matter_type='article' and c.channel_id in ($options->channel))";
+		if (!empty($oOptions->channel)) {
+			is_array($oOptions->channel) && $oOptions->channel = implode(',', $oOptions->channel);
+			$whichChannel = "exists (select 1 from xxt_channel_matter c where a.id = c.matter_id and c.matter_type='article' and c.channel_id in ($oOptions->channel))";
 			$w .= " and $whichChannel";
+		}
+		if (isset($oOptions->byStar) && $oOptions->byStar === 'Y') {
+			$w .= " and exists(select 1 from xxt_account_topmatter t where t.matter_type='custom' and t.matter_id=a.id and userid='{$oUser->id}')";
 		}
 		/**
 		 * 按标签过滤
 		 */
-		!isset($options->order) && $options->order = '';
-		$q = array(
+		$q = [
 			$s,
 			'xxt_article a',
 			$w,
-		);
-		switch ($options->order) {
+		];
+		/* order */
+		!isset($oOptions->order) && $oOptions->order = '';
+		switch ($oOptions->order) {
 		case 'title':
 			$q2['o'] = 'CONVERT(a.title USING gbk ) COLLATE gbk_chinese_ci';
 			break;
@@ -113,29 +119,20 @@ class main extends \pl\fe\matter\base {
 		default:
 			$q2['o'] = 'a.modify_at desc';
 		}
-		/**
-		 * limit
-		 */
-		$q2['r'] = array('o' => ($page - 1) * $size, 'l' => $size);
+		/* limit */
+		$q2['r'] = ['o' => ($page - 1) * $size, 'l' => $size];
 
 		if ($articles = $model->query_objs_ss($q, $q2)) {
-			/**
-			 * amount
-			 */
 			$q[0] = 'count(*)';
 			$total = (int) $model->query_val_ss($q);
-			/**
-			 * 获得每个图文的tag
-			 */
 			foreach ($articles as &$a) {
-				$ids[] = $a->id;
-				$map[$a->id] = &$a;
 				$a->type = 'custom';
 			}
 
-			return new \ResponseData(array('customs' => $articles, 'total' => $total));
+			return new \ResponseData(array('customs' => $articles, 'docs' => $articles, 'total' => $total));
 		}
-		return new \ResponseData(array('customs' => array(), 'total' => 0));
+
+		return new \ResponseData(array('customs' => [], 'docs' => [], 'total' => 0));
 	}
 	/**
 	 * 获得指定的图文

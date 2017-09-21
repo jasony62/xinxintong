@@ -8,23 +8,10 @@ $sql[] = "drop table if exists account";
 $sql[] = "drop table if exists account_group";
 $sql[] = "drop table if exists account_in_group";
 /**
- * address book
- */
-$sql[] = "drop table if exists xxt_addressbook";
-$sql[] = "drop table if exists xxt_ab_dept";
-$sql[] = "drop table if exists xxt_ab_tag";
-$sql[] = "drop table if exists xxt_ab_person";
-$sql[] = "drop table if exists xxt_ab_person_dept";
-/**
  * app
  */
 $sql[] = "drop table if exists xxt_contribute";
 $sql[] = "drop table if exists xxt_contribute_user";
-/**
- * checkin
- */
-$sql[] = 'drop table if exists xxt_checkin';
-$sql[] = 'drop table if exists xxt_checkin_log';
 /**
  * code
  */
@@ -145,14 +132,6 @@ $sql[] = "drop table if exists xxt_merchant_order_sku";
 $sql[] = "drop table if exists xxt_mission";
 $sql[] = "drop table if exists xxt_mission_matter";
 $sql[] = "drop table if exists xxt_mission_phase";
-/**
- * mpa
- */
-$sql[] = "drop table if exists xxt_mpaccount";
-$sql[] = "drop table if exists xxt_mpsetting";
-$sql[] = "drop table if exists xxt_mprelay";
-$sql[] = "drop table if exists xxt_mpadministrator";
-$sql[] = "drop table if exists xxt_mppermission";
 /**
  * reply
  */

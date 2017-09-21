@@ -518,38 +518,4 @@ class log_model extends TMS_MODEL {
 
 		return true;
 	}
-
-	/**
-	 * 群发消息日志查询
-	 *
-	 * $mpid 父账号或者子账号，父账号返回所有子账号的日志，子账号返回子账号的数据
-	 * $offset 相对于当前日期的偏移日期，以天为单位
-	 */
-	public function massByMpid($mpid, $offset = 0) {
-		$modelMp = \TMS_APP::M('mp\mpaccount');
-
-		$mpa = $modelMp->byId($mpid, 'mpid,mpsrc,asparent');
-
-		if ($mpa->asparent === 'Y') {
-			$mpset = "exists(select 1 from xxt_mpaccount m where m.parent_mpid='$mpid' and l.mpid=m.mpid)";
-		} else {
-			$mpset = "mpid='$mpa->mpid'";
-		}
-
-		$begin = mktime(0, 0, 0, date("m"), date("d") + $offset, date("Y"));
-		$end = $begin + 86400;
-
-		$q = array(
-			'l.id,l.mpid,l.matter_id,l.matter_type,result',
-			'xxt_log_massmsg l',
-			"l.send_at>=$begin and l.send_at<$end and $mpset",
-		);
-		$q2 = array(
-			'o' => 'mpid,send_at desc',
-		);
-
-		$logs = $this->query_objs_ss($q, $q2);
-
-		return $logs;
-	}
 }

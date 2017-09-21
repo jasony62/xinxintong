@@ -56,40 +56,40 @@ class main extends \pl\fe\matter\base {
 			return new \ResponseTimeout();
 		}
 
-		$post = $this->getPostJson();
-		$model = $this->model('matter\signin');
+		$oPosted = $this->getPostJson();
+		$modelSig = $this->model('matter\signin');
+		$oOptions = [];
+		if (!empty($oPosted->byTitle)) {
+			$oOptions['byTitle'] = $oPosted->byTitle;
+		}
 		if (empty($mission)) {
-			$site = $model->escape($site);
-			$options = array();
-			if (!empty($post->byTitle)) {
-				$options['byTitle'] = $post->byTitle;
+			$site = $modelSig->escape($site);
+			if (!empty($oPosted->byTags)) {
+				$oOptions['byTags'] = $oPosted->byTags;
 			}
-			if (!empty($post->byTags)) {
-				$options['byTags'] = $post->byTags;
+			if (!empty($oPosted->byStar) && $oPosted->byStar === 'Y') {
+				$oOptions['byStar'] = $oUser->id;
 			}
-			$result = $model->bySite($site, $page, $size, $onlySns, $options);
+			$oOptions['user'] = $oUser;
+			$result = $modelSig->bySite($site, $page, $size, $onlySns, $oOptions);
 		} else {
-			$options = [];
-			//按项目阶段筛选
-			if (isset($post->mission_phase_id) && !empty($post->mission_phase_id) && $post->mission_phase_id !== "ALL") {
-				$options['where']['mission_phase_id'] = $post->mission_phase_id;
+			/* 按项目阶段筛选 */
+			if (isset($oPosted->mission_phase_id) && !empty($oPosted->mission_phase_id) && $oPosted->mission_phase_id !== "ALL") {
+				$oOptions['where']['mission_phase_id'] = $oPosted->mission_phase_id;
 			}
-			if (!empty($post->byTitle)) {
-				$options['byTitle'] = $post->byTitle;
-			}
-			$result = $model->byMission($mission, $options, $page, $size);
+			$result = $modelSig->byMission($mission, $oOptions, $page, $size);
 		}
 
 		if (strlen($cascaded) && count($result->apps)) {
 			$cascaded = explode(',', $cascaded);
-			$modelRnd = $this->model('matter\signin\round');
+			$modelSigRnd = $this->model('matter\signin\round');
 			foreach ($result->apps as &$oApp) {
 				if (in_array('round', $cascaded)) {
 					/* 轮次 */
-					$oApp->rounds = $modelRnd->byApp($oApp->id, ['fields' => 'id,rid,title,start_at,end_at,late_at']);
+					$oApp->rounds = $modelSigRnd->byApp($oApp->id, ['fields' => 'id,rid,title,start_at,end_at,late_at']);
 				}
 				if (in_array('opData', $cascaded)) {
-					$oApp->opData = $model->opData($oApp, true);
+					$oApp->opData = $modelSig->opData($oApp, true);
 				}
 			}
 		}
@@ -105,8 +105,8 @@ class main extends \pl\fe\matter\base {
 			return new \ResponseTimeout();
 		}
 
-		$model = $this->model('matter\signin');
-		$result = $model->byEnrollApp($enroll);
+		$modelSig = $this->model('matter\signin');
+		$result = $modelSig->byEnrollApp($enroll);
 
 		return new \ResponseData($result);
 	}

@@ -395,30 +395,6 @@ class member extends \site\fe\base {
 		\TPL::output('emailpassed');
 	}
 	/**
-	 * 给当前用户发送验证邮件
-	 * 当前用户的信息通过cookie获取
-	 *
-	 * $site
-	 *
-	 */
-	public function sendVerifyEmail_action($site) {
-		// todo 需要指定认证接口
-		$aAuthapis = array();
-		$authapi = $this->model('user/authapi')->byUrl($site, '/rest/member/auth', 'authid,url');
-		$aAuthapis[] = $authapi->authid;
-		$members = $this->getCookieMember($site, $aAuthapis);
-		if (empty($members)) {
-			die('parameter invalid.');
-		}
-
-		//$member = $this->model('user/member')->byId($mid, 'email');
-		$member = $members[0];
-
-		$this->_sendVerifyEmail($site, $member->authed_identity);
-
-		return new \ResponseData('success');
-	}
-	/**
 	 * 返回组织机构组件
 	 */
 	public function memberSelector_action($id) {

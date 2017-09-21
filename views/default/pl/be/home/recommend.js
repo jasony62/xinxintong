@@ -8,10 +8,13 @@ define(['frame'], function(ngApp) {
 	ngApp.provider.controller('ctrlTemplate', ['$scope', '$uibModal', 'http2', function($scope, $uibModal, http2) {
 		$scope.page = {
 			at: 1,
-			size: 30,
+			size: 8,
+			j:function() {
+				return '&page=' + this.at + '&size=' + this.size;
+			}
 		};
 		$scope.searchTemplate = function() {
-			var url = '/rest/pl/fe/template/platform/list?matterType=enroll';
+			var url = '/rest/pl/fe/template/platform/list?matterType=enroll' + $scope.page.j();
 			http2.get(url, function(rsp) {
 				$scope.templates = rsp.data.templates;
 				$scope.page.total = rsp.data.total;
@@ -47,14 +50,17 @@ define(['frame'], function(ngApp) {
 	ngApp.provider.controller('ctrlMatter', ['$scope', '$uibModal', 'http2', function($scope, $uibModal, http2) {
 		$scope.page = {
 			at: 1,
-			size: 30,
+			size: 1,
+			j:function() {
+				return '&page=' + this.at + '&size=' + this.size;
+			}
 		};
 		$scope.channelAddr = {
 			c: '中间',
 			r: '右侧'
 		}
 		$scope.searchMatter = function() {
-			var url = '/rest/pl/be/home/recommend/listMatter?category=' + $scope.criteria.category;
+			var url = '/rest/pl/be/home/recommend/listMatter?category=' + $scope.criteria.category + $scope.page.j();
 			http2.get(url, function(rsp) {
 				$scope.matters = rsp.data.matters;
 				$scope.page.total = rsp.data.total;
@@ -113,10 +119,13 @@ define(['frame'], function(ngApp) {
 	ngApp.provider.controller('ctrlSite', ['$scope', '$uibModal', 'http2', function($scope, $uibModal, http2) {
 		$scope.page = {
 			at: 1,
-			size: 30,
+			size: 8,
+			j: function() {
+				return '&page=' + this.at + '&size=' + this.size;
+			}
 		};
 		$scope.searchApplication = function() {
-			var url = '/rest/pl/be/home/recommend/listSite';
+			var url = '/rest/pl/be/home/recommend/listSite' + $scope.page.j();
 			http2.get(url, function(rsp) {
 				$scope.sites = rsp.data.sites;
 				$scope.page.total = rsp.data.total;

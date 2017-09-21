@@ -35,18 +35,18 @@ class main extends \pl\fe\matter\base {
 	 * @param string $cascade 是否获得频道内的素材和访问控制列表
 	 */
 	public function list_action($site, $acceptType = null, $cascade = 'Y') {
-		if (false === ($user = $this->accountUser())) {
+		if (false === ($oUser = $this->accountUser())) {
 			return new \ResponseTimeout();
 		}
 
 		$modelChn = $this->model('matter\channel');
-		$options = $this->getPostJson();
+		$oOptions = $this->getPostJson();
 		/**
 		 * 素材的来源
 		 */
 		$q = [
 			'*',
-			'xxt_channel',
+			'xxt_channel c',
 			"siteid = '" . $modelChn->escape($site) . "' and state = 1",
 		];
 		if (!empty($acceptType)) {
@@ -56,13 +56,16 @@ class main extends \pl\fe\matter\base {
 			$acceptType .= "')";
 			$q[2] .= " and matter_type in $acceptType";
 		}
-		if (!empty($options->byTitle)) {
-			$q[2] .= " and title like '%" . $modelChn->escape($options->byTitle) . "%'";
+		if (!empty($oOptions->byTitle)) {
+			$q[2] .= " and title like '%" . $modelChn->escape($oOptions->byTitle) . "%'";
 		}
-		if (!empty($options->byTags)) {
-			foreach ($options->byTags as $tag) {
+		if (!empty($oOptions->byTags)) {
+			foreach ($oOptions->byTags as $tag) {
 				$q[2] .= " and matter_mg_tag like '%" . $modelChn->escape($tag->id) . "%'";
 			}
+		}
+		if (isset($oOptions->byStar) && $oOptions->byStar === 'Y') {
+			$q[2] .= " and exists(select 1 from xxt_account_topmatter t where t.matter_type='channel' and t.matter_id=c.id and userid='{$oUser->id}')";
 		}
 
 		$q2['o'] = 'create_at desc';
@@ -82,7 +85,7 @@ class main extends \pl\fe\matter\base {
 			}
 		}
 
-		return new \ResponseData($channels);
+		return new \ResponseData(['docs' => $channels, 'total' => count($channels)]);
 	}
 	/**
 	 * 在指定团队下创建频道素材

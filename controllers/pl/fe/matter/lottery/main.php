@@ -56,30 +56,34 @@ class main extends \pl\fe\matter\base {
 	 * 抽奖活动
 	 */
 	public function list_action($site) {
-		if (false === ($user = $this->accountUser())) {
+		if (false === ($oUser = $this->accountUser())) {
 			return new \ResponseTimeout();
 		}
 
 		$model = $this->model();
-		$post = $this->getPostJson();
+		$oPosted = $this->getPostJson();
 		$q = [
 			"*,'lottery' type",
-			'xxt_lottery',
-			"siteid = '". $model->escape($site) ."' and state in (1,2)"
+			'xxt_lottery l',
+			"siteid = '" . $model->escape($site) . "' and state in (1,2)",
 		];
-		if(!empty($post->byTitle)){
-			$q[2] .= " and title like '%". $model->escape($post->byTitle) ."%'";
+		if (!empty($oPosted->byTitle)) {
+			$q[2] .= " and title like '%" . $model->escape($oPosted->byTitle) . "%'";
 		}
-		if(!empty($post->byTags)){
-			foreach($post->byTags as $tag){
+		if (!empty($oPosted->byTags)) {
+			foreach ($oPosted->byTags as $tag) {
 				$q[2] .= " and matter_mg_tag like '%" . $model->escape($tag->id) . "%'";
 			}
 		}
+		if (isset($oPosted->byStar) && $oPosted->byStar === 'Y') {
+			$q[2] .= " and exists(select 1 from xxt_account_topmatter t where t.matter_type='lottery' and t.matter_id=l.id and userid='{$oUser->id}')";
+		}
+
 		$q2['o'] = 'create_at desc';
 
 		$apps = $model->query_objs_ss($q, $q2);
 
-		return new \ResponseData($apps);
+		return new \ResponseData(['apps' => $apps, 'total' => count($apps)]);
 	}
 	/**
 	 * 获得转盘设置信息

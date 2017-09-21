@@ -23,81 +23,67 @@
                     <?php echo APP_TITLE;?>
                 </a>
             </div>
-            <ul class="nav nav-tabs nav-stacked ng-cloak" ng-cloak ng-if="frameState.view=='main'">
-                <li ng-class="{'active':frameState.scope==='top'}"><a href='' ng-click="changeScope('top')">置顶</a></li>
-                <li ng-class="{'active':frameState.scope==='recent'}"><a href='' ng-click="changeScope('recent')">最近</a></li>
-                <hr />
-                <li ng-class="{'active':frameState.scope==='site'}"><a href='' ng-click="changeScope('site')">团队</a></li>
-                <li ng-class="{'active':frameState.scope==='user'}"><a href='' ng-click="changeScope('user')">用户</a></li>
-                <hr />
-                <li ng-class="{'active':frameState.scope==='mission'}"><a href='' ng-click="changeScope('mission')">项目</a></li>
-                <li ng-class="{'active':frameState.scope==='activity'}"><a href='' ng-click="changeScope('activity')">活动</a></li>
-                <li ng-class="{'active':frameState.scope==='info'}"><a href='' ng-click="changeScope('info')">资料</a></li>
-                <hr />
-                <li ng-class="{'active':frameState.scope==='recycle'}"><a href='' ng-click="changeScope('recycle')">回收站</a></li>
-                <hr />
-                <li><a href="" uib-popover-template="'addMatter.html'" popover-placement="right" popover-append-to-body='true' popover-trigger="outsideClick"><span class='glyphicon glyphicon-plus'></span> 新建</a></li>
+            <ul class="nav nav-tabs nav-stacked">
+                <li>
+                    <a href='/rest/pl/fe?site={{frameState.sid}}' ng-click="opened=opened==='main'?false:'main'">工作台 <span class="caret"></span></a>
+                    <ul class="nav nav-tabs nav-stacked" ng-style="{'height':opened==='main'?'160px':'0'}">
+                        <li ng-class="{'active':frameState.scope==='mission'}"><a href='' ng-click="changeScope('mission')">项目</a></li>
+                        <li ng-class="{'active':frameState.scope==='activity'}"><a href='' ng-click="changeScope('activity')">活动</a></li>
+                        <li ng-class="{'active':frameState.scope==='doc'}"><a href='' ng-click="changeScope('doc')">资料</a></li>
+                        <li ng-class="{'active':frameState.scope==='user'}"><a href='' ng-click="changeScope('user')">用户</a></li>
+                    </ul>
+                </li>
             </ul>
-            <ul class="nav nav-tabs nav-stacked ng-cloak" ng-cloak ng-if="frameState.view=='friend'">
-                <li ng-class="{'active':frameState.scope==='subscribeSite'}"><a href='' ng-click="changeScope('subscribeSite')">关注</a></li>
-                <li ng-class="{'active':frameState.scope==='contributeSite'}"><a href='' ng-click="changeScope('contributeSite')">投稿</a></li>
-                <hr>
-                <li ng-class="{'active':frameState.scope==='favorSite'}"><a href='' ng-click="changeScope('favorSite')">收藏</a></li>
+            <ul class="nav nav-tabs nav-stacked">
+                <li>
+                    <a href='/rest/pl/fe/friend' ng-click="opened=opened==='friend'?false:'friend'">关注 <span class="caret"></span></a>
+                    <ul class="nav nav-tabs nav-stacked" ng-style="{'height':opened==='friend'?'120px':'0'}">
+                        <li ng-class="{'active':frameState.scope==='subscribeSite'}"><a href='' ng-click="changeScope('subscribeSite')">关注</a></li>
+                        <li ng-class="{'active':frameState.scope==='contributeSite'}"><a href='' ng-click="changeScope('contributeSite')">投稿</a></li>
+                        <li ng-class="{'active':frameState.scope==='favorSite'}"><a href='' ng-click="changeScope('favorSite')">收藏</a></li>
+                    </ul>
+                </li>
             </ul>
+            <div class='pl-layout-leftnav-footer' ng-cloak ng-if="frameState.view=='main'">
+                <ul class="nav nav-tabs nav-stacked">
+                    <li ng-class="{'active':frameState.scope==='recycle'}"><a href='' ng-click="changeScope('recycle')">回收站</a></li>
+                </ul>
+            </div>
         </div>
         <!-- navtop + container -->
         <div class='pl-layout-main pl-layout-main-topnav'>
-            <nav class='navbar navbar-default pl-navbar-fixed-top'>
+            <nav class='navbar pl-navbar-default pl-navbar-fixed-top'>
                 <div class='container-fluid ng-cloak' ng-cloak>
-                    <div class="navbar-header">
-                        <button type="button" class="navbar-toggle collapsed" ng-click="isNavCollapsed.frame=!isNavCollapsed.frame">
-                            <span class="sr-only">Toggle navigation</span>
-                            <span class="icon-bar"></span>
-                            <span class="icon-bar"></span>
-                            <span class="icon-bar"></span>
+                    <form class='navbar-form navbar-left'>
+                        <div class='input-group'>
+                            <select class='form-control' title='团队列表' ng-model="frameState.sid ">
+                                <option value="{{site.id}} " ng-repeat="site in sites ">{{site.name}}</option>
+                            </select>
+                            <div class='input-group-btn' ng-if="frameState.sid ">
+                                <button class='btn btn-default' ng-click="openSite(frameState.sid) "><span class='glyphicon glyphicon-cog'></span> 设置</button>
+                            </div>
+                        </div>
+                        <button class='btn btn-default' ng-click="createSite() "><span class='glyphicon glyphicon-plus'></span> 新团队</button>
+                    </form>
+                    <form class='navbar-form navbar-right ng-cloak' ng-cloak>
+                        <button class="btn btn-default " ng-if="notice.page.total>0" uib-popover-template="'userNotice.html'" popover-title="未读消息" popover-placement="bottom" popover-append-to-body='true' popover-trigger="outsideClick" popover-class='user-notice'>
+                            <span class='glyphicon glyphicon-bell'> </span>&nbsp;&nbsp;<span class="badge">{{notice.page.total}}</span>
                         </button>
-                    </div>
-                    <div class='collapse navbar-collapse' uib-collapse="isNavCollapsed.frame">
-                        <form class='navbar-form navbar-left'>
-                            <div class='input-group'>
-                                <select class='form-control' title='团队列表' ng-model="frameState.sid">
-                                    <option value=''>全部团队</option>
-                                    <option value="{{site.id}}" ng-repeat="site in sites">{{site.name}}</option>
-                                </select>
-                                <span class='input-group-btn' ng-if="frameState.sid">
-                                    <button class='btn btn-default' ng-click="openSite(frameState.sid)"><span class='glyphicon glyphicon-cog'></span> 设置</button>
-                                </span>
-                            </div>
-                        </form>
-                        <ul class='nav navbar-nav'>
-                            <li ng-class="{'active':frameState.view==='main'}">
-                                <a href='/rest/pl/fe' ng-if="frameState.sid==''">我的工作台</a>
-                                <a href='/rest/pl/fe?site={{frameState.sid}}' ng-if="frameState.sid!=''">我的工作台</a>
-                            </li>
-                            <li ng-class="{'active':frameState.view==='friend'}">
-                                <a href='/rest/pl/fe/friend'>团队关注</a>
-                            </li>
-                        </ul>
-                        <form class='navbar-form navbar-right ng-cloak' ng-cloak>
-                            <button class="btn btn-default" ng-if="notice.page.total>0" uib-popover-template="'userNotice.html'" popover-title="未读消息" popover-placement="bottom" popover-append-to-body='true' popover-trigger="outsideClick" popover-class='user-notice'>
-                                <span class='glyphicon glyphicon-bell'> </span>&nbsp;&nbsp;<span class="badge">{{notice.page.total}}</span>
+                        <div class="btn-group" uib-dropdown>
+                            <a href='' target='_self' class="btn btn-default"><i class='glyphicon glyphicon-user'></i> {{loginUser.nickname}}</a>
+                            <button type="button" class="btn btn-default" uib-dropdown-toggle>
+                                <span class="caret"></span>
+                                <span class="sr-only">Toggle Dropdown</span>
                             </button>
-                            <div class="btn-group" uib-dropdown>
-                                <a href='' target='_self' class="btn btn-default"><i class='glyphicon glyphicon-user'></i> {{loginUser.nickname}}</a>
-                                <button type="button" class="btn btn-default" uib-dropdown-toggle>
-                                    <span class="caret"></span>
-                                    <span class="sr-only">Toggle Dropdown</span>
-                                </button>
-                                <ul class="dropdown-menu" uib-dropdown-menu role="menu">
-                                    <li>
-                                        <a href='/rest/pl/fe/user/settings' target='_self'>用户设置</a>
-                                    </li>
-                                    <li class="divider"></li>
-                                    <li><a href='/rest/pl/fe/user/logout' target='_self'>退出</a></li>
-                                </ul>
-                            </div>
-                        </form>
-                    </div>
+                            <ul class="dropdown-menu" uib-dropdown-menu role="menu">
+                                <li>
+                                    <a href='/rest/pl/fe/user/settings' target='_self'>用户设置</a>
+                                </li>
+                                <li class="divider"></li>
+                                <li><a href='/rest/pl/fe/user/logout' target='_self'>退出</a></li>
+                            </ul>
+                        </div>
+                    </form>
                 </div>
             </nav>
             <div class='container-fluid'>

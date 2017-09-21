@@ -32,37 +32,12 @@ ngApp.controller('ctrlConsole', ['$scope', '$uibModal', 'http2', 'templateShop',
             });
         } else {
             http2.get(url, function(rsp) {
-                if (/article/.test($scope.matterType)) {
-                    if (append) {
-                        $scope.matters = $scope.matters.concat(rsp.data.articles);
-                    } else {
-                        $scope.matters = rsp.data.articles;
-                    }
-                    page.total = rsp.data.total;
-                } else if (/enroll|signin|group|contribute/.test($scope.matterType)) {
-                    if (append) {
-                        $scope.matters = $scope.matters.concat(rsp.data.apps || []);
-                    } else {
-                        $scope.matters = rsp.data.apps || [];
-                    }
-                    page.total = rsp.data.total;
-                } else if (/wall/.test($scope.matterType)) {
-                    if (append) {
-                        $scope.matters = $scope.matters.concat(rsp.data);
-                    } else {
-                        $scope.matters = rsp.data;
-                    }
-                    page.total = rsp.data.length;
-                } else if (/custom/.test($scope.matterType)) {
-                    if (append) {
-                        $scope.matters = $scope.matters.concat(rsp.data.customs);
-                    } else {
-                        $scope.matters = rsp.data.customs;
-                    }
-                    page.total = rsp.data.total;
+                if (append) {
+                    $scope.matters = $scope.matters.concat(rsp.data.docs || rsp.data.apps);
                 } else {
-                    $scope.matters = rsp.data;
+                    $scope.matters = rsp.data.docs || rsp.data.apps;
                 }
+                page.total = rsp.data.total;
             });
         }
     };

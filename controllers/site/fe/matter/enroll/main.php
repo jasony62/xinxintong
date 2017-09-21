@@ -443,7 +443,7 @@ class main extends base {
 	public function locationGet_action($siteid, $lat = '', $lng = '') {
 		$geo = array();
 		if (empty($lat) || empty($lat)) {
-			$user = $this->getUser($siteid);
+			$user = $this->who;
 			if (empty($user->openid)) {
 				return new \ResponseError('无法获得身份信息');
 			}

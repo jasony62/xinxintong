@@ -74,14 +74,14 @@ class main extends \pl\fe\matter\base {
 
 		$filter = $this->getPostJson();
 		$modelMis = $this->model('matter\mission');
-		$options = [
+		$aOptions = [
 			'limit' => (object) ['page' => $page, 'size' => $size],
 		];
 		if (!empty($filter->byTitle)) {
-			$options['byTitle'] = $modelMis->escape($filter->byTitle);
+			$aOptions['byTitle'] = $modelMis->escape($filter->byTitle);
 		}
 		$site = $modelMis->escape($site);
-		$result = $modelMis->bySite($site, $options);
+		$result = $modelMis->bySite($site, $aOptions);
 
 		return new \ResponseData($result);
 	}
@@ -98,20 +98,25 @@ class main extends \pl\fe\matter\base {
 
 		$oFilter = $this->getPostJson();
 		$modelMis = $this->model('matter\mission');
-		$options = [
+		$aOptions = [
 			'limit' => (object) ['page' => $page, 'size' => $size],
 		];
 		if (!empty($oFilter->bySite)) {
-			$options['bySite'] = $modelMis->escape($oFilter->bySite);
+			$aOptions['bySite'] = $oFilter->bySite;
 		}
-		if (!empty($oFilter->byTitle)) {
-			$options['byTitle'] = $modelMis->escape($oFilter->byTitle);
+		if (!empty($oFilter->filter->by) && !empty($oFilter->filter->keyword)) {
+			if ($oFilter->filter->by === 'title') {
+				$aOptions['byTitle'] = $oFilter->filter->keyword;
+			}
+		}
+		if (isset($oFilter->byStar) && $oFilter->byStar === 'Y') {
+			$aOptions['byStar'] = 'Y';
 		}
 		if (!empty($oFilter->byTags)) {
-			$options['byTags'] = $oFilter->byTags;
+			$aOptions['byTags'] = $oFilter->byTags;
 		}
-
-		$result = $modelMis->byAcl($oUser, $options);
+		$aOptiions['cascaded'] = 'top';
+		$result = $modelMis->byAcl($oUser, $aOptions);
 
 		return new \ResponseData($result);
 	}

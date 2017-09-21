@@ -72,19 +72,19 @@ class main extends \pl\fe\matter\base {
 	}
 	/**
 	 * 返回登记活动列表
+	 *
 	 * @param string $onlySns 是否仅查询进入规则为仅限关注用户访问的活动列表
 	 */
 	public function list_action($site = null, $mission = null, $page = 1, $size = 30, $scenario = null, $onlySns = 'N') {
-		if (false === ($user = $this->accountUser())) {
+		if (false === ($oUser = $this->accountUser())) {
 			return new \ResponseTimeout();
 		}
 
 		$oFilter = $this->getPostJson();
-		$result = ['apps' => null, 'total' => 0];
 		$modelApp = $this->model('matter\enroll');
 		$q = [
-			"a.*,'enroll' type",
-			'xxt_enroll a',
+			"e.*",
+			'xxt_enroll e',
 			"state<>0",
 		];
 		if (!empty($mission)) {
@@ -109,16 +109,34 @@ class main extends \pl\fe\matter\base {
 				$q[2] .= " and matter_mg_tag like '%" . $modelApp->escape($tag->id) . "%'";
 			}
 		}
+		if (isset($oFilter->byStar) && $oFilter->byStar === 'Y') {
+			$q[2] .= " and exists(select 1 from xxt_account_topmatter t where t.matter_type='enroll' and t.matter_id=e.id and userid='{$oUser->id}')";
+		}
 
-		$q2['o'] = 'a.modify_at desc';
+		$q2['o'] = 'e.modify_at desc';
 		$q2['r']['o'] = ($page - 1) * $size;
 		$q2['r']['l'] = $size;
+
+		$result = ['apps' => null, 'total' => 0];
+
 		if ($apps = $modelApp->query_objs_ss($q, $q2)) {
-			foreach ($apps as &$oApp) {
+			foreach ($apps as $oApp) {
+				$oApp->type = 'enroll';
 				$oApp->url = $modelApp->getEntryUrl($oApp->siteid, $oApp->id);
 				$oApp->opData = $modelApp->opData($oApp, true);
+				/* 是否已经星标 */
+				$qStar = [
+					'id',
+					'xxt_account_topmatter',
+					['matter_id' => $oApp->id, 'matter_type' => 'enroll', 'userid' => $oUser->id],
+				];
+				if ($oStar = $modelApp->query_obj_ss($qStar)) {
+					$oApp->star = $oStar->id;
+				}
 			}
 			$result['apps'] = $apps;
+		}
+		if (!empty($apps) || $page != 1) {
 			$q[0] = 'count(*)';
 			$total = (int) $modelApp->query_val_ss($q);
 			$result['total'] = $total;

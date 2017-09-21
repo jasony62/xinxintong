@@ -50,10 +50,10 @@ ngApp.controller('ctrlMain', ['$scope', 'http2', 'mediagallery', '$uibModal', 's
                 p.customValue = $scope.linkparams[p.pvalue] ? false : true;
             }
         }
-        if(link.matter_mg_tag !== ''){
-            link.matter_mg_tag.forEach(function(cTag,index){
-                $scope.oTag.forEach(function(oTag){
-                    if(oTag.id === cTag){
+        if (link.matter_mg_tag !== '') {
+            link.matter_mg_tag.forEach(function(cTag, index) {
+                $scope.oTag.forEach(function(oTag) {
+                    if (oTag.id === cTag) {
                         link.matter_mg_tag[index] = oTag;
                     }
                 });
@@ -160,7 +160,7 @@ ngApp.controller('ctrlMain', ['$scope', 'http2', 'mediagallery', '$uibModal', 's
     $scope.changePValueMode = function(p) {
         p.pvalue = '';
     };
-    $scope.tagMatter = function(subType){
+    $scope.tagMatter = function(subType) {
         var oTags;
         oTags = $scope.oTag;
         srvTag._tagMatter($scope.editing, oTags, subType);
@@ -170,14 +170,14 @@ ngApp.controller('ctrlMain', ['$scope', 'http2', 'mediagallery', '$uibModal', 's
             case '1':
                 if ($scope.news === undefined) {
                     http2.get('/rest/pl/fe/matter/news/list?site=' + $scope.siteId + '&cascade=N', function(rsp) {
-                        $scope.news = rsp.data;
+                        $scope.news = rsp.data.docs;
                     });
                 }
                 break;
             case '2':
                 if ($scope.channels === undefined) {
                     http2.get('/rest/pl/fe/matter/channel/list?site=' + $scope.siteId + '&cascade=N', function(rsp) {
-                        $scope.channels = rsp.data;
+                        $scope.channels = rsp.data.docs;
                     });
                 }
                 break;

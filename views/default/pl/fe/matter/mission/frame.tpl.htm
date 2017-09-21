@@ -76,15 +76,7 @@
         <div class="pl-layout-main pl-layout-main-topnav">
             <nav class="navbar navbar-default pl-navbar-fixed-top">
                 <div class="contaienr-fluid">
-                    <div class="navbar-header">
-                        <button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target='#navbar-collapse-1'>
-                            <span class="sr-only">Toggle navigation</span>
-                            <span class="icon-bar"></span>
-                            <span class="icon-bar"></span>
-                            <span class="icon-bar"></span>
-                        </button>
-                    </div>
-                    <div class='collapse navbar-collapse' id='navbar-collapse-1'>
+                    <div class='collapse navbar-collapse'>
                         <nav class='nav navbar-nav tms-breadcrumb'>
                             <li><a href="/rest/pl/fe?view=main&scope=mission&sid={{mission.siteid}}" target='_self'>个人工作台</a></li>
                             <li ng-if="site.yourRole"><a href="/rest/pl/fe/site/home?site={{mission.siteid}}" target='_self'>{{site.name}}</a></li>

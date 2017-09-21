@@ -28,7 +28,7 @@ class main extends \pl\fe\matter\base {
 
 		$modelNews = $this->model('matter\news');
 		if ($n = $modelNews->byId($id)) {
-			if(!empty($n->matter_mg_tag)){
+			if (!empty($n->matter_mg_tag)) {
 				$n->matter_mg_tag = json_decode($n->matter_mg_tag);
 			}
 			$n->uid = $user->id;
@@ -48,25 +48,28 @@ class main extends \pl\fe\matter\base {
 	 *
 	 */
 	public function list_action($site, $cascade = 'Y') {
-		if (false === ($user = $this->accountUser())) {
+		if (false === ($oUser = $this->accountUser())) {
 			return new \ResponseTimeout();
 		}
 
-		$options = $this->getPostJson();
+		$oOptions = $this->getPostJson();
 		$modelNews = $this->model('matter\news');
 
 		$q = [
 			'*',
-			'xxt_news',
-			"siteid = '". $modelNews->escape($site) ."' and state = 1"
+			'xxt_news n',
+			"siteid = '" . $modelNews->escape($site) . "' and state = 1",
 		];
-		if (!empty($options->byTitle)) {
-			$q[2] .= " and title like '%". $modelNews->escape($options->byTitle) ."%'";
+		if (!empty($oOptions->byTitle)) {
+			$q[2] .= " and title like '%" . $modelNews->escape($oOptions->byTitle) . "%'";
 		}
-		if(!empty($options->byTags)){
-			foreach($options->byTags as $tag){
+		if (!empty($oOptions->byTags)) {
+			foreach ($oOptions->byTags as $tag) {
 				$q[2] .= " and matter_mg_tag like '%" . $modelNews->escape($tag->id) . "%'";
 			}
+		}
+		if (isset($oOptions->byStar) && $oOptions->byStar === 'Y') {
+			$q[2] .= " and exists(select 1 from xxt_account_topmatter t where t.matter_type='news' and t.matter_id=n.id and userid='{$oUser->id}')";
 		}
 		$q2['o'] = 'create_at desc';
 		$news = $modelNews->query_objs_ss($q, $q2);
@@ -89,7 +92,7 @@ class main extends \pl\fe\matter\base {
 			}
 		}
 
-		return new \ResponseData($news);
+		return new \ResponseData(['docs' => $news, 'total' => count($news)]);
 	}
 	/**
 	 * 更新数据

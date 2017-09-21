@@ -77,10 +77,12 @@ class recommend extends \pl\be\base {
 	/**
 	 *
 	 */
-	public function listSite_action() {
+	public function listSite_action($page = 1, $size = 8) {
 		$modelHome = $this->model('site\home');
-
-		$matters = $modelHome->find();
+		$options = [];
+		$options['page']['at']=$page;
+		$options['page']['size']=$size;
+		$matters = $modelHome->find($options);
 
 		return new \ResponseData($matters);
 	}

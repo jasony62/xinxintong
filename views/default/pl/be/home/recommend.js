@@ -121,7 +121,7 @@ define(['frame'], function(ngApp) {
 			at: 1,
 			size: 8,
 			j: function() {
-				return '&page=' + this.at + '&size=' + this.size;
+				return '?page=' + this.at + '&size=' + this.size;
 			}
 		};
 		$scope.searchApplication = function() {

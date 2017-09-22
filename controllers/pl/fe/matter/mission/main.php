@@ -21,7 +21,7 @@ class main extends \pl\fe\matter\base {
 		exit;
 	}
 	/**
-	 * 获得指定的任务
+	 * 获得指定的项目
 	 *
 	 * @param int $id
 	 */
@@ -37,7 +37,9 @@ class main extends \pl\fe\matter\base {
 		$oMission = $this->model('matter\mission')->byId($id, ['cascaded' => 'header_page_name,footer_page_name,phase']);
 		/* 关联的用户名单活动 */
 		if ($oMission->user_app_id) {
-			if ($oMission->user_app_type === 'enroll') {
+			if ($oMission->user_app_type === 'group') {
+				$oMission->userApp = $this->model('matter\group')->byId($oMission->user_app_id, ['cascaded' => 'N']);
+			} else if ($oMission->user_app_type === 'enroll') {
 				$oMission->userApp = $this->model('matter\enroll')->byId($oMission->user_app_id, ['cascaded' => 'N']);
 			} else if ($oMission->user_app_type === 'signin') {
 				$oMission->userApp = $this->model('matter\signin')->byId($oMission->user_app_id, ['cascaded' => 'N']);
@@ -72,19 +74,19 @@ class main extends \pl\fe\matter\base {
 
 		$filter = $this->getPostJson();
 		$modelMis = $this->model('matter\mission');
-		$options = [
+		$aOptions = [
 			'limit' => (object) ['page' => $page, 'size' => $size],
 		];
 		if (!empty($filter->byTitle)) {
-			$options['byTitle'] = $modelMis->escape($filter->byTitle);
+			$aOptions['byTitle'] = $modelMis->escape($filter->byTitle);
 		}
 		$site = $modelMis->escape($site);
-		$result = $modelMis->bySite($site, $options);
+		$result = $modelMis->bySite($site, $aOptions);
 
 		return new \ResponseData($result);
 	}
 	/**
-	 * 当前用户可访问任务列表
+	 * 当前用户可访问项目列表
 	 *
 	 * @param int $page
 	 * @param int $size
@@ -96,20 +98,25 @@ class main extends \pl\fe\matter\base {
 
 		$oFilter = $this->getPostJson();
 		$modelMis = $this->model('matter\mission');
-		$options = [
+		$aOptions = [
 			'limit' => (object) ['page' => $page, 'size' => $size],
 		];
 		if (!empty($oFilter->bySite)) {
-			$options['bySite'] = $modelMis->escape($oFilter->bySite);
+			$aOptions['bySite'] = $oFilter->bySite;
 		}
-		if (!empty($oFilter->byTitle)) {
-			$options['byTitle'] = $modelMis->escape($oFilter->byTitle);
+		if (!empty($oFilter->filter->by) && !empty($oFilter->filter->keyword)) {
+			if ($oFilter->filter->by === 'title') {
+				$aOptions['byTitle'] = $oFilter->filter->keyword;
+			}
+		}
+		if (isset($oFilter->byStar) && $oFilter->byStar === 'Y') {
+			$aOptions['byStar'] = 'Y';
 		}
 		if (!empty($oFilter->byTags)) {
-			$options['byTags'] = $oFilter->byTags;
+			$aOptions['byTags'] = $oFilter->byTags;
 		}
-
-		$result = $modelMis->byAcl($oUser, $options);
+		$aOptiions['cascaded'] = 'top';
+		$result = $modelMis->byAcl($oUser, $aOptions);
 
 		return new \ResponseData($result);
 	}

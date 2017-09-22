@@ -10,6 +10,22 @@ class report_model extends \TMS_MODEL {
 	 * @param
 	 */
 	public function exec($oMatter, $arguments = null) {
+		if ($oMatter->type === 'mission') {
+			$modelMission = $this->model('matter\mission');
+			$mission = $modelMission->byId($oMatter->id);
+			if (false === $mission) {
+				return [false, '指定的活动不存在'];
+			}
+			$appURL = $mission->opUrl;
+			$modelQurl = $this->model('q\url');
+			$noticeURL = $modelQurl->urlByUrl($mission->siteid, $appURL);
+
+			$model = $this->model('matter\mission\receiver');
+			$rst = $model->notify($mission, 'timer.mission.report', ['noticeURL' => $noticeURL]);
+
+			return $rst;
+		}
+
 		if ($oMatter->type === 'enroll') {
 			$modelEnl = $this->model('matter\enroll');
 			$oMatter = $modelEnl->byId($oMatter->id, ['cascaded' => 'N']);

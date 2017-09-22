@@ -43,6 +43,10 @@ class report extends \pl\fe\matter\base {
 
 		/* 获得用户 */
 		switch ($userSource->type) {
+		case 'group':
+			$users = $this->model('matter\group\player')->byApp($userSource, (object) ['fields' => 'userid,nickname']);
+			$users = isset($users->players) ? $users->players : [];
+			break;
 		case 'enroll':
 			$users = $this->model('matter\enroll\record')->enrolleeByApp($userSource, ['fields' => 'distinct userid,nickname', 'rid' => 'all']);
 			break;
@@ -59,7 +63,6 @@ class report extends \pl\fe\matter\base {
 		if (empty($users)) {
 			return new \ParameterError('没有获得项目中用户');
 		}
-
 		/* 获得项目下的活动 */
 		if (empty($posted->apps)) {
 			/* 汇总报告配置信息 */

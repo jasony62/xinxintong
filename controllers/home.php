@@ -180,12 +180,13 @@ class home extends TMS_CONTROLLER {
 	/**
 	 *
 	 */
-	public function listChannel_action($page = 1, $size = 8) {
+	public function listChannel_action($homeGroup = '', $page = 1, $size = 8) {
 		$modelHome = $this->model('matter\home');
 
 		$options = [];
 		$options['page']['at'] = $page;
 		$options['page']['size'] = $size;
+		!empty($homeGroup) && $options['byHGroup'] = $homeGroup;
 		$result = $modelHome->atHomeChannel($options);
 		if (count($result->matters)) {
 			foreach ($result->matters as &$matter) {

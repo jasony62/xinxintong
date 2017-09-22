@@ -19,7 +19,7 @@
                         <span class="site_fe_home site_fe_home_icon xxt_guide"></span>
                         <h3 class="inline-block">{{c.title}}</h3>
                         <h6 class="inline-block pull-right">
-                            <a ng-href="/rest/site/fe/matter?site={{c.siteid}}&id={{c.matter_id}}&type=channel">更多<i class="glyphicon glyphicon-menu-right"></i></a>
+                            <a ng-href="{{c.url}}">更多<i class="glyphicon glyphicon-menu-right"></i></a>
                         </h6>
                     </div>
                     <div class="madinSide-body">
@@ -45,7 +45,7 @@
                             </ul>
                             <div class="text-center"><a ng-href="{{c.url}}">更 多</a></div>
                         </uib-tab>
-                        <span uib-dropdown on-toggle="toggled(open)" class="pull-right" ng-if="channels.length > 3">
+                        <span uib-dropdown on-toggle="toggled(open)" class="pull-right" ng-if="channels2.length > 3">
                             <a href id="simple-dropdown" uib-dropdown-toggle>
                                 <i class="glyphicon glyphicon-th-list"></i>
                             </a>
@@ -243,6 +243,57 @@
                                 </tr>
                             </tbody>
                         </table>
+                    </uib-tab>
+                    <uib-tab index="4+$index" ng-if="channels1.length" ng-repeat="c in channelMatters">
+                        <uib-tab-heading>{{c.title}}</uib-tab-heading>
+                        <table class="table table-hover">
+                            <tbody>
+                                <tr ng-repeat="a in c.data" ng-click="openMatter(a)">
+                                    <td>
+                                        <div class="media-item">
+                                            <div class="media-item-left pull-left">
+                                                <div class="media-item-img">
+                                                    <img class="media-object" ng-src='{{a.pic}}'>
+                                                </div>
+                                            </div>
+                                            <div class="media-item-body pull-left">
+                                                <div class='creater_name'>
+                                                    <a ng-href='/rest/site/home?site={{a.siteid}}'>
+                                                        <img class="img-circle" ng-src="{{a.heading_pic}}" alt="" style="width:12px;height:12px">
+                                                        <h6 class="inline pdl10">{{a.site_name}}</h6>
+                                                        <i class="glyphicon glyphicon-menu-right pull-right"></i>
+                                                    </a>
+                                                </div>
+                                                <h4 class="media-heading" >{{a.title}}</h4>
+                                                <h5 class="media-summary">{{a.summary}}</h5>
+                                                <div class='attr clearfix'>
+                                                    <div class="favor pull-left">
+                                                        <a href="" ng-click="favor(user,a)">
+                                                            <i class="glyphicon glyphicon-star-empty"></i>
+                                                            <h6 class="inline pdl10">收藏</h6>
+                                                        </a>
+                                                    </div>
+                                                    <div class="forward pull-left">
+                                                        <a href="" ng-click="forward(user,a)">
+                                                            <i class="glyphicon glyphicon-share"></i>
+                                                            <h6 class="inline pdl10">转发</h6>
+                                                        </a>
+                                                    </div>
+                                                    <div class='put_at pull-left'>
+                                                        <a href="">
+                                                            <h6 class="inline"ng-bind="a.create_at*1000|date:'yyyy-MM-dd'"></h6>
+                                                        </a>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
+                        <div>
+                            <button class='btn btn-lg btn-primary  btn-gradient center-block' ng-click="moreMatters('channel', c)" ng-if="c.total>c.data.length">加载更多</button>
+                        </div>
                     </uib-tab>
                 </uib-tabset>
             </div>

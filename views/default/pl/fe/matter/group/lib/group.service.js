@@ -134,7 +134,7 @@ provider('srvGroupApp', function() {
                                 }
                                 _oApp.mission && (url += '&mission=' + _oApp.mission.id);
                                 http2.get(url, function(rsp) {
-                                    $scope2.apps = $scope2.data.appType === 'wall' ? rsp.data : rsp.data.apps;
+                                    $scope2.apps = rsp.data.apps;
                                 });
                             }
                         });

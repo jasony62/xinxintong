@@ -206,6 +206,7 @@ define(['main'], function(ngApp) {
                 });
             });
         };
+
         function updateSeq() {
             var updated = {};
             $scope.channels.forEach(function(channel, index) {

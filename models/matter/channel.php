@@ -303,7 +303,7 @@ class channel_model extends article_base {
 			$orderby = $channel->orderby;
 			$channel_id = $this->escape($channel_id);
 			$q1 = array();
-			$q1[] = "m.id,m.title,m.summary,m.pic,m.create_at,m.creater_name,cm.create_at add_at,'article' type,m.score,m.remark_num,s.score myscore,st.name site_name,st.id siteid,m.matter_cont_tag,m.matter_mg_tag";
+			$q1[] = "m.id,m.title,m.summary,m.pic,m.create_at,m.creater_name,cm.create_at add_at,'article' type,m.score,m.remark_num,s.score myscore,st.name site_name,st.id siteid,st.heading_pic,m.matter_cont_tag,m.matter_mg_tag";
 			$q1[] = "xxt_article m left join xxt_article_score s on m.id=s.article_id and s.vid='$userid',xxt_channel_matter cm,xxt_site st";
 			$q1[] = "m.state=1 and m.approved='Y' and cm.channel_id=$channel_id and m.id=cm.matter_id and cm.matter_type='article' and m.siteid=st.id";
 
@@ -328,6 +328,13 @@ class channel_model extends article_base {
 					!empty($matter->matter_mg_tag) && $matter->matter_mg_tag = json_decode($matter->matter_mg_tag);
 				}
 			}
+			$q1[0] = 'count(*)';
+			$total = (int) $this->query_val_ss($q1);
+
+			$data = new \stdClass;
+			$data->matters = $matters;
+			$data->total = $total;
+			return $data;
 		} else {
 			$q1 = [
 				'cm.create_at,cm.matter_type,cm.matter_id',
@@ -345,7 +352,8 @@ class channel_model extends article_base {
 			}
 			$matters = []; // 可用的素材
 			$simpleMatters = $this->query_objs_ss($q1, $q2);
-
+			$q1[0] = 'count(*)';
+			$total = (int) $this->query_val_ss($q1);
 			foreach ($simpleMatters as $sm) {
 				/* 检查素材是否可用 */
 				$valid = true;
@@ -353,7 +361,7 @@ class channel_model extends article_base {
 					$fullMatter = \TMS_APP::M('matter\\' . $sm->matter_type)->byId($sm->matter_id);
 				} else {
 					$q = [
-						"a.id,a.title,a.creater_name,a.create_at,a.summary,a.pic,a.state,s.name site_name,'article' type,a.matter_cont_tag,a.matter_mg_tag",
+						"a.id,a.title,a.creater_name,a.create_at,a.summary,a.pic,a.state,s.name site_name,'article' type,a.matter_cont_tag,a.matter_mg_tag,s.heading_pic",
 						'xxt_article a, xxt_site s',
 						"a.id = $sm->matter_id and a.state = 1 and a.approved = 'Y' and a.siteid=s.id and s.state = 1",
 					];
@@ -391,8 +399,12 @@ class channel_model extends article_base {
 				}
 				$matters[] = $fullMatter;
 			}
+
+			$data = new \stdClass;
+			$data->matters = $matters;
+			$data->total = $total;
+			return $data;
 		}
-		return $matters;
 	}
 	/**
 	 * 频道中增加素材

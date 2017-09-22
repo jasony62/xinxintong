@@ -73,51 +73,6 @@ class base extends \site\fe\base {
 		}
 	}
 	/**
-	 * 解决老版本的数据迁移问题
-	 */
-	private function __upgradeCookieMembers($siteId, $userid, $aMemberSchemas) {
-		$model = $this->model();
-		$members = array();
-		/* members */
-		foreach ($aMemberSchemas as $authid) {
-			if ($encoded = $this->myGetCookie("_{$siteId}_{$authid}_member")) {
-				if (!isset($cookiekey)) {
-					/* get cookie key */
-					$q = array('creater', 'xxt_mpaccount', "mpid='$siteId'");
-					if (!($mpCreater = $model->query_val_ss($q))) {
-						return false;
-					}
-					$cookiekey = md5($siteId . $mpCreater);
-				}
-				if ($mid = $model->encrypt($encoded, 'DECODE', $cookiekey)) {
-					/**
-					 * 检查数据库中是否有匹配的记录
-					 */
-					$q = array(
-						'authed_identity',
-						'xxt_member',
-						"authapi_id=$authid and mid='$mid' and forbidden='N'",
-					);
-					if ($memberOld = $model->query_obj_ss($q)) {
-						$q = array(
-							'*',
-							'xxt_site_member',
-							"siteid='{$siteId}' and schema_id=$authid and identity='{$memberOld->authed_identity}'",
-						);
-						if ($member = $model->query_obj_ss($q)) {
-							$model->update('xxt_site_member', array('userid' => $userid), "id='{$member->id}'");
-							$member->userid = $userid;
-							$members[] = $member;
-						}
-					}
-				}
-				/* 清除原有的cookie */
-				$this->mySetCookie("_{$siteId}_{$authid}_member", '', time() - 86400);
-			}
-		}
-		return $members;
-	}
-	/**
 	 *
 	 */
 	private function __upgradeOldMembers($siteId, $userid, $openid) {
@@ -184,23 +139,19 @@ class base extends \site\fe\base {
 
 		}
 		if (empty($members)) {
-			/* 处理版本迁移数据 */
-			$members = $this->__upgradeCookieMembers($siteId, $userid, $aMemberSchemas);
-			if (empty($members)) {
-				if ($this->userAgent() === 'wx') {
-					if (isset($this->who->sns->wx)) {
-						$openid = $this->who->sns->wx->openid;
-					} else if (isset($this->who->sns->qy)) {
-						$openid = $this->who->sns->qy->openid;
-					}
-				} else if ($this->userAgent() === 'yx') {
-					if (isset($this->who->sns->yx)) {
-						$openid = $this->who->sns->yx->openid;
-					}
+			if ($this->userAgent() === 'wx') {
+				if (isset($this->who->sns->wx)) {
+					$openid = $this->who->sns->wx->openid;
+				} else if (isset($this->who->sns->qy)) {
+					$openid = $this->who->sns->qy->openid;
 				}
-				if (isset($openid)) {
-					$members = $this->__upgradeOldMembers($siteId, $userid, $openid);
+			} else if ($this->userAgent() === 'yx') {
+				if (isset($this->who->sns->yx)) {
+					$openid = $this->who->sns->yx->openid;
 				}
+			}
+			if (isset($openid)) {
+				$members = $this->__upgradeOldMembers($siteId, $userid, $openid);
 			}
 		}
 		if (empty($members)) {
@@ -242,5 +193,17 @@ class base extends \site\fe\base {
 				return $member;
 			}
 		}
+	}
+	/**
+	 *
+	 */
+	private function gotoOutAcl($mpid, $authid) {
+		$protocol = isset($_SERVER['SERVER_PROTOCOL']) ? $_SERVER['SERVER_PROTOCOL'] : 'HTTP/1.0';
+		header($protocol . ' 401 Unauthorized');
+		$r = $this->model('user/authapi')->getAclStatement($authid, $mpid);
+		TPL::assign('title', '访问控制未通过');
+		TPL::assign('body', $r);
+		TPL::output('error');
+		exit;
 	}
 }

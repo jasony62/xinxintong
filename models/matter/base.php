@@ -30,9 +30,6 @@ class base_model extends \TMS_MODEL {
 		case 'text':
 			$q = ['id,title', 'xxt_text', ["id" => $id]];
 			break;
-		case 'relay':
-			$q = ['id,title', 'xxt_mprelay', ["id" => $id]];
-			break;
 		case 'joinwall':
 			$q = ['id,title', 'xxt_wall', ["id" => $id]];
 			break;

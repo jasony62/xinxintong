@@ -152,7 +152,7 @@ class group_model extends app_base {
 		return true;
 	}
 	/**
-	 *
+	 * 进行分组
 	 */
 	public function execute($appId) {
 		$app = \TMS_APP::M('matter\group')->byId($appId);
@@ -313,6 +313,7 @@ class group_model extends app_base {
 		$oNewApp->creater_src = $oUser->src;
 		$oNewApp->creater_name = $this->escape($oUser->name);
 		$oNewApp->create_at = $current;
+		$oNewApp->start_at = $current;
 		$oNewApp->modifier = $oUser->id;
 		$oNewApp->modifier_src = $oUser->src;
 		$oNewApp->modifier_name = $this->escape($oUser->name);

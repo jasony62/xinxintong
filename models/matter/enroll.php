@@ -453,9 +453,20 @@ class enroll_model extends app_base {
 						}
 					}
 				}
-			} else if (empty($entryRule->scope) || $entryRule->scope === 'none') {
-				/* 不限制用户访问来源 */
-				$nickname = empty($oUser->nickname) ? '' : $oUser->nickname;
+			} else if (empty($entryRule->scope) || $entryRule->scope === 'none' || $entryRule->scope === 'group') {
+				if (!empty($oApp->mission_id)) {
+					/* 从项目中获得用户昵称 */
+					$oMission = (object) ['id' => $oApp->mission_id];
+					$modelMisUsr = $this->model('matter\mission\user');
+					$oMisUsr = $modelMisUsr->byId($oMission, $oUser->uid, ['fields' => 'nickname']);
+					if ($oMisUsr) {
+						$nickname = $oMisUsr->nickname;
+					} else {
+						$nickname = empty($oUser->nickname) ? '' : $oUser->nickname;
+					}
+				} else {
+					$nickname = empty($oUser->nickname) ? '' : $oUser->nickname;
+				}
 			}
 		}
 
@@ -556,6 +567,7 @@ class enroll_model extends app_base {
 		$oNewApp->creater_src = $oUser->src;
 		$oNewApp->creater_name = $this->escape($oUser->name);
 		$oNewApp->create_at = $current;
+		$oNewApp->start_at = $current;
 		$oNewApp->modifier = $oUser->id;
 		$oNewApp->modifier_src = $oUser->src;
 		$oNewApp->modifier_name = $this->escape($oUser->name);

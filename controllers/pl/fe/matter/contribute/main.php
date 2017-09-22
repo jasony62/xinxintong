@@ -40,7 +40,7 @@ class main extends \pl\fe\matter\base {
 		$modelCtr = $this->model('matter\contribute');
 		$modelRole = $this->model('matter\contribute\role');
 		$c = $modelCtr->byId($app);
-		if(!$c){
+		if (!$c) {
 			return new \ResponseError('指定的活动不存在');
 		}
 
@@ -64,22 +64,28 @@ class main extends \pl\fe\matter\base {
 	 * 投稿活动列表
 	 */
 	public function list_action($site, $page = 1, $size = 30) {
+		if (false === ($oUser = $this->accountUser())) {
+			return new \ResponseTimeout();
+		}
 		$model = $this->model();
-		$post = $this->getPostJson();
+		$oPosted = $this->getPostJson();
 
 		$site = $model->escape($site);
-		$q = array(
+		$q = [
 			'*',
-			'xxt_contribute',
+			'xxt_contribute c',
 			"siteid='$site' and state<>0",
-		);
-		if(!empty($post->byTitle)){
-			$q[2] .= " and title like '%". $model->escape($post->byTitle) ."%'";
+		];
+		if (!empty($oPosted->byTitle)) {
+			$q[2] .= " and title like '%" . $model->escape($oPosted->byTitle) . "%'";
 		}
-		if(!empty($post->byTags)){
-			foreach ($post->byTags as $tag) {
-				$q[2] .= " and matter_mg_tag like '%". $model->escape($tag->id) ."%'";
+		if (!empty($oPosted->byTags)) {
+			foreach ($oPosted->byTags as $tag) {
+				$q[2] .= " and matter_mg_tag like '%" . $model->escape($tag->id) . "%'";
 			}
+		}
+		if (isset($oPosted->byStar) && $oPosted->byStar === 'Y') {
+			$q[2] .= " and exists(select 1 from xxt_account_topmatter t where t.matter_type='contribute' and t.matter_id=c.id and userid='{$oUser->id}')";
 		}
 
 		$q2['o'] = 'create_at desc';
@@ -95,6 +101,7 @@ class main extends \pl\fe\matter\base {
 			$result['total'] = $total;
 			return new \ResponseData($result);
 		}
+
 		return new \ResponseData(array());
 	}
 	/**

@@ -61,27 +61,30 @@ class main extends \pl\fe\matter\base {
 	 *
 	 */
 	public function list_action($site, $cascade = 'Y') {
-		if (false === ($user = $this->accountUser())) {
+		if (false === ($oUser = $this->accountUser())) {
 			return new \ResponseTimeout();
 		}
 		$model = $this->model();
 		$site = $model->escape($site);
-		$options = $this->getPostJson();
+		$oOptions = $this->getPostJson();
 		/**
 		 * get links
 		 */
-		$q = array(
+		$q = [
 			"*",
-			'xxt_link',
+			'xxt_link l',
 			"siteid='$site' and state=1",
-		);
-		if(!empty($options->byTitle)){
-			$q[2] .= " and title like '%". $model->escape($options->byTitle) ."%'";
+		];
+		if (!empty($oOptions->byTitle)) {
+			$q[2] .= " and title like '%" . $model->escape($oOptions->byTitle) . "%'";
 		}
-		if (!empty($options->byTags)) {
-			foreach ($options->byTags as $tag) {
+		if (!empty($oOptions->byTags)) {
+			foreach ($oOptions->byTags as $tag) {
 				$q[2] .= " and matter_mg_tag like '%" . $model->escape($tag->id) . "%'";
 			}
+		}
+		if (isset($oOptions->byStar) && $oOptions->byStar === 'Y') {
+			$q[2] .= " and exists(select 1 from xxt_account_topmatter t where t.matter_type='article' and t.matter_id=l.id and userid='{$oUser->id}')";
 		}
 		$q2['o'] = 'create_at desc';
 		$links = $model->query_objs_ss($q, $q2);
@@ -111,7 +114,7 @@ class main extends \pl\fe\matter\base {
 			}
 		}
 
-		return new \ResponseData($links);
+		return new \ResponseData(['docs' => $links, 'total' => count($links)]);
 	}
 	/**
 	 *

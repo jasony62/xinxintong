@@ -22,11 +22,13 @@ class main extends \pl\fe\matter\base {
 	/**
 	 * 返回一个分组活动
 	 */
-	public function get_action($site, $app) {
+	public function get_action($site, $app = null, $id = null) {
 		if (false === ($user = $this->accountUser())) {
 			return new \ResponseTimeout();
 		}
-		$oApp = $this->model('matter\\group')->byId($app);
+
+		$app = isset($app) ? $app : $id;
+		$oApp = $this->model('matter\group')->byId($app);
 		if (false === $oApp) {
 			return new \ObjectNotFoundError();
 		}
@@ -54,45 +56,63 @@ class main extends \pl\fe\matter\base {
 	/**
 	 * 返回分组活动列表
 	 */
-	public function list_action($site = null, $mission = null, $page = 1, $size = 30) {
-		if (false === ($user = $this->accountUser())) {
+	public function list_action($site = null, $mission = null, $page = 1, $size = 30, $cascaded = 'N') {
+		if (false === ($oUser = $this->accountUser())) {
 			return new \ResponseTimeout();
 		}
-		$post = $this->getPostJson();
-		$result = ['apps' => null, 'total' => 0];
-		$model = $this->model();
+		$oPosted = $this->getPostJson();
+		$modelGrp = $this->model('matter\group');
 		$q = [
-			"*,'group' type",
-			'xxt_group',
+			"*",
+			'xxt_group g',
 			"state<>0",
 		];
-		if (!empty($post->byTitle)) {
-			$q[2] .= " and title like '%" . $model->escape($post->byTitle) . "%'";
+		if (!empty($oPosted->byTitle)) {
+			$q[2] .= " and title like '%" . $modelGrp->escape($oPosted->byTitle) . "%'";
 		}
-		if (!empty($post->byTags)) {
-			foreach ($post->byTags as $tag) {
-				$q[2] .= " and matter_mg_tag like '%" . $model->escape($tag->id) . "%'";
+		if (!empty($oPosted->byTags)) {
+			foreach ($oPosted->byTags as $tag) {
+				$q[2] .= " and matter_mg_tag like '%" . $modelGrp->escape($tag->id) . "%'";
 			}
 		}
 		if (empty($mission)) {
-			$site = $model->escape($site);
+			$site = $modelGrp->escape($site);
 			$q[2] .= " and siteid='$site'";
 		} else {
-			$mission = $model->escape($mission);
+			$mission = $modelGrp->escape($mission);
 			$q[2] .= " and mission_id='$mission'";
-			//按项目阶段筛选
-			if (isset($post->mission_phase_id) && !empty($post->mission_phase_id) && $post->mission_phase_id !== "ALL") {
-				$mission_phase_id = $model->escape($post->mission_phase_id);
+			/* 按项目阶段筛选 */
+			if (isset($oPosted->mission_phase_id) && !empty($oPosted->mission_phase_id) && $oPosted->mission_phase_id !== "ALL") {
+				$mission_phase_id = $modelGrp->escape($oPosted->mission_phase_id);
 				$q[2] .= " and mission_phase_id='$mission_phase_id'";
 			}
 		}
+		if (isset($oPosted->byStar) && $oPosted->byStar === 'Y') {
+			$q[2] .= " and exists(select 1 from xxt_account_topmatter t where t.matter_type='group' and t.matter_id=g.id and userid='{$oUser->id}')";
+		}
+
 		$q2['o'] = 'modify_at desc';
 		$q2['r']['o'] = ($page - 1) * $size;
 		$q2['r']['l'] = $size;
-		if ($apps = $model->query_objs_ss($q, $q2)) {
+
+		$result = ['apps' => null, 'total' => 0];
+
+		if ($apps = $modelGrp->query_objs_ss($q, $q2)) {
+			$modelGrpRnd = $this->model('matter\group\round');
+			foreach ($apps as &$oApp) {
+				$oApp->type = 'group';
+				if ($cascaded === 'Y') {
+					$rounds = $modelGrpRnd->byApp($oApp->id);
+					$oApp->rounds = $rounds;
+				}
+			}
 			$result['apps'] = $apps;
+		}
+		if ($page == 1) {
+			$result['total'] = count($apps) > 0 ? count($apps) : 0;
+		} else {
 			$q[0] = 'count(*)';
-			$total = (int) $model->query_val_ss($q);
+			$total = (int) $modelGrp->query_val_ss($q);
 			$result['total'] = $total;
 		}
 
@@ -108,54 +128,62 @@ class main extends \pl\fe\matter\base {
 		if (false === ($user = $this->accountUser())) {
 			return new \ResponseTimeout();
 		}
+		$oSite = $this->model('site')->byId($site, array('fields' => 'id,heading_pic'));
+		if (false === $oSite) {
+			return new \ObjectNotFoundError();
+		}
+		if (!empty($mission)) {
+			$modelMis = $this->model('matter\mission');
+			$oMission = $modelMis->byId($mission);
+			if (false === $oMission) {
+				return new \ObjectNotFoundError();
+			}
+		}
 
 		$modelApp = $this->model('matter\group');
 		$modelApp->setOnlyWriteDbConn(true);
 
-		$customConfig = $this->getPostJson();
+		$oCustomConfig = $this->getPostJson();
 		$current = time();
-		$newapp = array();
-		$appId = uniqid();
-		$site = $this->model('site')->byId($site, array('fields' => 'id,heading_pic'));
-		if (empty($mission)) {
-			$newapp['summary'] = '';
-			$newapp['pic'] = $site->heading_pic;
-			$newapp['use_mission_header'] = 'N';
-			$newapp['use_mission_footer'] = 'N';
+
+		$oNewApp = new \stdClass;
+		$oNewApp->id = $appId = uniqid();
+		if (empty($oMission)) {
+			$oNewApp->summary = '';
+			$oNewApp->pic = $oSite->heading_pic;
+			$oNewApp->use_mission_header = 'N';
+			$oNewApp->use_mission_footer = 'N';
 		} else {
-			$modelMis = $this->model('matter\mission');
-			$mission = $modelMis->byId($mission);
-			$newapp['summary'] = $modelApp->escape($mission->summary);
-			$newapp['pic'] = $mission->pic;
-			$newapp['mission_id'] = $mission->id;
-			$newapp['use_mission_header'] = 'Y';
-			$newapp['use_mission_footer'] = 'Y';
+			$oNewApp->summary = $modelApp->escape($oMission->summary);
+			$oNewApp->pic = $oMission->pic;
+			$oNewApp->mission_id = $oMission->id;
+			$oNewApp->use_mission_header = 'Y';
+			$oNewApp->use_mission_footer = 'Y';
 		}
 		/*create app*/
-		$newapp['id'] = $appId;
-		$newapp['siteid'] = $site->id;
-		$newapp['title'] = empty($customConfig->proto->title) ? '新分组活动' : $this->escapse($customConfig->proto->title);
-		$newapp['scenario'] = $scenario;
-		$newapp['creater'] = $user->id;
-		$newapp['creater_src'] = $user->src;
-		$newapp['creater_name'] = $modelApp->escape($user->name);
-		$newapp['create_at'] = $current;
-		$newapp['modifier'] = $user->id;
-		$newapp['modifier_src'] = $user->src;
-		$newapp['modifier_name'] = $modelApp->escape($user->name);
-		$newapp['modify_at'] = $current;
-		$modelApp->insert('xxt_group', $newapp, false);
-		$app = $modelApp->byId($appId);
+		$oNewApp->siteid = $oSite->id;
+		$oNewApp->title = empty($oCustomConfig->proto->title) ? '新分组活动' : $modelApp->escape($oCustomConfig->proto->title);
+		$oNewApp->scenario = $scenario;
+		$oNewApp->creater = $user->id;
+		$oNewApp->creater_src = $user->src;
+		$oNewApp->creater_name = $modelApp->escape($user->name);
+		$oNewApp->create_at = $current;
+		$oNewApp->modifier = $user->id;
+		$oNewApp->modifier_src = $user->src;
+		$oNewApp->modifier_name = $modelApp->escape($user->name);
+		$oNewApp->modify_at = $current;
+		$modelApp->insert('xxt_group', $oNewApp, false);
+		$oNewApp->type = 'group';
 
 		/*记录操作日志*/
-		$this->model('matter\log')->matterOp($site->id, $user, $app, 'C');
+		$this->model('matter\log')->matterOp($oSite->id, $user, $oNewApp, 'C');
 
 		/*记录和任务的关系*/
-		if (isset($mission)) {
-			$modelMis->addMatter($user, $site->id, $mission->id, $app);
+		if (isset($oMission)) {
+			$modelMis->addMatter($user, $oSite->id, $oMission->id, $oNewApp);
 		}
 
-		return new \ResponseData($app);
+		return new \ResponseData($oNewApp);
 	}
 	/**
 	 *

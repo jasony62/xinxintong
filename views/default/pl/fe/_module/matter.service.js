@@ -122,19 +122,8 @@ provider('srvSite', function() {
                                 url += '&mission=' + $scope.mission.id;
                             }
                             $http.post(url, params).success(function(rsp) {
-                                if (/article/.test(matter.value)) {
-                                    $scope.matters = rsp.data.articles;
-                                    $scope.page.total = rsp.data.total;
-                                } else if (/enroll|signin|group|contribute/.test(matter.value)) {
-                                    $scope.matters = rsp.data.apps;
-                                    $scope.page.total = rsp.data.total;
-                                } else if (/mission/.test(matter.value)) {
-                                    $scope.matters = rsp.data.missions;
-                                    $scope.page.total = rsp.data.total;
-                                } else {
-                                    $scope.matters = rsp.data;
-                                    $scope.page.total = $scope.matters.length;
-                                }
+                                $scope.matters = rsp.data.docs || rsp.data.apps;
+                                $scope.page.total = $scope.matters.length;
                             });
                         };
                         $scope.cleanFilter = function() {
@@ -797,6 +786,6 @@ provider('srvTmplmsgNotice', function() {
         });
     });
     http2.get('/rest/pl/fe/matter/channel/list?site=' + srvSite.getSiteId() + '&cascade=N', function(rsp) {
-        $scope.channels = rsp.data;
+        $scope.channels = rsp.data.docs;
     });
 }]);

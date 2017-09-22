@@ -37,6 +37,34 @@ class user_model extends \TMS_MODEL {
 		return $oNewUsr;
 	}
 	/**
+	 * 参与过活动任务的用户
+	 */
+	public function enrolleeByMission($oMission, $aOptions = []) {
+		$fields = isset($aOptions['fields']) ? $aOptions['fields'] : '*';
+		$q = [
+			$fields,
+			'xxt_mission_user',
+			['mission_id' => $oMission->id],
+		];
+
+		/* 筛选条件 */
+		if (isset($aOptions['filter'])) {
+			$oFilter = $aOptions['filter'];
+			if (!empty($oFilter->by) && !empty($oFilter->keyword)) {
+				$q[2][$oFilter->by] = (object) ['op' => 'like', 'pat' => '%' . $oFilter->keyword . '%'];
+			}
+		}
+		$q2 = [];
+		/* 排序规则 */
+		if (!empty($aOptions['orderBy'])) {
+			$q2['o'] = $aOptions['orderBy'] . ' desc';
+		}
+
+		$oUsers = $this->query_objs_ss($q, $q2);
+
+		return $oUsers;
+	}
+	/**
 	 *
 	 */
 	public function byMission(&$mission, $criteria = null, $options = null) {

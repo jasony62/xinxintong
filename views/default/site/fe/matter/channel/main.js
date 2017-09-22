@@ -61,8 +61,8 @@ angular.module('app', ['infinite-scroll']).config(['$locationProvider', function
             url += '&page=' + this.page;
             url += '&size=10';
             $http.get(url).success(function(rsp) {
-                if (rsp.data.length) {
-                    var matters = rsp.data;
+                if (rsp.data.matters.length) {
+                    var matters = rsp.data.matters;
                     for (var i = 0, l = matters.length; i < l; i++) {
                         _this.matters.push(matters[i]);
                     }

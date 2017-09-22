@@ -67,15 +67,20 @@ class record extends base {
 
 		// 提交的数据
 		$posted = $this->getPostJson();
+		if (empty($posted) || count(get_object_vars($posted)) === 0) {
+			return new \ResponseError('没有提交有效数据');
+		}
+
 		if (isset($posted->data)) {
 			$enrolledData = $posted->data;
 		} else {
 			$enrolledData = $posted;
 		}
 		if ((isset($oEnrollApp->assignedNickname->valid) && $oEnrollApp->assignedNickname->valid === 'Y') && isset($oEnrollApp->assignedNickname->schema->id)) {
+			/* 从登记内容中获取昵称 */
 			$oUser->nickname = empty($enrolledData->{$oEnrollApp->assignedNickname->schema->id}) ? '' : $enrolledData->{$oEnrollApp->assignedNickname->schema->id};
 		} else {
-			// 当前访问用户的基本信息
+			/* 当前访问用户的基本信息 */
 			$userNickname = $modelEnl->getUserNickname($oEnrollApp, $oUser);
 			$oUser->nickname = $userNickname;
 		}
@@ -191,6 +196,7 @@ class record extends base {
 				/* 已经登记，更新原先提交的数据，只要进行更新操作就设置为未审核通过的状态 */
 				$oUpdatedEnrollRec['enroll_at'] = time();
 				$oUpdatedEnrollRec['userid'] = $oUser->uid;
+				$oUpdatedEnrollRec['nickname'] = $oUser->nickname;
 				$oUpdatedEnrollRec['verified'] = 'N';
 			}
 		}
@@ -339,12 +345,17 @@ class record extends base {
 		if (!empty($oEnrollApp->mission_id)) {
 			$modelMisUsr = $this->model('matter\mission\user');
 			$modelMisUsr->setOnlyWriteDbConn(true);
-			$oMission = new \stdClass;
-			$oMission->siteid = $oEnrollApp->siteid;
-			$oMission->id = $oEnrollApp->mission_id;
+			$oMission = $this->model('matter\mission')->byId($oEnrollApp->mission_id, ['fields' => 'siteid,id,user_app_type,user_app_id']);
+			if ($oMission->user_app_type === 'group') {
+				$oMisUsrGrpApp = (object) ['id' => $oMission->user_app_id];
+				$oMisGrpUser = $this->model('matter\group\player')->byUser($oMisUsrGrpApp, $oUser->uid, ['onlyOne' => true, 'round_id']);
+			}
 			$oMisUsr = $modelMisUsr->byId($oMission, $oUser->uid, ['fields' => 'id,nickname,group_id,last_enroll_at,enroll_num,user_total_coin']);
 			if (false === $oMisUsr) {
 				$aNewMisUser = ['last_enroll_at' => time(), 'enroll_num' => 1];
+				if (!empty($oMisGrpUser->round_id)) {
+					$aNewMisUser['group_id'] = $oMisGrpUser->round_id;
+				}
 				if (!empty($rules)) {
 					$aNewMisUser['user_total_coin'] = 0;
 					foreach ($rules as $rule) {
@@ -353,14 +364,13 @@ class record extends base {
 				}
 				$modelMisUsr->add($oMission, $oUser, $aNewMisUser);
 			} else {
-				$aUpdMisUser = [];
+				$aUpdMisUser = ['last_enroll_at' => time()];
 				if ($oMisUsr->nickname !== $oUser->nickname) {
 					$aUpdMisUser['nickname'] = $oUser->nickname;
 				}
-				$aUpdMisUser['last_enroll_at'] = time();
-				if (isset($oUser->group_id)) {
-					if ($oMisUsr->group_id !== $oUser->group_id) {
-						$aUpdMisUser['group_id'] = $oUser->group_id;
+				if (isset($oMisGrpUser->round_id)) {
+					if ($oMisUsr->group_id !== $oMisGrpUser->round_id) {
+						$aUpdMisUser['group_id'] = $oMisGrpUser->round_id;
 					}
 				}
 				if ($bSubmitNewRecord) {
@@ -959,6 +969,77 @@ class record extends base {
 		}
 
 		return new \ResponseData(['like_log' => $oLikeLog, 'like_num' => $likeNum]);
+	}
+	/**
+	 * 推荐登记记录中的某一个题
+	 * 只有组长才有权限做
+	 *
+	 * @param string $ek
+	 * @param string $schema
+	 * @param string $value
+	 *
+	 */
+	public function recommend_action($ek, $schema, $value = '') {
+		$modelData = $this->model('matter\enroll\data');
+		$oRecData = $modelData->byRecord($ek, ['schema' => $schema, 'fields' => 'aid,userid,agreed,agreed_log']);
+		if (false === $oRecData) {
+			return new \ObjectNotFoundError();
+		}
+
+		$oApp = $this->model('matter\enroll')->byId($oRecData->aid, ['cascaded' => 'N', 'fields' => 'entry_rule']);
+		if (false === $oApp) {
+			return new \ObjectNotFoundError();
+		}
+		if (empty($oApp->entry_rule->group->id) || empty($oApp->entry_rule->group->round->id)) {
+			return new \ParameterError('只有进入条件为分组活动的登记活动才允许组长推荐');
+		}
+		$modelGrpUsr = $this->model('matter\group\player');
+		$oGrpLeader = $modelGrpUsr->byUser($oApp->entry_rule->group, $this->who->uid, ['fields' => 'is_leader,round_id', 'onlyOne' => true]);
+		if (false === $oGrpLeader || $oGrpLeader->is_leader !== 'Y') {
+			return new \ParameterError('只有允许组长进行推荐');
+		}
+		if ($oGrpLeader->round_id !== $oApp->entry_rule->group->round->id) {
+			return new \ParameterError('只允许推荐本组数据');
+		}
+		$oGrpMemb = $modelGrpUsr->byUser($oApp->entry_rule->group, $this->who->uid, ['fields' => 'round_id', 'onlyOne' => true]);
+		if (false === $oGrpMemb || $oGrpMemb->round_id !== $oApp->entry_rule->group->round->id) {
+			return new \ParameterError('被推荐的数据必须在指定分组内');
+		}
+
+		if (!in_array($value, ['Y', 'N', 'A'])) {
+			$value = '';
+		}
+		// 确定模板名称
+		// if ($value == 'Y') {
+		// 	$name = 'site.enroll.submit.recommend';
+		// } else if ($value == 'N') {
+		// 	$name = 'site.enroll.submit.mask';
+		// }
+
+		// if (!empty($name)) {
+		// 	$modelRec = $this->model('matter\enroll\record');
+		// 	$oRecord = $modelRec->byId($ek);
+		// 	$modelEnl = $this->model('matter\enroll');
+		// 	$oApp = $modelEnl->byId($oRecord->aid, ['cascaded' => 'N']);
+		// 	$this->_notifyAgree($oApp, $oRecord, $name, $schema);
+		// }
+
+		$oAgreedLog = $oRecData->agreed_log;
+		if (isset($oAgreedLog->{$this->who->uid})) {
+			$oLog = $oAgreedLog->{$this->who->uid};
+			$oLog->time = time();
+			$oLog->value = $value;
+		} else {
+			$oAgreedLog->{$this->who->uid} = (object) ['time' => time(), 'value' => $value];
+		}
+
+		$rst = $modelData->update(
+			'xxt_enroll_record_data',
+			['agreed' => $value, 'agreed_log' => json_encode($oAgreedLog)],
+			['enroll_key' => $ek, 'schema_id' => $schema, 'state' => 1]
+		);
+
+		return new \ResponseData($rst);
 	}
 	/**
 	 * 删除当前记录

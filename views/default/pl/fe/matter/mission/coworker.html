@@ -1,0 +1,54 @@
+<div class='col-md-6 col-md-offset-3'>
+    <div class='panel panel-default'>
+        <div class='panel-body'>
+            <div class='form-group'>
+                <label>添加用户共同管理项目</label>
+                <div class='input-group'>
+                    <input id='popoverMyCoworker' type="text" class="form-control" ng-model='label' placeholder="请输入作为用户账号的邮箱" uib-popover-template="'myCoworker.html'" popover-placement="bottom" popover-trigger="show" ng-click="openMyCoworkers()">
+                    <span class='input-group-btn'>
+                            <button class='btn btn-primary' ng-click='add()' ng-disabled="!label||!label.length"><span class='glyphicon glyphicon-plus'></span></button>
+                    </span>
+                </div>
+            </div>
+            <div class='form-group'>
+                <label>或者发送邀请链接</label>
+                <button id='shareMission' uib-popover-template="'shareMission.html'" popover-trigger="show" popover-placement="bottom" popover-title="应用设置" class='btn btn-block btn-success' ng-click="makeInvite()">获取链接</button>
+            </div>
+            <div class='list-group' ng-if="coworkers.length">
+                <a href='javascript:void(0)' class='list-group-item' ng-repeat="c in coworkers" ng-mouseenter="entered=true" ng-mouseleave="entered=false"><span>{{c.account.nickname}}</span><span>（{{c.coworker_label}}）</span><button class='close' ng-if="entered" ng-click="remove(c)">&times;</button></a>
+            </div>
+        </div>
+    </div>
+    <div class='panel panel-default'>
+        <div class='panel-body'>
+            <div class='form-group' ng-show="mission.yourRole==='O'">
+                <label>将项目移交给其他用户</label>
+                <div class='input-group' ng-hide="status">
+                    <input type="text" class="form-control" ng-model='newOwner' placeholder="输入新项目管理员的账号">
+                    <div class='input-group-btn'>
+                        <button class='btn btn-default' ng-click="transfer()">移交</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <script type="text/ng-template" id="shareMission.html">
+        <div id="shareMission">
+            <div class='form-group'>
+                <div class='help-block'>链接有效期30分钟</div>
+                <div class='form-control' style='height:auto;word-break:break-all'>{{inviteURL}}</div>
+            </div>
+            <div class='form-group'>
+                <button class='btn btn-default' ng-click="closeInvite()">关闭</button>
+            </div>
+        </div>
+    </script>
+    <script type="text/ng-template" id="myCoworker.html">
+        <div id="myCoworker">
+            <div class='list-group' style="max-height:205px;overflow-y:auto">
+                <a href='' class='list-group-item' ng-repeat="c in myCoworkers" ng-click="chooseMyCoworker(c)"><span>{{c.account.nickname}}</span><span>（{{c.coworker_label}}）</span></a>
+            </div>
+            <button class='btn btn-default' ng-click="closeMyCoworkers()">关闭</button>
+        </div>
+    </script>
+</div>

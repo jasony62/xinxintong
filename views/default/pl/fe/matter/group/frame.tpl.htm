@@ -36,32 +36,18 @@
         </div>
         <!--导航+主体内容-->
         <div class='pl-layout-main pl-layout-main-topnav'>
-            <nav class="navbar navbar-default pl-navbar-fixed-top">
+            <nav class="navbar pl-navbar-default pl-navbar-fixed-top">
                 <div class='container-fluid'>
-                    <div class="navbar-header">
-                        <button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target='#navbar-collapse-1'>
-                            <span class="sr-only">Toggle navigation</span>
-                            <span class="icon-bar"></span>
-                            <span class="icon-bar"></span>
-                            <span class="icon-bar"></span>
-                        </button>
-                    </div>
-                    <div class='collapse navbar-collapse' id='navbar-collapse-1'>
-                        <nav class='nav navbar-nav tms-breadcrumb'>
-                            <li><a href="/rest/pl/fe?view=main&scope=activity&type=group&sid={{site.id}}" target='_self'>个人工作台</a></li>
-                            <li ng-if="site.yourRole"><a href="/rest/pl/fe?view=main&scope=activity&type=group&sid={{site.id}}" target='_self'>{{site.name}}</a></li>
-                            <li ng-if="!site.yourRole"><a href="javascript:void(0)" style='color:#777;cursor:default;'>{{site.name}}</a></li>
-                            <li ng-if="app.mission"><a href="/rest/pl/fe/matter/mission?site={{app.siteid}}&id={{app.mission.id}}" target='_self' title="{{app.mission.title}}">{{app.mission.title}}</a></li>
-                            <li ng-if="app.mission"><a href="/rest/pl/fe/matter/mission/matter?site={{app.siteid}}&id={{app.mission.id}}#group" target='_self'>分组</a></li>
-                            <li>
-                                <a href="" ng-click="switchTo('main')" title='{{app.title}}' ng-if="!Title">{{app.title}}</a>
-                                <a ng-if="Title">
-                                    <input type='text' min-size="10" title='{{app.title}}' ng-model='app.title' tms-auto-update tms-wait=1000 tms-update="update('title')" ng-if="Title">
-                                </a>
-                            </li>
-                        </nav>
-                        <a class="btn btn-default navbar-btn reName" href="" ng-click="Title= Title?false:true">重命名</a>
-                    </div>
+                    <nav class='nav navbar-nav tms-breadcrumb'>
+                        <li><a href="/rest/pl/fe?view=main&scope=activity&type=group&sid={{site.id}}" target='_self'>个人工作台</a></li>
+                        <li ng-if="site.yourRole"><a href="/rest/pl/fe?view=main&scope=activity&type=group&sid={{site.id}}" target='_self'>{{site.name}}</a></li>
+                        <li ng-if="!site.yourRole"><a href="javascript:void(0)" style='color:#777;cursor:default;'>{{site.name}}</a></li>
+                        <li ng-if="app.mission"><a href="/rest/pl/fe/matter/mission?site={{app.siteid}}&id={{app.mission.id}}" target='_self' title="{{app.mission.title}}">{{app.mission.title}}</a></li>
+                        <li ng-if="app.mission"><a href="/rest/pl/fe/matter/mission/matter?site={{app.siteid}}&id={{app.mission.id}}#group" target='_self'>分组</a></li>
+                        <li>
+                            <a href="" ng-click="switchTo('main')">{{app.title}}</a>
+                        </li>
+                    </nav>
                 </div>
             </nav>
             <div class='container-fluid'>

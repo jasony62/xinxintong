@@ -7,6 +7,13 @@ require_once dirname(dirname(__FILE__)) . '/base.php';
  */
 class phase extends \pl\fe\matter\base {
 	/**
+	 * 返回视图
+	 */
+	public function index_action() {
+		\TPL::output('/pl/fe/matter/mission/frame');
+		exit;
+	}
+	/**
 	 * 任务下的阶段
 	 *
 	 * @param string $site

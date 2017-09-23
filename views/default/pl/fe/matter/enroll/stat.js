@@ -364,7 +364,7 @@ define(['frame'], function(ngApp) {
                 }
             })
             url = '/rest/pl/fe/matter/enroll/stat/get';
-            url += '?site=' + $scope.app.siteid;
+            url += '?site=' + app.siteid;
             url += '&app=' + app.id;
             url += '&rid=' + (rid ? rid : '');
             http2.get(url, function(rsp) {

@@ -1,6 +1,6 @@
 define(['frame'], function(ngApp) {
     'use strict';
-    ngApp.provider.controller('ctrlEnrollee', ['$scope', '$filter', '$uibModal', 'http2', function($scope, $filter, $uibModal, http2) {
+    ngApp.provider.controller('ctrlEnrollee', ['$scope', '$filter', '$uibModal', 'http2', 'facListFilter', function($scope, $filter, $uibModal, http2, facListFilter) {
         function enrolleeList() {
             var url;
             url = '/rest/pl/fe/matter/mission/user/enrolleeList?site=' + _oMission.siteid + '&mission=' + _oMission.id;
@@ -18,7 +18,7 @@ define(['frame'], function(ngApp) {
         var _oMission, _oCriteria;
         $scope.criteria = _oCriteria = {
             orderBy: '',
-            filter: { by: '', keyword: '' }
+            filter: {}
         };
         $scope.$watch('mission', function(oMission) {
             if (!oMission) return;
@@ -29,29 +29,8 @@ define(['frame'], function(ngApp) {
             _oCriteria.orderBy = orderBy;
             enrolleeList();
         };
-        $scope.filter = {
-            keyword: '',
-            target: null,
-            show: function(event) {
-                this.target = event.target;
-                this.keyword = _oCriteria.filter.keyword || '';
-                $(this.target).trigger('show');
-            },
-            close: function() {
-                $(this.target).trigger('hide');
-            },
-            cancel: function() {
-                _oCriteria.filter.keyword = this.keyword = '';
-                _oCriteria.filter.by = '';
-                this.close();
-                enrolleeList();
-            },
-            exec: function(filterBy) {
-                _oCriteria.filter.keyword = this.keyword;
-                _oCriteria.filter.by = this.keyword ? filterBy : '';
-                this.close();
-                enrolleeList();
-            }
-        };
+        $scope.filter = facListFilter.init(function() {
+            enrolleeList();
+        }, _oCriteria.filter);
     }]);
 });

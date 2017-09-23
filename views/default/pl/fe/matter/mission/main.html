@@ -1,231 +1,99 @@
-<div ng-controller="ctrlSetting" class="col-md-12">
-    <div>
-        <nav class='navbar navbar-default tms-panel-heading'>
-            <div class='container-fluid'>
-                <p class="navbar-text">基本信息</p>
-                <form class='navbar-form navbar-right'>
-                    <button class='btn btn-default' ng-click="remove()">删除</button>
-                </form>
+<div ng-controller="ctrlSetting" class='col-md-6 col-md-offset-3'>
+    <div class='panel panel-default'>
+        <div class='panel-body'>
+            <div class='form-group'>
+                <label>名称：最多35个汉字，70个英文字符</label>
+                <input type="text" class="form-control" ng-model='mission.title' tms-auto-update tms-wait=1000 tms-update="update('title')">
             </div>
-        </nav>
-        <div class='tms-panel-body'>
-            <div class='col-md-4'>
-                <div class='form-group'>
-                    <label>名称：最多35个汉字，70个英文字符</label>
-                    <input type="text" class="form-control" ng-model='mission.title' tms-auto-update tms-wait=1000 tms-update="update('title')">
+            <div class='form-group'>
+                <button class='btn btn-default' ng-click="remove()">删除</button>
+            </div>
+            <div class='form-group'>
+                <label>摘要：最多120个汉字，240个英文字符</label>
+                <textarea class='form-control' ng-model="mission.summary" tms-auto-update tms-wait=1000 tms-update="update('summary')" rows='3'></textarea>
+            </div>
+            <div class='form-group'>
+                <label>头图（可选）：建议尺寸：900像素 * 500像素</label>
+                <div style="width:182px;border:1px solid #CCC">
+                    <div style="height:100px;text-align:center;padding-top:32px" ng-if="!mission.pic">
+                        <button class='btn btn-default' ng-click='setPic();'>
+                            <span class='glyphicon glyphicon-picture'></span>选择图片</button>
+                    </div>
+                    <div style='position:relative' ng-if="mission.pic" ng-mouseenter='hover=true' ng-mouseleave='hover=false'>
+                        <img name='pic' ng-src='{{mission.pic}}' width='180px' />
+                        <button class='btn btn-default btn-sm' style='position:absolute;top:2px;left:2px' ng-if='hover' ng-click='setPic();'>
+                            <span class='glyphicon glyphicon-picture'></span>
+                        </button>
+                        <button class='btn btn-default btn-sm' style='position:absolute;top:2px;right:2px' ng-if='hover' ng-click='removePic();'>
+                            <span class='glyphicon glyphicon-trash'></span>
+                        </button>
+                    </div>
                 </div>
-                <div class='form-group'>
-                    <label>摘要：最多120个汉字，240个英文字符</label>
-                    <textarea class='form-control' ng-model="mission.summary" tms-auto-update tms-wait=1000 tms-update="update('summary')" rows='3'></textarea>
+            </div>
+            <div class='form-group'>
+                <label>管理标签（可选）</label>
+                <p class="form-control" ng-click="tagMatter('M')">
+                    <span class="tag" ng-repeat="t in mission.matter_mg_tag" ng-bind="t.title"></span>
+                </p>
+            </div>
+            <div class='row'>
+                <div class='col-md-6'>
+                    <div class='form-group'>
+                        <label>开始时间（可选）</label>
+                        <tms-datepicker class='tms-datepicker' tms-title='开始时间' tms-date='mission.start_at' tms-state='mission.start_at' tms-mask="y,m,d"></tms-datepicker>
+                    </div>
                 </div>
-                <div class='form-group'>
-                    <label>头图（可选）：建议尺寸：900像素 * 500像素</label>
-                    <div style="width:182px;border:1px solid #CCC">
-                        <div style="height:100px;text-align:center;padding-top:32px" ng-if="!mission.pic">
-                            <button class='btn btn-default' ng-click='setPic();'>
-                                <span class='glyphicon glyphicon-picture'></span>选择图片</button>
-                        </div>
-                        <div style='position:relative' ng-if="mission.pic" ng-mouseenter='hover=true' ng-mouseleave='hover=false'>
-                            <img name='pic' ng-src='{{mission.pic}}' width='180px' />
-                            <button class='btn btn-default btn-sm' style='position:absolute;top:2px;left:2px' ng-if='hover' ng-click='setPic();'>
-                                <span class='glyphicon glyphicon-picture'></span>
+                <div class='col-md-6'>
+                    <div class='form-group'>
+                        <label>结束时间（可选）</label>
+                        <tms-datepicker class='tms-datepicker' tms-title='结束时间' tms-date='mission.end_at' tms-state='mission.end_at' tms-mask="y,m,d,23,59"></tms-datepicker>
+                    </div>
+                </div>
+            </div>
+            <div class='form-group'>
+                <label>扩展属性1</label>
+                <input type="text" class="form-control" ng-model="mission.extattrs.attr1" tms-auto-update tms-wait=1000 tms-update="update('extattrs')">
+            </div>
+            <div class='form-group'>
+                <label>扩展属性2</label>
+                <input type="text" class="form-control" ng-model="mission.extattrs.attr2" tms-auto-update tms-wait=1000 tms-update="update('extattrs')">
+            </div>
+        </div>
+    </div>
+    <div class='panel panel-default'>
+        <div class='panel-body'>
+            <table class='table table-bordered'>
+                <tr>
+                    <td>给项目中的所有活动和资料添加页眉</td>
+                    <td>
+                        <div class="btn-group">
+                            <button type="button" class="btn btn-sm btn-default" ng-click="makePagelet('header')">制作</button>
+                            <button type="button" class="btn btn-sm btn-default dropdown-toggle" data-toggle="dropdown">
+                                <span class="caret"></span>
+                                <span class="sr-only">Toggle Dropdown</span>
                             </button>
-                            <button class='btn btn-default btn-sm' style='position:absolute;top:2px;right:2px' ng-if='hover' ng-click='removePic();'>
-                                <span class='glyphicon glyphicon-trash'></span>
+                            <ul class="dropdown-menu" role="menu">
+                                <li><a href='' ng-click="codePage($event,'header')">编码</a></li>
+                            </ul>
+                        </div>
+                    </td>
+                </tr>
+                <tr>
+                    <td>给项目中的所有活动和资料添加页脚</td>
+                    <td>
+                        <div class="btn-group">
+                            <button type="button" class="btn btn-sm btn-default" ng-click="makePagelet('footer')">制作</button>
+                            <button type="button" class="btn btn-sm btn-default dropdown-toggle" data-toggle="dropdown">
+                                <span class="caret"></span>
+                                <span class="sr-only">Toggle Dropdown</span>
                             </button>
+                            <ul class="dropdown-menu" role="menu">
+                                <li><a href='' ng-click="codePage($event,'footer')">编码</a></li>
+                            </ul>
                         </div>
-                    </div>
-                </div>
-                <div class='form-group'>
-                    <label>管理标签（可选）</label>
-                    <p class="form-control" ng-click="tagMatter('M')">
-                        <span class="tag" ng-repeat="t in mission.matter_mg_tag" ng-bind="t.title"></span>
-                    </p>
-                </div>
-            </div>
-            <div class='col-md-4'>
-                <div class='form-group'>
-                    <label>开始时间（可选）</label>
-                    <tms-datepicker class='tms-datepicker' tms-title='开始时间' tms-date='mission.start_at' tms-state='mission.start_at' tms-mask="y,m,d"></tms-datepicker>
-                </div>
-                <div class='form-group'>
-                    <label>结束时间（可选）</label>
-                    <tms-datepicker class='tms-datepicker' tms-title='结束时间' tms-date='mission.end_at' tms-state='mission.end_at' tms-mask="y,m,d,23,59"></tms-datepicker>
-                </div>
-            </div>
-            <div class='col-md-4'>
-                <div class='form-group'>
-                    <label>扩展属性1</label>
-                    <input type="text" class="form-control" ng-model="mission.extattrs.attr1" tms-auto-update tms-wait=1000 tms-update="update('extattrs')">
-                </div>
-                <div class='form-group'>
-                    <label>扩展属性2</label>
-                    <input type="text" class="form-control" ng-model="mission.extattrs.attr2" tms-auto-update tms-wait=1000 tms-update="update('extattrs')">
-                </div>
-            </div>
-        </div>
-    </div>
-    <div ng-controller="ctrlPhase">
-        <nav class='navbar navbar-default tms-panel-heading'>
-            <div class='container-fluid'>
-                <p class="navbar-text">项目阶段</p>
-                <form class='navbar-form navbar-right'>
-                    <div class='input-group'>
-                        <span class="input-group-addon">
-                            <span ng-if="!phases.length">指定阶段数量</span>
-                        <span ng-if="phases.length">增加阶段数量</span>
-                        </span>
-                        <input type='text' class='form-control' ng-model="numberOfNewPhases">
-                        <span class='input-group-btn'>
-                            <button class='btn btn-default' ng-click="add()">添加</button>
-                        </span>
-                    </div>
-                </form>
-            </div>
-        </nav>
-        <div class='tms-panel-body'>
-            <div class='phases clearfix form-group'>
-                <div class='col-md-3 phase' ng-repeat="p in phases">
-                    <div class='tms-tile'>
-                        <div class='action'>
-                            <button class='btn btn-sm btn-default' ng-click="remove(p)"><i class='glyphicon glyphicon-remove'></i></button>
-                        </div>
-                        <div class='form-group'>
-                            <label>阶段名称</label>
-                            <input type="text" class="form-control" ng-model="p.title" tms-auto-update tms-wait=1000 tms-update="update(p,'title')">
-                        </div>
-                        <div class='form-group'>
-                            <label>阶段说明</label>
-                            <textarea class="form-control" ng-model="p.summary" tms-auto-update tms-wait=1000 tms-update="update(p,'summary')"></textarea>
-                        </div>
-                        <div class='form-group'>
-                            <label>阶段开始时间</label>
-                            <tms-datepicker class='tms-datepicker' tms-title='开始时间' tms-obj="p" tms-date='p.start_at' tms-state='phase.start_at'></tms-datepicker>
-                        </div>
-                        <div class='form-group'>
-                            <label>阶段结束时间</label>
-                            <tms-datepicker class='tms-datepicker' tms-title='结束时间' tms-obj="p" tms-date='p.end_at' tms-state='phase.end_at'></tms-datepicker>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </div>
-    <div ng-controller="ctrlCoworker">
-        <nav class='navbar navbar-default tms-panel-heading'>
-            <div class='container-fluid'>
-                <p class="navbar-text">项目合作人</p>
-                <form class='navbar-form navbar-right' ng-show="mission.yourRole==='O'">
-                    <div class='input-group' ng-hide="status">
-                        <input type="text" class="form-control" ng-model='newOwner' placeholder="输入新项目管理员的账号">
-                        <span class='input-group-btn'>
-                            <button class='btn btn-default' ng-click="transfer()">移交</button>
-                        </span>
-                    </div>
-                </form>
-            </div>
-        </nav>
-        <div class='tms-panel-body'>
-            <div class='col-md-4'>
-                <div class='form-group'>
-                    <label>添加用户共同管理项目</label>
-                    <div class='input-group'>
-                        <input id='popoverMyCoworker' type="text" class="form-control" ng-model='label' placeholder="请输入作为用户账号的邮箱" uib-popover-template="'myCoworker.html'" popover-placement="bottom" popover-trigger="show" ng-click="openMyCoworkers()">
-                        <span class='input-group-btn'>
-                            <button class='btn btn-primary' ng-click='add()' ng-disabled="!label||!label.length"><span class='glyphicon glyphicon-plus'></span></button>
-                        </span>
-                    </div>
-                </div>
-                <div class='form-group'>
-                    <label>或者发送邀请链接</label>
-                    <button id='shareMission' uib-popover-template="'shareMission.html'" popover-trigger="show" popover-placement="bottom" popover-title="应用设置" class='btn btn-block btn-success' ng-click="makeInvite()">获取链接</button>
-                </div>
-            </div>
-            <div class='col-md-4'>
-                <div class='list-group'>
-                    <a href='javascript:void(0)' class='list-group-item' ng-repeat="c in coworkers" ng-mouseenter="entered=true" ng-mouseleave="entered=false">
-                        <span>{{c.account.nickname}}</span>
-                        <span>（{{c.coworker_label}}）</span>
-                        <button class='close' ng-if="entered" ng-click="remove(c)">&times;</button>
-                    </a>
-                </div>
-            </div>
-        </div>
-    </div>
-    <div>
-        <nav class='navbar navbar-default tms-panel-heading'>
-            <div class='container-fluid'>
-                <p class="navbar-text">其它设置</p>
-            </div>
-        </nav>
-        <div class='tms-panel-body'>
-            <div class='col-md-6'>
-                <table class='table table-bordered' style='margin:0'>
-                    <tr>
-                        <td>给项目中的所有活动和资料添加页眉</td>
-                        <td>
-                            <div class="btn-group">
-                                <button type="button" class="btn btn-sm btn-default" ng-click="makePagelet('header')">制作</button>
-                                <button type="button" class="btn btn-sm btn-default dropdown-toggle" data-toggle="dropdown">
-                                    <span class="caret"></span>
-                                    <span class="sr-only">Toggle Dropdown</span>
-                                </button>
-                                <ul class="dropdown-menu" role="menu">
-                                    <li><a href='' ng-click="codePage($event,'header')">编码</a></li>
-                                </ul>
-                            </div>
-                        </td>
-                    </tr>
-                    <tr>
-                        <td>给项目中的所有活动和资料添加页脚</td>
-                        <td>
-                            <div class="btn-group">
-                                <button type="button" class="btn btn-sm btn-default" ng-click="makePagelet('footer')">制作</button>
-                                <button type="button" class="btn btn-sm btn-default dropdown-toggle" data-toggle="dropdown">
-                                    <span class="caret"></span>
-                                    <span class="sr-only">Toggle Dropdown</span>
-                                </button>
-                                <ul class="dropdown-menu" role="menu">
-                                    <li><a href='' ng-click="codePage($event,'footer')">编码</a></li>
-                                </ul>
-                            </div>
-                        </td>
-                    </tr>
-                </table>
-            </div>
+                    </td>
+                </tr>
+            </table>
         </div>
     </div>
 </div>
-<script type="text/ng-template" id="shareMission.html">
-    <div id="shareMission">
-        <div class='form-group'>
-            <div class='help-block'>链接有效期30分钟</div>
-            <div class='form-control' style='height:auto;word-break:break-all'>{{inviteURL}}</div>
-        </div>
-        <div class='form-group'>
-            <button class='btn btn-default' ng-click="closeInvite()">关闭</button>
-        </div>
-        <div>
-</script>
-<script type="text/ng-template" id="myCoworker.html">
-    <div id="myCoworker">
-        <div class='list-group' style="max-height:205px;overflow-y:auto">
-            <a href='' class='list-group-item' ng-repeat="c in myCoworkers" ng-click="chooseMyCoworker(c)">
-                        <span>{{c.account.nickname}}</span><span>（{{c.coworker_label}}）</span>
-                    </a>
-        </div>
-        <button class='btn btn-default' ng-click="closeMyCoworkers()">关闭</button>
-        <div>
-</script>
-<script type="text/ng-template" id="opUrlPasswd.html">
-    <div id="opUrlPasswd">
-        <div class='form-group'>
-            <div class='input-group'>
-                <input class='form-control' ng-model="opEntry.password">
-                <span class='input-group-btn'>
-                            <button class='btn btn-default' ng-click="configOpUrl($event,'password')">设置</button>
-                        </span>
-            </div>
-        </div>
-        <div>
-</script>

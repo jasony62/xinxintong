@@ -1,43 +1,28 @@
-<div id='viewMatter' class="col-md-12">
-    <nav class="navbar navbar-default">
-        <div class='container-fluid'>
-            <ul class="nav navbar-nav">
-                <li ng-class="{'active':matterType===''}"><a href='#' ng-click="matterType=''">全部</a></li>
-                <li ng-class="{'active':matterType===app}" ng-repeat="app in cstApp.matterNames.appOrder"><a href='#{{app}}'>{{cstApp.matterNames.app[app]}}</a></li>
-            </ul>
-            <form class='nav navbar-form pull-left'>
-                <div class="form-group" ng-if="matterType==='enroll'">
-                    <select class='form-control' ng-model="matterScenario" ng-change="chooseScenario(matterScenario)" ng-options="k as v for (k,v) in scenarioNames.enroll">
-                        <option value>全部场景</option>
-                    </select>
-                </div>
-                <div class='form-group'>
-                    <div class='input-group'>
-                        <input type='input' class='form-control' placeholder='按名称筛选' ng-model='criteria.byTitle'>
-                        <div class='input-group-btn'>
-                            <button class='btn btn-default' ng-click="list()"><span class='glyphicon glyphicon-search'></span></button>
-                            <button class='btn btn-default' ng-click="criteria.byTitle=''"><span class='glyphicon glyphicon-remove'></span></button>
-                        </div>
-                    </div>
-                </div>
-                <div class='form-group' ng-if="mission.phases.length">
-                    <select class="form-control" ng-model="criteria.pid" ng-change="list()">
-                        <option value="ALL">全部{{cstApp.naming.phase}}</option>
-                        <option value="{{phs.phase_id}}" ng-repeat="phs in phases">{{phs.title}}</option>
-                    </select>
-                </div>
-            </form>
-            <form class="navbar-form navbar-right" ng-if="matterType">
-                <button class='btn btn-default' ng-click="addMatter()"><i class='glyphicon glyphicon-plus'></i> <span>新建</span></button>
-            </form>
+<div class="col-md-12">
+    <div class='form-group'>
+        <div class='form-inline'>
+            <div class='form-group'>
+                <label>活动类型</label>
+                <select class="form-control" ng-model="unionType">
+                    <option value=''>全部活动</option>
+                    <option ng-repeat="mt in unionMatterTypes" value="{{mt.name}}">{{mt.label}}</option>
+                </select>
+            </div>
+            <div class='form-group' ng-if="mission.phases.length">
+                <select class="form-control" ng-model="criteria.pid" ng-change="list()">
+                    <option value="ALL">全部{{cstApp.naming.phase}}</option>
+                    <option value="{{phs.phase_id}}" ng-repeat="phs in phases">{{phs.title}}</option>
+                </select>
+            </div>
+            <button class='btn btn-default' ng-click="addMatter()"><i class='glyphicon glyphicon-plus'></i> <span>新建</span></button>
         </div>
-    </nav>
+    </div>
     <table class='table table-bordered'>
         <thead>
             <tr>
                 <th style='width:48px'>序号</th>
                 <th style='width:90px' ng-if="matterType==='enroll'">场景</th>
-                <th>名称</th>
+                <th data-filter-by='title' class='th-action' uib-popover-template="'filterBy.html'" popover-placement="bottom" popover-append-to-body="true" popover-trigger="show" ng-click="filter.show($event)">名称 <i class='glyphicon glyphicon-filter'></i></th>
                 <th ng-if="matterType=='signin'" style='width:80px'>签到轮次</th>
                 <th ng-if="matterType=='enroll'||matterType=='signin'" style='width:64px'>记录数</th>
                 <th ng-if="matterType=='enroll'" style='width:64px'>填写人</th>

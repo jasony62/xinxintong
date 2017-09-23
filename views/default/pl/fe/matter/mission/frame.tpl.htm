@@ -25,15 +25,12 @@
             <ul class="nav nav-tabs nav-stacked">
                 <li>
                     <a href='' ng-click="opened=opened==='rule'?false:'rule';switchTo('main')">定义 <span class="caret"></span></a>
-                    <ul class="nav nav-tabs nav-stacked" ng-style="{'height':opened==='rule'?'200px':'0'}">
+                    <ul class="nav nav-tabs nav-stacked" ng-style="{'height':opened==='rule'?'160px':'0'}">
                         <li ng-class="{'active':subView==='main'}">
                             <a href='' ng-click="switchTo('main')">项目定义</a>
                         </li>
                         <li ng-class="{'active':subView==='phase'}">
                             <a href='' ng-click="switchTo('phase')">{{cstApp.naming.phase}}</a>
-                        </li>
-                        <li ng-class="{'active':subView==='access'}">
-                            <a href='' ng-click="switchTo('access')">进入规则</a>
                         </li>
                         <li ng-class="{'active':subView==='mschema'}">
                             <a href='' ng-click="switchTo('mschema')">通讯录</a>

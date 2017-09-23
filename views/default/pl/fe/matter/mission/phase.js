@@ -4,7 +4,7 @@ define(['frame'], function(ngApp) {
         $scope.numberOfNewPhases = 1;
         var newPhase = function() {
             var data = {
-                title: '阶段' + ($scope.phases.length + 1)
+                title: $scope.cstApp.naming.phase + ($scope.phases.length + 1)
             };
             /*设置阶段的缺省起止时间*/
             (function() {
@@ -50,7 +50,7 @@ define(['frame'], function(ngApp) {
             });
         };
         $scope.remove = function(phase) {
-            if (window.confirm('确定删除项目阶段？')) {
+            if (window.confirm('确定删除' + $scope.cstApp.naming.phase + '？')) {
                 http2.get('/rest/pl/fe/matter/mission/phase/remove?mission=' + $scope.mission.id + '&id=' + phase.phase_id, function(rsp) {
                     $scope.phases.splice($scope.phases.indexOf(phase), 1);
                 });

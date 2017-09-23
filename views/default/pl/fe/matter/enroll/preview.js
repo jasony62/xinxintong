@@ -115,14 +115,14 @@ define(['frame'], function(ngApp) {
                     });
                 }
             } else if (oRule.scope === 'sns') {
-                if (oRule.sns) {
-                    if (oRule.sns.wx && oRule.sns.wx.entry) {
+                if (oRule.sns && $scope.sns) {
+                    if (oRule.sns.wx && oRule.sns.wx.entry && $scope.sns.wx) {
                         status.user.sns.push({ title: $scope.sns.wx.title });
                     }
-                    if (oRule.sns.yx && oRule.sns.yx.entry) {
+                    if (oRule.sns.yx && oRule.sns.yx.entry && $scope.sns.yx) {
                         status.user.sns.push({ title: $scope.sns.yx.title });
                     }
-                    if (oRule.sns.qy && oRule.sns.qy.entry) {
+                    if (oRule.sns.qy && oRule.sns.qy.entry && $scope.sns.qy) {
                         status.user.sns.push({ title: $scope.sns.qy.title });
                     }
                 }

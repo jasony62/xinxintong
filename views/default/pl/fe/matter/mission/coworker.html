@@ -19,9 +19,9 @@
             </div>
         </div>
     </div>
-    <div class='panel panel-default'>
+    <div class='panel panel-default' ng-show="mission.yourRole==='O'">
         <div class='panel-body'>
-            <div class='form-group' ng-show="mission.yourRole==='O'">
+            <div class='form-group'>
                 <label>将项目移交给其他用户</label>
                 <div class='input-group' ng-hide="status">
                     <input type="text" class="form-control" ng-model='newOwner' placeholder="输入新项目管理员的账号">

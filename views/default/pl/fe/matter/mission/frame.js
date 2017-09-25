@@ -27,10 +27,12 @@ define(['missionService', 'enrollService', 'signinService'], function() {
                 'group_week_report': '周报',
                 'score_sheet': '记分表',
             },
+            enrollOrder: ['common', 'registration', 'voting', 'quiz', 'group_week_report', 'score_sheet'],
             group: {
                 'split': '分组',
                 'wall': '信息墙'
-            }
+            },
+            groupOrder: ['split', 'wall']
         },
         naming: { 'phase': '项目阶段' }
     });
@@ -55,8 +57,10 @@ define(['missionService', 'enrollService', 'signinService'], function() {
         };
         $routeProvider
             .when('/rest/pl/fe/matter/mission/main', new RouteParam('main'))
+            .when('/rest/pl/fe/matter/mission/phase', new RouteParam('phase'))
             .when('/rest/pl/fe/matter/mission/entry', new RouteParam('entry'))
             .when('/rest/pl/fe/matter/mission/access', new RouteParam('access'))
+            .when('/rest/pl/fe/matter/mission/coworker', new RouteParam('coworker'))
             .when('/rest/pl/fe/matter/mission/app', new RouteParam('app'))
             .when('/rest/pl/fe/matter/mission/doc', new RouteParam('doc'))
             .when('/rest/pl/fe/matter/mission/mschema', new RouteParam('mschema'))
@@ -110,8 +114,10 @@ define(['missionService', 'enrollService', 'signinService'], function() {
             $scope.subView = subView[1] === 'mission' ? 'main' : subView[1];
             switch ($scope.subView) {
                 case 'main':
+                case 'phase':
                 case 'access':
                 case 'mschema':
+                case 'coworker':
                     $scope.opened = 'rule';
                     break;
                 case 'app':

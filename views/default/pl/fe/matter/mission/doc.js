@@ -1,14 +1,18 @@
 define(['frame'], function(ngApp) {
     'use strict';
-    ngApp.provider.controller('ctrlDoc', ['$scope', '$location', 'http2', function($scope, $location, http2) {
-        var _oMission;
+    ngApp.provider.controller('ctrlDoc', ['$scope', '$location', 'http2', 'facListFilter', function($scope, $location, http2, facListFilter) {
+        var _oMission, _oCriteria;
         $scope.matterType = $location.hash();
         if (!/article/.test($scope.matterType)) {
             $scope.matterType = '';
         }
-        $scope.criteria = {
-            pid: 'ALL'
+        $scope.criteria = _oCriteria = {
+            pid: 'ALL',
+            filter: {}
         };
+        $scope.filter = facListFilter.init(function() {
+            $scope.list();
+        }, _oCriteria.filter);
         $scope.addArticle = function() {
             var url = '/rest/pl/fe/matter/article/create?mission=' + _oMission.id,
                 config = {
@@ -73,13 +77,20 @@ define(['frame'], function(ngApp) {
             });
         };
         $scope.list = function() {
-            var url, matterType;
+            var url, data, matterType;
 
+            data = {};
+            if (_oCriteria.pid) {
+                data.mission_phase_id = _oCriteria.pid;
+            }
+            if (_oCriteria.filter.by === 'title') {
+                data.byTitle = _oCriteria.filter.keyword;
+            }
             matterType = $scope.matterType;
             if (matterType === '') {
                 url = '/rest/pl/fe/matter/mission/matter/list?id=' + _oMission.id;
                 url += '&matterType=doc';
-                http2.post(url, { byTitle: $scope.criteria.byTitle, mission_phase_id: $scope.criteria.pid }, function(rsp) {
+                http2.post(url, data, function(rsp) {
                     rsp.data.forEach(function(matter) {
                         matter._operator = matter.modifier_name || matter.creater_name;
                         matter._operateAt = matter.modifiy_at || matter.create_at;
@@ -90,17 +101,17 @@ define(['frame'], function(ngApp) {
                 url = '/rest/pl/fe/matter/';
                 url += matterType;
                 url += '/list?mission=' + _oMission.id;
-                http2.post(url, { byTitle: $scope.criteria.byTitle }, function(rsp) {
-                    if (/article/.test(matterType)) {
-                        $scope.matters = rsp.data.articles;
-                    }
+                http2.post(url, data, function(rsp) {
+                    $scope.matters = rsp.data.docs;
                 });
             }
         };
         $scope.$watch('mission', function(nv) {
             if (!nv) return;
             _oMission = nv;
-            $scope.list();
+            $scope.$watch('matterType', function(nv) {
+                $scope.list();
+            });
         });
     }]);
 });

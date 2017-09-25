@@ -1,5 +1,5 @@
-<div id='access-view'>
-    <div class='col-md-4'>
+<div class='col-md-6 col-md-offset-3'>
+    <div class='thumbnail'>
         <div class='radio'>
             <label>
                 <input type='radio' value='none' ng-model="rule.scope" ng-change="changeUserScope()">不限用户来源</label>
@@ -12,7 +12,6 @@
             <label>
                 <input type='radio' value='sns' ng-model="rule.scope" ng-change="changeUserScope()">限公众号关注用户访问</label>
         </div>
-        <hr>
         <div ng-if="rule.scope==='member'">
             <table class='table table-bordered'>
                 <tbody>

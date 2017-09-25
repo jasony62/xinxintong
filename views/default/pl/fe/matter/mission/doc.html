@@ -1,37 +1,26 @@
-<div id='viewMatter' class="col-md-12">
-    <nav class="navbar navbar-default">
-        <div class='container-fluid'>
-            <ul class="nav navbar-nav">
-                <li ng-class="{'active':matterType===''}"><a href='#' ng-click="matterType=''">全部</a></li>
-                <li ng-class="{'active':matterType==='article'}"><a href='#article' ng-click="matterType='article'">{{cstApp.matterNames.doc.article}}</a></li>
-            </ul>
-            <form class='nav navbar-form pull-left'>
-                <div class='form-group'>
-                    <div class='input-group'>
-                        <input type='input' class='form-control' placeholder='按名称筛选' ng-model='criteria.byTitle'>
-                        <span class='input-group-btn'>
-                            <button class='btn btn-default' ng-click="list()"><span class='glyphicon glyphicon-search'></button>
-                            <button class='btn btn-default' ng-click="criteria.byTitle='';list()"><span class='glyphicon glyphicon-remove'></button>
-                        </span>
-                    </div>
-                </div>
+<div class="col-md-12">
+    <div class='form-group'>
+        <div class='form-inline'>
+            <div class='form-group'>
+                <select class='form-control' ng-model="matterType">
+                    <option value=''>全部</option>
+                    <option value='article'>{{cstApp.matterNames.doc.article}}</option>
+                </select>
                 <div class='form-group' ng-if="mission.phases.length">
                     <select class="form-control" ng-model="criteria.pid" ng-change="doSearch(criteria.pid)">
                         <option value="ALL">全部{{cstApp.naming.phase}}</option>
                         <option value="{{phs.phase_id}}" ng-repeat="phs in phases">{{phs.title}}</option>
                     </select>
                 </div>
-            </form>
-            <form class="navbar-form navbar-right" ng-if="matterType">
                 <button class='btn btn-default' ng-click="addMatter()"><i class='glyphicon glyphicon-plus'></i> <span>新建</span></button>
-            </form>
+            </div>
         </div>
-    </nav>
+    </div>
     <table class='table table-bordered'>
         <thead>
             <tr>
                 <th style='width:48px'>序号</th>
-                <th>名称</th>
+                <th data-filter-by='title' class='th-action' uib-popover-template="'filterBy.html'" popover-placement="bottom" popover-append-to-body="true" popover-trigger="show" ng-click="filter.show($event)">名称 <i class='glyphicon glyphicon-filter'></i></th>
                 <th style='width:140px'>创建人</th>
                 <th style='width:120px'>创建时间</th>
                 <th style='width:166px'>操作</th>

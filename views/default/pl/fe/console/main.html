@@ -18,7 +18,7 @@
                     <button class='btn btn-default' ng-click='create()' ng-disabled="!frameState.sid"><i class='glyphicon glyphicon-plus'></i> 新建项目</button>
                 </div>
             </div>
-            <table class='table table-bordered workspace'>
+            <table class='table table-bordered'>
                 <thead>
                     <tr>
                         <th style='width:48px'>序号</th>
@@ -63,14 +63,9 @@
             <div class='form-group'>
                 <div class='form-inline'>
                     <div class='form-group'>
-                        <label>类型</label>
-                        <select class="form-control" ng-model="criteria.matter.type">
-                            <option ng-repeat="type in matterNames.appOrder" value="{{type}}">{{matterNames.app[type]}}</option>
-                        </select>
-                    </div>
-                    <div class='form-group'>
-                        <select class='form-control' ng-model="criteria.matter.scenario" ng-if="criteria.matter.type==='enroll'" ng-options="k as v for (k,v) in scenarioNames">
-                            <option value>全部场景</option>
+                        <label>活动类型</label>
+                        <select class="form-control" ng-model="unionType">
+                            <option ng-repeat="mt in unionMatterTypes" value="{{mt.name}}">{{mt.label}}</option>
                         </select>
                     </div>
                     <div class='form-group hide' ng-if="frameState.sid!==''">
@@ -85,11 +80,11 @@
                         </div>
                     </div>
                     <button class='btn btn-default' ng-click="criteria.byStar=criteria.byStar==='N'?'Y':'N'"><i class='glyphicon' ng-class="criteria.byStar==='Y'?'glyphicon-star':'glyphicon-star-empty'"></i> 星标</button>
-                    <button class='btn btn-default' ng-click="addMatter(criteria.matter.type,criteria.matter.scenario)"><i class='glyphicon glyphicon-plus'></i> <span>新建<span ng-bind="matterNames.app[criteria.matter.type]"></span>活动</span>
+                    <button class='btn btn-default' ng-click="addMatter(criteria.matter.type,criteria.matter.scenario)"><i class='glyphicon glyphicon-plus'></i> <span>新建<span ng-bind="scenarioNames[criteria.matter.scenario]||matterNames.app[criteria.matter.type]"></span>活动</span>
                     </button>
                 </div>
             </div>
-            <table class='table table-bordered workspace'>
+            <table class='table table-bordered'>
                 <thead>
                     <tr>
                         <th style='width:48px'>序号</th>
@@ -108,7 +103,7 @@
                 <tbody>
                     <tr ng-repeat='m in matters'>
                         <td data-th='序号' class='hidden-xs'><span>{{$index+1}}</span></td>
-                        <td data-th='场景' ng-if="criteria.matter.type=='enroll'"><span>{{scenarioNames[m.matter_scenario||m.scenario]}}</span></td>
+                        <td data-th='场景' ng-if="criteria.matter.type==='enroll'"><span>{{scenarioNames[m.matter_scenario||m.scenario]}}</span></td>
                         <td data-th='名称' ng-click="openMatter(m)"><span>{{m.matter_title||m.title}}</span></td>
                         <td data-th='签到轮次' ng-if="criteria.matter.type==='signin'"><span>{{m.opData[0].title}}</span></td>
                         <td data-th='记录数' ng-if="criteria.matter.type==='enroll'" ng-click="openMatter(m,'record')" title='点击查看详细数据' style='cursor:pointer;'><span>{{m.opData[0].total}}</span></td>
@@ -158,7 +153,7 @@
             <div class='form-group'>
                 <div class='form-inline'>
                     <div class="form-group">
-                        <label>类型</label>
+                        <label>资料类型</label>
                         <select class='form-control' ng-model="criteria.matter.type">
                             <option ng-repeat="type in matterNames.docOrder" value="{{type}}">{{matterNames.doc[type]}}</option>
                         </select>
@@ -179,7 +174,7 @@
                     </button>
                 </div>
             </div>
-            <table class='table table-bordered workspace'>
+            <table class='table table-bordered'>
                 <thead>
                     <tr>
                         <th style='width:48px'>序号</th>
@@ -243,7 +238,7 @@
             </div>
             <div ng-controller='ctrlMember' ng-switch-when="member">
                 <div>
-                    <table class='table table-bordered workspace'>
+                    <table class='table table-bordered'>
                         <thead>
                             <tr>
                                 <th style='width:48px'>序号</th>
@@ -290,7 +285,7 @@
                     </div>
                 </div>
                 <div class='form-group' ng-if="selected.mschema.require_invite==='Y'">
-                    <table class='table table-bordered workspace'>
+                    <table class='table table-bordered'>
                         <thead>
                             <tr>
                                 <th style='width:48px'>序号</th>
@@ -328,7 +323,7 @@
                 </div>
             </div>
             <div ng-controller='ctrlSiteAccount' ng-switch-when="account">
-                <table class='table table-bordered workspace'>
+                <table class='table table-bordered'>
                     <thead>
                         <tr>
                             <th data-filter-by='nickname' class='th-action' uib-popover-template="'filterBy.html'" popover-placement="bottom" popover-append-to-body="true" popover-trigger="show" ng-click="filter.show($event)">昵称 <i class='glyphicon glyphicon-filter'></i></th>
@@ -352,7 +347,7 @@
                 </div>
             </div>
             <div ng-controller='ctrlSiteSubscribe' ng-switch-when="subscribe">
-                <table class='table table-bordered workspace'>
+                <table class='table table-bordered'>
                     <thead>
                         <tr>
                             <th data-filter-by='nickname' class='th-action' uib-popover-template="'filterBy.html'" popover-placement="bottom" popover-append-to-body="true" popover-trigger="show" ng-click="filter.show($event)">昵称 <i class='glyphicon glyphicon-filter'></i></th>
@@ -375,7 +370,7 @@
     </div>
     <div ng-controller="ctrlRecycle" ng-switch-when="recycle">
         <div class="col-md-12">
-            <table class='table table-bordered workspace'>
+            <table class='table table-bordered'>
                 <thead>
                     <tr>
                         <th style='width:48px'>序号</th>

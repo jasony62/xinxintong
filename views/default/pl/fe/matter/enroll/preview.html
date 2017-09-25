@@ -1,5 +1,5 @@
 <div class='col-md-6 overview'>
-    <div class='aspect'>
+    <div class='aspect pl-workspace'>
         <div class='alert alert-info'>1、填写题目</div>
         <ul class='status-group'>
             <li class='status'>共有<span ng-bind="app.dataSchemas.length"></span>道题目，必填题<span ng-bind="status.schema.required"></span>道</li>
@@ -18,7 +18,7 @@
             <li class='status'>查看填写数据排行榜 <span class='glyphicon' ng-class="status.page.rank==='Y'?'glyphicon-ok':'glyphicon-ban-circle'"></span> <span class='glyphicon glyphicon-question-sign' uib-tooltip='排行页面可以对填写人、填写内容、评论内容按照获得的评论数、赞同数等排序显示'></span></li>
         </ul>
     </div>
-    <div class='aspect'>
+    <div class='aspect pl-workspace'>
         <div class='alert alert-info'>2、填写人</div>
         <ul class='status-group'>
             <li class='status'>不限制填写的人和填写的终端 <span class='glyphicon' ng-class="app.entry_rule.scope==='none'?'glyphicon-ok':'glyphicon-ban-circle'"></span>，<span>每个终端作为1个填写人，系统自动给填写人生成昵称</span></li>
@@ -28,7 +28,7 @@
             <li class='status' ng-repeat="sns in status.user.sns">用户需关注【<span ng-bind="sns.title"></span>】后填写<span>，填写人可以通过公众号接收通知</span>，<span>用公众号中的昵称作为填写人的昵称？</span>，填写人可以通过公众号接收通知</li>
         </ul>
     </div>
-    <div class='aspect'>
+    <div class='aspect pl-workspace'>
         <div class='alert alert-info'>3、填写时间</div>
         <ul class='status-group'>
             <li class='status'><span ng-if="app.start_at>0">活动开始时间：<span ng-bind="app.start_at*1000|date:'MM-dd HH:mm'"></span></span><span ng-if="app.start_at==0">未指定活动开始时间</span>，<span ng-if="app.end_at>0">活动结束时间：<span ng-bind="app.end_at*1000|date:'MM-dd HH:mm'"></span></span><span ng-if="app.end_at==0">未指定活动结束时间</span></li>
@@ -43,7 +43,7 @@
             <li class='status' ng-if="app.multi_rounds==='Y'"><span>当前轮次：{{opData.title}}</span></li>
         </ul>
     </div>
-    <div class='aspect'>
+    <div class='aspect pl-workspace'>
         <div class='alert alert-info'>4、填写记录</div>
         <ul class='status-group'>
             <li class='status' ng-if="app.multi_rounds==='Y'">轮次：{{opData.title}}</li>
@@ -52,7 +52,7 @@
             <li class='status'>已有<span ng-bind="opData.remark_total"></span>条评论</li>
         </ul>
     </div>
-    <div class='aspect'>
+    <div class='aspect pl-workspace'>
         <div class='alert alert-info'>5、管理员</div>
         <ul class='status-group'>
             <li class='status'>记录提交时通知管理员<span class='glyphicon' ng-class="app.notify_submit==='Y'?'glyphicon-ok':'glyphicon-ban-circle'"></span></li>

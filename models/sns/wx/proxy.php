@@ -127,6 +127,7 @@ class proxy_model extends \sns\proxybase {
 			return array(false, $response);
 		}
 		if (isset($token->errcode)) {
+			\TMS_APP::model('log')->log('error', 'accessToken: response is error.', json_encode($token));
 			return array(false, $token->errmsg);
 		}
 		/**

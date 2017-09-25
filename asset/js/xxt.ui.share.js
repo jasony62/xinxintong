@@ -85,7 +85,9 @@
                                      signPackage.debug = false;
                                      signPackage.jsApiList = _this.options.jsApiList;
                                      wx.config(signPackage);
-                                     setWxShare(title, link, desc, img, _this.options);
+                                     wx.ready(function() {
+                                        setWxShare(title, link, desc, img, _this.options);
+                                    });
                                  }
                              } catch (e) {
                                  alert('local error:' + e.toString());

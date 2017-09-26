@@ -1,6 +1,6 @@
 define(['frame'], function(ngApp) {
     'use strict';
-    ngApp.provider.controller('ctrlApp', ['$scope', '$location', 'http2', 'cstApp', function($scope, $location, http2, cstApp) {
+    ngApp.provider.controller('ctrlApp', ['$scope', '$location', 'http2', 'facListFilter', 'cstApp', function($scope, $location, http2, facListFilter, cstApp) {
         var _oMission, _oCriteria, hash;
         $scope.scenarioNames = cstApp.scenarioNames;
         if (hash = $location.hash()) {
@@ -16,9 +16,26 @@ define(['frame'], function(ngApp) {
             $scope.matterType = '';
             $scope.matterScenario = null;
         }
+        var aUnionMatterTypes;
+        aUnionMatterTypes = [];
+        cstApp.matterNames.appOrder.forEach(function(name) {
+            if (name === 'enroll') {
+                cstApp.scenarioNames.enrollOrder.forEach(function(scenario) {
+                    aUnionMatterTypes.push({ name: 'enroll.' + scenario, label: cstApp.scenarioNames.enroll[scenario] });
+                });
+            } else {
+                aUnionMatterTypes.push({ name: name, label: cstApp.matterNames.app[name] });
+            }
+        });
+        $scope.unionMatterTypes = aUnionMatterTypes;
+        $scope.unionType = '';
         $scope.criteria = _oCriteria = {
-            pid: 'ALL'
+            pid: 'ALL',
+            filter: {}
         };
+        $scope.filter = facListFilter.init(function() {
+            $scope.list();
+        }, _oCriteria.filter);
         $scope.addWall = function() {
             var url = '/rest/pl/fe/matter/wall/create?mission=' + _oMission.id,
                 config = {
@@ -99,21 +116,20 @@ define(['frame'], function(ngApp) {
                 location.href = '/rest/pl/fe/matter/' + type + '?site=' + _oMission.siteid + '&id=' + rsp.data.id;
             });
         };
-        $scope.chooseScenario = function(scenario) {
-            if (scenario) {
-                $location.hash('enroll,' + scenario);
-            } else {
-                $location.hash('enroll');
-            }
-        };
         $scope.list = function() {
-            var url, matterType;
-
+            var url, data, matterType;
+            data = {};
+            if (_oCriteria.pid) {
+                data.mission_phase_id = _oCriteria.pid;
+            }
+            if (_oCriteria.filter.by === 'title') {
+                data.byTitle = _oCriteria.filter.keyword;
+            }
             matterType = $scope.matterType;
             if (matterType === '') {
                 url = '/rest/pl/fe/matter/mission/matter/list?id=' + _oMission.id;
                 url += '&matterType=app';
-                http2.post(url, { byTitle: _oCriteria.byTitle, mission_phase_id: _oCriteria.pid }, function(rsp) {
+                http2.post(url, data, function(rsp) {
                     rsp.data.forEach(function(matter) {
                         matter._operator = matter.modifier_name || matter.creater_name;
                         matter._operateAt = matter.modifiy_at || matter.create_at;
@@ -126,19 +142,27 @@ define(['frame'], function(ngApp) {
                 if (matterType === 'enroll' && $scope.matterScenario) {
                     url += '&scenario=' + $scope.matterScenario;
                 }
-                http2.post(url, { byTitle: _oCriteria.byTitle }, function(rsp) {
-                    if (/enroll|signin|group/.test(matterType)) {
-                        $scope.matters = rsp.data.apps;
-                    } else {
-                        $scope.matters = rsp.data;
-                    }
+                http2.post(url, data, function(rsp) {
+                    $scope.matters = rsp.data.apps;
                 });
             }
         };
         $scope.$watch('mission', function(nv) {
             if (!nv) return;
             _oMission = nv;
-            $scope.list();
+            $scope.$watch('unionType', function(nv) {
+                var aUnionType;
+                if (nv !== undefined) {
+                    aUnionType = nv.split('.');
+                    $scope.matterType = aUnionType[0];
+                    if (aUnionType.length === 2) {
+                        $scope.matterScenario = aUnionType[1];
+                    } else {
+                        $scope.matterScenario = '';
+                    }
+                    $scope.list();
+                }
+            });
         });
     }]);
 });

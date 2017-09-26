@@ -1,0 +1,196 @@
+@import "pl.fe.base.less";
+
+body {
+    font-family: Microsoft Yahei, Arial;
+    background: @body-bg;
+}
+
+.ng-cloak {
+    display: none;
+}
+
+.pl-workspace {
+    background: @workspace-bg;
+}
+
+.navbar .container-fluid .navbar-form:first-child {
+    padding-left: 0;
+}
+
+/*table*/
+table.table {
+    background: @workspace-bg;
+}
+
+.th-action .glyphicon {
+    vertical-align: text-top;
+    color: #ccc;
+}
+
+.th-action.active .glyphicon {
+    color: #09f;
+}
+
+/*global-navbar*/
+.pl-navbar-default {
+    background-color: @brand-primary;
+    border-color: @brand-primary-border;
+
+    .navbar-nav.tms-breadcrumb>li+li {
+        position: relative;
+        margin-left: 2em;
+    }
+
+    .navbar-nav.tms-breadcrumb>li+li:before {
+        position: absolute;
+        top: 50%;
+        left: -1.5em;
+        line-height: 2em;
+        width: 1em;
+        margin-top: -1em;
+        content: '>';
+        color: #fff;
+        font-weight: 500;
+        text-align: center;
+    }
+
+    .navbar-nav.tms-breadcrumb>li>a {
+        padding-left: 0;
+        padding-right: 0;
+        color: #fff;
+        font-weight: 500;
+    }
+
+    .navbar-nav.tms-breadcrumb>li:last-child>a {
+        color: #fff;
+    }
+
+    .navbar-nav.tms-breadcrumb>li>a:hover, .pl-navbar-default .navbar-nav.tms-breadcrumb>li>a:focus {
+        background: @brand-primary;
+        position: relative;
+        color: darken(@brand-primary, 30%)
+    }
+
+    .navbar-nav.tms-breadcrumb>li>a:hover:after, .pl-navbar-default .navbar-nav.tms-breadcrumb>li>a:focus:after {
+        content: ' ';
+        position: absolute;
+        left: 0;
+        right: 0;
+        bottom: -1px;
+        height: 3px;
+        background: darken(@brand-primary, 30%);
+    }
+
+}
+
+.pl-layout {
+    display: flex;
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+
+    .pl-layout-leftnav {
+        position: relative;
+        flex-shrink: 0;
+        width: 90px;
+        background: @brand-second;
+
+        .nav-tabs {
+            border-bottom: 0;
+
+            .nav-tabs {
+                background: rgba(255, 255, 255, 0.1);
+            }
+
+            ul {
+                transition: all .2s linear;
+                overflow: hidden;
+            }
+
+        }
+
+        .nav>li>a {
+            color: #fff;
+            text-decoration: none;
+            border-radius: 0;
+            border: 0;
+
+            &:hover {
+                color: #fff;
+                background: rgba(255, 255, 255, 0.2);
+                border: 0;
+            }
+
+            &:focus {
+                background: rgba(255, 255, 255, 0.2);
+                border: 0;
+            }
+
+        }
+
+        .nav>li.active>a, .nav>li.active>a:focus {
+            color: #666;
+            background: #f5f5f5;
+            margin-right: 0;
+            border: 0;
+        }
+
+        .pl-layout-leftnav-header {
+            min-height: 50px;
+            line-height: 50px;
+            margin-bottom: 20px;
+            text-align: center;
+            border: 1px solid transparent;
+
+            a {
+                font-size: 120%;
+                color: #fff;
+                text-decoration: none;
+                border-radius: 0;
+                width: 100%;
+                text-overflow: ellipsis;
+                white-space: nowrap;
+                overflow: hidden;
+            }
+
+        }
+
+        .pl-layout-leftnav-footer {
+            position: absolute;
+            bottom: 30px;
+            left: 0;
+            right: 0;
+        }
+
+    }
+
+    .pl-layout-main {
+        flex-grow: 1;
+        overflow-y: auto;
+    }
+
+    .pl-layout-main.pl-layout-main-topnav {
+        position: relative;
+        margin-top: 70px;
+    }
+
+    .pl-navbar-fixed-top {
+        position: fixed;
+        top: 0;
+        left: 90px;
+        right: 0;
+        z-index: 1030;
+    }
+
+    .pl-navbar-fixed-bottom {
+        position: fixed;
+        bottom: 0;
+        left: 91px;
+        right: 0;
+        z-index: 1030;
+        margin-bottom: 0;
+    }
+
+}

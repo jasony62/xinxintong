@@ -1,23 +1,22 @@
 <div class="col-md-12">
-    <div id='recyle-view'>
-        <!-- actions -->
-        <div class='form-group'>
-            <div class='input-group' style='width:180px'>
-                <span class="input-group-addon">每页条数</span>
-                <input class='form-control' ng-model='page.size'>
+    <!-- actions -->
+    <div class='form-group'>
+        <div class='input-group' style='width:180px'>
+            <span class="input-group-addon">每页条数</span>
+            <input class='form-control' ng-model='page.size'>
             <span class='input-group-btn'>
                 <button class='btn btn-default' ng-click='doSearch(1)'>
                     <span class='glyphicon glyphicon-refresh'></span>
-                </button>
+            </button>
             </span>
-            </div>
         </div>
-        <!-- end actions -->
-        <!-- records -->
-        <div class=''>
-            <div id='enrollRecords' class='form-group' tms-table-wrap ready='tmsTableWrapReady' overflow-x='auto'>
-                <table class='table table-bordered'>
-                    <thead>
+    </div>
+    <!-- end actions -->
+    <!-- records -->
+    <div class=''>
+        <div id='enrollRecords' class='form-group' tms-table-wrap ready='tmsTableWrapReady' overflow-x='auto'>
+            <table class='table table-bordered'>
+                <thead>
                     <tr>
                         <th style='width:4em'>操作</th>
                         <th style='width:40px'></th>
@@ -35,8 +34,8 @@
                         <th style='width:60px' ng-if="app.can_invite==='Y'">邀请</th>
                         <th style='width:4em'>操作</th>
                     </tr>
-                    </thead>
-                    <tbody>
+                </thead>
+                <tbody>
                     <tr ng-repeat='r in records' class='record'>
                         <td>
                             <button class='btn btn-xs btn-default' ng-click='restore(r)'>恢复</button>
@@ -82,14 +81,13 @@
                             <button class='btn btn-xs btn-default' ng-click='restore(r)'>恢复</button>
                         </td>
                     </tr>
-                    </tbody>
-                </table>
-            </div>
-            <div class='form-group form-inline'>
-                <span>总数：{{page.total}}</span>
-                <ul uib-pagination style="margin:0;vertical-align:bottom;cursor:pointer" ng-show="page.total>page.size" boundary-links="true" total-items="page.total" max-size="7" items-per-page="page.size" rotate="false" ng-model="page.at" previous-text="&lsaquo;" next-text="&rsaquo;" first-text="&laquo;" last-text="&raquo;" ng-change="doSearch()"></ul>
-            </div>
+                </tbody>
+            </table>
         </div>
-        <!-- end records -->
+        <div class='form-group form-inline'>
+            <span>总数：{{page.total}}</span>
+            <ul uib-pagination style="margin:0;vertical-align:bottom;cursor:pointer" ng-show="page.total>page.size" boundary-links="true" total-items="page.total" max-size="7" items-per-page="page.size" rotate="false" ng-model="page.at" previous-text="&lsaquo;" next-text="&rsaquo;" first-text="&laquo;" last-text="&raquo;" ng-change="doSearch()"></ul>
+        </div>
     </div>
+    <!-- end records -->
 </div>

@@ -7,6 +7,13 @@ require_once dirname(dirname(__FILE__)) . '/base.php';
  */
 class coworker extends \pl\fe\matter\base {
 	/**
+	 * 返回视图
+	 */
+	public function index_action() {
+		\TPL::output('/pl/fe/matter/mission/frame');
+		exit;
+	}
+	/**
 	 * 任务下的合作人
 	 *
 	 * @param int $mission mission's id

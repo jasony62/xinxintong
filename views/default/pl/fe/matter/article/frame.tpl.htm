@@ -32,7 +32,7 @@
                     <li ng-if="site.yourRole"><a href="/rest/pl/fe/site/console?site={{editing.siteid}}" target='_self'>{{site.name}}</a></li>
                     <li ng-if="!site.yourRole"><a href="javascript:void(0)" style='color:#777;cursor:default;'>{{site.name}}</a></li>
                     <li ng-if="editing.mission"><a href="/rest/pl/fe/matter/mission?site={{editing.siteid}}&id={{editing.mission.id}}" target='_self' title="{{editing.mission.title}}">{{editing.mission.title}}</a></li>
-                    <li ng-if="editing.mission"><a href="/rest/pl/fe/matter/mission/matter?site={{editing.siteid}}&id={{editing.mission.id}}#article" target='_self'>单图文</a></li>
+                    <li ng-if="editing.mission"><a href="/rest/pl/fe/matter/mission/doc?site={{editing.siteid}}&id={{editing.mission.id}}#article" target='_self'>单图文</a></li>
                     <li><a href="/rest/pl/fe/matter/article/main?site={{editing.siteid}}&id={{editing.id}}" title='{{editing.title}}'>{{editing.title}}</a></li>
                 </nav>
                 <ul class='nav navbar-nav navbar-right'>

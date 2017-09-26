@@ -143,6 +143,18 @@ define(['frame'], function(ngApp) {
         //     filter2.byTitle = filter.byTitle;
         //     filter2.byTags = filter.byTags
         // }
+        var aUnionMatterTypes;
+        aUnionMatterTypes = [];
+        cstApp.matterNames.appOrder.forEach(function(name) {
+            if (name === 'enroll') {
+                cstApp.scenarioOrder.forEach(function(scenario) {
+                    aUnionMatterTypes.push({ name: 'enroll.' + scenario, label: cstApp.scenarioNames[scenario] });
+                });
+            } else {
+                aUnionMatterTypes.push({ name: name, label: cstApp.matterNames.app[name] });
+            }
+        });
+        $scope.unionMatterTypes = aUnionMatterTypes;
         $scope.scenarioNames = cstApp.scenarioNames;
         $scope.page = _oPage = {
             at: 1,
@@ -152,17 +164,16 @@ define(['frame'], function(ngApp) {
             }
         };
         $scope.list = function(pageAt) {
-            var url,
+            var url, oMatter,
                 t = (new Date * 1);
 
             pageAt && (_oPage.at = pageAt);
+            oMatter = _oCriteria.matter;
             if (_oCriteria.bySite) {
-                url = '/rest/pl/fe/matter/' + _oCriteria.matter.type + '/list?site=' + _oCriteria.bySite;
-                if (_oCriteria.matter.type === 'enroll') {
-                    if (_oCriteria.matter.scenario !== '') {
-                        url += '&scenario=' + _oCriteria.matter.scenario;
-                    }
-                } else if (_oCriteria.matter.type === 'signin') {
+                url = '/rest/pl/fe/matter/' + oMatter.type + '/list?site=' + _oCriteria.bySite;
+                if (oMatter.type === 'enroll') {
+                    url += '&scenario=' + oMatter.scenario;
+                } else if (oMatter.type === 'signin') {
                     url += '&cascaded=opData';
                 }
                 url += '&' + _oPage.j() + '&_=' + t;
@@ -173,8 +184,9 @@ define(['frame'], function(ngApp) {
             }
         };
         var _oCriteria;
+        $scope.unionType = 'enroll.common';
         $scope.criteria = _oCriteria = {
-            matter: { type: 'enroll', scenario: '' },
+            matter: {},
             orderBy: '',
             filter: {},
             bySite: '',
@@ -190,13 +202,20 @@ define(['frame'], function(ngApp) {
         $scope.$watch('frameState.sid', function(nv) {
             _oCriteria.bySite = nv;
             //$scope.getMatterTag();
-            $scope.$watch('criteria', function(nv, ov) {
-                if (!nv) return;
-                if (ov) {
-                    if (nv.matter.type !== ov.matter.type) {
-                        ov.matter.scenario = '';
+            $scope.$watch('unionType', function(nv) {
+                var aUnionType;
+                if (nv) {
+                    aUnionType = nv.split('.');
+                    _oCriteria.matter.type = aUnionType[0];
+                    if (aUnionType.length === 2) {
+                        _oCriteria.matter.scenario = aUnionType[1];
+                    } else {
+                        delete _oCriteria.matter.scenario;
                     }
                 }
+            });
+            $scope.$watch('criteria', function(nv, ov) {
+                if (!nv) return;
                 $scope.list(1);
             }, true);
         });

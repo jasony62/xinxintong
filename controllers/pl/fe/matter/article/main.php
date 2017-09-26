@@ -372,17 +372,16 @@ class main extends \pl\fe\matter\base {
 	/**
 	 * 更新单图文的字段
 	 *
-	 * $id article's id
-	 * $nv pair of name and value
+	 * @param int $id article's id
 	 */
 	public function update_action($site, $id) {
-		if (false === ($user = $this->accountUser())) {
+		if (false === ($oUser = $this->accountUser())) {
 			return new \ResponseTimeout();
 		}
 
 		$model = $this->model();
-		$article = $this->model('matter\article')->byId($id, ['fields' => 'from_mode,siteid,id,title,summary,pic']);
-		if ($article === false) {
+		$oArticle = $this->model('matter\article')->byId($id, ['fields' => 'from_mode,siteid,id,mission_id,title,summary,pic']);
+		if ($oArticle === false) {
 			return new \ObjectNotFoundError();
 		}
 
@@ -391,7 +390,7 @@ class main extends \pl\fe\matter\base {
 		isset($nv['summary']) && $nv['summary'] = $model->escape($nv['summary']);
 		isset($nv['author']) && $nv['author'] = $model->escape($nv['author']);
 		isset($nv['body']) && $nv['body'] = $model->escape(urldecode($nv['body']));
-		if ($article->from_mode === 'C') {
+		if ($oArticle->from_mode === 'C') {
 			if (isset($nv['body'])) {
 				unset($nv['body']);
 			}
@@ -403,10 +402,15 @@ class main extends \pl\fe\matter\base {
 		$rst = $this->_update($site, $id, $nv);
 		if ($rst) {
 			// 记录操作日志并更新信息
-			isset($nv['title']) && $article->title = $nv['title'];
-			isset($nv['summary']) && $article->summary = $nv['summary'];
-			isset($nv['pic']) && $article->pic = $nv['pic'];
-			$this->model('matter\log')->matterOp($site, $user, $article, 'U');
+			isset($nv['title']) && $oArticle->title = $nv['title'];
+			isset($nv['summary']) && $oArticle->summary = $nv['summary'];
+			isset($nv['pic']) && $oArticle->pic = $nv['pic'];
+			// 更新所在项目信息
+			if ($oArticle->mission_id) {
+				$this->model('matter\mission')->updateMatter($oArticle->mission_id, $oArticle);
+			}
+			// 记录日志
+			$this->model('matter\log')->matterOp($site, $oUser, $oArticle, 'U');
 		}
 
 		return new \ResponseData($rst);

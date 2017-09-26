@@ -122,8 +122,8 @@ provider('srvSite', function() {
                                 url += '&mission=' + $scope.mission.id;
                             }
                             $http.post(url, params).success(function(rsp) {
-                                $scope.matters = rsp.data.docs || rsp.data.apps;
-                                $scope.page.total = $scope.matters.length;
+                                $scope.matters = rsp.data.docs || rsp.data.apps || rsp.data.missions;
+                                $scope.page.total = $scope.data.total;
                             });
                         };
                         $scope.cleanFilter = function() {

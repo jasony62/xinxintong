@@ -5,16 +5,14 @@ require_once dirname(__FILE__) . '/article_base.php';
 
 class channel_model extends article_base {
 	/**
+	 * 记录日志时需要的列
+	 */
+	const LOG_FIELDS = 'siteid,id,title';
+	/**
 	 *
 	 */
 	protected function table() {
 		return 'xxt_channel';
-	}
-	/**
-	 *
-	 */
-	public function getTypeName() {
-		return 'channel';
 	}
 	/**
 	 * 获得一个账号下的频道
@@ -391,10 +389,10 @@ class channel_model extends article_base {
 
 				$fullMatter->type = $sm->matter_type;
 				$fullMatter->add_at = $sm->create_at;
-				if(!empty($fullMatter->matter_cont_tag) && is_string($fullMatter->matter_cont_tag)){
+				if (!empty($fullMatter->matter_cont_tag) && is_string($fullMatter->matter_cont_tag)) {
 					$fullMatter->matter_cont_tag = json_decode($fullMatter->matter_cont_tag);
 				}
-				if(!empty($fullMatter->matter_mg_tag) && is_string($fullMatter->matter_mg_tag)){
+				if (!empty($fullMatter->matter_mg_tag) && is_string($fullMatter->matter_mg_tag)) {
 					$fullMatter->matter_mg_tag = json_decode($fullMatter->matter_mg_tag);
 				}
 				$matters[] = $fullMatter;

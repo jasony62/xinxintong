@@ -13,12 +13,6 @@ class mission_model extends app_base {
 		return 'xxt_mission';
 	}
 	/**
-	 *
-	 */
-	public function getTypeName() {
-		return 'mission';
-	}
-	/**
 	 * 获得访问入口url
 	 */
 	public function getEntryUrl($siteId, $id) {
@@ -239,7 +233,7 @@ class mission_model extends app_base {
 	 * 在任务中添加素材
 	 */
 	public function addMatter($user, $siteId, $missionId, $matter) {
-		$relation = array(
+		$relation = [
 			'siteid' => $siteId,
 			'mission_id' => $missionId,
 			'phase_id' => isset($matter->mission_phase_id) ? $matter->mission_phase_id : '',
@@ -253,7 +247,7 @@ class mission_model extends app_base {
 			'creater_name' => $this->escape($user->name),
 			'creater_src' => $user->src,
 			'create_at' => time(),
-		);
+		];
 		$this->insert('xxt_mission_matter', $relation, false);
 
 		return true;

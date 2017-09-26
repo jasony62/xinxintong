@@ -7,6 +7,17 @@ require_once dirname(__FILE__) . '/base.php';
  */
 abstract class app_base extends base_model {
 	/**
+	 * 新建活动
+	 */
+	public function create($oUser, $oNewApp) {
+		if (empty($oNewApp->id)) {
+			$oNewApp->id = uniqid();
+		};
+		$oNewApp = parent::create($oUser, $oNewApp);
+
+		return $oNewApp;
+	}
+	/**
 	 * 返回进行推送的客服消息格式
 	 *
 	 * $runningMpid

@@ -7,16 +7,14 @@ require_once dirname(__FILE__) . '/app_base.php';
  */
 class signin_model extends app_base {
 	/**
+	 * 记录日志时需要的列
+	 */
+	const LOG_FIELDS = 'siteid,id,title,summary,pic,mission_id';
+	/**
 	 *
 	 */
 	protected function table() {
 		return 'xxt_signin';
-	}
-	/**
-	 *
-	 */
-	public function getTypeName() {
-		return 'signin';
 	}
 	/**
 	 *

@@ -7,12 +7,6 @@ require_once dirname(dirname(__FILE__)) . '/base.php';
  */
 class main extends \pl\fe\matter\base {
 	/**
-	 *
-	 */
-	protected function getMatterType() {
-		return 'signin';
-	}
-	/**
 	 * 返回视图
 	 */
 	public function index_action($site, $id) {
@@ -121,6 +115,11 @@ class main extends \pl\fe\matter\base {
 		if (false === ($oUser = $this->accountUser())) {
 			return new \ResponseTimeout();
 		}
+		$oSite = $this->model('site')->byId($site, ['fields' => 'id,heading_pic']);
+		if (false === $oSite) {
+			return new \ObjectNotFoundError();
+		}
+
 		/* 模板信息 */
 		$templateDir = TMS_APP_TEMPLATE . '/pl/fe/matter/signin/' . $template;
 		$templateConfig = file_get_contents($templateDir . '/config.json');
@@ -130,14 +129,12 @@ class main extends \pl\fe\matter\base {
 			return new \ResponseError('解析模板数据错误：' . json_last_error_msg());
 		}
 
-		$modelApp = $this->model('matter\signin');
-		$modelApp->setOnlyWriteDbConn(true);
+		$modelApp = $this->model('matter\signin')->setOnlyWriteDbConn(true);
 		$oNewApp = new \stdClass;
 		$current = time();
 		$appId = uniqid();
 
 		/* 从站点和项目中获得pic定义 */
-		$oSite = $this->model('site')->byId($site, ['fields' => 'id,heading_pic']);
 		if (!empty($mission)) {
 			$modelMis = $this->model('matter\mission');
 			$oMission = $modelMis->byId($mission);
@@ -199,15 +196,7 @@ class main extends \pl\fe\matter\base {
 		$oNewApp->siteid = $oSite->id;
 		$oNewApp->id = $appId;
 		$oNewApp->title = $title;
-		$oNewApp->creater = $oUser->id;
-		$oNewApp->creater_src = $oUser->src;
-		$oNewApp->creater_name = $modelApp->escape($oUser->name);
-		$oNewApp->create_at = $current;
 		$oNewApp->start_at = $current;
-		$oNewApp->modifier = $oUser->id;
-		$oNewApp->modifier_src = $oUser->src;
-		$oNewApp->modifier_name = $modelApp->escape($oUser->name);
-		$oNewApp->modify_at = $current;
 		$oNewApp->entry_rule = $modelApp->toJson($oEntryRule);
 
 		/*任务码*/
@@ -215,13 +204,8 @@ class main extends \pl\fe\matter\base {
 		$code = $this->model('q\url')->add($oUser, $oSite->id, $entryUrl, $oNewApp->title);
 		$oNewApp->op_short_url_code = $code;
 
-		$modelApp->insert('xxt_signin', $oNewApp, false);
-		$oNewApp->type = 'signin';
+		$oNewApp = $modelApp->create($oUser, $oNewApp);
 
-		/* 记录和任务的关系 */
-		if (isset($oNewApp->mission_id)) {
-			$modelMis->addMatter($oUser, $oSite->id, $oMission->id, $oNewApp);
-		}
 		/* 创建缺省页面 */
 		$this->_addPageByTemplate($oUser, $oSite->id, $oNewApp, $templateConfig);
 		/* 创建缺省轮次 */
@@ -245,46 +229,37 @@ class main extends \pl\fe\matter\base {
 		if (false === ($oUser = $this->accountUser())) {
 			return new \ResponseTimeout();
 		}
+		$modelApp = $this->model('matter\signin')->setOnlyWriteDbConn(true);
+		$oCopied = $modelApp->byId($app);
+		if (false === $oCopied) {
+			return new \ObjectNotFoundError();
+		}
 
 		$current = time();
-		$modelApp = $this->model('matter\signin');
-		$modelApp->setOnlyWriteDbConn(true);
 		$modelCode = $this->model('code\page');
-
-		$oCopied = $modelApp->byId($app);
 		/**
 		 * 获得的基本信息
 		 */
-		$newaid = uniqid();
-		$oNewApp = [];
-		$oNewApp['siteid'] = $site;
-		$oNewApp['id'] = $newaid;
-		$oNewApp['creater'] = $oUser->id;
-		$oNewApp['creater_src'] = $oUser->src;
-		$oNewApp['creater_name'] = $modelApp->escape($oUser->name);
-		$oNewApp['create_at'] = $current;
-		$oNewApp['start_at'] = $current;
-		$oNewApp['modifier'] = $oUser->id;
-		$oNewApp['modifier_src'] = $oUser->src;
-		$oNewApp['modifier_name'] = $modelApp->escape($oUser->name);
-		$oNewApp['modify_at'] = $current;
-		$oNewApp['title'] = $modelApp->escape($oCopied->title) . '（副本）';
-		$oNewApp['pic'] = $oCopied->pic;
-		$oNewApp['summary'] = $modelApp->escape($oCopied->summary);
-		$oNewApp['data_schemas'] = $modelApp->escape($oCopied->data_schemas);
-		$oNewApp['entry_rule'] = json_encode($oCopied->entry_rule);
+		$oNewApp = new \stdClass;
+		$oNewApp->siteid = $site;
+		$oNewApp->start_at = $current;
+		$oNewApp->title = $modelApp->escape($oCopied->title) . '（副本）';
+		$oNewApp->pic = $oCopied->pic;
+		$oNewApp->summary = $modelApp->escape($oCopied->summary);
+		$oNewApp->data_schemas = $modelApp->escape($oCopied->data_schemas);
+		$oNewApp->entry_rule = json_encode($oCopied->entry_rule);
 		if (!empty($mission)) {
-			$oNewApp['mission_id'] = $mission;
+			$oNewApp->mission_id = $mission;
 		}
 
-		$modelApp->insert('xxt_signin', $oNewApp, false);
+		$oNewApp = $modelApp->create($oUser, $oNewApp);
 		/**
 		 * 复制自定义页面
 		 */
 		if (count($oCopied->pages)) {
 			$modelPage = $this->model('matter\signin\page');
 			foreach ($oCopied->pages as $ep) {
-				$newPage = $modelPage->add($oUser, $site, $newaid);
+				$newPage = $modelPage->add($oUser, $site, $oNewApp->id);
 				$rst = $modelPage->update(
 					'xxt_signin_page',
 					[
@@ -295,7 +270,7 @@ class main extends \pl\fe\matter\base {
 						'act_schemas' => $modelApp->escape($ep->act_schemas),
 						'user_schemas' => $modelApp->escape($ep->user_schemas),
 					],
-					"aid='$newaid' and id=$newPage->id"
+					"aid='{$oNewApp->id}' and id=$newPage->id"
 				);
 				$data = [
 					'title' => $ep->title,
@@ -307,18 +282,10 @@ class main extends \pl\fe\matter\base {
 			}
 		}
 
-		$app = $modelApp->byId($newaid, ['cascaded' => 'N']);
-
 		/* 记录操作日志 */
-		$this->model('matter\log')->matterOp($site, $oUser, $app, 'C', (object) ['id' => $oCopied->id, 'title' => $oCopied->title]);
+		$this->model('matter\log')->matterOp($site, $oUser, $oNewApp, 'C', (object) ['id' => $oCopied->id, 'title' => $oCopied->title]);
 
-		/* 记录和任务的关系 */
-		if (isset($mission)) {
-			$modelMis = $this->model('matter\mission');
-			$modelMis->addMatter($oUser, $site, $mission, $app);
-		}
-
-		return new \ResponseData($app);
+		return new \ResponseData($oNewApp);
 	}
 	/**
 	 * 更新活动的属性信息
@@ -334,39 +301,31 @@ class main extends \pl\fe\matter\base {
 
 		$modelApp = $this->model('matter\signin');
 		$oApp = $modelApp->byId($app, ['fields' => 'id,title,summary,pic,start_at,end_at,mission_id,mission_phase_id', 'cascaded' => 'N']);
+		if (false === $oApp) {
+			return new \ObjectNotFoundError();
+		}
 		/**
 		 * 处理数据
 		 */
 		$posted = $this->getPostJson();
-		$updated = new \stdClass;
+		$oUpdated = new \stdClass;
 		foreach ($posted as $n => $v) {
 			if (in_array($n, ['entry_rule', 'data_schemas'])) {
-				$updated->{$n} = $modelApp->escape($modelApp->toJson($v));
+				$oUpdated->{$n} = $modelApp->escape($modelApp->toJson($v));
 			} else if ($n === 'assignedNickname') {
-				$updated->assigned_nickname = $modelApp->escape($modelApp->toJson($v));
+				$oUpdated->assigned_nickname = $modelApp->escape($modelApp->toJson($v));
 			} else if (in_array($n, ['title', 'summary'])) {
-				$updated->{$n} = $modelApp->escape($v);
+				$oUpdated->{$n} = $modelApp->escape($v);
 			} else {
-				$updated->{$n} = $v;
+				$oUpdated->{$n} = $v;
 			}
-			$oApp->{$n} = $v;
 		}
 
-		$updated->modifier = $oUser->id;
-		$updated->modifier_src = $oUser->src;
-		$updated->modifier_name = $oUser->name;
-		$updated->modify_at = time();
-
-		if ($rst = $modelApp->update('xxt_signin', $updated, ["id" => $oApp->id])) {
-			// 更新项目中的素材信息
-			if ($oApp->mission_id) {
-				$this->model('matter\mission')->updateMatter($oApp->mission_id, $oApp);
-			}
-			// 记录操作日志并更新信息
+		if ($oApp = $modelApp->modify($oUser, $oApp, $oUpdated)) {
 			$this->model('matter\log')->matterOp($site, $oUser, $oApp, 'U');
 		}
 
-		return new \ResponseData($rst);
+		return new \ResponseData($oApp);
 	}
 	/**
 	 * 根据模板生成页面
@@ -485,25 +444,21 @@ class main extends \pl\fe\matter\base {
 			return new \ResponseTimeout();
 		}
 
-		$model = $this->model();
-		/*缺省进入规则*/
-		$entryRule = $this->_defaultEntryRule($site, $app);
-		// 更新数据
-		$nv['entry_rule'] = $model->toJson($entryRule);
-		$nv['modifier'] = $oUser->id;
-		$nv['modifier_src'] = $oUser->src;
-		$nv['modifier_name'] = $oUser->name;
-		$nv['modify_at'] = time();
-
-		$rst = $model->update('xxt_signin', $nv, "id='$app'");
-
-		//记录操作日志
-		if ($rst) {
-			$matter = $this->model('matter\signin')->byId($app, 'id,title,summary,pic');
-			$this->model('matter\log')->matterOp($site, $oUser, $matter, 'U');
+		$modelApp = $this->model('matter\signin');
+		$oApp = $modelApp->byId($app, 'id,title,summary,pic,scenario,start_at,end_at,mission_id');
+		if (false === $oApp) {
+			return new \ObjectNotFoundError();
 		}
 
-		return new \ResponseData($entryRule);
+		$oUpdated = new \stdClass;
+		$oEntryRule = $this->_defaultEntryRule($site, $oApp->id);
+		$oUpdated->entry_rule = $modelApp->toJson($oEntryRule);
+
+		if ($oApp = $modelApp->modify($oUser, $oApp, $oUpdated)) {
+			$this->model('matter\log')->matterOp($site, $oUser, $oApp, 'U', $oUpdated);
+		}
+
+		return new \ResponseData($oEntryRule);
 	}
 	/**
 	 * 缺省进入规则
@@ -554,83 +509,43 @@ class main extends \pl\fe\matter\base {
 		if (false === ($oUser = $this->accountUser())) {
 			return new \ResponseTimeout();
 		}
-		/*在删除数据前获得数据*/
+
 		$modelSig = $this->model('matter\signin');
-		$app = $modelSig->byId($app, ['fields' => 'id,title,summary,pic,mission_id,creater', 'cascaded' => 'N']);
-		if ($app->creater !== $oUser->id) {
+		$oApp = $modelSig->byId($app, ['fields' => 'siteid,id,title,summary,pic,mission_id,creater', 'cascaded' => 'N']);
+		if (false === $oApp) {
+			return new \ObjectNotFoundError();
+		}
+		if ($oApp->creater !== $oUser->id) {
 			return new \ResponseError('没有删除数据的权限');
 		}
-		/*删除和任务的关联*/
-		if ($app->mission_id) {
-			$this->model('matter\mission')->removeMatter($app->id, 'signin');
-		}
-		/*check*/
+
+		/* check */
 		$q = [
 			'count(*)',
 			'xxt_signin_record',
-			["aid" => $app->id],
+			["aid" => $oApp->id],
 		];
 		if ((int) $modelSig->query_val_ss($q) > 0) {
-			$rst = $modelSig->update(
-				'xxt_signin',
-				['state' => 0],
-				["id" => $app->id]
-			);
-			/*记录操作日志*/
-			$this->model('matter\log')->matterOp($site, $oUser, $app, 'Recycle');
+			$rst = $modelSig->remove($oUser, $oApp, 'Recycle');
 		} else {
 			$modelSig->delete(
 				'xxt_signin_log',
-				["aid" => $app->id]
+				["aid" => $oApp->id]
 			);
 			$modelSig->delete(
 				'xxt_signin_round',
-				["aid" => $app->id]
+				["aid" => $oApp->id]
 			);
 			$modelSig->delete(
 				'xxt_code_page',
-				"id in (select code_id from xxt_signin_page where aid='" . $modelSig->escape($app->id) . "')"
+				"id in (select code_id from xxt_signin_page where aid='" . $modelSig->escape($oApp->id) . "')"
 			);
 			$modelSig->delete(
 				'xxt_signin_page',
-				["aid" => $app->id]
+				["aid" => $oApp->id]
 			);
-			$rst = $modelSig->delete(
-				'xxt_signin',
-				["id" => $app->id]
-			);
-			/*记录操作日志*/
-			$this->model('matter\log')->matterOp($site, $oUser, $app, 'D');
+			$rst = $modelSig->remove($oUser, $oApp, 'D');
 		}
-
-		return new \ResponseData($rst);
-	}
-	/**
-	 * 恢复被删除的分组活动
-	 */
-	public function restore_action($site, $id) {
-		if (false === ($oUser = $this->accountUser())) {
-			return new \ResponseTimeout();
-		}
-
-		$model = $this->model('matter\signin');
-		if (false === ($app = $model->byId($id, 'id,title,summary,pic,mission_id'))) {
-			return new \ResponseError('数据已经被彻底删除，无法恢复');
-		}
-		if ($app->mission_id) {
-			$modelMis = $this->model('matter\mission');
-			$modelMis->addMatter($oUser, $site, $app->mission_id, $app);
-		}
-
-		/* 恢复数据 */
-		$rst = $model->update(
-			'xxt_signin',
-			['state' => 1],
-			["id" => $app->id]
-		);
-
-		/* 记录操作日志 */
-		$this->model('matter\log')->matterOp($site, $oUser, $app, 'Restore');
 
 		return new \ResponseData($rst);
 	}

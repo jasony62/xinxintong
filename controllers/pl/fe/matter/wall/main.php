@@ -9,12 +9,6 @@ class main extends \pl\fe\matter\base {
 	/**
 	 *
 	 */
-	protected function getMatterType() {
-		return 'wall';
-	}
-	/**
-	 *
-	 */
 	public function index_action() {
 		\TPL::output('/pl/fe/matter/wall/frame');
 		exit;
@@ -101,99 +95,90 @@ class main extends \pl\fe\matter\base {
 	 * 创建一个信息墙
 	 */
 	public function create_action($site = null, $mission = null) {
-		if (false === ($user = $this->accountUser())) {
+		if (false === ($oUser = $this->accountUser())) {
 			return new \ResponseTimeout();
 		}
 
-		$customConfig = $this->getPostJson();
-		$newone = new \stdClass;
-		$current = time();
+		$oCustomConfig = $this->getPostJson();
+		$oNewApp = new \stdClass;
 		/*从站点或项目获取的定义*/
 		if (empty($mission)) {
-			$site = $this->model('site')->byId($site, ['fields' => 'id,heading_pic']);
+			$oSite = $this->model('site')->byId($site, ['fields' => 'id,heading_pic']);
 			if (false === $site) {
 				return new \ObjectNotFoundError();
 			}
-			$newone->siteid = $site->id;
-			$newone->pic = $site->heading_pic; //使用站点的缺省头图
-			$newone->summary = '';
+			$oNewApp->siteid = $oSite->id;
+			$oNewApp->pic = $oSite->heading_pic; //使用站点的缺省头图
+			$oNewApp->summary = '';
 		} else {
 			$modelMis = $this->model('matter\mission');
-			$mission = $modelMis->byId($mission);
-			$newone->siteid = $mission->siteid;
-			$newone->summary = $mission->summary;
-			$newone->pic = $mission->pic;
-			$newone->mission_id = $mission->id;
+			$oMission = $modelMis->byId($mission);
+			if (false === $oMission) {
+				return new \ObjectNotFoundError();
+			}
+			$oNewApp->siteid = $oMission->siteid;
+			$oNewApp->summary = $oMission->summary;
+			$oNewApp->pic = $oMission->pic;
+			$oNewApp->mission_id = $oMission->id;
 		}
 
-		$model = $this->model();
-		$wid = uniqid();
-		$newone->id = $wid;
+		$modelWall = $this->model('matter\wall')->setOnlyWriteDbConn(true);
 		/* 前端指定的信息 */
-		$newone->title = empty($customConfig->proto->title) ? '新信息墙' : $model->escape($customConfig->proto->title);
-		$newone->creater = $user->id;
-		$newone->creater_name = $model->escape($user->name);
-		$newone->create_at = $current;
-		$newone->quit_cmd = 'q';
-		$newone->join_reply = '欢迎加入';
-		$newone->quit_reply = '已经退出';
+		$oNewApp->title = empty($oCustomConfig->proto->title) ? '新信息墙' : $modelWall->escape($oCustomConfig->proto->title);
+		$oNewApp->quit_cmd = 'q';
+		$oNewApp->join_reply = '欢迎加入';
+		$oNewApp->quit_reply = '已经退出';
 
-		$model->insert('xxt_wall', $newone, false);
+		$oNewApp = $modelWall->create($oUser, $oNewApp);
 
 		/* 记录操作日志 */
-		$newone->type = 'wall';
-		$this->model('matter\log')->matterOp($newone->siteid, $user, $newone, 'C');
+		$this->model('matter\log')->matterOp($oNewApp->siteid, $oUser, $oNewApp, 'C');
 
-		/* 记录和任务的关系 */
-		if (isset($mission->id)) {
-			$modelMis->addMatter($user, $newone->siteid, $mission->id, $newone);
-		}
-
-		return new \ResponseData($wid);
+		return new \ResponseData($oNewApp);
 	}
 	/**
 	 * submit basic.
 	 */
 	public function update_action($site, $app) {
-		if (false === ($user = $this->accountUser())) {
+		if (false === ($oUser = $this->accountUser())) {
 			return new \ResponseTimeout();
 		}
 
 		$modelApp = $this->model('matter\wall');
-		$modelApp->setOnlyWriteDbConn(true);
+		$oMatter = $modelApp->byId($app, 'id,title,summary,pic,scenario,start_at,end_at,mission_id');
+		if (false === $oMatter) {
+			return new \ObjectNotFoundError();
+		}
 
-		$nv = $this->getPostJson();
-		if (isset($nv->title)) {
-			$nv->title = $modelApp->escape($nv->title);
-		} else if (isset($nv->join_reply)) {
-			$nv->join_reply = $modelApp->escape($nv->join_reply);
-		} else if (isset($nv->quit_reply)) {
-			$nv->quit_reply = $modelApp->escape($nv->quit_reply);
-		} else if (isset($nv->entry_ele)) {
-			$nv->entry_ele = $modelApp->escape($nv->entry_ele);
-		} else if (isset($nv->entry_css)) {
-			$nv->entry_css = $modelApp->escape($nv->entry_css);
-		} else if (isset($nv->body_css)) {
-			$nv->body_css = $modelApp->escape($nv->body_css);
-		} else if (isset($nv->active) && $nv->active === 'N') {
+		$oUpdated = $this->getPostJson();
+		if (isset($oUpdated->title)) {
+			$oUpdated->title = $modelApp->escape($oUpdated->title);
+		} else if (isset($oUpdated->join_reply)) {
+			$oUpdated->join_reply = $modelApp->escape($oUpdated->join_reply);
+		} else if (isset($oUpdated->quit_reply)) {
+			$oUpdated->quit_reply = $modelApp->escape($oUpdated->quit_reply);
+		} else if (isset($oUpdated->entry_ele)) {
+			$oUpdated->entry_ele = $modelApp->escape($oUpdated->entry_ele);
+		} else if (isset($oUpdated->entry_css)) {
+			$oUpdated->entry_css = $modelApp->escape($oUpdated->entry_css);
+		} else if (isset($oUpdated->body_css)) {
+			$oUpdated->body_css = $modelApp->escape($oUpdated->body_css);
+		} else if (isset($oUpdated->active) && $oUpdated->active === 'N') {
 			//如果停用信息墙，退出所有用户
 			$modelApp->update('xxt_wall_enroll', ['close_at' => time()], ['wid' => $app]);
 		}
 
-		$rst = $modelApp->update('xxt_wall', $nv, ['id' => $app]);
-		/*记录操作日志*/
-		if ($rst) {
-			$matter = $modelApp->byId($app, 'id,title,summary,pic');
-			$this->model('matter\log')->matterOp($site, $user, $matter, 'U');
+		if ($oMatter = $modelApp->modify($oUser, $oMatter, $oUpdated)) {
+			$this->model('matter\log')->matterOp($site, $oUser, $oMatter, 'U');
 		}
 
-		return new \ResponseData($rst);
+		return new \ResponseData($oMatter);
 	}
 	/**
 	 * 导出Excel
 	 */
 	public function export_action($site, $wid) {
-		if (false === ($user = $this->accountUser())) {
+		if (false === ($oUser = $this->accountUser())) {
 			return new \ResponseTimeout();
 		}
 
@@ -254,19 +239,19 @@ class main extends \pl\fe\matter\base {
 	 * 复制信息墙
 	 */
 	public function copy_action($site, $app, $mission = null) {
-		if (false === ($user = $this->accountUser())) {
+		if (false === ($oUser = $this->accountUser())) {
 			return new \ResponseTimeout();
 		}
 
 		$modelWall = $this->model('matter\wall');
-		if (($oApp = $modelWall->byId($app)) === false) {
-			return new \ResponseError('指定的信息墙不存在');
+		if (($oCopiedApp = $modelWall->byId($app)) === false) {
+			return new \ObjectNotFoundError();
 		}
 		/*pages*/
 		$modelPage = $this->model('matter\wall\page');
 		$modelCode = $this->model('code\page');
 		$oPages = [];
-		$oPage = $modelPage->byType('op', $oApp->id);
+		$oPage = $modelPage->byType('op', $oCopiedApp->id);
 		if (is_array($oPage)) {
 			$oPages = array_merge($oPages, $oPage);
 		} else {
@@ -274,41 +259,30 @@ class main extends \pl\fe\matter\base {
 		}
 
 		/*copy*/
-		$newWall = new \stdClass;
-		$wid = uniqid();
-		$newWall->id = $wid;
-		$newWall->siteid = $modelWall->escape($site);
-		$newWall->creater = $user->id;
-		$newWall->creater_name = $user->name;
-		$newWall->create_at = time();
-		$newWall->title = $modelWall->escape($oApp->title) . '(副本)';
-		$newWall->pic = $oApp->pic;
-		$newWall->summary = $modelWall->escape($oApp->summary);
-		$newWall->join_reply = $modelWall->escape($oApp->join_reply);
-		$newWall->quit_reply = $modelWall->escape($oApp->quit_reply);
-		$newWall->quit_cmd = $modelWall->escape($oApp->quit_cmd);
-		$newWall->entry_css = $modelWall->escape($oApp->entry_css);
-		$newWall->body_css = $modelWall->escape($oApp->body_css);
-		$newWall->skip_approve = $oApp->skip_approve;
-		$newWall->push_others = $oApp->push_others;
-		$newWall->entry_ele = $modelWall->escape($oApp->entry_ele);
+		$oNewApp = new \stdClass;
+		$oNewApp->siteid = $modelWall->escape($site);
+		$oNewApp->title = $modelWall->escape($oCopiedApp->title) . '(副本)';
+		$oNewApp->pic = $oCopiedApp->pic;
+		$oNewApp->summary = $modelWall->escape($oCopiedApp->summary);
+		$oNewApp->join_reply = $modelWall->escape($oCopiedApp->join_reply);
+		$oNewApp->quit_reply = $modelWall->escape($oCopiedApp->quit_reply);
+		$oNewApp->quit_cmd = $modelWall->escape($oCopiedApp->quit_cmd);
+		$oNewApp->entry_css = $modelWall->escape($oCopiedApp->entry_css);
+		$oNewApp->body_css = $modelWall->escape($oCopiedApp->body_css);
+		$oNewApp->skip_approve = $oCopiedApp->skip_approve;
+		$oNewApp->push_others = $oCopiedApp->push_others;
+		$oNewApp->entry_ele = $modelWall->escape($oCopiedApp->entry_ele);
 		/* 记录和任务的关系 */
 		if (!empty($mission)) {
 			$modelMis = $this->model('matter\mission');
-			if ($mission = $modelMis->byId($mission)) {
-				$newWall->mission_id = $mission->id;
-			} else {
-				return new \ResponseError('指定的项目不存在');
+			$oMission = $modelMis->byId($mission);
+			if (false === $oMission) {
+				return new \ObjectNotFoundError();
 			}
+			$oNewApp->mission_id = $oMission->id;
 		}
 
-		$modelWall->insert('xxt_wall', $newWall, false);
-
-		/* 记录和任务的关系 */
-		if (isset($mission->id)) {
-			$newWall->type = 'wall';
-			$modelMis->addMatter($user, $newWall->siteid, $mission->id, $newWall);
-		}
+		$oNewApp = $modelWall->create($oUser, $oNewApp);
 
 		/*复制页面*/
 		if (empty($oPages)) {
@@ -319,13 +293,13 @@ class main extends \pl\fe\matter\base {
 				'seq' => 1,
 				'templateDir' => TMS_APP_TEMPLATE . '/site/op/matter/wall/',
 			];
-			$newPage = $modelPage->add($site, $wp, $newWall->id);
+			$newPage = $modelPage->add($site, $wp, $oNewApp->id);
 			$templateDir = $wp['templateDir'];
-			$data = array(
+			$data = [
 				'html' => file_get_contents($templateDir . 'basic.html'),
 				'css' => file_get_contents($templateDir . 'basic.css'),
 				'js' => file_get_contents($templateDir . 'basic.js'),
-			);
+			];
 			$modelCode->modify($newPage->code_id, $data);
 		} else {
 			foreach ($oPages as $oPage) {
@@ -335,7 +309,7 @@ class main extends \pl\fe\matter\base {
 					'type' => $oPage->type,
 					'seq' => $oPage->seq,
 				];
-				$newPage = $modelPage->add($site, $wp, $newWall->id);
+				$newPage = $modelPage->add($site, $wp, $oNewApp->id);
 				$data = array(
 					'html' => $oPage->html,
 					'css' => $oPage->css,
@@ -356,47 +330,38 @@ class main extends \pl\fe\matter\base {
 		}
 
 		/* 记录操作日志 */
-		$newWall->type = 'wall';
-		$this->model('matter\log')->matterOp($newWall->siteid, $user, $newWall, 'C');
+		$this->model('matter\log')->matterOp($oNewApp->siteid, $oUser, $oNewApp, 'C');
 
-		return new \ResponseData($newWall);
+		return new \ResponseData($oNewApp);
 	}
 	/**
 	 * 删除信息墙
 	 */
 	public function remove_action($site, $app) {
-		if (false === ($user = $this->accountUser())) {
+		if (false === ($oUser = $this->accountUser())) {
 			return new \ResponseTimeout();
 		}
 
 		$modelWall = $this->model('matter\wall');
 		if (($oApp = $modelWall->byId($app)) === false) {
-			return new \ResponseError('指定的信息墙不存在');
+			return new \ObjectNotFoundError();
 		}
 
-		if ($oApp->creater !== $user->id) {
+		if ($oApp->creater !== $oUser->id) {
 			return new \ResponseError('没有删除数据的权限');
 		}
-		/* 删除和任务的关联 */
-		if ($oApp->mission_id) {
-			$this->model('matter\mission')->removeMatter($oApp->id, 'wall');
-		}
-
 		$q = [
 			'count(*)',
 			'xxt_wall_enroll',
 			['wid' => $oApp->id],
 		];
-		$userNum = (int) $modelWall->query_val_ss($q);
-		/*打标记*/
-		if ($userNum > 0) {
-			$rst = $modelWall->update('xxt_wall_enroll', ['close_at' => time()], ['wid' => $oApp->id]);
-			$rst = $modelWall->update('xxt_wall', ['state' => 0], ['id' => $oApp->id]);
-			/* 记录操作日志 */
-			$this->model('matter\log')->matterOp($site, $user, $oApp, 'Recycle');
+		$oUserNum = (int) $modelWall->query_val_ss($q);
+		if ($oUserNum > 0) {
+			$modelWall->update('xxt_wall_enroll', ['close_at' => time()], ['wid' => $oApp->id]);
+			$rst = $modelWall->remove($oUser, $oApp, 'Recycle');
 		} else {
 			/*删除信息墙*/
-			$rst = $modelWall->delete('xxt_wall_log', "wid='$oApp->id'");
+			$modelWall->delete('xxt_wall_log', ['wid' => $oApp->id]);
 			$d = [
 				'code_id',
 				'xxt_wall_page',
@@ -409,45 +374,13 @@ class main extends \pl\fe\matter\base {
 				}
 				$pages2 = implode(',', $pages2);
 
-				$rst = $modelWall->delete('xxt_code_page', "id in ($pages2)");
-				$rst = $modelWall->delete('xxt_code_external', "code_id in ($pages2)");
-				$rst = $modelWall->delete('xxt_wall_page', "Wid='$oApp->id'");
+				$modelWall->delete('xxt_code_page', "id in ($pages2)");
+				$modelWall->delete('xxt_code_external', "code_id in ($pages2)");
+				$modelWall->delete('xxt_wall_page', ['Wid' => $oApp->id]);
 			}
 
-			$rst = $modelWall->delete('xxt_wall', "id='$oApp->id'");
-
-			/* 记录操作日志 */
-			$this->model('matter\log')->matterOp($site, $user, $oApp, 'D');
+			$rst = $modelWall->remove($oUser, $oApp, 'D');
 		}
-
-		return new \ResponseData($rst);
-	}
-	/**
-	 * 恢复被删除的信息墙
-	 */
-	public function restore_action($site, $id) {
-		if (false === ($user = $this->accountUser())) {
-			return new \ResponseTimeout();
-		}
-
-		$modelWall = $this->model('matter\wall');
-		if (false === ($app = $modelWall->byId($id, 'id,title,summary,pic,mission_id'))) {
-			return new \ResponseError('数据已经被彻底删除，无法恢复');
-		}
-		if ($app->mission_id) {
-			$modelMis = $this->model('matter\mission');
-			$modelMis->addMatter($user, $site, $app->mission_id, $app);
-		}
-
-		/* 恢复数据 */
-		$rst = $modelWall->update(
-			'xxt_wall',
-			['state' => 1],
-			["id" => $app->id]
-		);
-
-		/* 记录操作日志 */
-		$this->model('matter\log')->matterOp($site, $user, $app, 'Restore');
 
 		return new \ResponseData($rst);
 	}

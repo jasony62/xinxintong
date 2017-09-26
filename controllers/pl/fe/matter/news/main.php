@@ -98,32 +98,24 @@ class main extends \pl\fe\matter\base {
 	 * 更新数据
 	 */
 	public function update_action($site, $id) {
-		if (false === ($user = $this->accountUser())) {
+		if (false === ($oUser = $this->accountUser())) {
 			return new \ResponseTimeout();
 		}
 
-		$modelNews = $this->model('matter\news');
-		$modelNews->setOnlyWriteDbConn(true);
-		$nv = $this->getPostJson();
-		$current = time();
-
-		$nv->modifier = $user->id;
-		$nv->modifier_src = 'A';
-		$nv->modifier_name = $user->name;
-		$nv->modify_at = $current;
-		/* 更新数据 */
-		$rst = $modelNews->update(
-			'xxt_news',
-			$nv,
-			['siteid' => $site, 'id' => $id]
-		);
-		/* 记录操作日志 */
-		if ($rst) {
-			$news = $modelNews->byId($id, 'id,title');
-			$this->model('matter\log')->matterOp($site, $user, $news, 'U');
+		$modelNews = $this->model('matter\news')->setOnlyWriteDbConn(true);
+		$oNews = $modelNews->byId($id, 'id,title');
+		if (false === $oNews) {
+			return new \ObjectNotFoundError();
 		}
 
-		return new \ResponseData($rst);
+		$oPosted = $this->getPostJson();
+		$current = time();
+
+		if ($oNews = $modelNews->modify($oUser, $oNews, $oPosted)) {
+			$this->model('matter\log')->matterOp($site, $oUser, $oNews, 'U');
+		}
+
+		return new \ResponseData($oNews);
 	}
 	/**
 	 * 更新多图文中的素材
@@ -168,87 +160,46 @@ class main extends \pl\fe\matter\base {
 	 * 创建一个多图文素材
 	 */
 	public function create_action($site) {
-		if (false === ($user = $this->accountUser())) {
+		if (false === ($oUser = $this->accountUser())) {
 			return new \ResponseTimeout();
 		}
 
-		$posted = $this->getPostJson();
-		$current = time();
-
-		$news = [];
-		$news['siteid'] = $site;
-		$news['mpid'] = $site;
-		$news['creater'] = $user->id;
-		$news['create_at'] = $current;
-		$news['creater_src'] = 'A';
-		$news['creater_name'] = $user->name;
-		$news['modifier'] = $user->id;
-		$news['modifier_src'] = 'A';
-		$news['modifier_name'] = $user->name;
-		$news['modify_at'] = $current;
-		$news['title'] = isset($posted->title) ? $posted->title : '新多图文';
-
+		$oPosted = $this->getPostJson();
 		$modelNews = $this->model('matter\news');
 		$modelNews->setOnlyWriteDbConn(true);
-		$id = $modelNews->insert('xxt_news', $news, true);
 
-		/* 指定包含的素材 */
-		!empty($posted->matters) && $this->_assignMatters($id, $posted->matters);
+		$oNews = new \stdClass;
+		$oNews->siteid = $site;
+		$oNews->mpid = $site;
+		$oNews->title = isset($oPosted->title) ? $modelNews->escape($oPosted->title) : '新多图文';
+
+		$oNews = $modelNews->create($oUser, $oNews);
 
 		/* 记录操作日志 */
-		$matter = (object) $news;
-		$matter->id = $id;
-		$matter->type = 'news';
-		$this->model('matter\log')->matterOp($site, $user, $matter, 'C');
+		$this->model('matter\log')->matterOp($site, $oUser, $oNews, 'C');
 
-		$news = $modelNews->byId($id);
+		/* 指定包含的素材 */
+		!empty($oPosted->matters) && $this->_assignMatters($oNews->id, $oPosted->matters);
 
-		return new \ResponseData($news);
+		return new \ResponseData($oNews);
 	}
 	/**
 	 * 删除一个多图文素材
 	 */
-	public function delete_action($site, $id) {
-		if (false === ($user = $this->accountUser())) {
+	public function remove_action($site, $id) {
+		if (false === ($oUser = $this->accountUser())) {
 			return new \ResponseTimeout();
 		}
 
 		$modelNews = $this->model('matter\news');
-		$matter = $modelNews->byId($id);
-		$rst = $modelNews->update('xxt_news', ['state' => 0], ['siteid' => $site, 'id' => $id]);
-
-		/* 记录操作日志 */
-		$this->model('matter\log')->matterOp($site, $user, $matter, 'Recycle');
-
-		return new \ResponseData($rst);
-	}
-	/**
-	 * 恢复被删除的素材
-	 */
-	public function restore_action($site, $id) {
-		if (false === ($user = $this->accountUser())) {
-			return new \ResponseTimeout();
+		$oNews = $modelNews->byId($id, 'id,title');
+		if (false === $oNews) {
+			return new \ObjectNotFoundError();
 		}
 
-		$model = $this->model('matter\news');
-		$matter = $model->byId($id);
-		if (false === $matter) {
-			return new \ResponseError('数据已经被彻底删除，无法恢复');
-		}
-
-		/* 恢复数据 */
-		$rst = $model->update('xxt_news', ['state' => 1], ['siteid' => $site, 'id' => $id]);
-
-		/* 记录操作日志 */
-		$this->model('matter\log')->matterOp($site, $user, $matter, 'Restore');
+		$rst = $modelNews->remove($oUser, $oNews);
 
 		return new \ResponseData($rst);
-	}
-	/**
-	 *
-	 */
-	protected function getMatterType() {
-		return 'news';
 	}
 	/**
 	 * 内容为空时的回复

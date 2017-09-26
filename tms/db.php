@@ -361,6 +361,10 @@ class TMS_DB {
 									$clause = $k . " like '" . $v->pat . "'";
 									$clauses[] = $clause;
 									break;
+								case 'exists':
+									$clause = " exists(" . $v->pat . ")";
+									$clauses[] = $clause;
+									break;
 								}
 							}
 						} else {

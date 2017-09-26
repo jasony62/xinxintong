@@ -9,12 +9,6 @@ class main extends \pl\fe\matter\base {
 	/**
 	 *
 	 */
-	protected function getMatterType() {
-		return 'contribute';
-	}
-	/**
-	 *
-	 */
 	public function index_action() {
 		\TPL::output('/pl/fe/matter/contribute/frame');
 		exit;
@@ -108,108 +102,71 @@ class main extends \pl\fe\matter\base {
 	 * 创建投稿活动
 	 */
 	public function create_action($site) {
-		$user = $this->accountUser();
-		if (false === $user) {
+		if (false === ($oUser = $this->accountUser())) {
 			return new \ResponseTimeout();
 		}
+		$oSite = $this->model('site')->byId($site, array('fields' => 'id,heading_pic'));
+		if (false === $oSite) {
+			return new \ObjectNotFoundError();
+		}
 
-		$current = time();
-		$site = $this->model('site')->byId($site, array('fields' => 'id,heading_pic'));
+		$modelCtb = $this->model('matter\contribute')->setOnlyWriteDbConn(true);
 
-		$appId = uniqid();
-		$newapp['siteid'] = $site->id;
-		$newapp['id'] = $appId;
-		$newapp['creater'] = $user->id;
-		$newapp['creater_name'] = $user->name;
-		$newapp['creater_src'] = $user->src;
-		$newapp['create_at'] = $current;
-		$newapp['modifier'] = $user->id;
-		$newapp['modifier_src'] = $user->src;
-		$newapp['modifier_name'] = $user->name;
-		$newapp['modify_at'] = $current;
-		$newapp['title'] = '新投稿活动';
-		$newapp['summary'] = '';
-		$newapp['pic'] = $site->heading_pic;
+		$oNewApp = new \stdClass;
+		$oNewApp->siteid = $oSite->id;
+		$oNewApp->title = '新投稿活动';
+		$oNewApp->summary = '';
+		$oNewApp->pic = $oSite->heading_pic;
 
-		$this->model()->insert('xxt_contribute', $newapp, false);
+		$modelCtb->create($oUser, $oNewApp);
 
-		$c = $this->model('matter\contribute')->byId($appId);
 		/*记录操作日志*/
-		$c->type = 'contribute';
-		$this->model('matter\log')->matterOp($site->id, $user, $c, 'C');
+		$this->model('matter\log')->matterOp($oSite->id, $oUser, $oNewApp, 'C');
 
-		return new \ResponseData($c);
+		return new \ResponseData($oNewApp);
 	}
 	/**
 	 * 更新
 	 */
 	public function update_action($site, $app) {
-		$user = $this->accountUser();
-		if (false === $user) {
+		if (false === $oUser = $this->accountUser()) {
 			return new \ResponseTimeout();
 		}
 		$modelCtr = $this->model('matter\contribute');
-		$nv = $this->getPostJson();
-
-		if (isset($nv->params)) {
-			$nv->params = json_encode($nv->params);
+		$oMatter = $modelCtr->byId($app, 'id,title,summary,pic');
+		if (false === $oMatter) {
+			return new \ObjectNotFoundError();
 		}
-		$nv->modifier = $user->id;
-		$nv->modifier_src = $user->src;
-		$nv->modifier_name = $user->name;
-		$nv->modify_at = time();
+		$oUpdated = $this->getPostJson();
 
-		$rst = $modelCtr->update('xxt_contribute', $nv, "id='$app'");
-		/*记录操作日志*/
-		if ($rst) {
-			$app = $modelCtr->byId($app, 'id,title,summary,pic');
-			$app->type = 'contribute';
-			$this->model('matter\log')->matterOp($site, $user, $app, 'U');
+		if (isset($oUpdated->params)) {
+			$oUpdated->params = json_encode($oUpdated->params);
 		}
 
-		return new \ResponseData($rst);
+		if ($oMatter = $modelCtr->modify($oUser, $oMatter, $oUpdated)) {
+			$this->model('matter\log')->matterOp($site, $oUser, $oMatter, 'U');
+		}
+
+		return new \ResponseData($oMatter);
 	}
 	/**
 	 * 删除
 	 */
 	public function remove_action($site, $app) {
-		if (false === ($user = $this->accountUser())) {
+		if (false === ($oUser = $this->accountUser())) {
 			return new \ResponseTimeout();
 		}
 
-		$app = $this->model('matter\contribute')->byId($app);
-		$rst = $this->model()->update(
-			'xxt_contribute',
-			array('state' => 0),
-			['siteid' => $site, 'id' => $app->id]
-		);
-
-		/**
-		 * 记录操作日志
-		 */
-		$this->model('matter\log')->matterOp($site, $user, $app, 'Recycle');
-
-		return new \ResponseData($rst);
-	}
-	/**
-	 * 恢复被删除的素材
-	 */
-	public function restore_action($site, $id) {
-		if (false === ($user = $this->accountUser())) {
-			return new \ResponseTimeout();
+		$modelApp = $this->model('matter\contribute');
+		$oApp = $modelApp->byId($app, 'siteid,id,title,summary,pic,creater');
+		if (false === $oApp) {
+			return new \ObjectNotFoundError();
+		}
+		if ($oApp->creater !== $oUser->id) {
+			return new \ResponseError('没有删除数据的权限');
 		}
 
-		$modelCont = $this->model('matter\contribute');
-		$contribute = $modelCont->byId($id, 'id,title');
-		if (false === $contribute) {
-			return new \ResponseError('数据已经被彻底删除，无法恢复');
-		}
-
-		/* 恢复数据 */
-		$rst = $modelCont->update('xxt_contribute', ['state' => 1], ['siteid' => $site, 'id' => $id]);
-
-		/* 记录操作日志 */
-		$this->model('matter\log')->matterOp($site, $user, $contribute, 'Restore');
+		$rst = $modelApp->remove($oUser, $oApp, 'Recycle');
 
 		return new \ResponseData($rst);
 	}

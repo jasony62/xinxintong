@@ -7,6 +7,34 @@ require_once dirname(dirname(__FILE__)) . '/base.php';
  */
 class base extends \pl\fe\base {
 	/**
+	 * 获得素材的类型
+	 */
+	protected function getMatterType() {
+		$cls = get_class($this);
+		$cls = str_replace('pl\fe\matter\\', '', $cls);
+		$cls = explode('\\', $cls);
+		if (count($cls) === 2) {
+			return $cls[0];
+		}
+		throw new \Exception();
+	}
+	/**
+	 * 恢复被删除的单图文
+	 */
+	public function restore_action($site, $id) {
+		if (false === ($oUser = $this->accountUser())) {
+			return new \ResponseTimeout();
+		}
+		$matterType = $this->getMatterType();
+		$modelMat = $this->model('matter\\' . $matterType);
+		if (false === ($oMatter = $modelMat->byId($id, $modelMat::LOG_FIELDS))) {
+			return new \ObjectNotFoundError('数据已经被彻底删除，无法恢复');
+		}
+		$rst = $modelMat->restore($oUser, $oMatter);
+
+		return new \ResponseData($rst);
+	}
+	/**
 	 * 设置访问白名单
 	 *
 	 * @param int $id 规则ID

@@ -65,6 +65,7 @@
                     <div class='form-group'>
                         <label>活动类型</label>
                         <select class="form-control" ng-model="unionType">
+                            <option value=''>全部活动</option>
                             <option ng-repeat="mt in unionMatterTypes" value="{{mt.name}}">{{mt.label}}</option>
                         </select>
                     </div>
@@ -155,6 +156,7 @@
                     <div class="form-group">
                         <label>资料类型</label>
                         <select class='form-control' ng-model="criteria.matter.type">
+                            <option value=''>全部资料</option>
                             <option ng-repeat="type in matterNames.docOrder" value="{{type}}">{{matterNames.doc[type]}}</option>
                         </select>
                     </div>
@@ -188,14 +190,13 @@
                 <tbody>
                     <tr ng-repeat='m in matters'>
                         <td>{{$index+1}}</td>
-                        <td>{{m.matter_title||m.title}}</td>
+                        <td ng-click="openMatter(m,'main')">{{m.matter_title||m.title}}</td>
                         <td>{{m.operator_name||m.creater_name}}</td>
                         <td>{{(m.operate_at||m.create_at)*1000|date:'yy-MM-dd HH:mm'}}</td>
                         <td>
                             <i class='glyphicon' ng-class="m.star?'glyphicon-star':'glyphicon-star-empty'" ng-click="toggleStar(m)"></i>
                         </td>
                         <td>
-                            <button class='btn btn-sm btn-default' ng-click="openMatter(m,'main')">进入</button>
                             <button class='btn btn-sm btn-default' ng-click="copyMatter($event,m)" ng-if="m.type=='article'">复制</button>
                         </td>
                     </tr>

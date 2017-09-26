@@ -200,7 +200,7 @@ define(['require'], function(require) {
             },
             addLottery: function(site) {
                 http2.get('/rest/pl/fe/matter/lottery/create?site=' + site.id, function(rsp) {
-                    location.href = '/rest/pl/fe/matter/lottery?site=' + site.id + '&id=' + rsp.data;
+                    location.href = '/rest/pl/fe/matter/lottery?site=' + site.id + '&id=' + rsp.data.id;
                 });
             },
             addContribute: function(site) {
@@ -210,7 +210,7 @@ define(['require'], function(require) {
             },
             addCustom: function(site) {
                 http2.get('/rest/pl/fe/matter/custom/create?site=' + site.id, function(rsp) {
-                    location.href = '/rest/pl/fe/matter/custom?site=' + site.id + '&id=' + rsp.data;
+                    location.href = '/rest/pl/fe/matter/custom?site=' + site.id + '&id=' + rsp.data.id;
                 });
             },
             addMerchant: function(site) {
@@ -220,7 +220,7 @@ define(['require'], function(require) {
             },
             addWall: function(site) {
                 http2.get('/rest/pl/fe/matter/wall/create?site=' + site.id, function(rsp) {
-                    location.href = '/rest/pl/fe/matter/wall?site=' + site.id + '&id=' + rsp.data;
+                    location.href = '/rest/pl/fe/matter/wall?site=' + site.id + '&id=' + rsp.data.id;
                 });
             },
             addText: function(site) {

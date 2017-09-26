@@ -126,17 +126,17 @@ ngApp.controller('ctrlConsole', ['$scope', '$uibModal', 'http2', 'templateShop',
             switch (type) {
                 case 'article':
                 case 'link':
+                case 'news':
+                case 'channel':
                     url += type + '/remove?id=' + id + '&site=' + $scope.siteId;
                     break;
                 case 'enroll':
                 case 'signin':
                 case 'group':
                 case 'wall':
+                case 'lottery':
+                case 'contribute':
                     url += type + '/remove?app=' + id + '&site=' + $scope.siteId;
-                    break;
-                case 'news':
-                case 'channel':
-                    url += type + '/delete?site=' + $scope.siteId + '&id=' + id;
                     break;
                 default:
                     alert('指定素材不支持删除');

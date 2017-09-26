@@ -50,7 +50,7 @@ define(['frame'], function(ngApp) {
 	ngApp.provider.controller('ctrlMatter', ['$scope', '$uibModal', 'http2', function($scope, $uibModal, http2) {
 		$scope.page = {
 			at: 1,
-			size: 1,
+			size: 10,
 			j:function() {
 				return '&page=' + this.at + '&size=' + this.size;
 			}

@@ -93,10 +93,28 @@ class remind_model extends \TMS_MODEL {
 		if ($oNotice === false) {
 			return [false, '没有指定事件的模板消息1'];
 		}
-		$oTmplConfig = $this->model('matter\tmplmsg\config')->byId($oNotice->tmplmsg_config_id);
+		$oTmplConfig = $this->model('matter\tmplmsg\config')->byId($oNotice->tmplmsg_config_id, ['cascaded' => 'Y']);
 		$tmplmsgId = $oTmplConfig->msgid;
 		if (empty($tmplmsgId)) {
 			return [false, '没有指定事件的模板消息2'];
+		}
+		foreach ($oTmplConfig->tmplmsg->params as $param2) {
+			if (!isset($oTmplConfig->mapping->{$param2->pname})) {
+				continue;
+			}
+			$mapping = $oTmplConfig->mapping->{$param2->pname};
+			if (isset($mapping->src)) {
+				if ($mapping->src === 'matter') {
+					if (isset($oApp->{$mapping->id})) {
+						$value = $oApp->{$mapping->id};
+					} else if ($mapping->id === 'event_at') {
+						$value = date('Y-m-d H:i:s');
+					}
+				} else if ($mapping->src === 'text') {
+					$value = $mapping->name;
+				}
+			}
+			$params->{$param2->pname} = isset($value) ? $value : '';
 		}
 
 		$modelTmplBat = $this->model('matter\tmplmsg\batch');

@@ -63,8 +63,8 @@
             <div class='form-group'>
                 <div class='form-inline'>
                     <div class='form-group'>
-                        <label>活动类型</label>
                         <select class="form-control" ng-model="unionType">
+                            <option value=''>全部类型</option>
                             <option ng-repeat="mt in unionMatterTypes" value="{{mt.name}}">{{mt.label}}</option>
                         </select>
                     </div>
@@ -80,7 +80,7 @@
                         </div>
                     </div>
                     <button class='btn btn-default' ng-click="criteria.byStar=criteria.byStar==='N'?'Y':'N'"><i class='glyphicon' ng-class="criteria.byStar==='Y'?'glyphicon-star':'glyphicon-star-empty'"></i> 星标</button>
-                    <button class='btn btn-default' ng-click="addMatter(criteria.matter.type,criteria.matter.scenario)"><i class='glyphicon glyphicon-plus'></i> <span>新建<span ng-bind="scenarioNames[criteria.matter.scenario]||matterNames.app[criteria.matter.type]"></span>活动</span>
+                    <button ng-if="criteria.matter.type" class='btn btn-default' ng-click="addMatter(criteria.matter.type,criteria.matter.scenario)"><i class='glyphicon glyphicon-plus'></i> <span>新建<span ng-bind="scenarioNames[criteria.matter.scenario]||matterNames.app[criteria.matter.type]"></span>活动</span>
                     </button>
                 </div>
             </div>
@@ -132,11 +132,7 @@
                                 <button class='btn btn-sm btn-default' ng-click="copyMatter($event,m)">复制</button>
                             </span>
                             <span ng-switch-when="wall">
-                                <button class='btn btn-sm btn-default' ng-click="openMatter(m,'main')">进入</button>
                                 <button class='btn btn-sm btn-default' ng-click="copyMatter($event,m)">复制</button>
-                            </span>
-                            <span ng-switch-default>
-                                <button class='btn btn-sm btn-default' ng-click="openMatter(m,'main')">进入</button>
                             </span>
                         </td>
                     </tr>
@@ -153,8 +149,8 @@
             <div class='form-group'>
                 <div class='form-inline'>
                     <div class="form-group">
-                        <label>资料类型</label>
                         <select class='form-control' ng-model="criteria.matter.type">
+                            <option value=''>全部类型</option>
                             <option ng-repeat="type in matterNames.docOrder" value="{{type}}">{{matterNames.doc[type]}}</option>
                         </select>
                     </div>
@@ -170,7 +166,7 @@
                         </div>
                     </div>
                     <button class='btn btn-default' ng-click="criteria.byStar=criteria.byStar==='N'?'Y':'N'"><i class='glyphicon' ng-class="criteria.byStar==='Y'?'glyphicon-star':'glyphicon-star-empty'"></i> 星标</button>
-                    <button class='btn btn-default' ng-click="addMatter(criteria.matter.type)"><i class='glyphicon glyphicon-plus'></i> <span>新建<span ng-bind="matterNames.doc[criteria.matter.type]"></span></span>
+                    <button ng-if="criteria.matter.type" class='btn btn-default' ng-click="addMatter(criteria.matter.type)"><i class='glyphicon glyphicon-plus'></i> <span>新建<span ng-bind="matterNames.doc[criteria.matter.type]"></span></span>
                     </button>
                 </div>
             </div>
@@ -182,20 +178,19 @@
                         <th style='width:140px'>创建人</th>
                         <th style='width:120px'>创建时间</th>
                         <th style='width:48px'>星标</th>
-                        <th style='width:120px'>操作</th>
+                        <th style='width:62px'>操作</th>
                     </tr>
                 </thead>
                 <tbody>
                     <tr ng-repeat='m in matters'>
                         <td>{{$index+1}}</td>
-                        <td>{{m.matter_title||m.title}}</td>
+                        <td ng-click="openMatter(m,'main')">{{m.matter_title||m.title}}</td>
                         <td>{{m.operator_name||m.creater_name}}</td>
                         <td>{{(m.operate_at||m.create_at)*1000|date:'yy-MM-dd HH:mm'}}</td>
                         <td>
                             <i class='glyphicon' ng-class="m.star?'glyphicon-star':'glyphicon-star-empty'" ng-click="toggleStar(m)"></i>
                         </td>
                         <td>
-                            <button class='btn btn-sm btn-default' ng-click="openMatter(m,'main')">进入</button>
                             <button class='btn btn-sm btn-default' ng-click="copyMatter($event,m)" ng-if="m.type=='article'">复制</button>
                         </td>
                     </tr>

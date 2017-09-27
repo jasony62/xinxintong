@@ -7,6 +7,18 @@ require_once dirname(dirname(__FILE__)) . '/base.php';
  */
 class base extends \pl\fe\base {
 	/**
+	 * 获得素材的类型
+	 */
+	protected function getMatterType() {
+		$cls = get_class($this);
+		$cls = str_replace('pl\fe\matter\\', '', $cls);
+		$cls = explode('\\', $cls);
+		if (count($cls) === 2) {
+			return $cls[0];
+		}
+		throw new \Exception();
+	}
+	/**
 	 * 设置访问白名单
 	 *
 	 * @param int $id 规则ID

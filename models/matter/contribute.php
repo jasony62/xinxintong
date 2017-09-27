@@ -3,20 +3,18 @@ namespace matter;
 
 require_once dirname(__FILE__) . '/app_base.php';
 /**
- *
+ * 投稿活动
  */
 class contribute_model extends app_base {
+	/**
+	 * 记录日志时需要的列
+	 */
+	const LOG_FIELDS = 'siteid,id,title';
 	/**
 	 *
 	 */
 	protected function table() {
 		return 'xxt_contribute';
-	}
-	/**
-	 *
-	 */
-	public function getTypeName() {
-		return 'contribute';
 	}
 	/**
 	 *

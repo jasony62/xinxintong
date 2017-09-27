@@ -1,17 +1,11 @@
 <?php
 namespace pl\fe\matter\group;
 
-require_once dirname(dirname(__FILE__)) . '/base.php';
+require_once dirname(dirname(__FILE__)) . '/main_base.php';
 /*
  * 分组活动主控制器
  */
-class main extends \pl\fe\matter\base {
-	/**
-	 *
-	 */
-	protected function getMatterType() {
-		return 'group';
-	}
+class main extends \pl\fe\matter\main_base {
 	/**
 	 * 返回视图
 	 */
@@ -125,7 +119,7 @@ class main extends \pl\fe\matter\base {
 	 * @param string $missioon
 	 */
 	public function create_action($site, $mission = null, $scenario = '') {
-		if (false === ($user = $this->accountUser())) {
+		if (false === ($oUser = $this->accountUser())) {
 			return new \ResponseTimeout();
 		}
 		$oSite = $this->model('site')->byId($site, array('fields' => 'id,heading_pic'));
@@ -140,14 +134,11 @@ class main extends \pl\fe\matter\base {
 			}
 		}
 
-		$modelApp = $this->model('matter\group');
-		$modelApp->setOnlyWriteDbConn(true);
-
+		$modelApp = $this->model('matter\group')->setOnlyWriteDbConn(true);
 		$oCustomConfig = $this->getPostJson();
 		$current = time();
 
 		$oNewApp = new \stdClass;
-		$oNewApp->id = $appId = uniqid();
 		if (empty($oMission)) {
 			$oNewApp->summary = '';
 			$oNewApp->pic = $oSite->heading_pic;
@@ -164,24 +155,10 @@ class main extends \pl\fe\matter\base {
 		$oNewApp->siteid = $oSite->id;
 		$oNewApp->title = empty($oCustomConfig->proto->title) ? '新分组活动' : $modelApp->escape($oCustomConfig->proto->title);
 		$oNewApp->scenario = $scenario;
-		$oNewApp->creater = $user->id;
-		$oNewApp->creater_src = $user->src;
-		$oNewApp->creater_name = $modelApp->escape($user->name);
-		$oNewApp->create_at = $current;
-		$oNewApp->modifier = $user->id;
-		$oNewApp->modifier_src = $user->src;
-		$oNewApp->modifier_name = $modelApp->escape($user->name);
-		$oNewApp->modify_at = $current;
-		$modelApp->insert('xxt_group', $oNewApp, false);
-		$oNewApp->type = 'group';
+		$oNewApp = $modelApp->create($oUser, $oNewApp);
 
 		/*记录操作日志*/
-		$this->model('matter\log')->matterOp($oSite->id, $user, $oNewApp, 'C');
-
-		/*记录和任务的关系*/
-		if (isset($oMission)) {
-			$modelMis->addMatter($user, $oSite->id, $oMission->id, $oNewApp);
-		}
+		$this->model('matter\log')->matterOp($oSite->id, $oUser, $oNewApp, 'C');
 
 		return new \ResponseData($oNewApp);
 	}
@@ -195,95 +172,69 @@ class main extends \pl\fe\matter\base {
 	 *
 	 */
 	public function copy_action($site, $app, $mission = null) {
-		if (false === ($user = $this->accountUser())) {
+		if (false === ($oUser = $this->accountUser())) {
 			return new \ResponseTimeout();
+		}
+		$modelApp = $this->model('matter\group')->setOnlyWriteDbConn(true);
+		$oCopied = $modelApp->byId($app);
+		if (false === $oCopied) {
+			return new \ObjectNotFoundError();
 		}
 
 		$current = time();
-		$modelApp = $this->model('matter\group');
-		$modelApp->setOnlyWriteDbConn(true);
 		$modelCode = $this->model('code\page');
-
-		$oCopied = $modelApp->byId($app);
 		/**
 		 * 获得的基本信息
 		 */
-		$newaid = uniqid();
-		$newapp = [];
-		$newapp['siteid'] = $site;
-		$newapp['id'] = $newaid;
-		$newapp['creater'] = $user->id;
-		$newapp['creater_src'] = $user->src;
-		$newapp['creater_name'] = $modelApp->escape($user->name);
-		$newapp['create_at'] = $current;
-		$newapp['modifier'] = $user->id;
-		$newapp['modifier_src'] = $user->src;
-		$newapp['modifier_name'] = $modelApp->escape($user->name);
-		$newapp['modify_at'] = $current;
-		$newapp['title'] = $modelApp->escape($oCopied->title) . '（副本）';
-		$newapp['pic'] = $oCopied->pic;
-		$newapp['summary'] = $modelApp->escape($oCopied->summary);
-		$newapp['scenario'] = $oCopied->scenario;
-		$newapp['data_schemas'] = $modelApp->escape($oCopied->data_schemas);
-		$newapp['group_rule'] = $modelApp->escape($oCopied->group_rule);
+		$oNewApp = new \stdClass;
+		$oNewApp->siteid = $site;
+		$oNewApp->title = $modelApp->escape($oCopied->title) . '（副本）';
+		$oNewApp->pic = $oCopied->pic;
+		$oNewApp->summary = $modelApp->escape($oCopied->summary);
+		$oNewApp->scenario = $oCopied->scenario;
+		$oNewApp->data_schemas = $modelApp->escape($oCopied->data_schemas);
+		$oNewApp->group_rule = $modelApp->escape($oCopied->group_rule);
 		if (!empty($mission)) {
-			$newapp['mission_id'] = $mission;
+			$oNewApp->mission_id = $mission;
 		}
-
-		$modelApp->insert('xxt_group', $newapp, false);
-		$app = $modelApp->byId($newaid, ['cascaded' => 'N']);
+		$oNewApp = $modelApp->create($oUser, $oNewApp);
 
 		/* 记录操作日志 */
-		$this->model('matter\log')->matterOp($site, $user, $app, 'C', (object) ['id' => $oCopied->id, 'title' => $oCopied->title]);
+		$this->model('matter\log')->matterOp($site, $oUser, $oNewApp, 'C', (object) ['id' => $oCopied->id, 'title' => $oCopied->title]);
 
-		/* 记录和任务的关系 */
-		if (isset($mission)) {
-			$modelMis = $this->model('matter\mission');
-			$modelMis->addMatter($user, $site, $mission, $app);
-		}
-
-		return new \ResponseData($app);
+		return new \ResponseData($oNewApp);
 	}
 	/**
 	 * 更新活动的属性信息
 	 *
-	 * @param string $aid
+	 * @param string $app app's id
 	 *
 	 */
 	public function update_action($site, $app) {
 		if (false === ($oUser = $this->accountUser())) {
 			return new \ResponseTimeout();
 		}
-		$modelApp = $this->model('matter\group');
-		$oMatter = $modelApp->byId($app, 'id,title,summary,pic,scenario,start_at,end_at,mission_id,mission_phase_id');
-		$modelApp->setOnlyWriteDbConn(true);
+		$modelApp = $this->model('matter\group')->setOnlyWriteDbConn(true);
+		$oMatter = $modelApp->byId($app, 'id,title,summary,pic,scenario,start_at,end_at,mission_id');
+		if (false === $oMatter) {
+			return new \ObjectNotFoundError();
+		}
 		/**
 		 * 处理数据
 		 */
-		$updated = $this->getPostJson();
-		foreach ($updated as $n => $v) {
+		$oUpdated = $this->getPostJson();
+		foreach ($oUpdated as $n => $v) {
 			if (in_array($n, ['title'])) {
-				$updated->{$n} = $modelApp->escape($v);
+				$oUpdated->{$n} = $modelApp->escape($v);
 			}
 			$oMatter->{$n} = $v;
 		}
 
-		$updated->modifier = $oUser->id;
-		$updated->modifier_src = $oUser->src;
-		$updated->modifier_name = $oUser->name;
-		$updated->modify_at = time();
-
-		$rst = $modelApp->update('xxt_group', $updated, ["id" => $oMatter->id]);
-		if ($rst) {
-			// 更新项目中的素材信息
-			if ($oMatter->mission_id) {
-				$this->model('matter\mission')->updateMatter($oMatter->mission_id, $oMatter);
-			}
-			// 记录操作日志并更新信息
+		if ($oMatter = $modelApp->modify($oUser, $oMatter, $oUpdated)) {
 			$this->model('matter\log')->matterOp($site, $oUser, $oMatter, 'U');
 		}
 
-		return new \ResponseData($rst);
+		return new \ResponseData($oMatter);
 	}
 	/**
 	 * 更新分组规则
@@ -354,74 +305,34 @@ class main extends \pl\fe\matter\base {
 	 * @param string $app
 	 */
 	public function remove_action($site, $app) {
-		if (false === ($user = $this->accountUser())) {
+		if (false === ($oUser = $this->accountUser())) {
 			return new \ResponseTimeout();
 		}
+
 		$modelGrp = $this->model('matter\group');
-		/*在删除数据前获得数据*/
-		$app = $modelGrp->byId($app, 'id,title,summary,pic,mission_id,creater');
-		if ($app->creater !== $user->id) {
+		$oApp = $modelGrp->byId($app, 'siteid,id,title,summary,pic,mission_id,creater');
+		if (false === $oApp) {
+			return new \ObjectNotFoundError();
+		}
+		if ($oApp->creater !== $oUser->id) {
 			return new \ResponseError('没有删除数据的权限');
 		}
-		/*删除和任务的关联*/
-		if ($app->mission_id) {
-			$this->model('matter\mission')->removeMatter($app->id, 'group');
-		}
-		/*check*/
+
+		/* check */
 		$q = [
 			'count(*)',
 			'xxt_group_player',
-			["aid" => $app->id],
+			["aid" => $oApp->id],
 		];
 		if ((int) $modelGrp->query_val_ss($q) > 0) {
-			$rst = $modelGrp->update(
-				'xxt_group',
-				['state' => 0],
-				["id" => $app->id]
-			);
-			/*记录操作日志*/
-			$this->model('matter\log')->matterOp($site, $user, $app, 'Recycle');
+			$rst = $modelGrp->remove($oUser, $oApp, 'Recycle');
 		} else {
 			$modelGrp->delete(
 				'xxt_group_round',
-				["aid" => $app->id]
+				["aid" => $oApp->id]
 			);
-			$rst = $modelGrp->delete(
-				'xxt_group',
-				["id" => $app->id]
-			);
-			/*记录操作日志*/
-			$this->model('matter\log')->matterOp($site, $user, $app, 'D');
+			$rst = $modelGrp->remove($oUser, $oApp, 'D');
 		}
-
-		return new \ResponseData($rst);
-	}
-	/**
-	 * 恢复被删除的分组活动
-	 */
-	public function restore_action($site, $id) {
-		if (false === ($user = $this->accountUser())) {
-			return new \ResponseTimeout();
-		}
-
-		$model = $this->model('matter\group');
-		if (false === ($app = $model->byId($id, 'id,title,summary,pic,mission_id'))) {
-			return new \ResponseError('数据已经被彻底删除，无法恢复');
-		}
-		if ($app->mission_id) {
-			$modelMis = $this->model('matter\mission');
-			$modelMis->addMatter($user, $site, $app->mission_id, $app);
-		}
-
-		/* 恢复数据 */
-		$rst = $model->update(
-			'xxt_group',
-			['state' => 1],
-			["id" => $app->id]
-		);
-
-		/* 记录操作日志 */
-		$this->model('matter\log')->matterOp($site, $user, $app, 'Restore');
 
 		return new \ResponseData($rst);
 	}
@@ -429,7 +340,7 @@ class main extends \pl\fe\matter\base {
 	 * 进行分组
 	 */
 	public function execute_action($site, $app) {
-		if (false === ($user = $this->accountUser())) {
+		if (false === ($oUser = $this->accountUser())) {
 			return new \ResponseTimeout();
 		}
 

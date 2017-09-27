@@ -209,7 +209,7 @@ class record extends base {
 			if (!empty($oSigninApp->mission_id)) {
 				$modelMisUsr = $this->model('matter\mission\user');
 				$modelMisUsr->setOnlyWriteDbConn(true);
-				$oMission = $this->model('matter\mission')->byId($oEnrollApp->mission_id, ['fields' => 'siteid,id,user_app_type,user_app_id']);
+				$oMission = $this->model('matter\mission')->byId($oSigninApp->mission_id, ['fields' => 'siteid,id,user_app_type,user_app_id']);
 				if ($oMission->user_app_type === 'group') {
 					$oMisUsrGrpApp = (object) ['id' => $oMission->user_app_id];
 					$oMisGrpUser = $this->model('matter\group\player')->byUser($oMisUsrGrpApp, $oUser->uid, ['onlyOne' => true, 'round_id']);

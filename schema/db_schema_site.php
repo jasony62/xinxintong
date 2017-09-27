@@ -451,5 +451,29 @@ if (!$mysqli->query($sql)) {
 	header('HTTP/1.0 500 Internal Server Error');
 	echo 'database error: ' . $mysqli->error;
 }
+/**
+ * 站点素材的列表信息
+ * 删除素材的时候删除记录
+ */
+$sql = "create table if not exists xxt_site_matter(";
+$sql .= "id int not null auto_increment";
+$sql .= ",siteid varchar(32) not null";
+$sql .= ",mission_id int not null";
+$sql .= ",creater varchar(40) not null";
+$sql .= ",creater_name varchar(255) not null default ''";
+$sql .= ",creater_src char(1)";
+$sql .= ",create_at int not null";
+$sql .= ",matter_id varchar(40) not null";
+$sql .= ",matter_type varchar(20)";
+$sql .= ",matter_title varchar(70) not null";
+$sql .= ",matter_category varchar(3) not null"; //app/doc
+$sql .= ",scenario varchar(255) not null default ''";
+$sql .= ",start_at int not null default 0";
+$sql .= ",end_at int not null default 0";
+$sql .= ",primary key(id)) ENGINE=MyISAM DEFAULT CHARSET=utf8";
+if (!$mysqli->query($sql)) {
+	header('HTTP/1.0 500 Internal Server Error');
+	echo 'database error: ' . $mysqli->error;
+}
 /**********************/
 echo 'finish site.' . PHP_EOL;

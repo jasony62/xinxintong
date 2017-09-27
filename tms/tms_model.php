@@ -21,6 +21,8 @@ class TMS_MODEL {
 	 */
 	public function setOnlyWriteDbConn($only) {
 		$this->onlyWriteDbConn = $only;
+
+		return $this;
 	}
 	/**
 	 * 实例化model

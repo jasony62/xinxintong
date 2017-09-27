@@ -59,13 +59,13 @@ class site_model extends \TMS_MODEL {
 			'xxt_site s',
 			"(creater='{$userId}' or exists(select 1 from xxt_site_admin sa where sa.siteid=s.id and uid='{$userId}')) and state=1",
 		];
-		if(isset($options['byTitle'])){
-			$q[2] .= " and s.name like '%".$options['byTitle']."%'";
+		if (isset($options['byTitle'])) {
+			$q[2] .= " and s.name like '%" . $options['byTitle'] . "%'";
 		}
-		if(isset($options['bySite'])){
-			$q[2] .= " and s.id = '".$options['bySite']."'";
+		if (isset($options['bySite'])) {
+			$q[2] .= " and s.id = '" . $options['bySite'] . "'";
 		}
-		
+
 		$q2 = ['o' => 'create_at desc'];
 
 		$sites = $this->query_objs_ss($q, $q2);
@@ -130,10 +130,10 @@ class site_model extends \TMS_MODEL {
 		$q = [
 			'*',
 			'xxt_site_subscriber',
-			"siteid = '". $this->escape($siteId) ."'"
+			"siteid = '" . $this->escape($siteId) . "'",
 		];
-		if(!empty($options['byNickname'])){
-			$q[2] .= " and nickname like '%". $this->escape($options['byNickname']) ."%'";
+		if (!empty($options['byNickname'])) {
+			$q[2] .= " and nickname like '%" . $this->escape($options['byNickname']) . "%'";
 		}
 
 		if (empty($page) || empty($size)) {
@@ -448,5 +448,63 @@ class site_model extends \TMS_MODEL {
 		$result->total = $this->query_val_ss($q);
 
 		return $result;
+	}
+	/**
+	 * 在团队中添加素材
+	 */
+	public function addMatter($oUser, $oMatter, $matterCategory = 'doc') {
+		if (empty($oMatter->siteid)) {
+			return [false, 'no empty siteid allowed'];
+		}
+		$relation = [
+			'siteid' => $oMatter->siteid,
+			'mission_id' => isset($oMatter->mission_id) ? $oMatter->mission_id : '',
+			'matter_id' => $oMatter->id,
+			'matter_type' => $oMatter->type,
+			'matter_title' => $this->escape($oMatter->title),
+			'matter_category' => $matterCategory,
+			'scenario' => isset($oMatter->scenario) ? $oMatter->scenario : '',
+			'start_at' => isset($oMatter->start_at) ? $oMatter->start_at : 0,
+			'end_at' => isset($oMatter->end_at) ? $oMatter->end_at : 0,
+			'creater' => $oUser->id,
+			'creater_name' => $this->escape($oUser->name),
+			'creater_src' => $oUser->src,
+			'create_at' => time(),
+		];
+		$this->insert('xxt_site_matter', $relation, false);
+
+		return [true];
+	}
+	/**
+	 * 更新团队中的素材信息
+	 */
+	public function updateMatter($oMatter) {
+		if (empty($oMatter->siteid)) {
+			return [false, 'no empty siteid allowed'];
+		}
+		$relation = [
+			'matter_title' => $this->escape($oMatter->title),
+			'scenario' => isset($oMatter->scenario) ? $oMatter->scenario : '',
+			'start_at' => isset($oMatter->start_at) ? $oMatter->start_at : 0,
+			'end_at' => isset($oMatter->end_at) ? $oMatter->end_at : 0,
+		];
+		$rst = $this->update(
+			'xxt_site_matter',
+			$relation,
+			['siteid' => $oMatter->siteid, 'matter_id' => $oMatter->id, 'matter_type' => $oMatter->type]
+		);
+
+		return [true];
+	}
+	/**
+	 * 从团队中删除素材
+	 */
+	public function removeMatter($oMatter) {
+		$rst = $this->delete(
+			'xxt_site_matter',
+			['matter_id' => $oMatter->id, 'matter_type' => $oMatter->type]
+		);
+
+		return [true];
 	}
 }

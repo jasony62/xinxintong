@@ -170,21 +170,30 @@ define(['frame'], function(ngApp) {
             pageAt && (_oPage.at = pageAt);
             oMatter = _oCriteria.matter;
             if (_oCriteria.bySite) {
-                url = '/rest/pl/fe/matter/' + oMatter.type + '/list?site=' + _oCriteria.bySite;
-                if (oMatter.type === 'enroll') {
-                    url += '&scenario=' + oMatter.scenario;
-                } else if (oMatter.type === 'signin') {
-                    url += '&cascaded=opData';
+                if (oMatter.type) {
+                    url = '/rest/pl/fe/matter/' + oMatter.type + '/list?site=' + _oCriteria.bySite;
+                    if (oMatter.type === 'enroll') {
+                        url += '&scenario=' + oMatter.scenario;
+                    } else if (oMatter.type === 'signin') {
+                        url += '&cascaded=opData';
+                    }
+                    url += '&' + _oPage.j() + '&_=' + t;
+                    http2.post(url, { byTitle: _oCriteria.filter.keyword, byStar: _oCriteria.byStar }, function(rsp) {
+                        $scope.matters = rsp.data.apps;
+                        _oPage.total = rsp.data.total;
+                    });
+                } else {
+                    url = '/rest/pl/fe/matter/bySite?site=' + _oCriteria.bySite + '&category=app';
+                    url += '&' + _oPage.j() + '&_=' + t;
+                    http2.post(url, { byTitle: _oCriteria.filter.keyword, byStar: _oCriteria.byStar }, function(rsp) {
+                        $scope.matters = rsp.data.matters;
+                        _oPage.total = rsp.data.total;
+                    });
                 }
-                url += '&' + _oPage.j() + '&_=' + t;
-                http2.post(url, { byTitle: _oCriteria.filter.keyword, byStar: _oCriteria.byStar }, function(rsp) {
-                    $scope.matters = rsp.data.apps;
-                    _oPage.total = rsp.data.total;
-                });
             }
         };
         var _oCriteria;
-        $scope.unionType = 'enroll.common';
+        $scope.unionType = '';
         $scope.criteria = _oCriteria = {
             matter: {},
             orderBy: '',
@@ -212,6 +221,9 @@ define(['frame'], function(ngApp) {
                     } else {
                         delete _oCriteria.matter.scenario;
                     }
+                } else {
+                    _oCriteria.matter.type = '';
+                    _oCriteria.matter.scenario = '';
                 }
             });
             $scope.$watch('criteria', function(nv, ov) {
@@ -253,12 +265,21 @@ define(['frame'], function(ngApp) {
                 t = (new Date * 1);
 
             if (_oCriteria.bySite) {
-                url = '/rest/pl/fe/matter/' + _oCriteria.matter.type + '/list?site=' + _oCriteria.bySite + '&' + _oPage.j() + '&_=' + t;
-                _oCriteria.matter.type == 'channel' && (url += '&cascade=N');
-                http2.post(url, { byTitle: _oCriteria.filter.keyword, byStar: _oCriteria.byStar }, function(rsp) {
-                    $scope.matters = rsp.data.docs || rsp.data.apps;
-                    _oPage.total = rsp.data.total;
-                });
+                if (_oCriteria.matter.type) {
+                    url = '/rest/pl/fe/matter/' + _oCriteria.matter.type + '/list?site=' + _oCriteria.bySite + '&' + _oPage.j() + '&_=' + t;
+                    _oCriteria.matter.type == 'channel' && (url += '&cascade=N');
+                    http2.post(url, { byTitle: _oCriteria.filter.keyword, byStar: _oCriteria.byStar }, function(rsp) {
+                        $scope.matters = rsp.data.docs || rsp.data.apps;
+                        _oPage.total = rsp.data.total;
+                    });
+                } else {
+                    url = '/rest/pl/fe/matter/bySite?site=' + _oCriteria.bySite + '&category=doc&' + _oPage.j() + '&_=' + t;
+                    _oCriteria.matter.type == 'channel' && (url += '&cascade=N');
+                    http2.post(url, { byTitle: _oCriteria.filter.keyword, byStar: _oCriteria.byStar }, function(rsp) {
+                        $scope.matters = rsp.data.matters;
+                        _oPage.total = rsp.data.total;
+                    });
+                }
             }
         };
         $scope.matterTags = function() {
@@ -269,7 +290,7 @@ define(['frame'], function(ngApp) {
         };
         var _oCriteria;
         $scope.criteria = _oCriteria = {
-            matter: { type: 'article' },
+            matter: { type: '' },
             orderBy: '',
             filter: {},
             bySite: '',

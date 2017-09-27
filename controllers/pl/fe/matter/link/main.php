@@ -1,9 +1,11 @@
 <?php
 namespace pl\fe\matter\link;
 
-require_once dirname(dirname(__FILE__)) . '/base.php';
-
-class main extends \pl\fe\matter\base {
+require_once dirname(dirname(__FILE__)) . '/main_base.php';
+/**
+ *
+ */
+class main extends \pl\fe\matter\main_base {
 	/**
 	 *
 	 */
@@ -147,117 +149,83 @@ class main extends \pl\fe\matter\base {
 	 * 创建外部链接素材
 	 */
 	public function create_action($site, $title = '新链接') {
-		if (false === ($user = $this->accountUser())) {
+		if (false === ($oUser = $this->accountUser())) {
 			return new \ResponseTimeout();
 		}
+
 		$modelSite = $this->model('site');
-		$site = $modelSite->byId($site, ['fields' => 'id,heading_pic']);
-		$current = time();
-		$link = array();
-		$link['siteid'] = $site->id;
-		$link['creater'] = $user->id;
-		$link['creater_name'] = $user->name;
-		$link['create_at'] = $current;
-		$link['modifier'] = $user->id;
-		$link['modifier_name'] = $user->name;
-		$link['modify_at'] = $current;
-		$link['title'] = $title;
-		$link['pic'] = $site->heading_pic; //使用站点缺省头图
+		$oSite = $modelSite->byId($site, ['fields' => 'id,heading_pic']);
+		if (false === $oSite) {
+			return new \ObjectNotFoundError();
+		}
 
-		$id = $modelSite->insert('xxt_link', $link, true);
-		$link = $this->model('matter\link')->byId($id);
+		$modelLink = $this->model('matter\link');
+
+		$oLink = new \stdClass;
+		$oLink->siteid = $oSite->id;
+		$oLink->title = $modelLink->escape($title);
+		$oLink->pic = $oSite->heading_pic; //使用站点缺省头图
+
+		$oLink = $modelLink->create($oUser, $oLink);
 
 		/* 记录操作日志 */
-		$matter = $link;
-		$this->model('matter\log')->matterOp($site->id, $user, $matter, 'C');
+		$this->model('matter\log')->matterOp($oSite->id, $oUser, $oLink, 'C');
 
-		return new \ResponseData($link);
-	}
-	/**
-	 * 删除链接
-	 */
-	public function remove_action($site, $id) {
-		if (false === ($user = $this->accountUser())) {
-			return new \ResponseTimeout();
-		}
-		$model = $this->model();
-
-		$link = array();
-		$link['modifier'] = $user->id;
-		$link['modifier_name'] = $user->name;
-		$link['modify_at'] = time();
-		$link['state'] = 0;
-		$rst = $model->update(
-			'xxt_link',
-			$link,
-			['siteid' => $site, 'id' => $id]
-		);
-		/*记录操作日志*/
-		$link = $this->model('matter\link')->byId($id, 'id,title,summary,pic');
-		$link->type = 'link';
-		$this->model('matter\log')->matterOp($site, $user, $link, 'Recycle');
-
-		return new \ResponseData($rst);
-	}
-	/**
-	 * 恢复被删除的素材
-	 */
-	public function restore_action($site, $id) {
-		if (false === ($user = $this->accountUser())) {
-			return new \ResponseTimeout();
-		}
-
-		$model = $this->model('matter\link');
-		$link = $model->byId($id, 'id,title,summary,pic');
-		if (false === $link) {
-			return new \ResponseError('数据已经被彻底删除，无法恢复');
-		}
-
-		/* 恢复数据 */
-		$update = array();
-		$update['modifier'] = $user->id;
-		$update['modifier_name'] = $user->name;
-		$update['modify_at'] = time();
-		$update['state'] = 1;
-		$rst = $model->update('xxt_link', $update, ['siteid' => $site, 'id' => $id]);
-
-		/* 记录操作日志 */
-		$this->model('matter\log')->matterOp($site, $user, $link, 'Restore');
-
-		return new \ResponseData($rst);
+		return new \ResponseData($oLink);
 	}
 	/**
 	 * 更新链接属性
 	 */
 	public function update_action($site, $id) {
-		if (false === ($user = $this->accountUser())) {
+		if (false === ($oUser = $this->accountUser())) {
 			return new \ResponseTimeout();
 		}
-		$model = $this->model();
+		$modelLink = $this->model('matter\link');
+		$oLink = $modelLink->byId($id, 'id,title');
+		if (false === $oLink) {
+			return new \ObjectNotFoundError();
+		}
+		/**
+		 * 处理数据
+		 */
+		$oUpdated = $this->getPostJson();
+		foreach ($oUpdated as $n => $v) {
+			if (in_array($n, ['title'])) {
+				$oUpdated->{$n} = $modelLink->escape($v);
+			}
+			$oLink->{$n} = $v;
+		}
 
-		$link = $this->getPostJson();
-		$link->modifier = $user->id;
-		$link->modifier_name = $user->name;
-		$link->modify_at = time();
+		if ($oLink = $modelLink->modify($oUser, $oLink, $oUpdated)) {
+			$this->model('matter\log')->matterOp($site, $oUser, $oLink, 'U');
+		}
 
-		$ret = $model->update(
-			'xxt_link',
-			$link,
-			"siteid='$site' and id=$id"
-		);
-		/*记录操作日志*/
-		$link = $this->model('matter\link')->byId($id, 'id,title,summary,pic');
-		$link->type = 'link';
-		$this->model('matter\log')->matterOp($site, $user, $link, 'U');
+		return new \ResponseData($oLink);
+	}
+	/**
+	 * 删除链接
+	 */
+	public function remove_action($site, $id) {
+		if (false === ($oUser = $this->accountUser())) {
+			return new \ResponseTimeout();
+		}
 
-		return new \ResponseData($ret);
+		$modelLink = $this->model('matter\link');
+		$oLink = $modelLink->byId($id, 'id,title');
+		if (false === $oLink) {
+			return new \ObjectNotFoundError();
+		}
+
+		$rst = $modelLink->remove($oUser, $oLink);
+
+		return new \ResponseData($rst);
 	}
 	/**
 	 *
 	 * @param $linkid link's id
 	 */
 	public function paramAdd_action($site, $linkid) {
-		if (false === ($user = $this->accountUser())) {
+		if (false === ($oUser = $this->accountUser())) {
 			return new \ResponseTimeout();
 		}
 		$p['link_id'] = $linkid;
@@ -275,7 +243,7 @@ class main extends \pl\fe\matter\base {
 	 * @param $id parameter's id
 	 */
 	public function paramUpd_action($site, $id) {
-		if (false === ($user = $this->accountUser())) {
+		if (false === ($oUser = $this->accountUser())) {
 			return new \ResponseTimeout();
 		}
 		$p = $this->getPostJson();
@@ -295,17 +263,11 @@ class main extends \pl\fe\matter\base {
 	 * @param $id parameter's id
 	 */
 	public function removeParam_action($site, $id) {
-		if (false === ($user = $this->accountUser())) {
+		if (false === ($oUser = $this->accountUser())) {
 			return new \ResponseTimeout();
 		}
 		$rst = $this->model()->delete('xxt_link_param', "id=$id");
 
 		return new \ResponseData($rst);
-	}
-	/**
-	 *
-	 */
-	protected function getMatterType() {
-		return 'link';
 	}
 }

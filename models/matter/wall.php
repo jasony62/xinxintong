@@ -13,6 +13,16 @@ class wall_model extends app_base {
 	const APPROVE_PASS = 1;
 	const APPROVE_REJECT = 2;
 	/**
+	 * 记录日志时需要的列
+	 */
+	const LOG_FIELDS = 'siteid,id,title,summary,pic,mission_id';
+	/**
+	 *
+	 */
+	protected function table() {
+		return 'xxt_wall';
+	}
+	/**
 	 *
 	 */
 	public function &byId($id, $options = []) {
@@ -575,18 +585,6 @@ class wall_model extends app_base {
 
 		}
 		return array(true);
-	}
-	/**
-	 *
-	 */
-	protected function table() {
-		return 'xxt_wall';
-	}
-	/**
-	 *
-	 */
-	public function getTypeName() {
-		return 'wall';
 	}
 	/**
 	 *

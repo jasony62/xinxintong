@@ -47,6 +47,7 @@ define(['require', 'enrollService', 'enrollSchema', 'enrollPage'], function(requ
             !baseURL && (baseURL = '/views/default/pl/fe/matter/enroll/');
             this.templateUrl = baseURL + name + '.html?_=' + (new Date() * 1);
             this.controller = 'ctrl' + name[0].toUpperCase() + name.substr(1);
+            this.reloadOnSearch = false;
             this.resolve = {
                 load: function($q) {
                     var defer = $q.defer();
@@ -113,6 +114,16 @@ define(['require', 'enrollService', 'enrollSchema', 'enrollPage'], function(requ
             'score_sheet': '记分表'
         };
         $scope.opened = '';
+        $scope.$on('$locationChangeStart', function(event, nextRoute, currentRoute) {
+            if (nextRoute.indexOf('/enroll?') !== -1 || nextRoute.indexOf('/preview?') !== -1) {
+                var nr = nextRoute.replace(/#.*/, ''),
+                    cr = currentRoute.replace(/#.*/, '');
+                console.log(event);
+                if (nr === cr) {
+                    //event.preventDefault();
+                }
+            }
+        });
         $scope.$on('$locationChangeSuccess', function(event, currentRoute) {
             var subView = currentRoute.match(/([^\/]+?)\?/);
             $scope.subView = subView[1] === 'enroll' ? 'preview' : subView[1];

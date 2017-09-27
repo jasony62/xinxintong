@@ -146,5 +146,11 @@ define(['frame'], function(ngApp) {
                 $scope.opData = data[0];
             }
         });
+        $('#pl-layout-main').scrollspy({ target: '#myScrollspy' });
+        $('#myScrollspy>ul').affix({
+            offset: {
+                top: 0
+            }
+        });
     }]);
 });

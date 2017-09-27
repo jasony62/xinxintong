@@ -10,6 +10,9 @@ class home extends base {
 	 *
 	 */
 	public function index_action($site, $template = 'basic') {
+		if (empty($site)) {
+			$this->outputInfo('参数错误');
+		}
 		$modelSite = $this->model('site');
 		$oSite = $modelSite->byId(
 			$site,

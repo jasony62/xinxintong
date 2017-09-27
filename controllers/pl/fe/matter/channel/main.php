@@ -1,9 +1,11 @@
 <?php
 namespace pl\fe\matter\channel;
 
-require_once dirname(dirname(__FILE__)) . '/base.php';
-
-class main extends \pl\fe\matter\base {
+require_once dirname(dirname(__FILE__)) . '/main_base.php';
+/**
+ *
+ */
+class main extends \pl\fe\matter\main_base {
 	/**
 	 *
 	 */

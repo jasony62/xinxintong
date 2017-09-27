@@ -1,11 +1,11 @@
 <?php
 namespace pl\fe\matter\wall;
 
-require_once dirname(dirname(__FILE__)) . '/base.php';
+require_once dirname(dirname(__FILE__)) . '/main_base.php';
 /**
  * 信息墙
  */
-class main extends \pl\fe\matter\base {
+class main extends \pl\fe\matter\main_base {
 	/**
 	 *
 	 */
@@ -22,7 +22,7 @@ class main extends \pl\fe\matter\base {
 		}
 
 		$modelWall = $this->model('matter\wall');
-		$oWall = $modelWall->byId($id, '*');
+		$oWall = $modelWall->byId($id);
 		/**
 		 * 获得信息墙的url
 		 */

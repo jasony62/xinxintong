@@ -34,4 +34,47 @@ class config_model extends \TMS_MODEL {
 
 		return $config;
 	}
+	/*
+	* 获取模板消息id和参数
+	*/
+	public function getTmplConfig($oApp, $noticeName, $options = []) {
+		$oParams = new \stdClass;
+		$options2 = [];
+		$options2['onlySite'] = empty($options['onlySite'])? false : $options['onlySite'];
+		$oNotice = $this->model('site\notice')->byName($oApp->siteid, $noticeName, $options2);
+		if ($oNotice === false) {
+			return [false, '没有指定事件的模板消息1'];
+		}
+		$oTmplConfig = $this->byId($oNotice->tmplmsg_config_id, ['cascaded' => 'Y']);
+		if (empty($oTmplConfig->tmplmsg) || empty($oTmplConfig->msgid)) {
+			return [false, '没有指定事件的模板消息2'];
+		}
+		foreach ($oTmplConfig->tmplmsg->params as $param) {
+			if (!isset($oTmplConfig->mapping->{$param->pname})) {
+				continue;
+			}
+			$mapping = $oTmplConfig->mapping->{$param->pname};
+			if (isset($mapping->src)) {
+				if ($mapping->src === 'matter') {
+					if (isset($oApp->{$mapping->id})) {
+						$value = $oApp->{$mapping->id};
+					} else if ($mapping->id === 'event_at') {
+						$value = date('Y-m-d H:i:s');
+					}
+				} else if ($mapping->src === 'text') {
+					$value = $mapping->name;
+				}
+			}
+			$oParams->{$param->pname} = isset($value) ? $value : '';
+		}
+		if (!empty($options['noticeURL'])) {
+			$oParams->url = $options['noticeURL'];
+		}
+
+		$data = new \stdClass;
+		$data->tmplmsgId = $oTmplConfig->msgid;
+		$data->oParams = $oParams;
+
+		return $data;
+	}
 }

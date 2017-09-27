@@ -18,8 +18,7 @@ class remind_model extends \TMS_MODEL {
 			}
 
 			/* 获得活动的进入链接 */
-			$params = new \stdClass;
-			$params->url = $oMatter->entryUrl;
+			$noticeURL = $oMatter->entryUrl;
 
 			/* 获得用户 */
 			if (empty($oMatter->user_app_id)) {
@@ -69,8 +68,7 @@ class remind_model extends \TMS_MODEL {
 			}
 
 			/* 获得活动的进入链接 */
-			$params = new \stdClass;
-			$params->url = $oMatter->entryUrl;
+			$noticeURL = $oMatter->entryUrl;
 
 			/*处理要发送的填写人*/
 			$modelRec = $this->model('matter\enroll\user');
@@ -89,22 +87,14 @@ class remind_model extends \TMS_MODEL {
 		}
 
 		/*获取模板消息id*/
-		$oNotice = $this->model('site\notice')->byName($oMatter->siteid, $noticeName, ['onlySite' => false]);
-		if ($oNotice === false) {
-			return [false, '没有指定事件的模板消息1'];
-		}
-		$oTmplConfig = $this->model('matter\tmplmsg\config')->byId($oNotice->tmplmsg_config_id);
-		$tmplmsgId = $oTmplConfig->msgid;
-		if (empty($tmplmsgId)) {
-			return [false, '没有指定事件的模板消息2'];
-		}
-
+		$data = $this->model('matter\tmplmsg\config')->getTmplConfig($oMatter, $noticeName, ['onlySite' => false, 'noticeURL' => $noticeURL]);
+		
 		$modelTmplBat = $this->model('matter\tmplmsg\batch');
 		$creater = new \stdClass;
 		$creater->uid = $noticeName;
 		$creater->name = 'timer';
 		$creater->src = 'pl';
-		$modelTmplBat->send($oMatter->siteid, $tmplmsgId, $creater, $receivers, $params, ['send_from' => $oMatter->type . ':' . $oMatter->id]);
+		$modelTmplBat->send($oMatter->siteid, $data->tmplmsgId, $creater, $receivers, $data->oParams, ['send_from' => $oMatter->type . ':' . $oMatter->id]);
 
 		return [true];
 	}

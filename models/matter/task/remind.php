@@ -87,16 +87,18 @@ class remind_model extends \TMS_MODEL {
 		}
 
 		/*获取模板消息id*/
-		$data = $this->model('matter\tmplmsg\config')->getTmplConfig($oMatter, $noticeName, ['onlySite' => false, 'noticeURL' => $noticeURL]);
-		if (isset($data['error'])) {
-			return [false, $data['message']];
+		$tmpConfig = $this->model('matter\tmplmsg\config')->getTmplConfig($oMatter, $noticeName, ['onlySite' => false, 'noticeURL' => $noticeURL]);
+		if ($tmpConfig[0] === false) {
+			return [false, $tmpConfig[1]];
 		}
+		$tmpConfig = $tmpConfig[1];
+
 		$modelTmplBat = $this->model('matter\tmplmsg\batch');
 		$creater = new \stdClass;
 		$creater->uid = $noticeName;
 		$creater->name = 'timer';
 		$creater->src = 'pl';
-		$modelTmplBat->send($oMatter->siteid, $data['tmplmsgId'], $creater, $receivers, $data['oParams'], ['send_from' => $oMatter->type . ':' . $oMatter->id]);
+		$modelTmplBat->send($oMatter->siteid, $tmpConfig->tmplmsgId, $creater, $receivers, $tmpConfig->oParams, ['send_from' => $oMatter->type . ':' . $oMatter->id]);
 
 		return [true];
 	}

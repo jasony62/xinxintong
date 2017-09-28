@@ -66,7 +66,7 @@ class user_model extends \TMS_MODEL {
 
 		if (!empty($options['orderby'])) {
 			$q2 = ['o' => $options['orderby'] . ' desc'];
-		}else{
+		} else {
 			$q2 = ['o' => 'last_enroll_at desc'];
 		}
 		if (!empty($page) && !empty($size)) {
@@ -135,6 +135,101 @@ class user_model extends \TMS_MODEL {
 		$q[0] = 'count(*)';
 		$total = (int) $this->query_val_ss($q);
 		$result->total = $total;
+
+		return $result;
+	}
+	/**
+	 * 缺席用户
+	 *
+	 * 1、如果活动指定了通讯录用户参与；如果活动指定了分组活动的分组用户
+	 * 2、如果活动关联了分组活动
+	 * 3、如果活动所属项目指定了用户名单
+	 */
+	public function absentByApp($oApp, $rid = '') {
+		$aAbsentUsrs = [];
+		if (isset($oApp->entry_rule->scope) && in_array($oApp->entry_rule->scope, ['group', 'member'])) {
+			if ($oApp->entry_rule->scope === 'group' && isset($oApp->entry_rule->group)) {
+				$oGrpApp = $oApp->entry_rule->group;
+				$modelGrpUsr = $this->model('matter\group\player');
+				$aGrpUsrs = $modelGrpUsr->byRound(
+					$oGrpApp->id,
+					isset($oGrpApp->round->id) ? $oGrpApp->round->id : null,
+					['fields' => 'userid,nickname,wx_openid,yx_openid,qy_openid,is_leader,round_id,round_title']
+				);
+				foreach ($aGrpUsrs as $oGrpUsr) {
+					if (false === $this->byId($oApp, $oGrpUsr->userid)) {
+						$aAbsentUsrs[] = $oGrpUsr;
+					}
+				}
+			} else if ($oApp->entry_rule->scope === 'member' && isset($oApp->entry_rule->member)) {
+				$modelMem = $this->model('site\user\member');
+				foreach ($oApp->entry_rule->member as $mschemaId => $rule) {
+					$members = $modelMem->byMschema($mschemaId);
+					foreach ($members as $oMember) {
+						if (false === $this->byId($oApp, $oMember->userid)) {
+							$oUser = new \stdClass;
+							$oUser->userid = $oMember->userid;
+							$oUser->nickname = $oMember->name;
+							$aAbsentUsrs[] = $oUser;
+						}
+					}
+				}
+			}
+		} else if (!empty($oApp->group_app_id)) {
+			$modelGrpUsr = $this->model('matter\group\player');
+			$aGrpUsrs = $modelGrpUsr->byApp($oApp->group_app_id, ['fields' => 'userid,nickname,wx_openid,yx_openid,qy_openid,is_leader,round_id,round_title']);
+			foreach ($aGrpUsrs->players as $oGrpUsr) {
+				if (false === $this->byId($oApp, $oGrpUsr->userid)) {
+					$aAbsentUsrs[] = $oGrpUsr;
+				}
+			}
+		} else if (!empty($oApp->mission_id)) {
+			$modelMis = $this->model('matter\mission');
+			$oMission = $modelMis->byId($oApp->mission_id, ['fields' => 'user_app_id,user_app_type,entry_rule']);
+			if (isset($oMission->entry_rule->scope) && $oMission->entry_rule->scope === 'member') {
+				$modelMem = $this->model('site\user\member');
+				foreach ($oMission->entry_rule->member as $mschemaId => $rule) {
+					$members = $modelMem->byMschema($mschemaId);
+					foreach ($members as $oMember) {
+						if (false === $this->byId($oApp, $oMember->userid)) {
+							$oUser = new \stdClass;
+							$oUser->userid = $oMember->userid;
+							$oUser->nickname = $oMember->name;
+							$aAbsentUsrs[] = $oUser;
+						}
+					}
+				}
+			} else {
+				if ($oMission->user_app_type === 'enroll') {
+					$modelRec = $this->model('matter\enroll\record');
+					$result = $modelRec->byApp($oMission->user_app_id);
+					if (!empty($result->records)) {
+						foreach ($result->records as $oRec) {
+							$aAbsentUsrs[] = $oRec;
+						}
+					}
+				} else if ($oMission->user_app_type === 'signin') {
+					$modelRec = $this->model('matter\signin\record');
+					$result = $modelRec->byApp($oMission->user_app_id);
+					if (!empty($result->records)) {
+						foreach ($result->records as $oRec) {
+							$aAbsentUsrs[] = $oRec;
+						}
+					}
+				} else if ($oMission->user_app_type === 'group') {
+					$modelRec = $this->model('matter\group\player');
+					$result = $modelRec->byApp($oMission->user_app_id);
+					if (!empty($result->players)) {
+						foreach ($result->players as $oRec) {
+							$aAbsentUsrs[] = $oRec;
+						}
+					}
+				}
+			}
+		}
+
+		$result = new \stdClass;
+		$result->users = $aAbsentUsrs;
 
 		return $result;
 	}

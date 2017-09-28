@@ -5,22 +5,29 @@ define(['frame'], function(ngApp) {
             if (mschema) {
                 http2.post('/rest/pl/fe/matter/enroll/user/byMschema?site=' + $scope.app.siteid + '&app=' + $scope.app.id + '&mschema=' + mschema.id + page.j(), oCriteria, function(rsp) {
                     srvEnrollRecord.init($scope.app, $scope.page, $scope.criteria, rsp.data.members);
-                    $scope.members = rsp.data.members;
+                    $scope.enrollees = rsp.data.members;
                     rsp.data.members.forEach(function(member) {
                         if (member.tmplmsg && member.tmplmsg.status) {
                             member._tmpStatus = member.tmplmsg.status.split(':');
                             member._tmpStatus[0] = member._tmpStatus[0] === 'success' ? '成功' : '失败';
                         }
                     });
-                    $scope.members = rsp.data.members;
+                    $scope.enrollees = rsp.data.members;
                     $scope.page.total = rsp.data.total;
                 });
             } else {
-                $scope.members = [];
+                $scope.enrollees = [];
                 $scope.page.total = 0;
             }
         }
-        var mschemas, oCriteria, rounds, page;
+
+        function _absent() {
+            http2.get('/rest/pl/fe/matter/enroll/user/absent?site=' + $scope.app.siteid + '&app=' + $scope.app.id, function(rsp) {
+                $scope.absentUsers = rsp.data.users;
+            });
+        }
+        var mschemas, _oCriteria, _oRows, rounds, page;
+        $scope.category = 'enrollee';
         $scope.mschemas = mschemas = [];
         $scope.page = page = {
             at: 1,
@@ -29,27 +36,34 @@ define(['frame'], function(ngApp) {
                 return '&page=' + this.at + '&size=' + this.size;
             }
         };
-        $scope.criteria = oCriteria = {
+        $scope.criteria = _oCriteria = {
             orderby: 'enroll_num',
+            rid: ''
+        };
+        $scope.rows = _oRows = {
             allSelected: 'N',
             selected: {},
-            rid: '',
+            count: 0,
+            change: function(index) {
+                this.selected[index] ? this.count++ : this.count--;
+            },
             reset: function() {
                 this.allSelected = 'N';
                 this.selected = {};
+                this.count = 0;
             }
         };
         $scope.chooseOrderby = function(orderby) {
-            oCriteria.orderby = orderby;
+            _oCriteria.orderby = orderby;
             $scope.searchEnrollee(1);
         };
         $scope.export = function() {
             var url = '/rest/pl/fe/matter/enroll/user/export?site=' + $scope.app.siteid;
             url += '&app=' + $scope.app.id;
             if ($scope.rule.scope !== 'member') {
-                url += '&rid=' + oCriteria.rid;
+                url += '&rid=' + _oCriteria.rid;
             } else {
-                url += '&rid=' + oCriteria.rid + '&mschema=' + oCriteria.mschema.id;
+                url += '&rid=' + _oCriteria.rid + '&mschema=' + _oCriteria.mschema.id;
             }
             window.open(url);
         };
@@ -72,7 +86,7 @@ define(['frame'], function(ngApp) {
                 templateUrl: '/views/default/pl/fe/matter/enroll/component/enrolleeFilter.html?_=1',
                 controller: ['$scope', '$uibModalInstance', function($scope2, $mi) {
                     $scope2.app = $scope.app;
-                    $scope2.criteria = oCriteria;
+                    $scope2.criteria = _oCriteria;
                     $scope2.page = {
                         at: 1,
                         size: 5,
@@ -96,19 +110,19 @@ define(['frame'], function(ngApp) {
                 }],
                 windowClass: 'auto-height',
                 backdrop: 'static',
-            }).result.then(function(oCriteria) {
+            }).result.then(function(_oCriteria) {
                 $scope.searchEnrollee(1);
             });
-        }
+        };
         $scope.searchEnrollee = function(pageAt) {
             if (pageAt) {
                 page.at = pageAt;
             }
 
             if ($scope.rule.scope === 'member') {
-                _searchByMschema(oCriteria.mschema);
+                _searchByMschema(_oCriteria.mschema);
             } else {
-                http2.post('/rest/pl/fe/matter/enroll/user/enrollee?app=' + $scope.app.id + page.j(), oCriteria, function(rsp) {
+                http2.post('/rest/pl/fe/matter/enroll/user/enrollee?app=' + $scope.app.id + page.j(), _oCriteria, function(rsp) {
                     srvEnrollRecord.init($scope.app, $scope.page, $scope.criteria, rsp.data.users);
                     rsp.data.users.forEach(function(user) {
                         if (user.tmplmsg && user.tmplmsg.status) {
@@ -116,10 +130,13 @@ define(['frame'], function(ngApp) {
                             user._tmpStatus[0] = user._tmpStatus[0] === 'success' ? '成功' : '失败';
                         }
                     });
-                    $scope.members = rsp.data.users;
+                    $scope.enrollees = rsp.data.users;
                     $scope.page.total = rsp.data.total;
                 });
             }
+        };
+        $scope.toggleAbsent = function() {
+            $scope.category = $scope.category === 'absent' ? 'enrollee' : 'absent';
         };
         $scope.$watch('app.entry_rule', function(oRule) {
             if (!oRule) return;
@@ -132,21 +149,23 @@ define(['frame'], function(ngApp) {
                             mschemas.push(rsp.data[schemaId]);
                         });
                         if (mschemas.length) {
-                            oCriteria.mschema = mschemas[0];
+                            _oCriteria.mschema = mschemas[0];
                         }
                     });
                 }
             }
             $scope.searchEnrollee(1);
+            _absent();
         });
-        $scope.$watch('criteria.allSelected', function(nv) {
+        $scope.$watch('rows.allSelected', function(nv) {
             var index = 0;
             if (nv == 'Y') {
-                while (index < $scope.members.length) {
-                    $scope.criteria.selected[index++] = true;
+                while (index < $scope.enrollees.length) {
+                    _oRows.selected[index++] = true;
                 }
+                _oRows.count = $scope.enrollees.length;
             } else if (nv == 'N') {
-                $scope.criteria.selected = {};
+                _oRows.reset();
             }
         });
     }]);

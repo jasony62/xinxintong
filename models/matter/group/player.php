@@ -288,30 +288,27 @@ class player_model extends \TMS_MODEL {
 	 * [0] 数据列表
 	 * [1] 数据总条数
 	 */
-	public function byApp(&$oApp, $options = null) {
+	public function byApp($oApp, $oOptions = null) {
 		if (is_string($oApp)) {
-			$oApp = $this->model('matter\group')->byId($oApp, ['cascaded' => 'N']);
+			$oApp = (object) ['id' => $oApp];
 		}
-		if ($options) {
-			is_array($options) && $options = (object) $options;
-			$orderby = isset($options->orderby) ? $options->orderby : '';
-			$page = isset($options->page) ? $options->page : null;
-			$size = isset($options->size) ? $options->size : null;
-			$kw = isset($options->kw) ? $options->kw : null;
-			$by = isset($options->by) ? $options->by : null;
+		if ($oOptions) {
+			is_array($oOptions) && $oOptions = (object) $oOptions;
+			$orderby = isset($oOptions->orderby) ? $oOptions->orderby : '';
+			$page = isset($oOptions->page) ? $oOptions->page : null;
+			$size = isset($oOptions->size) ? $oOptions->size : null;
+			$kw = isset($oOptions->kw) ? $oOptions->kw : null;
+			$by = isset($oOptions->by) ? $oOptions->by : null;
 		}
-		if (isset($options->fields)) {
-			$fields = $options->fields;
-		} else {
-			$fields = 'enroll_key,enroll_at,comment,tags,data,userid,nickname,is_leader,wx_openid,yx_openid,qy_openid,headimgurl,round_id,round_title';
-		}
+		$fields = isset($oOptions->fields) ? $oOptions->fields : 'enroll_key,enroll_at,comment,tags,data,userid,nickname,is_leader,wx_openid,yx_openid,qy_openid,headimgurl,round_id,round_title';
+
 		$result = new \stdClass; // 返回的结果
 		$result->total = 0;
 		/* 数据过滤条件 */
 		$w = "state=1 and aid='{$oApp->id}'";
 		/*tags*/
-		if (!empty($options->tags)) {
-			$aTags = explode(',', $options->tags);
+		if (!empty($oOptions->tags)) {
+			$aTags = explode(',', $oOptions->tags);
 			foreach ($aTags as $tag) {
 				$w .= "and concat(',',tags,',') like '%,$tag,%'";
 			}

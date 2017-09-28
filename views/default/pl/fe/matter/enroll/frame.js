@@ -47,6 +47,7 @@ define(['require', 'enrollService', 'enrollSchema', 'enrollPage'], function(requ
             !baseURL && (baseURL = '/views/default/pl/fe/matter/enroll/');
             this.templateUrl = baseURL + name + '.html?_=' + (new Date() * 1);
             this.controller = 'ctrl' + name[0].toUpperCase() + name.substr(1);
+            this.reloadOnSearch = false;
             this.resolve = {
                 load: function($q) {
                     var defer = $q.defer();

@@ -717,72 +717,73 @@ class record_model extends \TMS_MODEL {
 	 * records 数据列表
 	 * total 数据总条数
 	 */
-	public function byApp($oApp, $options = null, $criteria = null) {
+	public function byApp($oApp, $oOptions = null, $oCriteria = null) {
 		if (is_string($oApp)) {
 			$oApp = $this->model('matter\enroll')->byId($oApp, ['cascaded' => 'N']);
 		}
 		if (empty($oApp)) {
 			return false;
 		}
-		if ($options) {
-			is_array($options) && $options = (object) $options;
-			$creater = isset($options->creater) ? $options->creater : null;
-			$inviter = isset($options->inviter) ? $options->inviter : null;
-			$orderby = isset($options->orderby) ? $options->orderby : '';
-			$page = isset($options->page) ? $options->page : null;
-			$size = isset($options->size) ? $options->size : null;
+		if ($oOptions) {
+			is_array($oOptions) && $oOptions = (object) $oOptions;
+			$creater = isset($oOptions->creater) ? $oOptions->creater : null;
+			$inviter = isset($oOptions->inviter) ? $oOptions->inviter : null;
+			$orderby = isset($oOptions->orderby) ? $oOptions->orderby : '';
+			$page = isset($oOptions->page) ? $oOptions->page : null;
+			$size = isset($oOptions->size) ? $oOptions->size : null;
 		}
 		$result = new \stdClass; // 返回的结果
 		$result->total = 0;
 
 		// 指定登记活动下的登记记录
-		$w = "e.state=1 and e.aid='{$oApp->id}'";
+		$w = "r.state=1 and r.aid='{$oApp->id}'";
 
 		// 指定轮次，或者当前激活轮次
-		if (!empty($criteria->record->rid)) {
-			if (strcasecmp('all', $criteria->record->rid) !== 0) {
-				$rid = $criteria->record->rid;
+		if (!empty($oCriteria->record->rid)) {
+			if (strcasecmp('all', $oCriteria->record->rid) !== 0) {
+				$rid = $oCriteria->record->rid;
 			}
-		} else if ($activeRound = $this->model('matter\enroll\round')->getActive($oApp)) {
-			$rid = $activeRound->rid;
+		} else if ($oActiveRnd = $this->model('matter\enroll\round')->getActive($oApp)) {
+			$rid = $oActiveRnd->rid;
 		}
-		!empty($rid) && $w .= " and e.rid='$rid'";
+		!empty($rid) && $w .= " and r.rid='$rid'";
+
 		/* 根据用户分组过滤 */
-		if (!empty($options->userGroup)) {
-			$w .= " and e.group_id='{$options->userGroup}'";
+		if (!empty($oOptions->userGroup)) {
+			$w .= " and r.group_id='{$oOptions->userGroup}'";
 		}
 		// 根据填写人筛选（填写端列表页需要）
 		if (!empty($creater)) {
-			$w .= " and e.userid='$creater'";
+			$w .= " and r.userid='$creater'";
 		} else if (!empty($inviter)) {
 			$oUser = new \stdClass;
 			$oUser->openid = $inviter;
 			$inviterek = $this->lastKeyByUser($oApp, $oUser);
-			$w .= " and e.referrer='ek:$inviterek'";
+			$w .= " and r.referrer='ek:$inviterek'";
 		}
 
 		// 指定了登记记录属性过滤条件
-		if (!empty($criteria->record)) {
+		if (!empty($oCriteria->record)) {
 			$whereByRecord = '';
-			if (!empty($criteria->record->verified)) {
-				$whereByRecord .= " and verified='{$criteria->record->verified}'";
+			if (!empty($oCriteria->record->verified)) {
+				$whereByRecord .= " and verified='{$oCriteria->record->verified}'";
 			}
 			$w .= $whereByRecord;
 		}
 
 		// 指定了记录标签
-		if (!empty($criteria->tags)) {
+		if (!empty($oCriteria->tags)) {
 			$whereByTag = '';
-			foreach ($criteria->tags as $tag) {
-				$whereByTag .= " and concat(',',e.tags,',') like '%,$tag,%'";
+			foreach ($oCriteria->tags as $tag) {
+				$whereByTag .= " and concat(',',r.tags,',') like '%,$tag,%'";
 			}
 			$w .= $whereByTag;
 		}
 
 		// 指定了登记数据过滤条件
-		if (isset($criteria->data)) {
+		if (isset($oCriteria->data)) {
 			$whereByData = '';
-			foreach ($criteria->data as $k => $v) {
+			foreach ($oCriteria->data as $k => $v) {
 				if (!empty($v)) {
 					$whereByData .= ' and (';
 					$whereByData .= 'data like \'%"' . $k . '":"' . $v . '"%\'';
@@ -796,16 +797,16 @@ class record_model extends \TMS_MODEL {
 		}
 
 		// 指定了按关键字过滤
-		if (!empty($criteria->keyword)) {
+		if (!empty($oCriteria->keyword)) {
 			$whereByData = '';
-			$whereByData .= ' and (data like \'%' . $criteria->keyword . '%\')';
+			$whereByData .= ' and (data like \'%' . $oCriteria->keyword . '%\')';
 			$w .= $whereByData;
 		}
 
 		// 查询参数
 		$q = [
-			'e.enroll_key,e.rid,e.enroll_at,e.tags,e.userid,e.nickname,e.wx_openid,e.yx_openid,e.qy_openid,e.headimgurl,e.verified,e.comment,e.data,e.supplement,e.data_tag',
-			"xxt_enroll_record e",
+			'r.enroll_key,r.rid,r.enroll_at,r.tags,r.userid,r.nickname,r.wx_openid,r.yx_openid,r.qy_openid,r.headimgurl,r.verified,r.comment,r.data,r.supplement,r.data_tag',
+			"xxt_enroll_record r",
 			$w,
 		];
 
@@ -819,7 +820,7 @@ class record_model extends \TMS_MODEL {
 		}
 		//测验场景或数值填空题共用score字段
 		if ($oApp->scenario === 'quiz' || $bRequireScore) {
-			$q[0] .= ',e.score';
+			$q[0] .= ',r.score';
 		}
 
 		$q2 = [];
@@ -828,19 +829,19 @@ class record_model extends \TMS_MODEL {
 			$q2['r'] = ['o' => ($page - 1) * $size, 'l' => $size];
 		}
 		// 查询结果排序
-		if (!empty($criteria->order->orderby) && !empty($criteria->order->schemaId)) {
-			$schemaId = $criteria->order->schemaId;
-			$orderby = $criteria->order->orderby;
+		if (!empty($oCriteria->order->orderby) && !empty($oCriteria->order->schemaId)) {
+			$schemaId = $oCriteria->order->schemaId;
+			$orderby = $oCriteria->order->orderby;
 			$q[1] .= ",xxt_enroll_record_data d";
-			$q[2] .= " and e.enroll_key = d.enroll_key and d.schema_id = '$schemaId'";
+			$q[2] .= " and r.enroll_key = d.enroll_key and d.schema_id = '$schemaId'";
 			$q2['o'] = 'd.' . $orderby . ' desc';
-		} elseif (!empty($criteria->order->orderby) && $criteria->order->orderby === 'sum') {
-			$q2['o'] = 'e.score desc';
+		} elseif (!empty($oCriteria->order->orderby) && $oCriteria->order->orderby === 'sum') {
+			$q2['o'] = 'r.score desc';
 		} else {
-			$q2['o'] = 'e.enroll_at desc';
+			$q2['o'] = 'r.enroll_at desc';
 		}
 		/* 处理获得的数据 */
-		$roundsById = []; // 缓存轮次数据
+		$aRoundsById = []; // 缓存轮次数据
 		if ($records = $this->query_objs_ss($q, $q2)) {
 			foreach ($records as &$rec) {
 				$rec->data_tag = empty($rec->data_tag) ? new \stdClass : json_decode($rec->data_tag);
@@ -876,14 +877,14 @@ class record_model extends \TMS_MODEL {
 				}
 				// 记录的登记轮次
 				if (!empty($rec->rid)) {
-					if (!isset($roundsById[$rec->rid])) {
+					if (!isset($aRoundsById[$rec->rid])) {
 						if (!isset($modelRnd)) {
 							$modelRnd = $this->model('matter\enroll\round');
 						}
 						$round = $modelRnd->byId($rec->rid, ['fields' => 'title']);
-						$roundsById[$rec->rid] = $round;
+						$aRoundsById[$rec->rid] = $round;
 					} else {
-						$round = $roundsById[$rec->rid];
+						$round = $aRoundsById[$rec->rid];
 					}
 					if ($round) {
 						$rec->round = $round;

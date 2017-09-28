@@ -1,80 +1,43 @@
 <div class="col-md-12">
     <!-- actions -->
-    <nav class='navbar navbar-default hidden-xs'>
-        <div class='container-fluid'>
-            <form class='navbar-form navbar-left'>
-                <div class='form-group'>
-                    <label>标签</label>
-                    <combox evt-prefix='search-tag' readonly='true' existing='criteria.tags' options='app.tags'></combox>
-                </div>
-                <button class='btn btn-default' ng-click='filter()'><i class='glyphicon glyphicon-filter'></i> <span>筛选</span></button>
-                <button id='advCriteriaSwitch' class="btn btn-default" ng-click="status.opened=!status.opened">
-                    <span ng-class="{'opened':status.opened}">排序 <span class="caret"></span></span>
-                </button>
-                <div class="btn-group">
-                    <button type="button" ng-disabled="!countSelected()" class="btn btn-default dropdown-toggle" data-toggle="dropdown">选中记录 <i class="caret"></i></button>
-                    <ul class="dropdown-menu">
-                        <li><a href="" ng-click="batchVerify()">通过审核</a></li>
-                        <li><a href="" ng-click="batchTag()">打标签</a></li>
-                        <li><a href="" ng-if="app.entry_rule.scope==='sns'" ng-click="notify(true)">发送信息</a></li>
-                        <li class="divider"></li>
-                        <li><a href="" ng-click="createAppByRecords()" ng-show="countSelected()">根据选中记录创建活动</a></li>
-                    </ul>
-                </div>
-                <div class="btn-group">
-                    <button type="button" class="btn btn-default dropdown-toggle" data-toggle="dropdown">全部记录 <i class="caret"></i></button>
-                    <ul class="dropdown-menu" role="menu">
-                        <li><a href="" ng-click="verifyAll()">通过审核</a></li>
-                        <li><a href="" ng-if="app.entry_rule.scope==='sns'" ng-click="notify()">发送信息</a></li>
-                        <li class="divider"></li>
-                        <li><a href="" ng-click="export()">导出数据</a></li>
-                        <li><a href="" ng-click="exportImage()">导出图片</a></li>
-                        <li class="divider"></li>
-                        <li><a href="" ng-click="empty()">清空记录</a></li>
-                    </ul>
-                </div>
-                <div class="btn-group">
-                    <button type="button" class="btn btn-default dropdown-toggle" data-toggle="dropdown">
-                        更多操作 <span class="caret"></span>
-                    </button>
-                    <ul class="dropdown-menu" role="menu">
-                        <li><a href="" ng-click="editRecord()">添加记录</a></li>
-                        <li class="divider"></li>
-                        <li><a href="" ng-click="importByOther()">从其他活动导入记录</a></li>
-                    </ul>
-                </div>
-            </form>
-            <form id='advCriteria' ng-if='status.opened' ng-click="clickAdvCriteria($event)">
-                <div class='form-group'>
-                    <select class='form-control' ng-model="criteria.order.orderby" size='5'>
-                        <option value=>全部数据项</option>
-                        <option value='remark_num'>评论数</option>
-                        <option value='like_num'>赞同数</option>
-                        <option ng-if="app.scenario=='quiz'|| app.scenario=='score_sheet'" value='score'>得分</option>
-                        <option ng-if="app.scenario=='quiz'|| app.scenario=='score_sheet'" value='sum' ng-click="shiftOrderBy()">总得分</option>
-                    </select>
-                </div>
-                <div class='form-group' ng-if="recordSchemas.length>1&&criteria.order.orderby!=='sum'">
-                    <select class='form-control' ng-model="criteria.order.schemaId" ng-change="shiftOrderBy()" ng-options="schema.id as schema.title for schema in recordSchemas"size='6'>
-                        <option value=>全部题目</option>
-                    </select>
-                </div>
-            </form>
-            <form class='navbar-form navbar-right'>
-                <div class='form-group'>
-                    <div class='input-group'>
-                        <span class="input-group-addon">每页条数</span>
-                        <input class='form-control' ng-model='page.size' style='width:64px'>
-                        <div class='input-group-btn'>
-                            <button class='btn btn-default' ng-click='doSearch(1)'>
-                                <span class='glyphicon glyphicon-refresh'></span>
-                            </button>
-                        </div>
+    <div class='form-group'>
+        <div class='form-inline'>
+            <div class='form-group hide'>
+                <label>标签</label>
+                <combox evt-prefix='search-tag' readonly='true' existing='criteria.tags' options='app.tags'></combox>
+            </div>
+            <button class='btn btn-default' ng-click='filter()'><i class='glyphicon glyphicon-filter'></i> <span>筛选</span></button>
+            <div class="btn-group">
+                <button type="button" class="btn btn-default dropdown-toggle" data-toggle="dropdown">操作记录 <i class="caret"></i></button>
+                <ul class="dropdown-menu">
+                    <li><a href="" ng-click="batchVerify()">选中记录通过审核<span>（{{rows.count}}）</span></a></li>
+                    <li><a href="" ng-click="verifyAll()">全部记录通过审核</a></li>
+                    <li class="divider"></li>
+                    <li><a href="" ng-click="batchTag()">选中记录打标签<span>（{{rows.count}}）</span></a></li>
+                    <li class="divider"></li>
+                    <li><a href="" ng-click="export()">导出全部记录</a></li>
+                    <li><a href="" ng-click="exportImage()">导出全部记录中的图片</a></li>
+                    <li class="divider"></li>
+                    <li><a href="" ng-click="editRecord()">添加记录</a></li>
+                    <li><a href="" ng-click="empty()">清空记录</a></li>
+                    <li class="divider"></li>
+                    <li><a href="" ng-click="importByOther()">从其他活动导入记录</a></li>
+                    <li><a href="" ng-click="createAppByRecords()">根据选中记录创建活动<span>（{{rows.count}}）</span></a></li>
+                </ul>
+            </div>
+            <div class='form-group pull-right'>
+                <div class='input-group'>
+                    <span class="input-group-addon">每页条数</span>
+                    <input class='form-control' ng-model='page.size' style='width:64px'>
+                    <div class='input-group-btn'>
+                        <button class='btn btn-default' ng-click='doSearch(1)'>
+                            <span class='glyphicon glyphicon-refresh'></span>
+                        </button>
                     </div>
                 </div>
-            </form>
+            </div>
         </div>
-    </nav>
+    </div>
     <!-- end actions -->
     <!-- records -->
     <div tms-flex-height top='72' bottom='135' class='form-group'>
@@ -90,10 +53,10 @@
                         <th style='width:140px' ng-if="bRequireNickname">用户昵称</th>
                         <th style='width:100px'>登记时间</th>
                         <th style='width:100px' ng-if="app.multi_rounds==='Y'">登记轮次</th>
-                        <th class='custom-col row' ng-repeat="schema in recordSchemas2" ng-class="{'nickname':schema.id===app.assignedNickname.schema.id}">{{schema.title}}</th>
+                        <th ng-repeat="schema in recordSchemasExt" ng-class="{'nickname':schema.id===app.assignedNickname.schema.id}">{{schema.title}}</th>
                         <th ng-if="bRequireScore">总得分</th>
-                        <th class='custom-col matched enroll' ng-repeat="schema in enrollDataSchemas" ng-class="{'nickname':schema.id===app.assignedNickname.schema.id}">{{schema.title}}</th>
-                        <th class='custom-col matched group' ng-repeat="schema in groupDataSchemas" ng-class="{'nickname':schema.id===app.assignedNickname.schema.id}">{{schema.title}}</th>
+                        <th class='matched enroll' ng-repeat="schema in enrollDataSchemas" ng-class="{'nickname':schema.id===app.assignedNickname.schema.id}">{{schema.title}}</th>
+                        <th class='matched group' ng-repeat="schema in groupDataSchemas" ng-class="{'nickname':schema.id===app.assignedNickname.schema.id}">{{schema.title}}</th>
                         <th style='width:80px'>审核通过</th>
                         <th style='width:140px' ng-if="app.tags.length">标签</th>
                         <th style='width:140px'>备注</th>
@@ -109,13 +72,13 @@
                             </button>
                         </td>
                         <td>
-                            <input type='checkbox' ng-model="rows.selected[$index]">
+                            <input type='checkbox' ng-model="rows.selected[$index]" ng-change="rows.change($index)">
                         </td>
                         <td>{{(page.at-1)*page.size+$index+1}}</td>
                         <td ng-if="bRequireNickname">{{r.nickname}}</td>
                         <td>{{(r.enroll_at*1000)|date:'MM-dd HH:mm'}}</td>
                         <td ng-if="app.multi_rounds==='Y'">{{r.round.title}}</td>
-                        <td ng-repeat="schema in recordSchemas2" ng-switch on="schema.type">
+                        <td ng-repeat="schema in recordSchemasExt" ng-switch on="schema.type">
                             <div ng-switch-when="image">
                                 <img ng-repeat="img in r._data[schema.id]" ng-src='{{img}}' />
                             </div>

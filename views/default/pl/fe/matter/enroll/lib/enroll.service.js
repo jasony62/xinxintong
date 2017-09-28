@@ -1072,7 +1072,7 @@ define(['require', 'schema', 'page'], function(require, schemaLib, pageLib) {
             };
             _ins.verifyAll = function() {
                 if (window.confirm('确定审核通过所有记录（共' + _ins._oPage.total + '条）？')) {
-                    http2.get('/rest/pl/fe/matter/enroll/record/verifyAll?site=' + _siteId + '&app=' + _appId, function(rsp) {
+                    http2.get('/rest/pl/fe/matter/enroll/record/batchVerify?site=' + _siteId + '&app=' + _appId + '&all=Y', function(rsp) {
                         _ins._aRecords.forEach(function(record) {
                             record.verified = 'Y';
                         });
@@ -1082,12 +1082,13 @@ define(['require', 'schema', 'page'], function(require, schemaLib, pageLib) {
             };
             _ins.batchVerify = function(rows) {
                 var url;
+                if (window.confirm('确定审核通过选中的记录（共' + Object.keys(rows.selected).length + '条）？')) {
+                    url = '/rest/pl/fe/matter/enroll/record/batchVerify';
+                    url += '?site=' + _siteId;
+                    url += '&app=' + _appId;
 
-                url = '/rest/pl/fe/matter/enroll/record/batchVerify';
-                url += '?site=' + _siteId;
-                url += '&app=' + _appId;
-
-                return _ins._bBatchVerify(rows, url);
+                    return _ins._bBatchVerify(rows, url);
+                }
             };
             _ins.notify = function(rows) {
                 var options = {

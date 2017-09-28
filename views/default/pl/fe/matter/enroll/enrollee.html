@@ -1,35 +1,33 @@
 <div id='enroller-view' class="col-md-12">
-    <nav class='navbar navbar-default'>
-        <div class='container-fluid'>
-            <form class='navbar-form navbar-left'>
-                <div class='input-group' ng-if="rule.scope=='member'">
-                    <select class='form-control' ng-model="criteria.mschema" ng-options="mschema.title for mschema in mschemas" ng-change="searchEnrollee()"></select>
-                    <div class='input-group-btn'>
-                        <a class='btn btn-default' href='' target='_self' ng-click="gotoMschema(criteria.mschema)"><span class='glyphicon glyphicon-edit'></span></a>
-                    </div>
+    <div class='form-group'>
+        <div class='form-inline'>
+            <div class='input-group' ng-if="rule.scope=='member'">
+                <select class='form-control' ng-model="criteria.mschema" ng-options="mschema.title for mschema in mschemas" ng-change="searchEnrollee()"></select>
+                <div class='input-group-btn'>
+                    <a class='btn btn-default' href='' target='_self' ng-click="gotoMschema(criteria.mschema)"><span class='glyphicon glyphicon-edit'></span></a>
                 </div>
-                <button class='btn btn-default' ng-click='filter()' ng-if="app.groupApp||app.multi_rounds=='Y'"><i class='glyphicon glyphicon-filter'></i> <span>筛选</span></button>
-                <div class="btn-group" uib-dropdown>
-                    <button type="button" class="btn btn-default dropdown-toggle" uib-dropdown-toggle>
-                        排序
-                        <span class="caret"></span>
-                    </button>
-                    <ul class="dropdown-menu" uib-dropdown-menu>
-                        <li><a href='' ng-click="chooseOrderby('enroll_num')"><span class='glyphicon' ng-class="criteria.orderby==='enroll_num'?'glyphicon-check':'glyphicon-unchecked'"></span> 记录数</a></li>
-                        <li><a href='' ng-click="chooseOrderby('remark_other_num')"><span class='glyphicon' ng-class="criteria.orderby==='remark_other_num'?'glyphicon-check':'glyphicon-unchecked'"></span> 评论数</a></li>
-                        <li><a href='' ng-click="chooseOrderby('like_other_num')"><span class='glyphicon' ng-class="criteria.orderby==='like_other_num'?'glyphicon-check':'glyphicon-unchecked'"></span> 赞同数</a></li>
-                        <li><a href='' ng-click="chooseOrderby('user_total_coin')"><span class='glyphicon' ng-class="criteria.orderby==='user_total_coin'?'glyphicon-check':'glyphicon-unchecked'"></span> 积分数</a></li>
-                        <li><a href='' ng-click="chooseOrderby('score')"><span class='glyphicon' ng-class="criteria.orderby==='score'?'glyphicon-check':'glyphicon-unchecked'"></span> 得分数</a></li>
-                        <li ng-if="app.group_app_id"><a href='' ng-click="chooseOrderby('group_id')"><span class='glyphicon' ng-class="criteria.orderby==='group_id'?'glyphicon-check':'glyphicon-unchecked'"></span> 分组名称</a></li>
-                    </ul>
-                </div>
-                <button type='button' class='btn btn-default' ng-click="notify(true)">给选中用户发消息</button>
-                <button type='button' class='btn btn-default' ng-click="notify(false)">给全部用户发消息</button>
-                <button type='button' class='btn btn-default' ng-click="export()">导出数据</button>
-                <button type='button' class='btn btn-default' ng-click="searchEnrollee()">刷新数据</button>
-            </form>
+            </div>
+            <button class='btn btn-default' ng-click='filter()' ng-if="app.groupApp||app.multi_rounds=='Y'"><i class='glyphicon glyphicon-filter'></i> <span>筛选</span></button>
+            <div class="btn-group" uib-dropdown>
+                <button type="button" class="btn btn-default dropdown-toggle" uib-dropdown-toggle>
+                    排序
+                    <span class="caret"></span>
+                </button>
+                <ul class="dropdown-menu" uib-dropdown-menu>
+                    <li><a href='' ng-click="chooseOrderby('enroll_num')"><span class='glyphicon' ng-class="criteria.orderby==='enroll_num'?'glyphicon-check':'glyphicon-unchecked'"></span> 记录数</a></li>
+                    <li><a href='' ng-click="chooseOrderby('remark_other_num')"><span class='glyphicon' ng-class="criteria.orderby==='remark_other_num'?'glyphicon-check':'glyphicon-unchecked'"></span> 评论数</a></li>
+                    <li><a href='' ng-click="chooseOrderby('like_other_num')"><span class='glyphicon' ng-class="criteria.orderby==='like_other_num'?'glyphicon-check':'glyphicon-unchecked'"></span> 赞同数</a></li>
+                    <li><a href='' ng-click="chooseOrderby('user_total_coin')"><span class='glyphicon' ng-class="criteria.orderby==='user_total_coin'?'glyphicon-check':'glyphicon-unchecked'"></span> 积分数</a></li>
+                    <li><a href='' ng-click="chooseOrderby('score')"><span class='glyphicon' ng-class="criteria.orderby==='score'?'glyphicon-check':'glyphicon-unchecked'"></span> 得分数</a></li>
+                    <li ng-if="app.group_app_id"><a href='' ng-click="chooseOrderby('group_id')"><span class='glyphicon' ng-class="criteria.orderby==='group_id'?'glyphicon-check':'glyphicon-unchecked'"></span> 分组名称</a></li>
+                </ul>
+            </div>
+            <button type='button' class='btn btn-default' ng-click="notify(true)">给选中用户发消息</button>
+            <button type='button' class='btn btn-default' ng-click="notify(false)">给全部用户发消息</button>
+            <button type='button' class='btn btn-default' ng-click="export()">导出数据</button>
+            <button type='button' class='btn btn-default' ng-click="searchEnrollee()">刷新数据</button>
         </div>
-    </nav>
+    </div>
     <div>
         <table class='table table-bordered'>
             <thead>

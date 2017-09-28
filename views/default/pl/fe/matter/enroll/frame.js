@@ -114,16 +114,6 @@ define(['require', 'enrollService', 'enrollSchema', 'enrollPage'], function(requ
             'score_sheet': '记分表'
         };
         $scope.opened = '';
-        $scope.$on('$locationChangeStart', function(event, nextRoute, currentRoute) {
-            if (nextRoute.indexOf('/enroll?') !== -1 || nextRoute.indexOf('/preview?') !== -1) {
-                var nr = nextRoute.replace(/#.*/, ''),
-                    cr = currentRoute.replace(/#.*/, '');
-                console.log(event);
-                if (nr === cr) {
-                    //event.preventDefault();
-                }
-            }
-        });
         $scope.$on('$locationChangeSuccess', function(event, currentRoute) {
             var subView = currentRoute.match(/([^\/]+?)\?/);
             $scope.subView = subView[1] === 'enroll' ? 'preview' : subView[1];

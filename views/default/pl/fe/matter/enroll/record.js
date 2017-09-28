@@ -54,7 +54,7 @@ define(['frame'], function(ngApp) {
             event.stopPropagation();
         };
         $scope.shiftOrderBy = function() {
-            if($scope.criteria.order.orderby=='sum') {
+            if ($scope.criteria.order.orderby == 'sum') {
                 $scope.criteria.order.schemaId = ''
             }
             $scope.doSearch(1);
@@ -90,7 +90,9 @@ define(['frame'], function(ngApp) {
             $location.path('/rest/pl/fe/matter/enroll/editor').search({ site: $scope.app.siteid, id: $scope.app.id, ek: record ? record.enroll_key : '' });
         };
         $scope.batchTag = function() {
-            srvEnrollRecord.batchTag($scope.rows);
+            if ($scope.rows.count) {
+                srvEnrollRecord.batchTag($scope.rows);
+            }
         };
         $scope.removeRecord = function(record) {
             srvEnrollRecord.remove(record);
@@ -102,25 +104,15 @@ define(['frame'], function(ngApp) {
             srvEnrollRecord.verifyAll();
         };
         $scope.batchVerify = function() {
-            srvEnrollRecord.batchVerify($scope.rows);
-        };
-        $scope.notify = function(isBatch) {
-            srvEnrollRecord.notify(isBatch ? $scope.rows : undefined);
+            if ($scope.rows.count) {
+                srvEnrollRecord.batchVerify($scope.rows);
+            }
         };
         $scope.export = function() {
             srvEnrollRecord.export();
         };
         $scope.exportImage = function() {
             srvEnrollRecord.exportImage();
-        };
-        $scope.countSelected = function() {
-            var count = 0;
-            for (var p in $scope.rows.selected) {
-                if ($scope.rows.selected[p] === true) {
-                    count++;
-                }
-            }
-            return count;
         };
         $scope.importByOther = function() {
             srvEnrollRecord.importByOther().then(function() {
@@ -136,9 +128,14 @@ define(['frame'], function(ngApp) {
         $scope.rows = {
             allSelected: 'N',
             selected: {},
+            count: 0,
+            change: function(index) {
+                this.selected[index] ? this.count++ : this.count--;
+            },
             reset: function() {
                 this.allSelected = 'N';
                 this.selected = {};
+                this.count = 0;
             }
         };
         $scope.$watch('rows.allSelected', function(checked) {
@@ -147,8 +144,9 @@ define(['frame'], function(ngApp) {
                 while (index < $scope.records.length) {
                     $scope.rows.selected[index++] = true;
                 }
+                $scope.rows.count = $scope.records.length;
             } else if (checked === 'N') {
-                $scope.rows.selected = {};
+                $scope.rows.reset();
             }
         });
 
@@ -160,7 +158,7 @@ define(['frame'], function(ngApp) {
             srvEnrollRecord.init(app, $scope.page, $scope.criteria, $scope.records);
             // schemas
             var recordSchemas = [],
-                recordSchemas2 = [],
+                recordSchemasExt = [],
                 enrollDataSchemas = [],
                 bRequireSum = false,
                 bRequireScore = false,
@@ -168,17 +166,17 @@ define(['frame'], function(ngApp) {
             app.dataSchemas.forEach(function(oSchema) {
                 if (oSchema.type !== 'html') {
                     recordSchemas.push(oSchema);
-                    recordSchemas2.push(oSchema);
+                    recordSchemasExt.push(oSchema);
                 }
                 if (oSchema.remarkable && oSchema.remarkable === 'Y') {
-                    recordSchemas2.push({ type: 'remark', title: '评论数', id: oSchema.id });
+                    recordSchemasExt.push({ type: 'remark', title: '评论数', id: oSchema.id });
                 }
                 if (oSchema.requireScore && oSchema.requireScore === 'Y') {
-                    recordSchemas2.push({ type: 'score', title: '得分', id: oSchema.id });
+                    recordSchemasExt.push({ type: 'score', title: '得分', id: oSchema.id });
                     bRequireScore = true;
                 }
                 if (oSchema.format && oSchema.format === 'number') {
-                    recordSchemas2.push({ type: 'score', title: '得分', id: oSchema.id });
+                    recordSchemasExt.push({ type: 'score', title: '得分', id: oSchema.id });
                     bRequireSum = true;
                     bRequireScore = true;
                 }
@@ -188,7 +186,7 @@ define(['frame'], function(ngApp) {
             $scope.bRequireSum = bRequireSum;
             $scope.bRequireScore = bRequireScore;
             $scope.recordSchemas = recordSchemas;
-            $scope.recordSchemas2 = recordSchemas2;
+            $scope.recordSchemasExt = recordSchemasExt;
             app._schemasFromEnrollApp.forEach(function(schema) {
                 if (schema.type !== 'html') {
                     enrollDataSchemas.push(schema);

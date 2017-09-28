@@ -43,11 +43,11 @@ class config_model extends \TMS_MODEL {
 		$options2['onlySite'] = empty($options['onlySite'])? false : $options['onlySite'];
 		$oNotice = $this->model('site\notice')->byName($oApp->siteid, $noticeName, $options2);
 		if ($oNotice === false) {
-			return [false, '没有指定事件的模板消息1'];
+			return ['error' => false, 'message' => '没有指定事件的模板消息1'];
 		}
 		$oTmplConfig = $this->byId($oNotice->tmplmsg_config_id, ['cascaded' => 'Y']);
 		if (empty($oTmplConfig->tmplmsg) || empty($oTmplConfig->msgid)) {
-			return [false, '没有指定事件的模板消息2'];
+			return ['error' => false, 'message' => '没有指定事件的模板消息2'];
 		}
 		foreach ($oTmplConfig->tmplmsg->params as $param) {
 			if (!isset($oTmplConfig->mapping->{$param->pname})) {
@@ -71,9 +71,9 @@ class config_model extends \TMS_MODEL {
 			$oParams->url = $options['noticeURL'];
 		}
 
-		$data = new \stdClass;
-		$data->tmplmsgId = $oTmplConfig->msgid;
-		$data->oParams = $oParams;
+		$data = [];
+		$data['tmplmsgId'] = $oTmplConfig->msgid;
+		$data['oParams'] = $oParams;
 
 		return $data;
 	}

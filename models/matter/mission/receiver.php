@@ -84,35 +84,13 @@ class receiver_model extends \TMS_MODEL {
 		}
 
 		/* 模板消息参数 */
-		$oParams = new \stdClass;
-		$oNotice = $this->model('site\notice')->byName($oApp->siteid, $eventName, ['onlySite' => false]);
-		if ($oNotice === false) {
-			return [false, '没有指定事件的模板消息1'];
-		}
-		$oTmplConfig = $this->model('matter\tmplmsg\config')->byId($oNotice->tmplmsg_config_id, ['cascaded' => 'Y']);
-		if (!isset($oTmplConfig->tmplmsg)) {
-			return [false, '没有指定事件的模板消息2'];
-		}
-		foreach ($oTmplConfig->tmplmsg->params as $param) {
-			if (!isset($oTmplConfig->mapping->{$param->pname})) {
-				continue;
-			}
-			$mapping = $oTmplConfig->mapping->{$param->pname};
-			if (isset($mapping->src)) {
-				if ($mapping->src === 'matter') {
-					if (isset($oApp->{$mapping->id})) {
-						$value = $oApp->{$mapping->id};
-					} else if ($mapping->id === 'event_at') {
-						$value = date('Y-m-d H:i:s');
-					}
-				} else if ($mapping->src === 'text') {
-					$value = $mapping->name;
-				}
-			}
-			$oParams->{$param->pname} = isset($value) ? $value : '';
-		}
+		$options2 = ['onlySite' => false];
 		if (!empty($options['noticeURL'])) {
-			$oParams->url = $options['noticeURL'];
+			$options2['noticeURL'] = $options['noticeURL'];
+		}
+		$data = $this->model('matter\tmplmsg\config')->getTmplConfig($oApp, $eventName, $options2);
+		if (isset($data['error'])) {
+			return [false, $data['message']];
 		}
 
 		/* 发送消息 */
@@ -126,7 +104,7 @@ class receiver_model extends \TMS_MODEL {
 		}
 
 		$modelTmplBat = $this->model('matter\tmplmsg\plbatch');
-		$modelTmplBat->send($oApp->siteid, $oTmplConfig->msgid, $receivers, $oParams, $options);
+		$modelTmplBat->send($oApp->siteid, $data['tmplmsgId'], $receivers, $data['oParams'], $options);
 
 		return [true];
 	}

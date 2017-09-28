@@ -89,6 +89,9 @@ class receiver_model extends \TMS_MODEL {
 			$options2['noticeURL'] = $options['noticeURL'];
 		}
 		$data = $this->model('matter\tmplmsg\config')->getTmplConfig($oApp, $eventName, $options2);
+		if (isset($data['error'])) {
+			return [false, $data['message']];
+		}
 
 		/* 发送消息 */
 		foreach ($receivers as &$oReceiver) {
@@ -101,7 +104,7 @@ class receiver_model extends \TMS_MODEL {
 		}
 
 		$modelTmplBat = $this->model('matter\tmplmsg\plbatch');
-		$modelTmplBat->send($oApp->siteid, $data->tmplmsgId, $receivers, $data->oParams, $options);
+		$modelTmplBat->send($oApp->siteid, $data['tmplmsgId'], $receivers, $data['oParams'], $options);
 
 		return [true];
 	}

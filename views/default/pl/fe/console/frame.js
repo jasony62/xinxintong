@@ -98,7 +98,7 @@ define(['require'], function(require) {
                 frameState.scope = lsearch.scope;
             }
         }
-        $scope.opened = '';
+        $scope.opened = 'main';
         $scope.frameState = frameState;
         $scope.$on('$locationChangeSuccess', function(event, currentRoute) {
             var subView = currentRoute.match(/[^\/]+$/)[0];

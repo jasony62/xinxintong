@@ -1,35 +1,38 @@
 <div class='col-md-6 col-md-offset-3'>
     <div class='panel panel-default'>
         <div class='panel-body'>
-            <label>设置进入条件</label>
-            <div class='radio'>
-                <label>
-                    <input type='radio' value='none' ng-model="rule.scope" ng-change="changeUserScope()">不限用户来源</label>
+            <div class='form-group'>
+                <label>设置进入条件</label>
+                <div class='radio'>
+                    <label>
+                        <input type='radio' value='none' ng-model="rule.scope" ng-change="changeUserScope()">不限用户来源</label>
+                </div>
+                <div class='radio'>
+                    <label>
+                        <input type='radio' value='member' ng-model="rule.scope" ng-change="changeUserScope()">限通讯录联系人访问</label>
+                </div>
+                <div class='radio'>
+                    <label>
+                        <input type='radio' value='group' ng-model="rule.scope" ng-change="changeUserScope()">限同项目内分组活动用户访问</label>
+                </div>
+                <div class='radio' ng-if="sns">
+                    <label>
+                        <input type='radio' value='sns' ng-model="rule.scope" ng-change="changeUserScope()">限公众号关注用户访问</label>
+                </div>
             </div>
-            <div class='radio'>
-                <label>
-                    <input type='radio' value='member' ng-model="rule.scope" ng-change="changeUserScope()">限通讯录联系人访问</label>
+            <div class='form-group' ng-if="rule.scope==='none'||rule.scope==='group'">
+                <table class='table table-bordered'>
+                    <tbody>
+                        <tr>
+                            <td>默认进入页面</td>
+                            <td style='padding:0'>
+                                <select style='border:0' class='form-control' ng-change="update('entry_rule')" ng-model='app.entry_rule.otherwise.entry' ng-options="p.name as p.title for p in jumpPages.otherwise"></select>
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
             </div>
-            <div class='radio'>
-                <label>
-                    <input type='radio' value='group' ng-model="rule.scope" ng-change="changeUserScope()">限同项目内分组活动用户访问</label>
-            </div>
-            <div class='radio' ng-if="sns">
-                <label>
-                    <input type='radio' value='sns' ng-model="rule.scope" ng-change="changeUserScope()">限公众号关注用户访问</label>
-            </div>
-            <hr>
-            <table class='table table-bordered' ng-if="rule.scope==='none'||rule.scope==='group'">
-                <tbody>
-                    <tr>
-                        <td>默认进入页面</td>
-                        <td style='padding:0'>
-                            <select style='border:0' class='form-control' ng-change="update('entry_rule')" ng-model='app.entry_rule.otherwise.entry' ng-options="p.name as p.title for p in jumpPages.otherwise"></select>
-                        </td>
-                    </tr>
-                </tbody>
-            </table>
-            <div ng-if="rule.scope==='member'">
+            <div class='form-group' ng-if="rule.scope==='member'">
                 <table class='table table-bordered'>
                     <tbody>
                         <tr ng-repeat="(msid,erm) in app.entry_rule.member">
@@ -54,7 +57,7 @@
                 </table>
                 <button class='btn btn-default' ng-click="chooseMschema()">选择通讯录</button>
             </div>
-            <div ng-if="rule.scope==='group'">
+            <div class='form-group' ng-if="rule.scope==='group'">
                 <div class="input-group">
                     <input class='form-control' title="{{app.entry_rule.group.title}} - {{app.entry_rule.group.round.title}}" value="{{app.entry_rule.group.title}} - {{app.entry_rule.group.round.title}}" readonly>
                     <div class="input-group-btn">
@@ -65,40 +68,42 @@
                 </div>
                 <button class='btn btn-default' ng-click="chooseGroupApp()">选择分组活动</button>
             </div>
-            <table class='table table-bordered' ng-if="rule.scope==='sns'">
-                <tbody>
-                    <tr ng-if="sns.wx">
-                        <td>公众号【<span>{{sns.wx.title}}</span>】关注用户</td>
-                        <td style='padding:0'>
-                            <select style='border:0' class='form-control' ng-change="update('entry_rule')" ng-model='app.entry_rule.sns.wx.entry' ng-options='p.name as p.title for p in jumpPages.all'>
-                                <option value=''>忽略</option>
-                            </select>
-                        </td>
-                    </tr>
-                    <tr ng-if="sns.qy">
-                        <td>公众号【<span>{{sns.qy.title}}</span>】关注用户</td>
-                        <td style='padding:0'>
-                            <select style='border:0' class='form-control' ng-change="update('entry_rule')" ng-model='app.entry_rule.sns.qy.entry' ng-options='p.name as p.title for p in jumpPages.all'>
-                                <option value=''>忽略</option>
-                            </select>
-                        </td>
-                    </tr>
-                    <tr ng-if="sns.yx">
-                        <td>公众号【<span>{{sns.yx.title}}</span>】关注用户</td>
-                        <td style='padding:0'>
-                            <select style='border:0' class='form-control' ng-change="update('entry_rule')" ng-model='app.entry_rule.sns.yx.entry' ng-options='p.name as p.title for p in jumpPages.all'>
-                                <option value=''>忽略</option>
-                            </select>
-                        </td>
-                    </tr>
-                    <tr>
-                        <td>不满足条件用户</td>
-                        <td style='padding:0'>
-                            <select style='border:0' class='form-control' ng-change="update('entry_rule')" ng-model='app.entry_rule.other.entry' ng-options="p.name as p.title for p in jumpPages.nonfan"></select>
-                        </td>
-                    </tr>
-                </tbody>
-            </table>
+            <div class='form-group' ng-if="rule.scope==='sns'">
+                <table class='table table-bordered'>
+                    <tbody>
+                        <tr ng-if="sns.wx">
+                            <td>公众号【<span>{{sns.wx.title}}</span>】关注用户</td>
+                            <td style='padding:0'>
+                                <select style='border:0' class='form-control' ng-change="update('entry_rule')" ng-model='app.entry_rule.sns.wx.entry' ng-options='p.name as p.title for p in jumpPages.all'>
+                                    <option value=''>忽略</option>
+                                </select>
+                            </td>
+                        </tr>
+                        <tr ng-if="sns.qy">
+                            <td>公众号【<span>{{sns.qy.title}}</span>】关注用户</td>
+                            <td style='padding:0'>
+                                <select style='border:0' class='form-control' ng-change="update('entry_rule')" ng-model='app.entry_rule.sns.qy.entry' ng-options='p.name as p.title for p in jumpPages.all'>
+                                    <option value=''>忽略</option>
+                                </select>
+                            </td>
+                        </tr>
+                        <tr ng-if="sns.yx">
+                            <td>公众号【<span>{{sns.yx.title}}</span>】关注用户</td>
+                            <td style='padding:0'>
+                                <select style='border:0' class='form-control' ng-change="update('entry_rule')" ng-model='app.entry_rule.sns.yx.entry' ng-options='p.name as p.title for p in jumpPages.all'>
+                                    <option value=''>忽略</option>
+                                </select>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td>不满足条件用户</td>
+                            <td style='padding:0'>
+                                <select style='border:0' class='form-control' ng-change="update('entry_rule')" ng-model='app.entry_rule.other.entry' ng-options="p.name as p.title for p in jumpPages.nonfan"></select>
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
             <hr>
             <div class='checkbox'>
                 <label>
@@ -122,58 +127,57 @@
                     </tr>
                 </tbody>
             </table>
-        </div>
-    </div>
-    <div class='panel panel-default' ng-if="rule.scope!=='none'">
-        <div class='panel-body'>
-            <label>忽略进入条件页面</label>
-            <table class='table table-bordered'>
-                <tbody>
-                    <tr ng-repeat="page in rule.exclude">
-                        <td style='padding:0'>
-                            <select style='border:0' class='form-control' ng-model="rule.exclude[$index]" ng-options='page.name as page.title for page in jumpPages.exclude' ng-change="configExclude()">
-                            </select>
-                        </td>
-                        <td style="width:36px">
-                            <button class='btn btn-default btn-xs' ng-click="removeExclude($index)"><span class='glyphicon glyphicon-remove'></span></button>
-                        </td>
-                    </tr>
-                </tbody>
-            </table>
-            <div>
-                <button class='btn btn-default' ng-click="addExclude()">添加忽略进入条件页面</button>
+            <hr>
+            <div class='form-group' ng-if="rule.scope!=='none'">
+                <label>忽略进入条件页面</label>
+                <table class='table table-bordered'>
+                    <tbody>
+                        <tr ng-repeat="page in rule.exclude">
+                            <td style='padding:0'>
+                                <select style='border:0' class='form-control' ng-model="rule.exclude[$index]" ng-options='page.name as page.title for page in jumpPages.exclude' ng-change="configExclude()">
+                                </select>
+                            </td>
+                            <td style="width:36px">
+                                <button class='btn btn-default btn-xs' ng-click="removeExclude($index)"><span class='glyphicon glyphicon-remove'></span></button>
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+                <div>
+                    <button class='btn btn-default' ng-click="addExclude()">添加忽略进入条件页面</button>
+                </div>
             </div>
         </div>
-    </div>
-    <script type="text/ng-template" id="chooseGroupApp.html">
-        <div class="modal-header">
-            <button class="close" ng-click="cancel()">×</button>
-            <h5 class="modal-title">分组活动</h5>
-        </div>
-        <div class="modal-body">
-            <form class="form-horizontal">
-                <div class='form-group'>
-                    <label class="col-md-3 control-label">目标活动</label>
-                    <div class="col-md-9">
-                        <select class="form-control" ng-model="data.app" ng-options="app.title for app in apps"></select>
-                        <div class='checkbox' ng-if="app.mission">
-                            <label>
-                                <input disabled type='checkbox' ng-model="data.sameMission" ng-true-value="'Y'" ng-false-value="'N'"> 选择同一个项目中的活动</label>
+        <script type="text/ng-template" id="chooseGroupApp.html">
+            <div class="modal-header">
+                <button class="close" ng-click="cancel()">×</button>
+                <h5 class="modal-title">分组活动</h5>
+            </div>
+            <div class="modal-body">
+                <form class="form-horizontal">
+                    <div class='form-group'>
+                        <label class="col-md-3 control-label">目标活动</label>
+                        <div class="col-md-9">
+                            <select class="form-control" ng-model="data.app" ng-options="app.title for app in apps"></select>
+                            <div class='checkbox' ng-if="app.mission">
+                                <label>
+                                    <input disabled type='checkbox' ng-model="data.sameMission" ng-true-value="'Y'" ng-false-value="'N'"> 选择同一个项目中的活动</label>
+                            </div>
                         </div>
                     </div>
-                </div>
-                <div class='form-group'>
-                    <label class="col-md-3 control-label">目标分组</label>
-                    <div class="col-md-9">
-                        <select class="form-control" ng-model="data.round" ng-options="rnd.title for rnd in data.app.rounds">
-                            <option>全部分组</option>
-                        </select>
+                    <div class='form-group'>
+                        <label class="col-md-3 control-label">目标分组</label>
+                        <div class="col-md-9">
+                            <select class="form-control" ng-model="data.round" ng-options="rnd.title for rnd in data.app.rounds">
+                                <option>全部分组</option>
+                            </select>
+                        </div>
                     </div>
-                </div>
-            </form>
-        </div>
-        <div class="modal-footer">
-            <button class="btn btn-primary" ng-click="ok()">确定</button>
-        </div>
-    </script>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button class="btn btn-primary" ng-click="ok()">确定</button>
+            </div>
+        </script>
+    </div>
 </div>

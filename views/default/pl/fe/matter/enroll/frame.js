@@ -121,12 +121,12 @@ define(['require', 'enrollService', 'enrollSchema', 'enrollPage'], function(requ
                 case 'main':
                 case 'page':
                 case 'schema':
-                case 'preview':
                     $scope.opened = 'edit';
                     break;
                 case 'access':
                 case 'time':
                 case 'entry':
+                case 'preview':
                     $scope.opened = 'publish';
                     break;
                 case 'record':

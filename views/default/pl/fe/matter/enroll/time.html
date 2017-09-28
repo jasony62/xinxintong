@@ -1,36 +1,4 @@
 <div class="col-md-6 col-md-offset-3">
-    <table class='table table-bordered workspace' ng-if="app.scenarioConfig.can_period!=='D'">
-        <tr>
-            <td>活动开始</td>
-            <td style='padding:0;width:180px;'>
-                <tms-datepicker class='tms-datepicker' tms-title='开始时间' tms-date='app.start_at' tms-state='start_at'></tms-datepicker>
-            </td>
-            <td style='padding:0'>
-                <select class='form-control' ng-model='app.before_start_page' ng-options='page.name as page.title for page in app.pages' ng-change="update('before_start_page')">
-                    <option value=''>默认提示</option>
-                </select>
-            </td>
-        </tr>
-        <tr>
-            <td>提交结束</td>
-            <td style='padding:0;width:180px;'>
-                <tms-datepicker class='tms-datepicker' tms-title='提交结束时间' tms-date='app.end_submit_at' tms-state='end_submit_at'></tms-datepicker>
-            </td>
-            <td style='padding:0'>
-            </td>
-        </tr>
-        <tr>
-            <td>活动结束</td>
-            <td style='padding:0;width:180px;'>
-                <tms-datepicker class='tms-datepicker' tms-title='结束时间' tms-date='app.end_at' tms-state='end_at'></tms-datepicker>
-            </td>
-            <td style='padding:0'>
-                <select class='form-control' ng-model='app.after_end_page' ng-options='page.name as page.title for page in app.pages' ng-change="update('after_end_page')">
-                    <option value=''>默认提示</option>
-                </select>
-            </td>
-        </tr>
-    </table>
     <div class='form-group'>
         <button class='btn btn-default' ng-click="add()">增加轮次</button>
         <button class='btn btn-default' ng-click="openCron()"><i class='glyphicon glyphicon-time'></i> 定时生成</button>

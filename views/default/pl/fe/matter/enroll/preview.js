@@ -146,8 +146,8 @@ define(['frame'], function(ngApp) {
                 $scope.opData = data[0];
             }
         });
-        $('#pl-layout-main').scrollspy({ target: '#myScrollspy' });
-        $('#myScrollspy>ul').affix({
+        $('#preview-view').scrollspy({ target: '#previewScrollspy' }).scrollspy('refresh');
+        $('#previewScrollspy>ul').affix({
             offset: {
                 top: 0
             }

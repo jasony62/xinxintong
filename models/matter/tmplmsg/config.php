@@ -75,6 +75,6 @@ class config_model extends \TMS_MODEL {
 		$data->tmplmsgId = $oTmplConfig->msgid;
 		$data->oParams = $oParams;
 
-		return $data;
+		return [true, $data];
 	}
 }

@@ -249,7 +249,7 @@ class main extends \pl\fe\matter\main_base {
 			case 'member':
 				if (isset($oProtoEntryRule->mschemas)) {
 					$oEntryRule->member = new \stdClass;
-					foreach ($oProtoEntryRule as $oMschema) {
+					foreach ($oProtoEntryRule->mschemas as $oMschema) {
 						$oRule = new \stdClass;
 						$oRule->entry = isset($oEntryRule->otherwise->entry) ? $oEntryRule->otherwise->entry : '';
 						$oEntryRule->member->{$oMschema->id} = $oRule;

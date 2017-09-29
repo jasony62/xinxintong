@@ -26,7 +26,7 @@
             <ul class="nav nav-tabs nav-stacked">
                 <li ng-class="{'opened':opened==='main'}">
                     <a href='/rest/pl/fe?site={{frameState.sid}}' ng-click="opened=opened==='main'?false:'main'">协作 <span class="caret"></span></a>
-                    <ul class="nav nav-tabs nav-stacked" ng-style="{'height':opened==='main'?'160px':'0'}">
+                    <ul class="nav nav-tabs nav-stacked" ng-style="{'height':opened==='main'?'164px':'0'}">
                         <li ng-class="{'active':frameState.scope==='mission'}"><a href='' ng-click="changeScope('mission')">项目</a></li>
                         <li ng-class="{'active':frameState.scope==='activity'}"><a href='' ng-click="changeScope('activity')">活动</a></li>
                         <li ng-class="{'active':frameState.scope==='doc'}"><a href='' ng-click="changeScope('doc')">资料</a></li>
@@ -35,7 +35,7 @@
                 </li>
                 <li ng-class="{'opened':opened==='friend'}">
                     <a href='/rest/pl/fe/friend' ng-click="opened=opened==='friend'?false:'friend'">主页 <span class="caret"></span></a>
-                    <ul class="nav nav-tabs nav-stacked" ng-style="{'height':opened==='friend'?'120px':'0'}">
+                    <ul class="nav nav-tabs nav-stacked" ng-style="{'height':opened==='friend'?'123px':'0'}">
                         <li ng-class="{'active':frameState.scope==='subscribeSite'}"><a href='' ng-click="changeScope('subscribeSite')">关注</a></li>
                         <li ng-class="{'active':frameState.scope==='contributeSite'}"><a href='' ng-click="changeScope('contributeSite')">投稿</a></li>
                         <li ng-class="{'active':frameState.scope==='favorSite'}"><a href='' ng-click="changeScope('favorSite')">收藏</a></li>

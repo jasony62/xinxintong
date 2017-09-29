@@ -7,30 +7,14 @@ define(['require'], function(require) {
     missionId = ls.match(/[\?&]mission=([^&]*)/) ? ls.match(/[\?&]mission=([^&]*)/)[1] : '';
 
     ngApp = angular.module('app', ['ngRoute', 'ui.bootstrap', 'ui.tms', 'ui.xxt', 'service.matter']);
-    ngApp.config(['$locationProvider', '$uibTooltipProvider', 'srvSiteProvider', function($locationProvider, $uibTooltipProvider, srvSiteProvider) {
+    ngApp.config(['$locationProvider', 'srvSiteProvider', function($locationProvider, srvSiteProvider) {
         $locationProvider.html5Mode(true);
-        $uibTooltipProvider.setTriggers({
-            'show': 'hide'
-        });
         srvSiteProvider.config(siteId);
     }]);
     ngApp.controller('ctrlMain', ['$scope', '$location', '$timeout', 'http2', 'srvSite', function($scope, $location, $timeout, http2, srvSite) {
         $scope.source = 'platform';
         $scope.switchSource = function(source) {
             $scope.source = source;
-        };
-        $scope.blank = function() {
-            var url;
-            url = '/rest/pl/fe/matter/enroll/create?site=' + siteId;
-            if (missionId) {
-                url += '&mission=' + missionId;
-            }
-            http2.post(url, {}, function(rsp) {
-                location.href = '/rest/pl/fe/matter/enroll?site=' + siteId + '&id=' + rsp.data.id;
-            });
-        };
-        $scope.doCreate = function() {
-            $scope.$broadcast('doCreate.shop');
         };
     }]);
     ngApp.controller('ctrlSysTemplate', ['$scope', '$location', '$uibModal', 'http2', 'srvSite', function($scope, $location, $uibModal, http2, srvSite) {
@@ -128,7 +112,7 @@ define(['require'], function(require) {
                 }
             });
         };
-        $scope.$on('doCreate.shop', function() {
+        $scope.doCreate = function() {
             var url, data;
             var oConfig;
             url = '/rest/pl/fe/matter/enroll/create?site=' + siteId;
@@ -151,7 +135,7 @@ define(['require'], function(require) {
             http2.post(url, oConfig, function(rsp) {
                 location.href = '/rest/pl/fe/matter/enroll/schema?site=' + siteId + '&id=' + rsp.data.id;
             });
-        });
+        };
         $scope.chooseScenario = function() {
             var oTemplates, keys;
 
@@ -170,7 +154,7 @@ define(['require'], function(require) {
                 var elSimulator, url;
                 $scope.pages = rsp.data.pages;
                 $scope.result.selectedPage = $scope.pages[0];
-                elSimulator = document.querySelector('#simulator');
+                elSimulator = document.querySelector('#simulator iframe');
                 url = 'http://' + location.host;
                 url += '/rest/site/fe/matter/enroll/template';
                 url += '?scenario=' + $scope.result.scenario.name;
@@ -180,13 +164,16 @@ define(['require'], function(require) {
                 elSimulator.src = url;
             });
         };
-        $scope.choosePage = function() {
-            var elSimulator, page, config;
-            elSimulator = document.querySelector('#simulator');
-            config = {};
-            page = $scope.result.selectedPage.name;
+        $scope.choosePage = function(oPage) {
+            var elSimulator;
+            if (oPage) {
+                $scope.result.selectedPage = oPage;
+            } else {
+                oPage = $scope.result.selectedPage;
+            }
+            elSimulator = document.querySelector('#simulator iframe');
             if (elSimulator.contentWindow.renew) {
-                elSimulator.contentWindow.renew(page, config);
+                elSimulator.contentWindow.renew(oPage.name, {});
             }
         };
         /*系统模版*/
@@ -200,7 +187,7 @@ define(['require'], function(require) {
                     $scope.result.scenario = oScenarioes[assignedScenario];
                     $scope.fixedScenario = true;
                     oTemplates = $scope.result.scenario.templates;
-                    $scope.result.template = oTemplates[Object.keys(oTemplates)];
+                    $scope.result.template = oTemplates[Object.keys(oTemplates)[0]];
                     $scope.chooseTemplate();
                 }
             } else {
@@ -269,7 +256,7 @@ define(['require'], function(require) {
         $scope.data = {
             choose: -1
         };
-        $scope.$on('doCreate.shop', function() {
+        $scope.doCreate = function() {
             var url, data;
             var data;
             data = $scope.templates[$scope.data.choose];
@@ -280,7 +267,7 @@ define(['require'], function(require) {
             http2.get(url, function(rsp) {
                 location.href = '/rest/pl/fe/matter/enroll/schema?site=' + siteId + '&id=' + rsp.data.id;
             });
-        });
+        };
         $scope.searchTemplate = function() {
             var url = '/rest/pl/fe/template/site/list?matterType=enroll&scope=P' + '&site=' + siteId;
 

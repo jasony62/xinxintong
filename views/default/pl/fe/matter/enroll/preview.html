@@ -1,6 +1,7 @@
 <div id='preview-view' class='col-md-6 col-md-offset-3 overview'>
     <div id='status1' class='panel panel-default'>
         <div class='panel-body'>
+            <a href='' ng-click="switchTo('schema')" class='pull-right'>修改</a>
             <label>1、填写题目</label>
             <ul class='status-group'>
                 <li class='status'>共有<span ng-bind="app.dataSchemas.length"></span>道题目，必填题<span ng-bind="status.schema.required"></span>道</li>
@@ -8,21 +9,31 @@
                 <li class='status' ng-if="app.enroll_app_id">已经和登记活动【<span ng-bind="app.enrollApp.title"></span>】关联</li>
                 <li class='status' ng-if="!app.group_app_id">未指定关联的分组数据 <span class='glyphicon glyphicon-question-sign' uib-tooltip='指定关联分组活动和关联题目后，关联题目填写的内容必须在关联的分组活动中有对应记录'></span></li>
                 <li class='status' ng-if="app.group_app_id">已经和分组活动【<span ng-bind="app.groupApp.title"></span>】关联</li>
-                <li class='status'>填写完成后进入【<span ng-bind="status.page.submitAfter.title"></span>】</li>
-                <li class='status'>填写过再次进入活动，打开【<span ng-bind='status.page.whenEnrolled.title'></span>】</li>
                 <li class='status' ng-if="app.count_limit">填写人可填写【<span ng-bind="app.count_limit"></span>】条记录</li>
                 <li class='status' ng-if="app.count_limit==0">填写人可填写多条记录</li>
-                <li class='status'>允许填写人删除提交后的数据 <span class='glyphicon' ng-class="status.page.removeRecord==='Y'?'glyphicon-ok':'glyphicon-ban-circle'"></span></li>
-                <li class='status'>填写人可以查看填写的历史记录 <span class='glyphicon' ng-class="status.page.browseHistory==='Y'?'glyphicon-ok':'glyphicon-ban-circle'"></span></li>
                 <li class='status'>填写人可以评论其他人填写的数据 <span class='glyphicon glyphicon-ok'></span>，可以评论的题目有<span ng-bind="status.schema.remarkable"></span>道</li>
                 <li class='status'>填写人可以查看其他人填写的数据 <span class='glyphicon' ng-class="status.page.repos==='Y'?'glyphicon-ok':'glyphicon-ban-circle'"></span>，可以查看的题目有<span ng-bind="status.schema.shareable"></span>道</li>
-                <li class='status'>查看填写数据排行榜 <span class='glyphicon' ng-class="status.page.rank==='Y'?'glyphicon-ok':'glyphicon-ban-circle'"></span> <span class='glyphicon glyphicon-question-sign' uib-tooltip='排行页面可以对填写人、填写内容、评论内容按照获得的评论数、赞同数等排序显示'></span></li>
             </ul>
         </div>
     </div>
     <div id='status2' class='panel panel-default'>
         <div class='panel-body'>
-            <label>2、填写人</label>
+            <a href='' ng-click="switchTo('page')" class='pull-right'>修改</a>
+            <label>2、用户页面</label>
+            <ul class='status-group'>
+                <li class='status'>填写完成后进入【<span ng-bind="status.page.submitAfter.title"></span>】</li>
+                <li class='status'>填写过再次进入活动，打开【<span ng-bind='status.page.whenEnrolled.title'></span>】</li>
+                <li class='status'>允许填写人删除提交后的数据 <span class='glyphicon' ng-class="status.page.removeRecord==='Y'?'glyphicon-ok':'glyphicon-ban-circle'"></span></li>
+                <li class='status'>填写人可以查看填写的历史记录 <span class='glyphicon' ng-class="status.page.browseHistory==='Y'?'glyphicon-ok':'glyphicon-ban-circle'"></span></li>
+                <li class='status'>填写人可以查看其他人填写的数据 <span class='glyphicon' ng-class="status.page.repos==='Y'?'glyphicon-ok':'glyphicon-ban-circle'"></span>，可以查看的题目有<span ng-bind="status.schema.shareable"></span>道</li>
+                <li class='status'>查看填写数据排行榜 <span class='glyphicon' ng-class="status.page.rank==='Y'?'glyphicon-ok':'glyphicon-ban-circle'"></span> <span class='glyphicon glyphicon-question-sign' uib-tooltip='排行页面可以对填写人、填写内容、评论内容按照获得的评论数、赞同数等排序显示'></span></li>
+            </ul>
+        </div>
+    </div>
+    <div id='status3' class='panel panel-default'>
+        <div class='panel-body'>
+            <a href='' ng-click="switchTo('main')" class='pull-right'>设置</a>
+            <label>3、填写人</label>
             <ul class='status-group'>
                 <li class='status'>不限制填写的人和填写的终端 <span class='glyphicon' ng-class="app.entry_rule.scope==='none'?'glyphicon-ok':'glyphicon-ban-circle'"></span>，<span>每个终端作为1个填写人，系统自动给填写人生成昵称</span></li>
                 <li class='status' ng-if="status.user.member.length===0">指定通信录中的联系人可以填写 <span class="glyphicon glyphicon-ban-circle"></span></li>
@@ -32,11 +43,13 @@
             </ul>
         </div>
     </div>
-    <div id='status3' class='panel panel-default'>
+    <div id='status4' class='panel panel-default'>
         <div class='panel-body'>
-            <label>3、填写时间</label>
+            <a href='' ng-click="switchTo('main')" class='pull-right'>设置</a>
+            <label>4、填写时间</label>
             <ul class='status-group'>
                 <li class='status'><span ng-if="app.start_at>0">活动开始时间：<span ng-bind="app.start_at*1000|date:'MM-dd HH:mm'"></span></span><span ng-if="app.start_at==0">未指定活动开始时间</span>，<span ng-if="app.end_at>0">活动结束时间：<span ng-bind="app.end_at*1000|date:'MM-dd HH:mm'"></span></span><span ng-if="app.end_at==0">未指定活动结束时间</span></li>
+                <li class='status'><span ng-if="app.end_submit_at>0">提交结束时间：<span ng-bind="app.end_submit_at*1000|date:'MM-dd HH:mm'"></span></span><span ng-if="app.end_submit_at==0">未指定提交结束时间</span></li>
                 <li class='status' ng-repeat="rule in app.roundCron" ng-switch on="rule.period">
                     <div ng-switch-when="D">每日{{rule.hour}}点生成填写轮次 <span class='glyphicon' ng-class="rule.enabled==='Y'?'glyphicon-ok':'glyphicon-ban-circle'"></span>
                     </div>
@@ -49,31 +62,39 @@
             </ul>
         </div>
     </div>
-    <div id='status4' class='panel panel-default'>
-        <div class='panel-body'>
-            <label>4、填写记录</label>
-            <ul class='status-group'>
-                <li class='status' ng-if="app.multi_rounds==='Y'">轮次：{{opData.title}}</li>
-                <li class='status'>已有<span ng-bind="opData.enrollee_num"></span>人，提交<span ng-bind="opData.total"></span>条记录</li>
-                <li class='status' ng-repeat="mschema in status.user.member">通信录【<span ng-bind="mschema.title"></span>】中已有<span ng-bind="opData.mschema[mschema.id].enrolled"></span>人提交记录，<span>{{mschema.count.verified-opData.mschema[mschema.id].enrolled}}</span>人未提交记录</li>
-                <li class='status'>已有<span ng-bind="opData.remark_total"></span>条评论</li>
-            </ul>
-        </div>
-    </div>
     <div id='status5' class='panel panel-default'>
         <div class='panel-body'>
-            <label>5、管理员</label>
+            <a href='' ng-click="switchTo('entry')" class='pull-right'>设置</a>
+            <label>5、访问链接</label>
             <ul class='status-group'>
-                <li class='status'>记录提交时通知管理员<span class='glyphicon' ng-class="app.notify_submit==='Y'?'glyphicon-ok':'glyphicon-ban-circle'"></span></li>
+                <li class='status'>
+                    <div>用户填写链接</div>
+                    <div class='input-group'>
+                        <input class='form-control' value="{{app.entryUrl}}" readonly>
+                        <div class='input-group-btn'>
+                            <a class='btn btn-default' ng-href="{{app.entryUrl}}" target='_blank' title='打开'><i class='glyphicon glyphicon-open'></i></a>
+                            <button class='btn btn-default' ng-click="popupQrcode()"><i class='glyphicon glyphicon-qrcode'></i></button>
+                        </div>
+                    </div>
+                </li>
+                <li class='status'><span ng-bind="app.op_short_url_code?'已经':'未'"></span>开放【汇总结果分享链接】</li>
+                <li class='status'><span ng-bind="app.rp_short_url_code?'已经':'未'"></span>开放【统计报告分享链接】</li>
             </ul>
-            <div class='list-group'>
-                <div class='list-group-item' ng-repeat="admin in admins">
-                    <span>{{admin.nickname}}</span>&nbsp;<span ng-if="admin.snsUser.snsName">{{admin.snsUser.snsName}}</span>
-                </div>
-            </div>
         </div>
     </div>
     <div id='status6' class='panel panel-default'>
+        <div class='panel-body'>
+            <label>6、填写记录</label>
+            <ul class='status-group'>
+                <li class='status' ng-if="app.multi_rounds==='Y'">轮次：{{opData.title}}</li>
+                <li class='status'>已有<a href='' ng-click="switchTo('enrollee')"><span ng-bind="opData.enrollee_num"></span></a>人参与</li>
+                <li class='status'>已有<a href='' ng-click="switchTo('record')"><span ng-bind="opData.total"></span></a>条记录提交</li>
+                <li class='status' ng-repeat="mschema in status.user.member">通信录【<span ng-bind="mschema.title"></span>】中已有<span ng-bind="opData.mschema[mschema.id].enrolled"></span>人提交记录，<span>{{mschema.count.verified-opData.mschema[mschema.id].enrolled}}</span>人未提交记录</li>
+                <li class='status'>已有<a href='' ng-click="switchTo('remark')"><span ng-bind="opData.remark_total"></span></a>条评论</li>
+            </ul>
+        </div>
+    </div>
+    <div id='status7' class='panel panel-default'>
         <div class='panel-body'>
             <div id='simulator'>
                 <iframe ng-src={{previewURL}}></iframe>
@@ -117,10 +138,22 @@
 <div class="col-md-3" id="previewScrollspy" style='position:relative;'>
     <ul class="nav nav-pills nav-stacked pl-workspace" style='position:fixed;'>
         <li><a href="#status1">填写题目</a></li>
-        <li><a href="#status2">填写人</a></li>
-        <li><a href="#status3">填写时间</a></li>
-        <li><a href="#status4">填写记录</a></li>
-        <li><a href="#status5">管理员</a></li>
-        <li><a href="#status6">页面预览</a></li>
+        <li><a href="#status2">用户页面</a></li>
+        <li><a href="#status3">填写人</a></li>
+        <li><a href="#status4">填写时间</a></li>
+        <li><a href="#status5">访问链接</a></li>
+        <li><a href="#status6">填写记录</a></li>
+        <li><a href="#status7">活动预览</a></li>
     </ul>
 </div>
+<script type="text/ng-template" id="popupQrcode.html">
+    <div class="modal-body">
+        <div class='text-center'>
+            <span ng-if="qrcode.pic"><img ng-src="{{qrcode.pic}}"></span>
+        </div>
+    </div>
+    <div class="modal-footer">
+        <button ng-if="qrcode.src==='wx'&&!qrcode.pic" class="btn btn-default" ng-click="createWxQrcode()">生成微信二维码</button>
+        <button class="btn btn-default" ng-click="cancel()">关闭</button>
+    </div>
+</script>

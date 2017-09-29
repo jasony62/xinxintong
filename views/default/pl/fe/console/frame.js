@@ -229,54 +229,19 @@ define(['require'], function(require) {
         };
 
         function addMatter(site, matterType, scenario) {
-            $('body').click();
             var fnName = 'add' + matterType[0].toUpperCase() + matterType.substr(1);
             _fns[fnName].call(_fns, site, scenario);
         }
         $scope.addMatter = function(matterType, scenario) {
-            if (matterType == 'site') {
-                var url = '/rest/pl/fe/site/create?_=' + (new Date * 1);
-                http2.get(url, function(rsp) {
-                    location.href = '/rest/pl/fe/site/setting?site=' + rsp.data.id;
-                });
-            }
-            if (frameState.sid != '') {
-                var site = { id: frameState.sid };
-                addMatter(site, matterType, scenario);
-            } else {
-                var url = '/rest/pl/fe/site/list?_=' + (new Date() * 1);
-                http2.get(url, function(rsp) {
-                    var sites = rsp.data;
-                    if (sites.length === 1) {
-                        addMatter(sites[0], matterType, scenario);
-                    } else if (sites.length === 0) {
-                        createSite().then(function(site) {
-                            addMatter(site, matterType, scenario);
-                        });
+            if (frameState.sid) {
+                if (matterType) {
+                    var site = { id: frameState.sid };
+                    if (/^enroll\.(.*)/.test(matterType)) {
+                        addMatter(site, 'enroll', matterType.split('.')[1]);
                     } else {
-                        $uibModal.open({
-                            templateUrl: 'addMatterSite.html',
-                            dropback: 'static',
-                            controller: ['$scope', '$uibModalInstance', function($scope2, $mi) {
-                                var data;
-                                $scope2.mySites = sites;
-                                $scope2.data = data = {};
-                                $scope2.ok = function() {
-                                    if (data.index !== undefined) {
-                                        $mi.close(sites[data.index]);
-                                    } else {
-                                        $mi.dismiss();
-                                    }
-                                };
-                                $scope2.cancel = function() {
-                                    $mi.dismiss();
-                                };
-                            }]
-                        }).result.then(function(site) {
-                            addMatter(site, matterType, scenario);
-                        });
+                        addMatter(site, matterType, scenario);
                     }
-                });
+                }
             }
         };
         $scope.list = function() {

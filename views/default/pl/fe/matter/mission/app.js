@@ -73,10 +73,18 @@ define(['frame'], function(ngApp) {
                 location.href = '/rest/pl/fe/matter/group/main?site=' + _oMission.siteid + '&id=' + rsp.data.id;
             });
         };
-        $scope.addMatter = function() {
-            var matterType = $scope.matterType;
-            if (matterType === 'enroll') {
-                $scope.addEnroll($scope.matterScenario);
+        $scope.addMatter = function(matterType) {
+            if (!matterType) {
+                matterType = $scope.matterType;
+            }
+            if (/^enroll.*/.test(matterType)) {
+                if (matterType === 'enroll') {
+                    if ($scope.matterScenario) {
+                        $scope.addEnroll($scope.matterScenario);
+                    }
+                } else {
+                    $scope.addEnroll(matterType.split('.')[1]);
+                }
             } else {
                 $scope['add' + matterType[0].toUpperCase() + matterType.substr(1)]();
             }

@@ -236,7 +236,7 @@ define(['require'], function(require) {
             if (frameState.sid) {
                 if (matterType) {
                     var site = { id: frameState.sid };
-                    if (/^enroll\.(.*)/.test(matterType)) {
+                    if (/^enroll\.(.+)/.test(matterType)) {
                         addMatter(site, 'enroll', matterType.split('.')[1]);
                     } else {
                         addMatter(site, matterType, scenario);

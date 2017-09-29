@@ -23,9 +23,9 @@
             </div>
             <!--侧边栏-->
             <ul class="nav nav-tabs nav-stacked">
-                <li>
+                <li ng-class="{'opened':opened==='rule'}">
                     <a href='' ng-click="opened=opened==='rule'?false:'rule';switchTo('main')">定义 <span class="caret"></span></a>
-                    <ul class="nav nav-tabs nav-stacked" ng-style="{'height':opened==='rule'?'160px':'0'}">
+                    <ul class="nav nav-tabs nav-stacked" ng-style="{'height':opened==='rule'?'164px':'0'}">
                         <li ng-class="{'active':subView==='main'}">
                             <a href='' ng-click="switchTo('main')">项目定义</a>
                         </li>
@@ -40,9 +40,9 @@
                         </li>
                     </ul>
                 </li>
-                <li>
+                <li ng-class="{'opened':opened==='task'}">
                     <a href='' ng-click="opened=opened==='task'?false:'task';switchTo('app')">任务 <span class="caret"></span></a>
-                    <ul class="nav nav-tabs nav-stacked" ng-style="{'height':opened==='task'?'120px':'0'}">
+                    <ul class="nav nav-tabs nav-stacked" ng-style="{'height':opened==='task'?'123px':'0'}">
                         <li ng-class="{'active':subView==='app'}">
                             <a href='' ng-click="switchTo('app')">活动</a>
                         </li>
@@ -50,13 +50,13 @@
                             <a href='' ng-click="switchTo('doc')">资料</a>
                         </li>
                         <li ng-class="{'active':subView==='entry'}">
-                            <a href='' ng-click="switchTo('entry')">发放入口</a>
+                            <a href='' ng-click="switchTo('entry')">入口</a>
                         </li>
                     </ul>
                 </li>
-                <li>
+                <li ng-class="{'opened':opened==='result'}">
                     <a href='' ng-click="opened=opened==='result'?false:'result';switchTo('report')">数据 <span class="caret"></span></a>
-                    <ul class="nav nav-tabs nav-stacked" ng-style="{'height':opened==='result'?'80px':'0'}">
+                    <ul class="nav nav-tabs nav-stacked" ng-style="{'height':opened==='result'?'82px':'0'}">
                         <li ng-class="{'active':subView==='enrollee'}">
                             <a href='' ng-click="switchTo('enrollee')">参与人</a>
                         </li>
@@ -65,9 +65,9 @@
                         </li>
                     </ul>
                 </li>
-                <li>
+                <li ng-class="{'opened':opened==='other'}">
                     <a href='' ng-click="opened=opened==='other'?false:'other';switchTo('notice')">其他 <span class="caret"></span></a>
-                    <ul class="nav nav-tabs nav-stacked" ng-style="{'height':opened==='other'?'40px':'0'}">
+                    <ul class="nav nav-tabs nav-stacked" ng-style="{'height':opened==='other'?'41px':'0'}">
                         <li ng-class="{'active':subView==='notice'}">
                             <a href='' ng-click="switchTo('notice')">通知记录</a>
                         </li>

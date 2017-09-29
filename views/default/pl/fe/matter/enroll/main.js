@@ -1,6 +1,6 @@
 define(['frame'], function(ngApp) {
     'use strict';
-    ngApp.provider.controller('ctrlMain', ['$scope', 'http2', '$uibModal', 'noticebox', 'srvSite', 'srvEnrollApp', 'srvTag', function($scope, http2, $uibModal, noticebox, srvSite, srvEnrollApp, srvTag) {
+    ngApp.provider.controller('ctrlMain', ['$scope', '$anchorScroll', 'http2', '$uibModal', 'noticebox', 'srvSite', 'srvEnrollApp', 'srvTag', function($scope, $anchorScroll, http2, $uibModal, noticebox, srvSite, srvEnrollApp, srvTag) {
         $scope.assignMission = function() {
             srvEnrollApp.assignMission().then(function(mission) {});
         };
@@ -47,6 +47,7 @@ define(['frame'], function(ngApp) {
                 top: 0
             }
         });
+        $anchorScroll();
     }]);
     ngApp.provider.controller('ctrlAccess', ['$scope', '$uibModal', 'http2', 'srvSite', 'srvEnrollApp', function($scope, $uibModal, http2, srvSite, srvEnrollApp) {
         var _oApp, _oEntryRule;

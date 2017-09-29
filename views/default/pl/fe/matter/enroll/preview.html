@@ -32,7 +32,7 @@
     </div>
     <div id='status3' class='panel panel-default'>
         <div class='panel-body'>
-            <a href='' ng-click="switchTo('main')" class='pull-right'>设置</a>
+            <a href='' ng-click="switchTo('main','main-4')" class='pull-right'>设置</a>
             <label>3、填写人</label>
             <ul class='status-group'>
                 <li class='status'>不限制填写的人和填写的终端 <span class='glyphicon' ng-class="app.entry_rule.scope==='none'?'glyphicon-ok':'glyphicon-ban-circle'"></span>，<span>每个终端作为1个填写人，系统自动给填写人生成昵称</span></li>
@@ -45,7 +45,7 @@
     </div>
     <div id='status4' class='panel panel-default'>
         <div class='panel-body'>
-            <a href='' ng-click="switchTo('main')" class='pull-right'>设置</a>
+            <a href='' ng-click="switchTo('main','main-2')" class='pull-right'>设置</a>
             <label>4、填写时间</label>
             <ul class='status-group'>
                 <li class='status'><span ng-if="app.start_at>0">活动开始时间：<span ng-bind="app.start_at*1000|date:'MM-dd HH:mm'"></span></span><span ng-if="app.start_at==0">未指定活动开始时间</span>，<span ng-if="app.end_at>0">活动结束时间：<span ng-bind="app.end_at*1000|date:'MM-dd HH:mm'"></span></span><span ng-if="app.end_at==0">未指定活动结束时间</span></li>

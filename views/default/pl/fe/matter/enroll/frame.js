@@ -147,9 +147,9 @@ define(['require', 'enrollService', 'enrollSchema', 'enrollPage'], function(requ
                     $scope.opened = '';
             }
         });
-        $scope.switchTo = function(subView) {
+        $scope.switchTo = function(subView, hash) {
             var url = '/rest/pl/fe/matter/enroll/' + subView;
-            $location.path(url);
+            $location.path(url).hash(hash || '');
         };
         $scope.update = function(name) {
             srvEnrollApp.update(name);

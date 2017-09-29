@@ -1,6 +1,6 @@
 define(['frame'], function(ngApp) {
     'use strict';
-    ngApp.provider.controller('ctrlPreview', ['$scope', '$uibModal', 'http2', 'srvEnrollApp', function($scope, $uibModal, http2, srvEnrollApp) {
+    ngApp.provider.controller('ctrlPreview', ['$scope', '$location', '$anchorScroll', '$uibModal', 'http2', 'srvEnrollApp', function($scope, $location, $anchorScroll, $uibModal, http2, srvEnrollApp) {
         function refresh() {
             $scope.previewURL = previewURL + '&openAt=' + params.openAt + '&page=' + params.page.name + '&_=' + (new Date() * 1);
         }
@@ -184,5 +184,7 @@ define(['frame'], function(ngApp) {
                 top: 0
             }
         });
+        $location.hash("status5");
+        $anchorScroll();
     }]);
 });

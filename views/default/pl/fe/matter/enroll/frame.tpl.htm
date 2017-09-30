@@ -104,7 +104,7 @@
                         <li ng-if="app.mission"><a href="/rest/pl/fe/matter/mission?site={{app.siteid}}&id={{app.mission.id}}" target='_self' title="{{app.mission.title}}">{{app.mission.title}}</a></li>
                         <li ng-if="app.mission"><a href="/rest/pl/fe/matter/mission/app?site={{app.siteid}}&id={{app.mission.id}}#{{app.scenario||'enroll'}}" target='_self'>{{scenarioNames[app.scenario]||'登记'}}</a></li>
                         <li>
-                            <a href='' ng-click="switchTo('main')">{{app.title}}</a>
+                            <a href='' ng-click="switchTo('preview')">{{app.title}}</a>
                         </li>
                     </nav>
                 </div>

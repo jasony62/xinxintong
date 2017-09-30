@@ -41,13 +41,16 @@ define(['frame'], function(ngApp) {
             $scope.app[data.state] = data.value;
             srvEnrollApp.update(data.state);
         });
-        $('#main-view').scrollspy({ target: '#mainScrollspy' });
-        $('#mainScrollspy>ul').affix({
-            offset: {
-                top: 0
-            }
+        srvEnrollApp.get().then(function(oApp) {
+            $scope.bCountLimited = oApp.count_limit !== '0';
+            $('#main-view').scrollspy({ target: '#mainScrollspy' });
+            $('#mainScrollspy>ul').affix({
+                offset: {
+                    top: 0
+                }
+            });
+            $anchorScroll();
         });
-        $anchorScroll();
     }]);
     ngApp.provider.controller('ctrlAccess', ['$scope', '$uibModal', 'http2', 'srvSite', 'srvEnrollApp', function($scope, $uibModal, http2, srvSite, srvEnrollApp) {
         var _oApp, _oEntryRule;
@@ -159,6 +162,7 @@ define(['frame'], function(ngApp) {
             $scope.app.entry_rule.exclude = $scope.rule.exclude;
             $scope.update('entry_rule');
         };
+        $scope.bCountLimited = false;
         srvEnrollApp.get().then(function(app) {
             $scope.jumpPages = srvEnrollApp.jumpPages();
             $scope.rule.scope = app.entry_rule.scope || 'none';

@@ -25,7 +25,7 @@
             </div>
             <!--侧边栏-->
             <ul class="nav nav-tabs nav-stacked">
-                <li>
+                <li ng-class="{'opened':opened==='edit'}">
                     <a href='' ng-click="opened=opened==='edit'?false:'edit';switchTo('schema')">编辑 <span class="caret"></span></a>
                     <ul class="nav nav-tabs nav-stacked" ng-style="{'height':opened==='edit'?'168px':'0'}">
                         <li ng-class="{'active':subView==='main'}">
@@ -42,7 +42,7 @@
                         </li>
                     </ul>
                 </li>
-                <li ng-class="{'active':subView==='publish'}">
+                <li ng-class="{'opened':opened==='publish'}">
                     <a href='' ng-click="opened=opened==='publish'?false:'publish';switchTo('entry')">发布 <span class="caret"></span></a>
                     <ul class="nav nav-tabs nav-stacked" ng-style="{'height':opened==='publish'?'84px':'0'}">
                         <li ng-class="{'active':subView==='access'}">
@@ -53,7 +53,7 @@
                         </li>
                     </ul>
                 </li>
-                <li>
+                <li ng-class="{'opened':opened==='data'}">
                     <a href='' ng-click="opened=opened==='data'?false:'data';switchTo('record')">记录 <span class="caret"></span></a>
                     <ul class="nav nav-tabs nav-stacked" ng-style="{'height':opened==='data'?'42px':'0'}">
                         <li ng-class="{'active':subView==='record'}">
@@ -61,7 +61,7 @@
                         </li>
                     </ul>
                 </li>
-                <li>
+                <li ng-class="{'opened':opened==='other'}">
                     <a href='' ng-click="opened=opened==='other'?false:'other';switchTo('coin')">其他 <span class="caret"></span></a>
                     <ul class="nav nav-tabs nav-stacked" ng-style="{'height':opened==='other'?'84px':'0'}">
                         <li ng-class="{'active':subView==='coin'}">

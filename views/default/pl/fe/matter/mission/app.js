@@ -52,26 +52,10 @@ define(['frame'], function(ngApp) {
             location.href = '/rest/pl/fe/matter/enroll/shop?site=' + _oMission.siteid + '&mission=' + _oMission.id + '&scenario=' + (assignedScenario || '');
         };
         $scope.addSignin = function() {
-            var url = '/rest/pl/fe/matter/signin/create?site=' + _oMission.siteid + '&mission=' + _oMission.id,
-                config = {
-                    proto: {
-                        title: _oMission.title + '-签到'
-                    }
-                };
-            http2.post(url, config, function(rsp) {
-                location.href = '/rest/pl/fe/matter/signin?site=' + _oMission.siteid + '&id=' + rsp.data.id;
-            });
+            location.href = '/rest/pl/fe/matter/signin/plan?site=' + _oMission.siteid + '&mission=' + _oMission.id;
         };
         $scope.addGroup = function() {
-            var url = '/rest/pl/fe/matter/group/create?site=' + _oMission.siteid + '&mission=' + _oMission.id + '&scenario=split',
-                config = {
-                    proto: {
-                        title: _oMission.title + '-分组'
-                    }
-                };
-            http2.post(url, config, function(rsp) {
-                location.href = '/rest/pl/fe/matter/group/main?site=' + _oMission.siteid + '&id=' + rsp.data.id;
-            });
+            location.href = '/rest/pl/fe/matter/group/plan?site=' + _oMission.siteid + '&mission=' + _oMission.id;
         };
         $scope.addMatter = function(matterType) {
             if (!matterType) {

@@ -7,6 +7,13 @@ require_once dirname(dirname(__FILE__)) . '/base.php';
  */
 class round extends \pl\fe\matter\base {
 	/**
+	 * 返回视图
+	 */
+	public function index_action($site, $id) {
+		\TPL::output('/pl/fe/matter/group/frame');
+		exit;
+	}
+	/**
 	 * 获得分组活动下的轮次（分组）
 	 *
 	 * @param string $site

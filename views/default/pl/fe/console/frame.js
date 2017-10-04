@@ -189,14 +189,10 @@ define(['require'], function(require) {
                 location.href = '/rest/pl/fe/matter/enroll/shop?site=' + site.id + '&scenario=' + (scenario || '');
             },
             addSignin: function(site) {
-                http2.get('/rest/pl/fe/matter/signin/create?site=' + site.id, function(rsp) {
-                    location.href = '/rest/pl/fe/matter/signin?site=' + site.id + '&id=' + rsp.data.id;
-                });
+                location.href = '/rest/pl/fe/matter/signin/plan?site=' + site.id;
             },
             addGroup: function(site) {
-                http2.get('/rest/pl/fe/matter/group/create?site=' + site.id + '&scenario=split', function(rsp) {
-                    location.href = '/rest/pl/fe/matter/group/main?site=' + site.id + '&id=' + rsp.data.id;
-                });
+                location.href = '/rest/pl/fe/matter/group/plan?site=' + site.id;
             },
             addLottery: function(site) {
                 http2.get('/rest/pl/fe/matter/lottery/create?site=' + site.id, function(rsp) {

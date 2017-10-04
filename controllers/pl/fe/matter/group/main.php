@@ -37,9 +37,9 @@ class main extends \pl\fe\matter\main_base {
 			if ($sourceApp->type === 'mschema') {
 				$oApp->sourceApp = $this->model('site\user\memberschema')->byId($sourceApp->id);
 			} else {
-				$options = array('cascaded' => 'N', 'fields' => 'siteid,id,title');
-				if ($sourceApp->type === 'wall') {
-					$options = 'siteid,id,title';
+				$options = ['cascaded' => 'N', 'fields' => 'siteid,id,title'];
+				if (in_array($sourceApp->type, ['enroll', 'signin'])) {
+					$options['fields'] .= ',assigned_nickname';
 				}
 				$oApp->sourceApp = $this->model('matter\\' . $sourceApp->type)->byId($sourceApp->id, $options);
 			}

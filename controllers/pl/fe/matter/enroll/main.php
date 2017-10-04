@@ -152,8 +152,7 @@ class main extends \pl\fe\matter\main_base {
 			return new \ResponseTimeout();
 		}
 
-		$modelApp = $this->model('matter\enroll');
-		$modelApp->setOnlyWriteDbConn(true);
+		$modelApp = $this->model('matter\enroll')->setOnlyWriteDbConn(true);
 
 		$oCustomConfig = $this->getPostJson();
 		$current = time();

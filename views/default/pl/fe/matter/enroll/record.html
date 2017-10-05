@@ -7,9 +7,9 @@
                 <combox evt-prefix='search-tag' readonly='true' existing='criteria.tags' options='app.tags'></combox>
             </div>
             <button class='btn btn-default' ng-click='filter()'><i class='glyphicon glyphicon-filter'></i> <span>筛选</span></button>
-            <div class="btn-group">
-                <button type="button" class="btn btn-default dropdown-toggle" data-toggle="dropdown">更多操作 <i class="caret"></i></button>
-                <ul class="dropdown-menu">
+            <div class="btn-group" uib-dropdown>
+                <button type="button" class="btn btn-default" uib-dropdown-toggle>更多操作 <i class="caret"></i></button>
+                <ul uib-dropdown-menu>
                     <li><a href="" ng-click="batchVerify()">选中记录通过审核<span>（{{rows.count}}）</span></a></li>
                     <li><a href="" ng-click="verifyAll()">全部记录通过审核</a></li>
                     <li class="divider"></li>

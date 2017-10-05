@@ -200,7 +200,7 @@
                 <tbody>
                     <tr ng-repeat='m in matters'>
                         <td>{{$index+1}}</td>
-                        <td ng-click="openMatter(m,'main')">{{m.matter_title||m.title}}</td>
+                        <td ng-click="openMatter(m,'preview')">{{m.matter_title||m.title}}</td>
                         <td>{{m.operator_name||m.creater_name}}</td>
                         <td>{{(m.operate_at||m.create_at)*1000|date:'yy-MM-dd HH:mm'}}</td>
                         <td>

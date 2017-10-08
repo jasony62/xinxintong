@@ -103,13 +103,13 @@ provider('srvSite', function() {
                                 }
                             }
                         };
-                        $scope.doSearch = function(page) {
+                        $scope.doSearch = function(pageAt) {
                             if (!$scope.p.matterType) return;
                             var matter = $scope.p.matterType,
                                 url = matter.url,
                                 params = {};
 
-                            page && ($scope.page.at = page);
+                            pageAt && ($scope.page.at = pageAt);
                             params.byTitle = $scope.filter.byTitle ? $scope.filter.byTitle : '';
                             url += '/' + matter.value;
                             url += '/list?site=' + _siteId + '&page=' + $scope.page.at + '&size=' + $scope.page.size + '&fields=' + fields;
@@ -123,7 +123,7 @@ provider('srvSite', function() {
                             }
                             $http.post(url, params).success(function(rsp) {
                                 $scope.matters = rsp.data.docs || rsp.data.apps || rsp.data.missions;
-                                $scope.page.total = $scope.data.total;
+                                $scope.page.total = rsp.data.total;
                             });
                         };
                         $scope.cleanFilter = function() {

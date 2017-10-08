@@ -8,12 +8,7 @@
             <div class='form-group'>
                 <label>活动类型</label>
                 <select class='form-control' ng-model="app.scenario" ng-change="update('scenario');">
-                    <option value='common'>通用登记</option>
-                    <option value='registration'>报名</option>
-                    <option value='voting'>投票</option>
-                    <option value='group_week_report'>周报</option>
-                    <option value='quiz'>测验</option>
-                    <option value='score_sheet'>记分表</option>
+                    <option value='{{scenario}}' ng-repeat="scenario in scenarioNames.index">{{scenarioNames[scenario]}}</option>
                 </select>
             </div>
             <div class='form-group'>
@@ -114,7 +109,7 @@
             </div>
         </div>
     </div>
-    <div id='main-4' class='panel panel-default' ng-controller='ctrlAccess'>
+    <div id='main-access' class='panel panel-default' ng-controller='ctrlAccess'>
         <div class='panel-body'>
             <div class='form-group'>
                 <label>设置进入条件</label>
@@ -335,7 +330,7 @@
         <li><a href="#main-1">基本信息</a></li>
         <li><a href="#main-2">时间设置</a></li>
         <li><a href="#main-3">特性设置</a></li>
-        <li><a href="#main-4">进入规则</a></li>
+        <li><a href="#main-access">进入规则</a></li>
         <li><a href="#main-5">任务设置</a></li>
     </ul>
 </div>

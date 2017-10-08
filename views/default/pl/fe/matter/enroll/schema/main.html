@@ -90,7 +90,7 @@
     </div>
     <div class="checkbox">
         <label>
-            <input type='checkbox' ng-true-value="'Y'" ng-false-value="'N'" ng-model='activeSchema.shareable' ng-change="updSchema(activeSchema)">共享内容</label>
+            <input type='checkbox' ng-true-value="'Y'" ng-false-value="'N'" ng-model='activeSchema.shareable' ng-change="updSchema(activeSchema,null,'shareable')">共享内容</label>
     </div>
     <div class="checkbox" ng-show="['image','file','single','multiple'].indexOf(activeSchema.type)!==-1">
         <label>

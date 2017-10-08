@@ -53,41 +53,8 @@ define(['frame'], function(ngApp) {
         });
     }]);
     ngApp.provider.controller('ctrlAccess', ['$scope', '$uibModal', 'http2', 'srvSite', 'srvEnrollApp', function($scope, $uibModal, http2, srvSite, srvEnrollApp) {
-        var _oApp, _oEntryRule;
-        $scope.rule = {};
-        $scope.isInputPage = function(pageName) {
-            if (!$scope.app) {
-                return false;
-            }
-            for (var i in $scope.app.pages) {
-                if ($scope.app.pages[i].name === pageName && $scope.app.pages[i].type === 'I') {
-                    return true;
-                }
-            }
-            return false;
-        };
-        $scope.reset = function() {
-            srvEnrollApp.resetEntryRule();
-        };
-        $scope.changeUserScope = function() {
-            srvEnrollApp.changeUserScope($scope.rule.scope, $scope.sns, $scope.memberSchemas, $scope.jumpPages.defaultInput);
-        };
-        $scope.chooseMschema = function() {
-            srvSite.chooseMschema($scope.app).then(function(result) {
-                var rule = {};
-                if (!_oEntryRule.member[result.chosen.id]) {
-                    if ($scope.jumpPages.defaultInput) {
-                        rule.entry = $scope.jumpPages.defaultInput.name;
-                    } else {
-                        rule.entry = '';
-                    }
-                    _oEntryRule.member[result.chosen.id] = rule;
-                    $scope.update('entry_rule');
-                }
-            });
-        };
-        $scope.chooseGroupApp = function() {
-            $uibModal.open({
+        function chooseGroupApp() {
+            return $uibModal.open({
                 templateUrl: 'chooseGroupApp.html',
                 controller: ['$scope', '$uibModalInstance', function($scope2, $mi) {
                     $scope2.app = _oApp;
@@ -109,34 +76,104 @@ define(['frame'], function(ngApp) {
                     });
                 }],
                 backdrop: 'static'
-            }).result.then(function(result) {
-                if (result.app) {
-                    _oEntryRule.group = { id: result.app.id, title: result.app.title };
-                    if (result.round) {
-                        _oEntryRule.group.round = { id: result.round.round_id, title: result.round.title };
+            }).result;
+        }
+
+        function setMschemaEntry(mschemaId) {
+            if (!_oAppRule.member[mschemaId]) {
+                _oAppRule.member[mschemaId] = {
+                    entry: $scope.jumpPages.defaultInput ? $scope.jumpPages.defaultInput.name : ''
+                };
+                return true;
+            }
+            return false;
+        }
+
+        function setGroupEntry(oResult) {
+            if (oResult.app) {
+                _oAppRule.group = { id: oResult.app.id, title: oResult.app.title };
+                if (oResult.round) {
+                    _oAppRule.group.round = { id: oResult.round.round_id, title: oResult.round.title };
+                }
+                return true;
+            }
+            return false;
+        }
+
+        var _oApp, _oAppRule, _oBeforeRule;
+        $scope.rule = {};
+        $scope.isInputPage = function(pageName) {
+            if (!$scope.app) {
+                return false;
+            }
+            for (var i in _oApp.pages) {
+                if (_oApp.pages[i].name === pageName && _oApp.pages[i].type === 'I') {
+                    return true;
+                }
+            }
+            return false;
+        };
+        $scope.reset = function() {
+            srvEnrollApp.resetEntryRule();
+        };
+        $scope.changeUserScope = function() {
+            if ($scope.rule.scope === 'member' && (!_oAppRule.member || Object.keys(_oAppRule.member).length === 0)) {
+                srvSite.chooseMschema(_oApp).then(function(result) {
+                    setMschemaEntry(result.chosen.id);
+                    srvEnrollApp.changeUserScope($scope.rule.scope, $scope.sns, $scope.jumpPages.defaultInput).then(function(rsp) {
+                        _oBeforeRule = angular.copy($scope.rule);
+                    });
+                }, function(reason) {
+                    $scope.rule.scope = _oBeforeRule.scope;
+                });
+            } else if ($scope.rule.scope === 'group' && (!_oAppRule.group || !_oAppRule.group.id)) {
+                chooseGroupApp().then(function(result) {
+                    if (setGroupEntry(result)) {
+                        srvEnrollApp.changeUserScope($scope.rule.scope, $scope.sns, $scope.jumpPages.defaultInput).then(function(rsp) {
+                            _oBeforeRule = angular.copy($scope.rule);
+                        });
                     }
+                }, function(reason) {
+                    $scope.rule.scope = _oBeforeRule.scope;
+                });
+            } else {
+                srvEnrollApp.changeUserScope($scope.rule.scope, $scope.sns, $scope.jumpPages.defaultInput).then(function(rsp) {
+                    _oBeforeRule = angular.copy($scope.rule);
+                });
+            }
+        };
+        $scope.chooseMschema = function() {
+            srvSite.chooseMschema(_oApp).then(function(result) {
+                if (setMschemaEntry(result.chosen.id)) {
+                    $scope.update('entry_rule');
+                }
+            });
+        };
+        $scope.chooseGroupApp = function() {
+            chooseGroupApp().then(function(result) {
+                if (setGroupEntry(result)) {
                     $scope.update('entry_rule');
                 }
             });
         };
         $scope.removeGroupApp = function() {
-            delete _oEntryRule.group;
+            delete _oAppRule.group;
             $scope.update('entry_rule');
         };
         $scope.editMschema = function(oMschema) {
             if (oMschema.matter_id) {
                 if (oMschema.matter_type === 'mission') {
-                    location.href = '/rest/pl/fe/matter/mission/mschema?id=' + oMschema.matter_id + '&site=' + $scope.app.siteid + '#' + oMschema.id;
+                    location.href = '/rest/pl/fe/matter/mission/mschema?id=' + oMschema.matter_id + '&site=' + _oApp.siteid + '#' + oMschema.id;
                 } else {
-                    location.href = '/rest/pl/fe/site/mschema?site=' + $scope.app.siteid + '#' + oMschema.id;
+                    location.href = '/rest/pl/fe/site/mschema?site=' + _oApp.siteid + '#' + oMschema.id;
                 }
             } else {
-                location.href = '/rest/pl/fe?view=main&scope=user&sid=' + $scope.app.siteid + '&mschema=' + oMschema.id;
+                location.href = '/rest/pl/fe?view=main&scope=user&sid=' + _oApp.siteid + '&mschema=' + oMschema.id;
             }
         };
         $scope.removeMschema = function(mschemaId) {
-            if (_oEntryRule.member[mschemaId]) {
-                delete _oEntryRule.member[mschemaId];
+            if (_oAppRule.member[mschemaId]) {
+                delete _oAppRule.member[mschemaId];
                 $scope.update('entry_rule');
             }
         };
@@ -159,16 +196,18 @@ define(['frame'], function(ngApp) {
             $scope.configExclude();
         };
         $scope.configExclude = function() {
-            $scope.app.entry_rule.exclude = $scope.rule.exclude;
-            $scope.update('entry_rule');
+            _oApp.entry_rule.exclude = $scope.rule.exclude;
+            $scope.update('entry_rule').then(function(rsp) {
+                _oBeforeRule = angular.copy($scope.rule);
+            });
         };
-        $scope.bCountLimited = false;
         srvEnrollApp.get().then(function(app) {
             $scope.jumpPages = srvEnrollApp.jumpPages();
-            $scope.rule.scope = app.entry_rule.scope || 'none';
-            $scope.rule.exclude = app.entry_rule.exclude;
-            _oEntryRule = app.entry_rule;
             _oApp = app;
+            _oAppRule = app.entry_rule;
+            $scope.rule.scope = _oAppRule.scope || 'none';
+            $scope.rule.exclude = _oAppRule.exclude;
+            _oBeforeRule = angular.copy($scope.rule);
         }, true);
     }]);
 });

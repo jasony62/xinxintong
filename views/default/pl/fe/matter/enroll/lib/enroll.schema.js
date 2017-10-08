@@ -242,7 +242,7 @@ define(['require', 'schema', 'wrap'], function(require, schemaLib, wrapLib) {
             $scope._submitChange(changedPages);
         };
         var timerOfUpdate = null;
-        $scope.updSchema = function(oSchema, oBeforeState) {
+        $scope.updSchema = function(oSchema, oBeforeState, prop) {
             if (oSchema.format === 'number') {
                 if (oSchema.weight === undefined) {
                     oSchema.weight = 1;
@@ -253,6 +253,11 @@ define(['require', 'schema', 'wrap'], function(require, schemaLib, wrapLib) {
                         // 这样会导致无法输入“点”
                         //oSchema.weight = oSchema.weight.slice(0, -1);
                     }
+                }
+            }
+            if (prop && prop === 'shareable') {
+                if (oSchema.shareable === 'Y') {
+                    oSchema.remarkable = 'Y';
                 }
             }
             $scope.app.pages.forEach(function(oPage) {
@@ -460,21 +465,22 @@ define(['require', 'schema', 'wrap'], function(require, schemaLib, wrapLib) {
                 $scope.updSchema($scope.activeSchema, oBeforeState);
             }
         };
-        $scope.$watch('activeSchema', function(oNew, oOld) {
-            var oPage, oWrap;
+        $scope.$watch('activeSchema', function() {
+            var oActiveSchema, oPage, oWrap;
 
-            editing.type = $scope.activeSchema.type;
+            oActiveSchema = $scope.activeSchema;
+            editing.type = oActiveSchema.type;
             if (editing.type === 'member') {
-                if ($scope.activeSchema.schema_id) {
+                if (oActiveSchema.schema_id) {
                     (function() {
                         var i, j, memberSchema, schema;
                         /*自定义用户*/
                         for (i = $scope.memberSchemas.length - 1; i >= 0; i--) {
                             memberSchema = $scope.memberSchemas[i];
-                            if ($scope.activeSchema.schema_id === memberSchema.id) {
+                            if (oActiveSchema.schema_id === memberSchema.id) {
                                 for (j = memberSchema._schemas.length - 1; j >= 0; j--) {
                                     schema = memberSchema._schemas[j];
-                                    if ($scope.activeSchema.id === schema.id) {
+                                    if (oActiveSchema.id === schema.id) {
                                         break;
                                     }
                                 }
@@ -494,7 +500,7 @@ define(['require', 'schema', 'wrap'], function(require, schemaLib, wrapLib) {
                 oPage = $scope.app.pages[i];
                 if (oPage.type === 'I') {
                     $scope.inputPage = oPage;
-                    if (oWrap = oPage.wrapBySchema($scope.activeSchema)) {
+                    if (oWrap = oPage.wrapBySchema(oActiveSchema)) {
                         $scope.activeConfig = oWrap.config;
                     }
                     break;

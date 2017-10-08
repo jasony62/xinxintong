@@ -324,28 +324,28 @@ define(['require', 'schema', 'page'], function(require, schemaLib, pageLib) {
                         _oApp.entry_rule = rsp.data;
                     });
                 },
-                changeUserScope: function(ruleScope, sns, memberSchemas, defaultInputPage) {
-                    var entryRule = _oApp.entry_rule;
-                    entryRule.scope = ruleScope;
+                changeUserScope: function(ruleScope, oSiteSns, oDefaultInputPage) {
+                    var oEntryRule = _oApp.entry_rule;
+                    oEntryRule.scope = ruleScope;
                     switch (ruleScope) {
                         case 'member':
-                            entryRule.member === undefined && (entryRule.member = {});
-                            entryRule.other === undefined && (entryRule.other = {});
-                            entryRule.other.entry = '$memberschema';
+                            oEntryRule.member === undefined && (oEntryRule.member = {});
+                            oEntryRule.other === undefined && (oEntryRule.other = {});
+                            oEntryRule.other.entry = '$memberschema';
                             break;
                         case 'sns':
-                            entryRule.sns === undefined && (entryRule.sns = {});
-                            entryRule.other === undefined && (entryRule.other = {});
-                            entryRule.other.entry = '$mpfollow';
-                            Object.keys(sns).forEach(function(snsName) {
-                                entryRule.sns[snsName] = {
-                                    entry: defaultInputPage ? defaultInputPage.name : ''
+                            oEntryRule.sns === undefined && (oEntryRule.sns = {});
+                            oEntryRule.other === undefined && (oEntryRule.other = {});
+                            oEntryRule.other.entry = '$mpfollow';
+                            Object.keys(oSiteSns).forEach(function(snsName) {
+                                oEntryRule.sns[snsName] = {
+                                    entry: oDefaultInputPage ? oDefaultInputPage.name : ''
                                 };
                             });
                             break;
                         default:
                     }
-                    this.update('entry_rule');
+                    return this.update('entry_rule');
                 },
                 assignMission: function() {
                     var defer = $q.defer();

@@ -58,7 +58,7 @@ define(['require', 'schema', 'wrap'], function(require, schemaLib, wrapLib) {
     /**
      * 所有题目
      */
-    ngMod.controller('ctrlSchemaList', ['$scope', '$timeout', '$sce', 'cstApp', 'srvEnrollSchema', function($scope, $timeout, $sce, cstApp, srvEnrollSchema) {
+    ngMod.controller('ctrlSchemaList', ['$scope', '$timeout', '$sce', '$uibModal', 'http2', 'cstApp', 'srvEnrollSchema', function($scope, $timeout, $sce, $uibModal, http2, cstApp, srvEnrollSchema) {
         $scope.activeSchema = null;
         $scope.cstApp = cstApp;
         $scope.newSchema = function(type) {
@@ -105,6 +105,80 @@ define(['require', 'schema', 'wrap'], function(require, schemaLib, wrapLib) {
             delete newSchema.fromApp;
             delete newSchema.requireCheck;
             $scope._appendSchema(newSchema, schema);
+        };
+        $scope.importByOther = function() {
+            var _oApp;
+            _oApp = $scope.app;
+            $uibModal.open({
+                templateUrl: '/views/default/pl/fe/matter/enroll/component/importSchemaByOther.html?_=1',
+                controller: ['$scope', '$uibModalInstance', function($scope2, $mi) {
+                    var oPage, oResult, oFilter;
+                    $scope2.page = oPage = {
+                        at: 1,
+                        size: 12,
+                        j: function() {
+                            return 'page=' + this.at + '&size=' + this.size;
+                        }
+                    };
+                    $scope2.result = oResult = {};
+                    $scope2.filter = oFilter = {};
+                    $scope2.selectApp = function() {
+                        if (angular.isString(oResult.fromApp.data_schemas) && oResult.fromApp.data_schemas) {
+                            oResult.fromApp.dataSchemas = JSON.parse(oResult.fromApp.data_schemas);
+                        }
+                        oResult.schemas = [];
+                    };
+                    $scope2.selectSchema = function(schema) {
+                        if (schema._selected) {
+                            oResult.schemas.push(schema);
+                        } else {
+                            oResult.schemas.splice(oResult.schemas.indexOf(schema), 1);
+                        }
+                    };
+                    $scope2.ok = function() {
+                        $mi.close(oResult.schemas);
+                    };
+                    $scope2.cancel = function() {
+                        $mi.dismiss();
+                    };
+                    $scope2.doFilter = function() {
+                        oPage.at = 1;
+                        $scope2.doSearch();
+                    };
+                    $scope2.doSearch = function() {
+                        var url = '/rest/pl/fe/matter/enroll/list?site=' + _oApp.siteid + '&' + oPage.j();
+                        http2.post(url, {
+                            byTitle: oFilter.byTitle
+                        }, function(rsp) {
+                            $scope2.apps = rsp.data.apps;
+                            if ($scope2.apps.length) {
+                                oResult.fromApp = $scope2.apps[0];
+                                $scope2.selectApp();
+                            }
+                            oPage.total = rsp.data.total;
+                        });
+                    };
+                    $scope2.doSearch();
+                }],
+                backdrop: 'static',
+            }).result.then(function(schemas) {
+                schemas.forEach(function(schema) {
+                    var newSchema;
+                    newSchema = schemaLib.newSchema(schema.type, _oApp);
+                    newSchema.type === 'member' && (newSchema.schema_id = schema.schema_id);
+                    newSchema.title = schema.title;
+                    if (schema.ops) {
+                        newSchema.ops = schema.ops;
+                    }
+                    if (schema.range) {
+                        newSchema.range = schema.range;
+                    }
+                    if (schema.count) {
+                        newSchema.count = schema.count;
+                    }
+                    $scope._appendSchema(newSchema);
+                });
+            });
         };
         $scope.makePagelet = function(schema, prop) {
             prop = prop || 'content';
@@ -222,7 +296,7 @@ define(['require', 'schema', 'wrap'], function(require, schemaLib, wrapLib) {
                     oUpdatedSchema.answer.push(key);
                 }
             });
-            $scope.updSchema(oUpdatedSchema, 'answer');
+            $scope.updSchema(oUpdatedSchema);
         };
         $scope.schemaHtml = function(schema) {
             if (schema) {
@@ -386,8 +460,8 @@ define(['require', 'schema', 'wrap'], function(require, schemaLib, wrapLib) {
                 $scope.updSchema($scope.activeSchema, oBeforeState);
             }
         };
-        $scope.$watch('activeSchema', function() {
-            var page, wrap;
+        $scope.$watch('activeSchema', function(oNew, oOld) {
+            var oPage, oWrap;
 
             editing.type = $scope.activeSchema.type;
             if (editing.type === 'member') {
@@ -417,11 +491,11 @@ define(['require', 'schema', 'wrap'], function(require, schemaLib, wrapLib) {
             $scope.activeConfig = false;
             $scope.inputPage = false;
             for (var i = $scope.app.pages.length - 1; i >= 0; i--) {
-                page = $scope.app.pages[i];
-                if (page.type === 'I') {
-                    $scope.inputPage = page;
-                    if (wrap = page.wrapBySchema($scope.activeSchema)) {
-                        $scope.activeConfig = wrap.config;
+                oPage = $scope.app.pages[i];
+                if (oPage.type === 'I') {
+                    $scope.inputPage = oPage;
+                    if (oWrap = oPage.wrapBySchema($scope.activeSchema)) {
+                        $scope.activeConfig = oWrap.config;
                     }
                     break;
                 }

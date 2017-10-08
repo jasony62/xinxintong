@@ -79,8 +79,9 @@ define(['frame'], function(ngApp) {
             var schema, labels = [];
             angular.forEach(target, function(v, k) {
                 if (k !== '$$hashKey' && v && v.length) {
-                    schema = $scope.app._schemasById[k];
-                    labels.push(schema.title + ':' + srvRecordConverter.value2Html(v, schema));
+                    if (schema = $scope.app._schemasById[k]) {
+                        labels.push(schema.title + ':' + srvRecordConverter.value2Html(v, schema));
+                    }
                 }
             });
             return labels.join(',');

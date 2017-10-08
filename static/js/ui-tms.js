@@ -498,7 +498,7 @@ angular.module('ui.tms', ['ngSanitize']).service('noticebox', ['$timeout', funct
                             return d;
                         })();
                         $scope.mask = mask;
-                        $scope.years = [2015, 2016, 2017];
+                        $scope.years = [2015, 2016, 2017, 2018, 2019, 2020];
                         $scope.months = [];
                         $scope.days = [];
                         $scope.hours = [];

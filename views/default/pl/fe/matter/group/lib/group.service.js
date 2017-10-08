@@ -102,7 +102,7 @@ provider('srvGroupApp', function() {
                             if (!appType) return;
                             var url;
                             if (appType === 'mschema') {
-                                srvSite.memberSchemaList().then(function(aMschemas) {
+                                srvSite.memberSchemaList(_oApp.mission, !!_oApp.mission).then(function(aMschemas) {
                                     $scope2.apps = aMschemas;
                                 });
                                 delete $scope2.data.includeEnroll;

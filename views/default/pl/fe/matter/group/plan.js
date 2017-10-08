@@ -35,7 +35,7 @@ define(['require'], function(require) {
                 proto: $scope.proto
             };
             http2.post(url, oConfig, function(rsp) {
-                location.href = '/rest/pl/fe/matter/group?site=' + siteId + '&id=' + rsp.data.id;
+                location.href = '/rest/pl/fe/matter/group/main?site=' + siteId + '&id=' + rsp.data.id;
             });
         };
     }]);

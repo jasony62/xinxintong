@@ -119,7 +119,7 @@
                         <select class="form-control" ng-model="data.app" ng-options="app.title for app in apps"></select>
                         <div class='checkbox' ng-if="app.mission">
                             <label>
-                                <input disabled type='checkbox' ng-model="data.sameMission" ng-true-value="'Y'" ng-false-value="'N'">选择同一个项目中的活动</label>
+                                <input disabled type='checkbox' ng-model="data.sameMission" ng-true-value="'Y'" ng-false-value="'N'">仅在【{{app.mission.title}}】中选择</label>
                         </div>
                     </div>
                 </div>

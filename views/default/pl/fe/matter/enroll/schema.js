@@ -56,26 +56,6 @@ define(['frame', 'schema', 'wrap'], function(ngApp, schemaLib, wrapLib) {
                 });
             });
         };
-        $scope.importByOther = function() {
-            srvEnrollApp.importSchemaByOther().then(function(schemas) {
-                schemas.forEach(function(schema) {
-                    var newSchema;
-                    newSchema = schemaLib.newSchema(schema.type, $scope.app);
-                    newSchema.type === 'member' && (newSchema.schema_id = schema.schema_id);
-                    newSchema.title = schema.title;
-                    if (schema.ops) {
-                        newSchema.ops = schema.ops;
-                    }
-                    if (schema.range) {
-                        newSchema.range = schema.range;
-                    }
-                    if (schema.count) {
-                        newSchema.count = schema.count;
-                    }
-                    $scope._appendSchema(newSchema);
-                });
-            });
-        };
         $scope.assignEnrollApp = function() {
             srvEnrollApp.assignEnrollApp();
         };

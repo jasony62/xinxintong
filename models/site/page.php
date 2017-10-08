@@ -12,7 +12,7 @@ class page_model extends \TMS_MODEL {
 		$q = [
 			$fields,
 			'xxt_site_home_channel',
-			['siteid' => $siteId]
+			['siteid' => $siteId],
 		];
 		if (!empty($options['home_group'])) {
 			$q[2]['home_group'] = $options['home_group'];
@@ -35,14 +35,14 @@ class page_model extends \TMS_MODEL {
 
 		$hc = new \stdClass;
 		$hc->creater = $user->id;
-		$hc->creater_name = $user->name;
+		$hc->creater_name = $this->escape($user->name);
 		$hc->put_at = time();
 		$hc->siteid = $site->id;
 		$hc->channel_id = $channel->id;
-		$hc->title = $channel->title;
-		$hc->display_name = $channel->title;
-		$hc->summary = $channel->summary;
-		$hc->pic = $channel->pic;
+		$hc->title = $this->escape($channel->title);
+		$hc->display_name = $this->escape($channel->title);
+		$hc->summary = isset($channel->summary) ? $this->escape($channel->summary) : '';
+		//$hc->pic = $channel->pic;
 		$hc->seq = $maxSeq + 1;
 		$hc->home_group = $this->escape($homeGroup);
 

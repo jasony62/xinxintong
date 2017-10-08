@@ -24,7 +24,7 @@ define(['frame'], function(ngApp) {
         $scope.setPic = function() {
             var options = {
                 callback: function(url) {
-                    $scope.editing.pic = url + '?_=' + (new Date()) * 1;
+                    $scope.editing.pic = url + '?_=' + (new Date * 1);
                     srvApp.update('pic');
                 }
             };

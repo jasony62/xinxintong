@@ -58,6 +58,22 @@ class memberschema_model extends \TMS_MODEL {
 		return $schemas;
 	}
 	/**
+	 * 根据模板创建缺省页面
+	 */
+	private function _pageCreate($oSite, $oUser, $template = 'basic') {
+		$templateDir = TMS_APP_TEMPLATE . '/pl/fe/site/memberschema';
+
+		$data = [
+			'html' => file_get_contents($templateDir . '/' . $template . '.html'),
+			'css' => file_get_contents($templateDir . '/' . $template . '.css'),
+			'js' => file_get_contents($templateDir . '/' . $template . '.js'),
+		];
+
+		$oCode = $this->model('code\page')->create($oSite->id, $oUser->id, $data);
+
+		return $oCode;
+	}
+	/**
 	 * 自定义用户信息
 	 */
 	public function &byId($id, $fields = '*') {
@@ -67,6 +83,56 @@ class memberschema_model extends \TMS_MODEL {
 		$oMschema = count($oMschema) === 1 ? $oMschema[0] : false;
 
 		return $oMschema;
+	}
+	/**
+	 * 填加自定义联系人接口
+	 * 自定义联系人接口只有在本地部署版本中才有效
+	 */
+	public function create($oSite, $oUser, $oConfig = null) {
+
+		$oCode = $this->_pageCreate($oSite, $oUser);
+
+		$oNewMschema = new \stdClass;
+		$oNewMschema->siteid = $oSite->id;
+		$oNewMschema->matter_id = isset($oConfig->matter_id) ? $oConfig->matter_id : '';
+		$oNewMschema->matter_type = isset($oConfig->matter_type) ? $oConfig->matter_type : '';
+		$oNewMschema->title = isset($oConfig->title) ? $this->escape($oConfig->title) : '新通讯录';
+		$oNewMschema->type = 'inner';
+		$oNewMschema->valid = (isset($oConfig->valid) && $oConfig->valid === 'Y') ? 'Y' : 'N';
+		$oNewMschema->creater = $oUser->id;
+		$oNewMschema->create_at = time();
+		$oNewMschema->entry_statement = '无法确认您是否有权限进行该操作，请先完成【<a href="{{authapi}}">用户身份确认</a>】。';
+		$oNewMschema->acl_statement = '您的身份识别信息没有放入白名单中，请与系统管理员联系。';
+		$oNewMschema->notpass_statement = '您的邮箱还没有验证通过，若未收到验证邮件请联系系统管理员。若需要重发验证邮件，请先完成【<a href="{{authapi}}">用户身份确认</a>】。';
+		$oNewMschema->url = TMS_APP_API_PREFIX . "/site/fe/user/member";
+		$oNewMschema->code_id = $oCode->id;
+		$oNewMschema->page_code_name = $oCode->name;
+		$oNewMschema->attr_mobile = '011101'; // 必填，唯一，不可更改，身份标识
+		$oNewMschema->attr_email = '001000';
+		$oNewMschema->attr_name = '000000';
+		$oNewMschema->require_invite = 'Y';
+		$oNewMschema->auto_verified = 'Y';
+		$oNewMschema->validity = 365;
+		$oNewMschema->at_user_home = 'N';
+
+		/* 默认要求已经开通的关注公众号 */
+		$modelWx = $this->model('sns\wx');
+		if (($wx = $modelWx->bySite($oSite->id, ['fields' => 'joined'])) && $wx->joined === 'Y') {
+			$oNewMschema->is_wx_fan = 'Y';
+		} else if (($wx = $modelWx->bySite('platform', ['fields' => 'joined'])) && $wx->joined === 'Y') {
+			$oNewMschema->is_wx_fan = 'Y';
+		} else {
+			$oNewMschema->is_wx_fan = 'N';
+		}
+		if (($yx = $this->model('sns\yx')->bySite($oSite->id, ['fields' => 'joined'])) && $yx->joined === 'Y') {
+			$oNewMschema->is_yx_fan = 'Y';
+		} else {
+			$oNewMschema->is_yx_fan = 'N';
+		}
+
+		$oNewMschema->id = $this->insert('xxt_site_member_schema', $oNewMschema, true);
+
+		return $oNewMschema;
 	}
 	/**
 	 * 通讯录概况

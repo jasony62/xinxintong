@@ -10,12 +10,24 @@ define(['require'], function(require) {
         srvSiteProvider.config(siteId);
     }]);
     ngApp.controller('ctrlMain', ['$scope', '$location', 'srvSite', 'mediagallery', 'http2', function($scope, $location, srvSite, mediagallery, http2) {
-        var _oProto, _oEntryRule;
+        function fnChosenMschema(result) {
+            var chosen;
+            if (result && (chosen = result.chosen)) {
+                if (_oEntryRule.scope !== 'member') {
+                    _oEntryRule.scope = 'member';
+                }
+                _oEntryRule.mschema = { id: chosen.id, title: chosen.title };
+                _oBeforeProto = angular.copy(_oProto);
+            }
+        }
+
+        var _oProto, _oEntryRule, _oBeforeProto;
         $scope.proto = _oProto = {
             entryRule: { scope: 'none' },
-            app: { group: { source: '' } },
+            app: { enroll: {}, signin: {}, group: { source: '' } },
             userApp: ''
         };
+        _oBeforeProto = angular.copy(_oProto);
         $scope.entryRule = _oEntryRule = _oProto.entryRule;
         $scope.setPic = function() {
             var options = {
@@ -35,34 +47,47 @@ define(['require'], function(require) {
                 _oProto[prop] = data.value;
             }
         });
-        $scope.chooseMschema = function() {
-            srvSite.chooseMschema().then(function(result) {
-                var chosen;
-                if (result && result.chosen) {
-                    chosen = result.chosen;
-                    !_oEntryRule.mschemas && (_oEntryRule.mschemas = []);
-                    _oEntryRule.mschemas.push({ id: chosen.id, title: chosen.title });
-                }
-            });
+        $scope.changeUserApp = function() {
+            switch (_oProto.userApp) {
+                case 'mschema':
+                    srvSite.chooseMschema({ id: '_pending', title: _oProto.title }).then(fnChosenMschema, function(reason) {
+                        _oProto.userApp = _oBeforeProto.userApp;
+                    });
+                    break;
+                case 'enroll':
+                    _oProto.app.enroll.create = 'Y';
+                    break;
+                case 'signin':
+                    _oProto.app.signin.create = 'Y';
+                    break;
+                case 'group':
+                    _oProto.app.group.create = 'Y';
+                    break;
+            }
         };
-        $scope.removeMschema = function(oMschema) {
-            _oEntryRule.mschemas.splice(_oEntryRule.mschemas.indexOf(oMschema), 1);
+        $scope.changeUserScope = function() {
+            if (_oEntryRule.scope === 'mschema') {
+                srvSite.chooseMschema({ id: '_pending', title: _oProto.title }).then(fnChosenMschema, function(reason) {
+                    _oEntryRule.scope = _oBeforeProto.entryRule.scope;
+                });
+            } else if (_oEntryRule.scope === 'sns') {
+                if ($scope.snsNames.length === 1) {
+                    if (_oEntryRule.sns === undefined) {
+                        _oEntryRule.sns = {};
+                    }
+                    _oEntryRule.sns[Object.keys($scope.sns)[0]] = 'Y';
+                    _oBeforeProto = angular.copy(_oProto);
+                }
+            }
+        };
+        $scope.chooseMschema = function() {
+            srvSite.chooseMschema({ id: '_pending', title: _oProto.title }).then(fnChosenMschema);
         };
         $scope.doCreate = function() {
             http2.post('/rest/pl/fe/matter/mission/create?site=' + $scope.site.id, _oProto, function(rsp) {
                 location.href = '/rest/pl/fe/matter/mission?site=' + $scope.site.id + '&id=' + rsp.data.id;
             });
         };
-        $scope.$watch('entryRule.scope', function(nv, ov) {
-            if (nv === 'sns') {
-                if ($scope.snsNames.length === 1) {
-                    if (_oEntryRule.sns === undefined) {
-                        _oEntryRule.sns = {};
-                    }
-                    _oEntryRule.sns[Object.keys($scope.sns)[0]] = 'Y';
-                }
-            }
-        });
         srvSite.get().then(function(oSite) {
             $scope.site = oSite;
             _oProto.pic = oSite.heading_pic;

@@ -23,7 +23,7 @@ class remind_model extends \TMS_MODEL {
 			/* 获得用户 */
 			if (empty($oMatter->user_app_id)) {
 				$receivers = $this->model('matter\mission\user')->enrolleeByMission($oMatter, ['fields' => 'distinct userid']);
-			} else {	
+			} else {
 				switch ($oMatter->user_app_type) {
 				case 'group':
 					$q = [
@@ -71,13 +71,13 @@ class remind_model extends \TMS_MODEL {
 			$noticeURL = $oMatter->entryUrl;
 
 			/*处理要发送的填写人*/
-			$modelRec = $this->model('matter\enroll\user');
+			$modelUsr = $this->model('matter\enroll\user');
 			$options = [
 				'rid' => 'ALL',
 				'fields' => 'userid',
 				'cascaded' => 'N',
 			];
-			$enrollUsers = $modelRec->enrolleeByApp($oMatter, '', '', $options);
+			$enrollUsers = $modelUsr->enrolleeByApp($oMatter, '', '', $options);
 			$receivers = $enrollUsers->users;
 			if (count($receivers) === 0) {
 				return [false, '没有填写人'];

@@ -147,8 +147,7 @@ class main extends \pl\fe\matter\base {
 
 		$current = time();
 		$modelSite = $this->model('site');
-		$modelMis = $this->model('matter\mission');
-		$modelMis->setOnlyWriteDbConn(true);
+		$modelMis = $this->model('matter\mission')->setOnlyWriteDbConn(true);
 
 		$oSite = $modelSite->byId($site, ['fields' => 'id,heading_pic']);
 
@@ -170,15 +169,28 @@ class main extends \pl\fe\matter\base {
 		$oNewMis->modifier_name = $modelSite->escape($oUser->name);
 		$oNewMis->modify_at = $current;
 		$oNewMis->state = 1;
+		$oNewMis->id = $modelMis->insert('xxt_mission', $oNewMis, true);
+		/*记录操作日志*/
+		$oNewMis->type = 'mission';
+		$this->model('matter\log')->matterOp($oSite->id, $oUser, $oNewMis, 'C');
+
 		/* entry rule */
 		if (isset($oProto->entryRule)) {
 			$oMisEntryRule = new \stdClass;
 			$oMisEntryRule->scope = isset($oProto->entryRule->scope) ? $oProto->entryRule->scope : 'none';
-			if ($oMisEntryRule->scope === 'member' && !empty($oProto->entryRule->mschemas)) {
+			if ($oMisEntryRule->scope === 'member' && !empty($oProto->entryRule->mschema)) {
 				$oMisEntryRule->member = new \stdClass;
-				foreach ($oProto->entryRule->mschemas as $oMschema) {
-					$oMisEntryRule->member->{$oMschema->id} = (object) ['entry' => ''];
+				if ($oProto->entryRule->mschema->id === '_pending') {
+					/* 给项目创建通讯录 */
+					$oMschemaConfig = new \stdClass;
+					$oMschemaConfig->matter_id = $oNewMis->id;
+					$oMschemaConfig->matter_type = 'mission';
+					$oMschemaConfig->valid = 'Y';
+					$oMschemaConfig->title = $oNewMis->title . '-通讯录';
+					$oMisMschema = $this->model('site\user\memberschema')->create($oSite, $oUser, $oMschemaConfig);
+					$oProto->entryRule->mschema->id = $oMisMschema->id;
 				}
+				$oMisEntryRule->member->{$oProto->entryRule->mschema->id} = (object) ['entry' => ''];
 			} else if ($oMisEntryRule->scope === 'sns' && isset($oProto->entryRule->sns)) {
 				$oMisEntryRule->sns = new \stdClass;
 				foreach ($oProto->entryRule->sns as $snsName => $valid) {
@@ -187,13 +199,10 @@ class main extends \pl\fe\matter\base {
 					}
 				}
 			}
-			$oNewMis->entry_rule = json_encode($oMisEntryRule);
+			$modelMis->update('xxt_mission', ['entry_rule' => json_encode($oMisEntryRule)], ['id' => $oNewMis->id]);
+			$oNewMis->entry_rule = $oMisEntryRule;
 		}
 
-		$oNewMis->id = $modelMis->insert('xxt_mission', $oNewMis, true);
-		/*记录操作日志*/
-		$oNewMis->type = 'mission';
-		$this->model('matter\log')->matterOp($oSite->id, $oUser, $oNewMis, 'C');
 		/**
 		 * 建立缺省的ACL
 		 * @todo 是否应该挪到消息队列中实现
@@ -207,7 +216,6 @@ class main extends \pl\fe\matter\base {
 		/*站点的系统管理员加入ACL*/
 		$modelAcl->addSiteAdmin($oSite->id, $oUser, null, $oNewMis);
 
-		isset($oMisEntryRule) && $oNewMis->entry_rule = $oMisEntryRule;
 		/* create apps */
 		if (isset($oProto->app)) {
 			$oAppProto = $oProto->app;
@@ -246,7 +254,8 @@ class main extends \pl\fe\matter\base {
 						$oGrpConfig->proto->sourceApp = (object) ['id' => $oNewEnlApp->id, 'type' => 'enroll'];
 					} else if ($oAppProto->group->source === 'signin' && isset($oNewSigApp)) {
 						$oGrpConfig->proto->sourceApp = (object) ['id' => $oNewSigApp->id, 'type' => 'signin'];
-
+					} else if ($oAppProto->group->source === 'mschema' && isset($oMisEntryRule->member)) {
+						$oGrpConfig->proto->sourceApp = (object) ['id' => $oProto->entryRule->mschema->id, 'type' => 'mschema'];
 					}
 				}
 				$oNewGrpApp = $modelGrp->createByMission($oUser, $oSite, $oNewMis, 'split', $oGrpConfig);
@@ -254,8 +263,8 @@ class main extends \pl\fe\matter\base {
 			/* 项目的用户名单应用 */
 			if (isset($oProto->userApp)) {
 				$oUserApp = $oProto->userApp;
-				if ($oUserApp === 'mschema' && isset($oMisEntryRule) && $oMisEntryRule->scope === 'member' && !empty($oProto->entryRule->mschemas)) {
-					$oMschema = $oProto->entryRule->mschemas[0];
+				if ($oUserApp === 'mschema' && isset($oMisEntryRule) && $oMisEntryRule->scope === 'member' && isset($oProto->entryRule->mschema)) {
+					$oMschema = $oProto->entryRule->mschema;
 					$modelMis->update('xxt_mission', ['user_app_id' => $oMschema->id, 'user_app_type' => 'mschema'], ['id' => $oNewMis->id]);
 				} else if ($oUserApp === 'enroll' && isset($oNewEnlApp)) {
 					$modelMis->update('xxt_mission', ['user_app_id' => $oNewEnlApp->id, 'user_app_type' => 'enroll'], ['id' => $oNewMis->id]);

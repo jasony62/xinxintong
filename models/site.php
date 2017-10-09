@@ -20,7 +20,7 @@ class site_model extends \TMS_MODEL {
 	/**
 	 * 获得指定团队的信息
 	 */
-	public function &byId($siteId, $options = array()) {
+	public function &byId($siteId, $options = []) {
 		$fields = empty($options['fields']) ? '*' : $options['fields'];
 		$cascaded = isset($options['cascaded']) ? $options['cascaded'] : '';
 		$q = [

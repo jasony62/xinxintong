@@ -41,7 +41,7 @@
                 <div class='row'>
                     <div class='col-md-6 col-md-offset-3'>
                         <!--basic-->
-                        <div class='panel panel-default'>
+                        <div id='basic' class='panel panel-default'>
                             <div class='panel-body'>
                                 <div class='form-group'>
                                     <label>名称：最多35个汉字，70个英文字符</label>
@@ -86,19 +86,98 @@
                             </div>
                         </div>
                         <!--basic-->
-                        <!--activity-->
-                        <div class='panel panel-default'>
+                        <!--user-->
+                        <div id='userapp' class='panel panel-default'>
                             <div class='panel-body'>
                                 <div class='form-group'>
-                                    <label>生成项目活动</label>
+                                    <label>用户名单</label>
+                                    <p class='help-block'>指定后，可集中查看一个用户在项目的多个活动中的数据</p>
+                                </div>
+                                <div class='row'>
+                                    <div class='col-md-12'>
+                                        <div class='radio'>
+                                            <label>
+                                                <input type='radio' value='mschema' ng-model="proto.userApp" ng-change="changeUserApp()"> 通讯录<span ng-if="proto.userApp==='mschema'&&entryRule.mschema">【{{entryRule.mschema.title}}】</span>用户 <span class='glyphicon glyphicon-question-sign' uib-tooltip='通讯录支持自定义用户信息并提供审核机制，可以在不同活动中重复使用'></span> <a ng-if="proto.userApp==='mschema'&&entryRule.mschema" href='' ng-click="chooseMschema()">修改</a></label>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class='row'>
+                                    <div class='col-md-4'>
+                                        <div class='radio'>
+                                            <label>
+                                                <input type='radio' value='enroll' ng-model="proto.userApp" ng-change="changeUserApp()"> 报名活动用户 <span class='glyphicon glyphicon-question-sign' uib-tooltip='系统将自动创建【报名活动】'></span></label>
+                                        </div>
+                                    </div>
+                                    <div class='col-md-8' ng-if="proto.userApp==='enroll'">
+                                        <div class='radio'>
+                                            <label>
+                                                <input type='radio' value='member' ng-model="entryRule.scope" ng-change="changeUserScope()"> 限通讯录<span ng-if="entryRule.mschema">【{{entryRule.mschema.title}}】</span>联系人访问 <a ng-if="entryRule.mschema" href='' ng-click="chooseMschema()">修改</a></label>
+                                        </div>
+                                        <div class='radio'>
+                                            <label>
+                                                <input type='radio' value='sns' ng-model="entryRule.scope" ng-change="changeUserScope()"> 限公众号【{{sns[snsNames[0]].title}}】关注用户访问</label>
+                                        </div>
+                                        <div class='radio'>
+                                            <label>
+                                                <input type='radio' value='none' ng-model="entryRule.scope"> 不限制访问用户来源</label>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class='row'>
+                                    <div class='col-md-4'>
+                                        <div class='radio'>
+                                            <label>
+                                                <input type='radio' value='signin' ng-model="proto.userApp" ng-change="changeUserApp()"> 签到活动用户 <span class='glyphicon glyphicon-question-sign' uib-tooltip='系统将自动创建【签到活动】'></span></label>
+                                        </div>
+                                    </div>
+                                    <div class='col-md-8' ng-if="proto.userApp==='signin'">
+                                        <div class='radio'>
+                                            <label>
+                                                <input type='radio' value='member' ng-model="entryRule.scope" ng-change="changeUserScope()"> 限通讯录<span ng-if="entryRule.mschema">【{{entryRule.mschema.title}}】</span>联系人访问 <a ng-if="entryRule.mschema" href='' ng-click="chooseMschema()">修改</a></label>
+                                        </div>
+                                        <div class='radio'>
+                                            <label>
+                                                <input type='radio' value='sns' ng-model="entryRule.scope" ng-change="changeUserScope()"> 限公众号【{{sns[snsNames[0]].title}}】关注用户访问</label>
+                                        </div>
+                                        <div class='radio'>
+                                            <label>
+                                                <input type='radio' value='none' ng-model="entryRule.scope"> 不限制访问用户来源</label>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class='row'>
+                                    <div class='col-md-12'>
+                                        <div class='radio'>
+                                            <label>
+                                                <input type='radio' value='group' ng-model="proto.userApp" ng-change="changeUserApp()"> 分组活动用户 <span class='glyphicon glyphicon-question-sign' uib-tooltip='系统将自动创建【分组活动】'></span></label>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class='row'>
+                                    <div class='col-md-12'>
+                                        <div class='radio'>
+                                            <label>
+                                                <input type='radio' value='' ng-model="proto.userApp" ng-change="changeUserApp()"> 不指定</label>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <!--user-->
+                        <!--activity-->
+                        <div id='activity' class='panel panel-default'>
+                            <div class='panel-body'>
+                                <div class='form-group'>
+                                    <label>项目活动</label>
+                                    <p class='help-block'>创建项目后，还可创建更多活动</p>
                                 </div>
                                 <div>
                                     <label class='checkbox-inline'>
-                                        <input type='checkbox' ng-true-value="'Y'" ng-false-value="'N'" ng-model="proto.app.enroll.create"> 生成【报名活动】</label>
+                                        <input type='checkbox' ng-true-value="'Y'" ng-false-value="'N'" ng-model="proto.app.enroll.create" ng-disabled="proto.userApp==='enroll'"> 生成【报名活动】</label>
                                     <label class='checkbox-inline'>
-                                        <input type='checkbox' ng-true-value="'Y'" ng-false-value="'N'" ng-model="proto.app.signin.create"> 生成【签到活动】</label>
+                                        <input type='checkbox' ng-true-value="'Y'" ng-false-value="'N'" ng-model="proto.app.signin.create" ng-disabled="proto.userApp==='signin'"> 生成【签到活动】</label>
                                     <label class='checkbox-inline'>
-                                        <input type='checkbox' ng-true-value="'Y'" ng-false-value="'N'" ng-model="proto.app.group.create"> 生成【分组活动】</label>
+                                        <input type='checkbox' ng-true-value="'Y'" ng-false-value="'N'" ng-model="proto.app.group.create" ng-disabled="proto.userApp==='group'"> 生成【分组活动】</label>
                                 </div>
                                 <hr>
                                 <div class='checkbox'>
@@ -107,141 +186,37 @@
                                 </div>
                                 <hr>
                                 <div>
+                                    <p class='form-control-static'>用【分组活动】</p>
                                     <div class='radio'>
                                         <label>
-                                            <input type='radio' value='' ng-model="proto.app.group.source"> 不指定用【分组活动】进行用户分组的活动</label>
+                                            <input type='radio' value='mschema' ng-model="proto.app.group.source" ng-disabled="!entryRule.mschema"> 对通讯录<span ng-if="entryRule.mschema">【{{entryRule.mschema.title}}】</span>的用户进行分组</label>
                                     </div>
                                     <div class='radio'>
                                         <label>
-                                            <input type='radio' value='enroll' ng-model="proto.app.group.source" ng-disabled="proto.app.enroll.create!=='Y'"> 用【分组活动】对【报名活动】中的用户进行分组</label>
+                                            <input type='radio' value='enroll' ng-model="proto.app.group.source" ng-disabled="proto.app.enroll.create!=='Y'"> 对报名活动的用户进行分组</label>
                                     </div>
                                     <div class='radio'>
                                         <label>
-                                            <input type='radio' value='signin' ng-model="proto.app.group.source" ng-disabled="proto.app.signin.create!=='Y'"> 用【分组活动】对【签到活动】中的用户进行分组</label>
+                                            <input type='radio' value='signin' ng-model="proto.app.group.source" ng-disabled="proto.app.signin.create!=='Y'"> 对签到活动的用户进行分组</label>
+                                    </div>
+                                    <div class='radio'>
+                                        <label>
+                                            <input type='radio' value='' ng-model="proto.app.group.source"> 不指定</label>
                                     </div>
                                 </div>
-                                <div class='help-block'>创建项目后，还可创建更多活动</div>
                             </div>
                         </div>
                         <!--activity-->
-                        <div class='panel panel-default hide'>
-                            <div class='panel-body'>
-                                <div class='form-group'>
-                                    <table class='table table-bordered'>
-                                        <tr>
-                                            <td>给项目中的所有活动和资料添加页眉</td>
-                                            <td>
-                                                <div class="btn-group">
-                                                    <button type="button" class="btn btn-sm btn-default" ng-click="makePagelet('header')">制作</button>
-                                                    <button type="button" class="btn btn-sm btn-default dropdown-toggle" data-toggle="dropdown">
-                                                        <span class="caret"></span>
-                                                        <span class="sr-only">Toggle Dropdown</span>
-                                                    </button>
-                                                    <ul class="dropdown-menu" role="menu">
-                                                        <li><a href='' ng-click="codePage($event,'header')">编码</a></li>
-                                                    </ul>
-                                                </div>
-                                            </td>
-                                        </tr>
-                                        <tr>
-                                            <td>给项目中的所有活动和资料添加页脚</td>
-                                            <td>
-                                                <div class="btn-group">
-                                                    <button type="button" class="btn btn-sm btn-default" ng-click="makePagelet('footer')">制作</button>
-                                                    <button type="button" class="btn btn-sm btn-default dropdown-toggle" data-toggle="dropdown">
-                                                        <span class="caret"></span>
-                                                        <span class="sr-only">Toggle Dropdown</span>
-                                                    </button>
-                                                    <ul class="dropdown-menu" role="menu">
-                                                        <li><a href='' ng-click="codePage($event,'footer')">编码</a></li>
-                                                    </ul>
-                                                </div>
-                                            </td>
-                                        </tr>
-                                    </table>
-                                </div>
-                            </div>
-                        </div>
-                        <!--user-->
-                        <div class='panel panel-default'>
-                            <div class='panel-body'>
-                                <div class='form-group'>
-                                    <label>指定项目参与用户</label>
-                                    <div class='radio'>
-                                        <label>
-                                            <input type='radio' value='none' ng-model="entryRule.scope">不限用户来源</label>
-                                    </div>
-                                    <div class='radio'>
-                                        <label>
-                                            <input type='radio' value='sns' ng-model="entryRule.scope">限公众号<span ng-if="snsNames.length===1">【{{sns[snsNames[0]].title}}】</span>关注用户访问</label>
-                                    </div>
-                                    <div class='radio'>
-                                        <label>
-                                            <input type='radio' value='member' ng-model="entryRule.scope">限通讯录联系人访问 <span class='glyphicon glyphicon-question-sign' uib-tooltip='通讯录支持自定义用户信息并提供审核机制，并且可以在不同活动中重复使用'></span></label>
-                                    </div>
-                                </div>
-                                <div class='list-group' ng-if="entryRule.scope==='member'">
-                                    <div class='list-group-item' ng-repeat="mschema in entryRule.mschemas">
-                                        <span>{{mschema.title}}</span>
-                                        <button class='btn btn-default btn-xs pull-right' ng-click="removeMschema(mschema)"><span class='glyphicon glyphicon-remove'></span></button>
-                                    </div>
-                                    <button class='btn btn-success btn-block' ng-click="chooseMschema()"><span class='glyphicon glyphicon-plus'></span> 选择通讯录</button>
-                                </div>
-                                <div ng-if="entryRule.scope==='sns'&&snsNames.length>1">
-                                    <div class='checkbox' ng-if="sns.wx">
-                                        <label>
-                                            <input type='checkbox' ng-true-value="'Y'" ng-false-value="" ng-model='entryRule.sns.wx'>微信公众号【{{sns.wx.title}}】关注用户</label>
-                                    </div>
-                                    <div class='checkbox' ng-if="sns.yx">
-                                        <label>
-                                            <input type='checkbox' ng-true-value="'Y'" ng-false-value="" ng-model='entryRule.sns.yx'>易信公众号【{{sns.yx.title}}】关注用户</label>
-                                    </div>
-                                    <div class='checkbox' ng-if="sns.qy">
-                                        <label>
-                                            <input type='checkbox' ng-true-value="'Y'" ng-false-value="" ng-model='entryRule.sns.qy'>微信企业号【{{sns.qy.title}}】关注用户</label>
-                                    </div>
-                                </div>
-                                <hr>
-                                <p class='help-block'>指定项目用户名单，可集中查看一个用户在多个活动中的数据</p>
-                                <div class='radio'>
-                                    <label>
-                                        <input type='radio' value='' ng-model="proto.userApp"> 不指定项目用户名单</label>
-                                </div>
-                                <div class='radio'>
-                                    <label>
-                                        <input type='radio' value='mschema' ng-model="proto.userApp" ng-disabled="!entryRule.mschemas.length"> 将指定的【通讯录】作为项目用户名单</label>
-                                </div>
-                                <div class='radio'>
-                                    <label>
-                                        <input type='radio' value='enroll' ng-model="proto.userApp" ng-disabled="proto.app.enroll.create!=='Y'"> 将生成的【报名活动】作为项目用户名单</label>
-                                </div>
-                                <div class='radio'>
-                                    <label>
-                                        <input type='radio' value='signin' ng-model="proto.userApp" ng-disabled="proto.app.signin.create!=='Y'"> 将生成的【签到活动】作为项目用户名单</label>
-                                </div>
-                                <div class='radio'>
-                                    <label>
-                                        <input type='radio' value='group' ng-model="proto.userApp" ng-disabled="proto.app.group.create!=='Y'"> 将生成的【分组活动】作为项目用户名单</label>
-                                </div>
-                            </div>
-                        </div>
-                        <!--user-->
-                        <!--receiver-->
-                        <div class='hide'>
-                            <p>作为通知事件接收人</p>
-                            <p>若项目周期长，活动多，可以设置项目阶段，项目通知中只包含当前阶段包含的内容</p>
-                        </div>
                         <hr>
                         <div class='form-group'>
                             <button class="btn btn-success btn-block" ng-click="doCreate()"><span class='glyphicon glyphicon-plus'></span> 确定创建项目</button>
                         </div>
                     </div>
-                    <!--receiver-->
                 </div>
             </div>
         </div>
     </div>
-    </div>
+    <script src="/static/js/xxt.ui.error.js"></script>
     <script src="/static/js/jquery.min.js"></script>
     <script src="/static/js/angular.min.js"></script>
     <script src="/static/js/angular-route.min.js"></script>

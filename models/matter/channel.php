@@ -144,7 +144,7 @@ class channel_model extends article_base {
 		/**
 		 * top matter
 		 */
-		if (!empty($channel->top_type)) {
+		if (!empty($channel->top_type) && isset($matterTypes[$channel->top_type])) {
 			$qt[] = $this->matterColumns($channel->top_type, '');
 			$qt[] = $matterTypes[$channel->top_type];
 			$qt[] = "id='$channel->top_id'";
@@ -154,7 +154,7 @@ class channel_model extends article_base {
 		/**
 		 * bottom matter
 		 */
-		if (!empty($channel->bottom_type)) {
+		if (!empty($channel->bottom_type) && isset($matterTypes[$channel->top_type])) {
 			$qb[] = $this->matterColumns($channel->bottom_type, '');
 			$qb[] = $matterTypes[$channel->bottom_type];
 			$qb[] = "id='$channel->bottom_id'";

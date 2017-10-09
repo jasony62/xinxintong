@@ -1,25 +1,23 @@
 <div id="viewReport">
     <div class='col-md-12'>
-        <nav class='navbar navbar-default'>
-            <div class='container-fluid'>
-                <form class='navbar-form navbar-left'>
-                    <div class='form-group'>
-                        <label>用户名单</label>
-                        <div class="input-group">
-                            <input class='form-control' title="{{mission.userApp.title}}" value="{{mission.userApp.title}}" readonly="">
-                            <span class="input-group-btn">
+        <nav class='form-group'>
+            <div class='form-inline'>
+                <div class='form-group'>
+                    <label>用户名单</label>
+                    <div class="input-group">
+                        <input class='form-control' title="{{mission.userApp.title}}" value="{{mission.userApp.title}}" readonly="">
+                        <span class="input-group-btn">
                                 <button class="btn btn-default" ng-click="cancelUserApp()" ng-if="mission.userApp">
                                     <span class='glyphicon glyphicon-remove'></span>
-                            </button>
-                            <button class='btn btn-success' ng-click="assignUserApp()" ng-if="!mission.userApp">指定</button>
-                            </span>
-                        </div>
+                        </button>
+                        <button class='btn btn-success' ng-click="assignUserApp()" ng-if="!mission.userApp">指定</button>
+                        </span>
                     </div>
-                </form>
-                <form class='navbar-form navbar-left'>
+                </div>
+                <div class='form-group'>
                     <button class='btn btn-default' ng-click="chooseApps()">选择活动</button>
                     <button class='btn btn-default' ng-click="exportReport()">导出报告</button>
-                </form>
+                </div>
             </div>
         </nav>
     </div>

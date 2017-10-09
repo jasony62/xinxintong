@@ -247,9 +247,14 @@ class main extends \pl\fe\matter\main_base {
 			$oArticle->mission_id = $oMission->id;
 		}
 
+		$q = ['count(*)', 'xxt_article', ['siteid' => $site, 'state' => 1]];
+		$countOfArt = (int) $modelArt->query_val_ss($q);
+
 		/* 前端指定的信息 */
-		$oArticle->title = empty($oCustomConfig->proto->title) ? '新图文' : $modelArt->escape($oCustomConfig->proto->title);
-		$oArticle->summary = empty($oCustomConfig->proto->summary) ? '新图文' : $modelArt->escape($oCustomConfig->proto->summary);
+		$oArticle->title = empty($oCustomConfig->proto->title) ? ('新图文-' . ++$countOfArt) : $modelArt->escape($oCustomConfig->proto->title);
+		if (!empty($oCustomConfig->proto->summary)) {
+			$oArticle->summary = $modelArt->escape($oCustomConfig->proto->summary);
+		}
 		$oArticle->hide_pic = 'N';
 		$oArticle->url = '';
 		$oArticle->body = '';

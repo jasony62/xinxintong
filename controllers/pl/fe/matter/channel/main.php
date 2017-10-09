@@ -98,13 +98,15 @@ class main extends \pl\fe\matter\main_base {
 			return new \ResponseTimeout();
 		}
 
-		$modelCh = $this->model('matter\channel');
-		$modelCh->setOnlyWriteDbConn(true);
+		$modelCh = $this->model('matter\channel')->setOnlyWriteDbConn(true);
 		$oPosted = $this->getPostJson();
+
+		$q = ['count(*)', 'xxt_channel', ['siteid' => $site, 'state' => 1]];
+		$countOfChn = (int) $modelCh->query_val_ss($q);
 
 		$oChannel = new \stdClass;
 		$oChannel->siteid = $site;
-		$oChannel->title = isset($oPosted->title) ? $modelCh->escape($oPosted->title) : '新频道';
+		$oChannel->title = isset($oPosted->title) ? $modelCh->escape($oPosted->title) : ('新频道-' . ++$countOfChn);
 		$oChannel->matter_type = '';
 
 		$oChannel = $modelCh->create($oUser, $oChannel);

@@ -2,7 +2,7 @@
     <div id='status1' class='panel panel-default'>
         <div class='panel-body'>
             <a href='' ng-click="switchTo('schema')" class='pull-right'>修改</a>
-            <label>1、填写题目</label>
+            <label>填写题目</label>
             <ul class='status-group'>
                 <li class='status'>共有<span ng-bind="app.dataSchemas.length"></span>道题目，必填题<span ng-bind="status.schema.required"></span>道</li>
                 <li class='status' ng-if="!app.enroll_app_id">未指定关联的登记数据 <span class='glyphicon glyphicon-question-sign' uib-tooltip='指定关联登记活动和关联题目后，关联题目填写的内容必须在关联的登记活动中有对应记录'></span></li>
@@ -17,7 +17,7 @@
     <div id='status2' class='panel panel-default'>
         <div class='panel-body'>
             <a href='' ng-click="switchTo('page')" class='pull-right'>修改</a>
-            <label>2、用户页面</label>
+            <label>用户页面</label>
             <ul class='status-group'>
                 <li class='status'>填写完成后进入【<span ng-bind="status.page.submitAfter.title"></span>】</li>
                 <li class='status'>填写过再次进入活动，打开【<span ng-bind='status.page.whenEnrolled.title'></span>】</li>
@@ -31,7 +31,7 @@
     <div id='status3' class='panel panel-default'>
         <div class='panel-body'>
             <a href='' ng-click="switchTo('main','main-access')" class='pull-right'>设置</a>
-            <label>3、填写人</label>
+            <label>填写人</label>
             <ul class='status-group'>
                 <li class='status'>不限制填写的人和填写的终端 <span class='glyphicon' ng-class="app.entry_rule.scope==='none'?'glyphicon-ok':'glyphicon-ban-circle'"></span>，<span>每个终端作为1个填写人，系统自动给填写人生成昵称</span></li>
                 <li class='status' ng-if="status.user.member.length===0">指定通信录中的联系人可以填写 <span class="glyphicon glyphicon-ban-circle"></span></li>
@@ -46,7 +46,7 @@
     <div id='status4' class='panel panel-default'>
         <div class='panel-body'>
             <a href='' ng-click="switchTo('main','main-2')" class='pull-right'>设置</a>
-            <label>4、填写时间</label>
+            <label>填写时间</label>
             <ul class='status-group'>
                 <li class='status'><span ng-if="app.start_at>0">活动开始时间：<span ng-bind="app.start_at*1000|date:'MM-dd HH:mm'"></span></span><span ng-if="app.start_at==0">未指定活动开始时间</span>，<span ng-if="app.end_at>0">活动结束时间：<span ng-bind="app.end_at*1000|date:'MM-dd HH:mm'"></span></span><span ng-if="app.end_at==0">未指定活动结束时间</span></li>
                 <li class='status'><span ng-if="app.end_submit_at>0">提交结束时间：<span ng-bind="app.end_submit_at*1000|date:'MM-dd HH:mm'"></span></span><span ng-if="app.end_submit_at==0">未指定提交结束时间</span></li>
@@ -65,7 +65,7 @@
     <div id='status5' class='panel panel-default'>
         <div class='panel-body'>
             <a href='' ng-click="switchTo('entry')" class='pull-right'>设置</a>
-            <label>5、访问链接</label>
+            <label>访问链接</label>
             <ul class='status-group'>
                 <li class='status'>
                     <div>用户填写链接</div>
@@ -84,7 +84,7 @@
     </div>
     <div id='status6' class='panel panel-default'>
         <div class='panel-body'>
-            <label>6、填写记录</label>
+            <label>填写记录</label>
             <ul class='status-group'>
                 <li class='status' ng-if="app.multi_rounds==='Y'">轮次：{{opData.title}}</li>
                 <li class='status'>已有<a href='' ng-click="switchTo('enrollee')"><span ng-bind="opData.enrollee_num"></span></a>人参与</li>

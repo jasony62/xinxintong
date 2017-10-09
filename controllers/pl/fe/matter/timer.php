@@ -64,12 +64,14 @@ class timer extends \pl\fe\base {
 			isset($oConfig->timer->mday) && $oTimer->mday = $oConfig->timer->mday;
 			isset($oConfig->timer->mon) && $oTimer->mon = $oConfig->timer->mon;
 			isset($oConfig->timer->wday) && $oTimer->wday = $oConfig->timer->wday;
+			$oTimer->wday = isset($oConfig->timer->wday) ? $oConfig->timer->wday : 'Y';
 			isset($oConfig->timer->lelf_count) && $oTimer->left_count = $oConfig->timer->left_count;
 		} else {
 			$oTimer->pattern = 'W';
 			$oTimer->mday = $oTimer->mon = $oTimer->wday = -1;
 			$oTimer->min = 0;
 			$oTimer->hour = 8;
+			$oTimer->notweekend = 'Y';
 			$oTimer->left_count = 1;
 		}
 

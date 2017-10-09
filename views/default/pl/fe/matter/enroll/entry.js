@@ -235,7 +235,7 @@ define(['frame'], function(ngApp) {
                     oOneTask.state = 'Y';
                     oOneTask.taskId = rsp.data.id;
                     oOneTask.task = {};
-                    ['pattern', 'min', 'hour', 'wday', 'mday', 'mon', 'left_count', 'enabled'].forEach(function(prop) {
+                    ['pattern', 'min', 'hour', 'wday', 'mday', 'mon', 'left_count', 'enabled', 'notweekend'].forEach(function(prop) {
                         oOneTask.task[prop] = '' + rsp.data[prop];
                     });
                     $scope.$watch('timerTask.' + model, function(oUpdTask, oOldTask) {
@@ -273,7 +273,7 @@ define(['frame'], function(ngApp) {
                     oTimerTask[oTask.task_model].state = 'Y';
                     oTimerTask[oTask.task_model].taskId = oTask.id;
                     oTimerTask[oTask.task_model].task = {};
-                    ['pattern', 'min', 'hour', 'wday', 'mday', 'mon', 'left_count', 'enabled'].forEach(function(prop) {
+                    ['pattern', 'min', 'hour', 'wday', 'mday', 'mon', 'left_count', 'enabled', 'notweekend'].forEach(function(prop) {
                         oTimerTask[oTask.task_model].task[prop] = oTask[prop];
                     });
                     $scope.$watch('timerTask.' + oTask.task_model, function(oUpdTask, oOldTask) {

@@ -1,8 +1,9 @@
 <?php
 require_once '../../db.php';
 
-$sqls = [];
-$sqls[] = "alter table xxt_enroll add template_id int not null default 0";
+$sqls = array();
+//
+$sqls[] = "ALTER TABLE xxt_timer_task add notweekend char(1) not null default 'Y' after wday";
 //
 foreach ($sqls as $sql) {
 	if (!$mysqli->query($sql)) {

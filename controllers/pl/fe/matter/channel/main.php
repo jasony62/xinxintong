@@ -22,13 +22,14 @@ class main extends \pl\fe\matter\main_base {
 		}
 
 		$modelChn = $this->model('matter\channel');
-		if ($channel = $modelChn->byId($id)) {
-			!empty($channel->matter_mg_tag) && $channel->matter_mg_tag = json_decode($channel->matter_mg_tag);
-			$channel->matters = $modelChn->getMatters($id, $channel, $site);
-			$channel->acl = $this->model('acl')->byMatter($site, 'channel', $id);
+		if ($oChannel = $modelChn->byId($id)) {
+			$oChannel->entryUrl = $modelChn->getEntryUrl($site, $id);
+			!empty($oChannel->matter_mg_tag) && $oChannel->matter_mg_tag = json_decode($oChannel->matter_mg_tag);
+			$oChannel->matters = $modelChn->getMatters($id, $oChannel, $site);
+			$oChannel->acl = $this->model('acl')->byMatter($site, 'channel', $id);
 		}
 
-		return new \ResponseData($channel);
+		return new \ResponseData($oChannel);
 	}
 	/**
 	 *

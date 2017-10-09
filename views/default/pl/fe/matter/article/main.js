@@ -16,7 +16,7 @@ define(['frame'], function(ngApp) {
                     if ($scope.editing.mission) {
                         location = "/rest/pl/fe/matter/mission?site=" + $scope.editing.siteid + "&id=" + $scope.editing.mission.id;
                     } else {
-                        location = '/rest/pl/fe/site/console?site=' + $scope.editing.siteid;
+                        location = '/rest/pl/fe';
                     }
                 });
             }

@@ -1,8 +1,7 @@
 /*phase*/
 .phases{phase}
-.phases .phase{counter-increment:phase;position:relative;}
-.phase:after{content:counter(phase);background:#eee;position:absolute;top:-9px;left:9px;width:18px;height:18px;line-height:18px;text-align:center;}
-.phases .phase .action{position:absolute;top:-9px;right:9px;}
+.phases .phase{counter-increment:phase;}
+.phase:after{content:counter(phase);background:#ddd;position:absolute;top:-9px;left:-9px;width:18px;height:18px;line-height:18px;text-align:center;}
 
 /*matter*/
 .tag{background:#337ab7;padding:3px 6px;margin:4px;border-radius:4px;color:#fff;}

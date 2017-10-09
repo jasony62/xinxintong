@@ -34,7 +34,9 @@
         </tbody>
     </table>
     <div class='form-group' ng-show="pageOfRound.total>pageOfRound.size">
-        <span style='line-height:34px'>总数：{{pageOfRound.total}}</span>
-        <ul uib-pagination style="margin:0;vertical-align:bottom;cursor:pointer" boundary-links="true" total-items="pageOfRound.total" max-size="7" items-per-page="pageOfRound.size" rotate="false" ng-model="pageOfRound.at" previous-text="&lsaquo;" next-text="&rsaquo;" first-text="&laquo;" last-text="&raquo;" ng-change="doSearchRound()"></ul>
+        <div class='pl-pagination'>
+            <span>总数：{{pageOfRound.total}}</span>
+            <ul uib-pagination boundary-links="true" total-items="pageOfRound.total" max-size="7" items-per-page="pageOfRound.size" rotate="false" ng-model="pageOfRound.at" previous-text="&lsaquo;" next-text="&rsaquo;" first-text="&laquo;" last-text="&raquo;" ng-change="doSearchRound()"></ul>
+        </div>
     </div>
 </div>

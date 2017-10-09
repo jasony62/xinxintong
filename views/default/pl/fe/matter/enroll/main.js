@@ -80,6 +80,9 @@ define(['frame'], function(ngApp) {
         }
 
         function setMschemaEntry(mschemaId) {
+            if (!_oAppRule.member) {
+                _oAppRule.member = {};
+            }
             if (!_oAppRule.member[mschemaId]) {
                 _oAppRule.member[mschemaId] = {
                     entry: $scope.jumpPages.defaultInput ? $scope.jumpPages.defaultInput.name : ''

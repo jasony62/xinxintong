@@ -37,6 +37,9 @@ class matter extends \pl\fe\matter\base {
 		if (!empty($oCriteria->byTitle)) {
 			$aOptions['byTitle'] = $oCriteria->byTitle;
 		}
+		if (!empty($oCriteria->byTime)) {
+			$aOptions['byTime'] = $oCriteria->byTime;
+		}
 
 		if (!empty($matterType)) {
 			if ($matterType === 'doc') {

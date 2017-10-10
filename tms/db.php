@@ -365,6 +365,20 @@ class TMS_DB {
 									$clause = " exists(" . $v->pat . ")";
 									$clauses[] = $clause;
 									break;
+								case 'between':
+								case 'not between':
+									if (is_array($v->pat) && count($v->pat) === 2) {
+										$clause = $k . ' ' . $v->op . ' ' . $v->pat[0] . ' and ' . $v->pat[1];
+										$clauses[] = $clause;
+									}
+									break;
+								case '>':
+								case '>=':
+								case '<':
+								case '<=':
+									$clause = $k . $v->op . $v->pat;
+									$clauses[] = $clause;
+									break;
 								}
 							}
 						} else {

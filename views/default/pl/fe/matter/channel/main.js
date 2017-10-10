@@ -53,7 +53,7 @@ define(['frame'], function(ngApp) {
         };
         $scope.remove = function() {
             if (window.confirm('确定删除？')) {
-                http2.get('/rest/pl/fe/matter/article/remove?site=' + $scope.siteId + '&id=' + $scope.id, function(rsp) {
+                http2.get('/rest/pl/fe/matter/channel/remove?site=' + $scope.siteId + '&id=' + $scope.id, function(rsp) {
                     location = '/rest/pl/fe';
                 });
             }

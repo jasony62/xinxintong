@@ -111,6 +111,9 @@ define(['frame'], function(ngApp) {
         $scope.list = function() {
             var url, data, matterType;
             data = {};
+            if (_oCriteria.byTime) {
+                data.byTime = _oCriteria.byTime;
+            }
             if (_oCriteria.pid) {
                 data.mission_phase_id = _oCriteria.pid;
             }
@@ -138,6 +141,16 @@ define(['frame'], function(ngApp) {
                     $scope.matters = rsp.data.apps;
                 });
             }
+        };
+        $scope.togglePublic = function(oMatter) {
+            var isPublic, url;
+            if (oMatter.is_public) {
+                isPublic = oMatter.is_public === 'Y' ? 'N' : 'Y';
+            }
+            url = '/rest/pl/fe/matter/mission/matter/update?site=' + _oMission.siteid + '&id=' + _oMission.id + '&matterType=' + oMatter.type + '&matterId=' + oMatter.id;
+            http2.post(url, { 'is_public': isPublic }, function(rsp) {
+                oMatter.is_public = isPublic;
+            });
         };
         $scope.$watch('mission', function(nv) {
             if (!nv) return;

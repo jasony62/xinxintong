@@ -1,12 +1,8 @@
-body{padding:71px 0;}
-form .form-group:last-child{margin-bottom:0;}
 .tag{background:#337ab7;padding:3px 6px;margin:4px;border-radius:4px;color:#fff;}
 table th{text-align:center;}
 th.name{width:100px;}
 th.mobile{width:100px;}
+th.nickname{background:lightblue;}
 
 /*players*/
 table img{max-width:96px;}
-
-/*running*/
-.running .rounds .thumbnail{text-align:center;}

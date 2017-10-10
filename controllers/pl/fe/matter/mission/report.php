@@ -61,7 +61,7 @@ class report extends \pl\fe\matter\base {
 			break;
 		}
 		if (empty($users)) {
-			return new \ParameterError('没有获得项目中用户');
+			return new \ParameterError('项目用户为空，无法显示用户数据');
 		}
 		/* 获得项目下的活动 */
 		if (empty($posted->apps)) {

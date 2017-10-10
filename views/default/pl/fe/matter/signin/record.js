@@ -65,9 +65,14 @@ define(['frame'], function(ngApp) {
         $scope.rows = {
             allSelected: 'N',
             selected: {},
+            count: 0,
+            change: function(index) {
+                this.selected[index] ? this.count++ : this.count--;
+            },
             reset: function() {
                 this.allSelected = 'N';
                 this.selected = {};
+                this.count = 0;
             }
         };
         $scope.$watch('rows.allSelected', function(checked) {
@@ -76,8 +81,9 @@ define(['frame'], function(ngApp) {
                 while (index < $scope.records.length) {
                     $scope.rows.selected[index++] = true;
                 }
+                $scope.rows.count = $scope.records.length;
             } else if (checked === 'N') {
-                $scope.rows.selected = {};
+                $scope.rows.reset();
             }
         });
         $scope.page = {}; // 分页条件

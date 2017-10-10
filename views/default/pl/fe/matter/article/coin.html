@@ -1,5 +1,5 @@
-<div id='coin-view'>
-    <table class="table table-bordered table-striped">
+<div class='col-md-12'>
+    <table class="table table-bordered table-striped pl-workspace">
         <thead>
             <tr>
                 <th>ID</th>
@@ -11,11 +11,15 @@
             <tr ng-repeat="r in rules">
                 <td ng-bind="r.act"></td>
                 <td ng-bind="r.desc"></td>
-                <td><input type='text' ng-model="r.actor_delta"></td>
+                <td>
+                    <input type='text' ng-model="r.actor_delta">
+                </td>
             </tr>
         </tbody>
     </table>
-    <button class='btn btn-success' ng-click="save()">保存</button>
+    <div class='form-group'>
+        <button class='btn btn-success' ng-click="save()">保存</button>
+    </div>
     <table class="table table-bordered table-striped">
         <thead>
             <tr>

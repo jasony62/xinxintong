@@ -300,12 +300,12 @@ define(['require', 'schema', 'page'], function(require, schemaLib, pageLib) {
                         }
                         page.type === 'I' && (defaultInput = newPage);
                     });
-                    all.push({ name: 'repos', 'title': '所有数据页' });
+                    all.push({ name: 'repos', 'title': '共享数据页' });
                     all.push({ name: 'rank', 'title': '排行榜' });
                     all.push({ name: 'score', 'title': '测验结果' });
-                    otherwise.push({ name: 'repos', 'title': '所有数据页' });
+                    otherwise.push({ name: 'repos', 'title': '共享数据页' });
                     otherwise.push({ name: 'rank', 'title': '排行榜' });
-                    exclude.push({ name: 'repos', 'title': '所有数据页' });
+                    exclude.push({ name: 'repos', 'title': '共享数据页' });
                     exclude.push({ name: 'remark', 'title': '评论页' });
                     exclude.push({ name: 'rank', 'title': '排行榜' });
                     exclude.push({ name: 'score', 'title': '测验结果' });
@@ -324,28 +324,28 @@ define(['require', 'schema', 'page'], function(require, schemaLib, pageLib) {
                         _oApp.entry_rule = rsp.data;
                     });
                 },
-                changeUserScope: function(ruleScope, sns, memberSchemas, defaultInputPage) {
-                    var entryRule = _oApp.entry_rule;
-                    entryRule.scope = ruleScope;
+                changeUserScope: function(ruleScope, oSiteSns, oDefaultInputPage) {
+                    var oEntryRule = _oApp.entry_rule;
+                    oEntryRule.scope = ruleScope;
                     switch (ruleScope) {
                         case 'member':
-                            entryRule.member === undefined && (entryRule.member = {});
-                            entryRule.other === undefined && (entryRule.other = {});
-                            entryRule.other.entry = '$memberschema';
+                            oEntryRule.member === undefined && (oEntryRule.member = {});
+                            oEntryRule.other === undefined && (oEntryRule.other = {});
+                            oEntryRule.other.entry = '$memberschema';
                             break;
                         case 'sns':
-                            entryRule.sns === undefined && (entryRule.sns = {});
-                            entryRule.other === undefined && (entryRule.other = {});
-                            entryRule.other.entry = '$mpfollow';
-                            Object.keys(sns).forEach(function(snsName) {
-                                entryRule.sns[snsName] = {
-                                    entry: defaultInputPage ? defaultInputPage.name : ''
+                            oEntryRule.sns === undefined && (oEntryRule.sns = {});
+                            oEntryRule.other === undefined && (oEntryRule.other = {});
+                            oEntryRule.other.entry = '$mpfollow';
+                            Object.keys(oSiteSns).forEach(function(snsName) {
+                                oEntryRule.sns[snsName] = {
+                                    entry: oDefaultInputPage ? oDefaultInputPage.name : ''
                                 };
                             });
                             break;
                         default:
                     }
-                    this.update('entry_rule');
+                    return this.update('entry_rule');
                 },
                 assignMission: function() {
                     var defer = $q.defer();
@@ -431,65 +431,6 @@ define(['require', 'schema', 'page'], function(require, schemaLib, pageLib) {
                     }
 
                     _self.update(updatedFields);
-                },
-                importSchemaByOther: function() {
-                    var defer = $q.defer();
-                    $uibModal.open({
-                        templateUrl: '/views/default/pl/fe/matter/enroll/component/importSchemaByOther.html?_=1',
-                        controller: ['$scope', '$uibModalInstance', function($scope2, $mi) {
-                            var page, data, filter;
-                            $scope2.page = page = {
-                                at: 1,
-                                size: 15,
-                                j: function() {
-                                    return 'page=' + this.at + '&size=' + this.size;
-                                }
-                            };
-                            $scope2.data = data = {};
-                            $scope2.filter = filter = {};
-                            $scope2.selectApp = function() {
-                                if (angular.isString(data.fromApp.data_schemas) && data.fromApp.data_schemas) {
-                                    data.fromApp.dataSchemas = JSON.parse(data.fromApp.data_schemas);
-                                }
-                                data.schemas = [];
-                            };
-                            $scope2.selectSchema = function(schema) {
-                                if (schema._selected) {
-                                    data.schemas.push(schema);
-                                } else {
-                                    data.schemas.splice(data.schemas.indexOf(schema), 1);
-                                }
-                            };
-                            $scope2.ok = function() {
-                                $mi.close(data);
-                            };
-                            $scope2.cancel = function() {
-                                $mi.dismiss('cancel');
-                            };
-                            $scope2.doFilter = function() {
-                                page.at = 1;
-                                $scope2.doSearch();
-                            };
-                            $scope2.doSearch = function() {
-                                var url = '/rest/pl/fe/matter/enroll/list?site=' + _siteId + '&' + page.j();
-                                http2.post(url, {
-                                    byTitle: filter.byTitle
-                                }, function(rsp) {
-                                    $scope2.apps = rsp.data.apps;
-                                    if ($scope2.apps.length) {
-                                        data.fromApp = $scope2.apps[0];
-                                        $scope2.selectApp();
-                                    }
-                                    page.total = rsp.data.total;
-                                });
-                            };
-                            $scope2.doSearch();
-                        }],
-                        backdrop: 'static',
-                    }).result.then(function(data) {
-                        defer.resolve(data.schemas);
-                    });
-                    return defer.promise;
                 },
                 opData: function() {
                     var deferred = $q.defer(),
@@ -1072,7 +1013,7 @@ define(['require', 'schema', 'page'], function(require, schemaLib, pageLib) {
             };
             _ins.verifyAll = function() {
                 if (window.confirm('确定审核通过所有记录（共' + _ins._oPage.total + '条）？')) {
-                    http2.get('/rest/pl/fe/matter/enroll/record/verifyAll?site=' + _siteId + '&app=' + _appId, function(rsp) {
+                    http2.get('/rest/pl/fe/matter/enroll/record/batchVerify?site=' + _siteId + '&app=' + _appId + '&all=Y', function(rsp) {
                         _ins._aRecords.forEach(function(record) {
                             record.verified = 'Y';
                         });
@@ -1082,12 +1023,13 @@ define(['require', 'schema', 'page'], function(require, schemaLib, pageLib) {
             };
             _ins.batchVerify = function(rows) {
                 var url;
+                if (window.confirm('确定审核通过选中的记录（共' + Object.keys(rows.selected).length + '条）？')) {
+                    url = '/rest/pl/fe/matter/enroll/record/batchVerify';
+                    url += '?site=' + _siteId;
+                    url += '&app=' + _appId;
 
-                url = '/rest/pl/fe/matter/enroll/record/batchVerify';
-                url += '?site=' + _siteId;
-                url += '&app=' + _appId;
-
-                return _ins._bBatchVerify(rows, url);
+                    return _ins._bBatchVerify(rows, url);
+                }
             };
             _ins.notify = function(rows) {
                 var options = {

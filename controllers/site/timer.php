@@ -3,7 +3,7 @@ namespace site;
 
 require_once dirname(__FILE__) . '/base.php';
 /**
- *
+ * 执行定时任务控制器
  */
 class timer extends base {
 	/**

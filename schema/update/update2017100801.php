@@ -1,10 +1,9 @@
 <?php
 require_once '../../db.php';
 
-$sqls = [];
-$sqls[] = "alter table xxt_mission add user_app_id varchar(40) not null default ''";
-$sqls[] = "alter table xxt_mission_user add assoc_enroll_app text";
-$sqls[] = "alter table xxt_mission_user add assoc_group_app text";
+$sqls = array();
+//
+$sqls[] = "ALTER TABLE xxt_timer_task add notweekend char(1) not null default 'Y' after wday";
 //
 foreach ($sqls as $sql) {
 	if (!$mysqli->query($sql)) {

@@ -130,6 +130,10 @@
                             </select>
                         </div>
                     </div>
+                    <div class='checkbox' ng-show="['6','0'].indexOf(timerTask.remind.task.wday)===-1">
+                        <label>
+                            <input type='checkbox' ng-true-value="'Y'" ng-false-value="'N'" ng-model="timerTask.remind.task.notweekend"> 不包含周六、周日</label>
+                    </div>
                     <div class='form-group'>
                         <div class='form-inline'>
                             <div class='form-group'>
@@ -379,6 +383,10 @@
                                     <option value='55'>55分</option>
                                 </select>
                             </div>
+                        </div>
+                        <div class='checkbox' ng-show="['6','0'].indexOf(timerTask.report.task.wday)===-1">
+                            <label>
+                                <input type='checkbox' ng-true-value="'Y'" ng-false-value="'N'" ng-model="timerTask.report.task.notweekend"> 不包含周六、周日</label>
                         </div>
                         <div class='form-group'>
                             <div class='form-inline'>

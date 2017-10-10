@@ -15,7 +15,7 @@
                             </div>
                         </div>
                     </div>
-                    <button class='btn btn-default' ng-click='create()' ng-disabled="!frameState.sid"><i class='glyphicon glyphicon-plus'></i> 新建项目</button>
+                    <button class='btn btn-default' ng-click='createMission()' ng-disabled="!frameState.sid"><i class='glyphicon glyphicon-plus'></i> 新建项目</button>
                 </div>
             </div>
             <table class='table table-bordered'>
@@ -52,9 +52,11 @@
                     </tr>
                 </tbody>
             </table>
-            <div class='col-md-12'>
-                <span style='height:34px;line-height:34px'>总数：{{page.total}}</span>
-                <ul uib-pagination style="margin:0;vertical-align:bottom;cursor:pointer" class='pull-right' ng-show="page.total>page.size" boundary-links="true" total-items="page.total" max-size="7" items-per-page="page.size" rotate="false" ng-model="page.at" previous-text="&lsaquo;" next-text="&rsaquo;" first-text="&laquo;" last-text="&raquo;" ng-change="list()"></ul>
+            <div class='form-group clearfix'>
+                <div class='pl-pagination'>
+                    <span>总数：{{page.total}}</span>
+                    <ul uib-pagination class='pull-right' ng-show="page.total>page.size" boundary-links="true" total-items="page.total" max-size="7" items-per-page="page.size" rotate="false" ng-model="page.at" previous-text="&lsaquo;" next-text="&rsaquo;" first-text="&laquo;" last-text="&raquo;" ng-change="list()"></ul>
+                </div>
             </div>
         </div>
     </div>
@@ -82,6 +84,14 @@
                     <button class='btn btn-default' ng-click="criteria.byStar=criteria.byStar==='N'?'Y':'N'"><i class='glyphicon' ng-class="criteria.byStar==='Y'?'glyphicon-star':'glyphicon-star-empty'"></i> 星标</button>
                     <button ng-if="criteria.matter.type" class='btn btn-default' ng-click="addMatter(criteria.matter.type,criteria.matter.scenario)"><i class='glyphicon glyphicon-plus'></i> <span>新建<span ng-bind="scenarioNames[criteria.matter.scenario]||matterNames.app[criteria.matter.type]"></span>活动</span>
                     </button>
+                    <div ng-if="!criteria.matter.type" class="btn-group" uib-dropdown>
+                        <button class="btn btn-default" uib-dropdown-toggle>
+                            <i class='glyphicon glyphicon-plus'></i> 新建 <span class="caret"></span>
+                        </button>
+                        <ul class='dropdown-menu' uib-dropdown-menu>
+                            <li ng-repeat="mt in unionMatterTypes"><a href='' ng-click="addMatter(mt.name)">{{mt.label}}</a></li>
+                        </ul>
+                    </div>
                 </div>
             </div>
             <table class='table table-bordered'>
@@ -97,7 +107,7 @@
                         <th style='width:140px'>创建人</th>
                         <th style='width:120px'>创建时间</th>
                         <th style='width:48px'>星标</th>
-                        <th style='width:170px'>操作</th>
+                        <th style='width:164px'>操作</th>
                     </tr>
                 </thead>
                 <tbody>
@@ -122,8 +132,8 @@
                                 <button class='btn btn-sm btn-default' ng-click="copyMatter($event,m)">复制</button>
                             </span>
                             <span ng-switch-when="enroll">
-                                <button class='btn btn-sm btn-default' ng-click="openMatter(m,'preview')">预览</button>
                                 <button class='btn btn-sm btn-default' ng-click="openMatter(m,'entry')">发放</button>
+                                <button class='btn btn-sm btn-default' ng-click="openMatter(m,'record')">数据</button>
                                 <button class='btn btn-sm btn-default hidden-xs' ng-click="copyMatter($event,m)">复制</button>
                             </span>
                             <span ng-switch-when="signin">
@@ -138,9 +148,11 @@
                     </tr>
                 </tbody>
             </table>
-            <div class='col-md-12'>
-                <span style='height:34px;line-height:34px'>总数：{{page.total}}</span>
-                <ul uib-pagination style="margin:0;vertical-align:bottom;cursor:pointer" class='pull-right' ng-show="page.total>page.size" boundary-links="true" total-items="page.total" max-size="7" items-per-page="page.size" rotate="false" ng-model="page.at" previous-text="&lsaquo;" next-text="&rsaquo;" first-text="&laquo;" last-text="&raquo;" ng-change="list()"></ul>
+            <div class='form-group clearfix'>
+                <div class='pl-pagination'>
+                    <span>总数：{{page.total}}</span>
+                    <ul uib-pagination class='pull-right' ng-show="page.total>page.size" boundary-links="true" total-items="page.total" max-size="7" items-per-page="page.size" rotate="false" ng-model="page.at" previous-text="&lsaquo;" next-text="&rsaquo;" first-text="&laquo;" last-text="&raquo;" ng-change="list()"></ul>
+                </div>
             </div>
         </div>
     </div>
@@ -168,6 +180,14 @@
                     <button class='btn btn-default' ng-click="criteria.byStar=criteria.byStar==='N'?'Y':'N'"><i class='glyphicon' ng-class="criteria.byStar==='Y'?'glyphicon-star':'glyphicon-star-empty'"></i> 星标</button>
                     <button ng-if="criteria.matter.type" class='btn btn-default' ng-click="addMatter(criteria.matter.type)"><i class='glyphicon glyphicon-plus'></i> <span>新建<span ng-bind="matterNames.doc[criteria.matter.type]"></span></span>
                     </button>
+                    <div ng-if="!criteria.matter.type" class="btn-group" uib-dropdown>
+                        <button class="btn btn-default" uib-dropdown-toggle>
+                            <i class='glyphicon glyphicon-plus'></i> 新建 <span class="caret"></span>
+                        </button>
+                        <ul class='dropdown-menu' uib-dropdown-menu>
+                            <li ng-repeat="type in matterNames.docOrder"><a href='' ng-click="addMatter(type)">{{matterNames.doc[type]}}</a></li>
+                        </ul>
+                    </div>
                 </div>
             </div>
             <table class='table table-bordered'>
@@ -184,7 +204,7 @@
                 <tbody>
                     <tr ng-repeat='m in matters'>
                         <td>{{$index+1}}</td>
-                        <td ng-click="openMatter(m,'main')">{{m.matter_title||m.title}}</td>
+                        <td ng-click="openMatter(m,'preview')">{{m.matter_title||m.title}}</td>
                         <td>{{m.operator_name||m.creater_name}}</td>
                         <td>{{(m.operate_at||m.create_at)*1000|date:'yy-MM-dd HH:mm'}}</td>
                         <td>
@@ -196,9 +216,11 @@
                     </tr>
                 </tbody>
             </table>
-            <div class='col-md-12'>
-                <span style='height:34px;line-height:34px'>总数：{{page.total}}</span>
-                <ul uib-pagination style="margin:0;vertical-align:bottom;cursor:pointer" class='pull-right' ng-show="page.total>page.size" boundary-links="true" total-items="page.total" max-size="7" items-per-page="page.size" rotate="false" ng-model="page.at" previous-text="&lsaquo;" next-text="&rsaquo;" first-text="&laquo;" last-text="&raquo;" ng-change="list()"></ul>
+            <div class='form-group clearfix'>
+                <div class='pl-pagination'>
+                    <span>总数：{{page.total}}</span>
+                    <ul uib-pagination class='pull-right' ng-show="page.total>page.size" boundary-links="true" total-items="page.total" max-size="7" items-per-page="page.size" rotate="false" ng-model="page.at" previous-text="&lsaquo;" next-text="&rsaquo;" first-text="&laquo;" last-text="&raquo;" ng-change="list()"></ul>
+                </div>
             </div>
         </div>
     </div>

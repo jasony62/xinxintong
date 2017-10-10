@@ -114,7 +114,7 @@ class record extends \pl\fe\matter\base {
 		$modelApp = $this->model('matter\enroll');
 		$enrollApp = $modelApp->byId($app, ['cascaded' => 'N']);
 		if (false === $enrollApp) {
-			return new \ObjectNotFountError();
+			return new \ObjectNotFoundError();
 		}
 
 		// 查询结果
@@ -135,7 +135,7 @@ class record extends \pl\fe\matter\base {
 		$modelApp = $this->model('matter\enroll');
 		$enrollApp = $modelApp->byId($app, ['cascaded' => 'N']);
 		if (false === $enrollApp) {
-			return new \ObjectNotFountError();
+			return new \ObjectNotFoundError();
 		}
 
 		// 查询结果
@@ -482,30 +482,42 @@ class record extends \pl\fe\matter\base {
 	/**
 	 * 指定记录通过审核
 	 */
-	public function batchVerify_action($site, $app) {
-		if (false === ($user = $this->accountUser())) {
+	public function batchVerify_action($site, $app, $all = 'N') {
+		if (false === ($oUser = $this->accountUser())) {
 			return new \ResponseTimeout();
 		}
 
-		$posted = $this->getPostJson();
-		$eks = $posted->eks;
-
-		$app = $this->model('matter\enroll')->byId($app, ['cascaded' => 'N']);
-
-		$model = $this->model();
-		foreach ($eks as $ek) {
-			$rst = $model->update(
+		$modelApp = $this->model('matter\enroll');
+		$oApp = $modelApp->byId($app, ['cascaded' => 'N']);
+		if (false === $oApp) {
+			return new \ObjectNotFoundError();
+		}
+		if ($all === 'Y') {
+			$modelApp->update(
 				'xxt_enroll_record',
 				['verified' => 'Y'],
-				"enroll_key='$ek'"
+				['aid' => $oApp->id]
 			);
-			// 进行后续处理
-			$this->_whenVerifyRecord($app, $ek);
-		}
+			// 记录操作日志
+			$this->model('matter\log')->matterOp($oApp->siteid, $oUser, $oApp, 'verify.all');
+		} else {
 
-		// 记录操作日志
-		$app->type = 'enroll';
-		$this->model('matter\log')->matterOp($site, $user, $app, 'verify.batch', $eks);
+			$posted = $this->getPostJson();
+			$eks = $posted->eks;
+
+			$model = $this->model();
+			foreach ($eks as $ek) {
+				$modelApp->update(
+					'xxt_enroll_record',
+					['verified' => 'Y'],
+					['enroll_key' => $ek]
+				);
+				// 进行后续处理
+				$this->_whenVerifyRecord($oApp, $ek);
+			}
+			// 记录操作日志
+			$this->model('matter\log')->matterOp($oApp->siteid, $oUser, $oApp, 'verify.batch', $eks);
+		}
 
 		return new \ResponseData('ok');
 	}

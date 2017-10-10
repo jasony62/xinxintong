@@ -1,8 +1,9 @@
 <?php
 require_once '../../db.php';
 
-$sqls = [];
-$sqls[] = "alter table xxt_enroll add template_id int not null default 0";
+$sqls = array();
+//
+$sqls[] = "delete from xxt_site_notice where tmplmsg_config_id = 0";
 //
 foreach ($sqls as $sql) {
 	if (!$mysqli->query($sql)) {

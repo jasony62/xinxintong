@@ -204,9 +204,6 @@ ngApp.controller('ctrlMain', ['$scope', '$http', '$timeout', '$q', 'tmsDynaPage'
                 tmsFavor.showSwitch($scope.user, oArticle);
             } else {
                 $scope.favor = function(user, article) {
-                    event.preventDefault();
-                    event.stopPropagation();
-
                     if (!user.loginExpire) {
                         tmsDynaPage.openPlugin('http://' + location.host + '/rest/site/fe/user/login?site=' + article.siteid).then(function(data) {
                             user.loginExpire = data.loginExpire;
@@ -221,9 +218,6 @@ ngApp.controller('ctrlMain', ['$scope', '$http', '$timeout', '$q', 'tmsDynaPage'
                 tmsForward.showSwitch($scope.user, oArticle);
             } else {
                 $scope.forward = function(user, article) {
-                    event.preventDefault();
-                    event.stopPropagation();
-
                     if (!user.loginExpire) {
                         tmsDynaPage.openPlugin('http://' + location.host + '/rest/site/fe/user/login?site=' + article.siteid).then(function(data) {
                             user.loginExpire = data.loginExpire;
@@ -244,9 +238,6 @@ ngApp.controller('ctrlMain', ['$scope', '$http', '$timeout', '$q', 'tmsDynaPage'
                     tmsSiteUser.showSwitch(oArticle.siteid, true);
                 } else {
                     $scope.siteUser = function(id) {
-                        event.preventDefault();
-                        event.stopPropagation();
-
                         var url = 'http://' + location.host;
                         url += '/rest/site/fe/user';
                         url += "?site=" + siteId;
@@ -254,10 +245,12 @@ ngApp.controller('ctrlMain', ['$scope', '$http', '$timeout', '$q', 'tmsDynaPage'
                     }
                 }
             }
-            $http.post('/rest/site/fe/matter/logAccess?site=' + siteId + '&id=' + id + '&type=article&title=' + oArticle.title + '&shareby=' + shareby, {
-                search: location.search.replace('?', ''),
-                referer: document.referrer
-            });
+            if (!_bPreview) {
+                $http.post('/rest/site/fe/matter/logAccess?site=' + siteId + '&id=' + id + '&type=article&title=' + oArticle.title + '&shareby=' + shareby, {
+                    search: location.search.replace('?', ''),
+                    referer: document.referrer
+                });
+            }
             $scope.dataReady = 'Y';
             deferred.resolve();
         }).error(function(content, httpCode) {
@@ -273,11 +266,12 @@ ngApp.controller('ctrlMain', ['$scope', '$http', '$timeout', '$q', 'tmsDynaPage'
         return deferred.promise;
     };
 
-    var ls, siteId, id;
+    var ls, siteId, id, _bPreview;
 
     ls = location.search;
     siteId = ls.match(/[\?&]site=([^&]*)/)[1];
-    id = ls.match(/(\?|&)id=([^&]*)/)[2];
+    id = ls.match(/[\?|&]id=([^&]*)/)[1];
+    _bPreview = ls.match(/[\?|&]preview=Y/);
 
     $scope.openChannel = function(ch) {
         location.href = '/rest/site/fe/matter?site=' + siteId + '&type=channel&id=' + ch.id;

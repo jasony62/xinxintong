@@ -64,7 +64,7 @@ define(['frame'], function(ngApp) {
                             multiple: true,
                             setshowname: true
                         };
-                        mediagallery.open($scope.siteId, options);
+                        mediagallery.open($scope.mission.siteid, options);
                     });
                     $scope2.$on('tinymce.instance.init', function(event, editor) {
                         var page;

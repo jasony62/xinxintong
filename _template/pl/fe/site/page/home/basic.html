@@ -75,7 +75,7 @@
                             <ul class="dropdown-menu" uib-dropdown-menu aria-labelledby="simple-dropdown">
                                 <li ng-repeat="c in r_next_channels">
                                   <a ng-href='{{c.url}}' target='_self'>
-                                        <h4 class="inline-block" ng-bind="c.title"></h4>
+                                        <h4 class="inline-block" ng-bind="c.display_name"></h4>
                                     </a>
                                 </li>
                             </ul>
@@ -143,7 +143,7 @@
                         <ul class="dropdown-menu" uib-dropdown-menu aria-labelledby="simple-dropdown">
                             <li ng-repeat="c in c_next_channels">
                               <a ng-href="/rest/site/fe/matter?site={{c.siteid}}&id={{c.channel_id}}&type=channel" target='_self'>
-                                    <h4 class="inline-block" ng-bind="c.title"></h4>
+                                    <h4 class="inline-block" ng-bind="c.display_name"></h4>
                                 </a>
                             </li>
                         </ul>

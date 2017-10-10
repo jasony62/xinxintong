@@ -93,93 +93,72 @@ define(['frame'], function(ngApp) {
                 $scope.receivers.splice($scope.receivers.indexOf(receiver), 1);
             });
         };
-        $scope.chooseQy = function() {
-            $uibModal.open({
-                templateUrl: 'chooseUser.html',
-                controller: 'ctrlChooseUser',
-            }).result.then(function(data) {
-                var app = $scope.app,
-                    url;
-                url = '/rest/pl/fe/matter/signin/receiver/add';
-                url += '?site=' + app.siteid;
-                url += '&app=' + app.id;
-                http2.post(url, data, function(rsp) {
-                    listReceivers(app);
-                });
-            })
-        };
         srvSigninApp.get().then(function(app) {
             listReceivers(app);
         });
     }]);
-    ngApp.provider.controller('ctrlChooseUser', ['$scope', '$uibModalInstance', 'http2', 'srvSigninApp', function($scope, $mi, http2, srvSigninApp) {
-        $scope.page = {
-            at: 1,
-            size: 15,
-            total: 0,
-            param: function() {
-                return 'page=' + this.at + '&size=' + this.size;
+    ngApp.provider.controller('ctrlAccess', ['$scope', '$uibModal', 'http2', 'srvSite', 'srvSigninApp', function($scope, $uibModal, http2, srvSite, srvSigninApp) {
+        var oEntryRule;
+        $scope.rule = {};
+        $scope.isInputPage = function(pageName) {
+            if (!$scope.app) {
+                return false;
             }
+            for (var i in $scope.app.pages) {
+                if ($scope.app.pages[i].name === pageName && $scope.app.pages[i].type === 'I') {
+                    return true;
+                }
+            }
+            return false;
         };
-        $scope.search = function(name) {
-            var url = '/rest/pl/fe/matter/signin/receiver/qymem';
-            url += '?site=' + $scope.app.siteid;
-            url += '&' + $scope.page.param();
-            http2.post(url, { keyword: name }, function(rsp) {
-                $scope.users = rsp.data.data;
-                $scope.page.total = rsp.data.total;
-            });
-        }
-        $scope.doSearch = function(page, name) {
-            var url;
-            page && ($scope.page.at = page);
-            url = '/rest/pl/fe/matter/signin/receiver/qymem';
-            url += '?site=' + $scope.app.siteid;
-            url += '&' + $scope.page.param();
-            if (name) {
-                http2.post(url, { keyword: name }, function(rsp) {
-                    $scope.users = rsp.data.data;
-                    $scope.page.total = rsp.data.total;
-                })
-            } else {
-                http2.get(url, function(rsp) {
-                    $scope.users = rsp.data.data;
-                    $scope.page.total = rsp.data.total;
-                });
-            }
-        }
-        $scope.selected = [];
-        var updateSelected = function(action, option) {
-            if (action == 'add') {
-                $scope.selected.push(option);
-
-            }
-            if (action == 'remove') {
-                angular.forEach($scope.selected, function(item, index) {
-                    if (item.uid == option.uid) {
-                        $scope.selected.splice(index, 1);
+        $scope.reset = function() {
+            srvSigninApp.resetEntryRule();
+        };
+        $scope.changeUserScope = function() {
+            srvSigninApp.changeUserScope($scope.rule.scope, $scope.sns, $scope.memberSchemas, $scope.jumpPages.defaultInput);
+        };
+        $scope.chooseMschema = function() {
+            srvSite.chooseMschema($scope.app).then(function(result) {
+                var rule = {};
+                if (!oEntryRule.member[result.chosen.id]) {
+                    if ($scope.jumpPages.defaultInput) {
+                        rule.entry = $scope.jumpPages.defaultInput.name;
+                    } else {
+                        rule.entry = '';
                     }
-                })
+                    oEntryRule.member[result.chosen.id] = rule;
+                    $scope.update('entry_rule');
+                }
+            });
+        };
+        $scope.editMschema = function(oMschema) {
+            if (oMschema.matter_id) {
+                if (oMschema.matter_type === 'mission') {
+                    location.href = '/rest/pl/fe/matter/mission/mschema?id=' + oMschema.matter_id + '&site=' + $scope.app.siteid + '#' + oMschema.id;
+                } else {
+                    location.href = '/rest/pl/fe/site/mschema?site=' + $scope.app.siteid + '#' + oMschema.id;
+                }
+            } else {
+                location.href = '/rest/pl/fe?view=main&scope=user&sid=' + $scope.app.siteid + '#' + oMschema.id;
             }
-        }
-        $scope.updateSelection = function($event, data) {
-            var checkbox = $event.target;
-            var action = (checkbox.checked ? 'add' : 'remove');
-            var option = {
-                nickname: data.nickname,
-                uid: data.userid
-            };
-            updateSelected(action, option);
-        }
-        $scope.ok = function() {
-            $mi.close($scope.selected);
         };
-        $scope.cancel = function() {
-            $mi.dismiss();
+        $scope.removeMschema = function(mschemaId) {
+            if (oEntryRule.member[mschemaId]) {
+                delete oEntryRule.member[mschemaId];
+                $scope.update('entry_rule');
+            }
         };
+        $scope.$watch('memberSchemas', function(nv) {
+            if (!nv) return;
+            $scope.mschemasById = {};
+            $scope.memberSchemas.forEach(function(mschema) {
+                $scope.mschemasById[mschema.id] = mschema;
+            });
+        }, true);
         srvSigninApp.get().then(function(app) {
-            $scope.app = app;
-            $scope.doSearch(1);
-        });
+            $scope.jumpPages = srvSigninApp.jumpPages();
+            $scope.rule.scope = app.entry_rule.scope || 'none';
+            oEntryRule = app.entry_rule;
+        }, true);
     }]);
 });

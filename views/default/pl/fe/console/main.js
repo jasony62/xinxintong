@@ -83,8 +83,10 @@ define(['frame'], function(ngApp) {
             }
             location.href = url;
         };
-        $scope.create = function() {
-            location.href = '/rest/pl/fe/matter/mission/plan?site=' + $scope.frameState.sid;
+        $scope.createMission = function() {
+            if ($scope.frameState.sid) {
+                location.href = '/rest/pl/fe/matter/mission/plan?site=' + $scope.frameState.sid;
+            }
         };
         $scope.list = function(pageAt) {
             var url;

@@ -49,21 +49,6 @@ provider('srvGroupApp', function() {
 
                 return defer.promise;
             },
-            roundList: function() {
-                var defer = $q.defer(),
-                    url;
-
-                url = '/rest/pl/fe/matter/group/round/list?site=' + _siteId + '&app=' + _appId;
-                http2.get(url, function(rsp) {
-                    var rounds = rsp.data;
-                    angular.forEach(rounds, function(round) {
-                        round.extattrs = (round.extattrs && round.extattrs.length) ? JSON.parse(round.extattrs) : {};
-                    });
-                    defer.resolve(rounds);
-                });
-
-                return defer.promise;
-            },
             update: function(names) {
                 var defer = $q.defer(),
                     modifiedData = {};
@@ -117,7 +102,7 @@ provider('srvGroupApp', function() {
                             if (!appType) return;
                             var url;
                             if (appType === 'mschema') {
-                                srvSite.memberSchemaList().then(function(aMschemas) {
+                                srvSite.memberSchemaList(_oApp.mission, !!_oApp.mission).then(function(aMschemas) {
                                     $scope2.apps = aMschemas;
                                 });
                                 delete $scope2.data.includeEnroll;
@@ -214,9 +199,10 @@ provider('srvGroupApp', function() {
                     url = '/rest/pl/fe/matter/group/round/list?site=' + _siteId + '&app=' + _appId + '&cascade=playerCount';
                     http2.get(url, function(rsp) {
                         var rounds = rsp.data;
-                        rounds.forEach(function(round) {
-                            round.extattrs = (round.extattrs && round.extattrs.length) ? JSON.parse(round.extattrs) : {};
-                            _rounds.push(round);
+                        rounds.forEach(function(oRound) {
+                            oRound.extattrs = (oRound.extattrs && oRound.extattrs.length) ? JSON.parse(oRound.extattrs) : {};
+                            oRound.targets = (!oRound.targets || oRound.targets.length === 0) ? [] : JSON.parse(oRound.targets);
+                            _rounds.push(oRound);
                         });
                         defer.resolve(_rounds);
                     });
@@ -304,7 +290,7 @@ provider('srvGroupApp', function() {
                     };
                 http2.post('/rest/pl/fe/matter/group/round/add?site=' + _siteId + '&app=' + _appId, proto, function(rsp) {
                     _rounds.push(rsp.data);
-                    defer.resolve();
+                    defer.resolve(rsp.data);
                 });
                 return defer.promise;
             },

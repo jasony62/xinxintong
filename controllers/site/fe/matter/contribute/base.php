@@ -388,7 +388,7 @@ class base extends \site\fe\matter\base {
 	 * 可用的频道
 	 */
 	public function channelGet_action($site, $acceptType = null) {
-		$channels = $this->model('matter\channel')->byMpid($site, $acceptType);
+		$channels = $this->model('matter\channel')->bySite($site, $acceptType);
 
 		return new \ResponseData($channels);
 	}

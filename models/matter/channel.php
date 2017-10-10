@@ -17,15 +17,15 @@ class channel_model extends article_base {
 	/**
 	 * 获得一个账号下的频道
 	 */
-	public function &byMpid($mpid, $acceptType = null) {
-		$q = array(
-			"c.*",
-			'xxt_channel c',
-			"c.mpid='$mpid' and c.state=1",
-		);
-		!empty($acceptType) && $q[2] .= " and (c.matter_type='' or c.matter_type='$acceptType')";
+	public function &bySite($siteId, $acceptType = null) {
+		$q = [
+			"*",
+			'xxt_channel',
+			"siteid='$siteId' and state=1",
+		];
+		!empty($acceptType) && $q[2] .= " and (matter_type='' or matter_type='$acceptType')";
 
-		$q2['o'] = 'c.create_at desc';
+		$q2['o'] = 'create_at desc';
 
 		$channels = $this->query_objs_ss($q, $q2);
 
@@ -144,7 +144,7 @@ class channel_model extends article_base {
 		/**
 		 * top matter
 		 */
-		if (!empty($channel->top_type)) {
+		if (!empty($channel->top_type) && isset($matterTypes[$channel->top_type])) {
 			$qt[] = $this->matterColumns($channel->top_type, '');
 			$qt[] = $matterTypes[$channel->top_type];
 			$qt[] = "id='$channel->top_id'";
@@ -154,7 +154,7 @@ class channel_model extends article_base {
 		/**
 		 * bottom matter
 		 */
-		if (!empty($channel->bottom_type)) {
+		if (!empty($channel->bottom_type) && isset($matterTypes[$channel->top_type])) {
 			$qb[] = $this->matterColumns($channel->bottom_type, '');
 			$qb[] = $matterTypes[$channel->bottom_type];
 			$qb[] = "id='$channel->bottom_id'";

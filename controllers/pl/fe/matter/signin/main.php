@@ -151,8 +151,8 @@ class main extends \pl\fe\matter\main_base {
 			$oNewApp->use_mission_footer = 'N';
 		}
 		/* 用户指定的属性 */
-		$customConfig = $this->getPostJson();
-		$title = empty($customConfig->proto->title) ? '新签到活动' : $modelApp->escape($customConfig->proto->title);
+		$oCustomConfig = $this->getPostJson();
+		$title = empty($oCustomConfig->proto->title) ? '新签到活动' : $modelApp->escape($oCustomConfig->proto->title);
 		/* 登记数据 */
 		if (!empty($templateConfig->schema)) {
 			$oNewApp->data_schemas = $modelApp->toJson($templateConfig->schema);
@@ -162,7 +162,58 @@ class main extends \pl\fe\matter\main_base {
 			return new \ResponseError('没有获得页面进入规则');
 		}
 		$oEntryRule = $templateConfig->entryRule;
-		if (isset($oMisEntryRule)) {
+		if (!empty($oCustomConfig->proto->entryRule->scope)) {
+			$oProtoEntryRule = $oCustomConfig->proto->entryRule;
+			$oEntryRule->scope = $oProtoEntryRule->scope;
+			switch ($oEntryRule->scope) {
+			case 'member':
+				if (isset($oProtoEntryRule->mschemas)) {
+					$oEntryRule->member = new \stdClass;
+					foreach ($oProtoEntryRule->mschemas as $oMschema) {
+						$oRule = new \stdClass;
+						$oRule->entry = isset($oEntryRule->otherwise->entry) ? $oEntryRule->otherwise->entry : '';
+						$oEntryRule->member->{$oMschema->id} = $oRule;
+					}
+					$oEntryRule->other = new \stdClass;
+					$oEntryRule->other->entry = '$memberschema';
+				}
+				break;
+			case 'sns':
+				$oRule = new \stdClass;
+				$oRule->entry = isset($oEntryRule->otherwise->entry) ? $oEntryRule->otherwise->entry : '';
+				$oSns = new \stdClass;
+				if (isset($oProtoEntryRule->sns)) {
+					foreach ($oProtoEntryRule->sns as $snsName => $oRule2) {
+						if (isset($oRule2->entry) && $oRule2->entry === 'Y') {
+							$oSns->{$snsName} = $oRule;
+						}
+					}
+				} else {
+					$modelWx = $this->model('sns\wx');
+					$wxOptions = ['fields' => 'joined'];
+					if (($wx = $modelWx->bySite($site, $wxOptions)) && $wx->joined === 'Y') {
+						$oSns->wx = $oRule;
+					} else if (($wx = $modelWx->bySite('platform', $wxOptions)) && $wx->joined === 'Y') {
+						$oSns->wx = $oRule;
+					}
+					$yxOptions = ['fields' => 'joined'];
+					if ($yx = $this->model('sns\yx')->bySite($site, $yxOptions)) {
+						if ($yx->joined === 'Y') {
+							$oSns->yx = $oRule;
+						}
+					}
+					if ($qy = $this->model('sns\qy')->bySite($site, ['fields' => 'joined'])) {
+						if ($qy->joined === 'Y') {
+							$oSns->qy = $oRule;
+						}
+					}
+				}
+				$oEntryRule->sns = $oSns;
+				$oEntryRule->other = new \stdClass;
+				$oEntryRule->other->entry = '$mpfollow';
+				break;
+			}
+		} else if (isset($oMisEntryRule)) {
 			if (isset($oMisEntryRule->scope) && $oMisEntryRule->scope !== 'none') {
 				$oEntryRule->scope = $oMisEntryRule->scope;
 				switch ($oEntryRule->scope) {

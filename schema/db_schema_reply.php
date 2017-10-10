@@ -304,6 +304,7 @@ $sql .= ",hour int not null default -1";
 $sql .= ",mday int not null default -1";
 $sql .= ",mon int not null default -1";
 $sql .= ",wday int not null default -1";
+$sql .= ",notweekend char(1) not null default 'Y'";
 $sql .= ",left_count int not null default 1"; // 任务过期时间
 $sql .= ",task_model varchar(20) not null default ''"; // 执行任务的对象
 $sql .= ",task_arguments text"; // 执行任务的参数

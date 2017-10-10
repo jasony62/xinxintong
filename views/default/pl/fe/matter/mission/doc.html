@@ -3,7 +3,7 @@
         <div class='form-inline'>
             <div class='form-group'>
                 <select class='form-control' ng-model="matterType">
-                    <option value=''>全部</option>
+                    <option value=''>全部类型</option>
                     <option value='article'>{{cstApp.matterNames.doc.article}}</option>
                 </select>
                 <div class='form-group' ng-if="mission.phases.length">
@@ -12,7 +12,15 @@
                         <option value="{{phs.phase_id}}" ng-repeat="phs in phases">{{phs.title}}</option>
                     </select>
                 </div>
-                <button class='btn btn-default' ng-click="addMatter()"><i class='glyphicon glyphicon-plus'></i> <span>新建</span></button>
+                <button ng-if="matterType" class='btn btn-default' ng-click="addMatter()"><i class='glyphicon glyphicon-plus'></i> <span>新建</span></button>
+                <div ng-if="!matterType" class="btn-group" uib-dropdown>
+                    <button class="btn btn-default" uib-dropdown-toggle>
+                        <i class='glyphicon glyphicon-plus'></i> 新建 <span class="caret"></span>
+                    </button>
+                    <ul class='dropdown-menu' uib-dropdown-menu>
+                        <li><a href='' ng-click="addMatter('article')">{{cstApp.matterNames.doc.article}}</a></li>
+                    </ul>
+                </div>
             </div>
         </div>
     </div>

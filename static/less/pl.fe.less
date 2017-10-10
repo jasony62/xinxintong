@@ -65,13 +65,17 @@ table.table {
         color: #fff;
     }
 
-    .navbar-nav.tms-breadcrumb>li>a:hover, .pl-navbar-default .navbar-nav.tms-breadcrumb>li>a:focus {
+    .navbar-nav.tms-breadcrumb>li>a:hover, .navbar-nav.tms-breadcrumb>li>a:focus {
         background: @brand-primary;
         position: relative;
-        color: darken(@brand-primary, 30%)
+        color: darken(@brand-primary, 30%);
     }
 
-    .navbar-nav.tms-breadcrumb>li>a:hover:after, .pl-navbar-default .navbar-nav.tms-breadcrumb>li>a:focus:after {
+    .navbar-nav.tms-breadcrumb>li>a:focus {
+        outline: 0;
+    }
+
+    .navbar-nav.tms-breadcrumb>li>a:hover:after, .navbar-nav.tms-breadcrumb>li>a:focus:after {
         content: ' ';
         position: absolute;
         left: 0;
@@ -97,6 +101,20 @@ table.table {
         width: 90px;
         background: @brand-second;
 
+        &>ul.nav>li>a {
+            border-bottom: 1px ridge #f5f5f5;
+
+            &:hover {
+                border-bottom: 1px ridge #f5f5f5;
+            }
+
+            &:focus {
+                border-bottom: 1px ridge #f5f5f5;
+                background: transparent;
+            }
+
+        }
+
         .nav-tabs {
             border-bottom: 0;
 
@@ -116,6 +134,7 @@ table.table {
             text-decoration: none;
             border-radius: 0;
             border: 0;
+            margin-right: 0;
 
             &:hover {
                 color: #fff;
@@ -128,6 +147,10 @@ table.table {
                 border: 0;
             }
 
+        }
+
+        .nav>li.opened>a>.caret {
+            transform: rotate(180deg);
         }
 
         .nav>li.active>a, .nav>li.active>a:focus {
@@ -169,9 +192,10 @@ table.table {
     .pl-layout-main {
         flex-grow: 1;
         overflow-y: auto;
+        z-index: 1;
     }
 
-    .pl-layout-main.pl-layout-main-topnav {
+    .pl-layout-main-topnav {
         position: relative;
         margin-top: 70px;
     }
@@ -187,10 +211,39 @@ table.table {
     .pl-navbar-fixed-bottom {
         position: fixed;
         bottom: 0;
-        left: 91px;
+        left: 90px;
         right: 0;
         z-index: 1030;
         margin-bottom: 0;
+    }
+
+}
+
+.pl-panel-default {
+    position: relative;
+    border-color: #ddd;
+
+    .pl-btn-remove {
+        position: absolute;
+        width: 40px;
+        height: 34px;
+        top: -17px;
+        right: -20px;
+        border-radius: 20px;
+    }
+
+}
+
+/* pagination */
+.pl-pagination {
+    &>span {
+        vertical-align: middle;
+    }
+
+    &>ul {
+        margin: 0;
+        cursor: pointer;
+        vertical-align: middle;
     }
 
 }

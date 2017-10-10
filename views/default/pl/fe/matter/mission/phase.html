@@ -11,11 +11,9 @@
             </div>
         </div>
     </div>
-    <div class='panel panel-default phase' ng-repeat="p in phases">
+    <div class='panel pl-panel-default phase' ng-repeat="p in phases">
         <div class='panel-body'>
-            <div class='action'>
-                <button class='btn btn-sm btn-default' ng-click="remove(p)"><i class='glyphicon glyphicon-remove'></i></button>
-            </div>
+            <button class='btn btn-default pl-btn-remove' ng-click="remove(p)"><i class='glyphicon glyphicon-remove'></i></button>
             <div class='form-group'>
                 <label>{{cstApp.naming.phase}}名称</label>
                 <input type="text" class="form-control" ng-model="p.title" tms-auto-update tms-wait=1000 tms-update="update(p,'title')">

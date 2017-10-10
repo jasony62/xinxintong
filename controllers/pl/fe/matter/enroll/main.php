@@ -152,8 +152,7 @@ class main extends \pl\fe\matter\main_base {
 			return new \ResponseTimeout();
 		}
 
-		$modelApp = $this->model('matter\enroll');
-		$modelApp->setOnlyWriteDbConn(true);
+		$modelApp = $this->model('matter\enroll')->setOnlyWriteDbConn(true);
 
 		$oCustomConfig = $this->getPostJson();
 		$current = time();
@@ -249,7 +248,7 @@ class main extends \pl\fe\matter\main_base {
 			case 'member':
 				if (isset($oProtoEntryRule->mschemas)) {
 					$oEntryRule->member = new \stdClass;
-					foreach ($oProtoEntryRule as $oMschema) {
+					foreach ($oProtoEntryRule->mschemas as $oMschema) {
 						$oRule = new \stdClass;
 						$oRule->entry = isset($oEntryRule->otherwise->entry) ? $oEntryRule->otherwise->entry : '';
 						$oEntryRule->member->{$oMschema->id} = $oRule;

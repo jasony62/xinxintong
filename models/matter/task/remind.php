@@ -18,13 +18,12 @@ class remind_model extends \TMS_MODEL {
 			}
 
 			/* 获得活动的进入链接 */
-			$params = new \stdClass;
-			$params->url = $oMatter->entryUrl;
+			$noticeURL = $oMatter->entryUrl;
 
 			/* 获得用户 */
 			if (empty($oMatter->user_app_id)) {
 				$receivers = $this->model('matter\mission\user')->enrolleeByMission($oMatter, ['fields' => 'distinct userid']);
-			} else {	
+			} else {
 				switch ($oMatter->user_app_type) {
 				case 'group':
 					$q = [
@@ -69,17 +68,16 @@ class remind_model extends \TMS_MODEL {
 			}
 
 			/* 获得活动的进入链接 */
-			$params = new \stdClass;
-			$params->url = $oMatter->entryUrl;
+			$noticeURL = $oMatter->entryUrl;
 
 			/*处理要发送的填写人*/
-			$modelRec = $this->model('matter\enroll\user');
+			$modelUsr = $this->model('matter\enroll\user');
 			$options = [
 				'rid' => 'ALL',
 				'fields' => 'userid',
 				'cascaded' => 'N',
 			];
-			$enrollUsers = $modelRec->enrolleeByApp($oMatter, '', '', $options);
+			$enrollUsers = $modelUsr->enrolleeByApp($oMatter, '', '', $options);
 			$receivers = $enrollUsers->users;
 			if (count($receivers) === 0) {
 				return [false, '没有填写人'];
@@ -89,22 +87,18 @@ class remind_model extends \TMS_MODEL {
 		}
 
 		/*获取模板消息id*/
-		$oNotice = $this->model('site\notice')->byName($oMatter->siteid, $noticeName, ['onlySite' => false]);
-		if ($oNotice === false) {
-			return [false, '没有指定事件的模板消息1'];
+		$tmpConfig = $this->model('matter\tmplmsg\config')->getTmplConfig($oMatter, $noticeName, ['onlySite' => false, 'noticeURL' => $noticeURL]);
+		if ($tmpConfig[0] === false) {
+			return [false, $tmpConfig[1]];
 		}
-		$oTmplConfig = $this->model('matter\tmplmsg\config')->byId($oNotice->tmplmsg_config_id);
-		$tmplmsgId = $oTmplConfig->msgid;
-		if (empty($tmplmsgId)) {
-			return [false, '没有指定事件的模板消息2'];
-		}
+		$tmpConfig = $tmpConfig[1];
 
 		$modelTmplBat = $this->model('matter\tmplmsg\batch');
 		$creater = new \stdClass;
 		$creater->uid = $noticeName;
 		$creater->name = 'timer';
 		$creater->src = 'pl';
-		$modelTmplBat->send($oMatter->siteid, $tmplmsgId, $creater, $receivers, $params, ['send_from' => $oMatter->type . ':' . $oMatter->id]);
+		$modelTmplBat->send($oMatter->siteid, $tmpConfig->tmplmsgId, $creater, $receivers, $tmpConfig->oParams, ['send_from' => $oMatter->type . ':' . $oMatter->id]);
 
 		return [true];
 	}

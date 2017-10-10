@@ -98,7 +98,7 @@ define(['require'], function(require) {
                 frameState.scope = lsearch.scope;
             }
         }
-        $scope.opened = '';
+        $scope.opened = 'main';
         $scope.frameState = frameState;
         $scope.$on('$locationChangeSuccess', function(event, currentRoute) {
             var subView = currentRoute.match(/[^\/]+$/)[0];
@@ -189,14 +189,10 @@ define(['require'], function(require) {
                 location.href = '/rest/pl/fe/matter/enroll/shop?site=' + site.id + '&scenario=' + (scenario || '');
             },
             addSignin: function(site) {
-                http2.get('/rest/pl/fe/matter/signin/create?site=' + site.id, function(rsp) {
-                    location.href = '/rest/pl/fe/matter/signin?site=' + site.id + '&id=' + rsp.data.id;
-                });
+                location.href = '/rest/pl/fe/matter/signin/plan?site=' + site.id;
             },
             addGroup: function(site) {
-                http2.get('/rest/pl/fe/matter/group/create?site=' + site.id + '&scenario=split', function(rsp) {
-                    location.href = '/rest/pl/fe/matter/group/main?site=' + site.id + '&id=' + rsp.data.id;
-                });
+                location.href = '/rest/pl/fe/matter/group/plan?site=' + site.id;
             },
             addLottery: function(site) {
                 http2.get('/rest/pl/fe/matter/lottery/create?site=' + site.id, function(rsp) {
@@ -229,54 +225,19 @@ define(['require'], function(require) {
         };
 
         function addMatter(site, matterType, scenario) {
-            $('body').click();
             var fnName = 'add' + matterType[0].toUpperCase() + matterType.substr(1);
             _fns[fnName].call(_fns, site, scenario);
         }
         $scope.addMatter = function(matterType, scenario) {
-            if (matterType == 'site') {
-                var url = '/rest/pl/fe/site/create?_=' + (new Date * 1);
-                http2.get(url, function(rsp) {
-                    location.href = '/rest/pl/fe/site/setting?site=' + rsp.data.id;
-                });
-            }
-            if (frameState.sid != '') {
-                var site = { id: frameState.sid };
-                addMatter(site, matterType, scenario);
-            } else {
-                var url = '/rest/pl/fe/site/list?_=' + (new Date() * 1);
-                http2.get(url, function(rsp) {
-                    var sites = rsp.data;
-                    if (sites.length === 1) {
-                        addMatter(sites[0], matterType, scenario);
-                    } else if (sites.length === 0) {
-                        createSite().then(function(site) {
-                            addMatter(site, matterType, scenario);
-                        });
+            if (frameState.sid) {
+                if (matterType) {
+                    var site = { id: frameState.sid };
+                    if (/^enroll\.(.+)/.test(matterType)) {
+                        addMatter(site, 'enroll', matterType.split('.')[1]);
                     } else {
-                        $uibModal.open({
-                            templateUrl: 'addMatterSite.html',
-                            dropback: 'static',
-                            controller: ['$scope', '$uibModalInstance', function($scope2, $mi) {
-                                var data;
-                                $scope2.mySites = sites;
-                                $scope2.data = data = {};
-                                $scope2.ok = function() {
-                                    if (data.index !== undefined) {
-                                        $mi.close(sites[data.index]);
-                                    } else {
-                                        $mi.dismiss();
-                                    }
-                                };
-                                $scope2.cancel = function() {
-                                    $mi.dismiss();
-                                };
-                            }]
-                        }).result.then(function(site) {
-                            addMatter(site, matterType, scenario);
-                        });
+                        addMatter(site, matterType, scenario);
                     }
-                });
+                }
             }
         };
         $scope.list = function() {

@@ -45,8 +45,9 @@ define(['require', 'enrollService', 'enrollSchema', 'enrollPage'], function(requ
     ngApp.config(['$controllerProvider', '$routeProvider', '$locationProvider', '$compileProvider', '$uibTooltipProvider', 'srvSiteProvider', 'srvQuickEntryProvider', 'srvEnrollAppProvider', 'srvEnrollRoundProvider', 'srvEnrollPageProvider', 'srvEnrollRecordProvider', 'srvTagProvider', function($controllerProvider, $routeProvider, $locationProvider, $compileProvider, $uibTooltipProvider, srvSiteProvider, srvQuickEntryProvider, srvEnrollAppProvider, srvEnrollRoundProvider, srvEnrollPageProvider, srvEnrollRecordProvider, srvTagProvider) {
         var RouteParam = function(name, baseURL) {
             !baseURL && (baseURL = '/views/default/pl/fe/matter/enroll/');
-            this.templateUrl = baseURL + name + '.html?_=' + (new Date() * 1);
+            this.templateUrl = baseURL + name + '.html?_=' + (new Date * 1);
             this.controller = 'ctrl' + name[0].toUpperCase() + name.substr(1);
+            this.reloadOnSearch = false;
             this.resolve = {
                 load: function($q) {
                     var defer = $q.defer();
@@ -110,7 +111,8 @@ define(['require', 'enrollService', 'enrollSchema', 'enrollPage'], function(requ
             'voting': '投票',
             'quiz': '测验',
             'group_week_report': '周报',
-            'score_sheet': '记分表'
+            'score_sheet': '记分表',
+            index: ['common', 'registration', 'voting', 'quiz', 'group_week_report', 'score_sheet']
         };
         $scope.opened = '';
         $scope.$on('$locationChangeSuccess', function(event, currentRoute) {
@@ -120,12 +122,11 @@ define(['require', 'enrollService', 'enrollSchema', 'enrollPage'], function(requ
                 case 'main':
                 case 'page':
                 case 'schema':
-                case 'preview':
                     $scope.opened = 'edit';
                     break;
-                case 'access':
                 case 'time':
                 case 'entry':
+                case 'preview':
                     $scope.opened = 'publish';
                     break;
                 case 'record':
@@ -146,9 +147,9 @@ define(['require', 'enrollService', 'enrollSchema', 'enrollPage'], function(requ
                     $scope.opened = '';
             }
         });
-        $scope.switchTo = function(subView) {
+        $scope.switchTo = function(subView, hash) {
             var url = '/rest/pl/fe/matter/enroll/' + subView;
-            $location.path(url);
+            $location.path(url).hash(hash || '');
         };
         $scope.update = function(name) {
             srvEnrollApp.update(name);

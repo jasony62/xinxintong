@@ -69,7 +69,7 @@ define(['frame'], function(ngApp) {
                 srvGroupApp.update(['mission_id']);
             });
         };
-        $scope.tagMatter = function(subType){
+        $scope.tagMatter = function(subType) {
             var oTags;
             oTags = $scope.oTag;
             srvTag._tagMatter($scope.app, oTags, subType);

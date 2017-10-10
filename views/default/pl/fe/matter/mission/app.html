@@ -2,9 +2,8 @@
     <div class='form-group'>
         <div class='form-inline'>
             <div class='form-group'>
-                <label>活动类型</label>
                 <select class="form-control" ng-model="unionType">
-                    <option value=''>全部活动</option>
+                    <option value=''>全部类型</option>
                     <option ng-repeat="mt in unionMatterTypes" value="{{mt.name}}">{{mt.label}}</option>
                 </select>
             </div>
@@ -15,6 +14,14 @@
                 </select>
             </div>
             <button ng-if="unionType" class='btn btn-default' ng-click="addMatter()"><i class='glyphicon glyphicon-plus'></i> <span>新建{{scenarioNames.enroll[matterScenario||matterType]}}活动</span></button>
+            <div ng-if="!unionType" class="btn-group" uib-dropdown>
+                <button class="btn btn-default" uib-dropdown-toggle>
+                    <i class='glyphicon glyphicon-plus'></i> 新建 <span class="caret"></span>
+                </button>
+                <ul class='dropdown-menu' uib-dropdown-menu>
+                    <li ng-repeat="mt in unionMatterTypes"><a href='' ng-click="addMatter(mt.name)">{{mt.label}}</a></li>
+                </ul>
+            </div>
         </div>
     </div>
     <table class='table table-bordered'>
@@ -29,14 +36,14 @@
                 <th ng-if="matterType=='enroll'" style='width:64px'>评论数</th>
                 <th style='width:140px'>创建人</th>
                 <th style='width:120px'>创建时间</th>
-                <th style='width:220px'>操作</th>
+                <th style='width:163px'>操作</th>
             </tr>
         </thead>
         <tbody>
             <tr ng-repeat='m in matters'>
                 <td>{{$index+1}}</td>
                 <td ng-if="matterType==='enroll'">{{scenarioNames.enroll[m.scenario||m.type]}}</td>
-                <td ng-click="openMatter(m)" style='cursor:pointer;'>{{m.title}}</td>
+                <td ng-click="openMatter(m)">{{m.title}}</td>
                 <td data-th='签到轮次' ng-if="matterType=='signin'"><span>{{m.opData[0].title}}</span></td>
                 <td data-th='记录数' ng-if="matterType=='enroll'" ng-click="openMatter(m,'record')" title='点击查看详细数据'><span>{{m.opData[0].total}}</span></td>
                 <td data-th='记录数' ng-if="matterType=='signin'" ng-click="openMatter(m,'record')" title='点击查看详细数据'><span>{{m.opData[0].total}}</span></td>
@@ -47,18 +54,15 @@
                 <td ng-switch on="m.type">
                     <div ng-switch-when="group">
                         <button class='btn btn-sm btn-default' ng-click="openMatter(m,'main')">定义</button>
-                        <button class='btn btn-sm btn-default' ng-click="openMatter(m,'player')">数据</button>
                         <button class='btn btn-sm btn-default' ng-click="copyMatter($event,m)">复制</button>
                         <button class='btn btn-sm btn-default' title='删除' ng-click="removeMatter($event,m)">删除</button>
                     </div>
                     <div ng-switch-when="enroll">
-                        <button class='btn btn-sm btn-default' ng-click="openMatter(m,'preview')">预览</button>
                         <button class='btn btn-sm btn-default' ng-click="openMatter(m,'entry')">发放</button>
                         <button class='btn btn-sm btn-default' ng-click="copyMatter($event,m)">复制</button>
                         <button class='btn btn-sm btn-default' title='删除' ng-click="removeMatter($event,m)">删除</button>
                     </div>
                     <div ng-switch-when="signin">
-                        <button class='btn btn-sm btn-default' ng-click="openMatter(m,'preview')">预览</button>
                         <button class='btn btn-sm btn-default' ng-click="openMatter(m,'entry')">发放</button>
                         <button class='btn btn-sm btn-default' ng-click="copyMatter($event,m)">复制</button>
                         <button class='btn btn-sm btn-default' title='删除' ng-click="removeMatter($event,m)">删除</button>

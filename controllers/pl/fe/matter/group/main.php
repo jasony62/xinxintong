@@ -155,6 +155,8 @@ class main extends \pl\fe\matter\main_base {
 		$oNewApp->siteid = $oSite->id;
 		$oNewApp->title = empty($oCustomConfig->proto->title) ? '新分组活动' : $modelApp->escape($oCustomConfig->proto->title);
 		$oNewApp->scenario = $scenario;
+		$oNewApp->start_at = isset($oCustomConfig->proto->start_at) ? $oCustomConfig->proto->start_at : 0;
+		$oNewApp->end_at = isset($oCustomConfig->proto->end_at) ? $oCustomConfig->proto->end_at : 0;
 		$oNewApp = $modelApp->create($oUser, $oNewApp);
 
 		/*记录操作日志*/

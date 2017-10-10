@@ -31,6 +31,9 @@ define(['require'], function(require) {
         };
         $scope.proto = _oProto = $scope.result.proto;
         $scope.entryRule = _oEntryRule = _oProto.entryRule;
+        $scope.$on('xxt.tms-datepicker.change', function(event, data) {
+            _oProto[data.state] = data.value;
+        });
         $scope.chooseMschema = function() {
             srvSite.chooseMschema().then(function(result) {
                 var oChosen = result.chosen;

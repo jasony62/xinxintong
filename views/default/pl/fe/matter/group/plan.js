@@ -13,6 +13,9 @@ define(['require'], function(require) {
     ngApp.controller('ctrlPlan', ['$scope', 'http2', 'srvSite', function($scope, http2, srvSite) {
         var _oProto, _oEntryRule;
         $scope.proto = _oProto = {};
+        $scope.$on('xxt.tms-datepicker.change', function(event, data) {
+            _oProto[data.state] = data.value;
+        });
         srvSite.get().then(function(oSite) {
             $scope.site = oSite;
         });

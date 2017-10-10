@@ -69,15 +69,29 @@
                                             <hr>
                                             <div class='form-group'>
                                                 <label>活动名称</label>
-                                                <input class='form-control' ng-model='result.proto.title'>
+                                                <input class='form-control' ng-model='proto.title'>
                                             </div>
                                             <div class='form-group'>
                                                 <label>活动说明</label>
-                                                <textarea class='form-control' ng-model='result.proto.summary'></textarea>
+                                                <textarea class='form-control' ng-model='proto.summary'></textarea>
                                             </div>
-                                            <div class='form-group' ng-if="result.proto.mission">
+                                            <div class='row'>
+                                                <div class='col-md-6'>
+                                                    <div class='form-group'>
+                                                        <label>开始时间</label>
+                                                        <tms-datepicker class='tms-datepicker' tms-title='开始时间' tms-date='proto.start_at' tms-state='start_at'></tms-datepicker>
+                                                    </div>
+                                                </div>
+                                                <div class='col-md-6'>
+                                                    <div class='form-group'>
+                                                        <label>结束时间</label>
+                                                        <tms-datepicker class='tms-datepicker' tms-title='结束时间' tms-date='proto.end_at' tms-state='end_at'></tms-datepicker>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                            <div class='form-group' ng-if="proto.mission">
                                                 <label>所属项目</label>
-                                                <input class='form-control' title="{{result.proto.mission.title}}" value="{{result.proto.mission.title}}" readonly>
+                                                <input class='form-control' title="{{proto.mission.title}}" value="{{proto.mission.title}}" readonly>
                                             </div>
                                             <div class='form-group'>
                                                 <label>参与用户</label>
@@ -85,7 +99,7 @@
                                                     <label>
                                                         <input type='radio' value='none' ng-model="entryRule.scope">不限用户来源</label>
                                                 </div>
-                                                <div class='radio' ng-if="result.proto.mission">
+                                                <div class='radio' ng-if="proto.mission">
                                                     <label>
                                                         <input type='radio' value='group' ng-model="entryRule.scope">限同项目内分组活动用户访问</label>
                                                 </div>
@@ -119,11 +133,11 @@
                                             <hr>
                                             <div class='checkbox'>
                                                 <label>
-                                                    <input type='checkbox' ng-true-value="'Y'" ng-false-value="'N'" ng-model="result.proto.can_repos">开放共享页 <span class='glyphicon glyphicon-question-sign' uib-tooltip='设置后参与活动的用户可以查看活动中其他用户提交的数据。可查看的题目需设置为【共享内容】'></span></label>
+                                                    <input type='checkbox' ng-true-value="'Y'" ng-false-value="'N'" ng-model="proto.can_repos">开放共享页 <span class='glyphicon glyphicon-question-sign' uib-tooltip='设置后参与活动的用户可以查看活动中其他用户提交的数据。可查看的题目需设置为【共享内容】'></span></label>
                                             </div>
                                             <div class='checkbox'>
                                                 <label>
-                                                    <input type='checkbox' ng-true-value="'Y'" ng-false-value="'N'" ng-model="result.proto.can_rank">开放排行页 <span class='glyphicon glyphicon-question-sign' uib-tooltip='设置后参与活动的用户可以查看提交记录数、发表评论数、得分和积分等数据的个人或分组排行情况'></span></label>
+                                                    <input type='checkbox' ng-true-value="'Y'" ng-false-value="'N'" ng-model="proto.can_rank">开放排行页 <span class='glyphicon glyphicon-question-sign' uib-tooltip='设置后参与活动的用户可以查看提交记录数、发表评论数、得分和积分等数据的个人或分组排行情况'></span></label>
                                             </div>
                                             <div class='checkbox'>
                                                 <label>
@@ -131,28 +145,28 @@
                                             </div>
                                             <hr>
                                             <div ng-if="entryRule.scope!=='group'">
-                                                <div class='form-group' ng-if="!result.proto.groupApp">
-                                                    <button class='btn btn-default btn-block' ng-disabled="!result.proto.mission" ng-click="assignGroupApp()">指定分组匹配名单 <span class='glyphicon glyphicon-question-sign' uib-tooltip='指定同一个项目中的分组活动后，用户填写数据时需要提供和分组活动中匹配分组信息，例如：组号等，系统支持按照分组提交记录进行筛选和记分等功能'></span></button>
+                                                <div class='form-group' ng-if="!proto.groupApp">
+                                                    <button class='btn btn-default btn-block' ng-disabled="!proto.mission" ng-click="assignGroupApp()">指定分组匹配名单 <span class='glyphicon glyphicon-question-sign' uib-tooltip='指定同一个项目中的分组活动后，用户填写数据时需要提供和分组活动中匹配分组信息，例如：组号等，系统支持按照分组提交记录进行筛选和记分等功能'></span></button>
                                                 </div>
-                                                <div class='form-group' ng-if="result.proto.groupApp">
+                                                <div class='form-group' ng-if="proto.groupApp">
                                                     <div class="input-group">
-                                                        <input class='form-control' title="{{result.proto.groupApp.title}}" value="{{result.proto.groupApp.title}}" readonly>
+                                                        <input class='form-control' title="{{proto.groupApp.title}}" value="{{proto.groupApp.title}}" readonly>
                                                         <div class="input-group-btn">
-                                                            <button class="btn btn-default" type="button" ng-click="result.proto.groupApp=null">
+                                                            <button class="btn btn-default" ng-click="proto.groupApp=null">
                                                                 <span class='glyphicon glyphicon-remove'></span>
                                                             </button>
                                                         </div>
                                                     </div>
                                                 </div>
                                             </div>
-                                            <div class='form-group' ng-if="!result.proto.enrollApp">
-                                                <button class='btn btn-default btn-block' ng-disabled="!result.proto.mission" ng-click="assignEnrollApp()">指定登记匹配名单 <span class='glyphicon glyphicon-question-sign' uib-tooltip='指定同一个项目的登记活动后，用户填写数据时需要提供和登记活动中匹配信息'></span></button>
+                                            <div class='form-group' ng-if="!proto.enrollApp">
+                                                <button class='btn btn-default btn-block' ng-disabled="!proto.mission" ng-click="assignEnrollApp()">指定登记匹配名单 <span class='glyphicon glyphicon-question-sign' uib-tooltip='指定同一个项目的登记活动后，用户填写数据时需要提供和登记活动中匹配信息'></span></button>
                                             </div>
-                                            <div class='form-group' ng-if="result.proto.enrollApp">
+                                            <div class='form-group' ng-if="proto.enrollApp">
                                                 <div class="input-group">
-                                                    <input class='form-control' value="{{result.proto.enrollApp.title}}" title="{{result.proto.enrollApp.title}}" readonly>
+                                                    <input class='form-control' value="{{proto.enrollApp.title}}" title="{{result.proto.enrollApp.title}}" readonly>
                                                     <div class="input-group-btn">
-                                                        <button class="btn btn-default" type="button" ng-click="result.proto.enrollApp=null">
+                                                        <button class="btn btn-default" ng-click="proto.enrollApp=null">
                                                             <span class='glyphicon glyphicon-remove'></span>
                                                         </button>
                                                     </div>

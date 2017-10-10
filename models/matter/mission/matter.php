@@ -36,7 +36,10 @@ class matter_model extends \TMS_MODEL {
 
 		/* 按类型过滤 */
 		!empty($matterType) && $q[2]['matter_type'] = $matterType;
-
+		/* 按可见性过滤 */
+		if (isset($aOptions['is_public']) && $aOptions['is_public'] === 'Y') {
+			$q[2]['is_public'] = 'Y';
+		}
 		/* 按名称过滤 */
 		if (!empty($aOptions['byTitle'])) {
 			$q[2]["matter_title"] = (object) ['op' => 'like', 'pat' => '%' . $aOptions['byTitle'] . '%'];
@@ -57,7 +60,7 @@ class matter_model extends \TMS_MODEL {
 			}
 		}
 
-		$q2 = ['o' => 'seq,create_at desc'];
+		$q2 = ['o' => 'create_at desc'];
 		$mms = $this->query_objs_ss($q, $q2);
 
 		if ($verbose === 'Y' && count($mms)) {
@@ -70,10 +73,7 @@ class matter_model extends \TMS_MODEL {
 					$modelMat = $this->model('matter\\' . $mm->matter_type);
 				}
 				if (in_array($mm->matter_type, ['enroll', 'signin', 'group'])) {
-					$fields = 'siteid,id,title,summary,pic,create_at,creater_name,data_schemas,op_short_url_code';
-					if (in_array($mm->matter_type, ['enroll', 'signin'])) {
-						$fields .= ',start_at,end_at';
-					}
+					$fields = 'siteid,id,title,summary,pic,create_at,creater_name,data_schemas,op_short_url_code,start_at,end_at';
 					if (in_array($mm->matter_type, ['enroll'])) {
 						$fields .= ',end_submit_at,rp_short_url_code,can_coin,entry_rule';
 					}

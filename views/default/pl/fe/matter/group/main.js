@@ -6,6 +6,10 @@ define(['frame'], function(ngApp) {
                 noticebox.success('完成保存');
             });
         };
+        $scope.$on('xxt.tms-datepicker.change', function(event, data) {
+            $scope.app[data.state] = data.value;
+            $scope.update(data.state);
+        });
         $scope.choosePhase = function() {
             var phaseId = $scope.app.mission_phase_id,
                 i, phase, newPhase;

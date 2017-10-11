@@ -43,6 +43,11 @@ class article_model extends article_base {
 			$this->table(),
 			["id" => $id],
 		];
+		if (isset($options['where'])) {
+			foreach ($options['where'] as $key => $value) {
+				$q[2][$key] = $value;
+			}
+		}
 		if ($matter = $this->query_obj_ss($q)) {
 			!empty($matter->matter_cont_tag) && $matter->matter_cont_tag = json_decode($matter->matter_cont_tag);
 			!empty($matter->matter_mg_tag) && $matter->matter_mg_tag = json_decode($matter->matter_mg_tag);

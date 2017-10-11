@@ -112,6 +112,10 @@ class matter_model extends \TMS_MODEL {
 						}
 						$oMatter->rounds = $modelSigRnd->byApp($oMatter->id);
 					}
+					if (in_array($mm->matter_type, ['enroll', 'signin'])) {
+						$oMatter->opData = $modelMat->opData($oMatter, true);
+					}
+
 					$matters[] = $oMatter;
 				}
 			}

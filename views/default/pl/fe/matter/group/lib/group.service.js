@@ -79,19 +79,23 @@ provider('srvGroupApp', function() {
 
                 return defer.promise;
             },
-            importByApp: function(importSource) {
+            importByApp: function(sourceTypes, oMission, notSync) {
                 var defer = $q.defer();
                 $uibModal.open({
-                    templateUrl: 'importByApp.html',
+                    templateUrl: '/views/default/pl/fe/matter/group/component/sourceApp.html?_=1',
                     controller: ['$scope', '$uibModalInstance', function($scope2, $mi) {
-                        $scope2.app = _oApp;
                         $scope2.data = {
                             app: '',
                             appType: 'registration',
                             onlySpeaker: 'N'
                         };
-                        _oApp.mission && ($scope2.data.sameMission = 'Y');
-                        $scope2.importSource = importSource;
+                        if (!oMission && _oApp && _oApp.mission) {
+                            oMission = _oApp.mission;
+                        };
+                        if (oMission) {
+                            $scope2.data.sameMission = 'Y'
+                        };
+                        $scope2.sourceTypes = sourceTypes;
                         $scope2.cancel = function() {
                             $mi.dismiss();
                         };
@@ -99,10 +103,10 @@ provider('srvGroupApp', function() {
                             $mi.close($scope2.data);
                         };
                         $scope2.$watch('data.appType', function(appType) {
-                            if (!appType) return;
                             var url;
+                            if (!appType) return;
                             if (appType === 'mschema') {
-                                srvSite.memberSchemaList(_oApp.mission, !!_oApp.mission).then(function(aMschemas) {
+                                srvSite.memberSchemaList(oMission, !!oMission).then(function(aMschemas) {
                                     $scope2.apps = aMschemas;
                                 });
                                 delete $scope2.data.includeEnroll;
@@ -117,7 +121,7 @@ provider('srvGroupApp', function() {
                                 } else {
                                     url = '/rest/pl/fe/matter/wall/list?site=' + _siteId + '&size=999';
                                 }
-                                _oApp.mission && (url += '&mission=' + _oApp.mission.id);
+                                oMission && (url += '&mission=' + oMission.id);
                                 http2.get(url, function(rsp) {
                                     $scope2.apps = rsp.data.apps;
                                 });
@@ -134,15 +138,27 @@ provider('srvGroupApp', function() {
                         };
                         data.appType === 'signin' && (params.includeEnroll = data.includeEnroll);
                         data.appType === 'wall' && (params.onlySpeaker = data.onlySpeaker);
-                        http2.post('/rest/pl/fe/matter/group/player/importByApp?site=' + _siteId + '&app=' + _appId, params, function(rsp) {
-                            _oApp.sourceApp = data.app;
-                            if (angular.isString(rsp.data.data_schemas)) {
-                                _oApp.data_schemas = rsp.data.data_schemas ? JSON.parse(rsp.data.data_schemas) : '';
-                            } else {
-                                _oApp.data_schemas = rsp.data.data_schemas;
-                            }
-                            defer.resolve();
-                        });
+                        if (notSync) {
+                            params.appTitle = data.app.title;
+                            defer.resolve(params);
+                        } else {
+                            http2.post('/rest/pl/fe/matter/group/player/importByApp?site=' + _siteId + '&app=' + _appId, params, function(rsp) {
+                                var schemasById = {}
+                                _oApp.sourceApp = data.app;
+                                if (angular.isString(rsp.data.data_schemas)) {
+                                    _oApp.data_schemas = rsp.data.data_schemas ? JSON.parse(rsp.data.data_schemas) : '';
+                                } else {
+                                    _oApp.data_schemas = rsp.data.data_schemas;
+                                }
+                                _oApp.data_schemas.forEach(function(schema) {
+                                    if (schema.type !== 'html') {
+                                        schemasById[schema.id] = schema;
+                                    }
+                                });
+                                _oApp._schemasById = schemasById;
+                                defer.resolve();
+                            });
+                        }
                     }
                 });
                 return defer.promise;

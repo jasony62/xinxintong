@@ -162,6 +162,28 @@ class main extends \pl\fe\matter\main_base {
 		/*记录操作日志*/
 		$this->model('matter\log')->matterOp($oSite->id, $oUser, $oNewApp, 'C');
 
+		/* 指定分组用户名单并导入分组用户 */
+		if (isset($oCustomConfig->proto->sourceApp)) {
+			$oSourceApp = $oCustomConfig->proto->sourceApp;
+			if (!empty($oSourceApp->id) && !empty($oSourceApp->type)) {
+				$modelGrpUsr = $this->model('matter\group\player');
+				switch ($oSourceApp->type) {
+				case 'registration':
+					$modelGrpUsr->importByEnroll($oNewApp, $oSourceApp->id);
+					break;
+				case 'signin':
+					$modelGrpUsr->importBySignin($oNewApp, $oSourceApp->id);
+					break;
+				case 'wall':
+					break;
+					$modelGrpUsr->importByWall($oNewApp, $oSourceApp->id, $oSourceApp->onlySpeaker);
+				case 'mschema':
+					$modelGrpUsr->importByMschema($oNewApp, $oSourceApp->id);
+					break;
+				}
+			}
+		}
+
 		return new \ResponseData($oNewApp);
 	}
 	/**

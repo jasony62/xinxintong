@@ -8,7 +8,7 @@
     <link href="/static/css/bootstrap.min.css" rel="stylesheet">
     <link href="/static/css/font-awesome.min.css" rel="stylesheet">
     <link href="/static/css/tms.css?_=2" rel="stylesheet">
-    <link href="/static/css/pl.fe.css" rel="stylesheet">
+    <link href="<?php echo auto_version('/static/css/pl.fe.css');?>" rel="stylesheet">
 </head>
 
 <body ng-controller='ctrlPlan' ng-cloak class='ng-cloak'>
@@ -71,6 +71,24 @@
                                 </div>
                             </div>
                         </div>
+                        <div class='panel panel-default'>
+                            <div class='panel-body'>
+                                <div class='form-group' ng-if="!proto.sourceApp">
+                                    <button class='btn btn-block btn-default' ng-click="importByApp()">指定分组用户</button>
+                                </div>
+                                <div class='form-group' ng-if="proto.sourceApp">
+                                    <label>分组用户来源</label>
+                                    <div class="input-group">
+                                        <input class='form-control' value="{{proto.sourceApp.title}}" disabled="">
+                                        <div class="input-group-btn">
+                                            <button class='btn btn-default' ng-click='cancelSoruceApp()'>
+                                                <span class='glyphicon glyphicon-remove'></span>
+                                            </button>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
                         <div class='form-group'>
                             <button class="btn btn-success btn-block" ng-click="doCreate()"><span class='glyphicon glyphicon-plus'></span> 确定创建分组活动</button>
                         </div>
@@ -86,8 +104,10 @@
     <script src="/static/js/angular-route.min.js"></script>
     <script src="/static/js/angular-sanitize.min.js"></script>
     <script src="/static/js/ui-bootstrap-tpls.min.js"></script>
-    <script src="/static/js/ui-tms.js?_=4"></script>
+    <script src="/static/js/ui-tms.js?_=2"></script>
+    <script src="/static/js/xxt.ui.js?_=1"></script>
     <script src="/views/default/pl/fe/_module/matter.service.js?_=1"></script>
+    <script src="/views/default/pl/fe/matter/group/lib/group.service.js?_=4"></script>
     <script src="/static/js/require.js" data-main="/views/default/pl/fe/matter/group/plan-loader.js?_=1"></script>
 </body>
 

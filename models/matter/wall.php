@@ -32,6 +32,11 @@ class wall_model extends app_base {
 			'xxt_wall',
 			['id' => $id],
 		];
+		if (isset($options['where'])) {
+			foreach ($options['where'] as $key => $value) {
+				$q[2][$key] = $value;
+			}
+		}
 		if ($w = $this->query_obj_ss($q)) {
 			$w->type = 'wall';
 			if (!empty($w->matter_mg_tag)) {

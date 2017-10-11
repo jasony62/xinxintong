@@ -40,6 +40,9 @@ class matter extends \pl\fe\matter\base {
 		if (!empty($oCriteria->byTime)) {
 			$aOptions['byTime'] = $oCriteria->byTime;
 		}
+		if (!empty($oCriteria->byScenario)) {
+			$aOptions['byScenario'] = $oCriteria->byScenario;
+		}
 
 		if (!empty($matterType)) {
 			if ($matterType === 'doc') {

@@ -25,15 +25,12 @@
             <ul class="nav nav-tabs nav-stacked">
                 <li ng-class="{'opened':opened==='rule'}">
                     <a href='' ng-click="opened=opened==='rule'?false:'rule';switchTo('main')">定义 <span class="caret"></span></a>
-                    <ul class="nav nav-tabs nav-stacked" ng-style="{'height':opened==='rule'?'164px':'0'}">
+                    <ul class="nav nav-tabs nav-stacked" ng-style="{'height':opened==='rule'?'123px':'0'}">
                         <li ng-class="{'active':subView==='main'}">
                             <a href='' ng-click="switchTo('main')">项目描述</a>
                         </li>
                         <li ng-class="{'active':subView==='phase'}">
                             <a href='' ng-click="switchTo('phase')">{{cstApp.naming.phase}}</a>
-                        </li>
-                        <li ng-class="{'active':subView==='mschema'}">
-                            <a href='' ng-click="switchTo('mschema')">通讯录</a>
                         </li>
                         <li ng-class="{'active':subView==='coworker'}">
                             <a href='' ng-click="switchTo('coworker')">合作人</a>
@@ -56,7 +53,10 @@
                 </li>
                 <li ng-class="{'opened':opened==='result'}">
                     <a href='' ng-click="opened=opened==='result'?false:'result';switchTo('report')">数据 <span class="caret"></span></a>
-                    <ul class="nav nav-tabs nav-stacked" ng-style="{'height':opened==='result'?'82px':'0'}">
+                    <ul class="nav nav-tabs nav-stacked" ng-style="{'height':opened==='result'?'123px':'0'}">
+                        <li ng-class="{'active':subView==='mschema'}">
+                            <a href='' ng-click="switchTo('mschema')">通讯录</a>
+                        </li>
                         <li ng-class="{'active':subView==='enrollee'}">
                             <a href='' ng-click="switchTo('enrollee')">参与人</a>
                         </li>

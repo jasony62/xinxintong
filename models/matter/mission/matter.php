@@ -41,6 +41,21 @@ class matter_model extends \TMS_MODEL {
 		if (!empty($aOptions['byTitle'])) {
 			$q[2]["matter_title"] = (object) ['op' => 'like', 'pat' => '%' . $aOptions['byTitle'] . '%'];
 		}
+		/* 按开始结束时间过滤 */
+		if (!empty($aOptions['byTime'])) {
+			switch ($aOptions['byTime']) {
+			case 'running':
+				$q[2]["start_at"] = (object) ['op' => 'between', 'pat' => [1, time()]];
+				$q[2]["end_at"] = (object) ['op' => 'not between', 'pat' => [1, time()]];
+				break;
+			case 'pending':
+				$q[2]["start_at"] = (object) ['op' => '>', 'pat' => time()];
+				break;
+			case 'over':
+				$q[2]["end_at"] = (object) ['op' => 'between', 'pat' => [1, time()]];
+				break;
+			}
+		}
 
 		$q2 = ['o' => 'seq,create_at desc'];
 		$mms = $this->query_objs_ss($q, $q2);

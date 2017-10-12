@@ -59,6 +59,18 @@ class matter_model extends \TMS_MODEL {
 				break;
 			}
 		}
+		/* 按场景过滤 */
+		if (!empty($aOptions['byScenario'])) {
+			$q[2]['scenario'] = $aOptions['byScenario'];
+		}
+		/* 按项目阶段过滤 */
+		if (!empty($aOptions['byPhase'])) {
+			$q[2]['phase_id'] = $aOptions['byPhase'];
+		}
+		/* 按是用户是否可见过滤 */
+		if (!empty($aOptions['is_public'])) {
+			$q[2]['is_public'] = $aOptions['is_public'];
+		}
 
 		$q2 = ['o' => 'create_at desc'];
 		$mms = $this->query_objs_ss($q, $q2);
@@ -87,16 +99,9 @@ class matter_model extends \TMS_MODEL {
 					$options2 = ['fields' => $fields, 'cascaded' => 'N'];
 				}
 
-				if (isset($options['mission_phase_id'])) {
-					$options2['where'] = array('mission_phase_id' => $options['mission_phase_id']);
-				}
-
 				if ($oMatter = $modelMat->byId($mm->matter_id, $options2)) {
 					/* 是否开放了运营者链接 */
-					if (isset($options['op_short_url_code']) && $options['op_short_url_code'] === true && empty($oMatter->op_short_url_code)) {
-						continue;
-					}
-					if (isset($options['is_public']) && $options['is_public'] !== $mm->is_public) {
+					if (isset($aOptions['op_short_url_code']) && $aOptions['op_short_url_code'] === true && empty($oMatter->op_short_url_code)) {
 						continue;
 					}
 					$oMatter->_pk = $mm->id;
@@ -108,6 +113,10 @@ class matter_model extends \TMS_MODEL {
 						}
 						$oMatter->rounds = $modelSigRnd->byApp($oMatter->id);
 					}
+					if (in_array($mm->matter_type, ['enroll', 'signin'])) {
+						$oMatter->opData = $modelMat->opData($oMatter, true);
+					}
+
 					$matters[] = $oMatter;
 				}
 			}

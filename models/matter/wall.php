@@ -66,7 +66,7 @@ class wall_model extends app_base {
 		/**
 		 *检查信息墙状态
 		 */
-		$wall = $this->byId($wid, ['fields' => 'join_reply,active,start_at,end_at']);
+		$wall = $this->byId($wid, ['fields' => 'title,join_reply,active,start_at,end_at']);
 		if ($wall->active === 'N') {
 			$reply = [false, '【' . $wall->title . '】已停用'];
 			return $reply;

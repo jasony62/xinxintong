@@ -10,15 +10,15 @@ ngApp.factory('Input', ['$http', '$q', '$timeout', 'ls', function($http, $q, $ti
     var Input, _ins;
     Input = function() {};
     Input.prototype.check = function(data, app, page) {
-        var dataSchemas, item, schema, value, sCheckResult;
+        var dataSchemas, oItem, oSchema, value, sCheckResult;
         if (page.data_schemas && page.data_schemas.length) {
             dataSchemas = JSON.parse(page.data_schemas);
             for (var i = 0, ii = dataSchemas.length; i < ii; i++) {
-                item = dataSchemas[i];
-                schema = item.schema;
+                oItem = dataSchemas[i];
+                oSchema = oItem.schema;
                 //定义value
-                if (schema.id.indexOf('member.') === 0) {
-                    var memberSchema = schema.id.substr(7);
+                if (oSchema.id.indexOf('member.') === 0) {
+                    var memberSchema = oSchema.id.substr(7);
                     if (memberSchema.indexOf('.') === -1) {
                         value = data.member[memberSchema];
                     } else {
@@ -26,12 +26,13 @@ ngApp.factory('Input', ['$http', '$q', '$timeout', 'ls', function($http, $q, $ti
                         value = data.member.extattr[memberSchema[1]];
                     }
                 } else {
-                    value = data[schema.id];
+                    value = data[oSchema.id];
                 }
-                if (item.config.required === 'Y') {
-                    schema.required = 'Y';
+                /* 为了兼容老版本 */
+                if (oSchema.required === undefined && oItem.config.required === 'Y') {
+                    oSchema.required = 'Y';
                 }
-                if (true !== (sCheckResult = ngApp.oUtilSchema.checkValue(schema, value))) {
+                if (true !== (sCheckResult = ngApp.oUtilSchema.checkValue(oSchema, value))) {
                     return sCheckResult;
                 }
             }

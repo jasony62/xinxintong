@@ -64,7 +64,7 @@ class matter_model extends \TMS_MODEL {
 		if (!empty($aOptions['byPhase'])) {
 			$q[2]['phase_id'] = $aOptions['byPhase'];
 		}
-		/* 按可见过滤 */
+		/* 按是用户是否可见过滤 */
 		if (!empty($aOptions['is_public'])) {
 			$q[2]['is_public'] = $aOptions['is_public'];
 		}

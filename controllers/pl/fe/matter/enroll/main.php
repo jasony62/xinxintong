@@ -262,8 +262,8 @@ class main extends \pl\fe\matter\main_base {
 				$oRule->entry = isset($oEntryRule->otherwise->entry) ? $oEntryRule->otherwise->entry : '';
 				$oSns = new \stdClass;
 				if (isset($oProtoEntryRule->sns)) {
-					foreach ($oProtoEntryRule->sns as $snsName => $oRule2) {
-						if (isset($oRule2->entry) && $oRule2->entry === 'Y') {
+					foreach ($oProtoEntryRule->sns as $snsName => $bValid) {
+						if ($bValid) {
 							$oSns->{$snsName} = $oRule;
 						}
 					}

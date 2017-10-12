@@ -6,11 +6,25 @@
                 <input type='text' class='form-control' ng-model='app.title' tms-auto-update tms-wait=1000 tms-update="update('title')">
             </div>
             <div class='form-group'>
-                <label>分组类型</label>
+                <label>分组方式</label>
                 <select class='form-control' ng-model='app.scenario' ng-change="update('scenario');">
                     <option value='split'>拆分</option>
                     <option value='extract'>抽取</option>
                 </select>
+            </div>
+            <div class='row'>
+                <div class='col-md-6'>
+                    <div class='form-group'>
+                        <label>开始时间</label>
+                        <tms-datepicker class='tms-datepicker' tms-title='开始时间' tms-date='app.start_at' tms-state='start_at'></tms-datepicker>
+                    </div>
+                </div>
+                <div class='col-md-6'>
+                    <div class='form-group'>
+                        <label>结束时间</label>
+                        <tms-datepicker class='tms-datepicker' tms-title='结束时间' tms-date='app.end_at' tms-state='end_at'></tms-datepicker>
+                    </div>
+                </div>
             </div>
             <div class='form-group'>
                 <label class='help-block'>管理标签（可选）</label>
@@ -92,41 +106,8 @@
             </form>
         </div>
     </div>
+    <hr>
     <div class='form-group'>
         <button class='btn btn-default btn-block' ng-click="remove()">删除活动</button>
     </div>
-    <script type="text/ng-template" id="importByApp.html">
-        <div class="modal-header">
-            <button class="close" type="button" ng-click="cancel()">×</button>
-            <h5 class="modal-title">筛选条件</h5>
-        </div>
-        <div class="modal-body">
-            <form class="form-horizontal">
-                <div class='form-group'>
-                    <label class="col-md-3 control-label">数据来源</label>
-                    <div class="col-md-9">
-                        <label class='radio-inline' ng-repeat="is in importSource">
-                            <input type='radio' name='appType' value='{{is.v}}' ng-model="data.appType">{{is.l}}</label>
-                    </div>
-                    <div class="col-md-9 col-md-offset-3" ng-if="data.appType==='wall'">
-                        <label class='checkbox-inline'>
-                            <input type='checkbox' ng-model='data.onlySpeaker' ng-true-value="'Y'" ng-false-value="'N'">仅包含发言用户</label>
-                    </div>
-                </div>
-                <div class='form-group'>
-                    <label class="col-md-3 control-label">目标活动</label>
-                    <div class="col-md-9">
-                        <select class="form-control" ng-model="data.app" ng-options="app.title for app in apps"></select>
-                        <div class='checkbox' ng-if="app.mission">
-                            <label>
-                                <input disabled type='checkbox' ng-model="data.sameMission" ng-true-value="'Y'" ng-false-value="'N'">仅在【{{app.mission.title}}】中选择</label>
-                        </div>
-                    </div>
-                </div>
-            </form>
-        </div>
-        <div class="modal-footer">
-            <button class="btn btn-primary" ng-click="ok()">确定</button>
-        </div>
-    </script>
 </div>

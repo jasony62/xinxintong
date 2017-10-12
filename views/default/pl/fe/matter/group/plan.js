@@ -5,14 +5,26 @@ define(['require'], function(require) {
     ls = location.search;
     siteId = ls.match(/[\?&]site=([^&]*)/)[1];
     missionId = ls.match(/[\?&]mission=([^&]*)/) ? ls.match(/[\?&]mission=([^&]*)/)[1] : '';
-    ngApp = angular.module('app', ['ngRoute', 'service.matter']);
-    ngApp.config(['$locationProvider', 'srvSiteProvider', function($locationProvider, srvSiteProvider) {
+    ngApp = angular.module('app', ['ngRoute', 'ui.tms', 'service.matter', 'service.group']);
+    ngApp.constant('cstApp', {
+        importSource: [
+            { v: 'mschema', l: '通讯录联系人' },
+            { v: 'registration', l: '报名' },
+            { v: 'signin', l: '签到' },
+            { v: 'wall', l: '信息墙' }
+        ],
+    });
+    ngApp.config(['$locationProvider', 'srvSiteProvider', 'srvGroupAppProvider', function($locationProvider, srvSiteProvider, srvGroupAppProvider) {
         $locationProvider.html5Mode(true);
         srvSiteProvider.config(siteId);
+        srvGroupAppProvider.config(siteId, null);
     }]);
-    ngApp.controller('ctrlPlan', ['$scope', 'http2', 'srvSite', function($scope, http2, srvSite) {
+    ngApp.controller('ctrlPlan', ['$scope', 'http2', 'srvSite', 'srvGroupApp', 'cstApp', function($scope, http2, srvSite, srvGroupApp, cstApp) {
         var _oProto, _oEntryRule;
         $scope.proto = _oProto = {};
+        $scope.$on('xxt.tms-datepicker.change', function(event, data) {
+            _oProto[data.state] = data.value;
+        });
         srvSite.get().then(function(oSite) {
             $scope.site = oSite;
         });
@@ -24,6 +36,21 @@ define(['require'], function(require) {
                 _oProto.title = oMission.title + '-分组';
             });
         }
+        $scope.importByApp = function() {
+            srvGroupApp.importByApp(cstApp.importSource, $scope.mission ? $scope.mission : null, true).then(function(result) {
+                _oProto.sourceApp = {
+                    id: result.app,
+                    type: result.appType,
+                    title: result.appTitle
+                };
+                if (result.onlySpeaker) {
+                    _oProto.sourceApp.onlySpeaker = result.onlySpeaker;
+                }
+            });
+        };
+        $scope.cancelSourceApp = function() {
+            _oProto.sourceApp = null;
+        };
         $scope.doCreate = function() {
             var url, data;
             var oConfig;
@@ -34,6 +61,9 @@ define(['require'], function(require) {
             oConfig = {
                 proto: $scope.proto
             };
+            if (oConfig.proto.sourceApp) {
+                delete oConfig.proto.sourceApp.title;
+            }
             http2.post(url, oConfig, function(rsp) {
                 location.href = '/rest/pl/fe/matter/group/main?site=' + siteId + '&id=' + rsp.data.id;
             });

@@ -31,8 +31,11 @@ define(['require'], function(require) {
         };
         $scope.proto = _oProto = $scope.result.proto;
         $scope.entryRule = _oEntryRule = _oProto.entryRule;
+        $scope.$on('xxt.tms-datepicker.change', function(event, data) {
+            _oProto[data.state] = data.value;
+        });
         $scope.chooseMschema = function() {
-            srvSite.chooseMschema().then(function(result) {
+            srvSite.chooseMschema({ id: '_pending', title: _oProto.title }).then(function(result) {
                 var oChosen = result.chosen;
                 _oEntryRule.mschemas.push({ id: oChosen.id, title: oChosen.title });
             });
@@ -70,9 +73,6 @@ define(['require'], function(require) {
                     }
                 }
             });
-        };
-        $scope.removeGroupApp = function() {
-            delete _oEntryRule.group;
         };
         $scope.assignGroupApp = function() {
             srvSite.openGallery({
@@ -176,6 +176,26 @@ define(['require'], function(require) {
                 elSimulator.contentWindow.renew(oPage.name, {});
             }
         };
+        $scope.changeUserScope = function() {
+            switch (_oEntryRule.scope) {
+                case 'group':
+                    if (!_oEntryRule.group) {
+                        $scope.chooseGroupApp();
+                    }
+                    break;
+                case 'member':
+                    if (!_oEntryRule.mschemas || _oEntryRule.mschemas.length === 0) {
+                        $scope.chooseMschema();
+                    }
+                    break;
+                case 'sns':
+                    _oEntryRule.sns = {};
+                    $scope.snsNames.forEach(function(snsName) {
+                        _oEntryRule.sns[snsName] = true;
+                    });
+                    break;
+            }
+        };
         /*系统模版*/
         http2.get('/rest/pl/fe/matter/enroll/template/list', function(rsp) {
             var oScenarioes = rsp.data,
@@ -200,14 +220,7 @@ define(['require'], function(require) {
         });
         srvSite.snsList().then(function(oSns) {
             $scope.sns = oSns;
-            $scope.snsCount = Object.keys(oSns).length;
-            if (!missionId) {
-                if ($scope.snsCount) {
-                    _oEntryRule.scope = 'sns';
-                } else {
-                    _oEntryRule.scope = 'none';
-                }
-            }
+            $scope.snsNames = Object.keys(oSns);
         });
         if (missionId) {
             http2.get('/rest/pl/fe/matter/mission/get?site=' + siteId + '&id=' + missionId, function(rsp) {

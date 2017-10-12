@@ -60,6 +60,14 @@ class matter_model extends \TMS_MODEL {
 		if (!empty($aOptions['byScenario'])) {
 			$q[2]['scenario'] = $aOptions['byScenario'];
 		}
+		/* 按项目阶段过滤 */
+		if (!empty($aOptions['byPhase'])) {
+			$q[2]['phase_id'] = $aOptions['byPhase'];
+		}
+		/* 按可见过滤 */
+		if (!empty($aOptions['is_public'])) {
+			$q[2]['is_public'] = $aOptions['is_public'];
+		}
 
 		$q2 = ['o' => 'seq,create_at desc'];
 		$mms = $this->query_objs_ss($q, $q2);
@@ -91,16 +99,9 @@ class matter_model extends \TMS_MODEL {
 					$options2 = ['fields' => $fields, 'cascaded' => 'N'];
 				}
 
-				if (isset($aOptions['mission_phase_id'])) {
-					$options2['where'] = array('mission_phase_id' => $aOptions['mission_phase_id']);
-				}
-
 				if ($oMatter = $modelMat->byId($mm->matter_id, $options2)) {
 					/* 是否开放了运营者链接 */
 					if (isset($aOptions['op_short_url_code']) && $aOptions['op_short_url_code'] === true && empty($oMatter->op_short_url_code)) {
-						continue;
-					}
-					if (isset($aOptions['is_public']) && $aOptions['is_public'] !== $mm->is_public) {
 						continue;
 					}
 					$oMatter->_pk = $mm->id;

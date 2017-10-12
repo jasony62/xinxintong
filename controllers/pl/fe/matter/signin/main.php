@@ -69,7 +69,7 @@ class main extends \pl\fe\matter\main_base {
 		} else {
 			/* 按项目阶段筛选 */
 			if (isset($oPosted->mission_phase_id) && !empty($oPosted->mission_phase_id) && $oPosted->mission_phase_id !== "ALL") {
-				$oOptions['where']['mission_phase_id'] = $oPosted->mission_phase_id;
+				$oOptions['byPhase'] = $oPosted->mission_phase_id;
 			}
 			$result = $modelSig->byMission($mission, $oOptions, $page, $size);
 		}

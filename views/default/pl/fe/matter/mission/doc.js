@@ -88,24 +88,19 @@ define(['frame'], function(ngApp) {
                 data.byTitle = _oCriteria.filter.keyword;
             }
             matterType = $scope.matterType;
+            url = '/rest/pl/fe/matter/mission/matter/list?id=' + _oMission.id;
             if (matterType === '') {
-                url = '/rest/pl/fe/matter/mission/matter/list?id=' + _oMission.id;
                 url += '&matterType=doc';
-                http2.post(url, data, function(rsp) {
-                    rsp.data.forEach(function(matter) {
-                        matter._operator = matter.modifier_name || matter.creater_name;
-                        matter._operateAt = matter.modifiy_at || matter.create_at;
-                    });
-                    $scope.matters = rsp.data;
-                });
             } else {
-                url = '/rest/pl/fe/matter/';
-                url += matterType;
-                url += '/list?mission=' + _oMission.id;
-                http2.post(url, data, function(rsp) {
-                    $scope.matters = rsp.data.docs;
-                });
+                url += '&matterType=' + matterType;
             }
+            http2.post(url, data, function(rsp) {
+                rsp.data.forEach(function(matter) {
+                    matter._operator = matter.modifier_name || matter.creater_name;
+                    matter._operateAt = matter.modifiy_at || matter.create_at;
+                });
+                $scope.matters = rsp.data;
+            });
         };
         $scope.$watch('mission', function(nv) {
             if (!nv) return;

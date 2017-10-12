@@ -77,11 +77,6 @@ class enroll_model extends app_base {
 			'xxt_enroll',
 			["id" => $aid],
 		];
-		if (isset($options['where'])) {
-			foreach ($options['where'] as $key => $value) {
-				$q[2][$key] = $value;
-			}
-		}
 
 		if ($oApp = $this->query_obj_ss($q)) {
 			$oApp->type = 'enroll';

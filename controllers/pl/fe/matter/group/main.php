@@ -113,12 +113,13 @@ class main extends \pl\fe\matter\main_base {
 		return new \ResponseData($result);
 	}
 	/**
-	 * 创建空的分组活动
+	 * 创建分组活动
 	 *
 	 * @param string $site
 	 * @param string $missioon
+	 * @param string $scenario
 	 */
-	public function create_action($site, $mission = null, $scenario = '') {
+	public function create_action($site, $mission = null, $scenario = 'split') {
 		if (false === ($oUser = $this->accountUser())) {
 			return new \ResponseTimeout();
 		}

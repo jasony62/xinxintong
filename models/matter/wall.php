@@ -64,13 +64,22 @@ class wall_model extends app_base {
 	 */
 	public function join($runningSiteId, $wid, $user, $remark = '') {
 		/**
-		 *检查是否启用信息墙
+		 *检查信息墙状态
 		 */
-		$wall = $this->byId($wid, 'join_reply,active');
+		$wall = $this->byId($wid, ['fields' => 'join_reply,active,start_at,end_at']);
 		if ($wall->active === 'N') {
-			$reply = [false, '信息墙已停用'];
+			$reply = [false, '【' . $wall->title . '】已停用'];
 			return $reply;
 		}
+		$current = time();
+		if ($wall->start_at != 0 && $current < $wall->start_at) {
+			$reply = [false, '【' . $wall->title . '】没有开始'];
+			return $reply;
+		} else if ($wall->end_at != 0 && $current > $wall->end_at) {
+			$reply = [false, '【' . $wall->title . '】已经结束'];
+			return $reply;
+		}
+		
 		/**
 		 * 加入一个信息墙需要从其他的墙退出
 		 */

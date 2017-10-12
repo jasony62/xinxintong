@@ -16,6 +16,11 @@ define(['require'], function(require) {
         $scope.switchSource = function(source) {
             $scope.source = source;
         };
+        if (missionId) {
+            http2.get('/rest/pl/fe/matter/mission/get?site=' + siteId + '&id=' + missionId, function(rsp) {
+                $scope.mission = rsp.data;
+            });
+        }
     }]);
     ngApp.controller('ctrlSysTemplate', ['$scope', '$location', '$uibModal', 'http2', 'srvSite', function($scope, $location, $uibModal, http2, srvSite) {
         var assignedScenario, _oProto, _oEntryRule;
@@ -222,10 +227,8 @@ define(['require'], function(require) {
             $scope.sns = oSns;
             $scope.snsNames = Object.keys(oSns);
         });
-        if (missionId) {
-            http2.get('/rest/pl/fe/matter/mission/get?site=' + siteId + '&id=' + missionId, function(rsp) {
-                var oMission;
-                oMission = rsp.data;
+        $scope.$watch('mission', function(oMission) {
+            if (oMission) {
                 _oProto.mission = { id: oMission.id, title: oMission.title };
                 _oEntryRule.scope = oMission.entry_rule.scope || 'none';
                 if ('member' === oMission.entry_rule.scope) {
@@ -254,8 +257,8 @@ define(['require'], function(require) {
                 } else if (assignedScenario === 'common' || assignedScenario === '') {
                     _oProto.title = oMission.title + '-登记';
                 }
-            });
-        }
+            }
+        });
     }]);
     ngApp.controller('ctrlUserTemplate', ['$scope', 'http2', function($scope, http2) {
         $scope.criteria = {

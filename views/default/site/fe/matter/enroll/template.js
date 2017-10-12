@@ -1,4 +1,5 @@
 'use strict';
+require('./main.css');
 require('./directive.css');
 require('./template.css');
 
@@ -6,12 +7,10 @@ require('../../../../../../asset/js/xxt.ui.page.js');
 require('../../../../../../asset/js/xxt.ui.siteuser.js');
 require('../../../../../../asset/js/xxt.ui.favor.js');
 require('../../../../../../asset/js/xxt.ui.coinpay.js');
-require('../../../../../../asset/js/xxt.ui.discuss2.js');
-require('../../../../../../asset/js/xxt.ui.share.js');
 
 require('./directive.js');
 
-var ngApp = angular.module('app', ['ngSanitize', 'ui.bootstrap', 'page.ui.xxt', 'snsshare.ui.xxt', 'directive.enroll', 'siteuser.ui.xxt', 'favor.ui.xxt', 'discuss.ui.xxt']);
+var ngApp = angular.module('app', ['ngSanitize', 'ui.bootstrap', 'page.ui.xxt', 'directive.enroll', 'siteuser.ui.xxt', 'favor.ui.xxt']);
 ngApp.provider('ls', function() {
     var _baseUrl = '/rest/site/fe/matter/enroll',
         _params = {};

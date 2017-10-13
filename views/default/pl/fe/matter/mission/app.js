@@ -74,14 +74,20 @@ define(['frame'], function(ngApp) {
             }
         };
         $scope.openMatter = function(matter, subView) {
-            var url = '/rest/pl/fe/matter/',
-                type = matter.type || $scope.matterType,
-                id = matter.id;
-            url += type;
-            if (subView) {
-                url += '/' + subView;
+            var url, type, id;
+            type = matter.type || $scope.matterType;
+            id = matter.id;
+            if (type === 'memberschema') {
+                url = '/rest/pl/fe/site/mschema?site=' + _oMission.siteid + '#' + id;
+                location.href = url;
+            } else {
+                url = '/rest/pl/fe/matter/';
+                url += type;
+                if (subView) {
+                    url += '/' + subView;
+                }
+                location.href = url + '?id=' + id + '&site=' + _oMission.siteid;
             }
-            location.href = url + '?id=' + id + '&site=' + _oMission.siteid;
         };
         $scope.removeMatter = function(evt, matter) {
             var type = matter.type || $scope.matterType,

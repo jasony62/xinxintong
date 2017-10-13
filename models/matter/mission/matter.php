@@ -97,6 +97,9 @@ class matter_model extends \TMS_MODEL {
 				} else if (in_array($mm->matter_type, ['wall'])) {
 					$fields = 'siteid,id,title,summary,pic,create_at,creater_name,start_at,end_at';
 					$options2 = ['fields' => $fields];
+				} else if ($mm->matter_type === 'memberschema') {
+					$fields = 'siteid,id,title,create_at,start_at,end_at,url';
+					$options2 = ['fields' => $fields, 'cascaded' => 'N'];
 				} else {
 					$fields = 'siteid,id,title,summary,pic,create_at,creater_name';
 					$options2 = ['fields' => $fields, 'cascaded' => 'N'];
@@ -118,6 +121,9 @@ class matter_model extends \TMS_MODEL {
 					}
 					if (in_array($mm->matter_type, ['enroll', 'signin'])) {
 						$oMatter->opData = $modelMat->opData($oMatter, true);
+					}
+					if ($mm->matter_type === 'memberschema') {
+						$oMatter->entryUrl = $modelMat->getEntryUrl($oMatter->siteid, $oMatter->id);
 					}
 
 					$matters[] = $oMatter;

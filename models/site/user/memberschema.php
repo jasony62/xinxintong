@@ -131,6 +131,13 @@ class memberschema_model extends \TMS_MODEL {
 		}
 
 		$oNewMschema->id = $this->insert('xxt_site_member_schema', $oNewMschema, true);
+		$oNewMschema->type = 'memberschema';
+
+		/* 作为项目中的活动 */
+		if (!empty($oConfig->matter_type) && $oConfig->matter_type === 'mission') {
+			$modelMis = $this->model('matter\mission');
+			$modelMis->addMatter($oUser, $oSite->id, $oConfig->matter_id, $oNewMschema);
+		}
 
 		return $oNewMschema;
 	}

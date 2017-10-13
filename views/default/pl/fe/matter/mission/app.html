@@ -84,10 +84,8 @@
                         <button class='btn btn-sm btn-default' ng-click="copyMatter($event,m)">复制</button>
                         <button class='btn btn-sm btn-default' title='删除' ng-click="removeMatter($event,m)">删除</button>
                     </div>
-                    <div ng-switch-default>
-                        <button class='btn btn-sm btn-default' ng-click="openMatter(m,'main')">进入</button>
-                        <button class='btn btn-sm btn-default' ng-click="copyMatter($event,m)">复制</button>
-                        <button class='btn btn-sm btn-default' ng-if="m.type!= 'wall'" ng-click="removeMatter($event,m)">删除</button>
+                    <div ng-switch-when="memberschema">
+                        <button class='btn btn-sm btn-default' ng-click="openMatter(m)">进入</button>
                     </div>
                 </td>
             </tr>

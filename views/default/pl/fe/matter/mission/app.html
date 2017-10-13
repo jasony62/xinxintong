@@ -44,7 +44,7 @@
                 <th ng-if="matterType=='enroll'" style='width:64px'>评论数</th>
                 <th style='width:120px'>开始时间</th>
                 <th style='width:120px'>结束时间</th>
-                <th style='width:80px'>用户可见</th>
+                <th style='width:74px'>用户可见</th>
                 <th style='width:140px'>创建人</th>
                 <th style='width:163px'>操作</th>
             </tr>
@@ -61,7 +61,7 @@
                 <td data-th='评论数' ng-if="matterType=='enroll'" ng-click="openMatter(m,'remark')" title='点击查看详细数据'><span>{{m.opData[0].remark_total}}</span></td>
                 <td><span ng-if='m.start_at>0'>{{m.start_at*1000|date:'yy-MM-dd HH:mm'}}</span></td>
                 <td><span ng-if='m.end_at>0'>{{m.end_at*1000|date:'yy-MM-dd HH:mm'}}</span></td>
-                <td ng-click="togglePublic(m)">{{m.is_public}}</td>
+                <td ng-click="togglePublic(m)"><i class='glyphicon' ng-class="m.is_public==='Y'?'glyphicon-eye-open':'glyphicon-eye-close'"></i></td>
                 <td>{{m.creater_name}}</td>
                 <td ng-switch on="m.type">
                     <div ng-switch-when="group">

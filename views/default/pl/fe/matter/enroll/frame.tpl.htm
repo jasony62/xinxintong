@@ -41,13 +41,10 @@
                     </ul>
                 </li>
                 <li ng-class="{'opened':opened==='publish'}">
-                    <a href='' ng-click="opened=opened==='publish'?false:'publish';switchTo('entry')">发布 <span class="caret"></span></a>
-                    <ul class="nav nav-tabs nav-stacked" ng-style="{'height':opened==='publish'?'123px':'0'}">
+                    <a href='' ng-click="opened=opened==='publish'?false:'publish';switchTo('preview')">发布 <span class="caret"></span></a>
+                    <ul class="nav nav-tabs nav-stacked" ng-style="{'height':opened==='publish'?'82px':'0'}">
                         <li ng-class="{'active':subView==='preview'}">
                             <a href='' ng-click="switchTo('preview')">预览</a>
-                        </li>
-                        <li ng-class="{'active':subView==='entry'}">
-                            <a href='' ng-click="switchTo('entry')">入口</a>
                         </li>
                         <li ng-class="{'active':subView==='time'}">
                             <a href='' ng-click="switchTo('time')">轮次</a>
@@ -91,6 +88,11 @@
                         </li>
                     </ul>
                 </li>
+                <div class='pl-layout-leftnav-footer'>
+                    <ul class="nav nav-tabs nav-stacked">
+                        <li ng-class="{'active':subView==='entry'}"><a href='' ng-click="switchTo('entry')"><i class='glyphicon glyphicon-phone'></i>入口</a></li>
+                    </ul>
+                </div>
             </ul>
         </div>
         <!--导航+主体内容-->

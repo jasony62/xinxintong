@@ -119,7 +119,6 @@ define(['missionService', 'enrollService', 'signinService'], function() {
                     break;
                 case 'app':
                 case 'doc':
-                case 'entry':
                     $scope.opened = 'task';
                     break;
                 case 'mschema':

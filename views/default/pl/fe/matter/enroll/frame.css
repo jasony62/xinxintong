@@ -1,4 +1,3 @@
-.pl-layout-main>.container-fluid,.pl-layout-main>.container-fluid>.row{height:100%;}
 #main-view,#preview-view,#entry-view{height:100%;overflow-y:auto;}
 
 /*preview*/

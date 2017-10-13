@@ -35,7 +35,7 @@
                 <div class='container-fluid'>
                     <nav class='nav navbar-nav tms-breadcrumb'>
                         <li><a href="/rest/pl/fe?view=main&scope=activity&type=enroll&sid={{site.id}}" target='_self'>个人工作台</a></li>
-                        <li ng-if="result.proto.mission"><a href="/rest/pl/fe/matter/mission?site={{site.id}}&id={{result.proto.mission.id}}" target='_self' title="{{result.proto.mission.title}}">{{result.proto.mission.title}}</a></li>
+                        <li ng-if="mission"><a href="/rest/pl/fe/matter/mission?site={{site.id}}&id={{mission.id}}" target='_self'>{{mission.title}}</a></li>
                     </nav>
                 </div>
             </nav>
@@ -54,7 +54,6 @@
                                                     <div class='form-group'>
                                                         <label>场景</label>
                                                         <select class='form-control' ng-disabled="fixedScenario" ng-model='result.scenario' ng-options='s as s.title for s in templates2' ng-change='chooseScenario()'></select>
-                                                        <p class='help-block' ng-bind="result.scenario.description"></p>
                                                     </div>
                                                 </div>
                                                 <div class='col-md-6'>
@@ -62,7 +61,6 @@
                                                         <label>模板</label>
                                                         <select class='form-control' ng-model='result.template' ng-options='t.title for t in result.scenario.templates' ng-change='chooseTemplate()'>
                                                         </select>
-                                                        <p class='help-block' ng-bind="result.template.description"></p>
                                                     </div>
                                                 </div>
                                             </div>

@@ -255,19 +255,19 @@ class mission_model extends app_base {
 	/**
 	 * 更新项目中的素材信息
 	 */
-	public function updateMatter($missionId, $matter) {
+	public function updateMatter($missionId, $oMatter) {
 
 		$relation = [
-			'matter_title' => $this->escape($matter->title),
-			'phase_id' => isset($matter->mission_phase_id) ? $matter->mission_phase_id : '',
-			'scenario' => isset($matter->scenario) ? $matter->scenario : '',
-			'start_at' => isset($matter->start_at) ? $matter->start_at : 0,
-			'end_at' => isset($matter->end_at) ? $matter->end_at : 0,
+			'matter_title' => $this->escape($oMatter->title),
+			'phase_id' => isset($oMatter->mission_phase_id) ? $oMatter->mission_phase_id : '',
+			'scenario' => isset($oMatter->scenario) ? $oMatter->scenario : '',
+			'start_at' => isset($oMatter->start_at) ? $oMatter->start_at : 0,
+			'end_at' => isset($oMatter->end_at) ? $oMatter->end_at : 0,
 		];
 		$rst = $this->update(
 			'xxt_mission_matter',
 			$relation,
-			['mission_id' => $missionId, 'matter_id' => $matter->id, 'matter_type' => $matter->type]
+			['mission_id' => $missionId, 'matter_id' => $oMatter->id, 'matter_type' => $oMatter->type]
 		);
 
 		return $rst;

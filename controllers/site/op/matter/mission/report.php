@@ -20,7 +20,7 @@ class report extends \site\op\base {
 		$mattersByMis = $modelMis->byMission($mission, null, ['is_public' => 'Y']);
 		if (count($mattersByMis)) {
 			foreach ($mattersByMis as $oMatter) {
-				if (!in_array($oMatter->type, ['enroll', 'signin', 'article'])) {
+				if (!in_array($oMatter->type, ['enroll', 'signin', 'article', 'memberschema'])) {
 					continue;
 				}
 				if ($oMatter->type === 'enroll') {

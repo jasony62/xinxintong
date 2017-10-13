@@ -94,7 +94,7 @@ class main extends \site\fe\matter\base {
 		$mattersByMis = $modelMisMat->byMission($oMission->id, null, ['is_public' => 'Y', 'byTime' => 'running']);
 		if (count($mattersByMis)) {
 			foreach ($mattersByMis as $oMatter) {
-				if (!in_array($oMatter->type, ['enroll', 'signin', 'article'])) {
+				if (!in_array($oMatter->type, ['enroll', 'signin', 'article', 'memberschema'])) {
 					continue;
 				}
 				if (isset($oGrpLeader)) {

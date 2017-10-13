@@ -229,34 +229,40 @@ class schema extends \pl\fe\base {
 			return new \ResponseTimeout();
 		}
 
-		$nv = $this->getPostJson();
+		$oPosted = $this->getPostJson();
 		$modelMs = $this->model('site\user\memberschema')->setOnlyWriteDbConn(true);
 
-		if (isset($nv->entry_statement)) {
-			$nv->entry_statement = $modelMs->escape(urldecode($nv->entry_statement));
-		} else if (isset($nv->acl_statement)) {
-			$nv->acl_statement = $modelMs->escape(urldecode($nv->acl_statement));
-		} else if (isset($nv->notpass_statement)) {
-			$nv->notpass_statement = $modelMs->escape(urldecode($nv->notpass_statement));
-		} else if (isset($nv->extattr)) {
-			foreach ($nv->extattr as &$attr) {
+		if (isset($oPosted->entry_statement)) {
+			$oPosted->entry_statement = $modelMs->escape(urldecode($oPosted->entry_statement));
+		} else if (isset($oPosted->acl_statement)) {
+			$oPosted->acl_statement = $modelMs->escape(urldecode($oPosted->acl_statement));
+		} else if (isset($oPosted->notpass_statement)) {
+			$oPosted->notpass_statement = $modelMs->escape(urldecode($oPosted->notpass_statement));
+		} else if (isset($oPosted->extattr)) {
+			foreach ($oPosted->extattr as &$attr) {
 				$attr->id = urlencode($attr->id);
 				$attr->label = urlencode($attr->label);
 			}
-			$nv->extattr = urldecode(json_encode($nv->extattr));
-		} else if (isset($nv->type) && $nv->type === 'inner') {
-			$nv->url = TMS_APP_API_PREFIX . "/site/fe/user/member";
-		} else if (isset($nv->qy_ab)) {
+			$oPosted->extattr = urldecode(json_encode($oPosted->extattr));
+		} else if (isset($oPosted->type) && $oPosted->type === 'inner') {
+			$oPosted->url = TMS_APP_API_PREFIX . "/site/fe/user/member";
+		} else if (isset($oPosted->qy_ab)) {
 			$modelMs->update('xxt_site_member_schema', ['qy_ab' => 'N'], "siteid='$this->siteId' and id!='$id'");
 		}
 		$rst = $modelMs->update(
 			'xxt_site_member_schema',
-			$nv,
-			"siteid='$this->siteId' and id='$id'"
+			$oPosted,
+			['siteid' => $this->siteId, 'id' => $id]
 		);
-		$schema = $modelMs->byId($id);
+		$oMschema = $modelMs->byId($id);
 
-		return new \ResponseData($schema);
+		/* 更新项目关联信息 */
+		if ($oMschema->matter_type === 'mission') {
+			$oMschema->type = 'memberschema';
+			$this->model('matter\mission')->updateMatter($oMschema->matter_id, $oMschema);
+		}
+
+		return new \ResponseData($oMschema);
 	}
 	/**
 	 * 只有没有被使用的自定义接口才允许被删除

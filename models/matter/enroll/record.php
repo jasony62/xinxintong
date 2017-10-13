@@ -526,7 +526,7 @@ class record_model extends \TMS_MODEL {
 	 * @param object $oUser
 	 * @param array $aOptions
 	 */
-	public function &byUser(&$oApp, &$oUser, $aOptions = []) {
+	public function byUser(&$oApp, &$oUser, $aOptions = []) {
 		$fields = isset($aOptions['fields']) ? $aOptions['fields'] : '*';
 		$verbose = isset($aOptions['verbose']) ? $aOptions['verbose'] : 'N';
 

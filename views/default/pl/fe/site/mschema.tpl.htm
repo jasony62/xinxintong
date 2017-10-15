@@ -7,176 +7,234 @@
     <base href='/'>
     <link href="/static/css/bootstrap.min.css" rel="stylesheet">
     <link href="/static/css/tms.css" rel="stylesheet">
-    <link href="/views/default/pl/fe/site/mschema.css" rel="stylesheet">
+    <link href="<?php echo auto_version('/static/css/pl.fe.css');?>" rel="stylesheet">
+    <link href="<?php echo auto_version('/views/default/pl/fe/matter/enroll/frame.css');?>" rel="stylesheet">
     <title>团队——通讯录</title>
 </head>
 
 <body ng-controller='ctrlMschema'>
-    <nav class='navbar navbar-default navbar-fixed-top'>
-        <div class='container'>
-            <div class='navbar-header'>
-                <a class='navbar-text' href='/rest/pl/fe' target='_self'><i class='glyphicon glyphicon-chevron-left'></i> 个人工作台</a>
+    <div class='pl-layout'>
+        <!--logo+侧边栏-->
+        <div class='pl-layout-leftnav'>
+            <!--logo-->
+            <div class='pl-layout-leftnav-header'>
+                <a href='/rest/home' target='_self'>
+                    <?php echo APP_TITLE;?>
+                </a>
             </div>
-            <ul class='nav navbar-nav'>
-                <li class='active'><a href='javascript:void(0)'>通讯录</a></li>
+            <!--侧边栏-->
+            <ul class="nav nav-tabs nav-stacked">
             </ul>
         </div>
-    </nav>
-    <div class='container ng-cloak' ng-cloak>
-        <div class='row'>
-            <div class='col-md-3'>
-                <div class='list-group'>
-                    <a href='' class='list-group-item' ng-class="{active:choosedSchema===schema}" ng-repeat='schema in schemas' ng-click="chooseSchema(schema)">
+        <!--导航+主体内容-->
+        <div id='pl-layout-main' class='pl-layout-main pl-layout-main-topnav'>
+            <nav class="navbar pl-navbar-default pl-navbar-fixed-top">
+                <div class='container-fluid'>
+                    <nav class='nav navbar-nav tms-breadcrumb ng-cloak' ng-cloak>
+                        <li><a href="/rest/pl/fe" target='_self'>个人工作台</a></li>
+                        <li ng-if="site.yourRole"><a href="/rest/pl/fe?view=main&sid={{site.id}}" target='_self'>{{site.name}}</a></li>
+                        <li ng-if="!site.yourRole"><a href="javascript:void(0)">{{site.name}}</a></li>
+                    </nav>
+                </div>
+            </nav>
+            <div class='container-fluid ng-cloak' ng-cloak>
+                <div class='row'>
+                    <div class='col-md-3' ng-if="bOnlyone===false">
+                        <div class='list-group'>
+                            <a href='' class='list-group-item' ng-class="{active:choosedSchema===schema}" ng-repeat='schema in schemas' ng-click="chooseSchema(schema)">
                         {{schema.title}}
                     </a>
-                </div>
-                <button class='btn btn-default btn-block' ng-click='addSchema()'><span class='glyphicon glyphicon-plus'></span> 添加定义</button>
-            </div>
-            <div class='col-md-9' ng-if="choosedSchema">
-                <div class='form-group'>
-                    <div class='form-inline'>
-                        <div class='form-group'>
-                            <div class='input-group'>
-                                <span class='input-group-addon'>
-                                <input type='checkbox' ng-true-value="'Y'" ng-false-value="'N'" ng-model='choosedSchema.valid' ng-change="updSchema('valid')">
-                                </span>
-                                <input type='text' class='form-control' style='width:200px' ng-model='choosedSchema.title' placeholder='输入名称' tms-auto-update tms-wait=1000 tms-update="updSchema('title')">
-                                <span class="input-group-btn">
-                                <button class="btn btn-default" type="button" ng-click='delSchema()'><span class='glyphicon glyphicon-remove'></span></button>
-                                </span>
-                            </div>
                         </div>
-                        <div class='form-group hide'>
-                            <select class='form-control' title='类型' ng-model='choosedSchema.type' ng-change="updSchema('type')">
-                                <option value='inner'>内置</option>
-                                <option value='cus'>自定义</option>
-                            </select>
-                        </div>
-                        <div class='form-group hide'>
-                            <select class='form-control' title='数据有效期' ng-model='choosedSchema.validity' ng-options='d.v as d.n for d in days' ng-change="updSchema('validity')"></select>
-                        </div>
-                        <div class='form-group'>
-                            <button class='btn btn-default' ng-click='addExtattr(s)'>增加信息项</button>
-                            <button class='btn btn-default hide' ng-if="choosedSchema.type==='inner'" ng-click='gotoCode()'>定制填写页面</button>
-                            <button class='btn btn-default hide' ng-if="choosedSchema.type==='inner'" ng-click='resetCode()'>重置填写页面</button>
-                            <button class='btn btn-default' ng-click='importSchema()'>导入通讯录</button>
-                        </div>
+                        <button class='btn btn-default btn-block' ng-click='addSchema()'><span class='glyphicon glyphicon-plus'></span> 添加定义</button>
                     </div>
-                </div>
-                <div class='form-group'>
-                    <table class='table table-bordered'>
-                        <thead>
-                            <tr>
-                                <th style='width:96px'>信息项</th>
-                                <th style='width:96px'>隐藏</th>
-                                <th style='width:96px'>必填</th>
-                                <th style='width:96px'>唯一</th>
-                                <th style='width:96px'>不可更改</th>
-                                <th style='width:96px' class='hide'>需要验证</th>
-                                <th style='width:96px'>身份标识</th>
-                                <th style='width:96px'>操作</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            <tr ng-repeat='attr in attrOps'>
-                                <td>{{attr[0]}}</td>
-                                <td ng-repeat='op in attr[2]' ng-show="$index!==4">
-                                    <input type='checkbox' ng-if='op===$index' ng-true-value="'1'" ng-false-value="'0'" ng-model="choosedSchema.attrs[attr[1]][$index]" ng-change="updAttr(attr[1])">
-                                </td>
-                                <td></td>
-                            </tr>
-                            <tr ng-repeat='ea in choosedSchema.extattr'>
-                                <td>{{ea.label}}</td>
-                                <td></td>
-                                <td></td>
-                                <td></td>
-                                <td></td>
-                                <td></td>
-                                <td>
-                                    <a href='javascript:void(0)' ng-click='editExtattr(ea)'>修改</a>
-                                </td>
-                            </tr>
-                        </tbody>
-                    </table>
-                </div>
-                <div class='form-group'>
-                    <div class='form-inline'>
-                        <div class="form-group">
-                            <label class='checkbox-inline'>
-                                <input type='checkbox' ng-true-value="'Y'" ng-false-value="'N'" ng-model='choosedSchema.require_invite' ng-change="updSchema('require_invite')">通过邀请码验证</label>
-                            <label class='checkbox-inline' ng-if="choosedSchema.require_invite==='N'">
-                                <input type='checkbox' ng-true-value="'N'" ng-false-value="'Y'" ng-model='choosedSchema.auto_verified' ng-change="updSchema('auto_verified')">是否需要管理员审核</label>
-                            <label class='checkbox-inline'>
-                                <input type='checkbox' ng-true-value="'Y'" ng-false-value="'N'" ng-model='choosedSchema.at_user_home' ng-change="updSchema('at_user_home')">出现在用户主页</label>
-                        </div>
-                    </div>
-                </div>
-                <div class='form-group'>
-                    <div class='form-inline'>
-                        <div class="form-group">
-                            <label class='checkbox-inline' ng-if="sns.qy">
-                                <input type='checkbox' ng-true-value="'Y'" ng-false-value="'N'" ng-model='choosedSchema.qy_ab' ng-change="updQy()">企业号同步通讯录使用</label>
-                            <label class='checkbox-inline' ng-if="sns.wx">
-                                <input type='checkbox' ng-true-value="'Y'" ng-false-value="'N'" ng-model='choosedSchema.is_wx_fan' ng-change="updSchema('is_wx_fan')">是微信公众号关注用户</label>
-                            <label class='checkbox-inline' ng-if="sns.qy">
-                                <input type='checkbox' ng-true-value="'Y'" ng-false-value="'N'" ng-model='choosedSchema.is_qy_fan' ng-change="updSchema('is_qy_fan')">是微信企业号关注用户</label>
-                            <label class='checkbox-inline' ng-if="sns.yx">
-                                <input type='checkbox' ng-true-value="'Y'" ng-false-value="'N'" ng-model='choosedSchema.is_yx_fan' ng-change="updSchema('is_yx_fan')">是易信公众号关注用户</label>
-                        </div>
-                    </div>
-                </div>
-                <hr>
-                <form class='form-horizontal'>
-                    <div class='form-group'>
-                        <label class="col-md-3 control-label">填写页面地址</label>
-                        <div class='col-md-9'>
-                            <div class='input-group'>
-                                <input class='form-control' readonly value="{{choosedSchema.fullUrl}}">
-                                <div class='input-group-btn'>
-                                    <a class='btn btn-default' ng-href="{{choosedSchema.fullUrl}}" target='_blank' title='打开'><i class='glyphicon glyphicon-open'></i></a>
+                    <div class='col-md-6' ng-class="{'col-md-offset-3':bOnlyone}" ng-if="choosedSchema">
+                        <div class='panel panel-default'>
+                            <div class='panel-body'>
+                                <div class='form-group'>
+                                    <div class='form-inline'>
+                                        <div class='form-group'>
+                                            <div class='input-group'>
+                                                <div class='input-group-addon'>
+                                                    <input type='checkbox' ng-true-value="'Y'" ng-false-value="'N'" ng-model='choosedSchema.valid' ng-change="updSchema('valid')">
+                                                </div>
+                                                <input type='text' class='form-control' style='width:200px' ng-model='choosedSchema.title' placeholder='输入名称' tms-auto-update tms-wait=1000 tms-update="updSchema('title')">
+                                                <div class="input-group-btn">
+                                                    <button class="btn btn-default" type="button" ng-click='delSchema()'><span class='glyphicon glyphicon-remove'></span></button>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div class='form-group hide'>
+                                            <select class='form-control' title='类型' ng-model='choosedSchema.type' ng-change="updSchema('type')">
+                                                <option value='inner'>内置</option>
+                                                <option value='cus'>自定义</option>
+                                            </select>
+                                        </div>
+                                        <div class='form-group hide'>
+                                            <select class='form-control' title='数据有效期' ng-model='choosedSchema.validity' ng-options='d.v as d.n for d in days' ng-change="updSchema('validity')"></select>
+                                        </div>
+                                        <div class='form-group'>
+                                            <button class='btn btn-default' ng-click='addExtattr(s)'>增加信息项</button>
+                                            <button class='btn btn-default hide' ng-if="choosedSchema.type==='inner'" ng-click='gotoCode()'>定制填写页面</button>
+                                            <button class='btn btn-default hide' ng-if="choosedSchema.type==='inner'" ng-click='resetCode()'>重置填写页面</button>
+                                            <button class='btn btn-default' ng-click='importSchema()'>导入通讯录</button>
+                                        </div>
+                                    </div>
                                 </div>
+                                <table class='table table-bordered'>
+                                    <thead>
+                                        <tr>
+                                            <th style='width:96px'>信息项</th>
+                                            <th style='width:96px'>隐藏</th>
+                                            <th style='width:96px'>必填</th>
+                                            <th style='width:96px'>唯一</th>
+                                            <th style='width:96px'>不可更改</th>
+                                            <th style='width:96px' class='hide'>需要验证</th>
+                                            <th style='width:96px'>身份标识</th>
+                                            <th style='width:96px'>操作</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        <tr ng-repeat='attr in attrOps'>
+                                            <td>{{attr[0]}}</td>
+                                            <td ng-repeat='op in attr[2]' ng-show="$index!==4">
+                                                <input type='checkbox' ng-if='op===$index' ng-true-value="'1'" ng-false-value="'0'" ng-model="choosedSchema.attrs[attr[1]][$index]" ng-change="updAttr(attr[1])">
+                                            </td>
+                                            <td></td>
+                                        </tr>
+                                        <tr ng-repeat='ea in choosedSchema.extattr'>
+                                            <td>{{ea.label}}</td>
+                                            <td></td>
+                                            <td></td>
+                                            <td></td>
+                                            <td></td>
+                                            <td></td>
+                                            <td>
+                                                <a href='javascript:void(0)' ng-click='editExtattr(ea)'>修改</a>
+                                            </td>
+                                        </tr>
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                        <!-- options -->
+                        <div class='panel panel-default'>
+                            <div class='panel-body'>
+                                <div class='form-group'>
+                                    <div class='form-inline'>
+                                        <div class="form-group">
+                                            <label class='checkbox-inline'>
+                                                <input type='checkbox' ng-true-value="'Y'" ng-false-value="'N'" ng-model='choosedSchema.require_invite' ng-change="updSchema('require_invite')">通过邀请码验证</label>
+                                            <label class='checkbox-inline' ng-if="choosedSchema.require_invite==='N'">
+                                                <input type='checkbox' ng-true-value="'N'" ng-false-value="'Y'" ng-model='choosedSchema.auto_verified' ng-change="updSchema('auto_verified')">是否需要管理员审核</label>
+                                            <label class='checkbox-inline' ng-if="!choosedSchema.matter_id">
+                                                <input type='checkbox' ng-true-value="'Y'" ng-false-value="'N'" ng-model='choosedSchema.at_user_home' ng-change="updSchema('at_user_home')">出现在用户主页</label>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class='form-group'>
+                                    <div class='form-inline'>
+                                        <div class="form-group">
+                                            <label class='checkbox-inline' ng-if="sns.qy">
+                                                <input type='checkbox' ng-true-value="'Y'" ng-false-value="'N'" ng-model='choosedSchema.qy_ab' ng-change="updQy()">企业号同步通讯录使用</label>
+                                            <label class='checkbox-inline' ng-if="sns.wx">
+                                                <input type='checkbox' ng-true-value="'Y'" ng-false-value="'N'" ng-model='choosedSchema.is_wx_fan' ng-change="updSchema('is_wx_fan')">是微信公众号关注用户</label>
+                                            <label class='checkbox-inline' ng-if="sns.qy">
+                                                <input type='checkbox' ng-true-value="'Y'" ng-false-value="'N'" ng-model='choosedSchema.is_qy_fan' ng-change="updSchema('is_qy_fan')">是微信企业号关注用户</label>
+                                            <label class='checkbox-inline' ng-if="sns.yx">
+                                                <input type='checkbox' ng-true-value="'Y'" ng-false-value="'N'" ng-model='choosedSchema.is_yx_fan' ng-change="updSchema('is_yx_fan')">是易信公众号关注用户</label>
+                                        </div>
+                                    </div>
+                                </div>
+                                <hr>
+                                <div class='form-group'>
+                                    <label>填写页面地址</label>
+                                    <div class='input-group'>
+                                        <input class='form-control' readonly value="{{choosedSchema.fullUrl}}">
+                                        <div class='input-group-btn'>
+                                            <a class='btn btn-default' ng-href="{{choosedSchema.fullUrl}}" target='_blank' title='打开'><i class='glyphicon glyphicon-open'></i></a>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class='form-group' ng-if="sns.wx.can_qrcode==='Y'&&choosedSchema.is_wx_fan==='Y'" ng-controller="ctrlWxQrcode">
+                                    <label>微信二维码</label>
+                                    <div ng-if='!qrcode'>
+                                        <button class='btn btn-default' ng-click="create()">生成微信二维码</button>
+                                    </div>
+                                    <div ng-if='qrcode'>
+                                        <span><img style='width:135px;height:135px;' ng-src="{{qrcode.pic}}"></span>
+                                        <button class='btn btn-default' ng-click="download()">下载</button>
+                                    </div>
+                                </div>
+                                <form class='form-horizontal hide'>
+                                    <div class='form-group'>
+                                        <label class="col-md-3 control-label">填写后页面地址</label>
+                                        <div class='col-md-9'>
+                                            <input type='text' class='form-control' ng-model='choosedSchema.passed_url' placeholder='输入URL' tms-auto-update tms-wait=1000 tms-update="updSchema('passed_url')">
+                                        </div>
+                                    </div>
+                                    <div class='form-group'>
+                                        <label class="col-md-3 control-label">进入填写页面前提示</label>
+                                        <div class='col-md-9'>
+                                            <textarea class='form-control' ng-model='choosedSchema.entry_statement' placeholder='进入前说明' tms-auto-update tms-wait=1000 tms-update="updSchema('entry_statement')"></textarea>
+                                        </div>
+                                    </div>
+                                    <div class='form-group'>
+                                        <label class="col-md-3 control-label">不在名单中说明</label>
+                                        <div class='col-md-9'>
+                                            <textarea class='form-control' ng-model='choosedSchema.acl_statement' placeholder='不在白名单中说明' tms-auto-update tms-wait=1000 tms-update="updSchema('acl_statement')"></textarea>
+                                        </div>
+                                    </div>
+                                    <div class='form-group'>
+                                        <label class="col-md-3 control-label">验证未通过说明</label>
+                                        <div class='col-md-9'>
+                                            <textarea class='form-control' ng-model='choosedSchema.notpass_statement' placeholder='验证未通过说明' tms-auto-update tms-wait=1000 tms-update="updSchema('notpass_statement')"></textarea>
+                                        </div>
+                                    </div>
+                                </form>
+                            </div>
+                        </div>
+                        <!--invite code-->
+                        <div class='panel panel-default' ng-if="choosedSchema.require_invite==='Y'">
+                            <div class='panel-body' ng-controller="ctrlInvite">
+                                <table class='table table-bordered'>
+                                    <thead>
+                                        <tr>
+                                            <th style='width:48px'>序号</th>
+                                            <th style='width:64px'>已停用</th>
+                                            <th>邀请码</th>
+                                            <th style='width:100px'>可邀请次数</th>
+                                            <th style='width:100px'>已使用次数</th>
+                                            <th style='width:120px'>到期时间</th>
+                                            <th style='width:120px'>操作</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        <tr ng-repeat='invite in invites'>
+                                            <td>{{$index+1}}</td>
+                                            <td ng-if="invite.stop==='Y'"><span style='color:red'>{{invite.stop}}</span></td>
+                                            <td ng-if="invite.stop==='N'">{{invite.stop}}</td>
+                                            <td ng-if="invite.state=='0'">
+                                                <del class='text-danger' title='页面刷新后不可恢复'>{{invite.code}}</del>
+                                            </td>
+                                            <td ng-if="invite.state=='1'">{{invite.code}}</td>
+                                            <td>{{invite.max_count}}</td>
+                                            <td>{{invite.use_count}}</td>
+                                            <td><span ng-if="invite.expire_at">{{invite.expire_at*1000|date:'MM-dd HH:mm'}}</span></td>
+                                            <td>
+                                                <a href='' ng-click='editInvite(invite)' ng-if="invite.state=='1'">修改</a>
+                                                <a href='' ng-click='stopInvite(invite)' ng-if="invite.state=='1'&&invite.stop==='N'">停用</a>
+                                                <a href='' ng-click='startInvite(invite)' ng-if="invite.state=='1'&&invite.stop==='Y'">启用</a>
+                                                <a href='' ng-click='removeInvite(invite)' ng-if="invite.state=='1'">删除</a>
+                                                <a href='' ng-click='restoreInvite(invite)' ng-if="invite.state=='0'">恢复</a>
+                                            </td>
+                                        </tr>
+                                    </tbody>
+                                </table>
+                                <button class='btn btn-default' ng-click="addInvite()">添加邀请码</button>
                             </div>
                         </div>
                     </div>
-                    <div class='form-group' ng-if="sns.wx.can_qrcode==='Y'&&choosedSchema.is_wx_fan==='Y'" ng-controller="ctrlWxQrcode">
-                        <label class="col-md-3 control-label">微信二维码</label>
-                        <div class='col-md-9'>
-                            <div ng-if='!qrcode'>
-                                <button class='btn btn-default' ng-click="create()">生成微信二维码</button>
-                            </div>
-                            <div ng-if='qrcode'>
-                                <span><img style='width:135px;height:135px;' ng-src="{{qrcode.pic}}"></span>
-                                <button class='btn btn-default' ng-click="download()">下载</button>
-                            </div>
-                        </div>
-                    </div>
-                </form>
-                <form class='form-horizontal hide'>
-                    <div class='form-group'>
-                        <label class="col-md-3 control-label">填写后页面地址</label>
-                        <div class='col-md-9'>
-                            <input type='text' class='form-control' ng-model='choosedSchema.passed_url' placeholder='输入URL' tms-auto-update tms-wait=1000 tms-update="updSchema('passed_url')">
-                        </div>
-                    </div>
-                    <div class='form-group'>
-                        <label class="col-md-3 control-label">进入填写页面前提示</label>
-                        <div class='col-md-9'>
-                            <textarea class='form-control' ng-model='choosedSchema.entry_statement' placeholder='进入前说明' tms-auto-update tms-wait=1000 tms-update="updSchema('entry_statement')"></textarea>
-                        </div>
-                    </div>
-                    <div class='form-group'>
-                        <label class="col-md-3 control-label">不在名单中说明</label>
-                        <div class='col-md-9'>
-                            <textarea class='form-control' ng-model='choosedSchema.acl_statement' placeholder='不在白名单中说明' tms-auto-update tms-wait=1000 tms-update="updSchema('acl_statement')"></textarea>
-                        </div>
-                    </div>
-                    <div class='form-group'>
-                        <label class="col-md-3 control-label">验证未通过说明</label>
-                        <div class='col-md-9'>
-                            <textarea class='form-control' ng-model='choosedSchema.notpass_statement' placeholder='验证未通过说明' tms-auto-update tms-wait=1000 tms-update="updSchema('notpass_statement')"></textarea>
-                        </div>
-                    </div>
-                </form>
+                </div>
             </div>
         </div>
     </div>

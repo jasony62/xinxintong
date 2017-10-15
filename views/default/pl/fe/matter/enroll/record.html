@@ -87,7 +87,7 @@
                             </div>
                             <span ng-switch-when="date">{{(r._data[schema.id]*1000)|date:'yy-MM-dd HH:mm'}}</span>
                             <span ng-switch-when="remark">{{r.verbose.data[schema.id].remark_num}}</span>
-                            <span ng-switch-when="score">{{r.score[schema.id]}}</span>
+                            <span ng-switch-when="calcScore">{{r.score[schema.id]}}</span>
                             <span ng-switch-default ng-bind-html="r._data[schema.id]"></span>
                             <p ng-if="['single', 'multiple', 'image', 'file'].indexOf(schema.type)!==-1&&r.supplement[schema.id].length">(补充说明：{{r.supplement[schema.id]}})</p>
                         </td>
@@ -134,7 +134,7 @@
                             <div ng-if="schema.format==='number'">
                                 {{sum4SchemaAtPage[schema.id]}}/{{sum4Schema[schema.id]}}
                             </div>
-                            <div ng-if="schema.type==='score'">
+                            <div ng-if="schema.type==='calcScore'">
                                 {{score4SchemaAtPage[schema.id]}}/{{score4Schema[schema.id]}}
                             </div>
                         </td>

@@ -1484,7 +1484,9 @@ class record_model extends \TMS_MODEL {
 				foreach ($values as $value) {
 					$value = json_decode($value->value);
 					foreach ($value as $opKey => $opValue) {
-						$scoreByOp[$opKey]->c += (int) $opValue;
+						if (isset($scoreByOp[$opKey]->c)) {
+							$scoreByOp[$opKey]->c += (int) $opValue;
+						}
 					}
 				}
 				// 计算平均分

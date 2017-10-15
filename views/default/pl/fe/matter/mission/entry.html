@@ -232,6 +232,20 @@
             </div>
         </div>
     </div>
+    <div class='panel panel-default' ng-if="missionMschemas.length">
+        <div class='panel-body'>
+            <div class='form-group' ng-repeat="mschema in missionMschemas">
+                <label>通讯录【{{mschema.title}}】填写链接 <span class='glyphicon glyphicon-question-sign' uib-tooltip='参与人填写通讯录信息。'></span></label>
+                <div class='input-group'>
+                    <input class='form-control' readonly value="{{mschema.fullUrl}}">
+                    <div class='input-group-btn'>
+                        <button class='btn btn-default text2Clipboard' data-clipboard-text="{{mschema.fullUrl}}">复制</button>
+                        <a class='btn btn-default' ng-href="{{mschema.fullUrl}}" target='_blank' title='打开'><i class='glyphicon glyphicon-open'></i></a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
     <div class='panel panel-default'>
         <div class='panel-body'>
             <div class='form-group'>

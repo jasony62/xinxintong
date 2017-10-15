@@ -30,32 +30,39 @@ class group_model extends app_base {
 			['id' => $aid],
 		];
 
-		if ($app = $this->query_obj_ss($q)) {
-			$app->type = 'group';
+		if ($oApp = $this->query_obj_ss($q)) {
+			$oApp->type = 'group';
 			if ($cascaded === 'Y') {
 				$rounds = $this->model('matter\group\round')->byApp($aid);
-				$app->rounds = $rounds;
+				$oApp->rounds = $rounds;
 			}
 			if ($fields === '*' || false !== strpos($fields, 'data_schemas')) {
-				if (!empty($app->data_schemas)) {
-					$app->dataSchemas = json_decode($app->data_schemas);
+				if (!empty($oApp->data_schemas)) {
+					$oApp->dataSchemas = json_decode($oApp->data_schemas);
 				} else {
-					$app->dataSchemas = [];
+					$oApp->dataSchemas = [];
+				}
+			}
+			if ($fields === '*' || false !== strpos($fields, 'assigned_nickname')) {
+				if (!empty($oApp->assigned_nickname)) {
+					$oApp->assignedNickname = json_decode($oApp->assigned_nickname);
+				} else {
+					$oApp->assignedNickname = new \stdClass;
 				}
 			}
 			if ($fields === '*' || false !== strpos($fields, 'group_rule')) {
-				if (!empty($app->group_rule)) {
-					$app->groupRule = json_decode($app->group_rule);
+				if (!empty($oApp->group_rule)) {
+					$oApp->groupRule = json_decode($oApp->group_rule);
 				} else {
-					$app->groupRule = new \stdClass;
+					$oApp->groupRule = new \stdClass;
 				}
 			}
-			if (!empty($app->matter_mg_tag)) {
-				$app->matter_mg_tag = json_decode($app->matter_mg_tag);
+			if (!empty($oApp->matter_mg_tag)) {
+				$oApp->matter_mg_tag = json_decode($oApp->matter_mg_tag);
 			}
 		}
 
-		return $app;
+		return $oApp;
 	}
 	/**
 	 * 返回项目下的分组活动

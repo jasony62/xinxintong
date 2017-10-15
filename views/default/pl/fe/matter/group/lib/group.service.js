@@ -184,8 +184,9 @@ provider('srvGroupApp', function() {
             cancelSourceApp: function() {
                 _oApp.source_app = '';
                 _oApp.data_schemas = '';
+                _oApp.assigned_nickname = '';
                 delete _oApp.sourceApp;
-                return this.update(['source_app', 'data_schemas']);
+                return this.update(['source_app', 'data_schemas', 'assigned_nickname']);
             },
             export: function() {
                 var url = '/rest/pl/fe/matter/group/player/export?site=' + _siteId + '&app=' + _appId;

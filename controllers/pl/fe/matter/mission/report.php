@@ -44,8 +44,22 @@ class report extends \pl\fe\matter\base {
 		/* 获得用户 */
 		switch ($userSource->type) {
 		case 'group':
-			$users = $this->model('matter\group\player')->byApp($userSource, (object) ['fields' => 'userid,nickname']);
+			$oGrpApp = $this->model('matter\group')->byId($userSource->id, ['fields' => 'assigned_nickname', 'cascaded' => 'N']);
+			$users = $this->model('matter\group\player')->byApp($userSource, (object) ['fields' => 'userid,nickname,round_id,round_title,data']);
 			$users = isset($users->players) ? $users->players : [];
+			if (count($users)) {
+				if (!empty($oGrpApp->assigned_nickname)) {
+					$oAssignedNickname = $oGrpApp->assignedNickname;
+					if (isset($oAssignedNickname->valid) && $oAssignedNickname->valid === 'Y' && !empty($oAssignedNickname->schema->id)) {
+						foreach ($users as $oUser) {
+							if (!empty($oUser->data->{$oAssignedNickname->schema->id})) {
+								$oUser->nickname = $oUser->data->{$oAssignedNickname->schema->id};
+								unset($oUser->data);
+							}
+						}
+					}
+				}
+			}
 			break;
 		case 'enroll':
 			$users = $this->model('matter\enroll\record')->enrolleeByApp($userSource, ['fields' => 'distinct userid,nickname', 'rid' => 'all']);

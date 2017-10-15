@@ -637,7 +637,7 @@ class player_model extends \TMS_MODEL {
 	public function importByEnroll($oGrpApp, $byApp, $sync = 'N') {
 		$modelEnl = $this->model('matter\enroll');
 
-		$oSourceApp = $modelEnl->byId($byApp, ['fields' => 'data_schemas', 'cascaded' => 'N']);
+		$oSourceApp = $modelEnl->byId($byApp, ['fields' => 'data_schemas,assigned_nickname', 'cascaded' => 'N']);
 		/* 导入活动定义 */
 		$this->update(
 			'xxt_group',
@@ -645,6 +645,7 @@ class player_model extends \TMS_MODEL {
 				'last_sync_at' => time(),
 				'source_app' => '{"id":"' . $byApp . '","type":"enroll"}',
 				'data_schemas' => $oSourceApp->data_schemas,
+				'assigned_nickname' => $oSourceApp->assigned_nickname,
 			],
 			['id' => $oGrpApp->id]
 		);
@@ -685,7 +686,7 @@ class player_model extends \TMS_MODEL {
 	 */
 	public function importBySignin($oGrpApp, $byApp, $includeEnroll = 'Y') {
 		$modelSignin = $this->model('matter\signin');
-		$oSourceApp = $modelSignin->byId($byApp, ['fields' => 'data_schemas,enroll_app_id', 'cascaded' => 'N']);
+		$oSourceApp = $modelSignin->byId($byApp, ['fields' => 'data_schemas,assigned_nickname,enroll_app_id', 'cascaded' => 'N']);
 		$sourceDataSchemas = $oSourceApp->data_schemas;
 		/**
 		 * 导入报名数据，需要合并签到和报名的登记项
@@ -708,6 +709,7 @@ class player_model extends \TMS_MODEL {
 				'last_sync_at' => time(),
 				'source_app' => '{"id":"' . $byApp . '","type":"signin"}',
 				'data_schemas' => $sourceDataSchemas,
+				'assigned_nickname' => $oSourceApp->assigned_nickname,
 			],
 			['id' => $oGrpApp->id]
 		);

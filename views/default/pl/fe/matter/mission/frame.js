@@ -7,9 +7,10 @@ define(['missionService', 'enrollService', 'signinService'], function() {
         alertMsg: {},
         matterNames: {
             doc: {
-                'article': '图文'
+                'article': '图文',
+                'link': '链接',
             },
-            docOrder: ['article'],
+            docOrder: ['article', 'link'],
             app: {
                 'enroll': '登记',
                 'signin': '签到',
@@ -119,7 +120,6 @@ define(['missionService', 'enrollService', 'signinService'], function() {
                     break;
                 case 'app':
                 case 'doc':
-                case 'entry':
                     $scope.opened = 'task';
                     break;
                 case 'mschema':

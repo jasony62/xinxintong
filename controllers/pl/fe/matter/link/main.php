@@ -148,28 +148,37 @@ class main extends \pl\fe\matter\main_base {
 	/**
 	 * 创建外部链接素材
 	 */
-	public function create_action($site, $title = '新链接') {
+	public function create_action($site = null, $mission = null, $title = '新链接') {
 		if (false === ($oUser = $this->accountUser())) {
 			return new \ResponseTimeout();
 		}
 
-		$modelSite = $this->model('site');
-		$oSite = $modelSite->byId($site, ['fields' => 'id,heading_pic']);
-		if (false === $oSite) {
-			return new \ObjectNotFoundError();
+		$modelLink = $this->model('matter\link');
+		$oLink = new \stdClass;
+		/*从站点或项目获取的定义*/
+		if (empty($mission)) {
+			$oSite = $this->model('site')->byId($site, ['fields' => 'id,heading_pic']);
+			if (false === $oSite) {
+				return new \ObjectNotFoundError();
+			}
+			$oLink->siteid = $oSite->id;
+			$oLink->pic = $oSite->heading_pic; //使用站点的缺省头图
+			$oLink->summary = '';
+		} else {
+			$modelMis = $this->model('matter\mission');
+			$oMission = $modelMis->byId($mission);
+			$oLink->siteid = $oMission->siteid;
+			$oLink->summary = $modelLink->escape($oMission->summary);
+			$oLink->pic = $oMission->pic;
+			$oLink->mission_id = $oMission->id;
 		}
 
-		$modelLink = $this->model('matter\link');
-
-		$oLink = new \stdClass;
-		$oLink->siteid = $oSite->id;
 		$oLink->title = $modelLink->escape($title);
-		$oLink->pic = $oSite->heading_pic; //使用站点缺省头图
 
 		$oLink = $modelLink->create($oUser, $oLink);
 
 		/* 记录操作日志 */
-		$this->model('matter\log')->matterOp($oSite->id, $oUser, $oLink, 'C');
+		$this->model('matter\log')->matterOp($oLink->siteid, $oUser, $oLink, 'C');
 
 		return new \ResponseData($oLink);
 	}
@@ -181,7 +190,7 @@ class main extends \pl\fe\matter\main_base {
 			return new \ResponseTimeout();
 		}
 		$modelLink = $this->model('matter\link');
-		$oLink = $modelLink->byId($id, 'id,title');
+		$oLink = $modelLink->byId($id);
 		if (false === $oLink) {
 			return new \ObjectNotFoundError();
 		}
@@ -211,7 +220,7 @@ class main extends \pl\fe\matter\main_base {
 		}
 
 		$modelLink = $this->model('matter\link');
-		$oLink = $modelLink->byId($id, 'id,title');
+		$oLink = $modelLink->byId($id);
 		if (false === $oLink) {
 			return new \ObjectNotFoundError();
 		}

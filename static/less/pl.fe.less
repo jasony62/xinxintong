@@ -40,6 +40,26 @@ table.table {
     background-color: @brand-primary;
     border-color: @brand-primary-border;
 
+    .navbar-header {
+        .navbar-brand {
+            color: #fff;
+        }
+
+    }
+
+    .nav.navbar-nav {
+        a {
+            color: #fff;
+
+            &:focus, &:hover {
+                color: #fff;
+                background: transparent;
+            }
+
+        }
+
+    }
+
     .navbar-nav.tms-breadcrumb>li+li {
         position: relative;
         margin-left: 2em;

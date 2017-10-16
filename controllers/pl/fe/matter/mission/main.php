@@ -221,8 +221,7 @@ class main extends \pl\fe\matter\base {
 			$oAppProto = $oProto->app;
 			if (isset($oAppProto->enroll->create) && $oAppProto->enroll->create === 'Y') {
 				/* 在项目下创建报名活动 */
-				$modelEnl = $this->model('matter\enroll');
-				$modelEnl->setOnlyWriteDbConn(true);
+				$modelEnl = $this->model('matter\enroll')->setOnlyWriteDbConn(true);
 				$oEnlConfig = new \stdClass;
 				$oEnlConfig->proto = new \stdClass;
 				$oEnlConfig->proto->title = $oNewMis->title . '-报名';
@@ -230,9 +229,8 @@ class main extends \pl\fe\matter\base {
 				$oNewEnlApp = $modelEnl->createByMission($oUser, $oSite, $oNewMis, 'registration', 'simple', $oEnlConfig);
 			}
 			if (isset($oAppProto->signin->create) && $oAppProto->signin->create === 'Y') {
-				/* 在项目下创建报名活动 */
-				$modelSig = $this->model('matter\signin');
-				$modelSig->setOnlyWriteDbConn(true);
+				/* 在项目下创建签到活动 */
+				$modelSig = $this->model('matter\signin')->setOnlyWriteDbConn(true);
 				$oSigConfig = new \stdClass;
 				$oSigConfig->proto = new \stdClass;
 				$oSigConfig->proto->title = $oNewMis->title . '-签到';
@@ -242,9 +240,8 @@ class main extends \pl\fe\matter\base {
 				$oNewSigApp = $modelSig->createByMission($oUser, $oSite, $oNewMis, 'basic', $oSigConfig);
 			}
 			if (isset($oAppProto->group->create) && $oAppProto->group->create === 'Y') {
-				/* 在项目下创建报名活动 */
-				$modelGrp = $this->model('matter\group');
-				$modelGrp->setOnlyWriteDbConn(true);
+				/* 在项目下创建分组活动 */
+				$modelGrp = $this->model('matter\group')->setOnlyWriteDbConn(true);
 				$oGrpConfig = new \stdClass;
 				$oGrpConfig->proto = new \stdClass;
 				$oGrpConfig->proto->title = $oNewMis->title . '-分组';

@@ -158,7 +158,7 @@ class main extends \pl\fe\matter\main_base {
 		$current = time();
 		$oNewApp = new \stdClass;
 		$oSite = $this->model('site')->byId($site, ['fields' => 'id,heading_pic']);
-		/*从站点或任务获得的信息*/
+		/* 从站点或项目获得的信息 */
 		if (empty($mission)) {
 			$oNewApp->pic = $oSite->heading_pic;
 			$oNewApp->summary = '';
@@ -185,6 +185,7 @@ class main extends \pl\fe\matter\main_base {
 			$oRoundSchema->id = '_round_id';
 			$oRoundSchema->type = 'single';
 			$oRoundSchema->title = '分组名称';
+			$oRoundSchema->required = 'Y';
 			$oRoundSchema->ops = [];
 			$oGroupApp = $this->model('matter\group')->byId($oNewApp->group_app_id);
 			if (!empty($oGroupApp->rounds)) {

@@ -48,6 +48,7 @@ class report extends \pl\fe\matter\base {
 			$users = $this->model('matter\group\player')->byApp($userSource, (object) ['fields' => 'userid,nickname,round_id,round_title,data']);
 			$users = isset($users->players) ? $users->players : [];
 			if (count($users)) {
+				/* 指定分组用户昵称 */
 				if (!empty($oGrpApp->assigned_nickname)) {
 					$oAssignedNickname = $oGrpApp->assignedNickname;
 					if (isset($oAssignedNickname->valid) && $oAssignedNickname->valid === 'Y' && !empty($oAssignedNickname->schema->id)) {

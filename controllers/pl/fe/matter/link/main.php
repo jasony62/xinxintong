@@ -51,6 +51,10 @@ class main extends \pl\fe\matter\main_base {
 			 * channels
 			 */
 			$link->channels = $this->model('matter\channel')->byMatter($id, 'link');
+			/* 所属项目 */
+			if ($link->mission_id) {
+				$link->mission = $this->model('matter\mission')->byId($link->mission_id, ['cascaded' => 'phase']);
+			}
 			/**
 			 * acl
 			 */

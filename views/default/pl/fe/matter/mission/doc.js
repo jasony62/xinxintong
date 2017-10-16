@@ -36,7 +36,7 @@ define(['frame'], function(ngApp) {
             var url = '/rest/pl/fe/matter/link/create?mission=' + _oMission.id;
             url += '&title=' + _oMission.title + '-链接';
             http2.get(url, function(rsp) {
-                location.href = '/rest/pl/fe/matter/link/preview?id=' + rsp.data.id + '&site=' + _oMission.siteid;
+                location.href = '/rest/pl/fe/matter/link?id=' + rsp.data.id + '&site=' + _oMission.siteid;
             });
         };
         $scope.addMatter = function(matterType) {
@@ -51,11 +51,9 @@ define(['frame'], function(ngApp) {
                 url += '/' + subView;
             }
             switch (type) {
+                case 'link':
                 case 'article':
                     location.href = url + '?id=' + id + '&site=' + _oMission.siteid;
-                    break;
-                case 'link':
-                    location.href = url + '/preview' + '?id=' + id + '&site=' + _oMission.siteid;
                     break;
             }
         };
@@ -68,10 +66,8 @@ define(['frame'], function(ngApp) {
             evt.stopPropagation();
             if (window.confirm('确定删除：' + title + '？')) {
                 switch (type) {
+                    case 'link':
                     case 'article':
-                        url += type + '/remove?id=' + id + '&site=' + _oMission.siteid;
-                        break;
-                     case 'link':
                         url += type + '/remove?id=' + id + '&site=' + _oMission.siteid;
                         break;
                 }

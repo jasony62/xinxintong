@@ -158,7 +158,7 @@ class main extends \pl\fe\matter\main_base {
 		$current = time();
 		$oNewApp = new \stdClass;
 		$oSite = $this->model('site')->byId($site, ['fields' => 'id,heading_pic']);
-		/*从站点或任务获得的信息*/
+		/* 从站点或项目获得的信息 */
 		if (empty($mission)) {
 			$oNewApp->pic = $oSite->heading_pic;
 			$oNewApp->summary = '';
@@ -185,6 +185,7 @@ class main extends \pl\fe\matter\main_base {
 			$oRoundSchema->id = '_round_id';
 			$oRoundSchema->type = 'single';
 			$oRoundSchema->title = '分组名称';
+			$oRoundSchema->required = 'Y';
 			$oRoundSchema->ops = [];
 			$oGroupApp = $this->model('matter\group')->byId($oNewApp->group_app_id);
 			if (!empty($oGroupApp->rounds)) {
@@ -262,8 +263,8 @@ class main extends \pl\fe\matter\main_base {
 				$oRule->entry = isset($oEntryRule->otherwise->entry) ? $oEntryRule->otherwise->entry : '';
 				$oSns = new \stdClass;
 				if (isset($oProtoEntryRule->sns)) {
-					foreach ($oProtoEntryRule->sns as $snsName => $oRule2) {
-						if (isset($oRule2->entry) && $oRule2->entry === 'Y') {
+					foreach ($oProtoEntryRule->sns as $snsName => $bValid) {
+						if ($bValid) {
 							$oSns->{$snsName} = $oRule;
 						}
 					}
@@ -357,7 +358,8 @@ class main extends \pl\fe\matter\main_base {
 		$oNewApp->can_repos = empty($oCustomConfig->proto->can_repos) ? 'N' : $modelApp->escape($oCustomConfig->proto->can_repos);
 		$oNewApp->can_rank = empty($oCustomConfig->proto->can_rank) ? 'N' : $modelApp->escape($oCustomConfig->proto->can_rank);
 		$oNewApp->enroll_app_id = empty($oCustomConfig->proto->enrollApp->id) ? '' : $modelApp->escape($oCustomConfig->proto->enrollApp->id);
-		$oNewApp->start_at = $current;
+		$oNewApp->start_at = isset($oCustomConfig->proto->start_at) ? $oCustomConfig->proto->start_at : 0;
+		$oNewApp->end_at = isset($oCustomConfig->proto->end_at) ? $oCustomConfig->proto->end_at : 0;
 		$oNewApp->entry_rule = json_encode($oEntryRule);
 		$oNewApp->can_siteuser = 'Y';
 		isset($oTemplateConfig) && $oNewApp->data_schemas = $modelApp->toJson($oTemplateConfig->schema);
@@ -1535,14 +1537,15 @@ class main extends \pl\fe\matter\main_base {
 		 * 处理页面
 		 */
 		if (!empty($config->pages)) {
-			foreach ($config->pages as &$page) {
+			foreach ($config->pages as &$oPage) {
+				$templateFile = $templateDir . '/' . $oPage->name;
 				/* 填充代码 */
 				$code = [
-					'html' => file_get_contents($templateDir . '/' . $page->name . '.html'),
-					'css' => file_get_contents($templateDir . '/' . $page->name . '.css'),
-					'js' => file_get_contents($templateDir . '/' . $page->name . '.js'),
+					'html' => file_exists($templateFile . '.html') ? file_get_contents($templateFile . '.html') : '',
+					'css' => file_exists($templateFile . '.css') ? file_get_contents($templateFile . '.css') : '',
+					'js' => file_exists($templateFile . '.js') ? file_get_contents($templateFile . '.js') : '',
 				];
-				$page->code = $code;
+				$oPage->code = $code;
 			}
 		}
 

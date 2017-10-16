@@ -55,6 +55,10 @@ define(['frame'], function(ngApp) {
         $scope.downloadQrcode = function(url) {
             $('<a href="' + url + '" download="' + $scope.wall.title + '.png"></a>')[0].click();
         };
+        $scope.$on('xxt.tms-datepicker.change', function(event, data) {
+            $scope.wall[data.state] = data.value;
+            $scope.update(data.state);
+        });
         $scope.$watch('wall', function(oWall) {
             if (oWall) {
                 $scope.entry = {

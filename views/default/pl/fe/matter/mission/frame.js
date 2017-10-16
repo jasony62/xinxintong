@@ -15,8 +15,9 @@ define(['missionService', 'enrollService', 'signinService'], function() {
                 'signin': '签到',
                 'group': '分组',
                 'wall': '信息墙',
+                'memberschema': '通讯录',
             },
-            appOrder: ['enroll', 'signin', 'group', 'wall']
+            appOrder: ['enroll', 'signin', 'group', 'wall', 'memberschema']
         },
         scenarioNames: {
             enroll: {
@@ -119,7 +120,6 @@ define(['missionService', 'enrollService', 'signinService'], function() {
                     break;
                 case 'app':
                 case 'doc':
-                case 'entry':
                     $scope.opened = 'task';
                     break;
                 case 'mschema':

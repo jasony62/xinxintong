@@ -83,19 +83,18 @@ define(['require', 'schema', 'wrap'], function(require, schemaLib, wrapLib) {
             newSchema.title = schema.title;
             $scope._appendSchema(newSchema);
         };
-        $scope.newByOtherApp = function(schema, otherApp) {
-            var newSchema;
+        $scope.newByOtherApp = function(oProtoSchema, oOtherApp) {
+            var oNewSchema;
 
-            newSchema = schemaLib.newSchema(schema.type, $scope.app);
-            newSchema.type === 'member' && (newSchema.schema_id = schema.schema_id);
-            newSchema.id = schema.id;
-            newSchema.title = schema.title;
-            newSchema.requireCheck = 'Y';
-            newSchema.fromApp = otherApp.id;
-            if (schema.ops) {
-                newSchema.ops = schema.ops;
+            oNewSchema = schemaLib.newSchema(oProtoSchema.type, $scope.app, oProtoSchema);
+            oNewSchema.type === 'member' && (oNewSchema.schema_id = oProtoSchema.schema_id);
+            oNewSchema.id = oProtoSchema.id;
+            oNewSchema.requireCheck = 'Y';
+            oNewSchema.fromApp = oOtherApp.id;
+            if (oProtoSchema.ops) {
+                oNewSchema.ops = oProtoSchema.ops;
             }
-            $scope._appendSchema(newSchema);
+            $scope._appendSchema(oNewSchema);
         };
         $scope.copySchema = function(schema) {
             var newSchema = angular.copy(schema);

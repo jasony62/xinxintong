@@ -137,10 +137,8 @@ define(['frame'], function(ngApp) {
         $scope.$watch('app', function(oApp) {
             var oSourceApp;
             if (oApp) {
-                if (oSourceApp = oApp.sourceApp) {
-                    if (oSourceApp.assignedNickname) {
-                        $scope.bRequireNickname = oSourceApp.assignedNickname.valid !== 'Y' || !oSourceApp.assignedNickname.schema;
-                    }
+                if (oApp.assignedNickname) {
+                    $scope.bRequireNickname = oApp.assignedNickname.valid !== 'Y' || !oApp.assignedNickname.schema;
                 }
                 srvGroupPlayer.init(players).then(function() {
                     $scope.list();

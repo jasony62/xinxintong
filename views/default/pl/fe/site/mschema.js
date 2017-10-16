@@ -58,21 +58,23 @@ define(['require'], function(require) {
                 ea.cfg2 = ea.cfg.split('');
             });
         }
-        var service = {};
+
+        var oService = {};
 
         srvSite.get().then(function(site) {
             var entryMschemaId;
             $scope.site = site;
-            service.memberSchema = new MemberSchema(site.id);
+            oService.memberSchema = new MemberSchema(site.id);
             if (location.hash) {
                 entryMschemaId = location.hash.substr(1);
-                service.memberSchema.get(entryMschemaId).then(function(oMschema) {
+                oService.memberSchema.get(entryMschemaId).then(function(oMschema) {
                     shiftAttr(oMschema);
                     $scope.schemas = [oMschema];
                     $scope.chooseSchema(oMschema);
                 });
+                $scope.bOnlyone = true;
             } else {
-                service.memberSchema.list('N').then(function(schemas) {
+                oService.memberSchema.list('N').then(function(schemas) {
                     schemas.forEach(function(schema) {
                         shiftAttr(schema);
                         $scope.schemas.push(schema);
@@ -90,6 +92,7 @@ define(['require'], function(require) {
                     }
                     $scope.chooseSchema(schemas[0]);
                 });
+                $scope.bOnlyone = false;
             }
         });
         srvSite.snsList().then(function(data) {
@@ -156,7 +159,7 @@ define(['require'], function(require) {
             var pv = {},
                 schema = $scope.choosedSchema;
             pv[field] = (/entry_statement|acl_statement|notpass_statement/.test(field)) ? encodeURIComponent(schema[field]) : schema[field];
-            service.memberSchema.update($scope.choosedSchema, pv).then(function(data) {
+            oService.memberSchema.update($scope.choosedSchema, pv).then(function(data) {
                 if ($scope.choosedSchema.id === undefined) {
                     shiftAttr(data);
                     angular.extend(schema, data);
@@ -177,7 +180,7 @@ define(['require'], function(require) {
                 attrs[3] = '1';
             }
             p['attr_' + item] = attrs.join('');
-            service.memberSchema.update($scope.choosedSchema, p);
+            oService.memberSchema.update($scope.choosedSchema, p);
         };
         $scope.addExtattr = function() {
             $uibModal.open({
@@ -248,7 +251,7 @@ define(['require'], function(require) {
                         'code_id': rsp.data.id,
                         'page_code_name': rsp.data.name
                     };
-                    service.memberSchema.update($scope.choosedSchema, nv).then(function(rsp) {
+                    oService.memberSchema.update($scope.choosedSchema, nv).then(function(rsp) {
                         $scope.choosedSchema.code_id = nv.code_id;
                         $scope.choosedSchema.page_code_name = nv.page_code_name;
                         location.href = '/rest/pl/fe/code?site=' + $scope.site.id + '&name=' + nv.page_code_name;
@@ -269,7 +272,7 @@ define(['require'], function(require) {
                         'code_id': rsp.data.id,
                         'page_code_name': rsp.data.name
                     };
-                    service.memberSchema.update($scope.choosedSchema, nv).then(function(rsp) {
+                    oService.memberSchema.update($scope.choosedSchema, nv).then(function(rsp) {
                         $scope.choosedSchema.code_id = nv.code_id;
                         $scope.choosedSchema.page_code_name = nv.page_code_name;
                         location.href = '/rest/pl/fe/code?site=' + $scope.site.id + '&name=' + nv.page_code_name;
@@ -348,6 +351,72 @@ define(['require'], function(require) {
                 });
             }
         });
+    }]);
+    ngApp.controller('ctrlInvite', ['$scope', '$uibModal', 'http2', function($scope, $uibModal, http2) {
+        function listInvite(oSchema) {
+            http2.get('/rest/pl/fe/site/member/invite/list?schema=' + oSchema.id, function(rsp) {
+                $scope.invites = rsp.data.invites;
+            });
+        }
+        $scope.editInvite = function(oInvite) {
+            $uibModal.open({
+                templateUrl: '/views/default/pl/fe/_module/mschemaInvite.html',
+                backdrop: 'static',
+                controller: ['$uibModalInstance', '$scope', function($mi, $scope2) {
+                    $scope2.option = { max_count: oInvite.max_count, expire_at: oInvite.expire_at };
+                    $scope2.cancel = function() {
+                        $mi.dismiss();
+                    };
+                    $scope2.ok = function() {
+                        $mi.close($scope2.option);
+                    };
+                }]
+            }).result.then(function(option) {
+                http2.post('/rest/pl/fe/site/member/invite/update?invite=' + oInvite.id, option, function(rsp) {
+                    angular.extend(oInvite, rsp.data);
+                });
+            });
+        };
+        $scope.addInvite = function() {
+            $uibModal.open({
+                templateUrl: '/views/default/pl/fe/_module/mschemaInvite.html',
+                backdrop: 'static',
+                controller: ['$uibModalInstance', '$scope', function($mi, $scope2) {
+                    $scope2.option = { max_count: 1 };
+                    $scope2.cancel = function() {
+                        $mi.dismiss();
+                    };
+                    $scope2.ok = function() {
+                        $mi.close($scope2.option);
+                    };
+                }]
+            }).result.then(function(option) {
+                http2.post('/rest/pl/fe/site/member/invite/add?schema=' + $scope.choosedSchema.id, option, function(rsp) {
+                    $scope.invites.push(rsp.data);
+                });
+            });
+        };
+        $scope.stopInvite = function(oInvite) {
+            http2.post('/rest/pl/fe/site/member/invite/update?invite=' + oInvite.id, { stop: 'Y' }, function(rsp) {
+                angular.extend(oInvite, rsp.data);
+            });
+        };
+        $scope.startInvite = function(oInvite) {
+            http2.post('/rest/pl/fe/site/member/invite/update?invite=' + oInvite.id, { stop: 'N' }, function(rsp) {
+                angular.extend(oInvite, rsp.data);
+            });
+        };
+        $scope.removeInvite = function(oInvite) {
+            http2.post('/rest/pl/fe/site/member/invite/update?invite=' + oInvite.id, { state: 0 }, function(rsp) {
+                oInvite.state = '0';
+            });
+        };
+        $scope.restoreInvite = function(oInvite) {
+            http2.post('/rest/pl/fe/site/member/invite/update?invite=' + oInvite.id, { state: 1 }, function(rsp) {
+                oInvite.state = '1';
+            });
+        };
+        listInvite($scope.choosedSchema);
     }]);
     /***/
     require(['domReady!'], function(document) {

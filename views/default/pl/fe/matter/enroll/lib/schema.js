@@ -85,7 +85,7 @@ define([], function() {
         newSchema: function(type, app, proto) {
             var schema = angular.copy(base);
 
-            schema.id = (proto && proto.id) ? proto.id : 's' + (new Date() * 1);
+            schema.id = (proto && proto.id) ? proto.id : 's' + (new Date * 1);
             schema.required = type === 'html' ? 'N' : 'Y';
             schema.type = type;
             if (prefab[type]) {
@@ -123,7 +123,9 @@ define([], function() {
             if (/longtext|file|image/.test(type)) {
                 schema.remarkable = 'Y';
             }
-            if (/shorttext/.test(type)) {
+            if (proto && proto.format !== undefined) {
+                schema.format = proto.format;
+            } else if (/shorttext/.test(type)) {
                 schema.format = '';
             }
 
@@ -153,7 +155,12 @@ define([], function() {
             }
             if (/email|mobile|name/.test(schema.type) && /shorttext/.test(newType)) {
                 schema.format = schema.type;
-            } else if (/shorttext|longtext/.test(newType)) { schema.format = ''; }
+            } else if (/shorttext|longtext/.test(newType)) {
+                schema.format = '';
+            }
+            if ('html' === newType) {
+                schema.required = 'N';
+            }
             schema.type = newType;
 
             return true;

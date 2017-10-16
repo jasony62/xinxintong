@@ -19,6 +19,9 @@ define(['require'], function(require) {
             }
         };
         $scope.entryRule = _oEntryRule = _oProto.entryRule;
+        $scope.$on('xxt.tms-datepicker.change', function(event, data) {
+            _oProto[data.state] = data.value;
+        });
         srvSite.get().then(function(oSite) {
             $scope.site = oSite;
         });

@@ -74,14 +74,20 @@ define(['frame'], function(ngApp) {
             }
         };
         $scope.openMatter = function(matter, subView) {
-            var url = '/rest/pl/fe/matter/',
-                type = matter.type || $scope.matterType,
-                id = matter.id;
-            url += type;
-            if (subView) {
-                url += '/' + subView;
+            var url, type, id;
+            type = matter.type || $scope.matterType;
+            id = matter.id;
+            if (type === 'memberschema') {
+                url = '/rest/pl/fe/site/mschema?site=' + _oMission.siteid + '#' + id;
+                location.href = url;
+            } else {
+                url = '/rest/pl/fe/matter/';
+                url += type;
+                if (subView) {
+                    url += '/' + subView;
+                }
+                location.href = url + '?id=' + id + '&site=' + _oMission.siteid;
             }
-            location.href = url + '?id=' + id + '&site=' + _oMission.siteid;
         };
         $scope.removeMatter = function(evt, matter) {
             var type = matter.type || $scope.matterType,
@@ -120,27 +126,23 @@ define(['frame'], function(ngApp) {
             if (_oCriteria.filter.by === 'title') {
                 data.byTitle = _oCriteria.filter.keyword;
             }
-            matterType = $scope.matterType;
-            if (matterType === '') {
-                url = '/rest/pl/fe/matter/mission/matter/list?id=' + _oMission.id;
-                url += '&matterType=app';
-                http2.post(url, data, function(rsp) {
-                    rsp.data.forEach(function(matter) {
-                        matter._operator = matter.modifier_name || matter.creater_name;
-                        matter._operateAt = matter.modifiy_at || matter.create_at;
-                    });
-                    $scope.matters = rsp.data;
-                });
-            } else {
-                url = '/rest/pl/fe/matter/' + matterType;
-                url += '/list?mission=' + _oMission.id;
-                if (matterType === 'enroll' && $scope.matterScenario) {
-                    url += '&scenario=' + $scope.matterScenario;
-                }
-                http2.post(url, data, function(rsp) {
-                    $scope.matters = rsp.data.apps;
-                });
+            if ($scope.matterScenario !== '') {
+                data.byScenario = $scope.matterScenario;
             }
+            matterType = $scope.matterType;
+            url = '/rest/pl/fe/matter/mission/matter/list?id=' + _oMission.id;
+            if (matterType === '') {
+                url += '&matterType=app';
+            } else {
+                url += '&matterType=' + matterType;
+            }
+            http2.post(url, data, function(rsp) {
+                rsp.data.forEach(function(matter) {
+                    matter._operator = matter.modifier_name || matter.creater_name;
+                    matter._operateAt = matter.modifiy_at || matter.create_at;
+                });
+                $scope.matters = rsp.data;
+            });
         };
         $scope.togglePublic = function(oMatter) {
             var isPublic, url;

@@ -1,3 +1,5 @@
+.glyphicon-eye-close{color:red;}
+
 /*phase*/
 .phases{phase}
 .phases .phase{counter-increment:phase;}

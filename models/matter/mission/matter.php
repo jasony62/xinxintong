@@ -36,7 +36,10 @@ class matter_model extends \TMS_MODEL {
 
 		/* 按类型过滤 */
 		!empty($matterType) && $q[2]['matter_type'] = $matterType;
-
+		/* 按可见性过滤 */
+		if (isset($aOptions['is_public']) && $aOptions['is_public'] === 'Y') {
+			$q[2]['is_public'] = 'Y';
+		}
 		/* 按名称过滤 */
 		if (!empty($aOptions['byTitle'])) {
 			$q[2]["matter_title"] = (object) ['op' => 'like', 'pat' => '%' . $aOptions['byTitle'] . '%'];
@@ -56,8 +59,20 @@ class matter_model extends \TMS_MODEL {
 				break;
 			}
 		}
+		/* 按场景过滤 */
+		if (!empty($aOptions['byScenario'])) {
+			$q[2]['scenario'] = $aOptions['byScenario'];
+		}
+		/* 按项目阶段过滤 */
+		if (!empty($aOptions['byPhase'])) {
+			$q[2]['phase_id'] = $aOptions['byPhase'];
+		}
+		/* 按是用户是否可见过滤 */
+		if (!empty($aOptions['is_public'])) {
+			$q[2]['is_public'] = $aOptions['is_public'];
+		}
 
-		$q2 = ['o' => 'seq,create_at desc'];
+		$q2 = ['o' => 'create_at desc'];
 		$mms = $this->query_objs_ss($q, $q2);
 
 		if ($verbose === 'Y' && count($mms)) {
@@ -70,10 +85,7 @@ class matter_model extends \TMS_MODEL {
 					$modelMat = $this->model('matter\\' . $mm->matter_type);
 				}
 				if (in_array($mm->matter_type, ['enroll', 'signin', 'group'])) {
-					$fields = 'siteid,id,title,summary,pic,create_at,creater_name,data_schemas,op_short_url_code';
-					if (in_array($mm->matter_type, ['enroll', 'signin'])) {
-						$fields .= ',start_at,end_at';
-					}
+					$fields = 'siteid,id,title,summary,pic,create_at,creater_name,data_schemas,op_short_url_code,start_at,end_at';
 					if (in_array($mm->matter_type, ['enroll'])) {
 						$fields .= ',end_submit_at,rp_short_url_code,can_coin,entry_rule';
 					}
@@ -82,21 +94,20 @@ class matter_model extends \TMS_MODEL {
 					}
 					//
 					$options2 = ['fields' => $fields, 'cascaded' => 'N'];
+				} else if (in_array($mm->matter_type, ['wall'])) {
+					$fields = 'siteid,id,title,summary,pic,create_at,creater_name,start_at,end_at';
+					$options2 = ['fields' => $fields];
+				} else if ($mm->matter_type === 'memberschema') {
+					$fields = 'siteid,id,title,create_at,start_at,end_at,url';
+					$options2 = ['fields' => $fields, 'cascaded' => 'N'];
 				} else {
 					$fields = 'siteid,id,title,summary,pic,create_at,creater_name';
 					$options2 = ['fields' => $fields, 'cascaded' => 'N'];
 				}
 
-				if (isset($options['mission_phase_id'])) {
-					$options2['where'] = array('mission_phase_id' => $options['mission_phase_id']);
-				}
-
 				if ($oMatter = $modelMat->byId($mm->matter_id, $options2)) {
 					/* 是否开放了运营者链接 */
-					if (isset($options['op_short_url_code']) && $options['op_short_url_code'] === true && empty($oMatter->op_short_url_code)) {
-						continue;
-					}
-					if (isset($options['is_public']) && $options['is_public'] !== $mm->is_public) {
+					if (isset($aOptions['op_short_url_code']) && $aOptions['op_short_url_code'] === true && empty($oMatter->op_short_url_code)) {
 						continue;
 					}
 					$oMatter->_pk = $mm->id;
@@ -108,6 +119,13 @@ class matter_model extends \TMS_MODEL {
 						}
 						$oMatter->rounds = $modelSigRnd->byApp($oMatter->id);
 					}
+					if (in_array($mm->matter_type, ['enroll', 'signin'])) {
+						$oMatter->opData = $modelMat->opData($oMatter, true);
+					}
+					if ($mm->matter_type === 'memberschema') {
+						$oMatter->entryUrl = $modelMat->getEntryUrl($oMatter->siteid, $oMatter->id);
+					}
+
 					$matters[] = $oMatter;
 				}
 			}

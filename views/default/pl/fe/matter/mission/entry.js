@@ -1,22 +1,8 @@
 define(['frame'], function(ngApp) {
     'use strict';
-    ngApp.provider.controller('ctrlEntry', ['$scope', 'http2', 'srvQuickEntry', '$timeout', function($scope, http2, srvQuickEntry, $timeout) {
+    ngApp.provider.controller('ctrlEntry', ['$scope', 'http2', 'srvQuickEntry', '$timeout', 'srvSite', function($scope, http2, srvQuickEntry, $timeout, srvSite) {
         var targetUrl, host, opEntry;
         $scope.opEntry = opEntry = {};
-        $scope.$watch('mission', function(mission) {
-            if (!mission) return;
-            targetUrl = mission.opUrl;
-            host = targetUrl.match(/\/\/(\S+?)\//);
-            host = host.length === 2 ? host[1] : location.host;
-            srvQuickEntry.get(targetUrl).then(function(entry) {
-                if (entry) {
-                    opEntry.url = 'http://' + host + '/q/' + entry.code;
-                    opEntry.password = entry.password;
-                    opEntry.code = entry.code;
-                    opEntry.can_favor = entry.can_favor;
-                }
-            });
-        });
         $timeout(function() {
             new ZeroClipboard(document.querySelectorAll('.text2Clipboard'));
         });
@@ -43,9 +29,26 @@ define(['frame'], function(ngApp) {
         $scope.updCanFavor = function() {
             srvQuickEntry.update(opEntry.code, { can_favor: opEntry.can_favor });
         };
-        $scope.$watch('mission', function(mission) {
-            if (!mission) return;
-            http2.get('/rest/pl/fe/matter/timer/byMatter?site=' + mission.siteid + '&type=mission&id=' + mission.id, function(rsp) {
+        $scope.$watch('mission', function(oMission) {
+            if (!oMission) return;
+            /* 监督人入口 */
+            targetUrl = oMission.opUrl;
+            host = targetUrl.match(/\/\/(\S+?)\//);
+            host = host.length === 2 ? host[1] : location.host;
+            srvQuickEntry.get(targetUrl).then(function(entry) {
+                if (entry) {
+                    opEntry.url = 'http://' + host + '/q/' + entry.code;
+                    opEntry.password = entry.password;
+                    opEntry.code = entry.code;
+                    opEntry.can_favor = entry.can_favor;
+                }
+            });
+            /* 项目通讯录 */
+            srvSite.memberSchemaList(oMission, true).then(function(aMemberSchemas) {
+                $scope.missionMschemas = aMemberSchemas;
+            });
+            /* 定时推送 */
+            http2.get('/rest/pl/fe/matter/timer/byMatter?site=' + oMission.siteid + '&type=mission&id=' + oMission.id, function(rsp) {
                 rsp.data.forEach(function(oTask) {
                     oTimerTask[oTask.task_model].state = 'Y';
                     oTimerTask[oTask.task_model].taskId = oTask.id;

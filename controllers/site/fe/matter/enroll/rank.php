@@ -73,21 +73,25 @@ class rank extends base {
 		$q2['r'] = ['o' => ($page - 1) * $size, 'l' => $size];
 
 		$result = new \stdClass;
-		if (($users = $modelUsr->query_objs_ss($q, $q2)) && !empty($oApp->group_app_id)) {
+		$users = $modelUsr->query_objs_ss($q, $q2);
+		if (count($users) && !empty($oApp->group_app_id)) {
 			$q = [
 				'userid,round_id,round_title',
 				'xxt_group_player',
 				['aid' => $oApp->group_app_id],
 			];
-			if ($userGroups = $modelUsr->query_objs_ss($q)) {
+			$userGroups = $modelUsr->query_objs_ss($q);
+			if (count($userGroups)) {
 				$userGroups2 = new \stdClass;
-				foreach ($userGroups as $userGroup) {
-					$userGroups2->{$userGroup->userid} = new \stdClass;
-					$userGroups2->{$userGroup->userid}->round_id = $userGroup->round_id;
-					$userGroups2->{$userGroup->userid}->round_title = $userGroup->round_title;
+				foreach ($userGroups as $oUserGroup) {
+					if (!empty($oUserGroup->userid)) {
+						$userGroups2->{$oUserGroup->userid} = new \stdClass;
+						$userGroups2->{$oUserGroup->userid}->round_id = $oUserGroup->round_id;
+						$userGroups2->{$oUserGroup->userid}->round_title = $oUserGroup->round_title;
+					}
 				}
-				foreach ($users as $user) {
-					$user->group = isset($userGroups2->{$user->userid})? $userGroups2->{$user->userid} : new \stdClass;
+				foreach ($users as $oUser) {
+					$oUser->group = isset($userGroups2->{$oUser->userid}) ? $userGroups2->{$oUser->userid} : new \stdClass;
 				}
 			}
 		}

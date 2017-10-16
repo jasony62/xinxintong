@@ -77,8 +77,7 @@ class record extends base {
 		/**
 		 * 签到并保存登记的数据
 		 */
-		$modelRec = $this->model('matter\signin\record');
-		$modelRec->setOnlyWriteDbConn(true);
+		$modelRec = $this->model('matter\signin\record')->setOnlyWriteDbConn(true);
 		$oSignState = $modelRec->signin($oUser, $oSigninApp, $oSigninData);
 		// 保存签到登记数据
 		empty($submitkey) && $submitkey = $oUser->uid;
@@ -90,10 +89,10 @@ class record extends base {
 		 * 检查签到数据是否在报名表中
 		 */
 		if (!empty($oSigninApp->enroll_app_id)) {
-			$enrollApp = $this->model('matter\enroll')->byId($oSigninApp->enroll_app_id, ['cascaded' => 'N']);
-			if ($enrollApp) {
+			$oEnrollApp = $this->model('matter\enroll')->byId($oSigninApp->enroll_app_id, ['cascaded' => 'N']);
+			if ($oEnrollApp) {
 				/*获得要检查的数据*/
-				$dataSchemas = json_decode($oSigninApp->data_schemas);
+				$dataSchemas = $oSigninApp->dataSchemas;
 				$requireCheckedData = new \stdClass;
 				foreach ($dataSchemas as $dataSchema) {
 					if (isset($dataSchema->requireCheck) && $dataSchema->requireCheck === 'Y') {
@@ -106,13 +105,13 @@ class record extends base {
 				}
 				/* 在指定的登记活动中检查数据 */
 				$modelEnrollRec = $this->model('matter\enroll\record');
-				$enrollRecords = $modelEnrollRec->byData($enrollApp, $requireCheckedData);
+				$enrollRecords = $modelEnrollRec->byData($oEnrollApp, $requireCheckedData);
 				if (!empty($enrollRecords)) {
 					/**
-					 * 找报名表中找到对应的记录
+					 * 找报名表中找到对应的记录，如果找到多条记录怎么办？
 					 */
-					$enrollRecord = $enrollRecords[0];
-					if ($enrollRecord->verified === 'Y') {
+					$oEnrollRecord = $enrollRecords[0];
+					if ($oEnrollRecord->verified === 'Y') {
 						$enrollData = $enrollRecords[0]->data;
 						foreach ($enrollData as $n => $v) {
 							!isset($oSigninData->{$n}) && $oSigninData->{$n} = $v;
@@ -122,13 +121,23 @@ class record extends base {
 						// 记录验证状态
 						$modelRec->update(
 							'xxt_signin_record',
-							['verified' => 'Y', 'verified_enroll_key' => $enrollRecord->enroll_key],
+							['verified' => 'Y', 'verified_enroll_key' => $oEnrollRecord->enroll_key],
 							"enroll_key='{$oSignState->ek}'"
 						);
 						$oSignState->verified = 'Y';
 						// 返回指定的验证成功页
 						if (isset($oSigninApp->entry_rule->success->entry)) {
 							$oSignState->forword = $oSigninApp->entry_rule->success->entry;
+						}
+						/* 如果分组数据中未包含用户信息，更新用户信息 */
+						if (empty($oEnrollRecord->userid)) {
+							$oUserAcnt = $this->model('site\user\account')->byId($oUser->uid, ['fields' => 'wx_openid,yx_openid,qy_openid,headimgurl']);
+							if (false === $oUserAcnt) {
+								$oUserAcnt = new \stdClass;
+							}
+							$oUserAcnt->userid = $oUser->uid;
+							$oUserAcnt->nickname = $modelEnrollRec->escape($oUser->nickname);
+							$modelEnrollRec->update('xxt_enroll_record', $oUserAcnt, ['id' => $oEnrollRecord->id]);
 						}
 					}
 				}
@@ -152,8 +161,8 @@ class record extends base {
 		 * 检查是否存在匹配的分组记录
 		 */
 		if (!empty($oSigninApp->group_app_id)) {
-			$groupApp = $this->model('matter\group')->byId($oSigninApp->group_app_id);
-			if (empty($groupApp)) {
+			$oGroupApp = $this->model('matter\group')->byId($oSigninApp->group_app_id);
+			if (empty($oGroupApp)) {
 				return new \ParameterError('指定的登记匹配分组活动不存在');
 			}
 			/* 获得要检查的登记项 */
@@ -166,20 +175,34 @@ class record extends base {
 					}
 				}
 			}
-			/* 在指定的登记活动中检查数据 */
+			/* 在指定的分组活动中检查数据 */
 			$modelMatchRec = $this->model('matter\group\player');
-			$groupRecords = $modelMatchRec->byData($groupApp, $requireCheckedData);
+			$groupRecords = $modelMatchRec->byData($oGroupApp, $requireCheckedData);
 			if (empty($groupRecords)) {
-				return new \ParameterError('未在指定的分组活动［' . $groupApp->title . '］中找到与提交数据相匹配的记录');
+				return new \ParameterError('未在指定的分组活动［' . $oGroupApp->title . '］中找到与提交数据相匹配的记录');
 			}
-			$groupRecord = $groupRecords[0];
-			/* 将匹配的登记记录数据作为提交的登记数据的一部分 */
-			$matchedData = $groupRecord->data;
+			/* 如果匹配的分组数据不唯一，怎么办？ */
+			if (count($groupRecords) > 1) {
+				return new \ParameterError('在指定的分组活动［' . $oGroupApp->title . '］中找到多条与提交数据相匹配的记录，匹配关系不唯一');
+			}
+			$oGroupRecord = $groupRecords[0];
+			/* 如果分组数据中未包含用户信息，更新用户信息 */
+			if (empty($oGroupRecord->userid)) {
+				$oUserAcnt = $this->model('site\user\account')->byId($oUser->uid, ['fields' => 'wx_openid,yx_openid,qy_openid,headimgurl']);
+				if (false === $oUserAcnt) {
+					$oUserAcnt = new \stdClass;
+				}
+				$oUserAcnt->userid = $oUser->uid;
+				$oUserAcnt->nickname = $modelMatchRec->escape($oUser->nickname);
+				$modelMatchRec->update('xxt_group_player', $oUserAcnt, ['id' => $oGroupRecord->id]);
+			}
+			/* 将匹配的分组记录数据作为提交的登记数据的一部分 */
+			$matchedData = $oGroupRecord->data;
 			foreach ($matchedData as $n => $v) {
 				!isset($oSigninData->{$n}) && $oSigninData->{$n} = $v;
 			}
-			if (isset($groupRecord->round_id)) {
-				$oSigninData->_round_id = $groupRecord->round_id;
+			if (isset($oGroupRecord->round_id)) {
+				$oSigninData->_round_id = $oGroupRecord->round_id;
 			}
 		}
 		/* 记录操作日志 */
@@ -192,10 +215,8 @@ class record extends base {
 			/**
 			 * 发放签到积分
 			 */
-			$modelCoin = $this->model('matter\signin\coin');
-			$modelCoin->setOnlyWriteDbConn(true);
-			$modelClog = $this->model('site\coin\log');
-			$modelClog->setOnlyWriteDbConn(true);
+			$modelCoin = $this->model('matter\signin\coin')->setOnlyWriteDbConn(true);
+			$modelClog = $this->model('site\coin\log')->setOnlyWriteDbConn(true);
 			if ($oSignState->late) {
 				$coinEvent = 'site.matter.signin.submit.late';
 			} else {

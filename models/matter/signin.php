@@ -61,11 +61,6 @@ class signin_model extends app_base {
 			'xxt_signin',
 			["id" => $appId],
 		];
-		if (isset($options['where'])) {
-			foreach ($options['where'] as $key => $value) {
-				$q[2][$key] = $value;
-			}
-		}
 		if ($oApp = $this->query_obj_ss($q)) {
 			$oApp->type = 'signin';
 			if (isset($oApp->siteid) && isset($oApp->id)) {
@@ -175,12 +170,8 @@ class signin_model extends app_base {
 			'xxt_signin',
 			"state<>0 and mission_id='$mission'",
 		];
-		if (isset($aOptions['where'])) {
-			foreach ($aOptions['where'] as $key => $value) {
-				$key = $this->escape($key);
-				$value = $this->escape($value);
-				$q[2] .= " and " . $key . " = '" . $value . "'";
-			}
+		if (!empty($aOptions['byPhase'])) {
+			$q[2] .= " and mission_phase_id = '" . $this->escape($aOptions['byPhase']) . "'";
 		}
 		if (!empty($aOptions['byTitle'])) {
 			$q[2] .= " and title like '%" . $this->escape($aOptions['byTitle']) . "%'";

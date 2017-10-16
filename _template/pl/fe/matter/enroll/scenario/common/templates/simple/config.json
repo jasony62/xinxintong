@@ -12,7 +12,7 @@
                 "id": "c1",
                 "title": "信息1",
                 "type": "shorttext",
-                "format": "name",
+                "format": "",
                 "required": "Y"
             },
             "config":
@@ -59,7 +59,7 @@
                 "id": "c1",
                 "title": "信息1",
                 "type": "shorttext",
-                "format": "name",
+                "format": "",
                 "required": "Y"
             }
         },
@@ -113,7 +113,7 @@
         "id": "c1",
         "title": "信息1",
         "type": "shorttext",
-        "format": "name",
+        "format": "",
         "required": "Y"
     },
     {

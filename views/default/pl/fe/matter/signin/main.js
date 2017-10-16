@@ -1,6 +1,10 @@
 define(['frame'], function(ngApp) {
     'use strict';
     ngApp.provider.controller('ctrlMain', ['$scope', 'http2', 'srvSigninApp', '$uibModal', 'srvTag', function($scope, http2, srvSigninApp, $uibModal, srvTag) {
+        $scope.$on('xxt.tms-datepicker.change', function(event, data) {
+            $scope.app[data.state] = data.value;
+            srvSigninApp.update(data.state);
+        });
         $scope.assignMission = function() {
             srvSigninApp.assignMission();
         };

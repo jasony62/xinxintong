@@ -142,6 +142,10 @@ class report_model extends \TMS_MODEL {
 
 		/* 按用户获得数据 */
 		foreach ($users as &$oUser) {
+			/* 如果分组用户是导入的，且没有和其他活动的填写用户进行过关联，userid就为空 */
+			if (empty($oUser->userid)) {
+				continue;
+			}
 			$oUser->data = [];
 			foreach ($orderedApps as $index => $oApp) {
 				switch ($oApp->type) {

@@ -288,7 +288,7 @@ class record_model extends \TMS_MODEL {
 	/**
 	 * 获得用户的登记记录
 	 */
-	public function &byUser(&$oUser, &$oApp, $options = []) {
+	public function byUser(&$oUser, &$oApp, $options = []) {
 		$fields = isset($options['fields']) ? $options['fields'] : '*';
 
 		$userid = isset($oUser->uid) ? $oUser->uid : (isset($oUser->userid) ? $oUser->userid : '');

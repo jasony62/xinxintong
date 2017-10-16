@@ -351,7 +351,7 @@ class main extends base {
 							if (count($oAssocRec) === 1) {
 								if (!empty($oAssocRec[0]->data)) {
 									$oAssocRecord = new \stdClass;
-									$oAssocRecord->data = json_decode($oAssocRec[0]->data);
+									$oAssocRecord->data = $oAssocRec[0]->data;
 									$params['record'] = $oAssocRecord;
 								}
 							}

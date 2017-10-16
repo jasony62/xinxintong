@@ -59,6 +59,25 @@
                 </select>
             </div>
             <div class='form-group'>
+                <label>时间设置</label>
+                    <div class=''>
+                        <table class='table table-bordered'>
+                            <tr>
+                                <td>活动开始</td>
+                                <td style='padding:0;width:380px;'>
+                                    <tms-datepicker class='tms-datepicker' tms-title='开始时间' tms-date='wall.start_at' tms-state='start_at'></tms-datepicker>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td>活动结束</td>
+                                <td style='padding:0;width:380px;'>
+                                    <tms-datepicker class='tms-datepicker' tms-title='结束时间' tms-date='wall.end_at' tms-state='end_at'></tms-datepicker>
+                                </td>
+                            </tr>
+                        </table>
+                    </div>
+            </div>
+            <div class='form-group'>
                 <div class='help-block'>加入提示</div>
                 <div class=''>
                     <textarea class="form-control" ng-model='wall.join_reply' tms-auto-update tms-wait=1000 tms-update="update('join_reply')"></textarea>

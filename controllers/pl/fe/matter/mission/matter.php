@@ -48,7 +48,7 @@ class matter extends \pl\fe\matter\base {
 			if ($matterType === 'doc') {
 				$matterType = ['article', 'link'];
 			} else if ($matterType === 'app') {
-				$matterType = ['enroll', 'signin', 'group', 'wall'];
+				$matterType = ['enroll', 'signin', 'group', 'wall', 'memberschema'];
 			}
 		}
 

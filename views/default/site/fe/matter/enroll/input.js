@@ -14,14 +14,14 @@ ngApp.factory('Input', ['$q', '$timeout', 'ls', 'http2', function($q, $timeout, 
     var Input, _ins;
     Input = function() {};
     Input.prototype.check = function(data, app, page) {
-        var dataSchemas, item, schema, value, sCheckResult;
+        var dataSchemas, item, oSchema, value, sCheckResult;
         if (page.data_schemas && page.data_schemas.length) {
             dataSchemas = JSON.parse(page.data_schemas);
             for (var i = dataSchemas.length - 1; i >= 0; i--) {
                 item = dataSchemas[i];
-                schema = item.schema;
-                if (schema.id.indexOf('member.') === 0) {
-                    var memberSchema = schema.id.substr(7);
+                oSchema = item.schema;
+                if (oSchema.id.indexOf('member.') === 0) {
+                    var memberSchema = oSchema.id.substr(7);
                     if (memberSchema.indexOf('.') === -1) {
                         value = data.member[memberSchema];
                     } else {
@@ -29,10 +29,12 @@ ngApp.factory('Input', ['$q', '$timeout', 'ls', 'http2', function($q, $timeout, 
                         value = data.member.extattr[memberSchema[1]];
                     }
                 } else {
-                    value = data[schema.id];
+                    value = data[oSchema.id];
                 }
-                if (true !== (sCheckResult = ngApp.oUtilSchema.checkValue(schema, value))) {
-                    return sCheckResult;
+                if (oSchema.type && oSchema.type !== 'html') {
+                    if (true !== (sCheckResult = ngApp.oUtilSchema.checkValue(oSchema, value))) {
+                        return sCheckResult;
+                    }
                 }
             }
         }

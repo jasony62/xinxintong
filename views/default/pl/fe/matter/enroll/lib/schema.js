@@ -155,7 +155,12 @@ define([], function() {
             }
             if (/email|mobile|name/.test(schema.type) && /shorttext/.test(newType)) {
                 schema.format = schema.type;
-            } else if (/shorttext|longtext/.test(newType)) { schema.format = ''; }
+            } else if (/shorttext|longtext/.test(newType)) {
+                schema.format = '';
+            }
+            if ('html' === newType) {
+                schema.required = 'N';
+            }
             schema.type = newType;
 
             return true;

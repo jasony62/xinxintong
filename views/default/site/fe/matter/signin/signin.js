@@ -32,8 +32,10 @@ ngApp.factory('Input', ['$http', '$q', '$timeout', 'ls', function($http, $q, $ti
                 if (oSchema.required === undefined && oItem.config.required === 'Y') {
                     oSchema.required = 'Y';
                 }
-                if (true !== (sCheckResult = ngApp.oUtilSchema.checkValue(oSchema, value))) {
-                    return sCheckResult;
+                if (oSchema.type && oSchema.type !== 'html') {
+                    if (true !== (sCheckResult = ngApp.oUtilSchema.checkValue(oSchema, value))) {
+                        return sCheckResult;
+                    }
                 }
             }
         }

@@ -143,13 +143,16 @@ class main extends \pl\fe\matter\base {
 			return new \ResponseTimeout();
 		}
 
+		$modelSite = $this->model('site');
+		$oSite = $modelSite->byId($site, ['fields' => 'id,heading_pic']);
+		if (false === $oSite) {
+			return new \ObjectNotFoundError();
+		}
+
 		$oProto = $this->getPostJson();
 
 		$current = time();
-		$modelSite = $this->model('site');
 		$modelMis = $this->model('matter\mission')->setOnlyWriteDbConn(true);
-
-		$oSite = $modelSite->byId($site, ['fields' => 'id,heading_pic']);
 
 		$oNewMis = new \stdClass;
 

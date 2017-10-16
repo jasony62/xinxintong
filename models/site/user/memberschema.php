@@ -136,7 +136,7 @@ class memberschema_model extends \TMS_MODEL {
 		/* 作为项目中的活动 */
 		if (!empty($oConfig->matter_type) && $oConfig->matter_type === 'mission') {
 			$modelMis = $this->model('matter\mission');
-			$modelMis->addMatter($oUser, $oSite->id, $oConfig->matter_id, $oNewMschema);
+			$modelMis->addMatter($oUser, $oSite->id, $oConfig->matter_id, $oNewMschema, ['is_public' => 'N']);
 		}
 
 		return $oNewMschema;

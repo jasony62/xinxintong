@@ -232,22 +232,24 @@ class mission_model extends app_base {
 	/**
 	 * 在任务中添加素材
 	 */
-	public function addMatter($user, $siteId, $missionId, $matter) {
+	public function addMatter($user, $siteId, $missionId, $oMatter, $aOptions = []) {
 		$relation = [
 			'siteid' => $siteId,
 			'mission_id' => $missionId,
-			'phase_id' => isset($matter->mission_phase_id) ? $matter->mission_phase_id : '',
-			'matter_id' => $matter->id,
-			'matter_type' => $matter->type,
-			'matter_title' => $this->escape($matter->title),
-			'scenario' => isset($matter->scenario) ? $matter->scenario : '',
-			'start_at' => isset($matter->start_at) ? $matter->start_at : 0,
-			'end_at' => isset($matter->end_at) ? $matter->end_at : 0,
+			'phase_id' => isset($oMatter->mission_phase_id) ? $oMatter->mission_phase_id : '',
+			'matter_id' => $oMatter->id,
+			'matter_type' => $oMatter->type,
+			'matter_title' => $this->escape($oMatter->title),
+			'scenario' => isset($oMatter->scenario) ? $oMatter->scenario : '',
+			'start_at' => isset($oMatter->start_at) ? $oMatter->start_at : 0,
+			'end_at' => isset($oMatter->end_at) ? $oMatter->end_at : 0,
 			'creater' => $user->id,
 			'creater_name' => $this->escape($user->name),
 			'creater_src' => $user->src,
 			'create_at' => time(),
+			'is_public' => isset($aOptions['is_public']) ? $aOptions['is_public'] : 'Y',
 		];
+
 		$this->insert('xxt_mission_matter', $relation, false);
 
 		return true;

@@ -357,7 +357,11 @@ class main extends \pl\fe\matter\base {
 				$this->model('matter\log')->matterOp($mission->siteid, $oUser, $mission, 'Recycle');
 				/*给项目下的活动素材打标记*/
 				foreach ($cnts as $cnt) {
-					$modelMis->update('xxt_' . $cnt->matter_type, ['state' => 0], ['siteid' => $cnt->siteid, 'id' => $cnt->matter_id]);
+					if ($cnt->matter_type === 'memberschema') {
+						$modelMis->update('xxt_site_member_schema', ['state' => 0], ['siteid' => $cnt->siteid, 'id' => $cnt->matter_id]);
+					} else {
+						$modelMis->update('xxt_' . $cnt->matter_type, ['state' => 0], ['siteid' => $cnt->siteid, 'id' => $cnt->matter_id]);
+					}
 					$cnt->id = $cnt->matter_id;
 					$cnt->type = $cnt->matter_type;
 					$cnt->title = $cnt->matter_title;

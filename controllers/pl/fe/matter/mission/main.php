@@ -25,7 +25,7 @@ class main extends \pl\fe\matter\base {
 	 *
 	 * @param int $id
 	 */
-	public function get_action($id) {
+	public function get_action($id, $cascaded = 'Y') {
 		if (false === ($oUser = $this->accountUser())) {
 			return new \ResponseTimeout();
 		}
@@ -34,23 +34,24 @@ class main extends \pl\fe\matter\base {
 		if (false === ($acl = $modelAcl->byCoworker($id, $oUser->id))) {
 			return new \ResponseError('项目不存在');
 		}
-		$oMission = $this->model('matter\mission')->byId($id, ['cascaded' => 'header_page_name,footer_page_name,phase']);
-		/* 关联的用户名单活动 */
-		if ($oMission->user_app_id) {
-			if ($oMission->user_app_type === 'group') {
-				$oMission->userApp = $this->model('matter\group')->byId($oMission->user_app_id, ['cascaded' => 'N']);
-			} else if ($oMission->user_app_type === 'enroll') {
-				$oMission->userApp = $this->model('matter\enroll')->byId($oMission->user_app_id, ['cascaded' => 'N']);
-			} else if ($oMission->user_app_type === 'signin') {
-				$oMission->userApp = $this->model('matter\signin')->byId($oMission->user_app_id, ['cascaded' => 'N']);
-			} else if ($oMission->user_app_type === 'mschema') {
-				$oMission->userApp = $this->model('site\user\memberschema')->byId($oMission->user_app_id);
+		$oMission = $this->model('matter\mission')->byId($id, ['cascaded' => ($cascaded === 'Y' ? 'header_page_name,footer_page_name,phase' : '')]);
+		if ($cascaded === 'Y') {
+			/* 关联的用户名单活动 */
+			if ($oMission->user_app_id) {
+				if ($oMission->user_app_type === 'group') {
+					$oMission->userApp = $this->model('matter\group')->byId($oMission->user_app_id, ['cascaded' => 'N']);
+				} else if ($oMission->user_app_type === 'enroll') {
+					$oMission->userApp = $this->model('matter\enroll')->byId($oMission->user_app_id, ['cascaded' => 'N']);
+				} else if ($oMission->user_app_type === 'signin') {
+					$oMission->userApp = $this->model('matter\signin')->byId($oMission->user_app_id, ['cascaded' => 'N']);
+				} else if ($oMission->user_app_type === 'mschema') {
+					$oMission->userApp = $this->model('site\user\memberschema')->byId($oMission->user_app_id);
+				}
 			}
+			/* 汇总报告配置信息 */
+			$rpConfig = $this->model('matter\mission\report')->defaultConfigByUser($oUser, $oMission);
+			$oMission->reportConfig = $rpConfig;
 		}
-
-		/* 汇总报告配置信息 */
-		$rpConfig = $this->model('matter\mission\report')->defaultConfigByUser($oUser, $oMission);
-		$oMission->reportConfig = $rpConfig;
 
 		/* 检查当前用户的角色 */
 		if ($oUser->id === $oMission->creater) {

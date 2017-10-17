@@ -11,21 +11,21 @@
     <link href="<?php echo auto_version('/views/default/site/fe/user/main.css');?>" rel="stylesheet">
 </head>
 
-<body ng-controller='ctrlMain'>
+<body ng-controller='ctrlMain' class="ng-cloak" ng-cloak>
     <div class="loading">
         <div class='loading-indicator'><i></i></div>
     </div>
-    <div class="container ng-cloak" ng-cloak>
-        <nav class='navbar site-navbar-default navbar-fixed-top'>
-            <div class='container-fluid text-right'>
-                <p class="navbar-text">
-                    <a class='navbar-link' href='/rest/home' target='_self'>
-                        <?php echo APP_TITLE;?> &nbsp;
-                        <span class='glyphicon glyphicon-menu-right'></span>
-                    </a>
-                </p>
-            </div>
-        </nav>
+    <nav class='navbar site-navbar-default navbar-fixed-top'>
+        <div class='container-fluid text-right'>
+            <p class="navbar-text">
+                <a class='navbar-link' href='/rest/home' target='_self'>
+                    <?php echo APP_TITLE;?> &nbsp;
+                    <span class='glyphicon glyphicon-menu-right'></span>
+                </a>
+            </p>
+        </div>
+    </nav>
+    <div class="container">
         <div class='avatar'>
             <img class='headimg img-circle' ng-src="{{user.headimgurl}}">
             <div class='nickname' ng-bind="user.nickname"></div>
@@ -59,10 +59,12 @@
                 </div>
             </a>
         </div>
+        <hr>
         <div>
             <button class="btn btn-default btn-block" ng-click='gotoLogin()' ng-if="!user.loginExpire">去登录</button>
             <button class="btn btn-default btn-block" ng-click='gotoRegister()' ng-if="!user.loginExpire">注册，方便多终端访问</button>
             <button class="btn btn-default btn-block" ng-click='gotoMember(ms)' ng-repeat="ms in memberSchemas">补充【{{ms.title}}】信息</button>
+            <button class="btn btn-default btn-block" ng-click='gotoConsole()' ng-if="user.loginExpire">进入工作台</button>
             <button class="btn btn-default btn-block" ng-click='logout()' ng-if="user.loginExpire">退出登录</button>
         </div>
     </div>

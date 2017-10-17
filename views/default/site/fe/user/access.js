@@ -2,7 +2,11 @@
 var ngApp = angular.module('app', ['ui.bootstrap']);
 ngApp.controller('ctrlAccess', ['$scope', '$http', function($scope, $http) {
     var _siteId;
-    _siteId = location.search.match('site=(.*)')[1];
+    if (location.search.match('site=(.*)')) {
+        _siteId = location.search.match('site=(.*)')[1];
+    } else {
+        _siteId = 'platform';
+    }
     $scope.activeView = location.hash ? location.hash.substr(1) : 'login';
     $scope.loginData = {};
     $scope.registerData = {};
@@ -14,6 +18,9 @@ ngApp.controller('ctrlAccess', ['$scope', '$http', function($scope, $http) {
             //document.querySelector('[ng-model="data.password"]').focus();
         } else {
             //document.querySelector('[ng-model="data.uname"]').focus();
+        }
+        if (window.localStorage.getItem('xxt.login.gotoConsole') === 'Y') {
+            $scope.loginData.gotoConsole = window.localStorage.getItem('xxt.login.gotoConsole');
         }
     } else {
         $scope.supportLocalStorage = 'N';
@@ -32,10 +39,17 @@ ngApp.controller('ctrlAccess', ['$scope', '$http', function($scope, $http) {
                 window.localStorage.setItem('xxt.login.rememberMe', 'N');
                 window.localStorage.removeItem('xxt.login.email');
             }
+            if ($scope.loginData.gotoConsole === 'Y') {
+                window.localStorage.setItem('xxt.login.gotoConsole', 'Y');
+            } else {
+                window.localStorage.setItem('xxt.login.gotoConsole', 'N');
+            }
             if (window.parent && window.parent.onClosePlugin) {
                 window.parent.onClosePlugin(rsp.data);
             } else if (rsp.data._loginReferer) {
                 location.replace(rsp.data._loginReferer);
+            } else if ($scope.loginData.gotoConsole === 'Y') {
+                location.href = '/rest/pl/fe';
             } else {
                 location.replace('/rest/site/fe/user?site=' + _siteId);
             }
@@ -85,6 +99,13 @@ ngApp.controller('ctrlAccess', ['$scope', '$http', function($scope, $http) {
                 location.href = '/rest/site/fe/user?site=' + _siteId;
             }
         });
+    };
+    $scope.gotoSite = function() {
+        if ($scope.site.id === 'platform') {
+            location.href = '/rest/home';
+        } else {
+            location.href = '/rest/site/home?site=' + $scope.site.id;
+        }
     };
     $scope.gotoHome = function() {
         location.href = '/rest/site/fe/user?site=' + _siteId;

@@ -32,8 +32,8 @@
                     <li ng-repeat="nav in platform.home_nav" class='nav-site'><a href="/rest/site/home?site={{nav.site.id}}" target='_self'><span class="nav-title">{{nav.title}}</span></a></li>
                 </ul>
                 <ul class='nav navbar-nav navbar-right ng-cloak' ng-cloak ng-if="!user.loginExpire">
-                    <li><a href='/rest/site/fe/user/login?site=platform'>登录</a></li>
-                    <li><a href='/rest/site/fe/user/register?site=platform'>注册</a></li>
+                    <li><a href='/rest/site/fe/user/access?site=platform#login'>登录</a></li>
+                    <li><a href='/rest/site/fe/user/access?site=platform#register'>注册</a></li>
                 </ul>
                 <form class='navbar-form navbar-right ng-cloak' ng-cloak ng-if="user.loginExpire">
                     <div class="btn-group">

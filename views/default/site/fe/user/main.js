@@ -77,13 +77,16 @@ define(['require', 'angular'], function(require, angular) {
             });
         };
         $scope.gotoRegister = function() {
-            location.href = '/rest/site/fe/user/register?site=' + siteId;
+            location.href = '/rest/site/fe/user/access?site=' + siteId + '#register';
         };
         $scope.gotoLogin = function() {
-            location.href = '/rest/site/fe/user/login?site=' + siteId;
+            location.href = '/rest/site/fe/user/access?site=' + siteId + '#login';
         };
         $scope.gotoMember = function(memberSchema) {
             location.href = '/rest/site/fe/user/member?site=' + siteId + '&schema=' + memberSchema.id;
+        };
+        $scope.gotoConsole = function() {
+            location.href = '/rest/pl/fe';
         };
         http2.get('/rest/site/fe/get?site=' + siteId).then(function(rsp) {
             $scope.site = rsp.data;

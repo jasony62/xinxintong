@@ -3,8 +3,6 @@ window.loading = {
         var eleLoading, eleStyle;
         eleLoading = document.querySelector('.loading');
         eleLoading.parentNode.removeChild(eleLoading);
-        eleStyle = document.querySelector('#loadingStyle');
-        eleStyle.parentNode.removeChild(eleStyle);
     },
     load: function() {
         var timestamp, minutes;

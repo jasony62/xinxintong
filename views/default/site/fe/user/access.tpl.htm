@@ -1,0 +1,112 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <meta charset="utf-8">
+    <meta content="width=device-width,user-scalable=no,initial-scale=1.0" name="viewport">
+    <base href="/" />
+    <title>用户注册</title>
+    <link href="/static/css/bootstrap.min.css" rel="stylesheet">
+    <link href="<?php echo auto_version('/static/css/site.fe.css');?>" rel="stylesheet">
+    <style>
+    .nav-tabs {
+        border-bottom: 1px solid transparent;
+    }
+    </style>
+</head>
+
+<body ng-app="app" ng-controller='ctrlAccess' class="ng-cloak" ng-cloak>
+    <div class="loading">
+        <div class='loading-indicator'><i></i></div>
+    </div>
+    <nav class='navbar site-navbar-default'>
+        <div class='container-fluid'>
+            <div class="navbar-header">
+                <a class='navbar-brand' ng-click="gotoSite()" href='' target='_self'>{{site.name}}</a>
+            </div>
+        </div>
+    </nav>
+    <div class="container-fluid">
+        <div class='row'>
+            <div class='col-md-9'>
+                <img src='/static/img/access.png' width="100%">
+            </div>
+            <div class='col-md-3'>
+                <uib-tabset active="activeView">
+                    <uib-tab index="'login'" heading="登录">
+                        <div class='panel panel-default'>
+                            <div class='panel-body'>
+                                <div class='form-group'>
+                                    <label>帐号名称</label>
+                                    <input type="text" class='form-control' name='uname' placeholder='输入用于登录的帐号名' ng-model='loginData.uname' required/>
+                                </div>
+                                <div class='form-group'>
+                                    <label>登录密码</label>
+                                    <input type='password' class='form-control' name='password' ng-model='loginData.password' ng-minlength='6' ng-maxlength='16' required/>
+                                    <p class='help-block'>输入6-16位登录密码</p>
+                                </div>
+                                <div class='form-group' ng-if="supportLocalStorage==='Y'">
+                                    <label class='checkbox-inline'>
+                                        <input type='checkbox' ng-model='loginData.rememberMe' ng-true-value="'Y'" ng-false-value="'N'" />记住帐号</label>
+                                    <label class='checkbox-inline'>
+                                        <input type='checkbox' ng-model='loginData.autologin' ng-true-value="'Y'" ng-false-value="'N'" />自动登录</label>
+                                </div>
+                                <div class='checkbox'>
+                                    <label>
+                                        <input type='checkbox' ng-model='loginData.gotoConsole' ng-true-value="'Y'" ng-false-value="'N'" />直接进入工作台</label>
+                                </div>
+                                <hr>
+                                <div class='form-group'>
+                                    <button class="btn btn-primary btn-block" ng-disabled="user.loginExpire" ng-click='login()'>登录</button>
+                                    <button class="btn btn-default btn-block" ng-click="gotoHome()">返回我的首页</button>
+                                </div>
+                                <div class='form-group' ng-if="user.loginExpire">
+                                    <p class='alert alert-warning'>请退出当前帐号后，再用其他帐号登录，<a href='' ng-click="logout()">退出</a></p>
+                                </div>
+                            </div>
+                        </div>
+                    </uib-tab>
+                    <uib-tab index="'register'" heading="注册">
+                        <div class='panel panel-default'>
+                            <div class='panel-body'>
+                                <div class='form-group'>
+                                    <label>注册帐号</label>
+                                    <input type="text" class='form-control' name='uname' placeholder='输入用于登录的帐号名' ng-model='registerData.uname' required autofocus/>
+                                    <p class='help-block'>仅限电子邮箱或手机号注册</p>
+                                </div>
+                                <div class='form-group'>
+                                    <label>帐号昵称</label>
+                                    <input type="text" class='form-control' name='nickname' placeholder='帐号昵称' ng-model="registerData.nickname">
+                                </div>
+                                <div class='form-group'>
+                                    <label>登录密码</label>
+                                    <input type='password' class='form-control' name='password' ng-model='registerData.password' ng-minlength='6' ng-maxlength='16' required/>
+                                    <p class='help-block'>输入6-16位登录密码</p>
+                                </div>
+                                <div class='form-group'>
+                                    <label>重复密码</label>
+                                    <input type='password' class='form-control' ng-pattern="repeatPwd" name='password2' ng-model='registerData.password2' placeholder='再次输入登录密码' required/>
+                                </div>
+                                <hr>
+                                <div class='form-group'>
+                                    <button class="btn btn-primary btn-block" ng-disabled="user.loginExpire" ng-click='register()'>注册</button>
+                                    <button class="btn btn-default btn-block" ng-click="gotoHome()">返回我的首页</button>
+                                </div>
+                                <div class='form-group' ng-if="user.loginExpire">
+                                    <p class='alert alert-warning'>请退出当前帐号后，再注册新帐号，<a href='' ng-click="logout()">退出</a></p>
+                                </div>
+                            </div>
+                        </div>
+                    </uib-tab>
+                </uib-tabset>
+            </div>
+        </div>
+        <div class='alert alert-danger tms-notice' ng-class="{'active':errmsg}" ng-click="errmsg=''" ng-bind='errmsg' ng-show='errmsg'></div>
+    </div>
+    <script src="/static/js/xxt.ui.error.js"></script>
+    <script src="/static/js/angular.min.js"></script>
+    <script src="/static/js/ui-bootstrap-tpls.min.js"></script>
+    <script src="<?php echo auto_version('/views/default/site/fe/user/access.js');?>"></script>
+</body>
+
+</html>

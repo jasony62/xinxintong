@@ -242,7 +242,7 @@ ngApp.controller('ctrlMain', ['$scope', 'http2', 'mediagallery', '$uibModal', 's
 
         that.update(updatedFields);
     },
-    $scope.$watch('$scope.editing.urlsrc', function(nv) {
+    $scope.$watch('editing.urlsrc', function(nv) {
         switch (nv) {
             case '1':
                 if ($scope.news === undefined) {

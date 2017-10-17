@@ -77,6 +77,16 @@ define(['frame'], function(ngApp) {
                 location.href = '/rest/pl/fe/matter/' + type + '?site=' + _oMission.siteid + '&id=' + rsp.data.id;
             });
         };
+        $scope.togglePublic = function(oMatter) {
+            var isPublic, url;
+            if (oMatter.is_public) {
+                isPublic = oMatter.is_public === 'Y' ? 'N' : 'Y';
+            }
+            url = '/rest/pl/fe/matter/mission/matter/update?site=' + _oMission.siteid + '&id=' + _oMission.id + '&matterType=' + oMatter.type + '&matterId=' + oMatter.id;
+            http2.post(url, { 'is_public': isPublic }, function(rsp) {
+                oMatter.is_public = isPublic;
+            });
+        };
         $scope.list = function() {
             var url, data, matterType;
 

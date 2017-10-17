@@ -12,6 +12,10 @@
     .nav-tabs {
         border-bottom: 1px solid transparent;
     }
+
+    .panel-default: {
+        border: 0;
+    }
     </style>
 </head>
 
@@ -22,7 +26,10 @@
     <nav class='navbar site-navbar-default'>
         <div class='container-fluid'>
             <div class="navbar-header">
-                <a class='navbar-brand' ng-click="gotoSite()" href='' target='_self'>{{site.name}}</a>
+                <a ng-if="!site" class='navbar-brand' href='/rest/home' target='_self'>
+                    <?php echo APP_TITLE;?>
+                </a>
+                <a ng-if="site" class='navbar-brand' ng-click="gotoSite()" href='' target='_self'>{{site.name}}</a>
             </div>
         </div>
     </nav>
@@ -34,7 +41,7 @@
             <div class='col-md-3'>
                 <uib-tabset active="activeView">
                     <uib-tab index="'login'" heading="登录">
-                        <div class='panel panel-default'>
+                        <div class='panel panel-default' style='border:0'>
                             <div class='panel-body'>
                                 <div class='form-group'>
                                     <label>帐号名称</label>
@@ -67,7 +74,7 @@
                         </div>
                     </uib-tab>
                     <uib-tab index="'register'" heading="注册">
-                        <div class='panel panel-default'>
+                        <div class='panel panel-default' style='border:0'>
                             <div class='panel-body'>
                                 <div class='form-group'>
                                     <label>注册帐号</label>

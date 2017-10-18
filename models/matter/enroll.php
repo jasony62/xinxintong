@@ -77,11 +77,6 @@ class enroll_model extends app_base {
 			'xxt_enroll',
 			["id" => $aid],
 		];
-		if (isset($options['where'])) {
-			foreach ($options['where'] as $key => $value) {
-				$q[2][$key] = $value;
-			}
-		}
 
 		if ($oApp = $this->query_obj_ss($q)) {
 			$oApp->type = 'enroll';
@@ -605,25 +600,26 @@ class enroll_model extends app_base {
 			$template = 'simple';
 		}
 		$templateDir = TMS_APP_TEMPLATE . '/pl/fe/matter/enroll/scenario/' . $scenario . '/templates/' . $template;
-		$config = file_get_contents($templateDir . '/config.json');
-		$config = preg_replace('/\t|\r|\n/', '', $config);
-		$config = json_decode($config);
+		$oConfig = file_get_contents($templateDir . '/config.json');
+		$oConfig = preg_replace('/\t|\r|\n/', '', $oConfig);
+		$oConfig = json_decode($oConfig);
 		/**
 		 * 处理页面
 		 */
-		if (!empty($config->pages)) {
-			foreach ($config->pages as &$page) {
+		if (!empty($oConfig->pages)) {
+			foreach ($oConfig->pages as $oPage) {
+				$templateFile = $templateDir . '/' . $oPage->name;
 				/* 填充代码 */
 				$code = [
-					'html' => file_get_contents($templateDir . '/' . $page->name . '.html'),
-					'css' => file_get_contents($templateDir . '/' . $page->name . '.css'),
-					'js' => file_get_contents($templateDir . '/' . $page->name . '.js'),
+					'html' => file_exists($templateFile . '.html') ? file_get_contents($templateFile . '.html') : '',
+					'css' => file_exists($templateFile . '.css') ? file_get_contents($templateFile . '.css') : '',
+					'js' => file_exists($templateFile . '.js') ? file_get_contents($templateFile . '.js') : '',
 				];
-				$page->code = $code;
+				$oPage->code = $code;
 			}
 		}
 
-		return $config;
+		return $oConfig;
 	}
 	/**
 	 * 根据模板生成页面

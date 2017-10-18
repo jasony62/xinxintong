@@ -88,13 +88,13 @@ class main extends \site\fe\matter\base {
 			}
 			$oUser = (object) ['uid' => $user];
 		}
-		$modelMis = $this->model('matter\mission\matter');
+		$modelMisMat = $this->model('matter\mission\matter');
 
 		$mattersByUser = [];
-		$mattersByMis = $modelMis->byMission($oMission->id, null, ['is_public' => 'Y']);
+		$mattersByMis = $modelMisMat->byMission($oMission->id, null, ['is_public' => 'Y', 'byTime' => 'running']);
 		if (count($mattersByMis)) {
 			foreach ($mattersByMis as $oMatter) {
-				if (!in_array($oMatter->type, ['enroll', 'signin', 'article'])) {
+				if (!in_array($oMatter->type, ['enroll', 'signin', 'article', 'memberschema'])) {
 					continue;
 				}
 				if (isset($oGrpLeader)) {
@@ -174,8 +174,8 @@ class main extends \site\fe\matter\base {
 	 * 获得用户在项目中的行为记录
 	 */
 	public function recordList_action($mission) {
-		$modelMis = $this->model('matter\mission\matter');
-		$matters = $modelMis->byMission($mission, null, ['is_public' => 'Y']);
+		$modelMisMat = $this->model('matter\mission\matter');
+		$matters = $modelMisMat->byMission($mission, null, ['is_public' => 'Y']);
 		if (count($matters)) {
 			foreach ($matters as &$matter) {
 				if ($matter->type === 'enroll') {

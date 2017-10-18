@@ -114,14 +114,30 @@ class record extends base {
 			if (empty($matchedRecords)) {
 				return new \ParameterError('未在指定的登记活动［' . $oMatchApp->title . '］中找到与提交数据相匹配的记录');
 			}
-			$matchedRecord = $matchedRecords[0];
-			if ($matchedRecord->verified !== 'Y') {
+			/* 如果匹配的分组数据不唯一，怎么办？ */
+			if (count($matchedRecords) > 1) {
+				return new \ParameterError('在指定的登记活动［' . $oMatchApp->title . '］中找到多条与提交数据相匹配的记录，匹配关系不唯一');
+			}
+			$oEnrollRecord = $matchedRecords[0];
+			if ($oEnrollRecord->verified !== 'Y') {
 				return new \ParameterError('在指定的登记活动［' . $oMatchApp->title . '］中与提交数据匹配的记录未通过验证');
 			}
+			/* 如果登记数据中未包含用户信息，更新用户信息 */
+			if (empty($oEnrollRecord->userid)) {
+				$oUserAcnt = $this->model('site\user\account')->byId($oUser->uid, ['fields' => 'wx_openid,yx_openid,qy_openid,headimgurl']);
+				if (false === $oUserAcnt) {
+					$oUserAcnt = new \stdClass;
+				}
+				$oUserAcnt->userid = $oUser->uid;
+				$oUserAcnt->nickname = $modelMatchRec->escape($oUser->nickname);
+				$modelMatchRec->update('xxt_enroll_record', $oUserAcnt, ['id' => $oEnrollRecord->id]);
+			}
 			/* 将匹配的登记记录数据作为提交的登记数据的一部分 */
-			$matchedData = $matchedRecords[0]->data;
+			$oMatchedData = $oEnrollRecord->data;
 			foreach ($oMatchApp->dataSchemas as $oSchema) {
-				!isset($enrolledData->{$oSchema->id}) && $enrolledData->{$oSchema->id} = $matchedData->{$oSchema->id};
+				if (!isset($enrolledData->{$oSchema->id}) && isset($oMatchedData->{$oSchema->id})) {
+					$enrolledData->{$oSchema->id} = $oMatchedData->{$oSchema->id};
+				}
 			}
 		}
 		/**
@@ -142,23 +158,37 @@ class record extends base {
 					}
 				}
 			}
-			/* 在指定的登记活动中检查数据 */
+			/* 在指定的分组活动中检查数据 */
 			$modelMatchRec = $this->model('matter\group\player');
 			$groupRecords = $modelMatchRec->byData($oGroupApp, $requireCheckedData);
 			if (empty($groupRecords)) {
 				return new \ParameterError('未在指定的分组活动［' . $oGroupApp->title . '］中找到与提交数据相匹配的记录');
 			}
-			$groupRecord = $groupRecords[0];
-			/* 将匹配的登记记录数据作为提交的登记数据的一部分 */
-			$matchedData = $groupRecord->data;
+			/* 如果匹配的分组数据不唯一，怎么办？ */
+			if (count($groupRecords) > 1) {
+				return new \ParameterError('在指定的分组活动［' . $oGroupApp->title . '］中找到多条与提交数据相匹配的记录，匹配关系不唯一');
+			}
+			$oGroupRecord = $groupRecords[0];
+			/* 如果分组数据中未包含用户信息，更新用户信息 */
+			if (empty($oGroupRecord->userid)) {
+				$oUserAcnt = $this->model('site\user\account')->byId($oUser->uid, ['fields' => 'wx_openid,yx_openid,qy_openid,headimgurl']);
+				if (false === $oUserAcnt) {
+					$oUserAcnt = new \stdClass;
+				}
+				$oUserAcnt->userid = $oUser->uid;
+				$oUserAcnt->nickname = $modelMatchRec->escape($oUser->nickname);
+				$modelMatchRec->update('xxt_group_player', $oUserAcnt, ['id' => $oGroupRecord->id]);
+			}
+			/* 将匹配的分组记录数据作为提交的登记数据的一部分 */
+			$oMatchedData = $oGroupRecord->data;
 			foreach ($oGroupApp->dataSchemas as $oSchema) {
-				if (!isset($enrolledData->{$oSchema->id}) && isset($matchedData->{$oSchema->id})) {
-					$enrolledData->{$oSchema->id} = $matchedData->{$oSchema->id};
+				if (!isset($enrolledData->{$oSchema->id}) && isset($oMatchedData->{$oSchema->id})) {
+					$enrolledData->{$oSchema->id} = $oMatchedData->{$oSchema->id};
 				}
 			}
 			/* 所属分组id */
-			if (isset($groupRecord->round_id)) {
-				$oUser->group_id = $enrolledData->_round_id = $groupRecord->round_id;
+			if (isset($oGroupRecord->round_id)) {
+				$oUser->group_id = $enrolledData->_round_id = $oGroupRecord->round_id;
 			}
 		}
 		/**

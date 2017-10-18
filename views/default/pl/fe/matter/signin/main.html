@@ -3,11 +3,25 @@
         <div class='panel-body'>
             <div class='form-group'>
                 <label>活动名称</label>
-                <input type='text' class='form-control' size='40' title='{{app.title}}' ng-model='app.title' tms-auto-update tms-wait=1000 tms-update="update('title')">
+                <input type='text' class='form-control' size='40' ng-model='app.title' tms-auto-update tms-wait=1000 tms-update="update('title')">
             </div>
             <div class='form-group'>
                 <label>活动说明</label>
                 <textarea type='text' class='form-control' ng-model="app.summary" tms-auto-update tms-wait=1000 tms-update="update('summary')"></textarea>
+            </div>
+            <div class='row'>
+                <div class='col-md-6'>
+                    <div class='form-group'>
+                        <label>开始时间</label>
+                        <tms-datepicker class='tms-datepicker' tms-title='开始时间' tms-date='app.start_at' tms-state='start_at'></tms-datepicker>
+                    </div>
+                </div>
+                <div class='col-md-6'>
+                    <div class='form-group'>
+                        <label>结束时间</label>
+                        <tms-datepicker class='tms-datepicker' tms-title='结束时间' tms-date='app.end_at' tms-state='end_at'></tms-datepicker>
+                    </div>
+                </div>
             </div>
             <div class='form-group'>
                 <label class='help-block'>管理标签（可选）</label>
@@ -196,6 +210,7 @@
             </table>
         </div>
     </div>
+    <hr>
     <div class='form-group'>
         <button class='btn btn-default btn-block' ng-click="remove()">删除活动</button>
     </div>

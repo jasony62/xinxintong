@@ -1,0 +1,32 @@
+<div class="modal-header">
+    <button class="close" type="button" ng-click="cancel()">×</button>
+    <h5 class="modal-title">筛选条件</h5>
+</div>
+<div class="modal-body">
+    <form class="form-horizontal">
+        <div class='form-group'>
+            <label class="col-md-3 control-label">数据来源</label>
+            <div class="col-md-9">
+                <label class='radio-inline' ng-repeat="is in sourceTypes">
+                    <input type='radio' name='appType' value='{{is.v}}' ng-model="data.appType">{{is.l}}</label>
+            </div>
+            <div class="col-md-9 col-md-offset-3" ng-if="data.appType==='wall'">
+                <label class='checkbox-inline'>
+                    <input type='checkbox' ng-model='data.onlySpeaker' ng-true-value="'Y'" ng-false-value="'N'">仅包含发言用户</label>
+            </div>
+        </div>
+        <div class='form-group'>
+            <label class="col-md-3 control-label">目标活动</label>
+            <div class="col-md-9">
+                <select class="form-control" ng-model="data.app" ng-options="app.title for app in apps"></select>
+                <div class='checkbox' ng-if="app.mission">
+                    <label>
+                        <input disabled type='checkbox' ng-model="data.sameMission" ng-true-value="'Y'" ng-false-value="'N'">仅在【{{app.mission.title}}】中选择</label>
+                </div>
+            </div>
+        </div>
+    </form>
+</div>
+<div class="modal-footer">
+    <button class="btn btn-primary" ng-click="ok()">确定</button>
+</div>

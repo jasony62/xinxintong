@@ -14,9 +14,18 @@ class main extends \site\fe\base {
 			/* 检查是否需要第三方社交帐号OAuth */
 			$this->_requireSnsOAuth($site);
 		}
-		$oWall = $this->model('matter\wall')->byId($app, 'title');
+		$oWall = $this->model('matter\wall')->byId($app);
 		if (false === $oWall) {
 			$this->outputError('指定的信息墙不存在');
+			exit;
+		}
+		/* 检查活动状态 */
+		$current = time();
+		if ($oWall->start_at != 0 && $current < $oWall->start_at) {
+			$this->outputError('【' . $oWall->title . '】没有开始');
+			exit;
+		} else if ($oWall->end_at != 0 && $current > $oWall->end_at) {
+			$this->outputError('【' . $oWall->title . '】已经结束');
 			exit;
 		}
 

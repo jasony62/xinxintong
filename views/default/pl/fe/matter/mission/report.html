@@ -6,12 +6,12 @@
                     <label>用户名单</label>
                     <div class="input-group">
                         <input class='form-control' title="{{mission.userApp.title}}" value="{{mission.userApp.title}}" readonly="">
-                        <span class="input-group-btn">
-                                <button class="btn btn-default" ng-click="cancelUserApp()" ng-if="mission.userApp">
-                                    <span class='glyphicon glyphicon-remove'></span>
-                        </button>
-                        <button class='btn btn-success' ng-click="assignUserApp()" ng-if="!mission.userApp">指定</button>
-                        </span>
+                        <div class="input-group-btn">
+                            <button class="btn btn-default" ng-click="cancelUserApp()" ng-if="mission.userApp">
+                                <span class='glyphicon glyphicon-remove'></span>
+                            </button>
+                            <button class='btn btn-success' ng-click="assignUserApp()" ng-if="!mission.userApp">指定</button>
+                        </div>
                     </div>
                 </div>
                 <div class='form-group'>
@@ -27,6 +27,7 @@
                 <tr>
                     <th style="width:4em">序号</th>
                     <th style="width:8em">用户</th>
+                    <th style="width:8em" ng-if="mission.userApp.type==='group'">分组</th>
                     <th style="width:8em" ng-repeat="app in report.orderedApps">{{app.title}}</th>
                 </tr>
             </thead>
@@ -34,6 +35,7 @@
                 <tr ng-repeat="user in report.users" ng-class="{info:user===activeUser}">
                     <td>{{$index+1}}</td>
                     <td ng-click="chooseUser(user)">{{user.nickname}}</td>
+                    <td ng-if="mission.userApp.type==='group'">{{user.round_title}}</td>
                     <td ng-repeat="app in report.orderedApps" ng-switch on="app.type" ng-click="chooseUser(user,app)">
                         <div ng-switch-when="enroll">
                             <div ng-if="user.data[$index].enroll_num">记录：{{user.data[$index].enroll_num}}</div>

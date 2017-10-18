@@ -149,27 +149,32 @@ class player extends \pl\fe\matter\base {
 	/**
 	 * 从其他活动导入数据
 	 */
-	public function importByApp_action($site, $app) {
-		if (false === ($user = $this->accountUser())) {
+	public function importByApp_action($app) {
+		if (false === ($oUser = $this->accountUser())) {
 			return new \ResponseTimeout();
 		}
+		$modelGrp = $this->model('matter\group');
+		$oApp = $modelGrp->byId($app, ['cascaded' => 'N']);
+		if (false === $oApp) {
+			return new \ObjectNotFoundError();
+		}
 
-		$sourceApp = null;
-		$params = $this->getPostJson();
-
-		if (!empty($params->app)) {
-			if ($params->appType === 'registration') {
-				$sourceApp = $this->_importByEnroll($site, $app, $params->app);
-			} else if ($params->appType === 'signin') {
-				$sourceApp = $this->_importBySignin($site, $app, $params);
-			} else if ($params->appType === 'wall') {
-				$sourceApp = $this->_importByWall($site, $app, $params->app, $params->onlySpeaker);
-			} else if ($params->appType === 'mschema') {
-				$sourceApp = $this->_importByMschema($app, $params->app);
+		$oParams = $this->getPostJson();
+		$oSourceApp = null;
+		if (!empty($oParams->app)) {
+			$modelGrpUsr = $this->model('matter\group\player');
+			if ($oParams->appType === 'registration') {
+				$oSourceApp = $modelGrpUsr->importByEnroll($oApp, $oParams->app);
+			} else if ($oParams->appType === 'signin') {
+				$oSourceApp = $modelGrpUsr->importBySignin($oApp, $oParams->app);
+			} else if ($oParams->appType === 'wall') {
+				$oSourceApp = $modelGrpUsr->importByWall($oApp, $oParams->app, $oParams->onlySpeaker);
+			} else if ($oParams->appType === 'mschema') {
+				$oSourceApp = $modelGrpUsr->importByMschema($oApp, $oParams->app);
 			}
 		}
 
-		return new \ResponseData($sourceApp);
+		return new \ResponseData($oSourceApp);
 	}
 	/**
 	 * 从关联活动同步数据
@@ -180,358 +185,32 @@ class player extends \pl\fe\matter\base {
 		if (false === ($user = $this->accountUser())) {
 			return new \ResponseTimeout();
 		}
-		$count = 0;
 		$modelGrp = $this->model('matter\group');
-		$app = $modelGrp->byId($app, array('cascaded' => 'N'));
-		if (!empty($app->source_app)) {
-			$sourceApp = json_decode($app->source_app);
+		$oApp = $modelGrp->byId($app, ['cascaded' => 'N']);
+		if (false === $oApp) {
+			return new \ObjectNotFoundError();
+		}
+		$count = 0;
+		if (!empty($oApp->source_app)) {
+			$sourceApp = json_decode($oApp->source_app);
 			if ($sourceApp->type === 'enroll') {
-				$count = $this->_syncByEnroll($site, $app, $sourceApp->id);
+				$count = $this->_syncByEnroll($site, $oApp, $sourceApp->id);
 			} else if ($sourceApp->type === 'signin') {
-				$count = $this->_syncBySignin($site, $app, $sourceApp->id);
+				$count = $this->_syncBySignin($site, $oApp, $sourceApp->id);
 			} else if ($sourceApp->type === 'wall') {
-				$count = $this->_syncByWall($site, $app, $sourceApp->id, $onlySpeaker);
+				$count = $this->_syncByWall($site, $oApp, $sourceApp->id, $onlySpeaker);
 			} else if ($sourceApp->type === 'mschema') {
-				$count = $this->_syncByMschema($app, $sourceApp->id);
+				$count = $this->_syncByMschema($oApp, $sourceApp->id);
 			}
 			// 更新同步时间
 			$modelGrp->update(
 				'xxt_group',
 				['last_sync_at' => time()],
-				['id' => $app->id]
+				['id' => $oApp->id]
 			);
 		}
 
 		return new \ResponseData($count);
-	}
-	/**
-	 * 从报名活动导入数据
-	 */
-	private function &_importByMschema($groupId, $mschemaId, $sync = 'N') {
-		$modelGrp = $this->model('matter\group');
-		$modelGrp->setOnlyWriteDbConn(true);
-		$modelPly = $this->model('matter\group\player');
-		$modelMsc = $this->model('site\user\memberschema');
-
-		$oMschema = $modelMsc->byId($mschemaId);
-		$dataSchemas = [];
-		if ($oMschema->attr_mobile[0] === '0') {
-			$dataSchema = new \stdClass;
-			$dataSchema->id = 'ms_' . $mschemaId . '_mobile';
-			$dataSchema->type = 'shorttext';
-			$dataSchema->title = '手机号';
-			$dataSchema->format = 'mobile';
-			$dataSchemas[] = $dataSchema;
-		}
-		if ($oMschema->attr_mobile[0] === '0') {
-			$dataSchema = new \stdClass;
-			$dataSchema->id = 'ms_' . $mschemaId . '_email';
-			$dataSchema->type = 'shorttext';
-			$dataSchema->title = '电子邮件';
-			$dataSchema->format = 'email';
-			$dataSchemas[] = $dataSchema;
-		}
-		if ($oMschema->attr_mobile[0] === '0') {
-			$dataSchema = new \stdClass;
-			$dataSchema->id = 'ms_' . $mschemaId . '_name';
-			$dataSchema->type = 'shorttext';
-			$dataSchema->title = '姓名';
-			$dataSchema->format = 'name';
-			$dataSchemas[] = $dataSchema;
-		}
-		$extDataSchemas = [];
-		if (!empty($oMschema->extattr)) {
-			foreach ($oMschema->extattr as $ea) {
-				$dataSchema = new \stdClass;
-				$dataSchema->id = $ea->id;
-				$dataSchema->type = 'shorttext';
-				$dataSchema->title = $ea->label;
-				$extDataSchemas[] = $dataSchema;
-			}
-		}
-
-		$oMschema->data_schemas = array_merge($dataSchemas, $extDataSchemas);
-
-		/* 导入活动定义 */
-		$modelGrp->update(
-			'xxt_group',
-			[
-				'last_sync_at' => time(),
-				'source_app' => '{"id":"' . $mschemaId . '","type":"mschema"}',
-				'data_schemas' => $modelGrp->escape($modelGrp->toJson($oMschema->data_schemas)),
-			],
-			['id' => $groupId]
-		);
-		/* 清空已有分组数据 */
-		$modelPly->clean($groupId, true);
-		/* 获取所有登记数据 */
-		$modelMem = $this->model('site\user\member');
-		$members = $modelMem->byMschema($mschemaId);
-		/* 导入数据 */
-		if (count($members)) {
-			$objGrp = $modelGrp->byId($groupId, ['cascaded' => 'N']);
-			$options = ['cascaded' => 'Y'];
-			$modelUsr = $this->model('site\user\account');
-			foreach ($members as $oMember) {
-				$oSiteUser = $modelUsr->byId($oMember->userid);
-				$user = new \stdClass;
-				$user->uid = $oMember->userid;
-				$user->nickname = $modelUsr->escape($oSiteUser->nickname);
-				$user->wx_openid = $oSiteUser->wx_openid;
-				$user->yx_openid = $oSiteUser->yx_openid;
-				$user->qy_openid = $oSiteUser->qy_openid;
-				$user->headimgurl = $oSiteUser->headimgurl;
-				$modelPly->enroll($objGrp->siteid, $objGrp, $user, ['enroll_key' => $oMember->id, 'enroll_at' => $oMember->create_at]);
-				$data = new \stdClass;
-				foreach ($dataSchemas as $ds) {
-					$data->{$ds->id} = isset($oMember->{$ds->format}) ? $oMember->{$ds->format} : '';
-				}
-				if (count($extDataSchemas) && !empty($oMember->extattr)) {
-					$oExtData = json_decode($oMember->extattr);
-					foreach ($extDataSchemas as $ds) {
-						$data->{$ds->id} = isset($oExtData->{$ds->id}) ? $oExtData->{$ds->id} : '';
-					}
-				}
-				$modelPly->setData($objGrp->siteid, $objGrp, $oMember->id, $data);
-			}
-		}
-
-		return $oMschema;
-	}
-	/**
-	 * 从报名活动导入数据
-	 */
-	private function &_importByEnroll($site, $app, $byApp, $sync = 'N') {
-		$modelGrp = $this->model('matter\group');
-		$modelGrp->setOnlyWriteDbConn(true);
-		$modelPly = $this->model('matter\group\player');
-		$modelEnl = $this->model('matter\enroll');
-
-		$sourceApp = $modelEnl->byId($byApp, ['fields' => 'data_schemas', 'cascaded' => 'N']);
-		/* 导入活动定义 */
-		$modelGrp->update(
-			'xxt_group',
-			[
-				'last_sync_at' => time(),
-				'source_app' => '{"id":"' . $byApp . '","type":"enroll"}',
-				'data_schemas' => $sourceApp->data_schemas,
-			],
-			['id' => $app]
-		);
-		/* 清空已有分组数据 */
-		$modelPly->clean($app, true);
-		/* 获取所有登记数据 */
-		$modelRec = $this->model('matter\enroll\record');
-		$q = [
-			'enroll_key',
-			'xxt_enroll_record',
-			"aid='$byApp' and state=1",
-		];
-		$eks = $modelRec->query_vals_ss($q);
-		/* 导入数据 */
-		if (!empty($eks)) {
-			$objGrp = $modelGrp->byId($app, ['cascaded' => 'N']);
-			$options = ['cascaded' => 'Y'];
-			foreach ($eks as $ek) {
-				$record = $modelRec->byId($ek, $options);
-				$user = new \stdClass;
-				$user->uid = $record->userid;
-				$user->nickname = $record->nickname;
-				$user->wx_openid = $record->wx_openid;
-				$user->yx_openid = $record->yx_openid;
-				$user->qy_openid = $record->qy_openid;
-				$user->headimgurl = $record->headimgurl;
-				$modelPly->enroll($site, $objGrp, $user, ['enroll_key' => $ek, 'enroll_at' => $record->enroll_at]);
-				$modelPly->setData($site, $objGrp, $ek, $record->data);
-			}
-		}
-
-		return $sourceApp;
-	}
-	/**
-	 * 从签到活动导入数据
-	 * 如果指定了包括报名数据，只需要从报名活动中导入登记项的定义，签到时已经自动包含了报名数据
-	 */
-	private function &_importBySignin($site, $app, &$params) {
-		$byApp = $params->app;
-		$modelGrp = $this->model('matter\group');
-		$modelGrp->setOnlyWriteDbConn(true);
-		$modelPly = $this->model('matter\group\player');
-		$modelSignin = $this->model('matter\signin');
-
-		$sourceApp = $modelSignin->byId($byApp, ['fields' => 'data_schemas,enroll_app_id', 'cascaded' => 'N']);
-		$sourceDataSchemas = $sourceApp->data_schemas;
-		/**
-		 * 导入报名数据，需要合并签到和报名的登记项
-		 */
-		if (isset($params->includeEnroll) && $params->includeEnroll === 'Y') {
-			if (!empty($sourceApp->enroll_app_id)) {
-				$modelEnl = $this->model('matter\enroll');
-				$enrollApp = $modelEnl->byId($sourceApp->enroll_app_id, ['fields' => 'data_schemas', 'cascaded' => 'N']);
-				$enrollDataSchemas = json_decode($enrollApp->data_schemas);
-				$sourceDataSchemas = json_decode($sourceDataSchemas);
-				$diff = array_udiff($enrollDataSchemas, $sourceDataSchemas, create_function('$a,$b', 'return strcmp($a->id,$b->id);'));
-				$sourceDataSchemas = array_merge($sourceDataSchemas, $diff);
-				$sourceDataSchemas = $modelGrp->toJson($sourceDataSchemas);
-			}
-		}
-		/* 导入活动定义 */
-		$modelGrp->update(
-			'xxt_group',
-			[
-				'last_sync_at' => time(),
-				'source_app' => '{"id":"' . $byApp . '","type":"signin"}',
-				'data_schemas' => $sourceDataSchemas,
-			],
-			['id' => $app]
-		);
-		/* 清空已有数据 */
-		$modelPly->clean($app, true);
-		/* 获取数据 */
-		$modelRec = $this->model('matter\signin\record');
-		$q = [
-			'enroll_key',
-			'xxt_signin_record',
-			"aid='$byApp' and state=1",
-		];
-		$eks = $modelRec->query_vals_ss($q);
-		/* 导入数据 */
-		if (!empty($eks)) {
-			$objGrp = $modelGrp->byId($app, array('cascaded' => 'N'));
-			$options = array('cascaded' => 'Y');
-			foreach ($eks as $ek) {
-				$record = $modelRec->byId($ek, $options);
-				$user = new \stdClass;
-				$user->uid = $record->userid;
-				$user->nickname = $record->nickname;
-				$user->wx_openid = $record->wx_openid;
-				$user->yx_openid = $record->yx_openid;
-				$user->qy_openid = $record->qy_openid;
-				$user->headimgurl = $record->headimgurl;
-				$modelPly->enroll($site, $objGrp, $user, ['enroll_key' => $ek, 'enroll_at' => $record->enroll_at]);
-				$modelPly->setData($site, $objGrp, $ek, $record->data);
-			}
-		}
-
-		return $sourceApp;
-	}
-	/**
-	 * 从信息墙导入数据
-	 * $onlySpeaker 是否为发言的用户
-	 */
-	private function &_importByWall($site, $app, $byApp, $onlySpeaker) {
-		$modelGrp = $this->model('matter\group');
-		$modelGrp->setOnlyWriteDbConn(true);
-		$modelPly = $this->model('matter\group\player');
-		$modelWall = $this->model('matter\wall');
-
-		$sourceApp = $modelWall->byId($byApp, ['fields' => 'data_schemas']);
-		/* 导入活动定义 */
-		$modelGrp->update(
-			'xxt_group',
-			[
-				'last_sync_at' => time(),
-				'source_app' => '{"id":"' . $byApp . '","type":"wall"}',
-				'data_schemas' => $sourceApp->data_schemas,
-			],
-			['id' => $app]
-		);
-		/* 清空已有分组数据 */
-		$modelPly->clean($app, true);
-		//获取所有用户数据
-		$u = array(
-			'*',
-			'xxt_wall_enroll',
-			"wid = '{$byApp}' and siteid = '{$site}'",
-		);
-		if ($onlySpeaker === 'Y') {
-			$u[2] .= " and last_msg_at>0";
-		}
-		$wallUsers = $this->model()->query_objs_ss($u);
-
-		/* 导入数据 */
-		if (!empty($wallUsers)) {
-			$objGrp = $modelGrp->byId($app, ['cascaded' => 'N']);
-			foreach ($wallUsers as $wallUser) {
-				$wallUser->data = empty($wallUser->data) ? '' : json_decode($wallUser->data);
-				$user = new \stdClass;
-				$user->uid = $wallUser->userid;
-				$user->nickname = $wallUser->nickname;
-				$user->wx_openid = $wallUser->wx_openid;
-				$user->yx_openid = $wallUser->yx_openid;
-				$user->qy_openid = $wallUser->qy_openid;
-				$user->headimgurl = $wallUser->headimgurl;
-				if (empty($wallUser->enroll_key)) {
-					$ek = $modelPly->genKey($site, $app);
-					$wallUser->enroll_key = $ek;
-				}
-				$modelPly->enroll($site, $objGrp, $user, ['enroll_key' => $wallUser->enroll_key, 'enroll_at' => $wallUser->join_at]);
-				$modelPly->setData($site, $objGrp, $wallUser->enroll_key, $wallUser->data);
-			}
-		}
-
-		$sourceApp->onlySpeaker = $onlySpeaker;
-		return $sourceApp;
-	}
-	/**
-	 * 从通讯录联系人中导入数据
-	 *
-	 * 同步在最后一次同步之后的数据或已经删除的数据
-	 */
-	private function _syncByMschema(&$objGrp, $mschemaId) {
-		/* 获取变化的登记数据 */
-		$modelMem = $this->model('site\user\member');
-		$q = [
-			'*',
-			'xxt_site_member',
-			"schema_id='$mschemaId' and (modify_at>{$objGrp->last_sync_at} or forbidden='Y')",
-		];
-		$members = $modelMem->query_objs_ss($q);
-
-		$cnt = 0;
-		if (!empty($members)) {
-			$modelPly = $this->model('matter\group\player');
-			$modelUsr = $this->model('site\user\account');
-			$options = ['cascaded' => 'Y'];
-			foreach ($members as $oMember) {
-				if ($oMember->forbidden === 'Y') {
-					// 删除用户
-					if ($modelPly->remove($objGrp->id, $oMember->id, true)) {
-						$cnt++;
-					}
-				} else {
-					$dataSchemas = json_decode($objGrp->data_schemas);
-					$oNewData = new \stdClass;
-					$oExtData = empty($oMember->extattr) ? new \stdClass : json_decode($oMember->extattr);
-					foreach ($dataSchemas as $ds) {
-						if (isset($ds->format)) {
-							$oNewData->{$ds->id} = isset($oMember->{$ds->format}) ? $oMember->{$ds->format} : '';
-						} else {
-							$oNewData->{$ds->id} = isset($oExtData->{$ds->id}) ? $oExtData->{$ds->id} : '';
-						}
-					}
-					if ($modelPly->byId($objGrp->id, $oMember->id, ['cascaded' => 'N'])) {
-						// 已经同步过的用户
-						$modelPly->setData($objGrp->siteid, $objGrp, $oMember->id, $oNewData);
-					} else {
-						$oSiteUser = $modelUsr->byId($oMember->userid);
-						$user = new \stdClass;
-						$user->uid = $oMember->userid;
-						$user->nickname = $modelUsr->escape($oSiteUser->nickname);
-						$user->wx_openid = $oSiteUser->wx_openid;
-						$user->yx_openid = $oSiteUser->yx_openid;
-						$user->qy_openid = $oSiteUser->qy_openid;
-						$user->headimgurl = $oSiteUser->headimgurl;
-						// 新用户
-						$modelPly->enroll($objGrp->siteid, $objGrp, $user, ['enroll_key' => $oMember->id, 'enroll_at' => $oMember->create_at]);
-						$modelPly->setData($objGrp->siteid, $objGrp, $oMember->id, $oNewData);
-					}
-					$cnt++;
-				}
-			}
-		}
-
-		return $cnt;
 	}
 	/**
 	 * 从登记活动导入数据

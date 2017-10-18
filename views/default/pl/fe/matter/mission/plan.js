@@ -50,9 +50,11 @@ define(['require'], function(require) {
         $scope.changeUserApp = function() {
             switch (_oProto.userApp) {
                 case 'mschema':
-                    srvSite.chooseMschema({ id: '_pending', title: _oProto.title }).then(fnChosenMschema, function(reason) {
-                        _oProto.userApp = _oBeforeProto.userApp;
-                    });
+                    if (!_oEntryRule.mschema) {
+                        srvSite.chooseMschema({ id: '_pending', title: _oProto.title }).then(fnChosenMschema, function(reason) {
+                            _oProto.userApp = _oBeforeProto.userApp;
+                        });
+                    }
                     break;
                 case 'enroll':
                     _oProto.app.enroll.create = 'Y';
@@ -66,7 +68,7 @@ define(['require'], function(require) {
             }
         };
         $scope.changeUserScope = function() {
-            if (_oEntryRule.scope === 'mschema') {
+            if (_oEntryRule.scope === 'member') {
                 srvSite.chooseMschema({ id: '_pending', title: _oProto.title }).then(fnChosenMschema, function(reason) {
                     _oEntryRule.scope = _oBeforeProto.entryRule.scope;
                 });

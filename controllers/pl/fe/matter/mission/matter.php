@@ -32,7 +32,7 @@ class matter extends \pl\fe\matter\base {
 		$oCriteria = $this->getPostJson();
 		$aOptions = [];
 		if (isset($oCriteria->mission_phase_id) && !empty($oCriteria->mission_phase_id) && strcasecmp($oCriteria->mission_phase_id, 'all') !== 0) {
-			$aOptions['mission_phase_id'] = $oCriteria->mission_phase_id;
+			$aOptions['byPhase'] = $oCriteria->mission_phase_id;
 		}
 		if (!empty($oCriteria->byTitle)) {
 			$aOptions['byTitle'] = $oCriteria->byTitle;
@@ -40,12 +40,15 @@ class matter extends \pl\fe\matter\base {
 		if (!empty($oCriteria->byTime)) {
 			$aOptions['byTime'] = $oCriteria->byTime;
 		}
+		if (!empty($oCriteria->byScenario)) {
+			$aOptions['byScenario'] = $oCriteria->byScenario;
+		}
 
 		if (!empty($matterType)) {
 			if ($matterType === 'doc') {
 				$matterType = ['article'];
 			} else if ($matterType === 'app') {
-				$matterType = ['enroll', 'signin', 'group', 'wall'];
+				$matterType = ['enroll', 'signin', 'group', 'wall', 'memberschema'];
 			}
 		}
 

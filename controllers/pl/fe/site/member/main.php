@@ -56,7 +56,7 @@ class main extends \pl\fe\base {
 		}
 		$modelMem = $this->model('site\user\member');
 		$oldMember = $modelMem->byId($id, 'schema_id');
-		$attrs = $this->model('site\user\memberschema')->byId($oldMember->schema_id, 'attr_mobile,attr_email,attr_name,extattr');
+		$attrs = $this->model('site\user\memberschema')->byId($oldMember->schema_id, ['fields' => 'attr_mobile,attr_email,attr_name,extattr']);
 
 		$data = $this->getPostJson();
 		/**
@@ -94,7 +94,7 @@ class main extends \pl\fe\base {
 		$newMember2 = $newMember;
 		$newMember2['schema_id'] = $oldMember->schema_id;
 		$newMember2['id'] = $id;
-		$newMember2 = (object)$newMember2;
+		$newMember2 = (object) $newMember2;
 		if ($errMsg = $modelMem->rejectAuth($newMember2, $attrs)) {
 			return new \ResponseError($errMsg);
 		}

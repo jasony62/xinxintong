@@ -238,7 +238,9 @@
     }],
     "scenarioConfig":
     {
-        "can_rounds": "D"
+        "can_rounds": "D",
+        "can_repos": "D",
+        "can_rank": "D"
     },
     "entryRule":
     {

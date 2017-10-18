@@ -58,7 +58,7 @@ class profile extends \pl\fe\base {
 	 */
 	public function memberUpd_action($site, $id) {
 		$member = $this->model('site\user\member')->byId($id, 'schema_id');
-		$attrs = $this->model('site\user\memberschema')->byId($member->schema_id, 'attr_mobile,attr_email,attr_name,extattr');
+		$attrs = $this->model('site\user\memberschema')->byId($member->schema_id, ['fields' => 'attr_mobile,attr_email,attr_name,extattr']);
 
 		$data = $this->getPostJson();
 		/**

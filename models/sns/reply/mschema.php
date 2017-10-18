@@ -14,7 +14,7 @@ class mschema_model extends MultiArticleReply {
 
 		$oSite = \TMS_APP::model('site')->byId($oMschema->siteid, ['fields' => 'id,name,heading_pic']);
 
-		$url = \TMS_APP::model('site\user\memberschema')->getEntryUrl($oMschema->siteid, $oMschema->id);
+		$url = $modelMs->getEntryUrl($oMschema->siteid, $oMschema->id);
 
 		$oCard->title = $oMschema->title;
 		$oCard->summary = $oSite->name . '邀请您填写【' . $oMschema->title . '】信息。';

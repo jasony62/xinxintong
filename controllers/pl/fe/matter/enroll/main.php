@@ -151,228 +151,24 @@ class main extends \pl\fe\matter\main_base {
 		if (false === ($oUser = $this->accountUser())) {
 			return new \ResponseTimeout();
 		}
-
-		$modelApp = $this->model('matter\enroll')->setOnlyWriteDbConn(true);
-
-		$oCustomConfig = $this->getPostJson();
-		$current = time();
-		$oNewApp = new \stdClass;
 		$oSite = $this->model('site')->byId($site, ['fields' => 'id,heading_pic']);
-		/* 从站点或项目获得的信息 */
+		if (false === $oSite) {
+			return new \ObjectNotFoundError();
+		}
 		if (empty($mission)) {
-			$oNewApp->pic = $oSite->heading_pic;
-			$oNewApp->summary = '';
-			$oNewApp->use_mission_header = 'N';
-			$oNewApp->use_mission_footer = 'N';
 			$oMission = null;
 		} else {
 			$modelMis = $this->model('matter\mission');
 			$oMission = $modelMis->byId($mission);
-			$oNewApp->pic = $oMission->pic;
-			$oNewApp->summary = $oMission->summary;
-			$oNewApp->mission_id = $oMission->id;
-			$oNewApp->use_mission_header = 'Y';
-			$oNewApp->use_mission_footer = 'Y';
-			$oMisEntryRule = $oMission->entry_rule;
-		}
-		$appId = uniqid();
-		/* 使用指定模板 */
-		$oTemplateConfig = $this->_getSysTemplate($scenario, $template);
-		/* 关联了分组活动 */
-		if (!empty($oCustomConfig->proto->groupApp->id)) {
-			$oNewApp->group_app_id = $modelApp->escape($oCustomConfig->proto->groupApp->id);
-			$oRoundSchema = new \stdClass;
-			$oRoundSchema->id = '_round_id';
-			$oRoundSchema->type = 'single';
-			$oRoundSchema->title = '分组名称';
-			$oRoundSchema->required = 'Y';
-			$oRoundSchema->ops = [];
-			$oGroupApp = $this->model('matter\group')->byId($oNewApp->group_app_id);
-			if (!empty($oGroupApp->rounds)) {
-				foreach ($oGroupApp->rounds as $oRound) {
-					$op = new \stdClass;
-					$op->v = $oRound->round_id;
-					$op->l = $oRound->title;
-					$oRoundSchema->ops[] = $op;
-				}
-			}
-			if (empty($oTemplateConfig->schema)) {
-				$oTemplateConfig->schema = [$oRoundSchema];
-			} else {
-				array_splice($oTemplateConfig->schema, 0, 0, [$oRoundSchema]);
-			}
-			/**
-			 * 处理页面数据定义
-			 */
-			foreach ($oTemplateConfig->pages as $oAppPage) {
-				if (!empty($oAppPage->data_schemas)) {
-					/* 自动添加项目阶段定义 */
-					if ($oAppPage->type === 'I') {
-						$newPageSchema = new \stdClass;
-						$schemaPhaseConfig = new \stdClass;
-						$schemaPhaseConfig->component = 'R';
-						$schemaPhaseConfig->align = 'V';
-						$newPageSchema->schema = $oRoundSchema;
-						$newPageSchema->config = $schemaPhaseConfig;
-						array_splice($oAppPage->data_schemas, 0, 0, [$newPageSchema]);
-					} else if ($oAppPage->type === 'V') {
-						$newPageSchema = new \stdClass;
-						$schemaPhaseConfig = new \stdClass;
-						$schemaPhaseConfig->id = 'V' . time();
-						$schemaPhaseConfig->pattern = 'record';
-						$schemaPhaseConfig->inline = 'Y';
-						$schemaPhaseConfig->splitLine = 'Y';
-						$newPageSchema->schema = $oRoundSchema;
-						$newPageSchema->config = $schemaPhaseConfig;
-						array_splice($oAppPage->data_schemas, 0, 0, [$newPageSchema]);
-					}
-				}
+			if (false === $oMission) {
+				return new \ObjectNotFoundError();
 			}
 		}
-		/* 添加页面 */
-		$this->_addPageByTemplate($oUser, $oSite, $oMission, $appId, $oTemplateConfig, $oCustomConfig);
-		/* 进入规则 */
-		$oEntryRule = $oTemplateConfig->entryRule;
-		if (empty($oEntryRule)) {
-			return new \ResponseError('没有获得页面进入规则');
-		}
-		if (!empty($oCustomConfig->proto->entryRule->scope)) {
-			$oProtoEntryRule = $oCustomConfig->proto->entryRule;
-			$oEntryRule->scope = $oProtoEntryRule->scope;
-			switch ($oEntryRule->scope) {
-			case 'group':
-				if (!empty($oProtoEntryRule->group->id) && !empty($oProtoEntryRule->group->round->id)) {
-					$oEntryRule->group = (object) ['id' => $oProtoEntryRule->group->id];
-					$oEntryRule->group->round = (object) ['id' => $oProtoEntryRule->group->round->id];
-				}
-				break;
-			case 'member':
-				if (isset($oProtoEntryRule->mschemas)) {
-					$oEntryRule->member = new \stdClass;
-					foreach ($oProtoEntryRule->mschemas as $oMschema) {
-						$oRule = new \stdClass;
-						$oRule->entry = isset($oEntryRule->otherwise->entry) ? $oEntryRule->otherwise->entry : '';
-						$oEntryRule->member->{$oMschema->id} = $oRule;
-					}
-					$oEntryRule->other = new \stdClass;
-					$oEntryRule->other->entry = '$memberschema';
-				}
-				break;
-			case 'sns':
-				$oRule = new \stdClass;
-				$oRule->entry = isset($oEntryRule->otherwise->entry) ? $oEntryRule->otherwise->entry : '';
-				$oSns = new \stdClass;
-				if (isset($oProtoEntryRule->sns)) {
-					foreach ($oProtoEntryRule->sns as $snsName => $bValid) {
-						if ($bValid) {
-							$oSns->{$snsName} = $oRule;
-						}
-					}
-				} else {
-					$modelWx = $this->model('sns\wx');
-					$wxOptions = ['fields' => 'joined'];
-					if (($wx = $modelWx->bySite($site, $wxOptions)) && $wx->joined === 'Y') {
-						$oSns->wx = $oRule;
-					} else if (($wx = $modelWx->bySite('platform', $wxOptions)) && $wx->joined === 'Y') {
-						$oSns->wx = $oRule;
-					}
-					$yxOptions = ['fields' => 'joined'];
-					if ($yx = $this->model('sns\yx')->bySite($site, $yxOptions)) {
-						if ($yx->joined === 'Y') {
-							$oSns->yx = $oRule;
-						}
-					}
-					if ($qy = $this->model('sns\qy')->bySite($site, ['fields' => 'joined'])) {
-						if ($qy->joined === 'Y') {
-							$oSns->qy = $oRule;
-						}
-					}
-				}
-				$oEntryRule->sns = $oSns;
-				$oEntryRule->other = new \stdClass;
-				$oEntryRule->other->entry = '$mpfollow';
-				break;
-			}
-		} else if (isset($oMisEntryRule)) {
-			if (isset($oMisEntryRule->scope) && $oMisEntryRule->scope !== 'none') {
-				$oEntryRule->scope = $oMisEntryRule->scope;
-				switch ($oEntryRule->scope) {
-				case 'member':
-					if (isset($oMisEntryRule->member)) {
-						$oEntryRule->member = $oMisEntryRule->member;
-						foreach ($oEntryRule->member as &$oRule) {
-							$oRule->entry = isset($oEntryRule->otherwise->entry) ? $oEntryRule->otherwise->entry : '';
-						}
-						$oEntryRule->other = new \stdClass;
-						$oEntryRule->other->entry = '$memberschema';
-					}
-					break;
-				case 'sns':
-					$oEntryRule->sns = new \stdClass;
-					if (isset($oMisEntryRule->sns)) {
-						foreach ($oMisEntryRule->sns as $snsName => $oRule) {
-							if (isset($oRule->entry) && $oRule->entry === 'Y') {
-								$oEntryRule->sns->{$snsName} = new \stdClass;
-								$oEntryRule->sns->{$snsName}->entry = isset($oEntryRule->otherwise->entry) ? $oEntryRule->otherwise->entry : '';
-							}
-						}
-						$oEntryRule->other = new \stdClass;
-						$oEntryRule->other->entry = '$mpfollow';
-					}
-					break;
-				}
-			}
-		}
-		if (!isset($oEntryRule->scope)) {
-			$oEntryRule->scope = 'none';
-		}
-		/* 登记数量限制 */
-		if (isset($oTemplateConfig->count_limit)) {
-			$oNewApp->count_limit = $oTemplateConfig->count_limit;
-		}
-		if (isset($oTemplateConfig->can_repos)) {
-			$oNewApp->can_repos = $oTemplateConfig->repos;
-		}
-		if (isset($oTemplateConfig->can_rank)) {
-			$oNewApp->can_rank = $oTemplateConfig->can_rank;
-		}
-		if (isset($oTemplateConfig->enrolled_entry_page)) {
-			$oNewApp->enrolled_entry_page = $oTemplateConfig->enrolled_entry_page;
-		}
-		/* 场景设置 */
-		if (isset($oTemplateConfig->scenarioConfig)) {
-			$oScenarioConfig = $oTemplateConfig->scenarioConfig;
-			if (isset($oCustomConfig->scenarioConfig) && is_object($oCustomConfig->scenarioConfig)) {
-				foreach ($oCustomConfig->scenarioConfig as $k => $v) {
-					$oScenarioConfig->{$k} = $v;
-				}
-			}
-			$oNewApp->scenario_config = json_encode($oScenarioConfig);
-		}
-		$oNewApp->scenario = $scenario;
-		/* create app */
-		$oNewApp->id = $appId;
-		$oNewApp->siteid = $oSite->id;
-		$oNewApp->title = empty($oCustomConfig->proto->title) ? '新登记活动' : $modelApp->escape($oCustomConfig->proto->title);
-		$oNewApp->summary = empty($oCustomConfig->proto->summary) ? '' : $modelApp->escape($oCustomConfig->proto->summary);
-		$oNewApp->can_repos = empty($oCustomConfig->proto->can_repos) ? 'N' : $modelApp->escape($oCustomConfig->proto->can_repos);
-		$oNewApp->can_rank = empty($oCustomConfig->proto->can_rank) ? 'N' : $modelApp->escape($oCustomConfig->proto->can_rank);
-		$oNewApp->enroll_app_id = empty($oCustomConfig->proto->enrollApp->id) ? '' : $modelApp->escape($oCustomConfig->proto->enrollApp->id);
-		$oNewApp->start_at = isset($oCustomConfig->proto->start_at) ? $oCustomConfig->proto->start_at : 0;
-		$oNewApp->end_at = isset($oCustomConfig->proto->end_at) ? $oCustomConfig->proto->end_at : 0;
-		$oNewApp->entry_rule = json_encode($oEntryRule);
-		$oNewApp->can_siteuser = 'Y';
-		isset($oTemplateConfig) && $oNewApp->data_schemas = $modelApp->toJson($oTemplateConfig->schema);
+		$modelApp = $this->model('matter\enroll')->setOnlyWriteDbConn(true);
 
-		/*任务码*/
-		$entryUrl = $modelApp->getOpUrl($oSite->id, $appId);
-		$code = $this->model('q\url')->add($oUser, $oSite->id, $entryUrl, $oNewApp->title);
-		$oNewApp->op_short_url_code = $code;
+		$oCustomConfig = $this->getPostJson();
 
-		$oNewApp = $modelApp->create($oUser, $oNewApp);
-
-		/* 记录操作日志 */
-		$this->model('matter\log')->matterOp($oSite->id, $oUser, $oNewApp, 'C');
+		$oNewApp = $modelApp->createByTemplate($oUser, $oSite, $oCustomConfig, $oMission, $scenario, $template);
 
 		return new \ResponseData($oNewApp);
 	}

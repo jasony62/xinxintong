@@ -23,10 +23,10 @@ define(['require'], function(require) {
         }
     }]);
     ngApp.controller('ctrlSysTemplate', ['$scope', '$location', '$uibModal', 'http2', 'srvSite', function($scope, $location, $uibModal, http2, srvSite) {
-        var assignedScenario, _oProto, _oEntryRule;
+        var assignedScenario, _oProto, _oEntryRule, _oResult;
 
         assignedScenario = $location.search().scenario;
-        $scope.result = {
+        $scope.result = _oResult = {
             proto: {
                 entryRule: {
                     scope: '',
@@ -144,37 +144,38 @@ define(['require'], function(require) {
         $scope.chooseScenario = function() {
             var oTemplates, keys;
 
-            oTemplates = $scope.result.scenario.templates;
+            oTemplates = _oResult.scenario.templates;
             keys = Object.keys(oTemplates);
-            $scope.result.template = oTemplates[keys[0]];
+            _oResult.template = oTemplates[keys[0]];
             $scope.chooseTemplate();
         };
         $scope.chooseTemplate = function() {
-            if (!$scope.result.template) return;
+            if (!_oResult.template) return;
             var url;
             url = '/rest/pl/fe/matter/enroll/template/config';
-            url += '?scenario=' + $scope.result.scenario.name;
-            url += '&template=' + $scope.result.template.name;
+            url += '?scenario=' + _oResult.scenario.name;
+            url += '&template=' + _oResult.template.name;
             http2.get(url, function(rsp) {
-                var elSimulator, url;
+                var oScenarioConfig, elSimulator, url;
+                $scope.scenarioConfig = oScenarioConfig = rsp.data.scenarioConfig;
+                oScenarioConfig.required = (oScenarioConfig.can_repos !== 'D' || oScenarioConfig.can_rank !== 'D' || oScenarioConfig.can_repos !== 'D');
                 $scope.pages = rsp.data.pages;
-                $scope.result.selectedPage = $scope.pages[0];
+                _oResult.selectedPage = $scope.pages[0];
                 elSimulator = document.querySelector('#simulator iframe');
-                url = 'http://' + location.host;
-                url += '/rest/site/fe/matter/enroll/template';
-                url += '?scenario=' + $scope.result.scenario.name;
-                url += '&template=' + $scope.result.template.name;
-                url += '&page=' + $scope.result.selectedPage.name;
-                url += '&_=' + (new Date() * 1);
+                url = '/rest/site/fe/matter/enroll/template';
+                url += '?scenario=' + _oResult.scenario.name;
+                url += '&template=' + _oResult.template.name;
+                url += '&page=' + _oResult.selectedPage.name;
+                url += '&_=' + (new Date * 1);
                 elSimulator.src = url;
             });
         };
         $scope.choosePage = function(oPage) {
             var elSimulator;
             if (oPage) {
-                $scope.result.selectedPage = oPage;
+                _oResult.selectedPage = oPage;
             } else {
-                oPage = $scope.result.selectedPage;
+                oPage = _oResult.selectedPage;
             }
             elSimulator = document.querySelector('#simulator iframe');
             if (elSimulator.contentWindow.renew) {
@@ -209,14 +210,14 @@ define(['require'], function(require) {
             $scope.templates2 = oScenarioes;
             if (assignedScenario) {
                 if (oScenarioes[assignedScenario]) {
-                    $scope.result.scenario = oScenarioes[assignedScenario];
+                    _oResult.scenario = oScenarioes[assignedScenario];
                     $scope.fixedScenario = true;
-                    oTemplates = $scope.result.scenario.templates;
-                    $scope.result.template = oTemplates[Object.keys(oTemplates)[0]];
+                    oTemplates = _oResult.scenario.templates;
+                    _oResult.template = oTemplates[Object.keys(oTemplates)[0]];
                     $scope.chooseTemplate();
                 }
             } else {
-                $scope.result.scenario = oScenarioes.common;
+                _oResult.scenario = oScenarioes.common;
                 $scope.chooseScenario();
             }
         });
@@ -242,7 +243,7 @@ define(['require'], function(require) {
                         });
                     });
                 } else if ('sns' === oMission.entry_rule.scope) {
-                    $scope.result.proto.sns = oMission.entry_rule.sns;
+                    _oResult.proto.sns = oMission.entry_rule.sns;
                 }
                 if (assignedScenario === 'registration') {
                     _oProto.title = oMission.title + '-报名';

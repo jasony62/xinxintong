@@ -6,51 +6,56 @@
     <meta content="width=device-width,user-scalable=no,initial-scale=1.0" name="viewport">
     <link href="/static/css/bootstrap.min.css" rel="stylesheet">
     <link href="/static/css/tms.css" rel="stylesheet">
+    <link href="<?php echo auto_version('/static/css/pl.fe.css');?>" rel="stylesheet">
     <title>
         <?php echo APP_TITLE;?>
     </title>
     <style type='text/css'>
-        body{background-color:#eee}.help-block{color:red}
+    .help-block {
+        color: red
+    }
     </style>
 </head>
 
 <body ng-app='app' ng-controller='ctrlSetting'>
-    <nav class='navbar navbar-default'>
+    <div id='pl-layout-main' class='pl-layout-main pl-layout-main-topnav'>
+        <nav class="navbar pl-navbar-default pl-navbar-fixed-top">
+            <div class='container-fluid'>
+                <ul class='nav navbar-nav'>
+                    <li><a href='/rest/pl/fe' target='_self'>首页</a></li>
+                </ul>
+                <ul class='nav navbar-nav navbar-right'>
+                    <li><a href='/rest/pl/fe/user/logout' target='_self'>退出</a></li>
+                </ul>
+            </div>
+        </nav>
         <div class='container-fluid'>
-            <ul class='nav navbar-nav'>
-                <li><a href='/rest/pl/fe' target='_self'>首页</a></li>
-            </ul>
-            <ul class='nav navbar-nav navbar-right'>
-                <li><a href='/rest/pl/fe/user/logout' target='_self'>退出</a></li>
-            </ul>
-        </div>
-    </nav>
-    <div class='container'>
-        <div class='row'>
-            <div class='col-md-4 col-md-offset-4'>
-                <form name='form'>
-                    <div class='form-group'>
-                        <input type='password' class='form-control input-lg' ng-model='opwd' placeholder='输入当前密码' autofocus/>
-                    </div>
-                    <div class='form-group'>
-                        <input type='password' class='form-control input-lg' name='npwd' ng-model='npwd' ng-minlength='6' ng-maxlength='16' placeholder='输入新密码'/>
-                        <span class='help-block' ng-show="form.npwd.$error.minlength || form.npwd.$error.maxlength">密码由6-16位半角字符（字符、数字、符号）组成，区分大小写</span>
-                    </div>
-                    <div class='form-group'>
-                        <input type='password' class='form-control input-lg' name='npwd2' ng-model='npwd2' ng-pattern='repeatPwd' placeholder='再次输入新密码'/>
-                        <span class='help-block' ng-show="form.npwd2.$error.pattern">两次输入的密码不匹配</span>
-                    </div>
-                    <div class='form-group'>
-                        <button class='btn btn-lg btn-primary btn-block' ng-click='changePwd()'>更改密码</button>
-                    </div>
-                    <hr>
-                    <div class='form-group'>
-                        <input type='text' class='form-control input-lg' name='nickname' ng-model='nickname' placeholder="账号昵称" />
-                    </div>
-                    <div class='form-group'>
-                        <button class='btn btn-lg btn-primary btn-block' ng-click='changeNickname()'>更改昵称</button>
-                    </div>
-                </form>
+            <div class="row">
+                <div class='col-md-4 col-md-offset-4'>
+                    <form name='form'>
+                        <div class='form-group'>
+                            <input type='password' class='form-control input-lg' ng-model='opwd' placeholder='输入当前密码' autofocus/>
+                        </div>
+                        <div class='form-group'>
+                            <input type='password' class='form-control input-lg' name='npwd' ng-model='npwd' ng-minlength='6' ng-maxlength='16' placeholder='输入新密码' />
+                            <span class='help-block' ng-show="form.npwd.$error.minlength || form.npwd.$error.maxlength">密码由6-16位半角字符（字符、数字、符号）组成，区分大小写</span>
+                        </div>
+                        <div class='form-group'>
+                            <input type='password' class='form-control input-lg' name='npwd2' ng-model='npwd2' ng-pattern='repeatPwd' placeholder='再次输入新密码' />
+                            <span class='help-block' ng-show="form.npwd2.$error.pattern">两次输入的密码不匹配</span>
+                        </div>
+                        <div class='form-group'>
+                            <button class='btn btn-lg btn-primary btn-block' ng-click='changePwd()'>更改密码</button>
+                        </div>
+                        <hr>
+                        <div class='form-group'>
+                            <input type='text' class='form-control input-lg' name='nickname' ng-model='nickname' placeholder="账号昵称" />
+                        </div>
+                        <div class='form-group'>
+                            <button class='btn btn-lg btn-primary btn-block' ng-click='changeNickname()'>更改昵称</button>
+                        </div>
+                    </form>
+                </div>
             </div>
         </div>
     </div>

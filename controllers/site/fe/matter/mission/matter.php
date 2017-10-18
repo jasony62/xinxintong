@@ -18,7 +18,7 @@ class matter extends \site\fe\matter\base {
 		}
 
 		$aMatterTypes = ['article', 'news', 'channel'];
-		$docs = $this->model('matter\mission\matter')->byMission($oMission->id, $aMatterTypes);
+		$docs = $this->model('matter\mission\matter')->byMission($oMission->id, $aMatterTypes, ['is_public' => 'Y']);
 
 		return new \ResponseData($docs);
 	}

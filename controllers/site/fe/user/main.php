@@ -14,6 +14,13 @@ class main extends \site\fe\base {
 		exit;
 	}
 	/**
+	 * 登录和注册页
+	 */
+	public function access_action() {
+		\TPL::output('/site/fe/user/access');
+		exit;
+	}
+	/**
 	 *
 	 */
 	public function get_action() {

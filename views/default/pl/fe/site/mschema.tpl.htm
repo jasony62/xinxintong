@@ -34,6 +34,7 @@
                         <li><a href="/rest/pl/fe" target='_self'>个人工作台</a></li>
                         <li ng-if="site.yourRole"><a href="/rest/pl/fe?view=main&sid={{site.id}}" target='_self'>{{site.name}}</a></li>
                         <li ng-if="!site.yourRole"><a href="javascript:void(0)">{{site.name}}</a></li>
+                        <li ng-if="choosedSchema.mission"><a href="/rest/pl/fe/matter/mission?site={{site.id}}&id={{choosedSchema.mission.id}}" target='_self'>{{choosedSchema.mission.title}}</a></li>
                     </nav>
                 </div>
             </nav>
@@ -120,32 +121,19 @@
                         <div class='panel panel-default'>
                             <div class='panel-body'>
                                 <div class='form-group'>
-                                    <div class='form-inline'>
-                                        <div class="form-group">
-                                            <label class='checkbox-inline'>
-                                                <input type='checkbox' ng-true-value="'Y'" ng-false-value="'N'" ng-model='choosedSchema.require_invite' ng-change="updSchema('require_invite')">通过邀请码验证</label>
-                                            <label class='checkbox-inline' ng-if="choosedSchema.require_invite==='N'">
-                                                <input type='checkbox' ng-true-value="'N'" ng-false-value="'Y'" ng-model='choosedSchema.auto_verified' ng-change="updSchema('auto_verified')">是否需要管理员审核</label>
-                                            <label class='checkbox-inline' ng-if="!choosedSchema.matter_id">
-                                                <input type='checkbox' ng-true-value="'Y'" ng-false-value="'N'" ng-model='choosedSchema.at_user_home' ng-change="updSchema('at_user_home')">出现在用户主页</label>
-                                        </div>
-                                    </div>
+                                    <label class='checkbox-inline' ng-if="!choosedSchema.matter_id">
+                                        <input type='checkbox' ng-true-value="'Y'" ng-false-value="'N'" ng-model='choosedSchema.at_user_home' ng-change="updSchema('at_user_home')">出现在用户主页</label>
                                 </div>
                                 <div class='form-group'>
-                                    <div class='form-inline'>
-                                        <div class="form-group">
-                                            <label class='checkbox-inline' ng-if="sns.qy">
-                                                <input type='checkbox' ng-true-value="'Y'" ng-false-value="'N'" ng-model='choosedSchema.qy_ab' ng-change="updQy()">企业号同步通讯录使用</label>
-                                            <label class='checkbox-inline' ng-if="sns.wx">
-                                                <input type='checkbox' ng-true-value="'Y'" ng-false-value="'N'" ng-model='choosedSchema.is_wx_fan' ng-change="updSchema('is_wx_fan')">是微信公众号关注用户</label>
-                                            <label class='checkbox-inline' ng-if="sns.qy">
-                                                <input type='checkbox' ng-true-value="'Y'" ng-false-value="'N'" ng-model='choosedSchema.is_qy_fan' ng-change="updSchema('is_qy_fan')">是微信企业号关注用户</label>
-                                            <label class='checkbox-inline' ng-if="sns.yx">
-                                                <input type='checkbox' ng-true-value="'Y'" ng-false-value="'N'" ng-model='choosedSchema.is_yx_fan' ng-change="updSchema('is_yx_fan')">是易信公众号关注用户</label>
-                                        </div>
-                                    </div>
+                                    <label class='checkbox-inline' ng-if="sns.qy">
+                                        <input type='checkbox' ng-true-value="'Y'" ng-false-value="'N'" ng-model='choosedSchema.qy_ab' ng-change="updQy()">企业号同步通讯录使用</label>
+                                    <label class='checkbox-inline' ng-if="sns.wx">
+                                        <input type='checkbox' ng-true-value="'Y'" ng-false-value="'N'" ng-model='choosedSchema.is_wx_fan' ng-change="updSchema('is_wx_fan')">是微信公众号关注用户</label>
+                                    <label class='checkbox-inline' ng-if="sns.qy">
+                                        <input type='checkbox' ng-true-value="'Y'" ng-false-value="'N'" ng-model='choosedSchema.is_qy_fan' ng-change="updSchema('is_qy_fan')">是微信企业号关注用户</label>
+                                    <label class='checkbox-inline' ng-if="sns.yx">
+                                        <input type='checkbox' ng-true-value="'Y'" ng-false-value="'N'" ng-model='choosedSchema.is_yx_fan' ng-change="updSchema('is_yx_fan')">是易信公众号关注用户</label>
                                 </div>
-                                <hr>
                                 <div class='form-group'>
                                     <label>填写页面地址</label>
                                     <div class='input-group'>
@@ -194,18 +182,24 @@
                             </div>
                         </div>
                         <!--invite code-->
-                        <div class='panel panel-default' ng-if="choosedSchema.require_invite==='Y'">
+                        <div class='panel panel-default'>
                             <div class='panel-body' ng-controller="ctrlInvite">
+                                <div class='form-group'>
+                                    <label class='checkbox-inline'>
+                                        <input type='checkbox' ng-true-value="'Y'" ng-false-value="'N'" ng-model='choosedSchema.require_invite' ng-change="updSchema('require_invite')">通过邀请码验证</label>
+                                    <label class='checkbox-inline' ng-if="choosedSchema.require_invite==='N'">
+                                        <input type='checkbox' ng-true-value="'N'" ng-false-value="'Y'" ng-model='choosedSchema.auto_verified' ng-change="updSchema('auto_verified')">不进行管理员手工审核</label>
+                                </div>
                                 <table class='table table-bordered'>
                                     <thead>
                                         <tr>
-                                            <th style='width:48px'>序号</th>
+                                            <th style='width:46px'>序号</th>
                                             <th style='width:64px'>已停用</th>
                                             <th>邀请码</th>
-                                            <th style='width:100px'>可邀请次数</th>
-                                            <th style='width:100px'>已使用次数</th>
-                                            <th style='width:120px'>到期时间</th>
-                                            <th style='width:120px'>操作</th>
+                                            <th style='width:88px'>可邀请次数</th>
+                                            <th style='width:88px'>已使用次数</th>
+                                            <th style='width:92px'>到期时间</th>
+                                            <th style='width:110px'>操作</th>
                                         </tr>
                                     </thead>
                                     <tbody>

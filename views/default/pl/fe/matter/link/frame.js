@@ -24,7 +24,7 @@ ngApp.controller('ctrlLink', ['$scope', '$location', 'http2', 'srvSite', functio
         $scope.entryUrl = 'http://' + location.host + '/rest/site/fe/matter/link?site=' + $scope.siteId + '&id=' + $scope.id;
     });
 }]);
-ngApp.controller('ctrlMain', ['$scope', 'http2', 'mediagallery', '$uibModal', 'srvTag', function($scope, http2, mediagallery, $uibModal, srvTag) {
+ngApp.controller('ctrlMain', ['$scope', 'http2', 'mediagallery', '$uibModal', 'srvTag', 'srvSite', function($scope, http2, mediagallery, $uibModal, srvTag, srvSite) {
     var modifiedData = {};
     $scope.modified = false;
     $scope.urlsrcs = {
@@ -85,32 +85,35 @@ ngApp.controller('ctrlMain', ['$scope', 'http2', 'mediagallery', '$uibModal', 's
             $scope.modified = false;
         });
     };
-    $scope.update = function(n) {
-        modifiedData[n] = $scope.editing[n];
-        if (n === 'urlsrc' && $scope.editing.urlsrc != 0) {
-            $scope.editing.open_directly = 'N';
-            modifiedData.open_directly = 'N';
-        } else if (n === 'method' && $scope.editing.method === 'POST') {
-            $scope.editing.open_directly = 'N';
-            modifiedData.open_directly = 'N';
-        } else if (n === 'open_directly' && $scope.editing.open_directly == 'Y') {
-            $scope.editing.access_control = 'N';
-            modifiedData.access_control = 'N';
-            modifiedData.authapis = '';
-        } else if (n === 'access_control' && $scope.editing.access_control == 'N') {
-            var p;
-            for (var i in $scope.editing.params) {
-                p = $scope.editing.params[i];
-                if (p.pvalue == '{{authed_identity}}') {
-                    window.alert('只有在进行访问控制的情况下，才可以指定和用户身份相关的信息！');
-                    $scope.editing.access_control = 'Y';
-                    modifiedData.access_control = 'Y';
-                    return false;
+    $scope.update = function(names) {
+        angular.isString(names) && (names = [names]);
+        names.forEach(function(n) {
+            modifiedData[n] = $scope.editing[n];
+            if (n === 'urlsrc' && $scope.editing.urlsrc != 0) {
+                $scope.editing.open_directly = 'N';
+                modifiedData.open_directly = 'N';
+            } else if (n === 'method' && $scope.editing.method === 'POST') {
+                $scope.editing.open_directly = 'N';
+                modifiedData.open_directly = 'N';
+            } else if (n === 'open_directly' && $scope.editing.open_directly == 'Y') {
+                $scope.editing.access_control = 'N';
+                modifiedData.access_control = 'N';
+                modifiedData.authapis = '';
+            } else if (n === 'access_control' && $scope.editing.access_control == 'N') {
+                var p;
+                for (var i in $scope.editing.params) {
+                    p = $scope.editing.params[i];
+                    if (p.pvalue == '{{authed_identity}}') {
+                        window.alert('只有在进行访问控制的情况下，才可以指定和用户身份相关的信息！');
+                        $scope.editing.access_control = 'Y';
+                        modifiedData.access_control = 'Y';
+                        return false;
+                    }
                 }
+                modifiedData.authapis = '';
             }
-            modifiedData.authapis = '';
-        }
-        $scope.modified = true;
+            $scope.modified = true;
+        });
     };
     $scope.setPic = function() {
         var options = {
@@ -165,6 +168,80 @@ ngApp.controller('ctrlMain', ['$scope', 'http2', 'mediagallery', '$uibModal', 's
         oTags = $scope.oTag;
         srvTag._tagMatter($scope.editing, oTags, subType);
     };
+    $scope.assignMission = function() {
+        var _this = this;
+        srvSite.openGallery({
+            matterTypes: [{
+                value: 'mission',
+                title: '项目',
+                url: '/rest/pl/fe/matter'
+            }],
+            singleMatter: true
+        }).then(function(missions) {
+            var matter;
+            if (missions.matters.length === 1) {
+                matter = {
+                    id: $scope.id,
+                    type: 'link'
+                };
+                http2.post('/rest/pl/fe/matter/mission/matter/add?site=' + $scope.siteId + '&id=' + missions.matters[0].id, matter, function(rsp) {
+                    var mission = rsp.data;
+
+                    $scope.editing.mission = mission;
+                    $scope.editing.mission_id = mission.id;
+                    modifiedData['mission_id'] = mission.id;
+                    if (!$scope.editing.pic || $scope.editing.pic.length === 0) {
+                        $scope.editing.pic = mission.pic;
+                        modifiedData['pic'] = mission.pic;
+                    }
+                    if (!$scope.editing.summary || $scope.editing.summary.length === 0) {
+                        $scope.editing.summary = mission.summary;
+                        modifiedData['summary'] = mission.summary;
+                    }
+                    _this.submit();
+                });
+            }
+        });
+    },
+    $scope.quitMission = function() {
+        var that = this;
+        matter = {
+            id: $scope.editing.id,
+            type: 'link',
+            title: $scope.editing.title
+        },
+        http2.post('/rest/pl/fe/matter/mission/matter/remove?site=' + $scope.siteId + '&id=' + $scope.editing.mission_id, matter, function(rsp) {
+            delete $scope.editing.mission;
+            $scope.editing.mission_id = 0;
+            modifiedData['mission_id'] = 0;
+            $scope.editing.mission_phase_id = '';
+            modifiedData['mission_phase_id'] = '';
+
+            that.submit();
+        });
+    },
+    $scope.choosePhase = function() {
+        var phaseId = $scope.editing.mission_phase_id,
+            newPhase, updatedFields = ['mission_phase_id'],
+            that = this;
+
+        // 去掉活动标题中现有的阶段后缀
+        $scope.editing.mission.phases.forEach(function(phase) {
+            $scope.editing.title = $scope.editing.title.replace('-' + phase.title, '');
+            if (phase.phase_id === phaseId) {
+                newPhase = phase;
+            }
+        });
+        if (newPhase) {
+            // 给活动标题加上阶段后缀
+            $scope.editing.title += '-' + newPhase.title;
+            updatedFields.push('title');
+        } else {
+            updatedFields.push('title');
+        }
+
+        that.update(updatedFields);
+    },
     $scope.$watch('editing.urlsrc', function(nv) {
         switch (nv) {
             case '1':

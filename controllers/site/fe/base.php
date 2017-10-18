@@ -18,8 +18,8 @@ class base extends \site\base {
 	 * 对请求进行通用的处理
 	 */
 	public function __construct() {
-		empty($_GET['site']) && die('参数错误！');
-		$siteId = $_GET['site'];
+		//empty($_GET['site']) && die('参数错误！');
+		$siteId = empty($_GET['site']) ? 'platform' : '';
 		$this->siteId = $siteId;
 		/* 获得访问用户的信息 */
 		$modelWay = $this->model('site\fe\way');

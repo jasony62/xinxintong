@@ -93,7 +93,7 @@ define('TMS_APP_TEMPLATE_DEFAULT', dirname(__FILE__) . '/_template');
 /**
  * 用户未认证通过时缺省页
  */
-!defined('TMS_APP_UNAUTH') && define('TMS_APP_UNAUTH', '/pl/fe/user/auth');
+!defined('TMS_APP_UNAUTH') && define('TMS_APP_UNAUTH', '/rest/site/fe/user/access');
 define('TMS_APP_AUTHED', '/pl/fe'); // 认证通过后的缺省页
 
 /*************************

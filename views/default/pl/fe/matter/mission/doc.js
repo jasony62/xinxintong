@@ -1,11 +1,19 @@
 define(['frame'], function(ngApp) {
     'use strict';
-    ngApp.provider.controller('ctrlDoc', ['$scope', '$location', 'http2', 'facListFilter', function($scope, $location, http2, facListFilter) {
-        var _oMission, _oCriteria;
-        $scope.matterType = $location.hash();
-        if (!/article/.test($scope.matterType)) {
+    ngApp.provider.controller('ctrlDoc', ['$scope', '$location', 'http2', 'facListFilter', 'cstApp', function($scope, $location, http2, facListFilter, cstApp) {
+        var _oMission, _oCriteria, hash;
+        if (hash = $location.hash()) {
+            $scope.matterType = hash;
+        } else {
             $scope.matterType = '';
         }
+        var aUnionMatterTypes;
+        aUnionMatterTypes = [];
+        cstApp.matterNames.docOrder.forEach(function(name) {
+            aUnionMatterTypes.push({ name: name, label: cstApp.matterNames.doc[name] });
+        });
+        $scope.unionMatterTypes = aUnionMatterTypes;
+        $scope.unionType = '';
         $scope.criteria = _oCriteria = {
             pid: 'ALL',
             filter: {}
@@ -17,17 +25,21 @@ define(['frame'], function(ngApp) {
             var url = '/rest/pl/fe/matter/article/create?mission=' + _oMission.id,
                 config = {
                     proto: {
-                        title: _oMission.title + '-资料'
+                        title: _oMission.title + '-单图文'
                     }
                 };
             http2.post(url, config, function(rsp) {
                 location.href = '/rest/pl/fe/matter/article?id=' + rsp.data.id + '&site=' + _oMission.siteid;
             });
         };
+        $scope.addLink = function() {
+            var url = '/rest/pl/fe/matter/link/create?mission=' + _oMission.id;
+            url += '&title=' + _oMission.title + '-链接';
+            http2.get(url, function(rsp) {
+                location.href = '/rest/pl/fe/matter/link?id=' + rsp.data.id + '&site=' + _oMission.siteid;
+            });
+        };
         $scope.addMatter = function(matterType) {
-            if (!matterType) {
-                matterType = $scope.matterType;
-            }
             $scope['add' + matterType[0].toUpperCase() + matterType.substr(1)]();
         };
         $scope.openMatter = function(matter, subView) {
@@ -39,6 +51,7 @@ define(['frame'], function(ngApp) {
                 url += '/' + subView;
             }
             switch (type) {
+                case 'link':
                 case 'article':
                     location.href = url + '?id=' + id + '&site=' + _oMission.siteid;
                     break;
@@ -53,6 +66,7 @@ define(['frame'], function(ngApp) {
             evt.stopPropagation();
             if (window.confirm('确定删除：' + title + '？')) {
                 switch (type) {
+                    case 'link':
                     case 'article':
                         url += type + '/remove?id=' + id + '&site=' + _oMission.siteid;
                         break;
@@ -72,9 +86,23 @@ define(['frame'], function(ngApp) {
                 case 'article':
                     url += type + '/copy?id=' + id + '&site=' + _oMission.siteid + '&mission=' + _oMission.id;
                     break;
+                case 'link':
+                    alert('正在建设中……');
+                    return;
+                    break;
             }
             http2.get(url, function(rsp) {
                 location.href = '/rest/pl/fe/matter/' + type + '?site=' + _oMission.siteid + '&id=' + rsp.data.id;
+            });
+        };
+        $scope.togglePublic = function(oMatter) {
+            var isPublic, url;
+            if (oMatter.is_public) {
+                isPublic = oMatter.is_public === 'Y' ? 'N' : 'Y';
+            }
+            url = '/rest/pl/fe/matter/mission/matter/update?site=' + _oMission.siteid + '&id=' + _oMission.id + '&matterType=' + oMatter.type + '&matterId=' + oMatter.id;
+            http2.post(url, { 'is_public': isPublic }, function(rsp) {
+                oMatter.is_public = isPublic;
             });
         };
         $scope.list = function() {
@@ -105,8 +133,12 @@ define(['frame'], function(ngApp) {
         $scope.$watch('mission', function(nv) {
             if (!nv) return;
             _oMission = nv;
-            $scope.$watch('matterType', function(nv) {
-                $scope.list();
+            $scope.$watch('unionType', function(nv) {
+                var aUnionType;
+                if (nv !== undefined) {
+                    $scope.matterType = nv;
+                    $scope.list();
+                }
             });
         });
     }]);

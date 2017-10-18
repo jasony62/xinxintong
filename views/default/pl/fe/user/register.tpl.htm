@@ -6,58 +6,56 @@
     <meta content="width=device-width,user-scalable=no,initial-scale=1.0" name="viewport">
     <link href="/static/css/bootstrap.min.css" rel="stylesheet">
     <link href="/static/css/tms.css" rel="stylesheet">
+    <link href="<?php echo auto_version('/static/css/pl.fe.css');?>" rel="stylesheet">
     <title>
         <?php echo APP_TITLE;?>
     </title>
-    <style type='text/css'>
-    body {
-        background-color: #eee
-    }
-    </style>
 </head>
 
 <body ng-app='app' ng-controller='ctrlReg'>
-    <nav class='navbar navbar-default'>
-        <div class="navbar-header">
-            <a class='navbar-brand' href='/rest/home' target='_self'>
-                <?php echo APP_TITLE;?>
-            </a>
-        </div>
+    <div id='pl-layout-main' class='pl-layout-main pl-layout-main-topnav'>
+        <nav class="navbar pl-navbar-default pl-navbar-fixed-top">
+            <div class='container-fluid'>
+                <div class="navbar-header">
+                    <a class='navbar-brand' href='/rest/home' target='_self'>
+                        <?php echo APP_TITLE;?>
+                    </a>
+                </div>
+                <ul class='nav navbar-nav navbar-right'>
+                    <li><a href='/rest/pl/fe/user/login' target='_self'>登录</a></li>
+                </ul>
+            </div>
+        </nav>
         <div class='container-fluid'>
-            <ul class='nav navbar-nav navbar-right'>
-                <li><a href='/rest/pl/fe/user/login' target='_self'>登录</a></li>
-            </ul>
-        </div>
-    </nav>
-    <div class='container'>
-        <div class='row'>
-            <div class='col-md-4 col-md-offset-4'>
-                <form name='form'>
-                    <style>
-                    .help-block {
-                        color: red
-                    }
-                    </style>
-                    <div class='form-group'>
-                        <input type="uname" class='form-control input-lg' name='uname' ng-model='uname' placeholder='输入邮箱或手机号' required autofocus/>
-                        <span class='help-block' ng-show="form.uname.$error.required" class="help-inline">请输入你的邮箱或手机号，它将作为你的登录账号</span>
-                        <span class='help-block' ng-show="form.uname.$error.uname">请输入正确的邮箱地址或手机号</span>
-                    </div>
-                    <div class='form-group'>
-                        <input type='password' class='form-control input-lg' name='password' ng-model='password' ng-minlength='6' ng-maxlength='16' placeholder='输入登录密码' required/>
-                        <span class='help-block' ng-show="form.password.$error.minlength || form.password.$error.maxlength">密码由6-16位半角字符（字符、数字、符号）组成，区分大小写</span>
-                    </div>
-                    <div class='form-group'>
-                        <input type='password' class='form-control input-lg' ng-pattern="repeatPwd" name='password2' ng-model='password2' placeholder='再次输入登录密码' required/>
-                        <span class='help-block' ng-show="form.password2.$error.pattern">两次输入的密码不匹配</span>
-                    </div>
-                    <div class='form-group'>
-                        <input type='text' class='form-control input-lg' name='nickname' ng-model='nickname' placeholder="账号昵称" />
-                    </div>
-                    <div class='form-group'>
-                        <button class='btn btn-lg btn-primary btn-block' ng-click='register()'>创建账户</button>
-                    </div>
-                </form>
+            <div class="row">
+                <div class='col-md-4 col-md-offset-4'>
+                    <form name='form'>
+                        <style>
+                        .help-block {
+                            color: red
+                        }
+                        </style>
+                        <div class='form-group'>
+                            <input type="uname" class='form-control input-lg' name='uname' ng-model='uname' placeholder='输入邮箱或手机号' required autofocus/>
+                            <span class='help-block' ng-show="form.uname.$error.required" class="help-inline">请输入你的邮箱或手机号，它将作为你的登录账号</span>
+                            <span class='help-block' ng-show="form.uname.$error.uname">请输入正确的邮箱地址或手机号</span>
+                        </div>
+                        <div class='form-group'>
+                            <input type='password' class='form-control input-lg' name='password' ng-model='password' ng-minlength='6' ng-maxlength='16' placeholder='输入登录密码' required/>
+                            <span class='help-block' ng-show="form.password.$error.minlength || form.password.$error.maxlength">密码由6-16位半角字符（字符、数字、符号）组成，区分大小写</span>
+                        </div>
+                        <div class='form-group'>
+                            <input type='password' class='form-control input-lg' ng-pattern="repeatPwd" name='password2' ng-model='password2' placeholder='再次输入登录密码' required/>
+                            <span class='help-block' ng-show="form.password2.$error.pattern">两次输入的密码不匹配</span>
+                        </div>
+                        <div class='form-group'>
+                            <input type='text' class='form-control input-lg' name='nickname' ng-model='nickname' placeholder="账号昵称" />
+                        </div>
+                        <div class='form-group'>
+                            <button class='btn btn-lg btn-primary btn-block' ng-click='register()'>创建账户</button>
+                        </div>
+                    </form>
+                </div>
             </div>
         </div>
     </div>

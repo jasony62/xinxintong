@@ -17,7 +17,19 @@ define(['require'], function(require) {
             url += 'get?site=' + this.siteId;
             url += '&mschema=' + mschemaId;
             http2.get(url, function(rsp) {
-                deferred.resolve(rsp.data);
+                var oMschema, bWhole;
+                bWhole = true;
+                oMschema = rsp.data;
+                if (oMschema.matter_type) {
+                    if (oMschema.matter_type === 'mission' && oMschema.matter_id) {
+                        bWhole = false;
+                        http2.get('/rest/pl/fe/matter/mission/get?id=' + oMschema.matter_id + '&cascaded=N', function(rsp) {
+                            oMschema.mission = rsp.data;
+                            deferred.resolve(oMschema);
+                        });
+                    }
+                }
+                bWhole && deferred.resolve(oMschema);
             });
             return deferred.promise;
         };

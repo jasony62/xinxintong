@@ -127,10 +127,10 @@
                         <td>合计</td>
                         <td></td>
                         <td></td>
-                        <td></td>
+                        <td ng-if="bRequireNickname"></td>
                         <td></td>
                         <td ng-if="app.multi_rounds==='Y'"></td>
-                        <td ng-repeat="schema in recordSchemas2">
+                        <td ng-repeat="schema in recordSchemasExt">
                             <div ng-if="schema.format==='number'">
                                 {{sum4SchemaAtPage[schema.id]}}/{{sum4Schema[schema.id]}}
                             </div>

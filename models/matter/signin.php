@@ -618,6 +618,57 @@ class signin_model extends app_base {
 				}
 			}
 		}
+		/* 关联了分组活动 */
+		if (!empty($oCustomConfig->proto->groupApp->id)) {
+			$oNewApp->group_app_id = $this->escape($oCustomConfig->proto->groupApp->id);
+			$oRoundSchema = new \stdClass;
+			$oRoundSchema->id = '_round_id';
+			$oRoundSchema->type = 'single';
+			$oRoundSchema->title = '分组名称';
+			$oRoundSchema->required = 'Y';
+			$oRoundSchema->ops = [];
+			$oGroupApp = $this->model('matter\group')->byId($oNewApp->group_app_id);
+			if (!empty($oGroupApp->rounds)) {
+				foreach ($oGroupApp->rounds as $oRound) {
+					$op = new \stdClass;
+					$op->v = $oRound->round_id;
+					$op->l = $oRound->title;
+					$oRoundSchema->ops[] = $op;
+				}
+			}
+			if (empty($oTemplateConfig->schema)) {
+				$oTemplateConfig->schema = [$oRoundSchema];
+			} else {
+				array_splice($oTemplateConfig->schema, 0, 0, [$oRoundSchema]);
+			}
+			/**
+			 * 处理页面数据定义
+			 */
+			foreach ($oTemplateConfig->pages as $oAppPage) {
+				if (!empty($oAppPage->data_schemas)) {
+					/* 自动添加项目阶段定义 */
+					if ($oAppPage->type === 'I') {
+						$newPageSchema = new \stdClass;
+						$schemaPhaseConfig = new \stdClass;
+						$schemaPhaseConfig->component = 'R';
+						$schemaPhaseConfig->align = 'V';
+						$newPageSchema->schema = $oRoundSchema;
+						$newPageSchema->config = $schemaPhaseConfig;
+						array_splice($oAppPage->data_schemas, 0, 0, [$newPageSchema]);
+					} else if ($oAppPage->type === 'V') {
+						$newPageSchema = new \stdClass;
+						$schemaPhaseConfig = new \stdClass;
+						$schemaPhaseConfig->id = 'V' . time();
+						$schemaPhaseConfig->pattern = 'record';
+						$schemaPhaseConfig->inline = 'Y';
+						$schemaPhaseConfig->splitLine = 'Y';
+						$newPageSchema->schema = $oRoundSchema;
+						$newPageSchema->config = $schemaPhaseConfig;
+						array_splice($oAppPage->data_schemas, 0, 0, [$newPageSchema]);
+					}
+				}
+			}
+		}
 		/* 登记数据 */
 		if (!empty($oTemplateConfig->schema)) {
 			/* 通讯录关联题目 */

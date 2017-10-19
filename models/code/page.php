@@ -189,10 +189,11 @@ class page_model extends \TMS_MODEL {
 	/**
 	 *
 	 */
-	public function copy($creater, $src, $target = 0) {
+	public function copy($creater, $src, $target = 0, $site = '') {
+		$this->setOnlyWriteDbConn(true);
 		$page = $this->byId($src);
 		if ($target === 0) {
-			$newone = $this->create($creater);
+			$newone = $this->create($site, $creater);
 			$target = $newone->id;
 			$this->delete('xxt_code_external', "code_id=$target");
 		}
@@ -214,7 +215,9 @@ class page_model extends \TMS_MODEL {
 			}
 		}
 
-		return $target;
+		$code = $this->byId($target);
+
+		return $code;
 	}
 	/**
 	 *

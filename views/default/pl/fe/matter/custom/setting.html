@@ -32,8 +32,8 @@
     <div class='tile'>
         <div class='form-group'>
             <button class='btn btn-success' ng-click='gotoCode()'>编辑页面</button>
-            <button class='btn btn-success' ng-click='selectTemplate()'>选择模板</button>
-            <button class='btn btn-success' ng-click='saveAsTemplate()'>作为模板</button>
+            <!-- <button class='btn btn-success' ng-click='selectTemplate()'>选择模板</button>
+            <button class='btn btn-success' ng-click='saveAsTemplate()'>作为模板</button> -->
         </div>
     </div>
 </div>
@@ -71,7 +71,7 @@
         </div>
     </div>
     <div class='tile'>
-        <div class='form-group' ng-controller='ctrlSetChannel' ng-init="matterType='article';matterObj='editing'">
+        <div class='form-group' ng-controller='ctrlSetChannel' ng-init="matterType='custom';matterObj='editing'">
             <combox evt-prefix='channel' readonly=true prop='title' existing='editing.channels' options='channels'></combox>
             <div class='help-block'>频道（可选）</div>
         </div>

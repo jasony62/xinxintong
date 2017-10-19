@@ -323,14 +323,11 @@ class main extends \pl\fe\matter\base {
 
 		$modelPage = $this->model('code\page');
 		$page = $modelPage->copy($oUser->id, $copied->page_id, $target->page_id);
-		$pageid = $page->id;
 
 		if ($target->page_id === 0) {
-			$this->_update($id, ['page_id' => $pageid]);
+			$this->_update($id, ['page_id' => $page->id, 'body_page_name' => $page->name]);
 		}
 
-		$oTargetPage = $modelPage->byId($pageid);
-
-		return new \ResponseData($oTargetPage);
+		return new \ResponseData($page);
 	}
 }

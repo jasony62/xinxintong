@@ -241,7 +241,7 @@ class main extends \pl\fe\matter\base {
 				if (isset($oAppProto->signin->enrollApp) && $oAppProto->signin->enrollApp === 'Y' && isset($oNewEnlApp)) {
 					$oSigConfig->proto->enrollApp = $oNewEnlApp;
 				}
-				$oNewSigApp = $modelSig->createByMission($oUser, $oSite, $oNewMis, 'basic', $oSigConfig);
+				$oNewSigApp = $modelSig->createByTemplate($oUser, $oSite, $oSigConfig, $oNewMis, 'basic');
 			}
 			if (isset($oAppProto->group->create) && $oAppProto->group->create === 'Y') {
 				/* 在项目下创建分组活动 */

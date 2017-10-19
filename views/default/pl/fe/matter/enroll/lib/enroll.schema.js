@@ -443,7 +443,7 @@ define(['require', 'schema', 'wrap'], function(require, schemaLib, wrapLib) {
     /**
      * 单个题目
      */
-    ngMod.controller('ctrlSchemaEdit', ['$scope', 'srvEnrollPage', function($scope, srvEnrollPage) {
+    ngMod.controller('ctrlSchemaEdit', ['$scope', function($scope) {
         var editing;
 
         $scope.editing = editing = {};
@@ -455,13 +455,6 @@ define(['require', 'schema', 'wrap'], function(require, schemaLib, wrapLib) {
                 return $scope.app.groupApp.title;
             } else {
                 return '';
-            }
-        };
-        $scope.updConfig = function(prop) {
-            var oInputPage;
-            if (oInputPage = $scope.inputPage) {
-                oInputPage.updateSchema($scope.activeSchema);
-                srvEnrollPage.update(oInputPage, ['data_schemas', 'html']);
             }
         };
         $scope.changeSchemaType = function() {

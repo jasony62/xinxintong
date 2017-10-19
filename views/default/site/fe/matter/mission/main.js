@@ -78,13 +78,13 @@ require(['matterService'], function() {
                         }
                     }
                 });
-                orderedTimes.sort();
+                orderedTimes.sort(function(a, b) { return b - a; });
                 $scope.currentTime = parseInt((new Date * 1) / 1000);
                 $scope.times = orderedTimes;
                 $scope.matters = mattersByTime;
             });
         }
-        
+
         var _oMission, _oCriteria;
         $scope.siteid = siteId;
         $scope.criteria = _oCriteria = {};

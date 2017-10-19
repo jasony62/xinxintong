@@ -73,6 +73,19 @@ class site_model extends \TMS_MODEL {
 		return $sites;
 	}
 	/**
+	 * 指定用户是否为团队的管理员
+	 */
+	public function isAdmin($siteId, $userId) {
+		$q = [
+			'1',
+			'xxt_site_admin',
+			['siteid' => $siteId, 'uid' => $userId],
+		];
+		$admins = $this->query_objs_ss($q);
+
+		return !empty($admins);
+	}
+	/**
 	 * 团队是否已经被指定用户关注
 	 */
 	public function isSubscribed($unionid, $siteid) {

@@ -1503,39 +1503,42 @@ class main extends \pl\fe\matter\main_base {
 			return new \ResponseTimeout();
 		}
 		$modelApp = $this->model('matter\enroll');
-		$oApp = $modelApp->byId($app, 'id,scenario,title,summary,pic,mission_id,creater');
+		$oApp = $modelApp->byId($app, 'id,siteid,scenario,title,summary,pic,mission_id,creater');
 		if ($oApp === false) {
 			return new \ObjectNotFoundError();
 		}
 		if ($oApp->creater !== $oUser->id) {
-			return new \ResponseError('没有删除数据的权限');
-		}
-		/* check */
-		$q = [
-			'count(*)',
-			'xxt_enroll_record',
-			['aid' => $oApp->id],
-		];
-		if ((int) $modelApp->query_val_ss($q) > 0) {
+			if (!$this->model('site')->isAdmin($oApp->siteid, $oUser->id)) {
+				return new \ResponseError('没有删除数据的权限');
+			}
 			$rst = $modelApp->remove($oUser, $oApp, 'Recycle');
 		} else {
-			$modelApp->delete(
-				'xxt_enroll_receiver',
-				["aid" => $oApp->id]
-			);
-			$modelApp->delete(
-				'xxt_enroll_round',
-				["aid" => $oApp->id]
-			);
-			$modelApp->delete(
-				'xxt_code_page',
-				"id in (select code_id from xxt_enroll_page where aid='" . $modelApp->escape($oApp->id) . "')"
-			);
-			$modelApp->delete(
-				'xxt_enroll_page',
-				["aid" => $oApp->id]
-			);
-			$rst = $modelApp->remove($oUser, $oApp, 'D');
+			$q = [
+				'count(*)',
+				'xxt_enroll_record',
+				['aid' => $oApp->id],
+			];
+			if ((int) $modelApp->query_val_ss($q) > 0) {
+				$rst = $modelApp->remove($oUser, $oApp, 'Recycle');
+			} else {
+				$modelApp->delete(
+					'xxt_enroll_receiver',
+					["aid" => $oApp->id]
+				);
+				$modelApp->delete(
+					'xxt_enroll_round',
+					["aid" => $oApp->id]
+				);
+				$modelApp->delete(
+					'xxt_code_page',
+					"id in (select code_id from xxt_enroll_page where aid='" . $modelApp->escape($oApp->id) . "')"
+				);
+				$modelApp->delete(
+					'xxt_enroll_page',
+					["aid" => $oApp->id]
+				);
+				$rst = $modelApp->remove($oUser, $oApp, 'D');
+			}
 		}
 
 		return new \ResponseData($rst);

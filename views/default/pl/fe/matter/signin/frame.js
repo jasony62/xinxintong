@@ -36,6 +36,10 @@ define(['require', 'page', 'schema', 'signinService', 'enrollSchema', 'enrollPag
             title: '频道',
             url: '/rest/pl/fe/matter'
         }],
+        alertMsg: {
+            'schema.duplicated': '不允许重复添加登记项',
+            'require.mission.phase': '请先指定项目的阶段'
+        },
         naming: { 'mission_phase': '项目阶段' }
     });
     ngApp.config(['$controllerProvider', '$routeProvider', '$locationProvider', '$compileProvider', '$uibTooltipProvider', 'srvSiteProvider', 'srvQuickEntryProvider', 'srvSigninAppProvider', 'srvSigninRoundProvider', 'srvSigninPageProvider', 'srvSigninRecordProvider', 'srvTagProvider', function($controllerProvider, $routeProvider, $locationProvider, $compileProvider, $uibTooltipProvider, srvSiteProvider, srvQuickEntryProvider, srvSigninAppProvider, srvSigninRoundProvider, srvSigninPageProvider, srvSigninRecordProvider, srvTagProvider) {

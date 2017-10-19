@@ -125,31 +125,27 @@ ngApp.controller('ctrlSetting', ['$scope', 'http2', 'mediagallery', 'templateSho
         }
     };
     $scope.selectTemplate = function() {
-        window.alert('正在建设中……');
-        return;
-        // templateShop.choose('custom').then(function(data) {
-        //     http2.get('/rest/pl/fe/matter/custom/pageByTemplate?id=' + $scope.editing.id + '&template=' + data.id, function(rsp) {
-        //         $scope.editing.page_id = rsp.data.id;
-        //         $scope.editing.body_page_name = rsp.data.name;
-        //         location.href = '/rest/pl/fe/code?site=' + $scope.siteId + '&name=' + $scope.editing.body_page_name;
-        //     });
-        // });
+        templateShop.choose('custom').then(function(data) {
+            http2.get('/rest/pl/fe/matter/custom/pageByTemplate?id=' + $scope.editing.id + '&template=' + data.id, function(rsp) {
+                $scope.editing.page_id = rsp.data.id;
+                $scope.editing.body_page_name = rsp.data.name;
+                location.href = '/rest/pl/fe/code?site=' + $scope.siteId + '&name=' + $scope.editing.body_page_name;
+            });
+        });
     };
     $scope.saveAsTemplate = function() {
-        window.alert('正在建设中……');
-        return;
-        // var matter, editing;
-        // editing = $scope.editing;
-        // matter = {
-        //     id: editing.id,
-        //     type: 'custom',
-        //     title: editing.title,
-        //     pic: editing.pic,
-        //     summary: editing.summary
-        // };
-        // templateShop.share($scope.siteId, matter).then(function() {
-        //     $scope.$root.infomsg = '成功';
-        // });
+        var matter, editing;
+        editing = $scope.editing;
+        matter = {
+            id: editing.id,
+            type: 'custom',
+            title: editing.title,
+            pic: editing.pic,
+            summary: editing.summary
+        };
+        templateShop.share($scope.siteId, matter).then(function() {
+            $scope.$root.infomsg = '成功';
+        });
     };
     $scope.tagMatter = function(subType){
         var oTags;

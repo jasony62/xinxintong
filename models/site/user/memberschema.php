@@ -7,7 +7,7 @@ class memberschema_model extends \TMS_MODEL {
 	/**
 	 *
 	 */
-	private function &_queryBy($where, $fields = '*') {
+	private function &_queryBy($where, $fields = '*', $cascaded = 'Y') {
 		$q = [
 			$fields,
 			'xxt_site_member_schema',
@@ -17,41 +17,55 @@ class memberschema_model extends \TMS_MODEL {
 		$schemas = $this->query_objs_ss($q);
 		if (count($schemas)) {
 			//$modelCp = $this->model('code\page');
-			foreach ($schemas as &$schema) {
-				if ($schema->type === 'inner') {
-					if (isset($schema->siteid) && isset($schema->id)) {
-						$schema->fullUrl = 'http://' . APP_HTTP_HOST . $schema->url . '?site=' . $schema->siteid . '&schema=' . $schema->id;
+			foreach ($schemas as $oSchema) {
+				$oAttrs = new \stdClass;
+				foreach (['name', 'mobile', 'email'] as $prop) {
+					if (isset($oSchema->{'attr_' . $prop})) {
+						$oProp = new \stdClass;
+						$oProp->hide = $oSchema->{'attr_' . $prop}[0] === '1';
+						$oProp->required = $oSchema->{'attr_' . $prop}[1] === '1';
+						$oProp->unique = $oSchema->{'attr_' . $prop}[2] === '1';
+						$oProp->identity = $oSchema->{'attr_' . $prop}[5] === '1';
+						$oAttrs->{$prop} = $oProp;
 					}
 				}
-				if (!empty($schema->extattr)) {
-					$schema->extattr = json_decode($schema->extattr);
+				$oSchema->attrs = $oAttrs;
+				if (isset($oSchema->type) && $oSchema->type === 'inner') {
+					if (isset($oSchema->siteid) && isset($oSchema->id)) {
+						$oSchema->fullUrl = 'http://' . APP_HTTP_HOST . $oSchema->url . '?site=' . $oSchema->siteid . '&schema=' . $oSchema->id;
+					}
 				}
-				// if (!empty($schema->page_code_name)) {
+				if (isset($oSchema->extattr) && !empty($oSchema->extattr)) {
+					$oSchema->extattr = json_decode($oSchema->extattr);
+				}
+				// if (!empty($oSchema->page_code_name)) {
 				// 	$page = $modelCp->lastPublishedByName(
-				// 		$schema->siteid,
-				// 		$schema->page_code_name,
+				// 		$oSchema->siteid,
+				// 		$oSchema->page_code_name,
 				// 		['fields' => 'id,html,css,js']
 				// 	);
-				// 	$schema->page = $page;
+				// 	$oSchema->page = $page;
 				// }
-				$oPage = new \stdClass;
-				$templateDir = TMS_APP_TEMPLATE . '/pl/fe/site/memberschema';
-				if (file_exists($templateDir . '/basic.html')) {
-					$oPage->html = file_get_contents($templateDir . '/basic.html');
-				} else {
-					$oPage->html = file_get_contents(TMS_APP_TEMPLATE_DEFAULT . '/pl/fe/site/memberschema/basic.html');
+				if ($cascaded === 'Y') {
+					$oPage = new \stdClass;
+					$templateDir = TMS_APP_TEMPLATE . '/pl/fe/site/memberschema';
+					if (file_exists($templateDir . '/basic.html')) {
+						$oPage->html = file_get_contents($templateDir . '/basic.html');
+					} else {
+						$oPage->html = file_get_contents(TMS_APP_TEMPLATE_DEFAULT . '/pl/fe/site/memberschema/basic.html');
+					}
+					if (file_exists($templateDir . '/basic.css')) {
+						$oPage->css = file_get_contents($templateDir . '/basic.css');
+					} else {
+						$oPage->css = file_get_contents(TMS_APP_TEMPLATE_DEFAULT . '/pl/fe/site/memberschema/basic.css');
+					}
+					if (file_exists($templateDir . '/basic.js')) {
+						$oPage->js = file_get_contents($templateDir . '/basic.js');
+					} else {
+						$oPage->js = file_get_contents(TMS_APP_TEMPLATE_DEFAULT . '/pl/fe/site/memberschema/basic.js');
+					}
+					$oSchema->page = $oPage;
 				}
-				if (file_exists($templateDir . '/basic.css')) {
-					$oPage->css = file_get_contents($templateDir . '/basic.css');
-				} else {
-					$oPage->css = file_get_contents(TMS_APP_TEMPLATE_DEFAULT . '/pl/fe/site/memberschema/basic.css');
-				}
-				if (file_exists($templateDir . '/basic.js')) {
-					$oPage->js = file_get_contents($templateDir . '/basic.js');
-				} else {
-					$oPage->js = file_get_contents(TMS_APP_TEMPLATE_DEFAULT . '/pl/fe/site/memberschema/basic.js');
-				}
-				$schema->page = $oPage;
 			}
 		}
 
@@ -76,9 +90,11 @@ class memberschema_model extends \TMS_MODEL {
 	/**
 	 * 自定义用户信息
 	 */
-	public function &byId($id, $fields = '*') {
-		$id = $this->escape($id);
-		$oMschema = $this->_queryBy("id='$id'");
+	public function &byId($id, $aOptions = []) {
+		$fields = isset($aOptions['fields']) ? $aOptions['fields'] : '*';
+		$cascaded = isset($aOptions['cascaded']) ? $aOptions['cascaded'] : 'Y';
+
+		$oMschema = $this->_queryBy("id='$id'", $fields, $cascaded);
 
 		$oMschema = count($oMschema) === 1 ? $oMschema[0] : false;
 

@@ -529,7 +529,7 @@ class record extends base {
 	 */
 	private function _submitMember($siteId, &$member, &$user) {
 		$schemaId = $member->schema_id;
-		$oMschema = $this->model('site\user\memberschema')->byId($schemaId, 'siteid,id,title,auto_verified,attr_mobile,attr_email,attr_name,extattr');
+		$oMschema = $this->model('site\user\memberschema')->byId($schemaId, ['fields' => 'siteid,id,title,auto_verified,attr_mobile,attr_email,attr_name,extattr']);
 		$modelMem = $this->model('site\user\member');
 
 		$existentMember = $modelMem->byUser($user->uid, ['schemas' => $schemaId]);

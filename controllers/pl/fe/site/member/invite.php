@@ -14,7 +14,7 @@ class invite extends \pl\fe\base {
 			return new \ResponseTimeout();
 		}
 
-		$oSchema = $this->model('site\user\memberschema')->byId($schema, 'id,siteid');
+		$oSchema = $this->model('site\user\memberschema')->byId($schema, ['fields' => 'id,siteid']);
 		if (false === $oSchema) {
 			return new \ObjectNotFoundError();
 		}
@@ -30,7 +30,7 @@ class invite extends \pl\fe\base {
 		if (false === ($oUser = $this->accountUser())) {
 			return new \ResponseTimeout();
 		}
-		$oSchema = $this->model('site\user\memberschema')->byId($schema, 'id,siteid');
+		$oSchema = $this->model('site\user\memberschema')->byId($schema, ['fields' => 'id,siteid']);
 		if (false === $oSchema) {
 			return new \ObjectNotFoundError();
 		}

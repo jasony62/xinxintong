@@ -33,7 +33,7 @@ class base extends \site\fe\base {
 		 * 如果不是注册用户，要求先进行认证
 		 */
 		if (count($aMemberSchemas) === 1) {
-			$schema = $this->model('site\user\memberschema')->byId($aMemberSchemas[0], 'id,url');
+			$schema = $this->model('site\user\memberschema')->byId($aMemberSchemas[0], ['fields' => 'id,url']);
 			strpos($schema->url, 'http') === false && $authUrl = 'http://' . APP_HTTP_HOST;
 			$authUrl .= $schema->url;
 			$authUrl .= "?site=$siteId";

@@ -152,19 +152,6 @@
                                                     </div>
                                                 </div>
                                             </div>
-                                            <div class='form-group' ng-if="!proto.enrollApp">
-                                                <button class='btn btn-default btn-block' ng-disabled="!proto.mission" ng-click="assignEnrollApp()">指定登记匹配名单 <span class='glyphicon glyphicon-question-sign' uib-tooltip='指定同一个项目的登记活动后，用户填写数据时需要提供和登记活动中匹配信息'></span></button>
-                                            </div>
-                                            <div class='form-group' ng-if="proto.enrollApp">
-                                                <div class="input-group">
-                                                    <input class='form-control' value="{{proto.enrollApp.title}}" title="{{result.proto.enrollApp.title}}" readonly>
-                                                    <div class="input-group-btn">
-                                                        <button class="btn btn-default" ng-click="proto.enrollApp=null">
-                                                            <span class='glyphicon glyphicon-remove'></span>
-                                                        </button>
-                                                    </div>
-                                                </div>
-                                            </div>
                                         </div>
                                     </div>
                                     <hr>

@@ -406,6 +406,38 @@ define(['require', 'schema', 'wrap'], function(require, schemaLib, wrapLib) {
             schema.ops.splice(schema.ops.indexOf(op), 1);
             $scope.updSchema(schema);
         };
+        $scope.refreshSchema = function(oSchema) {
+            var oApp;
+            oApp = $scope.app;
+            if (oSchema.id === '_round_id' && oApp.groupApp) {
+                http2.get('/rest/pl/fe/matter/group/round/list?site=' + oApp.siteid + '&app=' + oApp.groupApp.id, function(rsp) {
+                    var newOp, opById;
+                    if (rsp.data.length) {
+                        opById = {};
+                        if (oSchema.ops === undefined) {
+                            oSchema.ops = [];
+                        } else {
+                            oSchema.ops.forEach(function(op) {
+                                opById[op.v] = op;
+                            });
+                        }
+                        rsp.data.forEach(function(oRound) {
+                            if (undefined === opById[oRound.round_id]) {
+                                newOp = {};
+                                newOp.l = oRound.title;
+                                newOp.v = oRound.round_id;
+                                oSchema.ops.push(newOp);
+                            }
+                        });
+                        if (newOp) {
+                            $scope.updSchema(oSchema);
+                        }
+                    }
+                });
+            } else if (oSchema.type === 'phase') {
+
+            }
+        };
         $scope.$on('title.xxt.editable.changed', function(e, schema) {
             $scope.updSchema(schema);
         });

@@ -535,10 +535,13 @@ class signin_model extends app_base {
 		$oEntryRule = $oTemplateConfig->entryRule;
 		if (!empty($oCustomConfig->proto->entryRule->scope)) {
 			/* 用户指定的规则 */
-			$this->_setEntryRuleByProto($oEntryRule, $oCustomConfig->proto->entryRule);
+			$this->_setEntryRuleByProto($oSite, $oEntryRule, $oCustomConfig->proto->entryRule);
 		} else if (isset($oMisEntryRule)) {
 			/* 项目的进入规则 */
 			$this->_setEntryRuleByMission($oEntryRule, $oMisEntryRule);
+		}
+		if (!isset($oEntryRule->scope)) {
+			$oEntryRule->scope = 'none';
 		}
 		$oNewApp->entry_rule = $this->toJson($oEntryRule);
 
@@ -586,11 +589,11 @@ class signin_model extends app_base {
 		$oTemplateConfig = preg_replace('/\t|\r|\n/', '', $oTemplateConfig);
 		$oTemplateConfig = json_decode($oTemplateConfig);
 		if (JSON_ERROR_NONE !== json_last_error()) {
-			return new \ResponseError('解析模板数据错误：' . json_last_error_msg());
+			//return new \ResponseError('解析模板数据错误：' . json_last_error_msg());
 		}
 		/* 进入规则 */
 		if (empty($oTemplateConfig->entryRule)) {
-			return new \ResponseError('没有获得页面进入规则');
+			//return new \ResponseError('没有获得页面进入规则');
 		}
 		/**
 		 * 处理页面
@@ -613,7 +616,7 @@ class signin_model extends app_base {
 	/**
 	 * 根据用户指定的规则设置
 	 */
-	private function _setEntryRuleByProto(&$oEntryRule, $oProtoEntryRule) {
+	private function _setEntryRuleByProto($oSite, &$oEntryRule, $oProtoEntryRule) {
 		$oEntryRule->scope = $oProtoEntryRule->scope;
 		switch ($oEntryRule->scope) {
 		case 'member':

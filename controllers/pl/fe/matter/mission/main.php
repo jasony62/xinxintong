@@ -151,7 +151,6 @@ class main extends \pl\fe\matter\base {
 		}
 
 		$oProto = $this->getPostJson();
-
 		$current = time();
 		$modelMis = $this->model('matter\mission')->setOnlyWriteDbConn(true);
 
@@ -259,7 +258,8 @@ class main extends \pl\fe\matter\base {
 						$oGrpConfig->proto->sourceApp = (object) ['id' => $oProto->entryRule->mschema->id, 'type' => 'mschema'];
 					}
 				}
-				$oNewGrpApp = $modelGrp->createByMission($oUser, $oSite, $oNewMis, 'split', $oGrpConfig);
+				//$oNewGrpApp = $modelGrp->createByMission($oUser, $oSite, $oNewMis, 'split', $oGrpConfig);
+				$oNewGrpApp = $modelGrp->createByConfig($oUser, $oSite, $oGrpConfig, $oNewMis, 'split');
 			}
 			/* 项目的用户名单应用 */
 			if (isset($oProto->userApp)) {

@@ -535,18 +535,18 @@ class enroll_model extends app_base {
 				} else {
 					$modelWx = $this->model('sns\wx');
 					$wxOptions = ['fields' => 'joined'];
-					if (($wx = $modelWx->bySite($site, $wxOptions)) && $wx->joined === 'Y') {
+					if (($wx = $modelWx->bySite($oSite->id, $wxOptions)) && $wx->joined === 'Y') {
 						$oSns->wx = $oRule;
 					} else if (($wx = $modelWx->bySite('platform', $wxOptions)) && $wx->joined === 'Y') {
 						$oSns->wx = $oRule;
 					}
 					$yxOptions = ['fields' => 'joined'];
-					if ($yx = $this->model('sns\yx')->bySite($site, $yxOptions)) {
+					if ($yx = $this->model('sns\yx')->bySite($oSite->id, $yxOptions)) {
 						if ($yx->joined === 'Y') {
 							$oSns->yx = $oRule;
 						}
 					}
-					if ($qy = $this->model('sns\qy')->bySite($site, ['fields' => 'joined'])) {
+					if ($qy = $this->model('sns\qy')->bySite($oSite->id, ['fields' => 'joined'])) {
 						if ($qy->joined === 'Y') {
 							$oSns->qy = $oRule;
 						}
@@ -840,8 +840,8 @@ class enroll_model extends app_base {
 				}
 			}
 			$pageSchemas = [];
-			$pageSchemas['data_schemas'] = isset($page->data_schemas) ? \TMS_MODEL::toJson($page->data_schemas) : '[]';
-			$pageSchemas['act_schemas'] = isset($page->act_schemas) ? \TMS_MODEL::toJson($page->act_schemas) : '[]';
+			$pageSchemas['data_schemas'] = isset($page->data_schemas) ? $this->toJson($page->data_schemas) : '[]';
+			$pageSchemas['act_schemas'] = isset($page->act_schemas) ? $this->toJson($page->act_schemas) : '[]';
 			$rst = $modelPage->update(
 				'xxt_enroll_page',
 				$pageSchemas,

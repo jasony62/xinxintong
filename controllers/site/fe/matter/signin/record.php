@@ -67,13 +67,13 @@ class record extends base {
 		/**
 		 * 包含用户身份信息
 		 */
-		if (isset($oSigninData->member) && isset($oSigninData->member->schema_id)) {
-			$member = clone $oSigninData->member;
-			$rst = $this->_submitMember($site, $member, $oUser);
-			if ($rst[0] === false) {
-				return new \ParameterError($rst[1]);
-			}
-		}
+		// if (isset($oSigninData->member) && isset($oSigninData->member->schema_id)) {
+		// 	$oMember = clone $oSigninData->member;
+		// 	$rst = $this->_submitMember($site, $oMember, $oUser);
+		// 	if ($rst[0] === false) {
+		// 		return new \ParameterError($rst[1]);
+		// 	}
+		// }
 		/**
 		 * 检查是否存在匹配的分组记录
 		 */
@@ -311,22 +311,22 @@ class record extends base {
 	/**
 	 * 提交信息中包含的自定义用户信息
 	 */
-	private function _submitMember($siteId, &$member, &$user) {
-		$schemaId = $member->schema_id;
+	private function _submitMember($siteId, $oSubmitMember, $oUser) {
+		$schemaId = $oSubmitMember->schema_id;
 		$oMschema = $this->model('site\user\memberschema')->byId($schemaId, ['fields' => 'siteid,id,title,auto_verified,attr_mobile,attr_email,attr_name,extattr']);
 		$modelMem = $this->model('site\user\member');
 
-		$existentMember = $modelMem->byUser($user->uid, array('schemas' => $schemaId));
+		$existentMember = $modelMem->byUser($oUser->uid, ['schemas' => $schemaId]);
 		if (count($existentMember)) {
 			$memberId = $existentMember[0]->id;
-			$member->id = $memberId;
-			$member->verified = $existentMember[0]->verified;
-			$member->identity = $existentMember[0]->identity;
-			$rst = $modelMem->modify($oMschema, $memberId, $member);
+			$oSubmitMember->id = $memberId;
+			$oSubmitMember->verified = $existentMember[0]->verified;
+			$oSubmitMember->identity = $existentMember[0]->identity;
+			$rst = $modelMem->modify($oMschema, $memberId, $oSubmitMember);
 		} else {
-			$rst = $modelMem->createByApp($oMschema, $user->uid, $member);
+			$rst = $modelMem->createByApp($oMschema, $oUser->uid, $oSubmitMember);
 		}
-		$member->schema_id = $schemaId;
+		$oSubmitMember->schema_id = $schemaId;
 
 		return $rst;
 	}

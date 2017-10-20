@@ -62,7 +62,7 @@
             <div class='form-group' ng-if="app.group_app_id">
                 <button class='btn btn-default' ng-click="newByOtherApp(s,app.groupApp)" ng-repeat="s in app.groupApp.dataSchemas">{{s.title}}</button>
             </div>
-            <div ng-if="app.group_app_id" class='help-block'>需要和［<span>{{app.groupApp.title}}</span>］的分组内容匹配的题目</div>
+            <div ng-if="app.group_app_id" class='help-block'>需要和［<a href='/rest/pl/fe/matter/group?site={{app.siteid}}&id={{app.groupApp.id}}' target='_self'>{{app.groupApp.title}}</a>］的分组内容匹配的题目</div>
         </div>
         <!-- end create schema -->
     </div>

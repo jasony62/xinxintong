@@ -435,35 +435,38 @@ class main extends \pl\fe\matter\main_base {
 			return new \ObjectNotFoundError();
 		}
 		if ($oApp->creater !== $oUser->id) {
-			return new \ResponseError('没有删除数据的权限');
-		}
-
-		/* check */
-		$q = [
-			'count(*)',
-			'xxt_signin_record',
-			["aid" => $oApp->id],
-		];
-		if ((int) $modelSig->query_val_ss($q) > 0) {
-			$rst = $modelSig->remove($oUser, $oApp, 'Recycle');
+			if (!$this->model('site')->isAdmin($oApp->siteid, $oUser->id)) {
+				return new \ResponseError('没有删除数据的权限');
+			}
+			$rst = $modelApp->remove($oUser, $oApp, 'Recycle');
 		} else {
-			$modelSig->delete(
-				'xxt_signin_log',
-				["aid" => $oApp->id]
-			);
-			$modelSig->delete(
-				'xxt_signin_round',
-				["aid" => $oApp->id]
-			);
-			$modelSig->delete(
-				'xxt_code_page',
-				"id in (select code_id from xxt_signin_page where aid='" . $modelSig->escape($oApp->id) . "')"
-			);
-			$modelSig->delete(
-				'xxt_signin_page',
-				["aid" => $oApp->id]
-			);
-			$rst = $modelSig->remove($oUser, $oApp, 'D');
+
+			$q = [
+				'count(*)',
+				'xxt_signin_record',
+				["aid" => $oApp->id],
+			];
+			if ((int) $modelSig->query_val_ss($q) > 0) {
+				$rst = $modelSig->remove($oUser, $oApp, 'Recycle');
+			} else {
+				$modelSig->delete(
+					'xxt_signin_log',
+					["aid" => $oApp->id]
+				);
+				$modelSig->delete(
+					'xxt_signin_round',
+					["aid" => $oApp->id]
+				);
+				$modelSig->delete(
+					'xxt_code_page',
+					"id in (select code_id from xxt_signin_page where aid='" . $modelSig->escape($oApp->id) . "')"
+				);
+				$modelSig->delete(
+					'xxt_signin_page',
+					["aid" => $oApp->id]
+				);
+				$rst = $modelSig->remove($oUser, $oApp, 'D');
+			}
 		}
 
 		return new \ResponseData($rst);

@@ -194,13 +194,13 @@ class record extends base {
 		/**
 		 * 提交用户身份信息
 		 */
-		if (isset($enrolledData->member) && isset($enrolledData->member->schema_id)) {
-			$member = clone $enrolledData->member;
-			$rst = $this->_submitMember($site, $member, $oUser);
-			if ($rst[0] === false) {
-				return new \ParameterError($rst[1]);
-			}
-		}
+		// if (isset($enrolledData->member) && isset($enrolledData->member->schema_id)) {
+		// 	$member = clone $enrolledData->member;
+		// 	$rst = $this->_submitMember($site, $member, $oUser);
+		// 	if ($rst[0] === false) {
+		// 		return new \ParameterError($rst[1]);
+		// 	}
+		// }
 		/**
 		 * 提交登记数据
 		 */

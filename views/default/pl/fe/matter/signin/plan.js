@@ -42,7 +42,9 @@ define(['require'], function(require) {
                             oMschemasById[mschema.id] = mschema;
                         });
                         Object.keys(oMission.entry_rule.member).forEach(function(mschemaId) {
-                            _oEntryRule.mschemas.push({ id: mschemaId, title: oMschemasById[mschemaId].title });
+                            if (oMschemasById[mschemaId]) {
+                                _oEntryRule.mschemas.push({ id: mschemaId, title: oMschemasById[mschemaId].title });
+                            }
                         });
                     });
                 } else if ('sns' === oMission.entry_rule.scope) {

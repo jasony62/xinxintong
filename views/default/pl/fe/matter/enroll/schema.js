@@ -21,11 +21,10 @@ define(['frame', 'schema', 'wrap'], function(ngApp, schemaLib, wrapLib) {
                             break;
                         }
                         if (oSchema.title.indexOf('姓名') !== -1) {
-                            if (oNicknameSchema && oSchema.length < oNicknameSchema.length) {
+                            if (!oNicknameSchema || oSchema.title.length < oNicknameSchema.title.length) {
                                 oNicknameSchema = oSchema;
                             }
-                        }
-                        if (oSchema.format && oSchema.format === 'name') {
+                        } else if (oSchema.format && oSchema.format === 'name') {
                             oNicknameSchema = oSchema;
                         }
                     }

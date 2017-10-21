@@ -1,7 +1,11 @@
 <?php
 namespace matter\enroll;
 
-class page_model extends \TMS_MODEL {
+require_once dirname(__FILE__) . '/page_base.php';
+/**
+ *
+ */
+class page_model extends page_base {
 	/**
 	 *
 	 */

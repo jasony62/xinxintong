@@ -58,9 +58,9 @@
                         </th>
                         <th style='width:100px' ng-if="bRequireNickname">昵称</th>
                         <th style='width:100px'>登记时间</th>
-                        <th class='signin' ng-repeat="c in recordSchemas" ng-class="{'nickname':schema.id===app.assignedNickname.schema.id}">{{c.title}}</th>
-                        <th class='enroll' ng-repeat="c in enrollDataSchemas" ng-class="{'nickname':schema.id===app.assignedNickname.schema.id}">{{c.title}}</th>
-                        <th class='group' ng-repeat="c in groupDataSchemas" ng-class="{'nickname':schema.id===app.assignedNickname.schema.id}">{{c.title}}</th>
+                        <th class='signin' ng-repeat="c in recordSchemas" ng-class="{'nickname':c.id===app.assignedNickname.schema.id}">{{c.title}}</th>
+                        <th class='enroll' ng-repeat="c in enrollDataSchemas" ng-class="{'nickname':c.id===app.assignedNickname.schema.id}">{{c.title}}</th>
+                        <th class='group' ng-repeat="c in groupDataSchemas" ng-class="{'nickname':c.id===app.assignedNickname.schema.id}">{{c.title}}</th>
                         <th style='width:75px'>验证通过</th>
                         <th ng-if="page.byRound" style='width:100px'>签到时间</th>
                         <th ng-if="!page.byRound" style='width:75px'>签到次数</th>

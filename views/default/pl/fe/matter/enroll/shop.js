@@ -16,6 +16,9 @@ define(['require'], function(require) {
         $scope.switchSource = function(source) {
             $scope.source = source;
         };
+        srvSite.get().then(function(oSite) {
+            $scope.site = oSite;
+        });
         if (missionId) {
             http2.get('/rest/pl/fe/matter/mission/get?site=' + siteId + '&id=' + missionId, function(rsp) {
                 $scope.mission = rsp.data;
@@ -220,9 +223,6 @@ define(['require'], function(require) {
                 _oResult.scenario = oScenarioes.common;
                 $scope.chooseScenario();
             }
-        });
-        srvSite.get().then(function(oSite) {
-            $scope.site = oSite;
         });
         srvSite.snsList().then(function(oSns) {
             $scope.sns = oSns;

@@ -21,7 +21,7 @@ define(['frame'], function(ngApp) {
                     if ($scope.app.mission) {
                         location = "/rest/pl/fe/matter/mission?site=" + $scope.app.siteid + "&id=" + $scope.app.mission.id;
                     } else {
-                        location = '/rest/pl/fe/site/console?site=' + $scope.app.siteid;
+                        location = '/rest/pl/fe?view=main&scope=activity&type=enroll&sid=' + $scope.app.siteid;
                     }
                 });
             }

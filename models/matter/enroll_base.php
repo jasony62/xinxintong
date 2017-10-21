@@ -244,7 +244,7 @@ abstract class enroll_base extends app_base {
 	/**
 	 * 查找能用作记录昵称的题目
 	 */
-	protected function findAssignedNicknameSchema($schemas) {
+	public function findAssignedNicknameSchema($schemas) {
 		$oNicknameSchema = null;
 		foreach ($schemas as $oSchema) {
 			if (isset($oSchema->required) && $oSchema->required === 'Y') {
@@ -265,5 +265,56 @@ abstract class enroll_base extends app_base {
 		}
 
 		return $oNicknameSchema;
+	}
+	/**
+	 * 获得进入规则中指定的通讯录
+	 */
+	public function getEntryMemberSchema($oEntryRule) {
+		$aMatterMschemas = [];
+		if (isset($oEntryRule->member)) {
+			$modelMsc = $this->model('site\user\memberschema');
+			foreach (array_keys((array) $oEntryRule->member) as $mschemaId) {
+				$oMschema = $modelMsc->byId($mschemaId, ['cascaded' => 'N']);
+				if (!empty($oMschema->matter_type)) {
+					$aMatterMschemas[] = $oMschema;
+				}
+			}
+		}
+
+		return $aMatterMschemas;
+	}
+	/**
+	 * 替换应用中的通讯录题型
+	 */
+	public function replaceMemberSchema(&$aDataSchemas, $oMschema) {
+		foreach ($aDataSchemas as $oSchema) {
+			/* 和通讯录解除关联 */
+			if ($oSchema->type === 'member' && $oSchema->schema_id === $oMschema->id) {
+				$oSchema->type = 'shorttext';
+				$oSchema->id = str_replace('member.', '', $oSchema->id);
+				if (in_array($oSchema->id, ['name', 'mobile', 'email'])) {
+					$oSchema->format = $oSchema->id;
+				} else {
+					$oSchema->format = '';
+				}
+				unset($oSchema->schema_id);
+			}
+		}
+
+		return [true];
+	}
+	/**
+	 * 替换应用中的关联登记或分组活动题型
+	 */
+	public function replaceAssocSchema(&$aDataSchemas, $aAssocAppIds) {
+		foreach ($aDataSchemas as $oSchema) {
+			/* 和分组活动解除关联 */
+			if (isset($oSchema->fromApp) && in_array($oSchema->fromApp, $aAssocAppIds)) {
+				unset($oSchema->fromApp);
+				unset($oSchema->requieCheck);
+			}
+		}
+
+		return [true];
 	}
 }

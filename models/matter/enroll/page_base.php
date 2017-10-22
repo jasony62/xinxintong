@@ -7,6 +7,28 @@ use Sunra\PhpSimple\HtmlDomParser;
 
 abstract class page_base extends \TMS_MODEL {
 	/**
+	 *
+	 */
+	public function modify($oNewPage, $aProps) {
+		$aUpdated = [];
+		if (in_array('html', $aProps)) {
+			/* 更新页面内容 */
+			$data = [
+				'html' => $oNewPage->html,
+			];
+			$modelCode = $this->model('code\page');
+			$oCode = $modelCode->lastByName($oNewPage->siteid, $oNewPage->code_name);
+			$rst = $modelCode->modify($oCode->id, $data);
+			array_splice($aProps, array_search('html', $aProps), 1);
+		}
+		foreach ($aProps as $prop) {
+			$aUpdated[$prop] = $oNewPage->{$prop};
+		}
+		$rst = $this->update($this->table(), $aUpdated, ['id' => $oNewPage->id]);
+
+		return $rst;
+	}
+	/**
 	 * 将通讯录题目替换为普通题目
 	 */
 	public function replaceMemberSchema(&$oPage, $oMschema) {

@@ -163,6 +163,8 @@ abstract class enroll_base extends app_base {
 		$oRoundSchema->type = 'single';
 		$oRoundSchema->title = '分组名称';
 		$oRoundSchema->required = 'Y';
+		$oRoundSchema->fromApp = $groupAppId;
+		$oRoundSchema->requireCheck = 'Y';
 		$oRoundSchema->ops = [];
 		if (!empty($oGroupApp->rounds)) {
 			foreach ($oGroupApp->rounds as $oRound) {
@@ -286,14 +288,17 @@ abstract class enroll_base extends app_base {
 	/**
 	 * 替换应用中的通讯录题型
 	 */
-	public function replaceMemberSchema(&$aDataSchemas, $oMschema) {
+	public function replaceMemberSchema(&$aDataSchemas, $oMschema = null, $bKeepSchemaId = false) {
 		foreach ($aDataSchemas as $oSchema) {
 			/* 和通讯录解除关联 */
-			if ($oSchema->type === 'member' && $oSchema->schema_id === $oMschema->id) {
+			if ($oSchema->type === 'member' && (empty($oMschema) || $oSchema->schema_id === $oMschema->id)) {
 				$oSchema->type = 'shorttext';
-				$oSchema->id = str_replace('member.', '', $oSchema->id);
-				if (in_array($oSchema->id, ['name', 'mobile', 'email'])) {
-					$oSchema->format = $oSchema->id;
+				$memberProp = str_replace('member.', '', $oSchema->id);
+				if (!$bKeepSchemaId) {
+					$oSchema->id = $memberProp;
+				}
+				if (in_array($memberProp, ['name', 'mobile', 'email'])) {
+					$oSchema->format = $memberProp;
 				} else {
 					$oSchema->format = '';
 				}
@@ -306,15 +311,93 @@ abstract class enroll_base extends app_base {
 	/**
 	 * 替换应用中的关联登记或分组活动题型
 	 */
-	public function replaceAssocSchema(&$aDataSchemas, $aAssocAppIds) {
+	public function replaceAssocSchema(&$aDataSchemas, $aAssocAppIds = null) {
 		foreach ($aDataSchemas as $oSchema) {
 			/* 和分组活动解除关联 */
-			if (isset($oSchema->fromApp) && in_array($oSchema->fromApp, $aAssocAppIds)) {
+			if (isset($oSchema->fromApp) && (empty($aAssocAppIds) || in_array($oSchema->fromApp, $aAssocAppIds))) {
 				unset($oSchema->fromApp);
 				unset($oSchema->requieCheck);
 			}
 		}
 
 		return [true];
+	}
+	/**
+	 * 解除和项目的关联
+	 */
+	public function quitMission($oApp) {
+		$modelPg = $this->model('matter\\' . $this->getTypeName() . '\\page');
+		$oUpdatedApp = new \stdClass; // 要更新的活动数据
+		$aUpdatedPages = []; // 要更新的页面数据
+		$aDataSchemas = $oApp->dataSchemas;
+		$bDataSchemasModified = false;
+		$oEntryRule = $oApp->entry_rule;
+		$bEntryRuleModified = false;
+
+		/* 移除和项目中其他活动的关联 */
+		$aAssocApps = [];
+		if (!empty($oApp->group_app_id)) {
+			$aAssocApps[] = $oApp->group_app_id;
+			$oUpdatedApp->group_app_id = $oApp->group_app_id = '';
+		}
+		if (!empty($oApp->enroll_app_id)) {
+			$aAssocApps[] = $oApp->enroll_app_id;
+			$oUpdatedApp->enroll_app_id = $oApp->enroll_app_id = '';
+		}
+		if (count($aAssocApps)) {
+			/* 页面的题目 */
+			foreach ($oApp->pages as $oPage) {
+				$rst = $modelPg->replaceAssocSchema($oPage, $aAssocApps);
+				if (true === $rst[0]) {
+					$aUpdatedPages[$oPage->id] = $oPage;
+				}
+			}
+			/* 应用的题目 */
+			$rst = $this->replaceAssocSchema($aDataSchemas, $aAssocApps);
+			if (true === $rst[0]) {
+				$bDataSchemasModified = true;
+			}
+		}
+
+		/* 移除和项目通讯录的关联 */
+		if (isset($oEntryRule->scope) && $oEntryRule->scope === 'member') {
+			$aMatterMschemas = $this->getEntryMemberSchema($oEntryRule);
+			foreach ($aMatterMschemas as $oMschema) {
+				if (!empty($oMschema->matter_type)) {
+					/* 页面的题目 */
+					foreach ($oApp->pages as $oPage) {
+						$rst = $modelPg->replaceMemberSchema($oPage, $oMschema);
+						if (true === $rst[0]) {
+							$aUpdatedPages[$oPage->id] = $oPage;
+						}
+					}
+					/* 应用的题目 */
+					$rst = $this->replaceMemberSchema($aDataSchemas, $oMschema);
+					if (true === $rst[0]) {
+						$bDataSchemasModified = true;
+					}
+					unset($oEntryRule->member->{$oMschema->id});
+					$bEntryRuleModified = true;
+				}
+			}
+			if (count((array) $oEntryRule->member) === 0) {
+				$oEntryRule->scope = 'none';
+				unset($oEntryRule->member);
+			}
+		}
+
+		/* 设置更新的属性 */
+		$oUpdatedApp->mission_id = $oApp->mission_id = 0;
+		$oUpdatedApp->mission_phase_id = $oApp->mission_phase_id = '';
+		if ($bDataSchemasModified) {
+			$oUpdatedApp->data_schemas = $this->escape($this->toJson($aDataSchemas));
+		}if ($bEntryRuleModified) {
+			$oUpdatedApp->entry_rule = json_encode($oEntryRule);
+		}
+		if (count($aUpdatedPages)) {
+			$oUpdatedApp->pages = $aUpdatedPages;
+		}
+
+		return [true, $oUpdatedApp];
 	}
 }

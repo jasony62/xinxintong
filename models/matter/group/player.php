@@ -634,17 +634,23 @@ class player_model extends \TMS_MODEL {
 	/**
 	 * 从报名活动导入数据
 	 */
-	public function importByEnroll($oGrpApp, $byApp, $sync = 'N') {
+	public function importByEnroll($oGrpApp, $byApp) {
 		$modelEnl = $this->model('matter\enroll');
 
 		$oSourceApp = $modelEnl->byId($byApp, ['fields' => 'data_schemas,assigned_nickname', 'cascaded' => 'N']);
+		$aDataSchemas = $oSourceApp->dataSchemas;
+
+		/* 移除题目中和其他活动、通讯录的关联信息 */
+		$modelEnl->replaceAssocSchema($aDataSchemas);
+		$modelEnl->replaceMemberSchema($aDataSchemas, null, true);
+
 		/* 导入活动定义 */
 		$this->update(
 			'xxt_group',
 			[
 				'last_sync_at' => time(),
 				'source_app' => '{"id":"' . $byApp . '","type":"enroll"}',
-				'data_schemas' => $oSourceApp->data_schemas,
+				'data_schemas' => $this->escape($this->toJson($aDataSchemas)),
 				'assigned_nickname' => $oSourceApp->assigned_nickname,
 			],
 			['id' => $oGrpApp->id]
@@ -687,7 +693,7 @@ class player_model extends \TMS_MODEL {
 	public function importBySignin($oGrpApp, $byApp, $includeEnroll = 'Y') {
 		$modelSignin = $this->model('matter\signin');
 		$oSourceApp = $modelSignin->byId($byApp, ['fields' => 'data_schemas,assigned_nickname,enroll_app_id', 'cascaded' => 'N']);
-		$sourceDataSchemas = $oSourceApp->data_schemas;
+		$aSourceDataSchemas = $oSourceApp->dataSchemas;
 		/**
 		 * 导入报名数据，需要合并签到和报名的登记项
 		 */
@@ -695,25 +701,28 @@ class player_model extends \TMS_MODEL {
 			if (!empty($oSourceApp->enroll_app_id)) {
 				$modelEnl = $this->model('matter\enroll');
 				$enrollApp = $modelEnl->byId($oSourceApp->enroll_app_id, ['fields' => 'data_schemas', 'cascaded' => 'N']);
-				$enrollDataSchemas = json_decode($enrollApp->data_schemas);
-				$sourceDataSchemas = json_decode($sourceDataSchemas);
-				$diff = array_udiff($enrollDataSchemas, $sourceDataSchemas, create_function('$a,$b', 'return strcmp($a->id,$b->id);'));
-				$sourceDataSchemas = array_merge($sourceDataSchemas, $diff);
-				$sourceDataSchemas = $this->toJson($sourceDataSchemas);
+				$diff = array_udiff($enrollApp->dataSchemas, $aSourceDataSchemas, create_function('$a,$b', 'return strcmp($a->id,$b->id);'));
+				$aSourceDataSchemas = array_merge($aSourceDataSchemas, $diff);
 			}
 		}
+
+		/* 移除题目中和其他活动、通讯录的关联信息 */
+		$modelSignin->replaceAssocSchema($aSourceDataSchemas);
+		$modelSignin->replaceMemberSchema($aSourceDataSchemas, null, true);
+
 		/* 导入活动定义 */
 		$this->update(
 			'xxt_group',
 			[
 				'last_sync_at' => time(),
 				'source_app' => '{"id":"' . $byApp . '","type":"signin"}',
-				'data_schemas' => $sourceDataSchemas,
+				'data_schemas' => $this->escape($this->toJson($aSourceDataSchemas)),
 				'assigned_nickname' => $oSourceApp->assigned_nickname,
 			],
 			['id' => $oGrpApp->id]
 		);
-		$oGrpApp->dataSchemas = json_decode($sourceDataSchemas);
+		$oGrpApp->dataSchemas = $aSourceDataSchemas;
+
 		/* 清空已有数据 */
 		$this->clean($oGrpApp->id, true);
 
@@ -751,17 +760,24 @@ class player_model extends \TMS_MODEL {
 	public function importByWall($oGrpApp, $byApp, $onlySpeaker) {
 		$modelWall = $this->model('matter\wall');
 		$oSourceApp = $modelWall->byId($byApp, ['fields' => 'data_schemas']);
+		$aSourceDataSchemas = $oSourceApp->dataSchemas;
+
+		/* 移除题目中和其他活动、通讯录的关联信息 */
+		$modelWall->replaceAssocSchema($aSourceDataSchemas);
+		$modelWall->replaceMemberSchema($aSourceDataSchemas, null, true);
+
 		/* 导入活动定义 */
 		$this->update(
 			'xxt_group',
 			[
 				'last_sync_at' => time(),
 				'source_app' => '{"id":"' . $byApp . '","type":"wall"}',
-				'data_schemas' => $oSourceApp->data_schemas,
+				'data_schemas' => $this->escape($this->toJson($aSourceDataSchemas)),
 			],
 			['id' => $oGrpApp->id]
 		);
-		$oGrpApp->dataSchemas = json_decode($oSourceApp->data_schemas);
+		$oGrpApp->dataSchemas = $aSourceDataSchemas;
+
 		/* 清空已有分组数据 */
 		$this->clean($oGrpApp->id, true);
 

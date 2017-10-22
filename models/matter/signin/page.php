@@ -1,7 +1,15 @@
 <?php
 namespace matter\signin;
-
+/**
+ *
+ */
 class page_model extends \TMS_MODEL {
+	/**
+	 *
+	 */
+	protected function table() {
+		return 'xxt_signin_page';
+	}
 	/**
 	 *
 	 */

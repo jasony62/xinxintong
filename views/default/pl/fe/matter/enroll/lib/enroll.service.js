@@ -386,18 +386,12 @@ define(['require', 'schema', 'page'], function(require, schemaLib, pageLib) {
                     return defer.promise;
                 },
                 quitMission: function() {
-                    var matter = {
-                            id: _oApp.id,
-                            type: 'enroll',
-                            title: _oApp.title
-                        },
-                        defer = $q.defer();
-                    http2.post('/rest/pl/fe/matter/mission/matter/remove?site=' + _siteId + '&id=' + _oApp.mission_id, matter, function(rsp) {
+                    var defer = $q.defer();
+                    http2.get('/rest/pl/fe/matter/enroll/quitMission?site=' + _siteId + '&app=' + _oApp.id, function(rsp) {
                         delete _oApp.mission;
-                        _oApp.mission_id = null;
-                        _self.update(['mission_id']).then(function() {
-                            defer.resolve();
-                        });
+                        _oApp.mission_id = 0;
+                        _oApp.mission_phase_id = '';
+                        defer.resolve();
                     });
                     return defer.promise;
                 },

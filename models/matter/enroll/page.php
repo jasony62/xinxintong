@@ -9,6 +9,12 @@ class page_model extends page_base {
 	/**
 	 *
 	 */
+	protected function table() {
+		return 'xxt_enroll_page';
+	}
+	/**
+	 *
+	 */
 	public function &byId($appId, $apid, $published = 'N') {
 		$select = 'ap.*,cp.html,cp.css,cp.js';
 		$from = 'xxt_enroll_page ap,xxt_code_page cp';
@@ -358,7 +364,7 @@ class page_model extends page_base {
 	/**
 	 *
 	 */
-	public function &htmlBySchema(&$schema, $template) {
+	public function &htmlBySchema($aSchemas, $template) {
 		if (defined('SAE_TMP_PATH')) {
 			$tmpfname = tempnam(SAE_TMP_PATH, "template");
 		} else {
@@ -368,7 +374,7 @@ class page_model extends page_base {
 		fwrite($handle, $template);
 		fclose($handle);
 		$s = new \Savant3(array('template' => $tmpfname, 'exceptions' => true));
-		$s->assign('schema', $schema);
+		$s->assign('schema', $aSchemas);
 		$html = $s->getOutput();
 		unlink($tmpfname);
 

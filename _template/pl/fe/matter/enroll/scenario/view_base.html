@@ -1,7 +1,11 @@
 <!-- begin: generate by schema -->
 <?php foreach ($this->schema as $oWrap) { 
 $oSchema = $oWrap->schema;
-?>
+if ($oSchema->type === 'html') { ?>
+<div id="<?php echo $oWrap->config->id?>" class="form-group" wrap="value" schema="<?php echo $oSchema->id;?>" schema-type="<?php echo $oSchema->type;?>">
+    <?php echo $oSchema->content;?>
+</div>
+<?php } else { ?>
 <div id="<?php echo $oWrap->config->id?>" class="form-group wrap-splitline" wrap="value" ng-controller="ctrlRecord" schema="<?php echo $oSchema->id;?>" schema-type="<?php echo $oSchema->type;?>">
     <label>
         <?php echo $oSchema->title;?>
@@ -16,5 +20,6 @@ $oSchema = $oWrap->schema;
     <div ng-bind-html="score2Html('<?php echo $oSchema->id;?>')"></div>
     <?php } ?>
 </div>
-<?php } ?>
+<?php } //end schemas if html else ?>
+<?php } //end schemas foreach ?>
 <!-- end: generate by schema -->

@@ -68,6 +68,10 @@ $oSchema = $oWrap->schema;
         <?php } //end score's ops foreach ?>
     </ul>
 </div>
+<?php } else if ($oSchema->type==='html') { ?>
+<div class="form-group" wrap="html" schema="<?php echo $oSchema->id;?>" schema-type="<?php echo $oSchema->type;?>">
+    <?php echo $oSchema->content;?>
+</div>
 <?php } ?>
 <?php } //end schemas foreach ?>
 <!-- end: generate by schema -->

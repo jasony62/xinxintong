@@ -712,32 +712,7 @@ class enroll_model extends enroll_base {
 			/* 填充页面 */
 			if (!empty($page->code)) {
 				$code = (array) $page->code;
-				$tmplhtml = $code['html'];
-				switch ($page->type) {
-				case 'I':
-					$basePattern = '/<!-- begin: input_base.html -->.*<!-- end: input_base.html -->/s';
-					if (preg_match($basePattern, $tmplhtml)) {
-						$baseInputHtml = file_get_contents(TMS_APP_TEMPLATE . '/pl/fe/matter/enroll/scenario/input_base.html');
-						$tmplhtml = preg_replace($basePattern, $baseInputHtml, $tmplhtml);
-						$code['html'] = $tmplhtml;
-					}
-					break;
-				case 'V':
-					$basePattern = '/<!-- begin: view_base.html -->.*<!-- end: view_base.html -->/s';
-					if (preg_match($basePattern, $tmplhtml)) {
-						$baseInputHtml = file_get_contents(TMS_APP_TEMPLATE . '/pl/fe/matter/enroll/scenario/view_base.html');
-						$tmplhtml = preg_replace($basePattern, $baseInputHtml, $tmplhtml);
-						$code['html'] = $tmplhtml;
-					}
-					break;
-				}
-				/* 页面存在动态信息 */
-				$matched = [];
-				$schemaPattern = '/<!-- begin: generate by schema -->.*<!-- end: generate by schema -->/s';
-				if (preg_match($schemaPattern, $tmplhtml, $matched)) {
-					$schemahtml = $modelPage->htmlBySchema($page->data_schemas, $matched[0]);
-					$code['html'] = preg_replace($schemaPattern, $schemahtml, $tmplhtml);
-				}
+				$code['html'] = $modelPage->compileHtml($page->type, $code['html'], $page->data_schemas);
 				$modelCode->modify($ap->code_id, $code);
 			}
 		}

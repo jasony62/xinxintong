@@ -115,4 +115,53 @@ abstract class page_base extends \TMS_MODEL {
 
 		return [true];
 	}
+	/**
+	 *
+	 */
+	public function htmlBySchema($aSchemas, $template) {
+		if (defined('SAE_TMP_PATH')) {
+			$tmpfname = tempnam(SAE_TMP_PATH, "template");
+		} else {
+			$tmpfname = tempnam(sys_get_temp_dir(), "template");
+		}
+		$handle = fopen($tmpfname, "w");
+		fwrite($handle, $template);
+		fclose($handle);
+		$s = new \Savant3(array('template' => $tmpfname, 'exceptions' => true));
+		$s->assign('schema', $aSchemas);
+		$html = $s->getOutput();
+		unlink($tmpfname);
+
+		return $html;
+	}
+	/**
+	 * 将模板文件生成为html
+	 */
+	public function compileHtml($pageType, $tmplhtml, $aSchemas) {
+		switch ($pageType) {
+		case 'I':
+			$basePattern = '/<!-- begin: input_base.html -->.*<!-- end: input_base.html -->/s';
+			if (preg_match($basePattern, $tmplhtml)) {
+				$baseInputHtml = file_get_contents(TMS_APP_TEMPLATE . '/pl/fe/matter/enroll/scenario/input_base.html');
+				$tmplhtml = preg_replace($basePattern, $baseInputHtml, $tmplhtml);
+			}
+			break;
+		case 'V':
+			$basePattern = '/<!-- begin: view_base.html -->.*<!-- end: view_base.html -->/s';
+			if (preg_match($basePattern, $tmplhtml)) {
+				$baseInputHtml = file_get_contents(TMS_APP_TEMPLATE . '/pl/fe/matter/enroll/scenario/view_base.html');
+				$tmplhtml = preg_replace($basePattern, $baseInputHtml, $tmplhtml);
+			}
+			break;
+		}
+		/* 页面存在动态信息 */
+		$matched = [];
+		$schemaPattern = '/<!-- begin: generate by schema -->.*<!-- end: generate by schema -->/s';
+		if (preg_match($schemaPattern, $tmplhtml, $matched)) {
+			$schemahtml = $this->htmlBySchema($aSchemas, $matched[0]);
+			$tmplhtml = preg_replace($schemaPattern, $schemahtml, $tmplhtml);
+		}
+
+		return $tmplhtml;
+	}
 }

@@ -63,18 +63,7 @@ class base extends \TMS_CONTROLLER {
 		$oTarget->css = file_exists($templateFile . '.css') ? file_get_contents($templateFile . '.css') : '';
 		$oTarget->js = file_exists($templateFile . '.css') ? file_get_contents($templateFile . '.js') : '';
 
-		/*填充页面*/
-		$matched = array();
-		$pattern = '/<!-- begin: generate by schema -->.*<!-- end: generate by schema -->/s';
-		if (preg_match($pattern, $oTarget->html, $matched)) {
-			$modelPage = $this->model('matter\enroll\page');
-			if (isset($oConfig->simpleSchema)) {
-				$html = $modelPage->htmlBySimpleSchema($oConfig->simpleSchema, $matched[0]);
-			} else {
-				$html = $modelPage->htmlBySchema($oTarget->data_schemas, $matched[0]);
-			}
-			$oTarget->html = preg_replace($pattern, $html, $oTarget->html);
-		}
+		$oTarget->html = $this->model('matter\enroll\page')->compileHtml($oTarget->type, $oTarget->html, isset($oTarget->data_schemas) ? $oTarget->data_schemas : []);
 
 		return $oTarget;
 	}

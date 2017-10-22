@@ -361,23 +361,4 @@ class page_model extends page_base {
 		$schema = $this->schemaByText($simpleSchema);
 		return $this->htmlBySchema($schema, $template);
 	}
-	/**
-	 *
-	 */
-	public function &htmlBySchema($aSchemas, $template) {
-		if (defined('SAE_TMP_PATH')) {
-			$tmpfname = tempnam(SAE_TMP_PATH, "template");
-		} else {
-			$tmpfname = tempnam(sys_get_temp_dir(), "template");
-		}
-		$handle = fopen($tmpfname, "w");
-		fwrite($handle, $template);
-		fclose($handle);
-		$s = new \Savant3(array('template' => $tmpfname, 'exceptions' => true));
-		$s->assign('schema', $aSchemas);
-		$html = $s->getOutput();
-		unlink($tmpfname);
-
-		return $html;
-	}
 }

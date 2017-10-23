@@ -1,6 +1,6 @@
 define(['main'], function(ngApp) {
     'use strict';
-    ngApp.provider.controller('ctrlPage', ['$scope', 'http2', 'noticebox', function($scope, http2, noticebox) {
+    ngApp.provider.controller('ctrlPage', ['$scope', 'http2', 'noticebox', 'mediagallery', function($scope, http2, noticebox, mediagallery) {
         var recommenSite, navSite;
         $scope.state = 'N';
         $scope.editPage = function(page) {
@@ -29,6 +29,19 @@ define(['main'], function(ngApp) {
                     });
                 }
             }
+        };
+        $scope.setHomeHeadingPic = function() {
+            var options = {
+                callback: function(url) {
+                    $scope.site.home_heading_pic = url + '?_=' + (new Date * 1);
+                    $scope.update('home_heading_pic');
+                }
+            };
+            mediagallery.open($scope.site.id, options);
+        };
+        $scope.removeHomeHeadingPic = function() {
+            $scope.site.home_heading_pic = '';
+            $scope.update('home_heading_pic');
         };
         $scope.update = function(name) {
             if (name !== 'autoup_homepage' || window.confirm('勾选后，如果团队主页页面有更新将会自动覆盖现有主页页面，确定自动更新？')) {

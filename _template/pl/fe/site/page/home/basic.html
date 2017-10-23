@@ -2,8 +2,7 @@
     <div class='row team'>
         <div class='col-md-9 col-xs-12'>
             <div class="team-info">
-                <div class="team-img">
-                    <img ng-src='{{site.heading_pic}}'>
+                <div class="team-img" ng-style="{'background-image':'url('+site.heading_pic+')'}">
                 </div>
                 <div class="team-title">{{site.name}}</div>
                 <div class="team-summary">{{site.summary}}</div>
@@ -35,8 +34,7 @@
                     <uib-tab-heading>{{c.display_name}}</uib-tab-heading>
                     <div class="media-item" ng-repeat="m in cTotal[c.channel_id]['data']" ng-click="openMatter(m)">
                         <div class="media-item-left">
-                            <div class="media-item-img">
-                                <img class="media-object" ng-src='{{m.pic||m.thumbnail}}'>
+                            <div class="media-item-img" ng-style="{'background-image':'url('+m.pic||m.thumbnail+')'}">
                             </div>
                         </div>
                         <div class="media-item-body">

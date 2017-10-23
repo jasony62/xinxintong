@@ -62,15 +62,15 @@
     </div>
     <div class="form-group" ng-if="['single','phase'].indexOf(activeSchema.type)!==-1">
         <label class="radio-inline">
-            <input type='radio' name='component' value='R' ng-model='activeConfig.component' ng-change="updConfig('component')">单选钮</label>
+            <input type='radio' name='component' value='R' ng-model='activeConfig.component' ng-change="updConfig(activeSchema)">单选钮</label>
         <label class="radio-inline">
-            <input type='radio' name='component' value='S' ng-model='activeConfig.component' ng-change="updConfig('component')">下拉框</label>
+            <input type='radio' name='component' value='S' ng-model='activeConfig.component' ng-change="updConfig(activeSchema)">下拉框</label>
     </div>
     <div class="form-group" ng-if="(['single','phase'].indexOf(activeSchema.type)!==-1&&activeConfig.component==='R')||activeSchema.type==='multiple'">
         <label class="radio-inline">
-            <input type='radio' name='align' value='V' ng-model='activeConfig.align' ng-change="updConfig('align')">垂直排列</label>
+            <input type='radio' name='align' value='V' ng-model='activeConfig.align' ng-change="updConfig(activeSchema)">垂直排列</label>
         <label class="radio-inline">
-            <input type='radio' name='align' value='H' ng-model='activeConfig.align' ng-change="updConfig('align')">水平排列</label>
+            <input type='radio' name='align' value='H' ng-model='activeConfig.align' ng-change="updConfig(activeSchema)">水平排列</label>
     </div>
     <div class="checkbox" ng-if="'html'!==activeSchema.type">
         <label>

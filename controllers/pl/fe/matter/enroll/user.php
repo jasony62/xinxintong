@@ -112,8 +112,8 @@ class user extends \pl\fe\matter\base {
 			return new \ObjectNotFoundError();
 		}
 
-		$modelEnl = $this->model('site\user\memberschema');
-		$oMschema = $modelEnl->byId($mschema, ['cascaded' => 'N']);
+		$modelMs = $this->model('site\user\memberschema');
+		$oMschema = $modelMs->byId($mschema, ['cascaded' => 'N']);
 		if (false === $oMschema) {
 			return new \ObjectNotFoundError();
 		}
@@ -192,9 +192,9 @@ class user extends \pl\fe\matter\base {
 		$oApp->sns = $sns;
 
 		if (!empty($mschema)) {
-			$modelEnl = $this->model('site\user\memberschema');
-			$mschema = $modelEnl->escape($mschema);
-			$oMschema = $modelEnl->byId($mschema);
+			$modelMs = $this->model('site\user\memberschema');
+			$mschema = $modelMs->escape($mschema);
+			$oMschema = $modelMs->byId($mschema);
 			if (false === $oMschema) {
 				return new \ObjectNotFoundError();
 			}

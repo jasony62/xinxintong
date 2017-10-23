@@ -1,142 +1,68 @@
 <div id='home' class='container' ng-controller="ctrlHome">
-    <div class='row' ng-if="site.home_carousel">
-        <div class='col-md-12'>
-            <div ng-controller="ctrlCarousel">
-                <div uib-carousel active="active" interval="myInterval" no-wrap="noWrapSlides">
-                    <div uib-slide ng-repeat="slide in slides" index="$index" style="padding-top:30%;position:relative">
-                        <img ng-src="{{slide.picUrl}}" style="position:absolute;top:0;left:0;width:100%;height:100%">
-                        <div class="carousel-caption"></div>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </div>
-    <div class='row bgf'>
-        <div class='col-md-12 col-xs-12'>
+    <div class='row team'>
+        <div class='col-md-9 col-xs-12'>
             <div class="team-info">
-                <div class="team-img pull-left">
-                    <img class="img-circle" ng-src='{{site.heading_pic}}'>
+                <div class="team-img" ng-style="{'background-image':'url('+(site.home_heading_pic||site.heading_pic)+')'}">
                 </div>
-                <div class="team-content pull-left">
-                    <div class="team-head">
-                        <h4 class="team-title pull-left">{{site.name}}</h4>
-                        <div class="team-handle pull-right">
-                            <button class="btn btn-primary" ng-click="contributeSite()">投稿</button>
-                            <button class="btn btn-warning" ng-click="subscribeSite()">关注</button>
-                        </div>
-                    </div>
-                    <p class="team-summary">{{site.summary}}</p>
-                </div>
-                <span ng-mouseenter="hover=true"  class="site_fe_home site_fe_home_icon xxt_scan"></span>
+                <div class="team-title">{{site.name}}</div>
+                <div class="team-summary">{{site.summary}}</div>
             </div>
-            <div class="team-qrcode" ng-mouseleave="hover=false">
-                <img ng-if="hover" ng-src="{{entry.qrcode}}" class="qrcode" />
+        </div>
+        <div class='col-md-3 col-xs-12'>
+            <div class="team-handle">
+                <button ng-if="site.can_contribute==='Y'" class="btn btn-primary" ng-click="contributeSite()">投稿</button>
+                <button ng-if="site.can_subscribe==='Y'" class="btn btn-warning" ng-click="subscribeSite()">关注</button>
+            </div>
+            <span ng-mouseenter="hover=true" class="site_fe_home site_fe_home_icon xxt_scan hide"></span>
+        </div>
+        <div class="team-qrcode" ng-mouseleave="hover=false">
+            <img ng-if="hover" ng-src="{{entry.qrcode}}" class="qrcode" />
+        </div>
+    </div>
+    <div ng-controller="ctrlCarousel" ng-if="site.home_carousel.length">
+        <div uib-carousel active="active" interval="myInterval" no-wrap="noWrapSlides">
+            <div uib-slide ng-repeat="slide in slides" index="$index" style="padding-top:30%;position:relative">
+                <img ng-src="{{slide.picUrl}}" style="position:absolute;top:0;left:0;width:100%;height:100%">
+                <div class="carousel-caption"></div>
             </div>
         </div>
     </div>
-    <div class='row'>
-        <div class='col-md-12 col-xs-12'>
-            <div class="col-md-3 col-xs-12">
-                <div class="mainSide hidden-xs bgfa" ng-repeat="r in channelArticles">
-                    <div class="mainSide-header">
-                        <span class="site_fe_home site_fe_home_icon xxt_guide"></span>
-                        <h3 class="inline-block">{{r.title}}</h3>
-                        <h6 class="inline-block pull-right">
-                            <a ng-href="{{r.url}}">更多<i class="glyphicon glyphicon-menu-right"></i></a>
-                        </h6>
-                    </div>
-                    <div class='madinSide-body'>
-                        <ul class="list-unstyled row">
-                            <li class="list-item" ng-repeat="m in r.data">
-                                <a ng-href="{{m.url}}">
-                                    <h4 class="inline-block" ng-bind="m.title"></h4>
-                                </a>
-                            </li>
-                        </ul>
-                    </div>
-                </div>
-                <div class="mainSide visible-xs-block bgfa">
-                    <uib-tabset active="0" class="row">
-                        <uib-tab index="$index" ng-repeat="r in channelArticles">
-                            <uib-tab-heading>{{r.title}}</uib-tab-heading>
-                            <ul class="list-unstyled row">
-                                <li class="list-item" ng-repeat="d in r.data">
-                                    <a ng-href="{{d.url}}">
-                                        <h4 class="inline-block" ng-bind="d.title"></h4>
-                                    </a>
-                                </li>
-                            </ul>
-                            <div class="text-center"><a ng-href="{{r.url}}">更 多</a></div>
-                        </uib-tab>
-                        <span uib-dropdown on-toggle="toggled(open)" class="pull-right" ng-if="channelArticles.length > 2">
-                            <a href id="simple-dropdown" uib-dropdown-toggle>
-                                <i class="glyphicon glyphicon-th-list"></i>
-                            </a>
-                            <ul class="dropdown-menu" uib-dropdown-menu aria-labelledby="simple-dropdown">
-                                <li ng-repeat="c in r_next_channels">
-                                  <a ng-href='{{c.url}}' target='_self'>
-                                        <h4 class="inline-block" ng-bind="c.display_name"></h4>
-                                    </a>
-                                </li>
-                            </ul>
-                        </span>
-                    </uib-tabset>
-                </div>
-            </div>
-            <div class="col-md-9 col-xs-12 bgf">
-                <uib-tabset active="0" class="row" style="padding-bottom:10px">
-                    <uib-tab index="$index" ng-repeat="c in c_channels_matters">
-                        <uib-tab-heading>{{c.display_name}}</uib-tab-heading>
-                        <table class="table table-hover">
-                            <tbody>
-                                <tr class="media-item" ng-repeat="m in cTotal[c.channel_id]['data']" ng-click="openMatter(m)">
-                                    <td>
-                                        <div>
-                                            <div class="media-item-left pull-left">
-                                                <div class="media-item-img">
-                                                    <img class="media-object" ng-src='{{m.pic||m.thumbnail}}'>
-                                                </div>
-                                            </div>
-                                            <div class="media-item-body pull-left">
-                                                <div class='creater_name'>
-                                                    <a ng-href='/rest/site/home?site={{site.id}}'>
-                                                        <img class="img-circle" ng-src="{{site.heading_pic}}" alt="" style="width:12px;height:12px">
-                                                        <h6 class="inline pdl10">{{site.name}}</h6>
-                                                        <i class="glyphicon glyphicon-menu-right pull-right"></i>
-                                                    </a>
-                                                </div>
-                                                <h4 class="media-heading" >{{m.title}}</h4>
-                                                <h5 class="media-summary">{{m.summary}}</h5>
-                                                <div class='attr clearfix'>
-                                                    <div class="favor pull-left">
-                                                        <a href="" ng-click="favor(user,m)">
-                                                            <i class="glyphicon glyphicon-star-empty"></i>
-                                                            <h6 class="inline pdl10">收藏</h6>
-                                                        </a>
-                                                    </div>
-                                                    <div class="forward pull-left">
-                                                        <a href="" ng-click="forward(user,m)">
-                                                            <i class="glyphicon glyphicon-share"></i>
-                                                            <h6 class="inline pdl10">转发</h6>
-                                                        </a>
-                                                    </div>
-                                                    <div class='put_at pull-left'>
-                                                        <a href="">
-                                                            <h6 class="inline"ng-bind="m.create_at*1000|date:'yyyy-MM-dd'"></h6>
-                                                        </a>
-                                                    </div>
-                                                </div>
-                                            </div>
-                                        </div>
-                                    </td>
-                                </tr>
-                            </tbody>
-                        </table>
-                        <div>
-                            <button class='btn btn-lg btn-primary  btn-gradient center-block' ng-click="moreMatters(c.channel_id)" ng-if="cTotal[c.channel_id]['total'] >= page.size">加载更多</button>
+    <div class='row matters' ng-class="{'layout_g2_g1':site.home_mobile_layout==='g2_g1'}">
+        <div class="col-md-9 col-xs-12 bgf">
+            <uib-tabset active="0" class="row" style="padding-bottom:10px">
+                <uib-tab index="$index" ng-repeat="c in c_channels_matters">
+                    <uib-tab-heading>{{c.display_name}}</uib-tab-heading>
+                    <div class="media-item" ng-repeat="m in cTotal[c.channel_id]['data']" ng-click="openMatter(m)">
+                        <div class="media-item-left">
+                            <div class="media-item-img" ng-style="{'background-image':'url('+m.pic||m.thumbnail+')'}">
+                            </div>
                         </div>
-                    </uib-tab>
-                    <span uib-dropdown on-toggle="toggled(open)" class="pull-right" ng-if="c_channels.length > 3" >
+                        <div class="media-item-body">
+                            <div class='creater_name'>
+                                <a ng-href='/rest/site/home?site={{site.id}}'><img class="img-circle" ng-src="{{site.heading_pic}}" alt="" style="width:12px;height:12px"><span class="inline pdl10">{{site.name}}</span><i class="glyphicon glyphicon-menu-right pull-right"></i></a>
+                            </div>
+                            <div class="media-heading">{{m.title}}</div>
+                            <div class="media-summary">{{m.summary}}</div>
+                            <div class='attr clearfix'>
+                                <div class="favor pull-left">
+                                    <a href="" ng-click="favor(user,m)"><i class="glyphicon glyphicon-star-empty"></i><span class="inline pdl10">收藏</span></a>
+                                </div>
+                                <div class="forward pull-left">
+                                    <a href="" ng-click="forward(user,m)"><i class="glyphicon glyphicon-share"></i><span class="inline pdl10">转发</span></a>
+                                </div>
+                                <div class='put_at pull-left'>
+                                    <a href="">
+                                        <h6 class="inline" ng-bind="m.create_at*1000|date:'yyyy-MM-dd'"></h6>
+                                    </a>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div>
+                        <button class='btn btn-lg btn-primary  btn-gradient center-block' ng-click="moreMatters(c.channel_id)" ng-if="cTotal[c.channel_id]['total'] >= page.size">加载更多</button>
+                    </div>
+                </uib-tab>
+                <span uib-dropdown on-toggle="toggled(open)" class="pull-right" ng-if="c_channels.length > 3">
                         <a href id="simple-dropdown" uib-dropdown-toggle>
                             <i class="glyphicon glyphicon-th-list"></i>
                         </a>
@@ -148,17 +74,63 @@
                             </li>
                         </ul>
                     </span>
+            </uib-tabset>
+        </div>
+        <div class="col-md-3 col-xs-12">
+            <div class="mainSide hidden-xs bgfa" ng-repeat="r in channelArticles">
+                <div class="mainSide-header">
+                    <span class="site_fe_home site_fe_home_icon xxt_guide"></span>
+                    <h3 class="inline-block">{{r.title}}</h3>
+                    <h6 class="inline-block pull-right">
+                            <a ng-href="{{r.url}}">更多<i class="glyphicon glyphicon-menu-right"></i></a>
+                        </h6>
+                </div>
+                <div class='madinSide-body'>
+                    <ul class="list-unstyled row">
+                        <li class="list-item" ng-repeat="m in r.data">
+                            <a ng-href="{{m.url}}">
+                                <h4 class="inline-block" ng-bind="m.title"></h4>
+                            </a>
+                        </li>
+                    </ul>
+                </div>
+            </div>
+            <div class="mainSide visible-xs-block bgfa">
+                <uib-tabset active="0" class="row">
+                    <uib-tab index="$index" ng-repeat="r in channelArticles">
+                        <uib-tab-heading>{{r.title}}</uib-tab-heading>
+                        <ul class="list-unstyled row">
+                            <li class="list-item" ng-repeat="d in r.data">
+                                <a ng-href="{{d.url}}">
+                                    <h4 class="inline-block" ng-bind="d.title"></h4>
+                                </a>
+                            </li>
+                        </ul>
+                        <div class="text-center"><a ng-href="{{r.url}}">更 多</a></div>
+                    </uib-tab>
+                    <span uib-dropdown on-toggle="toggled(open)" class="pull-right" ng-if="channelArticles.length > 2">
+                            <a href id="simple-dropdown" uib-dropdown-toggle>
+                                <i class="glyphicon glyphicon-th-list"></i>
+                            </a>
+                            <ul class="dropdown-menu" uib-dropdown-menu aria-labelledby="simple-dropdown">
+                                <li ng-repeat="c in r_next_channels">
+                                  <a ng-href='{{c.url}}' target='_self'>
+                                        <h4 class="inline-block" ng-bind="c.display_name"></h4>
+                                    </a>
+                                </li>
+                            </ul>
+                        </span>
                 </uib-tabset>
             </div>
         </div>
     </div>
     <div class="row visible-xs-block">
         <div class="footer">
-            <a href="" class="pull-right" id='xs_gototop'>回顶部</a>
+            <a href="" class="pull-right" ng-click="gotoTop()">回顶部</a>
             <a href="" class="pull-right" ng-if="site.home_qrcode_group" style="display:none">扫一扫加入群聊&nbsp;|&nbsp;</a>
         </div>
     </div>
-    <div id='md_gototop' class='tms-tool-sidebar tms-tool-backtop hidden-xs'>
+    <div class='tms-tool-sidebar tms-tool-backtop hidden-xs' ng-click="gotoTop()">
         <span class="site_fe_home site_fe_home_icon xxt_backTop"></span>
     </div>
     <div class="tms-tool-sidebar tms-tool-qrcode hidden-xs" ng-if="site.home_qrcode_group">

@@ -67,11 +67,59 @@ class record extends base {
 		/**
 		 * 包含用户身份信息
 		 */
-		if (isset($oSigninData->member) && isset($oSigninData->member->schema_id)) {
-			$member = clone $oSigninData->member;
-			$rst = $this->_submitMember($site, $member, $oUser);
-			if ($rst[0] === false) {
-				return new \ParameterError($rst[1]);
+		// if (isset($oSigninData->member) && isset($oSigninData->member->schema_id)) {
+		// 	$oMember = clone $oSigninData->member;
+		// 	$rst = $this->_submitMember($site, $oMember, $oUser);
+		// 	if ($rst[0] === false) {
+		// 		return new \ParameterError($rst[1]);
+		// 	}
+		// }
+		/**
+		 * 检查是否存在匹配的分组记录
+		 */
+		if (!empty($oSigninApp->group_app_id)) {
+			$oGroupApp = $this->model('matter\group')->byId($oSigninApp->group_app_id);
+			if (empty($oGroupApp)) {
+				return new \ParameterError('指定的登记匹配分组活动不存在');
+			}
+			/* 获得要检查的登记项 */
+			$requireCheckedData = new \stdClass;
+			$dataSchemas = json_decode($oSigninApp->data_schemas);
+			foreach ($dataSchemas as $dataSchema) {
+				if (isset($dataSchema->requireCheck) && $dataSchema->requireCheck === 'Y') {
+					if (isset($dataSchema->fromApp) && $dataSchema->fromApp === $oSigninApp->group_app_id) {
+						$requireCheckedData->{$dataSchema->id} = isset($oSigninData->{$dataSchema->id}) ? $oSigninData->{$dataSchema->id} : '';
+					}
+				}
+			}
+			/* 在指定的分组活动中检查数据 */
+			$modelMatchRec = $this->model('matter\group\player');
+			$groupRecords = $modelMatchRec->byData($oGroupApp, $requireCheckedData);
+			if (empty($groupRecords)) {
+				return new \ParameterError('未在指定的分组活动［' . $oGroupApp->title . '］中找到与提交数据相匹配的记录');
+			}
+			/* 如果匹配的分组数据不唯一，怎么办？ */
+			if (count($groupRecords) > 1) {
+				return new \ParameterError('在指定的分组活动［' . $oGroupApp->title . '］中找到多条与提交数据相匹配的记录，匹配关系不唯一');
+			}
+			$oGroupRecord = $groupRecords[0];
+			/* 如果分组数据中未包含用户信息，更新用户信息 */
+			if (empty($oGroupRecord->userid)) {
+				$oUserAcnt = $this->model('site\user\account')->byId($oUser->uid, ['fields' => 'wx_openid,yx_openid,qy_openid,headimgurl']);
+				if (false === $oUserAcnt) {
+					$oUserAcnt = new \stdClass;
+				}
+				$oUserAcnt->userid = $oUser->uid;
+				$oUserAcnt->nickname = $modelMatchRec->escape($oUser->nickname);
+				$modelMatchRec->update('xxt_group_player', $oUserAcnt, ['id' => $oGroupRecord->id]);
+			}
+			/* 将匹配的分组记录数据作为提交的登记数据的一部分 */
+			$matchedData = $oGroupRecord->data;
+			foreach ($matchedData as $n => $v) {
+				!isset($oSigninData->{$n}) && $oSigninData->{$n} = $v;
+			}
+			if (isset($oGroupRecord->round_id)) {
+				$oSigninData->_round_id = $oGroupRecord->round_id;
 			}
 		}
 		/**
@@ -129,7 +177,7 @@ class record extends base {
 						if (isset($oSigninApp->entry_rule->success->entry)) {
 							$oSignState->forword = $oSigninApp->entry_rule->success->entry;
 						}
-						/* 如果分组数据中未包含用户信息，更新用户信息 */
+						/* 如果登记数据中未包含用户信息，更新用户信息 */
 						if (empty($oEnrollRecord->userid)) {
 							$oUserAcnt = $this->model('site\user\account')->byId($oUser->uid, ['fields' => 'wx_openid,yx_openid,qy_openid,headimgurl']);
 							if (false === $oUserAcnt) {
@@ -155,54 +203,6 @@ class record extends base {
 						$oSignState->forword = $oSigninApp->entry_rule->fail->entry;
 					}
 				}
-			}
-		}
-		/**
-		 * 检查是否存在匹配的分组记录
-		 */
-		if (!empty($oSigninApp->group_app_id)) {
-			$oGroupApp = $this->model('matter\group')->byId($oSigninApp->group_app_id);
-			if (empty($oGroupApp)) {
-				return new \ParameterError('指定的登记匹配分组活动不存在');
-			}
-			/* 获得要检查的登记项 */
-			$requireCheckedData = new \stdClass;
-			$dataSchemas = json_decode($oSigninApp->data_schemas);
-			foreach ($dataSchemas as $dataSchema) {
-				if (isset($dataSchema->requireCheck) && $dataSchema->requireCheck === 'Y') {
-					if (isset($dataSchema->fromApp) && $dataSchema->fromApp === $oSigninApp->group_app_id) {
-						$requireCheckedData->{$dataSchema->id} = isset($oSigninData->{$dataSchema->id}) ? $oSigninData->{$dataSchema->id} : '';
-					}
-				}
-			}
-			/* 在指定的分组活动中检查数据 */
-			$modelMatchRec = $this->model('matter\group\player');
-			$groupRecords = $modelMatchRec->byData($oGroupApp, $requireCheckedData);
-			if (empty($groupRecords)) {
-				return new \ParameterError('未在指定的分组活动［' . $oGroupApp->title . '］中找到与提交数据相匹配的记录');
-			}
-			/* 如果匹配的分组数据不唯一，怎么办？ */
-			if (count($groupRecords) > 1) {
-				return new \ParameterError('在指定的分组活动［' . $oGroupApp->title . '］中找到多条与提交数据相匹配的记录，匹配关系不唯一');
-			}
-			$oGroupRecord = $groupRecords[0];
-			/* 如果分组数据中未包含用户信息，更新用户信息 */
-			if (empty($oGroupRecord->userid)) {
-				$oUserAcnt = $this->model('site\user\account')->byId($oUser->uid, ['fields' => 'wx_openid,yx_openid,qy_openid,headimgurl']);
-				if (false === $oUserAcnt) {
-					$oUserAcnt = new \stdClass;
-				}
-				$oUserAcnt->userid = $oUser->uid;
-				$oUserAcnt->nickname = $modelMatchRec->escape($oUser->nickname);
-				$modelMatchRec->update('xxt_group_player', $oUserAcnt, ['id' => $oGroupRecord->id]);
-			}
-			/* 将匹配的分组记录数据作为提交的登记数据的一部分 */
-			$matchedData = $oGroupRecord->data;
-			foreach ($matchedData as $n => $v) {
-				!isset($oSigninData->{$n}) && $oSigninData->{$n} = $v;
-			}
-			if (isset($oGroupRecord->round_id)) {
-				$oSigninData->_round_id = $oGroupRecord->round_id;
 			}
 		}
 		/* 记录操作日志 */
@@ -311,22 +311,22 @@ class record extends base {
 	/**
 	 * 提交信息中包含的自定义用户信息
 	 */
-	private function _submitMember($siteId, &$member, &$user) {
-		$schemaId = $member->schema_id;
-		$oMschema = $this->model('site\user\memberschema')->byId($schemaId, 'siteid,id,title,auto_verified,attr_mobile,attr_email,attr_name,extattr');
+	private function _submitMember($siteId, $oSubmitMember, $oUser) {
+		$schemaId = $oSubmitMember->schema_id;
+		$oMschema = $this->model('site\user\memberschema')->byId($schemaId, ['fields' => 'siteid,id,title,auto_verified,attr_mobile,attr_email,attr_name,extattr']);
 		$modelMem = $this->model('site\user\member');
 
-		$existentMember = $modelMem->byUser($user->uid, array('schemas' => $schemaId));
+		$existentMember = $modelMem->byUser($oUser->uid, ['schemas' => $schemaId]);
 		if (count($existentMember)) {
 			$memberId = $existentMember[0]->id;
-			$member->id = $memberId;
-			$member->verified = $existentMember[0]->verified;
-			$member->identity = $existentMember[0]->identity;
-			$rst = $modelMem->modify($oMschema, $memberId, $member);
+			$oSubmitMember->id = $memberId;
+			$oSubmitMember->verified = $existentMember[0]->verified;
+			$oSubmitMember->identity = $existentMember[0]->identity;
+			$rst = $modelMem->modify($oMschema, $memberId, $oSubmitMember);
 		} else {
-			$rst = $modelMem->createByApp($oMschema, $user->uid, $member);
+			$rst = $modelMem->createByApp($oMschema, $oUser->uid, $oSubmitMember);
 		}
-		$member->schema_id = $schemaId;
+		$oSubmitMember->schema_id = $schemaId;
 
 		return $rst;
 	}

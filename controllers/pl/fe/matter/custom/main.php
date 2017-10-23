@@ -181,7 +181,7 @@ class main extends \pl\fe\matter\base {
 		}
 
 		$oCustomConfig = $this->getPostJson();
-		$modelArt = $this->model('matter\article');
+		$modelCus = $this->model('matter\custom');
 		$oCustom = new \stdClass;
 
 		/*从站点或项目获取的定义*/
@@ -191,21 +191,20 @@ class main extends \pl\fe\matter\base {
 		} else {
 			$modelMis = $this->model('matter\mission');
 			$mission = $modelMis->byId($mission);
-			$oCustom->summary = $modelArt->escape($mission->summary);
+			$oCustom->summary = $modelCus->escape($mission->summary);
 			$oCustom->pic = $oMission->pic;
 			$oCustom->mission_id = $oMission->id;
 		}
 
 		/* 前端指定的信息 */
-		$oCustom->title = empty($oCustomConfig->proto->title) ? '新定制页' : $modelArt->escape($oCustomConfig->proto->title);
+		$oCustom->title = empty($oCustomConfig->proto->title) ? '新定制页' : $modelCus->escape($oCustomConfig->proto->title);
 
 		$oCustom->siteid = $oSite->id;
 		$oCustom->hide_pic = 'N';
 		$oCustom->url = '';
 		$oCustom->body = '';
 		$oCustom->custom_body = 'Y';
-		$oCustom = $modelArt->create($oUser, $oCustom);
-		$oCustom->type = 'custom';
+		$oCustom = $modelCus->create($oUser, $oCustom);
 
 		/* 记录操作日志 */
 		$this->model('matter\log')->matterOp($oSite->id, $oUser, $oCustom, 'C');
@@ -223,19 +222,19 @@ class main extends \pl\fe\matter\base {
 			return new \ResponseTimeout();
 		}
 
-		$modelArt = $this->model('matter\article');
-		$oCustom = $modelArt->byId($id, ['fields' => 'siteid,id,title,summary']);
+		$modelCus = $this->model('matter\custom');
+		$oCustom = $modelCus->byId($id, ['fields' => 'siteid,id,title,summary']);
 		if (false === $oCustom) {
 			return new \ObjectNotFoundError();
 		}
 
 		$oPosted = $this->getPostJson();
-		isset($oPosted->title) && $oPosted->title = $modelArt->escape($oPosted->title);
-		isset($oPosted->summary) && $oPosted->summary = $modelArt->escape($oPosted->summary);
-		isset($oPosted->author) && $oPosted->author = $modelArt->escape($oPosted->author);
-		isset($oPosted->body) && $oPosted->body = $modelArt->escape(urldecode($oPosted->body));
+		isset($oPosted->title) && $oPosted->title = $modelCus->escape($oPosted->title);
+		isset($oPosted->summary) && $oPosted->summary = $modelCus->escape($oPosted->summary);
+		isset($oPosted->author) && $oPosted->author = $modelCus->escape($oPosted->author);
+		isset($oPosted->body) && $oPosted->body = $modelCus->escape(urldecode($oPosted->body));
 
-		if ($oCustom = $modelArt->modify($oUser, $oCustom, $oPosted)) {
+		if ($oCustom = $modelCus->modify($oUser, $oCustom, $oPosted)) {
 			$this->model('matter\log')->matterOp($site, $oUser, $oCustom, 'U');
 		}
 
@@ -249,14 +248,14 @@ class main extends \pl\fe\matter\base {
 			return new \ResponseTimeout();
 		}
 
-		$modelArt = $this->model('matter\article')->setOnlyWriteDbConn(true);
+		$modelArt = $this->model('matter\custom')->setOnlyWriteDbConn(true);
 		$oCopied = $modelArt->byId($id);
 		if (false === $oCopied) {
 			return new \ObjectNotFoundError();
 		}
 
 		$modelPage = $this->model('code\page')->setOnlyWriteDbConn(true);
-		$pageid = $modelPage->copy($oUser->id, $oCopied->page_id);
+		$page = $modelPage->copy($oUser->id, $oCopied->page_id, 0, $site);
 
 		$oCustom = new \stdClass;
 		$oCustom->siteid = $site;
@@ -267,10 +266,13 @@ class main extends \pl\fe\matter\base {
 		$oCustom->url = '';
 		$oCustom->body = '';
 		$oCustom->custom_body = 'Y';
-		$oCustom->page_id = $pageid;
+		$oCustom->page_id = $page->id;
+		$oCustom->body_page_name = $page->name;
 
 		$oCustom = $modelArt->create($oUser, $oCustom);
-		$oCustom->type = 'custom';
+
+		/* 记录操作日志 */
+		$this->model('matter\log')->matterOp($site, $oUser, $oCustom, 'C');
 
 		return new \ResponseData($oCustom);
 	}
@@ -282,14 +284,14 @@ class main extends \pl\fe\matter\base {
 		if (false === ($oUser = $this->accountUser())) {
 			return new \ResponseTimeout();
 		}
-		$modelMat = $this->model('matter\article');
+		$modelMat = $this->model('matter\custom');
 		$oMatter = $modelMat->byId($id, 'id,title,summary,pic');
 		if (false === $oMatter) {
 			return new \ObjectNotFoundError();
 		}
 
 		/* 将图文从所属的多图文和频道中删除 */
-		$model->delete('xxt_channel_matter', ['matter_id' => $id, 'matter_type' => 'custom']);
+		$modelMat->delete('xxt_channel_matter', ['matter_id' => $id, 'matter_type' => 'custom']);
 		$modelNews = $this->model('matter\news');
 		if ($news = $modelNews->byMatter($id, 'custom')) {
 			foreach ($news as $n) {
@@ -315,19 +317,17 @@ class main extends \pl\fe\matter\base {
 		$modelTemplate = $this->model('matter\template');
 		$template = $modelTemplate->byId($template);
 
-		$modelArt = $this->model('matter\article');
+		$modelArt = $this->model('matter\custom');
 		$copied = $modelArt->byId($template->matter_id);
 		$target = $modelArt->byId($id);
 
 		$modelPage = $this->model('code\page');
-		$pageid = $modelPage->copy($oUser->id, $copied->page_id, $target->page_id);
+		$page = $modelPage->copy($oUser->id, $copied->page_id, $target->page_id);
 
 		if ($target->page_id === 0) {
-			$this->_update($id, ['page_id' => $pageid]);
+			$this->_update($id, ['page_id' => $page->id, 'body_page_name' => $page->name]);
 		}
 
-		$oTargetPage = $modelPage->byId($pageid);
-
-		return new \ResponseData($oTargetPage);
+		return new \ResponseData($page);
 	}
 }

@@ -1,45 +1,8 @@
-<!-- begin: generate by schema -->
-<?php foreach ($this->schema as $def) { 
-$schema = $def->schema;
-?>
-<?php if (in_array($schema->type,['shorttext'])) { ?>
-<div class="form-group form-group-lg" wrap="input" schema="<?php echo $schema->id;?>" schema-type="<?php echo $schema->type;?>"><label class="sr-only"><?php echo $schema->title;?></label><input ng-model="data.<?php echo $schema->id;?>" title="<?php echo $schema->title;?>" placeholder="<?php echo $schema->title;?>" class="form-control input-lg" type="text" /></div>
-<?php } else if ($schema->type==='longtext') { ?>
-<div class="form-group form-group-lg" wrap="input" schema="<?php echo $schema->id;?>" schema-type="<?php echo $schema->type;?>"><label class="sr-only"><?php echo $schema->title;?></label><textarea style="height:auto;" ng-model="data.<?php echo $schema->id;?>" title="<?php echo $schema->title;?>" placeholder="<?php echo $schema->title;?>" class="form-control input-lg" rows="3"></textarea></div>
-<?php } else if (in_array($schema->type,['single','phase'])) { ?>
-<div wrap="input" class="form-group form-group-lg" schema="<?php echo $schema->id;?>" schema-type="<?php echo $schema->type;?>">
-<label><?php echo $schema->title; ?></label>
-<ul>
-<?php foreach ($schema->ops as $op) {?>
-<li class="radio" wrap="radio"><label><input type="radio" name="<?php echo $schema->id;?>" value="<?php echo $op->v;?>" ng-model="data.<?php echo $schema->id;?>"><span><?php echo $op->l;?></span></label></li>
-<?php } //end single's and phase's ops foreach ?>
-</ul>
+<!-- begin: input_base.html -->
+<!-- end: input_base.html -->
+<div id="btnSubmit" class="form-group" wrap="button">
+    <button class="btn btn-primary btn-block btn-lg" ng-click="submit($event,'repos')"><span>提交问题</span></button>
 </div>
-<?php } else if ($schema->type === 'multiple') { ?>
-<div wrap="input" class="form-group form-group-lg" schema="<?php echo $schema->id;?>" schema-type="multiple">
-<label><?php echo $schema->title; ?></label>
-<ul>
-<?php foreach ($schema->ops as $op) {?>
-<li class="checkbox" wrap="checkbox"><label><input type="checkbox" name="<?php echo $schema->id;?>" ng-model="data.<?php echo $schema->id;?>.<?php echo $op->v;?>"><span><?php echo $op->l;?></span></label></li>
-<?php } //end single's and phase's ops foreach ?>
-</ul>
+<div id="actGotoRepos" class="form-group" wrap="button">
+    <button class="btn btn-primary btn-block btn-lg" ng-click="gotoPage($event,'repos')"><span>查看全部问题</span></button>
 </div>
-<?php } else if ($schema->type==='score') {?>
-<div wrap="input" class="form-group form-group-lg" schema="<?php echo $schema->id;?>" schema-type="score"><label><?php echo $schema->title;?></label>
-<ul>
-<?php foreach ($schema->ops as $index => $op) {?>
-<li class="score" wrap="score" opvalue="<?php echo $op->v;?>">
-<div><label><?php echo $op->l;?></label></div>
-<div class="number">
-<?php for ($s = $schema->range[0]; $s <= $schema->range[1]; $s++) {?>
-<div ng-class="{'in':lessScore('<?php echo $schema->id;?>',<?php echo $index;?>,<?php echo $s;?>)}" ng-click="score('<?php echo $schema->id;?>',<?php echo $index;?>,<?php echo $s;?>)"><?php echo $s;?></div>
-<?php } //end score range ?>
-</div>
-</li>
-<?php } //end score's ops foreach ?>
-</ul>
-<?php } ?>
-<?php } //end schemas foreach ?>
-<!-- end: generate by schema -->
-<div id="btnSubmit" class="form-group" wrap="button"><button class="btn btn-primary btn-block btn-lg" ng-click="submit($event,'repos')"><span>提交问题</span></button></div>
-<div id="actGotoRepos" class="form-group" wrap="button"><button class="btn btn-primary btn-block btn-lg" ng-click="gotoPage($event,'repos')"><span>查看全部问题</span></button></div>

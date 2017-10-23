@@ -194,13 +194,13 @@ class record extends base {
 		/**
 		 * 提交用户身份信息
 		 */
-		if (isset($enrolledData->member) && isset($enrolledData->member->schema_id)) {
-			$member = clone $enrolledData->member;
-			$rst = $this->_submitMember($site, $member, $oUser);
-			if ($rst[0] === false) {
-				return new \ParameterError($rst[1]);
-			}
-		}
+		// if (isset($enrolledData->member) && isset($enrolledData->member->schema_id)) {
+		// 	$member = clone $enrolledData->member;
+		// 	$rst = $this->_submitMember($site, $member, $oUser);
+		// 	if ($rst[0] === false) {
+		// 		return new \ParameterError($rst[1]);
+		// 	}
+		// }
 		/**
 		 * 提交登记数据
 		 */
@@ -529,7 +529,7 @@ class record extends base {
 	 */
 	private function _submitMember($siteId, &$member, &$user) {
 		$schemaId = $member->schema_id;
-		$oMschema = $this->model('site\user\memberschema')->byId($schemaId, 'siteid,id,title,auto_verified,attr_mobile,attr_email,attr_name,extattr');
+		$oMschema = $this->model('site\user\memberschema')->byId($schemaId, ['fields' => 'siteid,id,title,auto_verified,attr_mobile,attr_email,attr_name,extattr']);
 		$modelMem = $this->model('site\user\member');
 
 		$existentMember = $modelMem->byUser($user->uid, ['schemas' => $schemaId]);

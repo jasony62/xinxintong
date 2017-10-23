@@ -1,29 +1,6 @@
 <div wrap="text" class="form-group">请参与投票！</div>
-<div wrap="input" class="form-group form-group-lg" schema="c1001" schema-type="single"><label>投票项1</label>
-<ul>
-<li class="radio" wrap="radio"><label><input type="radio" name="c1001" value="v1" ng-model="data.c1001" /><span>非常同意</span></label></li>
-<li class="radio" wrap="radio"><label><input type="radio" name="c1001" value="v2" ng-model="data.c1001" /><span>同意</span></label></li>
-<li class="radio" wrap="radio"><label><input type="radio" name="c1001" value="v3" ng-model="data.c1001" /><span>一般</span></label></li>
-<li class="radio" wrap="radio"><label><input type="radio" name="c1001" value="v4" ng-model="data.c1001" /><span>有待提高</span></label></li>
-<li class="radio" wrap="radio"><label><input type="radio" name="c1001" value="v5" ng-model="data.c1001" /><span>不同意</span></label></li>
-</ul>
+<!-- begin: input_base.html -->
+<!-- end: input_base.html -->
+<div id="btnSubmit" class="form-group" wrap="button">
+    <button class="btn btn-primary btn-block btn-lg" ng-click="submit($event,'result')"><span>提交投票</span></button>
 </div>
-<div wrap="input" class="form-group form-group-lg" schema="c1002" schema-type="single"><label>投票项2</label>
-<ul>
-<li class="radio" wrap="radio"><label><input type="radio" name="c1002" value="v1" ng-model="data.c1002" /><span>非常同意</span></label></li>
-<li class="radio" wrap="radio"><label><input type="radio" name="c1002" value="v2" ng-model="data.c1002" /><span>同意</span></label></li>
-<li class="radio" wrap="radio"><label><input type="radio" name="c1002" value="v3" ng-model="data.c1002" /><span>一般</span></label></li>
-<li class="radio" wrap="radio"><label><input type="radio" name="c1002" value="v4" ng-model="data.c1002" /><span>有待提高</span></label></li>
-<li class="radio" wrap="radio"><label><input type="radio" name="c1002" value="v5" ng-model="data.c1002" /><span>不同意</span></label></li>
-</ul>
-</div>
-<div wrap="input" class="form-group form-group-lg" schema="c1003" schema-type="single"><label>投票项3</label>
-<ul>
-<li class="radio" wrap="radio"><label><input type="radio" name="c1003" value="v1" ng-model="data.c1003" /><span>非常同意</span></label></li>
-<li class="radio" wrap="radio"><label><input type="radio" name="c1003" value="v2" ng-model="data.c1003" /><span>同意</span></label></li>
-<li class="radio" wrap="radio"><label><input type="radio" name="c1003" value="v3" ng-model="data.c1003" /><span>一般</span></label></li>
-<li class="radio" wrap="radio"><label><input type="radio" name="c1003" value="v4" ng-model="data.c1003" /><span>有待提高</span></label></li>
-<li class="radio" wrap="radio"><label><input type="radio" name="c1003" value="v5" ng-model="data.c1003" /><span>不同意</span></label></li>
-</ul>
-</div>
-<div id="btnSubmit" class="form-group" wrap="button"><button class="btn btn-primary btn-block btn-lg" ng-click="submit($event,'result')"><span>提交投票</span></button></div>

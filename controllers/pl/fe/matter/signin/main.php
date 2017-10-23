@@ -119,152 +119,19 @@ class main extends \pl\fe\matter\main_base {
 		if (false === $oSite) {
 			return new \ObjectNotFoundError();
 		}
-
-		/* 模板信息 */
-		$templateDir = TMS_APP_TEMPLATE . '/pl/fe/matter/signin/' . $template;
-		$templateConfig = file_get_contents($templateDir . '/config.json');
-		$templateConfig = preg_replace('/\t|\r|\n/', '', $templateConfig);
-		$templateConfig = json_decode($templateConfig);
-		if (JSON_ERROR_NONE !== json_last_error()) {
-			return new \ResponseError('解析模板数据错误：' . json_last_error_msg());
-		}
-
-		$modelApp = $this->model('matter\signin')->setOnlyWriteDbConn(true);
-		$oNewApp = new \stdClass;
-		$current = time();
-		$appId = uniqid();
-
-		/* 从站点和项目中获得pic定义 */
-		if (!empty($mission)) {
+		if (empty($mission)) {
+			$oMission = null;
+		} else {
 			$modelMis = $this->model('matter\mission');
 			$oMission = $modelMis->byId($mission);
-			$oNewApp->summary = $oMission->summary;
-			$oNewApp->pic = $oMission->pic;
-			$oNewApp->mission_id = $oMission->id;
-			$oNewApp->use_mission_header = 'Y';
-			$oNewApp->use_mission_footer = 'Y';
-			$oMisEntryRule = $oMission->entry_rule;
-		} else {
-			$oNewApp->summary = '';
-			$oNewApp->pic = $oSite->heading_pic;
-			$oNewApp->use_mission_header = 'N';
-			$oNewApp->use_mission_footer = 'N';
+			if (false === $oMission) {
+				return new \ObjectNotFoundError();
+			}
 		}
-		/* 用户指定的属性 */
 		$oCustomConfig = $this->getPostJson();
-		$title = empty($oCustomConfig->proto->title) ? '新签到活动' : $modelApp->escape($oCustomConfig->proto->title);
-		/* 登记数据 */
-		if (!empty($templateConfig->schema)) {
-			$oNewApp->data_schemas = $modelApp->toJson($templateConfig->schema);
-		}
-		/* 进入规则 */
-		if (empty($templateConfig->entryRule)) {
-			return new \ResponseError('没有获得页面进入规则');
-		}
-		$oEntryRule = $templateConfig->entryRule;
-		if (!empty($oCustomConfig->proto->entryRule->scope)) {
-			$oProtoEntryRule = $oCustomConfig->proto->entryRule;
-			$oEntryRule->scope = $oProtoEntryRule->scope;
-			switch ($oEntryRule->scope) {
-			case 'member':
-				if (isset($oProtoEntryRule->mschemas)) {
-					$oEntryRule->member = new \stdClass;
-					foreach ($oProtoEntryRule->mschemas as $oMschema) {
-						$oRule = new \stdClass;
-						$oRule->entry = isset($oEntryRule->otherwise->entry) ? $oEntryRule->otherwise->entry : '';
-						$oEntryRule->member->{$oMschema->id} = $oRule;
-					}
-					$oEntryRule->other = new \stdClass;
-					$oEntryRule->other->entry = '$memberschema';
-				}
-				break;
-			case 'sns':
-				$oRule = new \stdClass;
-				$oRule->entry = isset($oEntryRule->otherwise->entry) ? $oEntryRule->otherwise->entry : '';
-				$oSns = new \stdClass;
-				if (isset($oProtoEntryRule->sns)) {
-					foreach ($oProtoEntryRule->sns as $snsName => $oRule2) {
-						if (isset($oRule2->entry) && $oRule2->entry === 'Y') {
-							$oSns->{$snsName} = $oRule;
-						}
-					}
-				} else {
-					$modelWx = $this->model('sns\wx');
-					$wxOptions = ['fields' => 'joined'];
-					if (($wx = $modelWx->bySite($site, $wxOptions)) && $wx->joined === 'Y') {
-						$oSns->wx = $oRule;
-					} else if (($wx = $modelWx->bySite('platform', $wxOptions)) && $wx->joined === 'Y') {
-						$oSns->wx = $oRule;
-					}
-					$yxOptions = ['fields' => 'joined'];
-					if ($yx = $this->model('sns\yx')->bySite($site, $yxOptions)) {
-						if ($yx->joined === 'Y') {
-							$oSns->yx = $oRule;
-						}
-					}
-					if ($qy = $this->model('sns\qy')->bySite($site, ['fields' => 'joined'])) {
-						if ($qy->joined === 'Y') {
-							$oSns->qy = $oRule;
-						}
-					}
-				}
-				$oEntryRule->sns = $oSns;
-				$oEntryRule->other = new \stdClass;
-				$oEntryRule->other->entry = '$mpfollow';
-				break;
-			}
-		} else if (isset($oMisEntryRule)) {
-			if (isset($oMisEntryRule->scope) && $oMisEntryRule->scope !== 'none') {
-				$oEntryRule->scope = $oMisEntryRule->scope;
-				switch ($oEntryRule->scope) {
-				case 'member':
-					if (isset($oMisEntryRule->member)) {
-						$oEntryRule->member = $oMisEntryRule->member;
-						foreach ($oEntryRule->member as &$oRule) {
-							$oRule->entry = isset($oEntryRule->otherwise->entry) ? $oEntryRule->otherwise->entry : '';
-						}
-						$oEntryRule->other = new \stdClass;
-						$oEntryRule->other->entry = '$memberschema';
-					}
-					break;
-				case 'sns':
-					$oEntryRule->sns = new \stdClass;
-					if (isset($oMisEntryRule->sns)) {
-						foreach ($oMisEntryRule->sns as $snsName => $oRule) {
-							if (isset($oRule->entry) && $oRule->entry === 'Y') {
-								$oEntryRule->sns->{$snsName} = new \stdClass;
-								$oEntryRule->sns->{$snsName}->entry = isset($oEntryRule->otherwise->entry) ? $oEntryRule->otherwise->entry : '';
-							}
-						}
-						$oEntryRule->other = new \stdClass;
-						$oEntryRule->other->entry = '$mpfollow';
-					}
-					break;
-				}
-			}
-		}
-		/*create app*/
-		$oNewApp->siteid = $oSite->id;
-		$oNewApp->id = $appId;
-		$oNewApp->title = $title;
-		$oNewApp->start_at = isset($oCustomConfig->proto->start_at) ? $oCustomConfig->proto->start_at : 0;
-		$oNewApp->end_at = isset($oCustomConfig->proto->end_at) ? $oCustomConfig->proto->end_at : 0;
-		$oNewApp->entry_rule = $modelApp->toJson($oEntryRule);
 
-		/*任务码*/
-		$entryUrl = $modelApp->getOpUrl($oSite->id, $appId);
-		$code = $this->model('q\url')->add($oUser, $oSite->id, $entryUrl, $oNewApp->title);
-		$oNewApp->op_short_url_code = $code;
-
-		$oNewApp = $modelApp->create($oUser, $oNewApp);
-
-		/* 创建缺省页面 */
-		$this->_addPageByTemplate($oUser, $oSite->id, $oNewApp, $templateConfig);
-		/* 创建缺省轮次 */
-		$this->_addFirstRound($oUser, $oSite->id, $oNewApp);
-
-		/* 记录操作日志 */
-		$this->model('matter\log')->matterOp($oSite->id, $oUser, $oNewApp, 'C');
+		$modelApp = $this->model('matter\signin')->setOnlyWriteDbConn(true);
+		$oNewApp = $modelApp->createByTemplate($oUser, $oSite, $oCustomConfig, $oMission, $template);
 
 		return new \ResponseData($oNewApp);
 	}
@@ -568,35 +435,38 @@ class main extends \pl\fe\matter\main_base {
 			return new \ObjectNotFoundError();
 		}
 		if ($oApp->creater !== $oUser->id) {
-			return new \ResponseError('没有删除数据的权限');
-		}
-
-		/* check */
-		$q = [
-			'count(*)',
-			'xxt_signin_record',
-			["aid" => $oApp->id],
-		];
-		if ((int) $modelSig->query_val_ss($q) > 0) {
-			$rst = $modelSig->remove($oUser, $oApp, 'Recycle');
+			if (!$this->model('site')->isAdmin($oApp->siteid, $oUser->id)) {
+				return new \ResponseError('没有删除数据的权限');
+			}
+			$rst = $modelApp->remove($oUser, $oApp, 'Recycle');
 		} else {
-			$modelSig->delete(
-				'xxt_signin_log',
-				["aid" => $oApp->id]
-			);
-			$modelSig->delete(
-				'xxt_signin_round',
-				["aid" => $oApp->id]
-			);
-			$modelSig->delete(
-				'xxt_code_page',
-				"id in (select code_id from xxt_signin_page where aid='" . $modelSig->escape($oApp->id) . "')"
-			);
-			$modelSig->delete(
-				'xxt_signin_page',
-				["aid" => $oApp->id]
-			);
-			$rst = $modelSig->remove($oUser, $oApp, 'D');
+
+			$q = [
+				'count(*)',
+				'xxt_signin_record',
+				["aid" => $oApp->id],
+			];
+			if ((int) $modelSig->query_val_ss($q) > 0) {
+				$rst = $modelSig->remove($oUser, $oApp, 'Recycle');
+			} else {
+				$modelSig->delete(
+					'xxt_signin_log',
+					["aid" => $oApp->id]
+				);
+				$modelSig->delete(
+					'xxt_signin_round',
+					["aid" => $oApp->id]
+				);
+				$modelSig->delete(
+					'xxt_code_page',
+					"id in (select code_id from xxt_signin_page where aid='" . $modelSig->escape($oApp->id) . "')"
+				);
+				$modelSig->delete(
+					'xxt_signin_page',
+					["aid" => $oApp->id]
+				);
+				$rst = $modelSig->remove($oUser, $oApp, 'D');
+			}
 		}
 
 		return new \ResponseData($rst);

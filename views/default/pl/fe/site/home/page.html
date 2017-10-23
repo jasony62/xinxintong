@@ -1,4 +1,8 @@
-<style>th{text-align:center;}</style>
+<style>
+th {
+    text-align: center;
+}
+</style>
 <div class='col-md-12'>
     <div class='form-group clearfix'>
         <div class='qrcode' style='width:240px;float:left;'>
@@ -28,6 +32,33 @@
             <div class="form-group" ng-if="state=='Y'">
                 <button class='btn btn-danger' ng-click="cancleToHome()">关闭团队主页公开访问</button>
                 <button class='btn btn-success' ng-click="applyToHome()">更新团队主页信息</button>
+            </div>
+            <div class='form-group'>
+                <label class='checkbox-inline'>
+                    <input type='checkbox' ng-true-value="'Y'" ng-false-value="'N'" ng-model="site.can_contribute" ng-change="update('can_contribute')">开放投稿</label>
+                <label class='checkbox-inline'>
+                    <input type='checkbox' ng-true-value="'Y'" ng-false-value="'N'" ng-model="site.can_subscribe" ng-change="update('can_subscribe')">开放关注</label>
+            </div>
+            <div class='form-group'>
+                <label>团队首页头图</label>
+                <div style='position:relative'>
+                    <div style="width:182px;border:1px solid #CCC">
+                        <div style="height:100px;text-align:center;padding-top:32px" ng-if="!site.home_heading_pic">
+                            <button class='btn btn-default' ng-click='setHomeHeadingPic();'>
+                                <span class='glyphicon glyphicon-picture'></span>选择图片</button>
+                        </div>
+                        <div style='position:relative' ng-if="site.home_heading_pic" ng-mouseenter='hover=true' ng-mouseleave='hover=false'>
+                            <img name='pic' ng-src="{{site.home_heading_pic}}" width='180px' />
+                            <button class='btn btn-default btn-sm' style='position:absolute;top:2px;left:2px' ng-if='hover' ng-click='setHomeHeadingPic();'>
+                                <span class='glyphicon glyphicon-picture'></span>
+                            </button>
+                            <button class='btn btn-default btn-sm' style='position:absolute;top:2px;right:2px' ng-if='hover' ng-click='removeHomeHeadingPic();'>
+                                <span class='glyphicon glyphicon-trash'></span>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+                <p class='help-block'>建议采用宽高比为16:9，图片尺寸不小于192*108像素的图片</p>
             </div>
         </div>
     </div>
@@ -130,6 +161,15 @@
                 </tr>
             </tfoot>
         </table>
+        <div class='form-group'>
+            <label>移动端布局方式</label>
+            <div>
+                <label class='radio-inline'>
+                    <input type='radio' value="g1_g2" ng-model="site.home_mobile_layout" ng-change="update('home_mobile_layout')">第1组在上，第2组在下</label>
+                <label class='radio-inline'>
+                    <input type='radio' value="g2_g1" ng-model="site.home_mobile_layout" ng-change="update('home_mobile_layout')">第2组在上，第1组在下</label>
+            </div>
+        </div>
     </div>
 </div>
 <script type="text/ng-template" id="editChannelTitle.html">
@@ -141,7 +181,6 @@
         <div class='form-group'>
             <label>频道中显示的标题<small>（建议控制在四个汉字）</small></label>
             <input type='text' class='form-control' ng-model="channel.display_name">
-
         </div>
     </div>
     <div class="modal-footer">

@@ -23,7 +23,7 @@ class memberschema extends \site\fe\base {
 		$aMemberSchemas = [];
 		$aSchemaIds = explode(',', $schema);
 		foreach ($aSchemaIds as $schemaId) {
-			$schema = $modelSch->byId($schemaId, 'id,name,url');
+			$schema = $modelSch->byId($schemaId, ['fields' => 'id,name,url']);
 			if ($schema) {
 				$schema->url .= "?site={$site}&schema={$schemaId}";
 				$aMemberSchemas[] = $schema;

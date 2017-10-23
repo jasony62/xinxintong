@@ -10,18 +10,20 @@ define(['frame'], function(ngApp) {
             srvTag._tagMatter($scope.app, oTags, subType);
         };
         $scope.quitMission = function() {
-            srvEnrollApp.quitMission().then(function() {});
+            if (window.confirm('确定将[' + $scope.app.title + ']从项目中移除？')) {
+                srvEnrollApp.quitMission().then(function() {});
+            }
         };
         $scope.choosePhase = function() {
             srvEnrollApp.choosePhase();
         };
         $scope.remove = function() {
-            if (window.confirm('确定删除活动？')) {
+            if (window.confirm('确定删除[' + $scope.app.title + ']？')) {
                 srvEnrollApp.remove().then(function() {
                     if ($scope.app.mission) {
                         location = "/rest/pl/fe/matter/mission?site=" + $scope.app.siteid + "&id=" + $scope.app.mission.id;
                     } else {
-                        location = '/rest/pl/fe/site/console?site=' + $scope.app.siteid;
+                        location = '/rest/pl/fe?view=main&scope=activity&type=enroll&sid=' + $scope.app.siteid;
                     }
                 });
             }

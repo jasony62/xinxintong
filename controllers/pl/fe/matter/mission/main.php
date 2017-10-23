@@ -151,7 +151,6 @@ class main extends \pl\fe\matter\base {
 		}
 
 		$oProto = $this->getPostJson();
-
 		$current = time();
 		$modelMis = $this->model('matter\mission')->setOnlyWriteDbConn(true);
 
@@ -230,7 +229,7 @@ class main extends \pl\fe\matter\base {
 				$oEnlConfig->proto = new \stdClass;
 				$oEnlConfig->proto->title = $oNewMis->title . '-报名';
 				$oEnlConfig->proto->summary = $oNewMis->summary;
-				$oNewEnlApp = $modelEnl->createByMission($oUser, $oSite, $oNewMis, 'registration', 'simple', $oEnlConfig);
+				$oNewEnlApp = $modelEnl->createByTemplate($oUser, $oSite, $oEnlConfig, $oNewMis, 'registration', 'simple');
 			}
 			if (isset($oAppProto->signin->create) && $oAppProto->signin->create === 'Y') {
 				/* 在项目下创建签到活动 */
@@ -241,7 +240,7 @@ class main extends \pl\fe\matter\base {
 				if (isset($oAppProto->signin->enrollApp) && $oAppProto->signin->enrollApp === 'Y' && isset($oNewEnlApp)) {
 					$oSigConfig->proto->enrollApp = $oNewEnlApp;
 				}
-				$oNewSigApp = $modelSig->createByMission($oUser, $oSite, $oNewMis, 'basic', $oSigConfig);
+				$oNewSigApp = $modelSig->createByTemplate($oUser, $oSite, $oSigConfig, $oNewMis, 'basic');
 			}
 			if (isset($oAppProto->group->create) && $oAppProto->group->create === 'Y') {
 				/* 在项目下创建分组活动 */
@@ -259,7 +258,8 @@ class main extends \pl\fe\matter\base {
 						$oGrpConfig->proto->sourceApp = (object) ['id' => $oProto->entryRule->mschema->id, 'type' => 'mschema'];
 					}
 				}
-				$oNewGrpApp = $modelGrp->createByMission($oUser, $oSite, $oNewMis, 'split', $oGrpConfig);
+				//$oNewGrpApp = $modelGrp->createByMission($oUser, $oSite, $oNewMis, 'split', $oGrpConfig);
+				$oNewGrpApp = $modelGrp->createByConfig($oUser, $oSite, $oGrpConfig, $oNewMis, 'split');
 			}
 			/* 项目的用户名单应用 */
 			if (isset($oProto->userApp)) {

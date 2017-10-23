@@ -21,11 +21,10 @@ define(['frame', 'schema', 'wrap'], function(ngApp, schemaLib, wrapLib) {
                             break;
                         }
                         if (oSchema.title.indexOf('姓名') !== -1) {
-                            if (oNicknameSchema && oSchema.length < oNicknameSchema.length) {
+                            if (!oNicknameSchema || oSchema.title.length < oNicknameSchema.title.length) {
                                 oNicknameSchema = oSchema;
                             }
-                        }
-                        if (oSchema.format && oSchema.format === 'name') {
+                        } else if (oSchema.format && oSchema.format === 'name') {
                             oNicknameSchema = oSchema;
                         }
                     }
@@ -69,6 +68,17 @@ define(['frame', 'schema', 'wrap'], function(ngApp, schemaLib, wrapLib) {
         $scope.cancelGroupApp = function() {
             $scope.app.group_app_id = '';
             srvEnrollApp.update('group_app_id');
+        };
+        $scope.updConfig = function(oActiveSchema) {
+            var pages, oPage;
+            pages = $scope.app.pages;
+            for (var i = pages.length - 1; i >= 0; i--) {
+                oPage = pages[i];
+                if (oPage.type === 'I') {
+                    oPage.updateSchema(oActiveSchema);
+                    srvEnrollPage.update(oPage, ['data_schemas', 'html']);
+                }
+            }
         };
     }]);
     /**

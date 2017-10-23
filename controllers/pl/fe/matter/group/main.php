@@ -133,57 +133,14 @@ class main extends \pl\fe\matter\main_base {
 			if (false === $oMission) {
 				return new \ObjectNotFoundError();
 			}
-		}
-
-		$modelApp = $this->model('matter\group')->setOnlyWriteDbConn(true);
-		$oCustomConfig = $this->getPostJson();
-		$current = time();
-
-		$oNewApp = new \stdClass;
-		if (empty($oMission)) {
-			$oNewApp->summary = '';
-			$oNewApp->pic = $oSite->heading_pic;
-			$oNewApp->use_mission_header = 'N';
-			$oNewApp->use_mission_footer = 'N';
 		} else {
-			$oNewApp->summary = $modelApp->escape($oMission->summary);
-			$oNewApp->pic = $oMission->pic;
-			$oNewApp->mission_id = $oMission->id;
-			$oNewApp->use_mission_header = 'Y';
-			$oNewApp->use_mission_footer = 'Y';
+			$oMission = null;
 		}
-		/*create app*/
-		$oNewApp->siteid = $oSite->id;
-		$oNewApp->title = empty($oCustomConfig->proto->title) ? '新分组活动' : $modelApp->escape($oCustomConfig->proto->title);
-		$oNewApp->scenario = $scenario;
-		$oNewApp->start_at = isset($oCustomConfig->proto->start_at) ? $oCustomConfig->proto->start_at : 0;
-		$oNewApp->end_at = isset($oCustomConfig->proto->end_at) ? $oCustomConfig->proto->end_at : 0;
-		$oNewApp = $modelApp->create($oUser, $oNewApp);
 
-		/*记录操作日志*/
-		$this->model('matter\log')->matterOp($oSite->id, $oUser, $oNewApp, 'C');
+		$oCustomConfig = $this->getPostJson();
+		$modelApp = $this->model('matter\group')->setOnlyWriteDbConn(true);
 
-		/* 指定分组用户名单并导入分组用户 */
-		if (isset($oCustomConfig->proto->sourceApp)) {
-			$oSourceApp = $oCustomConfig->proto->sourceApp;
-			if (!empty($oSourceApp->id) && !empty($oSourceApp->type)) {
-				$modelGrpUsr = $this->model('matter\group\player');
-				switch ($oSourceApp->type) {
-				case 'registration':
-					$modelGrpUsr->importByEnroll($oNewApp, $oSourceApp->id);
-					break;
-				case 'signin':
-					$modelGrpUsr->importBySignin($oNewApp, $oSourceApp->id);
-					break;
-				case 'wall':
-					break;
-					$modelGrpUsr->importByWall($oNewApp, $oSourceApp->id, $oSourceApp->onlySpeaker);
-				case 'mschema':
-					$modelGrpUsr->importByMschema($oNewApp, $oSourceApp->id);
-					break;
-				}
-			}
-		}
+		$oNewApp = $modelApp->createByConfig($oUser, $oSite, $oCustomConfig, $oMission, $scenario);
 
 		return new \ResponseData($oNewApp);
 	}

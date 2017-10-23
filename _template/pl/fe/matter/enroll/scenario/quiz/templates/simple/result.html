@@ -1,19 +1,5 @@
-<div id="s1" class="form-group wrap-splitline" wrap="value" ng-controller="ctrlRecord" schema="c1001" schema-type="shorttext">
-    <label>问题1</label>
-    <div>{{Record.current.data.c1001}}</div>
-</div>
-<div id="s2" ng-controller="ctrlRecord" wrap="value" schema="c1002" schema-type="single" class="form-group wrap-splitline">
-    <label>问题2</label>
-    <div>{{value2Label("c1002")}}</div>
-</div>
-<div id="s3" ng-controller="ctrlRecord" wrap="value" schema="c1003" schema-type="multiple" class="form-group wrap-splitline">
-    <label>问题3</label>
-    <div ng-bind-html="value2Label('c1003')"></div>
-</div>
-<div id="s4" ng-controller="ctrlRecord" wrap="value" schema="c1004" schema-type="longtext" class="form-group wrap-splitline">
-    <label>问题4</label>
-    <div>{{Record.current.data.c1004}}</div>
-</div>
+<!-- begin: view_base.html -->
+<!-- end: view_base.html -->
 <div id="act2" class="form-group" wrap="button" ng-controller="ctrlRecord">
     <button class="btn btn-primary btn-block btn-lg" ng-click="closeWindow($event)"><span>关闭</span></button>
 </div>

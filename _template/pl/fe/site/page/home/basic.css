@@ -1,27 +1,27 @@
-.carousel{margin-bottom:0;}
+.carousel{margin-bottom:20px;}
 
 /* tem-info */
-.team-info{position:relative;padding:20px;margin-bottom:10px;overflow:hidden;border:1px solid #efefef;}
-.team-img{width:17%;margin-right:2%;}
-.team-img > img{width:200px;height:200px;}
-.team-content{width:81%;overflow:hidden;}
-.team-content > .team-head{overflow:hidden;}
-.team-content > .team-head > .team-title{margin-top:45px;margin-bottom:30px;}
-.team-content > .team-head > .team-handle{width:23%;margin-top:28px;}
-.team-content > .team-summary{color:#666;}
+.team{background:#fff;border-bottom:1px solid #efefef;margin-bottom:20px;}
+.team-info{position:relative;overflow:hidden;}
+.team-img{width:192px;height:108px;background-size:contain;background-repeat:no-repeat;background-position:center;}
+.team-title{position:absolute;top:0;left:207px;right:0;overflow:hidden;line-height:54px;font-size:24px;}
+.team-summary{position:absolute;top:54px;left:207px;color:#666;}
+.team-handle{position:relative;overflow:hidden;height:108px;text-align:center;display:flex;flex-direction:column;align-items:center;justify-content:center;}
 .btn:focus,.btn:active:focus{outline:none;}
 .xxt_scan{cursor:pointer;width:77px;height:77px;bottom:0;right:0;background-position:-137px -259px;}
 .team-qrcode{position:absolute;right:0;bottom:10px;}
 .qrcode{width:96px;height:96px;}
 @media screen and (max-width:768px){
-	.team-info{padding:20px 10px 40px 10px;border:none;}
-	.team-img{width:23%;}
-	.team-img > img{width:82px;height:82px;}
-	.team-content{width:75%;}
-	.team-content > .team-head > .team-title{margin-top:10px;margin-bottom:10px;}
-	.team-content > .team-head > .team-handle{position:absolute;bottom:5px;left:50%;margin-left:-100px;width:100%;margin-top:0px;}
-	.team-content > .team-summary{color:#666;overflow:hidden;white-space:nowrap;text-overflow:ellipsis;}
-	.team-info > span{display:none;}
+	.carousel{margin-bottom:8px;}
+	.team{margin-bottom:8px;}
+	.team-info{margin:0;border-bottom:0;}
+	.team-img{width:128px;height:72px;}
+	.team-title{left:136px;right:0;line-height:36px;font-size:18px;}
+	.team-summary{left:136px;right:0;top:36px;padding:0;font-size:12px;}
+	.team-handle{height:auto;margin:0;padding:8px 0;border-bottom:0;flex-direction:row;}
+	.team-handle>.form-group{display:inline-block;margin-bottom:0;}
+	.matters{display:flex;flex-direction:column;}
+	.matters.layout_g2_g1{flex-direction:column-reverse;}
 }
 
 /* 右侧栏小功能 */
@@ -35,6 +35,6 @@
 /*template/matter*/
 .template{position:relative;height:200px;cursor:pointer;display:flex;flex-direction:column;padding:15px;}
 .template .summary{flex:1;overflow:hidden;}
-.template .attr{display:flex;padding:8px 0;}
+.template .attr{display:flex;padding:10px 0;}
 .template .creater_name{flex:1;}
 .template .actions{border-top:1px solid #ddd;padding-top:8px;}

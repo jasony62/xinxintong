@@ -120,18 +120,18 @@
                                                         <input type='radio' value='none' ng-model="entryRule.scope">不限制 <span class='glyphicon glyphicon-question-sign' uib-tooltip='用户可以使用手机、PC机上的微信或浏览器等终端参与活动，系统不持久记录填写终端和填写记录间的对应关系，适用于填写后不需要查询和修改的情况'></span></label>
                                                 </div>
                                             </div>
-                                            <hr>
-                                            <div class='form-group'>
+                                            <div class='form-group' ng-if="scenarioConfig.required">
+                                                <hr>
                                                 <label>其他设置</label>
-                                                <div class='checkbox'>
+                                                <div class='checkbox' ng-if="scenarioConfig.can_repos!=='D'">
                                                     <label>
                                                         <input type='checkbox' ng-true-value="'Y'" ng-false-value="'N'" ng-model="proto.can_repos">开放共享页 <span class='glyphicon glyphicon-question-sign' uib-tooltip='设置后参与活动的用户可以查看活动中其他用户提交的数据。可查看的题目需设置为【共享内容】'></span></label>
                                                 </div>
-                                                <div class='checkbox'>
+                                                <div class='checkbox' ng-if="scenarioConfig.can_rank!=='D'">
                                                     <label>
                                                         <input type='checkbox' ng-true-value="'Y'" ng-false-value="'N'" ng-model="proto.can_rank">开放排行页 <span class='glyphicon glyphicon-question-sign' uib-tooltip='设置后参与活动的用户可以查看提交记录数、发表评论数、得分和积分等数据的个人或分组排行情况'></span></label>
                                                 </div>
-                                                <div class='checkbox'>
+                                                <div class='checkbox' ng-if="scenarioConfig.can_rounds!=='D'">
                                                     <label>
                                                         <input type='checkbox' ng-true-value="'Y'" ng-false-value="'D'" ng-model="result.scenarioConfig.can_rounds">按轮次登记 <span class='glyphicon glyphicon-question-sign' uib-tooltip='支持按轮次进行数据登记，每个轮次可以指定开始和结束时间'></span></label>
                                                 </div>
@@ -149,19 +149,6 @@
                                                                 <span class='glyphicon glyphicon-remove'></span>
                                                             </button>
                                                         </div>
-                                                    </div>
-                                                </div>
-                                            </div>
-                                            <div class='form-group' ng-if="!proto.enrollApp">
-                                                <button class='btn btn-default btn-block' ng-disabled="!proto.mission" ng-click="assignEnrollApp()">指定登记匹配名单 <span class='glyphicon glyphicon-question-sign' uib-tooltip='指定同一个项目的登记活动后，用户填写数据时需要提供和登记活动中匹配信息'></span></button>
-                                            </div>
-                                            <div class='form-group' ng-if="proto.enrollApp">
-                                                <div class="input-group">
-                                                    <input class='form-control' value="{{proto.enrollApp.title}}" title="{{result.proto.enrollApp.title}}" readonly>
-                                                    <div class="input-group-btn">
-                                                        <button class="btn btn-default" ng-click="proto.enrollApp=null">
-                                                            <span class='glyphicon glyphicon-remove'></span>
-                                                        </button>
                                                     </div>
                                                 </div>
                                             </div>

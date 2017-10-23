@@ -1,8 +1,24 @@
-<div id="s1" class="form-group wrap-splitline" wrap="value" ng-controller="ctrlRecord" schema="name" schema-type="shorttext"><label>姓名</label>
-<div>{{Record.current.data.name}}</div>
+<!-- begin: generate by schema -->
+<?php foreach ($this->schema as $def) { 
+$schema = $def->schema;
+?>
+<div id="<?php echo $def->config->id?>" class="form-group wrap-splitline" wrap="value" ng-controller="ctrlRecord" schema="<?php echo $schema->id;?>" schema-type="<?php echo $schema->type;?>">
+    <label>
+        <?php echo $schema->title;?>
+    </label>
+    <?php if (in_array($schema->type,['name','email','mobile','shorttext','longtext','member'])) { ?>
+    <div>{{Record.current.data.
+        <?php echo $schema->id?>}}</div>
+    <?php } else if (in_array($schema->type,['_enrollAt'])) { ?>
+    <div>{{Record.current.enroll_at*1000|date:'yy-MM-dd HH:mm'}}</div>
+    <?php } else if (in_array($schema->type,['single','phase'])) { ?>
+    <div>{{value2Label("
+        <?php echo $schema->id;?>")}}</div>
+    <?php } ?>
 </div>
-<div id="s2" class="form-group wrap-splitline" wrap="value" ng-controller="ctrlRecord" schema="mobile" schema-type="shorttext"><label>手机</label>
-<div>{{Record.current.data.mobile}}</div>
-</div>
+<?php } ?>
+<!-- end: generate by schema -->
 <div wrap="text" class="form-group">签到成功！</div>
-<div id="act2" class="form-group" wrap="button" ng-controller="ctrlRecord"><button class="btn btn-primary btn-block btn-lg" ng-click="editRecord($event,'signin')"><span>修改签到信息</span></button></div>
+<div id="act2" class="form-group" wrap="button" ng-controller="ctrlRecord">
+    <button class="btn btn-primary btn-block btn-lg" ng-click="editRecord($event,'signin')"><span>修改签到信息</span></button>
+</div>

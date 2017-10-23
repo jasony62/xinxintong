@@ -1,11 +1,11 @@
 <?php
 namespace matter;
 
-require_once dirname(__FILE__) . '/app_base.php';
+require_once dirname(__FILE__) . '/enroll_base.php';
 /**
  *
  */
-class wall_model extends app_base {
+class wall_model extends enroll_base {
 	/**
 	 * 审核状态
 	 */
@@ -32,14 +32,21 @@ class wall_model extends app_base {
 			'xxt_wall',
 			['id' => $id],
 		];
-		if ($w = $this->query_obj_ss($q)) {
-			$w->type = 'wall';
-			if (!empty($w->matter_mg_tag)) {
-				$w->matter_mg_tag = json_decode($w->matter_mg_tag);
+		if ($oWall = $this->query_obj_ss($q)) {
+			$oWall->type = 'wall';
+			if ($fields === '*' || false !== strpos($fields, 'data_schemas')) {
+				if (!empty($oWall->data_schemas)) {
+					$oWall->dataSchemas = json_decode($oWall->data_schemas);
+				} else {
+					$oWall->dataSchemas = [];
+				}
+			}
+			if (!empty($oWall->matter_mg_tag)) {
+				$oWall->matter_mg_tag = json_decode($oWall->matter_mg_tag);
 			}
 		}
 
-		return $w;
+		return $oWall;
 	}
 	/**
 	 *
@@ -79,7 +86,7 @@ class wall_model extends app_base {
 			$reply = [false, '【' . $wall->title . '】已经结束'];
 			return $reply;
 		}
-		
+
 		/**
 		 * 加入一个信息墙需要从其他的墙退出
 		 */

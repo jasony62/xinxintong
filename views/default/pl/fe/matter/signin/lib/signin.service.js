@@ -165,7 +165,7 @@ define(['require', 'schema', 'page'], function(require, schemaLib, pageLib) {
                 signinLate = {},
                 that = this;
 
-            srvRecordConverter.forTable(record, that._oApp._schemasById);
+            srvRecordConverter.forTable(record, that._oApp._assocSchemasById);
             // signin log
             for (var roundId in that._mapOfRoundsById) {
                 round = that._mapOfRoundsById[roundId];
@@ -185,7 +185,8 @@ define(['require', 'schema', 'page'], function(require, schemaLib, pageLib) {
     angular.module('service.signin', ['ui.bootstrap', 'ui.xxt', 'service.matter']).
     provider('srvSigninApp', function() {
         function _mapSchemas(app) {
-            var mapOfSchemaByType = {},
+            var mapOfAppSchemaById = {},
+                mapOfSchemaByType = {},
                 mapOfSchemaById = {},
                 enrollDataSchemas = [],
                 groupDataSchemas = [],
@@ -194,6 +195,7 @@ define(['require', 'schema', 'page'], function(require, schemaLib, pageLib) {
             app.dataSchemas.forEach(function(schema) {
                 mapOfSchemaByType[schema.type] === undefined && (mapOfSchemaByType[schema.type] = []);
                 mapOfSchemaByType[schema.type].push(schema.id);
+                mapOfAppSchemaById[schema.id] = schema;
                 mapOfSchemaById[schema.id] = schema;
                 if (false === /image|file/.test(schema.type)) {
                     canFilteredSchemas.push(schema);
@@ -219,7 +221,8 @@ define(['require', 'schema', 'page'], function(require, schemaLib, pageLib) {
             }
 
             app._schemasByType = mapOfSchemaByType;
-            app._schemasById = mapOfSchemaById;
+            app._schemasById = mapOfAppSchemaById;
+            app._assocSchemasById = mapOfSchemaById;
             app._schemasCanFilter = canFilteredSchemas;
             app._schemasFromEnrollApp = enrollDataSchemas;
             app._schemasFromGroupApp = groupDataSchemas;

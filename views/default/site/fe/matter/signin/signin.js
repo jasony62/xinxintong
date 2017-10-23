@@ -63,8 +63,7 @@ ngApp.factory('Input', ['$http', '$q', '$timeout', 'ls', function($http, $q, $ti
             if (typeof rsp === 'string') {
                 defer.reject(rsp);
             } else if (rsp.err_code != 0) {
-                defer.reject(rsp.err_msg);
-                return rsp.err_msg;
+                defer.reject(rsp);
             } else {
                 defer.resolve(rsp);
             }

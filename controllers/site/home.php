@@ -56,7 +56,9 @@ class home extends base {
 	 *
 	 */
 	private function &_makePage($site, $page, $template) {
-		$templateDir = TMS_APP_TEMPLATE . '/pl/fe/site/page/' . $page;
+		$templateDir = file_exists(TMS_APP_TEMPLATE . '/pl/fe/site/page/home') ? TMS_APP_TEMPLATE : TMS_APP_TEMPLATE_DEFAULT;
+		$templateDir .= '/pl/fe/site/page/home';
+
 		$data = array(
 			'html' => file_get_contents($templateDir . '/' . $template . '.html'),
 			'css' => file_get_contents($templateDir . '/' . $template . '.css'),

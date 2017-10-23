@@ -26,7 +26,7 @@
                         <i class="glyphicon glyphicon-menu-right pull-right"></i>
                     </a>
                     <p class="site-summary" ng-bind="site.summary"></p>
-                    <button class="btn btn-warning pull-right" ng-click="subscribeSite()">关注</button>
+                    <button ng-if="site.can_subscribe==='Y'" class="btn btn-warning pull-right" ng-click="subscribeSite()">关注</button>
                 </div>
                 <div id="qrCode">
                     <img class="code" ng-src="{{code}}" alt="">

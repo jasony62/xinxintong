@@ -16,6 +16,7 @@ $sql .= ",site_id varchar(32) not null default ''"; // 父团队ID
 $sql .= ",state tinyint not null default 1"; // 1:正常, 0:停用
 $sql .= ",home_page_id int not null default 0"; // 团队主页
 $sql .= ",home_page_name varchar(13) not null default ''"; // 团队主页
+$sql .= ",home_heading_pic text"; // 首页团队
 $sql .= ",autoup_homepage char(1) not null default 'Y'"; // 是否自动更新主页页面
 $sql .= ",home_carousel text"; // 首页轮播
 $sql .= ",home_qrcode_group text"; // 首页群二维码
@@ -25,6 +26,8 @@ $sql .= ",footer_page_id int not null default 0"; // 通用页尾
 $sql .= ",footer_page_name varchar(13) not null default ''"; // 通用页尾
 $sql .= ",shift2pc_page_id int not null default 0"; // 引导到PC端完成
 $sql .= ",shift2pc_page_name varchar(13) not null default ''"; // 引导到PC端完成
+$sql .= ",can_contribute char(1) not null default 'N'"; // 开放投稿
+$sql .= ",can_subscribe char(1) not null default 'N'"; // 开放关注
 $sql .= ",primary key(id)) ENGINE=MyISAM DEFAULT CHARSET=utf8";
 if (!$mysqli->query($sql)) {
 	header('HTTP/1.0 500 Internal Server Error');

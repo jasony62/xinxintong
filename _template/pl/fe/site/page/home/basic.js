@@ -1,9 +1,9 @@
-ngApp.provider.controller('ctrlHome', ['$scope', '$http', 'tmsFavor', 'tmsForward', 'tmsDynaPage', function($scope, $http, tmsFavor, tmsForward, tmsDynaPage) {
+ngApp.provider.controller('ctrlHome', ['$scope', '$http', '$location', '$anchorScroll', 'tmsFavor', 'tmsForward', 'tmsDynaPage', function($scope, $http, $location, $anchorScroll, tmsFavor, tmsForward, tmsDynaPage) {
     var ls = location.search,
         siteId = ls.match(/site=([^&]*)/)[1],
         width = angular.element(window).width(),
-        page, entry, url, goTop;
-    width > 768 ? goTop = document.querySelector('#md_gototop') : goTop = document.querySelector('#xs_gototop');
+        page, entry, url;
+
     url = 'http://' + location.host + '/rest/site/home?site=' + siteId;
     $scope.entry = entry = {
         url: url,
@@ -58,9 +58,9 @@ ngApp.provider.controller('ctrlHome', ['$scope', '$http', 'tmsFavor', 'tmsForwar
                     data.data = rsp.data.matters;
                     data.total = rsp.data.length;
                     data.pageAt = $scope.page.at;
-                    if(data.total > 0){
+                    if (data.total > 0) {
                         data.data.forEach(function(matter, index1) {
-                            if(matter.matter_cont_tag != '' && matter.matter_cont_tag != undefined){
+                            if (matter.matter_cont_tag != '' && matter.matter_cont_tag != undefined) {
                                 matter.matter_cont_tag.forEach(function(mTag, index2) {
                                     $scope.oTagsC.forEach(function(oTag) {
                                         if (oTag.id === mTag) {
@@ -125,9 +125,10 @@ ngApp.provider.controller('ctrlHome', ['$scope', '$http', 'tmsFavor', 'tmsForwar
     $scope.openMatter = function(matter) {
         location.href = matter.url;
     };
-    goTop.addEventListener('click', function() {
-        document.querySelector('body').scrollTop = 0;
-    });
+    $scope.gotoTop = function() {
+        $location.hash("home");
+        $anchorScroll();
+    };
     tagMatters();
     listTemplates();
     c_listChannels();

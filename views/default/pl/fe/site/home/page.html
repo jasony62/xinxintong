@@ -1,4 +1,8 @@
-<style>th{text-align:center;}</style>
+<style>
+th {
+    text-align: center;
+}
+</style>
 <div class='col-md-12'>
     <div class='form-group clearfix'>
         <div class='qrcode' style='width:240px;float:left;'>
@@ -28,6 +32,12 @@
             <div class="form-group" ng-if="state=='Y'">
                 <button class='btn btn-danger' ng-click="cancleToHome()">关闭团队主页公开访问</button>
                 <button class='btn btn-success' ng-click="applyToHome()">更新团队主页信息</button>
+            </div>
+            <div class='form-group'>
+                <label class='checkbox-inline'>
+                    <input type='checkbox' ng-true-value="'Y'" ng-false-value="'N'" ng-model="site.can_contribute" ng-change="update('can_contribute')">开放投稿</label>
+                <label class='checkbox-inline'>
+                    <input type='checkbox' ng-true-value="'Y'" ng-false-value="'N'" ng-model="site.can_subscribe" ng-change="update('can_subscribe')">开放关注</label>
             </div>
         </div>
     </div>
@@ -130,6 +140,15 @@
                 </tr>
             </tfoot>
         </table>
+        <div class='form-group'>
+            <label>移动端布局方式</label>
+            <div>
+                <label class='radio-inline'>
+                    <input type='radio' value="g1_g2" ng-model="site.home_mobile_layout" ng-change="update('home_mobile_layout')">第1组在上，第2组在下</label>
+                <label class='radio-inline'>
+                    <input type='radio' value="g2_g1" ng-model="site.home_mobile_layout" ng-change="update('home_mobile_layout')">第2组在上，第1组在下</label>
+            </div>
+        </div>
     </div>
 </div>
 <script type="text/ng-template" id="editChannelTitle.html">
@@ -141,7 +160,6 @@
         <div class='form-group'>
             <label>频道中显示的标题<small>（建议控制在四个汉字）</small></label>
             <input type='text' class='form-control' ng-model="channel.display_name">
-
         </div>
     </div>
     <div class="modal-footer">

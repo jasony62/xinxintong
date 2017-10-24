@@ -94,7 +94,7 @@ class main extends \pl\fe\matter\main_base {
 	/**
 	 * 创建一个信息墙
 	 */
-	public function create_action($site = null, $mission = null) {
+	public function create_action($site = null, $mission = null, $scenario = 'discuss', $template = 'simple') {
 		if (false === ($oUser = $this->accountUser())) {
 			return new \ResponseTimeout();
 		}
@@ -125,6 +125,10 @@ class main extends \pl\fe\matter\main_base {
 		$modelWall = $this->model('matter\wall')->setOnlyWriteDbConn(true);
 		/* 前端指定的信息 */
 		$oNewApp->title = empty($oCustomConfig->proto->title) ? '新信息墙' : $modelWall->escape($oCustomConfig->proto->title);
+		!empty($oCustomConfig->proto->summary) && $oNewApp->summary = $modelWall->escape($oCustomConfig->proto->summary);
+		!empty($oCustomConfig->proto->start_at) && $oNewApp->start_at = $modelWall->escape($oCustomConfig->proto->start_at);!empty($oCustomConfig->proto->end_at) && $oNewApp->end_at = $modelWall->escape($oCustomConfig->proto->end_at);
+		$oNewApp->scenario = $modelWall->escape($scenario);
+		!empty($oCustomConfig->proto->scenario_config) && $oNewApp->scenario_config = $modelWall->toJson($oCustomConfig->proto->scenario_config);
 		$oNewApp->quit_cmd = 'q';
 		$oNewApp->join_reply = '欢迎加入';
 		$oNewApp->quit_reply = '已经退出';

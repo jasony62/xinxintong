@@ -33,7 +33,7 @@ class base extends \site\fe\base {
 		 * 如果不是注册用户，要求先进行认证
 		 */
 		if (count($aMemberSchemas) === 1) {
-			$schema = $this->model('site\user\memberschema')->byId($aMemberSchemas[0], ['fields' => 'id,url']);
+			$schema = $this->model('site\user\memberschema')->byId($aMemberSchemas[0], 'id,url');
 			strpos($schema->url, 'http') === false && $authUrl = 'http://' . APP_HTTP_HOST;
 			$authUrl .= $schema->url;
 			$authUrl .= "?site=$siteId";
@@ -205,5 +205,139 @@ class base extends \site\fe\base {
 		TPL::assign('body', $r);
 		TPL::output('error');
 		exit;
+	}
+	/*
+	* 获取我的分享信息
+	*/
+	protected function getMyShareInfo($oUser, $matterType, $matterId, $orderBy = 'read') {
+		$model = $this->model();
+
+		$q = [];
+		$q2 = [];
+		switch ($orderBy) {
+			case 'shareF':
+				$q[0] = 'userid,count(*) shareF_sum';
+				$q[1] = 'xxt_log_matter_share';
+				$q[2]["matter_id"] = $matterId;
+				$q[2]["matter_type"] = $matterType;
+				$q[2]["matter_shareby"] = (object) ['op' => 'like', 'pat' => $oUser->uid . '_%'];
+				$q[2]["share_to"] = 'F';
+
+				$q2['g'] = 'userid';
+				$q2['o'] = 'shareF_sum desc,share_at desc';
+				break;
+			case 'shareT':
+				$q[0] = 'userid,count(*) shareT_sum';
+				$q[1] = 'xxt_log_matter_share';
+				$q[2]["matter_id"] = $matterId;
+				$q[2]["matter_type"] = $matterType;
+				$q[2]["matter_shareby"] = (object) ['op' => 'like', 'pat' => $oUser->uid . '_%'];
+				$q[2]["share_to"] = 'T';
+
+				$q2['g'] = 'userid';
+				$q2['o'] = 'shareT_sum desc,share_at desc';
+				break;
+			case 'attractRead':
+				$q[0] = "select r.userid,(select count(*) from xxt_log_matter_read r1 where r1.matter_id=" . $model->escape($matterId) . " and r1.matter_type='" . $model->escape($matterType) . "' and r1.matter_shareby like CONCAT(r.userid,'_%')) as attractRead_sum";
+				$q[1] = 'xxt_log_matter_read r';
+				$q[2]["r.matter_id"] = $matterId;
+				$q[2]["r.matter_type"] = $matterType;
+				$q[2]["r.matter_shareby"] = (object) ['op' => 'like', 'pat' => $oUser->uid . '_%'];
+
+				$q2['g'] = 'userid';
+				$q2['o'] = 'attractRead_sum desc,read_at desc';
+				break;
+			default:
+				$q[0] = 'userid,count(*) read_sum';
+				$q[1] = 'xxt_log_matter_read';
+				$q[2]["matter_id"] = $matterId;
+				$q[2]["matter_type"] = $matterType;
+				$q[2]["matter_shareby"] = (object) ['op' => 'like', 'pat' => $oUser->uid . '_%'];
+
+				$q2['g'] = 'userid';
+				$q2['o'] = 'read_sum desc,read_at desc';
+				break;
+		}
+
+		$users = $model->query_objs_ss($q, $q2);
+		if($users){
+			foreach ($users as $user) {
+				if (!isset($user->read_sum)) {
+					$p = [
+						'count(*) read_sum',
+						'xxt_log_matter_read',
+						[]
+					];
+					$q[2]["matter_id"] = $matterId;
+					$q[2]["matter_type"] = $matterType;
+					$q[2]["matter_shareby"] = (object) ['op' => 'like', 'pat' => $oUser->uid . '_%'];
+					$q[2]["userid"] = $user->userid;
+
+					$rst = $model->query_obj_ss($p);
+					if ($rst) {
+						$user->read_sum = $rst->read_sum;
+					} else {
+						$user->read_sum = 0;
+					}
+				}
+				if (!isset($user->shareF_sum)) {
+					$p = [
+						'count(*) shareF_sum',
+						'xxt_log_matter_share',
+						[]
+					];
+					$q[2]["matter_id"] = $matterId;
+					$q[2]["matter_type"] = $matterType;
+					$q[2]["matter_shareby"] = (object) ['op' => 'like', 'pat' => $oUser->uid . '_%'];
+					$q[2]["userid"] = $user->userid;
+					$q[2]["share_to"] = 'F';
+
+					$rst = $model->query_obj_ss($p);
+					if ($rst) {
+						$user->shareF_sum = $rst->shareF_sum;
+					} else {
+						$user->shareF_sum = 0;
+					}
+				}
+				if (!isset($user->shareT_sum)) {
+					$p = [
+						'count(*) shareT_sum',
+						'xxt_log_matter_share',
+						[]
+					];
+					$q[2]["matter_id"] = $matterId;
+					$q[2]["matter_type"] = $matterType;
+					$q[2]["matter_shareby"] = (object) ['op' => 'like', 'pat' => $oUser->uid . '_%'];
+					$q[2]["userid"] = $user->userid;
+					$q[2]["share_to"] = 'T';
+
+					$rst = $model->query_obj_ss($p);
+					if ($rst) {
+						$user->shareT_sum = $rst->shareT_sum;
+					} else {
+						$user->shareT_sum = 0;
+					}
+				}
+				if (!isset($user->attractRead_sum)) {
+					$p = [
+						'count(*) attractRead_sum',
+						'xxt_log_matter_read',
+						[]
+					];
+					$q[2]["matter_id"] = $matterId;
+					$q[2]["matter_type"] = $matterType;
+					$q[2]["matter_shareby"] = (object) ['op' => 'like', 'pat' => $user->userid . '_%'];
+
+					$rst = $model->query_obj_ss($p);
+					if ($rst) {
+						$user->attractRead_sum = $rst->attractRead_sum;
+					} else {
+						$user->attractRead_sum = 0;
+					}
+				}
+			}
+		}
+
+		return $users;
 	}
 }

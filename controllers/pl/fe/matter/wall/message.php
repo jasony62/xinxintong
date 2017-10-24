@@ -30,6 +30,16 @@ class message extends \pl\fe\matter\base {
 
 		return new \ResponseData(array($messages, time()));
 	}
+	/*
+	* 获取素材分享者列表
+	* $startTime 分享开始时间
+	* $matterType=1,2,3
+	*/
+	public function listPlayer_action($startTime, $startId = null, $matterType, $matterId) {
+		$users = $this->model('matter\wall')->listPlayer($startTime, $startId, $matterType, $matterId);
+
+		return new \ResponseData($users);
+	}
 	/**
 	 * 批准消息上墙
 	 *

@@ -44,6 +44,9 @@ class wall_model extends enroll_base {
 			if (!empty($oWall->matter_mg_tag)) {
 				$oWall->matter_mg_tag = json_decode($oWall->matter_mg_tag);
 			}
+			if (!empty($oWall->scenario_config)) {
+				$oWall->scenario_config = json_decode($oWall->scenario_config);
+			}
 		}
 
 		return $oWall;
@@ -264,6 +267,29 @@ class wall_model extends enroll_base {
 		$time > 0 && $q[2] .= " and publish_at>=$time";
 		$q2['o'] = 'publish_at desc';
 		return $this->query_objs_ss($q, $q2);
+	}
+	/*
+	* 获取素材分享者列表
+	* $startTime 分享开始时间
+	*/
+	protected function listPlayer($startTime, $startId = null, $matterType, $matterId) {
+		$startTime = $this->escape($startTime);
+		$matterType = $this->escape($matterType);
+		$matterId = $this->escape($matterId);
+
+		$q = [
+			's.id,s.share_to,s.share_at,s.matter_id,s.matter_type,s.matter_title,s.userid,a.nickname,a.headimgurl,a.wx_openid,a.yx_openid,a.qy_openid',
+			'xxt_log_matter_share s,xxt_site_account a',
+			"s.share_at > $startTime and s.matter_id in ($matterId) and s.matter_type = '$matterType' and s.userid = a.uid and s.siteid = a.siteid"
+		];
+		if (!empty($startId)) {
+			$startId = $this->escape($startId);
+			$q[2] .= ' and s.id > $startId';
+		}
+		$q2 = ['g' => 's.userid', 'o' => 's.share_at asc'];
+		$users = $this->query_objs_ss($q, $q2);
+
+		return $users;
 	}
 	/**
 	 * 获得消息列表

@@ -24,7 +24,7 @@
 	.matters{display:flex;flex-direction:column;}
 	.matters.layout_g2_g1{flex-direction:column-reverse;}
 	.matters>div{padding:0 8px;background:#fff;}
-	.channel{margin-top:8px;}
+	.channel+.channel{margin-top:8px;}
 }
 
 /* 右侧栏小功能 */

@@ -20,17 +20,9 @@
         <div class="container">
             <div class="col-md-3 col-xs-12">
                 <div id='site'>
-                    <a class="site-title" ng-href="{{'/rest/site/home?site='+site.id}}">
-                        <img class="pull-left img-circle" ng-src="{{site.heading_pic}}">
-                        <h4 class="inline-block pull-left" ng-bind="site.name"></h4>
-                        <i class="glyphicon glyphicon-menu-right pull-right"></i>
-                    </a>
+                    <a class="site-title" ng-href="{{'/rest/site/home?site='+site.id}}"><img class="pull-left img-circle" ng-src="{{site.heading_pic}}"><span class="pull-left" ng-bind="site.name"></span><i class="glyphicon glyphicon-menu-right pull-right"></i></a>
                     <p class="site-summary" ng-bind="site.summary"></p>
                     <button ng-if="site.can_subscribe==='Y'" class="btn btn-warning pull-right" ng-click="subscribeSite()">关注</button>
-                </div>
-                <div id="qrCode">
-                    <img class="code" ng-src="{{code}}" alt="">
-                    <h6>(扫一扫，分享)</h6>
                 </div>
             </div>
             <div class="col-md-9 col-xs-12 bgf">

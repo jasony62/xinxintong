@@ -45,6 +45,7 @@ define(['frame'], function(ngApp) {
         });
         srvEnrollApp.get().then(function(oApp) {
             $scope.bCountLimited = oApp.count_limit !== '0';
+            $('#main-view').height($('#pl-layout-main').height());
             $('#main-view').scrollspy({ target: '#mainScrollspy' });
             $('#mainScrollspy>ul').affix({
                 offset: {

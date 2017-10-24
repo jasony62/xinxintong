@@ -88,7 +88,7 @@ class import extends \pl\fe\matter\base {
 			// 文件存储在本地
 			$modelFs = $this->model('fs/local', $site, '_resumable');
 			$fileUploaded = 'enroll_' . $app . '_' . $file->name;
-			$records = $this->_extract($site, $app, $modelFs->rootDir . '/' . $fileUploaded);
+			$records = $this->_extract($app, $modelFs->rootDir . '/' . $fileUploaded);
 			$modelFs->delete($fileUploaded);
 		}
 
@@ -104,11 +104,11 @@ class import extends \pl\fe\matter\base {
 	/**
 	 * 从文件中提取数据
 	 */
-	private function &_extract($site, $app, $filename) {
+	private function &_extract($appId, $filename) {
 		require_once TMS_APP_DIR . '/lib/PHPExcel.php';
 
-		$app = $this->model('matter\enroll')->byId($app, ['cascaded' => 'N']);
-		$schemas = json_decode($app->data_schemas);
+		$oApp = $this->model('matter\enroll')->byId($appId, ['cascaded' => 'N']);
+		$schemas = json_decode($oApp->data_schemas);
 		$schemasByTitle = [];
 		foreach ($schemas as $schema) {
 			$schemasByTitle[$schema->title] = $schema;
@@ -147,50 +147,55 @@ class import extends \pl\fe\matter\base {
 		 */
 		$records = [];
 		for ($row = 2; $row <= $highestRow; $row++) {
-			$record = new \stdClass;
-			$data = new \stdClass;
+			$oRecord = new \stdClass;
+			$oRecData = new \stdClass;
 			for ($col = 0; $col < $highestColumnIndex; $col++) {
-				$schema = $schemasByCol[$col];
-				if ($schema === false) {
+				$oSchema = $schemasByCol[$col];
+				if ($oSchema === false) {
 					continue;
 				}
-				$value = (string) $objWorksheet->getCellByColumnAndRow($col, $row)->getValue();
-				if ($schema === 'verified') {
-					if (in_array($value, ['Y', '是'])) {
-						$record->verified = 'Y';
-					} else {
-						$record->verified = 'N';
+				$fileValue = (string) $objWorksheet->getCellByColumnAndRow($col, $row)->getValue();
+				if ($oSchema === 'verified') {
+					$oRecord->verified = in_array($fileValue, ['Y', '是']) ? 'Y' : 'N';
+				} else if ($oSchema === 'comment') {
+					$oRecord->comment = $fileValue;
+				} else if ($oSchema === 'tags') {
+					$oRecord->tags = $fileValue;
+				} else if ($oSchema->type === 'member') {
+					if (!isset($oRecData->member)) {
+						$oRecData->member = new \stdClass;
 					}
-				} else if ($schema === 'comment') {
-					$record->comment = $value;
-				} else if ($schema === 'tags') {
-					$record->tags = $value;
-				} else if (in_array($schema->type, ['single', 'phase'])) {
-					foreach ($schema->ops as $op) {
-						if ($op->l === $value) {
-							$data->{$schema->id} = $op->v;
+					$schemaId = explode('.', $oSchema->id);
+					if (count($schemaId) === 2 && $schemaId[0] === 'member') {
+						$schemaId = $schemaId[1];
+						$oRecData->member->{$schemaId} = $fileValue;
+					}
+				} else if (in_array($oSchema->type, ['single', 'phase'])) {
+					foreach ($oSchema->ops as $op) {
+						if ($op->l === $fileValue) {
+							$oRecData->{$oSchema->id} = $op->v;
 							break;
 						}
 					}
-				} else if ('multiple' === $schema->type) {
-					$values = explode(',', $value);
-					foreach ($schema->ops as $op) {
+				} else if ('multiple' === $oSchema->type) {
+					$values = explode(',', $fileValue);
+					foreach ($oSchema->ops as $op) {
 						if (in_array($op->l, $values)) {
-							!isset($data->{$schema->id}) && $data->{$schema->id} = '';
-							$data->{$schema->id} .= $op->v . ',';
+							!isset($oRecData->{$oSchema->id}) && $oRecData->{$oSchema->id} = '';
+							$oRecData->{$oSchema->id} .= $op->v . ',';
 						}
 					}
-					if (isset($data->{$schema->id})) {
-						$data->{$schema->id} = rtrim($data->{$schema->id}, ',');
+					if (isset($oRecData->{$oSchema->id})) {
+						$oRecData->{$oSchema->id} = rtrim($oRecData->{$oSchema->id}, ',');
 					}
-				} else if ('score' === $schema->type) {
+				} else if ('score' === $oSchema->type) {
 					$treatedValue = new \stdClass;
-					$values = explode('/', $value);
+					$values = explode('/', $fileValue);
 					foreach ($values as $value) {
 						if (!empty($value) && strpos($value, ':')) {
 							list($label, $score) = explode(':', $value);
 							$label = trim($label);
-							foreach ($schema->ops as $op) {
+							foreach ($oSchema->ops as $op) {
 								if ($op->l === $label) {
 									$treatedValue->{$op->v} = trim($score);
 									break;
@@ -198,13 +203,13 @@ class import extends \pl\fe\matter\base {
 							}
 						}
 					}
-					$data->{$schema->id} = $treatedValue;
+					$oRecData->{$oSchema->id} = $treatedValue;
 				} else {
-					$data->{$schema->id} = $value;
+					$oRecData->{$oSchema->id} = $fileValue;
 				}
 			}
-			$record->data = $data;
-			$records[] = $record;
+			$oRecord->data = $oRecData;
+			$records[] = $oRecord;
 		}
 
 		return $records;

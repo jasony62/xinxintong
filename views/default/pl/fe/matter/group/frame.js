@@ -136,8 +136,8 @@ define(['require'], function() {
             }
             $scope.app = app;
         });
-        $scope.importByApp = function() {
-            srvGroupApp.importByApp(cstApp.importSource).then(function() {});
+        $scope.assocWithApp = function() {
+            srvGroupApp.assocWithApp(cstApp.importSource).then(function() {});
         };
         $scope.cancelSourceApp = function() {
             srvGroupApp.cancelSourceApp();

@@ -88,7 +88,17 @@ class record extends base {
 			foreach ($dataSchemas as $dataSchema) {
 				if (isset($dataSchema->requireCheck) && $dataSchema->requireCheck === 'Y') {
 					if (isset($dataSchema->fromApp) && $dataSchema->fromApp === $oSigninApp->group_app_id) {
-						$requireCheckedData->{$dataSchema->id} = isset($oSigninData->{$dataSchema->id}) ? $oSigninData->{$dataSchema->id} : '';
+						if (strpos($dataSchema->id, 'member.') === 0 && isset($oSigninData->member)) {
+							$schemaId = explode('.', $dataSchema->id);
+							if (count($schemaId) === 2) {
+								$schemaId = $schemaId[1];
+								if (isset($oSigninData->member->{$schemaId})) {
+									$requireCheckedData->{$dataSchema->id} = $oSigninData->member->{$schemaId};
+								}
+							}
+						} else {
+							$requireCheckedData->{$dataSchema->id} = isset($oSigninData->{$dataSchema->id}) ? $oSigninData->{$dataSchema->id} : '';
+						}
 					}
 				}
 			}

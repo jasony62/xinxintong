@@ -72,13 +72,13 @@ class record extends base {
 		}
 
 		if (isset($posted->data)) {
-			$enrolledData = $posted->data;
+			$oEnrolledData = $posted->data;
 		} else {
-			$enrolledData = $posted;
+			$oEnrolledData = $posted;
 		}
 		if ((isset($oEnrollApp->assignedNickname->valid) && $oEnrollApp->assignedNickname->valid === 'Y') && isset($oEnrollApp->assignedNickname->schema->id)) {
 			/* 从登记内容中获取昵称 */
-			$oUser->nickname = empty($enrolledData->{$oEnrollApp->assignedNickname->schema->id}) ? '' : $enrolledData->{$oEnrollApp->assignedNickname->schema->id};
+			$oUser->nickname = empty($oEnrolledData->{$oEnrollApp->assignedNickname->schema->id}) ? '' : $oEnrolledData->{$oEnrollApp->assignedNickname->schema->id};
 		} else {
 			/* 当前访问用户的基本信息 */
 			$userNickname = $modelEnl->getUserNickname($oEnrollApp, $oUser);
@@ -86,7 +86,7 @@ class record extends base {
 		}
 
 		// 检查是否允许登记
-		$rst = $this->_canSubmit($oEnrollApp, $oUser, $enrolledData, $ek);
+		$rst = $this->_canSubmit($oEnrollApp, $oUser, $oEnrolledData, $ek);
 		if ($rst[0] === false) {
 			return new \ResponseError($rst[1]);
 		}
@@ -104,7 +104,7 @@ class record extends base {
 			foreach ($dataSchemas as $dataSchema) {
 				if (isset($dataSchema->requireCheck) && $dataSchema->requireCheck === 'Y') {
 					if (isset($dataSchema->fromApp) && $dataSchema->fromApp === $oEnrollApp->enroll_app_id) {
-						$requireCheckedData->{$dataSchema->id} = isset($enrolledData->{$dataSchema->id}) ? $enrolledData->{$dataSchema->id} : '';
+						$requireCheckedData->{$dataSchema->id} = isset($oEnrolledData->{$dataSchema->id}) ? $oEnrolledData->{$dataSchema->id} : '';
 					}
 				}
 			}
@@ -135,8 +135,8 @@ class record extends base {
 			/* 将匹配的登记记录数据作为提交的登记数据的一部分 */
 			$oMatchedData = $oEnrollRecord->data;
 			foreach ($oMatchApp->dataSchemas as $oSchema) {
-				if (!isset($enrolledData->{$oSchema->id}) && isset($oMatchedData->{$oSchema->id})) {
-					$enrolledData->{$oSchema->id} = $oMatchedData->{$oSchema->id};
+				if (!isset($oEnrolledData->{$oSchema->id}) && isset($oMatchedData->{$oSchema->id})) {
+					$oEnrolledData->{$oSchema->id} = $oMatchedData->{$oSchema->id};
 				}
 			}
 		}
@@ -154,7 +154,17 @@ class record extends base {
 			foreach ($dataSchemas as $dataSchema) {
 				if (isset($dataSchema->requireCheck) && $dataSchema->requireCheck === 'Y') {
 					if (isset($dataSchema->fromApp) && $dataSchema->fromApp === $oEnrollApp->group_app_id) {
-						$requireCheckedData->{$dataSchema->id} = isset($enrolledData->{$dataSchema->id}) ? $enrolledData->{$dataSchema->id} : '';
+						if (strpos($dataSchema->id, 'member.') === 0 && isset($oEnrolledData->member)) {
+							$schemaId = explode('.', $dataSchema->id);
+							if (count($schemaId) === 2) {
+								$schemaId = $schemaId[1];
+								if (isset($oEnrolledData->member->{$schemaId})) {
+									$requireCheckedData->{$dataSchema->id} = $oEnrolledData->member->{$schemaId};
+								}
+							}
+						} else {
+							$requireCheckedData->{$dataSchema->id} = isset($oEnrolledData->{$dataSchema->id}) ? $oEnrolledData->{$dataSchema->id} : '';
+						}
 					}
 				}
 			}
@@ -182,20 +192,20 @@ class record extends base {
 			/* 将匹配的分组记录数据作为提交的登记数据的一部分 */
 			$oMatchedData = $oGroupRecord->data;
 			foreach ($oGroupApp->dataSchemas as $oSchema) {
-				if (!isset($enrolledData->{$oSchema->id}) && isset($oMatchedData->{$oSchema->id})) {
-					$enrolledData->{$oSchema->id} = $oMatchedData->{$oSchema->id};
+				if (!isset($oEnrolledData->{$oSchema->id}) && isset($oMatchedData->{$oSchema->id})) {
+					$oEnrolledData->{$oSchema->id} = $oMatchedData->{$oSchema->id};
 				}
 			}
 			/* 所属分组id */
 			if (isset($oGroupRecord->round_id)) {
-				$oUser->group_id = $enrolledData->_round_id = $oGroupRecord->round_id;
+				$oUser->group_id = $oEnrolledData->_round_id = $oGroupRecord->round_id;
 			}
 		}
 		/**
 		 * 提交用户身份信息
 		 */
-		// if (isset($enrolledData->member) && isset($enrolledData->member->schema_id)) {
-		// 	$member = clone $enrolledData->member;
+		// if (isset($oEnrolledData->member) && isset($oEnrolledData->member->schema_id)) {
+		// 	$member = clone $oEnrolledData->member;
 		// 	$rst = $this->_submitMember($site, $member, $oUser);
 		// 	if ($rst[0] === false) {
 		// 		return new \ParameterError($rst[1]);
@@ -211,7 +221,7 @@ class record extends base {
 			/* 插入登记数据 */
 			$ek = $modelRec->enroll($oEnrollApp, $oUser, ['nickname' => $oUser->nickname]);
 			/* 处理自定义信息 */
-			$rst = $modelRec->setData($oUser, $oEnrollApp, $ek, $enrolledData, $submitkey, true);
+			$rst = $modelRec->setData($oUser, $oEnrollApp, $ek, $oEnrolledData, $submitkey, true);
 			/* 登记提交的积分奖励 */
 			$modelMat = $this->model('matter\enroll\coin');
 			$modelMat->setOnlyWriteDbConn(true);
@@ -221,7 +231,7 @@ class record extends base {
 			$modelCoin->award($oEnrollApp, $oUser, 'site.matter.enroll.submit', $rules);
 		} else {
 			/* 重新插入新提交的数据 */
-			$rst = $modelRec->setData($oUser, $oEnrollApp, $ek, $enrolledData, $submitkey);
+			$rst = $modelRec->setData($oUser, $oEnrollApp, $ek, $oEnrolledData, $submitkey);
 			if ($rst[0] === true) {
 				/* 已经登记，更新原先提交的数据，只要进行更新操作就设置为未审核通过的状态 */
 				$oUpdatedEnrollRec['enroll_at'] = time();

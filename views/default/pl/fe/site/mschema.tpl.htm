@@ -52,16 +52,13 @@
                         <div class='panel panel-default'>
                             <div class='panel-body'>
                                 <div class='form-group'>
+                                    <label>通讯录名称</label>
+                                    <input type='text' class='form-control' ng-model='choosedSchema.title' tms-auto-update tms-wait=1000 tms-update="updSchema('title')">
+                                </div>
+                                <div class='form-group hide'>
                                     <div class='form-inline'>
                                         <div class='form-group'>
                                             <div class='input-group'>
-                                                <div class='input-group-addon'>
-                                                    <input type='checkbox' ng-true-value="'Y'" ng-false-value="'N'" ng-model='choosedSchema.valid' ng-change="updSchema('valid')">
-                                                </div>
-                                                <input type='text' class='form-control' style='width:200px' ng-model='choosedSchema.title' placeholder='输入名称' tms-auto-update tms-wait=1000 tms-update="updSchema('title')">
-                                                <div class="input-group-btn">
-                                                    <button class="btn btn-default" type="button" ng-click='delSchema()'><span class='glyphicon glyphicon-remove'></span></button>
-                                                </div>
                                             </div>
                                         </div>
                                         <div class='form-group hide'>
@@ -74,7 +71,6 @@
                                             <select class='form-control' title='数据有效期' ng-model='choosedSchema.validity' ng-options='d.v as d.n for d in days' ng-change="updSchema('validity')"></select>
                                         </div>
                                         <div class='form-group'>
-                                            <button class='btn btn-default' ng-click='addExtattr(s)'>增加信息项</button>
                                             <button class='btn btn-default hide' ng-if="choosedSchema.type==='inner'" ng-click='gotoCode()'>定制填写页面</button>
                                             <button class='btn btn-default hide' ng-if="choosedSchema.type==='inner'" ng-click='resetCode()'>重置填写页面</button>
                                             <button class='btn btn-default' ng-click='importSchema()'>导入通讯录</button>
@@ -115,6 +111,7 @@
                                         </tr>
                                     </tbody>
                                 </table>
+                                <button class='btn btn-default' ng-click='addExtattr(s)'>增加信息项</button>
                             </div>
                         </div>
                         <!-- options -->
@@ -226,6 +223,10 @@
                                 </table>
                                 <button class='btn btn-default' ng-click="addInvite()">添加邀请码</button>
                             </div>
+                        </div>
+                        <div class='form-group'>
+                            <hr>
+                            <button class='btn btn-default btn-block' ng-click="delSchema()">删除通讯录</button>
                         </div>
                     </div>
                 </div>

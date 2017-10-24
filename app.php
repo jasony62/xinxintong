@@ -179,12 +179,31 @@ set_exception_handler('tms_exception_handler');
  *                starting with slash).
  */
 function auto_version($file) {
-	if (strpos($file, '/') !== 0 || !file_exists(TMS_APP_DIR . $file)) {
+	if (strpos($file, DIRECTORY_SEPARATOR) !== 0 || !file_exists(TMS_APP_DIR . $file)) {
 		return $file;
 	}
 	$mtime = filemtime(TMS_APP_DIR . $file);
 	$file .= '?_=' . $mtime;
 	return $file;
+}
+/**
+ * 获得文件的定制版本
+ */
+function custom_version($file) {
+	if (0 !== strpos($file, DIRECTORY_SEPARATOR)) {
+		$file .= DIRECTORY_SEPARATOR . $file;
+	}
+
+	$full = '/views/' . TMS_APP_VIEW_NAME . $file;
+	if (!file_exists($full)) {
+		$full = '/views/' . TMS_APP_VIEW_NAME_DEFAULT . $file;
+	}
+
+	$full = auto_version($full);
+
+	$full = TMS_APP_URI . $full;
+
+	return $full;
 }
 /**
  * error handle

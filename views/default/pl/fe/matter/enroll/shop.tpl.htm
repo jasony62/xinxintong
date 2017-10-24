@@ -25,7 +25,7 @@
             <!--侧边栏-->
             <ul class="nav nav-tabs nav-stacked">
                 <li ng-class="{'active':source==='platform'}"><a href='' ng-click="switchSource('platform')">系统模板</a></li>
-                <li ng-class="{'active':source==='share'}"><a href='' ng-click="switchSource('share')">共享模板</a></li>
+                <li class='hide' ng-class="{'active':source==='share'}"><a href='' ng-click="switchSource('share')">共享模板</a></li>
                 <li class='hide' ng-class="{'active':source==='file'}"><a href='' ng-click="switchSource('file')">导入文件</a></li>
             </ul>
         </div>
@@ -64,6 +64,10 @@
                                                     </div>
                                                 </div>
                                             </div>
+                                            <div class='form-group' ng-if="proto.mission">
+                                                <label>所属项目</label>
+                                                <input class='form-control' title="{{proto.mission.title}}" value="{{proto.mission.title}}" readonly>
+                                            </div>
                                             <hr>
                                             <div class='form-group'>
                                                 <label>活动名称</label>
@@ -86,10 +90,6 @@
                                                         <tms-datepicker class='tms-datepicker' tms-title='结束时间' tms-date='proto.end_at' tms-state='end_at'></tms-datepicker>
                                                     </div>
                                                 </div>
-                                            </div>
-                                            <div class='form-group' ng-if="proto.mission">
-                                                <label>所属项目</label>
-                                                <input class='form-control' title="{{proto.mission.title}}" value="{{proto.mission.title}}" readonly>
                                             </div>
                                             <hr>
                                             <div class='form-group'>
@@ -136,10 +136,10 @@
                                                         <input type='checkbox' ng-true-value="'Y'" ng-false-value="'D'" ng-model="result.scenarioConfig.can_rounds">按轮次登记 <span class='glyphicon glyphicon-question-sign' uib-tooltip='支持按轮次进行数据登记，每个轮次可以指定开始和结束时间'></span></label>
                                                 </div>
                                             </div>
-                                            <hr>
-                                            <div ng-if="entryRule.scope!=='group'">
+                                            <div ng-if="proto.mission&&entryRule.scope!=='group'">
+                                                <hr>
                                                 <div class='form-group' ng-if="!proto.groupApp">
-                                                    <button class='btn btn-default btn-block' ng-disabled="!proto.mission" ng-click="assignGroupApp()">指定分组匹配名单 <span class='glyphicon glyphicon-question-sign' uib-tooltip='指定同一个项目中的分组活动后，用户填写数据时需要提供和分组活动中匹配分组信息，例如：组号等，系统支持按照分组提交记录进行筛选和记分等功能'></span></button>
+                                                    <button class='btn btn-default btn-block' ng-click="assignGroupApp()">指定分组匹配名单 <span class='glyphicon glyphicon-question-sign' uib-tooltip='指定同一个项目中的分组活动后，用户填写数据时需要提供和分组活动中匹配分组信息，例如：组号等，系统支持按照分组提交记录进行筛选和记分等功能'></span></button>
                                                 </div>
                                                 <div class='form-group' ng-if="proto.groupApp">
                                                     <div class="input-group">
@@ -266,6 +266,7 @@
     <script src="/static/js/resumable.js"></script>
     <script src="/static/js/ui-tms.js?_=4"></script>
     <script src="/static/js/xxt.ui.js?_=4"></script>
+    <script src="<?php echo custom_version('/pl/fe/_module/const.js');?>"></script>
     <script src="/views/default/pl/fe/_module/matter.service.js?_=1"></script>
     <script src="/static/js/require.js" data-main="/views/default/pl/fe/matter/enroll/shop-loader.js?_=1"></script>
 </body>

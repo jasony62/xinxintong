@@ -28,14 +28,13 @@
         </div>
     </div>
     <div class='row matters' ng-class="{'layout_g2_g1':site.home_mobile_layout==='g2_g1'}">
-        <div class="col-md-9 col-xs-12 channel">
+        <div class="col-md-9 col-xs-12 section">
             <uib-tabset active="0" class="row" style="padding-bottom:10px">
                 <uib-tab index="$index" ng-repeat="c in c_channels_matters">
                     <uib-tab-heading>{{c.display_name}}</uib-tab-heading>
                     <div class="media-item clearfix" ng-repeat="m in cTotal[c.channel_id]['data']" ng-click="openMatter(m)">
                         <div class="media-item-left">
-                            <div class="media-item-img" ng-style="{'background-image':'url('+m.pic||m.thumbnail+')'}">
-                            </div>
+                            <div class="media-item-img" ng-style="{'background-image':'url('+m.pic||m.thumbnail+')'}"></div>
                         </div>
                         <div class="media-item-body">
                             <div class='media-item-body-flexbox'>
@@ -73,12 +72,12 @@
                     </span>
             </uib-tabset>
         </div>
-        <div class="col-md-3 col-xs-12 channel">
+        <div class="col-md-3 col-xs-12 section">
             <div class="mainSide hidden-xs" ng-repeat="r in channelArticles">
                 <div class="mainSide-header">
                     <span class="site_fe_home site_fe_home_icon xxt_guide"></span>
                     <span class=''>{{r.title}}</span>
-                    <span class="pull-right"><a ng-href="{{r.url}}">更多<i class="glyphicon glyphicon-menu-right"></i></a></span>
+                    <span ng-if="r.total>5" class="pull-right"><a ng-href="{{r.url}}">更多<i class="glyphicon glyphicon-menu-right"></i></a></span>
                 </div>
                 <div class='madinSide-body'>
                     <ul class="list-unstyled row">
@@ -90,18 +89,18 @@
                     </ul>
                 </div>
             </div>
-            <div class="mainSide visible-xs-block bgfa">
-                <uib-tabset active="0" class="row">
+            <div class="mainSide visible-xs-block">
+                <uib-tabset active="0">
                     <uib-tab index="$index" ng-repeat="r in channelArticles">
                         <uib-tab-heading>{{r.title}}</uib-tab-heading>
-                        <ul class="list-unstyled row">
+                        <ul class="list-unstyled">
                             <li class="list-item" ng-repeat="d in r.data">
                                 <a ng-href="{{d.url}}">
                                     <span ng-bind="d.title"></span>
                                 </a>
                             </li>
                         </ul>
-                        <div class="text-center"><a ng-href="{{r.url}}">更 多</a></div>
+                        <div ng-if="r.total>5" class="text-center"><a ng-href="{{r.url}}" target='_self'>更 多</a></div>
                     </uib-tab>
                     <span uib-dropdown on-toggle="toggled(open)" class="pull-right" ng-if="channelArticles.length > 2">
                             <a href id="simple-dropdown" uib-dropdown-toggle>

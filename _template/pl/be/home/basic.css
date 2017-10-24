@@ -17,3 +17,13 @@
 	.slider_extend > a > .slider-caption > .slider-text-wrap{width:100%;margin-bottom:10px;margin-top:10px;color:#fff;display:block;line-height:1;overflow:hidden;white-space:nowrap;text-overflow:ellipsis;}
 	.slider_extend > a > .slider-mask{height:30%;top:70%;}
 }
+
+/**
+* matters
+*/
+.section{background-color:#fff;}
+@media screen and (max-width:768px){
+	.nav-tabs>li>a{font-size:14px;}
+	.matters>div{padding:0 8px;}
+	.matters .section+.section{margin-top:4px;}
+}

@@ -40,7 +40,7 @@
             </nav>
             <div class='container-fluid ng-cloak' ng-cloak>
                 <div class='row'>
-                    <div class='col-md-3' ng-if="bOnlyone===false">
+                    <div class='col-md-2 col-lg-3' ng-if="bOnlyone===false">
                         <div class='list-group'>
                             <a href='' class='list-group-item' ng-class="{active:choosedSchema===schema}" ng-repeat='schema in schemas' ng-click="chooseSchema(schema)">
                         {{schema.title}}
@@ -48,7 +48,7 @@
                         </div>
                         <button class='btn btn-default btn-block' ng-click='addSchema()'><span class='glyphicon glyphicon-plus'></span> 添加定义</button>
                     </div>
-                    <div class='col-md-6' ng-class="{'col-md-offset-3':bOnlyone}" ng-if="choosedSchema">
+                    <div class='col-md-8 col-lg-6' ng-class="{'col-md-offset-2':bOnlyone,'col-lg-offset-3':bOnlyone}" ng-if="choosedSchema">
                         <div class='panel panel-default'>
                             <div class='panel-body'>
                                 <div class='form-group'>

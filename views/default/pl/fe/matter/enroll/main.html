@@ -46,7 +46,7 @@
             </div>
         </div>
     </div>
-    <div id='main-2' class='panel panel-default'>
+    <div id='main-time' class='panel panel-default'>
         <div class='panel-body'>
             <div class='form-group'>
                 <label>时间设置</label>
@@ -54,7 +54,7 @@
                     <tr>
                         <td>活动开始</td>
                         <td style='padding:0;width:180px;'>
-                            <tms-datepicker class='tms-datepicker' tms-title='开始时间' tms-date='app.start_at' tms-state='start_at'></tms-datepicker>
+                            <tms-datepicker class='tms-datepicker' tms-title='开始时间' tms-date='app.start_at' tms-default-date='{{defaultTime.start_at}}' tms-mask='y,m,d,h,i' tms-state='start_at'></tms-datepicker>
                         </td>
                         <td style='padding:0'>
                             <select class='form-control' ng-model='app.before_start_page' ng-options='page.name as page.title for page in app.pages' ng-change="update('before_start_page')">
@@ -328,7 +328,7 @@
 <div class="col-md-3" id="mainScrollspy" style='position:relative;'>
     <ul class="nav nav-pills nav-stacked pl-workspace" style='position:fixed;'>
         <li><a href="#main-1">基本信息</a></li>
-        <li><a href="#main-2">时间设置</a></li>
+        <li><a href="#main-time">时间设置</a></li>
         <li><a href="#main-3">特性设置</a></li>
         <li><a href="#main-access">进入规则</a></li>
         <li><a href="#main-5">任务设置</a></li>

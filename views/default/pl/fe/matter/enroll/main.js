@@ -44,6 +44,18 @@ define(['frame'], function(ngApp) {
             srvEnrollApp.update(data.state);
         });
         srvEnrollApp.get().then(function(oApp) {
+            $scope.defaultTime = {
+                start_at: oApp.start_at > 0 ? oApp.start_at : (function() {
+                    var t;
+                    t = new Date;
+                    t.setHours(8);
+                    t.setMinutes(0);
+                    t.setMilliseconds(0);
+                    t.setSeconds(0);
+                    t = parseInt(t / 1000);
+                    return t;
+                })()
+            };
             $scope.bCountLimited = oApp.count_limit !== '0';
             $('#main-view').height($('#pl-layout-main').height());
             $('#main-view').scrollspy({ target: '#mainScrollspy' });

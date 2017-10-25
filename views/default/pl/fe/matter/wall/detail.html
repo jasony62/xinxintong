@@ -121,6 +121,27 @@
                     </li>
                 </ul>
             </div>
+            <div class='form-group' ng-if="wall.scenario=='interact'">
+                <div class='help-block'>互动方式</div>
+                <div class=''>
+                    <label class='checkbox-inline'>
+                        <input type='checkbox' ng-true-value="'Y'" ng-false-value="'N'" ng-model='interactAction.share' ng-change="update('scenario_config')">分享</label>
+                    <label class='checkbox-inline'>
+                        <input type='checkbox' ng-true-value="'Y'" ng-false-value="'N'" ng-model='interactAction.read' ng-change="update('scenario_config')">阅读</label>
+                </div>
+                <div class='help-block'></div>
+                <div class='help-block'>参加人数（最少4人，最多24人）</div>
+                <div class=''>
+                    <select class='form-control' ng-model="wall.scenario_config.player_sum" ng-change="update('scenario_config')" >
+                    <option value='4'>4</option>
+                    <option value='8'>8</option>
+                    <option value='12'>12</option>
+                    <option value='16'>16</option>
+                    <option value='20'>20</option>
+                    <option value='24'>24</option>
+                </select>
+                </div>
+            </div>
         </div>
     </div>
     <div class="col-md-4" ng-if="wall.scenario=='discuss'">

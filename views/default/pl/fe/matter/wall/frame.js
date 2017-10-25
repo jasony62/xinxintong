@@ -127,6 +127,7 @@ define(['require', 'wallService'], function(require) {
                 });
             }
             $scope.wall = oWall;
+            $scope.interactAction = $scope.wall.scenario_config.interact_action;
         });
     }]);
     //自定义过滤器

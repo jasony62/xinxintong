@@ -170,6 +170,8 @@ class main extends \pl\fe\matter\main_base {
 		} else if (isset($oUpdated->active) && $oUpdated->active === 'N') {
 			//如果停用信息墙，退出所有用户
 			$modelApp->update('xxt_wall_enroll', ['close_at' => time()], ['wid' => $app]);
+		} else if (isset($oUpdated->scenario_config)) {
+			$oUpdated->scenario_config = $modelApp->escape(json_encode($oUpdated->scenario_config));
 		}
 
 		if ($oMatter = $modelApp->modify($oUser, $oMatter, $oUpdated)) {

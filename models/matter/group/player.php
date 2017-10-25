@@ -329,7 +329,7 @@ class player_model extends \TMS_MODEL {
 			];
 		}
 		/* 排序 */
-		$q2['o'] = 'enroll_at desc';
+		$q2['o'] = 'round_id asc,enroll_at desc';
 		if ($players = $this->query_objs_ss($q, $q2)) {
 			/* record data */
 			if ($fields === '*' || false !== strpos($fields, 'data')) {

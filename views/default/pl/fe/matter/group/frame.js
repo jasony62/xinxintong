@@ -124,17 +124,20 @@ define(['require'], function() {
         srvSite.tagList().then(function(oTag) {
             $scope.oTag = oTag;
         });
-        srvGroupApp.get().then(function(app) {
-            if (app.matter_mg_tag !== '') {
-                app.matter_mg_tag.forEach(function(cTag, index) {
+        srvGroupApp.get().then(function(oApp) {
+            if (oApp.matter_mg_tag !== '') {
+                oApp.matter_mg_tag.forEach(function(cTag, index) {
                     $scope.oTag.forEach(function(oTag) {
                         if (oTag.id === cTag) {
-                            app.matter_mg_tag[index] = oTag;
+                            oApp.matter_mg_tag[index] = oTag;
                         }
                     });
                 });
             }
-            $scope.app = app;
+            $scope.app = oApp;
+            if (!oApp.rounds || oApp.rounds.length === 0) {
+
+            }
         });
         $scope.assocWithApp = function() {
             srvGroupApp.assocWithApp(cstApp.importSource).then(function() {});

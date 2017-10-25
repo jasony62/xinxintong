@@ -24,8 +24,8 @@ class player extends \pl\fe\matter\base {
 		$modelGrp = $this->model('matter\group');
 		$modelPlayer = $this->model('matter\group\player');
 
-		$app = $modelGrp->byId($app);
-		$result = $modelPlayer->byApp($app);
+		$oApp = $modelGrp->byId($app);
+		$result = $modelPlayer->byApp($oApp);
 
 		return new \ResponseData($result);
 	}

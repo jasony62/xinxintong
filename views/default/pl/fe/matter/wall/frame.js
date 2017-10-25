@@ -1,6 +1,29 @@
 define(['require', 'wallService'], function(require) {
     'use strict';
     var ngApp = angular.module('app', ['ngRoute', 'ui.tms', 'ui.xxt', 'ui.bootstrap', 'service.matter', 'service.wall']);
+    ngApp.constant('cstApp', {
+        matterTypes: [{
+            value: 'article',
+            title: '单图文',
+            url: '/rest/pl/fe/matter'
+        }, {
+            value: 'enroll',
+            title: '登记活动',
+            url: '/rest/pl/fe/matter'
+        }, {
+            value: 'signin',
+            title: '签到活动',
+            url: '/rest/pl/fe/matter'
+        }, {
+            value: 'lottery',
+            title: '抽奖活动',
+            url: '/rest/pl/fe/matter'
+        }, {
+            value: 'link',
+            title: '链接',
+            url: '/rest/pl/fe/matter'
+        }]
+    });
     ngApp.config(['$controllerProvider', '$routeProvider', '$locationProvider', '$compileProvider', 'srvSiteProvider', 'srvWallAppProvider', 'srvTagProvider', function($controllerProvider, $routeProvider, $locationProvider, $compileProvider, srvSiteProvider, srvWallAppProvider, srvTagProvider) {
         var RouteParam = function(name) {
             var baseURL = '/views/default/pl/fe/matter/wall/';

@@ -47,6 +47,9 @@ class wall_model extends enroll_base {
 			if (!empty($oWall->scenario_config)) {
 				$oWall->scenario_config = json_decode($oWall->scenario_config);
 			}
+			if (!empty($oWall->interact_matter)) {
+				$oWall->interact_matter = json_decode($oWall->interact_matter);
+			}
 		}
 
 		return $oWall;

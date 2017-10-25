@@ -388,4 +388,88 @@ class main extends \pl\fe\matter\main_base {
 
 		return new \ResponseData($rst);
 	}
+	/*
+	*互动场景添加素材
+	*/
+	public function addInteractMatter_action($site, $app) {
+		if (false === ($oUser = $this->accountUser())) {
+			return new \ResponseTimeout();
+		}
+
+		$modelWall = $this->model('matter\wall')->setOnlyWriteDbConn(true);
+		if (($oApp = $modelWall->byId($app, ['fields' => 'interact_matter'])) === false) {
+			return new \ObjectNotFoundError();
+		}
+		$oInteractMatters = $oApp->interact_matter;
+		if(empty($oInteractMatters)){
+			$oInteractMatters = [];
+		}
+
+		$post = $this->getPostJson();
+		if(empty($post->matters)){
+			return new \ResponseError('没有选择素材');
+		}
+
+		foreach ($post->matters as $matter) {
+			$matter2 = new \stdClass;
+			$matter2->id = $matter->id;
+			$matter2->type = $matter->type;
+			$matter2->title = $matter->title;
+			if (!in_array($matter2, $oInteractMatters)) {
+				array_unshift($oInteractMatters, $matter2);
+			}
+		}
+		$interactMatters = $modelWall->tojson($oInteractMatters);
+
+		$modelWall->update(
+			'xxt_wall',
+			['interact_matter' => $interactMatters],
+			['id' => $app]
+		);
+
+		$oApp = $modelWall->byId($app, ['fields' => 'interact_matter']);
+
+		return new \ResponseData($oApp);
+	}
+	/*
+	*
+	*/
+	public function removeMatter_action($site, $app) {
+		if (false === ($oUser = $this->accountUser())) {
+			return new \ResponseTimeout();
+		}
+
+		$modelWall = $this->model('matter\wall')->setOnlyWriteDbConn(true);
+		if (($oApp = $modelWall->byId($app, ['fields' => 'interact_matter'])) === false) {
+			return new \ObjectNotFoundError();
+		}
+		$oInteractMatters = $oApp->interact_matter;
+		if(empty($oInteractMatters)){
+			return new \ResponseError('没有素材');
+		}
+
+		$post = $this->getPostJson();
+		if(empty($post)){
+			return new \ResponseError('没有选择素材');
+		}
+
+		$removeMatter = new \stdClass;
+		$removeMatter->id = $post->id;
+		$removeMatter->type = $post->type;
+		$removeMatter->title = $post->title;
+
+		$key = array_search($removeMatter, $oInteractMatters);
+		array_splice($oInteractMatters,$key,1);
+
+		$interactMatters = $modelWall->tojson($oInteractMatters);
+
+		$modelWall->update(
+			'xxt_wall',
+			['interact_matter' => $interactMatters],
+			['id' => $app]
+		);
+		$oApp = $modelWall->byId($app, ['fields' => 'interact_matter']);
+
+		return new \ResponseData($oApp);
+	}
 }

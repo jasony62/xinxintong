@@ -54,7 +54,7 @@
                     <tr>
                         <td>活动开始</td>
                         <td style='padding:0;width:180px;'>
-                            <tms-datepicker class='tms-datepicker' tms-title='开始时间' tms-date='app.start_at' tms-default-date='{{defaultTime.start_at}}' tms-mask='y,m,d,h,i' tms-state='start_at'></tms-datepicker>
+                            <tms-datepicker class='tms-datepicker' tms-title='开始时间' tms-date='app.start_at' tms-default-date='{{defaultTime.start_at}}' tms-state='start_at'></tms-datepicker>
                         </td>
                         <td style='padding:0'>
                             <select class='form-control' ng-model='app.before_start_page' ng-options='page.name as page.title for page in app.pages' ng-change="update('before_start_page')">

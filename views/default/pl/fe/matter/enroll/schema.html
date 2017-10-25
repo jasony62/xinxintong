@@ -27,6 +27,12 @@
         <div class='form-group list-group-item'>
             <button class='btn btn-default btn-block' ng-click="importByOther()">从其他活动中复制题目</button>
         </div>
+        <div class='form-group list-group-item' ng-repeat="(msid,erm) in app.entry_rule.member">
+            <div class='help-block'>通讯录【{{mschemasById[msid].title}}】用户信息</div>
+            <div>
+                <button class='btn btn-default' ng-click="newMember(mschemasById[msid],s)" ng-repeat="s in mschemasById[msid]._schemas">{{s.title}}</button>
+            </div>
+        </div>
         <div class='form-group list-group-item'>
             <div class='form-group' ng-if="!app.enroll_app_id">
                 <button class='btn btn-success btn-block' ng-click="assignEnrollApp()">指定登记匹配名单</button>
@@ -44,7 +50,7 @@
             <div class='form-group' ng-if="app.enroll_app_id">
                 <button class='btn btn-default' ng-click="newByOtherApp(s,app.enrollApp)" ng-repeat="s in app.enrollApp.dataSchemas">{{s.title}}</button>
             </div>
-            <div ng-if="app.enroll_app_id" class='help-block'>需要和［<a href='/rest/pl/fe/matter/enroll?site={{app.siteid}}&id={{app.enrollApp.id}}' target='_self'>{{app.enrollApp.title}}</a>］的登记内容匹配的题目</div>
+            <div ng-if="app.enroll_app_id" class='help-block'>需要和【<a href='/rest/pl/fe/matter/enroll?site={{app.siteid}}&id={{app.enrollApp.id}}' target='_self'>{{app.enrollApp.title}}</a>】的登记内容匹配的题目</div>
         </div>
         <div class='form-group list-group-item'>
             <div class='form-group' ng-if="!app.group_app_id">
@@ -63,13 +69,7 @@
             <div class='form-group' ng-if="app.group_app_id">
                 <button class='btn btn-default' ng-click="newByOtherApp(s,app.groupApp)" ng-repeat="s in app.groupApp.dataSchemas">{{s.title}}</button>
             </div>
-            <div ng-if="app.group_app_id" class='help-block'>需要和［<a href='/rest/pl/fe/matter/group?site={{app.siteid}}&id={{app.groupApp.id}}' target='_self'>{{app.groupApp.title}}</a>］的分组内容匹配的题目</div>
-        </div>
-        <div class='form-group list-group-item' ng-repeat="(msid,erm) in app.entry_rule.member">
-            <label>通讯录联系人：{{mschemasById[msid].title}}</label>
-            <div>
-                <button class='btn btn-default' ng-click="newMember(mschemasById[msid],s)" ng-repeat="s in mschemasById[msid]._schemas">{{s.title}}</button>
-            </div>
+            <div ng-if="app.group_app_id" class='help-block'>需要和【<a href='/rest/pl/fe/matter/group?site={{app.siteid}}&id={{app.groupApp.id}}' target='_self'>{{app.groupApp.title}}</a>】的分组内容匹配的题目</div>
         </div>
         <!-- end create schema -->
         <!-- actions -->

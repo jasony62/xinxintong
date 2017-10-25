@@ -215,19 +215,16 @@ class record extends base {
 		 * 提交登记数据
 		 */
 		$oUpdatedEnrollRec = [];
-		$modelRec = $this->model('matter\enroll\record');
-		$modelRec->setOnlyWriteDbConn(true);
+		$modelRec = $this->model('matter\enroll\record')->setOnlyWriteDbConn(true);
 		if ($bSubmitNewRecord) {
 			/* 插入登记数据 */
 			$ek = $modelRec->enroll($oEnrollApp, $oUser, ['nickname' => $oUser->nickname]);
 			/* 处理自定义信息 */
 			$rst = $modelRec->setData($oUser, $oEnrollApp, $ek, $oEnrolledData, $submitkey, true);
 			/* 登记提交的积分奖励 */
-			$modelMat = $this->model('matter\enroll\coin');
-			$modelMat->setOnlyWriteDbConn(true);
+			$modelMat = $this->model('matter\enroll\coin')->setOnlyWriteDbConn(true);
 			$rules = $modelMat->rulesByMatter('site.matter.enroll.submit', $oEnrollApp);
-			$modelCoin = $this->model('site\coin\log');
-			$modelCoin->setOnlyWriteDbConn(true);
+			$modelCoin = $this->model('site\coin\log')->setOnlyWriteDbConn(true);
 			$modelCoin->award($oEnrollApp, $oUser, 'site.matter.enroll.submit', $rules);
 		} else {
 			/* 重新插入新提交的数据 */

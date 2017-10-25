@@ -69,7 +69,9 @@ define(['frame'], function(ngApp) {
             $scope.update(['user_app_id', 'user_app_type']).then(function() {
                 delete mission.userApp;
                 http2.post('/rest/pl/fe/matter/mission/report/configUpdate?mission=' + mission.id, { apps: [] }, function(rsp) {
-                    mission.reportConfig.include_apps = [];
+                    if (mission.reportConfig) {
+                        mission.reportConfig.include_apps = [];
+                    }
                 });
             });
         };

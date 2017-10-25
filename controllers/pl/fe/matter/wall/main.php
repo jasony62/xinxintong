@@ -436,7 +436,7 @@ class main extends \pl\fe\matter\main_base {
 	/*
 	*
 	*/
-	public function removeMatter_action($site, $app) {
+	public function removeInteractMatter_action($site, $app) {
 		if (false === ($oUser = $this->accountUser())) {
 			return new \ResponseTimeout();
 		}

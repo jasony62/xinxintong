@@ -56,7 +56,7 @@ define(['frame'], function(ngApp) {
         $scope.downloadQrcode = function(url) {
             $('<a href="' + url + '" download="' + $scope.wall.title + '.png"></a>')[0].click();
         };
-        $scope.addMatter = function() {
+        $scope.addInteractMatter = function() {
             srvSite.openGallery({
                 matterTypes: $scope.matterTypes
             }).then(function(result) {
@@ -75,13 +75,13 @@ define(['frame'], function(ngApp) {
         $scope.gotoMatter = function(matter) {
             location.href = '/rest/pl/fe/matter/' + matter.type + '?site=' + $scope.wall.siteid + '&id=' + matter.id;
         };
-        $scope.removeMatter = function(matter) {
+        $scope.removeInteractMatter = function(matter) {
             var removed = {
                 id: matter.id,
                 type: matter.type.toLowerCase(),
                 title: matter.title
             };
-            http2.post('/rest/pl/fe/matter/wall/removeMatter?site=' + $scope.wall.siteid + '&app=' + $scope.wall.id, removed, function(rsp) {
+            http2.post('/rest/pl/fe/matter/wall/removeInteractMatter?site=' + $scope.wall.siteid + '&app=' + $scope.wall.id, removed, function(rsp) {
                 $scope.wall.interact_matter = rsp.data.interact_matter;
             });
         };

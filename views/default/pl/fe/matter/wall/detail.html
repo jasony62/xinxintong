@@ -111,11 +111,11 @@
             </div>
             <div class='form-group' ng-if="wall.scenario=='interact'">
                 <label>已有图文</label>
-                <button class='btn btn-default btn-sm' ng-click="addMatter()">选择素材</button>
+                <button class='btn btn-default btn-sm' ng-click="addInteractMatter()">选择素材</button>
                 <ul class='list-group' style='margin-bottom:0'>
                     <li class='list-group-item' ng-repeat="m in wall.interact_matter" ng-mouseenter='hover=true' ng-mouseleave='hover=false' title='{{m.type|typetitle}}'>
                         <a href='' ng-click="gotoMatter(m)">{{m.title}}</a>
-                        <button class='btn btn-xs btn-default pull-right' ng-if="hover" ng-click="removeMatter(m)">
+                        <button class='btn btn-xs btn-default pull-right' ng-if="hover" ng-click="removeInteractMatter(m)">
                             <span class='glyphicon glyphicon-remove'></span>
                         </button>
                     </li>
@@ -132,7 +132,7 @@
                 <div class='help-block'></div>
                 <div class='help-block'>参加人数（最少4人，最多24人）</div>
                 <div class=''>
-                    <select class='form-control' ng-model="wall.scenario_config.player_sum" ng-change="update('scenario_config')" >
+                    <select class='form-control' ng-model="wall.scenario_config.player_sum" ng-change="update('scenario_config')">
                     <option value='4'>4</option>
                     <option value='8'>8</option>
                     <option value='12'>12</option>

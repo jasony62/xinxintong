@@ -455,12 +455,14 @@ class player extends \pl\fe\matter\base {
 	/**
 	 * 清空登记信息
 	 */
-	public function empty_action($site, $app, $keepData = 'Y') {
-		if (false === ($user = $this->accountUser())) {
+	public function empty_action($app, $keepData = 'Y') {
+		if (false === ($oUser = $this->accountUser())) {
 			return new \ResponseTimeout();
 		}
+		$modelGrpPly = $this->model('matter\group\player');
+		$modelGrpPly->clean($app, $keepData === 'N');
 
-		$rst = $this->model('matter\group\player')->clean($app, $keepData === 'N');
+		$rst = $modelGrpPly->update('xxt_group', ['last_sync_at' => 0], ['id' => $app]);
 
 		return new \ResponseData($rst);
 	}

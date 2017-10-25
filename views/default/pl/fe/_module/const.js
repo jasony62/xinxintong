@@ -23,9 +23,10 @@ constant('CstNaming', {
             'voting': '投票',
             'quiz': '测验',
             'group_week_report': '周报',
+            'discuss': '讨论',
             'score_sheet': '记分表',
         },
-        enrollOrder: ['common', 'registration', 'voting', 'quiz', 'group_week_report', 'score_sheet'],
+        enrollOrder: ['common', 'registration', 'voting', 'quiz', 'group_week_report', 'discuss', 'score_sheet'],
         group: {
             'split': '分组',
             'wall': '信息墙'

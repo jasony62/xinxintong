@@ -1,0 +1,181 @@
+{
+    "scenario": "discuss",
+    "schema": [
+    {
+        "id": "name",
+        "title": "姓名",
+        "type": "shorttext",
+        "format": "name",
+        "required": "Y"
+    },
+    {
+        "id": "topic1",
+        "title": "主题1",
+        "type": "longtext",
+        "required": "Y",
+        "remarkable": "Y",
+        "shareable": "Y"
+    },
+    {
+        "id": "topic2",
+        "title": "主题2",
+        "type": "longtext",
+        "required": "Y",
+        "remarkable": "Y",
+        "shareable": "Y"
+    }],
+    "pages": [
+    {
+        "name": "enroll",
+        "title": "提交意见页",
+        "type": "I",
+        "data_schemas": [
+        {
+            "schema":
+            {
+                "id": "name",
+                "title": "姓名",
+                "type": "shorttext",
+                "format": "name",
+                "required": "Y"
+            },
+            "config":
+            {
+                "showname": "label"
+            }
+        },
+        {
+            "schema":
+            {
+                "id": "topic1",
+                "title": "主题1",
+                "type": "longtext",
+                "required": "Y",
+                "remarkable": "Y",
+                "shareable": "Y"
+            },
+            "config":
+            {
+                "showname": "label"
+            }
+        },
+        {
+            "schema":
+            {
+                "id": "topic2",
+                "title": "主题2",
+                "type": "longtext",
+                "required": "Y",
+                "remarkable": "Y",
+                "shareable": "Y"
+            },
+            "config":
+            {
+                "showname": "label"
+            }
+        }],
+        "act_schemas": [
+        {
+            "id": "btnSubmit",
+            "name": "submit",
+            "label": "提交信息",
+            "next": "result"
+        }]
+    },
+    {
+        "name": "result",
+        "title": "查看结果页",
+        "type": "V",
+        "data_schemas": [
+        {
+            "config":
+            {
+                "id": "V4",
+                "pattern": "record",
+                "inline": "N",
+                "splitLine": "Y"
+            },
+            "schema":
+            {
+                "id": "name",
+                "title": "姓名",
+                "type": "shorttext",
+                "format": "name",
+                "required": "Y"
+            }
+        },
+        {
+            "config":
+            {
+                "id": "V5",
+                "pattern": "record",
+                "inline": "N",
+                "splitLine": "Y"
+            },
+            "schema":
+            {
+                "id": "topic1",
+                "title": "主题1",
+                "type": "longtext",
+                "required": "Y",
+                "remarkable": "Y",
+                "shareable": "Y"
+            }
+        },
+        {
+            "config":
+            {
+                "id": "V6",
+                "pattern": "record",
+                "inline": "N",
+                "splitLine": "Y"
+            },
+            "schema":
+            {
+                "id": "topic2",
+                "title": "主题2",
+                "type": "longtext",
+                "required": "Y",
+                "remarkable": "Y",
+                "shareable": "Y"
+            }
+        },
+        {
+            "config":
+            {
+                "id": "V7",
+                "pattern": "record",
+                "inline": "N",
+                "splitLine": "Y"
+            },
+            "schema":
+            {
+                "id": "enrollAt",
+                "title": "填写时间",
+                "type": "_enrollAt"
+            }
+        }],
+        "act_schemas": [
+        {
+            "id": "act3",
+            "name": "removeRecord",
+            "label": "删除登记",
+            "next": "enroll"
+        }]
+    }],
+    "scenarioConfig":
+    {
+        "can_rounds": "Y"
+    },
+    "entryRule":
+    {
+        "otherwise":
+        {
+            "entry": "enroll"
+        }
+    },
+    "count_limit": "1",
+    "multi_rounds": "Y",
+    "enrolled_entry_page": "result",
+    "schema_include_mission_phases": "Y"
+}

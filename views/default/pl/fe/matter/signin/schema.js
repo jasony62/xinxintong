@@ -9,10 +9,11 @@ define(['frame', 'schema', 'wrap'], function(ngApp, schemaLib, wrapLib) {
             var updatedAppProps = ['data_schemas'],
                 oSchema, oNicknameSchema, oAppNicknameSchema;
 
+
             for (var i = $scope.app.dataSchemas.length - 1; i >= 0; i--) {
                 oSchema = $scope.app.dataSchemas[i];
                 if (oSchema.required === 'Y') {
-                    if (oSchema.type === 'shorttext') {
+                    if (oSchema.type === 'shorttext' || oSchema.type === 'member') {
                         if (oSchema.title === '姓名') {
                             oNicknameSchema = oSchema;
                             break;

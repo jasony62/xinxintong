@@ -447,7 +447,7 @@ class main extends \pl\fe\matter\main_base {
 		}
 		$oInteractMatters = $oApp->interact_matter;
 		if(empty($oInteractMatters)){
-			return new \ResponseError('没有素材');
+			return new \ResponseError('未指定互动素材');
 		}
 
 		$post = $this->getPostJson();

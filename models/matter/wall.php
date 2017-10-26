@@ -274,22 +274,33 @@ class wall_model extends enroll_base {
 	/*
 	* 获取素材分享者列表
 	* $startTime 分享开始时间
+	 and s.matter_id in ($matterId) and s.matter_type = '$matterType'
 	*/
-	protected function listPlayer($startTime, $startId = null, $matterType, $matterId) {
+	public function listPlayer($startTime, $startId = null, $oApp) {
 		$startTime = $this->escape($startTime);
-		$matterType = $this->escape($matterType);
-		$matterId = $this->escape($matterId);
 
-		$q = [
-			's.id,s.share_to,s.share_at,s.matter_id,s.matter_type,s.matter_title,s.userid,a.nickname,a.headimgurl,a.wx_openid,a.yx_openid,a.qy_openid',
-			'xxt_log_matter_share s,xxt_site_account a',
-			"s.share_at > $startTime and s.matter_id in ($matterId) and s.matter_type = '$matterType' and s.userid = a.uid and s.siteid = a.siteid"
-		];
-		if (!empty($startId)) {
-			$startId = $this->escape($startId);
-			$q[2] .= ' and s.id > $startId';
+		if ($oApp->scenario_config->interact_action->share === 'Y') {
+			$q = [
+				'max(s.id),s.share_to,s.share_at,s.matter_id,s.matter_type,s.matter_title,s.userid,a.nickname,a.headimgurl,a.wx_openid,a.yx_openid,a.qy_openid',
+				'xxt_log_matter_share s,xxt_site_account a',
+				"s.share_at > $startTime and s.userid = a.uid and s.siteid = a.siteid"
+			];
+			if (!empty($startId)) {
+				$startId = $this->escape($startId);
+				$q[2] .= ' and s.id > $startId';
+			}
+
+			$whereMatter = '';
+			foreach ($oApp->interact_matter as $matter) {
+				$whereMatter .= " or ( matter_id = $matter->id and matter_type = '" . $matter->type . "')";
+			}
+			$whereMatter = explode('or', $whereMatter);
+			array_shift($whereMatter);
+			$whereMatters = implode('or', $whereMatter);
+			$q[2] .= ' and (' . $whereMatters . ')';
+
+			$q2 = ['g' => 's.userid', 'o' => 'max(s.id)'];
 		}
-		$q2 = ['g' => 's.userid', 'o' => 's.share_at asc'];
 		$users = $this->query_objs_ss($q, $q2);
 
 		return $users;

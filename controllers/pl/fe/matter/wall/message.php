@@ -33,10 +33,17 @@ class message extends \pl\fe\matter\base {
 	/*
 	* 获取素材分享者列表
 	* $startTime 分享开始时间
-	* $matterType=1,2,3
 	*/
-	public function listPlayer_action($startTime, $startId = null, $matterType, $matterId) {
-		$users = $this->model('matter\wall')->listPlayer($startTime, $startId, $matterType, $matterId);
+	public function listPlayer_action($site, $app, $startTime, $startId = null) {
+		$modelWall = $this->model('matter\wall')->setOnlyWriteDbConn(true);
+		if (($oApp = $modelWall->byId($app, ['fields' => 'scenario_config,interact_matter'])) === false) {
+			return new \ObjectNotFoundError();
+		}
+		if(empty($oApp->interact_matter)){
+			return new \ResponseError('未指定互动素材');
+		}
+		
+		$users = $this->model('matter\wall')->listPlayer($startTime, $startId, $oApp);
 
 		return new \ResponseData($users);
 	}

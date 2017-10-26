@@ -147,6 +147,7 @@ class import extends \pl\fe\matter\base {
 		/**
 		 * 提取数据
 		 */
+		$modelRec = $this->model('matter\enroll\record');
 		$records = [];
 		for ($row = 2; $row <= $highestRow; $row++) {
 			$oRecord = new \stdClass;
@@ -215,15 +216,7 @@ class import extends \pl\fe\matter\base {
 			 * 指定的用户昵称
 			 */
 			if (isset($oNicknameSchema)) {
-				if (strpos($oNicknameSchema->id, 'member.') === 0) {
-					$schemaId = explode('.', $oNicknameSchema->id);
-					if (count($schemaId) === 2 && $schemaId[0] === 'member') {
-						$schemaId = $schemaId[1];
-						$oRecord->nickname = $oRecData->member->{$schemaId};
-					}
-				} else {
-					$oRecord->nickname = $oRecData->{$oNicknameSchema->id};
-				}
+				$oRecord->nickname = $modelRec->getValueBySchema($oNicknameSchema, $oRecData);
 			}
 
 			$records[] = $oRecord;

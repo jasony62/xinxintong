@@ -116,6 +116,7 @@ class main extends \pl\fe\matter\main_base {
 			$oNewApp->siteid = $oSite->id;
 			$oNewApp->pic = $oSite->heading_pic; //使用站点的缺省头图
 			$oNewApp->summary = '';
+			$title = '信息墙-' . (($scenario === 'interact')? '互动' : '讨论');
 		} else {
 			$modelMis = $this->model('matter\mission');
 			$oMission = $modelMis->byId($mission);
@@ -126,11 +127,12 @@ class main extends \pl\fe\matter\main_base {
 			$oNewApp->summary = $oMission->summary;
 			$oNewApp->pic = $oMission->pic;
 			$oNewApp->mission_id = $oMission->id;
+			$title = $oMission->title . '-' . (($scenario === 'interact')? '互动' : '讨论');
 		}
 
 		$modelWall = $this->model('matter\wall')->setOnlyWriteDbConn(true);
 		/* 前端指定的信息 */
-		$oNewApp->title = empty($oCustomConfig->proto->title) ? '新信息墙' : $modelWall->escape($oCustomConfig->proto->title);
+		$oNewApp->title = empty($oCustomConfig->proto->title) ? $title : urldecode($modelWall->escape(urlencode($oCustomConfig->proto->title)));
 		!empty($oCustomConfig->proto->summary) && $oNewApp->summary = $modelWall->escape($oCustomConfig->proto->summary);
 		!empty($oCustomConfig->proto->start_at) && $oNewApp->start_at = $modelWall->escape($oCustomConfig->proto->start_at);!empty($oCustomConfig->proto->end_at) && $oNewApp->end_at = $modelWall->escape($oCustomConfig->proto->end_at);
 		$oNewApp->scenario = $modelWall->escape($scenario);

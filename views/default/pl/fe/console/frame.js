@@ -216,9 +216,6 @@ define(['require'], function(require) {
             },
             addWall: function(site, scenario) {
                 location.href = '/rest/pl/fe/matter/wall/shop?site=' + site.id + '&scenario=' + (scenario || '');
-                // http2.get('/rest/pl/fe/matter/wall/create?site=' + site.id, function(rsp) {
-                //     location.href = '/rest/pl/fe/matter/wall?site=' + site.id + '&id=' + rsp.data.id;
-                // });
             },
             addText: function(site) {
                 location.href = '/rest/pl/fe/matter/text?site=' + site.id;

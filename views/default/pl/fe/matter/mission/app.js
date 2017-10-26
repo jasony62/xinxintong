@@ -36,17 +36,8 @@ define(['frame'], function(ngApp) {
         $scope.filter = facListFilter.init(function() {
             $scope.list();
         }, _oCriteria.filter);
-        $scope.addWall = function() {
-            var url = '/rest/pl/fe/matter/wall/create?mission=' + _oMission.id,
-                config = {
-                    proto: {
-                        title: _oMission.title + '-信息墙'
-                    }
-                };
-            http2.post(url, config, function(rsp) {
-                location.href = '/rest/pl/fe/matter/wall?site=' + _oMission.siteid + '&id=' + rsp.data;
-            })
-
+        $scope.addWall = function(assignedScenario) {
+            location.href = '/rest/pl/fe/matter/wall/shop?site=' + _oMission.siteid + '&mission=' + _oMission.id + '&scenario=' + (assignedScenario || '');
         };
         $scope.addEnroll = function(assignedScenario) {
             location.href = '/rest/pl/fe/matter/enroll/shop?site=' + _oMission.siteid + '&mission=' + _oMission.id + '&scenario=' + (assignedScenario || '');

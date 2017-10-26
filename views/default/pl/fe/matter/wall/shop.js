@@ -30,7 +30,7 @@ define(['require'], function(require) {
 
         assignedScenario = $location.search().scenario;
         $scope.result = {
-            proto: {}
+            proto: {'title':'信息墙-讨论'}
         };
         $scope.proto = $scope.result.proto;
         $scope.$on('xxt.tms-datepicker.change', function(event, data) {
@@ -45,7 +45,6 @@ define(['require'], function(require) {
             }
             oConfig = {};
             data = $scope.result;
-            console.log($scope.result.proto);
             url += '&scenario=' + data.scenario.name;
             url += '&template=' + data.template.name;
             if (data.proto) {
@@ -61,6 +60,13 @@ define(['require'], function(require) {
             oTemplates = $scope.result.scenario.templates;
             keys = Object.keys(oTemplates);
             $scope.result.template = oTemplates[keys[0]];
+            if ($scope.result.scenario.name == 'discuss') {
+                $scope.proto.title = $scope.proto.title.slice(0,-3);
+                $scope.proto.title += '-讨论'
+            } else {
+                $scope.proto.title = $scope.proto.title.slice(0,-3);
+                $scope.proto.title += '-互动'
+            }
             $scope.chooseTemplate();
         };
         $scope.chooseTemplate = function() {

@@ -231,7 +231,7 @@ class player_model extends \TMS_MODEL {
 	/**
 	 * 根据指定的数据查找匹配的记录
 	 */
-	public function &byData(&$oApp, &$data, $options = []) {
+	public function byData($oApp, $data, $options = []) {
 		$fields = isset($options['fields']) ? $options['fields'] : '*';
 		$records = false;
 

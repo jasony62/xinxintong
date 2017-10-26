@@ -1,9 +1,11 @@
 <?php
 namespace matter\signin;
+
+require_once dirname(dirname(__FILE__)) . '/enroll/record_base.php';
 /**
  * 签到记录
  */
-class record_model extends \TMS_MODEL {
+class record_model extends \matter\enroll\record_base {
 	/**
 	 * 活动登记（不包括登记数据）
 	 *

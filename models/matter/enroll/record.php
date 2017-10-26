@@ -1,9 +1,11 @@
 <?php
 namespace matter\enroll;
+
+require_once dirname(__FILE__) . '/record_base.php';
 /**
  * 登记活动记录
  */
-class record_model extends \TMS_MODEL {
+class record_model extends record_base {
 	/**
 	 * 活动登记（不包括登记数据）
 	 *

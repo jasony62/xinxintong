@@ -43,8 +43,9 @@ class record extends base {
 
 		$bSubmitNewRecord = empty($ek); // 是否为提交新纪录
 
-		// 应用的定义
 		$modelEnl = $this->model('matter\enroll');
+		$modelEnlRec = $this->model('matter\enroll\record');
+
 		if (false === ($oEnrollApp = $modelEnl->byId($app, ['cascaded' => 'N']))) {
 			header('HTTP/1.0 500 parameter error:app dosen\'t exist.');
 			die('登记活动不存在');
@@ -77,8 +78,7 @@ class record extends base {
 			$oEnrolledData = $posted;
 		}
 		if ((isset($oEnrollApp->assignedNickname->valid) && $oEnrollApp->assignedNickname->valid === 'Y') && isset($oEnrollApp->assignedNickname->schema->id)) {
-			/* 从登记内容中获取昵称 */
-			$oUser->nickname = empty($oEnrolledData->{$oEnrollApp->assignedNickname->schema->id}) ? '' : $oEnrolledData->{$oEnrollApp->assignedNickname->schema->id};
+			$oUser->nickname = $modelEnlRec->getValueBySchema($oEnrollApp->assignedNickname->schema, $oEnrolledData);
 		} else {
 			/* 当前访问用户的基本信息 */
 			$userNickname = $modelEnl->getUserNickname($oEnrollApp, $oUser);
@@ -101,10 +101,10 @@ class record extends base {
 			/* 获得要检查的登记项 */
 			$requireCheckedData = new \stdClass;
 			$dataSchemas = $oEnrollApp->dataSchemas;
-			foreach ($dataSchemas as $dataSchema) {
-				if (isset($dataSchema->requireCheck) && $dataSchema->requireCheck === 'Y') {
-					if (isset($dataSchema->fromApp) && $dataSchema->fromApp === $oEnrollApp->enroll_app_id) {
-						$requireCheckedData->{$dataSchema->id} = isset($oEnrolledData->{$dataSchema->id}) ? $oEnrolledData->{$dataSchema->id} : '';
+			foreach ($dataSchemas as $oSchema) {
+				if (isset($oSchema->requireCheck) && $oSchema->requireCheck === 'Y') {
+					if (isset($oSchema->fromApp) && $oSchema->fromApp === $oEnrollApp->enroll_app_id) {
+						$requireCheckedData->{$oSchema->id} = $modelEnlRec->getValueBySchema($oSchema, $oEnrolledData);
 					}
 				}
 			}
@@ -151,20 +151,10 @@ class record extends base {
 			/* 获得要检查的登记项 */
 			$requireCheckedData = new \stdClass;
 			$dataSchemas = $oEnrollApp->dataSchemas;
-			foreach ($dataSchemas as $dataSchema) {
-				if (isset($dataSchema->requireCheck) && $dataSchema->requireCheck === 'Y') {
-					if (isset($dataSchema->fromApp) && $dataSchema->fromApp === $oEnrollApp->group_app_id) {
-						if (strpos($dataSchema->id, 'member.') === 0 && isset($oEnrolledData->member)) {
-							$schemaId = explode('.', $dataSchema->id);
-							if (count($schemaId) === 2) {
-								$schemaId = $schemaId[1];
-								if (isset($oEnrolledData->member->{$schemaId})) {
-									$requireCheckedData->{$dataSchema->id} = $oEnrolledData->member->{$schemaId};
-								}
-							}
-						} else {
-							$requireCheckedData->{$dataSchema->id} = isset($oEnrolledData->{$dataSchema->id}) ? $oEnrolledData->{$dataSchema->id} : '';
-						}
+			foreach ($dataSchemas as $oSchema) {
+				if (isset($oSchema->requireCheck) && $oSchema->requireCheck === 'Y') {
+					if (isset($oSchema->fromApp) && $oSchema->fromApp === $oEnrollApp->group_app_id) {
+						$requireCheckedData->{$oSchema->id} = $modelEnlRec->getValueBySchema($oSchema, $oEnrolledData);
 					}
 				}
 			}

@@ -44,6 +44,7 @@ class record extends base {
 		}
 
 		$modelApp = $this->model('matter\signin');
+		$mdoelSigRec = $this->model('matter\signin\record');
 		if (false === ($oSigninApp = $modelApp->byId($app, ['cascaded' => 'N']))) {
 			header('HTTP/1.0 500 parameter error:app dosen\'t exist.');
 			die('签到活动不存在');
@@ -59,7 +60,7 @@ class record extends base {
 		 * 签到用户昵称
 		 */
 		if ((isset($oSigninApp->assignedNickname->valid) && $oSigninApp->assignedNickname->valid === 'Y') && isset($oSigninApp->assignedNickname->schema->id)) {
-			$oUser->nickname = empty($oSigninData->{$oSigninApp->assignedNickname->schema->id}) ? '' : $oSigninData->{$oSigninApp->assignedNickname->schema->id};
+			$oUser->nickname = $mdoelSigRec->getValueBySchema($oSigninApp->assignedNickname->schema, $oSigninData);
 		} else {
 			$userNickname = $modelApp->getUserNickname($oSigninApp, $oUser);
 			$oUser->nickname = $userNickname;
@@ -85,20 +86,10 @@ class record extends base {
 			/* 获得要检查的登记项 */
 			$requireCheckedData = new \stdClass;
 			$dataSchemas = json_decode($oSigninApp->data_schemas);
-			foreach ($dataSchemas as $dataSchema) {
-				if (isset($dataSchema->requireCheck) && $dataSchema->requireCheck === 'Y') {
-					if (isset($dataSchema->fromApp) && $dataSchema->fromApp === $oSigninApp->group_app_id) {
-						if (strpos($dataSchema->id, 'member.') === 0 && isset($oSigninData->member)) {
-							$schemaId = explode('.', $dataSchema->id);
-							if (count($schemaId) === 2) {
-								$schemaId = $schemaId[1];
-								if (isset($oSigninData->member->{$schemaId})) {
-									$requireCheckedData->{$dataSchema->id} = $oSigninData->member->{$schemaId};
-								}
-							}
-						} else {
-							$requireCheckedData->{$dataSchema->id} = isset($oSigninData->{$dataSchema->id}) ? $oSigninData->{$dataSchema->id} : '';
-						}
+			foreach ($dataSchemas as $oSchema) {
+				if (isset($oSchema->requireCheck) && $oSchema->requireCheck === 'Y') {
+					if (isset($oSchema->fromApp) && $oSchema->fromApp === $oSigninApp->group_app_id) {
+						$requireCheckedData->{$oSchema->id} = $mdoelSigRec->getValueBySchema($oSchema, $oSigninData);
 					}
 				}
 			}
@@ -152,9 +143,9 @@ class record extends base {
 				/*获得要检查的数据*/
 				$dataSchemas = $oSigninApp->dataSchemas;
 				$requireCheckedData = new \stdClass;
-				foreach ($dataSchemas as $dataSchema) {
-					if (isset($dataSchema->requireCheck) && $dataSchema->requireCheck === 'Y') {
-						$requireCheckedData->{$dataSchema->id} = isset($oSigninData->{$dataSchema->id}) ? $oSigninData->{$dataSchema->id} : '';
+				foreach ($dataSchemas as $oSchema) {
+					if (isset($oSchema->requireCheck) && $oSchema->requireCheck === 'Y') {
+						$requireCheckedData->{$oSchema->id} = $mdoelSigRec->getValueBySchema($oSchema, $oSigninData);
 					}
 				}
 				if ($oSigninApp->mission_phase_id) {

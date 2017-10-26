@@ -1,27 +1,30 @@
-.carousel{margin-bottom:20px;}
+.carousel{margin-bottom:24px;}
 
 /* tem-info */
-.team{background:#fff;border-bottom:1px solid #efefef;margin-bottom:20px;}
+.team{background:#fff;border-bottom:1px solid #efefef;margin-bottom:24px;}
 .team-info{position:relative;overflow:hidden;}
 .team-img{width:192px;height:108px;background-size:contain;background-repeat:no-repeat;background-position:center;}
-.team-title{position:absolute;top:0;left:207px;right:0;overflow:hidden;line-height:54px;font-size:24px;}
-.team-summary{position:absolute;top:54px;left:207px;color:#666;}
+.team-title{position:absolute;top:0;left:231px;right:0;overflow:hidden;line-height:54px;font-size:24px;}
+.team-summary{position:absolute;top:54px;left:231px;color:#666;}
 .team-handle{position:relative;overflow:hidden;height:108px;text-align:center;display:flex;flex-direction:column;align-items:center;justify-content:center;}
 .btn:focus,.btn:active:focus{outline:none;}
 .xxt_scan{cursor:pointer;width:77px;height:77px;bottom:0;right:0;background-position:-137px -259px;}
 .team-qrcode{position:absolute;right:0;bottom:10px;}
 .qrcode{width:96px;height:96px;}
 @media screen and (max-width:768px){
-	.carousel{margin-bottom:8px;}
+	.nav-tabs>li>a{font-size:14px;}
 	.team{margin-bottom:8px;}
+	.carousel{margin-bottom:0;}
 	.team-info{margin:0;border-bottom:0;}
 	.team-img{width:128px;height:72px;}
-	.team-title{left:136px;right:0;line-height:36px;font-size:18px;}
-	.team-summary{left:136px;right:0;top:36px;padding:0;font-size:12px;}
+	.team-title{left:136px;right:0;line-height:32px;font-size:16px;}
+	.team-summary{left:136px;right:0;top:32px;height:36px;padding:0;font-size:12px;line-height:1.5;overflow:hidden;text-overflow:ellipsis;}
 	.team-handle{height:auto;margin:0;padding:8px 0;border-bottom:0;flex-direction:row;}
 	.team-handle>.form-group{display:inline-block;margin-bottom:0;}
 	.matters{display:flex;flex-direction:column;}
 	.matters.layout_g2_g1{flex-direction:column-reverse;}
+	.matters>div{padding:0 8px;background:#fff;}
+	.section+.section{margin-top:8px;}
 }
 
 /* 右侧栏小功能 */

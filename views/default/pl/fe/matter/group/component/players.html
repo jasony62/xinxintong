@@ -30,15 +30,15 @@
             <td>{{p.round_title}}</td>
             <td ng-if="bRequireNickname">{{p.nickname}}</td>
             <td>{{p.is_leader==='Y'?'是':'否'}}</td>
-            <td ng-repeat="schema in app._schemasById">
-                <span ng-if="schema.type!=='image'&&schema.type!=='file'&&schema.type!=='date'" ng-bind-html="p._data[schema.id]"></span>
-                <span ng-if="schema.type==='image'">
+            <td ng-repeat="schema in app._schemasById" ng-switch on="schema.type">
+                <span ng-switch-when="image">
                     <img ng-repeat="img in p._data[schema.id]" ng-src='{{img}}' />
                 </span>
-                <span ng-if="schema.type==='date'">{{(p._data[schema.id]*1000)|date:'yy-MM-dd HH:mm'}}</span>
-                <span ng-if="schema.type==='file'">
+                <span ng-switch-when="date">{{(p._data[schema.id]*1000)|date:'yy-MM-dd HH:mm'}}</span>
+                <span ng-switch_when="file">
                     <span ng-repeat='file in p._data[schema.id]'><a href='{{file.url}}' target="_blank">{{file.name}}</a></span>
                 </span>
+                <span ng-switch-default ng-bind-html="p._data[schema.id]"></span>
             </td>
             <td ng-if="app.tags.length">{{p.tags}}</td>
             <td>{{p.comment}}</td>

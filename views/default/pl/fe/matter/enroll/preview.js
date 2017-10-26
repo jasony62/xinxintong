@@ -178,13 +178,14 @@ define(['frame'], function(ngApp) {
                 $scope.opData = data[0];
             }
         });
+        $('#preview-view').height($('#pl-layout-main').height());
         $('#preview-view').scrollspy({ target: '#previewScrollspy' }).scrollspy('refresh');
         $('#previewScrollspy>ul').affix({
             offset: {
                 top: 0
             }
         });
-        $location.hash("status5");
-        $anchorScroll();
+        //$location.hash("status5");
+        //$anchorScroll();
     }]);
 });

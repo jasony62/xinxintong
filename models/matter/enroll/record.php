@@ -1,9 +1,11 @@
 <?php
 namespace matter\enroll;
+
+require_once dirname(__FILE__) . '/record_base.php';
 /**
  * 登记活动记录
  */
-class record_model extends \TMS_MODEL {
+class record_model extends record_base {
 	/**
 	 * 活动登记（不包括登记数据）
 	 *
@@ -631,6 +633,10 @@ class record_model extends \TMS_MODEL {
 		$whereByData = '';
 		foreach ($data as $k => $v) {
 			if (!empty($v) && is_string($v)) {
+				/* 通讯录字段简化处理 */
+				if (strpos($k, 'member.') === 0) {
+					$k = str_replace('member.', '', $k);
+				}
 				$whereByData .= ' and (';
 				$whereByData .= 'data like \'%"' . $k . '":"' . $v . '"%\'';
 				$whereByData .= ' or data like \'%"' . $k . '":"%,' . $v . '"%\'';

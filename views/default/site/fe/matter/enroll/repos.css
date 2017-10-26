@@ -15,7 +15,7 @@ footer{margin:0 -15px -15px -15px;}
 /*record*/
 #repos{background:#fff;padding:1rem 0;}
 #repos p{word-break:break-all;}
-#repos .record .glyphicon-heart{color:red;}
+#repos .record .glyphicon-heart{color:red;padding:0 8px;}
 #repos .record{border-bottom:1px solid #ddd;}
 #repos .record:last-child{margin-bottom:1rem;}
 #repos .record>*{margin:1rem 0;}

@@ -79,7 +79,7 @@ provider('srvGroupApp', function() {
 
                 return defer.promise;
             },
-            importByApp: function(sourceTypes, oMission, notSync) {
+            assocWithApp: function(sourceTypes, oMission, notSync) {
                 var defer = $q.defer();
                 $uibModal.open({
                     templateUrl: '/views/default/pl/fe/matter/group/component/sourceApp.html?_=1',
@@ -142,7 +142,7 @@ provider('srvGroupApp', function() {
                             params.appTitle = data.app.title;
                             defer.resolve(params);
                         } else {
-                            http2.post('/rest/pl/fe/matter/group/player/importByApp?site=' + _siteId + '&app=' + _appId, params, function(rsp) {
+                            http2.post('/rest/pl/fe/matter/group/player/assocWithApp?site=' + _siteId + '&app=' + _appId, params, function(rsp) {
                                 var schemasById = {}
                                 _oApp.sourceApp = data.app;
                                 if (angular.isString(rsp.data.data_schemas)) {

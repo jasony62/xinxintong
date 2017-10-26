@@ -1,8 +1,8 @@
 define(['frame'], function(ngApp) {
     'use strict';
-    ngApp.provider.controller('ctrlApp', ['$scope', '$location', 'http2', 'facListFilter', 'cstApp', function($scope, $location, http2, facListFilter, cstApp) {
+    ngApp.provider.controller('ctrlApp', ['$scope', '$location', 'http2', 'facListFilter', 'CstNaming', 'cstApp', function($scope, $location, http2, facListFilter, CstNaming, cstApp) {
         var _oMission, _oCriteria, hash;
-        $scope.scenarioNames = cstApp.scenarioNames;
+        $scope.scenarioes = CstNaming.scenario;
         if (hash = $location.hash()) {
             if (/,/.test(hash)) {
                 hash = hash.split(',');
@@ -20,8 +20,8 @@ define(['frame'], function(ngApp) {
         aUnionMatterTypes = [];
         cstApp.matterNames.appOrder.forEach(function(name) {
             if (name === 'enroll') {
-                cstApp.scenarioNames.enrollOrder.forEach(function(scenario) {
-                    aUnionMatterTypes.push({ name: 'enroll.' + scenario, label: cstApp.scenarioNames.enroll[scenario] });
+                $scope.scenarioes.enrollIndex.forEach(function(scenario) {
+                    aUnionMatterTypes.push({ name: 'enroll.' + scenario, label: $scope.scenarioes.enroll[scenario] });
                 });
             } else {
                 aUnionMatterTypes.push({ name: name, label: cstApp.matterNames.app[name] });

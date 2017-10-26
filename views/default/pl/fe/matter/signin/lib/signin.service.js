@@ -508,14 +508,15 @@ define(['require', 'schema', 'page'], function(require, schemaLib, pageLib) {
                     app.enroll_app_id = '';
                     delete app.enrollApp;
                     this.update('enroll_app_id').then(function() {
-                        app.data_schemas.forEach(function(dataSchema) {
+                        app.dataSchemas.forEach(function(dataSchema) {
                             delete dataSchema.requireCheck;
                         });
                         _this.update('data_schemas');
                     });
                 },
                 assignGroupApp: function() {
-                    var _this = this;
+                    var _this = this,
+                        defer = $q.defer();;
                     $uibModal.open({
                         templateUrl: 'assignGroupApp.html',
                         controller: ['$scope', '$uibModalInstance', function($scope2, $mi) {
@@ -546,25 +547,13 @@ define(['require', 'schema', 'page'], function(require, schemaLib, pageLib) {
                         _this.update('group_app_id').then(function(rsp) {
                             var url = '/rest/pl/fe/matter/group/get?site=' + siteId + '&app=' + app.group_app_id;
                             http2.get(url, function(rsp) {
-                                var groupApp = rsp.data,
-                                    roundDS = {
-                                        id: '_round_id',
-                                        type: 'single',
-                                        title: '分组名称',
-                                    },
-                                    ops = [];
-                                groupApp.rounds.forEach(function(round) {
-                                    ops.push({
-                                        v: round.round_id,
-                                        l: round.title
-                                    });
-                                });
-                                roundDS.ops = ops;
-                                groupApp.dataSchemas.splice(0, 0, roundDS);
-                                app.groupApp = groupApp;
+                                app.groupApp = rsp.data;
+                                defer.resolve(app.groupApp);
                             });
                         });
                     });
+
+                    return defer.promise;
                 },
                 cancelGroupApp: function() {
                     var _this = this;

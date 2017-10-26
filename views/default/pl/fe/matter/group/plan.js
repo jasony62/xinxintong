@@ -36,8 +36,8 @@ define(['require'], function(require) {
                 _oProto.title = oMission.title + '-分组';
             });
         }
-        $scope.importByApp = function() {
-            srvGroupApp.importByApp(cstApp.importSource, $scope.mission ? $scope.mission : null, true).then(function(result) {
+        $scope.assocWithApp = function() {
+            srvGroupApp.assocWithApp(cstApp.importSource, $scope.mission ? $scope.mission : null, true).then(function(result) {
                 _oProto.sourceApp = {
                     id: result.app,
                     type: result.appType,

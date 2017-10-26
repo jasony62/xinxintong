@@ -40,7 +40,7 @@
             </nav>
             <div class='container-fluid ng-cloak' ng-cloak>
                 <div class='row'>
-                    <div class='col-md-3' ng-if="bOnlyone===false">
+                    <div class='col-md-2 col-lg-3' ng-if="bOnlyone===false">
                         <div class='list-group'>
                             <a href='' class='list-group-item' ng-class="{active:choosedSchema===schema}" ng-repeat='schema in schemas' ng-click="chooseSchema(schema)">
                         {{schema.title}}
@@ -48,20 +48,17 @@
                         </div>
                         <button class='btn btn-default btn-block' ng-click='addSchema()'><span class='glyphicon glyphicon-plus'></span> 添加定义</button>
                     </div>
-                    <div class='col-md-6' ng-class="{'col-md-offset-3':bOnlyone}" ng-if="choosedSchema">
+                    <div class='col-md-8 col-lg-6' ng-class="{'col-md-offset-2':bOnlyone,'col-lg-offset-3':bOnlyone}" ng-if="choosedSchema">
                         <div class='panel panel-default'>
                             <div class='panel-body'>
                                 <div class='form-group'>
+                                    <label>通讯录名称</label>
+                                    <input type='text' class='form-control' ng-model='choosedSchema.title' tms-auto-update tms-wait=1000 tms-update="updSchema('title')">
+                                </div>
+                                <div class='form-group hide'>
                                     <div class='form-inline'>
                                         <div class='form-group'>
                                             <div class='input-group'>
-                                                <div class='input-group-addon'>
-                                                    <input type='checkbox' ng-true-value="'Y'" ng-false-value="'N'" ng-model='choosedSchema.valid' ng-change="updSchema('valid')">
-                                                </div>
-                                                <input type='text' class='form-control' style='width:200px' ng-model='choosedSchema.title' placeholder='输入名称' tms-auto-update tms-wait=1000 tms-update="updSchema('title')">
-                                                <div class="input-group-btn">
-                                                    <button class="btn btn-default" type="button" ng-click='delSchema()'><span class='glyphicon glyphicon-remove'></span></button>
-                                                </div>
                                             </div>
                                         </div>
                                         <div class='form-group hide'>
@@ -74,7 +71,6 @@
                                             <select class='form-control' title='数据有效期' ng-model='choosedSchema.validity' ng-options='d.v as d.n for d in days' ng-change="updSchema('validity')"></select>
                                         </div>
                                         <div class='form-group'>
-                                            <button class='btn btn-default' ng-click='addExtattr(s)'>增加信息项</button>
                                             <button class='btn btn-default hide' ng-if="choosedSchema.type==='inner'" ng-click='gotoCode()'>定制填写页面</button>
                                             <button class='btn btn-default hide' ng-if="choosedSchema.type==='inner'" ng-click='resetCode()'>重置填写页面</button>
                                             <button class='btn btn-default' ng-click='importSchema()'>导入通讯录</button>
@@ -115,24 +111,24 @@
                                         </tr>
                                     </tbody>
                                 </table>
+                                <button class='btn btn-default' ng-click='addExtattr(s)'>增加信息项</button>
                             </div>
                         </div>
                         <!-- options -->
                         <div class='panel panel-default'>
                             <div class='panel-body'>
                                 <div class='form-group'>
-                                    <label class='checkbox-inline' ng-if="!choosedSchema.matter_id">
-                                        <input type='checkbox' ng-true-value="'Y'" ng-false-value="'N'" ng-model='choosedSchema.at_user_home' ng-change="updSchema('at_user_home')">出现在用户主页</label>
-                                </div>
-                                <div class='form-group'>
-                                    <label class='checkbox-inline' ng-if="sns.qy">
-                                        <input type='checkbox' ng-true-value="'Y'" ng-false-value="'N'" ng-model='choosedSchema.qy_ab' ng-change="updQy()">企业号同步通讯录使用</label>
-                                    <label class='checkbox-inline' ng-if="sns.wx">
-                                        <input type='checkbox' ng-true-value="'Y'" ng-false-value="'N'" ng-model='choosedSchema.is_wx_fan' ng-change="updSchema('is_wx_fan')">是微信公众号关注用户</label>
-                                    <label class='checkbox-inline' ng-if="sns.qy">
-                                        <input type='checkbox' ng-true-value="'Y'" ng-false-value="'N'" ng-model='choosedSchema.is_qy_fan' ng-change="updSchema('is_qy_fan')">是微信企业号关注用户</label>
-                                    <label class='checkbox-inline' ng-if="sns.yx">
-                                        <input type='checkbox' ng-true-value="'Y'" ng-false-value="'N'" ng-model='choosedSchema.is_yx_fan' ng-change="updSchema('is_yx_fan')">是易信公众号关注用户</label>
+                                    <label>用户身份限制</label>
+                                    <div>
+                                        <label class='checkbox-inline' ng-if="sns.qy">
+                                            <input type='checkbox' ng-true-value="'Y'" ng-false-value="'N'" ng-model='choosedSchema.qy_ab' ng-change="updQy()">企业号同步通讯录使用</label>
+                                        <label class='checkbox-inline' ng-if="sns.wx">
+                                            <input type='checkbox' ng-true-value="'Y'" ng-false-value="'N'" ng-model='choosedSchema.is_wx_fan' ng-change="updSchema('is_wx_fan')">限微信公众号【{{sns.wx.title}}】关注用户</label>
+                                        <label class='checkbox-inline' ng-if="sns.qy">
+                                            <input type='checkbox' ng-true-value="'Y'" ng-false-value="'N'" ng-model='choosedSchema.is_qy_fan' ng-change="updSchema('is_qy_fan')">是微信企业号关注用户</label>
+                                        <label class='checkbox-inline' ng-if="sns.yx">
+                                            <input type='checkbox' ng-true-value="'Y'" ng-false-value="'N'" ng-model='choosedSchema.is_yx_fan' ng-change="updSchema('is_yx_fan')">限易信公众号【{{sns.yx.title}}】关注用户</label>
+                                    </div>
                                 </div>
                                 <div class='form-group'>
                                     <label>填写页面地址</label>
@@ -152,6 +148,10 @@
                                         <span><img style='width:135px;height:135px;' ng-src="{{qrcode.pic}}"></span>
                                         <button class='btn btn-default' ng-click="download()">下载</button>
                                     </div>
+                                </div>
+                                <div class='form-group'>
+                                    <label class='checkbox-inline' ng-if="!choosedSchema.matter_id">
+                                        <input type='checkbox' ng-true-value="'Y'" ng-false-value="'N'" ng-model='choosedSchema.at_user_home' ng-change="updSchema('at_user_home')">出现在用户主页</label>
                                 </div>
                                 <form class='form-horizontal hide'>
                                     <div class='form-group'>
@@ -226,6 +226,10 @@
                                 </table>
                                 <button class='btn btn-default' ng-click="addInvite()">添加邀请码</button>
                             </div>
+                        </div>
+                        <div class='form-group'>
+                            <hr>
+                            <button class='btn btn-default btn-block' ng-click="delSchema()">删除通讯录</button>
                         </div>
                     </div>
                 </div>

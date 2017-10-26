@@ -1,9 +1,11 @@
 <?php
 namespace matter\signin;
+
+require_once dirname(dirname(__FILE__)) . '/enroll/record_base.php';
 /**
  * 签到记录
  */
-class record_model extends \TMS_MODEL {
+class record_model extends \matter\enroll\record_base {
 	/**
 	 * 活动登记（不包括登记数据）
 	 *
@@ -393,7 +395,7 @@ class record_model extends \TMS_MODEL {
 	 *
 	 * 不是所有的字段都检查，只检查字符串类型
 	 */
-	public function &byData(&$oApp, &$data, $options = []) {
+	public function &byData($oApp, $data, $options = []) {
 		$fields = isset($options['fields']) ? $options['fields'] : '*';
 		$records = false;
 
@@ -401,6 +403,10 @@ class record_model extends \TMS_MODEL {
 		$whereByData = '';
 		foreach ($data as $k => $v) {
 			if (!empty($v) && is_string($v)) {
+				/* 通讯录字段简化处理 */
+				if (strpos($k, 'member.') === 0) {
+					$k = str_replace('member.', '', $k);
+				}
 				$whereByData .= ' and (';
 				$whereByData .= 'data like \'%"' . $k . '":"' . $v . '"%\'';
 				$whereByData .= ' or data like \'%"' . $k . '":"%,' . $v . '"%\'';

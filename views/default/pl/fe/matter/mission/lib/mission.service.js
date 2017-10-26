@@ -166,7 +166,7 @@ define(['require'], function(require) {
                 submit: function(modifiedData) {
                     var defer = $q.defer();
                     http2.post('/rest/pl/fe/matter/mission/update?id=' + _missionId, modifiedData, function(rsp) {
-                        noticebox.success('完成保存');
+                        //noticebox.success('完成保存');
                         defer.resolve(rsp.data);
                     });
                     return defer.promise;

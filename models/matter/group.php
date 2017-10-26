@@ -320,16 +320,16 @@ class group_model extends app_base {
 				switch ($oSourceApp->type) {
 				case 'enroll':
 				case 'registration':
-					$modelGrpUsr->importByEnroll($oNewApp, $oSourceApp->id);
+					$modelGrpUsr->assocWithEnroll($oNewApp, $oSourceApp->id);
 					break;
 				case 'signin':
-					$modelGrpUsr->importBySignin($oNewApp, $oSourceApp->id);
+					$modelGrpUsr->assocWithSignin($oNewApp, $oSourceApp->id);
 					break;
 				case 'wall':
 					break;
-					$modelGrpUsr->importByWall($oNewApp, $oSourceApp->id, $oSourceApp->onlySpeaker);
+					$modelGrpUsr->assocWithWall($oNewApp, $oSourceApp->id, $oSourceApp->onlySpeaker);
 				case 'mschema':
-					$modelGrpUsr->importByMschema($oNewApp, $oSourceApp->id);
+					$modelGrpUsr->assocWithMschema($oNewApp, $oSourceApp->id);
 					break;
 				}
 			}

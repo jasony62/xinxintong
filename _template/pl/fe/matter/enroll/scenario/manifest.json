@@ -86,6 +86,21 @@
             }
         }
     },
+    "discuss":
+    {
+        "title": "讨论",
+        "name": "discuss",
+        "description": "在线讨论",
+        "templates":
+        {
+            "simple":
+            {
+                "title": "简单",
+                "name": "simple",
+                "description": "简单快速"
+            }
+        }
+    },
     "score_sheet":
     {
         "title": "记分表",

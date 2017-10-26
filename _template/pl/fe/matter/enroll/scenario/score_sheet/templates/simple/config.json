@@ -18,9 +18,7 @@
             },
             "config":
             {
-                "showname": "label",
-                "component": "R",
-                "align": "V"
+                "showname": "label"
             }
         },
         {
@@ -35,9 +33,7 @@
             },
             "config":
             {
-                "showname": "label",
-                "component": "R",
-                "align": "V"
+                "showname": "label"
             }
         },
         {
@@ -52,9 +48,7 @@
             },
             "config":
             {
-                "showname": "label",
-                "component": "R",
-                "align": "V"
+                "showname": "label"
             }
         }],
         "act_schemas": [
@@ -159,6 +153,7 @@
     }],
     "scenarioConfig":
     {
+        "can_rank": "Y",
         "can_rounds": "Y"
     },
     "entryRule":
@@ -170,6 +165,5 @@
     },
     "count_limit": "1",
     "multi_rounds": "N",
-    "can_rank": "Y",
     "enrolled_entry_page": "result"
 }

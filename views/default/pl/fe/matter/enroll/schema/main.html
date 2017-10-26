@@ -35,7 +35,7 @@
                 <input type='radio' value="number" name="format" ng-model='activeSchema.format' ng-change="updSchema(activeSchema)">数值</label>
             <label class='checkbox-inline' ng-if='activeSchema.format==="number"'>
                 权重
-                <input type='text' ng-model="activeSchema.weight" ng-change="updSchema(activeSchema)" placeholder="请输入数字">
+                <input type='text' style='width:4em' ng-model="activeSchema.weight" ng-change="updSchema(activeSchema)" placeholder="请输入数字">
             </label>
         </div>
         <div class='radio'>

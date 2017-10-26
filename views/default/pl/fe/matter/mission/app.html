@@ -21,7 +21,7 @@
                     <option value="{{phs.phase_id}}" ng-repeat="phs in mission.phases">{{phs.title}}</option>
                 </select>
             </div>
-            <button ng-if="unionType" class='btn btn-default' ng-click="addMatter()"><i class='glyphicon glyphicon-plus'></i> <span>新建{{scenarioNames.enroll[matterScenario||matterType]}}活动</span></button>
+            <button ng-if="unionType" class='btn btn-default' ng-click="addMatter()"><i class='glyphicon glyphicon-plus'></i> <span>新建{{scenarioes.enroll[matterScenario||matterType]}}活动</span></button>
             <div ng-if="!unionType" class="btn-group" uib-dropdown>
                 <button class="btn btn-default" uib-dropdown-toggle>
                     <i class='glyphicon glyphicon-plus'></i> 新建 <span class="caret"></span>
@@ -52,7 +52,7 @@
         <tbody>
             <tr ng-repeat='m in matters'>
                 <td>{{$index+1}}</td>
-                <td ng-if="matterType==='enroll'">{{scenarioNames.enroll[m.scenario||m.type]}}</td>
+                <td ng-if="matterType==='enroll'">{{scenarioes.enroll[m.scenario||m.type]}}</td>
                 <td ng-click="openMatter(m)">{{m.title}}</td>
                 <td data-th='签到轮次' ng-if="matterType=='signin'"><span>{{m.opData[0].title}}</span></td>
                 <td data-th='记录数' ng-if="matterType=='enroll'" ng-click="openMatter(m,'record')" title='点击查看详细数据'><span>{{m.opData[0].total}}</span></td>

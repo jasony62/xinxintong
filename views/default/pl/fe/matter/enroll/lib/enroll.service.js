@@ -471,6 +471,7 @@ define(['require', 'schema', 'page'], function(require, schemaLib, pageLib) {
                     });
                 },
                 assignGroupApp: function() {
+                    var defer = $q.defer();
                     $uibModal.open({
                         templateUrl: 'assignGroupApp.html',
                         controller: ['$scope', '$uibModalInstance', function($scope2, $mi) {
@@ -498,25 +499,12 @@ define(['require', 'schema', 'page'], function(require, schemaLib, pageLib) {
                         _self.update('group_app_id').then(function(rsp) {
                             var url = '/rest/pl/fe/matter/group/get?site=' + _siteId + '&app=' + _oApp.group_app_id;
                             http2.get(url, function(rsp) {
-                                var groupApp = rsp.data,
-                                    roundDS = {
-                                        id: '_round_id',
-                                        type: 'single',
-                                        title: '分组名称',
-                                    },
-                                    ops = [];
-                                groupApp.rounds.forEach(function(round) {
-                                    ops.push({
-                                        v: round.round_id,
-                                        l: round.title
-                                    });
-                                });
-                                roundDS.ops = ops;
-                                groupApp.dataSchemas.splice(0, 0, roundDS);
-                                _oApp.groupApp = groupApp;
+                                _oApp.groupApp = rsp.data;
+                                defer.resolve(_oApp.groupApp);
                             });
                         });
                     });
+                    return defer.promise;
                 },
             };
             return _self;

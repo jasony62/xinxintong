@@ -568,35 +568,39 @@ provider('srvQuickEntry', function() {
             return val;
         }
 
-        function _forTable(record, mapOfSchemas) {
-            var schema, data = {};
+        function _forTable(oRecord, mapOfSchemas) {
+            var oSchema, type, data = {};
 
-            if (record.state !== undefined) {
-                record._state = _mapOfRecordState[record.state];
+            if (oRecord.state !== undefined) {
+                oRecord._state = _mapOfRecordState[oRecord.state];
             }
-            // enroll data
-            if (record.data && mapOfSchemas) {
+            if (oRecord.data && mapOfSchemas) {
                 for (var schemaId in mapOfSchemas) {
-                    schema = mapOfSchemas[schemaId];
-                    switch (schema.type) {
+                    oSchema = mapOfSchemas[schemaId];
+                    type = oSchema.type;
+                    /* 分组活动导入数据时会将member题型改为shorttext题型 */
+                    if (type === 'shorttext' && /member\..+/.test(oSchema.id) && oRecord.data.member) {
+                        type = 'member';
+                    }
+                    switch (type) {
                         case 'image':
-                            var imgs = record.data[schema.id] ? record.data[schema.id].split(',') : [];
-                            data[schema.id] = imgs;
+                            var imgs = oRecord.data[oSchema.id] ? oRecord.data[oSchema.id].split(',') : [];
+                            data[oSchema.id] = imgs;
                             break;
                         case 'file':
-                            var files = record.data[schema.id] ? record.data[schema.id] : {};
-                            data[schema.id] = files;
+                            var files = oRecord.data[oSchema.id] ? oRecord.data[oSchema.id] : {};
+                            data[oSchema.id] = files;
                             break;
                         case 'member':
-                            data[schema.id] = _memberAttr(record.data.member, schema);
+                            data[oSchema.id] = _memberAttr(oRecord.data.member, oSchema);
                             break;
                         default:
-                            data[schema.id] = $sce.trustAsHtml(_value2Html(record.data[schema.id], schema));
+                            data[oSchema.id] = $sce.trustAsHtml(_value2Html(oRecord.data[oSchema.id], oSchema));
                     }
                 };
-                record._data = data;
+                oRecord._data = data;
             }
-            return record;
+            return oRecord;
         }
 
         var _mapOfRecordState = {

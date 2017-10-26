@@ -4,14 +4,16 @@ define(['frame', 'schema', 'wrap'], function(ngApp, schemaLib, wrapLib) {
      * 填写项管理
      */
     ngApp.provider.controller('ctrlSchema', ['$scope', '$q', 'srvSigninApp', 'srvSigninPage', function($scope, $q, srvSigninApp, srvSigninPage) {
+        $scope._srvAppBase = srvSigninApp;
         $scope._submitChange = function(changedPages) {
             var updatedAppProps = ['data_schemas'],
                 oSchema, oNicknameSchema, oAppNicknameSchema;
 
+
             for (var i = $scope.app.dataSchemas.length - 1; i >= 0; i--) {
                 oSchema = $scope.app.dataSchemas[i];
                 if (oSchema.required === 'Y') {
-                    if (oSchema.type === 'shorttext') {
+                    if (oSchema.type === 'shorttext' || oSchema.type === 'member') {
                         if (oSchema.title === '姓名') {
                             oNicknameSchema = oSchema;
                             break;
@@ -56,9 +58,6 @@ define(['frame', 'schema', 'wrap'], function(ngApp, schemaLib, wrapLib) {
         };
         $scope.cancelEnrollApp = function() {
             srvSigninApp.cancelEnrollApp();
-        };
-        $scope.assignGroupApp = function() {
-            srvSigninApp.assignGroupApp();
         };
         $scope.cancelGroupApp = function() {
             $scope.app.group_app_id = '';

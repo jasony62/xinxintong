@@ -1,31 +1,31 @@
 define(['require'], function(require) {
     'use strict';
-    var ngApp, ls, siteId, missionId;
+    var ngApp, ls, _siteId, _missionId;
 
     ls = location.search;
-    siteId = ls.match(/[\?&]site=([^&]*)/)[1];
-    missionId = ls.match(/[\?&]mission=([^&]*)/) ? ls.match(/[\?&]mission=([^&]*)/)[1] : '';
+    _siteId = ls.match(/[\?&]site=([^&]*)/)[1];
+    _missionId = ls.match(/[\?&]mission=([^&]*)/) ? ls.match(/[\?&]mission=([^&]*)/)[1] : '';
 
-    ngApp = angular.module('app', ['ngRoute', 'ui.bootstrap', 'ui.tms', 'ui.xxt', 'service.matter']);
+    ngApp = angular.module('app', ['ngRoute', 'ui.bootstrap', 'ui.tms', 'ui.xxt', 'pl.const', 'service.matter']);
     ngApp.config(['$locationProvider', 'srvSiteProvider', function($locationProvider, srvSiteProvider) {
         $locationProvider.html5Mode(true);
-        srvSiteProvider.config(siteId);
+        srvSiteProvider.config(_siteId);
     }]);
-    ngApp.controller('ctrlMain', ['$scope', '$location', '$timeout', 'http2', 'srvSite', function($scope, $location, $timeout, http2, srvSite) {
+    ngApp.controller('ctrlMain', ['$scope', 'http2', 'srvSite', function($scope, http2, srvSite) {
         $scope.source = 'platform';
         $scope.switchSource = function(source) {
             $scope.source = source;
         };
         srvSite.get().then(function(oSite) {
             $scope.site = oSite;
+            if (_missionId) {
+                http2.get('/rest/pl/fe/matter/mission/get?site=' + _siteId + '&id=' + _missionId, function(rsp) {
+                    $scope.mission = rsp.data;
+                });
+            }
         });
-        if (missionId) {
-            http2.get('/rest/pl/fe/matter/mission/get?site=' + siteId + '&id=' + missionId, function(rsp) {
-                $scope.mission = rsp.data;
-            });
-        }
     }]);
-    ngApp.controller('ctrlSysTemplate', ['$scope', '$location', '$uibModal', 'http2', 'srvSite', function($scope, $location, $uibModal, http2, srvSite) {
+    ngApp.controller('ctrlSysTemplate', ['$scope', '$location', '$uibModal', 'http2', 'CstNaming', 'srvSite', function($scope, $location, $uibModal, http2, CstNaming, srvSite) {
         var assignedScenario, _oProto, _oEntryRule, _oResult;
 
         assignedScenario = $location.search().scenario;
@@ -66,8 +66,8 @@ define(['require'], function(require) {
                     $scope2.ok = function() {
                         $mi.close($scope2.data);
                     };
-                    var url = '/rest/pl/fe/matter/group/list?site=' + siteId + '&size=999&cascaded=Y';
-                    url += '&mission=' + missionId;
+                    var url = '/rest/pl/fe/matter/group/list?site=' + _siteId + '&size=999&cascaded=Y';
+                    url += '&mission=' + _missionId;
                     http2.get(url, function(rsp) {
                         $scope2.apps = rsp.data.apps;
                     });
@@ -101,31 +101,12 @@ define(['require'], function(require) {
                 }
             });
         };
-        $scope.assignEnrollApp = function() {
-            srvSite.openGallery({
-                matterTypes: [{
-                    value: 'enroll',
-                    title: '登记活动',
-                    url: '/rest/pl/fe/matter'
-                }],
-                singleMatter: true,
-                mission: _oProto.mission,
-                onlySameMission: true
-            }).then(function(result) {
-                var oEnrollApp, oChosen;
-                if (result.matters.length === 1) {
-                    oChosen = result.matters[0];
-                    oEnrollApp = { id: oChosen.id, title: oChosen.title };
-                    _oProto.enrollApp = oEnrollApp;
-                }
-            });
-        };
         $scope.doCreate = function() {
             var url, data;
             var oConfig;
-            url = '/rest/pl/fe/matter/enroll/create?site=' + siteId;
-            if (missionId) {
-                url += '&mission=' + missionId;
+            url = '/rest/pl/fe/matter/enroll/create?site=' + _siteId;
+            if (_missionId) {
+                url += '&mission=' + _missionId;
             }
             oConfig = {};
             data = $scope.result;
@@ -141,7 +122,7 @@ define(['require'], function(require) {
                 oConfig.scenarioConfig = data.scenarioConfig;
             }
             http2.post(url, oConfig, function(rsp) {
-                location.href = '/rest/pl/fe/matter/enroll/schema?site=' + siteId + '&id=' + rsp.data.id;
+                location.href = '/rest/pl/fe/matter/enroll/schema?site=' + _siteId + '&id=' + rsp.data.id;
             });
         };
         $scope.chooseScenario = function() {
@@ -162,6 +143,9 @@ define(['require'], function(require) {
                 var oScenarioConfig, elSimulator, url;
                 $scope.scenarioConfig = oScenarioConfig = rsp.data.scenarioConfig;
                 oScenarioConfig.required = (oScenarioConfig.can_repos !== 'D' || oScenarioConfig.can_rank !== 'D' || oScenarioConfig.can_repos !== 'D');
+                _oProto.can_repos = oScenarioConfig.can_repos === 'Y' ? 'Y' : 'N';
+                _oProto.can_rank = oScenarioConfig.can_rank === 'Y' ? 'Y' : 'N';
+                _oProto.can_rounds = oScenarioConfig.can_rounds === 'Y' ? 'Y' : 'N';
                 $scope.pages = rsp.data.pages;
                 _oResult.selectedPage = $scope.pages[0];
                 elSimulator = document.querySelector('#simulator iframe');
@@ -228,38 +212,35 @@ define(['require'], function(require) {
             $scope.sns = oSns;
             $scope.snsNames = Object.keys(oSns);
         });
-        $scope.$watch('mission', function(oMission) {
-            if (oMission) {
-                _oProto.mission = { id: oMission.id, title: oMission.title };
-                _oEntryRule.scope = oMission.entry_rule.scope || 'none';
-                if ('member' === oMission.entry_rule.scope) {
-                    srvSite.memberSchemaList(oMission).then(function(aMemberSchemas) {
-                        var oMschemasById = {};
-                        aMemberSchemas.forEach(function(mschema) {
-                            oMschemasById[mschema.id] = mschema;
+        if (_missionId) {
+            $scope.$watch('mission', function(oMission) {
+                if (oMission) {
+                    _oProto.mission = { id: oMission.id, title: oMission.title };
+                    _oEntryRule.scope = oMission.entry_rule.scope || 'none';
+                    if ('member' === oMission.entry_rule.scope) {
+                        srvSite.memberSchemaList(oMission).then(function(aMemberSchemas) {
+                            var oMschemasById = {};
+                            aMemberSchemas.forEach(function(mschema) {
+                                oMschemasById[mschema.id] = mschema;
+                            });
+                            Object.keys(oMission.entry_rule.member).forEach(function(mschemaId) {
+                                _oEntryRule.mschemas.push({ id: mschemaId, title: oMschemasById[mschemaId].title });
+                            });
                         });
-                        Object.keys(oMission.entry_rule.member).forEach(function(mschemaId) {
-                            _oEntryRule.mschemas.push({ id: mschemaId, title: oMschemasById[mschemaId].title });
-                        });
-                    });
-                } else if ('sns' === oMission.entry_rule.scope) {
-                    _oResult.proto.sns = oMission.entry_rule.sns;
+                    } else if ('sns' === oMission.entry_rule.scope) {
+                        _oResult.proto.sns = oMission.entry_rule.sns;
+                    }
+                    _oProto.title = oMission.title + '-' + CstNaming.scenario.enroll[assignedScenario] || '登记活动';
                 }
-                if (assignedScenario === 'registration') {
-                    _oProto.title = oMission.title + '-报名';
-                } else if (assignedScenario === 'voting') {
-                    _oProto.title = oMission.title + '-投票';
-                } else if (assignedScenario === 'group_week_report') {
-                    _oProto.title = oMission.title + '-周报';
-                } else if (assignedScenario === 'score_sheet') {
-                    _oProto.title = oMission.title + '-记分表';
-                } else if (assignedScenario === 'quiz') {
-                    _oProto.title = oMission.title + '-测验';
-                } else if (assignedScenario === 'common' || assignedScenario === '') {
-                    _oProto.title = oMission.title + '-登记';
+            });
+        } else if (_siteId) {
+            $scope.$watch('site', function(oSite) {
+                if (oSite) {
+                    _oEntryRule.scope = 'none';
+                    _oProto.title = oSite.name + '-' + CstNaming.scenario.enroll[assignedScenario] || '登记活动';
                 }
-            }
-        });
+            });
+        }
     }]);
     ngApp.controller('ctrlUserTemplate', ['$scope', 'http2', function($scope, http2) {
         $scope.criteria = {
@@ -277,16 +258,16 @@ define(['require'], function(require) {
             var url, data;
             var data;
             data = $scope.templates[$scope.data.choose];
-            url = '/rest/pl/fe/matter/enroll/createByOther?site=' + siteId + '&template=' + data.id;
-            if (missionId) {
-                url += '&mission=' + missionId;
+            url = '/rest/pl/fe/matter/enroll/createByOther?site=' + _siteId + '&template=' + data.id;
+            if (_missionId) {
+                url += '&mission=' + _missionId;
             }
             http2.get(url, function(rsp) {
-                location.href = '/rest/pl/fe/matter/enroll/schema?site=' + siteId + '&id=' + rsp.data.id;
+                location.href = '/rest/pl/fe/matter/enroll/schema?site=' + _siteId + '&id=' + rsp.data.id;
             });
         };
         $scope.searchTemplate = function() {
-            var url = '/rest/pl/fe/template/site/list?matterType=enroll&scope=P' + '&site=' + siteId;
+            var url = '/rest/pl/fe/template/site/list?matterType=enroll&scope=P' + '&site=' + _siteId;
 
             http2.get(url, function(rsp) {
                 $scope.templates = rsp.data.templates;
@@ -302,7 +283,7 @@ define(['require'], function(require) {
             });
         };
         $scope.searchBySite = function() {
-            var url = '/rest/pl/fe/template/site/list?site=' + siteId + '&matterType=enroll&scope=S';
+            var url = '/rest/pl/fe/template/site/list?site=' + _siteId + '&matterType=enroll&scope=S';
 
             http2.get(url, function(rsp) {
                 $scope.templates = rsp.data.templates;
@@ -317,7 +298,7 @@ define(['require'], function(require) {
                 var ele, r;
                 ele = document.getElementById('btnCreateByExcel');
                 r = new Resumable({
-                    target: '/rest/pl/fe/matter/enroll/uploadExcel4Create?site=' + siteId,
+                    target: '/rest/pl/fe/matter/enroll/uploadExcel4Create?site=' + _siteId,
                     testChunks: false,
                 });
                 r.assignBrowse(ele);
@@ -335,7 +316,7 @@ define(['require'], function(require) {
                         lastModified: lastModified,
                         uniqueIdentifier: f.uniqueIdentifier,
                     };
-                    http2.post('/rest/pl/fe/matter/enroll/createByExcel?site=' + siteId, posted, function(rsp) {
+                    http2.post('/rest/pl/fe/matter/enroll/createByExcel?site=' + _siteId, posted, function(rsp) {
                         $mi.close({ source: 'file', app: rsp.data });
                     });
                 });
@@ -346,7 +327,7 @@ define(['require'], function(require) {
 
         $scope.$on('doCreate.shop', function() {
             if (oNewApp) {
-                location.href = '/rest/pl/fe/matter/enroll?site=' + siteId + '&id=' + choice.app.id;
+                location.href = '/rest/pl/fe/matter/enroll?site=' + _siteId + '&id=' + choice.app.id;
             }
         });
         window.chooseFile = function(file) {
@@ -356,9 +337,9 @@ define(['require'], function(require) {
                 var template, url;
                 template = evt.target.result;
                 template = JSON.parse(template);
-                url = '/rest/pl/fe/matter/enroll/createByConfig?site=' + siteId;
-                if (missionId) {
-                    url += '&mission=' + missionId;
+                url = '/rest/pl/fe/matter/enroll/createByConfig?site=' + _siteId;
+                if (_missionId) {
+                    url += '&mission=' + _missionId;
                 }
                 http2.post(url, template, function(rsp) {
                     oNewApp = rsp.data;

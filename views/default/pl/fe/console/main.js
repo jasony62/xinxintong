@@ -120,7 +120,7 @@ define(['frame'], function(ngApp) {
             }, true);
         });
     }]);
-    ngApp.provider.controller('ctrlActivity', ['$scope', '$location', 'http2', 'cstApp', '$uibModal', 'facListFilter', function($scope, $location, http2, cstApp, $uibModal, facListFilter) {
+    ngApp.provider.controller('ctrlActivity', ['$scope', '$location', 'http2', 'CstNaming', 'cstApp', '$uibModal', 'facListFilter', function($scope, $location, http2, CstNaming, cstApp, $uibModal, facListFilter) {
         var lsearch, filter2, _oPage;
         // if (window.localStorage) {
         //     $scope.$watch('filter', function(nv) {
@@ -149,15 +149,15 @@ define(['frame'], function(ngApp) {
         aUnionMatterTypes = [];
         cstApp.matterNames.appOrder.forEach(function(name) {
             if (name === 'enroll') {
-                cstApp.scenarioOrder.forEach(function(scenario) {
-                    aUnionMatterTypes.push({ name: 'enroll.' + scenario, label: cstApp.scenarioNames[scenario] });
+                CstNaming.scenario.enrollIndex.forEach(function(scenario) {
+                    aUnionMatterTypes.push({ name: 'enroll.' + scenario, label: CstNaming.scenario.enroll[scenario] });
                 });
             } else {
                 aUnionMatterTypes.push({ name: name, label: cstApp.matterNames.app[name] });
             }
         });
         $scope.unionMatterTypes = aUnionMatterTypes;
-        $scope.scenarioNames = cstApp.scenarioNames;
+        $scope.scenarioNames = CstNaming.scenario.enroll;
         $scope.page = _oPage = {
             at: 1,
             size: 12,

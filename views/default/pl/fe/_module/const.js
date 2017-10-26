@@ -26,11 +26,11 @@ constant('CstNaming', {
             'discuss': '讨论',
             'score_sheet': '记分表',
         },
-        enrollOrder: ['common', 'registration', 'voting', 'quiz', 'group_week_report', 'discuss', 'score_sheet'],
+        enrollIndex: ['common', 'registration', 'voting', 'quiz', 'group_week_report', 'discuss', 'score_sheet'],
         group: {
             'split': '分组',
             'wall': '信息墙'
         },
-        groupOrder: ['split', 'wall']
+        groupIndex: ['split', 'wall']
     }
 });

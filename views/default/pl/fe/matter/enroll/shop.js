@@ -143,6 +143,9 @@ define(['require'], function(require) {
                 var oScenarioConfig, elSimulator, url;
                 $scope.scenarioConfig = oScenarioConfig = rsp.data.scenarioConfig;
                 oScenarioConfig.required = (oScenarioConfig.can_repos !== 'D' || oScenarioConfig.can_rank !== 'D' || oScenarioConfig.can_repos !== 'D');
+                _oProto.can_repos = oScenarioConfig.can_repos === 'Y' ? 'Y' : 'N';
+                _oProto.can_rank = oScenarioConfig.can_rank === 'Y' ? 'Y' : 'N';
+                _oProto.can_rounds = oScenarioConfig.can_rounds === 'Y' ? 'Y' : 'N';
                 $scope.pages = rsp.data.pages;
                 _oResult.selectedPage = $scope.pages[0];
                 elSimulator = document.querySelector('#simulator iframe');

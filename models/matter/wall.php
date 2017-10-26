@@ -293,7 +293,7 @@ class wall_model extends enroll_base {
 
 			$whereMatter = '';
 			foreach ($oApp->interact_matter as $matter) {
-				$whereMatter .= " or ( matter_id = $matter->id and matter_type = '" . $matter->type . "')";
+				$whereMatter .= " or ( matter_id = '" . $matter->id . "' and matter_type = '" . $matter->type . "')";
 			}
 			$whereMatter = explode('or', $whereMatter);
 			array_shift($whereMatter);

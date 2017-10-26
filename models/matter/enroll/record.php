@@ -890,15 +890,15 @@ class record_model extends record_base {
 							$nicknameSchemaId = $oApp->assignedNickname->schema->id;
 							if (0 === strpos($nicknameSchemaId, 'member.')) {
 								$nicknameSchemaId = explode('.', $nicknameSchemaId);
-								if (!$oRec->data->member) {
+								if (!isset($oRec->data->member)) {
 									$oRec->data->member = new \stdClass;
 								}
-								if (!$oRec->data->member->{$nicknameSchemaId[1]}) {
+								if (!isset($oRec->data->member->{$nicknameSchemaId[1]})) {
 									$oRec->data->member->{$nicknameSchemaId[1]} = $oRec->nickname;
 								}
 							} else {
-								if (!$oRec->data[$nicknameSchemaId]) {
-									$oRec->data[$nicknameSchemaId] = $oRec->nickname;
+								if (!isset($oRec->data->{$nicknameSchemaId})) {
+									$oRec->data->{$nicknameSchemaId} = $oRec->nickname;
 								}
 							}
 						}

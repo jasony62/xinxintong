@@ -191,7 +191,7 @@ function auto_version($file) {
  */
 function custom_version($file) {
 	if (0 !== strpos($file, DIRECTORY_SEPARATOR)) {
-		$file .= DIRECTORY_SEPARATOR . $file;
+		$file = DIRECTORY_SEPARATOR . $file;
 	}
 
 	$full = '/views/' . TMS_APP_VIEW_NAME . $file;

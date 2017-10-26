@@ -210,7 +210,7 @@ class base extends \site\fe\base {
 	* 获取我的分享信息
 	*/
 	protected function getMyShareInfo($oUser, $matterType, $matterId, $orderBy = 'read') {
-		$model = $this->model();
+		$model = $this->model()->setOnlyWriteDbConn(true);
 
 		$q = [];
 		$q2 = [];

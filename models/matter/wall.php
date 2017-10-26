@@ -277,6 +277,7 @@ class wall_model extends enroll_base {
 	 and s.matter_id in ($matterId) and s.matter_type = '$matterType'
 	*/
 	public function listPlayer($startTime, $startId = null, $oApp) {
+		$this->setOnlyWriteDbConn(true);
 		$startTime = $this->escape($startTime);
 
 		if ($oApp->scenario_config->interact_action->share === 'Y') {

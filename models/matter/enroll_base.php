@@ -192,7 +192,6 @@ abstract class enroll_base extends app_base {
 								$schemaPhaseConfig = new \stdClass;
 								$schemaPhaseConfig->id = 'V' . time();
 								$schemaPhaseConfig->pattern = 'record';
-								$schemaPhaseConfig->inline = 'Y';
 								$schemaPhaseConfig->splitLine = 'Y';
 								$newPageSchema->schema = $oNameSchema;
 								$newPageSchema->config = $schemaPhaseConfig;
@@ -244,7 +243,6 @@ abstract class enroll_base extends app_base {
 					$schemaPhaseConfig = new \stdClass;
 					$schemaPhaseConfig->id = 'V' . time();
 					$schemaPhaseConfig->pattern = 'record';
-					$schemaPhaseConfig->inline = 'Y';
 					$schemaPhaseConfig->splitLine = 'Y';
 					$newPageSchema->schema = $oRoundSchema;
 					$newPageSchema->config = $schemaPhaseConfig;

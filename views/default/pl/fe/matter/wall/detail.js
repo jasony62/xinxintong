@@ -91,6 +91,7 @@ define(['frame'], function(ngApp) {
         });
         $scope.$watch('wall', function(oWall) {
             if (oWall) {
+                $scope.interactAction = oWall.scenario_config.interact_action;
                 $scope.entry = {
                     url: oWall.user_url,
                     qrcode: '/rest/site/fe/matter/wall/qrcode?site=' + oWall.siteid + '&url=' + encodeURIComponent(oWall.user_url),

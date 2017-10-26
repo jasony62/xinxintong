@@ -40,6 +40,12 @@ class main extends \pl\fe\matter\main_base {
 			$options = array('cascaded' => 'N', 'fields' => 'id,title');
 			$oWall->sourceApp = $this->model('matter\\' . $sourceApp->type)->byId($sourceApp->id, $options);
 		}
+		if (!empty($oWall->interact_matter)) {
+			foreach ($oWall->interact_matter as $key => $matter) {
+				$options = array('cascaded' => 'N', 'fields' => 'siteid,id,title');
+				$oWall->interact_matter[$key] = $this->model('matter\\' . $matter->type)->byId($matter->id, $options);
+			}
+		}
 
 		return new \ResponseData($oWall);
 	}

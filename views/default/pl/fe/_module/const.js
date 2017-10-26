@@ -29,8 +29,8 @@ constant('CstNaming', {
         enrollIndex: ['common', 'registration', 'voting', 'quiz', 'group_week_report', 'discuss', 'score_sheet'],
         group: {
             'split': '分组',
-            'wall': '信息墙'
+            'extract': '抓阄'
         },
-        groupIndex: ['split', 'wall']
+        groupIndex: ['split', 'extract']
     }
 });

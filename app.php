@@ -195,7 +195,7 @@ function custom_version($file) {
 	}
 
 	$full = '/views/' . TMS_APP_VIEW_NAME . $file;
-	if (!file_exists($full)) {
+	if (!file_exists(TMS_APP_DIR . $full)) {
 		$full = '/views/' . TMS_APP_VIEW_NAME_DEFAULT . $file;
 	}
 

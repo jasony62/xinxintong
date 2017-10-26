@@ -116,12 +116,13 @@ abstract class enroll_base extends app_base {
 		/* 关联姓名字段 */
 		if (!empty($oTemplateConfig->schema)) {
 			foreach ($oGroupApp->dataSchemas as $oGrpSchema) {
-				if (($oGrpSchema->id === 'name' && $oGrpSchema->type === 'shorttext') || ($oGrpSchema->id === 'member.name' && $oGrpSchema->type === 'member')) {
+				if (($oGrpSchema->id === 'name' && $oGrpSchema->type === 'shorttext') || ($oGrpSchema->id === 'member.name' && in_array($oGrpSchema->type, ['member', 'shorttext']))) {
 					$oGrpNameSchema = $oGrpSchema;
 					break;
 				}
 			}
 			if (isset($oGrpNameSchema)) {
+				/* 替换模板中包含的姓名题 */
 				foreach ($oTemplateConfig->schema as $oTmplSchema) {
 					if (($oTmplSchema->id === 'name' && $oTmplSchema->type === 'shorttext') || ($oTmplSchema->id === 'member.name' && $oTmplSchema->type === 'member')) {
 						$oTmplSchema->fromApp = $groupAppId;
@@ -133,24 +134,69 @@ abstract class enroll_base extends app_base {
 						if ($oTmplSchema->id === 'member.name') {
 							$oTmplSchema->id = 'name';
 						}
+						$oTmplNameSchema = $oTmplSchema;
 						break;
 					}
 				}
-				foreach ($oTemplateConfig->pages as $oTmplPage) {
-					if (!empty($oTmplPage->data_schemas)) {
-						foreach ($oTmplPage->data_schemas as $oTmplPageWrap) {
-							$oTmplPageSchema = $oTmplPageWrap->schema;
-							if (($oTmplPageSchema->id === 'name' && $oTmplPageSchema->type === 'shorttext') || ($oTmplPageSchema->id === 'member.name' && $oTmplPageSchema->type === 'member')) {
-								$oTmplPageSchema->fromApp = $groupAppId;
-								$oTmplPageSchema->requireCheck = 'Y';
-								if ($oTmplPageSchema->type === 'member') {
-									$oTmplPageSchema->type = 'shorttext';
-									unset($oTmplPageSchema->schema_id);
+				if (isset($oTmplNameSchema)) {
+					/* 替换页面中包含的姓名题 */
+					foreach ($oTemplateConfig->pages as $oTmplPage) {
+						if (!empty($oTmplPage->data_schemas)) {
+							foreach ($oTmplPage->data_schemas as $oTmplPageWrap) {
+								$oTmplPageSchema = $oTmplPageWrap->schema;
+								if ($oTmplPageSchema->id === $oTmplNameSchema) {
+									$oTmplPageSchema->fromApp = $groupAppId;
+									$oTmplPageSchema->requireCheck = 'Y';
+									if ($oTmplPageSchema->type === 'member') {
+										$oTmplPageSchema->type = 'shorttext';
+										unset($oTmplPageSchema->schema_id);
+									}
+									if ($oTmplPageSchema->id === 'member.name') {
+										$oTmplPageSchema->id = 'name';
+									}
+									break;
 								}
-								if ($oTmplPageSchema->id === 'member.name') {
-									$oTmplPageSchema->id = 'name';
-								}
-								break;
+							}
+						}
+					}
+				} else {
+					/* 模板中没有姓名题，添加 */
+					$oNameSchema = new \stdClass;
+					$oNameSchema->id = $oGrpNameSchema->id;
+					$oNameSchema->type = $oGrpNameSchema->type;
+					$oNameSchema->title = $oGrpNameSchema->title;
+					$oNameSchema->format = 'name';
+					$oNameSchema->required = 'Y';
+					$oNameSchema->fromApp = $groupAppId;
+					$oNameSchema->requireCheck = 'Y';
+					if (empty($oTemplateConfig->schema)) {
+						$oTemplateConfig->schema = [$oNameSchema];
+					} else {
+						array_splice($oTemplateConfig->schema, 0, 0, [$oNameSchema]);
+					}
+					/**
+					 * 处理页面数据定义
+					 */
+					foreach ($oTemplateConfig->pages as $oAppPage) {
+						if (!empty($oAppPage->data_schemas)) {
+							/* 自动添加项目阶段定义 */
+							if ($oAppPage->type === 'I') {
+								$newPageSchema = new \stdClass;
+								$schemaPhaseConfig = new \stdClass;
+								$schemaPhaseConfig->showname = 'label';
+								$newPageSchema->schema = $oNameSchema;
+								$newPageSchema->config = $schemaPhaseConfig;
+								array_splice($oAppPage->data_schemas, 0, 0, [$newPageSchema]);
+							} else if ($oAppPage->type === 'V') {
+								$newPageSchema = new \stdClass;
+								$schemaPhaseConfig = new \stdClass;
+								$schemaPhaseConfig->id = 'V' . time();
+								$schemaPhaseConfig->pattern = 'record';
+								$schemaPhaseConfig->inline = 'Y';
+								$schemaPhaseConfig->splitLine = 'Y';
+								$newPageSchema->schema = $oNameSchema;
+								$newPageSchema->config = $schemaPhaseConfig;
+								array_splice($oAppPage->data_schemas, 0, 0, [$newPageSchema]);
 							}
 						}
 					}

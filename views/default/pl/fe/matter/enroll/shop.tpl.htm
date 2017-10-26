@@ -133,7 +133,7 @@
                                                 </div>
                                                 <div class='checkbox' ng-if="scenarioConfig.can_rounds!=='D'">
                                                     <label>
-                                                        <input type='checkbox' ng-true-value="'Y'" ng-false-value="'D'" ng-model="result.scenarioConfig.can_rounds">按轮次登记 <span class='glyphicon glyphicon-question-sign' uib-tooltip='支持按轮次进行数据登记，每个轮次可以指定开始和结束时间'></span></label>
+                                                        <input type='checkbox' ng-true-value="'Y'" ng-false-value="'N'" ng-model="scenarioConfig.can_rounds">按轮次填写 <span class='glyphicon glyphicon-question-sign' uib-tooltip='支持按轮次进行数据登记，每个轮次可以指定开始和结束时间'></span></label>
                                                 </div>
                                             </div>
                                             <div ng-if="proto.mission&&entryRule.scope!=='group'">

@@ -27,7 +27,7 @@
     "pages": [
     {
         "name": "enroll",
-        "title": "提交意见页",
+        "title": "提交记录页",
         "type": "I",
         "data_schemas": [
         {
@@ -84,7 +84,7 @@
     },
     {
         "name": "result",
-        "title": "查看结果页",
+        "title": "查看记录页",
         "type": "V",
         "data_schemas": [
         {

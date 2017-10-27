@@ -2,7 +2,8 @@
     "template": "simple",
     "interact_action":
     	{
-    		"share": "Y",
+    		"shareF": "Y",
+    		"shareT": "Y",
     		"read": "N"
     	},
     "player_sum": "24"

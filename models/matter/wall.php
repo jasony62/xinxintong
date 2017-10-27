@@ -279,8 +279,12 @@ class wall_model extends enroll_base {
 	public function listPlayer($startTime, $startId = null, $oApp) {
 		$this->setOnlyWriteDbConn(true);
 		$startTime = $this->escape($startTime);
+		$interactAction = $oApp->scenario_config->interact_action;
+		if ($interactAction->shareF === 'N' && $interactAction->shareT === 'N' && $interactAction->read === 'N') {
+			return [];
+		}
 
-		if ($oApp->scenario_config->interact_action->share === 'Y') {
+		if ($interactAction->shareF === 'Y' || $interactAction->shareT === 'Y') {
 			$q = [
 				'max(s.id),s.share_to,s.share_at,s.matter_id,s.matter_type,s.matter_title,s.userid,a.nickname,a.headimgurl,a.wx_openid,a.yx_openid,a.qy_openid',
 				'xxt_log_matter_share s,xxt_site_account a',
@@ -288,7 +292,12 @@ class wall_model extends enroll_base {
 			];
 			if (!empty($startId)) {
 				$startId = $this->escape($startId);
-				$q[2] .= ' and s.id > $startId';
+				$q[2] .= ' and s.id > ' . $startId;
+			}
+			if ($interactAction->shareF === 'Y' && $interactAction->shareT === 'N') {
+				$q[2] .= " and s.share_to = 'F'";
+			} else if ($interactAction->shareF === 'N' && $interactAction->shareT === 'Y') {
+				$q[2] .= " and s.share_to = 'T'";
 			}
 
 			$whereMatter = '';

@@ -1,0 +1,9 @@
+{
+    "template": "simple",
+    "interact_action":
+    	{
+    		"share": "Y",
+    		"read": "N"
+    	},
+    "player_sum": "24"
+}

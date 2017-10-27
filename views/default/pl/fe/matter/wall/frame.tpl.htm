@@ -43,14 +43,17 @@
             <li ng-class="{'active':subView=='detail'}">
                 <a href="/rest/pl/fe/matter/wall/detail?id={{id}}&site={{siteId}}">设置</a>
             </li>
-            <li ng-class="{'active':subView=='users'}">
+            <li ng-class="{'active':subView=='users'}" ng-if="wall.scenario=='discuss'">
                 <a href="/rest/pl/fe/matter/wall/users?id={{id}}&site={{siteId}}">在线用户</a>
             </li>
-            <li ng-class="{'active':subView=='approve'}">
+            <li ng-class="{'active':subView=='approve'}" ng-if="wall.scenario=='discuss'">
                 <a href="/rest/pl/fe/matter/wall/approve?id={{id}}&site={{siteId}}">留言审核</a>
             </li>
-            <li ng-class="{'active':subView=='message'}">
+            <li ng-class="{'active':subView=='message'}" ng-if="wall.scenario=='discuss'">
                 <a href="/rest/pl/fe/matter/wall/message?id={{id}}&site={{siteId}}">留言管理</a>
+            </li>
+             <li ng-class="{'active':subView=='message'}" ng-if="wall.scenario=='interact'">
+                <a href="">行为日志</a>
             </li>
             <li ng-class="{'active':subView=='page'}">
                 <a href="/rest/pl/fe/matter/wall/page?id={{id}}&site={{siteId}}">页面设置</a>

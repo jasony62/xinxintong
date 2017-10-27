@@ -1,7 +1,7 @@
 <div class='form-group text-right'>
     <div class='col-md-12'>
-        <button class='btn btn-success' ng-click='start()' ng-if="wall.active==='N'">启用</button>
-        <button class='btn btn-default' ng-click='end()' ng-if="wall.active==='Y'">停用</button>
+        <button class='btn btn-success' ng-click='start()' ng-if="wall.active==='N' && wall.scenario=='discuss'">启用</button>
+        <button class='btn btn-default' ng-click='end()' ng-if="wall.active==='Y' && wall.scenario=='discuss'">停用</button>
         &emsp;
         <button class='btn btn-danger' ng-click='del()' >删除</button>
     </div>
@@ -12,6 +12,11 @@
             <div class="form-group">
                 <div class='help-block'>名称</div>
                 <input type="text" class="form-control" ng-model='wall.title' tms-auto-update tms-wait=1000 tms-update="update('title')">
+            </div>
+            <div class="form-group">
+                <div class='help-block'>活动类型</div>
+                <input type="text" class="form-control" ng-if="wall.scenario=='interact'" style="text-align:center" value="互动" readonly>
+                <input type="text" class="form-control" ng-if="wall.scenario=='discuss'" style="text-align:center" value="讨论"  readonly>
             </div>
             <div class="form-group compact">
                 <div class='help-block'>头图（可选）：建议尺寸：900像素 * 500像素</div>
@@ -77,25 +82,25 @@
                         </table>
                     </div>
             </div>
-            <div class='form-group'>
+            <div class='form-group' ng-if="wall.scenario=='discuss'">
                 <div class='help-block'>加入提示</div>
                 <div class=''>
                     <textarea class="form-control" ng-model='wall.join_reply' tms-auto-update tms-wait=1000 tms-update="update('join_reply')"></textarea>
                 </div>
             </div>
-            <div class='form-group'>
+            <div class='form-group' ng-if="wall.scenario=='discuss'">
                 <div class='help-block'>退出提示</div>
                 <div class=''>
                     <textarea class="form-control" ng-model='wall.quit_reply' tms-auto-update tms-wait=1000 tms-update="update('quit_reply')"></textarea>
                 </div>
             </div>
-            <div class='form-group'>
+            <div class='form-group' ng-if="wall.scenario=='discuss'">
                 <div class='help-block'>退出关键字</div>
                 <div class=''>
                     <input type="text" class="form-control" ng-model='wall.quit_cmd' tms-auto-update tms-wait=1000 tms-update="update('quit_cmd')">
                 </div>
             </div>
-            <div class='form-group'>
+            <div class='form-group' ng-if="wall.scenario=='discuss'">
                 <div class='help-block'>消息处理</div>
                 <div class=''>
                     <label class='checkbox-inline'>
@@ -104,9 +109,42 @@
                         <input type='checkbox' ng-true-value="'Y'" ng-false-value="'N'" ng-model='wall.push_others' ng-change="update('push_others')">推送消息</label>
                 </div>
             </div>
+            <div class='form-group' ng-if="wall.scenario=='interact'">
+                <label>已有图文</label>
+                <button class='btn btn-default btn-sm' ng-click="addInteractMatter()">选择素材</button>
+                <ul class='list-group' style='margin-bottom:0'>
+                    <li class='list-group-item' ng-repeat="m in wall.interact_matter" ng-mouseenter='hover=true' ng-mouseleave='hover=false' title='{{m.type|typetitle}}'>
+                        <a href='' ng-click="gotoMatter(m)">{{m.title}}</a>
+                        <button class='btn btn-xs btn-default pull-right' ng-if="hover" ng-click="removeInteractMatter(m)">
+                            <span class='glyphicon glyphicon-remove'></span>
+                        </button>
+                    </li>
+                </ul>
+            </div>
+            <div class='form-group' ng-if="wall.scenario=='interact'">
+                <div class='help-block'>互动方式</div>
+                <div class=''>
+                    <label class='checkbox-inline'>
+                        <input type='checkbox' ng-true-value="'Y'" ng-false-value="'N'" ng-model='interactAction.share' ng-change="update('scenario_config')">分享</label>
+                    <!-- <label class='checkbox-inline'>
+                        <input type='checkbox' ng-true-value="'Y'" ng-false-value="'N'" ng-model='interactAction.read' ng-change="update('scenario_config')">阅读</label> -->
+                </div>
+                <div class='help-block'></div>
+                <div class='help-block'>参加人数（最少4人，最多24人）</div>
+                <div class=''>
+                    <select class='form-control' ng-model="wall.scenario_config.player_sum" ng-change="update('scenario_config')">
+                    <option value='4'>4</option>
+                    <option value='8'>8</option>
+                    <option value='12'>12</option>
+                    <option value='16'>16</option>
+                    <option value='20'>20</option>
+                    <option value='24'>24</option>
+                </select>
+                </div>
+            </div>
         </div>
     </div>
-    <div class="col-md-4">
+    <div class="col-md-4" ng-if="wall.scenario=='discuss'">
         <div class="tile">
             <div class="form-group compact">
                 <div class="help-block">用户进入URL</div>
@@ -123,6 +161,8 @@
                 <button class='btn btn-default' ng-click="downloadQrcode(entry.qrcode)">下载</button>
             </div>
         </div>
+    </div>
+    <div class="col-md-4">
         <div class='form-group'>
             <label>管理标签（可选）</label>
             <p class="form-control" ng-click="tagMatter('M')">

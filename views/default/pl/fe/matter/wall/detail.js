@@ -3,11 +3,12 @@ define(['frame'], function(ngApp) {
     /**
      * app setting controller
      */
-    ngApp.provider.controller('ctrlDetail', ['$scope', 'http2', 'mediagallery', 'srvWallApp', '$uibModal', 'srvTag', function($scope, http2, mediagallery, srvWallApp, $uibModal, srvTag) {
+    ngApp.provider.controller('ctrlDetail', ['$scope', 'http2', 'mediagallery', 'srvWallApp', '$uibModal', 'srvTag', 'srvSite', 'cstApp', function($scope, http2, mediagallery, srvWallApp, $uibModal, srvTag, srvSite, cstApp) {
         (function() {
             new ZeroClipboard(document.querySelectorAll('.text2Clipboard'));
         })();
         $scope.$parent.subView = 'detail';
+        $scope.matterTypes = cstApp.matterTypes;
         $scope.tagMatter = function(subType){
             var oTags;
             oTags = $scope.oTag;
@@ -55,12 +56,42 @@ define(['frame'], function(ngApp) {
         $scope.downloadQrcode = function(url) {
             $('<a href="' + url + '" download="' + $scope.wall.title + '.png"></a>')[0].click();
         };
+        $scope.addInteractMatter = function() {
+            srvSite.openGallery({
+                matterTypes: $scope.matterTypes
+            }).then(function(result) {
+                var relations;
+                if (result.matters && result.matters.length) {
+                    result.matters.forEach(function(matter) {
+                        matter.type = result.type;
+                    });
+                    relations = { matters: result.matters };
+                    http2.post('/rest/pl/fe/matter/wall/addInteractMatter?site=' + $scope.wall.siteid + '&app=' + $scope.wall.id, relations, function(rsp) {
+                        $scope.wall.interact_matter = rsp.data.interact_matter;
+                    });
+                }
+            });
+        };
+        $scope.gotoMatter = function(matter) {
+            location.href = '/rest/pl/fe/matter/' + matter.type + '?site=' + $scope.wall.siteid + '&id=' + matter.id;
+        };
+        $scope.removeInteractMatter = function(matter) {
+            var removed = {
+                id: matter.id,
+                type: matter.type.toLowerCase(),
+                title: matter.title
+            };
+            http2.post('/rest/pl/fe/matter/wall/removeInteractMatter?site=' + $scope.wall.siteid + '&app=' + $scope.wall.id, removed, function(rsp) {
+                $scope.wall.interact_matter = rsp.data.interact_matter;
+            });
+        };
         $scope.$on('xxt.tms-datepicker.change', function(event, data) {
             $scope.wall[data.state] = data.value;
             $scope.update(data.state);
         });
         $scope.$watch('wall', function(oWall) {
             if (oWall) {
+                $scope.interactAction = oWall.scenario_config.interact_action;
                 $scope.entry = {
                     url: oWall.user_url,
                     qrcode: '/rest/site/fe/matter/wall/qrcode?site=' + oWall.siteid + '&url=' + encodeURIComponent(oWall.user_url),

@@ -101,6 +101,7 @@ class page_model extends \TMS_MODEL {
 			'title' => isset($data['title']) ? $data['title'] : '新页面',
 			'seq' => $data['seq'],
 			'code_id' => $code->id,
+			'code_name' => $code->name,
 		);
 
 		$pid = $this->insert('xxt_wall_page', $newPage, true);

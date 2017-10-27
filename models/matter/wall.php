@@ -44,6 +44,12 @@ class wall_model extends enroll_base {
 			if (!empty($oWall->matter_mg_tag)) {
 				$oWall->matter_mg_tag = json_decode($oWall->matter_mg_tag);
 			}
+			if (!empty($oWall->scenario_config)) {
+				$oWall->scenario_config = json_decode($oWall->scenario_config);
+			}
+			if (!empty($oWall->interact_matter)) {
+				$oWall->interact_matter = json_decode($oWall->interact_matter);
+			}
 		}
 
 		return $oWall;
@@ -264,6 +270,41 @@ class wall_model extends enroll_base {
 		$time > 0 && $q[2] .= " and publish_at>=$time";
 		$q2['o'] = 'publish_at desc';
 		return $this->query_objs_ss($q, $q2);
+	}
+	/*
+	* 获取素材分享者列表
+	* $startTime 分享开始时间
+	 and s.matter_id in ($matterId) and s.matter_type = '$matterType'
+	*/
+	public function listPlayer($startTime, $startId = null, $oApp) {
+		$this->setOnlyWriteDbConn(true);
+		$startTime = $this->escape($startTime);
+
+		if ($oApp->scenario_config->interact_action->share === 'Y') {
+			$q = [
+				'max(s.id),s.share_to,s.share_at,s.matter_id,s.matter_type,s.matter_title,s.userid,a.nickname,a.headimgurl,a.wx_openid,a.yx_openid,a.qy_openid',
+				'xxt_log_matter_share s,xxt_site_account a',
+				"s.share_at > $startTime and s.userid = a.uid and s.siteid = a.siteid"
+			];
+			if (!empty($startId)) {
+				$startId = $this->escape($startId);
+				$q[2] .= ' and s.id > $startId';
+			}
+
+			$whereMatter = '';
+			foreach ($oApp->interact_matter as $matter) {
+				$whereMatter .= " or ( matter_id = '" . $matter->id . "' and matter_type = '" . $matter->type . "')";
+			}
+			$whereMatter = explode('or', $whereMatter);
+			array_shift($whereMatter);
+			$whereMatters = implode('or', $whereMatter);
+			$q[2] .= ' and (' . $whereMatters . ')';
+
+			$q2 = ['g' => 's.userid', 'o' => 'max(s.id)'];
+		}
+		$users = $this->query_objs_ss($q, $q2);
+
+		return $users;
 	}
 	/**
 	 * 获得消息列表

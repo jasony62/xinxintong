@@ -1,18 +1,62 @@
-<div class='header' ng-bind='Wall.title'></div>
-<div class='container'>
-    <div class='row'>
-        <ul class='wall'>
-            <li class='message' ng-repeat='m in messages'>
-                <div class="avatar">
-                    <img ng-src="{{m.headimgurl}}">
-                </div>
-                <div class="content">
-                    <span class='nickname' ng-bind="m.nickname"></span>
-                    <span>：</span>
-                    <span class='data' ng-bind="m.data"></span>
-                </div>
-            </li>
+<div class="top">
+    <div class="rule">
+        <p><span>微信</span>扫码</p>
+        <p><span>分享</span>至朋友圈</p>
+    </div>
+    <div class="qrcode">
+        <ul>
+            <li><img src="img/qrcode1.jpg"></li>
+            <li><img src="img/qrcode1.jpg"></li>
+            <li><img src="img/qrcode1.jpg"></li>
         </ul>
-        <button class='btn btn-success' ng-click='stop()' style='display:none'>暂停</button>
     </div>
 </div>
+<div class="container">
+    <div class="row">
+        <div class="box boxBg">
+            <ul></ul>
+            <div class="case">
+                <div class="boxBody">
+                    <div class="cover"></div>
+                    <div class="shine"></div>
+                </div>
+            </div>
+            <div class="button" ng-click="open($event)" >开启宝箱</div>
+            <div class="bgImg"></div>
+        </div>
+        <div class="box">
+            <ul></ul>
+            <div class="case">
+                <div class="boxBody">
+                    <div class="cover"></div>
+                    <div class="shine"></div>
+                </div>
+            </div>
+            <div class="button" ng-click="open($event)" >开启宝箱</div>
+            <div class="bgImg"></div>
+        </div>
+        <div class="box">
+            <ul></ul>
+            <div class="case">
+                <div class="boxBody">
+                    <div class="cover"></div>
+                    <div class="shine"></div>
+                </div>
+            </div>
+            <div class="button" ng-click="open($event)" >开启宝箱</div>
+            <div class="bgImg"></div>
+        </div>
+        <div class="box">
+            <ul></ul>
+            <div class="case">
+                <div class="boxBody">
+                    <div class="cover"></div>
+                    <div class="shine"></div>
+                </div>
+            </div>
+            <div class="button" ng-click="open($event)" >开启宝箱</div>
+            <div class="bgImg"></div>
+        </div>
+    </div>
+</div>
+

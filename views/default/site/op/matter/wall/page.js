@@ -43,6 +43,11 @@ var setPage = function($scope, page) {
     }
 };
 app = angular.module('app', ['ngSanitize']);
+app.config(['$controllerProvider', function($cp) {
+    app.provider = {
+        controller: $cp.register
+    }
+}]);
 app.directive('dynamicHtml', function($compile) {
     return {
         restrict: 'EA',

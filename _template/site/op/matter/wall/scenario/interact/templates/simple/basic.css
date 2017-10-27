@@ -1,7 +1,27 @@
-body{background-image:url('/static/img/bg1.jpg');background-size:100%;background-attachment:fixed;margin-top:100px;font-family:Microsoft Yahei,Arial;}
-.header{position:absolute;top:20px;left:0;right:0;line-height:48px;font-size:48px;color:#FFFFFF;text-align:center;}
-.wall{list-style-type:none;margin:0 auto;padding:0;width:883px}
-.wall .message{min-height:140px;margin:2px 0 7px 150px;width:70%;padding:0 15px 0 15px;border-radius:8px;-webkit-border-radius:8px;background:rgba(255,255,255,0.1)}
-.wall .message .avatar{position:absolute;top:0;left:0;padding:30px 14px 0 13px;}
-.wall .message .avatar img{width:100px;height:100px;background:#E8E8E8;border:#4E9B86 1px solid;padding:3px;font-size:0;}
-.wall .message .content{margin-left:101px;font-size:40px;font-weight:bold;color:#FFFF00;padding:20px;line-height:1.6em;}
+ul,ol{padding-left:0;margin-bottom:0;list-style:none;overflow: hidden;}
+ul > li{float: left;}
+body{width: 100%;height:auto;padding-top:26px;font-size:24px;font-family:'MicroSoft YaHei';background: url('/static/img/interactBg.jpg') no-repeat;}
+.container{width:1210px;}
+/* 顶部 */
+.top{position: relative;overflow: hidden;margin-bottom: 30px;}
+.top > .rule{position: absolute;top:45px;left:15px;width: 375px;height: 240px;background:url('/static/img/interactArrow.png') no-repeat 0 0;}
+.top > .rule > p{position: absolute;}
+.top > .rule > p > span{font-size: 30px;font-weight: 600;}
+.top > .rule > p:nth-child(1){top:60px;left: 60px;}
+.top > .rule > p:nth-child(2){top: 95px;right: 45px;}
+.top > .qrcode{margin-left: 425px;overflow: hidden;}
+.top > .qrcode > ul > li{float: left;width: 250px;height: 268px;background-color:red;margin-right:57px;}
+/* 主体 */
+.row{height: 420px;}
+.boxBg{background: url('/static/img/interactRect.png') no-repeat -84px -236px;}
+.box{position: relative;float: left;width: 290px;height: 100%;text-align: center;padding:35px 30px 0 30px;border-radius:5%;margin-right:15px;background-color: rgba(255,255,255,0.3);}
+.box:last-child{margin-right: 0px;}
+.box > .case{width: 130px;height: 135px;margin:25px auto 15px;position: relative;}
+.box > .case > .boxBody {width: 100%;height: 80px;position: absolute;bottom:0;left:0;background: url("/static/img/interactBox.png") no-repeat;}
+.box > .case > .boxBody > .cover{width: 100%;height: 55px;position: absolute;top:-28px;left: 0px;background: url("/static/img/interactCover.png") no-repeat;}
+@keyframes moveCover {0%{top: -28px;left: 0;}25%{top: -35px;left:0;}100%{top:-35px;left:-60px;}}
+.box > .case > .boxBody > .shine{width: 100px;height: 108px;position: absolute;top:-85px;right:0;}
+@keyframes moveShine{0%{background: url('/static/img/interactLight.png') no-repeat;opacity: 0.1;}25%{background: url('/static/img/interactLight.png') no-repeat;opacity: 0.5;}50%{background: url('/static/img/interactLight.png') no-repeat;opacity: 0.8;}100%{background: url('img/faguang.png') no-repeat;opacity:1;}}
+@keyframes moveImg{from{border-radius:5%;background:url('img/1.png') no-repeat;opacity: 0.5;width: 20px;height: 20px;position: absolute;margin: auto;right: 0;top: 110px;left: 25px;bottom: 0;}
+to{border-radius:5%;background:url('img/1.png') no-repeat;opacity: 1;width: 250px;height: 380px;margin:0;top:20px;left:20px;position:absolute;}}
+.box > .button{display: inline-block;cursor: pointer;color:#a16d32;font-size:14px;line-height: 28px;text-align: center;width: 86px;height: 28px;background:url('/static/img/interactBt.png') no-repeat 0 0;}

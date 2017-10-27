@@ -125,7 +125,9 @@
                 <div class='help-block'>互动方式</div>
                 <div class=''>
                     <label class='checkbox-inline'>
-                        <input type='checkbox' ng-true-value="'Y'" ng-false-value="'N'" ng-model='interactAction.share' ng-change="update('scenario_config')">分享</label>
+                        <input type='checkbox' ng-true-value="'Y'" ng-false-value="'N'" ng-model='interactAction.shareF' ng-change="update('scenario_config')">分享-朋友</label>
+                    <label class='checkbox-inline'>
+                        <input type='checkbox' ng-true-value="'Y'" ng-false-value="'N'" ng-model='interactAction.shareT' ng-change="update('scenario_config')">分享-朋友圈</label>
                     <!-- <label class='checkbox-inline'>
                         <input type='checkbox' ng-true-value="'Y'" ng-false-value="'N'" ng-model='interactAction.read' ng-change="update('scenario_config')">阅读</label> -->
                 </div>

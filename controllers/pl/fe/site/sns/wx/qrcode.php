@@ -39,7 +39,6 @@ class qrcode extends \pl\fe\base {
 
 		return new \ResponseData($qrcode);
 	}
-
 	/**
 	 * 创建微信永久二维码
 	 *
@@ -52,78 +51,25 @@ class qrcode extends \pl\fe\base {
 	 *
 	 */
 	public function create_action($site, $expire = 0, $matter_type = null, $matter_id = null) {
-		if (false === ($user = $this->accountUser())) {
+		if (false === ($oUser = $this->accountUser())) {
 			return new \ResponseTimeout();
 		}
 
 		$posted = $this->getPostJson();
-		$modelWx = $this->model('sns\wx');
-		$snsSiteId = $site;
-		if (false === ($wxConfig = $modelWx->bySite($snsSiteId)) || $wxConfig->joined !== 'Y') {
-			$snsSiteId = 'platform';
-			$wxConfig = $modelWx->bySite($snsSiteId);
+
+		$oMatter = new \stdClass;
+		$oMatter->type = $matter_type;
+		$oMatter->id = $matter_id;
+		if (!empty($posted->params)) {
+			$oMatter->param = $posted->params;
 		}
 
-		if ($wxConfig === false) {
-			return new \ResponseError('公众号还没有开通');
-		}
-
-		if ($wxConfig->can_qrcode === 'N') {
-			return new \ResponseError('公众号还没有开通场景二维码接口');
-		}
-		/**
-		 * 获取可用的场景ID
-		 */
-		$q = [
-			'max(scene_id)',
-			'xxt_call_qrcode_wx',
-			"siteid='$snsSiteId' and scene_id<100000",
-		];
-		if ($scene_id = $modelWx->query_val_ss($q)) {
-			$scene_id++;
-		} else {
-			$scene_id = 1;
-		}
-		/**
-		 * 生成二维码
-		 */
-		$proxy = $this->model('sns\wx\proxy', $wxConfig);
-		$rst = $proxy->qrcodeCreate($scene_id, false);
+		$rst = $this->model('sns\wx\call\qrcode')->create($site, $oMatter, $expire);
 		if ($rst[0] === false) {
 			return new \ResponseError($rst[1]);
 		}
-		$qrcode = $rst[1];
-		/**
-		 * 保存数据并返回
-		 */
-		$current = time();
-		$d = [];
-		$d['siteid'] = $snsSiteId;
-		$d['scene_id'] = $qrcode->scene_id;
-		$d['create_at'] = $current;
-		if (empty($expire)) {
-			$d['expire_at'] = 0;
-		} else {
-			$d['expire_at'] = $current + $expire;
-		}
-		$d['pic'] = $qrcode->pic;
-		if (!empty($matter_type) && !empty($matter_id)) {
-			$d['matter_type'] = $matter_type;
-			$d['matter_id'] = $matter_id;
-			if (!empty($posted) && !empty($posted->params)) {
-				$d['params'] = \TMS_MODEL::toJson($posted->params);
-			}
-		}
-		// 模拟临时二维码
-		if ((int) $expire === 0) {
-			$d['name'] = '新场景二维码';
-		} else {
-			$d['name'] = '模拟场景二维码';
-		}
 
-		$d['id'] = $this->model()->insert('xxt_call_qrcode_wx', $d, true);
-
-		return new \ResponseData((object) $d);
+		return new \ResponseData($rst[1]);
 	}
 	/**
 	 * 创建一次性二维码
@@ -133,11 +79,15 @@ class qrcode extends \pl\fe\base {
 	 * 只要做了扫描，二维码就失效（删除掉）
 	 */
 	public function createOneOff_action($site, $matter_type, $matter_id) {
-		if (false === ($user = $this->accountUser())) {
+		if (false === ($oUser = $this->accountUser())) {
 			return new \ResponseTimeout();
 		}
 
-		$rst = $this->model('sns\wx\call\qrcode')->createOneOff($site, $matter_type, $matter_id);
+		$oMatter = new \stdClass;
+		$oMatter->type = $matter_type;
+		$oMatter->id = $matter_id;
+
+		$rst = $this->model('sns\wx\call\qrcode')->createOneOff($site, $oMatter);
 		if ($rst[0] === false) {
 			return new \ResponseError($rst[1]);
 		}

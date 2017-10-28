@@ -52,10 +52,10 @@ class timer_model extends base_model {
 	 */
 	public function tasksByTime() {
 		$min = (int) date('i'); // 0-59
-		$hour = date('G');
+		$hour = date('G'); // 0-23
 		$mday = date('j'); // 1-31
 		$wday = date('w'); // 0-6（周日到周一）
-		$mon = date('n'); // 1-23
+		$mon = date('n'); // 1-12
 
 		$q = [
 			'*',
